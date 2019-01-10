@@ -1,0 +1,19 @@
+Pacioli group operations are used as the foundation for this program as they were specified as a requirement.
+
+The credit and debit isomorphisms are provided to translate T-Terms into signed quantities when it is conventional to do so.
+
+Transactions are stored as a list of structures to enable iteration over them and to reduce the verbosity associated with specifying them as clauses of different predicates. They are not stored in a separate CSV file because there are no gains to doing so (the data is almost as concise in Prolog as it is in CSV) and because the loss in doing so is that data in the CSV file would have to be parsed into native Prolog data types before it can be operated on.
+
+The T-Account predicates are provided because they make some predicates more concise.
+
+The accountType field was removed from the records because they can be derived from the account name. Leaving the field in the records would create an opportunity for an inconsistency whereby an account is accidentally given multiple types.
+
+Predicates linking the account types to their conventional isomorphism are provided to enable account balances to be printed with the correct sign.
+
+I assumed that by net activity of an account, you meant the total T-Term of an account over a given period.
+
+The net activity and balance predicates take ranges bounded by transaction indicies as opposed to transaction dates because transaction indicies uniquely identify transactions whereas transaction dates do not. Hence certain queries expressable with transaction indicies are inexpressable with transaction dates.
+
+Predicates linking dates to indicies are provided because it is frequently desired to do queries by date.
+
+Higher order predicates are used to select a subset of the transactions on which to do queries on. This was necessary because the task requirements stated that it needed to be possible to not only calculate the balance of a given account but also to calculate the balance of a given account type.
