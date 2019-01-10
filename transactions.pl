@@ -1,67 +1,134 @@
 % The T Account for some hypothetical business.
 
-transactionDate(transaction0, date(17, 7, 1)).
-transactionDate(transaction1, date(17, 7, 1)).
-transactionDate(transaction2, date(17, 7, 2)).
-transactionDate(transaction3, date(17, 7, 2)).
-transactionDate(transaction4, date(17, 7, 3)).
-transactionDate(transaction5, date(17, 7, 3)).
-transactionDate(transaction6, date(17, 7, 3)).
-transactionDate(transaction7, date(17, 7, 3)).
+transactionDate(0, date(17, 7, 1)).
+transactionDate(1, date(17, 7, 1)).
+transactionDate(2, date(17, 7, 2)).
+transactionDate(3, date(17, 7, 2)).
+transactionDate(4, date(17, 7, 3)).
+transactionDate(5, date(17, 7, 3)).
+transactionDate(6, date(17, 7, 3)).
+transactionDate(7, date(17, 7, 3)).
 
-transactionDescription(transaction0, investInBusiness).
-transactionDescription(transaction1, investInBusiness).
-transactionDescription(transaction2, buyInventory).
-transactionDescription(transaction3, buyInventory).
-transactionDescription(transaction4, sellInventory).
-transactionDescription(transaction5, sellInventory).
-transactionDescription(transaction6, sellInventory).
-transactionDescription(transaction7, sellInventory).
+transactionDescription(0, investInBusiness).
+transactionDescription(1, investInBusiness).
+transactionDescription(2, buyInventory).
+transactionDescription(3, buyInventory).
+transactionDescription(4, sellInventory).
+transactionDescription(5, sellInventory).
+transactionDescription(6, sellInventory).
+transactionDescription(7, sellInventory).
 
-transactionAccount(transaction0, bank).
-transactionAccount(transaction1, shareCapital).
-transactionAccount(transaction2, inventory).
-transactionAccount(transaction3, accountsPayable).
-transactionAccount(transaction4, accountsReceivable).
-transactionAccount(transaction5, sales).
-transactionAccount(transaction6, costOfGoodsSold).
-transactionAccount(transaction7, inventory).
+transactionAccount(0, bank).
+transactionAccount(1, shareCapital).
+transactionAccount(2, inventory).
+transactionAccount(3, accountsPayable).
+transactionAccount(4, accountsReceivable).
+transactionAccount(5, sales).
+transactionAccount(6, costOfGoodsSold).
+transactionAccount(7, inventory).
 
-transactionType(transaction0, asset).
-transactionType(transaction1, equity).
-transactionType(transaction2, asset).
-transactionType(transaction3, liability).
-transactionType(transaction4, asset).
-transactionType(transaction5, revenue).
-transactionType(transaction6, expense).
-transactionType(transaction7, asset).
+transactionTTerm(0, tterm(100, 0)).
+transactionTTerm(1, tterm(0, 100)).
+transactionTTerm(2, tterm(50, 0)).
+transactionTTerm(3, tterm(0, 50)).
+transactionTTerm(4, tterm(100, 0)).
+transactionTTerm(5, tterm(0, 100)).
+transactionTTerm(6, tterm(50, 0)).
+transactionTTerm(7, tterm(0, 50)).
 
-transactionDr(transaction0, 100).
-transactionDr(transaction1, 0).
-transactionDr(transaction2, 50).
-transactionDr(transaction3, 0).
-transactionDr(transaction4, 100).
-transactionDr(transaction5, 0).
-transactionDr(transaction6, 50).
-transactionDr(transaction7, 0).
+% Account types
 
-transactionCr(transaction0, 0).
-transactionCr(transaction1, 100).
-transactionCr(transaction2, 0).
-transactionCr(transaction3, 50).
-transactionCr(transaction4, 0).
-transactionCr(transaction5, 100).
-transactionCr(transaction6, 0).
-transactionCr(transaction7, 50).
+accountType(bank, asset).
+accountType(shareCapital, equity).
+accountType(inventory, asset).
+accountType(accountsPayable, liability).
+accountType(accountsReceivable, asset).
+accountType(sales, revenue).
+accountType(costOfGoodsSold, expense).
+
+% Account isomorphisms
+
+accountIsomorphism(asset, debitIsomorphism).
+accountIsomorphism(equity, creditIsomorphism).
+accountIsomorphism(liability, creditIsomorphism).
+accountIsomorphism(revenue, creditIsomorphism).
+accountIsomorphism(expense, debitIsomorphism).
+
+% Pacioli group operations
+
+pacId(tterm(0, 0)).
+
+pacAdd(tterm(A, B), tterm(C, D), Res) :-
+	E is A + C,
+	F is B + D,
+	Res = tterm(E, F).
+
+pacEq(tterm(A, B), tterm(C, D)) :-
+	E is A + D,
+	E is C + B.
+
+pacInv(tterm(A, B), tterm(B, A)).
+
+pacRed(tterm(A, B), C) :-
+	D is A - min(A, B),
+	E is B - min(A, B),
+	C = tterm(D, E).
+
+% Isomorphisms from T-Terms to signed quantities
+
+creditIsomorphism(tterm(A, B), C) :- C is B - A.
+
+debitIsomorphism(tterm(A, B), C) :- C is A - B.
+
+% accountNetActivity(Pred, FromTransIdx, ToTransIdx, NetActivity)
+
+accountNetActivity(_, FromTransIdx, ToTransIdx, tterm(0, 0)) :-
+	ToTransIdx is FromTransIdx - 1.
+
+accountNetActivity(Pred, FromTransIdx, ToTransIdx, NetActivity) :-
+	ToTransIdx >= FromTransIdx,
+	call(Pred, ToTransIdx),
+	transactionTTerm(ToTransIdx, Curr),
+	PrevTransIdx is ToTransIdx - 1,
+	accountNetActivity(Pred, FromTransIdx, PrevTransIdx, Acc),
+	pacAdd(Curr, Acc, NetActivity).
+
+accountNetActivity(Pred, FromTransIdx, ToTransIdx, NetActivity) :-
+	ToTransIdx >= FromTransIdx,
+	PrevTransIdx is ToTransIdx - 1,
+	accountNetActivity(Pred, FromTransIdx, PrevTransIdx, NetActivity).
+
+% accountBalance(Pred, FromTransIdx, ToTransIdx, Bal)
+
+accountBalance(Pred, TransIdx, Bal) :- accountNetActivity(Pred, 0, TransIdx, Bal).
+
+% A predicate to indicate a transaction on an asset-typed account
+assetTypedAccount(TransIdx) :-
+	transactionAccount(TransIdx, TransactionAccount), accountType(TransactionAccount, asset).
+
+% A predicate to indicate a transaction on an inventory account
+inventoryAccount(TransIdx) :- transactionAccount(TransIdx, inventory).
+
+% Let's get the balance of the inventory account after 7th transaction:
+% accountBalance(inventoryAccount, 7, Bal).
+% Result should be Bal = tterm(50, 50)
+
+% What if we want the balance as a signed quantity?
+% accountBalance(inventoryAccount, 7, Bal), debitIsomorphism(Bal, SignedBal).
+% Result should be Bal = tterm(50, 50), SignedBal = 0.
+
+% What is the isomorphism of the inventory account?
+% accountType(inventory, AccountType), accountIsomorphism(AccountType, Isomorphism).
+% Result should be AccountType = asset, Isomorphism = debitIsomorphism.
+
+% Let's get the net activity of the asset-typed account between the 2nd and 5th transactions.
+% accountNetActivity(assetTypedAccount, 2, 5, NetActivity).
+% Result should be NetActivity = tterm(150, 0)
 
 % Was the fifth transaction done on the CostOfGoodsSold account?
-% transactionAccount(transaction5, costOfGoodsSold).
+% transactionAccount(5, costOfGoodsSold).
 % Answer is no.
 
 % So was it done on the Sales account?
-% transactionAccount(transaction5, sales).
+% transactionAccount(5, sales).
 % Answer is yes.
-
-% Okay, so how much was credited?
-% transactionCr(transaction5, X).
-% Oh, so it was 100!
