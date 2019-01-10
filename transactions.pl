@@ -176,6 +176,12 @@ balance_sheet_equity_accounts(balance_sheet(_, _, Equity_Accounts), Equity_Accou
 
 % Now for some examples of how to use the above predicates.
 
+% Let's get the balance sheet as of date(19, 6, 30):
+% balance_sheet_at(date(19, 6, 30), X).
+% Result should be balance_sheet([ (bank, t_term(40, 0)), (inventory, t_term(0, 0)),
+% (accounts_receivable, t_term(100, 0))], [ (accounts_payable, t_term(0, 0))],
+% [ (retained_earnings, t_term(0, 40)), [ (share_capital, t_term(0, 100))]]).
+
 % Let's get the retained earnings as of date(17, 7, 3):
 % retained_earnings(date(17, 7, 3), Retained_Earnings),
 % credit_isomorphism(Retained_Earnings, Retained_Earnings_Signed).
