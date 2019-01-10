@@ -29,30 +29,28 @@ debit_isomorphism(t_term(A, B), C) :- C is A - B.
 % The T-Account for some hypothetical business. The schema follows:
 % transaction(Date, Description, Account, T_Term).
 
-transactions(transaction(0, date(17, 7, 1), invest_in_business, bank, t_term(100, 0))).
-transactions(transaction(1, date(17, 7, 1), invest_in_business, share_capital, t_term(0, 100))).
-transactions(transaction(2, date(17, 7, 2), buy_inventory, inventory, t_term(50, 0))).
-transactions(transaction(3, date(17, 7, 2), buy_inventory, accounts_payable, t_term(0, 50))).
-transactions(transaction(4, date(17, 7, 3), sell_inventory, accounts_receivable, t_term(100, 0))).
-transactions(transaction(5, date(17, 7, 3), sell_inventory, sales, t_term(0, 100))).
-transactions(transaction(6, date(17, 7, 3), sell_inventory, cost_of_goods_sold, t_term(50, 0))).
-transactions(transaction(7, date(17, 7, 3), sell_inventory, inventory, t_term(0, 50))).
-transactions(transaction(8, date(18, 7, 1), pay_creditor, accounts_payable, t_term(50, 0))).
-transactions(transaction(9, date(18, 7, 1), pay_creditor, bank, t_term(0, 50))).
-transactions(transaction(10, date(19, 6, 2), buy_stationary, stationary, t_term(10, 0))).
-transactions(transaction(11, date(19, 6, 2), buy_stationary, bank, t_term(0, 10))).
+transactions(transaction(date(17, 7, 1), invest_in_business, bank, t_term(100, 0))).
+transactions(transaction(date(17, 7, 1), invest_in_business, share_capital, t_term(0, 100))).
+transactions(transaction(date(17, 7, 2), buy_inventory, inventory, t_term(50, 0))).
+transactions(transaction(date(17, 7, 2), buy_inventory, accounts_payable, t_term(0, 50))).
+transactions(transaction(date(17, 7, 3), sell_inventory, accounts_receivable, t_term(100, 0))).
+transactions(transaction(date(17, 7, 3), sell_inventory, sales, t_term(0, 100))).
+transactions(transaction(date(17, 7, 3), sell_inventory, cost_of_goods_sold, t_term(50, 0))).
+transactions(transaction(date(17, 7, 3), sell_inventory, inventory, t_term(0, 50))).
+transactions(transaction(date(18, 7, 1), pay_creditor, accounts_payable, t_term(50, 0))).
+transactions(transaction(date(18, 7, 1), pay_creditor, bank, t_term(0, 50))).
+transactions(transaction(date(19, 6, 2), buy_stationary, stationary, t_term(10, 0))).
+transactions(transaction(date(19, 6, 2), buy_stationary, bank, t_term(0, 10))).
 
 % T-Account predicates for asserting that the fields of given records have particular values
 
-transaction_index(transaction(Index, _, _, _, _), Index).
+transaction_date(transaction(Date, _, _, _), Date).
 
-transaction_date(transaction(_, Date, _, _, _), Date).
+transaction_description(transaction(_, Description, _, _), Description).
 
-transaction_description(transaction(_, _, Description, _, _), Description).
+transaction_account(transaction(_, _, Account, _), Account).
 
-transaction_account(transaction(_, _, _, Account, _), Account).
-
-transaction_t_term(transaction(_, _, _, _, T_Term), T_Term).
+transaction_t_term(transaction(_, _, _, T_Term), T_Term).
 
 transaction_account_type(Transaction, Account_Type) :-
 	transaction_account(Transaction, Transaction_Account),
