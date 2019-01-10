@@ -151,6 +151,29 @@ retained_earnings(To_Date, Retained_Earnings) :-
 		transaction_account_type(Transaction, expense))), Transactions),
 	transaction_t_term_total(Transactions, Retained_Earnings).
 
+% Now for balance sheet predicates.
+
+balance_sheet_entry(Account_Type, To_Date, Sheet_Entry) :-
+	account_type(Account, Account_Type),
+	balance_by_account(Account, To_Date, Balance),
+	pac_red(Balance, Reduced_Balance),
+	Sheet_Entry = (Account, Reduced_Balance).
+
+balance_sheet_at(To_Date, Balance_Sheet) :-
+	findall(Entry, balance_sheet_entry(asset, To_Date, Entry), Asset_Section),
+	findall(Entry, balance_sheet_entry(equity, To_Date, Entry), Equity_Section),
+	findall(Entry, balance_sheet_entry(liability, To_Date, Entry), Liability_Section),
+	retained_earnings(To_Date, Retained_Earnings),
+	pac_red(Retained_Earnings, Reduced_Retained_Earnings),
+	Balance_Sheet = balance_sheet(Asset_Section, Liability_Section,
+		[(retained_earnings, Reduced_Retained_Earnings), Equity_Section]).
+
+balance_sheet_asset_accounts(balance_sheet(Asset_Accounts, _, _), Asset_Accounts).
+
+balance_sheet_liability_accounts(balance_sheet(_, Liability_Accounts, _), Liability_Accounts).
+
+balance_sheet_equity_accounts(balance_sheet(_, _, Equity_Accounts), Equity_Accounts).
+
 % Now for some examples of how to use the above predicates.
 
 % Let's get the retained earnings as of date(17, 7, 3):
