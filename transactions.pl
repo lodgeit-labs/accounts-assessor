@@ -1,40 +1,36 @@
-% The T Account for some hypothetical business.
+% List predicates for asserting that the nth element of a list has a particular value
 
-transactionDate(0, date(17, 7, 1)).
-transactionDate(1, date(17, 7, 1)).
-transactionDate(2, date(17, 7, 2)).
-transactionDate(3, date(17, 7, 2)).
-transactionDate(4, date(17, 7, 3)).
-transactionDate(5, date(17, 7, 3)).
-transactionDate(6, date(17, 7, 3)).
-transactionDate(7, date(17, 7, 3)).
+index([Head | _], 0, Head).
 
-transactionDescription(0, investInBusiness).
-transactionDescription(1, investInBusiness).
-transactionDescription(2, buyInventory).
-transactionDescription(3, buyInventory).
-transactionDescription(4, sellInventory).
-transactionDescription(5, sellInventory).
-transactionDescription(6, sellInventory).
-transactionDescription(7, sellInventory).
+index([_ | Tail], Index, Element) :-
+	PrevIndex is Index - 1,
+	index(Tail, PrevIndex, Element).
 
-transactionAccount(0, bank).
-transactionAccount(1, shareCapital).
-transactionAccount(2, inventory).
-transactionAccount(3, accountsPayable).
-transactionAccount(4, accountsReceivable).
-transactionAccount(5, sales).
-transactionAccount(6, costOfGoodsSold).
-transactionAccount(7, inventory).
+% The T-Account for some hypothetical business. The schema follows:
+% transaction(Date, Description, Account, TTerm).
 
-transactionTTerm(0, tterm(100, 0)).
-transactionTTerm(1, tterm(0, 100)).
-transactionTTerm(2, tterm(50, 0)).
-transactionTTerm(3, tterm(0, 50)).
-transactionTTerm(4, tterm(100, 0)).
-transactionTTerm(5, tterm(0, 100)).
-transactionTTerm(6, tterm(50, 0)).
-transactionTTerm(7, tterm(0, 50)).
+transactions([transaction(date(17, 7, 1), investInBusiness, bank, tterm(100, 0)),
+	transaction(date(17, 7, 1), investInBusiness, shareCapital, tterm(0, 100)),
+	transaction(date(17, 7, 2), buyInventory, inventory, tterm(50, 0)),
+	transaction(date(17, 7, 2), buyInventory, accountsPayable, tterm(0, 50)),
+	transaction(date(17, 7, 3), sellInventory, accountsReceivable, tterm(100, 0)),
+	transaction(date(17, 7, 3), sellInventory, sales, tterm(0, 100)),
+	transaction(date(17, 7, 3), sellInventory, costOfGoodsSold, tterm(50, 0)),
+	transaction(date(17, 7, 3), sellInventory, inventory, tterm(0, 50))]).
+
+% T-Account predicates for asserting that the fields of given records have particular values
+
+transactionDate(Index, Date) :-
+	transactions(X), index(X, Index, transaction(Date, _, _, _)).
+
+transactionDescription(Index, Description) :-
+	transactions(X), index(X, Index, transaction(_, Description, _, _)).
+
+transactionAccount(Index, Account) :-
+	transactions(X), index(X, Index, transaction(_, _, Account, _)).
+
+transactionTTerm(Index, TTerm) :-
+	transactions(X), index(X, Index, transaction(_, _, _, TTerm)).
 
 % Account types
 
