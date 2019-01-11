@@ -234,9 +234,9 @@ trial_balance_between(From_Date, To_Date, Trial_Balance) :-
 % Now for movement predicates.
 
 movement_between(From_Date, To_Date, Movement) :-
-	findall(Entry, trial_balance_entry(asset, To_Date, Entry), Asset_Section),
-	findall(Entry, trial_balance_entry(equity, To_Date, Entry), Equity_Section),
-	findall(Entry, trial_balance_entry(liability, To_Date, Entry), Liability_Section),
+	findall(Entry, trial_balance_entry(asset, From_Date, To_Date, Entry), Asset_Section),
+	findall(Entry, trial_balance_entry(equity, From_Date, To_Date, Entry), Equity_Section),
+	findall(Entry, trial_balance_entry(liability, From_Date, To_Date, Entry), Liability_Section),
 	findall(Entry, trial_balance_entry(revenue, From_Date, To_Date, Entry), Revenue_Section),
 	findall(Entry, trial_balance_entry(expense, From_Date, To_Date, Entry), Expense_Section),
 	Movement = movement(Asset_Section, Liability_Section, Equity_Section, Revenue_Section,
@@ -256,17 +256,34 @@ movement_expense_accounts(movement(_, _, _, _, Expense_Accounts), Expense_Accoun
 
 % Let's get the trial balance between date(18, 7, 1) and date(19, 6, 30):
 % trial_balance_between(date(18, 7, 1), date(19, 6, 30), X).
+% ----------------------------------------------------------------------------------------
 % Result should be X = trial_balance([ (bank, t_term(40, 0)), (inventory, t_term(0, 0)),
-% (accounts_receivable, t_term(100, 0))], [ (accounts_payable, t_term(0, 0))],
-% [ (retained_earnings, t_term(0, 50)), [ (share_capital, t_term(0, 100))]],
-% [ (sales, t_term(0, 0))], [ (cost_of_goods_sold, t_term(0, 0)),
-% (stationary, t_term(10, 0))]).
+% (accounts_receivable, t_term(100, 0)), (motor_vehicles, t_term(0, 0))],
+% [ (accounts_payable, t_term(0, 0)), (super_payable, t_term(0, 0)), (paygw_tax, t_term(0, 0)),
+% (wages_payable, t_term(0, 0)), (hirepurchase_truck, t_term(0, 0))],
+% [ (retained_earnings, t_term(0, 50)), (share_capital, t_term(0, 100))],
+% [ (sales, t_term(0, 0))], [ (cost_of_goods_sold, t_term(0, 0)), (stationary, t_term(10, 0)),
+% (wages, t_term(0, 0)), (super_expense, t_term(0, 0)), (hirepurchase_interest, t_term(0, 0))]).
 
 % Let's get the balance sheet as of date(19, 6, 30):
 % balance_sheet_at(date(19, 6, 30), X).
-% Result should be balance_sheet([ (bank, t_term(40, 0)), (inventory, t_term(0, 0)),
-% (accounts_receivable, t_term(100, 0))], [ (accounts_payable, t_term(0, 0))],
-% [ (retained_earnings, t_term(0, 40)), [ (share_capital, t_term(0, 100))]]).
+% ----------------------------------------------------------------------------------------
+% Result should be X = balance_sheet([ (bank, t_term(40, 0)), (inventory, t_term(0, 0)),
+% (accounts_receivable, t_term(100, 0)), (motor_vehicles, t_term(0, 0))],
+% [ (accounts_payable, t_term(0, 0)), (super_payable, t_term(0, 0)), (paygw_tax, t_term(0, 0)),
+% (wages_payable, t_term(0, 0)), (hirepurchase_truck, t_term(0, 0))],
+% [ (retained_earnings, t_term(0, 40)), (share_capital, t_term(0, 100))]).
+
+% Let's get the movement between date(19, 7, 1) and date(20, 6, 30):
+% movement_between(date(19, 7, 1), date(20, 6, 30), X).
+% ----------------------------------------------------------------------------------------
+% Result should be X = movement([ (bank, t_term(0, 299)), (inventory, t_term(75, 0)),
+% (accounts_receivable, t_term(0, 0)), (motor_vehicles, t_term(3000, 0))],
+% [ (accounts_payable, t_term(0, 125)), (super_payable, t_term(0, 0)), (paygw_tax, t_term(0, 0)),
+% (wages_payable, t_term(0, 0)), (hirepurchase_truck, t_term(0.0, 2857.42))],
+% [ (share_capital, t_term(0, 0))], [ (sales, t_term(0, 100))], [ (cost_of_goods_sold, t_term(50, 0)),
+% (stationary, t_term(0, 0)), (wages, t_term(200, 0)), (super_expense, t_term(19, 0)),
+% (hirepurchase_interest, t_term(37.42, 0))]).
 
 % Let's get the retained earnings as of date(17, 7, 3):
 % retained_earnings(date(17, 7, 3), Retained_Earnings),
