@@ -1,20 +1,20 @@
 % Pacioli group operations.
 % See: On Double-Entry Bookkeeping: The Mathematical Treatment
 
-pac_id(t_term(0, 0)).
+pac_identity(t_term(0, 0)).
 
 pac_add(t_term(A, B), t_term(C, D), Res) :-
 	E is A + C,
 	F is B + D,
 	Res = t_term(E, F).
 
-pac_eq(t_term(A, B), t_term(C, D)) :-
+pac_equality(t_term(A, B), t_term(C, D)) :-
 	E is A + D,
 	E is C + B.
 
-pac_inv(t_term(A, B), t_term(B, A)).
+pac_inverse(t_term(A, B), t_term(B, A)).
 
-pac_red(t_term(A, B), C) :-
+pac_reduce(t_term(A, B), C) :-
 	D is A - min(A, B),
 	E is B - min(A, B),
 	C = t_term(D, E).
@@ -41,6 +41,35 @@ transactions(transaction(date(18, 7, 1), pay_creditor, accounts_payable, t_term(
 transactions(transaction(date(18, 7, 1), pay_creditor, bank, t_term(0, 50))).
 transactions(transaction(date(19, 6, 2), buy_stationary, stationary, t_term(10, 0))).
 transactions(transaction(date(19, 6, 2), buy_stationary, bank, t_term(0, 10))).
+transactions(transaction(date(19, 7, 1), buy_inventory, inventory, t_term(125, 0))).
+transactions(transaction(date(19, 7, 1), buy_inventory, accounts_payable, t_term(0, 125))).
+transactions(transaction(date(19, 7, 8), sell_inventory, accounts_receivable, t_term(100, 0))).
+transactions(transaction(date(19, 7, 8), sell_inventory, sales, t_term(0, 100))).
+transactions(transaction(date(19, 7, 8), sell_inventory, cost_of_goods_sold, t_term(50, 0))).
+transactions(transaction(date(19, 7, 8), sell_inventory, inventory, t_term(0, 50))).
+transactions(transaction(date(20, 2, 13), payroll_payrun, wages, t_term(200, 0))).
+transactions(transaction(date(20, 2, 14), payroll_payrun, super_expense, t_term(19, 0))).
+transactions(transaction(date(20, 2, 13), payroll_payrun, super_payable, t_term(0, 19))).
+transactions(transaction(date(20, 2, 13), payroll_payrun, paygw_tax, t_term(0, 20))).
+transactions(transaction(date(20, 2, 13), payroll_payrun, wages_payable, t_term(0, 180))).
+transactions(transaction(date(20, 2, 13), pay_wage_liability, wages_payable, t_term(180, 0))).
+transactions(transaction(date(20, 2, 13), pay_wage_liability, bank, t_term(0, 180))).
+transactions(transaction(date(20, 4, 1), buy_truck, motor_vehicles, t_term(3000, 0))).
+transactions(transaction(date(20, 4, 1), buy_truck, hirepurchase_truck, t_term(0, 3000))).
+transactions(transaction(date(20, 4, 1), hire_purchase_truck_repayment, hirepurchase_truck, t_term(60, 0))).
+transactions(transaction(date(20, 4, 1), hire_purchase_truck_repayment, bank, t_term(0, 60))).
+transactions(transaction(date(20, 4, 28), pay_3rd_qtr_bas, paygw_tax, t_term(20, 0))).
+transactions(transaction(date(20, 4, 28), pay_3rd_qtr_bas, bank, t_term(0, 20))).
+transactions(transaction(date(20, 4, 28), pay_super, super_payable, t_term(19, 0))).
+transactions(transaction(date(20, 4, 28), pay_super, bank, t_term(0, 19))).
+transactions(transaction(date(20, 5, 1), hire_purchase_truck_replacement, hirepurchase_truck, t_term(41.16, 0))).
+transactions(transaction(date(20, 5, 1), hire_purchase_truck_replacement, hirepurchase_interest, t_term(18.84, 0))).
+transactions(transaction(date(20, 5, 1), hire_purchase_truck_replacement, bank, t_term(0, 60))).
+transactions(transaction(date(20, 6, 2), hire_purchase_truck_replacement, hirepurchase_truck, t_term(41.42, 0))).
+transactions(transaction(date(20, 6, 3), hire_purchase_truck_replacement, hirepurchase_interest, t_term(18.58, 0))).
+transactions(transaction(date(20, 6, 1), hire_purchase_truck_replacement, bank, t_term(0, 60))).
+transactions(transaction(date(20, 6, 10), collect_accs_rec, accounts_receivable, t_term(0, 100))).
+transactions(transaction(date(20, 6, 10), collect_accs_rec, bank, t_term(100, 0))).
 
 % T-Account predicates for asserting that the fields of given records have particular values
 
@@ -156,7 +185,7 @@ retained_earnings(To_Date, Retained_Earnings) :-
 balance_sheet_entry(Account_Type, To_Date, Sheet_Entry) :-
 	account_type(Account, Account_Type),
 	balance_by_account(Account, To_Date, Balance),
-	pac_red(Balance, Reduced_Balance),
+	pac_reduce(Balance, Reduced_Balance),
 	Sheet_Entry = (Account, Reduced_Balance).
 
 balance_sheet_at(To_Date, Balance_Sheet) :-
@@ -164,9 +193,9 @@ balance_sheet_at(To_Date, Balance_Sheet) :-
 	findall(Entry, balance_sheet_entry(equity, To_Date, Entry), Equity_Section),
 	findall(Entry, balance_sheet_entry(liability, To_Date, Entry), Liability_Section),
 	retained_earnings(To_Date, Retained_Earnings),
-	pac_red(Retained_Earnings, Reduced_Retained_Earnings),
+	pac_reduce(Retained_Earnings, Reduced_Retained_Earnings),
 	Balance_Sheet = balance_sheet(Asset_Section, Liability_Section,
-		[(retained_earnings, Reduced_Retained_Earnings), Equity_Section]).
+		[(retained_earnings, Reduced_Retained_Earnings) | Equity_Section]).
 
 balance_sheet_asset_accounts(balance_sheet(Asset_Accounts, _, _), Asset_Accounts).
 
@@ -174,7 +203,56 @@ balance_sheet_liability_accounts(balance_sheet(_, Liability_Accounts, _), Liabil
 
 balance_sheet_equity_accounts(balance_sheet(_, _, Equity_Accounts), Equity_Accounts).
 
+% Now for trial balance predicates.
+
+trial_balance_entry(Account_Type, From_Date, To_Date, Trial_Balance_Entry) :-
+	account_type(Account, Account_Type),
+	net_activity_by_account(Account, From_Date, To_Date, Net_Activity),
+	pac_reduce(Net_Activity, Reduced_Net_Activity),
+	Trial_Balance_Entry = (Account, Reduced_Net_Activity).
+
+trial_balance_between(From_Date, To_Date, Trial_Balance) :-
+	findall(Entry, balance_sheet_entry(asset, To_Date, Entry), Asset_Section),
+	findall(Entry, balance_sheet_entry(equity, To_Date, Entry), Equity_Section),
+	findall(Entry, balance_sheet_entry(liability, To_Date, Entry), Liability_Section),
+	findall(Entry, trial_balance_entry(revenue, From_Date, To_Date, Entry), Revenue_Section),
+	findall(Entry, trial_balance_entry(expense, From_Date, To_Date, Entry), Expense_Section),
+	retained_earnings(From_Date, Retained_Earnings),
+	pac_reduce(Retained_Earnings, Reduced_Retained_Earnings),
+	Trial_Balance = trial_balance(Asset_Section, Liability_Section,
+		[(retained_earnings, Reduced_Retained_Earnings) | Equity_Section], Revenue_Section,
+		Expense_Section).
+
+% Now for movement predicates.
+
+movement_between(From_Date, To_Date, Movement) :-
+	findall(Entry, trial_balance_entry(asset, To_Date, Entry), Asset_Section),
+	findall(Entry, trial_balance_entry(equity, To_Date, Entry), Equity_Section),
+	findall(Entry, trial_balance_entry(liability, To_Date, Entry), Liability_Section),
+	findall(Entry, trial_balance_entry(revenue, From_Date, To_Date, Entry), Revenue_Section),
+	findall(Entry, trial_balance_entry(expense, From_Date, To_Date, Entry), Expense_Section),
+	Movement = movement(Asset_Section, Liability_Section, Equity_Section, Revenue_Section,
+		Expense_Section).
+
+movement_asset_accounts(movement(Asset_Accounts, _, _, _, _), Asset_Accounts).
+
+movement_liability_accounts(movement(_, Liability_Accounts, _, _, _), Liability_Accounts).
+
+movement_equity_accounts(movement(_, _, Equity_Accounts, _, _), Equity_Accounts).
+
+movement_revenue_accounts(movement(_, _, _, Revenue_Accounts, _), Revenue_Accounts).
+
+movement_expense_accounts(movement(_, _, _, _, Expense_Accounts), Expense_Accounts).
+
 % Now for some examples of how to use the above predicates.
+
+% Let's get the trial balance between date(18, 7, 1) and date(19, 6, 30):
+% trial_balance_between(date(18, 7, 1), date(19, 6, 30), X).
+% Result should be X = trial_balance([ (bank, t_term(40, 0)), (inventory, t_term(0, 0)),
+% (accounts_receivable, t_term(100, 0))], [ (accounts_payable, t_term(0, 0))],
+% [ (retained_earnings, t_term(0, 50)), [ (share_capital, t_term(0, 100))]],
+% [ (sales, t_term(0, 0))], [ (cost_of_goods_sold, t_term(0, 0)),
+% (stationary, t_term(10, 0))]).
 
 % Let's get the balance sheet as of date(19, 6, 30):
 % balance_sheet_at(date(19, 6, 30), X).
