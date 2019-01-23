@@ -1,4 +1,4 @@
-% Predicate for approximating time between two dates
+% Some facts about the Gregorian calendar, needed to count days between dates
 
 leap_year(Year) :- 0 is mod(Year, 4), X is mod(Year, 100), X =\= 0.
 
@@ -34,44 +34,65 @@ days_in(Year, Month, Days) :-
 	Closer_Year_Month is Month - 12,
 	days_in(Closer_Year, Closer_Year_Month, Days).
 
-to_date(date(Year, Month, Day), Date) :-
-	Day =< 0,
-	Closer_Month is Month - 1,
-	days_in(Year, Closer_Month, Closer_Month_Days),
-	Closer_Month_Day is Closer_Month_Days + Day,
-	to_date(date(Year, Closer_Month, Closer_Month_Day), Date).
+% Internal representation for dates is absolute day count since 1st January 0001
 
-to_date(date(Year, Month, Day), Date) :-
-	days_in(Year, Month, Month_Days),
-	Day > Month_Days,
-	Closer_Month is Month + 1,
-	Closer_Month_Day is Day - Month_Days,
-	to_date(date(Year, Closer_Month, Closer_Month_Day), Date).
+absolute_day(date(Year, Month, Day), Days) :-
+	Month > 1,
+	New_Month is Month - 1,
+	days_in(Year, New_Month, New_Month_Days),
+	New_Day is Day + New_Month_Days,
+	absolute_day(date(Year, New_Month, New_Day), Days), !.
 
-to_date(date(Year, Month, Day), Date) :-
+absolute_day(date(Year, Month, Day), Days) :-
 	Month =< 0,
-	Closer_Year is Year - 1,
-	Closer_Year_Month is 12 + Month,
-	to_date(date(Closer_Year, Closer_Year_Month, Day), Date).
+	days_in(Year, Month, Month_Days),
+	New_Month is Month + 1,
+	New_Day is Day - Month_Days,
+	absolute_day(date(Year, New_Month, New_Day), Days), !.
 
-to_date(date(Year, Month, Day), Date) :-
-	Month > 12,
-	Closer_Year is Year + 1,
-	Closer_Year_Month is Month - 12,
-	to_date(date(Closer_Year, Closer_Year_Month, Day), Date).
+absolute_day(date(Year, Month, Day), Days) :-
+	Year > 1,
+	New_Year is Year - 1,
+	New_Month is Month + 12,
+	absolute_day(date(New_Year, New_Month, Day), Days), !.
 
-to_date(date(Year, Month, Day), Date) :-
-	0 < Month, Month =< 12, days_in(Year, Month, Month_Days), 0 < Day, Day =< Month_Days,
-	Date = date(Year, Month, Day).
+absolute_day(date(Year, Month, Day), Days) :-
+	Year =< 0,
+	New_Year is Year + 1,
+	New_Month is Month - 12,
+	absolute_day(date(New_Year, New_Month, Day), Days), !.
 
-days_between(date(From_Year, From_Month, From_Day), date(To_Year, To_Month, To_Day), Days) :-
-	Days is ((To_Year - From_Year) * 365) + ((To_Month - From_Month) * 30) + (To_Day - From_Day).
+absolute_day(date(1, 1, Day), Day).
 
-months_between(date(From_Year, From_Month, From_Day), date(To_Year, To_Month, To_Day), Days) :-
-	To_Day >= From_Day, Days is ((To_Year - From_Year) * 12) + (To_Month - From_Month).
+% A predicate for generating regular sequences of installments with constant payments
 
-months_between(date(From_Year, From_Month, From_Day), date(To_Year, To_Month, To_Day), Days) :-
-	To_Day < From_Day, Days is ((To_Year - From_Year) * 12) + (To_Month - From_Month - 1).
+installments(_, 0, _, _, []).
+
+installments(date(From_Year, From_Month, From_Day), Num, date(Delta_Year, Delta_Month, Delta_Day), Installment_Amount, Range) :-
+	Next_Year is From_Year + Delta_Year,
+	Next_Month is From_Month + Delta_Month,
+	Next_Day is From_Day + Delta_Day,
+	Next_Num is Num - 1,
+	installments(date(Next_Year, Next_Month, Next_Day), Next_Num, date(Delta_Year, Delta_Month, Delta_Day), Installment_Amount, Sub_Range),
+	absolute_day(date(From_Year, From_Month, From_Day), Installment_Day),
+	Range = [hp_installment(Installment_Day, Installment_Amount) | Sub_Range], !.
+
+% A predicate for inserting balloon payment into a list of installments
+
+insert_balloon(Balloon_Installment, [], [Balloon_Installment]).
+
+insert_balloon(Balloon_Installment, [Installments_Hd | Installments_Tl], Result) :-
+	hp_inst_date(Balloon_Installment, Bal_Inst_Date),
+	hp_inst_date(Installments_Hd, Inst_Hd_Date),
+	Bal_Inst_Date =< Inst_Hd_Date,
+	Result = [Balloon_Installment | [Installments_Hd | Installments_Tl]].
+
+insert_balloon(Balloon_Installment, [Installments_Hd | Installments_Tl], Result) :-
+	hp_inst_date(Balloon_Installment, Bal_Inst_Date),
+	hp_inst_date(Installments_Hd, Inst_Hd_Date),
+	Bal_Inst_Date > Inst_Hd_Date,
+	insert_balloon(Balloon_Installment, Installments_Tl, New_Installments_Tl),
+	Result = [Installments_Hd | New_Installments_Tl].
 
 % Predicates for asserting the fields of a hire purchase installment
 
@@ -125,7 +146,7 @@ record_of_hp_arr(Arrangement, Record) :-
 	hp_arr_installments(Arrangement, [Installments_Hd|_]),
 	hp_inst_date(Installments_Hd, Current_Inst_Date),
 	hp_inst_amount(Installments_Hd, Current_Inst_Amount),
-	days_between(Prev_Inst_Date, Current_Inst_Date, Installment_Period),
+	Installment_Period is Current_Inst_Date - Prev_Inst_Date,
 	Interest_Amount is Cash_Price * Interest_Rate * Installment_Period / (100 * 365),
 	hp_rec_interest_amount(Record, Interest_Amount),
 	hp_rec_installment_amount(Record, Current_Inst_Amount),
@@ -146,7 +167,7 @@ record_of_hp_arr(Arrangement, Record) :-
 	hp_inst_amount(Installments_Hd, Current_Inst_Amount),
 	hp_arr_begin_date(New_Arrangement, Current_Inst_Date),
 	hp_arr_installments(New_Arrangement, Installments_Tl),
-	days_between(Prev_Inst_Date, Current_Inst_Date, Installment_Period),
+	Installment_Period is Current_Inst_Date - Prev_Inst_Date,
 	Interest_Amount is Cash_Price * Interest_Rate * Installment_Period / (100 * 365),
 	New_Cash_Price is Cash_Price + Interest_Amount - Current_Inst_Amount,
 	New_Cash_Price >= 0,
@@ -224,19 +245,25 @@ linspace(Start, Stop, Num, Value) :-
 
 % What is the total amount the customer will pay over the course of the hire purchase
 % arrangement?
-% total_payment_of_hp_arr(hp_arrangement(0, 5953.2, 13, 1, 200.47, 1), Total_Payment).
+% absolute_day(date(2014, 12, 16), Begin_Date),
+% installments(date(2015, 1, 16), 36, date(0, 1, 0), 200.47, Installments),
+% total_payment_of_hp_arr(hp_arrangement(0, 5953.2, Begin_Date, 13, Installments, 1), Total_Payment).
 % Result: Total_Payment = 7216.920000000002.
 
 % What is the total interest the customer will pay over the course of the hire purchase
 % arrangement?
-% total_interest_of_hp_arr(hp_arrangement(0, 5953.2, 13, 1, 200.47, 1), Total_Interest).
-% Result: Total_Interest = 1268.8307569608378.
+% absolute_day(date(2014, 12, 16), Begin_Date),
+% installments(date(2015, 1, 16), 36, date(0, 1, 0), 200.47, Installments),
+% total_interest_of_hp_arr(hp_arrangement(0, 5953.2, Begin_Date, 13, Installments, 1), Total_Interest).
+% Result: Total_Interest = 1269.925914056732.
 
 % Give me all the records of a hire purchase arrangement:
-% record_of_hp_arr(hp_arrangement(0, 5953.2, 13, 1, 200.47, 1), Records).
+% absolute_day(date(2014, 12, 16), Begin_Date),
+% installments(date(2015, 1, 16), 36, date(0, 1, 0), 200.47, Installments),
+% record_of_hp_arr(hp_arrangement(0, 5953.2, Begin_Date, 13, Installments, 1), Records).
 % Result:
-% Records = hp_record(1, 5953.2, 13, 64.493, 200.47, 5817.223) ;
-% Records = hp_record(2, 5817.223, 13, 63.019915833333336, 200.47, 5679.772915833333) ;
+% Records = hp_record(1, 5953.2, 13, 65.7298520547945, 200.47, 5818.459852054794) ;
+% Records = hp_record(2, 5818.459852054794, 13, 64.24217316104335, 200.47, 5682.232025215837) ;
 % ...
-% Records = hp_record(36, 203.3775007032181, 13, 2.203256257618196, 200.47, 5.110756960836284) ;
+% Records = hp_record(36, 204.4909423440125, 13, 2.184971712716846, 200.47, 6.205914056729341) ;
 
