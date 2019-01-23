@@ -65,36 +65,6 @@ day_diff(date(From_Year, From_Month, From_Day), date(To_Year, To_Month, To_Day),
 day_diff(date(Year, Month, From_Day), date(Year, Month, To_Day), Diff) :-
 	Diff is To_Day - From_Day.
 
-% A predicate for generating regular sequences of installments with constant payments
-
-installments(_, 0, _, _, []).
-
-installments(date(From_Year, From_Month, From_Day), Num, date(Delta_Year, Delta_Month, Delta_Day), Installment_Amount, Range) :-
-	Next_Year is From_Year + Delta_Year,
-	Next_Month is From_Month + Delta_Month,
-	Next_Day is From_Day + Delta_Day,
-	Next_Num is Num - 1,
-	installments(date(Next_Year, Next_Month, Next_Day), Next_Num, date(Delta_Year, Delta_Month, Delta_Day), Installment_Amount, Sub_Range),
-	day_diff(date(2000, 1, 1), date(From_Year, From_Month, From_Day), Installment_Day),
-	Range = [hp_installment(Installment_Day, Installment_Amount) | Sub_Range], !.
-
-% A predicate for inserting balloon payment into a list of installments
-
-insert_balloon(Balloon_Installment, [], [Balloon_Installment]).
-
-insert_balloon(Balloon_Installment, [Installments_Hd | Installments_Tl], Result) :-
-	hp_inst_date(Balloon_Installment, Bal_Inst_Date),
-	hp_inst_date(Installments_Hd, Inst_Hd_Date),
-	Bal_Inst_Date =< Inst_Hd_Date,
-	Result = [Balloon_Installment | [Installments_Hd | Installments_Tl]].
-
-insert_balloon(Balloon_Installment, [Installments_Hd | Installments_Tl], Result) :-
-	hp_inst_date(Balloon_Installment, Bal_Inst_Date),
-	hp_inst_date(Installments_Hd, Inst_Hd_Date),
-	Bal_Inst_Date > Inst_Hd_Date,
-	insert_balloon(Balloon_Installment, Installments_Tl, New_Installments_Tl),
-	Result = [Installments_Hd | New_Installments_Tl].
-
 % Predicates for asserting the fields of a hire purchase installment
 
 % The date the installment is to be paid
@@ -131,6 +101,36 @@ hp_rec_interest_amount(hp_record(_, _, _, Interest_Amount, _, _), Interest_Amoun
 hp_rec_installment_amount(hp_record(_, _, _, _, Installment_Amount, _), Installment_Amount).
 % The balance of the payment at the end of the given period
 hp_rec_closing_balance(hp_record(_, _, _, _, _, Closing_Balance), Closing_Balance).
+
+% A predicate for generating regular sequences of installments with constant payments
+
+installments(_, 0, _, _, []).
+
+installments(date(From_Year, From_Month, From_Day), Num, date(Delta_Year, Delta_Month, Delta_Day), Installment_Amount, Range) :-
+	Next_Year is From_Year + Delta_Year,
+	Next_Month is From_Month + Delta_Month,
+	Next_Day is From_Day + Delta_Day,
+	Next_Num is Num - 1,
+	installments(date(Next_Year, Next_Month, Next_Day), Next_Num, date(Delta_Year, Delta_Month, Delta_Day), Installment_Amount, Sub_Range),
+	day_diff(date(2000, 1, 1), date(From_Year, From_Month, From_Day), Installment_Day),
+	Range = [hp_installment(Installment_Day, Installment_Amount) | Sub_Range], !.
+
+% A predicate for inserting balloon payment into a list of installments
+
+insert_balloon(Balloon_Installment, [], [Balloon_Installment]).
+
+insert_balloon(Balloon_Installment, [Installments_Hd | Installments_Tl], Result) :-
+	hp_inst_date(Balloon_Installment, Bal_Inst_Date),
+	hp_inst_date(Installments_Hd, Inst_Hd_Date),
+	Bal_Inst_Date =< Inst_Hd_Date,
+	Result = [Balloon_Installment | [Installments_Hd | Installments_Tl]].
+
+insert_balloon(Balloon_Installment, [Installments_Hd | Installments_Tl], Result) :-
+	hp_inst_date(Balloon_Installment, Bal_Inst_Date),
+	hp_inst_date(Installments_Hd, Inst_Hd_Date),
+	Bal_Inst_Date > Inst_Hd_Date,
+	insert_balloon(Balloon_Installment, Installments_Tl, New_Installments_Tl),
+	Result = [Installments_Hd | New_Installments_Tl].
 
 % Predicate relating a hire purchase record to an agreement. The logic is that a record
 % belongs to a hire purchase arrangement if it is its first, otherwise it must belong
