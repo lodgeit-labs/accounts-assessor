@@ -34,35 +34,36 @@ days_in(Year, Month, Days) :-
 	Closer_Year_Month is Month - 12,
 	days_in(Closer_Year, Closer_Year_Month, Days).
 
-% Internal representation for dates is absolute day count since 1st January 0001
+% Internal representation for dates is absolute day count since 1st January 2001
 
-absolute_day(date(Year, Month, Day), Days) :-
-	Month > 1,
-	New_Month is Month - 1,
-	days_in(Year, New_Month, New_Month_Days),
-	New_Day is Day + New_Month_Days,
-	absolute_day(date(Year, New_Month, New_Day), Days), !.
+day_diff(date(Year, From_Month, From_Day), date(Year, To_Month, To_Day), Days) :-
+	From_Month < To_Month,
+	New_To_Month is To_Month - 1,
+	days_in(Year, New_To_Month, New_To_Month_Days),
+	New_To_Day is To_Day + New_To_Month_Days,
+	day_diff(date(Year, From_Month, From_Day), date(Year, New_To_Month, New_To_Day), Days), !.
 
-absolute_day(date(Year, Month, Day), Days) :-
-	Month =< 0,
-	days_in(Year, Month, Month_Days),
-	New_Month is Month + 1,
-	New_Day is Day - Month_Days,
-	absolute_day(date(Year, New_Month, New_Day), Days), !.
+day_diff(date(Year, From_Month, From_Day), date(Year, To_Month, To_Day), Days) :-
+	To_Month < From_Month,
+	days_in(Year, To_Month, To_Month_Days),
+	New_To_Month is To_Month + 1,
+	New_To_Day is To_Day - To_Month_Days,
+	day_diff(date(Year, From_Month, From_Day), date(Year, New_To_Month, New_To_Day), Days), !.
 
-absolute_day(date(Year, Month, Day), Days) :-
-	Year > 1,
-	New_Year is Year - 1,
-	New_Month is Month + 12,
-	absolute_day(date(New_Year, New_Month, Day), Days), !.
+day_diff(date(From_Year, From_Month, From_Day), date(To_Year, To_Month, To_Day), Days) :-
+	From_Year < To_Year,
+	New_To_Year is To_Year - 1,
+	New_To_Month is To_Month + 12,
+	day_diff(date(From_Year, From_Month, From_Day), date(New_To_Year, New_To_Month, To_Day), Days), !.
 
-absolute_day(date(Year, Month, Day), Days) :-
-	Year =< 0,
-	New_Year is Year + 1,
-	New_Month is Month - 12,
-	absolute_day(date(New_Year, New_Month, Day), Days), !.
+day_diff(date(From_Year, From_Month, From_Day), date(To_Year, To_Month, To_Day), Days) :-
+	To_Year < From_Year,
+	New_To_Year is To_Year + 1,
+	New_To_Month is To_Month - 12,
+	day_diff(date(From_Year, From_Month, From_Day), date(New_To_Year, New_To_Month, To_Day), Days), !.
 
-absolute_day(date(1, 1, Day), Day).
+day_diff(date(Year, Month, From_Day), date(Year, Month, To_Day), Diff) :-
+	Diff is To_Day - From_Day.
 
 % A predicate for generating regular sequences of installments with constant payments
 
@@ -74,7 +75,7 @@ installments(date(From_Year, From_Month, From_Day), Num, date(Delta_Year, Delta_
 	Next_Day is From_Day + Delta_Day,
 	Next_Num is Num - 1,
 	installments(date(Next_Year, Next_Month, Next_Day), Next_Num, date(Delta_Year, Delta_Month, Delta_Day), Installment_Amount, Sub_Range),
-	absolute_day(date(From_Year, From_Month, From_Day), Installment_Day),
+	day_diff(date(2000, 1, 1), date(From_Year, From_Month, From_Day), Installment_Day),
 	Range = [hp_installment(Installment_Day, Installment_Amount) | Sub_Range], !.
 
 % A predicate for inserting balloon payment into a list of installments
@@ -220,7 +221,7 @@ range(Start, Stop, Step, Value) :-
 % Give me the interest rates in the range of 10% to 20% that will cause the hire purchase
 % arrangement to conclude in exactly 36 months.
 % range(10, 20, 0.1, Interest_Rate),
-% absolute_day(date(2014, 12, 16), Begin_Date),
+% day_diff(date(2000, 1, 1), date(2014, 12, 16), Begin_Date),
 % installments(date(2015, 1, 16), 100, date(0, 1, 0), 200.47, Installments),
 % record_count_of_hp_arr(hp_arrangement(0, 5953.2, Begin_Date, Interest_Rate, Installments, 1), 36).
 % Result:
@@ -237,20 +238,20 @@ range(Start, Stop, Step, Value) :-
 
 % What is the total amount the customer will pay over the course of the hire purchase
 % arrangement?
-% absolute_day(date(2014, 12, 16), Begin_Date),
+% day_diff(date(2000, 1, 1), date(2014, 12, 16), Begin_Date),
 % installments(date(2015, 1, 16), 36, date(0, 1, 0), 200.47, Installments),
 % total_payment_of_hp_arr(hp_arrangement(0, 5953.2, Begin_Date, 13, Installments, 1), Total_Payment).
 % Result: Total_Payment = 7216.920000000002.
 
 % What is the total interest the customer will pay over the course of the hire purchase
 % arrangement?
-% absolute_day(date(2014, 12, 16), Begin_Date),
+% day_diff(date(2000, 1, 1), date(2014, 12, 16), Begin_Date),
 % installments(date(2015, 1, 16), 36, date(0, 1, 0), 200.47, Installments),
 % total_interest_of_hp_arr(hp_arrangement(0, 5953.2, Begin_Date, 13, Installments, 1), Total_Interest).
 % Result: Total_Interest = 1269.925914056732.
 
 % Give me all the records of a hire purchase arrangement:
-% absolute_day(date(2014, 12, 16), Begin_Date),
+% day_diff(date(2000, 1, 1), date(2014, 12, 16), Begin_Date),
 % installments(date(2015, 1, 16), 36, date(0, 1, 0), 200.47, Installments),
 % record_of_hp_arr(hp_arrangement(0, 5953.2, Begin_Date, 13, Installments, 1), Records).
 % Result:
