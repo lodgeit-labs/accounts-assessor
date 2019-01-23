@@ -179,7 +179,7 @@ record_of_hp_arr(Arrangement, Record) :-
 records_of_hp_arr(Arrangement, Records) :-
 	findall(Record, record_of_hp_arr(Arrangement, Record), Records).
 
-installment_count_of_hp_arr(Arrangement, Record_Count) :-
+record_count_of_hp_arr(Arrangement, Record_Count) :-
 	records_of_hp_arr(Arrangement, Records),
 	length(Records, Record_Count).
 
@@ -205,37 +205,29 @@ range(Start, Stop, Step, Value) :-
 	Next_Start < Stop,
 	range(Next_Start, Stop, Step, Value).
 
-% Predicate to generate a range of values that divide some region into equal intervals
-
-linspace(Start, _, _, Value) :-
-	Start = Value.
-
-linspace(Start, Stop, Num, Value) :-
-	Num > 1,
-	Next_Start is Start + ((Stop - Start) / Num),
-	Next_Num is Num - 1,
-	linspace(Next_Start, Stop, Next_Num, Value).
-
 % Now for some examples:
 
 % Split the range between 10 and 20 into 100 equally spaced intervals and give me their
 % boundaries:
-% linspace(10, 20, 100, X).
+% range(10, 20, 0.1, X).
 % Result:
 % X = 10 ;
 % X = 10.1 ;
 % X = 10.2 ;
 % ...
-% X = 19.9 ;
+% X = 19.900000000000034 ;
 
 % Give me the interest rates in the range of 10% to 20% that will cause the hire purchase
 % arrangement to conclude in exactly 36 months.
-% linspace(10, 20, 100, Interest_Rate), installment_count_of_hp_arr(hp_arrangement(0, 5953.2, Interest_Rate, 1, 200.47, 1), 36).
+% range(10, 20, 0.1, Interest_Rate),
+% absolute_day(date(2014, 12, 16), Begin_Date),
+% installments(date(2015, 1, 16), 100, date(0, 1, 0), 200.47, Installments),
+% record_count_of_hp_arr(hp_arrangement(0, 5953.2, Begin_Date, Interest_Rate, Installments, 1), 36).
 % Result:
-% X = 12.99999999999999 ;
-% X = 13.099999999999989 ;
+% Interest_Rate = 12.99999999999999 ;
+% Interest_Rate = 13.099999999999989 ;
 % ...
-% X = 14.399999999999984 ;
+% Interest_Rate = 14.399999999999984 ;
 % Note that instead of getting Prolog to try to solve a system of equations (and hang),
 % I cheated by just getting Prolog to exhaustively search a finite domain of generated
 % values.
