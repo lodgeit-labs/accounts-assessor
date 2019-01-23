@@ -1,15 +1,97 @@
+% Predicate for approximating time between two dates
+
+leap_year(Year) :- 0 is mod(Year, 4), X is mod(Year, 100), X =\= 0.
+
+leap_year(Year) :- 0 is mod(Year, 400).
+
+common_year(Year) :-
+	((Y is mod(Year, 4), Y =\= 0); 0 is mod(Year, 100)),
+	Z is mod(Year, 400), Z =\= 0.
+
+days_in(_, 1, 31).
+days_in(Year, 2, 29) :- leap_year(Year).
+days_in(Year, 2, 28) :- common_year(Year).
+days_in(_, 3, 31).
+days_in(_, 4, 30).
+days_in(_, 5, 31).
+days_in(_, 6, 30).
+days_in(_, 7, 31).
+days_in(_, 8, 31).
+days_in(_, 9, 30).
+days_in(_, 10, 31).
+days_in(_, 11, 30).
+days_in(_, 12, 31).
+
+days_in(Year, Month, Days) :-
+	Month =< 0,
+	Closer_Year is Year - 1,
+	Closer_Year_Month is 12 + Month,
+	days_in(Closer_Year, Closer_Year_Month, Days).
+
+days_in(Year, Month, Days) :-
+	Month > 12,
+	Closer_Year is Year + 1,
+	Closer_Year_Month is Month - 12,
+	days_in(Closer_Year, Closer_Year_Month, Days).
+
+to_date(date(Year, Month, Day), Date) :-
+	Day =< 0,
+	Closer_Month is Month - 1,
+	days_in(Year, Closer_Month, Closer_Month_Days),
+	Closer_Month_Day is Closer_Month_Days + Day,
+	to_date(date(Year, Closer_Month, Closer_Month_Day), Date).
+
+to_date(date(Year, Month, Day), Date) :-
+	days_in(Year, Month, Month_Days),
+	Day > Month_Days,
+	Closer_Month is Month + 1,
+	Closer_Month_Day is Day - Month_Days,
+	to_date(date(Year, Closer_Month, Closer_Month_Day), Date).
+
+to_date(date(Year, Month, Day), Date) :-
+	Month =< 0,
+	Closer_Year is Year - 1,
+	Closer_Year_Month is 12 + Month,
+	to_date(date(Closer_Year, Closer_Year_Month, Day), Date).
+
+to_date(date(Year, Month, Day), Date) :-
+	Month > 12,
+	Closer_Year is Year + 1,
+	Closer_Year_Month is Month - 12,
+	to_date(date(Closer_Year, Closer_Year_Month, Day), Date).
+
+to_date(date(Year, Month, Day), Date) :-
+	0 < Month, Month =< 12, days_in(Year, Month, Month_Days), 0 < Day, Day =< Month_Days,
+	Date = date(Year, Month, Day).
+
+days_between(date(From_Year, From_Month, From_Day), date(To_Year, To_Month, To_Day), Days) :-
+	Days is ((To_Year - From_Year) * 365) + ((To_Month - From_Month) * 30) + (To_Day - From_Day).
+
+months_between(date(From_Year, From_Month, From_Day), date(To_Year, To_Month, To_Day), Days) :-
+	To_Day >= From_Day, Days is ((To_Year - From_Year) * 12) + (To_Month - From_Month).
+
+months_between(date(From_Year, From_Month, From_Day), date(To_Year, To_Month, To_Day), Days) :-
+	To_Day < From_Day, Days is ((To_Year - From_Year) * 12) + (To_Month - From_Month - 1).
+
+% Predicates for asserting the fields of a hire purchase installment
+
+% The date the installment is to be paid
+hp_inst_date(hp_installment(Date, _), Date).
+% The amount that constitutes the installment
+hp_inst_amount(hp_installment(_, Installment), Installment).
+
 % Predicates for asserting the fields of a hire purchase arrangement
 
 % An identifier for a given hire purchase arrangement
 hp_arr_contract_number(hp_arrangement(Contract_Number, _, _, _, _, _), Contract_Number).
 % The opening balance of the whole arrangement
 hp_arr_cash_price(hp_arrangement(_, Cash_Price, _, _, _, _), Cash_Price).
+% The beginning date of the whole arrangement
+hp_arr_begin_date(hp_arrangement(_, _, Begin_Date, _, _, _), Begin_Date).
 % The stated annual interest rate of the arrangement
-hp_arr_interest_rate(hp_arrangement(_, _, Interest_Rate, _, _, _), Interest_Rate).
-% The number of months between each installment
-hp_arr_installment_period(hp_arrangement(_, _, _, Installment_Period, _, _), Installment_Period).
-% The amount that is periodically paid towards the good
-hp_arr_installment_amount(hp_arrangement(_, _, _, _, Installment_Amount, _), Installment_Amount).
+hp_arr_interest_rate(hp_arrangement(_, _, _, Interest_Rate, _, _), Interest_Rate).
+% A chronologically ordered list of pairs of installment dates and amounts
+hp_arr_installments(hp_arrangement(_, _, _, _, Installments, _), Installments).
 % For internal usage, user should always set this to 1
 hp_arr_record_offset(hp_arrangement(_, _, _, _, _, Record_Offset), Record_Offset).
 
@@ -38,12 +120,16 @@ hp_rec_closing_balance(hp_record(_, _, _, _, _, Closing_Balance), Closing_Balanc
 record_of_hp_arr(Arrangement, Record) :-
 	hp_rec_number(Record, Record_Number), hp_arr_record_offset(Arrangement, Record_Number),
 	hp_rec_opening_balance(Record, Cash_Price), hp_arr_cash_price(Arrangement, Cash_Price),
+	hp_arr_begin_date(Arrangement, Prev_Inst_Date),
 	hp_rec_interest_rate(Record, Interest_Rate), hp_arr_interest_rate(Arrangement, Interest_Rate),
-	hp_arr_installment_period(Arrangement, Installment_Period),
-	Interest_Amount is Cash_Price * Interest_Rate * Installment_Period / (100 * 12),
+	hp_arr_installments(Arrangement, [Installments_Hd|_]),
+	hp_inst_date(Installments_Hd, Current_Inst_Date),
+	hp_inst_amount(Installments_Hd, Current_Inst_Amount),
+	days_between(Prev_Inst_Date, Current_Inst_Date, Installment_Period),
+	Interest_Amount is Cash_Price * Interest_Rate * Installment_Period / (100 * 365),
 	hp_rec_interest_amount(Record, Interest_Amount),
-	hp_rec_installment_amount(Record, Installment_Amount), hp_arr_installment_amount(Arrangement, Installment_Amount),
-	Closing_Balance is Cash_Price + Interest_Amount - Installment_Amount,
+	hp_rec_installment_amount(Record, Current_Inst_Amount),
+	Closing_Balance is Cash_Price + Interest_Amount - Current_Inst_Amount,
 	hp_rec_closing_balance(Record, Closing_Balance),
 	Closing_Balance >= 0.
 
@@ -53,11 +139,16 @@ record_of_hp_arr(Arrangement, Record) :-
 	hp_arr_record_offset(New_Arrangement, New_Record_Offset),
 	hp_arr_contract_number(Arrangement, Contract_Number), hp_arr_contract_number(New_Arrangement, Contract_Number),
 	hp_arr_cash_price(Arrangement, Cash_Price),
+	hp_arr_begin_date(Arrangement, Prev_Inst_Date),
 	hp_arr_interest_rate(Arrangement, Interest_Rate), hp_arr_interest_rate(New_Arrangement, Interest_Rate),
-	hp_arr_installment_period(Arrangement, Installment_Period), hp_arr_installment_period(New_Arrangement, Installment_Period),
-	Interest_Amount is Cash_Price * Interest_Rate * Installment_Period / (100 * 12),
-	hp_arr_installment_amount(Arrangement, Installment_Amount), hp_arr_installment_amount(New_Arrangement, Installment_Amount),
-	New_Cash_Price is Cash_Price + Interest_Amount - Installment_Amount,
+	hp_arr_installments(Arrangement, [Installments_Hd|Installments_Tl]),
+	hp_inst_date(Installments_Hd, Current_Inst_Date),
+	hp_inst_amount(Installments_Hd, Current_Inst_Amount),
+	hp_arr_begin_date(New_Arrangement, Current_Inst_Date),
+	hp_arr_installments(New_Arrangement, Installments_Tl),
+	days_between(Prev_Inst_Date, Current_Inst_Date, Installment_Period),
+	Interest_Amount is Cash_Price * Interest_Rate * Installment_Period / (100 * 365),
+	New_Cash_Price is Cash_Price + Interest_Amount - Current_Inst_Amount,
 	New_Cash_Price >= 0,
 	hp_arr_cash_price(New_Arrangement, New_Cash_Price),
 	record_of_hp_arr(New_Arrangement, Record).
@@ -70,11 +161,6 @@ records_of_hp_arr(Arrangement, Records) :-
 installment_count_of_hp_arr(Arrangement, Record_Count) :-
 	records_of_hp_arr(Arrangement, Records),
 	length(Records, Record_Count).
-
-duration_of_hp_arr(Arrangement, Months) :-
-	installment_count_of_hp_arr(Arrangement, Record_Count),
-	hp_arr_installment_period(Arrangement, Period),
-	Months is Record_Count * Period.
 
 total_payment_of_hp_arr(Arrangement, Total_Payment) :-
 	findall(Installment_Amount, (record_of_hp_arr(Arrangement, Record), hp_rec_installment_amount(Record, Installment_Amount)),
