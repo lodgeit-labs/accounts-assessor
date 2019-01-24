@@ -9,3 +9,6 @@
 % Loads up predicates for summarizing transactions
 :- ['src/transactions.pl'].
 
+% Appropriate queries to type into the ensuing prompt can be found in examples
+% directory.
+
