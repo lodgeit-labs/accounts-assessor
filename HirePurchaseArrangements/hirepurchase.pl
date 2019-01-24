@@ -1,3 +1,17 @@
+% The purpose of the following program is to derive information about a given hire
+% purchase arrangement when given a list of potential installments for it. That is, this
+% program will tell you what the closing balance would be after some sequence of
+% installments has been paid. It will tell you how much interest you would have paid by
+% the close of the arrangement. And it will tell you other relevant information.
+% The program will ignore the latter potential installments that would make the balance
+% negative.
+
+% This program is part of a larger system for validating and correcting balance sheets.
+% More precisely, accounting principles require that the transactions that occur in a hire
+% purchase arrangement are summarized in balance sheets. This program calculates those
+% summary values directly from the original data and ultimately will be expected to add
+% correction entries to the balance sheet when it is in error.
+
 % Some facts about the Gregorian calendar, needed to count days between dates
 
 leap_year(Year) :- 0 is mod(Year, 4), X is mod(Year, 100), X =\= 0.
@@ -174,14 +188,10 @@ record(Arrangement, [Installments_Hd|Installments_Tl], Record) :-
 	hp_arr_cash_price(New_Arrangement, New_Cash_Price),
 	record(New_Arrangement, Installments_Tl, Record).
 
-% Relate the first N potential installments and the given hire purchase arrangement to
-% corresponding hire purchase records, where the Nth installment is the last installment
-% to leave a positive balance.
+% Some predicates on hire purchase arrangements and potential installments for them
 
 records(Arrangement, Potential_Installments, Records) :-
 	findall(Record, record(Arrangement, Potential_Installments, Record), Records).
-
-% Relates the aforementioned hire purchase records to other financial data.
 
 record_count(Arrangement, Potential_Installments, Record_Count) :-
 	records(Arrangement, Potential_Installments, Records),
