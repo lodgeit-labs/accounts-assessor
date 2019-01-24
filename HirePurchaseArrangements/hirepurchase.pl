@@ -34,7 +34,7 @@ days_in(Year, Month, Days) :-
 	Closer_Year_Month is Month - 12,
 	days_in(Closer_Year, Closer_Year_Month, Days).
 
-% Internal representation for dates is absolute day count since 1st January 2001
+% Predicates for counting the number of days between two dates
 
 day_diff(date(Year, From_Month, From_Day), date(Year, To_Month, To_Day), Days) :-
 	From_Month < To_Month,
@@ -64,6 +64,10 @@ day_diff(date(From_Year, From_Month, From_Day), date(To_Year, To_Month, To_Day),
 
 day_diff(date(Year, Month, From_Day), date(Year, Month, To_Day), Diff) :-
 	Diff is To_Day - From_Day.
+
+% Internal representation for dates is absolute day count since 1st January 2001
+
+absolute_day(Date, Day) :- day_diff(date(2000, 1, 1), Date, Day).
 
 % Predicates for asserting the fields of a hire purchase installment
 
@@ -102,7 +106,8 @@ hp_rec_installment_amount(hp_record(_, _, _, _, Installment_Amount, _), Installm
 % The balance of the payment at the end of the given period
 hp_rec_closing_balance(hp_record(_, _, _, _, _, Closing_Balance), Closing_Balance).
 
-% A predicate for generating regular sequences of installments with constant payments
+% A predicate for generating Num installments starting at the given date and occurring
+% after every delta date with a payment amount of Installment_Amount.
 
 installments(_, 0, _, _, []).
 
@@ -111,9 +116,9 @@ installments(date(From_Year, From_Month, From_Day), Num, date(Delta_Year, Delta_
 	Next_Month is From_Month + Delta_Month,
 	Next_Day is From_Day + Delta_Day,
 	Next_Num is Num - 1,
-	installments(date(Next_Year, Next_Month, Next_Day), Next_Num, date(Delta_Year, Delta_Month, Delta_Day), Installment_Amount, Sub_Range),
-	day_diff(date(2000, 1, 1), date(From_Year, From_Month, From_Day), Installment_Day),
-	Range = [hp_installment(Installment_Day, Installment_Amount) | Sub_Range], !.
+	installments(date(Next_Year, Next_Month, Next_Day), Next_Num, date(Delta_Year, Delta_Month, Delta_Day), Installment_Amount, Range_Tl),
+	absolute_day(date(From_Year, From_Month, From_Day), Installment_Day),
+	Range = [hp_installment(Installment_Day, Installment_Amount) | Range_Tl], !.
 
 % A predicate for inserting balloon payment into a list of installments
 
@@ -221,7 +226,7 @@ range(Start, Stop, Step, Value) :-
 % Give me the interest rates in the range of 10% to 20% that will cause the hire purchase
 % arrangement to conclude in exactly 36 months.
 % range(10, 20, 0.1, Interest_Rate),
-% day_diff(date(2000, 1, 1), date(2014, 12, 16), Begin_Date),
+% absolute_day(date(2014, 12, 16), Begin_Date),
 % installments(date(2015, 1, 16), 100, date(0, 1, 0), 200.47, Installments),
 % record_count_of_hp_arr(hp_arrangement(0, 5953.2, Begin_Date, Interest_Rate, Installments, 1), 36).
 % Result:
@@ -238,20 +243,20 @@ range(Start, Stop, Step, Value) :-
 
 % What is the total amount the customer will pay over the course of the hire purchase
 % arrangement?
-% day_diff(date(2000, 1, 1), date(2014, 12, 16), Begin_Date),
+% absolute_day(date(2014, 12, 16), Begin_Date),
 % installments(date(2015, 1, 16), 36, date(0, 1, 0), 200.47, Installments),
 % total_payment_of_hp_arr(hp_arrangement(0, 5953.2, Begin_Date, 13, Installments, 1), Total_Payment).
 % Result: Total_Payment = 7216.920000000002.
 
 % What is the total interest the customer will pay over the course of the hire purchase
 % arrangement?
-% day_diff(date(2000, 1, 1), date(2014, 12, 16), Begin_Date),
+% absolute_day(date(2014, 12, 16), Begin_Date),
 % installments(date(2015, 1, 16), 36, date(0, 1, 0), 200.47, Installments),
 % total_interest_of_hp_arr(hp_arrangement(0, 5953.2, Begin_Date, 13, Installments, 1), Total_Interest).
 % Result: Total_Interest = 1269.925914056732.
 
 % Give me all the records of a hire purchase arrangement:
-% day_diff(date(2000, 1, 1), date(2014, 12, 16), Begin_Date),
+% absolute_day(date(2014, 12, 16), Begin_Date),
 % installments(date(2015, 1, 16), 36, date(0, 1, 0), 200.47, Installments),
 % record_of_hp_arr(hp_arrangement(0, 5953.2, Begin_Date, 13, Installments, 1), Records).
 % Result:
