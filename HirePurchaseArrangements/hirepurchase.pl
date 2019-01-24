@@ -1,10 +1,8 @@
 % The purpose of the following program is to derive information about a given hire
-% purchase arrangement when given a list of potential installments for it. That is, this
-% program will tell you what the closing balance would be after some sequence of
-% installments has been paid. It will tell you how much interest you would have paid by
-% the close of the arrangement. And it will tell you other relevant information.
-% The program will ignore the latter potential installments that would make the balance
-% negative.
+% purchase arrangement. That is, this program will tell you what the closing balance of
+% the hire purchase account is after a particular installment has been paid. It will tell
+% you how much interest you will have paid by the close of the arrangement. And it will
+% tell you other relevant information.
 
 % This program is part of a larger system for validating and correcting balance sheets.
 % More precisely, accounting principles require that the transactions that occur in a hire
@@ -80,25 +78,28 @@ day_diff(date(Year, Month, From_Day), date(Year, Month, To_Day), Diff) :-
 
 absolute_day(Date, Day) :- day_diff(date(2000, 1, 1), Date, Day).
 
-% Predicates for asserting the fields of a potential hire purchase installment
+% Predicates for asserting the fields of a hire purchase installment
 
 % The date the potential installment is to be paid
-hp_pot_inst_day(hp_pot_inst(Day, _), Day).
+hp_inst_day(hp_installment(Day, _), Day).
 % The amount that constitutes the potential installment
-hp_pot_inst_amount(hp_pot_inst(_, Installment), Installment).
+hp_inst_amount(hp_installment(_, Installment), Installment).
 
 % Predicates for asserting the fields of a hire purchase arrangement
 
 % An identifier for a given hire purchase arrangement
-hp_arr_contract_number(hp_arrangement(Contract_Number, _, _, _, _), Contract_Number).
+hp_arr_contract_number(hp_arrangement(Contract_Number, _, _, _, _, _), Contract_Number).
 % The opening balance of the whole arrangement
-hp_arr_cash_price(hp_arrangement(_, Cash_Price, _, _, _), Cash_Price).
+hp_arr_cash_price(hp_arrangement(_, Cash_Price, _, _, _, _), Cash_Price).
 % The beginning day of the whole arrangement
-hp_arr_begin_day(hp_arrangement(_, _, Begin_Day, _, _), Begin_Day).
+hp_arr_begin_day(hp_arrangement(_, _, Begin_Day, _, _, _), Begin_Day).
 % The stated annual interest rate of the arrangement
-hp_arr_interest_rate(hp_arrangement(_, _, _, Interest_Rate, _), Interest_Rate).
+hp_arr_interest_rate(hp_arrangement(_, _, _, Interest_Rate, _, _), Interest_Rate).
 % For internal usage, user should always set this to 1
-hp_arr_record_offset(hp_arrangement(_, _, _, _, Record_Offset), Record_Offset).
+hp_arr_record_offset(hp_arrangement(_, _, _, _, Record_Offset, _), Record_Offset).
+% A chronologically ordered list of purchase arrangement installments. The latter
+% installments where the account balance is negative are ignored.
+hp_arr_installments(hp_arrangement(_, _, _, _, _, Installments), Installments).
 
 % Predicates for asserting the fields of a hire purchase record
 
@@ -127,41 +128,40 @@ installments(date(From_Year, From_Month, From_Day), Num, date(Delta_Year, Delta_
 	Next_Num is Num - 1,
 	installments(date(Next_Year, Next_Month, Next_Day), Next_Num, date(Delta_Year, Delta_Month, Delta_Day), Installment_Amount, Range_Tl),
 	absolute_day(date(From_Year, From_Month, From_Day), Installment_Day),
-	Range = [hp_pot_inst(Installment_Day, Installment_Amount) | Range_Tl], !.
+	Range = [hp_installment(Installment_Day, Installment_Amount) | Range_Tl], !.
 
 % A predicate for inserting balloon payment into a list of installments
 
 insert_balloon(Balloon_Installment, [], [Balloon_Installment]).
 
 insert_balloon(Balloon_Installment, [Installments_Hd | Installments_Tl], Result) :-
-	hp_pot_inst_day(Balloon_Installment, Bal_Inst_Day),
-	hp_pot_inst_day(Installments_Hd, Inst_Hd_Day),
+	hp_inst_day(Balloon_Installment, Bal_Inst_Day),
+	hp_inst_day(Installments_Hd, Inst_Hd_Day),
 	Bal_Inst_Day =< Inst_Hd_Day,
 	Result = [Balloon_Installment | [Installments_Hd | Installments_Tl]].
 
 insert_balloon(Balloon_Installment, [Installments_Hd | Installments_Tl], Result) :-
-	hp_pot_inst_day(Balloon_Installment, Bal_Inst_Day),
-	hp_pot_inst_day(Installments_Hd, Inst_Hd_Day),
+	hp_inst_day(Balloon_Installment, Bal_Inst_Day),
+	hp_inst_day(Installments_Hd, Inst_Hd_Day),
 	Bal_Inst_Day > Inst_Hd_Day,
 	insert_balloon(Balloon_Installment, Installments_Tl, New_Installments_Tl),
 	Result = [Installments_Hd | New_Installments_Tl].
 
-% Predicate relating a hire purchase record to an arrangement and potential installments.
-% The logic is that a record is related to a hire purchase arrangement and list of
-% potential installments if it is their first, otherwise it must be related to the
-% tail of the potential installments and the hypothetical hire purchase arrangement that
-% is the same as the present one but had the first potential installment applied to it.
-% This logic is used instead of relating records to their predecessors because it allows
-% Prolog to systematically find all the hire purchase records corresponding to a given
-% arrangement.
+% Predicate relating a hire purchase record to an arrangement. The logic is that a record
+% is related to a hire purchase arrangement if it is its first, otherwise it must be
+% related to the hypothetical hire purchase arrangement that is the same as the present
+% one but had the first potential installment applied to it. This logic is used instead of
+% relating records to their predecessors because it allows Prolog to systematically find
+% all the hire purchase records corresponding to a given arrangement.
 
-record(Arrangement, [Installments_Hd|_], Record) :-
+hp_arr_record(Arrangement, Record) :-
 	hp_rec_number(Record, Record_Number), hp_arr_record_offset(Arrangement, Record_Number),
 	hp_rec_opening_balance(Record, Cash_Price), hp_arr_cash_price(Arrangement, Cash_Price),
 	hp_arr_begin_day(Arrangement, Prev_Inst_Day),
 	hp_rec_interest_rate(Record, Interest_Rate), hp_arr_interest_rate(Arrangement, Interest_Rate),
-	hp_pot_inst_day(Installments_Hd, Current_Inst_Day),
-	hp_pot_inst_amount(Installments_Hd, Current_Inst_Amount),
+	hp_arr_installments(Arrangement, [Installments_Hd|_]),
+	hp_inst_day(Installments_Hd, Current_Inst_Day),
+	hp_inst_amount(Installments_Hd, Current_Inst_Amount),
 	Installment_Period is Current_Inst_Day - Prev_Inst_Day,
 	Interest_Amount is Cash_Price * Interest_Rate * Installment_Period / (100 * 365),
 	hp_rec_interest_amount(Record, Interest_Amount),
@@ -170,7 +170,7 @@ record(Arrangement, [Installments_Hd|_], Record) :-
 	hp_rec_closing_balance(Record, Closing_Balance),
 	Closing_Balance >= 0.
 
-record(Arrangement, [Installments_Hd|Installments_Tl], Record) :-
+hp_arr_record(Arrangement, Record) :-
 	hp_arr_record_offset(Arrangement, Record_Offset),
 	New_Record_Offset is Record_Offset + 1,
 	hp_arr_record_offset(New_Arrangement, New_Record_Offset),
@@ -178,34 +178,35 @@ record(Arrangement, [Installments_Hd|Installments_Tl], Record) :-
 	hp_arr_cash_price(Arrangement, Cash_Price),
 	hp_arr_begin_day(Arrangement, Prev_Inst_Day),
 	hp_arr_interest_rate(Arrangement, Interest_Rate), hp_arr_interest_rate(New_Arrangement, Interest_Rate),
-	hp_pot_inst_day(Installments_Hd, Current_Inst_Day),
-	hp_pot_inst_amount(Installments_Hd, Current_Inst_Amount),
+	hp_arr_installments(Arrangement, [Installments_Hd|Installments_Tl]), hp_arr_installments(New_Arrangement, Installments_Tl),
+	hp_inst_day(Installments_Hd, Current_Inst_Day),
+	hp_inst_amount(Installments_Hd, Current_Inst_Amount),
 	hp_arr_begin_day(New_Arrangement, Current_Inst_Day),
 	Installment_Period is Current_Inst_Day - Prev_Inst_Day,
 	Interest_Amount is Cash_Price * Interest_Rate * Installment_Period / (100 * 365),
 	New_Cash_Price is Cash_Price + Interest_Amount - Current_Inst_Amount,
 	New_Cash_Price >= 0,
 	hp_arr_cash_price(New_Arrangement, New_Cash_Price),
-	record(New_Arrangement, Installments_Tl, Record).
+	hp_arr_record(New_Arrangement, Record).
 
 % Some predicates on hire purchase arrangements and potential installments for them
 
-records(Arrangement, Potential_Installments, Records) :-
-	findall(Record, record(Arrangement, Potential_Installments, Record), Records).
+hp_arr_records(Arrangement, Records) :-
+	findall(Record, hp_arr_record(Arrangement, Record), Records).
 
-record_count(Arrangement, Potential_Installments, Record_Count) :-
-	records(Arrangement, Potential_Installments, Records),
+hp_arr_record_count(Arrangement, Record_Count) :-
+	hp_arr_records(Arrangement, Records),
 	length(Records, Record_Count).
 
-total_payment(Arrangement, Potential_Installments, Total_Payment) :-
+hp_arr_total_payment(Arrangement, Total_Payment) :-
 	findall(Installment_Amount,
-		(record(Arrangement, Potential_Installments, Record), hp_rec_installment_amount(Record, Installment_Amount)),
+		(hp_arr_record(Arrangement, Record), hp_rec_installment_amount(Record, Installment_Amount)),
 		Installment_Amounts),
 	sum_list(Installment_Amounts, Total_Payment).
 
-total_interest(Arrangement, Potential_Installments, Total_Interest) :-
+hp_arr_total_interest(Arrangement, Total_Interest) :-
 	findall(Interest_Amount,
-		(record(Arrangement, Potential_Installments, Record), hp_rec_interest_amount(Record, Interest_Amount)),
+		(hp_arr_record(Arrangement, Record), hp_rec_interest_amount(Record, Interest_Amount)),
 		Interest_Amounts),
 	sum_list(Interest_Amounts, Total_Interest).
 
@@ -224,30 +225,30 @@ range(Start, Stop, Step, Value) :-
 % Add a ballon to a regular schedule of installments:
 % installments(date(2015, 1, 16), 100, date(0, 1, 0), 200.47, Installments),
 % absolute_day(date(2014, 12, 16), Balloon_Day),
-% insert_balloon(hp_pot_inst(Balloon_Day, 1000), Installments, Installments_With_Balloon).
+% insert_balloon(hp_installment(Balloon_Day, 1000), Installments, Installments_With_Balloon).
 % Result:
-% Installments = [hp_pot_inst(5494, 200.47), hp_pot_inst(5525, 200.47), hp_pot_inst(5553, 200.47), ...|...],
+% Installments = [hp_installment(5494, 200.47), hp_installment(5525, 200.47), hp_installment(5553, 200.47), ...|...],
 % Balloon_Day = 5463,
-% Installments_With_Balloon = [hp_pot_inst(5463, 1000), hp_pot_inst(5494, 200.47), hp_pot_inst(5525, 200.47), ...|...]
+% Installments_With_Balloon = [hp_installment(5463, 1000), hp_installment(5494, 200.47), hp_installment(5525, 200.47), ...|...]
 
 % What is the total amount the customer will pay over the course of the hire purchase
 % arrangement?
 % absolute_day(date(2014, 12, 16), Begin_Day),
 % installments(date(2015, 1, 16), 36, date(0, 1, 0), 200.47, Installments),
-% total_payment(hp_arrangement(0, 5953.2, Begin_Day, 13, 1), Installments, Total_Payment).
+% hp_arr_total_payment(hp_arrangement(0, 5953.2, Begin_Day, 13, 1, Installments), Total_Payment).
 % Result: Total_Payment = 7216.920000000002.
 
 % What is the total interest the customer will pay over the course of the hire purchase
 % arrangement?
 % absolute_day(date(2014, 12, 16), Begin_Day),
 % installments(date(2015, 1, 16), 36, date(0, 1, 0), 200.47, Installments),
-% total_interest(hp_arrangement(0, 5953.2, Begin_Day, 13, 1), Installments, Total_Interest).
+% hp_arr_total_interest(hp_arrangement(0, 5953.2, Begin_Day, 13, 1, Installments), Total_Interest).
 % Result: Total_Interest = 1269.925914056732.
 
 % Give me all the records of a hire purchase arrangement:
 % absolute_day(date(2014, 12, 16), Begin_Day),
 % installments(date(2015, 1, 16), 36, date(0, 1, 0), 200.47, Installments),
-% record(hp_arrangement(0, 5953.2, Begin_Day, 13, 1), Installments, Record).
+% hp_arr_record(hp_arrangement(0, 5953.2, Begin_Day, 13, 1, Installments), Record).
 % Result:
 % Record = hp_record(1, 5953.2, 13, 65.7298520547945, 200.47, 5818.459852054794) ;
 % Record = hp_record(2, 5818.459852054794, 13, 64.24217316104335, 200.47, 5682.232025215837) ;
@@ -269,7 +270,7 @@ range(Start, Stop, Step, Value) :-
 % range(10, 20, 0.1, Interest_Rate),
 % absolute_day(date(2014, 12, 16), Begin_Day),
 % installments(date(2015, 1, 16), 100, date(0, 1, 0), 200.47, Installments),
-% record_count(hp_arrangement(0, 5953.2, Begin_Day, Interest_Rate, 1), Installments, 36).
+% hp_arr_record_count(hp_arrangement(0, 5953.2, Begin_Day, Interest_Rate, 1, Installments), 36).
 % Result:
 % Interest_Rate = 12.99999999999999 ;
 % Interest_Rate = 13.099999999999989 ;
