@@ -8,19 +8,10 @@ common_year(Year) :-
 	((Y is mod(Year, 4), Y =\= 0); 0 is mod(Year, 100)),
 	Z is mod(Year, 400), Z =\= 0.
 
-days_in(_, 1, 31).
-days_in(Year, 2, 29) :- leap_year(Year).
-days_in(Year, 2, 28) :- common_year(Year).
-days_in(_, 3, 31).
-days_in(_, 4, 30).
-days_in(_, 5, 31).
-days_in(_, 6, 30).
-days_in(_, 7, 31).
-days_in(_, 8, 31).
-days_in(_, 9, 30).
-days_in(_, 10, 31).
-days_in(_, 11, 30).
-days_in(_, 12, 31).
+days_in(_, 1, 31). days_in(Year, 2, 29) :- leap_year(Year).
+days_in(Year, 2, 28) :- common_year(Year). days_in(_, 3, 31). days_in(_, 4, 30).
+days_in(_, 5, 31). days_in(_, 6, 30). days_in(_, 7, 31). days_in(_, 8, 31).
+days_in(_, 9, 30). days_in(_, 10, 31). days_in(_, 11, 30). days_in(_, 12, 31).
 
 days_in(Year, Month, Days) :-
 	Month =< 0,
@@ -34,7 +25,12 @@ days_in(Year, Month, Days) :-
 	Closer_Year_Month is Month - 12,
 	days_in(Closer_Year, Closer_Year_Month, Days).
 
-% Predicates for counting the number of days between two dates
+% A generalized date, date(Y, M, D), means the same thing as a normal date when its value
+% is that of a normal date. In addition date(2006, 0, 1) refers to the month before
+% date(2006, 1, 1), date(2006, -1, 1) to the month before that, etc. Also date(2006, 5, 0)
+% refers to the day before date(2006, 5, 1), date(2006, 5, -1) to the day before that, etc.
+
+% Predicates for counting the number of days between two generalized dates
 
 day_diff(date(Year, From_Month, From_Day), date(Year, To_Month, To_Day), Days) :-
 	From_Month < To_Month,
@@ -72,7 +68,7 @@ absolute_day(Date, Day) :- day_diff(date(2000, 1, 1), Date, Day).
 % Predicates for asserting the fields of a hire purchase installment
 
 % The date the installment is to be paid
-hp_inst_date(hp_installment(Date, _), Date).
+hp_inst_day(hp_installment(Day, _), Day).
 % The amount that constitutes the installment
 hp_inst_amount(hp_installment(_, Installment), Installment).
 
@@ -82,8 +78,8 @@ hp_inst_amount(hp_installment(_, Installment), Installment).
 hp_arr_contract_number(hp_arrangement(Contract_Number, _, _, _, _, _), Contract_Number).
 % The opening balance of the whole arrangement
 hp_arr_cash_price(hp_arrangement(_, Cash_Price, _, _, _, _), Cash_Price).
-% The beginning date of the whole arrangement
-hp_arr_begin_date(hp_arrangement(_, _, Begin_Date, _, _, _), Begin_Date).
+% The beginning day of the whole arrangement
+hp_arr_begin_day(hp_arrangement(_, _, Begin_Day, _, _, _), Begin_Day).
 % The stated annual interest rate of the arrangement
 hp_arr_interest_rate(hp_arrangement(_, _, _, Interest_Rate, _, _), Interest_Rate).
 % A chronologically ordered list of pairs of installment dates and amounts
@@ -125,15 +121,15 @@ installments(date(From_Year, From_Month, From_Day), Num, date(Delta_Year, Delta_
 insert_balloon(Balloon_Installment, [], [Balloon_Installment]).
 
 insert_balloon(Balloon_Installment, [Installments_Hd | Installments_Tl], Result) :-
-	hp_inst_date(Balloon_Installment, Bal_Inst_Date),
-	hp_inst_date(Installments_Hd, Inst_Hd_Date),
-	Bal_Inst_Date =< Inst_Hd_Date,
+	hp_inst_day(Balloon_Installment, Bal_Inst_Day),
+	hp_inst_day(Installments_Hd, Inst_Hd_Day),
+	Bal_Inst_Day =< Inst_Hd_Day,
 	Result = [Balloon_Installment | [Installments_Hd | Installments_Tl]].
 
 insert_balloon(Balloon_Installment, [Installments_Hd | Installments_Tl], Result) :-
-	hp_inst_date(Balloon_Installment, Bal_Inst_Date),
-	hp_inst_date(Installments_Hd, Inst_Hd_Date),
-	Bal_Inst_Date > Inst_Hd_Date,
+	hp_inst_day(Balloon_Installment, Bal_Inst_Day),
+	hp_inst_day(Installments_Hd, Inst_Hd_Day),
+	Bal_Inst_Day > Inst_Hd_Day,
 	insert_balloon(Balloon_Installment, Installments_Tl, New_Installments_Tl),
 	Result = [Installments_Hd | New_Installments_Tl].
 
@@ -147,12 +143,12 @@ insert_balloon(Balloon_Installment, [Installments_Hd | Installments_Tl], Result)
 record_of_hp_arr(Arrangement, Record) :-
 	hp_rec_number(Record, Record_Number), hp_arr_record_offset(Arrangement, Record_Number),
 	hp_rec_opening_balance(Record, Cash_Price), hp_arr_cash_price(Arrangement, Cash_Price),
-	hp_arr_begin_date(Arrangement, Prev_Inst_Date),
+	hp_arr_begin_day(Arrangement, Prev_Inst_Day),
 	hp_rec_interest_rate(Record, Interest_Rate), hp_arr_interest_rate(Arrangement, Interest_Rate),
 	hp_arr_installments(Arrangement, [Installments_Hd|_]),
-	hp_inst_date(Installments_Hd, Current_Inst_Date),
+	hp_inst_day(Installments_Hd, Current_Inst_Day),
 	hp_inst_amount(Installments_Hd, Current_Inst_Amount),
-	Installment_Period is Current_Inst_Date - Prev_Inst_Date,
+	Installment_Period is Current_Inst_Day - Prev_Inst_Day,
 	Interest_Amount is Cash_Price * Interest_Rate * Installment_Period / (100 * 365),
 	hp_rec_interest_amount(Record, Interest_Amount),
 	hp_rec_installment_amount(Record, Current_Inst_Amount),
@@ -166,14 +162,14 @@ record_of_hp_arr(Arrangement, Record) :-
 	hp_arr_record_offset(New_Arrangement, New_Record_Offset),
 	hp_arr_contract_number(Arrangement, Contract_Number), hp_arr_contract_number(New_Arrangement, Contract_Number),
 	hp_arr_cash_price(Arrangement, Cash_Price),
-	hp_arr_begin_date(Arrangement, Prev_Inst_Date),
+	hp_arr_begin_day(Arrangement, Prev_Inst_Day),
 	hp_arr_interest_rate(Arrangement, Interest_Rate), hp_arr_interest_rate(New_Arrangement, Interest_Rate),
 	hp_arr_installments(Arrangement, [Installments_Hd|Installments_Tl]),
-	hp_inst_date(Installments_Hd, Current_Inst_Date),
+	hp_inst_day(Installments_Hd, Current_Inst_Day),
 	hp_inst_amount(Installments_Hd, Current_Inst_Amount),
-	hp_arr_begin_date(New_Arrangement, Current_Inst_Date),
+	hp_arr_begin_day(New_Arrangement, Current_Inst_Day),
 	hp_arr_installments(New_Arrangement, Installments_Tl),
-	Installment_Period is Current_Inst_Date - Prev_Inst_Date,
+	Installment_Period is Current_Inst_Day - Prev_Inst_Day,
 	Interest_Amount is Cash_Price * Interest_Rate * Installment_Period / (100 * 365),
 	New_Cash_Price is Cash_Price + Interest_Amount - Current_Inst_Amount,
 	New_Cash_Price >= 0,
@@ -226,9 +222,9 @@ range(Start, Stop, Step, Value) :-
 % Give me the interest rates in the range of 10% to 20% that will cause the hire purchase
 % arrangement to conclude in exactly 36 months.
 % range(10, 20, 0.1, Interest_Rate),
-% absolute_day(date(2014, 12, 16), Begin_Date),
+% absolute_day(date(2014, 12, 16), Begin_Day),
 % installments(date(2015, 1, 16), 100, date(0, 1, 0), 200.47, Installments),
-% record_count_of_hp_arr(hp_arrangement(0, 5953.2, Begin_Date, Interest_Rate, Installments, 1), 36).
+% record_count_of_hp_arr(hp_arrangement(0, 5953.2, Begin_Day, Interest_Rate, Installments, 1), 36).
 % Result:
 % Interest_Rate = 12.99999999999999 ;
 % Interest_Rate = 13.099999999999989 ;
@@ -243,22 +239,22 @@ range(Start, Stop, Step, Value) :-
 
 % What is the total amount the customer will pay over the course of the hire purchase
 % arrangement?
-% absolute_day(date(2014, 12, 16), Begin_Date),
+% absolute_day(date(2014, 12, 16), Begin_Day),
 % installments(date(2015, 1, 16), 36, date(0, 1, 0), 200.47, Installments),
-% total_payment_of_hp_arr(hp_arrangement(0, 5953.2, Begin_Date, 13, Installments, 1), Total_Payment).
+% total_payment_of_hp_arr(hp_arrangement(0, 5953.2, Begin_Day, 13, Installments, 1), Total_Payment).
 % Result: Total_Payment = 7216.920000000002.
 
 % What is the total interest the customer will pay over the course of the hire purchase
 % arrangement?
-% absolute_day(date(2014, 12, 16), Begin_Date),
+% absolute_day(date(2014, 12, 16), Begin_Day),
 % installments(date(2015, 1, 16), 36, date(0, 1, 0), 200.47, Installments),
-% total_interest_of_hp_arr(hp_arrangement(0, 5953.2, Begin_Date, 13, Installments, 1), Total_Interest).
+% total_interest_of_hp_arr(hp_arrangement(0, 5953.2, Begin_Day, 13, Installments, 1), Total_Interest).
 % Result: Total_Interest = 1269.925914056732.
 
 % Give me all the records of a hire purchase arrangement:
-% absolute_day(date(2014, 12, 16), Begin_Date),
+% absolute_day(date(2014, 12, 16), Begin_Day),
 % installments(date(2015, 1, 16), 36, date(0, 1, 0), 200.47, Installments),
-% record_of_hp_arr(hp_arrangement(0, 5953.2, Begin_Date, 13, Installments, 1), Records).
+% record_of_hp_arr(hp_arrangement(0, 5953.2, Begin_Day, 13, Installments, 1), Records).
 % Result:
 % Records = hp_record(1, 5953.2, 13, 65.7298520547945, 200.47, 5818.459852054794) ;
 % Records = hp_record(2, 5818.459852054794, 13, 64.24217316104335, 200.47, 5682.232025215837) ;
