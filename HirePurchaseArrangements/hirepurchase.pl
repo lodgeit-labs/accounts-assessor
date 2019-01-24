@@ -29,6 +29,7 @@ days_in(Year, Month, Days) :-
 % is that of a normal date. In addition date(2006, 0, 1) refers to the month before
 % date(2006, 1, 1), date(2006, -1, 1) to the month before that, etc. Also date(2006, 5, 0)
 % refers to the day before date(2006, 5, 1), date(2006, 5, -1) to the day before that, etc.
+% Useful for specifying that payments happen at month-ends.
 
 % Predicates for counting the number of days between two generalized dates
 
@@ -220,7 +221,7 @@ range(Start, Stop, Step, Value) :-
 % X = 19.900000000000034 ;
 
 % Give me the interest rates in the range of 10% to 20% that will cause the hire purchase
-% arrangement to conclude in exactly 36 months.
+% arrangement to conclude in exactly 36 months:
 % range(10, 20, 0.1, Interest_Rate),
 % absolute_day(date(2014, 12, 16), Begin_Day),
 % installments(date(2015, 1, 16), 100, date(0, 1, 0), 200.47, Installments),
@@ -230,12 +231,18 @@ range(Start, Stop, Step, Value) :-
 % Interest_Rate = 13.099999999999989 ;
 % ...
 % Interest_Rate = 14.399999999999984 ;
-% Note that instead of getting Prolog to try to solve a system of equations (and hang),
-% I cheated by just getting Prolog to exhaustively search a finite domain of generated
-% values.
-% Also note that several to different interest rates can result in hire purchase
+% Note that several to different interest rates can result in hire purchase
 % arrangements with the same duration. In this case, it is only the closing balance
 % after the last installment that changes.
+
+% Add a ballon to a regular schedule of installments:
+% installments(date(2015, 1, 16), 100, date(0, 1, 0), 200.47, Installments),
+% absolute_day(date(2014, 12, 16), Balloon_Day),
+% insert_balloon(hp_installment(Balloon_Day, 1000), Installments, Installments_With_Balloon).
+% Result:
+% Installments = [hp_installment(5494, 200.47), hp_installment(5525, 200.47), hp_installment(5553, 200.47), ...|...],
+% Balloon_Day = 5463,
+% Installments_With_Balloon = [hp_installment(5463, 1000), hp_installment(5494, 200.47), hp_installment(5525, 200.47), ...|...]
 
 % What is the total amount the customer will pay over the course of the hire purchase
 % arrangement?
