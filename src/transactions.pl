@@ -3,16 +3,20 @@
 
 pac_identity(t_term(0, 0)).
 
+pac_inverse(t_term(A, B), t_term(B, A)).
+
 pac_add(t_term(A, B), t_term(C, D), Res) :-
 	E is A + C,
 	F is B + D,
 	Res = t_term(E, F).
 
+pac_sub(A, B, Res) :-
+	pac_inverse(B, C),
+	pac_add(A, C, Res).
+
 pac_equality(t_term(A, B), t_term(C, D)) :-
 	E is A + D,
 	E is C + B.
-
-pac_inverse(t_term(A, B), t_term(B, A)).
 
 pac_reduce(t_term(A, B), C) :-
 	D is A - min(A, B),
