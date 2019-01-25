@@ -10,6 +10,16 @@
 % summary values directly from the original data and ultimately will be expected to add
 % correction entries to the balance sheet when it is in error.
 
+% Predicate to generate a range of values through stepping forwards from a start point
+
+range(Start, _, _, Value) :-
+	Start = Value.
+
+range(Start, Stop, Step, Value) :-
+	Next_Start is Start + Step,
+	Next_Start < Stop,
+	range(Next_Start, Stop, Step, Value).
+
 % Predicates for asserting the fields of a hire purchase installment
 
 % The date the potential installment is to be paid
@@ -144,13 +154,60 @@ hp_arr_total_interest(Arrangement, Total_Interest) :-
 		Interest_Amounts),
 	sum_list(Interest_Amounts, Total_Interest).
 
-% Predicate to generate a range of values through stepping forwards from a start point
+% Relates a hire purchase record to a transaction to the given hire purchase account
+% that is of an amount equal to that of the record and that occurs within the period of
+% the record.
 
-range(Start, _, _, Value) :-
-	Start = Value.
+hp_arr_record_transaction(Arrangement, HP_Account, Record, Transaction) :-
+	hp_arr_record(Arrangement, Record),
+	hp_rec_installment_amount(Record, Installment_Amount),
+	hp_rec_opening_day(Record, Opening_Day), hp_rec_closing_day(Record, Closing_Day),
+	transactions(Transaction),
+	transaction_date(Transaction, Transaction_Date),
+	Opening_Day < Transaction_Date, Transaction_Date =< Closing_Day,
+	transaction_t_term(Transaction, Transaction_T_Term),
+	debit_isomorphism(Transaction_T_Term, Transaction_Amount),
+	Installment_Amount =:= Transaction_Amount,
+	transaction_account(Transaction, HP_Account), !.
 
-range(Start, Stop, Step, Value) :-
-	Next_Start is Start + Step,
-	Next_Start < Stop,
-	range(Next_Start, Stop, Step, Value).
+% Relates a hire purchase record that does not have a transaction in the above sense to a
+% transaction to an incorrect account that is of an amount equal to that of the record and
+% that occurs within the period of the record.
+
+hp_arr_record_wrong_account_transaction(Arrangement, HP_Account, Record, Transaction) :-
+	hp_arr_record(Arrangement, Record),
+	\+ hp_arr_record_transaction(Arrangement, HP_Account, Record, _),
+	hp_rec_installment_amount(Record, Installment_Amount),
+	hp_rec_opening_day(Record, Opening_Day), hp_rec_closing_day(Record, Closing_Day),
+	transactions(Transaction),
+	transaction_date(Transaction, Transaction_Date),
+	Opening_Day < Transaction_Date, Transaction_Date =< Closing_Day,
+	transaction_t_term(Transaction, Transaction_T_Term),
+	debit_isomorphism(Transaction_T_Term, Transaction_Amount),
+	Installment_Amount =:= Transaction_Amount,
+	transaction_account(Transaction, Transaction_Account),
+	Transaction_Account \= HP_Account, !.
+
+% Relates a hire purchase record that has a transaction to the incorrect account in the
+% above sense to a pair of correction transactions.
+
+hp_arr_record_wrong_acount_transaction_correction(Arrangement, HP_Account, Record, Transaction_Correction) :-
+	hp_arr_record_wrong_account_transaction(Arrangement, HP_Account, Record, Transaction)
+	hp_rec_installment_amount(Record, Installment_Amount),
+	transaction_account(Transaction, Transaction_Account),
+	member(Transaction_Correction,
+		[transaction(0, correction, HP_Account, t_term(Installment_Amount, 0)),
+		transaction(0, correction, Transaction_Account, t_term(0, Installment_Amount))]).
+
+% Relates a hire purchase record that neither has a transaction nor a transaction to the
+% wrong account to a pair of correction transactions.
+
+hp_arr_record_nonexistent_transaction_correction(Arrangement, HP_Account, Missing_HP_Account, Record, Transaction_Correction) :-
+	hp_arr_record(Arrangement, Record),
+	\+ hp_arr_record_transaction(Arrangement, HP_Account, Record, _),
+	\+ hp_arr_wrong_account_record_transaction(Arrangement, HP_Account, Record, _),
+	hp_rec_installment_amount(Record, Installment_Amount),
+	member(Transaction_Correction,
+		[transaction(0, correction, HP_Account, t_term(Installment_Amount, 0)),
+		transaction(0, correction, Missing_HP_Account, t_term(0, Installment_Amount))]).
 
