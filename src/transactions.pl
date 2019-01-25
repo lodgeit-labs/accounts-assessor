@@ -42,12 +42,12 @@ transaction_account_type(Transaction, Account_Type) :-
 
 transaction_between(Transaction, From_Date, To_Date) :-
 	transaction_date(Transaction, Date),
-	From_Date @=< Date,
-	Date @=< To_Date.
+	From_Date =< Date,
+	Date =< To_Date.
 
 transaction_before(Transaction, End_Date) :-
 	transaction_date(Transaction, Date),
-	Date @=< End_Date.
+	Date =< End_Date.
 
 % Account isomorphisms. They are standard conventions in accounting.
 
