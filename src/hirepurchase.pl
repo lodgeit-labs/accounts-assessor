@@ -57,7 +57,9 @@ hp_rec_interest_amount(hp_record(_, _, _, Interest_Amount, _, _, _, _), Interest
 hp_rec_installment_amount(hp_record(_, _, _, _, Installment_Amount, _, _, _), Installment_Amount).
 % The balance of the payment at the end of the given period
 hp_rec_closing_balance(hp_record(_, _, _, _, _, Closing_Balance, _, _), Closing_Balance).
+% The opening day of the given record's period
 hp_rec_opening_day(hp_record(_, _, _, _, _, _, Opening_Day, _), Opening_Day).
+% The closing day of the given record's period
 hp_rec_closing_day(hp_record(_, _, _, _, _, _, _, Closing_Day), Closing_Day).
 
 % A predicate for generating Num installments starting at the given date and occurring
@@ -168,8 +170,17 @@ hp_arr_record_transaction(Arrangement, HP_Account, Record, Transaction) :-
 	transaction_t_term(Transaction, Transaction_T_Term),
 	debit_isomorphism(Transaction_T_Term, Transaction_Amount),
 	Installment_Amount =:= Transaction_Amount,
-	transaction_account(Transaction, HP_Account), !.
+	transaction_account(Transaction, HP_Account).
 
+% Relates a hire purchase record to a duplicate transaction to the given hire purchase
+% account that is of an amount equal to that of the record and that occurs within the
+% period of the record.
+
+hp_arr_record_duplicate_transaction(Arrangement, HP_Account, Record, Duplicate_Transaction) :-
+	once(hp_arr_record_transaction(Arrangement, HP_Account, Record, Chosen_Transaction)),
+	hp_arr_record_transaction(Arrangement, HP_Account, Record, Duplicate_Transaction),
+	Chosen_Transaction \= Duplicate_Transaction.
+	
 % Relates a hire purchase record that does not have a transaction in the above sense to a
 % transaction to an incorrect account that is of an amount equal to that of the record and
 % that occurs within the period of the record.
@@ -216,7 +227,20 @@ hp_arr_record_non_existent_transaction(Arrangement, HP_Account, Record) :-
 	\+ hp_arr_record_transaction(Arrangement, HP_Account, Record, _),
 	\+ hp_arr_record_wrong_account_transaction(Arrangement, HP_Account, Record, _),
 	\+ hp_arr_record_wrong_amount_transaction(Arrangement, HP_Account, Record, _).
-	
+
+% Relates a hire purchase record that has a duplicate transaction in the above sense to a
+% pair of correction transactions that transfer from the hire purchase account to the
+% missing hire purchase account.
+
+hp_arr_record_duplicate_transaction_correction(Arrangement, HP_Account, Missing_HP_Account, Record, Transaction_Correction) :-
+	hp_arr_record(Arrangement, Record),
+	hp_arr_record_duplicate_transaction(Arrangement, HP_Account, Record, Duplicate_Transaction),
+	transaction_t_term(Duplicate_Transaction, Transaction_T_Term),
+	pac_inverse(Transaction_T_Term, Transaction_T_Term_Inverted),
+	member(Transaction_Correction,
+		[transaction(0, correction, HP_Account, Transaction_T_Term_Inverted),
+		transaction(0, correction, Missing_HP_Account, Transaction_T_Term)]).
+
 % Relates a hire purchase record that has a transaction to the incorrect account in the
 % above sense to a pair of correction transactions that transfer from the incorrect
 % account to the correct account.
@@ -261,6 +285,7 @@ hp_arr_record_nonexistent_transaction_correction(Arrangement, HP_Account, Missin
 % payments of the wrong amount are made or where no payment has been made.
 
 hp_arr_correction(Arrangement, HP_Account, Missing_HP_Account, Transaction_Correction) :-
+	hp_arr_record_duplicate_transaction_correction(Arrangement, HP_Account, Missing_HP_Account, _, Transaction_Correction);
 	hp_arr_record_wrong_account_transaction_correction(Arrangement, HP_Account, _, Transaction_Correction);
 	hp_arr_record_wrong_amount_transaction_correction(Arrangement, HP_Account, Missing_HP_Account, _, Transaction_Correction);
 	hp_arr_record_nonexistent_transaction_correction(Arrangement, HP_Account, Missing_HP_Account, _, Transaction_Correction).

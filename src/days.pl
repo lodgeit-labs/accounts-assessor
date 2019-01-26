@@ -1,3 +1,15 @@
+% The purpose of the following program is to define modular dates, a generalization of
+% Gregorian dates where the day and month can take on any integral value. They allow you
+% to do things like specify a date relative to the end of a month, add a month to it and
+% get a date relative to the end of the next month. The program also defines absolute
+% days, the number of days since since 1st January 2001. And accordingly it provides
+% relations to convert from modular dates to absolute days.
+
+% This program is a part of a larger system for deriving various pieces of information on
+% different financial arrangements, hire purchase arrangements being an example. This
+% larger system uses absolute days to represent time internally because they are easier
+% to manipulate with than Gregorian dates.
+
 % Some facts about the Gregorian calendar, needed to count days between dates
 
 leap_year(Year) :- 0 is mod(Year, 4), X is mod(Year, 100), X =\= 0.
@@ -28,8 +40,9 @@ days_in(Year, Month, Days) :-
 % A generalized date, date(Y, M, D), means the same thing as a normal date when its value
 % is that of a normal date. In addition date(2006, 0, 1) refers to the month before
 % date(2006, 1, 1), date(2006, -1, 1) to the month before that, etc. Also date(2006, 5, 0)
-% refers to the day before date(2006, 5, 1), date(2006, 5, -1) to the day before that, etc.
-% Useful for specifying that payments happen at month-ends.
+% refers to the day before date(2006, 5, 1), date(2006, 5, -1) to the day before that,
+% etc. Months have precedence over days. Useful for specifying that payments happen at
+% month-ends.
 
 % Predicates for counting the number of days between two generalized dates
 

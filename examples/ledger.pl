@@ -1,6 +1,8 @@
 % The T-Account for some hypothetical business. The schema follows:
 % transaction(Date, Description, Account, T_Term).
-
+transactions(transaction(D, invest_in_business, hp_account, t_term(200.47, 0))) :- absolute_day(date(2015, 1, 16), D).
+transactions(transaction(D, invest_in_businessa, hp_account, t_term(200.47, 0))) :- absolute_day(date(2015, 1, 16), D).
+transactions(transaction(D, invest_in_businessb, hp_account, t_term(200.47, 0))) :- absolute_day(date(2015, 1, 16), D).
 transactions(transaction(D, invest_in_business, bank, t_term(100, 0))) :- absolute_day(date(2017, 7, 1), D).
 transactions(transaction(D, invest_in_business, share_capital, t_term(0, 100))) :- absolute_day(date(2017, 7, 1), D).
 transactions(transaction(D, buy_inventory, inventory, t_term(50, 0))) :- absolute_day(date(2017, 7, 2), D).

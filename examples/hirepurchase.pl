@@ -56,3 +56,31 @@ hp_arr_record_count(hp_arrangement(0, 5953.2, Begin_Day, Interest_Rate, 1, Insta
 % arrangements with the same duration. In this case, it is only the closing balance
 % after the last installment that changes.
 
+% The ledger has erroneous transactions: its second and third transactions are duplicates
+% of the first, can we make some correctional transactions to undo the payments to the
+% hire purchase account and put them into the hire purchase suspense account. Also
+% none of the installments other than the first were paid, can we make some correctional
+% transactions to debit the hire purchase account and credit the hire purchase suspense
+% account?
+absolute_day(date(2014, 12, 16), Begin_Day),
+installments(date(2015, 1, 16), 36, date(0, 1, 0), 200.47, Installments),
+hp_arr_correction(hp_arrangement(0, 5953.2, Begin_Day, 13, 1, Installments), hp_account, hp_suspense_account, Correction_Transaction).
+% Result:
+% % Undo the first duplicate transaction in the hire purchase account
+% Correction_Transaction = transaction(0, correction, hp_account, t_term(0, 200.47)) ;
+% % Put the amount in the hire purchase suspense account
+% Correction_Transaction = transaction(0, correction, missing_hp_account, t_term(200.47, 0)) ;
+% % Undo the second duplicate transaction in the hire purchase account
+% Correction_Transaction = transaction(0, correction, hp_account, t_term(0, 200.47)) ;
+% % Put the amount in the hire purchase suspense account
+% Correction_Transaction = transaction(0, correction, hp_suspense_account, t_term(200.47, 0)) ;
+% % Now pay the second installment - it has not been paid yet
+% Correction_Transaction = transaction(0, correction, hp_account, t_term(200.47, 0)) ;
+% % Credit the hire purchase suspense account
+% Correction_Transaction = transaction(0, correction, hp_suspense_account, t_term(0, 200.47)) ;
+% ...
+% % Now pay the last installment - it has not been paid yet
+% Correction_Transaction = transaction(0, correction, hp_account, t_term(200.47, 0)) ;
+% % Credit the hire purchase suspense account
+% Correction_Transaction = transaction(0, correction, hp_suspense_account, t_term(0, 200.47)) ;
+
