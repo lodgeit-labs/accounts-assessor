@@ -61,16 +61,9 @@ day_diff(date(Year, From_Month, From_Day), date(Year, To_Month, To_Day), Days) :
 	day_diff(date(Year, From_Month, From_Day), date(Year, New_To_Month, New_To_Day), Days), !.
 
 day_diff(date(From_Year, From_Month, From_Day), date(To_Year, To_Month, To_Day), Days) :-
-	From_Year < To_Year,
-	New_To_Year is To_Year - 1,
-	New_To_Month is To_Month + 12,
-	day_diff(date(From_Year, From_Month, From_Day), date(New_To_Year, New_To_Month, To_Day), Days), !.
-
-day_diff(date(From_Year, From_Month, From_Day), date(To_Year, To_Month, To_Day), Days) :-
-	To_Year < From_Year,
-	New_To_Year is To_Year + 1,
-	New_To_Month is To_Month - 12,
-	day_diff(date(From_Year, From_Month, From_Day), date(New_To_Year, New_To_Month, To_Day), Days), !.
+	From_Year =\= To_Year,
+	New_To_Month is To_Month + 12 * (To_Year - From_Year),
+	day_diff(date(From_Year, From_Month, From_Day), date(From_Year, New_To_Month, To_Day), Days), !.
 
 day_diff(date(Year, Month, From_Day), date(Year, Month, To_Day), Diff) :-
 	Diff is To_Day - From_Day.

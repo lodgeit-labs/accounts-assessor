@@ -11,14 +11,14 @@ insert_balloon(hp_installment(Balloon_Day, 1000), Installments, Installments_Wit
 % arrangement?
 absolute_day(date(2014, 12, 16), Begin_Day),
 installments(date(2015, 1, 16), 36, date(0, 1, 0), 200.47, Installments),
-hp_arr_total_payment(hp_arrangement(0, 5953.2, Begin_Day, 13, 1, Installments), Total_Payment).
+hp_arr_total_payment_from(hp_arrangement(0, 5953.2, Begin_Day, 13, 1, Installments), Begin_Day, Total_Payment).
 % Result: Total_Payment = 7216.920000000002.
 
 % What is the total interest the customer will pay over the course of the hire purchase
 % arrangement?
 absolute_day(date(2014, 12, 16), Begin_Day),
 installments(date(2015, 1, 16), 36, date(0, 1, 0), 200.47, Installments),
-hp_arr_total_interest(hp_arrangement(0, 5953.2, Begin_Day, 13, 1, Installments), Total_Interest).
+hp_arr_total_interest_from(hp_arrangement(0, 5953.2, Begin_Day, 13, 1, Installments), Begin_Day, Total_Interest).
 % Result: Total_Interest = 1269.925914056732.
 
 % Give me all the records of a hire purchase arrangement:

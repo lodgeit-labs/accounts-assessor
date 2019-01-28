@@ -144,15 +144,31 @@ hp_arr_record_count(Arrangement, Record_Count) :-
 	hp_arr_records(Arrangement, Records),
 	length(Records, Record_Count).
 
-hp_arr_total_payment(Arrangement, Total_Payment) :-
+hp_arr_total_payment_from(Arrangement, From_Day, Total_Payment) :-
 	findall(Installment_Amount,
-		(hp_arr_record(Arrangement, Record), hp_rec_installment_amount(Record, Installment_Amount)),
+		(hp_arr_record(Arrangement, Record), hp_rec_installment_amount(Record, Installment_Amount),
+		hp_rec_closing_day(Record, Closing_Day), From_Day < Closing_Day),
 		Installment_Amounts),
 	sum_list(Installment_Amounts, Total_Payment).
 
-hp_arr_total_interest(Arrangement, Total_Interest) :-
+hp_arr_total_payment_between(Arrangement, From_Day, To_Day, Total_Payment) :-
+	findall(Installment_Amount,
+		(hp_arr_record(Arrangement, Record), hp_rec_installment_amount(Record, Installment_Amount),
+		hp_rec_closing_day(Record, Closing_Day), From_Day < Closing_Day, Closing_Day =< To_Day),
+		Installment_Amounts),
+	sum_list(Installment_Amounts, Total_Payment).
+
+hp_arr_total_interest_from(Arrangement, From_Day, Total_Interest) :-
 	findall(Interest_Amount,
-		(hp_arr_record(Arrangement, Record), hp_rec_interest_amount(Record, Interest_Amount)),
+		(hp_arr_record(Arrangement, Record), hp_rec_interest_amount(Record, Interest_Amount),
+		hp_rec_closing_day(Record, Closing_Day), From_Day < Closing_Day),
+		Interest_Amounts),
+	sum_list(Interest_Amounts, Total_Interest).
+
+hp_arr_total_interest_between(Arrangement, From_Day, To_Day, Total_Interest) :-
+	findall(Interest_Amount,
+		(hp_arr_record(Arrangement, Record), hp_rec_interest_amount(Record, Interest_Amount),
+		hp_rec_closing_day(Record, Closing_Day), From_Day < Closing_Day, Closing_Day =< To_Day),
 		Interest_Amounts),
 	sum_list(Interest_Amounts, Total_Interest).
 
@@ -289,4 +305,13 @@ hp_arr_correction(Arrangement, HP_Account, HP_Suspense_Account, Transaction_Corr
 	hp_arr_record_wrong_account_transaction_correction(Arrangement, HP_Account, _, Transaction_Correction);
 	hp_arr_record_wrong_amount_transaction_correction(Arrangement, HP_Account, HP_Suspense_Account, _, Transaction_Correction);
 	hp_arr_record_nonexistent_transaction_correction(Arrangement, HP_Account, HP_Suspense_Account, _, Transaction_Correction).
+
+hp_time_split(To_Day, Arrangement, Cur_Liability, Cur_Unexpired_Interest, Non_Cur_Liability, Non_Cur_Unexpired_Interest) :-
+	absolute_day(date(2001, 1, To_Day), Year_End_Day),
+	hp_arr_total_payment_between(Arrangement, To_Day, Year_End_Day, Cur_Liability),
+	hp_arr_total_interest_between(Arrangement, To_Day, Year_End_Day, Neg_Cur_Unexpired_Interest),
+	Cur_Unexpired_Interest is -Neg_Cur_Unexpired_Interest,
+	hp_arr_total_payment_from(Arrangement, Year_End_Day, Non_Cur_Liability),
+	hp_arr_total_interest_from(Arrangement, Year_End_Day, Neg_Non_Cur_Unexpired_Interest),
+	Non_Cur_Unexpired_Interest is -Neg_Non_Cur_Unexpired_Interest.
 
