@@ -78,12 +78,21 @@ installments(From_Date, Num, Delta_Date, Installment_Amount, Range) :-
 
 insert_balloon(Balloon_Installment, [], [Balloon_Installment]).
 
+% Balloon payment precedes all other payments
 insert_balloon(Balloon_Installment, [Installments_Hd | Installments_Tl], Result) :-
 	hp_inst_day(Balloon_Installment, Bal_Inst_Day),
 	hp_inst_day(Installments_Hd, Inst_Hd_Day),
-	Bal_Inst_Day =< Inst_Hd_Day,
+	Bal_Inst_Day < Inst_Hd_Day,
 	Result = [Balloon_Installment | [Installments_Hd | Installments_Tl]].
 
+% Balloon payment replaces installment on same date
+insert_balloon(Balloon_Installment, [Installments_Hd | Installments_Tl], Result) :-
+	hp_inst_day(Balloon_Installment, Bal_Inst_Day),
+	hp_inst_day(Installments_Hd, Inst_Hd_Day),
+	Bal_Inst_Day = Inst_Hd_Day,
+	Result = [Balloon_Installment | Installments_Tl].
+
+% Balloon payment goes into the tail of the installments
 insert_balloon(Balloon_Installment, [Installments_Hd | Installments_Tl], Result) :-
 	hp_inst_day(Balloon_Installment, Bal_Inst_Day),
 	hp_inst_day(Installments_Hd, Inst_Hd_Day),
