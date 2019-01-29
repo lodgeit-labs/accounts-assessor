@@ -67,13 +67,11 @@ hp_rec_closing_day(hp_record(_, _, _, _, _, _, _, Closing_Day), Closing_Day).
 
 installments(_, 0, _, _, []).
 
-installments(date(From_Year, From_Month, From_Day), Num, date(Delta_Year, Delta_Month, Delta_Day), Installment_Amount, Range) :-
-	Next_Year is From_Year + Delta_Year,
-	Next_Month is From_Month + Delta_Month,
-	Next_Day is From_Day + Delta_Day,
+installments(From_Date, Num, Delta_Date, Installment_Amount, Range) :-
+	date_add(From_Date, Delta_Date, Next_Date),
 	Next_Num is Num - 1,
-	installments(date(Next_Year, Next_Month, Next_Day), Next_Num, date(Delta_Year, Delta_Month, Delta_Day), Installment_Amount, Range_Tl),
-	absolute_day(date(From_Year, From_Month, From_Day), Installment_Day),
+	installments(Next_Date, Next_Num, Delta_Date, Installment_Amount, Range_Tl),
+	absolute_day(From_Date, Installment_Day),
 	Range = [hp_installment(Installment_Day, Installment_Amount) | Range_Tl], !.
 
 % A predicate for inserting balloon payment into a list of installments
@@ -109,7 +107,7 @@ hp_arr_record(Arrangement, Record) :-
 	hp_inst_day(Installments_Hd, Current_Inst_Day), hp_rec_closing_day(Record, Current_Inst_Day),
 	hp_inst_amount(Installments_Hd, Current_Inst_Amount),
 	Installment_Period is Current_Inst_Day - Prev_Inst_Day,
-	Interest_Amount is Cash_Price * Interest_Rate * Installment_Period / (100 * 365),
+	Interest_Amount is Cash_Price * Interest_Rate * Installment_Period / (100 * 365.2425),
 	hp_rec_interest_amount(Record, Interest_Amount),
 	hp_rec_installment_amount(Record, Current_Inst_Amount),
 	Closing_Balance is Cash_Price + Interest_Amount - Current_Inst_Amount,
@@ -129,7 +127,7 @@ hp_arr_record(Arrangement, Record) :-
 	hp_inst_amount(Installments_Hd, Current_Inst_Amount),
 	hp_arr_begin_day(New_Arrangement, Current_Inst_Day),
 	Installment_Period is Current_Inst_Day - Prev_Inst_Day,
-	Interest_Amount is Cash_Price * Interest_Rate * Installment_Period / (100 * 365),
+	Interest_Amount is Cash_Price * Interest_Rate * Installment_Period / (100 * 365.2425),
 	New_Cash_Price is Cash_Price + Interest_Amount - Current_Inst_Amount,
 	New_Cash_Price >= 0,
 	hp_arr_cash_price(New_Arrangement, New_Cash_Price),
@@ -147,28 +145,28 @@ hp_arr_record_count(Arrangement, Record_Count) :-
 hp_arr_total_payment_from(Arrangement, From_Day, Total_Payment) :-
 	findall(Installment_Amount,
 		(hp_arr_record(Arrangement, Record), hp_rec_installment_amount(Record, Installment_Amount),
-		hp_rec_closing_day(Record, Closing_Day), From_Day < Closing_Day),
+		hp_rec_closing_day(Record, Closing_Day), From_Day =< Closing_Day),
 		Installment_Amounts),
 	sum_list(Installment_Amounts, Total_Payment).
 
 hp_arr_total_payment_between(Arrangement, From_Day, To_Day, Total_Payment) :-
 	findall(Installment_Amount,
 		(hp_arr_record(Arrangement, Record), hp_rec_installment_amount(Record, Installment_Amount),
-		hp_rec_closing_day(Record, Closing_Day), From_Day < Closing_Day, Closing_Day =< To_Day),
+		hp_rec_closing_day(Record, Closing_Day), From_Day =< Closing_Day, Closing_Day < To_Day),
 		Installment_Amounts),
 	sum_list(Installment_Amounts, Total_Payment).
 
 hp_arr_total_interest_from(Arrangement, From_Day, Total_Interest) :-
 	findall(Interest_Amount,
 		(hp_arr_record(Arrangement, Record), hp_rec_interest_amount(Record, Interest_Amount),
-		hp_rec_closing_day(Record, Closing_Day), From_Day < Closing_Day),
+		hp_rec_closing_day(Record, Closing_Day), From_Day =< Closing_Day),
 		Interest_Amounts),
 	sum_list(Interest_Amounts, Total_Interest).
 
 hp_arr_total_interest_between(Arrangement, From_Day, To_Day, Total_Interest) :-
 	findall(Interest_Amount,
 		(hp_arr_record(Arrangement, Record), hp_rec_interest_amount(Record, Interest_Amount),
-		hp_rec_closing_day(Record, Closing_Day), From_Day < Closing_Day, Closing_Day =< To_Day),
+		hp_rec_closing_day(Record, Closing_Day), From_Day =< Closing_Day, Closing_Day < To_Day),
 		Interest_Amounts),
 	sum_list(Interest_Amounts, Total_Interest).
 
@@ -306,12 +304,17 @@ hp_arr_correction(Arrangement, HP_Account, HP_Suspense_Account, Transaction_Corr
 	hp_arr_record_wrong_amount_transaction_correction(Arrangement, HP_Account, HP_Suspense_Account, _, Transaction_Correction);
 	hp_arr_record_nonexistent_transaction_correction(Arrangement, HP_Account, HP_Suspense_Account, _, Transaction_Correction).
 
-hp_time_split(To_Day, Arrangement, Cur_Liability, Cur_Unexpired_Interest, Non_Cur_Liability, Non_Cur_Unexpired_Interest) :-
-	absolute_day(date(2001, 1, To_Day), Year_End_Day),
-	hp_arr_total_payment_between(Arrangement, To_Day, Year_End_Day, Cur_Liability),
-	hp_arr_total_interest_between(Arrangement, To_Day, Year_End_Day, Neg_Cur_Unexpired_Interest),
+% Relates a hire purchase arrangement to the fields that summarize it in a financial
+% report at a given date. In particular, the time split report refers to the method of
+% reporting the hire purchase arrangement's current liability, current unexpired interest,
+% non-current liability, and non-current unexpired interest at a given point in time.
+
+hp_arr_time_split_report(Arrangement, Start_Day, Cur_Liability, Cur_Unexpired_Interest, Non_Cur_Liability, Non_Cur_Unexpired_Interest) :-
+	gregorian_date(Start_Day, Start_Date), date_add(Start_Date, date(1, 0, 0), End_Date), absolute_day(End_Date, End_Day),
+	hp_arr_total_payment_between(Arrangement, Start_Day, End_Day, Cur_Liability),
+	hp_arr_total_interest_between(Arrangement, Start_Day, End_Day, Neg_Cur_Unexpired_Interest),
 	Cur_Unexpired_Interest is -Neg_Cur_Unexpired_Interest,
-	hp_arr_total_payment_from(Arrangement, Year_End_Day, Non_Cur_Liability),
-	hp_arr_total_interest_from(Arrangement, Year_End_Day, Neg_Non_Cur_Unexpired_Interest),
+	hp_arr_total_payment_from(Arrangement, End_Day, Non_Cur_Liability),
+	hp_arr_total_interest_from(Arrangement, End_Day, Neg_Non_Cur_Unexpired_Interest),
 	Non_Cur_Unexpired_Interest is -Neg_Non_Cur_Unexpired_Interest.
 

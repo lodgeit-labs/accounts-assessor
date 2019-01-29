@@ -44,31 +44,51 @@ days_in(Year, Month, Days) :-
 % etc. Months have precedence over days. Useful for specifying that payments happen at
 % month-ends.
 
-% Predicates for counting the number of days between two generalized dates
+date_add(date(A, B, C), date(D, E, F), date(G, H, I)) :-
+	G is A + D,
+	H is B + E,
+	I is C + F.
 
-day_diff(date(Year, From_Month, From_Day), date(Year, To_Month, To_Day), Days) :-
-	From_Month < To_Month,
-	New_To_Month is To_Month - 1,
-	days_in(Year, New_To_Month, New_To_Month_Days),
-	New_To_Day is To_Day + New_To_Month_Days,
-	day_diff(date(Year, From_Month, From_Day), date(Year, New_To_Month, New_To_Day), Days), !.
+% The following predicate relates a date to which day it is in the year
 
-day_diff(date(Year, From_Month, From_Day), date(Year, To_Month, To_Day), Days) :-
-	To_Month < From_Month,
-	days_in(Year, To_Month, To_Month_Days),
-	New_To_Month is To_Month + 1,
-	New_To_Day is To_Day - To_Month_Days,
-	day_diff(date(Year, From_Month, From_Day), date(Year, New_To_Month, New_To_Day), Days), !.
+year_day(date(_, 1, Day), Day).
 
-day_diff(date(From_Year, From_Month, From_Day), date(To_Year, To_Month, To_Day), Days) :-
-	From_Year =\= To_Year,
-	New_To_Month is To_Month + 12 * (To_Year - From_Year),
-	day_diff(date(From_Year, From_Month, From_Day), date(From_Year, New_To_Month, To_Day), Days), !.
+year_day(date(Year, Month, Day), Year_Day) :-
+	Month > 1,
+	Prev_Month is Month - 1,
+	year_day(date(Year, Prev_Month, 1), Day_A),
+	days_in(Year, Prev_Month, Day_B),
+	Year_Day is Day_A + Day - 1 + Day_B.
 
-day_diff(date(Year, Month, From_Day), date(Year, Month, To_Day), Diff) :-
-	Diff is To_Day - From_Day.
+year_day(date(Year, Month, Day), Year_Day) :-
+	Month < 1,
+	Next_Month is Month + 1,
+	year_day(date(Year, Next_Month, 1), Day_A),
+	days_in(Year, Month, Day_B),
+	Year_Day is Day_A + Day - 1 - Day_B.
 
-% Internal representation for dates is absolute day count since 1st January 2001
+% Internal representation for dates is absolute day count since 1st January 0001
 
-absolute_day(Date, Day) :- day_diff(date(2000, 1, 1), Date, Day).
+absolute_day(date(Year, Month, Day), Abs_Day) :-
+	Month_A is (Year - 1) * 12 + (Month - 1),
+	Num_400Y is Month_A div (400 * 12),
+	Num_100Y is Month_A div (100 * 12),
+	Num_4Y is Month_A div (4 * 12),
+	Num_1Y is Month_A div (1 * 12),
+	Years_Day is (Num_1Y * 365) + (Num_4Y * 1) - (Num_100Y * 1) + (Num_400Y * 1),
+	Month_B is 1 + (Month_A mod 12),
+	year_day(date(Num_1Y, Month_B, Day), Year_Day),
+	Abs_Day is Years_Day + Year_Day - 1.
+
+gregorian_date(Abs_Day, date(Year, 1, Day)) :-
+	Days_1Y is 365,
+	Days_4Y is (4 * Days_1Y) + 1,
+	Days_100Y is (25 * Days_4Y) - 1,
+	Days_400Y is (4 * Days_100Y) + 1,
+	Num_400Y is Abs_Day div Days_400Y,
+	Num_100Y is (Abs_Day mod Days_400Y) div Days_100Y,
+	Num_4Y is ((Abs_Day mod Days_400Y) mod Days_100Y) div Days_4Y,
+	Num_1Y is (((Abs_Day mod Days_400Y) mod Days_100Y) mod Days_4Y) div Days_1Y,
+	Day is (((Abs_Day mod Days_400Y) mod Days_100Y) mod Days_4Y) mod Days_1Y,
+	Year is 1 + (400 * Num_400Y) + (100 * Num_100Y) + (4 * Num_4Y) + (1 * Num_1Y).
 
