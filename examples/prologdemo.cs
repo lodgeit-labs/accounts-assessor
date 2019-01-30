@@ -12,12 +12,20 @@ using System.Threading.Tasks;
 // rest of this C# program. The Program class at the bottom simply utilizes the DLL files's
 // functions to execute a Prolog query.
 
+// Please alter line 38, the location of the Prolog kernel DLL, and line 525, the location of
+// main.pl from the labs-accounts-assessor repository to reflect your system's specific setup.
+
 // To run this, open up Microsoft Visual Studio. Go File > New > Project . Under Visual C#
 // select Console App (.NET Framework). Press OK. There should be one C# file in this project
 // called Program.cs . Replace that file with this document. Now go Project > Properties... >
 // Build > General . Set Platform Target to match the target architecture of libswipl.dll, the
 // Prolog Kernel DLL. Now go Debug > Start Debugging. The expected output is "Result of
 // absolute_day(date(2017, 7, 3), B) is 736513".
+
+// Attention needs to be paid to memory management due to the fact that the functions in
+// libswipl.dll are unmanaged. Something that could cause crash is passing a C# object to
+// libswipl.dll, the garbage collector disposing the said C# object, and then libswipl.dll
+// trying to do something with the now non-existant C# object.
 
 namespace PrologDemo
 {
