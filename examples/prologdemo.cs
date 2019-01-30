@@ -23,7 +23,7 @@ using System.Threading.Tasks;
 // absolute_day(date(2017, 7, 3), B) is 736513".
 
 // Attention needs to be paid to memory management due to the fact that the functions in
-// libswipl.dll are unmanaged. Something that could cause crash is passing a C# object to
+// libswipl.dll are unmanaged. Something that could cause a crash is passing a C# object to
 // libswipl.dll, the garbage collector disposing the said C# object, and then libswipl.dll
 // trying to do something with the now non-existant C# object.
 
