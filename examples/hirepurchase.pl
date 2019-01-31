@@ -36,13 +36,13 @@ absolute_day(date(2018, 6, 30), Arr_Beg_Day),
 Insts_Beg_Date = date(2018, 7, 31),
 absolute_day(Insts_Beg_Date, Insts_Beg_Day),
 installments(Insts_Beg_Date, 36, date(0, 1, 0), 636.06, Insts),
-hp_arr_time_split_report(hp_arrangement(0, 12703.32, Arr_Beg_Day, 5.53, 1, Insts), Insts_Beg_Day,
+hp_arr_report(hp_arrangement(0, 12703.32, Arr_Beg_Day, 5.53, 1, Insts), Insts_Beg_Day,
 	Cur_Liability, Cur_Unexpired_Interest, Non_Cur_Liability, Non_Cur_Unexpired_Interest).
 % Result:
-% Cur_Liability = 7632.7199999999975,
-% Cur_Unexpired_Interest = -526.1255586093392,
-% Non_Cur_Liability = 5724.539999999999,
-% Non_Cur_Unexpired_Interest = -130.10889185366148 .
+% Cur_Liability = t_term(0, 7632.7199999999975),
+% Cur_Unexpired_Interest = t_term(526.1255586093392, 0),
+% Non_Cur_Liability = t_term(0, 5724.539999999999),
+% Non_Cur_Unexpired_Interest = t_term(130.10889185366148, 0) .
 
 % Split the range between 10 and 20 into 100 equally spaced intervals and give me their
 % boundaries:

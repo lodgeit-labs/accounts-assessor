@@ -314,16 +314,34 @@ hp_arr_correction(Arrangement, HP_Account, HP_Suspense_Account, Transaction_Corr
 	hp_arr_record_nonexistent_transaction_correction(Arrangement, HP_Account, HP_Suspense_Account, _, Transaction_Correction).
 
 % Relates a hire purchase arrangement to the fields that summarize it in a financial
-% report at a given date. In particular, the time split report refers to the method of
-% reporting the hire purchase arrangement's current liability, current unexpired interest,
+% report at a given date. There are three ways in which this can be done going from most
+% informative to least informative:
+
+% Report the hire purchase arrangement's current liability, current unexpired interest,
 % non-current liability, and non-current unexpired interest at a given point in time.
 
-hp_arr_time_split_report(Arrangement, Start_Day, Cur_Liability, Cur_Unexpired_Interest, Non_Cur_Liability, Non_Cur_Unexpired_Interest) :-
+hp_arr_report(Arrangement, Start_Day, Cur_Liability, Cur_Unexpired_Interest, Non_Cur_Liability, Non_Cur_Unexpired_Interest) :-
 	gregorian_date(Start_Day, Start_Date), date_add(Start_Date, date(1, 0, 0), End_Date), absolute_day(End_Date, End_Day),
-	hp_arr_total_payment_between(Arrangement, Start_Day, End_Day, Cur_Liability),
-	hp_arr_total_interest_between(Arrangement, Start_Day, End_Day, Neg_Cur_Unexpired_Interest),
-	Cur_Unexpired_Interest is -Neg_Cur_Unexpired_Interest,
-	hp_arr_total_payment_from(Arrangement, End_Day, Non_Cur_Liability),
-	hp_arr_total_interest_from(Arrangement, End_Day, Neg_Non_Cur_Unexpired_Interest),
-	Non_Cur_Unexpired_Interest is -Neg_Non_Cur_Unexpired_Interest.
+	hp_arr_total_payment_between(Arrangement, Start_Day, End_Day, Signed_Cur_Liability),
+	hp_arr_total_interest_between(Arrangement, Start_Day, End_Day, Signed_Cur_Unexpired_Interest),
+	Cur_Liability = t_term(0, Signed_Cur_Liability),
+	Cur_Unexpired_Interest = t_term(Signed_Cur_Unexpired_Interest, 0),
+	hp_arr_total_payment_from(Arrangement, End_Day, Signed_Non_Cur_Liability),
+	hp_arr_total_interest_from(Arrangement, End_Day, Signed_Non_Cur_Unexpired_Interest),
+	Non_Cur_Liability = t_term(0, Signed_Non_Cur_Liability),
+	Non_Cur_Unexpired_Interest = t_term(Signed_Non_Cur_Unexpired_Interest, 0).
+
+% Report the hire purchase arrangement's repayment balance and unexpired interest at a
+% given point in time.
+
+hp_arr_report(Arrangement, Start_Day, Repayment_Balance, Unexpired_Interest) :-
+	hp_arr_report(Arrangement, Start_Day, Cur_Liability, Cur_Unexpired_Interest, Non_Cur_Liability, Non_Cur_Unexpired_Interest),
+	pac_add(Cur_Liability, Non_Cur_Liability, Repayment_Balance),
+	pac_add(Cur_Unexpired_Interest, Non_Cur_Unexpired_Interest, Unexpired_Interest).
+
+% Just report the hire purchase arrangement's liability balance at a given point in time.
+
+hp_arr_report(Arrangement, Start_Day, Liability_Balance) :-
+	hp_arr_report(Arrangement, Start_Day, Repayment_Balance, Unexpired_Interest),
+	pac_add(Repayment_Balance, Unexpired_Interest, Liability_Balance).
 
