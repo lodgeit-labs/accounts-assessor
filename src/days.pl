@@ -77,7 +77,7 @@ absolute_day(date(Year, Month, Day), Abs_Day) :-
 	Num_1Y is Month_A div (1 * 12),
 	Years_Day is (Num_1Y * 365) + (Num_4Y * 1) - (Num_100Y * 1) + (Num_400Y * 1),
 	Month_B is 1 + (Month_A mod 12),
-	year_day(date(Num_1Y, Month_B, Day), Year_Day),
+	year_day(date(Num_1Y + 1, Month_B, Day), Year_Day),
 	Abs_Day is Years_Day + Year_Day - 1.
 
 gregorian_date(Abs_Day, date(Year, 1, Day)) :-

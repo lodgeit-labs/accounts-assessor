@@ -100,6 +100,38 @@ insert_balloon(Balloon_Installment, [Installments_Hd | Installments_Tl], Result)
 	insert_balloon(Balloon_Installment, Installments_Tl, New_Installments_Tl),
 	Result = [Installments_Hd | New_Installments_Tl].
 
+% Hard-coding the derivation for a weekly interest rate
+period_interest_rate(Annual_Interest_Rate, Installment_Period, Period_Interest_Rate) :-
+	Installment_Period = 7,
+	Period_Interest_Rate is Annual_Interest_Rate / 52, !.
+
+% Hard-coding the derivation for a fortnightly interest rate
+period_interest_rate(Annual_Interest_Rate, Installment_Period, Period_Interest_Rate) :-
+	Installment_Period = 14,
+	Period_Interest_Rate is Annual_Interest_Rate / 26, !.
+
+% Hard-coding the derivation for a monthly interest rate
+period_interest_rate(Annual_Interest_Rate, Installment_Period, Period_Interest_Rate) :-
+	28 =< Installment_Period,
+	Installment_Period =< 31,
+	Period_Interest_Rate is Annual_Interest_Rate / 12, !.
+
+% Hard-coding the derivation for a quarterly interest rate
+period_interest_rate(Annual_Interest_Rate, Installment_Period, Period_Interest_Rate) :-
+	120 =< Installment_Period,
+	Installment_Period =< 122,
+	Period_Interest_Rate is Annual_Interest_Rate / 4, !.
+
+% Hard-coding the derivation for a yearly interest rate
+period_interest_rate(Annual_Interest_Rate, Installment_Period, Period_Interest_Rate) :-
+	365 =< Installment_Period,
+	Installment_Period =< 366,
+	Period_Interest_Rate is Annual_Interest_Rate, !.
+
+% Interest rate for other cases
+period_interest_rate(Annual_Interest_Rate, Installment_Period, Period_Interest_Rate) :-
+	Period_Interest_Rate is Annual_Interest_Rate * (Installment_Period / 365.2425).
+
 % Predicate relating a hire purchase record to an arrangement. The logic is that a record
 % is related to a hire purchase arrangement if it is its first, otherwise it must be
 % related to the hypothetical hire purchase arrangement that is the same as the present
@@ -116,7 +148,8 @@ hp_arr_record(Arrangement, Record) :-
 	hp_inst_day(Installments_Hd, Current_Inst_Day), hp_rec_closing_day(Record, Current_Inst_Day),
 	hp_inst_amount(Installments_Hd, Current_Inst_Amount),
 	Installment_Period is Current_Inst_Day - Prev_Inst_Day,
-	Interest_Amount is Cash_Price * Interest_Rate * Installment_Period / (100 * 365.2425),
+	period_interest_rate(Interest_Rate, Installment_Period, Period_Interest_Rate),
+	Interest_Amount is Cash_Price * Period_Interest_Rate / 100,
 	hp_rec_interest_amount(Record, Interest_Amount),
 	hp_rec_installment_amount(Record, Current_Inst_Amount),
 	Closing_Balance is Cash_Price + Interest_Amount - Current_Inst_Amount,
@@ -136,7 +169,8 @@ hp_arr_record(Arrangement, Record) :-
 	hp_inst_amount(Installments_Hd, Current_Inst_Amount),
 	hp_arr_begin_day(New_Arrangement, Current_Inst_Day),
 	Installment_Period is Current_Inst_Day - Prev_Inst_Day,
-	Interest_Amount is Cash_Price * Interest_Rate * Installment_Period / (100 * 365.2425),
+	period_interest_rate(Interest_Rate, Installment_Period, Period_Interest_Rate),
+	Interest_Amount is Cash_Price * Period_Interest_Rate / 100,
 	New_Cash_Price is Cash_Price + Interest_Amount - Current_Inst_Amount,
 	New_Cash_Price >= 0,
 	hp_arr_cash_price(New_Arrangement, New_Cash_Price),
