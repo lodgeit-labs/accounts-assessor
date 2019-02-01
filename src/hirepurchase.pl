@@ -20,6 +20,14 @@ range(Start, Stop, Step, Value) :-
 	Next_Start < Stop,
 	range(Next_Start, Stop, Step, Value).
 
+maximum(Var, Query, Max) :-
+	findall(Var, Query, Answers),
+	max_list(Answers, Max).
+
+minimum(Var, Query, Min) :-
+	findall(Var, Query, Answers),
+	min_list(Answers, Min).
+
 % Predicates for asserting the fields of a hire purchase installment
 
 % The date the potential installment is to be paid
@@ -154,7 +162,7 @@ hp_arr_record(Arrangement, Record) :-
 	hp_rec_installment_amount(Record, Current_Inst_Amount),
 	Closing_Balance is Cash_Price + Interest_Amount - Current_Inst_Amount,
 	hp_rec_closing_balance(Record, Closing_Balance),
-	Closing_Balance >= 0.
+	Cash_Price > 0.
 
 hp_arr_record(Arrangement, Record) :-
 	hp_arr_record_offset(Arrangement, Record_Offset),
@@ -172,7 +180,7 @@ hp_arr_record(Arrangement, Record) :-
 	period_interest_rate(Interest_Rate, Installment_Period, Period_Interest_Rate),
 	Interest_Amount is Cash_Price * Period_Interest_Rate / 100,
 	New_Cash_Price is Cash_Price + Interest_Amount - Current_Inst_Amount,
-	New_Cash_Price >= 0,
+	New_Cash_Price > 0,
 	hp_arr_cash_price(New_Arrangement, New_Cash_Price),
 	hp_arr_record(New_Arrangement, Record).
 
