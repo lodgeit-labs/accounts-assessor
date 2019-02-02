@@ -8,6 +8,8 @@
 :- ['examples/ledger.pl'].
 % Loads up predicates for summarizing transactions
 :- ['src/transactions.pl'].
+% Loads up predicates pertaining to loan arrangements
+:- ['src/loans.pl'].
 
 % Appropriate queries to type into the ensuing prompt can be found in examples
 % directory.

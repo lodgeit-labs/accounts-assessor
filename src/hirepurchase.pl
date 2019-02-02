@@ -30,9 +30,9 @@ minimum(Var, Query, Min) :-
 
 % Predicates for asserting the fields of a hire purchase installment
 
-% The date the potential installment is to be paid
+% The date the installment is to be paid
 hp_inst_day(hp_installment(Day, _), Day).
-% The amount that constitutes the potential installment
+% The amount that constitutes the installment
 hp_inst_amount(hp_installment(_, Installment), Installment).
 
 % Predicates for asserting the fields of a hire purchase arrangement
