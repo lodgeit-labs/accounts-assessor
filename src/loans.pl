@@ -76,22 +76,17 @@ loan_rec_opening_day(loan_record(_, _, _, _, _, _, Opening_Day, _), Opening_Day)
 loan_rec_closing_day(loan_record(_, _, _, _, _, _, _, Closing_Day), Closing_Day).
 
 loan_agr_record(Agreement, Record) :-
-	loan_agr_current_record(Agreement, Current_Record),
-	loan_agr_contract_number(Agreement, Contract_Number), loan_agr_contract_number(New_Agreement, Contract_Number),
-	loan_agr_principal_amount(Agreement, Current_Balance), loan_agr_principal_amount(New_Agreement, Current_Balance),
-	loan_agr_lodgement_day(Agreement, Lodgement_Day), loan_agr_lodgement_day(New_Agreement, Lodgement_Day),
-	loan_agr_term(Agreement, Term), loan_agr_term(New_Agreement, Term),
-	loan_agr_begin_day(Agreement, Begin_Day), loan_agr_begin_day(New_Agreement, Begin_Day),
+	loan_agr_principal_amount(Agreement, Current_Balance),
+	loan_agr_begin_day(Agreement, Begin_Day),
 	loan_agr_accumulated_interest(Agreement, Current_Acc_Interest),
 	loan_agr_accumulated_repayment(Agreement, Current_Acc_Rep),
-	loan_agr_repayments(Agreement, [Repayments_Hd|Repayments_Tl]), loan_agr_repayments(New_Agreement, Repayments_Tl),
-	loan_rep_day(Repayments_Hd, Next_Day), benchmark_interest_rate(Next_Day, Interest_Rate),
-	loan_rep_amount(Repayments_Hd, Current_Rep_Amount),
-	
-	Current_Record = 0,
+	loan_agr_repayments(Agreement, [Repayments_Hd|Repayments_Tl]),
 	Current_Record_Number = 0,
 	Current_Day = Begin_Day,
 	
+	loan_rep_day(Repayments_Hd, Next_Day),
+	benchmark_interest_rate(Next_Day, Interest_Rate),
+	loan_rep_amount(Repayments_Hd, Current_Rep_Amount),
 	Next_Record_Number is Current_Record_Number + 1,
 	loan_rec_number(Next_Record, Next_Record_Number),
 	loan_rec_opening_day(Next_Record, Current_Day), loan_rec_closing_day(Next_Record, Next_Day),
@@ -101,35 +96,22 @@ loan_agr_record(Agreement, Record) :-
 	loan_rec_closing_balance(Next_Record, Next_Balance),
 	loan_rec_interest_rate(Next_Record, Interest_Rate),
 	loan_rec_interest_amount(Next_Record, Interest_Amount),
-	loan_agr_current_record(New_Agreement, Next_Record),
+	loan_rec_repayment_amount(Next_Record, Current_Rep_Amount),
 	
 	New_Acc_Rep is Current_Acc_Rep + Current_Rep_Amount,
-	loan_agr_accumulated_repayment(New_Agreement, New_Acc_Rep),
 	Next_Acc_Interest is Current_Acc_Interest + Interest_Amount,
-	loan_agr_accumulated_interest(New_Agreement, Next_Acc_Interest),
-	loan_rec_repayment_amount(Next_Record, Current_Rep_Amount),
 	Next_Balance is Current_Balance - Current_Rep_Amount,
 	
-	(Record = Next_Record; loan_agr_record(New_Agreement, Record)).
+	(Record = Next_Record; loan_record_record(Next_Record, Repayments_Tl, Next_Acc_Interest, New_Acc_Rep, Record)).
 
-loan_agr_record(Agreement, Record) :-
-	loan_agr_current_record(Agreement, Current_Record),
-	loan_agr_contract_number(Agreement, Contract_Number), loan_agr_contract_number(New_Agreement, Contract_Number),
-	loan_agr_principal_amount(Agreement, Principal_Amount), loan_agr_principal_amount(New_Agreement, Principal_Amount),
-	loan_agr_lodgement_day(Agreement, Lodgement_Day), loan_agr_lodgement_day(New_Agreement, Lodgement_Day),
-	loan_agr_term(Agreement, Term), loan_agr_term(New_Agreement, Term),
-	loan_agr_begin_day(Agreement, Begin_Day), loan_agr_begin_day(New_Agreement, Begin_Day),
-	loan_agr_accumulated_interest(Agreement, Current_Acc_Interest),
-	loan_agr_accumulated_repayment(Agreement, Current_Acc_Rep),
-	loan_agr_repayments(Agreement, [Repayments_Hd|Repayments_Tl]), loan_agr_repayments(New_Agreement, Repayments_Tl),
-	loan_rep_day(Repayments_Hd, Next_Day), benchmark_interest_rate(Next_Day, Interest_Rate),
-	loan_rep_amount(Repayments_Hd, Current_Rep_Amount),
-	
-	Current_Record \= 0,
+loan_record_record(Current_Record, [Repayments_Hd|Repayments_Tl], Current_Acc_Interest, Current_Acc_Rep, Record) :-
 	loan_rec_number(Current_Record, Current_Record_Number),
 	loan_rec_closing_day(Current_Record, Current_Day),
 	loan_rec_closing_balance(Current_Record, Current_Balance),
 	
+	loan_rep_day(Repayments_Hd, Next_Day),
+	benchmark_interest_rate(Next_Day, Interest_Rate),
+	loan_rep_amount(Repayments_Hd, Current_Rep_Amount),
 	Next_Record_Number is Current_Record_Number + 1,
 	loan_rec_number(Next_Record, Next_Record_Number),
 	loan_rec_opening_day(Next_Record, Current_Day), loan_rec_closing_day(Next_Record, Next_Day),
@@ -139,37 +121,24 @@ loan_agr_record(Agreement, Record) :-
 	loan_rec_closing_balance(Next_Record, Next_Balance),
 	loan_rec_interest_rate(Next_Record, Interest_Rate),
 	loan_rec_interest_amount(Next_Record, Interest_Amount),
-	loan_agr_current_record(New_Agreement, Next_Record),
+	loan_rec_repayment_amount(Next_Record, Current_Rep_Amount),
 	
 	Current_Rep_Amount > 0,
 	
 	New_Acc_Rep is Current_Acc_Rep + Current_Rep_Amount,
-	loan_agr_accumulated_repayment(New_Agreement, New_Acc_Rep),
 	Next_Acc_Interest is Current_Acc_Interest + Interest_Amount,
-	loan_agr_accumulated_interest(New_Agreement, Next_Acc_Interest),
-	loan_rec_repayment_amount(Next_Record, Current_Rep_Amount),
 	Next_Balance is Current_Balance - Current_Rep_Amount, Next_Balance > 0,
 	
-	(Record = Next_Record; loan_agr_record(New_Agreement, Record)).
+	(Record = Next_Record; loan_record_record(Next_Record, Repayments_Tl, Next_Acc_Interest, New_Acc_Rep, Record)).
 
-loan_agr_record(Agreement, Record) :-
-	loan_agr_current_record(Agreement, Current_Record),
-	loan_agr_contract_number(Agreement, Contract_Number), loan_agr_contract_number(New_Agreement, Contract_Number),
-	loan_agr_principal_amount(Agreement, Principal_Amount), loan_agr_principal_amount(New_Agreement, Principal_Amount),
-	loan_agr_lodgement_day(Agreement, Lodgement_Day), loan_agr_lodgement_day(New_Agreement, Lodgement_Day),
-	loan_agr_term(Agreement, Term), loan_agr_term(New_Agreement, Term),
-	loan_agr_begin_day(Agreement, Begin_Day), loan_agr_begin_day(New_Agreement, Begin_Day),
-	loan_agr_accumulated_interest(Agreement, Current_Acc_Interest),
-	loan_agr_accumulated_repayment(Agreement, Current_Acc_Rep),
-	loan_agr_repayments(Agreement, [Repayments_Hd|Repayments_Tl]), loan_agr_repayments(New_Agreement, Repayments_Tl),
-	loan_rep_day(Repayments_Hd, Next_Day), benchmark_interest_rate(Next_Day, Interest_Rate),
-	loan_rep_amount(Repayments_Hd, Current_Rep_Amount),
-	
-	Current_Record \= 0,
+loan_record_record(Current_Record, [Repayments_Hd|Repayments_Tl], Current_Acc_Interest, Current_Acc_Rep, Record) :-
 	loan_rec_number(Current_Record, Current_Record_Number),
 	loan_rec_closing_day(Current_Record, Current_Day),
 	loan_rec_closing_balance(Current_Record, Current_Balance),
 	
+	loan_rep_day(Repayments_Hd, Next_Day),
+	benchmark_interest_rate(Next_Day, Interest_Rate),
+	loan_rep_amount(Repayments_Hd, Current_Rep_Amount),
 	Next_Record_Number is Current_Record_Number + 1,
 	loan_rec_number(Next_Record, Next_Record_Number),
 	loan_rec_opening_day(Next_Record, Current_Day), loan_rec_closing_day(Next_Record, Next_Day),
@@ -179,13 +148,10 @@ loan_agr_record(Agreement, Record) :-
 	loan_rec_closing_balance(Next_Record, Next_Balance),
 	loan_rec_interest_rate(Next_Record, Interest_Rate),
 	loan_rec_interest_amount(Next_Record, Interest_Amount),
-	loan_agr_current_record(New_Agreement, Next_Record),
+	loan_rec_repayment_amount(Next_Record, Current_Rep_Amount),
 	
 	Current_Rep_Amount = 0,
-	loan_agr_accumulated_interest(New_Agreement, 0),
-	loan_agr_accumulated_repayment(New_Agreement, 0),
 	Next_Balance is Current_Balance + Current_Acc_Interest + Interest_Amount,
-	loan_rec_repayment_amount(Next_Record, 0),
 	
-	(Record = Next_Record; loan_agr_record(New_Agreement, Record)).
+	(Record = Next_Record; loan_record_record(Next_Record, Repayments_Tl, 0, 0, Record)).
 
