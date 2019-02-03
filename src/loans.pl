@@ -44,14 +44,6 @@ loan_agr_lodgement_day(loan_agreement(_, _, Lodgement_Day, _, _, _, _, _, _), Lo
 loan_agr_begin_day(loan_agreement(_, _, _, Begin_Day, _, _, _, _, _), Begin_Day).
 % The term of the loan agreement in years
 loan_agr_term(loan_agreement(_, _, _, _, Term, _, _, _, _), Term).
-% For internal usage, user should always set this to 0
-loan_agr_current_record(loan_agreement(_, _, _, _, _, Current_Record, _, _, _), Current_Record).
-% For internal usage, user should always set this to 0
-% The interest accumulated since the beginning of this income year
-loan_agr_accumulated_interest(loan_agreement(_, _, _, _, _, _, Accumulated_Interest, _, _), Accumulated_Interest).
-% For internal usage, user should always set this to 0
-% The repayments accumulated since the beginning of this income year
-loan_agr_accumulated_repayment(loan_agreement(_, _, _, _, _, _, _, Accumulated_Repayment, _), Accumulated_Repayment).
 % A chronologically ordered list of loan agreement repayments. The latter repayments
 % where the account balance is negative are ignored.
 loan_agr_repayments(loan_agreement(_, _, _, _, _, _, _, _, Repayments), Repayments).
@@ -75,83 +67,64 @@ loan_rec_opening_day(loan_record(_, _, _, _, _, _, Opening_Day, _), Opening_Day)
 % The closing day of the given record's period
 loan_rec_closing_day(loan_record(_, _, _, _, _, _, _, Closing_Day), Closing_Day).
 
+% Asserts the necessary relations to get from one loan record to the next
+
+loan_rec_aux(Repayments_Hd, Current_Rep_Amount, Current_Record_Number, Current_Day, Current_Balance, Interest_Amount, Next_Record) :-
+	loan_rep_day(Repayments_Hd, Next_Day),
+	benchmark_interest_rate(Next_Day, Interest_Rate),
+	loan_rep_amount(Repayments_Hd, Current_Rep_Amount),
+	Next_Record_Number is Current_Record_Number + 1,
+	loan_rec_number(Next_Record, Next_Record_Number),
+	loan_rec_opening_day(Next_Record, Current_Day), loan_rec_closing_day(Next_Record, Next_Day),
+	Interest_Period is Next_Day - Current_Day,
+	Interest_Amount is Current_Balance * Interest_Rate * Interest_Period / (100 * 365),
+	loan_rec_opening_balance(Next_Record, Current_Balance),
+	loan_rec_interest_rate(Next_Record, Interest_Rate),
+	loan_rec_interest_amount(Next_Record, Interest_Amount),
+	loan_rec_repayment_amount(Next_Record, Current_Rep_Amount).
+
+% Relates a loan agreement to one of its records
+
 loan_agr_record(Agreement, Record) :-
 	loan_agr_principal_amount(Agreement, Current_Balance),
 	loan_agr_begin_day(Agreement, Begin_Day),
-	loan_agr_accumulated_interest(Agreement, Current_Acc_Interest),
-	loan_agr_accumulated_repayment(Agreement, Current_Acc_Rep),
+	Current_Acc_Interest = 0,
+	Current_Acc_Rep = 0,
 	loan_agr_repayments(Agreement, [Repayments_Hd|Repayments_Tl]),
 	Current_Record_Number = 0,
 	Current_Day = Begin_Day,
-	
-	loan_rep_day(Repayments_Hd, Next_Day),
-	benchmark_interest_rate(Next_Day, Interest_Rate),
-	loan_rep_amount(Repayments_Hd, Current_Rep_Amount),
-	Next_Record_Number is Current_Record_Number + 1,
-	loan_rec_number(Next_Record, Next_Record_Number),
-	loan_rec_opening_day(Next_Record, Current_Day), loan_rec_closing_day(Next_Record, Next_Day),
-	Interest_Period is Next_Day - Current_Day,
-	Interest_Amount is Current_Balance * Interest_Rate * Interest_Period / (100 * 365),
-	loan_rec_opening_balance(Next_Record, Current_Balance),
-	loan_rec_closing_balance(Next_Record, Next_Balance),
-	loan_rec_interest_rate(Next_Record, Interest_Rate),
-	loan_rec_interest_amount(Next_Record, Interest_Amount),
-	loan_rec_repayment_amount(Next_Record, Current_Rep_Amount),
-	
+	loan_rec_aux(Repayments_Hd, Current_Rep_Amount, Current_Record_Number, Current_Day, Current_Balance, Interest_Amount, Next_Record),
 	New_Acc_Rep is Current_Acc_Rep + Current_Rep_Amount,
 	Next_Acc_Interest is Current_Acc_Interest + Interest_Amount,
 	Next_Balance is Current_Balance - Current_Rep_Amount,
-	
-	(Record = Next_Record; loan_record_record(Next_Record, Repayments_Tl, Next_Acc_Interest, New_Acc_Rep, Record)).
+	loan_rec_closing_balance(Next_Record, Next_Balance),
+	(Record = Next_Record; loan_rec_record(Next_Record, Repayments_Tl, Next_Acc_Interest, New_Acc_Rep, Record)).
 
-loan_record_record(Current_Record, [Repayments_Hd|Repayments_Tl], Current_Acc_Interest, Current_Acc_Rep, Record) :-
+% Relates a loan record to one that follows it, in the case that it is not a year-end record
+
+loan_rec_record(Current_Record, [Repayments_Hd|Repayments_Tl], Current_Acc_Interest, Current_Acc_Rep, Record) :-
 	loan_rec_number(Current_Record, Current_Record_Number),
 	loan_rec_closing_day(Current_Record, Current_Day),
 	loan_rec_closing_balance(Current_Record, Current_Balance),
-	
-	loan_rep_day(Repayments_Hd, Next_Day),
-	benchmark_interest_rate(Next_Day, Interest_Rate),
-	loan_rep_amount(Repayments_Hd, Current_Rep_Amount),
-	Next_Record_Number is Current_Record_Number + 1,
-	loan_rec_number(Next_Record, Next_Record_Number),
-	loan_rec_opening_day(Next_Record, Current_Day), loan_rec_closing_day(Next_Record, Next_Day),
-	Interest_Period is Next_Day - Current_Day,
-	Interest_Amount is Current_Balance * Interest_Rate * Interest_Period / (100 * 365),
-	loan_rec_opening_balance(Next_Record, Current_Balance),
-	loan_rec_closing_balance(Next_Record, Next_Balance),
-	loan_rec_interest_rate(Next_Record, Interest_Rate),
-	loan_rec_interest_amount(Next_Record, Interest_Amount),
-	loan_rec_repayment_amount(Next_Record, Current_Rep_Amount),
-	
-	Current_Rep_Amount > 0,
-	
+	loan_rec_aux(Repayments_Hd, Current_Rep_Amount, Current_Record_Number, Current_Day, Current_Balance, Interest_Amount, Next_Record),
 	New_Acc_Rep is Current_Acc_Rep + Current_Rep_Amount,
 	Next_Acc_Interest is Current_Acc_Interest + Interest_Amount,
 	Next_Balance is Current_Balance - Current_Rep_Amount, Next_Balance > 0,
-	
-	(Record = Next_Record; loan_record_record(Next_Record, Repayments_Tl, Next_Acc_Interest, New_Acc_Rep, Record)).
+	loan_rec_closing_balance(Next_Record, Next_Balance),
+	Current_Rep_Amount > 0,
+	(Record = Next_Record; loan_rec_record(Next_Record, Repayments_Tl, Next_Acc_Interest, New_Acc_Rep, Record)).
 
-loan_record_record(Current_Record, [Repayments_Hd|Repayments_Tl], Current_Acc_Interest, Current_Acc_Rep, Record) :-
+% Relates a loan record to one that follows it, in the case that it is a year-end record
+
+loan_rec_record(Current_Record, [Repayments_Hd|Repayments_Tl], Current_Acc_Interest, Current_Acc_Rep, Record) :-
 	loan_rec_number(Current_Record, Current_Record_Number),
 	loan_rec_closing_day(Current_Record, Current_Day),
 	loan_rec_closing_balance(Current_Record, Current_Balance),
-	
-	loan_rep_day(Repayments_Hd, Next_Day),
-	benchmark_interest_rate(Next_Day, Interest_Rate),
-	loan_rep_amount(Repayments_Hd, Current_Rep_Amount),
-	Next_Record_Number is Current_Record_Number + 1,
-	loan_rec_number(Next_Record, Next_Record_Number),
-	loan_rec_opening_day(Next_Record, Current_Day), loan_rec_closing_day(Next_Record, Next_Day),
-	Interest_Period is Next_Day - Current_Day,
-	Interest_Amount is Current_Balance * Interest_Rate * Interest_Period / (100 * 365),
-	loan_rec_opening_balance(Next_Record, Current_Balance),
-	loan_rec_closing_balance(Next_Record, Next_Balance),
-	loan_rec_interest_rate(Next_Record, Interest_Rate),
-	loan_rec_interest_amount(Next_Record, Interest_Amount),
-	loan_rec_repayment_amount(Next_Record, Current_Rep_Amount),
-	
-	Current_Rep_Amount = 0,
+	loan_rec_aux(Repayments_Hd, Current_Rep_Amount, Current_Record_Number, Current_Day, Current_Balance, Interest_Amount, Next_Record),
+	Next_Acc_Rep = 0,
+	Next_Acc_Interest = 0,
 	Next_Balance is Current_Balance + Current_Acc_Interest + Interest_Amount,
-	
-	(Record = Next_Record; loan_record_record(Next_Record, Repayments_Tl, 0, 0, Record)).
+	loan_rec_closing_balance(Next_Record, Next_Balance),
+	Current_Rep_Amount = 0,
+	(Record = Next_Record; loan_rec_record(Next_Record, Repayments_Tl, Next_Acc_Interest, Next_Acc_Rep, Record)).
 
