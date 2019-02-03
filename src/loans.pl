@@ -128,3 +128,50 @@ loan_rec_record(Current_Record, [Repayments_Hd|Repayments_Tl], Current_Acc_Inter
 	Current_Rep_Amount = 0,
 	(Record = Next_Record; loan_rec_record(Next_Record, Repayments_Tl, Next_Acc_Interest, Next_Acc_Rep, Record)).
 
+% If a loan repayment was made before lodgement day, it was effectively paid on the first
+% absolute day of the first income year after the loan is made
+
+loan_agr_shift_repayments(Begin_Day, Lodgement_Day, [Repayments_Hd|Repayments_Tl], Shifted) :-
+	loan_rep_day(Repayments_Hd, Day),
+	Day < Lodgement_Day,
+	loan_rep_amount(Repayments_Hd, Amount),
+	Shifted = [loan_repayment(Begin_Day, Amount)|Repayments_Tl].
+
+% Otherwise leave the repayments schedule unaltered
+
+loan_agr_shift_repayments(_, Lodgement_Day, Repayments, Repayments) :-
+	[Repayments_Hd|_] = Repayments,
+	loan_rep_day(Repayments_Hd, Day),
+	Day >= Lodgement_Day.
+
+% Insert a repayment into a chronologically ordered list of repayments
+
+loan_reps_insert_repayment(New_Repayment, [Repayments_Hd|Repayments_Tl], Inserted) :-
+	loan_rep_day(Repayments_Hd, Hd_Day),
+	loan_rep_day(New_Repayment, New_Day),
+	Hd_Day =< New_Day,
+	loan_reps_insert_repayment(New_Repayment, Repayments_Tl, Inserted_Tl),
+	Inserted = [Repayments_Hd|Inserted_Tl].
+
+loan_reps_insert_repayment(New_Repayment, [Repayments_Hd|Repayments_Tl], Inserted) :-
+	loan_rep_day(Repayments_Hd, Hd_Day),
+	loan_rep_day(New_Repayment, New_Day),
+	Hd_Day > New_Day,
+	Inserted = [New_Repayment|[Repayments_Hd|Repayments_Tl]].
+
+% Insert payments of zero at year-ends to enable proper interest accumulation
+
+loan_reps_insert_sentinels(_, 0, Repayments, Repayments).
+
+loan_reps_insert_sentinels(Begin_Date, Year_Count, Repayments, Inserted) :-
+	absolute_date(Begin_Date, Begin_Day),
+	loan_reps_insert_repayment(loan_repayment(Begin_Day, 0), Repayments, New_Repayments),
+	New_Year_Count is Year_Count - 1,
+	date_add(Begin_Date, date(1, 0, 0), New_Begin_Day),
+	loan_reps_insert_sentinels(New_Begin_Day, New_Year_Count, New_Repayments, Inserted).
+
+% From the given agreement, prepares a new loan agreement suitable for calculations 
+
+%loan_agr_prepare(Agreement, New_Agreement) :-
+	
+
