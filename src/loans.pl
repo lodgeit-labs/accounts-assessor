@@ -40,8 +40,8 @@ loan_agr_contract_number(loan_agreement(Contract_Number, _, _, _, _, _), Contrac
 loan_agr_principal_amount(loan_agreement(_, Principal_Amount, _, _, _, _), Principal_Amount).
 % The lodgement day of the whole agreement
 loan_agr_lodgement_day(loan_agreement(_, _, Lodgement_Day, _, _, _), Lodgement_Day).
-% The absolute day of the end of the income year in which the agreement was made
-loan_agr_zero_day(loan_agreement(_, _, _, Zero_Day, _, _), Zero_Day).
+% The first absolute day of the first income year after the agreement is made
+loan_agr_begin_day(loan_agreement(_, _, _, Begin_Day, _, _), Begin_Day).
 % The term of the loan agreement in years
 loan_agr_term(loan_agreement(_, _, _, _, Term, _), Term).
 % A chronologically ordered list of loan agreement repayments. The latter repayments
@@ -71,7 +71,7 @@ loan_rec_closing_day(loan_record(_, _, _, _, _, _, _, Closing_Day), Closing_Day)
 
 loan_rec_aux(Repayments_Hd, Current_Rep_Amount, Current_Record_Number, Current_Day, Current_Balance, Interest_Amount, Next_Record) :-
 	loan_rep_day(Repayments_Hd, Next_Day),
-	benchmark_interest_rate(Next_Day, Interest_Rate),
+	benchmark_interest_rate(Current_Day, Interest_Rate),
 	loan_rep_amount(Repayments_Hd, Current_Rep_Amount),
 	Next_Record_Number is Current_Record_Number + 1,
 	loan_rec_number(Next_Record, Next_Record_Number),
@@ -87,12 +87,12 @@ loan_rec_aux(Repayments_Hd, Current_Rep_Amount, Current_Record_Number, Current_D
 
 loan_agr_record(Agreement, Record) :-
 	loan_agr_principal_amount(Agreement, Current_Balance),
-	loan_agr_zero_day(Agreement, Zero_Day),
+	loan_agr_begin_day(Agreement, Begin_Day),
 	Current_Acc_Interest = 0,
 	Current_Acc_Rep = 0,
 	loan_agr_repayments(Agreement, [Repayments_Hd|Repayments_Tl]),
 	Current_Record_Number = 0,
-	Current_Day = Zero_Day,
+	Current_Day = Begin_Day,
 	loan_rec_aux(Repayments_Hd, Current_Rep_Amount, Current_Record_Number, Current_Day, Current_Balance, Interest_Amount, Next_Record),
 	New_Acc_Rep is Current_Acc_Rep + Current_Rep_Amount,
 	Next_Acc_Interest is Current_Acc_Interest + Interest_Amount,
@@ -131,12 +131,12 @@ loan_rec_record(Current_Record, [Repayments_Hd|Repayments_Tl], Current_Acc_Inter
 % If a loan repayment was made before lodgement day, it was effectively paid on the first
 % absolute day of the first income year after the loan is made
 
-loan_reps_shift(Zero_Day, Lodgement_Day, [Repayments_Hd|Repayments_Tl], Shifted) :-
+loan_reps_shift(Begin_Day, Lodgement_Day, [Repayments_Hd|Repayments_Tl], Shifted) :-
 	loan_rep_day(Repayments_Hd, Day),
 	Day < Lodgement_Day,
 	loan_rep_amount(Repayments_Hd, Amount),
-	loan_reps_shift(Zero_Day, Lodgement_Day, Repayments_Tl, Shifted_Tl),
-	Shifted = [loan_repayment(Zero_Day, Amount)|Shifted_Tl].
+	loan_reps_shift(Begin_Day, Lodgement_Day, Repayments_Tl, Shifted_Tl),
+	Shifted = [loan_repayment(Begin_Day, Amount)|Shifted_Tl].
 
 % Otherwise leave the repayments schedule unaltered
 
@@ -166,13 +166,13 @@ loan_reps_insert_repayment(New_Repayment, [Repayments_Hd|Repayments_Tl], Inserte
 
 loan_reps_insert_sentinels(_, 0, Repayments, Repayments).
 
-loan_reps_insert_sentinels(Zero_Date, Year_Count, Repayments, Inserted) :-
+loan_reps_insert_sentinels(Begin_Date, Year_Count, Repayments, Inserted) :-
 	Year_Count > 0,
-	date_add(Zero_Date, date(1, 0, 0), New_Zero_Date),
-	absolute_day(New_Zero_Date, New_Zero_Day),
-	loan_reps_insert_repayment(loan_repayment(New_Zero_Day, 0), Repayments, New_Repayments),
+	date_add(Begin_Date, date(1, 0, 0), New_Begin_Date),
+	absolute_day(New_Begin_Date, New_Begin_Day),
+	loan_reps_insert_repayment(loan_repayment(New_Begin_Day, 0), Repayments, New_Repayments),
 	New_Year_Count is Year_Count - 1,
-	loan_reps_insert_sentinels(New_Zero_Date, New_Year_Count, New_Repayments, Inserted).
+	loan_reps_insert_sentinels(New_Begin_Date, New_Year_Count, New_Repayments, Inserted).
 
 % From the given agreement, prepares a new loan agreement suitable for calculations 
 
@@ -183,13 +183,13 @@ loan_agr_prepare(Agreement, New_Agreement) :-
 	loan_agr_principal_amount(New_Agreement, Principal_Amount),
 	loan_agr_lodgement_day(Agreement, Lodgement_Day),
 	loan_agr_lodgement_day(New_Agreement, Lodgement_Day),
-	loan_agr_zero_day(Agreement, Zero_Day),
-	loan_agr_zero_day(New_Agreement, Zero_Day),
+	loan_agr_begin_day(Agreement, Begin_Day),
+	loan_agr_begin_day(New_Agreement, Begin_Day),
 	loan_agr_term(Agreement, Term),
 	loan_agr_term(New_Agreement, Term),
 	loan_agr_repayments(Agreement, Repayments_A),
-	loan_reps_shift(Zero_Day, Lodgement_Day, Repayments_A, Repayments_B),
-	gregorian_date(Zero_Day, Zero_Date),
-	loan_reps_insert_sentinels(Zero_Date, Term, Repayments_B, Repayments_C),
+	loan_reps_shift(Begin_Day, Lodgement_Day, Repayments_A, Repayments_B),
+	gregorian_date(Begin_Day, Begin_Date),
+	loan_reps_insert_sentinels(Begin_Date, Term, Repayments_B, Repayments_C),
 	loan_agr_repayments(New_Agreement, Repayments_C).
 
