@@ -35,18 +35,18 @@ loan_rep_amount(loan_repayment(_, Amount), Amount).
 % Predicates for asserting the fields of a loan agreement
 
 % An identifier for a given loan agreement
-loan_agr_contract_number(loan_agreement(Contract_Number, _, _, _, _, _, _, _, _), Contract_Number).
+loan_agr_contract_number(loan_agreement(Contract_Number, _, _, _, _, _), Contract_Number).
 % The principal amount of the loan agreement
-loan_agr_principal_amount(loan_agreement(_, Principal_Amount, _, _, _, _, _, _, _), Principal_Amount).
+loan_agr_principal_amount(loan_agreement(_, Principal_Amount, _, _, _, _), Principal_Amount).
 % The lodgement day of the whole agreement
-loan_agr_lodgement_day(loan_agreement(_, _, Lodgement_Day, _, _, _, _, _, _), Lodgement_Day).
+loan_agr_lodgement_day(loan_agreement(_, _, Lodgement_Day, _, _, _), Lodgement_Day).
 % The first absolute day of the first income year after the loan is made
-loan_agr_begin_day(loan_agreement(_, _, _, Begin_Day, _, _, _, _, _), Begin_Day).
+loan_agr_begin_day(loan_agreement(_, _, _, Begin_Day, _, _), Begin_Day).
 % The term of the loan agreement in years
-loan_agr_term(loan_agreement(_, _, _, _, Term, _, _, _, _), Term).
+loan_agr_term(loan_agreement(_, _, _, _, Term, _), Term).
 % A chronologically ordered list of loan agreement repayments. The latter repayments
 % where the account balance is negative are ignored.
-loan_agr_repayments(loan_agreement(_, _, _, _, _, _, _, _, Repayments), Repayments).
+loan_agr_repayments(loan_agreement(_, _, _, _, _, Repayments), Repayments).
 
 % Predicates for asserting the fields of a loan record
 
@@ -131,15 +131,16 @@ loan_rec_record(Current_Record, [Repayments_Hd|Repayments_Tl], Current_Acc_Inter
 % If a loan repayment was made before lodgement day, it was effectively paid on the first
 % absolute day of the first income year after the loan is made
 
-loan_agr_shift_repayments(Begin_Day, Lodgement_Day, [Repayments_Hd|Repayments_Tl], Shifted) :-
+loan_reps_shift(Begin_Day, Lodgement_Day, [Repayments_Hd|Repayments_Tl], Shifted) :-
 	loan_rep_day(Repayments_Hd, Day),
 	Day < Lodgement_Day,
 	loan_rep_amount(Repayments_Hd, Amount),
-	Shifted = [loan_repayment(Begin_Day, Amount)|Repayments_Tl].
+	loan_reps_shift(Begin_Day, Lodgement_Day, Repayments_Tl, Shifted_Tl),
+	Shifted = [loan_repayment(Begin_Day, Amount)|Shifted_Tl].
 
 % Otherwise leave the repayments schedule unaltered
 
-loan_agr_shift_repayments(_, Lodgement_Day, Repayments, Repayments) :-
+loan_reps_shift(_, Lodgement_Day, Repayments, Repayments) :-
 	[Repayments_Hd|_] = Repayments,
 	loan_rep_day(Repayments_Hd, Day),
 	Day >= Lodgement_Day.
@@ -172,6 +173,19 @@ loan_reps_insert_sentinels(Begin_Date, Year_Count, Repayments, Inserted) :-
 
 % From the given agreement, prepares a new loan agreement suitable for calculations 
 
-%loan_agr_prepare(Agreement, New_Agreement) :-
-	
+loan_agr_prepare(Agreement, New_Agreement) :-
+	loan_agr_contract_number(Agreement, Contract_Number),
+	loan_agr_contract_number(New_Agreement, Contract_Number),
+	loan_agr_principal_amount(Agreement, Principal_Amount),
+	loan_agr_principal_amount(New_Agreement, Principal_Amount),
+	loan_agr_lodgement_day(Agreement, Lodgement_Day),
+	loan_agr_lodgement_day(New_Agreement, Lodgement_Day),
+	loan_agr_begin_day(Agreement, Begin_Day),
+	loan_agr_begin_day(New_Agreement, Begin_Day),
+	loan_agr_term(Agreement, Term),
+	loan_agr_term(New_Agreement, Term),
+	loan_agr_repayments(Agreement, Repayments_A),
+	loan_reps_shift(Begin_Day, Lodgement_Day, Repayments_A, Repayments_B),
+	%loan_reps_insert_sentinels(, Term, Repayments_B, Repayments_C),
+	loan_agr_repayments(New_Agreement, Repayments_C).
 

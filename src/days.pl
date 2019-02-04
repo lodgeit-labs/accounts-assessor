@@ -67,6 +67,18 @@ year_day(date(Year, Month, Day), Year_Day) :-
 	days_in(Year, Month, Day_B),
 	Year_Day is Day_A + Day - 1 - Day_B.
 
+% The following predicate relates a year day to its month and month day
+
+month_day(Year, Year_Day, Month, Month_Day) :-
+	Month_Lower is ((Year_Day - 1) div 31) + 1, % Lowest possible month for given day
+	Month_Upper is ((Year_Day - 1) div 28) + 1, % Highest possible month for given day
+	between(Month_Lower, Month_Upper, Month), % The right month is somewhere between
+	year_day(date(Year, Month, 1), Month_Start_Year_Day),
+	days_in(Year, Month, Month_Length),
+	Month_End_Year_Day is Month_Start_Year_Day + Month_Length - 1,
+	Month_Start_Year_Day =< Year_Day, Year_Day =< Month_End_Year_Day,
+	Month_Day is Year_Day + 1 - Month_Start_Year_Day.
+
 % Internal representation for dates is absolute day count since 1st January 0001
 
 absolute_day(date(Year, Month, Day), Abs_Day) :-
@@ -78,17 +90,18 @@ absolute_day(date(Year, Month, Day), Abs_Day) :-
 	Years_Day is (Num_1Y * 365) + (Num_4Y * 1) - (Num_100Y * 1) + (Num_400Y * 1),
 	Month_B is 1 + (Month_A mod 12),
 	year_day(date(Num_1Y + 1, Month_B, Day), Year_Day),
-	Abs_Day is Years_Day + Year_Day - 1.
+	Abs_Day is Years_Day + Year_Day.
 
-gregorian_date(Abs_Day, date(Year, 1, Day)) :-
+gregorian_date(Abs_Day, date(Year, Month, Day)) :-
 	Days_1Y is 365,
 	Days_4Y is (4 * Days_1Y) + 1,
 	Days_100Y is (25 * Days_4Y) - 1,
 	Days_400Y is (4 * Days_100Y) + 1,
-	Num_400Y is Abs_Day div Days_400Y,
-	Num_100Y is (Abs_Day mod Days_400Y) div Days_100Y,
-	Num_4Y is ((Abs_Day mod Days_400Y) mod Days_100Y) div Days_4Y,
-	Num_1Y is (((Abs_Day mod Days_400Y) mod Days_100Y) mod Days_4Y) div Days_1Y,
-	Day is (((Abs_Day mod Days_400Y) mod Days_100Y) mod Days_4Y) mod Days_1Y,
-	Year is 1 + (400 * Num_400Y) + (100 * Num_100Y) + (4 * Num_4Y) + (1 * Num_1Y).
+	Num_400Y is (Abs_Day - 1) div Days_400Y,
+	Num_100Y is ((Abs_Day - 1) mod Days_400Y) div Days_100Y,
+	Num_4Y is (((Abs_Day - 1) mod Days_400Y) mod Days_100Y) div Days_4Y,
+	Num_1Y is ((((Abs_Day - 1) mod Days_400Y) mod Days_100Y) mod Days_4Y) div Days_1Y,
+	Year_Day is 1 + (((((Abs_Day - 1) mod Days_400Y) mod Days_100Y) mod Days_4Y) mod Days_1Y),
+	Year is 1 + (400 * Num_400Y) + (100 * Num_100Y) + (4 * Num_4Y) + (1 * Num_1Y),
+	month_day(Year, Year_Day, Month, Day).
 
