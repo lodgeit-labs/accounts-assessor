@@ -168,13 +168,15 @@ loan_reps_insert_sentinels(_, 0, Repayments, Repayments).
 
 loan_reps_insert_sentinels(Begin_Date, Year_Count, Repayments, Inserted) :-
 	Year_Count > 0,
+	absolute_day(Begin_Date, Begin_Day),
+	loan_reps_insert_repayment(loan_repayment(Begin_Day, 0), Repayments, New_Repayments),
 	date_add(Begin_Date, date(1, 0, 0), New_Begin_Date),
-	absolute_day(New_Begin_Date, New_Begin_Day),
-	loan_reps_insert_repayment(loan_repayment(New_Begin_Day, 0), Repayments, New_Repayments),
 	New_Year_Count is Year_Count - 1,
 	loan_reps_insert_sentinels(New_Begin_Date, New_Year_Count, New_Repayments, Inserted).
 
-% From the given agreement, prepares a new loan agreement suitable for calculations 
+% From the given agreement, prepares a new loan agreement suitable for calculations.
+% Internally it just pushes all payments before lodgement day to the beginning of the
+% agreement, and then it inserts payments of zero to mark the beginnings of income years.
 
 loan_agr_prepare(Agreement, New_Agreement) :-
 	loan_agr_contract_number(Agreement, Contract_Number),
@@ -192,4 +194,23 @@ loan_agr_prepare(Agreement, New_Agreement) :-
 	gregorian_date(Begin_Day, Begin_Date),
 	loan_reps_insert_sentinels(Begin_Date, Term, Repayments_B, Repayments_C),
 	loan_agr_repayments(New_Agreement, Repayments_C).
+
+% Calculates the minimum required payment of the given year with respect to the given
+% agreement. Year 0 is the income year just after the one in which the loan agreement
+% was made.
+
+min_yearly_repayment(Agreement, Current_Year_Num, Min_Yearly_Rep) :-
+	loan_agr_begin_day(Agreement, Begin_Day),
+	gregorian_date(Begin_Day, Begin_Date),
+	date_add(Begin_Date, date(Current_Year_Num, 0, 0), Year_Begin_Date),
+	absolute_day(Year_Begin_Date, Year_Begin_Day),
+	loan_agr_record(Agreement, Year_Record),
+	loan_rec_repayment_amount(Year_Record, 0),
+	loan_rec_closing_day(Year_Record, Year_Begin_Day),
+	loan_rec_closing_balance(Year_Record, Balance),
+	loan_agr_term(Agreement, Term),
+	Remaining_Term is Term - Current_Year_Num,
+	benchmark_interest_rate(Begin_Day, Benchmark_Interest_Rate),
+	Min_Yearly_Rep is Balance * Benchmark_Interest_Rate /
+		(100 * (1 - (1 + (Benchmark_Interest_Rate / 100)) ** (-Remaining_Term))).
 
