@@ -67,6 +67,27 @@ loan_rec_opening_day(loan_record(_, _, _, _, _, _, Opening_Day, _), Opening_Day)
 % The closing day of the given record's period
 loan_rec_closing_day(loan_record(_, _, _, _, _, _, _, Closing_Day), Closing_Day).
 
+% Predicates for asserting the fields of a loan summary
+
+% Loan summaries are indexed in chornological order starting from year 0, the first income
+% year after the loan agreement is made
+loan_sum_number(loan_summary(Summary_Number, _, _, _, _, _, _, _), Summary_Number).
+% The opening balance of the given income year
+loan_sum_opening_balance(loan_summary(_, Opening_Balance, _, _, _, _, _, _), Opening_Balance).
+% The benchmark interest rate during the given income year
+loan_sum_interest_rate(loan_summary(_, _, Interest_Rate, _, _, _, _, _), Interest_Rate).
+% The minimum yearly repayment for the given income year
+loan_sum_min_yearly_repayment(loan_summary(_, _, _, Min_Yearly_Repayment, _, _, _, _), Min_Yearly_Repayment).
+% The total amount repaid during the given income year
+loan_sum_total_repayment(loan_summary(_, _, _, _, Total_Repayments, _, _, _), Total_Repayments).
+% The total interest owed at the end of the given income year
+loan_sum_total_interest(loan_summary(_, _, _, _, _, Total_Interest, _, _), Total_Interest).
+% The total principal paid during the given income year
+loan_sum_total_principal(loan_summary(_, _, _, _, _, _, Total_Principal, _), Total_Principal).
+% The closing balance of the given income year
+loan_sum_closing_balance(loan_summary(_, _, _, _, _, _, _, Closing_Balance), Closing_Balance).
+
+
 % Asserts the necessary relations to get from one loan record to the next
 
 loan_rec_aux(Repayments_Hd, Current_Rep_Amount, Current_Record_Number, Current_Day, Current_Balance, Interest_Amount, Next_Record) :-
@@ -162,7 +183,7 @@ loan_reps_insert_repayment(New_Repayment, [Repayments_Hd|Repayments_Tl], Inserte
 	loan_reps_insert_repayment(New_Repayment, Repayments_Tl, Inserted_Tl),
 	Inserted = [Repayments_Hd|Inserted_Tl].
 
-% Insert payments of zero at year-ends to enable proper interest accumulation
+% Insert payments of zero at year-beginnings to enable proper interest accumulation
 
 loan_reps_insert_sentinels(_, 0, Repayments, Repayments).
 
@@ -177,6 +198,8 @@ loan_reps_insert_sentinels(Begin_Date, Year_Count, Repayments, Inserted) :-
 % From the given agreement, prepares a new loan agreement suitable for calculations.
 % Internally it just pushes all payments before lodgement day to the beginning of the
 % agreement, and then it inserts payments of zero to mark the beginnings of income years.
+% Every predicate in this program that accepts a loan agreement assumes that it is
+% prepared.
 
 loan_agr_prepare(Agreement, New_Agreement) :-
 	loan_agr_contract_number(Agreement, Contract_Number),
@@ -195,22 +218,104 @@ loan_agr_prepare(Agreement, New_Agreement) :-
 	loan_reps_insert_sentinels(Begin_Date, Term, Repayments_B, Repayments_C),
 	loan_agr_repayments(New_Agreement, Repayments_C).
 
+% Computes the start and end day of a given income year with respect to the given loan
+% agreement.
+
+loan_agr_year_days(Agreement, Year_Num, Year_Start_Day, Year_End_Day) :-
+	loan_agr_begin_day(Agreement, Begin_Day),
+	gregorian_date(Begin_Day, Begin_Date),
+	date_add(Begin_Date, date(Year_Num, 0, 0), Year_Start_Date),
+	absolute_day(Year_Start_Date, Year_Start_Day),
+	date_add(Year_Start_Date, date(1, 0, 0), Year_End_Date),
+	absolute_day(Year_End_Date, Year_End_Day).
+
+% The following predicates assert the opening and closing balances respectively of the
+% given income year with respect to the given loan agreement.
+
+loan_agr_year_opening_balance(Agreement, Year_Num, Opening_Balance) :-
+	loan_agr_year_days(Agreement, Year_Num, Year_Start_Day, _),
+	loan_agr_record(Agreement, Year_Record),
+	loan_rec_repayment_amount(Year_Record, 0),
+	loan_rec_closing_day(Year_Record, Year_Start_Day),
+	loan_rec_closing_balance(Year_Record, Opening_Balance).
+
+loan_agr_year_closing_balance(Agreement, Year_Num, Closing_Balance) :-
+	loan_agr_year_days(Agreement, Year_Num, _, Year_End_Day),
+	loan_agr_record(Agreement, Year_Record),
+	loan_rec_repayment_amount(Year_Record, 0),
+	loan_rec_closing_day(Year_Record, Year_End_Day),
+	loan_rec_closing_balance(Year_Record, Closing_Balance).
+
 % Calculates the minimum required payment of the given year with respect to the given
 % agreement. Year 0 is the income year just after the one in which the loan agreement
 % was made.
 
-min_yearly_repayment(Agreement, Current_Year_Num, Min_Yearly_Rep) :-
-	loan_agr_begin_day(Agreement, Begin_Day),
-	gregorian_date(Begin_Day, Begin_Date),
-	date_add(Begin_Date, date(Current_Year_Num, 0, 0), Year_Begin_Date),
-	absolute_day(Year_Begin_Date, Year_Begin_Day),
-	loan_agr_record(Agreement, Year_Record),
-	loan_rec_repayment_amount(Year_Record, 0),
-	loan_rec_closing_day(Year_Record, Year_Begin_Day),
-	loan_rec_closing_balance(Year_Record, Balance),
+loan_agr_min_yearly_repayment(Agreement, Current_Year_Num, Min_Yearly_Rep) :-
+	loan_agr_year_days(Agreement, Current_Year_Num, Year_Begin_Day, _),
+	loan_agr_year_opening_balance(Agreement, Current_Year_Num, Balance),
 	loan_agr_term(Agreement, Term),
 	Remaining_Term is Term - Current_Year_Num,
-	benchmark_interest_rate(Begin_Day, Benchmark_Interest_Rate),
+	benchmark_interest_rate(Year_Begin_Day, Benchmark_Interest_Rate),
 	Min_Yearly_Rep is Balance * Benchmark_Interest_Rate /
 		(100 * (1 - (1 + (Benchmark_Interest_Rate / 100)) ** (-Remaining_Term))).
+
+% A predicate for generating the records of a loan agreement within a given period.
+
+loan_agr_record_between(Agreement, Start_Day, End_Day, Record) :-
+	loan_agr_record(Agreement, Record),
+		loan_rec_closing_day(Record, Record_Closing_Day),
+		Start_Day < Record_Closing_Day,
+		Record_Closing_Day =< End_Day.
+
+% A predicate asserting the total repayment within a given income year of a loan agreement.
+
+loan_agr_total_repayment(Agreement, Year_Num, Total_Repayment) :-
+	loan_agr_year_days(Agreement, Year_Num, Year_Start_Day, Year_End_Day),
+	findall(Record_Repayment,
+		(loan_agr_record_between(Agreement, Year_Start_Day, Year_End_Day, Record),
+		loan_rec_repayment_amount(Record, Record_Repayment)),
+		Record_Repayments),
+	sum_list(Record_Repayments, Total_Repayment).
+
+% A predicate asserting the total interest owed within a given income year of a loan
+% agreement.
+
+loan_agr_total_interest(Agreement, Year_Num, Total_Interest) :-
+	loan_agr_year_days(Agreement, Year_Num, Year_Start_Day, Year_End_Day),
+	findall(Record_Interest,
+		(loan_agr_record_between(Agreement, Year_Start_Day, Year_End_Day, Record),
+		loan_rec_interest_amount(Record, Record_Interest)),
+		Record_Interests),
+	sum_list(Record_Interests, Total_Interest).
+
+% A predicate asserting the total pincipal paid within a given income year of a loan
+% agreement.
+
+loan_agr_total_principal(Agreement, Year_Num, Total_Principal) :-
+	loan_agr_total_repayment(Agreement, Year_Num, Total_Repayment),
+	loan_agr_total_interest(Agreement, Year_Num, Total_Interest),
+	Total_Principal is Total_Repayment - Total_Interest.
+
+% A predicate for generating the summary records of a given loan agreement.
+
+loan_agr_summary(Agreement, Summary) :-
+	loan_agr_term(Agreement, Term),
+	Last_Year is Term - 1,
+	loan_sum_number(Summary, Summary_Number),
+	between(-1, Last_Year, Summary_Number),
+	loan_agr_year_days(Agreement, Summary_Number, Year_Start_Day, _),
+	benchmark_interest_rate(Year_Start_Day, Interest_Rate),
+	loan_sum_interest_rate(Summary, Interest_Rate),
+	loan_agr_year_opening_balance(Agreement, Summary_Number, Opening_Balance),
+	loan_sum_opening_balance(Summary, Opening_Balance),
+	loan_agr_year_closing_balance(Agreement, Summary_Number, Closing_Balance),
+	loan_sum_closing_balance(Summary, Closing_Balance),
+	loan_agr_min_yearly_repayment(Agreement, Summary_Number, Min_Yearly_Repayment),
+	loan_sum_min_yearly_repayment(Summary, Min_Yearly_Repayment),
+	loan_agr_total_repayment(Agreement, Summary_Number, Total_Repayment),
+	loan_sum_total_repayment(Summary, Total_Repayment),
+	loan_agr_total_interest(Agreement, Summary_Number, Total_Interest),
+	loan_sum_total_interest(Summary, Total_Interest),
+	loan_agr_total_principal(Agreement, Summary_Number, Total_Principal),
+	loan_sum_total_principal(Summary, Total_Principal).
 
