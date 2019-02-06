@@ -1,28 +1,43 @@
+% The purpose of the following program is to derive information about a given loan
+% agreement. That is, this program will tell you what the closing balance of the loan
+% account is after a particular installment has been paid. It will tell you how much
+% interest you have paid for a given income year in the agreement. And it will tell you
+% other relevant information.
+
+% This program is part of a larger system for validating and correcting balance sheets.
+% More precisely, accounting principles require that the transactions that occur in a loan
+% agreement are summarized in balance sheets. This program calculates those summary values
+% directly from the original data and ultimately will be expected to add correction
+% entries to the balance sheet when it is in error.
+
+% The formulas in this program are completely specified by the examples and rules set
+% forth in https://www.ato.gov.au/business/private-company-benefits---division-7a-dividends/in-detail/division-7a---loans/ .
+
 % Benchmark interest rates
 % These rates apply to private companies with an income year ending 30 June.
 % Source: https://www.ato.gov.au/rates/division-7a---benchmark-interest-rate/
 
-benchmark_interest_rate(Day, 5.20) :- absolute_day(date(2018,6,30), ODay), absolute_day(date(2019,6,30), CDay), ODay < Day, Day =< CDay.
-benchmark_interest_rate(Day, 5.30) :- absolute_day(date(2017,6,30), ODay), absolute_day(date(2018,6,30), CDay), ODay < Day, Day =< CDay.
-benchmark_interest_rate(Day, 5.40) :- absolute_day(date(2016,6,30), ODay), absolute_day(date(2017,6,30), CDay), ODay < Day, Day =< CDay.
-benchmark_interest_rate(Day, 5.45) :- absolute_day(date(2015,6,30), ODay), absolute_day(date(2016,6,30), CDay), ODay < Day, Day =< CDay.
-benchmark_interest_rate(Day, 5.95) :- absolute_day(date(2014,6,30), ODay), absolute_day(date(2015,6,30), CDay), ODay < Day, Day =< CDay.
-benchmark_interest_rate(Day, 6.20) :- absolute_day(date(2013,6,30), ODay), absolute_day(date(2014,6,30), CDay), ODay < Day, Day =< CDay.
-benchmark_interest_rate(Day, 7.05) :- absolute_day(date(2012,6,30), ODay), absolute_day(date(2013,6,30), CDay), ODay < Day, Day =< CDay.
-benchmark_interest_rate(Day, 7.80) :- absolute_day(date(2011,6,30), ODay), absolute_day(date(2012,6,30), CDay), ODay < Day, Day =< CDay.
-benchmark_interest_rate(Day, 7.40) :- absolute_day(date(2010,6,30), ODay), absolute_day(date(2011,6,30), CDay), ODay < Day, Day =< CDay.
-benchmark_interest_rate(Day, 5.75) :- absolute_day(date(2009,6,30), ODay), absolute_day(date(2010,6,30), CDay), ODay < Day, Day =< CDay.
-benchmark_interest_rate(Day, 9.45) :- absolute_day(date(2008,6,30), ODay), absolute_day(date(2009,6,30), CDay), ODay < Day, Day =< CDay.
-benchmark_interest_rate(Day, 8.05) :- absolute_day(date(2007,6,30), ODay), absolute_day(date(2008,6,30), CDay), ODay < Day, Day =< CDay.
-benchmark_interest_rate(Day, 7.55) :- absolute_day(date(2006,6,30), ODay), absolute_day(date(2007,6,30), CDay), ODay < Day, Day =< CDay.
-benchmark_interest_rate(Day, 7.3) :- absolute_day(date(2005,6,30), ODay), absolute_day(date(2006,6,30), CDay), ODay < Day, Day =< CDay.
-benchmark_interest_rate(Day, 7.05) :- absolute_day(date(2004,6,30), ODay), absolute_day(date(2005,6,30), CDay), ODay < Day, Day =< CDay.
-benchmark_interest_rate(Day, 6.55) :- absolute_day(date(2003,6,30), ODay), absolute_day(date(2004,6,30), CDay), ODay < Day, Day =< CDay.
-benchmark_interest_rate(Day, 6.3) :- absolute_day(date(2002,6,30), ODay), absolute_day(date(2003,6,30), CDay), ODay < Day, Day =< CDay.
-benchmark_interest_rate(Day, 6.8) :- absolute_day(date(2001,6,30), ODay), absolute_day(date(2002,6,30), CDay), ODay < Day, Day =< CDay.
-benchmark_interest_rate(Day, 7.8) :- absolute_day(date(2000,6,30), ODay), absolute_day(date(2001,6,30), CDay), ODay < Day, Day =< CDay.
-benchmark_interest_rate(Day, 6.5) :- absolute_day(date(1999,6,30), ODay), absolute_day(date(2000,6,30), CDay), ODay < Day, Day =< CDay.
-benchmark_interest_rate(Day, 6.7) :- absolute_day(date(1998,6,30), ODay), absolute_day(date(1999,6,30), CDay), ODay < Day, Day =< CDay.
+benchmark_interest_rate(Day, 5.20) :- day_between(date(2018,7,1), date(2019,7,1), Day).
+benchmark_interest_rate(Day, 5.30) :- day_between(date(2017,7,1), date(2018,7,1), Day).
+benchmark_interest_rate(Day, 5.40) :- day_between(date(2016,7,1), date(2017,7,1), Day).
+benchmark_interest_rate(Day, 5.45) :- day_between(date(2015,7,1), date(2016,7,1), Day).
+benchmark_interest_rate(Day, 5.95) :- day_between(date(2014,7,1), date(2015,7,1), Day).
+benchmark_interest_rate(Day, 6.20) :- day_between(date(2013,7,1), date(2014,7,1), Day).
+benchmark_interest_rate(Day, 7.05) :- day_between(date(2012,7,1), date(2013,7,1), Day).
+benchmark_interest_rate(Day, 7.80) :- day_between(date(2011,7,1), date(2012,7,1), Day).
+benchmark_interest_rate(Day, 7.40) :- day_between(date(2010,7,1), date(2011,7,1), Day).
+benchmark_interest_rate(Day, 5.75) :- day_between(date(2009,7,1), date(2010,7,1), Day).
+benchmark_interest_rate(Day, 9.45) :- day_between(date(2008,7,1), date(2009,7,1), Day).
+benchmark_interest_rate(Day, 8.05) :- day_between(date(2007,7,1), date(2008,7,1), Day).
+benchmark_interest_rate(Day, 7.55) :- day_between(date(2006,7,1), date(2007,7,1), Day).
+benchmark_interest_rate(Day, 7.3) :- day_between(date(2005,7,1), date(2006,7,1), Day).
+benchmark_interest_rate(Day, 7.05) :- day_between(date(2004,7,1), date(2005,7,1), Day).
+benchmark_interest_rate(Day, 6.55) :- day_between(date(2003,7,1), date(2004,7,1), Day).
+benchmark_interest_rate(Day, 6.3) :- day_between(date(2002,7,1), date(2003,7,1), Day).
+benchmark_interest_rate(Day, 6.8) :- day_between(date(2001,7,1), date(2002,7,1), Day).
+benchmark_interest_rate(Day, 7.8) :- day_between(date(2000,7,1), date(2001,7,1), Day).
+benchmark_interest_rate(Day, 6.5) :- day_between(date(1999,7,1), date(2000,7,1), Day).
+benchmark_interest_rate(Day, 6.7) :- day_between(date(1998,7,1), date(1999,7,1), Day).
 
 % Predicates for asserting the fields of a loan repayment
 
@@ -302,7 +317,7 @@ loan_agr_summary(Agreement, Summary) :-
 	loan_agr_term(Agreement, Term),
 	Last_Year is Term - 1,
 	loan_sum_number(Summary, Summary_Number),
-	between(-1, Last_Year, Summary_Number),
+	between(0, Last_Year, Summary_Number),
 	loan_agr_year_days(Agreement, Summary_Number, Year_Start_Day, _),
 	benchmark_interest_rate(Year_Start_Day, Interest_Rate),
 	loan_sum_interest_rate(Summary, Interest_Rate),

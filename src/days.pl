@@ -105,3 +105,10 @@ gregorian_date(Abs_Day, date(Year, Month, Day)) :-
 	Year is 1 + (400 * Num_400Y) + (100 * Num_100Y) + (4 * Num_4Y) + (1 * Num_1Y),
 	month_day(Year, Year_Day, Month, Day).
 
+% Predicate asserts that the given absolute day resides between two Gregorian dates
+
+day_between(Opening_Date, Closing_Date, Day) :-
+	absolute_day(Opening_Date, Opening_Day),
+	absolute_day(Closing_Date, Closing_Day),
+	Opening_Day =< Day, Day < Closing_Day.
+
