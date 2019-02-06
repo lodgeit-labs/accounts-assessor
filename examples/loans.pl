@@ -1,3 +1,6 @@
+% The following examples are based on examples 6, 7, 8, and, 9 of
+% https://www.ato.gov.au/business/private-company-benefits---division-7a-dividends/in-detail/division-7a---loans/
+
 % What is the minimum yearly repayment of the first income year after a loan agreement
 % is made? The relevant information is that the first income year begins on
 % date(2014, 7, 1). The private company's lodgement day is date(2015, 5, 15). A payment
@@ -68,6 +71,9 @@ absolute_day(date(2015, 5, 30), Payment2_Day),
 loan_agr_prepare(loan_agreement(0, 75000, Lodgement_Day, Begin_Day, 7,
 [loan_repayment(Payment1_Day, 20000), loan_repayment(Payment2_Day, 8000)]), Prepared_Agreement),
 loan_agr_summary(Prepared_Agreement, Summary).
-% Result: Summary = loan_summary(0, 55000.0, 5.95, 9834.923730309263, 8000, 3230.7684931506847, 4769.231506849315, 50230.76849315068) ;
+% Result:
+% Summary = loan_summary(0, 55000.0, 5.95, 9834.923730309263, 8000, 3230.7684931506847, 4769.231506849315, 50230.76849315068) ;
+% Summary = loan_summary(1, 50230.76849315068, 5.45, 10039.211673000375, 0, 2745.0770935147307, -2745.0770935147307, 52975.84558666541) ;
+% ...
 % See the loan summary schema in loans.pl .
 
