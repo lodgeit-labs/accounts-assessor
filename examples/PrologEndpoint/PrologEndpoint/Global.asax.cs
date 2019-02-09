@@ -16,41 +16,6 @@ using System.Web.Routing;
 // rest of this C# program. The controllers in this project simply utilizes the DLL files's
 // functions to execute a Prolog query.
 
-// Make sure that the local variable argv of
-// PrologEndpoint.WebApiApplication.InitializeProlog contains the correct location of main.pl,
-// which is to be found at the root of the labs-account-assessor repository. Make sure that
-// PrologEndpoint.Helpers.PL.dllName has the correct location of the Prolog Kernel DLL.
-
-// To run this, open up Microsoft Visual Studio. Go Project > Properties... > Build > General .
-// Set Platform Target to match the target architecture of libswipl.dll, the Prolog Kernel DLL.
-// Now go Tools > Options > Projects and Solutions > Web Projects >
-// Use the 64 bit version of IIS Express for web sites and projects depending on the target
-// architecture of the Prolog Kernel DLL. Now go Debug > Start Debugging. To send a request to
-// the web application, open up Windows Powershell and enter the following with the port number
-// modified appropriately:
-//
-// Invoke-WebRequest -Uri http://localhost:57417/api/Loan -Body '<?xml version="1.0"?>
-// <reports xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-// xmlns:xsd="http://www.w3.org/2001/XMLSchema"><loandetails><generator>
-// <date>2017-03-25T05:53:43.887542Z</date><source>ACCRIP</source><author>
-// <firstname>waqas</firstname><lastname>awan</lastname><company>Uhudsoft</company></author></generator>
-// <company><abn>12345678900</abn><tfn /><clientcode /><anzsic /><notes /><directors /></company>
-// <title>Load Sheet</title><period>1 July, 2016 to 30 June, 2023</period><startDate>2016-07-01</startDate>
-// <endDate>2023-06-30</endDate><loanAgreement><field name="Loan Creation Year" value="2014" />
-// <field name="Full term of loan in years" value="7" />
-// <field name="Principal amount of loan" value="75000" />
-// <field name="Lodgment day of private company" value="2015-05-15" />
-// </loanAgreement><repayments><repayment date="2014-08-31" value="20000" />
-// <repayment date="2015-05-30" value="8000" /></repayments></loandetails></reports>'
-// -ContentType application/xml -Method POST
-//
-// You should receive a response, and its Content property should contain a summary of the
-// loan balances at year ends. It should start as follows:
-//
-// <ArrayOfLoanSummary xmlns:i="http://www.w3.org/2001/XMLSchema-instance"
-// xmlns="http://schemas.datacontract.org/2004/07/PrologEndpoint.Models">
-// <LoanSummary><ClosingBalance>50230.768493150681</ClosingBalance>
-
 
 namespace PrologEndpoint
 {

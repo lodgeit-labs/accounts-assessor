@@ -203,6 +203,7 @@ namespace PrologEndpoint.Controllers
                 lr.Date = DateTime.Parse(n.Attributes.GetNamedItem("date").Value);
                 lrs.Add(lr);
             }
+            lrs.Sort((x, y) => x.Date.CompareTo(y.Date));
             la.Repayments = lrs.ToArray();
             return la;
         }
