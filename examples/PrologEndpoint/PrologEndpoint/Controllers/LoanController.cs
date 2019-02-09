@@ -203,6 +203,7 @@ namespace PrologEndpoint.Controllers
                 lr.Date = DateTime.Parse(n.Attributes.GetNamedItem("date").Value);
                 lrs.Add(lr);
             }
+            // Prolog needs the LoanRepayments to be in order of date.
             lrs.Sort((x, y) => x.Date.CompareTo(y.Date));
             la.Repayments = lrs.ToArray();
             return la;
@@ -222,10 +223,14 @@ namespace PrologEndpoint.Controllers
             // will block execution if there are more simultaneous requests than Prolog engines
             // at a given point in time.
             for(int i = 0; ; i = (i + 1) % WebApiApplication.PrologEngines.Length)
-                if (PL.PL_set_engine(WebApiApplication.PrologEngines[i], out IntPtr old_engine) == PL.PL_ENGINE_SET)
+                if (PL.PL_set_engine(WebApiApplication.PrologEngines[i], out IntPtr old_engine_a) == PL.PL_ENGINE_SET)
                     break;
-            // Now parse the LoanAgreement in Xml and return corresponding summaries
-            return GetLoanSummaries(ParseLoanAgreement(doc));
+            // Now parse the LoanAgreement in Xml and obtain corresponding summaries
+            LoanSummary[] lss = GetLoanSummaries(ParseLoanAgreement(doc));
+            // Now release the Prolog engine that we were using so that other threads can use it.
+            PL.PL_set_engine(IntPtr.Zero, out IntPtr old_engine_b);
+            // Now return the LoanSummarys
+            return lss;
         }
     }
 }
