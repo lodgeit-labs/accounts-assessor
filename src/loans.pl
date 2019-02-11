@@ -102,6 +102,9 @@ loan_sum_total_principal(loan_summary(_, _, _, _, _, _, Total_Principal, _), Tot
 % The closing balance of the given income year
 loan_sum_closing_balance(loan_summary(_, _, _, _, _, _, _, Closing_Balance), Closing_Balance).
 
+% The following logic is used instead of relating records to their predecessors because it
+% allows Prolog to systematically find all the loan records corresponding to a given
+% loan agreement.
 
 % Asserts the necessary relations to get from one loan record to the next
 

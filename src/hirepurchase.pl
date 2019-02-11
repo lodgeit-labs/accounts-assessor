@@ -138,52 +138,48 @@ period_interest_rate(Annual_Interest_Rate, Installment_Period, Period_Interest_R
 period_interest_rate(Annual_Interest_Rate, Installment_Period, Period_Interest_Rate) :-
 	Period_Interest_Rate is Annual_Interest_Rate * (Installment_Period / 365.2425).
 
-% Predicate relating a hire purchase record to an arrangement. The logic is that a record
-% is related to a hire purchase arrangement if it is its first, otherwise it must be
-% related to the hypothetical hire purchase arrangement that is the same as the present
-% one but had the first potential installment applied to it. This logic is used instead of
-% relating records to their predecessors because it allows Prolog to systematically find
-% all the hire purchase records corresponding to a given arrangement.
+% The following logic is used instead of relating records to their predecessors because it
+% allows Prolog to systematically find all the hire purchase records corresponding to a
+% given arrangement.
+
+% Asserts the necessary relations to get from one hire purchase record to the next
+
+hp_rec_aux(Current_Record_Number, Current_Closing_Balance, Interest_Rate, Current_Inst_Day, Installments_Hd, Next_Record) :-
+	Next_Record_Number is Current_Record_Number + 1,
+	hp_rec_number(Next_Record, Next_Record_Number),
+	Current_Closing_Balance > 0,
+	hp_rec_opening_balance(Next_Record, Current_Closing_Balance),
+	hp_rec_interest_rate(Next_Record, Interest_Rate),
+	hp_rec_opening_day(Next_Record, Current_Inst_Day),
+	hp_inst_day(Installments_Hd, Next_Inst_Day), hp_rec_closing_day(Next_Record, Next_Inst_Day),
+	hp_inst_amount(Installments_Hd, Next_Inst_Amount),
+	Installment_Period is Next_Inst_Day - Current_Inst_Day,
+	period_interest_rate(Interest_Rate, Installment_Period, Period_Interest_Rate),
+	Next_Interest_Amount is Current_Closing_Balance * Period_Interest_Rate / 100,
+	hp_rec_interest_amount(Next_Record, Next_Interest_Amount),
+	hp_rec_installment_amount(Next_Record, Next_Inst_Amount),
+	Next_Closing_Balance is Current_Closing_Balance + Next_Interest_Amount - Next_Inst_Amount,
+	hp_rec_closing_balance(Next_Record, Next_Closing_Balance).
+
+% Relates a hire purchase arrangement to one of its records
 
 hp_arr_record(Arrangement, Record) :-
 	hp_arr_installments(Arrangement, [Installments_Hd|Installments_Tl]),
 	Current_Record_Number = 0,
-	Next_Record_Number is Current_Record_Number + 1,
-	hp_rec_number(Next_Record, Next_Record_Number),
-	hp_arr_cash_price(Arrangement, Next_Opening_Balance),
-	Next_Opening_Balance > 0,
-	hp_rec_opening_balance(Next_Record, Next_Opening_Balance),
-	hp_arr_interest_rate(Arrangement, Interest_Rate), hp_rec_interest_rate(Next_Record, Interest_Rate),
-	hp_arr_begin_day(Arrangement, Current_Inst_Day), hp_rec_opening_day(Next_Record, Current_Inst_Day),
-	hp_inst_day(Installments_Hd, Next_Inst_Day), hp_rec_closing_day(Next_Record, Next_Inst_Day),
-	hp_inst_amount(Installments_Hd, Next_Inst_Amount),
-	Installment_Period is Next_Inst_Day - Current_Inst_Day,
-	period_interest_rate(Interest_Rate, Installment_Period, Period_Interest_Rate),
-	Next_Interest_Amount is Next_Opening_Balance * Period_Interest_Rate / 100,
-	hp_rec_interest_amount(Next_Record, Next_Interest_Amount),
-	hp_rec_installment_amount(Next_Record, Next_Inst_Amount),
-	Next_Closing_Balance is Next_Opening_Balance + Next_Interest_Amount - Next_Inst_Amount,
-	hp_rec_closing_balance(Next_Record, Next_Closing_Balance),
+	hp_arr_cash_price(Arrangement, Current_Closing_Balance),
+	hp_arr_interest_rate(Arrangement, Interest_Rate),
+	hp_arr_begin_day(Arrangement, Current_Inst_Day),
+	hp_rec_aux(Current_Record_Number, Current_Closing_Balance, Interest_Rate, Current_Inst_Day, Installments_Hd, Next_Record),
 	(Record = Next_Record; hp_rec_record(Next_Record, Installments_Tl, Record)).
+
+% Relates a hire purchase record to one that follows it
 
 hp_rec_record(Current_Record, [Installments_Hd|Installments_Tl], Record) :-
 	hp_rec_number(Current_Record, Current_Record_Number),
-	Next_Record_Number is Current_Record_Number + 1,
-	hp_rec_number(Next_Record, Next_Record_Number),
-	hp_rec_closing_balance(Current_Record, Next_Opening_Balance),
-	Next_Opening_Balance > 0,
-	hp_rec_opening_balance(Next_Record, Next_Opening_Balance),
-	hp_rec_interest_rate(Current_Record, Interest_Rate), hp_rec_interest_rate(Next_Record, Interest_Rate),
-	hp_rec_closing_day(Current_Record, Current_Inst_Day), hp_rec_opening_day(Next_Record, Current_Inst_Day),
-	hp_inst_day(Installments_Hd, Next_Inst_Day), hp_rec_closing_day(Next_Record, Next_Inst_Day),
-	hp_inst_amount(Installments_Hd, Next_Inst_Amount),
-	Installment_Period is Next_Inst_Day - Current_Inst_Day,
-	period_interest_rate(Interest_Rate, Installment_Period, Period_Interest_Rate),
-	Next_Interest_Amount is Next_Opening_Balance * Period_Interest_Rate / 100,
-	hp_rec_interest_amount(Next_Record, Next_Interest_Amount),
-	hp_rec_installment_amount(Next_Record, Next_Inst_Amount),
-	Next_Closing_Balance is Next_Opening_Balance + Next_Interest_Amount - Next_Inst_Amount,
-	hp_rec_closing_balance(Next_Record, Next_Closing_Balance),
+	hp_rec_closing_balance(Current_Record, Current_Closing_Balance),
+	hp_rec_interest_rate(Current_Record, Interest_Rate),
+	hp_rec_closing_day(Current_Record, Current_Inst_Day),
+	hp_rec_aux(Current_Record_Number, Current_Closing_Balance, Interest_Rate, Current_Inst_Day, Installments_Hd, Next_Record),
 	(Record = Next_Record; hp_rec_record(Next_Record, Installments_Tl, Record)).
 
 % Some predicates on hire purchase arrangements and potential installments for them
