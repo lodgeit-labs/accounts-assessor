@@ -1,0 +1,7 @@
+<ArrayOfLoanSummary xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <LoanSummary IncomeYear="2015" OpeningBalance="55000" InterestRate="5.95" MinYearlyRepayment="9834.9237303092541" TotalRepayment="8000" TotalInterest="3230.7684931506847" TotalPrincipal="4769.2315068493153" ClosingBalance="50230.768493150681" />
+  <LoanSummary IncomeYear="2016" OpeningBalance="50230.768493150681" InterestRate="5.45" MinYearlyRepayment="10039.211673000378" TotalRepayment="0" TotalInterest="2745.0770935147307" TotalPrincipal="-2745.0770935147307" ClosingBalance="52975.845586665411" />
+  <LoanSummary IncomeYear="2017" OpeningBalance="52975.845586665411" InterestRate="5.4" MinYearlyRepayment="12371.694899300417" TotalRepayment="0" TotalInterest="2860.6956616799325" TotalPrincipal="-2860.6956616799325" ClosingBalance="55836.54124834534" />
+  <LoanSummary IncomeYear="2018" OpeningBalance="55836.54124834534" InterestRate="5.3" MinYearlyRepayment="15856.443973846282" TotalRepayment="0" TotalInterest="2959.3366861623031" TotalPrincipal="-2959.3366861623031" ClosingBalance="58795.87793450764" />
+  <LoanSummary IncomeYear="2019" OpeningBalance="58795.87793450764" InterestRate="5.2" MinYearlyRepayment="21671.310203456884" TotalRepayment="0" TotalInterest="3057.3856525943979" TotalPrincipal="-3057.3856525943979" ClosingBalance="61853.263587102039" />
+</ArrayOfLoanSummary>
