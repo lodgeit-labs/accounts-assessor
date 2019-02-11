@@ -2,6 +2,11 @@
 
 This Visual Studio Solution is a demonstration of how a Prolog program can be used to make a web service that receives input data, performs certain computations, and sends back the result. More concretely, this demonstration comprises an ASP.NET Web Application project that receives a loan agreement in XML form, uses Prolog to compute the loan balance at year-ends, and sends back the result in XML form. Only the POST request method is used in this demonstration.
 
+## This Web Application's dependencies
+* An installation of [Visual Studio 2017](https://visualstudio.microsoft.com/vs/) with the [ASP.NET and web development workload](https://visualstudio.microsoft.com/vs/support/selecting-workloads-visual-studio-2017/). This is the software that can open the code herein and run the web endpoint on your local machine.
+* A copy of [this repository](https://github.com/LodgeiT/labs-accounts-assessor/). This is where the Prolog scripts that do the actual computations reside. The Visual Studio project does nothing but receive HTTP requests and execute these scripts.
+* An installation of [SWI-Prolog](http://www.swi-prolog.org/download/stable). This will contain a DLL library called `libswipl.dll` to interpret/execute the aforementioned Prolog scripts.
+
 ## How to run this Web Application
 * Open up this solution up in Microsoft Visual Studio
 * Make sure that argv of `PrologEndpoint.WebApiApplication.InitializeProlog` contains the correct location of `main.pl` which is to be found at the root of this repository. (Right now it is `C:\Users\murisi\Mirror\labs-accounts-assessor\main.pl` )
