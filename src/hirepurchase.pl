@@ -38,18 +38,16 @@ hp_inst_amount(hp_installment(_, Installment), Installment).
 % Predicates for asserting the fields of a hire purchase arrangement
 
 % An identifier for a given hire purchase arrangement
-hp_arr_contract_number(hp_arrangement(Contract_Number, _, _, _, _, _), Contract_Number).
+hp_arr_contract_number(hp_arrangement(Contract_Number, _, _, _, _), Contract_Number).
 % The opening balance of the whole arrangement
-hp_arr_cash_price(hp_arrangement(_, Cash_Price, _, _, _, _), Cash_Price).
+hp_arr_cash_price(hp_arrangement(_, Cash_Price, _, _, _), Cash_Price).
 % The beginning day of the whole arrangement
-hp_arr_begin_day(hp_arrangement(_, _, Begin_Day, _, _, _), Begin_Day).
+hp_arr_begin_day(hp_arrangement(_, _, Begin_Day, _, _), Begin_Day).
 % The stated annual interest rate of the arrangement
-hp_arr_interest_rate(hp_arrangement(_, _, _, Interest_Rate, _, _), Interest_Rate).
-% For internal usage, user should always set this to 1
-hp_arr_record_offset(hp_arrangement(_, _, _, _, Record_Offset, _), Record_Offset).
+hp_arr_interest_rate(hp_arrangement(_, _, _, Interest_Rate, _), Interest_Rate).
 % A chronologically ordered list of purchase arrangement installments. The latter
 % installments where the account balance is negative are ignored.
-hp_arr_installments(hp_arrangement(_, _, _, _, _, Installments), Installments).
+hp_arr_installments(hp_arrangement(_, _, _, _, Installments), Installments).
 
 % Predicates for asserting the fields of a hire purchase record
 
@@ -148,41 +146,45 @@ period_interest_rate(Annual_Interest_Rate, Installment_Period, Period_Interest_R
 % all the hire purchase records corresponding to a given arrangement.
 
 hp_arr_record(Arrangement, Record) :-
-	hp_rec_number(Record, Record_Number), hp_arr_record_offset(Arrangement, Record_Number),
-	hp_rec_opening_balance(Record, Cash_Price), hp_arr_cash_price(Arrangement, Cash_Price),
-	hp_arr_begin_day(Arrangement, Prev_Inst_Day), hp_rec_opening_day(Record, Prev_Inst_Day),
-	hp_rec_interest_rate(Record, Interest_Rate), hp_arr_interest_rate(Arrangement, Interest_Rate),
-	hp_arr_installments(Arrangement, [Installments_Hd|_]),
-	hp_inst_day(Installments_Hd, Current_Inst_Day), hp_rec_closing_day(Record, Current_Inst_Day),
-	hp_inst_amount(Installments_Hd, Current_Inst_Amount),
-	Installment_Period is Current_Inst_Day - Prev_Inst_Day,
+	hp_arr_installments(Arrangement, [Installments_Hd|Installments_Tl]),
+	Current_Record_Number = 0,
+	Next_Record_Number is Current_Record_Number + 1,
+	hp_rec_number(Next_Record, Next_Record_Number),
+	hp_arr_cash_price(Arrangement, Next_Opening_Balance),
+	Next_Opening_Balance > 0,
+	hp_rec_opening_balance(Next_Record, Next_Opening_Balance),
+	hp_arr_interest_rate(Arrangement, Interest_Rate), hp_rec_interest_rate(Next_Record, Interest_Rate),
+	hp_arr_begin_day(Arrangement, Current_Inst_Day), hp_rec_opening_day(Next_Record, Current_Inst_Day),
+	hp_inst_day(Installments_Hd, Next_Inst_Day), hp_rec_closing_day(Next_Record, Next_Inst_Day),
+	hp_inst_amount(Installments_Hd, Next_Inst_Amount),
+	Installment_Period is Next_Inst_Day - Current_Inst_Day,
 	period_interest_rate(Interest_Rate, Installment_Period, Period_Interest_Rate),
-	Interest_Amount is Cash_Price * Period_Interest_Rate / 100,
-	hp_rec_interest_amount(Record, Interest_Amount),
-	hp_rec_installment_amount(Record, Current_Inst_Amount),
-	Closing_Balance is Cash_Price + Interest_Amount - Current_Inst_Amount,
-	hp_rec_closing_balance(Record, Closing_Balance),
-	Cash_Price > 0.
+	Next_Interest_Amount is Next_Opening_Balance * Period_Interest_Rate / 100,
+	hp_rec_interest_amount(Next_Record, Next_Interest_Amount),
+	hp_rec_installment_amount(Next_Record, Next_Inst_Amount),
+	Next_Closing_Balance is Next_Opening_Balance + Next_Interest_Amount - Next_Inst_Amount,
+	hp_rec_closing_balance(Next_Record, Next_Closing_Balance),
+	(Record = Next_Record; hp_rec_record(Next_Record, Installments_Tl, Record)).
 
-hp_arr_record(Arrangement, Record) :-
-	hp_arr_record_offset(Arrangement, Record_Offset),
-	New_Record_Offset is Record_Offset + 1,
-	hp_arr_record_offset(New_Arrangement, New_Record_Offset),
-	hp_arr_contract_number(Arrangement, Contract_Number), hp_arr_contract_number(New_Arrangement, Contract_Number),
-	hp_arr_cash_price(Arrangement, Cash_Price),
-	hp_arr_begin_day(Arrangement, Prev_Inst_Day),
-	hp_arr_interest_rate(Arrangement, Interest_Rate), hp_arr_interest_rate(New_Arrangement, Interest_Rate),
-	hp_arr_installments(Arrangement, [Installments_Hd|Installments_Tl]), hp_arr_installments(New_Arrangement, Installments_Tl),
-	hp_inst_day(Installments_Hd, Current_Inst_Day),
-	hp_inst_amount(Installments_Hd, Current_Inst_Amount),
-	hp_arr_begin_day(New_Arrangement, Current_Inst_Day),
-	Installment_Period is Current_Inst_Day - Prev_Inst_Day,
+hp_rec_record(Current_Record, [Installments_Hd|Installments_Tl], Record) :-
+	hp_rec_number(Current_Record, Current_Record_Number),
+	Next_Record_Number is Current_Record_Number + 1,
+	hp_rec_number(Next_Record, Next_Record_Number),
+	hp_rec_closing_balance(Current_Record, Next_Opening_Balance),
+	Next_Opening_Balance > 0,
+	hp_rec_opening_balance(Next_Record, Next_Opening_Balance),
+	hp_rec_interest_rate(Current_Record, Interest_Rate), hp_rec_interest_rate(Next_Record, Interest_Rate),
+	hp_rec_closing_day(Current_Record, Current_Inst_Day), hp_rec_opening_day(Next_Record, Current_Inst_Day),
+	hp_inst_day(Installments_Hd, Next_Inst_Day), hp_rec_closing_day(Next_Record, Next_Inst_Day),
+	hp_inst_amount(Installments_Hd, Next_Inst_Amount),
+	Installment_Period is Next_Inst_Day - Current_Inst_Day,
 	period_interest_rate(Interest_Rate, Installment_Period, Period_Interest_Rate),
-	Interest_Amount is Cash_Price * Period_Interest_Rate / 100,
-	New_Cash_Price is Cash_Price + Interest_Amount - Current_Inst_Amount,
-	New_Cash_Price > 0,
-	hp_arr_cash_price(New_Arrangement, New_Cash_Price),
-	hp_arr_record(New_Arrangement, Record).
+	Next_Interest_Amount is Next_Opening_Balance * Period_Interest_Rate / 100,
+	hp_rec_interest_amount(Next_Record, Next_Interest_Amount),
+	hp_rec_installment_amount(Next_Record, Next_Inst_Amount),
+	Next_Closing_Balance is Next_Opening_Balance + Next_Interest_Amount - Next_Inst_Amount,
+	hp_rec_closing_balance(Next_Record, Next_Closing_Balance),
+	(Record = Next_Record; hp_rec_record(Next_Record, Installments_Tl, Record)).
 
 % Some predicates on hire purchase arrangements and potential installments for them
 

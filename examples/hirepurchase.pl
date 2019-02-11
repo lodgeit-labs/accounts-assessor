@@ -11,38 +11,38 @@ insert_balloon(hp_installment(Balloon_Day, 1000), Installments, Installments_Wit
 % arrangement?
 absolute_day(date(2014, 12, 16), Begin_Day),
 installments(date(2015, 1, 16), 36, date(0, 1, 0), 200.47, Installments),
-hp_arr_total_payment_from(hp_arrangement(0, 5953.2, Begin_Day, 13, 1, Installments), Begin_Day, Total_Payment).
+hp_arr_total_payment_from(hp_arrangement(0, 5953.2, Begin_Day, 13, Installments), Begin_Day, Total_Payment).
 % Result: Total_Payment = 7216.920000000002.
 
 % What is the total interest the customer will pay over the course of the hire purchase
 % arrangement?
 absolute_day(date(2014, 12, 16), Begin_Day),
 installments(date(2015, 1, 16), 36, date(0, 1, 0), 200.47, Installments),
-hp_arr_total_interest_from(hp_arrangement(0, 5953.2, Begin_Day, 13, 1, Installments), Begin_Day, Total_Interest).
-% Result: Total_Interest = 1269.925914056732.
+hp_arr_total_interest_from(hp_arrangement(0, 5953.2, Begin_Day, 13, Installments), Begin_Day, Total_Interest).
+% Result: Total_Interest = 1268.8307569608373.
 
 % Give me all the records of a hire purchase arrangement:
 absolute_day(date(2014, 12, 16), Begin_Day),
 installments(date(2015, 1, 16), 36, date(0, 1, 0), 200.47, Installments),
-hp_arr_record(hp_arrangement(0, 5953.2, Begin_Day, 13, 1, Installments), Record).
+hp_arr_record(hp_arrangement(0, 5953.2, Begin_Day, 13, Installments), Record).
 % Result:
-% Record = hp_record(1, 5953.2, 13, 65.7298520547945, 200.47, 5818.459852054794) ;
-% Record = hp_record(2, 5818.459852054794, 13, 64.24217316104335, 200.47, 5682.232025215837) ;
+% Record = hp_record(1, 5953.2, 13, 64.493, 200.47, 5817.223, 735583, 735614) ;
+% Record = hp_record(2, 5817.223, 13, 63.01991583333333, 200.47, 5679.772915833333, 735614, 735645) ;
 % ...
-% Record = hp_record(36, 204.4909423440125, 13, 2.184971712716846, 200.47, 6.205914056729341) ;
+% Record = hp_record(36, 203.3775007032173, 13, 2.2032562576181873, 200.47, 5.110756960835488, 736649, 736679) ;
 
 % Present a hire purchase arrangement as it would appear in a financial statement
 absolute_day(date(2018, 6, 30), Arr_Beg_Day),
 Insts_Beg_Date = date(2018, 7, 31),
 absolute_day(Insts_Beg_Date, Insts_Beg_Day),
 installments(Insts_Beg_Date, 36, date(0, 1, 0), 636.06, Insts),
-hp_arr_report(hp_arrangement(0, 12703.32, Arr_Beg_Day, 5.53, 1, Insts), Insts_Beg_Day,
+hp_arr_report(hp_arrangement(0, 12703.32, Arr_Beg_Day, 5.53, Insts), Insts_Beg_Day,
 	Cur_Liability, Cur_Unexpired_Interest, Non_Cur_Liability, Non_Cur_Unexpired_Interest).
 % Result:
 % Cur_Liability = t_term(0, 7632.7199999999975),
-% Cur_Unexpired_Interest = t_term(526.1255586093392, 0),
+% Cur_Unexpired_Interest = t_term(524.114832611094, 0),
 % Non_Cur_Liability = t_term(0, 5724.539999999999),
-% Non_Cur_Unexpired_Interest = t_term(130.10889185366148, 0) .
+% Non_Cur_Unexpired_Interest = t_term(129.69950314096081, 0) ;
 
 % Split the range between 10 and 20 into 100 equally spaced intervals and give me their
 % boundaries:
@@ -59,12 +59,12 @@ range(10, 20, 0.1, X).
 range(10, 20, 0.1, Interest_Rate),
 absolute_day(date(2014, 12, 16), Begin_Day),
 installments(date(2015, 1, 16), 100, date(0, 1, 0), 200.47, Installments),
-hp_arr_record_count(hp_arrangement(0, 5953.2, Begin_Day, Interest_Rate, 1, Installments), 36).
+hp_arr_record_count(hp_arrangement(0, 5953.2, Begin_Day, Interest_Rate, Installments), 36).
 % Result:
-% Interest_Rate = 12.99999999999999 ;
-% Interest_Rate = 13.099999999999989 ;
+% Interest_Rate = 11.399999999999995 ;
+% Interest_Rate = 11.499999999999995 ;
 % ...
-% Interest_Rate = 14.399999999999984 ;
+% Interest_Rate = 12.89999999999999 ;
 % Note that several to different interest rates can result in hire purchase
 % arrangements with the same duration. In this case, it is only the closing balance
 % after the last installment that changes.
@@ -77,7 +77,7 @@ hp_arr_record_count(hp_arrangement(0, 5953.2, Begin_Day, Interest_Rate, 1, Insta
 % account?
 absolute_day(date(2014, 12, 16), Begin_Day),
 installments(date(2015, 1, 16), 36, date(0, 1, 0), 200.47, Installments),
-hp_arr_correction(hp_arrangement(0, 5953.2, Begin_Day, 13, 1, Installments), hp_account, hp_suspense_account, Correction_Transaction).
+hp_arr_correction(hp_arrangement(0, 5953.2, Begin_Day, 13, Installments), hp_account, hp_suspense_account, Correction_Transaction).
 % Result:
 % % Undo the first duplicate transaction in the hire purchase account
 % Correction_Transaction = transaction(0, correction, hp_account, t_term(0, 200.47)) ;
