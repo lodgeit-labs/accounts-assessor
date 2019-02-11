@@ -19,7 +19,7 @@ This Visual Studio Solution is a demonstration of how a Prolog program can be us
 
 ## An example usage of this Web Application
 * Open up [request.xml](request.xml) and strip the document of all its new lines
-* Open up Windows Powershell and enter `$out = Invoke-WebRequest -Uri http://localhost:57417/api/Loan -Body '<newline stripped request.xml goes here>` -ContentType application/xml -Method POST`
+* Open up Windows Powershell and enter `$out = Invoke-WebRequest -Uri http://localhost:57417/api/Loan -Body '<newline stripped request.xml goes here>' -ContentType application/xml -Method POST`
 * There will be a significant delay in the servicing of this first request
 * When the command is complete, `$out` will contain the full HTTP response
 * To see the result of the computations, enter `$out.Content`
