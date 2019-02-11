@@ -165,7 +165,7 @@ namespace PrologEndpoint.Controllers
                 // Make a LoanSummary object from the Prolog loan_summary term.
                 LoanSummary ls = new LoanSummary();
                 PL.PL_get_integer(number_term, out int number_value);
-                ls.Number = number_value;
+                ls.IncomeYear = loan_agr.CreationIncomeYear + 1 + number_value;
                 PL.PL_get_float(opening_balance_term, out double opening_balance_value);
                 ls.OpeningBalance = opening_balance_value;
                 PL.PL_get_float(interest_rate_term, out double interest_rate_value);
