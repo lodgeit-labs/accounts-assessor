@@ -210,6 +210,7 @@ namespace PrologEndpoint.Helpers
         *      REGISTERING FOREIGNS     *
         *********************************/
 
+        [StructLayout(LayoutKind.Sequential)]
         public unsafe struct PL_extension
         {
             public char* predicate_name;     /* Name of the predicate */
@@ -513,6 +514,7 @@ namespace PrologEndpoint.Helpers
         public const int PL_BLOB_NOCOPY = 0x04; /* do not copy the data */
         public const int PL_BLOB_WCHAR = 0x08; /* wide character string */
 
+        [StructLayout(LayoutKind.Sequential)]
         public unsafe struct PL_blob_t
         {
             UIntPtr magic;        /* PL_BLOB_MAGIC */
@@ -846,6 +848,8 @@ namespace PrologEndpoint.Helpers
 
 
         public struct sa_cfunction_t { };
+
+        [StructLayout(LayoutKind.Sequential)]
         public unsafe struct pl_sigaction_t
         {
             sa_cfunction_t* sa_cfunction;   /* traditional C function */
@@ -934,6 +938,7 @@ namespace PrologEndpoint.Helpers
 
         public struct cancel_t { };
 
+        [StructLayout(LayoutKind.Sequential)]
         public unsafe struct PL_thread_attr_t
         {
             public UIntPtr stack_limit; /* Total stack limit (bytes) */
@@ -983,6 +988,8 @@ namespace PrologEndpoint.Helpers
         public struct unify_t { };
         public struct get_t { };
         public struct activate_t { };
+
+        [StructLayout(LayoutKind.Sequential)]
         public unsafe struct PL_prof_type_t
         {
             unify_t* unify; /* implementation --> Prolog */
@@ -1001,6 +1008,7 @@ namespace PrologEndpoint.Helpers
         *       FAST XPCE SUPPORT	*
         *******************************/
 
+        [StructLayout(LayoutKind.Sequential)]
         public struct xpceref_t
         {
             int type;             /* PL_INTEGER or PL_ATOM */
@@ -1028,6 +1036,7 @@ namespace PrologEndpoint.Helpers
         struct LocalFrame { };
         struct Code { };
 
+        [StructLayout(LayoutKind.Sequential)]
         public unsafe struct pl_context_t
         {
             PL_engine_t* ld;         /* Engine */
