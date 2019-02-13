@@ -1,13 +1,11 @@
 ﻿using PrologEndpoint.Helpers;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.InteropServices;
-using System.Web;
 using System.Web.Http;
 using System.Web.Mvc;
 using System.Web.Optimization;
 using System.Web.Routing;
+using static PrologEndpoint.Helpers.PL;
 
 // This program is a demonstration of how a C# web application can run SWI Prolog queries
 // using the SWI-Prolog Foreign Language Interface. This program works as follows: SWI-Prolog
@@ -25,7 +23,7 @@ namespace PrologEndpoint
         // a large amount of memory, so the chosen number of engines should not be too large.
         // The number should also not be to small, otherwise only a small number of HTTP clients
         // will get their queries serviced at a given point in time.
-        public static IntPtr[] PrologEngines = new IntPtr[10];
+        public unsafe static PL_engine_t*[] PrologEngines = new PL_engine_t*[10];
 
         protected void Application_Start()
         {
@@ -38,7 +36,7 @@ namespace PrologEndpoint
         }
 
         /* Initialize the Prolog library and a pool of engines. */
-        protected void InitialiseProlog()
+        protected unsafe void InitialiseProlog()
         {
             // See http://www.swi-prolog.org/pldoc/man?section=cmdline
             // Also see http://www.swi-prolog.org/pldoc/man?CAPI=PL_initialise
@@ -51,16 +49,16 @@ namespace PrologEndpoint
                 Marshal.StringToHGlobalAnsi("-s"),
                 Marshal.StringToHGlobalAnsi("C:\\Users\\murisi\\Mirror\\labs-accounts-assessor\\main.pl")
             }, 0, argv, argc);
-            PL.PL_initialise(argc, argv);
+            PL.PL_initialise(argc, (char **) argv);
 
             // See http://www.swi-prolog.org/pldoc/man?CAPI=PL_create_engine
             // According to the documentation: "For any field with value `0', the default is used."
             // Hence here we are describing a Prolog thread with a default configuration.
             PL_thread_attr_t ta = new PL_thread_attr_t
             {
-                alias = IntPtr.Zero,
-                cancel = IntPtr.Zero,
-                flags = 0,
+                alias = null,
+                cancel = null,
+                flags = new IntPtr(0),
                 max_queue_size = new UIntPtr(0),
                 stack_limit = new UIntPtr(0),
                 table_space = new UIntPtr(0)
@@ -70,7 +68,7 @@ namespace PrologEndpoint
             // requests. When it comes time to service a query, we will choose the first currently
             // unused engine from this pool.
             for (int i = 0; i < PrologEngines.Length; i++)
-                PrologEngines[i] = PL.PL_create_engine(ref ta);
+                PrologEngines[i] = PL.PL_create_engine(&ta);
         }
     }
 }
