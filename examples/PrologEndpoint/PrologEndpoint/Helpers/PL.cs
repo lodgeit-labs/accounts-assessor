@@ -2,11 +2,6 @@
 using System.Runtime.InteropServices;
 using System.Text;
 
-/* This file was hacked together and is likely to cause trouble in its current state. Its two
- * problems are that it is untyped, so mistakes manifest themselves through memory access
- * violations. Its other problem is that C# marshalling may cause the behavior of these functions
- * to differ from that of the official documentation. */
-
 namespace PrologEndpoint.Helpers
 {
     public class PL
@@ -105,17 +100,17 @@ namespace PrologEndpoint.Helpers
         [StructLayout(LayoutKind.Explicit)]
         public unsafe struct term_value_t
         {
-            [FieldOffset(0)] Int64 i; /* PL_INTEGER */
-            [FieldOffset(0)] double f; /* PL_FLOAT */
-            [FieldOffset(0)] char* s; /* PL_STRING */
-            [FieldOffset(0)] atom_t* a;	/* PL_ATOM */
+            [FieldOffset(0)] public Int64 i; /* PL_INTEGER */
+            [FieldOffset(0)] public double f; /* PL_FLOAT */
+            [FieldOffset(0)] public char* s; /* PL_STRING */
+            [FieldOffset(0)] public atom_t* a;	/* PL_ATOM */
             public struct t_type /* PL_TERM */
             {
-                atom_t* name;
-                UIntPtr arity;
+                public atom_t* name;
+                public UIntPtr arity;
             }
             [FieldOffset(0)]
-            t_type t;
+            public t_type t;
         };
 
         public const int TRUE = 1;
@@ -1011,14 +1006,14 @@ namespace PrologEndpoint.Helpers
         [StructLayout(LayoutKind.Sequential)]
         public struct xpceref_t
         {
-            int type;             /* PL_INTEGER or PL_ATOM */
+            public int type;             /* PL_INTEGER or PL_ATOM */
             [StructLayout(LayoutKind.Explicit)]
             public unsafe struct value_t
             {
-                [FieldOffset(0)] UIntPtr i;            /* integer reference value */
-                [FieldOffset(0)] atom_t* a;         /* atom reference value */
+                [FieldOffset(0)] public UIntPtr i;            /* integer reference value */
+                [FieldOffset(0)] public atom_t* a;         /* atom reference value */
             }
-            value_t value;
+            public value_t value;
         };
 
         [DllImport(dllName)] public extern unsafe static int _PL_get_xpce_reference(term_t* t, xpceref_t* _ref);

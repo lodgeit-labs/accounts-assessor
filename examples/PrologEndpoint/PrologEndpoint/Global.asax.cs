@@ -1,5 +1,6 @@
 ﻿using PrologEndpoint.Helpers;
 using System;
+using System.Configuration;
 using System.Runtime.InteropServices;
 using System.Web.Http;
 using System.Web.Mvc;
@@ -47,7 +48,7 @@ namespace PrologEndpoint
             Marshal.Copy(new IntPtr[argc] {
                 Marshal.StringToHGlobalAnsi(System.Reflection.Assembly.GetExecutingAssembly().Location),
                 Marshal.StringToHGlobalAnsi("-s"),
-                Marshal.StringToHGlobalAnsi("C:\\Users\\murisi\\Mirror\\labs-accounts-assessor\\main.pl")
+                Marshal.StringToHGlobalAnsi(ConfigurationManager.AppSettings["PrologProgramPath"])
             }, 0, argv, argc);
             PL.PL_initialise(argc, (char **) argv);
 
