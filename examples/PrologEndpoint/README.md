@@ -44,3 +44,12 @@ This Visual Studio Solution is a demonstration of how a Prolog program can be us
 * Also, the implementation of `PL_create_engine` in `libswipl.dll` seems to be incorrect:
   * It will crash if the attr argument is `NULL`
   * If you want a Prolog engine with default attributes, supply it the address of a `PL_thread_attr_t` struct with all fields set to zero.
+
+## Memory safety issues to be aware of
+* The C# `unsafe` keyword is used a lot, this is primarily because pointers are used a lot
+* Pointers are primarily used as type-checked handles to Prolog objects rather than as raw indicies into memory
+* The combination of type-checking and lack of pointer arithmetic make the chances of memory corruption negligable
+* The declaration of empty structs in PL.cs is analogous to how `typedef`s are used to declare opaque types in C
+* Essentially all unmanaged memory allocations and deallocations are tracked by Prolog
+* Hence wrapping Prolog queries with calls to `PL_open_foreign_frame` and `PL_discard_foreign_frame` will prevent memory leaks
+* The only unmanaged memory allocations that are not tracked by Prolog are for housing string literals, and this is done exactly once in the web application's lifetime.
