@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 using static PrologDemo.PL;
 
 // This program is a demonstration of how a C# console application can run SWI Prolog queries
@@ -1088,6 +1084,9 @@ namespace PrologDemo
             }, 0, argv, argc);
             PL.PL_initialise(argc, (char**)argv);
 
+            // Later on, we want to discard all the Prolog data created after this line
+            fid_t* fid = PL.PL_open_foreign_frame();
+
             // Constructing the term date(2017, 7, 3)
             atom_t* date_atom = PL.PL_new_atom((char*)Marshal.StringToHGlobalAnsi("date"));
             functor_t* date_functor = PL.PL_new_functor(date_atom, 3);
@@ -1117,8 +1116,11 @@ namespace PrologDemo
             PL.PL_get_integer(absolute_day_term, &absolute_day);
             Console.WriteLine("Result of absolute_day(date(2017, 7, 3), B) is " + absolute_day);
 
-            // Close query and wait key press to exit
+            // Close query
             PL.PL_close_query(qid);
+            // Discard all the Prolog data created since we made the marker
+            PL.PL_discard_foreign_frame(fid);
+            // Wait for key press to exit
             Console.Read();
         }
     }
