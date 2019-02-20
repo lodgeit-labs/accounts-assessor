@@ -32,11 +32,14 @@
 		<endDate>2023-06-30</endDate>
 		<!-- There must be exactly one loanAgreement in element in a loandetails element. -->
 		<loanAgreement>
-			<!-- There must be exactly one of each of these fields in a loanAgreement. -->
+			<!-- There must be exactly one of each of the following fields in a loanAgreement. -->
 			<field name="Loan Creation Year" value="2014" />
 			<field name="Full term of loan in years" value="7" />
 			<field name="Principal amount of loan" value="75000" />
 			<field name="Lodgment day of private company" value="2015-05-15" />
+			<field name="Income year of computation" value="2015" />
+			<!-- There can be at most one of the following field in a loanAgreement. -->
+			<field name="Opening balance of computation" value="55000" />
 		</loanAgreement>
 		<!-- There must be exactly one repayments element in a loandetails element. -->
 		<repayments>
