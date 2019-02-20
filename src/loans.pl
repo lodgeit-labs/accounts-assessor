@@ -91,21 +91,23 @@ loan_rec_closing_day(loan_record(_, _, _, _, _, _, _, Closing_Day), Closing_Day)
 
 % Loan summaries are indexed in chornological order starting from year 0, the first income
 % year after the loan agreement is made
-loan_sum_number(loan_summary(Summary_Number, _, _, _, _, _, _, _), Summary_Number).
+loan_sum_number(loan_summary(Summary_Number, _, _, _, _, _, _, _, _), Summary_Number).
 % The opening balance of the given income year
-loan_sum_opening_balance(loan_summary(_, Opening_Balance, _, _, _, _, _, _), Opening_Balance).
+loan_sum_opening_balance(loan_summary(_, Opening_Balance, _, _, _, _, _, _, _), Opening_Balance).
 % The benchmark interest rate during the given income year
-loan_sum_interest_rate(loan_summary(_, _, Interest_Rate, _, _, _, _, _), Interest_Rate).
+loan_sum_interest_rate(loan_summary(_, _, Interest_Rate, _, _, _, _, _, _), Interest_Rate).
 % The minimum yearly repayment for the given income year
-loan_sum_min_yearly_repayment(loan_summary(_, _, _, Min_Yearly_Repayment, _, _, _, _), Min_Yearly_Repayment).
+loan_sum_min_yearly_repayment(loan_summary(_, _, _, Min_Yearly_Repayment, _, _, _, _, _), Min_Yearly_Repayment).
 % The total amount repaid during the given income year
-loan_sum_total_repayment(loan_summary(_, _, _, _, Total_Repayments, _, _, _), Total_Repayments).
+loan_sum_total_repayment(loan_summary(_, _, _, _, Total_Repayments, _, _, _, _), Total_Repayments).
+% The additional repayment required in order to meet the minimum yearly payment
+loan_sum_repayment_shortfall(loan_summary(_, _, _, _, _, Repayment_Shortfall, _, _, _), Repayment_Shortfall).
 % The total interest owed at the end of the given income year
-loan_sum_total_interest(loan_summary(_, _, _, _, _, Total_Interest, _, _), Total_Interest).
+loan_sum_total_interest(loan_summary(_, _, _, _, _, _, Total_Interest, _, _), Total_Interest).
 % The total principal paid during the given income year
-loan_sum_total_principal(loan_summary(_, _, _, _, _, _, Total_Principal, _), Total_Principal).
+loan_sum_total_principal(loan_summary(_, _, _, _, _, _, _, Total_Principal, _), Total_Principal).
 % The closing balance of the given income year
-loan_sum_closing_balance(loan_summary(_, _, _, _, _, _, _, Closing_Balance), Closing_Balance).
+loan_sum_closing_balance(loan_summary(_, _, _, _, _, _, _, _, Closing_Balance), Closing_Balance).
 
 % The following logic is used instead of relating records to their predecessors because it
 % allows Prolog to systematically find all the loan records corresponding to a given
@@ -368,6 +370,13 @@ loan_agr_total_principal(Agreement, Year_Num, Total_Principal) :-
 	loan_agr_total_interest(Agreement, Year_Num, Total_Interest),
 	Total_Principal is Total_Repayment - Total_Interest.
 
+% A predicate asserting the repayment shortfall of a given income year of a loan agreement.
+
+loan_agr_repayment_shortfall(Agreement, Year_Num, Shortfall) :-
+	loan_agr_total_repayment(Agreement, Year_Num, Total_Repayment),
+	loan_agr_min_yearly_repayment(Agreement, Year_Num, Min_Yearly_Rep),
+	Shortfall is max(Min_Yearly_Rep - Total_Repayment, 0).
+
 % A predicate for generating the summary records of a given loan agreement.
 
 loan_agr_summary(Agreement, Summary) :-
@@ -387,5 +396,7 @@ loan_agr_summary(Agreement, Summary) :-
 	loan_agr_total_interest(Agreement, Summary_Number, Total_Interest),
 	loan_sum_total_interest(Summary, Total_Interest),
 	loan_agr_total_principal(Agreement, Summary_Number, Total_Principal),
-	loan_sum_total_principal(Summary, Total_Principal).
+	loan_sum_total_principal(Summary, Total_Principal),
+	loan_agr_repayment_shortfall(Agreement, Summary_Number, Repayment_Shortfall),
+	loan_sum_repayment_shortfall(Summary, Repayment_Shortfall).
 
