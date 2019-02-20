@@ -11,7 +11,7 @@ absolute_day(date(2014, 7, 1), Begin_Day),
 absolute_day(date(2014, 8, 31), Payment1_Day),
 absolute_day(date(2015, 5, 15), Lodgement_Day),
 absolute_day(date(2015, 5, 30), Payment2_Day),
-loan_agr_prepare(loan_agreement(0, 75000, Lodgement_Day, Begin_Day, 7, false, false,
+loan_agr_prepare(loan_agreement(0, 75000, Lodgement_Day, Begin_Day, 7, 0, false,
 [loan_repayment(Payment1_Day, 20000), loan_repayment(Payment2_Day, 8000)]), Prepared_Agreement),
 loan_agr_min_yearly_repayment(Prepared_Agreement, 0, Min_Yearly_Repayment).
 % Result: Min_Yearly_Repayment = 9834.923730309263 .
@@ -26,7 +26,7 @@ absolute_day(date(2014, 7, 1), Begin_Day),
 absolute_day(date(2014, 8, 31), Payment1_Day),
 absolute_day(date(2015, 5, 15), Lodgement_Day),
 absolute_day(date(2015, 5, 30), Payment2_Day),
-loan_agr_prepare(loan_agreement(0, 75000, Lodgement_Day, Begin_Day, 7, false, false,
+loan_agr_prepare(loan_agreement(0, 75000, Lodgement_Day, Begin_Day, 7, 0, false,
 [loan_repayment(Payment1_Day, 20000), loan_repayment(Payment2_Day, 8000)]), Prepared_Agreement),
 loan_agr_total_interest(Prepared_Agreement, 0, Total_Interest).
 % Result: Total_Interest = 3230.7684931506847 .
@@ -40,7 +40,7 @@ absolute_day(date(2014, 7, 1), Begin_Day),
 absolute_day(date(2014, 8, 31), Payment1_Day),
 absolute_day(date(2015, 5, 15), Lodgement_Day),
 absolute_day(date(2015, 5, 30), Payment2_Day),
-loan_agr_prepare(loan_agreement(0, 75000, Lodgement_Day, Begin_Day, 7, false, false,
+loan_agr_prepare(loan_agreement(0, 75000, Lodgement_Day, Begin_Day, 7, 0, false,
 [loan_repayment(Payment1_Day, 20000), loan_repayment(Payment2_Day, 8000)]), Prepared_Agreement),
 loan_agr_total_repayment(Prepared_Agreement, 0, Total_Repayment).
 % Result: Total_Repayment = 8000 .
@@ -54,7 +54,7 @@ absolute_day(date(2014, 7, 1), Begin_Day),
 absolute_day(date(2014, 8, 31), Payment1_Day),
 absolute_day(date(2015, 5, 15), Lodgement_Day),
 absolute_day(date(2015, 5, 30), Payment2_Day),
-loan_agr_prepare(loan_agreement(0, 75000, Lodgement_Day, Begin_Day, 7, false, false,
+loan_agr_prepare(loan_agreement(0, 75000, Lodgement_Day, Begin_Day, 7, 0, false,
 [loan_repayment(Payment1_Day, 20000), loan_repayment(Payment2_Day, 8000)]), Prepared_Agreement),
 loan_agr_total_principal(Prepared_Agreement, 0, Total_Principal).
 % Result: Total_Principal = 4769.231506849315 .
@@ -68,12 +68,9 @@ absolute_day(date(2014, 7, 1), Begin_Day),
 absolute_day(date(2014, 8, 31), Payment1_Day),
 absolute_day(date(2015, 5, 15), Lodgement_Day),
 absolute_day(date(2015, 5, 30), Payment2_Day),
-loan_agr_prepare(loan_agreement(0, 75000, Lodgement_Day, Begin_Day, 7, false, false,
+loan_agr_prepare(loan_agreement(0, 75000, Lodgement_Day, Begin_Day, 7, 0, false,
 [loan_repayment(Payment1_Day, 20000), loan_repayment(Payment2_Day, 8000)]), Prepared_Agreement),
-loan_agr_summary(Prepared_Agreement, 1, Summary).
-% Result:
-% Summary = loan_summary(0, 55000.0, 5.95, 9834.923730309263, 8000, 3230.7684931506847, 4769.231506849315, 50230.76849315068) ;
-% Summary = loan_summary(1, 50230.76849315068, 5.45, 10039.211673000375, 0, 2745.0770935147307, -2745.0770935147307, 52975.84558666541) ;
-% ...
+loan_agr_summary(Prepared_Agreement, Summary).
+% Result: Summary = loan_summary(0, 55000.0, 5.95, 9834.923730309263, 8000, 3230.7684931506847, 4769.231506849315, 50230.76849315068) .
 % See the loan summary schema in loans.pl .
 

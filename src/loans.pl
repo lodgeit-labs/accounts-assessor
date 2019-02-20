@@ -59,12 +59,11 @@ loan_agr_lodgement_day(loan_agreement(_, _, Lodgement_Day, _, _, _, _, _), Lodge
 loan_agr_begin_day(loan_agreement(_, _, _, Begin_Day, _, _, _, _), Begin_Day).
 % The term of the loan agreement in years
 loan_agr_term(loan_agreement(_, _, _, _, Term, _, _, _), Term).
-% If both of the following fields are false, the computations will start from the day of
-% the loan agreement.
-% The income year from which the computations should start
-loan_agr_start_year(loan_agreement(_, _, _, _, _, Start_Year, _, _), Start_Year).
-% The balance from which the computations should start
-loan_agr_start_balance(loan_agreement(_, _, _, _, _, _, Start_Balance, _), Start_Balance).
+% The income year for which the computations will be done
+loan_agr_computation_year(loan_agreement(_, _, _, _, _, Computation_Year, _, _), Computation_Year).
+% If this field is false, the computations will start from the day of the loan agreement.
+% Otherwise this will be the opening balance of the computations.
+loan_agr_computation_opening_balance(loan_agreement(_, _, _, _, _, _, Computation_Opening_Balance, _), Computation_Opening_Balance).
 % A chronologically ordered list of loan agreement repayments. The latter repayments
 % where the account balance is negative are ignored.
 loan_agr_repayments(loan_agreement(_, _, _, _, _, _, _, Repayments), Repayments).
@@ -131,8 +130,7 @@ loan_rec_aux(Repayments_Hd, Current_Rep_Amount, Current_Record_Number, Current_D
 % Relates a loan agreement to one of its records
 
 loan_agr_record(Agreement, Record) :-
-	loan_agr_start_year(Agreement, false),
-	loan_agr_start_balance(Agreement, false),
+	loan_agr_computation_opening_balance(Agreement, false),
 	loan_agr_principal_amount(Agreement, Current_Balance),
 	loan_agr_begin_day(Agreement, Begin_Day),
 	Current_Acc_Interest = 0,
@@ -150,21 +148,21 @@ loan_agr_record(Agreement, Record) :-
 % Relates a loan agreement to one of its records starting from the given balance at the given day
 
 loan_agr_record(Agreement, Record) :-
-	loan_agr_start_year(Agreement, Start_Year), Start_Year \= false,
-	loan_agr_start_balance(Agreement, Start_Balance), Start_Balance \= false,
+	loan_agr_computation_year(Agreement, Computation_Year),
+	loan_agr_computation_opening_balance(Agreement, Computation_Opening_Balance), Computation_Opening_Balance \= false,
 	loan_rec_number(Next_Record, 0),
 	loan_agr_principal_amount(Agreement, Principal_Amount),
 	loan_rec_opening_balance(Next_Record, Principal_Amount),
 	loan_rec_interest_rate(Next_Record, 0),
 	loan_rec_interest_amount(Next_Record, 0),
 	loan_rec_repayment_amount(Next_Record, 0),
-	loan_rec_closing_balance(Next_Record, Start_Balance),
+	loan_rec_closing_balance(Next_Record, Computation_Opening_Balance),
 	loan_agr_begin_day(Agreement, Opening_Day),
 	loan_rec_opening_day(Next_Record, Opening_Day),
-	loan_agr_year_days(Agreement, Start_Year, Start_Day, _),
-	loan_rec_closing_day(Next_Record, Start_Day),
+	loan_agr_year_days(Agreement, Computation_Year, Computation_Day, _),
+	loan_rec_closing_day(Next_Record, Computation_Day),
 	loan_agr_repayments(Agreement, Repayments),
-	loan_reps_after(Start_Day, Repayments, New_Repayments),
+	loan_reps_after(Computation_Day, Repayments, New_Repayments),
 	(Record = Next_Record; loan_rec_record(Next_Record, New_Repayments, 0, 0, Record)).
 
 % Relates a loan record to one that follows it, in the case that it is not a year-end record
@@ -272,10 +270,10 @@ loan_agr_prepare(Agreement, New_Agreement) :-
 	loan_agr_begin_day(New_Agreement, Begin_Day),
 	loan_agr_term(Agreement, Term),
 	loan_agr_term(New_Agreement, Term),
-	loan_agr_start_year(Agreement, Start_Year),
-	loan_agr_start_year(New_Agreement, Start_Year),
-	loan_agr_start_balance(Agreement, Start_Balance),
-	loan_agr_start_balance(New_Agreement, Start_Balance),
+	loan_agr_computation_year(Agreement, Computation_Year),
+	loan_agr_computation_year(New_Agreement, Computation_Year),
+	loan_agr_computation_opening_balance(Agreement, Computation_Opening_Balance),
+	loan_agr_computation_opening_balance(New_Agreement, Computation_Opening_Balance),
 	loan_agr_repayments(Agreement, Repayments_A),
 	loan_reps_shift(Begin_Day, Lodgement_Day, Repayments_A, Repayments_B),
 	gregorian_date(Begin_Day, Begin_Date),
@@ -362,7 +360,8 @@ loan_agr_total_principal(Agreement, Year_Num, Total_Principal) :-
 
 % A predicate for generating the summary records of a given loan agreement.
 
-loan_agr_summary(Agreement, Summary_Number, Summary) :-
+loan_agr_summary(Agreement, Summary) :-
+	loan_agr_computation_year(Agreement, Summary_Number),
 	loan_sum_number(Summary, Summary_Number),
 	loan_agr_year_days(Agreement, Summary_Number, Year_Start_Day, _),
 	benchmark_interest_rate(Year_Start_Day, Interest_Rate),
