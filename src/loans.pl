@@ -331,7 +331,17 @@ loan_agr_record_between(Agreement, Start_Day, End_Day, Record) :-
 
 % A predicate asserting the total repayment within a given income year of a loan agreement.
 
+loan_agr_total_repayment(Agreement, 0, Total_Repayment) :-
+	loan_agr_year_days(Agreement, 0, Year_Start_Day_A, Year_End_Day),
+	Year_Start_Day is Year_Start_Day_A - 1,
+	findall(Record_Repayment,
+		(loan_agr_record_between(Agreement, Year_Start_Day, Year_End_Day, Record),
+		loan_rec_repayment_amount(Record, Record_Repayment)),
+		Record_Repayments),
+	sum_list(Record_Repayments, Total_Repayment).
+
 loan_agr_total_repayment(Agreement, Year_Num, Total_Repayment) :-
+	Year_Num > 0,
 	loan_agr_year_days(Agreement, Year_Num, Year_Start_Day, Year_End_Day),
 	findall(Record_Repayment,
 		(loan_agr_record_between(Agreement, Year_Start_Day, Year_End_Day, Record),
