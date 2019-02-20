@@ -12,6 +12,8 @@ namespace PrologEndpoint.Models
         public DateTime LodgementDate { get; set; }
         public int CreationIncomeYear { get; set; }
         public int Term { get; set; }
+        public int ComputationYear { get; set; }
+        public double ComputationOpeningBalance { get; set; }
         public LoanRepayment[] Repayments { get; set; }
     }
 }

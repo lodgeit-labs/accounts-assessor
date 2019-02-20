@@ -95,7 +95,7 @@ namespace PrologEndpoint.Controllers
         private unsafe term_t *ConstructLoanAgreement(LoanAgreement loan_agr)
         {
             atom_t *loan_agr_atom = PL.PL_new_atom(LOAN_AGREEMENT);
-            functor_t *loan_agr_functor = PL.PL_new_functor(loan_agr_atom, 6);
+            functor_t *loan_agr_functor = PL.PL_new_functor(loan_agr_atom, 8);
             term_t *contract_number_term = PL.PL_new_term_ref();
             PL.PL_put_integer(contract_number_term, loan_agr.ContractNumber);
             term_t *principal_amount_term = PL.PL_new_term_ref();
@@ -106,9 +106,16 @@ namespace PrologEndpoint.Controllers
             PL.PL_put_integer(begin_day_term, ComputeAbsoluteDay(new DateTime(loan_agr.CreationIncomeYear, 7, 1)));
             term_t *term_term = PL.PL_new_term_ref();
             PL.PL_put_integer(term_term, loan_agr.Term);
+            term_t *computation_year_term = PL.PL_new_term_ref();
+            PL.PL_put_integer(computation_year_term, loan_agr.ComputationYear - loan_agr.CreationIncomeYear - 1);
+            term_t* computation_opening_balance_term = PL.PL_new_term_ref();
+            if (loan_agr.ComputationOpeningBalance < 0)
+                PL.PL_put_bool(computation_opening_balance_term, PL.FALSE);
+            else
+                PL.PL_put_float(computation_opening_balance_term, loan_agr.ComputationOpeningBalance);
             term_t *loan_agr_term = PL.PL_new_term_ref();
             PL.PL_cons_functor(loan_agr_term, loan_agr_functor,
-                __arglist(contract_number_term, principal_amount_term, lodgement_day_term, begin_day_term, term_term, ConstructLoanRepayments(loan_agr.Repayments)));
+                __arglist(contract_number_term, principal_amount_term, lodgement_day_term, begin_day_term, term_term, computation_year_term, computation_opening_balance_term, ConstructLoanRepayments(loan_agr.Repayments)));
             return loan_agr_term;
         }
 
@@ -132,7 +139,7 @@ namespace PrologEndpoint.Controllers
         }
 
         /* Gets the LoanSummarys of a LoanAgreement. */
-        private unsafe LoanSummary[] GetLoanSummaries(LoanAgreement loan_agr)
+        private unsafe LoanSummary GetLoanSummary(LoanAgreement loan_agr)
         {
             fid_t *fid = PL.PL_open_foreign_frame();
 
@@ -142,16 +149,17 @@ namespace PrologEndpoint.Controllers
             term_t *interest_rate_term = PL.PL_new_term_ref();
             term_t *min_yearly_repayment_term = PL.PL_new_term_ref();
             term_t *total_repayment_term = PL.PL_new_term_ref();
+            term_t *repayment_shortfall_term = PL.PL_new_term_ref();
             term_t *total_interest_term = PL.PL_new_term_ref();
             term_t *total_principal_term = PL.PL_new_term_ref();
             term_t *closing_balance_term = PL.PL_new_term_ref();
 
             // Combine the variables into a loan_summary term in preparation for unification.
             atom_t *loan_summary_atom = PL.PL_new_atom(LOAN_SUMMARY);
-            functor_t *loan_summary_functor = PL.PL_new_functor(loan_summary_atom, 8);
+            functor_t *loan_summary_functor = PL.PL_new_functor(loan_summary_atom, 9);
             term_t *loan_summary_term = PL.PL_new_term_ref();
             PL.PL_cons_functor(loan_summary_term, loan_summary_functor,
-                __arglist(number_term, opening_balance_term, interest_rate_term, min_yearly_repayment_term, total_repayment_term, total_interest_term, total_principal_term, closing_balance_term));
+                __arglist(number_term, opening_balance_term, interest_rate_term, min_yearly_repayment_term, total_repayment_term, repayment_shortfall_term, total_interest_term, total_principal_term, closing_balance_term));
 
             // Query for the loan_summarys.
             predicate_t *loan_agr_summary_pred = PL.PL_predicate(LOAN_AGR_SUMMARY, 2, null);
@@ -160,41 +168,41 @@ namespace PrologEndpoint.Controllers
             term_t *loan_agr_summary_pred_arg1 = (term_t *) (1 + (byte *) loan_agr_summary_pred_arg0);
             PL.PL_put_term(loan_agr_summary_pred_arg1, loan_summary_term);
             qid_t *qid = PL.PL_open_query(null, PL.PL_Q_NORMAL, loan_agr_summary_pred, loan_agr_summary_pred_arg0);
-            
-            List<LoanSummary> loanSummaries = new List<LoanSummary>();
-            while (PL.PL_next_solution(qid) == PL.TRUE)
-            {
-                // Make a LoanSummary object from the Prolog loan_summary term.
-                LoanSummary ls = new LoanSummary();
-                int number_value;
-                PL.PL_get_integer(number_term, &number_value);
-                ls.IncomeYear = loan_agr.CreationIncomeYear + 1 + number_value;
-                double opening_balance_value;
-                PL.PL_get_float(opening_balance_term, &opening_balance_value);
-                ls.OpeningBalance = opening_balance_value;
-                double interest_rate_value;
-                PL.PL_get_float(interest_rate_term, &interest_rate_value);
-                ls.InterestRate = interest_rate_value;
-                double min_yearly_repayment_value;
-                PL.PL_get_float(min_yearly_repayment_term, &min_yearly_repayment_value);
-                ls.MinYearlyRepayment = min_yearly_repayment_value;
-                double total_repayment_value;
-                PL.PL_get_float(total_repayment_term, &total_repayment_value);
-                ls.TotalRepayment = total_repayment_value;
-                double total_interest_value;
-                PL.PL_get_float(total_interest_term, &total_interest_value);
-                ls.TotalInterest = total_interest_value;
-                double total_principal_value;
-                PL.PL_get_float(total_principal_term, &total_principal_value);
-                ls.TotalPrincipal = total_principal_value;
-                double closing_balance_value;
-                PL.PL_get_float(closing_balance_term, &closing_balance_value);
-                ls.ClosingBalance = closing_balance_value;
-                loanSummaries.Add(ls);
-            }
+            System.Diagnostics.Debug.WriteLine("Yo: " + PL.PL_next_solution(qid));
+
+            // Make a LoanSummary object from the Prolog loan_summary term.
+            LoanSummary ls = new LoanSummary();
+            int number_value;
+            PL.PL_get_integer(number_term, &number_value);
+            ls.IncomeYear = loan_agr.CreationIncomeYear + 1 + number_value;
+            double opening_balance_value;
+            PL.PL_get_float(opening_balance_term, &opening_balance_value);
+            ls.OpeningBalance = opening_balance_value;
+            double interest_rate_value;
+            PL.PL_get_float(interest_rate_term, &interest_rate_value);
+            ls.InterestRate = interest_rate_value;
+            double min_yearly_repayment_value;
+            PL.PL_get_float(min_yearly_repayment_term, &min_yearly_repayment_value);
+            ls.MinYearlyRepayment = min_yearly_repayment_value;
+            double total_repayment_value;
+            PL.PL_get_float(total_repayment_term, &total_repayment_value);
+            ls.TotalRepayment = total_repayment_value;
+            double repayment_shortfall_value;
+            PL.PL_get_float(repayment_shortfall_term, &repayment_shortfall_value);
+            ls.RepaymentShortfall = repayment_shortfall_value;
+            double total_interest_value;
+            PL.PL_get_float(total_interest_term, &total_interest_value);
+            ls.TotalInterest = total_interest_value;
+            double total_principal_value;
+            PL.PL_get_float(total_principal_term, &total_principal_value);
+            ls.TotalPrincipal = total_principal_value;
+            double closing_balance_value;
+            PL.PL_get_float(closing_balance_term, &closing_balance_value);
+            ls.ClosingBalance = closing_balance_value;
+
             PL.PL_close_query(qid);
             PL.PL_discard_foreign_frame(fid);
-            return loanSummaries.ToArray();
+            return ls;
         }
 
         /* Converts Xml input adhering to Waqas' schema into a LoanAgreement. */
@@ -205,7 +213,14 @@ namespace PrologEndpoint.Controllers
             la.Term = int.Parse(doc.SelectSingleNode("/reports/loandetails/loanAgreement/field[@name='Full term of loan in years']/@value").Value);
             la.PrincipalAmount = double.Parse(doc.SelectSingleNode("/reports/loandetails/loanAgreement/field[@name='Principal amount of loan']/@value").Value);
             la.LodgementDate = DateTime.Parse(doc.SelectSingleNode("/reports/loandetails/loanAgreement/field[@name='Lodgment day of private company']/@value").Value);
-            List<LoanRepayment> lrs = new List<LoanRepayment>();
+            la.ComputationYear = int.Parse(doc.SelectSingleNode("/reports/loandetails/loanAgreement/field[@name='Income year of computation']/@value").Value);
+            XmlNode computationOpeningBalanceNode = doc.SelectSingleNode("/reports/loandetails/loanAgreement/field[@name='Opening balance of computation']/@value");
+            if (computationOpeningBalanceNode != null)
+                la.ComputationOpeningBalance = double.Parse(computationOpeningBalanceNode.Value);
+            else
+                la.ComputationOpeningBalance = -1;
+
+            List <LoanRepayment> lrs = new List<LoanRepayment>();
             foreach (XmlNode n in doc.SelectNodes("/reports/loandetails/repayments/repayment"))
             {
                 LoanRepayment lr = new LoanRepayment();
@@ -213,17 +228,17 @@ namespace PrologEndpoint.Controllers
                 lr.Date = DateTime.Parse(n.Attributes.GetNamedItem("date").Value);
                 lrs.Add(lr);
             }
-            // Prolog needs the LoanRepayments to be in order of date.
+            // Prolog program needs the LoanRepayments to be in order of date.
             lrs.Sort((x, y) => x.Date.CompareTo(y.Date));
             la.Repayments = lrs.ToArray();
             return la;
         }
 
-        /* Takes a POST request whose body contains a LoanAgreement in Xml form and compute the
-         * LoanSummarys. Return an array of them in Xml form. */
+        /* Takes a POST request whose body contains a LoanAgreement in Xml form and compute a
+         * LoanSummary. Return it with an acceptable response media type. */
         // POST: api/Loan
         [HttpPost]
-        public async Task<LoanSummary[]> Post()
+        public async Task<LoanSummary> Post()
         {
             var stream = await Request.Content.ReadAsStreamAsync();
             XmlDocument doc = new XmlDocument();
@@ -239,14 +254,14 @@ namespace PrologEndpoint.Controllers
                         break;
             }
             // Now parse the LoanAgreement in Xml and obtain corresponding summaries
-            LoanSummary[] lss = GetLoanSummaries(ParseLoanAgreement(doc));
+            LoanSummary ls = GetLoanSummary(ParseLoanAgreement(doc));
             unsafe
             {
                 // Now release the Prolog engine that we were using so that other threads can use it.
                 PL.PL_set_engine(null, null);
             }
             // Now return the LoanSummarys
-            return lss;
+            return ls;
         }
     }
 }
