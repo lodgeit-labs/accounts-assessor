@@ -24,7 +24,7 @@ namespace PrologEndpoint
         // a large amount of memory, so the chosen number of engines should not be too large.
         // The number should also not be to small, otherwise only a small number of HTTP clients
         // will get their queries serviced at a given point in time.
-        public unsafe static PL_engine_t*[] PrologEngines = new PL_engine_t*[10];
+        public unsafe static PL_engine_t*[] PrologEngines = new PL_engine_t*[2];
 
         protected void Application_Start()
         {

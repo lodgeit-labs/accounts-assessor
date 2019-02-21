@@ -168,7 +168,7 @@ namespace PrologEndpoint.Controllers
             term_t *loan_agr_summary_pred_arg1 = (term_t *) (1 + (byte *) loan_agr_summary_pred_arg0);
             PL.PL_put_term(loan_agr_summary_pred_arg1, loan_summary_term);
             qid_t *qid = PL.PL_open_query(null, PL.PL_Q_NORMAL, loan_agr_summary_pred, loan_agr_summary_pred_arg0);
-            System.Diagnostics.Debug.WriteLine("Yo: " + PL.PL_next_solution(qid));
+            PL.PL_next_solution(qid);
 
             // Make a LoanSummary object from the Prolog loan_summary term.
             LoanSummary ls = new LoanSummary();
@@ -209,19 +209,19 @@ namespace PrologEndpoint.Controllers
         private LoanAgreement ParseLoanAgreement(XmlDocument doc)
         {
             LoanAgreement la = new LoanAgreement();
-            la.CreationIncomeYear = int.Parse(doc.SelectSingleNode("/reports/loandetails/loanAgreement/field[@name='Loan Creation Year']/@value").Value);
-            la.Term = int.Parse(doc.SelectSingleNode("/reports/loandetails/loanAgreement/field[@name='Full term of loan in years']/@value").Value);
-            la.PrincipalAmount = double.Parse(doc.SelectSingleNode("/reports/loandetails/loanAgreement/field[@name='Principal amount of loan']/@value").Value);
-            la.LodgementDate = DateTime.Parse(doc.SelectSingleNode("/reports/loandetails/loanAgreement/field[@name='Lodgment day of private company']/@value").Value);
-            la.ComputationYear = int.Parse(doc.SelectSingleNode("/reports/loandetails/loanAgreement/field[@name='Income year of computation']/@value").Value);
-            XmlNode computationOpeningBalanceNode = doc.SelectSingleNode("/reports/loandetails/loanAgreement/field[@name='Opening balance of computation']/@value");
+            la.CreationIncomeYear = int.Parse(doc.SelectSingleNode("/reports/loanDetails/loanAgreement/field[@name='Income year of loan creation']/@value").Value);
+            la.Term = int.Parse(doc.SelectSingleNode("/reports/loanDetails/loanAgreement/field[@name='Full term of loan in years']/@value").Value);
+            la.PrincipalAmount = double.Parse(doc.SelectSingleNode("/reports/loanDetails/loanAgreement/field[@name='Principal amount of loan']/@value").Value);
+            la.LodgementDate = DateTime.Parse(doc.SelectSingleNode("/reports/loanDetails/loanAgreement/field[@name='Lodgment day of private company']/@value").Value);
+            la.ComputationYear = int.Parse(doc.SelectSingleNode("/reports/loanDetails/loanAgreement/field[@name='Income year of computation']/@value").Value);
+            XmlNode computationOpeningBalanceNode = doc.SelectSingleNode("/reports/loanDetails/loanAgreement/field[@name='Opening balance of computation']/@value");
             if (computationOpeningBalanceNode != null)
                 la.ComputationOpeningBalance = double.Parse(computationOpeningBalanceNode.Value);
             else
                 la.ComputationOpeningBalance = -1;
 
             List <LoanRepayment> lrs = new List<LoanRepayment>();
-            foreach (XmlNode n in doc.SelectNodes("/reports/loandetails/repayments/repayment"))
+            foreach (XmlNode n in doc.SelectNodes("/reports/loanDetails/repayments/repayment"))
             {
                 LoanRepayment lr = new LoanRepayment();
                 lr.Amount = double.Parse(n.Attributes.GetNamedItem("value").Value);
@@ -243,7 +243,7 @@ namespace PrologEndpoint.Controllers
             var stream = await Request.Content.ReadAsStreamAsync();
             XmlDocument doc = new XmlDocument();
             doc.Load(stream);
-
+            LoanAgreement la = ParseLoanAgreement(doc);
             unsafe
             {
                 // Circle the Prolog engine pool until one of them is available. Hence this code
@@ -254,7 +254,7 @@ namespace PrologEndpoint.Controllers
                         break;
             }
             // Now parse the LoanAgreement in Xml and obtain corresponding summaries
-            LoanSummary ls = GetLoanSummary(ParseLoanAgreement(doc));
+            LoanSummary ls = GetLoanSummary(la);
             unsafe
             {
                 // Now release the Prolog engine that we were using so that other threads can use it.
