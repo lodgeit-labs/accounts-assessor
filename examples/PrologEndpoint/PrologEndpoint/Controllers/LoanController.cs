@@ -95,11 +95,12 @@ namespace PrologEndpoint.Controllers
         private unsafe term_t *ConstructLoanAgreement(LoanAgreement loan_agr)
         {
             atom_t *loan_agr_atom = PL.PL_new_atom(LOAN_AGREEMENT);
-            functor_t *loan_agr_functor = PL.PL_new_functor(loan_agr_atom, 8);
+            functor_t *loan_agr_functor = PL.PL_new_functor(loan_agr_atom, 9);
             term_t *contract_number_term = PL.PL_new_term_ref();
             PL.PL_put_integer(contract_number_term, loan_agr.ContractNumber);
             term_t *principal_amount_term = PL.PL_new_term_ref();
             PL.PL_put_float(principal_amount_term, loan_agr.PrincipalAmount);
+            term_t *repayment_before_lodgement = PL.PL_new_term_ref();
             term_t *lodgement_day_term = PL.PL_new_term_ref();
             PL.PL_put_integer(lodgement_day_term, ComputeAbsoluteDay(loan_agr.LodgementDate));
             term_t *begin_day_term = PL.PL_new_term_ref();
@@ -115,7 +116,7 @@ namespace PrologEndpoint.Controllers
                 PL.PL_put_float(computation_opening_balance_term, loan_agr.ComputationOpeningBalance);
             term_t *loan_agr_term = PL.PL_new_term_ref();
             PL.PL_cons_functor(loan_agr_term, loan_agr_functor,
-                __arglist(contract_number_term, principal_amount_term, lodgement_day_term, begin_day_term, term_term, computation_year_term, computation_opening_balance_term, ConstructLoanRepayments(loan_agr.Repayments)));
+                __arglist(contract_number_term, principal_amount_term, repayment_before_lodgement, lodgement_day_term, begin_day_term, term_term, computation_year_term, computation_opening_balance_term, ConstructLoanRepayments(loan_agr.Repayments)));
             return loan_agr_term;
         }
 

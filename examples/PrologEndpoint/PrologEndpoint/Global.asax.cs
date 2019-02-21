@@ -24,7 +24,7 @@ namespace PrologEndpoint
         // a large amount of memory, so the chosen number of engines should not be too large.
         // The number should also not be to small, otherwise only a small number of HTTP clients
         // will get their queries serviced at a given point in time.
-        public unsafe static PL_engine_t*[] PrologEngines = new PL_engine_t*[2];
+        public unsafe static PL_engine_t*[] PrologEngines = new PL_engine_t*[10];
 
         protected void Application_Start()
         {
@@ -68,8 +68,12 @@ namespace PrologEndpoint
             // Create a pool of Prolog engines that can be used to service this web application's
             // requests. When it comes time to service a query, we will choose the first currently
             // unused engine from this pool.
-            for (int i = 0; i < PrologEngines.Length; i++)
+            for (int i = 1; i < PrologEngines.Length; i++)
                 PrologEngines[i] = PL.PL_create_engine(&ta);
+
+            // Also put the current Prolog engine (PL.PL_ENGINE_MAIN) in the pool and release it.
+            PrologEngines[0] = PL.PL_ENGINE_MAIN;
+            PL.PL_set_engine(null, null);
         }
     }
 }

@@ -964,8 +964,8 @@ namespace PrologEndpoint.Helpers
         *	 ENGINES (MT-ONLY)	*
         *******************************/
 
-        public const int PL_ENGINE_MAIN = 0x1;
-        public const int PL_ENGINE_CURRENT = 0x2;
+        public unsafe static readonly PL_engine_t *PL_ENGINE_MAIN = (PL_engine_t *) 0x1;
+        public unsafe static readonly PL_engine_t *PL_ENGINE_CURRENT = (PL_engine_t*) 0x2;
 
         public const int PL_ENGINE_SET = 0; /* engine set successfully */
         public const int PL_ENGINE_INVAL = 2; /* engine doesn't exist */
