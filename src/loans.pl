@@ -225,13 +225,13 @@ loan_reps_insert_repayment(New_Repayment, [], [New_Repayment]).
 loan_reps_insert_repayment(New_Repayment, [Repayments_Hd|Repayments_Tl], Inserted) :-
 	loan_rep_day(Repayments_Hd, Hd_Day),
 	loan_rep_day(New_Repayment, New_Day),
-	Hd_Day > New_Day,
+	Hd_Day >= New_Day,
 	Inserted = [New_Repayment|[Repayments_Hd|Repayments_Tl]].
 
 loan_reps_insert_repayment(New_Repayment, [Repayments_Hd|Repayments_Tl], Inserted) :-
 	loan_rep_day(Repayments_Hd, Hd_Day),
 	loan_rep_day(New_Repayment, New_Day),
-	Hd_Day =< New_Day,
+	Hd_Day < New_Day,
 	loan_reps_insert_repayment(New_Repayment, Repayments_Tl, Inserted_Tl),
 	Inserted = [Repayments_Hd|Inserted_Tl].
 
