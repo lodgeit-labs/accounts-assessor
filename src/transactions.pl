@@ -84,75 +84,75 @@ transaction_t_term_total([Hd_Transaction | Tl_Transaction], Net_Activity) :-
 
 % Relates Day to the balance at that time of the given account.
 
-balance_by_account(Account, Day, Balance) :-
+balance_by_account(Transactions, Account, Day, Balance) :-
 	findall(Transaction,
-		(transactions(Transaction),
+		(member(Transaction, Transactions),
 		transaction_before(Transaction, Day),
-		transaction_account(Transaction, Account)), Transactions),
-	transaction_t_term_total(Transactions, Balance).
+		transaction_account(Transaction, Account)), Transactions_A),
+	transaction_t_term_total(Transactions_A, Balance).
 
 % Relates Day to the balance at that time of the given account type.
 
-balance_by_account_type(Account_Type, Day, Balance) :-
+balance_by_account_type(Transactions, Account_Type, Day, Balance) :-
 	findall(Transaction,
-		(transactions(Transaction),
+		(member(Transaction, Transactions),
 		transaction_before(Transaction, Day),
-		transaction_account_type(Transaction, Account_Type)), Transactions),
-	transaction_t_term_total(Transactions, Balance).
+		transaction_account_type(Transaction, Account_Type)), Transactions_A),
+	transaction_t_term_total(Transactions_A, Balance).
 
 % Relates the period from From_Day to To_Day to the net activity during that period of
 % the given account.
 
-net_activity_by_account(Account, From_Day, To_Day, Net_Activity) :-
+net_activity_by_account(Transactions, Account, From_Day, To_Day, Net_Activity) :-
 	findall(Transaction,
-		(transactions(Transaction),
+		(member(Transaction, Transactions),
 		transaction_between(Transaction, From_Day, To_Day),
-		transaction_account(Transaction, Account)), Transactions),
-	transaction_t_term_total(Transactions, Net_Activity).
+		transaction_account(Transaction, Account)), Transactions_A),
+	transaction_t_term_total(Transactions_A, Net_Activity).
 
 % Relates the period from From_Day to To_Day to the net activity during that period of
 % the given account type.
 
-net_activity_by_account_type(Account_Type, From_Day, To_Day, Net_Activity) :-
+net_activity_by_account_type(Transactions, Account_Type, From_Day, To_Day, Net_Activity) :-
 	findall(Transaction,
-		(transactions(Transaction),
+		(member(Transaction, Transactions),
 		transaction_between(Transaction, From_Day, To_Day),
-		transaction_account_type(Transaction, Account_Type)), Transactions),
-	transaction_t_term_total(Transactions, Net_Activity).
+		transaction_account_type(Transaction, Account_Type)), Transactions_A),
+	transaction_t_term_total(Transactions_A, Net_Activity).
 
 % Relates the period from From_Day to To_Day to the current earnings of that period.
 
-current_earnings(From_Day, To_Day, Current_Earnings) :-
+current_earnings(Transactions, From_Day, To_Day, Current_Earnings) :-
 	findall(Transaction,
-		(transactions(Transaction),
+		(member(Transaction, Transactions),
 		transaction_between(Transaction, From_Day, To_Day),
 		(transaction_account_type(Transaction, revenue);
-		transaction_account_type(Transaction, expense))), Transactions),
-	transaction_t_term_total(Transactions, Current_Earnings).
+		transaction_account_type(Transaction, expense))), Transactions_A),
+	transaction_t_term_total(Transactions_A, Current_Earnings).
 
 % Relates the date, To_Day, to the retained earnings at that point.
 
-retained_earnings(To_Day, Retained_Earnings) :-
+retained_earnings(Transactions, To_Day, Retained_Earnings) :-
 	findall(Transaction,
-		(transactions(Transaction),
+		(member(Transaction, Transactions),
 		transaction_before(Transaction, To_Day),
 		(transaction_account_type(Transaction, revenue);
-		transaction_account_type(Transaction, expense))), Transactions),
-	transaction_t_term_total(Transactions, Retained_Earnings).
+		transaction_account_type(Transaction, expense))), Transactions_A),
+	transaction_t_term_total(Transactions_A, Retained_Earnings).
 
 % Now for balance sheet predicates.
 
-balance_sheet_entry(Account_Type, To_Day, Sheet_Entry) :-
+balance_sheet_entry(Transactions, Account_Type, To_Day, Sheet_Entry) :-
 	account_type(Account, Account_Type),
-	balance_by_account(Account, To_Day, Balance),
+	balance_by_account(Transactions, Account, To_Day, Balance),
 	pac_reduce(Balance, Reduced_Balance),
 	Sheet_Entry = (Account, Reduced_Balance).
 
-balance_sheet_at(To_Day, Balance_Sheet) :-
-	findall(Entry, balance_sheet_entry(asset, To_Day, Entry), Asset_Section),
-	findall(Entry, balance_sheet_entry(equity, To_Day, Entry), Equity_Section),
-	findall(Entry, balance_sheet_entry(liability, To_Day, Entry), Liability_Section),
-	retained_earnings(To_Day, Retained_Earnings),
+balance_sheet_at(Transactions, To_Day, Balance_Sheet) :-
+	findall(Entry, balance_sheet_entry(Transactions, asset, To_Day, Entry), Asset_Section),
+	findall(Entry, balance_sheet_entry(Transactions, equity, To_Day, Entry), Equity_Section),
+	findall(Entry, balance_sheet_entry(Transactions, liability, To_Day, Entry), Liability_Section),
+	retained_earnings(Transactions, To_Day, Retained_Earnings),
 	pac_reduce(Retained_Earnings, Reduced_Retained_Earnings),
 	Balance_Sheet = balance_sheet(Asset_Section, Liability_Section,
 		[(retained_earnings, Reduced_Retained_Earnings) | Equity_Section]).
@@ -165,19 +165,19 @@ balance_sheet_equity_accounts(balance_sheet(_, _, Equity_Accounts), Equity_Accou
 
 % Now for trial balance predicates.
 
-trial_balance_entry(Account_Type, From_Day, To_Day, Trial_Balance_Entry) :-
+trial_balance_entry(Transactions, Account_Type, From_Day, To_Day, Trial_Balance_Entry) :-
 	account_type(Account, Account_Type),
-	net_activity_by_account(Account, From_Day, To_Day, Net_Activity),
+	net_activity_by_account(Transactions, Account, From_Day, To_Day, Net_Activity),
 	pac_reduce(Net_Activity, Reduced_Net_Activity),
 	Trial_Balance_Entry = (Account, Reduced_Net_Activity).
 
-trial_balance_between(From_Day, To_Day, Trial_Balance) :-
-	findall(Entry, balance_sheet_entry(asset, To_Day, Entry), Asset_Section),
-	findall(Entry, balance_sheet_entry(equity, To_Day, Entry), Equity_Section),
-	findall(Entry, balance_sheet_entry(liability, To_Day, Entry), Liability_Section),
-	findall(Entry, trial_balance_entry(revenue, From_Day, To_Day, Entry), Revenue_Section),
-	findall(Entry, trial_balance_entry(expense, From_Day, To_Day, Entry), Expense_Section),
-	retained_earnings(From_Day, Retained_Earnings),
+trial_balance_between(Transactions, From_Day, To_Day, Trial_Balance) :-
+	findall(Entry, balance_sheet_entry(Transactions, asset, To_Day, Entry), Asset_Section),
+	findall(Entry, balance_sheet_entry(Transactions, equity, To_Day, Entry), Equity_Section),
+	findall(Entry, balance_sheet_entry(Transactions, liability, To_Day, Entry), Liability_Section),
+	findall(Entry, trial_balance_entry(Transactions, revenue, From_Day, To_Day, Entry), Revenue_Section),
+	findall(Entry, trial_balance_entry(Transactions, expense, From_Day, To_Day, Entry), Expense_Section),
+	retained_earnings(Transactions, From_Day, Retained_Earnings),
 	pac_reduce(Retained_Earnings, Reduced_Retained_Earnings),
 	Trial_Balance = trial_balance(Asset_Section, Liability_Section,
 		[(retained_earnings, Reduced_Retained_Earnings) | Equity_Section], Revenue_Section,
@@ -185,12 +185,12 @@ trial_balance_between(From_Day, To_Day, Trial_Balance) :-
 
 % Now for movement predicates.
 
-movement_between(From_Day, To_Day, Movement) :-
-	findall(Entry, trial_balance_entry(asset, From_Day, To_Day, Entry), Asset_Section),
-	findall(Entry, trial_balance_entry(equity, From_Day, To_Day, Entry), Equity_Section),
-	findall(Entry, trial_balance_entry(liability, From_Day, To_Day, Entry), Liability_Section),
-	findall(Entry, trial_balance_entry(revenue, From_Day, To_Day, Entry), Revenue_Section),
-	findall(Entry, trial_balance_entry(expense, From_Day, To_Day, Entry), Expense_Section),
+movement_between(Transactions, From_Day, To_Day, Movement) :-
+	findall(Entry, trial_balance_entry(Transactions, asset, From_Day, To_Day, Entry), Asset_Section),
+	findall(Entry, trial_balance_entry(Transactions, equity, From_Day, To_Day, Entry), Equity_Section),
+	findall(Entry, trial_balance_entry(Transactions, liability, From_Day, To_Day, Entry), Liability_Section),
+	findall(Entry, trial_balance_entry(Transactions, revenue, From_Day, To_Day, Entry), Revenue_Section),
+	findall(Entry, trial_balance_entry(Transactions, expense, From_Day, To_Day, Entry), Expense_Section),
 	Movement = movement(Asset_Section, Liability_Section, Equity_Section, Revenue_Section,
 		Expense_Section).
 
