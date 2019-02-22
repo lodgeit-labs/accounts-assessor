@@ -612,7 +612,7 @@ Accounts =
 	account(motor_vehicles, asset),
 	account(hirepurchase_truck, liability),
 	account(hirepurchase_interest, expense)],
-account_type(Accounts, inventory, Account_Type), account_isomorphism(Account_Type, Isomorphism).
+member(Account, Accounts), account_id(Account, inventory), account_type(Account, Account_Type), account_isomorphism(Account_Type, Isomorphism).
 % Result should be Account_Type = asset, Isomorphism = debit_isomorphism.
 
 % Let's get the net activity of the asset-typed account between date(2017, 7, 2) and date(2017, 7, 3).

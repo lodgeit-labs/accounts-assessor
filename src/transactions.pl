@@ -41,10 +41,12 @@ credit_isomorphism(t_term(A, B), C) :- C is B - A.
 
 debit_isomorphism(t_term(A, B), C) :- C is A - B.
 
-account_type(Accounts, Account, Account_Type) :-
-	member(account(Account, Account_Type), Accounts).
+% The id of the given account
+account_id(account(Account_ID, _), Account_ID).
+% The type of the given account
+account_type(account(_, Account_Type), Account_Type).
 
-% T-Account predicates for asserting that the fields of given records have particular values
+% T-Account predicates for asserting that the fields of given transactions have particular values
 
 % The absolute day that the transaction happenned
 transaction_day(transaction(Day, _, _, _), Day).
@@ -57,7 +59,9 @@ transaction_t_term(transaction(_, _, _, T_Term), T_Term).
 
 transaction_account_type(Accounts, Transaction, Account_Type) :-
 	transaction_account(Transaction, Transaction_Account),
-	account_type(Accounts, Transaction_Account, Account_Type).
+	member(Account, Accounts),
+	account_id(Account, Transaction_Account),
+	account_type(Account, Account_Type).
 
 transaction_between(Transaction, From_Day, To_Day) :-
 	transaction_day(Transaction, Day),
@@ -146,10 +150,12 @@ retained_earnings(Accounts, Transactions, To_Day, Retained_Earnings) :-
 % Now for balance sheet predicates.
 
 balance_sheet_entry(Accounts, Transactions, Account_Type, To_Day, Sheet_Entry) :-
-	account_type(Accounts, Account, Account_Type),
-	balance_by_account(Transactions, Account, To_Day, Balance),
+	member(Account, Accounts),
+	account_type(Account, Account_Type),
+	account_id(Account, Account_Id),
+	balance_by_account(Transactions, Account_Id, To_Day, Balance),
 	pac_reduce(Balance, Reduced_Balance),
-	Sheet_Entry = (Account, Reduced_Balance).
+	Sheet_Entry = (Account_Id, Reduced_Balance).
 
 balance_sheet_at(Accounts, Transactions, To_Day, Balance_Sheet) :-
 	findall(Entry, balance_sheet_entry(Accounts, Transactions, asset, To_Day, Entry), Asset_Section),
@@ -169,10 +175,12 @@ balance_sheet_equity_accounts(balance_sheet(_, _, Equity_Accounts), Equity_Accou
 % Now for trial balance predicates.
 
 trial_balance_entry(Accounts, Transactions, Account_Type, From_Day, To_Day, Trial_Balance_Entry) :-
-	account_type(Accounts, Account, Account_Type),
-	net_activity_by_account(Transactions, Account, From_Day, To_Day, Net_Activity),
+	member(Account, Accounts),
+	account_id(Account, Account_Id),
+	account_type(Account, Account_Type),
+	net_activity_by_account(Transactions, Account_Id, From_Day, To_Day, Net_Activity),
 	pac_reduce(Net_Activity, Reduced_Net_Activity),
-	Trial_Balance_Entry = (Account, Reduced_Net_Activity).
+	Trial_Balance_Entry = (Account_Id, Reduced_Net_Activity).
 
 trial_balance_between(Accounts, Transactions, From_Day, To_Day, Trial_Balance) :-
 	findall(Entry, balance_sheet_entry(Accounts, Transactions, asset, To_Day, Entry), Asset_Section),
