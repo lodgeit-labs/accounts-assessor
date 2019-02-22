@@ -41,12 +41,14 @@ credit_isomorphism(t_term(A, B), C) :- C is B - A.
 
 debit_isomorphism(t_term(A, B), C) :- C is A - B.
 
+% Predicates for asserting that the fields of given accounts have particular values
+
 % The id of the given account
 account_id(account(Account_ID, _), Account_ID).
 % The type of the given account
 account_type(account(_, Account_Type), Account_Type).
 
-% T-Account predicates for asserting that the fields of given transactions have particular values
+% Predicates for asserting that the fields of given transactions have particular values
 
 % The absolute day that the transaction happenned
 transaction_day(transaction(Day, _, _, _), Day).
