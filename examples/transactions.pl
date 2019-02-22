@@ -1,6 +1,23 @@
 % Let's get the trial balance between date(2018, 7, 1) and date(2019, 6, 30):
 % The T-Account for some hypothetical business. The schema follows:
 % transaction(Date, Description, Account, T_Term).
+Accounts =
+	[account(bank, asset),
+	account(share_capital, equity),
+	account(inventory, asset),
+	account(accounts_payable, liability),
+	account(accounts_receivable, asset),
+	account(sales, revenue),
+	account(cost_of_goods_sold, expense),
+	account(stationary, expense),
+	account(wages, expense),
+	account(super_expense, expense),
+	account(super_payable, liability),
+	account(paygw_tax, liability),
+	account(wages_payable, liability),
+	account(motor_vehicles, asset),
+	account(hirepurchase_truck, liability),
+	account(hirepurchase_interest, expense)],
 Transactions =
 		[transaction(735614, "invest in business", hp_account, t_term(200.47, 0)),
 		transaction(735614, "invest in business a", hp_account, t_term(200.47, 0)),
@@ -48,7 +65,7 @@ Transactions =
 		transaction(737586, "collect accs rec", bank, t_term(100, 0))],
 	absolute_day(date(2018, 7, 1), From_Day),
 	absolute_day(date(2019, 6, 30), To_Day),
-	trial_balance_between(Transactions, From_Day, To_Day, X).
+	trial_balance_between(Accounts, Transactions, From_Day, To_Day, X).
 % ----------------------------------------------------------------------------------------
 % Result should be X = trial_balance([ (bank, t_term(40, 0)), (inventory, t_term(0, 0)),
 % (accounts_receivable, t_term(100, 0)), (motor_vehicles, t_term(0, 0))],
@@ -59,6 +76,23 @@ Transactions =
 % (wages, t_term(0, 0)), (super_expense, t_term(0, 0)), (hirepurchase_interest, t_term(0, 0))]).
 
 % Let's get the balance sheet as of date(2019, 6, 30):
+Accounts =
+	[account(bank, asset),
+	account(share_capital, equity),
+	account(inventory, asset),
+	account(accounts_payable, liability),
+	account(accounts_receivable, asset),
+	account(sales, revenue),
+	account(cost_of_goods_sold, expense),
+	account(stationary, expense),
+	account(wages, expense),
+	account(super_expense, expense),
+	account(super_payable, liability),
+	account(paygw_tax, liability),
+	account(wages_payable, liability),
+	account(motor_vehicles, asset),
+	account(hirepurchase_truck, liability),
+	account(hirepurchase_interest, expense)],
 Transactions =
 		[transaction(735614, "invest in business", hp_account, t_term(200.47, 0)),
 		transaction(735614, "invest in business a", hp_account, t_term(200.47, 0)),
@@ -105,7 +139,7 @@ Transactions =
 		transaction(737586, "collect accs rec", accounts_receivable, t_term(0, 100)),
 		transaction(737586, "collect accs rec", bank, t_term(100, 0))],
 	absolute_day(date(2019, 6, 30), B),
-	balance_sheet_at(Transactions, B, X).
+	balance_sheet_at(Accounts, Transactions, B, X).
 % ----------------------------------------------------------------------------------------
 % Result should be X = balance_sheet([ (bank, t_term(40, 0)), (inventory, t_term(0, 0)),
 % (accounts_receivable, t_term(100, 0)), (motor_vehicles, t_term(0, 0))],
@@ -114,6 +148,23 @@ Transactions =
 % [ (retained_earnings, t_term(0, 40)), (share_capital, t_term(0, 100))]).
 
 % Let's get the movement between date(2019, 7, 1) and date(2020, 6, 30):
+Accounts =
+	[account(bank, asset),
+	account(share_capital, equity),
+	account(inventory, asset),
+	account(accounts_payable, liability),
+	account(accounts_receivable, asset),
+	account(sales, revenue),
+	account(cost_of_goods_sold, expense),
+	account(stationary, expense),
+	account(wages, expense),
+	account(super_expense, expense),
+	account(super_payable, liability),
+	account(paygw_tax, liability),
+	account(wages_payable, liability),
+	account(motor_vehicles, asset),
+	account(hirepurchase_truck, liability),
+	account(hirepurchase_interest, expense)],
 Transactions =
 		[transaction(735614, "invest in business", hp_account, t_term(200.47, 0)),
 		transaction(735614, "invest in business a", hp_account, t_term(200.47, 0)),
@@ -160,7 +211,7 @@ Transactions =
 		transaction(737586, "collect accs rec", accounts_receivable, t_term(0, 100)),
 		transaction(737586, "collect accs rec", bank, t_term(100, 0))],
 	absolute_day(date(2019, 7, 1), A), absolute_day(date(2020, 6, 30), B),
-	movement_between(Transactions, A, B, X).
+	movement_between(Accounts, Transactions, A, B, X).
 % ----------------------------------------------------------------------------------------
 % Result should be X = movement([ (bank, t_term(0, 299)), (inventory, t_term(75, 0)),
 % (accounts_receivable, t_term(0, 0)), (motor_vehicles, t_term(3000, 0))],
@@ -171,6 +222,23 @@ Transactions =
 % (hirepurchase_interest, t_term(37.42, 0))]).
 
 % Let's get the retained earnings as of date(2017, 7, 3):
+Accounts =
+	[account(bank, asset),
+	account(share_capital, equity),
+	account(inventory, asset),
+	account(accounts_payable, liability),
+	account(accounts_receivable, asset),
+	account(sales, revenue),
+	account(cost_of_goods_sold, expense),
+	account(stationary, expense),
+	account(wages, expense),
+	account(super_expense, expense),
+	account(super_payable, liability),
+	account(paygw_tax, liability),
+	account(wages_payable, liability),
+	account(motor_vehicles, asset),
+	account(hirepurchase_truck, liability),
+	account(hirepurchase_interest, expense)],
 Transactions =
 		[transaction(735614, "invest in business", hp_account, t_term(200.47, 0)),
 		transaction(735614, "invest in business a", hp_account, t_term(200.47, 0)),
@@ -217,11 +285,28 @@ Transactions =
 		transaction(737586, "collect accs rec", accounts_receivable, t_term(0, 100)),
 		transaction(737586, "collect accs rec", bank, t_term(100, 0))],
 	absolute_day(date(2017, 7, 3), B),
-	retained_earnings(Transactions, B, Retained_Earnings),
+	retained_earnings(Accounts, Transactions, B, Retained_Earnings),
 	credit_isomorphism(Retained_Earnings, Retained_Earnings_Signed).
 % Result should be Retained_Earnings = t_term(50, 100), Retained_Earnings_Signed = 50
 
 % Let's get the retained earnings as of date(2019, 6, 2):
+Accounts =
+	[account(bank, asset),
+	account(share_capital, equity),
+	account(inventory, asset),
+	account(accounts_payable, liability),
+	account(accounts_receivable, asset),
+	account(sales, revenue),
+	account(cost_of_goods_sold, expense),
+	account(stationary, expense),
+	account(wages, expense),
+	account(super_expense, expense),
+	account(super_payable, liability),
+	account(paygw_tax, liability),
+	account(wages_payable, liability),
+	account(motor_vehicles, asset),
+	account(hirepurchase_truck, liability),
+	account(hirepurchase_interest, expense)],
 Transactions =
 		[transaction(735614, "invest in business", hp_account, t_term(200.47, 0)),
 		transaction(735614, "invest in business a", hp_account, t_term(200.47, 0)),
@@ -268,11 +353,28 @@ Transactions =
 		transaction(737586, "collect accs rec", accounts_receivable, t_term(0, 100)),
 		transaction(737586, "collect accs rec", bank, t_term(100, 0))],
 	absolute_day(date(2019, 6, 2), B),
-	retained_earnings(Transactions, B, Retained_Earnings),
+	retained_earnings(Accounts, Transactions, B, Retained_Earnings),
 	credit_isomorphism(Retained_Earnings, Retained_Earnings_Signed).
 % Result should be Retained_Earnings = t_term(60, 100), Retained_Earnings_Signed = 40
 
 % Let's get the current earnings between date(2017, 7, 1) and date(2017, 7, 3):
+Accounts =
+	[account(bank, asset),
+	account(share_capital, equity),
+	account(inventory, asset),
+	account(accounts_payable, liability),
+	account(accounts_receivable, asset),
+	account(sales, revenue),
+	account(cost_of_goods_sold, expense),
+	account(stationary, expense),
+	account(wages, expense),
+	account(super_expense, expense),
+	account(super_payable, liability),
+	account(paygw_tax, liability),
+	account(wages_payable, liability),
+	account(motor_vehicles, asset),
+	account(hirepurchase_truck, liability),
+	account(hirepurchase_interest, expense)],
 Transactions =
 		[transaction(735614, "invest in business", hp_account, t_term(200.47, 0)),
 		transaction(735614, "invest in business a", hp_account, t_term(200.47, 0)),
@@ -319,11 +421,28 @@ Transactions =
 		transaction(737586, "collect accs rec", accounts_receivable, t_term(0, 100)),
 		transaction(737586, "collect accs rec", bank, t_term(100, 0))],
 	absolute_day(date(2017, 7, 1), A), absolute_day(date(2017, 7, 3), B),
-	current_earnings(Transactions, A, B, Current_Earnings),
+	current_earnings(Accounts, Transactions, A, B, Current_Earnings),
 	credit_isomorphism(Current_Earnings, Current_Earnings_Signed).
 % Result should be Current_Earnings = t_term(50, 100), Current_Earnings_Signed = 50
 
 % Let's get the current earnings between date(2018, 7, 1) and date(2019, 6, 2):
+Accounts =
+	[account(bank, asset),
+	account(share_capital, equity),
+	account(inventory, asset),
+	account(accounts_payable, liability),
+	account(accounts_receivable, asset),
+	account(sales, revenue),
+	account(cost_of_goods_sold, expense),
+	account(stationary, expense),
+	account(wages, expense),
+	account(super_expense, expense),
+	account(super_payable, liability),
+	account(paygw_tax, liability),
+	account(wages_payable, liability),
+	account(motor_vehicles, asset),
+	account(hirepurchase_truck, liability),
+	account(hirepurchase_interest, expense)],
 Transactions =
 		[transaction(735614, "invest in business", hp_account, t_term(200.47, 0)),
 		transaction(735614, "invest in business a", hp_account, t_term(200.47, 0)),
@@ -370,11 +489,12 @@ Transactions =
 		transaction(737586, "collect accs rec", accounts_receivable, t_term(0, 100)),
 		transaction(737586, "collect accs rec", bank, t_term(100, 0))],
 	absolute_day(date(2018, 7, 1), A), absolute_day(date(2019, 6, 2), B),
-	current_earnings(Transactions, A, B, Current_Earnings),
+	current_earnings(Accounts, Transactions, A, B, Current_Earnings),
 	credit_isomorphism(Current_Earnings, Current_Earnings_Signed).
 % Result should be Current_Earnings = t_term(10, 0), Current_Earnings_Signed = -10
 
 % Let's get the balance of the inventory account as of date(2017, 7, 3):
+
 Transactions =
 		[transaction(735614, "invest in business", hp_account, t_term(200.47, 0)),
 		transaction(735614, "invest in business a", hp_account, t_term(200.47, 0)),
@@ -475,10 +595,44 @@ Transactions =
 % Result should be Bal = t_term(50, 50), Signed_Bal = 0.
 
 % What is the isomorphism of the inventory account?
-account_type(inventory, Account_Type), account_isomorphism(Account_Type, Isomorphism).
+Accounts =
+	[account(bank, asset),
+	account(share_capital, equity),
+	account(inventory, asset),
+	account(accounts_payable, liability),
+	account(accounts_receivable, asset),
+	account(sales, revenue),
+	account(cost_of_goods_sold, expense),
+	account(stationary, expense),
+	account(wages, expense),
+	account(super_expense, expense),
+	account(super_payable, liability),
+	account(paygw_tax, liability),
+	account(wages_payable, liability),
+	account(motor_vehicles, asset),
+	account(hirepurchase_truck, liability),
+	account(hirepurchase_interest, expense)],
+account_type(Accounts, inventory, Account_Type), account_isomorphism(Account_Type, Isomorphism).
 % Result should be Account_Type = asset, Isomorphism = debit_isomorphism.
 
 % Let's get the net activity of the asset-typed account between date(2017, 7, 2) and date(2017, 7, 3).
+Accounts =
+	[account(bank, asset),
+	account(share_capital, equity),
+	account(inventory, asset),
+	account(accounts_payable, liability),
+	account(accounts_receivable, asset),
+	account(sales, revenue),
+	account(cost_of_goods_sold, expense),
+	account(stationary, expense),
+	account(wages, expense),
+	account(super_expense, expense),
+	account(super_payable, liability),
+	account(paygw_tax, liability),
+	account(wages_payable, liability),
+	account(motor_vehicles, asset),
+	account(hirepurchase_truck, liability),
+	account(hirepurchase_interest, expense)],
 Transactions =
 		[transaction(735614, "invest in business", hp_account, t_term(200.47, 0)),
 		transaction(735614, "invest in business a", hp_account, t_term(200.47, 0)),
@@ -525,6 +679,6 @@ Transactions =
 		transaction(737586, "collect accs rec", accounts_receivable, t_term(0, 100)),
 		transaction(737586, "collect accs rec", bank, t_term(100, 0))],
 	absolute_day(date(2017, 7, 2), A), absolute_day(date(2017, 7, 3), B),
-	net_activity_by_account_type(Transactions, asset, A, B, Net_Activity).
+	net_activity_by_account_type(Accounts, Transactions, asset, A, B, Net_Activity).
 % Result should be Net_Activity = t_term(150, 50)
 
