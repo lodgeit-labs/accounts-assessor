@@ -223,11 +223,11 @@ hp_arr_total_interest_between(Arrangement, From_Day, To_Day, Total_Interest) :-
 % that is of an amount equal to that of the record and that occurs within the period of
 % the record.
 
-hp_arr_record_transaction(Arrangement, HP_Account, Record, Transaction) :-
+hp_arr_record_transaction(Arrangement, HP_Account, Record, Transactions, Transaction) :-
 	hp_arr_record(Arrangement, Record),
 	hp_rec_installment_amount(Record, Installment_Amount),
 	hp_rec_opening_day(Record, Opening_Day), hp_rec_closing_day(Record, Closing_Day),
-	transactions(Transaction),
+	member(Transaction, Transactions),
 	transaction_day(Transaction, Transaction_Day),
 	Opening_Day < Transaction_Day, Transaction_Day =< Closing_Day,
 	transaction_t_term(Transaction, Transaction_T_Term),
@@ -239,21 +239,21 @@ hp_arr_record_transaction(Arrangement, HP_Account, Record, Transaction) :-
 % account that is of an amount equal to that of the record and that occurs within the
 % period of the record.
 
-hp_arr_record_duplicate_transaction(Arrangement, HP_Account, Record, Duplicate_Transaction) :-
-	once(hp_arr_record_transaction(Arrangement, HP_Account, Record, Chosen_Transaction)),
-	hp_arr_record_transaction(Arrangement, HP_Account, Record, Duplicate_Transaction),
+hp_arr_record_duplicate_transaction(Arrangement, HP_Account, Record, Transactions, Duplicate_Transaction) :-
+	once(hp_arr_record_transaction(Arrangement, HP_Account, Record, Transactions, Chosen_Transaction)),
+	hp_arr_record_transaction(Arrangement, HP_Account, Record, Transactions, Duplicate_Transaction),
 	Chosen_Transaction \= Duplicate_Transaction.
 	
 % Relates a hire purchase record that does not have a transaction in the above sense to a
 % transaction to an incorrect account that is of an amount equal to that of the record and
 % that occurs within the period of the record.
 
-hp_arr_record_wrong_account_transaction(Arrangement, HP_Account, Record, Transaction) :-
+hp_arr_record_wrong_account_transaction(Arrangement, HP_Account, Record, Transactions, Transaction) :-
 	hp_arr_record(Arrangement, Record),
-	\+ hp_arr_record_transaction(Arrangement, HP_Account, Record, _),
+	\+ hp_arr_record_transaction(Arrangement, HP_Account, Record, Transactions, _),
 	hp_rec_installment_amount(Record, Installment_Amount),
 	hp_rec_opening_day(Record, Opening_Day), hp_rec_closing_day(Record, Closing_Day),
-	transactions(Transaction),
+	member(Transaction, Transactions),
 	transaction_day(Transaction, Transaction_Day),
 	Opening_Day < Transaction_Day, Transaction_Day =< Closing_Day,
 	transaction_t_term(Transaction, Transaction_T_Term),
@@ -267,13 +267,13 @@ hp_arr_record_wrong_account_transaction(Arrangement, HP_Account, Record, Transac
 % account that is of an amount unequal to that of the record and that occurs within the
 % period of the record.
 
-hp_arr_record_wrong_amount_transaction(Arrangement, HP_Account, Record, Transaction) :-
+hp_arr_record_wrong_amount_transaction(Arrangement, HP_Account, Record, Transactions, Transaction) :-
 	hp_arr_record(Arrangement, Record),
-	\+ hp_arr_record_transaction(Arrangement, HP_Account, Record, _),
-	\+ hp_arr_record_wrong_account_transaction(Arrangement, HP_Account, Record, _),
+	\+ hp_arr_record_transaction(Arrangement, HP_Account, Record, Transactions, _),
+	\+ hp_arr_record_wrong_account_transaction(Arrangement, HP_Account, Record, Transactions, _),
 	hp_rec_installment_amount(Record, Installment_Amount),
 	hp_rec_opening_day(Record, Opening_Day), hp_rec_closing_day(Record, Closing_Day),
-	transactions(Transaction),
+	member(Transaction, Transactions),
 	transaction_day(Transaction, Transaction_Day),
 	Opening_Day < Transaction_Day, Transaction_Day =< Closing_Day,
 	transaction_t_term(Transaction, Transaction_T_Term),
@@ -285,19 +285,19 @@ hp_arr_record_wrong_amount_transaction(Arrangement, HP_Account, Record, Transact
 % does it have an incorrect account transaction in the above sense, nor does it have an
 % incorrect amount transaction in the above sense.
 
-hp_arr_record_non_existent_transaction(Arrangement, HP_Account, Record) :-
+hp_arr_record_non_existent_transaction(Arrangement, HP_Account, Record, Transactions) :-
 	hp_arr_record(Arrangement, Record),
-	\+ hp_arr_record_transaction(Arrangement, HP_Account, Record, _),
-	\+ hp_arr_record_wrong_account_transaction(Arrangement, HP_Account, Record, _),
-	\+ hp_arr_record_wrong_amount_transaction(Arrangement, HP_Account, Record, _).
+	\+ hp_arr_record_transaction(Arrangement, HP_Account, Record, Transactions, _),
+	\+ hp_arr_record_wrong_account_transaction(Arrangement, HP_Account, Record, Transactions, _),
+	\+ hp_arr_record_wrong_amount_transaction(Arrangement, HP_Account, Record, Transactions, _).
 
 % Relates a hire purchase record that has a duplicate transaction in the above sense to a
 % pair of correction transactions that transfer from the hire purchase account to the
 % missing hire purchase account.
 
-hp_arr_record_duplicate_transaction_correction(Arrangement, HP_Account, HP_Suspense_Account, Record, Transaction_Correction) :-
+hp_arr_record_duplicate_transaction_correction(Arrangement, HP_Account, HP_Suspense_Account, Record, Transactions, Transaction_Correction) :-
 	hp_arr_record(Arrangement, Record),
-	hp_arr_record_duplicate_transaction(Arrangement, HP_Account, Record, Duplicate_Transaction),
+	hp_arr_record_duplicate_transaction(Arrangement, HP_Account, Record, Transactions, Duplicate_Transaction),
 	transaction_t_term(Duplicate_Transaction, Transaction_T_Term),
 	pac_inverse(Transaction_T_Term, Transaction_T_Term_Inverted),
 	member(Transaction_Correction,
@@ -308,8 +308,8 @@ hp_arr_record_duplicate_transaction_correction(Arrangement, HP_Account, HP_Suspe
 % above sense to a pair of correction transactions that transfer from the incorrect
 % account to the correct account.
 
-hp_arr_record_wrong_account_transaction_correction(Arrangement, HP_Account, Record, Transaction_Correction) :-
-	hp_arr_record_wrong_account_transaction(Arrangement, HP_Account, Record, Transaction),
+hp_arr_record_wrong_account_transaction_correction(Arrangement, HP_Account, Record, Transactions, Transaction_Correction) :-
+	hp_arr_record_wrong_account_transaction(Arrangement, HP_Account, Record, Transactions, Transaction),
 	hp_rec_installment_amount(Record, Installment_Amount),
 	transaction_account(Transaction, Transaction_Account),
 	member(Transaction_Correction,
@@ -320,9 +320,9 @@ hp_arr_record_wrong_account_transaction_correction(Arrangement, HP_Account, Reco
 % above sense to a pair of correction transactions that transfer a corrective amount
 % from the missing hire purchase payments account.
 
-hp_arr_record_wrong_amount_transaction_correction(Arrangement, HP_Account, HP_Suspense_Account, Record, Transaction_Correction) :-
+hp_arr_record_wrong_amount_transaction_correction(Arrangement, HP_Account, HP_Suspense_Account, Record, Transactions, Transaction_Correction) :-
 	hp_arr_record(Arrangement, Record),
-	hp_arr_record_wrong_amount_transaction(Arrangement, HP_Account, Record, Transaction),
+	hp_arr_record_wrong_amount_transaction(Arrangement, HP_Account, Record, Transactions, Transaction),
 	transaction_t_term(Transaction, Transaction_T_Term),
 	hp_rec_installment_amount(Record, Installment_Amount),
 	pac_sub(t_term(Installment_Amount, 0), Transaction_T_Term, Remaining_T_Term),
@@ -336,8 +336,8 @@ hp_arr_record_wrong_amount_transaction_correction(Arrangement, HP_Account, HP_Su
 % of correction transactions that transfer from the missing hire purchase payments account
 % to the hire purchase account.
 
-hp_arr_record_nonexistent_transaction_correction(Arrangement, HP_Account, HP_Suspense_Account, Record, Transaction_Correction) :-
-	hp_arr_record_non_existent_transaction(Arrangement, HP_Account, Record),
+hp_arr_record_nonexistent_transaction_correction(Arrangement, HP_Account, HP_Suspense_Account, Record, Transactions, Transaction_Correction) :-
+	hp_arr_record_non_existent_transaction(Arrangement, HP_Account, Record, Transactions),
 	hp_rec_installment_amount(Record, Installment_Amount),
 	member(Transaction_Correction,
 		[transaction(0, correction, HP_Account, t_term(Installment_Amount, 0)),
@@ -347,11 +347,16 @@ hp_arr_record_nonexistent_transaction_correction(Arrangement, HP_Account, HP_Sus
 % transactions correct the cases where payments are made to the wrong account or where
 % payments of the wrong amount are made or where no payment has been made.
 
-hp_arr_correction(Arrangement, HP_Account, HP_Suspense_Account, Transaction_Correction) :-
-	hp_arr_record_duplicate_transaction_correction(Arrangement, HP_Account, HP_Suspense_Account, _, Transaction_Correction);
-	hp_arr_record_wrong_account_transaction_correction(Arrangement, HP_Account, _, Transaction_Correction);
-	hp_arr_record_wrong_amount_transaction_correction(Arrangement, HP_Account, HP_Suspense_Account, _, Transaction_Correction);
-	hp_arr_record_nonexistent_transaction_correction(Arrangement, HP_Account, HP_Suspense_Account, _, Transaction_Correction).
+hp_arr_correction(Arrangement, HP_Account, HP_Suspense_Account, Transactions, Transaction_Correction) :-
+	hp_arr_record_duplicate_transaction_correction(Arrangement, HP_Account, HP_Suspense_Account, _, Transactions, Transaction_Correction);
+	hp_arr_record_wrong_account_transaction_correction(Arrangement, HP_Account, _, Transactions, Transaction_Correction);
+	hp_arr_record_wrong_amount_transaction_correction(Arrangement, HP_Account, HP_Suspense_Account, _, Transactions, Transaction_Correction);
+	hp_arr_record_nonexistent_transaction_correction(Arrangement, HP_Account, HP_Suspense_Account, _, Transactions, Transaction_Correction).
+
+hp_arr_corrections(Arrangement, HP_Account, HP_Suspense_Account, Transactions, Transaction_Corrections) :-
+	findall(Transaction_Correction,
+		hp_arr_correction(Arrangement, HP_Account, HP_Suspense_Account, Transactions, Transaction_Correction),
+		Transaction_Corrections).
 
 % Relates a hire purchase arrangement to the fields that summarize it in a financial
 % report at a given date. There are three ways in which this can be done going from most
