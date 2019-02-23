@@ -12,7 +12,8 @@ How to run the program:
 
 Outline of the directory structure of this repository:
 * [src](src) contains the Prolog source for the program
-* [examples](examples) mostly contains example queries for the aforementioned program. It also contains an example ledger that should be loaded up with the program
+* [examples](examples) contains examples of how Prolog can be embedded in other languages
+* [tests](tests) contains queries that test the functionality of the main Prolog program
 * [docs](docs) contains correspondences and resources on accounting that I have been finding useful in making this program
 * [misc](misc) contains the stuff that does not yet clearly fit into a category
 
