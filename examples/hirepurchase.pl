@@ -45,6 +45,8 @@ recorda(transactions,
 	transaction(737586, "collect accs rec", bank, t_term(100, 0))]).
 
 % Make a regular schedule of installments:
+write("Is the output for the installment schedule correct?"),
+
 findall(Installments,
 	installments(date(2015, 1, 16), 100, date(0, 1, 0), 200.47, Installments),
 	
@@ -75,6 +77,8 @@ findall(Installments,
 		hp_installment(738536, 200.47), hp_installment(738567, 200.47), hp_installment(738595, 200.47), hp_installment(738626, 200.47)]]).
 
 % Add a ballon to a regular schedule of installments:
+write("Is the output for the installment schedule with balloons inserted correct?"),
+
 findall(Installments_With_Balloon,
 	(installments(date(2015, 1, 16), 100, date(0, 1, 0), 200.47, Installments),
 		absolute_day(date(2014, 12, 16), Balloon_Day),
@@ -109,6 +113,8 @@ findall(Installments_With_Balloon,
 
 % What is the total amount the customer will pay over the course of the hire purchase
 % arrangement?
+write("Is the output for the total payment in hire purchase arrangement correct?"),
+
 findall(Total_Payment,
 	(absolute_day(date(2014, 12, 16), Begin_Day),
 		installments(date(2015, 1, 16), 36, date(0, 1, 0), 200.47, Installments),
@@ -118,6 +124,8 @@ findall(Total_Payment,
 
 % What is the total interest the customer will pay over the course of the hire purchase
 % arrangement?
+write("Is the output for the total interest payment in hire purchase arrangement correct?"),
+
 findall(Total_Interest,
 	(absolute_day(date(2014, 12, 16), Begin_Day),
 		installments(date(2015, 1, 16), 36, date(0, 1, 0), 200.47, Installments),
@@ -126,6 +134,8 @@ findall(Total_Interest,
 	[1268.8307569608373]).
 
 % Give me all the records of a hire purchase arrangement:
+write("Is the output for the records of a hire purchase arrangement correct?"),
+
 findall(Record,
 	(absolute_day(date(2014, 12, 16), Begin_Day),
 		installments(date(2015, 1, 16), 36, date(0, 1, 0), 200.47, Installments),
@@ -169,6 +179,8 @@ findall(Record,
 		hp_record(36, 203.3775007032173, 13, 2.2032562576181873, 200.47, 5.110756960835488, 736649, 736679)]).
 
 % Present a hire purchase arrangement as it would appear in a financial statement
+write("Is the output for the summary of a hire purchase arrangement correct?"),
+
 findall(Statement,
 	(absolute_day(date(2018, 6, 30), Arr_Beg_Day),
 		Insts_Beg_Date = date(2018, 7, 31),
@@ -182,6 +194,8 @@ findall(Statement,
 
 % Split the range between 10 and 20 into 100 equally spaced intervals and give me their
 % boundaries:
+write("Is the output for a range subdivision correct?"),
+
 findall(X, range(10, 20, 0.1, X),
 
 	[10, 10.1, 10.2, 10.299999999999999, 10.399999999999999, 10.499999999999998, 10.599999999999998, 10.699999999999998,
@@ -203,6 +217,8 @@ findall(X, range(10, 20, 0.1, X),
 
 % Give me the interest rates in the range of 10% to 20% that will cause the hire purchase
 % arrangement to conclude in exactly 36 months:
+write("Is the output for the interest rates that cause a hire purchase arrangement to have a certain duration correct?"),
+
 findall(Interest_Rate,
 	(range(10, 20, 0.1, Interest_Rate),
 		absolute_day(date(2014, 12, 16), Begin_Day),
@@ -223,6 +239,8 @@ findall(Interest_Rate,
 % none of the installments other than the first were paid, can we make some correctional
 % transactions to debit the hire purchase account and credit the hire purchase suspense
 % account?
+write("Are the outputed corrections to the general ledger correct?"),
+
 findall(Correction_Transactions,
 	(recorded(transactions, Transactions),
 		absolute_day(date(2014, 12, 16), Begin_Day),

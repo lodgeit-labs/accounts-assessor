@@ -63,6 +63,8 @@ recorda(transactions,
 	transaction(737586, "collect accs rec", bank, t_term(100, 0))]).
 
 % Let's get the trial balance between date(2018, 7, 1) and date(2019, 6, 30):
+write("Is the output for a trial balance correct?"),
+
 findall(Trial_Balance,
 	(recorded(accounts, Accounts),
 		recorded(transactions, Transactions),
@@ -79,6 +81,8 @@ findall(Trial_Balance,
 		(wages, t_term(0, 0)), (super_expense, t_term(0, 0)), (hirepurchase_interest, t_term(0, 0))])]).
 
 % Let's get the balance sheet as of date(2019, 6, 30):
+write("Is the output for the balance at a given date correct?"),
+
 findall(Balance_Sheet,
 	(recorded(accounts, Accounts),
 		recorded(transactions, Transactions),
@@ -92,6 +96,8 @@ findall(Balance_Sheet,
 		[(retained_earnings, t_term(0, 40)), (share_capital, t_term(0, 100))])]).
 
 % Let's get the movement between date(2019, 7, 1) and date(2020, 6, 30):
+write("Is the output for a movement between the two given dates correct?"),
+
 findall(Movement,
 	(recorded(accounts, Accounts),
 		recorded(transactions, Transactions),
@@ -107,6 +113,8 @@ findall(Movement,
 		(hirepurchase_interest, t_term(37.42, 0))])]).
 
 % Let's get the retained earnings as of date(2017, 7, 3):
+write("Is the output for the retained earnings at a given date correct?"),
+
 findall(Retained_Earnings_Signed,
 	(recorded(accounts, Accounts),
 		recorded(transactions, Transactions),
@@ -118,6 +126,8 @@ findall(Retained_Earnings_Signed,
 
 
 % Let's get the retained earnings as of date(2019, 6, 2):
+write("Is the output for the retained earnings at another given date correct?"),
+
 findall(Retained_Earnings_Signed,
 	(recorded(accounts, Accounts),
 		recorded(transactions, Transactions),
@@ -128,6 +138,8 @@ findall(Retained_Earnings_Signed,
 	[40]).
 
 % Let's get the current earnings between date(2017, 7, 1) and date(2017, 7, 3):
+write("Is the output for the current earnings between two given dates correct?"),
+
 findall(Current_Earnings_Signed,
 	(recorded(accounts, Accounts),
 		recorded(transactions, Transactions),
@@ -138,6 +150,8 @@ findall(Current_Earnings_Signed,
 	[50]).
 
 % Let's get the current earnings between date(2018, 7, 1) and date(2019, 6, 2):
+write("Is the output for the current earnings between another two given dates correct?"),
+
 findall(Current_Earnings_Signed,
 	(recorded(accounts, Accounts),
 		recorded(transactions, Transactions),
@@ -148,6 +162,8 @@ findall(Current_Earnings_Signed,
 	[-10]).
 
 % Let's get the balance of the inventory account as of date(2017, 7, 3):
+write("Is the output for the balance of the given account at a given date correct?"),
+
 findall(Bal,
 	(recorded(transactions, Transactions),
 		absolute_day(date(2017, 7, 3), B),
@@ -156,6 +172,8 @@ findall(Bal,
 	[t_term(50, 50)]).
 
 % What if we want the balance as a signed quantity?
+write("Is the output for the balance as a signed quantity correct?"),
+
 findall(Signed_Bal,
 	(recorded(transactions, Transactions),
 		absolute_day(date(2017, 7, 3), B),
@@ -164,6 +182,8 @@ findall(Signed_Bal,
 	[0]).
 
 % What is the isomorphism of the inventory account?
+write("Is the output for the isomorphism of the given account correct?"),
+
 findall(Isomorphism,
 	(recorded(accounts, Accounts),
 		member(Account, Accounts),
@@ -174,6 +194,8 @@ findall(Isomorphism,
 	[debit_isomorphism]).
 
 % Let's get the net activity of the asset-typed account between date(2017, 7, 2) and date(2017, 7, 3).
+write("Is the output for the net activity of the given account between the given dates correct?"),
+
 findall(Net_Activity,
 	(recorded(accounts, Accounts),
 		recorded(transactions, Transactions),
