@@ -6,7 +6,11 @@ This repository hosts a program that derives, validates, and corrects the financ
 
 How to run the program:
 * Change directory to the root of the project
-* Enter swipl -s main.pl
+* Enter `swipl -s src/main.pl`
+
+How to run the tests:
+* Change directory to the root of the project
+* Enter `./tests/main.sh`
 
 ## Directory Structure
 
