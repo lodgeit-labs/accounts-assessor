@@ -1,3 +1,5 @@
+write("Are we now testing the general ledger subprogram?").
+
 recorda(accounts,
 	[account(bank, asset),
 	account(share_capital, equity),

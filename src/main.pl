@@ -1,13 +1,13 @@
 % The program entry point. Run the program using swipl -s main.pl .
 
 % Loads up calendar related predicates
-:- ['days.pl'].
+:- ['src/days.pl'].
 % Loads up predicates pertaining to hire purchase arrangements
-:- ['hirepurchase.pl'].
+:- ['src/hirepurchase.pl'].
 % Loads up predicates for summarizing transactions
-:- ['transactions.pl'].
+:- ['src/transactions.pl'].
 % Loads up predicates pertaining to loan arrangements
-:- ['loans.pl'].
+:- ['src/loans.pl'].
 
 % Appropriate queries to type into the ensuing prompt can be found in examples
 % directory.

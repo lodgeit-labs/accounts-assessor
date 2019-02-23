@@ -1,3 +1,5 @@
+write("Are we now testing the hire purchase subprogram?").
+
 recorda(transactions,
 	[transaction(735614, "invest in business", hp_account, t_term(200.47, 0)),
 	transaction(735614, "invest in business a", hp_account, t_term(200.47, 0)),

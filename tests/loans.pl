@@ -1,3 +1,5 @@
+write("Are we now testing the loan calculator subprogram?").
+
 % The following examples are based on examples 6, 7, 8, and, 9 of
 % https://www.ato.gov.au/business/private-company-benefits---division-7a-dividends/in-detail/division-7a---loans/
 
