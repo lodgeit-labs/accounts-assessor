@@ -132,14 +132,8 @@ balance_sheet_at(Accounts, Transactions, To_Day, Balance_Sheet) :-
 	balance_sheet_entry(Accounts, Transactions, equity, To_Day, Equity_Section),
 	balance_sheet_entry(Accounts, Transactions, liability, To_Day, Liability_Section),
 	balance_by_account(Accounts, Transactions, earnings, To_Day, Retained_Earnings),
-	Balance_Sheet = balance_sheet(Asset_Section, Liability_Section,
-		(retained_earnings, Retained_Earnings, []), Equity_Section).
-
-balance_sheet_asset_accounts(balance_sheet(Asset_Accounts, _, _), Asset_Accounts).
-
-balance_sheet_liability_accounts(balance_sheet(_, Liability_Accounts, _), Liability_Accounts).
-
-balance_sheet_equity_accounts(balance_sheet(_, _, Equity_Accounts), Equity_Accounts).
+	Balance_Sheet = [Asset_Section, Liability_Section, (retained_earnings, Retained_Earnings, []),
+		Equity_Section].
 
 % Now for trial balance predicates.
 
@@ -156,9 +150,8 @@ trial_balance_between(Accounts, Transactions, From_Day, To_Day, Trial_Balance) :
 	trial_balance_entry(Accounts, Transactions, revenue, From_Day, To_Day, Revenue_Section),
 	trial_balance_entry(Accounts, Transactions, expense, From_Day, To_Day, Expense_Section),
 	balance_by_account(Accounts, Transactions, earnings, From_Day, Retained_Earnings),
-	Trial_Balance = trial_balance(Asset_Section, Liability_Section,
-		(retained_earnings, Retained_Earnings, []), Equity_Section, Revenue_Section,
-		Expense_Section).
+	Trial_Balance = [Asset_Section, Liability_Section, (retained_earnings, Retained_Earnings, []),
+		Equity_Section, Revenue_Section, Expense_Section].
 
 % Now for movement predicates.
 
@@ -168,16 +161,6 @@ movement_between(Accounts, Transactions, From_Day, To_Day, Movement) :-
 	trial_balance_entry(Accounts, Transactions, liability, From_Day, To_Day, Liability_Section),
 	trial_balance_entry(Accounts, Transactions, revenue, From_Day, To_Day, Revenue_Section),
 	trial_balance_entry(Accounts, Transactions, expense, From_Day, To_Day, Expense_Section),
-	Movement = movement(Asset_Section, Liability_Section, Equity_Section, Revenue_Section,
-		Expense_Section).
-
-movement_asset_accounts(movement(Asset_Accounts, _, _, _, _), Asset_Accounts).
-
-movement_liability_accounts(movement(_, Liability_Accounts, _, _, _), Liability_Accounts).
-
-movement_equity_accounts(movement(_, _, Equity_Accounts, _, _), Equity_Accounts).
-
-movement_revenue_accounts(movement(_, _, _, Revenue_Accounts, _), Revenue_Accounts).
-
-movement_expense_accounts(movement(_, _, _, _, Expense_Accounts), Expense_Accounts).
+	Movement = [Asset_Section, Liability_Section, Equity_Section, Revenue_Section,
+		Expense_Section].
 

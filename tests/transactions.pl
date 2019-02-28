@@ -76,8 +76,7 @@ findall(Trial_Balance,
 		absolute_day(date(2019, 6, 30), To_Day),
 		trial_balance_between(Accounts, Transactions, From_Day, To_Day, Trial_Balance)),
 	
-	[trial_balance(
-		(asset,t_term(140,0),
+	[[(asset,t_term(140,0),
 			[ (bank,t_term(40,0),[]),
 			(inventory,t_term(0,0),[]),
 			(accounts_receivable,t_term(100,0),[]),
@@ -98,7 +97,7 @@ findall(Trial_Balance,
 			(stationary,t_term(10,0),[]),
 			(wages,t_term(0,0),[]),
 			(super_expense,t_term(0,0),[]),
-			(hirepurchase_interest,t_term(0,0),[])]))]).
+			(hirepurchase_interest,t_term(0,0),[])])]]).
 
 % Let's get the balance sheet as of date(2019, 6, 30):
 write("Is the output for the balance at a given date correct?"),
@@ -109,8 +108,7 @@ findall(Balance_Sheet,
 		absolute_day(date(2019, 6, 30), B),
 		balance_sheet_at(Accounts, Transactions, B, Balance_Sheet)),
 		
-	[balance_sheet(
-		(asset,t_term(140,0),
+	[[(asset,t_term(140,0),
 			[ (bank,t_term(40,0),[]),
 			(inventory,t_term(0,0),[]),
 			(accounts_receivable,t_term(100,0),[]),
@@ -123,7 +121,7 @@ findall(Balance_Sheet,
 			(hirepurchase_truck,t_term(0,0),[])]),
 		(retained_earnings,t_term(0,40),[]),
 		(equity,t_term(0,100),
-			[ (share_capital,t_term(0,100),[])]))]).
+			[ (share_capital,t_term(0,100),[])])]]).
 
 % Let's get the movement between date(2019, 7, 1) and date(2020, 6, 30):
 write("Is the output for a movement between the two given dates correct?"),
@@ -134,8 +132,7 @@ findall(Movement,
 		absolute_day(date(2019, 7, 1), A), absolute_day(date(2020, 6, 30), B),
 		movement_between(Accounts, Transactions, A, B, Movement)),
 		
-	[movement(
-		(asset,t_term(2776,0),
+	[[(asset,t_term(2776,0),
 			[ (bank,t_term(0,299),[]),
 			(inventory,t_term(75,0),[]),
 			(accounts_receivable,t_term(0,0),[]),
@@ -155,7 +152,7 @@ findall(Movement,
 			(stationary,t_term(0,0),[]),
 			(wages,t_term(200,0),[]),
 			(super_expense,t_term(19,0),[]),
-			(hirepurchase_interest,t_term(37.42,0),[])]))]).
+			(hirepurchase_interest,t_term(37.42,0),[])])]]).
 
 % Let's get the retained earnings as of date(2017, 7, 3):
 write("Is the output for the retained earnings at a given date correct?"),
