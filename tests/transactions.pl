@@ -1,22 +1,24 @@
 write("Are we now testing the general ledger subprogram?").
 
 recorda(accounts,
-	[account(bank, asset),
-	account(share_capital, equity),
-	account(inventory, asset),
-	account(accounts_payable, liability),
-	account(accounts_receivable, asset),
-	account(sales, revenue),
-	account(cost_of_goods_sold, expense),
-	account(stationary, expense),
-	account(wages, expense),
-	account(super_expense, expense),
-	account(super_payable, liability),
-	account(paygw_tax, liability),
-	account(wages_payable, liability),
-	account(motor_vehicles, asset),
-	account(hirepurchase_truck, liability),
-	account(hirepurchase_interest, expense)]).
+	[account_link(bank, asset),
+	account_link(share_capital, equity),
+	account_link(inventory, asset),
+	account_link(accounts_payable, liability),
+	account_link(accounts_receivable, asset),
+	account_link(sales, revenue),
+	account_link(cost_of_goods_sold, expense),
+	account_link(stationary, expense),
+	account_link(wages, expense),
+	account_link(super_expense, expense),
+	account_link(super_payable, liability),
+	account_link(paygw_tax, liability),
+	account_link(wages_payable, liability),
+	account_link(motor_vehicles, asset),
+	account_link(hirepurchase_truck, liability),
+	account_link(hirepurchase_interest, expense),
+	account_link(revenue, earnings),
+	account_link(expense, earnings)]).
 
 recorda(transactions,
 	[transaction(735614, "invest in business", hp_account, t_term(200.47, 0)),
@@ -97,6 +99,11 @@ findall(Balance_Sheet,
 		(wages_payable, t_term(0, 0)), (hirepurchase_truck, t_term(0, 0))],
 		[(retained_earnings, t_term(0, 40)), (share_capital, t_term(0, 100))])]).
 
+recorded(accounts, Accounts),
+		recorded(transactions, Transactions),
+		absolute_day(date(2019, 6, 30), B),
+		balance_sheet_at(Accounts, Transactions, B, Balance_Sheet), write(Balance_Sheet).
+
 % Let's get the movement between date(2019, 7, 1) and date(2020, 6, 30):
 write("Is the output for a movement between the two given dates correct?"),
 
@@ -121,7 +128,7 @@ findall(Retained_Earnings_Signed,
 	(recorded(accounts, Accounts),
 		recorded(transactions, Transactions),
 		absolute_day(date(2017, 7, 3), B),
-		retained_earnings(Accounts, Transactions, B, Retained_Earnings),
+		balance_by_account(Accounts, Transactions, earnings, B, Retained_Earnings),
 		credit_isomorphism(Retained_Earnings, Retained_Earnings_Signed)),
 		
 	[50]).
@@ -134,7 +141,7 @@ findall(Retained_Earnings_Signed,
 	(recorded(accounts, Accounts),
 		recorded(transactions, Transactions),
 		absolute_day(date(2019, 6, 2), B),
-		retained_earnings(Accounts, Transactions, B, Retained_Earnings),
+		balance_by_account(Accounts, Transactions, earnings, B, Retained_Earnings),
 		credit_isomorphism(Retained_Earnings, Retained_Earnings_Signed)),
 		
 	[40]).
@@ -146,7 +153,7 @@ findall(Current_Earnings_Signed,
 	(recorded(accounts, Accounts),
 		recorded(transactions, Transactions),
 		absolute_day(date(2017, 7, 1), A), absolute_day(date(2017, 7, 3), B),
-		current_earnings(Accounts, Transactions, A, B, Current_Earnings),
+		net_activity_by_account(Accounts, Transactions, earnings, A, B, Current_Earnings),
 		credit_isomorphism(Current_Earnings, Current_Earnings_Signed)),
 		
 	[50]).
@@ -158,7 +165,7 @@ findall(Current_Earnings_Signed,
 	(recorded(accounts, Accounts),
 		recorded(transactions, Transactions),
 		absolute_day(date(2018, 7, 1), A), absolute_day(date(2019, 6, 2), B),
-		current_earnings(Accounts, Transactions, A, B, Current_Earnings),
+		net_activity_by_account(Accounts, Transactions, earnings, A, B, Current_Earnings),
 		credit_isomorphism(Current_Earnings, Current_Earnings_Signed)),
 		
 	[-10]).
@@ -167,9 +174,10 @@ findall(Current_Earnings_Signed,
 write("Is the output for the balance of the given account at a given date correct?"),
 
 findall(Bal,
-	(recorded(transactions, Transactions),
+	(recorded(accounts, Accounts),
+		recorded(transactions, Transactions),
 		absolute_day(date(2017, 7, 3), B),
-		balance_by_account(Transactions, inventory, B, Bal)),
+		balance_by_account(Accounts, Transactions, inventory, B, Bal)),
 		
 	[t_term(50, 50)]).
 
@@ -177,23 +185,12 @@ findall(Bal,
 write("Is the output for the balance as a signed quantity correct?"),
 
 findall(Signed_Bal,
-	(recorded(transactions, Transactions),
+	(recorded(accounts, Accounts),
+		recorded(transactions, Transactions),
 		absolute_day(date(2017, 7, 3), B),
-		balance_by_account(Transactions, inventory, B, Bal), debit_isomorphism(Bal, Signed_Bal)),
+		balance_by_account(Accounts, Transactions, inventory, B, Bal), debit_isomorphism(Bal, Signed_Bal)),
 		
 	[0]).
-
-% What is the isomorphism of the inventory account?
-write("Is the output for the isomorphism of the given account correct?"),
-
-findall(Isomorphism,
-	(recorded(accounts, Accounts),
-		member(Account, Accounts),
-		account_id(Account, inventory),
-		account_type(Account, Account_Type),
-		account_isomorphism(Account_Type, Isomorphism)),
-		
-	[debit_isomorphism]).
 
 % Let's get the net activity of the asset-typed account between date(2017, 7, 2) and date(2017, 7, 3).
 write("Is the output for the net activity of the given account between the given dates correct?"),
@@ -203,7 +200,7 @@ findall(Net_Activity,
 		recorded(transactions, Transactions),
 		absolute_day(date(2017, 7, 2), A),
 		absolute_day(date(2017, 7, 3), B),
-		net_activity_by_account_type(Accounts, Transactions, asset, A, B, Net_Activity)),
+		net_activity_by_account(Accounts, Transactions, asset, A, B, Net_Activity)),
 		
 	[t_term(150, 50)]).
 

@@ -43,10 +43,17 @@ debit_isomorphism(t_term(A, B), C) :- C is A - B.
 
 % Predicates for asserting that the fields of given accounts have particular values
 
-% The id of the given account
-account_id(account(Account_ID, _), Account_ID).
-% The type of the given account
-account_type(account(_, Account_Type), Account_Type).
+% The child in the given account link
+account_link_child(account_link(Account_Link_Child, _), Account_Link_Child).
+% The parent in the given account link
+account_link_parent(account_link(_, Account_Link_Parent), Account_Link_Parent).
+% Relates an account to an ancestral account
+account_ancestor(Account_Links, Account, Ancestor) :-
+	Account = Ancestor;
+	(account_link_parent(Account_Link, Ancestor),
+	member(Account_Link, Account_Links),
+	account_link_child(Account_Link, Ancestor_Child),
+	account_ancestor(Account_Links, Account, Ancestor_Child)).
 
 % Predicates for asserting that the fields of given transactions have particular values
 
@@ -59,11 +66,9 @@ transaction_account(transaction(_, _, Account, _), Account).
 % The amounts by which the account is being debited and credited
 transaction_t_term(transaction(_, _, _, T_Term), T_Term).
 
-transaction_account_type(Accounts, Transaction, Account_Type) :-
+transaction_account_ancestor(Account_Links, Transaction, Ancestor_Account) :-
 	transaction_account(Transaction, Transaction_Account),
-	member(Account, Accounts),
-	account_id(Account, Transaction_Account),
-	account_type(Account, Account_Type).
+	account_ancestor(Account_Links, Transaction_Account, Ancestor_Account).
 
 transaction_between(Transaction, From_Day, To_Day) :-
 	transaction_day(Transaction, Day),
@@ -93,77 +98,36 @@ transaction_t_term_total([Hd_Transaction | Tl_Transaction], Net_Activity) :-
 
 % Relates Day to the balance at that time of the given account.
 
-balance_by_account(Transactions, Account, Day, Balance) :-
+balance_by_account(Accounts, Transactions, Account, Day, Balance) :-
 	findall(Transaction,
 		(member(Transaction, Transactions),
 		transaction_before(Transaction, Day),
-		transaction_account(Transaction, Account)), Transactions_A),
-	transaction_t_term_total(Transactions_A, Balance).
-
-% Relates Day to the balance at that time of the given account type.
-
-balance_by_account_type(Accounts, Transactions, Account_Type, Day, Balance) :-
-	findall(Transaction,
-		(member(Transaction, Transactions),
-		transaction_before(Transaction, Day),
-		transaction_account_type(Accounts, Transaction, Account_Type)), Transactions_A),
+		transaction_account_ancestor(Accounts, Transaction, Account)), Transactions_A),
 	transaction_t_term_total(Transactions_A, Balance).
 
 % Relates the period from From_Day to To_Day to the net activity during that period of
 % the given account.
 
-net_activity_by_account(Transactions, Account, From_Day, To_Day, Net_Activity) :-
+net_activity_by_account(Accounts, Transactions, Account, From_Day, To_Day, Net_Activity) :-
 	findall(Transaction,
 		(member(Transaction, Transactions),
 		transaction_between(Transaction, From_Day, To_Day),
-		transaction_account(Transaction, Account)), Transactions_A),
+		transaction_account_ancestor(Accounts, Transaction, Account)), Transactions_A),
 	transaction_t_term_total(Transactions_A, Net_Activity).
-
-% Relates the period from From_Day to To_Day to the net activity during that period of
-% the given account type.
-
-net_activity_by_account_type(Accounts, Transactions, Account_Type, From_Day, To_Day, Net_Activity) :-
-	findall(Transaction,
-		(member(Transaction, Transactions),
-		transaction_between(Transaction, From_Day, To_Day),
-		transaction_account_type(Accounts, Transaction, Account_Type)), Transactions_A),
-	transaction_t_term_total(Transactions_A, Net_Activity).
-
-% Relates the period from From_Day to To_Day to the current earnings of that period.
-
-current_earnings(Accounts, Transactions, From_Day, To_Day, Current_Earnings) :-
-	findall(Transaction,
-		(member(Transaction, Transactions),
-		transaction_between(Transaction, From_Day, To_Day),
-		(transaction_account_type(Accounts, Transaction, revenue);
-		transaction_account_type(Accounts, Transaction, expense))), Transactions_A),
-	transaction_t_term_total(Transactions_A, Current_Earnings).
-
-% Relates the date, To_Day, to the retained earnings at that point.
-
-retained_earnings(Accounts, Transactions, To_Day, Retained_Earnings) :-
-	findall(Transaction,
-		(member(Transaction, Transactions),
-		transaction_before(Transaction, To_Day),
-		(transaction_account_type(Accounts, Transaction, revenue);
-		transaction_account_type(Accounts, Transaction, expense))), Transactions_A),
-	transaction_t_term_total(Transactions_A, Retained_Earnings).
 
 % Now for balance sheet predicates.
 
-balance_sheet_entry(Accounts, Transactions, Account_Type, To_Day, Sheet_Entry) :-
-	member(Account, Accounts),
-	account_type(Account, Account_Type),
-	account_id(Account, Account_Id),
-	balance_by_account(Transactions, Account_Id, To_Day, Balance),
+balance_sheet_entry(Account_Links, Transactions, Account_Ancestor, To_Day, Sheet_Entry) :-
+	account_ancestor(Account_Links, Account, Account_Ancestor),
+	balance_by_account(Account_Links, Transactions, Account, To_Day, Balance),
 	pac_reduce(Balance, Reduced_Balance),
-	Sheet_Entry = (Account_Id, Reduced_Balance).
+	Sheet_Entry = (Account, Reduced_Balance).
 
 balance_sheet_at(Accounts, Transactions, To_Day, Balance_Sheet) :-
 	findall(Entry, balance_sheet_entry(Accounts, Transactions, asset, To_Day, Entry), Asset_Section),
 	findall(Entry, balance_sheet_entry(Accounts, Transactions, equity, To_Day, Entry), Equity_Section),
 	findall(Entry, balance_sheet_entry(Accounts, Transactions, liability, To_Day, Entry), Liability_Section),
-	retained_earnings(Accounts, Transactions, To_Day, Retained_Earnings),
+	balance_by_account(Accounts, Transactions, earnings, To_Day, Retained_Earnings),
 	pac_reduce(Retained_Earnings, Reduced_Retained_Earnings),
 	Balance_Sheet = balance_sheet(Asset_Section, Liability_Section,
 		[(retained_earnings, Reduced_Retained_Earnings) | Equity_Section]).
@@ -176,13 +140,11 @@ balance_sheet_equity_accounts(balance_sheet(_, _, Equity_Accounts), Equity_Accou
 
 % Now for trial balance predicates.
 
-trial_balance_entry(Accounts, Transactions, Account_Type, From_Day, To_Day, Trial_Balance_Entry) :-
-	member(Account, Accounts),
-	account_id(Account, Account_Id),
-	account_type(Account, Account_Type),
-	net_activity_by_account(Transactions, Account_Id, From_Day, To_Day, Net_Activity),
+trial_balance_entry(Account_Links, Transactions, Account_Ancestor, From_Day, To_Day, Trial_Balance_Entry) :-
+	account_ancestor(Account_Links, Account, Account_Ancestor),
+	net_activity_by_account(Account_Links, Transactions, Account, From_Day, To_Day, Net_Activity),
 	pac_reduce(Net_Activity, Reduced_Net_Activity),
-	Trial_Balance_Entry = (Account_Id, Reduced_Net_Activity).
+	Trial_Balance_Entry = (Account, Reduced_Net_Activity).
 
 trial_balance_between(Accounts, Transactions, From_Day, To_Day, Trial_Balance) :-
 	findall(Entry, balance_sheet_entry(Accounts, Transactions, asset, To_Day, Entry), Asset_Section),
@@ -190,7 +152,7 @@ trial_balance_between(Accounts, Transactions, From_Day, To_Day, Trial_Balance) :
 	findall(Entry, balance_sheet_entry(Accounts, Transactions, liability, To_Day, Entry), Liability_Section),
 	findall(Entry, trial_balance_entry(Accounts, Transactions, revenue, From_Day, To_Day, Entry), Revenue_Section),
 	findall(Entry, trial_balance_entry(Accounts, Transactions, expense, From_Day, To_Day, Entry), Expense_Section),
-	retained_earnings(Accounts, Transactions, From_Day, Retained_Earnings),
+	balance_by_account(Accounts, Transactions, earnings, From_Day, Retained_Earnings),
 	pac_reduce(Retained_Earnings, Reduced_Retained_Earnings),
 	Trial_Balance = trial_balance(Asset_Section, Liability_Section,
 		[(retained_earnings, Reduced_Retained_Earnings) | Equity_Section], Revenue_Section,
