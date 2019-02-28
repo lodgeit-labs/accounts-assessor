@@ -214,7 +214,7 @@ findall(Bal,
 		absolute_day(date(2017, 7, 3), B),
 		balance_by_account(Accounts, Transactions, inventory, B, Bal)),
 		
-	[t_term(50, 50)]).
+	[t_term(0, 0)]).
 
 % What if we want the balance as a signed quantity?
 write("Is the output for the balance as a signed quantity correct?"),
