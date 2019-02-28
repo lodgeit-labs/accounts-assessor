@@ -47,12 +47,15 @@ debit_isomorphism(t_term(A, B), C) :- C is A - B.
 account_link_child(account_link(Account_Link_Child, _), Account_Link_Child).
 % The parent in the given account link
 account_link_parent(account_link(_, Account_Link_Parent), Account_Link_Parent).
+% Relates an account to a parent account
+account_parent(Account_Links, Account, Parent) :-
+	account_link_parent(Account_Link, Parent),
+	account_link_child(Account_Link, Account),
+	member(Account_Link, Account_Links).
 % Relates an account to an ancestral account
 account_ancestor(Account_Links, Account, Ancestor) :-
 	Account = Ancestor;
-	(account_link_parent(Account_Link, Ancestor),
-	member(Account_Link, Account_Links),
-	account_link_child(Account_Link, Ancestor_Child),
+	(account_parent(Account_Links, Ancestor_Child, Ancestor),
 	account_ancestor(Account_Links, Account, Ancestor_Child)).
 
 % Predicates for asserting that the fields of given transactions have particular values
@@ -91,10 +94,11 @@ account_isomorphism(expense, debit_isomorphism).
 
 transaction_t_term_total([], t_term(0, 0)).
 
-transaction_t_term_total([Hd_Transaction | Tl_Transaction], Net_Activity) :-
+transaction_t_term_total([Hd_Transaction | Tl_Transaction], Reduced_Net_Activity) :-
 	transaction_t_term(Hd_Transaction, Curr),
 	transaction_t_term_total(Tl_Transaction, Acc),
-	pac_add(Curr, Acc, Net_Activity).
+	pac_add(Curr, Acc, Net_Activity),
+	pac_reduce(Net_Activity, Reduced_Net_Activity).
 
 % Relates Day to the balance at that time of the given account.
 
@@ -117,20 +121,19 @@ net_activity_by_account(Accounts, Transactions, Account, From_Day, To_Day, Net_A
 
 % Now for balance sheet predicates.
 
-balance_sheet_entry(Account_Links, Transactions, Account_Ancestor, To_Day, Sheet_Entry) :-
-	account_ancestor(Account_Links, Account, Account_Ancestor),
+balance_sheet_entry(Account_Links, Transactions, Account, To_Day, Sheet_Entry) :-
+	findall(Child_Sheet_Entry, (account_parent(Account_Links, Child_Account, Account),
+		balance_sheet_entry(Account_Links, Transactions, Child_Account, To_Day, Child_Sheet_Entry)), Child_Sheet_Entries),
 	balance_by_account(Account_Links, Transactions, Account, To_Day, Balance),
-	pac_reduce(Balance, Reduced_Balance),
-	Sheet_Entry = (Account, Reduced_Balance).
+	Sheet_Entry = (Account, Balance, Child_Sheet_Entries).
 
 balance_sheet_at(Accounts, Transactions, To_Day, Balance_Sheet) :-
-	findall(Entry, balance_sheet_entry(Accounts, Transactions, asset, To_Day, Entry), Asset_Section),
-	findall(Entry, balance_sheet_entry(Accounts, Transactions, equity, To_Day, Entry), Equity_Section),
-	findall(Entry, balance_sheet_entry(Accounts, Transactions, liability, To_Day, Entry), Liability_Section),
+	balance_sheet_entry(Accounts, Transactions, asset, To_Day, Asset_Section),
+	balance_sheet_entry(Accounts, Transactions, equity, To_Day, Equity_Section),
+	balance_sheet_entry(Accounts, Transactions, liability, To_Day, Liability_Section),
 	balance_by_account(Accounts, Transactions, earnings, To_Day, Retained_Earnings),
-	pac_reduce(Retained_Earnings, Reduced_Retained_Earnings),
 	Balance_Sheet = balance_sheet(Asset_Section, Liability_Section,
-		[(retained_earnings, Reduced_Retained_Earnings) | Equity_Section]).
+		(retained_earnings, Retained_Earnings, []), Equity_Section).
 
 balance_sheet_asset_accounts(balance_sheet(Asset_Accounts, _, _), Asset_Accounts).
 
@@ -140,32 +143,31 @@ balance_sheet_equity_accounts(balance_sheet(_, _, Equity_Accounts), Equity_Accou
 
 % Now for trial balance predicates.
 
-trial_balance_entry(Account_Links, Transactions, Account_Ancestor, From_Day, To_Day, Trial_Balance_Entry) :-
-	account_ancestor(Account_Links, Account, Account_Ancestor),
+trial_balance_entry(Account_Links, Transactions, Account, From_Day, To_Day, Trial_Balance_Entry) :-
+	findall(Child_Sheet_Entry, (account_parent(Account_Links, Child_Account, Account),
+		trial_balance_entry(Account_Links, Transactions, Child_Account, From_Day, To_Day, Child_Sheet_Entry)), Child_Sheet_Entries),
 	net_activity_by_account(Account_Links, Transactions, Account, From_Day, To_Day, Net_Activity),
-	pac_reduce(Net_Activity, Reduced_Net_Activity),
-	Trial_Balance_Entry = (Account, Reduced_Net_Activity).
+	Trial_Balance_Entry = (Account, Net_Activity, Child_Sheet_Entries).
 
 trial_balance_between(Accounts, Transactions, From_Day, To_Day, Trial_Balance) :-
-	findall(Entry, balance_sheet_entry(Accounts, Transactions, asset, To_Day, Entry), Asset_Section),
-	findall(Entry, balance_sheet_entry(Accounts, Transactions, equity, To_Day, Entry), Equity_Section),
-	findall(Entry, balance_sheet_entry(Accounts, Transactions, liability, To_Day, Entry), Liability_Section),
-	findall(Entry, trial_balance_entry(Accounts, Transactions, revenue, From_Day, To_Day, Entry), Revenue_Section),
-	findall(Entry, trial_balance_entry(Accounts, Transactions, expense, From_Day, To_Day, Entry), Expense_Section),
+	balance_sheet_entry(Accounts, Transactions, asset, To_Day, Asset_Section),
+	balance_sheet_entry(Accounts, Transactions, equity, To_Day, Equity_Section),
+	balance_sheet_entry(Accounts, Transactions, liability, To_Day, Liability_Section),
+	trial_balance_entry(Accounts, Transactions, revenue, From_Day, To_Day, Revenue_Section),
+	trial_balance_entry(Accounts, Transactions, expense, From_Day, To_Day, Expense_Section),
 	balance_by_account(Accounts, Transactions, earnings, From_Day, Retained_Earnings),
-	pac_reduce(Retained_Earnings, Reduced_Retained_Earnings),
 	Trial_Balance = trial_balance(Asset_Section, Liability_Section,
-		[(retained_earnings, Reduced_Retained_Earnings) | Equity_Section], Revenue_Section,
+		(retained_earnings, Retained_Earnings, []), Equity_Section, Revenue_Section,
 		Expense_Section).
 
 % Now for movement predicates.
 
 movement_between(Accounts, Transactions, From_Day, To_Day, Movement) :-
-	findall(Entry, trial_balance_entry(Accounts, Transactions, asset, From_Day, To_Day, Entry), Asset_Section),
-	findall(Entry, trial_balance_entry(Accounts, Transactions, equity, From_Day, To_Day, Entry), Equity_Section),
-	findall(Entry, trial_balance_entry(Accounts, Transactions, liability, From_Day, To_Day, Entry), Liability_Section),
-	findall(Entry, trial_balance_entry(Accounts, Transactions, revenue, From_Day, To_Day, Entry), Revenue_Section),
-	findall(Entry, trial_balance_entry(Accounts, Transactions, expense, From_Day, To_Day, Entry), Expense_Section),
+	trial_balance_entry(Accounts, Transactions, asset, From_Day, To_Day, Asset_Section),
+	trial_balance_entry(Accounts, Transactions, equity, From_Day, To_Day, Equity_Section),
+	trial_balance_entry(Accounts, Transactions, liability, From_Day, To_Day, Liability_Section),
+	trial_balance_entry(Accounts, Transactions, revenue, From_Day, To_Day, Revenue_Section),
+	trial_balance_entry(Accounts, Transactions, expense, From_Day, To_Day, Expense_Section),
 	Movement = movement(Asset_Section, Liability_Section, Equity_Section, Revenue_Section,
 		Expense_Section).
 
