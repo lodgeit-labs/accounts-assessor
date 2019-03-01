@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<reports xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <bankStatement>
+    <generator>
+      <date>2014-08-28T10:58:40.000165Z</date>
+      <source>LODGEIT</source>
+      <author>
+        <firstname>David</firstname>
+        <lastname>Joe</lastname>
+        <company>XYZ Company Pvt Ltd</company>
+      </author>
+    </generator>
+    <company>
+      <abn>11111111111</abn>
+      <anzsic />
+    </company>
+    <title>Bank Statement</title>
+    <period>2010-01-01 - 2010-06-30</period>
+    <startDate>2010-01-01</startDate>
+    <endDate>2010-06-30</endDate>
+    <accountDetails>
+      <accountNo>1-1110</accountNo>
+      <accountName>Cheque Account - CBA</accountName>
+      <dateofBankStatement>2012-09-28T00:00:00Z</dateofBankStatement>
+      <currency>AUD</currency>
+      <bankID>Commonwealth Bank</bankID>
+      <accountBalance>760</accountBalance>
+      <transactions>
+        <transaction transdesc="Balance carried forward" transdate="2009-07-01" debit="10" credit="0" unit="1" unitValue="1000" unitDesc="Some investment" valueDate="2009-07-01" />
+        <transaction transdesc="Investment_Made" transdate="2010-04-01" debit="1000" credit="0" unit="1" unitValue="1000" unitDesc="Some investment" valueDate="2010-04-03" />
+        <transaction transdesc="Interest_Earned" transdate="2010-05-01" debit="500" credit="0" unit="1" unitValue="500" unitDesc="Some Interest" valueDate="2010-05-03"/>
+        <transaction transdesc="Loss_onDisposal_of_Investment" transdate="2010-06-01" debit="0" credit="750" unit="1" unitValue="750" unitDesc="Some Loss" valueDate="2010-06-03" />
+      </transactions>
+    </accountDetails>
+  </bankStatement>
+</reports>
