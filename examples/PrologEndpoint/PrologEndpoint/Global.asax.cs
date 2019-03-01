@@ -24,7 +24,7 @@ namespace PrologEndpoint
         // a large amount of memory, so the chosen number of engines should not be too large.
         // The number should also not be to small, otherwise only a small number of HTTP clients
         // will get their queries serviced at a given point in time.
-        public unsafe static PL_engine_t*[] PrologEngines = new PL_engine_t*[10];
+        private unsafe static PL_engine_t*[] PrologEngines = new PL_engine_t*[10];
 
         protected void Application_Start()
         {
@@ -37,7 +37,7 @@ namespace PrologEndpoint
         }
 
         /* Initialize the Prolog library and a pool of engines. */
-        protected unsafe void InitialiseProlog()
+        private unsafe void InitialiseProlog()
         {
             // See http://www.swi-prolog.org/pldoc/man?section=cmdline
             // Also see http://www.swi-prolog.org/pldoc/man?CAPI=PL_initialise
@@ -73,6 +73,22 @@ namespace PrologEndpoint
 
             // Also put the current Prolog engine (PL.PL_ENGINE_MAIN) in the pool and release it.
             PrologEngines[0] = PL.PL_ENGINE_MAIN;
+            PL.PL_set_engine(null, null);
+        }
+
+        public static unsafe void ObtainEngine()
+        {
+            // Circle the Prolog engine pool until one of them is available. Hence this code
+            // will block execution if there are more simultaneous requests than Prolog engines
+            // at a given point in time.
+            for (int i = 0; ; i = (i + 1) % WebApiApplication.PrologEngines.Length)
+                if (PL.PL_set_engine(WebApiApplication.PrologEngines[i], null) == PL.PL_ENGINE_SET)
+                    break;
+        }
+
+        public static unsafe void ReleaseEngine()
+        {
+            // Now release the Prolog engine that we were using so that other threads can use it.
             PL.PL_set_engine(null, null);
         }
     }

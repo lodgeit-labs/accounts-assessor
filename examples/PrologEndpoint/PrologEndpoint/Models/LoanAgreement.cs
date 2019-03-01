@@ -14,6 +14,6 @@ namespace PrologEndpoint.Models
         public int Term { get; set; }
         public int ComputationYear { get; set; }
         public double ComputationOpeningBalance { get; set; }
-        public LoanRepayment[] Repayments { get; set; }
+        public List<LoanRepayment> Repayments { get; set; }
     }
 }

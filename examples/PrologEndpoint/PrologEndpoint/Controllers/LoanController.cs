@@ -16,44 +16,10 @@ namespace PrologEndpoint.Controllers
         // be garbage collected while in use, so I copy the strings into unmanaged memory once
         // and for all.
         private unsafe readonly char *LOAN_REPAYMENT = (char *) Marshal.StringToHGlobalAnsi("loan_repayment");
-        private unsafe readonly char *DATE = (char *) Marshal.StringToHGlobalAnsi("date");
-        private unsafe readonly char *ABSOLUTE_DAY = (char*) Marshal.StringToHGlobalAnsi("absolute_day");
         private unsafe readonly char *LOAN_AGREEMENT = (char*) Marshal.StringToHGlobalAnsi("loan_agreement");
         private unsafe readonly char *LOAN_AGR_PREPARE = (char*) Marshal.StringToHGlobalAnsi("loan_agr_prepare");
         private unsafe readonly char *LOAN_AGR_SUMMARY = (char*) Marshal.StringToHGlobalAnsi("loan_agr_summary");
         private unsafe readonly char *LOAN_SUMMARY = (char*) Marshal.StringToHGlobalAnsi("loan_summary");
-
-        /* Computes the absolute day of the given date. */
-        private unsafe int ComputeAbsoluteDay(DateTime date)
-        {
-            // Constructing the term date(date.Year, date.Month, date.Day)
-            atom_t *date_atom = PL.PL_new_atom(DATE);
-            functor_t *date_functor = PL.PL_new_functor(date_atom, 3);
-            term_t *date_year_term = PL.PL_new_term_ref();
-            PL.PL_put_integer(date_year_term, date.Year);
-            term_t *date_month_term = PL.PL_new_term_ref();
-            PL.PL_put_integer(date_month_term, date.Month);
-            term_t *date_day_term = PL.PL_new_term_ref();
-            PL.PL_put_integer(date_day_term, date.Day);
-            term_t *date_term = PL.PL_new_term_ref();
-            PL.PL_cons_functor(date_term, date_functor, __arglist(date_year_term, date_month_term, date_day_term));
-
-            // Constructing the query absolute_day(date(date.Year, date.Month, date.Day), B)
-            predicate_t *absolute_day_pred = PL.PL_predicate(ABSOLUTE_DAY, 2, null);
-            term_t *absolute_day_pred_arg0 = PL.PL_new_term_refs(2);
-            PL.PL_put_term(absolute_day_pred_arg0, date_term);
-            term_t *absolute_day_pred_arg1 = (term_t *) (1 + (byte *) absolute_day_pred_arg0);
-            term_t *absolute_day_term = PL.PL_new_term_ref();
-            PL.PL_put_term(absolute_day_pred_arg1, absolute_day_term);
-            qid_t *qid = PL.PL_open_query(null, PL.PL_Q_NORMAL, absolute_day_pred, absolute_day_pred_arg0);
-
-            // Getting a solution B to the query and close query
-            PL.PL_next_solution(qid);
-            int absolute_day;
-            PL.PL_get_integer(absolute_day_term, &absolute_day);
-            PL.PL_close_query(qid);
-            return absolute_day;
-        }
 
         /* Turns the LoanRepayment object into loan_repayment term. */
         private unsafe term_t *ConstructLoanRepayment(LoanRepayment loan_rep)
@@ -63,7 +29,7 @@ namespace PrologEndpoint.Controllers
             atom_t *loan_rep_atom = PL.PL_new_atom(LOAN_REPAYMENT);
             functor_t *loan_rep_functor = PL.PL_new_functor(loan_rep_atom, 2);
             term_t *day_term = PL.PL_new_term_ref();
-            PL.PL_put_integer(day_term, ComputeAbsoluteDay(loan_rep.Date));
+            PL.PL_put_integer(day_term, Date.ComputeAbsoluteDay(loan_rep.Date));
             term_t *amount_term = PL.PL_new_term_ref();
             PL.PL_put_float(amount_term, loan_rep.Amount);
             term_t *loan_rep_term = PL.PL_new_term_ref();
@@ -72,21 +38,17 @@ namespace PrologEndpoint.Controllers
         }
 
         /* Turns the array of LoanRepayments into a Prolog list of loan_repayment terms. */
-        private unsafe term_t *ConstructLoanRepayments(LoanRepayment[] loan_reps)
+        private unsafe term_t *ConstructLoanRepayments(List<LoanRepayment> loan_reps)
         {
             term_t *loan_reps_term = PL.PL_new_term_ref();
-            PL.PL_put_atom(loan_reps_term, PL.ATOM_nil());
+            PL.PL_put_nil(loan_reps_term);
             // We go backwards through the array because Prolog lists are constructed by consing.
-            for(int i = loan_reps.Length - 1; i >= 0; i--)
+            for(int i = loan_reps.Count - 1; i >= 0; i--)
             {
                 // Constructing term [Loan_Repayment | Loan_Repayments] where
                 // Loan_Repayment is the Prolog term corresponding to loan_reps[i] and
                 // Loan_Repayments is the list constructed so far.
-                atom_t *dot_atom = PL.ATOM_dot();
-                functor_t *dot_functor = PL.PL_new_functor(dot_atom, 2);
-                term_t *dot_term = PL.PL_new_term_ref();
-                PL.PL_cons_functor(dot_term, dot_functor, __arglist(ConstructLoanRepayment(loan_reps[i]), loan_reps_term));
-                loan_reps_term = dot_term;
+                PL.PL_cons_list(loan_reps_term, ConstructLoanRepayment(loan_reps[i]), loan_reps_term);
             }
             return loan_reps_term;
         }
@@ -102,9 +64,9 @@ namespace PrologEndpoint.Controllers
             PL.PL_put_float(principal_amount_term, loan_agr.PrincipalAmount);
             term_t *repayment_before_lodgement = PL.PL_new_term_ref();
             term_t *lodgement_day_term = PL.PL_new_term_ref();
-            PL.PL_put_integer(lodgement_day_term, ComputeAbsoluteDay(loan_agr.LodgementDate));
+            PL.PL_put_integer(lodgement_day_term, Date.ComputeAbsoluteDay(loan_agr.LodgementDate));
             term_t *begin_day_term = PL.PL_new_term_ref();
-            PL.PL_put_integer(begin_day_term, ComputeAbsoluteDay(new DateTime(loan_agr.CreationIncomeYear, 7, 1)));
+            PL.PL_put_integer(begin_day_term, Date.ComputeAbsoluteDay(new DateTime(loan_agr.CreationIncomeYear, 7, 1)));
             term_t *term_term = PL.PL_new_term_ref();
             PL.PL_put_integer(term_term, loan_agr.Term);
             term_t *computation_year_term = PL.PL_new_term_ref();
@@ -231,7 +193,7 @@ namespace PrologEndpoint.Controllers
             }
             // Prolog program needs the LoanRepayments to be in order of date.
             lrs.Sort((x, y) => x.Date.CompareTo(y.Date));
-            la.Repayments = lrs.ToArray();
+            la.Repayments = lrs;
             return la;
         }
 
@@ -245,22 +207,10 @@ namespace PrologEndpoint.Controllers
             XmlDocument doc = new XmlDocument();
             doc.Load(stream);
             LoanAgreement la = ParseLoanAgreement(doc);
-            unsafe
-            {
-                // Circle the Prolog engine pool until one of them is available. Hence this code
-                // will block execution if there are more simultaneous requests than Prolog engines
-                // at a given point in time.
-                for (int i = 0; ; i = (i + 1) % WebApiApplication.PrologEngines.Length)
-                    if (PL.PL_set_engine(WebApiApplication.PrologEngines[i], null) == PL.PL_ENGINE_SET)
-                        break;
-            }
+            WebApiApplication.ObtainEngine();
             // Now parse the LoanAgreement in Xml and obtain corresponding summaries
             LoanSummary ls = GetLoanSummary(la);
-            unsafe
-            {
-                // Now release the Prolog engine that we were using so that other threads can use it.
-                PL.PL_set_engine(null, null);
-            }
+            WebApiApplication.ReleaseEngine();
             // Now return the LoanSummarys
             return ls;
         }

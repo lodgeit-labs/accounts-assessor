@@ -166,15 +166,20 @@
     <Compile Include="Areas\HelpPage\SampleGeneration\TextSample.cs" />
     <Compile Include="Areas\HelpPage\XmlDocumentationProvider.cs" />
     <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\LedgerController.cs" />
     <Compile Include="Controllers\LoanController.cs" />
     <Compile Include="Controllers\ValuesController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Helpers\Date.cs" />
     <Compile Include="Helpers\PL.cs" />
+    <Compile Include="Models\AccountLink.cs" />
+    <Compile Include="Models\BalanceSheetEntry.cs" />
     <Compile Include="Models\LoanAgreement.cs" />
     <Compile Include="Models\LoanRepayment.cs" />
     <Compile Include="Models\LoanSummary.cs" />
+    <Compile Include="Models\Transaction.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -385,7 +385,21 @@ namespace PrologEndpoint.Helpers
         [DllImport(dllName)] public extern unsafe static int PL_put_atom(term_t* t, atom_t* a);
         [DllImport(dllName)] public extern unsafe static int PL_put_bool(term_t* t, int val);
         [DllImport(dllName)] public extern unsafe static int PL_put_atom_chars(term_t* t, char* chars);
+        public unsafe static int PL_put_atom_chars(term_t* t, string chars)
+        {
+            IntPtr str = Marshal.StringToHGlobalAnsi(chars);
+            int ret = PL.PL_put_atom_chars(t, (char *) str.ToPointer());
+            Marshal.FreeHGlobal(str);
+            return ret;
+        }
         [DllImport(dllName)] public extern unsafe static int PL_put_string_chars(term_t* t, char* chars);
+        public unsafe static int PL_put_string_chars(term_t* t, string chars)
+        {
+            IntPtr str = Marshal.StringToHGlobalAnsi(chars);
+            int ret = PL.PL_put_string_chars(t, (char*)str.ToPointer());
+            Marshal.FreeHGlobal(str);
+            return ret;
+        }
         [DllImport(dllName)] public extern unsafe static int PL_put_chars(term_t* t, int flags, UIntPtr len, char* chars);
         [DllImport(dllName)] public extern unsafe static int PL_put_list_chars(term_t* t, char* chars);
         [DllImport(dllName)] public extern unsafe static int PL_put_list_codes(term_t* t, char* chars);
@@ -413,6 +427,13 @@ namespace PrologEndpoint.Helpers
         [DllImport(dllName)] public extern unsafe static int PL_unify_list_chars(term_t* t, char* chars);
         [DllImport(dllName)] public extern unsafe static int PL_unify_list_codes(term_t* t, char* chars);
         [DllImport(dllName)] public extern unsafe static int PL_unify_string_chars(term_t* t, char* chars);
+        public unsafe static int PL_unify_string_chars(term_t* t, string chars)
+        {
+            IntPtr str = Marshal.StringToHGlobalAnsi(chars);
+            int ret = PL.PL_unify_string_chars(t, (char*)str.ToPointer());
+            Marshal.FreeHGlobal(str);
+            return ret;
+        }
         [DllImport(dllName)] public extern unsafe static int PL_unify_atom_nchars(term_t* t, UIntPtr l, char* s);
         [DllImport(dllName)] public extern unsafe static int PL_unify_list_ncodes(term_t* t, UIntPtr l, char* s);
         [DllImport(dllName)] public extern unsafe static int PL_unify_list_nchars(term_t* t, UIntPtr l, char* s);
