@@ -1,0 +1,13 @@
+<ArrayOfBalanceSheetEntry xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<BalanceSheetEntry AccountName="asset" AccountDebit="0" AccountCredit="1247307.39">
+		<BalanceSheetEntry AccountName="Currency Account - AUD" AccountDebit="29669.14" AccountCredit="0" />
+		<BalanceSheetEntry AccountName="Currency Account - CHF" AccountDebit="0" AccountCredit="240995.5" />
+		<BalanceSheetEntry AccountName="Currency Account - EUR" AccountDebit="0" AccountCredit="47537.759999999995" />
+		<BalanceSheetEntry AccountName="Currency Account - USD" AccountDebit="0" AccountCredit="983957.27" />
+		<BalanceSheetEntry AccountName="Currency Account - GBP" AccountDebit="0" AccountCredit="192" />
+		<BalanceSheetEntry AccountName="Currency Account - NOK" AccountDebit="0" AccountCredit="4294" />
+	</BalanceSheetEntry>
+	<BalanceSheetEntry AccountName="liability" AccountDebit="0" AccountCredit="0" />
+	<BalanceSheetEntry AccountName="retained_earnings" AccountDebit="0" AccountCredit="0" />
+	<BalanceSheetEntry AccountName="equity" AccountDebit="0" AccountCredit="0" />
+</ArrayOfBalanceSheetEntry>

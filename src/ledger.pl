@@ -125,7 +125,7 @@ balance_sheet_entry(Account_Links, Transactions, Account, To_Day, Sheet_Entry) :
 	findall(Child_Sheet_Entry, (account_parent(Account_Links, Child_Account, Account),
 		balance_sheet_entry(Account_Links, Transactions, Child_Account, To_Day, Child_Sheet_Entry)), Child_Sheet_Entries),
 	balance_by_account(Account_Links, Transactions, Account, To_Day, Balance),
-	Sheet_Entry = (Account, Balance, Child_Sheet_Entries).
+	Sheet_Entry = entry(Account, Balance, Child_Sheet_Entries).
 
 balance_sheet_at(Accounts, Transactions, To_Day, Balance_Sheet) :-
 	balance_sheet_entry(Accounts, Transactions, asset, To_Day, Asset_Section),
@@ -141,7 +141,7 @@ trial_balance_entry(Account_Links, Transactions, Account, From_Day, To_Day, Tria
 	findall(Child_Sheet_Entry, (account_parent(Account_Links, Child_Account, Account),
 		trial_balance_entry(Account_Links, Transactions, Child_Account, From_Day, To_Day, Child_Sheet_Entry)), Child_Sheet_Entries),
 	net_activity_by_account(Account_Links, Transactions, Account, From_Day, To_Day, Net_Activity),
-	Trial_Balance_Entry = (Account, Net_Activity, Child_Sheet_Entries).
+	Trial_Balance_Entry = entry(Account, Net_Activity, Child_Sheet_Entries).
 
 trial_balance_between(Accounts, Transactions, From_Day, To_Day, Trial_Balance) :-
 	balance_sheet_entry(Accounts, Transactions, asset, To_Day, Asset_Section),

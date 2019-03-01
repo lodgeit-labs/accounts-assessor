@@ -17,19 +17,101 @@
     <title>Bank Statement</title>
     <period>2010-01-01 - 2010-06-30</period>
     <startDate>2010-01-01</startDate>
-    <endDate>2010-06-30</endDate>
+    <endDate>2018-09-30</endDate>
     <accountDetails>
       <accountNo>1-1110</accountNo>
-      <accountName>Cheque Account - CBA</accountName>
-      <dateofBankStatement>2012-09-28T00:00:00Z</dateofBankStatement>
+      <accountName>Currency Account - AUD</accountName>
+      <dateofBankStatement>2018-09-30T00:00:00Z</dateofBankStatement>
       <currency>AUD</currency>
       <bankID>Commonwealth Bank</bankID>
       <accountBalance>760</accountBalance>
       <transactions>
-        <transaction transdesc="Balance carried forward" transdate="2009-07-01" debit="10" credit="0" unit="1" unitValue="1000" unitDesc="Some investment" valueDate="2009-07-01" />
-        <transaction transdesc="Investment_Made" transdate="2010-04-01" debit="1000" credit="0" unit="1" unitValue="1000" unitDesc="Some investment" valueDate="2010-04-03" />
-        <transaction transdesc="Interest_Earned" transdate="2010-05-01" debit="500" credit="0" unit="1" unitValue="500" unitDesc="Some Interest" valueDate="2010-05-03"/>
-        <transaction transdesc="Loss_onDisposal_of_Investment" transdate="2010-06-01" debit="0" credit="750" unit="1" unitValue="750" unitDesc="Some Loss" valueDate="2010-06-03" />
+        <transaction transdesc="Balance carried forward" transdate="2017-12-31" debit="673.07" credit="0" unit="1" unitValue="1000" unitDesc="Some investment" valueDate="2017-12-31" />
+        <transaction transdesc="All-in-Fee" transdate="2018-09-27" debit="28990.56" credit="0.00" unit="1" unitValue="1000" unitDesc="Some investment" valueDate="2018-09-28" />
+        <transaction transdesc="Interests fro, 30/06/2018 to 30/09/2018" transdate="2018-09-30" debit="5.51" credit="0.00" unit="1" unitValue="500" unitDesc="Some Interest" valueDate="2018-09-30"/>
+      </transactions>
+    </accountDetails>
+    <accountDetails>
+      <accountNo>1-1110</accountNo>
+      <accountName>Currency Account - CHF</accountName>
+      <dateofBankStatement>2018-09-30T00:00:00Z</dateofBankStatement>
+      <currency>CHF</currency>
+      <bankID>Commonwealth Bank</bankID>
+      <accountBalance>760</accountBalance>
+      <transactions>
+        <transaction transdesc="Balance carried forward" transdate="2017-12-31" debit="0" credit="247953.45" unit="1" unitValue="1000" unitDesc="Some investment" valueDate="2017-12-31" />
+        <transaction transdesc="Debit Sinco Treuhand AG Zurich" transdate="2018-07-10" debit="1000.00" credit="0.00" unit="1" unitValue="1000" unitDesc="Some investment" valueDate="2018-07-10" />
+        <transaction transdesc="Funds Transfer Corner Banca S.A" transdate="2018-07-16" debit="1573.85" credit="0.00" unit="1" unitValue="500" unitDesc="Some Interest" valueDate="2018-07-17"/>
+        <transaction transdesc="Purchase 1'500 Leonteq N" transdate="2018-07-19" debit="80876.10" credit="0.00" unit="1" unitValue="750" unitDesc="Some Loss" valueDate="2018-07-23" />
+        <transaction transdesc="Spot exchange EUR 90'408.13 at 1.611400" transdate="2018-07-24" debit="0.00" credit="105000.00" unit="1" unitValue="1000" unitDesc="Some investment" valueDate="2018-07-26" />
+        <transaction transdesc="Subscription 250'000 SMI/SGI 22" transdate="2018-07-27" debit="250000.00" credit="0.00" unit="1" unitValue="500" unitDesc="Some Interest" valueDate="2018-07-31"/>
+        <transaction transdesc="Sale 12 Leonte Bzr 02.08.18" transdate="2018-07-27" debit="0.00" credit="30.75" unit="1" unitValue="750" unitDesc="Some Loss" valueDate="2018-07-30" />
+        <transaction transdesc="Collection 220'000 6.3% BSKT/EFG 21" transdate="2018-07-30" debit="0.00" credit="1155.00" unit="1" unitValue="1000" unitDesc="Some investment" valueDate="2018-07-30" />
+        <transaction transdesc="Redemption 220'000 6.3% BSKT/EFG 21" transdate="2018-07-30" debit="0.00" credit="220000.00" unit="1" unitValue="500" unitDesc="Some Interest" valueDate="2018-07-30"/>
+        <transaction transdesc="Capital increase 279 Leonteq N" transdate="2018-07-31" debit="11578.50" credit="0.00" unit="1" unitValue="750" unitDesc="Some Loss" valueDate="2018-08-03" />
+        <transaction transdesc="Direct debit Corner Banca S.A" transdate="2018-08-15" debit="89.60" credit="0.00" unit="1" unitValue="1000" unitDesc="Some investment" valueDate="2018-08-15" />
+        <transaction transdesc="Sale 1'779 Leonteq N" transdate="2018-09-03" debit="0.00" credit="95282.90" unit="1" unitValue="500" unitDesc="Some Interest" valueDate="2018-09-05"/>
+        <transaction transdesc="Funds Transfer Corner Banca S.A" transdate="2018-09-14" debit="4033.55" credit="0.00" unit="1" unitValue="750" unitDesc="Some Loss" valueDate="2018-09-14" />
+        <transaction transdesc="Spot exchange EUR 70'000.00 at 1.132500" transdate="2018-09-20" debit="79275.00" credit="0.00" unit="1" unitValue="750" unitDesc="Some Loss" valueDate="2018-09-24" />
+      </transactions>
+    </accountDetails>
+    <accountDetails>
+      <accountNo>1-1110</accountNo>
+      <accountName>Currency Account - EUR</accountName>
+      <dateofBankStatement>2018-09-30T00:00:00Z</dateofBankStatement>
+      <currency>EUR</currency>
+      <bankID>Commonwealth Bank</bankID>
+      <accountBalance>760</accountBalance>
+      <transactions>
+        <transaction transdesc="Balance carried forward" transdate="2017-12-31" debit="0" credit="193.89" unit="1" unitValue="1000" unitDesc="Some investment" valueDate="2017-12-31" />
+        <transaction transdesc="Redemption 295'000 SG 18 Nts" transdate="2018-07-10" debit="0.00" credit="295000.00" unit="1" unitValue="1000" unitDesc="Some investment" valueDate="2018-07-10" />
+        <transaction transdesc="Spot exchange CHF 105'000.00 at 1.161400" transdate="2018-07-24" debit="90408.13" credit="0.00" unit="1" unitValue="500" unitDesc="Some Interest" valueDate="2018-07-26"/>
+        <transaction transdesc="Collection EUR 18'000 14% GPG H 19 Anl" transdate="2018-08-22" debit="0.00" credit="2684.50" unit="1" unitValue="750" unitDesc="Some Loss" valueDate="2018-08-22" />
+        <transaction transdesc="Fund transfer Martin O'Carroll" transdate="2018-09-12" debit="100000.00" credit="0.00" unit="1" unitValue="500" unitDesc="Some Interest" valueDate="2018-09-12"/>
+        <transaction transdesc="Purchase 2'000 FESX/RAIN PWt 06.19" transdate="2018-09-19" debit="129928.80" credit="0.00" unit="1" unitValue="750" unitDesc="Some Loss" valueDate="2018-09-21" />
+        <transaction transdesc="Spot exchange CHF 79'275.00 at 1.132500" transdate="2018-09-20" debit="0.00" credit="70000.00" unit="1" unitValue="500" unitDesc="Some Interest" valueDate="2018-09-24"/>
+        <transaction transdesc="Interest from 30.06.18 to 30.09.18" transdate="2018-09-30" debit="3.70" credit="0.00" unit="1" unitValue="750" unitDesc="Some Loss" valueDate="2018-09-30" />
+      </transactions>
+    </accountDetails>
+    <accountDetails>
+      <accountNo>1-1110</accountNo>
+      <accountName>Currency Account - USD</accountName>
+      <dateofBankStatement>2018-09-30T00:00:00Z</dateofBankStatement>
+      <currency>USD</currency>
+      <bankID>Commonwealth Bank</bankID>
+      <accountBalance>760</accountBalance>
+      <transactions>
+        <transaction transdesc="Balance carried forward" transdate="2017-12-31" debit="0" credit="921518.93" unit="1" unitValue="1000" unitDesc="Some investment" valueDate="2017-12-31" />
+        <transaction transdesc="Subscirption 2'085 USDRUB/RAIN PWt07.19" transdate="2018-07-02" debit="41602.84" credit="0.00" unit="1" unitValue="1000" unitDesc="Some investment" valueDate="2018-07-05" />
+        <transaction transdesc="Purchase 25'000 FSEURE/SG 20 Nts" transdate="2018-07-09" debit="24322.50" credit="0.00" unit="1" unitValue="500" unitDesc="Some Interest" valueDate="2018-07-11"/>
+        <transaction transdesc="Sale 4'000 USDJPY/LEONC-Wt02.19" transdate="2018-07-12" debit="0.00" credit="91120.00" unit="1" unitValue="750" unitDesc="Some Loss" valueDate="2018-07-16" />
+        <transaction transdesc="Subscription 16'000 XAGUS/RAIN CWt08.19" transdate="2018-07-30" debit="80320.00" credit="0.00" unit="1" unitValue="1000" unitDesc="Some investment" valueDate="2018-08-06" />
+        <transaction transdesc="Redemption 15'400 SILV/LEON C-WT 07.18" transdate="2018-08-03" debit="0.00" credit="76163.78" unit="1" unitValue="500" unitDesc="Some Interest" valueDate="2018-08-03"/>
+        <transaction transdesc="Collection USD 446'000 SMI/NATX 19" transdate="2018-08-24" debit="0.00" credit="6467.00" unit="1" unitValue="750" unitDesc="Some Loss" valueDate="2018-08-24" />
+        <transaction transdesc="Int.ch.deposit call fiduciary C 000489" transdate="2018-09-27" debit="0.00" credit="4200.00" unit="1" unitValue="500" unitDesc="Some Interest" valueDate="2018-10-01"/>
+        <transaction transdesc="Sale 2'085 USDRUB/RAIN PWt07.19" transdate="2018-09-28" debit="0.00" credit="30732.90" unit="1" unitValue="750" unitDesc="Some Loss" valueDate="2018-10-03" />
+      </transactions>
+    </accountDetails>
+    <accountDetails>
+      <accountNo>1-1110</accountNo>
+      <accountName>Currency Account - GBP</accountName>
+      <dateofBankStatement>2018-09-30T00:00:00Z</dateofBankStatement>
+      <currency>GBP</currency>
+      <bankID>Commonwealth Bank</bankID>
+      <accountBalance>760</accountBalance>
+      <transactions>
+        <transaction transdesc="Balance carried forward" transdate="2017-12-31" debit="0" credit="192" unit="1" unitValue="1000" unitDesc="Some investment" valueDate="2017-12-31" />
+      </transactions>
+    </accountDetails>
+    <accountDetails>
+      <accountNo>1-1110</accountNo>
+      <accountName>Currency Account - NOK</accountName>
+      <dateofBankStatement>2018-09-30T00:00:00Z</dateofBankStatement>
+      <currency>NOK</currency>
+      <bankID>Commonwealth Bank</bankID>
+      <accountBalance>760</accountBalance>
+      <transactions>
+        <transaction transdesc="Balance carried forward" transdate="2017-12-31" debit="0" credit="4294.00" unit="1" unitValue="1000" unitDesc="Some investment" valueDate="2017-12-31" />
       </transactions>
     </accountDetails>
   </bankStatement>
