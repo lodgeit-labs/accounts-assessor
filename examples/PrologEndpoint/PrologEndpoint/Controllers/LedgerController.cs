@@ -177,15 +177,17 @@ namespace PrologEndpoint.Controllers
             term_t* balance_sheet_term = PL.PL_new_term_ref();
 
             // Query for the balance_sheet_entrys.
-            predicate_t* balance_sheet_at_pred = PL.PL_predicate(BALANCE_SHEET_AT, 4, null);
-            term_t* balance_sheet_at_pred_arg0 = PL.PL_new_term_refs(4);
+            predicate_t* balance_sheet_at_pred = PL.PL_predicate(BALANCE_SHEET_AT, 5, null);
+            term_t* balance_sheet_at_pred_arg0 = PL.PL_new_term_refs(5);
             PL.PL_put_term(balance_sheet_at_pred_arg0, ConstructAccountLinks(accountLinks));
             term_t* balance_sheet_at_pred_arg1 = (term_t*)(1 + (byte*)balance_sheet_at_pred_arg0);
             PL.PL_put_term(balance_sheet_at_pred_arg1, ConstructTransactions(transactions));
             term_t* balance_sheet_at_pred_arg2 = (term_t*)(2 + (byte*)balance_sheet_at_pred_arg0);
-            PL.PL_put_integer(balance_sheet_at_pred_arg2, Date.ComputeAbsoluteDay(endDate));
+            PL.PL_put_integer(balance_sheet_at_pred_arg2, Date.ComputeAbsoluteDay(startDate));
             term_t* balance_sheet_at_pred_arg3 = (term_t*)(3 + (byte*)balance_sheet_at_pred_arg0);
-            PL.PL_put_term(balance_sheet_at_pred_arg3, balance_sheet_term);
+            PL.PL_put_integer(balance_sheet_at_pred_arg3, Date.ComputeAbsoluteDay(endDate));
+            term_t* balance_sheet_at_pred_arg4 = (term_t*)(4 + (byte*)balance_sheet_at_pred_arg0);
+            PL.PL_put_term(balance_sheet_at_pred_arg4, balance_sheet_term);
             qid_t* qid = PL.PL_open_query(null, PL.PL_Q_NORMAL, balance_sheet_at_pred, balance_sheet_at_pred_arg0);
             PL.PL_next_solution(qid);
 
