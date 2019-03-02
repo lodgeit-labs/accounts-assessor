@@ -8,6 +8,9 @@
 		<balance_sheet_entry account_name="Currency Account - NOK" account_debit="0" account_credit="4294" />
 	</balance_sheet_entry>
 	<balance_sheet_entry account_name="liability" account_debit="0" account_credit="0" />
-	<balance_sheet_entry account_name="retained_earnings" account_debit="0" account_credit="0" />
+	<balance_sheet_entry account_name="earnings" account_debit="0" account_credit="0">
+		<balance_sheet_entry account_name="retained_earnings" account_debit="0" account_credit="0" />
+		<balance_sheet_entry account_name="current_earnings" account_debit="0" account_credit="0" />
+	</balance_sheet_entry>
 	<balance_sheet_entry account_name="equity" account_debit="0" account_credit="0" />
 </balance_sheet>
