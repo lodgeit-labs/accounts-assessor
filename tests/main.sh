@@ -6,6 +6,6 @@
 # script.
 
 cat tests/loans.pl | swipl -s src/main.pl
-cat tests/transactions.pl | swipl -s src/main.pl
+cat tests/ledger.pl | swipl -s src/main.pl
 cat tests/hirepurchase.pl | swipl -s src/main.pl
 

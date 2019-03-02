@@ -132,7 +132,7 @@ balance_sheet_at(Accounts, Transactions, To_Day, Balance_Sheet) :-
 	balance_sheet_entry(Accounts, Transactions, equity, To_Day, Equity_Section),
 	balance_sheet_entry(Accounts, Transactions, liability, To_Day, Liability_Section),
 	balance_by_account(Accounts, Transactions, earnings, To_Day, Retained_Earnings),
-	Balance_Sheet = [Asset_Section, Liability_Section, (retained_earnings, Retained_Earnings, []),
+	Balance_Sheet = [Asset_Section, Liability_Section, entry(retained_earnings, Retained_Earnings, []),
 		Equity_Section].
 
 % Now for trial balance predicates.
@@ -150,7 +150,7 @@ trial_balance_between(Accounts, Transactions, From_Day, To_Day, Trial_Balance) :
 	trial_balance_entry(Accounts, Transactions, revenue, From_Day, To_Day, Revenue_Section),
 	trial_balance_entry(Accounts, Transactions, expense, From_Day, To_Day, Expense_Section),
 	balance_by_account(Accounts, Transactions, earnings, From_Day, Retained_Earnings),
-	Trial_Balance = [Asset_Section, Liability_Section, (retained_earnings, Retained_Earnings, []),
+	Trial_Balance = [Asset_Section, Liability_Section, entry(retained_earnings, Retained_Earnings, []),
 		Equity_Section, Revenue_Section, Expense_Section].
 
 % Now for movement predicates.
