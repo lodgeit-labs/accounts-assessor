@@ -127,12 +127,16 @@ balance_sheet_entry(Account_Links, Transactions, Account, To_Day, Sheet_Entry) :
 	balance_by_account(Account_Links, Transactions, Account, To_Day, Balance),
 	Sheet_Entry = entry(Account, Balance, Child_Sheet_Entries).
 
-balance_sheet_at(Accounts, Transactions, To_Day, Balance_Sheet) :-
+balance_sheet_at(Accounts, Transactions, From_Day, To_Day, Balance_Sheet) :-
 	balance_sheet_entry(Accounts, Transactions, asset, To_Day, Asset_Section),
 	balance_sheet_entry(Accounts, Transactions, equity, To_Day, Equity_Section),
 	balance_sheet_entry(Accounts, Transactions, liability, To_Day, Liability_Section),
-	balance_by_account(Accounts, Transactions, earnings, To_Day, Retained_Earnings),
-	Balance_Sheet = [Asset_Section, Liability_Section, entry(retained_earnings, Retained_Earnings, []),
+	balance_by_account(Accounts, Transactions, earnings, From_Day, Retained_Earnings),
+	net_activity_by_account(Accounts, Transactions, earnings, From_Day, To_Day, Current_Earnings),
+	pac_add(Retained_Earnings, Current_Earnings, Earnings),
+	pac_reduce(Earnings, Earnings_Reduced),
+	Balance_Sheet = [Asset_Section, Liability_Section, entry(earnings, Earnings_Reduced,
+		[entry(retained_earnings, Retained_Earnings, []), entry(current_earnings, Current_Earnings, [])]),
 		Equity_Section].
 
 % Now for trial balance predicates.
