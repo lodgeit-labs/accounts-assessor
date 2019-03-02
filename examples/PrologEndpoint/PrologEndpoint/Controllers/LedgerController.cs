@@ -6,6 +6,7 @@ using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Xml;
+using System.Xml.Serialization;
 using static PrologEndpoint.Helpers.PL;
 
 namespace PrologEndpoint.Controllers
@@ -42,7 +43,7 @@ namespace PrologEndpoint.Controllers
             atom_t* transaction_atom = PL.PL_new_atom(TRANSACTION);
             functor_t* transaction_functor = PL.PL_new_functor(transaction_atom, 4);
             term_t* day_term = PL.PL_new_term_ref();
-            PL.PL_put_integer(day_term, Date.ComputeAbsoluteDay(trans.Date));
+            PL.PL_put_integer(day_term, Date.ComputeAbsoluteDay(trans.Datetime));
             term_t* t_term_term = ConstructTTerm(trans.Debit, trans.Credit);
             term_t* description_term = PL.PL_new_term_ref();
             PL.PL_put_atom_chars(description_term, trans.Description);
@@ -104,14 +105,14 @@ namespace PrologEndpoint.Controllers
         private List<Transaction> ParseTransactions(XmlDocument doc)
         {
             List<Transaction> transactions = new List<Transaction>();
-            foreach (XmlNode n in doc.SelectNodes("/reports/bankStatement/accountDetails"))
+            foreach (XmlNode n in doc.SelectNodes("/reports/bank_statement/account_details"))
             {
-                String account = n.SelectSingleNode("accountName/text()").Value;
+                String account = n.SelectSingleNode("account_name/text()").Value;
                 foreach (XmlNode m in n.SelectNodes("transactions/transaction"))
                 {
                     Transaction t = new Transaction();
-                    t.Description = m.Attributes.GetNamedItem("transdesc").Value;
-                    t.Date = DateTime.Parse(m.Attributes.GetNamedItem("transdate").Value);
+                    t.Description = m.Attributes.GetNamedItem("transaction_description").Value;
+                    t.Datetime = DateTime.Parse(m.Attributes.GetNamedItem("transaction_datetime").Value);
                     t.Account = account;
                     t.Debit = Double.Parse(m.Attributes.GetNamedItem("debit").Value);
                     t.Credit = Double.Parse(m.Attributes.GetNamedItem("credit").Value);
@@ -124,11 +125,11 @@ namespace PrologEndpoint.Controllers
         private List<AccountLink> ParseAccountLinks(XmlDocument doc)
         {
             List<AccountLink> account_links = new List<AccountLink>();
-            foreach (XmlNode n in doc.SelectNodes("/reports/bankStatement/accountDetails"))
+            foreach (XmlNode n in doc.SelectNodes("/reports/bank_statement/account_details"))
             {
                 AccountLink al = new AccountLink();
                 al.superaccount = "asset";
-                al.subaccount = n.SelectSingleNode("accountName/text()").Value;
+                al.subaccount = n.SelectSingleNode("account_name/text()").Value;
                 account_links.Add(al);
             }
             return account_links;
@@ -169,7 +170,7 @@ namespace PrologEndpoint.Controllers
             return bse;
         }
 
-        private unsafe List<BalanceSheetEntry> GetBalanceSheet(List<AccountLink> accountLinks, List<Transaction> transactions, DateTime date)
+        private unsafe List<BalanceSheetEntry> GetBalanceSheet(List<AccountLink> accountLinks, List<Transaction> transactions, DateTime startDate, DateTime endDate)
         {
             fid_t* fid = PL.PL_open_foreign_frame();
             
@@ -182,7 +183,7 @@ namespace PrologEndpoint.Controllers
             term_t* balance_sheet_at_pred_arg1 = (term_t*)(1 + (byte*)balance_sheet_at_pred_arg0);
             PL.PL_put_term(balance_sheet_at_pred_arg1, ConstructTransactions(transactions));
             term_t* balance_sheet_at_pred_arg2 = (term_t*)(2 + (byte*)balance_sheet_at_pred_arg0);
-            PL.PL_put_integer(balance_sheet_at_pred_arg2, Date.ComputeAbsoluteDay(date));
+            PL.PL_put_integer(balance_sheet_at_pred_arg2, Date.ComputeAbsoluteDay(endDate));
             term_t* balance_sheet_at_pred_arg3 = (term_t*)(3 + (byte*)balance_sheet_at_pred_arg0);
             PL.PL_put_term(balance_sheet_at_pred_arg3, balance_sheet_term);
             qid_t* qid = PL.PL_open_query(null, PL.PL_Q_NORMAL, balance_sheet_at_pred, balance_sheet_at_pred_arg0);
@@ -203,18 +204,26 @@ namespace PrologEndpoint.Controllers
 
         // POST api/<controller>
         [HttpPost]
-        public async Task<List<BalanceSheetEntry>> Post()
+        public async Task<BalanceSheet> Post()
         {
             var stream = await Request.Content.ReadAsStreamAsync();
             XmlDocument doc = new XmlDocument();
             doc.Load(stream);
             List<Transaction> transactions = ParseTransactions(doc);
             List<AccountLink> accountLinks = ParseAccountLinks(doc);
-            DateTime balanceSheetDate = DateTime.Parse(doc.SelectSingleNode("/reports/bankStatement/endDate/text()").Value);
+            DateTime balanceSheetStartDate = DateTime.Parse(doc.SelectSingleNode("/reports/bank_statement/start_datetime/text()").Value);
+            DateTime balanceSheetEndDate = DateTime.Parse(doc.SelectSingleNode("/reports/bank_statement/end_datetime/text()").Value);
             WebApiApplication.ObtainEngine();
-            List<BalanceSheetEntry> balanceSheet = GetBalanceSheet(accountLinks, transactions, balanceSheetDate);
+            BalanceSheet balanceSheet = new BalanceSheet() { balanceSheet = GetBalanceSheet(accountLinks, transactions, balanceSheetStartDate, balanceSheetEndDate) };
             WebApiApplication.ReleaseEngine();
             return balanceSheet;
+        }
+
+        [XmlRoot("balance_sheet")]
+        public class BalanceSheet
+        {
+            [XmlElement("balance_sheet_entry")]
+            public List<BalanceSheetEntry> balanceSheet;
         }
     }
 }

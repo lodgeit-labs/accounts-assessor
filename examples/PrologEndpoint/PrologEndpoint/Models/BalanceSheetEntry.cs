@@ -8,13 +8,13 @@ namespace PrologEndpoint.Models
 {
     public class BalanceSheetEntry
     {
-        [XmlAttribute]
+        [XmlAttribute("account_name")]
         public String AccountName { get; set; }
-        [XmlAttribute]
+        [XmlAttribute("account_debit")]
         public double AccountDebit { get; set; }
-        [XmlAttribute]
+        [XmlAttribute("account_credit")]
         public double AccountCredit { get; set; }
-        [XmlElement("BalanceSheetEntry")]
+        [XmlElement("balance_sheet_entry")]
         public List<BalanceSheetEntry> Subentries { get; set; }
     }
 }
