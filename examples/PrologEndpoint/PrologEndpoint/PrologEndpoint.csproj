@@ -176,6 +176,7 @@
     <Compile Include="Helpers\PL.cs" />
     <Compile Include="Models\AccountLink.cs" />
     <Compile Include="Models\BalanceSheetEntry.cs" />
+    <Compile Include="Models\Coordinate.cs" />
     <Compile Include="Models\LoanAgreement.cs" />
     <Compile Include="Models\LoanRepayment.cs" />
     <Compile Include="Models\LoanSummary.cs" />

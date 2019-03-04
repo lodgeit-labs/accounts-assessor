@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace PrologEndpoint.Models
 {
@@ -7,7 +8,6 @@ namespace PrologEndpoint.Models
         public DateTime Datetime { get; set; }
         public String Description { get; set; }
         public String Account { get; set; }
-        public double Debit { get; set; }
-        public double Credit { get; set; }
+        public List<Coordinate> Vector { get; set; }
     }
 }

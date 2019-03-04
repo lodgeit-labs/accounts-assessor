@@ -224,7 +224,7 @@ namespace PrologEndpoint.Helpers
 
         [DllImport(dllName)] public extern unsafe static void PL_register_extensions(PL_extension* e);
         [DllImport(dllName)] public extern unsafe static void PL_register_extensions_in_module(char* module, PL_extension* e);
-        [DllImport(dllName)] public extern unsafe static int PL_register_foreign(char* name, int arity, pl_function_t func, int flags, __arglist);
+        [DllImport(dllName)] public extern unsafe static int PL_register_foreign(char* name, int arity, pl_function_t *func, int flags, __arglist);
         [DllImport(dllName)] public extern unsafe static int PL_register_foreign_in_module(char* module, char* name, int arity, pl_function_t* func, int flags, __arglist);
         [DllImport(dllName)] public extern unsafe static void PL_load_extensions(PL_extension* e);
 

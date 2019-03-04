@@ -20,19 +20,37 @@ namespace PrologEndpoint.Controllers
         private unsafe readonly char* BALANCE_SHEET_AT = (char*)Marshal.StringToHGlobalAnsi("balance_sheet_at");
 
         /* Turns the LoanRepayment object into loan_repayment term. */
-        private unsafe term_t* ConstructTTerm(double debit, double credit)
+        private unsafe term_t* ConstructCoordinate(Coordinate c)
         {
             // Constructing the term loan_repayment(loan_rep.Day, loan_rep.Amount)
             // where absolute_day(loan_rep.Date, loan_rep.Day).
             atom_t* t_term_atom = PL.PL_new_atom(T_TERM);
-            functor_t* t_term_functor = PL.PL_new_functor(t_term_atom, 2);
+            functor_t* t_term_functor = PL.PL_new_functor(t_term_atom, 3);
+            term_t* unit_term = PL.PL_new_term_ref();
+            PL.PL_put_atom_chars(unit_term, c.Unit.ToLower());
             term_t* debit_term = PL.PL_new_term_ref();
-            PL.PL_put_float(debit_term, debit);
+            PL.PL_put_float(debit_term, c.Debit);
             term_t* credit_term = PL.PL_new_term_ref();
-            PL.PL_put_float(credit_term, credit);
+            PL.PL_put_float(credit_term, c.Credit);
             term_t* t_term_term = PL.PL_new_term_ref();
-            PL.PL_cons_functor(t_term_term, t_term_functor, __arglist(debit_term, credit_term));
+            PL.PL_cons_functor(t_term_term, t_term_functor, __arglist(unit_term, debit_term, credit_term));
             return t_term_term;
+        }
+
+        /* Turns the array of Coordinates into a Prolog list of coordinates. */
+        private unsafe term_t* ConstructVector(List<Coordinate> vector)
+        {
+            term_t* vector_term = PL.PL_new_term_ref();
+            PL.PL_put_nil(vector_term);
+            // We go backwards through the array because Prolog lists are constructed by consing.
+            for (int i = vector.Count - 1; i >= 0; i--)
+            {
+                // Constructing term [Coordinate | Vector] where
+                // Coordinate is the Prolog term corresponding to vector[i] and
+                // Vector is the list constructed so far.
+                PL.PL_cons_list(vector_term, ConstructCoordinate(vector[i]), vector_term);
+            }
+            return vector_term;
         }
 
         /* Turns the LoanRepayment object into loan_repayment term. */
@@ -44,7 +62,7 @@ namespace PrologEndpoint.Controllers
             functor_t* transaction_functor = PL.PL_new_functor(transaction_atom, 4);
             term_t* day_term = PL.PL_new_term_ref();
             PL.PL_put_integer(day_term, Date.ComputeAbsoluteDay(trans.Datetime));
-            term_t* t_term_term = ConstructTTerm(trans.Debit, trans.Credit);
+            term_t* t_term_term = ConstructVector(trans.Vector);
             term_t* description_term = PL.PL_new_term_ref();
             PL.PL_put_atom_chars(description_term, trans.Description);
             term_t* account_term = PL.PL_new_term_ref();
@@ -102,6 +120,24 @@ namespace PrologEndpoint.Controllers
             return account_links_term;
         }
 
+        /* Turns the array of Transactions into a Prolog list of transaction terms. */
+        private unsafe term_t* ConstructBases(List<String> bases)
+        {
+            term_t* bases_term = PL.PL_new_term_ref();
+            PL.PL_put_nil(bases_term);
+            // We go backwards through the array because Prolog lists are constructed by consing.
+            for (int i = bases.Count - 1; i >= 0; i--)
+            {
+                // Constructing term [Basis | Bases] where
+                // Basis is the Prolog term corresponding to bases[i] and
+                // Bases is the list constructed so far.
+                PL.term_t *basis_term = PL.PL_new_term_ref();
+                PL.PL_put_atom_chars(basis_term, bases[i]);
+                PL.PL_cons_list(bases_term, basis_term, bases_term);
+            }
+            return bases_term;
+        }
+
         private List<Transaction> ParseTransactions(XmlDocument doc)
         {
             List<Transaction> transactions = new List<Transaction>();
@@ -114,8 +150,15 @@ namespace PrologEndpoint.Controllers
                     t.Description = m.Attributes.GetNamedItem("transaction_description").Value;
                     t.Datetime = DateTime.Parse(m.Attributes.GetNamedItem("transaction_datetime").Value);
                     t.Account = account;
-                    t.Debit = Double.Parse(m.Attributes.GetNamedItem("debit").Value);
-                    t.Credit = Double.Parse(m.Attributes.GetNamedItem("credit").Value);
+                    t.Vector = new List<Coordinate>();
+                    foreach (XmlNode p in m.SelectNodes("coordinate"))
+                    {
+                        Coordinate c = new Coordinate();
+                        c.Unit = p.Attributes.GetNamedItem("unit").Value;
+                        c.Debit = Double.Parse(p.Attributes.GetNamedItem("debit").Value);
+                        c.Credit = Double.Parse(p.Attributes.GetNamedItem("credit").Value);
+                        t.Vector.Add(c);
+                    }
                     transactions.Add(t);
                 }
             }
@@ -135,32 +178,60 @@ namespace PrologEndpoint.Controllers
             return account_links;
         }
 
+        private List<String> ParseBases(XmlDocument doc)
+        {
+            List<String> bases = new List<String>();
+            foreach (XmlNode n in doc.SelectNodes("/reports/bank_statement/bases/basis"))
+            {
+                bases.Add(n.InnerText);
+            }
+            return bases;
+        }
+
+        private unsafe List<Coordinate> GetVector(term_t* vector_term)
+        {
+            List<Coordinate> vector = new List<Coordinate>();
+            term_t* head_term = PL.PL_new_term_ref();
+            while (PL.PL_get_list(vector_term, head_term, vector_term) == PL.TRUE)
+            {
+                term_t* unit_term = PL.PL_new_term_ref();
+                term_t* debit_term = PL.PL_new_term_ref();
+                term_t* credit_term = PL.PL_new_term_ref();
+
+                PL.PL_get_arg(1, head_term, unit_term);
+                PL.PL_get_arg(2, head_term, debit_term);
+                PL.PL_get_arg(3, head_term, credit_term);
+
+                Coordinate c = new Coordinate();
+                char* unit;
+                PL.PL_get_atom_chars(unit_term, &unit);
+                c.Unit = Marshal.PtrToStringAnsi(new IntPtr(unit));
+                double debit;
+                PL.PL_get_float(debit_term, &debit);
+                c.Debit = debit;
+                double credit;
+                PL.PL_get_float(credit_term, &credit);
+                c.Credit = credit;
+                vector.Add(c);
+            }
+            return vector;
+        }
+
         private unsafe BalanceSheetEntry GetBalanceSheetEntry(term_t *entry_term)
         {
             term_t* account_term = PL.PL_new_term_ref();
-            term_t* balance_term = PL.PL_new_term_ref();
+            term_t* vector_term = PL.PL_new_term_ref();
             term_t* children_term = PL.PL_new_term_ref();
 
             PL.PL_get_arg(1, entry_term, account_term);
-            PL.PL_get_arg(2, entry_term, balance_term);
+            PL.PL_get_arg(2, entry_term, vector_term);
             PL.PL_get_arg(3, entry_term, children_term);
-
-            term_t* debit_term = PL.PL_new_term_ref();
-            term_t* credit_term = PL.PL_new_term_ref();
-
-            PL.PL_get_arg(1, balance_term, debit_term);
-            PL.PL_get_arg(2, balance_term, credit_term);
 
             BalanceSheetEntry bse = new BalanceSheetEntry();
             char* account;
             PL.PL_get_atom_chars(account_term, &account);
             bse.AccountName = Marshal.PtrToStringAnsi(new IntPtr(account));
-            double debit;
-            PL.PL_get_float(debit_term, &debit);
-            bse.AccountDebit = debit;
-            double credit;
-            PL.PL_get_float(credit_term, &credit);
-            bse.AccountCredit = credit;
+            bse.AccountVector = GetVector(vector_term);
             bse.Subentries = new List<BalanceSheetEntry>();
             term_t* head_term = PL.PL_new_term_ref();
             while (PL.PL_get_list(children_term, head_term, children_term) == PL.TRUE)
@@ -170,24 +241,28 @@ namespace PrologEndpoint.Controllers
             return bse;
         }
 
-        private unsafe List<BalanceSheetEntry> GetBalanceSheet(List<AccountLink> accountLinks, List<Transaction> transactions, DateTime startDate, DateTime endDate)
+        private unsafe List<BalanceSheetEntry> GetBalanceSheet(List<AccountLink> accountLinks, List<Transaction> transactions, List<String> bases, DateTime exchangeDate, DateTime startDate, DateTime endDate)
         {
             fid_t* fid = PL.PL_open_foreign_frame();
             
             term_t* balance_sheet_term = PL.PL_new_term_ref();
 
             // Query for the balance_sheet_entrys.
-            predicate_t* balance_sheet_at_pred = PL.PL_predicate(BALANCE_SHEET_AT, 5, null);
-            term_t* balance_sheet_at_pred_arg0 = PL.PL_new_term_refs(5);
+            predicate_t* balance_sheet_at_pred = PL.PL_predicate(BALANCE_SHEET_AT, 7, null);
+            term_t* balance_sheet_at_pred_arg0 = PL.PL_new_term_refs(7);
             PL.PL_put_term(balance_sheet_at_pred_arg0, ConstructAccountLinks(accountLinks));
             term_t* balance_sheet_at_pred_arg1 = (term_t*)(1 + (byte*)balance_sheet_at_pred_arg0);
             PL.PL_put_term(balance_sheet_at_pred_arg1, ConstructTransactions(transactions));
             term_t* balance_sheet_at_pred_arg2 = (term_t*)(2 + (byte*)balance_sheet_at_pred_arg0);
-            PL.PL_put_integer(balance_sheet_at_pred_arg2, Date.ComputeAbsoluteDay(startDate));
+            PL.PL_put_term(balance_sheet_at_pred_arg2, ConstructBases(bases));
             term_t* balance_sheet_at_pred_arg3 = (term_t*)(3 + (byte*)balance_sheet_at_pred_arg0);
-            PL.PL_put_integer(balance_sheet_at_pred_arg3, Date.ComputeAbsoluteDay(endDate));
+            PL.PL_put_integer(balance_sheet_at_pred_arg3, Date.ComputeAbsoluteDay(exchangeDate));
             term_t* balance_sheet_at_pred_arg4 = (term_t*)(4 + (byte*)balance_sheet_at_pred_arg0);
-            PL.PL_put_term(balance_sheet_at_pred_arg4, balance_sheet_term);
+            PL.PL_put_integer(balance_sheet_at_pred_arg4, Date.ComputeAbsoluteDay(startDate));
+            term_t* balance_sheet_at_pred_arg5 = (term_t*)(5 + (byte*)balance_sheet_at_pred_arg0);
+            PL.PL_put_integer(balance_sheet_at_pred_arg5, Date.ComputeAbsoluteDay(endDate));
+            term_t* balance_sheet_at_pred_arg6 = (term_t*)(6 + (byte*)balance_sheet_at_pred_arg0);
+            PL.PL_put_term(balance_sheet_at_pred_arg6, balance_sheet_term);
             qid_t* qid = PL.PL_open_query(null, PL.PL_Q_NORMAL, balance_sheet_at_pred, balance_sheet_at_pred_arg0);
             PL.PL_next_solution(qid);
 
@@ -213,10 +288,12 @@ namespace PrologEndpoint.Controllers
             doc.Load(stream);
             List<Transaction> transactions = ParseTransactions(doc);
             List<AccountLink> accountLinks = ParseAccountLinks(doc);
+            List<String> bases = ParseBases(doc);
             DateTime balanceSheetStartDate = DateTime.Parse(doc.SelectSingleNode("/reports/bank_statement/start_datetime/text()").Value);
             DateTime balanceSheetEndDate = DateTime.Parse(doc.SelectSingleNode("/reports/bank_statement/end_datetime/text()").Value);
+            DateTime exchangeDate = DateTime.Parse(doc.SelectSingleNode("/reports/bank_statement/exchange_datetime/text()").Value);
             WebApiApplication.ObtainEngine();
-            BalanceSheet balanceSheet = new BalanceSheet() { balanceSheet = GetBalanceSheet(accountLinks, transactions, balanceSheetStartDate, balanceSheetEndDate) };
+            BalanceSheet balanceSheet = new BalanceSheet() { balanceSheet = GetBalanceSheet(accountLinks, transactions, bases, exchangeDate, balanceSheetStartDate, balanceSheetEndDate) };
             WebApiApplication.ReleaseEngine();
             return balanceSheet;
         }

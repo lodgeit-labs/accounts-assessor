@@ -10,10 +10,8 @@ namespace PrologEndpoint.Models
     {
         [XmlAttribute("account_name")]
         public String AccountName { get; set; }
-        [XmlAttribute("account_debit")]
-        public double AccountDebit { get; set; }
-        [XmlAttribute("account_credit")]
-        public double AccountCredit { get; set; }
+        [XmlElement("coordinate")]
+        public List<Coordinate> AccountVector { get; set; }
         [XmlElement("balance_sheet_entry")]
         public List<BalanceSheetEntry> Subentries { get; set; }
     }
