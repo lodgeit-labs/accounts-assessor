@@ -18,7 +18,10 @@
     <period>2010-01-01 - 2010-06-30</period>
     <start_datetime>2017-12-31T23:59:59Z</start_datetime>
     <end_datetime>2018-09-30T23:59:59Z</end_datetime>
+	<!-- Date at which all the assets and liabilities should be converted into bases units. -->
 	<exchange_datetime>2018-09-30T23:59:59Z</exchange_datetime>
+	<!-- The list of units that all the assets and liabilities should be converted into. In the case
+	that this list is empty, the program makes no attempt at consolidating the different units. -->
 	<bases>
 		<basis>AUD</basis>
 	</bases>
@@ -28,6 +31,7 @@
       <dateof_bank_statement>2018-09-30T00:00:00Z</dateof_bank_statement>
       <bank_id>Commonwealth Bank</bank_id>
       <transactions>
+		<!-- The kind of item being transacted is specified by the coordinates within a transaction. -->
         <transaction transaction_description="Balance carried forward" transaction_datetime="2017-12-31T23:59:59Z" value_date="2017-12-31"><coordinate debit="673.07" credit="0" unit="AUD" /></transaction>
         <transaction transaction_description="All-in-Fee" transaction_datetime="2018-09-27T23:59:59Z" value_date="2018-09-28"><coordinate debit="28990.56" credit="0.00" unit="AUD" /></transaction>
         <transaction transaction_description="Interests fro, 30/06/2018 to 30/09/2018" transaction_datetime="2018-09-30T23:59:59Z" value_date="2018-09-30"><coordinate debit="5.51" credit="0.00" unit="AUD" /></transaction>

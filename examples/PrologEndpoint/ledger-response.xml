@@ -1,6 +1,9 @@
 <balance_sheet xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<balance_sheet_entry account_name="asset">
+		<!-- A coordinate tag specifies how much of one type of thing there is in an account. Multiple coordinate
+		tags could be used, for example, to represent the state of a multi-currency account. -->
 		<coordinate unit="AUD" debit="0" credit="1749518.718123337" />
+		<!-- The following tags specify the state of this account's subaccounts. -->
 		<balance_sheet_entry account_name="Currency Account - AUD"><coordinate unit="AUD" debit="29669.14" credit="0" /></balance_sheet_entry>
 		<balance_sheet_entry account_name="Currency Account - CHF"><coordinate unit="AUD" debit="0" credit="339302.40800165856" /></balance_sheet_entry>
 		<balance_sheet_entry account_name="Currency Account - EUR"><coordinate unit="AUD" debit="0" credit="76393.180319999985" /></balance_sheet_entry>
