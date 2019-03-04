@@ -1,16 +1,17 @@
 <balance_sheet xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-	<balance_sheet_entry account_name="asset" account_debit="0" account_credit="1247307.39">
-		<balance_sheet_entry account_name="Currency Account - AUD" account_debit="29669.14" account_credit="0" />
-		<balance_sheet_entry account_name="Currency Account - CHF" account_debit="0" account_credit="240995.5" />
-		<balance_sheet_entry account_name="Currency Account - EUR" account_debit="0" account_credit="47537.759999999995" />
-		<balance_sheet_entry account_name="Currency Account - USD" account_debit="0" account_credit="983957.27" />
-		<balance_sheet_entry account_name="Currency Account - GBP" account_debit="0" account_credit="192" />
-		<balance_sheet_entry account_name="Currency Account - NOK" account_debit="0" account_credit="4294" />
+	<balance_sheet_entry account_name="asset">
+		<coordinate unit="AUD" debit="0" credit="1749518.718123337" />
+		<balance_sheet_entry account_name="Currency Account - AUD"><coordinate unit="AUD" debit="29669.14" credit="0" /></balance_sheet_entry>
+		<balance_sheet_entry account_name="Currency Account - CHF"><coordinate unit="AUD" debit="0" credit="339302.40800165856" /></balance_sheet_entry>
+		<balance_sheet_entry account_name="Currency Account - EUR"><coordinate unit="AUD" debit="0" credit="76393.180319999985" /></balance_sheet_entry>
+		<balance_sheet_entry account_name="Currency Account - USD"><coordinate unit="AUD" debit="0" credit="1362415.4169717957" /></balance_sheet_entry>
+		<balance_sheet_entry account_name="Currency Account - GBP"><coordinate unit="AUD" debit="0" credit="346.375087008" /></balance_sheet_entry>
+		<balance_sheet_entry account_name="Currency Account - NOK"><coordinate unit="AUD" debit="0" credit="730.4777428746" /></balance_sheet_entry>
 	</balance_sheet_entry>
-	<balance_sheet_entry account_name="liability" account_debit="0" account_credit="0" />
-	<balance_sheet_entry account_name="earnings" account_debit="0" account_credit="0">
-		<balance_sheet_entry account_name="retained_earnings" account_debit="0" account_credit="0" />
-		<balance_sheet_entry account_name="current_earnings" account_debit="0" account_credit="0" />
+	<balance_sheet_entry account_name="liability" />
+	<balance_sheet_entry account_name="earnings">
+		<balance_sheet_entry account_name="retained_earnings" />
+		<balance_sheet_entry account_name="current_earnings" />
 	</balance_sheet_entry>
-	<balance_sheet_entry account_name="equity" account_debit="0" account_credit="0" />
+	<balance_sheet_entry account_name="equity" />
 </balance_sheet>

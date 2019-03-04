@@ -18,6 +18,10 @@
     <period>2010-01-01 - 2010-06-30</period>
     <start_datetime>2017-12-31T23:59:59Z</start_datetime>
     <end_datetime>2018-09-30T23:59:59Z</end_datetime>
+	<exchange_datetime>2018-09-30T23:59:59Z</exchange_datetime>
+	<bases>
+		<basis>AUD</basis>
+	</bases>
     <account_details>
       <account_no>1-1110</account_no>
       <account_name>Currency Account - AUD</account_name>
@@ -25,9 +29,9 @@
       <currency>AUD</currency>
       <bank_id>Commonwealth Bank</bank_id>
       <transactions>
-        <transaction transaction_description="Balance carried forward" transaction_datetime="2017-12-31T23:59:59Z" debit="673.07" credit="0" unit="1" unit_value="1000" unit_desc="Some investment" value_date="2017-12-31" />
-        <transaction transaction_description="All-in-Fee" transaction_datetime="2018-09-27T23:59:59Z" debit="28990.56" credit="0.00" unit="1" unit_value="1000" unit_desc="Some investment" value_date="2018-09-28" />
-        <transaction transaction_description="Interests fro, 30/06/2018 to 30/09/2018" transaction_datetime="2018-09-30T23:59:59Z" debit="5.51" credit="0.00" unit="1" unit_value="500" unit_desc="Some Interest" value_date="2018-09-30"/>
+        <transaction transaction_description="Balance carried forward" transaction_datetime="2017-12-31T23:59:59Z" unit="1" unit_value="1000" unit_desc="Some investment" value_date="2017-12-31"><coordinate debit="673.07" credit="0" unit="AUD" /></transaction>
+        <transaction transaction_description="All-in-Fee" transaction_datetime="2018-09-27T23:59:59Z" unit="1" unit_value="1000" unit_desc="Some investment" value_date="2018-09-28"><coordinate debit="28990.56" credit="0.00" unit="AUD" /></transaction>
+        <transaction transaction_description="Interests fro, 30/06/2018 to 30/09/2018" transaction_datetime="2018-09-30T23:59:59Z" unit="1" unit_value="500" unit_desc="Some Interest" value_date="2018-09-30"><coordinate debit="5.51" credit="0.00" unit="AUD" /></transaction>
       </transactions>
     </account_details>
     <account_details>
@@ -37,20 +41,20 @@
       <currency>CHF</currency>
       <bank_id>Commonwealth Bank</bank_id>
       <transactions>
-        <transaction transaction_description="Balance carried forward" transaction_datetime="2017-12-31T23:59:59Z" debit="0" credit="247953.45" unit="1" unit_value="1000" unit_desc="Some investment" value_date="2017-12-31" />
-        <transaction transaction_description="Debit Sinco Treuhand AG Zurich" transaction_datetime="2018-07-10T23:59:59Z" debit="1000.00" credit="0.00" unit="1" unit_value="1000" unit_desc="Some investment" value_date="2018-07-10" />
-        <transaction transaction_description="Funds Transfer Corner Banca S.A" transaction_datetime="2018-07-16T23:59:59Z" debit="1573.85" credit="0.00" unit="1" unit_value="500" unit_desc="Some Interest" value_date="2018-07-17"/>
-        <transaction transaction_description="Purchase 1'500 Leonteq N" transaction_datetime="2018-07-19T23:59:59Z" debit="80876.10" credit="0.00" unit="1" unit_value="750" unit_desc="Some Loss" value_date="2018-07-23" />
-        <transaction transaction_description="Spot exchange EUR 90'408.13 at 1.611400" transaction_datetime="2018-07-24T23:59:59Z" debit="0.00" credit="105000.00" unit="1" unit_value="1000" unit_desc="Some investment" value_date="2018-07-26" />
-        <transaction transaction_description="Subscription 250'000 SMI/SGI 22" transaction_datetime="2018-07-27T23:59:59Z" debit="250000.00" credit="0.00" unit="1" unit_value="500" unit_desc="Some Interest" value_date="2018-07-31"/>
-        <transaction transaction_description="Sale 12 Leonte Bzr 02.08.18" transaction_datetime="2018-07-27T23:59:59Z" debit="0.00" credit="30.75" unit="1" unit_value="750" unit_desc="Some Loss" value_date="2018-07-30" />
-        <transaction transaction_description="Collection 220'000 6.3% BSKT/EFG 21" transaction_datetime="2018-07-30T23:59:59Z" debit="0.00" credit="1155.00" unit="1" unit_value="1000" unit_desc="Some investment" value_date="2018-07-30" />
-        <transaction transaction_description="Redemption 220'000 6.3% BSKT/EFG 21" transaction_datetime="2018-07-30T23:59:59Z" debit="0.00" credit="220000.00" unit="1" unit_value="500" unit_desc="Some Interest" value_date="2018-07-30"/>
-        <transaction transaction_description="Capital increase 279 Leonteq N" transaction_datetime="2018-07-31T23:59:59Z" debit="11578.50" credit="0.00" unit="1" unit_value="750" unit_desc="Some Loss" value_date="2018-08-03" />
-        <transaction transaction_description="Direct debit Corner Banca S.A" transaction_datetime="2018-08-15T23:59:59Z" debit="89.60" credit="0.00" unit="1" unit_value="1000" unit_desc="Some investment" value_date="2018-08-15" />
-        <transaction transaction_description="Sale 1'779 Leonteq N" transaction_datetime="2018-09-03T23:59:59Z" debit="0.00" credit="95282.90" unit="1" unit_value="500" unit_desc="Some Interest" value_date="2018-09-05"/>
-        <transaction transaction_description="Funds Transfer Corner Banca S.A" transaction_datetime="2018-09-14T23:59:59Z" debit="4033.55" credit="0.00" unit="1" unit_value="750" unit_desc="Some Loss" value_date="2018-09-14" />
-        <transaction transaction_description="Spot exchange EUR 70'000.00 at 1.132500" transaction_datetime="2018-09-20T23:59:59Z" debit="79275.00" credit="0.00" unit="1" unit_value="750" unit_desc="Some Loss" value_date="2018-09-24" />
+        <transaction transaction_description="Balance carried forward" transaction_datetime="2017-12-31T23:59:59Z" unit="1" unit_value="1000" unit_desc="Some investment" value_date="2017-12-31"><coordinate debit="0" credit="247953.45" unit="CHF" /></transaction>
+        <transaction transaction_description="Debit Sinco Treuhand AG Zurich" transaction_datetime="2018-07-10T23:59:59Z" unit="1" unit_value="1000" unit_desc="Some investment" value_date="2018-07-10"><coordinate debit="1000.00" credit="0.00" unit="CHF" /></transaction>
+        <transaction transaction_description="Funds Transfer Corner Banca S.A" transaction_datetime="2018-07-16T23:59:59Z" unit="1" unit_value="500" unit_desc="Some Interest" value_date="2018-07-17"><coordinate debit="1573.85" credit="0.00" unit="CHF" /></transaction>
+        <transaction transaction_description="Purchase 1'500 Leonteq N" transaction_datetime="2018-07-19T23:59:59Z" unit="1" unit_value="750" unit_desc="Some Loss" value_date="2018-07-23"><coordinate debit="80876.10" credit="0.00" unit="CHF" /></transaction>
+        <transaction transaction_description="Spot exchange EUR 90'408.13 at 1.611400" transaction_datetime="2018-07-24T23:59:59Z" unit="1" unit_value="1000" unit_desc="Some investment" value_date="2018-07-26"><coordinate debit="0.00" credit="105000.00" unit="CHF" /></transaction>
+        <transaction transaction_description="Subscription 250'000 SMI/SGI 22" transaction_datetime="2018-07-27T23:59:59Z" unit="1" unit_value="500" unit_desc="Some Interest" value_date="2018-07-31"><coordinate debit="250000.00" credit="0.00" unit="CHF" /></transaction>
+        <transaction transaction_description="Sale 12 Leonte Bzr 02.08.18" transaction_datetime="2018-07-27T23:59:59Z" unit="1" unit_value="750" unit_desc="Some Loss" value_date="2018-07-30"><coordinate debit="0.00" credit="30.75" unit="CHF" /></transaction>
+        <transaction transaction_description="Collection 220'000 6.3% BSKT/EFG 21" transaction_datetime="2018-07-30T23:59:59Z" unit="1" unit_value="1000" unit_desc="Some investment" value_date="2018-07-30"><coordinate debit="0.00" credit="1155.00" unit="CHF" /></transaction>
+        <transaction transaction_description="Redemption 220'000 6.3% BSKT/EFG 21" transaction_datetime="2018-07-30T23:59:59Z" unit="1" unit_value="500" unit_desc="Some Interest" value_date="2018-07-30"><coordinate debit="0.00" credit="220000.00" unit="CHF" /></transaction>
+        <transaction transaction_description="Capital increase 279 Leonteq N" transaction_datetime="2018-07-31T23:59:59Z" unit="1" unit_value="750" unit_desc="Some Loss" value_date="2018-08-03"><coordinate debit="11578.50" credit="0.00" unit="CHF" /></transaction>
+        <transaction transaction_description="Direct debit Corner Banca S.A" transaction_datetime="2018-08-15T23:59:59Z" unit="1" unit_value="1000" unit_desc="Some investment" value_date="2018-08-15"><coordinate debit="89.60" credit="0.00" unit="CHF" /></transaction>
+        <transaction transaction_description="Sale 1'779 Leonteq N" transaction_datetime="2018-09-03T23:59:59Z" unit="1" unit_value="500" unit_desc="Some Interest" value_date="2018-09-05"><coordinate debit="0.00" credit="95282.90" unit="CHF" /></transaction>
+        <transaction transaction_description="Funds Transfer Corner Banca S.A" transaction_datetime="2018-09-14T23:59:59Z" unit="1" unit_value="750" unit_desc="Some Loss" value_date="2018-09-14"><coordinate debit="4033.55" credit="0.00" unit="CHF" /></transaction>
+        <transaction transaction_description="Spot exchange EUR 70'000.00 at 1.132500" transaction_datetime="2018-09-20T23:59:59Z" unit="1" unit_value="750" unit_desc="Some Loss" value_date="2018-09-24"><coordinate debit="79275.00" credit="0.00" unit="CHF" /></transaction>
       </transactions>
     </account_details>
     <account_details>
@@ -60,14 +64,14 @@
       <currency>EUR</currency>
       <bank_id>Commonwealth Bank</bank_id>
       <transactions>
-        <transaction transaction_description="Balance carried forward" transaction_datetime="2017-12-31T23:59:59Z" debit="0" credit="193.89" unit="1" unit_value="1000" unit_desc="Some investment" value_date="2017-12-31" />
-        <transaction transaction_description="Redemption 295'000 SG 18 Nts" transaction_datetime="2018-07-10T23:59:59Z" debit="0.00" credit="295000.00" unit="1" unit_value="1000" unit_desc="Some investment" value_date="2018-07-10" />
-        <transaction transaction_description="Spot exchange CHF 105'000.00 at 1.161400" transaction_datetime="2018-07-24T23:59:59Z" debit="90408.13" credit="0.00" unit="1" unit_value="500" unit_desc="Some Interest" value_date="2018-07-26"/>
-        <transaction transaction_description="Collection EUR 18'000 14% GPG H 19 Anl" transaction_datetime="2018-08-22T23:59:59Z" debit="0.00" credit="2684.50" unit="1" unit_value="750" unit_desc="Some Loss" value_date="2018-08-22" />
-        <transaction transaction_description="Fund transfer Martin O'Carroll" transaction_datetime="2018-09-12T23:59:59Z" debit="100000.00" credit="0.00" unit="1" unit_value="500" unit_desc="Some Interest" value_date="2018-09-12"/>
-        <transaction transaction_description="Purchase 2'000 FESX/RAIN PWt 06.19" transaction_datetime="2018-09-19T23:59:59Z" debit="129928.80" credit="0.00" unit="1" unit_value="750" unit_desc="Some Loss" value_date="2018-09-21" />
-        <transaction transaction_description="Spot exchange CHF 79'275.00 at 1.132500" transaction_datetime="2018-09-20T23:59:59Z" debit="0.00" credit="70000.00" unit="1" unit_value="500" unit_desc="Some Interest" value_date="2018-09-24"/>
-        <transaction transaction_description="Interest from 30.06.18 to 30.09.18" transaction_datetime="2018-09-30T23:59:59Z" debit="3.70" credit="0.00" unit="1" unit_value="750" unit_desc="Some Loss" value_date="2018-09-30" />
+        <transaction transaction_description="Balance carried forward" transaction_datetime="2017-12-31T23:59:59Z" unit="1" unit_value="1000" unit_desc="Some investment" value_date="2017-12-31"><coordinate debit="0" credit="193.89" unit="EUR" /></transaction>
+        <transaction transaction_description="Redemption 295'000 SG 18 Nts" transaction_datetime="2018-07-10T23:59:59Z" unit="1" unit_value="1000" unit_desc="Some investment" value_date="2018-07-10"><coordinate debit="0.00" credit="295000.00" unit="EUR" /></transaction>
+        <transaction transaction_description="Spot exchange CHF 105'000.00 at 1.161400" transaction_datetime="2018-07-24T23:59:59Z" unit="1" unit_value="500" unit_desc="Some Interest" value_date="2018-07-26"><coordinate debit="90408.13" credit="0.00" unit="EUR" /></transaction>
+        <transaction transaction_description="Collection EUR 18'000 14% GPG H 19 Anl" transaction_datetime="2018-08-22T23:59:59Z" unit="1" unit_value="750" unit_desc="Some Loss" value_date="2018-08-22"><coordinate debit="0.00" credit="2684.50" unit="EUR" /></transaction>
+        <transaction transaction_description="Fund transfer Martin O'Carroll" transaction_datetime="2018-09-12T23:59:59Z" unit="1" unit_value="500" unit_desc="Some Interest" value_date="2018-09-12"><coordinate debit="100000.00" credit="0.00" unit="EUR" /></transaction>
+        <transaction transaction_description="Purchase 2'000 FESX/RAIN PWt 06.19" transaction_datetime="2018-09-19T23:59:59Z" unit="1" unit_value="750" unit_desc="Some Loss" value_date="2018-09-21"><coordinate debit="129928.80" credit="0.00" unit="EUR" /></transaction>
+        <transaction transaction_description="Spot exchange CHF 79'275.00 at 1.132500" transaction_datetime="2018-09-20T23:59:59Z" unit="1" unit_value="500" unit_desc="Some Interest" value_date="2018-09-24"><coordinate debit="0.00" credit="70000.00" unit="EUR" /></transaction>
+        <transaction transaction_description="Interest from 30.06.18 to 30.09.18" transaction_datetime="2018-09-30T23:59:59Z" unit="1" unit_value="750" unit_desc="Some Loss" value_date="2018-09-30"><coordinate debit="3.70" credit="0.00" unit="EUR" /></transaction>
       </transactions>
     </account_details>
     <account_details>
@@ -77,15 +81,15 @@
       <currency>USD</currency>
       <bank_id>Commonwealth Bank</bank_id>
       <transactions>
-        <transaction transaction_description="Balance carried forward" transaction_datetime="2017-12-31T23:59:59Z" debit="0" credit="921518.93" unit="1" unit_value="1000" unit_desc="Some investment" value_date="2017-12-31" />
-        <transaction transaction_description="Subscirption 2'085 USDRUB/RAIN PWt07.19" transaction_datetime="2018-07-02T23:59:59Z" debit="41602.84" credit="0.00" unit="1" unit_value="1000" unit_desc="Some investment" value_date="2018-07-05" />
-        <transaction transaction_description="Purchase 25'000 FSEURE/SG 20 Nts" transaction_datetime="2018-07-09T23:59:59Z" debit="24322.50" credit="0.00" unit="1" unit_value="500" unit_desc="Some Interest" value_date="2018-07-11"/>
-        <transaction transaction_description="Sale 4'000 USDJPY/LEONC-Wt02.19" transaction_datetime="2018-07-12T23:59:59Z" debit="0.00" credit="91120.00" unit="1" unit_value="750" unit_desc="Some Loss" value_date="2018-07-16" />
-        <transaction transaction_description="Subscription 16'000 XAGUS/RAIN CWt08.19" transaction_datetime="2018-07-30T23:59:59Z" debit="80320.00" credit="0.00" unit="1" unit_value="1000" unit_desc="Some investment" value_date="2018-08-06" />
-        <transaction transaction_description="Redemption 15'400 SILV/LEON C-WT 07.18" transaction_datetime="2018-08-03T23:59:59Z" debit="0.00" credit="76163.78" unit="1" unit_value="500" unit_desc="Some Interest" value_date="2018-08-03"/>
-        <transaction transaction_description="Collection USD 446'000 SMI/NATX 19" transaction_datetime="2018-08-24T23:59:59Z" debit="0.00" credit="6467.00" unit="1" unit_value="750" unit_desc="Some Loss" value_date="2018-08-24" />
-        <transaction transaction_description="Int.ch.deposit call fiduciary C 000489" transaction_datetime="2018-09-27T23:59:59Z" debit="0.00" credit="4200.00" unit="1" unit_value="500" unit_desc="Some Interest" value_date="2018-10-01"/>
-        <transaction transaction_description="Sale 2'085 USDRUB/RAIN PWt07.19" transaction_datetime="2018-09-28T23:59:59Z" debit="0.00" credit="30732.90" unit="1" unit_value="750" unit_desc="Some Loss" value_date="2018-10-03" />
+        <transaction transaction_description="Balance carried forward" transaction_datetime="2017-12-31T23:59:59Z" unit="1" unit_value="1000" unit_desc="Some investment" value_date="2017-12-31"><coordinate debit="0" credit="921518.93" unit="USD" /></transaction>
+        <transaction transaction_description="Subscirption 2'085 USDRUB/RAIN PWt07.19" transaction_datetime="2018-07-02T23:59:59Z" unit="1" unit_value="1000" unit_desc="Some investment" value_date="2018-07-05"><coordinate debit="41602.84" credit="0.00" unit="USD" /></transaction>
+        <transaction transaction_description="Purchase 25'000 FSEURE/SG 20 Nts" transaction_datetime="2018-07-09T23:59:59Z" unit="1" unit_value="500" unit_desc="Some Interest" value_date="2018-07-11"><coordinate debit="24322.50" credit="0.00" unit="USD" /></transaction>
+        <transaction transaction_description="Sale 4'000 USDJPY/LEONC-Wt02.19" transaction_datetime="2018-07-12T23:59:59Z" unit="1" unit_value="750" unit_desc="Some Loss" value_date="2018-07-16"><coordinate debit="0.00" credit="91120.00" unit="USD" /></transaction>
+        <transaction transaction_description="Subscription 16'000 XAGUS/RAIN CWt08.19" transaction_datetime="2018-07-30T23:59:59Z" unit="1" unit_value="1000" unit_desc="Some investment" value_date="2018-08-06"><coordinate debit="80320.00" credit="0.00" unit="USD" /></transaction>
+        <transaction transaction_description="Redemption 15'400 SILV/LEON C-WT 07.18" transaction_datetime="2018-08-03T23:59:59Z" unit="1" unit_value="500" unit_desc="Some Interest" value_date="2018-08-03"><coordinate debit="0.00" credit="76163.78" unit="USD" /></transaction>
+        <transaction transaction_description="Collection USD 446'000 SMI/NATX 19" transaction_datetime="2018-08-24T23:59:59Z" unit="1" unit_value="750" unit_desc="Some Loss" value_date="2018-08-24"><coordinate debit="0.00" credit="6467.00" unit="USD" /></transaction>
+        <transaction transaction_description="Int.ch.deposit call fiduciary C 000489" transaction_datetime="2018-09-27T23:59:59Z" unit="1" unit_value="500" unit_desc="Some Interest" value_date="2018-10-01"><coordinate debit="0.00" credit="4200.00" unit="USD" /></transaction>
+        <transaction transaction_description="Sale 2'085 USDRUB/RAIN PWt07.19" transaction_datetime="2018-09-28T23:59:59Z" unit="1" unit_value="750" unit_desc="Some Loss" value_date="2018-10-03"><coordinate debit="0.00" credit="30732.90" unit="USD" /></transaction>
       </transactions>
     </account_details>
     <account_details>
@@ -95,7 +99,7 @@
       <currency>GBP</currency>
       <bank_id>Commonwealth Bank</bank_id>
       <transactions>
-        <transaction transaction_description="Balance carried forward" transaction_datetime="2017-12-31T23:59:59Z" debit="0" credit="192" unit="1" unit_value="1000" unit_desc="Some investment" value_date="2017-12-31" />
+        <transaction transaction_description="Balance carried forward" transaction_datetime="2017-12-31T23:59:59Z" unit="1" unit_value="1000" unit_desc="Some investment" value_date="2017-12-31"><coordinate debit="0" credit="192" unit="GBP" /></transaction>
       </transactions>
     </account_details>
     <account_details>
@@ -105,7 +109,7 @@
       <currency>NOK</currency>
       <bank_id>Commonwealth Bank</bank_id>
       <transactions>
-        <transaction transaction_description="Balance carried forward" transaction_datetime="2017-12-31T23:59:59Z" debit="0" credit="4294.00" unit="1" unit_value="1000" unit_desc="Some investment" value_date="2017-12-31" />
+        <transaction transaction_description="Balance carried forward" transaction_datetime="2017-12-31T23:59:59Z" unit="1" unit_value="1000" unit_desc="Some investment" value_date="2017-12-31"><coordinate debit="0" credit="4294.00" unit="NOK" /></transaction>
       </transactions>
     </account_details>
   </bank_statement>
