@@ -26,7 +26,6 @@
       <account_no>1-1110</account_no>
       <account_name>Currency Account - AUD</account_name>
       <dateof_bank_statement>2018-09-30T00:00:00Z</dateof_bank_statement>
-      <currency>AUD</currency>
       <bank_id>Commonwealth Bank</bank_id>
       <transactions>
         <transaction transaction_description="Balance carried forward" transaction_datetime="2017-12-31T23:59:59Z" unit="1" unit_value="1000" unit_desc="Some investment" value_date="2017-12-31"><coordinate debit="673.07" credit="0" unit="AUD" /></transaction>
@@ -38,7 +37,6 @@
       <account_no>1-1110</account_no>
       <account_name>Currency Account - CHF</account_name>
       <dateof_bank_statement>2018-09-30T00:00:00Z</dateof_bank_statement>
-      <currency>CHF</currency>
       <bank_id>Commonwealth Bank</bank_id>
       <transactions>
         <transaction transaction_description="Balance carried forward" transaction_datetime="2017-12-31T23:59:59Z" unit="1" unit_value="1000" unit_desc="Some investment" value_date="2017-12-31"><coordinate debit="0" credit="247953.45" unit="CHF" /></transaction>
@@ -61,7 +59,6 @@
       <account_no>1-1110</account_no>
       <account_name>Currency Account - EUR</account_name>
       <dateof_bank_statement>2018-09-30T00:00:00Z</dateof_bank_statement>
-      <currency>EUR</currency>
       <bank_id>Commonwealth Bank</bank_id>
       <transactions>
         <transaction transaction_description="Balance carried forward" transaction_datetime="2017-12-31T23:59:59Z" unit="1" unit_value="1000" unit_desc="Some investment" value_date="2017-12-31"><coordinate debit="0" credit="193.89" unit="EUR" /></transaction>
@@ -78,7 +75,6 @@
       <account_no>1-1110</account_no>
       <account_name>Currency Account - USD</account_name>
       <dateof_bank_statement>2018-09-30T00:00:00Z</dateof_bank_statement>
-      <currency>USD</currency>
       <bank_id>Commonwealth Bank</bank_id>
       <transactions>
         <transaction transaction_description="Balance carried forward" transaction_datetime="2017-12-31T23:59:59Z" unit="1" unit_value="1000" unit_desc="Some investment" value_date="2017-12-31"><coordinate debit="0" credit="921518.93" unit="USD" /></transaction>
@@ -96,7 +92,6 @@
       <account_no>1-1110</account_no>
       <account_name>Currency Account - GBP</account_name>
       <dateof_bank_statement>2018-09-30T00:00:00Z</dateof_bank_statement>
-      <currency>GBP</currency>
       <bank_id>Commonwealth Bank</bank_id>
       <transactions>
         <transaction transaction_description="Balance carried forward" transaction_datetime="2017-12-31T23:59:59Z" unit="1" unit_value="1000" unit_desc="Some investment" value_date="2017-12-31"><coordinate debit="0" credit="192" unit="GBP" /></transaction>
@@ -106,7 +101,6 @@
       <account_no>1-1110</account_no>
       <account_name>Currency Account - NOK</account_name>
       <dateof_bank_statement>2018-09-30T00:00:00Z</dateof_bank_statement>
-      <currency>NOK</currency>
       <bank_id>Commonwealth Bank</bank_id>
       <transactions>
         <transaction transaction_description="Balance carried forward" transaction_datetime="2017-12-31T23:59:59Z" unit="1" unit_value="1000" unit_desc="Some investment" value_date="2017-12-31"><coordinate debit="0" credit="4294.00" unit="NOK" /></transaction>
