@@ -8,6 +8,8 @@
 :- ['ledger.pl'].
 % Loads up predicates pertaining to loan arrangements
 :- ['loans.pl'].
+% Loads up predicates pertaining to determining residency
+:- ['residency.pl'].
 
 % Appropriate queries to type into the ensuing prompt can be found in examples
 % directory.
