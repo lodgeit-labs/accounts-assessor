@@ -168,6 +168,7 @@
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\LedgerController.cs" />
     <Compile Include="Controllers\LoanController.cs" />
+    <Compile Include="Controllers\ResidencyController.cs" />
     <Compile Include="Controllers\ValuesController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
@@ -177,6 +178,9 @@
     <Compile Include="Models\AccountLink.cs" />
     <Compile Include="Models\BalanceSheetEntry.cs" />
     <Compile Include="Models\Coordinate.cs" />
+    <Compile Include="Models\DialogueRecord.cs" />
+    <Compile Include="Models\DialogueRequest.cs" />
+    <Compile Include="Models\DialogueResponse.cs" />
     <Compile Include="Models\LoanAgreement.cs" />
     <Compile Include="Models\LoanRepayment.cs" />
     <Compile Include="Models\LoanSummary.cs" />

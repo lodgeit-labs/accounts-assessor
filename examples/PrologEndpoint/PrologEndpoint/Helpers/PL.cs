@@ -334,6 +334,13 @@ namespace PrologEndpoint.Helpers
         [DllImport(dllName)] public extern unsafe static int PL_get_atom(term_t* t, atom_t** a);
         [DllImport(dllName)] public extern unsafe static int PL_get_bool(term_t* t, int* value);
         [DllImport(dllName)] public extern unsafe static int PL_get_atom_chars(term_t* t, char** a);
+        public unsafe static String PL_get_string_chars(term_t* t)
+        {
+            char* s;
+            UIntPtr len;
+            PL.PL_get_string_chars(t, &s, &len);
+            return Marshal.PtrToStringAnsi(new IntPtr(s));
+        }
         public unsafe static int PL_get_string_chars(term_t* t, char** s, UIntPtr* len) { return PL_get_string(t, s, len); }
         /* PL_get_string() is deprecated */
         [DllImport(dllName)] public extern unsafe static int PL_get_string(term_t* t, char** s, UIntPtr* len);
