@@ -244,3 +244,16 @@ findall(Net_Activity,
 		
 	[[coord(aud, 100, 0)]]).
 
+% Let's preprocess a transaction that uses a trading account.
+write("Are transactions that use a trading account preprocessed correctly?"),
+
+findall(Transactions,
+	(preprocess_transaction_utas(
+		[transaction_uta(731125,"Some foreign income.",[coord(usd,100,0)],[aud],usd_account, aud_account,trading_account),
+		transaction(731127, "Some foreign income.", usd_account, [coord(usd, 1000, 0)])], Transactions)),
+	
+	[[transaction(731125, "Some foreign income.", usd_account, [coord(usd, 100, 0)]),
+	transaction(731125, "Some foreign income.", aud_account, [coord(aud, 0.0, 183.70106762)]),
+	transaction(731125, "Some foreign income.", trading_account, [coord(usd, 0, 100), coord(aud, 183.70106762, 0.0)]),
+	transaction(731127, "Some foreign income.", usd_account, [coord(usd, 1000, 0)])]]).
+
