@@ -230,8 +230,8 @@ hp_arr_record_transaction(Arrangement, HP_Account, Record, Transactions, Transac
 	member(Transaction, Transactions),
 	transaction_day(Transaction, Transaction_Day),
 	Opening_Day < Transaction_Day, Transaction_Day =< Closing_Day,
-	transaction_t_term(Transaction, Transaction_T_Term),
-	debit_isomorphism(Transaction_T_Term, Transaction_Amount),
+	transaction_vector(Transaction, Transaction_Vector),
+	debit_isomorphism(Transaction_Vector, Transaction_Amount),
 	Installment_Amount =:= Transaction_Amount,
 	transaction_account(Transaction, HP_Account).
 
@@ -256,8 +256,8 @@ hp_arr_record_wrong_account_transaction(Arrangement, HP_Account, Record, Transac
 	member(Transaction, Transactions),
 	transaction_day(Transaction, Transaction_Day),
 	Opening_Day < Transaction_Day, Transaction_Day =< Closing_Day,
-	transaction_t_term(Transaction, Transaction_T_Term),
-	debit_isomorphism(Transaction_T_Term, Transaction_Amount),
+	transaction_vector(Transaction, Transaction_Vector),
+	debit_isomorphism(Transaction_Vector, Transaction_Amount),
 	Installment_Amount =:= Transaction_Amount,
 	transaction_account(Transaction, Transaction_Account),
 	Transaction_Account \= HP_Account, !.
@@ -276,8 +276,8 @@ hp_arr_record_wrong_amount_transaction(Arrangement, HP_Account, Record, Transact
 	member(Transaction, Transactions),
 	transaction_day(Transaction, Transaction_Day),
 	Opening_Day < Transaction_Day, Transaction_Day =< Closing_Day,
-	transaction_t_term(Transaction, Transaction_T_Term),
-	debit_isomorphism(Transaction_T_Term, Transaction_Amount),
+	transaction_vector(Transaction, Transaction_Vector),
+	debit_isomorphism(Transaction_Vector, Transaction_Amount),
 	Installment_Amount =\= Transaction_Amount,
 	transaction_account(Transaction, HP_Account), !.
 
@@ -298,11 +298,11 @@ hp_arr_record_non_existent_transaction(Arrangement, HP_Account, Record, Transact
 hp_arr_record_duplicate_transaction_correction(Arrangement, HP_Account, HP_Suspense_Account, Record, Transactions, Transaction_Correction) :-
 	hp_arr_record(Arrangement, Record),
 	hp_arr_record_duplicate_transaction(Arrangement, HP_Account, Record, Transactions, Duplicate_Transaction),
-	transaction_t_term(Duplicate_Transaction, Transaction_T_Term),
-	pac_inverse(Transaction_T_Term, Transaction_T_Term_Inverted),
+	transaction_vector(Duplicate_Transaction, Transaction_Vector),
+	vec_inverse(Transaction_Vector, Transaction_Vector_Inverted),
 	member(Transaction_Correction,
-		[transaction(0, correction, HP_Account, Transaction_T_Term_Inverted),
-		transaction(0, correction, HP_Suspense_Account, Transaction_T_Term)]).
+		[transaction(0, correction, HP_Account, Transaction_Vector_Inverted),
+		transaction(0, correction, HP_Suspense_Account, Transaction_Vector)]).
 
 % Relates a hire purchase record that has a transaction to the incorrect account in the
 % above sense to a pair of correction transactions that transfer from the incorrect
@@ -313,8 +313,8 @@ hp_arr_record_wrong_account_transaction_correction(Arrangement, HP_Account, Reco
 	hp_rec_installment_amount(Record, Installment_Amount),
 	transaction_account(Transaction, Transaction_Account),
 	member(Transaction_Correction,
-		[transaction(0, correction, HP_Account, t_term(Installment_Amount, 0)),
-		transaction(0, correction, Transaction_Account, t_term(0, Installment_Amount))]).
+		[transaction(0, correction, HP_Account, coord(Installment_Amount, 0)),
+		transaction(0, correction, Transaction_Account, coord(0, Installment_Amount))]).
 
 % Relates a hire purchase record that has a transaction with an incorrect amount in the
 % above sense to a pair of correction transactions that transfer a corrective amount
@@ -323,14 +323,14 @@ hp_arr_record_wrong_account_transaction_correction(Arrangement, HP_Account, Reco
 hp_arr_record_wrong_amount_transaction_correction(Arrangement, HP_Account, HP_Suspense_Account, Record, Transactions, Transaction_Correction) :-
 	hp_arr_record(Arrangement, Record),
 	hp_arr_record_wrong_amount_transaction(Arrangement, HP_Account, Record, Transactions, Transaction),
-	transaction_t_term(Transaction, Transaction_T_Term),
+	transaction_vector(Transaction, Transaction_Vector),
 	hp_rec_installment_amount(Record, Installment_Amount),
-	pac_sub(t_term(Installment_Amount, 0), Transaction_T_Term, Remaining_T_Term),
-	pac_reduce(Remaining_T_Term, Remaining_T_Term_Reduced),
-	pac_inverse(Remaining_T_Term_Reduced, Remaining_T_Term_Reduced_Inverted),
+	vec_sub(coord(Installment_Amount, 0), Transaction_Vector, Remaining_Vector),
+	vec_reduce(Remaining_Vector, Remaining_Vector_Reduced),
+	vec_inverse(Remaining_Vector_Reduced, Remaining_Vector_Reduced_Inverted),
 	member(Transaction_Correction,
-		[transaction(0, correction, HP_Account, Remaining_T_Term_Reduced),
-		transaction(0, correction, HP_Suspense_Account, Remaining_T_Term_Reduced_Inverted)]).
+		[transaction(0, correction, HP_Account, Remaining_Vector_Reduced),
+		transaction(0, correction, HP_Suspense_Account, Remaining_Vector_Reduced_Inverted)]).
 
 % Relates a hire purchase record that does not have a transaction in any sense to a pair
 % of correction transactions that transfer from the missing hire purchase payments account
@@ -340,8 +340,8 @@ hp_arr_record_nonexistent_transaction_correction(Arrangement, HP_Account, HP_Sus
 	hp_arr_record_non_existent_transaction(Arrangement, HP_Account, Record, Transactions),
 	hp_rec_installment_amount(Record, Installment_Amount),
 	member(Transaction_Correction,
-		[transaction(0, correction, HP_Account, t_term(Installment_Amount, 0)),
-		transaction(0, correction, HP_Suspense_Account, t_term(0, Installment_Amount))]).
+		[transaction(0, correction, HP_Account, coord(Installment_Amount, 0)),
+		transaction(0, correction, HP_Suspense_Account, coord(0, Installment_Amount))]).
 
 % Relates a hire purchase arrangement to correction transactions. The correction
 % transactions correct the cases where payments are made to the wrong account or where
@@ -369,24 +369,24 @@ hp_arr_report(Arrangement, Start_Day, Cur_Liability, Cur_Unexpired_Interest, Non
 	gregorian_date(Start_Day, Start_Date), date_add(Start_Date, date(1, 0, 0), End_Date), absolute_day(End_Date, End_Day),
 	hp_arr_total_payment_between(Arrangement, Start_Day, End_Day, Signed_Cur_Liability),
 	hp_arr_total_interest_between(Arrangement, Start_Day, End_Day, Signed_Cur_Unexpired_Interest),
-	Cur_Liability = t_term(0, Signed_Cur_Liability),
-	Cur_Unexpired_Interest = t_term(Signed_Cur_Unexpired_Interest, 0),
+	Cur_Liability = coord(0, Signed_Cur_Liability),
+	Cur_Unexpired_Interest = coord(Signed_Cur_Unexpired_Interest, 0),
 	hp_arr_total_payment_from(Arrangement, End_Day, Signed_Non_Cur_Liability),
 	hp_arr_total_interest_from(Arrangement, End_Day, Signed_Non_Cur_Unexpired_Interest),
-	Non_Cur_Liability = t_term(0, Signed_Non_Cur_Liability),
-	Non_Cur_Unexpired_Interest = t_term(Signed_Non_Cur_Unexpired_Interest, 0).
+	Non_Cur_Liability = coord(0, Signed_Non_Cur_Liability),
+	Non_Cur_Unexpired_Interest = coord(Signed_Non_Cur_Unexpired_Interest, 0).
 
 % Report the hire purchase arrangement's repayment balance and unexpired interest at a
 % given point in time.
 
 hp_arr_report(Arrangement, Start_Day, Repayment_Balance, Unexpired_Interest) :-
 	hp_arr_report(Arrangement, Start_Day, Cur_Liability, Cur_Unexpired_Interest, Non_Cur_Liability, Non_Cur_Unexpired_Interest),
-	pac_add(Cur_Liability, Non_Cur_Liability, Repayment_Balance),
-	pac_add(Cur_Unexpired_Interest, Non_Cur_Unexpired_Interest, Unexpired_Interest).
+	vec_add(Cur_Liability, Non_Cur_Liability, Repayment_Balance),
+	vec_add(Cur_Unexpired_Interest, Non_Cur_Unexpired_Interest, Unexpired_Interest).
 
 % Just report the hire purchase arrangement's liability balance at a given point in time.
 
 hp_arr_report(Arrangement, Start_Day, Liability_Balance) :-
 	hp_arr_report(Arrangement, Start_Day, Repayment_Balance, Unexpired_Interest),
-	pac_add(Repayment_Balance, Unexpired_Interest, Liability_Balance).
+	vec_add(Repayment_Balance, Unexpired_Interest, Liability_Balance).
 

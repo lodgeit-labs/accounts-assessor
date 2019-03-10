@@ -10,68 +10,6 @@
 :- use_module(library(http/http_open)).
 :- use_module(library(http/json)).
 
-% Pacioli group operations. These operations operate on pairs of numbers called T-terms.
-% These t-terms represent an entry in a T-table. The first element of the T-term
-% represents debit and second element, credit.
-% See: On Double-Entry Bookkeeping: The Mathematical Treatment
-
-% The identity for vector addition.
-
-pac_identity([]).
-
-% Computes the inverse of a given vector.
-
-pac_inverse(As, Bs) :-
-	findall(C,
-		(member(t_term(Unit, A_Debit, A_Credit), As),
-		C = t_term(Unit, A_Credit, A_Debit)),
-		Bs).
-
-% Each coordinate of a vector can be replaced by other coordinates that equivalent for the
-% purposes of the computations carried out in this program. This predicate reduces any
-% coordinate into a canonical form.
-
-pac_reduce(As, Bs) :-
-	findall(B,
-		(member(t_term(Unit, A_Debit, A_Credit), As),
-		B_Debit is A_Debit - min(A_Debit, A_Credit),
-		B_Credit is A_Credit - min(A_Debit, A_Credit),
-		B = t_term(Unit, B_Debit, B_Credit)),
-		Bs).
-
-% Adds the two given vectors together.
-
-pac_add(As, Bs, Cs_Reduced) :-
-	findall(C,
-		((member(t_term(Unit, A_Debit, A_Credit), As),
-		\+ member(t_term(Unit, _, _), Bs),
-		C = t_term(Unit, A_Debit, A_Credit));
-		
-		(member(t_term(Unit, B_Debit, B_Credit), Bs),
-		\+ member(t_term(Unit, _, _), As),
-		C = t_term(Unit, B_Debit, B_Credit));
-		
-		(member(t_term(Unit, A_Debit, A_Credit), As),
-		member(t_term(Unit, B_Debit, B_Credit), Bs),
-		Total_Debit is A_Debit + B_Debit,
-		Total_Credit is A_Credit + B_Credit,
-		C = t_term(Unit, Total_Debit, Total_Credit))),
-		Cs),
-	pac_reduce(Cs, Cs_Reduced).
-
-% Subtracts the vector Bs from As by inverting Bs and adding it to As.
-
-pac_sub(As, Bs, Cs) :-
-	pac_inverse(Bs, Ds),
-	pac_add(As, Ds, Cs).
-
-% Checks two vectors for equality by subtracting the latter from the former and verifying
-% that all the resulting coordinates are zero.
-
-pac_equality(As, Bs) :-
-	pac_sub(As, Bs, Cs),
-	forall(member(C, Cs), C = t_term(_, 0, 0)).
-
 % Obtains all available exchange rates on the day Day using Src_Currency as the base
 % currency from exchangeratesapi.io. The results are memoized because this operation is
 % slow and use of the web endpoint is subject to usage limits. The web endpoint used is
@@ -101,40 +39,96 @@ exchange_rate(Day, Src_Currency, Dest_Currency, Exchange_Rate) :-
 	upcase_atom(Dest_Currency, Dest_Currency_Upcased),
 	member(Dest_Currency_Upcased = Exchange_Rate, Exchange_Rates).
 
+% Pacioli group operations. These operations operate on vectors. A vector is a list of
+% coordinates. A coordinate is a triple comprising a unit, a debit amount, and a credit
+% amount.
+% See: On Double-Entry Bookkeeping: The Mathematical Treatment
+% Also see: Tutorial on multiple currency accounting
+
+% The identity for vector addition.
+
+vec_identity([]).
+
+% Computes the (additive) inverse of a given vector.
+
+vec_inverse(As, Bs) :-
+	findall(C,
+		(member(coord(Unit, A_Debit, A_Credit), As),
+		C = coord(Unit, A_Credit, A_Debit)),
+		Bs).
+
+% Each coordinate of a vector can be replaced by other coordinates that equivalent for the
+% purposes of the computations carried out in this program. This predicate reduces the
+% coordinates of a vector into a canonical form.
+
+vec_reduce(As, Bs) :-
+	findall(B,
+		(member(coord(Unit, A_Debit, A_Credit), As),
+		B_Debit is A_Debit - min(A_Debit, A_Credit),
+		B_Credit is A_Credit - min(A_Debit, A_Credit),
+		B = coord(Unit, B_Debit, B_Credit)),
+		Bs).
+
+% Adds the two given vectors together.
+
+vec_add(As, Bs, Cs_Reduced) :-
+	findall(C,
+		((member(coord(Unit, A_Debit, A_Credit), As),
+		\+ member(coord(Unit, _, _), Bs),
+		C = coord(Unit, A_Debit, A_Credit));
+		
+		(member(coord(Unit, B_Debit, B_Credit), Bs),
+		\+ member(coord(Unit, _, _), As),
+		C = coord(Unit, B_Debit, B_Credit));
+		
+		(member(coord(Unit, A_Debit, A_Credit), As),
+		member(coord(Unit, B_Debit, B_Credit), Bs),
+		Total_Debit is A_Debit + B_Debit,
+		Total_Credit is A_Credit + B_Credit,
+		C = coord(Unit, Total_Debit, Total_Credit))),
+		Cs),
+	vec_reduce(Cs, Cs_Reduced).
+
+% Subtracts the vector Bs from As by inverting Bs and adding it to As.
+
+vec_sub(As, Bs, Cs) :-
+	vec_inverse(Bs, Ds),
+	vec_add(As, Ds, Cs).
+
+% Checks two vectors for equality by subtracting the latter from the former and verifying
+% that all the resulting coordinates are zero.
+
+vec_equality(As, Bs) :-
+	vec_sub(As, Bs, Cs),
+	forall(member(C, Cs), C = coord(_, 0, 0)).
+
 % Exchanges the given coordinate, Amount, into the first unit from Bases for which an
 % exchange on the day Day is possible. If Amount cannot be exchanged into any of the units
 % from Bases, then it is left as is.
 
 exchange_amount(_, [], Amount, Amount).
 
-exchange_amount(Day, [Bases_Hd | _], t_term(Unit, Debit, Credit), Amount_Exchanged) :-
+exchange_amount(Day, [Bases_Hd | _], coord(Unit, Debit, Credit), Amount_Exchanged) :-
 	exchange_rate(Day, Unit, Bases_Hd, Exchange_Rate),
 	Debit_Exchanged is Debit * Exchange_Rate,
 	Credit_Exchanged is Credit * Exchange_Rate,
-	Amount_Exchanged = t_term(Bases_Hd, Debit_Exchanged, Credit_Exchanged).
+	Amount_Exchanged = coord(Bases_Hd, Debit_Exchanged, Credit_Exchanged).
 
-exchange_amount(Day, [Bases_Hd | Bases_Tl], t_term(Unit, Debit, Credit), Amount_Exchanged) :-
+exchange_amount(Day, [Bases_Hd | Bases_Tl], coord(Unit, Debit, Credit), Amount_Exchanged) :-
 	\+ exchange_rate(Day, Bases_Hd, Unit, _),
-	exchanged_amount(Day, Bases_Tl, t_term(Unit, Debit, Credit), Amount_Exchanged).
+	exchanged_amount(Day, Bases_Tl, coord(Unit, Debit, Credit), Amount_Exchanged).
 
-% Consolidate the given t-terms as much as possible by exchanging each t-term into a unit
-% from Bases on the day Day and combining those of the resulting t-terms that have the
-% same unit together. If a t-term cannot be exchanged into a unit from Bases, then it is
+% Using the exchange rates from the day Day, change the bases of the given vector into
+% those from Bases. Where two different coordinates have been mapped to the same basis,
+% combine them. If a coordinate cannot be exchanged into a unit from Bases, then it is
 % put into the result as is.
 
-pac_consolidate(_, _, [], []).
+vec_change_bases(_, _, [], []).
 
-pac_consolidate(Day, Bases, [A | As], Bs) :-
+vec_change_bases(Day, Bases, [A | As], Bs) :-
 	exchange_amount(Day, Bases, A, A_Exchanged),
-	pac_consolidate(Day, Bases, As, As_Exchanged),
-	pac_add([A_Exchanged], As_Exchanged, Bs).
-
-% Isomorphisms from T-Terms to signed quantities
-% See: On Double-Entry Bookkeeping: The Mathematical Treatment
-
-credit_isomorphism(t_term(A, B), C) :- C is B - A.
-
-debit_isomorphism(t_term(A, B), C) :- C is A - B.
+	vec_change_bases(Day, Bases, As, As_Exchanged),
+	vec_add([A_Exchanged], As_Exchanged, Bs).
 
 % Predicates for asserting that the fields of given accounts have particular values
 
@@ -162,7 +156,7 @@ transaction_description(transaction(_, Description, _, _), Description).
 % The account that the transaction modifies
 transaction_account(transaction(_, _, Account, _), Account).
 % The amounts by which the account is being debited and credited
-transaction_t_term(transaction(_, _, _, T_Term), T_Term).
+transaction_vector(transaction(_, _, _, Vector), Vector).
 
 transaction_account_ancestor(Account_Links, Transaction, Ancestor_Account) :-
 	transaction_account(Transaction, Transaction_Account),
@@ -177,6 +171,23 @@ transaction_before(Transaction, End_Day) :-
 	transaction_day(Transaction, Day),
 	Day =< End_Day.
 
+% Predicates for asserting that the fields of given transactions using trading accounts have particular values
+
+% The absolute day that the transaction happenned
+transaction_uta_day(transaction_uta(Day, _, _, _, _, _, _), Day).
+% A description of the transaction
+transaction_uta_description(transaction_uta(_, Description, _, _, _, _, _), Description).
+% The amounts that are being moved in this transaction
+transaction_uta_vector(transaction_uta(_, _, Vector, _, _, _, _), Vector).
+% The units to which the transaction amount will be converted to
+transaction_uta_bases(transaction_uta(_, _, _, Bases, _, _, _), Bases).
+% The account that the transaction modifies without using exchange rate conversions
+transaction_uta_unexchanged_account(transaction_uta(_, _, _, _, Unexchanged_Account, _, _), Unexchanged_Account).
+% The account that will receive the inverse of the transaction amount after exchanging
+transaction_uta_exchanged_account(transaction_uta(_, _, _, _, _, Exchanged_Account, _), Exchanged_Account).
+% The account that will record the gains and losses on the transaction amount
+transaction_uta_trading_account(transaction_uta(_, _, _, _, _, _, Trading_Account), Trading_Account).
+
 % Account isomorphisms. They are standard conventions in accounting.
 
 account_isomorphism(asset, debit_isomorphism).
@@ -185,36 +196,74 @@ account_isomorphism(liability, credit_isomorphism).
 account_isomorphism(revenue, credit_isomorphism).
 account_isomorphism(expense, debit_isomorphism).
 
+% Transactions using trading accounts can be decomposed into a transaction of the given
+% amount to the unexchanged account, a transaction of the transformed inverse into the
+% exchanged account, and a transaction of the negative sum of these into the trading
+% account. This predicate takes a list of transactions and transactions using trading
+% accounts and decomposes it into a list of just transactions.
+
+preprocess_transaction_utas([], []).
+
+preprocess_transaction_utas([Transaction_UTA | Transactions],
+		[UnX_Transaction | [X_Transaction | [Trading_Transaction | PP_Transactions]]]) :-
+	% Make an unexchanged transaction to the unexchanged account
+	transaction_uta_day(Transaction_UTA, Day), transaction_day(UnX_Transaction, Day),
+	transaction_uta_description(Transaction_UTA, Description), transaction_description(UnX_Transaction, Description),
+	transaction_uta_vector(Transaction_UTA, Vector), transaction_vector(UnX_Transaction, Vector),
+	transaction_uta_unexchanged_account(Transaction_UTA, UnX_Account), transaction_account(UnX_Transaction, UnX_Account),
+	
+	% Make an inverse exchanged transaction to the exchanged account
+	transaction_uta_bases(Transaction_UTA, Bases),
+	vec_inverse(Vector, Vector_Inverted),
+	vec_change_bases(Day, Bases, Vector_Inverted, Vector_Inverted_Transformed),
+	transaction_day(X_Transaction, Day),
+	transaction_description(X_Transaction, Description),
+	transaction_vector(X_Transaction, Vector_Inverted_Transformed),
+	transaction_uta_exchanged_account(Transaction_UTA, X_Account), transaction_account(X_Transaction, X_Account),
+	
+	% Make a difference transaction to the trading account
+	vec_sub(Vector_Inverted, Vector_Inverted_Transformed, Trading_Vector),
+	transaction_day(Trading_Transaction, Day),
+	transaction_description(Trading_Transaction, Description),
+	transaction_vector(Trading_Transaction, Trading_Vector),
+	transaction_uta_trading_account(Transaction_UTA, Trading_Account), transaction_account(Trading_Transaction, Trading_Account),
+	
+	% Make the list of preprocessed transactions
+	preprocess_transaction_utas(Transactions, PP_Transactions), !.
+
+preprocess_transaction_utas([Transaction | Transactions], [Transaction | PP_Transactions]) :-
+	preprocess_transaction_utas(Transactions, PP_Transactions).
+
 % Adds all the T-Terms of the transactions.
 
-transaction_t_term_total([], []).
+transaction_vector_total([], []).
 
-transaction_t_term_total([Hd_Transaction | Tl_Transaction], Reduced_Net_Activity) :-
-	transaction_t_term(Hd_Transaction, Curr),
-	transaction_t_term_total(Tl_Transaction, Acc),
-	pac_add(Curr, Acc, Net_Activity),
-	pac_reduce(Net_Activity, Reduced_Net_Activity).
+transaction_vector_total([Hd_Transaction | Tl_Transaction], Reduced_Net_Activity) :-
+	transaction_vector(Hd_Transaction, Curr),
+	transaction_vector_total(Tl_Transaction, Acc),
+	vec_add(Curr, Acc, Net_Activity),
+	vec_reduce(Net_Activity, Reduced_Net_Activity).
 
 % Relates Day to the balance at that time of the given account.
 
-balance_by_account(Accounts, Transactions, Bases, Exchange_Day, Account, Day, Balance_Consolidated) :-
+balance_by_account(Accounts, Transactions, Bases, Exchange_Day, Account, Day, Balance_Transformed) :-
 	findall(Transaction,
 		(member(Transaction, Transactions),
 		transaction_before(Transaction, Day),
 		transaction_account_ancestor(Accounts, Transaction, Account)), Transactions_A),
-	transaction_t_term_total(Transactions_A, Balance),
-	pac_consolidate(Exchange_Day, Bases, Balance, Balance_Consolidated).
+	transaction_vector_total(Transactions_A, Balance),
+	vec_change_bases(Exchange_Day, Bases, Balance, Balance_Transformed).
 
 % Relates the period from From_Day to To_Day to the net activity during that period of
 % the given account.
 
-net_activity_by_account(Accounts, Transactions, Bases, Exchange_Day, Account, From_Day, To_Day, Net_Activity_Consolidated) :-
+net_activity_by_account(Accounts, Transactions, Bases, Exchange_Day, Account, From_Day, To_Day, Net_Activity_Transformed) :-
 	findall(Transaction,
 		(member(Transaction, Transactions),
 		transaction_between(Transaction, From_Day, To_Day),
 		transaction_account_ancestor(Accounts, Transaction, Account)), Transactions_A),
-	transaction_t_term_total(Transactions_A, Net_Activity),
-	pac_consolidate(Exchange_Day, Bases, Net_Activity, Net_Activity_Consolidated).
+	transaction_vector_total(Transactions_A, Net_Activity),
+	vec_change_bases(Exchange_Day, Bases, Net_Activity, Net_Activity_Transformed).
 
 % Now for balance sheet predicates.
 
@@ -231,8 +280,8 @@ balance_sheet_at(Accounts, Transactions, Bases, Exchange_Day, From_Day, To_Day, 
 	balance_sheet_entry(Accounts, Transactions, Bases, Exchange_Day, liability, To_Day, Liability_Section),
 	balance_by_account(Accounts, Transactions, Bases, Exchange_Day, earnings, From_Day, Retained_Earnings),
 	net_activity_by_account(Accounts, Transactions, Bases, Exchange_Day, earnings, From_Day, To_Day, Current_Earnings),
-	pac_add(Retained_Earnings, Current_Earnings, Earnings),
-	pac_reduce(Earnings, Earnings_Reduced),
+	vec_add(Retained_Earnings, Current_Earnings, Earnings),
+	vec_reduce(Earnings, Earnings_Reduced),
 	Balance_Sheet = [Asset_Section, Liability_Section, entry(earnings, Earnings_Reduced,
 		[entry(retained_earnings, Retained_Earnings, []), entry(current_earnings, Current_Earnings, [])]),
 		Equity_Section].
