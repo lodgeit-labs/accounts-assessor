@@ -15,11 +15,12 @@ How to run the tests:
 ## Directory Structure
 
 Outline of the directory structure of this repository:
-* [src](src) contains the Prolog source for the program
+* [src](src) contains the source for the Prolog program
 * [examples](examples) contains examples of how Prolog can be embedded in other languages
 * [tests](tests) contains queries that test the functionality of the main Prolog program
 * [docs](docs) contains correspondences and resources on accounting that I have been finding useful in making this program
 * [misc](misc) contains the stuff that does not yet clearly fit into a category
+* [endpoint_src](endpoint_src) contains the source for the web endpoint housing the Prolog program
 
 ## Current Functionality
 
@@ -29,3 +30,4 @@ The functionality of the program at present:
 * Given a hire purchase arrangement, it can derive the total payment and the total interest
 * Given a hire purchase arrangement and ledger, it can guess what the erroneous transactions are
 * Given a hire purchase arrangement and ledger, it can generate correction transactions to fix the erroneous transactions
+* It can determine tax residency by carrying out a dialog with the user
