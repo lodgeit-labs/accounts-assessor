@@ -50,23 +50,23 @@ loan_rep_amount(loan_repayment(_, Amount), Amount).
 % Predicates for asserting the fields of a loan agreement
 
 % An identifier for a given loan agreement
-loan_agr_contract_number(loan_agreement(Contract_Number, _, _, _, _, _, _, _, _), Contract_Number).
+loan_agr_contract_number(loan_agreement(Contract_Number, _, _, _, _, _, _, _), Contract_Number).
 % The principal amount of the loan agreement
-loan_agr_principal_amount(loan_agreement(_, Principal_Amount, _, _, _, _, _, _, _), Principal_Amount).
+loan_agr_principal_amount(loan_agreement(_, Principal_Amount, _, _, _, _, _, _), Principal_Amount).
 % The lodgement day of the whole agreement
-loan_agr_lodgement_day(loan_agreement(_, _, _, Lodgement_Day, _, _, _, _, _), Lodgement_Day).
+loan_agr_lodgement_day(loan_agreement(_, _, Lodgement_Day, _, _, _, _, _), Lodgement_Day).
 % The first absolute day of the first income year after the agreement is made
-loan_agr_begin_day(loan_agreement(_, _, _, _, Begin_Day, _, _, _, _), Begin_Day).
+loan_agr_begin_day(loan_agreement(_, _, _, Begin_Day, _, _, _, _), Begin_Day).
 % The term of the loan agreement in years
-loan_agr_term(loan_agreement(_, _, _, _, _, Term, _, _, _), Term).
+loan_agr_term(loan_agreement(_, _, _, _, Term, _, _, _), Term).
 % The income year for which the computations will be done
-loan_agr_computation_year(loan_agreement(_, _, _, _, _, _, Computation_Year, _, _), Computation_Year).
+loan_agr_computation_year(loan_agreement(_, _, _, _, _, Computation_Year, _, _), Computation_Year).
 % If this field is false, the computations will start from the day of the loan agreement.
 % Otherwise this will be the opening balance of the computations.
-loan_agr_computation_opening_balance(loan_agreement(_, _, _, _, _, _, _, Computation_Opening_Balance, _), Computation_Opening_Balance).
+loan_agr_computation_opening_balance(loan_agreement(_, _, _, _, _, _, Computation_Opening_Balance, _), Computation_Opening_Balance).
 % A chronologically ordered list of loan agreement repayments. The latter repayments
 % where the account balance is negative are ignored.
-loan_agr_repayments(loan_agreement(_, _, _, _, _, _, _, _, Repayments), Repayments).
+loan_agr_repayments(loan_agreement(_, _, _, _, _, _, _, Repayments), Repayments).
 
 % Predicates for asserting the fields of a loan record
 
