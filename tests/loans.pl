@@ -111,6 +111,24 @@ findall(Summary,
 			[loan_repayment(Payment1_Day, 3000)]), Summary)),
 	
 	[loan_summary(1, 10000, 5.3, 3692.746389804068, 3000, 692.7463898040678, 371.0, 2629.0, 7371.0)]).
+
+% Summarize the information pertaining to the income years after a loan agreement is
+% made. The relevant information is that the first income year begins on date(2016, 7, 1).
+% The private company's lodgement day is date(2017, 5, 15). A payment of $3,000 is made
+% on date(2016, 7, 1). A payment of $7,000 is made on date(2017, 5, 14) The income year of
+% computation is 2017 and the principal amount is $10,000. The loan has a term of 4 years.
+
+write("Is output for the loan summary information of a different agreement correct?"),
+
+findall(Summary,
+	(absolute_day(date(2016, 7, 1), Begin_Day),
+		absolute_day(date(2017, 5, 15), Lodgement_Day),
+		absolute_day(date(2016, 7, 1), Payment1_Day),
+		absolute_day(date(2017, 5, 14), Payment2_Day),
+		loan_agr_summary(loan_agreement(0, 10000, Lodgement_Day, Begin_Day, 4, 0, false,
+			[loan_repayment(Payment1_Day, 3000), loan_repayment(Payment2_Day, 7000)]), Summary)),
 	
+	[loan_summary(0, 0, 5.4, 0.0, 10000, 0, 0.0, 10000.0, 0.0)]).
+
 % See the loan summary schema in loans.pl .
 

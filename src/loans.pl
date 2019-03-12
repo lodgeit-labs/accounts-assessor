@@ -180,7 +180,7 @@ loan_rec_record(Current_Record, [Repayments_Hd|Repayments_Tl], Current_Acc_Inter
 	loan_rec_aux(Repayments_Hd, Current_Rep_Amount, Current_Record_Number, Current_Day, Current_Balance, Interest_Amount, Next_Record),
 	New_Acc_Rep is Current_Acc_Rep + Current_Rep_Amount,
 	Next_Acc_Interest is Current_Acc_Interest + Interest_Amount,
-	Next_Balance is Current_Balance - Current_Rep_Amount, Next_Balance > 0,
+	Next_Balance is Current_Balance - Current_Rep_Amount, Next_Balance >= 0,
 	loan_rec_closing_balance(Next_Record, Next_Balance),
 	Current_Rep_Amount > 0,
 	(Record = Next_Record; loan_rec_record(Next_Record, Repayments_Tl, Next_Acc_Interest, New_Acc_Rep, Record)).
