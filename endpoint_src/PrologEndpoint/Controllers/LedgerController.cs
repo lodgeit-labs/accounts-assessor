@@ -14,7 +14,7 @@ namespace PrologEndpoint.Controllers
     public class LedgerController : ApiController
     {
         private unsafe readonly char* ENTRY = (char*)Marshal.StringToHGlobalAnsi("entry");
-        private unsafe readonly char* T_TERM = (char*)Marshal.StringToHGlobalAnsi("t_term");
+        private unsafe readonly char* COORD = (char*)Marshal.StringToHGlobalAnsi("coord");
         private unsafe readonly char* TRANSACTION = (char*) Marshal.StringToHGlobalAnsi("transaction");
         private unsafe readonly char* ACCOUNT_LINK = (char*)Marshal.StringToHGlobalAnsi("account_link");
         private unsafe readonly char* BALANCE_SHEET_AT = (char*)Marshal.StringToHGlobalAnsi("balance_sheet_at");
@@ -24,17 +24,17 @@ namespace PrologEndpoint.Controllers
         {
             // Constructing the term loan_repayment(loan_rep.Day, loan_rep.Amount)
             // where absolute_day(loan_rep.Date, loan_rep.Day).
-            atom_t* t_term_atom = PL.PL_new_atom(T_TERM);
-            functor_t* t_term_functor = PL.PL_new_functor(t_term_atom, 3);
+            atom_t* coord_atom = PL.PL_new_atom(COORD);
+            functor_t* coord_functor = PL.PL_new_functor(coord_atom, 3);
             term_t* unit_term = PL.PL_new_term_ref();
             PL.PL_put_atom_chars(unit_term, c.Unit.ToLower());
             term_t* debit_term = PL.PL_new_term_ref();
             PL.PL_put_float(debit_term, c.Debit);
             term_t* credit_term = PL.PL_new_term_ref();
             PL.PL_put_float(credit_term, c.Credit);
-            term_t* t_term_term = PL.PL_new_term_ref();
-            PL.PL_cons_functor(t_term_term, t_term_functor, __arglist(unit_term, debit_term, credit_term));
-            return t_term_term;
+            term_t* coord_term = PL.PL_new_term_ref();
+            PL.PL_cons_functor(coord_term, coord_functor, __arglist(unit_term, debit_term, credit_term));
+            return coord_term;
         }
 
         /* Turns the array of Coordinates into a Prolog list of coordinates. */
@@ -62,13 +62,13 @@ namespace PrologEndpoint.Controllers
             functor_t* transaction_functor = PL.PL_new_functor(transaction_atom, 4);
             term_t* day_term = PL.PL_new_term_ref();
             PL.PL_put_integer(day_term, Date.ComputeAbsoluteDay(trans.Datetime));
-            term_t* t_term_term = ConstructVector(trans.Vector);
+            term_t* vector_term = ConstructVector(trans.Vector);
             term_t* description_term = PL.PL_new_term_ref();
             PL.PL_put_atom_chars(description_term, trans.Description);
             term_t* account_term = PL.PL_new_term_ref();
             PL.PL_put_atom_chars(account_term, trans.Account);
             term_t* transaction_term = PL.PL_new_term_ref();
-            PL.PL_cons_functor(transaction_term, transaction_functor, __arglist(day_term, description_term, account_term, t_term_term));
+            PL.PL_cons_functor(transaction_term, transaction_functor, __arglist(day_term, description_term, account_term, vector_term));
             return transaction_term;
         }
 

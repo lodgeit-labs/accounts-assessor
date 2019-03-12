@@ -17,7 +17,6 @@ namespace PrologEndpoint.Controllers
         // and for all.
         private unsafe readonly char *LOAN_REPAYMENT = (char *) Marshal.StringToHGlobalAnsi("loan_repayment");
         private unsafe readonly char *LOAN_AGREEMENT = (char*) Marshal.StringToHGlobalAnsi("loan_agreement");
-        private unsafe readonly char *LOAN_AGR_PREPARE = (char*) Marshal.StringToHGlobalAnsi("loan_agr_prepare");
         private unsafe readonly char *LOAN_AGR_SUMMARY = (char*) Marshal.StringToHGlobalAnsi("loan_agr_summary");
         private unsafe readonly char *LOAN_SUMMARY = (char*) Marshal.StringToHGlobalAnsi("loan_summary");
 
@@ -57,12 +56,11 @@ namespace PrologEndpoint.Controllers
         private unsafe term_t *ConstructLoanAgreement(LoanAgreement loan_agr)
         {
             atom_t *loan_agr_atom = PL.PL_new_atom(LOAN_AGREEMENT);
-            functor_t *loan_agr_functor = PL.PL_new_functor(loan_agr_atom, 9);
+            functor_t *loan_agr_functor = PL.PL_new_functor(loan_agr_atom, 8);
             term_t *contract_number_term = PL.PL_new_term_ref();
             PL.PL_put_integer(contract_number_term, loan_agr.ContractNumber);
             term_t *principal_amount_term = PL.PL_new_term_ref();
             PL.PL_put_float(principal_amount_term, loan_agr.PrincipalAmount);
-            term_t *repayment_before_lodgement = PL.PL_new_term_ref();
             term_t *lodgement_day_term = PL.PL_new_term_ref();
             PL.PL_put_integer(lodgement_day_term, Date.ComputeAbsoluteDay(loan_agr.LodgementDate));
             term_t *begin_day_term = PL.PL_new_term_ref();
@@ -78,27 +76,8 @@ namespace PrologEndpoint.Controllers
                 PL.PL_put_float(computation_opening_balance_term, loan_agr.ComputationOpeningBalance);
             term_t *loan_agr_term = PL.PL_new_term_ref();
             PL.PL_cons_functor(loan_agr_term, loan_agr_functor,
-                __arglist(contract_number_term, principal_amount_term, repayment_before_lodgement, lodgement_day_term, begin_day_term, term_term, computation_year_term, computation_opening_balance_term, ConstructLoanRepayments(loan_agr.Repayments)));
+                __arglist(contract_number_term, principal_amount_term, lodgement_day_term, begin_day_term, term_term, computation_year_term, computation_opening_balance_term, ConstructLoanRepayments(loan_agr.Repayments)));
             return loan_agr_term;
-        }
-
-        /* Turns the LoanAgreement into a prepared loan_agreement term. */
-        private unsafe term_t *ConstructPreparedLoanAgreement(LoanAgreement loan_agr)
-        {
-            // Constructing the term loan_agr_prepare(Loan_Agreement, Prepared_Loan_Agreement)
-            // where Loan_Agreement is a term corresponding to loan_agr.
-            predicate_t *prepare_loan_agr_pred = PL.PL_predicate(LOAN_AGR_PREPARE, 2, null);
-            term_t *prepare_loan_agr_pred_arg0 = PL.PL_new_term_refs(2);
-            PL.PL_put_term(prepare_loan_agr_pred_arg0, ConstructLoanAgreement(loan_agr));
-            term_t *prepare_loan_agr_pred_arg1 = (term_t *) (1 + (byte *) prepare_loan_agr_pred_arg0);
-            term_t *prepared_loan_agr_term = PL.PL_new_term_ref();
-            PL.PL_put_term(prepare_loan_agr_pred_arg1, prepared_loan_agr_term);
-            
-            // Cutting query and returning Prepared_Loan_Agreement
-            qid_t *qid = PL.PL_open_query(null, PL.PL_Q_NORMAL, prepare_loan_agr_pred, prepare_loan_agr_pred_arg0);
-            PL.PL_next_solution(qid);
-            PL.PL_cut_query(qid);
-            return prepared_loan_agr_term;
         }
 
         /* Gets the LoanSummarys of a LoanAgreement. */
@@ -127,7 +106,7 @@ namespace PrologEndpoint.Controllers
             // Query for the loan_summarys.
             predicate_t *loan_agr_summary_pred = PL.PL_predicate(LOAN_AGR_SUMMARY, 2, null);
             term_t *loan_agr_summary_pred_arg0 = PL.PL_new_term_refs(2);
-            PL.PL_put_term(loan_agr_summary_pred_arg0, ConstructPreparedLoanAgreement(loan_agr));
+            PL.PL_put_term(loan_agr_summary_pred_arg0, ConstructLoanAgreement(loan_agr));
             term_t *loan_agr_summary_pred_arg1 = (term_t *) (1 + (byte *) loan_agr_summary_pred_arg0);
             PL.PL_put_term(loan_agr_summary_pred_arg1, loan_summary_term);
             qid_t *qid = PL.PL_open_query(null, PL.PL_Q_NORMAL, loan_agr_summary_pred, loan_agr_summary_pred_arg0);
