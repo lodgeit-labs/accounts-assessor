@@ -25,7 +25,7 @@ Outline of the directory structure of this repository:
 * [docs](docs) contains correspondences and resources on accounting that I have been finding useful in making this program
 * [misc](misc) contains the stuff that does not yet clearly fit into a category
 * [endpoint_src](endpoint_src) contains the source for the web endpoint housing the Prolog program
-* [endpoint_test](endpoint_tests) contains test XML requests for the web endpoint as well as expected XML reponses
+* [endpoint_tests](endpoint_tests) contains test XML requests for the web endpoint as well as expected XML reponses
 
 ## Current Functionality
 
