@@ -8,9 +8,13 @@ How to run the program:
 * Change directory to the root of the project
 * Enter `swipl -s src/main.pl`
 
-How to run the tests:
+How to run the program tests:
 * Change directory to the root of the project
 * Enter `./tests/main.sh`
+
+How to run the web endpoint tests:
+* Change directory to the root of the project
+* Enter `./endpoint_tests/main.sh`
 
 ## Directory Structure
 
@@ -21,6 +25,7 @@ Outline of the directory structure of this repository:
 * [docs](docs) contains correspondences and resources on accounting that I have been finding useful in making this program
 * [misc](misc) contains the stuff that does not yet clearly fit into a category
 * [endpoint_src](endpoint_src) contains the source for the web endpoint housing the Prolog program
+* [endpoint_test](endpoint_tests) contains test XML requests for the web endpoint as well as expected XML reponses
 
 ## Current Functionality
 
