@@ -131,6 +131,21 @@ loan_rec_aux(Repayments_Hd, Current_Rep_Amount, Current_Record_Number, Current_D
 	loan_rec_interest_amount(Next_Record, Interest_Amount),
 	loan_rec_repayment_amount(Next_Record, Current_Rep_Amount).
 
+% Asserts the necessary relations to get the first record given the current balance and day
+
+loan_agr_record_aux(Agreement, Record, Current_Balance, Current_Day) :-
+	Current_Acc_Interest = 0,
+	Current_Acc_Rep = 0,
+	loan_agr_repayments(Agreement, Repayments),
+	loan_reps_after(Current_Day, Repayments, [Repayments_Hd|Repayments_Tl]),
+	Current_Record_Number = 0,
+	loan_rec_aux(Repayments_Hd, Current_Rep_Amount, Current_Record_Number, Current_Day, Current_Balance, Interest_Amount, Next_Record),
+	New_Acc_Rep is Current_Acc_Rep + Current_Rep_Amount,
+	Next_Acc_Interest is Current_Acc_Interest + Interest_Amount,
+	Next_Balance is Current_Balance - Current_Rep_Amount,
+	loan_rec_closing_balance(Next_Record, Next_Balance),
+	(Record = Next_Record; loan_rec_record(Next_Record, Repayments_Tl, Next_Acc_Interest, New_Acc_Rep, Record)).
+
 % Relates a loan agreement to one of its records
 
 loan_agr_record(Agreement, Record) :-
@@ -139,37 +154,16 @@ loan_agr_record(Agreement, Record) :-
 	loan_agr_repayment_before_lodgement(Agreement, Repayment_Before_Lodgement),
 	Current_Balance is Principal_Amount - Repayment_Before_Lodgement,
 	loan_agr_begin_day(Agreement, Begin_Day),
-	Current_Acc_Interest = 0,
-	Current_Acc_Rep = 0,
-	loan_agr_repayments(Agreement, [Repayments_Hd|Repayments_Tl]),
-	Current_Record_Number = 0,
-	Current_Day = Begin_Day,
-	loan_rec_aux(Repayments_Hd, Current_Rep_Amount, Current_Record_Number, Current_Day, Current_Balance, Interest_Amount, Next_Record),
-	New_Acc_Rep is Current_Acc_Rep + Current_Rep_Amount,
-	Next_Acc_Interest is Current_Acc_Interest + Interest_Amount,
-	Next_Balance is Current_Balance - Current_Rep_Amount,
-	loan_rec_closing_balance(Next_Record, Next_Balance),
-	(Record = Next_Record; loan_rec_record(Next_Record, Repayments_Tl, Next_Acc_Interest, New_Acc_Rep, Record)).
+	loan_agr_record_aux(Agreement, Record, Current_Balance, Begin_Day).
 
 % Relates a loan agreement to one of its records starting from the given balance at the given day
 
 loan_agr_record(Agreement, Record) :-
 	loan_agr_computation_year(Agreement, Computation_Year),
-	loan_agr_computation_opening_balance(Agreement, Computation_Opening_Balance), Computation_Opening_Balance \= false,
-	loan_rec_number(Next_Record, 0),
-	loan_agr_principal_amount(Agreement, Principal_Amount),
-	loan_rec_opening_balance(Next_Record, Principal_Amount),
-	loan_rec_interest_rate(Next_Record, 0),
-	loan_rec_interest_amount(Next_Record, 0),
-	loan_rec_repayment_amount(Next_Record, 0),
-	loan_rec_closing_balance(Next_Record, Computation_Opening_Balance),
-	loan_agr_begin_day(Agreement, Opening_Day),
-	loan_rec_opening_day(Next_Record, Opening_Day),
+	loan_agr_computation_opening_balance(Agreement, Computation_Opening_Balance),
+	Computation_Opening_Balance \= false,
 	loan_agr_year_days(Agreement, Computation_Year, Computation_Day, _),
-	loan_rec_closing_day(Next_Record, Computation_Day),
-	loan_agr_repayments(Agreement, Repayments),
-	loan_reps_after(Computation_Day, Repayments, New_Repayments),
-	(Record = Next_Record; loan_rec_record(Next_Record, New_Repayments, 0, 0, Record)).
+	loan_agr_record_aux(Agreement, Record, Computation_Opening_Balance, Computation_Day).
 
 % Relates a loan record to one that follows it, in the case that it is not a year-end record
 
@@ -253,12 +247,12 @@ loan_reps_after(_, [], []).
 
 loan_reps_after(Day, [Repayments_Hd | Repayments_Tl], New_Repayments) :-
 	loan_rep_day(Repayments_Hd, Rep_Day),
-	Rep_Day > Day,
+	Rep_Day >= Day,
 	New_Repayments = [Repayments_Hd | Repayments_Tl].
 
 loan_reps_after(Day, [Repayments_Hd | Repayments_Tl], New_Repayments) :-
 	loan_rep_day(Repayments_Hd, Rep_Day),
-	Rep_Day =< Day,
+	Rep_Day < Day,
 	loan_reps_after(Day, Repayments_Tl, New_Repayments).
 
 % From the given agreement, prepares a new loan agreement suitable for calculations.
