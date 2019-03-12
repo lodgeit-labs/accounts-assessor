@@ -166,8 +166,10 @@ loan_agr_record(Agreement, Record) :-
 	loan_agr_computation_opening_balance(Agreement, Computation_Opening_Balance),
 	Computation_Opening_Balance \= false,
 	loan_agr_year_days(Agreement, Computation_Year, Computation_Day, _),
-	loan_agr_repayments(Agreement, Repayments),
-	loan_agr_record_aux(Agreement, Record, Computation_Opening_Balance, Computation_Day, Repayments).
+	loan_agr_repayments(Agreement, Repayments_A),
+  loan_agr_lodgement_day(Agreement, Lodgement_Day),
+	loan_reps_before_lodgement(Lodgement_Day, 0, Repayments_A, _, Repayments_B),
+	loan_agr_record_aux(Agreement, Record, Computation_Opening_Balance, Computation_Day, Repayments_B).
 
 % Relates a loan record to one that follows it, in the case that it is not a year-end record
 
