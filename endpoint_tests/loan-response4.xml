@@ -1,0 +1,12 @@
+<LoanSummary xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<IncomeYear>2017</IncomeYear>
+	<OpeningBalance>0</OpeningBalance>
+	<InterestRate>5.4</InterestRate>
+	<MinYearlyRepayment>0</MinYearlyRepayment>
+	<TotalRepayment>10000</TotalRepayment>
+	<RepaymentShortfall>0</RepaymentShortfall>
+	<TotalInterest>0</TotalInterest>
+	<TotalPrincipal>10000</TotalPrincipal>
+	<ClosingBalance>0</ClosingBalance>
+</LoanSummary>
+
