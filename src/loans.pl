@@ -53,8 +53,6 @@ loan_rep_amount(loan_repayment(_, Amount), Amount).
 loan_agr_contract_number(loan_agreement(Contract_Number, _, _, _, _, _, _, _, _), Contract_Number).
 % The principal amount of the loan agreement
 loan_agr_principal_amount(loan_agreement(_, Principal_Amount, _, _, _, _, _, _, _), Principal_Amount).
-% For internal usage only. The total repayment made before lodgement day.
-loan_agr_repayment_before_lodgement(loan_agreement(_, _, Repayment_Before_Lodgement, _, _, _, _, _, _), Repayment_Before_Lodgement).
 % The lodgement day of the whole agreement
 loan_agr_lodgement_day(loan_agreement(_, _, _, Lodgement_Day, _, _, _, _, _), Lodgement_Day).
 % The first absolute day of the first income year after the agreement is made
@@ -133,11 +131,14 @@ loan_rec_aux(Repayments_Hd, Current_Rep_Amount, Current_Record_Number, Current_D
 
 % Asserts the necessary relations to get the first record given the current balance and day
 
-loan_agr_record_aux(Agreement, Record, Current_Balance, Current_Day) :-
+loan_agr_record_aux(Agreement, Record, Current_Balance, Current_Day, Repayments_A) :-
 	Current_Acc_Interest = 0,
 	Current_Acc_Rep = 0,
-	loan_agr_repayments(Agreement, Repayments),
-	loan_reps_after(Current_Day, Repayments, [Repayments_Hd|Repayments_Tl]),
+	loan_agr_term(Agreement, Term),
+	loan_agr_begin_day(Agreement, Begin_Day),
+	gregorian_date(Begin_Day, Begin_Date),
+	loan_reps_insert_sentinels(Begin_Date, Term, Repayments_A, Repayments_B),
+	loan_reps_after(Current_Day, Repayments_B, [Repayments_Hd|Repayments_Tl]),
 	Current_Record_Number = 0,
 	loan_rec_aux(Repayments_Hd, Current_Rep_Amount, Current_Record_Number, Current_Day, Current_Balance, Interest_Amount, Next_Record),
 	New_Acc_Rep is Current_Acc_Rep + Current_Rep_Amount,
@@ -151,10 +152,12 @@ loan_agr_record_aux(Agreement, Record, Current_Balance, Current_Day) :-
 loan_agr_record(Agreement, Record) :-
 	loan_agr_computation_opening_balance(Agreement, false),
 	loan_agr_principal_amount(Agreement, Principal_Amount),
-	loan_agr_repayment_before_lodgement(Agreement, Repayment_Before_Lodgement),
+	loan_agr_repayments(Agreement, Repayments_A),
+	loan_agr_lodgement_day(Agreement, Lodgement_Day),
+	loan_reps_before_lodgement(Lodgement_Day, 0, Repayments_A, Repayment_Before_Lodgement, Repayments_B),
 	Current_Balance is Principal_Amount - Repayment_Before_Lodgement,
 	loan_agr_begin_day(Agreement, Begin_Day),
-	loan_agr_record_aux(Agreement, Record, Current_Balance, Begin_Day).
+	loan_agr_record_aux(Agreement, Record, Current_Balance, Begin_Day, Repayments_B).
 
 % Relates a loan agreement to one of its records starting from the given balance at the given day
 
@@ -163,7 +166,8 @@ loan_agr_record(Agreement, Record) :-
 	loan_agr_computation_opening_balance(Agreement, Computation_Opening_Balance),
 	Computation_Opening_Balance \= false,
 	loan_agr_year_days(Agreement, Computation_Year, Computation_Day, _),
-	loan_agr_record_aux(Agreement, Record, Computation_Opening_Balance, Computation_Day).
+	loan_agr_repayments(Agreement, Repayments),
+	loan_agr_record_aux(Agreement, Record, Computation_Opening_Balance, Computation_Day, Repayments).
 
 % Relates a loan record to one that follows it, in the case that it is not a year-end record
 
@@ -241,47 +245,18 @@ loan_reps_insert_sentinels(Begin_Date, Year_Count, Repayments, Inserted) :-
 	New_Year_Count is Year_Count - 1,
 	loan_reps_insert_sentinels(New_Begin_Date, New_Year_Count, New_Repayments, Inserted).
 
-% Get the loan repayments strictly after a given day
+% Get the loan repayments on or after a given day
 
 loan_reps_after(_, [], []).
 
-loan_reps_after(Day, [Repayments_Hd | Repayments_Tl], New_Repayments) :-
+loan_reps_after(Day, [Repayments_Hd | Repayments_Tl], [Repayments_Hd | Repayments_Tl]) :-
 	loan_rep_day(Repayments_Hd, Rep_Day),
-	Rep_Day >= Day,
-	New_Repayments = [Repayments_Hd | Repayments_Tl].
+	Rep_Day >= Day.
 
 loan_reps_after(Day, [Repayments_Hd | Repayments_Tl], New_Repayments) :-
 	loan_rep_day(Repayments_Hd, Rep_Day),
 	Rep_Day < Day,
 	loan_reps_after(Day, Repayments_Tl, New_Repayments).
-
-% From the given agreement, prepares a new loan agreement suitable for calculations.
-% Internally it just pushes all payments before lodgement day to the beginning of the
-% agreement, and then it inserts payments of zero to mark the beginnings of income years.
-% Every predicate in this program that accepts a loan agreement assumes that it is
-% prepared.
-
-loan_agr_prepare(Agreement, New_Agreement) :-
-	loan_agr_contract_number(Agreement, Contract_Number),
-	loan_agr_contract_number(New_Agreement, Contract_Number),
-	loan_agr_principal_amount(Agreement, Principal_Amount),
-	loan_agr_principal_amount(New_Agreement, Principal_Amount),
-	loan_agr_lodgement_day(Agreement, Lodgement_Day),
-	loan_agr_lodgement_day(New_Agreement, Lodgement_Day),
-	loan_agr_begin_day(Agreement, Begin_Day),
-	loan_agr_begin_day(New_Agreement, Begin_Day),
-	loan_agr_term(Agreement, Term),
-	loan_agr_term(New_Agreement, Term),
-	loan_agr_computation_year(Agreement, Computation_Year),
-	loan_agr_computation_year(New_Agreement, Computation_Year),
-	loan_agr_computation_opening_balance(Agreement, Computation_Opening_Balance),
-	loan_agr_computation_opening_balance(New_Agreement, Computation_Opening_Balance),
-	loan_agr_repayments(Agreement, Repayments_A),
-	loan_reps_before_lodgement(Lodgement_Day, 0, Repayments_A, Repayment_Before_Lodgement, Repayments_B),
-	loan_agr_repayment_before_lodgement(New_Agreement, Repayment_Before_Lodgement),
-	gregorian_date(Begin_Day, Begin_Date),
-	loan_reps_insert_sentinels(Begin_Date, Term, Repayments_B, Repayments_C),
-	loan_agr_repayments(New_Agreement, Repayments_C).
 
 % Computes the start and end day of a given income year with respect to the given loan
 % agreement.
@@ -335,14 +310,12 @@ loan_agr_record_between(Agreement, Start_Day, End_Day, Record) :-
 % A predicate asserting the total repayment within a given income year of a loan agreement.
 
 loan_agr_total_repayment(Agreement, 0, Total_Repayment) :-
-	loan_agr_year_days(Agreement, 0, Year_Start_Day, Year_End_Day),
-	findall(Record_Repayment,
-		(loan_agr_record_between(Agreement, Year_Start_Day, Year_End_Day, Record),
-		loan_rec_repayment_amount(Record, Record_Repayment)),
-		Record_Repayments),
-	sum_list(Record_Repayments, Repayment_After_Lodgement),
-	loan_agr_repayment_before_lodgement(Agreement, Repayment_Before_Lodgement),
-	Total_Repayment is Repayment_Before_Lodgement + Repayment_After_Lodgement.
+	loan_agr_year_days(Agreement, 0, _, Year_End_Day),
+	loan_agr_repayments(Agreement, Repayments),
+	findall(Amount,
+		(member(loan_repayment(Day, Amount), Repayments), Day < Year_End_Day),
+		Amounts),
+	sum_list(Amounts, Total_Repayment).
 
 loan_agr_total_repayment(Agreement, Year_Num, Total_Repayment) :-
 	Year_Num > 0,
