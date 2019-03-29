@@ -8,4 +8,5 @@
 cat tests/loans.pl | swipl -s src/main.pl
 cat tests/ledger.pl | swipl -s src/main.pl
 cat tests/hirepurchase.pl | swipl -s src/main.pl
+cat tests/statements.pl | swipl -s src/main.pl
 

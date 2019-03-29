@@ -10,6 +10,8 @@
 :- ['loans.pl'].
 % Loads up predicates pertaining to determining residency
 :- ['residency.pl'].
+% Loads up predicates pertaining to bank statements
+:- ['statements.pl'].
 
 % Appropriate queries to type into the ensuing prompt can be found in examples
 % directory.

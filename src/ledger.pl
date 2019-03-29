@@ -171,23 +171,6 @@ transaction_before(Transaction, End_Day) :-
 	transaction_day(Transaction, Day),
 	Day =< End_Day.
 
-% Predicates for asserting that the fields of given transactions using trading accounts have particular values
-
-% The absolute day that the transaction happenned
-transaction_uta_day(transaction_uta(Day, _, _, _, _, _, _), Day).
-% A description of the transaction
-transaction_uta_description(transaction_uta(_, Description, _, _, _, _, _), Description).
-% The amounts that are being moved in this transaction
-transaction_uta_vector(transaction_uta(_, _, Vector, _, _, _, _), Vector).
-% The units to which the transaction amount will be converted to
-transaction_uta_bases(transaction_uta(_, _, _, Bases, _, _, _), Bases).
-% The account that the transaction modifies without using exchange rate conversions
-transaction_uta_unexchanged_account(transaction_uta(_, _, _, _, Unexchanged_Account, _, _), Unexchanged_Account).
-% The account that will receive the inverse of the transaction amount after exchanging
-transaction_uta_exchanged_account(transaction_uta(_, _, _, _, _, Exchanged_Account, _), Exchanged_Account).
-% The account that will record the gains and losses on the transaction amount
-transaction_uta_trading_account(transaction_uta(_, _, _, _, _, _, Trading_Account), Trading_Account).
-
 % Account isomorphisms. They are standard conventions in accounting.
 
 account_isomorphism(asset, debit_isomorphism).
@@ -195,44 +178,6 @@ account_isomorphism(equity, credit_isomorphism).
 account_isomorphism(liability, credit_isomorphism).
 account_isomorphism(revenue, credit_isomorphism).
 account_isomorphism(expense, debit_isomorphism).
-
-% Transactions using trading accounts can be decomposed into a transaction of the given
-% amount to the unexchanged account, a transaction of the transformed inverse into the
-% exchanged account, and a transaction of the negative sum of these into the trading
-% account. This predicate takes a list of transactions and transactions using trading
-% accounts and decomposes it into a list of just transactions.
-
-preprocess_transaction_utas([], []).
-
-preprocess_transaction_utas([Transaction_UTA | Transactions],
-		[UnX_Transaction | [X_Transaction | [Trading_Transaction | PP_Transactions]]]) :-
-	% Make an unexchanged transaction to the unexchanged account
-	transaction_uta_day(Transaction_UTA, Day), transaction_day(UnX_Transaction, Day),
-	transaction_uta_description(Transaction_UTA, Description), transaction_description(UnX_Transaction, Description),
-	transaction_uta_vector(Transaction_UTA, Vector), transaction_vector(UnX_Transaction, Vector),
-	transaction_uta_unexchanged_account(Transaction_UTA, UnX_Account), transaction_account(UnX_Transaction, UnX_Account),
-	
-	% Make an inverse exchanged transaction to the exchanged account
-	transaction_uta_bases(Transaction_UTA, Bases),
-	vec_inverse(Vector, Vector_Inverted),
-	vec_change_bases(Day, Bases, Vector_Inverted, Vector_Inverted_Transformed),
-	transaction_day(X_Transaction, Day),
-	transaction_description(X_Transaction, Description),
-	transaction_vector(X_Transaction, Vector_Inverted_Transformed),
-	transaction_uta_exchanged_account(Transaction_UTA, X_Account), transaction_account(X_Transaction, X_Account),
-	
-	% Make a difference transaction to the trading account
-	vec_sub(Vector_Inverted, Vector_Inverted_Transformed, Trading_Vector),
-	transaction_day(Trading_Transaction, Day),
-	transaction_description(Trading_Transaction, Description),
-	transaction_vector(Trading_Transaction, Trading_Vector),
-	transaction_uta_trading_account(Transaction_UTA, Trading_Account), transaction_account(Trading_Transaction, Trading_Account),
-	
-	% Make the list of preprocessed transactions
-	preprocess_transaction_utas(Transactions, PP_Transactions), !.
-
-preprocess_transaction_utas([Transaction | Transactions], [Transaction | PP_Transactions]) :-
-	preprocess_transaction_utas(Transactions, PP_Transactions).
 
 % Adds all the T-Terms of the transactions.
 
