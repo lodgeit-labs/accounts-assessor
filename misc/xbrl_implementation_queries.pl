@@ -10,7 +10,9 @@ recorda(elements,
   element('pattern_PropertyPlantAndEquipmentNet', 'PropertyPlantAndEquipmentNet'),
   element('pattern_PropertyPlantAndEquipmentNetRollUp', 'PropertyPlantAndEquipmentNetRollUp'),
   element('pattern_PropertyPlantEquipmentByComponentTable', 'PropertyPlantEquipmentByComponentTable'),
-  element('pattern_SampleCompanyMember', 'SampleCompanyMember')]).
+  element('pattern_SampleCompanyMember', 'SampleCompanyMember'),
+  element('frm_ConsolidatedEntityMember', 'ConsolidatedEntityMember'),
+  element('frm_LegalEntityAxis', 'LegalEntityAxis')]).
 
 % The labels for the RollUp taxonomy
 
@@ -134,6 +136,11 @@ recorda(instances,
 % The possible contexts of the facts
 
 recorda(contexts,
-  [context('I-2010', [explicit_member('frm:LegalEntityAxis', 'frm:ConsolidatedEntityMember')], date(2010, 12, 31)),
-  context('I-2009', [explicit_member('frm:LegalEntityAxis', 'frm:ConsolidatedEntityMember')], date(2009, 12, 31))]).
+  [context('I-2010', [explicit_member('LegalEntityAxis', 'ConsolidatedEntityMember')], date(2010, 12, 31)),
+  context('I-2009', [explicit_member('LegalEntityAxis', 'ConsolidatedEntityMember')], date(2009, 12, 31))]).
+
+recorded(elements, Elements), recorded(labels, Labels), recorded(label_arcs, Label_Arcs),
+recorded(presentation_arcs, Presentation_Arcs), recorded(instances, Instances),
+recorded(contexts, Contexts),
+display(Instances, Contexts, Elements, Presentation_Arcs, Label_Arcs, Labels, Display).
 

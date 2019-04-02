@@ -56,7 +56,7 @@ variable_arc_to(variable_arc(_, _, To, _), To).
 variable_arc_name(variable_arc(_, _, _, Name), Name).
 
 concept_name_label(concept_name(Label, _), Label).
-concept_name_content(concept_name(_, Content), _).
+concept_name_content(concept_name(_, Content), Content).
 
 % This specification is an extension to the XBRL Validation specification [VALIDATION]. It
 % defines XML syntax [XML] for assertions that test the values of the variables of each
@@ -82,4 +82,83 @@ context_period(context(_, _, Period), Period).
 
 explicit_member_dimension(explicit_member(Dimension, _), Dimension).
 explicit_member_content(explicit_member(_, Content), Content).
+
+% The following code gets all the information associated with a particular context as
+% an association list called Point.
+
+point(Instances, Context, Point) :-
+  context_id(Context, Context_Id),
+  context_explicit_members(Context, Explicit_Members),
+  % Each explicit member is going to be a coordinate of this point
+  findall(Coord,
+    (member(Explicit_Member, Explicit_Members),
+    explicit_member_dimension(Explicit_Member, Dimension),
+    explicit_member_content(Explicit_Member, Content),
+    Coord = (Dimension, Content)), Coords_A),
+  % Each instance element with this context is going to be a coordinate of this point
+  findall(Coord,
+    (member(Instance, Instances),
+      instance_context_ref(Instance, Context_Id),
+      instance_element(Instance, Element),
+      instance_content(Instance, Content),
+      Coord = (Element, Content)), Coords_B),
+  % This point comprises all its coordinate information
+  append(Coords_A, Coords_B, Point).
+
+% Renders the given point using a schema and presentation and label linkbases to control
+% how the rendering is done.
+
+render(Point, Elements, Label_Arcs, Labels, Presentation_Arcs, Concept, Rendering) :-
+  % Use a label arc to get from the concept to the label
+  member(Label_Arc, Label_Arcs),
+  label_arc_from(Label_Arc, Concept),
+  label_arc_to(Label_Arc, L_To),
+  label_arc_role(Label_Arc, 'concept-label'),
+  % Use a label to get from the label to the string value
+  member(Label, Labels),
+  label_label(Label, L_To),
+  label_role(Label, 'label'),
+  label_content(Label, L_Content),
+  % Use an element to get from an id to a name
+  member(Element, Elements),
+  element_id(Element, Concept),
+  element_name(Element, Name),
+  % Use the point to get from a name to values
+  findall(Value, member((Name, Value), Point), Values),
+  % Recurse on all the child concepts
+  findall(Sub_Rendering,
+    (member(Presentation_Arc, Presentation_Arcs),
+      presentation_arc_role(Presentation_Arc, 'parent-child'),
+      presentation_arc_from(Presentation_Arc, Concept),
+      presentation_arc_to(Presentation_Arc, Sub_Concept),
+      render(Point, Elements, Label_Arcs, Labels, Presentation_Arcs, Sub_Concept, Sub_Rendering)),
+    Sub_Renderings),
+  % Rendering comprises label, values, and sub-renderings
+  Rendering = (L_Content, Values, Sub_Renderings).
+
+% Asserts that Concept is a root concept with respect to the presentation arcs. That is,
+% there will be arcs coming from Concept, but none going to Concept.
+
+root(Presentation_Arcs, Concept) :-
+  % Concept must be the parent of something
+  member(Presentation_Arc_A, Presentation_Arcs),
+  presentation_arc_role(Presentation_Arc_A, 'parent-child'),
+  presentation_arc_from(Presentation_Arc_A, Concept),
+  % Concept must not be the child of anything
+  forall((member(Presentation_Arc_B, Presentation_Arcs),
+  presentation_arc_role(Presentation_Arc_B, 'parent-child')),
+  \+ presentation_arc_to(Presentation_Arc_B, Concept)).
+
+% The following code displays an instance using a schema and presentation and label
+% linkbases to control how the rendering is done.
+
+display(Instances, Contexts, Elements, Presentation_Arcs, Label_Arcs, Labels, Display) :-
+  % Get a context
+  member(Context, Contexts),
+  % Get the point of data corresponding to the context
+  point(Instances, Context, Point),
+  % Get a root concept with respect to parent-child arcs
+  root(Presentation_Arcs, Concept),
+  % Render the the point using the given root concept
+  render(Point, Elements, Label_Arcs, Labels, Presentation_Arcs, Concept, Display).
 
