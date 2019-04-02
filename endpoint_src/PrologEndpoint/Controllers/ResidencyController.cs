@@ -107,7 +107,8 @@ namespace PrologEndpoint.Controllers
             // Give a final answer or update the state in preparation for the next question.
             DialogueResponse dres = new DialogueResponse();
             if (next_question_id == -1) dres.Answer = "Australian";
-            else if (next_question_id == -2) dres.Answer = "foreign";
+            else if (next_question_id == -2) dres.Answer = "temporary";
+            else if (next_question_id == -3) dres.Answer = "foreign";
             else
             {
                 dres.Question = next_question_prompt;
