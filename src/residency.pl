@@ -8,6 +8,8 @@ indicator(Element, List, 0) :- \+ member(Element, List).
 % A Deterministic Finite State Machine for determining if the user is an Australian
 % resident for tax purposes.
 
+% Resides Test
+
 next_state(_, 0, 1, "Do you live in Australia?").
 
 next_state(_, 1, 2, "Do you maintain a permanent base in Australia?").
@@ -31,6 +33,8 @@ next_state(History, 4, 5, "Do you reside in Australia more than you reside elsew
 
 next_state(_, 4, -1, "").
 
+% Domicile Test
+
 next_state(History, 5, 6, "Do you rent a house, room or apartment in Australia to dwell in?") :-
 	indicator((1, 1), History, I1),
 	indicator((2, 1), History, I2),
@@ -49,6 +53,8 @@ next_state(_, 6, -1, "").
 next_state(History, 7, 8, "Is the house or any part of the house maintained for you to live in?") :-
 	member((7, 1), History), !.
 
+% 183 Day Test
+
 next_state(_, 7, 9, "Did you recently arrive in Australia?").
 
 next_state(History, 8, 9, "Did you recently arrive in Australia?") :-
@@ -58,6 +64,8 @@ next_state(_, 8, -1, "").
 
 next_state(History, 9, 10, "Did you spend 183 or more days in Australia?") :-
 	member((9, 1), History), !.
+
+% Commonwealth Superannuation Fund Test
 
 next_state(_, 9, 12, "Are you a Government employee?").
 
@@ -74,13 +82,34 @@ next_state(_, 11, -1, "").
 next_state(History, 12, 13, "Are you eligible to contribute to a Public Sector Superannuation Scheme?") :-
 	member((12, 1), History), !.
 
-next_state(_, 12, -2, "").
+% Temporary Resident? Domicile Test for Spouse
 
-next_state(History, 13, -2, "") :-
+next_state(_, 12, 14, "Do you hold a temporary visa?").
+
+next_state(History, 13, 14, "Do you hold a temporary visa?") :-
 	member((13, 0), History), !.
 
-next_state(History, 13, -1, "") :-
-	member((13, 1), History), !.
+next_state(_, 13, -1, "").
+
+next_state(History, 14, -3, "") :-
+  member((14, 0), History), !.
+
+next_state(_, 14, 15, "Does your spouse rent a house, room or apartment in Australia to dwell in?").
+
+next_state(History, 15, 16, "Does your spouse own a house in Australia?") :-
+	member((15, 0), History), !.
+
+next_state(_, 15, -3, "").
+
+next_state(History, 16, 17, "Is the house or any part of the house maintained for your spouse to live in?") :-
+	member((16, 1), History), !.
+
+next_state(_, 16, -2, "").
+
+next_state(History, 17, -3, "") :-
+  member((17, 1), History), !.
+
+next_state(_, 17, -2, "").
 
 % Prints the prompt Prompt. Unifies Bool with 1 if the user enters 'Y' or 'y'. Unifies
 % Bool with 0 if the user enters 'N' or 'n'. Repeats the prompt if the answer is not one
@@ -97,13 +126,14 @@ prompt(Prompt, Bool) :-
 % Carrys out a dialog with the user based on the Deterministic Finite State Machine above.
 % History is a list of pairs of questions and answers received so far, state identifies
 % the current state of the machine, Response refers to the 1 or 0 value given as an
-% answer to the question askwed while in this state, and Resident is -1 or -2 depending on
-% whether the user is an Australian or foreign resident for tax purposes respectively.
+% answer to the question askwed while in this state, and Resident is -1, -2, or -3
+% depending on whether the user is an Australian, temporary, or foreign resident for tax
+% purposes respectively.
 
 dialog(History, State, Response, Resident) :-
 	Next_History = [(State, Response) | History],
 	next_state(Next_History, State, Next_State, Next_Question),
-	Next_State \= -1, Next_State \= -2,
+	Next_State \= -1, Next_State \= -2, Next_State \= -3,
 	prompt(Next_Question, Next_Response),
 	dialog(Next_History, Next_State, Next_Response, Resident), !.
 
