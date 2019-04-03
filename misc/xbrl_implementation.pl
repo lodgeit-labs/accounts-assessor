@@ -65,8 +65,9 @@ concept_name_content(concept_name(_, Content), Content).
 % value is obtained by evaluating the an XPath expression that is specified as part of the
 % assertion. 
 
-value_assertion_label(value_assertion(Label, _), Label).
-value_assertion_test(value_assertion(_, Test), Test).
+value_assertion_label(value_assertion(Label, _, _), Label).
+value_assertion_id(value_assertion(_, Id, _), Id).
+value_assertion_test(value_assertion(_, _, Test), Test).
 
 instance_element(instance(Element, _, _), Element).
 instance_context_ref(instance(_, Context_Ref, _), Context_Ref).
@@ -161,4 +162,127 @@ display(Instances, Contexts, Elements, Presentation_Arcs, Label_Arcs, Labels, Di
   root(Presentation_Arcs, Concept),
   % Render the the point using the given root concept
   render(Point, Elements, Label_Arcs, Labels, Presentation_Arcs, Concept, Display).
+
+% Takes the given point of an XBRL instance and makes a binding for each variable
+% associated with the variable set that has the label VA_Label.
+
+bindings(Point, VA_Label, Variable_Arcs, Fact_Variables, Variable_Filter_Arcs, Concept_Names, Bindings) :-
+  findall(Binding,
+    % Use the variable arc to get a variable associated with the variable set
+    (member(Variable_Arc, Variable_Arcs),
+      variable_arc_role(Variable_Arc, 'variable-set'),
+      variable_arc_from(Variable_Arc, VA_Label),
+      variable_arc_name(Variable_Arc, Name),
+      variable_arc_to(Variable_Arc, VA_To),
+      % Ensure that the target of the variable arc is a declared variable
+      member(Fact_Variable, Fact_Variables),
+      fact_variable_label(Fact_Variable, VA_To),
+      % Use the variable filter arc to get to a concept name filter
+      member(Variable_Filter_Arc, Variable_Filter_Arcs),
+      variable_filter_arc_role(Variable_Filter_Arc, 'variable-filter'),
+      variable_filter_arc_from(Variable_Filter_Arc, VA_To),
+      variable_filter_arc_to(Variable_Filter_Arc, VFA_To),
+      % Get the concept name specified by this filter
+      member(Concept_Name, Concept_Names),
+      concept_name_label(Concept_Name, VFA_To),
+      concept_name_content(Concept_Name, Content),
+      % Get the value of the fact with the concept name
+      member((Content, Value), Point),
+      % Make a binding that ties the name in the variable arc to the aformentioned value
+      Binding = (Name, Value)), Bindings).
+
+% Evaluate the given formula to a numerical value using the given bindings. Note that the
+% only supported operations are addition, subtraction, multiplication, division, and
+% exponentiation.
+
+formula_eval(Formula, Bindings, Value) :-
+  atomic(Formula),
+  member((Formula, Value), Bindings).
+
+formula_eval(A+B, Bindings, Value) :-
+  formula_eval(A, Bindings, A_Value),
+  formula_eval(B, Bindings, B_Value),
+  Value is A_Value + B_Value.
+
+formula_eval(A-B, Bindings, Value) :-
+  formula_eval(A, Bindings, A_Value),
+  formula_eval(B, Bindings, B_Value),
+  Value is A_Value - B_Value.
+
+formula_eval(A*B, Bindings, Value) :-
+  formula_eval(A, Bindings, A_Value),
+  formula_eval(B, Bindings, B_Value),
+  Value is A_Value * B_Value.
+
+formula_eval(A/B, Bindings, Value) :-
+  formula_eval(A, Bindings, A_Value),
+  formula_eval(B, Bindings, B_Value),
+  Value is A_Value / B_Value.
+
+formula_eval(A^B, Bindings, Value) :-
+  formula_eval(A, Bindings, A_Value),
+  formula_eval(B, Bindings, B_Value),
+  Value is A_Value ^ B_Value.
+
+% Verifies that the given relation holds once the given bindings have been substituted
+% in. Note that the only supported relations are not equal, equal, greater than, less
+% than, and their various combinations.
+
+verify_relation(A =:= B, Bindings) :-
+  formula_eval(A, Bindings, A_Value),
+  formula_eval(B, Bindings, B_Value),
+  A_Value =:= B_Value.
+
+verify_relation(A < B, Bindings) :-
+  formula_eval(A, Bindings, A_Value),
+  formula_eval(B, Bindings, B_Value),
+  A_Value < B_Value.
+
+verify_relation(A =< B, Bindings) :-
+  formula_eval(A, Bindings, A_Value),
+  formula_eval(B, Bindings, B_Value),
+  A_Value =< B_Value.
+
+verify_relation(A > B, Bindings) :-
+  formula_eval(A, Bindings, A_Value),
+  formula_eval(B, Bindings, B_Value),
+  A_Value > B_Value.
+
+verify_relation(A >= B, Bindings) :-
+  formula_eval(A, Bindings, A_Value),
+  formula_eval(B, Bindings, B_Value),
+  A_Value >= B_Value.
+
+verify_relation(A =\= B, Bindings) :-
+  formula_eval(A, Bindings, A_Value),
+  formula_eval(B, Bindings, B_Value),
+  A_Value =\= B_Value.
+
+% Validates the given value assertion in the given context using the given formula
+% linkbase.
+
+validate_assertion_in_context(Value_Assertion, Instances, Context, Variable_Arcs, Fact_Variables, Variable_Filter_Arcs, Concept_Names) :-
+  % Get the point of data corresponding to the context
+  point(Instances, Context, Point),
+  value_assertion_label(Value_Assertion, VA_Label),
+  % Get the variable bindings necessary for the evaluation of this assertion
+  bindings(Point, VA_Label, Variable_Arcs, Fact_Variables, Variable_Filter_Arcs, Concept_Names, Bindings),
+  % Get the actual test of the value assertion
+  value_assertion_test(Value_Assertion, Test),
+  % Verify that the relation given in the test holds.
+  verify_relation(Test, Bindings).
+
+% Validates the given value assertion in all the given contexts using the given formula
+% linkbase.
+
+validate_assertion(Value_Assertion, Instances, Contexts, Variable_Arcs, Fact_Variables, Variable_Filter_Arcs, Concept_Names) :-
+  forall(member(Context, Contexts),
+    validate_assertion_in_context(Value_Assertion, Instances, Context, Variable_Arcs, Fact_Variables, Variable_Filter_Arcs, Concept_Names)).
+
+% Validates all the given value assertions in all the given contexts using the given
+% formula linkbase.
+
+validate_assertions(Value_Assertions, Instances, Contexts, Variable_Arcs, Fact_Variables, Variable_Filter_Arcs, Concept_Names) :-
+  forall(member(Value_Assertion, Value_Assertions),
+    validate_assertion(Value_Assertion, Instances, Contexts, Variable_Arcs, Fact_Variables, Variable_Filter_Arcs, Concept_Names)).
 
