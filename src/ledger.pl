@@ -31,10 +31,27 @@ exchange_rates(Day, Src_Currency, Exchange_Rates) :-
 	close(Stream),
 	asserta((exchange_rates(Day, Src_Currency, Exchange_Rates) :- !)).
 
+% % Predicates for asserting that the fields of given exchange rates have particular values
+
+% The day to which the exchange rate applies
+exchange_rate_day(exchange_rate(Day, _, _, _), Day).
+% The source currency of this exchange rate
+exchange_rate_src_currency(exchange_rate(_, Src_Currency, _, _), Src_Currency).
+% The destination currency of this exchange rate
+exchange_rate_dest_currency(exchange_rate(_, _, Dest_Currency, _), Dest_Currency).
+% The actual rate of this exchange rate
+exchange_rate_rate(exchange_rate(_, _, _, Rate), Rate).
+
+% Obtains the exchange rate from Src_Currency to Dest_Currency on the day Day using the
+% given lookup table.
+
+exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate) :-
+  member(exchange_rate(Day, Src_Currency, Dest_Currency, Exchange_Rate), Table), !.
+
 % Obtains the exchange rate from Src_Currency to Dest_Currency on the day Day using the
 % exchange_rates predicate.
 
-exchange_rate(Day, Src_Currency, Dest_Currency, Exchange_Rate) :-
+exchange_rate(_, Day, Src_Currency, Dest_Currency, Exchange_Rate) :-
 	exchange_rates(Day, Src_Currency, Exchange_Rates),
 	upcase_atom(Dest_Currency, Dest_Currency_Upcased),
 	member(Dest_Currency_Upcased = Exchange_Rate, Exchange_Rates).
@@ -106,28 +123,28 @@ vec_equality(As, Bs) :-
 % exchange on the day Day is possible. If Amount cannot be exchanged into any of the units
 % from Bases, then it is left as is.
 
-exchange_amount(_, [], Amount, Amount).
+exchange_amount(_, _, [], Amount, Amount).
 
-exchange_amount(Day, [Bases_Hd | _], coord(Unit, Debit, Credit), Amount_Exchanged) :-
-	exchange_rate(Day, Unit, Bases_Hd, Exchange_Rate),
+exchange_amount(Exchange_Rates, Day, [Bases_Hd | _], coord(Unit, Debit, Credit), Amount_Exchanged) :-
+	exchange_rate(Exchange_Rates, Day, Unit, Bases_Hd, Exchange_Rate),
 	Debit_Exchanged is Debit * Exchange_Rate,
 	Credit_Exchanged is Credit * Exchange_Rate,
 	Amount_Exchanged = coord(Bases_Hd, Debit_Exchanged, Credit_Exchanged).
 
-exchange_amount(Day, [Bases_Hd | Bases_Tl], coord(Unit, Debit, Credit), Amount_Exchanged) :-
-	\+ exchange_rate(Day, Bases_Hd, Unit, _),
-	exchanged_amount(Day, Bases_Tl, coord(Unit, Debit, Credit), Amount_Exchanged).
+exchange_amount(Exchange_Rates, Day, [Bases_Hd | Bases_Tl], coord(Unit, Debit, Credit), Amount_Exchanged) :-
+	\+ exchange_rate(Exchange_Rates, Day, Bases_Hd, Unit, _),
+	exchange_amount(Exchange_Rates, Day, Bases_Tl, coord(Unit, Debit, Credit), Amount_Exchanged).
 
 % Using the exchange rates from the day Day, change the bases of the given vector into
 % those from Bases. Where two different coordinates have been mapped to the same basis,
 % combine them. If a coordinate cannot be exchanged into a unit from Bases, then it is
 % put into the result as is.
 
-vec_change_bases(_, _, [], []).
+vec_change_bases(_, _, _, [], []).
 
-vec_change_bases(Day, Bases, [A | As], Bs) :-
-	exchange_amount(Day, Bases, A, A_Exchanged),
-	vec_change_bases(Day, Bases, As, As_Exchanged),
+vec_change_bases(Exchange_Rates, Day, Bases, [A | As], Bs) :-
+	exchange_amount(Exchange_Rates, Day, Bases, A, A_Exchanged),
+	vec_change_bases(Exchange_Rates, Day, Bases, As, As_Exchanged),
 	vec_add([A_Exchanged], As_Exchanged, Bs).
 
 % Predicates for asserting that the fields of given accounts have particular values
@@ -191,40 +208,40 @@ transaction_vector_total([Hd_Transaction | Tl_Transaction], Reduced_Net_Activity
 
 % Relates Day to the balance at that time of the given account.
 
-balance_by_account(Accounts, Transactions, Bases, Exchange_Day, Account, Day, Balance_Transformed) :-
+balance_by_account(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Account, Day, Balance_Transformed) :-
 	findall(Transaction,
 		(member(Transaction, Transactions),
 		transaction_before(Transaction, Day),
 		transaction_account_ancestor(Accounts, Transaction, Account)), Transactions_A),
 	transaction_vector_total(Transactions_A, Balance),
-	vec_change_bases(Exchange_Day, Bases, Balance, Balance_Transformed).
+	vec_change_bases(Exchange_Rates, Exchange_Day, Bases, Balance, Balance_Transformed).
 
 % Relates the period from From_Day to To_Day to the net activity during that period of
 % the given account.
 
-net_activity_by_account(Accounts, Transactions, Bases, Exchange_Day, Account, From_Day, To_Day, Net_Activity_Transformed) :-
+net_activity_by_account(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Account, From_Day, To_Day, Net_Activity_Transformed) :-
 	findall(Transaction,
 		(member(Transaction, Transactions),
 		transaction_between(Transaction, From_Day, To_Day),
 		transaction_account_ancestor(Accounts, Transaction, Account)), Transactions_A),
 	transaction_vector_total(Transactions_A, Net_Activity),
-	vec_change_bases(Exchange_Day, Bases, Net_Activity, Net_Activity_Transformed).
+	vec_change_bases(Exchange_Rates, Exchange_Day, Bases, Net_Activity, Net_Activity_Transformed).
 
 % Now for balance sheet predicates.
 
-balance_sheet_entry(Account_Links, Transactions, Bases, Exchange_Day, Account, To_Day, Sheet_Entry) :-
+balance_sheet_entry(Exchange_Rates, Account_Links, Transactions, Bases, Exchange_Day, Account, To_Day, Sheet_Entry) :-
 	findall(Child_Sheet_Entry, (account_parent(Account_Links, Child_Account, Account),
-		balance_sheet_entry(Account_Links, Transactions, Bases, Exchange_Day, Child_Account, To_Day, Child_Sheet_Entry)),
+		balance_sheet_entry(Exchange_Rates, Account_Links, Transactions, Bases, Exchange_Day, Child_Account, To_Day, Child_Sheet_Entry)),
 		Child_Sheet_Entries),
-	balance_by_account(Account_Links, Transactions, Bases, Exchange_Day, Account, To_Day, Balance),
+	balance_by_account(Exchange_Rates, Account_Links, Transactions, Bases, Exchange_Day, Account, To_Day, Balance),
 	Sheet_Entry = entry(Account, Balance, Child_Sheet_Entries).
 
-balance_sheet_at(Accounts, Transactions, Bases, Exchange_Day, From_Day, To_Day, Balance_Sheet) :-
-	balance_sheet_entry(Accounts, Transactions, Bases, Exchange_Day, asset, To_Day, Asset_Section),
-	balance_sheet_entry(Accounts, Transactions, Bases, Exchange_Day, equity, To_Day, Equity_Section),
-	balance_sheet_entry(Accounts, Transactions, Bases, Exchange_Day, liability, To_Day, Liability_Section),
-	balance_by_account(Accounts, Transactions, Bases, Exchange_Day, earnings, From_Day, Retained_Earnings),
-	net_activity_by_account(Accounts, Transactions, Bases, Exchange_Day, earnings, From_Day, To_Day, Current_Earnings),
+balance_sheet_at(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, From_Day, To_Day, Balance_Sheet) :-
+	balance_sheet_entry(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, asset, To_Day, Asset_Section),
+	balance_sheet_entry(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, equity, To_Day, Equity_Section),
+	balance_sheet_entry(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, liability, To_Day, Liability_Section),
+	balance_by_account(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, earnings, From_Day, Retained_Earnings),
+	net_activity_by_account(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, earnings, From_Day, To_Day, Current_Earnings),
 	vec_add(Retained_Earnings, Current_Earnings, Earnings),
 	vec_reduce(Earnings, Earnings_Reduced),
 	Balance_Sheet = [Asset_Section, Liability_Section, entry(earnings, Earnings_Reduced,
@@ -233,31 +250,32 @@ balance_sheet_at(Accounts, Transactions, Bases, Exchange_Day, From_Day, To_Day, 
 
 % Now for trial balance predicates.
 
-trial_balance_entry(Account_Links, Transactions, Bases, Exchange_Day, Account, From_Day, To_Day, Trial_Balance_Entry) :-
+trial_balance_entry(Exchange_Rates, Account_Links, Transactions, Bases, Exchange_Day, Account, From_Day, To_Day, Trial_Balance_Entry) :-
 	findall(Child_Sheet_Entry, (account_parent(Account_Links, Child_Account, Account),
-		trial_balance_entry(Account_Links, Transactions, Bases, Exchange_Day, Child_Account, From_Day, To_Day, Child_Sheet_Entry)),
+		trial_balance_entry(Exchange_Rates, Account_Links, Transactions, Bases, Exchange_Day,
+		  Child_Account, From_Day, To_Day, Child_Sheet_Entry)),
 		Child_Sheet_Entries),
-	net_activity_by_account(Account_Links, Transactions, Bases, Exchange_Day, Account, From_Day, To_Day, Net_Activity),
+	net_activity_by_account(Exchange_Rates, Account_Links, Transactions, Bases, Exchange_Day, Account, From_Day, To_Day, Net_Activity),
 	Trial_Balance_Entry = entry(Account, Net_Activity, Child_Sheet_Entries).
 
-trial_balance_between(Accounts, Transactions, Bases, Exchange_Day, From_Day, To_Day, Trial_Balance) :-
-	balance_sheet_entry(Accounts, Transactions, Bases, Exchange_Day, asset, To_Day, Asset_Section),
-	balance_sheet_entry(Accounts, Transactions, Bases, Exchange_Day, equity, To_Day, Equity_Section),
-	balance_sheet_entry(Accounts, Transactions, Bases, Exchange_Day, liability, To_Day, Liability_Section),
-	trial_balance_entry(Accounts, Transactions, Bases, Exchange_Day, revenue, From_Day, To_Day, Revenue_Section),
-	trial_balance_entry(Accounts, Transactions, Bases, Exchange_Day, expense, From_Day, To_Day, Expense_Section),
-	balance_by_account(Accounts, Transactions, Bases, Exchange_Day, earnings, From_Day, Retained_Earnings),
+trial_balance_between(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, From_Day, To_Day, Trial_Balance) :-
+	balance_sheet_entry(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, asset, To_Day, Asset_Section),
+	balance_sheet_entry(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, equity, To_Day, Equity_Section),
+	balance_sheet_entry(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, liability, To_Day, Liability_Section),
+	trial_balance_entry(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, revenue, From_Day, To_Day, Revenue_Section),
+	trial_balance_entry(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, expense, From_Day, To_Day, Expense_Section),
+	balance_by_account(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, earnings, From_Day, Retained_Earnings),
 	Trial_Balance = [Asset_Section, Liability_Section, entry(retained_earnings, Retained_Earnings, []),
 		Equity_Section, Revenue_Section, Expense_Section].
 
 % Now for movement predicates.
 
-movement_between(Accounts, Transactions, Bases, Exchange_Day, From_Day, To_Day, Movement) :-
-	trial_balance_entry(Accounts, Transactions, Bases, Exchange_Day, asset, From_Day, To_Day, Asset_Section),
-	trial_balance_entry(Accounts, Transactions, Bases, Exchange_Day, equity, From_Day, To_Day, Equity_Section),
-	trial_balance_entry(Accounts, Transactions, Bases, Exchange_Day, liability, From_Day, To_Day, Liability_Section),
-	trial_balance_entry(Accounts, Transactions, Bases, Exchange_Day, revenue, From_Day, To_Day, Revenue_Section),
-	trial_balance_entry(Accounts, Transactions, Bases, Exchange_Day, expense, From_Day, To_Day, Expense_Section),
+movement_between(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, From_Day, To_Day, Movement) :-
+	trial_balance_entry(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, asset, From_Day, To_Day, Asset_Section),
+	trial_balance_entry(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, equity, From_Day, To_Day, Equity_Section),
+	trial_balance_entry(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, liability, From_Day, To_Day, Liability_Section),
+	trial_balance_entry(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, revenue, From_Day, To_Day, Revenue_Section),
+	trial_balance_entry(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, expense, From_Day, To_Day, Expense_Section),
 	Movement = [Asset_Section, Liability_Section, Equity_Section, Revenue_Section,
 		Expense_Section].
 

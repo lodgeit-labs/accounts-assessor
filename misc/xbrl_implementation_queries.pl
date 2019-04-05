@@ -144,16 +144,16 @@ recorda(contexts,
 % Display the instances using the taxonomy and label and presentation linkbases.
 
 recorded(elements, Elements), recorded(labels, Labels), recorded(label_arcs, Label_Arcs),
-recorded(presentation_arcs, Presentation_Arcs), recorded(instances, Instances),
-recorded(contexts, Contexts),
-display(Instances, Contexts, Elements, Presentation_Arcs, Label_Arcs, Labels, Display).
+  recorded(presentation_arcs, Presentation_Arcs), recorded(instances, Instances),
+  recorded(contexts, Contexts),
+  display(Instances, Contexts, Elements, Presentation_Arcs, Label_Arcs, Labels, Display).
 
 % Validate the instances with respect to the formula linkbase
 
 recorded(instances, Instances), recorded(variable_arcs, Variable_Arcs),
-recorded(variable_filter_arcs, Variable_Filter_Arcs), recorded(concept_names, Concept_Names),
-recorded(fact_variables, Fact_Variables), recorded(contexts, Contexts),
-recorded(value_assertions, Value_Assertions),
-validate_assertions(Value_Assertions, Instances, Contexts, Variable_Arcs, Fact_Variables,
-  Variable_Filter_Arcs, Concept_Names).
+  recorded(variable_filter_arcs, Variable_Filter_Arcs), recorded(concept_names, Concept_Names),
+  recorded(fact_variables, Fact_Variables), recorded(contexts, Contexts),
+  recorded(value_assertions, Value_Assertions),
+  validate_assertions(Value_Assertions, Instances, Contexts, Variable_Arcs, Fact_Variables,
+    Variable_Filter_Arcs, Concept_Names).
 

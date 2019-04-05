@@ -67,17 +67,18 @@ recorda(transactions,
 	transaction(737586, "collect accs rec", bank, [coord(aud, 100, 0)])]).
 
 % Let's check the exchange rate predicate for historical correctness:
-write("Are the certain exchange rates from the API matching manually obtained ones?"),
+write("Are the certain exchange rates from the API matching manually obtained ones? Also, do the manual overrides work?"),
 
 findall(Exchange_Rate, (absolute_day(date(2015, 6, 30), E),
-		(exchange_rate(E, aud, usd, Exchange_Rate);
-		exchange_rate(E, aud, mxn, Exchange_Rate);
-		exchange_rate(E, aud, aud, Exchange_Rate);
-		exchange_rate(E, aud, hkd, Exchange_Rate);
-		exchange_rate(E, aud, ron, Exchange_Rate);
-		exchange_rate(E, aud, hrk, Exchange_Rate);
-		exchange_rate(E, aud, chf, Exchange_Rate))),
-	[0.7690034364, 12.0503092784, 1.0, 5.9615120275, 	3.0738831615, 5.2197938144, 0.7156701031]).
+		(exchange_rate([], E, aud, usd, Exchange_Rate);
+		exchange_rate([], E, aud, mxn, Exchange_Rate);
+		exchange_rate([], E, aud, aud, Exchange_Rate);
+		exchange_rate([], E, aud, hkd, Exchange_Rate);
+		exchange_rate([], E, aud, ron, Exchange_Rate);
+		exchange_rate([], E, aud, hrk, Exchange_Rate);
+		exchange_rate([], E, aud, chf, Exchange_Rate);
+		exchange_rate([exchange_rate(E, usd, zwd, 10000000000000000000000000)], E, usd, zwd, Exchange_Rate))),
+	[0.7690034364, 12.0503092784, 1.0, 5.9615120275, 	3.0738831615, 5.2197938144, 0.7156701031, 10000000000000000000000000]).
 
 % Let's get the trial balance between date(2018, 7, 1) and date(2019, 6, 30):
 write("Is the output for a trial balance correct?"),
@@ -88,7 +89,7 @@ findall(Trial_Balance,
 		absolute_day(date(2018, 7, 1), From_Day),
 		absolute_day(date(2019, 6, 30), To_Day),
 		absolute_day(date(2019, 6, 30), E),
-		trial_balance_between(Accounts, Transactions, [], E, From_Day, To_Day, Trial_Balance)),
+		trial_balance_between([], Accounts, Transactions, [], E, From_Day, To_Day, Trial_Balance)),
 	
 	[[entry(asset,[coord(aud, 140,0)],
 			[entry(bank,[coord(aud, 40,0)],[]),
@@ -122,7 +123,7 @@ findall(Balance_Sheet,
 		absolute_day(date(2018, 7, 1), From_Day),
 		absolute_day(date(2019, 6, 30), To_Day),
 		absolute_day(date(2019, 6, 30), E),
-		balance_sheet_at(Accounts, Transactions, [], E, From_Day, To_Day, Balance_Sheet)),
+		balance_sheet_at([], Accounts, Transactions, [], E, From_Day, To_Day, Balance_Sheet)),
 		
 	[[entry(asset,[coord(aud, 140,0)],
 			[entry(bank,[coord(aud, 40,0)],[]),
@@ -149,7 +150,7 @@ findall(Movement,
 		recorded(transactions, Transactions),
 		absolute_day(date(2019, 7, 1), A), absolute_day(date(2020, 6, 30), B),
 		absolute_day(date(2020, 6, 30), E),
-		movement_between(Accounts, Transactions, [], E, A, B, Movement)),
+		movement_between([], Accounts, Transactions, [], E, A, B, Movement)),
 		
 	[[entry(asset,[coord(aud, 2776,0)],
 			[entry(bank,[coord(aud, 0,299)],[]),
@@ -181,7 +182,7 @@ findall(Retained_Earnings,
 		recorded(transactions, Transactions),
 		absolute_day(date(2017, 7, 3), B),
 		absolute_day(date(2017, 7, 3), E),
-		balance_by_account(Accounts, Transactions, [], E, earnings, B, Retained_Earnings)),
+		balance_by_account([], Accounts, Transactions, [], E, earnings, B, Retained_Earnings)),
 		
 	[[coord(aud, 0, 50)]]).
 
@@ -193,7 +194,7 @@ findall(Retained_Earnings,
 		recorded(transactions, Transactions),
 		absolute_day(date(2019, 6, 2), B),
 		absolute_day(date(2019, 6, 2), E),
-		balance_by_account(Accounts, Transactions, [], E, earnings, B, Retained_Earnings)),
+		balance_by_account([], Accounts, Transactions, [], E, earnings, B, Retained_Earnings)),
 		
 	[[coord(aud, 0, 40)]]).
 
@@ -205,7 +206,7 @@ findall(Current_Earnings_Signed,
 		recorded(transactions, Transactions),
 		absolute_day(date(2017, 7, 1), A), absolute_day(date(2017, 7, 3), B),
 		absolute_day(date(2017, 7, 3), E),
-		net_activity_by_account(Accounts, Transactions, [], E, earnings, A, B, Current_Earnings)),
+		net_activity_by_account([], Accounts, Transactions, [], E, earnings, A, B, Current_Earnings)),
 		
 	[[coord(aud, 0, 50)]]).
 
@@ -217,7 +218,7 @@ findall(Current_Earnings_Signed,
 		recorded(transactions, Transactions),
 		absolute_day(date(2018, 7, 1), A), absolute_day(date(2019, 6, 2), B),
 		absolute_day(date(2019, 6, 2), E),
-		net_activity_by_account(Accounts, Transactions, [], E, earnings, A, B, Current_Earnings)),
+		net_activity_by_account([], Accounts, Transactions, [], E, earnings, A, B, Current_Earnings)),
 		
 	[[coord(aud, 10, 0)]]).
 
@@ -228,7 +229,7 @@ findall(Bal,
 	(recorded(accounts, Accounts),
 		recorded(transactions, Transactions),
 		absolute_day(date(2017, 7, 3), B), absolute_day(date(2017, 7, 3), E),
-		balance_by_account(Accounts, Transactions, [], E, inventory, B, Bal)),
+		balance_by_account([], Accounts, Transactions, [], E, inventory, B, Bal)),
 		
 	[[coord(aud, 0, 0)]]).
 
@@ -240,7 +241,7 @@ findall(Net_Activity,
 		recorded(transactions, Transactions),
 		absolute_day(date(2017, 7, 2), A), absolute_day(date(2017, 7, 3), B),
 		absolute_day(date(2017, 7, 3), E),
-		net_activity_by_account(Accounts, Transactions, [], E, asset, A, B, Net_Activity)),
+		net_activity_by_account([], Accounts, Transactions, [], E, asset, A, B, Net_Activity)),
 		
 	[[coord(aud, 100, 0)]]).
 

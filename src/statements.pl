@@ -35,9 +35,9 @@ transaction_type_of(Transaction_Types, S_Transaction, Transaction_Type) :-
 % account. This predicate takes a list of transactions and transactions using trading
 % accounts and decomposes it into a list of just transactions.
 
-preprocess_s_transactions(_, [], []).
+preprocess_s_transactions(_, _, [], []).
 
-preprocess_s_transactions(Transaction_Types, [S_Transaction | S_Transactions],
+preprocess_s_transactions(Exchange_Rates, Transaction_Types, [S_Transaction | S_Transactions],
 		[UnX_Transaction | [X_Transaction | [Trading_Transaction | PP_Transactions]]]) :-
 	transaction_type_of(Transaction_Types, S_Transaction, Transaction_Type),
 	
@@ -51,7 +51,7 @@ preprocess_s_transactions(Transaction_Types, [S_Transaction | S_Transactions],
 	
 	% Make an inverse exchanged transaction to the exchanged account
 	transaction_type_bases(Transaction_Type, Bases),
-	vec_change_bases(Day, Bases, Vector, Vector_Transformed),
+	vec_change_bases(Exchange_Rates, Day, Bases, Vector, Vector_Transformed),
 	transaction_day(X_Transaction, Day),
 	transaction_description(X_Transaction, Description),
 	transaction_vector(X_Transaction, Vector_Transformed),
@@ -65,5 +65,5 @@ preprocess_s_transactions(Transaction_Types, [S_Transaction | S_Transactions],
 	transaction_type_trading_account(Transaction_Type, Trading_Account), transaction_account(Trading_Transaction, Trading_Account),
 	
 	% Make the list of preprocessed transactions
-	preprocess_s_transactions(Transaction_Types, S_Transactions, PP_Transactions), !.
+	preprocess_s_transactions(Exchange_Rates, Transaction_Types, S_Transactions, PP_Transactions), !.
 
