@@ -149,20 +149,20 @@ vec_change_bases(Exchange_Rates, Day, Bases, [A | As], Bs) :-
 
 % Predicates for asserting that the fields of given accounts have particular values
 
-% The child in the given account link
-account_link_child(account_link(Account_Link_Child, _), Account_Link_Child).
-% The parent in the given account link
-account_link_parent(account_link(_, Account_Link_Parent), Account_Link_Parent).
-% Relates an account to a parent account
-account_parent(Account_Links, Account, Parent) :-
-	account_link_parent(Account_Link, Parent),
-	account_link_child(Account_Link, Account),
-	member(Account_Link, Account_Links).
+% The ID of the given account
+account_id(account(Account_Id, _), Account_Id).
+% The ID of the parent of the given account
+account_parent_id(account(_, Account_Parent_Id), Account_Parent_Id).
+% Relates an account id to a parent account id
+account_parent_id(Accounts, Account_Id, Parent_Id) :-
+	account_parent_id(Account, Parent_Id),
+	account_id(Account, Account_Id),
+	member(Account, Accounts).
 % Relates an account to an ancestral account
-account_ancestor(Account_Links, Account, Ancestor) :-
-	Account = Ancestor;
-	(account_parent(Account_Links, Ancestor_Child, Ancestor),
-	account_ancestor(Account_Links, Account, Ancestor_Child)).
+account_ancestor_id(Accounts, Account_Id, Ancestor_Id) :-
+	Account_Id = Ancestor_Id;
+	(account_parent_id(Accounts, Ancestor_Child_Id, Ancestor_Id),
+	account_ancestor_id(Accounts, Account_Id, Ancestor_Child_Id)).
 
 % Predicates for asserting that the fields of given transactions have particular values
 
@@ -171,13 +171,13 @@ transaction_day(transaction(Day, _, _, _), Day).
 % A description of the transaction
 transaction_description(transaction(_, Description, _, _), Description).
 % The account that the transaction modifies
-transaction_account(transaction(_, _, Account, _), Account).
+transaction_account_id(transaction(_, _, Account_Id, _), Account_Id).
 % The amounts by which the account is being debited and credited
 transaction_vector(transaction(_, _, _, Vector), Vector).
 
-transaction_account_ancestor(Account_Links, Transaction, Ancestor_Account) :-
-	transaction_account(Transaction, Transaction_Account),
-	account_ancestor(Account_Links, Transaction_Account, Ancestor_Account).
+transaction_account_ancestor_id(Accounts, Transaction, Ancestor_Account_Id) :-
+	transaction_account_id(Transaction, Transaction_Account_Id),
+	account_ancestor_id(Accounts, Transaction_Account_Id, Ancestor_Account_Id).
 
 transaction_between(Transaction, From_Day, To_Day) :-
 	transaction_day(Transaction, Day),
@@ -187,14 +187,6 @@ transaction_between(Transaction, From_Day, To_Day) :-
 transaction_before(Transaction, End_Day) :-
 	transaction_day(Transaction, Day),
 	Day =< End_Day.
-
-% Account isomorphisms. They are standard conventions in accounting.
-
-account_isomorphism(asset, debit_isomorphism).
-account_isomorphism(equity, credit_isomorphism).
-account_isomorphism(liability, credit_isomorphism).
-account_isomorphism(revenue, credit_isomorphism).
-account_isomorphism(expense, debit_isomorphism).
 
 % Adds all the T-Terms of the transactions.
 
@@ -208,33 +200,33 @@ transaction_vector_total([Hd_Transaction | Tl_Transaction], Reduced_Net_Activity
 
 % Relates Day to the balance at that time of the given account.
 
-balance_by_account(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Account, Day, Balance_Transformed) :-
+balance_by_account(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Account_Id, Day, Balance_Transformed) :-
 	findall(Transaction,
 		(member(Transaction, Transactions),
 		transaction_before(Transaction, Day),
-		transaction_account_ancestor(Accounts, Transaction, Account)), Transactions_A),
+		transaction_account_ancestor_id(Accounts, Transaction, Account_Id)), Transactions_A),
 	transaction_vector_total(Transactions_A, Balance),
 	vec_change_bases(Exchange_Rates, Exchange_Day, Bases, Balance, Balance_Transformed).
 
 % Relates the period from From_Day to To_Day to the net activity during that period of
 % the given account.
 
-net_activity_by_account(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Account, From_Day, To_Day, Net_Activity_Transformed) :-
+net_activity_by_account(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Account_Id, From_Day, To_Day, Net_Activity_Transformed) :-
 	findall(Transaction,
 		(member(Transaction, Transactions),
 		transaction_between(Transaction, From_Day, To_Day),
-		transaction_account_ancestor(Accounts, Transaction, Account)), Transactions_A),
+		transaction_account_ancestor_id(Accounts, Transaction, Account_Id)), Transactions_A),
 	transaction_vector_total(Transactions_A, Net_Activity),
 	vec_change_bases(Exchange_Rates, Exchange_Day, Bases, Net_Activity, Net_Activity_Transformed).
 
 % Now for balance sheet predicates.
 
-balance_sheet_entry(Exchange_Rates, Account_Links, Transactions, Bases, Exchange_Day, Account, To_Day, Sheet_Entry) :-
-	findall(Child_Sheet_Entry, (account_parent(Account_Links, Child_Account, Account),
-		balance_sheet_entry(Exchange_Rates, Account_Links, Transactions, Bases, Exchange_Day, Child_Account, To_Day, Child_Sheet_Entry)),
+balance_sheet_entry(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Account_Id, To_Day, Sheet_Entry) :-
+	findall(Child_Sheet_Entry, (account_parent_id(Accounts, Child_Account, Account_Id),
+		balance_sheet_entry(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Child_Account, To_Day, Child_Sheet_Entry)),
 		Child_Sheet_Entries),
-	balance_by_account(Exchange_Rates, Account_Links, Transactions, Bases, Exchange_Day, Account, To_Day, Balance),
-	Sheet_Entry = entry(Account, Balance, Child_Sheet_Entries).
+	balance_by_account(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Account_Id, To_Day, Balance),
+	Sheet_Entry = entry(Account_Id, Balance, Child_Sheet_Entries).
 
 balance_sheet_at(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, From_Day, To_Day, Balance_Sheet) :-
 	balance_sheet_entry(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, asset, To_Day, Asset_Section),
@@ -250,13 +242,13 @@ balance_sheet_at(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Fr
 
 % Now for trial balance predicates.
 
-trial_balance_entry(Exchange_Rates, Account_Links, Transactions, Bases, Exchange_Day, Account, From_Day, To_Day, Trial_Balance_Entry) :-
-	findall(Child_Sheet_Entry, (account_parent(Account_Links, Child_Account, Account),
-		trial_balance_entry(Exchange_Rates, Account_Links, Transactions, Bases, Exchange_Day,
-		  Child_Account, From_Day, To_Day, Child_Sheet_Entry)),
+trial_balance_entry(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Account_Id, From_Day, To_Day, Trial_Balance_Entry) :-
+	findall(Child_Sheet_Entry, (account_parent_id(Accounts, Child_Account_Id, Account_Id),
+		trial_balance_entry(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day,
+		  Child_Account_Id, From_Day, To_Day, Child_Sheet_Entry)),
 		Child_Sheet_Entries),
-	net_activity_by_account(Exchange_Rates, Account_Links, Transactions, Bases, Exchange_Day, Account, From_Day, To_Day, Net_Activity),
-	Trial_Balance_Entry = entry(Account, Net_Activity, Child_Sheet_Entries).
+	net_activity_by_account(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Account_Id, From_Day, To_Day, Net_Activity),
+	Trial_Balance_Entry = entry(Account_Id, Net_Activity, Child_Sheet_Entries).
 
 trial_balance_between(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, From_Day, To_Day, Trial_Balance) :-
 	balance_sheet_entry(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, asset, To_Day, Asset_Section),
@@ -276,6 +268,5 @@ movement_between(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Fr
 	trial_balance_entry(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, liability, From_Day, To_Day, Liability_Section),
 	trial_balance_entry(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, revenue, From_Day, To_Day, Revenue_Section),
 	trial_balance_entry(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, expense, From_Day, To_Day, Expense_Section),
-	Movement = [Asset_Section, Liability_Section, Equity_Section, Revenue_Section,
-		Expense_Section].
+	Movement = [Asset_Section, Liability_Section, Equity_Section, Revenue_Section, Expense_Section].
 

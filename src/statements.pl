@@ -5,9 +5,9 @@ transaction_type_id(transaction_type(Id, _, _, _, _), Id).
 % The units to which the transaction amount will be converted to
 transaction_type_bases(transaction_type(_, Bases, _, _, _), Bases).
 % The account that will receive the inverse of the transaction amount after exchanging
-transaction_type_exchanged_account(transaction_type(_, _, Exchanged_Account, _, _), Exchanged_Account).
+transaction_type_exchanged_account_id(transaction_type(_, _, Exchanged_Account_Id, _, _), Exchanged_Account_Id).
 % The account that will record the gains and losses on the transaction amount
-transaction_type_trading_account(transaction_type(_, _, _, Trading_Account, _), Trading_Account).
+transaction_type_trading_account_id(transaction_type(_, _, _, Trading_Account_Id, _), Trading_Account_Id).
 % A description of this transaction type
 transaction_type_description(transaction_type(_, _, _, _, Description), Description).
 
@@ -20,7 +20,7 @@ s_transaction_type_id(s_transaction(_, Type_Id, _, _), Type_Id).
 % The amounts that are being moved in this transaction
 s_transaction_vector(s_transaction(_, _, Vector, _), Vector).
 % The account that the transaction modifies without using exchange rate conversions
-s_transaction_account(s_transaction(_, _, _, Unexchanged_Account), Unexchanged_Account).
+s_transaction_account_id(s_transaction(_, _, _, Unexchanged_Account_Id), Unexchanged_Account_Id).
 
 % Gets the transaction_type associated with the given transaction
 
@@ -47,7 +47,7 @@ preprocess_s_transactions(Exchange_Rates, Transaction_Types, [S_Transaction | S_
 	s_transaction_vector(S_Transaction, Vector),
 	vec_inverse(Vector, Vector_Inverted),
 	transaction_vector(UnX_Transaction, Vector_Inverted),
-	s_transaction_account(S_Transaction, UnX_Account), transaction_account(UnX_Transaction, UnX_Account),
+	s_transaction_account_id(S_Transaction, UnX_Account), transaction_account_id(UnX_Transaction, UnX_Account),
 	
 	% Make an inverse exchanged transaction to the exchanged account
 	transaction_type_bases(Transaction_Type, Bases),
@@ -55,14 +55,14 @@ preprocess_s_transactions(Exchange_Rates, Transaction_Types, [S_Transaction | S_
 	transaction_day(X_Transaction, Day),
 	transaction_description(X_Transaction, Description),
 	transaction_vector(X_Transaction, Vector_Transformed),
-	transaction_type_exchanged_account(Transaction_Type, X_Account), transaction_account(X_Transaction, X_Account),
+	transaction_type_exchanged_account_id(Transaction_Type, X_Account), transaction_account_id(X_Transaction, X_Account),
 	
 	% Make a difference transaction to the trading account
 	vec_sub(Vector, Vector_Transformed, Trading_Vector),
 	transaction_day(Trading_Transaction, Day),
 	transaction_description(Trading_Transaction, Description),
 	transaction_vector(Trading_Transaction, Trading_Vector),
-	transaction_type_trading_account(Transaction_Type, Trading_Account), transaction_account(Trading_Transaction, Trading_Account),
+	transaction_type_trading_account_id(Transaction_Type, Trading_Account), transaction_account_id(Trading_Transaction, Trading_Account),
 	
 	% Make the list of preprocessed transactions
 	preprocess_s_transactions(Exchange_Rates, Transaction_Types, S_Transactions, PP_Transactions), !.
