@@ -164,6 +164,20 @@ account_ancestor_id(Accounts, Account_Id, Ancestor_Id) :-
 	(account_parent_id(Accounts, Ancestor_Child_Id, Ancestor_Id),
 	account_ancestor_id(Accounts, Account_Id, Ancestor_Child_Id)).
 
+% Gets the ids for the assets, equity, liabilities, earnings, retained earnings, current
+% earnings, revenue, and expenses accounts. These are the first eight accounts in any
+% accounts list.
+account_ids([Account0|[Account1|[Account2|[Account3|[Account4|[Account5|[Account6|[Account7|_]]]]]]]],
+    Assets, Equity, Liabilities, Earnings, Retained_Earnings, Current_Earnings, Revenue, Expenses) :-
+  account_id(Account0, Assets), % Assets account always comes first
+  account_id(Account1, Equity), % Equity account always comes second
+  account_id(Account2, Liabilities), % Liabilities account always comes third
+  account_id(Account3, Earnings), % Earnings account always comes fourth
+  account_id(Account4, Retained_Earnings), % Retained earnings account always comes fifth
+  account_id(Account5, Current_Earnings), % Current earnings account always comes sixth
+  account_id(Account6, Revenue), % Revenue account always comes seventh
+  account_id(Account7, Expenses). % Expenses account always comes eighth
+
 % Predicates for asserting that the fields of given transactions have particular values
 
 % The absolute day that the transaction happenned
@@ -229,15 +243,16 @@ balance_sheet_entry(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day,
 	Sheet_Entry = entry(Account_Id, Balance, Child_Sheet_Entries).
 
 balance_sheet_at(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, From_Day, To_Day, Balance_Sheet) :-
-	balance_sheet_entry(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, asset, To_Day, Asset_Section),
-	balance_sheet_entry(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, equity, To_Day, Equity_Section),
-	balance_sheet_entry(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, liability, To_Day, Liability_Section),
-	balance_by_account(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, earnings, From_Day, Retained_Earnings),
-	net_activity_by_account(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, earnings, From_Day, To_Day, Current_Earnings),
+  account_ids(Accounts, Assets_AID, Equity_AID, Liabilities_AID, Earnings_AID, Retained_Earnings_AID, Current_Earnings_AID, _, _),
+	balance_sheet_entry(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Assets_AID, To_Day, Asset_Section),
+	balance_sheet_entry(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Equity_AID, To_Day, Equity_Section),
+	balance_sheet_entry(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Liabilities_AID, To_Day, Liability_Section),
+	balance_by_account(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Earnings_AID, From_Day, Retained_Earnings),
+	net_activity_by_account(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Earnings_AID, From_Day, To_Day, Current_Earnings),
 	vec_add(Retained_Earnings, Current_Earnings, Earnings),
 	vec_reduce(Earnings, Earnings_Reduced),
-	Balance_Sheet = [Asset_Section, Liability_Section, entry(earnings, Earnings_Reduced,
-		[entry(retained_earnings, Retained_Earnings, []), entry(current_earnings, Current_Earnings, [])]),
+	Balance_Sheet = [Asset_Section, Liability_Section, entry(Earnings_AID, Earnings_Reduced,
+		[entry(Retained_Earnings_AID, Retained_Earnings, []), entry(Current_Earnings_AID, Current_Earnings, [])]),
 		Equity_Section].
 
 % Now for trial balance predicates.
@@ -251,22 +266,24 @@ trial_balance_entry(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day,
 	Trial_Balance_Entry = entry(Account_Id, Net_Activity, Child_Sheet_Entries).
 
 trial_balance_between(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, From_Day, To_Day, Trial_Balance) :-
-	balance_sheet_entry(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, asset, To_Day, Asset_Section),
-	balance_sheet_entry(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, equity, To_Day, Equity_Section),
-	balance_sheet_entry(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, liability, To_Day, Liability_Section),
-	trial_balance_entry(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, revenue, From_Day, To_Day, Revenue_Section),
-	trial_balance_entry(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, expense, From_Day, To_Day, Expense_Section),
-	balance_by_account(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, earnings, From_Day, Retained_Earnings),
-	Trial_Balance = [Asset_Section, Liability_Section, entry(retained_earnings, Retained_Earnings, []),
+  account_ids(Accounts, Assets_AID, Equity_AID, Liabilities_AID, Earnings_AID, Retained_Earnings_AID, _, Revenue_AID, Expenses_AID),
+	balance_sheet_entry(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Assets_AID, To_Day, Asset_Section),
+	balance_sheet_entry(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Equity_AID, To_Day, Equity_Section),
+	balance_sheet_entry(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Liabilities_AID, To_Day, Liability_Section),
+	trial_balance_entry(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Revenue_AID, From_Day, To_Day, Revenue_Section),
+	trial_balance_entry(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Expenses_AID, From_Day, To_Day, Expense_Section),
+	balance_by_account(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Earnings_AID, From_Day, Retained_Earnings),
+	Trial_Balance = [Asset_Section, Liability_Section, entry(Retained_Earnings_AID, Retained_Earnings, []),
 		Equity_Section, Revenue_Section, Expense_Section].
 
 % Now for movement predicates.
 
 movement_between(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, From_Day, To_Day, Movement) :-
-	trial_balance_entry(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, asset, From_Day, To_Day, Asset_Section),
-	trial_balance_entry(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, equity, From_Day, To_Day, Equity_Section),
-	trial_balance_entry(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, liability, From_Day, To_Day, Liability_Section),
-	trial_balance_entry(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, revenue, From_Day, To_Day, Revenue_Section),
-	trial_balance_entry(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, expense, From_Day, To_Day, Expense_Section),
+  account_ids(Accounts, Assets_AID, Equity_AID, Liabilities_AID, _, _, _, Revenue_AID, Expenses_AID),
+	trial_balance_entry(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Assets_AID, From_Day, To_Day, Asset_Section),
+	trial_balance_entry(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Equity_AID, From_Day, To_Day, Equity_Section),
+	trial_balance_entry(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Liabilities_AID, From_Day, To_Day, Liability_Section),
+	trial_balance_entry(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Revenue_AID, From_Day, To_Day, Revenue_Section),
+	trial_balance_entry(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Expenses_AID, From_Day, To_Day, Expense_Section),
 	Movement = [Asset_Section, Liability_Section, Equity_Section, Revenue_Section, Expense_Section].
 

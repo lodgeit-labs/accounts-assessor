@@ -1,7 +1,18 @@
 write("Are we now testing the general ledger subprogram?").
 
 recorda(accounts,
-	[account(bank, asset),
+  % The first eight accounts have predefined meanings
+	[account(asset, accounts),
+	account(equity, accounts),
+	account(liability, accounts),
+	account(earnings, accounts),
+	account(retained_earnings, accounts),
+	account(current_earnings, accounts),
+	account(revenue, earnings),
+	account(expense, earnings),
+	
+	% The remaining accounts descend from the above accounts
+	account(bank, asset),
 	account(share_capital, equity),
 	account(inventory, asset),
 	account(accounts_payable, liability),
@@ -16,9 +27,7 @@ recorda(accounts,
 	account(wages_payable, liability),
 	account(motor_vehicles, asset),
 	account(hirepurchase_truck, liability),
-	account(hirepurchase_interest, expense),
-	account(revenue, earnings),
-	account(expense, earnings)]).
+	account(hirepurchase_interest, expense)]).
 
 recorda(transactions,
 	[transaction(735614, "invest in business", hp_account, [coord(aud, 200.47, 0)]),
