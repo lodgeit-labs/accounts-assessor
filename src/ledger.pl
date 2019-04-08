@@ -45,16 +45,46 @@ exchange_rate_rate(exchange_rate(_, _, _, Rate), Rate).
 % Obtains the exchange rate from Src_Currency to Dest_Currency on the day Day using the
 % given lookup table.
 
-exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate) :-
-  member(exchange_rate(Day, Src_Currency, Dest_Currency, Exchange_Rate), Table), !.
+exchange_rate_aux(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate) :-
+  member(exchange_rate(Day, Src_Currency, Dest_Currency, Exchange_Rate), Table).
 
 % Obtains the exchange rate from Src_Currency to Dest_Currency on the day Day using the
 % exchange_rates predicate.
 
-exchange_rate(_, Day, Src_Currency, Dest_Currency, Exchange_Rate) :-
+exchange_rate_aux(_, Day, Src_Currency, Dest_Currency_Upcased, Exchange_Rate) :-
 	exchange_rates(Day, Src_Currency, Exchange_Rates),
-	upcase_atom(Dest_Currency, Dest_Currency_Upcased),
-	member(Dest_Currency_Upcased = Exchange_Rate, Exchange_Rates).
+	member(Dest_Currency = Exchange_Rate, Exchange_Rates),
+	upcase_atom(Dest_Currency, Dest_Currency_Upcased).
+
+% Makes the exchange rate predicate into a symmetric relation. That is, if only the
+% exchange rate of the reverse is known, then that value is inverted.
+
+symmetric_exchange_rate_aux(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate) :-
+  exchange_rate_aux(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate).
+
+symmetric_exchange_rate_aux(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate) :-
+  exchange_rate_aux(Table, Day, Dest_Currency, Src_Currency, Inverse_Exchange_Rate),
+  Exchange_Rate is 1 / Inverse_Exchange_Rate.
+
+% A currency always has a 1 to 1 exchange rate with itself.
+
+equivalence_exchange_rate_aux(_, _, Currency, Currency, 1, _) :- !.
+
+% An exchange rate from currency A to currency B is the product of the exchange rate from
+% currency A to currency C and from currency C to currency B.
+
+equivalence_exchange_rate_aux(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate, Visited) :-
+  \+ member(Src_Currency, Visited),
+  symmetric_exchange_rate_aux(Table, Day, Src_Currency, Int_Currency, Head_Exchange_Rate),
+  New_Visited = [Src_Currency | Visited],
+  equivalence_exchange_rate_aux(Table, Day, Int_Currency, Dest_Currency, Tail_Exchange_Rate, New_Visited),
+  Exchange_Rate is Head_Exchange_Rate * Tail_Exchange_Rate, !.
+
+% Uses all available information to derive an exchange rate from Src_Currency to
+% Dest_Currency.
+
+exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate) :-
+  equivalence_exchange_rate_aux(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate, []).
 
 % Pacioli group operations. These operations operate on vectors. A vector is a list of
 % coordinates. A coordinate is a triple comprising a unit, a debit amount, and a credit
