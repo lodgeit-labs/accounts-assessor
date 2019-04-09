@@ -41,13 +41,17 @@ exchange_rate_rate(exchange_rate(_, _, _, Rate), Rate).
 % Obtains the exchange rate from Src_Currency to Dest_Currency on the day Day using the
 % given lookup table.
 
-exchange_rate_aux(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate) :-
+symmetric_exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate) :-
   member(exchange_rate(Day, Src_Currency, Dest_Currency, Exchange_Rate), Table).
+
+symmetric_exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate) :-
+  member(exchange_rate(Day, Dest_Currency, Src_Currency, Inverted_Exchange_Rate), Table),
+  Exchange_Rate is 1 / Inverted_Exchange_Rate.
 
 % Obtains the exchange rate from Src_Currency to Dest_Currency on the day Day using the
 % exchange_rates predicate.
 
-exchange_rate_aux(_, Day, Src_Currency_Upcased, Dest_Currency_Upcased, Exchange_Rate) :-
+symmetric_exchange_rate(_, Day, Src_Currency_Upcased, Dest_Currency_Upcased, Exchange_Rate) :-
 	exchange_rates(Day, Exchange_Rates),
 	member(Src_Currency = Src_Exchange_Rate, Exchange_Rates),
 	member(Dest_Currency = Dest_Exchange_Rate, Exchange_Rates),
@@ -55,39 +59,28 @@ exchange_rate_aux(_, Day, Src_Currency_Upcased, Dest_Currency_Upcased, Exchange_
 	upcase_atom(Src_Currency, Src_Currency_Upcased),
 	upcase_atom(Dest_Currency, Dest_Currency_Upcased).
 
-% Makes the exchange rate predicate into a symmetric relation. That is, if only the
-% exchange rate of the reverse is known, then that value is inverted.
-
-symmetric_exchange_rate_aux(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate) :-
-  exchange_rate_aux(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate).
-
-symmetric_exchange_rate_aux(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate) :-
-  exchange_rate_aux(Table, Day, Dest_Currency, Src_Currency, Inverse_Exchange_Rate),
-  Exchange_Rate is 1 / Inverse_Exchange_Rate.
-
 % Derive an exchange rate from the source to the destination currency by chaining together
 % =< Length exchange rates.
 
-equivalence_exchange_rate_aux(_, _, Currency, Currency, 1, Length) :- Length >= 0.
+equivalence_exchange_rate(_, _, Currency, Currency, 1, Length) :- Length >= 0.
 
-equivalence_exchange_rate_aux(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate, Length) :-
+equivalence_exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate, Length) :-
   Length > 0,
-  symmetric_exchange_rate_aux(Table, Day, Src_Currency, Int_Currency, Head_Exchange_Rate),
+  symmetric_exchange_rate(Table, Day, Src_Currency, Int_Currency, Head_Exchange_Rate),
   New_Length is Length - 1,
-  equivalence_exchange_rate_aux(Table, Day, Int_Currency, Dest_Currency, Tail_Exchange_Rate, New_Length),
+  equivalence_exchange_rate(Table, Day, Int_Currency, Dest_Currency, Tail_Exchange_Rate, New_Length),
   Exchange_Rate is Head_Exchange_Rate * Tail_Exchange_Rate, !.
 
 % Derive an exchange rate from the source to the destination currency by chaining together
 % =< 2 exchange rates.
 
 exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate) :-
-  equivalence_exchange_rate_aux(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate, 2), !.
+  equivalence_exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate, 2), !.
 
 % Pacioli group operations. These operations operate on vectors. A vector is a list of
 % coordinates. A coordinate is a triple comprising a unit, a debit amount, and a credit
-% amount.
-% See: On Double-Entry Bookkeeping: The Mathematical Treatment
-% Also see: Tutorial on multiple currency accounting
+% amount. See: On Double-Entry Bookkeeping: The Mathematical Treatment Also see: Tutorial
+% on multiple currency accounting
 
 % The identity for vector addition.
 
