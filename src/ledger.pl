@@ -15,21 +15,17 @@
 % slow and use of the web endpoint is subject to usage limits. The web endpoint used is
 % https://api.exchangeratesapi.io/YYYY-MM-DD?base=Src_Currency .
 
-:- dynamic exchange_rates/3.
+:- dynamic exchange_rates/2.
 
-exchange_rates(Day, Src_Currency, Exchange_Rates) :-
+exchange_rates(Day, Exchange_Rates) :-
 	gregorian_date(Day, Date),
 	format_time(string(Date_Str), "%Y-%m-%d", Date),
-	upcase_atom(Src_Currency, Src_Currency_Upcased),
-	atom_string(Src_Currency_Upcased, Src_Currency_Str),
-	string_concat("https://api.exchangeratesapi.io/", Date_Str, Query_Url_A),
-	string_concat(Query_Url_A, "?base=", Query_Url_B),
-	string_concat(Query_Url_B, Src_Currency_Str, Query_Url),
+	string_concat("https://api.exchangeratesapi.io/", Date_Str, Query_Url),
 	http_open(Query_Url, Stream, []),
 	json_read(Stream, json(Response), []),
 	member(rates = json(Exchange_Rates), Response),
 	close(Stream),
-	asserta((exchange_rates(Day, Src_Currency, Exchange_Rates) :- !)).
+	asserta((exchange_rates(Day, Exchange_Rates) :- !)).
 
 % % Predicates for asserting that the fields of given exchange rates have particular values
 
@@ -51,9 +47,12 @@ exchange_rate_aux(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate) :-
 % Obtains the exchange rate from Src_Currency to Dest_Currency on the day Day using the
 % exchange_rates predicate.
 
-exchange_rate_aux(_, Day, Src_Currency, Dest_Currency_Upcased, Exchange_Rate) :-
-	exchange_rates(Day, Src_Currency, Exchange_Rates),
-	member(Dest_Currency = Exchange_Rate, Exchange_Rates),
+exchange_rate_aux(_, Day, Src_Currency_Upcased, Dest_Currency_Upcased, Exchange_Rate) :-
+	exchange_rates(Day, Exchange_Rates),
+	member(Src_Currency = Src_Exchange_Rate, Exchange_Rates),
+	member(Dest_Currency = Dest_Exchange_Rate, Exchange_Rates),
+	Exchange_Rate is Dest_Exchange_Rate / Src_Exchange_Rate,
+	upcase_atom(Src_Currency, Src_Currency_Upcased),
 	upcase_atom(Dest_Currency, Dest_Currency_Upcased).
 
 % Makes the exchange rate predicate into a symmetric relation. That is, if only the
@@ -66,25 +65,23 @@ symmetric_exchange_rate_aux(Table, Day, Src_Currency, Dest_Currency, Exchange_Ra
   exchange_rate_aux(Table, Day, Dest_Currency, Src_Currency, Inverse_Exchange_Rate),
   Exchange_Rate is 1 / Inverse_Exchange_Rate.
 
-% A currency always has a 1 to 1 exchange rate with itself.
+% Derive an exchange rate from the source to the destination currency by chaining together
+% =< Length exchange rates.
 
-equivalence_exchange_rate_aux(_, _, Currency, Currency, 1, _) :- !.
+equivalence_exchange_rate_aux(_, _, Currency, Currency, 1, Length) :- Length >= 0.
 
-% An exchange rate from currency A to currency B is the product of the exchange rate from
-% currency A to currency C and from currency C to currency B.
-
-equivalence_exchange_rate_aux(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate, Visited) :-
-  \+ member(Src_Currency, Visited),
+equivalence_exchange_rate_aux(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate, Length) :-
+  Length > 0,
   symmetric_exchange_rate_aux(Table, Day, Src_Currency, Int_Currency, Head_Exchange_Rate),
-  New_Visited = [Src_Currency | Visited],
-  equivalence_exchange_rate_aux(Table, Day, Int_Currency, Dest_Currency, Tail_Exchange_Rate, New_Visited),
+  New_Length is Length - 1,
+  equivalence_exchange_rate_aux(Table, Day, Int_Currency, Dest_Currency, Tail_Exchange_Rate, New_Length),
   Exchange_Rate is Head_Exchange_Rate * Tail_Exchange_Rate, !.
 
-% Uses all available information to derive an exchange rate from Src_Currency to
-% Dest_Currency.
+% Derive an exchange rate from the source to the destination currency by chaining together
+% =< 2 exchange rates.
 
 exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate) :-
-  equivalence_exchange_rate_aux(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate, []).
+  equivalence_exchange_rate_aux(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate, 2), !.
 
 % Pacioli group operations. These operations operate on vectors. A vector is a list of
 % coordinates. A coordinate is a triple comprising a unit, a debit amount, and a credit

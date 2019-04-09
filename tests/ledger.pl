@@ -87,7 +87,8 @@ findall(Exchange_Rate, (absolute_day(date(2015, 6, 30), E),
 		exchange_rate([], E, 'AUD', 'HRK', Exchange_Rate);
 		exchange_rate([], E, 'AUD', 'CHF', Exchange_Rate);
 		exchange_rate([exchange_rate(E, 'USD', 'ZWD', 10000000000000000000000000)], E, 'USD', 'ZWD', Exchange_Rate))),
-	[0.7690034364, 12.0503092784, 1.0, 5.9615120275, 	3.0738831615, 5.2197938144, 0.7156701031, 10000000000000000000000000]).
+	[0.7690034364261168, 12.050309278350516, 1, 5.961512027491408, 3.0738831615120277,
+	  5.21979381443299, 0.7156701030927833, 10000000000000000000000000]).
 
 % Let's get the trial balance between date(2018, 7, 1) and date(2019, 6, 30):
 write("Is the output for a trial balance correct?"),
