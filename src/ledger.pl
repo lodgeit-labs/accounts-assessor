@@ -10,10 +10,10 @@
 :- use_module(library(http/http_open)).
 :- use_module(library(http/json)).
 
-% Obtains all available exchange rates on the day Day using Src_Currency as the base
-% currency from exchangeratesapi.io. The results are memoized because this operation is
-% slow and use of the web endpoint is subject to usage limits. The web endpoint used is
-% https://api.exchangeratesapi.io/YYYY-MM-DD?base=Src_Currency .
+% Obtains all available exchange rates on the day Day using an arbitrary base currency
+% from exchangeratesapi.io. The results are memoized because this operation is slow and
+% use of the web endpoint is subject to usage limits. The web endpoint used is
+% https://api.exchangeratesapi.io/YYYY-MM-DD .
 
 :- dynamic exchange_rates/2.
 
