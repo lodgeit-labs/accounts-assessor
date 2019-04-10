@@ -20,7 +20,8 @@
 exchange_rates(Day, Exchange_Rates) :-
 	gregorian_date(Day, Date),
 	format_time(string(Date_Str), "%Y-%m-%d", Date),
-	string_concat("https://api.exchangeratesapi.io/", Date_Str, Query_Url),
+	string_concat("https://api.exchangeratesapi.io/", Date_Str, Query_Url_A),
+	string_concat(Query_Url_A, "/", Query_Url),
 	http_open(Query_Url, Stream, []),
 	json_read(Stream, json(Response), []),
 	member(rates = json(Exchange_Rates), Response),

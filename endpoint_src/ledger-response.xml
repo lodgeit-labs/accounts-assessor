@@ -1,20 +1,35 @@
-<balance_sheet xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-	<balance_sheet_entry account_name="asset">
-		<!-- A coordinate tag specifies how much of one type of thing there is in an account. Multiple coordinate
-		tags could be used, for example, to represent the state of a multi-currency account. -->
-		<coordinate unit="AUD" debit="0" credit="1749518.718123337" />
-		<!-- The following tags specify the state of this account's subaccounts. -->
-		<balance_sheet_entry account_name="Currency Account - AUD"><coordinate unit="AUD" debit="29669.14" credit="0" /></balance_sheet_entry>
-		<balance_sheet_entry account_name="Currency Account - CHF"><coordinate unit="AUD" debit="0" credit="339302.40800165856" /></balance_sheet_entry>
-		<balance_sheet_entry account_name="Currency Account - EUR"><coordinate unit="AUD" debit="0" credit="76393.180319999985" /></balance_sheet_entry>
-		<balance_sheet_entry account_name="Currency Account - USD"><coordinate unit="AUD" debit="0" credit="1362415.4169717957" /></balance_sheet_entry>
-		<balance_sheet_entry account_name="Currency Account - GBP"><coordinate unit="AUD" debit="0" credit="346.375087008" /></balance_sheet_entry>
-		<balance_sheet_entry account_name="Currency Account - NOK"><coordinate unit="AUD" debit="0" credit="730.4777428746" /></balance_sheet_entry>
-	</balance_sheet_entry>
-	<balance_sheet_entry account_name="liability" />
-	<balance_sheet_entry account_name="earnings">
-		<balance_sheet_entry account_name="retained_earnings" />
-		<balance_sheet_entry account_name="current_earnings" />
-	</balance_sheet_entry>
-	<balance_sheet_entry account_name="equity" />
-</balance_sheet>
+<xbrli:xbrl xmlns:xbrli="http://www.xbrl.org/2003/instance"
+    xmlns:link="http://www.xbrl.org/2003/linkbase"
+    xmlns:xlink="http://www.w3.org/1999/xlink"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:iso4217="http://www.xbrl.org/2003/iso4217"
+    xmlns:basic="http://www.xbrlsite.com/basic">
+  <link:schemaRef xlink:type="simple" xlink:href="basic.xsd" xlink:title="Taxonomy schema" />
+  <link:linkbaseRef xlink:type="simple" xlink:href="basic-formulas.xml" xlink:arcrole="http://www.w3.org/1999/xlink/properties/linkbase" />
+  <link:linkBaseRef xlink:type="simple" xlink:href="basic-formulas-cross-checks.xml" xlink:arcrole="http://www.w3.org/1999/xlink/properties/linkbase" />
+  <context id="D-2018">
+    <entity>
+      <identifier scheme="http://standards.iso.org/iso/17442">30810137d58f76b84afd</identifier>
+    </entity>
+    <period>
+      <startDate>2015-07-01</startDate>
+      <endDate>2018-06-30</endDate>
+    </period>
+  </context>
+  <unit id="U-AUD"><measure>AUD</measure></unit>
+  <basic:Assets contextRef="D-2018" unitRef="U-AUD" decimals="INF">425.00257334019557</basic:Assets>
+  <basic:CurrentAssets contextRef="D-2018" unitRef="U-AUD" decimals="INF">221.87596500257337</basic:CurrentAssets>
+  <basic:CashAndCashEquivalents contextRef="D-2018" unitRef="U-AUD" decimals="INF">221.87596500257337</basic:CashAndCashEquivalents>
+  <basic:WellsFargo contextRef="D-2018" unitRef="U-AUD" decimals="INF">121.87596500257335</basic:WellsFargo>
+  <basic:NationalAustraliaBank contextRef="D-2018" unitRef="U-AUD" decimals="INF">100</basic:NationalAustraliaBank>
+  <basic:NoncurrentAssets contextRef="D-2018" unitRef="U-AUD" decimals="INF">203.12660833762223</basic:NoncurrentAssets>
+  <basic:FinancialInvestments contextRef="D-2018" unitRef="U-AUD" decimals="INF">203.12660833762223</basic:FinancialInvestments>
+  <basic:Liabilities contextRef="D-2018" unitRef="U-AUD" decimals="INF">-600</basic:Liabilities>
+  <basic:NoncurrentLiabilities contextRef="D-2018" unitRef="U-AUD" decimals="INF">-600</basic:NoncurrentLiabilities>
+  <basic:NoncurrentLoans contextRef="D-2018" unitRef="U-AUD" decimals="INF">-600</basic:NoncurrentLoans>
+  <basic:Earnings contextRef="D-2018" unitRef="U-AUD" decimals="INF">445.83290444330078</basic:Earnings>
+  <!-- The different unit types in CurrentEarningsLosses have been combined using the unitValues. -->
+  <basic:CurrentEarningsLosses contextRef="D-2018" unitRef="U-AUD" decimals="INF">445.83290444330078</basic:CurrentEarningsLosses>
+  <basic:Equity contextRef="D-2018" unitRef="U-AUD" decimals="INF">-270.83547778349634</basic:Equity>
+  <basic:ShareCapital contextRef="D-2018" unitRef="U-AUD" decimals="INF">-270.83547778349634</basic:ShareCapital>
+</xbrli:xbrl>
