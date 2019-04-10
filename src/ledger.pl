@@ -13,15 +13,15 @@
 % Obtains all available exchange rates on the day Day using an arbitrary base currency
 % from exchangeratesapi.io. The results are memoized because this operation is slow and
 % use of the web endpoint is subject to usage limits. The web endpoint used is
-% https://api.exchangeratesapi.io/YYYY-MM-DD/ .
+% https://openexchangerates.org/api/historical/YYYY-MM-DD.json?app_id=677e4a964d1b44c99f2053e21307d31a .
 
 :- dynamic exchange_rates/2.
 
 exchange_rates(Day, Exchange_Rates) :-
 	gregorian_date(Day, Date),
 	format_time(string(Date_Str), "%Y-%m-%d", Date),
-	string_concat("https://api.exchangeratesapi.io/", Date_Str, Query_Url_A),
-	string_concat(Query_Url_A, "?base=USD", Query_Url),
+	string_concat("https://openexchangerates.org/api/historical/", Date_Str, Query_Url_A),
+	string_concat(Query_Url_A, ".json?app_id=677e4a964d1b44c99f2053e21307d31a", Query_Url),
 	http_open(Query_Url, Stream, []),
 	json_read(Stream, json(Response), []),
 	member(rates = json(Exchange_Rates), Response),
