@@ -1,26 +1,26 @@
 % Predicates for asserting that the fields of given transaction types have particular values
 
 % The identifier of this transaction type
-transaction_type_id(transaction_type(Id, _, _, _, _), Id).
-% The units to which the transaction amount will be converted to
-transaction_type_bases(transaction_type(_, Bases, _, _, _), Bases).
+transaction_type_id(transaction_type(Id, _, _, _), Id).
 % The account that will receive the inverse of the transaction amount after exchanging
-transaction_type_exchanged_account_id(transaction_type(_, _, Exchanged_Account_Id, _, _), Exchanged_Account_Id).
+transaction_type_exchanged_account_id(transaction_type(_, Exchanged_Account_Id, _, _), Exchanged_Account_Id).
 % The account that will record the gains and losses on the transaction amount
-transaction_type_trading_account_id(transaction_type(_, _, _, Trading_Account_Id, _), Trading_Account_Id).
+transaction_type_trading_account_id(transaction_type(_, _, Trading_Account_Id, _), Trading_Account_Id).
 % A description of this transaction type
-transaction_type_description(transaction_type(_, _, _, _, Description), Description).
+transaction_type_description(transaction_type(_, _, _, Description), Description).
 
 % Predicates for asserting that the fields of given transactions have particular values
 
 % The absolute day that the transaction happenned
-s_transaction_day(s_transaction(Day, _, _, _), Day).
+s_transaction_day(s_transaction(Day, _, _, _, _), Day).
 % The type identifier of the transaction
-s_transaction_type_id(s_transaction(_, Type_Id, _, _), Type_Id).
+s_transaction_type_id(s_transaction(_, Type_Id, _, _, _), Type_Id).
 % The amounts that are being moved in this transaction
-s_transaction_vector(s_transaction(_, _, Vector, _), Vector).
+s_transaction_vector(s_transaction(_, _, Vector, _, _), Vector).
 % The account that the transaction modifies without using exchange rate conversions
-s_transaction_account_id(s_transaction(_, _, _, Unexchanged_Account_Id), Unexchanged_Account_Id).
+s_transaction_account_id(s_transaction(_, _, _, Unexchanged_Account_Id, _), Unexchanged_Account_Id).
+% The units to which the transaction amount will be converted to
+s_transaction_bases(s_transaction(_, _, _, _, Bases), Bases).
 
 % Gets the transaction_type associated with the given transaction
 
@@ -50,7 +50,7 @@ preprocess_s_transactions(Exchange_Rates, Transaction_Types, [S_Transaction | S_
 	s_transaction_account_id(S_Transaction, UnX_Account), transaction_account_id(UnX_Transaction, UnX_Account),
 	
 	% Make an inverse exchanged transaction to the exchanged account
-	transaction_type_bases(Transaction_Type, Bases),
+	s_transaction_bases(S_Transaction, Bases),
 	vec_change_bases(Exchange_Rates, Day, Bases, Vector, Vector_Transformed),
 	transaction_day(X_Transaction, Day),
 	transaction_description(X_Transaction, Description),
