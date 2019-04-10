@@ -20,7 +20,7 @@
 exchange_rates(Day, Exchange_Rates) :-
 	gregorian_date(Day, Date),
 	format_time(string(Date_Str), "%Y-%m-%d", Date),
-	string_concat("https://openexchangerates.org/api/historical/", Date_Str, Query_Url_A),
+	string_concat("http://openexchangerates.org/api/historical/", Date_Str, Query_Url_A),
 	string_concat(Query_Url_A, ".json?app_id=677e4a964d1b44c99f2053e21307d31a", Query_Url),
 	http_open(Query_Url, Stream, []),
 	json_read(Stream, json(Response), []),
