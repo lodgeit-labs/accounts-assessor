@@ -5,9 +5,9 @@ using System.Web;
 
 namespace PrologEndpoint.Models
 {
-    public class AccountLink
+    public class Account
     {
-        public String subaccount { get; set; }
-        public String superaccount { get; set; }
+        public String Id { get; set; }
+        public string ParentId { get; set; }
     }
 }

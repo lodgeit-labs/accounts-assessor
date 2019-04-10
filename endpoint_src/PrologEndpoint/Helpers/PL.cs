@@ -93,7 +93,6 @@ namespace PrologEndpoint.Helpers
         public struct PL_engine_t { };  /* opaque engine handle */
 
         public struct PL_atomic_t { };  /* same a word */
-        public struct foreign_t { };	/* return type of foreign functions */
         public struct pl_function_t { }; /* foreign language functions */
 
         /* values for PL_get_term_value() */
@@ -193,8 +192,8 @@ namespace PrologEndpoint.Helpers
         public const int PL_PRUNED = 1;
         public const int PL_REDO = 2;
 
-        [DllImport(dllName)] public extern unsafe static foreign_t* _PL_retry(IntPtr a);
-        [DllImport(dllName)] public extern unsafe static foreign_t* _PL_retry_address(void* a);
+        [DllImport(dllName)] public extern unsafe static int _PL_retry(IntPtr a);
+        [DllImport(dllName)] public extern unsafe static int _PL_retry_address(void* a);
         [DllImport(dllName)] public extern unsafe static int PL_foreign_control(control_t* a);
         [DllImport(dllName)] public extern unsafe static IntPtr PL_foreign_context(control_t* a);
         [DllImport(dllName)] public extern unsafe static void* PL_foreign_context_address(control_t* a);

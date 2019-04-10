@@ -28,7 +28,7 @@ namespace PrologEndpoint.Controllers
             atom_t *loan_rep_atom = PL.PL_new_atom(LOAN_REPAYMENT);
             functor_t *loan_rep_functor = PL.PL_new_functor(loan_rep_atom, 2);
             term_t *day_term = PL.PL_new_term_ref();
-            PL.PL_put_integer(day_term, Date.ComputeAbsoluteDay(loan_rep.Date));
+            PL.PL_put_integer(day_term, Utils.ComputeAbsoluteDay(loan_rep.Date));
             term_t *amount_term = PL.PL_new_term_ref();
             PL.PL_put_float(amount_term, loan_rep.Amount);
             term_t *loan_rep_term = PL.PL_new_term_ref();
@@ -62,9 +62,9 @@ namespace PrologEndpoint.Controllers
             term_t *principal_amount_term = PL.PL_new_term_ref();
             PL.PL_put_float(principal_amount_term, loan_agr.PrincipalAmount);
             term_t *lodgement_day_term = PL.PL_new_term_ref();
-            PL.PL_put_integer(lodgement_day_term, Date.ComputeAbsoluteDay(loan_agr.LodgementDate));
+            PL.PL_put_integer(lodgement_day_term, Utils.ComputeAbsoluteDay(loan_agr.LodgementDate));
             term_t *begin_day_term = PL.PL_new_term_ref();
-            PL.PL_put_integer(begin_day_term, Date.ComputeAbsoluteDay(new DateTime(loan_agr.CreationIncomeYear, 7, 1)));
+            PL.PL_put_integer(begin_day_term, Utils.ComputeAbsoluteDay(new DateTime(loan_agr.CreationIncomeYear, 7, 1)));
             term_t *term_term = PL.PL_new_term_ref();
             PL.PL_put_integer(term_term, loan_agr.Term);
             term_t *computation_year_term = PL.PL_new_term_ref();

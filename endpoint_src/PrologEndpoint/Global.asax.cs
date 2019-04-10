@@ -26,6 +26,8 @@ namespace PrologEndpoint
         // will get their queries serviced at a given point in time.
         private unsafe static PL_engine_t*[] PrologEngines = new PL_engine_t*[10];
 
+        private unsafe readonly char* FOREIGN_WRITE = (char*)Marshal.StringToHGlobalAnsi("foreign_write");
+
         protected void Application_Start()
         {
             AreaRegistration.RegisterAllAreas();
@@ -35,6 +37,19 @@ namespace PrologEndpoint
             BundleConfig.RegisterBundles(BundleTable.Bundles);
             InitialiseProlog();
         }
+
+        /* A Prolog predicate for writing a Prolog term to the trace listeners. */
+        private static unsafe int Write(term_t *term)
+        {
+            System.Diagnostics.Debug.WriteLine(Utils.TermString(term));
+            return PL.TRUE;
+        }
+
+        /* Delegate declared to facilitate getting a function pointer to Write. */
+        private unsafe delegate int WriteDelegate(term_t* term);
+
+        /* Delegate declared as a field to prevent its garbage collection. */
+        private readonly unsafe WriteDelegate writeDelegate = new WriteDelegate(Write);
 
         /* Initialize the Prolog library and a pool of engines. */
         private unsafe void InitialiseProlog()
@@ -50,6 +65,8 @@ namespace PrologEndpoint
                 Marshal.StringToHGlobalAnsi("-s"),
                 Marshal.StringToHGlobalAnsi(ConfigurationManager.AppSettings["PrologProgramPath"])
             }, 0, argv, argc);
+            // Bind in a foreign predicate for printing debug messages called "debug"
+            PL.PL_register_foreign(FOREIGN_WRITE, 1, (PL.pl_function_t*)Marshal.GetFunctionPointerForDelegate(writeDelegate).ToPointer(), 0, __arglist());
             PL.PL_initialise(argc, (char **) argv);
 
             // See http://www.swi-prolog.org/pldoc/man?CAPI=PL_create_engine

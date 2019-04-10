@@ -173,18 +173,20 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
-    <Compile Include="Helpers\Date.cs" />
+    <Compile Include="Helpers\Utils.cs" />
     <Compile Include="Helpers\PL.cs" />
-    <Compile Include="Models\AccountLink.cs" />
+    <Compile Include="Models\Account.cs" />
     <Compile Include="Models\BalanceSheetEntry.cs" />
     <Compile Include="Models\Coordinate.cs" />
     <Compile Include="Models\DialogueRecord.cs" />
     <Compile Include="Models\DialogueRequest.cs" />
     <Compile Include="Models\DialogueResponse.cs" />
+    <Compile Include="Models\ExchangeRate.cs" />
     <Compile Include="Models\LoanAgreement.cs" />
     <Compile Include="Models\LoanRepayment.cs" />
     <Compile Include="Models\LoanSummary.cs" />
-    <Compile Include="Models\Transaction.cs" />
+    <Compile Include="Models\StatementTransaction.cs" />
+    <Compile Include="Models\TransactionType.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
