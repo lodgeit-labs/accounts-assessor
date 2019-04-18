@@ -33,6 +33,9 @@ next_state(History, 4, 5, "Do you reside in Australia more than you reside elsew
 
 next_state(_, 4, -1, "").
 
+
+
+
 % Domicile Test
 
 next_state(History, 5, 6, "Do you rent a house, room or apartment in Australia to dwell in?") :-
@@ -61,6 +64,16 @@ next_state(History, 8, 9, "Did you recently arrive in Australia?") :-
 	member((8, 0), History), !.
 
 next_state(_, 8, -1, "").
+
+
+% notes:
+% Have you been in Australia, either continuously or intermittently, for 183 days or more in the income year? *
+% https://www.ato.gov.au/Individuals/International-tax-for-individuals/Work-out-your-tax-residency/
+% https://www.ato.gov.au/Individuals/Ind/Resident-for-tax-if-WHM-/?=redirected
+% https://www.ato.gov.au/Calculators-and-tools/Host/?=redirected_residencytests&anchor=AreYouAResident%20#AreYouAResident/questions
+% https://www.ato.gov.au/law/view/document?Docid=TXR/TR9817/NAT/ATO/00001
+
+
 
 next_state(History, 9, 10, "Did you spend 183 or more days in Australia?") :-
 	member((9, 1), History), !.
@@ -115,13 +128,22 @@ next_state(_, 17, -2, "").
 % Bool with 0 if the user enters 'N' or 'n'. Repeats the prompt if the answer is not one
 % of the four aforementioned characters.
 
-prompt(Prompt, Bool) :-
+prompt(Prompt, Bool, ScriptedAnswer) :-
 	string_concat(Prompt, " (y/Y/n/N): ", Formatted_Prompt),
+
+	% this was write. write seems to not guarantee that the output is flushed, so i was getting empty prompts.
 	write(Formatted_Prompt),
-	get(Answer),
+
+	% -> would be cleaner than cut?
+	((integer(ScriptedAnswer), Answer = ScriptedAnswer, put_char(Answer), writeln(""), !);
+	
+	writeln(""),
+	get(Answer)),
+
 	((Answer = 89; Answer = 121) -> Bool = 1;
 	(Answer = 78; Answer = 110) -> Bool = 0;
-	prompt(Prompt, Bool)).
+	% otherwise,
+	prompt(Prompt, Bool, _)).
 
 % Carrys out a dialog with the user based on the Deterministic Finite State Machine above.
 % History is a list of pairs of questions and answers received so far, state identifies
@@ -130,17 +152,37 @@ prompt(Prompt, Bool) :-
 % depending on whether the user is an Australian, temporary, or foreign resident for tax
 % purposes respectively.
 
-dialog(History, State, Response, Resident) :-
+dialog(History, State, Response, Resident, ScriptedAnswers) :-
 	Next_History = [(State, Response) | History],
+
+	write("Next_History:"), writeln(Next_History),
+	% unify ScriptedAnswer with the head of ScriptedAnswers, to be passed to prompt.
+	% if ScriptedAnswers is not a list, leave ScriptedAnswer unbound.
+	(compound(ScriptedAnswers) -> ScriptedAnswers = [ScriptedAnswer|ScriptedAnswersTail] ;true),
+
 	next_state(Next_History, State, Next_State, Next_Question),
 	Next_State \= -1, Next_State \= -2, Next_State \= -3,
-	prompt(Next_Question, Next_Response),
-	dialog(Next_History, Next_State, Next_Response, Resident), !.
+	prompt(Next_Question, Next_Response, ScriptedAnswer),
+	dialog(Next_History, Next_State, Next_Response, Resident, ScriptedAnswersTail), !.
 
 % The base case of the dialog. The residency of the user is determined by the final state
 % of the Deterministic Finite State Machine above.
 
-dialog(History, State, Response, Resident) :-
+dialog(History, State, Response, Resident, _) :-
 	Next_History = [(State, Response) | History],
-	next_state(Next_History, State, Resident, _).
+	next_state(Next_History, State, Resident, "").
 
+
+
+test0() :-
+	% for example dialog([], 0, _, -1,  `ynynnnnnnynn`), ideally shouldn't unify, 
+	% the correct result is -2, but dialog backtracks until it finds a next_state that matches
+
+	dialog([], 0, _, Result0, `yyy`), Result0 = -1,
+	dialog([], 0, _, Result1, `ynyy`), Result1 = -1,
+	dialog([], 0, _, Result2, `ynynnnnnnynn`), Result2 = -2,
+	dialog([], 0, _, Result3, `nnnnnnnnnnnnnnnnnn`), Result3 = -3,
+	
+	true.
+
+:- test0.
