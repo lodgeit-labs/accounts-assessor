@@ -16,10 +16,10 @@ using static PrologEndpoint.Helpers.PL;
 
 namespace PrologEndpoint.Controllers
 {
-    public class ResidencyController : ApiController
+    public class SbeController : ApiController
     {
         private unsafe readonly char* COMMA = (char*)Marshal.StringToHGlobalAnsi(",");
-        private unsafe readonly char* NEXT_STATE = (char*)Marshal.StringToHGlobalAnsi("next_state");
+        private unsafe readonly char* NEXT_STATE = (char*)Marshal.StringToHGlobalAnsi("sbe_next_state");
 
         private unsafe PL.term_t *ConstructRecord(DialogueRecord record)
         {

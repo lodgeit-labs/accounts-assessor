@@ -10,6 +10,7 @@
 :- ['loans.pl'].
 % Loads up predicates pertaining to determining residency
 :- ['residency.pl'].
+:- ['sbe.pl'].
 % Loads up predicates pertaining to bank statements
 :- ['statements.pl'].
 
