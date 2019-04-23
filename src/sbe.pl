@@ -5,7 +5,7 @@
 
 % sbe_question(History, StateId, NextYesState, NextNoState, Prompt)
 
-sbe_question(_, 0, 1, -1, "Are you a: Sole trader, Partnership, Company, or Trust?").
+sbe_question(_, 0, 1, -1, "Are you a Sole trader, Partnership, Company or Trust?").
 sbe_question(_, 1, 3, 2,  "Did you operate a business for all of the income year?").
 sbe_question(_, 2, 3, -1, "Did you operate a business for part of the income year?").
 sbe_question(_, 3, -2, -1, "Was your aggregated turnover less than $10,000,000?").
