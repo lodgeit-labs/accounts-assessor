@@ -15,31 +15,31 @@ sbe_question(_, 3, -2, -1, "Was your aggregated turnover less than $10,000,000?"
 
 % first call is: [], 0, ?, ?
 
-sbe_next_state(History, Lastsbe_question, Nextsbe_question, Prompt) :-
+sbe_next_state(History, Last_question, Next_question, Prompt) :-
 	% if we have a negative answer to the last sbe_question
-	member((Lastsbe_question, 0), History),
+	member((Last_question, 0), History),
 	% look up the No state to go to
-	sbe_question(History, Lastsbe_question, _, Nextsbe_question, _),
+	sbe_question(History, Last_question, _, Next_question, _),
 	(
-		Nextsbe_question < 0;
-		sbe_question(History, Nextsbe_question, _, _, Prompt)
+		Next_question < 0;
+		sbe_question(History, Next_question, _, _, Prompt)
 	).
 
-sbe_next_state(History, Lastsbe_question, Nextsbe_question, Prompt) :-
+sbe_next_state(History, Last_question, Next_question, Prompt) :-
 	% if we have a positive answer to the last sbe_question
-	member((Lastsbe_question, 1), History),
+	member((Last_question, 1), History),
 	% look up the Yes state to go to
-	sbe_question(History, Lastsbe_question, Nextsbe_question, _, _),
+	sbe_question(History, Last_question, Next_question, _, _),
 	(
-		Nextsbe_question < 0;
-		sbe_question(History, Nextsbe_question, _, _, Prompt)
+		Next_question < 0;
+		sbe_question(History, Next_question, _, _, Prompt)
 	).
 	
-sbe_next_state(History, Lastsbe_question, Lastsbe_question, Prompt) :-
+sbe_next_state(History, Last_question, Last_question, Prompt) :-
 	% otherwise
-	\+ member((Lastsbe_question, _), History),
+	\+ member((Last_question, _), History),
 	% look up the prompt
-	sbe_question(History, Lastsbe_question, _, _, Prompt).
+	sbe_question(History, Last_question, _, _, Prompt).
 
 
 
@@ -60,15 +60,15 @@ sbe_dialog(History, State, Resident, ScriptedAnswers) :-
 	% if ScriptedAnswers is not a list, leave ScriptedAnswer unbound.
 	(compound(ScriptedAnswers) -> ScriptedAnswers = [ScriptedAnswer|ScriptedAnswersTail] ;true),
 
-	sbe_next_state(History, State, sbe_next_state, Next_sbe_question),
-	sbe_next_state \= -1, sbe_next_state \= -2, sbe_next_state \= -3,
+	sbe_next_state(History, State, NextState, NextQuestion),
+	NextState \= -1, NextState \= -2, NextState \= -3,
 
-	prompt(Next_sbe_question, Response, ScriptedAnswer),
+	prompt(NextQuestion, Response, ScriptedAnswer),
 
-	Next_History = [(sbe_next_state, Response) | History],
-	write("Next_History:"), writeln(Next_History),
+	NextHistory = [(NextState, Response) | History],
+	write("NextHistory:"), writeln(NextHistory),
 
-	sbe_dialog(Next_History, sbe_next_state, Resident, ScriptedAnswersTail), !.
+	sbe_dialog(NextHistory, NextState, Resident, ScriptedAnswersTail), !.
 
 % The base case of the sbe_dialog. The residency of the user is determined by the final state
 % of the Deterministic Finite State Machine above.
@@ -89,7 +89,9 @@ test0() :-
 	sbe_dialog([], 0, Result4, `yyn`), Result4 = -1,
 	sbe_dialog([], 0, Result5, `yyy`), Result5 = -2,
 	
+	writeln(""),
 	writeln("all tests pass."),
 	writeln("").
 
+:- debug.
 :- test0.

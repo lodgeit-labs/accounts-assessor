@@ -56,7 +56,37 @@ next_state(_, 6, -1, "").
 next_state(History, 7, 8, "Is the house or any part of the house maintained for you to live in?") :-
 	member((7, 1), History), !.
 
-% 183 Day Test
+/* 3 - The 183 day test -> This test only applies to
+individuals arriving in Australia.
+You will be a resident under
+this test if you spend over half
+the year in Australia, unless
+it is established that your
+‘usual place of abode’ is
+outside Australia and you
+have no intention of taking
+up residence here.
+
+	
+Question Set 3
+Did you recently arrive in Australia?
+a. IF Y, then is Q2 also Y? (do you have domicile here)
+b. IF N, then Do you have any intention of taking up residence here?
+IF Y, then did you spend 183 or more days in Australia?
+183 Day Test is Y IF Y.
+
+Question Set 3
+Did you recently arrive in Australia?
+	IF Y, then is Q2 also Y? (do you have domicile here)
+		IF Y, result is resident
+		IF N, then Do you have any intention of taking up residence here?
+			IF Y, then did you spend 183 or more days in Australia?
+				IF Y, result is resident
+				IF N, go to Superannuation Fund Test
+			IF N, go to Superannuation Fund Test
+	IF N, 183 day test is N, go to Superannuation Fund Test
+
+*/
 
 next_state(_, 7, 9, "Did you recently arrive in Australia?").
 
@@ -64,16 +94,6 @@ next_state(History, 8, 9, "Did you recently arrive in Australia?") :-
 	member((8, 0), History), !.
 
 next_state(_, 8, -1, "").
-
-
-% notes:
-% Have you been in Australia, either continuously or intermittently, for 183 days or more in the income year? *
-% https://www.ato.gov.au/Individuals/International-tax-for-individuals/Work-out-your-tax-residency/
-% https://www.ato.gov.au/Individuals/Ind/Resident-for-tax-if-WHM-/?=redirected
-% https://www.ato.gov.au/Calculators-and-tools/Host/?=redirected_residencytests&anchor=AreYouAResident%20#AreYouAResident/questions
-% https://www.ato.gov.au/law/view/document?Docid=TXR/TR9817/NAT/ATO/00001
-
-
 
 next_state(History, 9, 10, "Did you spend 183 or more days in Australia?") :-
 	member((9, 1), History), !.
@@ -186,3 +206,14 @@ test0() :-
 	true.
 
 :- test0.
+
+
+
+
+
+% notes:
+% Have you been in Australia, either continuously or intermittently, for 183 days or more in the income year? *
+% https://www.ato.gov.au/Individuals/International-tax-for-individuals/Work-out-your-tax-residency/
+% https://www.ato.gov.au/Individuals/Ind/Resident-for-tax-if-WHM-/?=redirected
+% https://www.ato.gov.au/Calculators-and-tools/Host/?=redirected_residencytests&anchor=AreYouAResident%20#AreYouAResident/questions
+% https://www.ato.gov.au/law/view/document?Docid=TXR/TR9817/NAT/ATO/00001

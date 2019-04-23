@@ -1,0 +1,168 @@
+
+Are you an/a
+Australian resident for tax purpose
+OR
+Foreign resident for tax purpose
+OR
+Temporary resident for tax purpose
+?
+
+The following is the information that will allow for an answer to be derived including tax reporting requirements based on the residency decided  - 
+
+Australian Tax Law - Residency and tax (Individual Human Taxpayers) 
+
+You could be an Australian resident for tax purposes even if you're not an Australian citizen or permanent resident.
+
+You may have a visa to enter Australia, but are not an Australian resident for tax purposes.
+
+There are four tests used to determine if you are an Australian resident for tax purposes.
+You will be an Australian resident if you meet any one of these tests.
+
+
+1- The resides test ->  you are a
+resident of Australia if you
+reside in Australia according
+to the ordinary meaning of
+‘reside’ – which means ‘to
+dwell permanently, or for
+considerable time, to have a
+settled or usual abode, and to
+live in a particular place’.
+
+2 - The domicile test -> Under this test, you are a
+resident of Australia if your
+domicile is in Australia, unless
+the Commissioner is satisfied
+that your ‘permanent place of
+abode’ is outside Australia.
+
+3 - The 183 day test -> This test only applies to
+individuals arriving in Australia.
+You will be a resident under
+this test if you spend over half
+the year in Australia, unless
+it is established that your
+‘usual place of abode’ is
+outside Australia and you
+have no intention of taking
+up residence here.
+
+4 - The Commonwealth
+superannuation
+fund test -> This test only applies to
+certain Australian Government
+employees who are eligible
+to contribute to the Public
+Sector Superannuation Scheme
+(PSS) or the Commonwealth
+Superannuation Scheme (CSS).
+If this is the case, you (and your
+spouse and children under 16)
+are considered to be a resident
+of Australia regardless of any
+other factors.
+
+A legal decision (ZKBN and Commissioner of Taxation [2013] AATA 604 (27 August 2013) shows that a person who fails to cut their connection with Australia (close superannuation fund, dispose of or rent principal place of residence, change domicile)  will be treated as an Australian resident.
+
+If you do not satisfy any of the residency
+tests below, you are a foreign resident. 
+
+You will be a ‘temporary resident’ if you
+hold a temporary visa and neither you or
+your spouse is an Australian resident within
+the meaning of the Social Security Act
+1991 (that is, not an Australian citizen or
+permanent resident).
+
+
+If you're an Australian resident for tax purposes, you are taxed on your worldwide income/taxed on your income regardless of source
+foreign business income
+foreign investment revenue income i.e dividend income, interest income, trust distribution income, partnership income
+foreign capital gains income
+
+Foreign income includes:
+
+foreign pensions and annuities
+foreign employment income
+foreign investment income
+foreign business income
+capital gains on overseas assets.
+
+foreign investment income includes: foreign dividend income, foreign interest income, foreign trust distribution income, foreign partnership income
+
+As your foreign income may also be taxed in the source country, it is potentially subject to double taxation.
+
+To overcome this, Australia has a system of credits and exemptions and has signed tax treaties with more than 40 countries, including all our major trade and investment partners.
+Failure to disclose foreign income may result in  penalties and interest charges for the foreign income recipient
+
+
+Foreign Resident
+
+As a foreign resident, you have no tax-free
+threshold and do not pay the Medicare levy.
+You must still declare any income derived
+in Australia, including any capital gains
+on taxable Australian property in your
+Australian tax return.
+
+If you're not an Australian resident for tax purposes, you are only taxed on your Australian-sourced income, so you generally don't need to declare income you receive from outside Australia in your Australian tax return.
+
+If you have a Higher Education Loan Program (HELP) or Trade Support Loan (TSL) debt and you're a non-resident for tax purposes – you'll need to declare your worldwide income or lodge a non-lodgment advice. You can do this using our online services via myGov, or through a registered Australian tax agent from 1 July 2017.
+
+Temporary Resident
+
+As a temporary resident, you only need
+to declare income derived in Australia,
+plus any income earned from employment
+performed overseas for short periods while
+you are a temporary resident.
+Other foreign income and capital gains
+do not have to be declared.
+
+There are separate rules for working holiday maker and individuals who are tax residents of more than one country.
+
+Under the Social Security Act 1991, an Australian resident is generally a person who resides in Australia and is either an Australian citizen or holds a permanent resident visa. ... For more information on residency for Social Security purposes, visit Department of Human Services .
+
+Here are the Questions to resolve the answers to residency status.
+
+Question Set 1
+1.Do you live in Australia?
+2. Do you maintain a permanent base in Australia?
+3. Are you in Australia frequently?
+4. Is your usual most common place of residence in Australia?
+5. Do you reside in Australia more than you reside elsewhere?
+Reside Test is Y if 3/5 is Y. Notice that the same question is simply recast
+
+Question Set 2
+1. Do you rent a house, room or apartment in Australia to dwell in?
+2. a.Do you own a house in Australia? IF Y, b. is the house or any part of the house maintained for you to live in?
+Domicile Test is Y if 1 or if 2 and Part A & B are Y.
+
+Question Set 3
+Did you recently arrive in Australia?
+a. IF Y, then is Q2 also Y?
+b. IF N, then Do you have any intention of taking up residence here?
+IF Y, then did you spend 183 or more days in Australia?
+183 Day Test is Y IF Y.
+
+Question Set 4
+Are you a Government employee?
+IF Y, are you eligible to contribute to a Public Sector Superannuation Scheme?
+The Commonwealth Superannuation Fund test is Y if Y. 
+
+Do not ask more questions once the solution to Australian Residency is resolved.
+
+If Y, then ANSWER, "You are an Australian Resident for Tax Purposes".
+
+IF N, then ANSWER, "You are a Foreign Resident."
+
+IF Foreign Resident, then 
+Do you hold a temporary visa?
+Is Domicile Test N?
+IF N, then execute Domicile Test for Spouse i.e.
+Does your spouse rent a house, room or apartment in Australia to dwell in?
+Does your spouse own a house in Australia?
+
+IF temporary visa is Y and N for Domicile Test for both partners, then Temporary Resident is Y.
+
+
