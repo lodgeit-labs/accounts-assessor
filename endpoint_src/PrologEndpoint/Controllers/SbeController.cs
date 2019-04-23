@@ -105,7 +105,7 @@ namespace PrologEndpoint.Controllers
         	
         	*/
             // 0 is the question id before any questions are asked.
-            int current_question_id = -1;
+            int current_question_id = 0;
             // Note the unanswered question in the received CurrentState.
             // Put the received response as an answer to the unanswered question.
             foreach (DialogueRecord x in dreq.CurrentState)
