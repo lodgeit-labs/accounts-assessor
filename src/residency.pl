@@ -177,7 +177,11 @@ dialog(History, State, Response, Resident, _) :-
 	Next_History = [(State, Response) | History],
 	next_state(Next_History, State, Resident, "").
 
+dialog(Result, Answers) :-
+	dialog([], 0, _, Result, Answers).
 
+dialog(Result) :-
+	dialog([], 0, _, Result, ``).
 
 residency_test0() :-
 	% for example dialog([], 0, _, -1,  `ynynnnnnnynn`), ideally shouldn't unify, 
@@ -187,6 +191,7 @@ residency_test0() :-
 	dialog([], 0, _, Result1, `ynyy`), Result1 = -1,
 	dialog([], 0, _, Result2, `ynynnnnnnynn`), Result2 = -2,
 	dialog([], 0, _, Result3, `nnnnnnnnnnnnnnnnnn`), Result3 = -3,
+	dialog([], 0, _, Result4, `nnyynnnyynyy`), Result4 = -1,
 	
 	true.
 
