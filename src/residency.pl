@@ -20,6 +20,7 @@ next_state(_, 1, 2, "Do you maintain a permanent base in Australia?").
 
 next_state(_, 2, 3, "Are you in Australia frequently?").
 
+% one of the above three questions was answered no, let's give it another chance
 next_state(History, 3, 4, "Is your usual most common place of residence in Australia?") :-
 	indicator((1, 1), History, I1),
 	indicator((2, 1), History, I2),
@@ -38,7 +39,7 @@ next_state(History, 4, 5, "Do you reside in Australia more than you reside elsew
 next_state(_, 4, -1, "").
 
 
-
+% if less than 3 above questions were answered positively, we try the:
 
 % Domicile Test
 
@@ -81,15 +82,12 @@ IF Y, then did you spend 183 or more days in Australia?
 
 Question Set 3
 Did you recently arrive in Australia?
-	IF Y, then is Q2 also Y? (do you have domicile here)
-		IF Y, result is resident
-		IF N, then Do you have any intention of taking up residence here?
-			IF Y, then did you spend 183 or more days in Australia?
-				IF Y, result is resident
-				IF N, go to Superannuation Fund Test
+	IF Y, then Do you have any intention of taking up residence here?
+		IF Y, then did you spend 183 or more days in Australia?
+			IF Y, result is resident
 			IF N, go to Superannuation Fund Test
-	IF N, 183 day test is N, go to Superannuation Fund Test
-
+		IF N, go to Superannuation Fund Test
+	IF N, go to Superannuation Fund Test
 */
 
 next_state(_, 7, 9, "Did you recently arrive in Australia?").
@@ -99,14 +97,16 @@ next_state(History, 8, 9, "Did you recently arrive in Australia?") :-
 
 next_state(_, 8, -1, "").
 
-next_state(History, 9, 10, "Did you spend 183 or more days in Australia?") :-
+% did recently arrive:
+next_state(History, 9, 10, "Do you have any intention of taking up residence here?") :-
 	member((9, 1), History), !.
 
 % Commonwealth Superannuation Fund Test
 
+% didnt recently arrive, so:
 next_state(_, 9, 12, "Are you a Government employee?").
 
-next_state(History, 10, 11, "Do you have any intention of taking up residence here?") :-
+next_state(History, 10, 11, "Did you spend 183 or more days in Australia?") :-
 	member((10, 1), History), !.
 
 next_state(_, 10, 12, "Are you a Government employee?").
