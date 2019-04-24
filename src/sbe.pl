@@ -3,6 +3,9 @@
 
 % Small Business Entity test. -1 == No, -2 == Yes
 
+sbe_result(-1, dict{answer: "No"}).
+sbe_result(-2, dict{answer: "Yes"}).
+
 % sbe_question(History, StateId, NextYesState, NextNoState, Prompt)
 
 sbe_question(_, 0, 1, -1, "Are you a Sole trader, Partnership, Company or Trust?").

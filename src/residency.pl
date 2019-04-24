@@ -8,6 +8,10 @@ indicator(Element, List, 0) :- \+ member(Element, List).
 % A Deterministic Finite State Machine for determining if the user is an Australian
 % resident for tax purposes.
 
+residency_result(-1, dict{answer: "Australian"}).
+residency_result(-2, dict{answer: "temporary"}).
+residency_result(-3, dict{answer: "foreign"}).
+
 % Resides Test
 
 next_state(_, 0, 1, "Do you live in Australia?").
@@ -144,26 +148,7 @@ next_state(History, 17, -3, "") :-
 
 next_state(_, 17, -2, "").
 
-% Prints the prompt Prompt. Unifies Bool with 1 if the user enters 'Y' or 'y'. Unifies
-% Bool with 0 if the user enters 'N' or 'n'. Repeats the prompt if the answer is not one
-% of the four aforementioned characters.
-
-prompt(Prompt, Bool, ScriptedAnswer) :-
-	string_concat(Prompt, " (y/Y/n/N): ", Formatted_Prompt),
-
-	% this was write. write seems to not guarantee that the output is flushed, so i was getting empty prompts.
-	write(Formatted_Prompt),
-
-	% -> would be cleaner than cut?
-	((integer(ScriptedAnswer), Answer = ScriptedAnswer, put_char(Answer), writeln(""), !);
-	
-	writeln(""),
-	get(Answer)),
-
-	((Answer = 89; Answer = 121) -> Bool = 1;
-	(Answer = 78; Answer = 110) -> Bool = 0;
-	% otherwise,
-	prompt(Prompt, Bool, _)).
+:- [prompt].
 
 % Carrys out a dialog with the user based on the Deterministic Finite State Machine above.
 % History is a list of pairs of questions and answers received so far, state identifies
@@ -194,7 +179,7 @@ dialog(History, State, Response, Resident, _) :-
 
 
 
-test0() :-
+residency_test0() :-
 	% for example dialog([], 0, _, -1,  `ynynnnnnnynn`), ideally shouldn't unify, 
 	% the correct result is -2, but dialog backtracks until it finds a next_state that matches
 
@@ -205,7 +190,7 @@ test0() :-
 	
 	true.
 
-:- test0.
+:- residency_test0.
 
 
 
