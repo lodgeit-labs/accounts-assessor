@@ -1,3 +1,7 @@
+/*
+swipl version 8 required.
+*/
+
 /* The original nomenclature is by now a bit confusing. 
 "state" is a list of {question_id, response} objects, would be better called history.
 "question id" is the state of the FSM.*/
