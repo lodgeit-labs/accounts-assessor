@@ -14,6 +14,8 @@ namespace PrologEndpoint.Controllers
     public class LedgerController : ApiController
     {
         private unsafe readonly char* ENTRY = (char*)Marshal.StringToHGlobalAnsi("entry");
+        private unsafe readonly char* BASES = (char*)Marshal.StringToHGlobalAnsi("bases");
+        private unsafe readonly char* VECTOR = (char*)Marshal.StringToHGlobalAnsi("vector");
         private unsafe readonly char* COORD = (char*)Marshal.StringToHGlobalAnsi("coord");
         private unsafe readonly char* STATEMENT_TRANSACTION = (char*) Marshal.StringToHGlobalAnsi("s_transaction");
         private unsafe readonly char* ACCOUNT = (char*)Marshal.StringToHGlobalAnsi("account");
@@ -70,9 +72,20 @@ namespace PrologEndpoint.Controllers
             term_t* vector_term = ConstructVector(trans.Vector);
             term_t* account_term = PL.PL_new_term_ref();
             PL.PL_put_atom_chars(account_term, trans.Account);
-            term_t* bases_term = ConstructBases(trans.Bases);
+            term_t* exchanged_amount_term = PL.PL_new_term_ref();
+            if(trans.ExchangedAmountBases != null)
+            {
+                atom_t* bases_atom = PL.PL_new_atom(BASES);
+                functor_t* bases_functor = PL.PL_new_functor(bases_atom, 1);
+                PL.PL_cons_functor(exchanged_amount_term, bases_functor, __arglist(ConstructBases(trans.ExchangedAmountBases)));
+            } else
+            {
+                atom_t* vector_atom = PL.PL_new_atom(VECTOR);
+                functor_t* vector_functor = PL.PL_new_functor(vector_atom, 1);
+                PL.PL_cons_functor(exchanged_amount_term, vector_functor, __arglist(ConstructVector(trans.ExchangedAmountVector)));
+            }
             term_t* transaction_term = PL.PL_new_term_ref();
-            PL.PL_cons_functor(transaction_term, transaction_functor, __arglist(day_term, type_id_term, vector_term, account_term, bases_term));
+            PL.PL_cons_functor(transaction_term, transaction_functor, __arglist(day_term, type_id_term, vector_term, account_term, exchanged_amount_term));
             return transaction_term;
         }
 
@@ -245,28 +258,51 @@ namespace PrologEndpoint.Controllers
                     c.Unit = currency;
                     c.Debit = Double.Parse(m.SelectSingleNode("debit/text()").Value);
                     c.Credit = Double.Parse(m.SelectSingleNode("credit/text()").Value);
+                    XmlNode unitQuantity = m.SelectSingleNode("unit/text()");
                     XmlNode unitType = m.SelectSingleNode("unitType/text()");
-
-                    transactions.Add(new StatementTransaction
+                    StatementTransaction st = new StatementTransaction
                     {
                         TypeId = m.SelectSingleNode("transdesc/text()").Value,
                         Date = DateTime.Parse(m.SelectSingleNode("transdate/text()").Value),
                         Account = account,
-                        Vector = new List<Coordinate>() { c },
-                        Bases = unitType != null ? new List<string>() { unitType.Value } : defaultBases
-                    });
+                        Vector = new List<Coordinate>() { c }
+                    };
+                    if (unitQuantity != null && unitType != null)
+                    {
+                        // If the user has specified both the unit quantity and type, then exchange rate
+                        // conversion and hence a target bases is unnecessary.
+                        st.ExchangedAmountVector = new List<Coordinate>() { new Coordinate {
+                            Unit = unitType.Value,
+                            Debit = Double.Parse(unitQuantity.Value),
+                            Credit = 0 } };
+                        st.ExchangedAmountBases = null;
+                    } else if(unitType != null)
+                    {
+                        // If the user has specified only a unit type, then automatically do a conversion
+                        // to that unit.
+                        st.ExchangedAmountVector = null;
+                        st.ExchangedAmountBases = new List<string>() { unitType.Value };
+                    } else
+                    {
+                        // If the user has not specified both the unit quantity and type, then automatically
+                        // do a conversion to the default bases.
+                        st.ExchangedAmountVector = null;
+                        st.ExchangedAmountBases = defaultBases;
+                    }
+
+                    transactions.Add(st);
                 }
             }
             return transactions;
         }
 
-        private List<ExchangeRate> ParseExchangeRates(XmlDocument doc)
+        private List<ExchangeRate> ParseExchangeRates(XmlDocument doc, DateTime balanceSheetEndDate)
         {
             List<ExchangeRate> exchangeRates = new List<ExchangeRate>();
             foreach (XmlNode n in doc.SelectNodes("/reports/balanceSheetRequest/unitValues/unitValue")) {
                 exchangeRates.Add(new ExchangeRate()
                 {
-                    Date = DateTime.Parse(n.SelectSingleNode("valuationDate/text()").Value),
+                    Date = balanceSheetEndDate,
                     SrcCurrency = n.SelectSingleNode("unitType/text()").Value,
                     DestCurrency = n.SelectSingleNode("unitValueCurrency/text()").Value,
                     Rate = Double.Parse(n.SelectSingleNode("unitValue/text()").Value)
@@ -487,10 +523,10 @@ namespace PrologEndpoint.Controllers
             doc.Load(stream);
             List<StatementTransaction> transactions = ParseStatementTransactions(doc);
             List<Account> accountLinks = ParseAccounts(doc);
-            List<ExchangeRate> exchangeRates = ParseExchangeRates(doc);
             List<String> bases = ParseBases(doc);
             DateTime balanceSheetStartDate = DateTime.Parse(doc.SelectSingleNode("/reports/balanceSheetRequest/startDate/text()").Value);
             DateTime balanceSheetEndDate = DateTime.Parse(doc.SelectSingleNode("/reports/balanceSheetRequest/endDate/text()").Value);
+            List<ExchangeRate> exchangeRates = ParseExchangeRates(doc, balanceSheetEndDate);
             List<TransactionType> transactionTypes = ParseTransactionTypes(doc);
             
             WebApiApplication.ObtainEngine();
