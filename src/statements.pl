@@ -19,8 +19,9 @@ s_transaction_type_id(s_transaction(_, Type_Id, _, _, _), Type_Id).
 s_transaction_vector(s_transaction(_, _, Vector, _, _), Vector).
 % The account that the transaction modifies without using exchange rate conversions
 s_transaction_account_id(s_transaction(_, _, _, Unexchanged_Account_Id, _), Unexchanged_Account_Id).
-% The units to which the transaction amount will be converted to
-s_transaction_bases(s_transaction(_, _, _, _, Bases), Bases).
+% Either the units or the amount to which the transaction amount will be converted to
+% depending on whether the term is of the form bases(...) or vector(...).
+s_transaction_exchanged(s_transaction(_, _, _, _, Bases), Bases).
 
 % Gets the transaction_type associated with the given transaction
 
@@ -37,6 +38,9 @@ transaction_type_of(Transaction_Types, S_Transaction, Transaction_Type) :-
 
 preprocess_s_transactions(_, _, [], []).
 
+% This Prolog rule handles the case when the exchanged amount is known and hence no
+% exchange rate calculations need to be done.
+
 preprocess_s_transactions(Exchange_Rates, Transaction_Types, [S_Transaction | S_Transactions],
 		[UnX_Transaction | [X_Transaction | [Trading_Transaction | PP_Transactions]]]) :-
 	transaction_type_of(Transaction_Types, S_Transaction, Transaction_Type),
@@ -50,8 +54,7 @@ preprocess_s_transactions(Exchange_Rates, Transaction_Types, [S_Transaction | S_
 	s_transaction_account_id(S_Transaction, UnX_Account), transaction_account_id(UnX_Transaction, UnX_Account),
 	
 	% Make an inverse exchanged transaction to the exchanged account
-	s_transaction_bases(S_Transaction, Bases),
-	vec_change_bases(Exchange_Rates, Day, Bases, Vector, Vector_Transformed),
+	s_transaction_exchanged(S_Transaction, vector(Vector_Transformed)),
 	transaction_day(X_Transaction, Day),
 	transaction_description(X_Transaction, Description),
 	transaction_vector(X_Transaction, Vector_Transformed),
@@ -66,4 +69,19 @@ preprocess_s_transactions(Exchange_Rates, Transaction_Types, [S_Transaction | S_
 	
 	% Make the list of preprocessed transactions
 	preprocess_s_transactions(Exchange_Rates, Transaction_Types, S_Transactions, PP_Transactions), !.
+
+% This Prolog rule handles the case when only the exchanged amount units are known and
+% hence it is desired for the program to do an exchange rate conversion.
+
+preprocess_s_transactions(Exchange_Rates, Transaction_Types, [S_Transaction | S_Transactions], Transaction) :-
+	s_transaction_day(S_Transaction, Day), s_transaction_day(NS_Transaction, Day),
+  s_transaction_type_id(S_Transaction, Type_Id), s_transaction_type_id(NS_Transaction, Type_Id),
+  s_transaction_vector(S_Transaction, Vector), s_transaction_vector(NS_Transaction, Vector),
+  s_transaction_account_id(S_Transaction, Unexchanged_Account_Id), s_transaction_account_id(NS_Transaction, Unexchanged_Account_Id),
+  s_transaction_exchanged(S_Transaction, bases(Bases)),
+  % Do the exchange rate conversion and then proceed using the above rule where the
+  % exchanged amount.
+	vec_change_bases(Exchange_Rates, Day, Bases, Vector, Vector_Transformed),
+  s_transaction_exchanged(NS_Transaction, vector(Vector_Transformed)),
+  preprocess_s_transactions(Exchange_Rates, Transaction_Types, [NS_Transaction | S_Transactions], Transaction).
 
