@@ -58,7 +58,7 @@ sbe_next_state(History, Last_question, Last_question, Prompt) :-
 % depending on whether the user is an Australian, temporary, or foreign resident for tax
 % purposes respectively.
 
-sbe_dialog(History, State, Resident, ScriptedAnswers) :-
+sbe_dialog(History, State, Answer, ScriptedAnswers) :-
 	% unify ScriptedAnswer with the head of ScriptedAnswers, to be passed to prompt.
 	% if ScriptedAnswers is not a list, leave ScriptedAnswer unbound.
 	(compound(ScriptedAnswers) -> ScriptedAnswers = [ScriptedAnswer|ScriptedAnswersTail] ;true),
@@ -69,15 +69,16 @@ sbe_dialog(History, State, Resident, ScriptedAnswers) :-
 	prompt(NextQuestion, Response, ScriptedAnswer),
 
 	NextHistory = [(NextState, Response) | History],
-	write("NextHistory:"), writeln(NextHistory),
+	%write("NextHistory:"), writeln(NextHistory),
 
-	sbe_dialog(NextHistory, NextState, Resident, ScriptedAnswersTail), !.
+	sbe_dialog(NextHistory, NextState, Answer, ScriptedAnswersTail), !.
 
 % The base case of the sbe_dialog. The residency of the user is determined by the final state
 % of the Deterministic Finite State Machine above.
 
-sbe_dialog(History, State, Resident, _) :-
-	sbe_next_state(History, State, Resident, "").
+sbe_dialog(History, State, Answer, _) :-
+	sbe_next_state(History, State, Answer, ""),
+	((Answer = -1, writeln("Not SBE."));(Answer = -2, writeln("SBE."))).
 
 
 
