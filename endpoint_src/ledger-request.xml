@@ -25,34 +25,13 @@
     <!-- Needed for the tracking of units in inventory. Also needed for correct computation of gains and losses. -->
     <unitValues>
       <unitValue>
-        <!-- On 2018-08-02, a TLS share had a value of 5 AUD. -->
-        <valuationDate>2018-08-02</valuationDate>
-        <unitType>TLS</unitType>
-        <unitValue>5</unitValue>
-        <unitValueCurrency>AUD</unitValueCurrency>
-      </unitValue>
-      <unitValue>
-        <valuationDate>2017-08-01</valuationDate>
-        <unitType>TLS</unitType>
-        <unitValue>5</unitValue>
-        <unitValueCurrency>AUD</unitValueCurrency>
-      </unitValue>
-      <unitValue>
-        <valuationDate>2017-07-10</valuationDate>
         <unitType>BHP</unitType>
-        <unitValue>10</unitValue>
+        <unitValue>2</unitValue>
         <unitValueCurrency>USD</unitValueCurrency>
       </unitValue>
       <unitValue>
-        <valuationDate>2018-06-30</valuationDate>
-        <unitType>BHP</unitType>
-        <unitValue>15</unitValue>
-        <unitValueCurrency>USD</unitValueCurrency>
-      </unitValue>
-      <unitValue>
-        <valuationDate>2018-06-30</valuationDate>
         <unitType>TLS</unitType>
-        <unitValue>30</unitValue>
+        <unitValue>5</unitValue>
         <unitValueCurrency>AUD</unitValueCurrency>
       </unitValue>
     </unitValues>
@@ -72,7 +51,6 @@
             <transdate>2017-08-01</transdate>
             <debit>0</debit>
             <credit>100</credit>
-            <unitType>TLS</unitType>
           </transaction>
           <transaction>
             <!-- Credit this account with 50 AUD. Do stuff to other accounts as specified by Invest_In transaction verb. -->
@@ -80,8 +58,9 @@
             <transdate>2018-08-02</transdate>
             <debit>50</debit>
             <credit>0</credit>
-            <!-- Obtain BHP shares with this money. -->
-            <unitType>BHP</unitType>
+            <!-- Obtain TLS shares with this money. -->
+            <unit>10</unit>
+            <unitType>TLS</unitType>
           </transaction>
         </transactions>
       </accountDetails>
@@ -97,13 +76,13 @@
             <transdate>2017-07-01</transdate>
             <debit>0</debit>
             <credit>200</credit>
-            <unitType>Magellan</unitType>
           </transaction>
           <transaction>
             <transdesc>Invest_In</transdesc>
             <transdate>2017-07-10</transdate>
             <debit>100.00</debit>
             <credit>0.00</credit>
+            <unit>10</unit>
             <unitType>BHP</unitType>
           </transaction>
           <transaction>

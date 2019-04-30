@@ -1,9 +1,4 @@
-<xbrli:xbrl xmlns:xbrli="http://www.xbrl.org/2003/instance"
-    xmlns:link="http://www.xbrl.org/2003/linkbase"
-    xmlns:xlink="http://www.w3.org/1999/xlink"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xmlns:iso4217="http://www.xbrl.org/2003/iso4217"
-    xmlns:basic="http://www.xbrlsite.com/basic">
+<xbrli:xbrl xmlns:xbrli="http://www.xbrl.org/2003/instance" xmlns:link="http://www.xbrl.org/2003/linkbase" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:iso4217="http://www.xbrl.org/2003/iso4217" xmlns:basic="http://www.xbrlsite.com/basic">
   <link:schemaRef xlink:type="simple" xlink:href="basic.xsd" xlink:title="Taxonomy schema" />
   <link:linkbaseRef xlink:type="simple" xlink:href="basic-formulas.xml" xlink:arcrole="http://www.w3.org/1999/xlink/properties/linkbase" />
   <link:linkBaseRef xlink:type="simple" xlink:href="basic-formulas-cross-checks.xml" xlink:arcrole="http://www.w3.org/1999/xlink/properties/linkbase" />
@@ -17,19 +12,18 @@
     </period>
   </context>
   <unit id="U-AUD"><measure>AUD</measure></unit>
-  <basic:Assets contextRef="D-2018" unitRef="U-AUD" decimals="INF">425.00257334019557</basic:Assets>
-  <basic:CurrentAssets contextRef="D-2018" unitRef="U-AUD" decimals="INF">221.87596500257337</basic:CurrentAssets>
-  <basic:CashAndCashEquivalents contextRef="D-2018" unitRef="U-AUD" decimals="INF">221.87596500257337</basic:CashAndCashEquivalents>
-  <basic:WellsFargo contextRef="D-2018" unitRef="U-AUD" decimals="INF">121.87596500257335</basic:WellsFargo>
+  <basic:Assets contextRef="D-2018" unitRef="U-AUD" decimals="INF">248.58844</basic:Assets>
+  <basic:CurrentAssets contextRef="D-2018" unitRef="U-AUD" decimals="INF">221.57236</basic:CurrentAssets>
+  <basic:CashAndCashEquivalents contextRef="D-2018" unitRef="U-AUD" decimals="INF">221.57236</basic:CashAndCashEquivalents>
+  <basic:WellsFargo contextRef="D-2018" unitRef="U-AUD" decimals="INF">121.57235999999999</basic:WellsFargo>
   <basic:NationalAustraliaBank contextRef="D-2018" unitRef="U-AUD" decimals="INF">100</basic:NationalAustraliaBank>
-  <basic:NoncurrentAssets contextRef="D-2018" unitRef="U-AUD" decimals="INF">203.12660833762223</basic:NoncurrentAssets>
-  <basic:FinancialInvestments contextRef="D-2018" unitRef="U-AUD" decimals="INF">203.12660833762223</basic:FinancialInvestments>
-  <basic:Liabilities contextRef="D-2018" unitRef="U-AUD" decimals="INF">-600</basic:Liabilities>
-  <basic:NoncurrentLiabilities contextRef="D-2018" unitRef="U-AUD" decimals="INF">-600</basic:NoncurrentLiabilities>
-  <basic:NoncurrentLoans contextRef="D-2018" unitRef="U-AUD" decimals="INF">-600</basic:NoncurrentLoans>
-  <basic:Earnings contextRef="D-2018" unitRef="U-AUD" decimals="INF">445.83290444330078</basic:Earnings>
-  <!-- The different unit types in CurrentEarningsLosses have been combined using the unitValues. -->
-  <basic:CurrentEarningsLosses contextRef="D-2018" unitRef="U-AUD" decimals="INF">445.83290444330078</basic:CurrentEarningsLosses>
-  <basic:Equity contextRef="D-2018" unitRef="U-AUD" decimals="INF">-270.83547778349634</basic:Equity>
-  <basic:ShareCapital contextRef="D-2018" unitRef="U-AUD" decimals="INF">-270.83547778349634</basic:ShareCapital>
+  <basic:NoncurrentAssets contextRef="D-2018" unitRef="U-AUD" decimals="INF">27.01608</basic:NoncurrentAssets>
+  <basic:FinancialInvestments contextRef="D-2018" unitRef="U-AUD" decimals="INF">27.01608</basic:FinancialInvestments>
+  <basic:Liabilities contextRef="D-2018" unitRef="U-AUD" decimals="INF">-100</basic:Liabilities>
+  <basic:NoncurrentLiabilities contextRef="D-2018" unitRef="U-AUD" decimals="INF">-100</basic:NoncurrentLiabilities>
+  <basic:NoncurrentLoans contextRef="D-2018" unitRef="U-AUD" decimals="INF">-100</basic:NoncurrentLoans>
+  <basic:Earnings contextRef="D-2018" unitRef="U-AUD" decimals="INF">111.52336000000001</basic:Earnings>
+  <basic:CurrentEarningsLosses contextRef="D-2018" unitRef="U-AUD" decimals="INF">111.52336000000001</basic:CurrentEarningsLosses>
+  <basic:Equity contextRef="D-2018" unitRef="U-AUD" decimals="INF">-260.1118</basic:Equity>
+  <basic:ShareCapital contextRef="D-2018" unitRef="U-AUD" decimals="INF">-260.1118</basic:ShareCapital>
 </xbrli:xbrl>
