@@ -8,12 +8,12 @@ inputs:
 	"Do you anticipate that you will not have to pay the Medicare levy? *" / (or will be eligible for a reduction?)
 	"Were you an Australian resident for the full income year? *"
 	
-	- if both answers are yes, no additional inputs are required
-	- of any is no, then all the other input fields are shown (except that "Estimated net foreign income while you were a non-resident " is only shown if "Australian resident for the full income year?" is false.)
+	- if both answers are yes, no additional inputs are required, and the repayment estimate is $0.
+	- of any is no, then all the other input fields are shown, except that "Estimated net foreign income while you were a non-resident " is only shown if "Australian resident for the full income year?" is false.
 	
-	so then we have the unchanging main inputs section:
+	then the unchanging main inputs section:
 	
-		Estimated net foreign income while you were a non-resident (if not hidden) (converted into Australian currency)
+		Estimated net foreign income while you were a non-resident (if not hidden) (converted into Australian currency (https://www.ato.gov.au/Calculators-and-tools/Foreign-income-conversion-calculator/ ))
 		Estimated Australian taxable income for the income year (disregarding assessable First Home Super Saver Scheme (FHSS) released amount)
 
 		optional, additional income or losses, default to 0:
@@ -38,25 +38,10 @@ calculations:
 		Reportable super contributions
 		Exempt foreign income while an Australian resident
 	)
-	
-	Estimated worldwide repayment income = 
+
+	Estimated worldwide repayment income =
 		Estimated Australian repayment income +
 		Estimated net foreign income while you were a non-resident 
-
-	Compulsory repayment estimate for loan type = 
-		min
-		(
-			(repayment rate(loan_type, Estimated Australian repayment income) * 	Estimated Australian repayment income),
-			current debt - Overseas levy estimate
-		)
-	
-	Overseas levy estimate for loan type = 
-		for HELP, TLS:
-			min (
-				(repayment rate(loan_type, Estimated worldwide repayment income) * 	Estimated worldwide repayment income) - Compulsory repayment estimate,
-				current debt
-			)
-		otherwise 0
 
 	repayment rate(loan_type, income) =
 		if income < $51,957: 0
@@ -76,6 +61,25 @@ calculations:
 				$91,426 – $100,613: 7.0%
 				$100,614 – $107,213: 	7.5%
 				$107,214 and above: 8.0%
+
+	the last two calculations, as i understood them from the calculator website and other pages, aren't quite right, because they reference each other in an apparently endless cycle. In the python functions below, i have experimentally resolved this by splitting up the concept of an estimated repayment into a "maximal", theoretic value, and "clipped" value, which takes into account that the actual rest of the debt can be lower than the "maximal" value. So far it seems i got this right.
+
+	Compulsory repayment estimate for loan type =
+		min
+		(
+			(repayment rate(loan_type, Estimated Australian repayment income) * 	Estimated Australian repayment income),
+			current debt - Overseas levy estimate
+		)
+
+	Overseas levy estimate for loan type =
+		for HELP, TLS:
+			min (
+				(repayment rate(loan_type, Estimated worldwide repayment income) * 	Estimated worldwide repayment income) - Compulsory repayment estimate,
+				current debt
+			)
+		otherwise 0
+
+	additionally, if "Do you anticipate that you will not have to pay the Medicare levy? *" was answered yes, then compulsory repayment will be always $0.
 
 """
 
@@ -100,73 +104,109 @@ def repayment_rate(loan_type, income):
 			if income <= 107213: 	return 0.075
 			return 0.08
 				
-
-#def total_overseas_levy():
-#	...
-			
-
 def compulsory_maximal(loan_type, debt, australian_income):
 	return repayment_rate(loan_type, australian_income) * australian_income
 	
-def compulsory_clipped(loan_type, debt, australian_income, levy_clipped):
-	return min (
-		compulsory_maximal(loan_type, debt, australian_income),
-		debt - levy_clipped
-	)
-			
 def levy_maximal(loan_type, debt, worldwide_repayment_income, compulsory_repayment):
-		if loan_type in ['HELP', 'TLS']:
+		if loan_type in ['HELP', 'TSL']:
 			return (repayment_rate(loan_type, worldwide_repayment_income) * 	worldwide_repayment_income) - compulsory_repayment
 		else: return 0	
-			
+	
+def compulsory_clipped(loan_type, debt, levy_clipped, compulsory_maximal):
+	return min (
+		compulsory_maximal,
+		debt - levy_clipped
+	)
+
 def levy_clipped(loan_type, debt, worldwide_repayment_income, compulsory_repayment):
 	return min (
 		levy_maximal(loan_type, debt, worldwide_repayment_income, compulsory_repayment),
 		debt
 	)
 
-for testcase in (
-	['HELP', 10500,100000,180000, 0, 10500],
-	['HELP', 30500,100000,180000, 7000, 15400],
-	['HELP', 305000,100000, 180000, 7000, 15400],
-	['HELP', 305000,100000, 0, 7000, 0],
-	['HELP', 5000,1000000, 2000000, 0, 5000],
-	['HELP', 45000,1000000, 2000000, 0, 45000],
-	['HELP', 450000,1000000, 2000000, 80000, 160000],
-	['HELP', 30500, 202,10, 0, 0],
-	['HELP', 30500, 202000,10, 16160, 0],
-	['HELP', 500, 202000,10, 499, 0],
-	):
-	t,d,australian_income,foreign_income, compulsory, levy = testcase
-	print(testcase)
+def repayment_estimates(debt_type, debt_amount, australian_income, foreign_income, medicare_exemption):
 	worldwide_income = australian_income + foreign_income
-	cm = compulsory_maximal(t, d, australian_income)
-	lm = levy_maximal(t, d, worldwide_income, cm)
-	lc = levy_clipped(t, d, worldwide_income, cm)
-	cc = compulsory_clipped(t, d, australian_income, lc)
-	print(cm, cc)
-	print(lm, lc)
-	assert compulsory == floor(cc)
-	assert levy == floor(lc)
-	print()
-				
-				
-				
-				
-				
-				
+	"""
+	If "Do you anticipate that you will not have to pay the Medicare levy? *" (medicare exemption) was answered yes, then australian income is, for purposes of compulsory repayment estimate, taken to be $0, (and so compulsory repayment estimate will be $0), but it still contributes to worldwide income for purposes of levy estimate.
+	"""
+	if medicare_exemption:
+		cm = 0
+	else:
+		cm = compulsory_maximal(debt_type, debt_amount, australian_income)
+	#lm = levy_maximal(debt_type, debt_amount, worldwide_income, cm)
+	lc = levy_clipped(debt_type, debt_amount, worldwide_income, cm)
+	cc = compulsory_clipped(debt_type, debt_amount, lc, cm)
+	#print(cm, cc)
+	#print(lm, lc)
+	return cc, lc
+
+for testcase in (
+	[{'HELP': 10500},100000,180000, 0, 10500],
+	[{'HELP': 30500},100000,180000, 7000, 15400],
+	[{'HELP': 305000},100000, 180000, 7000, 15400],
+	[{'HELP': 305000},100000, 0, 7000, 0],
+	[{'HELP': 5000},1000000, 2000000, 0, 5000],
+	[{'HELP': 45000},1000000, 2000000, 0, 45000],
+	[{'HELP': 450000},1000000, 2000000, 80000, 160000],
+	[{'HELP': 30500}, 202,10, 0, 0],
+	[{'HELP': 30500}, 202000,10, 16160, 0],
+	[{'HELP': 500}, 202000,10, 499, 0],
+	[{'HELP': 500}, 202020,60606, 0, 500],
+
+	[{'HELP': 10500, 'TSL': 3213,'SFSS':17},100000,180000, 17, 13713],
+	[{'HELP': 10500, 'TSL': 3213,'SFSS':17, 'medicare_exemption':True},100000,180000, 0, 13713],
+	[{'HELP': 10500, 'TSL': 3213,'SFSS':17000},100000,180000, 4000, 13713],
+	[{'HELP': 10500, 'TSL': 3213,'SFSS':17000, 'medicare_exemption':True},100000,180000, 0, 13713],
+	#[{'ABSTUDY': 30500, 'TSL': 54654},100000,180000, 7000, 15400],
+	[{'ABSTUDY': 30500},100000,180000, 7000, 0],
+	[{'SFSS': 305000},100000, 180000, 4000, 0],
+	[{'SFSS': 305000, 'medicare_exemption':True},100000, 180000, 0, 0],
+	[{'SSL': 5000, 'medicare_exemption':True},1000000, 2000000, 0, 0],
+	[{'SSL': 5000},1000000, 2000000, 5000, 0],
+	[{'SSL': 500000},1000000, 2000000, 80000, 0],
+	#[{'HELP': 305000, 'ABSTUDY':6857654},100000, 0, 7000, 0],
+	#[{'HELP': 305000, 'ABSTUDY':6857654},100000, 654654, 7000, 53372],
+	[{'SSL': 45000, 'SFSS': 0},1000000, 2000000, 45000, 0],
+	#[{'HELP': 450000, 'SSL': 45000, 'SFSS': 0},1000000, 2000000, 80000, 160000],
+	[{'HELP': 450000, 'SSL': 45000, 'SFSS': 0, 'medicare_exemption':True},1000000, 2000000, 0, 240000],
+	#[{'HELP': 450000, 'ABSTUDY':12},1000000, 2000000, 240000, 180000],
+	[{'HELP': 30500, 'TSL': 687}, 202,10, 0, 0],
+	[{'SFSS': 130500, 'TSL': 687}, 202000,10, 8766, 0],
+	[{'SFSS': 130500, 'TSL': 687, 'medicare_exemption':True}, 202000,10, 0, 687],
+	):
+	print(testcase)
+	options, australian_income, foreign_income, expected_compulsory, expected_levy = testcase
+	try:
+		medicare_exemption = options['medicare_exemption']
+	except KeyError:
+		medicare_exemption = False
+	total_compulsory_repayment_estimate = 0
+	total_overseas_levy_estimate = 0
+	for debt_type in 'HELP', 'SFSS', 'SSL', 'ABSTUDY', 'TSL':
+		if debt_type in options:
+			debt_amount = options[debt_type]
+			compulsory_repayment, overseas_levy = repayment_estimates(
+				debt_type,
+				debt_amount,
+				australian_income,
+				foreign_income,
+				medicare_exemption)
+			total_compulsory_repayment_estimate += compulsory_repayment
+			total_overseas_levy_estimate += overseas_levy
+			print (debt_type + ': compulsory: $' + str(compulsory_repayment) + ' levy: $' + str(overseas_levy))
+	print ('total compulsory: $'+str(total_compulsory_repayment_estimate) + ' total levy: $'+str( total_overseas_levy_estimate))
+	print ('total: $'+str(total_compulsory_repayment_estimate+total_overseas_levy_estimate))
+	print ()
+	assert expected_compulsory == floor(total_compulsory_repayment_estimate)
+	assert expected_levy == floor(total_overseas_levy_estimate)
+	
+	
+
+
 """
-notes:
+random notes:
 
 1 June 2018
-
-
-
-
-
-
-
-
 
 
 source: 
