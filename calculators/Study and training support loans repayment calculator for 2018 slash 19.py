@@ -11,6 +11,13 @@ https://www.ato.gov.au/Calculators-and-tools/Host/?anchor=STLoanRepay#STLoanRepa
 and other materials.
 
 
+There are 2 uses for tax estimate - a. When exact tax fact values are entered into the form with all relevant tax paper facts. i.e. Resident/Non Resident. b. for estimation & planning purposes. Currently our system is built to handle a.
+But goal is to also have. b.
+
+- however, the ATO calculator deals with estimates only, or at least is worded as such. Accordingly, this code is meant to deal with estimates only, even if the word "estimated" is often dropped for brevity.
+
+
+
 inputs:
 	
 	first two questions:
@@ -108,7 +115,7 @@ def repayment_rate(loan_type, income):
 			else: return 0.04
 		else:
 			if income <= 57729: return 0.02
-			if income <= 64306:	return 0.04
+			if income <= 64306: return 0.04
 			if income <= 70881: return 0.045
 			if income <= 74607: return 0.05
 			if income <= 80197: return 0.055
@@ -117,16 +124,16 @@ def repayment_rate(loan_type, income):
 			if income <= 100613: return 0.07
 			if income <= 107213: return 0.075
 			return 0.08
-				
-def compulsory_maximal(loan_type, debt, australian_income):
-	"""theoretical compulsory repaiment amount"""
+	
+def compulsory_maximal(loan_type, australian_income):
+	"""theoretical compulsory repayment amount"""
 	return repayment_rate(loan_type, australian_income) * australian_income
 	
-def levy_maximal(loan_type, debt, worldwide_repayment_income, compulsory_repayment):
+def levy_maximal(loan_type, worldwide_repayment_income, compulsory_repayment):
 	"""theoretical overseas levy amount"""
-		if loan_type in ['HELP', 'TSL']:
-			return (repayment_rate(loan_type, worldwide_repayment_income) * 	worldwide_repayment_income) - compulsory_repayment
-		else: return 0	
+	if loan_type in ['HELP', 'TSL']:
+		return (repayment_rate(loan_type, worldwide_repayment_income) * worldwide_repayment_income) - compulsory_repayment
+	else: return 0	
 	
 def compulsory_clipped(loan_type, debt, levy_clipped, compulsory_maximal):
 	"""compulsory repaiment taking into account current debt"""
@@ -135,10 +142,10 @@ def compulsory_clipped(loan_type, debt, levy_clipped, compulsory_maximal):
 		debt - levy_clipped
 	)
 
-def levy_clipped(loan_type, debt, worldwide_repayment_income, compulsory_repayment):
+def levy_clipped(loan_type, debt, worldwide_repayment_income, levy_maximal, compulsory_repayment):
 	"""overseas levy taking into account current debt"""
 	return min (
-		levy_maximal(loan_type, debt, worldwide_repayment_income, compulsory_repayment),
+		levy_maximal,
 		debt
 	)
 
@@ -150,14 +157,23 @@ def repayment_estimates(loan_type, debt_amount, australian_income, foreign_incom
 	if medicare_exemption:
 		cm = 0
 	else:
-		cm = compulsory_maximal(debt_type, debt_amount, australian_income)
-	lm = levy_maximal(debt_type, debt_amount, worldwide_income, cm)
-	lc = levy_clipped(debt_type, debt_amount, worldwide_income, cm)
+		cm = compulsory_maximal(debt_type,australian_income)
+	lm = levy_maximal(debt_type, worldwide_income, cm)
+	lc = levy_clipped(debt_type, debt_amount, worldwide_income, lm, cm)
 	cc = compulsory_clipped(debt_type, debt_amount, lc, cm)
 	#print(cm, cc)
 	#print(lm, lc)
 	return cc, lc
 
+def repayment_maximums(debt_type_group, australian_income, worldwide_income, medicare_exemption):
+	"""all the debt types in the group have the same repayment rate, so i just use the first one to look it up"""
+	loan_type = debt_type_group[0]
+	if medicare_exemption:
+		max_compulsory = 0
+	else:
+		max_compulsory = compulsory_maximal(loan_type,australian_income)
+	max_levy = levy_maximal(loan_type, worldwide_income, max_compulsory)
+	return max_compulsory, max_levy
 
 for testcase in (
 	[{'HELP': 10500},100000,180000, 0, 10500],
@@ -188,31 +204,53 @@ for testcase in (
 	[{'SSL': 45000, 'SFSS': 0},1000000, 2000000, 45000, 0],
 	[{'HELP': 450000, 'SSL': 45000, 'SFSS': 0},1000000, 2000000, 80000, 160000],
 	[{'HELP': 450000, 'SSL': 45000, 'SFSS': 0, 'medicare_exemption':True},1000000, 2000000, 0, 240000],
-	[{'HELP': 450000, 'ABSTUDY':12},1000000, 2000000, 240000, 180000],
+	[{'HELP': 450000, 'ABSTUDY':12},1000000, 2000000, 80000, 160000],
 	[{'HELP': 30500, 'TSL': 687}, 202,10, 0, 0],
 	[{'SFSS': 130500, 'TSL': 687}, 202000,10, 8766, 0],
 	[{'SFSS': 130500, 'TSL': 687, 'medicare_exemption':True}, 202000,10, 0, 687],
 	):
 	print(testcase)
 	options, australian_income, foreign_income, expected_compulsory, expected_levy = testcase
+	
 	try:
 		medicare_exemption = options['medicare_exemption']
 	except KeyError:
 		medicare_exemption = False
+	worldwide_income = australian_income + foreign_income
+	
 	total_compulsory_repayment_estimate = 0
 	total_overseas_levy_estimate = 0
-	for debt_type in 'HELP', 'SFSS', 'SSL', 'ABSTUDY', 'TSL':
-		if debt_type in options:
-			debt_amount = options[debt_type]
-			compulsory_repayment, overseas_levy = repayment_estimates(
-				debt_type,
-				debt_amount,
-				australian_income,
-				foreign_income,
-				medicare_exemption)
-			total_compulsory_repayment_estimate += compulsory_repayment
-			total_overseas_levy_estimate += overseas_levy
-			print (debt_type + ': compulsory: $' + str(compulsory_repayment) + ' levy: $' + str(overseas_levy))
+	
+	for debt_type_group in [['SFSS'], ['HELP', 'SSL', 'ABSTUDY', 'TSL']]:
+		
+		max_compulsory, max_levy = repayment_maximums(debt_type_group, australian_income, worldwide_income, medicare_exemption)
+		
+		group_compulsory_repayment_estimate = 0
+		group_overseas_levy_estimate = 0
+	
+		for debt_type in debt_type_group:
+			if debt_type in options:
+				debt_amount = options[debt_type]
+				compulsory_repayment, overseas_levy = repayment_estimates(
+					debt_type,
+					debt_amount,
+					australian_income,
+					foreign_income,
+					medicare_exemption)
+				
+				to_repay = min(compulsory_repayment, max_compulsory - group_compulsory_repayment_estimate)
+				if to_repay > 0:
+					group_compulsory_repayment_estimate += to_repay
+					print (debt_type + ': compulsory: $' + str(to_repay))	
+				to_repay = min(overseas_levy, max_levy - group_overseas_levy_estimate)
+				if to_repay > 0:
+					group_overseas_levy_estimate += to_repay
+					print (debt_type + ': levy: $' + str(to_repay))	
+
+		total_compulsory_repayment_estimate += group_compulsory_repayment_estimate
+		total_overseas_levy_estimate += group_overseas_levy_estimate
+
+
 	print ('total compulsory: $'+str(total_compulsory_repayment_estimate) + ' total levy: $'+str( total_overseas_levy_estimate))
 	print ('total: $'+str(total_compulsory_repayment_estimate+total_overseas_levy_estimate))
 	print ()
