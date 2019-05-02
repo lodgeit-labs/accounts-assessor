@@ -59,25 +59,6 @@ calculations:
 		Estimated Australian repayment income +
 		Estimated net foreign income while you were a non-resident 
 
-	repayment rate(loan_type, income) =
-		if income < $51,957: 0
-		otherwise:
-			SFSS:
-				$51,957 – $64,306: 2%
-				$64,307 – $91,425: 3%
-				$91,426 and above: 4%
-			the others:
-				$51,957 – $57,729: 2.0%
-				$57,730 – $64,306:	4.0%
-				$64,307 – $70,881: 	4.5%
-				$70,882 – $74,607: 	5.0%
-				$74,608 – $80,197: 	5.5%
-				$80,198 – $86,855: 	6.0%
-				$86,856 – $91,425: 	6.5%
-				$91,426 – $100,613: 7.0%
-				$100,614 – $107,213: 	7.5%
-				$107,214 and above: 8.0%
-
 	the following pseudocode for the main calculations, as i understood them from the calculator website and other pages, isn't quite right, because they reference each other in an apparently endless cycle. In the implementation below, i have experimentally resolved this by splitting up the concept of an estimated repayment into a "maximal", theoretic value, and "clipped" value, which takes into account that the actual rest of the debt can be lower than the "maximal" value. So far it seems i got this right.
 
 	Compulsory repayment estimate for loan type =
@@ -97,16 +78,31 @@ calculations:
 
 	if "Do you anticipate that you will not have to pay the Medicare levy? *" was answered yes, then compulsory repayment will always be $0.
 
-	5 testcases fail and i cant understand the logic of the ATO calculator with those inputs.
-	When some type of debt is too high, another debt type is ignored. The slight chaos of the
-	main algorithm and the _maximal and _clipped functions reflects this, because i have kept
-	things more general and open-ended to allow easy experimentation with the computation algorithm.
-
 """
 
 from math import floor
 
 def repayment_rate(loan_type, income):
+	"""
+		repayment rate(loan_type, income) =
+		if income < $51,957: 0
+		otherwise:
+			SFSS:
+				$51,957 – $64,306: 2%
+				$64,307 – $91,425: 3%
+				$91,426 and above: 4%
+			the others:
+				$51,957 – $57,729: 2.0%
+				$57,730 – $64,306:	4.0%
+				$64,307 – $70,881: 	4.5%
+				$70,882 – $74,607: 	5.0%
+				$74,608 – $80,197: 	5.5%
+				$80,198 – $86,855: 	6.0%
+				$86,856 – $91,425: 	6.5%
+				$91,426 – $100,613: 7.0%
+				$100,614 – $107,213: 	7.5%
+				$107,214 and above: 8.0%
+	"""
 	if income < 51957: return 0
 	else:
 		if loan_type == 'SFSS':
@@ -135,39 +131,30 @@ def levy_maximal(loan_type, worldwide_repayment_income, compulsory_repayment):
 		return (repayment_rate(loan_type, worldwide_repayment_income) * worldwide_repayment_income) - compulsory_repayment
 	else: return 0	
 	
-def compulsory_clipped(loan_type, debt, levy_clipped, compulsory_maximal):
+def compulsory_clipped(debt_amount, levy_clipped, compulsory_maximal):
 	"""compulsory repaiment taking into account current debt"""
 	return min (
 		compulsory_maximal,
-		debt - levy_clipped
+		debt_amount - levy_clipped
 	)
 
-def levy_clipped(loan_type, debt, worldwide_repayment_income, levy_maximal, compulsory_repayment):
+def levy_clipped(debt_amount, levy_maximal):
 	"""overseas levy taking into account current debt"""
 	return min (
 		levy_maximal,
-		debt
+		debt_amount
 	)
 
-def repayment_estimates(loan_type, debt_amount, australian_income, foreign_income, medicare_exemption):
-	worldwide_income = australian_income + foreign_income
+def repayments_clipped(debt_amount, max_compulsory, max_levy):
+	lc = levy_clipped(debt_amount, max_levy)
+	cc = compulsory_clipped(debt_amount, lc, max_compulsory)
+	#print(cc, lc)
+	return cc, lc
+
+def repayment_maximums(loan_type, australian_income, worldwide_income, medicare_exemption):
 	"""
 	If "Do you anticipate that you will not have to pay the Medicare levy? *" (medicare exemption) was answered yes, then australian income is, for purposes of compulsory repayment estimate, taken to be $0, (and so compulsory repayment estimate will be $0), but it still contributes to worldwide income for purposes of levy estimate.
 	"""
-	if medicare_exemption:
-		cm = 0
-	else:
-		cm = compulsory_maximal(debt_type,australian_income)
-	lm = levy_maximal(debt_type, worldwide_income, cm)
-	lc = levy_clipped(debt_type, debt_amount, worldwide_income, lm, cm)
-	cc = compulsory_clipped(debt_type, debt_amount, lc, cm)
-	#print(cm, cc)
-	#print(lm, lc)
-	return cc, lc
-
-def repayment_maximums(debt_type_group, australian_income, worldwide_income, medicare_exemption):
-	"""all the debt types in the group have the same repayment rate, so i just use the first one to look it up"""
-	loan_type = debt_type_group[0]
 	if medicare_exemption:
 		max_compulsory = 0
 	else:
@@ -210,42 +197,55 @@ for testcase in (
 	[{'SFSS': 130500, 'TSL': 687, 'medicare_exemption':True}, 202000,10, 0, 687],
 	):
 	print(testcase)
-	options, australian_income, foreign_income, expected_compulsory, expected_levy = testcase
+	
+	(options, 
+	# this is the Estimated Australian repayment income defined in above in "calculations":
+	australian_income, 
+	# Estimated net foreign income while you were a non-resident:
+	foreign_income, 
+	# the totals as produced by the calculator:
+	expected_compulsory, expected_levy) = testcase
 	
 	try:
 		medicare_exemption = options['medicare_exemption']
 	except KeyError:
 		medicare_exemption = False
+	
 	worldwide_income = australian_income + foreign_income
 	
 	total_compulsory_repayment_estimate = 0
 	total_overseas_levy_estimate = 0
 	
-	for debt_type_group in [['SFSS'], ['HELP', 'SSL', 'ABSTUDY', 'TSL']]:
+	#all the loan types in the group have the same repayment rate, and even if you have more loans from same group, you will only pay up to the maximum amount for that group. In other words, ABSTUDY and TSL compulsory repayment amounts will only add up to an amount computed from the rates table, not more.
+	for loan_type_group in [['SFSS'], ['HELP', 'SSL', 'ABSTUDY', 'TSL']]:
 		
-		max_compulsory, max_levy = repayment_maximums(debt_type_group, australian_income, worldwide_income, medicare_exemption)
+		#just use the first one in the group to look up the group max
+		max_group_compulsory, max_group_levy = repayment_maximums(loan_type_group[0], australian_income, worldwide_income, medicare_exemption)
 		
 		group_compulsory_repayment_estimate = 0
 		group_overseas_levy_estimate = 0
 	
-		for debt_type in debt_type_group:
-			if debt_type in options:
-				debt_amount = options[debt_type]
-				compulsory_repayment, overseas_levy = repayment_estimates(
-					debt_type,
-					debt_amount,
-					australian_income,
-					foreign_income,
-					medicare_exemption)
+		for loan_type in loan_type_group:
+			if loan_type in options:
+
+				debt_amount = options[loan_type]
+
+
+				#Debt types within a group have different rules wrt overseas levy, so now we get the theoretic maximum for the exact loan type
+				max_compulsory, max_levy = repayment_maximums(loan_type, australian_income,
+ worldwide_income, medicare_exemption)
+				#clipped by current debt:
+				compulsory_repayment, overseas_levy = repayments_clipped(debt_amount, max_compulsory, max_levy)
 				
-				to_repay = min(compulsory_repayment, max_compulsory - group_compulsory_repayment_estimate)
+				#pay at most the total group amount
+				to_repay = min(compulsory_repayment, max_group_compulsory - group_compulsory_repayment_estimate)
 				if to_repay > 0:
 					group_compulsory_repayment_estimate += to_repay
-					print (debt_type + ': compulsory: $' + str(to_repay))	
-				to_repay = min(overseas_levy, max_levy - group_overseas_levy_estimate)
+					print (loan_type + ': compulsory: $' + str(to_repay))	
+				to_repay = min(overseas_levy, max_group_levy - group_overseas_levy_estimate)
 				if to_repay > 0:
 					group_overseas_levy_estimate += to_repay
-					print (debt_type + ': levy: $' + str(to_repay))	
+					print (loan_type + ': levy: $' + str(to_repay))	
 
 		total_compulsory_repayment_estimate += group_compulsory_repayment_estimate
 		total_overseas_levy_estimate += group_overseas_levy_estimate
@@ -259,7 +259,7 @@ for testcase in (
 		assert expected_levy == floor(total_overseas_levy_estimate)
 	except AssertionError as e:
 		print("fffffffffffffffffffffffffffffffffffffffffffffaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaiiiiiiiiiiiiiiiiiiiiiiiiiiiilllllllllllllllllllllllllllll")
-		#raise e
+		raise e
 
 	
 
