@@ -5,40 +5,13 @@
 % Date:      2019-05-06
 % ===================================================================
 
-:- style_check([-discontiguous, -singleton]).
+% :- style_check([-discontiguous, -singleton]).
 
 % :- module('main.pl', [process_data/1]).
 
 :- use_module(library(xpath)).
 
-:- ['helper.pl'].
-
-:- ['process_xml_request.pl'].
-
-
-%--------------------------------------------------------------------
-% Load files --- needs to be turned into modules
-%--------------------------------------------------------------------
-
-% The program entry point. Run the program using swipl -s main.pl .
-
-% Loads up calendar related predicates
-:- ['./../src/days.pl'].
-
-% Loads up predicates pertaining to hire purchase arrangements
-:- ['./../src/hirepurchase.pl'].
-
-% Loads up predicates for summarizing transactions
-:- ['./../src/ledger.pl'].
-
-% Loads up predicates pertaining to loan arrangements
-:- ['./../src/loans.pl'].
-
-% Loads up predicates pertaining to determining residency
-:- ['./../src/residency.pl'].
-
-% Loads up predicates pertaining to bank statements
-:- ['./../src/statements.pl'].
+% :- ['process_xml_request.pl'].
 
 
 % -------------------------------------------------------------------
@@ -47,8 +20,8 @@
 
 process_data(Data) :-
    parse_data(Data, FileName, XML),
-   store_xml_document(FileName, XML),
-   process_xml_document(FileName).
+   store_xml_document(FileName, XML), true.
+%   process_xml_document(FileName).
 
 
 % -------------------------------------------------------------------
@@ -57,8 +30,10 @@ process_data(Data) :-
 
 parse_data(Data, FileName, XML) :-
    split_header_body(Data, Header, Body), 
-   extract_file_name(Header, FileName),
-   extract_xml_data(Body, XML).
+   extract_file_name(Header, FileName),true.
+%   extract_xml_data(Body, XML).
+% spy(parse_data/3).
+
 
 split_header_body(Data, Header, Body) :-
    string_chars(Data, Chars),

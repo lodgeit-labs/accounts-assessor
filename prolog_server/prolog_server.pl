@@ -18,12 +18,13 @@
 
 :- use_module(library(http/thread_httpd)).
 :- use_module(library(http/http_dispatch)).
+:- use_module(library(http/http_error)).
 :- use_module(library(http/http_header)).
 :- use_module(library(http/http_multipart_plugin)).
 :- use_module(library(http/http_client)).
 :- use_module(library(http/html_write)).
 
-:- ['main.pl'].
+:- ['process_data.pl'].
 
 
 % -------------------------------------------------------------------
@@ -93,8 +94,3 @@ prolog:message(bad_file_upload) -->
    ].
 
 
-% -------------------------------------------------------------------
-% run_server/0
-% -------------------------------------------------------------------
-
-:- run_server.
