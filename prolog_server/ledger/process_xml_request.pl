@@ -6,13 +6,9 @@
 
 process_xml_request(FileNameIn, DOM) :-
    FileNameOut = 'ledger-response.xml',
-   write('process_xml_request\n'),
    display_xml_response(FileNameOut).
 
 process_xml_request(FileNameIn, DOM) :-
-   FileNameIn  = 'loan-request.xml'
-   ->
-   FileNameOut = 'loan-response.xml',
    xpath(DOM, //reports/loanDetails/loanAgreement/field(@name='Income year of loan creation', @value=CreationIncomeYear), E1),
    xpath(DOM, //reports/loanDetails/loanAgreement/field(@name='Full term of loan in years', @value=Term), E2),
    xpath(DOM, //reports/loanDetails/loanAgreement/field(@name='Principal amount of loan', @value=PrincipalAmount), E3),
@@ -39,9 +35,7 @@ process_xml_request(FileNameIn, DOM) :-
 % -------------------------------------------------------------------
 
 display_xml_response(FileNameOut) :-
-   FileNameOut = 'ledger-response.xml',
    format('Content-type: text/xml~n~n'), 
-   % write(FileNameOut), nl, nl,   
    writeln('<?xml version="1.0"?>').
 
 display_xml_response(FileNameOut, IncomeYear, 

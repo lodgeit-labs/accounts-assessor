@@ -20,8 +20,8 @@
 
 process_data(Data) :-
    parse_data(Data, FileName, XML),
-   store_xml_document(FileName, XML), true.
-%   process_xml_document(FileName).
+   store_xml_document(FileName, XML),
+   process_xml_document(FileName).
 
 
 % -------------------------------------------------------------------
@@ -30,8 +30,9 @@ process_data(Data) :-
 
 parse_data(Data, FileName, XML) :-
    split_header_body(Data, Header, Body), 
-   extract_file_name(Header, FileName),true.
-%   extract_xml_data(Body, XML).
+   extract_file_name(Header, FileName),
+   extract_xml_data(Body, XML).
+
 % spy(parse_data/3).
 
 
