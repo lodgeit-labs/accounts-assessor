@@ -25,10 +25,11 @@ extract_default_bases(DOM, Bases) :-
 
 extract_account_hierarchy(DOM, AccountHierarchy) :-
    %  xpath(DOM, //reports/balanceSheetRequest/accountHierarchy ...
+   http_get('https://raw.githubusercontent.com/LodgeiT/labs-accounts-assessor/prolog_server_ledger/prolog_server/ledger/default_account_hierarchy.xml?token=AAA34ZATJ5VPKDNFZXQRHVK434H2M', D, []),
+   store_xml_document('account_hierarchy.xml', D),
+   load_xml('account_hierarchy.xml', AccountHierarchyDom, []),
+   print_term(AccountHierarchyDom,[]).
    
-   
-
-
 process_xml_request(_FileNameIn, DOM) :-
    FileNameOut = 'ledger-response.xml',
    extract_default_bases(DOM, DefaultBases),
@@ -111,6 +112,8 @@ process_xml_request(FileNameIn, DOM) :-
 % -------------------------------------------------------------------
 
 display_xml_response(_FileNameOut, M) :-
+   nl,nl,writeln('xml_response:'),
+
    format('Content-type: text/xml~n~n'), 
    writeln('<?xml version="1.0"?>'),
    writeln('<xbrli:xbrl xmlns:xbrli="http://www.xbrl.org/2003/instance" xmlns:link="http://www.xbrl.org/2003/linkbase" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:iso4217="http://www.xbrl.org/2003/iso4217" xmlns:basic="http://www.xbrlsite.com/basic">'),
