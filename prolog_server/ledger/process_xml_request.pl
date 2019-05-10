@@ -4,10 +4,80 @@
 % ===================================================================
 
 
-process_xml_request(FileNameIn, DOM) :-
-   FileNameOut = 'ledger-response.xml',
-   display_xml_response(FileNameOut).
+bases(DOM, Bases) :-
+   xpath(DOM, //reports/balanceSheetRequest/defaultUnitTypes/unitType, element(_,_,Bases)).
 
+
+
+process_xml_request(_FileNameIn, DOM) :-
+   _FileNameOut = 'ledger-response.xml',
+   bases(DOM, _Bases),
+   xpath(DOM, //reports/balanceSheetRequest/bankStatement/accountDetails, Account),
+   process_account(Account).
+
+process_account(Account) :-
+   xpath(Account, accountName, element(_,_,Name)),
+   xpath(Account, currency, element(_,_,[Currency])),
+   xpath(Account, transactions/transaction, T),
+   process_transaction(T, Currency).
+
+process_transaction(T, Currency) :-
+   %write(T),
+   Coordinate = coordinate(Currency, Debit, Credit),
+   xpath(T, debit, element(_,_,[Debit])),
+   xpath(T, credit, element(_,_,[Credit])),
+   write(Coordinate).
+   
+   /*
+  
+  nate c = new Coordinate();
+                    c.Unit = currency;
+                    c.Debit = Double.Parse(m.SelectSingleNode("debit/text()").Value);
+                    c.Credit = Double.Parse(m.SelectSingleNode("credit/text()").Value);
+                    XmlNode unitQuantity = m.SelectSingleNode("unit/text()");
+                    XmlNode unitType = m.SelectSingleNode("unitType/text()");
+                    StatementTransaction st = new StatementTransaction
+                    {
+                        TypeId = m.SelectSingleNode("transdesc/text()").Value,
+                        Date = DateTime.Parse(m.SelectSingleNode("transdate/text()").Value),
+                        Account = account,
+                        Vector = new List<Coordinate>() { c }
+                    };
+                    if (unitQuantity != null && unitType != null)
+                    {
+                        // If the user has specified both the unit quantity and type, then exchange rate
+                        // conversion and hence a target bases is unnecessary.
+                        st.ExchangedAmountVector = new List<Coordinate>() { new Coordinate {
+                            Unit = unitType.Value,
+                            Debit = Double.Parse(unitQuantity.Value),
+                            Credit = 0 } };
+                        st.ExchangedAmountBases = null;
+                    } else if(unitType != null)
+                    {
+                        // If the user has specified only a unit type, then automatically do a conversion
+                        // to that unit.
+                        st.ExchangedAmountVector = null;
+                        st.ExchangedAmountBases = new List<string>() { unitType.Value };
+                    } else
+                    {
+                        // If the user has not specified both the unit quantity and type, then automatically
+                        // do a conversion to the default bases.
+                        st.ExchangedAmountVector = null;
+                        st.ExchangedAmountBases = defaultBases;
+                    }
+
+                    transactions.Add(st);
+                }
+            }
+            return transactions;
+        }
+
+   
+   
+   
+*/   
+   display_xml_response(FileNameOut).
+/*
 process_xml_request(FileNameIn, DOM) :-
    xpath(DOM, //reports/loanDetails/loanAgreement/field(@name='Income year of loan creation', @value=CreationIncomeYear), E1),
    xpath(DOM, //reports/loanDetails/loanAgreement/field(@name='Full term of loan in years', @value=Term), E2),
@@ -28,7 +98,7 @@ process_xml_request(FileNameIn, DOM) :-
    loan_agr_summary(loan_agreement(0, NPrincipalAmount, NLodgementDate, NCreationIncomeYear, NTerm, 
 				   NComputationYear, NOpeningBalance, NLoanRepayments), Summary),
    display_xml_response(FileNameOut, NComputationYear, Summary).
-
+*/
    
 % -------------------------------------------------------------------
 % display_xml_request/3

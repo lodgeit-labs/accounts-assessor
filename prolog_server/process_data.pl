@@ -11,8 +11,6 @@
 
 :- use_module(library(xpath)).
 
-% :- ['process_xml_request.pl'].
-
 
 % -------------------------------------------------------------------
 % process_data/1
