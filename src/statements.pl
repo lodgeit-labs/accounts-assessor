@@ -9,6 +9,9 @@ transaction_type_trading_account_id(transaction_type(_, _, Trading_Account_Id, _
 % A description of this transaction type
 transaction_type_description(transaction_type(_, _, _, Description), Description).
 
+
+%  term s_transaction(Day, Type_Id, Vector, Unexchanged_Account_Id, Bases)
+
 % Predicates for asserting that the fields of given transactions have particular values
 
 % The absolute day that the transaction happenned

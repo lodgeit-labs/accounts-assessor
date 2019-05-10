@@ -18,59 +18,54 @@ process_xml_request(_FileNameIn, DOM) :-
 process_account(Account) :-
    xpath(Account, accountName, element(_,_,Name)),
    xpath(Account, currency, element(_,_,[Currency])),
-   xpath(Account, transactions/transaction, T),
-   process_transaction(T, Currency).
+   xpath(Account, transactions/transaction, TransactionsXml),
+   process_transactions(TransactionsXml, Currency, Account, StatementTransactions).
 
-process_transaction(T, Currency) :-
+process_transactions([T|Ts], Currency, Account, [ST|STs]) :-
+   process_transaction(T, Currency, Account, ST),
+   process_transactions(Ts, Currency, Account, STs).
+
+process_transactions([], _, _, []).
+
+process_transaction(T, Currency, Account, ST) :-
    %write(T),
    Coordinate = coordinate(Currency, Debit, Credit),
    xpath(T, debit, element(_,_,[Debit])),
    xpath(T, credit, element(_,_,[Credit])),
-   write(Coordinate).
-   
-   /*
-  
-  nate c = new Coordinate();
-                    c.Unit = currency;
-                    c.Debit = Double.Parse(m.SelectSingleNode("debit/text()").Value);
-                    c.Credit = Double.Parse(m.SelectSingleNode("credit/text()").Value);
-                    XmlNode unitQuantity = m.SelectSingleNode("unit/text()");
-                    XmlNode unitType = m.SelectSingleNode("unitType/text()");
-                    StatementTransaction st = new StatementTransaction
-                    {
-                        TypeId = m.SelectSingleNode("transdesc/text()").Value,
-                        Date = DateTime.Parse(m.SelectSingleNode("transdate/text()").Value),
-                        Account = account,
-                        Vector = new List<Coordinate>() { c }
-                    };
-                    if (unitQuantity != null && unitType != null)
-                    {
-                        // If the user has specified both the unit quantity and type, then exchange rate
-                        // conversion and hence a target bases is unnecessary.
-                        st.ExchangedAmountVector = new List<Coordinate>() { new Coordinate {
-                            Unit = unitType.Value,
-                            Debit = Double.Parse(unitQuantity.Value),
-                            Credit = 0 } };
-                        st.ExchangedAmountBases = null;
-                    } else if(unitType != null)
-                    {
-                        // If the user has specified only a unit type, then automatically do a conversion
-                        // to that unit.
-                        st.ExchangedAmountVector = null;
-                        st.ExchangedAmountBases = new List<string>() { unitType.Value };
-                    } else
-                    {
-                        // If the user has not specified both the unit quantity and type, then automatically
-                        // do a conversion to the default bases.
-                        st.ExchangedAmountVector = null;
-                        st.ExchangedAmountBases = defaultBases;
-                    }
+   write(Coordinate),
 
-                    transactions.Add(st);
-                }
-            }
-            return transactions;
-        }
+   xpath(T, transdesc, element(_,_,[Desc])),
+   xpath(T, transdate, element(_,_,[Date])),
+   Day = Date,
+   ST = s_transaction(Day, Desc, [Coordinate], Account, Bases),
+
+   (
+      (
+         xpath(T, unitType, element(_,_,[UnitType])),
+         (
+            (
+               xpath(T, unit, element(_,_,[UnitCount])),
+               %  If the user has specified both the unit quantity and type, then exchange rate
+               %  conversion and hence a target bases is unnecessary.
+               ExchangedAmountVector = [coordinate(unitType, unitCount, 0)]
+               ExchangedAmountBases = null
+            )
+            ;
+            (
+               % If the user has specified only a unit type, then automatically do a conversion to that unit.
+               ExchangedAmountVector = null,
+               ExchangedAmountBases = [unitType]
+            )
+         )
+      )
+      ;
+      (
+         % If the user has not specified neither the unit quantity nor type, then automatically
+         %  do a conversion to the default bases.
+         ExchangedAmountVector = null
+         ExchangedAmountBases = defaultBases;
+      )
+   ),
 
    
    
