@@ -3,6 +3,16 @@
 % Module:    process_xml_request.pl
 % ===================================================================
 
+/*
+how to make it robust? processing an account or a transaction cannot silently fail,
+probably should first find all transactions and then process them.
+
+
+*/
+
+
+:- ['../../src/days'].
+
 pretty_term_string(Term, String) :-
    new_memory_file(X),
    open_memory_file(X, write, S),
@@ -10,41 +20,44 @@ pretty_term_string(Term, String) :-
    close(S),
    memory_file_to_string(X, String).
 
-default_bases(DOM, Bases) :-
+extract_default_bases(DOM, Bases) :-
    xpath(DOM, //reports/balanceSheetRequest/defaultUnitTypes/unitType, element(_,_,Bases)).
+
+extract_account_hierarchy(DOM, AccountHierarchy) :-
+   %  xpath(DOM, //reports/balanceSheetRequest/accountHierarchy ...
+   
+   
 
 
 process_xml_request(_FileNameIn, DOM) :-
-   _FileNameOut = 'ledger-response.xml',
-   default_bases(DOM, DefaultBases),
+   FileNameOut = 'ledger-response.xml',
+   extract_default_bases(DOM, DefaultBases),
+   extract_account_hierarchy(DOM, AccountHierarchy),
+   findall(Transaction, extract_transactions(DOM, DefaultBases, Transaction), Transactions),
+   pretty_term_string(Transactions, Message),
+   display_xml_response(FileNameOut, Message).
+
+extract_transactions(DOM, DefaultBases, Transaction) :-
    xpath(DOM, //reports/balanceSheetRequest/bankStatement/accountDetails, Account),
-   process_account(Account, DefaultBases).
-
-process_account(Account, DefaultBases) :-
-   xpath(Account, accountName, element(_,_,Name)),
+   xpath(Account, accountName, element(_,_,AccountName)),
    xpath(Account, currency, element(_,_,[Currency])),
-   findall(T, xpath(Account, transactions/transaction, T), TransactionsXml),
-   % gtrace,
-   process_transactions(TransactionsXml, Currency, DefaultBases, Name, StatementTransactions),
-   pretty_term_string(StatementTransactions, Message),
-   display_xml_response(_FileNameOut, Message).
+   xpath(Account, transactions/transaction, T),
+   extract_transaction(T, Currency, DefaultBases, AccountName, Transaction).
 
-process_transactions([T|Ts], Currency, DefaultBases, Account, [ST|STs]) :-
-   process_transaction(T, Currency, DefaultBases, Account, ST),
-   process_transactions(Ts, Currency, DefaultBases, Account, STs).
-
-process_transactions([], _, _, _, []).
-
-process_transaction(T, Currency, DefaultBases, Account, ST) :-
-   %write(T),
-   Coordinate = coordinate(Currency, Debit, Credit),
+extract_transaction(T, Currency, DefaultBases, Account, ST) :-
    xpath(T, debit, element(_,_,[Debit])),
    xpath(T, credit, element(_,_,[Credit])),
-   %write(Coordinate),
    xpath(T, transdesc, element(_,_,[Desc])),
-   xpath(T, transdate, element(_,_,[Date])),
-   Day = Date,
-   ST = s_transaction(Day, Desc, [Coordinate], Account, Exchanged),
+   xpath(T, transdate, element(_,_,[DateString])),
+
+   parse_time(DateString, iso_8601, UnixTimestamp),
+   stamp_date_time(UnixTimestamp, DateTime, 'UTC'), 
+   date_time_value(date, DateTime, YMD),
+   absolute_day(YMD, AbsoluteDays),
+
+   Coordinate = coordinate(Currency, Debit, Credit),
+   ST = s_transaction(AbsoluteDays, Desc, [Coordinate], Account, Exchanged),
+
    (
       (
          xpath(T, unitType, element(_,_,[UnitType])),
@@ -53,14 +66,14 @@ process_transaction(T, Currency, DefaultBases, Account, ST) :-
                xpath(T, unit, element(_,_,[UnitCount])),
                %  If the user has specified both the unit quantity and type, then exchange rate
                %  conversion and hence a target bases is unnecessary.
-               Exchanged = [coordinate(UnitType, UnitCount, 0)]
+               Exchanged = [coordinate(UnitType, UnitCount, 0)],!
             )
             ;
             (
                % If the user has specified only a unit type, then automatically do a conversion to that unit.
                Exchanged = [UnitType]
             )
-         )
+         ),!
       )
       ;
       (
@@ -69,6 +82,7 @@ process_transaction(T, Currency, DefaultBases, Account, ST) :-
          Exchanged = DefaultBases
       )
    ).
+
 /*
 process_xml_request(FileNameIn, DOM) :-
    xpath(DOM, //reports/loanDetails/loanAgreement/field(@name='Income year of loan creation', @value=CreationIncomeYear), E1),
