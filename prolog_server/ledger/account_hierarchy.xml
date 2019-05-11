@@ -1,0 +1,37 @@
+<?xml version="1.0" ?>
+<Accounts>
+	<Assets>
+		<CurrentAssets>
+			<CashAndCashEquivalents>
+				<WellsFargo/>
+				<NationalAustraliaBank/>
+			</CashAndCashEquivalents>
+		</CurrentAssets>
+	</Assets>
+	<NoncurrentAssets>
+		<FinancialInvestments/>
+	</NoncurrentAssets>
+	<Equity>
+		<ShareCapital/>
+	</Equity>
+	<Liabilities>
+		<NoncurrentLiabilities>
+			<NoncurrentLoans/>
+		</NoncurrentLiabilities>
+		<CurrentLiabilities>
+			<CurrentLoans/>
+		</CurrentLiabilities>
+	</Liabilities>
+	<Earnings>
+		<Revenue>
+			<InvestmentIncome/>
+		</Revenue>
+		<Expenses>
+			<BankCharges/>
+			<ForexLoss/>
+		</Expenses>
+		<CurrentEarningsLosses/>
+		<RetainedEarnings/>
+	</Earnings>
+</Accounts>
+

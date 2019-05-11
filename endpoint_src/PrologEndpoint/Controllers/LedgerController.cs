@@ -353,13 +353,13 @@ Accounts
             // The transaction types are hard-coded into this endpoint for now
             return new List<TransactionType>()
             {
-                new TransactionType() { Id = "Invest_In", Description = "Shares", ExchangeAccount = "FinancialInvestments", TradingAccount = "InvestmentIncome" },
-                new TransactionType() { Id = "Dispose_Off", Description = "Shares", ExchangeAccount = "FinancialInvestments", TradingAccount = "InvestmentIncome" },
-                new TransactionType() { Id = "Borrow", Description = "Shares", ExchangeAccount = "NoncurrentLoans", TradingAccount = "InvestmentIncome" },
-                new TransactionType() { Id = "Introduce_Capital", Description = "Unit_Investment", ExchangeAccount = "ShareCapital", TradingAccount = "InvestmentIncome" },
-                new TransactionType() { Id = "Gain", Description = "Unit_Investment", ExchangeAccount = "ShareCapital", TradingAccount = "InvestmentIncome" },
-                new TransactionType() { Id = "Loss", Description = "No Description", ExchangeAccount = "ShareCapital", TradingAccount = "InvestmentIncome" },
-                new TransactionType() { Id = "PayBank", Description = "No Description", ExchangeAccount = "BankCharges", TradingAccount = "InvestmentIncome" }
+<action Id="Invest_In", 	Description="Shares", 		ExchangeAccount="FinancialInvestments", TradingAccount="InvestmentIncome" \>
+<action Id="Dispose_Off", 	Description="Shares", 		ExchangeAccount="FinancialInvestments", TradingAccount="InvestmentIncome" \>
+<action Id="Borrow", 		Description="Shares", 		ExchangeAccount="NoncurrentLoans", 	TradingAccount="InvestmentIncome" \>
+<action Id="Introduce_Capital", Description="Unit_Investment", 	ExchangeAccount="ShareCapital", 	TradingAccount="InvestmentIncome" \>
+<action Id="Gain", 		Description="Unit_Investment", 	ExchangeAccount="ShareCapital", 	TradingAccount="InvestmentIncome" \>
+<action Id="Loss", 		Description="No Description", 	ExchangeAccount="ShareCapital", 	TradingAccount="InvestmentIncome" \>
+<action Id="PayBank", 		Description="No Description", 	ExchangeAccount="BankCharges", 		TradingAccount="InvestmentIncome" \>
             };
         }
 
