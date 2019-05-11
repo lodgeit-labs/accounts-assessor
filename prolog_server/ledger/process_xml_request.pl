@@ -13,6 +13,11 @@ probably should first find all transactions and then process them.
 
 :- ['../../src/days'].
 
+
+one(DOM, ElementName, ElementContents) :-
+   xpath(DOM, ElementName, element(_,_,[ElementContents])).
+
+
 pretty_term_string(Term, String) :-
    new_memory_file(X),
    open_memory_file(X, write, S),
@@ -23,20 +28,33 @@ pretty_term_string(Term, String) :-
 extract_default_bases(DOM, Bases) :-
    xpath(DOM, //reports/balanceSheetRequest/defaultUnitTypes/unitType, element(_,_,Bases)).
 
-extract_account_hierarchy(DOM, AccountHierarchy) :-
+extract_account_hierarchy(_DOM, AccountHierarchyDom) :-
    %  xpath(DOM, //reports/balanceSheetRequest/accountHierarchy ...
    http_get('https://raw.githubusercontent.com/LodgeiT/labs-accounts-assessor/prolog_server_ledger/prolog_server/ledger/default_account_hierarchy.xml?token=AAA34ZATJ5VPKDNFZXQRHVK434H2M', D, []),
    store_xml_document('account_hierarchy.xml', D),
    load_xml('account_hierarchy.xml', AccountHierarchyDom, []),
    print_term(AccountHierarchyDom,[]).
+
+extract_action(In, action(Id, Description, ExchangeAccount, TradingAccount)) :-
+   one(In, id, Id),
+   one(In, description, Description),
+   one(In, exchangeAccount, ExchangeAccount),
+   one(In, tradingAccount, TradingAccount).
+   
+extract_action_taxonomy(DOM, ActionTaxonomy) :-
+   %gtrace,
+   findall(Action, xpath(DOM, //reports/balanceSheetRequest/actionTaxonomy/action, Action), Actions),
+   maplist(extract_action, Actions, ActionTaxonomy).
    
 process_xml_request(_FileNameIn, DOM) :-
    FileNameOut = 'ledger-response.xml',
    extract_default_bases(DOM, DefaultBases),
-   extract_account_hierarchy(DOM, AccountHierarchy),
+   extract_account_hierarchy(DOM, _AccountHierarchy),
    findall(Transaction, extract_transactions(DOM, DefaultBases, Transaction), Transactions),
    pretty_term_string(Transactions, Message),
-   display_xml_response(FileNameOut, Message).
+   display_xml_response(FileNameOut, Message),
+   extract_action_taxonomy(DOM, ActionTaxonomy),
+   print_term(ActionTaxonomy, []).
 
 extract_transactions(DOM, DefaultBases, Transaction) :-
    xpath(DOM, //reports/balanceSheetRequest/bankStatement/accountDetails, Account),

@@ -353,13 +353,13 @@ Accounts
             // The transaction types are hard-coded into this endpoint for now
             return new List<TransactionType>()
             {
-<action Id="Invest_In", 	Description="Shares", 		ExchangeAccount="FinancialInvestments", TradingAccount="InvestmentIncome" \>
-<action Id="Dispose_Off", 	Description="Shares", 		ExchangeAccount="FinancialInvestments", TradingAccount="InvestmentIncome" \>
-<action Id="Borrow", 		Description="Shares", 		ExchangeAccount="NoncurrentLoans", 	TradingAccount="InvestmentIncome" \>
-<action Id="Introduce_Capital", Description="Unit_Investment", 	ExchangeAccount="ShareCapital", 	TradingAccount="InvestmentIncome" \>
-<action Id="Gain", 		Description="Unit_Investment", 	ExchangeAccount="ShareCapital", 	TradingAccount="InvestmentIncome" \>
-<action Id="Loss", 		Description="No Description", 	ExchangeAccount="ShareCapital", 	TradingAccount="InvestmentIncome" \>
-<action Id="PayBank", 		Description="No Description", 	ExchangeAccount="BankCharges", 		TradingAccount="InvestmentIncome" \>
+<action Id="Invest_In" 	Description="Shares" 		ExchangeAccount="FinancialInvestments" TradingAccount="InvestmentIncome" \>
+<action Id="Dispose_Off" 	Description="Shares" 		ExchangeAccount="FinancialInvestments" TradingAccount="InvestmentIncome" \>
+<action Id="Borrow" 		Description="Shares" 		ExchangeAccount="NoncurrentLoans" 	TradingAccount="InvestmentIncome" \>
+<action Id="Introduce_Capital" Description="Unit_Investment" 	ExchangeAccount="ShareCapital" 	TradingAccount="InvestmentIncome" \>
+<action Id="Gain" 		Description="Unit_Investment" 	ExchangeAccount="ShareCapital" 	TradingAccount="InvestmentIncome" \>
+<action Id="Loss"		Description="No Description" 	ExchangeAccount="ShareCapital" 	TradingAccount="InvestmentIncome" \>
+<action Id="PayBank" 		Description="No Description" 	ExchangeAccount="BankCharges" 		TradingAccount="InvestmentIncome" \>
             };
         }
 
