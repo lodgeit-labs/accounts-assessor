@@ -17,7 +17,6 @@ probably should first find all transactions and then process them.
 one(DOM, ElementName, ElementContents) :-
    xpath(DOM, ElementName, element(_,_,[ElementContents])).
 
-
 pretty_term_string(Term, String) :-
    new_memory_file(X),
    open_memory_file(X, write, S),
@@ -33,7 +32,6 @@ extract_account_hierarchy(_DOM, AccountHierarchyDom) :-
    http_get('https://raw.githubusercontent.com/LodgeiT/labs-accounts-assessor/prolog_server_ledger/prolog_server/ledger/default_account_hierarchy.xml?token=AAA34ZATJ5VPKDNFZXQRHVK434H2M', D, []),
    store_xml_document('account_hierarchy.xml', D),
    load_xml('account_hierarchy.xml', AccountHierarchyDom, []),
-   print_term(AccountHierarchyDom,[]).
 
 extract_action(In, action(Id, Description, ExchangeAccount, TradingAccount)) :-
    one(In, id, Id),
@@ -42,19 +40,40 @@ extract_action(In, action(Id, Description, ExchangeAccount, TradingAccount)) :-
    one(In, tradingAccount, TradingAccount).
    
 extract_action_taxonomy(DOM, ActionTaxonomy) :-
-   %gtrace,
    findall(Action, xpath(DOM, //reports/balanceSheetRequest/actionTaxonomy/action, Action), Actions),
    maplist(extract_action, Actions, ActionTaxonomy).
+
+extract_exchange_rates(DOM, BalanceSheetEndDate, ExchangeRates) :-
+   findall(UnitValue, one(DOM, /reports/balanceSheetRequest/unitValues/unitValue, UnitValue), UnitValues),
+   maplist(extract_exchange_rate(BalanceSheetEndDate), UnitValues, ExchangeRates).
+   
+extract_exchange_rate(BalanceSheetEndDate, UnitValue, ExchangeRate) :-
+   ExchangeRate = exchange_rate(BalanceSheetEndDate, SrcCurrency, DestCurrency, Rate),
+   one(UnitValue, unitType, SrcCurrency),
+   one(UnitValue, unitValueCurrency, DestCurrency),
+   one(UnitValue, unitValue, Rate).              
    
 process_xml_request(_FileNameIn, DOM) :-
    FileNameOut = 'ledger-response.xml',
    extract_default_bases(DOM, DefaultBases),
-   extract_account_hierarchy(DOM, _AccountHierarchy),
-   findall(Transaction, extract_transactions(DOM, DefaultBases, Transaction), Transactions),
-   pretty_term_string(Transactions, Message),
-   display_xml_response(FileNameOut, Message),
    extract_action_taxonomy(DOM, ActionTaxonomy),
-   print_term(ActionTaxonomy, []).
+   extract_account_hierarchy(DOM, AccountHierarchy),
+   findall(Transaction, extract_transactions(DOM, DefaultBases, Transaction), Transactions),
+   
+   pretty_term_string(ActionTaxonomy, Message0),
+   pretty_term_string(Transactions, Message1),
+   pretty_term_string(AccountHierarchy, Message2),
+   atomic_list_concat(['ActionTaxonomy:\n',Message0,'\n\n','Transactions:\n', Message1,'\n\n','AccountHierarchy:\n',Message2,'\n\n'],Message),
+   display_xml_response(FileNameOut, Message),
+
+   xpath(DOM, //reports/balanceSheetRequest/startDate, [BalanceSheetStartDate]),
+   parse_date(BalanceSheetStartDate, BalanceSheetStartAbsoluteDays),
+   xpath(DOM, //reports/balanceSheetRequest/startDate, [BalanceSheetEndDate]),
+   parse_date(BalanceSheetEndDate, BalanceSheetEndAbsoluteDays),
+ 
+   extract_exchange_rates(DOM, BalanceSheetEndAbsoluteDays, ExchangeRates),
+   balance_sheet_at(ExchangeRates, ActionTaxonomy, AccountHierarchy, Transactions, DefaultBases, BalanceSheetEndAbsoluteDays, balanceSheetStartAbsoluteDays, BalanceSheetEndAbsoluteDays, BalanceSheet).
+   %return synthesizeBalanceSheet(balanceSheetStartDate, balanceSheetEndDate, balanceSheet);
 
 extract_transactions(DOM, DefaultBases, Transaction) :-
    xpath(DOM, //reports/balanceSheetRequest/bankStatement/accountDetails, Account),
@@ -63,17 +82,22 @@ extract_transactions(DOM, DefaultBases, Transaction) :-
    xpath(Account, transactions/transaction, T),
    extract_transaction(T, Currency, DefaultBases, AccountName, Transaction).
 
+
+% parses date in "DD-MM-YYYY" format
+
+parse_date(DateString, AbsoluteDays) :-
+   parse_time(DateString, iso_8601, UnixTimestamp),
+   stamp_date_time(UnixTimestamp, DateTime, 'UTC'), 
+   date_time_value(date, DateTime, YMD),
+   absolute_day(YMD, AbsoluteDays).
+
+
 extract_transaction(T, Currency, DefaultBases, Account, ST) :-
    xpath(T, debit, element(_,_,[Debit])),
    xpath(T, credit, element(_,_,[Credit])),
    xpath(T, transdesc, element(_,_,[Desc])),
    xpath(T, transdate, element(_,_,[DateString])),
-
-   parse_time(DateString, iso_8601, UnixTimestamp),
-   stamp_date_time(UnixTimestamp, DateTime, 'UTC'), 
-   date_time_value(date, DateTime, YMD),
-   absolute_day(YMD, AbsoluteDays),
-
+   parse_date(DateString, AbsoluteDays),
    Coordinate = coordinate(Currency, Debit, Credit),
    ST = s_transaction(AbsoluteDays, Desc, [Coordinate], Account, Exchanged),
 
