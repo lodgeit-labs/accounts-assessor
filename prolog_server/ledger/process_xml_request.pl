@@ -27,11 +27,18 @@ pretty_term_string(Term, String) :-
 extract_default_bases(DOM, Bases) :-
    xpath(DOM, //reports/balanceSheetRequest/defaultUnitTypes/unitType, element(_,_,Bases)).
 
-extract_account_hierarchy(_DOM, AccountHierarchyDom) :-
+extract_account_hierarchy(_DOM, AccountHierarchy) :-
    %  xpath(DOM, //reports/balanceSheetRequest/accountHierarchy ...
    http_get('https://raw.githubusercontent.com/LodgeiT/labs-accounts-assessor/prolog_server_ledger/prolog_server/ledger/default_account_hierarchy.xml?token=AAA34ZATJ5VPKDNFZXQRHVK434H2M', D, []),
    store_xml_document('account_hierarchy.xml', D),
    load_xml('account_hierarchy.xml', AccountHierarchyDom, []),
+   findall(Account, xpath(AccountHierarchyDom, //accounts, Account), Accounts),
+   maplist(extract_account, Accounts, AccountHierarchy).
+
+extract_account(In, account(Id, Parent)) :-
+   gtrace,
+   xpath(In, //accounts, Account).
+   
 
 extract_action(In, action(Id, Description, ExchangeAccount, TradingAccount)) :-
    one(In, id, Id),
