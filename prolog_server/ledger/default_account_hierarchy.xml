@@ -7,10 +7,10 @@
 				<NationalAustraliaBank/>
 			</CashAndCashEquivalents>
 		</CurrentAssets>
+		<NoncurrentAssets>
+			<FinancialInvestments/>
+		</NoncurrentAssets>
 	</Assets>
-	<NoncurrentAssets>
-		<FinancialInvestments/>
-	</NoncurrentAssets>
 	<Equity>
 		<ShareCapital/>
 	</Equity>

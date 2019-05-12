@@ -12,6 +12,9 @@ probably should first find all transactions and then process them.
 
 
 :- ['../../src/days'].
+:- ['../../src/ledger'].
+:- ['../../src/statements'].
+:- use_module(library(xpath)).
 
 
 one(DOM, ElementName, ElementContents) :-
@@ -32,14 +35,19 @@ extract_account_hierarchy(_DOM, AccountHierarchy) :-
    http_get('https://raw.githubusercontent.com/LodgeiT/labs-accounts-assessor/prolog_server_ledger/prolog_server/ledger/default_account_hierarchy.xml?token=AAA34ZATJ5VPKDNFZXQRHVK434H2M', D, []),
    store_xml_document('account_hierarchy.xml', D),
    load_xml('account_hierarchy.xml', AccountHierarchyDom, []),
-   findall(Account, xpath(AccountHierarchyDom, //accounts, Account), Accounts),
-   maplist(extract_account, Accounts, AccountHierarchy).
+   %print_term(AccountHierarchyDom,[]),
+   findall(Account, xpath(AccountHierarchyDom, //accounts/(*), Account), Accounts),
+   % gtrace,
+   findall(Link, (member(TopLevelAccount, Accounts), accounts_link(TopLevelAccount, Link)), AccountHierarchy).
 
-extract_account(In, account(Id, Parent)) :-
-   gtrace,
-   xpath(In, //accounts, Account).
+accounts_link(element(Name,_,Children), Link) :-
+   member(Child, Children), 
+   Child = element(ChildName,_,_),
+   (
+      Link = account(Name, ChildName);
+      accounts_link(Child, Link)
+   ).
    
-
 extract_action(In, action(Id, Description, ExchangeAccount, TradingAccount)) :-
    one(In, id, Id),
    one(In, description, Description),
@@ -71,15 +79,19 @@ process_xml_request(_FileNameIn, DOM) :-
    pretty_term_string(Transactions, Message1),
    pretty_term_string(AccountHierarchy, Message2),
    atomic_list_concat(['ActionTaxonomy:\n',Message0,'\n\n','Transactions:\n', Message1,'\n\n','AccountHierarchy:\n',Message2,'\n\n'],Message),
+
    display_xml_response(FileNameOut, Message),
 
-   xpath(DOM, //reports/balanceSheetRequest/startDate, [BalanceSheetStartDate]),
+   one(DOM, //reports/balanceSheetRequest/startDate, BalanceSheetStartDate),
    parse_date(BalanceSheetStartDate, BalanceSheetStartAbsoluteDays),
-   xpath(DOM, //reports/balanceSheetRequest/startDate, [BalanceSheetEndDate]),
+   one(DOM, //reports/balanceSheetRequest/endDate, BalanceSheetEndDate),
    parse_date(BalanceSheetEndDate, BalanceSheetEndAbsoluteDays),
  
    extract_exchange_rates(DOM, BalanceSheetEndAbsoluteDays, ExchangeRates),
-   balance_sheet_at(ExchangeRates, ActionTaxonomy, AccountHierarchy, Transactions, DefaultBases, BalanceSheetEndAbsoluteDays, balanceSheetStartAbsoluteDays, BalanceSheetEndAbsoluteDays, BalanceSheet).
+   
+   gtrace,
+   preprocess_s_transactions(ExchangeRates, ActionTaxonomy, Transactions, S_Transactions),
+   balance_sheet_at(ExchangeRates, ActionTaxonomy, AccountHierarchy, S_Transactions, DefaultBases, BalanceSheetEndAbsoluteDays, balanceSheetStartAbsoluteDays, BalanceSheetEndAbsoluteDays, BalanceSheet).
    %return synthesizeBalanceSheet(balanceSheetStartDate, balanceSheetEndDate, balanceSheet);
 
 extract_transactions(DOM, DefaultBases, Transaction) :-
