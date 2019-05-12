@@ -44,7 +44,7 @@ accounts_link(element(Name,_,Children), Link) :-
    member(Child, Children), 
    Child = element(ChildName,_,_),
    (
-      Link = account(Name, ChildName);
+      Link = account(ChildName, Name);
       accounts_link(Child, Link)
    ).
    
@@ -59,7 +59,7 @@ extract_action_taxonomy(DOM, ActionTaxonomy) :-
    maplist(extract_action, Actions, ActionTaxonomy).
 
 extract_exchange_rates(DOM, BalanceSheetEndDate, ExchangeRates) :-
-   findall(UnitValue, one(DOM, /reports/balanceSheetRequest/unitValues/unitValue, UnitValue), UnitValues),
+   findall(UnitValue, one(DOM, //reports/balanceSheetRequest/unitValues/unitValue, UnitValue), UnitValues),
    maplist(extract_exchange_rate(BalanceSheetEndDate), UnitValues, ExchangeRates).
    
 extract_exchange_rate(BalanceSheetEndDate, UnitValue, ExchangeRate) :-
@@ -82,27 +82,32 @@ process_xml_request(_FileNameIn, DOM) :-
    one(DOM, //reports/balanceSheetRequest/endDate, BalanceSheetEndDate),
    parse_date(BalanceSheetEndDate, BalanceSheetEndAbsoluteDays),
  
+   gtrace,
+
    extract_exchange_rates(DOM, BalanceSheetEndAbsoluteDays, ExchangeRates),
    
    preprocess_s_transactions(ExchangeRates, ActionTaxonomy, Transactions, S_Transactions),
 
-   gtrace,
-   balance_sheet_at(ExchangeRates, AccountHierarchy, S_Transactions, DefaultBases, BalanceSheetEndAbsoluteDays, BalanceSheetStartAbsoluteDays, BalanceSheetEndAbsoluteDays, BalanceSheet),
 
 
    pretty_term_string(ActionTaxonomy, Message0),
    pretty_term_string(Transactions, Message1),
-   pretty_term_string(AccountHierarchy, Message2),
-   pretty_term_string(BalanceSheet, Message3),
-   atomic_list_concat(['ActionTaxonomy:\n',Message0,'\n\n','Transactions:\n', Message1,'\n\n','AccountHierarchy:\n',Message2,'\n\n','BalanceSheet:\n', Message3,'\n\n'],Message),
+   pretty_term_string(S_Transactions, Message2),
+   pretty_term_string(AccountHierarchy, Message3),
+   pretty_term_string(BalanceSheet, Message4),
+   atomic_list_concat(['ActionTaxonomy:\n',Message0,'\n\n','Transactions:\n', Message1,'\n\n','S_Transactions:\n', Message2,'\n\n','AccountHierarchy:\n',Message3,'\n\n','BalanceSheet:\n', Message4,'\n\n'],Message),
+   display_xml_response(FileNameOut, Message),
 
-   display_xml_response(FileNameOut, Message).
+
+   balance_sheet_at(ExchangeRates, AccountHierarchy, S_Transactions, DefaultBases, BalanceSheetEndAbsoluteDays, BalanceSheetStartAbsoluteDays, BalanceSheetEndAbsoluteDays, BalanceSheet),
+
+   true.
 
    %return synthesizeBalanceSheet(balanceSheetStartDate, balanceSheetEndDate, balanceSheet);
 
 extract_transactions(DOM, DefaultBases, Transaction) :-
    xpath(DOM, //reports/balanceSheetRequest/bankStatement/accountDetails, Account),
-   xpath(Account, accountName, element(_,_,AccountName)),
+   xpath(Account, accountName, element(_,_,[AccountName])),
    xpath(Account, currency, element(_,_,[Currency])),
    xpath(Account, transactions/transaction, T),
    extract_transaction(T, Currency, DefaultBases, AccountName, Transaction).
