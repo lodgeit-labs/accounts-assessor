@@ -12,4 +12,4 @@
 
 :- run_server.
 :- process_xml_document("ledger-request.xml").
-:- halt.
+%:- halt.

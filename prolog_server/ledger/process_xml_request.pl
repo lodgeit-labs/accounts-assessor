@@ -59,7 +59,7 @@ extract_action_taxonomy(DOM, ActionTaxonomy) :-
    maplist(extract_action, Actions, ActionTaxonomy).
 
 extract_exchange_rates(DOM, BalanceSheetEndDate, ExchangeRates) :-
-   findall(UnitValue, one(DOM, //reports/balanceSheetRequest/unitValues/unitValue, UnitValue), UnitValues),
+   findall(UnitValue, xpath(DOM, //reports/balanceSheetRequest/unitValues/unitValue, UnitValue), UnitValues),
    maplist(extract_exchange_rate(BalanceSheetEndDate), UnitValues, ExchangeRates).
    
 extract_exchange_rate(BalanceSheetEndDate, UnitValue, ExchangeRate) :-
@@ -82,11 +82,15 @@ process_xml_request(_FileNameIn, DOM) :-
    one(DOM, //reports/balanceSheetRequest/endDate, BalanceSheetEndDate),
    parse_date(BalanceSheetEndDate, BalanceSheetEndAbsoluteDays),
  
-   gtrace,
+   %gtrace,
 
    extract_exchange_rates(DOM, BalanceSheetEndAbsoluteDays, ExchangeRates),
    
    preprocess_s_transactions(ExchangeRates, ActionTaxonomy, Transactions, S_Transactions),
+
+
+
+   balance_sheet_at(ExchangeRates, AccountHierarchy, S_Transactions, DefaultBases, BalanceSheetEndAbsoluteDays, BalanceSheetStartAbsoluteDays, BalanceSheetEndAbsoluteDays, BalanceSheet),
 
 
 
@@ -98,8 +102,6 @@ process_xml_request(_FileNameIn, DOM) :-
    atomic_list_concat(['ActionTaxonomy:\n',Message0,'\n\n','Transactions:\n', Message1,'\n\n','S_Transactions:\n', Message2,'\n\n','AccountHierarchy:\n',Message3,'\n\n','BalanceSheet:\n', Message4,'\n\n'],Message),
    display_xml_response(FileNameOut, Message),
 
-
-   balance_sheet_at(ExchangeRates, AccountHierarchy, S_Transactions, DefaultBases, BalanceSheetEndAbsoluteDays, BalanceSheetStartAbsoluteDays, BalanceSheetEndAbsoluteDays, BalanceSheet),
 
    true.
 
