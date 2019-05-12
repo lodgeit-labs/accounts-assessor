@@ -76,12 +76,6 @@ process_xml_request(_FileNameIn, DOM) :-
    extract_account_hierarchy(DOM, AccountHierarchy),
    findall(Transaction, extract_transactions(DOM, DefaultBases, Transaction), Transactions),
    
-   pretty_term_string(ActionTaxonomy, Message0),
-   pretty_term_string(Transactions, Message1),
-   pretty_term_string(AccountHierarchy, Message2),
-   atomic_list_concat(['ActionTaxonomy:\n',Message0,'\n\n','Transactions:\n', Message1,'\n\n','AccountHierarchy:\n',Message2,'\n\n'],Message),
-
-   display_xml_response(FileNameOut, Message),
 
    one(DOM, //reports/balanceSheetRequest/startDate, BalanceSheetStartDate),
    parse_date(BalanceSheetStartDate, BalanceSheetStartAbsoluteDays),
@@ -93,7 +87,16 @@ process_xml_request(_FileNameIn, DOM) :-
    preprocess_s_transactions(ExchangeRates, ActionTaxonomy, Transactions, S_Transactions),
 
    %gtrace,
-   balance_sheet_at(ExchangeRates, AccountHierarchy, S_Transactions, DefaultBases, BalanceSheetEndAbsoluteDays, BalanceSheetStartAbsoluteDays, BalanceSheetEndAbsoluteDays, BalanceSheet).
+   balance_sheet_at(ExchangeRates, AccountHierarchy, S_Transactions, DefaultBases, BalanceSheetEndAbsoluteDays, BalanceSheetStartAbsoluteDays, BalanceSheetEndAbsoluteDays, BalanceSheet),
+
+
+   pretty_term_string(ActionTaxonomy, Message0),
+   pretty_term_string(Transactions, Message1),
+   pretty_term_string(AccountHierarchy, Message2),
+   atomic_list_concat(['ActionTaxonomy:\n',Message0,'\n\n','Transactions:\n', Message1,'\n\n','AccountHierarchy:\n',Message2,'\n\n'],Message),
+
+   display_xml_response(FileNameOut, Message).
+
    %return synthesizeBalanceSheet(balanceSheetStartDate, balanceSheetEndDate, balanceSheet);
 
 extract_transactions(DOM, DefaultBases, Transaction) :-
