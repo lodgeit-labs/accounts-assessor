@@ -48,7 +48,7 @@ accounts_link(element(Name,_,Children), Link) :-
       accounts_link(Child, Link)
    ).
    
-extract_action(In, action(Id, Description, ExchangeAccount, TradingAccount)) :-
+extract_action(In, transaction_type(Id, Description, ExchangeAccount, TradingAccount)) :-
    one(In, id, Id),
    one(In, description, Description),
    one(In, exchangeAccount, ExchangeAccount),
@@ -66,8 +66,9 @@ extract_exchange_rate(BalanceSheetEndDate, UnitValue, ExchangeRate) :-
    ExchangeRate = exchange_rate(BalanceSheetEndDate, SrcCurrency, DestCurrency, Rate),
    one(UnitValue, unitType, SrcCurrency),
    one(UnitValue, unitValueCurrency, DestCurrency),
-   one(UnitValue, unitValue, Rate).              
-   
+   one(UnitValue, unitValue, RateString),
+   atom_number(RateString, Rate).
+      
 process_xml_request(_FileNameIn, DOM) :-
    FileNameOut = 'ledger-response.xml',
    extract_default_bases(DOM, DefaultBases),
@@ -89,9 +90,10 @@ process_xml_request(_FileNameIn, DOM) :-
  
    extract_exchange_rates(DOM, BalanceSheetEndAbsoluteDays, ExchangeRates),
    
-   gtrace,
    preprocess_s_transactions(ExchangeRates, ActionTaxonomy, Transactions, S_Transactions),
-   balance_sheet_at(ExchangeRates, ActionTaxonomy, AccountHierarchy, S_Transactions, DefaultBases, BalanceSheetEndAbsoluteDays, balanceSheetStartAbsoluteDays, BalanceSheetEndAbsoluteDays, BalanceSheet).
+
+   %gtrace,
+   balance_sheet_at(ExchangeRates, AccountHierarchy, S_Transactions, DefaultBases, BalanceSheetEndAbsoluteDays, BalanceSheetStartAbsoluteDays, BalanceSheetEndAbsoluteDays, BalanceSheet).
    %return synthesizeBalanceSheet(balanceSheetStartDate, balanceSheetEndDate, balanceSheet);
 
 extract_transactions(DOM, DefaultBases, Transaction) :-
@@ -112,13 +114,15 @@ parse_date(DateString, AbsoluteDays) :-
 
 
 extract_transaction(T, Currency, DefaultBases, Account, ST) :-
-   xpath(T, debit, element(_,_,[Debit])),
-   xpath(T, credit, element(_,_,[Credit])),
+   xpath(T, debit, element(_,_,[DebitString])),
+   xpath(T, credit, element(_,_,[CreditString])),
    xpath(T, transdesc, element(_,_,[Desc])),
    xpath(T, transdate, element(_,_,[DateString])),
    parse_date(DateString, AbsoluteDays),
-   Coordinate = coordinate(Currency, Debit, Credit),
-   ST = s_transaction(AbsoluteDays, Desc, [Coordinate], Account, Exchanged),
+   atom_number(DebitString, Debit),
+   atom_number(CreditString, Credit),
+   Coord = coord(Currency, Debit, Credit),
+   ST = s_transaction(AbsoluteDays, Desc, [Coord], Account, Exchanged),
 
    (
       (
@@ -128,12 +132,13 @@ extract_transaction(T, Currency, DefaultBases, Account, ST) :-
                xpath(T, unit, element(_,_,[UnitCount])),
                %  If the user has specified both the unit quantity and type, then exchange rate
                %  conversion and hence a target bases is unnecessary.
-               Exchanged = [coordinate(UnitType, UnitCount, 0)],!
+               atom_number(UnitCount, UnitCountNumber),
+               Exchanged = vector([coord(UnitType, UnitCountNumber, 0)]),!
             )
             ;
             (
                % If the user has specified only a unit type, then automatically do a conversion to that unit.
-               Exchanged = [UnitType]
+               Exchanged = bases([UnitType])
             )
          ),!
       )
@@ -141,7 +146,7 @@ extract_transaction(T, Currency, DefaultBases, Account, ST) :-
       (
          % If the user has not specified neither the unit quantity nor type, then automatically
          %  do a conversion to the default bases.
-         Exchanged = DefaultBases
+         Exchanged = bases(DefaultBases)
       )
    ).
 
