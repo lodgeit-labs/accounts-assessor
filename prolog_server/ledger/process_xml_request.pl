@@ -137,7 +137,7 @@ process_xml_request(_FileNameIn, DOM) :-
    display_xml_response(FileNameOut, Message, BalanceSheetStartAbsoluteDays, BalanceSheetEndAbsoluteDays, BalanceSheet),
    true.
 
-display_xml_response(_FileNameOut, DebugMessage, BalanceSheetStartAbsoluteDays, BalanceSheetEndAbsoluteDays, BalanceSheet) :-
+display_xml_response(_FileNameOut, DebugMessage, BalanceSheetStartAbsoluteDays, BalanceSheetEndAbsoluteDays, BalanceSheetEntries) :-
    format('Content-type: text/xml~n~n'), 
    writeln('<?xml version="1.0"?>'),
    writeln('<!--'),
@@ -150,7 +150,10 @@ display_xml_response(_FileNameOut, DebugMessage, BalanceSheetStartAbsoluteDays, 
 
    gregorian_date(BalanceSheetEndAbsoluteDays, BalanceSheetEndDate),
    BalanceSheetEndDate = date(BalanceSheetEndYear,_,_),
-   format_date(BalanceSheetEndString, BalanceSheetEndDate),
+   format_date(BalanceSheetEndDateString, BalanceSheetEndDate),
+
+   gregorian_date(BalanceSheetStartAbsoluteDays, BalanceSheetStartDate),
+   format_date(BalanceSheetStartDateString, BalanceSheetStartDate),
    
    format('<context id="D-~w">', BalanceSheetEndYear),
    writeln('<context>'),
@@ -158,12 +161,51 @@ display_xml_response(_FileNameOut, DebugMessage, BalanceSheetStartAbsoluteDays, 
    writeln('   <identifier scheme="http://standards.iso.org/iso/17442">30810137d58f76b84afd</identifier>'),
    writeln(' </entity>'),
    writeln(' <period>'),
-   format('    <startDate>~w</startDate>', StartYmdString),
-/*
-      <endDate>2018-06-30</endDate>
-*/
+   format('    <startDate>~w</startDate>', BalanceSheetStartDateString),
+   format('    <endDate>~w</endDate>', BalanceSheetEndDateString),
    writeln(' </period>'),
    writeln('</context>'),
+
+   write_balance_sheet_entries(BalanceSheetEndYear, BalanceSheetEntries, [], UsedUnits),
+write_balance_sheet_entries(_, [], UsedUnits, UsedUnits).
+write_balance_sheet_entries(BalanceSheetEndYear, [Entry|Entries], UsedUnitsIn, UsedUnitsOut) :-
+   Entry = entry(Name, [Balance], Children),
+   write_balance(BalanceSheetEndYear, Name, Balance
+   
+
+write_balance_sheet_entries(_, [], [], UsedUnits, UsedUnits).
+
+write_balance_sheet_entries(Info, [], [Child|Children], UsedUnitsIn, UsedUnitsOut) :-
+   Child = entry(ChildName, Coords, SubChildren),
+   write_balance_sheet_entries(info(, Coords, SubChildren, UsedUnitsIntermediate, UsedUnitsOut),
+   Info = info(AccountId, BalanceSheetEndYear)
+
+
+write_balance_sheet_entries(Info, Balance, ChildSheetEntries), UsedUnitsIn, UsedUnitsOut) :-
+      write_balance_sheet_entry_coords(info, Balance, UsedUnitsIn, UsedUnitsIntermediate)
+   
+
+   
+write_balance(BalanceSheetEndYear, Name, coord(Unit, Debit, Credit), UsedUnitsIn, UsedUnitsOut) :-
+   union([Unit], UsedUnitsIn, UsedUnitsOut),
+   format('<basic:~w contextRef="D-~w" unitRef="U-~w" decimals="INF">~w</basic:~w>', [Name, BalanceSheetEndYear, Unit, Debit - Credit, Name]),
+
+                    new XAttribute("decimals", "INF"),
+                    c.Debit - c.Credit));
+            }
+            foreach(BalanceSheetEntry bse in balanceSheetEntry.Subentries)
+            {
+                synthesizeBalanceSheetEntry(balanceSheetEndDate, bse, target, unitsFound);
+
+
+
+   
+   for each used unit:
+                        target.Add(new XElement("unit",
+                        new XAttribute("id", "U-" + c.Unit),
+                        new XElement("measure", c.Unit)));
+
+   
 /*  
   <unit id="U-AUD"><measure>AUD</measure></unit>
   <basic:Assets contextRef="D-2018" unitRef="U-AUD" decimals="INF">248.58844</basic:Assets>
@@ -184,3 +226,4 @@ display_xml_response(_FileNameOut, DebugMessage, BalanceSheetStartAbsoluteDays, 
    writeln('</xbrli:xbrl>'), nl, nl.
 
 
+   

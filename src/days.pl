@@ -123,3 +123,6 @@ parse_date(DateString, AbsoluteDays) :-
 format_date(DateString, AbsoluteDays) :-
    absolute_day(YMD, AbsoluteDays).
    format_time(string(DateString), '%Y-%m-%d', YMD). 
+
+
+
