@@ -188,7 +188,7 @@ account_ancestor_id(Accounts, Account_Id, Ancestor_Id) :-
 % Gets the ids for the assets, equity, liabilities, earnings, retained earnings, current
 % earnings, revenue, and expenses accounts. 
 account_ids(_Accounts,
-      'Assets', 'Equity', 'Liabilities', 'Earnings', 'Retained_Earnings', 'Current_Earnings', 'Revenue', 'Expenses').
+      'Assets', 'Equity', 'Liabilities', 'Earnings', 'RetainedEarnings', 'CurrentEarningsLosses', 'Revenue', 'Expenses').
 
 % Predicates for asserting that the fields of given transactions have particular values
 
