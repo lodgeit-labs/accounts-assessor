@@ -112,3 +112,14 @@ day_between(Opening_Date, Closing_Date, Day) :-
 	absolute_day(Closing_Date, Closing_Day),
 	Opening_Day =< Day, Day < Closing_Day.
 
+% parses date in "DD-MM-YYYY" format
+
+parse_date(DateString, AbsoluteDays) :-
+   parse_time(DateString, iso_8601, UnixTimestamp),
+   stamp_date_time(UnixTimestamp, DateTime, 'UTC'), 
+   date_time_value(date, DateTime, YMD),
+   absolute_day(YMD, AbsoluteDays).
+
+format_date(DateString, AbsoluteDays) :-
+   absolute_day(YMD, AbsoluteDays).
+   format_time(string(DateString), '%Y-%m-%d', YMD). 

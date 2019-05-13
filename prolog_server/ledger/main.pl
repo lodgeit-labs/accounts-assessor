@@ -10,7 +10,7 @@
 :- ['./../prolog_server.pl'].
 :- ['./process_xml_request.pl'].
 
-:- run_server.
+%:- run_server.
 :- process_xml_document("ledger-request.xml").
 %:- halt.
 

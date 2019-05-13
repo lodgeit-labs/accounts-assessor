@@ -68,44 +68,6 @@ extract_exchange_rate(BalanceSheetEndDate, UnitValue, ExchangeRate) :-
    one(UnitValue, unitValueCurrency, DestCurrency),
    one(UnitValue, unitValue, RateString),
    atom_number(RateString, Rate).
-      
-process_xml_request(_FileNameIn, DOM) :-
-   FileNameOut = 'ledger-response.xml',
-   extract_default_bases(DOM, DefaultBases),
-   extract_action_taxonomy(DOM, ActionTaxonomy),
-   extract_account_hierarchy(DOM, AccountHierarchy),
-   findall(Transaction, extract_transactions(DOM, DefaultBases, Transaction), Transactions),
-   
-
-   one(DOM, //reports/balanceSheetRequest/startDate, BalanceSheetStartDate),
-   parse_date(BalanceSheetStartDate, BalanceSheetStartAbsoluteDays),
-   one(DOM, //reports/balanceSheetRequest/endDate, BalanceSheetEndDate),
-   parse_date(BalanceSheetEndDate, BalanceSheetEndAbsoluteDays),
- 
-   %gtrace,
-
-   extract_exchange_rates(DOM, BalanceSheetEndAbsoluteDays, ExchangeRates),
-   
-   preprocess_s_transactions(ExchangeRates, ActionTaxonomy, Transactions, S_Transactions),
-
-
-
-   balance_sheet_at(ExchangeRates, AccountHierarchy, S_Transactions, DefaultBases, BalanceSheetEndAbsoluteDays, BalanceSheetStartAbsoluteDays, BalanceSheetEndAbsoluteDays, BalanceSheet),
-
-
-
-   pretty_term_string(ActionTaxonomy, Message0),
-   pretty_term_string(Transactions, Message1),
-   pretty_term_string(S_Transactions, Message2),
-   pretty_term_string(AccountHierarchy, Message3),
-   pretty_term_string(BalanceSheet, Message4),
-   atomic_list_concat(['ActionTaxonomy:\n',Message0,'\n\n','Transactions:\n', Message1,'\n\n','S_Transactions:\n', Message2,'\n\n','AccountHierarchy:\n',Message3,'\n\n','BalanceSheet:\n', Message4,'\n\n'],Message),
-   display_xml_response(FileNameOut, Message),
-
-
-   true.
-
-   %return synthesizeBalanceSheet(balanceSheetStartDate, balanceSheetEndDate, balanceSheet);
 
 extract_transactions(DOM, DefaultBases, Transaction) :-
    xpath(DOM, //reports/balanceSheetRequest/bankStatement/accountDetails, Account),
@@ -113,16 +75,6 @@ extract_transactions(DOM, DefaultBases, Transaction) :-
    xpath(Account, currency, element(_,_,[Currency])),
    xpath(Account, transactions/transaction, T),
    extract_transaction(T, Currency, DefaultBases, AccountName, Transaction).
-
-
-% parses date in "DD-MM-YYYY" format
-
-parse_date(DateString, AbsoluteDays) :-
-   parse_time(DateString, iso_8601, UnixTimestamp),
-   stamp_date_time(UnixTimestamp, DateTime, 'UTC'), 
-   date_time_value(date, DateTime, YMD),
-   absolute_day(YMD, AbsoluteDays).
-
 
 extract_transaction(T, Currency, DefaultBases, Account, ST) :-
    xpath(T, debit, element(_,_,[DebitString])),
@@ -134,7 +86,6 @@ extract_transaction(T, Currency, DefaultBases, Account, ST) :-
    atom_number(CreditString, Credit),
    Coord = coord(Currency, Debit, Credit),
    ST = s_transaction(AbsoluteDays, Desc, [Coord], Account, Exchanged),
-
    (
       (
          xpath(T, unitType, element(_,_,[UnitType])),
@@ -161,56 +112,59 @@ extract_transaction(T, Currency, DefaultBases, Account, ST) :-
       )
    ).
 
-/*
-process_xml_request(FileNameIn, DOM) :-
-   xpath(DOM, //reports/loanDetails/loanAgreement/field(@name='Income year of loan creation', @value=CreationIncomeYear), E1),
-   xpath(DOM, //reports/loanDetails/loanAgreement/field(@name='Full term of loan in years', @value=Term), E2),
-   xpath(DOM, //reports/loanDetails/loanAgreement/field(@name='Principal amount of loan', @value=PrincipalAmount), E3),
-   xpath(DOM, //reports/loanDetails/loanAgreement/field(@name='Lodgment day of private company', @value=LodgementDate), E4),
-   xpath(DOM, //reports/loanDetails/loanAgreement/field(@name='Income year of computation', @value=ComputationYear), E5),   
-   (
-     xpath(DOM, //reports/loanDetails/loanAgreement/field(@name='Opening balance of computation', @value=OB), E6)
-     ->
-     OpeningBalance = OB
-   ;
-     OpeningBalance = -1
-   ),   
-   % need to handle empty repayments/repayment, needs to be tested
-   findall(loan_repayment(Date, Value), xpath(DOM, //reports/loanDetails/repayments/repayment(@date=Date, @value=Value), E7), LoanRepayments),
-   convert_xpath_results(CreationIncomeYear,  Term,  PrincipalAmount,  LodgementDate,  ComputationYear,  OpeningBalance,  LoanRepayments,
-		         NCreationIncomeYear, NTerm, NPrincipalAmount, NLodgementDate, NComputationYear, NOpeningBalance, NLoanRepayments),   
-   loan_agr_summary(loan_agreement(0, NPrincipalAmount, NLodgementDate, NCreationIncomeYear, NTerm, 
-				   NComputationYear, NOpeningBalance, NLoanRepayments), Summary),
-   display_xml_response(FileNameOut, NComputationYear, Summary).
-*/
-   
-% -------------------------------------------------------------------
-% display_xml_request/3
-% -------------------------------------------------------------------
+process_xml_request(_FileNameIn, DOM) :-
+   FileNameOut = 'ledger-response.xml',
+   extract_default_bases(DOM, DefaultBases),
+   extract_action_taxonomy(DOM, ActionTaxonomy),
+   extract_account_hierarchy(DOM, AccountHierarchy),
+   findall(Transaction, extract_transactions(DOM, DefaultBases, Transaction), Transactions),
 
-display_xml_response(_FileNameOut, M) :-
-   nl,nl,writeln('xml_response:'),
+   one(DOM, //reports/balanceSheetRequest/startDate, BalanceSheetStartDateString),
+   parse_date(BalanceSheetStartDateString, BalanceSheetStartAbsoluteDays),
+   one(DOM, //reports/balanceSheetRequest/endDate, BalanceSheetEndDateString),
+   parse_date(BalanceSheetEndDateString, BalanceSheetEndAbsoluteDays),
 
+   extract_exchange_rates(DOM, BalanceSheetEndAbsoluteDays, ExchangeRates),
+   preprocess_s_transactions(ExchangeRates, ActionTaxonomy, Transactions, S_Transactions),
+   balance_sheet_at(ExchangeRates, AccountHierarchy, S_Transactions, DefaultBases, BalanceSheetEndAbsoluteDays, BalanceSheetStartAbsoluteDays, BalanceSheetEndAbsoluteDays, BalanceSheet),
+
+   pretty_term_string(ActionTaxonomy, Message0),
+   pretty_term_string(Transactions, Message1),
+   pretty_term_string(S_Transactions, Message2),
+   pretty_term_string(AccountHierarchy, Message3),
+   pretty_term_string(BalanceSheet, Message4),
+   atomic_list_concat(['ActionTaxonomy:\n',Message0,'\n\n','Transactions:\n', Message1,'\n\n','S_Transactions:\n', Message2,'\n\n','AccountHierarchy:\n',Message3,'\n\n','BalanceSheet:\n', Message4,'\n\n'],Message),
+   display_xml_response(FileNameOut, Message, BalanceSheetStartAbsoluteDays, BalanceSheetEndAbsoluteDays, BalanceSheet),
+   true.
+
+display_xml_response(_FileNameOut, DebugMessage, BalanceSheetStartAbsoluteDays, BalanceSheetEndAbsoluteDays, BalanceSheet) :-
    format('Content-type: text/xml~n~n'), 
    writeln('<?xml version="1.0"?>'),
+   writeln('<!--'),
+   writeln(DebugMessage),
+   writeln('-->'),
    writeln('<xbrli:xbrl xmlns:xbrli="http://www.xbrl.org/2003/instance" xmlns:link="http://www.xbrl.org/2003/linkbase" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:iso4217="http://www.xbrl.org/2003/iso4217" xmlns:basic="http://www.xbrlsite.com/basic">'),
    writeln('<link:schemaRef xlink:type="simple" xlink:href="basic.xsd" xlink:title="Taxonomy schema" />'),
    writeln('<link:linkbaseRef xlink:type="simple" xlink:href="basic-formulas.xml" xlink:arcrole="http://www.w3.org/1999/xlink/properties/linkbase" />'),
    writeln('<link:linkBaseRef xlink:type="simple" xlink:href="basic-formulas-cross-checks.xml" xlink:arcrole="http://www.w3.org/1999/xlink/properties/linkbase" />'),
-   writeln('<context id="D-2018">'),
-   writeln('<!--'),
-   writeln(M),
-   writeln('-->'),
-   /*
+
+   gregorian_date(BalanceSheetEndAbsoluteDays, BalanceSheetEndDate),
+   BalanceSheetEndDate = date(BalanceSheetEndYear,_,_),
+   format_date(BalanceSheetEndString, BalanceSheetEndDate),
+   
+   format('<context id="D-~w">', BalanceSheetEndYear),
    writeln('<context>'),
-    <entity>
-      <identifier scheme="http://standards.iso.org/iso/17442">30810137d58f76b84afd</identifier>
-    </entity>
-    <period>
-      <startDate>2015-07-01</startDate>
+   writeln(' <entity>'),
+   writeln('   <identifier scheme="http://standards.iso.org/iso/17442">30810137d58f76b84afd</identifier>'),
+   writeln(' </entity>'),
+   writeln(' <period>'),
+   format('    <startDate>~w</startDate>', StartYmdString),
+/*
       <endDate>2018-06-30</endDate>
-    </period>
-  writeln('</context>'),
+*/
+   writeln(' </period>'),
+   writeln('</context>'),
+/*  
   <unit id="U-AUD"><measure>AUD</measure></unit>
   <basic:Assets contextRef="D-2018" unitRef="U-AUD" decimals="INF">248.58844</basic:Assets>
   <basic:CurrentAssets contextRef="D-2018" unitRef="U-AUD" decimals="INF">221.57236</basic:CurrentAssets>
