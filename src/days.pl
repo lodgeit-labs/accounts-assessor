@@ -120,9 +120,9 @@ parse_date(DateString, AbsoluteDays) :-
    date_time_value(date, DateTime, YMD),
    absolute_day(YMD, AbsoluteDays).
 
-format_date(DateString, AbsoluteDays) :-
-   absolute_day(YMD, AbsoluteDays).
-   format_time(string(DateString), '%Y-%m-%d', YMD). 
+format_date(AbsoluteDays, DateString) :-
+   gregorian_date(AbsoluteDays, Date),
+   format_time(string(DateString), '%Y-%m-%d', Date).
 
 
 

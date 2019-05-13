@@ -316,35 +316,33 @@ namespace PrologEndpoint.Controllers
             // The account hierarchy is hard-coded into this endpoint for now
             return new List<Account>()
             {
+                // The first eight accounts have predefined meanings
+                new Account() { Id = "Assets", ParentId = "Accounts" },
+                new Account() { Id = "Equity", ParentId = "Accounts" },
+                new Account() { Id = "Liabilities", ParentId = "Accounts" },
+                new Account() { Id = "Earnings", ParentId = "Accounts" },
+                new Account() { Id = "RetainedEarnings", ParentId = "Accounts" },
+                new Account() { Id = "CurrentEarningsLosses", ParentId = "Accounts" },
+                new Account() { Id = "Revenue", ParentId = "Earnings" },
+                new Account() { Id = "Expenses", ParentId = "Earnings" },
 
-
-Accounts
-	Assets
-		CurrentAssets
-			CashAndCashEquivalents
-				WellsFargo
-				NationalAustraliaBank
-	NoncurrentAssets
-		FinancialInvestments
-
-        Equity
-		ShareCapital
-	Liabilities
-		NoncurrentLiabilities
-			NoncurrentLoans
-		CurrentLiabilities
-			CurrentLoans
-	Earnings
-		Revenue
-			InvestmentIncome
-
-		Expenses
-			BankCharges
-			ForexLoss
-		CurrentEarningsLosses
-		RetainedEarnings
-
-
+                // The remaining accounts descend from the above accounts
+                new Account() { Id = "CurrentAssets", ParentId = "Assets" },
+                new Account() { Id = "CashAndCashEquivalents", ParentId = "CurrentAssets" },
+                new Account() { Id = "WellsFargo", ParentId = "CashAndCashEquivalents" },
+                new Account() { Id = "NationalAustraliaBank", ParentId = "CashAndCashEquivalents" },
+                new Account() { Id = "NoncurrentAssets", ParentId = "Assets" },
+                new Account() { Id = "FinancialInvestments", ParentId = "NoncurrentAssets" },
+                new Account() { Id = "NoncurrentLiabilities", ParentId = "Liabilities" },
+                new Account() { Id = "NoncurrentLoans", ParentId = "NoncurrentLiabilities" },
+                new Account() { Id = "CurrentLiabilities", ParentId = "Liabilities" },
+                new Account() { Id = "CurrentLoans", ParentId = "CurrentLiabilities" },
+                new Account() { Id = "ShareCapital", ParentId = "Equity" },
+                new Account() { Id = "InvestmentIncome", ParentId = "Revenue" },
+                new Account() { Id = "BankCharges", ParentId = "Expenses" },
+                new Account() { Id = "ForexLoss", ParentId = "Expenses" },
+                new Account() { Id = "CurrentEarningsLosses", ParentId = "Earnings" },
+                new Account() { Id = "RetainedEarnings", ParentId = "Earnings" },
             };
         }
 
@@ -353,14 +351,24 @@ Accounts
             // The transaction types are hard-coded into this endpoint for now
             return new List<TransactionType>()
             {
-<action Id="Invest_In" 	Description="Shares" 		ExchangeAccount="FinancialInvestments" TradingAccount="InvestmentIncome" \>
-<action Id="Dispose_Off" 	Description="Shares" 		ExchangeAccount="FinancialInvestments" TradingAccount="InvestmentIncome" \>
-<action Id="Borrow" 		Description="Shares" 		ExchangeAccount="NoncurrentLoans" 	TradingAccount="InvestmentIncome" \>
-<action Id="Introduce_Capital" Description="Unit_Investment" 	ExchangeAccount="ShareCapital" 	TradingAccount="InvestmentIncome" \>
-<action Id="Gain" 		Description="Unit_Investment" 	ExchangeAccount="ShareCapital" 	TradingAccount="InvestmentIncome" \>
-<action Id="Loss"		Description="No Description" 	ExchangeAccount="ShareCapital" 	TradingAccount="InvestmentIncome" \>
-<action Id="PayBank" 		Description="No Description" 	ExchangeAccount="BankCharges" 		TradingAccount="InvestmentIncome" \>
+                new TransactionType() { Id = "Invest_In", Description = "Shares", ExchangeAccount = "FinancialInvestments", TradingAccount = "InvestmentIncome" },
+                new TransactionType() { Id = "Dispose_Off", Description = "Shares", ExchangeAccount = "FinancialInvestments", TradingAccount = "InvestmentIncome" },
+                new TransactionType() { Id = "Borrow", Description = "Shares", ExchangeAccount = "NoncurrentLoans", TradingAccount = "InvestmentIncome" },
+                new TransactionType() { Id = "Introduce_Capital", Description = "Unit_Investment", ExchangeAccount = "ShareCapital", TradingAccount = "InvestmentIncome" },
+                new TransactionType() { Id = "Gain", Description = "Unit_Investment", ExchangeAccount = "ShareCapital", TradingAccount = "InvestmentIncome" },
+                new TransactionType() { Id = "Loss", Description = "No Description", ExchangeAccount = "ShareCapital", TradingAccount = "InvestmentIncome" },
+                new TransactionType() { Id = "PayBank", Description = "No Description", ExchangeAccount = "BankCharges", TradingAccount = "InvestmentIncome" }
             };
+        }
+
+        private List<String> ParseBases(XmlDocument doc)
+        {
+            List<String> bases = new List<String>();
+            foreach (XmlNode n in doc.SelectNodes("/reports/balanceSheetRequest/defaultUnitTypes/unitType/text()"))
+            {
+                bases.Add(n.InnerText);
+            }
+            return bases;
         }
 
         private unsafe List<Coordinate> GetVector(term_t* vector_term)

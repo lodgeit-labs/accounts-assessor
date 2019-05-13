@@ -30,12 +30,10 @@
 			<BankCharges/>
 			<ForexLoss/>
 		</Expenses>
+	   <RetainedEarnings>
+   	<CurrentEarningsLosses>
 	</Earnings>
 	<RetainedEarnings>
-	</RetainedEarnings>
-	<CurrentEarningsLosses>
-	</CurrentEarningsLosses>
-
-
+ 	<CurrentEarningsLosses>
 </accounts>
 

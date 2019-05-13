@@ -117,7 +117,7 @@ process_xml_request(_FileNameIn, DOM) :-
    extract_default_bases(DOM, DefaultBases),
    extract_action_taxonomy(DOM, ActionTaxonomy),
    extract_account_hierarchy(DOM, AccountHierarchy),
-   findall(Transaction, extract_transactions(DOM, DefaultBases, Transaction), Transactions),
+   findall(Transaction, extract_transactions(DOM, DefaultBases, Transaction), S_Transactions),
 
    one(DOM, //reports/balanceSheetRequest/startDate, BalanceSheetStartDateString),
    parse_date(BalanceSheetStartDateString, BalanceSheetStartAbsoluteDays),
@@ -125,105 +125,76 @@ process_xml_request(_FileNameIn, DOM) :-
    parse_date(BalanceSheetEndDateString, BalanceSheetEndAbsoluteDays),
 
    extract_exchange_rates(DOM, BalanceSheetEndAbsoluteDays, ExchangeRates),
-   preprocess_s_transactions(ExchangeRates, ActionTaxonomy, Transactions, S_Transactions),
-   balance_sheet_at(ExchangeRates, AccountHierarchy, S_Transactions, DefaultBases, BalanceSheetEndAbsoluteDays, BalanceSheetStartAbsoluteDays, BalanceSheetEndAbsoluteDays, BalanceSheet),
+   preprocess_s_transactions(ExchangeRates, ActionTaxonomy, S_Transactions, Transactions),
+   balance_sheet_at(ExchangeRates, AccountHierarchy, Transactions, DefaultBases, BalanceSheetEndAbsoluteDays, BalanceSheetStartAbsoluteDays, BalanceSheetEndAbsoluteDays, BalanceSheet),
 
    pretty_term_string(ActionTaxonomy, Message0),
-   pretty_term_string(Transactions, Message1),
-   pretty_term_string(S_Transactions, Message2),
+   pretty_term_string(S_Transactions, Message1),
+   pretty_term_string(Transactions, Message2),
    pretty_term_string(AccountHierarchy, Message3),
    pretty_term_string(BalanceSheet, Message4),
-   atomic_list_concat(['ActionTaxonomy:\n',Message0,'\n\n','Transactions:\n', Message1,'\n\n','S_Transactions:\n', Message2,'\n\n','AccountHierarchy:\n',Message3,'\n\n','BalanceSheet:\n', Message4,'\n\n'],Message),
+   atomic_list_concat([
+   	'ActionTaxonomy:\n',Message0,'\n\n',
+   	'S_Transactions:\n', Message1,'\n\n',
+   	'Transactions:\n', Message2,'\n\n',
+   	'AccountHierarchy:\n',Message3,'\n\n',
+   	'BalanceSheet:\n', Message4,'\n\n'],Message),
    display_xml_response(FileNameOut, Message, BalanceSheetStartAbsoluteDays, BalanceSheetEndAbsoluteDays, BalanceSheet),
    true.
 
 display_xml_response(_FileNameOut, DebugMessage, BalanceSheetStartAbsoluteDays, BalanceSheetEndAbsoluteDays, BalanceSheetEntries) :-
+%   gtrace,
    format('Content-type: text/xml~n~n'), 
    writeln('<?xml version="1.0"?>'),
    writeln('<!--'),
    writeln(DebugMessage),
    writeln('-->'),
    writeln('<xbrli:xbrl xmlns:xbrli="http://www.xbrl.org/2003/instance" xmlns:link="http://www.xbrl.org/2003/linkbase" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:iso4217="http://www.xbrl.org/2003/iso4217" xmlns:basic="http://www.xbrlsite.com/basic">'),
-   writeln('<link:schemaRef xlink:type="simple" xlink:href="basic.xsd" xlink:title="Taxonomy schema" />'),
-   writeln('<link:linkbaseRef xlink:type="simple" xlink:href="basic-formulas.xml" xlink:arcrole="http://www.w3.org/1999/xlink/properties/linkbase" />'),
-   writeln('<link:linkBaseRef xlink:type="simple" xlink:href="basic-formulas-cross-checks.xml" xlink:arcrole="http://www.w3.org/1999/xlink/properties/linkbase" />'),
+   writeln('  <link:schemaRef xlink:type="simple" xlink:href="basic.xsd" xlink:title="Taxonomy schema" />'),
+   writeln('  <link:linkbaseRef xlink:type="simple" xlink:href="basic-formulas.xml" xlink:arcrole="http://www.w3.org/1999/xlink/properties/linkbase" />'),
+   writeln('  <link:linkBaseRef xlink:type="simple" xlink:href="basic-formulas-cross-checks.xml" xlink:arcrole="http://www.w3.org/1999/xlink/properties/linkbase" />'),
+
+   format_date(BalanceSheetEndAbsoluteDays, BalanceSheetEndDateString),
+   format_date(BalanceSheetStartAbsoluteDays, BalanceSheetStartDateString),
 
    gregorian_date(BalanceSheetEndAbsoluteDays, BalanceSheetEndDate),
    BalanceSheetEndDate = date(BalanceSheetEndYear,_,_),
-   format_date(BalanceSheetEndDateString, BalanceSheetEndDate),
-
-   gregorian_date(BalanceSheetStartAbsoluteDays, BalanceSheetStartDate),
-   format_date(BalanceSheetStartDateString, BalanceSheetStartDate),
    
-   format('<context id="D-~w">', BalanceSheetEndYear),
-   writeln('<context>'),
-   writeln(' <entity>'),
-   writeln('   <identifier scheme="http://standards.iso.org/iso/17442">30810137d58f76b84afd</identifier>'),
-   writeln(' </entity>'),
-   writeln(' <period>'),
-   format('    <startDate>~w</startDate>', BalanceSheetStartDateString),
-   format('    <endDate>~w</endDate>', BalanceSheetEndDateString),
-   writeln(' </period>'),
-   writeln('</context>'),
+   format( '  <context id="D-~w">\n', BalanceSheetEndYear),
+   writeln('    <entity>'),
+   writeln('      <identifier scheme="http://standards.iso.org/iso/17442">30810137d58f76b84afd</identifier>'),
+   writeln('    </entity>'),
+   writeln('    <period>'),
+   format( '      <startDate>~w</startDate>\n', BalanceSheetStartDateString),
+   format( '      <endDate>~w</endDate>\n', BalanceSheetEndDateString),
+   writeln('    </period>'),
+   writeln('  </context>'),
 
    write_balance_sheet_entries(BalanceSheetEndYear, BalanceSheetEntries, [], UsedUnits),
-write_balance_sheet_entries(_, [], UsedUnits, UsedUnits).
-write_balance_sheet_entries(BalanceSheetEndYear, [Entry|Entries], UsedUnitsIn, UsedUnitsOut) :-
-   Entry = entry(Name, [Balance], Children),
-   write_balance(BalanceSheetEndYear, Name, Balance
-   
-
-write_balance_sheet_entries(_, [], [], UsedUnits, UsedUnits).
-
-write_balance_sheet_entries(Info, [], [Child|Children], UsedUnitsIn, UsedUnitsOut) :-
-   Child = entry(ChildName, Coords, SubChildren),
-   write_balance_sheet_entries(info(, Coords, SubChildren, UsedUnitsIntermediate, UsedUnitsOut),
-   Info = info(AccountId, BalanceSheetEndYear)
-
-
-write_balance_sheet_entries(Info, Balance, ChildSheetEntries), UsedUnitsIn, UsedUnitsOut) :-
-      write_balance_sheet_entry_coords(info, Balance, UsedUnitsIn, UsedUnitsIntermediate)
-   
-
-   
-write_balance(BalanceSheetEndYear, Name, coord(Unit, Debit, Credit), UsedUnitsIn, UsedUnitsOut) :-
-   union([Unit], UsedUnitsIn, UsedUnitsOut),
-   format('<basic:~w contextRef="D-~w" unitRef="U-~w" decimals="INF">~w</basic:~w>', [Name, BalanceSheetEndYear, Unit, Debit - Credit, Name]),
-
-                    new XAttribute("decimals", "INF"),
-                    c.Debit - c.Credit));
-            }
-            foreach(BalanceSheetEntry bse in balanceSheetEntry.Subentries)
-            {
-                synthesizeBalanceSheetEntry(balanceSheetEndDate, bse, target, unitsFound);
-
-
-
-   
-   for each used unit:
-                        target.Add(new XElement("unit",
-                        new XAttribute("id", "U-" + c.Unit),
-                        new XElement("measure", c.Unit)));
-
-   
-/*  
-  <unit id="U-AUD"><measure>AUD</measure></unit>
-  <basic:Assets contextRef="D-2018" unitRef="U-AUD" decimals="INF">248.58844</basic:Assets>
-  <basic:CurrentAssets contextRef="D-2018" unitRef="U-AUD" decimals="INF">221.57236</basic:CurrentAssets>
-  <basic:CashAndCashEquivalents contextRef="D-2018" unitRef="U-AUD" decimals="INF">221.57236</basic:CashAndCashEquivalents>
-  <basic:WellsFargo contextRef="D-2018" unitRef="U-AUD" decimals="INF">121.57235999999999</basic:WellsFargo>
-  <basic:NationalAustraliaBank contextRef="D-2018" unitRef="U-AUD" decimals="INF">100</basic:NationalAustraliaBank>
-  <basic:NoncurrentAssets contextRef="D-2018" unitRef="U-AUD" decimals="INF">27.01608</basic:NoncurrentAssets>
-  <basic:FinancialInvestments contextRef="D-2018" unitRef="U-AUD" decimals="INF">27.01608</basic:FinancialInvestments>
-  <basic:Liabilities contextRef="D-2018" unitRef="U-AUD" decimals="INF">-100</basic:Liabilities>
-  <basic:NoncurrentLiabilities contextRef="D-2018" unitRef="U-AUD" decimals="INF">-100</basic:NoncurrentLiabilities>
-  <basic:NoncurrentLoans contextRef="D-2018" unitRef="U-AUD" decimals="INF">-100</basic:NoncurrentLoans>
-  <basic:Earnings contextRef="D-2018" unitRef="U-AUD" decimals="INF">111.52336000000001</basic:Earnings>
-  <basic:CurrentEarningsLosses contextRef="D-2018" unitRef="U-AUD" decimals="INF">111.52336000000001</basic:CurrentEarningsLosses>
-  <basic:Equity contextRef="D-2018" unitRef="U-AUD" decimals="INF">-260.1118</basic:Equity>
-  <basic:ShareCapital contextRef="D-2018" unitRef="U-AUD" decimals="INF">-260.1118</basic:ShareCapital>
-*/
+   maplist(write_used_unit, UsedUnits, _),
    writeln('</xbrli:xbrl>'), nl, nl.
 
+write_used_unit(Unit, _) :-
+   format('  <unit id="U-~w"><measure>~w</measure></unit>\n', [Unit, Unit]).
 
+write_balance_sheet_entries(_, [], UsedUnits, UsedUnits).
+
+write_balance_sheet_entries(BalanceSheetEndYear, [entry(Name, Balances, Children)|Entries], UsedUnitsIn, UsedUnitsOut) :-
+   write_balances(BalanceSheetEndYear, Name, Balances, UsedUnitsIn, UsedUnitsIntermediate),
+
+   %foldl(write_balance(BalanceSheetEndYear, Name), Balances, UsedUnitsIn, UsedUnitsIntermediate),
+
+   write_balance_sheet_entries(BalanceSheetEndYear, Children, UsedUnitsIntermediate, UsedUnitsIntermediate2),
+   write_balance_sheet_entries(BalanceSheetEndYear, Entries, UsedUnitsIntermediate2, UsedUnitsOut).
+
+write_balances(_, _, [], UsedUnits, UsedUnits).
+
+write_balances(BalanceSheetEndYear, Name, [Balance|Balances], UsedUnitsIn, UsedUnitsOut) :-
+   write_balance(BalanceSheetEndYear, Name, Balance, UsedUnitsIn, UsedUnitsIntermediate),
+   write_balances(BalanceSheetEndYear, Name, Balances, UsedUnitsIntermediate, UsedUnitsOut).
+  
+write_balance(BalanceSheetEndYear, Name, coord(Unit, Debit, Credit), UsedUnitsIn, UsedUnitsOut) :-
+   union([Unit], UsedUnitsIn, UsedUnitsOut),
+   Balance is Debit - Credit,
+   format('  <basic:~w contextRef="D-~w" unitRef="U-~w" decimals="INF">~w</basic:~w>\n', [Name, BalanceSheetEndYear, Unit, Balance, Name]).
    
