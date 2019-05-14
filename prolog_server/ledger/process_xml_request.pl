@@ -48,7 +48,7 @@ accounts_link(element(Name,_,Children), Link) :-
       accounts_link(Child, Link)
    ).
    
-extract_action(In, transaction_type(Id, Description, ExchangeAccount, TradingAccount)) :-
+extract_action(In, transaction_type(Id, ExchangeAccount, TradingAccount, Description)) :-
    one(In, id, Id),
    one(In, description, Description),
    one(In, exchangeAccount, ExchangeAccount),
