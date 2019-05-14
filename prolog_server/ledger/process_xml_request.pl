@@ -172,31 +172,32 @@ display_xml_response(_FileNameOut, DebugMessage, BalanceSheetStartAbsoluteDays, 
    writeln('    </period>'),
    writeln('  </context>'),
 
-   write_balance_sheet_entries(BalanceSheetEndYear, BalanceSheetEntries, [], UsedUnits),
-   maplist(write_used_unit, UsedUnits, _),
+%   gtrace,
+   format_balance_sheet_entries(BalanceSheetEndYear, BalanceSheetEntries, [], UsedUnits, [], BalanceSheetLines),
+   maplist(write_used_unit, UsedUnits, _), 
+   atomic_list_concat(BalanceSheetLines, BalanceSheetLinesString),
+   writeln(BalanceSheetLinesString),
    writeln('</xbrli:xbrl>'), nl, nl.
+
+format_balance_sheet_entries(_, [], UsedUnits, UsedUnits, BalanceSheetLines, BalanceSheetLines).
+
+format_balance_sheet_entries(BalanceSheetEndYear, [entry(Name, Balances, Children)|Entries], UsedUnitsIn, UsedUnitsOut, BalanceSheetLinesIn, BalanceSheetLinesOut) :-
+   format_balances(BalanceSheetEndYear, Name, Balances, UsedUnitsIn, UsedUnitsIntermediate, BalanceSheetLinesIn, BalanceSheetLinesIntermediate),
+   format_balance_sheet_entries(BalanceSheetEndYear, Children, UsedUnitsIntermediate, UsedUnitsIntermediate2, BalanceSheetLinesIntermediate, BalanceSheetLinesIntermediate2),
+   format_balance_sheet_entries(BalanceSheetEndYear, Entries, UsedUnitsIntermediate2, UsedUnitsOut, BalanceSheetLinesIntermediate2, BalanceSheetLinesOut).
+
+format_balances(_, _, [], UsedUnits, UsedUnits, BalanceSheetLines, BalanceSheetLines).
+
+format_balances(BalanceSheetEndYear, Name, [Balance|Balances], UsedUnitsIn, UsedUnitsOut, BalanceSheetLinesIn, BalanceSheetLinesOut) :-
+   format_balance(BalanceSheetEndYear, Name, Balance, UsedUnitsIn, UsedUnitsIntermediate, BalanceSheetLinesIn, BalanceSheetLinesIntermediate),
+   format_balances(BalanceSheetEndYear, Name, Balances, UsedUnitsIntermediate, UsedUnitsOut, BalanceSheetLinesIntermediate, BalanceSheetLinesOut).
+  
+format_balance(BalanceSheetEndYear, Name, coord(Unit, Debit, Credit), UsedUnitsIn, UsedUnitsOut, BalanceSheetLinesIn, BalanceSheetLinesOut) :-
+   union([Unit], UsedUnitsIn, UsedUnitsOut),
+   Balance is Debit - Credit,
+   format(string(BalanceSheetLine), '  <basic:~w contextRef="D-~w" unitRef="U-~w" decimals="INF">~w</basic:~w>\n', [Name, BalanceSheetEndYear, Unit, Balance, Name]),
+   append(BalanceSheetLinesIn, [BalanceSheetLine], BalanceSheetLinesOut).
 
 write_used_unit(Unit, _) :-
    format('  <unit id="U-~w"><measure>~w</measure></unit>\n', [Unit, Unit]).
-
-write_balance_sheet_entries(_, [], UsedUnits, UsedUnits).
-
-write_balance_sheet_entries(BalanceSheetEndYear, [entry(Name, Balances, Children)|Entries], UsedUnitsIn, UsedUnitsOut) :-
-   write_balances(BalanceSheetEndYear, Name, Balances, UsedUnitsIn, UsedUnitsIntermediate),
-
-   %foldl(write_balance(BalanceSheetEndYear, Name), Balances, UsedUnitsIn, UsedUnitsIntermediate),
-
-   write_balance_sheet_entries(BalanceSheetEndYear, Children, UsedUnitsIntermediate, UsedUnitsIntermediate2),
-   write_balance_sheet_entries(BalanceSheetEndYear, Entries, UsedUnitsIntermediate2, UsedUnitsOut).
-
-write_balances(_, _, [], UsedUnits, UsedUnits).
-
-write_balances(BalanceSheetEndYear, Name, [Balance|Balances], UsedUnitsIn, UsedUnitsOut) :-
-   write_balance(BalanceSheetEndYear, Name, Balance, UsedUnitsIn, UsedUnitsIntermediate),
-   write_balances(BalanceSheetEndYear, Name, Balances, UsedUnitsIntermediate, UsedUnitsOut).
-  
-write_balance(BalanceSheetEndYear, Name, coord(Unit, Debit, Credit), UsedUnitsIn, UsedUnitsOut) :-
-   union([Unit], UsedUnitsIn, UsedUnitsOut),
-   Balance is Debit - Credit,
-   format('  <basic:~w contextRef="D-~w" unitRef="U-~w" decimals="INF">~w</basic:~w>\n', [Name, BalanceSheetEndYear, Unit, Balance, Name]).
    

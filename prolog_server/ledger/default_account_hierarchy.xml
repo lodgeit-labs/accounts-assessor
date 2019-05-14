@@ -33,6 +33,7 @@
 		<RetainedEarnings/>
 		<CurrentEarningsLosses/>
 	</Earnings>
+	<!--fixme, should be in assets-->
 	<RetainedEarnings/>
 	<CurrentEarningsLosses/>
 </accounts>
