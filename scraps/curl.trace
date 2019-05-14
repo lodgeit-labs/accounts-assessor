@@ -1,0 +1,87 @@
+== Info:   Trying 127.0.0.1...
+== Info: TCP_NODELAY set
+== Info: Connected to localhost (127.0.0.1) port 8080 (#0)
+=> Send header, 188 bytes (0xbc)
+0000: POST /upload?name=ledger-request.xml HTTP/1.1
+002f: Host: localhost:8080
+0045: User-Agent: curl/7.58.0
+005e: Accept: */*
+006b: Content-Type: multipart/form-data
+008e: Content-Length: 3598
+00a4: Expect: 100-continue
+00ba: 
+== Info: Done waiting for 100-continue
+=> Send data, 3598 bytes (0xe0e)
+0000: filename="ledger-request.xml".<?xml version="1.0"?>.<reports xml
+0040: ns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="ht
+0080: tp://www.w3.org/2001/XMLSchema">.  <balanceSheetRequest>.    <ge
+00c0: nerator>.      <date>2014-08-28T10:58:40.000165Z</date>.      <s
+0100: ource>LODGEIT</source>.      <author>.        <firstname>David</
+0140: firstname>.        <lastname>Joe</lastname>.        <company>XYZ
+0180:  Company Pvt Ltd</company>.      </author>.    </generator>.    
+01c0: <company>.      <abn>11111111111</abn>.      <anzsic />.    </co
+0200: mpany>.    <!-- Needed for computation of retained earnings in b
+0240: alance sheet. -->.    <startDate>2015-07-01</startDate>.    <!--
+0280:  Needed for computation of most fields in balance sheet. -->.   
+02c0:  <endDate>2018-06-30</endDate>.    <!-- If a unitType is not spe
+0300: cified in a transaction below, then the first usable unitType fr
+0340: om this list is taken. -->.    <defaultUnitTypes>.      <unitTyp
+0380: e>AUD</unitType>.    </defaultUnitTypes>.    <!-- Needed for the
+03c0:  tracking of units in inventory. Also needed for correct computa
+0400: tion of gains and losses. -->.    <unitValues>.      <unitValue>
+0440: .        <unitType>BHP</unitType>.        <unitValue>2</unitValu
+0480: e>.        <unitValueCurrency>USD</unitValueCurrency>.      </un
+04c0: itValue>.      <unitValue>.        <unitType>TLS</unitType>.    
+0500:     <unitValue>5</unitValue>.        <unitValueCurrency>AUD</uni
+0540: tValueCurrency>.      </unitValue>.    </unitValues>.    <bankSt
+0580: atement>.      <title>Bank Statement</title>.      <period>2010-
+05c0: 01-01 - 2010-06-30</period>.      <accountDetails>.        <acco
+0600: untNo>1-1110</accountNo>.        <!-- accountName must match tag
+0640:  name in XBRL taxonomy. -->.        <accountName>NationalAustral
+0680: iaBank</accountName>.        <dateofBankStatement>2018-09-30</da
+06c0: teofBankStatement>.        <bankID>Commonwealth Bank</bankID>.  
+0700:       <currency>AUD</currency>.        <transactions>.          
+0740: <transaction>.            <transdesc>Borrow</transdesc>.        
+0780:     <transdate>2017-08-01</transdate>.            <debit>0</debi
+07c0: t>.            <credit>100</credit>.          </transaction>.   
+0800:        <transaction>.            <!-- Credit this account with 5
+0840: 0 AUD. Do stuff to other accounts as specified by Invest_In tran
+0880: saction verb. -->.            <transdesc>Invest_In</transdesc>. 
+08c0:            <transdate>2018-08-02</transdate>.            <debit>
+0900: 50</debit>.            <credit>0</credit>.            <!-- Obtai
+0940: n TLS shares with this money. -->.            <unit>10</unit>.  
+0980:           <unitType>TLS</unitType>.          </transaction>.    
+09c0:     </transactions>.      </accountDetails>.      <accountDetail
+0a00: s>.        <accountNo>1-1110</accountNo>.        <accountName>We
+0a40: llsFargo</accountName>.        <dateofBankStatement>2018-09-30</
+0a80: dateofBankStatement>.        <bankID>Commonwealth Bank</bankID>.
+0ac0:         <currency>USD</currency>.        <transactions>.        
+0b00:   <transaction>.            <transdesc>Introduce_Capital</transd
+0b40: esc>.            <transdate>2017-07-01</transdate>.            <
+0b80: debit>0</debit>.            <credit>200</credit>.          </tra
+0bc0: nsaction>.          <transaction>.            <transdesc>Invest_
+0c00: In</transdesc>.            <transdate>2017-07-10</transdate>.   
+0c40:          <debit>100.00</debit>.            <credit>0.00</credit>
+0c80: .            <unit>10</unit>.            <unitType>BHP</unitType
+0cc0: >.          </transaction>.          <transaction>.            <
+0d00: transdesc>PayBank</transdesc>.            <transdate>2018-06-28<
+0d40: /transdate>.            <debit>10</debit>.            <credit>0.
+0d80: 00</credit>.          </transaction>.        </transactions>.   
+0dc0:    </accountDetails>.    </bankStatement>.  </balanceSheetReques
+0e00: t>.</reports>.
+== Info: We are completely uploaded and fine
+<= Recv header, 17 bytes (0x11)
+0000: HTTP/1.1 200 OK
+<= Recv header, 37 bytes (0x25)
+0000: Date: Thu, 09 May 2019 20:20:39 GMT
+<= Recv header, 39 bytes (0x27)
+0000: Content-Type: text/xml; charset=UTF-8
+<= Recv header, 24 bytes (0x18)
+0000: Connection: Keep-Alive
+<= Recv header, 20 bytes (0x14)
+0000: Content-Length: 22
+<= Recv header, 2 bytes (0x2)
+0000: 
+<= Recv data, 22 bytes (0x16)
+0000: <?xml version="1.0"?>.
+== Info: Connection #0 to host localhost left intact
