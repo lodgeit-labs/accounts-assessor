@@ -3,13 +3,6 @@
 % Module:    process_xml_request.pl
 % ===================================================================
 
-/*
-how to make it robust? processing an account or a transaction cannot silently fail,
-probably should first find all transactions and then process them.
-
-
-*/
-
 
 :- ['../../src/days'].
 :- ['../../src/ledger'].
@@ -35,9 +28,7 @@ extract_account_hierarchy(_DOM, AccountHierarchy) :-
    http_get('https://raw.githubusercontent.com/LodgeiT/labs-accounts-assessor/prolog_server_ledger/prolog_server/ledger/default_account_hierarchy.xml?token=AAA34ZATJ5VPKDNFZXQRHVK434H2M', D, []),
    store_xml_document('account_hierarchy.xml', D),
    load_xml('account_hierarchy.xml', AccountHierarchyDom, []),
-   %print_term(AccountHierarchyDom,[]),
    findall(Account, xpath(AccountHierarchyDom, //accounts/(*), Account), Accounts),
-   % gtrace,
    findall(Link, (member(TopLevelAccount, Accounts), accounts_link(TopLevelAccount, Link)), AccountHierarchy).
 
 accounts_link(element(Name,_,Children), Link) :-
@@ -141,11 +132,9 @@ process_xml_request(_FileNameIn, DOM) :-
    	'ActionTaxonomy:\n',Message2,'\n\n',
    	'AccountHierarchy:\n',Message3,'\n\n',
    	'BalanceSheet:\n', Message4,'\n\n'],Message),
-   display_xml_response(FileNameOut, Message, BalanceSheetStartAbsoluteDays, BalanceSheetEndAbsoluteDays, BalanceSheet),
-   true.
+   display_xml_response(FileNameOut, Message, BalanceSheetStartAbsoluteDays, BalanceSheetEndAbsoluteDays, BalanceSheet).
 
 display_xml_response(_FileNameOut, DebugMessage, BalanceSheetStartAbsoluteDays, BalanceSheetEndAbsoluteDays, BalanceSheetEntries) :-
-%   gtrace,
    format('Content-type: text/xml~n~n'), 
    writeln('<?xml version="1.0"?>'),
    writeln('<!--'),
@@ -172,7 +161,6 @@ display_xml_response(_FileNameOut, DebugMessage, BalanceSheetStartAbsoluteDays, 
    writeln('    </period>'),
    writeln('  </context>'),
 
-%   gtrace,
    format_balance_sheet_entries(BalanceSheetEndYear, BalanceSheetEntries, [], UsedUnits, [], BalanceSheetLines),
    maplist(write_used_unit, UsedUnits, _), 
    atomic_list_concat(BalanceSheetLines, BalanceSheetLinesString),

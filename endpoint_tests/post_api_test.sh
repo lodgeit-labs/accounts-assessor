@@ -1,5 +1,5 @@
 curl -s -X POST --data-binary "@$2" --header "Accept: application/xml" -o "response1.xml" \
-	"http://ec2-52-90-157-139.compute-1.amazonaws.com/accounts-assessor/api/$1"
+	"$1"
 tr -d '\040\011\012\015' < "$3" > "response2.xml"
 diff -w -s "response1.xml" "response2.xml" &>/dev/null
 if [ $? -eq 0 ]
