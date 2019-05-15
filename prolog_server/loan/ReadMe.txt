@@ -10,7 +10,7 @@ To run the server double click on the file: prolog_server.pl.
 
 Open a web browser at: http://localhost:8080/
 
-Choose File: loan-request.xml 
+Choose File: ../endpoint_tests/loan-request.xml 
 
 Upload the XML file and in our case the following XML loan-response.xml is generated:
 
