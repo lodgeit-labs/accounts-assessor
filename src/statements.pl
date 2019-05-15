@@ -79,7 +79,9 @@ preprocess_s_transactions(Exchange_Rates, Transaction_Types, [S_Transaction | S_
 
 % This Prolog rule handles the case when only the exchanged amount units are known and
 % hence it is desired for the program to do an exchange rate conversion. 
-% We passthrough the output list to the above rule, but with a modified first input list item.
+% We passthrough the output list to the above rule, and just replace the first transaction in the 
+% input list (S_Transaction) with a modified one (NS_Transaction).
+
 
 preprocess_s_transactions(Exchange_Rates, Transaction_Types, [S_Transaction | S_Transactions], Transaction) :-
 	s_transaction_day(S_Transaction, Day), s_transaction_day(NS_Transaction, Day),
