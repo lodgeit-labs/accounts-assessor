@@ -1,30 +1,3 @@
--          the taxpayer must have actually paid, or be deemed to have paid, an amount of foreign income tax
--          the income or gain on which the foreign income tax was paid on must be included as assessable income (or non-assessable non-exempt income under section 23AI or 23AK of the ITAA 1936 for Australian income tax purposes
-
-The limit is the greater of 
-	- $1,000 
-	-  770.75 ITAA 1997
-	
-770.75 ITAA 1997:
-	income tax payable - theoretic income tax
-
-theoretic income tax:
-	theoretic tax if income didnt include:
-		any amount included in your assessable income on which foreign income tax has been paid that counts towards your foreign income tax offset
-		any other income or gains from a non-Australian source
-	no deductions:
-		 debt deductions attributable to your overseas permanent establishment
-		 deductions (other than debt deductions) that are reasonably related to assessable income in respect of which the taxpayer paid foreign income tax on and any other items from a source other than an Australian source.
-		an amount of the foreign loss component of one or more tax losses deducted in the income year.
-		
-		
-		
-		
---------------		
-		
-		
-		
-		
 		
 		
 inputs:
@@ -50,8 +23,6 @@ theoretic tax = income tax calculated on theoretic income
 
 offset limit = max($1000, income tax - theoretic tax)
 		
-		
-		
-		
+....todo....		
 		
 	
