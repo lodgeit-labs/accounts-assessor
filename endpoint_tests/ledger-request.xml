@@ -35,6 +35,51 @@
         <unitValueCurrency>AUD</unitValueCurrency>
       </unitValue>
     </unitValues>
+    <accountHierarchyUrl>https://raw.githubusercontent.com/LodgeiT/labs-accounts-assessor/prolog_server_ledger/prolog_server/ledger/default_account_hierarchy.xml?token=AAA34ZATJ5VPKDNFZXQRHVK434H2M</accountHierarchyUrl>
+    <actionTaxonomy>
+      <action>
+        <id>Invest_In</id>
+        <description>Shares</description>
+        <exchangeAccount>FinancialInvestments</exchangeAccount>
+        <tradingAccount>InvestmentIncome</tradingAccount>
+      </action>
+      <action>
+        <id>Dispose_Off</id>
+        <description>Shares</description>
+        <exchangeAccount>FinancialInvestments</exchangeAccount>
+        <tradingAccount>InvestmentIncome</tradingAccount>
+      </action>
+      <action>
+        <id>Borrow</id>
+        <description>Shares</description>
+        <exchangeAccount>NoncurrentLoans</exchangeAccount>
+        <tradingAccount>InvestmentIncome</tradingAccount>
+      </action>
+      <action>
+        <id>Introduce_Capital</id>
+        <description>Unit_Investment</description>
+        <exchangeAccount>ShareCapital</exchangeAccount>
+        <tradingAccount>InvestmentIncome</tradingAccount>
+      </action>
+      <action>
+        <id>Gain</id>
+        <description>Unit_Investment</description>
+        <exchangeAccount>ShareCapital</exchangeAccount>
+        <tradingAccount>InvestmentIncome</tradingAccount>
+      </action>
+      <action>
+        <id>Loss</id>
+        <description>No Description</description>
+        <exchangeAccount>ShareCapital</exchangeAccount>
+        <tradingAccount>InvestmentIncome</tradingAccount>
+      </action>
+      <action>
+        <id>PayBank</id>
+        <description>No Description</description>
+        <exchangeAccount>BankCharges</exchangeAccount>
+        <tradingAccount>InvestmentIncome</tradingAccount>
+      </action>
+    </actionTaxonomy>
     <bankStatement>
       <title>Bank Statement</title>
       <period>2010-01-01 - 2010-06-30</period>
@@ -94,49 +139,5 @@
         </transactions>
       </accountDetails>
     </bankStatement>
-    <actionTaxonomy>
-      <action>
-        <id>Invest_In</id>
-        <description>Shares</description>
-        <exchangeAccount>FinancialInvestments</exchangeAccount>
-        <tradingAccount>InvestmentIncome</tradingAccount>
-      </action>
-      <action>
-        <id>Dispose_Off</id>
-        <description>Shares</description>
-        <exchangeAccount>FinancialInvestments</exchangeAccount>
-        <tradingAccount>InvestmentIncome</tradingAccount>
-      </action>
-      <action>
-        <id>Borrow</id>
-        <description>Shares</description>
-        <exchangeAccount>NoncurrentLoans</exchangeAccount>
-        <tradingAccount>InvestmentIncome</tradingAccount>
-      </action>
-      <action>
-        <id>Introduce_Capital</id>
-        <description>Unit_Investment</description>
-        <exchangeAccount>ShareCapital</exchangeAccount>
-        <tradingAccount>InvestmentIncome</tradingAccount>
-      </action>
-      <action>
-        <id>Gain</id>
-        <description>Unit_Investment</description>
-        <exchangeAccount>ShareCapital</exchangeAccount>
-        <tradingAccount>InvestmentIncome</tradingAccount>
-      </action>
-      <action>
-        <id>Loss</id>
-        <description>No Description</description>
-        <exchangeAccount>ShareCapital</exchangeAccount>
-        <tradingAccount>InvestmentIncome</tradingAccount>
-      </action>
-      <action>
-        <id>PayBank</id>
-        <description>No Description</description>
-        <exchangeAccount>BankCharges</exchangeAccount>
-        <tradingAccount>InvestmentIncome</tradingAccount>
-      </action>
-    </actionTaxonomy>
   </balanceSheetRequest>
 </reports>
