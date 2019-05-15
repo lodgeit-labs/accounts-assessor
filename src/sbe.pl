@@ -1,6 +1,3 @@
-% this is an experimental adjustment to the residency program, seeing if we can make it
-% more maintainable this way
-
 % Small Business Entity test. -1 == No, -2 == Yes
 
 sbe_result(-1, dict{answer: "No"}).
@@ -12,9 +9,6 @@ sbe_question(_, 0, 1, -1, "Are you a Sole trader, Partnership, Company or Trust?
 sbe_question(_, 1, 3, 2,  "Did you operate a business for all of the income year?").
 sbe_question(_, 2, 3, -1, "Did you operate a business for part of the income year?").
 sbe_question(_, 3, -2, -1, "Was your aggregated turnover less than $10,000,000?").
-
-
-
 
 % first call is: [], 0, ?, ?
 
@@ -46,17 +40,12 @@ sbe_next_state(History, Last_question, Last_question, Prompt) :-
 
 
 
-
-
-
 :- [prompt].
 
 % Carrys out a sbe_dialog with the user based on the Deterministic Finite State Machine above.
 % History is a list of pairs of sbe_questions and answers received so far, state identifies
 % the current state of the machine, Response refers to the 1 or 0 value given as an
-% answer to the sbe_question askwed while in this state, and Resident is -1, -2, or -3
-% depending on whether the user is an Australian, temporary, or foreign resident for tax
-% purposes respectively.
+% answer to the sbe_question askwed while in this state.
 
 sbe_dialog(History, State, Answer, ScriptedAnswers) :-
 	% unify ScriptedAnswer with the head of ScriptedAnswers, to be passed to prompt.
@@ -83,8 +72,9 @@ sbe_dialog(History, State, Answer, _) :-
 
 
 test0() :-
-	% for example sbe_dialog([], 0, _, -1,  `ynynnnnnnynn`), ideally shouldn't unify, 
-	% the correct result is -2, but sbe_dialog backtracks until it finds a sbe_next_state that matches
+	% fixme, for example sbe_dialog([], 0, _, -1,  `ynynnnnnnynn`), ideally shouldn't unify, 
+	% the correct result is -2, but sbe_dialog backtracks until it finds a sbe_next_state that matches,
+	% that's why the ResultX variables here
 
 	sbe_dialog([], 0, Result0, `n`), Result0 = -1,
 	sbe_dialog([], 0, Result1, `ynn`), Result1 = -1,
