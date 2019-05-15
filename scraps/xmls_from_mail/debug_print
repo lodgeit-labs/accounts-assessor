@@ -1,0 +1,6 @@
+balance_sheet_at(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, From_Day, To_Day, Balance_Sheet) :-
+
+term_string(balance_sheet_at(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, From_Day, To_Day, Balance_Sheet),STR),
+open('C:/a.txt', append, Handle), write(Handle, '\n'), write(Handle, STR), close(Handle),
+...
+
