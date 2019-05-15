@@ -1,6 +1,6 @@
 % Predicates for asserting that the fields of given transaction types have particular values
 
-% The identifier of this transaction type
+% The identifier of this transaction type, for example Borrow
 transaction_type_id(transaction_type(Id, _, _, _), Id).
 
 % The account that will receive the inverse of the transaction amount after exchanging
@@ -39,13 +39,14 @@ transaction_type_of(Transaction_Types, S_Transaction, Transaction_Type) :-
 % Transactions using trading accounts can be decomposed into a transaction of the given
 % amount to the unexchanged account, a transaction of the transformed inverse into the
 % exchanged account, and a transaction of the negative sum of these into the trading
-% account. This predicate takes a list of transactions and transactions using trading
-% accounts and decomposes it into a list of just transactions.
+% account. This predicate takes a list of statement transactions (and transactions using trading
+% accounts?) and decomposes it into a list of just transactions, 3 for each input s_transaction.
 
 preprocess_s_transactions(_, _, [], []).
 
 % This Prolog rule handles the case when the exchanged amount is known and hence no
 % exchange rate calculations need to be done.
+% preprocess_s_transactions(Exchange_Rates, Transaction_Types, Input, Output).
 
 preprocess_s_transactions(Exchange_Rates, Transaction_Types, [S_Transaction | S_Transactions],
 		[UnX_Transaction | [X_Transaction | [Trading_Transaction | PP_Transactions]]]) :-
@@ -77,7 +78,8 @@ preprocess_s_transactions(Exchange_Rates, Transaction_Types, [S_Transaction | S_
 	preprocess_s_transactions(Exchange_Rates, Transaction_Types, S_Transactions, PP_Transactions), !.
 
 % This Prolog rule handles the case when only the exchanged amount units are known and
-% hence it is desired for the program to do an exchange rate conversion.
+% hence it is desired for the program to do an exchange rate conversion. 
+% We passthrough the output list to the above rule, but with a modified first input list item.
 
 preprocess_s_transactions(Exchange_Rates, Transaction_Types, [S_Transaction | S_Transactions], Transaction) :-
 	s_transaction_day(S_Transaction, Day), s_transaction_day(NS_Transaction, Day),

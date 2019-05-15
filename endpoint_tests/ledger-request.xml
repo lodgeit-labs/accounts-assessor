@@ -37,6 +37,7 @@
     </unitValues>
     <accountHierarchyUrl>https://raw.githubusercontent.com/LodgeiT/labs-accounts-assessor/prolog_server_ledger/prolog_server/ledger/default_account_hierarchy.xml?token=AAA34ZATJ5VPKDNFZXQRHVK434H2M</accountHierarchyUrl>
     <actionTaxonomy>
+      <!-- fixme, should not all have tradingAccount InvestmentIncome -->
       <action>
         <id>Invest_In</id>
         <description>Shares</description>
