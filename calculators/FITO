@@ -1,28 +1,39 @@
+https://www.ato.gov.au/individuals/tax-return/2018/in-detail/publications/guide-to-foreign-income-tax-offset-rules-2018/?anchor=Calculating_your_offset_limit#Calculating_your_offset_limit
 		
-		
-inputs:
-	total income
-	total deductions
+##inputs:
 
-taxable income = total income - total deductions
+total assesable income
+   foreign-taxed income (the income that the foreign income tax was paid on, that counts towards foreign income tax offset)
+total allowable deductions
+foreign income tax paid
 
+# step 2(a) amount
 ignored income = sum:
-	the income that the foreign income tax was paid on
+	foreign-taxed income
 	any other income or gains from a non-Australian source
 
+# step 2(b) amount
 ignored deductions = sum:
 	debt deductions attributable to your overseas permanent establishment
 	deductions (other than debt deductions) that are reasonably related to ignored income
 	an amount of the foreign loss component of one or more tax losses deducted in the income year.
 
-theoretic income = sum:
-	total income - ignored income
-	total deductions - ignored deductions
+##calculations:
 
+taxable income = total assessable income - total allowable deductions
+theoretic income = total assessable income - ignored income
+theoretic deductions = total deductions - ignored deductions
+theoretic taxable income = theoretic income - theoretic deductions
+income tax = income tax calculated on total income
 theoretic tax = income tax calculated on theoretic income
-
 offset limit = max($1000, income tax - theoretic tax)
+FITO = min(offset limit, foreign income tax paid)
 		
-....todo....		
+....todo Deferred non-commercial business losses....	
+covered by: "an amount of the foreign loss component of one or more tax losses deducted in the income year"?
+
+
+....todo special amendment rules for foreign income tax offsets ...
+
 		
 	
