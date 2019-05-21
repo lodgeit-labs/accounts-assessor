@@ -1,0 +1,24 @@
+transactions(transaction(date(2017, 12, 31), no_description, cash_and_cash_equivalents, t_term(3000 , 0))).
+transactions(transaction(date(2017, 12, 31), no_description, receivables, t_term(1000 , 0))).
+transactions(transaction(date(2017, 12, 31), no_description, inventories, t_term(1000 , 0))).
+transactions(transaction(date(2017, 12, 31), no_description, property_plant_and_equipment, t_term(1000 , 0))).
+transactions(transaction(date(2017, 12, 31), no_description, accounts_payable, t_term(0 , 1000))).
+transactions(transaction(date(2017, 12, 31), no_description, longterm_debt, t_term(0 , 1000))).
+transactions(transaction(date(2017, 12, 31), no_description, retained_earnings, t_term(0 , 4000))).
+transactions(transaction(date(2018, 1, 1), no_description, cash_and_cash_equivalents, t_term(6000 , 0))).
+transactions(transaction(date(2018, 1, 1), no_description, longterm_debt, t_term(0 , 6000))).
+transactions(transaction(date(2018, 1, 1), no_description, property_plant_and_equipment, t_term(5000 , 0))).
+transactions(transaction(date(2018, 1, 1), no_description, cash_and_cash_equivalents, t_term(0 , 5000))).
+transactions(transaction(date(2018, 1, 1), no_description, inventories, t_term(2000 , 0))).
+transactions(transaction(date(2018, 1, 1), no_description, accounts_payable, t_term(0 , 2000))).
+transactions(transaction(date(2018, 1, 1), no_description, receivables, t_term(4000 , 0))).
+transactions(transaction(date(2018, 1, 1), no_description, sales, t_term(0 , 4000))).
+transactions(transaction(date(2018, 1, 1), no_description, costs_of_sales, t_term(2000 , 0))).
+transactions(transaction(date(2018, 1, 1), no_description, inventories, t_term(0 , 2000))).
+transactions(transaction(date(2018, 1, 1), no_description, cash_and_cash_equivalents, t_term(3000 , 0))).
+transactions(transaction(date(2018, 1, 1), no_description, receivables, t_term(0 , 3000))).
+transactions(transaction(date(2018, 1, 1), no_description, accounts_payable, t_term(3000 , 0))).
+transactions(transaction(date(2018, 1, 1), no_description, cash_and_cash_equivalents, t_term(0 , 3000))).
+transactions(transaction(date(2018, 1, 1), no_description, longterm_debt, t_term(2000 , 0))).
+transactions(transaction(date(2018, 1, 1), no_description, cash_and_cash_equivalents, t_term(0 , 2000))).
+
