@@ -27,8 +27,9 @@ process_data(Data) :-
 % -------------------------------------------------------------------
 
 parse_data(Data, FileName, XML) :-
-   split_header_body(Data, Header, Body), 
-   extract_file_name(Header, FileName),
+   split_header_body(Data, _Header, Body), 
+   % extract_file_name(Header, FileName),
+   FileName = "request.xml",
    extract_xml_data(Body, XML).
 
 % spy(parse_data/3).
@@ -39,6 +40,8 @@ split_header_body(Data, Header, Body) :-
    append(Header, ['<', '?', x, m, l|Rest], Chars),
    Body = ['<', '?', x, m, l|Rest].
 
+/*
+not sure if this will always work as expected, needs checking, taking it out now for security reasons
 extract_file_name(Header, FileName) :-
    append(_, [f, i, l, e, n, a, m, e, '=', '"'|Rest1], Header),   
    append(Name, ['.', x, m, l, '"'|Rest2], Rest1),
@@ -55,6 +58,7 @@ extract_file_name(Header, FileName) :-
    ),
    append(FName, ['.', x, m, l], FileNameChars),
    atomic_list_concat(FileNameChars, FileName).
+*/
 
 extract_xml_data(Body, XMLString) :-
    reverse(Body, RBody),

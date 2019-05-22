@@ -9,7 +9,7 @@
 % Style checking
 % -------------------------------------------------------------------
 
-:- style_check([-discontiguous, -singleton]).
+% :- style_check([-discontiguous, -singleton]).
 
 
 %--------------------------------------------------------------------
