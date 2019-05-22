@@ -13,6 +13,10 @@ This Visual Studio Solution is a demonstration of how a Prolog program can be us
 * Make sure that PrologEndpoint.Helpers.PL.dllName has the correct location of the Prolog Kernel DLL. (Right now it is `C:\Program Files\swipl\bin\libswipl.dll` )
 * Go Project > Properties... > Build > General . Set Platform Target to match the target architecture of libswipl.dll, the Prolog Kernel DLL.
 * Go Tools > Options > Projects and Solutions > Web Projects > Use the 64 bit version of IIS Express for web sites and projects, and make a selection depending on the target architecture of the Prolog Kernel DLL.
+ - IIS express is meant to be a dev server and will refuse to accept non-localhost requests, do not even try, or use local port forwarding. The real IIS is what should be used for internet-facing situations.
+* Go to Application and make sure that Target framework is set to .NET Framework 4.6.1 or maybe 4.5.2. Im getting crashes in both cases. It always crashes the first time after rebuild. I suppose something gets toggled the right way in some presistent memory of the swipl dll. The swipl memory seems to persist between the IIS Express runs, assertions are kept in effect between runs. And after rebuild, the first request crashes. 4.7.2 is specifically known not to work, PL_next_solution will hang.
+
+
 * Now go Debug > Start Debugging.
 
 ## What this Web Application does
