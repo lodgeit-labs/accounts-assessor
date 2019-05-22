@@ -1,3 +1,5 @@
+:- ['../src/days', '../src/ledger'].
+
 write("Are we now testing the general ledger subprogram?").
 
 recorda(accounts,
@@ -74,21 +76,6 @@ recorda(transactions,
 	transaction(737577, "hire purchase truck replacement", bank, [coord('AUD', 0, 60)]),
 	transaction(737586, "collect accs rec", accounts_receivable, [coord('AUD', 0, 100)]),
 	transaction(737586, "collect accs rec", bank, [coord('AUD', 100, 0)])]).
-
-% Let's check the exchange rate predicate for historical correctness:
-write("Are the certain exchange rates from the API matching manually obtained ones? Also, do the manual overrides work?"),
-
-findall(Exchange_Rate, (absolute_day(date(2015, 6, 30), E),
-		(exchange_rate([], E, 'AUD', 'USD', Exchange_Rate);
-		exchange_rate([], E, 'AUD', 'MXN', Exchange_Rate);
-		exchange_rate([], E, 'AUD', 'AUD', Exchange_Rate);
-		exchange_rate([], E, 'AUD', 'HKD', Exchange_Rate);
-		exchange_rate([], E, 'AUD', 'RON', Exchange_Rate);
-		exchange_rate([], E, 'AUD', 'HRK', Exchange_Rate);
-		exchange_rate([], E, 'AUD', 'CHF', Exchange_Rate);
-		exchange_rate([exchange_rate(E, 'USD', 'ZWD', 10000000000000000000000000)], E, 'USD', 'ZWD', Exchange_Rate))),
-	[0.7690034364261168, 12.050309278350516, 1, 5.961512027491408, 3.0738831615120277,
-	  5.21979381443299, 0.7156701030927833, 10000000000000000000000000]).
 
 % Let's get the trial balance between date(2018, 7, 1) and date(2019, 6, 30):
 write("Is the output for a trial balance correct?"),
