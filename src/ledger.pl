@@ -186,18 +186,9 @@ account_ancestor_id(Accounts, Account_Id, Ancestor_Id) :-
 	account_ancestor_id(Accounts, Account_Id, Ancestor_Child_Id)).
 
 % Gets the ids for the assets, equity, liabilities, earnings, retained earnings, current
-% earnings, revenue, and expenses accounts. These are the first eight accounts in any
-% accounts list.
-account_ids([Account0|[Account1|[Account2|[Account3|[Account4|[Account5|[Account6|[Account7|_]]]]]]]],
-    Assets, Equity, Liabilities, Earnings, Retained_Earnings, Current_Earnings, Revenue, Expenses) :-
-  account_id(Account0, Assets), % Assets account always comes first
-  account_id(Account1, Equity), % Equity account always comes second
-  account_id(Account2, Liabilities), % Liabilities account always comes third
-  account_id(Account3, Earnings), % Earnings account always comes fourth
-  account_id(Account4, Retained_Earnings), % Retained earnings account always comes fifth
-  account_id(Account5, Current_Earnings), % Current earnings account always comes sixth
-  account_id(Account6, Revenue), % Revenue account always comes seventh
-  account_id(Account7, Expenses). % Expenses account always comes eighth
+% earnings, revenue, and expenses accounts. 
+account_ids(_Accounts,
+      'Assets', 'Equity', 'Liabilities', 'Earnings', 'RetainedEarnings', 'CurrentEarningsLosses', 'Revenue', 'Expenses').
 
 % Predicates for asserting that the fields of given transactions have particular values
 

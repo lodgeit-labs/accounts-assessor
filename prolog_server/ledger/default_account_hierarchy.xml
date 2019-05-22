@@ -1,0 +1,40 @@
+<?xml version="1.0" ?>
+<accounts>
+	<Assets>
+		<CurrentAssets>
+			<CashAndCashEquivalents>
+				<WellsFargo/>
+				<NationalAustraliaBank/>
+			</CashAndCashEquivalents>
+		</CurrentAssets>
+		<NoncurrentAssets>
+			<FinancialInvestments/>
+		</NoncurrentAssets>
+	</Assets>
+	<Equity>
+		<ShareCapital/>
+	</Equity>
+	<Liabilities>
+		<NoncurrentLiabilities>
+			<NoncurrentLoans/>
+		</NoncurrentLiabilities>
+		<CurrentLiabilities>
+			<CurrentLoans/>
+		</CurrentLiabilities>
+	</Liabilities>
+	<Earnings>
+		<Revenue>
+			<InvestmentIncome/>
+		</Revenue>
+		<Expenses>
+			<BankCharges/>
+			<ForexLoss/>
+		</Expenses>
+		<RetainedEarnings/>
+		<CurrentEarningsLosses/>
+	</Earnings>
+	<!--fixme, should be in assets-->
+	<RetainedEarnings/>
+	<CurrentEarningsLosses/>
+</accounts>
+
