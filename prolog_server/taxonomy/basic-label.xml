@@ -1,0 +1,302 @@
+<?xml version="1.0" encoding="us-ascii"?>
+<!--
+Taxonomy Label Links linkbase based on XBRL standard Version 2.1.
+Created by UBmatrix Taxonomy Designer 3.0.2.2347 (2007-12-17 12:39).  
+Contact www.ubmatrix.com
+Copyright (c) 2002-2019 UBmatrix inc., All Rights Reserved
+Produced on 2019-03-23 12:26:04
+-->
+<linkbase xmlns="http://www.xbrl.org/2003/linkbase" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xlink="http://www.w3.org/1999/xlink" xsi:schemaLocation=" http://www.xbrl.org/2003/linkbase http://www.xbrl.org/2003/xbrl-linkbase-2003-12-31.xsd">
+  <roleRef xlink:type="simple" xlink:href="http://www.xbrl.org/lrr/role/negated-2009-12-16.xsd#negatedLabel" roleURI="http://www.xbrl.org/2009/role/negatedLabel" />
+  <labelLink xlink:type="extended" xlink:role="http://www.xbrl.org/2003/role/link">
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_AccountsPayableRollForward" xlink:label="basic_AccountsPayableRollForward" />
+    <labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="basic_AccountsPayableRollForward" xlink:to="basic_AccountsPayableRollForward_lbl" />
+    <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/label" xlink:label="basic_AccountsPayableRollForward_lbl" xml:lang="en">Accounts Payable [Roll Forward]</label>
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_AdditionalLongtermBorrowings2" xlink:label="basic_AdditionalLongtermBorrowings2" />
+    <labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="basic_AdditionalLongtermBorrowings2" xlink:to="basic_AdditionalLongtermBorrowings2_lbl" />
+    <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/label" xlink:label="basic_AdditionalLongtermBorrowings2_lbl" xml:lang="en">Additional Long-term Borrowings 2</label>
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_AdditionalLongtermBorrowings" xlink:label="basic_AdditionalLongtermBorrowings" />
+    <labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="basic_AdditionalLongtermBorrowings" xlink:to="basic_AdditionalLongtermBorrowings_lbl" />
+    <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/label" xlink:label="basic_AdditionalLongtermBorrowings_lbl" xml:lang="en">Additional Long-term Borrowings</label>
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_AdditionsToAllowanceForBadDebts" xlink:label="basic_AdditionsToAllowanceForBadDebts" />
+    <labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="basic_AdditionsToAllowanceForBadDebts" xlink:to="basic_AdditionsToAllowanceForBadDebts_lbl" />
+    <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/label" xlink:label="basic_AdditionsToAllowanceForBadDebts_lbl" xml:lang="en">Additions to Allowance for Bad Debts</label>
+    <label xlink:type="resource" xlink:role="http://www.xbrl.org/2009/role/negatedLabel" xlink:label="basic_AdditionsToAllowanceForBadDebts_lbl" xml:lang="en">Additions to Allowance for Bad Debts</label>
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_AssetsRollUp" xlink:label="basic_AssetsRollUp" />
+    <labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="basic_AssetsRollUp" xlink:to="basic_AssetsRollUp_lbl" />
+    <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/label" xlink:label="basic_AssetsRollUp_lbl" xml:lang="en">Assets [Roll Up]</label>
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_Assets" xlink:label="basic_Assets" />
+    <labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="basic_Assets" xlink:to="basic_Assets_lbl" />
+    <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/label" xlink:label="basic_Assets_lbl" xml:lang="en">Assets</label>
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_BadDebtsWrittenOff" xlink:label="basic_BadDebtsWrittenOff" />
+    <labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="basic_BadDebtsWrittenOff" xlink:to="basic_BadDebtsWrittenOff_lbl" />
+    <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/label" xlink:label="basic_BadDebtsWrittenOff_lbl" xml:lang="en">Bad Debts Written Off</label>
+    <label xlink:type="resource" xlink:role="http://www.xbrl.org/2009/role/negatedLabel" xlink:label="basic_BadDebtsWrittenOff_lbl" xml:lang="en">Bad Debts Written Off</label>
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_BalanceSheetAbstract" xlink:label="basic_BalanceSheetAbstract" />
+    <labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="basic_BalanceSheetAbstract" xlink:to="basic_BalanceSheetAbstract_lbl" />
+    <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/label" xlink:label="basic_BalanceSheetAbstract_lbl" xml:lang="en">Balance Sheet [Abstract]</label>
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_BankCharges" xlink:label="basic_BankCharges" />
+    <labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="basic_BankCharges" xlink:to="basic_BankCharges_lbl" />
+    <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/label" xlink:label="basic_BankCharges_lbl" xml:lang="en">Bank Charges</label>
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_Bank" xlink:label="basic_Bank" />
+    <labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="basic_Bank" xlink:to="basic_Bank_lbl" />
+    <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/label" xlink:label="basic_Bank_lbl" xml:lang="en">Bank</label>
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_BasisOfReporting" xlink:label="basic_BasisOfReporting" />
+    <labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="basic_BasisOfReporting" xlink:to="basic_BasisOfReporting_lbl" />
+    <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/label" xlink:label="basic_BasisOfReporting_lbl" xml:lang="en">Basis of Reporting</label>
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_Bonds" xlink:label="basic_Bonds" />
+    <labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="basic_Bonds" xlink:to="basic_Bonds_lbl" />
+    <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/label" xlink:label="basic_Bonds_lbl" xml:lang="en">Bonds</label>
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_CapitalAdditionsPropertyPlantAndEquipment2" xlink:label="basic_CapitalAdditionsPropertyPlantAndEquipment2" />
+    <labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="basic_CapitalAdditionsPropertyPlantAndEquipment2" xlink:to="basic_CapitalAdditionsPropertyPlantAndEquipment2_lbl" />
+    <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/label" xlink:label="basic_CapitalAdditionsPropertyPlantAndEquipment2_lbl" xml:lang="en">Capital Additions of Property, Plant and Equipment 2</label>
+    <label xlink:type="resource" xlink:role="http://www.xbrl.org/2009/role/negatedLabel" xlink:label="basic_CapitalAdditionsPropertyPlantAndEquipment2_lbl" xml:lang="en">Capital Additions of Property, Plant and Equipment 2</label>
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_CapitalAdditionsPropertyPlantAndEquipment" xlink:label="basic_CapitalAdditionsPropertyPlantAndEquipment" />
+    <labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="basic_CapitalAdditionsPropertyPlantAndEquipment" xlink:to="basic_CapitalAdditionsPropertyPlantAndEquipment_lbl" />
+    <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/label" xlink:label="basic_CapitalAdditionsPropertyPlantAndEquipment_lbl" xml:lang="en">Capital Additions of Property, Plant and Equipment</label>
+    <label xlink:type="resource" xlink:role="http://www.xbrl.org/2009/role/negatedLabel" xlink:label="basic_CapitalAdditionsPropertyPlantAndEquipment_lbl" xml:lang="en">Capital Additions of Property, Plant and Equipment</label>
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_CapitalGain" xlink:label="basic_CapitalGain" />
+    <labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="basic_CapitalGain" xlink:to="basic_CapitalGain_lbl" />
+    <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/label" xlink:label="basic_CapitalGain_lbl" xml:lang="en">Capital Gain</label>
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_CashAndCashEquivalents" xlink:label="basic_CashAndCashEquivalents" />
+    <labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="basic_CashAndCashEquivalents" xlink:to="basic_CashAndCashEquivalents_lbl" />
+    <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/periodEndLabel" xlink:label="basic_CashAndCashEquivalents_lbl" xml:lang="en">Cash and Cash Equivalents, Ending Balance</label>
+    <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/periodStartLabel" xlink:label="basic_CashAndCashEquivalents_lbl" xml:lang="en">Cash and Cash Equivalents, Beginning Balance</label>
+    <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/label" xlink:label="basic_CashAndCashEquivalents_lbl" xml:lang="en">Cash and Cash Equivalents</label>
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_CashCashEquivalentsRollForward" xlink:label="basic_CashCashEquivalentsRollForward" />
+    <labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="basic_CashCashEquivalentsRollForward" xlink:to="basic_CashCashEquivalentsRollForward_lbl" />
+    <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/label" xlink:label="basic_CashCashEquivalentsRollForward_lbl" xml:lang="en">Cash and Cash Equivalents [Roll Forward]</label>
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_CashFlowStatementRollForward" xlink:label="basic_CashFlowStatementRollForward" />
+    <labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="basic_CashFlowStatementRollForward" xlink:to="basic_CashFlowStatementRollForward_lbl" />
+    <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/label" xlink:label="basic_CashFlowStatementRollForward_lbl" xml:lang="en">Cash Flow Statement [Roll Forward]</label>
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_CollectionReceivables2" xlink:label="basic_CollectionReceivables2" />
+    <labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="basic_CollectionReceivables2" xlink:to="basic_CollectionReceivables2_lbl" />
+    <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/label" xlink:label="basic_CollectionReceivables2_lbl" xml:lang="en">Collection of Receivables 2</label>
+    <label xlink:type="resource" xlink:role="http://www.xbrl.org/2009/role/negatedLabel" xlink:label="basic_CollectionReceivables2_lbl" xml:lang="en">Collection of Receivables 2</label>
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_CollectionReceivables" xlink:label="basic_CollectionReceivables" />
+    <labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="basic_CollectionReceivables" xlink:to="basic_CollectionReceivables_lbl" />
+    <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/label" xlink:label="basic_CollectionReceivables_lbl" xml:lang="en">Collection of Receivables</label>
+    <label xlink:type="resource" xlink:role="http://www.xbrl.org/2009/role/negatedLabel" xlink:label="basic_CollectionReceivables_lbl" xml:lang="en">Collection of Receivables</label>
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_CostsOfSales2" xlink:label="basic_CostsOfSales2" />
+    <labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="basic_CostsOfSales2" xlink:to="basic_CostsOfSales2_lbl" />
+    <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/label" xlink:label="basic_CostsOfSales2_lbl" xml:lang="en">Costs of Sales 2</label>
+    <label xlink:type="resource" xlink:role="http://www.xbrl.org/2009/role/negatedLabel" xlink:label="basic_CostsOfSales2_lbl" xml:lang="en">Costs of Sales 2</label>
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_CurrentAssetsRollUp" xlink:label="basic_CurrentAssetsRollUp" />
+    <labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="basic_CurrentAssetsRollUp" xlink:to="basic_CurrentAssetsRollUp_lbl" />
+    <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/label" xlink:label="basic_CurrentAssetsRollUp_lbl" xml:lang="en">Current Assets [Roll Up]</label>
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_CurrentAssets" xlink:label="basic_CurrentAssets" />
+    <labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="basic_CurrentAssets" xlink:to="basic_CurrentAssets_lbl" />
+    <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/label" xlink:label="basic_CurrentAssets_lbl" xml:lang="en">Current Assets</label>
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_CurrentEarningsLosses" xlink:label="basic_CurrentEarningsLosses" />
+    <labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="basic_CurrentEarningsLosses" xlink:to="basic_CurrentEarningsLosses_lbl" />
+    <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/label" xlink:label="basic_CurrentEarningsLosses_lbl" xml:lang="en">Current Earnings (Losses)</label>
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_DepreciationAndAmortization2" xlink:label="basic_DepreciationAndAmortization2" />
+    <labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="basic_DepreciationAndAmortization2" xlink:to="basic_DepreciationAndAmortization2_lbl" />
+    <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/label" xlink:label="basic_DepreciationAndAmortization2_lbl" xml:lang="en">Depreciation and Amortization 2</label>
+    <label xlink:type="resource" xlink:role="http://www.xbrl.org/2009/role/negatedLabel" xlink:label="basic_DepreciationAndAmortization2_lbl" xml:lang="en">Depreciation and Amortization 2</label>
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_DividendsEarned" xlink:label="basic_DividendsEarned" />
+    <labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="basic_DividendsEarned" xlink:to="basic_DividendsEarned_lbl" />
+    <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/label" xlink:label="basic_DividendsEarned_lbl" xml:lang="en">Dividends Earned</label>
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_EquityRollUp" xlink:label="basic_EquityRollUp" />
+    <labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="basic_EquityRollUp" xlink:to="basic_EquityRollUp_lbl" />
+    <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/label" xlink:label="basic_EquityRollUp_lbl" xml:lang="en">Equity [Roll Up]</label>
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_Equity" xlink:label="basic_Equity" />
+    <labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="basic_Equity" xlink:to="basic_Equity_lbl" />
+    <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/label" xlink:label="basic_Equity_lbl" xml:lang="en">Equity</label>
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_ExpensesRollUp" xlink:label="basic_ExpensesRollUp" />
+    <labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="basic_ExpensesRollUp" xlink:to="basic_ExpensesRollUp_lbl" />
+    <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/label" xlink:label="basic_ExpensesRollUp_lbl" xml:lang="en">Expenses {Roll Up]</label>
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_Expenses" xlink:label="basic_Expenses" />
+    <labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="basic_Expenses" xlink:to="basic_Expenses_lbl" />
+    <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/label" xlink:label="basic_Expenses_lbl" xml:lang="en">Expenses</label>
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_FinancialInvestments" xlink:label="basic_FinancialInvestments" />
+    <labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="basic_FinancialInvestments" xlink:to="basic_FinancialInvestments_lbl" />
+    <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/label" xlink:label="basic_FinancialInvestments_lbl" xml:lang="en">Financial Investments</label>
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_FinishedGoodsRollUp" xlink:label="basic_FinishedGoodsRollUp" />
+    <labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="basic_FinishedGoodsRollUp" xlink:to="basic_FinishedGoodsRollUp_lbl" />
+    <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/label" xlink:label="basic_FinishedGoodsRollUp_lbl" xml:lang="en">Finished Goods [Roll Up]</label>
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_FinishedGoods" xlink:label="basic_FinishedGoods" />
+    <labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="basic_FinishedGoods" xlink:to="basic_FinishedGoods_lbl" />
+    <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/periodEndLabel" xlink:label="basic_FinishedGoods_lbl" xml:lang="en">Inventories, Ending Balance</label>
+    <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/periodStartLabel" xlink:label="basic_FinishedGoods_lbl" xml:lang="en">Inventories, Beginning Balance</label>
+    <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/label" xlink:label="basic_FinishedGoods_lbl" xml:lang="en">Finished Goods</label>
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_ForexGain" xlink:label="basic_ForexGain" />
+    <labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="basic_ForexGain" xlink:to="basic_ForexGain_lbl" />
+    <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/label" xlink:label="basic_ForexGain_lbl" xml:lang="en">Forex Gain</label>
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_ForexLoss" xlink:label="basic_ForexLoss" />
+    <labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="basic_ForexLoss" xlink:to="basic_ForexLoss_lbl" />
+    <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/label" xlink:label="basic_ForexLoss_lbl" xml:lang="en">Forex Loss</label>
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_HistoricalEarningsLosses" xlink:label="basic_HistoricalEarningsLosses" />
+    <labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="basic_HistoricalEarningsLosses" xlink:to="basic_HistoricalEarningsLosses_lbl" />
+    <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/label" xlink:label="basic_HistoricalEarningsLosses_lbl" xml:lang="en">Historical Earnings (Losses)</label>
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_InterestEarned" xlink:label="basic_InterestEarned" />
+    <labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="basic_InterestEarned" xlink:to="basic_InterestEarned_lbl" />
+    <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/label" xlink:label="basic_InterestEarned_lbl" xml:lang="en">Interest Earned</label>
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_InventoriesRollForward" xlink:label="basic_InventoriesRollForward" />
+    <labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="basic_InventoriesRollForward" xlink:to="basic_InventoriesRollForward_lbl" />
+    <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/label" xlink:label="basic_InventoriesRollForward_lbl" xml:lang="en">Inventories [Roll Forward]</label>
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_InventoriesRollUp" xlink:label="basic_InventoriesRollUp" />
+    <labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="basic_InventoriesRollUp" xlink:to="basic_InventoriesRollUp_lbl" />
+    <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/label" xlink:label="basic_InventoriesRollUp_lbl" xml:lang="en">Inventories [Roll Up]</label>
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_InventoryValuationMethod" xlink:label="basic_InventoryValuationMethod" />
+    <labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="basic_InventoryValuationMethod" xlink:to="basic_InventoryValuationMethod_lbl" />
+    <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/label" xlink:label="basic_InventoryValuationMethod_lbl" xml:lang="en">Inventory Valuation Method</label>
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_InventoryWrittenOff" xlink:label="basic_InventoryWrittenOff" />
+    <labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="basic_InventoryWrittenOff" xlink:to="basic_InventoryWrittenOff_lbl" />
+    <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/label" xlink:label="basic_InventoryWrittenOff_lbl" xml:lang="en">Inventory Written Off</label>
+    <label xlink:type="resource" xlink:role="http://www.xbrl.org/2009/role/negatedLabel" xlink:label="basic_InventoryWrittenOff_lbl" xml:lang="en">Inventory Written Off</label>
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_InvestmentIncomeCopy" xlink:label="basic_InvestmentIncomeCopy" />
+    <labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="basic_InvestmentIncomeCopy" xlink:to="basic_InvestmentIncomeCopy_lbl" />
+    <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/label" xlink:label="basic_InvestmentIncomeCopy_lbl" xml:lang="en">Investment Income</label>
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_InvestmentIncomeRollUp" xlink:label="basic_InvestmentIncomeRollUp" />
+    <labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="basic_InvestmentIncomeRollUp" xlink:to="basic_InvestmentIncomeRollUp_lbl" />
+    <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/label" xlink:label="basic_InvestmentIncomeRollUp_lbl" xml:lang="en">Investment Income [Roll Up]</label>
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_InvestmentIncome" xlink:label="basic_InvestmentIncome" />
+    <labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="basic_InvestmentIncome" xlink:to="basic_InvestmentIncome_lbl" />
+    <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/label" xlink:label="basic_InvestmentIncome_lbl" xml:lang="en">Investment Income</label>
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_LiabilitiesAndEquityRollUp" xlink:label="basic_LiabilitiesAndEquityRollUp" />
+    <labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="basic_LiabilitiesAndEquityRollUp" xlink:to="basic_LiabilitiesAndEquityRollUp_lbl" />
+    <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/label" xlink:label="basic_LiabilitiesAndEquityRollUp_lbl" xml:lang="en">Liabilities and Equity [Roll Up]</label>
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_LiabilitiesAndEquity" xlink:label="basic_LiabilitiesAndEquity" />
+    <labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="basic_LiabilitiesAndEquity" xlink:to="basic_LiabilitiesAndEquity_lbl" />
+    <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/label" xlink:label="basic_LiabilitiesAndEquity_lbl" xml:lang="en">Liabilities and Equity</label>
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_LiabilitiesRollUp" xlink:label="basic_LiabilitiesRollUp" />
+    <labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="basic_LiabilitiesRollUp" xlink:to="basic_LiabilitiesRollUp_lbl" />
+    <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/label" xlink:label="basic_LiabilitiesRollUp_lbl" xml:lang="en">Liabilities [Roll Up]</label>
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_Liabilities" xlink:label="basic_Liabilities" />
+    <labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="basic_Liabilities" xlink:to="basic_Liabilities_lbl" />
+    <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/label" xlink:label="basic_Liabilities_lbl" xml:lang="en">Liabilities</label>
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_LongtermDebtRollForward" xlink:label="basic_LongtermDebtRollForward" />
+    <labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="basic_LongtermDebtRollForward" xlink:to="basic_LongtermDebtRollForward_lbl" />
+    <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/label" xlink:label="basic_LongtermDebtRollForward_lbl" xml:lang="en">Long-term Debt [Roll Forward]</label>
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_NetCashFlowFinancingActivitiesRollUp" xlink:label="basic_NetCashFlowFinancingActivitiesRollUp" />
+    <labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="basic_NetCashFlowFinancingActivitiesRollUp" xlink:to="basic_NetCashFlowFinancingActivitiesRollUp_lbl" />
+    <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/label" xlink:label="basic_NetCashFlowFinancingActivitiesRollUp_lbl" xml:lang="en">Net Cash Flow Financing Activities [Roll Up]</label>
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_NetCashFlowFinancingActivities" xlink:label="basic_NetCashFlowFinancingActivities" />
+    <labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="basic_NetCashFlowFinancingActivities" xlink:to="basic_NetCashFlowFinancingActivities_lbl" />
+    <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/label" xlink:label="basic_NetCashFlowFinancingActivities_lbl" xml:lang="en">Net Cash Flow Financing Activities</label>
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_NetCashFlowInvestingActivitiesRollUp" xlink:label="basic_NetCashFlowInvestingActivitiesRollUp" />
+    <labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="basic_NetCashFlowInvestingActivitiesRollUp" xlink:to="basic_NetCashFlowInvestingActivitiesRollUp_lbl" />
+    <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/label" xlink:label="basic_NetCashFlowInvestingActivitiesRollUp_lbl" xml:lang="en">Net Cash Flow Investing Activities [Roll Up]</label>
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_NetCashFlowInvestingActivities" xlink:label="basic_NetCashFlowInvestingActivities" />
+    <labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="basic_NetCashFlowInvestingActivities" xlink:to="basic_NetCashFlowInvestingActivities_lbl" />
+    <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/label" xlink:label="basic_NetCashFlowInvestingActivities_lbl" xml:lang="en">Net Cash Flow Investing Activities</label>
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_NetCashFlowOperatingActivitiesRollUp" xlink:label="basic_NetCashFlowOperatingActivitiesRollUp" />
+    <labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="basic_NetCashFlowOperatingActivitiesRollUp" xlink:to="basic_NetCashFlowOperatingActivitiesRollUp_lbl" />
+    <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/label" xlink:label="basic_NetCashFlowOperatingActivitiesRollUp_lbl" xml:lang="en">Net Cash Flow Operating Activities [Roll Up]</label>
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_NetCashFlowOperatingActivities" xlink:label="basic_NetCashFlowOperatingActivities" />
+    <labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="basic_NetCashFlowOperatingActivities" xlink:to="basic_NetCashFlowOperatingActivities_lbl" />
+    <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/label" xlink:label="basic_NetCashFlowOperatingActivities_lbl" xml:lang="en">Net Cash Flow Operating Activities</label>
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_NetCashFlowRollUp" xlink:label="basic_NetCashFlowRollUp" />
+    <labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="basic_NetCashFlowRollUp" xlink:to="basic_NetCashFlowRollUp_lbl" />
+    <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/label" xlink:label="basic_NetCashFlowRollUp_lbl" xml:lang="en">Net Cash Flow [Roll Up]</label>
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_NetCashFlow" xlink:label="basic_NetCashFlow" />
+    <labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="basic_NetCashFlow" xlink:to="basic_NetCashFlow_lbl" />
+    <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/label" xlink:label="basic_NetCashFlow_lbl" xml:lang="en">Net Cash Flow</label>
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_NetIncomeLossRollUp" xlink:label="basic_NetIncomeLossRollUp" />
+    <labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="basic_NetIncomeLossRollUp" xlink:to="basic_NetIncomeLossRollUp_lbl" />
+    <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/label" xlink:label="basic_NetIncomeLossRollUp_lbl" xml:lang="en">Net Income (Loss) [Roll Up]</label>
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_NetIncomeLoss" xlink:label="basic_NetIncomeLoss" />
+    <labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="basic_NetIncomeLoss" xlink:to="basic_NetIncomeLoss_lbl" />
+    <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/label" xlink:label="basic_NetIncomeLoss_lbl" xml:lang="en">Net Income (Loss)</label>
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_NoncurrentAssetsRollUp" xlink:label="basic_NoncurrentAssetsRollUp" />
+    <labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="basic_NoncurrentAssetsRollUp" xlink:to="basic_NoncurrentAssetsRollUp_lbl" />
+    <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/label" xlink:label="basic_NoncurrentAssetsRollUp_lbl" xml:lang="en">Noncurrent Assets [Roll Up]</label>
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_NoncurrentAssets" xlink:label="basic_NoncurrentAssets" />
+    <labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="basic_NoncurrentAssets" xlink:to="basic_NoncurrentAssets_lbl" />
+    <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/label" xlink:label="basic_NoncurrentAssets_lbl" xml:lang="en">Noncurrent Assets</label>
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_NoncurrentLiabilitiesRollUp" xlink:label="basic_NoncurrentLiabilitiesRollUp" />
+    <labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="basic_NoncurrentLiabilitiesRollUp" xlink:to="basic_NoncurrentLiabilitiesRollUp_lbl" />
+    <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/label" xlink:label="basic_NoncurrentLiabilitiesRollUp_lbl" xml:lang="en">Noncurrent Liabilities [Roll Up]</label>
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_NoncurrentLiabilities" xlink:label="basic_NoncurrentLiabilities" />
+    <labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="basic_NoncurrentLiabilities" xlink:to="basic_NoncurrentLiabilities_lbl" />
+    <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/label" xlink:label="basic_NoncurrentLiabilities_lbl" xml:lang="en">Noncurrent Liabilities</label>
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_NoncurrentLoans" xlink:label="basic_NoncurrentLoans" />
+    <labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="basic_NoncurrentLoans" xlink:to="basic_NoncurrentLoans_lbl" />
+    <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/label" xlink:label="basic_NoncurrentLoans_lbl" xml:lang="en">Noncurrent Loans</label>
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_PaymentOfAccountsPayable2" xlink:label="basic_PaymentOfAccountsPayable2" />
+    <labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="basic_PaymentOfAccountsPayable2" xlink:to="basic_PaymentOfAccountsPayable2_lbl" />
+    <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/label" xlink:label="basic_PaymentOfAccountsPayable2_lbl" xml:lang="en">Payment of Accounts Payable 2</label>
+    <label xlink:type="resource" xlink:role="http://www.xbrl.org/2009/role/negatedLabel" xlink:label="basic_PaymentOfAccountsPayable2_lbl" xml:lang="en">Payment of Accounts Payable 2</label>
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_PaymentOfAccountsPayable" xlink:label="basic_PaymentOfAccountsPayable" />
+    <labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="basic_PaymentOfAccountsPayable" xlink:to="basic_PaymentOfAccountsPayable_lbl" />
+    <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/label" xlink:label="basic_PaymentOfAccountsPayable_lbl" xml:lang="en">Payment of Accounts Payable</label>
+    <label xlink:type="resource" xlink:role="http://www.xbrl.org/2009/role/negatedLabel" xlink:label="basic_PaymentOfAccountsPayable_lbl" xml:lang="en">Payment of Accounts Payable</label>
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_PoliciesHierarchy" xlink:label="basic_PoliciesHierarchy" />
+    <labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="basic_PoliciesHierarchy" xlink:to="basic_PoliciesHierarchy_lbl" />
+    <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/label" xlink:label="basic_PoliciesHierarchy_lbl" xml:lang="en">Policies [Hierarchy]</label>
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_ProductAlpha" xlink:label="basic_ProductAlpha" />
+    <labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="basic_ProductAlpha" xlink:to="basic_ProductAlpha_lbl" />
+    <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/periodEndLabel" xlink:label="basic_ProductAlpha_lbl" xml:lang="en">Inventories, Ending Balance</label>
+    <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/periodStartLabel" xlink:label="basic_ProductAlpha_lbl" xml:lang="en">Inventories, Beginning Balance</label>
+    <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/label" xlink:label="basic_ProductAlpha_lbl" xml:lang="en">Product Alpha</label>
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_ProductBravo" xlink:label="basic_ProductBravo" />
+    <labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="basic_ProductBravo" xlink:to="basic_ProductBravo_lbl" />
+    <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/periodEndLabel" xlink:label="basic_ProductBravo_lbl" xml:lang="en">Inventories, Ending Balance</label>
+    <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/periodStartLabel" xlink:label="basic_ProductBravo_lbl" xml:lang="en">Inventories, Beginning Balance</label>
+    <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/label" xlink:label="basic_ProductBravo_lbl" xml:lang="en">Product Bravo</label>
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_PropertyPlantAndEquipmentWrittenOff" xlink:label="basic_PropertyPlantAndEquipmentWrittenOff" />
+    <labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="basic_PropertyPlantAndEquipmentWrittenOff" xlink:to="basic_PropertyPlantAndEquipmentWrittenOff_lbl" />
+    <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/label" xlink:label="basic_PropertyPlantAndEquipmentWrittenOff_lbl" xml:lang="en">Property, Plant and Equipment Written Off</label>
+    <label xlink:type="resource" xlink:role="http://www.xbrl.org/2009/role/negatedLabel" xlink:label="basic_PropertyPlantAndEquipmentWrittenOff_lbl" xml:lang="en">Property, Plant and Equipment Written Off</label>
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_PropertyPlantEquipmentRollForward" xlink:label="basic_PropertyPlantEquipmentRollForward" />
+    <labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="basic_PropertyPlantEquipmentRollForward" xlink:to="basic_PropertyPlantEquipmentRollForward_lbl" />
+    <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/label" xlink:label="basic_PropertyPlantEquipmentRollForward_lbl" xml:lang="en">Property, Plant and Equipment [Roll Forward]</label>
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_PurchasesOfInventoryForSale2" xlink:label="basic_PurchasesOfInventoryForSale2" />
+    <labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="basic_PurchasesOfInventoryForSale2" xlink:to="basic_PurchasesOfInventoryForSale2_lbl" />
+    <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/label" xlink:label="basic_PurchasesOfInventoryForSale2_lbl" xml:lang="en">Purchases of Inventory for Sale 2</label>
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_PurchasesOfInventoryForSale" xlink:label="basic_PurchasesOfInventoryForSale" />
+    <labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="basic_PurchasesOfInventoryForSale" xlink:to="basic_PurchasesOfInventoryForSale_lbl" />
+    <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/label" xlink:label="basic_PurchasesOfInventoryForSale_lbl" xml:lang="en">Purchases of Inventory for Sale</label>
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_RawMaterial" xlink:label="basic_RawMaterial" />
+    <labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="basic_RawMaterial" xlink:to="basic_RawMaterial_lbl" />
+    <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/periodEndLabel" xlink:label="basic_RawMaterial_lbl" xml:lang="en">Inventories, Ending Balance</label>
+    <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/periodStartLabel" xlink:label="basic_RawMaterial_lbl" xml:lang="en">Inventories, Beginning Balance</label>
+    <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/label" xlink:label="basic_RawMaterial_lbl" xml:lang="en">Raw Material</label>
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_ReceivablesRollForward" xlink:label="basic_ReceivablesRollForward" />
+    <labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="basic_ReceivablesRollForward" xlink:to="basic_ReceivablesRollForward_lbl" />
+    <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/label" xlink:label="basic_ReceivablesRollForward_lbl" xml:lang="en">Receivables [Roll Forward]</label>
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_RepaymentLongtermBorrowings2" xlink:label="basic_RepaymentLongtermBorrowings2" />
+    <labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="basic_RepaymentLongtermBorrowings2" xlink:to="basic_RepaymentLongtermBorrowings2_lbl" />
+    <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/label" xlink:label="basic_RepaymentLongtermBorrowings2_lbl" xml:lang="en">Repayment of Long-term Borrowings 2</label>
+    <label xlink:type="resource" xlink:role="http://www.xbrl.org/2009/role/negatedLabel" xlink:label="basic_RepaymentLongtermBorrowings2_lbl" xml:lang="en">Repayment of Long-term Borrowings 2</label>
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_RepaymentLongtermBorrowings" xlink:label="basic_RepaymentLongtermBorrowings" />
+    <labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="basic_RepaymentLongtermBorrowings" xlink:to="basic_RepaymentLongtermBorrowings_lbl" />
+    <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/label" xlink:label="basic_RepaymentLongtermBorrowings_lbl" xml:lang="en">Repayment of Long-term Borrowings</label>
+    <label xlink:type="resource" xlink:role="http://www.xbrl.org/2009/role/negatedLabel" xlink:label="basic_RepaymentLongtermBorrowings_lbl" xml:lang="en">Repayment of Long-term Borrowings</label>
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_RetainedEarningsRollForward" xlink:label="basic_RetainedEarningsRollForward" />
+    <labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="basic_RetainedEarningsRollForward" xlink:to="basic_RetainedEarningsRollForward_lbl" />
+    <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/label" xlink:label="basic_RetainedEarningsRollForward_lbl" xml:lang="en">Retained Earnings [Roll Forward]</label>
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_RetainedEarnings" xlink:label="basic_RetainedEarnings" />
+    <labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="basic_RetainedEarnings" xlink:to="basic_RetainedEarnings_lbl" />
+    <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/periodEndLabel" xlink:label="basic_RetainedEarnings_lbl" xml:lang="en">Retained Earnings, Ending Balance</label>
+    <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/periodStartLabel" xlink:label="basic_RetainedEarnings_lbl" xml:lang="en">Retained Earnings, Beginning Balance</label>
+    <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/label" xlink:label="basic_RetainedEarnings_lbl" xml:lang="en">Retained Earnings</label>
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_RevenueRecognition" xlink:label="basic_RevenueRecognition" />
+    <labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="basic_RevenueRecognition" xlink:to="basic_RevenueRecognition_lbl" />
+    <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/label" xlink:label="basic_RevenueRecognition_lbl" xml:lang="en">Revenue Recognition</label>
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_RevenueRollUp" xlink:label="basic_RevenueRollUp" />
+    <labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="basic_RevenueRollUp" xlink:to="basic_RevenueRollUp_lbl" />
+    <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/label" xlink:label="basic_RevenueRollUp_lbl" xml:lang="en">Revenue [Roll Up]</label>
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_Revenue" xlink:label="basic_Revenue" />
+    <labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="basic_Revenue" xlink:to="basic_Revenue_lbl" />
+    <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/label" xlink:label="basic_Revenue_lbl" xml:lang="en">Revenue</label>
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_Sales2" xlink:label="basic_Sales2" />
+    <labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="basic_Sales2" xlink:to="basic_Sales2_lbl" />
+    <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/label" xlink:label="basic_Sales2_lbl" xml:lang="en">Sales 2</label>
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_ShareCapital" xlink:label="basic_ShareCapital" />
+    <labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="basic_ShareCapital" xlink:to="basic_ShareCapital_lbl" />
+    <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/label" xlink:label="basic_ShareCapital_lbl" xml:lang="en">Share Capital</label>
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_Shares" xlink:label="basic_Shares" />
+    <labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="basic_Shares" xlink:to="basic_Shares_lbl" />
+    <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/label" xlink:label="basic_Shares_lbl" xml:lang="en">Shares</label>
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_Unit_Investment" xlink:label="basic_Unit_Investment" />
+    <labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="basic_Unit_Investment" xlink:to="basic_Unit_Investment_lbl" />
+    <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/label" xlink:label="basic_Unit_Investment_lbl" xml:lang="en">Unit_Investment</label>
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_WorkInProgress" xlink:label="basic_WorkInProgress" />
+    <labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="basic_WorkInProgress" xlink:to="basic_WorkInProgress_lbl" />
+    <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/periodEndLabel" xlink:label="basic_WorkInProgress_lbl" xml:lang="en">Inventories, Ending Balance</label>
+    <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/periodStartLabel" xlink:label="basic_WorkInProgress_lbl" xml:lang="en">Inventories, Beginning Balance</label>
+    <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/label" xlink:label="basic_WorkInProgress_lbl" xml:lang="en">Work in Progress</label>
+  </labelLink>
+</linkbase>

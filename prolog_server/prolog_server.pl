@@ -1,8 +1,8 @@
 % ===================================================================
-% Project:   LodgeIT
+% Project:   LodgeiT
 % Module:    Prolog Server
 % Author:    Abdus Salam and Rolf Schwitter
-% Date:      2019-05-06
+% Date:      2019-05-20
 % ===================================================================
 
 % -------------------------------------------------------------------
@@ -24,6 +24,11 @@
 :- use_module(library(http/http_client)).
 :- use_module(library(http/html_write)).
 
+
+%--------------------------------------------------------------------
+% Load files
+%--------------------------------------------------------------------
+
 :- ['process_data.pl'].
 
 
@@ -40,6 +45,23 @@
 % -------------------------------------------------------------------
 
 run_server :-
+   getenv(os, OSName)
+   ->
+   (
+      OSName = 'Windows_NT'
+      ->
+      true
+   ;
+      OSName = 'Linux'
+      ->
+      use_module(library(http/http_unix_daemon)),
+      http_daemon
+   ;
+      OSName = 'Darwin'                                  % not tested
+      ->
+      use_module(library(http/http_unix_daemon)),
+      http_daemon
+   ),
    http_server(http_dispatch, [port(8080)]).
 
 
@@ -94,4 +116,8 @@ prolog:message(bad_file_upload) -->
    ].
 
 
+% -------------------------------------------------------------------
+% start up Prolog server
+% -------------------------------------------------------------------
 
+:- initialization(run_server).
