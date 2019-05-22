@@ -1,15 +1,36 @@
 % ===================================================================
 % Project:   LodgeiT
-% Module:    process_xml_request.pl
+% Module:    process_xml_loan_request.pl
 % Author:    Abdus Salam and Rolf Schwitter
-% Date:      2019-05-06
+% Date:      2019-05-22
 % ===================================================================
 
-% ===================================================================
-% process_xml_request/2: loan-request.xml
-% ===================================================================
+%--------------------------------------------------------------------
+% Load files --- needs to be turned into modules
+%--------------------------------------------------------------------
 
-process_xml_request(FileNameIn, DOM) :-
+% The program entry point. Run the program using swipl -s main.pl .
+
+% Loads up calendar related predicates
+:- ['../../src/days.pl'].
+
+% Loads up predicates pertaining to hire purchase arrangements
+:- ['../../src/hirepurchase.pl'].
+
+% Loads up predicates pertaining to loan arrangements
+:- ['../../src/loans.pl'].
+
+% Loads up predicates pertaining to bank statements
+:- ['../../src/statements.pl'].
+
+:- ['helper'].
+ 
+
+% -------------------------------------------------------------------
+% process_xml_loan_request/2: loan-request.xml
+% -------------------------------------------------------------------
+
+process_xml_loan_request(FileNameIn, DOM) :-
    FileNameIn  = 'loan-request.xml'
    ->
    FileNameOut = 'loan-response.xml',
@@ -31,21 +52,24 @@ process_xml_request(FileNameIn, DOM) :-
 		         NCreationIncomeYear, NTerm, NPrincipalAmount, NLodgementDate, NComputationYear, NOpeningBalance, NLoanRepayments),   
    loan_agr_summary(loan_agreement(0, NPrincipalAmount, NLodgementDate, NCreationIncomeYear, NTerm, 
 				   NComputationYear, NOpeningBalance, NLoanRepayments), Summary),
-   display_xml_response(FileNameOut, NComputationYear, Summary).
+   display_xbrl_loan_response(FileNameOut, NComputationYear, Summary).
 
    
 % -------------------------------------------------------------------
-% display_xml_request/3
+% display_xbrl_loan_response/3
 % -------------------------------------------------------------------
 
-display_xml_response(FileNameOut, IncomeYear, 
+display_xbrl_loan_response(FileNameOut, IncomeYear, 
                     loan_summary(_Number, OpeningBalance, InterestRate, MinYearlyRepayment, TotalRepayment,
 			         RepaymentShortfall, TotalInterest, TotalPrincipal, ClosingBalance)) :-
    FileNameOut = 'loan-response.xml',
    format('Content-type: text/xml~n~n'), 
-   % write(FileNameOut), nl, nl,   
-   writeln('<?xml version="1.0"?>'),
-   writeln('<LoanSummary xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">'),
+   writeln('<?xml version="1.0"?>'), nl,
+   writeln('<xbrli:xbrl xmlns:xbrli="http://www.xbrl.org/2003/instance">'),
+   writeln('<!-- A Taxonomy should be created to generate XBRL instance for loan. -->'), nl,
+   writeln('<!-- <link:schemaRef xlink:type="simple" xlink:href="XXXXX.xsd"/> -->'), nl, nl,	
+   writeln('<!-- A suitable context needs to be provided. -->'), nl, nl,
+   writeln('<LoanSummary>'),
    format('<IncomeYear>~w</IncomeYear>~n', IncomeYear),
    format('<OpeningBalance>~w</OpeningBalance>~n', OpeningBalance),
    format('<InterestRate>~w</InterestRate>~n', InterestRate),
@@ -55,9 +79,6 @@ display_xml_response(FileNameOut, IncomeYear,
    format('<TotalInterest>~w</TotalInterest>~n', TotalInterest),
    format('<TotalPrincipal>~w</TotalPrincipal>~n', TotalPrincipal),
    format('<ClosingBalance>~w</ClosingBalance>~n', ClosingBalance),
-   write('</LoanSummary>'), nl, nl.
+   write('</LoanSummary>'), nl,
+   write('</xbrli:xbrl>'), nl, nl.
 
-
-% ===================================================================
-% process_xml_request/2: ledger-request.xml
-% ===================================================================

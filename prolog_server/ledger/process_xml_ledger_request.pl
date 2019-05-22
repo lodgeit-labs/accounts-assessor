@@ -1,13 +1,63 @@
 % ===================================================================
 % Project:   LodgeiT
-% Module:    process_xml_request.pl
+% Module:    process_xml_ledger_request.pl  
+% Author:    Jindrich
 % ===================================================================
 
+% -------------------------------------------------------------------
+% Modules
+% -------------------------------------------------------------------
+
+:- use_module(library(xpath)).
+
+
+% -------------------------------------------------------------------
+% Load files
+% -------------------------------------------------------------------
 
 :- ['../../src/days'].
 :- ['../../src/ledger'].
 :- ['../../src/statements'].
-:- use_module(library(xpath)).
+
+
+% ------------------------------------------------------------------
+% process_xml_ledger_request/2
+% ------------------------------------------------------------------
+
+process_xml_ledger_request(_FileNameIn, DOM) :-
+   extract_default_bases(DOM, DefaultBases),
+   extract_action_taxonomy(DOM, ActionTaxonomy),
+   % extract_account_hierarchy(DOM, AccountHierarchy),
+   % need to update the file location when Taxonomy location is fixed.
+   extract_account_hierarchy('./taxonomy/account_hierarchy.xml', AccountHierarchy),
+   findall(Transaction, extract_transactions(DOM, DefaultBases, Transaction), S_Transactions),
+
+   inner_xml(DOM, //reports/balanceSheetRequest/startDate, [BalanceSheetStartDateAtom]),
+   parse_date(BalanceSheetStartDateAtom, BalanceSheetStartAbsoluteDays),
+   inner_xml(DOM, //reports/balanceSheetRequest/endDate, [BalanceSheetEndDateAtom]),
+   parse_date(BalanceSheetEndDateAtom, BalanceSheetEndAbsoluteDays),
+
+   extract_exchange_rates(DOM, BalanceSheetEndAbsoluteDays, ExchangeRates),
+   preprocess_s_transactions(ExchangeRates, ActionTaxonomy, S_Transactions, Transactions),
+   balance_sheet_at(ExchangeRates, AccountHierarchy, Transactions, DefaultBases, BalanceSheetEndAbsoluteDays, BalanceSheetStartAbsoluteDays, BalanceSheetEndAbsoluteDays, BalanceSheet),
+
+   pretty_term_string(S_Transactions, Message0),
+   pretty_term_string(Transactions, Message1),
+   pretty_term_string(ExchangeRates, Message1b),
+   pretty_term_string(ActionTaxonomy, Message2),
+   pretty_term_string(AccountHierarchy, Message3),
+   pretty_term_string(BalanceSheet, Message4),
+   atomic_list_concat([
+   	'S_Transactions:\n', Message0,'\n\n',
+   	'Transactions:\n', Message1,'\n\n',
+   	'Exchange rates::\n', Message1b,'\n\n',
+   	'ActionTaxonomy:\n',Message2,'\n\n',
+   	'AccountHierarchy:\n',Message3,'\n\n',
+   	'BalanceSheet:\n', Message4,'\n\n'],
+      DebugMessage),
+   display_xbrl_ledger_response(DebugMessage, BalanceSheetStartAbsoluteDays, BalanceSheetEndAbsoluteDays, BalanceSheet).
+
+% -----------------------------------------------------
 
 
 % this gets the children of an element with ElementXPath
@@ -24,15 +74,20 @@ pretty_term_string(Term, String) :-
 extract_default_bases(DOM, Bases) :-
    inner_xml(DOM, //reports/balanceSheetRequest/defaultUnitTypes/unitType, Bases).
 
-extract_account_hierarchy(DOM, AccountHierarchy) :-
-   inner_xml(DOM, //reports/balanceSheetRequest/accountHierarchyUrl, [AccountHierarchyUrl]),
-   http_get(AccountHierarchyUrl, AccountHierarchyXmlText, []),
-   store_xml_document('account_hierarchy.xml', AccountHierarchyXmlText),
-   load_xml('account_hierarchy.xml', AccountHierarchyDom, []),
+   
+% ------------------------------------------------------------------
+% extract_account_hierarchy/2
+%
+% Load Account Hierarchy from the file stored in the local server.
+% ------------------------------------------------------------------
+
+extract_account_hierarchy(AccountHierarchyFileName, AccountHierarchy) :-   
+   load_xml(AccountHierarchyFileName, AccountHierarchyDom, []),   
    % fixme when input format is agreed on
    findall(Account, xpath(AccountHierarchyDom, //accounts, Account), Accounts),
    findall(Link, (member(TopLevelAccount, Accounts), accounts_link(TopLevelAccount, Link)), AccountHierarchy).
 
+ 
 % yields all child-parent pairs describing the account hierarchy
 accounts_link(element(ParentName,_,Children), Link) :-
    member(Child, Children), 
@@ -116,38 +171,12 @@ extract_exchanged_value(T, DefaultBases, Exchanged) :-
       Exchanged = bases(DefaultBases)
    ).
 
-process_xml_request(_FileNameIn, DOM) :-
-   extract_default_bases(DOM, DefaultBases),
-   extract_action_taxonomy(DOM, ActionTaxonomy),
-   extract_account_hierarchy(DOM, AccountHierarchy),
-   findall(Transaction, extract_transactions(DOM, DefaultBases, Transaction), S_Transactions),
 
-   inner_xml(DOM, //reports/balanceSheetRequest/startDate, [BalanceSheetStartDateAtom]),
-   parse_date(BalanceSheetStartDateAtom, BalanceSheetStartAbsoluteDays),
-   inner_xml(DOM, //reports/balanceSheetRequest/endDate, [BalanceSheetEndDateAtom]),
-   parse_date(BalanceSheetEndDateAtom, BalanceSheetEndAbsoluteDays),
+% -----------------------------------------------------
+% display_xbrl_ledger_response/4
+% -----------------------------------------------------
 
-   extract_exchange_rates(DOM, BalanceSheetEndAbsoluteDays, ExchangeRates),
-   preprocess_s_transactions(ExchangeRates, ActionTaxonomy, S_Transactions, Transactions),
-   balance_sheet_at(ExchangeRates, AccountHierarchy, Transactions, DefaultBases, BalanceSheetEndAbsoluteDays, BalanceSheetStartAbsoluteDays, BalanceSheetEndAbsoluteDays, BalanceSheet),
-
-   pretty_term_string(S_Transactions, Message0),
-   pretty_term_string(Transactions, Message1),
-   pretty_term_string(ExchangeRates, Message1b),
-   pretty_term_string(ActionTaxonomy, Message2),
-   pretty_term_string(AccountHierarchy, Message3),
-   pretty_term_string(BalanceSheet, Message4),
-   atomic_list_concat([
-   	'S_Transactions:\n', Message0,'\n\n',
-   	'Transactions:\n', Message1,'\n\n',
-   	'Exchange rates::\n', Message1b,'\n\n',
-   	'ActionTaxonomy:\n',Message2,'\n\n',
-   	'AccountHierarchy:\n',Message3,'\n\n',
-   	'BalanceSheet:\n', Message4,'\n\n'],
-      DebugMessage),
-   display_xml_response(DebugMessage, BalanceSheetStartAbsoluteDays, BalanceSheetEndAbsoluteDays, BalanceSheet).
-
-display_xml_response(DebugMessage, BalanceSheetStartAbsoluteDays, BalanceSheetEndAbsoluteDays, BalanceSheetEntries) :-
+display_xbrl_ledger_response(DebugMessage, BalanceSheetStartAbsoluteDays, BalanceSheetEndAbsoluteDays, BalanceSheetEntries) :-
    format('Content-type: text/xml~n~n'), 
    writeln('<?xml version="1.0"?>'),
    writeln('<!--'),

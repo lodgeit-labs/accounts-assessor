@@ -1,0 +1,20 @@
+<xbrli:xbrl xmlns:xbrli="http://www.xbrl.org/2003/instance">
+
+	<!-- A Taxonomy should be created to generate XBRL instance for loan. -->
+	<!-- <link:schemaRef xlink:type="simple" xlink:href="basic.xsd"/> -->
+	
+	<!-- A suitable context needs to be provided. -->
+  
+	<LoanSummary>
+		<IncomeYear>0</IncomeYear>
+		<OpeningBalance>55000</OpeningBalance>
+		<InterestRate>5.95</InterestRate>
+		<MinYearlyRepayment>9834.923730309254</MinYearlyRepayment>
+		<TotalRepayment>28000</TotalRepayment>
+		<RepaymentShortfall>0</RepaymentShortfall>
+		<TotalInterest>3230.7684931506847</TotalInterest>
+		<TotalPrincipal>24769.231506849315</TotalPrincipal>
+		<ClosingBalance>50230.76849315068</ClosingBalance>
+	</LoanSummary>
+
+</xbrli:xbrl>
