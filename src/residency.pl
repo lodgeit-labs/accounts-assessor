@@ -8,6 +8,10 @@ indicator(Element, List, 0) :- \+ member(Element, List).
 % A Deterministic Finite State Machine for determining if the user is an Australian
 % resident for tax purposes.
 
+residency_result(-1, dict{answer: "Australian"}).
+residency_result(-2, dict{answer: "temporary"}).
+residency_result(-3, dict{answer: "foreign"}).
+
 % Resides Test
 
 next_state(_, 0, 1, "Do you live in Australia?").
@@ -16,6 +20,7 @@ next_state(_, 1, 2, "Do you maintain a permanent base in Australia?").
 
 next_state(_, 2, 3, "Are you in Australia frequently?").
 
+% one of the above three questions was answered no, let's give it another chance
 next_state(History, 3, 4, "Is your usual most common place of residence in Australia?") :-
 	indicator((1, 1), History, I1),
 	indicator((2, 1), History, I2),
@@ -32,6 +37,9 @@ next_state(History, 4, 5, "Do you reside in Australia more than you reside elsew
 	I1 + I2 + I3 + I4 < 3, !.
 
 next_state(_, 4, -1, "").
+
+
+% if less than 3 above questions were answered positively, we try the:
 
 % Domicile Test
 
@@ -53,7 +61,34 @@ next_state(_, 6, -1, "").
 next_state(History, 7, 8, "Is the house or any part of the house maintained for you to live in?") :-
 	member((7, 1), History), !.
 
-% 183 Day Test
+/* 3 - The 183 day test -> This test only applies to
+individuals arriving in Australia.
+You will be a resident under
+this test if you spend over half
+the year in Australia, unless
+it is established that your
+‘usual place of abode’ is
+outside Australia and you
+have no intention of taking
+up residence here.
+
+	
+Question Set 3
+Did you recently arrive in Australia?
+a. IF Y, then is Q2 also Y? (do you have domicile here)
+b. IF N, then Do you have any intention of taking up residence here?
+IF Y, then did you spend 183 or more days in Australia?
+183 Day Test is Y IF Y.
+
+Question Set 3
+Did you recently arrive in Australia?
+	IF Y, then Do you have any intention of taking up residence here?
+		IF Y, then did you spend 183 or more days in Australia?
+			IF Y, result is resident
+			IF N, go to Superannuation Fund Test
+		IF N, go to Superannuation Fund Test
+	IF N, go to Superannuation Fund Test
+*/
 
 next_state(_, 7, 9, "Did you recently arrive in Australia?").
 
@@ -62,14 +97,16 @@ next_state(History, 8, 9, "Did you recently arrive in Australia?") :-
 
 next_state(_, 8, -1, "").
 
-next_state(History, 9, 10, "Did you spend 183 or more days in Australia?") :-
+% did recently arrive:
+next_state(History, 9, 10, "Do you have any intention of taking up residence here?") :-
 	member((9, 1), History), !.
 
 % Commonwealth Superannuation Fund Test
 
+% didnt recently arrive, so:
 next_state(_, 9, 12, "Are you a Government employee?").
 
-next_state(History, 10, 11, "Do you have any intention of taking up residence here?") :-
+next_state(History, 10, 11, "Did you spend 183 or more days in Australia?") :-
 	member((10, 1), History), !.
 
 next_state(_, 10, 12, "Are you a Government employee?").
@@ -111,17 +148,7 @@ next_state(History, 17, -3, "") :-
 
 next_state(_, 17, -2, "").
 
-% Prints the prompt Prompt. Unifies Bool with 1 if the user enters 'Y' or 'y'. Unifies
-% Bool with 0 if the user enters 'N' or 'n'. Repeats the prompt if the answer is not one
-% of the four aforementioned characters.
-
-prompt(Prompt, Bool) :-
-	string_concat(Prompt, " (y/Y/n/N): ", Formatted_Prompt),
-	write(Formatted_Prompt),
-	get(Answer),
-	((Answer = 89; Answer = 121) -> Bool = 1;
-	(Answer = 78; Answer = 110) -> Bool = 0;
-	prompt(Prompt, Bool)).
+:- [prompt].
 
 % Carrys out a dialog with the user based on the Deterministic Finite State Machine above.
 % History is a list of pairs of questions and answers received so far, state identifies
@@ -130,17 +157,53 @@ prompt(Prompt, Bool) :-
 % depending on whether the user is an Australian, temporary, or foreign resident for tax
 % purposes respectively.
 
-dialog(History, State, Response, Resident) :-
+dialog(History, State, Response, Resident, ScriptedAnswers) :-
 	Next_History = [(State, Response) | History],
+
+	write("Next_History:"), writeln(Next_History),
+	% unify ScriptedAnswer with the head of ScriptedAnswers, to be passed to prompt.
+	% if ScriptedAnswers is not a list, leave ScriptedAnswer unbound.
+	(compound(ScriptedAnswers) -> ScriptedAnswers = [ScriptedAnswer|ScriptedAnswersTail] ;true),
+
 	next_state(Next_History, State, Next_State, Next_Question),
 	Next_State \= -1, Next_State \= -2, Next_State \= -3,
-	prompt(Next_Question, Next_Response),
-	dialog(Next_History, Next_State, Next_Response, Resident), !.
+	prompt(Next_Question, Next_Response, ScriptedAnswer),
+	dialog(Next_History, Next_State, Next_Response, Resident, ScriptedAnswersTail), !.
 
 % The base case of the dialog. The residency of the user is determined by the final state
 % of the Deterministic Finite State Machine above.
 
-dialog(History, State, Response, Resident) :-
+dialog(History, State, Response, Resident, _) :-
 	Next_History = [(State, Response) | History],
-	next_state(Next_History, State, Resident, _).
+	next_state(Next_History, State, Resident, "").
 
+dialog(Result, Answers) :-
+	dialog([], 0, _, Result, Answers).
+
+dialog(Result) :-
+	dialog([], 0, _, Result, ``).
+
+residency_test0() :-
+	% for example dialog([], 0, _, -1,  `ynynnnnnnynn`), ideally shouldn't unify, 
+	% the correct result is -2, but dialog backtracks until it finds a next_state that matches
+
+	dialog([], 0, _, Result0, `yyy`), Result0 = -1,
+	dialog([], 0, _, Result1, `ynyy`), Result1 = -1,
+	dialog([], 0, _, Result2, `ynynnnnnnynn`), Result2 = -2,
+	dialog([], 0, _, Result3, `nnnnnnnnnnnnnnnnnn`), Result3 = -3,
+	dialog([], 0, _, Result4, `nnyynnnyynyy`), Result4 = -1,
+	
+	true.
+
+:- residency_test0.
+
+
+
+
+
+% notes:
+% Have you been in Australia, either continuously or intermittently, for 183 days or more in the income year? *
+% https://www.ato.gov.au/Individuals/International-tax-for-individuals/Work-out-your-tax-residency/
+% https://www.ato.gov.au/Individuals/Ind/Resident-for-tax-if-WHM-/?=redirected
+% https://www.ato.gov.au/Calculators-and-tools/Host/?=redirected_residencytests&anchor=AreYouAResident%20#AreYouAResident/questions
+% https://www.ato.gov.au/law/view/document?Docid=TXR/TR9817/NAT/ATO/00001
