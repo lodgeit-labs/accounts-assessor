@@ -75,7 +75,7 @@ transaction_before(Transaction, End_Day) :-
 
 % add up and reduce all the vectors of all the transactions, result is one vector
 
-transaction_vector_total([], []).
+transaction_vectors_total([], []).
 
 transaction_vectors_total([Hd_Transaction | Tl_Transaction], Reduced_Net_Activity) :-
 	transaction_vector(Hd_Transaction, Curr),
