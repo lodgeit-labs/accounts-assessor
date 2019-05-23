@@ -12,7 +12,7 @@ Open a web browser at: http://localhost:8080/
 
 Upload the XML file (loan-request.xml) and in our case the following XML loan-response.xml is generated:
 
-<LoanSummary xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<LoanSummary>
 <IncomeYear>0</IncomeYear>
 <OpeningBalance>55000</OpeningBalance>
 <InterestRate>5.95</InterestRate>
