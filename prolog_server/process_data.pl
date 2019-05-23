@@ -1,15 +1,24 @@
 % ===================================================================
-% Project:   LodgeIT
-% Module:    main.pl
+% Project:   LodgeiT
+% Module:    process_data.pl
 % Author:    Abdus Salam and Rolf Schwitter
-% Date:      2019-05-06
+% Date:      2019-05-22
 % ===================================================================
 
-% :- style_check([-discontiguous, -singleton]).
-
-% :- module('main.pl', [process_data/1]).
+% -------------------------------------------------------------------
+% Modules
+% -------------------------------------------------------------------
 
 :- use_module(library(xpath)).
+
+
+% -------------------------------------------------------------------
+% Load files
+% -------------------------------------------------------------------
+
+:- ['./loan/process_xml_loan_request.pl'].
+
+:- ['./ledger/process_xml_ledger_request.pl'].
 
 
 % -------------------------------------------------------------------
@@ -19,7 +28,8 @@
 process_data(Data) :-
    parse_data(Data, FileName, XML),
    store_xml_document(FileName, XML),
-   process_xml_document(FileName).
+   process_xml_document(FileName),
+   delete_file(FileName).
 
 
 % -------------------------------------------------------------------
@@ -31,9 +41,6 @@ parse_data(Data, FileName, XML) :-
    extract_file_name(Header, FileName),
    extract_xml_data(Body, XML).
 
-% spy(parse_data/3).
-
-
 split_header_body(Data, Header, Body) :-
    string_chars(Data, Chars),
    append(Header, ['<', '?', x, m, l|Rest], Chars),
@@ -44,6 +51,7 @@ extract_file_name(Header, FileName) :-
    append(Name, ['.', x, m, l, '"'|Rest2], Rest1),
    % exclude file location from the filename 
    % (for Internet Explorer/Microsoft Edge)
+   % todo check if this works in all cases
    (   
      memberchk('\\', Name)
      ->  
@@ -80,4 +88,17 @@ store_xml_document(FileName, XML) :-
 process_xml_document(FileName) :-
    load_xml(FileName, DOM, []),
    process_xml_request(FileName, DOM).
+
+   
+% -------------------------------------------------------------------
+% process_xml_request/2
+% -------------------------------------------------------------------
+
+process_xml_request(FileName, DOM) :-
+   (
+      process_xml_loan_request(FileName, DOM)
+   ;
+      process_xml_ledger_request(FileName, DOM)
+   ).
+     
 
