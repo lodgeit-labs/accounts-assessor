@@ -27,9 +27,14 @@
 process_xml_ledger_request(_FileNameIn, DOM) :-
    extract_default_bases(DOM, DefaultBases),
    extract_action_taxonomy(DOM, ActionTaxonomy),
-   % extract_account_hierarchy(DOM, AccountHierarchy),
-   % need to update the file location when Taxonomy location is fixed.
-   extract_account_hierarchy('./taxonomy/account_hierarchy.xml', AccountHierarchy),
+   (
+      (extract_account_hierarchy(DOM, AccountHierarchy),!);
+      (
+         % need to update the file location when Taxonomy location is fixed.
+         load_xml('./taxonomy/account_hierarchy.xml', , []),
+         extract_account_hierarchy(AccountHierarchyDom, AccountHierarchy),
+      )
+   ),
    findall(Transaction, extract_transactions(DOM, DefaultBases, Transaction), S_Transactions),
 
    inner_xml(DOM, //reports/balanceSheetRequest/startDate, [BalanceSheetStartDateAtom]),
@@ -81,8 +86,7 @@ extract_default_bases(DOM, Bases) :-
 % Load Account Hierarchy from the file stored in the local server.
 % ------------------------------------------------------------------
 
-extract_account_hierarchy(AccountHierarchyFileName, AccountHierarchy) :-   
-   load_xml(AccountHierarchyFileName, AccountHierarchyDom, []),   
+extract_account_hierarchy(AccountHierarchyDom, AccountHierarchy) :-   
    % fixme when input format is agreed on
    findall(Account, xpath(AccountHierarchyDom, //accounts, Account), Accounts),
    findall(Link, (member(TopLevelAccount, Accounts), accounts_link(TopLevelAccount, Link)), AccountHierarchy).

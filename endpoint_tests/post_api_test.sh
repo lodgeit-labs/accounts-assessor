@@ -1,3 +1,5 @@
+mkdir tmp
+
 curl -s -X POST --data-binary "@$2" --header "Accept: application/xml" -o "tmp/response1.xml" \
 	"$1"
 tr -d '\040\011\012\015' < "$3" > "tmp/response2.xml"

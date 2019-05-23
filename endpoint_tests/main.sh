@@ -2,7 +2,7 @@
 #or "http://localhost:8080/"
 
 
-cd endpoint_tests
+# fixme
 ./post_api_test.sh $1 loan-request1.xml loan-response1.xml
 ./post_api_test.sh $1 loan-request2.xml loan-response2.xml
 ./post_api_test.sh $1 loan-request3.xml loan-response3.xml

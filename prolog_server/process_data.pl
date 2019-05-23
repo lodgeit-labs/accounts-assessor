@@ -6,13 +6,6 @@
 % ===================================================================
 
 % -------------------------------------------------------------------
-% Style checking
-% -------------------------------------------------------------------
-
-:- style_check([-discontiguous, -singleton]).
-
-
-% -------------------------------------------------------------------
 % Modules
 % -------------------------------------------------------------------
 
@@ -58,6 +51,7 @@ extract_file_name(Header, FileName) :-
    append(Name, ['.', x, m, l, '"'|Rest2], Rest1),
    % exclude file location from the filename 
    % (for Internet Explorer/Microsoft Edge)
+   % todo check if this works in all cases
    (   
      memberchk('\\', Name)
      ->  

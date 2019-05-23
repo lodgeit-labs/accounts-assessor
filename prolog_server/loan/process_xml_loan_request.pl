@@ -9,8 +9,6 @@
 % Load files --- needs to be turned into modules
 %--------------------------------------------------------------------
 
-% The program entry point. Run the program using swipl -s main.pl .
-
 % Loads up calendar related predicates
 :- ['../../src/days.pl'].
 
@@ -52,23 +50,19 @@ process_xml_loan_request(FileNameIn, DOM) :-
 		         NCreationIncomeYear, NTerm, NPrincipalAmount, NLodgementDate, NComputationYear, NOpeningBalance, NLoanRepayments),   
    loan_agr_summary(loan_agreement(0, NPrincipalAmount, NLodgementDate, NCreationIncomeYear, NTerm, 
 				   NComputationYear, NOpeningBalance, NLoanRepayments), Summary),
-   display_xbrl_loan_response(FileNameOut, NComputationYear, Summary).
+   display_xml_loan_response(FileNameOut, NComputationYear, Summary).
 
    
 % -------------------------------------------------------------------
-% display_xbrl_loan_response/3
+% display_xml_loan_response/3
 % -------------------------------------------------------------------
 
-display_xbrl_loan_response(FileNameOut, IncomeYear, 
+display_xml_loan_response(FileNameOut, IncomeYear, 
                     loan_summary(_Number, OpeningBalance, InterestRate, MinYearlyRepayment, TotalRepayment,
 			         RepaymentShortfall, TotalInterest, TotalPrincipal, ClosingBalance)) :-
    FileNameOut = 'loan-response.xml',
    format('Content-type: text/xml~n~n'), 
-   writeln('<?xml version="1.0"?>'), nl,
-   writeln('<xbrli:xbrl xmlns:xbrli="http://www.xbrl.org/2003/instance">'),
-   writeln('<!-- A Taxonomy should be created to generate XBRL instance for loan. -->'), nl,
-   writeln('<!-- <link:schemaRef xlink:type="simple" xlink:href="XXXXX.xsd"/> -->'), nl, nl,	
-   writeln('<!-- A suitable context needs to be provided. -->'), nl, nl,
+   writeln('<?xml version="1.0"?>'), nl,   
    writeln('<LoanSummary>'),
    format('<IncomeYear>~w</IncomeYear>~n', IncomeYear),
    format('<OpeningBalance>~w</OpeningBalance>~n', OpeningBalance),
@@ -79,6 +73,6 @@ display_xbrl_loan_response(FileNameOut, IncomeYear,
    format('<TotalInterest>~w</TotalInterest>~n', TotalInterest),
    format('<TotalPrincipal>~w</TotalPrincipal>~n', TotalPrincipal),
    format('<ClosingBalance>~w</ClosingBalance>~n', ClosingBalance),
-   write('</LoanSummary>'), nl,
-   write('</xbrli:xbrl>'), nl, nl.
+   write('</LoanSummary>'), nl.
+   
 
