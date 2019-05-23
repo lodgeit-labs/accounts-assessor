@@ -28,11 +28,11 @@ process_xml_ledger_request(_FileNameIn, DOM) :-
    extract_default_bases(DOM, DefaultBases),
    extract_action_taxonomy(DOM, ActionTaxonomy),
    (
-      (extract_account_hierarchy(DOM, AccountHierarchy),!);
+      (extract_account_hierarchy(DOM, AccountHierarchy), !);
       (
          % need to update the file location when Taxonomy location is fixed.
-         load_xml('./taxonomy/account_hierarchy.xml', , []),
-         extract_account_hierarchy(AccountHierarchyDom, AccountHierarchy),
+         load_xml('./taxonomy/account_hierarchy.xml', AccountHierarchyDom, []),
+         extract_account_hierarchy(AccountHierarchyDom, AccountHierarchy)
       )
    ),
    findall(Transaction, extract_transactions(DOM, DefaultBases, Transaction), S_Transactions),
