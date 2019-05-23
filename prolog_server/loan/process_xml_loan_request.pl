@@ -29,9 +29,11 @@
 % -------------------------------------------------------------------
 
 process_xml_loan_request(FileNameIn, DOM) :-
-   FileNameIn  = 'tmp/loan-request.xml'
+   (
+      FileNameIn  = 'tmp/loan-request.xml'
    ->
-   FileNameOut = 'tmp/loan-response.xml',
+      FileNameOut = 'tmp/loan-response.xml';true
+   ),
    xpath(DOM, //reports/loanDetails/loanAgreement/field(@name='Income year of loan creation', @value=CreationIncomeYear), E1),
    xpath(DOM, //reports/loanDetails/loanAgreement/field(@name='Full term of loan in years', @value=Term), E2),
    xpath(DOM, //reports/loanDetails/loanAgreement/field(@name='Principal amount of loan', @value=PrincipalAmount), E3),
