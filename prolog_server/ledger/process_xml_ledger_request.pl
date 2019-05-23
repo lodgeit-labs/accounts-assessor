@@ -28,13 +28,15 @@ process_xml_ledger_request(_FileNameIn, DOM) :-
    extract_default_bases(DOM, DefaultBases),
    extract_action_taxonomy(DOM, ActionTaxonomy),
    (
-      (extract_account_hierarchy(DOM, AccountHierarchy), !);
       (
-         % need to update the file location when Taxonomy location is fixed.
-         load_xml('./taxonomy/account_hierarchy.xml', AccountHierarchyDom, []),
-         extract_account_hierarchy(AccountHierarchyDom, AccountHierarchy)
+         inner_xml(DOM, //reports/balanceSheetRequest/accountHierarchyUrl, [AccountHierarchyUrl]), 
+         fetch_account_hierarchy_from_url(AccountHierarchyUrl, AccountHierarchyDom), !
       )
+      ;
+         load_xml('./taxonomy/account_hierarchy.xml', AccountHierarchyDom, [])
    ),
+   extract_account_hierarchy(AccountHierarchyDom, AccountHierarchy),
+ 
    findall(Transaction, extract_transactions(DOM, DefaultBases, Transaction), S_Transactions),
 
    inner_xml(DOM, //reports/balanceSheetRequest/startDate, [BalanceSheetStartDateAtom]),
@@ -79,11 +81,16 @@ pretty_term_string(Term, String) :-
 extract_default_bases(DOM, Bases) :-
    inner_xml(DOM, //reports/balanceSheetRequest/defaultUnitTypes/unitType, Bases).
 
-   
+  
+fetch_account_hierarchy_from_url(AccountHierarchyUrl, AccountHierarchyDom) :-
+   http_get(AccountHierarchyUrl, AccountHierarchyXmlText, []),
+   store_xml_document('tmp/account_hierarchy.xml', AccountHierarchyXmlText),
+   load_xml('tmp/account_hierarchy.xml', AccountHierarchyDom, []).
+  
 % ------------------------------------------------------------------
 % extract_account_hierarchy/2
 %
-% Load Account Hierarchy from the file stored in the local server.
+% Load Account Hierarchy terms from DOM
 % ------------------------------------------------------------------
 
 extract_account_hierarchy(AccountHierarchyDom, AccountHierarchy) :-   
