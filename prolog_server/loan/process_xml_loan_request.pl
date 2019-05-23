@@ -29,9 +29,9 @@
 % -------------------------------------------------------------------
 
 process_xml_loan_request(FileNameIn, DOM) :-
-   FileNameIn  = 'loan-request.xml'
+   FileNameIn  = 'tmp/loan-request.xml'
    ->
-   FileNameOut = 'loan-response.xml',
+   FileNameOut = 'tmp/loan-response.xml',
    xpath(DOM, //reports/loanDetails/loanAgreement/field(@name='Income year of loan creation', @value=CreationIncomeYear), E1),
    xpath(DOM, //reports/loanDetails/loanAgreement/field(@name='Full term of loan in years', @value=Term), E2),
    xpath(DOM, //reports/loanDetails/loanAgreement/field(@name='Principal amount of loan', @value=PrincipalAmount), E3),
@@ -60,7 +60,7 @@ process_xml_loan_request(FileNameIn, DOM) :-
 display_xml_loan_response(FileNameOut, IncomeYear, 
                     loan_summary(_Number, OpeningBalance, InterestRate, MinYearlyRepayment, TotalRepayment,
 			         RepaymentShortfall, TotalInterest, TotalPrincipal, ClosingBalance)) :-
-   FileNameOut = 'loan-response.xml',
+   FileNameOut = 'tmp/loan-response.xml',
    format('Content-type: text/xml~n~n'), 
    writeln('<?xml version="1.0"?>'), nl,   
    writeln('<LoanSummary>'),

@@ -10,7 +10,7 @@
 % -------------------------------------------------------------------
 
 :- use_module(library(xpath)).
-
+:- use_module(library(http/http_dispatch), [http_safe_file/2]).
 
 % -------------------------------------------------------------------
 % Load files
@@ -46,29 +46,32 @@ split_header_body(Data, Header, Body) :-
    append(Header, ['<', '?', x, m, l|Rest], Chars),
    Body = ['<', '?', x, m, l|Rest].
 
-extract_file_name(Header, FileName) :-
+extract_file_name(Header, FileName2) :-
    append(_, [f, i, l, e, n, a, m, e, '=', '"'|Rest1], Header),   
    append(Name, ['.', x, m, l, '"'|Rest2], Rest1),
-   % exclude file location from the filename 
+   exclude_file_location_from_filename(Name, FName),
+   append(FName, ['.', x, m, l], FileNameChars),
+   atomic_list_concat(FileNameChars, FileName),
+   http_safe_file(FileName, []),
+   atomic_list_concat(["tmp/", FileName], FileName2).
+
+exclude_file_location_from_filename(Name, FName) :-
    % (for Internet Explorer/Microsoft Edge)
-   % todo check if this works in all cases
-   (   
-     memberchk('\\', Name)
-     ->  
+   once((
+   memberchk('\\', Name)
+   ->  
      reverse(Name, RName),
      append(RFName, ['\\'|R1], RName),
      reverse(RFName, FName)
    ;   
-     FName = Name
-   ),
-   append(FName, ['.', x, m, l], FileNameChars),
-   atomic_list_concat(FileNameChars, FileName).
+     FName = Name)).
+
 
 extract_xml_data(Body, XMLString) :-
-   reverse(Body, RBody),
-   append(_, ['>'|Rest], RBody),
-   reverse(['>'|Rest], XMLChars),
-   string_chars(XMLString, XMLChars).
+      reverse(Body, RBody),
+      append(_, ['>'|Rest], RBody),
+      reverse(['>'|Rest], XMLChars),
+      string_chars(XMLString, XMLChars).
 
 
 % -------------------------------------------------------------------
