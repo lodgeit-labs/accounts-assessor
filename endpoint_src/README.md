@@ -1,3 +1,11 @@
+# status
+We are outphasing this code in favor of pure prolog endpoint. In case this gets used again:
+```
+Known moderate severity security vulnerability
+detected in bootstrap >= 3.0.0, < 3.4.1 defined in packages.config.
+packages.config update suggested: bootstrap ~> 3.4.1.
+```
+
 # Prolog Web Endpoint
 
 This Visual Studio Solution is a demonstration of how a Prolog program can be used to make a web service that receives input data, performs certain computations, and sends back the result. More concretely, this demonstration comprises an ASP.NET Web Application project that receives a loan agreement in XML form, uses Prolog to compute the loan balance at year-ends, and sends back the result in XML form. Only the POST request method is used in this demonstration.
