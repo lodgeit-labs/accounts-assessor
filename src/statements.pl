@@ -44,8 +44,8 @@ transaction_type_of(Transaction_Types, S_Transaction, Transaction_Type) :-
 
 preprocess_s_transactions(_, _, [], []).
 
-% This Prolog rule handles the case when the exchanged amount is known and hence no
-% exchange rate calculations need to be done.
+% This Prolog rule handles the case when the exchanged amount is known, for example 10 GOOG,
+% and hence no exchange rate calculations need to be done.
 % preprocess_s_transactions(Exchange_Rates, Transaction_Types, Input, Output).
 
 preprocess_s_transactions(Exchange_Rates, Transaction_Types, [S_Transaction | S_Transactions],
@@ -77,7 +77,7 @@ preprocess_s_transactions(Exchange_Rates, Transaction_Types, [S_Transaction | S_
 	% Make the list of preprocessed transactions
 	preprocess_s_transactions(Exchange_Rates, Transaction_Types, S_Transactions, PP_Transactions), !.
 
-% This Prolog rule handles the case when only the exchanged amount units are known and
+% This Prolog rule handles the case when only the exchanged amount units are known (for example GOOG)  and
 % hence it is desired for the program to do an exchange rate conversion. 
 % We passthrough the output list to the above rule, and just replace the first transaction in the 
 % input list (S_Transaction) with a modified one (NS_Transaction).
@@ -96,11 +96,59 @@ preprocess_s_transactions(Exchange_Rates, Transaction_Types, [S_Transaction | S_
   preprocess_s_transactions(Exchange_Rates, Transaction_Types, [NS_Transaction | S_Transactions], Transaction).
 
 
+one livestock acount with transactions? vectors with different unit types
+
+defined for year:
+	Natural_Increase_value is Natural_increase_count * Natural_increase_value_per_head,
+	Opening_and_purchases_and_increase_count is Stock_on_hand_at_beginning_of_year_count + Purchases_count + Natural_increase_count,
+	Opening_and_purchases_and_increase_value is Stock_on_hand_at_beginning_of_year_value + Purchases_value + Natural_Increase_value,
+	Average_cost is Opening_and_purchases_and_increase_value / Opening_and_purchases_and_increase_count,
+
+
+Stock_on_hand_at_beginning_of_year_count for day
+since beginning of year:
+	purchases
+	born
+
+livestock event types:
+	dayEndCount 
+	born        
+	loss        
+	rations     
+	internal:
+		bought
+		sold
+
+rations:
+	debit equity drawings
+
+born/loss as a source event affects:
+	livestock count
+	"Assets"/"Current Assets"/"Inventory on Hand"/"Inventory at Cost"/"Livestock at Cost","Livestock at average Cost"?
+
+    
 
 
 
+livestock-related bank statements:
+	buy 
+	sell
+		fill in tag by unit type
+	
+	
+		affect livestock count
+		affect the bank account as usual
+		the inverse account:
+                    {
+                      "name": "Livestock at Average Cost",
+                      "code": "1204",
+                      "active": false
+                    },
+                    {
 
-
+	
+actions:
+	buy_livestock	"1203"-"Livestock at Cost"
 
 
 
@@ -148,3 +196,14 @@ livestock_count([E|Events], Count) :-
 livestock_count([], Count) :-
 	throw("no events, initial count missing").
 
+
+
+
+
+
+s_transactions ->
+	livestock_events
+	transactions
+
+livestock_events ->
+	transactions
