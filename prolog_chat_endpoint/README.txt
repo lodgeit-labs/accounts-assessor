@@ -1,1 +1,1 @@
-only SBE linked in for now.
+only SBE linked in for now. We need to integrate this into prolog_server, with different urls.

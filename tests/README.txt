@@ -1,0 +1,2 @@
+random collection of tests. No need to homogenize everything into one format, let us just write a top-level script that
+runs everything, and let's make sure all the sub-runners work, and write instructions how/scripts to set them up.

@@ -1,0 +1,63 @@
+<?xml version="1.0"?>
+<reports xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <balanceSheetRequest>
+    <generator>
+      <date>2014-08-28T10:58:40.000165Z</date>
+      <source>LODGEIT</source>
+      <author>
+        <firstname>David</firstname>
+        <lastname>Joe</lastname>
+        <company>XYZ Company Pvt Ltd</company>
+      </author>
+    </generator>
+    <company>
+      <abn>11111111111</abn>
+      <anzsic />
+    </company>
+    <!-- Needed for computation of retained earnings in balance sheet. -->
+    <startDate>2017-07-01</startDate>
+    <!-- Needed for computation of most fields in balance sheet. -->
+    <endDate>2018-06-30</endDate>
+    <!-- If a unitType is not specified in a transaction below, then the first usable unitType from this list is taken. -->
+    <defaultUnitTypes>
+      <unitType>AUD</unitType>
+    </defaultUnitTypes>
+    <!-- Needed for the tracking of units in inventory. Also needed for correct computation of gains and losses. -->
+    <unitValues>
+      <unitValue>
+		 <!-- On 2018-08-02, a BHP share had a value of 10 AUD. -->
+        <valuationDate>2017-07-10</valuationDate>
+        <unitType>BHP</unitType>
+        <unitValue>10</unitValue>
+        <unitValueCurrency>USD</unitValueCurrency>
+      </unitValue>
+      <unitValue>
+        <valuationDate>2018-06-30</valuationDate>
+        <unitType>BHP</unitType>
+        <unitValue>15</unitValue>
+        <unitValueCurrency>USD</unitValueCurrency>
+      </unitValue>
+      
+    </unitValues>
+    <bankStatement>
+      <title>Bank Statement</title>
+      <period>2017-07-01 - 2010-06-30</period>
+      <accountDetails>
+        <accountNo>1-1110</accountNo>
+        <accountName>WellsFargo</accountName>
+        <dateofBankStatement>2018-09-30</dateofBankStatement>
+        <bankID>Commonwealth Bank</bankID>
+        <currency>USD</currency>
+        <transactions>
+          <transaction>
+            <transdesc>Invest_In</transdesc>
+            <transdate>2017-07-10</transdate>
+            <debit>100.00</debit>
+            <credit>0.00</credit>
+            <unitType>BHP</unitType>
+          </transaction>
+        </transactions>
+      </accountDetails>
+    </bankStatement>
+  </balanceSheetRequest>
+</reports>
