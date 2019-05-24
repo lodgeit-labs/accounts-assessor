@@ -1,0 +1,36 @@
+year
+stock type
+
+natural increase
+	stock count
+	AUD per head
+	
+gross sales
+	stock count
+	AUD total
+
+rations or exchanged stock count
+
+beginning stock count	
+ending stock count
+
+purchases
+	stock count
+	AUD per head (better total?)
+
+
+
+natural increase pricing:
+	"""
+	The cost of an animal you hold as livestock that you acquired by natural increase is whichever of these you elect:
+
+	actual cost of the animal
+	cost prescribed by the regulations  
+	cattle, horses and deer – $20
+	pigs – $12
+	emus – $8
+	goats and sheep – $4
+	poultry – 35 cents.
+	 
+	A horse's livestock cost will be the greater of the above or the insemination service fee.
+	"""
