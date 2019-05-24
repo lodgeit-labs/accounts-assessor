@@ -112,6 +112,8 @@
             born                7
             loss                4
             rations             1
+                <!-- rations will be more complex as they could be tagged with the beneficiary in some way. We may then
+                credit accounts like Partners Equity  -->
         </livestockDataPoint>
           
     <!-- concievably, we'll want to handle buys/sells that happened in cash. They could fit into the livestockDataPoint format,

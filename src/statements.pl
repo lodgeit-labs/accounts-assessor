@@ -95,3 +95,56 @@ preprocess_s_transactions(Exchange_Rates, Transaction_Types, [S_Transaction | S_
   s_transaction_exchanged(NS_Transaction, vector(Vector_Transformed)),
   preprocess_s_transactions(Exchange_Rates, Transaction_Types, [NS_Transaction | S_Transactions], Transaction).
 
+
+
+
+
+
+
+
+
+
+Sales_Account_ID
+Cog
+
+
+
+
+
+
+
+% here we just simply count livestock units
+
+livestock_count(Events, UnitType, EndDay, Count) :-
+	filter_events(Events, UnitType, EndDay, FilteredEvents),
+	livestock_count(FilteredEvents, Count).
+
+
+livestock_count([E|Events], Count) :-
+	livestock_count(Events, CountBefore),
+	(
+		(
+			Events = [],
+			(
+				E = day_end_count(Count)
+			;
+				throw("first event has to be endDayCount")
+			),
+		),!
+		;
+		(
+			E = end_day_count(EndDayCount),
+			(
+				EndDayCount = Count,!;
+				throw("EndDayCount != Count")
+			)
+		)
+	);
+	E = born(C);
+	E = loss(C);
+	E = rations(C);
+	Count is CountBefore + C
+	
+livestock_count([], Count) :-
+	throw("no events, initial count missing").
+
