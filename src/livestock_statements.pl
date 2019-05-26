@@ -77,6 +77,8 @@ then try to use the action taxonomy format with exchange account to define this*
 	transaction_account_id(Livestock_Transaction, Livestock_Account),
 	
 %   affect Assets_1203_Livestock_at_Cost...
+
+%   affect Cog
 	
 	
 	!.
@@ -89,8 +91,8 @@ then try to use the action taxonomy format with exchange account to define this*
 preprocess_s_transactions(Exchange_Rates, Transaction_Types, [S_Transaction | S_Transactions],
 		[UnX_Transaction | [X_Transaction | [Trading_Transaction | PP_Transactions]]]) :-
 
+	s_transaction_vector(S_Transaction, Vector),
 	s_transaction_exchanged(S_Transaction, vector(Vector_Transformed)),
-	
 
 	transaction_type_of(Transaction_Types, S_Transaction, Transaction_Type),
 	
@@ -99,8 +101,7 @@ preprocess_s_transactions(Exchange_Rates, Transaction_Types, [S_Transaction | S_
 	transaction_day(UnX_Transaction, Day),
 	transaction_type_description(Transaction_Type, Description), 
 	transaction_description(UnX_Transaction, Description),
-	s_transaction_vector(S_Transaction, Vector),
-	vec_inverse(Vector, Vector_Inverted),
+	vec_inverse(Vector, Vector_Inverted), %?
 	transaction_vector(UnX_Transaction, Vector_Inverted),
 	s_transaction_account_id(S_Transaction, UnX_Account), 
 	transaction_account_id(UnX_Transaction, UnX_Account),
@@ -145,39 +146,18 @@ preprocess_s_transactions(Exchange_Rates, Transaction_Types, [S_Transaction | S_
 	preprocess_s_transactions(Exchange_Rates, Transaction_Types, [NS_Transaction | S_Transactions], Transaction).
 
 
-
-
 /*
-one livestock acount with transactions, vectors with different unit types
-
-livestock events -> livestock account transactions, other account transactions	
-
-
-
-defined for year:
-	Natural_Increase_value is Natural_increase_count * Natural_increase_value_per_head,
-	Opening_and_purchases_and_increase_count is Stock_on_hand_at_beginning_of_year_count + Purchases_count + Natural_increase_count,
-	Opening_and_purchases_and_increase_value is Stock_on_hand_at_beginning_of_year_value + Purchases_value + Natural_Increase_value,
-	Average_cost is Opening_and_purchases_and_increase_value / Opening_and_purchases_and_increase_count,
-
-
-Stock_on_hand_at_beginning_of_year_count for day
-since beginning of year:
-	purchases
-	born
-
 livestock event types:
 	dayEndCount 
 	born        
 	loss        
 	rations     
 	internal:
-		bought
-		sold
+		buy,sell
+*/
 
-
-
-process() :-
+preprocess_livestock_event(Event) :-
+	
 
 rations:
 	Livestock_Account
@@ -199,23 +179,115 @@ born/loss
 
 
 
-Sales_Account_ID
-Cog
+/*
+one livestock acount with transactions, vectors with different unit types
+
+
+s_transactions ->
+	livestock_events
+	trade transactions
+
+livestock_events ->
+	livestock account transactions
+	inventory value transactions
+	equity transactions
+	
 
 
 
+
+
+
+
+
+
+getting average cost at any day:
+
+defined for year:
+	Natural_Increase_value is Natural_increase_count * Natural_increase_value_per_head,
+	Opening_and_purchases_and_increase_count is Stock_on_hand_at_beginning_of_year_count + Purchases_count + Natural_increase_count,
+	Opening_and_purchases_and_increase_value is Stock_on_hand_at_beginning_of_year_value + Purchases_value + Natural_Increase_value,
+	Average_cost is Opening_and_purchases_and_increase_value / Opening_and_purchases_and_increase_count,
+
+Stock_on_hand_at_beginning_of_year_count for day
+since beginning of year:
+	purchases
+	born
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+% Events is a list specific for one unit type
+
+preprocess_livestock_events([E|Events], Count, TransactionsIn, TransactionsOut) :-
+	preprocess_livestock_events(Events, CountBefore, TransactionsIn, TransactionsSoFar),
+	(
+		(
+			Events = [],
+			(
+				E = count(Count, Cost)
+			;
+				throw("first event has to be day end count")
+			),
+			% put first transaction with this unit type into the livestock account
+			append(TransactionsSoFar, [
+				transaction(Day, 'livestock initial count', Livestock, [coord(Unit, Count, 0)]), 
+				transaction(Day, 'livestock initial value', Assets_1204_Livestock_at_Cost, Cost)], 
+				TransactionsOut)
+			
+			
+		),!
+		;
+		(
+			E = count(DayEndCount),
+			(
+				DayEndCount = Count,!;
+				throw("DayEndCount != Count")
+			),
+			TransactionsIn = TransactionsOut
+		)
+	)
+	;
+	(
+		(
+			(E = buy(Count, Cost); E = sell(Count, Cost)) -> 
+				T = [transaction(Day, 'livestock bought/sold', Livestock, Count),
+					 transaction(Day, 'livestock bought/sold', Assets_1203_Livestock_at_Cost, Cost])
+				]
+			;
+			(E = born(C); E = loss(C); E = rations(C)) ->
+				average_cost(Day, TransactionsSoFar or Events?, Cost),
+				T = [transaction(Day, 'livestock born/loss/rations', Livestock, C),
+					 transaction(Day, 'livestock born/loss/rations', Assets_1204_Livestock_at_Average_Cost, Cost])
+				]
+		),
+		append(TransactionsSoFar, T, TransactionsOut),
+		Count is CountBefore + C
+	).
+	
+preprocess_livestock_events([], not_used).
 
 
 
 
 % here we just simply count livestock units
-% lets keep this for debugging but split the concerns into producing transactions from livestock events and counting 
-% units in transactions as usual
 
 livestock_count(Events, UnitType, EndDay, Count) :-
 	filter_events(Events, UnitType, EndDay, FilteredEvents),
 	livestock_count(FilteredEvents, Count).
 
+% Events is a list specific for one unit type
 
 livestock_count([E|Events], Count) :-
 	livestock_count(Events, CountBefore),
@@ -223,37 +295,30 @@ livestock_count([E|Events], Count) :-
 		(
 			Events = [],
 			(
-				E = day_end_count(Count)
+				E = count(Count)
 			;
-				throw("first event has to be endDayCount")
+				throw("first event has to be day end count")
 			),
 		),!
 		;
 		(
-			E = end_day_count(EndDayCount),
+			E = count(DayEndCount),
 			(
-				EndDayCount = Count,!;
-				throw("EndDayCount != Count")
+				DayEndCount = Count,!;
+				throw("DayEndCount != Count")
 			)
 		)
-	);
-	E = born(C);
-	E = loss(C);
-	E = rations(C);
-	Count is CountBefore + C
+	)
+	;
+	(
+		(
+			E = buy(C);
+			E = sell(C);
+			E = born(C);
+			E = loss(C);
+			E = rations(C);
+		),
+		Count is CountBefore + C
+	).
 	
-livestock_count([], Count) :-
-	throw("no events, initial count missing").
-
-
-
-
-
-
-s_transactions ->
-	livestock_events
-	transactions
-
-livestock_events ->
-	transactions
-*/
+livestock_count([], not_used).
