@@ -27,6 +27,8 @@ transaction_description(transaction(_, Description, _, _), Description).
 transaction_account(transaction(_, _, Account_Id, _), Account_Id).
 % The amounts by which the account is being debited and credited
 transaction_vector(transaction(_, _, _, Vector), Vector).
+% Extract the cost of the buy from transaction data
+transaction_cost(transaction(_, _, _, t_term(Cost, _)), Cost).
 
 
 day_diff(Date1, Date2, Days) :-
@@ -42,22 +44,24 @@ type(car, motor_vehicles).
 type(motor_vehicles, property_plant_and_equipment).
 type(property_plant_and_equipment, non_current_asset).
 
-% Example of transactions regarding motor vehicles
+
+% Example hardcoded transactions regarding motor vehicles
 transactions(transaction(date(19, 7, 1), buy_car, motor_vehicles, t_term(1000, 0))).
 transactions(transaction(date(19, 7, 1), buy_car, hirepurchase_car, t_term(0, 1000))).
 transactions(transaction(date(20, 4, 1), buy_truck, motor_vehicles, t_term(3000, 0))).
 transactions(transaction(date(20, 4, 1), buy_truck, hirepurchase_truck, t_term(0, 3000))).
 
+
 % Depreciation rates for motor vehicles depending on the year: 1, 2... after investing
 depreciation_rate(motor_vehicles, _, 0.2).
 %depreciation_rate(motor_vehicles, _, 0.27).
 
-% Extract the cost of the buy from transaction data
-transaction_cost(transaction(_, _, _, t_term(Cost, _)), Cost).
 
 % Calculates depreciation on a daily basis between the invest in date and any other date
-depreciation_between_invest_in_date_and_other_date(Invest_in_value, Initial_value, Method, date(From_year, From_Month, From_day), To_date,
-	Account, Depreciation_year, By_day_factor, Total_depreciation_value):-
+depreciation_between_invest_in_date_and_other_date(
+	Invest_in_value, Initial_value, Method, date(From_year, From_Month, From_day), To_date,
+	Account, Depreciation_year, By_day_factor, Total_depreciation_value
+	) :-
 	day_diff(date(From_year, From_Month, From_day), To_date, Days_difference),
 	Days_difference >= 0,
 	depreciation_rate(Account, Depreciation_year, Depreciation_rate),
@@ -101,8 +105,11 @@ And there is another concept to consider. If the asset (say a car) is depreciate
 say $20. And the car is sold for $40, then there is a gain of $20. But if it is sold for $10, then there is a loss of $10. */
 
 depreciation_by_method(Method, Initial_value, Depreciation_rate, Depreciation_fixed_value, By_day_factor, Days, Depreciation_value):-
-	(Method == diminishing_value -> Depreciation_value is Initial_value * Depreciation_rate * By_day_factor * Days;
-Depreciation_value is Depreciation_fixed_value * By_day_factor * Days).
+	Factor is By_day_factor * Days,
+	(Method == diminishing_value -> 
+		Depreciation_value is Factor * Initial_value * Depreciation_rate
+		;
+		Depreciation_value is Factor * Depreciation_fixed_value).
 
 %Example queries:
 
