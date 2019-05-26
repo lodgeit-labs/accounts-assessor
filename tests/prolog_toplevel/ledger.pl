@@ -1,4 +1,4 @@
-:- ['../src/days', '../src/ledger'].
+['../../src/days', '../../src/ledger'].
 
 write("Are we now testing the general ledger subprogram?").
 
