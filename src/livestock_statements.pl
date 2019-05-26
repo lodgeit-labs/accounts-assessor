@@ -48,31 +48,40 @@ livestock_s_transaction_to_transaction(S_Transaction, UnX_Transaction) :-
 
 preprocess_s_transactions(_, _, [], []).
 
+
+
+
 % the case for livestock buy/sell:
 % 	produce/copy the bank account transaction
 % 	produce a livestock count transaction 
+%   affect Assets_1203_Livestock_at_Cost
 
 preprocess_s_transactions(Exchange_Rates, Transaction_Types, [S_Transaction | S_Transactions], [UnX_Transaction, Livestock_Transaction | Transactions]) :-
+
+/*fixme: first let us go through all transactions and tag these as an action such as "livestock_sell", 
+then try to use the action taxonomy format with exchange account to define this*/
+
 
 	% get what unit type was exchanged for the money
 	s_transaction_exchanged(S_Transaction, vector([coord(Unit, D, C)])),
 	member(Livestock_Units, Unit),
+	% produce the bank account transaction
 	livestock_s_transaction_to_transaction(S_Transaction, UnX_Transaction),
 
+	% produce a livestock count increase/decrease transaction
 	s_transaction_day(S_Transaction, Day), 
 	transaction_day(Livestock_Transaction, Day),
-	
 	transaction_description(Livestock_Transaction, "livestock buy/sell"),
-	
 	s_transaction_exchanged(S_Transaction, Vector),
 	transaction_vector(Livestock_Transaction, Vector),
-	
 	transaction_account_id(Livestock_Transaction, Livestock_Account),
 	
+%   affect Assets_1203_Livestock_at_Cost...
 	
 	
 	!.
 
+% trading account, non-livestock processing:
 % This Prolog rule handles the case when the exchanged amount is known, for example 10 GOOG,
 % and hence no exchange rate calculations need to be done.
 % preprocess_s_transactions(Exchange_Rates, Transaction_Types, Input, Output).
@@ -166,36 +175,27 @@ livestock event types:
 		bought
 		sold
 
+
+
+process() :-
+
 rations:
-	debit equity drawings
+	Livestock_Account
+	debit Equity_Drawings
 
-born/loss as a source event affects:
-	livestock count
-	"Assets"/"Current Assets"/"Inventory on Hand"/"Inventory at Cost"/"Livestock at Cost","Livestock at average Cost"?
+born/loss
+	Livestock_Account
+	Assets_1204_Livestock_at_Average_Cost
 
-    
-
-
-
-livestock-related bank statements:
-	buy 
-	sell
-		fill in tag by unit type
-	
-	
-		affect livestock count
-		affect the bank account as usual
 		the inverse account:
                     {
-                      "name": "Livestock at Average Cost",
+                      "name": "Livestock at Cost",
                       "code": "1204",
                       "active": false
                     },
                     {
 
 	
-actions:
-	buy_livestock	"1203"-"Livestock at Cost"
 
 
 
