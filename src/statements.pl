@@ -1,16 +1,4 @@
-% Predicates for asserting that the fields of given transaction types have particular values
-
-% The identifier of this transaction type, for example Borrow
-transaction_type_id(transaction_type(Id, _, _, _), Id).
-
-% The account that will receive the inverse of the transaction amount after exchanging
-transaction_type_exchanged_account_id(transaction_type(_, Exchanged_Account_Id, _, _), Exchanged_Account_Id).
-
-% The account that will record the gains and losses on the transaction amount
-transaction_type_trading_account_id(transaction_type(_, _, Trading_Account_Id, _), Trading_Account_Id).
-
-% A description of this transaction type
-transaction_type_description(transaction_type(_, _, _, Description), Description).
+:- ['transaction_types'].
 
 
 %  term s_transaction(Day, Type_Id, Vector, Unexchanged_Account_Id, Bases)
@@ -36,6 +24,19 @@ transaction_type_of(Transaction_Types, S_Transaction, Transaction_Type) :-
   transaction_type_id(Transaction_Type, Type_Id),
   member(Transaction_Type, Transaction_Types).
 
+livestock_s_transaction_to_transaction(S_Transaction, UnX_Transaction) :-
+	% i still dont get why vector should be inverted
+	s_transaction_day(S_Transaction, Day), 
+	transaction_day(UnX_Transaction, Day),
+	transaction_description(UnX_Transaction, "livestock buy/sell"),
+	s_transaction_vector(S_Transaction, Vector),
+	transaction_vector(S_Transaction, Vector),
+	s_transaction_account_id(S_Transaction, UnX_Account), 
+	transaction_account_id(UnX_Transaction, UnX_Account).
+
+	
+
+
 % Transactions using trading accounts can be decomposed into a transaction of the given
 % amount to the unexchanged account, a transaction of the transformed inverse into the
 % exchanged account, and a transaction of the negative sum of these into the trading
@@ -44,21 +45,26 @@ transaction_type_of(Transaction_Types, S_Transaction, Transaction_Type) :-
 
 preprocess_s_transactions(_, _, [], []).
 
+% the case for livestock buy/sell:
+% 	produce/copy the bank account transaction
+% 	produce a livestock count transaction 
+
 preprocess_s_transactions(Exchange_Rates, Transaction_Types, [S_Transaction | S_Transactions], [UnX_Transaction, Livestock_Transaction | Transactions]) :-
 
+	% get what unit type was exchanged for the money
 	s_transaction_exchanged(S_Transaction, vector([coord(Unit, D, C)),
 	member(Livestock_Units, Unit),
+	livestock_s_transaction_to_transaction(S_Transaction, UnX_Transaction),
 
-	% i still dont get why vector should be inverted, otherwise this code is same as in the other rule
 	s_transaction_day(S_Transaction, Day), 
-	transaction_day(UnX_Transaction, Day),
-	transaction_description(UnX_Transaction, "livestock buy/sell"),
-	s_transaction_vector(S_Transaction, Vector),
-	transaction_vector(S_Transaction, Vector),
-	s_transaction_account_id(S_Transaction, UnX_Account), 
-	transaction_account_id(UnX_Transaction, UnX_Account),
-
-	member(Livestock_Accounts, Livestock_Account),
+	transaction_day(Livestock_Transaction, Day),
+	
+	transaction_description(Livestock_Transaction, "livestock buy/sell"),
+	
+	s_transaction_exchanged(S_Transaction, Vector),
+	transaction_vector(Livestock_Transaction, Vector),
+	
+	transaction_account_id(Livestock_Transaction, Livestock_Account),
 	
 	
 	
@@ -130,7 +136,11 @@ preprocess_s_transactions(Exchange_Rates, Transaction_Types, [S_Transaction | S_
 
 
 /*
-one livestock acount with transactions? vectors with different unit types
+one livestock acount with transactions, vectors with different unit types
+
+livestock events -> livestock account transactions, other account transactions	
+
+
 
 defined for year:
 	Natural_Increase_value is Natural_increase_count * Natural_increase_value_per_head,
@@ -196,6 +206,8 @@ Cog
 
 
 % here we just simply count livestock units
+% lets keep this for debugging but split the concerns into producing transactions from livestock events and counting 
+% units in transactions as usual
 
 livestock_count(Events, UnitType, EndDay, Count) :-
 	filter_events(Events, UnitType, EndDay, FilteredEvents),

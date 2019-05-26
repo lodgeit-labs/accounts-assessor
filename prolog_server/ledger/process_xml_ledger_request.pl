@@ -47,7 +47,7 @@ process_xml_ledger_request(_FileNameIn, DOM) :-
    extract_exchange_rates(DOM, BalanceSheetEndAbsoluteDays, ExchangeRates),
 
    preprocess_s_transactions(ExchangeRates, ActionTaxonomy, S_Transactions, Transactions),
-print_term(preprocess_s_transactions(ExchangeRates, ActionTaxonomy, S_Transactions, Transactions),[]),
+%print_term(preprocess_s_transactions(ExchangeRates, ActionTaxonomy, S_Transactions, Transactions),[]),
    balance_sheet_at(ExchangeRates, AccountHierarchy, Transactions, DefaultBases, BalanceSheetEndAbsoluteDays, BalanceSheetStartAbsoluteDays, BalanceSheetEndAbsoluteDays, BalanceSheet),
 
    pretty_term_string(S_Transactions, Message0),
