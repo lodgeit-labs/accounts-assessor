@@ -8,33 +8,35 @@
 a list of livestock units will be defined in the sheet, for example "cows, horses".
 opening livestock value has to be input for each livestock type, 
 	this will be debited in an initial transaction to the account Assets_1203_Livestock_at_Cost
-		also another opening balance for Assets_1204_Livestock_at_Average_Cost?
+		also another opening balance for Assets_1204_Livestock_at_Average_Cost?  FOR CURRENT ITERATION, ASSUME THAT ALL TRANSACTIONS ARE IN THE BANK STATEMENT. I.E. NO OPENING BALANCES.WHY? BECAUSE OPENING BALANCES IN LIVESTOCK WILL REQUIRE A COMPLETE SET OF OPENING BALANCES. I.E. A COMPLETE OPENING BALANCE SHEET. 
 	
-Natural_increase_value_per_head has to be input for each livestock type
+Natural_increase_value_per_head has to be input for each livestock type. YES. WITH THE DATE OF THE INCREASE SO THAT REPORTS CAN BE DERIVED AT ANY DATE IN THE TRANSACTION SEQUENCE. BANK TRANSACTIONS INCLUDE BUY & SELL UNITS. SEPARATE TRANSACTIONS FOR BIRTHS, DEATHS, RATIONS.
 
 when bank statements are processed: 
 	If there is a livestock unit set on a bank account transaction:
-		count has to be set too.
-		we tag the transaction with a sell/buy livestock action type.
+		count has to be set too. BUY UNITS & ASSOCIATED $ FOR TRANSACTION. SELL UNITS & ASSOCIATED DOLLAR FOR TRANSACTION. THESE ARE GROSS VALUES. SYSTEM CAN INFER PER UNIT VALUE.
+		we tag the transaction with a sell/buy livestock action type. I BELIEVE THIS IS NOT NECESSARY. SYSTEM CAN INFER BUY/SELL i.e. A BUY IS A PAYMENT & A SELL IS A DEPOSIT. OF COURSE, THE UNIT TYPE MUST BE DESCRIBED. COW. PIG, ETC. AND THE UNIT TYPE MUST HAVE AN ACCOUNTS TAXONOMICAL RELATIONSHIP
 		user should have sell/buy livestock action types in their taxonomy.
-			the "exchanged" account will be one where livestock increase/decrease transactions are collected
+			the "exchanged" account will be one where livestock increase/decrease transactions are collected. AT REPORT RUN TIME COMPUTE THE FACTS BY INFERENCE.
 
-		internally, livestock buys and sells are transformed into "livestock buy/sell events"
-		other livestock events are taken from the second table: natural increase, loss, rations, and "count"
-		"count" has to be the first livestock-related event, by date.
-			actually i have opted for "day end count", to avoid ambiguity.
-		since our accounts don't have a special "opening balance" value, we transform the first "day end count" into a first transaction with the initial count debited on the livestock account
-		it is possible to insert another "day end count" at any point for verification purpose.
+		internally, livestock buys and sells are transformed into "livestock buy/sell events" OK.
+		other livestock events are taken from the second table: natural increase, loss, rations, and "count" OK.
+		"count" has to be the first livestock-related event, by date. OK
+			actually i have opted for "day end count", to avoid ambiguity. 0O
+		since our accounts don't have a special "opening balance" value, we transform the first "day end count" into a first transaction with the initial count debited on the livestock account. SEE NOTE ABOVE TO AVOID OPENING CONCEPT FOR THIS SIMPLE PROTOTYPE. WE CAN REVISIT CONCEPT OF 'OPENING' LATER.
+		it is possible to insert another "day end count" at any point for verification purpose. VERIFICATION MUST BE AGAINST AN EXTERNAL LIVESTOCK CALCULATOR I.E. AS PER THE STAND ALONE CALCULATOR YOU ALREADY BUILT. THIS IS THE CRUX OF THE WHOLE PROJECT - VERIFICATION OF FACTS FROM DIFFERENT PERSPECTIVES.
 
 		other event types change the count accordingly.
 		livestock events have effects on other accounts beside the livestock count account:
 			buy/sell:
-				affect bank account
-				affect Assets_1204_Livestock_at_Cost
+				affect bank account YES.
+				affect Assets_1204_Livestock_at_Cost. 
 				cost is taken from the bank transaction
-			natural increase:
+				BUY - CR BANK (BANK BCE REDUCES) DR LIVESTOCK_AT_COST.
+				SELL - DR BANK (BANK BCE INCREASES) CR SALES_OF_LIVESTOCK (REVENUE INCREASES) AND CR LIVESTOCK_AT_COST (STOCK ON HAND DECREASES,VALUE HELD DECREASES), DR COST_OF_GOODS_LIVESTOCK (EXPENSE ASSOCIATED WITH REVENUE INCREASES). 
+			natural increase:  NATURAL INCREASE IS AN ABSTRACT VALUE THAT IMPACTS THE LIVESTOCK_AT_MARKET_VALUE AT REPORT RUN TIME. THERE IS NO NEED TO STORE/SAVE THE VALUE IN THE LEDGER. WHEN A COW IS BORN, NO CASH CHANGES HAND. 
 				affect Assets_1203_Livestock_at_Cost by Natural_increase_value_per_head as set by user
-			loss, rations:
+			loss, rations: RATIONS DR OWNERS_EQUITY -->DRAWINGS. I.E. THE OWNER TAKES SOMETHING OF VALUE. CR COST_OF_GOODS. I.E. DECREASES COST.
 				affect Assets_1204_Livestock_at_Average_Cost
 				average cost calculation is below.
 			rations:
