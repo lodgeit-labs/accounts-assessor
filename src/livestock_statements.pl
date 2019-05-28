@@ -41,7 +41,7 @@ when bank statements are processed:
 				affect Assets_1204_Livestock_at_Average_Cost		
 				also affect some equity account, for example Equity_3145_Drawings_by_Sole_Trader. Possibly user input.
           
-getting average cost at date:
+average cost is defined for date and livestock type as follows:
 	stock count and value at beginning of year is taken from beginning of year balance on:
 		the livestock count account
 		Assets_1203_Livestock_at_Cost, Assets_1204_Livestock_at_Average_Cost
