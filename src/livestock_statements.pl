@@ -1,5 +1,66 @@
 % this is a version of statements.pl where i am adding livestock functionality. work in progress.
 
+/*
+
+<howThisShouldWork>
+
+
+a list of livestock units will be defined in the sheet, for example "cows, horses".
+opening livestock value has to be input for each livestock type, 
+	this will be debited in an initial transaction to the account Assets_1203_Livestock_at_Cost
+		also another opening balance for Assets_1204_Livestock_at_Average_Cost?
+	
+Natural_increase_value_per_head has to be input for each livestock type
+
+when bank statements are processed: 
+	If there is a livestock unit set on a bank account transaction:
+		count has to be set too.
+		we tag the transaction with a sell/buy livestock action type.
+		user should have sell/buy livestock action types in their taxonomy.
+			the "exchanged" account will be one where livestock increase/decrease transactions are collected
+
+		internally, livestock buys and sells are transformed into "livestock buy/sell events"
+		other livestock events are taken from the second table: natural increase, loss, rations, and "count"
+		"count" has to be the first livestock-related event, by date.
+			actually i have opted for "day end count", to avoid ambiguity.
+		since our accounts don't have a special "opening balance" value, we transform the first "day end count" into a first transaction with the initial count debited on the livestock account
+		it is possible to insert another "day end count" at any point for verification purpose.
+
+		other event types change the count accordingly.
+		livestock events have effects on other accounts beside the livestock count account:
+			buy/sell:
+				affect bank account
+				affect Assets_1204_Livestock_at_Cost
+				cost is taken from the bank transaction
+			natural increase:
+				affect Assets_1203_Livestock_at_Cost by Natural_increase_value_per_head as set by user
+			loss, rations:
+				affect Assets_1204_Livestock_at_Average_Cost
+				average cost calculation is below.
+			rations:
+				affect Assets_1204_Livestock_at_Average_Cost		
+				also affect some equity account, for example Equity_3145_Drawings_by_Sole_Trader. Possibly user input.
+          
+getting average cost at date:
+	stock count and value at beginning of year is taken from beginning of year balance on:
+		the livestock count account
+		Assets_1203_Livestock_at_Cost, Assets_1204_Livestock_at_Average_Cost
+	subsequent transactions until the given date are processed to get purchases count/value and natural increase count/value
+
+	then we calculate:
+		Natural_Increase_value is Natural_increase_count * Natural_increase_value_per_head,
+		Opening_and_purchases_and_increase_count is Stock_on_hand_at_beginning_of_year_count + Purchases_count + Natural_increase_count,
+		Opening_and_purchases_and_increase_value is Stock_on_hand_at_beginning_of_year_value + Purchases_value + Natural_Increase_value,
+		Average_cost is Opening_and_purchases_and_increase_value / Opening_and_purchases_and_increase_count,
+
+this ignores the revenue/expenses accounts, should i worry about them now?
+
+
+
+</howThisShouldWork>
+
+	
+*/
 
 :- ['transaction_types'].
 
@@ -201,13 +262,6 @@ livestock_events ->
 
 
 
-getting average cost at any day:
-
-defined for year:
-	Natural_Increase_value is Natural_increase_count * Natural_increase_value_per_head,
-	Opening_and_purchases_and_increase_count is Stock_on_hand_at_beginning_of_year_count + Purchases_count + Natural_increase_count,
-	Opening_and_purchases_and_increase_value is Stock_on_hand_at_beginning_of_year_value + Purchases_value + Natural_Increase_value,
-	Average_cost is Opening_and_purchases_and_increase_value / Opening_and_purchases_and_increase_count,
 
 Stock_on_hand_at_beginning_of_year_count for day
 since beginning of year:
@@ -322,3 +376,8 @@ livestock_count([E|Events], Count) :-
 	).
 	
 livestock_count([], not_used).
+
+/*
+
+Expenses_5107_Opening_Inventory__Inventory_at_Cost__Livestock_at_Cost
+*/
