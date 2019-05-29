@@ -2,7 +2,7 @@
 % Project:   LodgeiT
 % Module:    process_xml_loan_request.pl
 % Author:    Abdus Salam and Rolf Schwitter
-% Date:      2019-05-22
+% Date:      2019-05-28
 % ===================================================================
 
 %--------------------------------------------------------------------
@@ -48,11 +48,12 @@ process_xml_loan_request(FileNameIn, DOM) :-
    ),   
    % need to handle empty repayments/repayment, needs to be tested
    findall(loan_repayment(Date, Value), xpath(DOM, //reports/loanDetails/repayments/repayment(@date=Date, @value=Value), E7), LoanRepayments),
+   atom_number(ComputationYear, NIncomeYear),
    convert_xpath_results(CreationIncomeYear,  Term,  PrincipalAmount,  LodgementDate,  ComputationYear,  OpeningBalance,  LoanRepayments,
 		         NCreationIncomeYear, NTerm, NPrincipalAmount, NLodgementDate, NComputationYear, NOpeningBalance, NLoanRepayments),   
    loan_agr_summary(loan_agreement(0, NPrincipalAmount, NLodgementDate, NCreationIncomeYear, NTerm, 
 				   NComputationYear, NOpeningBalance, NLoanRepayments), Summary),
-   display_xml_loan_response(FileNameOut, NComputationYear, Summary).
+   display_xml_loan_response(FileNameOut, NIncomeYear, Summary).
 
    
 % -------------------------------------------------------------------
@@ -65,7 +66,7 @@ display_xml_loan_response(FileNameOut, IncomeYear,
    FileNameOut = 'tmp/loan-response.xml',
    format('Content-type: text/xml~n~n'), 
    writeln('<?xml version="1.0"?>'), nl,   
-   writeln('<LoanSummary>'),
+   writeln('<LoanSummary xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">'),
    format('<IncomeYear>~w</IncomeYear>~n', IncomeYear),
    format('<OpeningBalance>~w</OpeningBalance>~n', OpeningBalance),
    format('<InterestRate>~w</InterestRate>~n', InterestRate),

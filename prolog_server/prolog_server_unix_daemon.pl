@@ -1,9 +1,15 @@
 % ===================================================================
 % Project:   LodgeiT
-% Module:    Prolog Server
+% Module:    Prolog Server for Unix
 % Author:    Abdus Salam and Rolf Schwitter
-% Date:      2019-05-20
+% Date:      2019-05-29
 % ===================================================================
+
+% -------------------------------------------------------------------
+% Style checking
+% -------------------------------------------------------------------
+
+:- style_check([-discontiguous, -singleton]).
 
 
 %--------------------------------------------------------------------
@@ -17,6 +23,7 @@
 :- use_module(library(http/http_multipart_plugin)).
 :- use_module(library(http/http_client)).
 :- use_module(library(http/html_write)).
+:- use_module(library(http/http_unix_daemon)).
 
 
 %--------------------------------------------------------------------
@@ -38,25 +45,8 @@
 % run_server/0
 % -------------------------------------------------------------------
 
-run_server :-
-   getenv(os, OSName)
-   ->
-   (
-      OSName = 'Windows_NT'
-      ->
-      true
-   ;
-      OSName = 'Linux'
-      ->
-      use_module(library(http/http_unix_daemon)),
-      http_daemon
-   ;
-      OSName = 'Darwin'                                  % not tested
-      ->
-      use_module(library(http/http_unix_daemon)),
-      http_daemon
-   ),
-   http_server(http_dispatch, [port(8080)]).
+run_server :-   
+   http_daemon([port(8080)]).
 
 
 % -------------------------------------------------------------------
