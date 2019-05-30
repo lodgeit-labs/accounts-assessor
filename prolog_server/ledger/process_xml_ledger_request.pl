@@ -24,12 +24,12 @@
 % process_xml_ledger_request/2
 % ------------------------------------------------------------------
 
-process_xml_ledger_request(_FileNameIn, DOM) :-
-   extract_default_bases(DOM, DefaultBases),
-   extract_action_taxonomy(DOM, ActionTaxonomy),
+process_xml_ledger_request(_FileNameIn, Dom) :-
+   extract_default_bases(Dom, DefaultBases),
+   extract_action_taxonomy(Dom, ActionTaxonomy),
    (
       (
-         inner_xml(DOM, //reports/balanceSheetRequest/accountHierarchyUrl, [AccountHierarchyUrl]), 
+         inner_xml(Dom, //reports/balanceSheetRequest/accountHierarchyUrl, [AccountHierarchyUrl]), 
          fetch_account_hierarchy_from_url(AccountHierarchyUrl, AccountHierarchyDom), !
       )
       ;
@@ -37,26 +37,29 @@ process_xml_ledger_request(_FileNameIn, DOM) :-
    ),
    extract_account_hierarchy(AccountHierarchyDom, AccountHierarchy),
  
-   findall(Transaction, extract_transactions(DOM, DefaultBases, Transaction), S_Transactions),
+   findall(Transaction, extract_transactions(Dom, DefaultBases, Transaction), S_Transactions),
 
-   inner_xml(DOM, //reports/balanceSheetRequest/startDate, [BalanceSheetStartDateAtom]),
+   inner_xml(Dom, //reports/balanceSheetRequest/startDate, [BalanceSheetStartDateAtom]),
    parse_date(BalanceSheetStartDateAtom, BalanceSheetStartAbsoluteDays),
-   inner_xml(DOM, //reports/balanceSheetRequest/endDate, [BalanceSheetEndDateAtom]),
+   inner_xml(Dom, //reports/balanceSheetRequest/endDate, [BalanceSheetEndDateAtom]),
    parse_date(BalanceSheetEndDateAtom, BalanceSheetEndAbsoluteDays),
 
-   extract_exchange_rates(DOM, BalanceSheetEndAbsoluteDays, ExchangeRates),
+   extract_exchange_rates(Dom, BalanceSheetEndAbsoluteDays, ExchangeRates),
 
    preprocess_s_transactions(ExchangeRates, ActionTaxonomy, S_Transactions, Transactions),
    
-   extract_livestock_events(DOM, Livestock_Events),
-   
-   
-   
-   %print_term(preprocess_s_transactions(ExchangeRates, ActionTaxonomy, S_Transactions, Transactions),[]),
-   balance_sheet_at(ExchangeRates, AccountHierarchy, Transactions, DefaultBases, BalanceSheetEndAbsoluteDays, BalanceSheetStartAbsoluteDays, BalanceSheetEndAbsoluteDays, BalanceSheet),
+   extract_livestock_events(Dom, Livestock_Events),
+   maplist(preprocess_livestock_event, Livestock_Events, Livestock_Event_Transactions_Nested),
+   flatten(Livestock_Event_Transactions_Nested, Livestock_Event_Transactions),
+   append(Transactions, Livestock_Event_Transactions, Transactions2),
+   maplist(preprocess_rations, Livestock_Events, Rations_Transactions_Nested),
+   flatten(Rations_Transactions_Nested, Rations_Transactions),
+   append(Transactions2, Rations_Transactions, Transactions3),
+      
+   balance_sheet_at(ExchangeRates, AccountHierarchy, Transactions3, DefaultBases, BalanceSheetEndAbsoluteDays, BalanceSheetStartAbsoluteDays, BalanceSheetEndAbsoluteDays, BalanceSheet),
 
    pretty_term_string(S_Transactions, Message0),
-   pretty_term_string(Transactions, Message1),
+   pretty_term_string(Transactions3, Message1),
    pretty_term_string(ExchangeRates, Message1b),
    pretty_term_string(ActionTaxonomy, Message2),
    pretty_term_string(AccountHierarchy, Message3),
@@ -74,14 +77,13 @@ process_xml_ledger_request(_FileNameIn, DOM) :-
 % -----------------------------------------------------
 
 extract_livestock_events(Dom, Events) :-
-   findall(Data, xpath(DOM, //reports/balanceSheetRequest/livestockData, Data), Datas),
+   findall(Data, xpath(Dom, //reports/balanceSheetRequest/livestockData, Data), Datas),
    maplist(extract_livestock_events2, Datas, Events_Nested),
    flatten(Events_Nested, Events).
    
 extract_livestock_events2(Data, Events) :-
-   livestock_account_ids(Livestock_Account),
    inner_xml(Data, type, [Type]),
-   findall(Event, xpath(Events_Dom, 'events/*', Event), Xml_Events),
+   findall(Event, xpath(Data, 'events/*', Event), Xml_Events),
    maplist(extract_livestock_event(Type), Xml_Events, Events).
 
 extract_livestock_event(Type, Dom, Event) :-
@@ -91,14 +93,14 @@ extract_livestock_event(Type, Dom, Event) :-
    atom_number(CountAtom, Count),
    extract_livestock_event2(Type, Days, Count, Dom, Event).
 
-extract_livestock_event2(Type, Days, Count, element(naturalIncrease,_,_),  born(Type, Date, Count)).
-extract_livestock_event2(Type, Days, Count, element(loss,_,_),             loss(Type, Date, Count)).
-extract_livestock_event2(Type, Days, Count, element(rations,_,_),          rations(Type, Date, Count)).
+extract_livestock_event2(Type, Days, Count, element(naturalIncrease,_,_),  born(Type, Days, Count)).
+extract_livestock_event2(Type, Days, Count, element(loss,_,_),                     loss(Type, Days, Count)).
+extract_livestock_event2(Type, Days, Count, element(rations,_,_),                rations(Type, Days, Count)).
 	
 
 % this gets the children of an element with ElementXPath
-inner_xml(DOM, ElementXPath, Children) :-
-   xpath(DOM, ElementXPath, element(_,_,Children)).
+inner_xml(Dom, ElementXPath, Children) :-
+   xpath(Dom, ElementXPath, element(_,_,Children)).
 
 pretty_term_string(Term, String) :-
    new_memory_file(X),
@@ -107,8 +109,8 @@ pretty_term_string(Term, String) :-
    close(S),
    memory_file_to_string(X, String).
 
-extract_default_bases(DOM, Bases) :-
-   inner_xml(DOM, //reports/balanceSheetRequest/defaultUnitTypes/unitType, Bases).
+extract_default_bases(Dom, Bases) :-
+   inner_xml(Dom, //reports/balanceSheetRequest/defaultUnitTypes/unitType, Bases).
 
   
 fetch_account_hierarchy_from_url(AccountHierarchyUrl, AccountHierarchyDom) :-
@@ -119,7 +121,7 @@ fetch_account_hierarchy_from_url(AccountHierarchyUrl, AccountHierarchyDom) :-
 % ------------------------------------------------------------------
 % extract_account_hierarchy/2
 %
-% Load Account Hierarchy terms from DOM
+% Load Account Hierarchy terms from Dom
 % ------------------------------------------------------------------
 
 extract_account_hierarchy(AccountHierarchyDom, AccountHierarchy) :-   
@@ -140,8 +142,8 @@ accounts_link(element(ParentName,_,Children), Link) :-
       accounts_link(Child, Link)
    ).
 
-extract_action_taxonomy(DOM, ActionTaxonomy) :-
-   findall(Action, xpath(DOM, //reports/balanceSheetRequest/actionTaxonomy/action, Action), Actions),
+extract_action_taxonomy(Dom, ActionTaxonomy) :-
+   findall(Action, xpath(Dom, //reports/balanceSheetRequest/actionTaxonomy/action, Action), Actions),
    maplist(extract_action, Actions, ActionTaxonomy).
    
 extract_action(In, transaction_type(Id, ExchangeAccount, TradingAccount, Description)) :-
@@ -150,8 +152,8 @@ extract_action(In, transaction_type(Id, ExchangeAccount, TradingAccount, Descrip
    inner_xml(In, exchangeAccount, [ExchangeAccount]),
    inner_xml(In, tradingAccount, [TradingAccount]).
    
-extract_exchange_rates(DOM, BalanceSheetEndDate, ExchangeRates) :-
-   findall(UnitValue, xpath(DOM, //reports/balanceSheetRequest/unitValues/unitValue, UnitValue), UnitValues),
+extract_exchange_rates(Dom, BalanceSheetEndDate, ExchangeRates) :-
+   findall(UnitValue, xpath(Dom, //reports/balanceSheetRequest/unitValues/unitValue, UnitValue), UnitValues),
    maplist(extract_exchange_rate(BalanceSheetEndDate), UnitValues, ExchangeRates).
    
 extract_exchange_rate(BalanceSheetEndDate, UnitValue, ExchangeRate) :-
@@ -164,8 +166,8 @@ extract_exchange_rate(BalanceSheetEndDate, UnitValue, ExchangeRate) :-
 % yield all transactions from all accounts one by one
 % these are s_transactions, the raw transactions from bank statements. Later each s_transaction will be preprocessed
 % into multiple transaction(..) terms.
-extract_transactions(DOM, DefaultBases, Transaction) :-
-   xpath(DOM, //reports/balanceSheetRequest/bankStatement/accountDetails, Account),
+extract_transactions(Dom, DefaultBases, Transaction) :-
+   xpath(Dom, //reports/balanceSheetRequest/bankStatement/accountDetails, Account),
    inner_xml(Account, accountName, [AccountName]),
    inner_xml(Account, currency, [Currency]),
    xpath(Account, transactions/transaction, T),

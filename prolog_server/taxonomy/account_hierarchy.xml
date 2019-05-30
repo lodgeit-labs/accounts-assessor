@@ -32,7 +32,8 @@
 		<Expenses>
 			<BankCharges/>
 			<ForexLoss/>
-			<CostOfGoods/>
+			<LivestockRations/>
+			<Purchases/>
 		</Expenses>
 		<CurrentEarningsLosses/>
 	</Earnings>
