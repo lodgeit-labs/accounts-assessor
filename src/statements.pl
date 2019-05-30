@@ -68,6 +68,8 @@ average cost is defined for date and livestock type as follows:
 
 livestock_account_ids('Livestock', 'LivestockAtCost', 'Drawings', 'LivestockRations').
 expenses__direct_costs__purchases__account_id('Purchases').
+cost_of_goods_livestock_account_id('CostOfGoodsLivestock').
+
 
 %  term s_transaction(Day, Type_Id, Vector, Unexchanged_Account_Id, Bases)
 
@@ -102,26 +104,49 @@ transaction_type_of(Transaction_Types, S_Transaction, Transaction_Type) :-
 preprocess_s_transactions(_, _, _, [], []).
 
 % the case for livestock buy/sell:
-% CR BANK (BANK BCE REDUCES) 
-% DR Assets_1204_Livestock_at_Cost
-%	produce a livestock count transaction 
-preprocess_s_transactions(Accounts, Exchange_Rates, Transaction_Types, [S_Transaction | S_Transactions], [Bank_Transaction, Livestock_Transaction, Assets_Transaction | Transactions]) :-
+% BUY:
+	% CR BANK (BANK BCE REDUCES) 
+	% DR Assets_1204_Livestock_at_Cost
+% SELL:
+	% DR BANK (BANK BCE INCREASES) 
+	% CR Assets_1204_Livestock_at_Cost (STOCK ON HAND DECREASES,VALUE HELD DECREASES), 
+	% CR SALES_OF_LIVESTOCK (REVENUE INCREASES) 
+	% DR COST_OF_GOODS_LIVESTOCK (EXPENSE ASSOCIATED WITH REVENUE INCREASES). 
+%	and produce a livestock count transaction 
+preprocess_s_transactions(Accounts, Exchange_Rates, Transaction_Types, [S_Transaction | S_Transactions], [Bank_Transaction, Livestock_Transaction, Assets_Transaction, SalesTransactions | Transactions]) :-
 	S_Transaction = s_transaction(Day, "", Vector, Unexchanged_Account_Id, Bases),
 	% bank statements are from the perspective of the bank, their debit is our credit
 	vec_inverse(Vector, Vector_Inverted),
+	Vector_Inverted = [coord(_, MoneyDebit, MoneyCredit)],
 	
 	% get what unit type was exchanged for the money
-	Bases = vector([coord(Livestock_Type, _, _)]),
+	Bases = vector([coord(Livestock_Type, Livestock_Count_Input, Livestock_Credit)]),
+	assertion(Livestock_Credit == 0),
+	Livestock_Count is abs(Livestock_Count_Input),
+	
+	(MoneyDebit > 0 ->
+		(
+			assertion(MoneyCredit == 0),
+			Livestock_Coord = coord(Livestock_Type, 0, Livestock_Count)
+		);
+		Livestock_Coord = coord(Livestock_Type, Livestock_Count, 0)
+	),
+	
 	livestock_account_ids(Livestock_Account, Assets_1204_Livestock_at_Cost, _, _),
 	account_ancestor_id(Accounts, Livestock_Type, Livestock_Account),
 	
-	
+	% produce a livestock count increase/decrease transaction
+	Livestock_Transaction = transaction(Day, "livestock buy/sell", Livestock_Account, [Livestock_Coord]),
 	% produce the bank account transaction
 	Bank_Transaction = transaction(Day, "livestock buy/sell", Unexchanged_Account_Id, Vector_Inverted),
-	% produce a livestock count increase/decrease transaction
-	Livestock_Transaction = transaction(Day, "livestock buy/sell", Livestock_Account, Bases),
 	% produce an assets transaction
-	Assets_Transaction = transaction(Day, "livestock buy/sell", Assets_1204_Livestock_at_Cost, Vector_Inverted),
+	Assets_Transaction = transaction(Day, "livestock buy/sell", Assets_1204_Livestock_at_Cost, Vector	),
+
+	(MoneyDebit > 0 ->
+		SalesTransactions = [	transaction(Day, "livestock sell", 'SalesOfLivestock', Vector),
+											transaction(Day, "livestock sell", 'CostOfGoodsLivestock', Vector_Inverted)];
+		SalesTransactions = []),
+
 	preprocess_s_transactions(Accounts, Exchange_Rates, Transaction_Types, S_Transactions, Transactions),
 	!.
 
