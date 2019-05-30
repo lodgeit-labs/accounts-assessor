@@ -6,13 +6,16 @@
 				<WellsFargo/>
 				<NationalAustraliaBank/>
 			</CashAndCashEquivalents>
+			<LivestockAtCost/>
 		</CurrentAssets>
 		<NoncurrentAssets>
 			<FinancialInvestments/>
+			<RetainedEarnings/>
 		</NoncurrentAssets>
 	</Assets>
 	<Equity>
 		<ShareCapital/>
+		<Drawings/>
 	</Equity>
 	<Liabilities>
 		<NoncurrentLiabilities>
@@ -29,12 +32,12 @@
 		<Expenses>
 			<BankCharges/>
 			<ForexLoss/>
+			<CostOfGoods/>
 		</Expenses>
-		<RetainedEarnings/>
 		<CurrentEarningsLosses/>
 	</Earnings>
-	<!--fixme, should be in assets-->
-	<RetainedEarnings/>
-	<CurrentEarningsLosses/>
+	<Livestock>
+		<Cows>
+	</Livestock>
 </accounts>
 

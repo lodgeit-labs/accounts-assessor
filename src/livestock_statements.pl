@@ -42,6 +42,7 @@ when bank statements are processed:
 			loss?
 			
 			rations: 
+				at what cost?
 				DR OWNERS_EQUITY -->DRAWINGS. I.E. THE OWNER TAKES SOMETHING OF VALUE. Equity_3145_Drawings_by_Sole_Trader.
 				CR COST_OF_GOODS. I.E. DECREASES COST.
           
@@ -63,6 +64,9 @@ average cost is defined for date and livestock type as follows:
 */
 
 :- ['transaction_types', 'accounts'].
+
+
+livestock_account_ids('Livestock', 'LivestockAtCost', 'Drawings', 'CostOfGoods').
 
 
 %  term s_transaction(Day, Type_Id, Vector, Unexchanged_Account_Id, Bases)
@@ -199,31 +203,32 @@ preprocess_s_transactions(Exchange_Rates, Transaction_Types, [S_Transaction | S_
 
 
 	
-preprocess_livestock_events(Unit, Livestock_Account, Assets_1204_Livestock_at_Cost, [Event|Events], [Transaction|Transactions]) :-
-	Event = born(Day, Count),
-	transaction(Day, 'born', Livestock_Account, [coord(Unit, Count, 0)]),
-	preprocess_livestock_events(Unit, Livestock_Account, Assets_1204_Livestock_at_Cost, Events, Transactions).
+preprocess_livestock_event(Event, Transaction) :-
+	Event = born(Type, Day, Count),
+	Transaction = transaction(Day, 'born', Livestock_Account, [coord(Type, Count, 0)]),
+	livestock_account_ids(Livestock_Account, _).
 
-preprocess_livestock_events(Unit, Livestock_Account, Assets_1204_Livestock_at_Cost, [Event|Events], [Transaction|Transactions]) :-
-	Event = loss(Day, Count),
-	transaction(Day, 'loss', Livestock_Account, [coord(Unit, 0, Count)]),
-	preprocess_livestock_events(Unit, Livestock_Account, Assets_1204_Livestock_at_Cost, Events, Transactions).
+preprocess_livestock_event(Event, Transaction) :-
+	Event = loss(Type, Day, Count),
+	Transaction = transaction(Day, 'loss', Livestock_Account, [coord(Type, Count, 0)]),
+	livestock_account_ids(Livestock_Account, Assets_Livestock_At_Cost_Account).
 
-preprocess_livestock_events(Unit, Livestock_Account, Assets_1204_Livestock_at_Cost, [Event|Events], Transactions) :-
-	Event = rations(Day, Count),
-	% pass through for now
-	preprocess_livestock_events(Unit, Livestock_Account, Assets_1204_Livestock_at_Cost, Events, Transactions).
+preprocess_livestock_event(Event, []) :-
+	Event = rations(_,_,_).
+	% will be processed later when all transactions are collected		
 	
-	
-	
-	
-preprocess_rations(Unit, Livestock_Account, Assets_1204_Livestock_at_Cost, [Event|Events], [Equity_Transaction,Cog_Transaction|Transactions]) :-
-	Event = rations(Day, Count),
-	% DR OWNERS_EQUITY -->DRAWINGS. I.E. THE OWNER TAKES SOMETHING OF VALUE. Equity_3145_Drawings_by_Sole_Trader.
-	Equity_Transaction = transaction(Day, "rations", Equity_3145_Drawings_by_Sole_Trader, Vector),
+preprocess_rations(Event, [Livestock_Transaction, Equity_Transaction, Cog_Transaction]) :-
+	Event = rations(Type, Day, Count),
+	Cost = 5,
+	Livestock_Transaction = transaction(Day, 'rations', Livestock_Account, [coord(Type, 0, Count)]),
+	% DR OWNERS_EQUITY -->DRAWINGS. I.E. THE OWNER TAKES SOMETHING OF VALUE. 
+	Equity_Transaction = transaction(Day, "rations", Equity_3145_Drawings_by_Sole_Trader, [coord('AUD', Cost, 0)]),
 	%	CR COST_OF_GOODS. I.E. DECREASES COST.
-	Cog_Transaction
-	% recurse.
+	Cog_Transaction = transaction(Day, "rations", CostOfGoods, [coord('AUD', 0, Cost)]),
+	livestock_account_ids(Livestock_Account, _Assets_Livestock_At_Cost_Account, Equity_3145_Drawings_by_Sole_Trader, CostOfGoods).
+	,!.
+
+preprocess_rations(_, []).
 	
 
 

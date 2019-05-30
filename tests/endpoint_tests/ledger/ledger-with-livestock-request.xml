@@ -95,31 +95,27 @@
     </actionTaxonomy>
 
 
-    <livestockUnits>
-        <livestockUnit>cows
-        <livestockUnit>sheep
-    
-
 
     <livestockData>
-        <livestockDataPoint>
-            type                cows
-            date                xxx
-            <!-- the excel ui will probably only generate datapoints with only one of these tags in each datapoint: -->
-            dayEndCount         5 
-                <!-- dayEndCount could serve as a generalized opening, closing and inbetween/check count.
-                I've chosen day end to resolve a possible ambiguity where a count happens on a same date as some increase/decrease. -->
-            born                7
-            loss                4
-            rations             1
-                <!-- rations will be more complex as they could be tagged with the beneficiary in some way. We may then
-                credit accounts like Partners Equity  -->
-        </livestockDataPoint>
+      <type>Cows</type>
+      <events>
+        <naturalIncrease>
+            <date>2018-01-30</date>
+			<count>4</count>
+        </naturalIncrease>
+        <loss>
+            <date>2018-02-01</date>
+			<count>1</count>
+        </loss>
+        <rations>
+            <date>2018-05-01</date>
+			<count>1</count>
+        </loss>
+      </events>
+    </livestockData>
           
-    <!-- concievably, we'll want to handle buys/sells that happened in cash. They could fit into the livestockDataPoint format,
-      or be more generally some sort of banklessTransaction, possibly exactly following the bank statement transaction format,
-      just in a "cash" section. -->
-            
+
+
     <bankStatement>
       <title>Bank Statement</title>
       <period>2010-01-01 - 2010-06-30</period>

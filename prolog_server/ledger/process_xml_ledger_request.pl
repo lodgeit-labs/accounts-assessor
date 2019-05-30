@@ -47,7 +47,12 @@ process_xml_ledger_request(_FileNameIn, DOM) :-
    extract_exchange_rates(DOM, BalanceSheetEndAbsoluteDays, ExchangeRates),
 
    preprocess_s_transactions(ExchangeRates, ActionTaxonomy, S_Transactions, Transactions),
-%print_term(preprocess_s_transactions(ExchangeRates, ActionTaxonomy, S_Transactions, Transactions),[]),
+   
+   extract_livestock_events(DOM, Livestock_Events),
+   
+   
+   
+   %print_term(preprocess_s_transactions(ExchangeRates, ActionTaxonomy, S_Transactions, Transactions),[]),
    balance_sheet_at(ExchangeRates, AccountHierarchy, Transactions, DefaultBases, BalanceSheetEndAbsoluteDays, BalanceSheetStartAbsoluteDays, BalanceSheetEndAbsoluteDays, BalanceSheet),
 
    pretty_term_string(S_Transactions, Message0),
@@ -68,6 +73,28 @@ process_xml_ledger_request(_FileNameIn, DOM) :-
 
 % -----------------------------------------------------
 
+extract_livestock_events(Dom, Events) :-
+   findall(Data, xpath(DOM, //reports/balanceSheetRequest/livestockData, Data), Datas),
+   maplist(extract_livestock_events2, Datas, Events_Nested),
+   flatten(Events_Nested, Events).
+   
+extract_livestock_events2(Data, Events) :-
+   livestock_account_ids(Livestock_Account),
+   inner_xml(Data, type, [Type]),
+   findall(Event, xpath(Events_Dom, 'events/*', Event), Xml_Events),
+   maplist(extract_livestock_event(Type), Xml_Events, Events).
+
+extract_livestock_event(Type, Dom, Event) :-
+   inner_xml(Dom, date, [Date]),
+   absolute_day(Date, Days),
+   inner_xml(Dom, count, [CountAtom]),
+   atom_number(CountAtom, Count),
+   extract_livestock_event2(Type, Days, Count, Dom, Event).
+
+extract_livestock_event2(Type, Days, Count, element(naturalIncrease,_,_),  born(Type, Date, Count)).
+extract_livestock_event2(Type, Days, Count, element(loss,_,_),             loss(Type, Date, Count)).
+extract_livestock_event2(Type, Days, Count, element(rations,_,_),          rations(Type, Date, Count)).
+	
 
 % this gets the children of an element with ElementXPath
 inner_xml(DOM, ElementXPath, Children) :-
