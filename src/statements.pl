@@ -1,5 +1,5 @@
 
-:- ['transaction_types', 'transactions', 'pacioli', 'exchange', 'transaction_types', 'exchange_rates'].
+:- ['transaction_types', 'transactions', 'pacioli', 'exchange', 'exchange_rates'].
 
 %  term s_transaction(Day, Type_Id, Vector, Unexchanged_Account_Id, Bases)
 

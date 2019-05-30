@@ -1,3 +1,4 @@
+% transaction(Day, Description, Account_Id, Vector)
 
 % Predicates for asserting that the fields of given transactions have particular values
 

@@ -4,59 +4,55 @@
 
 <howThisShouldWork>
 
+account taxonomy must include accounts for individual livestock types
+
 
 a list of livestock units will be defined in the sheet, for example "cows, horses".
-opening livestock value has to be input for each livestock type, 
-	this will be debited in an initial transaction to the account Assets_1203_Livestock_at_Cost
-		also another opening balance for Assets_1204_Livestock_at_Average_Cost?  FOR CURRENT ITERATION, ASSUME THAT ALL TRANSACTIONS ARE IN THE BANK STATEMENT. I.E. NO OPENING BALANCES.WHY? BECAUSE OPENING BALANCES IN LIVESTOCK WILL REQUIRE A COMPLETE SET OF OPENING BALANCES. I.E. A COMPLETE OPENING BALANCE SHEET. 
+FOR CURRENT ITERATION, ASSUME THAT ALL TRANSACTIONS ARE IN THE BANK STATEMENT. I.E. NO OPENING BALANCES.WHY? BECAUSE OPENING BALANCES IN LIVESTOCK WILL REQUIRE A COMPLETE SET OF OPENING BALANCES. I.E. A COMPLETE OPENING BALANCE SHEET. 
 	
-Natural_increase_value_per_head has to be input for each livestock type. YES. WITH THE DATE OF THE INCREASE SO THAT REPORTS CAN BE DERIVED AT ANY DATE IN THE TRANSACTION SEQUENCE. BANK TRANSACTIONS INCLUDE BUY & SELL UNITS. SEPARATE TRANSACTIONS FOR BIRTHS, DEATHS, RATIONS.
+Natural_increase_cost_per_head has to be input for each livestock type, for example cows $20.
 
 when bank statements are processed: 
-	If there is a livestock unit set on a bank account transaction:
-		count has to be set too. BUY UNITS & ASSOCIATED $ FOR TRANSACTION. SELL UNITS & ASSOCIATED DOLLAR FOR TRANSACTION. THESE ARE GROSS VALUES. SYSTEM CAN INFER PER UNIT VALUE.
-		we tag the transaction with a sell/buy livestock action type. I BELIEVE THIS IS NOT NECESSARY. SYSTEM CAN INFER BUY/SELL i.e. A BUY IS A PAYMENT & A SELL IS A DEPOSIT. OF COURSE, THE UNIT TYPE MUST BE DESCRIBED. COW. PIG, ETC. AND THE UNIT TYPE MUST HAVE AN ACCOUNTS TAXONOMICAL RELATIONSHIP
-		user should have sell/buy livestock action types in their taxonomy.
-			the "exchanged" account will be one where livestock increase/decrease transactions are collected. AT REPORT RUN TIME COMPUTE THE FACTS BY INFERENCE.
+	If there is a livestock unit ("cows") set on a bank account transaction:
+		count has to be set too ("20"). 
+		internally, we tag the transaction with a sell/buy livestock action type. 
+		SYSTEM CAN INFER BUY/SELL i.e. A BUY IS A PAYMENT & A SELL IS A DEPOSIT. OF COURSE, THE UNIT TYPE MUST BE DESCRIBED. COW. PIG, ETC. AND THE UNIT TYPE MUST HAVE AN ACCOUNTS TAXONOMICAL RELATIONSHIP
+		user should have sell/buy livestock action types in their action taxonomy.
+			the "exchanged" account will be one where livestock increase/decrease transactions are internally collected. 
+			AT REPORT RUN TIME COMPUTE THE FACTS BY INFERENCE.
 
 		internally, livestock buys and sells are transformed into "livestock buy/sell events" OK.
-		other livestock events are taken from the second table: natural increase, loss, rations, and "count" OK.
-		"count" has to be the first livestock-related event, by date. OK
-			actually i have opted for "day end count", to avoid ambiguity. 0O
-		since our accounts don't have a special "opening balance" value, we transform the first "day end count" into a first transaction with the initial count debited on the livestock account. SEE NOTE ABOVE TO AVOID OPENING CONCEPT FOR THIS SIMPLE PROTOTYPE. WE CAN REVISIT CONCEPT OF 'OPENING' LATER.
-		it is possible to insert another "day end count" at any point for verification purpose. VERIFICATION MUST BE AGAINST AN EXTERNAL LIVESTOCK CALCULATOR I.E. AS PER THE STAND ALONE CALCULATOR YOU ALREADY BUILT. THIS IS THE CRUX OF THE WHOLE PROJECT - VERIFICATION OF FACTS FROM DIFFERENT PERSPECTIVES.
-
-		other event types change the count accordingly.
+		other livestock events are taken from the second table: natural increase, loss, rations.
+		all livestock event types change the count accordingly.
 		livestock events have effects on other accounts beside the livestock count account:
 			buy/sell:
-				affect bank account YES.
-				affect Assets_1204_Livestock_at_Cost. 
 				cost is taken from the bank transaction
-				BUY - CR BANK (BANK BCE REDUCES) DR LIVESTOCK_AT_COST.
-				SELL - DR BANK (BANK BCE INCREASES) CR SALES_OF_LIVESTOCK (REVENUE INCREASES) AND CR LIVESTOCK_AT_COST (STOCK ON HAND DECREASES,VALUE HELD DECREASES), DR COST_OF_GOODS_LIVESTOCK (EXPENSE ASSOCIATED WITH REVENUE INCREASES). 
+				BUY - 
+					CR BANK (BANK BCE REDUCES) 
+					DR Assets_1204_Livestock_at_Cost.
+				SELL - 
+					DR BANK (BANK BCE INCREASES) 
+					CR Assets_1204_Livestock_at_Cost (STOCK ON HAND DECREASES,VALUE HELD DECREASES), 
+					CR SALES_OF_LIVESTOCK (REVENUE INCREASES) 
+					DR COST_OF_GOODS_LIVESTOCK (EXPENSE ASSOCIATED WITH REVENUE INCREASES). 
+					
 			natural increase:  NATURAL INCREASE IS AN ABSTRACT VALUE THAT IMPACTS THE LIVESTOCK_AT_MARKET_VALUE AT REPORT RUN TIME. THERE IS NO NEED TO STORE/SAVE THE VALUE IN THE LEDGER. WHEN A COW IS BORN, NO CASH CHANGES HAND. 
-				affect Assets_1203_Livestock_at_Cost by Natural_increase_value_per_head as set by user
-			loss, rations: RATIONS DR OWNERS_EQUITY -->DRAWINGS. I.E. THE OWNER TAKES SOMETHING OF VALUE. CR COST_OF_GOODS. I.E. DECREASES COST.
-				affect Assets_1204_Livestock_at_Average_Cost
-				average cost calculation is below.
-			rations:
-				affect Assets_1204_Livestock_at_Average_Cost		
-				also affect some equity account, for example Equity_3145_Drawings_by_Sole_Trader. Possibly user input.
+				dont: affect Assets_1203_Livestock_at_Cost by Natural_increase_cost_per_head as set by user
+			loss?
+			rations: 
+				DR OWNERS_EQUITY -->DRAWINGS. I.E. THE OWNER TAKES SOMETHING OF VALUE. Equity_3145_Drawings_by_Sole_Trader.
+				CR COST_OF_GOODS. I.E. DECREASES COST.
           
 average cost is defined for date and livestock type as follows:
 	stock count and value at beginning of year is taken from beginning of year balance on:
 		the livestock count account
 		Assets_1203_Livestock_at_Cost, Assets_1204_Livestock_at_Average_Cost
 	subsequent transactions until the given date are processed to get purchases count/value and natural increase count/value
-
 	then we calculate:
-		Natural_Increase_value is Natural_increase_count * Natural_increase_value_per_head,
+		Natural_Increase_value is Natural_increase_count * Natural_increase_cost_per_head,
 		Opening_and_purchases_and_increase_count is Stock_on_hand_at_beginning_of_year_count + Purchases_count + Natural_increase_count,
 		Opening_and_purchases_and_increase_value is Stock_on_hand_at_beginning_of_year_value + Purchases_value + Natural_Increase_value,
 		Average_cost is Opening_and_purchases_and_increase_value / Opening_and_purchases_and_increase_count,
-
-this ignores the revenue/expenses accounts, should i worry about them now?
-
 
 
 </howThisShouldWork>
@@ -64,7 +60,7 @@ this ignores the revenue/expenses accounts, should i worry about them now?
 	
 */
 
-:- ['transaction_types'].
+:- ['transaction_types', 'accounts'].
 
 
 %  term s_transaction(Day, Type_Id, Vector, Unexchanged_Account_Id, Bases)
@@ -83,15 +79,19 @@ s_transaction_account_id(s_transaction(_, _, _, Unexchanged_Account_Id, _), Unex
 % depending on whether the term is of the form bases(...) or vector(...).
 s_transaction_exchanged(s_transaction(_, _, _, _, Bases), Bases).
 
+
 % Gets the transaction_type term associated with the given transaction
-
 transaction_type_of(Transaction_Types, S_Transaction, Transaction_Type) :-
-  s_transaction_type_id(S_Transaction, Type_Id),
-  transaction_type_id(Transaction_Type, Type_Id),
-  member(Transaction_Type, Transaction_Types).
+	% get type id
+	s_transaction_type_id(S_Transaction, Type_Id),
+	% construct type term with parent variable unbound
+	transaction_type_id(Transaction_Type, Type_Id),
+	% match it with what's in Transaction_Types
+	member(Transaction_Type, Transaction_Types).
 
+	
+	
 livestock_s_transaction_to_transaction(S_Transaction, UnX_Transaction) :-
-	% i still dont get why vector should be inverted
 	s_transaction_day(S_Transaction, Day), 
 	transaction_day(UnX_Transaction, Day),
 	transaction_description(UnX_Transaction, "livestock buy/sell"),
@@ -100,56 +100,43 @@ livestock_s_transaction_to_transaction(S_Transaction, UnX_Transaction) :-
 	s_transaction_account_id(S_Transaction, UnX_Account), 
 	transaction_account_id(UnX_Transaction, UnX_Account).
 
+
+	    vec_inverse(Vector, Vector_Inverted),
+
 	
+% preprocess_s_transactions(Exchange_Rates, Transaction_Types, Input, Output).
 
+preprocess_s_transactions(_, _, [], []).
 
+% the case for livestock buy/sell:
+% CR BANK (BANK BCE REDUCES) 
+% DR Assets_1204_Livestock_at_Cost
+% 	produce a livestock count transaction 
+preprocess_s_transactions(Exchange_Rates, Transaction_Types, [S_Transaction | S_Transactions], [Bank_Transaction, Livestock_Transaction | Transactions]) :-
+	S_Transaction = s_transaction(Day, Type_Id, Vector, Unexchanged_Account_Id, Bases),
+	% bank statements are from the perspective of the bank, their debit is our credit
+    vec_inverse(Vector, Vector_Inverted),
+	% get what unit type was exchanged for the money
+	Bases = vector([coord(Unit, D, C)]),
+	member(Livestock_Units, Unit),
+	% produce the bank account transaction
+	Bank_Transaction = transaction(Day, "livestock buy/sell", Unexchanged_Account_Id, Vector_Inverted),
+	% produce a livestock count increase/decrease transaction
+	Livestock_Transaction = transaction(Day, "livestock buy/sell", Livestock, Vector),
+	% produce an assets transaction
+	Assets_Transaction = transaction(Day, "livestock buy/sell", Assets_1204_Livestock_at_Cost, Vector_Inverted),
+	!.
+
+	
+% trading account, non-livestock processing:
 % Transactions using trading accounts can be decomposed into a transaction of the given
 % amount to the unexchanged account, a transaction of the transformed inverse into the
 % exchanged account, and a transaction of the negative sum of these into the trading
 % account. This predicate takes a list of statement transactions (and transactions using trading
 % accounts?) and decomposes it into a list of just transactions, 3 for each input s_transaction.
-
-preprocess_s_transactions(_, _, [], []).
-
-
-
-
-% the case for livestock buy/sell:
-% 	produce/copy the bank account transaction
-% 	produce a livestock count transaction 
-%   affect Assets_1203_Livestock_at_Cost
-
-preprocess_s_transactions(Exchange_Rates, Transaction_Types, [S_Transaction | S_Transactions], [UnX_Transaction, Livestock_Transaction | Transactions]) :-
-
-/*fixme: first let us go through all transactions and tag these as an action such as "livestock_sell", 
-then try to use the action taxonomy format with exchange account to define this*/
-
-
-	% get what unit type was exchanged for the money
-	s_transaction_exchanged(S_Transaction, vector([coord(Unit, D, C)])),
-	member(Livestock_Units, Unit),
-	% produce the bank account transaction
-	livestock_s_transaction_to_transaction(S_Transaction, UnX_Transaction),
-
-	% produce a livestock count increase/decrease transaction
-	s_transaction_day(S_Transaction, Day), 
-	transaction_day(Livestock_Transaction, Day),
-	transaction_description(Livestock_Transaction, "livestock buy/sell"),
-	s_transaction_exchanged(S_Transaction, Vector),
-	transaction_vector(Livestock_Transaction, Vector),
-	transaction_account_id(Livestock_Transaction, Livestock_Account),
-	
-%   affect Assets_1203_Livestock_at_Cost...
-
-%   affect Cog
-	
-	
-	!.
-
-% trading account, non-livestock processing:
 % This Prolog rule handles the case when the exchanged amount is known, for example 10 GOOG,
 % and hence no exchange rate calculations need to be done.
-% preprocess_s_transactions(Exchange_Rates, Transaction_Types, Input, Output).
+
 
 preprocess_s_transactions(Exchange_Rates, Transaction_Types, [S_Transaction | S_Transactions],
 		[UnX_Transaction | [X_Transaction | [Trading_Transaction | PP_Transactions]]]) :-
@@ -383,3 +370,32 @@ livestock_count([], not_used).
 
 Expenses_5107_Opening_Inventory__Inventory_at_Cost__Livestock_at_Cost
 */
+
+/*
+we avoid count/opening balance for now:
+		"count" has to be the first livestock-related event, by date. OK
+			actually i have opted for "day end count", to avoid ambiguity. OK
+		it is possible to insert another "day end count" at any point for verification purpose. VERIFICATION MUST BE AGAINST AN EXTERNAL LIVESTOCK CALCULATOR I.E. AS PER THE STAND ALONE CALCULATOR YOU ALREADY BUILT. THIS IS THE CRUX OF THE WHOLE PROJECT - VERIFICATION OF FACTS FROM DIFFERENT PERSPECTIVES.
+*/
+
+
+/*fixme: first let us go through all transactions and tag these as an action such as "livestock_sell", 
+then try to use the action taxonomy format with exchange account to define this*/
+/*
+tag_s_transactions([], []).
+
+tag_s_transactions([S_Transaction | S_Transactions], [Tagged | Taggeds]) :-
+	s_transaction_type_id(S_Transaction, Type_Id),
+	nonvar(Type_Id),
+	Tagged = S_Transaction,
+	tag_s_transactions(S_Transactions, Taggeds),!.
+
+tag_s_transactions([S_Transaction | S_Transactions], [Tagged | Taggeds]) :-
+	% get what unit type was exchanged for the money
+	s_transaction_exchanged(S_Transaction, vector([coord(Unit, _, _)])),
+	member(Livestock_Units, Unit),
+	account_ancestor_id(Accounts, Unit, Livestock),
+	S_Transaction = s_transaction(Day, _Type_Id, Vector, Unexchanged_Account_Id, Bases)
+	Tagged			= s_transaction(Day, Type_Id, Vector, Unexchanged_Account_Id, Bases)
+
+	*/
