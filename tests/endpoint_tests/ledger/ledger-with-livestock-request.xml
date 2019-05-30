@@ -100,17 +100,17 @@
       <type>Cows</type>
       <events>
         <naturalIncrease>
-            <date>2018-01-30</date>
-			<count>4</count>
+          <date>2018-01-30</date>
+          <count>4</count>
         </naturalIncrease>
         <loss>
-            <date>2018-02-01</date>
-			<count>1</count>
+          <date>2018-02-01</date>
+          <count>1</count>
         </loss>
         <rations>
-            <date>2018-05-01</date>
-			<count>1</count>
-        </loss>
+         <date>2018-05-01</date>
+         <count>1</count>
+        </rations>
       </events>
     </livestockData>
           
@@ -139,7 +139,7 @@
             <debit>50</debit>
             <credit>0</credit>
             <unit>10</unit>
-            <unitType>cows</unitType>
+            <unitType>Cows</unitType>
           </transaction>
 
           <transaction>
@@ -147,7 +147,7 @@
             <debit>0</debit>
             <credit>50</credit>
             <unit>30</unit>
-            <unitType>sheep</unitType>
+            <unitType>Sheep</unitType>
           </transaction>
 
           <!-- end of livestock stuff -->
@@ -158,6 +158,7 @@
             <debit>0</debit>
             <credit>100</credit>
           </transaction>
+
           <transaction>
             <!-- Credit this account with 50 AUD. Do stuff to other accounts as specified by Invest_In transaction verb. -->
             <transdesc>Invest_In</transdesc>
@@ -168,6 +169,7 @@
             <unit>10</unit>
             <unitType>TLS</unitType>
           </transaction>
+
         </transactions>
       </accountDetails>
       <accountDetails>
@@ -177,12 +179,14 @@
         <bankID>Commonwealth Bank</bankID>
         <currency>USD</currency>
         <transactions>
+
           <transaction>
             <transdesc>Introduce_Capital</transdesc>
             <transdate>2017-07-01</transdate>
             <debit>0</debit>
             <credit>200</credit>
           </transaction>
+
           <transaction>
             <transdesc>Invest_In</transdesc>
             <transdate>2017-07-10</transdate>
@@ -191,12 +195,14 @@
             <unit>10</unit>
             <unitType>BHP</unitType>
           </transaction>
+
           <transaction>
             <transdesc>PayBank</transdesc>
             <transdate>2018-06-28</transdate>
             <debit>10</debit>
             <credit>0.00</credit>
           </transaction>
+
         </transactions>
       </accountDetails>
     </bankStatement>

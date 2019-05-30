@@ -99,29 +99,30 @@ transaction_type_of(Transaction_Types, S_Transaction, Transaction_Type) :-
 	
 % preprocess_s_transactions(Exchange_Rates, Transaction_Types, Input, Output).
 
-preprocess_s_transactions(_, _, [], []).
+preprocess_s_transactions(_, _, _, [], []).
 
 % the case for livestock buy/sell:
 % CR BANK (BANK BCE REDUCES) 
 % DR Assets_1204_Livestock_at_Cost
 %	produce a livestock count transaction 
-preprocess_s_transactions(Exchange_Rates, Transaction_Types, [S_Transaction | S_Transactions], [Bank_Transaction, Livestock_Transaction, Assets_Transaction | Transactions]) :-
-	S_Transaction = s_transaction(Day, Livestock_Units, Vector, Unexchanged_Account_Id, Bases),
+preprocess_s_transactions(Accounts, Exchange_Rates, Transaction_Types, [S_Transaction | S_Transactions], [Bank_Transaction, Livestock_Transaction, Assets_Transaction | Transactions]) :-
+	S_Transaction = s_transaction(Day, "", Vector, Unexchanged_Account_Id, Bases),
 	% bank statements are from the perspective of the bank, their debit is our credit
-    vec_inverse(Vector, Vector_Inverted),
+	vec_inverse(Vector, Vector_Inverted),
 	
 	% get what unit type was exchanged for the money
-	Bases = vector([coord(Livestock_Units, _, _)]),
-	account_ancestor_id(Livestock_Units, Livestock_Account),
+	Bases = vector([coord(Livestock_Type, _, _)]),
 	livestock_account_ids(Livestock_Account, Assets_1204_Livestock_at_Cost, _, _),
+	account_ancestor_id(Accounts, Livestock_Type, Livestock_Account),
+	
 	
 	% produce the bank account transaction
 	Bank_Transaction = transaction(Day, "livestock buy/sell", Unexchanged_Account_Id, Vector_Inverted),
 	% produce a livestock count increase/decrease transaction
-	Livestock_Transaction = transaction(Day, "livestock buy/sell", Livestock_Account, Vector),
+	Livestock_Transaction = transaction(Day, "livestock buy/sell", Livestock_Account, Bases),
 	% produce an assets transaction
 	Assets_Transaction = transaction(Day, "livestock buy/sell", Assets_1204_Livestock_at_Cost, Vector_Inverted),
-	preprocess_s_transactions(Exchange_Rates, Transaction_Types, S_Transactions, Transactions),
+	preprocess_s_transactions(Accounts, Exchange_Rates, Transaction_Types, S_Transactions, Transactions),
 	!.
 
 	
@@ -135,7 +136,7 @@ preprocess_s_transactions(Exchange_Rates, Transaction_Types, [S_Transaction | S_
 % and hence no exchange rate calculations need to be done.
 
 
-preprocess_s_transactions(Exchange_Rates, Transaction_Types, [S_Transaction | S_Transactions],
+preprocess_s_transactions(Accounts, Exchange_Rates, Transaction_Types, [S_Transaction | S_Transactions],
 		[UnX_Transaction | [X_Transaction | [Trading_Transaction | PP_Transactions]]]) :-
 
 	s_transaction_vector(S_Transaction, Vector),
@@ -168,7 +169,7 @@ preprocess_s_transactions(Exchange_Rates, Transaction_Types, [S_Transaction | S_
 	transaction_type_trading_account_id(Transaction_Type, Trading_Account), transaction_account_id(Trading_Transaction, Trading_Account),
 	
 	% Make the list of preprocessed transactions
-	preprocess_s_transactions(Exchange_Rates, Transaction_Types, S_Transactions, PP_Transactions), !.
+	preprocess_s_transactions(Accounts, Exchange_Rates, Transaction_Types, S_Transactions, PP_Transactions), !.
 
 % This Prolog rule handles the case when only the exchanged amount units are known (for example GOOG)  and
 % hence it is desired for the program to do an exchange rate conversion. 
@@ -176,7 +177,7 @@ preprocess_s_transactions(Exchange_Rates, Transaction_Types, [S_Transaction | S_
 % input list (S_Transaction) with a modified one (NS_Transaction).
 
 
-preprocess_s_transactions(Exchange_Rates, Transaction_Types, [S_Transaction | S_Transactions], Transaction) :-
+preprocess_s_transactions(Accounts, Exchange_Rates, Transaction_Types, [S_Transaction | S_Transactions], Transaction) :-
 	s_transaction_exchanged(S_Transaction, bases(Bases)),
 	s_transaction_day(S_Transaction, Day), 
 	s_transaction_day(NS_Transaction, Day),
@@ -190,7 +191,7 @@ preprocess_s_transactions(Exchange_Rates, Transaction_Types, [S_Transaction | S_
 	% exchanged amount.
 	vec_change_bases(Exchange_Rates, Day, Bases, Vector, Vector_Transformed),
 	s_transaction_exchanged(NS_Transaction, vector(Vector_Transformed)),
-	preprocess_s_transactions(Exchange_Rates, Transaction_Types, [NS_Transaction | S_Transactions], Transaction).
+	preprocess_s_transactions(Accounts, Exchange_Rates, Transaction_Types, [NS_Transaction | S_Transactions], Transaction).
 
 
 	

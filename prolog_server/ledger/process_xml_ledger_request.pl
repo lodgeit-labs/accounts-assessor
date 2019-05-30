@@ -46,7 +46,8 @@ process_xml_ledger_request(_FileNameIn, Dom) :-
 
    extract_exchange_rates(Dom, BalanceSheetEndAbsoluteDays, ExchangeRates),
 
-   preprocess_s_transactions(ExchangeRates, ActionTaxonomy, S_Transactions, Transactions),
+   %gtrace,
+   preprocess_s_transactions(AccountHierarchy, ExchangeRates, ActionTaxonomy, S_Transactions, Transactions),
    
    extract_livestock_events(Dom, Livestock_Events),
    maplist(preprocess_livestock_event, Livestock_Events, Livestock_Event_Transactions_Nested),
@@ -176,7 +177,7 @@ extract_transactions(Dom, DefaultBases, Transaction) :-
 extract_transaction2(T, Currency, DefaultBases, Account, ST) :-
    xpath(T, debit, element(_,_,[DebitAtom])),
    xpath(T, credit, element(_,_,[CreditAtom])),
-   xpath(T, transdesc, element(_,_,[Desc])),
+   ((xpath(T, transdesc, element(_,_,[Desc])),!);Desc=""),
    xpath(T, transdate, element(_,_,[DateAtom])),
    parse_date(DateAtom, AbsoluteDays),
    atom_number(DebitAtom, Debit),

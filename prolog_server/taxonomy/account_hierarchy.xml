@@ -38,7 +38,8 @@
 		<CurrentEarningsLosses/>
 	</Earnings>
 	<Livestock>
-		<Cows>
+		<Cows/>
+		<Sheep/>
 	</Livestock>
 </accounts>
 
