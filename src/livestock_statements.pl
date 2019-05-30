@@ -38,7 +38,9 @@ when bank statements are processed:
 					
 			natural increase:  NATURAL INCREASE IS AN ABSTRACT VALUE THAT IMPACTS THE LIVESTOCK_AT_MARKET_VALUE AT REPORT RUN TIME. THERE IS NO NEED TO STORE/SAVE THE VALUE IN THE LEDGER. WHEN A COW IS BORN, NO CASH CHANGES HAND. 
 				dont: affect Assets_1203_Livestock_at_Cost by Natural_increase_cost_per_head as set by user
+				
 			loss?
+			
 			rations: 
 				DR OWNERS_EQUITY -->DRAWINGS. I.E. THE OWNER TAKES SOMETHING OF VALUE. Equity_3145_Drawings_by_Sole_Trader.
 				CR COST_OF_GOODS. I.E. DECREASES COST.
@@ -196,16 +198,50 @@ preprocess_s_transactions(Exchange_Rates, Transaction_Types, [S_Transaction | S_
 	preprocess_s_transactions(Exchange_Rates, Transaction_Types, [NS_Transaction | S_Transactions], Transaction).
 
 
+	
+preprocess_livestock_events(Unit, Livestock_Account, Assets_1204_Livestock_at_Cost, [Event|Events], [Transaction|Transactions]) :-
+	Event = born(Day, Count),
+	transaction(Day, 'born', Livestock_Account, [coord(Unit, Count, 0)]),
+	preprocess_livestock_events(Unit, Livestock_Account, Assets_1204_Livestock_at_Cost, Events, Transactions).
+
+preprocess_livestock_events(Unit, Livestock_Account, Assets_1204_Livestock_at_Cost, [Event|Events], [Transaction|Transactions]) :-
+	Event = loss(Day, Count),
+	transaction(Day, 'loss', Livestock_Account, [coord(Unit, 0, Count)]),
+	preprocess_livestock_events(Unit, Livestock_Account, Assets_1204_Livestock_at_Cost, Events, Transactions).
+
+preprocess_livestock_events(Unit, Livestock_Account, Assets_1204_Livestock_at_Cost, [Event|Events], Transactions) :-
+	Event = rations(Day, Count),
+	% pass through for now
+	preprocess_livestock_events(Unit, Livestock_Account, Assets_1204_Livestock_at_Cost, Events, Transactions).
+	
+	
+	
+	
+preprocess_rations(Unit, Livestock_Account, Assets_1204_Livestock_at_Cost, [Event|Events], [Equity_Transaction,Cog_Transaction|Transactions]) :-
+	Event = rations(Day, Count),
+	% DR OWNERS_EQUITY -->DRAWINGS. I.E. THE OWNER TAKES SOMETHING OF VALUE. Equity_3145_Drawings_by_Sole_Trader.
+	Equity_Transaction = transaction(Day, "rations", Equity_3145_Drawings_by_Sole_Trader, Vector),
+	%	CR COST_OF_GOODS. I.E. DECREASES COST.
+	Cog_Transaction
+	% recurse.
+	
+
+
+	
+	
+% end.
+	
+/* SCRAPS: */	
+	
+	
 /*
 livestock event types:
 	dayEndCount 
 	born        
 	loss        
 	rations     
-	internal:
-		buy,sell
 */
-
+/*
 preprocess_livestock_event(Event) :-
 	
 
@@ -226,7 +262,7 @@ born/loss
                     {
 
 	
-
+*/
 
 
 /*
@@ -245,23 +281,10 @@ livestock_events ->
 
 
 
-
-
-
-
-
-
-
 Stock_on_hand_at_beginning_of_year_count for day
 since beginning of year:
 	purchases
 	born
-
-
-
-
-
-
 
 
 
@@ -399,3 +422,7 @@ tag_s_transactions([S_Transaction | S_Transactions], [Tagged | Taggeds]) :-
 	Tagged			= s_transaction(Day, Type_Id, Vector, Unexchanged_Account_Id, Bases)
 
 	*/
+	/*
+		internal:
+		buy,sell
+*/
