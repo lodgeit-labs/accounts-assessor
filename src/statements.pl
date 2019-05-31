@@ -234,9 +234,11 @@ preprocess_livestock_event(Event, []) :-
 	Event = rations(_,_,_).
 	% will be processed later when all transactions are collected, need average cost		
 	
-preprocess_rations(Event, [Livestock_Transaction, Equity_Transaction, Cog_Transaction]) :-
+	
+	
+preprocess_rations(Transactions, Event, [Livestock_Transaction, Equity_Transaction, Cog_Transaction]) :-
 	Event = rations(Type, Day, Count),
-	Cost = 5,
+	average_cost(Type, Transactions, Cost),
 	Livestock_Transaction = transaction(Day, 'rations', Livestock_Account, [coord(Type, 0, Count)]),
 	% DR OWNERS_EQUITY -->DRAWINGS. I.E. THE OWNER TAKES SOMETHING OF VALUE. 
 	Equity_Transaction = transaction(Day, "rations", Equity_3145_Drawings_by_Sole_Trader, [coord('AUD', Cost, 0)]),
@@ -249,7 +251,11 @@ preprocess_rations(_, []).
 	
 
 
+average_cost(Type, Transactions, Cost) :-
 	
+
+
+
 	
 % end.
 	
