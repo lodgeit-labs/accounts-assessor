@@ -46,17 +46,30 @@ balance_sheet_entry(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day,
 
 % this is the entry point for the ledger endpoint
 balance_sheet_at(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, From_Day, To_Day, Balance_Sheet) :-
-  account_ids(Accounts, Assets_AID, Equity_AID, Liabilities_AID, Earnings_AID, Retained_Earnings_AID, Current_Earnings_AID, _, _),
+	account_ids(Accounts, Assets_AID, Equity_AID, Liabilities_AID, Earnings_AID, Retained_Earnings_AID, Current_Earnings_AID, _, _),
+	
 	balance_sheet_entry(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Assets_AID, To_Day, Asset_Section),
-	balance_sheet_entry(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Equity_AID, To_Day, Equity_Section),
 	balance_sheet_entry(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Liabilities_AID, To_Day, Liability_Section),
+	balance_sheet_entry(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Equity_AID, To_Day, Equity_Section),
+	
+	% earnings up to the beginning of the report period
 	balance_by_account(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Earnings_AID, From_Day, Retained_Earnings),
+	% earnings in the report period
 	net_activity_by_account(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Earnings_AID, From_Day, To_Day, Current_Earnings),
 	vec_add(Retained_Earnings, Current_Earnings, Earnings),
 	vec_reduce(Earnings, Earnings_Reduced),
-	Earnings_Section = entry(Earnings_AID, Earnings_Reduced,
-		[entry(Retained_Earnings_AID, Retained_Earnings, []), entry(Current_Earnings_AID, Current_Earnings, [])]),
-	Balance_Sheet = [Asset_Section, Liability_Section, Earnings_Section, Equity_Section].
+	
+	Earnings_Section = 
+		entry(Earnings_AID, Earnings_Reduced,
+		[
+			entry(Retained_Earnings_AID, Retained_Earnings, []), 
+			entry(Current_Earnings_AID, Current_Earnings, [])
+		]),
+	%gtrace,
+	balance_sheet_entry(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, 'Livestock', To_Day, Livestock_Section),
+	
+	
+	Balance_Sheet = [Asset_Section, Liability_Section, Earnings_Section, Equity_Section, Livestock_Section].
 
 		
 		

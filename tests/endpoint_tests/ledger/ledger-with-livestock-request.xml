@@ -135,7 +135,7 @@
          so, to recognize livestock unit types, we'll probably require a table of livestock types in the input -->
 
           <transaction>
-            <transdate>2018-08-02</transdate>
+            <transdate>2018-03-02</transdate>
             <debit>50</debit>
             <credit>0</credit>
             <unit>10</unit>
@@ -143,7 +143,7 @@
           </transaction>
 
           <transaction>
-            <transdate>2018-08-02</transdate>
+            <transdate>2018-03-02</transdate>
             <debit>0</debit>
             <credit>50</credit>
             <unit>30</unit>

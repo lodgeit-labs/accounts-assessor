@@ -1,34 +1,43 @@
 <?xml version="1.0" ?>
 <accounts>
-	<Assets>
-		<CurrentAssets>
-			<CashAndCashEquivalents>
-				<WellsFargo/>
-				<NationalAustraliaBank/>
-			</CashAndCashEquivalents>
-			<LivestockAtCost/>
-		</CurrentAssets>
-		<NoncurrentAssets>
-			<FinancialInvestments/>
-			<RetainedEarnings/>
-		</NoncurrentAssets>
-	</Assets>
-	<Equity>
-		<ShareCapital/>
-		<Drawings/>
-	</Equity>
-	<Liabilities>
-		<NoncurrentLiabilities>
-			<NoncurrentLoans/>
-		</NoncurrentLiabilities>
-		<CurrentLiabilities>
-			<CurrentLoans/>
-		</CurrentLiabilities>
-	</Liabilities>
-	<Earnings>
+
+   <BalanceSheet>
+   	<Assets>
+	   	<CurrentAssets>
+		   	<CashAndCashEquivalents>
+			   	<WellsFargo/>
+				   <NationalAustraliaBank/>
+   			</CashAndCashEquivalents>
+	   		<LivestockAtCost/>
+		   </CurrentAssets>
+   		<NoncurrentAssets>
+	   		<FinancialInvestments/>
+		   	<RetainedEarnings/>
+   		</NoncurrentAssets>
+	   </Assets>
+   	<Liabilities>
+	   	<NoncurrentLiabilities>
+		   	<NoncurrentLoans/>
+   		</NoncurrentLiabilities>
+	   	<CurrentLiabilities>
+		   	<CurrentLoans/>
+   		</CurrentLiabilities>
+   	</Liabilities>
+   	<Equity>
+   		<ShareCapital/>
+   		<Drawings/>
+   		<RetainedEarnings>
+   		   <CurrentEarnings/>
+   		   <HistoricalEarnings/>
+   		</RetainedEarnings>
+   	</Equity>
+   </BalanceSheet>
+
+	<ProfitAndLoss>
 		<Revenue>
 			<InvestmentIncome/>
 			<SalesOfLivestock/>
+			<ForexGain/>
 		</Revenue>
 		<Expenses>
 			<BankCharges/>
@@ -37,11 +46,12 @@
 			<Purchases/>
 			<CostOfGoodsLivestock/>
 		</Expenses>
-		<CurrentEarningsLosses/>
-	</Earnings>
+	</ProfitAndLoss>
+
 	<Livestock>
 		<Cows/>
 		<Sheep/>
 	</Livestock>
+
 </accounts>
 
