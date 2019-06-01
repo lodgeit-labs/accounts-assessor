@@ -20,6 +20,8 @@
 
 :- ['./ledger/process_xml_ledger_request.pl'].
 
+:- ['./livestock/process_xml_livestock_request.pl'].
+
 
 % -------------------------------------------------------------------
 % process_data/1
@@ -102,6 +104,8 @@ process_xml_request(FileName, DOM) :-
       process_xml_loan_request(FileName, DOM)
    ;
       process_xml_ledger_request(FileName, DOM)
+   ;
+      process_xml_livestock_request(FileName, DOM)
    ).
      
 
