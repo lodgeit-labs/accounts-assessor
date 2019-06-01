@@ -117,10 +117,6 @@ extract_livestock_event2(Type, Days, Count, element(loss,_,_),                  
 extract_livestock_event2(Type, Days, Count, element(rations,_,_),                rations(Type, Days, Count)).
 	
 
-% this gets the children of an element with ElementXPath
-inner_xml(Dom, ElementXPath, Children) :-
-   xpath(Dom, ElementXPath, element(_,_,Children)).
-
 pretty_term_string(Term, String) :-
    new_memory_file(X),
    open_memory_file(X, write, S),

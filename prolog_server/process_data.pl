@@ -91,7 +91,8 @@ store_xml_document(FileName, XML) :-
 % -------------------------------------------------------------------
 
 process_xml_document(FileName) :-
-   load_xml(FileName, DOM, []),
+   % todo throw errors on warnings (with sgml_parse(+Parser, +Options))
+   load_xml(FileName, DOM, []), 
    process_xml_request(FileName, DOM).
 
    

@@ -1,4 +1,5 @@
 % this is a version of statements.pl where i am adding livestock functionality. work in progress.
+% see doc/ledger-livestock
 
 /*
 
@@ -244,6 +245,9 @@ preprocess_s_transactions(Accounts, Exchange_Rates, Transaction_Types, [S_Transa
 
 
 	
+/*
+Births debit inventory (asset) and credit cost of goods section, lowering cost of goods value at a rate ascribed by the tax office $20/head of sheep and/or at market rate ascribed by the farmer. It will be useful to build the reports under both inventory valuation conditions.
+*/
 preprocess_livestock_event(Event, Transaction) :-
 	Event = born(Type, Day, Count),
 	Transaction = transaction(Day, 'livestock born', Livestock_Account, [coord(Type, Count, 0)]),
@@ -259,7 +263,17 @@ preprocess_livestock_event(Event, []) :-
 	% will be processed later when all transactions are collected, need average cost		
 	
 	
-	
+/*
+Rations debit an equity account called drawings of a sole trader or partner, 
+debit asset or liability loan account  of a shareholder of a company or beneficiary of a trust.  
+
+
+Naming conventions of accounts created in end user systems vary and the loans might be current or non current but otherwise the logic should hold perfectly on the taxonomy and logic model. (hence requirement to classify).
+
+A sole trade is his own person so his equity is in his own right, hence reflects directly in equity.
+
+The differences relate to personhood. Trusts & companies have attained some type of personhood while sole traders & partners in partnerships are their own people. Hence the trust or company owes or is owed by the shareholder or beneficiary.
+*/
 preprocess_rations(Livestock_Type, Cost, Event, Output) :-
 	Event = rations(Livestock_Type, Day, Count) ->
 	(
