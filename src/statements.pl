@@ -45,7 +45,10 @@ when bank statements are processed:
 				at what cost?
 				DR OWNERS_EQUITY -->DRAWINGS. I.E. THE OWNER TAKES SOMETHING OF VALUE. Equity_3145_Drawings_by_Sole_Trader.
 				CR COST_OF_GOODS. I.E. DECREASES COST.
-          
+		
+		
+		
+fixme:		
 average cost is defined for date and livestock type as follows:
 	stock count and value at beginning of year is taken from beginning of year balance on:
 		the livestock count account
@@ -97,6 +100,32 @@ transaction_type_of(Transaction_Types, S_Transaction, Transaction_Type) :-
 	% match it with what's in Transaction_Types
 	member(Transaction_Type, Transaction_Types).
 
+
+	
+	
+s_transaction_is_livestock_buy_or_sell(S_Transaction, Day, Livestock_Type, Livestock_Coord, Vector, Vector_Inverted) :-
+	S_Transaction = s_transaction(Day, "", Vector, Unexchanged_Account_Id, Bases),
+	% todo: exchange Vector to the currency that the report is requested for
+	
+	% bank statements are from the perspective of the bank, their debit is our credit
+	vec_inverse(Vector, Vector_Inverted),
+	Vector_Inverted = [coord(_, MoneyDebit, MoneyCredit)],
+	
+	% get what unit type was exchanged for the money
+	Bases = vector([coord(Livestock_Type, Livestock_Count_Input, Livestock_Credit)]),
+	assertion(Livestock_Credit == 0),
+	Livestock_Count is abs(Livestock_Count_Input),
+	
+	(MoneyDebit > 0 ->
+		(
+			assertion(MoneyCredit == 0),
+			Livestock_Coord = coord(Livestock_Type, 0, Livestock_Count)
+		);
+		Livestock_Coord = coord(Livestock_Type, Livestock_Count, 0)
+	).
+
+
+	
 	
 	
 % preprocess_s_transactions(Exchange_Rates, Transaction_Types, Input, Output).
@@ -114,23 +143,8 @@ preprocess_s_transactions(_, _, _, [], []).
 	% DR COST_OF_GOODS_LIVESTOCK (EXPENSE ASSOCIATED WITH REVENUE INCREASES). 
 %	and produce a livestock count transaction 
 preprocess_s_transactions(Accounts, Exchange_Rates, Transaction_Types, [S_Transaction | S_Transactions], [Bank_Transaction, Livestock_Transaction, Assets_Transaction, SalesTransactions | Transactions]) :-
-	S_Transaction = s_transaction(Day, "", Vector, Unexchanged_Account_Id, Bases),
-	% bank statements are from the perspective of the bank, their debit is our credit
-	vec_inverse(Vector, Vector_Inverted),
-	Vector_Inverted = [coord(_, MoneyDebit, MoneyCredit)],
 	
-	% get what unit type was exchanged for the money
-	Bases = vector([coord(Livestock_Type, Livestock_Count_Input, Livestock_Credit)]),
-	assertion(Livestock_Credit == 0),
-	Livestock_Count is abs(Livestock_Count_Input),
-	
-	(MoneyDebit > 0 ->
-		(
-			assertion(MoneyCredit == 0),
-			Livestock_Coord = coord(Livestock_Type, 0, Livestock_Count)
-		);
-		Livestock_Coord = coord(Livestock_Type, Livestock_Count, 0)
-	),
+	s_transaction_is_livestock_buy_or_sell(S_Transaction, Day, Livestock_Type, Livestock_Coord, Vector, Vector_Inverted),
 	
 	livestock_account_ids(Livestock_Account, Assets_1204_Livestock_at_Cost, _, _),
 	account_ancestor_id(Accounts, Livestock_Type, Livestock_Account),
@@ -222,12 +236,12 @@ preprocess_s_transactions(Accounts, Exchange_Rates, Transaction_Types, [S_Transa
 	
 preprocess_livestock_event(Event, Transaction) :-
 	Event = born(Type, Day, Count),
-	Transaction = transaction(Day, 'born', Livestock_Account, [coord(Type, Count, 0)]),
+	Transaction = transaction(Day, 'livestock born', Livestock_Account, [coord(Type, Count, 0)]),
 	livestock_account_ids(Livestock_Account, _, _, _).
 
 preprocess_livestock_event(Event, Transaction) :-
 	Event = loss(Type, Day, Count),
-	Transaction = transaction(Day, 'loss', Livestock_Account, [coord(Type, 0, Count)]),
+	Transaction = transaction(Day, 'livestock loss', Livestock_Account, [coord(Type, 0, Count)]),
 	livestock_account_ids(Livestock_Account, _, _, _).
 
 preprocess_livestock_event(Event, []) :-
@@ -251,8 +265,43 @@ preprocess_rations(_, []).
 	
 
 
-average_cost(Type, Transactions, Cost) :-
-	Cost = 5.
+average_cost(Type, S_Transactions, Livestock_Events, Natural_increase_cost_per_head, Average_cost) :-
+	/*
+	all transactions are processed to get purchases count/value and natural increase count/value
+	opening balances are ignored for now, and all transactions are used, no date limit.
+	*/
+	livestock_purchases_cost_and_count(Type, S_Transactions, Purchases_cost, Purchases_count),
+	natural_increase_count(Type, Livestock_Events, Natural_increase_count),
+	Purchases_and_increase_value = Purchases_cost + Natural_increase_count * Natural_increase_cost_per_head,
+	Purchases_and_increase_count = Purchases_count + Natural_increase_count,
+	Average_cost is Purchases_and_increase_value / Purchases_and_increase_count.
+	
+% natural increase count given livestock type and all livestock events
+natural_increase_count(Type, [E | Events], Natural_increase_count) :-
+	(E = born(Type, _Day, Count) ->
+		C = Count;
+		C = 0),
+	natural_increase_count(Type, Events, Natural_increase_count_1),
+	Natural_increase_count = Natural_increase_count_1 + C.
+	
+natural_increase_count(_, [], 0).
+
+
+livestock_purchases_cost_and_count(Type, [ST | S_Transactions], Purchases_cost, Purchases_count) :-
+	(s_transaction_is_livestock_buy_or_sell(ST, _Day, Type, Livestock_Coord, Vector_Bank, Vector_Ours) ->
+		(Vector_Ours = [coord(_, 0, Cost)],
+		Livestock_Coord = coord(Type, Count, 0))
+		;
+		(Cost = 0, Count = 0)),
+	livestock_purchases_cost_and_count(Type, S_Transactions, Purchases_cost_2, Purchases_count_2),
+	Purchases_cost is Purchases_cost_2 + Cost,
+	Purchases_count is Purchases_count_2 + Count.
+
+livestock_purchases_cost_and_count(_, [], 0, 0).
+
+
+
+
 
 
 

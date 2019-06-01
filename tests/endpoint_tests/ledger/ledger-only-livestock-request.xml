@@ -98,6 +98,9 @@
 
     <livestockData>
       <type>Cows</type>
+      <naturalIncreaseValuePerUnit>4</naturalIncreaseValuePerUnit>
+      <!-- <currency>AUD</currency> -->
+
       <events>
         <naturalIncrease>
           <date>2018-01-30</date>

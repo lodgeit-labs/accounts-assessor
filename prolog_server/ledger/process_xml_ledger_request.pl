@@ -46,17 +46,18 @@ process_xml_ledger_request(_FileNameIn, Dom) :-
 
    extract_exchange_rates(Dom, BalanceSheetEndAbsoluteDays, ExchangeRates),
 
-   %gtrace,
    preprocess_s_transactions(AccountHierarchy, ExchangeRates, ActionTaxonomy, S_Transactions, Transactions),
-   
    extract_livestock_events(Dom, Livestock_Events),
+
    maplist(preprocess_livestock_event, Livestock_Events, Livestock_Event_Transactions_Nested),
    flatten(Livestock_Event_Transactions_Nested, Livestock_Event_Transactions),
    append(Transactions, Livestock_Event_Transactions, Transactions2),
-   maplist(preprocess_rations, Livestock_Events, Rations_Transactions_Nested),
+   
+   extract_natural_increase_costs(Dom, Natural_increase_costs),
+   yield_rations_transactions_lists(Accounts, S_Transactions, Livestock_Events, Rations_Transactions_Nested),
    flatten(Rations_Transactions_Nested, Rations_Transactions),
-   append(Transactions2, Rations_Transactions, Transactions3),
-      
+   
+   append(Transactions2, Rations_Transactions, Transactions3),  
    balance_sheet_at(ExchangeRates, AccountHierarchy, Transactions3, DefaultBases, BalanceSheetEndAbsoluteDays, BalanceSheetStartAbsoluteDays, BalanceSheetEndAbsoluteDays, BalanceSheet),
 
    pretty_term_string(S_Transactions, Message0),
@@ -75,6 +76,20 @@ process_xml_ledger_request(_FileNameIn, Dom) :-
       DebugMessage),
    display_xbrl_ledger_response(DebugMessage, BalanceSheetStartAbsoluteDays, BalanceSheetEndAbsoluteDays, BalanceSheet).
 
+yield_rations_transactions_lists(Accounts, S_Transactions, Livestock_Events, Natural_increase_cost_per_head, Rations_Transactions_Nested) :-
+	livestock_account_ids(Livestock_Account, _, _, _),
+	account_ancestor_id(Accounts, Livestock_Type, Livestock_Account),
+	average_cost(Livestock_Type, S_Transactions, Livestock_Events, Natural_increase_cost_per_head, Average_cost),  
+	maplist(preprocess_rations, Livestock_Events, Rations_Transactions_Nested).
+
+extract_natural_increase_costs(Dom, Natural_increase_costs) :-
+	findall(natural_increase_cost(Type, Cost),
+	(
+		xpath(Dom, //reports/balanceSheetRequest/livestockData, Data), Natural_increase_costs),
+		inner_xml(Data, type, [Type]),
+		inner_xml(Data, naturalIncreaseValuePerUnit, [Cost])
+	), Natural_increase_costs).
+	
 % -----------------------------------------------------
 
 extract_livestock_events(Dom, Events) :-
