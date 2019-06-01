@@ -53,9 +53,7 @@ process_xml_ledger_request(_FileNameIn, Dom) :-
    flatten(Livestock_Event_Transactions_Nested, Livestock_Event_Transactions),
    append(Transactions, Livestock_Event_Transactions, Transactions2),
    
-   extract_natural_increase_costs(Dom, Natural_increase_costs),
-   yield_rations_transactions_lists(Accounts, S_Transactions, Livestock_Events, Rations_Transactions_Nested),
-   flatten(Rations_Transactions_Nested, Rations_Transactions),
+   get_rations_transactions(Dom, AccountHierarchy, S_Transactions, Livestock_Events, Rations_Transactions),
    
    append(Transactions2, Rations_Transactions, Transactions3),  
    balance_sheet_at(ExchangeRates, AccountHierarchy, Transactions3, DefaultBases, BalanceSheetEndAbsoluteDays, BalanceSheetStartAbsoluteDays, BalanceSheetEndAbsoluteDays, BalanceSheet),
@@ -76,16 +74,21 @@ process_xml_ledger_request(_FileNameIn, Dom) :-
       DebugMessage),
    display_xbrl_ledger_response(DebugMessage, BalanceSheetStartAbsoluteDays, BalanceSheetEndAbsoluteDays, BalanceSheet).
 
-yield_rations_transactions_lists(Accounts, S_Transactions, Livestock_Events, Natural_increase_cost_per_head, Rations_Transactions_Nested) :-
+get_rations_transactions(Dom, Accounts, S_Transactions, Livestock_Events, Rations_Transactions) :-
+   extract_natural_increase_costs(Dom, Natural_increase_costs),
+   findall(List, yield_rations_transactions_lists(Accounts, S_Transactions, Livestock_Events, Natural_increase_costs, List), Lists),
+   flatten(Lists, Rations_Transactions).
+   
+yield_rations_transactions_lists(Accounts, S_Transactions, Livestock_Events, Natural_increase_costs, Rations_Transactions) :-
 	livestock_account_ids(Livestock_Account, _, _, _),
 	account_ancestor_id(Accounts, Livestock_Type, Livestock_Account),
-	average_cost(Livestock_Type, S_Transactions, Livestock_Events, Natural_increase_cost_per_head, Average_cost),  
-	maplist(preprocess_rations, Livestock_Events, Rations_Transactions_Nested).
+	average_cost(Livestock_Type, S_Transactions, Livestock_Events, Natural_increase_costs, Average_cost),  
+	maplist(preprocess_rations(Livestock_Type, Average_cost), Livestock_Events, Rations_Transactions).
 
 extract_natural_increase_costs(Dom, Natural_increase_costs) :-
 	findall(natural_increase_cost(Type, Cost),
 	(
-		xpath(Dom, //reports/balanceSheetRequest/livestockData, Data), Natural_increase_costs),
+		xpath(Dom, //reports/balanceSheetRequest/livestockData, Data),
 		inner_xml(Data, type, [Type]),
 		inner_xml(Data, naturalIncreaseValuePerUnit, [Cost])
 	), Natural_increase_costs).

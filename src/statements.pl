@@ -103,7 +103,7 @@ transaction_type_of(Transaction_Types, S_Transaction, Transaction_Type) :-
 
 	
 	
-s_transaction_is_livestock_buy_or_sell(S_Transaction, Day, Livestock_Type, Livestock_Coord, Vector, Vector_Inverted) :-
+s_transaction_is_livestock_buy_or_sell(S_Transaction, Day, Livestock_Type, Livestock_Coord, Vector, Vector_Inverted, Unexchanged_Account_Id, MoneyDebit) :-
 	S_Transaction = s_transaction(Day, "", Vector, Unexchanged_Account_Id, Bases),
 	% todo: exchange Vector to the currency that the report is requested for
 	
@@ -144,7 +144,7 @@ preprocess_s_transactions(_, _, _, [], []).
 %	and produce a livestock count transaction 
 preprocess_s_transactions(Accounts, Exchange_Rates, Transaction_Types, [S_Transaction | S_Transactions], [Bank_Transaction, Livestock_Transaction, Assets_Transaction, SalesTransactions | Transactions]) :-
 	
-	s_transaction_is_livestock_buy_or_sell(S_Transaction, Day, Livestock_Type, Livestock_Coord, Vector, Vector_Inverted),
+	s_transaction_is_livestock_buy_or_sell(S_Transaction, Day, Livestock_Type, Livestock_Coord, Vector, Vector_Inverted, Unexchanged_Account_Id, MoneyDebit),
 	
 	livestock_account_ids(Livestock_Account, Assets_1204_Livestock_at_Cost, _, _),
 	account_ancestor_id(Accounts, Livestock_Type, Livestock_Account),
@@ -250,27 +250,31 @@ preprocess_livestock_event(Event, []) :-
 	
 	
 	
-preprocess_rations(Transactions, Event, [Livestock_Transaction, Equity_Transaction, Cog_Transaction]) :-
-	Event = rations(Type, Day, Count),
-	average_cost(Type, Transactions, Cost),
-	Livestock_Transaction = transaction(Day, 'rations', Livestock_Account, [coord(Type, 0, Count)]),
-	% DR OWNERS_EQUITY -->DRAWINGS. I.E. THE OWNER TAKES SOMETHING OF VALUE. 
-	Equity_Transaction = transaction(Day, "rations", Equity_3145_Drawings_by_Sole_Trader, [coord('AUD', Cost, 0)]),
-	%	CR COST_OF_GOODS. I.E. DECREASES COST.
-	Cog_Transaction = transaction(Day, "rations", Expenses__Direct_Costs__Livestock_Adjustments__Livestock_Rations, [coord('AUD', 0, Cost)]),
-	livestock_account_ids(Livestock_Account, _Assets_Livestock_At_Cost_Account, Equity_3145_Drawings_by_Sole_Trader, Expenses__Direct_Costs__Livestock_Adjustments__Livestock_Rations),
-	!.
+preprocess_rations(Livestock_Type, Cost, Event, Output) :-
+	Event = rations(Livestock_Type, Day, Count) ->
+	(
+		Output = [Livestock_Transaction, Equity_Transaction, Cog_Transaction],
+		Livestock_Transaction = transaction(Day, 'rations', Livestock_Account, [coord(Livestock_Type, 0, Count)]),
+		% DR OWNERS_EQUITY -->DRAWINGS. I.E. THE OWNER TAKES SOMETHING OF VALUE. 
+		Equity_Transaction = transaction(Day, "rations", Equity_3145_Drawings_by_Sole_Trader, [coord('AUD', Cost, 0)]),
+		%	CR COST_OF_GOODS. I.E. DECREASES COST.
+		Cog_Transaction = transaction(Day, "rations", Expenses__Direct_Costs__Livestock_Adjustments__Livestock_Rations, [coord('AUD', 0, Cost)]),
+		livestock_account_ids(Livestock_Account, _Assets_Livestock_At_Cost_Account, Equity_3145_Drawings_by_Sole_Trader, Expenses__Direct_Costs__Livestock_Adjustments__Livestock_Rations)
+	);
+	Output = [].
 
-preprocess_rations(_, []).
+
+
 	
 
 
-average_cost(Type, S_Transactions, Livestock_Events, Natural_increase_cost_per_head, Average_cost) :-
+average_cost(Type, S_Transactions, Livestock_Events, Natural_increase_costs, Average_cost) :-
 	/*
 	all transactions are processed to get purchases count/value and natural increase count/value
 	opening balances are ignored for now, and all transactions are used, no date limit.
 	*/
 	livestock_purchases_cost_and_count(Type, S_Transactions, Purchases_cost, Purchases_count),
+	member(Natural_increase_costs, natural_increase_cost(Type, Natural_increase_cost_per_head)),
 	natural_increase_count(Type, Livestock_Events, Natural_increase_count),
 	Purchases_and_increase_value = Purchases_cost + Natural_increase_count * Natural_increase_cost_per_head,
 	Purchases_and_increase_count = Purchases_count + Natural_increase_count,
@@ -288,7 +292,7 @@ natural_increase_count(_, [], 0).
 
 
 livestock_purchases_cost_and_count(Type, [ST | S_Transactions], Purchases_cost, Purchases_count) :-
-	(s_transaction_is_livestock_buy_or_sell(ST, _Day, Type, Livestock_Coord, Vector_Bank, Vector_Ours) ->
+	(s_transaction_is_livestock_buy_or_sell(ST, _Day, Type, Livestock_Coord, _, Vector_Ours, _, _) ->
 		(Vector_Ours = [coord(_, 0, Cost)],
 		Livestock_Coord = coord(Type, Count, 0))
 		;
