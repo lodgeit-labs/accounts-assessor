@@ -139,6 +139,7 @@
 
           <transaction>
             <transdate>2018-03-02</transdate>
+            <!-- buy 10 cows -->
             <debit>50</debit>
             <credit>0</credit>
             <unit>10</unit>
@@ -147,6 +148,7 @@
 
           <transaction>
             <transdate>2018-03-02</transdate>
+            <!-- sell 30 sheep -->
             <debit>0</debit>
             <credit>50</credit>
             <unit>30</unit>

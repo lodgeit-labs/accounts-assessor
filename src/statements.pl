@@ -148,18 +148,28 @@ preprocess_s_transactions(Accounts, Exchange_Rates, Transaction_Types, [S_Transa
 	
 	livestock_account_ids(Livestock_Account, Assets_1204_Livestock_at_Cost, _, _),
 	account_ancestor_id(Accounts, Livestock_Type, Livestock_Account),
-	
-	% produce a livestock count increase/decrease transaction
-	Livestock_Transaction = transaction(Day, "livestock buy/sell", Livestock_Account, [Livestock_Coord]),
-	% produce the bank account transaction
-	Bank_Transaction = transaction(Day, "livestock buy/sell", Unexchanged_Account_Id, Vector_Inverted),
-	% produce an assets transaction
-	Assets_Transaction = transaction(Day, "livestock buy/sell", Assets_1204_Livestock_at_Cost, Vector	),
 
 	(MoneyDebit > 0 ->
-		SalesTransactions = [	transaction(Day, "livestock sell", 'SalesOfLivestock', Vector),
-											transaction(Day, "livestock sell", 'CostOfGoodsLivestock', Vector_Inverted)];
-		SalesTransactions = []),
+		(
+			Description = "livestock sell",
+			SalesTransactions = [	transaction(Day, Description, 'SalesOfLivestock', Vector),
+											
+											% fixme, should be average cost? will have to produce these tx's in a separate pass
+											transaction(Day, Description, 'CostOfGoodsLivestock', Vector_Inverted)]
+		)
+		;
+		(
+			Description = "livestock buy",
+			SalesTransactions = []
+		)
+	),
+	
+	% produce a livestock count increase/decrease transaction
+	Livestock_Transaction = transaction(Day, Description, Livestock_Account, [Livestock_Coord]),
+	% produce the bank account transaction
+	Bank_Transaction = transaction(Day, Description, Unexchanged_Account_Id, Vector_Inverted),
+	% produce an assets transaction
+	Assets_Transaction = transaction(Day, Description, Assets_1204_Livestock_at_Cost, Vector	),
 
 	preprocess_s_transactions(Accounts, Exchange_Rates, Transaction_Types, S_Transactions, Transactions),
 	!.
