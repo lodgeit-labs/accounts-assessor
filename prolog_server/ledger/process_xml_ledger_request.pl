@@ -47,15 +47,18 @@ process_xml_ledger_request(_FileNameIn, Dom) :-
    extract_exchange_rates(Dom, BalanceSheetEndAbsoluteDays, ExchangeRates),
 
    preprocess_s_transactions(AccountHierarchy, ExchangeRates, ActionTaxonomy, S_Transactions, Transactions),
+   
+   gtrace,
    extract_livestock_events(Dom, Livestock_Events),
 
+   	
    maplist(preprocess_livestock_event, Livestock_Events, Livestock_Event_Transactions_Nested),
    flatten(Livestock_Event_Transactions_Nested, Livestock_Event_Transactions),
    append(Transactions, Livestock_Event_Transactions, Transactions2),
+
+   get_more_transactions(Dom, AccountHierarchy, S_Transactions, Livestock_Events, More_Transactions),
    
-   get_rations_transactions(Dom, AccountHierarchy, S_Transactions, Livestock_Events, Rations_Transactions),
-   
-   append(Transactions2, Rations_Transactions, Transactions3),  
+   append(Transactions2, More_Transactions, Transactions3),  
    balance_sheet_at(ExchangeRates, AccountHierarchy, Transactions3, DefaultBases, BalanceSheetEndAbsoluteDays, BalanceSheetStartAbsoluteDays, BalanceSheetEndAbsoluteDays, BalanceSheet),
 
    pretty_term_string(S_Transactions, Message0),
@@ -74,25 +77,30 @@ process_xml_ledger_request(_FileNameIn, Dom) :-
       DebugMessage),
    display_xbrl_ledger_response(DebugMessage, BalanceSheetStartAbsoluteDays, BalanceSheetEndAbsoluteDays, BalanceSheet).
 
-get_rations_transactions(Dom, Accounts, S_Transactions, Livestock_Events, Rations_Transactions) :-
+% this logic is dependent on having the average cost value
+get_more_transactions(Dom, Accounts, S_Transactions, Livestock_Events, More_Transactions) :-
    extract_natural_increase_costs(Dom, Natural_increase_costs),
-   findall(List, yield_rations_transactions_lists(Accounts, S_Transactions, Livestock_Events, Natural_increase_costs, List), Lists),
-   flatten(Lists, Rations_Transactions).
+   findall(List, yield_more_transactions(Accounts, S_Transactions, Livestock_Events, Natural_increase_costs, List), Lists),
+   flatten(Lists, More_Transactions).
    
-yield_rations_transactions_lists(Accounts, S_Transactions, Livestock_Events, Natural_increase_costs, Rations_Transactions) :-
+yield_more_transactions(Accounts, S_Transactions, Livestock_Events, Natural_increase_costs, [Rations_Transactions, Sales_Transactions]) :-
 	livestock_account_ids(Livestock_Account, _, _, _),
 	account_ancestor_id(Accounts, Livestock_Type, Livestock_Account),
-	average_cost(Livestock_Type, S_Transactions, Livestock_Events, Natural_increase_costs, Average_cost),  
-	maplist(preprocess_rations(Livestock_Type, Average_cost), Livestock_Events, Rations_Transactions).
+	average_cost(Livestock_Type, S_Transactions, Livestock_Events, Natural_increase_costs, Average_cost), 
+	maplist(preprocess_rations(Livestock_Type, Average_cost), Livestock_Events, Rations_Transactions),
+	preprocess_sales(Average_cost, Accounts, S_Transactions, Sales_Transactions).
 
 extract_natural_increase_costs(Dom, Natural_increase_costs) :-
-	findall(natural_increase_cost(Type, Cost),
+	findall(Cost,
 	(
 		xpath(Dom, //reports/balanceSheetRequest/livestockData, Data),
-		inner_xml(Data, type, [Type]),
-		inner_xml(Data, naturalIncreaseValuePerUnit, [Cost])
+		extract_natural_increase_cost(Data, Cost)
 	), Natural_increase_costs).
-	
+
+extract_natural_increase_cost(LivestockData, natural_increase_cost(Type, Cost)) :-
+	fields(LivestockData, ['type', Type]),
+	numeric_fields(LivestockData, [	'naturalIncreaseValuePerUnit', Cost]).
+
 % -----------------------------------------------------
 
 extract_livestock_events(Dom, Events) :-
@@ -102,12 +110,12 @@ extract_livestock_events(Dom, Events) :-
    
 extract_livestock_events2(Data, Events) :-
    inner_xml(Data, type, [Type]),
-   findall(Event, xpath(Data, 'events/*', Event), Xml_Events),
+   findall(Event, xpath(Data, events/(*), Event), Xml_Events),
    maplist(extract_livestock_event(Type), Xml_Events, Events).
 
 extract_livestock_event(Type, Dom, Event) :-
    inner_xml(Dom, date, [Date]),
-   absolute_day(Date, Days),
+   parse_date(Date, Days),
    inner_xml(Dom, count, [CountAtom]),
    atom_number(CountAtom, Count),
    extract_livestock_event2(Type, Days, Count, Dom, Event).

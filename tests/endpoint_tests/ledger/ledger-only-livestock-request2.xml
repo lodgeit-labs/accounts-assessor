@@ -96,7 +96,7 @@
 
     <livestockData>
       <type>Sheep</type>
-      <naturalIncreaseValuePerUnit>4</naturalIncreaseValuePerUnit>
+      <naturalIncreaseValuePerUnit>54</naturalIncreaseValuePerUnit>
       <!-- <currency>AUD</currency> -->
       <events>
         <naturalIncrease>

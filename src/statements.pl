@@ -43,7 +43,7 @@ when bank statements are processed:
 			loss?
 			
 			rations: 
-				at what cost?
+				at average cost
 				DR OWNERS_EQUITY -->DRAWINGS. I.E. THE OWNER TAKES SOMETHING OF VALUE. Equity_3145_Drawings_by_Sole_Trader.
 				CR COST_OF_GOODS. I.E. DECREASES COST.
 		
@@ -143,7 +143,7 @@ preprocess_s_transactions(_, _, _, [], []).
 	% CR SALES_OF_LIVESTOCK (REVENUE INCREASES) 
 	% DR COST_OF_GOODS_LIVESTOCK (EXPENSE ASSOCIATED WITH REVENUE INCREASES). 
 %	and produce a livestock count transaction 
-preprocess_s_transactions(Accounts, Exchange_Rates, Transaction_Types, [S_Transaction | S_Transactions], [Bank_Transaction, Livestock_Transaction, Assets_Transaction, SalesTransactions | Transactions]) :-
+preprocess_s_transactions(Accounts, Exchange_Rates, Transaction_Types, [S_Transaction | S_Transactions], [Bank_Transaction, Livestock_Transaction, Assets_Transaction | Transactions]) :-
 	
 	s_transaction_is_livestock_buy_or_sell(S_Transaction, Day, Livestock_Type, Livestock_Coord, Vector, Vector_Inverted, Unexchanged_Account_Id, MoneyDebit),
 	
@@ -152,16 +152,12 @@ preprocess_s_transactions(Accounts, Exchange_Rates, Transaction_Types, [S_Transa
 
 	(MoneyDebit > 0 ->
 		(
-			Description = "livestock sell",
-			SalesTransactions = [	transaction(Day, Description, 'SalesOfLivestock', Vector),
-											
-											% fixme, should be average cost? will have to produce these tx's in a separate pass
-											transaction(Day, Description, 'CostOfGoodsLivestock', Vector_Inverted)]
+			Description = "livestock sell"
+			% sales transactions will be generated in next pass
 		)
 		;
 		(
-			Description = "livestock buy",
-			SalesTransactions = []
+			Description = "livestock buy"
 		)
 	),
 	
@@ -288,8 +284,29 @@ preprocess_rations(Livestock_Type, Cost, Event, Output) :-
 	Output = [].
 
 
+preprocess_sales(Average_cost, Accounts, [S_Transaction | S_Transactions], [Sales_Transactions | Transactions_Tail]) :-
 
+	s_transaction_is_livestock_buy_or_sell(S_Transaction, Day, Livestock_Type, Livestock_Coord, Vector, _, _, MoneyDebit),
 	
+	livestock_account_ids(Livestock_Account, _, _, _),
+	account_ancestor_id(Accounts, Livestock_Type, Livestock_Account),
+	(MoneyDebit > 0 ->
+		(
+			Description = "livestock sell",
+			(
+				coord(_, 0, Livestock_Count) = Livestock_Coord,
+				Cost_Of_Goods_Sold is Average_cost * Livestock_Count
+			),
+			Sales_Transactions = [
+				transaction(Day, Description, 'SalesOfLivestock', Vector),
+				transaction(Day, Description, 'CostOfGoodsLivestock', Cost_Of_Goods_Sold)]
+		)
+		;
+			Sales_Transactions = []
+	),
+	preprocess_sales(Accounts, S_Transactions, Transactions_Tail).
+				
+preprocess_sales(_, [], []).
 
 
 average_cost(Type, S_Transactions, Livestock_Events, Natural_increase_costs, Average_cost) :-
@@ -298,11 +315,15 @@ average_cost(Type, S_Transactions, Livestock_Events, Natural_increase_costs, Ave
 	opening balances are ignored for now, and all transactions are used, no date limit.
 	*/
 	livestock_purchases_cost_and_count(Type, S_Transactions, Purchases_cost, Purchases_count),
-	member(Natural_increase_costs, natural_increase_cost(Type, Natural_increase_cost_per_head)),
+	member(natural_increase_cost(Type, Natural_increase_cost_per_head), Natural_increase_costs),
+	gtrace,
 	natural_increase_count(Type, Livestock_Events, Natural_increase_count),
-	Purchases_and_increase_value = Purchases_cost + Natural_increase_count * Natural_increase_cost_per_head,
-	Purchases_and_increase_count = Purchases_count + Natural_increase_count,
-	Average_cost is Purchases_and_increase_value / Purchases_and_increase_count.
+	Opening_and_purchases_value = Purchases_cost,
+	Natural_Increase_value is Natural_increase_count * Natural_increase_cost_per_head,
+	Opening_and_purchases_and_increase_count is Purchases_count + Natural_increase_count,
+	Opening_and_purchases_and_increase_count > 0 ->
+		Average_cost is (Opening_and_purchases_value + Natural_Increase_value) /  Opening_and_purchases_and_increase_count;
+		Average_cost = 0.
 	
 % natural increase count given livestock type and all livestock events
 natural_increase_count(Type, [E | Events], Natural_increase_count) :-
@@ -316,11 +337,16 @@ natural_increase_count(_, [], 0).
 
 
 livestock_purchases_cost_and_count(Type, [ST | S_Transactions], Purchases_cost, Purchases_count) :-
-	(s_transaction_is_livestock_buy_or_sell(ST, _Day, Type, Livestock_Coord, _, Vector_Ours, _, _) ->
-		(Vector_Ours = [coord(_, 0, Cost)],
-		Livestock_Coord = coord(Type, Count, 0))
+	(
+		(
+			s_transaction_is_livestock_buy_or_sell(ST, _Day, Type, Livestock_Coord, _, Vector_Ours, _, _),
+			Vector_Ours = [coord(_, 0, Cost)]
+		)
+		->
+		Livestock_Coord = coord(Type, Count, 0)
 		;
-		(Cost = 0, Count = 0)),
+		(Cost = 0, Count = 0)
+	),
 	livestock_purchases_cost_and_count(Type, S_Transactions, Purchases_cost_2, Purchases_count_2),
 	Purchases_cost is Purchases_cost_2 + Cost,
 	Purchases_count is Purchases_count_2 + Count.
