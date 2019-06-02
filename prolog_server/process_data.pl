@@ -1,8 +1,8 @@
 % ===================================================================
 % Project:   LodgeiT
-% Module:    process_data.pl
+% File:      process_data.pl
 % Author:    Abdus Salam and Rolf Schwitter
-% Date:      2019-05-22
+% Date:      2019-06-02
 % ===================================================================
 
 % -------------------------------------------------------------------
@@ -11,14 +11,8 @@
 
 :- use_module(library(xpath)).
 :- use_module(library(http/http_dispatch), [http_safe_file/2]).
-
-% -------------------------------------------------------------------
-% Load files
-% -------------------------------------------------------------------
-
-:- ['./loan/process_xml_loan_request.pl'].
-
-:- ['./ledger/process_xml_ledger_request.pl'].
+:- use_module(loan/process_xml_loan_request, [process_xml_loan_request/2]).
+:- use_module(ledger/process_xml_ledger_request, [process_xml_ledger_request/2]).   	  
 
 
 % -------------------------------------------------------------------
