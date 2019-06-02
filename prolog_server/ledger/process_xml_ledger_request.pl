@@ -65,7 +65,7 @@ process_xml_ledger_request(_FileNameIn, Dom) :-
 	),
 	Average_Costs), 
       
-   get_more_transactions(Dom, AccountHierarchy, S_Transactions, Livestock_Events, More_Transactions),
+   get_more_transactions(Average_Costs, AccountHierarchy, S_Transactions, Livestock_Events, More_Transactions),
    
    append(Transactions2, More_Transactions, Transactions3),  
    
@@ -90,11 +90,10 @@ process_xml_ledger_request(_FileNameIn, Dom) :-
 
 % this logic is dependent on having the average cost value
 get_more_transactions(Dom, Accounts, S_Transactions, Livestock_Events, More_Transactions) :-
-   extract_natural_increase_costs(Dom, Natural_increase_costs),
-   findall(List, yield_more_transactions(Accounts, S_Transactions, Livestock_Events, Natural_increase_costs, List), Lists),
+   findall(List, yield_more_transactions(Accounts, S_Transactions, Livestock_Events, List), Lists),
    flatten(Lists, More_Transactions).
    
-yield_more_transactions(Accounts, S_Transactions, Livestock_Events, Natural_increase_costs, [Rations_Transactions, Sales_Transactions]) :-
+yield_more_transactions(Accounts, S_Transactions, Livestock_Events, [Rations_Transactions, Sales_Transactions]) :-
 	livestock_account_ids(Livestock_Account, _, _, _),
 	account_ancestor_id(Accounts, Livestock_Type, Livestock_Account),
 	member(exchange_rate(_, Livestock_Type, 'AUD', Average_cost),
