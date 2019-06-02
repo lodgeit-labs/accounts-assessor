@@ -284,7 +284,7 @@ preprocess_rations(Livestock_Type, Cost, Event, Output) :-
 	Output = [].
 
 
-preprocess_sales(Average_cost, Accounts, [S_Transaction | S_Transactions], [Sales_Transactions | Transactions_Tail]) :-
+preprocess_sales(Livestock_Type, Average_cost, Accounts, [S_Transaction | S_Transactions], [Sales_Transactions | Transactions_Tail]) :-
 
 	s_transaction_is_livestock_buy_or_sell(S_Transaction, Day, Livestock_Type, Livestock_Coord, Vector, _, _, MoneyDebit),
 	
@@ -299,7 +299,7 @@ preprocess_sales(Average_cost, Accounts, [S_Transaction | S_Transactions], [Sale
 			),
 			Sales_Transactions = [
 				transaction(Day, Description, 'SalesOfLivestock', Vector),
-				transaction(Day, Description, 'CostOfGoodsLivestock', Cost_Of_Goods_Sold)]
+				transaction(Day, Description, 'CostOfGoodsLivestock', [coord('AUD', Cost_Of_Goods_Sold, 0)])]
 		)
 		;
 			Sales_Transactions = []
@@ -309,21 +309,21 @@ preprocess_sales(Average_cost, Accounts, [S_Transaction | S_Transactions], [Sale
 preprocess_sales(_, [], []).
 
 
-average_cost(Type, S_Transactions, Livestock_Events, Natural_increase_costs, Average_cost) :-
+average_cost(Type, S_Transactions, Livestock_Events, Natural_increase_costs, Exchange_rate) :-
 	/*
 	all transactions are processed to get purchases count/value and natural increase count/value
 	opening balances are ignored for now, and all transactions are used, no date limit.
 	*/
 	livestock_purchases_cost_and_count(Type, S_Transactions, Purchases_cost, Purchases_count),
 	member(natural_increase_cost(Type, Natural_increase_cost_per_head), Natural_increase_costs),
-	gtrace,
 	natural_increase_count(Type, Livestock_Events, Natural_increase_count),
 	Opening_and_purchases_value = Purchases_cost,
 	Natural_Increase_value is Natural_increase_count * Natural_increase_cost_per_head,
 	Opening_and_purchases_and_increase_count is Purchases_count + Natural_increase_count,
 	Opening_and_purchases_and_increase_count > 0 ->
 		Average_cost is (Opening_and_purchases_value + Natural_Increase_value) /  Opening_and_purchases_and_increase_count;
-		Average_cost = 0.
+		Average_cost = 0,
+	Exchange_rate = exchange_rate(_, Type, 'AUD', Average_cost).
 	
 % natural increase count given livestock type and all livestock events
 natural_increase_count(Type, [E | Events], Natural_increase_count) :-

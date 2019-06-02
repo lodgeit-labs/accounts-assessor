@@ -46,11 +46,17 @@ balance_sheet_entry(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day,
 
 % this is the entry point for the ledger endpoint
 balance_sheet_at(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, From_Day, To_Day, Balance_Sheet) :-
-	account_ids(Accounts, Assets_AID, Equity_AID, Liabilities_AID, Earnings_AID, Retained_Earnings_AID, Current_Earnings_AID, _, _),
+	account_ids(Accounts, Assets_AID, Equity_AID, Liabilities_AID, Earnings_AID, Retained_Earnings_AID, Current_Earnings_AID, Revenue_AID, Expenses_AID),
 	
 	balance_sheet_entry(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Assets_AID, To_Day, Asset_Section),
 	balance_sheet_entry(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Liabilities_AID, To_Day, Liability_Section),
 	balance_sheet_entry(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Equity_AID, To_Day, Equity_Section),
+	
+	balance_sheet_entry(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Revenue_AID, To_Day, Revenue_Section),
+	balance_sheet_entry(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Expenses_AID, To_Day, Expenses_Section),
+	
+	construct_livestock_exchange_rates(Livestock_Exchange_Rates = exchange_rate(To_Day, 'Sheep', 'AUD', 
+	balance_by_account(Livestock_Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, 'Livestock', From_Day, Livestock_Closing_Value),
 	
 	% earnings up to the beginning of the report period
 	balance_by_account(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Earnings_AID, From_Day, Retained_Earnings),
@@ -69,7 +75,7 @@ balance_sheet_at(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Fr
 	balance_sheet_entry(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, 'Livestock', To_Day, Livestock_Section),
 	
 	
-	Balance_Sheet = [Asset_Section, Liability_Section, Earnings_Section, Equity_Section, Livestock_Section].
+	Balance_Sheet = [Asset_Section, Liability_Section, Earnings_Section, Equity_Section, Livestock_Section, Revenue_Section, Expenses_Section].
 
 		
 		
