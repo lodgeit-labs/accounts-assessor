@@ -2,23 +2,19 @@
 % Project:   LodgeiT
 % Module:    process_xml_ledger_request.pl  
 % Author:    Jindrich
+% Date:      2019-06-02
 % ===================================================================
 
 % -------------------------------------------------------------------
 % Modules
 % -------------------------------------------------------------------
 
+:- module(process_xml_ledger_request, [process_xml_ledger_request/2]).
+
 :- use_module(library(xpath)).
-
-
-% -------------------------------------------------------------------
-% Load files
-% -------------------------------------------------------------------
-
-:- ['../../src/days'].
-:- ['../../src/ledger'].
-:- ['../../src/statements'].
-
+:- use_module('../../lib/days', [format_date/2, parse_date/2, gregorian_date/2]).
+:- use_module('../../lib/ledger', [balance_sheet_at/8]).
+:- use_module('../../lib/statements', [preprocess_s_transactions/4]).
 
 % ------------------------------------------------------------------
 % process_xml_ledger_request/2
