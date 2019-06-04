@@ -58,7 +58,7 @@ process_xml_ledger_request(_FileNameIn, Dom) :-
 
   % get_livestock_types(AccountHierarchy, Livestock_Types),
    Livestock_Types = ['Sheep'],
- 
+
    get_average_costs(Livestock_Types, S_Transactions, Livestock_Events, Natural_increase_costs, Average_Costs),
       
    get_more_transactions(Livestock_Types, Average_Costs, S_Transactions, Livestock_Events, More_Transactions),
@@ -83,10 +83,13 @@ process_xml_ledger_request(_FileNameIn, Dom) :-
    pretty_term_string(ActionTaxonomy, Message2),
    pretty_term_string(AccountHierarchy, Message3),
    pretty_term_string(BalanceSheet, Message4),
+   pretty_term_string(Average_Costs, Message5),
+
    atomic_list_concat([
    	'S_Transactions:\n', Message0,'\n\n',
 	'Events:\n', Message0b,'\n\n',
    	'Transactions:\n', Message1,'\n\n',
+   	'Average_Costs:\n', Message5,'\n\n',
    	%'Exchange rates::\n', Message1b,'\n\n',
    	%'ActionTaxonomy:\n',Message2,'\n\n',
    	%'AccountHierarchy:\n',Message3,'\n\n',
@@ -149,11 +152,12 @@ get_more_transactions(Livestock_Types, Average_costs, S_Transactions, Livestock_
 		Lists),
 	flatten(Lists, More_Transactions).
    
-yield_more_transactions(Average_costs, S_Transactions, Livestock_Events, Livestock_Type, [Rations_Transactions, Sales_Transactions]) :-
+yield_more_transactions(Average_costs, S_Transactions, Livestock_Events, Livestock_Type, [Rations_Transactions, Sales_Transactions, Buys_Transactions]) :-
 	member(Average_cost, Average_costs),
 	Average_cost = exchange_rate(_, Livestock_Type, _, _),
 	maplist(preprocess_rations(Livestock_Type, Average_cost), Livestock_Events, Rations_Transactions),
-	preprocess_sales(Livestock_Type, Average_cost, S_Transactions, Sales_Transactions).
+	preprocess_sales(Livestock_Type, Average_cost, S_Transactions, Sales_Transactions),
+	preprocess_buys(Livestock_Type, Average_cost, S_Transactions, Buys_Transactions).
 
 extract_natural_increase_costs(Dom, Natural_increase_costs) :-
 	findall(Cost,
@@ -251,9 +255,11 @@ extract_exchange_rate(BalanceSheetEndDate, UnitValue, ExchangeRate) :-
    inner_xml(UnitValue, unitValue, [RateString]),
    atom_number(RateString, Rate).
 
+   
 % yield all transactions from all accounts one by one
 % these are s_transactions, the raw transactions from bank statements. Later each s_transaction will be preprocessed
 % into multiple transaction(..) terms.
+% fixme dont fail silently
 extract_transactions(Dom, DefaultBases, Transaction) :-
    xpath(Dom, //reports/balanceSheetRequest/bankStatement/accountDetails, Account),
    inner_xml(Account, accountName, [AccountName]),

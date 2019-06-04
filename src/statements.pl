@@ -104,7 +104,7 @@ transaction_type_of(Transaction_Types, S_Transaction, Transaction_Type) :-
 
 	
 	
-s_transaction_is_livestock_buy_or_sell(S_Transaction, Day, Livestock_Type, Livestock_Coord, Vector, Vector_Inverted, Unexchanged_Account_Id, MoneyDebit) :-
+s_transaction_is_livestock_buy_or_sell(S_Transaction, Day, Livestock_Type, Livestock_Coord, Vector, Vector_Inverted, Unexchanged_Account_Id, MoneyDebit, MoneyCredit) :-
 	S_Transaction = s_transaction(Day, "", Vector, Unexchanged_Account_Id, Bases),
 	% todo: exchange Vector to the currency that the report is requested for
 	
@@ -145,19 +145,19 @@ preprocess_s_transactions(_, _, _, [], []).
 %	and produce a livestock count transaction 
 preprocess_s_transactions(Accounts, Exchange_Rates, Transaction_Types, [S_Transaction | S_Transactions], [Bank_Transaction, Livestock_Transaction, Assets_Transaction | Transactions]) :-
 	
-	s_transaction_is_livestock_buy_or_sell(S_Transaction, Day, Livestock_Type, Livestock_Coord, Vector, Vector_Inverted, Unexchanged_Account_Id, MoneyDebit),
+	s_transaction_is_livestock_buy_or_sell(S_Transaction, Day, Livestock_Type, Livestock_Coord, Vector, Vector_Inverted, Unexchanged_Account_Id, MoneyDebit, _),
 	
 	livestock_account_ids(Livestock_Account, Assets_1204_Livestock_at_Cost, _, _),
 	account_ancestor_id(Accounts, Livestock_Type, Livestock_Account),
 
 	(MoneyDebit > 0 ->
 		(
-			Description = "livestock sell"
+			Description = 'livestock sell'
 			% sales transactions will be generated in next pass
 		)
 		;
 		(
-			Description = "livestock buy"
+			Description = 'livestock buy'
 		)
 	),
 	
@@ -292,7 +292,7 @@ preprocess_rations(Livestock_Type, Average_Cost, Event, Output) :-
 
 
 preprocess_sales(Livestock_Type, _Average_cost, [S_Transaction | S_Transactions], [Sales_Transactions | Transactions_Tail]) :-
-	s_transaction_is_livestock_buy_or_sell(S_Transaction, Day, Livestock_Type, _Livestock_Coord, Vector, _, _, MoneyDebit),
+	s_transaction_is_livestock_buy_or_sell(S_Transaction, Day, Livestock_Type, _Livestock_Coord, Vector, _, _, MoneyDebit, _),
 
 	(MoneyDebit > 0 ->
 		(
@@ -313,6 +313,24 @@ preprocess_sales(Livestock_Type, _Average_cost, [S_Transaction | S_Transactions]
 	preprocess_sales(Livestock_Type, _, S_Transactions, Transactions_Tail).
 				
 preprocess_sales(_, _, [], []).
+
+
+
+preprocess_buys(Livestock_Type, _Average_cost, [S_Transaction | S_Transactions], [Buy_Transactions | Transactions_Tail]) :-
+	s_transaction_is_livestock_buy_or_sell(S_Transaction, Day, Livestock_Type, _Livestock_Coord, Vector, _, _, _, MoneyCredit),
+
+	(MoneyCredit > 0 ->
+		(
+			Buy_Transactions = [transaction(Day, 'livestock buy', CogsAccount, Vector)],
+			cogs_account(Livestock_Type, CogsAccount)
+		)
+		;
+			Buy_Transactions = []
+	),
+	preprocess_buys(Livestock_Type, _, S_Transactions, Transactions_Tail).
+				
+preprocess_buys(_, _, [], []).
+
 
 
 average_cost(Type, S_Transactions, Livestock_Events, Natural_increase_costs, Exchange_rate) :-
@@ -369,8 +387,8 @@ natural_increase_count(_, [], 0).
 livestock_purchases_cost_and_count(Type, [ST | S_Transactions], Purchases_cost, Purchases_count) :-
 	(
 		(
-			s_transaction_is_livestock_buy_or_sell(ST, _Day, Type, Livestock_Coord, _, Vector_Ours, _, _),
-			Vector_Ours = [coord(_, 0, Cost)]
+			s_transaction_is_livestock_buy_or_sell(ST, _Day, Type, Livestock_Coord, _, Vector_Ours, _, _, _),
+			Vector_Ours = [coord(_, 0, _)]
 		)
 		->
 		(
