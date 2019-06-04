@@ -55,9 +55,6 @@ balance_sheet_at(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Fr
 	balance_sheet_entry(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Revenue_AID, To_Day, Revenue_Section),
 	balance_sheet_entry(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Expenses_AID, To_Day, Expenses_Section),
 	
-	construct_livestock_exchange_rates(Livestock_Exchange_Rates = exchange_rate(To_Day, 'Sheep', 'AUD', 
-	balance_by_account(Livestock_Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, 'Livestock', From_Day, Livestock_Closing_Value),
-	
 	% earnings up to the beginning of the report period
 	balance_by_account(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Earnings_AID, From_Day, Retained_Earnings),
 	% earnings in the report period

@@ -48,29 +48,31 @@ process_xml_ledger_request(_FileNameIn, Dom) :-
 
    preprocess_s_transactions(AccountHierarchy, ExchangeRates, ActionTaxonomy, S_Transactions, Transactions),
    
-   gtrace,
    extract_livestock_events(Dom, Livestock_Events),
-
    	
    maplist(preprocess_livestock_event, Livestock_Events, Livestock_Event_Transactions_Nested),
    flatten(Livestock_Event_Transactions_Nested, Livestock_Event_Transactions),
    append(Transactions, Livestock_Event_Transactions, Transactions2),
 
    extract_natural_increase_costs(Dom, Natural_increase_costs),
-   
-   findall(Rate, 
-   (	livestock_account_ids(Livestock_Account, _, _, _),
-		account_ancestor_id(Accounts, Livestock_Type, Livestock_Account),
-		average_cost(Livestock_Type, S_Transactions, Livestock_Events, Natural_increase_costs, Average_cost)
-	),
-	Average_Costs), 
+
+   get_livestock_types(AccountHierarchy, Livestock_Types),
+   get_average_costs(Livestock_Types, S_Transactions, Livestock_Events, Natural_increase_costs, Average_Costs),
       
-   get_more_transactions(Average_Costs, AccountHierarchy, S_Transactions, Livestock_Events, More_Transactions),
+   get_more_transactions(Livestock_Types, Average_Costs, S_Transactions, Livestock_Events, More_Transactions),
    
    append(Transactions2, More_Transactions, Transactions3),  
    
    
-   balance_sheet_at(ExchangeRates, AccountHierarchy, Transactions3, DefaultBases, BalanceSheetEndAbsoluteDays, BalanceSheetStartAbsoluteDays, BalanceSheetEndAbsoluteDays, BalanceSheet),
+   livestock_cogs_transactions(Livestock_Types, (BalanceSheetEndAbsoluteDays, Average_Costs, Transactions3, S_Transactions),  Cogs_Transactions),
+   
+   
+   append(Transactions3, Cogs_Transactions, Transactions4),  
+   
+   
+   % transaction(Day, Description, 'CostOfGoodsLivestock', [coord('AUD', Cost_Of_Goods_Sold, 0)])]
+   
+   balance_sheet_at(ExchangeRates, AccountHierarchy, Transactions4, DefaultBases, BalanceSheetEndAbsoluteDays, BalanceSheetStartAbsoluteDays, BalanceSheetEndAbsoluteDays, BalanceSheet),
 
    pretty_term_string(S_Transactions, Message0),
    pretty_term_string(Transactions3, Message1),
@@ -88,17 +90,58 @@ process_xml_ledger_request(_FileNameIn, Dom) :-
       DebugMessage),
    display_xbrl_ledger_response(DebugMessage, BalanceSheetStartAbsoluteDays, BalanceSheetEndAbsoluteDays, BalanceSheet).
 
+   
+get_livestock_types(AccountHierarchy, Livestock_Types) :-
+	findall(Livestock_Type, account_parent_id(AccountHierarchy, Livestock_Type, 'Livestock'), Livestock_Types).
+
+get_average_costs(Livestock_Types, S_Transactions, Livestock_Events, Natural_increase_costs, Average_Costs) :-
+	findall(Rate, 
+   (
+		member(Livestock_Type, Livestock_Types),
+		average_cost(Livestock_Type, S_Transactions, Livestock_Events, Natural_increase_costs, Rate)
+	),
+	Average_Costs).
+	
+livestock_cogs_transactions(
+	Livestock_Types,
+	Info,
+	Closing_Balance_Transactions) :-
+	findall(Txs, 
+		(
+			member(Livestock_Type, Livestock_Types),
+			yield_livestock_cogs_transactions(
+				Livestock_Type, 
+				Info,
+				Txs)
+		),
+		Closing_Balance_Transactions).
+		
+yield_livestock_cogs_transactions(
+	Livestock_Type, 
+	(Day, Average_Costs, Input_Transactions, S_Transactions),
+	Cogs_Transaction) :-
+		livestock_purchases_cost_and_count(Livestock_Type, S_Transactions, Purchases_cost, _Purchases_count) ,
+		balance_by_account(Average_Costs, [], Input_Transactions, 'AUD', _Exchange_Day, Livestock_Type, Day, Closing_Cost),
+		vec_sub(Purchases_cost, Closing_Cost, Cogs),
+		Cogs_Transaction = transaction(Day, "livestock COGS for period", 'CostOfGoodsLivestock', Cogs).
+
+	
+   
 % this logic is dependent on having the average cost value
-get_more_transactions(Dom, Accounts, S_Transactions, Livestock_Events, More_Transactions) :-
-   findall(List, yield_more_transactions(Accounts, S_Transactions, Livestock_Events, List), Lists),
+get_more_transactions(Livestock_Types, Average_costs, S_Transactions, Livestock_Events, More_Transactions) :-
+   findall(List, 
+   (
+		member(Livestock_Type, Livestock_Types),
+		member(exchange_rate(_, Livestock_Type, 'AUD', Average_cost), Average_costs),
+		yield_more_transactions(Livestock_Type, Average_cost, S_Transactions, Livestock_Events, List)
+	),
+	Lists),
+
    flatten(Lists, More_Transactions).
    
-yield_more_transactions(Accounts, S_Transactions, Livestock_Events, [Rations_Transactions, Sales_Transactions]) :-
-	livestock_account_ids(Livestock_Account, _, _, _),
-	account_ancestor_id(Accounts, Livestock_Type, Livestock_Account),
-	member(exchange_rate(_, Livestock_Type, 'AUD', Average_cost),
+yield_more_transactions(Livestock_Type, Average_cost, S_Transactions, Livestock_Events, [Rations_Transactions, Sales_Transactions]) :-
 	maplist(preprocess_rations(Livestock_Type, Average_cost), Livestock_Events, Rations_Transactions),
-	preprocess_sales(Livestock_Type, Average_cost, Accounts, S_Transactions, Sales_Transactions).
+	preprocess_sales(Livestock_Type, Average_cost, S_Transactions, Sales_Transactions).
 
 extract_natural_increase_costs(Dom, Natural_increase_costs) :-
 	findall(Cost,

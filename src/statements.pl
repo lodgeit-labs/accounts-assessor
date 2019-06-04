@@ -284,27 +284,26 @@ preprocess_rations(Livestock_Type, Cost, Event, Output) :-
 	Output = [].
 
 
-preprocess_sales(Livestock_Type, Average_cost, Accounts, [S_Transaction | S_Transactions], [Sales_Transactions | Transactions_Tail]) :-
+preprocess_sales(Livestock_Type, _Average_cost, [S_Transaction | S_Transactions], [Sales_Transactions | Transactions_Tail]) :-
 
-	s_transaction_is_livestock_buy_or_sell(S_Transaction, Day, Livestock_Type, Livestock_Coord, Vector, _, _, MoneyDebit),
+	s_transaction_is_livestock_buy_or_sell(S_Transaction, Day, Livestock_Type, _Livestock_Coord, Vector, _, _, MoneyDebit),
 	
-	livestock_account_ids(Livestock_Account, _, _, _),
-	account_ancestor_id(Accounts, Livestock_Type, Livestock_Account),
 	(MoneyDebit > 0 ->
 		(
 			Description = "livestock sell",
-			(
-				coord(_, 0, Livestock_Count) = Livestock_Coord,
-				Cost_Of_Goods_Sold is Average_cost * Livestock_Count
-			),
+			/*(
+				coord(_, 0, Livestock_Count) = Livestock_Coord
+				% Cost_Of_Goods_Sold is Average_cost * Livestock_Count
+			),*/
 			Sales_Transactions = [
-				transaction(Day, Description, 'SalesOfLivestock', Vector),
-				transaction(Day, Description, 'CostOfGoodsLivestock', [coord('AUD', Cost_Of_Goods_Sold, 0)])]
+				transaction(Day, Description, 'SalesOfLivestock', Vector)
+				% transaction(Day, Description, 'CostOfGoodsLivestock', [coord('AUD', Cost_Of_Goods_Sold, 0)])
+			]
 		)
 		;
 			Sales_Transactions = []
 	),
-	preprocess_sales(Accounts, S_Transactions, Transactions_Tail).
+	preprocess_sales(Livestock_Type, _, S_Transactions, Transactions_Tail).
 				
 preprocess_sales(_, [], []).
 
@@ -317,14 +316,32 @@ average_cost(Type, S_Transactions, Livestock_Events, Natural_increase_costs, Exc
 	livestock_purchases_cost_and_count(Type, S_Transactions, Purchases_cost, Purchases_count),
 	member(natural_increase_cost(Type, Natural_increase_cost_per_head), Natural_increase_costs),
 	natural_increase_count(Type, Livestock_Events, Natural_increase_count),
-	Opening_and_purchases_value = Purchases_cost,
-	Natural_Increase_value is Natural_increase_count * Natural_increase_cost_per_head,
-	Opening_and_purchases_and_increase_count is Purchases_count + Natural_increase_count,
-	Opening_and_purchases_and_increase_count > 0 ->
-		Average_cost is (Opening_and_purchases_value + Natural_Increase_value) /  Opening_and_purchases_and_increase_count;
-		Average_cost = 0,
-	Exchange_rate = exchange_rate(_, Type, 'AUD', Average_cost).
+	vec_add([], Purchases_cost, Opening_and_purchases_value),
+	vec_add(Opening_and_purchases_value, [coord('AUD', Natural_Increase_value)], Opening_And_Purchases_And_Increase_Value_Vector),
+
+	(Opening_And_Purchases_And_Increase_Value_Vector = []
+	-> Opening_And_Purchases_And_Increase_Value_Vector = [coord('AUD', 0, 0)]),
 	
+	(
+		Opening_And_Purchases_And_Increase_Value_Vector = [coord('AUD', 0, Opening_And_Purchases_And_Increase_Value)]
+		->
+		(
+			Natural_Increase_value is Natural_increase_count * Natural_increase_cost_per_head,
+			Opening_and_purchases_and_increase_count is Purchases_count + Natural_increase_count,
+			(Opening_and_purchases_and_increase_count > 0 ->
+					Average_cost is 
+						Opening_And_Purchases_And_Increase_Value /  Opening_and_purchases_and_increase_count
+				;
+					Average_cost = 0),
+			Exchange_rate = exchange_rate(_, Type, 'AUD', Average_cost)
+		)
+		;
+		(
+			print_term(Opening_And_Purchases_And_Increase_Value_Vector, []),
+			throw("fixme")
+		)
+	).
+
 % natural increase count given livestock type and all livestock events
 natural_increase_count(Type, [E | Events], Natural_increase_count) :-
 	(E = born(Type, _Day, Count) ->
@@ -336,6 +353,7 @@ natural_increase_count(Type, [E | Events], Natural_increase_count) :-
 natural_increase_count(_, [], 0).
 
 
+
 livestock_purchases_cost_and_count(Type, [ST | S_Transactions], Purchases_cost, Purchases_count) :-
 	(
 		(
@@ -343,15 +361,20 @@ livestock_purchases_cost_and_count(Type, [ST | S_Transactions], Purchases_cost, 
 			Vector_Ours = [coord(_, 0, Cost)]
 		)
 		->
-		Livestock_Coord = coord(Type, Count, 0)
+		(
+			Livestock_Coord = coord(Type, Count, 0),
+			Cost = Vector_Ours
+		)
 		;
-		(Cost = 0, Count = 0)
+		(
+			Cost = [], Count = 0
+		)
 	),
 	livestock_purchases_cost_and_count(Type, S_Transactions, Purchases_cost_2, Purchases_count_2),
-	Purchases_cost is Purchases_cost_2 + Cost,
+	vec_add(Cost, Purchases_cost_2, Purchases_cost),
 	Purchases_count is Purchases_count_2 + Count.
 
-livestock_purchases_cost_and_count(_, [], 0, 0).
+livestock_purchases_cost_and_count(_, [], [], 0).
 
 
 

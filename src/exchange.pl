@@ -1,5 +1,3 @@
-
-
 % Exchanges the given coordinate, Amount, into the first unit from Bases for which an
 % exchange on the day Day is possible. If the source unit is not found in Bases, then Amount is left as is.
 
@@ -15,8 +13,6 @@ exchange_amount(Exchange_Rates, Day, [Bases_Hd | Bases_Tl], coord(Unit, Debit, C
 
 % - no bases to use, leave as it is
 exchange_amount(_, _, [], Amount, Amount).
-
-
 
 
 
