@@ -57,6 +57,8 @@ process_xml_ledger_request(_FileNameIn, Dom) :-
    extract_natural_increase_costs(Dom, Natural_increase_costs),
 
    get_livestock_types(AccountHierarchy, Livestock_Types),
+
+   gtrace,
    get_average_costs(Livestock_Types, S_Transactions, Livestock_Events, Natural_increase_costs, Average_Costs),
       
    get_more_transactions(Livestock_Types, Average_Costs, S_Transactions, Livestock_Events, More_Transactions),
@@ -129,17 +131,14 @@ yield_livestock_cogs_transactions(
    
 % this logic is dependent on having the average cost value
 get_more_transactions(Livestock_Types, Average_costs, S_Transactions, Livestock_Events, More_Transactions) :-
-   findall(List, 
-   (
-		member(Livestock_Type, Livestock_Types),
-		member(exchange_rate(_, Livestock_Type, 'AUD', Average_cost), Average_costs),
-		yield_more_transactions(Livestock_Type, Average_cost, S_Transactions, Livestock_Events, List)
-	),
-	Lists),
-
-   flatten(Lists, More_Transactions).
+   maplist(
+		yield_more_transactions(Average_costs, S_Transactions, Livestock_Events),
+		Livestock_Types, 
+		Lists),
+	flatten(Lists, More_Transactions).
    
-yield_more_transactions(Livestock_Type, Average_cost, S_Transactions, Livestock_Events, [Rations_Transactions, Sales_Transactions]) :-
+yield_more_transactions(Average_costs, S_Transactions, Livestock_Events, Livestock_Type, [Rations_Transactions, Sales_Transactions]) :-
+	member(exchange_rate(_, Livestock_Type, 'AUD', Average_cost), Average_costs),
 	maplist(preprocess_rations(Livestock_Type, Average_cost), Livestock_Events, Rations_Transactions),
 	preprocess_sales(Livestock_Type, Average_cost, S_Transactions, Sales_Transactions).
 

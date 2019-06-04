@@ -285,9 +285,8 @@ preprocess_rations(Livestock_Type, Cost, Event, Output) :-
 
 
 preprocess_sales(Livestock_Type, _Average_cost, [S_Transaction | S_Transactions], [Sales_Transactions | Transactions_Tail]) :-
-
 	s_transaction_is_livestock_buy_or_sell(S_Transaction, Day, Livestock_Type, _Livestock_Coord, Vector, _, _, MoneyDebit),
-	
+
 	(MoneyDebit > 0 ->
 		(
 			Description = "livestock sell",
@@ -305,7 +304,7 @@ preprocess_sales(Livestock_Type, _Average_cost, [S_Transaction | S_Transactions]
 	),
 	preprocess_sales(Livestock_Type, _, S_Transactions, Transactions_Tail).
 				
-preprocess_sales(_, [], []).
+preprocess_sales(_, _, [], []).
 
 
 average_cost(Type, S_Transactions, Livestock_Events, Natural_increase_costs, Exchange_rate) :-
@@ -348,7 +347,7 @@ natural_increase_count(Type, [E | Events], Natural_increase_count) :-
 		C = Count;
 		C = 0),
 	natural_increase_count(Type, Events, Natural_increase_count_1),
-	Natural_increase_count = Natural_increase_count_1 + C.
+	Natural_increase_count is Natural_increase_count_1 + C.
 	
 natural_increase_count(_, [], 0).
 
