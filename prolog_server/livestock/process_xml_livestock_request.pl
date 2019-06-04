@@ -12,6 +12,7 @@
 process_xml_livestock_request(_, DOM) :-
 
 	findall(Livestock, xpath(DOM, //reports/livestockaccount/livestocks/livestock, Livestock), Livestocks),
+	Livestocks \= [],
 
 	format('Content-type: text/xml~n~n'), 
 	writeln('<?xml version="1.0"?>'),

@@ -25,3 +25,8 @@ account_ancestor_id(Accounts, Account_Id, Ancestor_Id) :-
 account_ids(_Accounts,
       'Assets', 'Equity', 'Liabilities', 'Earnings', 'RetainedEarnings', 'CurrentEarnings', 'Revenue', 'Expenses').
 
+cogs_account(Livestock_Type, CogsAccount) :-
+	atom_concat(Livestock_Type, 'Cogs', CogsAccount).
+
+sales_account(Livestock_Type, SalesAccount) :-
+	atom_concat(Livestock_Type, 'Sales', SalesAccount).

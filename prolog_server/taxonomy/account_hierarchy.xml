@@ -36,15 +36,22 @@
 	<ProfitAndLoss>
 		<Revenue>
 			<InvestmentIncome/>
-			<SalesOfLivestock/>
+			<SalesOfLivestock>
+				<CowsSales/>
+				<SheepSales/>
+			</SalesOfLivestock>
+			<LivestockClosing/>
+			<RationsRevenue/>
 			<ForexGain/>
 		</Revenue>
 		<Expenses>
 			<BankCharges/>
 			<ForexLoss/>
-			<LivestockRations/>
 			<Purchases/>
-			<CostOfGoodsLivestock/>
+			<CostOfGoodsLivestock>
+				<CowsCogs/>
+				<SheepCogs/>
+			</CostOfGoodsLivestock>	
 		</Expenses>
 	</ProfitAndLoss>
 

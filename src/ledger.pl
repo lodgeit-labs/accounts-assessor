@@ -71,7 +71,15 @@ balance_sheet_at(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Fr
 	%gtrace,
 	balance_sheet_entry(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, 'Livestock', To_Day, Livestock_Section),
 	
-	
+	/*balance_by_account(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, '/CostOfGoodsLivestock', To_Day, CostOfGoodsLivestockBalance),
+	*/
+/*
+	Revenue = Sales + Rations,
+	Cogs = Opening + Purchases - Closing,
+	Gross_Profit_On_Livestock_Trading = Revenue - Cogs
+	Gross_Profit_On_Livestock_Trading = Sales + Rations - Closing + Opening - Purchases
+	Gross_Profit_On_Livestock_Trading = Sales + Rations - CostOfGoodsLivestockBalance
+*/	
 	Balance_Sheet = [Asset_Section, Liability_Section, Earnings_Section, Equity_Section, Livestock_Section, Revenue_Section, Expenses_Section].
 
 		

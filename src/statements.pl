@@ -162,7 +162,7 @@ preprocess_s_transactions(Accounts, Exchange_Rates, Transaction_Types, [S_Transa
 	),
 	
 	% produce a livestock count increase/decrease transaction
-	Livestock_Transaction = transaction(Day, Description, Livestock_Account, [Livestock_Coord]),
+	Livestock_Transaction = transaction(Day, Description, Livestock_Type, [Livestock_Coord]),
 	% produce the bank account transaction
 	Bank_Transaction = transaction(Day, Description, Unexchanged_Account_Id, Vector_Inverted),
 	% produce an assets transaction
@@ -246,13 +246,13 @@ Births debit inventory (asset) and credit cost of goods section, lowering cost o
 */
 preprocess_livestock_event(Event, Transaction) :-
 	Event = born(Type, Day, Count),
-	Transaction = transaction(Day, 'livestock born', Livestock_Account, [coord(Type, Count, 0)]),
-	livestock_account_ids(Livestock_Account, _, _, _).
+	Transaction = transaction(Day, 'livestock born', Type, [coord(Type, Count, 0)])/*,
+	livestock_account_ids(Livestock_Account, _, _, _)*/.
 
 preprocess_livestock_event(Event, Transaction) :-
 	Event = loss(Type, Day, Count),
-	Transaction = transaction(Day, 'livestock loss', Livestock_Account, [coord(Type, 0, Count)]),
-	livestock_account_ids(Livestock_Account, _, _, _).
+	Transaction = transaction(Day, 'livestock loss', Type, [coord(Type, 0, Count)])/*,
+	livestock_account_ids(Livestock_Account, _, _, _)*/.
 
 preprocess_livestock_event(Event, []) :-
 	Event = rations(_,_,_).
@@ -263,23 +263,30 @@ preprocess_livestock_event(Event, []) :-
 Rations debit an equity account called drawings of a sole trader or partner, 
 debit asset or liability loan account  of a shareholder of a company or beneficiary of a trust.  
 
-
 Naming conventions of accounts created in end user systems vary and the loans might be current or non current but otherwise the logic should hold perfectly on the taxonomy and logic model. (hence requirement to classify).
 
 A sole trade is his own person so his equity is in his own right, hence reflects directly in equity.
 
 The differences relate to personhood. Trusts & companies have attained some type of personhood while sole traders & partners in partnerships are their own people. Hence the trust or company owes or is owed by the shareholder or beneficiary.
 */
-preprocess_rations(Livestock_Type, Cost, Event, Output) :-
+preprocess_rations(Livestock_Type, Average_Cost, Event, Output) :-
 	Event = rations(Livestock_Type, Day, Count) ->
 	(
 		Output = [Livestock_Transaction, Equity_Transaction, Cog_Transaction],
-		Livestock_Transaction = transaction(Day, 'rations', Livestock_Account, [coord(Livestock_Type, 0, Count)]),
+		Livestock_Transaction = transaction(Day, 'rations', Livestock_Type, [coord(Livestock_Type, 0, Count)]),
+
+		Average_Cost = exchange_rate(_, _, Currency, CostPerHead),
+		Cost is CostPerHead * Count,
 		% DR OWNERS_EQUITY -->DRAWINGS. I.E. THE OWNER TAKES SOMETHING OF VALUE. 
-		Equity_Transaction = transaction(Day, "rations", Equity_3145_Drawings_by_Sole_Trader, [coord('AUD', Cost, 0)]),
+		Equity_Transaction = transaction(Day, 'rations', Equity_3145_Drawings_by_Sole_Trader, [coord(Currency, Cost, 0)]),
 		%	CR COST_OF_GOODS. I.E. DECREASES COST.
-		Cog_Transaction = transaction(Day, "rations", Expenses__Direct_Costs__Livestock_Adjustments__Livestock_Rations, [coord('AUD', 0, Cost)]),
-		livestock_account_ids(Livestock_Account, _Assets_Livestock_At_Cost_Account, Equity_3145_Drawings_by_Sole_Trader, Expenses__Direct_Costs__Livestock_Adjustments__Livestock_Rations)
+		Cog_Transaction = transaction(Day, 'rations', 'RationsRevenue', [coord(Currency, 0, Cost)]),
+		
+		livestock_account_ids(
+			_Livestock_Account,
+			_Assets_Livestock_At_Cost_Account, 
+			Equity_3145_Drawings_by_Sole_Trader, _Expenses__Direct_Costs__Livestock_Adjustments__Livestock_Rations
+		)
 	);
 	Output = [].
 
@@ -295,9 +302,10 @@ preprocess_sales(Livestock_Type, _Average_cost, [S_Transaction | S_Transactions]
 				% Cost_Of_Goods_Sold is Average_cost * Livestock_Count
 			),*/
 			Sales_Transactions = [
-				transaction(Day, Description, 'SalesOfLivestock', Vector)
+				transaction(Day, Description, SalesAccount, Vector)
 				% transaction(Day, Description, 'CostOfGoodsLivestock', [coord('AUD', Cost_Of_Goods_Sold, 0)])
-			]
+			],
+			sales_account(Livestock_Type, SalesAccount)
 		)
 		;
 			Sales_Transactions = []
@@ -315,31 +323,36 @@ average_cost(Type, S_Transactions, Livestock_Events, Natural_increase_costs, Exc
 	livestock_purchases_cost_and_count(Type, S_Transactions, Purchases_cost, Purchases_count),
 	member(natural_increase_cost(Type, Natural_increase_cost_per_head), Natural_increase_costs),
 	natural_increase_count(Type, Livestock_Events, Natural_increase_count),
-	vec_add([], Purchases_cost, Opening_and_purchases_value),
-	vec_add(Opening_and_purchases_value, [coord('AUD', Natural_Increase_value)], Opening_And_Purchases_And_Increase_Value_Vector),
+	vec_inverse(Purchases_cost, Purchases_value),
+	vec_add([], Purchases_value, Opening_and_purchases_value),
+	Natural_Increase_value is Natural_increase_cost_per_head * Natural_increase_count,
+	vec_add(Opening_and_purchases_value, [coord('AUD', Natural_Increase_value, 0)], Opening_And_Purchases_And_Increase_Value_Vector),
 
-	(Opening_And_Purchases_And_Increase_Value_Vector = []
-	-> Opening_And_Purchases_And_Increase_Value_Vector = [coord('AUD', 0, 0)]),
-	
 	(
-		Opening_And_Purchases_And_Increase_Value_Vector = [coord('AUD', 0, Opening_And_Purchases_And_Increase_Value)]
+		Opening_And_Purchases_And_Increase_Value_Vector = []
 		->
-		(
-			Natural_Increase_value is Natural_increase_count * Natural_increase_cost_per_head,
-			Opening_and_purchases_and_increase_count is Purchases_count + Natural_increase_count,
-			(Opening_and_purchases_and_increase_count > 0 ->
-					Average_cost is 
-						Opening_And_Purchases_And_Increase_Value /  Opening_and_purchases_and_increase_count
-				;
-					Average_cost = 0),
-			Exchange_rate = exchange_rate(_, Type, 'AUD', Average_cost)
-		)
+			Average_cost = 0
 		;
-		(
-			print_term(Opening_And_Purchases_And_Increase_Value_Vector, []),
-			throw("fixme")
+			(
+				[coord('AUD', Opening_And_Purchases_And_Increase_Value, 0)] = Opening_And_Purchases_And_Increase_Value_Vector
+				->
+				(
+					Opening_and_purchases_and_increase_count is Purchases_count + Natural_increase_count,
+					(Opening_and_purchases_and_increase_count > 0 ->
+							Average_cost is 
+								Opening_And_Purchases_And_Increase_Value /  Opening_and_purchases_and_increase_count
+						;
+							Average_cost = 0
+					)
+				)
+				;
+				(
+					print_term(Opening_And_Purchases_And_Increase_Value_Vector, []),
+					throw("fixme")
+				)
 		)
-	).
+	),
+	Exchange_rate = exchange_rate(_, Type, 'AUD', Average_cost).
 
 % natural increase count given livestock type and all livestock events
 natural_increase_count(Type, [E | Events], Natural_increase_count) :-
