@@ -52,6 +52,7 @@
 				<CowsCogs/>
 				<SheepCogs/>
 			</CostOfGoodsLivestock>	
+			<LivestockOpening/>
 		</Expenses>
 	</ProfitAndLoss>
 

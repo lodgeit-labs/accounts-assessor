@@ -333,11 +333,8 @@ preprocess_buys(_, _, [], []).
 
 
 
-average_cost(Type, S_Transactions, Livestock_Events, Natural_increase_costs, Exchange_rate) :-
-	/*
-	all transactions are processed to get purchases count/value and natural increase count/value
-	opening balances are ignored for now, and all transactions are used, no date limit.
-	*/
+average_cost(Type, Info, Exchange_rate) :-
+	Info = (From_Day, To_Day, S_Transactions, Livestock_Events, Natural_increase_costs),
 	livestock_purchases_cost_and_count(Type, S_Transactions, Purchases_cost, Purchases_count),
 	member(natural_increase_cost(Type, Natural_increase_cost_per_head), Natural_increase_costs),
 	natural_increase_count(Type, Livestock_Events, Natural_increase_count),

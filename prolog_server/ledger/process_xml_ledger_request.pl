@@ -59,14 +59,14 @@ process_xml_ledger_request(_FileNameIn, Dom) :-
   % get_livestock_types(AccountHierarchy, Livestock_Types),
    Livestock_Types = ['Sheep'],
 
-   get_average_costs(Livestock_Types, S_Transactions, Livestock_Events, Natural_increase_costs, Average_Costs),
+   get_average_costs(Livestock_Types, (BalanceSheetStartAbsoluteDays, BalanceSheetEndAbsoluteDays, S_Transactions, Livestock_Events, Natural_increase_costs), Average_Costs),
       
    get_more_transactions(Livestock_Types, Average_Costs, S_Transactions, Livestock_Events, More_Transactions),
    
    append(Transactions2, More_Transactions, Transactions3),  
    
    
-   livestock_cogs_transactions(Livestock_Types, (BalanceSheetEndAbsoluteDays, Average_Costs, Transactions3, S_Transactions),  Cogs_Transactions),
+   livestock_cogs_transactions(Livestock_Types, (BalanceSheetStartAbsoluteDays, BalanceSheetEndAbsoluteDays, DefaultBases, Average_Costs, Transactions3, S_Transactions),  Cogs_Transactions),
    
    
    append(Transactions3, Cogs_Transactions, Transactions4),  
@@ -101,11 +101,11 @@ process_xml_ledger_request(_FileNameIn, Dom) :-
 get_livestock_types(AccountHierarchy, Livestock_Types) :-
 	findall(Livestock_Type, account_parent_id(AccountHierarchy, Livestock_Type, 'Livestock'), Livestock_Types).
 
-get_average_costs(Livestock_Types, S_Transactions, Livestock_Events, Natural_increase_costs, Average_Costs) :-
+get_average_costs(Livestock_Types, Info, Average_Costs) :-
 	findall(Rate, 
    (
 		member(Livestock_Type, Livestock_Types),
-		average_cost(Livestock_Type, S_Transactions, Livestock_Events, Natural_increase_costs, Rate)
+		average_cost(Livestock_Type, Info, Rate)
 	),
 	Average_Costs).
 	
@@ -125,11 +125,18 @@ livestock_cogs_transactions(
 		
 yield_livestock_cogs_transactions(
 	Livestock_Type, 
-	(Day, Average_Costs, Input_Transactions, _S_Transactions),
+	(_, To_Day, Bases, Average_Costs, Input_Transactions, _S_Transactions),
 	Cogs_Transaction) :-
-		balance_by_account(Average_Costs, [], Input_Transactions, ['AUD'], _Exchange_Day, Livestock_Type, Day, Closing_Cost),
+		balance_by_account(Average_Costs, [], Input_Transactions, Bases,  _Exchange_Day, Livestock_Type, To_Day, Closing_Cost),
 		vec_inverse(Closing_Cost, Revenue),
-		Cogs_Transaction = transaction(Day, "livestock closing stock for period", 'LivestockClosing', Revenue).
+		Cogs_Transaction = transaction(To_Day, "livestock closing value for period", 'LivestockClosing', Revenue).
+
+yield_livestock_cogs_transactions(
+	Livestock_Type, 
+	(From_Day, _, Bases, Average_Costs, Input_Transactions, _S_Transactions),
+	Cogs_Transaction) :-
+		balance_by_account(Average_Costs, [], Input_Transactions, Bases, _Exchange_Day, Livestock_Type, From_Day, Opening_Cost),
+		Cogs_Transaction = transaction(From_Day, "livestock opening value for period", 'LivestockOpening', Opening_Cost).
 /*
 yield_livestock_cogs_transactions(
 	Livestock_Type, 
