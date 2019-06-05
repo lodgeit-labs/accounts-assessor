@@ -335,9 +335,9 @@ preprocess_buys(_, _, [], []).
 
 average_cost(Type, Info, Exchange_rate) :-
 	Info = (From_Day, To_Day, S_Transactions, Livestock_Events, Natural_increase_costs),
-	livestock_purchases_cost_and_count(Type, S_Transactions, Purchases_cost, Purchases_count),
 	member(natural_increase_cost(Type, Natural_increase_cost_per_head), Natural_increase_costs),
 	natural_increase_count(Type, Livestock_Events, Natural_increase_count),
+	livestock_purchases_cost_and_count(Type, S_Transactions, Purchases_cost, Purchases_count),
 	vec_inverse(Purchases_cost, Purchases_value),
 	vec_add([], Purchases_value, Opening_and_purchases_value),
 	Natural_Increase_value is Natural_increase_cost_per_head * Natural_increase_count,

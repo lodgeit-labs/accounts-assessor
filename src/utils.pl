@@ -52,3 +52,13 @@ numeric_fields(DOM, [NameString, Value|Rest]) :-
 	numeric_fields(DOM, Rest).
 
 numeric_fields(_, []).
+
+
+
+
+pretty_term_string(Term, String) :-
+	new_memory_file(X),
+	open_memory_file(X, write, S),
+	print_term(Term, [output(S)]),
+	close(S),
+	memory_file_to_string(X, String).
