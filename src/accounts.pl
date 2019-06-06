@@ -30,3 +30,43 @@ cogs_account(Livestock_Type, CogsAccount) :-
 
 sales_account(Livestock_Type, SalesAccount) :-
 	atom_concat(Livestock_Type, 'Sales', SalesAccount).
+
+extract_account_hierarchy(Request_Dom, Account_Hierarchy) :-
+   (
+      (
+         inner_xml(Request_Dom, //reports/balanceSheetRequest/accountHierarchyUrl, [Account_Hierarchy_Url]), 
+         fetch_account_hierarchy_from_url(Account_Hierarchy_Url, Account_Hierarchy_Dom), !
+      )
+      ;
+         load_xml('./taxonomy/account_hierarchy.xml', Account_Hierarchy_Dom, [])
+   ),
+   extract_account_hierarchy2(Account_Hierarchy_Dom, Account_Hierarchy).
+
+fetch_account_hierarchy_from_url(Account_Hierarchy_Url, Account_Hierarchy_Dom) :-
+   http_get(Account_Hierarchy_Url, Account_Hierarchy_Xml_Text, []),
+   store_xml_document('tmp/account_hierarchy.xml', Account_Hierarchy_Xml_Text),
+   load_xml('tmp/account_hierarchy.xml', Account_Hierarchy_Dom, []).
+  
+% ------------------------------------------------------------------
+% extract_account_hierarchy2/2
+%
+% Load Account Hierarchy terms from Dom
+% ------------------------------------------------------------------
+
+extract_account_hierarchy2(Account_Hierarchy_Dom, Account_Hierarchy) :-   
+   % fixme when input format is agreed on
+   findall(Account, xpath(Account_Hierarchy_Dom, //accounts, Account), Accounts),
+   findall(Link, (member(Top_Level_Account, Accounts), accounts_link(Top_Level_Account, Link)), Account_Hierarchy).
+
+ 
+% yields all child-parent pairs describing the account hierarchy
+accounts_link(element(Parent_Name,_,Children), Link) :-
+   member(Child, Children), 
+   Child = element(Child_Name,_,_),
+   (
+      % yield an account(Child, Parent) term for this child
+      Link = account(Child_Name, Parent_Name)
+      ;
+      % recurse on the child
+      accounts_link(Child, Link)
+   ).

@@ -11,7 +11,7 @@ account taxonomy must include accounts for individual livestock types
 a list of livestock units will be defined in the sheet, for example "cows, horses".
 FOR CURRENT ITERATION, ASSUME THAT ALL TRANSACTIONS ARE IN THE BANK STATEMENT. I.E. NO OPENING BALANCES.WHY? BECAUSE OPENING BALANCES IN LIVESTOCK WILL REQUIRE A COMPLETE SET OF OPENING BALANCES. I.E. A COMPLETE OPENING BALANCE SHEET. 
 	
-Natural_increase_cost_per_head has to be input for each livestock type, for example cows $20.
+Natural_Increase_Cost_Per_Head has to be input for each livestock type, for example cows $20.
 
 when bank statements are processed: 
 	If there is a livestock unit ("cows") set on a bank account transaction:
@@ -38,7 +38,7 @@ when bank statements are processed:
 					DR COST_OF_GOODS_LIVESTOCK (EXPENSE ASSOCIATED WITH REVENUE INCREASES). 
 					
 			natural increase:  NATURAL INCREASE IS AN ABSTRACT VALUE THAT IMPACTS THE LIVESTOCK_AT_MARKET_VALUE AT REPORT RUN TIME. THERE IS NO NEED TO STORE/SAVE THE VALUE IN THE LEDGER. WHEN A COW IS BORN, NO CASH CHANGES HAND. 
-				dont: affect Assets_1203_Livestock_at_Cost by Natural_increase_cost_per_head as set by user
+				dont: affect Assets_1203_Livestock_at_Cost by Natural_Increase_Cost_Per_Head as set by user
 				
 			loss?
 			
@@ -56,10 +56,10 @@ average cost is defined for date and livestock type as follows:
 		Assets_1203_Livestock_at_Cost, Assets_1204_Livestock_at_Average_Cost
 	subsequent transactions until the given date are processed to get purchases count/value and natural increase count/value
 	then we calculate:
-		Natural_Increase_value is Natural_increase_count * Natural_increase_cost_per_head,
-		Opening_and_purchases_and_increase_count is Stock_on_hand_at_beginning_of_year_count + Purchases_count + Natural_increase_count,
+		Natural_Increase_value is Natural_Increase_Count * Natural_Increase_Cost_Per_Head,
+		Opening_And_Purchases_And_Increase_Count is Stock_on_hand_at_beginning_of_year_count + Purchases_Count + Natural_Increase_Count,
 		Opening_and_purchases_and_increase_value is Stock_on_hand_at_beginning_of_year_value + Purchases_value + Natural_Increase_value,
-		Average_cost is Opening_and_purchases_and_increase_value / Opening_and_purchases_and_increase_count,
+		Average_Cost is Opening_and_purchases_and_increase_value / Opening_And_Purchases_And_Increase_Count,
 
 
 </howThisShouldWork>
@@ -195,7 +195,8 @@ preprocess_s_transactions(Accounts, Exchange_Rates, Transaction_Types, [S_Transa
 	transaction_day(UnX_Transaction, Day),
 	transaction_type_description(Transaction_Type, Description), 
 	transaction_description(UnX_Transaction, Description),
-	vec_inverse(Vector, Vector_Inverted), %?
+	% bank statement is from bank perspective
+	vec_inverse(Vector, Vector_Inverted),
 	transaction_vector(UnX_Transaction, Vector_Inverted),
 	s_transaction_account_id(S_Transaction, UnX_Account), 
 	transaction_account_id(UnX_Transaction, UnX_Account),
@@ -299,7 +300,7 @@ preprocess_sales(Livestock_Type, _Average_cost, [S_Transaction | S_Transactions]
 			Description = "livestock sell",
 			/*(
 				coord(_, 0, Livestock_Count) = Livestock_Coord
-				% Cost_Of_Goods_Sold is Average_cost * Livestock_Count
+				% Cost_Of_Goods_Sold is Average_Cost * Livestock_Count
 			),*/
 			Sales_Transactions = [
 				transaction(Day, Description, SalesAccount, Vector)
@@ -321,8 +322,8 @@ preprocess_buys(Livestock_Type, _Average_cost, [S_Transaction | S_Transactions],
 
 	(MoneyCredit > 0 ->
 		(
-			Buy_Transactions = [transaction(Day, 'livestock buy', CogsAccount, Vector)],
-			cogs_account(Livestock_Type, CogsAccount)
+			Buy_Transactions = [transaction(Day, 'livestock buy', Cogs_Account, Vector)],
+			cogs_account(Livestock_Type, Cogs_Account)
 		)
 		;
 			Buy_Transactions = []
@@ -332,32 +333,44 @@ preprocess_buys(Livestock_Type, _Average_cost, [S_Transaction | S_Transactions],
 preprocess_buys(_, _, [], []).
 
 
-
-average_cost(Type, Info, Exchange_rate) :-
-	Info = (From_Day, To_Day, S_Transactions, Livestock_Events, Natural_increase_costs),
-	member(natural_increase_cost(Type, Natural_increase_cost_per_head), Natural_increase_costs),
-	natural_increase_count(Type, Livestock_Events, Natural_increase_count),
-	livestock_purchases_cost_and_count(Type, S_Transactions, Purchases_cost, Purchases_count),
-	vec_inverse(Purchases_cost, Purchases_value),
-	vec_add([], Purchases_value, Opening_and_purchases_value),
-	Natural_Increase_value is Natural_increase_cost_per_head * Natural_increase_count,
-	vec_add(Opening_and_purchases_value, [coord('AUD', Natural_Increase_value, 0)], Opening_And_Purchases_And_Increase_Value_Vector),
+/*
+The Livestock calculator is an average cost calculator. 
+Cost, average cost, market value. 
+There may be other ways of measuring value. But any way is simply units held at some time point * defined value. 
+Think about what any asset is worth?
+Unless you sell it you don't really know
+You have to estimate.
+*/
+average_cost(Type, Opening_Cost, Opening_Count, Info, Exchange_rate) :-
+	Info = (Opening_Cost, Opening_Count, _From_Day, To_Day, S_Transactions, Livestock_Events, Natural_Increase_Costs),
+	/*
+	for now, we ignore _From_Day, and use Opening_Cost and Opening_Count as
+	stated in the request.
+	*/
+	coord(Opening_Cost_Currency, _, _) = Opening_Cost, 
+	member(natural_increase_cost(Type, Natural_Increase_Cost_Per_Head), Natural_Increase_Costs),
+	natural_increase_count(Type, Livestock_Events, Natural_Increase_Count),
+	livestock_purchases_cost_and_count(Type, S_Transactions, Purchases_Cost, Purchases_Count),
+	vec_inverse(Purchases_Cost, Purchases_value),
+	vec_add(Opening_Cost, Purchases_value, Opening_And_Purchases_Value),
+	Natural_Increase_value is Natural_Increase_Cost_Per_Head * Natural_Increase_Count,
+	vec_add(Opening_And_Purchases_Value, [coord(Opening_Cost_Currency, Natural_Increase_value, 0)], Opening_And_Purchases_And_Increase_Value_Vector),
 
 	(
 		Opening_And_Purchases_And_Increase_Value_Vector = []
 		->
-			Average_cost = 0
+			Average_Cost = 0
 		;
 			(
-				[coord('AUD', Opening_And_Purchases_And_Increase_Value, 0)] = Opening_And_Purchases_And_Increase_Value_Vector
+				[coord(Opening_Cost_Currency, Opening_And_Purchases_And_Increase_Value, 0)] = Opening_And_Purchases_And_Increase_Value_Vector
 				->
 				(
-					Opening_and_purchases_and_increase_count is Purchases_count + Natural_increase_count,
-					(Opening_and_purchases_and_increase_count > 0 ->
-							Average_cost is 
-								Opening_And_Purchases_And_Increase_Value /  Opening_and_purchases_and_increase_count
+					Opening_And_Purchases_And_Increase_Count is Opening_Count + Purchases_Count + Natural_Increase_Count,
+					(Opening_And_Purchases_And_Increase_Count > 0 ->
+							Average_Cost is 
+								Opening_And_Purchases_And_Increase_Value /  Opening_And_Purchases_And_Increase_Count
 						;
-							Average_cost = 0
+							Average_Cost = 0
 					)
 				)
 				;
@@ -367,21 +380,21 @@ average_cost(Type, Info, Exchange_rate) :-
 				)
 		)
 	),
-	Exchange_rate = exchange_rate(_, Type, 'AUD', Average_cost).
+	Exchange_rate = exchange_rate(_, Type, 'AUD', Average_Cost).
 
 % natural increase count given livestock type and all livestock events
-natural_increase_count(Type, [E | Events], Natural_increase_count) :-
+natural_increase_count(Type, [E | Events], Natural_Increase_Count) :-
 	(E = born(Type, _Day, Count) ->
 		C = Count;
 		C = 0),
-	natural_increase_count(Type, Events, Natural_increase_count_1),
-	Natural_increase_count is Natural_increase_count_1 + C.
+	natural_increase_count(Type, Events, Natural_Increase_Count_1),
+	Natural_Increase_Count is Natural_Increase_Count_1 + C.
 	
 natural_increase_count(_, [], 0).
 
 
 
-livestock_purchases_cost_and_count(Type, [ST | S_Transactions], Purchases_cost, Purchases_count) :-
+livestock_purchases_cost_and_count(Type, [ST | S_Transactions], Purchases_Cost, Purchases_Count) :-
 	(
 		(
 			s_transaction_is_livestock_buy_or_sell(ST, _Day, Type, Livestock_Coord, _, Vector_Ours, _, _, _),
@@ -397,16 +410,79 @@ livestock_purchases_cost_and_count(Type, [ST | S_Transactions], Purchases_cost, 
 			Cost = [], Count = 0
 		)
 	),
-	livestock_purchases_cost_and_count(Type, S_Transactions, Purchases_cost_2, Purchases_count_2),
-	vec_add(Cost, Purchases_cost_2, Purchases_cost),
-	Purchases_count is Purchases_count_2 + Count.
+	livestock_purchases_cost_and_count(Type, S_Transactions, Purchases_Cost_2, Purchases_Count_2),
+	vec_add(Cost, Purchases_Cost_2, Purchases_Cost),
+	Purchases_Count is Purchases_Count_2 + Count.
 
 livestock_purchases_cost_and_count(_, [], [], 0).
 
 
 
 
+/*
+[6/3/2019 4:13:59 PM] Jindrich Kolman: ok, so i will just add these values to revenue and expenses once the accounts are totalled
+
+[6/3/2019 4:14:02 PM] ANDREW NOBLE: So do all your transactions via Assets (Stock on Hand), Equity (Owners Drawings), Revenue (Sales), Expenses (COGS)
+
+[6/3/2019 4:15:01 PM] ANDREW NOBLE: You'll know if your accounts are correct because they will equal the Livestock Calculator
+
+[6/3/2019 4:16:25 PM] ANDREW NOBLE: There must be a credit for every debit
+
+[6/3/2019 4:16:36 PM] ANDREW NOBLE: Debit Bank, Credit Sales
+
+[6/3/2019 4:17:01 PM] ANDREW NOBLE: Credit Bank, Debit Cost of Goods Sold ((in case of a purchase)
+
+[6/3/2019 4:19:10 PM] ANDREW NOBLE: Cost of Goods Sold is an expense account that includes various debits & credits from purchases, rations and stock adjustments
+
+[6/3/2019 4:19:53 PM] Jindrich Kolman: so natural increase should be reflected in stock adjustments?
+
+[6/3/2019 4:20:49 PM] ANDREW NOBLE: yes
+
+[6/3/2019 4:21:07 PM] ANDREW NOBLE: and natural deaths too
+
+[6/3/2019 4:21:45 PM] Jindrich Kolman: ok, so not COGS, but an expense like COGS
+
+[6/3/2019 4:21:50 PM] ANDREW NOBLE: Rations are different
+
+[6/3/2019 4:22:26 PM] ANDREW NOBLE: Cost of Good Sold = opening stock +purchases -closing stock.
+
+[6/3/2019 4:23:10 PM] ANDREW NOBLE: natural deaths & births simply impact the value of closing stock via the average cost calc
+
+[6/3/2019 4:23:53 PM] ANDREW NOBLE: COGS = Cost of Goods Sold
+
+[6/3/2019 4:25:20 PM] Jindrich Kolman: well, in your accounts.json, livestock adjustments are expenses/direct costs, not part of 
+closing stock
+
+[6/3/2019 4:26:02 PM] Jindrich Kolman: so i am afraid i still dont understand anything
+
+[6/3/2019 4:28:09 PM] ANDREW NOBLE: Rations should be there.
+
+[6/3/2019 4:29:31 PM] ANDREW NOBLE: i.e. Dr Drawings, Cr Rations
+
+[6/3/2019 4:30:53 PM] ANDREW NOBLE: Births & deaths should not be there.
+
+Once inventory value is discovered, simply post the difference to COGS.
+
+So if opening inventory is 10 & closing inventory is 15, then Dr Closing Stock 5 & Credit COGS 5
+
+If instead closing inventory is 7, then Cr Closing Inventory 3 & Dr COGS 3
+
+Sorry ... Closing Inventory & Closing Stock are the same thing.
+  ( Expenses / Direct Costs / Closing Inventory / Livestock at (Average) Cost )
+
+just remember that COGS is a composite set of accounts
+  
+https://www.accountingcoach.com/blog/cost-of-goods-sold-2
+Definition of Cost of Goods Sold The cost of goods sold is the cost of the products that a retailer, distributor, or manufacturer has sold. The cost of goods sold is reported on the income statement and should be viewed as an expense of the accounting period. In essence, the cost of goods sold is...
+
+https://docplayer.net/37691180-This-article-sets-out-how-to-enter-livestock-data-into-handiledger.html
+HandiLedger Livestock: Data Entry Livestock Data Entry This article sets out how to enter livestock data into HandiLedger. Entering the data in HandiLedger Note: The use of account codes in relation to...
+   
+   
+*/
+
+/*
 
 
-
+*/
 	

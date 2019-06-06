@@ -27,15 +27,8 @@
 process_xml_ledger_request(_, Dom) :-
    extract_default_bases(Dom, Default_Bases),
    extract_action_taxonomy(Dom, Action_Taxonomy),
-   (
-      (
-         inner_xml(Dom, //reports/balanceSheetRequest/accountHierarchyUrl, [Account_Hierarchy_Url]), 
-         fetch_account_hierarchy_from_url(Account_Hierarchy_Url, Account_Hierarchy_Dom), !
-      )
-      ;
-         load_xml('./taxonomy/account_hierarchy.xml', Account_Hierarchy_Dom, [])
-   ),
-   extract_account_hierarchy(Account_Hierarchy_Dom, Account_Hierarchy),
+   extract_account_hierarchy(Dom, Account_Hierarchy),
+   extract_exchange_rates(Dom, End_Days, Exchange_Rates),
  
    findall(Transaction, extract_transactions(Dom, Default_Bases, Transaction), S_Transactions),
 
@@ -44,21 +37,22 @@ process_xml_ledger_request(_, Dom) :-
    inner_xml(Dom, //reports/balanceSheetRequest/endDate, [End_Date_Atom]),
    parse_date(End_Date_Atom, End_Days),
 
-   extract_exchange_rates(Dom, End_Days, Exchange_Rates),
-
    preprocess_s_transactions(Account_Hierarchy, Exchange_Rates, Action_Taxonomy, S_Transactions, Transactions),
    
-   extract_livestock_events(Dom, Livestock_Events),
-   	
-   maplist(preprocess_livestock_event, Livestock_Events, Livestock_Event_Transactions_Nested),
-   flatten(Livestock_Event_Transactions_Nested, Livestock_Event_Transactions),
-   append(Transactions, Livestock_Event_Transactions, Transactions2),
-
-   extract_natural_increase_costs(Dom, Natural_Increase_Costs),
+   findall(Livestock_Dom, xpath(Dom, //reports/balanceSheetRequest/livestockData, Livestock_Dom), Livestock_Doms),
 
   % get_livestock_types(Account_Hierarchy, Livestock_Types),
    Livestock_Types = ['Sheep'],
 
+   extract_livestock_events(Livestock_Doms, Livestock_Events),
+   extract_natural_increase_costs(Livestock_Doms, Natural_Increase_Costs),
+   extract_opening_costs_and_counts(Livestock_Doms, Opening_Costs_And_Counts),
+
+   maplist(preprocess_livestock_event, Livestock_Events, Livestock_Event_Transactions_Nested),
+   flatten(Livestock_Event_Transactions_Nested, Livestock_Event_Transactions),
+   append(Transactions, Livestock_Event_Transactions, Transactions2),
+
+   
    get_average_costs(Livestock_Types, (Start_Days, End_Days, S_Transactions, Livestock_Events, Natural_Increase_Costs), Average_Costs),
       
    get_more_transactions(Livestock_Types, Average_Costs, S_Transactions, Livestock_Events, More_Transactions),
@@ -67,12 +61,8 @@ process_xml_ledger_request(_, Dom) :-
    
    
    livestock_cogs_transactions(Livestock_Types, (Start_Days, End_Days, Default_Bases, Average_Costs, Transactions3, S_Transactions),  Cogs_Transactions),
-   
-   
    append(Transactions3, Cogs_Transactions, Transactions4),  
-   
-   
-   % transaction(Day, Description, 'CostOfGoodsLivestock', [coord('AUD', Cost_Of_Goods_Sold, 0)])]
+
    
    balance_sheet_at(Exchange_Rates, Account_Hierarchy, Transactions4, Default_Bases, End_Days, Start_Days, End_Days, BalanceSheet),
 
@@ -97,15 +87,17 @@ process_xml_ledger_request(_, Dom) :-
       Debug_Message),
    display_xbrl_ledger_response(Debug_Message, Start_Days, End_Days, BalanceSheet).
 
-   
+/*
 get_livestock_types(Account_Hierarchy, Livestock_Types) :-
 	findall(Livestock_Type, account_parent_id(Account_Hierarchy, Livestock_Type, 'Livestock'), Livestock_Types).
+*/
 
-get_average_costs(Livestock_Types, Info, Average_Costs) :-
+get_average_costs(Livestock_Types, Opening_Costs_And_Counts, Info, Average_Costs) :-
 	findall(Rate, 
    (
 		member(Livestock_Type, Livestock_Types),
-		average_cost(Livestock_Type, Info, Rate)
+		member(opening_cost_and_count(Livestock_Type, Opening_Cost, Opening_Count), Opening_Costs_And_Counts),
+		average_cost(Livestock_Type, Opening_Cost, Opening_Count, Info, Rate)
 	),
 	Average_Costs).
 	
@@ -116,15 +108,19 @@ livestock_cogs_transactions(
 	findall(Txs, 
 		(
 			member(Livestock_Type, Livestock_Types),
+			member(opening_cost_and_count(Livestock_Type, Opening_Cost, Opening_Count), Opening_Costs_And_Counts),	
 			yield_livestock_cogs_transactions(
 				Livestock_Type, 
+				Opening_Cost, Opening_Count,
 				Info,
 				Txs)
 		),
 		Closing_Balance_Transactions).
-		
+% todo opening cost/count		
+
 yield_livestock_cogs_transactions(
 	Livestock_Type, 
+	_Opening_Cost, _Opening_Count,
 	(_, To_Day, Bases, Average_Costs, Input_Transactions, _S_Transactions),
 	Cogs_Transaction) :-
 		balance_by_account(Average_Costs, [], Input_Transactions, Bases,  _Exchange_Day, Livestock_Type, To_Day, Closing_Cost),
@@ -133,9 +129,10 @@ yield_livestock_cogs_transactions(
 
 yield_livestock_cogs_transactions(
 	Livestock_Type, 
+	Opening_Cost, Opening_Count,
 	(From_Day, _, Bases, Average_Costs, Input_Transactions, _S_Transactions),
 	Cogs_Transaction) :-
-		balance_by_account(Average_Costs, [], Input_Transactions, Bases, _Exchange_Day, Livestock_Type, From_Day, Opening_Cost),
+		/*balance_by_account(Average_Costs, [], Input_Transactions, Bases, _Exchange_Day, Livestock_Type, From_Day, Opening_Cost),*/
 		Cogs_Transaction = transaction(From_Day, "livestock opening value for period", 'LivestockOpening', Opening_Cost).
 /*
 yield_livestock_cogs_transactions(
@@ -166,22 +163,29 @@ yield_more_transactions(Average_costs, S_Transactions, Livestock_Events, Livesto
 	preprocess_sales(Livestock_Type, Average_Cost, S_Transactions, Sales_Transactions),
 	preprocess_buys(Livestock_Type, Average_Cost, S_Transactions, Buys_Transactions).
 
-extract_natural_increase_costs(Dom, Natural_Increase_Costs) :-
-	findall(Cost,
-	(
-		xpath(Dom, //reports/balanceSheetRequest/livestockData, Data),
-		extract_natural_increase_cost(Data, Cost)
-	), Natural_Increase_Costs).
+extract_natural_increase_costs(Livestock_Doms, Natural_Increase_Costs) :-
+	maplist(
+		extract_natural_increase_cost,
+		Livestock_Doms,
+		Natural_Increase_Costs)).
 
-extract_natural_increase_cost(Livestock_Data, natural_increase_cost(Type, Cost)) :-
-	fields(Livestock_Data, ['type', Type]),
-	numeric_fields(Livestock_Data, [	'naturalIncreaseValuePerUnit', Cost]).
+extract_natural_increase_cost(Livestock_Dom, natural_increase_cost(Type, Cost)) :-
+	fields(Livestock_Dom, ['type', Type]),
+	numeric_fields(Livestock_Dom, ['naturalIncreaseValuePerUnit', Cost]).
 
-% -----------------------------------------------------
+extract_opening_costs_and_counts(Livestock_Doms, Opening_Costs_And_Counts) :-
+	maplist(extract_opening_cost_and_count,	Livestock_Doms, Opening_Costs_And_Counts)).
 
+extract_opening_cost_and_count(Livestock_Dom,	Opening_Cost_And_Count) :-
+	numeric_fields(Livestock_Dom, [
+		'openingCost', Opening_Cost,
+		'openingCount', Opening_Count]),
+	fields(Livestock_Dom, ['type', Type]),
+	Opening_Cost_And_Count = opening_cost_and_count(Type, Opening_Cost, Opening_Count).
+	
 extract_livestock_events(Dom, Events) :-
-   findall(Data, xpath(Dom, //reports/balanceSheetRequest/livestockData, Data), Datas),
-   maplist(extract_livestock_events2, Datas, Events_Nested),
+   member(Livestock_Dom, Livestock_Doms),
+   maplist(extract_livestock_events2, Livestock_Dom, Events_Nested),
    flatten(Events_Nested, Events).
    
 extract_livestock_events2(Data, Events) :-
@@ -204,35 +208,6 @@ extract_livestock_event2(Type, Days, Count, element(rations,_,_),               
 extract_default_bases(Dom, Bases) :-
    inner_xml(Dom, //reports/balanceSheetRequest/defaultUnitTypes/unitType, Bases).
 
-  
-fetch_account_hierarchy_from_url(Account_Hierarchy_Url, Account_Hierarchy_Dom) :-
-   http_get(Account_Hierarchy_Url, Account_Hierarchy_Xml_Text, []),
-   store_xml_document('tmp/account_hierarchy.xml', Account_Hierarchy_Xml_Text),
-   load_xml('tmp/account_hierarchy.xml', Account_Hierarchy_Dom, []).
-  
-% ------------------------------------------------------------------
-% extract_account_hierarchy/2
-%
-% Load Account Hierarchy terms from Dom
-% ------------------------------------------------------------------
-
-extract_account_hierarchy(Account_Hierarchy_Dom, Account_Hierarchy) :-   
-   % fixme when input format is agreed on
-   findall(Account, xpath(Account_Hierarchy_Dom, //accounts, Account), Accounts),
-   findall(Link, (member(Top_Level_Account, Accounts), accounts_link(Top_Level_Account, Link)), Account_Hierarchy).
-
- 
-% yields all child-parent pairs describing the account hierarchy
-accounts_link(element(Parent_Name,_,Children), Link) :-
-   member(Child, Children), 
-   Child = element(Child_Name,_,_),
-   (
-      % yield an account(Child, Parent) term for this child
-      Link = account(Child_Name, Parent_Name)
-      ;
-      % recurse on the child
-      accounts_link(Child, Link)
-   ).
 
 extract_action_taxonomy(Dom, Action_Taxonomy) :-
    findall(Action, xpath(Dom, //reports/balanceSheetRequest/actionTaxonomy/action, Action), Actions),

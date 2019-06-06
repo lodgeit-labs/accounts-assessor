@@ -98,14 +98,16 @@
       <type>Sheep</type>
       <naturalIncreaseValuePerUnit>54</naturalIncreaseValuePerUnit>
       <!-- <currency>AUD</currency> -->
+      <openingCount>27</openingCount>
+      <openingCost>1234</openingCost>
       <events>
-
+<!--
         <dayEndCount>
           <date>2012-01-30</date>
           <cost>1234</cost>
           <count>27</count>
         </dayEndCount>
-
+-->
         <naturalIncrease>
           <!-- before the report period -->
           <date>2010-01-30</date>
