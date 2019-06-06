@@ -50,7 +50,7 @@ split_header_body(Data, Header, Body) :-
 
 extract_file_name(Header, FileName2) :-
    append(_, [f, i, l, e, n, a, m, e, '=', '"'|Rest1], Header),   
-   append(Name, ['.', x, m, l, '"'|Rest2], Rest1),
+   append(Name, ['.', x, m, l, '"'|_Rest2], Rest1),
    exclude_file_location_from_filename(Name, FName),
    append(FName, ['.', x, m, l], FileNameChars),
    atomic_list_concat(FileNameChars, FileName),
@@ -63,7 +63,7 @@ exclude_file_location_from_filename(Name, FName) :-
    memberchk('\\', Name)
    ->  
      reverse(Name, RName),
-     append(RFName, ['\\'|R1], RName),
+     append(RFName, ['\\'|_R1], RName),
      reverse(RFName, FName)
    ;   
      FName = Name)).
@@ -101,12 +101,8 @@ process_xml_document(FileName) :-
 % -------------------------------------------------------------------
 
 process_xml_request(FileName, DOM) :-
-   (
-      process_xml_loan_request(FileName, DOM)
-   ;
-      process_xml_ledger_request(FileName, DOM)
-   ;
-      process_xml_livestock_request(FileName, DOM)
-   ).
+   (process_xml_loan_request(FileName, DOM) -> true;
+   (process_xml_ledger_request(FileName, DOM) -> true;
+   (process_xml_livestock_request(FileName, DOM) -> true))).
      
 

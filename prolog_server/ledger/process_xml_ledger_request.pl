@@ -53,14 +53,14 @@ process_xml_ledger_request(_, Dom) :-
    append(Transactions, Livestock_Event_Transactions, Transactions2),
 
    
-   get_average_costs(Livestock_Types, (Start_Days, End_Days, S_Transactions, Livestock_Events, Natural_Increase_Costs), Average_Costs),
+   get_average_costs(Livestock_Types, Opening_Costs_And_Counts, (Start_Days, End_Days, S_Transactions, Livestock_Events, Natural_Increase_Costs), Average_Costs),
       
    get_more_transactions(Livestock_Types, Average_Costs, S_Transactions, Livestock_Events, More_Transactions),
    
    append(Transactions2, More_Transactions, Transactions3),  
    
    
-   livestock_cogs_transactions(Livestock_Types, (Start_Days, End_Days, Default_Bases, Average_Costs, Transactions3, S_Transactions),  Cogs_Transactions),
+   livestock_cogs_transactions(Livestock_Types, Opening_Costs_And_Counts, (Start_Days, End_Days, Default_Bases, Average_Costs, Transactions3, S_Transactions),  Cogs_Transactions),
    append(Transactions3, Cogs_Transactions, Transactions4),  
 
    
@@ -69,9 +69,9 @@ process_xml_ledger_request(_, Dom) :-
    pretty_term_string(S_Transactions, Message0),
    pretty_term_string(Livestock_Events, Message0b),
    pretty_term_string(Transactions4, Message1),
-   pretty_term_string(Exchange_Rates, Message1b),
+   /*pretty_term_string(Exchange_Rates, Message1b),
    pretty_term_string(Action_Taxonomy, Message2),
-   pretty_term_string(Account_Hierarchy, Message3),
+   pretty_term_string(Account_Hierarchy, Message3),*/
    pretty_term_string(BalanceSheet, Message4),
    pretty_term_string(Average_Costs, Message5),
 
@@ -103,6 +103,7 @@ get_average_costs(Livestock_Types, Opening_Costs_And_Counts, Info, Average_Costs
 	
 livestock_cogs_transactions(
 	Livestock_Types,
+	Opening_Costs_And_Counts,
 	Info,
 	Closing_Balance_Transactions) :-
 	findall(Txs, 
@@ -128,9 +129,9 @@ yield_livestock_cogs_transactions(
 		Cogs_Transaction = transaction(To_Day, "livestock closing value for period", 'LivestockClosing', Revenue).
 
 yield_livestock_cogs_transactions(
-	Livestock_Type, 
-	Opening_Cost, Opening_Count,
-	(From_Day, _, Bases, Average_Costs, Input_Transactions, _S_Transactions),
+	_Livestock_Type, 
+	Opening_Cost, _Opening_Count,
+	(From_Day, _, _Bases, _Average_Costs, _Input_Transactions, _S_Transactions),
 	Cogs_Transaction) :-
 		/*balance_by_account(Average_Costs, [], Input_Transactions, Bases, _Exchange_Day, Livestock_Type, From_Day, Opening_Cost),*/
 		Cogs_Transaction = transaction(From_Day, "livestock opening value for period", 'LivestockOpening', Opening_Cost).
@@ -167,14 +168,14 @@ extract_natural_increase_costs(Livestock_Doms, Natural_Increase_Costs) :-
 	maplist(
 		extract_natural_increase_cost,
 		Livestock_Doms,
-		Natural_Increase_Costs)).
+		Natural_Increase_Costs).
 
 extract_natural_increase_cost(Livestock_Dom, natural_increase_cost(Type, Cost)) :-
 	fields(Livestock_Dom, ['type', Type]),
 	numeric_fields(Livestock_Dom, ['naturalIncreaseValuePerUnit', Cost]).
 
 extract_opening_costs_and_counts(Livestock_Doms, Opening_Costs_And_Counts) :-
-	maplist(extract_opening_cost_and_count,	Livestock_Doms, Opening_Costs_And_Counts)).
+	maplist(extract_opening_cost_and_count,	Livestock_Doms, Opening_Costs_And_Counts).
 
 extract_opening_cost_and_count(Livestock_Dom,	Opening_Cost_And_Count) :-
 	numeric_fields(Livestock_Dom, [
@@ -183,7 +184,7 @@ extract_opening_cost_and_count(Livestock_Dom,	Opening_Cost_And_Count) :-
 	fields(Livestock_Dom, ['type', Type]),
 	Opening_Cost_And_Count = opening_cost_and_count(Type, Opening_Cost, Opening_Count).
 	
-extract_livestock_events(Dom, Events) :-
+extract_livestock_events(Livestock_Doms, Events) :-
    member(Livestock_Dom, Livestock_Doms),
    maplist(extract_livestock_events2, Livestock_Dom, Events_Nested),
    flatten(Events_Nested, Events).

@@ -187,7 +187,8 @@ loan_rec_record(Current_Record, [Repayments_Hd|Repayments_Tl], Current_Acc_Inter
 
 % Relates a loan record to one that follows it, in the case that it is a year-end record
 
-loan_rec_record(Current_Record, [Repayments_Hd|Repayments_Tl], Current_Acc_Interest, Current_Acc_Rep, Record) :-
+% fixme what is Current_Acc_Rep?
+loan_rec_record(Current_Record, [Repayments_Hd|Repayments_Tl], Current_Acc_Interest, _Current_Acc_Rep, Record) :-
 	loan_rec_number(Current_Record, Current_Record_Number),
 	loan_rec_closing_day(Current_Record, Current_Day),
 	loan_rec_closing_balance(Current_Record, Current_Balance),

@@ -342,10 +342,10 @@ Unless you sell it you don't really know
 You have to estimate.
 */
 average_cost(Type, Opening_Cost, Opening_Count, Info, Exchange_rate) :-
-	Info = (Opening_Cost, Opening_Count, _From_Day, To_Day, S_Transactions, Livestock_Events, Natural_Increase_Costs),
+	Info = (Opening_Cost, Opening_Count, _From_Day, _To_Day, S_Transactions, Livestock_Events, Natural_Increase_Costs),
 	/*
-	for now, we ignore _From_Day, and use Opening_Cost and Opening_Count as
-	stated in the request.
+	for now, we ignore _From_Day (and _To_Day), 
+	and use Opening_Cost and Opening_Count as stated in the request.
 	*/
 	coord(Opening_Cost_Currency, _, _) = Opening_Cost, 
 	member(natural_increase_cost(Type, Natural_Increase_Cost_Per_Head), Natural_Increase_Costs),
