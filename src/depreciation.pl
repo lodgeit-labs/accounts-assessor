@@ -58,6 +58,7 @@ depreciation_rate(motor_vehicles, _, 0.2).
 
 
 % Calculates depreciation on a daily basis between the invest in date and any other date
+% recurses for every year, because depreciation rates may be different
 depreciation_between_invest_in_date_and_other_date(
 	Invest_in_value, Initial_value, Method, date(From_year, From_Month, From_day), To_date,
 	Account, Depreciation_year, By_day_factor, Total_depreciation_value
