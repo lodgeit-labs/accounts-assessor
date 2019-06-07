@@ -40,11 +40,12 @@
 				<CowsSales/>
 				<SheepSales/>
 			</SalesOfLivestock>
-			<LivestockClosing/>
 			<RationsRevenue/>
 			<ForexGain/>
 		</Revenue>
 		<Expenses>
+			<LivestockOpening/>
+			<LivestockClosing/>
 			<BankCharges/>
 			<ForexLoss/>
 			<Purchases/>
@@ -53,7 +54,6 @@
 				<SheepCogs/>
 				<ExpensesCogsLivestockAdjustment/>
 			</CostOfGoodsLivestock>	
-			<LivestockOpening/>
 		</Expenses>
 	</ProfitAndLoss>
 

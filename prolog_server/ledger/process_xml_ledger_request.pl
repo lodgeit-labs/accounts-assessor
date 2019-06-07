@@ -61,7 +61,7 @@ process_xml_ledger_request(_, Dom) :-
    append(Transactions2, More_Transactions, Transactions3),  
    
    
-   livestock_cogs_transactions(Livestock_Types, Opening_Costs_And_Counts, (Start_Days, End_Days, Default_Bases, Average_Costs, Transactions3, S_Transactions),  Cogs_Transactions),
+   livestock_cogs_transactions(Livestock_Types, Opening_Costs_And_Counts, Average_Costs, (Start_Days, End_Days, Default_Bases, Average_Costs, Transactions3, S_Transactions),  Cogs_Transactions),
    append(Transactions3, Cogs_Transactions, Transactions4),  
 
    
@@ -102,18 +102,17 @@ get_average_costs(Livestock_Types, Opening_Costs_And_Counts, Info, Average_Costs
 	),
 	Average_Costs).
 	
-livestock_cogs_transactions(
-	Livestock_Types,
-	Opening_Costs_And_Counts,
-	Info,
-	Transactions_Out) :-
+livestock_cogs_transactions(Livestock_Types, Opening_Costs_And_Counts, Average_Costs, Info, Transactions_Out) :-
 	findall(Txs, 
 		(
 			member(Livestock_Type, Livestock_Types),
 			member(opening_cost_and_count(Livestock_Type, Opening_Cost, Opening_Count), Opening_Costs_And_Counts),	
+			member(Average_Cost, Average_Costs),
+			Average_Cost = exchange_rate(_, Livestock_Type, _, _),
 			yield_livestock_cogs_transactions(
 				Livestock_Type, 
 				Opening_Cost, Opening_Count,
+				Average_Cost,
 				Info,
 				Txs)
 		),
@@ -157,8 +156,7 @@ extract_opening_cost_and_count(Livestock_Dom,	Opening_Cost_And_Count) :-
 	Opening_Cost_And_Count = opening_cost_and_count(Type, Opening_Cost, Opening_Count).
 	
 extract_livestock_events(Livestock_Doms, Events) :-
-   member(Livestock_Dom, Livestock_Doms),
-   maplist(extract_livestock_events2, Livestock_Dom, Events_Nested),
+   maplist(extract_livestock_events2, Livestock_Doms, Events_Nested),
    flatten(Events_Nested, Events).
    
 extract_livestock_events2(Data, Events) :-
