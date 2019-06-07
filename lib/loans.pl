@@ -7,7 +7,7 @@
 
 :- module(loans, [loan_agr_summary/2]).
 
-:- use_module(days).
+:- use_module(days, [absolute_day/2, date_add/3, day_between/3,	gregorian_date/2]).
 
 % -------------------------------------------------------------------
 % The purpose of the following program is to derive information about a given loan
@@ -180,7 +180,7 @@ loan_agr_record(Agreement, Record) :-
 	Computation_Opening_Balance \= false,
 	loan_agr_year_days(Agreement, Computation_Year, Computation_Day, _),
 	loan_agr_repayments(Agreement, Repayments_A),
-  loan_agr_lodgement_day(Agreement, Lodgement_Day),
+    loan_agr_lodgement_day(Agreement, Lodgement_Day),
 	loan_reps_before_lodgement(Lodgement_Day, 0, Repayments_A, _, Repayments_B),
 	loan_agr_record_aux(Agreement, Record, Computation_Opening_Balance, Computation_Day, Repayments_B).
 

@@ -4,7 +4,7 @@
 % Date:      2019-06-02
 % ===================================================================
 
-:- module(accounts, [account_parent_id/3, account_ids/9]).
+:- module(accounts, [account_parent_id/3, account_ancestor_id/3, account_ids/9]).
 
 
 % --------------------------------------------------------------------

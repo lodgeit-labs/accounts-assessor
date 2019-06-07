@@ -18,6 +18,21 @@
 
 % Predicates for asserting that the fields of given transactions have particular values
 
+% Need to remove this code block. Repeated from transactions.pl
+% We have removed the file inclusion for modularization.
+% We have to come up with an idea about how to reuse these kind of 
+% definitions accross files.
+% -------------------------------------------------------------------
+% The absolute day that the transaction happenned
+transaction_day(transaction(Day, _, _, _), Day).
+% A description of the transaction
+transaction_description(transaction(_, Description, _, _), Description).
+% The account that the transaction modifies
+transaction_account_id(transaction(_, _, Account_Id, _), Account_Id).
+% The amounts by which the account is being debited and credited
+transaction_vector(transaction(_, _, _, Vector), Vector).
+% -------------------------------------------------------------------
+
 % The absolute day that the transaction happenned
 s_transaction_day(s_transaction(Day, _, _, _, _), Day).
 % The type identifier of the transaction
