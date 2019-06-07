@@ -37,7 +37,8 @@ process_xml_ledger_request(_, Dom) :-
    inner_xml(Dom, //reports/balanceSheetRequest/endDate, [End_Date_Atom]),
    parse_date(End_Date_Atom, End_Days),
 
-   preprocess_s_transactions(Account_Hierarchy, Exchange_Rates, Action_Taxonomy, S_Transactions, Transactions),
+   preprocess_s_transactions(Account_Hierarchy, Exchange_Rates, Action_Taxonomy, S_Transactions, Transactions_Nested),
+   flatten(Transactions_Nested, Transactions),
    
    findall(Livestock_Dom, xpath(Dom, //reports/balanceSheetRequest/livestockData, Livestock_Dom), Livestock_Doms),
 
@@ -105,7 +106,7 @@ livestock_cogs_transactions(
 	Livestock_Types,
 	Opening_Costs_And_Counts,
 	Info,
-	Closing_Balance_Transactions) :-
+	Transactions_Out) :-
 	findall(Txs, 
 		(
 			member(Livestock_Type, Livestock_Types),
@@ -116,38 +117,9 @@ livestock_cogs_transactions(
 				Info,
 				Txs)
 		),
-		Closing_Balance_Transactions).
-% todo opening cost/count		
+		Transactions_Nested),
+	flatten(Transactions_Nested, Transactions_Out).
 
-yield_livestock_cogs_transactions(
-	Livestock_Type, 
-	_Opening_Cost, _Opening_Count,
-	(_, To_Day, Bases, Average_Costs, Input_Transactions, _S_Transactions),
-	Cogs_Transaction) :-
-		balance_by_account(Average_Costs, [], Input_Transactions, Bases,  _Exchange_Day, Livestock_Type, To_Day, Closing_Cost),
-		vec_inverse(Closing_Cost, Revenue),
-		Cogs_Transaction = transaction(To_Day, "livestock closing value for period", 'LivestockClosing', Revenue).
-
-yield_livestock_cogs_transactions(
-	_Livestock_Type, 
-	Opening_Cost, _Opening_Count,
-	(From_Day, _, _Bases, _Average_Costs, _Input_Transactions, _S_Transactions),
-	Cogs_Transaction) :-
-		/*balance_by_account(Average_Costs, [], Input_Transactions, Bases, _Exchange_Day, Livestock_Type, From_Day, Opening_Cost),*/
-		Cogs_Transaction = transaction(From_Day, "livestock opening value for period", 'LivestockOpening', Opening_Cost).
-/*
-yield_livestock_cogs_transactions(
-	Livestock_Type, 
-	(Day, Average_Costs, Input_Transactions, S_Transactions),
-	Cogs_Transaction) :-
-		livestock_purchases_cost_and_count(Livestock_Type, S_Transactions, Purchases_cost, _Purchases_count) ,
-		balance_by_account(Average_Costs, [], Input_Transactions, ['AUD'], _Exchange_Day, Livestock_Type, Day, Closing_Cost),
-		vec_sub(Purchases_cost, Closing_Cost, Cogs_Credit),
-		vec_inverse(Cogs_Credit, Cogs),
-		cogs_account(Livestock_Type, CogsAccount),
-		Cogs_Transaction = transaction(Day, "livestock COGS for period", CogsAccount, Cogs).
-*/
-		
    
 % this logic is dependent on having the average cost value
 get_more_transactions(Livestock_Types, Average_costs, S_Transactions, Livestock_Events, More_Transactions) :-

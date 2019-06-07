@@ -34,9 +34,6 @@ when bank statements are processed:
 			buy/sell:
 				cost is taken from the bank transaction
 
-				BUY - 
-					CR BANK (BANK BCE REDUCES) 
-					DR assets / current assets / inventory on hand / livestock at cost - 	this is our LivestockAtCost or Assets_1204_Livestock_at_Cost.
 	
 				SELL - 
 					DR BANK (BANK BCE INCREASES) 
@@ -72,18 +69,16 @@ average cost is defined for date and livestock type as follows:
 
 
 % the case for livestock buy/sell:
-% BUY:
-	% CR BANK (BANK BCE REDUCES) 
-	% DR Assets_1204_Livestock_at_Cost
-% SELL:
-	% DR BANK (BANK BCE INCREASES) 
-	% CR Assets_1204_Livestock_at_Cost (STOCK ON HAND DECREASES,VALUE HELD DECREASES), 
+% BUY/SELL:
+	% CR/DR BANK (BANK BCE REDUCES) 
+	% DR/CR Assets_1204_Livestock_at_Cost
+%SELL:
 	% CR SALES_OF_LIVESTOCK (REVENUE INCREASES) 
 	% DR COST_OF_GOODS_LIVESTOCK (EXPENSE ASSOCIATED WITH REVENUE INCREASES). 
 %	and produce a livestock count transaction 
 
 
-preprocess_livestock_buy_or_sell(Accounts, Exchange_Rates, Transaction_Types, [S_Transaction | S_Transactions], [Bank_Transaction, Livestock_Transaction, Assets_Transaction | Transactions]) :-
+preprocess_livestock_buy_or_sell(Accounts, Exchange_Rates, Transaction_Types, [S_Transaction | S_Transactions], [Bank_Transaction, Livestock_Transaction, Assets_Transaction | Transactions_Tail]) :-
 	s_transaction_is_livestock_buy_or_sell(S_Transaction, Day, Livestock_Type, Livestock_Coord, Bank_Vector, Our_Vector, Unexchanged_Account_Id, MoneyDebit, _),
 	livestock_account_ids(Livestock_Account, Assets_1204_Livestock_at_Cost, _, _),
 	account_ancestor_id(Accounts, Livestock_Type, Livestock_Account),
@@ -102,20 +97,11 @@ preprocess_livestock_buy_or_sell(Accounts, Exchange_Rates, Transaction_Types, [S
 	% produce the bank account transaction
 	Bank_Transaction = transaction(Day, Description, Unexchanged_Account_Id, Our_Vector).
 
-
-preprocess_buys(_, _, [], []).
-
-preprocess_buys(Livestock_Type, _Average_cost, [S_Transaction | S_Transactions], [Buy_Transactions | Transactions_Tail]) :-
-	s_transaction_is_livestock_buy_or_sell(S_Transaction, Day, Livestock_Type, _Livestock_Coord, Bank_Vector, _, _, _, MoneyCredit),
-	(MoneyCredit > 0 ->
-		(
-			preprocess_buys2(Day, Livestock_Type, Bank_Vector, Buy_Transactions)
-		)
-		;
-			Buy_Transactions = []
-	),
-	preprocess_buys(Livestock_Type, _, S_Transactions, Transactions_Tail).
-
+/*
+BUY - 
+	DR assets / current assets / inventory on hand / livestock at cost - 	this is our LivestockAtCost or Assets_1204_Livestock_at_Cost.
+*/
+	
 preprocess_buys2(Day, Livestock_Type, Bank_Vector, Buy_Transactions) :-
 	% DR expenses / direct costs / purchases
 	Buy_Transactions = [
@@ -221,7 +207,31 @@ preprocess_sales(_, _, [], []).
 
 
 
+yield_livestock_cogs_transactions(
+	Livestock_Type, 
+	Opening_Cost, _Opening_Count,
+	(From_Day, To_Day, Bases, Average_Costs, Input_Transactions, _S_Transactions),
+	Cogs_Transactions) :-
+		balance_by_account(Average_Costs, [], Input_Transactions, Bases,  _Exchange_Day, Livestock_Type, To_Day, Closing_Cost),
+		vec_inverse(Closing_Cost, Revenue),
+		Cogs_Transactions = [
+			transaction(To_Day, "livestock closing value for period", 'LivestockClosing', Revenue),
+			transaction(From_Day, "livestock opening value for period", 'LivestockOpening', Opening_Cost)
+		].
 
+/*
+yield_livestock_cogs_transactions(
+	Livestock_Type, 
+	(Day, Average_Costs, Input_Transactions, S_Transactions),
+	Cogs_Transaction) :-
+		livestock_purchases_cost_and_count(Livestock_Type, S_Transactions, Purchases_cost, _Purchases_count) ,
+		balance_by_account(Average_Costs, [], Input_Transactions, ['AUD'], _Exchange_Day, Livestock_Type, Day, Closing_Cost),
+		vec_sub(Purchases_cost, Closing_Cost, Cogs_Credit),
+		vec_inverse(Cogs_Credit, Cogs),
+		cogs_account(Livestock_Type, CogsAccount),
+		Cogs_Transaction = transaction(Day, "livestock COGS for period", CogsAccount, Cogs).
+*/
+		
 /*
 The Livestock calculator is an average cost calculator. 
 Cost, average cost, market value. 
@@ -481,3 +491,19 @@ expenses / direct costs / opening (closing) / inventory at cost / livestock at (
 
 
 */
+
+
+preprocess_buys(_, _, [], []).
+
+
+preprocess_buys(Livestock_Type, _Average_cost, [S_Transaction | S_Transactions], [Buy_Transactions | Transactions_Tail]) :-
+	s_transaction_is_livestock_buy_or_sell(S_Transaction, Day, Livestock_Type, _Livestock_Coord, Bank_Vector, _, _, _, MoneyCredit),
+	(MoneyCredit > 0 ->
+		(
+			preprocess_buys2(Day, Livestock_Type, Bank_Vector, Buy_Transactions)
+		)
+		;
+			Buy_Transactions = []
+	),
+	preprocess_buys(Livestock_Type, _, S_Transactions, Transactions_Tail).
+

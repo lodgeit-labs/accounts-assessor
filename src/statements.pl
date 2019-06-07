@@ -36,8 +36,8 @@ transaction_type_of(Transaction_Types, S_Transaction, Transaction_Type) :-
 /*todo use maplist*/
 preprocess_s_transactions(_, _, _, [], []).
 
-preprocess_s_transactions(Accounts, Exchange_Rates, Transaction_Types, S_Transactions, Transactions) :-
-	preprocess_livestock_buy_or_sell(Accounts, Exchange_Rates, Transaction_Types, S_Transactions, Transactions),
+preprocess_s_transactions(Accounts, Exchange_Rates, Transaction_Types,  [S_Transaction|S_Transactions], [Transactions, Transactions_Tail]) :-
+	preprocess_livestock_buy_or_sell(Accounts, Exchange_Rates, Transaction_Types, S_Transaction, Transaction),
 	preprocess_s_transactions(Accounts, Exchange_Rates, Transaction_Types, S_Transactions, Transactions),
 	!.
 
