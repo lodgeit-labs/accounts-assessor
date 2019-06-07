@@ -1,19 +1,19 @@
 % this gets the children of an element with ElementXPath
-inner_xml(DOM, ElementXPath, Children) :-
-	xpath(DOM, ElementXPath, element(_,_,Children)).
+inner_xml(Dom, Element_XPath, Children) :-
+	xpath(Dom, Element_XPath, element(_,_,Children)).
 
-write_tag(TagName,TagValue) :-
-	string_concat("<",TagName,OpenTagTmp),
-	string_concat(OpenTagTmp,">",OpenTag),
-	string_concat("</",TagName,ClosingTagTmp),
-	string_concat(ClosingTagTmp,">",ClosingTag),
-	write(OpenTag),
-	write(TagValue),
-	writeln(ClosingTag).
+write_tag(Tag_Name,Tag_Value) :-
+	string_concat("<",Tag_Name,Open_Tag_Tmp),
+	string_concat(Open_Tag_Tmp,">",Open_Tag),
+	string_concat("</",Tag_Name,Closing_Tag_Tmp),
+	string_concat(Closing_Tag_Tmp,">",Closing_Tag),
+	write(Open_Tag),
+	write(Tag_Value),
+	writeln(Closing_Tag).
 
-numeric_field(DOM, NameString, Value) :-
-	inner_xml(DOM, //NameString, [ValueAtom]),
-	atom_number(ValueAtom, Value).
+numeric_field(Dom, Name_String, Value) :-
+	inner_xml(Dom, //Name_String, [Value_Atom]),
+	atom_number(Value_Atom, Value).
 
 /*
 fields_to_numeric([NameString, Atom | Fields_Rest], [NameString, Number | Numeric_Fields_Rest]) :-
@@ -23,33 +23,33 @@ fields_to_numeric([NameString, Atom | Fields_Rest], [NameString, Number | Numeri
 fields_to_numeric([], []).
 */
 	
-fields(DOM, [NameString, Value|Rest]) :-
+fields(Dom, [Name_String, Value|Rest]) :-
 	(
 		(
-			inner_xml(DOM, //NameString, [Value]),
+			inner_xml(Dom, //Name_String, [Value]),
 			!
 		);
 		(
-			string_concat(NameString, " field missing", Error),
+			string_concat(Name_String, " field missing", Error),
 			throw(Error)
 		)
 	),
-	fields(DOM, Rest).
+	fields(Dom, Rest).
 
 fields(_, []).
 
-numeric_fields(DOM, [NameString, Value|Rest]) :-
+numeric_fields(Dom, [Name_String, Value|Rest]) :-
 	(
 		(
-			numeric_field(DOM, NameString, Value),
+			numeric_field(Dom, Name_String, Value),
 			!
 		);
 		(
-			string_concat(NameString, " field missing", Error),
+			string_concat(Name_String, " field missing", Error),
 			throw(Error)
 		)
 	),
-	numeric_fields(DOM, Rest).
+	numeric_fields(Dom, Rest).
 
 numeric_fields(_, []).
 

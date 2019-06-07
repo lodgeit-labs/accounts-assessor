@@ -31,8 +31,6 @@ net_activity_by_account(Exchange_Rates, Accounts, Transactions, Bases, Exchange_
 
 	
 	
-	
-
 % Now for balance sheet predicates.
 
 balance_sheet_entry(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Account_Id, To_Day, Sheet_Entry) :-
@@ -68,12 +66,11 @@ balance_sheet_at(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Fr
 			entry(Retained_Earnings_AID, Retained_Earnings, []), 
 			entry(Current_Earnings_AID, Current_Earnings, [])
 		]),
-	%gtrace,
+
 	balance_sheet_entry(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, 'Livestock', To_Day, Livestock_Section),
 
 	balance_by_account(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, 'ProfitAndLoss', To_Day, ProfitAndLoss),
 	vec_inverse(ProfitAndLoss, GrossProfit),
-	
 	
 	/*balance_by_account(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, '/CostOfGoodsLivestock', To_Day, CostOfGoodsLivestockBalance),
 	*/

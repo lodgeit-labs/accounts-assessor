@@ -8,7 +8,7 @@
 			   	<WellsFargo/>
 				   <NationalAustraliaBank/>
    			</CashAndCashEquivalents>
-	   		<LivestockAtCost/>
+	   		<AssetsLivestockAtCost/>
 		   </CurrentAssets>
    		<NoncurrentAssets>
 	   		<FinancialInvestments/>
@@ -51,6 +51,7 @@
 			<CostOfGoodsLivestock>
 				<CowsCogs/>
 				<SheepCogs/>
+				<ExpensesCogsLivestockAdjustment/>
 			</CostOfGoodsLivestock>	
 			<LivestockOpening/>
 		</Expenses>
