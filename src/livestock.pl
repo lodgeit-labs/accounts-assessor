@@ -120,15 +120,16 @@ preprocess_buys2(Day, Livestock_Type, Bank_Vector, Buy_Transactions) :-
 % CR SALES_OF_LIVESTOCK (REVENUE INCREASES) 
 % DR COST_OF_GOODS_LIVESTOCK (EXPENSE ASSOCIATED WITH REVENUE INCREASES). 
 	
-preprocess_sales2(Day, Livestock_Type, Average_Cost, Livestock_Count, Bank_Vector, Sales_Transactions) :-
+preprocess_sales2(Day, Livestock_Type, Average_Rate, Livestock_Count, Bank_Vector, Sales_Transactions) :-
 	Description = "livestock sell",
-	exchange_rate(_, _, Currency, Average_Cost_Per_Head) = Average_Cost,
-	Average_Value = coord(Currency, Livestock_Count * Average_Cost_Per_Head, 0),
-	vec_inverse(Average_Value, Cost),
+	exchange_rate(_, _, Currency, Average_Cost_Per_Head) = Average_Rate,
+	Average_Cost is Livestock_Count * Average_Cost_Per_Head,
+	Average_Cost_Vector = [coord(Currency, Average_Cost, 0)],
+	vec_inverse(Average_Cost_Vector, Cost),
 	Sales_Transactions = [
 		transaction(Day, Description, 'AssetsLivestockAtCost', Cost),
 		transaction(Day, Description, Sales_Account, Bank_Vector),
-		transaction(Day, Description, Cogs_Account, Average_Value)
+		transaction(Day, Description, Cogs_Account, Cost)
 	],
 	sales_account(Livestock_Type, Sales_Account),
 	cogs_account(Livestock_Type, Cogs_Account).
@@ -183,7 +184,7 @@ yield_livestock_cogs_transactions(
 		Cogs_Transactions = [
 			% maybe do as one difference transaction
 			transaction(To_Day, "livestock closing value for period", 'LivestockClosing', Closing_Credit),
-			transaction(To_Day, "livestock opening value for period", 'LivestockOpening', [coord('AUD', Opening_Cost, 0)])
+			transaction(To_Day, "livestock opening value for period", 'LivestockOpening', Opening_Cost)
 		].
 
 /*
@@ -341,7 +342,7 @@ expenses / direct costs / opening (closing) / inventory at cost / livestock at (
 preprocess_buys(_, _, [], []).
 
 preprocess_buys(Livestock_Type, _Average_cost, [S_Transaction | S_Transactions], [Buy_Transactions | Transactions_Tail]) :-
-	s_transaction_is_livestock_buy_or_sell(S_Transaction, Day, Livestock_Type, _Livestock_Coord, Bank_Vector, _, _, _, MoneyCredit),
+	s_transaction_is_livestock_buy_or_sell(S_Transaction, Day, Livestock_Type, _Livestock_Coord, _Livestock_Count, Bank_Vector, _, _, _, MoneyCredit),
 	(MoneyCredit > 0 ->
 		(
 			preprocess_buys2(Day, Livestock_Type, Bank_Vector, Buy_Transactions)
@@ -439,46 +440,37 @@ Think about what any asset is worth?
 Unless you sell it you don't really know
 You have to estimate.
 */
-average_cost(Type, Opening_Cost, Opening_Count, Info, Exchange_rate) :-
+average_cost(Type, Opening_Cost0, Opening_Count0, Info, Exchange_Rate) :-
 	Info = (_From_Day, _To_Day, S_Transactions, Livestock_Events, Natural_Increase_Costs),
 	/*
 	for now, we ignore _From_Day (and _To_Day), 
 	and use Opening_Cost and Opening_Count as stated in the request.
 	*/
-	[coord(Opening_Cost_Currency, _, _)] = Opening_Cost, 
-	member(natural_increase_cost(Type, Natural_Increase_Cost_Per_Head), Natural_Increase_Costs),
-	natural_increase_count(Type, Livestock_Events, Natural_Increase_Count),
-	livestock_purchases_cost_and_count(Type, S_Transactions, Purchases_Cost, Purchases_Count),
-	vec_inverse(Purchases_Cost, Purchases_value),
-	vec_add(Opening_Cost, Purchases_value, Opening_And_Purchases_Value),
-	Natural_Increase_value is Natural_Increase_Cost_Per_Head * Natural_Increase_Count,
-	vec_add(Opening_And_Purchases_Value, [coord(Opening_Cost_Currency, Natural_Increase_value, 0)], Opening_And_Purchases_And_Increase_Value_Vector),
+	Natural_Increase_Value #= Natural_Increase_Cost_Per_Head * Natural_Increase_Count,
+	Opening_And_Purchases_And_Increase_Value_Exp = Opening_Value + Purchases_Value + Natural_Increase_Value,
+	Opening_And_Purchases_And_Increase_Count_Exp = Opening_Count + Purchases_Count + Natural_Increase_Count,
+	Average_Cost_Exp = Opening_And_Purchases_And_Increase_Value_Exp /  Opening_And_Purchases_And_Increase_Count_Exp,
 
-	(
-		Opening_And_Purchases_And_Increase_Value_Vector = []
-		->
-			Average_Cost = 0
-		;
-			(
-				[coord(Opening_Cost_Currency, Opening_And_Purchases_And_Increase_Value, 0)] = Opening_And_Purchases_And_Increase_Value_Vector
-				->
-				(
-					Opening_And_Purchases_And_Increase_Count is Opening_Count + Purchases_Count + Natural_Increase_Count,
-					(Opening_And_Purchases_And_Increase_Count > 0 ->
-							Average_Cost is 
-								Opening_And_Purchases_And_Increase_Value /  Opening_And_Purchases_And_Increase_Count
-						;
-							Average_Cost = 0
-					)
-				)
-				;
-				(
-					print_term(Opening_And_Purchases_And_Increase_Value_Vector, []),
-					throw("fixme")
-				)
-		)
+	pretty_term_string(Average_Cost_Exp, Formula_String1),
+
+	Opening_Cost = Opening_Cost0,
+	Opening_Count = Opening_Count0,
+	[coord(Currency, Opening_Value, 0)] = Opening_Cost, 
+	member(natural_increase_cost(Type, [coord(Currency, Natural_Increase_Cost_Per_Head, 0)]), Natural_Increase_Costs),
+	natural_increase_count(Type, Livestock_Events, Natural_Increase_Count),
+	livestock_purchases_cost_and_count(Type, S_Transactions, [coord(Currency, 0, Purchases_Value)], Purchases_Count),
+
+	pretty_term_string(Average_Cost_Exp, Formula_String2),
+	
+	Explanation = {formula: Formula_String1, computation: Formula_String2},
+					
+	Opening_And_Purchases_And_Increase_Count is Opening_And_Purchases_And_Increase_Count_Exp,
+	(Opening_And_Purchases_And_Increase_Count > 0 ->
+		Average_Cost is Average_Cost_Exp
+	;
+		Average_Cost = 0
 	),
-	Exchange_rate = exchange_rate(_, Type, 'AUD', Average_Cost).
+	Exchange_Rate = with_info(exchange_rate(_, Type, Currency, Average_Cost), Explanation).
 
 
 preprocess_rations(Livestock_Type, Average_Cost, Event, Output) :-

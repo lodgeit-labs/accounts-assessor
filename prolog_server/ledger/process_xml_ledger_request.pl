@@ -53,8 +53,8 @@ process_xml_ledger_request(_, Dom) :-
    flatten(Livestock_Event_Transactions_Nested, Livestock_Event_Transactions),
    append(Transactions, Livestock_Event_Transactions, Transactions2),
 
-   
-   get_average_costs(Livestock_Types, Opening_Costs_And_Counts, (Start_Days, End_Days, S_Transactions, Livestock_Events, Natural_Increase_Costs), Average_Costs),
+   get_average_costs(Livestock_Types, Opening_Costs_And_Counts, (Start_Days, End_Days, S_Transactions, Livestock_Events, Natural_Increase_Costs), Average_Costs_With_Explanations),
+   maplist(with_info_value_and_info, Average_Costs_With_Explanations, Average_Costs, Average_Costs_Explanations),
       
    get_more_transactions(Livestock_Types, Average_Costs, S_Transactions, Livestock_Events, More_Transactions),
    
@@ -75,12 +75,14 @@ process_xml_ledger_request(_, Dom) :-
    pretty_term_string(Account_Hierarchy, Message3),*/
    pretty_term_string(BalanceSheet, Message4),
    pretty_term_string(Average_Costs, Message5),
+   pretty_term_string(Average_Costs_Explanations, Message5b),
 
    atomic_list_concat([
    	'S_Transactions:\n', Message0,'\n\n',
 	'Events:\n', Message0b,'\n\n',
    	'Transactions:\n', Message1,'\n\n',
    	'Average_Costs:\n', Message5,'\n\n',
+   	'Average_Costs_Explanations:\n', Message5b,'\n\n',
    	%'Exchange rates::\n', Message1b,'\n\n',
    	%'Action_Taxonomy:\n',Message2,'\n\n',
    	%'Account_Hierarchy:\n',Message3,'\n\n',
@@ -139,7 +141,7 @@ extract_natural_increase_costs(Livestock_Doms, Natural_Increase_Costs) :-
 		Livestock_Doms,
 		Natural_Increase_Costs).
 
-extract_natural_increase_cost(Livestock_Dom, natural_increase_cost(Type, Cost)) :-
+extract_natural_increase_cost(Livestock_Dom, natural_increase_cost(Type, [coord('AUD', Cost, 0)])) :-
 	fields(Livestock_Dom, ['type', Type]),
 	numeric_fields(Livestock_Dom, ['naturalIncreaseValuePerUnit', Cost]).
 

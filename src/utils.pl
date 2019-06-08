@@ -62,3 +62,6 @@ pretty_term_string(Term, String) :-
 	print_term(Term, [output(S)]),
 	close(S),
 	memory_file_to_string(X, String).
+
+
+with_info_value_and_info(with_info(Value, Info), Value, Info).
