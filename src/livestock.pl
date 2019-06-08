@@ -73,6 +73,10 @@ average cost is defined for date and livestock type as follows:
     %	and produce a livestock count transaction 
 
 
+%:- use_module(library(clpfd)).
+:- use_module(library(clpr)).
+
+    
 preprocess_livestock_buy_or_sell(Accounts, _Exchange_Rates, _Transaction_Types, S_Transaction, [Bank_Transaction, Livestock_Transaction]) :-
 	s_transaction_is_livestock_buy_or_sell(S_Transaction, Day, Livestock_Type, Livestock_Coord, _Livestock_Count, _Bank_Vector, Our_Vector, Unexchanged_Account_Id, MoneyDebit, _),
 	%livestock_account_ids(Livestock_Account, Assets_1204_Livestock_at_Cost, _, _),
@@ -97,12 +101,14 @@ BUY -
 	DR assets / current assets / inventory on hand / livestock at cost - 	this is our LivestockAtCost or Assets_1204_Livestock_at_Cost.
 */
 	
-preprocess_buys2(Day, _Livestock_Type, Bank_Vector, Buy_Transactions) :-
+preprocess_buys2(Day, Livestock_Type, Bank_Vector, Buy_Transactions) :-
 	% DR expenses / direct costs / purchases - but maybe this should be done at the time of sale
 	Buy_Transactions = [
 		% transaction(Day, 'livestock buy', 'Purchases', Bank_Vector),
-		transaction(Day, 'livestock buy', 'AssetsLivestockAtCost', Bank_Vector)
-	].
+		transaction(Day, 'livestock buy', 'AssetsLivestockAtCost', Bank_Vector),
+		transaction(Day, 'livestock buy', Cogs_Account, Bank_Vector)
+	],
+	cogs_account(Livestock_Type, Cogs_Account).
 /*
 preprocess_buys2(Day, Livestock_Type, Bank_Vector, Buy_Transactions) :-
 	Buy_Transactions = [
@@ -120,19 +126,20 @@ preprocess_buys2(Day, Livestock_Type, Bank_Vector, Buy_Transactions) :-
 % CR SALES_OF_LIVESTOCK (REVENUE INCREASES) 
 % DR COST_OF_GOODS_LIVESTOCK (EXPENSE ASSOCIATED WITH REVENUE INCREASES). 
 	
-preprocess_sales2(Day, Livestock_Type, Average_Rate, Livestock_Count, Bank_Vector, Sales_Transactions) :-
+preprocess_sales2(Day, Livestock_Type, _Average_Rate, _Livestock_Count, Bank_Vector, Sales_Transactions) :-
 	Description = "livestock sell",
-	exchange_rate(_, _, Currency, Average_Cost_Per_Head) = Average_Rate,
-	Average_Cost is Livestock_Count * Average_Cost_Per_Head,
-	Average_Cost_Vector = [coord(Currency, Average_Cost, 0)],
-	vec_inverse(Average_Cost_Vector, Cost),
+	%exchange_rate(_, _, Currency, Average_Cost_Per_Head) = Average_Rate,
+	%Average_Cost is Livestock_Count * Average_Cost_Per_Head,
+	%Average_Cost_Vector = [coord(Currency, Average_Cost, 0)],
+	%vec_inverse(Average_Cost_Vector, Cost),
+	vec_inverse(Bank_Vector, Ours_Vector),
 	Sales_Transactions = [
-		transaction(Day, Description, 'AssetsLivestockAtCost', Cost),
-		transaction(Day, Description, Sales_Account, Bank_Vector),
-		transaction(Day, Description, Cogs_Account, Cost)
+		transaction(Day, Description, 'AssetsLivestockAtCost', Ours_Vector),
+		transaction(Day, Description, Sales_Account, Bank_Vector)
+		%transaction(Day, Description, Cogs_Account, Cost)
 	],
-	sales_account(Livestock_Type, Sales_Account),
-	cogs_account(Livestock_Type, Cogs_Account).
+	sales_account(Livestock_Type, Sales_Account).
+	%cogs_account(Livestock_Type, Cogs_Account).
 	
 
 	
@@ -163,7 +170,8 @@ preprocess_rations2(Day, Cost, Currency, Equity_3145_Drawings_by_Sole_Trader, Ou
 		transaction(Day, 'rations', Equity_3145_Drawings_by_Sole_Trader, [coord(Currency, Cost, 0)]),
 		%	CR COST_OF_GOODS. I.E. DECREASES COST.
 		% expenses / cost of goods / stock adjustment
-		transaction(Day, 'rations', 'ExpensesCogsLivestockAdjustment', [coord(Currency, 0, Cost)])].
+		% transaction(Day, 'rations', 'ExpensesCogsLivestockAdjustment', [coord(Currency, 0, Cost)])].
+		transaction(Day, 'rations', 'RationsRevenue', [coord(Currency, 0, Cost)])].
 /*
 preprocess_rations2(Day, Cost, Currency, Equity_3145_Drawings_by_Sole_Trader, Output), 
 	Output = [
@@ -176,10 +184,16 @@ preprocess_rations2(Day, Cost, Currency, Equity_3145_Drawings_by_Sole_Trader, Ou
 
 yield_livestock_cogs_transactions(
 	Livestock_Type, 
-	Opening_Cost, _Opening_Count, _Average_Cost,
+	Opening_Cost, Opening_Count, _Average_Cost,
 	(_From_Day, To_Day, Bases, Average_Costs, Input_Transactions, _S_Transactions),
 	Cogs_Transactions) :-
-		balance_by_account(Average_Costs, [], Input_Transactions, Bases,  _Exchange_Day, Livestock_Type, To_Day, Closing_Debit),
+		
+		balance_by_account(Average_Costs, [], Input_Transactions, Bases,  _Exchange_Day, Livestock_Type, To_Day, Closing_Debit0),
+		% balance_by_account does not know obout opening balance, so we add it at average cost to closing balance here for now:
+		[exchange_rate(_, _, _, AC)] = Average_Costs,
+		Cost is AC * Opening_Count,
+		vec_add(Closing_Debit0, [coord('AUD', Cost, 0)], Closing_Debit),
+		
 		vec_inverse(Closing_Debit, Closing_Credit),
 		Cogs_Transactions = [
 			% maybe do as one difference transaction
@@ -446,12 +460,13 @@ average_cost(Type, Opening_Cost0, Opening_Count0, Info, Exchange_Rate) :-
 	for now, we ignore _From_Day (and _To_Day), 
 	and use Opening_Cost and Opening_Count as stated in the request.
 	*/
-	Natural_Increase_Value #= Natural_Increase_Cost_Per_Head * Natural_Increase_Count,
-	Opening_And_Purchases_And_Increase_Value_Exp = Opening_Value + Purchases_Value + Natural_Increase_Value,
-	Opening_And_Purchases_And_Increase_Count_Exp = Opening_Count + Purchases_Count + Natural_Increase_Count,
-	Average_Cost_Exp = Opening_And_Purchases_And_Increase_Value_Exp /  Opening_And_Purchases_And_Increase_Count_Exp,
+	debug,
+	{Natural_Increase_Value = Natural_Increase_Cost_Per_Head * Natural_Increase_Count},
+	{Opening_And_Purchases_And_Increase_Value_Exp = Opening_Value + Purchases_Value + Natural_Increase_Value},
+	{Opening_And_Purchases_And_Increase_Count_Exp = Opening_Count + Purchases_Count + Natural_Increase_Count},
+	{Average_Cost_Exp = Opening_And_Purchases_And_Increase_Value_Exp /  Opening_And_Purchases_And_Increase_Count_Exp},
 
-	pretty_term_string(Average_Cost_Exp, Formula_String1),
+	%pretty_term_string(Average_Cost_Exp, Formula_String1),
 
 	Opening_Cost = Opening_Cost0,
 	Opening_Count = Opening_Count0,
@@ -462,7 +477,7 @@ average_cost(Type, Opening_Cost0, Opening_Count0, Info, Exchange_Rate) :-
 
 	pretty_term_string(Average_Cost_Exp, Formula_String2),
 	
-	Explanation = {formula: Formula_String1, computation: Formula_String2},
+	Explanation = {formula: _Formula_String1, computation: Formula_String2},
 					
 	Opening_And_Purchases_And_Increase_Count is Opening_And_Purchases_And_Increase_Count_Exp,
 	(Opening_And_Purchases_And_Increase_Count > 0 ->

@@ -108,12 +108,12 @@
           <count>27</count>
         </dayEndCount>
 -->
-        <naturalIncrease>
-          <!-- before the report period -->
-          <date>2016-01-30</date>
+<!--        <naturalIncrease>
+          <! before the report period, todo >
+          <date>2010-01-30</date>
           <count>27</count>
         </naturalIncrease>
-
+-->
         <naturalIncrease>
           <date>2018-01-30</date>
           <count>42</count>

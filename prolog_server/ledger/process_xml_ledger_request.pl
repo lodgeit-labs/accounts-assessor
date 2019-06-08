@@ -81,13 +81,13 @@ process_xml_ledger_request(_, Dom) :-
    	'S_Transactions:\n', Message0,'\n\n',
 	'Events:\n', Message0b,'\n\n',
    	'Transactions:\n', Message1,'\n\n',
-   	'Average_Costs:\n', Message5,'\n\n',
-   	'Average_Costs_Explanations:\n', Message5b,'\n\n',
    	%'Exchange rates::\n', Message1b,'\n\n',
    	%'Action_Taxonomy:\n',Message2,'\n\n',
    	%'Account_Hierarchy:\n',Message3,'\n\n',
-   	'BalanceSheet:\n', Message4,'\n\n'],
-      Debug_Message),
+   	'BalanceSheet:\n', Message4,'\n\n',
+   	'Average_Costs:\n', Message5,'\n\n',
+   	'Average_Costs_Explanations:\n', Message5b,'\n\n',
+     ''], Debug_Message),
    display_xbrl_ledger_response(Debug_Message, Start_Days, End_Days, BalanceSheet).
 
 /*
