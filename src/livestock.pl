@@ -440,12 +440,12 @@ Unless you sell it you don't really know
 You have to estimate.
 */
 average_cost(Type, Opening_Cost, Opening_Count, Info, Exchange_rate) :-
-	Info = (Opening_Cost, Opening_Count, _From_Day, _To_Day, S_Transactions, Livestock_Events, Natural_Increase_Costs),
+	Info = (_From_Day, _To_Day, S_Transactions, Livestock_Events, Natural_Increase_Costs),
 	/*
 	for now, we ignore _From_Day (and _To_Day), 
 	and use Opening_Cost and Opening_Count as stated in the request.
 	*/
-	coord(Opening_Cost_Currency, _, _) = Opening_Cost, 
+	[coord(Opening_Cost_Currency, _, _)] = Opening_Cost, 
 	member(natural_increase_cost(Type, Natural_Increase_Cost_Per_Head), Natural_Increase_Costs),
 	natural_increase_count(Type, Livestock_Events, Natural_Increase_Count),
 	livestock_purchases_cost_and_count(Type, S_Transactions, Purchases_Cost, Purchases_Count),
@@ -510,3 +510,31 @@ preprocess_sales(Livestock_Type, Average_cost, [S_Transaction | S_Transactions],
 				
 preprocess_sales(_, _, [], []).
 
+
+
+
+/*
+
+We want both a stand-alone calculator and include the logic in the ledger system i.e. If there are livestock, allow for inclusion of head held at time x and price y. Births, Rations, Deaths must also be considered via a buy or sell from the bank.
+
+
+Rations debit an equity account called drawings of a sole trader or partner, debit asset or liability loan account  of a shareholder of a company or beneficiary of a trust.  Naming conventions of accounts created in end user systems vary and the loans might be current or non current but otherwise the logic should hold perfectly on the taxonomy and logic model. (hence requirement to classify).
+
+A sole trade is his own person so his equity is in his own right, hence reflects directly in equity.
+
+The differences relate to personhood. Trusts & companies have attained some type of personhood while sole traders & partners in partnerships are their own people. Hence the trust or company owes or is owed by the shareholder or beneficiary.
+
+Births debit inventory (asset) and credit cost of goods section, lowering cost of goods value at a rate ascribed by the tax office $20/head of sheep and/or at market rate ascribed by the farmer. It will be useful to build the reports under both inventory valuation conditions.
+
+Optimally we should preload the Excel sheet with test data that when pressed, provides a controlled natural language response describing the set of processes the data underwent as a result of the computational rules along with a solution to the problem.
+
+The logic should work in the Ledger solution so long as the reporting taxonomy contains references to births, deaths & rations, purchases, sales and inventory. 
+
+
+The currency reference should be standalone i.e. it is encoded in the transaction set  on the input and the report frame needs to be referenced with currency on the output.
+
+The taxonomy construct could have been done as Current Liabilities --> Current Loans --> Current Beneficiary Loans.  And the pattern could have been repeated in non current liabilities, current assets & non current assets. This structure is adopted to allow LodgeiT users better visibility over where to classify beneficiary loans to. These structures are social conventions where SEC & US GAAP taxonomies will not have the exact same shape. 
+
+ Optimally we will have lots of useful taxonomy structures in a collection URL endpoint. i.e. Australian Livestock farmer trading through a trust. We must be able to read & use all manner of conformant XBRL taxonomies so we will start by making the attached JSON taxonomy XBRL compliant. Waqas already started the process. 
+
+*/

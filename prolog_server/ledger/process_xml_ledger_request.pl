@@ -94,13 +94,11 @@ get_livestock_types(Account_Hierarchy, Livestock_Types) :-
 */
 
 get_average_costs(Livestock_Types, Opening_Costs_And_Counts, Info, Average_Costs) :-
-	findall(Rate, 
-   (
-		member(Livestock_Type, Livestock_Types),
-		member(opening_cost_and_count(Livestock_Type, Opening_Cost, Opening_Count), Opening_Costs_And_Counts),
-		average_cost(Livestock_Type, Opening_Cost, Opening_Count, Info, Rate)
-	),
-	Average_Costs).
+	maplist(get_average_costs2(Opening_Costs_And_Counts, Info), Livestock_Types, Average_Costs).
+
+get_average_costs2(Opening_Costs_And_Counts, Info, Livestock_Type, Rate) :-
+	member(opening_cost_and_count(Livestock_Type, Opening_Cost, Opening_Count), Opening_Costs_And_Counts),
+	average_cost(Livestock_Type, Opening_Cost, Opening_Count, Info, Rate).
 	
 livestock_cogs_transactions(Livestock_Types, Opening_Costs_And_Counts, Average_Costs, Info, Transactions_Out) :-
 	findall(Txs, 
@@ -153,7 +151,7 @@ extract_opening_cost_and_count(Livestock_Dom,	Opening_Cost_And_Count) :-
 		'openingCost', Opening_Cost,
 		'openingCount', Opening_Count]),
 	fields(Livestock_Dom, ['type', Type]),
-	Opening_Cost_And_Count = opening_cost_and_count(Type, Opening_Cost, Opening_Count).
+	Opening_Cost_And_Count = opening_cost_and_count(Type, [coord('AUD', Opening_Cost, 0)], Opening_Count).
 	
 extract_livestock_events(Livestock_Doms, Events) :-
    maplist(extract_livestock_events2, Livestock_Doms, Events_Nested),
