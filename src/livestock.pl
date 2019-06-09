@@ -73,7 +73,7 @@ average cost is defined for date and livestock type as follows:
     %	and produce a livestock count transaction 
 
 
-:- ['described_formula'].
+:- ['utils'].
 
     
 preprocess_livestock_buy_or_sell(Accounts, _Exchange_Rates, _Transaction_Types, S_Transaction, [Bank_Transaction, Livestock_Transaction]) :-
@@ -459,16 +459,21 @@ average_cost(Type, Opening_Cost0, Opening_Count0, Info, Exchange_Rate) :-
 	for now, we ignore _From_Day (and _To_Day), 
 	and use Opening_Cost and Opening_Count as stated in the request.
 	*/
-	described_formula((
+	Exchange_Rate = with_info(exchange_rate(_, Type, Currency, Average_Cost), Explanation),
+	Explanation = {formula: Formula_String1, computation: Formula_String2},
+	
+	compile_with_variable_names_preserved((
 		Natural_Increase_Value = Natural_Increase_Cost_Per_Head * Natural_Increase_Count,
 		Opening_And_Purchases_And_Increase_Value_Exp = Opening_Value + Purchases_Value + Natural_Increase_Value,
 		Opening_And_Purchases_And_Increase_Count_Exp = Opening_Count + Purchases_Count + Natural_Increase_Count,
 		Average_Cost_Exp = Opening_And_Purchases_And_Increase_Value_Exp //  Opening_And_Purchases_And_Increase_Count_Exp
-	),	Namings),
+	),	Names1),
+	%	replace_underscores_in_variable_names_with_spaces(Names0, Names1),
     
-	term_string(Average_Cost_Exp, Formula_String1, [Namings]),
+    term_string(Average_Cost_Exp, Formula_String1, [Names1]),
 	%pretty_term_string(Average_Cost_Exp, Formula_String1, [Namings]),
 
+	% now let's fill in the values
 	Opening_Cost = Opening_Cost0,
 	Opening_Count = Opening_Count0,
 	[coord(Currency, Opening_Value, 0)] = Opening_Cost, 
@@ -478,15 +483,13 @@ average_cost(Type, Opening_Cost0, Opening_Count0, Info, Exchange_Rate) :-
 
 	pretty_term_string(Average_Cost_Exp, Formula_String2),
 	
-	Explanation = {formula: Formula_String1, computation: Formula_String2},
-					
+	% avoid division by zero and evaluate the formula
 	Opening_And_Purchases_And_Increase_Count is Opening_And_Purchases_And_Increase_Count_Exp,
 	(Opening_And_Purchases_And_Increase_Count > 0 ->
 		Average_Cost is Average_Cost_Exp
 	;
 		Average_Cost = 0
-	),
-	Exchange_Rate = with_info(exchange_rate(_, Type, Currency, Average_Cost), Explanation).
+	).
 
 
 preprocess_rations(Livestock_Type, Average_Cost, Event, Output) :-

@@ -1,4 +1,22 @@
 
+/*
+currently we have just a proof-of-concept level of referencing accounts, simply by names
+
+what i understand is that both account names and account numbers can change
+at least the logic does not seem to ever need to care about the structure of the tree, only about identifying appropriate accounts
+so what i see we need is a user interface and a simple xml schema to express associations between accounts and their roles in the system
+the roles can have unique names, and later URLs, in the whole set of programs
+.
+<role name="Livestock sales revenue" account="4321">
+mostly it is a matter of creating a user interface to specify these associations
+the program can also create sub-accounts from the specified account in runtime as needed, for example for livestock types
+then each account hierarchy can come with a default set of associations
+first we should settle on a way to identify accounts and specify the hierarchy for the prolog side
+i suppose using the accounts.json format is the way to go
+right now we identify just by names and load just from the simple xml i showed you
+i would make these changes incrementally as needed, as usage scenarios are identified, rather than over-enginner it up-front
+*/
+
 % Predicates for asserting that the fields of given accounts have particular values
 
 % The ID of the given account
@@ -70,3 +88,7 @@ accounts_link(element(Parent_Name,_,Children), Link) :-
       % recurse on the child
       accounts_link(Child, Link)
    ).
+
+   
+   
+   
