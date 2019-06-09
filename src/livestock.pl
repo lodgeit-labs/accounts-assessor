@@ -73,8 +73,7 @@ average cost is defined for date and livestock type as follows:
     %	and produce a livestock count transaction 
 
 
-%:- use_module(library(clpfd)).
-:- use_module(library(clpr)).
+:- ['described_formula'].
 
     
 preprocess_livestock_buy_or_sell(Accounts, _Exchange_Rates, _Transaction_Types, S_Transaction, [Bank_Transaction, Livestock_Transaction]) :-
@@ -460,13 +459,15 @@ average_cost(Type, Opening_Cost0, Opening_Count0, Info, Exchange_Rate) :-
 	for now, we ignore _From_Day (and _To_Day), 
 	and use Opening_Cost and Opening_Count as stated in the request.
 	*/
-	debug,
-	{Natural_Increase_Value = Natural_Increase_Cost_Per_Head * Natural_Increase_Count},
-	{Opening_And_Purchases_And_Increase_Value_Exp = Opening_Value + Purchases_Value + Natural_Increase_Value},
-	{Opening_And_Purchases_And_Increase_Count_Exp = Opening_Count + Purchases_Count + Natural_Increase_Count},
-	{Average_Cost_Exp = Opening_And_Purchases_And_Increase_Value_Exp /  Opening_And_Purchases_And_Increase_Count_Exp},
-
-	%pretty_term_string(Average_Cost_Exp, Formula_String1),
+	described_formula((
+		Natural_Increase_Value = Natural_Increase_Cost_Per_Head * Natural_Increase_Count,
+		Opening_And_Purchases_And_Increase_Value_Exp = Opening_Value + Purchases_Value + Natural_Increase_Value,
+		Opening_And_Purchases_And_Increase_Count_Exp = Opening_Count + Purchases_Count + Natural_Increase_Count,
+		Average_Cost_Exp = Opening_And_Purchases_And_Increase_Value_Exp //  Opening_And_Purchases_And_Increase_Count_Exp
+	),	Namings),
+    
+	term_string(Average_Cost_Exp, Formula_String1, [Namings]),
+	%pretty_term_string(Average_Cost_Exp, Formula_String1, [Namings]),
 
 	Opening_Cost = Opening_Cost0,
 	Opening_Count = Opening_Count0,
@@ -477,7 +478,7 @@ average_cost(Type, Opening_Cost0, Opening_Count0, Info, Exchange_Rate) :-
 
 	pretty_term_string(Average_Cost_Exp, Formula_String2),
 	
-	Explanation = {formula: _Formula_String1, computation: Formula_String2},
+	Explanation = {formula: Formula_String1, computation: Formula_String2},
 					
 	Opening_And_Purchases_And_Increase_Count is Opening_And_Purchases_And_Increase_Count_Exp,
 	(Opening_And_Purchases_And_Increase_Count > 0 ->

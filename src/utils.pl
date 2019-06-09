@@ -55,13 +55,22 @@ numeric_fields(_, []).
 
 
 
-
 pretty_term_string(Term, String) :-
+	pretty_term_string(Term, String, []).
+
+pretty_term_string(Term, String, Options) :-
 	new_memory_file(X),
 	open_memory_file(X, write, S),
-	print_term(Term, [output(S), write_options([attributes(dots), numbervars(false), quoted(false), portray(false)])]),
+	print_term(Term, [output(S), write_options([
+		numbervars(true),
+		quoted(true),
+		portray(true)
+		| Options])]),
 	close(S),
 	memory_file_to_string(X, String).
 
 
 with_info_value_and_info(with_info(Value, Info), Value, Info).
+
+
+
