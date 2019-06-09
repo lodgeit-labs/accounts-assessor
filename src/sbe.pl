@@ -1,4 +1,14 @@
+% ===================================================================
+% Project:   LodgeiT
+% Module:    sbe.pl
+% Date:      2019-06-06
+% ===================================================================
+
+:- use_module('../lib/prompt', [prompt/3]).
+
+% -------------------------------------------------------------------
 % Small Business Entity test. -1 == No, -2 == Yes
+% -------------------------------------------------------------------
 
 sbe_result(-1, dict{answer: "No"}).
 sbe_result(-2, dict{answer: "Yes"}).
@@ -40,7 +50,7 @@ sbe_next_state(History, Last_question, Last_question, Prompt) :-
 
 
 
-:- [prompt].
+%:- [prompt].
 
 % Carrys out a sbe_dialog with the user based on the Deterministic Finite State Machine above.
 % History is a list of pairs of sbe_questions and answers received so far, state identifies

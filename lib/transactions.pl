@@ -10,7 +10,9 @@
 			 transactions_up_to_day_on_account_and_subaccounts/5
 		        ]).
 
+:- use_module(accounts, [account_ancestor_id/3]).
 :- use_module(days, [absolute_day/2, gregorian_date/2]).
+:- use_module(pacioli, [vec_add/3, vec_reduce/2]).
 
 % -------------------------------------------------------------------
 % Predicates for asserting that the fields of given transactions have particular values
