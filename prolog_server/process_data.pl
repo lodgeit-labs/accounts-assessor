@@ -32,12 +32,10 @@ process_data(FileName, Path) :-
 % -------------------------------------------------------------------
 
 process_xml_request(FileName, DOM) :-
-   (
-      process_xml_loan_request(FileName, DOM)
-   ;
-      process_xml_ledger_request(FileName, DOM)
-   ).
-     
+   (process_xml_loan_request(FileName, DOM) -> true;
+   (process_xml_ledger_request(FileName, DOM) -> true;
+   (process_xml_livestock_request(FileName, DOM) -> true))).
+
 
 % -------------------------------------------------------------------
 % store_xml_document/2

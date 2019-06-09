@@ -94,27 +94,25 @@
       </action>
     </actionTaxonomy>
 
-
-
     <livestockData>
-      <type>Cows</type>
+      <type>Sheep</type>
+      <naturalIncreaseValuePerUnit>54</naturalIncreaseValuePerUnit>
+      <!-- <currency>AUD</currency> -->
       <events>
         <naturalIncrease>
           <date>2018-01-30</date>
-          <count>4</count>
+          <count>42</count>
         </naturalIncrease>
         <loss>
           <date>2018-02-01</date>
           <count>1</count>
         </loss>
         <rations>
-         <date>2018-05-01</date>
-         <count>1</count>
+          <date>2018-02-01</date>
+          <count>11</count>
         </rations>
       </events>
-    </livestockData>
-          
-
+    </livestockData>  
 
     <bankStatement>
       <title>Bank Statement</title>
@@ -136,71 +134,11 @@
 
           <transaction>
             <transdate>2018-03-02</transdate>
-            <debit>50</debit>
-            <credit>0</credit>
-            <unit>10</unit>
-            <unitType>Cows</unitType>
-          </transaction>
-
-          <transaction>
-            <transdate>2018-03-02</transdate>
+            <!-- sell 30 sheep -->
             <debit>0</debit>
-            <credit>50</credit>
+            <credit>500</credit>
             <unit>30</unit>
             <unitType>Sheep</unitType>
-          </transaction>
-
-          <!-- end of livestock stuff -->
-
-          <transaction>
-            <transdesc>Borrow</transdesc>
-            <transdate>2017-08-01</transdate>
-            <debit>0</debit>
-            <credit>100</credit>
-          </transaction>
-
-          <transaction>
-            <!-- Credit this account with 50 AUD. Do stuff to other accounts as specified by Invest_In transaction verb. -->
-            <transdesc>Invest_In</transdesc>
-            <transdate>2018-08-02</transdate>
-            <debit>50</debit>
-            <credit>0</credit>
-            <!-- Obtain TLS shares with this money. -->
-            <unit>10</unit>
-            <unitType>TLS</unitType>
-          </transaction>
-
-        </transactions>
-      </accountDetails>
-      <accountDetails>
-        <accountNo>1-1110</accountNo>
-        <accountName>WellsFargo</accountName>
-        <dateofBankStatement>2018-09-30</dateofBankStatement>
-        <bankID>Commonwealth Bank</bankID>
-        <currency>USD</currency>
-        <transactions>
-
-          <transaction>
-            <transdesc>Introduce_Capital</transdesc>
-            <transdate>2017-07-01</transdate>
-            <debit>0</debit>
-            <credit>200</credit>
-          </transaction>
-
-          <transaction>
-            <transdesc>Invest_In</transdesc>
-            <transdate>2017-07-10</transdate>
-            <debit>100.00</debit>
-            <credit>0.00</credit>
-            <unit>10</unit>
-            <unitType>BHP</unitType>
-          </transaction>
-
-          <transaction>
-            <transdesc>PayBank</transdesc>
-            <transdate>2018-06-28</transdate>
-            <debit>10</debit>
-            <credit>0.00</credit>
           </transaction>
 
         </transactions>

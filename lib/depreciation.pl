@@ -3,6 +3,10 @@
 % Module:    depreciation.pl
 % Date:      2019-06-06
 % ===================================================================
+/*
+Not a part of the project yet, jsut a standalone demo. Hence the asserts etc.
+*/
+
 
 :- module(depreciation, [depreciation_between_invest_in_date_and_other_date/9,
 							depreciation_between_two_dates/5,
@@ -71,6 +75,7 @@ depreciation_rate(motor_vehicles, _, 0.2).
 
 
 % Calculates depreciation on a daily basis between the invest in date and any other date
+% recurses for every year, because depreciation rates may be different
 depreciation_between_invest_in_date_and_other_date(
 	Invest_in_value, Initial_value, Method, date(From_year, From_Month, From_day), To_date,
 	Account, Depreciation_year, By_day_factor, Total_depreciation_value
