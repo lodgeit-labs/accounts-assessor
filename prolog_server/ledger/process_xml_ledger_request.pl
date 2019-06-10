@@ -16,7 +16,7 @@
 :- use_module('../../lib/utils', [
 	inner_xml/3, write_tag/2, fields/2, numeric_fields/2, 
 	pretty_term_string/2]).
-:- use_module('../../lib/ledger', [balance_sheet_at/8]).
+:- use_module('../../lib/ledger', [balance_sheet_at/8, trial_balance_between/8]).
 :- use_module('../../lib/statements', [preprocess_s_transactions/5]).
 :- use_module('../../lib/livestock', [get_livestock_types/2, process_livestock/11]).
 :- use_module('../../lib/accounts', [extract_account_hierarchy/2]).
@@ -46,15 +46,18 @@ process_xml_ledger_request(_, Dom) :-
    
 	process_livestock(Livestock_Doms, Livestock_Types, Default_Bases, S_Transactions, Transactions1, Start_Days, End_Days, Transactions2, Livestock_Events, Average_Costs, Average_Costs_Explanations),
    
-	balance_sheet_at(Exchange_Rates, Account_Hierarchy, Transactions2, Default_Bases, End_Days, Start_Days, End_Days, BalanceSheet),
+	balance_sheet_at(Exchange_Rates, Account_Hierarchy, Transactions2, Default_Bases, End_Days, Start_Days, End_Days, Balance_Sheet),
 
+	trial_balance_between(Exchange_Rates, Account_Hierarchy, Transactions2, Default_Bases, End_Days, Start_Days, End_Days, Trial_Balance),
+	
 	pretty_term_string(S_Transactions, Message0),
 	pretty_term_string(Livestock_Events, Message0b),
 	pretty_term_string(Transactions2, Message1),
 	/*pretty_term_string(Exchange_Rates, Message1b),
-	pretty_term_string(Action_Taxonomy, Message2),
-	pretty_term_string(Account_Hierarchy, Message3),*/
-	pretty_term_string(BalanceSheet, Message4),
+	pretty_term_string(Action_Taxonomy, Message2),*/
+	pretty_term_string(Account_Hierarchy, Message3),
+	pretty_term_string(Balance_Sheet, Message4),
+	pretty_term_string(Trial_Balance, Message4b),
 	pretty_term_string(Average_Costs, Message5),
 	pretty_term_string(Average_Costs_Explanations, Message5b),
 
@@ -64,12 +67,13 @@ process_xml_ledger_request(_, Dom) :-
 	'Transactions:\n', Message1,'\n\n',
 	%'Exchange rates::\n', Message1b,'\n\n',
 	%'Action_Taxonomy:\n',Message2,'\n\n',
-	%'Account_Hierarchy:\n',Message3,'\n\n',
+	'Account_Hierarchy:\n',Message3,'\n\n',
 	'BalanceSheet:\n', Message4,'\n\n',
+	'Trial_Balance:\n', Message4b,'\n\n',
 	'Average_Costs:\n', Message5,'\n\n',
 	'Average_Costs_Explanations:\n', Message5b,'\n\n',
 	''], Debug_Message),
-	display_xbrl_ledger_response(Debug_Message, Start_Days, End_Days, BalanceSheet).
+	display_xbrl_ledger_response(Debug_Message, Start_Days, End_Days, Balance_Sheet).
 
 extract_default_bases(Dom, Bases) :-
    inner_xml(Dom, //reports/balanceSheetRequest/defaultUnitTypes/unitType, Bases).

@@ -6,6 +6,7 @@
 
 :- module(accounts, [account_parent_id/3, account_ancestor_id/3, account_ids/9, extract_account_hierarchy/2, cogs_account/2, sales_account/2]).
 
+:- use_module(library(http/http_client)).
 :- use_module('utils', [inner_xml/3]).
 
 /*

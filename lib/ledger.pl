@@ -4,7 +4,7 @@
 % Date:      2019-06-02
 % ===================================================================
 
-:- module(ledger, [balance_sheet_at/8, balance_by_account/8]).
+:- module(ledger, [balance_sheet_at/8, balance_by_account/8, trial_balance_between/8]).
 
 :- use_module(accounts,     [account_parent_id/3, account_ids/9]).
 :- use_module(pacioli,      [vec_add/3, vec_inverse/2, vec_reduce/2, vec_sub/3]).

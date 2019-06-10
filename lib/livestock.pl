@@ -463,7 +463,7 @@ average_cost(Type, Opening_Cost0, Opening_Count0, Info, Exchange_Rate) :-
 		Natural_Increase_Value = Natural_Increase_Cost_Per_Head * Natural_Increase_Count,
 		Opening_And_Purchases_And_Increase_Value_Exp = Opening_Value + Purchases_Value + Natural_Increase_Value,
 		Opening_And_Purchases_And_Increase_Count_Exp = Opening_Count + Purchases_Count + Natural_Increase_Count,
-		Average_Cost_Exp = Opening_And_Purchases_And_Increase_Value_Exp //  Opening_And_Purchases_And_Increase_Count_Exp
+		Average_Cost_Exp = Opening_And_Purchases_And_Increase_Value_Exp / Opening_And_Purchases_And_Increase_Count_Exp
 	),	Names1),
 	%	replace_underscores_in_variable_names_with_spaces(Names0, Names1),
     

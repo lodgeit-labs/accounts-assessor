@@ -43,10 +43,7 @@
       </unitValue>
     </unitValues>
 
-    <!-- custom account hierarchy can be referenced. If not, the default is used -->
-    <!-- 
-        <accountHierarchyUrl>https://raw.githubusercontent.com/LodgeiT/labs-accounts-assessor/prolog_server_ledger/prolog_server/ledger/default_account_hierarchy.xml?token=AAA34ZATJ5VPKDNFZXQRHVK434H2M</accountHierarchyUrl>
-    -->
+   <accountHierarchyUrl>https://raw.githubusercontent.com/LodgeiT/labs-accounts-assessor/ledger-livestock-merging/prolog_server/taxonomy/account_hierarchy_livestock.xml?token=AAA34ZGMFK4WKUMZVL264AS5BADGU</accountHierarchyUrl>
 
     <actionTaxonomy>
       <!-- fixme, should not all have tradingAccount InvestmentIncome -->
