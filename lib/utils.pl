@@ -1,6 +1,8 @@
 :- module(utils, [
-	inner_xml/3, write_tag/2, fields/2, numeric_fields/2, 
-	pretty_term_string/2]).
+	user:goal_expansion/2, inner_xml/3, write_tag/2, fields/2, numeric_fields/2, 
+	pretty_term_string/2, pretty_term_string/2, with_info_value_and_info/3]).
+:- use_module(library(xpath)).
+
 	
 
 
@@ -85,8 +87,11 @@ with_info_value_and_info(with_info(Value, Info), Value, Info).
 
 
 
+:- multifile user:goal_expansion/2.
+:- dynamic user:goal_expansion/2.
+
 /*executed at compile time, passess X through, and binds Names to info suitable for term_string*/	
-goal_expansion(
+user:goal_expansion(
 	compile_with_variable_names_preserved(X, variable_names(Names))
 , X) :-
 	term_variables(X, Vars),

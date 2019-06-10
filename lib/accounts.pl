@@ -4,8 +4,9 @@
 % Date:      2019-06-02
 % ===================================================================
 
-:- module(accounts, [account_parent_id/3, account_ancestor_id/3, account_ids/9]).
+:- module(accounts, [account_parent_id/3, account_ancestor_id/3, account_ids/9, extract_account_hierarchy/2, cogs_account/2, sales_account/2]).
 
+:- use_module('utils', [inner_xml/3]).
 
 /*
 currently we have just a proof-of-concept level of referencing accounts, simply by names

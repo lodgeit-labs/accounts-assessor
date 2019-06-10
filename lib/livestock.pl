@@ -1,5 +1,12 @@
 % see also doc/ledger-livestock
 
+:- module(livestock, [get_livestock_types/2, process_livestock/9, preprocess_livestock_buy_or_sell/5]).
+:- use_module('utils', [user:goal_expansion/2, inner_xml/3, fields/2, numeric_fields/2, pretty_term_string/2, with_info_value_and_info/3]).
+:- use_module(pacioli, [vec_add/3, vec_inverse/2, vec_reduce/2, vec_sub/3]).
+:- use_module('accounts', [account_ancestor_id/3, cogs_account/2, sales_account/2]).
+:- use_module(days, [parse_date/2]).
+:- use_module(ledger, [balance_by_account/8]).
+
 /*
 
 <howThisShouldWork>
@@ -66,10 +73,6 @@ average cost is defined for date and livestock type as follows:
 
 	
 */
-
-
-:- module(llivestock, [get_livestock_types/2, process_livestock/9]).
-:- use_module(utils, []).
 
 
 
@@ -550,7 +553,7 @@ get_livestock_types(Livestock_Doms, Livestock_Types) :-
 	maplist(extract_livestock_type, Livestock_Doms, Livestock_Types).
 
 extract_livestock_type(Livestock_Dom, Livestock_Type) :-
-	inner_xml(Livestock_Dom, type, Livestock_Type).
+	inner_xml(Livestock_Dom, type, [Livestock_Type]).
 	
 get_average_costs(Livestock_Types, Opening_Costs_And_Counts, Info, Average_Costs) :-
 	maplist(get_average_costs2(Opening_Costs_And_Counts, Info), Livestock_Types, Average_Costs).
@@ -559,7 +562,7 @@ get_average_costs2(Opening_Costs_And_Counts, Info, Livestock_Type, Rate) :-
 	member(opening_cost_and_count(Livestock_Type, Opening_Cost, Opening_Count), Opening_Costs_And_Counts),
 	average_cost(Livestock_Type, Opening_Cost, Opening_Count, Info, Rate).
 	
-livestock_cogs_transactions(Livestock_Types, Opening_Costs_And_Counts, Average_Costs, Info, Transactions_Out) :-
+get_livestock_cogs_transactions(Livestock_Types, Opening_Costs_And_Counts, Average_Costs, Info, Transactions_Out) :-
 	findall(Txs, 
 		(
 			member(Livestock_Type, Livestock_Types),

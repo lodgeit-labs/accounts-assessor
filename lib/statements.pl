@@ -12,7 +12,7 @@
 				  transaction_type_exchanged_account_id/2,
 				  transaction_type_trading_account_id/2,
 				  transaction_type_description/2]).
-
+:- use_module(livestock, [preprocess_livestock_buy_or_sell/5]).
 % -------------------------------------------------------------------
 
 % Predicates for asserting that the fields of given statement transactions have particular values

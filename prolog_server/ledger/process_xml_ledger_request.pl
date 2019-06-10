@@ -19,6 +19,7 @@
 :- use_module('../../lib/ledger', [balance_sheet_at/8]).
 :- use_module('../../lib/statements', [preprocess_s_transactions/5]).
 :- use_module('../../lib/livestock', [get_livestock_types/2, process_livestock/9]).
+:- use_module('../../lib/accounts', [extract_account_hierarchy/2]).
 
 
 % ------------------------------------------------------------------
