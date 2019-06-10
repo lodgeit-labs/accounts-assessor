@@ -68,27 +68,21 @@ average cost is defined for date and livestock type as follows:
 */
 
 
+:- module(llivestock, [get_livestock_types/2, process_livestock/9]).
+:- use_module(utils, []).
+
+
+
 % BUY/SELL:
 	% CR/DR BANK (BANK BCE REDUCES) 
     %	and produce a livestock count transaction 
-
-
-:- ['utils'].
-
-    
 preprocess_livestock_buy_or_sell(Accounts, _Exchange_Rates, _Transaction_Types, S_Transaction, [Bank_Transaction, Livestock_Transaction]) :-
 	s_transaction_is_livestock_buy_or_sell(S_Transaction, Day, Livestock_Type, Livestock_Coord, _Livestock_Count, _Bank_Vector, Our_Vector, Unexchanged_Account_Id, MoneyDebit, _),
-	%livestock_account_ids(Livestock_Account, Assets_1204_Livestock_at_Cost, _, _),
 	account_ancestor_id(Accounts, Livestock_Type, _Livestock_Account),
 	(MoneyDebit > 0 ->
-		(
 			Description = 'livestock sell'
-			% sales transactions will be generated in next pass
-		)
 		;
-		(
 			Description = 'livestock buy'
-		)
 	),
 	% produce a livestock count increase/decrease transaction
 	Livestock_Transaction = transaction(Day, Description, Livestock_Type, [Livestock_Coord]),
@@ -548,4 +542,115 @@ The taxonomy construct could have been done as Current Liabilities --> Current L
 
  Optimally we will have lots of useful taxonomy structures in a collection URL endpoint. i.e. Australian Livestock farmer trading through a trust. We must be able to read & use all manner of conformant XBRL taxonomies so we will start by making the attached JSON taxonomy XBRL compliant. Waqas already started the process. 
 
+*/
+
+% finally, other predicates used from process_xml_ledger_request.pl */
+
+get_livestock_types(Livestock_Doms, Livestock_Types) :-
+	maplist(extract_livestock_type, Livestock_Doms, Livestock_Types).
+
+extract_livestock_type(Livestock_Dom, Livestock_Type) :-
+	inner_xml(Livestock_Dom, type, Livestock_Type).
+	
+get_average_costs(Livestock_Types, Opening_Costs_And_Counts, Info, Average_Costs) :-
+	maplist(get_average_costs2(Opening_Costs_And_Counts, Info), Livestock_Types, Average_Costs).
+
+get_average_costs2(Opening_Costs_And_Counts, Info, Livestock_Type, Rate) :-
+	member(opening_cost_and_count(Livestock_Type, Opening_Cost, Opening_Count), Opening_Costs_And_Counts),
+	average_cost(Livestock_Type, Opening_Cost, Opening_Count, Info, Rate).
+	
+livestock_cogs_transactions(Livestock_Types, Opening_Costs_And_Counts, Average_Costs, Info, Transactions_Out) :-
+	findall(Txs, 
+		(
+			member(Livestock_Type, Livestock_Types),
+			member(opening_cost_and_count(Livestock_Type, Opening_Cost, Opening_Count), Opening_Costs_And_Counts),	
+			member(Average_Cost, Average_Costs),
+			Average_Cost = exchange_rate(_, Livestock_Type, _, _),
+			yield_livestock_cogs_transactions(
+				Livestock_Type, 
+				Opening_Cost, Opening_Count,
+				Average_Cost,
+				Info,
+				Txs)
+		),
+		Transactions_Nested),
+	flatten(Transactions_Nested, Transactions_Out).
+   
+% this logic is dependent on having the average cost value
+get_more_livestock_transactions(Livestock_Types, Average_costs, S_Transactions, Livestock_Events, More_Transactions) :-
+   maplist(
+		yield_more_transactions(Average_costs, S_Transactions, Livestock_Events),
+		Livestock_Types, 
+		Lists),
+	flatten(Lists, More_Transactions).
+   
+yield_more_transactions(Average_costs, S_Transactions, Livestock_Events, Livestock_Type, [Rations_Transactions, Sales_Transactions, Buys_Transactions]) :-
+	member(Average_Cost, Average_costs),
+	Average_Cost = exchange_rate(_, Livestock_Type, _, _),
+	maplist(preprocess_rations(Livestock_Type, Average_Cost), Livestock_Events, Rations_Transactions),
+	preprocess_sales(Livestock_Type, Average_Cost, S_Transactions, Sales_Transactions),
+	preprocess_buys(Livestock_Type, Average_Cost, S_Transactions, Buys_Transactions).
+
+extract_natural_increase_costs(Livestock_Doms, Natural_Increase_Costs) :-
+	maplist(
+		extract_natural_increase_cost,
+		Livestock_Doms,
+		Natural_Increase_Costs).
+
+extract_natural_increase_cost(Livestock_Dom, natural_increase_cost(Type, [coord('AUD', Cost, 0)])) :-
+	fields(Livestock_Dom, ['type', Type]),
+	numeric_fields(Livestock_Dom, ['naturalIncreaseValuePerUnit', Cost]).
+
+extract_opening_costs_and_counts(Livestock_Doms, Opening_Costs_And_Counts) :-
+	maplist(extract_opening_cost_and_count,	Livestock_Doms, Opening_Costs_And_Counts).
+
+extract_opening_cost_and_count(Livestock_Dom,	Opening_Cost_And_Count) :-
+	numeric_fields(Livestock_Dom, [
+		'openingCost', Opening_Cost,
+		'openingCount', Opening_Count]),
+	fields(Livestock_Dom, ['type', Type]),
+	Opening_Cost_And_Count = opening_cost_and_count(Type, [coord('AUD', Opening_Cost, 0)], Opening_Count).
+	
+extract_livestock_events(Livestock_Doms, Events) :-
+   maplist(extract_livestock_events2, Livestock_Doms, Events_Nested),
+   flatten(Events_Nested, Events).
+   
+extract_livestock_events2(Data, Events) :-
+   inner_xml(Data, type, [Type]),
+   findall(Event, xpath(Data, events/(*), Event), Xml_Events),
+   maplist(extract_livestock_event(Type), Xml_Events, Events).
+
+extract_livestock_event(Type, Dom, Event) :-
+   inner_xml(Dom, date, [Date]),
+   parse_date(Date, Days),
+   inner_xml(Dom, count, [Count_Atom]),
+   atom_number(Count_Atom, Count),
+   extract_livestock_event2(Type, Days, Count, Dom, Event).
+
+extract_livestock_event2(Type, Days, Count, element(naturalIncrease,_,_),  born(Type, Days, Count)).
+extract_livestock_event2(Type, Days, Count, element(loss,_,_),                     loss(Type, Days, Count)).
+extract_livestock_event2(Type, Days, Count, element(rations,_,_),                rations(Type, Days, Count)).
+
+
+
+process_livestock(Livestock_Doms, Livestock_Types, Default_Bases, S_Transactions, Transactions1, Transactions_Out, Livestock_Events, Average_Costs, Average_Costs_Explanations) :-
+	extract_livestock_events(Livestock_Doms, Livestock_Events),
+	extract_natural_increase_costs(Livestock_Doms, Natural_Increase_Costs),
+	extract_opening_costs_and_counts(Livestock_Doms, Opening_Costs_And_Counts),
+
+	maplist(preprocess_livestock_event, Livestock_Events, Livestock_Event_Transactions_Nested),
+	flatten(Livestock_Event_Transactions_Nested, Livestock_Event_Transactions),
+	append(Transactions1, Livestock_Event_Transactions, Transactions2),
+
+	get_average_costs(Livestock_Types, Opening_Costs_And_Counts, (Start_Days, End_Days, S_Transactions, Livestock_Events, Natural_Increase_Costs), Average_Costs_With_Explanations),
+	maplist(with_info_value_and_info, Average_Costs_With_Explanations, Average_Costs, Average_Costs_Explanations),
+  
+	get_more_livestock_transactions(Livestock_Types, Average_Costs, S_Transactions, Livestock_Events, More_Transactions),
+	append(Transactions2, More_Transactions, Transactions3),  
+
+	get_livestock_cogs_transactions(Livestock_Types, Opening_Costs_And_Counts, Average_Costs, (Start_Days, End_Days, Default_Bases, Average_Costs, Transactions3, S_Transactions),  Cogs_Transactions),
+	append(Transactions3, Cogs_Transactions, Transactions_Out).
+
+/*
+extract_livestock_events/2, extract_natural_increase_costs/2, extract_opening_costs_and_counts/2, preprocess_livestock_event/2, get_average_costs/4, get_more_livestock_transactions/5, get_livestock_cogs_transactions/5
 */
