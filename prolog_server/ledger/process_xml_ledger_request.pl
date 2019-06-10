@@ -18,7 +18,7 @@
 	pretty_term_string/2]).
 :- use_module('../../lib/ledger', [balance_sheet_at/8]).
 :- use_module('../../lib/statements', [preprocess_s_transactions/5]).
-:- use_module('../../lib/livestock', [get_livestock_types/2, process_livestock/9]).
+:- use_module('../../lib/livestock', [get_livestock_types/2, process_livestock/11]).
 :- use_module('../../lib/accounts', [extract_account_hierarchy/2]).
 
 
@@ -44,7 +44,7 @@ process_xml_ledger_request(_, Dom) :-
 	preprocess_s_transactions(Account_Hierarchy, Exchange_Rates, Action_Taxonomy, S_Transactions, Transactions_Nested),
 	flatten(Transactions_Nested, Transactions1),
    
-	process_livestock(Livestock_Doms, Livestock_Types, Default_Bases, S_Transactions, Transactions1, Transactions2, Livestock_Events, Average_Costs, Average_Costs_Explanations),
+	process_livestock(Livestock_Doms, Livestock_Types, Default_Bases, S_Transactions, Transactions1, Start_Days, End_Days, Transactions2, Livestock_Events, Average_Costs, Average_Costs_Explanations),
    
 	balance_sheet_at(Exchange_Rates, Account_Hierarchy, Transactions2, Default_Bases, End_Days, Start_Days, End_Days, BalanceSheet),
 

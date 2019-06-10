@@ -1,6 +1,6 @@
 % see also doc/ledger-livestock
 
-:- module(livestock, [get_livestock_types/2, process_livestock/9, preprocess_livestock_buy_or_sell/5]).
+:- module(livestock, [get_livestock_types/2, process_livestock/11, preprocess_livestock_buy_or_sell/5]).
 :- use_module('utils', [user:goal_expansion/2, inner_xml/3, fields/2, numeric_fields/2, pretty_term_string/2, with_info_value_and_info/3]).
 :- use_module(pacioli, [vec_add/3, vec_inverse/2, vec_reduce/2, vec_sub/3]).
 :- use_module('accounts', [account_ancestor_id/3, cogs_account/2, sales_account/2]).
@@ -636,7 +636,7 @@ extract_livestock_event2(Type, Days, Count, element(rations,_,_),               
 
 
 
-process_livestock(Livestock_Doms, Livestock_Types, Default_Bases, S_Transactions, Transactions1, Transactions_Out, Livestock_Events, Average_Costs, Average_Costs_Explanations) :-
+process_livestock(Livestock_Doms, Livestock_Types, Default_Bases, S_Transactions, Transactions1, Start_Days, End_Days, Transactions_Out, Livestock_Events, Average_Costs, Average_Costs_Explanations) :-
 	extract_livestock_events(Livestock_Doms, Livestock_Events),
 	extract_natural_increase_costs(Livestock_Doms, Natural_Increase_Costs),
 	extract_opening_costs_and_counts(Livestock_Doms, Opening_Costs_And_Counts),
