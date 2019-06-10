@@ -9,10 +9,15 @@
 :- use_module(pacioli,  [vec_inverse/2, vec_sub/3]).
 :- use_module(exchange, [vec_change_bases/5]).
 :- use_module(transaction_types, [transaction_type_id/2,
-				  transaction_type_exchanged_account_id/2,
-				  transaction_type_trading_account_id/2,
-				  transaction_type_description/2]).
+				transaction_type_exchanged_account_id/2,
+				transaction_type_trading_account_id/2,
+				transaction_type_description/2]).
 :- use_module(livestock, [preprocess_livestock_buy_or_sell/5]).
+:- use_module(transactions, [
+				transaction_day/2,
+				transaction_description/2,
+				transaction_account_id/2,
+				transaction_vector/2]).
 % -------------------------------------------------------------------
 
 % Predicates for asserting that the fields of given statement transactions have particular values

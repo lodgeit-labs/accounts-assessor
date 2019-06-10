@@ -7,7 +7,11 @@
 :- module(transactions, [transaction_account_ancestor_id/3,
 		  	 transaction_between/3,
 		 	 transaction_vectors_total/2,
-			 transactions_up_to_day_on_account_and_subaccounts/5
+			 transactions_up_to_day_on_account_and_subaccounts/5,
+			 transaction_day/2,
+			 transaction_description/2,
+			 transaction_account_id/2,
+			 transaction_vector/2
 		        ]).
 
 :- use_module(accounts, [account_ancestor_id/3]).

@@ -61,7 +61,10 @@ process_xml_ledger_request(_, Dom) :-
 	pretty_term_string(Average_Costs, Message5),
 	pretty_term_string(Average_Costs_Explanations, Message5b),
 
+	(
+	Debug_Message = '',!;
 	atomic_list_concat([
+	'\n<!--',
 	'S_Transactions:\n', Message0,'\n\n',
 	'Events:\n', Message0b,'\n\n',
 	'Transactions:\n', Message1,'\n\n',
@@ -72,7 +75,8 @@ process_xml_ledger_request(_, Dom) :-
 	'Trial_Balance:\n', Message4b,'\n\n',
 	'Average_Costs:\n', Message5,'\n\n',
 	'Average_Costs_Explanations:\n', Message5b,'\n\n',
-	''], Debug_Message),
+	'-->\n\n'], Debug_Message)
+	),
 	display_xbrl_ledger_response(Debug_Message, Start_Days, End_Days, Balance_Sheet).
 
 extract_default_bases(Dom, Bases) :-
@@ -160,9 +164,6 @@ extract_exchanged_value(Tx_Dom, Default_Bases, Exchanged) :-
 display_xbrl_ledger_response(Debug_Message, Start_Days, End_Days, Balance_Sheet_Entries) :-
    format('Content-type: text/xml~n~n'), 
    writeln('<?xml version="1.0"?>'),
-   writeln('<!--'),
-   writeln(Debug_Message),
-   writeln('-->'),
    writeln('<xbrli:xbrl xmlns:xbrli="http://www.xbrl.org/2003/instance" xmlns:link="http://www.xbrl.org/2003/linkbase" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:iso4217="http://www.xbrl.org/2003/iso4217" xmlns:basic="http://www.xbrlsite.com/basic">'),
    writeln('  <link:schemaRef xlink:type="simple" xlink:href="basic.xsd" xlink:title="Taxonomy schema" />'),
    writeln('  <link:linkbaseRef xlink:type="simple" xlink:href="basic-formulas.xml" xlink:arcrole="http://www.w3.org/1999/xlink/properties/linkbase" />'),
@@ -186,7 +187,9 @@ display_xbrl_ledger_response(Debug_Message, Start_Days, End_Days, Balance_Sheet_
    maplist(write_used_unit, Used_Units), 
    atomic_list_concat(Lines, LinesString),
    writeln(LinesString),
-   writeln('</xbrli:xbrl>'), nl, nl.
+   writeln('</xbrli:xbrl>'),
+   writeln(Debug_Message),
+   nl, nl.
 
 format_balance_sheet_entries(_, [], Used_Units, Used_Units, Lines, Lines).
 

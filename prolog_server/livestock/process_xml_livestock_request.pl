@@ -1,10 +1,11 @@
 % simple livestock calculator
 
-
-:- debug.
+:- module(process_xml_livestock_request, [process_xml_livestock_request/2]).
 :- use_module(library(xpath)).
+:- use_module('../../lib/utils', [
+	inner_xml/3, write_tag/2, fields/2, numeric_fields/2, 
+	pretty_term_string/2]).
 
-:- ['../../src/utils'].
 
 
 
