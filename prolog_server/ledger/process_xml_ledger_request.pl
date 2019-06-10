@@ -13,14 +13,11 @@
 
 :- use_module(library(xpath)).
 :- use_module('../../lib/days', [format_date/2, parse_date/2, gregorian_date/2]).
+:- use_module('../../lib/utils', [
+	inner_xml/3, write_tag/2, fields/2, numeric_fields/2, 
+	pretty_term_string/2]).
 :- use_module('../../lib/ledger', [balance_sheet_at/8]).
-:- use_module('../../lib/statements', [preprocess_s_transactions/4]).
-
-
-% fixme
-:- ['../../src/days'].
-:- ['../../src/ledger'].
-:- ['../../src/statements'].
+:- use_module('../../lib/statements', [preprocess_s_transactions/5]).
 
 
 % ------------------------------------------------------------------

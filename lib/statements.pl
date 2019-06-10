@@ -4,7 +4,7 @@
 % Date:      2019-06-02
 % ===================================================================
 
-:- module(statements, [preprocess_s_transactions/4]).
+:- module(statements, [preprocess_s_transactions/5]).
  
 :- use_module(pacioli,  [vec_inverse/2, vec_sub/3]).
 :- use_module(exchange, [vec_change_bases/5]).

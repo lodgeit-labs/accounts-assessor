@@ -1,3 +1,9 @@
+:- module(utils, [
+	inner_xml/3, write_tag/2, fields/2, numeric_fields/2, 
+	pretty_term_string/2]).
+	
+
+
 % this gets the children of an element with ElementXPath
 inner_xml(Dom, Element_XPath, Children) :-
 	xpath(Dom, Element_XPath, element(_,_,Children)).
