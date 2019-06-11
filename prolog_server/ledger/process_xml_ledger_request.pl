@@ -53,8 +53,8 @@ process_xml_ledger_request(_, Dom) :-
 	pretty_term_string(S_Transactions, Message0),
 	pretty_term_string(Livestock_Events, Message0b),
 	pretty_term_string(Transactions2, Message1),
-	/*pretty_term_string(Exchange_Rates, Message1b),
-	pretty_term_string(Action_Taxonomy, Message2),*/
+	pretty_term_string(Exchange_Rates, Message1b),
+	pretty_term_string(Action_Taxonomy, Message2),
 	pretty_term_string(Account_Hierarchy, Message3),
 	pretty_term_string(Balance_Sheet, Message4),
 	pretty_term_string(Trial_Balance, Message4b),
