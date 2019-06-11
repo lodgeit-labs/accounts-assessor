@@ -54,7 +54,6 @@ account_ancestor_id(Accounts, Account_Id, Ancestor_Id) :-
 % earnings, revenue, and expenses accounts. 
 account_ids(_Accounts,
       'Assets', 'Equity', 'Liabilities', 'Earnings', 'RetainedEarnings', 'CurrentEarningsLosses', 'Revenue', 'Expenses').
-      %'Assets', 'Equity', 'Liabilities', 'Earnings', 'RetainedEarnings', 'CurrentEarnings', 'Revenue', 'Expenses').
 
 cogs_account(Livestock_Type, CogsAccount) :-
 	atom_concat(Livestock_Type, 'Cogs', CogsAccount).
