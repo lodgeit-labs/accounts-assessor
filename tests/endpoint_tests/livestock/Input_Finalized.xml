@@ -1,0 +1,66 @@
+<?xml version="1.0"?>
+<reports xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <livestockaccount>
+    <generator>
+      <date>2017-03-25T05:53:43.887542Z</date>
+      <source>ACCRIP</source>
+      <author>
+        <firstname>waqas</firstname>
+        <lastname>awan</lastname>
+        <company>Uhudsoft</company>
+      </author>
+    </generator>
+    <company>
+      <abn>12345678900</abn>
+      <tfn />
+      <clientcode />
+      <anzsic />
+      <notes />
+      <directors />
+    </company>
+    <title>Livestock Account Details</title>
+    <period>1 July, 2014 to 30 June, 2015</period>
+    <startDate>2014-07-01</startDate>
+    <endDate>2015-06-30</endDate>
+    <livestocks>
+      <livestock>
+        <name>Horses</name>
+        <currency>AUD</currency>
+        <openingValue>1233</openingValue>
+        <closingValue>919.8</closingValue>
+        <rationsValue>383.25</rationsValue>
+        <saleValue>7663</saleValue>
+        <purchaseValue>0</purchaseValue>
+        <grossValue>7733.05</grossValue>
+        <unitsOpening>25</unitsOpening>
+        <unitsClosing>24</unitsClosing>
+        <unitsRations>10</unitsRations>
+        <unitsDeceased>0</unitsDeceased>
+        <unitsBorn>15</unitsBorn>
+        <unitsSales>6</unitsSales>
+        <unitsPurchases>0</unitsPurchases>
+
+		<naturalIncreaseValuePerUnit>54</naturalIncreaseValuePerUnit>
+      </livestock>
+      <livestock>
+		<naturalIncreaseValuePerUnit>54</naturalIncreaseValuePerUnit>
+
+        <name>Sheep</name>
+        <currency>AUD</currency>
+        <openingValue>13974</openingValue>
+        <closingValue>10990</closingValue>
+        <rationsValue>107</rationsValue>
+        <saleValue>16543</saleValue>
+        <purchaseValue>1750</purchaseValue>
+        <grossValue>11916</grossValue>
+        <unitsOpening>1306</unitsOpening>
+        <unitsClosing>1306</unitsClosing>
+        <unitsRations>10</unitsRations>
+        <unitsDeceased>152</unitsDeceased>
+        <unitsBorn>425</unitsBorn>
+        <unitsSales>361</unitsSales>
+        <unitsPurchases>5</unitsPurchases>
+      </livestock>
+    </livestocks>
+  </livestockaccount>
+</reports>

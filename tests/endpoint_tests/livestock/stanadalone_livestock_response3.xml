@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<response>
+<livestock>
+<name>Sheep</name>
+<currency>AUD</currency>
+<Killed_for_rations_or_exchanged_for_goods_value>636.0</Killed_for_rations_or_exchanged_for_goods_value>
+<Stock_on_hand_at_end_of_year_value>636.0</Stock_on_hand_at_end_of_year_value>
+<Closing_and_killed_and_sales_minus_losses_count>30</Closing_and_killed_and_sales_minus_losses_count>
+<Closing_and_killed_and_sales_value>1272.0</Closing_and_killed_and_sales_value>
+<Opening_and_purchases_and_increase_count>25</Opening_and_purchases_and_increase_count>
+<Opening_and_purchases_value>1000</Opening_and_purchases_value>
+<Natural_Increase_value>60</Natural_Increase_value>
+<Average_cost>42.4</Average_cost>
+<Revenue>636.0</Revenue>
+<Livestock_COGS>364.0</Livestock_COGS>
+<Gross_Profit_on_Livestock_Trading>272.0</Gross_Profit_on_Livestock_Trading>
+</livestock>
+</response>

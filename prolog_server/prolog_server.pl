@@ -9,7 +9,7 @@
 % Style checking
 % -------------------------------------------------------------------
 
-:- style_check([-discontiguous, -singleton]).
+:- style_check([-discontiguous, +singleton]).
 
 %--------------------------------------------------------------------
 % Modules
@@ -108,6 +108,34 @@ save_file(In, file(FileName, Path), Options) :-
    setup_call_cleanup(open(Path, write, Out), copy_stream_data(In, Out), close(Out)).
 
 
+/*
+todo, applies here?
+
+:- use_module(library(http/http_dispatch), [http_safe_file/2]).
+
+
+extract_file_name(Header, FileName2) :-
+   append(_, [f, i, l, e, n, a, m, e, '=', '"'|Rest1], Header),   
+   append(Name, ['.', x, m, l, '"'|_Rest2], Rest1),
+   exclude_file_location_from_filename(Name, FName),
+   append(FName, ['.', x, m, l], FileNameChars),
+   atomic_list_concat(FileNameChars, FileName),
+   http_safe_file(FileName, []),
+   atomic_list_concat(["tmp/", FileName], FileName2).
+
+exclude_file_location_from_filename(Name, FName) :-
+   % (for Internet Explorer/Microsoft Edge)
+   once((
+   memberchk('\\', Name)
+   ->  
+     reverse(Name, RName),
+     append(RFName, ['\\'|_R1], RName),
+     reverse(RFName, FName)
+   ;   
+     FName = Name)).
+*/
+
+
 % -------------------------------------------------------------------
 % message/1
 % -------------------------------------------------------------------
@@ -123,3 +151,5 @@ prolog:message(bad_file_upload) -->
 % -------------------------------------------------------------------
 
 :- initialization(run_server).
+
+

@@ -11,7 +11,8 @@
 
 :- use_module(library(xpath)).
 :- use_module(loan/process_xml_loan_request, [process_xml_loan_request/2]).
-:- use_module(ledger/process_xml_ledger_request, [process_xml_ledger_request/2]).   	  
+:- use_module(ledger/process_xml_ledger_request, [process_xml_ledger_request/2]).
+:- use_module(livestock/process_xml_livestock_request, [process_xml_livestock_request/2]).
 
 
 % -------------------------------------------------------------------
@@ -32,12 +33,10 @@ process_data(FileName, Path) :-
 % -------------------------------------------------------------------
 
 process_xml_request(FileName, DOM) :-
-   (
-      process_xml_loan_request(FileName, DOM)
-   ;
-      process_xml_ledger_request(FileName, DOM)
-   ).
-     
+   (process_xml_loan_request(FileName, DOM) -> true;
+   (process_xml_ledger_request(FileName, DOM) -> true;
+   (process_xml_livestock_request(FileName, DOM) -> true))).
+
 
 % -------------------------------------------------------------------
 % store_xml_document/2
