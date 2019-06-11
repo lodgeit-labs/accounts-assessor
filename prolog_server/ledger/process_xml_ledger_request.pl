@@ -62,14 +62,14 @@ process_xml_ledger_request(_, Dom) :-
 	pretty_term_string(Average_Costs_Explanations, Message5b),
 
 	(
-	Debug_Message = '',!;
+	%Debug_Message = '',!;
 	atomic_list_concat([
 	'\n<!--',
+	'Exchange rates::\n', Message1b,'\n\n',
+	'Action_Taxonomy:\n',Message2,'\n\n',
 	'S_Transactions:\n', Message0,'\n\n',
 	'Events:\n', Message0b,'\n\n',
 	'Transactions:\n', Message1,'\n\n',
-	%'Exchange rates::\n', Message1b,'\n\n',
-	%'Action_Taxonomy:\n',Message2,'\n\n',
 	'Account_Hierarchy:\n',Message3,'\n\n',
 	'BalanceSheet:\n', Message4,'\n\n',
 	'Trial_Balance:\n', Message4b,'\n\n',
@@ -105,7 +105,7 @@ extract_exchange_rate(End_Date, Unit_Value, Exchange_Rate) :-
    atom_number(Rate_String, Rate).
 
    
-% yield all transactions from all accounts one by one
+% yield all transactions from all accounts one by one.
 % these are s_transactions, the raw transactions from bank statements. Later each s_transaction will be preprocessed
 % into multiple transaction(..) terms.
 % fixme dont fail silently
