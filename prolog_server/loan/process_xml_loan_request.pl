@@ -2,7 +2,7 @@
 % Project:   LodgeiT
 % Module:    process_xml_loan_request.pl
 % Author:    Abdus Salam and Rolf Schwitter
-% Date:      2019-06-02
+% Date:      2019-06-12
 % ===================================================================
 
 %--------------------------------------------------------------------
@@ -12,7 +12,7 @@
 :- module(process_xml_loan_request, [process_xml_loan_request/2]).
 
 :- use_module('../../lib/loans', [loan_agr_summary/2]).
-:- use_module('../../lib/days',  [absolute_day/2]).
+:- use_module('../../lib/days',  [absolute_day/2, parse_date/2]).
 
 
 % -------------------------------------------------------------------
@@ -88,31 +88,19 @@ convert_xpath_results(CreationIncomeYear,  Term,  PrincipalAmount,  LodgementDat
 
 generate_absolute_days(CreationIncomeYear, LodgementDate, LoanRepayments, NCreationIncomeYear, NLodgementDay, NLoanRepayments) :-
    generate_absolute_day(creation_income_year, CreationIncomeYear, NCreationIncomeYear),
-   generate_absolute_day(lodgement_date, LodgementDate, NLodgementDay),
+   parse_date(LodgementDate, NLodgementDay),
    generate_absolute_day(loan_repayments, LoanRepayments, NLoanRepayments).
      
 generate_absolute_day(creation_income_year, CreationIncomeYear, NCreationIncomeYear) :-
    atom_number(CreationIncomeYear, CreationIncomeYearNumber),
    absolute_day(date(CreationIncomeYearNumber, 7, 1), NCreationIncomeYear).
 
-generate_absolute_day(lodgement_date, LodgementDate, NLodgementDay) :-
-   generate_absolute_day_from_date_string(LodgementDate, NLodgementDay).
-
 generate_absolute_day(loan_repayments, [], []).
 
 generate_absolute_day(loan_repayments, [loan_repayment(Date, Value)|Rest1], [loan_repayment(NDate, NValue)|Rest2]) :-
-   generate_absolute_day_from_date_string(Date, NDate),
+   parse_date(Date, NDate),
    atom_number(Value, NValue),
    generate_absolute_day(loan_repayments, Rest1, Rest2).
-
-% fixme already in days.pl?
-generate_absolute_day_from_date_string(DateString, AbsoluteDay) :-
-   split_string(DateString, "-", "", DateList),
-   DateList = [YearString, MonthString, DayString],	
-   atom_number(YearString, Year),
-   atom_number(MonthString, Month),
-   atom_number(DayString, Day),
-   absolute_day(date(Year, Month, Day), AbsoluteDay).   
 	
 	
 % ----------------------------------------------------------------------
