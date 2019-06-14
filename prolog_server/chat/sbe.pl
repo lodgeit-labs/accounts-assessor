@@ -4,7 +4,27 @@
 % Date:      2019-06-06
 % ===================================================================
 
-:- use_module('../lib/prompt', [prompt/3]).
+
+:- module(sbe, [sbe_request/1]).
+
+:- use_module(library(http/http_json)).
+:- use_module('../../lib/prompt', [prompt/3]).
+:- use_module('../../lib/chat').
+
+
+sbe_request(Request) :-
+	http_read_json_dict(Request, Data),
+	sbe_step(Data, Reply),	
+	reply_json(Reply),
+	true.
+
+sbe_step(In, Out) :-
+	preprocess(In, History, CurrentQuestionId, HistoryTuples),
+	sbe_next_state(HistoryTuples, CurrentQuestionId, NextQuestionId, NextPrompt),
+	(
+		sbe_result(NextQuestionId, Out); 
+		response(NextQuestionId, NextPrompt, History, Out)
+	).
 
 % -------------------------------------------------------------------
 % Small Business Entity test. -1 == No, -2 == Yes
@@ -48,9 +68,6 @@ sbe_next_state(History, Last_question, Last_question, Prompt) :-
 	% look up the prompt
 	sbe_question(History, Last_question, _, _, Prompt).
 
-
-
-%:- [prompt].
 
 % Carrys out a sbe_dialog with the user based on the Deterministic Finite State Machine above.
 % History is a list of pairs of sbe_questions and answers received so far, state identifies

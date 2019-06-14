@@ -1,3 +1,24 @@
+:- module(residency, [residency_request/1]).
+
+:- use_module(library(http/http_json)).
+:- use_module('../../lib/prompt', [prompt/3]).
+:- use_module('../../lib/chat').
+
+
+residency_request(Request) :-
+	http_read_json_dict(Request, Data),
+	residency_step(Data, Reply),	
+	reply_json(Reply),
+	true.
+
+residency_step(In, Out) :-
+	preprocess(In, History, CurrentQuestionId, HistoryTuples),
+	next_state(HistoryTuples, CurrentQuestionId, NextQuestionId, NextPrompt),
+	(
+		residency_result(NextQuestionId, Out); 
+		response(NextQuestionId, NextPrompt, History, Out)
+	).
+	
 % The predicate "returns" 1 if the given element is in the given list and "returns" 0 if
 % otherwise.
 
@@ -148,7 +169,6 @@ next_state(History, 17, -3, "") :-
 
 next_state(_, 17, -2, "").
 
-:- [prompt].
 
 % Carrys out a dialog with the user based on the Deterministic Finite State Machine above.
 % History is a list of pairs of questions and answers received so far, state identifies
@@ -194,11 +214,6 @@ residency_test0() :-
 	dialog([], 0, _, Result4, `nnyynnnyynyy`), Result4 = -1,
 	
 	true.
-
-:- residency_test0.
-
-
-
 
 
 % notes:
