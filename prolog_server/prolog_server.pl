@@ -22,10 +22,11 @@
 :- use_module(library(http/http_client)).
 :- use_module(library(http/html_write)).
 :- use_module(library(option)).
+:- use_module(library(http/http_dispatch), [http_safe_file/2]).
+
 
 :- use_module('chat/residency').
 :- use_module('chat/sbe').
-
 :- ensure_loaded('process_data.pl').
 
 
@@ -40,21 +41,20 @@
 
 
 % -------------------------------------------------------------------
-% run_server/0
+% run_simple_server/0
 % -------------------------------------------------------------------
 
-run_server :-
+run_simple_server :-
    Port = port(8080),
-   (
-      getenv(os, OSName),
-      OSName = 'Windows_NT'
-      -> 
-      http_server(http_dispatch, [Port])
-   ;
-      use_module(library(http/http_unix_daemon)),
-      http_daemon([Port])
-   ).
+   http_server(http_dispatch, [Port]).
 
+% -------------------------------------------------------------------
+% run_daemon/0
+% -------------------------------------------------------------------
+
+run_daemon :-
+   use_module(library(http/http_unix_daemon)),
+   http_daemon().
    
 % -------------------------------------------------------------------
 % upload_form/1
@@ -83,8 +83,8 @@ upload(Request) :-
    multipart_post_request(Request), !,
    http_read_data(Request, Parts, [ on_filename(save_file) ]),
    memberchk(file=file(FileName, Path), Parts),
-   process_data(FileName, Path),
-   delete_file(Path).
+   process_data(FileName, Path).
+   %   delete_file(Path). we shouldn't save and load those files once in production, this is just a debugging feature, a not very useful if the files get deleted after the request is done.
 
 	
 upload(_Request) :-
@@ -109,37 +109,25 @@ multipart_post_request(Request) :-
 
 save_file(In, file(FileName, Path), Options) :-
    option(filename(FileName), Options),
-   atomic_list_concat(['./tmp/', FileName], Path),
+   exclude_file_location_from_filename(FileName, FileName2),
+   http_safe_file(FileName2, []),
+   atomic_list_concat(['./tmp/', FileName2], Path),
    setup_call_cleanup(open(Path, write, Out), copy_stream_data(In, Out), close(Out)).
 
 
-/*
-todo, applies here?
-
-:- use_module(library(http/http_dispatch), [http_safe_file/2]).
-
-
-extract_file_name(Header, FileName2) :-
-   append(_, [f, i, l, e, n, a, m, e, '=', '"'|Rest1], Header),   
-   append(Name, ['.', x, m, l, '"'|_Rest2], Rest1),
-   exclude_file_location_from_filename(Name, FName),
-   append(FName, ['.', x, m, l], FileNameChars),
-   atomic_list_concat(FileNameChars, FileName),
-   http_safe_file(FileName, []),
-   atomic_list_concat(["tmp/", FileName], FileName2).
-
-exclude_file_location_from_filename(Name, FName) :-
+exclude_file_location_from_filename(Name_In, Name_Out) :-
    % (for Internet Explorer/Microsoft Edge)
+   atom_chars(Name_In, Name1),
    once((
-   memberchk('\\', Name)
+   memberchk('\\', Name1)
    ->  
-     reverse(Name, RName),
+     reverse(Name1, RName),
      append(RFName, ['\\'|_R1], RName),
      reverse(RFName, FName)
    ;   
-     FName = Name)).
-*/
-
+     FName = Name1)),
+   atomic_list_concat(FName, Name_Out).
+	
 
 % -------------------------------------------------------------------
 % message/1
@@ -151,10 +139,5 @@ prolog:message(bad_file_upload) -->
    [ 'A file upload must be submitted as multipart/form-data using', nl,
       'name=file and providing a file-name' ].
 
-% -------------------------------------------------------------------
-% Start up Prolog server
-% -------------------------------------------------------------------
-
-:- initialization(run_server).
 
 

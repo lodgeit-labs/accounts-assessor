@@ -114,5 +114,3 @@ test0() :-
 	writeln("all tests pass."),
 	writeln("").
 
-:- debug.
-:- test0.
