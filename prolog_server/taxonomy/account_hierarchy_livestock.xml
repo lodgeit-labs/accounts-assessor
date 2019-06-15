@@ -1,38 +1,36 @@
 <?xml version="1.0" ?>
-<accounts>
-
-   <BalanceSheet>
-   	<Assets>
-	   	<CurrentAssets>
-		   	<CashAndCashEquivalents>
-			   	<WellsFargo/>
-				   <NationalAustraliaBank/>
-   			</CashAndCashEquivalents>
-	   		<AssetsLivestockAtCost/>
-		   </CurrentAssets>
-   		<NoncurrentAssets>
-	   		<FinancialInvestments/>
-		   	<RetainedEarnings/>
-   		</NoncurrentAssets>
-	   </Assets>
-   	<Liabilities>
-	   	<NoncurrentLiabilities>
-		   	<NoncurrentLoans/>
-   		</NoncurrentLiabilities>
-	   	<CurrentLiabilities>
-		   	<CurrentLoans/>
-   		</CurrentLiabilities>
-   	</Liabilities>
-   	<Equity>
-   		<ShareCapital/>
-   		<Drawings/>
-   		<RetainedEarnings>
-   		   <CurrentEarnings/>
-   		   <HistoricalEarnings/>
-   		</RetainedEarnings>
-   	</Equity>
-   </BalanceSheet>
-
+<accountHierarchy>
+	<BalanceSheet>
+		<Assets>
+			<CurrentAssets>
+				<CashAndCashEquivalents>
+					<WellsFargo/>
+					<NationalAustraliaBank/>
+				</CashAndCashEquivalents>
+				<AssetsLivestockAtCost/>
+			</CurrentAssets>
+			<NoncurrentAssets>
+				<FinancialInvestments/>
+				<RetainedEarnings/>
+			</NoncurrentAssets>
+		</Assets>
+		<Liabilities>
+			<NoncurrentLiabilities>
+				<NoncurrentLoans/>
+			</NoncurrentLiabilities>
+			<CurrentLiabilities>
+				<CurrentLoans/>
+			</CurrentLiabilities>
+		</Liabilities>
+		<Equity>
+			<ShareCapital/>
+			<Drawings/>
+			<RetainedEarnings>
+				<CurrentEarnings/>
+				<HistoricalEarnings/>
+			</RetainedEarnings>
+		</Equity>
+	</BalanceSheet>
 	<ProfitAndLoss>
 		<Revenue>
 			<InvestmentIncome/>
@@ -62,5 +60,5 @@
 		<Sheep/>
 	</Livestock>
 
-</accounts>
+</accountHierarchy>
 

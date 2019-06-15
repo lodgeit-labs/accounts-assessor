@@ -12,12 +12,10 @@
 <howThisShouldWork>
 
 account taxonomy must include accounts for individual livestock types
-
-
 a list of livestock units will be defined in the sheet, for example "cows, horses".
-FOR CURRENT ITERATION, ASSUME THAT ALL TRANSACTIONS ARE IN THE BANK STATEMENT. I.E. NO OPENING BALANCES.WHY? BECAUSE OPENING BALANCES IN LIVESTOCK WILL REQUIRE A COMPLETE SET OF OPENING BALANCES. I.E. A COMPLETE OPENING BALANCE SHEET. 
-	
 Natural_Increase_Cost_Per_Head has to be input for each livestock type, for example cows $20.
+
+FOR CURRENT ITERATION, ASSUME THAT ALL TRANSACTIONS ARE IN THE BANK STATEMENT. I.E. NO OPENING BALANCES.WHY? BECAUSE OPENING BALANCES IN LIVESTOCK WILL REQUIRE A COMPLETE SET OF OPENING BALANCES. I.E. A COMPLETE OPENING BALANCE SHEET. 
 
 when bank statements are processed: 
 	If there is a livestock unit ("cows") set on a bank account transaction:
@@ -29,7 +27,6 @@ when bank statements are processed:
 			the "exchanged" account will be one where livestock increase/decrease transactions are internally collected. 
 		
 		SYSTEM CAN INFER BUY/SELL i.e. A BUY IS A PAYMENT & A SELL IS A DEPOSIT. OF COURSE, THE UNIT TYPE MUST BE DESCRIBED. COW. PIG, ETC. AND THE UNIT TYPE MUST HAVE AN ACCOUNTS TAXONOMICAL RELATIONSHIP
-
 		
 		maybe todo:
 			internally, livestock buys and sells are transformed into "livestock buy/sell events" OK.
@@ -41,20 +38,8 @@ when bank statements are processed:
 			buy/sell:
 				cost is taken from the bank transaction
 
-	
-				SELL - 
-					DR BANK (BANK BCE INCREASES) 
-					CR Assets_1204_Livestock_at_Cost (STOCK ON HAND DECREASES,VALUE HELD DECREASES), 
-					CR SALES_OF_LIVESTOCK (REVENUE INCREASES) 
-					DR COST_OF_GOODS_LIVESTOCK (EXPENSE ASSOCIATED WITH REVENUE INCREASES). 
-						by average cost?
-					
 			natural increase:  NATURAL INCREASE IS AN ABSTRACT VALUE THAT IMPACTS THE LIVESTOCK_AT_MARKET_VALUE AT REPORT RUN TIME. THERE IS NO NEED TO STORE/SAVE THE (monetary) VALUE IN THE LEDGER. WHEN A COW IS BORN, NO CASH CHANGES HAND. 
 				dont: affect Assets_1203_Livestock_at_Cost by Natural_Increase_Cost_Per_Head as set by user
-				
-			loss?
-			
-	
 		
 fixme:		
 average cost is defined for date and livestock type as follows:
@@ -70,23 +55,19 @@ average cost is defined for date and livestock type as follows:
 
 
 </howThisShouldWork>
-
-	
 */
 
-
-
-% BUY/SELL:
-	% CR/DR BANK (BANK BCE REDUCES) 
-    %	and produce a livestock count transaction 
 preprocess_livestock_buy_or_sell(Accounts, _Exchange_Rates, _Transaction_Types, S_Transaction, [Bank_Transaction, Livestock_Transaction]) :-
-	s_transaction_is_livestock_buy_or_sell(S_Transaction, Day, Livestock_Type, Livestock_Coord, _Livestock_Count, _Bank_Vector, Our_Vector, Unexchanged_Account_Id, MoneyDebit, _),
+	s_transaction_is_livestock_buy_or_sell(S_Transaction, Day, Livestock_Type, Livestock_Coord, _Bank_Vector, Our_Vector, Unexchanged_Account_Id, MoneyDebit, _),
+	
 	account_ancestor_id(Accounts, Livestock_Type, _Livestock_Account),
+	
 	(MoneyDebit > 0 ->
 			Description = 'livestock sell'
 		;
 			Description = 'livestock buy'
 	),
+	
 	% produce a livestock count increase/decrease transaction
 	Livestock_Transaction = transaction(Day, Description, Livestock_Type, [Livestock_Coord]),
 	% produce the bank account transaction
@@ -95,89 +76,51 @@ preprocess_livestock_buy_or_sell(Accounts, _Exchange_Rates, _Transaction_Types, 
 /*
 BUY - 
 	DR assets / current assets / inventory on hand / livestock at cost - 	this is our LivestockAtCost or Assets_1204_Livestock_at_Cost.
+	?
 */
-	
-preprocess_buys2(Day, Livestock_Type, Bank_Vector, Buy_Transactions) :-
-	% DR expenses / direct costs / purchases - but maybe this should be done at the time of sale
+preprocess_buys2(Day, Livestock_Type, Expense_Vector, Buy_Transactions) :-
+	% DR expenses / direct costs / purchases
 	Buy_Transactions = [
-		% transaction(Day, 'livestock buy', 'Purchases', Bank_Vector),
-		transaction(Day, 'livestock buy', 'AssetsLivestockAtCost', Bank_Vector),
-		transaction(Day, 'livestock buy', Cogs_Account, Bank_Vector)
+		transaction(Day, 'livestock buy', Cogs_Account, Expense_Vector)
 	],
 	cogs_account(Livestock_Type, Cogs_Account).
-/*
-preprocess_buys2(Day, Livestock_Type, Bank_Vector, Buy_Transactions) :-
-	Buy_Transactions = [
-		transaction(Day, 'livestock buy', Cogs_Account, Bank_Vector)
-		% produce an assets transaction
-		transaction(Day, 'livestock buy', 'AssetsLivestockAtCost', Bank_Vector).
-		],
-	cogs_account(Livestock_Type, Cogs_Account).
-*/
-	
-
-% SELL:
-% CR Assets_1204_Livestock_at_Cost (STOCK ON HAND DECREASES,VALUE HELD DECREASES), 
-%	? just keeps decreasing?
-% CR SALES_OF_LIVESTOCK (REVENUE INCREASES) 
-% DR COST_OF_GOODS_LIVESTOCK (EXPENSE ASSOCIATED WITH REVENUE INCREASES). 
 	
 preprocess_sales2(Day, Livestock_Type, _Average_Rate, _Livestock_Count, Bank_Vector, Sales_Transactions) :-
+	%vec_inverse(Bank_Vector, Ours_Vector),
 	Description = "livestock sell",
-	%exchange_rate(_, _, Currency, Average_Cost_Per_Head) = Average_Rate,
-	%Average_Cost is Livestock_Count * Average_Cost_Per_Head,
-	%Average_Cost_Vector = [coord(Currency, Average_Cost, 0)],
-	%vec_inverse(Average_Cost_Vector, Cost),
-	vec_inverse(Bank_Vector, Ours_Vector),
-	Sales_Transactions = [
-		transaction(Day, Description, 'AssetsLivestockAtCost', Ours_Vector),
-		transaction(Day, Description, Sales_Account, Bank_Vector)
-		%transaction(Day, Description, Cogs_Account, Cost)
-	],
-	sales_account(Livestock_Type, Sales_Account).
-	%cogs_account(Livestock_Type, Cogs_Account).
 	
-
+	Sales_Transactions = [
+		% CR SALES_OF_LIVESTOCK (REVENUE INCREASES) 
+		transaction(Day, Description, Sales_Account, Bank_Vector)
+		% CR Assets_1204_Livestock_at_Cost (STOCK ON HAND DECREASES,VALUE HELD DECREASES), 
+		% DR COST_OF_GOODS_LIVESTOCK (EXPENSE ASSOCIATED WITH REVENUE INCREASES). 
+		% we do this, at average cost, by creating the adjustment transaction
+	],
+	sales_account(Livestock_Type, Sales_Account)/*,
+	cogs_account(Livestock_Type, Cogs_Account)*/.
+	
 	
 /*
 Rations debit an equity account called drawings of a sole trader or partner, 
 debit asset or liability loan account  of a shareholder of a company or beneficiary of a trust.  
-
 Naming conventions of accounts created in end user systems vary and the loans might be current or non current but otherwise the logic should hold perfectly on the taxonomy and logic model. (hence requirement to classify).
-
 A sole trade is his own person so his equity is in his own right, hence reflects directly in equity.
-
 The differences relate to personhood. Trusts & companies have attained some type of personhood while sole traders & partners in partnerships are their own people. Hence the trust or company owes or is owed by the shareholder or beneficiary.
-
 liabilities / benificiaries
 equity / loans to associated persons
 equity / drawings by sole trader
 equity / partners equity / drawings
-
-at average cost:
-	DR OWNERS_EQUITY -->DRAWINGS. I.E. THE OWNER TAKES SOMETHING OF VALUE. 
-	CR COST_OF_GOODS. I.E. DECREASES COST.
-
 */
-
-preprocess_rations2(Day, Cost, Currency, Equity_3145_Drawings_by_Sole_Trader, Output) :- 
+preprocess_rations2(_Livestock_Type, Day, Cost, Currency, Equity_3145_Drawings_by_Sole_Trader, Output) :- 
+	%at average cost:
 	Output = [
 		% DR OWNERS_EQUITY -->DRAWINGS. I.E. THE OWNER TAKES SOMETHING OF VALUE. 
 		transaction(Day, 'rations', Equity_3145_Drawings_by_Sole_Trader, [coord(Currency, Cost, 0)]),
-		%	CR COST_OF_GOODS. I.E. DECREASES COST.
-		% expenses / cost of goods / stock adjustment
-		% transaction(Day, 'rations', 'ExpensesCogsLivestockAdjustment', [coord(Currency, 0, Cost)])].
-		transaction(Day, 'rations', 'RationsRevenue', [coord(Currency, 0, Cost)])].
-/*
-preprocess_rations2(Day, Cost, Currency, Equity_3145_Drawings_by_Sole_Trader, Output), 
-	Output = [
-		% DR OWNERS_EQUITY -->DRAWINGS. I.E. THE OWNER TAKES SOMETHING OF VALUE. 
-		transaction(Day, 'rations', Equity_3145_Drawings_by_Sole_Trader, [coord(Currency, Cost, 0)]),
-		%	CR COST_OF_GOODS. I.E. DECREASES COST.
-		transaction(Day, 'rations', 'RationsRevenue', [coord(Currency, 0, Cost)])].
-*/
+		%	CR COST_OF_GOODS. I.E. DECREASES COST. 	% expenses / cost of goods / stock adjustment
+		transaction(Day, 'rations', 'Revenue', [coord(Currency, 0, Cost)])]/*,
+	cogs_account(Livestock_Type, CogsAccount)*/.
 
-
+	
 yield_livestock_cogs_transactions(
 	Livestock_Type, 
 	Opening_Cost, Opening_Count, _Average_Cost,
@@ -190,35 +133,18 @@ yield_livestock_cogs_transactions(
 		Cost is AC * Opening_Count,
 		vec_add(Closing_Debit0, [coord('AUD', Cost, 0)], Closing_Debit),
 		
-		vec_inverse(Closing_Debit, Closing_Credit),
+		vec_sub(Closing_Debit, Opening_Cost, Adjustment_Debit),
+		vec_inverse(Adjustment_Debit, Adjustment_Credit),
+		
 		Cogs_Transactions = [
-			% maybe do as one difference transaction
-			transaction(To_Day, "livestock closing value for period", 'LivestockClosing', Closing_Credit),
-			transaction(To_Day, "livestock opening value for period", 'LivestockOpening', Opening_Cost)
+			transaction(To_Day, "livestock adjustment", 'LivestockAdjustment', Adjustment_Credit),
+			transaction(To_Day, "livestock adjustment", 'AssetsLivestockAtAverageCost', Adjustment_Debit)
 		].
 
-/*
-yield_livestock_cogs_transactions(
-	Livestock_Type, 
-	(Day, Average_Costs, Input_Transactions, S_Transactions),
-	Cogs_Transaction) :-
-		livestock_purchases_cost_and_count(Livestock_Type, S_Transactions, Purchases_cost, _Purchases_count) ,
-		balance_by_account(Average_Costs, [], Input_Transactions, ['AUD'], _Exchange_Day, Livestock_Type, Day, Closing_Cost),
-		vec_sub(Purchases_cost, Closing_Cost, Cogs_Credit),
-		vec_inverse(Cogs_Credit, Cogs),
-		cogs_account(Livestock_Type, CogsAccount),
-		Cogs_Transaction = transaction(Day, "livestock COGS for period", CogsAccount, Cogs).
-*/
-		
 
 /*
 Births debit inventory (asset) and credit cost of goods section, lowering cost of goods value at a rate ascribed by the tax office $20/head of sheep and/or at market rate ascribed by the farmer. It will be useful to build the reports under both inventory valuation conditions.
 */
-
-	
-
-
-
 /*
 [6/3/2019 4:13:59 PM] Jindrich Kolman: ok, so i will just add these values to revenue and expenses once the accounts are totalled
 
@@ -280,31 +206,14 @@ HandiLedger Livestock: Data Entry Livestock Data Entry This article sets out how
    
    
 */
-
 /*
-
-
-
-
-
 expenses / direct costs / opening inventory
 expenses / direct costs / closing inventory
 expenses / direct costs / livestock adjustments
 expenses / direct costs / purchases
 revenue / trading revenue
 assets / inventory on hand
-
-
-
-
 */
-	
-
-	
-	
-	
-
-
 /*
 
 another method 1:
@@ -320,39 +229,21 @@ sell:
 	cr equity / current earnings (sale price - cog)
 	dr assets / cash
 
-
-
-
-
-
-
-
-
 assets / inventory
-	debited with opening value
 	no intermediate txs
 	credited with opening value
-	(debited with closing value)
+	debited with closing value
 
 (profit and loss)
 expenses / direct costs / opening (closing) / inventory at cost / livestock at (average) cost
-
-
-
-
-
-
 */
 
-
-
-% WRAPPERS AND UTILITIES:
 
 
 preprocess_buys(_, _, [], []).
 
 preprocess_buys(Livestock_Type, _Average_cost, [S_Transaction | S_Transactions], [Buy_Transactions | Transactions_Tail]) :-
-	s_transaction_is_livestock_buy_or_sell(S_Transaction, Day, Livestock_Type, _Livestock_Coord, _Livestock_Count, Bank_Vector, _, _, _, MoneyCredit),
+	s_transaction_is_livestock_buy_or_sell(S_Transaction, Day, Livestock_Type, _Livestock_Coord, Bank_Vector, _, _, _, MoneyCredit),
 	(MoneyCredit > 0 ->
 		(
 			preprocess_buys2(Day, Livestock_Type, Bank_Vector, Buy_Transactions)
@@ -363,26 +254,14 @@ preprocess_buys(Livestock_Type, _Average_cost, [S_Transaction | S_Transactions],
 	preprocess_buys(Livestock_Type, _, S_Transactions, Transactions_Tail).
 
 
-s_transaction_is_livestock_buy_or_sell(S_Transaction, Day, Livestock_Type, Livestock_Coord, Livestock_Count, Bank_Vector, Our_Vector, Unexchanged_Account_Id, MoneyDebit, MoneyCredit) :-
-	S_Transaction = s_transaction(Day, "", Bank_Vector, Unexchanged_Account_Id, Bases),
-	% todo: exchange Vector to the currency that the report is requested for
-	
+s_transaction_is_livestock_buy_or_sell(S_Transaction, Day, Livestock_Type, Livestock_Coord, Bank_Vector, Our_Vector, Unexchanged_Account_Id, MoneyDebit, MoneyCredit) :-
+	S_Transaction = s_transaction(Day, '', Bank_Vector, Unexchanged_Account_Id, Bases),
+	vector([Livestock_Coord]) = Bases,
+	coord(Livestock_Type, _, _) = Livestock_Coord,
 	% bank statements are from the perspective of the bank, their debit is our credit
 	vec_inverse(Bank_Vector, Our_Vector),
-	[coord(_, MoneyDebit, MoneyCredit)] = Our_Vector,
-	
-	% get what unit type was exchanged for the money
-	Bases = vector([coord(Livestock_Type, Livestock_Count_Input, Livestock_Credit)]),
-	assertion(Livestock_Credit == 0),
-	Livestock_Count is abs(Livestock_Count_Input),
-	
-	(MoneyDebit > 0 ->
-		(
-			assertion(MoneyCredit == 0),
-			Livestock_Coord = coord(Livestock_Type, 0, Livestock_Count)
-		);
-		Livestock_Coord = coord(Livestock_Type, Livestock_Count, 0)
-	).
+	[coord(_, MoneyDebit, MoneyCredit)] = Our_Vector.
+
 
 
 livestock_account_ids('Livestock', 'LivestockAtCost', 'Drawings', 'LivestockRations').
@@ -421,7 +300,7 @@ natural_increase_count(_, [], 0).
 livestock_purchases_cost_and_count(Type, [ST | S_Transactions], Purchases_Cost, Purchases_Count) :-
 	(
 		(
-			s_transaction_is_livestock_buy_or_sell(ST, _Day, Type, Livestock_Coord, _, _, Vector_Ours, _, _, _),
+			s_transaction_is_livestock_buy_or_sell(ST, _Day, Type, Livestock_Coord, _, Vector_Ours, _, _, _),
 			Vector_Ours = [coord(_, 0, _)]
 		)
 		->
@@ -452,7 +331,7 @@ You have to estimate.
 */
 average_cost(Type, Opening_Cost0, Opening_Count0, Info, Exchange_Rate) :-
 	Info = (_From_Day, _To_Day, S_Transactions, Livestock_Events, Natural_Increase_Costs),
-	/*
+	/*?
 	for now, we ignore _From_Day (and _To_Day), 
 	and use Opening_Cost and Opening_Count as stated in the request.
 	*/
@@ -476,8 +355,16 @@ average_cost(Type, Opening_Cost0, Opening_Count0, Info, Exchange_Rate) :-
 	[coord(Currency, Opening_Value, 0)] = Opening_Cost, 
 	member(natural_increase_cost(Type, [coord(Currency, Natural_Increase_Cost_Per_Head, 0)]), Natural_Increase_Costs),
 	natural_increase_count(Type, Livestock_Events, Natural_Increase_Count),
-	livestock_purchases_cost_and_count(Type, S_Transactions, [coord(Currency, 0, Purchases_Value)], Purchases_Count),
+	livestock_purchases_cost_and_count(Type, S_Transactions, Purchases_Cost, Purchases_Count),
 
+	(
+			Purchases_Cost == []
+		->
+			Purchases_Value = 0
+		;
+			[coord(Currency, 0, Purchases_Value)] = Purchases_Cost
+	),
+	
 	pretty_term_string(Average_Cost_Exp, Formula_String2),
 	
 	% avoid division by zero and evaluate the formula
@@ -488,13 +375,14 @@ average_cost(Type, Opening_Cost0, Opening_Count0, Info, Exchange_Rate) :-
 		Average_Cost = 0
 	).
 
-
+vector_single_item([Item], Item).
+	
 preprocess_rations(Livestock_Type, Average_Cost, Event, Output) :-
 	Event = rations(Livestock_Type, Day, Count) ->
 	(
 		exchange_rate(_, _, Currency, Average_Cost_Per_Head) = Average_Cost,
 		Cost is Average_Cost_Per_Head * Count,
-		preprocess_rations2(Day, Cost, Currency, Equity_3145_Drawings_by_Sole_Trader, Output), 
+		preprocess_rations2(Livestock_Type, Day, Cost, Currency, Equity_3145_Drawings_by_Sole_Trader, Output), 
 		livestock_account_ids(
 			_Livestock_Account,
 			_Assets_Livestock_At_Cost_Account, 
@@ -505,10 +393,11 @@ preprocess_rations(Livestock_Type, Average_Cost, Event, Output) :-
 
 	
 preprocess_sales(Livestock_Type, Average_cost, [S_Transaction | S_Transactions], [Sales_Transactions | Transactions_Tail]) :-
-	s_transaction_is_livestock_buy_or_sell(S_Transaction, Day, Livestock_Type, _Livestock_Coord, Livestock_Count, Bank_Vector, _, _, MoneyDebit, _),
+	s_transaction_is_livestock_buy_or_sell(S_Transaction, Day, Livestock_Type, Livestock_Coord, Bank_Vector, _, _, MoneyDebit, _),
 
 	(MoneyDebit > 0 ->
 		(
+			coord(_, 0, Livestock_Count) = Livestock_Coord,
 			preprocess_sales2(Day, Livestock_Type, Average_cost, Livestock_Count, Bank_Vector, Sales_Transactions)
 		)
 		;
@@ -524,13 +413,6 @@ preprocess_sales(_, _, [], []).
 /*
 
 We want both a stand-alone calculator and include the logic in the ledger system i.e. If there are livestock, allow for inclusion of head held at time x and price y. Births, Rations, Deaths must also be considered via a buy or sell from the bank.
-
-
-Rations debit an equity account called drawings of a sole trader or partner, debit asset or liability loan account  of a shareholder of a company or beneficiary of a trust.  Naming conventions of accounts created in end user systems vary and the loans might be current or non current but otherwise the logic should hold perfectly on the taxonomy and logic model. (hence requirement to classify).
-
-A sole trade is his own person so his equity is in his own right, hence reflects directly in equity.
-
-The differences relate to personhood. Trusts & companies have attained some type of personhood while sole traders & partners in partnerships are their own people. Hence the trust or company owes or is owed by the shareholder or beneficiary.
 
 Births debit inventory (asset) and credit cost of goods section, lowering cost of goods value at a rate ascribed by the tax office $20/head of sheep and/or at market rate ascribed by the farmer. It will be useful to build the reports under both inventory valuation conditions.
 
@@ -654,6 +536,15 @@ process_livestock(Livestock_Doms, Livestock_Types, Default_Bases, S_Transactions
 	get_livestock_cogs_transactions(Livestock_Types, Opening_Costs_And_Counts, Average_Costs, (Start_Days, End_Days, Default_Bases, Average_Costs, Transactions3, S_Transactions),  Cogs_Transactions),
 	append(Transactions3, Cogs_Transactions, Transactions_Out).
 
+	
+	
 /*
 extract_livestock_events/2, extract_natural_increase_costs/2, extract_opening_costs_and_counts/2, preprocess_livestock_event/2, get_average_costs/4, get_more_livestock_transactions/5, get_livestock_cogs_transactions/5
+*/
+
+/*
+	%exchange_rate(_, _, Currency, Average_Cost_Per_Head) = Average_Rate,
+	%Average_Cost is Livestock_Count * Average_Cost_Per_Head,
+	%Average_Cost_Vector = [coord(Currency, Average_Cost, 0)],
+	%vec_inverse(Average_Cost_Vector, Cost),
 */

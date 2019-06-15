@@ -1,5 +1,5 @@
 :- module(utils, [
-	user:goal_expansion/2, inner_xml/3, write_tag/2, fields/2, numeric_fields/2, 
+	user:goal_expansion/2, inner_xml/3, write_tag/2, fields/2, fields_nothrow/2, numeric_fields/2, 
 	pretty_term_string/2, pretty_term_string/2, with_info_value_and_info/3]).
 :- use_module(library(xpath)).
 
@@ -9,6 +9,16 @@
 % this gets the children of an element with ElementXPath
 inner_xml(Dom, Element_XPath, Children) :-
 	xpath(Dom, Element_XPath, element(_,_,Children)).
+
+trimmed_field(Dom, Element_XPath, Value) :-
+	xpath(Dom, Element_XPath, element(_,_,[Child_Atom])),
+	trim_atom(Child_Atom, Value).
+	
+trim_atom(Child_Atom, Value) :-
+	atom_string(Child_Atom, Child),
+	split_string(Child, "", "\s\t\n", [Value_String]),
+	atom_string(Value, Value_String).
+
 
 write_tag(Tag_Name,Tag_Value) :-
 	string_concat("<",Tag_Name,Open_Tag_Tmp),
@@ -20,31 +30,45 @@ write_tag(Tag_Name,Tag_Value) :-
 	writeln(Closing_Tag).
 
 numeric_field(Dom, Name_String, Value) :-
-	inner_xml(Dom, //Name_String, [Value_Atom]),
+	trimmed_field(Dom, //Name_String, Value_Atom),
 	atom_number(Value_Atom, Value).
 
-/*
-fields_to_numeric([NameString, Atom | Fields_Rest], [NameString, Number | Numeric_Fields_Rest]) :-
-	atom_number(Atom, Number),
-	fields_to_numeric(Fields_Rest, Numeric_Fields_Rest).
-	
-fields_to_numeric([], []).
-*/
-	
+
+% case with default value
+fields(Dom, [Name_String, Value_And_Default|Rest]) :-
+	nonvar(Value_And_Default),
+	!,
+	(Value, Default_Value) = Value_And_Default,
+	(
+		(
+			trimmed_field(Dom, //Name_String, Value),
+			!
+		);
+			Value = Default_Value
+	),
+	fields(Dom, Rest).
+
 fields(Dom, [Name_String, Value|Rest]) :-
 	(
 		(
-			inner_xml(Dom, //Name_String, [Value]),
+			trimmed_field(Dom, //Name_String, Value),
 			!
 		);
 		(
-			string_concat(Name_String, " field missing", Error),
+			pretty_term_string(Dom, Dom_String),
+			atomic_list_concat([Name_String, " field missing in ", Dom_String], Error),
 			throw(Error)
 		)
 	),
 	fields(Dom, Rest).
 
 fields(_, []).
+
+fields_nothrow(Dom, [Name_String, Value|Rest]) :-
+	trimmed_field(Dom, //Name_String, Value),
+	fields_nothrow(Dom, Rest).
+
+fields_nothrow(_, []).
 
 numeric_fields(Dom, [Name_String, Value|Rest]) :-
 	(
@@ -132,6 +156,10 @@ x([S2,' ', S3,' ', S4]) :-
 
 
 
+
+
+% scraps:
+
 /*
 replace_underscores_in_variable_names_with_spaces(variable_names(Names0), variable_names(Names1)) :-
 	maplist(replace_underscores_in_variable_names_with_spaces2, Names0, Names1).
@@ -142,4 +170,12 @@ replace_underscores_in_variable_names_with_spaces2((Name0 = Var), (Name1 = Var))
 /*usage:
 replace_underscores_in_variable_names_with_spaces(variable_names([('Na_me' = Var)]), X). 
 X = variable_names(['Na me'=Var]).
+*/
+
+/*
+fields_to_numeric([NameString, Atom | Fields_Rest], [NameString, Number | Numeric_Fields_Rest]) :-
+	atom_number(Atom, Number),
+	fields_to_numeric(Fields_Rest, Numeric_Fields_Rest).
+	
+fields_to_numeric([], []).
 */

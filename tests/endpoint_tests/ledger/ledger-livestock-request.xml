@@ -43,8 +43,71 @@
       </unitValue>
     </unitValues>
 
-   <accountHierarchyUrl>https://raw.githubusercontent.com/LodgeiT/labs-accounts-assessor/ledger-livestock-merging/prolog_server/taxonomy/account_hierarchy_livestock.xml?token=AAA34ZGMFK4WKUMZVL264AS5BADGU</accountHierarchyUrl>
-
+	
+	<accountHierarchy>
+		<Accounts>
+		<BalanceSheet>
+			<Assets>
+				<CurrentAssets>
+					<CashAndCashEquivalents>
+						<WellsFargo/>
+						<NationalAustraliaBank/>
+					</CashAndCashEquivalents>
+					<AssetsLivestockAtCost/>
+					<AssetsLivestockAtAverageCost/>
+				</CurrentAssets>
+				<NoncurrentAssets>
+					<FinancialInvestments/>
+					<RetainedEarnings/>
+				</NoncurrentAssets>
+			</Assets>
+			<Liabilities>
+				<NoncurrentLiabilities>
+					<NoncurrentLoans/>
+				</NoncurrentLiabilities>
+				<CurrentLiabilities>
+					<CurrentLoans/>
+				</CurrentLiabilities>
+			</Liabilities>
+			<Equity>
+				<ShareCapital/>
+				<Drawings/>
+				<RetainedEarnings>
+					<CurrentEarnings/>
+					<HistoricalEarnings/>
+				</RetainedEarnings>
+			</Equity>
+		</BalanceSheet>
+		<Earnings>
+			<Revenue>
+				<InvestmentIncome/>
+				<SalesOfLivestock>
+					<CowsSales/>
+					<SheepSales/>
+				</SalesOfLivestock>
+				<RationsRevenue/>
+				<ForexGain/>
+			</Revenue>
+			<Expenses>
+				<LivestockAdjustment/>			
+				<BankCharges/>
+				<ForexLoss/>
+				<Purchases/>
+				<CostOfGoodsLivestock>
+					<CowsCogs/>
+					<SheepCogs/>
+					<ExpensesCogsLivestockAdjustment/>
+				</CostOfGoodsLivestock>	
+			</Expenses>
+		</Earnings>
+		</Accounts>
+		<Livestock>
+			<Cows/>
+			<Sheep/>
+		</Livestock>
+	</accountHierarchy>
+		
+	
     <actionTaxonomy>
       <!-- fixme, should not all have tradingAccount InvestmentIncome -->
       <action>
@@ -93,18 +156,12 @@
 
     <livestockData>
       <type>Sheep</type>
-      <naturalIncreaseValuePerUnit>54</naturalIncreaseValuePerUnit>
+      <naturalIncreaseValuePerUnit>20</naturalIncreaseValuePerUnit>
       <!-- <currency>AUD</currency> -->
       <openingCount>27</openingCount>
       <openingCost>1234</openingCost>
       <events>
-<!--
-        <dayEndCount>
-          <date>2012-01-30</date>
-          <cost>1234</cost>
-          <count>27</count>
-        </dayEndCount>
--->
+
 <!--        <naturalIncrease>
           <! before the report period, todo >
           <date>2010-01-30</date>
@@ -113,17 +170,24 @@
 -->
         <naturalIncrease>
           <date>2018-01-30</date>
-          <count>42</count>
+          <count>12</count>
+        </naturalIncrease>
+
+        <naturalIncrease>
+          <date>2018-02-03</date>
+          <count>50</count>
         </naturalIncrease>
 
         <loss>
           <date>2018-02-01</date>
           <count>1</count>
         </loss>
+		
         <rations>
           <date>2018-02-01</date>
           <count>11</count>
         </rations>
+		
       </events>
     </livestockData>  
 
@@ -144,25 +208,28 @@
          then don't need to tag their transactions with description. If money goes out of bank account,
          they bought, if in, they sold. This therefore falls out of the scope of the action taxonomy abstraction,
          so, to recognize livestock unit types, we'll probably require a table of livestock types in the input -->
-
-          <transaction>
-            <transdate>2018-03-02</transdate>
-            <!-- sell 30 sheep -->
-            <debit>0</debit>
-            <credit>500</credit>
-            <unit>30</unit>
-            <unitType>Sheep</unitType>
-          </transaction>
-          <transaction>
-            <transdate>2018-03-02</transdate>
-            <!-- buy 3 sheep that can sing-->
-            <debit>1800</debit>
-            <credit>0</credit>
-            <unit>3</unit>
-            <unitType>Sheep</unitType>
-          </transaction>
-
-        </transactions>
+   
+				<transaction>
+					<transdate>2018-03-02</transdate>
+					<!-- sell 30 sheep -->
+					<debit>0</debit>
+					<credit>500</credit>
+					<unit>30</unit>
+					<unitType>Sheep</unitType>
+				</transaction>
+			
+				
+				<transaction>
+					<transdate>2018-03-02</transdate>
+					<!-- buy 3 sheep that can sing-->
+					<debit>1800</debit>
+					<credit>0</credit>
+					<unit>3</unit>
+					<unitType>Sheep</unitType>
+				</transaction>
+            
+				
+			</transactions>
       </accountDetails>
     </bankStatement>
   </balanceSheetRequest>
