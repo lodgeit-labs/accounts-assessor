@@ -17,22 +17,17 @@
 :- use_module(accounts, [account_ancestor_id/3]).
 :- use_module(days, [absolute_day/2, gregorian_date/2]).
 :- use_module(pacioli, [vec_add/3, vec_reduce/2]).
+:- use_module(library(record)).
 
 % -------------------------------------------------------------------
 
 
-% transaction(Day, Description, Account_Id, Vector)
+:- record transaction(day, description, account_id, vector).
+% - The absolute day that the transaction happenned
+% - A description of the transaction
+% - The account that the transaction modifies
+% - The amounts by which the account is being debited and credited
 
-% Predicates for asserting that the fields of given transactions have particular values
-
-% The absolute day that the transaction happenned
-transaction_day(transaction(Day, _, _, _), Day).
-% A description of the transaction
-transaction_description(transaction(_, Description, _, _), Description).
-% The account that the transaction modifies
-transaction_account_id(transaction(_, _, Account_Id, _), Account_Id).
-% The amounts by which the account is being debited and credited
-transaction_vector(transaction(_, _, _, Vector), Vector).
 
 transaction_account_ancestor_id(Accounts, Transaction, Ancestor_Account_Id) :-
 	transaction_account_id(Transaction, Transaction_Account_Id),
