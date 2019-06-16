@@ -4,11 +4,11 @@
 % Date:      2019-06-02
 % ===================================================================
 
-:- module(statements, [extract_transaction/4, preprocess_s_transaction_with_debug/7, preprocess_s_transaction/6]).
+:- module(statements, [extract_transaction/4, preprocess_s_transaction_with_debug/8]).
  
 :- use_module(pacioli,  [vec_inverse/2, vec_sub/3]).
 :- use_module(exchange, [vec_change_bases/5]).
-:- use_module(exchange_rates, [exchange_rate/5]).
+:- use_module(exchange_rates, [exchange_rate/5, is_exchangeable_into_request_bases/4]).
 
 :- use_module(transaction_types, [
 	transaction_type_id/2,
@@ -53,8 +53,8 @@ transaction_type_of(Transaction_Types, S_Transaction, Transaction_Type) :-
 	member(Transaction_Type, Transaction_Types).
 
 
-
-preprocess_s_transaction(Accounts, Exchange_Rates, Transaction_Types, End_Date, S_Transaction, Transactions) :-
+% throw an error if the s_transaction's account is not found in the hierarchy
+check_that_s_transaction_account_exists(S_Transaction, Accounts) :-
 	s_transaction_account_id(S_Transaction, Account_Name),
 	(
 			account_parent_id(Accounts, Account_Name, _) 
@@ -65,20 +65,32 @@ preprocess_s_transaction(Accounts, Exchange_Rates, Transaction_Types, End_Date, 
 				atomic_list_concat(['account not found in hierarchy:', Account_Name], Msg),
 				throw(Msg)
 			)
-	),
+	).
+
+
+preprocess_s_transaction(Accounts, Bases, Exchange_Rates, Transaction_Types, End_Date, S_Transaction, Transactions) :-
+	check_that_s_transaction_account_exists(S_Transaction, Accounts),
+	preprocess_s_transaction1(Accounts, Bases, Exchange_Rates, Transaction_Types, End_Date, S_Transaction, Transactions).
+	
+	
+preprocess_s_transaction1(Accounts, Bases, Exchange_Rates, Transaction_Types, End_Date, S_Transaction, Transactions) :-
 	(
-			preprocess_s_transaction2(Accounts, Exchange_Rates, Transaction_Types, End_Date,  S_Transaction, Transactions0)
+			preprocess_s_transaction2(Accounts, Bases, Exchange_Rates, Transaction_Types, End_Date,  S_Transaction, Transactions0)
 		->
+			% filter out unbound vars from the resulting Transactions list, as some rules do no always produce all possible transactions
 			exclude(var, Transactions0, Transactions)
 		;
 		(
-			term_string(S_Transaction, Str,2),
-			throw(Str)
+			% throw error on failure
+			gtrace,
+			term_string(S_Transaction, Str2),
+			atomic_list_concat(['processing failed:', Str2], Message),
+			throw(Message)
 		)
 	).
 
 	
-preprocess_s_transaction2(Accounts, Exchange_Rates, Transaction_Types, _End_Date,  S_Transaction, Transactions) :-
+preprocess_s_transaction2(Accounts, _, Exchange_Rates, Transaction_Types, _End_Date,  S_Transaction, Transactions) :-
 	(preprocess_livestock_buy_or_sell(Accounts, Exchange_Rates, Transaction_Types, S_Transaction, Transactions),
 	!).
 
@@ -92,39 +104,36 @@ Transactions using trading accounts can be decomposed into:
 This predicate takes a list of statement transaction terms and decomposes it into a list of plain transaction terms, 3 for each input s_transaction.
 This Prolog rule handles the case when the exchanged amount is known, for example 10 GOOG,
 and hence no exchange rate calculations need to be done.
+
+"Goods" is not a general enough word, but it avoids confusion with other terms used.
 */
 
-preprocess_s_transaction2(_Accounts, Exchange_Rates, Transaction_Types, End_Date, S_Transaction,
+preprocess_s_transaction2(_Accounts, Bases, Exchange_Rates, Transaction_Types, End_Date, S_Transaction,
 		[UnX_Transaction, X_Transaction, Trading_Transaction]) :-
-
 	s_transaction_vector(S_Transaction, Vector_Bank),
-	s_transaction_exchanged(S_Transaction, vector(Vector_Transformed)),
-	!,
-	[coord(Exchanged_Units, _, _)] = Vector_Transformed,
+	s_transaction_exchanged(S_Transaction, vector(Vector_Goods0)),
+	[coord(Goods_Units, _, _)] = Vector_Goods0,
 	(
-			catch(
-				% will we be able to exchange this later?
-				exchange_rate(Exchange_Rates, End_Date, Exchanged_Units, 'AUD', _Exchange_Rate),
-				existence_error(_,_),
-				false
-			)
+		% will we be able to exchange this later?
+			is_exchangeable_into_request_bases(Exchange_Rates, End_Date, Goods_Units, Bases)
 		->
-			Vector_Exchanged = Vector_Transformed
+			Vector_Goods = Vector_Goods0
 		;
-			% just take the monetary value of the transaction
-			Vector_Exchanged = Vector_Bank
+			% just take the amount paid, and report this "at cost"
+			Vector_Goods = Vector_Bank
 	),
 	(
+		% do we have a tag that corresponds to one of known actions?
 		transaction_type_of(Transaction_Types, S_Transaction, Transaction_Type)
 	->
 		true
 	;
+		% if not, we will affect no other accounts, (the balance sheet won't balance)
 		(
 			s_transaction_type_id(S_Transaction, Description),
 			Transaction_Type = transaction_type(_,_,_,Description)
 		)
 	),
-	
 	transaction_type(_, Exchanged_Account_Id, Trading_Account_Id, Description) = Transaction_Type,
 
 	% Make an unexchanged transaction to the unexchanged (bank) account
@@ -144,7 +153,7 @@ preprocess_s_transaction2(_Accounts, Exchange_Rates, Transaction_Types, End_Date
 		(
 			transaction_day(X_Transaction, Day),
 			transaction_description(X_Transaction, Description),
-			transaction_vector(X_Transaction, Vector_Exchanged),
+			transaction_vector(X_Transaction, Vector_Goods),
 			transaction_account_id(X_Transaction, Exchanged_Account_Id)
 		)
 	;
@@ -155,7 +164,7 @@ preprocess_s_transaction2(_Accounts, Exchange_Rates, Transaction_Types, End_Date
 		nonvar(Trading_Account_Id)
 	->
 		(
-			vec_sub(Vector_Bank, Vector_Exchanged, Trading_Vector),
+			vec_sub(Vector_Bank, Vector_Goods, Trading_Vector),
 			transaction_day(Trading_Transaction, Day),
 			transaction_description(Trading_Transaction, Description),
 			transaction_vector(Trading_Transaction, Trading_Vector),
@@ -170,8 +179,8 @@ preprocess_s_transaction2(_Accounts, Exchange_Rates, Transaction_Types, End_Date
 % hence it is desired for the program to infer the count. 
 % We passthrough the output list to the above rule, and just replace the first S_Transaction in the 
 % input list with a modified one (NS_Transaction).
-preprocess_s_transaction2(Accounts, Exchange_Rates, Transaction_Types, Report_End_Date, S_Transaction, Transactions) :-
-	s_transaction_exchanged(S_Transaction, bases(Bases)),
+preprocess_s_transaction2(Accounts, Request_Bases, Exchange_Rates, Transaction_Types, Report_End_Date, S_Transaction, Transactions) :-
+	s_transaction_exchanged(S_Transaction, bases(Goods_Bases)),
 	s_transaction_day(S_Transaction, Transaction_Day), 
 	s_transaction_day(NS_Transaction, Transaction_Day),
 	s_transaction_type_id(S_Transaction, Type_Id), 
@@ -181,9 +190,9 @@ preprocess_s_transaction2(Accounts, Exchange_Rates, Transaction_Types, Report_En
 	s_transaction_account_id(S_Transaction, Unexchanged_Account_Id), 
 	s_transaction_account_id(NS_Transaction, Unexchanged_Account_Id),
 	% infer the count by money debit/credit and exchange rate
-	vec_change_bases(Exchange_Rates, Transaction_Day, Bases, Vector_Bank, Vector_Exchanged),
+	vec_change_bases(Exchange_Rates, Transaction_Day, Goods_Bases, Vector_Bank, Vector_Exchanged),
 	s_transaction_exchanged(NS_Transaction, vector(Vector_Exchanged)),
-	preprocess_s_transaction2(Accounts, Exchange_Rates, Transaction_Types, Report_End_Date, NS_Transaction, Transactions),
+	preprocess_s_transaction2(Accounts, Request_Bases, Exchange_Rates, Transaction_Types, Report_End_Date, NS_Transaction, Transactions),
 	!.
 
 
@@ -198,21 +207,21 @@ extract_transaction(Dom, Default_Bases, Start_Date, Transaction) :-
 		currency, Account_Currency
 		]),
 	xpath(Account, transactions/transaction, Tx_Dom),
-/*	catch(*/
+	catch(
 		extract_transaction2(Tx_Dom, Account_Currency, Default_Bases, Account_Name, Start_Date, Transaction),
-		/*Error,
+		Error,
 		(
 			term_string(Error, Str1),
 			term_string(Tx_Dom, Str2),
 			atomic_list_concat([Str1, Str2], Message),
 			throw(Message)
-		)*/
+		)),
 	true.
 
 extract_transaction2(Tx_Dom, Account_Currency, _Default_Bases, Account, Start_Date, ST) :-
 	numeric_fields(Tx_Dom, [
-		debit, Debit,
-		credit, Credit]),
+		debit, Bank_Debit,
+		credit, Bank_Credit]),
 	fields(Tx_Dom, [
 		transdesc, (Desc, '')
 	]),
@@ -229,11 +238,11 @@ extract_transaction2(Tx_Dom, Account_Currency, _Default_Bases, Account, Start_Da
 		)
 	),
 	parse_date(Date_Atom, Absolute_Days),
-	Coord = coord(Account_Currency, Debit, Credit),
+	Coord = coord(Account_Currency, Bank_Debit, Bank_Credit),
 	ST = s_transaction(Absolute_Days, Desc, [Coord], Account, Exchanged),
-	extract_exchanged_value(Tx_Dom, Account_Currency, Debit, Credit, Exchanged).
+	extract_exchanged_value(Tx_Dom, Account_Currency, Bank_Debit, Bank_Credit, Exchanged).
 
-extract_exchanged_value(Tx_Dom, Account_Currency, Debit, Credit, Exchanged) :-
+extract_exchanged_value(Tx_Dom, Account_Currency, Bank_Debit, Bank_Credit, Exchanged) :-
    % if unit type and count is specified, unifies Exchanged with a one-item vector with a coord with those values
    % otherwise unifies Exchanged with bases(..) to trigger unit conversion later
    (
@@ -244,10 +253,10 @@ extract_exchanged_value(Tx_Dom, Account_Currency, Debit, Credit, Exchanged) :-
             atom_number(Unit_Count_Atom, Unit_Count),
            	Count_Absolute is abs(Unit_Count),
 			(
-				Debit > 0
+				Bank_Debit > 0
 			->
 				(
-					assertion(Credit =:= 0),
+					assertion(Bank_Credit =:= 0),
 					Exchanged = vector([coord(Unit_Type, Count_Absolute, 0)])
 				)
 			;
@@ -268,8 +277,8 @@ extract_exchanged_value(Tx_Dom, Account_Currency, Debit, Credit, Exchanged) :-
    ).
 
 
-preprocess_s_transaction_with_debug(Account_Hierarchy, Exchange_Rates, Action_Taxonomy, End_Days, S_Transaction, Transactions, Transaction_Transformation_Debug) :-
+preprocess_s_transaction_with_debug(Account_Hierarchy, Bases, Exchange_Rates, Action_Taxonomy, End_Days, S_Transaction, Transactions, Transaction_Transformation_Debug) :-
 	pretty_term_string(S_Transaction, S_Transaction_String),
-	preprocess_s_transaction(Account_Hierarchy, Exchange_Rates, Action_Taxonomy, End_Days, S_Transaction, Transactions),
+	preprocess_s_transaction(Account_Hierarchy, Bases, Exchange_Rates, Action_Taxonomy, End_Days, S_Transaction, Transactions),
 	pretty_term_string(Transactions, Transactions_String),
 	atomic_list_concat([S_Transaction_String, '==>\n', Transactions_String, '\n====\n'], Transaction_Transformation_Debug).

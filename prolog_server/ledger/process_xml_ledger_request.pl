@@ -17,7 +17,7 @@
 	inner_xml/3, write_tag/2, fields/2, fields_nothrow/2, numeric_fields/2, 
 	pretty_term_string/2]).
 :- use_module('../../lib/ledger', [balance_sheet_at/8, trial_balance_between/8, profitandloss_between/8]).
-:- use_module('../../lib/statements', [extract_transaction/4, preprocess_s_transaction_with_debug/7, preprocess_s_transaction/6]).
+:- use_module('../../lib/statements', [extract_transaction/4, preprocess_s_transaction_with_debug/8]).
 :- use_module('../../lib/livestock', [get_livestock_types/2, process_livestock/11]).
 :- use_module('../../lib/accounts', [extract_account_hierarchy/2]).
 
@@ -43,7 +43,7 @@ process_xml_ledger_request(_, Dom) :-
 	get_livestock_types(Livestock_Doms, Livestock_Types),
 	
 	findall(Transaction, extract_transaction(Dom, Default_Bases, Start_Date_Atom, Transaction), S_Transactions),
-	maplist(preprocess_s_transaction_with_debug(Account_Hierarchy, Exchange_Rates, Action_Taxonomy, End_Days), S_Transactions, Transactions_Nested, Transaction_Transformation_Debug),
+	maplist(preprocess_s_transaction_with_debug(Account_Hierarchy, Default_Bases, Exchange_Rates, Action_Taxonomy, End_Days), S_Transactions, Transactions_Nested, Transaction_Transformation_Debug),
 		
 	flatten(Transactions_Nested, Transactions1),
    

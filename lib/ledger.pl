@@ -65,8 +65,7 @@ balance_sheet_entry(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day,
 	balance_by_account(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Account_Id, To_Day, Balance),
 	Sheet_Entry = entry(Account_Id, Balance, Child_Sheet_Entries).
 
-:- debug.
-	
+
 balance_sheet_at(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, From_Day, To_Day, Balance_Sheet) :-
 	account_ids(Accounts, Assets_AID, _Equity_AID, Liabilities_AID, Earnings_AID, _Retained_Earnings_AID, _Current_Earnings_AID, _, _),
 	balance_sheet_entry(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Assets_AID, To_Day, Asset_Section),
