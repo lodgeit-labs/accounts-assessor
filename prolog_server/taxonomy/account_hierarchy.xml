@@ -1,5 +1,6 @@
 <?xml version="1.0" ?>
-<accounts>
+<accountHierarchy>
+  <Accounts>
 	<Assets>
 		<CurrentAssets>
 			<CashAndCashEquivalents>
@@ -13,6 +14,11 @@
 	</Assets>
 	<Equity>
 		<ShareCapital/>
+		<RetainedEarnings>
+			<HistoricalEarnings/>
+			<CurrentEarnings/>
+		</RetainedEarnings>
+
 	</Equity>
 	<Liabilities>
 		<NoncurrentLiabilities>
@@ -30,11 +36,7 @@
 			<BankCharges/>
 			<ForexLoss/>
 		</Expenses>
-		<RetainedEarnings/>
-		<CurrentEarningsLosses/>
 	</Earnings>
-	<!--fixme, should be in assets-->
-	<RetainedEarnings/>
-	<CurrentEarningsLosses/>
-</accounts>
+  </Accounts>
+</accountHierarchy>
 

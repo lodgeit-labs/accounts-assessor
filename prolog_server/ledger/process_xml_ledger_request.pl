@@ -14,10 +14,10 @@
 :- use_module(library(xpath)).
 :- use_module('../../lib/days', [format_date/2, parse_date/2, gregorian_date/2]).
 :- use_module('../../lib/utils', [
-	inner_xml/3, write_tag/2, fields/2, numeric_fields/2, 
+	inner_xml/3, write_tag/2, fields/2, fields_nothrow/2, numeric_fields/2, 
 	pretty_term_string/2]).
-:- use_module('../../lib/ledger', [balance_sheet_at/8, trial_balance_between/8]).
-:- use_module('../../lib/statements', [preprocess_s_transactions/5]).
+:- use_module('../../lib/ledger', [balance_sheet_at/8, trial_balance_between/8, profitandloss_between/8]).
+:- use_module('../../lib/statements', [extract_transaction/4, preprocess_s_transaction_with_debug/8]).
 :- use_module('../../lib/livestock', [get_livestock_types/2, process_livestock/11]).
 :- use_module('../../lib/accounts', [extract_account_hierarchy/2]).
 
@@ -27,10 +27,12 @@
 % ------------------------------------------------------------------
 
 process_xml_ledger_request(_, Dom) :-
+	% this serves as an indicator of the desired report currency
 	extract_default_bases(Dom, Default_Bases),
 	extract_action_taxonomy(Dom, Action_Taxonomy),
 	extract_account_hierarchy(Dom, Account_Hierarchy),
-	extract_exchange_rates(Dom, End_Days, Exchange_Rates),
+	[Default_Currency | _] = Default_Bases,
+	extract_exchange_rates(Dom, End_Days, Exchange_Rates, Default_Currency),
 
 	inner_xml(Dom, //reports/balanceSheetRequest/startDate, [Start_Date_Atom]),
 	parse_date(Start_Date_Atom, Start_Days),
@@ -40,16 +42,21 @@ process_xml_ledger_request(_, Dom) :-
 	findall(Livestock_Dom, xpath(Dom, //reports/balanceSheetRequest/livestockData, Livestock_Dom), Livestock_Doms),
 	get_livestock_types(Livestock_Doms, Livestock_Types),
 	
-	findall(Transaction, extract_transactions(Dom, Default_Bases, Transaction), S_Transactions),
-	preprocess_s_transactions(Account_Hierarchy, Exchange_Rates, Action_Taxonomy, S_Transactions, Transactions_Nested),
+	findall(Transaction, extract_transaction(Dom, Default_Bases, Start_Date_Atom, Transaction), S_Transactions),
+	maplist(preprocess_s_transaction_with_debug(Account_Hierarchy, Default_Bases, Exchange_Rates, Action_Taxonomy, End_Days), S_Transactions, Transactions_Nested, Transaction_Transformation_Debug),
+		
 	flatten(Transactions_Nested, Transactions1),
    
 	process_livestock(Livestock_Doms, Livestock_Types, Default_Bases, S_Transactions, Transactions1, Start_Days, End_Days, Transactions2, Livestock_Events, Average_Costs, Average_Costs_Explanations),
    
-	balance_sheet_at(Exchange_Rates, Account_Hierarchy, Transactions2, Default_Bases, End_Days, Start_Days, End_Days, Balance_Sheet),
-
+	%print_term(Transactions1, []),
+   
 	trial_balance_between(Exchange_Rates, Account_Hierarchy, Transactions2, Default_Bases, End_Days, Start_Days, End_Days, Trial_Balance),
+
+	balance_sheet_at(Exchange_Rates, Account_Hierarchy, Transactions2, Default_Bases, End_Days, Start_Days, End_Days, Balance_Sheet),
 	
+	profitandloss_between(Exchange_Rates, Account_Hierarchy, Transactions2, Default_Bases, End_Days, Start_Days, End_Days, ProftAndLoss),
+		
 	pretty_term_string(S_Transactions, Message0),
 	pretty_term_string(Livestock_Events, Message0b),
 	pretty_term_string(Transactions2, Message1),
@@ -58,110 +65,71 @@ process_xml_ledger_request(_, Dom) :-
 	pretty_term_string(Account_Hierarchy, Message3),
 	pretty_term_string(Balance_Sheet, Message4),
 	pretty_term_string(Trial_Balance, Message4b),
+	pretty_term_string(ProftAndLoss, Message4c),
 	pretty_term_string(Average_Costs, Message5),
 	pretty_term_string(Average_Costs_Explanations, Message5b),
-
+	atomic_list_concat(Transaction_Transformation_Debug, Message10),
 	(
 	%Debug_Message = '',!;
 	atomic_list_concat([
 	'\n<!--',
 	'Exchange rates::\n', Message1b,'\n\n',
 	'Action_Taxonomy:\n',Message2,'\n\n',
-	'S_Transactions:\n', Message0,'\n\n',
-	'Events:\n', Message0b,'\n\n',
-	'Transactions:\n', Message1,'\n\n',
 	'Account_Hierarchy:\n',Message3,'\n\n',
-	'BalanceSheet:\n', Message4,'\n\n',
-	'Trial_Balance:\n', Message4b,'\n\n',
+	'S_Transactions:\n', Message0,'\n\n',
+	'Transaction_Transformation_Debug:\n', Message10,'\n\n',
+	'Livestock Events:\n', Message0b,'\n\n',
 	'Average_Costs:\n', Message5,'\n\n',
 	'Average_Costs_Explanations:\n', Message5b,'\n\n',
+	'Transactions:\n', Message1,'\n\n',
+	'BalanceSheet:\n', Message4,'\n\n',
+	'ProftAndLoss:\n', Message4c,'\n\n',
+	'Trial_Balance:\n', Message4b,'\n\n',
 	'-->\n\n'], Debug_Message)
 	),
-	display_xbrl_ledger_response(Debug_Message, Start_Days, End_Days, Balance_Sheet).
+
+	display_xbrl_ledger_response(Debug_Message, Start_Days, End_Days, Balance_Sheet, Trial_Balance, ProftAndLoss).
 
 extract_default_bases(Dom, Bases) :-
    inner_xml(Dom, //reports/balanceSheetRequest/defaultUnitTypes/unitType, Bases).
 
-
 extract_action_taxonomy(Dom, Action_Taxonomy) :-
-   findall(Action, xpath(Dom, //reports/balanceSheetRequest/actionTaxonomy/action, Action), Actions),
+	(
+		xpath(Dom, //reports/balanceSheetRequest/actionTaxonomy, Taxonomy_Dom),!
+	;
+		load_xml('./taxonomy/default_action_taxonomy.xml', Taxonomy_Dom, [])
+	),
+	extract_action_taxonomy2(Taxonomy_Dom, Action_Taxonomy).
+   
+extract_action_taxonomy2(Dom, Action_Taxonomy) :-
+   findall(Action, xpath(Dom, //action, Action), Actions),
    maplist(extract_action, Actions, Action_Taxonomy).
    
 extract_action(In, transaction_type(Id, Exchange_Account, Trading_Account, Description)) :-
-   inner_xml(In, id, [Id]),
-   inner_xml(In, description, [Description]),
-   inner_xml(In, exchangeAccount, [Exchange_Account]),
-   inner_xml(In, tradingAccount, [Trading_Account]).
+	fields(In, [
+		id, Id,
+		description, (Description, _),
+		exchangeAccount, (Exchange_Account, _),
+		tradingAccount, (Trading_Account, _)]).
    
-extract_exchange_rates(Dom, End_Date, Exchange_Rates) :-
-   findall(Unit_Value, xpath(Dom, //reports/balanceSheetRequest/unitValues/unitValue, Unit_Value), Unit_Values),
-   maplist(extract_exchange_rate(End_Date), Unit_Values, Exchange_Rates).
+extract_exchange_rates(Dom, End_Date, Exchange_Rates, Default_Currency) :-
+   findall(Unit_Value_Dom, xpath(Dom, //reports/balanceSheetRequest/unitValues/unitValue, Unit_Value_Dom), Unit_Value_Doms),
+   maplist(extract_exchange_rate(End_Date, Default_Currency), Unit_Value_Doms, Exchange_Rates).
    
-extract_exchange_rate(End_Date, Unit_Value, Exchange_Rate) :-
-   Exchange_Rate = exchange_rate(End_Date, Src_Currency, Dest_Currency, Rate),
-   inner_xml(Unit_Value, unitType, [Src_Currency]),
-   inner_xml(Unit_Value, unitValueCurrency, [Dest_Currency]),
-   inner_xml(Unit_Value, unitValue, [Rate_String]),
-   atom_number(Rate_String, Rate).
+extract_exchange_rate(End_Date, Default_Currency, Unit_Value, Exchange_Rate) :-
+	Exchange_Rate = exchange_rate(End_Date, Src_Currency, Dest_Currency, Rate),
+	fields(Unit_Value, [
+		unitType, Src_Currency,
+		unitValueCurrency, (Dest_Currency, Default_Currency),
+		unitValue, Rate_Atom]),
+	atom_number(Rate_Atom, Rate).
 
-   
-% yield all transactions from all accounts one by one.
-% these are s_transactions, the raw transactions from bank statements. Later each s_transaction will be preprocessed
-% into multiple transaction(..) terms.
-% fixme dont fail silently
-extract_transactions(Dom, Default_Bases, Transaction) :-
-   xpath(Dom, //reports/balanceSheetRequest/bankStatement/accountDetails, Account),
-   inner_xml(Account, accountName, [AccountName]),
-   inner_xml(Account, currency, [Currency]),
-   xpath(Account, transactions/transaction, Tx_Dom),
-   extract_transaction2(Tx_Dom, Currency, Default_Bases, AccountName, Transaction).
-
-extract_transaction2(Tx_Dom, Currency, Default_Bases, Account, ST) :-
-   xpath(Tx_Dom, debit, element(_,_,[DebitAtom])),
-   xpath(Tx_Dom, credit, element(_,_,[CreditAtom])),
-   ((xpath(Tx_Dom, transdesc, element(_,_,[Desc])),!);Desc=""),
-   xpath(Tx_Dom, transdate, element(_,_,[Date_Atom])),
-   parse_date(Date_Atom, Absolute_Days),
-   atom_number(DebitAtom, Debit),
-   atom_number(CreditAtom, Credit),
-   Coord = coord(Currency, Debit, Credit),
-   ST = s_transaction(Absolute_Days, Desc, [Coord], Account, Exchanged),
-   extract_exchanged_value(Tx_Dom, Default_Bases, Exchanged).
-
-extract_exchanged_value(Tx_Dom, Default_Bases, Exchanged) :-
-   % if unit type and count is specified, unifies Exchanged with a one-item vector with a coord with those values
-   % otherwise unifies Exchanged with bases(..) to trigger unit conversion later
-   % todo rewrite this with ->/2 ?
-   (
-      xpath(Tx_Dom, unitType, element(_,_,[Unit_Type])),
-      (
-         (
-            xpath(Tx_Dom, unit, element(_,_,[Unit_Count_Atom])),
-            %  If the user has specified both the unit quantity and type, then exchange rate
-            %  conversion and hence a target bases is unnecessary.
-            atom_number(Unit_Count_Atom, Unit_Count),
-            Exchanged = vector([coord(Unit_Type, Unit_Count, 0)]),!
-         )
-         ;
-         (
-            % If the user has specified only a unit type, then automatically do a conversion to that unit.
-            Exchanged = bases([Unit_Type])
-         )
-      ),!
-   )
-   ;
-   (
-      % If the user has not specified neither the unit quantity nor type, then automatically
-      %  do a conversion to the default bases.
-      Exchanged = bases(Default_Bases)
-   ).
-
-
+	 
 % -----------------------------------------------------
 % display_xbrl_ledger_response/4
 % -----------------------------------------------------
 
-display_xbrl_ledger_response(Debug_Message, Start_Days, End_Days, Balance_Sheet_Entries) :-
+display_xbrl_ledger_response(Debug_Message, Start_Days, End_Days, Balance_Sheet_Entries, Trial_Balance, ProftAndLoss_Entries) :-
    format('Content-type: text/xml~n~n'), 
    writeln('<?xml version="1.0"?>'),
    writeln('<xbrli:xbrl xmlns:xbrli="http://www.xbrl.org/2003/instance" xmlns:link="http://www.xbrl.org/2003/linkbase" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:iso4217="http://www.xbrl.org/2003/iso4217" xmlns:basic="http://www.xbrlsite.com/basic">'),
@@ -169,6 +137,8 @@ display_xbrl_ledger_response(Debug_Message, Start_Days, End_Days, Balance_Sheet_
    writeln('  <link:linkbaseRef xlink:type="simple" xlink:href="basic-formulas.xml" xlink:arcrole="http://www.w3.org/1999/xlink/properties/linkbase" />'),
    writeln('  <link:linkBaseRef xlink:type="simple" xlink:href="basic-formulas-cross-checks.xml" xlink:arcrole="http://www.w3.org/1999/xlink/properties/linkbase" />'),
 
+   writeln(Debug_Message),
+   
    format_date(End_Days, End_Date_String),
    format_date(Start_Days, Start_Date_String),
    gregorian_date(End_Days, date(End_Year,_,_)),
@@ -183,12 +153,15 @@ display_xbrl_ledger_response(Debug_Message, Start_Days, End_Days, Balance_Sheet_
    writeln('    </period>'),
    writeln('  </context>'),
 
-   format_balance_sheet_entries(End_Year, Balance_Sheet_Entries, [], Used_Units, [], Lines),
+   format_balance_sheet_entries(End_Year, Balance_Sheet_Entries, [], Used_Units, [], Lines3),
+   format_balance_sheet_entries(End_Year, Trial_Balance, [], _, [], Lines1),
+   format_balance_sheet_entries(End_Year, ProftAndLoss_Entries, [], _, [], Lines2),
    maplist(write_used_unit, Used_Units), 
+
+   flatten([Lines1, Lines2, Lines3], Lines),
    atomic_list_concat(Lines, LinesString),
    writeln(LinesString),
    writeln('</xbrli:xbrl>'),
-   writeln(Debug_Message),
    nl, nl.
 
 format_balance_sheet_entries(_, [], Used_Units, Used_Units, Lines, Lines).
@@ -207,8 +180,8 @@ format_balances(End_Year, Name, [Balance|Balances], Used_Units_In, UsedUnitsOut,
   
 format_balance(End_Year, Name, coord(Unit, Debit, Credit), Used_Units_In, UsedUnitsOut, LinesIn, LinesOut) :-
    union([Unit], Used_Units_In, UsedUnitsOut),
-   Balance is Debit - Credit,
-   format(string(BalanceSheetLine), '  <basic:~w contextRef="D-~w" unitRef="U-~w" decimals="INF">~w</basic:~w>\n', [Name, End_Year, Unit, Balance, Name]),
+   Balance is round(Debit - Credit),
+   format(string(BalanceSheetLine), '  <basic:~w contextRef="D-~w" unitRef="U-~w" decimals="INF">~D</basic:~w>\n', [Name, End_Year, Unit, Balance, Name]),
    append(LinesIn, [BalanceSheetLine], LinesOut).
 
 write_used_unit(Unit) :-

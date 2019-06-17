@@ -57,16 +57,26 @@ sales_account(Livestock_Type, SalesAccount) :-
 	atom_concat(Livestock_Type, 'Sales', SalesAccount).
 
 extract_account_hierarchy(Request_Dom, Account_Hierarchy) :-
-   (
-      (
-         inner_xml(Request_Dom, //reports/balanceSheetRequest/accountHierarchyUrl, [Account_Hierarchy_Url]), 
-         fetch_account_hierarchy_from_url(Account_Hierarchy_Url, Account_Hierarchy_Dom), !
-      )
-      ;
-         load_xml('./taxonomy/account_hierarchy.xml', Account_Hierarchy_Dom, [])
-   ),
-   extract_account_hierarchy2(Account_Hierarchy_Dom, Account_Hierarchy).
-
+	(
+			xpath(Request_Dom, //reports/balanceSheetRequest/accountHierarchy, Account_Hierarchy_Dom)
+		->
+			true
+		;
+		(
+			(
+				inner_xml(Request_Dom, //reports/balanceSheetRequest/accountHierarchyUrl, [Account_Hierarchy_Url])
+			->
+				fetch_account_hierarchy_from_url(Account_Hierarchy_Url, Account_Hierarchy_Dom)
+			;
+				(
+					load_xml('./taxonomy/account_hierarchy.xml', Dom2, []),
+					xpath(Dom2, //accountHierarchy, Account_Hierarchy_Dom)
+				)
+			)
+		)
+	),
+	extract_account_hierarchy2(Account_Hierarchy_Dom, Account_Hierarchy).
+         
 fetch_account_hierarchy_from_url(Account_Hierarchy_Url, Account_Hierarchy_Dom) :-
    http_get(Account_Hierarchy_Url, Account_Hierarchy_Xml_Text, []),
    store_xml_document('tmp/account_hierarchy.xml', Account_Hierarchy_Xml_Text),
@@ -79,8 +89,7 @@ fetch_account_hierarchy_from_url(Account_Hierarchy_Url, Account_Hierarchy_Dom) :
 % ------------------------------------------------------------------
 
 extract_account_hierarchy2(Account_Hierarchy_Dom, Account_Hierarchy) :-   
-   % fixme when input format is agreed on
-   findall(Account, xpath(Account_Hierarchy_Dom, //accounts, Account), Accounts),
+   findall(Account, xpath(Account_Hierarchy_Dom, *, Account), Accounts),
    findall(Link, (member(Top_Level_Account, Accounts), accounts_link(Top_Level_Account, Link)), Account_Hierarchy).
 
  

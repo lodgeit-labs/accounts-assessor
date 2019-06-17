@@ -5,9 +5,9 @@
 % ===================================================================
 
 :- module(transactions, [transaction_account_ancestor_id/3,
-		  	 transaction_between/3,
+		  	 transaction_in_period/3,
 		 	 transaction_vectors_total/2,
-			 transactions_up_to_day_on_account_and_subaccounts/5,
+			 transactions_before_day_on_account_and_subaccounts/5,
 			 transaction_day/2,
 			 transaction_description/2,
 			 transaction_account_id/2,
@@ -33,7 +33,7 @@ transaction_account_ancestor_id(Accounts, Transaction, Ancestor_Account_Id) :-
 	transaction_account_id(Transaction, Transaction_Account_Id),
 	account_ancestor_id(Accounts, Transaction_Account_Id, Ancestor_Account_Id).
 
-transaction_between(Transaction, From_Day, To_Day) :-
+transaction_in_period(Transaction, From_Day, To_Day) :-
 	transaction_day(Transaction, Day),
 	From_Day =< Day,
 	Day =< To_Day.
@@ -41,7 +41,7 @@ transaction_between(Transaction, From_Day, To_Day) :-
 % up_to?
 transaction_before(Transaction, End_Day) :-
 	transaction_day(Transaction, Day),
-	Day =< End_Day.
+	Day < End_Day.
 
 
 % add up and reduce all the vectors of all the transactions, result is one vector
@@ -55,7 +55,7 @@ transaction_vectors_total([Hd_Transaction | Tl_Transaction], Reduced_Net_Activit
 	vec_reduce(Net_Activity, Reduced_Net_Activity).
 
 
-transactions_up_to_day_on_account_and_subaccounts(Accounts, Transactions, Account_Id, Day, Filtered_Transactions) :-
+transactions_before_day_on_account_and_subaccounts(Accounts, Transactions, Account_Id, Day, Filtered_Transactions) :-
 	findall(
 		Transaction, (
 			member(Transaction, Transactions),

@@ -4,7 +4,7 @@
 % Date:      2019-06-02
 % ===================================================================
 
-:- module(exchange_rates, [exchange_rate/5]).
+:- module(exchange_rates, [exchange_rate/5, is_exchangeable_into_request_bases/4]).
 
 :- use_module(library(http/http_open)).
 :- use_module(library(http/json)).
@@ -93,3 +93,15 @@ equivalence_exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate
 
 exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate) :-
   equivalence_exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate, 2), !.
+
+exchange_rate_nothrow(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate) :-
+	catch(
+		exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate),
+		existence_error(_,_),
+		false
+	).
+
+is_exchangeable_into_request_bases(Table, Day, Src_Currency, Bases) :-
+	member(Dest_Currency, Bases),
+	exchange_rate_nothrow(Table, Day, Src_Currency, Dest_Currency, _Exchange_Rate),
+	!.
