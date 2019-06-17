@@ -9,6 +9,7 @@
 :- use_module(library(http/http_open)).
 :- use_module(library(http/json)).
 :- use_module(days, [gregorian_date/2]).
+:- use_module(library(persistency)).
 
 % -------------------------------------------------------------------
 % Obtains all available exchange rates on the day Day using an arbitrary base currency
@@ -18,7 +19,19 @@
 
 :- dynamic exchange_rates/2.
 
+:- persistent(cached_exchange_rates(day: integer, rates:list)).
+
+:- initialization(db_attach('tmp/cached_exchange_rates.pl' , [])).
+
 exchange_rates(Day, Exchange_Rates) :-
+	with_mutex(db, exchange_rates2(Day, Exchange_Rates)).
+
+exchange_rates2(Day, Exchange_Rates) :-
+	(cached_exchange_rates(Day, Exchange_Rates),!)
+	;
+	fetch_exchange_rates(Day, Exchange_Rates).
+
+fetch_exchange_rates(Day, Exchange_Rates) :-
 	gregorian_date(Day, Date),
 	format_time(string(Date_Str), "%Y-%m-%d", Date),
 	string_concat("http://openexchangerates.org/api/historical/", Date_Str, Query_Url_A),
@@ -27,7 +40,7 @@ exchange_rates(Day, Exchange_Rates) :-
 	json_read(Stream, json(Response), []),
 	member(rates = json(Exchange_Rates), Response),
 	close(Stream),
-	asserta((exchange_rates(Day, Exchange_Rates) :- !)).
+	assert_cached_exchange_rates(Day, Exchange_Rates).
 
 % % Predicates for asserting that the fields of given exchange rates have particular values
 

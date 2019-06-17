@@ -8,6 +8,8 @@
 
 :- use_module(library(http/http_client)).
 :- use_module('utils', [inner_xml/3]).
+:- use_module(library(record)).
+
 
 /*
 currently we have just a proof-of-concept level of referencing accounts, simply by names
@@ -28,18 +30,11 @@ i would make these changes incrementally as needed, as usage scenarios are ident
 */
 
 
-% --------------------------------------------------------------------
-% Predicates for asserting that the fields of given accounts have particular values
+:- record account(id, parent_id).
 
-% The ID of the given account
-account_id(account(Account_Id, _), Account_Id).
-% The ID of the parent of the given account
-account_parent_id(account(_, Account_Parent_Id), Account_Parent_Id).
-% Relates an account id to a parent account id
+
 account_parent_id(Accounts, Account_Id, Parent_Id) :-
-	account_parent_id(Account, Parent_Id),
-	account_id(Account, Account_Id),
-	member(Account, Accounts).
+	member(account(Account_Id, Parent_Id), Accounts).
 	
 
 % Relates an account to an ancestral account

@@ -24,23 +24,17 @@
 :- use_module(utils, [pretty_term_string/2, inner_xml/3, write_tag/2, fields/2, fields_nothrow/2, numeric_fields/2]).
 :- use_module(accounts, [account_parent_id/3]).
 :- use_module(days, [format_date/2, parse_date/2, gregorian_date/2]).
+:- use_module(library(record)).
 
 % -------------------------------------------------------------------
 
-% Predicates for asserting that the fields of given statement transactions have particular values
-%  s_transaction(Day, Type_Id, Vector, Unexchanged_Account_Id, Bases)
-
-% The absolute day that the transaction happenned
-s_transaction_day(s_transaction(Day, _, _, _, _), Day).
-% The type identifier of the transaction
-s_transaction_type_id(s_transaction(_, Type_Id, _, _, _), Type_Id).
-% The amounts that are being moved in this transaction
-s_transaction_vector(s_transaction(_, _, Vector, _, _), Vector).
-% The account that the transaction modifies without using exchange rate conversions
-s_transaction_account_id(s_transaction(_, _, _, Unexchanged_Account_Id, _), Unexchanged_Account_Id).
-% Either the units or the amount to which the transaction amount will be converted to
+:- record s_transaction(day, type_id, vector, account_id, exchanged).
+% - The absolute day that the transaction happenned
+% - The type identifier/action tag of the transaction
+% - The amounts that are being moved in this transaction
+% - The account that the transaction modifies without using exchange rate conversions
+% - Either the units or the amount to which the transaction amount will be converted to
 % depending on whether the term is of the form bases(...) or vector(...).
-s_transaction_exchanged(s_transaction(_, _, _, _, Bases), Bases).
 
 
 % Gets the transaction_type term associated with the given transaction
