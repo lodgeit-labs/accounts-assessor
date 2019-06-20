@@ -4,10 +4,10 @@
 % Date:      2019-06-02
 % ===================================================================
 
-:- module(accounts, [account_parent_id/3, account_ancestor_id/3, account_ids/9, extract_account_hierarchy/2, cogs_account/2, sales_account/2]).
+:- module(accounts, [account_parent_id/3, account_ancestor_id/3, account_ids/9, extract_account_hierarchy/2]).
 
 :- use_module(library(http/http_client)).
-:- use_module('utils', [inner_xml/3]).
+:- use_module('utils', [inner_xml/3, trim_atom/2]).
 :- use_module(library(record)).
 
 
@@ -50,12 +50,6 @@ account_ancestor_id(Accounts, Account_Id, Ancestor_Id) :-
 account_ids(_Accounts,
       'Assets', 'Equity', 'Liabilities', 'Earnings', 'RetainedEarnings', 'CurrentEarningsLosses', 'Revenue', 'Expenses').
 
-cogs_account(Livestock_Type, CogsAccount) :-
-	atom_concat(Livestock_Type, 'Cogs', CogsAccount).
-
-sales_account(Livestock_Type, SalesAccount) :-
-	atom_concat(Livestock_Type, 'Sales', SalesAccount).
-
 extract_account_hierarchy(Request_Dom, Account_Hierarchy) :-
 	(
 			xpath(Request_Dom, //reports/balanceSheetRequest/accountHierarchy, Account_Hierarchy_Dom)
@@ -64,16 +58,20 @@ extract_account_hierarchy(Request_Dom, Account_Hierarchy) :-
 		;
 		(
 			(
-				inner_xml(Request_Dom, //reports/balanceSheetRequest/accountHierarchyUrl, [Account_Hierarchy_Url])
+				inner_xml(Request_Dom, //reports/balanceSheetRequest/accountHierarchyUrl, [Account_Hierarchy_Url0])
 			->
-				fetch_account_hierarchy_from_url(Account_Hierarchy_Url, Account_Hierarchy_Dom)
+				(
+					trim_atom(Account_Hierarchy_Url0, Account_Hierarchy_Url),
+					fetch_account_hierarchy_from_url(Account_Hierarchy_Url, Dom)
+				)
 			;
 				(
-					load_xml('./taxonomy/account_hierarchy.xml', Dom2, []),
-					xpath(Dom2, //accountHierarchy, Account_Hierarchy_Dom)
+					writeln("loading default account hierarchy"),
+					load_xml('./taxonomy/account_hierarchy.xml', Dom, [])
 				)
 			)
-		)
+		),
+		xpath(Dom, //accountHierarchy, Account_Hierarchy_Dom)
 	),
 	extract_account_hierarchy2(Account_Hierarchy_Dom, Account_Hierarchy).
          

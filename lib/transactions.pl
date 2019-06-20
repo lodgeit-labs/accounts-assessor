@@ -11,10 +11,11 @@
 			 transaction_day/2,
 			 transaction_description/2,
 			 transaction_account_id/2,
-			 transaction_vector/2
+			 transaction_vector/2,
+			 check_transaction_account/2
 		        ]).
 
-:- use_module(accounts, [account_ancestor_id/3]).
+:- use_module(accounts, [account_ancestor_id/3, account_parent_id/3]).
 :- use_module(days, [absolute_day/2, gregorian_date/2]).
 :- use_module(pacioli, [vec_add/3, vec_reduce/2]).
 :- use_module(library(record)).
@@ -56,6 +57,7 @@ transaction_vectors_total([Hd_Transaction | Tl_Transaction], Reduced_Net_Activit
 
 
 transactions_before_day_on_account_and_subaccounts(Accounts, Transactions, Account_Id, Day, Filtered_Transactions) :-
+	(var(Transactions) -> throw("errrRRR") ; true),
 	findall(
 		Transaction, (
 			member(Transaction, Transactions),
@@ -76,3 +78,19 @@ transaction_date(Transaction, Date) :-
 	gregorian_date(Day, Date).
 
 
+check_transaction_account(Accounts, Transaction) :-
+	transaction_account_id(Transaction, Account),
+	(
+		(
+			nonvar(Account),
+			account_parent_id(Accounts, Account, _)
+		)
+		->
+			true
+		;
+		(
+			term_string(Account, Str),
+			throw(Str)
+		)
+	).
+	

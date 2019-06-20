@@ -43,73 +43,11 @@
       </unitValue>
     </unitValues>
 
-	
-	<accountHierarchy>
-		<Accounts>
-		<BalanceSheet>
-			<Assets>
-				<CurrentAssets>
-					<CashAndCashEquivalents>
-						<WellsFargo/>
-						<NationalAustraliaBank/>
-					</CashAndCashEquivalents>
-					<AssetsLivestockAtCost/>
-					<AssetsLivestockAtAverageCost/>
-				</CurrentAssets>
-				<NoncurrentAssets>
-					<FinancialInvestments/>
-					<RetainedEarnings/>
-				</NoncurrentAssets>
-			</Assets>
-			<Liabilities>
-				<NoncurrentLiabilities>
-					<NoncurrentLoans/>
-				</NoncurrentLiabilities>
-				<CurrentLiabilities>
-					<CurrentLoans/>
-				</CurrentLiabilities>
-			</Liabilities>
-			<Equity>
-				<ShareCapital/>
-				<Drawings/>
-				<RetainedEarnings>
-					<CurrentEarnings/>
-					<HistoricalEarnings/>
-				</RetainedEarnings>
-			</Equity>
-		</BalanceSheet>
-		<Earnings>
-			<Revenue>
-				<InvestmentIncome/>
-				<SalesOfLivestock>
-					<CowsSales/>
-					<SheepSales/>
-				</SalesOfLivestock>
-				<RationsRevenue/>
-				<ForexGain/>
-			</Revenue>
-			<Expenses>
-				<LivestockAdjustment/>			
-				<BankCharges/>
-				<ForexLoss/>
-				<Purchases/>
-				<CostOfGoodsLivestock>
-					<CowsCogs/>
-					<SheepCogs/>
-					<ExpensesCogsLivestockAdjustment/>
-				</CostOfGoodsLivestock>	
-			</Expenses>
-		</Earnings>
-		</Accounts>
-		<Livestock>
-			<Cows/>
-			<Sheep/>
-		</Livestock>
-	</accountHierarchy>
-		
+    <accountHierarchyUrl>
+		http://dev-node.uksouth.cloudapp.azure.com:7778/static/account_hierarchy_livestock.xml
+    </accountHierarchyUrl>
 	
     <actionTaxonomy>
-      <!-- fixme, should not all have tradingAccount InvestmentIncome -->
       <action>
         <id>Invest_In</id>
         <description>Shares</description>
@@ -126,48 +64,37 @@
         <id>Borrow</id>
         <description>Shares</description>
         <exchangeAccount>NoncurrentLoans</exchangeAccount>
-        <tradingAccount>InvestmentIncome</tradingAccount>
       </action>
       <action>
         <id>Introduce_Capital</id>
         <description>Unit_Investment</description>
         <exchangeAccount>ShareCapital</exchangeAccount>
-        <tradingAccount>InvestmentIncome</tradingAccount>
       </action>
       <action>
         <id>Gain</id>
         <description>Unit_Investment</description>
         <exchangeAccount>ShareCapital</exchangeAccount>
-        <tradingAccount>InvestmentIncome</tradingAccount>
       </action>
       <action>
         <id>Loss</id>
         <description>No Description</description>
         <exchangeAccount>ShareCapital</exchangeAccount>
-        <tradingAccount>InvestmentIncome</tradingAccount>
       </action>
       <action>
         <id>PayBank</id>
         <description>No Description</description>
         <exchangeAccount>BankCharges</exchangeAccount>
-        <tradingAccount>InvestmentIncome</tradingAccount>
       </action>
     </actionTaxonomy>
+
 
     <livestockData>
       <type>Sheep</type>
       <naturalIncreaseValuePerUnit>20</naturalIncreaseValuePerUnit>
-      <!-- <currency>AUD</currency> -->
       <openingCount>27</openingCount>
       <openingCost>1234</openingCost>
       <events>
 
-<!--        <naturalIncrease>
-          <! before the report period, todo >
-          <date>2010-01-30</date>
-          <count>27</count>
-        </naturalIncrease>
--->
         <naturalIncrease>
           <date>2018-01-30</date>
           <count>12</count>

@@ -23,7 +23,7 @@
 :- use_module(library(http/html_write)).
 :- use_module(library(option)).
 :- use_module(library(http/http_dispatch), [http_safe_file/2]).
-
+:- use_module(library(http/http_files)).
 
 :- use_module('chat/residency').
 :- use_module('chat/sbe').
@@ -38,6 +38,8 @@
 :- http_handler(root(upload), upload,      []).
 :- http_handler(root(chat/sbe), sbe_request, [methods([post])]).
 :- http_handler(root(chat/residency), residency_request, [methods([post])]).
+:- http_handler(root(.), http_reply_from_files('.', []), [prefix]).
+
 
 
 % -------------------------------------------------------------------

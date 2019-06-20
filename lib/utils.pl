@@ -1,6 +1,6 @@
 :- module(utils, [
 	user:goal_expansion/2, inner_xml/3, write_tag/2, fields/2, fields_nothrow/2, numeric_fields/2, 
-	pretty_term_string/2, pretty_term_string/2, with_info_value_and_info/3]).
+	pretty_term_string/2, pretty_term_string/2, with_info_value_and_info/3, trim_atom/2]).
 :- use_module(library(xpath)).
 
 	
@@ -69,6 +69,19 @@ fields_nothrow(Dom, [Name_String, Value|Rest]) :-
 	fields_nothrow(Dom, Rest).
 
 fields_nothrow(_, []).
+
+numeric_fields(Dom, [Name_String, Value_And_Default|Rest]) :-
+	nonvar(Value_And_Default),
+	!,
+	(Value, Default_Value) = Value_And_Default,
+	(
+		(
+			numeric_field(Dom, Name_String, Value),
+			!
+		);
+		Value = Default_Value
+	),
+	numeric_fields(Dom, Rest).
 
 numeric_fields(Dom, [Name_String, Value|Rest]) :-
 	(
