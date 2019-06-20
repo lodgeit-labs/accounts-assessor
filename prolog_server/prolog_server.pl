@@ -38,6 +38,7 @@
 :- http_handler(root(upload), upload,      []).
 :- http_handler(root(chat/sbe), sbe_request, [methods([post])]).
 :- http_handler(root(chat/residency), residency_request, [methods([post])]).
+:- http_handler('/favicon.ico', http_reply_file('static/favicon.ico', []), []).
 :- http_handler(root(.), http_reply_from_files('.', []), [prefix]).
 
 

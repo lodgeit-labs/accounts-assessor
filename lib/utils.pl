@@ -1,6 +1,6 @@
 :- module(utils, [
 	user:goal_expansion/2, inner_xml/3, write_tag/2, fields/2, fields_nothrow/2, numeric_fields/2, 
-	pretty_term_string/2, pretty_term_string/2, with_info_value_and_info/3, trim_atom/2]).
+	pretty_term_string/2, pretty_term_string/2, with_info_value_and_info/3, trim_atom/2, maplist6/6]).
 :- use_module(library(xpath)).
 
 	
@@ -120,7 +120,16 @@ with_info_value_and_info(with_info(Value, Info), Value, Info).
 
 
 
+:- meta_predicate maplist6(6, ?, ?, ?, ?, ?).
+:- meta_predicate maplist6_(?, ?, ?, ?, ?, 6).
 
+maplist6(Goal, List1, List2, List3, List4, List5) :-
+    maplist6_(List1, List2, List3, List4, List5, Goal).
+
+maplist6_([], [], [], [], [], _).
+	maplist6_([Elem1|Tail1], [Elem2|Tail2], [Elem3|Tail3], [Elem4|Tail4], [Elem5|Tail5], Goal) :-
+    call(Goal, Elem1, Elem2, Elem3, Elem4, Elem5),
+    maplist6_(Tail1, Tail2, Tail3, Tail4, Tail5, Goal).
 
 
 
@@ -192,3 +201,5 @@ fields_to_numeric([NameString, Atom | Fields_Rest], [NameString, Number | Numeri
 	
 fields_to_numeric([], []).
 */
+
+

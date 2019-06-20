@@ -4,9 +4,11 @@
 beginning and ending dates are often ignored
 */
 
-:- module(livestock, [get_livestock_types/2, process_livestock/15, preprocess_livestock_buy_or_sell/5, make_livestock_accounts/2, livestock_counts/5, extract_livestock_opening_costs_and_counts/2, compute_livestock_by_simple_calculation/22]).
-:- use_module(utils, [user:goal_expansion/2, inner_xml/3, fields/2, numeric_fields/2, pretty_term_string/2, with_info_value_and_info/3]).
-:- use_module(pacioli, [vec_add/3, vec_inverse/2, vec_reduce/2, vec_sub/3]).
+:- module(livestock, [
+		get_livestock_types/2, process_livestock/15, preprocess_livestock_buy_or_sell/5, make_livestock_accounts/2, livestock_counts/5, extract_livestock_opening_costs_and_counts/2, compute_livestock_by_simple_calculation/22]).
+:- use_module(utils, [
+		user:goal_expansion/2, inner_xml/3, fields/2, numeric_fields/2, pretty_term_string/2, with_info_value_and_info/3, maplist6/6]).
+:- use_module(pacioli, [vec_add/3, vec_inverse/2, vec_reduce/2, vec_sub/3, integer_to_coord/3]).
 :- use_module(accounts, [account_ancestor_id/3]).
 :- use_module(days, [parse_date/2]).
 :- use_module(ledger, [balance_by_account/8]).
@@ -649,7 +651,7 @@ do_livestock_cross_check(Events, Natural_Increase_Costs, S_Transactions, Transac
 	
 	Natural_Increase_value is Natural_Increase_Count * Natural_Increase_Cost_Per_Head,
 	
-	/*fixme, the simple calculator should total these three for all livestock types*/
+	/*fixme, the simple calculator should total these three for all livestock types? if it should support multiple livestock datasets at once at all.*/
 	
 	balance_by_account(Exchange_Rates, Accounts, Transactions, Bases, To_Day, 'Revenue', To_Day, Revenue_Credit),
 	vec_inverse(Revenue_Credit, [Revenue_Coord]),
@@ -662,14 +664,6 @@ do_livestock_cross_check(Events, Natural_Increase_Costs, S_Transactions, Transac
 	vec_inverse(Earnings_Credit, [Earnings_Coord]),
 	integer_to_coord(Currency, Gross_Profit_on_Livestock_Trading, Earnings_Coord).
 
-integer_to_coord(Unit, Integer, coord(Unit, Integer2, Zero)) :-
-	((Zero = 0,!); Zero =:= 0),
-	((Integer = Integer2,!); Integer =:= Integer2),
-	Integer >= 0.
-integer_to_coord(Unit, Integer, coord(Unit, Zero, Integer2)) :-
-	((Zero = 0,!); Zero =:= 0),
-	((Integer = Integer2,!); Integer =:= Integer2),
-	Integer < 0.
 	
 		
 
@@ -704,18 +698,7 @@ compute_livestock_by_simple_calculation(	Natural_increase_count,Natural_increase
 	Livestock_COGS is Opening_and_purchases_value - Stock_on_hand_at_end_of_year_value - Killed_for_rations_or_exchanged_for_goods_value,
 	Gross_Profit_on_Livestock_Trading is Revenue - Livestock_COGS.
 
-	
-maplist6(Goal, List1, List2, List3, List4, List5) :-
-    maplist6_(List1, List2, List3, List4, List5, Goal).
-
-maplist6_([], [], [], [], [], _).
-maplist6_([Elem1|Tail1], [Elem2|Tail2], [Elem3|Tail3], [Elem4|Tail4], [Elem5|Tail5], Goal) :-
-    call(Goal, Elem1, Elem2, Elem3, Elem4, Elem5),
-    maplist6_(Tail1, Tail2, Tail3, Tail4, Tail5, Goal).
-
-
-
-	
+		
 sales_and_buys_count(Livestock_Type, S_Transactions, Buys_Count, Buys_Value, Sales_Count, Sales_Value) :-
 	maplist6(sales_and_buys_count2(Livestock_Type), S_Transactions, Buys_Count_List, Buys_Value_List, Sales_Count_List, Sales_Value_List),
 	sum_list(Buys_Count_List, Buys_Count),
