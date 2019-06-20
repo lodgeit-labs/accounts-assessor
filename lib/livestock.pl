@@ -600,8 +600,7 @@ process_livestock(Livestock_Doms, Livestock_Types, Default_Bases, S_Transactions
 
 
 	
-do_livestock_cross_check(Events, Natural_Increase_Costs, S_Transactions, Transactions, Opening_Costs_And_Counts, From_Day, To_Day, Exchange_Rates, Accounts, Bases, Average_Costs, Type) :-
-	print_term(do_livestock_cross_check(Events, Natural_Increase_Costs, S_Transactions, Opening_Costs_And_Counts, From_Day, To_Day, Exchange_Rates, Accounts, Bases, Average_Costs, Type), []),
+do_livestock_cross_check(Events, Natural_Increase_Costs, S_Transactions, Transactions, Opening_Costs_And_Counts, _From_Day, To_Day, Exchange_Rates, Accounts, Bases, Average_Costs, Type) :-
 	% gather up the inputs
 	natural_increase_count(Type, Events, Natural_Increase_Count),
 	member(natural_increase_cost(Type, [coord(Currency, Natural_Increase_Cost_Per_Head, 0)]), Natural_Increase_Costs),
@@ -719,13 +718,11 @@ maplist6_([Elem1|Tail1], [Elem2|Tail2], [Elem3|Tail3], [Elem4|Tail4], [Elem5|Tai
 	
 sales_and_buys_count(Livestock_Type, S_Transactions, Buys_Count, Buys_Value, Sales_Count, Sales_Value) :-
 	maplist6(sales_and_buys_count2(Livestock_Type), S_Transactions, Buys_Count_List, Buys_Value_List, Sales_Count_List, Sales_Value_List),
-	writeln("summing sales/buys"),
 	sum_list(Buys_Count_List, Buys_Count),
 	sum_list(Buys_Value_List, Buys_Value),
 	sum_list(Sales_Count_List, Sales_Count),
-	sum_list(Sales_Value_List, Sales_Value),
-	writeln("summing sales/buys done").
-	
+	sum_list(Sales_Value_List, Sales_Value).
+		
 sales_and_buys_count2(Livestock_Type, S_Transaction, Buys_Count, Buys_Value, 0, 0) :-
 	s_transaction_is_livestock_buy_or_sell(S_Transaction, _Day, Livestock_Type, Livestock_Coord, _, _, _, 0, Buys_Value),
 	!,
@@ -741,11 +738,9 @@ sales_and_buys_count2(_,_,0,0,0,0).
 
 events_count(Type, Events, Borns, Losses, Rations) :-
 	maplist(events_count2(Type), Events, Borns_List, Losses_List, Rations_List),
-	writeln("summing events"),
 	sum_list(Borns_List, Borns),
 	sum_list(Losses_List, Losses),
-	sum_list(Rations_List, Rations),
-	writeln("summing events done").
+	sum_list(Rations_List, Rations).
 
 events_count2(Type, Event, Borns, Losses, Rations) :-
 	(Event = born(Type, _Day, Borns), Rations=0, Losses=0);
@@ -778,15 +773,3 @@ count_account(Livestock_Type, Count_Account) :-
 	atom_concat(Livestock_Type, 'Count', Count_Account).
 	
 	
-	
-/*
-extract_livestock_events/2, extract_natural_increase_costs/2, extract_opening_costs_and_counts/2, preprocess_livestock_event/2, get_average_costs/4, get_more_livestock_transactions/5, get_livestock_cogs_transactions/5
-*/
-
-/*
-	%exchange_rate(_, _, Currency, Average_Cost_Per_Head) = Average_Rate,
-	%Average_Cost is Livestock_Count * Average_Cost_Per_Head,
-	%Average_Cost_Vector = [coord(Currency, Average_Cost, 0)],
-	%vec_inverse(Average_Cost_Vector, Cost),
-*/
-
