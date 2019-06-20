@@ -563,26 +563,22 @@ get_livestock_inventory_transactions(Livestock_Types, Opening_Costs_And_Counts, 
 	),
 	Assets_Transactions).
 
-	
-get_opening_vector(Livestock_Types, Opening_Costs_And_Counts, Opening_Vector) :-
-	findall(Opening_Cost_Coord,
-	(
-		member(Livestock_Type, Livestock_Types),
-		member(Opening_Cost_And_Count, Opening_Costs_And_Counts),	
-		opening_cost_and_count(Livestock_Type, [Opening_Cost_Coord], _) = Opening_Cost_And_Count
-	),
-	Opening_Vector).
-
-process_livestock(Livestock_Doms, Livestock_Types, Default_Bases, S_Transactions, Transactions_In, Opening_Costs_And_Counts, Start_Days, End_Days, Exchange_Rates, Accounts, Bases, Transactions_Out, Livestock_Events, Average_Costs, Average_Costs_Explanations) :-
-	extract_livestock_events(Livestock_Doms, Livestock_Events),
-	extract_natural_increase_costs(Livestock_Doms, Natural_Increase_Costs),
-	
+opening_inventory_transactions(Start_Days, Opening_Costs_And_Counts, Livestock_Type, Opening_Inventory_Transactions) :-
+	member(Opening_Cost_And_Count, Opening_Costs_And_Counts),
+	opening_cost_and_count(Livestock_Type, Opening_Vector, _) = Opening_Cost_And_Count,
+	vec_inverse(Opening_Vector, Opening_Vector_Credit),
 	Opening_Inventory_Transactions = [
 		transaction(Start_Days, 'livestock opening inventory', 'AssetsLivestockAtCost', Opening_Vector),
 		transaction(Start_Days, 'livestock opening inventory', 'CapitalIntroduced', Opening_Vector_Credit)		
-	],
-	get_opening_vector(Livestock_Types, Opening_Costs_And_Counts, Opening_Vector),
-	vec_inverse(Opening_Vector, Opening_Vector_Credit),
+	].
+	
+	
+process_livestock(Livestock_Doms, Livestock_Types, Default_Bases, S_Transactions, Transactions_In, Opening_Costs_And_Counts, Start_Days, End_Days, Exchange_Rates, Accounts, Bases, Transactions_Out, Livestock_Events, Average_Costs, Average_Costs_Explanations) :-
+	extract_livestock_events(Livestock_Doms, Livestock_Events),
+	extract_natural_increase_costs(Livestock_Doms, Natural_Increase_Costs),
+
+	maplist(opening_inventory_transactions(Start_Days, Opening_Costs_And_Counts), Livestock_Types, Opening_Inventory_Transactions0),
+	flatten(Opening_Inventory_Transactions0, Opening_Inventory_Transactions),
 	append(Transactions_In, Opening_Inventory_Transactions, Transactions1),
 
 	maplist(preprocess_livestock_event, Livestock_Events, Livestock_Event_Transactions_Nested),
