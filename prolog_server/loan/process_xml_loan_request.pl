@@ -2,7 +2,7 @@
 % Project:   LodgeiT
 % Module:    process_xml_loan_request.pl
 % Author:    Abdus Salam and Rolf Schwitter
-% Date:      2019-06-12
+% Date:      2019-06-21
 % ===================================================================
 
 %--------------------------------------------------------------------
@@ -10,6 +10,10 @@
 %--------------------------------------------------------------------
 
 :- module(process_xml_loan_request, [process_xml_loan_request/2]).
+
+% use "XSD" library to validate XML
+:- use_module(library(xsd)).
+:- use_module(library(xsd/flatten)).
 
 :- use_module('../../lib/loans', [loan_agr_summary/2]).
 :- use_module('../../lib/days',  [absolute_day/2, parse_date/2]).
@@ -54,20 +58,68 @@ process_xml_loan_request(FileNameIn, DOM) :-
 display_xml_loan_response(FileNameOut, IncomeYear, 
                     loan_summary(_Number, OpeningBalance, InterestRate, MinYearlyRepayment, TotalRepayment,
 			         RepaymentShortfall, TotalInterest, TotalPrincipal, ClosingBalance)) :-
-   FileNameOut = 'loan-response.xml',
-   format('Content-type: text/xml~n~n'), 
-   writeln('<?xml version="1.0"?>'), nl,   
-   writeln('<LoanSummary xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">'),
-   format('<IncomeYear>~w</IncomeYear>~n', IncomeYear),
-   format('<OpeningBalance>~w</OpeningBalance>~n', OpeningBalance),
-   format('<InterestRate>~w</InterestRate>~n', InterestRate),
-   format('<MinYearlyRepayment>~w</MinYearlyRepayment>~n', MinYearlyRepayment),
-   format('<TotalRepayment>~w</TotalRepayment>~n', TotalRepayment),
-   format('<RepaymentShortfall>~w</RepaymentShortfall>~n', RepaymentShortfall),
-   format('<TotalInterest>~w</TotalInterest>~n', TotalInterest),
-   format('<TotalPrincipal>~w</TotalPrincipal>~n', TotalPrincipal),
-   format('<ClosingBalance>~w</ClosingBalance>~n', ClosingBalance),
-   write('</LoanSummary>'), nl.
+   FileNameOut = 'loan-response.xml',   
+
+   % populate loan response xml
+   atomic_list_concat([
+   '<?xml version="1.0"?>\n\n',
+   '<LoanSummary xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="loan_response.xsd">\n',
+   '<IncomeYear>', IncomeYear, '</IncomeYear>\n', 
+   '<OpeningBalance>', OpeningBalance, '</OpeningBalance>\n', 
+   '<InterestRate>', InterestRate, '</InterestRate>\n', 
+   '<MinYearlyRepayment>', MinYearlyRepayment, '</MinYearlyRepayment>\n', 
+   '<TotalRepayment>', TotalRepayment, '</TotalRepayment>\n', 
+   '<RepaymentShortfall>', RepaymentShortfall, '</RepaymentShortfall>\n', 
+   '<TotalInterest>', TotalInterest, '</TotalInterest>\n', 
+   '<TotalPrincipal>', TotalPrincipal, '</TotalPrincipal>\n', 
+   '<ClosingBalance>', ClosingBalance, '</ClosingBalance>\n', 
+   '</LoanSummary>\n'],
+   LoanResponseXML
+   ),
+
+   % generating temporary file name for loan response xml
+   get_time(CurrentTime),
+   number_string(CurrentTime, CurrentTimeString),   
+   atomic_list_concat(['./tmp/', CurrentTimeString, '_tmp_loan_response.xml'], TempFileLoanResponseXML),
+
+   % create a temporary loan xml file to validate the response against the schema
+   open(TempFileLoanResponseXML, write, XMLStream),
+   write(XMLStream, LoanResponseXML),
+   close(XMLStream),
+
+
+   % generating temporary file name for loan response xsd
+   atomic_list_concat(['./tmp/', CurrentTimeString, '_tmp_loan_response.xsd'], TempFileLoanResponseXSD),   
+
+   % create a temporary loan xsd file to validate the response against the schema
+   read_file_to_string('./taxonomy/loan_response.xsd', LoanResponseXSD, []),
+   open(TempFileLoanResponseXSD, write, XSDStream),
+   write(XSDStream, LoanResponseXSD),
+   close(XSDStream),
+
+   format('Content-type: text/xml~n~n'),
+   % gtrace,
+   % if the xml response is valid then reply the response, otherwise reply an error message
+   (
+     % xml_flatten(TempFileLoanResponseXML, FileIdentifier),     
+     xsd_validate(TempFileLoanResponseXSD, TempFileLoanResponseXML)
+     % remove_file(TempFileLoanResponseXML)
+     ->
+     writeln(LoanResponseXML)     
+   ;
+     atomic_list_concat([
+     '<?xml version="1.0"?>\n\n',
+     '<LoanSummary xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="loan_response.xsd">\n',
+     '<ErrorMessage>Validation failed for xml loan response.</ErrorMessage>',
+     '</LoanSummary>\n'],
+     ErrorMessage
+     ),
+     writeln(ErrorMessage)
+   ),
+
+   % remove temporary files created for xml validation
+   delete_file(TempFileLoanResponseXML),
+   delete_file(TempFileLoanResponseXSD).
    
 
 % ===================================================================
