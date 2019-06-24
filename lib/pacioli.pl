@@ -9,7 +9,8 @@
 		    vec_identity/1,
 		    vec_inverse/2,
 		    vec_reduce/2,
-		    vec_sub/3]).
+		    vec_sub/3,
+		    integer_to_coord/3]).
 
 % -------------------------------------------------------------------
 % Pacioli group operations. These operations operate on vectors. A vector is a list of
@@ -80,3 +81,13 @@ vec_equality(As, Bs) :-
 	vec_sub(As, Bs, Cs),
 	forall(member(C, Cs), C = coord(_, 0, 0)).
 
+
+	
+integer_to_coord(Unit, Integer, coord(Unit, Integer2, Zero)) :-
+	((Zero = 0,!); Zero =:= 0),
+	((Integer = Integer2,!); Integer =:= Integer2),
+	Integer >= 0.
+integer_to_coord(Unit, Integer, coord(Unit, Zero, Integer2)) :-
+	((Zero = 0,!); Zero =:= 0),
+	((Integer = Integer2,!); Integer =:= Integer2),
+	Integer < 0.

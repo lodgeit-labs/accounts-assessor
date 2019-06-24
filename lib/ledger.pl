@@ -25,8 +25,6 @@
 % Hence the information derived by this program will ultimately be compared to values
 % calculated by other means.
 
-% :- ['exchange_rates', 'pacioli', 'exchange', 'accounts', 'transactions'].
-
 
 % Relates Day to the balance at that time of the given account.
 % exchanged

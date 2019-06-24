@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+<reports xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <livestockaccount>
+    <generator>
+      <date>2017-03-25T05:53:43.887542Z</date>
+      <source>ACCRIP</source>
+      <author>
+        <firstname>waqas</firstname>
+        <lastname>awan</lastname>
+        <company>Uhudsoft</company>
+      </author>
+    </generator>
+    <company>
+      <abn>12345678900</abn>
+      <tfn />
+      <clientcode />
+      <anzsic />
+      <notes />
+      <directors />
+    </company>
+    <title>Livestock Account Details</title>
+    <period>1 July, 2014 to 30 June, 2015</period>
+    <startDate>2014-07-01</startDate>
+    <endDate>2015-06-30</endDate>
+    <livestocks>
+      <livestock>
+        <name>Sheep</name>
+        <currency>AUD</currency>
+        <naturalIncreaseValuePerUnit>20</naturalIncreaseValuePerUnit>
+        <openingValue>1234</openingValue>
+        <saleValue>0</saleValue>
+        <purchaseValue>0</purchaseValue>
+        <unitsOpening>27</unitsOpening>
+        <unitsBorn>62</unitsBorn>
+        <unitsPurchases>0</unitsPurchases>
+        <unitsSales>0</unitsSales>
+        <unitsRations>0</unitsRations>
+        <unitsDeceased>1</unitsDeceased>    
+        <unitsClosing>88</unitsClosing>
+      </livestock>
+    </livestocks>
+  </livestockaccount>
+</reports>

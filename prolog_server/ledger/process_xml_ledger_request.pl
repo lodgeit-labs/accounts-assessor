@@ -16,10 +16,11 @@
 :- use_module('../../lib/utils', [
 	inner_xml/3, write_tag/2, fields/2, fields_nothrow/2, numeric_fields/2, 
 	pretty_term_string/2]).
-:- use_module('../../lib/ledger', [balance_sheet_at/8, trial_balance_between/8, profitandloss_between/8]).
+:- use_module('../../lib/ledger', [balance_sheet_at/8, trial_balance_between/8, profitandloss_between/8, balance_by_account/8]).
 :- use_module('../../lib/statements', [extract_transaction/4, preprocess_s_transaction_with_debug/8]).
-:- use_module('../../lib/livestock', [get_livestock_types/2, process_livestock/11]).
+:- use_module('../../lib/livestock', [get_livestock_types/2, process_livestock/15, make_livestock_accounts/2, livestock_counts/5, extract_livestock_opening_costs_and_counts/2]).
 :- use_module('../../lib/accounts', [extract_account_hierarchy/2]).
+:- use_module('../../lib/transactions', [check_transaction_account/2]).
 
 
 % ------------------------------------------------------------------
@@ -30,7 +31,7 @@ process_xml_ledger_request(_, Dom) :-
 	% this serves as an indicator of the desired report currency
 	extract_default_bases(Dom, Default_Bases),
 	extract_action_taxonomy(Dom, Action_Taxonomy),
-	extract_account_hierarchy(Dom, Account_Hierarchy),
+	extract_account_hierarchy(Dom, Account_Hierarchy0),
 	[Default_Currency | _] = Default_Bases,
 	extract_exchange_rates(Dom, End_Days, Exchange_Rates, Default_Currency),
 
@@ -42,27 +43,38 @@ process_xml_ledger_request(_, Dom) :-
 	findall(Livestock_Dom, xpath(Dom, //reports/balanceSheetRequest/livestockData, Livestock_Dom), Livestock_Doms),
 	get_livestock_types(Livestock_Doms, Livestock_Types),
 	
+	maplist(make_livestock_accounts, Livestock_Types, Livestock_Accounts_Nested),
+	flatten(Livestock_Accounts_Nested, Livestock_Accounts),
+	append(Account_Hierarchy0, Livestock_Accounts, Account_Hierarchy),
+	
 	findall(Transaction, extract_transaction(Dom, Default_Bases, Start_Date_Atom, Transaction), S_Transactions),
 	maplist(preprocess_s_transaction_with_debug(Account_Hierarchy, Default_Bases, Exchange_Rates, Action_Taxonomy, End_Days), S_Transactions, Transactions_Nested, Transaction_Transformation_Debug),
 		
 	flatten(Transactions_Nested, Transactions1),
    
-	process_livestock(Livestock_Doms, Livestock_Types, Default_Bases, S_Transactions, Transactions1, Start_Days, End_Days, Transactions2, Livestock_Events, Average_Costs, Average_Costs_Explanations),
+   	extract_livestock_opening_costs_and_counts(Livestock_Doms, Livestock_Opening_Costs_And_Counts),
+   
+	process_livestock(Livestock_Doms, Livestock_Types, Default_Bases, S_Transactions, Transactions1, Livestock_Opening_Costs_And_Counts, Start_Days, End_Days, Exchange_Rates, Account_Hierarchy, Default_Bases, Transactions2, Livestock_Events, Average_Costs, Average_Costs_Explanations),
    
 	%print_term(Transactions1, []),
-   
+	
+	maplist(check_transaction_account(Account_Hierarchy), Transactions2),
+	   
 	trial_balance_between(Exchange_Rates, Account_Hierarchy, Transactions2, Default_Bases, End_Days, Start_Days, End_Days, Trial_Balance),
 
 	balance_sheet_at(Exchange_Rates, Account_Hierarchy, Transactions2, Default_Bases, End_Days, Start_Days, End_Days, Balance_Sheet),
 	
 	profitandloss_between(Exchange_Rates, Account_Hierarchy, Transactions2, Default_Bases, End_Days, Start_Days, End_Days, ProftAndLoss),
-		
+
+	livestock_counts(Livestock_Types, Transactions2, Livestock_Opening_Costs_And_Counts, End_Days, Livestock_Counts),
+	
 	pretty_term_string(S_Transactions, Message0),
 	pretty_term_string(Livestock_Events, Message0b),
 	pretty_term_string(Transactions2, Message1),
 	pretty_term_string(Exchange_Rates, Message1b),
 	pretty_term_string(Action_Taxonomy, Message2),
 	pretty_term_string(Account_Hierarchy, Message3),
+	pretty_term_string(Livestock_Counts, Message12),
 	pretty_term_string(Balance_Sheet, Message4),
 	pretty_term_string(Trial_Balance, Message4b),
 	pretty_term_string(ProftAndLoss, Message4c),
@@ -79,6 +91,7 @@ process_xml_ledger_request(_, Dom) :-
 	'S_Transactions:\n', Message0,'\n\n',
 	'Transaction_Transformation_Debug:\n', Message10,'\n\n',
 	'Livestock Events:\n', Message0b,'\n\n',
+	'Livestock Counts:\n', Message12,'\n\n',
 	'Average_Costs:\n', Message5,'\n\n',
 	'Average_Costs_Explanations:\n', Message5b,'\n\n',
 	'Transactions:\n', Message1,'\n\n',
@@ -89,7 +102,7 @@ process_xml_ledger_request(_, Dom) :-
 	),
 
 	display_xbrl_ledger_response(Debug_Message, Start_Days, End_Days, Balance_Sheet, Trial_Balance, ProftAndLoss).
-
+	
 extract_default_bases(Dom, Bases) :-
    inner_xml(Dom, //reports/balanceSheetRequest/defaultUnitTypes/unitType, Bases).
 
