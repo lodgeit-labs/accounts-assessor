@@ -1,0 +1,106 @@
+<?xml version="1.0"?>
+<reports 
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+  xsi:schemaLocation="http://localhost:8080/taxonomy/basic.xsd">
+  
+  <balanceSheetRequest>
+    <generator>
+      <date>2014-08-28T10:58:40.000165Z</date>
+      <source>LODGEIT</source>
+      <author>
+        <firstname>David</firstname>
+        <lastname>Joe</lastname>
+        <company>XYZ Company Pvt Ltd</company>
+      </author>
+    </generator>
+    <company>
+      <abn>11111111111</abn>
+      <anzsic />
+    </company>
+
+    <!-- Needed for computation of retained earnings in balance sheet. -->
+    <startDate>2015-07-01</startDate>
+    <!-- Needed for computation of most fields in balance sheet. -->
+    <endDate>2018-06-30</endDate>
+
+    <!-- If a unitType is not specified in a transaction below, then the first usable unitType from this list is taken. -->
+    <defaultUnitTypes>
+      <unitType>AUD</unitType>
+    </defaultUnitTypes>
+
+    <!-- Needed for the tracking of units in inventory. Also needed for correct computation of gains and losses. -->
+    <unitValues>
+    </unitValues>
+
+	
+    <accountHierarchyUrl>
+		http://dev-node.uksouth.cloudapp.azure.com:7778/static/account_hierarchy_livestock.xml
+    </accountHierarchyUrl>
+		
+	
+    <actionTaxonomy>
+      <action>
+        <id>Invest_In</id>
+        <description>Shares</description>
+        <exchangeAccount>FinancialInvestments</exchangeAccount>
+        <tradingAccount>InvestmentIncome</tradingAccount>
+      </action>
+      <action>
+        <id>Dispose_Off</id>
+        <description>Shares</description>
+        <exchangeAccount>FinancialInvestments</exchangeAccount>
+        <tradingAccount>InvestmentIncome</tradingAccount>
+      </action>
+      <action>
+        <id>Borrow</id>
+        <description>Shares</description>
+        <exchangeAccount>NoncurrentLoans</exchangeAccount>
+      </action>
+      <action>
+        <id>Introduce_Capital</id>
+        <description>Unit_Investment</description>
+        <exchangeAccount>ShareCapital</exchangeAccount>
+      </action>
+      <action>
+        <id>Gain</id>
+        <description>Unit_Investment</description>
+        <exchangeAccount>ShareCapital</exchangeAccount>
+      </action>
+      <action>
+        <id>Loss</id>
+        <description>No Description</description>
+        <exchangeAccount>ShareCapital</exchangeAccount>
+      </action>
+      <action>
+        <id>PayBank</id>
+        <description>No Description</description>
+        <exchangeAccount>BankCharges</exchangeAccount>
+      </action>
+    </actionTaxonomy>
+
+
+    <bankStatement>
+      <title>Bank Statement</title>
+      <period>2010-01-01 - 2020-06-30</period>
+      <accountDetails>
+        <accountNo>1-1110</accountNo>
+        <!-- accountName must match tag name in XBRL taxonomy. -->
+        <accountName>NationalAustraliaBank</accountName>
+        <dateofBankStatement>2018-09-30</dateofBankStatement>
+        <bankID>Commonwealth Bank</bankID>
+        <currency>AUD</currency>
+        <transactions>
+
+          <transaction>
+            <transdesc>Introduce_Capital</transdesc>
+            <transdate>2017-07-01</transdate>
+            <debit>0</debit>
+            <credit>200</credit>
+          </transaction>
+
+		</transactions>
+      </accountDetails>
+    </bankStatement>
+  </balanceSheetRequest>
+</reports>

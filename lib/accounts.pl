@@ -66,8 +66,8 @@ extract_account_hierarchy(Request_Dom, Account_Hierarchy) :-
 				)
 			;
 				(
-					writeln("loading default account hierarchy"),
-					load_xml('./taxonomy/account_hierarchy.xml', Dom, [])
+					%("loading default account hierarchy"),
+					load_xml('./static/account_hierarchy.xml', Dom, [])
 				)
 			)
 		),
@@ -76,6 +76,7 @@ extract_account_hierarchy(Request_Dom, Account_Hierarchy) :-
 	extract_account_hierarchy2(Account_Hierarchy_Dom, Account_Hierarchy).
          
 fetch_account_hierarchy_from_url(Account_Hierarchy_Url, Account_Hierarchy_Dom) :-
+   /*fixme: throw something more descriptive here and produce a human-level error message at output*/
    http_get(Account_Hierarchy_Url, Account_Hierarchy_Xml_Text, []),
    store_xml_document('tmp/account_hierarchy.xml', Account_Hierarchy_Xml_Text),
    load_xml('tmp/account_hierarchy.xml', Account_Hierarchy_Dom, []).

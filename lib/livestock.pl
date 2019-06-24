@@ -645,10 +645,13 @@ do_livestock_cross_check(Events, Natural_Increase_Costs, S_Transactions, Transac
 
 	livestock_at_average_cost_at_day(Type, Transactions, Opening_Cost_And_Count, To_Day, Average_Cost_Exchange_Rate, [coord(Currency, Closing_Cost, 0)]),
 	
-	Natural_Increase_value is Natural_Increase_Count * Natural_Increase_Cost_Per_Head,
-	
-	/*fixme, the simple calculator should total these three for all livestock types? if it should support multiple livestock datasets at once at all.*/
-	
+	Natural_Increase_value is Natural_Increase_Count * Natural_Increase_Cost_Per_Head.
+
+	/*
+	fixme, the simple calculator should total these three for all livestock types? if it should support multiple livestock datasets at once at all.
+	also, ledger can process other transactions besides livestock, so these totals then wont add up.
+	we should figure out how to only do these checks maybe during testing, on some pre-defined files
+			
 	balance_by_account(Exchange_Rates, Accounts, Transactions, Bases, To_Day, 'Revenue', To_Day, Revenue_Credit),
 	vec_inverse(Revenue_Credit, [Revenue_Coord]),
 	integer_to_coord(Currency, Revenue, Revenue_Coord),
@@ -659,7 +662,7 @@ do_livestock_cross_check(Events, Natural_Increase_Costs, S_Transactions, Transac
 	balance_by_account(Exchange_Rates, Accounts, Transactions, Bases, To_Day, 'Earnings', To_Day, Earnings_Credit),
 	vec_inverse(Earnings_Credit, [Earnings_Coord]),
 	integer_to_coord(Currency, Gross_Profit_on_Livestock_Trading, Earnings_Coord).
-
+	*/
 	
 		
 
