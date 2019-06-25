@@ -13,18 +13,19 @@
 % Exchanges the given coordinate, Amount, into the first unit from Bases for which an
 % exchange on the day Day is possible. If the source unit is not found in Bases, then Amount is left as is.
 
+% - no bases to use, leave as it is
+exchange_amount(_, _, [], Amount, Amount) :- !.
+
 exchange_amount(Exchange_Rates, Day, [Bases_Hd | _], coord(Unit, Debit, Credit), Amount_Exchanged) :-
 	exchange_rate(Exchange_Rates, Day, Unit, Bases_Hd, Exchange_Rate),
 	Debit_Exchanged is Debit * Exchange_Rate,
 	Credit_Exchanged is Credit * Exchange_Rate,
-	Amount_Exchanged = coord(Bases_Hd, Debit_Exchanged, Credit_Exchanged).
+	Amount_Exchanged = coord(Bases_Hd, Debit_Exchanged, Credit_Exchanged),
+	!.
 
-exchange_amount(Exchange_Rates, Day, [Bases_Hd | Bases_Tl], coord(Unit, Debit, Credit), Amount_Exchanged) :-
-	\+ exchange_rate(Exchange_Rates, Day, Bases_Hd, Unit, _),
+exchange_amount(Exchange_Rates, Day, [_ | Bases_Tl], coord(Unit, Debit, Credit), Amount_Exchanged) :-
 	exchange_amount(Exchange_Rates, Day, Bases_Tl, coord(Unit, Debit, Credit), Amount_Exchanged).
 
-% - no bases to use, leave as it is
-exchange_amount(_, _, [], Amount, Amount).
 
 % Using the exchange rates from the day Day, change the bases of the given vector into
 % those from Bases. Where two different coordinates have been mapped to the same basis,

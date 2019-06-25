@@ -4,9 +4,11 @@
 	<Assets>
 		<CurrentAssets>
 			<CashAndCashEquivalents>
-				<WellsFargo/>
 				<NationalAustraliaBank/>
 			</CashAndCashEquivalents>
+          <AssetsLivestockAtCost/>
+          <AssetsLivestockAtAverageCost/>
+          <ClearingAccount/>
 		</CurrentAssets>
 		<NoncurrentAssets>
 			<FinancialInvestments/>
@@ -18,7 +20,8 @@
 			<HistoricalEarnings/>
 			<CurrentEarnings/>
 		</RetainedEarnings>
-
+		<CapitalIntroduced/>
+		<Drawings/>
 	</Equity>
 	<Liabilities>
 		<NoncurrentLiabilities>
@@ -30,13 +33,26 @@
 	</Liabilities>
 	<Earnings>
 		<Revenue>
+			<Income/>
 			<InvestmentIncome/>
+			<InterestIncome/>
+			<SalesOfLivestock/>
+			<RationsRevenue/>
+			<ForexGain/>
+			<OtherGain/>
 		</Revenue>
 		<Expenses>
 			<BankCharges/>
+			<AccountancyFees/>
 			<ForexLoss/>
+			<InterestExpenses/>
+			<LivestockAdjustment/>
+			<Purchases/>
+			<CostOfGoodsLivestock/>
+			<OtherExpenses/>
 		</Expenses>
 	</Earnings>
   </Accounts>
+  <LivestockCount/>
 </accountHierarchy>
 

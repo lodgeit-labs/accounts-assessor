@@ -86,7 +86,11 @@ upload(Request) :-
    multipart_post_request(Request), !,
    http_read_data(Request, Parts, [ on_filename(save_file) ]),
    memberchk(file=file(FileName, Path), Parts),
-   process_data(FileName, Path).
+   catch(
+	   process_data(FileName, Path),
+	   string(E),
+	   throw(http_reply(bad_request(string(E))))
+   ).
    %   delete_file(Path). we shouldn't save and load those files once in production, this is just a debugging feature, a not very useful if the files get deleted after the request is done.
 
 	
@@ -95,7 +99,7 @@ upload(_Request) :-
 
 
 % -------------------------------------------------------------------
-% multipart_post_request/1
+% multipart_post_request/
 % -------------------------------------------------------------------
 
 multipart_post_request(Request) :-
@@ -139,8 +143,10 @@ exclude_file_location_from_filename(Name_In, Name_Out) :-
 :- multifile prolog:message//1.
 
 prolog:message(bad_file_upload) -->
-   [ 'A file upload must be submitted as multipart/form-data using', nl,
+   [ 'A file upload must be submitted as multipart/form-data POST request using', nl,
       'name=file and providing a file-name' ].
+
+prolog:message(string(S)) --> [ S ].
 
 
 
