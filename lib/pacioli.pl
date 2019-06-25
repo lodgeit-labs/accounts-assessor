@@ -24,11 +24,24 @@ vec_identity([]).
 
 % Computes the (additive) inverse of a given vector.
 % - returns a vector of coordinates with debit and credit values switched around
+/*
 vec_inverse(As, Bs) :-
 	findall(C,
 		(member(	coord(Unit, A_Debit,  A_Credit), As),
 		C = 		coord(Unit, A_Credit, A_Debit)),
 		Bs).
+this method doesn't preserve the bindings of variables - if for example Unit in
+one coord in As is unbound, Bs will contain that coord inverted, but with Unit a 
+fresh variable, not linked to the original. So if later Unit is bound, this is not
+reflected in the returned vector. 
+Moreover, this method doesn't work both ways - it will not produce As from Bs,
+it will go into an infinite loop instead.
+*/
+
+vec_inverse(As, Bs) :-
+	maplist(coord_inverse, As, Bs).
+
+coord_inverse(coord(Unit, A_Debit,  A_Credit), coord(Unit, A_Credit, A_Debit)).
 
 % Each coordinate of a vector can be replaced by other coordinates that equivalent for the
 % purposes of the computations carried out in this program. This predicate reduces the
@@ -91,3 +104,8 @@ integer_to_coord(Unit, Integer, coord(Unit, Zero, Integer2)) :-
 	((Zero = 0,!); Zero =:= 0),
 	((Integer = Integer2,!); Integer =:= Integer2),
 	Integer < 0.
+
+
+-(V, V2) :-
+	vec_inverse(V, V2).
+

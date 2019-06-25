@@ -89,6 +89,9 @@ preprocess_s_transaction2(Accounts, _, Exchange_Rates, Transaction_Types, _End_D
 
 /*	
 trading account, non-livestock processing:
+*/
+
+/*
 Transactions using trading accounts can be decomposed into:
 	a transaction of the given amount to the unexchanged account (your bank account)
 	a transaction of the transformed inverse into the exchanged account (your shares investments account)
@@ -101,79 +104,22 @@ and hence no exchange rate calculations need to be done.
 "Goods" is not a general enough word, but it avoids confusion with other terms used.
 */
 
-preprocess_s_transaction2(_Accounts, Bases, Exchange_Rates, Transaction_Types, End_Date, S_Transaction,
-		[UnX_Transaction, X_Transaction, Trading_Transaction]) :-
+preprocess_s_transaction2(Accounts, [Request_Currency], Exchange_Rates, Transaction_Types, End_Date, S_Transaction, Transactions_Out) :-
 	s_transaction_vector(S_Transaction, Vector_Bank),
 	s_transaction_exchanged(S_Transaction, vector(Vector_Goods0)),
 	[coord(Goods_Units, _, _)] = Vector_Goods0,
 	(
 		% will we be able to exchange this later?
-			is_exchangeable_into_request_bases(Exchange_Rates, End_Date, Goods_Units, Bases)
+			is_exchangeable_into_currency(Exchange_Rates, End_Date, Goods_Units, Request_Currency)
 		->
 			Vector_Goods = Vector_Goods0
 		;
 			% just take the amount paid, and report this "at cost"
 			Vector_Goods = Vector_Bank
-	),
-	(
-		% do we have a tag that corresponds to one of known actions?
-		transaction_type_of(Transaction_Types, S_Transaction, Transaction_Type)
-	->
-		true
-	;	
-		/*
-		% if not, we will affect no other accounts, (the balance sheet won't balance)
-		(
-			s_transaction_type_id(S_Transaction, Description),
-			Transaction_Type = transaction_type(_,_,_,Description)
-		)
-		*/
-		(
-			s_transaction_type_id(S_Transaction, Type_Id),
-			atomic_list_concat(['action missing in action taxonomy: ', Type_Id], Err_Str),
-			throw(string(Err_Str))
-		)
-	),
-	transaction_type(_, Exchanged_Account_Id, Trading_Account_Id, Description) = Transaction_Type,
-
-	% Make an unexchanged transaction to the unexchanged (bank) account
-	% the bank account is debited/credited in the currency of the bank account, exchange will happen for report end day
-	s_transaction_day(S_Transaction, Day), 
-	transaction_day(UnX_Transaction, Day),
-	transaction_description(UnX_Transaction, Description),
-	vec_inverse(Vector_Bank, Vector_Inverted), % bank statement is from bank perspective
-	transaction_vector(UnX_Transaction, Vector_Inverted),
-	s_transaction_account_id(S_Transaction, UnX_Account), 
-	transaction_account_id(UnX_Transaction, UnX_Account),
-	
-	% Make an inverse exchanged transaction to the exchanged account
-	(
-		nonvar(Exchanged_Account_Id)
-	->
-		(
-			transaction_day(X_Transaction, Day),
-			transaction_description(X_Transaction, Description),
-			transaction_vector(X_Transaction, Vector_Goods),
-			transaction_account_id(X_Transaction, Exchanged_Account_Id)
-		)
-	;
-		true
-	),
-	% Make a difference transaction to the trading account
-	(
-		nonvar(Trading_Account_Id)
-	->
-		(
-			vec_sub(Vector_Bank, Vector_Goods, Trading_Vector),
-			transaction_day(Trading_Transaction, Day),
-			transaction_description(Trading_Transaction, Description),
-			transaction_vector(Trading_Transaction, Trading_Vector),
-			transaction_account_id(Trading_Transaction, Trading_Account_Id)
-		)
-	;
-		true
-	),
+	),	
+	preprocess_s_transaction3(Accounts, Bases, Exchange_Rates, Transaction_Types, End_Date, S_Transaction, Vector_Goods, 	Transactions_Out),
 	!.
+	
 
 % This Prolog rule handles the case when only the exchanged units are known (for example GOOG)  and
 % hence it is desired for the program to infer the count. 
@@ -193,6 +139,73 @@ preprocess_s_transaction2(Accounts, Request_Bases, Exchange_Rates, Transaction_T
 	vec_change_bases(Exchange_Rates, Transaction_Day, Goods_Bases, Vector_Bank, Vector_Exchanged),
 	s_transaction_exchanged(NS_Transaction, vector(Vector_Exchanged)),
 	preprocess_s_transaction2(Accounts, Request_Bases, Exchange_Rates, Transaction_Types, Report_End_Date, NS_Transaction, Transactions),
+	!.
+%:- record s_transaction(day, type_id, vector, account_id, exchanged).
+
+make_unexchanged_transaction(S_Transaction, Description, UnX_Transaction) :-
+	% Make an unexchanged transaction to the unexchanged (bank) account
+	% the bank account is debited/credited in the currency of the bank account, exchange will happen for report end day
+	s_transaction_day(S_Transaction, Day), 
+	transaction_day(UnX_Transaction, Day),
+	transaction_description(UnX_Transaction, Description),
+	s_transaction_vector(S_Transaction, Vector_Bank),
+	vec_inverse(Vector_Bank, Vector_Inverted), % bank statement is from bank perspective
+	transaction_vector(UnX_Transaction, Vector_Inverted),
+	s_transaction_account_id(S_Transaction, UnX_Account), 
+	transaction_account_id(UnX_Transaction, UnX_Account).
+
+preprocess_s_transaction3(Accounts, Bases, Exchange_Rates, Transaction_Types, End_Date, S_Transaction, Vector_Goods, [UnX_Transaction, X_Transaction, Trading_Transaction])	 :-
+	s_transaction_type_id(S_Transaction, 'Invest_In'),
+	make_unexchanged_transaction(S_Transaction, 'investment', UnX_Transaction),
+	
+	Unrealized_Gain_And_Loss
+	,
+	!.
+	
+preprocess_s_transaction3(Accounts, Bases, Exchange_Rates, Transaction_Types, End_Date, S_Transaction, Vector_Goods, [UnX_Transaction, X_Transaction, Trading_Transaction])	 :-
+	(
+		% do we have a tag that corresponds to one of known actions?
+		transaction_type_of(Transaction_Types, S_Transaction, Transaction_Type)
+	->
+		true
+	;
+		% if not, we will affect no other accounts, (the balance sheet won't balance)
+		(
+			s_transaction_type_id(S_Transaction, Description),
+			Transaction_Type = transaction_type(_,_,_,Description)
+		)
+	),
+	transaction_type(_, Exchanged_Account_Id, Trading_Account_Id, Description) = Transaction_Type,
+
+	make_unexchanged_transaction(S_Transaction, Description, UnX_Transaction),
+	
+	% Make an inverse exchanged transaction to the exchanged account
+	(
+		nonvar(Exchanged_Account_Id)
+	->
+		(
+			transaction_day(X_Transaction, Day),
+			transaction_description(X_Transaction, Description),
+			transaction_vector(X_Transaction, Vector_Goods),
+			transaction_account_id(X_Transaction, Exchanged_Account_Id)
+		)
+	;
+		true
+	),
+	% Make a difference transaction to the currency trading account. See https://www.mathstat.dal.ca/~selinger/accounting/tutorial.html . This will track the gain/loss generated by the movement of exchange rate between our asset and the reporting currency.
+	(
+		nonvar(Trading_Account_Id)
+	->
+		(
+			vec_sub(Vector_Bank, Vector_Goods, Trading_Vector),
+			transaction_day(Trading_Transaction, Day),
+			transaction_description(Trading_Transaction, Description),
+			transaction_vector(Trading_Transaction, Trading_Vector),
+			transaction_account_id(Trading_Transaction, Trading_Account_Id)
+		)
+	;
+		true
+	),
 	!.
 
 
@@ -290,7 +303,6 @@ preprocess_s_transaction_with_debug(Account_Hierarchy, Bases, Exchange_Rates, Ac
 	pretty_term_string(Transactions, Transactions_String),
 	atomic_list_concat([S_Transaction_String, '==>\n', Transactions_String, '\n====\n'], Transaction_Transformation_Debug).
 
-	
 /* fixme: dont change order */
 add_bank_accounts(S_Transactions, Accounts_In, Accounts_Out) :-
 	findall(
@@ -309,6 +321,3 @@ add_bank_accounts(S_Transactions, Accounts_In, Accounts_Out) :-
 	append(Bank_Accounts, Accounts_In, Accounts_Duplicated),
 	sort(Accounts_Duplicated, Accounts_Out).
 
-	
-	
-	
