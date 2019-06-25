@@ -76,7 +76,6 @@ preprocess_s_transaction1(Accounts, Bases, Exchange_Rates, Transaction_Types, En
 		;
 		(
 			% throw error on failure
-			gtrace,
 			term_string(S_Transaction, Str2),
 			atomic_list_concat(['processing failed:', Str2], Message),
 			throw(Message)
