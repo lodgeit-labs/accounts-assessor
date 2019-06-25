@@ -4,7 +4,7 @@
 % Date:      2019-06-02
 % ===================================================================
 
-:- module(statements, [extract_transaction/4, preprocess_s_transaction_with_debug/8]).
+:- module(statements, [extract_transaction/4, preprocess_s_transaction_with_debug/8, add_bank_accounts/3]).
  
 :- use_module(pacioli,  [vec_inverse/2, vec_sub/3]).
 :- use_module(exchange, [vec_change_bases/5]).
@@ -121,11 +121,18 @@ preprocess_s_transaction2(_Accounts, Bases, Exchange_Rates, Transaction_Types, E
 		transaction_type_of(Transaction_Types, S_Transaction, Transaction_Type)
 	->
 		true
-	;
+	;	
+		/*
 		% if not, we will affect no other accounts, (the balance sheet won't balance)
 		(
 			s_transaction_type_id(S_Transaction, Description),
 			Transaction_Type = transaction_type(_,_,_,Description)
+		)
+		*/
+		(
+			s_transaction_type_id(S_Transaction, Type_Id),
+			atomic_list_concat(['action missing in action taxonomy: ', Type_Id], Err_Str),
+			throw(string(Err_Str))
 		)
 	),
 	transaction_type(_, Exchanged_Account_Id, Trading_Account_Id, Description) = Transaction_Type,
@@ -196,10 +203,17 @@ preprocess_s_transaction2(Accounts, Request_Bases, Exchange_Rates, Transaction_T
 % fixme dont fail silently
 extract_transaction(Dom, Default_Bases, Start_Date, Transaction) :-
 	xpath(Dom, //reports/balanceSheetRequest/bankStatement/accountDetails, Account),
-	fields(Account, [
-		accountName, Account_Name,
-		currency, Account_Currency
-		]),
+	catch(
+		fields(Account, [
+			accountName, Account_Name,
+			currency, Account_Currency
+			]),
+			E,
+			(
+				pretty_term_string(E, E_Str),
+				throw(http_reply(bad_request(string(E_Str)))))
+			)
+	,
 	xpath(Account, transactions/transaction, Tx_Dom),
 	catch(
 		extract_transaction2(Tx_Dom, Account_Currency, Default_Bases, Account_Name, Start_Date, Transaction),
@@ -276,3 +290,26 @@ preprocess_s_transaction_with_debug(Account_Hierarchy, Bases, Exchange_Rates, Ac
 	preprocess_s_transaction(Account_Hierarchy, Bases, Exchange_Rates, Action_Taxonomy, End_Days, S_Transaction, Transactions),
 	pretty_term_string(Transactions, Transactions_String),
 	atomic_list_concat([S_Transaction_String, '==>\n', Transactions_String, '\n====\n'], Transaction_Transformation_Debug).
+
+	
+/* fixme: dont change order */
+add_bank_accounts(S_Transactions, Accounts_In, Accounts_Out) :-
+	findall(
+		Bank_Account_Name,
+		(
+			
+			member(T, S_Transactions),
+			s_transaction_account_id(T, Bank_Account_Name)
+		),
+		Bank_Account_Names),
+	sort(Bank_Account_Names, Bank_Account_Names_Unique),
+	findall(
+		account(Name, 'CashAndCashEquivalents'),
+		member(Name, Bank_Account_Names_Unique),
+		Bank_Accounts),
+	append(Bank_Accounts, Accounts_In, Accounts_Duplicated),
+	sort(Accounts_Duplicated, Accounts_Out).
+
+	
+	
+	

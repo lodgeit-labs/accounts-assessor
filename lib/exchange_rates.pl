@@ -10,6 +10,7 @@
 :- use_module(library(http/json)).
 :- use_module(days, [gregorian_date/2]).
 :- use_module(library(persistency)).
+:- use_module(utils, [pretty_term_string/2]).
 
 % -------------------------------------------------------------------
 % Obtains all available exchange rates on the day Day using an arbitrary base currency
@@ -36,7 +37,14 @@ fetch_exchange_rates(Day, Exchange_Rates) :-
 	format_time(string(Date_Str), "%Y-%m-%d", Date),
 	string_concat("http://openexchangerates.org/api/historical/", Date_Str, Query_Url_A),
 	string_concat(Query_Url_A, ".json?app_id=677e4a964d1b44c99f2053e21307d31a", Query_Url),
-	http_open(Query_Url, Stream, []),
+	catch(
+		http_open(Query_Url, Stream, []),
+		% this will happen for dates in future or otherwise not found in their db
+		% note that connection error or similar should still propagate and halt the program.
+		% todo: does this leave the stream open?
+		existence_error(_,_),
+		false
+	),
 	json_read(Stream, json(Response), []),
 	member(rates = json(Exchange_Rates), Response),
 	close(Stream),
@@ -63,6 +71,7 @@ symmetric_exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate) 
 
 symmetric_exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate) :-
   member(exchange_rate(Day, Dest_Currency, Src_Currency, Inverted_Exchange_Rate), Table),
+  Inverted_Exchange_Rate =\= 0,
   Exchange_Rate is 1 / Inverted_Exchange_Rate.
 
 % Obtains the exchange rate from Src_Currency to Dest_Currency on the day Day using the
@@ -79,7 +88,7 @@ symmetric_exchange_rate(_, Day, Src_Currency_Upcased, Dest_Currency_Upcased, Exc
 % Derive an exchange rate from the source to the destination currency by chaining together
 % =< Length exchange rates.
 
-equivalence_exchange_rate(_, _, Currency, Currency, 1, Length) :- Length >= 0.
+equivalence_exchange_rate(_, _, Currency, Currency, 1, Length) :- Length >= 0, !.
 
 equivalence_exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate, Length) :-
   Length > 0,
@@ -88,20 +97,55 @@ equivalence_exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate
   equivalence_exchange_rate(Table, Day, Int_Currency, Dest_Currency, Tail_Exchange_Rate, New_Length),
   Exchange_Rate is Head_Exchange_Rate * Tail_Exchange_Rate, !.
 
+
 % Derive an exchange rate from the source to the destination currency by chaining together
 % =< 2 exchange rates.
 
 exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate) :-
-  equivalence_exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate, 2), !.
-
-exchange_rate_nothrow(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate) :-
-	catch(
-		exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate),
-		existence_error(_,_),
-		false
-	).
+	findall(
+		Exchange_Rate,
+		(
+			equivalence_exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate_Raw, 2),
+			% force everything into float
+			Exchange_Rate is 0.0 + Exchange_Rate_Raw
+		),
+		Exchange_Rates
+	),
+	(
+		Exchange_Rates = []
+	->
+	(
+		format(user_error, 'no exchange rate found: Day:~w, Src_Currency:~w, Dest_Currency:~w\n', [Day, Src_Currency, Dest_Currency])
+		,fail
+	)
+	;
+		true
+	),
+	sort(Exchange_Rates, Exchange_Rates_Sorted),
+	(
+		Exchange_Rates_Sorted = [Exchange_Rate]
+	->
+		true
+	;
+		(
+			pretty_term_string(Exchange_Rates_Sorted, Str),
+			atomic_list_concat(['multiple different exchange rates found: ', Str], Err_Msg),
+			throw(Err_Msg)
+		)
+	),
+	(
+		Exchange_Rates = [Exchange_Rate]
+	->
+		true
+	;
+		(
+			format(user_error, 'multiple equal exchange rates found: Day:~w, Src_Currency:~w, Dest_Currency:~w, Exchange_Rates:~w\n', [Day, Src_Currency, Dest_Currency, Exchange_Rates])
+			/*,throw('multiple equal exchange rates found')*/
+			,Exchange_Rates = [Exchange_Rate|_]
+		)
+	).	
 
 is_exchangeable_into_request_bases(Table, Day, Src_Currency, Bases) :-
 	member(Dest_Currency, Bases),
-	exchange_rate_nothrow(Table, Day, Src_Currency, Dest_Currency, _Exchange_Rate),
+	exchange_rate(Table, Day, Src_Currency, Dest_Currency, _Exchange_Rate),
 	!.

@@ -569,7 +569,7 @@ opening_inventory_transactions(Start_Days, Opening_Costs_And_Counts, Livestock_T
 	vec_inverse(Opening_Vector, Opening_Vector_Credit),
 	Opening_Inventory_Transactions = [
 		transaction(Start_Days, 'livestock opening inventory', 'AssetsLivestockAtCost', Opening_Vector),
-		transaction(Start_Days, 'livestock opening inventory', 'CapitalIntroduced', Opening_Vector_Credit)		
+		transaction(Start_Days, 'livestock opening inventory', 'CapitalIntroduced', Opening_Vector_Credit)
 	].
 	
 	
