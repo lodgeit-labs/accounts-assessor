@@ -41,8 +41,7 @@ fetch_exchange_rates(Day, Exchange_Rates) :-
 		http_open(Query_Url, Stream, []),
 		% this will happen for dates in future or otherwise not found in their db
 		% note that connection error or similar should still propagate and halt the program.
-		% todo: does this leave the stream open?
-		existence_error(_,_),
+		error(existence_error(_,_),_),
 		false
 	),
 	json_read(Stream, json(Response), []),
