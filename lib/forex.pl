@@ -78,16 +78,6 @@ sale_txs(Cost, Goods, [Txs1, Txs2]) :-
 	
 
 	
-actual_items_sold(Goods, Pricing_Method, Transactions, goods_with_purchase_price(Goods, Purchase_Price))
-/*
-here we need the amounts and prices of buys and sales of Goods up until time.
-if we process STs in a recursive way, we can look at Transactions generated thus far.
-Easier might be to keep a separate list of buys and sales.
-for adjusted_cost method, we will add up all the buys costs, subtract all the sales costs, and divide by number of units outstanding.
-for lifo, sales will be reducing/removing buys from the end, for fifo, from the beginning.
-*/
-
-	
 
 filtered_and_flattened(Txs0. Txs1) :-
 	...
@@ -153,3 +143,32 @@ bank_statement_transaction_to_transactions(ST, Ts) :-
 	(share_buy_or_sell(ST, Ts),!);
 
 
+
+	
+	
+	
+	
+buys_and_sells(STransaction, BuysAndSells) :-
+	is_shares_buy(STransaction),
+	BuysAndSells = buy(Unit, Count, Unit_Cost),
+	!.
+buys_and_sells(STransaction, BuysAndSells) :-
+	is_shares_sell(STransaction),
+	BuysAndSells = sell(Unit, Count),
+	!.
+buys_and_sells(_STransaction, _BuysAndSells).
+
+/*
+maplist(buys_and_sells, STransactions, Buys_And_Sells)
+*/
+
+actual_items_sold(Goods, Pricing_Method, Transactions, goods_with_purchase_price(Goods, Purchase_Price))
+/*
+here we need the amounts and prices of buys and sales of Goods up until time.
+if we process STs in a recursive way, we can look at Transactions generated thus far.
+Easier might be to keep a separate list of buys and sales.
+for adjusted_cost method, we will add up all the buys costs, subtract all the sales costs, and divide by number of units outstanding.
+for lifo, sales will be reducing/removing buys from the end, for fifo, from the beginning.
+*/
+
+inventory_at
