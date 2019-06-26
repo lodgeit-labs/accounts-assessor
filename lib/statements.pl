@@ -62,6 +62,19 @@ check_that_s_transaction_account_exists(S_Transaction, Accounts) :-
 	).
 
 
+make_unexchanged_transaction(S_Transaction, Description, UnX_Transaction) :-
+	% Make an unexchanged transaction to the unexchanged (bank) account
+	% the bank account is debited/credited in the currency of the bank account, exchange will happen for report end day
+	s_transaction_day(S_Transaction, Day), 
+	transaction_day(UnX_Transaction, Day),
+	transaction_description(UnX_Transaction, Description),
+	s_transaction_vector(S_Transaction, Vector_Bank),
+	vec_inverse(Vector_Bank, Vector_Inverted), % bank statement is from bank perspective
+	transaction_vector(UnX_Transaction, Vector_Inverted),
+	s_transaction_account_id(S_Transaction, UnX_Account), 
+	transaction_account_id(UnX_Transaction, UnX_Account).
+
+
 	
 
 /*	
@@ -77,60 +90,26 @@ This Prolog rule handles the case when the exchanged amount is known, for exampl
 and hence no exchange rate calculations need to be done.
 
 "Goods" is not a general enough word, but it avoids confusion with other terms used.
-*/
-preprocess_s_transaction2(Accounts, [Request_Currency], Exchange_Rates, Transaction_Types, End_Date, S_Transaction, Transactions_Out) :-
-	s_transaction_vector(S_Transaction, Vector_Bank),
-	s_transaction_exchanged(S_Transaction, vector(Vector_Goods0)),
-	[coord(Goods_Units, _, _)] = Vector_Goods0,
-	(
-		% will we be able to exchange this later?
-			is_exchangeable_into_currency(Exchange_Rates, End_Date, Goods_Units, Request_Currency)
-		->
-			Vector_Goods = Vector_Goods0
-		;
-			% just take the amount paid, and report this "at cost"
-			Vector_Goods = Vector_Bank
-	),	
-	preprocess_s_transaction3(Accounts, Bases, Exchange_Rates, Transaction_Types, End_Date, S_Transaction, Vector_Goods, 	Transactions_Out),
-	!.
-	
+*/	
 
 
-make_unexchanged_transaction(S_Transaction, Description, UnX_Transaction) :-
-	% Make an unexchanged transaction to the unexchanged (bank) account
-	% the bank account is debited/credited in the currency of the bank account, exchange will happen for report end day
-	s_transaction_day(S_Transaction, Day), 
-	transaction_day(UnX_Transaction, Day),
-	transaction_description(UnX_Transaction, Description),
-	s_transaction_vector(S_Transaction, Vector_Bank),
-	vec_inverse(Vector_Bank, Vector_Inverted), % bank statement is from bank perspective
-	transaction_vector(UnX_Transaction, Vector_Inverted),
-	s_transaction_account_id(S_Transaction, UnX_Account), 
-	transaction_account_id(UnX_Transaction, UnX_Account).
+preprocess_s_transactions(Accounts, Report_Currency, Transaction_Types, End_Date, Exchange_Rates, [], [], []).
 
-preprocess_s_transaction3(Accounts, Bases, Exchange_Rates, Transaction_Types, End_Date, S_Transaction, Vector_Goods, [UnX_Transaction, X_Transaction, Trading_Transaction])	 :-
-	s_transaction_type_id(S_Transaction, 'Invest_In'),
-	make_unexchanged_transaction(S_Transaction, 'investment', UnX_Transaction),
-	
-	Unrealized_Gain_And_Loss
-	,
-	!.
-	
-preprocess_s_transaction3(Accounts, Bases, Exchange_Rates, Transaction_Types, End_Date, S_Transaction, Vector_Goods, [UnX_Transaction, X_Transaction, Trading_Transaction])	 :-
+
+preprocess_s_transactions(Accounts, Report_Currency, Transaction_Types, End_Date, Exchange_Rates, [S_Transaction|S_Transactions], [UnX_Transaction, X_Transaction, Trading_Transaction|Transactions_Tail], Outstanding_Out)	 :-
+	preprocess_s_transactions(Accounts, Report_Currency, Transaction_Types, End_Date, Exchange_Rates, S_Transactions, Transactions_Tail, Outstanding_In),
 	(
 		% do we have a tag that corresponds to one of known actions?
 		transaction_type_of(Transaction_Types, S_Transaction, Transaction_Type)
 	->
 		true
 	;
-		% if not, we will affect no other accounts, (the balance sheet won't balance)
-		(
-			s_transaction_type_id(S_Transaction, Description),
-			Transaction_Type = transaction_type(_,_,_,Description)
-		)
+		throw(string('unknown action verb'))
 	),
+	s_transaction_vector(S_Transaction, Vector_Bank),
+	s_transaction_exchanged(S_Transaction, vector(Vector_Goods0)),
 	transaction_type(_, Exchanged_Account_Id, Trading_Account_Id, Description) = Transaction_Type,
-
+	
 	make_unexchanged_transaction(S_Transaction, Description, UnX_Transaction),
 	
 	% Make an inverse exchanged transaction to the exchanged account
@@ -151,16 +130,91 @@ preprocess_s_transaction3(Accounts, Bases, Exchange_Rates, Transaction_Types, En
 		nonvar(Trading_Account_Id)
 	->
 		(
-			vec_sub(Vector_Bank, Vector_Goods, Trading_Vector),
-			transaction_day(Trading_Transaction, Day),
-			transaction_description(Trading_Transaction, Description),
-			transaction_vector(Trading_Transaction, Trading_Vector),
-			transaction_account_id(Trading_Transaction, Trading_Account_Id)
+			process_shares(Outstanding_Out, Outstanding_In)
+		
 		)
 	;
-		true
+		(
+			Outstanding_Out = Outstanding_In
+		)
 	),
 	!.
+
+	
+process_shares(Outstanding_Out, Outstanding_In) :-
+	is_shares_buy(ST),
+	append(Outstanding_In, (Type, Count, Unit_Cost), Outstanding_Out)
+
+process_shares(Outstanding_Out, Outstanding_In) :-
+	is_shares_sell(ST),
+	append(Outstanding_In, (Type, Count, Unit_Cost), Outstanding_Out)
+
+	
+/*
+for adjusted_cost method, we will add up all the buys costs and divide by number of units outstanding.
+for lifo, sales will be reducing/removing buys from the end, for fifo, from the beginning.
+*/
+
+find_sold_items(lifo, Type, 0, 0, Outstanding, Outstanding).
+
+find_sold_items(lifo, Type, Count, Cost, [(Type, Outstanding_Count, Outstanding_Unit_Cost)|Outstanding_Tail], Outstanding_Out) :-
+	Outstanding_Count > Count,
+	Cost is Count * Outstanding_Unit_Cost,
+	Outstanding_Remaining_Count is Outstanding_Count - Count,
+	Outstanding_Out = [Outstanding_Remaining | Outstanding_Tail],
+	Outstanding_Remaining = (Type, Outstanding_Remaining_Count, Outstanding_Unit_Cost).
+
+find_sold_items(lifo, Type, Sale_Count, Sale_Cost, [(Type, Outstanding_Count, Outstanding_Unit_Cost)|Outstanding_Tail], Outstanding_Out) :-
+	Outstanding_Count <= Sale_Count,
+	Outstanding_Out = Outstanding_Tail,
+	Remaining_Count is Sale_Count - Outstanding_Count,
+	find_sold_items(lifo, Type, Remaining_Count, Remaining_Cost, Outstanding_Tail, Outstanding_Out),	
+	Sale_Cost is Outstanding_Count * Outstanding_Unit_Cost + Remaining_Cost.
+
+find_sold_items(lifo, Type, Count, Cost, [(Outstanding_Type,_,_)|Outstanding_Tail], Outstanding_Out) :-
+	Outstanding_Type \= Type,
+	find_sold_items(lifo, Type, Count, Cost, Outstanding_Tail, Outstanding_Out).
+	
+
+
+	
+	
+buy_txs(Cost, Goods):
+	gains_txs(Cost, Goods, 'Unrealized_Gains')
+
+
+sale_txs(Cost, Goods, [Txs1, Txs2]) :-
+	
+	/* 
+	here Goods might be 1 GOOG
+	Pricing_Method fifo, lifo, or adjusted_cost
+	Sold will be goods_with_purchase_price(1 GOOG, 5 USD)
+	*/
+	actual_items_sold(Goods, Pricing_Method, goods_with_purchase_price(Goods, Purchase_Price))
+
+	gains_txs(Purchase_Price, Goods, 'Unrealized_Gains', Txs1)
+	gains_txs(Cost, Goods, 'Realized_Gains', Txs2)
+
+	
+gains_txs(Cost, Goods, Gains_Account) :-
+	vec_add(Cost, Goods, Assets_Change)
+	is_exchanged_to_currency(Cost, Report_Currency, Cost_At_Report_Currency),
+	Txs = [
+		tx{
+			comment: keeps track of gains obtained by changes in price of shares against at the currency we bought them for
+			comment2: Comment2
+			account: Gains_Excluding_Forex
+			vector:  Assets_Change_At_Cost_Inverse
+		}
+
+		tx{
+			comment: keeps track of gains obtained by changes in the value of the currency we bought the shares with, against report currency
+			comment2: Comment2
+			account: Gains_Currency_Movement
+			vector:  Cost - Cost_At_Report_Currency
+		}],
+	gains_account_has_forex_accounts(Gains_Account, Gains_Excluding_Forex, Gains_Currency_Movement).
+
 
 
 % yield all transactions from all accounts one by one.
@@ -275,3 +329,46 @@ add_bank_accounts(S_Transactions, Accounts_In, Accounts_Out) :-
 	append(Bank_Accounts, Accounts_In, Accounts_Duplicated),
 	sort(Accounts_Duplicated, Accounts_Out).
 
+
+	
+	/*
+	/*
+we will only be interested in an exchange rate (price) of shares at report date.
+note that we keep exchange rates at two places. 
+Currency exchange rates fetched from openexchangerates are asserted into a persistent db.
+Exchange_Rates are parsed from the request xml.
+
+
+Report_Date, Exchange_Rates, , Exchange_Rates2
+
+	% will we be able to exchange this later?
+	is_exchangeable_into_currency(Exchange_Rates, End_Date, Goods_Units, Request_Currency)
+		->
+	true
+		;
+		(
+			% save the cost for report time
+		)
+
+
+*/
+	
+% This Prolog rule handles the case when only the exchanged units are known (for example GOOG)  and
+% hence it is desired for the program to infer the count. 
+% We passthrough the output list to the above rule, and just replace the first S_Transaction in the 
+% input list with a modified one (NS_Transaction).
+preprocess_s_transaction2(Accounts, Request_Bases, Exchange_Rates, Transaction_Types, Report_End_Date, S_Transaction, Transactions) :-
+	s_transaction_exchanged(S_Transaction, bases(Goods_Bases)),
+	s_transaction_day(S_Transaction, Transaction_Day), 
+	s_transaction_day(NS_Transaction, Transaction_Day),
+	s_transaction_type_id(S_Transaction, Type_Id), 
+	s_transaction_type_id(NS_Transaction, Type_Id),
+	s_transaction_vector(S_Transaction, Vector_Bank), 
+	s_transaction_vector(NS_Transaction, Vector_Bank),
+	s_transaction_account_id(S_Transaction, Unexchanged_Account_Id), 
+	s_transaction_account_id(NS_Transaction, Unexchanged_Account_Id),
+	% infer the count by money debit/credit and exchange rate
+	vec_change_bases(Exchange_Rates, Transaction_Day, Goods_Bases, Vector_Bank, Vector_Exchanged),
+	s_transaction_exchanged(NS_Transaction, vector(Vector_Exchanged)),
+	preprocess_s_transaction2(Accounts, Request_Bases, Exchange_Rates, Transaction_Types, Report_End_Date, NS_Transaction, Transactions),
+	!.

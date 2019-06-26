@@ -14,8 +14,7 @@ preprocess_s_transactions(Static_Data,
 		Static_Data, 
 		Exchange_Rates_In, Exchange_Rates_Out,
 		S_Transaction, Transactions_Out),
-	% and recurse
-	reprocess_s_transactions(Static_Data, Exchange_Rates_In, Exchange_Rates_Out, S_Transactions, Transactions_Out_Tail).
+	preprocess_s_transactions(Static_Data, Exchange_Rates_In, Exchange_Rates_Out, S_Transactions, Transactions_Out_Tail).
 		->
 			% filter out unbound vars from the resulting Transactions list, as some rules do no always produce all possible transactions
 			exclude(var, Transactions0, Transactions)
@@ -29,6 +28,7 @@ preprocess_s_transactions(Static_Data,
 	).
 
 	
+/*s_transactions have to be sorted by date and we have to begin at the oldest one
 
 preprocess_s_transaction2(Accounts, _, Exchange_Rates, Transaction_Types, _End_Date,  S_Transaction, Transactions) :-
 	(preprocess_livestock_buy_or_sell(Accounts, Exchange_Rates, Transaction_Types, S_Transaction, Transactions),
@@ -158,6 +158,8 @@ buys_and_sells(STransaction, BuysAndSells) :-
 	!.
 buys_and_sells(_STransaction, _BuysAndSells).
 
+
+
 /*
 maplist(buys_and_sells, STransactions, Buys_And_Sells)
 */
@@ -172,3 +174,23 @@ for lifo, sales will be reducing/removing buys from the end, for fifo, from the 
 */
 
 inventory_at
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+			vec_sub(Vector_Bank, Vector_Goods, Trading_Vector),
+			transaction_day(Trading_Transaction, Day),
+			transaction_description(Trading_Transaction, Description),
+			transaction_vector(Trading_Transaction, Trading_Vector),
+			transaction_account_id(Trading_Transaction, Trading_Account_Id)
+
