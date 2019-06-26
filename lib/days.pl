@@ -24,6 +24,9 @@
 % different financial arrangements, hire purchase arrangements being an example. This
 % larger system uses absolute days to represent time internally because they are easier
 % to manipulate with than Gregorian dates.
+/*
+we may want to review this, debugging is harder with absolute days.
+*/
 %
 % Some facts about the Gregorian calendar, needed to count days between dates
 %---------------------------------------------------------------------

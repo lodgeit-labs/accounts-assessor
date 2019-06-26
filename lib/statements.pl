@@ -62,36 +62,11 @@ check_that_s_transaction_account_exists(S_Transaction, Accounts) :-
 	).
 
 
-preprocess_s_transaction(Accounts, Bases, Exchange_Rates, Transaction_Types, End_Date, S_Transaction, Transactions) :-
-	check_that_s_transaction_account_exists(S_Transaction, Accounts),
-	preprocess_s_transaction1(Accounts, Bases, Exchange_Rates, Transaction_Types, End_Date, S_Transaction, Transactions).
 	
-	
-preprocess_s_transaction1(Accounts, Bases, Exchange_Rates, Transaction_Types, End_Date, S_Transaction, Transactions) :-
-	(
-			preprocess_s_transaction2(Accounts, Bases, Exchange_Rates, Transaction_Types, End_Date,  S_Transaction, Transactions0)
-		->
-			% filter out unbound vars from the resulting Transactions list, as some rules do no always produce all possible transactions
-			exclude(var, Transactions0, Transactions)
-		;
-		(
-			% throw error on failure
-			term_string(S_Transaction, Str2),
-			atomic_list_concat(['processing failed:', Str2], Message),
-			throw(Message)
-		)
-	).
-
-	
-preprocess_s_transaction2(Accounts, _, Exchange_Rates, Transaction_Types, _End_Date,  S_Transaction, Transactions) :-
-	(preprocess_livestock_buy_or_sell(Accounts, Exchange_Rates, Transaction_Types, S_Transaction, Transactions),
-	!).
 
 /*	
 trading account, non-livestock processing:
-*/
 
-/*
 Transactions using trading accounts can be decomposed into:
 	a transaction of the given amount to the unexchanged account (your bank account)
 	a transaction of the transformed inverse into the exchanged account (your shares investments account)
@@ -103,7 +78,6 @@ and hence no exchange rate calculations need to be done.
 
 "Goods" is not a general enough word, but it avoids confusion with other terms used.
 */
-
 preprocess_s_transaction2(Accounts, [Request_Currency], Exchange_Rates, Transaction_Types, End_Date, S_Transaction, Transactions_Out) :-
 	s_transaction_vector(S_Transaction, Vector_Bank),
 	s_transaction_exchanged(S_Transaction, vector(Vector_Goods0)),
@@ -121,26 +95,6 @@ preprocess_s_transaction2(Accounts, [Request_Currency], Exchange_Rates, Transact
 	!.
 	
 
-% This Prolog rule handles the case when only the exchanged units are known (for example GOOG)  and
-% hence it is desired for the program to infer the count. 
-% We passthrough the output list to the above rule, and just replace the first S_Transaction in the 
-% input list with a modified one (NS_Transaction).
-preprocess_s_transaction2(Accounts, Request_Bases, Exchange_Rates, Transaction_Types, Report_End_Date, S_Transaction, Transactions) :-
-	s_transaction_exchanged(S_Transaction, bases(Goods_Bases)),
-	s_transaction_day(S_Transaction, Transaction_Day), 
-	s_transaction_day(NS_Transaction, Transaction_Day),
-	s_transaction_type_id(S_Transaction, Type_Id), 
-	s_transaction_type_id(NS_Transaction, Type_Id),
-	s_transaction_vector(S_Transaction, Vector_Bank), 
-	s_transaction_vector(NS_Transaction, Vector_Bank),
-	s_transaction_account_id(S_Transaction, Unexchanged_Account_Id), 
-	s_transaction_account_id(NS_Transaction, Unexchanged_Account_Id),
-	% infer the count by money debit/credit and exchange rate
-	vec_change_bases(Exchange_Rates, Transaction_Day, Goods_Bases, Vector_Bank, Vector_Exchanged),
-	s_transaction_exchanged(NS_Transaction, vector(Vector_Exchanged)),
-	preprocess_s_transaction2(Accounts, Request_Bases, Exchange_Rates, Transaction_Types, Report_End_Date, NS_Transaction, Transactions),
-	!.
-%:- record s_transaction(day, type_id, vector, account_id, exchanged).
 
 make_unexchanged_transaction(S_Transaction, Description, UnX_Transaction) :-
 	% Make an unexchanged transaction to the unexchanged (bank) account
