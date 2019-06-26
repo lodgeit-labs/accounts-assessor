@@ -35,6 +35,7 @@
 % - The account that the transaction modifies without using exchange rate conversions
 % - Either the units or the amount to which the transaction amount will be converted to
 % depending on whether the term is of the form bases(...) or vector(...).
+/*we may want to introduce st2 that will hold an inverted, that is, ours, vector, as opposed to a vector from the bank's perspective*/
 
 
 % Gets the transaction_type term associated with the given transaction
@@ -75,6 +76,23 @@ make_unexchanged_transaction(S_Transaction, Description, UnX_Transaction) :-
 	transaction_account_id(UnX_Transaction, UnX_Account).
 
 
+
+
+preprocess_s_transactions0(Static_Data, Exchange_Rates_In, Exchange_Rates_Out, S_Transactions, Transactions_Out_Tail).
+	check_that_s_transaction_account_exists(S_Transaction, Accounts),
+	(
+		preprocess_s_transactions(Static_Data, Exchange_Rates_In, Exchange_Rates_Out, S_Transactions, Transactions_Out_Tail).
+	->
+		% filter out unbound vars from the resulting Transactions list, as some rules do no always produce all possible transactions
+		exclude(var, Transactions0, Transactions)
+	;
+	(
+		% throw error on failure
+		term_string(S_Transaction, Str2),
+		atomic_list_concat(['processing failed:', Str2], Message),
+		throw(Message)
+	).
+	
 	
 
 /*	
@@ -90,6 +108,8 @@ This Prolog rule handles the case when the exchanged amount is known, for exampl
 and hence no exchange rate calculations need to be done.
 
 "Goods" is not a general enough word, but it avoids confusion with other terms used.
+
+s_transactions have to be sorted by date and we have to begin at the oldest one
 */	
 
 
@@ -155,9 +175,18 @@ for adjusted_cost method, we will add up all the buys costs and divide by number
 for lifo, sales will be reducing/removing buys from the end, for fifo, from the beginning.
 */
 
-find_sold_items(lifo, Type, 0, 0, Outstanding, Outstanding).
+units_cost(Method, Type, Sale_Count, Sale_Cost, Outstanding_In, Outstanding_Out) :-
+	(Method = lifo; Method = fifo),
+	find_sold_items(Type, Sale_Count, Sale_Cost, Outstanding_In, Outstanding_Out).
 
-find_sold_items(lifo, Type, Count, Cost, [(Type, Outstanding_Count, Outstanding_Unit_Cost)|Outstanding_Tail], Outstanding_Out) :-
+	
+add_bought_items(fifo, Added, Outstanding_In, [Added|Outstanding_In]).
+add_bought_items(lifo, Added, Outstanding_In, [Outstanding_In|Added]).
+
+
+find_sold_items(Type, 0, 0, Outstanding, Outstanding).
+
+find_sold_items(Type, Count, Cost, [(Type, Outstanding_Count, Outstanding_Unit_Cost)|Outstanding_Tail], Outstanding_Out) :-
 	Outstanding_Count > Count,
 	Cost is Count * Outstanding_Unit_Cost,
 	Outstanding_Remaining_Count is Outstanding_Count - Count,
