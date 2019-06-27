@@ -5,7 +5,7 @@ beginning and ending dates are often ignored
 */
 
 :- module(livestock, [
-		get_livestock_types/2, process_livestock/15, preprocess_livestock_buy_or_sell/5, make_livestock_accounts/2, livestock_counts/5, extract_livestock_opening_costs_and_counts/2, compute_livestock_by_simple_calculation/22]).
+		get_livestock_types/2, process_livestock/15, preprocess_livestock_buy_or_sell/3, make_livestock_accounts/2, livestock_counts/5, extract_livestock_opening_costs_and_counts/2, compute_livestock_by_simple_calculation/22]).
 :- use_module(utils, [
 		user:goal_expansion/2, inner_xml/3, fields/2, numeric_fields/2, pretty_term_string/2, with_info_value_and_info/3, maplist6/6]).
 :- use_module(pacioli, [vec_add/3, vec_inverse/2, vec_reduce/2, vec_sub/3, integer_to_coord/3]).
@@ -63,8 +63,8 @@ average cost is defined for date and livestock type as follows:
 </howThisShouldWork>
 */
 
-preprocess_livestock_buy_or_sell(Accounts, _Exchange_Rates, _Transaction_Types, S_Transaction, [Bank_Transaction, Livestock_Transaction]) :-
-
+preprocess_livestock_buy_or_sell(Static_Data, S_Transaction, [Bank_Transaction, Livestock_Transaction]) :-
+	Static_Data = (Accounts, _, _, _, _),
 	% here we don't know Livestock_Type, so s_transaction_is_livestock_buy_or_sell actually yields garbage, that we filter out by existence of appropriate account. Usually we pass it a bounded Livestock_Type.
 	s_transaction_is_livestock_buy_or_sell(S_Transaction, Day, Livestock_Type, Livestock_Coord, _Bank_Vector, Our_Vector, Unexchanged_Account_Id, MoneyDebit, _),
 	count_account(Livestock_Type, Count_Account),
@@ -645,26 +645,31 @@ do_livestock_cross_check(Events, Natural_Increase_Costs, S_Transactions, Transac
 
 	livestock_at_average_cost_at_day(Type, Transactions, Opening_Cost_And_Count, To_Day, Average_Cost_Exchange_Rate, [coord(Currency, Closing_Cost, 0)]),
 	
-	Natural_Increase_value is Natural_Increase_Count * Natural_Increase_Cost_Per_Head.
+	Natural_Increase_value is Natural_Increase_Count * Natural_Increase_Cost_Per_Head,
+
+	balance_by_account(Exchange_Rates, Accounts, Transactions, Bases, To_Day, 'Revenue', To_Day, Revenue_Credit),
+	vec_inverse(Revenue_Credit, [Revenue_Coord_Ledger]),
+	integer_to_coord(Currency, Revenue, Revenue_Coord),
+	
+	balance_by_account(Exchange_Rates, Accounts, Transactions, Bases, To_Day, 'CostOfGoodsLivestock', To_Day, [Cogs_Coord_Ledger]),
+	integer_to_coord(Currency, Livestock_COGS, Cogs_Coord),
+	
+	balance_by_account(Exchange_Rates, Accounts, Transactions, Bases, To_Day, 'Earnings', To_Day, Earnings_Credit),
+	vec_inverse(Earnings_Credit, [Earnings_Coord_Ledger]),
+	integer_to_coord(Currency, Gross_Profit_on_Livestock_Trading, Earnings_Coord),
 
 	/*
 	fixme, the simple calculator should total these three for all livestock types? if it should support multiple livestock datasets at once at all.
 	also, ledger can process other transactions besides livestock, so these totals then wont add up.
 	we should figure out how to only do these checks maybe during testing, on some pre-defined files
-			
-	balance_by_account(Exchange_Rates, Accounts, Transactions, Bases, To_Day, 'Revenue', To_Day, Revenue_Credit),
-	vec_inverse(Revenue_Credit, [Revenue_Coord]),
-	integer_to_coord(Currency, Revenue, Revenue_Coord),
-	
-	balance_by_account(Exchange_Rates, Accounts, Transactions, Bases, To_Day, 'CostOfGoodsLivestock', To_Day, [Cogs_Coord]),
-	integer_to_coord(Currency, Livestock_COGS, Cogs_Coord),
-	
-	balance_by_account(Exchange_Rates, Accounts, Transactions, Bases, To_Day, 'Earnings', To_Day, Earnings_Credit),
-	vec_inverse(Earnings_Credit, [Earnings_Coord]),
-	integer_to_coord(Currency, Gross_Profit_on_Livestock_Trading, Earnings_Coord).
 	*/
-	
-		
+	compile_with_variable_names_preserved(_ = [
+		Revenue_Coord_Ledger, Revenue_Coord,
+		Cogs_Coord_Ledger, Cogs_Coord,
+		Earnings_Coord_Ledger, Earnings_Coord
+	], Namings),
+	pretty_term_string(Namings, Namings_Str),
+	format(user_error, 'these should match, in absence of non-livestock bank transactions, and with only one livestock type processed: ~w', [Namings_Str]).
 
 compute_livestock_by_simple_calculation(	Natural_increase_count,Natural_increase_value_per_head,Sales_count,Sales_value,Killed_for_rations_or_exchanged_for_goods_count,Stock_on_hand_at_beginning_of_year_count,Stock_on_hand_at_beginning_of_year_value,Stock_on_hand_at_end_of_year_count_input,Purchases_count,Purchases_value,Losses_count,Killed_for_rations_or_exchanged_for_goods_value,Stock_on_hand_at_end_of_year_value,Closing_and_killed_and_sales_minus_losses_count,Closing_and_killed_and_sales_value,Opening_and_purchases_and_increase_count,Opening_and_purchases_value,Natural_Increase_value,Average_cost,Revenue,Livestock_COGS,Gross_Profit_on_Livestock_Trading) :-
 	

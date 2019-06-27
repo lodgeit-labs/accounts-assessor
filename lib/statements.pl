@@ -15,7 +15,7 @@
 	transaction_type_exchanged_account_id/2,
 	transaction_type_trading_account_id/2,
 	transaction_type_description/2]).
-:- use_module(livestock, [preprocess_livestock_buy_or_sell/5]).
+:- use_module(livestock, [preprocess_livestock_buy_or_sell/3]).
 :- use_module(transactions, [
 	transaction_day/2,
 	transaction_description/2,
@@ -45,37 +45,33 @@ s_transactions have to be sorted by date from oldest to newest
 
 */
 preprocess_s_transactions(Static_Data, Exchange_Rates_In, Exchange_Rates_Out, S_Transactions, Transactions_Out) :-
-	Outstanding = [],
-	preprocess_s_transactions2(Static_Data, Exchange_Rates_In, Exchange_Rates_Out, S_Transactions, Transactions_Out, Outstanding).
+	preprocess_s_transactions2(Static_Data, Exchange_Rates_In, Exchange_Rates_Out, S_Transactions, Transactions_Out, [], _, []).
 
-preprocess_s_transactions2(Static_Data, Exchange_Rates_In, Exchange_Rates_Out, [S_Transaction|S_Transactions], [Transactions_Out|Transactions_Out_Tail], Outstanding).
+preprocess_s_transactions2(Static_Data, [S_Transaction|S_Transactions], [Transactions_Out|Transactions_Out_Tail], Outstanding_In, Outstanding_Out, [Debug_Head|Debug_Tail]) :-
+	Static_Data = (Accounts, _, _, _, _),
 	check_that_s_transaction_account_exists(S_Transaction, Accounts),
+	pretty_term_string(S_Transaction, S_Transaction_String),
 	(
-		(
-			pretty_term_string(S_Transaction, S_Transaction_String),
-			preprocess_s_transaction(Accounts, Report_Currency, Transaction_Types, End_Date, Exchange_Rates, S_Transaction, Transactions0, Outstanding, New_Outstanding),
-			pretty_term_string(Transactions, Transactions_String),
-			atomic_list_concat([S_Transaction_String, '==>\n', Transactions_String, '\n====\n'], Transaction_Transformation_Debug)
-		)
+			preprocess_s_transaction(Static_Data, S_Transaction, Transactions0, Outstanding_In, Outstanding_Mid)
 		->
-			(
-				% filter out unbound vars from the resulting Transactions list, as some rules do no always produce all possible transactions
-				exclude(var, Transactions0, Transactions1),
-				flatten(Transactions1, Transactions_Out),
-				check_trial_balance(Transactions_Out)
-			)
+		(
+			% filter out unbound vars from the resulting Transactions list, as some rules do no always produce all possible transactions
+			exclude(var, Transactions0, Transactions1),
+			flatten(Transactions1, Transactions_Out),
+			check_trial_balance(Transactions_Out),
+			pretty_term_string(Transactions_Out, Transactions_String),
+			atomic_list_concat([S_Transaction_String, '==>\n', Transactions_String, '\n====\n'], Debug_Head)
+		)
 		;
 		(
-			% throw error on failure
 			term_string(S_Transaction, Str2),
-			atomic_list_concat(['processing failed:', Str2], Message),
-			throw(Message)
+			throw_string(['processing failed:', Str2])
 		)
 	),
-	preprocess_s_transactions2(Static_Data, Exchange_Rates_In, Exchange_Rates_Out, S_Transactions, Transactions_Out_Tail, New_Outstanding).
+	preprocess_s_transactions2(Static_Data, S_Transactions, Transactions_Out_Tail,  Outstanding_Mid, Outstanding_Out, Debug_Tail).
 	
-preprocess_s_transaction(Accounts, Report_Currency, Transaction_Types, End_Date, Exchange_Rates, S_Transaction, [UnX_Transaction, X_Transaction, Trading_Transactions|Transactions_Tail], Outstanding, Outstanding) :-
-	preprocess_livestock_buy_or_sell(Accounts, Exchange_Rates, Transaction_Types, S_Transaction, Transactions).
+preprocess_s_transaction(Static_Data, S_Transaction, Transactions, Outstanding, Outstanding) :-
+	preprocess_livestock_buy_or_sell(Static_Data, S_Transaction, Transactions).
 
 /*	
 Transactions using trading accounts can be decomposed into:
@@ -86,23 +82,30 @@ This predicate takes a list of statement transaction terms and decomposes it int
 "Goods" is not a general enough word, but it avoids confusion with other terms used.
 */	
 
-preprocess_s_transaction(Accounts, Report_Currency, Transaction_Types, End_Date, Exchange_Rates, [S_Transaction|S_Transactions], [UnX_Transaction, X_Transaction, Trading_Transactions|Transactions_Tail], ], Outstanding_In, Outstanding_Out)	 :-
+preprocess_s_transaction(Static_Data, S_Transaction, [UnX_Transaction, X_Transaction, Trading_Transactions], Outstanding_In, Outstanding_Out) :-
+	Static_Data = (_, _Report_Currency, Transaction_Types, _, _Exchange_Rates),
 	(
 		% do we have a tag that corresponds to one of known actions?
 		transaction_type_of(Transaction_Types, S_Transaction, Transaction_Type)
 	->
 		true
 	;
-		throw(string('unknown action verb'))
+		(
+			s_transaction_type_id(S_Transaction, Type_Id),
+			throw_string(['unknown action verb:',Type_Id])
+		)
 	),
 	s_transaction_vector(S_Transaction, Vector_Bank),
-	vec_inverse(Vector_Bank, [Our_Coord]),
-	
+	s_transaction_day(S_Transaction, Transaction_Day), 
+	vec_inverse(Vector_Bank, Vector_Ours),
+	vec_inverse(Vector_Ours, Vector_Ours_Inverted),
+	Vector_Ours = [Our_Coord],
 	s_transaction_exchanged(S_Transaction, vector(Vector_Goods)),
+	[Goods_Coord] = Vector_Goods,
+	Our_Coord = coord(Currency, _Our_Debit, Our_Credit),
+	integer_to_coord(Goods_Unit, Goods_Integer, Goods_Coord),
 	transaction_type(_, Exchanged_Account_Id, Trading_Account_Id, Description) = Transaction_Type,
-	
 	make_unexchanged_transaction(S_Transaction, Description, UnX_Transaction),
-	
 	(
 		nonvar(Exchanged_Account_Id)
 	->
@@ -110,37 +113,37 @@ preprocess_s_transaction(Accounts, Report_Currency, Transaction_Types, End_Date,
 			/* Make an inverse exchanged transaction to the exchanged account.
 				this can be a revenue/expense or equity account, in case value is coming in or going out of the company,
 				or it can be an assets account, if we are moving values around*/
-			transaction_day(X_Transaction, Day),
+			transaction_day(X_Transaction, Transaction_Day),
 			transaction_description(X_Transaction, Description),
 			transaction_vector(X_Transaction, Vector_Goods),
 			transaction_account_id(X_Transaction, Exchanged_Account_Id)
 		)
 	;
-		throw(string('action does not specify exchanged account'))
+		throw_string(['action does not specify exchanged account'])
 	),
 	(
 		nonvar(Trading_Account_Id)
 	->
 		% Make a difference transaction to the currency trading account. See https://www.mathstat.dal.ca/~selinger/accounting/tutorial.html . This will track the gain/loss generated by the movement of exchange rate between our asset and the reporting currency.
 		(
-				Vector_Goods = [coord(Unit_Type, Goods_Count, 0)
+				Goods_Integer >= 0
 			->
 				(
-					Added = (Unit_Type, Goods_Count, Unit_Cost),
-					Unit_Cost is 
-					add_bought_items(fifo, Added, Outstanding_In, Outstanding_In, Outstanding_Out),
-					gains_txs(Cost, Goods, 'Unrealized_Gains', Trading_Transactions)
+					Unit_Cost is Our_Credit / Goods_Integer,
+					add_bought_items(
+						fifo, 
+						(Goods_Unit, Goods_Integer, value(Currency, Unit_Cost)), 
+						Outstanding_In, Outstanding_Out),
+					gains_txs(Vector_Ours, Vector_Goods, 'Unrealized_Gains', Trading_Transactions)
 				)
 			;
 			(
-				is_shares_sell(ST)
-			->
-				(
-					units_cost(lifo, Unit_Type, Sale_Count, Sale_Cost, Outstanding_In, Outstanding_Out),
-					gains_txs(Sale_Cost, Goods, 'Unrealized_Gains', Txs1),
-					gains_txs(Cost, Goods, 'Realized_Gains', Txs2),
-					Trading_Transactions = [Txs1, Txs2]
-				)
+				units_cost(lifo, Goods_Unit, Goods_Integer, Outstanding_In, Outstanding_Out, Sale_Costs),
+				/*Sale_Cost is a vector of value(currency, amount)*/
+				maplist(reduce_unrealized_gains, Sale_Costs, Txs0),
+				vec_inverse(Vector_Goods, Vector_Goods_Inverted),
+				gains_txs(Vector_Ours_Inverted, Vector_Goods_Inverted, 'Unrealized_Gains', Txs1),
+				Trading_Transactions = [Txs0, Txs1]
 			)
 		)
 	;
@@ -149,12 +152,12 @@ preprocess_s_transaction(Accounts, Report_Currency, Transaction_Types, End_Date,
 		)
 	).
 
-
 % This Prolog rule handles the case when only the exchanged units are known (for example GOOG)  and
 % hence it is desired for the program to infer the count. 
 % We passthrough the output list to the above rule, and just replace the first S_Transaction in the 
 % input list with a modified one (NS_Transaction).
-preprocess_s_transaction(Accounts, Request_Bases, Exchange_Rates, Transaction_Types, Report_End_Date, S_Transaction, Transactions) :-
+preprocess_s_transaction(Static_Data, S_Transaction, Transactions, Outstanding_In, Outstanding_Out) :-
+	Static_Data = (_, _, _, _, Exchange_Rates),
 	s_transaction_exchanged(S_Transaction, bases(Goods_Bases)),
 	s_transaction_day(S_Transaction, Transaction_Day), 
 	s_transaction_day(NS_Transaction, Transaction_Day),
@@ -167,29 +170,54 @@ preprocess_s_transaction(Accounts, Request_Bases, Exchange_Rates, Transaction_Ty
 	% infer the count by money debit/credit and exchange rate
 	vec_change_bases(Exchange_Rates, Transaction_Day, Goods_Bases, Vector_Bank, Vector_Exchanged),
 	s_transaction_exchanged(NS_Transaction, vector(Vector_Exchanged)),
-	preprocess_s_transaction2(Accounts, Request_Bases, Exchange_Rates, Transaction_Types, Report_End_Date, NS_Transaction, Transactions),
-	!.
+	preprocess_s_transaction(Static_Data, NS_Transaction, Transactions, Outstanding_In, Outstanding_Out).
 
+	
+reduce_unrealized_gains(value(Currency, Amount), Txs) :-
+	Cost_Of_Goods = [coord(Currency, 0, Amount)],
+	gains_txs(Cost_Of_Goods, Goods_Vector, 'Unrealized_Gains', Txs).
+	
 
-gains_txs(Cost, Goods, Gains_Account) :-
-	vec_add(Cost, Goods, Assets_Change)
-	is_exchanged_to_currency(Cost, Report_Currency, Cost_At_Report_Currency),
-	Txs = [
+/*
+we bought the shares with some currency. we can think of gains as having two parts:
+	share value against that currency.
+	that currency value against report currency.
+*/
+gains_txs(Cost_Vector, Goods_Vector, Gains_Account, Transactions_Out) :-
+	vec_change_bases(Rates, Day, [Report_Currency], Cost_Vector, Cost_In_Report_Currency),
+	vec_add(Cost_Vector, Goods_Vector, Assets_Change),
+	vec_inverse(Assets_Change, Assets_Change_Inverse),
+	
+	Txs0 = [
 		tx{
-			comment: keeps track of gains obtained by changes in price of shares against at the currency we bought them for
-			comment2: Comment2
-			account: Gains_Excluding_Forex
-			vector:  Assets_Change_At_Cost_Inverse
-		}
-
+			comment: 'keeps track of gains obtained by changes in price of shares against at the currency we bought them for',
+			comment2: Comment2,
+			account: Gains_Excluding_Forex,
+			vector:  Assets_Change_Inverse,
+		},
 		tx{
-			comment: keeps track of gains obtained by changes in the value of the currency we bought the shares with, against report currency
-			comment2: Comment2
-			account: Gains_Currency_Movement
-			vector:  Cost - Cost_At_Report_Currency
+			comment: 'keeps track of gains obtained by changes in the value of the currency we bought the shares with, against report currency',
+			comment2: Comment2,
+			account: Gains_Currency_Movement,
+			vector: Currency_Difference,
 		}],
+	vec_sub(Cost_Vector, Cost_In_Report_Currency, Currency_Difference),
+
+	maplist(tx_to_transaction(Day), Txs0, Transactions_Out),
 	gains_account_has_forex_accounts(Gains_Account, Gains_Excluding_Forex, Gains_Currency_Movement).
 
+tx_to_transaction(Day), Tx, Transaction) :-
+	Tx = tx{comment: Comment, comment2: Comment2, account: Account, vector: Vector},
+	atomic_list_concat(['comment:', Comment, ', comment2:' Comment2], Description),
+	transaction_day(Transaction, Day),
+	transaction_description(Transaction, Description),
+	transaction_account_id(Transaction, Account_Id),
+	transaction_vector(Transaction, Vector).
+	
+gains_account_has_forex_accounts(Gains_Account, Gains_Excluding_Forex, Gains_Currency_Movement) :-
+	atom_concat(Gains_Account, '_Excluding_Forex', Gains_Excluding_Forex),
+	atom_concat(Gains_Account, '_Currency_Movement', Gains_Currency_Movement).
+	
 
 make_unexchanged_transaction(S_Transaction, Description, UnX_Transaction) :-
 	% Make an unexchanged transaction to the unexchanged (bank) account
@@ -220,28 +248,39 @@ add_bought_items(fifo, Added, Outstanding_In, [Added|Outstanding_In]).
 add_bought_items(lifo, Added, Outstanding_In, [Outstanding_In|Added]).
 
 
-find_sold_items(Type, 0, 0, Outstanding, Outstanding).
+find_sold_items(Type, 0, Outstanding, Outstanding, 0).
 
-find_sold_items(Type, Count, Cost, [(Type, Outstanding_Count, Outstanding_Unit_Cost)|Outstanding_Tail], Outstanding_Out) :-
-	Outstanding_Count > Count,
-	Cost is Count * Outstanding_Unit_Cost,
-	Outstanding_Remaining_Count is Outstanding_Count - Count,
+find_sold_items(
+	/* input */
+	lifo,	Type, Sale_Count, 
+	[(Type, Outstanding_Count, value(Outstanding_Currency, Outstanding_Unit_Cost))|Outstanding_Tail], 
+	/* output */
+	Outstanding_Out, Cost) 
+:-
+	Sale_Count < Outstanding_Count,
+	Outstanding_Remaining_Count is Outstanding_Count - Sale_Count,
+	Cost_Int is Sale_Count * Outstanding_Unit_Cost,
+	Cost = value(Currency, Cost_Int, 0),
 	Outstanding_Out = [Outstanding_Remaining | Outstanding_Tail],
 	Outstanding_Remaining = (Type, Outstanding_Remaining_Count, Outstanding_Unit_Cost).
 
-find_sold_items(lifo, Type, Sale_Count, Sale_Cost, [(Type, Outstanding_Count, Outstanding_Unit_Cost)|Outstanding_Tail], Outstanding_Out) :-
+find_sold_items(
+	lifo, Type, Sale_Count, 
+	[(Type, Outstanding_Count, value(Outstanding_Currency, Outstanding_Unit_Cost)))|Outstanding_Tail], 
+	Outstanding_Out, Cost)
+:-
 	Outstanding_Count <= Sale_Count,
-	Outstanding_Out = Outstanding_Tail,
 	Remaining_Count is Sale_Count - Outstanding_Count,
-	find_sold_items(lifo, Type, Remaining_Count, Remaining_Cost, Outstanding_Tail, Outstanding_Out),	
-	Sale_Cost is Outstanding_Count * Outstanding_Unit_Cost + Remaining_Cost.
+	find_sold_items(lifo, Type, Remaining_Count, Outstanding_Tail, Outstanding_Out, Remaining_Cost),
+	Partial_Cost_Int is Outstanding_Count * Outstanding_Unit_Cost,
+	Partial_Cost = [value(Outstanding_Currency, Partial_Cost_Int)],
+	vec_add(Partial_Cost, Remaining_Cost, Cost),
+	Outstanding_Out = Outstanding_Tail.
 
-find_sold_items(lifo, Type, Count, Cost, [(Outstanding_Type,_,_)|Outstanding_Tail], Outstanding_Out) :-
+find_sold_items(lifo, Type, Count, [value(Outstanding_Type,_)|Outstanding_Tail], Outstanding_Out, Cost) :-
 	Outstanding_Type \= Type,
-	find_sold_items(lifo, Type, Count, Cost, Outstanding_Tail, Outstanding_Out).
-	
+	find_sold_items(lifo, Type, Count, Outstanding_Tail, Outstanding_Out, Cost).
 
-	
 	
 /*
 finally, we should update our knowledge of unit costs, based on recent sales and buys
