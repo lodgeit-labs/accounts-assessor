@@ -21,14 +21,15 @@
 	transaction_description/2,
 	transaction_account_id/2,
 	transaction_vector/2]).
-:- use_module(utils, [pretty_term_string/2, inner_xml/3, write_tag/2, fields/2, fields_nothrow/2, numeric_fields/2]).
+:- use_module(utils, [pretty_term_string/2, inner_xml/3, write_tag/2, fields/2, fields_nothrow/2, numeric_fields/2, throw_string/1]).
 :- use_module(accounts, [account_parent_id/3]).
 :- use_module(days, [format_date/2, parse_date/2, gregorian_date/2]).
 :- use_module(library(record)).
 
 % -------------------------------------------------------------------
 
-:- record s_transaction(day, type_id, vector, account_id, exchanged).
+:- record
+	s_transaction(day, type_id, vector, account_id, exchanged).
 % - The absolute day that the transaction happenned
 % - The type identifier/action tag of the transaction
 % - The amounts that are being moved in this transaction
@@ -38,29 +39,156 @@
 /*we may want to introduce st2 that will hold an inverted, that is, ours, vector, as opposed to a vector from the bank's perspective*/
 
 
-% Gets the transaction_type term associated with the given transaction
-transaction_type_of(Transaction_Types, S_Transaction, Transaction_Type) :-
-	% get type id
-	s_transaction_type_id(S_Transaction, Type_Id),
-	% construct type term with parent variable unbound
-	transaction_type_id(Transaction_Type, Type_Id),
-	% match it with what's in Transaction_Types
-	member(Transaction_Type, Transaction_Types).
+/*
 
+s_transactions have to be sorted by date from oldest to newest 
 
-% throw an error if the s_transaction's account is not found in the hierarchy
-check_that_s_transaction_account_exists(S_Transaction, Accounts) :-
-	s_transaction_account_id(S_Transaction, Account_Name),
+*/
+preprocess_s_transactions(Static_Data, Exchange_Rates_In, Exchange_Rates_Out, S_Transactions, Transactions_Out) :-
+	Outstanding = [],
+	preprocess_s_transactions2(Static_Data, Exchange_Rates_In, Exchange_Rates_Out, S_Transactions, Transactions_Out, Outstanding).
+
+preprocess_s_transactions2(Static_Data, Exchange_Rates_In, Exchange_Rates_Out, [S_Transaction|S_Transactions], [Transactions_Out|Transactions_Out_Tail], Outstanding).
+	check_that_s_transaction_account_exists(S_Transaction, Accounts),
 	(
-			account_parent_id(Accounts, Account_Name, _) 
+		(
+			pretty_term_string(S_Transaction, S_Transaction_String),
+			preprocess_s_transaction(Accounts, Report_Currency, Transaction_Types, End_Date, Exchange_Rates, S_Transaction, Transactions0, Outstanding, New_Outstanding),
+			pretty_term_string(Transactions, Transactions_String),
+			atomic_list_concat([S_Transaction_String, '==>\n', Transactions_String, '\n====\n'], Transaction_Transformation_Debug)
+		)
 		->
-			true
-		;
 			(
-				atomic_list_concat(['account not found in hierarchy:', Account_Name], Msg),
-				throw(Msg)
+				% filter out unbound vars from the resulting Transactions list, as some rules do no always produce all possible transactions
+				exclude(var, Transactions0, Transactions1),
+				flatten(Transactions1, Transactions_Out),
+				check_trial_balance(Transactions_Out)
 			)
+		;
+		(
+			% throw error on failure
+			term_string(S_Transaction, Str2),
+			atomic_list_concat(['processing failed:', Str2], Message),
+			throw(Message)
+		)
+	),
+	preprocess_s_transactions2(Static_Data, Exchange_Rates_In, Exchange_Rates_Out, S_Transactions, Transactions_Out_Tail, New_Outstanding).
+	
+preprocess_s_transaction(Accounts, Report_Currency, Transaction_Types, End_Date, Exchange_Rates, S_Transaction, [UnX_Transaction, X_Transaction, Trading_Transactions|Transactions_Tail], Outstanding, Outstanding) :-
+	preprocess_livestock_buy_or_sell(Accounts, Exchange_Rates, Transaction_Types, S_Transaction, Transactions).
+
+/*	
+Transactions using trading accounts can be decomposed into:
+	a transaction of the given amount to the unexchanged account (your bank account)
+	a transaction of the transformed inverse into the exchanged account (your shares investments account)
+	and a transaction of the negative sum of these into the trading cccount. 
+This predicate takes a list of statement transaction terms and decomposes it into a list of plain transaction terms, 3 for each input s_transaction.
+"Goods" is not a general enough word, but it avoids confusion with other terms used.
+*/	
+
+preprocess_s_transaction(Accounts, Report_Currency, Transaction_Types, End_Date, Exchange_Rates, [S_Transaction|S_Transactions], [UnX_Transaction, X_Transaction, Trading_Transactions|Transactions_Tail], ], Outstanding_In, Outstanding_Out)	 :-
+	(
+		% do we have a tag that corresponds to one of known actions?
+		transaction_type_of(Transaction_Types, S_Transaction, Transaction_Type)
+	->
+		true
+	;
+		throw(string('unknown action verb'))
+	),
+	s_transaction_vector(S_Transaction, Vector_Bank),
+	vec_inverse(Vector_Bank, [Our_Coord]),
+	
+	s_transaction_exchanged(S_Transaction, vector(Vector_Goods)),
+	transaction_type(_, Exchanged_Account_Id, Trading_Account_Id, Description) = Transaction_Type,
+	
+	make_unexchanged_transaction(S_Transaction, Description, UnX_Transaction),
+	
+	(
+		nonvar(Exchanged_Account_Id)
+	->
+		(
+			/* Make an inverse exchanged transaction to the exchanged account.
+				this can be a revenue/expense or equity account, in case value is coming in or going out of the company,
+				or it can be an assets account, if we are moving values around*/
+			transaction_day(X_Transaction, Day),
+			transaction_description(X_Transaction, Description),
+			transaction_vector(X_Transaction, Vector_Goods),
+			transaction_account_id(X_Transaction, Exchanged_Account_Id)
+		)
+	;
+		throw(string('action does not specify exchanged account'))
+	),
+	(
+		nonvar(Trading_Account_Id)
+	->
+		% Make a difference transaction to the currency trading account. See https://www.mathstat.dal.ca/~selinger/accounting/tutorial.html . This will track the gain/loss generated by the movement of exchange rate between our asset and the reporting currency.
+		(
+				Vector_Goods = [coord(Unit_Type, Goods_Count, 0)
+			->
+				(
+					Added = (Unit_Type, Goods_Count, Unit_Cost),
+					Unit_Cost is 
+					add_bought_items(fifo, Added, Outstanding_In, Outstanding_In, Outstanding_Out),
+					gains_txs(Cost, Goods, 'Unrealized_Gains', Trading_Transactions)
+				)
+			;
+			(
+				is_shares_sell(ST)
+			->
+				(
+					units_cost(lifo, Unit_Type, Sale_Count, Sale_Cost, Outstanding_In, Outstanding_Out),
+					gains_txs(Sale_Cost, Goods, 'Unrealized_Gains', Txs1),
+					gains_txs(Cost, Goods, 'Realized_Gains', Txs2),
+					Trading_Transactions = [Txs1, Txs2]
+				)
+			)
+		)
+	;
+		(
+			Outstanding_Out = Outstanding_In
+		)
 	).
+
+
+% This Prolog rule handles the case when only the exchanged units are known (for example GOOG)  and
+% hence it is desired for the program to infer the count. 
+% We passthrough the output list to the above rule, and just replace the first S_Transaction in the 
+% input list with a modified one (NS_Transaction).
+preprocess_s_transaction(Accounts, Request_Bases, Exchange_Rates, Transaction_Types, Report_End_Date, S_Transaction, Transactions) :-
+	s_transaction_exchanged(S_Transaction, bases(Goods_Bases)),
+	s_transaction_day(S_Transaction, Transaction_Day), 
+	s_transaction_day(NS_Transaction, Transaction_Day),
+	s_transaction_type_id(S_Transaction, Type_Id), 
+	s_transaction_type_id(NS_Transaction, Type_Id),
+	s_transaction_vector(S_Transaction, Vector_Bank), 
+	s_transaction_vector(NS_Transaction, Vector_Bank),
+	s_transaction_account_id(S_Transaction, Unexchanged_Account_Id), 
+	s_transaction_account_id(NS_Transaction, Unexchanged_Account_Id),
+	% infer the count by money debit/credit and exchange rate
+	vec_change_bases(Exchange_Rates, Transaction_Day, Goods_Bases, Vector_Bank, Vector_Exchanged),
+	s_transaction_exchanged(NS_Transaction, vector(Vector_Exchanged)),
+	preprocess_s_transaction2(Accounts, Request_Bases, Exchange_Rates, Transaction_Types, Report_End_Date, NS_Transaction, Transactions),
+	!.
+
+
+gains_txs(Cost, Goods, Gains_Account) :-
+	vec_add(Cost, Goods, Assets_Change)
+	is_exchanged_to_currency(Cost, Report_Currency, Cost_At_Report_Currency),
+	Txs = [
+		tx{
+			comment: keeps track of gains obtained by changes in price of shares against at the currency we bought them for
+			comment2: Comment2
+			account: Gains_Excluding_Forex
+			vector:  Assets_Change_At_Cost_Inverse
+		}
+
+		tx{
+			comment: keeps track of gains obtained by changes in the value of the currency we bought the shares with, against report currency
+			comment2: Comment2
+			account: Gains_Currency_Movement
+			vector:  Cost - Cost_At_Report_Currency
+		}],
+	gains_account_has_forex_accounts(Gains_Account, Gains_Excluding_Forex, Gains_Currency_Movement).
 
 
 make_unexchanged_transaction(S_Transaction, Description, UnX_Transaction) :-
@@ -75,102 +203,10 @@ make_unexchanged_transaction(S_Transaction, Description, UnX_Transaction) :-
 	s_transaction_account_id(S_Transaction, UnX_Account), 
 	transaction_account_id(UnX_Transaction, UnX_Account).
 
-
-
-
-preprocess_s_transactions0(Static_Data, Exchange_Rates_In, Exchange_Rates_Out, S_Transactions, Transactions_Out_Tail).
-	check_that_s_transaction_account_exists(S_Transaction, Accounts),
-	(
-		preprocess_s_transactions(Static_Data, Exchange_Rates_In, Exchange_Rates_Out, S_Transactions, Transactions_Out_Tail).
-	->
-		% filter out unbound vars from the resulting Transactions list, as some rules do no always produce all possible transactions
-		exclude(var, Transactions0, Transactions)
-	;
-	(
-		% throw error on failure
-		term_string(S_Transaction, Str2),
-		atomic_list_concat(['processing failed:', Str2], Message),
-		throw(Message)
-	).
-	
-	
-
-/*	
-trading account, non-livestock processing:
-
-Transactions using trading accounts can be decomposed into:
-	a transaction of the given amount to the unexchanged account (your bank account)
-	a transaction of the transformed inverse into the exchanged account (your shares investments account)
-	and a transaction of the negative sum of these into the trading cccount. 
-
-This predicate takes a list of statement transaction terms and decomposes it into a list of plain transaction terms, 3 for each input s_transaction.
-This Prolog rule handles the case when the exchanged amount is known, for example 10 GOOG,
-and hence no exchange rate calculations need to be done.
-
-"Goods" is not a general enough word, but it avoids confusion with other terms used.
-
-s_transactions have to be sorted by date and we have to begin at the oldest one
-*/	
-
-
-preprocess_s_transactions(Accounts, Report_Currency, Transaction_Types, End_Date, Exchange_Rates, [], [], []).
-
-
-preprocess_s_transactions(Accounts, Report_Currency, Transaction_Types, End_Date, Exchange_Rates, [S_Transaction|S_Transactions], [UnX_Transaction, X_Transaction, Trading_Transaction|Transactions_Tail], Outstanding_Out)	 :-
-	preprocess_s_transactions(Accounts, Report_Currency, Transaction_Types, End_Date, Exchange_Rates, S_Transactions, Transactions_Tail, Outstanding_In),
-	(
-		% do we have a tag that corresponds to one of known actions?
-		transaction_type_of(Transaction_Types, S_Transaction, Transaction_Type)
-	->
-		true
-	;
-		throw(string('unknown action verb'))
-	),
-	s_transaction_vector(S_Transaction, Vector_Bank),
-	s_transaction_exchanged(S_Transaction, vector(Vector_Goods0)),
-	transaction_type(_, Exchanged_Account_Id, Trading_Account_Id, Description) = Transaction_Type,
-	
-	make_unexchanged_transaction(S_Transaction, Description, UnX_Transaction),
-	
-	% Make an inverse exchanged transaction to the exchanged account
-	(
-		nonvar(Exchanged_Account_Id)
-	->
-		(
-			transaction_day(X_Transaction, Day),
-			transaction_description(X_Transaction, Description),
-			transaction_vector(X_Transaction, Vector_Goods),
-			transaction_account_id(X_Transaction, Exchanged_Account_Id)
-		)
-	;
-		true
-	),
-	% Make a difference transaction to the currency trading account. See https://www.mathstat.dal.ca/~selinger/accounting/tutorial.html . This will track the gain/loss generated by the movement of exchange rate between our asset and the reporting currency.
-	(
-		nonvar(Trading_Account_Id)
-	->
-		(
-			process_shares(Outstanding_Out, Outstanding_In)
-		
-		)
-	;
-		(
-			Outstanding_Out = Outstanding_In
-		)
-	),
-	!.
-
-	
-process_shares(Outstanding_Out, Outstanding_In) :-
-	is_shares_buy(ST),
-	append(Outstanding_In, (Type, Count, Unit_Cost), Outstanding_Out)
-
-process_shares(Outstanding_Out, Outstanding_In) :-
-	is_shares_sell(ST),
-	append(Outstanding_In, (Type, Count, Unit_Cost), Outstanding_Out)
-
 	
 /*
+pricing methods:
+
 for adjusted_cost method, we will add up all the buys costs and divide by number of units outstanding.
 for lifo, sales will be reducing/removing buys from the end, for fifo, from the beginning.
 */
@@ -205,46 +241,54 @@ find_sold_items(lifo, Type, Count, Cost, [(Outstanding_Type,_,_)|Outstanding_Tai
 	find_sold_items(lifo, Type, Count, Cost, Outstanding_Tail, Outstanding_Out).
 	
 
-
 	
 	
-buy_txs(Cost, Goods):
-	gains_txs(Cost, Goods, 'Unrealized_Gains')
+/*
+finally, we should update our knowledge of unit costs, based on recent sales and buys
+
+we will only be interested in an exchange rate (price) of shares at report date.
+note that we keep exchange rates at two places. 
+Currency exchange rates fetched from openexchangerates are asserted into a persistent db.
+Exchange_Rates are parsed from the request xml.
 
 
-sale_txs(Cost, Goods, [Txs1, Txs2]) :-
+Report_Date, Exchange_Rates, , Exchange_Rates2
+
+	% will we be able to exchange this later?
+	is_exchangeable_into_currency(Exchange_Rates, End_Date, Goods_Units, Request_Currency)
+		->
+	true
+		;
+		(
+			% save the cost for report time
+		)
+*/
+
 	
-	/* 
-	here Goods might be 1 GOOG
-	Pricing_Method fifo, lifo, or adjusted_cost
-	Sold will be goods_with_purchase_price(1 GOOG, 5 USD)
-	*/
-	actual_items_sold(Goods, Pricing_Method, goods_with_purchase_price(Goods, Purchase_Price))
 
-	gains_txs(Purchase_Price, Goods, 'Unrealized_Gains', Txs1)
-	gains_txs(Cost, Goods, 'Realized_Gains', Txs2)
+
+% Gets the transaction_type term associated with the given transaction
+transaction_type_of(Transaction_Types, S_Transaction, Transaction_Type) :-
+	% get type id
+	s_transaction_type_id(S_Transaction, Type_Id),
+	% construct type term with parent variable unbound
+	transaction_type_id(Transaction_Type, Type_Id),
+	% match it with what's in Transaction_Types
+	member(Transaction_Type, Transaction_Types).
+
+
+% throw an error if the s_transaction's account is not found in the hierarchy
+check_that_s_transaction_account_exists(S_Transaction, Accounts) :-
+	s_transaction_account_id(S_Transaction, Account_Name),
+	(
+			account_parent_id(Accounts, Account_Name, _) 
+		->
+			true
+		;
+			throw_string(['account not found in hierarchy:', Account_Name]).
+	).
 
 	
-gains_txs(Cost, Goods, Gains_Account) :-
-	vec_add(Cost, Goods, Assets_Change)
-	is_exchanged_to_currency(Cost, Report_Currency, Cost_At_Report_Currency),
-	Txs = [
-		tx{
-			comment: keeps track of gains obtained by changes in price of shares against at the currency we bought them for
-			comment2: Comment2
-			account: Gains_Excluding_Forex
-			vector:  Assets_Change_At_Cost_Inverse
-		}
-
-		tx{
-			comment: keeps track of gains obtained by changes in the value of the currency we bought the shares with, against report currency
-			comment2: Comment2
-			account: Gains_Currency_Movement
-			vector:  Cost - Cost_At_Report_Currency
-		}],
-	gains_account_has_forex_accounts(Gains_Account, Gains_Excluding_Forex, Gains_Currency_Movement).
-
-
 
 % yield all transactions from all accounts one by one.
 % these are s_transactions, the raw transactions from bank statements. Later each s_transaction will be preprocessed
@@ -334,13 +378,7 @@ extract_exchanged_value(Tx_Dom, Account_Currency, Bank_Debit, Bank_Credit, Excha
    ).
 
 
-preprocess_s_transaction_with_debug(Account_Hierarchy, Bases, Exchange_Rates, Action_Taxonomy, End_Days, S_Transaction, Transactions, Transaction_Transformation_Debug) :-
-	pretty_term_string(S_Transaction, S_Transaction_String),
-	preprocess_s_transaction(Account_Hierarchy, Bases, Exchange_Rates, Action_Taxonomy, End_Days, S_Transaction, Transactions),
-	pretty_term_string(Transactions, Transactions_String),
-	atomic_list_concat([S_Transaction_String, '==>\n', Transactions_String, '\n====\n'], Transaction_Transformation_Debug).
-
-/* fixme: dont change order */
+/* fixme: use sort, dont change order */
 add_bank_accounts(S_Transactions, Accounts_In, Accounts_Out) :-
 	findall(
 		Bank_Account_Name,
@@ -360,44 +398,3 @@ add_bank_accounts(S_Transactions, Accounts_In, Accounts_Out) :-
 
 
 	
-	/*
-	/*
-we will only be interested in an exchange rate (price) of shares at report date.
-note that we keep exchange rates at two places. 
-Currency exchange rates fetched from openexchangerates are asserted into a persistent db.
-Exchange_Rates are parsed from the request xml.
-
-
-Report_Date, Exchange_Rates, , Exchange_Rates2
-
-	% will we be able to exchange this later?
-	is_exchangeable_into_currency(Exchange_Rates, End_Date, Goods_Units, Request_Currency)
-		->
-	true
-		;
-		(
-			% save the cost for report time
-		)
-
-
-*/
-	
-% This Prolog rule handles the case when only the exchanged units are known (for example GOOG)  and
-% hence it is desired for the program to infer the count. 
-% We passthrough the output list to the above rule, and just replace the first S_Transaction in the 
-% input list with a modified one (NS_Transaction).
-preprocess_s_transaction2(Accounts, Request_Bases, Exchange_Rates, Transaction_Types, Report_End_Date, S_Transaction, Transactions) :-
-	s_transaction_exchanged(S_Transaction, bases(Goods_Bases)),
-	s_transaction_day(S_Transaction, Transaction_Day), 
-	s_transaction_day(NS_Transaction, Transaction_Day),
-	s_transaction_type_id(S_Transaction, Type_Id), 
-	s_transaction_type_id(NS_Transaction, Type_Id),
-	s_transaction_vector(S_Transaction, Vector_Bank), 
-	s_transaction_vector(NS_Transaction, Vector_Bank),
-	s_transaction_account_id(S_Transaction, Unexchanged_Account_Id), 
-	s_transaction_account_id(NS_Transaction, Unexchanged_Account_Id),
-	% infer the count by money debit/credit and exchange rate
-	vec_change_bases(Exchange_Rates, Transaction_Day, Goods_Bases, Vector_Bank, Vector_Exchanged),
-	s_transaction_exchanged(NS_Transaction, vector(Vector_Exchanged)),
-	preprocess_s_transaction2(Accounts, Request_Bases, Exchange_Rates, Transaction_Types, Report_End_Date, NS_Transaction, Transactions),
-	!.

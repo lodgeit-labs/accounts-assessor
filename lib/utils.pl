@@ -1,6 +1,6 @@
 :- module(utils, [
 	user:goal_expansion/2, inner_xml/3, write_tag/2, fields/2, fields_nothrow/2, numeric_fields/2, 
-	pretty_term_string/2, pretty_term_string/2, with_info_value_and_info/3, trim_atom/2, maplist6/6]).
+	pretty_term_string/2, pretty_term_string/2, with_info_value_and_info/3, trim_atom/2, maplist6/6, throw_string/1]).
 :- use_module(library(xpath)).
 
 	
@@ -127,7 +127,8 @@ maplist6(Goal, List1, List2, List3, List4, List5) :-
     maplist6_(List1, List2, List3, List4, List5, Goal).
 
 maplist6_([], [], [], [], [], _).
-	maplist6_([Elem1|Tail1], [Elem2|Tail2], [Elem3|Tail3], [Elem4|Tail4], [Elem5|Tail5], Goal) :-
+
+maplist6_([Elem1|Tail1], [Elem2|Tail2], [Elem3|Tail3], [Elem4|Tail4], [Elem5|Tail5], Goal) :-
     call(Goal, Elem1, Elem2, Elem3, Elem4, Elem5),
     maplist6_(Tail1, Tail2, Tail3, Tail4, Tail5, Goal).
 
@@ -145,15 +146,15 @@ user:goal_expansion(
 
 my_variable_naming(Var, (Name = Var)) :-
 	var_property(Var, name(Name)).
-	
+		
 /*usage:
 x([S2,' ', S3,' ', S4]) :-
-	described_formula((
+	compile_with_variable_names_preserved((
 		AC=4444*X,
 		X = Z/3,
 		true
 	), Namings),
-	described_formula((
+	compile_with_variable_names_preserved((
 		AC=4444*X,
 		X = Z/3,
 		true
@@ -162,7 +163,7 @@ x([S2,' ', S3,' ', S4]) :-
 	writeln(''),
 	print_term(AC, [Namings]),
 	writeln(''),
-	described_formula((
+	compile_with_variable_names_preserved((
 		AC2=4*XX,
 		XX = Z/3,
 		true
@@ -170,36 +171,10 @@ x([S2,' ', S3,' ', S4]) :-
 	writeln(''),
 	print_term(AC2, [Namings2]),
 	writeln(''),
-
 	true.
 :- x(S).
-
 */
 
-
-
-
-
-% scraps:
-
-/*
-replace_underscores_in_variable_names_with_spaces(variable_names(Names0), variable_names(Names1)) :-
-	maplist(replace_underscores_in_variable_names_with_spaces2, Names0, Names1).
-
-replace_underscores_in_variable_names_with_spaces2((Name0 = Var), (Name1 = Var)) :-
-	re_replace('_'/a, ' ', Name0, Name1).
-*/
-/*usage:
-replace_underscores_in_variable_names_with_spaces(variable_names([('Na_me' = Var)]), X). 
-X = variable_names(['Na me'=Var]).
-*/
-
-/*
-fields_to_numeric([NameString, Atom | Fields_Rest], [NameString, Number | Numeric_Fields_Rest]) :-
-	atom_number(Atom, Number),
-	fields_to_numeric(Fields_Rest, Numeric_Fields_Rest).
-	
-fields_to_numeric([], []).
-*/
-
-
+throw_string(List) :-
+	atomic_list_concat(List, String),
+	throw(string(String)).
