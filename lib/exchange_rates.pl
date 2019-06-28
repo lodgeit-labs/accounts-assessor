@@ -20,15 +20,17 @@
 
 :- dynamic exchange_rates/2.
 
-:- persistent(cached_exchange_rates(day: integer, rates:list)).
+:- persistent(persistently_cached_exchange_rates(day: integer, rates:list)).
 
-:- initialization(db_attach('tmp/cached_exchange_rates.pl' , [])).
+:- initialization(db_attach('tmp/persistently_cached_exchange_rates.pl' , [])).
 
 exchange_rates(Day, Exchange_Rates) :-
 	with_mutex(db, exchange_rates2(Day, Exchange_Rates)).
 
 exchange_rates2(Day, Exchange_Rates) :-
-	(cached_exchange_rates(Day, Exchange_Rates),!)
+	/*fixme: if yesterday we tried to fetch exchange rates for today, we got an empty list, we should invalidate it.
+	we can probably presume that the dates in the request are utc.*/
+	(persistently_cached_exchange_rates(Day, Exchange_Rates),!)
 	;
 	fetch_exchange_rates(Day, Exchange_Rates).
 
@@ -42,12 +44,23 @@ fetch_exchange_rates(Day, Exchange_Rates) :-
 		% this will happen for dates in future or otherwise not found in their db
 		% note that connection error or similar should still propagate and halt the program.
 		error(existence_error(_,_),_),
-		false
+		(
+			assert_persistently_cached_exchange_rates(Day, []),
+			false
+		)
 	),
 	json_read(Stream, json(Response), []),
-	member(rates = json(Exchange_Rates), Response),
+	member(rates = json(Exchange_Rates_Uppercase), Response),
+	findall(
+		Currency_Lowercase = Rate,
+		(
+			member(Currency_Uppercase = Rate, Exchange_Rates_Uppercase),
+			upcase_atom(Currency_Uppercase, Currency_Lowercase)
+		),
+		Exchange_Rates
+	),
 	close(Stream),
-	assert_cached_exchange_rates(Day, Exchange_Rates).
+	assert_persistently_cached_exchange_rates(Day, Exchange_Rates).
 
 % % Predicates for asserting that the fields of given exchange rates have particular values
 
@@ -76,17 +89,14 @@ symmetric_exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate) 
 % Obtains the exchange rate from Src_Currency to Dest_Currency on the day Day using the
 % exchange_rates predicate.
 
-symmetric_exchange_rate(_, Day, Src_Currency_Upcased, Dest_Currency_Upcased, Exchange_Rate) :-
+symmetric_exchange_rate(_, Day, Src_Currency, Dest_Currency, Exchange_Rate) :-
 	exchange_rates(Day, Exchange_Rates),
 	member(Src_Currency = Src_Exchange_Rate, Exchange_Rates),
 	member(Dest_Currency = Dest_Exchange_Rate, Exchange_Rates),
-	Exchange_Rate is Dest_Exchange_Rate / Src_Exchange_Rate,
-	upcase_atom(Src_Currency, Src_Currency_Upcased),
-	upcase_atom(Dest_Currency, Dest_Currency_Upcased).
-
+	Exchange_Rate is Dest_Exchange_Rate / Src_Exchange_Rate.
+	
 % Derive an exchange rate from the source to the destination currency by chaining together
 % =< Length exchange rates.
-
 equivalence_exchange_rate(_, _, Currency, Currency, 1, Length) :- Length >= 0, !.
 
 equivalence_exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate, Length) :-
