@@ -38,8 +38,15 @@
 			<InterestIncome/>
 			<SalesOfLivestock/>
 			<RationsRevenue/>
-			<ForexGain/>
 			<OtherGain/>
+			<CapitalGain>
+				<Unrealized_Gains_Excluding_Forex/>
+				<Realized_Gains_Excluding_Forex/>
+			</CapitalGain>
+			<ForexGain>
+				<Unrealized_Gains_Currency_Movement/>
+				<Realized_Gains_Currency_Movement/>
+			</ForexGain>
 		</Revenue>
 		<Expenses>
 			<BankCharges/>

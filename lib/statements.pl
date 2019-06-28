@@ -50,6 +50,8 @@ preprocess_s_transactions(Static_Data, S_Transactions, Transactions_Out, Debug_I
 	preprocess_s_transactions2(Static_Data, S_Transactions, Transactions0, [], _, Debug_Info),
 	flatten(Transactions0, Transactions_Out).
 
+preprocess_s_transactions2(_, [], [], Outstanding, Outstanding, ["end."]).
+
 preprocess_s_transactions2(Static_Data, [S_Transaction|S_Transactions], [Transactions_Out|Transactions_Out_Tail], Outstanding_In, Outstanding_Out, [Debug_Head|Debug_Tail]) :-
 	Static_Data = (Accounts, _, _, _, _),
 	check_that_s_transaction_account_exists(S_Transaction, Accounts),
@@ -198,23 +200,23 @@ we bought the shares with some currency. we can think of gains as having two par
 gains_txs(Static_Data, Cost_Vector, Goods_Vector, Transaction_Day, Gains_Account, Transactions_Out) :-
 	Static_Data = (_Accounts, Report_Currency, _Transaction_Types, _Report_End_Day, Exchange_Rates),
 	vec_change_bases(Exchange_Rates, Transaction_Day, [Report_Currency], Cost_Vector, Cost_In_Report_Currency),
-	vec_add(Cost_Vector, Goods_Vector, Assets_Change),
-	vec_inverse(Assets_Change, Assets_Change_Inverse),
+	vec_add(Cost_In_Report_Currency, Goods_Vector, Cost_In_Report_Currency_Vs_Goods),
+	vec_inverse(Cost_In_Report_Currency_Vs_Goods, Cost_In_Report_Currency_Vs_Goods__Revenue),
 	
 	Txs0 = [
 		tx{
 			comment: 'keeps track of gains obtained by changes in price of shares against at the currency we bought them for',
 			comment2: 'Comment2',
 			account: Gains_Excluding_Forex,
-			vector:  Assets_Change_Inverse
+			vector:  Cost_In_Report_Currency_Vs_Goods__Revenue
 		},
 		tx{
 			comment: 'keeps track of gains obtained by changes in the value of the currency we bought the shares with, against report currency',
 			comment2: 'Comment2',
 			account: Gains_Currency_Movement,
-			vector: Currency_Difference
+			vector: Cost_In_Report_Vs_Purchase
 		}],
-	vec_sub(Cost_In_Report_Currency, Cost_Vector, Currency_Difference),
+	vec_sub(Cost_In_Report_Currency, Cost_Vector, Cost_In_Report_Vs_Purchase),
 
 	maplist(tx_to_transaction(Transaction_Day), Txs0, Transactions_Out),
 	gains_account_has_forex_accounts(Gains_Account, Gains_Excluding_Forex, Gains_Currency_Movement).
