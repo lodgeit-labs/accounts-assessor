@@ -12,9 +12,8 @@
 		    vec_sub/3,
 		    integer_to_coord/3]).
 
-coord_unit(coord(Unit, _, _), Unit).
-value_unit(value(Unit, _), Unit).
-
+:- use_module(library(clpr)).
+		    
 % -------------------------------------------------------------------
 % Pacioli group operations. These operations operate on vectors. A vector is a list of
 % coordinates. A coordinate is a triple comprising a unit, a debit amount, and a credit
@@ -59,7 +58,8 @@ vec_reduce(As, Bs) :-
 		Common_value = min(A_Debit, A_Credit),
 		B_Debit is A_Debit - Common_value,
 		B_Credit is A_Credit - Common_value,
-		B = coord(Unit, B_Debit, B_Credit)),
+		B = coord(Unit, B_Debit, B_Credit),
+		\+ is_zero(B)),
 		Bs
 	),!.
 
@@ -75,28 +75,15 @@ vec_add(As, Bs, Cs_Reduced) :-
 			% all coords of units only found in A
 			(
 				member(A_Coord, As),
-				(
-					(
-						coord_unit(A_Coord, A_Unit),
-						coord_unit(B_Coord, A_Unit),
-						!
-					);
-					(
-						value_unit(A_Coord, A_Unit),
-						value_unit(B_Coord, A_Unit)
-					)
-				),
+				coord_or_value_of_same_unit(A_Coord, B_Coord),
 				\+ member(B_Coord, Bs),
 				C = A_Coord
-			);
+			)
+			;
 			% all coords of units only found in B
 			(
 				member(B_Coord, Bs),
-				(
-					(coord_unit(A_Coord, B_Unit),!)
-					;
-					value_unit(A_Coord, B_Unit)
-				),
+				coord_or_value_of_same_unit(A_Coord, B_Coord),
 				\+ member(A_Coord, As),
 				C = B_Coord
 			);
@@ -133,19 +120,25 @@ vec_equality(As, Bs) :-
 	vec_sub(As, Bs, Cs),
 	forall(member(C, Cs), is_zero(C)).
 
-is_zero(coord(_, 0, 0)).
-is_zero(value(_, 0)).
-	
-integer_to_coord(Unit, Integer, coord(Unit, Integer2, Zero)) :-
-	((Zero = 0,!); Zero =:= 0),
-	((Integer = Integer2,!); Integer =:= Integer2),
-	Integer >= 0.
-integer_to_coord(Unit, Integer, coord(Unit, Zero, Integer2)) :-
-	((Zero = 0,!); Zero =:= 0),
-	((Integer = Integer2,!); Integer =:= Integer2),
-	Integer < 0.
+is_zero(coord(_, Zero1, Zero2)) :-
+	{Zero1 =:= 0,
+	Zero2 =:= 0}.
+is_zero(value(_, Zero)) :-
+	is_zero(coord(_, Zero, 0)).
 
-/*
-op -(V, V2) :-
-	vec_sub(V, V2).
-*/
+integer_to_coord(Unit, Integer, coord(Unit, Debit, Credit)) :-
+	{Integer =:= Debit - Credit}.
+
+
+coord_or_value_of_same_unit(A, B) :-
+	coord_unit(A, A_Unit),
+	coord_unit(B, A_Unit).
+coord_or_value_of_same_unit(A, B) :-
+	value_unit(A, A_Unit),
+	value_unit(B, A_Unit).
+
+coord_unit(coord(Unit, _, _), Unit).
+value_unit(value(Unit, _), Unit).
+
+:- vec_add([coord(a, 5, 1)], [coord(a, 0.0, 4)], []).
+:- vec_add([coord(a, 5, 1), coord(b, 0, 0.0)], [coord(b, 7, 7), coord(a, 0.0, 4)], []).

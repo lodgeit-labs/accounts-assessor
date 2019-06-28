@@ -9,6 +9,7 @@
 :- use_module(library(http/http_client)).
 :- use_module('utils', [inner_xml/3, trim_atom/2]).
 :- use_module(library(record)).
+:- use_module(library(xpath)).
 
 
 /*

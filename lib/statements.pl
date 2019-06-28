@@ -4,9 +4,9 @@
 % Date:      2019-06-02
 % ===================================================================
 
-:- module(statements, [extract_transaction/4, preprocess_s_transaction_with_debug/8, add_bank_accounts/3]).
+:- module(statements, [extract_transaction/4, preprocess_s_transactions/4, add_bank_accounts/3]).
  
-:- use_module(pacioli,  [vec_inverse/2, vec_sub/3]).
+:- use_module(pacioli,  [vec_inverse/2, vec_add/3, vec_sub/3, integer_to_coord/3]).
 :- use_module(exchange, [vec_change_bases/5]).
 :- use_module(exchange_rates, [exchange_rate/5, is_exchangeable_into_request_bases/4]).
 
@@ -25,6 +25,7 @@
 :- use_module(accounts, [account_parent_id/3]).
 :- use_module(days, [format_date/2, parse_date/2, gregorian_date/2]).
 :- use_module(library(record)).
+:- use_module(library(xpath)).
 
 % -------------------------------------------------------------------
 
@@ -44,8 +45,10 @@
 s_transactions have to be sorted by date from oldest to newest 
 
 */
-preprocess_s_transactions(Static_Data, Exchange_Rates_In, Exchange_Rates_Out, S_Transactions, Transactions_Out) :-
-	preprocess_s_transactions2(Static_Data, Exchange_Rates_In, Exchange_Rates_Out, S_Transactions, Transactions_Out, [], _, []).
+preprocess_s_transactions(Static_Data, S_Transactions, Transactions_Out, Debug_Info) :-
+	%gtrace,
+	preprocess_s_transactions2(Static_Data, S_Transactions, Transactions0, [], _, Debug_Info),
+	flatten(Transactions0, Transactions_Out).
 
 preprocess_s_transactions2(Static_Data, [S_Transaction|S_Transactions], [Transactions_Out|Transactions_Out_Tail], Outstanding_In, Outstanding_Out, [Debug_Head|Debug_Tail]) :-
 	Static_Data = (Accounts, _, _, _, _),
@@ -84,6 +87,7 @@ This predicate takes a list of statement transaction terms and decomposes it int
 
 preprocess_s_transaction(Static_Data, S_Transaction, [UnX_Transaction, X_Transaction, Trading_Transactions], Outstanding_In, Outstanding_Out) :-
 	Static_Data = (_, _Report_Currency, Transaction_Types, _, _Exchange_Rates),
+	s_transaction_exchanged(S_Transaction, vector(Vector_Goods)),
 	(
 		% do we have a tag that corresponds to one of known actions?
 		transaction_type_of(Transaction_Types, S_Transaction, Transaction_Type)
@@ -100,7 +104,7 @@ preprocess_s_transaction(Static_Data, S_Transaction, [UnX_Transaction, X_Transac
 	vec_inverse(Vector_Bank, Vector_Ours),
 	vec_inverse(Vector_Ours, Vector_Ours_Inverted),
 	Vector_Ours = [Our_Coord],
-	s_transaction_exchanged(S_Transaction, vector(Vector_Goods)),
+	vec_inverse(Vector_Goods, Vector_Goods_Inverted),
 	[Goods_Coord] = Vector_Goods,
 	Our_Coord = coord(Currency, _Our_Debit, Our_Credit),
 	integer_to_coord(Goods_Unit, Goods_Integer, Goods_Coord),
@@ -133,17 +137,18 @@ preprocess_s_transaction(Static_Data, S_Transaction, [UnX_Transaction, X_Transac
 					add_bought_items(
 						fifo, 
 						(Goods_Unit, Goods_Integer, value(Currency, Unit_Cost)), 
-						Outstanding_In, Outstanding_Out),
-					gains_txs(Vector_Ours, Vector_Goods, 'Unrealized_Gains', Trading_Transactions)
+						Outstanding_In, Outstanding_Out
+					),
+					gains_txs(Vector_Ours, Vector_Goods, Transaction_Day, 'Unrealized_Gains', Trading_Transactions)
 				)
 			;
 			(
 				units_cost(lifo, Goods_Unit, Goods_Integer, Outstanding_In, Outstanding_Out, Sale_Costs),
 				/*Sale_Cost is a vector of value(currency, amount)*/
-				maplist(reduce_unrealized_gains, Sale_Costs, Txs0),
-				vec_inverse(Vector_Goods, Vector_Goods_Inverted),
-				gains_txs(Vector_Ours_Inverted, Vector_Goods_Inverted, 'Unrealized_Gains', Txs1),
-				Trading_Transactions = [Txs0, Txs1]
+				maplist(reduce_unrealized_gains(Static_Data), Sale_Costs, Transaction_Day, Txs0),
+				gains_txs(Static_Data, Vector_Ours_Inverted, Vector_Goods_Inverted, Transaction_Day, 'Unrealized_Gains', Txs1),
+				gains_txs(Static_Data, Vector_Ours, Vector_Goods, Transaction_Day, 'Realized_Gains', Txs2),
+				Trading_Transactions = [Txs0, Txs1, Txs2]
 			)
 		)
 	;
@@ -151,7 +156,7 @@ preprocess_s_transaction(Static_Data, S_Transaction, [UnX_Transaction, X_Transac
 			Outstanding_Out = Outstanding_In
 		)
 	).
-
+	
 % This Prolog rule handles the case when only the exchanged units are known (for example GOOG)  and
 % hence it is desired for the program to infer the count. 
 % We passthrough the output list to the above rule, and just replace the first S_Transaction in the 
@@ -173,9 +178,9 @@ preprocess_s_transaction(Static_Data, S_Transaction, Transactions, Outstanding_I
 	preprocess_s_transaction(Static_Data, NS_Transaction, Transactions, Outstanding_In, Outstanding_Out).
 
 	
-reduce_unrealized_gains(value(Currency, Amount), Txs) :-
-	Cost_Of_Goods = [coord(Currency, 0, Amount)],
-	gains_txs(Cost_Of_Goods, Goods_Vector, 'Unrealized_Gains', Txs).
+reduce_unrealized_gains(Static_Data, value(Currency, Amount), Transaction_Day, Txs) :-
+	Cost_Of_Goods = [coord(Currency, Amount, 0)],
+	gains_txs(Static_Data, Cost_Of_Goods, [], Transaction_Day, 'Unrealized_Gains', Txs).
 	
 
 /*
@@ -183,8 +188,9 @@ we bought the shares with some currency. we can think of gains as having two par
 	share value against that currency.
 	that currency value against report currency.
 */
-gains_txs(Cost_Vector, Goods_Vector, Gains_Account, Transactions_Out) :-
-	vec_change_bases(Rates, Day, [Report_Currency], Cost_Vector, Cost_In_Report_Currency),
+gains_txs(Static_Data, Cost_Vector, Goods_Vector, Transaction_Day, Gains_Account, Transactions_Out) :-
+	Static_Data = (_Accounts, Report_Currency, _Transaction_Types, _Report_End_Day, Exchange_Rates),
+	vec_change_bases(Exchange_Rates, Transaction_Day, [Report_Currency], Cost_Vector, Cost_In_Report_Currency),
 	vec_add(Cost_Vector, Goods_Vector, Assets_Change),
 	vec_inverse(Assets_Change, Assets_Change_Inverse),
 	
@@ -193,25 +199,25 @@ gains_txs(Cost_Vector, Goods_Vector, Gains_Account, Transactions_Out) :-
 			comment: 'keeps track of gains obtained by changes in price of shares against at the currency we bought them for',
 			comment2: Comment2,
 			account: Gains_Excluding_Forex,
-			vector:  Assets_Change_Inverse,
+			vector:  Assets_Change_Inverse
 		},
 		tx{
 			comment: 'keeps track of gains obtained by changes in the value of the currency we bought the shares with, against report currency',
 			comment2: Comment2,
 			account: Gains_Currency_Movement,
-			vector: Currency_Difference,
+			vector: Currency_Difference
 		}],
-	vec_sub(Cost_Vector, Cost_In_Report_Currency, Currency_Difference),
+	vec_sub(Cost_In_Report_Currency, Cost_Vector, Currency_Difference),
 
-	maplist(tx_to_transaction(Day), Txs0, Transactions_Out),
+	maplist(tx_to_transaction(Transaction_Day), Txs0, Transactions_Out),
 	gains_account_has_forex_accounts(Gains_Account, Gains_Excluding_Forex, Gains_Currency_Movement).
 
-tx_to_transaction(Day), Tx, Transaction) :-
+tx_to_transaction(Day, Tx, Transaction) :-
 	Tx = tx{comment: Comment, comment2: Comment2, account: Account, vector: Vector},
-	atomic_list_concat(['comment:', Comment, ', comment2:' Comment2], Description),
+	atomic_list_concat(['comment:', Comment, ', comment2:', Comment2], Description),
 	transaction_day(Transaction, Day),
 	transaction_description(Transaction, Description),
-	transaction_account_id(Transaction, Account_Id),
+	transaction_account_id(Transaction, Account),
 	transaction_vector(Transaction, Vector).
 	
 gains_account_has_forex_accounts(Gains_Account, Gains_Excluding_Forex, Gains_Currency_Movement) :-
@@ -248,28 +254,28 @@ add_bought_items(fifo, Added, Outstanding_In, [Added|Outstanding_In]).
 add_bought_items(lifo, Added, Outstanding_In, [Outstanding_In|Added]).
 
 
-find_sold_items(Type, 0, Outstanding, Outstanding, 0).
+find_sold_items(lifo, _, 0, Outstanding, Outstanding, []).
 
 find_sold_items(
 	/* input */
 	lifo,	Type, Sale_Count, 
-	[(Type, Outstanding_Count, value(Outstanding_Currency, Outstanding_Unit_Cost))|Outstanding_Tail], 
+	[(Type, Outstanding_Count, value(Currency, Outstanding_Unit_Cost))|Outstanding_Tail], 
 	/* output */
 	Outstanding_Out, Cost) 
 :-
 	Sale_Count < Outstanding_Count,
 	Outstanding_Remaining_Count is Outstanding_Count - Sale_Count,
 	Cost_Int is Sale_Count * Outstanding_Unit_Cost,
-	Cost = value(Currency, Cost_Int, 0),
+	Cost = [value(Currency, Cost_Int, 0)],
 	Outstanding_Out = [Outstanding_Remaining | Outstanding_Tail],
 	Outstanding_Remaining = (Type, Outstanding_Remaining_Count, Outstanding_Unit_Cost).
 
 find_sold_items(
 	lifo, Type, Sale_Count, 
-	[(Type, Outstanding_Count, value(Outstanding_Currency, Outstanding_Unit_Cost)))|Outstanding_Tail], 
+	[(Type, Outstanding_Count, value(Outstanding_Currency, Outstanding_Unit_Cost))|Outstanding_Tail], 
 	Outstanding_Out, Cost)
 :-
-	Outstanding_Count <= Sale_Count,
+	Outstanding_Count >= Sale_Count,
 	Remaining_Count is Sale_Count - Outstanding_Count,
 	find_sold_items(lifo, Type, Remaining_Count, Outstanding_Tail, Outstanding_Out, Remaining_Cost),
 	Partial_Cost_Int is Outstanding_Count * Outstanding_Unit_Cost,
@@ -303,9 +309,30 @@ Report_Date, Exchange_Rates, , Exchange_Rates2
 		)
 */
 
+transactions_trial_balance(Transactions, Total) :-
+	maplist(transaction_vector, Transactions, Vectors),
+	foldl(vec_add, Vectors, [], Total).
+
+check_trial_balance(Transactions) :-	
+	transactions_trial_balance(Transactions, Total),
+	(
+		Total = []
+	->
+		true
+	;
+		(
+			pretty_term_string(['total is ', Total], Err_Str),
+			throw(Err_Str)
+		)
+	).
+
+:- maplist(transaction_vector, Transactions, [[coord(aAAA, 5, 1), coord(aBBB, 0, 0.0)], [], [coord(aBBB, 7, 7)], [coord(aAAA, 0.0, 4)]]), check_trial_balance(Transactions).
+:- maplist(transaction_vector, Transactions, [[coord(aAAA, 5, 1)], [coord(aAAA, 0.0, 4)]]), check_trial_balance(Transactions).
+:- maplist(transaction_vector, Transactions, [[coord(AAA, 5, 1), coord(BBB, 0, 0.0)], [], [coord(BBB, 7, 7)], [coord(AAA, 0.0, 4)]]), check_trial_balance(Transactions).
+:- maplist(transaction_vector, Transactions, [[coord(AAA, 45, 49), coord(BBB, 0, 0.0)], [], [coord(BBB, -7, -7)], [coord(AAA, 0.0, -4)]]), check_trial_balance(Transactions).
+
+
 	
-
-
 % Gets the transaction_type term associated with the given transaction
 transaction_type_of(Transaction_Types, S_Transaction, Transaction_Type) :-
 	% get type id
@@ -320,11 +347,11 @@ transaction_type_of(Transaction_Types, S_Transaction, Transaction_Type) :-
 check_that_s_transaction_account_exists(S_Transaction, Accounts) :-
 	s_transaction_account_id(S_Transaction, Account_Name),
 	(
-			account_parent_id(Accounts, Account_Name, _) 
+		account_parent_id(Accounts, Account_Name, _) 
 		->
 			true
 		;
-			throw_string(['account not found in hierarchy:', Account_Name]).
+			throw_string(['account not found in hierarchy:', Account_Name])
 	).
 
 	
@@ -436,4 +463,3 @@ add_bank_accounts(S_Transactions, Accounts_In, Accounts_Out) :-
 	sort(Accounts_Duplicated, Accounts_Out).
 
 
-	

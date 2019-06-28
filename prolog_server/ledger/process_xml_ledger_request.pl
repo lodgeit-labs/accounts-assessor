@@ -17,7 +17,7 @@
 	inner_xml/3, write_tag/2, fields/2, fields_nothrow/2, numeric_fields/2, 
 	pretty_term_string/2]).
 :- use_module('../../lib/ledger', [balance_sheet_at/8, trial_balance_between/8, profitandloss_between/8, balance_by_account/8]).
-:- use_module('../../lib/statements', [extract_transaction/4, preprocess_s_transaction_with_debug/8, add_bank_accounts/3]).
+:- use_module('../../lib/statements', [extract_transaction/4, preprocess_s_transactions/4, add_bank_accounts/3]).
 :- use_module('../../lib/livestock', [get_livestock_types/2, process_livestock/15, make_livestock_accounts/2, livestock_counts/5, extract_livestock_opening_costs_and_counts/2]).
 :- use_module('../../lib/accounts', [extract_account_hierarchy/2]).
 :- use_module('../../lib/transactions', [check_transaction_account/2]).
@@ -33,6 +33,7 @@ process_xml_ledger_request(_, Dom) :-
 	extract_action_taxonomy(Dom, Action_Taxonomy),
 	extract_account_hierarchy(Dom, Account_Hierarchy0),
 	[Default_Currency] = Default_Bases,
+	Report_Currency = Default_Currency,
 	extract_exchange_rates(Dom, End_Days, Exchange_Rates, Default_Currency),
 
 	inner_xml(Dom, //reports/balanceSheetRequest/startDate, [Start_Date_Atom]),
@@ -47,12 +48,10 @@ process_xml_ledger_request(_, Dom) :-
 	flatten(Livestock_Accounts_Nested, Livestock_Accounts),
 	append(Account_Hierarchy0, Livestock_Accounts, Account_Hierarchy0b),
 	
-	findall(Transaction, extract_transaction(Dom, Default_Bases, Start_Date_Atom, Transaction), S_Transactions),
+	findall(Transaction, extract_transaction(Dom, Default_Bases, Start_Date_Atom, Transaction), S_Transactions0),
+	sort(S_Transactions0, S_Transactions),
 	add_bank_accounts(S_Transactions, Account_Hierarchy0b, Account_Hierarchy),
-
-	maplist(preprocess_s_transaction_with_debug(Account_Hierarchy, Default_Bases, Exchange_Rates, Action_Taxonomy, End_Days), S_Transactions, Transactions_Nested, Transaction_Transformation_Debug),
-		
-	flatten(Transactions_Nested, Transactions1),
+	preprocess_s_transactions((Account_Hierarchy, Report_Currency, Action_Taxonomy, End_Days, Exchange_Rates), S_Transactions, Transactions1, Transaction_Transformation_Debug),
    
    	extract_livestock_opening_costs_and_counts(Livestock_Doms, Livestock_Opening_Costs_And_Counts),
    
