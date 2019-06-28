@@ -61,9 +61,16 @@ preprocess_s_transactions2(Static_Data, [S_Transaction|S_Transactions], [Transac
 			% filter out unbound vars from the resulting Transactions list, as some rules do no always produce all possible transactions
 			exclude(var, Transactions0, Transactions1),
 			flatten(Transactions1, Transactions_Out),
-			check_trial_balance(Transactions_Out),
 			pretty_term_string(Transactions_Out, Transactions_String),
-			atomic_list_concat([S_Transaction_String, '==>\n', Transactions_String, '\n====\n'], Debug_Head)
+			atomic_list_concat([S_Transaction_String, '==>\n', Transactions_String, '\n====\n'], Debug_Head),
+			catch(
+				check_trial_balance(Transactions_Out),
+				E,
+				(
+					format(user_error, '~w', [Debug_Head]),
+					throw([E])
+				)
+			)
 		)
 		;
 		(
@@ -139,7 +146,7 @@ preprocess_s_transaction(Static_Data, S_Transaction, [UnX_Transaction, X_Transac
 						(Goods_Unit, Goods_Integer, value(Currency, Unit_Cost)), 
 						Outstanding_In, Outstanding_Out
 					),
-					gains_txs(Vector_Ours, Vector_Goods, Transaction_Day, 'Unrealized_Gains', Trading_Transactions)
+					gains_txs(Static_Data, Vector_Ours, Vector_Goods, Transaction_Day, 'Unrealized_Gains', Trading_Transactions)
 				)
 			;
 			(
@@ -197,13 +204,13 @@ gains_txs(Static_Data, Cost_Vector, Goods_Vector, Transaction_Day, Gains_Account
 	Txs0 = [
 		tx{
 			comment: 'keeps track of gains obtained by changes in price of shares against at the currency we bought them for',
-			comment2: Comment2,
+			comment2: 'Comment2',
 			account: Gains_Excluding_Forex,
 			vector:  Assets_Change_Inverse
 		},
 		tx{
 			comment: 'keeps track of gains obtained by changes in the value of the currency we bought the shares with, against report currency',
-			comment2: Comment2,
+			comment2: 'Comment2',
 			account: Gains_Currency_Movement,
 			vector: Currency_Difference
 		}],
