@@ -11,6 +11,7 @@ for lifo, sales will be reducing/removing buys from the end, for fifo, from the 
 add_bought_items(fifo, Added, Outstanding_In, Outstanding_Out) :- append([Added], Outstanding_In, Outstanding_Out).
 add_bought_items(lifo, Added, Outstanding_In, Outstanding_Out) :- append(Outstanding_In, [Added], Outstanding_Out).
 
+
 find_items_to_sell(Pricing_Method, Type, Sale_Count, Outstanding_In, Outstanding_Out, Cost) :-
 	((Pricing_Method = lifo,!);(Pricing_Method = fifo)),
 	find_items_to_sell(Type, Sale_Count, Outstanding_In, Outstanding_Out, Cost).

@@ -153,23 +153,21 @@ preprocess_s_transaction(Static_Data, S_Transaction, [UnX_Transaction, X_Transac
 						(Goods_Unit, Goods_Integer, value(Currency, Unit_Cost)), 
 						Outstanding_In, Outstanding_Out
 					),
-					gains_txs(Static_Data, Vector_Ours, Vector_Goods, Transaction_Day, 'Unrealized_Gains', Trading_Transactions)
+					gains_txs(Static_Data, Vector_Ours, Vector_Goods, Transaction_Day, Transaction_Day, 'Unrealized_Gains', Trading_Transactions)
 				)
 			;
 				(
 					Goods_Positive is -Goods_Integer,
 					(
-						find_items_to_sell(Pricing_Method, Goods_Unit, Goods_Positive, Outstanding_In, Outstanding_Out, Goods_Costs)
+						find_items_to_sell(Pricing_Method, Goods_Unit, Goods_Positive, Outstanding_In, Outstanding_Out, Goods_Cost_Values)
 							->
 						true
 							;
 						throw_string(['not enough shares to sell'])
 					),
-					/*Sale_Cost is a vector of value(currency, amount)*/
-					maplist(reduce_unrealized_gains(Static_Data, Transaction_Day), Goods_Costs, Txs0),
-					gains_txs(Static_Data, Vector_Ours_Inverted, Vector_Goods_Inverted, Transaction_Day, 'Unrealized_Gains', Txs1),
-					gains_txs(Static_Data, Vector_Ours, Vector_Goods, Transaction_Day, 'Realized_Gains', Txs2),
-					Trading_Transactions = [Txs0, Txs1, Txs2]
+					maplist(reduce_unrealized_gains(Static_Data), Goods_Cost_Values, Vector_Goods, Transaction_Day, Txs1), 
+					gains_txs(Static_Data, Vector_Ours, Vector_Goods, Transaction_Day, Transaction_Day, 'Realized_Gains', Txs2),
+					Trading_Transactions = [Txs1, Txs2]
 				)
 		)
 	;
@@ -198,20 +196,41 @@ preprocess_s_transaction(Static_Data, S_Transaction, Transactions, Outstanding_I
 	s_transaction_exchanged(NS_Transaction, vector(Vector_Exchanged)),
 	preprocess_s_transaction(Static_Data, NS_Transaction, Transactions, Outstanding_In, Outstanding_Out).
 
-	
-reduce_unrealized_gains(Static_Data, Transaction_Day, value(Currency, Amount), Txs) :-
-	Cost_Of_Goods = [coord(Currency, Amount, 0)],
-	gains_txs(Static_Data, Cost_Of_Goods, [], Transaction_Day, 'Unrealized_Gains', Txs).
-	
 
+reduce_unrealized_gains(Static_Data), Goods_Cost_Values, Vector_Goods, Transaction_Day, [Unrealized_Goods_Reduction, Unrealized_Costs_Reduction]) :-
+	/*Goods_Cost_Values is a vector of value(currency, amount)*/
+	findall(
+		(coord(Cogs_Currency, Amount, 0), Purchase_Day),
+		(
+			member((Value, Purchase_Day), Goods_Cost_Values),
+			assertion(Value = value(Cogs_Currency, Amount)),
+			Value = value(Cogs_Currency, Amount)
+		),
+		Cost_Of_Goods_Sold),
+	findall(Txs,
+		(
+			(
+				member(Purchase_Info, Purchase_Infos),
+				Exchange_Days, Cost_Of_Goods_Sold = Purchase_Info,
+				gains_txs(Static_Data, Cost_Of_Goods_Sold, [], Purchase_Day, Transaction_Day, 'Unrealized_Gains', Exchange_Days, Txs)
+			)
+			->
+				true
+			;
+				throw("err")
+		),
+		Unrealized_Costs_Reduction
+	),
+	gains_txs(Static_Data, [], Vector_Goods, Transaction_Day, 'Unrealized_Gains', Exchange_Days, Unrealized_Goods_Reduction).
+	
 /*
 we bought the shares with some currency. we can think of gains as having two parts:
 	share value against that currency.
 	that currency value against report currency.
 */
-gains_txs(Static_Data, Cost_Vector, Goods_Vector, Transaction_Day, Gains_Account, Transactions_Out) :-
+gains_txs(Static_Data, Cost_Vector, Goods_Vector, Transaction_Day, Gains_Account, Exchange_Day, Transactions_Out) :-
 	Static_Data = (_Accounts, Report_Currency, _Transaction_Types, _Report_End_Day, Exchange_Rates),
-	vec_change_bases(Exchange_Rates, Transaction_Day, [Report_Currency], Cost_Vector, Cost_In_Report_Currency),
+	vec_change_bases(Exchange_Rates, Exchange_Day, [Report_Currency], Cost_Vector, Cost_In_Report_Currency),
 	vec_add(Cost_In_Report_Currency, Goods_Vector, Cost_In_Report_Currency_Vs_Goods),
 	vec_inverse(Cost_In_Report_Currency_Vs_Goods, Cost_In_Report_Currency_Vs_Goods__Revenue),
 	
