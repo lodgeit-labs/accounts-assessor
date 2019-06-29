@@ -27,6 +27,8 @@
 :- use_module(library(record)).
 :- use_module(library(xpath)).
 
+:- [pricing].
+
 % -------------------------------------------------------------------
 
 :- record
@@ -96,6 +98,7 @@ This predicate takes a list of statement transaction terms and decomposes it int
 
 preprocess_s_transaction(Static_Data, S_Transaction, [UnX_Transaction, X_Transaction, Trading_Transactions], Outstanding_In, Outstanding_Out) :-
 	Static_Data = (_, _Report_Currency, Transaction_Types, _, _Exchange_Rates),
+	Pricing_Method = lifo,
 	s_transaction_exchanged(S_Transaction, vector(Vector_Goods)),
 	(
 		% do we have a tag that corresponds to one of known actions?
@@ -144,7 +147,7 @@ preprocess_s_transaction(Static_Data, S_Transaction, [UnX_Transaction, X_Transac
 				(
 					Unit_Cost is Our_Credit / Goods_Integer,
 					add_bought_items(
-						fifo, 
+						Pricing_Method, 
 						(Goods_Unit, Goods_Integer, value(Currency, Unit_Cost)), 
 						Outstanding_In, Outstanding_Out
 					),
@@ -152,9 +155,11 @@ preprocess_s_transaction(Static_Data, S_Transaction, [UnX_Transaction, X_Transac
 				)
 			;
 			(
-				units_cost(lifo, Goods_Unit, Goods_Integer, Outstanding_In, Outstanding_Out, Sale_Costs),
+				gtrace,
+				Goods_Positive is -Goods_Integer,
+				find_items_to_sell(Pricing_Method, Goods_Unit, Goods_Positive, Outstanding_In, Outstanding_Out, Goods_Costs),
 				/*Sale_Cost is a vector of value(currency, amount)*/
-				maplist(reduce_unrealized_gains(Static_Data), Sale_Costs, Transaction_Day, Txs0),
+				maplist(reduce_unrealized_gains(Static_Data), Goods_Costs, Transaction_Day, Txs0),
 				gains_txs(Static_Data, Vector_Ours_Inverted, Vector_Goods_Inverted, Transaction_Day, 'Unrealized_Gains', Txs1),
 				gains_txs(Static_Data, Vector_Ours, Vector_Goods, Transaction_Day, 'Realized_Gains', Txs2),
 				Trading_Transactions = [Txs0, Txs1, Txs2]
@@ -246,77 +251,7 @@ make_unexchanged_transaction(S_Transaction, Description, UnX_Transaction) :-
 	s_transaction_account_id(S_Transaction, UnX_Account), 
 	transaction_account_id(UnX_Transaction, UnX_Account).
 
-	
-/*
-pricing methods:
 
-for adjusted_cost method, we will add up all the buys costs and divide by number of units outstanding.
-for lifo, sales will be reducing/removing buys from the end, for fifo, from the beginning.
-*/
-
-units_cost(Method, Type, Sale_Count, Sale_Cost, Outstanding_In, Outstanding_Out) :-
-	(Method = lifo; Method = fifo),
-	find_sold_items(Type, Sale_Count, Sale_Cost, Outstanding_In, Outstanding_Out).
-
-	
-add_bought_items(fifo, Added, Outstanding_In, [Added|Outstanding_In]).
-add_bought_items(lifo, Added, Outstanding_In, [Outstanding_In|Added]).
-
-
-find_sold_items(lifo, _, 0, Outstanding, Outstanding, []).
-
-find_sold_items(
-	/* input */
-	lifo,	Type, Sale_Count, 
-	[(Type, Outstanding_Count, value(Currency, Outstanding_Unit_Cost))|Outstanding_Tail], 
-	/* output */
-	Outstanding_Out, Cost) 
-:-
-	Sale_Count < Outstanding_Count,
-	Outstanding_Remaining_Count is Outstanding_Count - Sale_Count,
-	Cost_Int is Sale_Count * Outstanding_Unit_Cost,
-	Cost = [value(Currency, Cost_Int, 0)],
-	Outstanding_Out = [Outstanding_Remaining | Outstanding_Tail],
-	Outstanding_Remaining = (Type, Outstanding_Remaining_Count, Outstanding_Unit_Cost).
-
-find_sold_items(
-	lifo, Type, Sale_Count, 
-	[(Type, Outstanding_Count, value(Outstanding_Currency, Outstanding_Unit_Cost))|Outstanding_Tail], 
-	Outstanding_Out, Cost)
-:-
-	Outstanding_Count >= Sale_Count,
-	Remaining_Count is Sale_Count - Outstanding_Count,
-	find_sold_items(lifo, Type, Remaining_Count, Outstanding_Tail, Outstanding_Out, Remaining_Cost),
-	Partial_Cost_Int is Outstanding_Count * Outstanding_Unit_Cost,
-	Partial_Cost = [value(Outstanding_Currency, Partial_Cost_Int)],
-	vec_add(Partial_Cost, Remaining_Cost, Cost),
-	Outstanding_Out = Outstanding_Tail.
-
-find_sold_items(lifo, Type, Count, [value(Outstanding_Type,_)|Outstanding_Tail], Outstanding_Out, Cost) :-
-	Outstanding_Type \= Type,
-	find_sold_items(lifo, Type, Count, Outstanding_Tail, Outstanding_Out, Cost).
-
-	
-/*
-finally, we should update our knowledge of unit costs, based on recent sales and buys
-
-we will only be interested in an exchange rate (price) of shares at report date.
-note that we keep exchange rates at two places. 
-Currency exchange rates fetched from openexchangerates are asserted into a persistent db.
-Exchange_Rates are parsed from the request xml.
-
-
-Report_Date, Exchange_Rates, , Exchange_Rates2
-
-	% will we be able to exchange this later?
-	is_exchangeable_into_currency(Exchange_Rates, End_Date, Goods_Units, Request_Currency)
-		->
-	true
-		;
-		(
-			% save the cost for report time
-		)
-*/
 
 transactions_trial_balance(Transactions, Total) :-
 	maplist(transaction_vector, Transactions, Vectors),

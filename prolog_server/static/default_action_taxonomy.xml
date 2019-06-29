@@ -12,7 +12,7 @@
       </action>
 
       <action>
-        <id>Dispose_Off</id>
+        <id>Dispose_Of</id>
         <description>Shares</description>
         <exchangeAccount>FinancialInvestments</exchangeAccount>
         <tradingAccount>InvestmentIncome</tradingAccount>
