@@ -1,6 +1,6 @@
 :- module(utils, [
 	user:goal_expansion/2, inner_xml/3, write_tag/2, fields/2, fields_nothrow/2, numeric_fields/2, 
-	pretty_term_string/2, pretty_term_string/2, with_info_value_and_info/3, trim_atom/2, maplist6/6, throw_string/1]).
+	pretty_term_string/2, pretty_term_string/2, with_info_value_and_info/3, trim_atom/2, maplist6/6, throw_string/1, semigroup_foldl/3]).
 :- use_module(library(xpath)).
 
 	
@@ -133,6 +133,22 @@ maplist6_([Elem1|Tail1], [Elem2|Tail2], [Elem3|Tail3], [Elem4|Tail4], [Elem5|Tai
     maplist6_(Tail1, Tail2, Tail3, Tail4, Tail5, Goal).
 
 
+    
+/*Like foldl, but without initial value. No-op on zero- and one- item lists.*/
+:- meta_predicate semigroup_foldl(3, ?, ?).
+semigroup_foldl(_Goal, [], []).
+semigroup_foldl(_Goal, [Item], [Item]).
+semigroup_foldl(Goal, [H1,H2|T], V) :-
+    call(Goal, H1, H2, V1),
+    semigroup_foldl(Goal, [V1|T], V).
+
+test0 :-
+	semigroup_foldl(atom_concat, [], []),
+	semigroup_foldl(atom_concat, [aaa], [aaa]),
+	semigroup_foldl(atom_concat, [aaa, bbb], [aaabbb]),
+	semigroup_foldl(atom_concat, [aaa, bbb, ccc], [aaabbbccc]).
+:- test0.
+   
 
 :- multifile user:goal_expansion/2.
 :- dynamic user:goal_expansion/2.

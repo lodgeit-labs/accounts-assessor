@@ -12,6 +12,8 @@
 		    vec_sub/3,
 		    integer_to_coord/3]).
 
+:- use_module(utils, [semigroup_foldl/3]).
+
 :- use_module(library(clpr)).
 		    
 % -------------------------------------------------------------------
@@ -67,45 +69,45 @@ vec_reduce(As, Bs) :-
 vec_reduce(As, As).
 
 
+coord_or_value_unit(coord(Unit,_,_), Unit).
+coord_or_value_unit(value(Unit,_), Unit).
+
+
+vec_units(Vec, Units) :-
+	findall(Unit,
+	(
+		member(X, Vec),
+		coord_or_value_unit(X, Unit)
+	),
+	Units0),
+	sort(Units0, Units).
+
+	
+vec_filtered_by_unit(Vec, Unit, Filtered) :-
+	findall(Coord,
+	(
+		member(Coord, Vec),
+		coord_or_value_unit(Coord, Unit)
+	),
+	Filtered).
+
+vec_unit_value(Vec, Unit, Coord) :-
+	vec_filtered_by_unit(Vec, Unit, Filtered),
+	semigroup_foldl(coord_merge, Filtered, Coord).
+
 % Adds the two given vectors together.
 
 vec_add(As, Bs, Cs_Reduced) :-
-	findall(C,
-		(
-			% all coords of units only found in A
-			(
-				member(A_Coord, As),
-				coord_or_value_of_same_unit(A_Coord, B_Coord),
-				\+ member(B_Coord, Bs),
-				C = A_Coord
-			)
-			;
-			% all coords of units only found in B
-			(
-				member(B_Coord, Bs),
-				coord_or_value_of_same_unit(A_Coord, B_Coord),
-				\+ member(A_Coord, As),
-				C = B_Coord
-			);
-			% all coords of units found in both, add debits and credits
-			(
-				member(coord(Unit, A_Debit, A_Credit), As),
-				member(coord(Unit, B_Debit, B_Credit), Bs),
-				Total_Debit is A_Debit + B_Debit,
-				Total_Credit is A_Credit + B_Credit,
-				C = coord(Unit, Total_Debit, Total_Credit)
-			);
-			% all coords of units found in both, 'value' version
-			(
-				member(unit(Unit, A_Value), As),
-				member(unit(Unit, B_Value), Bs),
-				Total_Value is A_Value + B_Value,
-				C = value(Unit, Total_Value)
-			)
-		),
-		Cs
-	),
-	vec_reduce(Cs, Cs_Reduced).
+	append(As, Bs, As_And_Bs),
+	vec_units(As_And_Bs, Units),
+	findall(Coord,
+	(
+		member(Unit, Units),
+		vec_unit_value(As_And_Bs, Unit, Coord)
+	)
+	,Cs),
+	flatten(Cs, Cs_Flat),
+	vec_reduce(Cs_Flat, Cs_Reduced).
 
 % Subtracts the vector Bs from As by inverting Bs and adding it to As.
 
@@ -129,7 +131,6 @@ is_zero(value(_, Zero)) :-
 integer_to_coord(Unit, Integer, coord(Unit, Debit, Credit)) :-
 	{Integer =:= Debit - Credit}.
 
-
 coord_or_value_of_same_unit(A, B) :-
 	coord_unit(A, A_Unit),
 	coord_unit(B, A_Unit).
@@ -140,5 +141,26 @@ coord_or_value_of_same_unit(A, B) :-
 coord_unit(coord(Unit, _, _), Unit).
 value_unit(value(Unit, _), Unit).
 
-:- vec_add([coord(a, 5, 1)], [coord(a, 0.0, 4)], []).
-:- vec_add([coord(a, 5, 1), coord(b, 0, 0.0)], [coord(b, 7, 7), coord(a, 0.0, 4)], []).
+coord_merge(coord(Unit, D1, C1), coord(Unit, D2, C2), coord(Unit, D3, C3)) :-
+	D3 is D2 + D1,
+	C3 is C2 + C1.
+	
+coord_merge(value(Unit, D1), value(Unit, D2), value(Unit, D3)) :-
+	D3 is D2 + D1.
+
+test0 :-
+	vec_units([coord(aud, _,_), coord(aud, _,_), coord(usd, _,_)], Units0), Units0 = [aud, usd],
+	vec_units([], []),
+	vec_units([coord(aud, 5,7), coord(aud, _,_), coord(Usd, _,_)], [aud, Usd]),
+	coord_merge(coord(Unit, 1, 2), coord(Unit, 3, 4), coord(Unit, 4, 6)),
+	semigroup_foldl(coord_merge, [], []),
+	semigroup_foldl(coord_merge, [value(X, 5)], [value(X, 5)]),
+	semigroup_foldl(coord_merge, [coord(x, 4, 5), coord(x, 4, 5), coord(x, 4, 5)], [coord(x, 12, 15)]),
+	\+semigroup_foldl(coord_merge, [coord(y, 4, 5), coord(x, 4, 5), coord(x, 4, 5)], _),
+	vec_add([coord(a, 5, 1)], [coord(a, 0.0, 4)], []),
+	vec_add([coord(a, 5, 1), coord(b, 0, 0.0)], [coord(b, 7, 7), coord(a, 0.0, 4)], []),
+	vec_add([coord(a, 5, 1), coord(b, 1, 0.0)], [coord(a, 0.0, 4)], [coord(a, 5.0, 5), coord(b, 1, 0.0)]),
+	vec_add([coord(a, 5, 1), coord(b, 1, 0.0), coord(a, 8.0, 4)], [], [coord(a, 13.0, 5), coord(b, 1, 0.0)]),
+	true.
+
+:- test0.
