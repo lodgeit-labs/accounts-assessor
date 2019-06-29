@@ -48,7 +48,6 @@ s_transactions have to be sorted by date from oldest to newest
 
 */
 preprocess_s_transactions(Static_Data, S_Transactions, Transactions_Out, Debug_Info) :-
-	%gtrace,
 	preprocess_s_transactions2(Static_Data, S_Transactions, Transactions0, [], _, Debug_Info),
 	flatten(Transactions0, Transactions_Out).
 
@@ -155,7 +154,6 @@ preprocess_s_transaction(Static_Data, S_Transaction, [UnX_Transaction, X_Transac
 				)
 			;
 			(
-				gtrace,
 				Goods_Positive is -Goods_Integer,
 				find_items_to_sell(Pricing_Method, Goods_Unit, Goods_Positive, Outstanding_In, Outstanding_Out, Goods_Costs),
 				/*Sale_Cost is a vector of value(currency, amount)*/
@@ -255,7 +253,7 @@ make_unexchanged_transaction(S_Transaction, Description, UnX_Transaction) :-
 
 transactions_trial_balance(Transactions, Total) :-
 	maplist(transaction_vector, Transactions, Vectors),
-	foldl(vec_add, Vectors, [], Total).
+	vec_add(Vectors, [], Total).
 
 check_trial_balance(Transactions) :-	
 	transactions_trial_balance(Transactions, Total),
