@@ -49,7 +49,7 @@ process_xml_ledger_request(_, Dom) :-
 	append(Account_Hierarchy0, Livestock_Accounts, Account_Hierarchy0b),
 	
 	findall(Transaction, extract_transaction(Dom, Default_Bases, Start_Date_Atom, Transaction), S_Transactions0),
-	sort(S_Transactions0, S_Transactions),
+	sort_s_transactions(S_Transactions0, S_Transactions),
 	add_bank_accounts(S_Transactions, Account_Hierarchy0b, Account_Hierarchy),
 	preprocess_s_transactions((Account_Hierarchy, Report_Currency, Action_Taxonomy, End_Days, Exchange_Rates), S_Transactions, Transactions1, Transaction_Transformation_Debug),
    
@@ -199,3 +199,90 @@ format_balance(End_Year, Name, coord(Unit, Debit, Credit), Used_Units_In, UsedUn
 write_used_unit(Unit) :-
    format('  <unit id="U-~w"><measure>~w</measure></unit>\n', [Unit, Unit]).
    
+
+   
+sort_s_transactions(In, Out) :-
+	/*
+	If a buy and a sale of same thing happens on the same day, we want to process the buy first.
+	We first sort by our debit on the bank account. Transactions with zero of our debit are not sales.
+	*/
+	sort(
+	/*
+	this is a path inside the structure of the elements of the sorted array (inside the s_transactions):
+	3th sub-term is the amount from bank perspective. 
+	1st (and hopefully only) item of the vector is the coord,
+	3rd item of the coord is bank credit, our debit.
+	*/
+	[3,1,3], @=<,  In, Mid),
+	/*now we can sort by date ascending, and the order of transactions with same date, as sorted above, will be preserved*/
+	sort(1, @=<,  Mid, Out).
+
+
+
+test0 :-
+	In = [ s_transaction(736542,
+			'Borrow',
+			[coord('AUD',0,100)],
+			'NationalAustraliaBank',
+			bases(['AUD'])),
+	s_transaction(736704,
+			'Dispose_Of',
+			[coord('AUD',0.0,1000.0)],
+			'NationalAustraliaBank',
+			vector([coord('TLS',0,11)])),
+	s_transaction(736511,
+			'Introduce_Capital',
+			[coord('USD',0,200)],
+			'WellsFargo',
+			bases(['USD'])),
+	s_transaction(736704,
+			'Invest_In',
+			[coord('USD',50,0)],
+			'WellsFargo',
+			vector([coord('TLS',10,0)])),
+	s_transaction(736520,
+			'Invest_In',
+			[coord('USD',100.0,0.0)],
+			'WellsFargo',
+			vector([coord('TLS',10,0)])),
+	s_transaction(736704,
+			'Dispose_Of',
+			[coord('USD',0.0,420.0)],
+			'WellsFargo',
+			vector([coord('TLS',0,4)]))
+	],
+
+	Out = [ s_transaction(736511,
+			'Introduce_Capital',
+			[coord('USD',0,200)],
+			'WellsFargo',
+			bases(['USD'])),
+	s_transaction(736520,
+			'Invest_In',
+			[coord('USD',100.0,0.0)],
+			'WellsFargo',
+			vector([coord('TLS',10,0)])),
+	s_transaction(736542,
+			'Borrow',
+			[coord('AUD',0,100)],
+			'NationalAustraliaBank',
+			bases(['AUD'])),
+	s_transaction(736704,
+			'Invest_In',
+			[coord('USD',50,0)],
+			'WellsFargo',
+			vector([coord('TLS',10,0)])),
+	s_transaction(736704,
+			'Dispose_Of',
+			[coord('USD',0.0,420.0)],
+			'WellsFargo',
+			vector([coord('TLS',0,4)])),
+	s_transaction(736704,
+			'Dispose_Of',
+			[coord('AUD',0.0,1000.0)],
+			'NationalAustraliaBank',
+			vector([coord('TLS',0,11)]))
+	],
+	
+	sort_s_transactions(In, Out).
+test0.

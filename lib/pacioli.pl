@@ -57,17 +57,21 @@ coord_inverse(unit(Unit, Value), unit(Unit, Value_Inverted)) :-
 /* fixme: rename to vec_reduce_coords, define vec_reduce(X) as vec_add(X, [])? */
 vec_reduce(As, Bs) :-
 	findall(B,
-		(member(coord(Unit, A_Debit, A_Credit), As),
-		Common_value = min(A_Debit, A_Credit),
-		B_Debit is A_Debit - Common_value,
-		B_Credit is A_Credit - Common_value,
-		B = coord(Unit, B_Debit, B_Credit),
-		\+ is_zero(B)),
+		(
+			member(coord(Unit, A_Debit, A_Credit), As),
+			Common_value = min(A_Debit, A_Credit),
+			B_Debit is A_Debit - Common_value,
+			B_Credit is A_Credit - Common_value,
+			B = coord(Unit, B_Debit, B_Credit),
+			\+ is_zero(B)
+		)
+		;
+		(
+			member(B, As),
+			B = value(_,_)
+		),
 		Bs
 	),!.
-
-/* 'value' version */
-vec_reduce(As, As).
 
 
 coord_or_value_unit(coord(Unit,_,_), Unit).
@@ -160,8 +164,14 @@ test0 :-
 	\+semigroup_foldl(coord_merge, [coord(y, 4, 5), coord(x, 4, 5), coord(x, 4, 5)], _),
 	vec_add([coord(a, 5, 1)], [coord(a, 0.0, 4)], []),
 	vec_add([coord(a, 5, 1), coord(b, 0, 0.0)], [coord(b, 7, 7), coord(a, 0.0, 4)], []),
-	vec_add([coord(a, 5, 1), coord(b, 1, 0.0)], [coord(a, 0.0, 4)], [coord(a, 5.0, 5), coord(b, 1, 0.0)]),
-	vec_add([coord(a, 5, 1), coord(b, 1, 0.0), coord(a, 8.0, 4)], [], [coord(a, 13.0, 5), coord(b, 1, 0.0)]),
+	vec_add([coord(a, 5, 1), coord(b, 1, 0.0)], [coord(a, 0.0, 4)], Res0),
+	Res0 = [coord(b, 1.0, 0.0)],
+	vec_add([coord(a, 5, 1), coord(b, 1, 0.0), coord(a, 8.0, 4)], [], Res1),
+	Res1 = [coord(a, 8.0, 0), coord(b, 1.0, 0.0)],
+	vec_add([value('AUD',25)], [value('AUD',50)], [value('AUD',75)]),
+	
+	
+	
 	true.
 
 :- test0.

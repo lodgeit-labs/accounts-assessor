@@ -58,7 +58,13 @@ preprocess_s_transactions2(Static_Data, [S_Transaction|S_Transactions], [Transac
 	check_that_s_transaction_account_exists(S_Transaction, Accounts),
 	pretty_term_string(S_Transaction, S_Transaction_String),
 	(
+		catch(
+			(%gtrace,
 			preprocess_s_transaction(Static_Data, S_Transaction, Transactions0, Outstanding_In, Outstanding_Mid)
+			),
+			string(E),
+			throw_string([E, ' in ', S_Transaction_String])
+		)
 		->
 		(
 			% filter out unbound vars from the resulting Transactions list, as some rules do no always produce all possible transactions
@@ -76,10 +82,7 @@ preprocess_s_transactions2(Static_Data, [S_Transaction|S_Transactions], [Transac
 			)
 		)
 		;
-		(
-			term_string(S_Transaction, Str2),
-			throw_string(['processing failed:', Str2])
-		)
+			throw_string(['processing failed:', S_Transaction_String])
 	),
 	preprocess_s_transactions2(Static_Data, S_Transactions, Transactions_Out_Tail,  Outstanding_Mid, Outstanding_Out, Debug_Tail).
 	
@@ -153,15 +156,21 @@ preprocess_s_transaction(Static_Data, S_Transaction, [UnX_Transaction, X_Transac
 					gains_txs(Static_Data, Vector_Ours, Vector_Goods, Transaction_Day, 'Unrealized_Gains', Trading_Transactions)
 				)
 			;
-			(
-				Goods_Positive is -Goods_Integer,
-				find_items_to_sell(Pricing_Method, Goods_Unit, Goods_Positive, Outstanding_In, Outstanding_Out, Goods_Costs),
-				/*Sale_Cost is a vector of value(currency, amount)*/
-				maplist(reduce_unrealized_gains(Static_Data), Goods_Costs, Transaction_Day, Txs0),
-				gains_txs(Static_Data, Vector_Ours_Inverted, Vector_Goods_Inverted, Transaction_Day, 'Unrealized_Gains', Txs1),
-				gains_txs(Static_Data, Vector_Ours, Vector_Goods, Transaction_Day, 'Realized_Gains', Txs2),
-				Trading_Transactions = [Txs0, Txs1, Txs2]
-			)
+				(
+					Goods_Positive is -Goods_Integer,
+					(
+						find_items_to_sell(Pricing_Method, Goods_Unit, Goods_Positive, Outstanding_In, Outstanding_Out, Goods_Costs)
+							->
+						true
+							;
+						throw_string(['not enough shares to sell'])
+					),
+					/*Sale_Cost is a vector of value(currency, amount)*/
+					maplist(reduce_unrealized_gains(Static_Data, Transaction_Day), Goods_Costs, Txs0),
+					gains_txs(Static_Data, Vector_Ours_Inverted, Vector_Goods_Inverted, Transaction_Day, 'Unrealized_Gains', Txs1),
+					gains_txs(Static_Data, Vector_Ours, Vector_Goods, Transaction_Day, 'Realized_Gains', Txs2),
+					Trading_Transactions = [Txs0, Txs1, Txs2]
+				)
 		)
 	;
 		(
@@ -190,7 +199,7 @@ preprocess_s_transaction(Static_Data, S_Transaction, Transactions, Outstanding_I
 	preprocess_s_transaction(Static_Data, NS_Transaction, Transactions, Outstanding_In, Outstanding_Out).
 
 	
-reduce_unrealized_gains(Static_Data, value(Currency, Amount), Transaction_Day, Txs) :-
+reduce_unrealized_gains(Static_Data, Transaction_Day, value(Currency, Amount), Txs) :-
 	Cost_Of_Goods = [coord(Currency, Amount, 0)],
 	gains_txs(Static_Data, Cost_Of_Goods, [], Transaction_Day, 'Unrealized_Gains', Txs).
 	
