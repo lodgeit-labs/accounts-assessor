@@ -17,7 +17,7 @@
 	inner_xml/3, write_tag/2, fields/2, fields_nothrow/2, numeric_fields/2, 
 	pretty_term_string/2]).
 :- use_module('../../lib/ledger', [balance_sheet_at/8, trial_balance_between/8, profitandloss_between/8, balance_by_account/8]).
-:- use_module('../../lib/statements', [extract_transaction/4, preprocess_s_transactions/4, add_bank_accounts/3]).
+:- use_module('../../lib/statements', [extract_transaction/4, preprocess_s_transactions/4, add_bank_accounts/3,  get_relevant_exchange_rates/5]).
 :- use_module('../../lib/livestock', [get_livestock_types/2, process_livestock/15, make_livestock_accounts/2, livestock_counts/5, extract_livestock_opening_costs_and_counts/2]).
 :- use_module('../../lib/accounts', [extract_account_hierarchy/2]).
 :- use_module('../../lib/transactions', [check_transaction_account/2]).
@@ -69,10 +69,13 @@ process_xml_ledger_request(_, Dom) :-
 
 	livestock_counts(Livestock_Types, Transactions2, Livestock_Opening_Costs_And_Counts, End_Days, Livestock_Counts),
 	
+	get_relevant_exchange_rates(Report_Currency, End_Days, Exchange_Rates, Transactions2, Exchange_Rates2),
+	
 	pretty_term_string(S_Transactions, Message0),
 	pretty_term_string(Livestock_Events, Message0b),
 	pretty_term_string(Transactions2, Message1),
 	pretty_term_string(Exchange_Rates, Message1b),
+	pretty_term_string(Exchange_Rates2, Message1c),
 	pretty_term_string(Action_Taxonomy, Message2),
 	pretty_term_string(Account_Hierarchy, Message3),
 	pretty_term_string(Livestock_Counts, Message12),
@@ -86,16 +89,17 @@ process_xml_ledger_request(_, Dom) :-
 	%Debug_Message = '',!;
 	atomic_list_concat([
 	'\n<!--',
-	'Exchange rates::\n', Message1b,'\n\n',
 	'Action_Taxonomy:\n',Message2,'\n\n',
 	'Account_Hierarchy:\n',Message3,'\n\n',
 	'S_Transactions:\n', Message0,'\n\n',
-	'Transaction_Transformation_Debug:\n', Message10,'\n\n',
 	'Livestock Events:\n', Message0b,'\n\n',
 	'Livestock Counts:\n', Message12,'\n\n',
 	'Average_Costs:\n', Message5,'\n\n',
 	'Average_Costs_Explanations:\n', Message5b,'\n\n',
 	'Transactions:\n', Message1,'\n\n',
+	'Transaction_Transformation_Debug:\n', Message10,'\n\n',
+	'Exchange rates:\n', Message1b,'\n\n',
+	'Exchange rates2:\n', Message1c,'\n\n',
 	'BalanceSheet:\n', Message4,'\n\n',
 	'ProftAndLoss:\n', Message4c,'\n\n',
 	'Trial_Balance:\n', Message4b,'\n\n',
@@ -103,6 +107,7 @@ process_xml_ledger_request(_, Dom) :-
 	),
 
 	display_xbrl_ledger_response(Debug_Message, Start_Days, End_Days, Balance_Sheet, Trial_Balance, ProftAndLoss).
+
 	
 extract_default_bases(Dom, Bases) :-
    inner_xml(Dom, //reports/balanceSheetRequest/defaultUnitTypes/unitType, Bases).
@@ -216,7 +221,6 @@ sort_s_transactions(In, Out) :-
 	[3,1,3], @=<,  In, Mid),
 	/*now we can sort by date ascending, and the order of transactions with same date, as sorted above, will be preserved*/
 	sort(1, @=<,  Mid, Out).
-
 
 
 test0 :-

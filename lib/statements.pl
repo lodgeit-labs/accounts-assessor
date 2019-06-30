@@ -4,7 +4,7 @@
 % Date:      2019-06-02
 % ===================================================================
 
-:- module(statements, [extract_transaction/4, preprocess_s_transactions/4, add_bank_accounts/3]).
+:- module(statements, [extract_transaction/4, preprocess_s_transactions/4, add_bank_accounts/3, get_relevant_exchange_rates/5]).
  
 :- use_module(pacioli,  [vec_inverse/2, vec_add/3, vec_sub/3, integer_to_coord/3]).
 :- use_module(exchange, [vec_change_bases/5]).
@@ -420,3 +420,38 @@ add_bank_accounts(S_Transactions, Accounts_In, Accounts_Out) :-
 	sort(Accounts_Duplicated, Accounts_Out).
 
 
+get_relevant_exchange_rates(Report_Currency, Report_End_Day, Exchange_Rates, Transactions, Exchange_Rates2) :-
+	% find all days when something happened
+	findall(
+		Day,
+		(
+			member(T, Transactions),
+			transaction_day(T, Day)
+		),
+		Days_Unsorted
+	),
+	sort(Days_Unsorted, Days_Sorted),
+	append(Days_Sorted, [Report_End_Day], Days),
+	%find all currencies used
+	findall(
+		Currency,
+		(
+			member(T, Transactions),
+			transaction_vector(T, Vector),
+			member(coord(Currency, _,_), Vector)
+		),
+		Currencies_Unsorted
+	),
+	sort(Currencies_Unsorted, Currencies),
+	% produce all exchange rates
+	findall(
+		exchange_rate(Day, Src_Currency, Report_Currency, Exchange_Rate),
+		(
+			member(Day, Days),
+			member(Src_Currency, Currencies),
+			exchange_rate(Exchange_Rates, Day, Src_Currency, Report_Currency, Exchange_Rate)
+		),
+		Exchange_Rates2
+	).
+	
+	
