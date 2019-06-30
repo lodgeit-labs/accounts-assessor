@@ -281,7 +281,7 @@ preprocess_buys(Livestock_Type, _Average_cost, S_Transaction, Buy_Transactions) 
 		Buy_Transactions = [].
 
 s_transaction_is_livestock_buy_or_sell(S_Transaction, Day, Livestock_Type, Livestock_Coord, Bank_Vector, Our_Vector, Unexchanged_Account_Id, Our_Debit, Our_Credit) :-
-	S_Transaction = s_transaction(Day, '', Bank_Vector, Unexchanged_Account_Id, Bases),
+	S_Transaction = s_transaction(Day, '', Our_Vector, Unexchanged_Account_Id, Bases),
 	vector([Livestock_Coord]) = Bases,
 	coord(Livestock_Type, _, _) = Livestock_Coord,
 	% member(Livestock_Type, Livestock_Types),

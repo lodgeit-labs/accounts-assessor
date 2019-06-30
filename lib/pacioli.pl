@@ -28,19 +28,6 @@ vec_identity([]).
 
 % Computes the (additive) inverse of a given vector.
 % - returns a vector of coordinates with debit and credit values switched around
-/*
-vec_inverse(As, Bs) :-
-	findall(C,
-		(member(	coord(Unit, A_Debit,  A_Credit), As),
-		C = 		coord(Unit, A_Credit, A_Debit)),
-		Bs).
-this method doesn't preserve the bindings of variables - if for example Unit in
-one coord in As is unbound, Bs will contain that coord inverted, but with Unit a 
-fresh variable, not linked to the original. So if later Unit is bound, this is not
-reflected in the returned vector. 
-Moreover, this method doesn't work both ways - it will not produce As from Bs,
-it will go into an infinite loop instead.
-*/
 
 vec_inverse(As, Bs) :-
 	maplist(coord_inverse, As, Bs).
