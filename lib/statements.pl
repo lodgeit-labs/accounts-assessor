@@ -104,7 +104,8 @@ preprocess_s_transaction(Static_Data, S_Transaction, Transactions, Outstanding_I
 	s_transaction_account_id(NS_Transaction, Unexchanged_Account_Id),
 	% infer the count by money debit/credit and exchange rate
 	vec_change_bases(Exchange_Rates, Transaction_Day, Goods_Bases, Vector_Bank, Vector_Exchanged),
-	s_transaction_exchanged(NS_Transaction, vector(Vector_Exchanged)),
+	vec_inverse(Vector_Exchanged, Vector_Exchanged_Inverted),
+	s_transaction_exchanged(NS_Transaction, vector(Vector_Exchanged_Inverted)),
 	preprocess_s_transaction(Static_Data, NS_Transaction, Transactions, Outstanding_In, Outstanding_Out).
 
 	
@@ -445,6 +446,7 @@ get_relevant_exchange_rates(Report_Currency, Report_End_Day, Exchange_Rates, Tra
 		(
 			member(Day, Days),
 			member(Src_Currency, Currencies),
+			\+Src_Currency = Report_Currency,
 			exchange_rate(Exchange_Rates, Day, Src_Currency, Report_Currency, Exchange_Rate)
 		),
 		Exchange_Rates2

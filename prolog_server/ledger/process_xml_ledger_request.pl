@@ -34,13 +34,14 @@ process_xml_ledger_request(_, Dom) :-
 	extract_account_hierarchy(Dom, Account_Hierarchy0),
 	[Default_Currency] = Default_Bases,
 	Report_Currency = Default_Currency,
-	extract_exchange_rates(Dom, End_Days, Exchange_Rates, Default_Currency),
 
 	inner_xml(Dom, //reports/balanceSheetRequest/startDate, [Start_Date_Atom]),
 	parse_date(Start_Date_Atom, Start_Days),
 	inner_xml(Dom, //reports/balanceSheetRequest/endDate, [End_Date_Atom]),
 	parse_date(End_Date_Atom, End_Days),
 
+	extract_exchange_rates(Dom, End_Date_Atom, Exchange_Rates, Default_Currency),
+	
 	findall(Livestock_Dom, xpath(Dom, //reports/balanceSheetRequest/livestockData, Livestock_Dom), Livestock_Doms),
 	get_livestock_types(Livestock_Doms, Livestock_Types),
 	
@@ -142,8 +143,9 @@ extract_exchange_rate(End_Date, Default_Currency, Unit_Value, Exchange_Rate) :-
 		unitType, Src_Currency,
 		unitValueCurrency, (Dest_Currency, Default_Currency),
 		unitValue, Rate_Atom,
-		unitValueDate, (Date, End_Date)]),
-	atom_number(Rate_Atom, Rate).
+		unitValueDate, (Date_Atom, End_Date)]),
+	atom_number(Rate_Atom, Rate),
+	parse_date(Date_Atom, Date)	.
 
 % -----------------------------------------------------
 % display_xbrl_ledger_response/4
