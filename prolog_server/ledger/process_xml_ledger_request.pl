@@ -136,11 +136,12 @@ extract_exchange_rates(Dom, End_Date, Exchange_Rates, Default_Currency) :-
    maplist(extract_exchange_rate(End_Date, Default_Currency), Unit_Value_Doms, Exchange_Rates).
    
 extract_exchange_rate(End_Date, Default_Currency, Unit_Value, Exchange_Rate) :-
-	Exchange_Rate = exchange_rate(End_Date, Src_Currency, Dest_Currency, Rate),
+	Exchange_Rate = exchange_rate(Date, Src_Currency, Dest_Currency, Rate),
 	fields(Unit_Value, [
 		unitType, Src_Currency,
 		unitValueCurrency, (Dest_Currency, Default_Currency),
-		unitValue, Rate_Atom]),
+		unitValue, Rate_Atom,
+		unitValueDate, (Date, End_Date)]),
 	atom_number(Rate_Atom, Rate).
 
 % -----------------------------------------------------
