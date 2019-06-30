@@ -188,8 +188,9 @@ preprocess_s_transaction(Static_Data, S_Transaction, [UnX_Transaction, X_Transac
 						throw_string(['not enough shares to sell'])
 					),
 					maplist(reduce_unrealized_gains(Static_Data, Transaction_Day), Goods_Cost_Values, Txs1), 
-					gains_txs(Static_Data, Vector_Ours, Vector_Goods, Transaction_Day, Transaction_Day, 'Realized_Gains', Txs2),
-					Trading_Transactions = [Txs1, Txs2]
+					maplist(increase_cost_of_goods(Static_Data, Transaction_Day), Goods_Cost_Values, Txs2),
+					gains_txs(Static_Data, Vector_Ours, [], Transaction_Day, Transaction_Day, 'Realized_Gains', Txs3),
+					Trading_Transactions = [Txs1, Txs2, Txs3]
 				)
 		)
 	;
@@ -198,33 +199,17 @@ preprocess_s_transaction(Static_Data, S_Transaction, [UnX_Transaction, X_Transac
 		)
 	).
 	
+reduce_unrealized_gains(Static_Data, Transaction_Day, Purchase_Info, Txs) :-
+	(Goods_Type, Goods_Count, Value, Purchase_Day) = Purchase_Info,
+	Cost_Of_Goods_Sold = [coord(Cogs_Currency, Value_Amount, 0)],
+	value(Cogs_Currency, Value_Amount) = Value,
+	gains_txs(Static_Data, Cost_Of_Goods_Sold, [coord(Goods_Type, 0, Goods_Count)], Transaction_Day, Purchase_Day, 'Unrealized_Gains', Txs).	
 
-reduce_unrealized_gains(Static_Data, Transaction_Day, Purchase_Infos, Txs) :-
-	/*Goods_Cost_Values is a vector of value(currency, amount)*/
-	findall(
-		(coord(Cogs_Currency, Amount, 0), Purchase_Day, Purchase_Count),
-		(
-			member((Value, Purchase_Day, Purchase_Count), Purchase_Infos),
-			assertion(Value = value(Cogs_Currency, Amount)),
-			Value = value(Cogs_Currency, Amount)
-		),
-		Purchase_Infos2
-	),
-	gtrace,
-	findall(Txs,
-		(
-			(
-				member(Purchase_Info, Purchase_Infos2),
-				Cost_Of_Goods_Sold, Exchange_Days, Goods_Count, Goods_Type = Purchase_Info,
-				gains_txs(Static_Data, Cost_Of_Goods_Sold, [coord(Goods_Type, 0, Goods_Count)], Purchase_Day, Transaction_Day, 'Unrealized_Gains', Exchange_Days, Txs)
-			)
-			->
-				true
-			;
-				throw("err")
-		),
-		Txs
-	).	
+increase_cost_of_goods(Static_Data, Transaction_Day, Purchase_Info, Txs):-
+	(_, _, value(Currency, Credit), Purchase_Day) = Purchase_Info,
+	Cost_Of_Goods_Sold = [coord(Currency, 0, Credit)],
+	gains_txs(Static_Data, Cost_Of_Goods_Sold, [], Transaction_Day, Purchase_Day, 'Realized_Gains', Txs).
+			
 /*
 we bought the shares with some currency. we can think of gains as having two parts:
 	share value against that currency.
