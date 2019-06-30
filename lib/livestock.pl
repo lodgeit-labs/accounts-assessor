@@ -5,7 +5,7 @@ beginning and ending dates are often ignored
 */
 
 :- module(livestock, [
-		get_livestock_types/2, process_livestock/15, preprocess_livestock_buy_or_sell/3, make_livestock_accounts/2, livestock_counts/5, extract_livestock_opening_costs_and_counts/2, compute_livestock_by_simple_calculation/22]).
+		get_livestock_types/2, process_livestock/14, preprocess_livestock_buy_or_sell/3, make_livestock_accounts/2, livestock_counts/5, extract_livestock_opening_costs_and_counts/2, compute_livestock_by_simple_calculation/22]).
 :- use_module(utils, [
 		user:goal_expansion/2, inner_xml/3, fields/2, numeric_fields/2, pretty_term_string/2, with_info_value_and_info/3, maplist6/6]).
 :- use_module(pacioli, [vec_add/3, vec_inverse/2, vec_reduce/2, vec_sub/3, integer_to_coord/3]).
@@ -155,7 +155,7 @@ livestock_at_average_cost_at_day(Livestock_Type, Transactions, Opening_Cost_And_
 yield_livestock_cogs_transactions(
 	Livestock_Type, 
 	Opening_Cost_And_Count, Average_Cost,
-	(_From_Day, To_Day, _Bases, _Average_Costs, Input_Transactions, _S_Transactions),
+	(_From_Day, To_Day, _Average_Costs, Input_Transactions, _S_Transactions),
 	Cogs_Transactions) :-
 		livestock_at_average_cost_at_day(Livestock_Type, Input_Transactions, Opening_Cost_And_Count, To_Day, Average_Cost, Closing_Debit),
 		opening_cost_and_count(Livestock_Type, Opening_Cost, _) = Opening_Cost_And_Count,
@@ -281,8 +281,8 @@ preprocess_buys(Livestock_Type, _Average_cost, S_Transaction, Buy_Transactions) 
 		Buy_Transactions = [].
 
 s_transaction_is_livestock_buy_or_sell(S_Transaction, Day, Livestock_Type, Livestock_Coord, Bank_Vector, Our_Vector, Unexchanged_Account_Id, Our_Debit, Our_Credit) :-
-	S_Transaction = s_transaction(Day, '', Our_Vector, Unexchanged_Account_Id, Bases),
-	vector([Livestock_Coord]) = Bases,
+	S_Transaction = s_transaction(Day, '', Our_Vector, Unexchanged_Account_Id, Exchanged),
+	vector([Livestock_Coord]) = Exchanged,
 	coord(Livestock_Type, _, _) = Livestock_Coord,
 	% member(Livestock_Type, Livestock_Types),
 	% bank statements are from the perspective of the bank, their debit is our credit
@@ -573,7 +573,7 @@ opening_inventory_transactions(Start_Days, Opening_Costs_And_Counts, Livestock_T
 	].
 	
 	
-process_livestock(Livestock_Doms, Livestock_Types, Default_Bases, S_Transactions, Transactions_In, Opening_Costs_And_Counts, Start_Days, End_Days, Exchange_Rates, Accounts, Bases, Transactions_Out, Livestock_Events, Average_Costs, Average_Costs_Explanations) :-
+process_livestock(Livestock_Doms, Livestock_Types, S_Transactions, Transactions_In, Opening_Costs_And_Counts, Start_Days, End_Days, Exchange_Rates, Accounts, Report_Currency, Transactions_Out, Livestock_Events, Average_Costs, Average_Costs_Explanations) :-
 	extract_livestock_events(Livestock_Doms, Livestock_Events),
 	extract_natural_increase_costs(Livestock_Doms, Natural_Increase_Costs),
 
@@ -591,14 +591,14 @@ process_livestock(Livestock_Doms, Livestock_Types, Default_Bases, S_Transactions
 	get_more_livestock_transactions(Livestock_Types, Average_Costs, S_Transactions, Livestock_Events, More_Transactions),
 	append(Transactions2, More_Transactions, Transactions3),  
 
-	get_livestock_cogs_transactions(Livestock_Types, Opening_Costs_And_Counts, Average_Costs, (Start_Days, End_Days, Default_Bases, Average_Costs, Transactions3, S_Transactions),  Cogs_Transactions),
+	get_livestock_cogs_transactions(Livestock_Types, Opening_Costs_And_Counts, Average_Costs, (Start_Days, End_Days, Average_Costs, Transactions3, S_Transactions),  Cogs_Transactions),
 	append(Transactions3, Cogs_Transactions, Transactions_Out),
 	
-	maplist(do_livestock_cross_check(Livestock_Events, Natural_Increase_Costs, S_Transactions, Transactions_Out, Opening_Costs_And_Counts, Start_Days, End_Days, Exchange_Rates, Accounts, Bases, Average_Costs), Livestock_Types).
+	maplist(do_livestock_cross_check(Livestock_Events, Natural_Increase_Costs, S_Transactions, Transactions_Out, Opening_Costs_And_Counts, Start_Days, End_Days, Exchange_Rates, Accounts, Report_Currency, Average_Costs), Livestock_Types).
 
 
 	
-do_livestock_cross_check(Events, Natural_Increase_Costs, S_Transactions, Transactions, Opening_Costs_And_Counts, _From_Day, To_Day, Exchange_Rates, Accounts, Bases, Average_Costs, Type) :-
+do_livestock_cross_check(Events, Natural_Increase_Costs, S_Transactions, Transactions, Opening_Costs_And_Counts, _From_Day, To_Day, Exchange_Rates, Accounts, Report_Currency, Average_Costs, Type) :-
 	% gather up the inputs
 	natural_increase_count(Type, Events, Natural_Increase_Count),
 	member(natural_increase_cost(Type, [coord(Currency, Natural_Increase_Cost_Per_Head, 0)]), Natural_Increase_Costs),
@@ -647,14 +647,14 @@ do_livestock_cross_check(Events, Natural_Increase_Costs, S_Transactions, Transac
 	
 	Natural_Increase_value is Natural_Increase_Count * Natural_Increase_Cost_Per_Head,
 
-	balance_by_account(Exchange_Rates, Accounts, Transactions, Bases, To_Day, 'Revenue', To_Day, Revenue_Credit),
+	balance_by_account(Exchange_Rates, Accounts, Transactions, Report_Currency, To_Day, 'Revenue', To_Day, Revenue_Credit),
 	vec_inverse(Revenue_Credit, [Revenue_Coord_Ledger]),
 	integer_to_coord(Currency, Revenue, Revenue_Coord),
 	
-	balance_by_account(Exchange_Rates, Accounts, Transactions, Bases, To_Day, 'CostOfGoodsLivestock', To_Day, [Cogs_Coord_Ledger]),
+	balance_by_account(Exchange_Rates, Accounts, Transactions, Report_Currency, To_Day, 'CostOfGoodsLivestock', To_Day, [Cogs_Coord_Ledger]),
 	integer_to_coord(Currency, Livestock_COGS, Cogs_Coord),
 	
-	balance_by_account(Exchange_Rates, Accounts, Transactions, Bases, To_Day, 'Earnings', To_Day, Earnings_Credit),
+	balance_by_account(Exchange_Rates, Accounts, Transactions, Report_Currency, To_Day, 'Earnings', To_Day, Earnings_Credit),
 	vec_inverse(Earnings_Credit, [Earnings_Coord_Ledger]),
 	integer_to_coord(Currency, Gross_Profit_on_Livestock_Trading, Earnings_Coord),
 

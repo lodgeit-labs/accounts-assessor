@@ -17,8 +17,8 @@
 	inner_xml/3, write_tag/2, fields/2, fields_nothrow/2, numeric_fields/2, 
 	pretty_term_string/2]).
 :- use_module('../../lib/ledger', [balance_sheet_at/8, trial_balance_between/8, profitandloss_between/8, balance_by_account/8]).
-:- use_module('../../lib/statements', [extract_transaction/4, preprocess_s_transactions/4, add_bank_accounts/3,  get_relevant_exchange_rates/5, invert_s_transaction_vector/2]).
-:- use_module('../../lib/livestock', [get_livestock_types/2, process_livestock/15, make_livestock_accounts/2, livestock_counts/5, extract_livestock_opening_costs_and_counts/2]).
+:- use_module('../../lib/statements', [extract_transaction/3, preprocess_s_transactions/4, add_bank_accounts/3,  get_relevant_exchange_rates/5, invert_s_transaction_vector/2]).
+:- use_module('../../lib/livestock', [get_livestock_types/2, process_livestock/14, make_livestock_accounts/2, livestock_counts/5, extract_livestock_opening_costs_and_counts/2]).
 :- use_module('../../lib/accounts', [extract_account_hierarchy/2]).
 :- use_module('../../lib/transactions', [check_transaction_account/2]).
 
@@ -29,11 +29,10 @@
 
 process_xml_ledger_request(_, Dom) :-
 	% this serves as an indicator of the desired report currency
-	extract_default_bases(Dom, Default_Bases),
+	extract_default_currency(Dom, Default_Currency),
+	extract_report_currency(Dom, Report_Currency),
 	extract_action_taxonomy(Dom, Action_Taxonomy),
 	extract_account_hierarchy(Dom, Account_Hierarchy0),
-	[Default_Currency] = Default_Bases,
-	Report_Currency = Default_Currency,
 
 	inner_xml(Dom, //reports/balanceSheetRequest/startDate, [Start_Date_Atom]),
 	parse_date(Start_Date_Atom, Start_Days),
@@ -49,7 +48,7 @@ process_xml_ledger_request(_, Dom) :-
 	flatten(Livestock_Accounts_Nested, Livestock_Accounts),
 	append(Account_Hierarchy0, Livestock_Accounts, Account_Hierarchy0b),
 	
-	findall(Transaction, extract_transaction(Dom, Default_Bases, Start_Date_Atom, Transaction), S_Transactions0),
+	findall(Transaction, extract_transaction(Dom, Start_Date_Atom, Transaction), S_Transactions0),
 	maplist(invert_s_transaction_vector, S_Transactions0, S_Transactions0b),
 	sort_s_transactions(S_Transactions0b, S_Transactions),
 	add_bank_accounts(S_Transactions, Account_Hierarchy0b, Account_Hierarchy),
@@ -57,21 +56,27 @@ process_xml_ledger_request(_, Dom) :-
    
    	extract_livestock_opening_costs_and_counts(Livestock_Doms, Livestock_Opening_Costs_And_Counts),
    
-	process_livestock(Livestock_Doms, Livestock_Types, Default_Bases, S_Transactions, Transactions1, Livestock_Opening_Costs_And_Counts, Start_Days, End_Days, Exchange_Rates, Account_Hierarchy, Default_Bases, Transactions2, Livestock_Events, Average_Costs, Average_Costs_Explanations),
+	process_livestock(Livestock_Doms, Livestock_Types, S_Transactions, Transactions1, Livestock_Opening_Costs_And_Counts, Start_Days, End_Days, Exchange_Rates, Account_Hierarchy, Report_Currency, Transactions2, Livestock_Events, Average_Costs, Average_Costs_Explanations),
    
 	%print_term(Transactions1, []),
 	
 	maplist(check_transaction_account(Account_Hierarchy), Transactions2),
 	   
-	trial_balance_between(Exchange_Rates, Account_Hierarchy, Transactions2, Default_Bases, End_Days, Start_Days, End_Days, Trial_Balance),
+	trial_balance_between(Exchange_Rates, Account_Hierarchy, Transactions2, Report_Currency, End_Days, Start_Days, End_Days, Trial_Balance),
 
-	balance_sheet_at(Exchange_Rates, Account_Hierarchy, Transactions2, Default_Bases, End_Days, Start_Days, End_Days, Balance_Sheet),
+	balance_sheet_at(Exchange_Rates, Account_Hierarchy, Transactions2, Report_Currency, End_Days, Start_Days, End_Days, Balance_Sheet),
 	
-	profitandloss_between(Exchange_Rates, Account_Hierarchy, Transactions2, Default_Bases, End_Days, Start_Days, End_Days, ProftAndLoss),
+	profitandloss_between(Exchange_Rates, Account_Hierarchy, Transactions2, Report_Currency, End_Days, Start_Days, End_Days, ProftAndLoss),
 
 	livestock_counts(Livestock_Types, Transactions2, Livestock_Opening_Costs_And_Counts, End_Days, Livestock_Counts),
 	
-	get_relevant_exchange_rates(Report_Currency, End_Days, Exchange_Rates, Transactions2, Exchange_Rates2),
+	(
+		Report_Currency = []
+	->
+		true
+	;	
+		get_relevant_exchange_rates(Report_Currency, End_Days, Exchange_Rates, Transactions2, Exchange_Rates2)
+	),
 	
 	pretty_term_string(S_Transactions, Message0),
 	pretty_term_string(Livestock_Events, Message0b),
@@ -111,8 +116,11 @@ process_xml_ledger_request(_, Dom) :-
 	display_xbrl_ledger_response(Debug_Message, Start_Days, End_Days, Balance_Sheet, Trial_Balance, ProftAndLoss).
 
 	
-extract_default_bases(Dom, Bases) :-
-   inner_xml(Dom, //reports/balanceSheetRequest/defaultUnitTypes/unitType, Bases).
+extract_default_currency(Dom, Default_Currency) :-
+   inner_xml(Dom, //reports/balanceSheetRequest/defaultCurrency, Default_Currency).
+
+extract_report_currency(Dom, Report_Currency) :-
+   inner_xml(Dom, //reports/balanceSheetRequest/reportCurrency, Report_Currency).
 
 extract_action_taxonomy(Dom, Action_Taxonomy) :-
 	(
@@ -137,13 +145,26 @@ extract_exchange_rates(Dom, End_Date, Exchange_Rates, Default_Currency) :-
    findall(Unit_Value_Dom, xpath(Dom, //reports/balanceSheetRequest/unitValues/unitValue, Unit_Value_Dom), Unit_Value_Doms),
    maplist(extract_exchange_rate(End_Date, Default_Currency), Unit_Value_Doms, Exchange_Rates).
    
-extract_exchange_rate(End_Date, Default_Currency, Unit_Value, Exchange_Rate) :-
+extract_exchange_rate(End_Date, Optional_Default_Currency, Unit_Value, Exchange_Rate) :-
 	Exchange_Rate = exchange_rate(Date, Src_Currency, Dest_Currency, Rate),
 	fields(Unit_Value, [
 		unitType, Src_Currency,
-		unitValueCurrency, (Dest_Currency, Default_Currency),
+		unitValueCurrency, (Dest_Currency, _),
 		unitValue, Rate_Atom,
 		unitValueDate, (Date_Atom, End_Date)]),
+	(
+		var(Dest_Currency)
+	->
+		(
+			Optional_Default_Currency = []
+		->
+			throw_string('unitValueCurrency missing and no defaultCurrency specified')
+		;
+			[Dest_Currency] = Optional_Default_Currency
+		)
+	;
+		true
+	),	
 	atom_number(Rate_Atom, Rate),
 	parse_date(Date_Atom, Date)	.
 

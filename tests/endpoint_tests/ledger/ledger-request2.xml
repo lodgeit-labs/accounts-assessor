@@ -24,10 +24,8 @@
     <!-- Needed for computation of most fields in balance sheet. -->
     <endDate>2018-06-30</endDate>
 
-    <!-- If a unitType is not specified in a transaction below, then the first usable unitType from this list is taken. -->
-    <defaultUnitTypes>
-      <unitType>AUD</unitType>
-    </defaultUnitTypes>
+    <defaultCurrency>AUD</defaultCurrency>
+    <reportCurrency></reportCurrency>
 
     <!-- Needed for the tracking of units in inventory. Also needed for correct computation of gains and losses. -->
     <unitValues>
@@ -48,7 +46,7 @@
 
       <unitValue>
         <unitType>SG_Issuer_SA</unitType>
-        <unitValue>200000000000</unitValue>
+        <unitValue>40</unitValue>
         <unitValueCurrency>USD</unitValueCurrency>
       </unitValue>
     </unitValues>    
@@ -83,7 +81,7 @@
             <transdate>2018-06-30</transdate>
             <debit>0.00</debit>
             <credit>200.00</credit>
-            <unit>1</unit>
+            <unit>5</unit>
             <unitType>SG_Issuer_SA</unitType>
           </transaction>
 

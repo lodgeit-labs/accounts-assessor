@@ -4,7 +4,7 @@
 % Date:      2019-06-02
 % ===================================================================
 
-:- module(statements, [extract_transaction/4, preprocess_s_transactions/4, add_bank_accounts/3, get_relevant_exchange_rates/5, invert_s_transaction_vector/2]).
+:- module(statements, [extract_transaction/3, preprocess_s_transactions/4, add_bank_accounts/3, get_relevant_exchange_rates/5, invert_s_transaction_vector/2]).
  
 :- use_module(pacioli,  [vec_inverse/2, vec_add/3, vec_sub/3, integer_to_coord/3]).
 :- use_module(exchange, [vec_change_bases/5]).
@@ -215,7 +215,7 @@ we bought the shares with some currency. we can think of gains as having two par
 */
 gains_txs(Static_Data, Cost_Vector, Goods_Vector, Transaction_Day, Exchange_Day, Gains_Account, Transactions_Out) :-
 	Static_Data = (_Accounts, Report_Currency, _Transaction_Types, _Report_End_Day, Exchange_Rates),
-	vec_change_bases(Exchange_Rates, Exchange_Day, [Report_Currency], Cost_Vector, Cost_In_Report_Currency),
+	vec_change_bases(Exchange_Rates, Exchange_Day, Report_Currency, Cost_Vector, Cost_In_Report_Currency),
 	vec_add(Cost_In_Report_Currency, Goods_Vector, Cost_In_Report_Currency_Vs_Goods),
 	vec_inverse(Cost_In_Report_Currency_Vs_Goods, Cost_In_Report_Currency_Vs_Goods__Revenue),
 	
@@ -314,7 +314,7 @@ check_that_s_transaction_account_exists(S_Transaction, Accounts) :-
 % these are s_transactions, the raw transactions from bank statements. Later each s_transaction will be preprocessed
 % into multiple transaction(..) terms.
 % fixme dont fail silently
-extract_transaction(Dom, Default_Bases, Start_Date, Transaction) :-
+extract_transaction(Dom, Start_Date, Transaction) :-
 	xpath(Dom, //reports/balanceSheetRequest/bankStatement/accountDetails, Account),
 	catch(
 		fields(Account, [
@@ -329,7 +329,7 @@ extract_transaction(Dom, Default_Bases, Start_Date, Transaction) :-
 	,
 	xpath(Account, transactions/transaction, Tx_Dom),
 	catch(
-		extract_transaction2(Tx_Dom, Account_Currency, Default_Bases, Account_Name, Start_Date, Transaction),
+		extract_transaction2(Tx_Dom, Account_Currency, Account_Name, Start_Date, Transaction),
 		Error,
 		(
 			term_string(Error, Str1),
@@ -339,7 +339,7 @@ extract_transaction(Dom, Default_Bases, Start_Date, Transaction) :-
 		)),
 	true.
 
-extract_transaction2(Tx_Dom, Account_Currency, _Default_Bases, Account, Start_Date, ST) :-
+extract_transaction2(Tx_Dom, Account_Currency, Account, Start_Date, ST) :-
 	numeric_fields(Tx_Dom, [
 		debit, Bank_Debit,
 		credit, Bank_Credit]),
@@ -417,7 +417,7 @@ add_bank_accounts(S_Transactions, Accounts_In, Accounts_Out) :-
 	sort(Accounts_Duplicated, Accounts_Out).
 
 
-get_relevant_exchange_rates(Report_Currency, Report_End_Day, Exchange_Rates, Transactions, Exchange_Rates2) :-
+get_relevant_exchange_rates([Report_Currency], Report_End_Day, Exchange_Rates, Transactions, Exchange_Rates2) :-
 	% find all days when something happened
 	findall(
 		Day,
@@ -446,7 +446,7 @@ get_relevant_exchange_rates(Report_Currency, Report_End_Day, Exchange_Rates, Tra
 		(
 			member(Day, Days),
 			member(Src_Currency, Currencies),
-			\+Src_Currency = Report_Currency,
+			\+member(Src_Currency, Report_Currency),
 			exchange_rate(Exchange_Rates, Day, Src_Currency, Report_Currency, Exchange_Rate)
 		),
 		Exchange_Rates2
