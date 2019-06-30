@@ -85,6 +85,28 @@ preprocess_s_transactions2(Static_Data, [S_Transaction|S_Transactions], [Transac
 			throw_string(['processing failed:', S_Transaction_String])
 	),
 	preprocess_s_transactions2(Static_Data, S_Transactions, Transactions_Out_Tail,  Outstanding_Mid, Outstanding_Out, Debug_Tail).
+
+	
+% This Prolog rule handles the case when only the exchanged units are known (for example GOOG)  and
+% hence it is desired for the program to infer the count. 
+% We passthrough the output list to the above rule, and just replace the first S_Transaction in the 
+% input list with a modified one (NS_Transaction).
+preprocess_s_transaction(Static_Data, S_Transaction, Transactions, Outstanding_In, Outstanding_Out) :-
+	Static_Data = (_, _, _, _, Exchange_Rates),
+	s_transaction_exchanged(S_Transaction, bases(Goods_Bases)),
+	s_transaction_day(S_Transaction, Transaction_Day), 
+	s_transaction_day(NS_Transaction, Transaction_Day),
+	s_transaction_type_id(S_Transaction, Type_Id), 
+	s_transaction_type_id(NS_Transaction, Type_Id),
+	s_transaction_vector(S_Transaction, Vector_Bank), 
+	s_transaction_vector(NS_Transaction, Vector_Bank),
+	s_transaction_account_id(S_Transaction, Unexchanged_Account_Id), 
+	s_transaction_account_id(NS_Transaction, Unexchanged_Account_Id),
+	% infer the count by money debit/credit and exchange rate
+	vec_change_bases(Exchange_Rates, Transaction_Day, Goods_Bases, Vector_Bank, Vector_Exchanged),
+	s_transaction_exchanged(NS_Transaction, vector(Vector_Exchanged)),
+	preprocess_s_transaction(Static_Data, NS_Transaction, Transactions, Outstanding_In, Outstanding_Out).
+
 	
 preprocess_s_transaction(Static_Data, S_Transaction, Transactions, Outstanding, Outstanding) :-
 	preprocess_livestock_buy_or_sell(Static_Data, S_Transaction, Transactions).
@@ -116,11 +138,11 @@ preprocess_s_transaction(Static_Data, S_Transaction, [UnX_Transaction, X_Transac
 	s_transaction_vector(S_Transaction, Vector_Bank),
 	s_transaction_day(S_Transaction, Transaction_Day), 
 	vec_inverse(Vector_Bank, Vector_Ours),
-	vec_inverse(Vector_Ours, Vector_Ours_Inverted),
-	Vector_Ours = [Our_Coord],
-	vec_inverse(Vector_Goods, Vector_Goods_Inverted),
+	/*vec_inverse(Vector_Ours, Vector_Ours_Inverted),
+	vec_inverse(Vector_Goods, Vector_Goods_Inverted),*/
+	[Our_Coord] = Vector_Ours,
 	[Goods_Coord] = Vector_Goods,
-	Our_Coord = coord(Currency, _Our_Debit, Our_Credit),
+	coord(Currency, _Our_Debit, Our_Credit) = Our_Coord ,
 	integer_to_coord(Goods_Unit, Goods_Integer, Goods_Coord),
 	transaction_type(_, Exchanged_Account_Id, Trading_Account_Id, Description) = Transaction_Type,
 	make_unexchanged_transaction(S_Transaction, Description, UnX_Transaction),
@@ -150,7 +172,7 @@ preprocess_s_transaction(Static_Data, S_Transaction, [UnX_Transaction, X_Transac
 					Unit_Cost is Our_Credit / Goods_Integer,
 					add_bought_items(
 						Pricing_Method, 
-						(Goods_Unit, Goods_Integer, value(Currency, Unit_Cost)), 
+						(Goods_Unit, Goods_Integer, value(Currency, Unit_Cost), Transaction_Day), 
 						Outstanding_In, Outstanding_Out
 					),
 					gains_txs(Static_Data, Vector_Ours, Vector_Goods, Transaction_Day, Transaction_Day, 'Unrealized_Gains', Trading_Transactions)
@@ -165,7 +187,7 @@ preprocess_s_transaction(Static_Data, S_Transaction, [UnX_Transaction, X_Transac
 							;
 						throw_string(['not enough shares to sell'])
 					),
-					maplist(reduce_unrealized_gains(Static_Data), Goods_Cost_Values, Vector_Goods, Transaction_Day, Txs1), 
+					maplist(reduce_unrealized_gains(Static_Data, Transaction_Day), Goods_Cost_Values, Txs1), 
 					gains_txs(Static_Data, Vector_Ours, Vector_Goods, Transaction_Day, Transaction_Day, 'Realized_Gains', Txs2),
 					Trading_Transactions = [Txs1, Txs2]
 				)
@@ -176,59 +198,39 @@ preprocess_s_transaction(Static_Data, S_Transaction, [UnX_Transaction, X_Transac
 		)
 	).
 	
-% This Prolog rule handles the case when only the exchanged units are known (for example GOOG)  and
-% hence it is desired for the program to infer the count. 
-% We passthrough the output list to the above rule, and just replace the first S_Transaction in the 
-% input list with a modified one (NS_Transaction).
-preprocess_s_transaction(Static_Data, S_Transaction, Transactions, Outstanding_In, Outstanding_Out) :-
-	Static_Data = (_, _, _, _, Exchange_Rates),
-	s_transaction_exchanged(S_Transaction, bases(Goods_Bases)),
-	s_transaction_day(S_Transaction, Transaction_Day), 
-	s_transaction_day(NS_Transaction, Transaction_Day),
-	s_transaction_type_id(S_Transaction, Type_Id), 
-	s_transaction_type_id(NS_Transaction, Type_Id),
-	s_transaction_vector(S_Transaction, Vector_Bank), 
-	s_transaction_vector(NS_Transaction, Vector_Bank),
-	s_transaction_account_id(S_Transaction, Unexchanged_Account_Id), 
-	s_transaction_account_id(NS_Transaction, Unexchanged_Account_Id),
-	% infer the count by money debit/credit and exchange rate
-	vec_change_bases(Exchange_Rates, Transaction_Day, Goods_Bases, Vector_Bank, Vector_Exchanged),
-	s_transaction_exchanged(NS_Transaction, vector(Vector_Exchanged)),
-	preprocess_s_transaction(Static_Data, NS_Transaction, Transactions, Outstanding_In, Outstanding_Out).
 
-
-reduce_unrealized_gains(Static_Data), Goods_Cost_Values, Vector_Goods, Transaction_Day, [Unrealized_Goods_Reduction, Unrealized_Costs_Reduction]) :-
+reduce_unrealized_gains(Static_Data, Transaction_Day, Purchase_Infos, Txs) :-
 	/*Goods_Cost_Values is a vector of value(currency, amount)*/
 	findall(
-		(coord(Cogs_Currency, Amount, 0), Purchase_Day),
+		(coord(Cogs_Currency, Amount, 0), Purchase_Day, Purchase_Count),
 		(
-			member((Value, Purchase_Day), Goods_Cost_Values),
+			member((Value, Purchase_Day, Purchase_Count), Purchase_Infos),
 			assertion(Value = value(Cogs_Currency, Amount)),
 			Value = value(Cogs_Currency, Amount)
 		),
-		Cost_Of_Goods_Sold),
+		Purchase_Infos2
+	),
+	gtrace,
 	findall(Txs,
 		(
 			(
-				member(Purchase_Info, Purchase_Infos),
-				Exchange_Days, Cost_Of_Goods_Sold = Purchase_Info,
-				gains_txs(Static_Data, Cost_Of_Goods_Sold, [], Purchase_Day, Transaction_Day, 'Unrealized_Gains', Exchange_Days, Txs)
+				member(Purchase_Info, Purchase_Infos2),
+				Cost_Of_Goods_Sold, Exchange_Days, Goods_Count, Goods_Type = Purchase_Info,
+				gains_txs(Static_Data, Cost_Of_Goods_Sold, [coord(Goods_Type, 0, Goods_Count)], Purchase_Day, Transaction_Day, 'Unrealized_Gains', Exchange_Days, Txs)
 			)
 			->
 				true
 			;
 				throw("err")
 		),
-		Unrealized_Costs_Reduction
-	),
-	gains_txs(Static_Data, [], Vector_Goods, Transaction_Day, 'Unrealized_Gains', Exchange_Days, Unrealized_Goods_Reduction).
-	
+		Txs
+	).	
 /*
 we bought the shares with some currency. we can think of gains as having two parts:
 	share value against that currency.
 	that currency value against report currency.
 */
-gains_txs(Static_Data, Cost_Vector, Goods_Vector, Transaction_Day, Gains_Account, Exchange_Day, Transactions_Out) :-
+gains_txs(Static_Data, Cost_Vector, Goods_Vector, Transaction_Day, Exchange_Day, Gains_Account, Transactions_Out) :-
 	Static_Data = (_Accounts, Report_Currency, _Transaction_Types, _Report_End_Day, Exchange_Rates),
 	vec_change_bases(Exchange_Rates, Exchange_Day, [Report_Currency], Cost_Vector, Cost_In_Report_Currency),
 	vec_add(Cost_In_Report_Currency, Goods_Vector, Cost_In_Report_Currency_Vs_Goods),
