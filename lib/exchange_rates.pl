@@ -20,7 +20,7 @@
 
 :- dynamic exchange_rates/2.
 
-:- persistent(persistently_cached_exchange_rates(day: integer, rates:list)).
+:- persistent(persistently_cached_exchange_rates(day: any, rates:list)).
 
 :- initialization(db_attach('tmp/persistently_cached_exchange_rates.pl' , [])).
 
@@ -34,8 +34,7 @@ exchange_rates2(Day, Exchange_Rates) :-
 	;
 	fetch_exchange_rates(Day, Exchange_Rates).
 
-fetch_exchange_rates(Day, Exchange_Rates) :-
-	gregorian_date(Day, Date),
+fetch_exchange_rates(Date, Exchange_Rates) :-
 	format_time(string(Date_Str), "%Y-%m-%d", Date),
 	string_concat("http://openexchangerates.org/api/historical/", Date_Str, Query_Url_A),
 	string_concat(Query_Url_A, ".json?app_id=677e4a964d1b44c99f2053e21307d31a", Query_Url),

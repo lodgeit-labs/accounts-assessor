@@ -17,7 +17,7 @@
 	inner_xml/3, write_tag/2, fields/2, fields_nothrow/2, numeric_fields/2, 
 	pretty_term_string/2]).
 :- use_module('../../lib/ledger', [balance_sheet_at/8, trial_balance_between/8, profitandloss_between/8, balance_by_account/8]).
-:- use_module('../../lib/statements', [extract_transaction/4, preprocess_s_transactions/4, add_bank_accounts/3,  get_relevant_exchange_rates/5]).
+:- use_module('../../lib/statements', [extract_transaction/4, preprocess_s_transactions/4, add_bank_accounts/3,  get_relevant_exchange_rates/5, invert_s_transaction_vector/2]).
 :- use_module('../../lib/livestock', [get_livestock_types/2, process_livestock/15, make_livestock_accounts/2, livestock_counts/5, extract_livestock_opening_costs_and_counts/2]).
 :- use_module('../../lib/accounts', [extract_account_hierarchy/2]).
 :- use_module('../../lib/transactions', [check_transaction_account/2]).
@@ -49,7 +49,8 @@ process_xml_ledger_request(_, Dom) :-
 	append(Account_Hierarchy0, Livestock_Accounts, Account_Hierarchy0b),
 	
 	findall(Transaction, extract_transaction(Dom, Default_Bases, Start_Date_Atom, Transaction), S_Transactions0),
-	sort_s_transactions(S_Transactions0, S_Transactions),
+	maplist(invert_s_transaction_vector, S_Transactions0, S_Transactions0b),
+	sort_s_transactions(S_Transactions0b, S_Transactions),
 	add_bank_accounts(S_Transactions, Account_Hierarchy0b, Account_Hierarchy),
 	preprocess_s_transactions((Account_Hierarchy, Report_Currency, Action_Taxonomy, End_Days, Exchange_Rates), S_Transactions, Transactions1, Transaction_Transformation_Debug),
    
@@ -158,7 +159,7 @@ display_xbrl_ledger_response(Debug_Message, Start_Days, End_Days, Balance_Sheet_
 
    format_date(End_Days, End_Date_String),
    format_date(Start_Days, Start_Date_String),
-   gregorian_date(End_Days, date(End_Year,_,_)),
+   End_Days = date(End_Year,_,_),
    
    format( '  <context id="D-~w">\n', End_Year),
    writeln('    <entity>'),

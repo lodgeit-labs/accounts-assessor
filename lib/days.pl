@@ -9,9 +9,10 @@
 		 day_between/3,
 		 format_date/2,
 		 parse_date/2,
-		 gregorian_date/2]).
+		 gregorian_date/2,
+		 add_days/3]).
 
-
+	
 % -------------------------------------------------------------------
 % The purpose of the following program is to define modular dates, a generalization of
 % Gregorian dates where the day and month can take on any integral value. They allow you
@@ -151,15 +152,20 @@ day_between(Opening_Date, Closing_Date, Day) :-
 % parses date in "DD-MM-YYYY" format
 % -------------------------------------------------------------------
 
-parse_date(DateString, AbsoluteDays) :-
+parse_date(DateString, YMD) :-
    parse_time(DateString, iso_8601, UnixTimestamp),
    stamp_date_time(UnixTimestamp, DateTime, 'UTC'), 
-   date_time_value(date, DateTime, YMD),
-   absolute_day(YMD, AbsoluteDays).
+   date_time_value(date, DateTime, YMD).
 
-format_date(AbsoluteDays, DateString) :-
-   gregorian_date(AbsoluteDays, Date),
+format_date(Date, DateString) :-
    format_time(string(DateString), '%Y-%m-%d', Date).
 
 
+   
 
+add_days(Date, Absolute_Days, Date2) :-
+	absolute_day(Date, Day),
+	Day2 is Day + Absolute_Days,
+	gregorian_date(Day2, Date2).
+
+	

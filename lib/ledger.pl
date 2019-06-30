@@ -14,6 +14,7 @@
 		     	     transaction_vectors_total/2,
 		  	     transactions_before_day_on_account_and_subaccounts/5
 		            ]).
+:- use_module(days, [add_days/3]).
 
 % -------------------------------------------------------------------
 % The purpose of the following program is to derive the summary information of a ledger.
@@ -34,9 +35,9 @@ balance_until_day(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, A
 	vec_change_bases(Exchange_Rates, Exchange_Day, Bases, Balance, Balance_Transformed).
 
 % up to day
-balance_by_account(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Account_Id, Day, Balance_Transformed) :-
-	Day_Plus_1 is Day + 1,
-	balance_until_day(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Account_Id, Day_Plus_1, Balance_Transformed).
+balance_by_account(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Account_Id, Date, Balance_Transformed) :-
+	add_days(Date, 1, Date2),
+	balance_until_day(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Account_Id, Date2, Balance_Transformed).
 	
 % Relates the period from From_Day to To_Day to the net activity during that period of
 % the given account.
@@ -88,7 +89,7 @@ balance_sheet_at(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Fr
 	Balance_Sheet = [Asset_Section, Liability_Section, Equity_Section, NetAssets_Section].
 
 get_transactions_with_retained_earnings(Current_Earnings, Historical_Earnings, Transactions, From_Day, To_Day, [Historical_Earnings_Transaction, Current_Earnings_Transaction | Transactions]) :-
-	From_Day_Minus_1 is From_Day - 1,
+	add_days(From_Day, -1, From_Day_Minus_1),
 	Historical_Earnings_Transaction = transaction(From_Day_Minus_1,'','HistoricalEarnings',Historical_Earnings),
 	Current_Earnings_Transaction = transaction(To_Day,'','CurrentEarnings',Current_Earnings).
 

@@ -4,7 +4,7 @@
 % Date:      2019-06-02
 % ===================================================================
 
-:- module(statements, [extract_transaction/4, preprocess_s_transactions/4, add_bank_accounts/3, get_relevant_exchange_rates/5]).
+:- module(statements, [extract_transaction/4, preprocess_s_transactions/4, add_bank_accounts/3, get_relevant_exchange_rates/5, invert_s_transaction_vector/2]).
  
 :- use_module(pacioli,  [vec_inverse/2, vec_add/3, vec_sub/3, integer_to_coord/3]).
 :- use_module(exchange, [vec_change_bases/5]).
@@ -135,11 +135,8 @@ preprocess_s_transaction(Static_Data, S_Transaction, [UnX_Transaction, X_Transac
 			throw_string(['unknown action verb:',Type_Id])
 		)
 	),
-	s_transaction_vector(S_Transaction, Vector_Bank),
+	s_transaction_vector(S_Transaction, Vector_Ours),
 	s_transaction_day(S_Transaction, Transaction_Day), 
-	vec_inverse(Vector_Bank, Vector_Ours),
-	/*vec_inverse(Vector_Ours, Vector_Ours_Inverted),
-	vec_inverse(Vector_Goods, Vector_Goods_Inverted),*/
 	[Our_Coord] = Vector_Ours,
 	[Goods_Coord] = Vector_Goods,
 	coord(Currency, _Our_Debit, Our_Credit) = Our_Coord ,
@@ -258,9 +255,8 @@ make_unexchanged_transaction(S_Transaction, Description, UnX_Transaction) :-
 	s_transaction_day(S_Transaction, Day), 
 	transaction_day(UnX_Transaction, Day),
 	transaction_description(UnX_Transaction, Description),
-	s_transaction_vector(S_Transaction, Vector_Bank),
-	vec_inverse(Vector_Bank, Vector_Inverted), % bank statement is from bank perspective
-	transaction_vector(UnX_Transaction, Vector_Inverted),
+	s_transaction_vector(S_Transaction, Vector),
+	transaction_vector(UnX_Transaction, Vector),
 	s_transaction_account_id(S_Transaction, UnX_Account), 
 	transaction_account_id(UnX_Transaction, UnX_Account).
 
@@ -455,3 +451,9 @@ get_relevant_exchange_rates(Report_Currency, Report_End_Day, Exchange_Rates, Tra
 	).
 	
 	
+invert_s_transaction_vector(T0, T1) :-
+	T0 = s_transaction(Day, Type_id, Vector, Account_id, Exchanged),
+	T1 = s_transaction(Day, Type_id, Vector_Inverted, Account_id, Exchanged),
+	vec_inverse(Vector, Vector_Inverted).
+	
+
