@@ -173,7 +173,7 @@ preprocess_s_transaction(Static_Data, S_Transaction, [UnX_Transaction, X_Transac
 						(Goods_Unit, Goods_Integer, value(Currency, Unit_Cost), Transaction_Day), 
 						Outstanding_In, Outstanding_Out
 					),
-					gains_txs(Static_Data, Vector_Ours, Vector_Goods, Transaction_Day, Transaction_Day, 'Unrealized_Gains', Trading_Transactions)
+					unrealized_gains_txs(Static_Data, Vector_Ours, Vector_Goods, Transaction_Day, Trading_Transactions)
 				)
 			;
 				(
@@ -210,21 +210,7 @@ preprocess_s_transaction(Static_Data, S_Transaction, [UnX_Transaction, X_Transac
 					('Forex',                    Sale_Currency_Purchase_Date_Revenue,       Sale_Currency_Sale_Date_Revenue),
 					('Excluding_Forex',     Sale_Currency_Purchase_Date_Expense,        Sale_Currency_Purchase_Date_Revenue)
 					]
-					/*
-					without forex:
-					Unrealized_Gains = [
-					% Account                                      DR                                               CR
-					('',                				Purchase_Date_Cost,        Goods)
-					]
-					*/
-					Unrealized_Gains_With_Forex = [
-					% Account                                      DR                                               CR
-					('Forex',					Purchase_Date_Cost,      							 Goods_Without_Currency_Movement),
-					('Excluding_Forex',     Goods_Without_Currency_Movement,        Goods)
-					],
-					Purchase_Date_Cost
-					Goods_Without_Currency_Movement = [coord(without_currency_movement_since(Goods_Unit, Purchase_Currency, Purchase_Date), Goods_Debit, Goods_Credit)],
-					
+			
 					
 					
 					
@@ -238,6 +224,23 @@ preprocess_s_transaction(Static_Data, S_Transaction, [UnX_Transaction, X_Transac
 			Outstanding_Out = Outstanding_In
 		)
 	).
+
+unrealized_gains_txs(Static_Data, Vector_Ours, Vector_Goods, Transaction_Day, Trading_Transactions) :-
+	/*	without forex:
+	Unrealized_Gains = [
+	% Account            DR                                               CR
+	('',                         Purchase_Date_Cost,        Goods)
+	]*/
+	Unrealized_Gains_With_Forex = [
+	% Account                                                                 DR                                                               CR
+	('Unrealized_Gains_With_Forex',					Purchase_Date_Cost,      							 Goods_Without_Currency_Movement),
+	('Unrealized_Gains_Excluding_Forex',     Goods_Without_Currency_Movement,        Vector_Goods)
+	],
+					Purchase_Date_Cost
+					Goods_Without_Currency_Movement = [coord(without_currency_movement_since(Goods_Unit, Purchase_Currency, Purchase_Date), Goods_Debit, Goods_Credit)],
+
+	
+table_to_txs(
 	
 reduce_unrealized_gains(Static_Data, Transaction_Day, Purchase_Info, Txs) :-
 	(Goods_Type, Goods_Count, Value, Purchase_Day) = Purchase_Info,
