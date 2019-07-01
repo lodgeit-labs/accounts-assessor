@@ -78,6 +78,13 @@ exchange_rate_rate(exchange_rate(_, _, _, Rate), Rate).
 % given lookup table.
 
 symmetric_exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate) :-
+	Src_Currency = without_currency_movement_since(Goods_Unit, Purchase_Currency, Purchase_Date),
+	exchange_rate(Table, Day, Goods_Unit, Purchase_Currency, Current_Goods_Exchange_Rate_To_Purchase_Currency),
+	exchange_rate(Table, Purchase_Date, 
+		Purchase_Currency, Dest_Currency, Old_Purchase_Currency_Exchange_Rate_To_Dest_Currency),
+	Exchange_Rate is Current_Goods_Exchange_Rate_To_Purchase_Currency * Old_Purchase_Currency_Exchange_Rate_To_Dest_Currency).
+	
+symmetric_exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate) :-
   member(exchange_rate(Day, Src_Currency, Dest_Currency, Exchange_Rate), Table).
 
 symmetric_exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate) :-

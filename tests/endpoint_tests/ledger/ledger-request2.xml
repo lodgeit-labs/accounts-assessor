@@ -25,7 +25,7 @@
     <endDate>2018-06-30</endDate>
 
     <defaultCurrency>AUD</defaultCurrency>
-    <reportCurrency></reportCurrency>
+    <reportCurrency>AUD</reportCurrency>
 
     <!-- Needed for the tracking of units in inventory. Also needed for correct computation of gains and losses. -->
     <unitValues>
@@ -34,14 +34,14 @@
         <unitType>USD</unitType>
         <unitValue>1.4492753623188408</unitValue>
         <unitValueCurrency>AUD</unitValueCurrency>
-        <unitValueDate>2017-07-10</unitValueDate>
+        <unitValueDate>2017-07-01</unitValueDate>
       </unitValue>
 
       <unitValue>
         <unitType>USD</unitType>
         <unitValue>1.4285714285714286</unitValue>
         <unitValueCurrency>AUD</unitValueCurrency>
-        <unitValueDate>2017-07-10</unitValueDate>
+        <unitValueDate>2018-06-30</unitValueDate>
       </unitValue>
 
       <unitValue>
@@ -71,12 +71,12 @@
           <transaction>
             <transdesc>Invest_In</transdesc>
             <transdate>2017-07-01</transdate>
-            <debit>100</debit>
+            <debit>50</debit>
             <credit>0</credit>
-            <unit>10</unit>
+            <unit>5</unit>
             <unitType>SG_Issuer_SA</unitType>
           </transaction>
-          <transaction>
+<!--          <transaction>
             <transdesc>Dispose_Of</transdesc>
             <transdate>2018-06-30</transdate>
             <debit>0.00</debit>
@@ -84,7 +84,7 @@
             <unit>5</unit>
             <unitType>SG_Issuer_SA</unitType>
           </transaction>
-
+-->
         </transactions>
       </accountDetails>
     </bankStatement>

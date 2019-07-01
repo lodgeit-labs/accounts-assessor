@@ -39,14 +39,14 @@
 			<SalesOfLivestock/>
 			<RationsRevenue/>
 			<OtherGain/>
-			<CapitalGain>
-				<Unrealized_Gains_Excluding_Forex/>
+			<RealizedGain>
 				<Realized_Gains_Excluding_Forex/>
-			</CapitalGain>
-			<ForexGain>
-				<Unrealized_Gains_Currency_Movement/>
 				<Realized_Gains_Currency_Movement/>
-			</ForexGain>
+			</RealizedGain>
+			<UnrealizedGain>
+				<Unrealized_Gains_Excluding_Forex/>
+				<Unrealized_Gains_Currency_Movement/>
+			</UnrealizedGain>
 		</Revenue>
 		<Expenses>
 			<BankCharges/>

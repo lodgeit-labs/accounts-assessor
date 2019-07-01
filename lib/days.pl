@@ -11,7 +11,7 @@
 		 parse_date/2,
 		 gregorian_date/2,
 		 add_days/3]).
-
+:- use_module(utils, [throw_string/1]).
 	
 % -------------------------------------------------------------------
 % The purpose of the following program is to define modular dates, a generalization of
@@ -153,9 +153,15 @@ day_between(Opening_Date, Closing_Date, Day) :-
 % -------------------------------------------------------------------
 
 parse_date(DateString, YMD) :-
-   parse_time(DateString, iso_8601, UnixTimestamp),
-   stamp_date_time(UnixTimestamp, DateTime, 'UTC'), 
-   date_time_value(date, DateTime, YMD).
+	(
+		parse_time(DateString, iso_8601, UnixTimestamp),
+		stamp_date_time(UnixTimestamp, DateTime, 'UTC'), 
+		date_time_value(date, DateTime, YMD)
+	)
+	->
+		true
+	;
+		throw_string(['failed parsing date:', DateString]).
 
 format_date(Date, DateString) :-
    format_time(string(DateString), '%Y-%m-%d', Date).
