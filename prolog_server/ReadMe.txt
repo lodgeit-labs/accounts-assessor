@@ -1,3 +1,7 @@
+dependencies:
+run swipl and pack_install(tap), pack_install(regex), pack_install(xsd).
+
+
 This directory contains a SWI Prolog server (prolog_server.pl) that:
 
 accepts a endpoint_tests/loan/loan-request.xml and generates a endpoint_tests/loan/loan-response.xml
