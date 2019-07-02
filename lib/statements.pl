@@ -173,7 +173,8 @@ preprocess_s_transaction(Static_Data, S_Transaction, [UnX_Transaction, X_Transac
 						(Goods_Unit, Goods_Integer, value(Currency, Unit_Cost), Transaction_Day), 
 						Outstanding_In, Outstanding_Out
 					),
-					unrealized_gains_txs(Static_Data, Vector_Ours, Vector_Goods, Transaction_Day, Trading_Transactions)
+					unrealized_gains_txs(Static_Data, Vector_Ours, Vector_Goods, Transaction_Day, Trading_Txs),
+					maplist(tx_to_transaction(Transaction_Day), Trading_Txs, Trading_Transactions),
 				)
 			;
 				(
@@ -225,29 +226,82 @@ preprocess_s_transaction(Static_Data, S_Transaction, [UnX_Transaction, X_Transac
 		)
 	).
 
-unrealized_gains_txs(Static_Data, Vector_Ours, Vector_Goods, Transaction_Day, Trading_Transactions) :-
+dr_cr_table_to_txs(Table, Txs) :-
+	maplist(dr_cr_table_line_to_tx, Table, Txs).
+	
+dr_cr_table_line_to_tx(Line, Tx) :-
+	Line = Account, Dr, Cr,
+	make_debit(Dr, Dr2),
+	make_credit(Cr, Cr2),
+	Tx = tx{
+		comment: _',
+		comment2: _',
+		account: Account,
+		vector: [Dr2, Cr2]
+	}.
+	
+make_debit(value(Unit, Amount), coord(Unit, Amount, 0)).
+make_credit(value(Unit, Amount), coord(Unit, 0, Amount)).
+make_debit(coord(Unit, Dr, 0), coord(Unit, Dr, 0)).
+make_credit(coord(Unit, 0, Cr), coord(Unit, 0, Cr)).
+
+unrealized_gains_txs(Static_Data, Cost, Goods, Transaction_Day, Txs) :-
 	/*	without forex:
 	Unrealized_Gains = [
 	% Account            DR                                               CR
 	('',                         Purchase_Date_Cost,        Goods)
 	]*/
-	Unrealized_Gains_With_Forex = [
+	dr_cr_table_to_txs([
 	% Account                                                                 DR                                                               CR
-	('Unrealized_Gains_With_Forex',					Purchase_Date_Cost,      							 Goods_Without_Currency_Movement),
-	('Unrealized_Gains_Excluding_Forex',     Goods_Without_Currency_Movement,        Vector_Goods)
+	('Unrealized_Gains_Currency_Movement',	             Cost,      	                                  Goods_Without_Currency_Movement),
+	('Unrealized_Gains_Excluding_Forex',     Goods_Without_Currency_Movement,       Goods)
 	],
-					Purchase_Date_Cost
-					Goods_Without_Currency_Movement = [coord(without_currency_movement_since(Goods_Unit, Purchase_Currency, Purchase_Date), Goods_Debit, Goods_Credit)],
+	Txs),
+	Goods_Without_Currency_Movement = [coord(
+		without_currency_movement_since(Goods_Unit, Purchase_Currency, Purchase_Date), 
+		Goods_Debit, Goods_Credit)
+	],
+	Goods = [coord(Goods_Unit, Goods_Debit, Goods_Credit)],
+	Cost = [coord(Purchase_Currency, _, _)],
+	Purchase_Date = Transaction_Day.
+	
+
+unrealized_gains_reduction_txs(Static_Data, Purchase_Info, Transactions_Out) :-
+	dr_cr_table_to_txs([
+	% Account                                                                 DR                                                               CR
+	('Unrealized_Gains_Currency_Movement',					Goods_Without_Currency_Movement),           Cost,
+	('Unrealized_Gains_Excluding_Forex',        Goods                                                              Goods_Without_Currency_Movement)
+	],
+	Transactions_Out),
+	Goods_Without_Currency_Movement = [coord(
+		without_currency_movement_since(Goods_Unit, Purchase_Currency, Purchase_Date), 
+		Goods_Count, 0)
+	],
+	(Goods_Unit, Goods_Count, Cost, Purchase_Date) = Purchase_Info,
+	Goods = value(Goods_Unit, Goods_Count),
+	value(Purchase_Currency, Cost_Amount) = Cost.
+	
+
+realized_gains_txs(Static_Data, Purchase_Info, Sale_Unit_Price, Txs) :-
+	dr_cr_table_to_txs([
+	% Account                                                                 DR                                                               CR
+	('Realized_Gains_Currency_Movement',	                Sale_Without_Currency_Movement,           Sale),
+	('Realized_Gains_Excluding_Forex',                        Cost,      	                     Sale_Without_Currency_Movement)
+	],
+	Txs),
+	Sale_Without_Currency_Movement = [coord(
+		without_currency_movement_since(Goods_Unit, Purchase_Currency, Purchase_Date), 
+		Goods_Debit, Goods_Credit)
+	],
+	value_multiply(Sale_Unit_Price, Goods_Count, Revenue_Amount),
+	
+	(Goods_Unit, Goods_Count, Cost, Purchase_Date) = Purchase_Info,
+	Goods = value(Goods_Unit, Goods_Count),
+	value(Purchase_Currency, Cost_Amount) = Cost.
+	Cost = [coord(Purchase_Currency, _, _)],
+	Purchase_Date = Transaction_Day.
 
 	
-table_to_txs(
-	
-reduce_unrealized_gains(Static_Data, Transaction_Day, Purchase_Info, Txs) :-
-	(Goods_Type, Goods_Count, Value, Purchase_Day) = Purchase_Info,
-	value(Cogs_Currency, Value_Amount) = Value,
-	Cost_Of_Goods_Sold = [coord(Cogs_Currency, Value_Amount, 0)],
-	gains_txs(Static_Data, Cost_Of_Goods_Sold, [coord(Goods_Type, 0, Goods_Count)], Transaction_Day, Purchase_Day, 'Unrealized_Gains', Txs).
-
 realized_gains_transactions(Static_Data, Transaction_Day, Sale_Unit_Price, Sale_Currency, Purchase_Info, Transactions_Out):-
 	Static_Data = (_, Report_Currency, _, _, Exchange_Rates),
 	(_, Goods_Count, value(Purchase_Currency, Purchase_Cost), Purchase_Day) = Purchase_Info,

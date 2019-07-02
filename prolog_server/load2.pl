@@ -1,0 +1,1 @@
+:- load_files([run_simple_server], []).
