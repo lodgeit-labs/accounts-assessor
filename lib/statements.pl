@@ -21,7 +21,7 @@
 	transaction_description/2,
 	transaction_account_id/2,
 	transaction_vector/2]).
-:- use_module(utils, [pretty_term_string/2, inner_xml/3, write_tag/2, fields/2, fields_nothrow/2, numeric_fields/2, throw_string/1]).
+:- use_module(utils, [pretty_term_string/2, inner_xml/3, write_tag/2, fields/2, fields_nothrow/2, numeric_fields/2, throw_string/1, value_multiply/3]).
 :- use_module(accounts, [account_parent_id/3]).
 :- use_module(days, [format_date/2, parse_date/2, gregorian_date/2]).
 :- use_module(library(record)).
@@ -174,7 +174,7 @@ preprocess_s_transaction(Static_Data, S_Transaction, [UnX_Transaction, X_Transac
 						Outstanding_In, Outstanding_Out
 					),
 					unrealized_gains_txs(Static_Data, Vector_Ours, Vector_Goods, Transaction_Day, Trading_Txs),
-					maplist(tx_to_transaction(Transaction_Day), Trading_Txs, Trading_Transactions),
+					maplist(tx_to_transaction(Transaction_Day), Trading_Txs, Trading_Transactions)
 				)
 			;
 				(
@@ -184,39 +184,21 @@ preprocess_s_transaction(Static_Data, S_Transaction, [UnX_Transaction, X_Transac
 							->
 						true
 							;
-						throw_string(['not enough shares to sell'])
+						throw_string(['not enough goods to sell'])
 					),
-					maplist(reduce_unrealized_gains(Static_Data, Transaction_Day), Goods_Cost_Values, Txs1), 
-					Sale_Unit_Price is Our_Debit / Goods_Positive,
-					maplist(realized_gains_transactions(Static_Data, Transaction_Day, Sale_Unit_Price, Currency),
-					Goods_Cost_Values, Txs2),
 					
-					/* 
-					Unrealized gains:
-					Account              DR                            CR
-					Forex                Report_Currency_Expense       Sale_Currency_Expense
-					Excluding_Forex      Sale_Currency_Expense         Goods
-					*/
+					maplist(unrealized_gains_reduction_txs(Static_Data), Goods_Cost_Values, Txs1),
+					maplist(tx_to_transaction(Transaction_Day), Txs1, Trading_Transactions),
 					
-					
-					/*
-					without forex:
-					Realized_Gains = [
-					% Account              DR                            CR
-					''                           Goods                      Revenue
-					]
-					*/
-					Realized_Gains_With_Forex = [
-					% Account                                      DR                                               CR
-					('Forex',                    Sale_Currency_Purchase_Date_Revenue,       Sale_Currency_Sale_Date_Revenue),
-					('Excluding_Forex',     Sale_Currency_Purchase_Date_Expense,        Sale_Currency_Purchase_Date_Revenue)
-					]
-			
-					
-					
-					
-					
-					
+					Sale_Unit_Price_Amount is Our_Debit / Goods_Positive,
+					maplist(
+						realized_gains_txs(
+							Static_Data, value(
+								Currency, Sale_Unit_Price_Amount
+							)
+						), 
+						Goods_Cost_Values, Txs2
+					),
 					Trading_Transactions = [Txs1, Txs2]
 				)
 		)
@@ -234,8 +216,8 @@ dr_cr_table_line_to_tx(Line, Tx) :-
 	make_debit(Dr, Dr2),
 	make_credit(Cr, Cr2),
 	Tx = tx{
-		comment: _',
-		comment2: _',
+		comment: _,
+		comment2: _,
 		account: Account,
 		vector: [Dr2, Cr2]
 	}.
@@ -245,7 +227,7 @@ make_credit(value(Unit, Amount), coord(Unit, 0, Amount)).
 make_debit(coord(Unit, Dr, 0), coord(Unit, Dr, 0)).
 make_credit(coord(Unit, 0, Cr), coord(Unit, 0, Cr)).
 
-unrealized_gains_txs(Static_Data, Cost, Goods, Transaction_Day, Txs) :-
+unrealized_gains_txs(_, Cost, Goods, Transaction_Day, Txs) :-
 	/*	without forex:
 	Unrealized_Gains = [
 	% Account            DR                                               CR
@@ -266,11 +248,11 @@ unrealized_gains_txs(Static_Data, Cost, Goods, Transaction_Day, Txs) :-
 	Purchase_Date = Transaction_Day.
 	
 
-unrealized_gains_reduction_txs(Static_Data, Purchase_Info, Transactions_Out) :-
+unrealized_gains_reduction_txs(_, Purchase_Info, Transactions_Out) :-
 	dr_cr_table_to_txs([
 	% Account                                                                 DR                                                               CR
-	('Unrealized_Gains_Currency_Movement',					Goods_Without_Currency_Movement),           Cost,
-	('Unrealized_Gains_Excluding_Forex',        Goods                                                              Goods_Without_Currency_Movement)
+	('Unrealized_Gains_Currency_Movement',					Goods_Without_Currency_Movement,           Cost),
+	('Unrealized_Gains_Excluding_Forex',        Goods,                                                              Goods_Without_Currency_Movement)
 	],
 	Transactions_Out),
 	Goods_Without_Currency_Movement = [coord(
@@ -279,10 +261,11 @@ unrealized_gains_reduction_txs(Static_Data, Purchase_Info, Transactions_Out) :-
 	],
 	(Goods_Unit, Goods_Count, Cost, Purchase_Date) = Purchase_Info,
 	Goods = value(Goods_Unit, Goods_Count),
-	value(Purchase_Currency, Cost_Amount) = Cost.
-	
+	value(Purchase_Currency, _) = Cost.
 
-realized_gains_txs(Static_Data, Purchase_Info, Sale_Unit_Price, Txs) :-
+
+
+realized_gains_txs(_, Sale_Unit_Price, Purchase_Info, Txs) :-
 	dr_cr_table_to_txs([
 	% Account                                                                 DR                                                               CR
 	('Realized_Gains_Currency_Movement',	                Sale_Without_Currency_Movement,           Sale),
@@ -291,17 +274,42 @@ realized_gains_txs(Static_Data, Purchase_Info, Sale_Unit_Price, Txs) :-
 	Txs),
 	Sale_Without_Currency_Movement = [coord(
 		without_currency_movement_since(Goods_Unit, Purchase_Currency, Purchase_Date), 
-		Goods_Debit, Goods_Credit)
+		0, Goods_Count)
 	],
-	value_multiply(Sale_Unit_Price, Goods_Count, Revenue_Amount),
-	
 	(Goods_Unit, Goods_Count, Cost, Purchase_Date) = Purchase_Info,
-	Goods = value(Goods_Unit, Goods_Count),
-	value(Purchase_Currency, Cost_Amount) = Cost.
-	Cost = [coord(Purchase_Currency, _, _)],
-	Purchase_Date = Transaction_Day.
+	value_multiply(Sale_Unit_Price, Goods_Count, Sale),
+	value(Purchase_Currency, _) = Cost.
 
 	
+/*
+					
+					Unrealized gains:
+					Account              DR                            CR
+					Forex                Report_Currency_Expense       Sale_Currency_Expense
+					Excluding_Forex      Sale_Currency_Expense         Goods
+					
+					
+					
+					
+					without forex:
+					Realized_Gains = [
+					% Account              DR                            CR
+					''                           Goods                      Revenue
+					]
+					
+					Realized_Gains_With_Forex = [
+					% Account                                      DR                                               CR
+					('Forex',                    Sale_Currency_Purchase_Date_Revenue,       Sale_Currency_Sale_Date_Revenue),
+					('Excluding_Forex',     Sale_Currency_Purchase_Date_Expense,        Sale_Currency_Purchase_Date_Revenue)
+					]
+			
+		
+					
+					
+					
+*/
+	
+/*	
 realized_gains_transactions(Static_Data, Transaction_Day, Sale_Unit_Price, Sale_Currency, Purchase_Info, Transactions_Out):-
 	Static_Data = (_, Report_Currency, _, _, Exchange_Rates),
 	(_, Goods_Count, value(Purchase_Currency, Purchase_Cost), Purchase_Day) = Purchase_Info,
@@ -331,13 +339,14 @@ realized_gains_transactions(Static_Data, Transaction_Day, Sale_Unit_Price, Sale_
 	
 	maplist(tx_to_transaction(Transaction_Day), Txs, Transactions_Out),
 	gains_account_has_forex_accounts('Realized_Gains', Gains_Excluding_Forex, Gains_Currency_Movement).
-	
+*/
 					
 /*
 we bought the shares with some currency. we can think of gains as having two parts:
 	share value against that currency.
 	that currency value against report currency.
 */
+/*
 gains_txs(Static_Data, Cost_In_Purchase_Currency, Goods_Vector, Transaction_Day, Exchange_Day, Gains_Account, Transactions_Out) :-
 	Static_Data = (_Accounts, Report_Currency, _Transaction_Types, _Report_End_Day, Exchange_Rates),
 	vec_change_bases(Exchange_Rates, Exchange_Day, Report_Currency, Cost_In_Purchase_Currency, Cost_In_Report_Currency),
@@ -365,12 +374,15 @@ gains_txs(Static_Data, Cost_In_Purchase_Currency, Goods_Vector, Transaction_Day,
 	pretty_term_string(	Cost_In_Purchase_Currency, Cost_Vector_Str),
 	atomic_list_concat(['cost:', Cost_Vector_Str, ' exchanged to ', Report_Currency_Str, ' on ', Exchange_Day_Str], Tx2_Comment2),
 
-	
 	maplist(tx_to_transaction(Transaction_Day), Txs0, Transactions_Out),
 	gains_account_has_forex_accounts(Gains_Account, Gains_Excluding_Forex, Gains_Currency_Movement).
+*/
+
 
 tx_to_transaction(Day, Tx, Transaction) :-
 	Tx = tx{comment: Comment, comment2: Comment2, account: Account, vector: Vector},
+	nonvar(Account),
+	ground(Vector),
 	atomic_list_concat(['comment:', Comment, ', comment2:', Comment2], Description),
 	transaction_day(Transaction, Day),
 	transaction_description(Transaction, Description),
@@ -382,7 +394,6 @@ gains_account_has_forex_accounts(Gains_Account, Gains_Excluding_Forex, Gains_Cur
 	atom_concat(Gains_Account, '_Excluding_Forex', Gains_Excluding_Forex),
 	atom_concat(Gains_Account, '_Currency_Movement', Gains_Currency_Movement).
 	
-
 make_unexchanged_transaction(S_Transaction, Description, UnX_Transaction) :-
 	% Make an unexchanged transaction to the unexchanged (bank) account
 	% the bank account is debited/credited in the currency of the bank account, exchange will happen for report end day
@@ -412,12 +423,6 @@ check_trial_balance(Transactions) :-
 			throw(Err_Str)
 		)
 	).
-
-:- maplist(transaction_vector, Transactions, [[coord(aAAA, 5, 1), coord(aBBB, 0, 0.0)], [], [coord(aBBB, 7, 7)], [coord(aAAA, 0.0, 4)]]), check_trial_balance(Transactions).
-:- maplist(transaction_vector, Transactions, [[coord(aAAA, 5, 1)], [coord(aAAA, 0.0, 4)]]), check_trial_balance(Transactions).
-:- maplist(transaction_vector, Transactions, [[coord(AAA, 5, 1), coord(BBB, 0, 0.0)], [], [coord(BBB, 7, 7)], [coord(AAA, 0.0, 4)]]), check_trial_balance(Transactions).
-:- maplist(transaction_vector, Transactions, [[coord(AAA, 45, 49), coord(BBB, 0, 0.0)], [], [coord(BBB, -7, -7)], [coord(AAA, 0.0, -4)]]), check_trial_balance(Transactions).
-
 
 	
 % Gets the transaction_type term associated with the given transaction
@@ -591,4 +596,14 @@ invert_s_transaction_vector(T0, T1) :-
 	T1 = s_transaction(Day, Type_id, Vector_Inverted, Account_id, Exchanged),
 	vec_inverse(Vector, Vector_Inverted).
 	
+
+
+	
+	
+% tests	
+
+:- maplist(transaction_vector, Transactions, [[coord(aAAA, 5, 1), coord(aBBB, 0, 0.0)], [], [coord(aBBB, 7, 7)], [coord(aAAA, 0.0, 4)]]), check_trial_balance(Transactions).
+:- maplist(transaction_vector, Transactions, [[coord(aAAA, 5, 1)], [coord(aAAA, 0.0, 4)]]), check_trial_balance(Transactions).
+:- maplist(transaction_vector, Transactions, [[coord(AAA, 5, 1), coord(BBB, 0, 0.0)], [], [coord(BBB, 7, 7)], [coord(AAA, 0.0, 4)]]), check_trial_balance(Transactions).
+:- maplist(transaction_vector, Transactions, [[coord(AAA, 45, 49), coord(BBB, 0, 0.0)], [], [coord(BBB, -7, -7)], [coord(AAA, 0.0, -4)]]), check_trial_balance(Transactions).
 

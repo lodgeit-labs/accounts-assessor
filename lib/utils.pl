@@ -1,6 +1,7 @@
 :- module(utils, [
 	user:goal_expansion/2, inner_xml/3, write_tag/2, fields/2, fields_nothrow/2, numeric_fields/2, 
-	pretty_term_string/2, pretty_term_string/2, with_info_value_and_info/3, trim_atom/2, maplist6/6, throw_string/1, semigroup_foldl/3]).
+	pretty_term_string/2, pretty_term_string/2, with_info_value_and_info/3, trim_atom/2, maplist6/6, throw_string/1, semigroup_foldl/3,
+	value_multiply/3]).
 :- use_module(library(xpath)).
 
 	
@@ -194,3 +195,8 @@ x([S2,' ', S3,' ', S4]) :-
 throw_string(List) :-
 	atomic_list_concat(List, String),
 	throw(string(String)).
+
+
+value_multiply(value(Unit, Amount1), Multiplier, value(Unit, Amount2)) :-
+	Amount2 is Amount1 * Multiplier.
+	
