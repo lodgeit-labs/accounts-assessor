@@ -11,28 +11,35 @@
 :- use_module(library(debug), [assertion/1]).
 :- use_module(library(http/http_client)).
 :- use_module(library(xpath)).
+:- use_module('../../lib/files').
 
 
 % -------------------------------------------------------------------
 % Test Codes
 % Please read "README.txt" file in the current directory to 
 % understand the file operations.
-%
-% We have to update the schema and request/response files in
-% the 'taxonomy' and 'tmp' folder in the current directory 
-% if there is any modification.
-% -------------------------------------------------------------------
-
 
 :- begin_tests(process_xml_loan_request, [setup(consult('../../prolog_server/run_simple_server.pl'))]).
 
 test(loan_request) :-
-	LoanRequestFile = 'loan/loan-request1.xml',
-	LoanResponseFile = 'loan/loan-response1.xml',
-	TempLoanResponseFile = './tmp/actual-loan-response.xml',
+	
+	absolute_file_name(my_tests(
+		'endpoint_tests/loan/loan-request1.xml'),
+		LoanRequestFile,
+		[ access(read) ]
+	),
+	absolute_file_name(my_tests(
+		'endpoint_tests/loan/loan-response1.xml'),
+		LoanResponseFile,
+		[ access(read) ]
+	),
+	absolute_file_name(my_tmp(
+		'actual-loan-response.xml'),
+		TempLoanResponseFile,
+		[]
+	),
 	
 	http_post('http://localhost:8080/upload', form_data([file=file(LoanRequestFile)]), ReplyXML, [content_type('multipart/form-data')]),
-	
 	
 	open(TempLoanResponseFile, write, Stream),
 	write(Stream, ReplyXML),
@@ -68,8 +75,6 @@ test(loan_request) :-
 	xpath(ExpectedReplyDOM, //LoanSummaryNode/TotalInterestNode, element(_, _, [ExpectedTotalInterest])),
 	xpath(ExpectedReplyDOM, //LoanSummaryNode/TotalPrincipalNode, element(_, _, [ExpectedTotalPrincipal])),
 	xpath(ExpectedReplyDOM, //LoanSummaryNode/ClosingBalanceNode, element(_, _, [ExpectedClosingBalance])),
-			
-	delete_file(TempLoanResponseFile),
 	
 	assertion(ActualOpeningBalance == ExpectedOpeningBalance),
 	assertion(ActualInterestRate == ExpectedInterestRate),

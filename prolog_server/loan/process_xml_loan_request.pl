@@ -79,30 +79,22 @@ display_xml_loan_response(FileNameOut, IncomeYear,
 
    % generating temporary file name for loan response xml
    get_time(CurrentTime),
-   number_string(CurrentTime, CurrentTimeString),   
-   atomic_list_concat(['./tmp/', CurrentTimeString, '_tmp_loan_response.xml'], TempFileLoanResponseXML),
-
+   number_string(CurrentTime, CurrentTimeString),
+   atomic_list_concat([CurrentTimeString, '_tmp_loan_response.xml'], TempFileLoanResponseXML0),
+   absolute_file_name(my_tmp(TempFileLoanResponseXML0), TempFileLoanResponseXML, []),
    % create a temporary loan xml file to validate the response against the schema
    open(TempFileLoanResponseXML, write, XMLStream),
    write(XMLStream, LoanResponseXML),
    close(XMLStream),
 
-
-   % generating temporary file name for loan response xsd
-   atomic_list_concat(['./tmp/', CurrentTimeString, '_tmp_loan_response.xsd'], TempFileLoanResponseXSD),   
-
-   % create a temporary loan xsd file to validate the response against the schema
-   read_file_to_string('./taxonomy/loan_response.xsd', LoanResponseXSD, []),
-   open(TempFileLoanResponseXSD, write, XSDStream),
-   write(XSDStream, LoanResponseXSD),
-   close(XSDStream),
-
+   absolute_file_name(my_taxonomy('loan-response.xsd'), LoanResponseXSD, []),
+   
    format('Content-type: text/xml~n~n'),
    % gtrace,
    % if the xml response is valid then reply the response, otherwise reply an error message
    (
      % xml_flatten(TempFileLoanResponseXML, FileIdentifier),     
-     xsd_validate(TempFileLoanResponseXSD, TempFileLoanResponseXML)
+     xsd_validate(LoanResponseXSD, TempFileLoanResponseXML)
      % remove_file(TempFileLoanResponseXML)
      ->
      writeln(LoanResponseXML)     
@@ -115,11 +107,7 @@ display_xml_loan_response(FileNameOut, IncomeYear,
      ErrorMessage
      ),
      writeln(ErrorMessage)
-   ),
-
-   % remove temporary files created for xml validation
-   delete_file(TempFileLoanResponseXML),
-   delete_file(TempFileLoanResponseXSD).
+   ).
    
 
 % ===================================================================
