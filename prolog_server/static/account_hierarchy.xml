@@ -9,6 +9,7 @@
           <AssetsLivestockAtCost/>
           <AssetsLivestockAtAverageCost/>
           <ClearingAccount/>
+          <Clearing_Account/>
 		</CurrentAssets>
 		<NoncurrentAssets>
 			<FinancialInvestments/>
@@ -36,21 +37,26 @@
 			<Income/>
 			<InvestmentIncome/>
 			<InterestIncome/>
+			<Interest_Earned/>
 			<SalesOfLivestock/>
 			<RationsRevenue/>
 			<OtherGain/>
-			<RealizedGain>
-				<Realized_Gains_Excluding_Forex/>
-				<Realized_Gains_Currency_Movement/>
-			</RealizedGain>
-			<UnrealizedGain>
-				<Unrealized_Gains_Excluding_Forex/>
-				<Unrealized_Gains_Currency_Movement/>
-			</UnrealizedGain>
+			<Financial_Investments>
+				<RealizedGain>
+					<Realized_Gains_Excluding_Forex/>
+					<Realized_Gains_Currency_Movement/>
+				</RealizedGain>
+				<UnrealizedGain>
+					<Unrealized_Gains_Excluding_Forex/>
+					<Unrealized_Gains_Currency_Movement/>
+				</UnrealizedGain>
+			</Financial_Investments>	
 		</Revenue>
 		<Expenses>
 			<BankCharges/>
+			<Bank_Charges/>
 			<AccountancyFees/>
+			<Accounting_Fees/>
 			<ForexLoss/>
 			<InterestExpenses/>
 			<LivestockAdjustment/>
