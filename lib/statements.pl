@@ -186,6 +186,7 @@ preprocess_s_transaction(Static_Data, S_Transaction, [UnX_Transaction, X_Transac
 						outstanding(Goods_Unit, Goods_Integer, value(Currency, Unit_Cost), Transaction_Day), 
 						Outstanding_In, Outstanding_Out
 					),
+					
 					unrealized_gains_txs(Static_Data, Vector_Ours, Vector_Goods, Transaction_Day, Trading_Txs),
 					maplist(tx_to_transaction(Transaction_Day), Trading_Txs, Trading_Transactions)
 				)
@@ -244,7 +245,7 @@ dr_cr_table_line_to_tx(Line, Tx) :-
 		vector: Vector
 	}.
 	
-unrealized_gains_txs(_, Cost, Goods, Transaction_Day, Txs) :-
+unrealized_gains_txs((_, Report_Currency, _, _, _), Cost, Goods, Transaction_Day, Txs) :-
 	/*	without forex:
 	Unrealized_Gains = [
 	% Account            DR                                               CR
@@ -252,7 +253,7 @@ unrealized_gains_txs(_, Cost, Goods, Transaction_Day, Txs) :-
 	]*/
 	
 	Goods_Without_Currency_Movement = [coord(
-		without_currency_movement_since(Goods_Unit, Purchase_Currency, Purchase_Date), 
+		without_currency_movement_against_since(Goods_Unit, Purchase_Currency, Report_Currency, Purchase_Date), 
 		Goods_Debit, Goods_Credit)
 	],
 	Goods = [coord(Goods_Unit, Goods_Debit, Goods_Credit)],
@@ -267,9 +268,9 @@ unrealized_gains_txs(_, Cost, Goods, Transaction_Day, Txs) :-
 	Txs).
 	
 
-unrealized_gains_reduction_txs(_, Purchase_Info, Transactions_Out) :-
+unrealized_gains_reduction_txs((_, Report_Currency, _, _, _), Purchase_Info, Transactions_Out) :-
 	Goods_Without_Currency_Movement = [coord(
-		without_currency_movement_since(Goods_Unit, Purchase_Currency, Purchase_Date), 
+		without_currency_movement_against_since(Goods_Unit, Purchase_Currency, Report_Currency, Purchase_Date), 
 		Goods_Count, 0)
 	],
 	outstanding(Goods_Unit, Goods_Count, Cost, Purchase_Date) = Purchase_Info,
@@ -284,9 +285,9 @@ unrealized_gains_reduction_txs(_, Purchase_Info, Transactions_Out) :-
 	
 
 
-realized_gains_txs(_, Sale_Unit_Price, Purchase_Info, Txs) :-
+realized_gains_txs((_, Report_Currency, _, _, _), Sale_Unit_Price, Purchase_Info, Txs) :-
 	Sale_Without_Currency_Movement = [coord(
-		without_currency_movement_since(Goods_Unit, Purchase_Currency, Purchase_Date), 
+		without_currency_movement_against_since(Goods_Unit, Purchase_Currency, Report_Currency, Purchase_Date), 
 		0, Goods_Count)
 	],
 	outstanding(Goods_Unit, Goods_Count, Cost, Purchase_Date) = Purchase_Info,
