@@ -28,7 +28,8 @@
 % ------------------------------------------------------------------
 
 process_xml_ledger_request(_, Dom) :-
-	% this serves as an indicator of the desired report currency
+	format('Content-type: text/xml~n~n'), 
+
 	extract_default_currency(Dom, Default_Currency),
 	extract_report_currency(Dom, Report_Currency),
 	extract_action_taxonomy(Dom, Action_Taxonomy),
@@ -40,6 +41,17 @@ process_xml_ledger_request(_, Dom) :-
 	parse_date(End_Date_Atom, End_Days),
 
 	extract_exchange_rates(Dom, End_Date_Atom, Default_Currency, Exchange_Rates),
+
+	pretty_term_string(Exchange_Rates, Message1b),
+	pretty_term_string(Action_Taxonomy, Message2),
+	pretty_term_string(Account_Hierarchy0, Message3),
+	atomic_list_concat([
+	'\n<!--',
+	'Exchange rates:\n', Message1b,'\n\n',
+	'Action_Taxonomy:\n',Message2,'\n\n',
+	'Account_Hierarchy0:\n',Message3,'\n\n',
+	'-->\n\n'], Debug_Message0),
+	writeln(Debug_Message0),
 	
 	findall(Livestock_Dom, xpath(Dom, //reports/balanceSheetRequest/livestockData, Livestock_Dom), Livestock_Doms),
 	get_livestock_types(Livestock_Doms, Livestock_Types),
@@ -81,10 +93,7 @@ process_xml_ledger_request(_, Dom) :-
 	pretty_term_string(S_Transactions, Message0),
 	pretty_term_string(Livestock_Events, Message0b),
 	pretty_term_string(Transactions2, Message1),
-	pretty_term_string(Exchange_Rates, Message1b),
 	pretty_term_string(Exchange_Rates2, Message1c),
-	pretty_term_string(Action_Taxonomy, Message2),
-	pretty_term_string(Account_Hierarchy, Message3),
 	pretty_term_string(Livestock_Counts, Message12),
 	pretty_term_string(Balance_Sheet, Message4),
 	pretty_term_string(Trial_Balance, Message4b),
@@ -96,8 +105,6 @@ process_xml_ledger_request(_, Dom) :-
 	%Debug_Message = '',!;
 	atomic_list_concat([
 	'\n<!--',
-	'Action_Taxonomy:\n',Message2,'\n\n',
-	'Account_Hierarchy:\n',Message3,'\n\n',
 	'S_Transactions:\n', Message0,'\n\n',
 	'Livestock Events:\n', Message0b,'\n\n',
 	'Livestock Counts:\n', Message12,'\n\n',
@@ -105,7 +112,6 @@ process_xml_ledger_request(_, Dom) :-
 	'Average_Costs_Explanations:\n', Message5b,'\n\n',
 	'Transactions:\n', Message1,'\n\n',
 	'Transaction_Transformation_Debug:\n', Message10,'\n\n',
-	'Exchange rates:\n', Message1b,'\n\n',
 	'Exchange rates2:\n', Message1c,'\n\n',
 	'BalanceSheet:\n', Message4,'\n\n',
 	'ProftAndLoss:\n', Message4c,'\n\n',
@@ -144,7 +150,7 @@ extract_action(In, transaction_type(Id, Exchange_Account, Trading_Account, Descr
 extract_exchange_rates(Dom, End_Date, Default_Currency, Exchange_Rates_Out) :-
    findall(Unit_Value_Dom, xpath(Dom, //reports/balanceSheetRequest/unitValues/unitValue, Unit_Value_Dom), Unit_Value_Doms),
    maplist(extract_exchange_rate(End_Date, Default_Currency), Unit_Value_Doms, Exchange_Rates),
-   exclude(ground, Exchange_Rates, Exchange_Rates_Out).
+   include(ground, Exchange_Rates, Exchange_Rates_Out).
    
    
 extract_exchange_rate(End_Date, Optional_Default_Currency, Unit_Value, Exchange_Rate) :-
@@ -157,7 +163,7 @@ extract_exchange_rate(End_Date, Optional_Default_Currency, Unit_Value, Exchange_
 	(
 		var(Rate_Atom)
 	->
-		 format(user_error, 'unitValue missing, ignoring')
+		 format(user_error, 'unitValue missing, ignoring\n', [])
 	;
 		atom_number(Rate_Atom, Rate)
 	),
@@ -181,7 +187,6 @@ extract_exchange_rate(End_Date, Optional_Default_Currency, Unit_Value, Exchange_
 % -----------------------------------------------------
 
 display_xbrl_ledger_response(Debug_Message, Start_Days, End_Days, Balance_Sheet_Entries, Trial_Balance, ProftAndLoss_Entries) :-
-   format('Content-type: text/xml~n~n'), 
    writeln('<?xml version="1.0"?>'),
    writeln('<xbrli:xbrl xmlns:xbrli="http://www.xbrl.org/2003/instance" xmlns:link="http://www.xbrl.org/2003/linkbase" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:iso4217="http://www.xbrl.org/2003/iso4217" xmlns:basic="http://www.xbrlsite.com/basic">'),
    writeln('  <link:schemaRef xlink:type="simple" xlink:href="basic.xsd" xlink:title="Taxonomy schema" />'),

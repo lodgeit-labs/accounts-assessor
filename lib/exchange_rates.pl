@@ -38,6 +38,7 @@ fetch_exchange_rates(Date, Exchange_Rates) :-
 	format_time(string(Date_Str), "%Y-%m-%d", Date),
 	string_concat("http://openexchangerates.org/api/historical/", Date_Str, Query_Url_A),
 	string_concat(Query_Url_A, ".json?app_id=677e4a964d1b44c99f2053e21307d31a", Query_Url),
+	format(user_error, '~w ...', [Query_Url]),
 	catch(
 		http_open(Query_Url, Stream, []),
 		% this will happen for dates in future or otherwise not found in their db
@@ -59,6 +60,7 @@ fetch_exchange_rates(Date, Exchange_Rates) :-
 		Exchange_Rates
 	),
 	close(Stream),
+	format(user_error, '..ok.\n', []),
 	assert_persistently_cached_exchange_rates(Day, Exchange_Rates).
 
 % % Predicates for asserting that the fields of given exchange rates have particular values

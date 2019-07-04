@@ -10,7 +10,9 @@
 		    vec_inverse/2,
 		    vec_reduce/2,
 		    vec_sub/3,
-		    integer_to_coord/3]).
+		    integer_to_coord/3,
+		    make_debit/2,
+		    make_credit/2]).
 
 :- use_module(utils, [semigroup_foldl/3]).
 
@@ -120,6 +122,14 @@ is_zero(coord(_, Zero1, Zero2)) :-
 is_zero(value(_, Zero)) :-
 	is_zero(coord(_, Zero, 0)).
 
+make_debit(value(Unit, Amount), coord(Unit, Amount, 0)).
+make_debit(coord(Unit, Dr, Zero), coord(Unit, Dr, 0)) :- Zero =:= 0.
+make_debit(coord(Unit, Zero, Cr), coord(Unit, Cr, 0)) :- Zero =:= 0.
+
+make_credit(value(Unit, Amount), coord(Unit, 0, Amount)).
+make_credit(coord(Unit, Dr, Zero), coord(Unit, 0, Dr)) :- Zero =:= 0.
+make_credit(coord(Unit, Zero, Cr), coord(Unit, 0, Cr)) :- Zero =:= 0.
+	
 integer_to_coord(Unit, Integer, coord(Unit, Debit, Credit)) :-
 	{Integer =:= Debit - Credit}.
 
