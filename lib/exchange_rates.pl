@@ -81,11 +81,20 @@ exchange_rate_rate(exchange_rate(_, _, _, Rate), Rate).
 
 symmetric_exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate) :-
 	Src_Currency = without_currency_movement_since(Goods_Unit, Purchase_Currency, Purchase_Date),
-
-	exchange_rate(Table, Day, Goods_Unit, Purchase_Currency, Current_Goods_Exchange_Rate_To_Purchase_Currency),
+	%(var(Dest_Currency) -> gtrace;true),
+	
 	exchange_rate(Table, Purchase_Date, 
 		Purchase_Currency, Dest_Currency, Old_Purchase_Currency_Exchange_Rate_To_Dest_Currency),
-	Exchange_Rate is Current_Goods_Exchange_Rate_To_Purchase_Currency * Old_Purchase_Currency_Exchange_Rate_To_Dest_Currency.
+	Dest_Currency \= Purchase_Currency,
+	gtrace,
+	exchange_rate(Table, Day, 
+		Purchase_Currency, Dest_Currency, New_Purchase_Currency_Exchange_Rate_To_Dest_Currency),
+		
+	Ratio is Old_Purchase_Currency_Exchange_Rate_To_Dest_Currency / New_Purchase_Currency_Exchange_Rate_To_Dest_Currency,
+
+	exchange_rate(Table, Day, Goods_Unit, Purchase_Currency, Current_Goods_Exchange_Rate_To_Purchase_Currency),
+	
+	Exchange_Rate is Current_Goods_Exchange_Rate_To_Purchase_Currency * Ratio.
 	
 symmetric_exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate) :-
   member(exchange_rate(Day, Src_Currency, Dest_Currency, Exchange_Rate), Table).
@@ -106,10 +115,17 @@ symmetric_exchange_rate(_, Day, Src_Currency, Dest_Currency, Exchange_Rate) :-
 	
 % Derive an exchange rate from the source to the destination currency by chaining together
 % =< Length exchange rates.
-equivalence_exchange_rate(_, _, Currency, Currency, 1, Length) :- Length >= 0, !.
+equivalence_exchange_rate(_, _, Currency, Currency, 1, Length) :- Length >= 0.
 
 equivalence_exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate, Length) :-
   Length > 0,
+	(
+		var(Dest_Currency)
+	->
+		true
+	;
+		Dest_Currency \= Src_Currency
+	),
   symmetric_exchange_rate(Table, Day, Src_Currency, Int_Currency, Head_Exchange_Rate),
   New_Length is Length - 1,
   equivalence_exchange_rate(Table, Day, Int_Currency, Dest_Currency, Tail_Exchange_Rate, New_Length),
@@ -129,17 +145,18 @@ exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate) :-
 	;
 		throw('sssss')
 	),*/
+	gtrace,
 	findall(
-		Exchange_Rate,
+		rate(Day, Src_Currency, Dest_Currency, Exchange_Rate),
 		(
 			equivalence_exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate_Raw, 2),
 			% force everything into float
 			Exchange_Rate is 0.0 + Exchange_Rate_Raw
 		),
-		Exchange_Rates
+		Exchange_Rates_Full
 	),
 	(
-		Exchange_Rates = []
+		Exchange_Rates_Full = []
 	->
 	(
 		format(user_error, 'no exchange rate found: Day:~w, Src_Currency:~w, Dest_Currency:~w\n', [Day, Src_Currency, Dest_Currency])
@@ -147,6 +164,18 @@ exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate) :-
 	)
 	;
 		true
+	),
+	findall(
+		params(Day, Src_Currency, Dest_Currency),
+		member(rate(Day, Src_Currency, Dest_Currency, Exchange_Rate), Exchange_Rates_Full),
+		Params_List_Unsorted
+	),
+	sort(Params_List_Unsorted, Params_List),
+	member(params(Day, Src_Currency, Dest_Currency), Params_List),
+	findall(
+		Exchange_Rate,
+		member(rate(Day, Src_Currency, Dest_Currency, Exchange_Rate), Exchange_Rates_Full),
+		Exchange_Rates
 	),
 	sort(Exchange_Rates, Exchange_Rates_Sorted),
 	(
@@ -170,7 +199,8 @@ exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate) :-
 			/*,throw('multiple equal exchange rates found')*/
 			,Exchange_Rates = [Exchange_Rate|_]
 		)
-	).	
+	)
+	.	
 
 is_exchangeable_into_request_bases(Table, Day, Src_Currency, Bases) :-
 	member(Dest_Currency, Bases),
