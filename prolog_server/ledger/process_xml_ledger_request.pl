@@ -17,7 +17,7 @@
 	inner_xml/3, write_tag/2, fields/2, fields_nothrow/2, numeric_fields/2, 
 	pretty_term_string/2, throw_string/1]).
 :- use_module('../../lib/ledger', [balance_sheet_at/8, trial_balance_between/8, profitandloss_between/8, balance_by_account/8]).
-:- use_module('../../lib/statements', [extract_transaction/3, preprocess_s_transactions/4, add_bank_accounts/3,  get_relevant_exchange_rates/5, invert_s_transaction_vector/2]).
+:- use_module('../../lib/statements', [extract_transaction/3, preprocess_s_transactions/4, add_bank_accounts/3,  get_relevant_exchange_rates/5, invert_s_transaction_vector/2, find_s_transactions_in_period/4]).
 :- use_module('../../lib/livestock', [get_livestock_types/2, process_livestock/14, make_livestock_accounts/2, livestock_counts/5, extract_livestock_opening_costs_and_counts/2]).
 :- use_module('../../lib/accounts', [extract_account_hierarchy/2]).
 :- use_module('../../lib/transactions', [check_transaction_account/2]).
@@ -119,7 +119,16 @@ process_xml_ledger_request(_, Dom) :-
 	'-->\n\n'], Debug_Message)
 	),
 
-	display_xbrl_ledger_response(Debug_Message, Start_Days, End_Days, Balance_Sheet, Trial_Balance, ProftAndLoss).
+	display_xbrl_ledger_response(Debug_Message, Start_Days, End_Days, Balance_Sheet, Trial_Balance, ProftAndLoss),
+	
+	(
+		find_s_transactions_in_period(S_Transactions, Start_Days, End_Days, [])
+	->
+		writeln('<!-- warning: no transactions within request period -->\n')
+	;
+		true
+	),
+	nl, nl.
 
 	
 extract_default_currency(Dom, Default_Currency) :-
@@ -216,8 +225,7 @@ display_xbrl_ledger_response(Debug_Message, Start_Days, End_Days, Balance_Sheet_
    atomic_list_concat(Lines, LinesString),
    writeln(LinesString),
    writeln('</xbrli:xbrl>'),
-   writeln(Debug_Message),
-   nl, nl.
+   writeln(Debug_Message).
 
 format_balance_sheet_entries(_, [], Used_Units, Used_Units, Lines, Lines).
 

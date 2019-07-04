@@ -10,7 +10,8 @@
 		 format_date/2,
 		 parse_date/2,
 		 gregorian_date/2,
-		 add_days/3]).
+		 add_days/3,
+		 date_between/3]).
 :- use_module(utils, [throw_string/1]).
 	
 % -------------------------------------------------------------------
@@ -145,6 +146,13 @@ gregorian_date(Abs_Day, date(Year, Month, Day)) :-
 day_between(Opening_Date, Closing_Date, Day) :-
 	absolute_day(Opening_Date, Opening_Day),
 	absolute_day(Closing_Date, Closing_Day),
+	absolute_day(Closing_Date, Closing_Day),
+	Opening_Day =< Day, Day < Closing_Day.
+
+date_between(Opening_Date, Closing_Date, Date) :-
+	absolute_day(Opening_Date, Opening_Day),
+	absolute_day(Closing_Date, Closing_Day),
+	absolute_day(Date, Day),
 	Opening_Day =< Day, Day < Closing_Day.
 
 

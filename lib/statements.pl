@@ -4,7 +4,7 @@
 % Date:      2019-06-02
 % ===================================================================
 
-:- module(statements, [extract_transaction/3, preprocess_s_transactions/4, add_bank_accounts/3, get_relevant_exchange_rates/5, invert_s_transaction_vector/2]).
+:- module(statements, [extract_transaction/3, preprocess_s_transactions/4, add_bank_accounts/3, get_relevant_exchange_rates/5, invert_s_transaction_vector/2, find_s_transactions_in_period/4]).
  
 :- use_module(pacioli,  [vec_inverse/2, vec_add/3, vec_sub/3, integer_to_coord/3,
 		    make_debit/2,
@@ -25,7 +25,7 @@
 	transaction_vector/2]).
 :- use_module(utils, [pretty_term_string/2, inner_xml/3, write_tag/2, fields/2, fields_nothrow/2, numeric_fields/2, throw_string/1, value_multiply/3]).
 :- use_module(accounts, [account_parent_id/3]).
-:- use_module(days, [format_date/2, parse_date/2, gregorian_date/2]).
+:- use_module(days, [format_date/2, parse_date/2, gregorian_date/2, date_between/3]).
 :- use_module(library(record)).
 :- use_module(library(xpath)).
 :- use_module(pricing, [
@@ -45,7 +45,16 @@
 % depending on whether the term is of the form bases(...) or vector(...).
 /*we may want to introduce st2 that will hold an inverted, that is, ours, vector, as opposed to a vector from the bank's perspective*/
 
-
+find_s_transactions_in_period(S_Transactions, Opening_Date, Closing_Date, Out) :-
+	findall(
+		S_Transaction,
+		(
+			member(S_Transaction, S_Transactions),
+			s_transaction_day(S_Transaction, Date),
+			date_between(Opening_Date, Closing_Date, Date)
+		),
+		Out
+	).
 /*
 
 s_transactions have to be sorted by date from oldest to newest 
