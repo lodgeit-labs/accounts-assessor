@@ -223,8 +223,8 @@ dr_cr_table_line_to_tx(Line, Tx) :-
 	}.
 	
 make_debit(value(Unit, Amount), coord(Unit, Amount, 0)).
-make_credit(value(Unit, Amount), coord(Unit, 0, Amount)).
 make_debit(coord(Unit, Dr, 0), coord(Unit, Dr, 0)).
+make_credit(value(Unit, Amount), coord(Unit, 0, Amount)).
 make_credit(coord(Unit, 0, Cr), coord(Unit, 0, Cr)).
 
 unrealized_gains_txs(_, Cost, Goods, Transaction_Day, Txs) :-

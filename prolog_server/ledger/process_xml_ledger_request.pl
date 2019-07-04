@@ -15,7 +15,7 @@
 :- use_module('../../lib/days', [format_date/2, parse_date/2, gregorian_date/2]).
 :- use_module('../../lib/utils', [
 	inner_xml/3, write_tag/2, fields/2, fields_nothrow/2, numeric_fields/2, 
-	pretty_term_string/2]).
+	pretty_term_string/2, throw_string/1]).
 :- use_module('../../lib/ledger', [balance_sheet_at/8, trial_balance_between/8, profitandloss_between/8, balance_by_account/8]).
 :- use_module('../../lib/statements', [extract_transaction/3, preprocess_s_transactions/4, add_bank_accounts/3,  get_relevant_exchange_rates/5, invert_s_transaction_vector/2]).
 :- use_module('../../lib/livestock', [get_livestock_types/2, process_livestock/14, make_livestock_accounts/2, livestock_counts/5, extract_livestock_opening_costs_and_counts/2]).
@@ -39,7 +39,7 @@ process_xml_ledger_request(_, Dom) :-
 	inner_xml(Dom, //reports/balanceSheetRequest/endDate, [End_Date_Atom]),
 	parse_date(End_Date_Atom, End_Days),
 
-	extract_exchange_rates(Dom, End_Date_Atom, Exchange_Rates, Default_Currency),
+	extract_exchange_rates(Dom, End_Date_Atom, Default_Currency, Exchange_Rates),
 	
 	findall(Livestock_Dom, xpath(Dom, //reports/balanceSheetRequest/livestockData, Livestock_Dom), Livestock_Doms),
 	get_livestock_types(Livestock_Doms, Livestock_Types),
@@ -117,10 +117,10 @@ process_xml_ledger_request(_, Dom) :-
 
 	
 extract_default_currency(Dom, Default_Currency) :-
-   inner_xml(Dom, //reports/balanceSheetRequest/defaultCurrency, Default_Currency).
+   inner_xml(Dom, //reports/balanceSheetRequest/defaultCurrency/unitType, Default_Currency).
 
 extract_report_currency(Dom, Report_Currency) :-
-   inner_xml(Dom, //reports/balanceSheetRequest/reportCurrency, Report_Currency).
+   inner_xml(Dom, //reports/balanceSheetRequest/reportCurrency/unitType, Report_Currency).
 
 extract_action_taxonomy(Dom, Action_Taxonomy) :-
 	(
@@ -141,31 +141,39 @@ extract_action(In, transaction_type(Id, Exchange_Account, Trading_Account, Descr
 		exchangeAccount, (Exchange_Account, _),
 		tradingAccount, (Trading_Account, _)]).
    
-extract_exchange_rates(Dom, End_Date, Exchange_Rates, Default_Currency) :-
+extract_exchange_rates(Dom, End_Date, Default_Currency, Exchange_Rates_Out) :-
    findall(Unit_Value_Dom, xpath(Dom, //reports/balanceSheetRequest/unitValues/unitValue, Unit_Value_Dom), Unit_Value_Doms),
-   maplist(extract_exchange_rate(End_Date, Default_Currency), Unit_Value_Doms, Exchange_Rates).
+   maplist(extract_exchange_rate(End_Date, Default_Currency), Unit_Value_Doms, Exchange_Rates),
+   exclude(ground, Exchange_Rates, Exchange_Rates_Out).
+   
    
 extract_exchange_rate(End_Date, Optional_Default_Currency, Unit_Value, Exchange_Rate) :-
 	Exchange_Rate = exchange_rate(Date, Src_Currency, Dest_Currency, Rate),
 	fields(Unit_Value, [
 		unitType, Src_Currency,
 		unitValueCurrency, (Dest_Currency, _),
-		unitValue, Rate_Atom,
+		unitValue, (Rate_Atom, _),
 		unitValueDate, (Date_Atom, End_Date)]),
+	(
+		var(Rate_Atom)
+	->
+		 format(user_error, 'unitValue missing, ignoring')
+	;
+		atom_number(Rate_Atom, Rate)
+	),
 	(
 		var(Dest_Currency)
 	->
 		(
 			Optional_Default_Currency = []
 		->
-			throw_string('unitValueCurrency missing and no defaultCurrency specified')
+			throw_string(['unitValueCurrency missing and no defaultCurrency specified'])
 		;
 			[Dest_Currency] = Optional_Default_Currency
 		)
 	;
 		true
 	),	
-	atom_number(Rate_Atom, Rate),
 	parse_date(Date_Atom, Date)	.
 
 % -----------------------------------------------------
