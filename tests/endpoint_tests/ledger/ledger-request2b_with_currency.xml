@@ -25,7 +25,7 @@
     <endDate>2018-06-30</endDate>
 
     <defaultCurrency>
-      <unitType>AUD</unitType>
+      <unitType></unitType>
     </defaultCurrency>
     <reportCurrency>
       <unitType>AUD</unitType>
@@ -50,9 +50,18 @@
 
       <unitValue>
         <unitType>SG_Issuer_SA</unitType>
+        <unitValue>10</unitValue>
+        <unitValueCurrency>USD</unitValueCurrency>
+        <unitValueDate>2017-07-01</unitValueDate>
+      </unitValue>
+
+      <unitValue>
+        <unitType>SG_Issuer_SA</unitType>
         <unitValue>40</unitValue>
         <unitValueCurrency>USD</unitValueCurrency>
+        <unitValueDate>2018-06-30</unitValueDate>
       </unitValue>
+
     </unitValues>    
 
     <bankStatement>
@@ -75,9 +84,9 @@
           <transaction>
             <transdesc>Invest_In</transdesc>
             <transdate>2017-07-01</transdate>
-            <debit>50</debit>
+            <debit>100</debit>
             <credit>0</credit>
-            <unit>5</unit>
+            <unit>10</unit>
             <unitType>SG_Issuer_SA</unitType>
           </transaction>
           <transaction>

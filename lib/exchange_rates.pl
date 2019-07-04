@@ -81,6 +81,7 @@ exchange_rate_rate(exchange_rate(_, _, _, Rate), Rate).
 
 symmetric_exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate) :-
 	Src_Currency = without_currency_movement_since(Goods_Unit, Purchase_Currency, Purchase_Date),
+
 	exchange_rate(Table, Day, Goods_Unit, Purchase_Currency, Current_Goods_Exchange_Rate_To_Purchase_Currency),
 	exchange_rate(Table, Purchase_Date, 
 		Purchase_Currency, Dest_Currency, Old_Purchase_Currency_Exchange_Rate_To_Dest_Currency),
@@ -119,6 +120,15 @@ equivalence_exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate
 % =< 2 exchange rates.
 
 exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate) :-
+/*
+	Dest_Currency can be var.
+	(
+		ground((Table, Day, Src_Currency, Dest_Currency))
+	->
+		true
+	;
+		throw('sssss')
+	),*/
 	findall(
 		Exchange_Rate,
 		(

@@ -584,10 +584,10 @@ get_relevant_exchange_rates([Report_Currency], Report_End_Day, Exchange_Rates, T
 			member(T, Transactions),
 			transaction_day(T, Day)
 		),
-		Days_Unsorted
+		Days_Unsorted0
 	),
-	sort(Days_Unsorted, Days_Sorted),
-	append(Days_Sorted, [Report_End_Day], Days),
+	append(Days_Unsorted0, [Report_End_Day], Days_Unsorted1),
+	sort(Days_Unsorted1, Days),
 	%find all currencies used
 	findall(
 		Currency,
