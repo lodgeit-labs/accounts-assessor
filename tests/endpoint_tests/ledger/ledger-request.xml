@@ -25,9 +25,12 @@
     <endDate>2018-06-30</endDate>
 
     <!-- If a unitType is not specified in a transaction below, then the first usable unitType from this list is taken. -->
-    <defaultUnitTypes>
+    <defaultCurrency>
       <unitType>AUD</unitType>
-    </defaultUnitTypes>
+    </defaultCurrency>
+    <reportCurrency>
+      <unitType>AUD</unitType>
+    </reportCurrency>
 
     <!-- Needed for the tracking of units in inventory. Also needed for correct computation of gains and losses. -->
     <unitValues>
