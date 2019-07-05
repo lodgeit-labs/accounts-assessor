@@ -1,0 +1,321 @@
+<?xml version="1.0"?>
+<reports xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xsi:schemaLocation="http://localhost:8080/taxonomy/basic.xsd">
+  <balanceSheetRequest>
+    <generator>
+      <date>2019-07-04T14:59:53.952296Z</date>
+      <source>LodgeiT Tool</source>
+      <author>
+        <firstname>waqas</firstname>
+        <lastname>awan</lastname>
+        <company>uhudsoft</company>
+      </author>
+    </generator>
+    <company>
+      <abn>12345678912</abn>
+      <tfn />
+      <clientcode />
+      <anzsic />
+      <notes />
+      <directors />
+    </company>
+    <startDate>2016-07-01</startDate>
+    <endDate>2019-06-30</endDate>
+    <defaultCurrency>
+      <unitType>AUD</unitType>
+    </defaultCurrency>
+    <reportCurrency>
+      <unitType>AUD</unitType>
+    </reportCurrency>
+    <unitValues>
+      <unitValue>
+        <unitType>SG_Issuer_SA</unitType>
+        <unitValue>0</unitValue>
+        <unitValueCurrency />
+      </unitValue>
+      <unitValue>
+        <unitType>6.3%EFG_International_Finance(Guernsey_Limited)</unitType>
+        <unitValue>0</unitValue>
+        <unitValueCurrency />
+      </unitValue>
+      <unitValue>
+        <unitType>Leonteq_N</unitType>
+        <unitValue>0</unitValue>
+        <unitValueCurrency>NOK</unitValueCurrency>
+      </unitValue>
+      <unitValue>
+        <unitType>8.04%_Commerzbank_AG</unitType>
+        <unitValue>0</unitValue>
+        <unitValueCurrency />
+      </unitValue>
+      <unitValue>
+        <unitType>15.84%_Commerzbank_AG</unitType>
+        <unitValue>0</unitValue>
+        <unitValueCurrency />
+      </unitValue>
+      <unitValue>
+        <unitType>EFG_International_Finance_(guernsey)_Limited</unitType>
+        <unitValue>0</unitValue>
+        <unitValueCurrency />
+      </unitValue>
+      <unitValue>
+        <unitType>16.85%_Commerzbank_AG</unitType>
+        <unitValue>0</unitValue>
+        <unitValueCurrency />
+      </unitValue>
+      <unitValue>
+        <unitType>Raiffeisen Switzerland_B.V.</unitType>
+        <unitValue>7.05</unitValue>
+        <unitValueCurrency />
+      </unitValue>
+      <unitValue>
+        <unitType>SG Issuer_SA_USD_1</unitType>
+        <unitValue>40</unitValue>
+        <unitValueCurrency />
+      </unitValue>
+      <unitValue>
+        <unitType>Leonteq Securities AG USD</unitType>
+        <unitValue>0</unitValue>
+        <unitValueCurrency />
+      </unitValue>
+      <unitValue>
+        <unitType>Leonteq Securities AG, Guernsey Branch</unitType>
+        <unitValue>0</unitValue>
+        <unitValueCurrency />
+      </unitValue>
+      <unitValue>
+        <unitType>Leonteq Securities AG, Zurich</unitType>
+        <unitValue>0</unitValue>
+        <unitValueCurrency />
+      </unitValue>
+      <unitValue>
+        <unitType>Natixis Structured Issuance SA</unitType>
+        <unitValue>0</unitValue>
+        <unitValueCurrency />
+      </unitValue>
+      <unitValue>
+        <unitType>Neue Helvestische Bank AG 3</unitType>
+        <unitValue>0</unitValue>
+        <unitValueCurrency />
+      </unitValue>
+      <unitValue>
+        <unitType>SG Issuer SA USD</unitType>
+        <unitValue>0</unitValue>
+        <unitValueCurrency />
+      </unitValue>
+      <unitValue>
+        <unitType>Neue Helvestische Bank AG 2</unitType>
+        <unitValue>0</unitValue>
+        <unitValueCurrency />
+      </unitValue>
+      <unitValue>
+        <unitType>SG Issuer SA Euro</unitType>
+        <unitValue>0</unitValue>
+        <unitValueCurrency />
+      </unitValue>
+      <unitValue>
+        <unitType>5.1% EFG International Finance (Guernsey)Limited</unitType>
+        <unitValue>0</unitValue>
+        <unitValueCurrency />
+      </unitValue>
+      <unitValue>
+        <unitType>Bodmer Cpaital Group AG</unitType>
+        <unitValue>0</unitValue>
+        <unitValueCurrency />
+      </unitValue>
+      <unitValue>
+        <unitType>Leonteq securities ,AG</unitType>
+        <unitValue>0</unitValue>
+        <unitValueCurrency />
+      </unitValue>
+      <unitValue>
+        <unitType>Neue Helvetische Bank AG</unitType>
+        <unitValue>0</unitValue>
+        <unitValueCurrency />
+      </unitValue>
+      <unitValue>
+        <unitType>4% Schweizer Kredit AG</unitType>
+        <unitValue>0</unitValue>
+        <unitValueCurrency />
+      </unitValue>
+      <unitValue>
+        <unitType>14% GPG Holding AG</unitType>
+        <unitValue>0</unitValue>
+        <unitValueCurrency />
+      </unitValue>
+      <unitValue>
+        <unitType>CT1 Issuer Limited</unitType>
+        <unitValue>0</unitValue>
+        <unitValueCurrency />
+      </unitValue>
+      <unitValue>
+        <unitType>3% CT1 Issuer Limited </unitType>
+        <unitValue>0</unitValue>
+        <unitValueCurrency />
+      </unitValue>
+    </unitValues>
+    <actionTaxonomy>
+      <action>
+        <id>Invest_In</id>
+        <exchangeAccount>Financial_Investments</exchangeAccount>
+        <tradingAccount>Investment_Income</tradingAccount>
+        <description>Shares</description>
+      </action>
+      <action>
+        <id>Dispose_Off</id>
+        <exchangeAccount>Financial_Investments</exchangeAccount>
+        <tradingAccount>Investment_Income</tradingAccount>
+        <description>Shares</description>
+      </action>
+      <action>
+        <id>Borrow</id>
+        <exchangeAccount>Non_Current_Loans</exchangeAccount>
+        <tradingAccount />
+        <description>Shares</description>
+      </action>
+      <action>
+        <id>Introduce_Capital</id>
+        <exchangeAccount>Share_Capital</exchangeAccount>
+        <tradingAccount />
+        <description />
+      </action>
+      <action>
+        <id>Transfers</id>
+        <exchangeAccount>Clearing_Account</exchangeAccount>
+        <tradingAccount />
+        <description />
+      </action>
+      <action>
+        <id>Bank_Charges</id>
+        <exchangeAccount>Bank_Charges</exchangeAccount>
+        <tradingAccount />
+        <description />
+      </action>
+      <action>
+        <id>Interest_Expenses </id>
+        <exchangeAccount>Interest_Expenses</exchangeAccount>
+        <tradingAccount />
+        <description />
+      </action>
+      <action>
+        <id>Accountancy_Fees</id>
+        <exchangeAccount>Accounting_Fees</exchangeAccount>
+        <tradingAccount />
+        <description />
+      </action>
+      <action>
+        <id>Interest_Income</id>
+        <exchangeAccount>Interest_Earned</exchangeAccount>
+        <tradingAccount />
+        <description />
+      </action>
+    </actionTaxonomy>
+    <bankStatement>
+      <title>Bank Statement</title>
+      <period>2018-07-02 - 2018-12-30</period>
+      <accountDetails>
+        <accountNo />
+        <accountName>USD_Bank </accountName>
+        <bankID />
+        <currency>USD</currency>
+        <transactions>
+          <transaction>
+            <transdesc>Invest_In</transdesc>
+            <transdate>2018-07-02</transdate>
+            <debit>41602.84</debit>
+            <credit>0</credit>
+            <unit>2085</unit>
+            <unitType>Raiffeisen Switzerland_B.V.</unitType>
+          </transaction>
+          <transaction>
+            <transdesc>Dispose_Off</transdesc>
+            <transdate>2018-07-12</transdate>
+            <debit>0</debit>
+            <credit>91120</credit>
+            <unit>2085</unit>
+            <unitType>Raiffeisen Switzerland_B.V.</unitType>
+          </transaction>
+          <transaction>
+            <transdesc>Bank_Charges</transdesc>
+            <transdate>2018-08-13</transdate>
+            <debit>20</debit>
+            <credit>0</credit>
+            <unit>0</unit>
+            <unitType />
+          </transaction>
+          <transaction>
+            <transdesc>Interest_Income</transdesc>
+            <transdate>2018-09-01</transdate>
+            <debit>0</debit>
+            <credit>30</credit>
+            <unit>0</unit>
+            <unitType />
+          </transaction>
+          <transaction>
+            <transdesc>Transfers</transdesc>
+            <transdate>2018-10-15</transdate>
+            <debit>90000</debit>
+            <credit>0</credit>
+            <unit>0</unit>
+            <unitType />
+          </transaction>
+        </transactions>
+      </accountDetails>
+      <accountDetails>
+        <accountNo />
+        <accountName>CHF_Bank </accountName>
+        <bankID />
+        <currency>CHF</currency>
+        <transactions>
+          <transaction>
+            <transdesc>Accountancy_Fees</transdesc>
+            <transdate>2018-07-10</transdate>
+            <debit>1000</debit>
+            <credit>0</credit>
+            <unit>0</unit>
+            <unitType />
+          </transaction>
+          <transaction>
+            <transdesc>Bank_Charges</transdesc>
+            <transdate>2018-08-16</transdate>
+            <debit>1573.85</debit>
+            <credit>0</credit>
+            <unit>0</unit>
+            <unitType />
+          </transaction>
+          <transaction>
+            <transdesc>Invest_In</transdesc>
+            <transdate>2018-10-01</transdate>
+            <debit>80876.1</debit>
+            <credit>0</credit>
+            <unit>30000</unit>
+            <unitType>Leonteq_N</unitType>
+          </transaction>
+          <transaction>
+            <transdesc>Transfers</transdesc>
+            <transdate>2018-10-15</transdate>
+            <debit>0</debit>
+            <credit>105000</credit>
+            <unit>0</unit>
+            <unitType />
+          </transaction>
+          <transaction>
+            <transdesc>Interest_Income</transdesc>
+            <transdate>2018-12-30</transdate>
+            <debit>0</debit>
+            <credit>1155</credit>
+            <unit>0</unit>
+            <unitType />
+          </transaction>
+          <transaction>
+            <transdesc>Dispose_Off</transdesc>
+            <transdate>2018-12-30</transdate>
+            <debit>0</debit>
+            <credit>220000</credit>
+            <unit>30000</unit>
+            <unitType>Leonteq_N</unitType>
+          </transaction>
+        </transactions>
+      </accountDetails>
+    </bankStatement>
+  </balanceSheetRequest>
+</reports>
