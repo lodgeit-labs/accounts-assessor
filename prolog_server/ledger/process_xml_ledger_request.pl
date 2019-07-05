@@ -29,7 +29,7 @@
 process_xml_ledger_request(_, Dom) :-
 	format('Content-type: text/xml~n~n'), 
 	writeln('<?xml version="1.0"?>'),
-   
+
 	extract_default_currency(Dom, Default_Currency),
 	extract_report_currency(Dom, Report_Currency),
 	extract_action_taxonomy(Dom, Action_Taxonomy),
@@ -214,7 +214,7 @@ display_xbrl_ledger_response(Account_Hierarchy, Report_Currency, Debug_Message, 
    format( '      <endDate>~w</endDate>\n', End_Date_String),
    writeln('    </period>'),
    writeln('  </context>'),
-   gtrace,
+   
    format_balance_sheet_entries(Account_Hierarchy, 0, Report_Currency, End_Year, Balance_Sheet_Entries, [], Used_Units, [], Lines3),
    format_balance_sheet_entries(Account_Hierarchy, 0, Report_Currency, End_Year, Trial_Balance, [], _, [], Lines1),
    format_balance_sheet_entries(Account_Hierarchy, 0, Report_Currency, End_Year, ProftAndLoss_Entries, [], _, [], Lines2),
@@ -268,24 +268,30 @@ format_balance(Account_Hierarchy, Report_Currency_List, End_Year, Name, [], Used
 	format_balance(Account_Hierarchy, _, End_Year, Name, [coord(Report_Currency, 0, 0)], Used_Units_In, UsedUnitsOut, LinesIn, LinesOut).
    
 format_balance(Account_Hierarchy, _, End_Year, Name, [coord(Unit, Debit, Credit)], Used_Units_In, UsedUnitsOut, LinesIn, LinesOut) :-
-   union([Unit], Used_Units_In, UsedUnitsOut),
-   Balance0 is round(Debit - Credit),
-   (
-      (
-         (account_ancestor_id(Account_Hierarchy, Name, 'Equity'),!)
-         ;
-         (account_ancestor_id(Account_Hierarchy, Name, 'Earnings'),!)
-      )
-   ->
-      Balance is -Balance0
-   ;
-      Balance = Balance0
-   ),
-   format(string(BalanceSheetLine), '  <basic:~w contextRef="D-~w" unitRef="U-~w" decimals="INF">~D</basic:~w>\n', [Name, End_Year, Unit, Balance, Name]),
-   append(LinesIn, [BalanceSheetLine], LinesOut).
+	union([Unit], Used_Units_In, UsedUnitsOut),
+	(
+		account_ancestor_id(Account_Hierarchy, Name, 'Liabilities')
+	->
+		Balance is ceil(Credit - Debit)
+	;
+	(
+		account_ancestor_id(Account_Hierarchy, Name, 'Equity')
+	->
+		Balance is floor(Credit - Debit)
+	;
+	(
+		account_ancestor_id(Account_Hierarchy, Name, 'Earnings')
+	->
+		Balance is floor(Credit - Debit)
+	;
+		Balance is floor(Debit - Credit)
+	))),
+	format(string(BalanceSheetLine), '  <basic:~w contextRef="D-~w" unitRef="U-~w" decimals="INF">~D</basic:~w>\n', [Name, End_Year, Unit, Balance, Name]),
+	append(LinesIn, [BalanceSheetLine], LinesOut).
+
 
 write_used_unit(Unit) :-
-   format('  <unit id="U-~w"><measure>~w</measure></unit>\n', [Unit, Unit]).
+	format('  <unit id="U-~w"><measure>~w</measure></unit>\n', [Unit, Unit]).
    
 
    

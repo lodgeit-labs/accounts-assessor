@@ -6,8 +6,10 @@
 			<CashAndCashEquivalents>
 				<NationalAustraliaBank/>
 			</CashAndCashEquivalents>
-          <AssetsLivestockAtCost/>
-          <AssetsLivestockAtAverageCost/>
+          <AssetsLivestock>
+            <AssetsLivestockAtCost/>
+            <AssetsLivestockAtAverageCost/>
+          </AssetsLivestock>
           <ClearingAccount/>
           <Clearing_Account/>
 		</CurrentAssets>
