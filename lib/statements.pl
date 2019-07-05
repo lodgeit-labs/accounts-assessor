@@ -95,7 +95,10 @@ preprocess_s_transactions2(Static_Data, [S_Transaction|S_Transactions], [Transac
 			)
 		)
 		;
+		(
+			%gtrace,
 			throw_string(['processing failed:', S_Transaction_String])
+		)
 	),
 	preprocess_s_transactions2(Static_Data, S_Transactions, Transactions_Out_Tail,  Outstanding_Mid, Outstanding_Out, Debug_Tail).
 
@@ -294,7 +297,8 @@ unrealized_gains_txs((_, Report_Currency, _, _, Exchange_Rates), Cost_Vector, Go
 		Goods_Debit, Goods_Credit)
 	],
 	Goods = [coord(Goods_Unit, Goods_Debit, Goods_Credit)],
-	Cost_Vector = [coord(Purchase_Currency, 0, _)],
+	Cost_Vector = [coord(Purchase_Currency, Zero, _)],
+	assertion(Zero =:= 0),
 	Purchase_Date = Transaction_Day,
 
 	vec_change_bases(Exchange_Rates, Purchase_Date, Report_Currency, Cost_Vector, Cost_At_Report),
