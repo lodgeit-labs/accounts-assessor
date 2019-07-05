@@ -55,9 +55,9 @@ process_xml_ledger_request(_, Dom) :-
 	pretty_term_string(Account_Hierarchy0, Message3),
 	atomic_list_concat([
 	'\n<!--',
-	'Exchange rates:\n', Message1b,'\n\n',
-	'Action_Taxonomy:\n',Message2,'\n\n',
-	'Account_Hierarchy0:\n',Message3,'\n\n',
+	'Exchange rates extracted:\n', Message1b,'\n\n',
+	'Action_Taxonomy extracted:\n',Message2,'\n\n',
+	'Account_Hierarchy extracted:\n',Message3,'\n\n',
 	'-->\n\n'], Debug_Message0),
 	writeln(Debug_Message0),
 	

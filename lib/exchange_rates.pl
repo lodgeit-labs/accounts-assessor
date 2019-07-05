@@ -157,6 +157,7 @@ exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate) :-
 	->
 		(
 			format(user_error, 'no exchange rate found: Day:~w, Src_Currency:~w, Dest_Currency:~w\n', [Day, Src_Currency, Dest_Currency])
+			%,throw("wuut")
 			,fail
 		)
 	;

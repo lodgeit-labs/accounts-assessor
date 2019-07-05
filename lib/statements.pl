@@ -549,7 +549,18 @@ add_bank_accounts(S_Transactions, Accounts_In, Accounts_Out) :-
 	sort(Accounts_Duplicated, Accounts_Out).
 
 
-get_relevant_exchange_rates([Report_Currency], Report_End_Day, Exchange_Rates, Transactions, Exchange_Rates2) :-
+get_relevant_exchange_rates([Report_Currency], Report_End_Day, Exchange_Rates, Transactions, Rates_List) :-
+	findall(
+		Exchange_Rates2,
+		(
+			get_relevant_exchange_rates2([Report_Currency], Exchange_Rates, Transactions, Exchange_Rates2)
+			;
+			get_relevant_exchange_rates2([Report_Currency], Report_End_Day, Exchange_Rates, Transactions, Exchange_Rates2)
+		),
+		Rates_List
+	).
+				
+get_relevant_exchange_rates2([Report_Currency], Exchange_Rates, Transactions, Exchange_Rates2) :-
 	% find all days when something happened
 	findall(
 		Day,
@@ -559,9 +570,33 @@ get_relevant_exchange_rates([Report_Currency], Report_End_Day, Exchange_Rates, T
 		),
 		Days_Unsorted0
 	),
-	append(Days_Unsorted0, [Report_End_Day], Days_Unsorted1),
-	sort(Days_Unsorted1, Days),
+	sort(Days_Unsorted0, Days),
+	member(Day, Days),
 	%find all currencies used
+	findall(
+		Currency,
+		(
+			member(T, Transactions),
+			transaction_vector(T, Vector),
+			transaction_day(T,Day),
+			member(coord(Currency, _,_), Vector)
+		),
+		Currencies_Unsorted
+	),
+	sort(Currencies_Unsorted, Currencies),
+	% produce all exchange rates
+	findall(
+		exchange_rate(Day, Src_Currency, Report_Currency, Exchange_Rate),
+		(
+			member(Src_Currency, Currencies),
+			\+member(Src_Currency, [Report_Currency]),
+			exchange_rate(Exchange_Rates, Day, Src_Currency, Report_Currency, Exchange_Rate)
+		),
+		Exchange_Rates2
+	).
+
+get_relevant_exchange_rates2([Report_Currency], Day, Exchange_Rates, Transactions, Exchange_Rates2) :-
+	%find all currencies from all transactions, todo, find only all currencies appearing in totals of accounts at the report end date
 	findall(
 		Currency,
 		(
@@ -576,7 +611,6 @@ get_relevant_exchange_rates([Report_Currency], Report_End_Day, Exchange_Rates, T
 	findall(
 		exchange_rate(Day, Src_Currency, Report_Currency, Exchange_Rate),
 		(
-			member(Day, Days),
 			member(Src_Currency, Currencies),
 			\+member(Src_Currency, [Report_Currency]),
 			exchange_rate(Exchange_Rates, Day, Src_Currency, Report_Currency, Exchange_Rate)
