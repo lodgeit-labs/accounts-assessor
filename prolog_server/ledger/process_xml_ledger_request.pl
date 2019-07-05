@@ -27,8 +27,6 @@
 % ------------------------------------------------------------------
 
 process_xml_ledger_request(_, Dom) :-
-	format('Content-type: text/xml~n~n'), 
-	writeln('<?xml version="1.0"?>'),
 
 	extract_default_currency(Dom, Default_Currency),
 	extract_report_currency(Dom, Report_Currency),
@@ -40,6 +38,22 @@ process_xml_ledger_request(_, Dom) :-
 	inner_xml(Dom, //reports/balanceSheetRequest/endDate, [End_Date_Atom]),
 	parse_date(End_Date_Atom, End_Days),
 
+	findall(S_Transaction, extract_transaction(Dom, Start_Date_Atom, S_Transaction), S_Transactions0),
+
+	format('Content-type: text/xml~n~n'), 
+	writeln('<?xml version="1.0"?>'),
+
+	(
+		find_s_transactions_in_period(S_Transactions0, Start_Days, End_Days, [])
+	->
+		writeln('<!-- warning: no transactions within request period -->\n')
+	;
+		true
+	),
+
+	maplist(invert_s_transaction_vector, S_Transactions0, S_Transactions0b),
+	sort_s_transactions(S_Transactions0b, S_Transactions),
+	
 	extract_exchange_rates(Dom, End_Date_Atom, Default_Currency, Exchange_Rates),
 
 	pretty_term_string(Exchange_Rates, Message1b),
@@ -60,9 +74,6 @@ process_xml_ledger_request(_, Dom) :-
 	flatten(Livestock_Accounts_Nested, Livestock_Accounts),
 	append(Account_Hierarchy0, Livestock_Accounts, Account_Hierarchy0b),
 	
-	findall(Transaction, extract_transaction(Dom, Start_Date_Atom, Transaction), S_Transactions0),
-	maplist(invert_s_transaction_vector, S_Transactions0, S_Transactions0b),
-	sort_s_transactions(S_Transactions0b, S_Transactions),
 	add_bank_accounts(S_Transactions, Account_Hierarchy0b, Account_Hierarchy),
 	preprocess_s_transactions((Account_Hierarchy, Report_Currency, Action_Taxonomy, End_Days, Exchange_Rates), S_Transactions, Transactions1, Transaction_Transformation_Debug),
    
@@ -70,8 +81,6 @@ process_xml_ledger_request(_, Dom) :-
    
 	process_livestock(Livestock_Doms, Livestock_Types, S_Transactions, Transactions1, Livestock_Opening_Costs_And_Counts, Start_Days, End_Days, Exchange_Rates, Account_Hierarchy, Report_Currency, Transactions2, Livestock_Events, Average_Costs, Average_Costs_Explanations),
    
-	%print_term(Transactions1, []),
-	
 	maplist(check_transaction_account(Account_Hierarchy), Transactions2),
 	   
 	trial_balance_between(Exchange_Rates, Account_Hierarchy, Transactions2, Report_Currency, End_Days, Start_Days, End_Days, Trial_Balance),
@@ -121,13 +130,6 @@ process_xml_ledger_request(_, Dom) :-
 
 	display_xbrl_ledger_response(Account_Hierarchy, Report_Currency, Debug_Message, Start_Days, End_Days, Balance_Sheet, Trial_Balance, ProftAndLoss),
 	
-	(
-		find_s_transactions_in_period(S_Transactions, Start_Days, End_Days, [])
-	->
-		writeln('<!-- warning: no transactions within request period -->\n')
-	;
-		true
-	),
 	nl, nl.
 
 	
@@ -222,8 +224,8 @@ display_xbrl_ledger_response(Account_Hierarchy, Report_Currency, Debug_Message, 
 
    flatten([
 		'<!-- balance sheet: -->\n', Lines3, 
-		'<!-- trial balance: -->\n',  Lines1, 
-		'<!-- profit and loss: -->\n', Lines2
+		'<!-- profit and loss: -->\n', Lines2,
+		'<!-- trial balance: -->\n',  Lines1
 	], Lines),
    atomic_list_concat(Lines, LinesString),
    writeln(LinesString),

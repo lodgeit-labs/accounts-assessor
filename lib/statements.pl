@@ -306,8 +306,8 @@ unrealized_gains_txs((_, Report_Currency, _, _, Exchange_Rates), Cost_Vector, Go
 	
 	dr_cr_table_to_txs([
 	% Account                                                                 DR                                                               CR
-	('Unrealized_Gains_Currency_Movement',	             Cost_At_Report,      	                                  Goods_Without_Currency_Movement),
-	('Unrealized_Gains_Excluding_Forex',     Goods_Without_Currency_Movement,       Goods)
+	('Unrealized_Gains_Excluding_Forex',	                 Cost_At_Report,      	                Goods_Without_Currency_Movement),
+	('Unrealized_Gains_Currency_Movement',                Goods_Without_Currency_Movement,        Goods)
 	],
 	Txs).
 	
@@ -328,8 +328,8 @@ unrealized_gains_reduction_txs((_, Report_Currency, _, _, Exchange_Rates), Purch
 	
 	dr_cr_table_to_txs([
 	% Account                                                                 DR                                                               CR
-	('Unrealized_Gains_Currency_Movement',					Goods_Without_Currency_Movement,        Cost_At_Report),
-	('Unrealized_Gains_Excluding_Forex',        Goods,                                                              Goods_Without_Currency_Movement)
+	('Unrealized_Gains_Excluding_Forex',					Goods_Without_Currency_Movement    ,      Cost_At_Report                          ),
+	('Unrealized_Gains_Currency_Movement',             Goods    ,                                   Goods_Without_Currency_Movement  )
 	],
 	Transactions_Out).
 	
