@@ -73,29 +73,29 @@ process_xml_ledger_request(_, Dom) :-
    
    	extract_livestock_opening_costs_and_counts(Livestock_Doms, Livestock_Opening_Costs_And_Counts),
    
-	process_livestock(Livestock_Doms, Livestock_Types, S_Transactions, Transactions1, Livestock_Opening_Costs_And_Counts, Start_Days, End_Days, Exchange_Rates, Account_Hierarchy, Report_Currency, Transactions2, Livestock_Events, Average_Costs, Average_Costs_Explanations),
+	process_livestock(Livestock_Doms, Livestock_Types, S_Transactions, Transactions1, Livestock_Opening_Costs_And_Counts, Start_Days, End_Days, Exchange_Rates, Account_Hierarchy, Report_Currency, Transactions_With_Livestock, Livestock_Events, Average_Costs, Average_Costs_Explanations),
    
-	maplist(check_transaction_account(Account_Hierarchy), Transactions2),
+	maplist(check_transaction_account(Account_Hierarchy), Transactions_With_Livestock),
 	   
-	trial_balance_between(Exchange_Rates, Account_Hierarchy, Transactions2, Report_Currency, End_Days, Start_Days, End_Days, Trial_Balance),
+	trial_balance_between(Exchange_Rates, Account_Hierarchy, Transactions_With_Livestock, Report_Currency, End_Days, Start_Days, End_Days, Trial_Balance),
 
-	balance_sheet_at(Exchange_Rates, Account_Hierarchy, Transactions2, Report_Currency, End_Days, Start_Days, End_Days, Balance_Sheet),
+	balance_sheet_at(Exchange_Rates, Account_Hierarchy, Transactions_With_Livestock, Report_Currency, End_Days, Start_Days, End_Days, Balance_Sheet),
 	
-	profitandloss_between(Exchange_Rates, Account_Hierarchy, Transactions2, Report_Currency, End_Days, Start_Days, End_Days, ProftAndLoss),
+	profitandloss_between(Exchange_Rates, Account_Hierarchy, Transactions_With_Livestock, Report_Currency, End_Days, Start_Days, End_Days, ProftAndLoss),
 
-	livestock_counts(Livestock_Types, Transactions2, Livestock_Opening_Costs_And_Counts, End_Days, Livestock_Counts),
+	livestock_counts(Livestock_Types, Transactions_With_Livestock, Livestock_Opening_Costs_And_Counts, End_Days, Livestock_Counts),
 	
 	(
 		Report_Currency = []
 	->
 		true
 	;	
-		get_relevant_exchange_rates(Report_Currency, End_Days, Exchange_Rates, Transactions2, Exchange_Rates2)
+		get_relevant_exchange_rates(Report_Currency, End_Days, Exchange_Rates, Transactions_With_Livestock, Exchange_Rates2)
 	),
 	
 %	pretty_term_string(S_Transactions, Message0),
 	pretty_term_string(Livestock_Events, Message0b),
-	pretty_term_string(Transactions2, Message1),
+	pretty_term_string(Transactions_With_Livestock, Message1),
 	pretty_term_string(Exchange_Rates2, Message1c),
 	pretty_term_string(Livestock_Counts, Message12),
 	pretty_term_string(Balance_Sheet, Message4),
@@ -104,16 +104,28 @@ process_xml_ledger_request(_, Dom) :-
 	pretty_term_string(Average_Costs, Message5),
 	pretty_term_string(Average_Costs_Explanations, Message5b),
 	atomic_list_concat(Transaction_Transformation_Debug, Message10),
+	
+	
+	(
+		Livestock_Doms = []
+	->
+		Livestock_Debug = ''
+	;
+		atomic_list_concat([
+		'Livestock Events:\n', Message0b,'\n\n',
+		'Livestock Counts:\n', Message12,'\n\n',
+		'Average_Costs:\n', Message5,'\n\n',
+		'Average_Costs_Explanations:\n', Message5b,'\n\n',
+		'Transactions_With_Livestock:\n', Message1,'\n\n'
+		], Livestock_Debug)
+	),
+	
 	(
 	%Debug_Message = '',!;
 	atomic_list_concat([
 	'\n<!--',
 %	'S_Transactions:\n', Message0,'\n\n',
-	'Livestock Events:\n', Message0b,'\n\n',
-	'Livestock Counts:\n', Message12,'\n\n',
-	'Average_Costs:\n', Message5,'\n\n',
-	'Average_Costs_Explanations:\n', Message5b,'\n\n',
-	'Transactions:\n', Message1,'\n\n',
+	Livestock_Debug,
 	'Transaction_Transformation_Debug:\n', Message10,'\n\n',
 	'Exchange rates2:\n', Message1c,'\n\n',
 	'BalanceSheet:\n', Message4,'\n\n',

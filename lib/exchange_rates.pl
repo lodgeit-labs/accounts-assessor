@@ -26,7 +26,8 @@
 
 init :-
 	db_attach('tmp/persistently_cached_exchange_rates.pl' , []),
-	test0.
+	test0,
+	test1.
 
 exchange_rates(Day, Exchange_Rates) :-
 	with_mutex(db, exchange_rates2(Day, Exchange_Rates)).
@@ -39,6 +40,7 @@ exchange_rates2(Day, Exchange_Rates) :-
 	fetch_exchange_rates(Day, Exchange_Rates).
 
 fetch_exchange_rates(Date, Exchange_Rates) :-
+	/* note that invalid dates get "recomputed", for example date(2010,1,33) becomes 2010-02-02 */
 	format_time(string(Date_Str), "%Y-%m-%d", Date),
 	string_concat("http://openexchangerates.org/api/historical/", Date_Str, Query_Url_A),
 	string_concat(Query_Url_A, ".json?app_id=677e4a964d1b44c99f2053e21307d31a", Query_Url),
@@ -49,7 +51,7 @@ fetch_exchange_rates(Date, Exchange_Rates) :-
 		% note that connection error or similar should still propagate and halt the program.
 		error(existence_error(_,_),_),
 		(
-			assert_persistently_cached_exchange_rates(Day, []),
+			assert_rates(Date, []),
 			false
 		)
 	),
@@ -65,8 +67,16 @@ fetch_exchange_rates(Date, Exchange_Rates) :-
 	),
 	close(Stream),
 	format(user_error, '..ok.\n', []),
-	assert_persistently_cached_exchange_rates(Day, Exchange_Rates).
+	assert_rates(Date, Exchange_Rates).
 
+assert_rates(Date, Exchange_Rates) :-
+	/* these are debugging assertions, not fact asserts*/
+	assertion(ground(Date)), 
+	assertion(ground(Exchange_Rates)),
+	/* now put it in the file */
+	assert_persistently_cached_exchange_rates(Date, Exchange_Rates).
+	
+	
 % % Predicates for asserting that the fields of given exchange rates have particular values
 
 % The day to which the exchange rate applies
@@ -193,9 +203,11 @@ all_exchange_rates(Table, Day, Src_Currency, Dest_Currency, Exchange_Rates_Full)
 		rate(Day, Src_Currency, Dest_Currency, Exchange_Rate),
 		(
 			(
-				equivalence_exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate_Raw, 2)
-			;
 				symmetric_exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate_Raw)
+			->
+				true
+			;
+				equivalence_exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate_Raw, 2)
 			),
 			% force everything into float
 			Exchange_Rate is 0.0 + Exchange_Rate_Raw
@@ -222,4 +234,7 @@ test0 :-
 	without_currency_movement_against_since('SG_Issuer_SA','USD', ['AUD'],date(2017,7,1)),
 	'AUD',
 	57.97101449275363).
+
+test1 :-
+	exchange_rate([], date(2016,7,6), 'USD', 'AUD', _X).
 

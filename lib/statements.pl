@@ -225,8 +225,8 @@ preprocess_s_transaction(Static_Data, S_Transaction, [UnX_Transactions, X_Transa
 					unrealized_gains_txs(Static_Data, Vector_Ours, Vector_Goods, Transaction_Day, Trading_Txs),
 					maplist(tx_to_transaction(Transaction_Day), Trading_Txs, Trading_Transactions),
 					
-					
-					make_currency_movement_transactions(Exchange_Rates, Report_Currency, Transaction_Day, Vector_Ours, Description, Currency_Trading_Transactions1)
+					atomic_list_concat([Description, ' - currency trading account reduced by outgoing money'], Currency_Movement_Description),
+					make_currency_movement_transactions(Exchange_Rates, Report_Currency, Transaction_Day, Vector_Ours, Currency_Movement_Description, Currency_Trading_Transactions1)
 					
 					
 				)
@@ -344,13 +344,13 @@ realized_gains_txs((_, Report_Currency, _, _,Exchange_Rates), Sale_Unit_Price, P
 
 	value(Purchase_Currency, Purchase_Money) = Cost,
 	Cost_Vector = [coord(Purchase_Currency, 0, Purchase_Money)],
-	vec_change_bases(Exchange_Rates, Purchase_Date, Report_Currency, Cost_Vector, Cost_At_Report),
+	vec_change_bases(Exchange_Rates, Purchase_Date, Report_Currency, Cost_Vector, Cost_In_Report_Currency),
 	/*todo decrease Currency_Movement account*/
 
 	dr_cr_table_to_txs([
 	% Account                                                                 DR                                                               CR
 	('Realized_Gains_Currency_Movement',	                Sale_Without_Currency_Movement,           Sale),
-	('Realized_Gains_Excluding_Forex',                        Cost_At_Report,   	                     Sale_Without_Currency_Movement)
+	('Realized_Gains_Excluding_Forex',                        Cost_In_Report_Currency,   	                     Sale_Without_Currency_Movement)
 	],
 	Txs).
 
