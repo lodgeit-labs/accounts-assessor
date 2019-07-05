@@ -628,4 +628,13 @@ we bought the shares with some currency. we can think of gains as having two par
 	atomic_list_concat(['cost:', Cost_Vector_Str, ' exchanged to ', Report_Currency_Str, ' on ', Exchange_Day_Str], Tx2_Comment2),
 
 */
+/*
+add_missing_unit_values(Exchange_Rates_In, S_Transactions0, Transactions, Report_Currency, Exchange_Day, Exchange_Rates_Out) :-
+	balance_by_account(Exchange_Rates, 'Accounts', Transactions, [Report_Currency], Exchange_Day, Account_Id, Date, Balance_Transformed),
+			
 
+	reverse(S_Transactions0, S_Transactions),
+	
+
+infer_unit_costs_from_last_buy_or_sell(Unit, S_Transactions, Exchange_Rate)
+*/
