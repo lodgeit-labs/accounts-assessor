@@ -91,7 +91,7 @@ process_xml_ledger_request(_, Dom) :-
 		get_relevant_exchange_rates(Report_Currency, End_Days, Exchange_Rates, Transactions2, Exchange_Rates2)
 	),
 	
-	pretty_term_string(S_Transactions, Message0),
+%	pretty_term_string(S_Transactions, Message0),
 	pretty_term_string(Livestock_Events, Message0b),
 	pretty_term_string(Transactions2, Message1),
 	pretty_term_string(Exchange_Rates2, Message1c),
@@ -106,7 +106,7 @@ process_xml_ledger_request(_, Dom) :-
 	%Debug_Message = '',!;
 	atomic_list_concat([
 	'\n<!--',
-	'S_Transactions:\n', Message0,'\n\n',
+%	'S_Transactions:\n', Message0,'\n\n',
 	'Livestock Events:\n', Message0b,'\n\n',
 	'Livestock Counts:\n', Message12,'\n\n',
 	'Average_Costs:\n', Message5,'\n\n',

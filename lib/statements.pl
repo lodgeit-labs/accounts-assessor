@@ -24,7 +24,7 @@
 	transaction_account_id/2,
 	transaction_vector/2]).
 :- use_module(utils, [pretty_term_string/2, inner_xml/3, write_tag/2, fields/2, fields_nothrow/2, numeric_fields/2, throw_string/1, value_multiply/3]).
-:- use_module(accounts, [account_parent_id/3]).
+:- use_module(accounts, [account_parent_id/3, account_ancestor_id/3]).
 :- use_module(days, [format_date/2, parse_date/2, gregorian_date/2, date_between/3]).
 :- use_module(library(record)).
 :- use_module(library(xpath)).
@@ -134,10 +134,10 @@ This predicate takes a list of statement transaction terms and decomposes it int
 "Goods" is not a general enough word, but it avoids confusion with other terms used.
 */	
 
-preprocess_s_transaction(Static_Data, S_Transaction, [UnX_Transaction, X_Transaction, Trading_Transactions], Outstanding_In, Outstanding_Out) :-
-	Static_Data = (_, _Report_Currency, Transaction_Types, _, _Exchange_Rates),
+preprocess_s_transaction(Static_Data, S_Transaction, [UnX_Transactions, X_Transactions, Currency_Trading_Transactions1, Currency_Trading_Transactions2, Trading_Transactions], Outstanding_In, Outstanding_Out) :-
+	Static_Data = (Accounts, Report_Currency, Transaction_Types, _, Exchange_Rates),
 	Pricing_Method = lifo,
-	s_transaction_exchanged(S_Transaction, vector(Vector_Goods)),
+	s_transaction_exchanged(S_Transaction, vector(Vector_Goods0)),
 	(
 		% do we have a tag that corresponds to one of known actions?
 		transaction_type_of(Transaction_Types, S_Transaction, Transaction_Type)
@@ -149,29 +149,61 @@ preprocess_s_transaction(Static_Data, S_Transaction, [UnX_Transaction, X_Transac
 			throw_string(['unknown action verb:',Type_Id])
 		)
 	),
+	s_transaction_account_id(S_Transaction, UnX_Account), 
 	s_transaction_vector(S_Transaction, Vector_Ours),
 	s_transaction_day(S_Transaction, Transaction_Day), 
 	[Our_Coord] = Vector_Ours,
-	[Goods_Coord] = Vector_Goods,
-	coord(Currency, Our_Debit, Our_Credit) = Our_Coord ,
-	integer_to_coord(Goods_Unit, Goods_Integer, Goods_Coord),
-	transaction_type(_, Exchanged_Account_Id, Trading_Account_Id, Description) = Transaction_Type,
-	make_unexchanged_transaction(S_Transaction, Description, UnX_Transaction),
+	coord(Currency, Our_Debit, Our_Credit) = Our_Coord,
+	
+	transaction_type(_Verb, Exchanged_Account, Trading_Account_Id, Description) = Transaction_Type,
+	
+	
 	(
-		nonvar(Exchanged_Account_Id)
+		account_ancestor_id(Accounts, Exchanged_Account, 'Equity')
 	->
+		Earnings_Account = Exchanged_Account
+	;
+		Shuffle_Account = Exchanged_Account
+	),
+	
+	
+	make_transactions(Exchange_Rates, Report_Currency, UnX_Account, Transaction_Day, Vector_Ours, Description, UnX_Transactions),
+
+	(
+		Vector_Goods0 = []
+	->
+		vec_inverse(Vector_Ours, Vector_Goods)
+	;
 		(
-			/* Make an inverse exchanged transaction to the exchanged account.
-				this can be a revenue/expense or equity account, in case value is coming in or going out of the company,
-				or it can be an assets account, if we are moving values around*/
-			transaction_day(X_Transaction, Transaction_Day),
-			transaction_description(X_Transaction, Description),
-			transaction_vector(X_Transaction, Vector_Goods),
-			transaction_account_id(X_Transaction, Exchanged_Account_Id)
+			Vector_Goods = Vector_Goods0
+		)
+	),
+	
+	[Goods_Coord] = Vector_Goods,
+	integer_to_coord(Goods_Unit, Goods_Integer, Goods_Coord),
+	
+	(
+		nonvar(Earnings_Account)
+	->
+		/* Make an inverse exchanged transaction to the exchanged account.
+		this can be a revenue/expense or equity account, in case value is coming in or going out of the company,
+		or it can be an assets account, if we are moving values around*/
+		(
+			make_exchanged_transactions(Exchange_Rates, Report_Currency, Earnings_Account, Transaction_Day, Vector_Goods, Description, X_Transactions),
+			make_currency_movement_transactions(Exchange_Rates, Report_Currency, Transaction_Day, Vector_Ours, Description, Currency_Trading_Transactions2)
 		)
 	;
-		throw_string(['action does not specify exchanged account'])
+		/*throw_string(['action does not specify exchanged account'])*/true
 	),
+	(
+		nonvar(Shuffle_Account)
+	->
+		make_transactions(Exchange_Rates, Report_Currency, Shuffle_Account, Transaction_Day, Vector_Goods, Description, X_Transactions)
+	;
+		/*throw_string(['action does not specify exchanged account'])*/true
+	),
+
+	
 	(
 		nonvar(Trading_Account_Id)
 	->
@@ -188,7 +220,12 @@ preprocess_s_transaction(Static_Data, S_Transaction, [UnX_Transaction, X_Transac
 					),
 					
 					unrealized_gains_txs(Static_Data, Vector_Ours, Vector_Goods, Transaction_Day, Trading_Txs),
-					maplist(tx_to_transaction(Transaction_Day), Trading_Txs, Trading_Transactions)
+					maplist(tx_to_transaction(Transaction_Day), Trading_Txs, Trading_Transactions),
+					
+					
+					make_currency_movement_transactions(Exchange_Rates, Report_Currency, Transaction_Day, Vector_Ours, Description, Currency_Trading_Transactions1)
+					
+					
 				)
 			;
 				(
@@ -245,7 +282,7 @@ dr_cr_table_line_to_tx(Line, Tx) :-
 		vector: Vector
 	}.
 	
-unrealized_gains_txs((_, Report_Currency, _, _, _), Cost, Goods, Transaction_Day, Txs) :-
+unrealized_gains_txs((_, Report_Currency, _, _, Exchange_Rates), Cost_Vector, Goods, Transaction_Day, Txs) :-
 	/*	without forex:
 	Unrealized_Gains = [
 	% Account            DR                                               CR
@@ -257,18 +294,21 @@ unrealized_gains_txs((_, Report_Currency, _, _, _), Cost, Goods, Transaction_Day
 		Goods_Debit, Goods_Credit)
 	],
 	Goods = [coord(Goods_Unit, Goods_Debit, Goods_Credit)],
-	Cost = [coord(Purchase_Currency, _, _)],
+	Cost_Vector = [coord(Purchase_Currency, 0, _)],
 	Purchase_Date = Transaction_Day,
+
+	vec_change_bases(Exchange_Rates, Purchase_Date, Report_Currency, Cost_Vector, Cost_At_Report),
+	/*todo decrease Currency_Movement account*/
 	
 	dr_cr_table_to_txs([
 	% Account                                                                 DR                                                               CR
-	('Unrealized_Gains_Currency_Movement',	             Cost,      	                                  Goods_Without_Currency_Movement),
+	('Unrealized_Gains_Currency_Movement',	             Cost_At_Report,      	                                  Goods_Without_Currency_Movement),
 	('Unrealized_Gains_Excluding_Forex',     Goods_Without_Currency_Movement,       Goods)
 	],
 	Txs).
 	
 
-unrealized_gains_reduction_txs((_, Report_Currency, _, _, _), Purchase_Info, Transactions_Out) :-
+unrealized_gains_reduction_txs((_, Report_Currency, _, _, Exchange_Rates), Purchase_Info, Transactions_Out) :-
 	Goods_Without_Currency_Movement = [coord(
 		without_currency_movement_against_since(Goods_Unit, Purchase_Currency, Report_Currency, Purchase_Date), 
 		Goods_Count, 0)
@@ -276,128 +316,42 @@ unrealized_gains_reduction_txs((_, Report_Currency, _, _, _), Purchase_Info, Tra
 	outstanding(Goods_Unit, Goods_Count, Cost, Purchase_Date) = Purchase_Info,
 	Goods = value(Goods_Unit, Goods_Count),
 	value(Purchase_Currency, _) = Cost,
+
+	value(Purchase_Currency, Purchase_Money) = Cost,
+	Cost_Vector = [coord(Purchase_Currency, Purchase_Money, 0)],
+	vec_change_bases(Exchange_Rates, Purchase_Date, Report_Currency, Cost_Vector, Cost_At_Report),
+	/*todo decrease Currency_Movement account*/
+	
 	dr_cr_table_to_txs([
 	% Account                                                                 DR                                                               CR
-	('Unrealized_Gains_Currency_Movement',					Goods_Without_Currency_Movement,           Cost),
+	('Unrealized_Gains_Currency_Movement',					Goods_Without_Currency_Movement,        Cost_At_Report),
 	('Unrealized_Gains_Excluding_Forex',        Goods,                                                              Goods_Without_Currency_Movement)
 	],
 	Transactions_Out).
 	
 
-
-realized_gains_txs((_, Report_Currency, _, _, _), Sale_Unit_Price, Purchase_Info, Txs) :-
+realized_gains_txs((_, Report_Currency, _, _,Exchange_Rates), Sale_Unit_Price, Purchase_Info, Txs) :-
 	Sale_Without_Currency_Movement = [coord(
 		without_currency_movement_against_since(Goods_Unit, Purchase_Currency, Report_Currency, Purchase_Date), 
 		0, Goods_Count)
 	],
 	outstanding(Goods_Unit, Goods_Count, Cost, Purchase_Date) = Purchase_Info,
 	value_multiply(Sale_Unit_Price, Goods_Count, Sale),
-	value(Purchase_Currency, _) = Cost,
+
+	value(Purchase_Currency, Purchase_Money) = Cost,
+	Cost_Vector = [coord(Purchase_Currency, 0, Purchase_Money)],
+	vec_change_bases(Exchange_Rates, Purchase_Date, Report_Currency, Cost_Vector, Cost_At_Report),
+	/*todo decrease Currency_Movement account*/
+
 	dr_cr_table_to_txs([
 	% Account                                                                 DR                                                               CR
 	('Realized_Gains_Currency_Movement',	                Sale_Without_Currency_Movement,           Sale),
-	('Realized_Gains_Excluding_Forex',                        Cost,      	                     Sale_Without_Currency_Movement)
+	('Realized_Gains_Excluding_Forex',                        Cost_At_Report,   	                     Sale_Without_Currency_Movement)
 	],
 	Txs).
 
 	
-/*
-					
-					Unrealized gains:
-					Account              DR                            CR
-					Forex                Report_Currency_Expense       Sale_Currency_Expense
-					Excluding_Forex      Sale_Currency_Expense         Goods
-					
-					
-					
-					
-					without forex:
-					Realized_Gains = [
-					% Account              DR                            CR
-					''                           Goods                      Revenue
-					]
-					
-					Realized_Gains_With_Forex = [
-					% Account                                      DR                                               CR
-					('Forex',                    Sale_Currency_Purchase_Date_Revenue,       Sale_Currency_Sale_Date_Revenue),
-					('Excluding_Forex',     Sale_Currency_Purchase_Date_Expense,        Sale_Currency_Purchase_Date_Revenue)
-					]
-			
-		
-					
-					
-					
-*/
 	
-/*	
-realized_gains_transactions(Static_Data, Transaction_Day, Sale_Unit_Price, Sale_Currency, Purchase_Info, Transactions_Out):-
-	Static_Data = (_, Report_Currency, _, _, Exchange_Rates),
-	(_, Goods_Count, value(Purchase_Currency, Purchase_Cost), Purchase_Day) = Purchase_Info,
-	Cost_In_Purchase_Currency = [coord(Purchase_Currency, Purchase_Cost, 0)],
-	
-	Sale_Revenue = [coord(Sale_Currency, 0, Revenue_Amount)],
-	Revenue_Amount is Sale_Unit_Price * Goods_Count,
-	
-	vec_change_bases(Exchange_Rates, Purchase_Day, Report_Currency, Sale_Revenue, Sale_Revenue_Converted_To_Report_Currency_At_Purchase_Time),
-	vec_change_bases(Exchange_Rates, Purchase_Day, Report_Currency, Cost_In_Purchase_Currency, Purchase_Expense_Converted_To_Report_Currency_At_Purchase_Time),
-	
-	vec_inverse(Sale_Revenue_Converted_To_Report_Currency_At_Purchase_Time, Sale_Revenue_Converted_To_Report_Currency_At_Purchase_Time_Inverted),
-	
-	Txs = [
-		tx{
-			comment: '',
-			comment2: '',
-			account: Gains_Excluding_Forex,
-			vector: [Sale_Revenue_Converted_To_Report_Currency_At_Purchase_Time, Purchase_Expense_Converted_To_Report_Currency_At_Purchase_Time]
-		},
-		tx{
-			comment: '',
-			comment2: '',
-			account: Gains_Currency_Movement,
-			vector: [Sale_Revenue_Converted_To_Report_Currency_At_Purchase_Time_Inverted, Sale_Revenue]
-		}],
-	
-	maplist(tx_to_transaction(Transaction_Day), Txs, Transactions_Out),
-	gains_account_has_forex_accounts('Realized_Gains', Gains_Excluding_Forex, Gains_Currency_Movement).
-*/
-					
-/*
-we bought the shares with some currency. we can think of gains as having two parts:
-	share value against that currency.
-	that currency value against report currency.
-*/
-/*
-gains_txs(Static_Data, Cost_In_Purchase_Currency, Goods_Vector, Transaction_Day, Exchange_Day, Gains_Account, Transactions_Out) :-
-	Static_Data = (_Accounts, Report_Currency, _Transaction_Types, _Report_End_Day, Exchange_Rates),
-	vec_change_bases(Exchange_Rates, Exchange_Day, Report_Currency, Cost_In_Purchase_Currency, Cost_In_Report_Currency),
-	append(Cost_In_Purchase_Currency, Goods_Vector, Cost_In_Purchase_Currency_Vs_Goods),
-	vec_inverse(Cost_In_Purchase_Currency_Vs_Goods, Cost_In_Purchase_Currency_Vs_Goods__Revenue),
-	
-	Txs0 = [
-		tx{
-			comment: 'gains obtained by changes in price of shares against the currency we bought them for',
-			comment2: '',
-			account: Gains_Excluding_Forex,
-			vector:  Cost_In_Purchase_Currency_Vs_Goods__Revenue
-		},
-		tx{
-			comment: 'gains obtained by changes in the value of the currency we bought the shares with, against report currency',
-			comment2: Tx2_Comment2,
-			account: Gains_Currency_Movement,
-			vector: Cost_In_Report_Vs_Purchase_Currency_Inverted
-		}],
-	vec_sub(Cost_In_Report_Currency, Cost_In_Purchase_Currency, Cost_In_Report_Vs_Purchase_Currency),
-	vec_inverse(Cost_In_Report_Vs_Purchase_Currency, Cost_In_Report_Vs_Purchase_Currency_Inverted),
-
-	pretty_term_string(Exchange_Day, Exchange_Day_Str),
-	pretty_term_string(Report_Currency, Report_Currency_Str),
-	pretty_term_string(	Cost_In_Purchase_Currency, Cost_Vector_Str),
-	atomic_list_concat(['cost:', Cost_Vector_Str, ' exchanged to ', Report_Currency_Str, ' on ', Exchange_Day_Str], Tx2_Comment2),
-
-	maplist(tx_to_transaction(Transaction_Day), Txs0, Transactions_Out),
-	gains_account_has_forex_accounts(Gains_Account, Gains_Excluding_Forex, Gains_Currency_Movement).
-*/
-
 
 tx_to_transaction(Day, Tx, Transaction) :-
 	Tx = tx{comment: Comment, comment2: Comment2, account: Account, vector: Vector},
@@ -415,17 +369,31 @@ tx_to_transaction(Day, Tx, Transaction) :-
 gains_account_has_forex_accounts(Gains_Account, Gains_Excluding_Forex, Gains_Currency_Movement) :-
 	atom_concat(Gains_Account, '_Excluding_Forex', Gains_Excluding_Forex),
 	atom_concat(Gains_Account, '_Currency_Movement', Gains_Currency_Movement).
-	
-make_unexchanged_transaction(S_Transaction, Description, UnX_Transaction) :-
+
 	% Make an unexchanged transaction to the unexchanged (bank) account
 	% the bank account is debited/credited in the currency of the bank account, exchange will happen for report end day
-	s_transaction_day(S_Transaction, Day), 
-	transaction_day(UnX_Transaction, Day),
-	transaction_description(UnX_Transaction, Description),
-	s_transaction_vector(S_Transaction, Vector),
-	transaction_vector(UnX_Transaction, Vector),
-	s_transaction_account_id(S_Transaction, UnX_Account), 
-	transaction_account_id(UnX_Transaction, UnX_Account).
+	
+make_transactions(_Exchange_Rates, _Report_Currency, Account, Day, Vector, Description, Transaction) :-
+	transaction_day(Transaction, Day),
+	transaction_description(Transaction, Description),
+	transaction_vector(Transaction, Vector),
+	transaction_account_id(Transaction, Account).
+
+make_exchanged_transactions(Exchange_Rates, Report_Currency, Account, Day, Vector, Description, Transaction) :-
+	vec_change_bases(Exchange_Rates, Day, Report_Currency, Vector, Vector_Exchanged_To_Report),
+	make_transactions(_, _, Account, Day, Vector_Exchanged_To_Report, Description, Transaction).
+	
+make_currency_movement_transactions(Exchange_Rates, Report_Currency, Day, Vector, Description, Currency_Movement) :-
+	vec_change_bases(Exchange_Rates, Day, Report_Currency, Vector, Vector_Exchanged_To_Report),
+	
+	transaction_day(Currency_Movement, Day),
+	transaction_description(Currency_Movement, Description),
+	transaction_vector(Currency_Movement, Vector_Movement),
+	transaction_account_id(Currency_Movement, 'Currency_Movement'),
+	
+	vec_sub(Vector_Exchanged_To_Report, Vector, Vector_Movement).
+	%vec_inverse(Vector_Movement_Inverse, Vector_Movement).
+		
 
 
 
@@ -523,7 +491,7 @@ extract_transaction2(Tx_Dom, Account_Currency, Account, Start_Date, ST) :-
 	ST = s_transaction(Absolute_Days, Desc, [Coord], Account, Exchanged),
 	extract_exchanged_value(Tx_Dom, Account_Currency, Bank_Debit, Bank_Credit, Exchanged).
 
-extract_exchanged_value(Tx_Dom, Account_Currency, Bank_Debit, Bank_Credit, Exchanged) :-
+extract_exchanged_value(Tx_Dom, _Account_Currency, Bank_Debit, Bank_Credit, Exchanged) :-
    % if unit type and count is specified, unifies Exchanged with a one-item vector with a coord with those values
    % otherwise unifies Exchanged with bases(..) to trigger unit conversion later
    (
@@ -554,7 +522,7 @@ extract_exchanged_value(Tx_Dom, Account_Currency, Bank_Debit, Bank_Credit, Excha
    )
    ;
    (
-      Exchanged = bases([Account_Currency])
+      Exchanged = vector([])
    ).
 
 
@@ -628,4 +596,32 @@ invert_s_transaction_vector(T0, T1) :-
 :- maplist(transaction_vector, Transactions, [[coord(aAAA, 5, 1)], [coord(aAAA, 0.0, 4)]]), check_trial_balance(Transactions).
 :- maplist(transaction_vector, Transactions, [[coord(AAA, 5, 1), coord(BBB, 0, 0.0)], [], [coord(BBB, 7, 7)], [coord(AAA, 0.0, 4)]]), check_trial_balance(Transactions).
 :- maplist(transaction_vector, Transactions, [[coord(AAA, 45, 49), coord(BBB, 0, 0.0)], [], [coord(BBB, -7, -7)], [coord(AAA, 0.0, -4)]]), check_trial_balance(Transactions).
+
+
+
+/*
+we bought the shares with some currency. we can think of gains as having two parts:
+	share value against that currency.
+	that currency value against report currency.
+
+	Txs0 = [
+		tx{
+			comment: 'gains obtained by changes in price of shares against the currency we bought them for',
+			comment2: '',
+			account: Gains_Excluding_Forex,
+			vector:  Cost_In_Purchase_Currency_Vs_Goods__Revenue
+		},
+		tx{
+			comment: 'gains obtained by changes in the value of the currency we bought the shares with, against report currency',
+			comment2: Tx2_Comment2,
+			account: Gains_Currency_Movement,
+			vector: Cost_In_Report_Vs_Purchase_Currency_Inverted
+		}],
+
+	pretty_term_string(Exchange_Day, Exchange_Day_Str),
+	pretty_term_string(Report_Currency, Report_Currency_Str),
+	pretty_term_string(	Cost_In_Purchase_Currency, Cost_Vector_Str),
+	atomic_list_concat(['cost:', Cost_Vector_Str, ' exchanged to ', Report_Currency_Str, ' on ', Exchange_Day_Str], Tx2_Comment2),
+
+*/
 

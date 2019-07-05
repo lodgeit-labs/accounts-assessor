@@ -51,6 +51,7 @@
 					<Unrealized_Gains_Currency_Movement/>
 				</UnrealizedGain>
 			</Financial_Investments>	
+			<Currency_Movement/>
 		</Revenue>
 		<Expenses>
 			<BankCharges/>
