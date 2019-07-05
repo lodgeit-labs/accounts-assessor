@@ -41,15 +41,9 @@ process_xml_ledger_request(_, Dom) :-
 	findall(S_Transaction, extract_transaction(Dom, Start_Date_Atom, S_Transaction), S_Transactions0),
 
 	format('Content-type: text/xml~n~n'), 
-	writeln('<?xml version="1.0"?>'),
+	writeln('<?xml version="1.0"?>'), nl, nl,
 
-	(
-		find_s_transactions_in_period(S_Transactions0, Start_Days, End_Days, [])
-	->
-		writeln('<!-- warning: no transactions within request period -->\n')
-	;
-		true
-	),
+	emit_warnings(S_Transactions0, Start_Days, End_Days),
 
 	maplist(invert_s_transaction_vector, S_Transactions0, S_Transactions0b),
 	sort_s_transactions(S_Transactions0b, S_Transactions),
@@ -129,6 +123,8 @@ process_xml_ledger_request(_, Dom) :-
 	),
 
 	display_xbrl_ledger_response(Account_Hierarchy, Report_Currency, Debug_Message, Start_Days, End_Days, Balance_Sheet, Trial_Balance, ProftAndLoss),
+
+	emit_warnings(S_Transactions0, Start_Days, End_Days),
 	
 	nl, nl.
 
@@ -381,3 +377,14 @@ test0 :-
 	
 	sort_s_transactions(In, Out).
 test0.
+
+
+emit_warnings(S_Transactions0, Start_Days, End_Days) :-
+	(
+		find_s_transactions_in_period(S_Transactions0, Start_Days, End_Days, [])
+	->
+		writeln('<!-- WARNING: no transactions within request period -->\n')
+	;
+		true
+	).
+
