@@ -68,7 +68,7 @@ preprocess_s_transactions(Static_Data, S_Transactions, Transactions_Out, Debug_I
 preprocess_s_transactions2(_, [], [], Outstanding, Outstanding, ["end."]).
 
 preprocess_s_transactions2(Static_Data, [S_Transaction|S_Transactions], [Transactions_Out|Transactions_Out_Tail], Outstanding_In, Outstanding_Out, [Debug_Head|Debug_Tail]) :-
-	Static_Data = (Accounts, _, _, _, _),
+	Static_Data = (Accounts, Report_Currency, _, Report_End_Date, Exchange_Rates),
 	check_that_s_transaction_account_exists(S_Transaction, Accounts),
 	pretty_term_string(S_Transaction, S_Transaction_String),
 	(
@@ -87,8 +87,13 @@ preprocess_s_transactions2(Static_Data, [S_Transaction|S_Transactions], [Transac
 			flatten(Transactions2, Transactions_Out),
 			pretty_term_string(Transactions_Out, Transactions_String),
 			atomic_list_concat([S_Transaction_String, '==>\n', Transactions_String, '\n====\n'], Debug_Head),
+			Transactions_Out = [T|_],
+			transaction_day(T, Transaction_Date),
 			catch(
-				check_trial_balance(Transactions_Out),
+				(
+					check_trial_balance(Exchange_Rates, Report_Currency, Transaction_Date, Transactions_Out),
+					check_trial_balance(Exchange_Rates, Report_Currency, Report_End_Date, Transactions_Out)
+				),
 				E,
 				(
 					format(user_error, '~w', [Debug_Head]),
@@ -139,7 +144,7 @@ This predicate takes a list of statement transaction terms and decomposes it int
 "Goods" is not a general enough word, but it avoids confusion with other terms used.
 */	
 
-preprocess_s_transaction(Static_Data, S_Transaction, [T0, T1, T2, T3, T4, T5, T6, T7], Outstanding_In, Outstanding_Out) :-
+preprocess_s_transaction(Static_Data, S_Transaction, [T0, T1, T2, T3, T4, T5, T6, T7, T8], Outstanding_In, Outstanding_Out) :-
 	Static_Data = (Accounts, Report_Currency, Transaction_Types, _, Exchange_Rates),
 	Pricing_Method = lifo,
 	s_transaction_exchanged(S_Transaction, vector(Vector_Goods0)),
@@ -216,6 +221,7 @@ preprocess_s_transaction(Static_Data, S_Transaction, [T0, T1, T2, T3, T4, T5, T6
 				)
 			;
 				(
+					
 					Goods_Positive is -Goods_Integer,
 					((find_items_to_sell(Pricing_Method, Goods_Unit, Goods_Positive, Outstanding_In, Outstanding_Out, Goods_Cost_Values),!)
 						;throw_string(['not enough goods to sell'])),
@@ -230,8 +236,8 @@ preprocess_s_transaction(Static_Data, S_Transaction, [T0, T1, T2, T3, T4, T5, T6
 						), 
 						Goods_Cost_Values, Txs2
 					),
-					txs_to_transactions(Transaction_Day, Txs2, T6),
-					make_currency_movement_transactions(Exchange_Rates, Report_Currency, Transaction_Day, Vector_Ours, [Description, ' - currency trading account increased by incoming money'], T7)
+					txs_to_transactions(Transaction_Day, Txs2, T7),
+					make_currency_movement_transactions(Exchange_Rates, Report_Currency, Transaction_Day, Vector_Ours, [Description, ' - currency trading account increased by incoming money'], T8)
 				)
 		)
 	;
@@ -374,19 +380,20 @@ make_currency_movement_transactions(Exchange_Rates, Report_Currency, Day, Vector
 	make_transaction('Currency_Movement', Day, Vector_Movement, Description, Transaction),
 	vec_sub(Vector_Exchanged_To_Report, Vector, Vector_Movement).
 
-transactions_trial_balance(Transactions, Total) :-
-	maplist(transaction_vector, Transactions, Vectors),
-	vec_add(Vectors, [], Total).
+transactions_trial_balance(Exchange_Rates, Report_Currency, Day, Transactions, Vector_Converted) :-
+	maplist(transaction_vector, Transactions, Vectors_Nested),
+	flatten(Vectors_Nested, Vector),
+	vec_change_bases(Exchange_Rates, Day, Report_Currency, Vector, Vector_Converted).
 
-check_trial_balance(Transactions) :-	
-	transactions_trial_balance(Transactions, Total),
+check_trial_balance(Exchange_Rates, Report_Currency, Day, Transactions) :-
+	transactions_trial_balance(Exchange_Rates, Report_Currency, Day, Transactions, Total),
 	(
 		Total = []
 	->
 		true
 	;
 		(
-			pretty_term_string(['total is ', Total], Err_Str),
+			pretty_term_string(['total is ', Total, ' on day ', Day], Err_Str),
 			throw(Err_Str)
 		)
 	).
@@ -600,41 +607,6 @@ invert_s_transaction_vector(T0, T1) :-
 
 
 	
-	
-% tests	
-
-:- maplist(transaction_vector, Transactions, [[coord(aAAA, 5, 1), coord(aBBB, 0, 0.0)], [], [coord(aBBB, 7, 7)], [coord(aAAA, 0.0, 4)]]), check_trial_balance(Transactions).
-:- maplist(transaction_vector, Transactions, [[coord(aAAA, 5, 1)], [coord(aAAA, 0.0, 4)]]), check_trial_balance(Transactions).
-:- maplist(transaction_vector, Transactions, [[coord(AAA, 5, 1), coord(BBB, 0, 0.0)], [], [coord(BBB, 7, 7)], [coord(AAA, 0.0, 4)]]), check_trial_balance(Transactions).
-:- maplist(transaction_vector, Transactions, [[coord(AAA, 45, 49), coord(BBB, 0, 0.0)], [], [coord(BBB, -7, -7)], [coord(AAA, 0.0, -4)]]), check_trial_balance(Transactions).
-
-
-
-/*
-we bought the shares with some currency. we can think of gains as having two parts:
-	share value against that currency.
-	that currency value against report currency.
-
-	Txs0 = [
-		tx{
-			comment: 'gains obtained by changes in price of shares against the currency we bought them for',
-			comment2: '',
-			account: Gains_Excluding_Forex,
-			vector:  Cost_In_Purchase_Currency_Vs_Goods__Revenue
-		},
-		tx{
-			comment: 'gains obtained by changes in the value of the currency we bought the shares with, against report currency',
-			comment2: Tx2_Comment2,
-			account: Gains_Currency_Movement,
-			vector: Cost_In_Report_Vs_Purchase_Currency_Inverted
-		}],
-
-	pretty_term_string(Exchange_Day, Exchange_Day_Str),
-	pretty_term_string(Report_Currency, Report_Currency_Str),
-	pretty_term_string(	Cost_In_Purchase_Currency, Cost_Vector_Str),
-	atomic_list_concat(['cost:', Cost_Vector_Str, ' exchanged to ', Report_Currency_Str, ' on ', Exchange_Day_Str], Tx2_Comment2),
-
-*/
 
 fill_in_missing_units(_,_, [], _, _, []).
 
@@ -677,4 +649,47 @@ has_empty_vector(T) :-
 	transaction_vector(T, []).
 
 
-:- assert(track_currency_movement).
+%:- assert(track_currency_movement).
+
+
+
+
+
+
+
+	
+% tests	
+/*
+todo: just check vec_add with this.
+:- maplist(transaction_vector, Transactions, [[coord(aAAA, 5, 1), coord(aBBB, 0, 0.0)], [], [coord(aBBB, 7, 7)], [coord(aAAA, 0.0, 4)]]), check_trial_balance(Transactions).
+:- maplist(transaction_vector, Transactions, [[coord(aAAA, 5, 1)], [coord(aAAA, 0.0, 4)]]), check_trial_balance(Transactions).
+:- maplist(transaction_vector, Transactions, [[coord(AAA, 5, 1), coord(BBB, 0, 0.0)], [], [coord(BBB, 7, 7)], [coord(AAA, 0.0, 4)]]), check_trial_balance(Transactions).
+:- maplist(transaction_vector, Transactions, [[coord(AAA, 45, 49), coord(BBB, 0, 0.0)], [], [coord(BBB, -7, -7)], [coord(AAA, 0.0, -4)]]), check_trial_balance(Transactions).
+*/
+
+
+/*
+we bought the shares with some currency. we can think of gains as having two parts:
+	share value against that currency.
+	that currency value against report currency.
+
+	Txs0 = [
+		tx{
+			comment: 'gains obtained by changes in price of shares against the currency we bought them for',
+			comment2: '',
+			account: Gains_Excluding_Forex,
+			vector:  Cost_In_Purchase_Currency_Vs_Goods__Revenue
+		},
+		tx{
+			comment: 'gains obtained by changes in the value of the currency we bought the shares with, against report currency',
+			comment2: Tx2_Comment2,
+			account: Gains_Currency_Movement,
+			vector: Cost_In_Report_Vs_Purchase_Currency_Inverted
+		}],
+
+	pretty_term_string(Exchange_Day, Exchange_Day_Str),
+	pretty_term_string(Report_Currency, Report_Currency_Str),
+	pretty_term_string(	Cost_In_Purchase_Currency, Cost_Vector_Str),
+	atomic_list_concat(['cost:', Cost_Vector_Str, ' exchanged to ', Report_Currency_Str, ' on ', Exchange_Day_Str], Tx2_Comment2),
+
+*/

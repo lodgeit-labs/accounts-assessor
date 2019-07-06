@@ -153,13 +153,7 @@ chained_exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate, Le
 % =< 2 exchange rates.
 
 exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate) :-
-	(
-		ground((Table, Day, Src_Currency, Dest_Currency))
-	->
-		true
-	;
-		throw('sssss')
-	),
+	assertion(ground((Table, Day, Src_Currency, Dest_Currency))),
 	all_exchange_rates(Table, Day, Src_Currency, Dest_Currency, Exchange_Rates_Full),
 	(
 		Exchange_Rates_Full = []

@@ -92,6 +92,7 @@ vec_unit_value(Vec, Unit, Coord) :-
 % Adds the two given vectors together.
 
 vec_add(As, Bs, Cs_Reduced) :-
+	assertion((flatten(As, As), flatten(Bs, Bs))),
 	append(As, Bs, As_And_Bs),
 	vec_units(As_And_Bs, Units),
 	findall(Coord,
