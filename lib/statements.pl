@@ -55,10 +55,11 @@ find_s_transactions_in_period(S_Transactions, Opening_Date, Closing_Date, Out) :
 		),
 		Out
 	).
+
 /*
-
+at this point:
 s_transactions have to be sorted by date from oldest to newest 
-
+s_transactions have flipped vectors, so they are from our perspective
 */
 preprocess_s_transactions(Static_Data, S_Transactions, Transactions_Out, Debug_Info) :-
 	preprocess_s_transactions2(Static_Data, S_Transactions, Transactions0, [], _, Debug_Info),
@@ -80,9 +81,10 @@ preprocess_s_transactions2(Static_Data, [S_Transaction|S_Transactions], [Transac
 		)
 		->
 		(
-			% filter out unbound vars from the resulting Transactions list, as some rules do no always produce all possible transactions
+			% filter out unbound vars from the resulting Transactions list, as some rules do not always produce all possible transactions
 			exclude(var, Transactions0, Transactions1),
-			flatten(Transactions1, Transactions_Out),
+			exclude(has_empty_vector, Transactions1, Transactions2),
+			flatten(Transactions2, Transactions_Out),
 			pretty_term_string(Transactions_Out, Transactions_String),
 			atomic_list_concat([S_Transaction_String, '==>\n', Transactions_String, '\n====\n'], Debug_Head),
 			catch(
@@ -177,11 +179,11 @@ preprocess_s_transaction(Static_Data, S_Transaction, [T0, T1, T2, T3, T4, T5, T6
 	),
 	[Goods_Coord] = Vector_Goods,
 	integer_to_coord(Goods_Unit, Goods_Integer, Goods_Coord),
-
+	
 	make_transaction(UnX_Account, Transaction_Day, Vector_Ours, Description, T0),
 
 	((var(Shuffle_Account),!)
-		;make_transaction(Shuffle_Account, Transaction_Day, Vector_Goods, Description, T3)),
+		;make_transaction(Shuffle_Account, Transaction_Day, Vector_Goods, Description, T1)),
 	
 	((var(Earnings_Account),!)
 		;
@@ -189,8 +191,8 @@ preprocess_s_transaction(Static_Data, S_Transaction, [T0, T1, T2, T3, T4, T5, T6
 			/* Make an inverse exchanged transaction to the exchanged account.
 			this can be a revenue/expense or equity account, in case value is coming in or going out of the company,
 			or it can be an assets account, if we are moving values around*/
-			make_exchanged_transactions(Exchange_Rates, Report_Currency, Earnings_Account, Transaction_Day, Vector_Goods, Description, T1),
-			make_currency_movement_transactions(Exchange_Rates, Report_Currency, Transaction_Day, Vector_Ours, [Description, ' - currency trading account changed by expense or revenue'], T2)
+			make_exchanged_transactions(Exchange_Rates, Report_Currency, Earnings_Account, Transaction_Day, Vector_Goods, Description, T2),
+			make_currency_movement_transactions(Exchange_Rates, Report_Currency, Transaction_Day, Vector_Ours, [Description, ' - assets in foreign currency vs equity or revenue in report currency'], T3)
 		)
 	),
 	
@@ -228,8 +230,8 @@ preprocess_s_transaction(Static_Data, S_Transaction, [T0, T1, T2, T3, T4, T5, T6
 						), 
 						Goods_Cost_Values, Txs2
 					),
-					txs_to_transactions(Transaction_Day), Txs2, T6),
-					make_currency_movement_transactions(Exchange_Rates, Report_Currency, Transaction_Day, Vector_Ours, [Description, ' - currency trading account increased by incoming money'], T7),
+					txs_to_transactions(Transaction_Day, Txs2, T6),
+					make_currency_movement_transactions(Exchange_Rates, Report_Currency, Transaction_Day, Vector_Ours, [Description, ' - currency trading account increased by incoming money'], T7)
 				)
 		)
 	;
@@ -354,12 +356,12 @@ gains_account_has_forex_accounts(Gains_Account, Gains_Excluding_Forex, Gains_Cur
 
 	% Make an unexchanged transaction to the unexchanged (bank) account
 	% the bank account is debited/credited in the currency of the bank account, exchange will happen for report end day
-	
+
 make_transaction(Account, Day, Vector, Description, Transaction) :-
 	flatten([Description], Description_Flat),
-	atomic_list_concat(Description_Flat, Description),
+	atomic_list_concat(Description_Flat, Description_Str),
 	transaction_day(Transaction, Day),
-	transaction_description(Transaction, Description),
+	transaction_description(Transaction, Description_Str),
 	transaction_vector(Transaction, Vector),
 	transaction_account_id(Transaction, Account).
 
@@ -444,8 +446,8 @@ extract_transaction(Dom, Start_Date, Transaction) :-
 
 extract_transaction2(Tx_Dom, Account_Currency, Account, Start_Date, ST) :-
 	numeric_fields(Tx_Dom, [
-		debit, Bank_Debit,
-		credit, Bank_Credit]),
+		debit, (Bank_Debit, 0),
+		credit, (Bank_Credit, 0)]),
 	fields(Tx_Dom, [
 		transdesc, (Desc, '')
 	]),
@@ -671,7 +673,8 @@ infer_unit_cost_from_last_buy_or_sell(Unit, [ST|_], Exchange_Rate) :-
 infer_unit_cost_from_last_buy_or_sell(Unit, [_|S_Transactions], Rate) :-
 	infer_unit_cost_from_last_buy_or_sell(Unit, S_Transactions, Rate).
 
-
+has_empty_vector(T) :-
+	transaction_vector(T, []).
 
 
 :- assert(track_currency_movement).

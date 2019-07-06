@@ -24,14 +24,6 @@
 
 :- persistent(persistently_cached_exchange_rates(day: any, rates:list)).
 
-:- initialization(init).
-
-init :-
-	db_attach('tmp/persistently_cached_exchange_rates.pl' , []),
-	test0,
-	test1,
-	test2.
-
 exchange_rates(Day, Exchange_Rates) :-
 	with_mutex(db, exchange_rates2(Day, Exchange_Rates)).
 
@@ -48,6 +40,7 @@ exchange_rates2(Day, Exchange_Rates) :-
 fetch_exchange_rates(Date, Exchange_Rates) :-
 	/* note that invalid dates get "recomputed", for example date(2010,1,33) becomes 2010-02-02 */
 	format_time(string(Date_Str), "%Y-%m-%d", Date),
+	%gtrace,
 	string_concat("http://openexchangerates.org/api/historical/", Date_Str, Query_Url_A),
 	string_concat(Query_Url_A, ".json?app_id=677e4a964d1b44c99f2053e21307d31a", Query_Url),
 	format(user_error, '~w ...', [Query_Url]),
@@ -120,6 +113,8 @@ fetched_exchange_rate(Day, Src_Currency, Dest_Currency, Exchange_Rate) :-
 	member(Dest_Currency = Dest_Exchange_Rate, Exchange_Rates),
 	Exchange_Rate is Dest_Exchange_Rate / Src_Exchange_Rate.
 
+best_nonchained_exchange_rates(_, _, Src_Currency, Src_Currency, [(Src_Currency, 1)]).
+	
 best_nonchained_exchange_rates(Table, Day, Src_Currency, Dest_Currency, Rates) :-
 	findall((Dest_Currency, Rate), special_exchange_rate(Table, Day, Src_Currency, Dest_Currency, Rate), Rates1),
 	(Rates1 \= [] -> Rates = Rates1;
@@ -149,6 +144,7 @@ chained_exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate, Le
 		Dest_Currency \= Src_Currency
 	),
 	best_nonchained_exchange_rate(Table, Day, Src_Currency, Int_Currency, Head_Exchange_Rate),
+	Int_Currency \= Src_Currency,
 	New_Length is Length - 1,
 	chained_exchange_rate(Table, Day, Int_Currency, Dest_Currency, Tail_Exchange_Rate, New_Length),
 	Exchange_Rate is Head_Exchange_Rate * Tail_Exchange_Rate.
@@ -205,9 +201,9 @@ exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate) :-
 		true
 	;
 		(
-			format(user_error, 'multiple equal exchange rates found: Day:~w, Src_Currency:~w, Dest_Currency:~w, Exchange_Rates:~w\n', [Day, Src_Currency, Dest_Currency, Exchange_Rates])
 			/*,throw('multiple equal exchange rates found')*/
-			,Exchange_Rates = [Exchange_Rate|_]
+			/*format(user_error, 'multiple equal exchange rates found: Day:~w, Src_Currency:~w, Dest_Currency:~w, Exchange_Rates:~w\n', [Day, Src_Currency, Dest_Currency, Exchange_Rates])*/
+			Exchange_Rates = [Exchange_Rate|_]
 		)
 	).	
 	
@@ -241,6 +237,9 @@ is_exchangeable_into_request_bases(Table, Day, Src_Currency, Bases) :-
 
 	
 test0 :-
+	exchange_rate([], date(2016,7,6), 'USD', 'USD', One), One =:= 1.
+
+test0b :-
 	exchange_rate([], date(2016,7,6), 'USD', 'AUD', _X).
 	
 test1 :-
@@ -268,3 +267,12 @@ test2 :-
 	without_currency_movement_against_since('SG_Issuer_SA','USD', ['AUD'],date(2017,7,1)),
 	'AUD',
 	57.97101449275363).
+
+:- initialization(init).
+
+init :-
+	db_attach('tmp/persistently_cached_exchange_rates.pl' , []),
+	test0,
+	test0b,
+	test1,
+	test2.
