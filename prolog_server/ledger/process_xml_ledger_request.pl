@@ -152,8 +152,14 @@ process_xml_ledger_request(_, Dom) :-
 	append(Exchange_Rates, Inferred_Rates, Exchange_Rates_With_Inferred_Values),
 	%append(Exchange_Rates, [], Exchange_Rates_With_Inferred_Values),
 	
-	/*
+/*	
 	gtrace,
+	exchange_rate(
+		Exchange_Rates_With_Inferred_Values, date(2018,12,30), 
+		'CHF','AUD',
+		RRRRRRRR),
+	print_term(RRRRRRRR,[]),*/
+	/*
 	exchange_rate(
 		Exchange_Rates_With_Inferred_Values, End_Days, 
 		without_currency_movement_against_since('Raiffeisen Switzerland_B.V.', 

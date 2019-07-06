@@ -11,6 +11,7 @@
 :- use_module(days, [gregorian_date/2]).
 :- use_module(library(persistency)).
 :- use_module(utils, [pretty_term_string/2]).
+:- use_module(library(record)).
 
 % -------------------------------------------------------------------
 % Obtains all available exchange rates on the day Day using an arbitrary base currency
@@ -27,16 +28,20 @@
 init :-
 	db_attach('tmp/persistently_cached_exchange_rates.pl' , []),
 	test0,
-	test1.
+	test1,
+	test2.
 
 exchange_rates(Day, Exchange_Rates) :-
 	with_mutex(db, exchange_rates2(Day, Exchange_Rates)).
 
+/*fixme: if yesterday we tried to fetch exchange rates for today, we got an empty list, we should invalidate it.
+we can probably presume that the dates in the request are utc.*/
+	
 exchange_rates2(Day, Exchange_Rates) :-
-	/*fixme: if yesterday we tried to fetch exchange rates for today, we got an empty list, we should invalidate it.
-	we can probably presume that the dates in the request are utc.*/
-	(persistently_cached_exchange_rates(Day, Exchange_Rates),!)
-	;
+	persistently_cached_exchange_rates(Day, Exchange_Rates),
+	!.
+
+exchange_rates2(Day, Exchange_Rates) :-
 	fetch_exchange_rates(Day, Exchange_Rates).
 
 fetch_exchange_rates(Date, Exchange_Rates) :-
@@ -51,7 +56,7 @@ fetch_exchange_rates(Date, Exchange_Rates) :-
 		% note that connection error or similar should still propagate and halt the program.
 		error(existence_error(_,_),_),
 		(
-			assert_rates(Date, []),
+			/*assert_rates(Date, []),*/
 			false
 		)
 	),
@@ -77,23 +82,15 @@ assert_rates(Date, Exchange_Rates) :-
 	assert_persistently_cached_exchange_rates(Date, Exchange_Rates).
 	
 	
-% % Predicates for asserting that the fields of given exchange rates have particular values
-
+:- record exchange_rate(day, src_currency, dest_currency, rate).
 % The day to which the exchange rate applies
-exchange_rate_day(exchange_rate(Day, _, _, _), Day).
 % The source currency of this exchange rate
-exchange_rate_src_currency(exchange_rate(_, Src_Currency, _, _), Src_Currency).
 % The destination currency of this exchange rate
-exchange_rate_dest_currency(exchange_rate(_, _, Dest_Currency, _), Dest_Currency).
 % The actual rate of this exchange rate
-exchange_rate_rate(exchange_rate(_, _, _, Rate), Rate).
+
 
 % the exchange rates from openexchangerates.org are symmetric, meaning without fees etc
-
-% Obtains the exchange rate from Src_Currency to Dest_Currency on the day Day using the
-% given lookup table.
-
-symmetric_exchange_rate(Table, Day, Src_Currency, Report_Currency, Exchange_Rate) :-
+special_exchange_rate(Table, Day, Src_Currency, Report_Currency, Exchange_Rate) :-
 	Src_Currency = without_currency_movement_against_since(Goods_Unit, Purchase_Currency, [Report_Currency], Purchase_Date),
 	exchange_rate(Table, Purchase_Date, 
 		Purchase_Currency, Report_Currency, Old_Rate),
@@ -101,33 +98,45 @@ symmetric_exchange_rate(Table, Day, Src_Currency, Report_Currency, Exchange_Rate
 		Purchase_Currency, Report_Currency, New_Rate),
 	exchange_rate(Table, Day, Goods_Unit, Report_Currency, Current),
 	Exchange_Rate is Current / New_Rate * Old_Rate.
-	
-symmetric_exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate) :-
-  member(exchange_rate(Day, Src_Currency, Dest_Currency, Exchange_Rate), Table),!.
 
-symmetric_exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate) :-
+% Obtains the exchange rate from Src_Currency to Dest_Currency on the day Day using the
+% given lookup table.
+	
+extracted_exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate) :-
+  member(exchange_rate(Day, Src_Currency, Dest_Currency, Exchange_Rate), Table).
+
+extracted_exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate) :-
   member(exchange_rate(Day, Dest_Currency, Src_Currency, Inverted_Exchange_Rate), Table),
   Inverted_Exchange_Rate =\= 0,
-  Exchange_Rate is 1 / Inverted_Exchange_Rate,!.
+  Exchange_Rate is 1 / Inverted_Exchange_Rate.
 
 % Obtains the exchange rate from Src_Currency to Dest_Currency on the day Day using the
 % exchange_rates predicate.
 
-symmetric_exchange_rate(_, Day, Src_Currency, Dest_Currency, Exchange_Rate) :-
+fetched_exchange_rate(Day, Src_Currency, Dest_Currency, Exchange_Rate) :-
 	exchange_rates(Day, Exchange_Rates),
 	member(Src_Currency = Src_Exchange_Rate, Exchange_Rates),
 	member(Dest_Currency = Dest_Exchange_Rate, Exchange_Rates),
 	Exchange_Rate is Dest_Exchange_Rate / Src_Exchange_Rate.
+
+best_nonchained_exchange_rates(Table, Day, Src_Currency, Dest_Currency, Rates) :-
+	findall(Rate, special_exchange_rate(Table, Day, Src_Currency, Dest_Currency, Rate), Rates1),
+	(Rates1 \= [] -> Rates = Rates1;
+	(findall(Rate, extracted_exchange_rate(Table, Day, Src_Currency, Dest_Currency, Rate), Rates2),
+	(Rates2 \= [] -> Rates = Rates2;
+	(findall(Rate, fetched_exchange_rate(Day, Src_Currency, Dest_Currency, Rate), Rates3),
+	(Rates3 \= [] -> Rates = Rates3;
+	fail))))).
 	
+best_nonchained_exchange_rate(Table, Day, Src_Currency, Dest_Currency, Rate) :-
+	best_nonchained_exchange_rates(Table, Day, Src_Currency, Dest_Currency, Rates),
+	member(Rate, Rates).
+
 % Derive an exchange rate from the source to the destination currency by chaining together
 % =< Length exchange rates.
-equivalence_exchange_rate(_, _, Currency, Currency, 1, _Length).
 
-equivalence_exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate, _) :-
-	symmetric_exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate),!.
-
-equivalence_exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate, Length) :-
-  Length > 0,
+chained_exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate, Length) :-
+	Length > 0,
 	(
 		var(Dest_Currency)
 	->
@@ -135,11 +144,10 @@ equivalence_exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate
 	;
 		Dest_Currency \= Src_Currency
 	),
-  symmetric_exchange_rate(Table, Day, Src_Currency, Int_Currency, Head_Exchange_Rate),
-  New_Length is Length - 1,
-  equivalence_exchange_rate(Table, Day, Int_Currency, Dest_Currency, Tail_Exchange_Rate, New_Length),
-  Exchange_Rate is Head_Exchange_Rate * Tail_Exchange_Rate, !.
-
+	best_nonchained_exchange_rate(Table, Day, Src_Currency, Int_Currency, Head_Exchange_Rate),
+	New_Length is Length - 1,
+	chained_exchange_rate(Table, Day, Int_Currency, Dest_Currency, Tail_Exchange_Rate, New_Length),
+	Exchange_Rate is Head_Exchange_Rate * Tail_Exchange_Rate.
 
 % Derive an exchange rate from the source to the destination currency by chaining together
 % =< 2 exchange rates.
@@ -203,24 +211,44 @@ exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate) :-
 	).	
 	
 all_exchange_rates(Table, Day, Src_Currency, Dest_Currency, Exchange_Rates_Full) :-
+	(
+		best_nonchained_exchange_rates(Table, Day, Src_Currency, Dest_Currency, Best_Rates)
+	->
+		true
+	;
+		findall(Rate, chained_exchange_rate(Table, Day, Src_Currency, Dest_Currency, Rate, 2), Best_Rates)
+	),
 	findall(
 		rate(Day, Src_Currency, Dest_Currency, Exchange_Rate),
 		(
-			equivalence_exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate_Raw, 2),
+			member(Exchange_Rate_Raw, Best_Rates),
 			% force everything into float
 			Exchange_Rate is 0.0 + Exchange_Rate_Raw
 		),
-		Exchange_Rates_Full
-	).
-
-
+		Exchange_Rates_Full).
+		
 is_exchangeable_into_request_bases(Table, Day, Src_Currency, Bases) :-
 	member(Dest_Currency, Bases),
-	exchange_rate(Table, Day, Src_Currency, Dest_Currency, _Exchange_Rate),
-	!.
+	exchange_rate(Table, Day, Src_Currency, Dest_Currency, _Exchange_Rate).
 
 	
 test0 :-
+	exchange_rate([], date(2016,7,6), 'USD', 'AUD', _X).
+	
+test1 :-
+	exchange_rate(
+	[
+		exchange_rate(date(2017,7,1),'SG_Issuer_SA','USD',10),
+		exchange_rate(date(2018,6,30),'SG_Issuer_SA','USD',40),
+		exchange_rate(date(2017,7,1),'USD','AUD',1.4492753623188408),
+		exchange_rate(date(2018,6,30),'USD','AUD',1.4285714285714286)
+	], 
+	date(2018,6,30),
+	'SG_Issuer_SA',
+	'AUD',
+	_).
+	
+test2 :-
 	exchange_rate(
 	[
 		exchange_rate(date(2017,7,1),'SG_Issuer_SA','USD',10),
@@ -232,7 +260,3 @@ test0 :-
 	without_currency_movement_against_since('SG_Issuer_SA','USD', ['AUD'],date(2017,7,1)),
 	'AUD',
 	57.97101449275363).
-
-test1 :-
-	exchange_rate([], date(2016,7,6), 'USD', 'AUD', _X).
-
