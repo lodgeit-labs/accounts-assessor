@@ -38,11 +38,6 @@
         <unitValueCurrency />
       </unitValue>
       <unitValue>
-        <unitType>Leonteq_N</unitType>
-        <unitValue>0</unitValue>
-        <unitValueCurrency>NOK</unitValueCurrency>
-      </unitValue>
-      <unitValue>
         <unitType>8.04%_Commerzbank_AG</unitType>
         <unitValue>0</unitValue>
         <unitValueCurrency />

@@ -122,7 +122,10 @@ symmetric_exchange_rate(_, Day, Src_Currency, Dest_Currency, Exchange_Rate) :-
 % Derive an exchange rate from the source to the destination currency by chaining together
 % =< Length exchange rates.
 equivalence_exchange_rate(_, _, Currency, Currency, 1, _Length).
-  
+
+equivalence_exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate, _) :-
+	symmetric_exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate),!.
+
 equivalence_exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate, Length) :-
   Length > 0,
 	(
@@ -203,13 +206,7 @@ all_exchange_rates(Table, Day, Src_Currency, Dest_Currency, Exchange_Rates_Full)
 	findall(
 		rate(Day, Src_Currency, Dest_Currency, Exchange_Rate),
 		(
-			(
-				symmetric_exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate_Raw)
-			->
-				true
-			;
-				equivalence_exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate_Raw, 2)
-			),
+			equivalence_exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate_Raw, 2),
 			% force everything into float
 			Exchange_Rate is 0.0 + Exchange_Rate_Raw
 		),

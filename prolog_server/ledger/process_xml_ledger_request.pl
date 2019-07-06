@@ -21,6 +21,7 @@
 :- use_module('../../lib/livestock', [get_livestock_types/2, process_livestock/14, make_livestock_accounts/2, livestock_counts/5, extract_livestock_opening_costs_and_counts/2]).
 :- use_module('../../lib/accounts', [extract_account_hierarchy/2, account_ancestor_id/3]).
 :- use_module('../../lib/transactions', [check_transaction_account/2]).
+:- use_module('../../lib/exchange_rates', [exchange_rate/5]).
 
 % ------------------------------------------------------------------
 % process_xml_ledger_request/2
@@ -149,7 +150,18 @@ process_xml_ledger_request(_, Dom) :-
 	writeln('\n-->\n'),
 	
 	append(Exchange_Rates, Inferred_Rates, Exchange_Rates_With_Inferred_Values),
-
+	%append(Exchange_Rates, [], Exchange_Rates_With_Inferred_Values),
+	
+	/*
+	gtrace,
+	exchange_rate(
+		Exchange_Rates_With_Inferred_Values, End_Days, 
+		without_currency_movement_against_since('Raiffeisen Switzerland_B.V.', 
+		'USD', ['AUD'],date(2018,7,2)),
+		'AUD',
+		RRRRRRRR),
+	print_term(RRRRRRRR,[]),
+	*/
 	
 	trial_balance_between(Exchange_Rates_With_Inferred_Values, Account_Hierarchy, Transactions_With_Livestock, Report_Currency, End_Days, Start_Days, End_Days, Trial_Balance2),
 	balance_sheet_at(Exchange_Rates_With_Inferred_Values, Account_Hierarchy, Transactions_With_Livestock, Report_Currency, End_Days, Start_Days, End_Days, Balance_Sheet2),
