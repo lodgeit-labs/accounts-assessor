@@ -7,9 +7,9 @@ this file needs serious cleanup, one reason to delay that might be that we can e
 */
 
 :- module(livestock, [
-		get_livestock_types/2, process_livestock/14, preprocess_livestock_buy_or_sell/3, make_livestock_accounts/2, livestock_counts/5, extract_livestock_opening_costs_and_counts/2, compute_livestock_by_simple_calculation/22]).
+		get_livestock_types/2, process_livestock/14, preprocess_livestock_buy_or_sell/3, make_livestock_accounts/2, livestock_counts/5, extract_livestock_opening_costs_and_counts/2, compute_livestock_by_simple_calculation/23]).
 :- use_module(utils, [
-		user:goal_expansion/2, inner_xml/3, fields/2, numeric_fields/2, pretty_term_string/2, with_info_value_and_info/3, maplist6/6]).
+		user:goal_expansion/2, inner_xml/3, fields/2, numeric_fields/2, pretty_term_string/2, with_info_value_and_info/3, maplist6/6, throw_string/1]).
 :- use_module(pacioli, [vec_add/3, vec_inverse/2, vec_reduce/2, vec_sub/3, integer_to_coord/3]).
 :- use_module(accounts, [account_ancestor_id/3]).
 :- use_module(days, [parse_date/2]).
@@ -401,7 +401,9 @@ average_cost(Type, Opening_Cost0, Opening_Count0, Info, Exchange_Rate) :-
 	
 	% avoid division by zero and evaluate the formula
 	Opening_And_Purchases_And_Increase_Count is Opening_And_Purchases_And_Increase_Count_Exp,
-	(Opening_And_Purchases_And_Increase_Count > 0 ->
+	(
+		Opening_And_Purchases_And_Increase_Count > 0
+	->
 		Average_Cost is Average_Cost_Exp
 	;
 		Average_Cost = 0
@@ -685,37 +687,104 @@ do_livestock_cross_check(Events, Natural_Increase_Costs, S_Transactions, Transac
 	pretty_term_string(Namings, Namings_Str),
 	format(user_error, 'these should match, in absence of non-livestock bank transactions, and with only one livestock type processed: ~w', [Namings_Str]).
 
-compute_livestock_by_simple_calculation(	Natural_increase_count,Natural_increase_value_per_head,Sales_count,Sales_value,Killed_for_rations_or_exchanged_for_goods_count,Stock_on_hand_at_beginning_of_year_count,Stock_on_hand_at_beginning_of_year_value,Stock_on_hand_at_end_of_year_count_input,Purchases_count,Purchases_value,Losses_count,Killed_for_rations_or_exchanged_for_goods_value,Stock_on_hand_at_end_of_year_value,Closing_and_killed_and_sales_minus_losses_count,Closing_and_killed_and_sales_value,Opening_and_purchases_and_increase_count,Opening_and_purchases_value,Natural_Increase_value,Average_cost,Revenue,Livestock_COGS,Gross_Profit_on_Livestock_Trading) :-
-	
-	Stock_on_hand_at_end_of_year_count is Stock_on_hand_at_beginning_of_year_count + Natural_increase_count + Purchases_count - Killed_for_rations_or_exchanged_for_goods_count - Losses_count - Sales_count,
+compute_livestock_by_simple_calculation(
+	Natural_increase_count_In,
+	Natural_increase_value_per_head_In,
+	Sales_count_In,
+	Sales_value_In,
+	Killed_for_rations_or_exchanged_for_goods_count_In,
+	Stock_on_hand_at_beginning_of_year_count_In,
+	Stock_on_hand_at_beginning_of_year_value_In,
+	Stock_on_hand_at_end_of_year_count_In,
+	Purchases_count_In,
+	Purchases_value_In,
+	Losses_count_In,
+	Killed_for_rations_or_exchanged_for_goods_value_Out,
+	Stock_on_hand_at_end_of_year_value_Out,
+	Closing_and_killed_and_sales_minus_losses_count_Out,
+	Closing_and_killed_and_sales_value_Out,
+	Opening_and_purchases_and_increase_count_Out,
+	Opening_and_purchases_value_Out,
+	Natural_Increase_value_Out,
+	Average_cost_Out,
+	Revenue_Out,
+	Livestock_COGS_Out,
+	Gross_Profit_on_Livestock_Trading_Out,
+	Explanation
+	) :-
+	compile_with_variable_names_preserved((
+		Stock_on_hand_at_end_of_year_count = Stock_on_hand_at_beginning_of_year_count + Natural_increase_count + Purchases_count - Killed_for_rations_or_exchanged_for_goods_count - Losses_count - Sales_count,
+		Natural_Increase_value = Natural_increase_count * Natural_increase_value_per_head,
+		Opening_and_purchases_and_increase_count = Stock_on_hand_at_beginning_of_year_count + Purchases_count + Natural_increase_count,
+		Opening_and_purchases_value = Stock_on_hand_at_beginning_of_year_value + Purchases_value,
+		Average_cost_Formula = (Opening_and_purchases_value + Natural_Increase_value) /  Opening_and_purchases_and_increase_count,
+		Stock_on_hand_at_end_of_year_value = Average_cost * Stock_on_hand_at_end_of_year_count,
+		Killed_for_rations_or_exchanged_for_goods_value = Killed_for_rations_or_exchanged_for_goods_count * Average_cost,
+		Closing_and_killed_and_sales_minus_losses_count = Sales_count + Killed_for_rations_or_exchanged_for_goods_count + Stock_on_hand_at_end_of_year_count - Losses_count,
+		Closing_and_killed_and_sales_value = Sales_value + Killed_for_rations_or_exchanged_for_goods_value + Stock_on_hand_at_end_of_year_value,
+		Revenue = Sales_value,
+		Livestock_COGS = Opening_and_purchases_value - Stock_on_hand_at_end_of_year_value - Killed_for_rations_or_exchanged_for_goods_value,
+		Gross_Profit_on_Livestock_Trading = Revenue - Livestock_COGS
+	),	Names1),
+    term_string(Gross_Profit_on_Livestock_Trading, Gross_Profit_on_Livestock_Trading_Formula_String, [Names1]),
+    term_string(Average_cost_Formula, Average_cost_Formula_String, [Names1]),
+	Natural_increase_count = Natural_increase_count_In,
+	Natural_increase_value_per_head = Natural_increase_value_per_head_In,
+	Sales_count = Sales_count_In,
+	Sales_value = Sales_value_In,
+	Killed_for_rations_or_exchanged_for_goods_count = Killed_for_rations_or_exchanged_for_goods_count_In,
+	Stock_on_hand_at_beginning_of_year_count = Stock_on_hand_at_beginning_of_year_count_In,
+	Stock_on_hand_at_beginning_of_year_value = Stock_on_hand_at_beginning_of_year_value_In,
+	Purchases_count = Purchases_count_In,
+	Purchases_value = Purchases_value_In,
+	Losses_count = Losses_count_In,
+	pretty_term_string(Average_cost_Formula, Average_cost_Formula_String2),
+	Average_cost is Average_cost_Formula,
+	pretty_term_string(Gross_Profit_on_Livestock_Trading, Gross_Profit_on_Livestock_Trading_Formula_String2),
+
+	Killed_for_rations_or_exchanged_for_goods_value_Out 
+	is 
+	Killed_for_rations_or_exchanged_for_goods_value,
+	Stock_on_hand_at_end_of_year_value_Out 
+	is 
+	Stock_on_hand_at_end_of_year_value,
+	Closing_and_killed_and_sales_minus_losses_count_Out 
+	is 
+	Closing_and_killed_and_sales_minus_losses_count,
+	Closing_and_killed_and_sales_value_Out 
+	is 
+	Closing_and_killed_and_sales_value,
+	Opening_and_purchases_and_increase_count_Out 
+	is 
+	Opening_and_purchases_and_increase_count,
+	Opening_and_purchases_value_Out is Opening_and_purchases_value,
+	Natural_Increase_value_Out is Natural_Increase_value,
+	Average_cost_Out is Average_cost,
+	Revenue_Out is Revenue,
+	Livestock_COGS_Out is Livestock_COGS,
+	Gross_Profit_on_Livestock_Trading_Out is Gross_Profit_on_Livestock_Trading,
+	Stock_on_hand_at_end_of_year_count_Out is Stock_on_hand_at_end_of_year_count,
 	(
 		(
-		(Stock_on_hand_at_end_of_year_count_input = Stock_on_hand_at_end_of_year_count,!)
+			(Stock_on_hand_at_end_of_year_count_In = Stock_on_hand_at_end_of_year_count_Out,!)
 		;
-		Stock_on_hand_at_end_of_year_count_input =:= Stock_on_hand_at_end_of_year_count
+			Stock_on_hand_at_end_of_year_count_In =:= Stock_on_hand_at_end_of_year_count_Out
 		)
 	->
 		true
 	;
-		throw("closing count mismatch")
+		throw_string(["closing count mismatch, should be:", Stock_on_hand_at_end_of_year_count_Out])
 	),
-	
-	Natural_Increase_value is Natural_increase_count * Natural_increase_value_per_head,
-	Opening_and_purchases_and_increase_count is Stock_on_hand_at_beginning_of_year_count + Purchases_count + Natural_increase_count,
-	Opening_and_purchases_value is Stock_on_hand_at_beginning_of_year_value + Purchases_value,
-	
-	Average_cost is (Opening_and_purchases_value + Natural_Increase_value) /  Opening_and_purchases_and_increase_count,
-	
-	Stock_on_hand_at_end_of_year_value is Average_cost * Stock_on_hand_at_end_of_year_count,
-	Killed_for_rations_or_exchanged_for_goods_value is Killed_for_rations_or_exchanged_for_goods_count * Average_cost,
-	
-	Closing_and_killed_and_sales_minus_losses_count is Sales_count + Killed_for_rations_or_exchanged_for_goods_count + Stock_on_hand_at_end_of_year_count - Losses_count,
-	Closing_and_killed_and_sales_value is Sales_value + Killed_for_rations_or_exchanged_for_goods_value + Stock_on_hand_at_end_of_year_value,
-	
-	Revenue is Sales_value,
-	Livestock_COGS is Opening_and_purchases_value - Stock_on_hand_at_end_of_year_value - Killed_for_rations_or_exchanged_for_goods_value,
-	Gross_Profit_on_Livestock_Trading is Revenue - Livestock_COGS.
-
+	atomic_list_concat([
+		'<!--\n',
+		'Gross_Profit_on_Livestock_Trading:\n', Gross_Profit_on_Livestock_Trading_Formula_String, '\n',
+		Gross_Profit_on_Livestock_Trading_Formula_String2,
+		'\n',
+		'Average_cost:\n', Average_cost_Formula_String, '\n',
+		Average_cost_Formula_String2,
+		'\n-->'
+	], Explanation).
+		
 		
 sales_and_buys_count(Livestock_Type, S_Transactions, Buys_Count, Buys_Value, Sales_Count, Sales_Value) :-
 	maplist6(sales_and_buys_count2(Livestock_Type), S_Transactions, Buys_Count_List, Buys_Value_List, Sales_Count_List, Sales_Value_List),
