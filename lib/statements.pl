@@ -96,7 +96,7 @@ preprocess_s_transactions2(Static_Data, [S_Transaction|S_Transactions], [Transac
 				),
 				E,
 				(
-					format(user_error, '~w', [Debug_Head]),
+					format(user_error, '\n\nwhen processing:\n~w', [Debug_Head]),
 					throw([E])
 				)
 			)
@@ -144,7 +144,7 @@ This predicate takes a list of statement transaction terms and decomposes it int
 "Goods" is not a general enough word, but it avoids confusion with other terms used.
 */	
 
-preprocess_s_transaction(Static_Data, S_Transaction, [T0, T1, T2, T3, T4, T5, T6, T7, T8], Outstanding_In, Outstanding_Out) :-
+preprocess_s_transaction(Static_Data, S_Transaction, [T0, T1, T2, T4, T5, T6, T7], Outstanding_In, Outstanding_Out) :-
 	Static_Data = (Accounts, Report_Currency, Transaction_Types, _, Exchange_Rates),
 	Pricing_Method = lifo,
 	s_transaction_exchanged(S_Transaction, vector(Vector_Goods0)),
@@ -165,11 +165,11 @@ preprocess_s_transaction(Static_Data, S_Transaction, [T0, T1, T2, T3, T4, T5, T6
 	[Our_Coord] = Vector_Ours,
 	coord(Currency, Our_Debit, Our_Credit) = Our_Coord,
 	transaction_type(_Verb, Exchanged_Account, Trading_Account_Id, Description) = Transaction_Type,
-	(var(Description)->	Description = 'no action description'; true),
+	(var(Description)->	Description = '?'; true),
 	(var(Exchanged_Account) -> throw_string('action does not specify exchanged account') ; true),
 	(
-		(account_ancestor_id(Accounts, Exchanged_Account, 'Equity')
-		;account_ancestor_id(Accounts, Exchanged_Account, 'Earnings'))
+		(/*account_ancestor_id(Accounts, Exchanged_Account, 'Equity')
+		;*/account_ancestor_id(Accounts, Exchanged_Account, 'Earnings'))
 	->
 		Earnings_Account = Exchanged_Account
 	;
@@ -196,11 +196,22 @@ preprocess_s_transaction(Static_Data, S_Transaction, [T0, T1, T2, T3, T4, T5, T6
 			/* Make an inverse exchanged transaction to the exchanged account.
 			this can be a revenue/expense or equity account, in case value is coming in or going out of the company,
 			or it can be an assets account, if we are moving values around*/
-			make_exchanged_transactions(Exchange_Rates, Report_Currency, Earnings_Account, Transaction_Day, Vector_Goods, Description, T2),
-			make_currency_movement_transactions(Exchange_Rates, Report_Currency, Transaction_Day, Vector_Ours, [Description, ' - assets in foreign currency vs equity or revenue in report currency'], T3)
+			make_exchanged_transactions(Exchange_Rates, Report_Currency, Earnings_Account, Transaction_Day, Vector_Goods, Description, T2)/*,
+			make_currency_movement_transactions(Exchange_Rates, Report_Currency, Transaction_Day, Vector_Ours, [Description, ' - assets in foreign currency vs equity or revenue in report currency'], T3)*/
 		)
 	),
 	
+	(
+		nonvar(Trading_Account_Id)
+	->
+		(
+			vec_change_bases(Exchange_Rates, Transaction_Day, Report_Currency, Vector_Ours, Cost_Vector_Converted),
+			make_currency_movement_transactions(Exchange_Rates, Report_Currency, Transaction_Day, Vector_Ours, [Description, ' - currency trading account adjustment'], T5)
+		)
+	;
+		Vector_Ours = Cost_Vector_Converted
+	),
+		
 	(
 		nonvar(Trading_Account_Id)
 	->
@@ -215,13 +226,11 @@ preprocess_s_transaction(Static_Data, S_Transaction, [T0, T1, T2, T3, T4, T5, T6
 						outstanding(Goods_Unit, Goods_Integer, value(Currency, Unit_Cost), Transaction_Day), 
 						Outstanding_In, Outstanding_Out
 					),
-					unrealized_gains_txs(Static_Data, Vector_Ours, Vector_Goods, Transaction_Day, Trading_Txs),
-					txs_to_transactions(Transaction_Day, Trading_Txs, T4),
-					make_currency_movement_transactions(Exchange_Rates, Report_Currency, Transaction_Day, Vector_Ours, [Description, ' - currency trading account reduced by outgoing money'], T5)
+					unrealized_gains_txs(Static_Data, Currency, Cost_Vector_Converted, Vector_Goods, Transaction_Day, Trading_Txs),
+					txs_to_transactions(Transaction_Day, Trading_Txs, T4)
 				)
 			;
 				(
-					
 					Goods_Positive is -Goods_Integer,
 					((find_items_to_sell(Pricing_Method, Goods_Unit, Goods_Positive, Outstanding_In, Outstanding_Out, Goods_Cost_Values),!)
 						;throw_string(['not enough goods to sell'])),
@@ -236,8 +245,7 @@ preprocess_s_transaction(Static_Data, S_Transaction, [T0, T1, T2, T3, T4, T5, T6
 						), 
 						Goods_Cost_Values, Txs2
 					),
-					txs_to_transactions(Transaction_Day, Txs2, T7),
-					make_currency_movement_transactions(Exchange_Rates, Report_Currency, Transaction_Day, Vector_Ours, [Description, ' - currency trading account increased by incoming money'], T8)
+					txs_to_transactions(Transaction_Day, Txs2, T7)
 				)
 		)
 	;
@@ -263,7 +271,7 @@ dr_cr_table_line_to_tx(Line, Tx) :-
 		vector: Vector
 	}.
 	
-unrealized_gains_txs((_, Report_Currency, _, _, Exchange_Rates), Cost_Vector, Goods, Transaction_Day, Txs) :-
+unrealized_gains_txs((_, Report_Currency, _, _, _), Purchase_Currency, Cost_Vector, Goods, Transaction_Day, Txs) :-
 	/*	without forex:
 	Unrealized_Gains = [
 	% Account            DR                                               CR
@@ -275,16 +283,11 @@ unrealized_gains_txs((_, Report_Currency, _, _, Exchange_Rates), Cost_Vector, Go
 		Goods_Debit, Goods_Credit)
 	],
 	Goods = [coord(Goods_Unit, Goods_Debit, Goods_Credit)],
-	Cost_Vector = [coord(Purchase_Currency, Zero, _)],
-	assertion(Zero =:= 0),
 	Purchase_Date = Transaction_Day,
 
-	vec_change_bases(Exchange_Rates, Purchase_Date, Report_Currency, Cost_Vector, Cost_At_Report),
-	/*todo decrease Currency_Movement account*/
-	
 	dr_cr_table_to_txs([
 	% Account                                                                 DR                                                               CR
-	('Unrealized_Gains_Excluding_Forex',	                 Cost_At_Report,      	                Goods_Without_Currency_Movement),
+	('Unrealized_Gains_Excluding_Forex',	                 Cost_Vector,      	                Goods_Without_Currency_Movement),
 	('Unrealized_Gains_Currency_Movement',                Goods_Without_Currency_Movement,        Goods)
 	],
 	Txs).
