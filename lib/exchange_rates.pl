@@ -10,8 +10,9 @@
 :- use_module(library(http/json)).
 :- use_module(days, [gregorian_date/2]).
 :- use_module(library(persistency)).
-:- use_module(utils, [pretty_term_string/2]).
+:- use_module(utils, [pretty_term_string/2, throw_string/1]).
 :- use_module(library(record)).
+
 
 % -------------------------------------------------------------------
 % Obtains all available exchange rates on the day Day using an arbitrary base currency
@@ -120,20 +121,23 @@ fetched_exchange_rate(Day, Src_Currency, Dest_Currency, Exchange_Rate) :-
 	Exchange_Rate is Dest_Exchange_Rate / Src_Exchange_Rate.
 
 best_nonchained_exchange_rates(Table, Day, Src_Currency, Dest_Currency, Rates) :-
-	findall(Rate, special_exchange_rate(Table, Day, Src_Currency, Dest_Currency, Rate), Rates1),
+	findall((Dest_Currency, Rate), special_exchange_rate(Table, Day, Src_Currency, Dest_Currency, Rate), Rates1),
 	(Rates1 \= [] -> Rates = Rates1;
-	(findall(Rate, extracted_exchange_rate(Table, Day, Src_Currency, Dest_Currency, Rate), Rates2),
+	(findall((Dest_Currency, Rate), extracted_exchange_rate(Table, Day, Src_Currency, Dest_Currency, Rate), Rates2),
 	(Rates2 \= [] -> Rates = Rates2;
-	(findall(Rate, fetched_exchange_rate(Day, Src_Currency, Dest_Currency, Rate), Rates3),
+	(findall((Dest_Currency, Rate), fetched_exchange_rate(Day, Src_Currency, Dest_Currency, Rate), Rates3),
 	(Rates3 \= [] -> Rates = Rates3;
 	fail))))).
 	
 best_nonchained_exchange_rate(Table, Day, Src_Currency, Dest_Currency, Rate) :-
 	best_nonchained_exchange_rates(Table, Day, Src_Currency, Dest_Currency, Rates),
-	member(Rate, Rates).
+	member((Dest_Currency, Rate), Rates).
 
 % Derive an exchange rate from the source to the destination currency by chaining together
 % =< Length exchange rates.
+
+chained_exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate, _Length) :-
+	best_nonchained_exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate).
 
 chained_exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate, Length) :-
 	Length > 0,
@@ -153,15 +157,13 @@ chained_exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate, Le
 % =< 2 exchange rates.
 
 exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate) :-
-/*
-	Dest_Currency can be var.
 	(
 		ground((Table, Day, Src_Currency, Dest_Currency))
 	->
 		true
 	;
 		throw('sssss')
-	),*/
+	),
 	all_exchange_rates(Table, Day, Src_Currency, Dest_Currency, Exchange_Rates_Full),
 	(
 		Exchange_Rates_Full = []
@@ -194,8 +196,7 @@ exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate) :-
 	;
 		(
 			pretty_term_string(Exchange_Rates_Sorted, Str),
-			atomic_list_concat(['multiple different exchange rates found: ', Str], Err_Msg),
-			throw(Err_Msg)
+			throw_string(['multiple different exchange rates found: ', Str])
 		)
 	),
 	(
@@ -212,16 +213,23 @@ exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate) :-
 	
 all_exchange_rates(Table, Day, Src_Currency, Dest_Currency, Exchange_Rates_Full) :-
 	(
+		nonvar(Dest_Currency)
+	->
+		true
+	;
+		throw('errr')
+	),
+	(
 		best_nonchained_exchange_rates(Table, Day, Src_Currency, Dest_Currency, Best_Rates)
 	->
 		true
 	;
-		findall(Rate, chained_exchange_rate(Table, Day, Src_Currency, Dest_Currency, Rate, 2), Best_Rates)
+		findall((Dest_Currency, Rate), chained_exchange_rate(Table, Day, Src_Currency, Dest_Currency, Rate, 2), Best_Rates)
 	),
 	findall(
 		rate(Day, Src_Currency, Dest_Currency, Exchange_Rate),
 		(
-			member(Exchange_Rate_Raw, Best_Rates),
+			member((Dest_Currency,Exchange_Rate_Raw), Best_Rates),
 			% force everything into float
 			Exchange_Rate is 0.0 + Exchange_Rate_Raw
 		),

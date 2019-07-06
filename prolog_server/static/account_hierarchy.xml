@@ -10,8 +10,6 @@
             <AssetsLivestockAtCost/>
             <AssetsLivestockAtAverageCost/>
           </AssetsLivestock>
-          <ClearingAccount/>
-          <Clearing_Account/>
 		</CurrentAssets>
 		<NoncurrentAssets>
 			<FinancialInvestments/>
@@ -40,6 +38,7 @@
 			<Income/>
 			<InvestmentIncome/>
 			<Other_Income>
+				<Clearing_Account/>
 				<InterestIncome/>
 				<Interest_Earned/>
 				<Earnings_Financial_Investments>

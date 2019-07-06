@@ -76,7 +76,7 @@ preprocess_s_transactions2(Static_Data, [S_Transaction|S_Transactions], [Transac
 			preprocess_s_transaction(Static_Data, S_Transaction, Transactions0, Outstanding_In, Outstanding_Mid)
 			),
 			string(E),
-			throw_string([E, ' in ', S_Transaction_String])
+			throw_string([E, ' when processing ', S_Transaction_String])
 		)
 		->
 		(
