@@ -17,7 +17,7 @@
 	inner_xml/3, write_tag/2, fields/2, fields_nothrow/2, numeric_fields/2, 
 	pretty_term_string/2, throw_string/1]).
 :- use_module('../../lib/ledger', [balance_sheet_at/8, trial_balance_between/8, profitandloss_between/8, balance_by_account/8]).
-:- use_module('../../lib/statements', [extract_transaction/3, preprocess_s_transactions/4, add_bank_accounts/3,  get_relevant_exchange_rates/5, invert_s_transaction_vector/2, find_s_transactions_in_period/4]).
+:- use_module('../../lib/statements', [extract_transaction/3, preprocess_s_transactions/4, add_bank_accounts/3,  get_relevant_exchange_rates/5, invert_s_transaction_vector/2, find_s_transactions_in_period/4, fill_in_missing_units/6]).
 :- use_module('../../lib/livestock', [get_livestock_types/2, process_livestock/14, make_livestock_accounts/2, livestock_counts/5, extract_livestock_opening_costs_and_counts/2]).
 :- use_module('../../lib/accounts', [extract_account_hierarchy/2, account_ancestor_id/3]).
 :- use_module('../../lib/transactions', [check_transaction_account/2]).
@@ -76,13 +76,13 @@ process_xml_ledger_request(_, Dom) :-
 	process_livestock(Livestock_Doms, Livestock_Types, S_Transactions, Transactions1, Livestock_Opening_Costs_And_Counts, Start_Days, End_Days, Exchange_Rates, Account_Hierarchy, Report_Currency, Transactions_With_Livestock, Livestock_Events, Average_Costs, Average_Costs_Explanations),
    
 	maplist(check_transaction_account(Account_Hierarchy), Transactions_With_Livestock),
-	   
-	trial_balance_between(Exchange_Rates, Account_Hierarchy, Transactions_With_Livestock, Report_Currency, End_Days, Start_Days, End_Days, Trial_Balance),
 
-	balance_sheet_at(Exchange_Rates, Account_Hierarchy, Transactions_With_Livestock, Report_Currency, End_Days, Start_Days, End_Days, Balance_Sheet),
 	
+	trial_balance_between(Exchange_Rates, Account_Hierarchy, Transactions_With_Livestock, Report_Currency, End_Days, Start_Days, End_Days, Trial_Balance),
+	balance_sheet_at(Exchange_Rates, Account_Hierarchy, Transactions_With_Livestock, Report_Currency, End_Days, Start_Days, End_Days, Balance_Sheet),
 	profitandloss_between(Exchange_Rates, Account_Hierarchy, Transactions_With_Livestock, Report_Currency, End_Days, Start_Days, End_Days, ProftAndLoss),
 
+	
 	livestock_counts(Livestock_Types, Transactions_With_Livestock, Livestock_Opening_Costs_And_Counts, End_Days, Livestock_Counts),
 	
 	(
@@ -90,13 +90,13 @@ process_xml_ledger_request(_, Dom) :-
 	->
 		true
 	;	
-		get_relevant_exchange_rates(Report_Currency, End_Days, Exchange_Rates, Transactions_With_Livestock, Exchange_Rates2)
+		get_relevant_exchange_rates(Report_Currency, End_Days, Exchange_Rates, Transactions_With_Livestock, Exchange_Rates_Of_Interest)
 	),
 	
 %	pretty_term_string(S_Transactions, Message0),
 	pretty_term_string(Livestock_Events, Message0b),
 	pretty_term_string(Transactions_With_Livestock, Message1),
-	pretty_term_string(Exchange_Rates2, Message1c),
+	pretty_term_string(Exchange_Rates_Of_Interest, Message1c),
 	pretty_term_string(Livestock_Counts, Message12),
 	pretty_term_string(Balance_Sheet, Message4),
 	pretty_term_string(Trial_Balance, Message4b),
@@ -104,8 +104,7 @@ process_xml_ledger_request(_, Dom) :-
 	pretty_term_string(Average_Costs, Message5),
 	pretty_term_string(Average_Costs_Explanations, Message5b),
 	atomic_list_concat(Transaction_Transformation_Debug, Message10),
-	
-	
+
 	(
 		Livestock_Doms = []
 	->
@@ -134,12 +133,145 @@ process_xml_ledger_request(_, Dom) :-
 	'-->\n\n'], Debug_Message)
 	),
 
-	display_xbrl_ledger_response(Account_Hierarchy, Report_Currency, Debug_Message, Start_Days, End_Days, Balance_Sheet, Trial_Balance, ProftAndLoss),
 
-	emit_warnings(S_Transactions0, Start_Days, End_Days),
+	balance_sheet_entries(Account_Hierarchy, Report_Currency, 666, Balance_Sheet, ProftAndLoss, Used_Units, _, _),
 	
+	pretty_term_string(Used_Units, Used_Units_Str),
+	writeln('<!-- units used in balance sheet: \n'),
+	writeln(Used_Units_Str),
+	writeln('\n-->\n'),
+	
+	fill_in_missing_units(S_Transactions, End_Days, Report_Currency, Used_Units, Exchange_Rates, Inferred_Rates),
+	
+	pretty_term_string(Inferred_Rates, Inferred_Rates_Str),
+	writeln('<!-- Inferred_Rates: \n'),
+	writeln(Inferred_Rates_Str),
+	writeln('\n-->\n'),
+	
+	append(Exchange_Rates, Inferred_Rates, Exchange_Rates_With_Inferred_Values),
+
+	
+	trial_balance_between(Exchange_Rates_With_Inferred_Values, Account_Hierarchy, Transactions_With_Livestock, Report_Currency, End_Days, Start_Days, End_Days, Trial_Balance2),
+	balance_sheet_at(Exchange_Rates_With_Inferred_Values, Account_Hierarchy, Transactions_With_Livestock, Report_Currency, End_Days, Start_Days, End_Days, Balance_Sheet2),
+	profitandloss_between(Exchange_Rates_With_Inferred_Values, Account_Hierarchy, Transactions_With_Livestock, Report_Currency, End_Days, Start_Days, End_Days, ProftAndLoss2),
+
+
+	display_xbrl_ledger_response(Account_Hierarchy, Report_Currency, Debug_Message, Start_Days, End_Days, Balance_Sheet2, Trial_Balance2, ProftAndLoss2),
+	emit_warnings(S_Transactions0, Start_Days, End_Days),
 	nl, nl.
 
+
+% -----------------------------------------------------
+% display_xbrl_ledger_response/4
+% -----------------------------------------------------
+
+display_xbrl_ledger_response(Account_Hierarchy, Report_Currency, Debug_Message, Start_Days, End_Days, Balance_Sheet_Entries, Trial_Balance, ProftAndLoss_Entries) :-
+   writeln('<xbrli:xbrl xmlns:xbrli="http://www.xbrl.org/2003/instance" xmlns:link="http://www.xbrl.org/2003/linkbase" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:iso4217="http://www.xbrl.org/2003/iso4217" xmlns:basic="http://www.xbrlsite.com/basic">'),
+   writeln('  <link:schemaRef xlink:type="simple" xlink:href="basic.xsd" xlink:title="Taxonomy schema" />'),
+   writeln('  <link:linkbaseRef xlink:type="simple" xlink:href="basic-formulas.xml" xlink:arcrole="http://www.w3.org/1999/xlink/properties/linkbase" />'),
+   writeln('  <link:linkBaseRef xlink:type="simple" xlink:href="basic-formulas-cross-checks.xml" xlink:arcrole="http://www.w3.org/1999/xlink/properties/linkbase" />'),
+
+   format_date(End_Days, End_Date_String),
+   format_date(Start_Days, Start_Date_String),
+   End_Days = date(End_Year,_,_),
+   
+   format( '  <context id="D-~w">\n', End_Year),
+   writeln('    <entity>'),
+   writeln('      <identifier scheme="http://standards.iso.org/iso/17442">30810137d58f76b84afd</identifier>'),
+   writeln('    </entity>'),
+   writeln('    <period>'),
+   format( '      <startDate>~w</startDate>\n', Start_Date_String),
+   format( '      <endDate>~w</endDate>\n', End_Date_String),
+   writeln('    </period>'),
+   writeln('  </context>'),
+
+   balance_sheet_entries(Account_Hierarchy, Report_Currency, End_Year, Balance_Sheet_Entries, ProftAndLoss_Entries, Used_Units, Lines2, Lines3),
+
+   format_balance_sheet_entries(Account_Hierarchy, 0, Report_Currency, End_Year, Trial_Balance, [], _, [], Lines1),
+   maplist(write_used_unit, Used_Units), 
+
+   flatten([
+		'<!-- balance sheet: -->\n', Lines3, 
+		'<!-- profit and loss: -->\n', Lines2,
+		'<!-- trial balance: -->\n',  Lines1
+	], Lines),
+   atomic_list_concat(Lines, LinesString),
+   writeln(LinesString),
+   writeln('</xbrli:xbrl>'),
+   writeln(Debug_Message).
+
+balance_sheet_entries(Account_Hierarchy, Report_Currency, End_Year, Balance_Sheet_Entries, ProftAndLoss_Entries, Used_Units_Out, Lines2, Lines3) :-
+	format_balance_sheet_entries(Account_Hierarchy, 0, Report_Currency, End_Year, Balance_Sheet_Entries, [], Used_Units, [], Lines3),
+	format_balance_sheet_entries(Account_Hierarchy, 0, Report_Currency, End_Year, ProftAndLoss_Entries, Used_Units, Used_Units_Out, [], Lines2).
+
+format_balance_sheet_entries(_,_,_,_, [], Used_Units, Used_Units, Lines, Lines).
+
+format_balance_sheet_entries(Account_Hierarchy, Level, Report_Currency, End_Year, Entries, Used_Units_In, UsedUnitsOut, LinesIn, LinesOut) :-
+   [entry(Name, Balances, Children)|EntriesTail] = Entries,
+   (
+      (
+         Level = 0,
+         Balances = []
+      )
+   ->
+      format_balance(Account_Hierarchy, Report_Currency, End_Year, Name, [], Used_Units_In, UsedUnitsIntermediate, LinesIn, LinesIntermediate)
+   ;
+      format_balances(Account_Hierarchy, Report_Currency, End_Year, Name, Balances, Used_Units_In, UsedUnitsIntermediate, LinesIn, LinesIntermediate)
+   ),
+   Level_New is Level + 1,
+   format_balance_sheet_entries(Account_Hierarchy, Level_New, Report_Currency, End_Year, Children, UsedUnitsIntermediate, UsedUnitsIntermediate2, LinesIntermediate, LinesIntermediate2),
+   format_balance_sheet_entries(Account_Hierarchy, Level_New, Report_Currency, End_Year, EntriesTail, UsedUnitsIntermediate2, UsedUnitsOut, LinesIntermediate2, LinesOut),
+   !.
+
+format_balance_sheet_entries(_, _, _, _, [], Used_Units, Used_Units, Lines, Lines).
+
+format_balances(_, _, _, _, [], Used_Units, Used_Units, Lines, Lines).
+
+format_balances(Account_Hierarchy, Report_Currency, End_Year, Name, [Balance|Balances], Used_Units_In, UsedUnitsOut, LinesIn, LinesOut) :-
+   format_balance(Account_Hierarchy, Report_Currency, End_Year, Name, [Balance], Used_Units_In, UsedUnitsIntermediate, LinesIn, LinesIntermediate),
+   format_balances(Account_Hierarchy, Report_Currency, End_Year, Name, Balances, UsedUnitsIntermediate, UsedUnitsOut, LinesIntermediate, LinesOut).
+
+format_balance(Account_Hierarchy, Report_Currency_List, End_Year, Name, [], Used_Units_In, UsedUnitsOut, LinesIn, LinesOut) :-
+	(
+		[Report_Currency] = Report_Currency_List
+	->
+		true
+	;
+		Report_Currency = 'AUD' % this is just for displaying zero balance
+	),
+	format_balance(Account_Hierarchy, _, End_Year, Name, [coord(Report_Currency, 0, 0)], Used_Units_In, UsedUnitsOut, LinesIn, LinesOut).
+   
+format_balance(Account_Hierarchy, _, End_Year, Name, [coord(Unit, Debit, Credit)], Used_Units_In, UsedUnitsOut, LinesIn, LinesOut) :-
+	union([Unit], Used_Units_In, UsedUnitsOut),
+	(
+		account_ancestor_id(Account_Hierarchy, Name, 'Liabilities')
+	->
+		Balance is (Credit - Debit)
+	;
+	(
+		account_ancestor_id(Account_Hierarchy, Name, 'Equity')
+	->
+		Balance is (Credit - Debit)
+	;
+	(
+		account_ancestor_id(Account_Hierarchy, Name, 'Expenses')
+	->
+		Balance is (Debit - Credit)
+	;
+	(
+		account_ancestor_id(Account_Hierarchy, Name, 'Earnings')
+	->
+		Balance is (Credit - Debit)
+	;
+		Balance is (Debit - Credit)
+	)))),
+	format(string(BalanceSheetLine), '  <basic:~w contextRef="D-~w" unitRef="U-~w" decimals="INF">~2f</basic:~w>\n', [Name, End_Year, Unit, Balance, Name]),
+	append(LinesIn, [BalanceSheetLine], LinesOut).
+
+
+write_used_unit(Unit) :-
+	format('  <unit id="U-~w"><measure>~w</measure></unit>\n', [Unit, Unit]).
+   
 	
 extract_default_currency(Dom, Default_Currency) :-
    inner_xml(Dom, //reports/balanceSheetRequest/defaultCurrency/unitType, Default_Currency).
@@ -200,109 +332,6 @@ extract_exchange_rate(End_Date, Optional_Default_Currency, Unit_Value, Exchange_
 		true
 	),	
 	parse_date(Date_Atom, Date)	.
-
-% -----------------------------------------------------
-% display_xbrl_ledger_response/4
-% -----------------------------------------------------
-
-display_xbrl_ledger_response(Account_Hierarchy, Report_Currency, Debug_Message, Start_Days, End_Days, Balance_Sheet_Entries, Trial_Balance, ProftAndLoss_Entries) :-
-   writeln('<xbrli:xbrl xmlns:xbrli="http://www.xbrl.org/2003/instance" xmlns:link="http://www.xbrl.org/2003/linkbase" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:iso4217="http://www.xbrl.org/2003/iso4217" xmlns:basic="http://www.xbrlsite.com/basic">'),
-   writeln('  <link:schemaRef xlink:type="simple" xlink:href="basic.xsd" xlink:title="Taxonomy schema" />'),
-   writeln('  <link:linkbaseRef xlink:type="simple" xlink:href="basic-formulas.xml" xlink:arcrole="http://www.w3.org/1999/xlink/properties/linkbase" />'),
-   writeln('  <link:linkBaseRef xlink:type="simple" xlink:href="basic-formulas-cross-checks.xml" xlink:arcrole="http://www.w3.org/1999/xlink/properties/linkbase" />'),
-
-   format_date(End_Days, End_Date_String),
-   format_date(Start_Days, Start_Date_String),
-   End_Days = date(End_Year,_,_),
-   
-   format( '  <context id="D-~w">\n', End_Year),
-   writeln('    <entity>'),
-   writeln('      <identifier scheme="http://standards.iso.org/iso/17442">30810137d58f76b84afd</identifier>'),
-   writeln('    </entity>'),
-   writeln('    <period>'),
-   format( '      <startDate>~w</startDate>\n', Start_Date_String),
-   format( '      <endDate>~w</endDate>\n', End_Date_String),
-   writeln('    </period>'),
-   writeln('  </context>'),
-   
-   format_balance_sheet_entries(Account_Hierarchy, 0, Report_Currency, End_Year, Balance_Sheet_Entries, [], Used_Units, [], Lines3),
-   format_balance_sheet_entries(Account_Hierarchy, 0, Report_Currency, End_Year, Trial_Balance, [], _, [], Lines1),
-   format_balance_sheet_entries(Account_Hierarchy, 0, Report_Currency, End_Year, ProftAndLoss_Entries, [], _, [], Lines2),
-   maplist(write_used_unit, Used_Units), 
-
-   flatten([
-		'<!-- balance sheet: -->\n', Lines3, 
-		'<!-- profit and loss: -->\n', Lines2,
-		'<!-- trial balance: -->\n',  Lines1
-	], Lines),
-   atomic_list_concat(Lines, LinesString),
-   writeln(LinesString),
-   writeln('</xbrli:xbrl>'),
-   writeln(Debug_Message).
-
-format_balance_sheet_entries(_,_,_,_, [], Used_Units, Used_Units, Lines, Lines).
-
-format_balance_sheet_entries(Account_Hierarchy, Level, Report_Currency, End_Year, Entries, Used_Units_In, UsedUnitsOut, LinesIn, LinesOut) :-
-   [entry(Name, Balances, Children)|EntriesTail] = Entries,
-   (
-      (
-         Level = 0,
-         Balances = []
-      )
-   ->
-      format_balance(Account_Hierarchy, Report_Currency, End_Year, Name, [], Used_Units_In, UsedUnitsIntermediate, LinesIn, LinesIntermediate)
-   ;
-      format_balances(Account_Hierarchy, Report_Currency, End_Year, Name, Balances, Used_Units_In, UsedUnitsIntermediate, LinesIn, LinesIntermediate)
-   ),
-   Level_New is Level + 1,
-   format_balance_sheet_entries(Account_Hierarchy, Level_New, Report_Currency, End_Year, Children, UsedUnitsIntermediate, UsedUnitsIntermediate2, LinesIntermediate, LinesIntermediate2),
-   format_balance_sheet_entries(Account_Hierarchy, Level_New, Report_Currency, End_Year, EntriesTail, UsedUnitsIntermediate2, UsedUnitsOut, LinesIntermediate2, LinesOut),
-   !.
-
-format_balance_sheet_entries(_, _, _, _, [], Used_Units, Used_Units, Lines, Lines).
-
-format_balances(_, _, _, _, [], Used_Units, Used_Units, Lines, Lines).
-
-format_balances(Account_Hierarchy, Report_Currency, End_Year, Name, [Balance|Balances], Used_Units_In, UsedUnitsOut, LinesIn, LinesOut) :-
-   format_balance(Account_Hierarchy, Report_Currency, End_Year, Name, [Balance], Used_Units_In, UsedUnitsIntermediate, LinesIn, LinesIntermediate),
-   format_balances(Account_Hierarchy, Report_Currency, End_Year, Name, Balances, UsedUnitsIntermediate, UsedUnitsOut, LinesIntermediate, LinesOut).
-
-format_balance(Account_Hierarchy, Report_Currency_List, End_Year, Name, [], Used_Units_In, UsedUnitsOut, LinesIn, LinesOut) :-
-	(
-		[Report_Currency] = Report_Currency_List
-	->
-		true
-	;
-		Report_Currency = 'AUD' % this is just for displaying zero balance
-	),
-	format_balance(Account_Hierarchy, _, End_Year, Name, [coord(Report_Currency, 0, 0)], Used_Units_In, UsedUnitsOut, LinesIn, LinesOut).
-   
-format_balance(Account_Hierarchy, _, End_Year, Name, [coord(Unit, Debit, Credit)], Used_Units_In, UsedUnitsOut, LinesIn, LinesOut) :-
-	union([Unit], Used_Units_In, UsedUnitsOut),
-	(
-		account_ancestor_id(Account_Hierarchy, Name, 'Liabilities')
-	->
-		Balance is ceil(Credit - Debit)
-	;
-	(
-		account_ancestor_id(Account_Hierarchy, Name, 'Equity')
-	->
-		Balance is floor(Credit - Debit)
-	;
-	(
-		account_ancestor_id(Account_Hierarchy, Name, 'Earnings')
-	->
-		Balance is floor(Credit - Debit)
-	;
-		Balance is floor(Debit - Credit)
-	))),
-	format(string(BalanceSheetLine), '  <basic:~w contextRef="D-~w" unitRef="U-~w" decimals="INF">~D</basic:~w>\n', [Name, End_Year, Unit, Balance, Name]),
-	append(LinesIn, [BalanceSheetLine], LinesOut).
-
-
-write_used_unit(Unit) :-
-	format('  <unit id="U-~w"><measure>~w</measure></unit>\n', [Unit, Unit]).
-   
 
    
 sort_s_transactions(In, Out) :-

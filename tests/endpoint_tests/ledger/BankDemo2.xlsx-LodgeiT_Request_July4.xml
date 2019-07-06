@@ -63,11 +63,6 @@
         <unitValueCurrency />
       </unitValue>
       <unitValue>
-        <unitType>Raiffeisen Switzerland_B.V.</unitType>
-        <unitValue>7.05</unitValue>
-        <unitValueCurrency />
-      </unitValue>
-      <unitValue>
         <unitType>SG Issuer_SA_USD_1</unitType>
         <unitValue>40</unitValue>
         <unitValueCurrency />

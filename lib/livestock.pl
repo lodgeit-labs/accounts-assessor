@@ -654,8 +654,8 @@ do_livestock_cross_check(Events, Natural_Increase_Costs, S_Transactions, Transac
 			Cogs_Balance = [],
 			Rations_Value =:= 0
 		)
-	)
-	/*needs updating to latest pacioli changes
+	),
+	%needs updating to latest pacioli changes
 	livestock_at_average_cost_at_day(Type, Transactions, Opening_Cost_And_Count, To_Day, Average_Cost_Exchange_Rate, [coord(Currency, Closing_Cost, 0)]),
 	
 	Natural_Increase_value is Natural_Increase_Count * Natural_Increase_Cost_Per_Head,
@@ -670,20 +670,20 @@ do_livestock_cross_check(Events, Natural_Increase_Costs, S_Transactions, Transac
 	balance_by_account(Exchange_Rates, Accounts, Transactions, Report_Currency, To_Day, 'Earnings', To_Day, Earnings_Credit),
 	vec_inverse(Earnings_Credit, [Earnings_Coord_Ledger]),
 	integer_to_coord(Currency, Gross_Profit_on_Livestock_Trading, Earnings_Coord),
-	*/
+	
 	/*
 	fixme, the simple calculator should total these three for all livestock types? if it should support multiple livestock datasets at once at all.
 	also, ledger can process other transactions besides livestock, so these totals then wont add up.
 	we should figure out how to only do these checks maybe during testing, on some pre-defined files
 	*/
-	/*
+	
 	compile_with_variable_names_preserved(_ = [
 		Revenue_Coord_Ledger, Revenue_Coord,
 		Cogs_Coord_Ledger, Cogs_Coord,
 		Earnings_Coord_Ledger, Earnings_Coord
 	], Namings),
 	pretty_term_string(Namings, Namings_Str),
-	format(user_error, 'these should match, in absence of non-livestock bank transactions, and with only one livestock type processed: ~w', [Namings_Str])*/.
+	format(user_error, 'these should match, in absence of non-livestock bank transactions, and with only one livestock type processed: ~w', [Namings_Str]).
 
 compute_livestock_by_simple_calculation(	Natural_increase_count,Natural_increase_value_per_head,Sales_count,Sales_value,Killed_for_rations_or_exchanged_for_goods_count,Stock_on_hand_at_beginning_of_year_count,Stock_on_hand_at_beginning_of_year_value,Stock_on_hand_at_end_of_year_count_input,Purchases_count,Purchases_value,Losses_count,Killed_for_rations_or_exchanged_for_goods_value,Stock_on_hand_at_end_of_year_value,Closing_and_killed_and_sales_minus_losses_count,Closing_and_killed_and_sales_value,Opening_and_purchases_and_increase_count,Opening_and_purchases_value,Natural_Increase_value,Average_cost,Revenue,Livestock_COGS,Gross_Profit_on_Livestock_Trading) :-
 	

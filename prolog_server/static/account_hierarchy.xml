@@ -15,6 +15,7 @@
 		</CurrentAssets>
 		<NoncurrentAssets>
 			<FinancialInvestments/>
+			<Financial_Investments/>
 		</NoncurrentAssets>
 	</Assets>
 	<Equity>
@@ -38,21 +39,23 @@
 		<Revenue>
 			<Income/>
 			<InvestmentIncome/>
-			<InterestIncome/>
-			<Interest_Earned/>
+			<Other_Income>
+				<InterestIncome/>
+				<Interest_Earned/>
+				<Earnings_Financial_Investments>
+					<RealizedGain>
+						<Realized_Gains_Excluding_Forex/>
+						<Realized_Gains_Currency_Movement/>
+					</RealizedGain>
+					<UnrealizedGain>
+						<Unrealized_Gains_Excluding_Forex/>
+						<Unrealized_Gains_Currency_Movement/>
+					</UnrealizedGain>
+				</Earnings_Financial_Investments>	
+			</Other_Income>
 			<SalesOfLivestock/>
 			<RationsRevenue/>
 			<OtherGain/>
-			<Financial_Investments>
-				<RealizedGain>
-					<Realized_Gains_Excluding_Forex/>
-					<Realized_Gains_Currency_Movement/>
-				</RealizedGain>
-				<UnrealizedGain>
-					<Unrealized_Gains_Excluding_Forex/>
-					<Unrealized_Gains_Currency_Movement/>
-				</UnrealizedGain>
-			</Financial_Investments>	
 			<Currency_Movement/>
 		</Revenue>
 		<Expenses>

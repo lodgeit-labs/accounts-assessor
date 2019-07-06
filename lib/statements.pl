@@ -4,7 +4,7 @@
 % Date:      2019-06-02
 % ===================================================================
 
-:- module(statements, [extract_transaction/3, preprocess_s_transactions/4, add_bank_accounts/3, get_relevant_exchange_rates/5, invert_s_transaction_vector/2, find_s_transactions_in_period/4]).
+:- module(statements, [extract_transaction/3, preprocess_s_transactions/4, add_bank_accounts/3, get_relevant_exchange_rates/5, invert_s_transaction_vector/2, find_s_transactions_in_period/4, fill_in_missing_units/6]).
  
 :- use_module(pacioli,  [vec_inverse/2, vec_add/3, vec_sub/3, integer_to_coord/3,
 		    make_debit/2,
@@ -161,8 +161,31 @@ preprocess_s_transaction(Static_Data, S_Transaction, [UnX_Transactions, X_Transa
 	transaction_type(_Verb, Exchanged_Account, Trading_Account_Id, Description) = Transaction_Type,
 	
 	
+	
 	(
-		account_ancestor_id(Accounts, Exchanged_Account, 'Equity')
+		var(Exchanged_Account)
+	->
+		throw_string('Exchanged_Account missing')
+	;
+		true
+	),
+	
+	
+	(
+		var(Description)
+	->
+		Description = 'no action description'
+	;
+		true
+	),
+	
+	
+	(
+		(
+			account_ancestor_id(Accounts, Exchanged_Account, 'Equity')
+		;
+			account_ancestor_id(Accounts, Exchanged_Account, 'Earnings')
+		)
 	->
 		Earnings_Account = Exchanged_Account
 	;
@@ -193,7 +216,8 @@ preprocess_s_transaction(Static_Data, S_Transaction, [UnX_Transactions, X_Transa
 		or it can be an assets account, if we are moving values around*/
 		(
 			make_exchanged_transactions(Exchange_Rates, Report_Currency, Earnings_Account, Transaction_Day, Vector_Goods, Description, X_Transactions),
-			make_currency_movement_transactions(Exchange_Rates, Report_Currency, Transaction_Day, Vector_Ours, Description, Currency_Trading_Transactions2)
+			atomic_list_concat([Description, ' - currency trading account changed by expense or revenue'], Description2),
+			make_currency_movement_transactions(Exchange_Rates, Report_Currency, Transaction_Day, Vector_Ours, Description2, Currency_Trading_Transactions2)
 		)
 	;
 		/*throw_string(['action does not specify exchanged account'])*/true
@@ -239,7 +263,6 @@ preprocess_s_transaction(Static_Data, S_Transaction, [UnX_Transactions, X_Transa
 						true
 							;
 						(
-							gtrace,
 							throw_string(['not enough goods to sell'])
 						)
 					),
@@ -253,12 +276,18 @@ preprocess_s_transaction(Static_Data, S_Transaction, [UnX_Transactions, X_Transa
 						realized_gains_txs(
 							Static_Data, value(
 								Currency, Sale_Unit_Price_Amount
-							)
+							),
+							Transaction_Day
+						
 						), 
 						Goods_Cost_Values, Txs2_Nested
 					),
 					flatten(Txs2_Nested, Txs2),
 					maplist(tx_to_transaction(Transaction_Day), Txs2, Trading_Transactions2),
+					
+					atomic_list_concat([Description, ' - currency trading account increased by incoming money'], Currency_Movement_Description),
+					make_currency_movement_transactions(Exchange_Rates, Report_Currency, Transaction_Day, Vector_Ours, Currency_Movement_Description, Currency_Trading_Transactions1),
+
 					Trading_Transactions = [Trading_Transactions1, Trading_Transactions2]
 				)
 		)
@@ -331,16 +360,22 @@ unrealized_gains_reduction_txs((_, Report_Currency, _, _, Exchange_Rates), Purch
 	('Unrealized_Gains_Excluding_Forex',					Goods_Without_Currency_Movement    ,      Cost_At_Report                          ),
 	('Unrealized_Gains_Currency_Movement',             Goods    ,                                   Goods_Without_Currency_Movement  )
 	],
-	Transactions_Out).
+	Transactions_Out),
+	Transactions_Out = [T0, T1],
+	T0.comment = T1.comment,
+	T0.comment = 'reduce unrealized gain by outgoing asset and its cost'.
 	
 
-realized_gains_txs((_, Report_Currency, _, _,Exchange_Rates), Sale_Unit_Price, Purchase_Info, Txs) :-
+realized_gains_txs((_, Report_Currency, _, _,Exchange_Rates), Sale_Unit_Price, Transaction_Date, Purchase_Info, Txs) :-
 	Sale_Without_Currency_Movement = [coord(
 		without_currency_movement_against_since(Goods_Unit, Purchase_Currency, Report_Currency, Purchase_Date), 
 		0, Goods_Count)
 	],
 	outstanding(Goods_Unit, Goods_Count, Cost, Purchase_Date) = Purchase_Info,
 	value_multiply(Sale_Unit_Price, Goods_Count, Sale),
+	Sale = value(Sale_Currency, Sale_Amount),
+	Sale_Vec = [coord(Sale_Currency, 0, Sale_Amount)],
+	vec_change_bases(Exchange_Rates, Transaction_Date, Report_Currency, Sale_Vec, Sale_In_Report_Currency),
 
 	value(Purchase_Currency, Purchase_Money) = Cost,
 	Cost_Vector = [coord(Purchase_Currency, 0, Purchase_Money)],
@@ -349,8 +384,8 @@ realized_gains_txs((_, Report_Currency, _, _,Exchange_Rates), Sale_Unit_Price, P
 
 	dr_cr_table_to_txs([
 	% Account                                                                 DR                                                               CR
-	('Realized_Gains_Currency_Movement',	                Sale_Without_Currency_Movement,           Sale),
-	('Realized_Gains_Excluding_Forex',                        Cost_In_Report_Currency,   	                     Sale_Without_Currency_Movement)
+	('Realized_Gains_Currency_Movement',	                Sale_Without_Currency_Movement,           Sale_In_Report_Currency),
+	('Realized_Gains_Excluding_Forex',                        Cost_In_Report_Currency,   	                    Sale_Without_Currency_Movement)
 	],
 	Txs).
 
@@ -662,13 +697,44 @@ we bought the shares with some currency. we can think of gains as having two par
 	atomic_list_concat(['cost:', Cost_Vector_Str, ' exchanged to ', Report_Currency_Str, ' on ', Exchange_Day_Str], Tx2_Comment2),
 
 */
-/*
-add_missing_unit_values(Exchange_Rates_In, S_Transactions0, Transactions, Report_Currency, Exchange_Day, Exchange_Rates_Out) :-
-	balance_by_account(Exchange_Rates, 'Accounts', Transactions, [Report_Currency], Exchange_Day, Account_Id, Date, Balance_Transformed),
-			
 
+fill_in_missing_units(_,_, [], _, _, []).
+
+fill_in_missing_units(S_Transactions0, Report_End_Date, [Report_Currency], Used_Units, Exchange_Rates, Inferred_Rates) :-
 	reverse(S_Transactions0, S_Transactions),
+	findall(
+		Rate,
+		(
+			member(Unit, Used_Units),
+			Unit \= Report_Currency,
+			\+is_exchangeable_into_request_bases(Exchange_Rates, Report_End_Date, Unit, [Report_Currency]),
+			(
+				Unit = without_currency_movement_against_since(Unit2,_,_,_)
+				;
+				Unit = Unit2
+			),
+			infer_unit_cost_from_last_buy_or_sell(Unit2, S_Transactions, Rate),
+			Rate = exchange_rate(Report_End_Date, _, _, _)
+		),
+		Inferred_Rates
+	).
 	
+infer_unit_cost_from_last_buy_or_sell(Unit, [ST|_], Exchange_Rate) :-
+	s_transaction_exchanged(ST, vector([coord(Unit, D, C)])),
+	s_transaction_vector(ST, [coord(Currency, Cost_D, Cost_C)]),
+	(
+		D =:= 0
+	->
+		Rate is Cost_D / C
+	;
+		Rate is Cost_C / D
+	),
+	Exchange_Rate = exchange_rate(_,Unit,Currency,Rate),
+	!.
 
-infer_unit_costs_from_last_buy_or_sell(Unit, S_Transactions, Exchange_Rate)
-*/
+infer_unit_cost_from_last_buy_or_sell(Unit, [_|S_Transactions], Rate) :-
+	infer_unit_cost_from_last_buy_or_sell(Unit, S_Transactions, Rate).
+
+
+
+
