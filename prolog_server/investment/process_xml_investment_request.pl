@@ -74,20 +74,18 @@ extract(Dom, Investment) :-
 	)).
 	
 test0(Investment) :-
-	compile_with_variable_names_preserved4(
-		(
-			Investment = investment(
-				Name, 
-				Purchase_Date, 
-				Count,
-				Currency, 
-				Report_Date,
-				PDPC_Unit_Cost, 
-				RDPC_Unit_Value,
-				PD_Rate,
-				RD_Rate
-			)
-		),
+	Investment = investment(
+		Name, 
+		Purchase_Date, 
+		Count,
+		Currency, 
+		Report_Date,
+		PDPC_Unit_Cost, 
+		RDPC_Unit_Value,
+		PD_Rate,
+		RD_Rate
+	),
+	magic_formula(
 		(
 			PDPC_Total_Cost = Count * PDPC_Unit_Cost,
 			PDRC_Total_Cost = PDPC_Total_Cost / PD_Rate,
@@ -98,22 +96,8 @@ test0(Investment) :-
 			RDRC_Total_Gain = RDRC_New_Rate_Total_Value - PDRC_Total_Cost,
 			RDRC_Market_Gain = RDRC_Old_Rate_Total_Value - PDRC_Total_Cost,
 			RDRC_Currency_Gain = RDRC_Total_Gain - RDRC_Market_Gain
-		),	
-		Names, _Expansions
+		)
 	),
-	/*writeln('------'),
-	writeln(Expansions),
-	writeln('------'),*//*
-	PDPC_Total_Cost_v is PDPC_Total_Cost,
-	PDRC_Total_Cost_v is PDRC_Total_Cost,
-	RDPC_Total_Value_v is RDPC_Total_Value,
-	RDPC_Unrealized_Gain_v is RDPC_Unrealized_Gain,
-	RDRC_Old_Rate_Total_Value_v is RDRC_Old_Rate_Total_Value,
-	RDRC_New_Rate_Total_Value_v is RDRC_New_Rate_Total_Value,
-	RDRC_Total_Gain_v is RDRC_Total_Gain,
-	RDRC_Market_Gain_v is RDRC_Market_Gain,
-	RDRC_Currency_Gain_v is RDRC_Currency_Gain,
-*/
 	
     
 	true.

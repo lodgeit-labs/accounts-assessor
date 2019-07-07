@@ -1,5 +1,5 @@
 :- module(utils, [
-	user:goal_expansion/2, inner_xml/3, write_tag/2, fields/2, fields_nothrow/2, numeric_fields/2, 
+	user:goal_expansion/2, inner_xml/3, open_tag/1, close_tag/1, write_tag/2, fields/2, fields_nothrow/2, numeric_fields/2, 
 	pretty_term_string/2, pretty_term_string/2, with_info_value_and_info/3, trim_atom/2, maplist6/6, throw_string/1, semigroup_foldl/3,
 	value_multiply/3]).
 :- use_module(library(xpath)).
@@ -44,95 +44,45 @@ user:goal_expansion(
 , X) :-
 	term_variables(X, Vars),
 	maplist(my_variable_naming, Vars, Names).
-/*
-user:goal_expansion(
-	compile_with_variable_names_preserved2(X, Namings, Descriptions)
-, X) :-
-	term_variables(X, Vars),
-	maplist(my_variable_naming, Vars, Names),
-	Namings = variable_names(Names),
-	describe_formulas(Namings, X, Descriptions).
+	
 
 user:goal_expansion(
-	compile_with_variable_names_preserved3(Initialization, X, Namings, Descriptions)
-, (Initialization, X)) :-
-	term_variables(X, Vars),
-	maplist(my_variable_naming, Vars, Names),
-	Namings = variable_names(Names),
-	describe_formulas(Namings, X, Descriptions).
-	
-describe_formula(Namings, (A=B), (A, Description)) :-
-	term_string(A,S1,[Namings]),
-	term_string(B,S2,[Namings]),
-	atomic_list_concat([S1, ' = ', S2], Description).
-	
-describe_formulas(Namings, (Formula, Formulas), [Description|Descriptions]) :-
-	describe_formula(Namings, Formula, Description),
-	describe_formulas(Namings, Formulas, Descriptions),!.
-
-describe_formulas(Namings, Formula, [Description]) :-
-	describe_formula(Namings, Formula, Description).
-
-*/
-
-	
-	
-	
-expand_formulas_to_code([H|T], Expansion) :-
-	H = (New_Formula, S1, Description, A, Evaluation),
-	Evaluation = (V is _Rhs),
-	Expansion = ((
-		writeln(''),
-		/*write('<!-- '), write(S1), writeln(': -->'),*/
-		New_Formula,
-		Evaluation,
-		write_tag(S1, V),
-		write_tag([S1, '_Formula'], Description),
-		term_string(A, A_String),
-		atomic_list_concat([S1, ' = ', A_String], Computation_String),
-		write_tag([S1, '_Computation'], Computation_String)),
-		Tail),
-	expand_formulas_to_code(T, Tail).
-
-expand_formulas_to_code([], (true)).
-	
-user:goal_expansion(
-	compile_with_variable_names_preserved4(Initialization, X, Namings, Expansions), 
-	(Initialization, Code)
+	magic_formula(/*Initialization, */X/*, Namings, Expansions*/), 
+	(/*Initialization, */Code)
 ) :-
 	term_variables(X, Vars),
 	maplist(my_variable_naming, Vars, Names),
 	Namings = variable_names(Names),
 	expand_formulas(Namings, X, [], Expansions),
-	expand_formulas_to_code(Expansions, Code),
+	expand_formulas_to_code(Expansions, Code)/*,
 	Code = (AAA,BBB,_),
 	writeln(AAA),
 	writeln('------'),
 	writeln(BBB),
 	writeln('------'),
+	true-*/.
+
+expand_formulas_to_code([], (true)).
 	
-	true.
-		
-expand_formula(Namings, (A=B), Es_In, ((A = Rhs_With_Replacements), S1, Description, A, Evaluation)):-
+expand_formulas_to_code([H|T], Expansion) :-
+	H = (New_Formula, S1, Description, _A),
+	New_Formula = (V is Rhs),
+	Expansion = ((
+		writeln(''),
+		%write('<!-- '), write(S1), writeln(': -->'),
+		New_Formula,
+		utils:open_tag(S1),  format('~2f', [V]), utils:close_tag(S1), 
+		write_tag([S1, '_Formula'], Description),
+		term_string(Rhs, A_String),
+		atomic_list_concat([S1, ' = ', A_String], Computation_String),
+		write_tag([S1, '_Computation'], Computation_String)),
+		Tail),
+	expand_formulas_to_code(T, Tail).
+
+expand_formula(Namings, (A=B), _Es_In, ((A is B), S1, Description, A)):-
 	term_string(A, S1, [Namings]),
 	term_string(B, S2, [Namings]),
-	atomic_list_concat([S1, ' = ', S2], Description),
-	make_replacements(Es_In, B, Rhs_With_Replacements),
-	Evaluation = (_ is Rhs_With_Replacements).
-	
-	
-make_replacements(Replacements, Term, With_Replacements) :-
-	nonvar(Term),
-	Term =.. [Functor|Args],
-	maplist(make_replacements(Replacements), Args, Args_With_Replacements),
-	With_Replacements =.. [Functor|Args_With_Replacements].
-
-make_replacements(Replacements, Term, Replacement) :-
-	member((_,_,_,Term2,(Replacement is _)), Replacements),
-	Term == Term2,
-	!.
-
-make_replacements(Replacements, Term, Term).
+	atomic_list_concat([S1, ' = ', S2], Description).
 
 expand_formulas(Namings, (F, Fs), Es_In, Es_Out) :-
 	expand_formula(Namings, F, Es_In, E),
@@ -176,6 +126,17 @@ write_tag(Tag_Name_Input,Tag_Value) :-
 	write(Tag_Value),
 	writeln(Closing_Tag).
 
+open_tag(Name) :-
+	flatten(['<', Name, '>'], L),
+	atomic_list_concat(L, S),
+	write(S).
+
+close_tag(Name) :-
+	flatten(['</', Name, '>\n'], L),
+	atomic_list_concat(L, S),
+	write(S).
+
+	
 numeric_field(Dom, Name_String, Value) :-
 	trimmed_field(Dom, //Name_String, Value_Atom),
 	atom_number(Value_Atom, Value).
@@ -305,9 +266,3 @@ throw_string(List) :-
 value_multiply(value(Unit, Amount1), Multiplier, value(Unit, Amount2)) :-
 	Amount2 is Amount1 * Multiplier.
 
-/*
-list_to_tuples([H|T], (H,X)) :-
-	list_to_tuples(T, X).
-
-list_to_tuples([H], (H)).
-*/
