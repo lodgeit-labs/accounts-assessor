@@ -55,7 +55,14 @@ process(Dom) :-
 		)
 	),
 	writeln('</investment>'),nl,nl,
-	[s_transaction(Purchase_Date, 'Invest_In', vector, account_id, exchanged).
+	
+	
+	/*
+	Purchase_Date,
+	Report_Date,
+	report_currency,
+	[s_transaction(Purchase_Date, 'Invest_In', vector([coord(Currency, PDPC_Total_Cost, 0)]), 'Bank', coord(Name, Count, 0))],	
+	*/
 	
     
 	true.
