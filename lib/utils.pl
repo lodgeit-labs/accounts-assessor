@@ -44,7 +44,7 @@ user:goal_expansion(
 , X) :-
 	term_variables(X, Vars),
 	maplist(my_variable_naming, Vars, Names).
-
+/*
 user:goal_expansion(
 	compile_with_variable_names_preserved2(X, Namings, Descriptions)
 , X) :-
@@ -73,23 +73,20 @@ describe_formulas(Namings, (Formula, Formulas), [Description|Descriptions]) :-
 describe_formulas(Namings, Formula, [Description]) :-
 	describe_formula(Namings, Formula, Description).
 
+*/
 
 	
-list_to_tuples([H|T], (H,X)) :-
-	list_to_tuples(T, X).
-
-list_to_tuples([H], (H)).
 	
 	
 expand_formulas_to_code([H|T], Expansion) :-
 	H = (S1, Description, A, Evaluation),
-	Evaluation = (V is Rhs),
-	Expansion = (
+	Evaluation = (V is _Rhs),
+	Expansion = ((
 		writeln(''),write('<!-- '), write(S1), writeln(': -->'),
 		Evaluation,
 		write_tag(S1, V),
 		write_tag([S1, '_Formula'], Description),
-		write_tag([S1, '_Computation'], A),
+		write_tag([S1, '_Computation'], A)),
 		Tail),
 	expand_formulas_to_code(T, Tail).
 
@@ -103,23 +100,43 @@ user:goal_expansion(
 	maplist(my_variable_naming, Vars, Names),
 	Namings = variable_names(Names),
 	expand_formulas(Namings, X, [], Expansions),
-	expand_formulas_to_code(Expansions, Evaluations)/*,
-	writeln(Evaluations),
-	writeln('------')*/.
+	expand_formulas_to_code(Expansions, Evaluations),
+	Evaluations = (AAA,BBB,_),
+	writeln(AAA),
+	writeln('------'),
+	writeln(BBB),
+	writeln('------'),
+	
+	true.
 		
-expand_formula(Namings, (A=B), (S1, Description, A, Evaluation)):-
-	term_string(A,S1,[Namings]),
-	term_string(B,S2,[Namings]),
+expand_formula(Namings, (A=B), Es_In, (S1, Description, A, Evaluation)):-
+	term_string(A, S1, [Namings]),
+	term_string(B, S2, [Namings]),
 	atomic_list_concat([S1, ' = ', S2], Description),
-	Evaluation = (_ is A).
+	make_replacements(Es_In, B, Rhs_With_Replacements),
+	Evaluation = (_ is Rhs_With_Replacements).
+	
+	
+make_replacements(Replacements, Term, With_Replacements) :-
+	nonvar(Term),
+	Term =.. [Functor|Args],
+	maplist(make_replacements(Replacements), Args, Args_With_Replacements),
+	With_Replacements =.. [Functor|Args_With_Replacements].
+
+make_replacements(Replacements, Term, Replacement) :-
+	member((_,_,Term2,(Replacement is _)), Replacements),
+	Term == Term2,
+	!.
+
+make_replacements(Replacements, Term, Term).
 
 expand_formulas(Namings, (F, Fs), Es_In, Es_Out) :-
-	expand_formula(Namings, F, E),
+	expand_formula(Namings, F, Es_In, E),
 	append(Es_In, [E], Es2),
 	expand_formulas(Namings, Fs, Es2, Es_Out),!.
 
 expand_formulas(Namings, F,  Es_In, Es_Out) :-
-	expand_formula(Namings, F, E),
+	expand_formula(Namings, F, Es_In, E),
 	append(Es_In, [E], Es_Out).
 	
 	
@@ -283,3 +300,10 @@ throw_string(List) :-
 
 value_multiply(value(Unit, Amount1), Multiplier, value(Unit, Amount2)) :-
 	Amount2 is Amount1 * Multiplier.
+
+/*
+list_to_tuples([H|T], (H,X)) :-
+	list_to_tuples(T, X).
+
+list_to_tuples([H], (H)).
+*/
