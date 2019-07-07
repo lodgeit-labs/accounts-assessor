@@ -79,14 +79,18 @@ describe_formulas(Namings, Formula, [Description]) :-
 	
 	
 expand_formulas_to_code([H|T], Expansion) :-
-	H = (S1, Description, A, Evaluation),
+	H = (New_Formula, S1, Description, A, Evaluation),
 	Evaluation = (V is _Rhs),
 	Expansion = ((
-		writeln(''),write('<!-- '), write(S1), writeln(': -->'),
+		writeln(''),
+		/*write('<!-- '), write(S1), writeln(': -->'),*/
+		New_Formula,
 		Evaluation,
 		write_tag(S1, V),
 		write_tag([S1, '_Formula'], Description),
-		write_tag([S1, '_Computation'], A)),
+		term_string(A, A_String),
+		atomic_list_concat([S1, ' = ', A_String], Computation_String),
+		write_tag([S1, '_Computation'], Computation_String)),
 		Tail),
 	expand_formulas_to_code(T, Tail).
 
@@ -94,14 +98,14 @@ expand_formulas_to_code([], (true)).
 	
 user:goal_expansion(
 	compile_with_variable_names_preserved4(Initialization, X, Namings, Expansions), 
-	(Initialization, X, Evaluations)
+	(Initialization, Code)
 ) :-
 	term_variables(X, Vars),
 	maplist(my_variable_naming, Vars, Names),
 	Namings = variable_names(Names),
 	expand_formulas(Namings, X, [], Expansions),
-	expand_formulas_to_code(Expansions, Evaluations),
-	Evaluations = (AAA,BBB,_),
+	expand_formulas_to_code(Expansions, Code),
+	Code = (AAA,BBB,_),
 	writeln(AAA),
 	writeln('------'),
 	writeln(BBB),
@@ -109,7 +113,7 @@ user:goal_expansion(
 	
 	true.
 		
-expand_formula(Namings, (A=B), Es_In, (S1, Description, A, Evaluation)):-
+expand_formula(Namings, (A=B), Es_In, ((A = Rhs_With_Replacements), S1, Description, A, Evaluation)):-
 	term_string(A, S1, [Namings]),
 	term_string(B, S2, [Namings]),
 	atomic_list_concat([S1, ' = ', S2], Description),
@@ -124,7 +128,7 @@ make_replacements(Replacements, Term, With_Replacements) :-
 	With_Replacements =.. [Functor|Args_With_Replacements].
 
 make_replacements(Replacements, Term, Replacement) :-
-	member((_,_,Term2,(Replacement is _)), Replacements),
+	member((_,_,_,Term2,(Replacement is _)), Replacements),
 	Term == Term2,
 	!.
 

@@ -90,14 +90,14 @@ test0(Investment) :-
 		),
 		(
 			PDPC_Total_Cost = Count * PDPC_Unit_Cost,
-			PDRC_Total_Cost = PDPC_Total_Cost / PD_Rate/*,
+			PDRC_Total_Cost = PDPC_Total_Cost / PD_Rate,
 			RDPC_Total_Value = Count * RDPC_Unit_Value,
 			RDPC_Unrealized_Gain = RDPC_Total_Value - PDPC_Total_Cost,
 			RDRC_Old_Rate_Total_Value = RDPC_Total_Value / PD_Rate,
 			RDRC_New_Rate_Total_Value = RDPC_Total_Value / RD_Rate,
 			RDRC_Total_Gain = RDRC_New_Rate_Total_Value - PDRC_Total_Cost,
 			RDRC_Market_Gain = RDRC_Old_Rate_Total_Value - PDRC_Total_Cost,
-			RDRC_Currency_Gain = RDRC_Total_Gain - RDRC_Market_Gain*/
+			RDRC_Currency_Gain = RDRC_Total_Gain - RDRC_Market_Gain
 		),	
 		Names, _Expansions
 	),
