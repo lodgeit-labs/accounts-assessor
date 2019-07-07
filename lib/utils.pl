@@ -4,7 +4,130 @@
 	value_multiply/3]).
 :- use_module(library(xpath)).
 
+
+
+:- multifile user:goal_expansion/2.
+:- dynamic user:goal_expansion/2.
+
+/*executed at compile time, passess X through, and binds Names to info suitable for term_string*/	
+
+/*usage:
+x([S2,' ', S3,' ', S4]) :-
+	compile_with_variable_names_preserved((
+		AC=4444*X,
+		X = Z/3,
+		true
+	), Namings),
+	compile_with_variable_names_preserved((
+		AC=4444*X,
+		X = Z/3,
+		true
+	), Namings),
+	Z = 27,
+	writeln(''),
+	print_term(AC, [Namings]),
+	writeln(''),
+	compile_with_variable_names_preserved((
+		AC2=4*XX,
+		XX = Z/3,
+		true
+	), Namings2),
+	writeln(''),
+	print_term(AC2, [Namings2]),
+	writeln(''),
+	true.
+:- x(S).
+*/
+
+user:goal_expansion(
+	compile_with_variable_names_preserved(X, variable_names(Names))
+, X) :-
+	term_variables(X, Vars),
+	maplist(my_variable_naming, Vars, Names).
+
+user:goal_expansion(
+	compile_with_variable_names_preserved2(X, Namings, Descriptions)
+, X) :-
+	term_variables(X, Vars),
+	maplist(my_variable_naming, Vars, Names),
+	Namings = variable_names(Names),
+	describe_formulas(Namings, X, Descriptions).
+
+user:goal_expansion(
+	compile_with_variable_names_preserved3(Initialization, X, Namings, Descriptions)
+, (Initialization, X)) :-
+	term_variables(X, Vars),
+	maplist(my_variable_naming, Vars, Names),
+	Namings = variable_names(Names),
+	describe_formulas(Namings, X, Descriptions).
 	
+describe_formula(Namings, (A=B), (A, Description)) :-
+	term_string(A,S1,[Namings]),
+	term_string(B,S2,[Namings]),
+	atomic_list_concat([S1, ' = ', S2], Description).
+	
+describe_formulas(Namings, (Formula, Formulas), [Description|Descriptions]) :-
+	describe_formula(Namings, Formula, Description),
+	describe_formulas(Namings, Formulas, Descriptions),!.
+
+describe_formulas(Namings, Formula, [Description]) :-
+	describe_formula(Namings, Formula, Description).
+
+
+	
+list_to_tuples([H|T], (H,X)) :-
+	list_to_tuples(T, X).
+
+list_to_tuples([H], (H)).
+	
+	
+expand_formulas_to_code([H|T], Expansion) :-
+	H = (S1, Description, A, Evaluation),
+	Evaluation = (V is Rhs),
+	Expansion = (
+		writeln(''),write('<!-- '), write(S1), writeln(': -->'),
+		Evaluation,
+		write_tag(S1, V),
+		write_tag([S1, '_Formula'], Description),
+		write_tag([S1, '_Computation'], A),
+		Tail),
+	expand_formulas_to_code(T, Tail).
+
+expand_formulas_to_code([], (true)).
+	
+user:goal_expansion(
+	compile_with_variable_names_preserved4(Initialization, X, Namings, Expansions), 
+	(Initialization, X, Evaluations)
+) :-
+	term_variables(X, Vars),
+	maplist(my_variable_naming, Vars, Names),
+	Namings = variable_names(Names),
+	expand_formulas(Namings, X, [], Expansions),
+	expand_formulas_to_code(Expansions, Evaluations)/*,
+	writeln(Evaluations),
+	writeln('------')*/.
+		
+expand_formula(Namings, (A=B), (S1, Description, A, Evaluation)):-
+	term_string(A,S1,[Namings]),
+	term_string(B,S2,[Namings]),
+	atomic_list_concat([S1, ' = ', S2], Description),
+	Evaluation = (_ is A).
+
+expand_formulas(Namings, (F, Fs), Es_In, Es_Out) :-
+	expand_formula(Namings, F, E),
+	append(Es_In, [E], Es2),
+	expand_formulas(Namings, Fs, Es2, Es_Out),!.
+
+expand_formulas(Namings, F,  Es_In, Es_Out) :-
+	expand_formula(Namings, F, E),
+	append(Es_In, [E], Es_Out).
+	
+	
+	
+	
+my_variable_naming(Var, (Name = Var)) :-
+	var_property(Var, name(Name)).
+		
 
 
 % this gets the children of an element with ElementXPath
@@ -21,7 +144,9 @@ trim_atom(Child_Atom, Value) :-
 	atom_string(Value, Value_String).
 
 
-write_tag(Tag_Name,Tag_Value) :-
+write_tag(Tag_Name_Input,Tag_Value) :-
+	flatten([Tag_Name_Input], Tag_Name_List),
+	atomic_list_concat(Tag_Name_List, Tag_Name),
 	string_concat("<",Tag_Name,Open_Tag_Tmp),
 	string_concat(Open_Tag_Tmp,">",Open_Tag),
 	string_concat("</",Tag_Name,Closing_Tag_Tmp),
@@ -151,47 +276,6 @@ test0 :-
 :- test0.
    
 
-:- multifile user:goal_expansion/2.
-:- dynamic user:goal_expansion/2.
-
-/*executed at compile time, passess X through, and binds Names to info suitable for term_string*/	
-user:goal_expansion(
-	compile_with_variable_names_preserved(X, variable_names(Names))
-, X) :-
-	term_variables(X, Vars),
-	maplist(my_variable_naming, Vars, Names).
-
-my_variable_naming(Var, (Name = Var)) :-
-	var_property(Var, name(Name)).
-		
-/*usage:
-x([S2,' ', S3,' ', S4]) :-
-	compile_with_variable_names_preserved((
-		AC=4444*X,
-		X = Z/3,
-		true
-	), Namings),
-	compile_with_variable_names_preserved((
-		AC=4444*X,
-		X = Z/3,
-		true
-	), Namings),
-	Z = 27,
-	writeln(''),
-	print_term(AC, [Namings]),
-	writeln(''),
-	compile_with_variable_names_preserved((
-		AC2=4*XX,
-		XX = Z/3,
-		true
-	), Namings2),
-	writeln(''),
-	print_term(AC2, [Namings2]),
-	writeln(''),
-	true.
-:- x(S).
-*/
-
 throw_string(List) :-
 	atomic_list_concat(List, String),
 	throw(string(String)).
@@ -199,4 +283,3 @@ throw_string(List) :-
 
 value_multiply(value(Unit, Amount1), Multiplier, value(Unit, Amount2)) :-
 	Amount2 is Amount1 * Multiplier.
-	
