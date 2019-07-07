@@ -223,7 +223,7 @@
       </action>
       <action>
         <id>Transfers</id>
-        <exchangeAccount>Clearing_Account</exchangeAccount>
+        <exchangeAccount>Exchange_Gain</exchangeAccount>
         <tradingAccount />
         <description />
       </action>

@@ -52,6 +52,7 @@
 						<Unrealized_Gains_Currency_Movement/>
 					</UnrealizedGain>
 				</Earnings_Financial_Investments>	
+				<Exchange_Gain/>
 			</Other_Income>
 			<SalesOfLivestock/>
 			<RationsRevenue/>
