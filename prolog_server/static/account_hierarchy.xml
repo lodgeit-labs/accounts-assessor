@@ -25,6 +25,7 @@
 		</RetainedEarnings>
 		<CapitalIntroduced/>
 		<Drawings/>
+		<Clearing_Account/>
 	</Equity>
 	<Liabilities>
 		<NoncurrentLiabilities>
@@ -39,7 +40,6 @@
 			<Income/>
 			<InvestmentIncome/>
 			<Other_Income>
-				<Clearing_Account/>
 				<InterestIncome/>
 				<Interest_Earned/>
 				<Earnings_Financial_Investments>

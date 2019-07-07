@@ -577,7 +577,7 @@ opening_inventory_transactions(Start_Days, Opening_Costs_And_Counts, Livestock_T
 	].
 	
 	
-process_livestock(Livestock_Doms, Livestock_Types, S_Transactions, Transactions_In, Opening_Costs_And_Counts, Start_Days, End_Days, Exchange_Rates, Accounts, Report_Currency, Transactions_Out, Livestock_Events, Average_Costs, Average_Costs_Explanations) :-
+process_livestock(Livestock_Doms, Livestock_Types, S_Transactions, Transactions_In, Opening_Costs_And_Counts, Start_Days, End_Days, _Exchange_Rates, _Accounts, _Report_Currency, Transactions_Out, Livestock_Events, Average_Costs, Average_Costs_Explanations) :-
 	extract_livestock_events(Livestock_Doms, Livestock_Events),
 	extract_natural_increase_costs(Livestock_Doms, Natural_Increase_Costs),
 
@@ -596,9 +596,9 @@ process_livestock(Livestock_Doms, Livestock_Types, S_Transactions, Transactions_
 	append(Transactions2, More_Transactions, Transactions3),  
 
 	get_livestock_cogs_transactions(Livestock_Types, Opening_Costs_And_Counts, Average_Costs, (Start_Days, End_Days, Average_Costs, Transactions3, S_Transactions),  Cogs_Transactions),
-	append(Transactions3, Cogs_Transactions, Transactions_Out),
+	append(Transactions3, Cogs_Transactions, Transactions_Out)/*,
 	
-	maplist(do_livestock_cross_check(Livestock_Events, Natural_Increase_Costs, S_Transactions, Transactions_Out, Opening_Costs_And_Counts, Start_Days, End_Days, Exchange_Rates, Accounts, Report_Currency, Average_Costs), Livestock_Types).
+	maplist(do_livestock_cross_check(Livestock_Events, Natural_Increase_Costs, S_Transactions, Transactions_Out, Opening_Costs_And_Counts, Start_Days, End_Days, Exchange_Rates, Accounts, Report_Currency, Average_Costs), Livestock_Types)*/.
 
 
 	
@@ -635,7 +635,8 @@ do_livestock_cross_check(Events, Natural_Increase_Costs, S_Transactions, Transac
 		Average_Cost,
 		Revenue,
 		Livestock_COGS,
-		Gross_Profit_on_Livestock_Trading),
+		Gross_Profit_on_Livestock_Trading,
+		_Explanation),
 	
 	% now check the output
 	member(Opening_Cost_And_Count, Opening_Costs_And_Counts),	

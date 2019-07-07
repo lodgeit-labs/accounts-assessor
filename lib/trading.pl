@@ -71,12 +71,14 @@ increase_realized_gains(Static_Data, Converted_Vector, Goods_Vector, Transaction
 	txs_to_transactions(Transaction_Day, Txs2, Ts2).
 	
 realized_gains_txs((_, Report_Currency, _, _,_), Sale_Unit_Price_Converted, Purchase_Info, Txs) :-
+	outstanding(ST_Currency, Goods_Unit, Goods_Count, Cost, Purchase_Date) = Purchase_Info,
+	
 	Sale_Without_Currency_Movement = [coord(
-		without_currency_movement_against_since(Goods_Unit, Purchase_Currency, Report_Currency, Purchase_Date), 
+		without_currency_movement_against_since(Goods_Unit, ST_Currency, Report_Currency, Purchase_Date), 
 		0, Goods_Count)
 	],
-	Cost = value(Purchase_Currency, _),
-	outstanding(_ST_Currency, Goods_Unit, Goods_Count, Cost, Purchase_Date) = Purchase_Info,
+	
+	
 	value_multiply(Sale_Unit_Price_Converted, Goods_Count, Sale),
 	dr_cr_table_to_txs([
 	% Account                                                                 DR                                                               CR

@@ -262,6 +262,12 @@
         <currency>USD</currency>
         <transactions>
           <transaction>
+            <transdesc>Introduce_Capital</transdesc>
+            <transdate>2018-07-01</transdate>
+            <credit>0</credit>
+          </transaction>
+
+          <transaction>
             <transdesc>Invest_In</transdesc>
             <transdate>2018-07-02</transdate>
             <debit>41602.84</debit>
@@ -309,6 +315,11 @@
         <bankID />
         <currency>CHF</currency>
         <transactions>
+          <transaction>
+            <transdesc>Introduce_Capital</transdesc>
+            <transdate>2018-07-01</transdate>
+            <credit>921518.93</credit>
+          </transaction>
           <transaction>
             <transdesc>Accountancy_Fees</transdesc>
             <transdate>2018-07-10</transdate>
