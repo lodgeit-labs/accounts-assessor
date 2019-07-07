@@ -41,7 +41,6 @@ process_xml_ledger_request(_, Dom) :-
 
 	findall(S_Transaction, extract_transaction(Dom, Start_Date_Atom, S_Transaction), S_Transactions0),
 
-	format('Content-type: text/xml~n~n'), 
 	writeln('<?xml version="1.0"?>'), nl, nl,
 
 	emit_warnings(S_Transactions0, Start_Days, End_Days),

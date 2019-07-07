@@ -21,12 +21,15 @@
 % -------------------------------------------------------------------
 
 process_data(FileName, Path) :-
-   load_xml(Path, DOM, []),
-   process_xml_request(FileName, DOM).
-   % format('Content-type: text/plain~n~n'),
+   format('Content-type: text/xml~n~n'),
+   process_data2(FileName, Path).
    % writeq(DOM),
    % write(FileName),
    % write(Path).
+
+process_data2(FileName, Path) :-
+   load_xml(Path, DOM, []),
+   process_xml_request(FileName, DOM).
 
    
 % -------------------------------------------------------------------
