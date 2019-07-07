@@ -2,78 +2,74 @@
 <accountHierarchy>
   <Accounts>
 	<Assets>
-		<CurrentAssets>
-			<CashAndCashEquivalents>
+		<Current_Assets>
+			<Cash_And_Cash_Equivalents>
 				<NationalAustraliaBank/>
-			</CashAndCashEquivalents>
-          <AssetsLivestock>
-            <AssetsLivestockAtCost/>
-            <AssetsLivestockAtAverageCost/>
-          </AssetsLivestock>
-		</CurrentAssets>
-		<NoncurrentAssets>
-			<FinancialInvestments/>
+			</Cash_And_Cash_Equivalents>
+          <Assets_Livestock>
+            <Assets_Livestock_At_Cost/>
+            <Assets_Livestock_At_Average_Cost/>
+          </Assets_Livestock>
+		</Current_Assets>
+		<Noncurrent_Assets>
 			<Financial_Investments/>
-		</NoncurrentAssets>
+		</Noncurrent_Assets>
 	</Assets>
 	<Equity>
-		<ShareCapital/>
 		<Share_Capital/>
-		<RetainedEarnings>
-			<HistoricalEarnings/>
-			<CurrentEarnings/>
-		</RetainedEarnings>
-		<CapitalIntroduced/>
+		<Retained_Earnings>
+			<Historical_Earnings/>
+			<Current_Earnings/>
+		</Retained_Earnings>
+		<Capital_Introduced/>
 		<Drawings/>
 		<Clearing_Account/>
 	</Equity>
 	<Liabilities>
-		<NoncurrentLiabilities>
-			<NoncurrentLoans/>
-		</NoncurrentLiabilities>
-		<CurrentLiabilities>
-			<CurrentLoans/>
-		</CurrentLiabilities>
+		<Noncurrent_Liabilities>
+			<Noncurrent_Loans/>
+		</Noncurrent_Liabilities>
+		<Current_Liabilities>
+			<Current_Loans/>
+		</Current_Liabilities>
 	</Liabilities>
 	<Earnings>
 		<Revenue>
 			<Income/>
-			<InvestmentIncome/>
+			<Investment_Income/>
 			<Other_Income>
-				<InterestIncome/>
+				<Interest_Income/>
 				<Interest_Earned/>
 				<Earnings_Financial_Investments>
-					<RealizedGain>
+					<Realized_Gain>
 						<Realized_Gains_Excluding_Forex/>
 						<Realized_Gains_Currency_Movement/>
-					</RealizedGain>
-					<UnrealizedGain>
+					</Realized_Gain>
+					<Unrealized_Gain>
 						<Unrealized_Gains_Excluding_Forex/>
 						<Unrealized_Gains_Currency_Movement/>
-					</UnrealizedGain>
+					</Unrealized_Gain>
 				</Earnings_Financial_Investments>	
 				<Exchange_Gain/>
 			</Other_Income>
 			<SalesOfLivestock/>
-			<RationsRevenue/>
-			<OtherGain/>
+			<Rations_Revenue/>
+			<Other_Gain/>
 			<Currency_Movement/>
 		</Revenue>
 		<Expenses>
-			<BankCharges/>
 			<Bank_Charges/>
-			<AccountancyFees/>
 			<Accounting_Fees/>
-			<ForexLoss/>
-			<InterestExpenses/>
-			<LivestockAdjustment/>
+			<Forex_Loss/>
+			<Interest_Expenses/>
+			<Livestock_Adjustment/>
 			<Purchases/>
-			<CostOfGoodsLivestock/>
-			<OtherExpenses/>
+			<Cost_Of_Goods_Livestock/>
+			<Other_Expenses/>
 			<Food_Expenses/>
 		</Expenses>
 	</Earnings>
   </Accounts>
-  <LivestockCount/>
+  <Livestock_Count/>
 </accountHierarchy>
 

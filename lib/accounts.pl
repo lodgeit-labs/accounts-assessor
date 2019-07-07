@@ -49,7 +49,7 @@ account_ancestor_id(Accounts, Account_Id, Ancestor_Id) :-
 % Gets the ids for the assets, equity, liabilities, earnings, retained earnings, current
 % earnings, revenue, and expenses accounts. 
 account_ids(_Accounts,
-      'Assets', 'Equity', 'Liabilities', 'Earnings', 'RetainedEarnings', 'CurrentEarningsLosses', 'Revenue', 'Expenses').
+      'Assets', 'Equity', 'Liabilities', 'Earnings', 'Retained_Earnings', 'Current_Earnings_Losses', 'Revenue', 'Expenses').
 
 extract_account_hierarchy(Request_Dom, Account_Hierarchy) :-
 	(

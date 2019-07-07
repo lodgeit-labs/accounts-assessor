@@ -169,7 +169,7 @@ yield_livestock_cogs_transactions(
 			% expense/revenue
 			transaction(To_Day, "livestock adjustment", Cogs_Account, Adjustment_Credit),
 			% assets
-			transaction(To_Day, "livestock adjustment", 'AssetsLivestockAtAverageCost', Adjustment_Debit)
+			transaction(To_Day, "livestock adjustment", 'Assets_Livestock_At_Average_Cost', Adjustment_Debit)
 		],
 		cogs_account(Livestock_Type, Cogs_Account).
 
@@ -293,9 +293,9 @@ s_transaction_is_livestock_buy_or_sell(S_Transaction, Day, Livestock_Type, Lives
 
 
 
-livestock_account_ids('Livestock', 'LivestockAtCost', 'Drawings', 'LivestockRations').
+livestock_account_ids('Livestock', 'Livestock_At_Cost', 'Drawings', 'Livestock_Rations').
 expenses__direct_costs__purchases__account_id('Purchases').
-cost_of_goods_livestock_account_id('CostOfGoodsLivestock').
+cost_of_goods_livestock_account_id('Cost_Of_Goods_Livestock').
 
 
 
@@ -552,7 +552,7 @@ extract_livestock_event2(Type, Days, Count, element(rations,_,_),               
 
 /* we should have probably just put the livestock count accounts under inventory */
 yield_livestock_inventory_transaction(Livestock_Type, Opening_Cost_And_Count, Average_Cost_Exchange_Rate, End_Days, Transactions_In, Inventory_Transaction) :-
-	Inventory_Transaction = transaction(End_Days, 'livestock closing inventory', 'AssetsLivestockAtCost', Vector),
+	Inventory_Transaction = transaction(End_Days, 'livestock closing inventory', 'Assets_Livestock_At_Cost', Vector),
 	livestock_at_average_cost_at_day(Livestock_Type, Transactions_In, Opening_Cost_And_Count, End_Days, Average_Cost_Exchange_Rate, Vector).
 
 get_livestock_inventory_transactions(Livestock_Types, Opening_Costs_And_Counts, Average_Costs, End_Days, Transactions_In, Assets_Transactions) :-
@@ -572,8 +572,8 @@ opening_inventory_transactions(Start_Days, Opening_Costs_And_Counts, Livestock_T
 	opening_cost_and_count(Livestock_Type, Opening_Vector, _) = Opening_Cost_And_Count,
 	vec_inverse(Opening_Vector, Opening_Vector_Credit),
 	Opening_Inventory_Transactions = [
-		transaction(Start_Days, 'livestock opening inventory', 'AssetsLivestockAtCost', Opening_Vector),
-		transaction(Start_Days, 'livestock opening inventory', 'CapitalIntroduced', Opening_Vector_Credit)
+		transaction(Start_Days, 'livestock opening inventory', 'Assets_Livestock_At_Cost', Opening_Vector),
+		transaction(Start_Days, 'livestock opening inventory', 'Capital_Introduced', Opening_Vector_Credit)
 	].
 	
 	
@@ -822,9 +822,9 @@ events_count2(Type, Event, Borns, Losses, Rations) :-
 	
 make_livestock_accounts(Livestock_Type, Accounts) :-
 	Accounts = [Cogs, CogsRations, Sales, Count],
-	Cogs  = account(Cogs_Name, 'CostOfGoodsLivestock'),
-	Sales = account(Sales_Name, 'SalesOfLivestock'),
-	Count = account(Count_Name, 'LivestockCount'),
+	Cogs  = account(Cogs_Name, 'Cost_Of_Goods_Livestock'),
+	Sales = account(Sales_Name, 'Sales_Of_Livestock'),
+	Count = account(Count_Name, 'Livestock_Count'),
 	CogsRations = account(CogsRations_Name, Cogs_Name),
 	cogs_account(Livestock_Type, Cogs_Name),
 	sales_account(Livestock_Type, Sales_Name),
@@ -835,12 +835,10 @@ cogs_account(Livestock_Type, Cogs_Account) :-
 	atom_concat(Livestock_Type, 'Cogs', Cogs_Account).
 
 cogs_rations_account(Livestock_Type, Cogs_Rations_Account) :-
-	atom_concat(Livestock_Type, 'CogsRations', Cogs_Rations_Account).
+	atom_concat(Livestock_Type, 'Cogs_Rations', Cogs_Rations_Account).
 	
 sales_account(Livestock_Type, Sales_Account) :-
 	atom_concat(Livestock_Type, 'Sales', Sales_Account).
 
 count_account(Livestock_Type, Count_Account) :-
 	atom_concat(Livestock_Type, 'Count', Count_Account).
-	
-	

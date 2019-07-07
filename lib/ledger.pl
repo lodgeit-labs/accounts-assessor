@@ -91,8 +91,8 @@ balance_sheet_at(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Fr
 
 get_transactions_with_retained_earnings(Current_Earnings, Historical_Earnings, Transactions, From_Day, To_Day, [Historical_Earnings_Transaction, Current_Earnings_Transaction | Transactions]) :-
 	add_days(From_Day, -1, From_Day_Minus_1),
-	Historical_Earnings_Transaction = transaction(From_Day_Minus_1,'','HistoricalEarnings',Historical_Earnings),
-	Current_Earnings_Transaction = transaction(To_Day,'','CurrentEarnings',Current_Earnings).
+	Historical_Earnings_Transaction = transaction(From_Day_Minus_1,'','Historical_Earnings',Historical_Earnings),
+	Current_Earnings_Transaction = transaction(To_Day,'','Current_Earnings',Current_Earnings).
 
 trial_balance_between(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, From_Day, To_Day, [Trial_Balance_Section]) :-
 	net_activity_by_account(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, 'Accounts', From_Day, To_Day, Trial_Balance),

@@ -254,7 +254,7 @@ format_balance(Account_Hierarchy, Report_Currency_List, End_Year, Name, [], Used
 	->
 		true
 	;
-		Report_Currency = 'AUD' % this is just for displaying zero balance
+		Report_Currency = 'AUD' % just for displaying zero balance
 	),
 	format_balance(Account_Hierarchy, _, End_Year, Name, [coord(Report_Currency, 0, 0)], Used_Units_In, UsedUnitsOut, LinesIn, LinesOut).
    
