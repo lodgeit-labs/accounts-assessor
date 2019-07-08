@@ -11,7 +11,8 @@
 		 parse_date/2,
 		 gregorian_date/2,
 		 add_days/3,
-		 date_between/3]).
+		 date_between/3,
+		 parse_date_into_absolute_days/2]).
 :- use_module(utils, [throw_string/1]).
 	
 % -------------------------------------------------------------------
@@ -157,6 +158,10 @@ date_between(Opening_Date, Closing_Date, Date) :-
 % parses date in "DD-MM-YYYY" format
 % -------------------------------------------------------------------
 
+parse_date_into_absolute_days(DateString, Absolute_Days) :-
+	parse_date(DateString, YMD),
+	absolute_day(YMD, Absolute_Days).
+	
 parse_date(DateString, YMD) :-
 	(
 		parse_time(DateString, iso_8601, UnixTimestamp),

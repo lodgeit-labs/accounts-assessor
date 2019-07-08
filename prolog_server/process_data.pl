@@ -10,6 +10,7 @@
 % -------------------------------------------------------------------
 
 :- use_module(library(xpath)).
+:- use_module('../lib/files', []).
 :- use_module(loan/process_xml_loan_request, [process_xml_loan_request/2]).
 :- use_module(ledger/process_xml_ledger_request, [process_xml_ledger_request/2]).
 :- use_module(livestock/process_xml_livestock_request, [process_xml_livestock_request/2]).

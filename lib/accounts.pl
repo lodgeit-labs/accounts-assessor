@@ -7,9 +7,10 @@
 :- module(accounts, [account_parent_id/3, account_ancestor_id/3, account_ids/9, extract_account_hierarchy/2]).
 
 :- use_module(library(http/http_client)).
-:- use_module('utils', [inner_xml/3, trim_atom/2]).
 :- use_module(library(record)).
 :- use_module(library(xpath)).
+:- use_module('utils', [inner_xml/3, trim_atom/2]).
+:- use_module('../lib/files', []).
 
 
 /*
@@ -68,7 +69,8 @@ extract_account_hierarchy(Request_Dom, Account_Hierarchy) :-
 			;
 				(
 					%("loading default account hierarchy"),
-					load_xml('./static/account_hierarchy.xml', Dom, [])
+					absolute_file_name(my_static('account_hierarchy.xml'), Default_Account_Hierarchy_File, [ access(read) ]),
+					load_xml(Default_Account_Hierarchy_File, Dom, [])
 				)
 			)
 		),

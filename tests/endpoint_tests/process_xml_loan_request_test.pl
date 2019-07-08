@@ -39,7 +39,7 @@ test_loan_response([LoanRequestFile0 | LoanRequestFileList], [LoanResponseFile0 
 		TempLoanResponseFile,
 		[]
 	),
-
+	
 	test_request(LoanRequestFile0, ReplyXML),
 	open(TempLoanResponseFile, write, Stream),
 	write(Stream, ReplyXML),
@@ -66,7 +66,6 @@ test_loan_response([LoanRequestFile0 | LoanRequestFileList], [LoanResponseFile0 
 	test_loan_response(LoanRequestFileList, LoanResponseFileList).
 
 
-test_request([], _).
 test_request(RequestFile0, ReplyXML) :-
 
 	absolute_file_name(my_tests(
@@ -77,7 +76,14 @@ test_request(RequestFile0, ReplyXML) :-
 	
 	nl, write('>> Testing Request File: '), writeln(RequestFile),
 
-	http_post('http://localhost:8080/upload', form_data([file=file(RequestFile)]), ReplyXML, [content_type('multipart/form-data')]).
+	(
+		catch(
+			http_post('http://localhost:8080/upload', form_data([file=file(RequestFile)]), ReplyXML, [content_type('multipart/form-data')]),
+		E,
+		(
+			format(user_error, '~w', [E]),
+			fail
+		))).
 
 	
 % -------------------------------------------------------------------
@@ -122,6 +128,7 @@ test(loan_request) :-
 						
 
 test(endpoint) :-
+
 	find_test_directories(Directories),
 	maplist(test_directory, Directories).
 
@@ -178,10 +185,10 @@ find_requests(Path, With_Responses, Without_Responses) :-
 is_request_file(Atom) :-
 	/* does not require that the searched-for part is at the end of the atom, but that's good enough for now*/
 	sub_atom_icasechk(Atom, _Start1, '.xml'),
-	sub_atom_icasechk(Atom, _Start2, '-request').
+	sub_atom_icasechk(Atom, _Start2, 'request').
 
 has_response_file(Atom, Response) :-
-	re_replace('-request', '-response', Atom, Response),
+	re_replace('request', 'response', Atom, Response),
 	absolute_file_name(my_tests(Response),_,[ access(read), file_errors(fail) ]).
 
 :- end_tests(process_xml_loan_request).

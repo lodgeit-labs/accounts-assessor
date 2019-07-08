@@ -264,8 +264,9 @@ check_trial_balance(Exchange_Rates, Report_Currency, Day, Transactions) :-
 		true
 	;
 		(
-			pretty_term_string(['total is ', Total, ' on day ', Day], Err_Str),
-			throw(Err_Str)
+			pretty_term_string(['WARNING: total is ', Total, ' on day ', Day], Err_Str),
+			format(user_error, '\n\\n~w\n\n', [Err_Str])/*,
+			throw(Err_Str)*/
 		)
 	).
 

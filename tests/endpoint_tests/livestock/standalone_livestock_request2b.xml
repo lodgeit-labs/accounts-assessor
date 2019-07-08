@@ -37,7 +37,7 @@
         <unitsSales>0</unitsSales>
         <unitsRations>15</unitsRations>
         <unitsDeceased>0</unitsDeceased>
-        <unitsClosing>15</unitsClosing>
+        <unitsClosing>10</unitsClosing>
       </livestock>
     </livestocks>
   </livestockaccount>

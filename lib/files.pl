@@ -17,6 +17,8 @@ set_search_path(Alias, Path_From_This_Source_File) :-
 test0 :-
     absolute_file_name(my_static('account_hierarchy.xml'), _,
                        [ access(read) ]),
+    absolute_file_name(my_static('default_action_taxonomy.xml'), _,
+                       [ access(read) ]),
     absolute_file_name(my_tests('endpoint_tests/ledger/ledger-request.xml'), _,
                        [ access(read) ]),
 	catch(

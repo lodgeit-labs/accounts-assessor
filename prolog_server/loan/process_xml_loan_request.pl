@@ -15,7 +15,7 @@
 :- use_module(library(xsd)).
 
 :- use_module('../../lib/loans', [loan_agr_summary/2]).
-:- use_module('../../lib/days',  [absolute_day/2, parse_date/2]).
+:- use_module('../../lib/days',  [absolute_day/2, parse_date/2, parse_date_into_absolute_days/2]).
 
 
 % -------------------------------------------------------------------
@@ -97,7 +97,6 @@ display_xml_loan_response(FileNameOut, IncomeYear,
    write(XSDStream, LoanResponseXSD),
    close(XSDStream),
    
-   format('Content-type: text/xml~n~n'),
    % if the xml response is valid then reply the response, otherwise reply an error message
    (
      xsd_validate(TempFileLoanResponseXSD, TempFileLoanResponseXML)
@@ -133,7 +132,7 @@ convert_xpath_results(CreationIncomeYear,  Term,  PrincipalAmount,  LodgementDat
 
 generate_absolute_days(CreationIncomeYear, LodgementDate, LoanRepayments, NCreationIncomeYear, NLodgementDay, NLoanRepayments) :-
    generate_absolute_day(creation_income_year, CreationIncomeYear, NCreationIncomeYear),
-   parse_date(LodgementDate, NLodgementDay),
+   parse_date_into_absolute_days(LodgementDate, NLodgementDay),
    generate_absolute_day(loan_repayments, LoanRepayments, NLoanRepayments).
      
 generate_absolute_day(creation_income_year, CreationIncomeYear, NCreationIncomeYear) :-
@@ -143,7 +142,7 @@ generate_absolute_day(creation_income_year, CreationIncomeYear, NCreationIncomeY
 generate_absolute_day(loan_repayments, [], []).
 
 generate_absolute_day(loan_repayments, [loan_repayment(Date, Value)|Rest1], [loan_repayment(NDate, NValue)|Rest2]) :-
-   parse_date(Date, NDate),
+   parse_date_into_absolute_days(Date, NDate),
    atom_number(Value, NValue),
    generate_absolute_day(loan_repayments, Rest1, Rest2).
 	
