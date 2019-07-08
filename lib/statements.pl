@@ -4,7 +4,7 @@
 % Date:      2019-06-02
 % ===================================================================
 
-:- module(statements, [extract_transaction/3, preprocess_s_transactions/4, add_bank_accounts/3, get_relevant_exchange_rates/5, invert_s_transaction_vector/2, find_s_transactions_in_period/4, fill_in_missing_units/6]).
+:- module(statements, [extract_transaction/3, preprocess_s_transactions/4, add_bank_accounts/3, get_relevant_exchange_rates/5, invert_s_transaction_vector/2, find_s_transactions_in_period/4, fill_in_missing_units/6, process_ledger/15, emit_ledger_warnings/3, balance_sheet_entries/8, format_balance_sheet_entries/9]).
 
 :- [trading].
 
@@ -19,12 +19,13 @@
 	transaction_type_exchanged_account_id/2,
 	transaction_type_trading_account_id/2,
 	transaction_type_description/2]).
-:- use_module(livestock, [preprocess_livestock_buy_or_sell/3]).
+:- use_module(livestock, [preprocess_livestock_buy_or_sell/3, process_livestock/14, make_livestock_accounts/2, livestock_counts/5]).
 :- use_module(transactions, [
 	transaction_day/2,
 	transaction_description/2,
 	transaction_account_id/2,
-	transaction_vector/2]).
+	transaction_vector/2,
+	check_transaction_account/2]).
 :- use_module(utils, [pretty_term_string/2, inner_xml/3, write_tag/2, fields/2, fields_nothrow/2, numeric_fields/2, throw_string/1, value_multiply/3]).
 :- use_module(accounts, [account_parent_id/3, account_ancestor_id/3]).
 :- use_module(days, [format_date/2, parse_date/2, gregorian_date/2, date_between/3]).
@@ -34,6 +35,7 @@
 	add_bought_items/4, 
 	find_items_to_sell/6
 ]).
+:- use_module('ledger', [balance_sheet_at/8, trial_balance_between/8, profitandloss_between/8, balance_by_account/9]).
 
 % -------------------------------------------------------------------
 % bank statement transaction record, these are in the input xml
@@ -554,3 +556,179 @@ find_s_transactions_in_period(S_Transactions, Opening_Date, Closing_Date, Out) :
 		),
 		Out
 	).
+
+	
+	
+process_ledger(S_Transactions, Start_Days, End_Days, Exchange_Rates, Action_Taxonomy, Report_Currency, Livestock_Types, Livestock_Opening_Costs_And_Counts, Debug_Message, Account_Hierarchy_In, Account_Hierarchy, Transactions_With_Livestock, Used_Units, Balance_Sheet, ProftAndLoss) :-
+	
+	emit_ledger_warnings(S_Transactions, Start_Days, End_Days),
+	pretty_term_string(Exchange_Rates, Message1b),
+	pretty_term_string(Action_Taxonomy, Message2),
+	pretty_term_string(Account_Hierarchy_In, Message3),
+	atomic_list_concat([
+	'\n<!--',
+	'Exchange rates extracted:\n', Message1b,'\n\n',
+	'Action_Taxonomy extracted:\n',Message2,'\n\n',
+	'Account_Hierarchy extracted:\n',Message3,'\n\n',
+	'-->\n\n'], Debug_Message0),
+	writeln(Debug_Message0),
+	
+	maplist(make_livestock_accounts, Livestock_Types, Livestock_Accounts_Nested),
+	flatten(Livestock_Accounts_Nested, Livestock_Accounts),
+	append(Account_Hierarchy_In, Livestock_Accounts, Account_Hierarchy0b),
+	add_bank_accounts(S_Transactions, Account_Hierarchy0b, Account_Hierarchy),
+
+	preprocess_s_transactions((Account_Hierarchy, Report_Currency, Action_Taxonomy, End_Days, Exchange_Rates), S_Transactions, Transactions1, Transaction_Transformation_Debug),
+   
+	process_livestock(Livestock_Doms, Livestock_Types, S_Transactions, Transactions1, Livestock_Opening_Costs_And_Counts, Start_Days, End_Days, Exchange_Rates, Account_Hierarchy, Report_Currency, Transactions_With_Livestock, Livestock_Events, Average_Costs, Average_Costs_Explanations),
+
+	livestock_counts(Livestock_Types, Transactions_With_Livestock, Livestock_Opening_Costs_And_Counts, End_Days, Livestock_Counts),
+
+	maplist(check_transaction_account(Account_Hierarchy), Transactions_With_Livestock),
+	
+	trial_balance_between(Exchange_Rates, Account_Hierarchy, Transactions_With_Livestock, Report_Currency, End_Days, Start_Days, End_Days, Trial_Balance),
+	balance_sheet_at(Exchange_Rates, Account_Hierarchy, Transactions_With_Livestock, Report_Currency, End_Days, Start_Days, End_Days, Balance_Sheet),
+	profitandloss_between(Exchange_Rates, Account_Hierarchy, Transactions_With_Livestock, Report_Currency, End_Days, Start_Days, End_Days, ProftAndLoss),
+
+	(
+		Report_Currency = []
+	->
+		true
+	;	
+		get_relevant_exchange_rates(Report_Currency, End_Days, Exchange_Rates, Transactions_With_Livestock, Exchange_Rates_Of_Interest)
+	),
+	
+%	pretty_term_string(S_Transactions, Message0),
+	pretty_term_string(Livestock_Events, Message0b),
+	pretty_term_string(Transactions_With_Livestock, Message1),
+	pretty_term_string(Exchange_Rates_Of_Interest, Message1c),
+	pretty_term_string(Livestock_Counts, Message12),
+	pretty_term_string(Balance_Sheet, Message4),
+	pretty_term_string(Trial_Balance, Message4b),
+	pretty_term_string(ProftAndLoss, Message4c),
+	pretty_term_string(Average_Costs, Message5),
+	pretty_term_string(Average_Costs_Explanations, Message5b),
+	atomic_list_concat(Transaction_Transformation_Debug, Message10),
+
+	(
+		Livestock_Doms = []
+	->
+		Livestock_Debug = ''
+	;
+		atomic_list_concat([
+		'Livestock Events:\n', Message0b,'\n\n',
+		'Livestock Counts:\n', Message12,'\n\n',
+		'Average_Costs:\n', Message5,'\n\n',
+		'Average_Costs_Explanations:\n', Message5b,'\n\n',
+		'Transactions_With_Livestock:\n', Message1,'\n\n'
+		], Livestock_Debug)
+	),
+	
+	(
+	%Debug_Message = '',!;
+	atomic_list_concat([
+	'\n<!--',
+%	'S_Transactions:\n', Message0,'\n\n',
+	Livestock_Debug,
+	'Transaction_Transformation_Debug:\n', Message10,'\n\n',
+	'Exchange rates2:\n', Message1c,'\n\n',
+	'BalanceSheet:\n', Message4,'\n\n',
+	'ProftAndLoss:\n', Message4c,'\n\n',
+	'Trial_Balance:\n', Message4b,'\n\n',
+	'-->\n\n'], Debug_Message)
+	),
+
+	assertion(ground((Balance_Sheet, ProftAndLoss))),
+	
+	/* a dry run of balance_sheet_entries to find out units used */
+	balance_sheet_entries(Account_Hierarchy, Report_Currency, 666, Balance_Sheet, ProftAndLoss, Used_Units, _, _),
+	
+	pretty_term_string(Used_Units, Used_Units_Str),
+	writeln('<!-- units used in balance sheet: \n'),
+	writeln(Used_Units_Str),
+	writeln('\n-->\n').
+
+	
+emit_ledger_warnings(S_Transactions, Start_Days, End_Days) :-
+	(
+		find_s_transactions_in_period(S_Transactions, Start_Days, End_Days, [])
+	->
+		writeln('<!-- WARNING: no transactions within request period -->\n')
+	;
+		true
+	).
+
+balance_sheet_entries(Account_Hierarchy, Report_Currency, End_Year, Balance_Sheet_Entries, ProftAndLoss_Entries, Used_Units_Out, Lines2, Lines3) :-
+	format_balance_sheet_entries(Account_Hierarchy, 0, Report_Currency, End_Year, Balance_Sheet_Entries, [], Used_Units, [], Lines3),
+	format_balance_sheet_entries(Account_Hierarchy, 0, Report_Currency, End_Year, ProftAndLoss_Entries, Used_Units, Used_Units_Out, [], Lines2).
+
+format_balance_sheet_entries(_, _, _, _, [], Used_Units, Used_Units, Lines, Lines).
+
+format_balance_sheet_entries(Account_Hierarchy, Level, Report_Currency, End_Year, Entries, Used_Units_In, UsedUnitsOut, LinesIn, LinesOut) :-
+	[entry(Name, Balances, Children, Transactions_Count)|EntriesTail] = Entries,
+	(
+		(Balances = [],(Transactions_Count \= 0; Level = 0))
+	->
+		format_balance(Account_Hierarchy, Level, Report_Currency, End_Year, Name, [],
+			Used_Units_In, UsedUnitsIntermediate, LinesIn, LinesIntermediate)
+	;
+		format_balances(Account_Hierarchy, Level, Report_Currency, End_Year, Name, Balances, 
+			Used_Units_In, UsedUnitsIntermediate, LinesIn, LinesIntermediate)
+	),
+	Level_New is Level + 1,
+	format_balance_sheet_entries(Account_Hierarchy, Level_New, Report_Currency, End_Year, Children, UsedUnitsIntermediate, UsedUnitsIntermediate2, LinesIntermediate, LinesIntermediate2),
+	format_balance_sheet_entries(Account_Hierarchy, Level, Report_Currency, End_Year, EntriesTail, UsedUnitsIntermediate2, UsedUnitsOut, LinesIntermediate2, LinesOut),
+	!.
+
+format_balances(_, _, _, _, _, [], Used_Units, Used_Units, Lines, Lines).
+
+format_balances(Account_Hierarchy, Level, Report_Currency, End_Year, Name, [Balance|Balances], Used_Units_In, UsedUnitsOut, LinesIn, LinesOut) :-
+   format_balance(Account_Hierarchy, Level, Report_Currency, End_Year, Name, [Balance], Used_Units_In, UsedUnitsIntermediate, LinesIn, LinesIntermediate),
+   format_balances(Account_Hierarchy, Level, Report_Currency, End_Year, Name, Balances, UsedUnitsIntermediate, UsedUnitsOut, LinesIntermediate, LinesOut).
+
+format_balance(Account_Hierarchy, Level, Report_Currency_List, End_Year, Name, [], Used_Units_In, UsedUnitsOut, LinesIn, LinesOut) :-
+	(
+		[Report_Currency] = Report_Currency_List
+	->
+		true
+	;
+		Report_Currency = 'AUD' % just for displaying zero balance
+	),
+	format_balance(Account_Hierarchy, Level, _, End_Year, Name, [coord(Report_Currency, 0, 0)], Used_Units_In, UsedUnitsOut, LinesIn, LinesOut).
+   
+format_balance(Account_Hierarchy, Level, _, End_Year, Name, [coord(Unit, Debit, Credit)], Used_Units_In, UsedUnitsOut, LinesIn, LinesOut) :-
+	union([Unit], Used_Units_In, UsedUnitsOut),
+	(
+		account_ancestor_id(Account_Hierarchy, Name, 'Liabilities')
+	->
+		Balance is (Credit - Debit)
+	;
+	(
+		account_ancestor_id(Account_Hierarchy, Name, 'Equity')
+	->
+		Balance is (Credit - Debit)
+	;
+	(
+		account_ancestor_id(Account_Hierarchy, Name, 'Expenses')
+	->
+		Balance is (Debit - Credit)
+	;
+	(
+		account_ancestor_id(Account_Hierarchy, Name, 'Earnings')
+	->
+		Balance is (Credit - Debit)
+	;
+		Balance is (Debit - Credit)
+	)))),
+	get_indentation(Level, Indentation),
+	format(string(BalanceSheetLine), '~w<basic:~w contextRef="D-~w" unitRef="U-~w" decimals="INF">~2:f</basic:~w>\n', [Indentation, Name, End_Year, Unit, Balance, Name]),
+	append(LinesIn, [BalanceSheetLine], LinesOut).
+
+get_indentation(Level, Indentation) :-
+	Level > 0,
+	Level2 is Level - 1,
+	get_indentation(Level2, Indentation2),
+	atomic_list_concat([Indentation2, ' '], Indentation).
+
+get_indentation(0, ' ').
+
