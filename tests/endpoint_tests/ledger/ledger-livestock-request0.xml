@@ -99,10 +99,8 @@
          then don't need to tag their transactions with description. If money goes out of bank account,
          they bought, if in, they sold. This therefore falls out of the scope of the action taxonomy abstraction,
          so, to recognize livestock unit types, we'll probably require a table of livestock types in the input -->
-   
-            
 				
-			</transactions>
+		</transactions>
       </accountDetails>
     </bankStatement>
   </balanceSheetRequest>
