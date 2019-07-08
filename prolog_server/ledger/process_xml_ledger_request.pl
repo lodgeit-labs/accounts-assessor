@@ -16,7 +16,7 @@
 :- use_module('../../lib/utils', [
 	inner_xml/3, write_tag/2, fields/2, fields_nothrow/2, numeric_fields/2, 
 	pretty_term_string/2, throw_string/1]).
-:- use_module('../../lib/ledger', [balance_sheet_at/8, trial_balance_between/8, profitandloss_between/8, balance_by_account/8]).
+:- use_module('../../lib/ledger', [balance_sheet_at/8, trial_balance_between/8, profitandloss_between/8, balance_by_account/9]).
 :- use_module('../../lib/statements', [extract_transaction/3, preprocess_s_transactions/4, add_bank_accounts/3,  get_relevant_exchange_rates/5, invert_s_transaction_vector/2, find_s_transactions_in_period/4, fill_in_missing_units/6]).
 :- use_module('../../lib/livestock', [get_livestock_types/2, process_livestock/14, make_livestock_accounts/2, livestock_counts/5, extract_livestock_opening_costs_and_counts/2]).
 :- use_module('../../lib/accounts', [extract_account_hierarchy/2, account_ancestor_id/3]).
@@ -133,7 +133,7 @@ process_xml_ledger_request(_, Dom) :-
 	'-->\n\n'], Debug_Message)
 	),
 
-
+	assertion(ground((Balance_Sheet, ProftAndLoss))),
 	balance_sheet_entries(Account_Hierarchy, Report_Currency, 666, Balance_Sheet, ProftAndLoss, Used_Units, _, _),
 	
 	pretty_term_string(Used_Units, Used_Units_Str),
@@ -224,31 +224,30 @@ balance_sheet_entries(Account_Hierarchy, Report_Currency, End_Year, Balance_Shee
 format_balance_sheet_entries(_,_,_,_, [], Used_Units, Used_Units, Lines, Lines).
 
 format_balance_sheet_entries(Account_Hierarchy, Level, Report_Currency, End_Year, Entries, Used_Units_In, UsedUnitsOut, LinesIn, LinesOut) :-
-   [entry(Name, Balances, Children)|EntriesTail] = Entries,
-   (
-      (
-         Level = 0,
-         Balances = []
-      )
-   ->
-      format_balance(Account_Hierarchy, Report_Currency, End_Year, Name, [], Used_Units_In, UsedUnitsIntermediate, LinesIn, LinesIntermediate)
-   ;
-      format_balances(Account_Hierarchy, Report_Currency, End_Year, Name, Balances, Used_Units_In, UsedUnitsIntermediate, LinesIn, LinesIntermediate)
-   ),
-   Level_New is Level + 1,
-   format_balance_sheet_entries(Account_Hierarchy, Level_New, Report_Currency, End_Year, Children, UsedUnitsIntermediate, UsedUnitsIntermediate2, LinesIntermediate, LinesIntermediate2),
-   format_balance_sheet_entries(Account_Hierarchy, Level_New, Report_Currency, End_Year, EntriesTail, UsedUnitsIntermediate2, UsedUnitsOut, LinesIntermediate2, LinesOut),
-   !.
+	[entry(Name, Balances, Children, Transactions_Count)|EntriesTail] = Entries,
+	(
+		(Balances = [],(Transactions_Count \= 0; Level = 0))
+	->
+		format_balance(Account_Hierarchy, Level, Report_Currency, End_Year, Name, [],
+			Used_Units_In, UsedUnitsIntermediate, LinesIn, LinesIntermediate)
+	;
+		format_balances(Account_Hierarchy, Level, Report_Currency, End_Year, Name, Balances, 
+			Used_Units_In, UsedUnitsIntermediate, LinesIn, LinesIntermediate)
+	),
+	Level_New is Level + 1,
+	format_balance_sheet_entries(Account_Hierarchy, Level_New, Report_Currency, End_Year, Children, UsedUnitsIntermediate, UsedUnitsIntermediate2, LinesIntermediate, LinesIntermediate2),
+	format_balance_sheet_entries(Account_Hierarchy, Level, Report_Currency, End_Year, EntriesTail, UsedUnitsIntermediate2, UsedUnitsOut, LinesIntermediate2, LinesOut),
+	!.
 
 format_balance_sheet_entries(_, _, _, _, [], Used_Units, Used_Units, Lines, Lines).
 
-format_balances(_, _, _, _, [], Used_Units, Used_Units, Lines, Lines).
+format_balances(_, _, _, _, _, [], Used_Units, Used_Units, Lines, Lines).
 
-format_balances(Account_Hierarchy, Report_Currency, End_Year, Name, [Balance|Balances], Used_Units_In, UsedUnitsOut, LinesIn, LinesOut) :-
-   format_balance(Account_Hierarchy, Report_Currency, End_Year, Name, [Balance], Used_Units_In, UsedUnitsIntermediate, LinesIn, LinesIntermediate),
-   format_balances(Account_Hierarchy, Report_Currency, End_Year, Name, Balances, UsedUnitsIntermediate, UsedUnitsOut, LinesIntermediate, LinesOut).
+format_balances(Account_Hierarchy, Level, Report_Currency, End_Year, Name, [Balance|Balances], Used_Units_In, UsedUnitsOut, LinesIn, LinesOut) :-
+   format_balance(Account_Hierarchy, Level, Report_Currency, End_Year, Name, [Balance], Used_Units_In, UsedUnitsIntermediate, LinesIn, LinesIntermediate),
+   format_balances(Account_Hierarchy, Level, Report_Currency, End_Year, Name, Balances, UsedUnitsIntermediate, UsedUnitsOut, LinesIntermediate, LinesOut).
 
-format_balance(Account_Hierarchy, Report_Currency_List, End_Year, Name, [], Used_Units_In, UsedUnitsOut, LinesIn, LinesOut) :-
+format_balance(Account_Hierarchy, Level, Report_Currency_List, End_Year, Name, [], Used_Units_In, UsedUnitsOut, LinesIn, LinesOut) :-
 	(
 		[Report_Currency] = Report_Currency_List
 	->
@@ -256,9 +255,9 @@ format_balance(Account_Hierarchy, Report_Currency_List, End_Year, Name, [], Used
 	;
 		Report_Currency = 'AUD' % just for displaying zero balance
 	),
-	format_balance(Account_Hierarchy, _, End_Year, Name, [coord(Report_Currency, 0, 0)], Used_Units_In, UsedUnitsOut, LinesIn, LinesOut).
+	format_balance(Account_Hierarchy, Level, _, End_Year, Name, [coord(Report_Currency, 0, 0)], Used_Units_In, UsedUnitsOut, LinesIn, LinesOut).
    
-format_balance(Account_Hierarchy, _, End_Year, Name, [coord(Unit, Debit, Credit)], Used_Units_In, UsedUnitsOut, LinesIn, LinesOut) :-
+format_balance(Account_Hierarchy, Level, _, End_Year, Name, [coord(Unit, Debit, Credit)], Used_Units_In, UsedUnitsOut, LinesIn, LinesOut) :-
 	union([Unit], Used_Units_In, UsedUnitsOut),
 	(
 		account_ancestor_id(Account_Hierarchy, Name, 'Liabilities')
@@ -282,9 +281,17 @@ format_balance(Account_Hierarchy, _, End_Year, Name, [coord(Unit, Debit, Credit)
 	;
 		Balance is (Debit - Credit)
 	)))),
-	format(string(BalanceSheetLine), '  <basic:~w contextRef="D-~w" unitRef="U-~w" decimals="INF">~2f</basic:~w>\n', [Name, End_Year, Unit, Balance, Name]),
+	get_indentation(Level, Indentation),
+	format(string(BalanceSheetLine), '~w<basic:~w contextRef="D-~w" unitRef="U-~w" decimals="INF">~2:f</basic:~w>\n', [Indentation, Name, End_Year, Unit, Balance, Name]),
 	append(LinesIn, [BalanceSheetLine], LinesOut).
 
+get_indentation(Level, Indentation) :-
+	Level > 0,
+	Level2 is Level - 1,
+	get_indentation(Level2, Indentation2),
+	atomic_list_concat([Indentation2, ' '], Indentation).
+
+get_indentation(0, ' ').
 
 write_used_unit(Unit) :-
 	format('  <unit id="U-~w"><measure>~w</measure></unit>\n', [Unit, Unit]).

@@ -13,7 +13,7 @@ this file needs serious cleanup, one reason to delay that might be that we can e
 :- use_module(pacioli, [vec_add/3, vec_inverse/2, vec_reduce/2, vec_sub/3, integer_to_coord/3]).
 :- use_module(accounts, [account_ancestor_id/3]).
 :- use_module(days, [parse_date/2]).
-:- use_module(ledger, [balance_by_account/8]).
+:- use_module(ledger, [balance_by_account/9]).
 
 /*
 
@@ -144,7 +144,7 @@ livestock_counts(Livestock_Types, Transactions, Opening_Costs_And_Counts, To_Day
 livestock_count(Livestock_Type, Transactions, Opening_Cost_And_Count, To_Day, Count) :-
 	opening_cost_and_count(Livestock_Type, _, Opening_Count) = Opening_Cost_And_Count,
 	count_account(Livestock_Type, Count_Account),
-	balance_by_account([], [], Transactions, [], _, Count_Account, To_Day, Count_Vector),
+	balance_by_account([], [], Transactions, [], _, Count_Account, To_Day, Count_Vector, _),
 	vec_add(Count_Vector, [coord(Livestock_Type, Opening_Count, 0)], Count).
 
 livestock_at_average_cost_at_day(Livestock_Type, Transactions, Opening_Cost_And_Count, To_Day, Average_Cost_Exchange_Rate, Cost_Vector) :-
@@ -646,7 +646,7 @@ do_livestock_cross_check(Events, Natural_Increase_Costs, S_Transactions, Transac
 	exchange_rate(_, Type, Currency, Average_Cost) = Average_Cost_Exchange_Rate,
 	
 	cogs_rations_account(Type, Cogs_Rations_Account),
-	balance_by_account([], [], Transactions, [], _, Cogs_Rations_Account, To_Day, Cogs_Balance),
+	balance_by_account([], [], Transactions, [], _, Cogs_Rations_Account, To_Day, Cogs_Balance, _),
 	
 	(
 		Cogs_Balance = [coord(Currency, 0, Rations_Value)]
@@ -663,14 +663,14 @@ do_livestock_cross_check(Events, Natural_Increase_Costs, S_Transactions, Transac
 	
 	Natural_Increase_value is Natural_Increase_Count * Natural_Increase_Cost_Per_Head,
 
-	balance_by_account(Exchange_Rates, Accounts, Transactions, Report_Currency, To_Day, 'Revenue', To_Day, Revenue_Credit),
+	balance_by_account(Exchange_Rates, Accounts, Transactions, Report_Currency, To_Day, 'Revenue', To_Day, Revenue_Credit,_),
 	vec_inverse(Revenue_Credit, [Revenue_Coord_Ledger]),
 	integer_to_coord(Currency, Revenue, Revenue_Coord),
 	
-	balance_by_account(Exchange_Rates, Accounts, Transactions, Report_Currency, To_Day, 'CostOfGoodsLivestock', To_Day, [Cogs_Coord_Ledger]),
+	balance_by_account(Exchange_Rates, Accounts, Transactions, Report_Currency, To_Day, 'CostOfGoodsLivestock', To_Day, [Cogs_Coord_Ledger],_),
 	integer_to_coord(Currency, Livestock_COGS, Cogs_Coord),
 	
-	balance_by_account(Exchange_Rates, Accounts, Transactions, Report_Currency, To_Day, 'Earnings', To_Day, Earnings_Credit),
+	balance_by_account(Exchange_Rates, Accounts, Transactions, Report_Currency, To_Day, 'Earnings', To_Day, Earnings_Credit,_),
 	vec_inverse(Earnings_Credit, [Earnings_Coord_Ledger]),
 	integer_to_coord(Currency, Gross_Profit_on_Livestock_Trading, Earnings_Coord),
 	
