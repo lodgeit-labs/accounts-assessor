@@ -20,12 +20,11 @@
 :- use_module('../../lib/statements', [
 		extract_transaction/3, 
 		preprocess_s_transactions/4, 
-		add_bank_accounts/3,  
 		get_relevant_exchange_rates/5, 
 		invert_s_transaction_vector/2, 
 		find_s_transactions_in_period/4, 
 		fill_in_missing_units/6, 
-		process_ledger/15,
+		process_ledger/13,
 		emit_ledger_warnings/3,
 		balance_sheet_entries/8, 
 		format_balance_sheet_entries/9
@@ -39,7 +38,6 @@
 % ------------------------------------------------------------------
 
 process_xml_ledger_request(_, Dom) :-
-
 	extract_default_currency(Dom, Default_Currency),
 	extract_report_currency(Dom, Report_Currency),
 	extract_action_taxonomy(Dom, Action_Taxonomy),
@@ -58,12 +56,53 @@ process_xml_ledger_request(_, Dom) :-
 	findall(S_Transaction, extract_transaction(Dom, Start_Date_Atom, S_Transaction), S_Transactions0),
 	maplist(invert_s_transaction_vector, S_Transactions0, S_Transactions0b),
 	sort_s_transactions(S_Transactions0b, S_Transactions),
+	
+	
 	writeln('<?xml version="1.0"?>'), nl, nl,
 	
-	process_ledger(S_Transactions, Start_Days, End_Days, Exchange_Rates, Action_Taxonomy, Report_Currency, Livestock_Types, Livestock_Opening_Costs_And_Counts, Debug_Message, Account_Hierarchy0, Account_Hierarchy, Transactions, Used_Units, _, _),
-	wrap_up(Debug_Message, S_Transactions, Transactions, Start_Days, End_Days, Exchange_Rates, Account_Hierarchy, Used_Units, Report_Currency).
+	process_ledger(Livestock_Doms, S_Transactions, Start_Days, End_Days, Exchange_Rates, Action_Taxonomy, Report_Currency, Livestock_Types, Livestock_Opening_Costs_And_Counts, Debug_Message, Account_Hierarchy0, Account_Hierarchy, Transactions),
+	writeln(Debug_Message),
+	wrap_up(S_Transactions, Transactions, Start_Days, End_Days, Exchange_Rates, Account_Hierarchy, Report_Currency).
 
-wrap_up(Debug_Message, S_Transactions, Transactions, Start_Days, End_Days, Exchange_Rates, Account_Hierarchy, Used_Units, Report_Currency) :-
+wrap_up(S_Transactions, Transactions, Start_Days, End_Days, Exchange_Rates, Account_Hierarchy, Report_Currency) :-
+
+	(
+		Report_Currency = []
+	->
+		true
+	;	
+		get_relevant_exchange_rates(Report_Currency, End_Days, Exchange_Rates, Transactions, Relevant_Exchange_Rates)
+	),
+	
+	trial_balance_between(Exchange_Rates, Account_Hierarchy, Transactions, Report_Currency, End_Days, Start_Days, End_Days, Trial_Balance),
+	balance_sheet_at(Exchange_Rates, Account_Hierarchy, Transactions, Report_Currency, End_Days, Start_Days, End_Days, Balance_Sheet),
+	profitandloss_between(Exchange_Rates, Account_Hierarchy, Transactions, Report_Currency, End_Days, Start_Days, End_Days, ProftAndLoss),
+
+	pretty_term_string(Relevant_Exchange_Rates, Message1c),
+	pretty_term_string(Balance_Sheet, Message4),
+	pretty_term_string(Trial_Balance, Message4b),
+	pretty_term_string(ProftAndLoss, Message4c),
+	
+	atomic_list_concat([
+		'\n<!--',
+		'Exchange rates2:\n', Message1c,'\n\n',
+		'BalanceSheet:\n', Message4,'\n\n',
+		'ProftAndLoss:\n', Message4c,'\n\n',
+		'Trial_Balance:\n', Message4b,'\n\n',
+		'-->\n\n'], 
+	Debug_Message2),
+	writeln(Debug_Message2),
+	
+	assertion(ground((Balance_Sheet, ProftAndLoss, Trial_Balance))),
+	
+	/* a dry run of balance_sheet_entries to find out units used */
+	balance_sheet_entries(Account_Hierarchy, Report_Currency, none, Balance_Sheet, ProftAndLoss, Used_Units, _, _),
+	
+	pretty_term_string(Used_Units, Used_Units_Str),
+	writeln('<!-- units used in balance sheet: \n'),
+	writeln(Used_Units_Str),
+	writeln('\n-->\n'),
+
 	fill_in_missing_units(S_Transactions, End_Days, Report_Currency, Used_Units, Exchange_Rates, Inferred_Rates),
 	pretty_term_string(Inferred_Rates, Inferred_Rates_Str),
 	writeln('<!-- Inferred_Rates: \n'),
@@ -71,29 +110,12 @@ wrap_up(Debug_Message, S_Transactions, Transactions, Start_Days, End_Days, Excha
 	writeln('\n-->\n'),
 	
 	append(Exchange_Rates, Inferred_Rates, Exchange_Rates_With_Inferred_Values),
-	%append(Exchange_Rates, [], Exchange_Rates_With_Inferred_Values),
-/*	
-	gtrace,
-	exchange_rate(
-		Exchange_Rates_With_Inferred_Values, date(2018,12,30), 
-		'CHF','AUD',
-		RRRRRRRR),
-	print_term(RRRRRRRR,[]),*/
-	/*
-	exchange_rate(
-		Exchange_Rates_With_Inferred_Values, End_Days, 
-		without_currency_movement_against_since('Raiffeisen Switzerland_B.V.', 
-		'USD', ['AUD'],date(2018,7,2)),
-		'AUD',
-		RRRRRRRR),
-	print_term(RRRRRRRR,[]),
-	*/
-	
+
 	trial_balance_between(Exchange_Rates_With_Inferred_Values, Account_Hierarchy, Transactions, Report_Currency, End_Days, Start_Days, End_Days, Trial_Balance2),
 	balance_sheet_at(Exchange_Rates_With_Inferred_Values, Account_Hierarchy, Transactions, Report_Currency, End_Days, Start_Days, End_Days, Balance_Sheet2),
 	profitandloss_between(Exchange_Rates_With_Inferred_Values, Account_Hierarchy, Transactions, Report_Currency, End_Days, Start_Days, End_Days, ProftAndLoss2),
 
-	display_xbrl_ledger_response(Account_Hierarchy, Report_Currency, Debug_Message, Start_Days, End_Days, Balance_Sheet2, Trial_Balance2, ProftAndLoss2),
+	display_xbrl_ledger_response(Account_Hierarchy, Report_Currency, Start_Days, End_Days, Balance_Sheet2, Trial_Balance2, ProftAndLoss2),
 	emit_ledger_warnings(S_Transactions, Start_Days, End_Days),
 	nl, nl.
 
@@ -101,7 +123,7 @@ wrap_up(Debug_Message, S_Transactions, Transactions, Start_Days, End_Days, Excha
 % display_xbrl_ledger_response/4
 % -----------------------------------------------------
 
-display_xbrl_ledger_response(Account_Hierarchy, Report_Currency, Debug_Message, Start_Days, End_Days, Balance_Sheet_Entries, Trial_Balance, ProftAndLoss_Entries) :-
+display_xbrl_ledger_response(Account_Hierarchy, Report_Currency, Start_Days, End_Days, Balance_Sheet_Entries, Trial_Balance, ProftAndLoss_Entries) :-
    writeln('<xbrli:xbrl xmlns:xbrli="http://www.xbrl.org/2003/instance" xmlns:link="http://www.xbrl.org/2003/linkbase" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:iso4217="http://www.xbrl.org/2003/iso4217" xmlns:basic="http://www.xbrlsite.com/basic">'),
    writeln('  <link:schemaRef xlink:type="simple" xlink:href="basic.xsd" xlink:title="Taxonomy schema" />'),
    writeln('  <link:linkbaseRef xlink:type="simple" xlink:href="basic-formulas.xml" xlink:arcrole="http://www.w3.org/1999/xlink/properties/linkbase" />'),
@@ -122,7 +144,6 @@ display_xbrl_ledger_response(Account_Hierarchy, Report_Currency, Debug_Message, 
    writeln('  </context>'),
 
    balance_sheet_entries(Account_Hierarchy, Report_Currency, End_Year, Balance_Sheet_Entries, ProftAndLoss_Entries, Used_Units, Lines2, Lines3),
-
    format_balance_sheet_entries(Account_Hierarchy, 0, Report_Currency, End_Year, Trial_Balance, [], _, [], Lines1),
    maplist(write_used_unit, Used_Units), 
 
@@ -133,9 +154,8 @@ display_xbrl_ledger_response(Account_Hierarchy, Report_Currency, Debug_Message, 
 	], Lines),
    atomic_list_concat(Lines, LinesString),
    writeln(LinesString),
-   writeln('</xbrli:xbrl>'),
-   writeln(Debug_Message).
-
+   writeln('</xbrli:xbrl>').
+   
 write_used_unit(Unit) :-
 	format('  <unit id="U-~w"><measure>~w</measure></unit>\n', [Unit, Unit]).
    
@@ -290,3 +310,20 @@ test0 :-
 test0.
 
 
+	%append(Exchange_Rates, [], Exchange_Rates_With_Inferred_Values),
+/*	
+	exchange_rate(
+		Exchange_Rates_With_Inferred_Values, date(2018,12,30), 
+		'CHF','AUD',
+		RRRRRRRR),
+	print_term(RRRRRRRR,[]),*/
+	/*
+	exchange_rate(
+		Exchange_Rates_With_Inferred_Values, End_Days, 
+		without_currency_movement_against_since('Raiffeisen Switzerland_B.V.', 
+		'USD', ['AUD'],date(2018,7,2)),
+		'AUD',
+		RRRRRRRR),
+	print_term(RRRRRRRR,[]),
+	*/
+	
