@@ -221,7 +221,7 @@ balance_sheet_entries(Account_Hierarchy, Report_Currency, End_Year, Balance_Shee
 	format_balance_sheet_entries(Account_Hierarchy, 0, Report_Currency, End_Year, Balance_Sheet_Entries, [], Used_Units, [], Lines3),
 	format_balance_sheet_entries(Account_Hierarchy, 0, Report_Currency, End_Year, ProftAndLoss_Entries, Used_Units, Used_Units_Out, [], Lines2).
 
-format_balance_sheet_entries(_,_,_,_, [], Used_Units, Used_Units, Lines, Lines).
+format_balance_sheet_entries(_, _, _, _, [], Used_Units, Used_Units, Lines, Lines).
 
 format_balance_sheet_entries(Account_Hierarchy, Level, Report_Currency, End_Year, Entries, Used_Units_In, UsedUnitsOut, LinesIn, LinesOut) :-
 	[entry(Name, Balances, Children, Transactions_Count)|EntriesTail] = Entries,
@@ -238,8 +238,6 @@ format_balance_sheet_entries(Account_Hierarchy, Level, Report_Currency, End_Year
 	format_balance_sheet_entries(Account_Hierarchy, Level_New, Report_Currency, End_Year, Children, UsedUnitsIntermediate, UsedUnitsIntermediate2, LinesIntermediate, LinesIntermediate2),
 	format_balance_sheet_entries(Account_Hierarchy, Level, Report_Currency, End_Year, EntriesTail, UsedUnitsIntermediate2, UsedUnitsOut, LinesIntermediate2, LinesOut),
 	!.
-
-format_balance_sheet_entries(_, _, _, _, [], Used_Units, Used_Units, Lines, Lines).
 
 format_balances(_, _, _, _, _, [], Used_Units, Used_Units, Lines, Lines).
 
