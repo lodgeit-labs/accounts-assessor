@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<response>
+<investment>
+<Name>Google</Name>
+<Purchase_Date>2015-07-01</Purchase_Date>
+<Count>100</Count>
+<Currency>USD</Currency>
+<Report_Date>2016-06-30</Report_Date>
+
+<PDPC_Total_Cost>1000.00</PDPC_Total_Cost>
+<PDPC_Total_Cost_Formula>PDPC_Total_Cost = Count*PDPC_Unit_Cost</PDPC_Total_Cost_Formula>
+<PDPC_Total_Cost_Computation>PDPC_Total_Cost = 100*10</PDPC_Total_Cost_Computation>
+
+<PDRC_Total_Cost>1428.57</PDRC_Total_Cost>
+<PDRC_Total_Cost_Formula>PDRC_Total_Cost = PDPC_Total_Cost/PD_Rate</PDRC_Total_Cost_Formula>
+<PDRC_Total_Cost_Computation>PDRC_Total_Cost = 1000/0.7</PDRC_Total_Cost_Computation>
+
+<RDPC_Total_Value>2000.00</RDPC_Total_Value>
+<RDPC_Total_Value_Formula>RDPC_Total_Value = Count*RDPC_Unit_Value</RDPC_Total_Value_Formula>
+<RDPC_Total_Value_Computation>RDPC_Total_Value = 100*20</RDPC_Total_Value_Computation>
+
+<RDPC_Unrealized_Gain>1000.00</RDPC_Unrealized_Gain>
+<RDPC_Unrealized_Gain_Formula>RDPC_Unrealized_Gain = RDPC_Total_Value-PDPC_Total_Cost</RDPC_Unrealized_Gain_Formula>
+<RDPC_Unrealized_Gain_Computation>RDPC_Unrealized_Gain = 2000-1000</RDPC_Unrealized_Gain_Computation>
+
+<RDRC_Old_Rate_Total_Value>2857.14</RDRC_Old_Rate_Total_Value>
+<RDRC_Old_Rate_Total_Value_Formula>RDRC_Old_Rate_Total_Value = RDPC_Total_Value/PD_Rate</RDRC_Old_Rate_Total_Value_Formula>
+<RDRC_Old_Rate_Total_Value_Computation>RDRC_Old_Rate_Total_Value = 2000/0.7</RDRC_Old_Rate_Total_Value_Computation>
+
+<RDRC_New_Rate_Total_Value>3076.92</RDRC_New_Rate_Total_Value>
+<RDRC_New_Rate_Total_Value_Formula>RDRC_New_Rate_Total_Value = RDPC_Total_Value/RD_Rate</RDRC_New_Rate_Total_Value_Formula>
+<RDRC_New_Rate_Total_Value_Computation>RDRC_New_Rate_Total_Value = 2000/0.65</RDRC_New_Rate_Total_Value_Computation>
+
+<RDRC_Total_Gain>1648.35</RDRC_Total_Gain>
+<RDRC_Total_Gain_Formula>RDRC_Total_Gain = RDRC_New_Rate_Total_Value-PDRC_Total_Cost</RDRC_Total_Gain_Formula>
+<RDRC_Total_Gain_Computation>RDRC_Total_Gain = 3076.9230769230767-1428.5714285714287</RDRC_Total_Gain_Computation>
+
+<RDRC_Market_Gain>1428.57</RDRC_Market_Gain>
+<RDRC_Market_Gain_Formula>RDRC_Market_Gain = RDRC_Old_Rate_Total_Value-PDRC_Total_Cost</RDRC_Market_Gain_Formula>
+<RDRC_Market_Gain_Computation>RDRC_Market_Gain = 2857.1428571428573-1428.5714285714287</RDRC_Market_Gain_Computation>
+
+<RDRC_Currency_Gain>219.78</RDRC_Currency_Gain>
+<RDRC_Currency_Gain_Formula>RDRC_Currency_Gain = RDRC_Total_Gain-RDRC_Market_Gain</RDRC_Currency_Gain_Formula>
+<RDRC_Currency_Gain_Computation>RDRC_Currency_Gain = 1648.351648351648-1428.5714285714287</RDRC_Currency_Gain_Computation>
+</investment>
+
+
+<investment>
+<Name>Amazon</Name>
+<Purchase_Date>2000-07-01</Purchase_Date>
+<Count>100</Count>
+<Currency>USD</Currency>
+<Report_Date>2056-06-30</Report_Date>
+
+<PDPC_Total_Cost>1000.00</PDPC_Total_Cost>
+<PDPC_Total_Cost_Formula>PDPC_Total_Cost = Count*PDPC_Unit_Cost</PDPC_Total_Cost_Formula>
+<PDPC_Total_Cost_Computation>PDPC_Total_Cost = 100*10</PDPC_Total_Cost_Computation>
+
+<PDRC_Total_Cost>1428.57</PDRC_Total_Cost>
+<PDRC_Total_Cost_Formula>PDRC_Total_Cost = PDPC_Total_Cost/PD_Rate</PDRC_Total_Cost_Formula>
+<PDRC_Total_Cost_Computation>PDRC_Total_Cost = 1000/0.7</PDRC_Total_Cost_Computation>
+
+<RDPC_Total_Value>20000000.00</RDPC_Total_Value>
+<RDPC_Total_Value_Formula>RDPC_Total_Value = Count*RDPC_Unit_Value</RDPC_Total_Value_Formula>
+<RDPC_Total_Value_Computation>RDPC_Total_Value = 100*200000</RDPC_Total_Value_Computation>
+
+<RDPC_Unrealized_Gain>19999000.00</RDPC_Unrealized_Gain>
+<RDPC_Unrealized_Gain_Formula>RDPC_Unrealized_Gain = RDPC_Total_Value-PDPC_Total_Cost</RDPC_Unrealized_Gain_Formula>
+<RDPC_Unrealized_Gain_Computation>RDPC_Unrealized_Gain = 20000000-1000</RDPC_Unrealized_Gain_Computation>
+
+<RDRC_Old_Rate_Total_Value>28571428.57</RDRC_Old_Rate_Total_Value>
+<RDRC_Old_Rate_Total_Value_Formula>RDRC_Old_Rate_Total_Value = RDPC_Total_Value/PD_Rate</RDRC_Old_Rate_Total_Value_Formula>
+<RDRC_Old_Rate_Total_Value_Computation>RDRC_Old_Rate_Total_Value = 20000000/0.7</RDRC_Old_Rate_Total_Value_Computation>
+
+<RDRC_New_Rate_Total_Value>307692.31</RDRC_New_Rate_Total_Value>
+<RDRC_New_Rate_Total_Value_Formula>RDRC_New_Rate_Total_Value = RDPC_Total_Value/RD_Rate</RDRC_New_Rate_Total_Value_Formula>
+<RDRC_New_Rate_Total_Value_Computation>RDRC_New_Rate_Total_Value = 20000000/65</RDRC_New_Rate_Total_Value_Computation>
+
+<RDRC_Total_Gain>306263.74</RDRC_Total_Gain>
+<RDRC_Total_Gain_Formula>RDRC_Total_Gain = RDRC_New_Rate_Total_Value-PDRC_Total_Cost</RDRC_Total_Gain_Formula>
+<RDRC_Total_Gain_Computation>RDRC_Total_Gain = 307692.3076923077-1428.5714285714287</RDRC_Total_Gain_Computation>
+
+<RDRC_Market_Gain>28570000.00</RDRC_Market_Gain>
+<RDRC_Market_Gain_Formula>RDRC_Market_Gain = RDRC_Old_Rate_Total_Value-PDRC_Total_Cost</RDRC_Market_Gain_Formula>
+<RDRC_Market_Gain_Computation>RDRC_Market_Gain = 28571428.571428575-1428.5714285714287</RDRC_Market_Gain_Computation>
+
+<RDRC_Currency_Gain>-28263736.26</RDRC_Currency_Gain>
+<RDRC_Currency_Gain_Formula>RDRC_Currency_Gain = RDRC_Total_Gain-RDRC_Market_Gain</RDRC_Currency_Gain_Formula>
+<RDRC_Currency_Gain_Computation>RDRC_Currency_Gain = 306263.73626373627-28570000.000000004</RDRC_Currency_Gain_Computation>
+</investment>
+
+
+</response>

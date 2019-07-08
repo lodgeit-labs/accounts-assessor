@@ -13,6 +13,7 @@
 :- use_module(loan/process_xml_loan_request, [process_xml_loan_request/2]).
 :- use_module(ledger/process_xml_ledger_request, [process_xml_ledger_request/2]).
 :- use_module(livestock/process_xml_livestock_request, [process_xml_livestock_request/2]).
+:- use_module(investment/process_xml_investment_request, [process_xml_investment_request/2]).
 /*:- use_module('../lib/utils', [throw_string/1]).*/
 
 
@@ -21,12 +22,15 @@
 % -------------------------------------------------------------------
 
 process_data(FileName, Path) :-
-   load_xml(Path, DOM, []),
-   process_xml_request(FileName, DOM).
-   % format('Content-type: text/plain~n~n'),
+   format('Content-type: text/xml~n~n'),
+   process_data2(FileName, Path).
    % writeq(DOM),
    % write(FileName),
    % write(Path).
+
+process_data2(FileName, Path) :-
+   load_xml(Path, DOM, []),
+   process_xml_request(FileName, DOM).
 
    
 % -------------------------------------------------------------------
@@ -43,7 +47,8 @@ process_xml_request(FileName, DOM) :-
    ),
    (process_xml_loan_request(FileName, DOM) -> true;
    (process_xml_ledger_request(FileName, DOM) -> true;
-   (process_xml_livestock_request(FileName, DOM) -> true))).
+   (process_xml_livestock_request(FileName, DOM) -> true;
+   (process_xml_investment_request(FileName, DOM) -> true)))).
 
 
 % -------------------------------------------------------------------

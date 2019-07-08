@@ -9,6 +9,7 @@
 :- use_module(library(http/http_client)).
 :- use_module('utils', [inner_xml/3, trim_atom/2]).
 :- use_module(library(record)).
+:- use_module(library(xpath)).
 
 
 /*
@@ -48,7 +49,7 @@ account_ancestor_id(Accounts, Account_Id, Ancestor_Id) :-
 % Gets the ids for the assets, equity, liabilities, earnings, retained earnings, current
 % earnings, revenue, and expenses accounts. 
 account_ids(_Accounts,
-      'Assets', 'Equity', 'Liabilities', 'Earnings', 'RetainedEarnings', 'CurrentEarningsLosses', 'Revenue', 'Expenses').
+      'Assets', 'Equity', 'Liabilities', 'Earnings', 'Retained_Earnings', 'Current_Earnings_Losses', 'Revenue', 'Expenses').
 
 extract_account_hierarchy(Request_Dom, Account_Hierarchy) :-
 	(

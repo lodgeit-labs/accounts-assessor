@@ -36,13 +36,18 @@ transaction_account_ancestor_id(Accounts, Transaction, Ancestor_Account_Id) :-
 
 transaction_in_period(Transaction, From_Day, To_Day) :-
 	transaction_day(Transaction, Day),
-	From_Day =< Day,
-	Day =< To_Day.
+	absolute_day(From_Day, A),
+	absolute_day(To_Day, C),
+	absolute_day(Day, B),
+	A =< B,
+	B =< C.
 
 % up_to?
 transaction_before(Transaction, End_Day) :-
 	transaction_day(Transaction, Day),
-	Day < End_Day.
+	absolute_day(End_Day, B),
+	absolute_day(Day, A),
+	A < B.
 
 
 % add up and reduce all the vectors of all the transactions, result is one vector
@@ -65,17 +70,6 @@ transactions_before_day_on_account_and_subaccounts(Accounts, Transactions, Accou
 			% transaction account is Account_Id or sub-account
 			transaction_account_ancestor_id(Accounts, Transaction, Account_Id)
 		), Filtered_Transactions).
-
-
-transaction_date(Transaction, Date) :-
-	nonvar(Date),
-	absolute_day(Date, Day),
-	transaction_day(Transaction, Day).
-	
-transaction_date(Transaction, Date) :-
-	transaction_day(Transaction, Day),
-	nonvar(Day),
-	gregorian_date(Day, Date).
 
 
 check_transaction_account(Accounts, Transaction) :-

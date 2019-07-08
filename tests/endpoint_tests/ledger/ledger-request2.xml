@@ -20,7 +20,7 @@
     </company>
 
     <!-- Needed for computation of retained earnings in balance sheet. -->
-    <startDate>2015-07-01</startDate>
+    <startDate>2017-07-01</startDate>
     <!-- Needed for computation of most fields in balance sheet. -->
     <endDate>2018-06-30</endDate>
 
@@ -33,18 +33,37 @@
 
     <!-- Needed for the tracking of units in inventory. Also needed for correct computation of gains and losses. -->
     <unitValues>
-    </unitValues>
+
+      <unitValue>
+        <unitType>USD</unitType>
+        <unitValue>1.4492753623188408</unitValue>
+        <unitValueCurrency>AUD</unitValueCurrency>
+        <unitValueDate>2017-07-01</unitValueDate>
+      </unitValue>
+
+      <unitValue>
+        <unitType>USD</unitType>
+        <unitValue>1.4285714285714286</unitValue>
+        <unitValueCurrency>AUD</unitValueCurrency>
+        <unitValueDate>2018-06-30</unitValueDate>
+      </unitValue>
+
+      <unitValue>
+        <unitType>SG_Issuer_SA</unitType>
+        <unitValue>40</unitValue>
+        <unitValueCurrency>USD</unitValueCurrency>
+      </unitValue>
+    </unitValues>    
 
     <bankStatement>
       <title>Bank Statement</title>
-      <period>2010-01-01 - 2020-06-30</period>
+      <period>2010-01-01 - 2010-06-30</period>
       <accountDetails>
         <accountNo>1-1110</accountNo>
-        <!-- accountName must match tag name in XBRL taxonomy. -->
-        <accountName>NationalAustraliaBank</accountName>
+        <accountName>WellsFargo</accountName>
         <dateofBankStatement>2018-09-30</dateofBankStatement>
         <bankID>Commonwealth Bank</bankID>
-        <currency>AUD</currency>
+        <currency>USD</currency>
         <transactions>
 
           <transaction>
@@ -53,8 +72,24 @@
             <debit>0</debit>
             <credit>200</credit>
           </transaction>
+          <transaction>
+            <transdesc>Invest_In</transdesc>
+            <transdate>2017-07-01</transdate>
+            <debit>50</debit>
+            <credit>0</credit>
+            <unit>5</unit>
+            <unitType>SG_Issuer_SA</unitType>
+          </transaction>
+          <transaction>
+            <transdesc>Dispose_Of</transdesc>
+            <transdate>2018-06-30</transdate>
+            <debit>0.00</debit>
+            <credit>200.00</credit>
+            <unit>5</unit>
+            <unitType>SG_Issuer_SA</unitType>
+          </transaction>
 
-		</transactions>
+        </transactions>
       </accountDetails>
     </bankStatement>
   </balanceSheetRequest>
