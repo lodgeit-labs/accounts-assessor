@@ -85,6 +85,7 @@ upload_form(_Request) :-
 
 upload(Request) :-
    multipart_post_request(Request), !,
+   /*todo: assert a unique thread-local my_tmp for each request here*/
    http_read_data(Request, Parts, [ on_filename(save_file) ]),
    memberchk(file=file(FileName, Path), Parts),
    catch(

@@ -26,14 +26,9 @@
 % request files and the second argument do so for loan response files
 % -------------------------------------------------------------------
 
-test_loan_request([], _).
-test_loan_request([LoanRequestFile0 | LoanRequestFileList], [LoanResponseFile0 | LoanResponseFileList]) :-
+test_loan_response([], _).
+test_loan_response([LoanRequestFile0 | LoanRequestFileList], [LoanResponseFile0 | LoanResponseFileList]) :-
 	
-	absolute_file_name(my_tests(
-		LoanRequestFile0),
-		LoanRequestFile,
-		[ access(read) ]
-	),
 	absolute_file_name(my_tests(
 		LoanResponseFile0),
 		LoanResponseFile,
@@ -44,11 +39,8 @@ test_loan_request([LoanRequestFile0 | LoanRequestFileList], [LoanResponseFile0 |
 		TempLoanResponseFile,
 		[]
 	),
-	
-	nl, write('>> Testing Loan Request File: '), writeln(LoanRequestFile),
-	
-	http_post('http://localhost:8080/upload', form_data([file=file(LoanRequestFile)]), ReplyXML, [content_type('multipart/form-data')]),
-	
+
+	test_request(LoanRequestFile0, ReplyXML),
 	open(TempLoanResponseFile, write, Stream),
 	write(Stream, ReplyXML),
 	close(Stream),
@@ -71,7 +63,21 @@ test_loan_request([LoanRequestFile0 | LoanRequestFileList], [LoanResponseFile0 |
 	assertion(ActualTotalPrincipal == ExpectedTotalPrincipal),
 	assertion(ActualClosingBalance == ExpectedClosingBalance),
 	
-	test_loan_request(LoanRequestFileList, LoanResponseFileList).
+	test_loan_response(LoanRequestFileList, LoanResponseFileList).
+
+
+test_request([], _).
+test_request(RequestFile0, ReplyXML) :-
+
+	absolute_file_name(my_tests(
+		RequestFile0),
+		RequestFile,
+		[ access(read) ]
+	),
+	
+	nl, write('>> Testing Request File: '), writeln(RequestFile),
+
+	http_post('http://localhost:8080/upload', form_data([file=file(RequestFile)]), ReplyXML, [content_type('multipart/form-data')]).
 
 	
 % -------------------------------------------------------------------
@@ -89,6 +95,7 @@ extract_loan_response_values(DOM, OpeningBalance, InterestRate, MinYearlyRepayme
 	xpath(DOM, //'LoanSummary'/'ClosingBalance', element(_, _, [ClosingBalance])).
 
 
+
 % -------------------------------------------------------------------
 % call the 'test_loan_request' predicate with the loan request and
 % response files in the arguments.
@@ -98,7 +105,8 @@ extract_loan_response_values(DOM, OpeningBalance, InterestRate, MinYearlyRepayme
 % -------------------------------------------------------------------
 
 test(loan_request) :-
-	test_loan_request(['endpoint_tests/loan/loan-request1.xml', 
+
+	test_loan_response(['endpoint_tests/loan/loan-request1.xml', 
 						'endpoint_tests/loan/loan-request2.xml', 
 						'endpoint_tests/loan/loan-request3.xml', 
 						'endpoint_tests/loan/loan-request4.xml', 
@@ -112,6 +120,72 @@ test(loan_request) :-
 						'endpoint_tests/loan/loan-response5.xml', 
 						'endpoint_tests/loan/loan-response6.xml']).
 						
+
+test(endpoint) :-
+gtrace,
+	find_test_directories(Directories),
+	maplist(test_directory, Directories).
+
+test_directory(Path) :-
+	find_requests(Path, With_Responses, Without_Responses),
+	maplist(test_request_with_response, With_Responses),	
+	maplist(test_request_without_response, Without_Responses).
+
+test_request_without_response(Request) :-
+	test_request(Request, _).
+
+test_request_with_response((Request, Response)) :-
+	/*general xml comparison, todo*/
+	test_request(Request, _).
+
+find_test_directories(Paths) :-
+	Top_Level_Directory = 'endpoint_tests',
+	absolute_file_name(my_tests(Top_Level_Directory), Endpoint_Tests_Path, [file_type(directory)]),
+	directory_files(Endpoint_Tests_Path, Entries),
+	findall(Relative_Path,
+		(
+			member(Directory, Entries),
+			\+sub_atom_icasechk(Directory, _Start, '.'),
+			atomic_list_concat([Top_Level_Directory, '/', Directory], Relative_Path),
+			atomic_list_concat([Endpoint_Tests_Path, '/', Directory], Absolute_Path),
+			exists_directory(Absolute_Path)
+		),
+		Paths
+	).
+
+find_requests(Path, With_Responses, Without_Responses) :-
+	absolute_file_name(my_tests(Path), Full_Path, [file_type(directory)]),
+	directory_files(Full_Path, Entries),
+	include(is_request_file, Entries, Requests),
+	findall(
+		(Request_Path, Response_Path),
+		(
+			member(Request,	Requests),
+			atomic_list_concat([Path, '/', Request], Request_Path),
+			has_response_file(Request_Path, Response_Path)
+		),
+		With_Responses
+	),
+	findall(
+		Request_Path,
+		(
+			member(Request,	Requests),
+			atomic_list_concat([Path, '/', Request], Request_Path),
+			\+has_response_file(Request_Path, Response)
+		),
+		Without_Responses
+	).
+	
+is_request_file(Atom) :-
+	/* does not require that the searched-for part is at the end of the atom, but that's good enough for now*/
+	sub_atom_icasechk(Atom, _Start1, '.xml'),
+	sub_atom_icasechk(Atom, _Start2, '-request').
+
+has_response_file(Atom, Response) :-
+	re_replace('-request', '-response', Atom, Response),
+	absolute_file_name(my_tests(Response),_,[ access(read), file_errors(fail) ]).
+
 :- end_tests(process_xml_loan_request).
 
-:- run_tests.
+:- initialization(run_tests).
+
