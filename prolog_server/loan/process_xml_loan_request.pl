@@ -13,7 +13,6 @@
 
 % use "XSD" library to validate XML
 :- use_module(library(xsd)).
-:- use_module(library(xsd/flatten)).
 
 :- use_module('../../lib/loans', [loan_agr_summary/2]).
 :- use_module('../../lib/days',  [absolute_day/2, parse_date/2]).
@@ -87,15 +86,21 @@ display_xml_loan_response(FileNameOut, IncomeYear,
    write(XMLStream, LoanResponseXML),
    close(XMLStream),
 
-   absolute_file_name(my_taxonomy('loan-response.xsd'), LoanResponseXSD, []),
+   % read the schema file
+   absolute_file_name(my_taxonomy('loan-response.xsd'), FileLoanResponseXSD, []),
+   read_file_to_string(FileLoanResponseXSD, LoanResponseXSD, []),   
+   % generating temporary file name for loan response xsd
+   atomic_list_concat([CurrentTimeString, '_tmp_loan_response.xsd'], TempFileLoanResponseXSD0), 
+   absolute_file_name(my_tmp(TempFileLoanResponseXSD0), TempFileLoanResponseXSD, []),
+   % create a temporary loan xsd file to validate the response against the schema   
+   open(TempFileLoanResponseXSD, write, XSDStream),
+   write(XSDStream, LoanResponseXSD),
+   close(XSDStream),
    
    format('Content-type: text/xml~n~n'),
-   % gtrace,
    % if the xml response is valid then reply the response, otherwise reply an error message
    (
-     % xml_flatten(TempFileLoanResponseXML, FileIdentifier),     
-     xsd_validate(LoanResponseXSD, TempFileLoanResponseXML)
-     % remove_file(TempFileLoanResponseXML)
+     xsd_validate(TempFileLoanResponseXSD, TempFileLoanResponseXML)
      ->
      writeln(LoanResponseXML)     
    ;

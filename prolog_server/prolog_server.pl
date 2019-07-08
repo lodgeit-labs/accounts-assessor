@@ -25,6 +25,7 @@
 :- use_module(library(http/http_dispatch), [http_safe_file/2]).
 :- use_module(library(http/http_files)).
 
+:- use_module('../lib/files').
 :- use_module('chat/residency').
 :- use_module('chat/sbe').
 :- ensure_loaded('process_data.pl').
