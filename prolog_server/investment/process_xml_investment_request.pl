@@ -1,4 +1,6 @@
-% simple investment calculator
+/* simple investment calculator
+see doc/investment and dropbox Develop/videos/ledger
+*/
 
 
 :- module(process_xml_investment_request, [process_xml_investment_request/2]).
@@ -6,8 +8,11 @@
 :- use_module(library(record)).
 :- use_module('../../lib/utils', [
 	inner_xml/3, write_tag/2, fields/2, numeric_fields/2, 
-	pretty_term_string/2]).
+	pretty_term_string/2 /*, magic_formula */]).
 :- use_module('../../lib/days', [format_date/2, parse_date/2, gregorian_date/2]).
+:- use_module('../../lib/statements', [
+		process_ledger/13]).
+
 	
 :- record investment(
 	name, purchase_date, unit_cost, count, currency, 
@@ -22,6 +27,12 @@
 
 
 process(Dom) :-
+
+	/*
+		PDPC = purchase date, purchase currency
+		RDRC = report date, report currency, etc
+	*/
+
 	fields(Dom, [
 		'Name', Name, 
 		'Currency', Currency,
@@ -43,6 +54,7 @@ process(Dom) :-
 	write_tag('Count', Count),
 	write_tag('Currency', Currency),
 	write_tag('Report_Date', Report_Date_Atom),
+
 	magic_formula(
 		(
 			PDPC_Total_Cost = Count * PDPC_Unit_Cost,
@@ -61,6 +73,9 @@ process(Dom) :-
 	
 	
 	/*
+	now for the cross check..
+process_ledger(S_Transactions, Start_Days, End_Days, Exchange_Rates, Action_Taxonomy, Report_Currency, Livestock_Types, Livestock_Opening_Costs_And_Counts, Debug_Message, Account_Hierarchy_In, Account_Hierarchy, Transactions_With_Livestock, Used_Units, Balance_Sheet, ProftAndLoss) :-
+
 	Purchase_Date,
 	Report_Date,
 	report_currency,
