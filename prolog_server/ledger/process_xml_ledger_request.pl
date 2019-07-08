@@ -307,7 +307,10 @@ extract_action_taxonomy(Dom, Action_Taxonomy) :-
 	(
 		(xpath(Dom, //reports/balanceSheetRequest/actionTaxonomy, Taxonomy_Dom),!)
 	;
-		load_xml('./static/default_action_taxonomy.xml', Taxonomy_Dom, [])
+		(
+			absolute_file_name(my_static('actual-loan-response.xml'), Default_Action_Taxonomy_File, [ access(read) ]),
+			load_xml(Default_Action_Taxonomy_File, Taxonomy_Dom, [])
+		)
 	),
 	extract_action_taxonomy2(Taxonomy_Dom, Action_Taxonomy).
    

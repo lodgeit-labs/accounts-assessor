@@ -122,7 +122,6 @@ test(loan_request) :-
 						
 
 test(endpoint) :-
-gtrace,
 	find_test_directories(Directories),
 	maplist(test_directory, Directories).
 
@@ -134,8 +133,8 @@ test_directory(Path) :-
 test_request_without_response(Request) :-
 	test_request(Request, _).
 
-test_request_with_response((Request, Response)) :-
-	/*general xml comparison, todo*/
+test_request_with_response((Request, _Response)) :-
+	/*general xml comparison with Response, todo*/
 	test_request(Request, _).
 
 find_test_directories(Paths) :-
@@ -171,7 +170,7 @@ find_requests(Path, With_Responses, Without_Responses) :-
 		(
 			member(Request,	Requests),
 			atomic_list_concat([Path, '/', Request], Request_Path),
-			\+has_response_file(Request_Path, Response)
+			\+has_response_file(Request_Path, _)
 		),
 		Without_Responses
 	).
