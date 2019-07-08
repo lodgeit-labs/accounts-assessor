@@ -4,9 +4,9 @@
 	<InterestRate>5.3</InterestRate>
 	<MinYearlyRepayment>3692.7463898040705</MinYearlyRepayment>
 	<TotalRepayment>3000</TotalRepayment>
-	<RepaymentShortfall>692.74638980407053</RepaymentShortfall>
-	<TotalInterest>371</TotalInterest>
-	<TotalPrincipal>2629</TotalPrincipal>
-	<ClosingBalance>7371</ClosingBalance>
+	<RepaymentShortfall>692.7463898040705</RepaymentShortfall>
+	<TotalInterest>371.0</TotalInterest>
+	<TotalPrincipal>2629.0</TotalPrincipal>
+	<ClosingBalance>7371.0</ClosingBalance>
 </LoanSummary>
 

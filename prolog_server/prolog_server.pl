@@ -25,6 +25,7 @@
 :- use_module(library(http/http_dispatch), [http_safe_file/2]).
 :- use_module(library(http/http_files)).
 
+:- use_module('../lib/files').
 :- use_module('chat/residency').
 :- use_module('chat/sbe').
 :- ensure_loaded('process_data.pl').
@@ -84,6 +85,7 @@ upload_form(_Request) :-
 
 upload(Request) :-
    multipart_post_request(Request), !,
+   /*todo: assert a unique thread-local my_tmp for each request here*/
    http_read_data(Request, Parts, [ on_filename(save_file) ]),
    memberchk(file=file(FileName, Path), Parts),
    catch(
@@ -118,23 +120,27 @@ save_file(In, file(FileName, Path), Options) :-
    option(filename(FileName), Options),
    exclude_file_location_from_filename(FileName, FileName2),
    http_safe_file(FileName2, []),
-   atomic_list_concat(['./tmp/', FileName2], Path),
+   absolute_file_name(my_tmp(FileName2), Path, []),
    setup_call_cleanup(open(Path, write, Out), copy_stream_data(In, Out), close(Out)).
 
 
 exclude_file_location_from_filename(Name_In, Name_Out) :-
    % (for Internet Explorer/Microsoft Edge)
    atom_chars(Name_In, Name1),
+   remove_before('\\', Name1, Name2),
+   remove_before('/', Name2, Name3),
+   atomic_list_concat(Name3, Name_Out).
+
+remove_before(Slash, Name_In, Name_Out) :-
    once((
-   memberchk('\\', Name1)
+   memberchk(Slash, Name_In)
    ->  
-     reverse(Name1, RName),
-     append(RFName, ['\\'|_R1], RName),
-     reverse(RFName, FName)
+     reverse(Name_In, RName),
+     append(RFName, [Slash|_R1], RName),
+     reverse(RFName, Name_Out)
    ;   
-     FName = Name1)),
-   atomic_list_concat(FName, Name_Out).
-	
+     Name_Out = Name_In)
+    ).
 
 % -------------------------------------------------------------------
 % message/1

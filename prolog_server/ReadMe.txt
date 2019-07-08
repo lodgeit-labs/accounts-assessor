@@ -1,6 +1,3 @@
-dependencies:
-run swipl and pack_install(tap), pack_install(regex), pack_install(xsd).
-
 
 This directory contains a SWI Prolog server (prolog_server.pl) that:
 
