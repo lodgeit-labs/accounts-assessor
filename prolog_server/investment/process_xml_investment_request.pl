@@ -7,7 +7,7 @@
 :- use_module('../../lib/utils', [
 	inner_xml/3, write_tag/2, fields/2, numeric_fields/2, 
 	pretty_term_string/2]).
-
+:- use_module('../../lib/days', [format_date/2, parse_date/2, gregorian_date/2]).
 	
 :- record investment(
 	name, purchase_date, unit_cost, count, currency, 
@@ -23,24 +23,26 @@
 
 process(Dom) :-
 	fields(Dom, [
-		name, Name, 
-		currency, Currency
+		'Name', Name, 
+		'Currency', Currency,
+		'Purchase_Date', Purchase_Date_Atom,
+		'Report_Date', Report_Date_Atom
 	]),
+	/*parse_date(Purchase_Date_Atom, Purchase_Date),
+	parse_date(Report_Date_Atom, Report_Date),*/
 	numeric_fields(Dom, [
-		purchase_date, Purchase_Date,
-		unit_cost, PDPC_Unit_Cost,
-		count, Count,
-		purchase_date_rate, PD_Rate,
-		report_date, Report_Date,
-		report_date_value, RDPC_Unit_Value,
-		report_date_rate, RD_Rate
+		'Unit_Cost', PDPC_Unit_Cost,
+		'Unit_Value', RDPC_Unit_Value,
+		'Count', Count,
+		'Purchase_Date_Rate', PD_Rate,
+		'Report_Date_Rate', RD_Rate
 	]),
 	writeln('<investment>'),
 	write_tag('Name', Name),
-	write_tag('Purchase_Date', Purchase_Date),
+	write_tag('Purchase_Date', Purchase_Date_Atom),
 	write_tag('Count', Count),
 	write_tag('Currency', Currency),
-	write_tag('Report_Date', Report_Date),
+	write_tag('Report_Date', Report_Date_Atom),
 	magic_formula(
 		(
 			PDPC_Total_Cost = Count * PDPC_Unit_Cost,
@@ -54,6 +56,7 @@ process(Dom) :-
 			RDRC_Currency_Gain = RDRC_Total_Gain - RDRC_Market_Gain
 		)
 	),
+	nonvar(RDPC_Unrealized_Gain),nonvar(RDRC_Currency_Gain),
 	writeln('</investment>'),nl,nl,
 	
 	
@@ -73,7 +76,7 @@ process_xml_investment_request(_, DOM) :-
 	findall(Investment, xpath(DOM, //reports/investments/investment, Investment), Investments),
 	writeln('<?xml version="1.0"?>'),
 	writeln('<response>'),
-	maplist(extract, Investments),
+	%maplist(extract, Investments),
 	maplist(process, Investments),
 	writeln('</response>'),
 	nl, nl.
