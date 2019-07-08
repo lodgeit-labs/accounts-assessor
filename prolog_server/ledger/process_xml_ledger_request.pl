@@ -44,13 +44,14 @@ process_xml_ledger_request(_, Dom) :-
 	extract_report_currency(Dom, Report_Currency),
 	extract_action_taxonomy(Dom, Action_Taxonomy),
 	extract_account_hierarchy(Dom, Account_Hierarchy0),
-	extract_exchange_rates(Dom, End_Date_Atom, Default_Currency, Exchange_Rates),
 
 	inner_xml(Dom, //reports/balanceSheetRequest/startDate, [Start_Date_Atom]),
 	parse_date(Start_Date_Atom, Start_Days),
 	inner_xml(Dom, //reports/balanceSheetRequest/endDate, [End_Date_Atom]),
 	parse_date(End_Date_Atom, End_Days),
 
+	extract_exchange_rates(Dom, End_Date_Atom, Default_Currency, Exchange_Rates),
+	
 	findall(Livestock_Dom, xpath(Dom, //reports/balanceSheetRequest/livestockData, Livestock_Dom), Livestock_Doms),
 	get_livestock_types(Livestock_Doms, Livestock_Types),
    	extract_livestock_opening_costs_and_counts(Livestock_Doms, Livestock_Opening_Costs_And_Counts),
@@ -60,9 +61,9 @@ process_xml_ledger_request(_, Dom) :-
 	writeln('<?xml version="1.0"?>'), nl, nl,
 	
 	process_ledger(S_Transactions, Start_Days, End_Days, Exchange_Rates, Action_Taxonomy, Report_Currency, Livestock_Types, Livestock_Opening_Costs_And_Counts, Debug_Message, Account_Hierarchy0, Account_Hierarchy, Transactions, Used_Units, _, _),
-	wrap_up(Debug_Message, S_Transactions, Transactions, Start_Days, End_Days, Exchange_Rates, Account_Hierarchy, Used_Units).
+	wrap_up(Debug_Message, S_Transactions, Transactions, Start_Days, End_Days, Exchange_Rates, Account_Hierarchy, Used_Units, Report_Currency).
 
-wrap_up(Debug_Message, S_Transactions, Transactions, Start_Days, End_Days, Exchange_Rates, Account_Hierarchy, Used_Units) :-
+wrap_up(Debug_Message, S_Transactions, Transactions, Start_Days, End_Days, Exchange_Rates, Account_Hierarchy, Used_Units, Report_Currency) :-
 	fill_in_missing_units(S_Transactions, End_Days, Report_Currency, Used_Units, Exchange_Rates, Inferred_Rates),
 	pretty_term_string(Inferred_Rates, Inferred_Rates_Str),
 	writeln('<!-- Inferred_Rates: \n'),
