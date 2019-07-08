@@ -4,7 +4,7 @@
 % Date:      2019-06-02
 % ===================================================================
 
-:- module(statements, [extract_transaction/3, preprocess_s_transactions/4, add_bank_accounts/3, get_relevant_exchange_rates/5, invert_s_transaction_vector/2, find_s_transactions_in_period/4, fill_in_missing_units/6, process_ledger/13, emit_ledger_warnings/3, balance_sheet_entries/8, format_balance_sheet_entries/9]).
+:- module(statements, [extract_transaction/3, preprocess_s_transactions/4, get_relevant_exchange_rates/5, invert_s_transaction_vector/2, find_s_transactions_in_period/4, fill_in_missing_units/6, process_ledger/13, emit_ledger_warnings/3, balance_sheet_entries/8, format_balance_sheet_entries/9]).
 
 :- [trading].
 
@@ -384,23 +384,25 @@ extract_exchanged_value(Tx_Dom, _Account_Currency, Bank_Debit, Bank_Credit, Exch
    ).
 
 
-/* fixme: use sort, dont change order */
-add_bank_accounts(S_Transactions, Accounts_In, Accounts_Out) :-
+bank_accounts(S_Transactions, Accounts_In, Bank_Accounts) :-
 	findall(
 		Bank_Account_Name,
 		(
 			member(T, S_Transactions),
 			s_transaction_account_id(T, Bank_Account_Name)
 		),
-		Bank_Account_Names),
+		Bank_Account_Names
+	),
 	sort(Bank_Account_Names, Bank_Account_Names_Unique),
 	findall(
-		account(Name, 'Cash_And_Cash_Equivalents'),
-		member(Name, Bank_Account_Names_Unique),
-		Bank_Accounts),
-	append(Bank_Accounts, Accounts_In, Accounts_Duplicated),
-	sort(Accounts_Duplicated, Accounts_Out).
-
+		Account,
+		(
+			Account = account(Name, 'Cash_And_Cash_Equivalents'),
+			member(Name, Bank_Account_Names_Unique),
+			\+member(Account, Accounts_In)
+		),
+		Bank_Accounts
+	).
 
 /*
 fixme, this get also some irrelevant ones
@@ -575,10 +577,12 @@ process_ledger(Livestock_Doms, S_Transactions, Start_Days, End_Days, Exchange_Ra
 	writeln(Debug_Message0),
 	
 	maplist(make_livestock_accounts, Livestock_Types, Livestock_Accounts_Nested),
-	flatten(Livestock_Accounts_Nested, Livestock_Accounts),
-	append(Account_Hierarchy_In, Livestock_Accounts, Account_Hierarchy0b),
-	add_bank_accounts(S_Transactions, Account_Hierarchy0b, Account_Hierarchy),
+	bank_accounts(S_Transactions, Account_Hierarchy_In, Bank_Accounts),
+	append(Livestock_Accounts_Nested, Bank_Accounts, Generated_Accounts0),
+	flatten(Generated_Accounts0, Generated_Accounts),
 	
+	append(Account_Hierarchy_In, Generated_Accounts, Account_Hierarchy),
+		
 	preprocess_s_transactions((Account_Hierarchy, Report_Currency, Action_Taxonomy, End_Days, Exchange_Rates), S_Transactions, Transactions1, Transaction_Transformation_Debug),
    
 	process_livestock(Livestock_Doms, Livestock_Types, S_Transactions, Transactions1, Livestock_Opening_Costs_And_Counts, Start_Days, End_Days, Exchange_Rates, Account_Hierarchy, Report_Currency, Transactions_With_Livestock, Livestock_Events, Average_Costs, Average_Costs_Explanations),
@@ -587,6 +591,7 @@ process_ledger(Livestock_Doms, S_Transactions, Start_Days, End_Days, Exchange_Ra
 
 	maplist(check_transaction_account(Account_Hierarchy), Transactions_With_Livestock),
 	
+	pretty_term_string(Generated_Accounts, Message1a),
 	pretty_term_string(Livestock_Events, Message0b),
 	pretty_term_string(Transactions_With_Livestock, Message1),
 	pretty_term_string(Livestock_Counts, Message12),
@@ -600,6 +605,7 @@ process_ledger(Livestock_Doms, S_Transactions, Start_Days, End_Days, Exchange_Ra
 		Livestock_Debug = ''
 	;
 		atomic_list_concat([
+			'Generated_Accounts:\n', Message1a,'\n\n',
 			'Livestock Events:\n', Message0b,'\n\n',
 			'Livestock Counts:\n', Message12,'\n\n',
 			'Average_Costs:\n', Message5,'\n\n',
@@ -616,7 +622,8 @@ process_ledger(Livestock_Doms, S_Transactions, Start_Days, End_Days, Exchange_Ra
 	Livestock_Debug,
 	'Transaction_Transformation_Debug:\n', Message10,'\n\n',
 	'-->\n\n'], Debug_Message)
-	).
+	),
+	writeln(Debug_Message).
 	
 	
 emit_ledger_warnings(S_Transactions, Start_Days, End_Days) :-
