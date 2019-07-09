@@ -102,7 +102,7 @@ extract_loan_response_values(DOM, OpeningBalance, InterestRate, MinYearlyRepayme
 % test, we can add the request file in the list of the first argument
 % and add the response file in the list of the second argument
 % -------------------------------------------------------------------
-/*
+
 test(loan_request) :-
 
 	test_loan_response(['endpoint_tests/loan/loan-request1.xml', 
@@ -119,7 +119,7 @@ test(loan_request) :-
 						'endpoint_tests/loan/loan-response5.xml', 
 						'endpoint_tests/loan/loan-response6.xml']).
 						
-*/
+
 test(endpoint_requests_without_responses, [forall(tests_without_response(Without_Response))]) :-
 	test_request_without_response(Without_Response).
 
