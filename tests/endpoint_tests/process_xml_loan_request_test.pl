@@ -1,7 +1,7 @@
 % ===================================================================
 % Project:   LodgeiT
 % Module:    process_xml_loan_request_test.pl
-% Date:      2019-07-08
+% Date:      2019-07-09
 % ===================================================================
 
 %--------------------------------------------------------------------
@@ -20,6 +20,18 @@
 
 :- begin_tests(process_xml_loan_request, [setup(consult('../../prolog_server/run_simple_server.pl'))]).
 
+% define the value to compare expected float value with the actual float value
+% we need this value as float operations generate different values after certain precision in different machines
+accepted_min_difference(0.0000001).
+
+check_value_difference(Value1, Value2) :-
+	atom_number(Value1, NValue1),
+	atom_number(Value2, NValue2),
+	ValueDifference is NValue1 - NValue2,
+
+	accepted_min_difference(MinimalDifference),
+	(ValueDifference =< MinimalDifference ; ValueDifference >= MinimalDifference).
+
 % -------------------------------------------------------------------
 % Test the loan request and response values for the given files given
 % The list in the first argument contains the paths of the loan 
@@ -29,6 +41,12 @@
 test_loan_response([], _).
 test_loan_response([LoanRequestFile0 | LoanRequestFileList], [LoanResponseFile0 | LoanResponseFileList]) :-
 	
+	test_request(LoanRequestFile0, ReplyXML),
+	test_response(loan, ReplyXML, LoanResponseFile0),
+	
+	test_loan_response(LoanRequestFileList, LoanResponseFileList).
+
+test_response(loan, ReplyXML, LoanResponseFile0) :-
 	absolute_file_name(my_tests(
 		LoanResponseFile0),
 		LoanResponseFile,
@@ -40,7 +58,7 @@ test_loan_response([LoanRequestFile0 | LoanRequestFileList], [LoanResponseFile0 
 		[]
 	),
 	
-	test_request(LoanRequestFile0, ReplyXML),
+	nl, write('## Testing Response File: '), writeln(LoanResponseFile),
 	open(TempLoanResponseFile, write, Stream),
 	write(Stream, ReplyXML),
 	close(Stream),
@@ -48,23 +66,21 @@ test_loan_response([LoanRequestFile0 | LoanRequestFileList], [LoanResponseFile0 
 	load_xml(TempLoanResponseFile, ActualReplyDOM, []),
 	load_xml(LoanResponseFile, ExpectedReplyDOM, []),
 	
-	extract_loan_response_values(ActualReplyDOM, ActualOpeningBalance, ActualInterestRate, ActualMinYearlyRepayment, ActualTotalRepayment, 
+	extract_loan_response_values(ActualReplyDOM, ActualIncomeYear, ActualOpeningBalance, ActualInterestRate, ActualMinYearlyRepayment, ActualTotalRepayment, 
 		ActualRepaymentShortfall, ActualTotalInterest, ActualTotalPrincipal, ActualClosingBalance),
 		
-	extract_loan_response_values(ExpectedReplyDOM, ExpectedOpeningBalance, ExpectedInterestRate, ExpectedMinYearlyRepayment, ExpectedTotalRepayment, 
+	extract_loan_response_values(ExpectedReplyDOM, ExpectedIncomeYear, ExpectedOpeningBalance, ExpectedInterestRate, ExpectedMinYearlyRepayment, ExpectedTotalRepayment, 
 		ExpectedRepaymentShortfall, ExpectedTotalInterest, ExpectedTotalPrincipal, ExpectedClosingBalance),
 	
-	assertion(ActualOpeningBalance == ExpectedOpeningBalance),
-	assertion(ActualInterestRate == ExpectedInterestRate),
-	assertion(ActualMinYearlyRepayment == ExpectedMinYearlyRepayment),
-	assertion(ActualTotalRepayment == ExpectedTotalRepayment),
-	assertion(ActualRepaymentShortfall == ExpectedRepaymentShortfall),
-	assertion(ActualTotalInterest == ExpectedTotalInterest),
-	assertion(ActualTotalPrincipal == ExpectedTotalPrincipal),
-	assertion(ActualClosingBalance == ExpectedClosingBalance),
-	
-	test_loan_response(LoanRequestFileList, LoanResponseFileList).
-
+	assertion(check_value_difference(ActualIncomeYear, ExpectedIncomeYear)),
+	assertion(check_value_difference(ActualOpeningBalance, ExpectedOpeningBalance)),
+	assertion(check_value_difference(ActualInterestRate, ExpectedInterestRate)),
+	assertion(check_value_difference(ActualMinYearlyRepayment, ExpectedMinYearlyRepayment)),
+	assertion(check_value_difference(ActualTotalRepayment, ExpectedTotalRepayment)),
+	assertion(check_value_difference(ActualRepaymentShortfall, ExpectedRepaymentShortfall)),
+	assertion(check_value_difference(ActualTotalInterest, ExpectedTotalInterest)),
+	assertion(check_value_difference(ActualTotalPrincipal, ExpectedTotalPrincipal)),
+	assertion(check_value_difference(ActualClosingBalance, ExpectedClosingBalance)).
 
 test_request(RequestFile0, ReplyXML) :-
 
@@ -90,7 +106,8 @@ test_request(RequestFile0, ReplyXML) :-
 % Extract all required information from the loan response XML
 % -------------------------------------------------------------------
 
-extract_loan_response_values(DOM, OpeningBalance, InterestRate, MinYearlyRepayment, TotalRepayment, RepaymentShortfall, TotalInterest, TotalPrincipal, ClosingBalance) :-
+extract_loan_response_values(DOM, IncomeYear, OpeningBalance, InterestRate, MinYearlyRepayment, TotalRepayment, RepaymentShortfall, TotalInterest, TotalPrincipal, ClosingBalance) :-
+	xpath(DOM, //'LoanSummary'/'IncomeYear', element(_, _, [IncomeYear])),
 	xpath(DOM, //'LoanSummary'/'OpeningBalance', element(_, _, [OpeningBalance])),
 	xpath(DOM, //'LoanSummary'/'InterestRate', element(_, _, [InterestRate])),
 	xpath(DOM, //'LoanSummary'/'MinYearlyRepayment', element(_, _, [MinYearlyRepayment])),
@@ -140,9 +157,11 @@ test_directory(Path) :-
 test_request_without_response(Request) :-
 	test_request(Request, _).
 
-test_request_with_response((Request, _Response)) :-
+test_request_with_response((Request, Response)) :-
 	/*general xml comparison with Response, todo*/
-	test_request(Request, _).
+	test_request(Request, ReplyXML),
+	get_request_context(Request, Context),
+	(Context = loan -> test_response(loan, ReplyXML, Response) ; true).
 
 find_test_directories(Paths) :-
 	Top_Level_Directory = 'endpoint_tests',
@@ -190,6 +209,12 @@ is_request_file(Atom) :-
 has_response_file(Atom, Response) :-
 	re_replace('request', 'response', Atom, Response),
 	absolute_file_name(my_tests(Response),_,[ access(read), file_errors(fail) ]).
+
+% find the context from the path based on the directory name
+get_request_context(Request, Context) :-
+	atom_chars(Request, RequestChars),
+	append(['e','n','d','p','o','i','n','t','_','t','e','s','t','s','/' | ContextChars], ['/' | Rest], RequestChars),
+	atomic_list_concat(ContextChars, Context).
 
 :- end_tests(process_xml_loan_request).
 
