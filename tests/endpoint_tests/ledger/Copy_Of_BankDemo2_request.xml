@@ -2,7 +2,7 @@
 <reports xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xsi:schemaLocation="http://localhost:8080/taxonomy/basic.xsd">
   <balanceSheetRequest>
     <generator>
-      <date>2019-07-04T14:59:53.952296Z</date>
+      <date>2019-07-09T11:48:58.1513095Z</date>
       <source>LodgeiT Tool</source>
       <author>
         <firstname>waqas</firstname>
@@ -38,6 +38,11 @@
         <unitValueCurrency />
       </unitValue>
       <unitValue>
+        <unitType>Leonteq_N</unitType>
+        <unitValue>0</unitValue>
+        <unitValueCurrency>NOK</unitValueCurrency>
+      </unitValue>
+      <unitValue>
         <unitType>8.04%_Commerzbank_AG</unitType>
         <unitValue>0</unitValue>
         <unitValueCurrency />
@@ -55,6 +60,11 @@
       <unitValue>
         <unitType>16.85%_Commerzbank_AG</unitType>
         <unitValue>0</unitValue>
+        <unitValueCurrency />
+      </unitValue>
+      <unitValue>
+        <unitType>Raiffeisen Switzerland_B.V.</unitType>
+        <unitValue>7.05</unitValue>
         <unitValueCurrency />
       </unitValue>
       <unitValue>
@@ -143,6 +153,8 @@
         <unitValueCurrency />
       </unitValue>
 
+
+
       <unitValue>
         <unitType>CHF</unitType>
         <unitValue>1.362583</unitValue>
@@ -199,8 +211,16 @@
         <unitValue>1.358880</unitValue>
         <unitValueDate>2018-10-15</unitValueDate>
       </unitValue>
-      
+
+
+
+
     </unitValues>
+
+
+
+
+
     <actionTaxonomy>
       <action>
         <id>Invest_In</id>
@@ -228,7 +248,7 @@
       </action>
       <action>
         <id>Transfers</id>
-        <exchangeAccount>Exchange_Gain</exchangeAccount>
+        <exchangeAccount>Clearing_Account</exchangeAccount>
         <tradingAccount />
         <description />
       </action>
@@ -259,7 +279,7 @@
     </actionTaxonomy>
     <bankStatement>
       <title>Bank Statement</title>
-      <period>2018-07-02 - 2018-12-30</period>
+      <period>2018-07-01 - 2018-12-30</period>
       <accountDetails>
         <accountNo />
         <accountName>USD_Bank </accountName>
@@ -267,11 +287,13 @@
         <currency>USD</currency>
         <transactions>
           <transaction>
-            <transdesc>Introduce_Capital</transdesc>
+            <transdesc>Invest_In</transdesc>
             <transdate>2018-07-01</transdate>
+            <debit>139760.32</debit>
             <credit>0</credit>
+            <unit>140000</unit>
+            <unitType>SG Issuer_SA_USD_1</unitType>
           </transaction>
-
           <transaction>
             <transdesc>Invest_In</transdesc>
             <transdate>2018-07-02</transdate>
@@ -284,7 +306,7 @@
             <transdesc>Dispose_Off</transdesc>
             <transdate>2018-07-12</transdate>
             <debit>0</debit>
-            <credit>91120</credit>
+            <credit>90000</credit>
             <unit>2085</unit>
             <unitType>Raiffeisen Switzerland_B.V.</unitType>
           </transaction>
@@ -307,8 +329,8 @@
           <transaction>
             <transdesc>Transfers</transdesc>
             <transdate>2018-10-15</transdate>
-            <debit>90000</debit>
-            <credit>0</credit>
+            <debit>0</debit>
+            <credit>150000</credit>
             <unit>0</unit>
             <unitType />
           </transaction>
@@ -320,11 +342,6 @@
         <bankID />
         <currency>CHF</currency>
         <transactions>
-          <transaction>
-            <transdesc>Introduce_Capital</transdesc>
-            <transdate>2018-07-01</transdate>
-            <credit>921518.93</credit>
-          </transaction>
           <transaction>
             <transdesc>Accountancy_Fees</transdesc>
             <transdate>2018-07-10</transdate>
@@ -352,8 +369,8 @@
           <transaction>
             <transdesc>Transfers</transdesc>
             <transdate>2018-10-15</transdate>
-            <debit>0</debit>
-            <credit>105000</credit>
+            <debit>105000</debit>
+            <credit>0</credit>
             <unit>0</unit>
             <unitType />
           </transaction>

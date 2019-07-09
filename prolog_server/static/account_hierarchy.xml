@@ -33,10 +33,10 @@
 			</Retained_Earnings>
 			<Capital_Introduced/>
 			<Drawings/>
-			<Clearing_Account/>
 		</Equity>
 		<Earnings>
 			<Revenue>
+				<Clearing_Account/>
 				<Income/>
 				<Investment_Income/>
 				<Other_Income>
