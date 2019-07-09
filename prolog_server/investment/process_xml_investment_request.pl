@@ -36,11 +36,13 @@ process(Dom) :-
 	fields(Dom, [
 		'Name', Name, 
 		'Currency', Currency,
-		'Purchase_Date', Purchase_Date_Atom,
-		'Report_Date', Report_Date_Atom
+		'Purchase_Date', Purchase_Date_In,
+		'Report_Date', Report_Date_In
 	]),
-	/*parse_date(Purchase_Date_Atom, Purchase_Date),
-	parse_date(Report_Date_Atom, Report_Date),*/
+	parse_date(Purchase_Date_In, Purchase_Date),
+	parse_date(Report_Date_In, Report_Date),
+	format_date(Report_Date, Report_Date_Out),
+	format_date(Purchase_Date, Purchase_Date_Out),
 	numeric_fields(Dom, [
 		'Unit_Cost', PDPC_Unit_Cost,
 		'Unit_Value', RDPC_Unit_Value,
@@ -50,10 +52,10 @@ process(Dom) :-
 	]),
 	writeln('<investment>'),
 	write_tag('Name', Name),
-	write_tag('Purchase_Date', Purchase_Date_Atom),
 	write_tag('Count', Count),
 	write_tag('Currency', Currency),
-	write_tag('Report_Date', Report_Date_Atom),
+	write_tag('Purchase_Date', Purchase_Date_Out),
+	write_tag('Report_Date', Report_Date_Out),
 
 	magic_formula(
 		(
@@ -74,14 +76,46 @@ process(Dom) :-
 	
 	/*
 	now for the cross check..
-process_ledger(S_Transactions, Start_Days, End_Days, Exchange_Rates, Action_Taxonomy, Report_Currency, Livestock_Types, Livestock_Opening_Costs_And_Counts, Debug_Message, Account_Hierarchy_In, Account_Hierarchy, Transactions_With_Livestock, Used_Units, Balance_Sheet, ProftAndLoss) :-
+	*/	
+	Exchange_Rates = [
+			exchange_rate(Purchase_Date, Currency, report_currency, PD_Rate),
+			exchange_rate(Report_Date, Currency, report_currency, RD_Rate)
+	],
 
-	Purchase_Date,
-	Report_Date,
-	report_currency,
-	[s_transaction(Purchase_Date, 'Invest_In', vector([coord(Currency, PDPC_Total_Cost, 0)]), 'Bank', coord(Name, Count, 0))],	
-	*/
 	
+	extract_account_hierarchy([], Accounts),
+	process_ledger(
+		[],
+		[s_transaction(
+			Purchase_Date, 
+			'Invest_In', 
+			[coord(Currency, PDPC_Total_Cost, 0)], 
+			'Bank', 
+			vector([coord(Name, Count, 0)]))
+		],	
+		Purchase_Date, 
+		Report_Date, 
+		Exchange_Rates,
+		[ transaction_type('Invest_In',
+		   'Financial_Investments',
+		   'Investment_Income',
+		   'Shares'),
+		transaction_type('Dispose_Of',
+		   'Financial_Investments',
+		   'Investment_Income',
+		   'Shares')],
+		report_currency, 
+		[], 
+		[], 
+		_, 
+		Accounts, 
+		_, 
+		Transactions
+	),
+    balance_by_account(Exchange_Rates, Accounts, Transactions, [report_currency], Report_Date, 'Account_Id', Report_Date, Balance_Transformed, _),
+    
+    
+    
     
 	true.
 		

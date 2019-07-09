@@ -76,14 +76,7 @@ test_request(RequestFile0, ReplyXML) :-
 	
 	nl, write('>> Testing Request File: '), writeln(RequestFile),
 
-	(
-		catch(
-			http_post('http://localhost:8080/upload', form_data([file=file(RequestFile)]), ReplyXML, [content_type('multipart/form-data')]),
-		E,
-		(
-			format(user_error, '~w', [E]),
-			fail
-		))).
+	http_post('http://localhost:8080/upload', form_data([file=file(RequestFile)]), ReplyXML, [content_type('multipart/form-data')]).
 
 	
 % -------------------------------------------------------------------
@@ -109,7 +102,7 @@ extract_loan_response_values(DOM, OpeningBalance, InterestRate, MinYearlyRepayme
 % test, we can add the request file in the list of the first argument
 % and add the response file in the list of the second argument
 % -------------------------------------------------------------------
-
+/*
 test(loan_request) :-
 
 	test_loan_response(['endpoint_tests/loan/loan-request1.xml', 
@@ -126,16 +119,24 @@ test(loan_request) :-
 						'endpoint_tests/loan/loan-response5.xml', 
 						'endpoint_tests/loan/loan-response6.xml']).
 						
+*/
+test(endpoint_requests_without_responses, [forall(tests_without_response(Without_Response))]) :-
+	test_request_without_response(Without_Response).
 
-test(endpoint) :-
+test(endpoint_requests_with_responses, forall(tests_with_response(With_Response))) :-
+	test_request_with_response(With_Response).
+	
+tests_without_response(Without_Response) :-
+	find_test_directories(Paths),
+	member(Path, Paths),
+	find_requests(Path, _, Without_Responses),
+	member(Without_Response, Without_Responses).
 
-	find_test_directories(Directories),
-	maplist(test_directory, Directories).
-
-test_directory(Path) :-
-	find_requests(Path, With_Responses, Without_Responses),
-	maplist(test_request_with_response, With_Responses),	
-	maplist(test_request_without_response, Without_Responses).
+tests_with_response(With_Response) :-
+	find_test_directories(Paths),
+	member(Path, Paths),
+	find_requests(Path, With_Responses, _),
+	member(With_Response, With_Responses).
 
 test_request_without_response(Request) :-
 	test_request(Request, _).
