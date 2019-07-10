@@ -23,8 +23,8 @@
 run a test case if url is /tests/xxx!
 */
 tests(Url, _) :-
-	sub_string(Url,_,_,0,"!"),
-	sub_string(Url,0,_,1,Relative_Path),
+	sub_string(Url,_,_,0,"/run"),
+	sub_string(Url,0,_,4,Relative_Path),
 	absolute_file_name(my_tests(Relative_Path), Path, [ access(read) ]),
 	process_data(_FileName, Path).
 
