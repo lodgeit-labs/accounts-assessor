@@ -41,7 +41,7 @@ compare_floats(A, B) :-
 % for example: Google Shares	7/1/2015	10	100	USD	0.7	6/30/2016	20	0.65
 
 
-process_realized(Dom) :-
+process_realized(Dom, _Result) :-
 	/*
 		PDPC = purchase date, purchase currency
 		SDRC = sale date, report currency, etc
@@ -298,20 +298,23 @@ process_xml_investment_request(_, DOM) :-
 		process_investments(DOM, Result),
 		Results
 	),
+	writeln('<!--'),
+	writeln(Results),
+	writeln('-->'),
 	writeln('</response>'),
 	nl, nl.
 
-process_investments(DOM) :-
+process_investments(DOM, Result) :-
 	xpath(DOM, //reports/investments/(*), Investment),
-	process(Investment).
+	process(Investment, Result).
 
-process(Investment) :-
+process(Investment, Result) :-
 	xpath(Investment, //realized_investment, _),
-	process_realized(Investment, Results).
+	process_realized(Investment, Result).
 
-process(Investment) :-
+process(Investment, Result) :-
 	xpath(Investment, //unrealized_investment, _),
-	process_unrealized(Investment).
+	process_unrealized(Investment, Result).
 	
 							    
 	
