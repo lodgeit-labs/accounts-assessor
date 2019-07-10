@@ -156,10 +156,13 @@ process_realized(Dom) :-
 
 
 
+%	Gains = (RDRC_Realised_Currency_Gain, RDRC_Realised_market_Gain
 
 
 
-process_unrealized(Dom) :-
+process_unrealized(Dom, Result) :-
+	Result = (S_Transactions, Exchange_Rates, Gains),
+	Gains = (0,0,RDRC_Unrealised_Currency_Gain, RDRC_Unrealised_Market_Gain),
 	/*
 		PDPC = purchase date, purchase currency
 		RDRC = report date, report currency, etc..
@@ -197,9 +200,9 @@ process_unrealized(Dom) :-
 			RDPC_Unrealized_Gain = RDPC_Total_Value - PDPC_Total_Cost,
 			RDRC_Old_Rate_Total_Value = RDPC_Total_Value / PD_Rate,
 			RDRC_New_Rate_Total_Value = RDPC_Total_Value / RD_Rate,
-			RDRC_Realised_Total_Gain = RDRC_New_Rate_Total_Value - PDRC_Total_Cost,
-			RDRC_Realised_Market_Gain = RDRC_Old_Rate_Total_Value - PDRC_Total_Cost,
-			RDRC_Realised_Currency_Gain = RDRC_Realised_Total_Gain - RDRC_Realised_Market_Gain
+			RDRC_Unrealised_Total_Gain = RDRC_New_Rate_Total_Value - PDRC_Total_Cost,
+			RDRC_Unrealised_Market_Gain = RDRC_Old_Rate_Total_Value - PDRC_Total_Cost,
+			RDRC_Unrealised_Currency_Gain = RDRC_Realised_Total_Gain - RDRC_Realised_Market_Gain
 		)
 	),
 	/* silence singleton variable warning */
@@ -238,11 +241,8 @@ process_unrealized(Dom) :-
 		[ transaction_type('Invest_In',
 		   'Financial_Investments',
 		   'Investment_Income',
-		   'Shares'),
-		transaction_type('Dispose_Of',
-		   'Financial_Investments',
-		   'Investment_Income',
-		   'Shares')],
+		   'Shares')
+		],
 		[report_currency], 
 		[], 
 		[], 
@@ -253,9 +253,9 @@ process_unrealized(Dom) :-
 	),
    	Info = (Exchange_Rates, Accounts1, Transactions, Report_Date, report_currency),
    
-    account_assertion(Info, 'Realized_Gains_Excluding_Forex', -RDRC_Realised_Market_Gain),
-	account_assertion(Info, 'Realized_Gains_Currency_Movement', -RDRC_Realised_Currency_Gain),
-	account_assertion(Info, 'Realized_Gain', -RDRC_Realised_Total_Gain),
+    account_assertion(Info, 'Unrealized_Gains_Excluding_Forex', -RDRC_Unrealised_Market_Gain),
+	account_assertion(Info, 'Unrealized_Gains_Currency_Movement', -RDRC_Unrealised_Currency_Gain),
+	account_assertion(Info, 'Unrealized_Gain', -RDRC_Unrealised_Total_Gain),
 	
 	profitandloss_between(Exchange_Rates, Accounts1, Transactions, [report_currency], Report_Date, Purchase_Date, Report_Date, ProftAndLoss),
 	format_balance_sheet_entries(Accounts1, 0, [report_currency], Report_Date, ProftAndLoss, [], _, [], ProftAndLoss_Lines),
@@ -293,18 +293,21 @@ process_xml_investment_request(_, DOM) :-
 	xpath(DOM, //reports/investments, _),
 	writeln('<?xml version="1.0"?>'),
 	writeln('<response>'),
-	findall(_,process_investments(DOM),_),
+	findall(
+		Result,
+		process_investments(DOM, Result),
+		Results
+	),
 	writeln('</response>'),
 	nl, nl.
 
 process_investments(DOM) :-
 	xpath(DOM, //reports/investments/(*), Investment),
-	
 	process(Investment).
 
 process(Investment) :-
 	xpath(Investment, //realized_investment, _),
-	process_realized(Investment).
+	process_realized(Investment, Results).
 
 process(Investment) :-
 	xpath(Investment, //unrealized_investment, _),
