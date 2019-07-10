@@ -71,6 +71,7 @@ expand_formulas_to_code([H|T], Expansion) :-
 		writeln(''),
 		%write('<!-- '), write(S1), writeln(': -->'),
 		write('<!-- '), writeln(' -->'),
+		assertion(ground(((S1,Rhs)))),
 		New_Formula,
 		utils:open_tag(S1),  format('~2f', [V]), utils:close_tag(S1), 
 		write_tag([S1, '_Formula'], Description),

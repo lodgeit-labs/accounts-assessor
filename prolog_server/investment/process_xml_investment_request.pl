@@ -161,7 +161,7 @@ process_realized(Dom, _Result) :-
 
 
 process_unrealized(Dom, Result) :-
-	Result = (S_Transactions, Exchange_Rates, Gains),
+	Result = (_S_Transactions, Exchange_Rates, Gains),
 	Gains = (0,0,RDRC_Unrealised_Currency_Gain, RDRC_Unrealised_Market_Gain),
 	/*
 		PDPC = purchase date, purchase currency
@@ -202,7 +202,7 @@ process_unrealized(Dom, Result) :-
 			RDRC_New_Rate_Total_Value = RDPC_Total_Value / RD_Rate,
 			RDRC_Unrealised_Total_Gain = RDRC_New_Rate_Total_Value - PDRC_Total_Cost,
 			RDRC_Unrealised_Market_Gain = RDRC_Old_Rate_Total_Value - PDRC_Total_Cost,
-			RDRC_Unrealised_Currency_Gain = RDRC_Realised_Total_Gain - RDRC_Realised_Market_Gain
+			RDRC_Unrealised_Currency_Gain = RDRC_Unrealised_Total_Gain - RDRC_Unrealised_Market_Gain
 		)
 	),
 	/* silence singleton variable warning */
@@ -227,13 +227,7 @@ process_unrealized(Dom, Result) :-
 			'Invest_In', 
 			[coord(Currency, 0, PDPC_Total_Cost)], 
 			'Bank', 
-			vector([coord(Name, Count, 0)])),
-		s_transaction(
-			Report_Date, 
-			'Dispose_Of', 
-			[coord(Currency, RDPC_Total_Value, 0)], 
-			'Bank', 
-			vector([coord(Name, 0, Count)]))
+			vector([coord(Name, Count, 0)]))
 		],	
 		Purchase_Date, 
 		Report_Date, 
@@ -253,7 +247,7 @@ process_unrealized(Dom, Result) :-
 	),
    	Info = (Exchange_Rates, Accounts1, Transactions, Report_Date, report_currency),
    
-    account_assertion(Info, 'Unrealized_Gains_Excluding_Forex', -RDRC_Unrealised_Market_Gain),
+	account_assertion(Info, 'Unrealized_Gains_Excluding_Forex', -RDRC_Unrealised_Market_Gain),
 	account_assertion(Info, 'Unrealized_Gains_Currency_Movement', -RDRC_Unrealised_Currency_Gain),
 	account_assertion(Info, 'Unrealized_Gain', -RDRC_Unrealised_Total_Gain),
 	
