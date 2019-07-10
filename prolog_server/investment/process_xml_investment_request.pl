@@ -97,7 +97,7 @@ process(Dom) :-
 			exchange_rate(Report_Date, Name, Currency, RDPC_Unit_Value)
 	],
 	
-	extract_account_hierarchy([], Accounts),
+	extract_account_hierarchy([], Accounts0),
 	process_ledger(
 		[],
 		[
@@ -129,22 +129,29 @@ process(Dom) :-
 		[], 
 		[], 
 		_, 
-		Accounts, 
-		_, 
+		Accounts0, 
+		Accounts1, 
 		Transactions
 	),
     
-    Info = (Exchange_Rates, Accounts, Transactions, Report_Date, report_currency),
+    Info = (Exchange_Rates, Accounts1, Transactions, Report_Date, report_currency),
     
     account_assertion(Info, 'Realized_Gains_Excluding_Forex', -RDRC_Market_Gain),
 	account_assertion(Info, 'Realized_Gains_Currency_Movement', -RDRC_Currency_Gain),
 	account_assertion(Info, 'Realized_Gain', -RDRC_Total_Gain),
 	
-	profitandloss_between(Exchange_Rates, Accounts, Transactions, [report_currency], Report_Date, Purchase_Date, Report_Date, ProftAndLoss),
-	format_balance_sheet_entries(Accounts, 0, [report_currency], Report_Date, ProftAndLoss, [], _, [], ProftAndLoss_Lines),
+	profitandloss_between(Exchange_Rates, Accounts1, Transactions, [report_currency], Report_Date, Purchase_Date, Report_Date, ProftAndLoss),
+	format_balance_sheet_entries(Accounts1, 0, [report_currency], Report_Date, ProftAndLoss, [], _, [], ProftAndLoss_Lines),
 	writeln('<!--'),
 	writeln(ProftAndLoss_Lines),
 	writeln('-->'),
+	balance_sheet_at(Exchange_Rates, Accounts1, Transactions, [report_currency], Report_Date, Purchase_Date, Report_Date, Balance_Sheet),
+	format_balance_sheet_entries(Accounts1, 0, [report_currency], Report_Date, Balance_Sheet, [], _, [], Balance_Sheet_Lines),
+	writeln('<!--'),
+	writeln(Balance_Sheet_Lines),
+	writeln('-->'),
+
+	
 	true.
 		
 	

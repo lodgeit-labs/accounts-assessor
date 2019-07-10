@@ -37,6 +37,7 @@
 
 :- http_handler(root(.),      upload_form, []).
 :- http_handler(root(upload), upload,      []).
+:- http_handler(root(tests/Test), tests(Test),    [methods([get])]).
 :- http_handler(root(chat/sbe), sbe_request, [methods([post])]).
 :- http_handler(root(chat/residency), residency_request, [methods([post])]).
 :- http_handler('/favicon.ico', http_reply_file(my_static('favicon.ico'), []), []).
@@ -99,7 +100,7 @@ upload(Request) :-
 upload(_Request) :-
    throw(http_reply(bad_request(bad_file_upload))).
 
-
+   
 % -------------------------------------------------------------------
 % multipart_post_request/
 % -------------------------------------------------------------------
