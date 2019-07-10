@@ -6,10 +6,11 @@
 
 :- module(statements, [extract_transaction/3, preprocess_s_transactions/4, get_relevant_exchange_rates/5, invert_s_transaction_vector/2, find_s_transactions_in_period/4, fill_in_missing_units/6, process_ledger/13, emit_ledger_warnings/3, balance_sheet_entries/8, format_balance_sheet_entries/9]).
 
+/*fixme turn into module now*/
 :- [trading].
 
 :- use_module(pacioli,  [vec_inverse/2, vec_add/3, vec_sub/3, integer_to_coord/3,
-		    make_debit/2,
+			make_debit/2,
 		    make_credit/2]).
 :- use_module(exchange, [vec_change_bases/5]).
 :- use_module(exchange_rates, [exchange_rate/5, is_exchangeable_into_request_bases/4]).
@@ -139,6 +140,7 @@ This predicate takes a list of statement transaction terms and decomposes it int
 */	
 
 preprocess_s_transaction(Static_Data, S_Transaction, [Ts0, Ts1, Ts2, Ts3, Ts4, Ts5, Ts6], Outstanding_In, Outstanding_Out) :-
+
 	Static_Data = (Accounts, Report_Currency, Transaction_Types, _, Exchange_Rates),
 	(
 		% do we have a tag that corresponds to one of known actions?
@@ -266,11 +268,29 @@ check_trial_balance(Exchange_Rates, Report_Currency, Day, Transactions) :-
 		true
 	;
 		(
-			pretty_term_string(['WARNING: total is ', Total, ' on day ', Day], Err_Str),
-			format(user_error, '\n\\n~w\n\n', [Err_Str])/*,
-			throw(Err_Str)*/
+			maplist(coord_is_almost_zero, Total)
+		->
+			true
+		;
+			(
+				pretty_term_string(['WARNING: total is ', Total, ' on day ', Day], Err_Str),
+				format(user_error, '\n\\n~w\n\n', [Err_Str])/*,
+				throw(Err_Str)*/
+			)
 		)
 	).
+
+float_comparison_max_difference(0.00000001).
+	
+coord_is_almost_zero(coord(_, D, C)) :-
+	compare_floats(D, 0),
+	compare_floats(C, 0).
+
+
+compare_floats(A, B) :-
+	float_comparison_max_difference(Max),
+	D is abs(A - B),
+	D =< Max.
 
 	
 % Gets the transaction_type term associated with the given transaction

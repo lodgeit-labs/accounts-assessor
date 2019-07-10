@@ -35,12 +35,14 @@ exchange_rates2(Day, Exchange_Rates) :-
 	!.
 
 exchange_rates2(Day, Exchange_Rates) :-
+	date(Today),
+	Day @=< Today,
 	fetch_exchange_rates(Day, Exchange_Rates).
 
 fetch_exchange_rates(Date, Exchange_Rates) :-
 	/* note that invalid dates get "recomputed", for example date(2010,1,33) becomes 2010-02-02 */
 	format_time(string(Date_Str), "%Y-%m-%d", Date),
-	%gtrace,
+
 	string_concat("http://openexchangerates.org/api/historical/", Date_Str, Query_Url_A),
 	string_concat(Query_Url_A, ".json?app_id=677e4a964d1b44c99f2053e21307d31a", Query_Url),
 	format(user_error, '~w ...', [Query_Url]),
@@ -50,7 +52,7 @@ fetch_exchange_rates(Date, Exchange_Rates) :-
 		% note that connection error or similar should still propagate and halt the program.
 		error(existence_error(_,_),_),
 		(
-			/*assert_rates(Date, []),*/
+			assert_rates(Date, []),
 			false
 		)
 	),

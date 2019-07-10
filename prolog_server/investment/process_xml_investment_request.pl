@@ -11,7 +11,20 @@ see doc/investment and dropbox Develop/videos/ledger
 	pretty_term_string/2 /*, magic_formula */]).
 :- use_module('../../lib/days', [format_date/2, parse_date/2, gregorian_date/2]).
 :- use_module('../../lib/statements', [
-		process_ledger/13]).
+		process_ledger/13,
+		format_balance_sheet_entries/9]).
+:- use_module('../../lib/accounts', [extract_account_hierarchy/2, account_ancestor_id/3]).
+:- use_module('../../lib/ledger', [balance_sheet_at/8, trial_balance_between/8, profitandloss_between/8, balance_by_account/9]).
+:- use_module('../../lib/pacioli',  [integer_to_coord/3]).
+
+
+float_comparison_max_difference(0.00000001).
+
+compare_floats(A, B) :-
+	float_comparison_max_difference(Max),
+	D is abs(A - B),
+	D =< Max.
+
 
 	
 :- record investment(
@@ -78,20 +91,28 @@ process(Dom) :-
 	now for the cross check..
 	*/	
 	Exchange_Rates = [
-			exchange_rate(Purchase_Date, Currency, report_currency, PD_Rate),
-			exchange_rate(Report_Date, Currency, report_currency, RD_Rate)
+			exchange_rate(Purchase_Date, report_currency, Currency, PD_Rate),
+			exchange_rate(Report_Date, report_currency, Currency, RD_Rate),
+			exchange_rate(Purchase_Date, Name, Currency, PDPC_Unit_Cost),
+			exchange_rate(Report_Date, Name, Currency, RDPC_Unit_Value)
 	],
-
 	
 	extract_account_hierarchy([], Accounts),
 	process_ledger(
 		[],
-		[s_transaction(
+		[
+		s_transaction(
 			Purchase_Date, 
 			'Invest_In', 
-			[coord(Currency, PDPC_Total_Cost, 0)], 
+			[coord(Currency, 0, PDPC_Total_Cost)], 
 			'Bank', 
-			vector([coord(Name, Count, 0)]))
+			vector([coord(Name, Count, 0)])),
+		s_transaction(
+			Report_Date, 
+			'Dispose_Of', 
+			[coord(Currency, RDPC_Total_Value, 0)], 
+			'Bank', 
+			vector([coord(Name, 0, Count)]))
 		],	
 		Purchase_Date, 
 		Report_Date, 
@@ -104,7 +125,7 @@ process(Dom) :-
 		   'Financial_Investments',
 		   'Investment_Income',
 		   'Shares')],
-		report_currency, 
+		[report_currency], 
 		[], 
 		[], 
 		_, 
@@ -112,12 +133,36 @@ process(Dom) :-
 		_, 
 		Transactions
 	),
-    balance_by_account(Exchange_Rates, Accounts, Transactions, [report_currency], Report_Date, 'Account_Id', Report_Date, Balance_Transformed, _),
     
+    Info = (Exchange_Rates, Accounts, Transactions, Report_Date, report_currency),
     
-    
-    
+    account_assertion(Info, 'Realized_Gains_Excluding_Forex', -RDRC_Market_Gain),
+	account_assertion(Info, 'Realized_Gains_Currency_Movement', -RDRC_Currency_Gain),
+	account_assertion(Info, 'Realized_Gain', -RDRC_Total_Gain),
+	
+	profitandloss_between(Exchange_Rates, Accounts, Transactions, [report_currency], Report_Date, Purchase_Date, Report_Date, ProftAndLoss),
+	format_balance_sheet_entries(Accounts, 0, [report_currency], Report_Date, ProftAndLoss, [], _, [], ProftAndLoss_Lines),
+	writeln('<!--'),
+	writeln(ProftAndLoss_Lines),
+	writeln('-->'),
 	true.
+		
+	
+	
+	
+account_assertion(Info, Account, Expected_Exp) :-
+	Info = (_,_,_,_,Currency),
+	account_vector(Info, Account, Vector),
+	Vector = [Coord],
+	integer_to_coord(Currency, Balance, Coord),
+	Expected is Expected_Exp,
+	assertion(compare_floats(Balance, Expected)).
+
+account_vector(Info, Account, Vector) :-
+	Info = (Exchange_Rates, Accounts, Transactions, Report_Date, Currency), 
+    balance_by_account(Exchange_Rates, Accounts, Transactions, [Currency], Report_Date, Account, Report_Date, Vector, _).
+    
+    
 		
 
 process_xml_investment_request(_, DOM) :-

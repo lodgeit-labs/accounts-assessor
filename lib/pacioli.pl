@@ -130,7 +130,8 @@ make_debit(coord(Unit, Zero, Cr), coord(Unit, Cr, 0)) :- Zero =:= 0.
 make_credit(value(Unit, Amount), coord(Unit, 0, Amount)).
 make_credit(coord(Unit, Dr, Zero), coord(Unit, 0, Dr)) :- Zero =:= 0.
 make_credit(coord(Unit, Zero, Cr), coord(Unit, 0, Cr)) :- Zero =:= 0.
-	
+
+/* fixme, rename to number_to_coord*/
 integer_to_coord(Unit, Integer, coord(Unit, Debit, Credit)) :-
 	{Integer =:= Debit - Credit}.
 
