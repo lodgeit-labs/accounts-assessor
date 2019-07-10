@@ -3,7 +3,9 @@ see doc/investment and dropbox Develop/videos/ledger
 */
 
 
-:- module(process_xml_investment_request, [process_xml_investment_request/2]).
+:- module(
+	process_xml_investment_request, 
+	[process_xml_investment_request/2]).
 :- use_module(library(xpath)).
 :- use_module(library(record)).
 :- use_module('../../lib/utils', [
@@ -39,11 +41,128 @@ compare_floats(A, B) :-
 % for example: Google Shares	7/1/2015	10	100	USD	0.7	6/30/2016	20	0.65
 
 
-process(Dom) :-
-
+process_realized(Dom) :-
 	/*
 		PDPC = purchase date, purchase currency
-		RDRC = report date, report currency, etc
+		SDRC = sale date, report currency, etc
+		SD = sale date
+	*/
+
+	fields(Dom, [
+		'Name', Name, 
+		'Currency', Currency,
+		'Purchase_Date', Purchase_Date_In,
+		'Sale_Date', Sale_Date_In
+	]),
+	parse_date(Purchase_Date_In, Purchase_Date),
+	parse_date(Sale_Date_In, Sale_Date),
+	format_date(Sale_Date, Sale_Date_Out),
+	format_date(Purchase_Date, Purchase_Date_Out),
+	numeric_fields(Dom, [
+		'Unit_Cost', PDPC_Unit_Cost,
+		'Sale_Unit_Price', SDPC_Unit_Price,
+		'Count', Count,
+		'Purchase_Date_Rate', PD_Rate,
+		'Sale_Date_Rate', SD_Rate
+	]),
+	writeln('<realized_investment>'),
+	write_tag('Name', Name),
+	write_tag('Count', Count),
+	write_tag('Currency', Currency),
+	write_tag('Purchase_Date', Purchase_Date_Out),
+	write_tag('Sale_Date', Sale_Date_Out),
+	magic_formula(
+		(
+			PDPC_Total_Cost = Count * PDPC_Unit_Cost,
+			PDRC_Total_Cost = PDPC_Total_Cost / PD_Rate,
+			SDPC_Total_Value = Count * SDPC_Unit_Price,
+			SDPC_Realized_Gain = SDPC_Total_Value - PDPC_Total_Cost,
+			SDRC_Old_Rate_Total_Value = SDPC_Total_Value / PD_Rate,
+			SDRC_New_Rate_Total_Value = SDPC_Total_Value / SD_Rate,		
+			RC_Realised_Total_Gain = SDRC_New_Rate_Total_Value - PDRC_Total_Cost,
+			RC_Realised_Market_Gain = SDRC_Old_Rate_Total_Value - PDRC_Total_Cost,
+			RC_Realised_Currency_Gain = RC_Realised_Total_Gain - RC_Realised_Market_Gain
+		)
+	),
+	/* silence singleton variable warning */ 
+	nonvar(SDPC_Realized_Gain),
+	writeln('</investment>'),nl,nl,
+	
+	/*
+	now for the cross check..
+	*/	
+	Exchange_Rates = [
+			exchange_rate(Purchase_Date, report_currency, Currency, PD_Rate),
+			exchange_rate(Sale_Date, report_currency, Currency, SD_Rate),
+			exchange_rate(Purchase_Date, Name, Currency, PDPC_Unit_Cost),
+			exchange_rate(Sale_Date, Name, Currency, SDPC_Unit_Price)
+	],
+	extract_account_hierarchy([], Accounts0),
+	process_ledger(
+		[],
+		[
+		s_transaction(
+			Purchase_Date, 
+			'Invest_In', 
+			[coord(Currency, 0, PDPC_Total_Cost)], 
+			'Bank', 
+			vector([coord(Name, Count, 0)])),
+		s_transaction(
+			Sale_Date, 
+			'Dispose_Of', 
+			[coord(Currency, SDPC_Total_Value, 0)], 
+			'Bank', 
+			vector([coord(Name, 0, Count)]))
+		],	
+		Purchase_Date, 
+		Sale_Date, 
+		Exchange_Rates,
+		[ transaction_type('Invest_In',
+		   'Financial_Investments',
+		   'Investment_Income',
+		   'Shares'),
+		transaction_type('Dispose_Of',
+		   'Financial_Investments',
+		   'Investment_Income',
+		   'Shares')],
+		[report_currency], 
+		[], 
+		[], 
+		_, 
+		Accounts0, 
+		Accounts1, 
+		Transactions
+	),
+   	Info = (Exchange_Rates, Accounts1, Transactions, Sale_Date, report_currency),
+   
+    account_assertion(Info, 'Realized_Gains_Excluding_Forex', -RC_Realised_Market_Gain),
+	account_assertion(Info, 'Realized_Gains_Currency_Movement', -RC_Realised_Currency_Gain),
+	account_assertion(Info, 'Realized_Gain', -RC_Realised_Total_Gain),
+	
+	profitandloss_between(Exchange_Rates, Accounts1, Transactions, [report_currency], Sale_Date, Purchase_Date, Sale_Date, ProftAndLoss),
+	format_balance_sheet_entries(Accounts1, 0, [report_currency], Sale_Date, ProftAndLoss, [], _, [], ProftAndLoss_Lines),
+	writeln('<!--'),
+	writeln(ProftAndLoss_Lines),
+	writeln('-->'),
+	balance_sheet_at(Exchange_Rates, Accounts1, Transactions, [report_currency], Sale_Date, Purchase_Date, Sale_Date, Balance_Sheet),
+	format_balance_sheet_entries(Accounts1, 0, [report_currency], Sale_Date, Balance_Sheet, [], _, [], Balance_Sheet_Lines),
+	writeln('<!--'),
+	writeln(Balance_Sheet_Lines),
+	writeln('-->'),
+
+	
+	true.
+		
+
+
+
+
+
+
+process_unrealized(Dom) :-
+	/*
+		PDPC = purchase date, purchase currency
+		RDRC = report date, report currency, etc..
 	*/
 
 	fields(Dom, [
@@ -69,23 +188,23 @@ process(Dom) :-
 	write_tag('Currency', Currency),
 	write_tag('Purchase_Date', Purchase_Date_Out),
 	write_tag('Report_Date', Report_Date_Out),
-
 	magic_formula(
 		(
-			PDPC_Total_Cost = Count * PDPC_Unit_Cost,
+		
+			PDPC_Total_Cost = Count * PDPC_Unit_Cost,			
 			PDRC_Total_Cost = PDPC_Total_Cost / PD_Rate,
 			RDPC_Total_Value = Count * RDPC_Unit_Value,
 			RDPC_Unrealized_Gain = RDPC_Total_Value - PDPC_Total_Cost,
 			RDRC_Old_Rate_Total_Value = RDPC_Total_Value / PD_Rate,
 			RDRC_New_Rate_Total_Value = RDPC_Total_Value / RD_Rate,
-			RDRC_Total_Gain = RDRC_New_Rate_Total_Value - PDRC_Total_Cost,
-			RDRC_Market_Gain = RDRC_Old_Rate_Total_Value - PDRC_Total_Cost,
-			RDRC_Currency_Gain = RDRC_Total_Gain - RDRC_Market_Gain
+			RDRC_Realised_Total_Gain = RDRC_New_Rate_Total_Value - PDRC_Total_Cost,
+			RDRC_Realised_Market_Gain = RDRC_Old_Rate_Total_Value - PDRC_Total_Cost,
+			RDRC_Realised_Currency_Gain = RDRC_Realised_Total_Gain - RDRC_Realised_Market_Gain
 		)
 	),
-	nonvar(RDPC_Unrealized_Gain),nonvar(RDRC_Currency_Gain),
+	/* silence singleton variable warning */
+	nonvar(RDPC_Unrealized_Gain),
 	writeln('</investment>'),nl,nl,
-	
 	
 	/*
 	now for the cross check..
@@ -96,7 +215,6 @@ process(Dom) :-
 			exchange_rate(Purchase_Date, Name, Currency, PDPC_Unit_Cost),
 			exchange_rate(Report_Date, Name, Currency, RDPC_Unit_Value)
 	],
-	
 	extract_account_hierarchy([], Accounts0),
 	process_ledger(
 		[],
@@ -133,12 +251,11 @@ process(Dom) :-
 		Accounts1, 
 		Transactions
 	),
-    
-    Info = (Exchange_Rates, Accounts1, Transactions, Report_Date, report_currency),
-    
-    account_assertion(Info, 'Realized_Gains_Excluding_Forex', -RDRC_Market_Gain),
-	account_assertion(Info, 'Realized_Gains_Currency_Movement', -RDRC_Currency_Gain),
-	account_assertion(Info, 'Realized_Gain', -RDRC_Total_Gain),
+   	Info = (Exchange_Rates, Accounts1, Transactions, Report_Date, report_currency),
+   
+    account_assertion(Info, 'Realized_Gains_Excluding_Forex', -RDRC_Realised_Market_Gain),
+	account_assertion(Info, 'Realized_Gains_Currency_Movement', -RDRC_Realised_Currency_Gain),
+	account_assertion(Info, 'Realized_Gain', -RDRC_Realised_Total_Gain),
 	
 	profitandloss_between(Exchange_Rates, Accounts1, Transactions, [report_currency], Report_Date, Purchase_Date, Report_Date, ProftAndLoss),
 	format_balance_sheet_entries(Accounts1, 0, [report_currency], Report_Date, ProftAndLoss, [], _, [], ProftAndLoss_Lines),
@@ -154,7 +271,7 @@ process(Dom) :-
 	
 	true.
 		
-	
+
 	
 	
 account_assertion(Info, Account, Expected_Exp) :-
@@ -174,14 +291,26 @@ account_vector(Info, Account, Vector) :-
 
 process_xml_investment_request(_, DOM) :-
 	xpath(DOM, //reports/investments, _),
-	findall(Investment, xpath(DOM, //reports/investments/investment, Investment), Investments),
 	writeln('<?xml version="1.0"?>'),
 	writeln('<response>'),
-	%maplist(extract, Investments),
-	maplist(process, Investments),
+	findall(_,process_investments(DOM),_),
 	writeln('</response>'),
 	nl, nl.
 
+process_investments(DOM) :-
+	xpath(DOM, //reports/investments/(*), Investment),
+	
+	process(Investment).
+
+process(Investment) :-
+	xpath(Investment, //realized_investment, _),
+	process_realized(Investment).
+
+process(Investment) :-
+	xpath(Investment, //unrealized_investment, _),
+	process_unrealized(Investment).
+	
+							    
 	
 /*
 process(Investment, Result) :-
@@ -258,4 +387,68 @@ process(Investment) :-
 		PD_Rate,
 		RD_Rate
 	),
+*/
+
+
+	% realized_gain_investment_currency(investment) = 
+	% rate(investment.item,investment.currency,investment.sale_date)*investment.sale_count -
+	% rate(investment.item,investment.currency,investment.purchase_date)*investment.sale_count
+
+
+/*
+rate_of (item) at (report_date) in (report_currency) without_movement_of (purchase_currency) against (report_currency) since (purchase_date)) = 
+	rate0 = rate(item, report_currency, report_date) /
+	rate1 = rate(purchase_currency, report_currency, purchase_date) *
+	rate2 = rate(purchase_currency, report_currency, report_date)
+	
+	(rate0 / rate2) * rate1
+
+goog 10 usd now = 20 aud
+old 1 usd = 5 aud
+new 1 usd = 2 aud 
+goog at old rate = 50 aud
+goog at new rate = 20 aud
+20/2*5 = 50 aud
+
+
+*/
+
+/*
+value_without_currency_movement(investment) = 
+	rate of (investment.item) 
+		at (investment.sale_date) 
+		in (report.currency) 
+		without movement of (investment.purchase_currency) 
+		against (report.currency) 
+		since (investment.purchase_date)
+
+
+*/
+
+/*
+realized_gain_no_forex_report_currency(investment) =
+	value_without_currency_movement(investment) - 
+	rate(investment.item,report.currency,investment.purchase_date)*investment.sale_count
+*/
+
+/*
+realized_gain_forex_in_report_currency(investment) = 
+	rate(investment.item,report.currency,investment.sale_date) * investment.sale_count - 
+	value_without_currency_movement(investment)
+
+
+*/
+
+/*
+total_realized_gain_report_currecy(investment) =
+	rate(investment.item, report.currency, investment.sale_date) * investment.sale_count -
+	rate(investment.item, report.currency, investment.purchase_date) * investment.sale_count
+
+ = 	realized_gain_no_forex_report_currency(investment) + 
+	realized_gain_forex_in_report_currency(investment)
+
+*/
+
+/*
+
 */
