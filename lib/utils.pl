@@ -71,6 +71,7 @@ expand_formulas_to_code([H|T], Expansion) :-
 		writeln(''),
 		%write('<!-- '), write(S1), writeln(': -->'),
 		write('<!-- '), writeln(' -->'),
+		assertion(ground(((S1,Rhs)))),
 		New_Formula,
 		utils:open_tag(S1),  format('~2f', [V]), utils:close_tag(S1), 
 		write_tag([S1, '_Formula'], Description),
@@ -259,7 +260,8 @@ test0 :-
 :- test0.
    
 
-throw_string(List) :-
+throw_string(List_Or_Atom) :-
+	flatten([List_Or_Atom], List),
 	atomic_list_concat(List, String),
 	throw(string(String)).
 

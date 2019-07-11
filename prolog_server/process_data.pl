@@ -17,23 +17,6 @@
 :- use_module(investment/process_xml_investment_request, [process_xml_investment_request/2]).
 /*:- use_module('../lib/utils', [throw_string/1]).*/
 
-
-
-/*
-run a test case if url is /tests/xxx!
-*/
-tests(Url, _) :-
-	sub_string(Url,_,_,0,"!"),
-	sub_string(Url,0,_,1,Relative_Path),
-	absolute_file_name(my_tests(Relative_Path), Path, [ access(read) ]),
-	process_data(_FileName, Path).
-
-/*
-just display a test file if the url is /tests/xxx
-*/
-tests(Test, _) :-
-	http_reply_file(my_tests(Test),[],[]).
-
 % -------------------------------------------------------------------
 % process_data/2
 % -------------------------------------------------------------------

@@ -37,13 +37,19 @@
 
 :- http_handler(root(.),      upload_form, []).
 :- http_handler(root(upload), upload,      []).
-:- http_handler(root(tests/Test), tests(Test),    [methods([get])]).
 :- http_handler(root(chat/sbe), sbe_request, [methods([post])]).
 :- http_handler(root(chat/residency), residency_request, [methods([post])]).
 :- http_handler('/favicon.ico', http_reply_file(my_static('favicon.ico'), []), []).
 :- http_handler(root(.), http_reply_from_files('.', []), [prefix]).
+:- http_handler(root(run/Test), tests(Test), [methods([get]), priority(1)]).
 
 
+/*
+ run a testcase directly
+*/
+tests(Url, _) :-
+	absolute_file_name(my_tests(Url), Path, [ access(read), file_errors(fail) ]),
+	process_data(_FileName, Path).
 
 % -------------------------------------------------------------------
 % run_simple_server/0
