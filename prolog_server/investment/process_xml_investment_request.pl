@@ -341,16 +341,19 @@ process_xml_investment_request(_, DOM) :-
 		process_investments(DOM, Report_Date, Result),
 		Results
 	),
+	get_totals(Results, Processed_Results),
 	(
 		nonvar(Report_Date)
 	->	
 		(
 			parse_date(Report_Date, Report_Date_Parsed),
-			crosscheck_totals(Results, Report_Date_Parsed)
+			crosscheck_totals(Processed_Results, Report_Date_Parsed)
 		)
 	;
 		true
 	),
+	Processed_Results = (_, _, Totals),
+	print_totals(Totals),
 	writeln('</response>'),
 	nl, nl.
 
@@ -377,11 +380,18 @@ process(Investment, Report_Date, Result) :-
 	xpath(Investment, //unrealized_investment, _),
 	process_unrealized(Investment, Report_Date, Result).
 
-crosscheck_totals(Results, Report_Date) :-
-	extract_account_hierarchy([], Accounts0),
-	maplist(nth0(0), Results, S_Transaction_Lists),
-	maplist(nth0(1), Results, Exchange_Rates_Lists),
-	maplist(nth0(2), Results, Gains_List),
+
+get_totals(Results_In, Results_Out) :-
+	Results_Out = (S_Transactions, Exchange_Rates, Totals),
+	Totals = (
+		Realized_Currency_Gain_Total, 
+		Realized_Market_Gain_Total,
+		Unrealized_Currency_Gain_Total,
+		Unrealized_Market_Gain_Total
+	),
+	maplist(nth0(0), Results_In, S_Transaction_Lists),
+	maplist(nth0(1), Results_In, Exchange_Rates_Lists),
+	maplist(nth0(2), Results_In, Gains_List),
 	flatten(S_Transaction_Lists,S_Transactions),
 	flatten(Exchange_Rates_Lists,Exchange_Rates),
 	
@@ -393,7 +403,17 @@ crosscheck_totals(Results, Report_Date) :-
 	sum_list(Realized_Currency_Gain_List, Realized_Currency_Gain_Total),
 	sum_list(Realized_Market_Gain_List, Realized_Market_Gain_Total),
 	sum_list(Unrealized_Currency_Gain_List, Unrealized_Currency_Gain_Total),
-	sum_list(Unrealized_Market_Gain_List, Unrealized_Market_Gain_Total),
+	sum_list(Unrealized_Market_Gain_List, Unrealized_Market_Gain_Total).
+
+crosscheck_totals(Results, Report_Date) :-
+	Results = (S_Transactions, Exchange_Rates, Totals),
+	Totals = (
+		Realized_Currency_Gain_Total,
+		Realized_Market_Gain_Total,
+		Unrealized_Currency_Gain_Total,
+		Unrealized_Market_Gain_Total
+	),
+	extract_account_hierarchy([], Accounts0),
 
 	process_ledger(
 		[],
@@ -434,9 +454,17 @@ crosscheck_totals(Results, Report_Date) :-
 	format_report_entries(Accounts1, 0, [report_currency], Report_Date, Balance_Sheet, [], _, [], Balance_Sheet_Lines),
 	writeln('<!--'),
 	writeln(Balance_Sheet_Lines),
-	writeln('-->'),
+	writeln('-->').
 
-	% print totals
+
+print_totals(Totals) :-
+	Totals = (
+		Realized_Currency_Gain_Total,
+		Realized_Market_Gain_Total,
+		Unrealized_Currency_Gain_Total,
+		Unrealized_Market_Gain_Total
+	),
+
 	Realized_Gain_Total is Realized_Market_Gain_Total + Realized_Currency_Gain_Total,
 	Unrealized_Gain_Total is Unrealized_Market_Gain_Total + Unrealized_Currency_Gain_Total,
 	Gain_Total is Realized_Gain_Total + Unrealized_Gain_Total,	
