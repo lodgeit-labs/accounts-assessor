@@ -260,7 +260,8 @@ test0 :-
 :- test0.
    
 
-throw_string(List) :-
+throw_string(List_Or_Atom) :-
+	flatten([List_Or_Atom], List),
 	atomic_list_concat(List, String),
 	throw(string(String)).
 

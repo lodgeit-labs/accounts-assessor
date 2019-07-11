@@ -27,7 +27,7 @@
 		process_ledger/13,
 		emit_ledger_warnings/3,
 		balance_sheet_entries/8, 
-		format_balance_sheet_entries/9
+		format_report_entries/9
 		]).
 :- use_module('../../lib/livestock', [get_livestock_types/2, process_livestock/14, make_livestock_accounts/2, livestock_counts/5, extract_livestock_opening_costs_and_counts/2]).
 :- use_module('../../lib/accounts', [extract_account_hierarchy/2, account_ancestor_id/3]).
@@ -145,7 +145,7 @@ display_xbrl_ledger_response(Account_Hierarchy, Report_Currency, Start_Days, End
    writeln('  </context>'),
 
    balance_sheet_entries(Account_Hierarchy, Report_Currency, End_Year, Balance_Sheet_Entries, ProftAndLoss_Entries, Used_Units, Lines2, Lines3),
-   format_balance_sheet_entries(Account_Hierarchy, 0, Report_Currency, End_Year, Trial_Balance, [], _, [], Lines1),
+   format_report_entries(Account_Hierarchy, 0, Report_Currency, End_Year, Trial_Balance, [], _, [], Lines1),
    maplist(write_used_unit, Used_Units), 
 
    flatten([
