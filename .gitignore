@@ -345,3 +345,4 @@ healthchecksdb
 mcedit
 .#*
 *.swp
+cache/*

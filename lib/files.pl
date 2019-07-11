@@ -13,6 +13,7 @@ set_search_path(Alias, Path_From_This_Source_File) :-
 :- set_search_path(my_static, '/../prolog_server/static').
 :- set_search_path(my_taxonomy, '/../prolog_server/taxonomy').
 :- set_search_path(my_tests, '/../tests').
+:- set_search_path(my_cache, '/../cache').
 
 test0 :-
     absolute_file_name(my_static('account_hierarchy.xml'), _,
