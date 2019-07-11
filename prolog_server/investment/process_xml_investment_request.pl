@@ -8,13 +8,14 @@ see doc/investment and dropbox Develop/videos/ledger
 	[process_xml_investment_request/2]).
 :- use_module(library(xpath)).
 :- use_module(library(record)).
+:- use_module(library(lists)).
 :- use_module('../../lib/utils', [
 	inner_xml/3, write_tag/2, fields/2, numeric_fields/2, 
 	pretty_term_string/2 /*, magic_formula */, throw_string/1]).
 :- use_module('../../lib/days', [format_date/2, parse_date/2, gregorian_date/2]).
 :- use_module('../../lib/statements', [
 		process_ledger/13,
-		format_balance_sheet_entries/9]).
+		format_report_entries/9]).
 :- use_module('../../lib/accounts', [extract_account_hierarchy/2, account_ancestor_id/3]).
 :- use_module('../../lib/ledger', [balance_sheet_at/8, trial_balance_between/8, profitandloss_between/8, balance_by_account/9]).
 :- use_module('../../lib/pacioli',  [integer_to_coord/3]).
@@ -41,9 +42,9 @@ compare_floats(A, B) :-
 % for example: Google Shares	7/1/2015	10	100	USD	0.7	6/30/2016	20	0.65
 
 
-process_realised(Dom, Result) :-
+process_realized(Dom, Global_Report_Date_Atom, Result) :-
 	Result = [S_Transactions, Exchange_Rates, Gains],
-	Gains = [RC_Realised_Currency_Gain, RC_Realised_Market_Gain, 0, 0],
+	Gains = [RC_Realized_Currency_Gain, RC_Realized_Market_Gain, 0, 0],
 	
 	/*
 		PDPC = purchase date, purchase currency
@@ -55,8 +56,17 @@ process_realised(Dom, Result) :-
 		'Name', Name, 
 		'Currency', Currency_Extracted,
 		'Purchase_Date', Purchase_Date_In,
-		'Sale_Date', Sale_Date_In
+		'Sale_Date', (Sale_Date_In, _)
 	]),
+	(
+		Global_Report_Date_Atom = Sale_Date_In
+	->true
+	; throw_string('global report date does not match investment sale date') 
+	),
+	(
+		var(Sale_Date_In)
+	->	throw_string('sale date missing')
+	;	true),
 	parse_date(Purchase_Date_In, Purchase_Date),
 	parse_date(Sale_Date_In, Sale_Date),
 	format_date(Sale_Date, Sale_Date_Out),
@@ -68,7 +78,7 @@ process_realised(Dom, Result) :-
 		'Purchase_Date_Rate', PD_Rate,
 		'Sale_Date_Rate', SD_Rate
 	]),
-	writeln('<realised_investment>'),
+	writeln('<realized_investment>'),
 	write_tag('Name', Name),
 	write_tag('Count', Count),
 	write_tag('Currency', Currency_Extracted),
@@ -79,17 +89,17 @@ process_realised(Dom, Result) :-
 			PDPC_Total_Cost = Count * PDPC_Unit_Cost,
 			PDRC_Total_Cost = PDPC_Total_Cost / PD_Rate,
 			SDPC_Total_Value = Count * SDPC_Unit_Price,
-			SDPC_Realised_Gain = SDPC_Total_Value - PDPC_Total_Cost,
+			SDPC_Realized_Gain = SDPC_Total_Value - PDPC_Total_Cost,
 			SDRC_Old_Rate_Total_Value = SDPC_Total_Value / PD_Rate,
 			SDRC_New_Rate_Total_Value = SDPC_Total_Value / SD_Rate,		
-			RC_Realised_Total_Gain = SDRC_New_Rate_Total_Value - PDRC_Total_Cost,
-			RC_Realised_Market_Gain = SDRC_Old_Rate_Total_Value - PDRC_Total_Cost,
-			RC_Realised_Currency_Gain = RC_Realised_Total_Gain - RC_Realised_Market_Gain
+			RC_Realized_Total_Gain = SDRC_New_Rate_Total_Value - PDRC_Total_Cost,
+			RC_Realized_Market_Gain = SDRC_Old_Rate_Total_Value - PDRC_Total_Cost,
+			RC_Realized_Currency_Gain = RC_Realized_Total_Gain - RC_Realized_Market_Gain
 		)
 	),
 	/* silence singleton variable warning */ 
-	nonvar(SDPC_Realised_Gain),
-	writeln('</realised_investment>'),nl,nl,
+	nonvar(SDPC_Realized_Gain),
+	writeln('</realized_investment>'),nl,nl,
 	
 	/*
 	now for the cross check..
@@ -144,17 +154,17 @@ process_realised(Dom, Result) :-
 	),
    	Info = (Exchange_Rates, Accounts1, Transactions, Sale_Date, report_currency),
    
-    account_assertion(Info, 'Realised_Gains_Excluding_Forex', -RC_Realised_Market_Gain),
-	account_assertion(Info, 'Realised_Gains_Currency_Movement', -RC_Realised_Currency_Gain),
-	account_assertion(Info, 'Realised_Gain', -RC_Realised_Total_Gain),
+    account_assertion(Info, 'Realized_Gains_Excluding_Forex', -RC_Realized_Market_Gain),
+	account_assertion(Info, 'Realized_Gains_Currency_Movement', -RC_Realized_Currency_Gain),
+	account_assertion(Info, 'Realized_Gain', -RC_Realized_Total_Gain),
 	
 	profitandloss_between(Exchange_Rates, Accounts1, Transactions, [report_currency], Sale_Date, Purchase_Date, Sale_Date, ProftAndLoss),
-	format_balance_sheet_entries(Accounts1, 0, [report_currency], Sale_Date, ProftAndLoss, [], _, [], ProftAndLoss_Lines),
+	format_report_entries(Accounts1, 0, [report_currency], Sale_Date, ProftAndLoss, [], _, [], ProftAndLoss_Lines),
 	writeln('<!--'),
 	writeln(ProftAndLoss_Lines),
 	writeln('-->'),
 	balance_sheet_at(Exchange_Rates, Accounts1, Transactions, [report_currency], Sale_Date, Purchase_Date, Sale_Date, Balance_Sheet),
-	format_balance_sheet_entries(Accounts1, 0, [report_currency], Sale_Date, Balance_Sheet, [], _, [], Balance_Sheet_Lines),
+	format_report_entries(Accounts1, 0, [report_currency], Sale_Date, Balance_Sheet, [], _, [], Balance_Sheet_Lines),
 	writeln('<!--'),
 	writeln(Balance_Sheet_Lines),
 	writeln('-->'),
@@ -164,9 +174,9 @@ process_realised(Dom, Result) :-
 
 
 
-process_unrealised(Dom, Global_Report_Date, Result) :-
+process_unrealized(Dom, Global_Report_Date, Result) :-
 	Result = [S_Transactions, Exchange_Rates, Gains],
-	Gains = [0,0,RDRC_Unrealised_Currency_Gain, RDRC_Unrealised_Market_Gain],
+	Gains = [0,0,RDRC_Unrealized_Currency_Gain, RDRC_Unrealized_Market_Gain],
 	/*
 		PDPC = purchase date, purchase currency
 		RDRC = report date, report currency, etc..
@@ -199,7 +209,7 @@ process_unrealised(Dom, Global_Report_Date, Result) :-
 		'Purchase_Date_Rate', PD_Rate,
 		'Report_Date_Rate', RD_Rate
 	]),
-	writeln('<unrealised_investment>'),
+	writeln('<unrealized_investment>'),
 	write_tag('Name', Name),
 	write_tag('Count', Count),
 	write_tag('Currency', Currency_In),
@@ -211,17 +221,17 @@ process_unrealised(Dom, Global_Report_Date, Result) :-
 			PDPC_Total_Cost = Count * PDPC_Unit_Cost,			
 			PDRC_Total_Cost = PDPC_Total_Cost / PD_Rate,
 			RDPC_Total_Value = Count * RDPC_Unit_Value,
-			RDPC_Unrealised_Gain = RDPC_Total_Value - PDPC_Total_Cost,
+			RDPC_Unrealized_Gain = RDPC_Total_Value - PDPC_Total_Cost,
 			RDRC_Old_Rate_Total_Value = RDPC_Total_Value / PD_Rate,
 			RDRC_New_Rate_Total_Value = RDPC_Total_Value / RD_Rate,
-			RDRC_Unrealised_Total_Gain = RDRC_New_Rate_Total_Value - PDRC_Total_Cost,
-			RDRC_Unrealised_Market_Gain = RDRC_Old_Rate_Total_Value - PDRC_Total_Cost,
-			RDRC_Unrealised_Currency_Gain = RDRC_Unrealised_Total_Gain - RDRC_Unrealised_Market_Gain
+			RDRC_Unrealized_Total_Gain = RDRC_New_Rate_Total_Value - PDRC_Total_Cost,
+			RDRC_Unrealized_Market_Gain = RDRC_Old_Rate_Total_Value - PDRC_Total_Cost,
+			RDRC_Unrealized_Currency_Gain = RDRC_Unrealized_Total_Gain - RDRC_Unrealized_Market_Gain
 		)
 	),
 	/* silence singleton variable warning */
-	nonvar(RDPC_Unrealised_Gain),
-	writeln('</unrealised_investment>'),nl,nl,
+	nonvar(RDPC_Unrealized_Gain),
+	writeln('</unrealized_investment>'),nl,nl,
 	
 	/*
 	now for the cross check..
@@ -266,21 +276,21 @@ process_unrealised(Dom, Global_Report_Date, Result) :-
 	),
 	
 	profitandloss_between(Exchange_Rates, Accounts1, Transactions, [report_currency], Report_Date, Purchase_Date, Report_Date, ProftAndLoss),
-	format_balance_sheet_entries(Accounts1, 0, [report_currency], Report_Date, ProftAndLoss, [], _, [], ProftAndLoss_Lines),
+	format_report_entries(Accounts1, 0, [report_currency], Report_Date, ProftAndLoss, [], _, [], ProftAndLoss_Lines),
 	writeln('<!--'),
 	writeln(ProftAndLoss_Lines),
 	writeln('-->'),
 	balance_sheet_at(Exchange_Rates, Accounts1, Transactions, [report_currency], Report_Date, Purchase_Date, Report_Date, Balance_Sheet),
-	format_balance_sheet_entries(Accounts1, 0, [report_currency], Report_Date, Balance_Sheet, [], _, [], Balance_Sheet_Lines),
+	format_report_entries(Accounts1, 0, [report_currency], Report_Date, Balance_Sheet, [], _, [], Balance_Sheet_Lines),
 	writeln('<!--'),
 	writeln(Balance_Sheet_Lines),
 	writeln('-->'),
 
    	Info = (Exchange_Rates, Accounts1, Transactions, Report_Date, report_currency),
    
-	account_assertion(Info, 'Unrealised_Gains_Excluding_Forex', -RDRC_Unrealised_Market_Gain),
-	account_assertion(Info, 'Unrealised_Gains_Currency_Movement', -RDRC_Unrealised_Currency_Gain),
-	account_assertion(Info, 'Unrealised_Gain', -RDRC_Unrealised_Total_Gain),
+	account_assertion(Info, 'Unrealized_Gains_Excluding_Forex', -RDRC_Unrealized_Market_Gain),
+	account_assertion(Info, 'Unrealized_Gains_Currency_Movement', -RDRC_Unrealized_Currency_Gain),
+	account_assertion(Info, 'Unrealized_Gain', -RDRC_Unrealized_Total_Gain),
 
 	true.
 		
@@ -307,6 +317,7 @@ account_assertion(Info, Account, Expected_Exp) :-
 	assertion(compare_floats(Balance, Expected)).
 
 account_vector(Info, Account, Vector) :-
+	%print_term((Account, Info, Vector), []),
 	Info = (Exchange_Rates, Accounts, Transactions, Report_Date, Currency), 
     balance_by_account(Exchange_Rates, Accounts, Transactions, [Currency], Report_Date, Account, Report_Date, Vector, _).
     
@@ -332,8 +343,13 @@ process_xml_investment_request(_, DOM) :-
 	),
 	(
 		nonvar(Report_Date)
-	->	crosscheck_totals(Results, Report_Date)
-	;	true
+	->	
+		(
+			parse_date(Report_Date, Report_Date_Parsed),
+			crosscheck_totals(Results, Report_Date_Parsed)
+		)
+	;
+		true
 	),
 	writeln('<!--'),
 	writeln(Results),
@@ -342,7 +358,7 @@ process_xml_investment_request(_, DOM) :-
 	nl, nl.
 
 process_investments(DOM, Report_Date, Result) :-
-	% for each unrealised investment, we will unify investment report date against global report date
+	% for each unrealized investment, we will unify investment report date against global report date
 	% if different, fail processing (throw error)
 	xpath(DOM, //reports/investments/(*), Investment),
 	(
@@ -356,36 +372,36 @@ process_investments(DOM, Report_Date, Result) :-
 	).
 	
 
-process(Investment, _, Result) :-
-	xpath(Investment, //realised_investment, _),
-	process_realised(Investment, Result).
+process(Investment, Report_Date, Result) :-
+	xpath(Investment, //realized_investment, _),
+	process_realized(Investment, Report_Date, Result).
 
 process(Investment, Report_Date, Result) :-
-	xpath(Investment, //unrealised_investment, _),
-	process_unrealised(Investment, Report_Date, Result).
+	xpath(Investment, //unrealized_investment, _),
+	process_unrealized(Investment, Report_Date, Result).
 
 crosscheck_totals(Results, Report_Date) :-
 	extract_account_hierarchy([], Accounts0),
-	maplist(nth(0), Results, S_Transaction_Lists),
-	maplist(nth(1), Results, Exchange_Rates_Lists),
-	maplist(nth(2), Results, Gains_List),
+	maplist(nth0(0), Results, S_Transaction_Lists),
+	maplist(nth0(1), Results, Exchange_Rates_Lists),
+	maplist(nth0(2), Results, Gains_List),
 	flatten(S_Transaction_Lists,S_Transactions),
 	flatten(Exchange_Rates_Lists,Exchange_Rates),
 	
-	maplist(nth(0), Gains_List, Realised_Currency_Gain_List),
-	maplist(nth(1), Gains_List, Realised_Market_Gain_List),
-	maplist(nth(2), Gains_List, Unrealised_Currency_Gain_List),
-	maplist(nth(3), Gains_List, Unrealised_Market_Gain_List),
+	maplist(nth0(0), Gains_List, Realized_Currency_Gain_List),
+	maplist(nth0(1), Gains_List, Realized_Market_Gain_List),
+	maplist(nth0(2), Gains_List, Unrealized_Currency_Gain_List),
+	maplist(nth0(3), Gains_List, Unrealized_Market_Gain_List),
 	
-	sum_list(Realised_Currency_Gain_List, Realised_Currency_Gain_Total),
-	sum_list(Realised_Market_Gain_List, Realised_Market_Gain_Total),
-	sum_list(Unrealised_Currency_Gain_List, Unrealised_Currency_Gain_Total),
-	sum_list(Unrealised_Market_Gain_List, Unrealised_Market_Gain_Total),
+	sum_list(Realized_Currency_Gain_List, Realized_Currency_Gain_Total),
+	sum_list(Realized_Market_Gain_List, Realized_Market_Gain_Total),
+	sum_list(Unrealized_Currency_Gain_List, Unrealized_Currency_Gain_Total),
+	sum_list(Unrealized_Market_Gain_List, Unrealized_Market_Gain_Total),
 
 	process_ledger(
 		[],
 		S_Transactions,
-		infinity, 
+		date(2000,1,1), 
 		Report_Date, 
 		Exchange_Rates,
 		[ transaction_type('Invest_In',
@@ -407,18 +423,18 @@ crosscheck_totals(Results, Report_Date) :-
 	),
    	Info = (Exchange_Rates, Accounts1, Transactions, Report_Date, report_currency),
 
-	account_assertion(Info, 'Realised_Gains_Excluding_Forex', -Realised_Market_Gain_Total),
-	account_assertion(Info, 'Realised_Gains_Currency_Movement', -Realised_Currency_Gain_Total),
-	account_assertion(Info, 'Unrealised_Gains_Excluding_Forex', -Unrealised_Market_Gain_Total),
-	account_assertion(Info, 'Unrealised_Gains_Currency_Movement', -Unrealised_Currency_Gain_Total),
+	account_assertion(Info, 'Realized_Gains_Excluding_Forex', -Realized_Market_Gain_Total),
+	account_assertion(Info, 'Realized_Gains_Currency_Movement', -Realized_Currency_Gain_Total),
+	account_assertion(Info, 'Unrealized_Gains_Excluding_Forex', -Unrealized_Market_Gain_Total),
+	account_assertion(Info, 'Unrealized_Gains_Currency_Movement', -Unrealized_Currency_Gain_Total),
 	
-	profitandloss_between(Exchange_Rates, Accounts1, Transactions, [report_currency], Report_Date, infinity, Report_Date, ProftAndLoss),
-	format_balance_sheet_entries(Accounts1, 0, [report_currency], Report_Date, ProftAndLoss, [], _, [], ProftAndLoss_Lines),
+	profitandloss_between(Exchange_Rates, Accounts1, Transactions, [report_currency], Report_Date, date(2000,1,1), Report_Date, ProftAndLoss),
+	format_report_entries(Accounts1, 0, [report_currency], Report_Date, ProftAndLoss, [], _, [], ProftAndLoss_Lines),
 	writeln('<!--'),
 	writeln(ProftAndLoss_Lines),
 	writeln('-->'),
-	balance_sheet_at(Exchange_Rates, Accounts1, Transactions, [report_currency], Report_Date, infinity, Report_Date, Balance_Sheet),
-	format_balance_sheet_entries(Accounts1, 0, [report_currency], Report_Date, Balance_Sheet, [], _, [], Balance_Sheet_Lines),
+	balance_sheet_at(Exchange_Rates, Accounts1, Transactions, [report_currency], Report_Date, date(2000,1,1), Report_Date, Balance_Sheet),
+	format_report_entries(Accounts1, 0, [report_currency], Report_Date, Balance_Sheet, [], _, [], Balance_Sheet_Lines),
 	writeln('<!--'),
 	writeln(Balance_Sheet_Lines),
 	writeln('-->').
