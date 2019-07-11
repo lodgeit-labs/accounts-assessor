@@ -264,11 +264,6 @@ process_unrealised(Dom, Global_Report_Date, Result) :-
 		Accounts1, 
 		Transactions
 	),
-   	Info = (Exchange_Rates, Accounts1, Transactions, Report_Date, report_currency),
-   
-	account_assertion(Info, 'Unrealised_Gains_Excluding_Forex', -RDRC_Unrealised_Market_Gain),
-	account_assertion(Info, 'Unrealised_Gains_Currency_Movement', -RDRC_Unrealised_Currency_Gain),
-	account_assertion(Info, 'Unrealised_Gain', -RDRC_Unrealised_Total_Gain),
 	
 	profitandloss_between(Exchange_Rates, Accounts1, Transactions, [report_currency], Report_Date, Purchase_Date, Report_Date, ProftAndLoss),
 	format_balance_sheet_entries(Accounts1, 0, [report_currency], Report_Date, ProftAndLoss, [], _, [], ProftAndLoss_Lines),
@@ -281,7 +276,12 @@ process_unrealised(Dom, Global_Report_Date, Result) :-
 	writeln(Balance_Sheet_Lines),
 	writeln('-->'),
 
-	
+   	Info = (Exchange_Rates, Accounts1, Transactions, Report_Date, report_currency),
+   
+	account_assertion(Info, 'Unrealised_Gains_Excluding_Forex', -RDRC_Unrealised_Market_Gain),
+	account_assertion(Info, 'Unrealised_Gains_Currency_Movement', -RDRC_Unrealised_Currency_Gain),
+	account_assertion(Info, 'Unrealised_Gain', -RDRC_Unrealised_Total_Gain),
+
 	true.
 		
 
@@ -290,8 +290,19 @@ process_unrealised(Dom, Global_Report_Date, Result) :-
 account_assertion(Info, Account, Expected_Exp) :-
 	Info = (_,_,_,_,Currency),
 	account_vector(Info, Account, Vector),
-	Vector = [Coord],
-	integer_to_coord(Currency, Balance, Coord),
+	(
+		(
+			Vector = [Coord],
+			integer_to_coord(Currency, Balance, Coord),
+			!
+		)
+	;	(	Vector = [],
+			Balance = 0,
+			!
+		)
+	;	(
+		throw(('unexpected balance:', Vector)
+	))),
 	Expected is Expected_Exp,
 	assertion(compare_floats(Balance, Expected)).
 
@@ -321,7 +332,7 @@ process_xml_investment_request(_, DOM) :-
 	),
 	(
 		nonvar(Report_Date)
-	->	cross_check_totals(Results, Report_Date)
+	->	crosscheck_totals(Results, Report_Date)
 	;	true
 	),
 	writeln('<!--'),
@@ -353,7 +364,7 @@ process(Investment, Report_Date, Result) :-
 	xpath(Investment, //unrealised_investment, _),
 	process_unrealised(Investment, Report_Date, Result).
 
-crosscheck_total(Results, Report_Date) :-
+crosscheck_totals(Results, Report_Date) :-
 	extract_account_hierarchy([], Accounts0),
 	maplist(nth(0), Results, S_Transaction_Lists),
 	maplist(nth(1), Results, Exchange_Rates_Lists),
