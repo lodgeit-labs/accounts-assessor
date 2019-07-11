@@ -37,12 +37,27 @@
 
 :- http_handler(root(.),      upload_form, []).
 :- http_handler(root(upload), upload,      []).
-:- http_handler(root(tests/Test), tests(Test),    [methods([get])]).
 :- http_handler(root(chat/sbe), sbe_request, [methods([post])]).
 :- http_handler(root(chat/residency), residency_request, [methods([post])]).
 :- http_handler('/favicon.ico', http_reply_file(my_static('favicon.ico'), []), []).
+:- http_handler(root(tests/Test), tests(Test), [methods([get]), prefix]).
 :- http_handler(root(.), http_reply_from_files('.', []), [prefix]).
+http_request_expansion
+/*
+run a test case if url is /tests/xxx/run
+*/
+is_test(Url) :-
+	gtrace,
+	sub_string(Url,_,_,0,"/run").
 
+tests(Url, _) :-
+	sub_string(Url,_,_,0,"/run"),
+	sub_string(Url,0,_,4,Relative_Path),
+	absolute_file_name(my_tests(Relative_Path), Path, [ access(read), file_errors(fail) ]),
+	process_data(_FileName, Path).
+	
+tests(Url, R) :-	
+	http_reply_from_files('.', [], R).
 
 
 % -------------------------------------------------------------------
