@@ -351,9 +351,6 @@ process_xml_investment_request(_, DOM) :-
 	;
 		true
 	),
-	writeln('<!--'),
-	writeln(Results),
-	writeln('-->'),
 	writeln('</response>'),
 	nl, nl.
 
@@ -437,6 +434,22 @@ crosscheck_totals(Results, Report_Date) :-
 	format_report_entries(Accounts1, 0, [report_currency], Report_Date, Balance_Sheet, [], _, [], Balance_Sheet_Lines),
 	writeln('<!--'),
 	writeln(Balance_Sheet_Lines),
-	writeln('-->').
+	writeln('-->'),
 
-	
+	% print totals
+	Realized_Gain_Total is Realized_Market_Gain_Total + Realized_Currency_Gain_Total,
+	Unrealized_Gain_Total is Unrealized_Market_Gain_Total + Unrealized_Currency_Gain_Total,
+	Gain_Total is Realized_Gain_Total + Unrealized_Gain_Total,	
+
+	write_float_tag('Realized_Market_Gain_Total',Realized_Market_Gain_Total),
+	write_float_tag('Realized_Currency_Gain_Total',Realized_Currency_Gain_Total),
+	write_float_tag('Realized_Gain_Total',Realized_Gain_Total),
+	write_float_tag('Unrealized_Market_Gain_Total',Unrealized_Market_Gain_Total),
+	write_float_tag('Unrealized_Currency_Gain_Total',Unrealized_Currency_Gain_Total),
+	write_float_tag('Unrealized_Gain_Total',Unrealized_Gain_Total),
+	write_float_tag('Gain_Total',Gain_Total).
+
+write_float_tag(Name, Value) :-
+	format(string(String), '~2f', [Value]),
+	write_tag(Name, String).
+
