@@ -41,38 +41,15 @@
 :- http_handler(root(chat/residency), residency_request, [methods([post])]).
 :- http_handler('/favicon.ico', http_reply_file(my_static('favicon.ico'), []), []).
 :- http_handler(root(.), http_reply_from_files('.', []), [prefix]).
-:- http_request_expansion(expand_tests, 1).
 :- http_handler(root(run/Test), tests(Test), [methods([get]), priority(1)]).
 
-expand_tests(Request0, Request, Options) :-
-	gtrace,
-	findall(
-		Y,
-		(
-			member(X, Request0),
-			(
-				(
-					X \= request_uri(_),
-					Y = X
-				)
-				;		
-				(
-					X = request_uri(Uri),
-					atom_string(Uri, Str),
-					sub_string(Str,_,_,0,"/run"),
-					sub_string(Str,6,_,4,Relative_Path),
-					string_concat("/run", Relative_Path, Uri2),
-					Y = request_uri(Uri2)
-				)
-			)
-		),
-		Request
-	).		
 
+/*
+ run a testcase directly
+*/
 tests(Url, _) :-
 	absolute_file_name(my_tests(Url), Path, [ access(read), file_errors(fail) ]),
 	process_data(_FileName, Path).
-
 
 % -------------------------------------------------------------------
 % run_simple_server/0
