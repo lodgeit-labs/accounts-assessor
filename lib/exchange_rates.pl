@@ -236,4 +236,5 @@ is_exchangeable_into_request_bases(Table, Day, Src_Currency, Bases) :-
 :- initialization(init).
 
 init :-
-	db_attach('tmp/persistently_cached_exchange_rates.pl' , []).
+	absolute_file_name(my_cache('persistently_cached_exchange_rates.pl'), File, []),
+	db_attach(File, []).

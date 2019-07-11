@@ -14,3 +14,5 @@ set_search_path(Alias, Path_From_This_Source_File) :-
 :- set_search_path(my_taxonomy, '/../prolog_server/taxonomy').
 :- set_search_path(my_schemas, '/../prolog_server/schemas').
 :- set_search_path(my_tests, '/../tests').
+:- set_search_path(my_cache, '/../cache').
+
