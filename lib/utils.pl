@@ -45,7 +45,13 @@ user:goal_expansion(
 	term_variables(X, Vars),
 	maplist(my_variable_naming, Vars, Names).
 	
-
+/*
+this takes X, which is the parsed terms, and returns Code, at compile time.
+Code can actually be printed out, and we should probably split this into two phases,
+where the first generates an actual source file.
+At any case there are some tradeoffs to consider, and i think this is more of a fun hack that can get
+some simple calculators into production quickly, not a perfect solution.
+*/
 user:goal_expansion(
 	magic_formula(/*Initialization, */X/*, Namings, Expansions*/), 
 	(/*Initialization, */Code)
