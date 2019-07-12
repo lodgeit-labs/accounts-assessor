@@ -4,7 +4,7 @@
 % Date:      2019-06-02
 % ===================================================================
 
-:- module(transactions, [transaction_account_ancestor_id/3,
+:- module(transactions, [transaction_account_in_set/3,
 		  	 transaction_in_period/3,
 		 	 transaction_vectors_total/2,
 			 transactions_before_day_on_account_and_subaccounts/5,
@@ -15,7 +15,7 @@
 			 check_transaction_account/2
 		        ]).
 
-:- use_module(accounts, [account_ancestor_id/3, account_parent_id/3]).
+:- use_module(accounts, [account_id/3]).
 :- use_module(days, [absolute_day/2, gregorian_date/2]).
 :- use_module(pacioli, [vec_add/3, vec_reduce/2]).
 :- use_module(library(record)).
@@ -30,9 +30,9 @@
 % - The amounts by which the account is being debited and credited
 
 
-transaction_account_ancestor_id(Accounts, Transaction, Ancestor_Account_Id) :-
+transaction_account_in_set(Accounts, Transaction, Ancestor_Account_Id) :-
 	transaction_account_id(Transaction, Transaction_Account_Id),
-	account_ancestor_id(Accounts, Transaction_Account_Id, Ancestor_Account_Id).
+	account_in_set(Accounts, Transaction_Account_Id, Ancestor_Account_Id).
 
 transaction_in_period(Transaction, From_Day, To_Day) :-
 	transaction_day(Transaction, Day),
@@ -68,24 +68,26 @@ transactions_before_day_on_account_and_subaccounts(Accounts, Transactions, Accou
 			member(Transaction, Transactions),
 			transaction_before(Transaction, Day),
 			% transaction account is Account_Id or sub-account
-			transaction_account_ancestor_id(Accounts, Transaction, Account_Id)
+			transaction_account_in_set(Accounts, Transaction, Account_Id)
 		), Filtered_Transactions).
 
 
 check_transaction_account(Accounts, Transaction) :-
-	transaction_account_id(Transaction, Account),
+	transaction_account_id(Transaction, Id),
 	(
 		(
-			nonvar(Account),
-			account_parent_id(Accounts, Account, _)
+			nonvar(Id),
+			account_exists(Accounts, Id)
 		)
 		->
 			true
 		;
 		(
-			term_string(Account, Str),
+			term_string(Id, Str),
 			atomic_list_concat(["an account referenced by a generated transaction does not exist, please add it to account taxonomy: ", Str], Err_Msg),
 			throw(string(Err_Msg))
 		)
 	).
 	
+has_empty_vector(T) :-
+	transaction_vector(T, []).

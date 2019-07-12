@@ -150,6 +150,17 @@ we bought the shares with some currency. we can think of gains as having two par
 
 */
 
-gains_account_has_forex_accounts(Gains_Account, Gains_Excluding_Forex, Gains_Currency_Movement) :-
+gains_account__has_forex_accounts(Gains_Account, Gains_Excluding_Forex, Gains_Currency_Movement) :-
 	atom_concat(Gains_Account, '_Excluding_Forex', Gains_Excluding_Forex),
+	atom_concat(Gains_Account, '_Currency_Movement', Gains_Currency_Movement).
+gains_account(Trading,Unit,Forex,unrealized) :-
+	trading_account_has_gains_account(Trading, Gains),
+	gains_account_has_forex_account(Gains, Forex),
+	forex_account_has_unit_account(Forex, Unit, Unit_Account).
+						    
+trading_account_has_gains_account(Trading, realized) :-
+
+	
+
+	atomic_list_concat(Gains_Account, '_Excluding_Forex', Gains_Excluding_Forex),
 	atom_concat(Gains_Account, '_Currency_Movement', Gains_Currency_Movement).

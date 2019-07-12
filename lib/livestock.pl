@@ -11,7 +11,7 @@ this file needs serious cleanup, one reason to delay that might be that we can e
 :- use_module(utils, [
 		user:goal_expansion/2, inner_xml/3, fields/2, numeric_fields/2, pretty_term_string/2, with_info_value_and_info/3, maplist6/6, throw_string/1]).
 :- use_module(pacioli, [vec_add/3, vec_inverse/2, vec_reduce/2, vec_sub/3, integer_to_coord/3]).
-:- use_module(accounts, [account_ancestor_id/3]).
+:- use_module(accounts, [account_in_set/3]).
 :- use_module(days, [parse_date/2]).
 :- use_module(ledger, [balance_by_account/9]).
 
@@ -70,7 +70,7 @@ preprocess_livestock_buy_or_sell(Static_Data, S_Transaction, [Bank_Transaction, 
 	% here we don't know Livestock_Type, so s_transaction_is_livestock_buy_or_sell actually yields garbage, that we filter out by existence of appropriate account. Usually we pass it a bounded Livestock_Type.
 	s_transaction_is_livestock_buy_or_sell(S_Transaction, Day, Livestock_Type, Livestock_Coord, _Bank_Vector, Our_Vector, Unexchanged_Account_Id, MoneyDebit, _),
 	count_account(Livestock_Type, Count_Account),
-	account_ancestor_id(Accounts, Count_Account, _),
+	account_in_set(Accounts, Count_Account, _),
 	
 	(MoneyDebit > 0 ->
 			Description = 'livestock sell'
