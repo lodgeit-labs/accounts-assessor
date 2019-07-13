@@ -87,7 +87,7 @@ display_xml_loan_response(FileNameOut, IncomeYear,
    close(XMLStream),
 
    % read the schema file
-   absolute_file_name(my_taxonomy('loan-response.xsd'), FileLoanResponseXSD, []),
+   absolute_file_name(my_schemas('responses/loan-response.xsd'), FileLoanResponseXSD, []),
    read_file_to_string(FileLoanResponseXSD, LoanResponseXSD, []),   
    % generating temporary file name for loan response xsd
    atomic_list_concat([CurrentTimeString, '_tmp_loan_response.xsd'], TempFileLoanResponseXSD0), 
