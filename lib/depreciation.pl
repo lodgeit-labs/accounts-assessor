@@ -64,9 +64,9 @@ day_diff(Date1, Date2, Days) :-
 	Days is Days2 - Days1.
 
 
-% Type hierarchy - i guess should be input as a table of pairs, and we dont have anything similar in concept elsewhere in the codebase,
-i guess. account hierarchy is parsed from a xml tree and represented internally as a list of id,parent_id terms, but thats not useful here i guess,
-except you can copy the account_ancestor_id, but thats an easy one
+% Type hierarchy - i guess should be input as a table of pairs, and we dont have anything similar in concept elsewhere in the codebase, 
+% i guess. account hierarchy is parsed from a xml tree and represented internally as a list of id,parent_id terms, but thats not useful here i guess,
+% except you can copy the account_ancestor_id, but thats an easy one
 
 type(corolla, toyota).
 type(toyota, car).
@@ -90,6 +90,7 @@ transactions(transaction(date(20, 4, 1), buy_truck, hirepurchase_truck, t_term(0
 % again an input table maybe with some smartness to allow specifying/not specifying year
 depreciation_rate(motor_vehicles, _Year, 0.2).
 %depreciation_rate(motor_vehicles, _Year, 0.27).
+/*
 <depreciation_rate>
 	<asset>motor_vehicles</asset>
 	<year..
@@ -102,7 +103,7 @@ depreciation_rate(motor_vehicles, _Year, 0.2).
 </
 ...
 these should go into a list or something and be passed around, like we pass exchange_rates and accounts around everywhere.
-
+*/
 
 
 /* 
