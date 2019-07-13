@@ -419,18 +419,24 @@ bank_accounts(S_Transactions, Accounts_In, New_Accounts) :-
 	findall(
 		Account,
 		(
-			Account = account(Name, 'Cash_And_Cash_Equivalents'),
 			member(Name, Bank_Account_Names_Unique),
-			\+member(Account, Accounts_In)
+			\+account_exists(Accounts, Name),
+			account_id(Account, Name),
+			account_parent(Account, Parent),
+			account_role(Account, ''),
+			account_by_role(Parent, 'Cash_And_Cash_Equivalents')
 		),
 		New_Accounts
 	).
+	
 investment_accounts(S_Transactions, Accounts_In, New_Accounts) :-
 	findall(
 		Unit,
 		(
 			member(T, S_Transactions),
-			s_transaction_exchanged(T, [coord(Unit,_,_)])
+			transaction_type_of(Transaction_Types, S_Transaction, Transaction_Type)
+			Transaction_Type = transaction_type(_, _, Trading_Account_Id, _),
+
 		),
 		Units
 	),
