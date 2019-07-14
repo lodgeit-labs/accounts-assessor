@@ -116,6 +116,182 @@ yield_accounts(element(Parent_Name,_,Children), Link) :-
 		yield_accounts(Child, Link)
 	).
 
-   
-   
-   
+
+
+/*   
+   finding and making accounts
+*/ 
+ 
+bank_account_names(S_Transactions, Names) :-
+	findall(
+		Bank_Account_Name,
+		(
+			member(T, S_Transactions),
+			s_transaction_account_id(T, Bank_Account_Name)
+		),
+		Names0
+	),
+	sort(Names0, Names).
+
+/*
+given all s_transactions, produce all bank accounts we need to add.
+bank accounts have role Accounts/(Name)
+we will only eventually add this account if an account with same role doesn't already exist
+*/
+
+make_bank_account(Name, Account) :-
+	account_id(Account, Name),
+	account_parent(Account, 'Cash_And_Cash_Equivalents'),
+	account_role(Account, ('Accounts'/Name)).
+
+make_bank_accounts(S_Transactions, New_Accounts) :-
+	bank_account_names(S_Transactions, Bank_Account_Names),
+	maplist(make_bank_account, Bank_Account_Names, New_Accounts).
+
+traded_units(S_Transactions, Transaction_Types, Units_Out) :-
+	findall(
+		Unit,
+		(
+			member(T, S_Transactions),
+			transaction_type_of(Transaction_Types, S_Transaction, Transaction_Type)
+			Transaction_Type = transaction_type(_, _, Trading_Account_Id, _),
+			transaction_vector(T, [coord(Unit,_,_)])
+		),
+		Units
+	),
+	sort(Units,Units_Out).
+
+trading_account_ids(Transaction_Types, Ids) :-
+	findall(
+		Trading_Account_Id,
+		(
+			member(T, Transaction_Types),
+			T = transaction_type(_, _, Trading_Account_Id, _)
+		),
+		Ids0
+	),
+	sort(Ids0,Ids).
+
+
+
+ensure_gains_accounts_exist(Accounts_In, S_Transactions, Transaction_Types, Gains_Accounts) :-
+	/* trading accounts are expected to be in user input. */
+	trading_account_ids(Transaction_Types, Trading_Account_Ids),
+	/* each unit gets its own sub-account in each category */
+	traded_units(S_Transactions, Transaction_Types, Units),
+	/* create realized and unrealized gains accounts for each trading account*/
+	maplist(roles_tree(Accounts_In, [[realized, unrealized], [without_currency_movement, only_currency_movement], Units], Trading_Account_Ids, Gains_Accounts).
+
+
+roles_tree(Accounts_In, [Roles|Roles_Tail], Parent_Id, Accounts_Out) :-
+	maplist(ensure_account_exists(Accounts_In, Parent_Id), Roles, Child_Accounts)),
+	maplist(roles_tree(Accounts_Mid, Parent_Id, Roles_Tail, Child_Accounts, Grandchild_Accounts),
+	flatten([Child_Accounts, Grandchild_Accounts], Accounts_Out).
+
+ensure_account_exists(Accounts_In, Parent_Id, Child_Role, Account) :-
+	Role = (Parent_Id/Child_Role),
+	(
+		(account_by_role(Accounts, Role, Account),!)
+	;
+		(
+			account_role(Account, Role),
+			account_parent(Account, Parent_Id),
+			account_id(Account, Free_Id),
+			atomic_list_concat([Parent_Id, '_', Child_Role], Id),
+			free_id(Id, Free_Id)
+		)
+	).
+	
+
+add_movement_account(Accounts_In, Gains_Account, With_Or_Without, Account) :-
+	Role = (Gains_Account/With_Or_Without),
+	(
+		(account_by_role(Accounts, Role, Account),!)
+	;
+		(
+			account_role(Account, Role),
+			account_parent(Account, Trading_Account_Id),
+			account_id(Account, Free_Id),
+			free_id(Id, Free_Id)
+		)
+	).
+
+add_gains_account(Accounts, Realized_Or_Unrealized, Trading_Account_Id, Account) :-
+	Role = (Trading_Account_Id/Realized_Or_Unrealized),
+	(
+		(account_by_role(Accounts, Role, Account),!)
+		;
+		(
+			account_role(Account, Role),
+			account_parent(Account, Trading_Account_Id),
+			account_id(Account, Free_Id),
+			free_id(Id, Free_Id)
+		)
+	).
+	
+			
+
+investment_accounts(S_Transactions, Transaction_Types, Accounts_In, New_Accounts) :-
+	trading_accounts(S_Transactions, Transaction_Type, Trading_Accounts),
+	traded_units(S_Transactions, Transaction_Type, Units)
+	findall(
+		Accounts,
+		(
+			member(Trading_Account, Trading_Accounts),
+			Trading_Account_Role 
+			
+			Accounts = [Realized, Unrealized],
+			
+			Role0 = ('Accounts'/Trading_Account),
+			account_id(Account, Name),
+			account_parent(Account, Parent),
+			account_role(Account, New_Account_Role),
+			account_by_role(Accounts, ('Accounts'/'Cash_And_Cash_Equivalents'), Parent)			
+		),
+		Gains_Accounts
+	),
+	flatten(Used_Accounts_Nested, Used_Accounts),
+	findall(
+		Account,
+		(
+			member(Account, Used_Accounts),
+			\+member(Account, Accounts_In)
+		),
+		New_Accounts
+	).
+	
+movement_unit_account(Accounts, Movement_Account, Unit) :-
+	member(Account, Accounts),
+	account_role(Account, Movement_Account/Unit).
+	
+gains_movement_account(Accounts, Gains_Account, Movement) :-
+	member(Account, Accounts),
+	account_role(Account, Gains_Account/Movement).
+
+trading_gains_account(Accounts, Trading_Account, Realized_Or_Unrealized) :-
+	member(Account, Accounts),
+	account_role(Account, Trading_Account/Realized_Or_Unrealized).
+
+
+/* 
+	if an account with id Id is found, append _2 and try again,
+	otherwise bind Free_Id to Id.
+*/
+free_id(Accounts, Id, Free_Id) :-
+		account_by_id(Accounts, Id)
+	->
+		(
+			atomic_list_concat([Id, '_2'], Next_Id),
+			free_id(Accounts, Next_Id, Free_Id)
+		)
+	;
+		Free_Id = Id
+	).
+
+
+add_trading_accounts(Accounts_In, Accounts_Out) :-
+	add_gains_accounts(Transaction_Types, Accounts_In, Accounts2),
+	add_movement_accounts(Transaction_Types, Accounts2, Accounts3),
+	
+	
+	

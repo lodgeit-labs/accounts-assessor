@@ -403,64 +403,10 @@ extract_exchanged_value(Tx_Dom, _Account_Currency, Bank_Debit, Bank_Credit, Exch
       Exchanged = vector([])
    ).
 
-/*
-given all s_transactions, and current accounts, produce all bank accounts we need to add
-*/
-bank_accounts(S_Transactions, Accounts_In, New_Accounts) :-
-	findall(
-		Bank_Account_Name,
-		(
-			member(T, S_Transactions),
-			s_transaction_account_id(T, Bank_Account_Name)
-		),
-		Bank_Account_Names
-	),
-	sort(Bank_Account_Names, Bank_Account_Names_Unique),
-	findall(
-		Account,
-		(
-			member(Name, Bank_Account_Names_Unique),
-			\+account_exists(Accounts, Name),
-			account_id(Account, Name),
-			account_parent(Account, Parent),
-			account_role(Account, ''),
-			account_by_role(Parent, 'Cash_And_Cash_Equivalents')
-		),
-		New_Accounts
-	).
-	
-investment_accounts(S_Transactions, Accounts_In, New_Accounts) :-
-	findall(
-		Unit,
-		(
-			member(T, S_Transactions),
-			transaction_type_of(Transaction_Types, S_Transaction, Transaction_Type)
-			Transaction_Type = transaction_type(_, _, Trading_Account_Id, _),
 
-		),
-		Units
-	),
-	sort(Units,Units_Unique),
-	findall(
-		Accounts,
-		(
-			A0
-			account(Name, 'Cash_And_Cash_Equivalents'),
-			member(Name, Bank_Account_Names_Unique),
-			\+member(Account, Accounts_In)
-		),
-		Used_Accounts_Nested
-	),
-	flatten(Used_Accounts_Nested, Used_Accounts),
-	findall(
-		Account,
-		(
-			member(Account, Used_Accounts),
-			\+member(Account, Accounts_In)
-		),
-		New_Accounts
-	).
-	
+
+
+
 /*
 fixme, this get also some irrelevant ones
 */
