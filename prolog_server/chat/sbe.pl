@@ -97,20 +97,3 @@ sbe_dialog(History, State, Answer, _) :-
 	((Answer = -1, writeln("Not SBE."));(Answer = -2, writeln("SBE."))).
 
 
-
-test0() :-
-	% fixme, for example sbe_dialog([], 0, _, -1,  `ynynnnnnnynn`), ideally shouldn't unify, 
-	% the correct result is -2, but sbe_dialog backtracks until it finds a sbe_next_state that matches,
-	% that's why the ResultX variables here
-
-	sbe_dialog([], 0, Result0, `n`), Result0 = -1,
-	sbe_dialog([], 0, Result1, `ynn`), Result1 = -1,
-	sbe_dialog([], 0, Result2, `ynyn`), Result2 = -1,
-	sbe_dialog([], 0, Result3, `ynyy`), Result3 = -2,
-	sbe_dialog([], 0, Result4, `yyn`), Result4 = -1,
-	sbe_dialog([], 0, Result5, `yyy`), Result5 = -2,
-	
-	writeln(""),
-	writeln("all tests pass."),
-	writeln("").
-

@@ -10,6 +10,7 @@
 		    vec_inverse/2,
 		    vec_reduce/2,
 		    vec_sub/3,
+		    vec_units/2,
 		    integer_to_coord/3,
 		    make_debit/2,
 		    make_credit/2]).
@@ -152,25 +153,3 @@ coord_merge(coord(Unit, D1, C1), coord(Unit, D2, C2), coord(Unit, D3, C3)) :-
 coord_merge(value(Unit, D1), value(Unit, D2), value(Unit, D3)) :-
 	D3 is D2 + D1.
 
-test0 :-
-	vec_units([coord(aud, _,_), coord(aud, _,_), coord(usd, _,_)], Units0), Units0 = [aud, usd],
-	vec_units([], []),
-	vec_units([coord(aud, 5,7), coord(aud, _,_), coord(Usd, _,_)], [aud, Usd]),
-	coord_merge(coord(Unit, 1, 2), coord(Unit, 3, 4), coord(Unit, 4, 6)),
-	semigroup_foldl(coord_merge, [], []),
-	semigroup_foldl(coord_merge, [value(X, 5)], [value(X, 5)]),
-	semigroup_foldl(coord_merge, [coord(x, 4, 5), coord(x, 4, 5), coord(x, 4, 5)], [coord(x, 12, 15)]),
-	\+semigroup_foldl(coord_merge, [coord(y, 4, 5), coord(x, 4, 5), coord(x, 4, 5)], _),
-	vec_add([coord(a, 5, 1)], [coord(a, 0.0, 4)], []),
-	vec_add([coord(a, 5, 1), coord(b, 0, 0.0)], [coord(b, 7, 7), coord(a, 0.0, 4)], []),
-	vec_add([coord(a, 5, 1), coord(b, 1, 0.0)], [coord(a, 0.0, 4)], Res0),
-	Res0 = [coord(b, 1.0, 0.0)],
-	vec_add([coord(a, 5, 1), coord(b, 1, 0.0), coord(a, 8.0, 4)], [], Res1),
-	Res1 = [coord(a, 8.0, 0), coord(b, 1.0, 0.0)],
-	vec_add([value('AUD',25)], [value('AUD',50)], [value('AUD',75)]),
-	
-	
-	
-	true.
-
-:- test0.

@@ -257,13 +257,6 @@ semigroup_foldl(_Goal, [Item], [Item]).
 semigroup_foldl(Goal, [H1,H2|T], V) :-
     call(Goal, H1, H2, V1),
     semigroup_foldl(Goal, [V1|T], V).
-
-test0 :-
-	semigroup_foldl(atom_concat, [], []),
-	semigroup_foldl(atom_concat, [aaa], [aaa]),
-	semigroup_foldl(atom_concat, [aaa, bbb], [aaabbb]),
-	semigroup_foldl(atom_concat, [aaa, bbb, ccc], [aaabbbccc]).
-:- test0.
    
 
 throw_string(List_Or_Atom) :-
