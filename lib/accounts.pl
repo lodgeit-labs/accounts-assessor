@@ -172,7 +172,18 @@ trading_account_ids(Transaction_Types, Ids) :-
 	),
 	sort(Ids0,Ids).
 
+/*
+ensure_accounts_exist should produce a list of account terms that must exist for the system to work. This will include both accounts found 
+in user input account hierarchy and generated ones. The reason that it also returns the found ones is that that makes it easier to traverse
+the tree and add missing accounts recursively. It should generate naive ids - not checked for uniqueness with user input.
+Next we should take the output and filter out existing accounts. Next we should check for id uniquesness, and change id's to unique if needed.
+then we can present this as a proposal to the user to add these accounts. But here we will do it immediately.
 
+i am introducing the concept of a role of an account. If a trading account Financial_Investments already contains 
+an account with id Financial_Investments_realized, either it has to have a role Financial_Investments/realized,
+or is not recognized as such, and a new one with proper role is proposed. This allows us to abstract away from ids,
+because Financial_Investments_realized might already be an id of another user account.
+*/
 
 ensure_gains_accounts_exist(Accounts_In, S_Transactions, Transaction_Types, Gains_Accounts) :-
 	/* trading accounts are expected to be in user input. */
