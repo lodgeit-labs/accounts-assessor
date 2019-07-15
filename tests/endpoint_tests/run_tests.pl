@@ -126,8 +126,9 @@ find_requests(Path, With_Responses, Without_Responses) :-
 	).
 	
 is_request_file(Atom) :-
-	/* does not require that the searched-for part is at the end of the atom, but that's good enough for now*/
-	sub_atom_icasechk(Atom, _Start1, '.xml'),
+	/* does not require that the searched-for part is at the end of the atom, but that's good enough for now no its not.*/
+	atom_concat(_,'.xml',Atom),
+	% sub_atom_icasechk(Atom, _Start1, '.xml'),
 	sub_atom_icasechk(Atom, _Start2, 'request').
 
 has_response_file(Atom, Response) :-

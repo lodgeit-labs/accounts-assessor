@@ -325,12 +325,12 @@ account_vector(Info, Account, Vector) :-
 		
 
 process_xml_investment_request(_, DOM) :-
-	xpath(DOM, //reports/investments, _),
+	xpath(DOM, //reports/investmentRequest/investments, _),
 	writeln('<?xml version="1.0"?>'),
 	writeln('<response>'),
-	xpath(DOM, //reports, Reports),
+	xpath(DOM, //reports/investmentRequest, InvestmentRequest),
 	% get global report date
-	fields(Reports, [report_date, (Report_Date, _)]),
+	fields(InvestmentRequest, [report_date, (Report_Date, _)]),
 	(
 		nonvar(Report_Date)
 	->	write_tag('Report_Date', Report_Date)
@@ -360,7 +360,7 @@ process_xml_investment_request(_, DOM) :-
 process_investments(DOM, Report_Date, Result) :-
 	% for each unrealized investment, we will unify investment report date against global report date
 	% if different, fail processing (throw error)
-	xpath(DOM, //reports/investments/(*), Investment),
+	xpath(DOM, //reports/investmentRequest/investments/(*), Investment),
 	(
 		process(Investment, Report_Date, Result)
 	->	true
