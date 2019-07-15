@@ -15,7 +15,7 @@
 :- use_module(ledger/process_xml_ledger_request, [process_xml_ledger_request/2]).
 :- use_module(livestock/process_xml_livestock_request, [process_xml_livestock_request/2]).
 :- use_module(investment/process_xml_investment_request, [process_xml_investment_request/2]).
-/*:- use_module('../lib/utils', [throw_string/1]).*/
+:- use_module('../lib/utils', [throw_string/1]).
 
 % -------------------------------------------------------------------
 % process_data/2
@@ -43,7 +43,7 @@ process_xml_request(FileName, DOM) :-
    ->
       true
    ;
-      throw('<reports> tag no found')
+      throw_string('<reports> tag not found')
    ),
    (process_xml_loan_request(FileName, DOM) -> true;
    (process_xml_ledger_request(FileName, DOM) -> true;

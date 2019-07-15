@@ -152,8 +152,21 @@ numeric_field(Dom, Name_String, Value) :-
 
 
 /* take a list of field names and variables that the contents extracted from xml are bound to
-throw error if field's tag is not found
-*/
+a (variable, default value) tuple can also be passed */
+fields(Dom, [Name_String, Value_And_Default|Rest]) :-
+	nonvar(Value_And_Default),
+	!,
+	(Value, Default_Value) = Value_And_Default,
+	(
+		(
+			trimmed_field(Dom, //Name_String, Value),
+			!
+		);
+			Value = Default_Value
+	),
+	fields(Dom, Rest).
+
+/* if default is not passed, throw error if field's tag is not found*/
 fields(Dom, [Name_String, Value|Rest]) :-
 	(
 		(
@@ -170,19 +183,6 @@ fields(Dom, [Name_String, Value|Rest]) :-
 
 fields(_, []).
 
-% a (variable, default value) tuple can also be passed
-fields(Dom, [Name_String, Value_And_Default|Rest]) :-
-	nonvar(Value_And_Default),
-	!,
-	(Value, Default_Value) = Value_And_Default,
-	(
-		(
-			trimmed_field(Dom, //Name_String, Value),
-			!
-		);
-			Value = Default_Value
-	),
-	fields(Dom, Rest).
 
 /* try to extract a field, possibly fail*/
 field_nothrow(Dom, [Name_String, Value]) :-
