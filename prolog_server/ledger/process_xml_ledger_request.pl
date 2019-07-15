@@ -14,7 +14,7 @@
 :- use_module(library(xpath)).
 :- use_module('../../lib/days', [format_date/2, parse_date/2, gregorian_date/2]).
 :- use_module('../../lib/utils', [
-	inner_xml/3, write_tag/2, fields/2, fields_nothrow/2, numeric_fields/2, 
+	inner_xml/3, write_tag/2, fields/2, numeric_fields/2, 
 	pretty_term_string/2, throw_string/1]).
 :- use_module('../../lib/ledger', [balance_sheet_at/8, trial_balance_between/8, profitandloss_between/8, balance_by_account/9]).
 :- use_module('../../lib/statements', [

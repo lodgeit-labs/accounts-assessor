@@ -35,7 +35,7 @@ balance_until_day(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, A
 	transaction_vectors_total(Filtered_Transactions, Balance),
 	vec_change_bases(Exchange_Rates, Exchange_Day, Bases, Balance, Balance_Transformed).
 
-% up to day
+/* balance on account up to Date, can be thought of as at midnight following Date */
 balance_by_account(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Account_Id, Date, Balance_Transformed, Transactions_Count) :-
 	add_days(Date, 1, Date2),
 	balance_until_day(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Account_Id, Date2, Balance_Transformed, Transactions_Count).
@@ -77,14 +77,6 @@ balance_sheet_at(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Fr
 	% get earnings change over the period
 	net_activity_by_account(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Earnings_AID, From_Day, To_Day, Current_Earnings, _),
 	% total them
-	/*
-	vec_add(Historical_Earnings, Current_Earnings, Earnings),
-	vec_reduce(Earnings, Earnings_Reduced),
-	Retained_Earnings_Section = entry('RetainedEarnings', Earnings_Reduced,
-		[
-		entry('HistoricalEarnings', Historical_Earnings, []), 
-		entry('CurrentEarnings', Current_Earnings, [])
-		]),	*/
 		
 	/* there is no need to make up transactions here, but it makes things more uniform */
 	get_transactions_with_retained_earnings(Current_Earnings, Historical_Earnings, Transactions, From_Day, To_Day, Transactions_With_Retained_Earnings),
@@ -93,6 +85,7 @@ balance_sheet_at(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Fr
 	Net_Assets_Section = entry('Net_Assets', Net_Assets, [], Transactions_Count),
 	Balance_Sheet = [Asset_Section, Liability_Section, Equity_Section, Net_Assets_Section].
 
+/* build a fake transaction that sets the balance of historical and current earnings */
 get_transactions_with_retained_earnings(Current_Earnings, Historical_Earnings, Transactions, From_Day, To_Day, [Historical_Earnings_Transaction, Current_Earnings_Transaction | Transactions]) :-
 	add_days(From_Day, -1, From_Day_Minus_1),
 	Historical_Earnings_Transaction = transaction(From_Day_Minus_1,'','Historical_Earnings',Historical_Earnings),
@@ -101,12 +94,11 @@ get_transactions_with_retained_earnings(Current_Earnings, Historical_Earnings, T
 trial_balance_between(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, From_Day, To_Day, [Trial_Balance_Section]) :-
 	net_activity_by_account(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, 'Accounts', From_Day, To_Day, Trial_Balance, Transactions_Count),
 	Trial_Balance_Section = entry('Trial_Balance', Trial_Balance, [], Transactions_Count).
+
 /*
 profitandloss_between(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, From_Day, To_Day, ProftAndLoss) :-
 	net_activity_by_account(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, 'Earnings', From_Day, To_Day, ProftAndLoss).
-*/
 
-/*
 profitandloss_between(Exchange_Rates, Account_Hierarchy, Transactions, Bases, Exchange_Day, Start_Day, End_Day, ProftAndLoss) :-
 	net_activity_by_account(Exchange_Rates, Account_Hierarchy, Transactions, Bases, Exchange_Day, 'Earnings', Start_Day, End_Day, Activity),
 	net_activity_by_account(Exchange_Rates, Account_Hierarchy, Transactions, Bases, Exchange_Day, 'Revenue', Start_Day, End_Day, Revenue),

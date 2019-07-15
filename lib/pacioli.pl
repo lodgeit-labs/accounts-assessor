@@ -13,7 +13,8 @@
 		    vec_units/2,
 		    integer_to_coord/3,
 		    make_debit/2,
-		    make_credit/2]).
+		    make_credit/2,
+		    value_multiply/3]).
 
 :- use_module(utils, [semigroup_foldl/3]).
 
@@ -153,3 +154,6 @@ coord_merge(coord(Unit, D1, C1), coord(Unit, D2, C2), coord(Unit, D3, C3)) :-
 coord_merge(value(Unit, D1), value(Unit, D2), value(Unit, D3)) :-
 	D3 is D2 + D1.
 
+
+value_multiply(value(Unit, Amount1), Multiplier, value(Unit, Amount2)) :-
+	Amount2 is Amount1 * Multiplier.

@@ -1,54 +1,57 @@
 % Bind the following fact_set to test_fact
 
 recorda(fact_set,
-	[fact(
-		[aspect(report_entity, "http://regulator.gov/id#1234567890"),
-			aspect(period, date(2010, 12, 31)),
-			aspect(concept, gaap_finished_goods),
-			aspect(legal_entity, gaap_consolidated_entity)],
-		600000, usd, 1000, []),
-	fact(
-		[aspect(report_entity, "http://regulator.gov/id#1234567890"),
-			aspect(period, date(2009, 12, 31)),
-			aspect(concept, gaap_finished_goods),
-			aspect(legal_entity, gaap_consolidated_entity)],
-		600000, usd, 1000, []),
-	fact(
-		[aspect(report_entity, "http://regulator.gov/id#1234567890"),
-			aspect(period, date(2010, 12, 31)),
-			aspect(concept, gaap_work_in_progress),
-			aspect(legal_entity, gaap_consolidated_entity)],
-		300000, usd, 1000, []),
-	fact(
-		[aspect(report_entity, "http://regulator.gov/id#1234567890"),
-			aspect(period, date(2009, 12, 31)),
-			aspect(concept, gaap_work_in_progress),
-			aspect(legal_entity, gaap_consolidated_entity)],
-		300000, usd, 1000, []),
-	fact(
-		[aspect(report_entity, "http://regulator.gov/id#1234567890"),
-			aspect(period, date(2010, 12, 31)),
-			aspect(concept, gaap_raw_material),
-			aspect(legal_entity, gaap_consolidated_entity)],
-		100000, usd, 1000, []),
-	fact(
-		[aspect(report_entity, "http://regulator.gov/id#1234567890"),
-			aspect(period, date(2009, 12, 31)),
-			aspect(concept, gaap_raw_material),
-			aspect(legal_entity, gaap_consolidated_entity)],
-		100000, usd, 1000, []),
-	fact(
-		[aspect(report_entity, "http://regulator.gov/id#1234567890"),
-			aspect(period, date(2010, 12, 31)),
-			aspect(concept, gaap_inventory),
-			aspect(legal_entity, gaap_consolidated_entity)],
-		1000000, usd, 1000, []),
-	fact(
-		[aspect(report_entity, "http://regulator.gov/id#1234567890"),
-			aspect(period, date(2009, 12, 31)),
-			aspect(concept, gaap_inventory),
-			aspect(legal_entity, gaap_consolidated_entity)],
-		1000000, usd, 1000, [])]).
+	[
+		fact(
+			[	aspect(report_entity, "http://regulator.gov/id#1234567890"),
+				aspect(period, date(2010, 12, 31)),
+				aspect(concept, gaap_finished_goods),
+				aspect(legal_entity, gaap_consolidated_entity)],
+			600000, usd, 1000, []),
+		fact(
+			[aspect(report_entity, "http://regulator.gov/id#1234567890"),
+				aspect(period, date(2009, 12, 31)),
+				aspect(concept, gaap_finished_goods),
+				aspect(legal_entity, gaap_consolidated_entity)],
+			600000, usd, 1000, []),
+		fact(
+			[aspect(report_entity, "http://regulator.gov/id#1234567890"),
+				aspect(period, date(2010, 12, 31)),
+				aspect(concept, gaap_work_in_progress),
+				aspect(legal_entity, gaap_consolidated_entity)],
+			300000, usd, 1000, []),
+		fact(
+			[aspect(report_entity, "http://regulator.gov/id#1234567890"),
+				aspect(period, date(2009, 12, 31)),
+				aspect(concept, gaap_work_in_progress),
+				aspect(legal_entity, gaap_consolidated_entity)],
+			300000, usd, 1000, []),
+		fact(
+			[aspect(report_entity, "http://regulator.gov/id#1234567890"),
+				aspect(period, date(2010, 12, 31)),
+				aspect(concept, gaap_raw_material),
+				aspect(legal_entity, gaap_consolidated_entity)],
+			100000, usd, 1000, []),
+		fact(
+			[aspect(report_entity, "http://regulator.gov/id#1234567890"),
+				aspect(period, date(2009, 12, 31)),
+				aspect(concept, gaap_raw_material),
+				aspect(legal_entity, gaap_consolidated_entity)],
+			100000, usd, 1000, []),
+		fact(
+			[aspect(report_entity, "http://regulator.gov/id#1234567890"),
+				aspect(period, date(2010, 12, 31)),
+				aspect(concept, gaap_inventory),
+				aspect(legal_entity, gaap_consolidated_entity)],
+			1000000, usd, 1000, []),
+		fact(
+			[aspect(report_entity, "http://regulator.gov/id#1234567890"),
+				aspect(period, date(2009, 12, 31)),
+				aspect(concept, gaap_inventory),
+				aspect(legal_entity, gaap_consolidated_entity)],
+			1000000, usd, 1000, [])
+	]
+).
 
 % Bind the following information model to info_model
 

@@ -6,12 +6,13 @@
 
 :- module(statements, [extract_transaction/3, preprocess_s_transactions/4, get_relevant_exchange_rates/5, invert_s_transaction_vector/2, find_s_transactions_in_period/4, fill_in_missing_units/6, process_ledger/13, emit_ledger_warnings/3, balance_sheet_entries/8, format_report_entries/9]).
 
-/*fixme turn into module now*/
+/*fixme turn trading into module*/
 :- [trading].
 
 :- use_module(pacioli,  [vec_inverse/2, vec_add/3, vec_sub/3, integer_to_coord/3,
 			make_debit/2,
-		    make_credit/2]).
+		    make_credit/2,
+			value_multiply/3]).
 :- use_module(exchange, [vec_change_bases/5]).
 :- use_module(exchange_rates, [exchange_rate/5, is_exchangeable_into_request_bases/4]).
 
@@ -27,7 +28,7 @@
 	transaction_account_id/2,
 	transaction_vector/2,
 	check_transaction_account/2]).
-:- use_module(utils, [pretty_term_string/2, inner_xml/3, write_tag/2, fields/2, fields_nothrow/2, numeric_fields/2, throw_string/1, value_multiply/3]).
+:- use_module(utils, [pretty_term_string/2, inner_xml/3, write_tag/2, fields/2, field_nothrow/2, numeric_fields/2, throw_string/1]).
 :- use_module(accounts, [account_parent_id/3, account_ancestor_id/3]).
 :- use_module(days, [format_date/2, parse_date/2, gregorian_date/2, date_between/3]).
 :- use_module(library(record)).
@@ -135,8 +136,8 @@ Transactions using trading accounts can be decomposed into:
 	a transaction of the given amount to the unexchanged account (your bank account)
 	a transaction of the transformed inverse into the exchanged account (your shares investments account)
 	and a transaction of the negative sum of these into the trading cccount. 
-This predicate takes a list of statement transaction terms and decomposes it into a list of plain transaction terms, 3 for each input s_transaction.
-"Goods" is not a general enough word, but it avoids confusion with other terms used.
+	This predicate takes a list of statement transaction terms and decomposes it into a list of plain transaction terms.
+	"Goods" is not a general enough word, but it avoids confusion with other terms used.
 */	
 
 preprocess_s_transaction(Static_Data, S_Transaction, [Ts0, Ts1, Ts2, Ts3, Ts4, Ts5, Ts6], Outstanding_In, Outstanding_Out) :-
@@ -373,10 +374,10 @@ extract_exchanged_value(Tx_Dom, _Account_Currency, Bank_Debit, Bank_Credit, Exch
    % if unit type and count is specified, unifies Exchanged with a one-item vector with a coord with those values
    % otherwise unifies Exchanged with bases(..) to trigger unit conversion later
    (
-      fields_nothrow(Tx_Dom, [unitType, Unit_Type]),
+      field_nothrow(Tx_Dom, [unitType, Unit_Type]),
       (
          (
-            fields_nothrow(Tx_Dom, [unit, Unit_Count_Atom]),
+            field_nothrow(Tx_Dom, [unit, Unit_Count_Atom]),
             atom_number(Unit_Count_Atom, Unit_Count),
            	Count_Absolute is abs(Unit_Count),
 			(
@@ -558,7 +559,7 @@ has_empty_vector(T) :-
 	
 % tests	
 /*
-todo: just check vec_add with this.
+fixme: just check vec_add with this.
 :- maplist(
 
 		transaction_vector, 
