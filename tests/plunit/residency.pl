@@ -14,6 +14,5 @@ test(0) :-
 	
 	true.
 
-:- run_tests(residency).
+:- end_tests(residency).
 
-:- run_tests.

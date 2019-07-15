@@ -14,4 +14,3 @@ test(0) :-
 	sbe:sbe_dialog([], 0, Result5, `yyy`), Result5 = -2.
 
 :- end_tests(sbe).
-:- run_tests.

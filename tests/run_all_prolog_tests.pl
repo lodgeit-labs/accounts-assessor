@@ -1,3 +1,2 @@
-:- ['plunit/run_all_tests'].
-:- ['endpoint_tests/run_all_tests'].
-
+:- ['all_prolog_tests'].
+:- run_tests.

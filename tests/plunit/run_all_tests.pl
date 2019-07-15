@@ -1,8 +1,4 @@
-:- ['sbe'].
-:- ['residency'].
-:- ['statements'].
-:- ['everything_else'].
-
+:- ['plunit_tests'].
 :- run_tests.
 
 
