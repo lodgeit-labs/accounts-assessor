@@ -1,6 +1,6 @@
 :- module(files, []).
 
-
+% use dynamic/2 to set multifile option when setting dynamic
 :- dynamic user:file_search_path/2.
 :- multifile user:file_search_path/2.
 
