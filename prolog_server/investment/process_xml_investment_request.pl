@@ -406,6 +406,8 @@ get_totals(Results_In, Results_Out) :-
 	sum_list(Unrealized_Market_Gain_List, Unrealized_Market_Gain_Total).
 
 crosscheck_totals(Results, Report_Date) :-
+	writeln('<!-- Totals cross-check: -->'),
+
 	Results = (S_Transactions, Exchange_Rates, Totals),
 	Totals = (
 		Realized_Currency_Gain_Total,
