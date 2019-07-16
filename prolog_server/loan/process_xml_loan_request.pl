@@ -13,7 +13,9 @@
 
 % use "XSD" library to validate XML
 :- use_module(library(xsd)).
+:- use_module(library(xpath)).
 
+:- use_module('../../lib/files').
 :- use_module('../../lib/loans', [loan_agr_summary/2]).
 :- use_module('../../lib/days',  [absolute_day/2, parse_date/2, parse_date_into_absolute_days/2]).
 

@@ -5,6 +5,8 @@
 % Date:      2019-06-08
 % ===================================================================
 
+:- module(prolog_server, [run_simple_server/0]).
+
 % -------------------------------------------------------------------
 % Style checking
 % -------------------------------------------------------------------
@@ -24,6 +26,7 @@
 :- use_module(library(option)).
 :- use_module(library(http/http_dispatch), [http_safe_file/2]).
 :- use_module(library(http/http_files)).
+:- use_module(library(http/http_error)). 
 
 :- use_module('../lib/files', [generate_unique_tmp_directory_base/0, bump_tmp_directory_id/0, my_tmp_file_name/2]).
 :- use_module('chat/residency').

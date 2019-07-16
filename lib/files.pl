@@ -20,6 +20,7 @@ set_search_path(Alias, Path_From_This_Source_File) :-
 :- set_search_path(my_cache, '/../cache').
 :- set_search_path(my_tmp, '/../prolog_server/tmp').
 
+
 /*
   to be used instead of absolute_file_name for request-specific tmp files
 */
