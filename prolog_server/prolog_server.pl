@@ -5,7 +5,7 @@
 % Date:      2019-06-08
 % ===================================================================
 
-:- module(prolog_server, [run_simple_server/0]).
+:- module(prolog_server, [run_simple_server/0, run_daemon/0]).
 
 % -------------------------------------------------------------------
 % Style checking
