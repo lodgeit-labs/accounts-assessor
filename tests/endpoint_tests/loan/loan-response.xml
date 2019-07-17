@@ -1,5 +1,5 @@
-<LoanSummary>
-	<IncomeYear>0</IncomeYear>
+<LoanSummary xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="loan_response.xsd">
+	<IncomeYear>2015</IncomeYear>
 	<OpeningBalance>55000</OpeningBalance>
 	<InterestRate>5.95</InterestRate>
 	<MinYearlyRepayment>9834.923730309254</MinYearlyRepayment>

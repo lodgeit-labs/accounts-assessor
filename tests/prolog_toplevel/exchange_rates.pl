@@ -5,6 +5,8 @@ test0 :-
 	write("Are the certain exchange rates from the API matching manually obtained ones? Also, do the manual overrides work?"),
 	gtrace,
 	findall(Exchange_Rate, 
+
+		% fixme i've changed date representation from absolute days to date term
 		(absolute_day(date(2015, 6, 30), Day),
 		(
 			% note these are OR-ed

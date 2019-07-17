@@ -1,1 +1,0 @@
-let's convert the pdf to plaintext when updates are necessary. Providing documentation in plaintext/markdown/anything versioning-friendly would be preferred. Images unfortunately have to just be put in the same directory or subdirectories

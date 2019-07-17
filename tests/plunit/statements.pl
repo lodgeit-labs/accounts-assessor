@@ -1,5 +1,4 @@
-:- ['../../src/statements'].
-:- use_module(library(debug), [assertion]).
+:- ['../../lib/statements'].
 
 :- begin_tests(statements).
 
@@ -40,4 +39,3 @@ test(0) :-
 	transaction(731125, "Some foreign income.", trading_account, [coord('USD', 100, 0), coord('AUD', 0, 180)])]]).
 
 :- end_tests(statements).
-:- run_tests.

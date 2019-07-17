@@ -23,6 +23,7 @@ find_items_to_sell2(Type, Count, [outstanding(_, Outstanding_Type, _, _,_)|Outst
 	Outstanding_Type \= Type,
 	find_items_to_sell2(Type, Count, Outstanding_Tail, Outstanding_Out, Cost).
 
+/* find items and return them in Goods, put the rest back into the outstanding list and return that as Outstanding_Out */
 find_items_to_sell2(
 	/* input */
 	Type, Sale_Count, 
@@ -37,6 +38,7 @@ find_items_to_sell2(
 	Outstanding_Out = [Outstanding_Remaining | Outstanding_Tail],
 	Outstanding_Remaining = outstanding(ST_Currency, Type, Outstanding_Remaining_Count, value(Currency, Outstanding_Unit_Cost), Date).
 
+/* in this case we will need to recurse, because we did not find enough items */
 find_items_to_sell2(
 	Type, Sale_Count, 
 	[outstanding(ST_Currency, Type, Outstanding_Count, value(Outstanding_Currency, Outstanding_Unit_Cost), Date)|Outstanding_Tail], 
@@ -48,75 +50,3 @@ find_items_to_sell2(
 	Partial_Cost_Int is Outstanding_Count * Outstanding_Unit_Cost,
 	Partial_Goods = [outstanding(ST_Currency, Type, Outstanding_Count, value(Outstanding_Currency, Partial_Cost_Int), Date)],
 	append(Partial_Goods, Remaining_Goods, Goods).
-
-	
-/*
-finally, we should update our knowledge of unit costs, based on recent sales and buys
-
-we will only be interested in an exchange rate (price) of shares at report date.
-note that we keep exchange rates at two places. 
-Currency exchange rates fetched from openexchangerates are asserted into a persistent db.
-Exchange_Rates are parsed from the request xml.
-
-
-Report_Date, Exchange_Rates, , Exchange_Rates2
-
-	% will we be able to exchange this later?
-	is_exchangeable_into_currency(Exchange_Rates, End_Date, Goods_Units, Request_Currency)
-		->
-	true
-		;
-		(
-			% save the cost for report time
-		)
-*/
-
-
-
-test0 :-
-	Pricing_Method = lifo,
-	add_bought_items(Pricing_Method, 
-		outstanding('CZK', 'TLS', 5, value('AUD', 5), date(2000, 1, 1)), 
-		[], Outstanding_Out),
-	find_items_to_sell(Pricing_Method, 'TLS', 2, Outstanding_Out, _Outstanding_Out2, Cost_Of_Goods),
-	%print_term(Cost_Of_Goods, []).
-	Cost_Of_Goods = [outstanding('CZK', 'TLS', 2, value('AUD',10), date(2000, 1, 1))].
-	
-test1 :-
-	Pricing_Method = lifo,
-	add_bought_items(Pricing_Method, 
-		outstanding('CZK', 'TLS', 5, value('AUD', 5), date(2000, 1, 1)), 
-		[], Outstanding_Out),
-	\+find_items_to_sell(Pricing_Method, 'TLS', 6, Outstanding_Out, _Outstanding_Out2, _Cost_Of_Goods).
-
-test2 :-
-	Pricing_Method = lifo,
-	add_bought_items(Pricing_Method, 
-		outstanding('CZK', 'TLS', 5, value('AUD', 5), date(2000, 1, 1)), 
-		[], Outstanding_Out),
-	add_bought_items(Pricing_Method, 
-		outstanding('CZK', 'TLS', 5, value('AUD', 50), date(2000, 1, 2)), 
-		Outstanding_Out, Outstanding_Out2),
-	find_items_to_sell(Pricing_Method, 'TLS', 6, Outstanding_Out2, _Outstanding_Out3, Cost_Of_Goods),
-	%print_term(Cost_Of_Goods, []).
-	Cost_Of_Goods = [outstanding('CZK', 'TLS', 5, value('AUD',25), date(2000, 1, 1)), outstanding('CZK', 'TLS', 1, value('AUD',50), date(2000, 1, 2))].
-	
-test3 :-
-	Pricing_Method = lifo,
-	add_bought_items(Pricing_Method, 
-		outstanding('CZK', 'TLS', 5, value('AUD', 5), date(2000, 1, 1)), 
-		[], Outstanding),
-	add_bought_items(Pricing_Method, 
-		outstanding('CZK', 'TLS', 5, value('USD', 5), date(2000, 1, 2)), 
-		Outstanding, Outstanding2),
-	find_items_to_sell(Pricing_Method, 'TLS', 6, Outstanding2, _Outstanding3, Cost_Of_Goods),
-	%print_term(Cost_Of_Goods, []).
-	Cost_Of_Goods = [outstanding('CZK', 'TLS', 5, value('AUD',25), date(2000, 1, 1)), outstanding('CZK', 'TLS', 1, value('USD',5), date(2000, 1, 2))].
-	
-
-	
-
-:- test0.
-:- test1.
-:- test2.
-:- test3.

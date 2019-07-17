@@ -1,7 +1,6 @@
 :- module(utils, [
-	user:goal_expansion/2, inner_xml/3, open_tag/1, close_tag/1, write_tag/2, fields/2, fields_nothrow/2, numeric_fields/2, 
-	pretty_term_string/2, pretty_term_string/2, with_info_value_and_info/3, trim_atom/2, maplist6/6, throw_string/1, semigroup_foldl/3,
-	value_multiply/3]).
+	user:goal_expansion/2, inner_xml/3, open_tag/1, close_tag/1, write_tag/2, fields/2, field_nothrow/2, numeric_fields/2, 
+	pretty_term_string/2, pretty_term_string/2, trim_atom/2, maplist6/6, throw_string/1, semigroup_foldl/3]).
 :- use_module(library(xpath)).
 
 
@@ -9,9 +8,17 @@
 :- multifile user:goal_expansion/2.
 :- dynamic user:goal_expansion/2.
 
+
+
 /*executed at compile time, passess X through, and binds Names to info suitable for term_string*/	
 
-/*usage:
+user:goal_expansion(
+	compile_with_variable_names_preserved(X, variable_names(Names))
+, X) :-
+	term_variables(X, Vars),
+	maplist(my_variable_naming, Vars, Names).
+
+/*compile_with_variable_names_preserved usage:
 x([S2,' ', S3,' ', S4]) :-
 	compile_with_variable_names_preserved((
 		AC=4444*X,
@@ -39,13 +46,13 @@ x([S2,' ', S3,' ', S4]) :-
 :- x(S).
 */
 
-user:goal_expansion(
-	compile_with_variable_names_preserved(X, variable_names(Names))
-, X) :-
-	term_variables(X, Vars),
-	maplist(my_variable_naming, Vars, Names).
-	
-
+/*
+goal_expansion of magic_formula this takes X, which is the parsed terms, and returns Code, at compile time.
+Code can actually be printed out, and we should probably split this into two phases,
+where the first generates an actual source file.
+At any case there are some tradeoffs to consider, and i think this is more of a fun hack that can get
+some simple calculators into production quickly, not a perfect solution.
+*/
 user:goal_expansion(
 	magic_formula(/*Initialization, */X/*, Namings, Expansions*/), 
 	(/*Initialization, */Code)
@@ -94,13 +101,13 @@ expand_formulas(Namings, (F, Fs), Es_In, Es_Out) :-
 expand_formulas(Namings, F,  Es_In, Es_Out) :-
 	expand_formula(Namings, F, Es_In, E),
 	append(Es_In, [E], Es_Out).
-	
-	
-	
-	
+		
 my_variable_naming(Var, (Name = Var)) :-
 	var_property(Var, name(Name)).
 		
+
+
+
 
 
 % this gets the children of an element with ElementXPath
@@ -144,7 +151,8 @@ numeric_field(Dom, Name_String, Value) :-
 	atom_number(Value_Atom, Value).
 
 
-% case with default value
+/* take a list of field names and variables that the contents extracted from xml are bound to
+a (variable, default value) tuple can also be passed */
 fields(Dom, [Name_String, Value_And_Default|Rest]) :-
 	nonvar(Value_And_Default),
 	!,
@@ -158,6 +166,7 @@ fields(Dom, [Name_String, Value_And_Default|Rest]) :-
 	),
 	fields(Dom, Rest).
 
+/* if default is not passed, throw error if field's tag is not found*/
 fields(Dom, [Name_String, Value|Rest]) :-
 	(
 		(
@@ -174,12 +183,12 @@ fields(Dom, [Name_String, Value|Rest]) :-
 
 fields(_, []).
 
-fields_nothrow(Dom, [Name_String, Value|Rest]) :-
-	trimmed_field(Dom, //Name_String, Value),
-	fields_nothrow(Dom, Rest).
 
-fields_nothrow(_, []).
+/* try to extract a field, possibly fail*/
+field_nothrow(Dom, [Name_String, Value]) :-
+	trimmed_field(Dom, //Name_String, Value).
 
+/* extract fields and convert to numbers*/
 numeric_fields(Dom, [Name_String, Value_And_Default|Rest]) :-
 	nonvar(Value_And_Default),
 	!,
@@ -209,7 +218,7 @@ numeric_fields(Dom, [Name_String, Value|Rest]) :-
 numeric_fields(_, []).
 
 
-
+/* pretty-print term with print_term, capture the output into a string*/
 pretty_term_string(Term, String) :-
 	pretty_term_string(Term, String, []).
 
@@ -225,11 +234,8 @@ pretty_term_string(Term, String, Options) :-
 	memory_file_to_string(X, String).
 
 
-with_info_value_and_info(with_info(Value, Info), Value, Info).
 
-
-
-
+/* standard library only has maplist up to arity 5, maplist/6 is not in standard library */
 :- meta_predicate maplist6(6, ?, ?, ?, ?, ?).
 :- meta_predicate maplist6_(?, ?, ?, ?, ?, 6).
 
@@ -251,21 +257,12 @@ semigroup_foldl(_Goal, [Item], [Item]).
 semigroup_foldl(Goal, [H1,H2|T], V) :-
     call(Goal, H1, H2, V1),
     semigroup_foldl(Goal, [V1|T], V).
-
-test0 :-
-	semigroup_foldl(atom_concat, [], []),
-	semigroup_foldl(atom_concat, [aaa], [aaa]),
-	semigroup_foldl(atom_concat, [aaa, bbb], [aaabbb]),
-	semigroup_foldl(atom_concat, [aaa, bbb, ccc], [aaabbbccc]).
-:- test0.
    
-
+   
+/* throw a string(Message) term, these errors are caught by our http server code and turned into nice error messages */
 throw_string(List_Or_Atom) :-
 	flatten([List_Or_Atom], List),
 	atomic_list_concat(List, String),
 	throw(string(String)).
 
-
-value_multiply(value(Unit, Amount1), Multiplier, value(Unit, Amount2)) :-
-	Amount2 is Amount1 * Multiplier.
 

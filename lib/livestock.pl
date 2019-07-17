@@ -9,7 +9,7 @@ this file needs serious cleanup, one reason to delay that might be that we can e
 :- module(livestock, [
 		get_livestock_types/2, process_livestock/14, preprocess_livestock_buy_or_sell/3, make_livestock_accounts/2, livestock_counts/5, extract_livestock_opening_costs_and_counts/2, compute_livestock_by_simple_calculation/23]).
 :- use_module(utils, [
-		user:goal_expansion/2, inner_xml/3, fields/2, numeric_fields/2, pretty_term_string/2, with_info_value_and_info/3, maplist6/6, throw_string/1]).
+		user:goal_expansion/2, inner_xml/3, fields/2, numeric_fields/2, pretty_term_string/2, maplist6/6, throw_string/1]).
 :- use_module(pacioli, [vec_add/3, vec_inverse/2, vec_reduce/2, vec_sub/3, integer_to_coord/3]).
 :- use_module(accounts, [account_ancestor_id/3]).
 :- use_module(days, [parse_date/2]).
@@ -842,3 +842,5 @@ sales_account(Livestock_Type, Sales_Account) :-
 
 count_account(Livestock_Type, Count_Account) :-
 	atom_concat(Livestock_Type, 'Count', Count_Account).
+
+with_info_value_and_info(with_info(Value, Info), Value, Info).

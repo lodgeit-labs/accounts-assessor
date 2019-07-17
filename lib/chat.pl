@@ -43,6 +43,8 @@ match_response_with_last_question(In, In.current_state, 0).
 
 
 /*
+example interaction:
+
 koom@koom-KVM ~/l/src> curl -d '{"current_state":[]}' -H "Content-Type: application/json" -X POST  http://localhost:7777/sbe
 {
   "question":"Are you a Sole trader, Partnership, Company or Trust?",

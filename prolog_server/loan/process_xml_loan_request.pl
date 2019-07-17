@@ -13,7 +13,9 @@
 
 % use "XSD" library to validate XML
 :- use_module(library(xsd)).
+:- use_module(library(xpath)).
 
+:- use_module('../../lib/files').
 :- use_module('../../lib/loans', [loan_agr_summary/2]).
 :- use_module('../../lib/days',  [absolute_day/2, parse_date/2, parse_date_into_absolute_days/2]).
 
@@ -76,23 +78,18 @@ display_xml_loan_response(FileNameOut, IncomeYear,
    LoanResponseXML
    ),
 
-   % generating temporary file name for loan response xml
-   get_time(CurrentTime),
-   number_string(CurrentTime, CurrentTimeString),
-   atomic_list_concat([CurrentTimeString, '_tmp_loan_response.xml'], TempFileLoanResponseXML0),
-   absolute_file_name(my_tmp(TempFileLoanResponseXML0), TempFileLoanResponseXML, []),
+   my_tmp_file_name('loan_response.xml', TempFileLoanResponseXML),
    % create a temporary loan xml file to validate the response against the schema
    open(TempFileLoanResponseXML, write, XMLStream),
    write(XMLStream, LoanResponseXML),
    close(XMLStream),
 
    % read the schema file
-   absolute_file_name(my_taxonomy('loan-response.xsd'), FileLoanResponseXSD, []),
+   absolute_file_name(my_schemas('responses/loan-response.xsd'), FileLoanResponseXSD, []),
    read_file_to_string(FileLoanResponseXSD, LoanResponseXSD, []),   
-   % generating temporary file name for loan response xsd
-   atomic_list_concat([CurrentTimeString, '_tmp_loan_response.xsd'], TempFileLoanResponseXSD0), 
-   absolute_file_name(my_tmp(TempFileLoanResponseXSD0), TempFileLoanResponseXSD, []),
-   % create a temporary loan xsd file to validate the response against the schema   
+   my_tmp_file_name('loan_response.xsd', TempFileLoanResponseXSD),
+   % create a temporary loan xsd file to validate the response against the schema
+   % a bug in XSD library requires that we create a new schema file for each validation
    open(TempFileLoanResponseXSD, write, XSDStream),
    write(XSDStream, LoanResponseXSD),
    close(XSDStream),

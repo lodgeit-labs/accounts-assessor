@@ -81,8 +81,9 @@ extract_account_hierarchy(Request_Dom, Account_Hierarchy) :-
 fetch_account_hierarchy_from_url(Account_Hierarchy_Url, Account_Hierarchy_Dom) :-
    /*fixme: throw something more descriptive here and produce a human-level error message at output*/
    http_get(Account_Hierarchy_Url, Account_Hierarchy_Xml_Text, []),
-   store_xml_document('tmp/account_hierarchy.xml', Account_Hierarchy_Xml_Text),
-   load_xml('tmp/account_hierarchy.xml', Account_Hierarchy_Dom, []).
+   my_tmp_file_name('fetched_account_hierarchy.xml', Fetched_File),
+   store_xml_document(Fetched_File, Account_Hierarchy_Xml_Text),
+   load_xml(Fetched_File, Account_Hierarchy_Dom, []).
   
 % ------------------------------------------------------------------
 % extract_account_hierarchy2/2

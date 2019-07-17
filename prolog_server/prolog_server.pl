@@ -5,6 +5,8 @@
 % Date:      2019-06-08
 % ===================================================================
 
+:- module(prolog_server, [run_simple_server/0, run_daemon/0]).
+
 % -------------------------------------------------------------------
 % Style checking
 % -------------------------------------------------------------------
@@ -24,8 +26,9 @@
 :- use_module(library(option)).
 :- use_module(library(http/http_dispatch), [http_safe_file/2]).
 :- use_module(library(http/http_files)).
+:- use_module(library(http/http_error)). 
 
-:- use_module('../lib/files').
+:- use_module('../lib/files', [generate_unique_tmp_directory_base/0, bump_tmp_directory_id/0, my_tmp_file_name/2]).
 :- use_module('chat/residency').
 :- use_module('chat/sbe').
 :- ensure_loaded('process_data.pl').
@@ -43,19 +46,12 @@
 :- http_handler(root(.), http_reply_from_files('.', []), [prefix]).
 :- http_handler(root(run/Test), tests(Test), [methods([get]), priority(1)]).
 
-
-/*
- run a testcase directly
-*/
-tests(Url, _) :-
-	absolute_file_name(my_tests(Url), Path, [ access(read), file_errors(fail) ]),
-	process_data(_FileName, Path).
-
 % -------------------------------------------------------------------
 % run_simple_server/0
 % -------------------------------------------------------------------
 
 run_simple_server :-
+   generate_unique_tmp_directory_base,
    Port = port(8080),
    http_server(http_dispatch, [Port]).
 
@@ -64,6 +60,7 @@ run_simple_server :-
 % -------------------------------------------------------------------
 
 run_daemon :-
+   generate_unique_tmp_directory_base,
    use_module(library(http/http_unix_daemon)),
    http_daemon().
    
@@ -92,6 +89,7 @@ upload_form(_Request) :-
 
 upload(Request) :-
    multipart_post_request(Request), !,
+   bump_tmp_directory_id,
    /*todo: assert a unique thread-local my_tmp for each request here*/
    http_read_data(Request, Parts, [ on_filename(save_file) ]),
    memberchk(file=file(FileName, Path), Parts),
@@ -105,6 +103,15 @@ upload(Request) :-
 	
 upload(_Request) :-
    throw(http_reply(bad_request(bad_file_upload))).
+
+
+/*
+ run a testcase directly
+*/
+tests(Url, _) :-
+	bump_tmp_directory_id,
+	absolute_file_name(my_tests(Url), Path, [ access(read), file_errors(fail) ]),
+	process_data(_FileName, Path).
 
    
 % -------------------------------------------------------------------
@@ -127,7 +134,7 @@ save_file(In, file(FileName, Path), Options) :-
    option(filename(FileName), Options),
    exclude_file_location_from_filename(FileName, FileName2),
    http_safe_file(FileName2, []),
-   absolute_file_name(my_tmp(FileName2), Path, []),
+   my_tmp_file_name(FileName2, Path),
    setup_call_cleanup(open(Path, write, Out), copy_stream_data(In, Out), close(Out)).
 
 
@@ -160,6 +167,5 @@ prolog:message(bad_file_upload) -->
       'name=file and providing a file-name' ].
 
 prolog:message(string(S)) --> [ S ].
-
 
 
