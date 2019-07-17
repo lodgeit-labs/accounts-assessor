@@ -1,3 +1,10 @@
+
+/*
+
+work in progress 
+
+*/
+
 % Calculates depreciation on a daily basis between the invest in date and any other date
 % recurses for every year, because depreciation rates may be different
 depreciation_between_invest_in_date_and_other_date(
