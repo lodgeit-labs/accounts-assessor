@@ -4,9 +4,15 @@
 % Date:      2019-06-02
 % ===================================================================
 
-:- module(ledger, [balance_sheet_at/8, balance_by_account/9, trial_balance_between/8, profitandloss_between/8]).
+:- module(ledger_report, [
+		balance_sheet_at/8, 
+		balance_by_account/9, 
+		trial_balance_between/8, 
+		profitandloss_between/8, 
+		format_report_entries/9, 
+		balance_sheet_entries/8]).
 
-:- use_module(accounts,     [account_parent_id/3, account_ids/9]).
+:- use_module(accounts,     [account_parent/2]).
 :- use_module(pacioli,      [vec_add/3, vec_inverse/2, vec_reduce/2, vec_sub/3]).
 :- use_module(exchange,     [vec_change_bases/5]).
 :- use_module(transactions, [transaction_account_in_set/3,
@@ -65,7 +71,14 @@ balance_sheet_entry(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day,
 
 
 balance_sheet_at(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, From_Day, To_Day, Balance_Sheet) :-
-	account_ids(Accounts, Assets_AID, _Equity_AID, Liabilities_AID, Earnings_AID, _Retained_Earnings_AID, _Current_Earnings_AID, _, _),
+	account_by_role(Accounts, ('Accounts'/'Assets'), Assets_AID),
+	account_by_role(Accounts, ('Accounts'/'Equity'), Equity_AID),
+	account_by_role(Accounts, ('Accounts'/'Liabilities'), Liabilities_AID),
+	account_by_role(Accounts, ('Accounts'/'Earnings'), Earnings_AID),
+	account_by_role(Accounts, ('Accounts'/'Assets'), Assets_AID),
+	account_by_role(Accounts, ('Accounts'/'Equity'), Equity_AID),
+	account_by_role(Accounts, ('Accounts'/'Assets'), Assets_AID),
+	account_by_role(Accounts, ('Accounts'/'Equity'), Equity_AID),
 	balance_sheet_entry(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Assets_AID, To_Day, Asset_Section),
 	balance_sheet_entry(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Liabilities_AID, To_Day, Liability_Section),
 	% get earnings before the report period

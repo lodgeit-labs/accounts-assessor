@@ -4,40 +4,68 @@
 % Date:      2019-06-02
 % ===================================================================
 
-:- module(statements, [extract_transaction/3, preprocess_s_transactions/4, get_relevant_exchange_rates/5, invert_s_transaction_vector/2, find_s_transactions_in_period/4, fill_in_missing_units/6, process_ledger/13, emit_ledger_warnings/3, balance_sheet_entries/8, format_report_entries/9]).
+:- module(statements, [
+		extract_transaction/3, 
+		preprocess_s_transactions/4, 
+		get_relevant_exchange_rates/5, 
+		invert_s_transaction_vector/2, 
+		fill_in_missing_units/6,
+		s_transaction_day/2,
+		s_transaction_account_id/2
+		
+		]).
 
 /*fixme turn trading into module*/
 :- [trading].
 
-:- use_module(pacioli,  [vec_inverse/2, vec_add/3, vec_sub/3, integer_to_coord/3,
-			make_debit/2,
-		    make_credit/2,
-			value_multiply/3]).
-:- use_module(exchange, [vec_change_bases/5]).
-:- use_module(exchange_rates, [exchange_rate/5, is_exchangeable_into_request_bases/4]).
+:- use_module('pacioli',  [
+		vec_inverse/2, 
+		vec_add/3, 
+		vec_sub/3, 
+		integer_to_coord/3,
+		make_debit/2,
+		make_credit/2,
+		value_multiply/3]).
+:- use_module('exchange', [
+		vec_change_bases/5]).
+:- use_module('exchange_rates', [
+		exchange_rate/5, 
+		is_exchangeable_into_request_bases/4]).
+:- use_module('transaction_types', [
+		transaction_type_id/2,
+		transaction_type_exchanged_account_id/2,
+		transaction_type_trading_account_id/2,
+		transaction_type_description/2]).
+:- use_module('livestock', [
+		preprocess_livestock_buy_or_sell/3, 
+		process_livestock/14, 
+		make_livestock_accounts/2, 
+		livestock_counts/5]).
+:- use_module('transactions', [
+		transaction_day/2,
+		transaction_description/2,
+		transaction_account_id/2,
+		transaction_vector/2,
+		check_transaction_account/2]).
+:- use_module('utils', [
+		pretty_term_string/2, 
+		inner_xml/3, 
+		write_tag/2, 
+		fields/2, 
+		field_nothrow/2, 
+		numeric_fields/2, 
+		throw_string/1]).
+:- use_module('accounts', [
+		account_in_set/3]).
+:- use_module('days', [
+		format_date/2, 
+		parse_date/2]).
+:- use_module('pricing', [
+		add_bought_items/4, 
+		find_items_to_sell/6]).
 
-:- use_module(transaction_types, [
-	transaction_type_id/2,
-	transaction_type_exchanged_account_id/2,
-	transaction_type_trading_account_id/2,
-	transaction_type_description/2]).
-:- use_module(livestock, [preprocess_livestock_buy_or_sell/3, process_livestock/14, make_livestock_accounts/2, livestock_counts/5]).
-:- use_module(transactions, [
-	transaction_day/2,
-	transaction_description/2,
-	transaction_account_id/2,
-	transaction_vector/2,
-	check_transaction_account/2]).
-:- use_module(utils, [pretty_term_string/2, inner_xml/3, write_tag/2, fields/2, fields_nothrow/2, numeric_fields/2, throw_string/1, value_multiply/3]).
-:- use_module(accounts, [account_in_set/3]).
-:- use_module(days, [format_date/2, parse_date/2, gregorian_date/2, date_between/3]).
 :- use_module(library(record)).
 :- use_module(library(xpath)).
-:- use_module(pricing, [
-	add_bought_items/4, 
-	find_items_to_sell/6
-]).
-:- use_module('ledger', [balance_sheet_at/8, trial_balance_between/8, profitandloss_between/8, balance_by_account/9]).
 
 % -------------------------------------------------------------------
 % bank statement transaction record, these are in the input xml

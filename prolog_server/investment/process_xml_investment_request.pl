@@ -13,11 +13,15 @@ see doc/investment and dropbox Develop/videos/ledger
 	inner_xml/3, write_tag/2, fields/2, numeric_fields/2, 
 	pretty_term_string/2 /*, magic_formula */, throw_string/1]).
 :- use_module('../../lib/days', [format_date/2, parse_date/2, gregorian_date/2]).
-:- use_module('../../lib/statements', [
-		process_ledger/13,
-		format_report_entries/9]).
-:- use_module('../../lib/accounts', [extract_account_hierarchy/2, account_ancestor_id/3]).
-:- use_module('../../lib/ledger', [balance_sheet_at/8, trial_balance_between/8, profitandloss_between/8, balance_by_account/9]).
+:- use_module('../../lib/ledger', [
+		process_ledger/13]).
+:- use_module('../../lib/ledger_report', [
+		format_report_entries/9,
+		balance_sheet_at/8, 
+		trial_balance_between/8, 
+		profitandloss_between/8, 
+		balance_by_account/9]).
+:- use_module('../../lib/accounts', [extract_account_hierarchy/2]).
 :- use_module('../../lib/pacioli',  [integer_to_coord/3]).
 
 

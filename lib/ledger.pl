@@ -1,4 +1,21 @@
+:- module(ledger, [
+		find_s_transactions_in_period/4,
+		process_ledger/13,
+		emit_ledger_warnings/3]).
 
+:- use_module('system_accounts', [
+		generate_system_accounts/3]).
+:- use_module('statements', [
+		s_transaction_day/2]).
+:- use_module('days', [
+		format_date/2, 
+		parse_date/2, 
+		gregorian_date/2, 
+		date_between/3]).
+:- use_module('utils', [
+		pretty_term_string/2]).
+
+		
 find_s_transactions_in_period(S_Transactions, Opening_Date, Closing_Date, Out) :-
 	findall(
 		S_Transaction,
@@ -10,7 +27,21 @@ find_s_transactions_in_period(S_Transactions, Opening_Date, Closing_Date, Out) :
 		Out
 	).
 
-process_ledger(Livestock_Doms, S_Transactions, Start_Days, End_Days, Exchange_Rates, Action_Taxonomy, Report_Currency, Livestock_Types, Livestock_Opening_Costs_And_Counts, Debug_Message, Account_Hierarchy_In, Account_Hierarchy, Transactions_With_Livestock) :-
+process_ledger(
+	Livestock_Doms, 
+	S_Transactions, 
+	Start_Days, 
+	End_Days, 
+	Exchange_Rates, 
+	Action_Taxonomy, 
+	Report_Currency, 
+	Livestock_Types, 
+	Livestock_Opening_Costs_And_Counts, 
+	Debug_Message, 
+	Account_Hierarchy_In, 
+	Account_Hierarchy, 
+	Transactions_With_Livestock
+) :-
 	emit_ledger_warnings(S_Transactions, Start_Days, End_Days),
 	pretty_term_string(Exchange_Rates, Message1b),
 	pretty_term_string(Action_Taxonomy, Message2),
@@ -23,7 +54,8 @@ process_ledger(Livestock_Doms, S_Transactions, Start_Days, End_Days, Exchange_Ra
 	'-->\n\n'], Debug_Message0),
 	writeln(Debug_Message0),
 	
-	ensure_system_accounts_exist(S_Transactions, Livestock_Types, Account_Hierarchy_In, Account_Hierarchy)
+	generate_system_accounts((S_Transactions, Livestock_Types, Action_Taxonomy), Account_Hierarchy_In, Generated_Accounts),
+	flatten([Account_Hierarchy_In, Generated_Accounts], Account_Hierarchy),
 	
 	preprocess_s_transactions((Account_Hierarchy, Report_Currency, Action_Taxonomy, End_Days, Exchange_Rates), S_Transactions, Transactions1, Transaction_Transformation_Debug),
 	process_livestock(Livestock_Doms, Livestock_Types, S_Transactions, Transactions1, Livestock_Opening_Costs_And_Counts, Start_Days, End_Days, Exchange_Rates, Account_Hierarchy, Report_Currency, Transactions_With_Livestock, Livestock_Events, Average_Costs, Average_Costs_Explanations),

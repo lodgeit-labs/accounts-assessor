@@ -15,7 +15,7 @@
 			 check_transaction_account/2
 		        ]).
 
-:- use_module(accounts, [account_id/3]).
+:- use_module(accounts, [account_in_set/3]).
 :- use_module(days, [absolute_day/2, gregorian_date/2]).
 :- use_module(pacioli, [vec_add/3, vec_reduce/2]).
 :- use_module(library(record)).
@@ -30,9 +30,9 @@
 % - The amounts by which the account is being debited and credited
 
 
-transaction_account_in_set(Accounts, Transaction, Ancestor_Account_Id) :-
+transaction_account_in_set(Accounts, Transaction, Root_Account_Id) :-
 	transaction_account_id(Transaction, Transaction_Account_Id),
-	account_in_set(Accounts, Transaction_Account_Id, Ancestor_Account_Id).
+	account_in_set(Accounts, Transaction_Account_Id, Root_Account_Id).
 
 transaction_in_period(Transaction, From_Day, To_Day) :-
 	transaction_day(Transaction, Day),

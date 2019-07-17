@@ -4,7 +4,12 @@
 % Date:      2019-06-02
 % ===================================================================
 
-:- module(accounts, [account_parent_id/3, account_in_subset/3, account_ids/9, extract_account_hierarchy/2, account_by_role/2]).
+:- module(accounts, [
+		account_parent/2, 
+		account_in_set/3, 
+		extract_account_hierarchy/2, 
+		account_by_role/3, 
+		account_role/2]).
 
 :- use_module(library(http/http_client)).
 :- use_module(library(record)).
@@ -40,10 +45,12 @@ account_exists(Accounts, Id) :-
 
 % Relates an account to an ancestral account or itself
 
-account_in_subset(Accounts, Account_Id, Ancestor_Id) :-
+account_in_set(Accounts, Account_Id, Ancestor_Id) :-
 	Account_Id = Ancestor_Id;
-	(account_parent(Accounts, Ancestor_Child_Id, Ancestor_Id),
-	account_in_subset(Accounts, Account_Id, Ancestor_Child_Id)).
+	(
+		account_parent(Accounts, Ancestor_Child_Id, Ancestor_Id),
+		account_in_subset(Accounts, Account_Id, Ancestor_Child_Id)
+	).
 
 
 account_by_role(Accounts, Role, Account) :-
@@ -95,26 +102,21 @@ extract_account_hierarchy2(Account_Hierarchy_Dom, Account_Hierarchy) :-
    findall(Link, (member(Top_Level_Account, Accounts), yield_accounts(Top_Level_Account, Link)), Account_Hierarchy).
 
  
-% yields all child-parent pairs describing the account hierarchy
+% extracts and yields all accounts one by one
 yield_accounts(element(Parent_Name,_,Children), Link) :-
 	member(Child, Children), 
 	Child = element(Child_Name,_,_),
 	(
 		(
-			(
-				member(Child_Name, ['Assets', 'Equity', 'Liabilities', 'Earnings', 'Current_Earnings', 'Retained_Earnings', 'Revenue', 'Expenses']),
-				Role = ('Accounts' / Child_Name),
-				!
-			)
-			;
-				Role = ''
-		),
-		Link = account(Child_Name, Parent_Name, Role)
-	)
-	;
-	(
-		% recurse on the child
-		yield_accounts(Child, Link)
+			/* todo: extract role, if specified */
+			Role = ('Accounts' / Child_Name),
+			Link = account(Child_Name, Parent_Name, Role, 0)
+		)
+		;
+		(
+			% recurse on the child
+			yield_accounts(Child, Link)
+		)
 	).
 
 

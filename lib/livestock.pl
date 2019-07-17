@@ -13,7 +13,7 @@ this file needs serious cleanup, one reason to delay that might be that we can e
 :- use_module(pacioli, [vec_add/3, vec_inverse/2, vec_reduce/2, vec_sub/3, integer_to_coord/3]).
 :- use_module(accounts, [account_in_set/3]).
 :- use_module(days, [parse_date/2]).
-:- use_module(ledger, [balance_by_account/9]).
+:- use_module(ledger_report, [balance_by_account/9]).
 
 /*
 
@@ -819,18 +819,21 @@ events_count2(Type, Event, Borns, Losses, Rations) :-
 	(Event = rations(Type, _Day, Rations), Losses=0, Borns=0).
 	
 
+/*
+create livestock-specific accounts that could be missing in user account hierarchy. This ignores roles for now, fixme
+*/
 make_livestock_accounts(Livestock_Type, Accounts) :-
 	Accounts = [Cogs, CogsRations, Sales, Count],
 
 	cogs_account(Livestock_Type, Cogs_Name),
 	sales_account(Livestock_Type, Sales_Name),
 	count_account(Livestock_Type, Count_Name),
-	cogs_rations_account(Livestock_Type, CogsRations_Name).
+	cogs_rations_account(Livestock_Type, CogsRations_Name),
 
 	Cogs  = account(Cogs_Name, 'Cost_Of_Goods_Livestock', ''),
 	Sales = account(Sales_Name, 'Sales_Of_Livestock', ''),
 	Count = account(Count_Name, 'Livestock_Count', ''),
-	CogsRations = account(CogsRations_Name, Cogs_Name, ''),
+	CogsRations = account(CogsRations_Name, Cogs_Name, '').
 	
 cogs_account(Livestock_Type, Cogs_Account) :-
 	atom_concat(Livestock_Type, 'Cogs', Cogs_Account).

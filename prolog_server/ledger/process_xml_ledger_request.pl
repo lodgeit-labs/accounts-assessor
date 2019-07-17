@@ -12,26 +12,44 @@
 :- module(process_xml_ledger_request, [process_xml_ledger_request/2]).
 
 :- use_module(library(xpath)).
-:- use_module('../../lib/days', [format_date/2, parse_date/2, gregorian_date/2]).
+
+:- use_module('../../lib/days', [
+		format_date/2, 
+		parse_date/2, 
+		gregorian_date/2]).
 :- use_module('../../lib/utils', [
-	inner_xml/3, write_tag/2, fields/2, numeric_fields/2, 
-	pretty_term_string/2, throw_string/1]).
-:- use_module('../../lib/ledger', [balance_sheet_at/8, trial_balance_between/8, profitandloss_between/8, balance_by_account/9]).
+		inner_xml/3, 
+		write_tag/2, 
+		fields/2, 
+		numeric_fields/2, 
+		pretty_term_string/2, 
+		throw_string/1]).
+:- use_module('../../lib/ledger_report', [
+		trial_balance_between/8, 
+		profitandloss_between/8, 
+		balance_by_account/9, 
+		balance_sheet_at/8,
+		format_report_entries/9, 
+		balance_sheet_entries/8]).
 :- use_module('../../lib/statements', [
 		extract_transaction/3, 
 		preprocess_s_transactions/4, 
 		get_relevant_exchange_rates/5, 
 		invert_s_transaction_vector/2, 
-		find_s_transactions_in_period/4, 
-		fill_in_missing_units/6, 
-		process_ledger/13,
+		fill_in_missing_units/6]).
+:- use_module('../../lib/ledger', [
 		emit_ledger_warnings/3,
-		balance_sheet_entries/8, 
-		format_report_entries/9
-		]).
-:- use_module('../../lib/livestock', [get_livestock_types/2, process_livestock/14, make_livestock_accounts/2, livestock_counts/5, extract_livestock_opening_costs_and_counts/2]).
-:- use_module('../../lib/accounts', [extract_account_hierarchy/2, account_ancestor_id/3]).
-:- use_module('../../lib/exchange_rates', [exchange_rate/5]).
+		process_ledger/13]).
+:- use_module('../../lib/livestock', [
+		get_livestock_types/2, 
+		process_livestock/14, 
+		make_livestock_accounts/2, 
+		livestock_counts/5, 
+		extract_livestock_opening_costs_and_counts/2]).
+:- use_module('../../lib/accounts', [
+		extract_account_hierarchy/2]).
+:- use_module('../../lib/exchange_rates', [
+		exchange_rate/5]).
 
 % ------------------------------------------------------------------
 % process_xml_ledger_request/2
@@ -60,7 +78,20 @@ process_xml_ledger_request(_, Dom) :-
 	
 	writeln('<?xml version="1.0"?>'), nl, nl,
 	
-	process_ledger(Livestock_Doms, S_Transactions, Start_Days, End_Days, Exchange_Rates, Action_Taxonomy, Report_Currency, Livestock_Types, Livestock_Opening_Costs_And_Counts, Debug_Message, Account_Hierarchy0, Account_Hierarchy, Transactions),
+	process_ledger(
+		Livestock_Doms, 
+		S_Transactions, 
+		Start_Days, 
+		End_Days, 
+		Exchange_Rates, 
+		Action_Taxonomy, 
+		Report_Currency, 
+		Livestock_Types, 
+		Livestock_Opening_Costs_And_Counts, 
+		Debug_Message, 
+		Account_Hierarchy0, 
+		Account_Hierarchy, 
+		Transactions),
 	writeln(Debug_Message),
 	wrap_up(S_Transactions, Transactions, Start_Days, End_Days, Exchange_Rates, Account_Hierarchy, Report_Currency).
 
