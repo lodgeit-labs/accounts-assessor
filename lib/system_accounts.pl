@@ -2,13 +2,17 @@
 
 :- use_module('accounts', [
 		account_by_role/3, 
+		account_by_id/3,
 		account_role/2, 
 		account_id/2, 
-		account_parent/2]).
+		account_parent/2,
+		account_detail_level/2]).
 :- use_module('livestock', [
 		make_livestock_accounts/2]).
 :- use_module('statements', [
-		s_transaction_account_id/2]).
+		s_transaction_account_id/2,
+		s_transaction_type_of/3,
+		s_transaction_vector/2]).
 
 /*	
 Take the output of find_or_add_required_accounts and filter out existing accounts by role. 
@@ -83,9 +87,9 @@ traded_units(S_Transactions, Transaction_Types, Units_Out) :-
 		Unit,
 		(
 			member(S_Transaction, S_Transactions),
-			transaction_type_of(Transaction_Types, S_Transaction, Transaction_Type),
+			s_transaction_type_of(Transaction_Types, S_Transaction, Transaction_Type),
 			Transaction_Type = transaction_type(_, _, _Trading_Account_Id, _),
-			transaction_vector(S_Transaction, [coord(Unit,_,_)])
+			s_transaction_vector(S_Transaction, [coord(Unit,_,_)])
 		),
 		Units
 	),
@@ -96,11 +100,12 @@ trading_account_ids(Transaction_Types, Ids) :-
 		Trading_Account_Id,
 		(
 			member(T, Transaction_Types),
-			T = transaction_type(_, _, Trading_Account_Id, _)
+			T = transaction_type(_, _, Trading_Account_Id, _),
+			nonvar(Trading_Account_Id)
 		),
 		Ids0
 	),
-	sort(Ids0,Ids).
+	sort(Ids0, Ids).
 /*
 ensure_accounts_exist should produce a list of account terms that must exist for the system to work. This will include both accounts found 
 in user input account hierarchy and generated ones. The reason that it also returns the found ones is that that makes it easier to traverse
@@ -128,7 +133,10 @@ ensure_gains_accounts_exist(Accounts_In, S_Transactions, Transaction_Types, Acco
 			]
 		), 
 		Trading_Account_Ids, 
-		Accounts_Out).
+		All_Accounts),
+	flatten(All_Accounts, All_Accounts2),
+	sort(All_Accounts2, All_Accounts3),%fixme
+	subtract(All_Accounts3, Accounts_In, Accounts_Out).
 
 
 roles_tree(
@@ -137,21 +145,36 @@ roles_tree(
 	Parent_Id, 
 	Accounts_Out
 ) :-
-	(Detail_Level, Roles) = Roles_And_Detail_Levels, 
+	(Child_Roles, Detail_Level) = Roles_And_Detail_Levels, 
+	findall(
+		(Parent_Id/Child_Role),
+		member(Child_Role, Child_Roles),
+		Roles
+	),
 	maplist(ensure_account_exists(Accounts_In, Parent_Id, Detail_Level), Roles, System_Accounts),
 	flatten([Accounts_In, System_Accounts], Accounts_Mid),
+	findall(
+		System_Account_Id,
+		(
+			member(System_Account, System_Accounts),
+			account_id(System_Account, System_Account_Id)
+		),
+		System_Account_Ids
+	),			
 	maplist(
 		roles_tree(
 			Accounts_Mid, 
 			Roles_Tail
 		),
-		System_Accounts, 
+		System_Account_Ids, 
 		Grandchild_Accounts
 	),
 	flatten([Accounts_Mid, Grandchild_Accounts], Accounts_Out).
 
-ensure_account_exists(Accounts_In, Parent_Id, Detail_Level, Child_Role, Account) :-
-	Role = (Parent_Id/Child_Role),
+roles_tree(_, [], _, []).
+	
+ensure_account_exists(Accounts_In, Parent_Id, Detail_Level, Role, Account) :-
+	Role = (_/Child_Role),
 	(
 		(account_by_role(Accounts_In, Role, Account),!)
 	;
@@ -170,7 +193,7 @@ ensure_account_exists(Accounts_In, Parent_Id, Detail_Level, Child_Role, Account)
 	otherwise bind Free_Id to Id.
 */
 free_id(Accounts, Id, Free_Id) :-
-		account_by_id(Accounts, Id)
+		account_by_id(Accounts, Id, _)
 	->
 		(
 			atomic_list_concat([Id, '_2'], Next_Id),

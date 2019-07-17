@@ -1,6 +1,6 @@
 
 
-make_trading_buy(Static_Data, Pricing_Method, ST_Currency, Converted_Vector, Goods_Vector, Transaction_Day, Outstanding_In, Outstanding_Out, Ts0) :-
+make_trading_buy(Static_Data, Trading_Account_Id, Pricing_Method, ST_Currency, Converted_Vector, Goods_Vector, Transaction_Day, Outstanding_In, Outstanding_Out, Ts0) :-
 		[Goods_Coord] = Goods_Vector,
 		integer_to_coord(Goods_Unit, Goods_Integer, Goods_Coord),
 		[coord(Converted_Currency, _, Converted_Credit)] = Converted_Vector,
@@ -10,10 +10,13 @@ make_trading_buy(Static_Data, Pricing_Method, ST_Currency, Converted_Vector, Goo
 			outstanding(ST_Currency, Goods_Unit, Goods_Integer, value(Converted_Currency, Converted_Unit_Cost), Transaction_Day), 
 			Outstanding_In, Outstanding_Out
 		),
-		unrealized_gains_txs(Static_Data, ST_Currency, Converted_Vector, Goods_Vector, Transaction_Day, Txs0),
+		unrealized_gains_txs(Static_Data, Trading_Account_Id, ST_Currency, Converted_Vector, Goods_Vector, Transaction_Day, Txs0),
 		txs_to_transactions(Transaction_Day, Txs0, Ts0).
 
-unrealized_gains_txs((_, Report_Currency, _, _, _), Purchase_Currency, Cost_Vector, Goods, Transaction_Day, Txs) :-
+unrealized_gains_txs((Accounts, Report_Currency, _, _, _), Trading_Account_Id, Purchase_Currency, Cost_Vector, Goods, Transaction_Day, Txs) :-
+	gtrace,
+	account_by_role(Accounts, (Trading_Account_Id/only_currency_movement), Unrealized_Gains_Currency_Movement),
+	account_by_role(Accounts, (Trading_Account_Id/without_currency_movement), Unrealized_Gains_Excluding_Forex),
 	Goods_Without_Currency_Movement = [coord(
 		without_currency_movement_against_since(Goods_Unit, Purchase_Currency, Report_Currency, Purchase_Date), 
 		Goods_Debit, Goods_Credit)
@@ -22,8 +25,8 @@ unrealized_gains_txs((_, Report_Currency, _, _, _), Purchase_Currency, Cost_Vect
 	Purchase_Date = Transaction_Day,
 	dr_cr_table_to_txs([
 	% Account                                                                 DR                                                               CR
-	('Unrealized_Gains_Currency_Movement',                Goods_Without_Currency_Movement,        Goods),
-	('Unrealized_Gains_Excluding_Forex',	                 Cost_Vector,      	                Goods_Without_Currency_Movement)
+	(Unrealized_Gains_Currency_Movement,                Goods_Without_Currency_Movement,        Goods),
+	(Unrealized_Gains_Excluding_Forex,	                 Cost_Vector,      	                Goods_Without_Currency_Movement)
 	],
 	Txs).
 

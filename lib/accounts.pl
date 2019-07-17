@@ -8,9 +8,12 @@
 		extract_account_hierarchy/2, 
 		account_in_set/3, 
 		account_by_role/3, 
+		account_by_id/3, 
 		account_parent/2, 
 		account_role/2,
-		account_id/2]).
+		account_id/2,
+		account_detail_level/2,
+		account_exists/2]).
 
 :- use_module(library(http/http_client)).
 :- use_module(library(record)).
@@ -45,18 +48,23 @@ account_exists(Accounts, Id) :-
 	
 
 % Relates an account to an ancestral account or itself
-
-account_in_set(Accounts, Account_Id, Ancestor_Id) :-
-	Account_Id = Ancestor_Id;
+account_in_set(Accounts, Account_Id, Root_Account_Id) :-
+	Account_Id = Root_Account_Id;
 	(
-		account_parent(Accounts, Ancestor_Child_Id, Ancestor_Id),
-		account_in_subset(Accounts, Account_Id, Ancestor_Child_Id)
+		member(Child_Account, Accounts),
+		account_id(Child_Account, Child_Id),
+		account_parent(Child_Account, Root_Account_Id),
+		account_in_set(Accounts, Account_Id, Child_Id)
 	).
 
 
 account_by_role(Accounts, Role, Account) :-
 	member(Account, Accounts),
 	account_role(Account, Role).
+
+account_by_id(Accounts, Id, Account) :-
+	member(Account, Accounts),
+	account_id(Account, Id).
 
 
 extract_account_hierarchy(Request_Dom, Account_Hierarchy) :-

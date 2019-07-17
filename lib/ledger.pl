@@ -6,7 +6,8 @@
 :- use_module('system_accounts', [
 		generate_system_accounts/3]).
 :- use_module('statements', [
-		s_transaction_day/2]).
+		s_transaction_day/2,
+		preprocess_s_transactions/4]).
 :- use_module('days', [
 		format_date/2, 
 		parse_date/2, 
@@ -56,7 +57,6 @@ process_ledger(
 	
 	generate_system_accounts((S_Transactions, Livestock_Types, Action_Taxonomy), Account_Hierarchy_In, Generated_Accounts),
 	flatten([Account_Hierarchy_In, Generated_Accounts], Account_Hierarchy),
-	
 	preprocess_s_transactions((Account_Hierarchy, Report_Currency, Action_Taxonomy, End_Days, Exchange_Rates), S_Transactions, Transactions1, Transaction_Transformation_Debug),
 	process_livestock(Livestock_Doms, Livestock_Types, S_Transactions, Transactions1, Livestock_Opening_Costs_And_Counts, Start_Days, End_Days, Exchange_Rates, Account_Hierarchy, Report_Currency, Transactions_With_Livestock, Livestock_Events, Average_Costs, Average_Costs_Explanations),
 
