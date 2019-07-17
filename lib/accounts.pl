@@ -5,11 +5,12 @@
 % ===================================================================
 
 :- module(accounts, [
-		account_parent/2, 
-		account_in_set/3, 
 		extract_account_hierarchy/2, 
+		account_in_set/3, 
 		account_by_role/3, 
-		account_role/2]).
+		account_parent/2, 
+		account_role/2,
+		account_id/2]).
 
 :- use_module(library(http/http_client)).
 :- use_module(library(record)).

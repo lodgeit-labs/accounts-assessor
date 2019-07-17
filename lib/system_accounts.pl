@@ -1,8 +1,14 @@
 :- module(system_accounts, [generate_system_accounts/3]).
 
-:- use_module(accounts, [account_by_role/3, account_role/2]).
-:- use_module(livestock, [make_livestock_accounts/2]).
-:- use_module(statements, [s_transaction_account_id/2]).
+:- use_module('accounts', [
+		account_by_role/3, 
+		account_role/2, 
+		account_id/2, 
+		account_parent/2]).
+:- use_module('livestock', [
+		make_livestock_accounts/2]).
+:- use_module('statements', [
+		s_transaction_account_id/2]).
 
 /*	
 Take the output of find_or_add_required_accounts and filter out existing accounts by role. 
@@ -24,8 +30,8 @@ generate_system_accounts(Info, Accounts_In, Accounts_Out) :-
 
 	
 find_or_add_required_accounts((S_Transactions, Livestock_Types, Transaction_Types), Accounts_In, Accounts_Out) :-
-	make_bank_accounts(S_Transactions, Bank_Accounts),
-	make_currency_movement_accounts(Bank_Accounts, Currency_Movement_Accounts),
+	make_bank_accounts(Accounts_In, S_Transactions, Bank_Accounts),
+	make_currency_movement_accounts(Accounts_In, Bank_Accounts, Currency_Movement_Accounts),
 	maplist(make_livestock_accounts, Livestock_Types, Livestock_Accounts),
 	ensure_gains_accounts_exist(Accounts_In, S_Transactions, Transaction_Types, Gains_Accounts),
 	flatten([Bank_Accounts, Currency_Movement_Accounts, Livestock_Accounts, Gains_Accounts], Accounts_Out).
@@ -44,20 +50,30 @@ bank_account_names(S_Transactions, Names) :-
 	),
 	sort(Names0, Names).
 
+ensure_bank_account_exists(Accounts_In, Name, Account) :-
+	ensure_account_exists(Accounts_In, 'Cash_And_Cash_Equivalents', 0, ('Cash_And_Cash_Equivalents'/Name), Account).
+	
 /*
 given all s_transactions, produce all bank accounts we need to add.
 bank accounts have role Accounts/(Name)
 we will only eventually add this account if an account with same role doesn't already exist
 */
-make_bank_account(Name, Account) :-
-	account_id(Account, Name),
-	account_parent(Account, 'Cash_And_Cash_Equivalents'),
-	account_role(Account, ('Accounts'/Name)).
-
-make_bank_accounts(S_Transactions, New_Accounts) :-
+make_bank_accounts(Accounts_In, S_Transactions, New_Accounts) :-
 	bank_account_names(S_Transactions, Bank_Account_Names),
-	maplist(make_bank_account, Bank_Account_Names, New_Accounts).
+	maplist(
+		ensure_bank_account_exists(Accounts_In),
+		Bank_Account_Names, 
+		New_Accounts
+	).
 
+	
+make_currency_movement_accounts(Accounts_In, Bank_Accounts, Currency_Movement_Accounts) :-
+	maplist(make_currency_movement_account(Accounts_In), Bank_Accounts, Currency_Movement_Accounts).
+
+make_currency_movement_account(Accounts_In, Bank_Account, Currency_Movement_Account) :-
+	account_id(Bank_Account, Bank_Account_Id),
+	ensure_account_exists(Accounts_In, Bank_Account_Id, 0, (Bank_Account_Id/currency_movement), Currency_Movement_Account).
+	
 	
 /*
 return all units that appear in s_transactions with an action type that specifies a trading account
