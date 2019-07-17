@@ -1,9 +1,11 @@
-:- ['../src/exchange_rates'].
+:- ['../../lib/exchange_rates'].
+:- ['../../lib/days'].
 
-test0 :-
+:- begin_tests(exchange_rates).
+
+test(0) :-
 	% Let's check the exchange rate predicate for historical correctness:
 	write("Are the certain exchange rates from the API matching manually obtained ones? Also, do the manual overrides work?"),
-	gtrace,
 	findall(Exchange_Rate, 
 
 		% fixme i've changed date representation from absolute days to date term
@@ -23,7 +25,16 @@ test0 :-
 						[exchange_rate(Day, 'USD', 'ZWD', 10000000000000000000000000)], 
 						Day, 'USD', 'ZWD', Exchange_Rate)
 		)), Results),
+		writeln(Results),
+		Expected = [0.7690034364261168, 12.050309278350516, 1, 5.961512027491408, 3.0738831615120277,
+	  	5.21979381443299, 0.7156701030927833, 10000000000000000000000000],
+		writeln(Expected),
+		Expected = Results.
 
-		Results = [0.7690034364261168, 12.050309278350516, 1, 5.961512027491408, 3.0738831615120277,
-	  	5.21979381443299, 0.7156701030927833, 10000000000000000000000000].
-:- test0.
+
+
+:- end_tests(exchange_rates).
+
+
+:- run_tests.
+

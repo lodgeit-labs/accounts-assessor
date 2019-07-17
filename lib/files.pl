@@ -46,6 +46,8 @@ bump_tmp_directory_id :-
 generate_unique_tmp_directory_base :-
    get_time(Current_Time),
    atomic_list_concat([Current_Time, '.'], Base),
-   asserta(session_tmp_directory_base(Base)).
+   asserta(session_tmp_directory_base(Base)),
+   bump_tmp_directory_id.
+
 
 

@@ -14,6 +14,7 @@
 :- use_module(library(xpath)).
 :- use_module('../../lib/files').
 :- use_module('../../prolog_server/prolog_server').
+:- use_module('compare_xml').
 
 :- begin_tests(xml_testcases, [setup(run_simple_server)]).
 
@@ -45,16 +46,25 @@ test_response(general, Reply_Dom, Expected_Response_File_Relative_Path) :-
 		Expected_Response_File_Absolute_Path,
 		[ access(read) ]
 	),
-	load_xml(Expected_Response_File_Absolute_Path, Expected_Reply_Dom, []),
-	compare_testcase_doms(Reply_Dom, Expected_Reply_Dom).
+	load_xml(Expected_Response_File_Absolute_Path, Expected_Reply_Dom, [space(sgml)]),
+	compare_xml_dom(Reply_Dom, Expected_Reply_Dom,Error),
+	(
+		var(Error)
+	;
+		write_term("Error: ",[]),
+		writeln(Error),
+		writeln(""),
+		fail
+	).
 	
-test_request(RequestFile0, ReplyXML) :-
+test_request(RequestFile0, ReplyDOM) :-
 	absolute_file_name(my_tests(
 		RequestFile0),
 		RequestFile,
 		[ access(read) ]
 	),
-	http_post('http://localhost:8080/upload', form_data([file=file(RequestFile)]), ReplyXML, [content_type('multipart/form-data')]).
+	http_post('http://localhost:8080/upload', form_data([file=file(RequestFile)]), ReplyXML, [content_type('multipart/form-data')]),
+	load_structure(string(ReplyXML), ReplyDOM,[dialect(xml),space(sgml)]).
 	
 tests_without_response(Without_Response) :-
 	find_test_directories(Paths),
@@ -73,14 +83,14 @@ test_request_without_response(Request) :-
 	test_request(Request, _).
 
 test_request_with_response((Request, Response)) :-
-	test_request(Request, ReplyXML),
+	test_request(Request, ReplyDOM),
 	get_request_context(Request, Context),
 	(
 		Context = loan 
 	-> 
-		test_response(loan, ReplyXML, Response)
+		test_response(loan, ReplyDOM, Response)
 	;
-		test_response(general, ReplyXML, Response)
+		test_response(general, ReplyDOM, Response)
 	).
 	
 find_test_directories(Paths) :-
@@ -153,13 +163,16 @@ test_loan_response(ReplyXML, LoanResponseFile0) :-
 	),
 	
 	nl, write('## Testing Response File: '), writeln(LoanResponseFile),
-	open(TempLoanResponseFile, write, Stream),
-	write(Stream, ReplyXML),
-	close(Stream),
+	%open(TempLoanResponseFile, write, Stream),
+	%write(Stream, ReplyXML),
+	%close(Stream),
 	
-	load_xml(TempLoanResponseFile, ActualReplyDOM, []),
-	load_xml(LoanResponseFile, ExpectedReplyDOM, []),
-	
+	%load_xml(TempLoanResponseFile, ActualReplyDOM, []),
+	load_structure(string(ReplyXML), ActualReplyDOM, [dialect(xml),space(sgml)]),
+	load_xml(LoanResponseFile, ExpectedReplyDOM, [space(sgml)]),
+
+	% do the comparison here?	
+
 	extract_loan_response_values(ActualReplyDOM, ActualIncomeYear, ActualOpeningBalance, ActualInterestRate, ActualMinYearlyRepayment, ActualTotalRepayment, 
 		ActualRepaymentShortfall, ActualTotalInterest, ActualTotalPrincipal, ActualClosingBalance),
 	
@@ -202,7 +215,3 @@ extract_loan_response_values2(DOM, IncomeYear, OpeningBalance, InterestRate, Min
 /*
 end loan stuff
 */
-
-compare_testcase_doms(_Reply_Dom, _Expected_Reply_Dom) :-
-	/*todo*/true.
-
