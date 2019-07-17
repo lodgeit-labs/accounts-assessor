@@ -266,3 +266,15 @@ throw_string(List_Or_Atom) :-
 	throw(string(String)).
 
 
+value_multiply(value(Unit, Amount1), Multiplier, value(Unit, Amount2)) :-
+	Amount2 is Amount1 * Multiplier.
+
+
+get_indentation(Level, Indentation) :-
+	Level > 0,
+	Level2 is Level - 1,
+	get_indentation(Level2, Indentation2),
+	atomic_list_concat([Indentation2, ' '], Indentation).
+
+get_indentation(0, ' ').
+

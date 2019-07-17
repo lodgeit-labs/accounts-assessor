@@ -50,3 +50,30 @@ find_items_to_sell2(
 	Partial_Cost_Int is Outstanding_Count * Outstanding_Unit_Cost,
 	Partial_Goods = [outstanding(ST_Currency, Type, Outstanding_Count, value(Outstanding_Currency, Partial_Cost_Int), Date)],
 	append(Partial_Goods, Remaining_Goods, Goods).
+	
+/*
+finally, we should update our knowledge of unit costs, based on recent sales and buys
+
+we will only be interested in an exchange rate (price) of shares at report date.
+note that we keep exchange rates at two places. 
+Currency exchange rates fetched from openexchangerates are asserted into a persistent db.
+Exchange_Rates are parsed from the request xml.
+*/
+
+infer_unit_cost_from_last_buy_or_sell(Unit, [ST|_], Exchange_Rate) :-
+	s_transaction_exchanged(ST, vector([coord(Unit, D, C)])),
+	s_transaction_vector(ST, [coord(Currency, Cost_D, Cost_C)]),
+	(
+		D =:= 0
+	->
+		Rate is Cost_D / C
+	;
+		Rate is Cost_C / D
+	),
+	Exchange_Rate = exchange_rate(_,Unit,Currency,Rate),
+	!.
+
+infer_unit_cost_from_last_buy_or_sell(Unit, [_|S_Transactions], Rate) :-
+	infer_unit_cost_from_last_buy_or_sell(Unit, S_Transactions, Rate).
+
+

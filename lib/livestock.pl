@@ -11,7 +11,7 @@ this file needs serious cleanup, one reason to delay that might be that we can e
 :- use_module(utils, [
 		user:goal_expansion/2, inner_xml/3, fields/2, numeric_fields/2, pretty_term_string/2, maplist6/6, throw_string/1]).
 :- use_module(pacioli, [vec_add/3, vec_inverse/2, vec_reduce/2, vec_sub/3, integer_to_coord/3]).
-:- use_module(accounts, [account_ancestor_id/3]).
+:- use_module(accounts, [account_in_set/3]).
 :- use_module(days, [parse_date/2]).
 :- use_module(ledger, [balance_by_account/9]).
 
@@ -70,7 +70,7 @@ preprocess_livestock_buy_or_sell(Static_Data, S_Transaction, [Bank_Transaction, 
 	% here we don't know Livestock_Type, so s_transaction_is_livestock_buy_or_sell actually yields garbage, that we filter out by existence of appropriate account. Usually we pass it a bounded Livestock_Type.
 	s_transaction_is_livestock_buy_or_sell(S_Transaction, Day, Livestock_Type, Livestock_Coord, _Bank_Vector, Our_Vector, Unexchanged_Account_Id, MoneyDebit, _),
 	count_account(Livestock_Type, Count_Account),
-	account_ancestor_id(Accounts, Count_Account, _),
+	account_in_set(Accounts, Count_Account, _),
 	
 	(MoneyDebit > 0 ->
 			Description = 'livestock sell'
@@ -819,17 +819,18 @@ events_count2(Type, Event, Borns, Losses, Rations) :-
 	(Event = rations(Type, _Day, Rations), Losses=0, Borns=0).
 	
 
-	
 make_livestock_accounts(Livestock_Type, Accounts) :-
 	Accounts = [Cogs, CogsRations, Sales, Count],
-	Cogs  = account(Cogs_Name, 'Cost_Of_Goods_Livestock'),
-	Sales = account(Sales_Name, 'Sales_Of_Livestock'),
-	Count = account(Count_Name, 'Livestock_Count'),
-	CogsRations = account(CogsRations_Name, Cogs_Name),
+
 	cogs_account(Livestock_Type, Cogs_Name),
 	sales_account(Livestock_Type, Sales_Name),
 	count_account(Livestock_Type, Count_Name),
 	cogs_rations_account(Livestock_Type, CogsRations_Name).
+
+	Cogs  = account(Cogs_Name, 'Cost_Of_Goods_Livestock', ''),
+	Sales = account(Sales_Name, 'Sales_Of_Livestock', ''),
+	Count = account(Count_Name, 'Livestock_Count', ''),
+	CogsRations = account(CogsRations_Name, Cogs_Name, ''),
 	
 cogs_account(Livestock_Type, Cogs_Account) :-
 	atom_concat(Livestock_Type, 'Cogs', Cogs_Account).
