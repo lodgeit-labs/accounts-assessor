@@ -14,7 +14,8 @@
 		    integer_to_coord/3,
 		    make_debit/2,
 		    make_credit/2,
-		    value_multiply/3]).
+		    value_multiply/3,
+			debit_isomorphism/2]).
 
 :- use_module(utils, [semigroup_foldl/3]).
 
@@ -136,6 +137,13 @@ make_credit(coord(Unit, Zero, Cr), coord(Unit, 0, Cr)) :- Zero =:= 0.
 /* fixme, rename to number_to_coord*/
 integer_to_coord(Unit, Integer, coord(Unit, Debit, Credit)) :-
 	{Integer =:= Debit - Credit}.
+
+credit_isomorphism(Coord, C) :- 
+	integer_to_coord(_, D, Coord),
+	C is -D.
+
+debit_isomorphism(Coord, C) :- 
+	integer_to_coord(_, C, Coord).
 
 coord_or_value_of_same_unit(A, B) :-
 	coord_unit(A, A_Unit),

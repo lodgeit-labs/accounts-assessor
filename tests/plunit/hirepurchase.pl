@@ -1,50 +1,60 @@
-write("Are we now testing the hire purchase subprogram?").
+:- ['../../lib/hirepurchase'].
+:- ['../../lib/days'].
+:- ['../../lib/transactions'].
+:- ['../../lib/pacioli'].
 
-recorda(transactions,
-	[transaction(735614, "invest in business", hp_account, t_term(200.47, 0)),
-	transaction(735614, "invest in business a", hp_account, t_term(200.47, 0)),
-	transaction(735614, "invest in business b", hp_account, t_term(200.47, 0)),
-	transaction(736511, "invest in business", bank, t_term(100, 0)),
-	transaction(736511, "invest in business", share_capital, t_term(0, 100)),
-	transaction(736512, "buy inventory", inventory, t_term(50, 0)),
-	transaction(736512, "buy inventory", accounts_payable, t_term(0, 50)),
-	transaction(736513, "sell inventory", accounts_receivable, t_term(100, 0)),
-	transaction(736513, "sell inventory", sales, t_term(0, 100)),
-	transaction(736513, "sell inventory", cost_of_goods_sold, t_term(50, 0)),
-	transaction(736513, "sell inventory", inventory, t_term(0, 50)),
-	transaction(736876, "pay creditor", accounts_payable, t_term(50, 0)),
-	transaction(736876, "pay creditor", bank, t_term(0, 50)),
-	transaction(737212, "buy stationary", stationary, t_term(10, 0)),
-	transaction(737212, "buy stationary", bank, t_term(0, 10)),
-	transaction(737241, "buy inventory", inventory, t_term(125, 0)),
-	transaction(737241, "buy inventory", accounts_payable, t_term(0, 125)),
-	transaction(737248, "sell inventory", accounts_receivable, t_term(100, 0)),
-	transaction(737248, "sell inventory", sales, t_term(0, 100)),
-	transaction(737248, "sell inventory", cost_of_goods_sold, t_term(50, 0)),
-	transaction(737248, "sell inventory", inventory, t_term(0, 50)),
-	transaction(737468, "payroll payrun", wages, t_term(200, 0)),
-	transaction(737469, "payroll payrun", super_expense, t_term(19, 0)),
-	transaction(737468, "payroll payrun", super_payable, t_term(0, 19)),
-	transaction(737468, "payroll payrun", paygw_tax, t_term(0, 20)),
-	transaction(737468, "payroll payrun", wages_payable, t_term(0, 180)),
-	transaction(737468, "pay wage liability", wages_payable, t_term(180, 0)),
-	transaction(737468, "pay wage liability", bank, t_term(0, 180)),
-	transaction(737516, "buy truck", motor_vehicles, t_term(3000, 0)),
-	transaction(737516, "buy truck", hirepurchase_truck, t_term(0, 3000)),
-	transaction(737516, "hire purchase truck repayment", hirepurchase_truck, t_term(60, 0)),
-	transaction(737516, "hire purchase truck repayment", bank, t_term(0, 60)),
-	transaction(737543, "pay 3rd qtr bas", paygw_tax, t_term(20, 0)),
-	transaction(737543, "pay 3rd qtr bas", bank, t_term(0, 20)),
-	transaction(737543, "pay super", super_payable, t_term(19, 0)),
-	transaction(737543, "pay super", bank, t_term(0, 19)),
-	transaction(737546, "hire purchase truck replacement", hirepurchase_truck, t_term(41.16, 0)),
-	transaction(737546, "hire purchase truck replacement", hirepurchase_interest, t_term(18.84, 0)),
-	transaction(737546, "hire purchase truck replacement", bank, t_term(0, 60)),
-	transaction(737578, "hire purchase truck replacement", hirepurchase_truck, t_term(41.42, 0)),
-	transaction(737579, "hire purchase truck replacement", hirepurchase_interest, t_term(18.58, 0)),
-	transaction(737577, "hire purchase truck replacement", bank, t_term(0, 60)),
-	transaction(737586, "collect accs rec", accounts_receivable, t_term(0, 100)),
-	transaction(737586, "collect accs rec", bank, t_term(100, 0))]).
+:- begin_tests(hirepurchase, [setup(init)]).
+
+init :-
+	write("Are we now testing the hire purchase subprogram?"),
+	recorda(transactions,
+		[transaction(735614, "invest in business", hp_account, coord(200.47, 0)),
+		transaction(735614, "invest in business a", hp_account, coord(200.47, 0)),
+		transaction(735614, "invest in business b", hp_account, coord(200.47, 0)),
+		transaction(736511, "invest in business", bank, coord(100, 0)),
+		transaction(736511, "invest in business", share_capital, coord(0, 100)),
+		transaction(736512, "buy inventory", inventory, coord(50, 0)),
+		transaction(736512, "buy inventory", accounts_payable, coord(0, 50)),
+		transaction(736513, "sell inventory", accounts_receivable, coord(100, 0)),
+		transaction(736513, "sell inventory", sales, coord(0, 100)),
+		transaction(736513, "sell inventory", cost_of_goods_sold, coord(50, 0)),
+		transaction(736513, "sell inventory", inventory, coord(0, 50)),
+		transaction(736876, "pay creditor", accounts_payable, coord(50, 0)),
+		transaction(736876, "pay creditor", bank, coord(0, 50)),
+		transaction(737212, "buy stationary", stationary, coord(10, 0)),
+		transaction(737212, "buy stationary", bank, coord(0, 10)),
+		transaction(737241, "buy inventory", inventory, coord(125, 0)),
+		transaction(737241, "buy inventory", accounts_payable, coord(0, 125)),
+		transaction(737248, "sell inventory", accounts_receivable, coord(100, 0)),
+		transaction(737248, "sell inventory", sales, coord(0, 100)),
+		transaction(737248, "sell inventory", cost_of_goods_sold, coord(50, 0)),
+		transaction(737248, "sell inventory", inventory, coord(0, 50)),
+		transaction(737468, "payroll payrun", wages, coord(200, 0)),
+		transaction(737469, "payroll payrun", super_expense, coord(19, 0)),
+		transaction(737468, "payroll payrun", super_payable, coord(0, 19)),
+		transaction(737468, "payroll payrun", paygw_tax, coord(0, 20)),
+		transaction(737468, "payroll payrun", wages_payable, coord(0, 180)),
+		transaction(737468, "pay wage liability", wages_payable, coord(180, 0)),
+		transaction(737468, "pay wage liability", bank, coord(0, 180)),
+		transaction(737516, "buy truck", motor_vehicles, coord(3000, 0)),
+		transaction(737516, "buy truck", hirepurchase_truck, coord(0, 3000)),
+		transaction(737516, "hire purchase truck repayment", hirepurchase_truck, coord(60, 0)),
+		transaction(737516, "hire purchase truck repayment", bank, coord(0, 60)),
+		transaction(737543, "pay 3rd qtr bas", paygw_tax, coord(20, 0)),
+		transaction(737543, "pay 3rd qtr bas", bank, coord(0, 20)),
+		transaction(737543, "pay super", super_payable, coord(19, 0)),
+		transaction(737543, "pay super", bank, coord(0, 19)),
+		transaction(737546, "hire purchase truck replacement", hirepurchase_truck, coord(41.16, 0)),
+		transaction(737546, "hire purchase truck replacement", hirepurchase_interest, coord(18.84, 0)),
+		transaction(737546, "hire purchase truck replacement", bank, coord(0, 60)),
+		transaction(737578, "hire purchase truck replacement", hirepurchase_truck, coord(41.42, 0)),
+		transaction(737579, "hire purchase truck replacement", hirepurchase_interest, coord(18.58, 0)),
+		transaction(737577, "hire purchase truck replacement", bank, coord(0, 60)),
+		transaction(737586, "collect accs rec", accounts_receivable, coord(0, 100)),
+		transaction(737586, "collect accs rec", bank, coord(100, 0))]
+	).
+
+test(regular_schedule) :-
 
 % Make a regular schedule of installments:
 write("Is the output for the installment schedule correct?"),
@@ -78,6 +88,12 @@ findall(Installments,
 		hp_installment(738414, 200.47), hp_installment(738444, 200.47), hp_installment(738475, 200.47), hp_installment(738505, 200.47),
 		hp_installment(738536, 200.47), hp_installment(738567, 200.47), hp_installment(738595, 200.47), hp_installment(738626, 200.47)]]).
 
+
+
+
+
+
+test(add_ballon) :-
 % Add a ballon to a regular schedule of installments:
 write("Is the output for the installment schedule with balloons inserted correct?"),
 
@@ -113,8 +129,11 @@ findall(Installments_With_Balloon,
 		hp_installment(738505, 200.47), hp_installment(738536, 200.47), hp_installment(738567, 200.47), hp_installment(738595, 200.47),
 		hp_installment(738626, 200.47)]]).
 
+
+
 % What is the total amount the customer will pay over the course of the hire purchase
 % arrangement?
+test(total_pay) :-
 write("Is the output for the total payment in hire purchase arrangement correct?"),
 
 findall(Total_Payment,
@@ -124,8 +143,17 @@ findall(Total_Payment,
 		
 	[7216.920000000002]).
 
+
+
+
+
+
+
+
+
 % What is the total interest the customer will pay over the course of the hire purchase
 % arrangement?
+test(total_interest) :-
 write("Is the output for the total interest payment in hire purchase arrangement correct?"),
 
 findall(Total_Interest,
@@ -135,7 +163,14 @@ findall(Total_Interest,
 		
 	[1268.8307569608373]).
 
+
+
+
+
+
+
 % Give me all the records of a hire purchase arrangement:
+test(all_records) :-
 write("Is the output for the records of a hire purchase arrangement correct?"),
 
 findall(Record,
@@ -180,22 +215,53 @@ findall(Record,
 		hp_record(35, 399.5193741499264, 13, 4.328126553290869, 200.47, 203.3775007032173, 736618, 736649),
 		hp_record(36, 203.3775007032173, 13, 2.2032562576181873, 200.47, 5.110756960835488, 736649, 736679)]).
 
-% Present a hire purchase arrangement as it would appear in a financial statement
-write("Is the output for the summary of a hire purchase arrangement correct?"),
 
-findall(Statement,
-	(absolute_day(date(2018, 6, 30), Arr_Beg_Day),
-		Insts_Beg_Date = date(2018, 7, 31),
-		absolute_day(Insts_Beg_Date, Insts_Beg_Day),
-		installments(Insts_Beg_Date, 36, date(0, 1, 0), 636.06, Insts),
-		hp_arr_report(hp_arrangement(0, 12703.32, Arr_Beg_Day, 5.53, Insts), Insts_Beg_Day,
-			Cur_Liability, Cur_Unexpired_Interest, Non_Cur_Liability, Non_Cur_Unexpired_Interest),
-		Statement = [Cur_Liability, Cur_Unexpired_Interest, Non_Cur_Liability, Non_Cur_Unexpired_Interest]),
-	
-	[[t_term(0, 7632.7199999999975), t_term(524.114832611094, 0), t_term(0, 5724.539999999999), t_term(129.69950314096081, 0)]]).
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+% Present a hire purchase arrangement as it would appear in a financial statement
+test(financial_statement) :-
+	write("Is the output for the summary of a hire purchase arrangement correct?"),
+	findall(
+		Statement,
+		(	
+			absolute_day(date(2018, 6, 30), Arr_Beg_Day),
+			Insts_Beg_Date = date(2018, 7, 31),
+			absolute_day(Insts_Beg_Date, Insts_Beg_Day),
+			installments(Insts_Beg_Date, 36, date(0, 1, 0), 636.06, Insts),
+			hp_arr_report(hp_arrangement(0, 12703.32, Arr_Beg_Day, 5.53, Insts), Insts_Beg_Day,
+				Cur_Liability, Cur_Unexpired_Interest, Non_Cur_Liability, Non_Cur_Unexpired_Interest),
+			Statement = [Cur_Liability, Cur_Unexpired_Interest, Non_Cur_Liability, Non_Cur_Unexpired_Interest]
+		),
+		Results
+	),
+	writeln('got:'),
+	writeln(Results),
+	writeln('expected:'),
+	Expected = [[coord(0, 7632.7199999999975), coord(524.114832611094, 0), coord(0, 5724.539999999999), coord(129.69950314096081, 0)]],
+	writeln(Expected),
+	Results = Expected,
+	writeln(okies).
+
+
+
 
 % Split the range between 10 and 20 into 100 equally spaced intervals and give me their
 % boundaries:
+test(split_range_equally) :-
 write("Is the output for a range subdivision correct?"),
 
 findall(X, range(10, 20, 0.1, X),
@@ -217,8 +283,21 @@ findall(X, range(10, 20, 0.1, X),
 		18.80000000000002, 18.90000000000002, 19.00000000000002, 19.100000000000023, 19.200000000000024, 19.300000000000026,
 		19.400000000000027, 19.50000000000003, 19.60000000000003, 19.70000000000003, 19.800000000000033, 19.900000000000034]).
 
+
+
+
+
+
+
+
+
+
+
+
+
 % Give me the interest rates in the range of 10% to 20% that will cause the hire purchase
 % arrangement to conclude in exactly 36 months:
+test(interest_rates) :-
 write("Is the output for the interest rates that cause a hire purchase arrangement to have a certain duration correct?"),
 
 findall(Interest_Rate,
@@ -231,6 +310,28 @@ findall(Interest_Rate,
 		11.999999999999993, 12.099999999999993, 12.199999999999992, 12.299999999999992, 12.399999999999991, 12.499999999999991,
 		12.59999999999999, 12.69999999999999, 12.79999999999999, 12.89999999999999]).
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 % Note that several to different interest rates can result in hire purchase
 % arrangements with the same duration. In this case, it is only the closing balance
 % after the last installment that changes.
@@ -241,54 +342,67 @@ findall(Interest_Rate,
 % none of the installments other than the first were paid, can we make some correctional
 % transactions to debit the hire purchase account and credit the hire purchase suspense
 % account?
+test(closing_balance) :-
 write("Are the outputed corrections to the general ledger correct?"),
 
-findall(Correction_Transactions,
-	(recorded(transactions, Transactions),
+findall(
+	Correction_Transactions,
+	(
+		recorded(transactions, Transactions),
+		writeln('okay...'),
 		absolute_day(date(2014, 12, 16), Begin_Day),
+		writeln('okay.....'),
 		installments(date(2015, 1, 16), 36, date(0, 1, 0), 200.47, Installments),
+		writeln('okay.......'),
 		hp_arr_corrections(hp_arrangement(0, 5953.2, Begin_Day, 13, Installments),
-			hp_account, hp_suspense_account, Transactions, Correction_Transactions)),
-		
+			hp_account, hp_suspense_account, Transactions, Correction_Transactions)
+	),
+	Results
+),
+writeln('actual results'),
+writeln(Results),
+Results = 
 	[[% Undo the first duplicate transaction in the hire purchase account
-		transaction(0, correction, hp_account, t_term(0, 200.47)),
+		transaction(0, correction, hp_account, coord(0, 200.47)),
 		% Put the amount in the hire purchase suspense account
-		transaction(0, correction, hp_suspense_account, t_term(200.47, 0)),
+		transaction(0, correction, hp_suspense_account, coord(200.47, 0)),
 		% ...
-		transaction(0, correction, hp_account, t_term(0, 200.47)), transaction(0, correction, hp_suspense_account, t_term(200.47, 0)),
-		transaction(0, correction, hp_account, t_term(200.47, 0)), transaction(0, correction, hp_suspense_account, t_term(0, 200.47)),
-		transaction(0, correction, hp_account, t_term(200.47, 0)), transaction(0, correction, hp_suspense_account, t_term(0, 200.47)),
-		transaction(0, correction, hp_account, t_term(200.47, 0)), transaction(0, correction, hp_suspense_account, t_term(0, 200.47)),
-		transaction(0, correction, hp_account, t_term(200.47, 0)), transaction(0, correction, hp_suspense_account, t_term(0, 200.47)),
-		transaction(0, correction, hp_account, t_term(200.47, 0)), transaction(0, correction, hp_suspense_account, t_term(0, 200.47)),
-		transaction(0, correction, hp_account, t_term(200.47, 0)), transaction(0, correction, hp_suspense_account, t_term(0, 200.47)),
-		transaction(0, correction, hp_account, t_term(200.47, 0)), transaction(0, correction, hp_suspense_account, t_term(0, 200.47)),
-		transaction(0, correction, hp_account, t_term(200.47, 0)), transaction(0, correction, hp_suspense_account, t_term(0, 200.47)),
-		transaction(0, correction, hp_account, t_term(200.47, 0)), transaction(0, correction, hp_suspense_account, t_term(0, 200.47)),
-		transaction(0, correction, hp_account, t_term(200.47, 0)), transaction(0, correction, hp_suspense_account, t_term(0, 200.47)),
-		transaction(0, correction, hp_account, t_term(200.47, 0)), transaction(0, correction, hp_suspense_account, t_term(0, 200.47)),
-		transaction(0, correction, hp_account, t_term(200.47, 0)), transaction(0, correction, hp_suspense_account, t_term(0, 200.47)),
-		transaction(0, correction, hp_account, t_term(200.47, 0)), transaction(0, correction, hp_suspense_account, t_term(0, 200.47)),
-		transaction(0, correction, hp_account, t_term(200.47, 0)), transaction(0, correction, hp_suspense_account, t_term(0, 200.47)),
-		transaction(0, correction, hp_account, t_term(200.47, 0)), transaction(0, correction, hp_suspense_account, t_term(0, 200.47)),
-		transaction(0, correction, hp_account, t_term(200.47, 0)), transaction(0, correction, hp_suspense_account, t_term(0, 200.47)),
-		transaction(0, correction, hp_account, t_term(200.47, 0)), transaction(0, correction, hp_suspense_account, t_term(0, 200.47)),
-		transaction(0, correction, hp_account, t_term(200.47, 0)), transaction(0, correction, hp_suspense_account, t_term(0, 200.47)),
-		transaction(0, correction, hp_account, t_term(200.47, 0)), transaction(0, correction, hp_suspense_account, t_term(0, 200.47)),
-		transaction(0, correction, hp_account, t_term(200.47, 0)), transaction(0, correction, hp_suspense_account, t_term(0, 200.47)),
-		transaction(0, correction, hp_account, t_term(200.47, 0)), transaction(0, correction, hp_suspense_account, t_term(0, 200.47)),
-		transaction(0, correction, hp_account, t_term(200.47, 0)), transaction(0, correction, hp_suspense_account, t_term(0, 200.47)),
-		transaction(0, correction, hp_account, t_term(200.47, 0)), transaction(0, correction, hp_suspense_account, t_term(0, 200.47)),
-		transaction(0, correction, hp_account, t_term(200.47, 0)), transaction(0, correction, hp_suspense_account, t_term(0, 200.47)),
-		transaction(0, correction, hp_account, t_term(200.47, 0)), transaction(0, correction, hp_suspense_account, t_term(0, 200.47)),
-		transaction(0, correction, hp_account, t_term(200.47, 0)), transaction(0, correction, hp_suspense_account, t_term(0, 200.47)),
-		transaction(0, correction, hp_account, t_term(200.47, 0)), transaction(0, correction, hp_suspense_account, t_term(0, 200.47)),
-		transaction(0, correction, hp_account, t_term(200.47, 0)), transaction(0, correction, hp_suspense_account, t_term(0, 200.47)),
-		transaction(0, correction, hp_account, t_term(200.47, 0)), transaction(0, correction, hp_suspense_account, t_term(0, 200.47)),
-		transaction(0, correction, hp_account, t_term(200.47, 0)), transaction(0, correction, hp_suspense_account, t_term(0, 200.47)),
-		transaction(0, correction, hp_account, t_term(200.47, 0)), transaction(0, correction, hp_suspense_account, t_term(0, 200.47)),
-		transaction(0, correction, hp_account, t_term(200.47, 0)), transaction(0, correction, hp_suspense_account, t_term(0, 200.47)),
-		transaction(0, correction, hp_account, t_term(200.47, 0)), transaction(0, correction, hp_suspense_account, t_term(0, 200.47)),
-		transaction(0, correction, hp_account, t_term(200.47, 0)), transaction(0, correction, hp_suspense_account, t_term(0, 200.47)),
-		transaction(0, correction, hp_account, t_term(200.47, 0)), transaction(0, correction, hp_suspense_account, t_term(0, 200.47))]]).
+		transaction(0, correction, hp_account, coord(0, 200.47)), transaction(0, correction, hp_suspense_account, coord(200.47, 0)),
+		transaction(0, correction, hp_account, coord(200.47, 0)), transaction(0, correction, hp_suspense_account, coord(0, 200.47)),
+		transaction(0, correction, hp_account, coord(200.47, 0)), transaction(0, correction, hp_suspense_account, coord(0, 200.47)),
+		transaction(0, correction, hp_account, coord(200.47, 0)), transaction(0, correction, hp_suspense_account, coord(0, 200.47)),
+		transaction(0, correction, hp_account, coord(200.47, 0)), transaction(0, correction, hp_suspense_account, coord(0, 200.47)),
+		transaction(0, correction, hp_account, coord(200.47, 0)), transaction(0, correction, hp_suspense_account, coord(0, 200.47)),
+		transaction(0, correction, hp_account, coord(200.47, 0)), transaction(0, correction, hp_suspense_account, coord(0, 200.47)),
+		transaction(0, correction, hp_account, coord(200.47, 0)), transaction(0, correction, hp_suspense_account, coord(0, 200.47)),
+		transaction(0, correction, hp_account, coord(200.47, 0)), transaction(0, correction, hp_suspense_account, coord(0, 200.47)),
+		transaction(0, correction, hp_account, coord(200.47, 0)), transaction(0, correction, hp_suspense_account, coord(0, 200.47)),
+		transaction(0, correction, hp_account, coord(200.47, 0)), transaction(0, correction, hp_suspense_account, coord(0, 200.47)),
+		transaction(0, correction, hp_account, coord(200.47, 0)), transaction(0, correction, hp_suspense_account, coord(0, 200.47)),
+		transaction(0, correction, hp_account, coord(200.47, 0)), transaction(0, correction, hp_suspense_account, coord(0, 200.47)),
+		transaction(0, correction, hp_account, coord(200.47, 0)), transaction(0, correction, hp_suspense_account, coord(0, 200.47)),
+		transaction(0, correction, hp_account, coord(200.47, 0)), transaction(0, correction, hp_suspense_account, coord(0, 200.47)),
+		transaction(0, correction, hp_account, coord(200.47, 0)), transaction(0, correction, hp_suspense_account, coord(0, 200.47)),
+		transaction(0, correction, hp_account, coord(200.47, 0)), transaction(0, correction, hp_suspense_account, coord(0, 200.47)),
+		transaction(0, correction, hp_account, coord(200.47, 0)), transaction(0, correction, hp_suspense_account, coord(0, 200.47)),
+		transaction(0, correction, hp_account, coord(200.47, 0)), transaction(0, correction, hp_suspense_account, coord(0, 200.47)),
+		transaction(0, correction, hp_account, coord(200.47, 0)), transaction(0, correction, hp_suspense_account, coord(0, 200.47)),
+		transaction(0, correction, hp_account, coord(200.47, 0)), transaction(0, correction, hp_suspense_account, coord(0, 200.47)),
+		transaction(0, correction, hp_account, coord(200.47, 0)), transaction(0, correction, hp_suspense_account, coord(0, 200.47)),
+		transaction(0, correction, hp_account, coord(200.47, 0)), transaction(0, correction, hp_suspense_account, coord(0, 200.47)),
+		transaction(0, correction, hp_account, coord(200.47, 0)), transaction(0, correction, hp_suspense_account, coord(0, 200.47)),
+		transaction(0, correction, hp_account, coord(200.47, 0)), transaction(0, correction, hp_suspense_account, coord(0, 200.47)),
+		transaction(0, correction, hp_account, coord(200.47, 0)), transaction(0, correction, hp_suspense_account, coord(0, 200.47)),
+		transaction(0, correction, hp_account, coord(200.47, 0)), transaction(0, correction, hp_suspense_account, coord(0, 200.47)),
+		transaction(0, correction, hp_account, coord(200.47, 0)), transaction(0, correction, hp_suspense_account, coord(0, 200.47)),
+		transaction(0, correction, hp_account, coord(200.47, 0)), transaction(0, correction, hp_suspense_account, coord(0, 200.47)),
+		transaction(0, correction, hp_account, coord(200.47, 0)), transaction(0, correction, hp_suspense_account, coord(0, 200.47)),
+		transaction(0, correction, hp_account, coord(200.47, 0)), transaction(0, correction, hp_suspense_account, coord(0, 200.47)),
+		transaction(0, correction, hp_account, coord(200.47, 0)), transaction(0, correction, hp_suspense_account, coord(0, 200.47)),
+		transaction(0, correction, hp_account, coord(200.47, 0)), transaction(0, correction, hp_suspense_account, coord(0, 200.47)),
+		transaction(0, correction, hp_account, coord(200.47, 0)), transaction(0, correction, hp_suspense_account, coord(0, 200.47)),
+		transaction(0, correction, hp_account, coord(200.47, 0)), transaction(0, correction, hp_suspense_account, coord(0, 200.47)),
+		transaction(0, correction, hp_account, coord(200.47, 0)), transaction(0, correction, hp_suspense_account, coord(0, 200.47))]].	
+
+:- end_tests(hirepurchase).
 
