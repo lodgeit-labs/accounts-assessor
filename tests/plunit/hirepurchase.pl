@@ -406,4 +406,3 @@ Results =
 
 :- end_tests(hirepurchase).
 
-:- run_tests.

@@ -36,5 +36,4 @@ test(0) :-
 :- end_tests(exchange_rates).
 
 
-:- run_tests.
 

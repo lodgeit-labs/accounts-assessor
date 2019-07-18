@@ -1,7 +1,14 @@
-['../../src/days', '../../src/ledger'].
+:- ['../../lib/days'].
+:- ['../../lib/ledger'].
 
+:- begin_tests(ledger).
+
+
+test(ledger) :-
 write("Are we now testing the general ledger subprogram?").
 
+
+test(record) :-
 recorda(accounts,
   % The first eight accounts have predefined meanings
 	[account(asset, accounts),
@@ -77,7 +84,15 @@ recorda(transactions,
 	transaction(737586, "collect accs rec", accounts_receivable, [coord('AUD', 0, 100)]),
 	transaction(737586, "collect accs rec", bank, [coord('AUD', 100, 0)])]).
 
+
+
+
+
+
+
+
 % Let's get the trial balance between date(2018, 7, 1) and date(2019, 6, 30):
+test(trial_balance) :-
 write("Is the output for a trial balance correct?"),
 
 findall(Trial_Balance,
@@ -111,7 +126,14 @@ findall(Trial_Balance,
 			entry(super_expense,[],[]),
 			entry(hirepurchase_interest,[],[])])]]).
 
+
+
+
+
+
+
 % Let's get the balance sheet as of date(2019, 6, 30):
+test(balance_sheet) :-
 write("Is the output for the balance at a given date correct?"),
 
 findall(Balance_Sheet,
@@ -139,9 +161,16 @@ findall(Balance_Sheet,
 		entry(equity,[coord('AUD', 0,100)],
 			[entry(share_capital,[coord('AUD', 0,100)],[])])]]).
 
-% Let's get the movement between date(2019, 7, 1) and date(2020, 6, 30):
-write("Is the output for a movement between the two given dates correct?"),
 
+
+
+
+
+
+
+% Let's get the movement between date(2019, 7, 1) and date(2020, 6, 30):
+test(movement) :-
+write("Is the output for a movement between the two given dates correct?"),
 findall(Movement,
 	(recorded(accounts, Accounts),
 		recorded(transactions, Transactions),
@@ -171,7 +200,14 @@ findall(Movement,
 			entry(super_expense,[coord('AUD', 19,0)],[]),
 			entry(hirepurchase_interest,[coord('AUD', 37.42,0)],[])])]]).
 
+
+
+
+
+
+
 % Let's get the retained earnings as of date(2017, 7, 3):
+test(retained_earnings_1) :-
 write("Is the output for the retained earnings at a given date correct?"),
 
 findall(Retained_Earnings,
@@ -183,9 +219,11 @@ findall(Retained_Earnings,
 		
 	[[coord('AUD', 0, 50)]]).
 
-% Let's get the retained earnings as of date(2019, 6, 2):
-write("Is the output for the retained earnings at another given date correct?"),
 
+
+% Let's get the retained earnings as of date(2019, 6, 2):
+test(retained_earnings_2) :-
+write("Is the output for the retained earnings at another given date correct?"),
 findall(Retained_Earnings,
 	(recorded(accounts, Accounts),
 		recorded(transactions, Transactions),
@@ -195,31 +233,48 @@ findall(Retained_Earnings,
 		
 	[[coord('AUD', 0, 40)]]).
 
-% Let's get the current earnings between date(2017, 7, 1) and date(2017, 7, 3):
-write("Is the output for the current earnings between two given dates correct?"),
 
-findall(Current_Earnings_Signed,
+
+
+
+
+
+% Let's get the current earnings between date(2017, 7, 1) and date(2017, 7, 3):
+test(current_earnings_1) :-
+write("Is the output for the current earnings between two given dates correct?"),
+findall(_,
 	(recorded(accounts, Accounts),
 		recorded(transactions, Transactions),
 		absolute_day(date(2017, 7, 1), A), absolute_day(date(2017, 7, 3), B),
 		absolute_day(date(2017, 7, 3), E),
-		net_activity_by_account([], Accounts, Transactions, [], E, earnings, A, B, Current_Earnings)),
+		net_activity_by_account([], Accounts, Transactions, [], E, earnings, A, B, _)),
 		
 	[[coord('AUD', 0, 50)]]).
 
-% Let's get the current earnings between date(2018, 7, 1) and date(2019, 6, 2):
-write("Is the output for the current earnings between another two given dates correct?"),
 
-findall(Current_Earnings_Signed,
+
+
+
+
+% Let's get the current earnings between date(2018, 7, 1) and date(2019, 6, 2):
+test(current_earnings_2) :-
+write("Is the output for the current earnings between another two given dates correct?"),
+findall(_,
 	(recorded(accounts, Accounts),
 		recorded(transactions, Transactions),
 		absolute_day(date(2018, 7, 1), A), absolute_day(date(2019, 6, 2), B),
 		absolute_day(date(2019, 6, 2), E),
-		net_activity_by_account([], Accounts, Transactions, [], E, earnings, A, B, Current_Earnings)),
+		net_activity_by_account([], Accounts, Transactions, [], E, earnings, A, B, _)),
 		
 	[[coord('AUD', 10, 0)]]).
 
+
+
+
+
+
 % Let's get the balance of the inventory account as of date(2017, 7, 3):
+test(inventory_balance) :-
 write("Is the output for the balance of the given account at a given date correct?"),
 
 findall(Bal,
@@ -230,9 +285,17 @@ findall(Bal,
 		
 	[[coord('AUD', 0, 0)]]).
 
-% Let's get the net activity of the asset-typed account between date(2017, 7, 2) and date(2017, 7, 3).
-write("Is the output for the net activity of the given account between the given dates correct?"),
 
+
+
+
+
+
+
+
+% Let's get the net activity of the asset-typed account between date(2017, 7, 2) and date(2017, 7, 3).
+test(net_activity) :-
+write("Is the output for the net activity of the given account between the given dates correct?"),
 findall(Net_Activity,
 	(recorded(accounts, Accounts),
 		recorded(transactions, Transactions),
@@ -241,4 +304,8 @@ findall(Net_Activity,
 		net_activity_by_account([], Accounts, Transactions, [], E, asset, A, B, Net_Activity)),
 		
 	[[coord('AUD', 100, 0)]]).
+
+:- end_tests(ledger).
+
+
 
