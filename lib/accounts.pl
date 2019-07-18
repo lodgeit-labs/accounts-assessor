@@ -4,7 +4,17 @@
 % Date:      2019-06-02
 % ===================================================================
 
-:- module(accounts, [account_parent_id/3, account_ancestor_id/3, account_ids/9, extract_account_hierarchy/2]).
+:- module(accounts, [
+		account_child_parent/3,
+		extract_account_hierarchy/2, 
+		account_in_set/3, 
+		account_by_role/3, 
+		account_term_by_role/3,
+		account_parent/2, 
+		account_role/2,
+		account_id/2,
+		account_detail_level/2,
+		account_exists/2]).
 
 :- use_module(library(http/http_client)).
 :- use_module(library(record)).
@@ -27,30 +37,54 @@ the program can also create sub-accounts from the specified account in runtime a
 then each account hierarchy can come with a default set of associations
 first we should settle on a way to identify accounts and specify the hierarchy for the prolog side
 i suppose using the accounts.json format is the way to go
-right now we identify just by names and load just from the simple xml i showed you
-i would make these changes incrementally as needed, as usage scenarios are identified, rather than over-enginner it up-front
-*/
+right now we identify just by names and load just from the simple xml */
 
 
-:- record account(id, parent_id).
+:- record account(id, parent, role, detail_level).
 
 
-account_parent_id(Accounts, Account_Id, Parent_Id) :-
-	member(account(Account_Id, Parent_Id), Accounts).
+account_exists(Accounts, Id) :-
+	account_id(Account, Id),
+	member(Account, Accounts).
 	
 
-% Relates an account to an ancestral account
-% or itself, so this should rather be called subset or somesuch
+% Relates an account to an ancestral account or itself
+account_in_set(Accounts, Account_Id, Root_Account_Id) :-
+	Account_Id = Root_Account_Id;
+	(
+		member(Child_Account, Accounts),
+		account_id(Child_Account, Child_Id),
+		account_parent(Child_Account, Root_Account_Id),
+		account_in_set(Accounts, Account_Id, Child_Id)
+	).
 
-account_ancestor_id(Accounts, Account_Id, Ancestor_Id) :-
-	Account_Id = Ancestor_Id;
-	(account_parent_id(Accounts, Ancestor_Child_Id, Ancestor_Id),
-	account_ancestor_id(Accounts, Account_Id, Ancestor_Child_Id)).
+account_child_parent(Accounts, Child_Id, Parent_Id) :-
+	(
+		nonvar(Child_Id),
+		account_term_by_id(Accounts, Child_Id, Child),
+		account_parent(Child, Parent_Id)
+	)
+	;
+	(
+		nonvar(Parent_Id),
+		member(Child, Accounts),
+		account_id(Child, Child_Id),
+		account_parent(Child, Parent_Id)
+	).
+	
+account_by_role(Accounts, Role, Account_Id) :-
+	member(Account, Accounts),
+	account_role(Account, Role),
+	account_id(Account, Account_Id).
 
-% Gets the ids for the assets, equity, liabilities, earnings, retained earnings, current
-% earnings, revenue, and expenses accounts. 
-account_ids(_Accounts,
-      'Assets', 'Equity', 'Liabilities', 'Earnings', 'Retained_Earnings', 'Current_Earnings_Losses', 'Revenue', 'Expenses').
+account_term_by_role(Accounts, Role, Account) :-
+	account_by_role(Accounts, Role, Id),
+	account_term_by_id(Accounts, Id, Account).
+	
+account_term_by_id(Accounts, Id, Account) :-
+	member(Account, Accounts),
+	account_id(Account, Id).
+
 
 extract_account_hierarchy(Request_Dom, Account_Hierarchy) :-
 	(
@@ -93,21 +127,37 @@ fetch_account_hierarchy_from_url(Account_Hierarchy_Url, Account_Hierarchy_Dom) :
 
 extract_account_hierarchy2(Account_Hierarchy_Dom, Account_Hierarchy) :-   
    findall(Account, xpath(Account_Hierarchy_Dom, *, Account), Accounts),
-   findall(Link, (member(Top_Level_Account, Accounts), accounts_link(Top_Level_Account, Link)), Account_Hierarchy).
+   findall(Link, (member(Top_Level_Account, Accounts), yield_accounts(Top_Level_Account, Link)), Account_Hierarchy).
 
  
-% yields all child-parent pairs describing the account hierarchy
-accounts_link(element(Parent_Name,_,Children), Link) :-
-   member(Child, Children), 
-   Child = element(Child_Name,_,_),
-   (
-      % yield an account(Child, Parent) term for this child
-      Link = account(Child_Name, Parent_Name)
-      ;
-      % recurse on the child
-      accounts_link(Child, Link)
-   ).
+% extracts and yields all accounts one by one
+yield_accounts(element(Parent_Name,_,Children), Link) :-
+	member(Child, Children), 
+	Child = element(Child_Name,_,_),
+	(
+		(
+			/* todo: extract role, if specified */
+			Role = ('Accounts' / Child_Name),
+			Link = account(Child_Name, Parent_Name, Role, 0)
+		)
+		;
+		(
+			% recurse on the child
+			yield_accounts(Child, Link)
+		)
+	).
 
-   
-   
-   
+
+movement_unit_account(Accounts, Movement_Account, Unit) :-
+	member(Account, Accounts),
+	account_role(Account, Movement_Account/Unit).
+	
+gains_movement_account(Accounts, Gains_Account, Movement) :-
+	member(Account, Accounts),
+	account_role(Account, Gains_Account/Movement).
+
+trading_gains_account(Accounts, Trading_Account, Realized_Or_Unrealized) :-
+	member(Account, Accounts),
+	account_role(Account, Trading_Account/Realized_Or_Unrealized).
+
+

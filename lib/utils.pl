@@ -1,6 +1,7 @@
 :- module(utils, [
 	user:goal_expansion/2, inner_xml/3, open_tag/1, close_tag/1, write_tag/2, fields/2, field_nothrow/2, numeric_fields/2, 
-	pretty_term_string/2, pretty_term_string/2, trim_atom/2, maplist6/6, throw_string/1, semigroup_foldl/3]).
+	pretty_term_string/2, pretty_term_string/2, trim_atom/2, maplist6/6, throw_string/1, semigroup_foldl/3,
+	get_indentation/2]).
 :- use_module(library(xpath)).
 
 
@@ -265,4 +266,12 @@ throw_string(List_Or_Atom) :-
 	atomic_list_concat(List, String),
 	throw(string(String)).
 
+
+get_indentation(Level, Indentation) :-
+	Level > 0,
+	Level2 is Level - 1,
+	get_indentation(Level2, Indentation2),
+	atomic_list_concat([Indentation2, ' '], Indentation).
+
+get_indentation(0, ' ').
 

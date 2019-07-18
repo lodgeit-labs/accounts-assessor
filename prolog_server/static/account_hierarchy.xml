@@ -4,9 +4,7 @@
 		<Net_Assets>
 			<Assets>
 				<Current_Assets>
-					<Cash_And_Cash_Equivalents>
-						<NationalAustraliaBank/>
-					</Cash_And_Cash_Equivalents>
+					<Cash_And_Cash_Equivalents/>
 					<Assets_Livestock>
 						<Assets_Livestock_At_Cost/>
 						<Assets_Livestock_At_Average_Cost/>
@@ -42,16 +40,7 @@
 				<Other_Income>
 					<Interest_Income/>
 					<Interest_Earned/>
-					<Earnings_Financial_Investments>
-						<Realized_Gain>
-							<Realized_Gains_Excluding_Forex/>
-							<Realized_Gains_Currency_Movement/>
-						</Realized_Gain>
-						<Unrealized_Gain>
-							<Unrealized_Gains_Excluding_Forex/>
-							<Unrealized_Gains_Currency_Movement/>
-						</Unrealized_Gain>
-					</Earnings_Financial_Investments>
+					<Earnings_Financial_Investments/>
 					<Exchange_Gain/>
 				</Other_Income>
 				<Sales_Of_Livestock/>
