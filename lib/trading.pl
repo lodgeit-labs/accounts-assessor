@@ -37,7 +37,7 @@ increase_realized_gains(Static_Data, Trading_Account_Id, Converted_Vector, Goods
 	txs_to_transactions(Transaction_Day, Txs2, Ts2).
 
 reduce_unrealized_gains(Static_Data, Trading_Account_Id, Transaction_Day, Goods_Cost_Values, Ts1) :-
-	maplist(unrealized_gains_reduction_txs(Static_Data), Trading_Account_Id, Goods_Cost_Values, Txs1),
+	maplist(unrealized_gains_reduction_txs(Static_Data, Trading_Account_Id), Goods_Cost_Values, Txs1),
 	txs_to_transactions(Transaction_Day, Txs1, Ts1).
 	
 
