@@ -318,5 +318,5 @@ investment_report3_balance((Exchange_Rates, Accounts, Transactions, Report_Curre
 	account_by_role(Accounts, (Gains_Account/Forex_Role), Gains_Forex_Account),
 	account_by_role(Accounts, (Gains_Forex_Account/Unit), Unit_Account),
 	
-	balance_by_account(Exchange_Rates, Accounts, Transactions, [Report_Currency], Report_Date, Unit_Account, Report_Date, Balance, _),
+	balance_by_account(Exchange_Rates, Accounts, Transactions, Report_Currency, Report_Date, Unit_Account, Report_Date, Balance, _),
 	format_balances(Accounts, 4, Report_Currency, End_Year, Unit, Balance, [], _, [], Lines).
