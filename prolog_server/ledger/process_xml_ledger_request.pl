@@ -166,7 +166,7 @@ output_results(S_Transactions, Transactions, Start_Days, End_Days, Exchange_Rate
 
 display_xbrl_ledger_response(Account_Hierarchy, Report_Currency, Start_Days, End_Days, Balance_Sheet_Entries, Trial_Balance, ProftAndLoss_Entries, Investment_Report_Lines) :-
    writeln('<xbrli:xbrl xmlns:xbrli="http://www.xbrl.org/2003/instance" xmlns:link="http://www.xbrl.org/2003/linkbase" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:iso4217="http://www.xbrl.org/2003/iso4217" xmlns:basic="http://www.xbrlsite.com/basic">'),
-   writeln('  <link:schemaRef xlink:type="simple" xlink:href="basic.xsd" xlink:title="Taxonomy schema" />'),
+   writeln('  <link:schemaRef xlink:type="simple" xlink:href="http://dev-node.uksouth.cloudapp.azure.com:7778/taxonomy/basic.xsd" xlink:title="Taxonomy schema" />'),
    writeln('  <link:linkbaseRef xlink:type="simple" xlink:href="basic-formulas.xml" xlink:arcrole="http://www.w3.org/1999/xlink/properties/linkbase" />'),
    writeln('  <link:linkBaseRef xlink:type="simple" xlink:href="basic-formulas-cross-checks.xml" xlink:arcrole="http://www.w3.org/1999/xlink/properties/linkbase" />'),
 
@@ -174,7 +174,7 @@ display_xbrl_ledger_response(Account_Hierarchy, Report_Currency, Start_Days, End
    format_date(Start_Days, Start_Date_String),
    End_Days = date(End_Year,_,_),
    
-   format( '  <context id="D-~w">\n', End_Year),
+   format( '  <xbrli:context id="D-~w">\n', End_Year),
    writeln('    <entity>'),
    writeln('      <identifier scheme="http://standards.iso.org/iso/17442">30810137d58f76b84afd</identifier>'),
    writeln('    </entity>'),
@@ -182,7 +182,7 @@ display_xbrl_ledger_response(Account_Hierarchy, Report_Currency, Start_Days, End
    format( '      <startDate>~w</startDate>\n', Start_Date_String),
    format( '      <endDate>~w</endDate>\n', End_Date_String),
    writeln('    </period>'),
-   writeln('  </context>'),
+   writeln('  </xbrli:context>'),
 
    balance_sheet_entries(Account_Hierarchy, Report_Currency, End_Year, Balance_Sheet_Entries, ProftAndLoss_Entries, Used_Units, Lines2, Lines3),
    format_report_entries(Account_Hierarchy, 0, Report_Currency, End_Year, Trial_Balance, [], _, [], Lines1),
@@ -200,7 +200,7 @@ display_xbrl_ledger_response(Account_Hierarchy, Report_Currency, Start_Days, End
    writeln('</xbrli:xbrl>').
    
 write_used_unit(Unit) :-
-	format('  <unit id="U-~w"><measure>~w</measure></unit>\n', [Unit, Unit]).
+	format('  <xbrli:unit id="U-~w"><xbrli:measure>iso4217:~w</xbrli:measure></xbrli:unit>\n', [Unit, Unit]).
    
 	
 extract_default_currency(Dom, Default_Currency) :-
