@@ -15,8 +15,12 @@
 		date_between/3]).
 :- use_module('utils', [
 		pretty_term_string/2]).
+:- use_module('livestock', [
+		process_livestock/14,
+		livestock_counts/5]). 
+:- use_module('transactions', [
+		check_transaction_account/2]).
 
-		
 find_s_transactions_in_period(S_Transactions, Opening_Date, Closing_Date, Out) :-
 	findall(
 		S_Transaction,

@@ -4,7 +4,9 @@
 % Date:      2019-06-02
 % ===================================================================
 
-:- module(transactions, [transaction_account_in_set/3,
+:- module(transactions, [
+			has_empty_vector/1,
+			transaction_account_in_set/3,
 		  	 transaction_in_period/3,
 		 	 transaction_vectors_total/2,
 			 transactions_before_day_on_account_and_subaccounts/5,
@@ -12,10 +14,9 @@
 			 transaction_description/2,
 			 transaction_account_id/2,
 			 transaction_vector/2,
-			 check_transaction_account/2
-		        ]).
+			 check_transaction_account/2]).
 
-:- use_module(accounts, [account_in_set/3]).
+:- use_module(accounts, [account_in_set/3, account_exists/2]).
 :- use_module(days, [absolute_day/2, gregorian_date/2]).
 :- use_module(pacioli, [vec_add/3, vec_reduce/2]).
 :- use_module(library(record)).

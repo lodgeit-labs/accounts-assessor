@@ -1,4 +1,9 @@
 
+/*
+
+	this is the high-level interface that preprocess_s_transaction uses
+
+*/
 
 make_trading_buy(Static_Data, Trading_Account_Id, Pricing_Method, ST_Currency, Converted_Vector, Goods_Vector, Transaction_Day, Outstanding_In, Outstanding_Out, Ts0) :-
 		[Goods_Coord] = Goods_Vector,
@@ -13,50 +18,7 @@ make_trading_buy(Static_Data, Trading_Account_Id, Pricing_Method, ST_Currency, C
 		unrealized_gains_txs(Static_Data, Trading_Account_Id, ST_Currency, Converted_Vector, Goods_Vector, Transaction_Day, Txs0),
 		txs_to_transactions(Transaction_Day, Txs0, Ts0).
 
-unrealized_gains_txs((Accounts, Report_Currency, _, _, _), Trading_Account_Id, Purchase_Currency, Cost_Vector, Goods, Transaction_Day, Txs) :-
-	gtrace,
-	account_by_role(Accounts, (Trading_Account_Id/only_currency_movement), Unrealized_Gains_Currency_Movement),
-	account_by_role(Accounts, (Trading_Account_Id/without_currency_movement), Unrealized_Gains_Excluding_Forex),
-	Goods_Without_Currency_Movement = [coord(
-		without_currency_movement_against_since(Goods_Unit, Purchase_Currency, Report_Currency, Purchase_Date), 
-		Goods_Debit, Goods_Credit)
-	],
-	Goods = [coord(Goods_Unit, Goods_Debit, Goods_Credit)],
-	Purchase_Date = Transaction_Day,
-	dr_cr_table_to_txs([
-	% Account                                                                 DR                                                               CR
-	(Unrealized_Gains_Currency_Movement,                Goods_Without_Currency_Movement,        Goods),
-	(Unrealized_Gains_Excluding_Forex,	                 Cost_Vector,      	                Goods_Without_Currency_Movement)
-	],
-	Txs).
-
-	
-	
-reduce_unrealized_gains(Static_Data, Transaction_Day, Goods_Cost_Values, Ts1) :-
-	maplist(unrealized_gains_reduction_txs(Static_Data), Goods_Cost_Values, Txs1),
-	txs_to_transactions(Transaction_Day, Txs1, Ts1).
-	
-	
-unrealized_gains_reduction_txs((_, Report_Currency, _, _, _), Purchase_Info, Txs) :-
-	outstanding(ST_Currency, Goods_Unit, Goods_Count, Cost, Purchase_Date) = Purchase_Info,
-	Goods_Without_Currency_Movement = [coord(
-		without_currency_movement_against_since(Goods_Unit, ST_Currency, Report_Currency, Purchase_Date), 
-		Goods_Count, 0)
-	],
-	Goods = value(Goods_Unit, Goods_Count),
-	
-	dr_cr_table_to_txs([
-	% Account                                                                 DR                                                               CR
-	('Unrealized_Gains_Currency_Movement',             Goods    ,                                   Goods_Without_Currency_Movement  ),
-	('Unrealized_Gains_Excluding_Forex',					Goods_Without_Currency_Movement    ,      Cost                 )
-	],
-	Txs),
-	Txs= [T0, T1],
-	T0.comment = T1.comment,
-	T0.comment = 'reduce unrealized gain by outgoing asset and its cost'.
-
-	
-increase_realized_gains(Static_Data, Converted_Vector, Goods_Vector, Transaction_Day, Goods_Cost_Values, Ts2) :-
+increase_realized_gains(Static_Data, Trading_Account_Id, Converted_Vector, Goods_Vector, Transaction_Day, Goods_Cost_Values, Ts2) :-
 
 	[Goods_Coord] = Goods_Vector,
 	integer_to_coord(_, Goods_Integer, Goods_Coord),
@@ -67,26 +29,106 @@ increase_realized_gains(Static_Data, Converted_Vector, Goods_Vector, Transaction
 	maplist(
 		realized_gains_txs(
 			Static_Data, 
+			Trading_Account_Id, 
 			value(Converted_Currency, Sale_Unit_Price_Amount)
 		), 
 		Goods_Cost_Values, Txs2
 	),
 	txs_to_transactions(Transaction_Day, Txs2, Ts2).
+
+reduce_unrealized_gains(Static_Data, Trading_Account_Id, Transaction_Day, Goods_Cost_Values, Ts1) :-
+	maplist(unrealized_gains_reduction_txs(Static_Data), Trading_Account_Id, Goods_Cost_Values, Txs1),
+	txs_to_transactions(Transaction_Day, Txs1, Ts1).
 	
-realized_gains_txs((_, Report_Currency, _, _,_), Sale_Unit_Price_Converted, Purchase_Info, Txs) :-
+
+/*
+
+	find accounts to affect
+
+*/
+
+gains_accounts(
+	/*input*/
+	Accounts, Trading_Account_Id, Realized_Or_Unrealized, Goods_Unit, 
+	/*output*/
+	Currency_Movement_Account,
+	Excluding_Forex_Account
+) :-
+	account_by_role(Accounts, (Trading_Account_Id/Realized_Or_Unrealized), Unrealized_Gains_Account),
+	account_by_role(Accounts, (Unrealized_Gains_Account/only_currency_movement), Unrealized_Gains_Currency_Movement),
+	account_by_role(Accounts, (Unrealized_Gains_Account/without_currency_movement), Unrealized_Gains_Excluding_Forex),
+	account_by_role(Accounts, (Unrealized_Gains_Currency_Movement/Goods_Unit), Currency_Movement_Account),
+	account_by_role(Accounts, (Unrealized_Gains_Excluding_Forex/Goods_Unit), Excluding_Forex_Account).
+
+
+/*
+txs are dicts with most of informations needed to create a transaction.
+we will produce them from a simple table:
+% Account                                                                 DR                                                               CR
+*/
+			
+unrealized_gains_txs((Accounts, Report_Currency, _, _, _), Trading_Account_Id, Purchase_Currency, Cost_Vector, Goods, Transaction_Day, Txs) :-
+	Goods = [coord(Goods_Unit, Goods_Debit, Goods_Credit)],
+	
+	gains_accounts(
+		Accounts, Trading_Account_Id, unrealized, Goods_Unit, 
+		Unrealized_Gains_Currency_Movement, Unrealized_Gains_Excluding_Forex),
+
+	Goods_Without_Currency_Movement = [coord(
+		without_currency_movement_against_since(Goods_Unit, Purchase_Currency, Report_Currency, Purchase_Date), 
+		Goods_Debit, Goods_Credit)
+	],
+	
+	Purchase_Date = Transaction_Day,
+	dr_cr_table_to_txs([
+	% Account                                                                 DR                                                               CR
+	(Unrealized_Gains_Currency_Movement,                Goods_Without_Currency_Movement,        Goods),
+	(Unrealized_Gains_Excluding_Forex,	                 Cost_Vector,      	                Goods_Without_Currency_Movement)
+	],
+	Txs).
+
+	
+unrealized_gains_reduction_txs((Accounts, Report_Currency, _, _, _), Trading_Account_Id, Purchase_Info, Txs) :-
 	outstanding(ST_Currency, Goods_Unit, Goods_Count, Cost, Purchase_Date) = Purchase_Info,
+	
+	gains_accounts(
+		Accounts, Trading_Account_Id, unrealized, Goods_Unit, 
+		Unrealized_Gains_Currency_Movement, Unrealized_Gains_Excluding_Forex),
+
+	Goods_Without_Currency_Movement = [coord(
+		without_currency_movement_against_since(Goods_Unit, ST_Currency, Report_Currency, Purchase_Date), 
+		Goods_Count, 0)
+	],
+	Goods = value(Goods_Unit, Goods_Count),
+	
+	dr_cr_table_to_txs([
+	% Account                                                                 DR                                                               CR
+	(Unrealized_Gains_Currency_Movement,             Goods    ,                                   Goods_Without_Currency_Movement  ),
+	(Unrealized_Gains_Excluding_Forex,					Goods_Without_Currency_Movement    ,      Cost                 )
+	],
+	Txs),
+	Txs= [T0, T1],
+	T0.comment = T1.comment,
+	T0.comment = 'reduce unrealized gain by outgoing asset and its cost'.
+
+	
+realized_gains_txs((Accounts, Report_Currency, _, _,_), Trading_Account_Id, Sale_Unit_Price_Converted, Purchase_Info, Txs) :-
+	outstanding(ST_Currency, Goods_Unit, Goods_Count, Cost, Purchase_Date) = Purchase_Info,
+
+	gains_accounts(
+		Accounts, Trading_Account_Id, realized, Goods_Unit, 
+		Realized_Gains_Currency_Movement, Realized_Gains_Excluding_Forex),
 	
 	Sale_Without_Currency_Movement = [coord(
 		without_currency_movement_against_since(Goods_Unit, ST_Currency, Report_Currency, Purchase_Date), 
 		0, Goods_Count)
 	],
-	
-	
+		
 	value_multiply(Sale_Unit_Price_Converted, Goods_Count, Sale),
 	dr_cr_table_to_txs([
 	% Account                                                                 DR                                                               CR
-	('Realized_Gains_Currency_Movement',	                Sale_Without_Currency_Movement,           Sale),
-	('Realized_Gains_Excluding_Forex',                        Cost,   	                    Sale_Without_Currency_Movement)
+	(Realized_Gains_Currency_Movement,	                Sale_Without_Currency_Movement,           Sale),
+	(Realized_Gains_Excluding_Forex,                			        Cost,   	                    Sale_Without_Currency_Movement)
 	],
 	Txs).
 

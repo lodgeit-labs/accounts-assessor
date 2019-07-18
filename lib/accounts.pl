@@ -5,10 +5,11 @@
 % ===================================================================
 
 :- module(accounts, [
+		account_child_parent/3,
 		extract_account_hierarchy/2, 
 		account_in_set/3, 
 		account_by_role/3, 
-		account_by_id/3, 
+		account_term_by_role/3,
 		account_parent/2, 
 		account_role/2,
 		account_id/2,
@@ -57,12 +58,30 @@ account_in_set(Accounts, Account_Id, Root_Account_Id) :-
 		account_in_set(Accounts, Account_Id, Child_Id)
 	).
 
-
-account_by_role(Accounts, Role, Account) :-
+account_child_parent(Accounts, Child_Id, Parent_Id) :-
+	(
+		nonvar(Child_Id),
+		account_term_by_id(Accounts, Child_Id, Child),
+		account_parent(Child, Parent_Id)
+	)
+	;
+	(
+		nonvar(Parent_Id),
+		member(Child, Accounts),
+		account_id(Child, Child_Id),
+		account_parent(Child, Parent_Id)
+	).
+	
+account_by_role(Accounts, Role, Account_Id) :-
 	member(Account, Accounts),
-	account_role(Account, Role).
+	account_role(Account, Role),
+	account_id(Account, Account_Id).
 
-account_by_id(Accounts, Id, Account) :-
+account_term_by_role(Accounts, Role, Account) :-
+	account_by_role(Accounts, Role, Id),
+	account_term_by_id(Accounts, Id, Account).
+	
+account_term_by_id(Accounts, Id, Account) :-
 	member(Account, Accounts),
 	account_id(Account, Id).
 

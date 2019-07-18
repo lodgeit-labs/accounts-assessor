@@ -104,7 +104,6 @@ wrap_up(S_Transactions, Transactions, Start_Days, End_Days, Exchange_Rates, Acco
 	;	
 		get_relevant_exchange_rates(Report_Currency, End_Days, Exchange_Rates, Transactions, Relevant_Exchange_Rates)
 	),
-
 	trial_balance_between(Exchange_Rates, Account_Hierarchy, Transactions, Report_Currency, End_Days, Start_Days, End_Days, Trial_Balance),
 	%assertion(Trial_Balance = entry(_, [], [], _),
 	balance_sheet_at(Exchange_Rates, Account_Hierarchy, Transactions, Report_Currency, End_Days, Start_Days, End_Days, Balance_Sheet),

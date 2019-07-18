@@ -13,6 +13,7 @@
 		s_transaction_day/2,
 		s_transaction_account_id/2,
 		s_transaction_type_of/3,
+		s_transaction_exchanged/2,
 		s_transaction_vector/2
 		]).
 
@@ -43,11 +44,11 @@
 		make_livestock_accounts/2, 
 		livestock_counts/5]).
 :- use_module('transactions', [
+		has_empty_vector/1,
 		transaction_day/2,
 		transaction_description/2,
 		transaction_account_id/2,
-		transaction_vector/2,
-		check_transaction_account/2]).
+		transaction_vector/2]).
 :- use_module('utils', [
 		pretty_term_string/2, 
 		inner_xml/3, 
@@ -129,7 +130,7 @@ preprocess_s_transactions2(Static_Data, [S_Transaction|S_Transactions], [Transac
 		)
 		;
 		(
-			%gtrace,
+			%g trace,
 			throw_string(['processing failed:', S_Transaction_String])
 		)
 	),
@@ -259,8 +260,8 @@ preprocess_s_transaction(Static_Data, S_Transaction, [Ts0, Ts1, Ts2, Ts3, Ts4, T
 					Goods_Vector = [coord(Goods_Unit,_,Goods_Positive)],
 					((find_items_to_sell(Pricing_Method, Goods_Unit, Goods_Positive, Outstanding_In, Outstanding_Out, Goods_Cost_Values),!)
 						;throw_string(['not enough goods to sell'])),
-					reduce_unrealized_gains(Static_Data, Transaction_Day, Goods_Cost_Values, Ts5),
-					increase_realized_gains(Static_Data, Converted_Vector, Goods_Vector, Transaction_Day, Goods_Cost_Values, Ts6)
+					reduce_unrealized_gains(Static_Data, Trading_Account_Id, Transaction_Day, Goods_Cost_Values, Ts5),
+					increase_realized_gains(Static_Data, Trading_Account_Id, Converted_Vector, Goods_Vector, Transaction_Day, Goods_Cost_Values, Ts6)
 				)
 			)
 		)

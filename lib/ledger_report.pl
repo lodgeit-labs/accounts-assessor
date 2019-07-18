@@ -12,15 +12,24 @@
 		format_report_entries/9, 
 		balance_sheet_entries/8]).
 
-:- use_module(accounts,     [account_parent/2]).
-:- use_module(pacioli,      [vec_add/3, vec_inverse/2, vec_reduce/2, vec_sub/3]).
-:- use_module(exchange,     [vec_change_bases/5]).
-:- use_module(transactions, [transaction_account_in_set/3,
-			     transaction_in_period/3,
-		     	     transaction_vectors_total/2,
-		  	     transactions_before_day_on_account_and_subaccounts/5
-		            ]).
-:- use_module(days, [add_days/3]).
+:- use_module('accounts', [
+		account_child_parent/3,
+		account_in_set/3,
+		account_by_role/3]).
+:- use_module('pacioli', [
+		vec_add/3, 
+		vec_inverse/2, 
+		vec_reduce/2, 
+		vec_sub/3]).
+:- use_module('exchange', [
+		vec_change_bases/5]).
+:- use_module('transactions', [
+		transaction_account_in_set/3,
+		transaction_in_period/3,
+		transaction_vectors_total/2,
+		transactions_before_day_on_account_and_subaccounts/5]).
+:- use_module('days', [add_days/3]).
+:- use_module('utils', [get_indentation/2]).
 
 % -------------------------------------------------------------------
 % The purpose of the following program is to derive the summary information of a ledger.
@@ -62,7 +71,7 @@ net_activity_by_account(Exchange_Rates, Accounts, Transactions, Bases, Exchange_
 
 balance_sheet_entry(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Account_Id, To_Day, Sheet_Entry) :-
 	% find all direct children sheet entries
-	findall(Child_Sheet_Entry, (account_parent_id(Accounts, Child_Account, Account_Id),
+	findall(Child_Sheet_Entry, (account_child_parent(Accounts, Child_Account, Account_Id),
 		balance_sheet_entry(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Child_Account, To_Day, Child_Sheet_Entry)),
 		Child_Sheet_Entries),
 	% find balance for this account including subaccounts (sum all transactions from beginning of time)
@@ -79,6 +88,7 @@ balance_sheet_at(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Fr
 	account_by_role(Accounts, ('Accounts'/'Equity'), Equity_AID),
 	account_by_role(Accounts, ('Accounts'/'Assets'), Assets_AID),
 	account_by_role(Accounts, ('Accounts'/'Equity'), Equity_AID),
+
 	balance_sheet_entry(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Assets_AID, To_Day, Asset_Section),
 	balance_sheet_entry(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Liabilities_AID, To_Day, Liability_Section),
 	% get earnings before the report period
@@ -137,7 +147,7 @@ activity_entry(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Acco
 	findall(
 		Child_Sheet_Entry, 
 		(
-			account_parent_id(Accounts, Child_Account_Id, Account_Id),
+			account_child_parent(Accounts, Child_Account_Id, Account_Id),
 			activity_entry(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, 		  Child_Account_Id, From_Day, To_Day, Child_Sheet_Entry)
 		),
 		Child_Sheet_Entries

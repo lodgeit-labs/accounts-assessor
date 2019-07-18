@@ -1,8 +1,8 @@
 :- module(system_accounts, [generate_system_accounts/3]).
 
 :- use_module('accounts', [
-		account_by_role/3, 
-		account_by_id/3,
+		account_term_by_role/3, 
+		account_exists/2,
 		account_role/2, 
 		account_id/2, 
 		account_parent/2,
@@ -12,7 +12,8 @@
 :- use_module('statements', [
 		s_transaction_account_id/2,
 		s_transaction_type_of/3,
-		s_transaction_vector/2]).
+		s_transaction_vector/2,
+		s_transaction_exchanged/2]).
 
 /*	
 Take the output of find_or_add_required_accounts and filter out existing accounts by role. 
@@ -76,7 +77,7 @@ make_currency_movement_accounts(Accounts_In, Bank_Accounts, Currency_Movement_Ac
 
 make_currency_movement_account(Accounts_In, Bank_Account, Currency_Movement_Account) :-
 	account_id(Bank_Account, Bank_Account_Id),
-	ensure_account_exists(Accounts_In, Bank_Account_Id, 0, (Bank_Account_Id/currency_movement), Currency_Movement_Account).
+	ensure_account_exists(Accounts_In, 'Currency_Movement', 0, ('Currency_Movement'/Bank_Account_Id), Currency_Movement_Account).
 	
 	
 /*
@@ -85,16 +86,23 @@ return all units that appear in s_transactions with an action type that specifie
 traded_units(S_Transactions, Transaction_Types, Units_Out) :-
 	findall(
 		Unit,
-		(
-			member(S_Transaction, S_Transactions),
-			s_transaction_type_of(Transaction_Types, S_Transaction, Transaction_Type),
-			Transaction_Type = transaction_type(_, _, _Trading_Account_Id, _),
-			s_transaction_vector(S_Transaction, [coord(Unit,_,_)])
-		),
+		yield_traded_units(Transaction_Types, S_Transactions, Unit),
 		Units
 	),
 	sort(Units, Units_Out).
 
+yield_traded_units(Transaction_Types, S_Transactions, Unit) :-
+	member(S_Transaction, S_Transactions),
+	s_transaction_type_of(Transaction_Types, S_Transaction, Transaction_Type),
+	Transaction_Type = transaction_type(_, _, _Trading_Account_Id, _),
+	(
+		s_transaction_exchanged(S_Transaction, vector([coord(Unit,_,_)]))
+		;
+		s_transaction_exchanged(S_Transaction, bases(Unit))
+	).
+		
+	
+	
 trading_account_ids(Transaction_Types, Ids) :-
 	findall(
 		Trading_Account_Id,
@@ -176,7 +184,7 @@ roles_tree(_, [], _, []).
 ensure_account_exists(Accounts_In, Parent_Id, Detail_Level, Role, Account) :-
 	Role = (_/Child_Role),
 	(
-		(account_by_role(Accounts_In, Role, Account),!)
+		(account_term_by_role(Accounts_In, Role, Account),!)
 	;
 		(
 			atomic_list_concat([Parent_Id, '_', Child_Role], Id),
@@ -193,7 +201,7 @@ ensure_account_exists(Accounts_In, Parent_Id, Detail_Level, Role, Account) :-
 	otherwise bind Free_Id to Id.
 */
 free_id(Accounts, Id, Free_Id) :-
-		account_by_id(Accounts, Id, _)
+		account_exists(Accounts, Id)
 	->
 		(
 			atomic_list_concat([Id, '_2'], Next_Id),
@@ -202,50 +210,3 @@ free_id(Accounts, Id, Free_Id) :-
 	;
 		Free_Id = Id.
 
-
-	
-	/*	findall(
-		Child_Account,
-		(
-			member(Child_Account, Accounts_Mid),
-			account_role(Child_Account, Child_Account_Role),
-			member(Child_Account_Role, Roles)
-		),
-		Child_Accounts
-	).
-	
-*/
-
-/*
-	find or create 
-investment_accounts(S_Transactions, Transaction_Types, Accounts_In, New_Accounts) :-
-	trading_accounts(S_Transactions, Transaction_Type, Trading_Accounts),
-	traded_units(S_Transactions, Transaction_Type, Units),
-	findall(
-		Accounts,
-		(
-			member(Trading_Account, Trading_Accounts),
-			Trading_Account_Role 
-			
-			Accounts = [Realized, Unrealized],
-			
-			Role0 = ('Accounts'/Trading_Account),
-			account_id(Account, Name),
-			account_parent(Account, Parent),
-			account_role(Account, New_Account_Role),
-			account_by_role(Accounts, ('Accounts'/'Cash_And_Cash_Equivalents'), Parent)			
-		),
-		Gains_Accounts
-	),
-	flatten(Used_Accounts_Nested, Used_Accounts),
-	findall(
-		Account,
-		(
-			member(Account, Used_Accounts),
-			\+member(Account, Accounts_In)
-		),
-		New_Accounts
-	).
-
-*/	
-	
