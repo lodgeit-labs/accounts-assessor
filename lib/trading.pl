@@ -5,18 +5,19 @@
 
 */
 
-make_trading_buy(Static_Data, Trading_Account_Id, Pricing_Method, ST_Currency, Converted_Vector, Goods_Vector, Transaction_Day, Outstanding_In, Outstanding_Out, Ts0) :-
-		[Goods_Coord] = Goods_Vector,
-		integer_to_coord(Goods_Unit, Goods_Integer, Goods_Coord),
-		[coord(Converted_Currency, _, Converted_Credit)] = Converted_Vector,
-		Converted_Unit_Cost is Converted_Credit / Goods_Integer,
-		add_bought_items(
-			Pricing_Method, 
-			outstanding(ST_Currency, Goods_Unit, Goods_Integer, value(Converted_Currency, Converted_Unit_Cost), Transaction_Day), 
-			Outstanding_In, Outstanding_Out
-		),
-		unrealized_gains_txs(Static_Data, Trading_Account_Id, ST_Currency, Converted_Vector, Goods_Vector, Transaction_Day, Txs0),
-		txs_to_transactions(Transaction_Day, Txs0, Ts0).
+make_trading_buy(Static_Data, Trading_Account_Id, Pricing_Method, ST_Currency, Converted_Cost_Vector, Goods_Vector, Transaction_Day, Outstanding_In, Outstanding_Out, Ts0) :-
+	[Goods_Coord] = Goods_Vector,
+	integer_to_coord(Goods_Unit, Goods_Count, Goods_Coord),
+	[coord(Converted_Currency, _, Converted_Credit)] = Converted_Cost_Vector,
+	Converted_Unit_Cost is Converted_Credit / Goods_Count,
+	add_bought_items(
+		Pricing_Method, 
+		outstanding(ST_Currency, Goods_Unit, Goods_Count, value(Converted_Currency, Converted_Unit_Cost), Transaction_Day), 
+		Outstanding_In, Outstanding_Out
+	),
+	Goods_Vector_With_Cost = [coord(with_cost_per_unit(Goods_Unit, value(Converted_Currency, Converted_Unit_Cost)), Goods_Count, 0)],
+	unrealized_gains_txs(Static_Data, Trading_Account_Id, ST_Currency, Converted_Cost_Vector, Goods_Vector_With_Cost, Transaction_Day, Txs0),
+	txs_to_transactions(Transaction_Day, Txs0, Ts0).
 
 increase_realized_gains(Static_Data, Trading_Account_Id, Converted_Vector, Goods_Vector, Transaction_Day, Goods_Cost_Values, Ts2) :-
 
@@ -70,8 +71,9 @@ we will produce them from a simple table:
 unrealized_gains_txs((Accounts, Report_Currency, _, _, _), Trading_Account_Id, Purchase_Currency, Cost_Vector, Goods, Transaction_Day, Txs) :-
 	Goods = [coord(Goods_Unit, Goods_Debit, Goods_Credit)],
 	
+	Goods_Unit = with_cost_per_unit(Goods_Unit_Name, _),
 	gains_accounts(
-		Accounts, Trading_Account_Id, unrealized, Goods_Unit, 
+		Accounts, Trading_Account_Id, unrealized, Goods_Unit_Name, 
 		Unrealized_Gains_Currency_Movement, Unrealized_Gains_Excluding_Forex),
 
 	Goods_Without_Currency_Movement = [coord(
@@ -89,17 +91,22 @@ unrealized_gains_txs((Accounts, Report_Currency, _, _, _), Trading_Account_Id, P
 
 	
 unrealized_gains_reduction_txs((Accounts, Report_Currency, _, _, _), Trading_Account_Id, Purchase_Info, Txs) :-
-	outstanding(ST_Currency, Goods_Unit, Goods_Count, Cost, Purchase_Date) = Purchase_Info,
+	outstanding(ST_Currency, Goods_Unit_Name, Goods_Count, Cost, Purchase_Date) = Purchase_Info,
 	
 	gains_accounts(
-		Accounts, Trading_Account_Id, unrealized, Goods_Unit, 
+		Accounts, Trading_Account_Id, unrealized, Goods_Unit_Name, 
 		Unrealized_Gains_Currency_Movement, Unrealized_Gains_Excluding_Forex),
 
+	Cost = value(Cost_Currency, Cost_Amount),
+	Unit_Cost_Amount is Cost_Amount / Goods_Count,
+	Unit_Cost = value(Cost_Currency, Unit_Cost_Amount),
+	Goods_Unit_With_Cost = with_cost_per_unit(Goods_Unit_Name, Unit_Cost),
+		
 	Goods_Without_Currency_Movement = [coord(
-		without_currency_movement_against_since(Goods_Unit, ST_Currency, Report_Currency, Purchase_Date), 
+		without_currency_movement_against_since(Goods_Unit_With_Cost, ST_Currency, Report_Currency, Purchase_Date), 
 		Goods_Count, 0)
 	],
-	Goods = value(Goods_Unit, Goods_Count),
+	Goods = value(Goods_Unit_With_Cost, Goods_Count),
 	
 	dr_cr_table_to_txs([
 	% Account                                                                 DR                                                               CR

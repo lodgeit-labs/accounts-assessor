@@ -14,7 +14,8 @@
 		s_transaction_type_of/3,
 		s_transaction_vector/2,
 		s_transaction_exchanged/2]).
-
+:- use_module('utils', [
+		without_nonalphanum_chars/2]).
 /*	
 Take the output of find_or_add_required_accounts and filter out existing accounts by role. 
 Change id's to unique if needed.
@@ -182,12 +183,13 @@ roles_tree(
 roles_tree(_, [], _, []).
 	
 ensure_account_exists(Accounts_In, Parent_Id, Detail_Level, Role, Account) :-
-	Role = (_/Child_Role),
+	Role = (_/Child_Role_Raw),
 	(
 		(account_term_by_role(Accounts_In, Role, Account),!)
 	;
 		(
-			atomic_list_concat([Parent_Id, '_', Child_Role], Id),
+			without_nonalphanum_chars(Child_Role_Raw, Child_Role_Safe),
+			atomic_list_concat([Parent_Id, '_', Child_Role_Safe], Id),
 			free_id(Accounts_In, Id, Free_Id),
 			account_role(Account, Role),
 			account_parent(Account, Parent_Id),

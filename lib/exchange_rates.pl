@@ -20,6 +20,8 @@
 % from exchangeratesapi.io. The results are memoized because this operation is slow and
 % use of the web endpoint is subject to usage limits. The web endpoint used is
 % https://openexchangerates.org/api/historical/YYYY-MM-DD.json?app_id=677e4a964d1b44c99f2053e21307d31a .
+% the exchange rates from openexchangerates.org are symmetric, meaning without fees etc
+
 
 :- dynamic exchange_rates/2.
 
@@ -86,7 +88,6 @@ assert_rates(Date, Exchange_Rates) :-
 % The actual rate of this exchange rate
 
 
-% the exchange rates from openexchangerates.org are symmetric, meaning without fees etc
 special_exchange_rate(Table, Day, Src_Currency, Report_Currency, Exchange_Rate) :-
 	Src_Currency = without_currency_movement_against_since(Goods_Unit, Purchase_Currency, [Report_Currency], Purchase_Date),
 	exchange_rate(Table, Purchase_Date, 
@@ -96,9 +97,21 @@ special_exchange_rate(Table, Day, Src_Currency, Report_Currency, Exchange_Rate) 
 	exchange_rate(Table, Day, Goods_Unit, Report_Currency, Current),
 	Exchange_Rate is Current / New_Rate * Old_Rate.
 
+special_exchange_rate(Table, Day, Src_Currency, Report_Currency, Rate) :-
+	Src_Currency = with_cost_per_unit(Goods_Unit, value(Report_Currency, Unit_Cost)),
+	(
+		% if we have an exchange rate for this day and unit, return it
+		exchange_rate(Table, Day, 
+		Goods_Unit, Report_Currency, Rate)
+	->
+		true
+	;
+		% otherwise report at cost
+		Rate = Unit_Cost
+	).
+
 % Obtains the exchange rate from Src_Currency to Dest_Currency on the day Day using the
 % given lookup table.
-	
 extracted_exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate) :-
   member(exchange_rate(Day, Src_Currency, Dest_Currency, Exchange_Rate), Table).
 
