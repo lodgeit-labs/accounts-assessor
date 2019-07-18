@@ -30,7 +30,8 @@
 		balance_by_account/9, 
 		balance_sheet_at/8,
 		format_report_entries/9, 
-		balance_sheet_entries/8]).
+		balance_sheet_entries/8,
+		investment_report/3]).
 :- use_module('../../lib/statements', [
 		extract_transaction/3, 
 		preprocess_s_transactions/4, 
@@ -93,9 +94,9 @@ process_xml_ledger_request(_, Dom) :-
 		Transactions),
 
 	writeln(Debug_Message),
-	wrap_up(S_Transactions, Transactions, Start_Days, End_Days, Exchange_Rates, Account_Hierarchy, Report_Currency).
+	output_results(S_Transactions, Transactions, Start_Days, End_Days, Exchange_Rates, Account_Hierarchy, Report_Currency, Action_Taxonomy).
 
-wrap_up(S_Transactions, Transactions, Start_Days, End_Days, Exchange_Rates, Account_Hierarchy, Report_Currency) :-
+output_results(S_Transactions, Transactions, Start_Days, End_Days, Exchange_Rates, Account_Hierarchy, Report_Currency, Action_Taxonomy) :-
 
 	(
 		Report_Currency = []
@@ -137,14 +138,14 @@ wrap_up(S_Transactions, Transactions, Start_Days, End_Days, Exchange_Rates, Acco
 	(
 		false
 	->
-		(
-			fill_in_missing_units(S_Transactions, End_Days, Report_Currency, Used_Units, Exchange_Rates, Inferred_Rates),
-			pretty_term_string(Inferred_Rates, Inferred_Rates_Str),
-			writeln('<!-- Inferred_Rates: \n'),
-			writeln(Inferred_Rates_Str),
-			writeln('\n-->\n'),
-			append(Exchange_Rates, Inferred_Rates, Exchange_Rates_With_Inferred_Values)
-		)
+	(
+		fill_in_missing_units(S_Transactions, End_Days, Report_Currency, Used_Units, Exchange_Rates, Inferred_Rates),
+		pretty_term_string(Inferred_Rates, Inferred_Rates_Str),
+		writeln('<!-- Inferred_Rates: \n'),
+		writeln(Inferred_Rates_Str),
+		writeln('\n-->\n'),
+		append(Exchange_Rates, Inferred_Rates, Exchange_Rates_With_Inferred_Values)
+	)
 	;
 		Exchange_Rates_With_Inferred_Values = Exchange_Rates
 	),
@@ -152,8 +153,10 @@ wrap_up(S_Transactions, Transactions, Start_Days, End_Days, Exchange_Rates, Acco
 	trial_balance_between(Exchange_Rates_With_Inferred_Values, Account_Hierarchy, Transactions, Report_Currency, End_Days, Start_Days, End_Days, Trial_Balance2),
 	balance_sheet_at(Exchange_Rates_With_Inferred_Values, Account_Hierarchy, Transactions, Report_Currency, End_Days, Start_Days, End_Days, Balance_Sheet2),
 	profitandloss_between(Exchange_Rates_With_Inferred_Values, Account_Hierarchy, Transactions, Report_Currency, End_Days, Start_Days, End_Days, ProftAndLoss2),
-
-	display_xbrl_ledger_response(Account_Hierarchy, Report_Currency, Start_Days, End_Days, Balance_Sheet2, Trial_Balance2, ProftAndLoss2),
+	
+	investment_report((Exchange_Rates_With_Inferred_Values, Account_Hierarchy, Transactions, Report_Currency, End_Days), Action_Taxonomy, Investment_Report_Lines),
+	
+	display_xbrl_ledger_response(Account_Hierarchy, Report_Currency, Start_Days, End_Days, Balance_Sheet2, Trial_Balance2, ProftAndLoss2, Investment_Report_Lines),
 	emit_ledger_warnings(S_Transactions, Start_Days, End_Days),
 	nl, nl.
 
@@ -161,7 +164,7 @@ wrap_up(S_Transactions, Transactions, Start_Days, End_Days, Exchange_Rates, Acco
 % display_xbrl_ledger_response/4
 % -----------------------------------------------------
 
-display_xbrl_ledger_response(Account_Hierarchy, Report_Currency, Start_Days, End_Days, Balance_Sheet_Entries, Trial_Balance, ProftAndLoss_Entries) :-
+display_xbrl_ledger_response(Account_Hierarchy, Report_Currency, Start_Days, End_Days, Balance_Sheet_Entries, Trial_Balance, ProftAndLoss_Entries, Investment_Report_Lines) :-
    writeln('<xbrli:xbrl xmlns:xbrli="http://www.xbrl.org/2003/instance" xmlns:link="http://www.xbrl.org/2003/linkbase" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:iso4217="http://www.xbrl.org/2003/iso4217" xmlns:basic="http://www.xbrlsite.com/basic">'),
    writeln('  <link:schemaRef xlink:type="simple" xlink:href="basic.xsd" xlink:title="Taxonomy schema" />'),
    writeln('  <link:linkbaseRef xlink:type="simple" xlink:href="basic-formulas.xml" xlink:arcrole="http://www.w3.org/1999/xlink/properties/linkbase" />'),
@@ -188,7 +191,9 @@ display_xbrl_ledger_response(Account_Hierarchy, Report_Currency, Start_Days, End
    flatten([
 		'<!-- balance sheet: -->\n', Lines3, 
 		'<!-- profit and loss: -->\n', Lines2,
-		'<!-- trial balance: -->\n',  Lines1
+		'<!-- trial balance: -->\n',  Lines1,
+		'<!-- investment report: -->\n<!--\n', Investment_Report_Lines,
+		'\n -->\n'
 	], Lines),
    atomic_list_concat(Lines, LinesString),
    writeln(LinesString),

@@ -19,17 +19,22 @@ make_trading_buy(Static_Data, Trading_Account_Id, Pricing_Method, ST_Currency, C
 	unrealized_gains_txs(Static_Data, Trading_Account_Id, ST_Currency, Converted_Cost_Vector, Goods_Vector_With_Cost, Transaction_Day, Txs0),
 	txs_to_transactions(Transaction_Day, Txs0, Ts0).
 
-increase_realized_gains(Static_Data, Trading_Account_Id, Converted_Vector, Goods_Vector, Transaction_Day, Goods_Cost_Values, Ts2) :-
+increase_realized_gains(Static_Data, Trading_Account_Id, Sale_Vector, Converted_Vector, Goods_Vector, Transaction_Day, Goods_Cost_Values, Ts2) :-
 
 	[Goods_Coord] = Goods_Vector,
 	integer_to_coord(_, Goods_Integer, Goods_Coord),
 	Goods_Positive is -Goods_Integer,
 
+	Sale_Vector = [coord(Sale_Currency, Sale_Currency_Amount, _)],
+	Sale_Currency_Unit_Price is Sale_Currency_Amount / Goods_Positive,
+	
 	[coord(Converted_Currency, Converted_Debit, _)] = Converted_Vector,
 	Sale_Unit_Price_Amount is Converted_Debit / Goods_Positive,
 	maplist(
 		realized_gains_txs(
 			Static_Data, 
+			Sale_Currency,
+			Sale_Currency_Unit_Price,
 			Trading_Account_Id, 
 			value(Converted_Currency, Sale_Unit_Price_Amount)
 		), 
@@ -119,18 +124,26 @@ unrealized_gains_reduction_txs((Accounts, Report_Currency, _, _, _), Trading_Acc
 	T0.comment = 'reduce unrealized gain by outgoing asset and its cost'.
 
 	
-realized_gains_txs((Accounts, Report_Currency, _, _,_), Trading_Account_Id, Sale_Unit_Price_Converted, Purchase_Info, Txs) :-
-	outstanding(ST_Currency, Goods_Unit, Goods_Count, Cost, Purchase_Date) = Purchase_Info,
-
+realized_gains_txs((Accounts, Report_Bases, _, _,Exchange_Rates), Sale_Currency, Sale_Currency_Unit_Price, Trading_Account_Id, Sale_Unit_Price_Converted, Purchase_Info, Txs) :-
+	[Report_Currency] = Report_Bases,
+	outstanding(_ST_Currency, Goods_Unit, Goods_Count, Cost, Purchase_Date) = Purchase_Info,
+	
 	gains_accounts(
 		Accounts, Trading_Account_Id, realized, Goods_Unit, 
 		Realized_Gains_Currency_Movement, Realized_Gains_Excluding_Forex),
 	
-	Sale_Without_Currency_Movement = [coord(
-		without_currency_movement_against_since(Goods_Unit, ST_Currency, Report_Currency, Purchase_Date), 
-		0, Goods_Count)
-	],
-		
+	Sale_Unit_Price_Converted = value(Report_Currency, _),
+	Sale_Currency_Amount is Sale_Currency_Unit_Price * Goods_Count,
+	
+	/*what would be the Report_Currency value we'd get for this sale currency amount if purchase/sale currency didn't move against Report_Currency since the day of the purchase?*/
+	vec_change_bases(
+		Exchange_Rates, 
+		Purchase_Date, 
+		[Report_Currency], 
+		[coord(Sale_Currency, 0, Sale_Currency_Amount)],
+		Sale_Without_Currency_Movement
+	),
+			
 	value_multiply(Sale_Unit_Price_Converted, Goods_Count, Sale),
 	dr_cr_table_to_txs([
 	% Account                                                                 DR                                                               CR

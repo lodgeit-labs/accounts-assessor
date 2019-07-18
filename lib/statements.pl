@@ -238,6 +238,7 @@ preprocess_s_transaction(Static_Data, S_Transaction, [Ts0, Ts1, Ts2, Ts3, Ts4, T
 		nonvar(Trading_Account_Id)
 	->
 		(
+			
 			(
 				true
 			->
@@ -245,6 +246,7 @@ preprocess_s_transaction(Static_Data, S_Transaction, [Ts0, Ts1, Ts2, Ts3, Ts4, T
 			;
 				Converted_Vector = Vector_Ours
 			),
+			
 			make_currency_movement_transactions(Exchange_Rates, Accounts, Bank_Account_Id, Report_Currency, Transaction_Day, Vector_Ours, [Description, ' - currency movement adjustment'], Ts3),
 
 			Pricing_Method = lifo,
@@ -261,7 +263,7 @@ preprocess_s_transaction(Static_Data, S_Transaction, [Ts0, Ts1, Ts2, Ts3, Ts4, T
 					((find_items_to_sell(Pricing_Method, Goods_Unit, Goods_Positive, Outstanding_In, Outstanding_Out, Goods_Cost_Values),!)
 						;throw_string(['not enough goods to sell'])),
 					reduce_unrealized_gains(Static_Data, Trading_Account_Id, Transaction_Day, Goods_Cost_Values, Ts5),
-					increase_realized_gains(Static_Data, Trading_Account_Id, Converted_Vector, Goods_Vector, Transaction_Day, Goods_Cost_Values, Ts6)
+					increase_realized_gains(Static_Data, Trading_Account_Id, Vector_Ours, Converted_Vector, Goods_Vector, Transaction_Day, Goods_Cost_Values, Ts6)
 				)
 			)
 		)
@@ -309,9 +311,12 @@ check_trial_balance(Exchange_Rates, Report_Currency, Day, Transactions) :-
 			true
 		;
 			(
-				pretty_term_string(['WARNING: total is ', Total, ' on day ', Day], Err_Str),
-				format(user_error, '\n\\n~w\n\n', [Err_Str])/*,
-				throw(Err_Str)*/
+				/*
+				pretty_term_string(['note: total is ', Total, ' on day ', Day], Err_Str),
+				format(user_error, '\n\\n~w\n\n', [Err_Str])
+				*/
+				/*format(user_error, 'note: total is ~w on day ~w\n', [Total, Day])*/ % output me in the output xml
+				true
 			)
 		)
 	).

@@ -1,4 +1,4 @@
-:- module(system_accounts, [generate_system_accounts/3]).
+:- module(system_accounts, [generate_system_accounts/3, trading_account_ids/2]).
 
 :- use_module('accounts', [
 		account_term_by_role/3, 
@@ -102,7 +102,6 @@ yield_traded_units(Transaction_Types, S_Transactions, Unit) :-
 		s_transaction_exchanged(S_Transaction, bases(Unit))
 	).
 		
-	
 	
 trading_account_ids(Transaction_Types, Ids) :-
 	findall(

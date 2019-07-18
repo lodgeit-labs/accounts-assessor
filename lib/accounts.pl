@@ -14,7 +14,8 @@
 		account_role/2,
 		account_id/2,
 		account_detail_level/2,
-		account_exists/2]).
+		account_exists/2,
+		account_role_by_id/3]).
 
 :- use_module(library(http/http_client)).
 :- use_module(library(record)).
@@ -85,7 +86,11 @@ account_term_by_id(Accounts, Id, Account) :-
 	member(Account, Accounts),
 	account_id(Account, Id).
 
+account_role_by_id(Accounts, Id, Role) :-
+	account_term_by_id(Accounts, Id, Account),
+	account_role(Account, Role).
 
+	
 extract_account_hierarchy(Request_Dom, Account_Hierarchy) :-
 	(
 			xpath(Request_Dom, //reports/balanceSheetRequest/accountHierarchy, Account_Hierarchy_Dom)
