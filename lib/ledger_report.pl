@@ -291,7 +291,8 @@ investment_report2((Exchange_Rates, Accounts, Transactions, Report_Currency, Rep
 			(Exchange_Rates, Accounts, Transactions, Report_Currency, Report_Date, Trading_Account)),
 		All_Units_Roles,
 		Lines).
-	
+
+% investment_report3(Static_Data, Unit, ['<!--', Unit, ':', '-->\n', Lines1, Lines2, '\n']) :-
 investment_report3(Static_Data, Unit, [Unit, ':', '\n', Lines1, Lines2, '\n']) :-
 	investment_report3_lines(Static_Data, Unit, realized, Lines1),
 	investment_report3_lines(Static_Data, Unit, unrealized, Lines2).
