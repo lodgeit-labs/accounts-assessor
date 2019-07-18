@@ -2,6 +2,9 @@
 
 
 
+
+
+
 <!--Exchange rates extracted:
 [ exchange_rate(date(2018,6,30),'BHP','USD',2),
   exchange_rate(date(2018,6,30),'TLS','AUD',5)
