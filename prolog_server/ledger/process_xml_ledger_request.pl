@@ -75,7 +75,6 @@ process_xml_ledger_request(_, Dom) :-
 	maplist(invert_s_transaction_vector, S_Transactions0, S_Transactions0b),
 	sort_s_transactions(S_Transactions0b, S_Transactions),
 	
-	
 	writeln('<?xml version="1.0"?>'), nl, nl,
 	
 	process_ledger(
@@ -92,6 +91,7 @@ process_xml_ledger_request(_, Dom) :-
 		Account_Hierarchy0, 
 		Account_Hierarchy, 
 		Transactions),
+
 	writeln(Debug_Message),
 	wrap_up(S_Transactions, Transactions, Start_Days, End_Days, Exchange_Rates, Account_Hierarchy, Report_Currency).
 
@@ -134,13 +134,20 @@ wrap_up(S_Transactions, Transactions, Start_Days, End_Days, Exchange_Rates, Acco
 	writeln(Used_Units_Str),
 	writeln('\n-->\n'),
 
-	fill_in_missing_units(S_Transactions, End_Days, Report_Currency, Used_Units, Exchange_Rates, Inferred_Rates),
-	pretty_term_string(Inferred_Rates, Inferred_Rates_Str),
-	writeln('<!-- Inferred_Rates: \n'),
-	writeln(Inferred_Rates_Str),
-	writeln('\n-->\n'),
-	
-	append(Exchange_Rates, Inferred_Rates, Exchange_Rates_With_Inferred_Values),
+	(
+		false
+	->
+		(
+			fill_in_missing_units(S_Transactions, End_Days, Report_Currency, Used_Units, Exchange_Rates, Inferred_Rates),
+			pretty_term_string(Inferred_Rates, Inferred_Rates_Str),
+			writeln('<!-- Inferred_Rates: \n'),
+			writeln(Inferred_Rates_Str),
+			writeln('\n-->\n'),
+			append(Exchange_Rates, Inferred_Rates, Exchange_Rates_With_Inferred_Values)
+		)
+	;
+		Exchange_Rates_With_Inferred_Values = Exchange_Rates
+	),
 
 	trial_balance_between(Exchange_Rates_With_Inferred_Values, Account_Hierarchy, Transactions, Report_Currency, End_Days, Start_Days, End_Days, Trial_Balance2),
 	balance_sheet_at(Exchange_Rates_With_Inferred_Values, Account_Hierarchy, Transactions, Report_Currency, End_Days, Start_Days, End_Days, Balance_Sheet2),
