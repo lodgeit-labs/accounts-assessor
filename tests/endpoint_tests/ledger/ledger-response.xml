@@ -802,37 +802,37 @@ Trial_Balance:
   </xbrli:context>
   <xbrli:unit id="U-AUD"><xbrli:measure>iso4217:AUD</xbrli:measure></xbrli:unit>
 <!-- balance sheet: -->
- <basic:Assets contextRef="D-2018" unitRef="U-AUD" decimals="INF">248,59</basic:Assets>
-  <basic:Current_Assets contextRef="D-2018" unitRef="U-AUD" decimals="INF">221,57</basic:Current_Assets>
-   <basic:Cash_And_Cash_Equivalents contextRef="D-2018" unitRef="U-AUD" decimals="INF">221,57</basic:Cash_And_Cash_Equivalents>
-    <basic:Cash_And_Cash_Equivalents_NationalAustraliaBank contextRef="D-2018" unitRef="U-AUD" decimals="INF">100,00</basic:Cash_And_Cash_Equivalents_NationalAustraliaBank>
-    <basic:Cash_And_Cash_Equivalents_WellsFargo contextRef="D-2018" unitRef="U-AUD" decimals="INF">121,57</basic:Cash_And_Cash_Equivalents_WellsFargo>
-  <basic:Noncurrent_Assets contextRef="D-2018" unitRef="U-AUD" decimals="INF">27,02</basic:Noncurrent_Assets>
-   <basic:Financial_Investments contextRef="D-2018" unitRef="U-AUD" decimals="INF">27,02</basic:Financial_Investments>
- <basic:Liabilities contextRef="D-2018" unitRef="U-AUD" decimals="INF">100,00</basic:Liabilities>
-  <basic:Noncurrent_Liabilities contextRef="D-2018" unitRef="U-AUD" decimals="INF">100,00</basic:Noncurrent_Liabilities>
-   <basic:Noncurrent_Loans contextRef="D-2018" unitRef="U-AUD" decimals="INF">100,00</basic:Noncurrent_Loans>
- <basic:Equity contextRef="D-2018" unitRef="U-AUD" decimals="INF">148,59</basic:Equity>
-  <basic:Share_Capital contextRef="D-2018" unitRef="U-AUD" decimals="INF">260,11</basic:Share_Capital>
-  <basic:Retained_Earnings contextRef="D-2018" unitRef="U-AUD" decimals="INF">-111,52</basic:Retained_Earnings>
-   <basic:Historical_Earnings contextRef="D-2018" unitRef="U-AUD" decimals="INF">0,00</basic:Historical_Earnings>
-   <basic:Current_Earnings contextRef="D-2018" unitRef="U-AUD" decimals="INF">-111,52</basic:Current_Earnings>
- <basic:Net_Assets contextRef="D-2018" unitRef="U-AUD" decimals="INF">148,59</basic:Net_Assets>
+ <basic:Assets contextRef="D-2018" unitRef="U-AUD" decimals="INF">248.59</basic:Assets>
+  <basic:Current_Assets contextRef="D-2018" unitRef="U-AUD" decimals="INF">221.57</basic:Current_Assets>
+   <basic:Cash_And_Cash_Equivalents contextRef="D-2018" unitRef="U-AUD" decimals="INF">221.57</basic:Cash_And_Cash_Equivalents>
+    <basic:Cash_And_Cash_Equivalents_NationalAustraliaBank contextRef="D-2018" unitRef="U-AUD" decimals="INF">100.00</basic:Cash_And_Cash_Equivalents_NationalAustraliaBank>
+    <basic:Cash_And_Cash_Equivalents_WellsFargo contextRef="D-2018" unitRef="U-AUD" decimals="INF">121.57</basic:Cash_And_Cash_Equivalents_WellsFargo>
+  <basic:Noncurrent_Assets contextRef="D-2018" unitRef="U-AUD" decimals="INF">27.02</basic:Noncurrent_Assets>
+   <basic:Financial_Investments contextRef="D-2018" unitRef="U-AUD" decimals="INF">27.02</basic:Financial_Investments>
+ <basic:Liabilities contextRef="D-2018" unitRef="U-AUD" decimals="INF">100.00</basic:Liabilities>
+  <basic:Noncurrent_Liabilities contextRef="D-2018" unitRef="U-AUD" decimals="INF">100.00</basic:Noncurrent_Liabilities>
+   <basic:Noncurrent_Loans contextRef="D-2018" unitRef="U-AUD" decimals="INF">100.00</basic:Noncurrent_Loans>
+ <basic:Equity contextRef="D-2018" unitRef="U-AUD" decimals="INF">148.59</basic:Equity>
+  <basic:Share_Capital contextRef="D-2018" unitRef="U-AUD" decimals="INF">260.11</basic:Share_Capital>
+  <basic:Retained_Earnings contextRef="D-2018" unitRef="U-AUD" decimals="INF">-111.52</basic:Retained_Earnings>
+   <basic:Historical_Earnings contextRef="D-2018" unitRef="U-AUD" decimals="INF">0.00</basic:Historical_Earnings>
+   <basic:Current_Earnings contextRef="D-2018" unitRef="U-AUD" decimals="INF">-111.52</basic:Current_Earnings>
+ <basic:Net_Assets contextRef="D-2018" unitRef="U-AUD" decimals="INF">148.59</basic:Net_Assets>
 <!-- profit and loss: -->
- <basic:Earnings contextRef="D-2018" unitRef="U-AUD" decimals="INF">-111,52</basic:Earnings>
-  <basic:Revenue contextRef="D-2018" unitRef="U-AUD" decimals="INF">-97,91</basic:Revenue>
-   <basic:Investment_Income contextRef="D-2018" unitRef="U-AUD" decimals="INF">-104,45</basic:Investment_Income>
-    <basic:Investment_Income_unrealized contextRef="D-2018" unitRef="U-AUD" decimals="INF">-104,45</basic:Investment_Income_unrealized>
-     <basic:Investment_Income_unrealized_only_currency_movement contextRef="D-2018" unitRef="U-AUD" decimals="INF">0,72</basic:Investment_Income_unrealized_only_currency_movement>
-      <basic:Investment_Income_unrealized_only_currency_movement_BHP contextRef="D-2018" unitRef="U-AUD" decimals="INF">0,72</basic:Investment_Income_unrealized_only_currency_movement_BHP>
-     <basic:Investment_Income_unrealized_without_currency_movement contextRef="D-2018" unitRef="U-AUD" decimals="INF">-105,17</basic:Investment_Income_unrealized_without_currency_movement>
-      <basic:Investment_Income_unrealized_without_currency_movement_BHP contextRef="D-2018" unitRef="U-AUD" decimals="INF">-105,17</basic:Investment_Income_unrealized_without_currency_movement_BHP>
-   <basic:Currency_Movement contextRef="D-2018" unitRef="U-AUD" decimals="INF">6,53</basic:Currency_Movement>
-    <basic:Currency_Movement_Cash_And_Cash_Equivalents_WellsFargo contextRef="D-2018" unitRef="U-AUD" decimals="INF">6,53</basic:Currency_Movement_Cash_And_Cash_Equivalents_WellsFargo>
-  <basic:Expenses contextRef="D-2018" unitRef="U-AUD" decimals="INF">-13,61</basic:Expenses>
-   <basic:Bank_Charges contextRef="D-2018" unitRef="U-AUD" decimals="INF">-13,61</basic:Bank_Charges>
+ <basic:Earnings contextRef="D-2018" unitRef="U-AUD" decimals="INF">-111.52</basic:Earnings>
+  <basic:Revenue contextRef="D-2018" unitRef="U-AUD" decimals="INF">-97.91</basic:Revenue>
+   <basic:Investment_Income contextRef="D-2018" unitRef="U-AUD" decimals="INF">-104.45</basic:Investment_Income>
+    <basic:Investment_Income_unrealized contextRef="D-2018" unitRef="U-AUD" decimals="INF">-104.45</basic:Investment_Income_unrealized>
+     <basic:Investment_Income_unrealized_only_currency_movement contextRef="D-2018" unitRef="U-AUD" decimals="INF">0.72</basic:Investment_Income_unrealized_only_currency_movement>
+      <basic:Investment_Income_unrealized_only_currency_movement_BHP contextRef="D-2018" unitRef="U-AUD" decimals="INF">0.72</basic:Investment_Income_unrealized_only_currency_movement_BHP>
+     <basic:Investment_Income_unrealized_without_currency_movement contextRef="D-2018" unitRef="U-AUD" decimals="INF">-105.17</basic:Investment_Income_unrealized_without_currency_movement>
+      <basic:Investment_Income_unrealized_without_currency_movement_BHP contextRef="D-2018" unitRef="U-AUD" decimals="INF">-105.17</basic:Investment_Income_unrealized_without_currency_movement_BHP>
+   <basic:Currency_Movement contextRef="D-2018" unitRef="U-AUD" decimals="INF">6.53</basic:Currency_Movement>
+    <basic:Currency_Movement_Cash_And_Cash_Equivalents_WellsFargo contextRef="D-2018" unitRef="U-AUD" decimals="INF">6.53</basic:Currency_Movement_Cash_And_Cash_Equivalents_WellsFargo>
+  <basic:Expenses contextRef="D-2018" unitRef="U-AUD" decimals="INF">-13.61</basic:Expenses>
+   <basic:Bank_Charges contextRef="D-2018" unitRef="U-AUD" decimals="INF">-13.61</basic:Bank_Charges>
 <!-- trial balance: -->
- <basic:Trial_Balance contextRef="D-2018" unitRef="U-AUD" decimals="INF">0,00</basic:Trial_Balance>
+ <basic:Trial_Balance contextRef="D-2018" unitRef="U-AUD" decimals="INF">0.00</basic:Trial_Balance>
 <!-- investment report: -->
 <!--
 BHP:
@@ -841,9 +841,9 @@ BHP:
   forex gain:
  unrealized total: [coord('AUD',104.44792,0.0)]
   market gain:
-     <basic:BHP contextRef="D-2018" unitRef="U-AUD" decimals="INF">-105,17</basic:BHP>
+     <basic:BHP contextRef="D-2018" unitRef="U-AUD" decimals="INF">-105.17</basic:BHP>
   forex gain:
-     <basic:BHP contextRef="D-2018" unitRef="U-AUD" decimals="INF">0,72</basic:BHP>
+     <basic:BHP contextRef="D-2018" unitRef="U-AUD" decimals="INF">0.72</basic:BHP>
 
 TLS:
  realized total: []
