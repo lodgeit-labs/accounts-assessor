@@ -45,7 +45,8 @@ coord_inverse(unit(Unit, Value), unit(Unit, Value_Inverted)) :-
 % purposes of the computations carried out in this program. This predicate reduces the
 % coordinates of a vector into a canonical form.
 %  - returns vector with same coordinates, just minimized by substracting a common value from
-%    debit and credit, so that one of them becomes 0, for example 150,50 -> 100,0 
+%    debit and credit, so that one of them becomes 0, for example 150,50 -> 100,0.
+% if both debit and credit is 0, the coord is removed.
 /* fixme: rename to vec_reduce_coords, define vec_reduce(X) as vec_add(X, [])? */
 vec_reduce(As, Bs) :-
 	findall(B,

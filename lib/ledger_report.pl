@@ -295,15 +295,15 @@ investment_report2((Exchange_Rates, Accounts, Transactions, Report_Currency, Rep
 	Static_Data = (Exchange_Rates, Accounts, Transactions, Report_Currency, Report_Date),
 	maplist(
 		check_totals(Static_Data, Trading_Account),
-		[Check_Realized_Totals_List,Check_Unrealized_Totals_List],
+		[Check_Realized_Totals_List, Check_Unrealized_Totals_List],
 		[realized, unrealized],
 		Warnings).
 	
 	
-check_totals((Exchange_Rates, Accounts, Transactions, Report_Currency, Report_Date), Trading_Account, Check_Totals_List, Gains_Role, Warning) :- 
-	% these totals should be more or less equal to the account balances
-	gtrace,
-	vec_reduce(Check_Totals_List, Total),
+check_totals((Exchange_Rates, Accounts, Transactions, Report_Currency, Report_Date), Trading_Account, Check_Totals_List_Nested, Gains_Role, Warning) :- 
+	flatten(Check_Totals_List_Nested, Check_Totals_List),
+	% the totals in investment report should be more or less equal to the account balances
+	vec_add(Check_Totals_List, [/*coord('AUD', 1, 0)*/], Total),
 	account_by_role(Accounts, (Trading_Account/Gains_Role), Account),
 	balance_by_account(Exchange_Rates, Accounts, Transactions, Report_Currency, Report_Date, Account, Report_Date, Total_Balance, _),
 	(
