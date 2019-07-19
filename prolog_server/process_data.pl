@@ -59,3 +59,5 @@ store_xml_document(FileName, XML) :-
    open(FileName, write, Stream),
    write(Stream, XML),
    close(Stream).
+
+:- locale_create(Locale, "en_AU.utf8", []), set_locale(Locale).
