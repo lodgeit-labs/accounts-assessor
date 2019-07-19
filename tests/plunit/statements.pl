@@ -14,9 +14,7 @@ test(0) :-
 
 
 /*
-so let go over findall again.
-findall(Template, Goal, Result)
-runs goal, when it succeeds, it puts Template into Result
+findall(Template, Goal, Result) runs goal, when it succeeds, it puts Template into Result
 */
 	findall(
 		% we are collecting this template. it can contain a variable that could be bound by the Goal expression

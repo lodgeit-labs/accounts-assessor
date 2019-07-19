@@ -44,8 +44,7 @@
 :- use_module('../../lib/livestock', [
 		get_livestock_types/2, 
 		process_livestock/14, 
-		make_livestock_accounts/2, 
-		livestock_counts/5, 
+		make_livestock_accounts/2,
 		extract_livestock_opening_costs_and_counts/2]).
 :- use_module('../../lib/accounts', [
 		extract_account_hierarchy/2]).
@@ -68,7 +67,6 @@ process_xml_ledger_request(_, Dom) :-
 	parse_date(End_Date_Atom, End_Days),
 
 	extract_exchange_rates(Dom, End_Date_Atom, Default_Currency, Exchange_Rates),
-	
 	findall(Livestock_Dom, xpath(Dom, //reports/balanceSheetRequest/livestockData, Livestock_Dom), Livestock_Doms),
 	get_livestock_types(Livestock_Doms, Livestock_Types),
    	extract_livestock_opening_costs_and_counts(Livestock_Doms, Livestock_Opening_Costs_And_Counts),

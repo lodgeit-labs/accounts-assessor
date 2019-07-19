@@ -17,8 +17,8 @@
 		account_child_parent/3,
 		account_in_set/3,
 		account_by_role/3,
-		account_role/2,
-		account_role_by_id/3]).
+		account_role_by_id/3,
+		account_exists/2]).
 :- use_module('pacioli', [
 		vec_add/3, 
 		vec_inverse/2, 
@@ -59,6 +59,7 @@ balance_until_day(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, A
 
 /* balance on account up to and including Date*/
 balance_by_account(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Account_Id, Date, Balance_Transformed, Transactions_Count) :-
+	assertion(account_exists(Accounts, Account_Id)),
 	add_days(Date, 1, Date2),
 	balance_until_day(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Account_Id, Date2, Balance_Transformed, Transactions_Count).
 	
