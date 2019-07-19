@@ -202,13 +202,14 @@ format_report_entries(_, _, _, _, [], Used_Units, Used_Units, Lines, Lines).
 
 format_report_entries(Account_Hierarchy, Level, Report_Currency, End_Year, Entries, Used_Units_In, UsedUnitsOut, LinesIn, LinesOut) :-
 	[entry(Name, Balances, Children, Transactions_Count)|EntriesTail] = Entries,
+	account_normal_side(Account_Hierarchy, Name, Normal_Side),
 	(
 		(Balances = [],(Transactions_Count \= 0; Level = 0))
 	->
-		format_balance(Account_Hierarchy, Level, Report_Currency, End_Year, Name, [],
+		format_balance(Account_Hierarchy, Level, Report_Currency, End_Year, Name, Normal_Side, [],
 			Used_Units_In, UsedUnitsIntermediate, LinesIn, LinesIntermediate)
 	;
-		format_balances(Account_Hierarchy, Level, Report_Currency, End_Year, Name, Balances, 
+		format_balances(Account_Hierarchy, Level, Report_Currency, End_Year, Name, Normal_Side, Balances, 
 			Used_Units_In, UsedUnitsIntermediate, LinesIn, LinesIntermediate)
 	),
 	Level_New is Level + 1,
@@ -216,13 +217,13 @@ format_report_entries(Account_Hierarchy, Level, Report_Currency, End_Year, Entri
 	format_report_entries(Account_Hierarchy, Level, Report_Currency, End_Year, EntriesTail, UsedUnitsIntermediate2, UsedUnitsOut, LinesIntermediate2, LinesOut),
 	!.
 
-format_balances(_, _, _, _, _, [], Used_Units, Used_Units, Lines, Lines).
+format_balances(_, _, _, _, _, _, [], Used_Units, Used_Units, Lines, Lines).
 
-format_balances(Account_Hierarchy, Level, Report_Currency, End_Year, Name, [Balance|Balances], Used_Units_In, UsedUnitsOut, LinesIn, LinesOut) :-
-   format_balance(Account_Hierarchy, Level, Report_Currency, End_Year, Name, [Balance], Used_Units_In, UsedUnitsIntermediate, LinesIn, LinesIntermediate),
-   format_balances(Account_Hierarchy, Level, Report_Currency, End_Year, Name, Balances, UsedUnitsIntermediate, UsedUnitsOut, LinesIntermediate, LinesOut).
+format_balances(Account_Hierarchy, Level, Report_Currency, End_Year, Name, Normal_Side, [Balance|Balances], Used_Units_In, UsedUnitsOut, LinesIn, LinesOut) :-
+   format_balance(Account_Hierarchy, Level, Report_Currency, End_Year, Name, Normal_Side, [Balance], Used_Units_In, UsedUnitsIntermediate, LinesIn, LinesIntermediate),
+   format_balances(Account_Hierarchy, Level, Report_Currency, End_Year, Name, Normal_Side, Balances, UsedUnitsIntermediate, UsedUnitsOut, LinesIntermediate, LinesOut).
 
-format_balance(Account_Hierarchy, Level, Report_Currency_List, End_Year, Name, [], Used_Units_In, UsedUnitsOut, LinesIn, LinesOut) :-
+format_balance(Account_Hierarchy, Level, Report_Currency_List, End_Year, Name, Normal_Side, [], Used_Units_In, UsedUnitsOut, LinesIn, LinesOut) :-
 	(
 		[Report_Currency] = Report_Currency_List
 	->
@@ -230,36 +231,28 @@ format_balance(Account_Hierarchy, Level, Report_Currency_List, End_Year, Name, [
 	;
 		Report_Currency = 'AUD' % just for displaying zero balance
 	),
-	format_balance(Account_Hierarchy, Level, _, End_Year, Name, [coord(Report_Currency, 0, 0)], Used_Units_In, UsedUnitsOut, LinesIn, LinesOut).
+	format_balance(Account_Hierarchy, Level, _, End_Year, Name, Normal_Side, [coord(Report_Currency, 0, 0)], Used_Units_In, UsedUnitsOut, LinesIn, LinesOut).
    
-format_balance(Account_Hierarchy, Level, _, End_Year, Name, [coord(Unit, Debit, Credit)], Used_Units_In, UsedUnitsOut, LinesIn, LinesOut) :-
+format_balance(_Account_Hierarchy, Level, _, End_Year, Name, Normal_Side, [coord(Unit, Debit, Credit)], Used_Units_In, UsedUnitsOut, LinesIn, LinesOut) :-
 	union([Unit], Used_Units_In, UsedUnitsOut),
 	(
-		account_in_set(Account_Hierarchy, Name, 'Liabilities')
-	->
-		Balance is (Credit - Debit)
-	;
-	(
-		account_in_set(Account_Hierarchy, Name, 'Equity')
-	->
-		Balance is (Credit - Debit)
-	;
-	(
-		account_in_set(Account_Hierarchy, Name, 'Expenses')
-	->
-		Balance is (Debit - Credit)
-	;
-	(
-		account_in_set(Account_Hierarchy, Name, 'Earnings')
+		Normal_Side = credit
 	->
 		Balance is (Credit - Debit)
 	;
 		Balance is (Debit - Credit)
-	)))),
+	),
 	get_indentation(Level, Indentation),
 	format(string(BalanceSheetLine), '~w<basic:~w contextRef="D-~w" unitRef="U-~w" decimals="INF">~2:f</basic:~w>\n', [Indentation, Name, End_Year, Unit, Balance, Name]),
 	append(LinesIn, [BalanceSheetLine], LinesOut).
 
+
+account_normal_side(Account_Hierarchy, Name, credit) :-
+	member(Credit_Side_Account_Id, ['Liabilities', 'Equity', 'Expenses', 'Earnings']),
+	once(account_in_set(Account_Hierarchy, Name, Credit_Side_Account_Id)),
+	!.
+account_normal_side(_, _, debit).
+	
 	
 /*
 generate a realized and unrealized investment report sections for each trading account
@@ -320,4 +313,4 @@ investment_report3_balance((Exchange_Rates, Accounts, Transactions, Report_Curre
 	account_by_role(Accounts, (Gains_Forex_Account/Unit), Unit_Account),
 	
 	balance_by_account(Exchange_Rates, Accounts, Transactions, Report_Currency, Report_Date, Unit_Account, Report_Date, Balance, _),
-	format_balances(Accounts, 4, Report_Currency, End_Year, Unit, Balance, [], _, [], Lines).
+	format_balances(Accounts, 4, Report_Currency, End_Year, Unit, credit, Balance, [], _, [], Lines).
