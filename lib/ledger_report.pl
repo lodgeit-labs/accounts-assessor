@@ -255,7 +255,7 @@ account_normal_side(_, _, debit).
 	
 	
 /*
-generate a realized and unrealized investment report sections for each trading account
+generate realized and unrealized investment report sections for each trading account
 */
 investment_report((Exchange_Rates, Accounts, Transactions, Report_Currency, Report_Date), Transaction_Types, Lines) :-
 	trading_account_ids(Transaction_Types, Trading_Account_Ids),
@@ -265,7 +265,7 @@ investment_report((Exchange_Rates, Accounts, Transactions, Report_Currency, Repo
 		Lines_Nested),
 	flatten(Lines_Nested, Lines).
 
-investment_report2((Exchange_Rates, Accounts, Transactions, Report_Currency, Report_Date), Trading_Account, Lines) :-
+units_traded_on_trading_account(Accounts, Trading_Account, All_Units_Roles) :-
 	findall(
 		Unit_Account_Role,
 		(
@@ -278,22 +278,58 @@ investment_report2((Exchange_Rates, Accounts, Transactions, Report_Currency, Rep
 		),
 		All_Units_Roles0
 	),
-	sort(All_Units_Roles0, All_Units_Roles),
+	sort(All_Units_Roles0, All_Units_Roles).
+
+/*
+generate realized and unrealized investment report sections for one trading account
+*/
+investment_report2((Exchange_Rates, Accounts, Transactions, Report_Currency, Report_Date), Trading_Account, [Lines, Warnings]) :-
+	units_traded_on_trading_account(Accounts, Trading_Account, All_Units_Roles),
 	maplist(
 		investment_report3(
 			(Exchange_Rates, Accounts, Transactions, Report_Currency, Report_Date, Trading_Account)),
 		All_Units_Roles,
-		Lines).
-
-% investment_report3(Static_Data, Unit, ['<!--', Unit, ':', '-->\n', Lines1, Lines2, '\n']) :-
-investment_report3(Static_Data, Unit, [Unit, ':', '\n', Lines1, Lines2, '\n']) :-
-	investment_report3_lines(Static_Data, Unit, realized, Lines1),
-	investment_report3_lines(Static_Data, Unit, unrealized, Lines2).
+		Lines,
+		Check_Realized_Totals_List,
+		Check_Unrealized_Totals_List),
+	Static_Data = (Exchange_Rates, Accounts, Transactions, Report_Currency, Report_Date),
+	maplist(
+		check_totals(Static_Data, Trading_Account),
+		[Check_Realized_Totals_List,Check_Unrealized_Totals_List],
+		[realized, unrealized],
+		Warnings).
 	
-investment_report3_lines(Static_Data, Unit, Gains_Role, Lines) :-
+	
+check_totals((Exchange_Rates, Accounts, Transactions, Report_Currency, Report_Date), Trading_Account, Check_Totals_List, Gains_Role, Warning) :- 
+	% these totals should be more or less equal to the account balances
+	gtrace,
+	vec_reduce(Check_Totals_List, Total),
+	account_by_role(Accounts, (Trading_Account/Gains_Role), Account),
+	balance_by_account(Exchange_Rates, Accounts, Transactions, Report_Currency, Report_Date, Account, Report_Date, Total_Balance, _),
+	(
+		(
+			Total_Balance = Total
+		)
+	->
+			Warning = []
+	;
+		(
+			term_string(Total_Balance, Total_Balance_Str),
+			term_string(Total, Total_Str),
+			Warning = [
+				'\n', Gains_Role, ' total balance check failed: account balance: ',
+				Total_Balance_Str, 'investment report total:', Total_Str, '.\n']
+		)
+	).
+	
+	
+investment_report3(Static_Data, Unit, [Unit, ':', '\n', Lines1, Lines2, '\n'], Realized_Total, Unrealized_Total) :-
+	investment_report3_lines(Static_Data, Unit, realized, Lines1, Realized_Total),
+	investment_report3_lines(Static_Data, Unit, unrealized, Lines2, Unrealized_Total).
+	
+investment_report3_lines(Static_Data, Unit, Gains_Role, Lines, Total) :-
 	investment_report3_balance(Static_Data, Gains_Role, without_currency_movement, Unit, Gains_Market_Balance, Gains_Market_Lines),
 	investment_report3_balance(Static_Data, Gains_Role, only_currency_movement, Unit, Gains_Forex_Balance, Gains_Forex_Lines),
-	
 	vec_add(Gains_Market_Balance, Gains_Forex_Balance, Total),
 	pretty_term_string(Total, Total_Str),
 	Msg = [
@@ -311,6 +347,5 @@ investment_report3_balance((Exchange_Rates, Accounts, Transactions, Report_Curre
 	account_by_role(Accounts, (Trading_Account/Gains_Role), Gains_Account),
 	account_by_role(Accounts, (Gains_Account/Forex_Role), Gains_Forex_Account),
 	account_by_role(Accounts, (Gains_Forex_Account/Unit), Unit_Account),
-	
 	balance_by_account(Exchange_Rates, Accounts, Transactions, Report_Currency, Report_Date, Unit_Account, Report_Date, Balance, _),
 	format_balances(Accounts, 4, Report_Currency, End_Year, Unit, credit, Balance, [], _, [], Lines).
