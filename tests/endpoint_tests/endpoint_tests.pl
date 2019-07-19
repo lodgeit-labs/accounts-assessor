@@ -18,29 +18,40 @@
 
 :- begin_tests(xml_testcases, [setup(run_simple_server)]).
 
-test(endpoint_requests_without_responses, [forall(tests_without_response(Without_Response))]) :-
-	test_request_without_response(Without_Response).
+test(start) :- nl.
 
-test(endpoint_requests_with_responses, [forall(tests_with_response(With_Response))]) :-
-	test_request_with_response(With_Response).
+test(endpoints, [forall(testcases(Testcase))]) :-
+	Testcase = (Request, Response),
+	query_endpoint(Request, ReplyDOM),
+	(
+		var(Response)
+	->
+		true
+	;
+		(
+			write('## Testing Response File: '), writeln(Response),
+			get_request_context(Request, Context),
+			test_response(Context, ReplyDOM, Response)
+		)
+	).
 
 :- end_tests(xml_testcases).
 
 % define the value to compare expected float value with the actual float value
 % we need this value as float operations generate different values after certain precision in different machines
-accepted_min_difference(0.0000001).
+min_accepted_float_difference(0.0000001).
 
 check_value_difference(Value1, Value2) :-
 	atom_number(Value1, NValue1),
 	atom_number(Value2, NValue2),
 	ValueDifference is abs(NValue1 - NValue2),
-	accepted_min_difference(MinimalDifference),
+	min_accepted_float_difference(MinimalDifference),
 	ValueDifference =< MinimalDifference.
 
 test_response(loan, ReplyXML, LoanResponseFile0) :-
 	test_loan_response(ReplyXML, LoanResponseFile0).
 
-test_response(general, Reply_Dom, Expected_Response_File_Relative_Path) :-
+test_response(_, Reply_Dom, Expected_Response_File_Relative_Path) :-
 	absolute_file_name(my_tests(
 		Expected_Response_File_Relative_Path),
 		Expected_Response_File_Absolute_Path,
@@ -50,14 +61,19 @@ test_response(general, Reply_Dom, Expected_Response_File_Relative_Path) :-
 	compare_xml_dom(Reply_Dom, Expected_Reply_Dom,Error),
 	(
 		var(Error)
+	->
+		true
 	;
-		write_term("Error: ",[]),
-		writeln(Error),
-		writeln(""),
-		fail
+		(
+			write_term("Error: ",[]),
+			writeln(Error),
+			writeln(""),
+			fail
+		)
 	).
 	
-test_request(RequestFile0, ReplyDOM) :-
+query_endpoint(RequestFile0, ReplyDOM) :-
+	write('## Testing Request File: '), writeln(RequestFile0),
 	absolute_file_name(my_tests(
 		RequestFile0),
 		RequestFile,
@@ -66,33 +82,12 @@ test_request(RequestFile0, ReplyDOM) :-
 	http_post('http://localhost:8080/upload', form_data([file=file(RequestFile)]), ReplyXML, [content_type('multipart/form-data')]),
 	load_structure(string(ReplyXML), ReplyDOM,[dialect(xml),space(sgml)]).
 	
-tests_without_response(Without_Response) :-
+testcases(Testcase) :-
 	find_test_directories(Paths),
 	member(Path, Paths),
-	find_requests(Path, _, Without_Responses),
-	member(Without_Response, Without_Responses).
+	find_requests(Path, Testcases),
+	member(Testcase, Testcases).
 
-tests_with_response(With_Response) :-
-	find_test_directories(Paths),
-	member(Path, Paths),
-	writeln(Path),
-	find_requests(Path, With_Responses, _),
-	member(With_Response, With_Responses).
-
-test_request_without_response(Request) :-
-	test_request(Request, _).
-
-test_request_with_response((Request, Response)) :-
-	test_request(Request, ReplyDOM),
-	get_request_context(Request, Context),
-	(
-		Context = loan 
-	-> 
-		test_response(loan, ReplyDOM, Response)
-	;
-		test_response(general, ReplyDOM, Response)
-	).
-	
 find_test_directories(Paths) :-
 	Top_Level_Directory = 'endpoint_tests',
 	absolute_file_name(my_tests(Top_Level_Directory), Endpoint_Tests_Path, [file_type(directory)]),
@@ -108,37 +103,40 @@ find_test_directories(Paths) :-
 		Paths
 	).
 
-find_requests(Path, With_Responses, Without_Responses) :-
+find_requests(Path, Testcases) :-
 	absolute_file_name(my_tests(Path), Full_Path, [file_type(directory)]),
 	directory_files(Full_Path, Entries),
-	include(is_request_file, Entries, Requests),
+	include(is_request_file, Entries, Requests0),
+	sort(Requests0, Requests),
 	findall(
 		(Request_Path, Response_Path),
 		(
-			member(Request,	Requests),
+			member(Request, Requests),
 			atomic_list_concat([Path, '/', Request], Request_Path),
-			has_response_file(Request_Path, Response_Path)
+			response_file(Request_Path, Response_Path)
 		),
-		With_Responses
-	),
-	findall(
-		Request_Path,
-		(
-			member(Request,	Requests),
-			atomic_list_concat([Path, '/', Request], Request_Path),
-			\+has_response_file(Request_Path, _)
-		),
-		Without_Responses
+		Testcases
 	).
-	
+
 is_request_file(Atom) :-
 	atom_concat(_,'.xml',Atom),
 	sub_atom_icasechk(Atom, _Start2, 'request').
 
-has_response_file(Atom, Response) :-
-	re_replace('request', 'response', Atom, Response),
-	absolute_file_name(my_tests(Response),_,[ access(read), file_errors(fail) ]).
+response_file(Atom, Response) :-
+	atom_string(Atom, String),
+	(
+		(
+			re_replace('request', 'response', String, Response);
+			re_replace('Request', 'Response', String, Response);
+			re_replace('REQUEST', 'RESPONSE', String, Response)
+		),
+		String \= Response
+	),
+	absolute_file_name(my_tests(Response),_,[ access(read), file_errors(fail) ]),
+	!.
 
+response_file(_, _).
+	
 % find the subdirectory of endpoint_tests that this request file is in
 get_request_context(Request, Context) :-
 	atom_chars(Request, RequestChars),
@@ -162,16 +160,11 @@ test_loan_response(ReplyXML, LoanResponseFile0) :-
 		[]
 	),
 	
-	nl, write('## Testing Response File: '), writeln(LoanResponseFile),
-	%open(TempLoanResponseFile, write, Stream),
-	%write(Stream, ReplyXML),
-	%close(Stream),
-	
-	%load_xml(TempLoanResponseFile, ActualReplyDOM, []),
 	load_structure(string(ReplyXML), ActualReplyDOM, [dialect(xml),space(sgml)]),
 	load_xml(LoanResponseFile, ExpectedReplyDOM, [space(sgml)]),
 
 	% do the comparison here?	
+	% seems fine to me
 
 	extract_loan_response_values(ActualReplyDOM, ActualIncomeYear, ActualOpeningBalance, ActualInterestRate, ActualMinYearlyRepayment, ActualTotalRepayment, 
 		ActualRepaymentShortfall, ActualTotalInterest, ActualTotalPrincipal, ActualClosingBalance),
