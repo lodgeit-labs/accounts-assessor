@@ -125,21 +125,22 @@ unrealized_gains_reduction_txs((Accounts, Report_Currency, _, _, _), Trading_Acc
 
 	
 realized_gains_txs((Accounts, Report_Bases, _, _,Exchange_Rates), Sale_Currency, Sale_Currency_Unit_Price, Trading_Account_Id, Sale_Unit_Price_Converted, Purchase_Info, Txs) :-
-	[Report_Currency] = Report_Bases,
 	outstanding(_ST_Currency, Goods_Unit, Goods_Count, Cost, Purchase_Date) = Purchase_Info,
 	
 	gains_accounts(
 		Accounts, Trading_Account_Id, realized, Goods_Unit, 
 		Realized_Gains_Currency_Movement, Realized_Gains_Excluding_Forex),
 	
-	Sale_Unit_Price_Converted = value(Report_Currency, _),
+	%[Report_Currency] = Report_Bases,
+	%Sale_Unit_Price_Converted = value(Report_Currency, _),
+
 	Sale_Currency_Amount is Sale_Currency_Unit_Price * Goods_Count,
 	
 	/*what would be the Report_Currency value we'd get for this sale currency amount if purchase/sale currency didn't move against Report_Currency since the day of the purchase?*/
 	vec_change_bases(
 		Exchange_Rates, 
 		Purchase_Date, 
-		[Report_Currency], 
+		Report_Bases, 
 		[coord(Sale_Currency, 0, Sale_Currency_Amount)],
 		Sale_Without_Currency_Movement
 	),
