@@ -22,9 +22,17 @@ x :-
 	clean_terminal,
 	shell2([Load_Cmd, ' -g "halt."  2>&1  |  tee err']),
 	halt_on_err,
+	writeln('ok...'),
 	shell2([Load_Cmd, ' -g "', Goal, ', halt."  2>&1 1> arrr.xml | tee err']),
 	halt_on_err,
 	shell2([Viewer, ' arrr.xml']),
 	halt.
 
 :- x.
+
+
+/*
+
+running this takes a while because it first does just a load to find compile errors, and then runs swipl again to actually execute goal. Maybe next version will consult Script directly, but idk how to eval() a goal, except by parsing it first..
+
+*/
