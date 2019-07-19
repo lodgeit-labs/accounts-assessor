@@ -49,7 +49,10 @@ check_value_difference(Value1, Value2) :-
 	ValueDifference =< MinimalDifference.
 
 test_response(loan, ReplyXML, LoanResponseFile0) :-
-	test_loan_response(ReplyXML, LoanResponseFile0).
+	
+	test_loan_response(ReplyXML, LoanResponseFile0),
+	test_response(general, ReplyXML, LoanResponseFile0),
+	!.
 
 test_response(_, Reply_Dom, Expected_Response_File_Relative_Path) :-
 	absolute_file_name(my_tests(
@@ -148,20 +151,15 @@ get_request_context(Request, Context) :-
 loan endpoint specific testing. General xml comparison should handle it just fine, but let's leave it here as an example for when endpoint-specific testing actually is necessary
 */
 	
-test_loan_response(ReplyXML, LoanResponseFile0) :-
+test_loan_response(ActualReplyDOM, Expected_LoanResponseFile0) :-
+	
 	absolute_file_name(my_tests(
-		LoanResponseFile0),
-		LoanResponseFile,
+		Expected_LoanResponseFile0),
+		Expected_LoanResponseFile,
 		[ access(read) ]
 	),
-	absolute_file_name(my_tmp(
-		'actual-loan-response.xml'),
-		TempLoanResponseFile,
-		[]
-	),
 	
-	load_structure(string(ReplyXML), ActualReplyDOM, [dialect(xml),space(sgml)]),
-	load_xml(LoanResponseFile, ExpectedReplyDOM, [space(sgml)]),
+	load_xml(Expected_LoanResponseFile, ExpectedReplyDOM, [space(sgml)]),
 
 	% do the comparison here?	
 	% seems fine to me

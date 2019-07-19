@@ -1,6 +1,5 @@
 
 :- ['../../lib/pacioli'].
-:- ['../../lib/exchange_rates'].
 :- ['../../lib/files'].
 :- ['../../lib/pricing'].
 :- ['../../lib/utils'].
@@ -74,44 +73,6 @@ test(0) :-
 	vec_add([value('AUD',25)], [value('AUD',50)], [value('AUD',75)]).
 
 :- end_tests(pacioli).
-
-:- begin_tests(exchange_rates).
-
-test(0) :-
-	exchange_rate([], date(2016,7,6), 'USD', 'USD', One), One =:= 1.
-
-test(0) :-
-	exchange_rate([], date(2016,7,6), 'USD', 'AUD', _X).
-	
-test(1) :-
-	exchange_rate(
-	[
-		exchange_rate(date(2017,7,1),'SG_Issuer_SA','USD',10),
-		exchange_rate(date(2018,6,30),'SG_Issuer_SA','USD',40),
-		exchange_rate(date(2017,7,1),'USD','AUD',1.4492753623188408),
-		exchange_rate(date(2018,6,30),'USD','AUD',1.4285714285714286)
-	], 
-	date(2018,6,30),
-	'SG_Issuer_SA',
-	'AUD',
-	_).
-	
-test(2) :-
-	exchange_rate(
-	[
-		exchange_rate(date(2017,7,1),'SG_Issuer_SA','USD',10),
-		exchange_rate(date(2018,6,30),'SG_Issuer_SA','USD',40),
-		exchange_rate(date(2017,7,1),'USD','AUD',1.4492753623188408),
-		exchange_rate(date(2018,6,30),'USD','AUD',1.4285714285714286)
-	], 
-	date(2018,6,30),
-	without_currency_movement_against_since('SG_Issuer_SA','USD', ['AUD'],date(2017,7,1)),
-	'AUD',
-	57.97101449275363).
-
-
-
-:- end_tests(exchange_rates).
 
 
 :- begin_tests(files).
