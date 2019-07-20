@@ -21,8 +21,8 @@ see doc/investment and dropbox Develop/videos/ledger
 		trial_balance_between/8, 
 		profitandloss_between/8, 
 		balance_by_account/9]).
-:- use_module('../../lib/accounts', [extract_account_hierarchy/2]).
-:- use_module('../../lib/pacioli',  [integer_to_coord/3]).
+:- use_module('../../lib/accounts', [extract_account_hierarchy/2, account_by_role/3]).
+:- use_module('../../lib/pacioli',  [number_coord/3]).
 
 
 float_comparison_max_difference(0.00000001).
@@ -157,10 +157,12 @@ process_realized(Dom, Global_Report_Date_Atom, Result) :-
 		Transactions
 	),
    	Info = (Exchange_Rates, Accounts1, Transactions, Sale_Date, report_currency),
-   
-    account_assertion(Info, 'Realized_Gains_Excluding_Forex', -RC_Realized_Market_Gain),
-	account_assertion(Info, 'Realized_Gains_Currency_Movement', -RC_Realized_Currency_Gain),
-	account_assertion(Info, 'Realized_Gain', -RC_Realized_Total_Gain),
+	account_by_role(Accounts1, 'Investment_Income'/realized, Gain_Account),
+	account_by_role(Accounts1, Gain_Account/without_currency_movement, Gains_Excluding_Forex_Account),
+	account_by_role(Accounts1, Gain_Account/only_currency_movement, Gains_Currency_Movement_Account), 
+    account_assertion(Info, Gains_Excluding_Forex_Account, -RC_Realized_Market_Gain),
+	account_assertion(Info, Gains_Currency_Movement_Account, -RC_Realized_Currency_Gain),
+	account_assertion(Info, Gain_Account, -RC_Realized_Total_Gain),
 	
 	profitandloss_between(Exchange_Rates, Accounts1, Transactions, [report_currency], Sale_Date, Purchase_Date, Sale_Date, ProftAndLoss),
 	format_report_entries(Accounts1, 0, [report_currency], Sale_Date, ProftAndLoss, [], _, [], ProftAndLoss_Lines),
@@ -291,10 +293,12 @@ process_unrealized(Dom, Global_Report_Date, Result) :-
 	writeln('-->'),
 
    	Info = (Exchange_Rates, Accounts1, Transactions, Report_Date, report_currency),
-   
-	account_assertion(Info, 'Unrealized_Gains_Excluding_Forex', -RDRC_Unrealized_Market_Gain),
-	account_assertion(Info, 'Unrealized_Gains_Currency_Movement', -RDRC_Unrealized_Currency_Gain),
-	account_assertion(Info, 'Unrealized_Gain', -RDRC_Unrealized_Total_Gain),
+	account_by_role(Accounts1, 'Investment_Income'/unrealized, Unrealized_Gain_Account),
+	account_by_role(Accounts1, Unrealized_Gain_Account/without_currency_movement, Unrealized_Gains_Excluding_Forex_Account),
+	account_by_role(Accounts1, Unrealized_Gain_Account/only_currency_movement, Unrealized_Gains_Currency_Movement_Account),
+   	account_assertion(Info, Unrealized_Gains_Excluding_Forex_Account, -RDRC_Unrealized_Market_Gain),
+	account_assertion(Info, Unrealized_Gains_Currency_Movement_Account, -RDRC_Unrealized_Currency_Gain),
+	account_assertion(Info, Unrealized_Gain_Account, -RDRC_Unrealized_Total_Gain),
 
 	true.
 		
@@ -307,7 +311,7 @@ account_assertion(Info, Account, Expected_Exp) :-
 	(
 		(
 			Vector = [Coord],
-			integer_to_coord(Currency, Balance, Coord),
+			number_coord(Currency, Balance, Coord),
 			!
 		)
 	;	(	Vector = [],
@@ -445,11 +449,16 @@ crosscheck_totals(Results, Report_Date) :-
 		Transactions
 	),
    	Info = (Exchange_Rates, Accounts1, Transactions, Report_Date, report_currency),
-
-	account_assertion(Info, 'Realized_Gains_Excluding_Forex', -Realized_Market_Gain_Total),
-	account_assertion(Info, 'Realized_Gains_Currency_Movement', -Realized_Currency_Gain_Total),
-	account_assertion(Info, 'Unrealized_Gains_Excluding_Forex', -Unrealized_Market_Gain_Total),
-	account_assertion(Info, 'Unrealized_Gains_Currency_Movement', -Unrealized_Currency_Gain_Total),
+	account_by_role(Accounts1, 'Investment_Income'/unrealized, Unrealized_Gain_Account),
+	account_by_role(Accounts1, 'Investment_Income'/realized, Realized_Gain_Account),
+	account_by_role(Accounts1, Unrealized_Gain_Account/without_currency_movement, Unrealized_Gains_Excluding_Forex_Account),
+	account_by_role(Accounts1, Unrealized_Gain_Account/only_currency_movement, Unrealized_Gains_Currency_Movement_Account),
+	account_by_role(Accounts1, Realized_Gain_Account/without_currency_movement, Realized_Gains_Excluding_Forex_Account),
+	account_by_role(Accounts1, Realized_Gain_Account/only_currency_movement, Realized_Gains_Currency_Movement_Account),
+	account_assertion(Info, Realized_Gains_Excluding_Forex_Account, -Realized_Market_Gain_Total),
+	account_assertion(Info, Realized_Gains_Currency_Movement_Account, -Realized_Currency_Gain_Total),
+	account_assertion(Info, Unrealized_Gains_Excluding_Forex_Account, -Unrealized_Market_Gain_Total),
+	account_assertion(Info, Unrealized_Gains_Currency_Movement_Account, -Unrealized_Currency_Gain_Total),
 	
 	profitandloss_between(Exchange_Rates, Accounts1, Transactions, [report_currency], Report_Date, date(2000,1,1), Report_Date, ProftAndLoss),
 	format_report_entries(Accounts1, 0, [report_currency], Report_Date, ProftAndLoss, [], _, [], ProftAndLoss_Lines),

@@ -11,7 +11,7 @@
 		    vec_reduce/2,
 		    vec_sub/3,
 		    vec_units/2,
-		    integer_to_coord/3,
+		    number_coord/3,
 		    make_debit/2,
 		    make_credit/2,
 		    value_multiply/3,
@@ -45,7 +45,8 @@ coord_inverse(unit(Unit, Value), unit(Unit, Value_Inverted)) :-
 % purposes of the computations carried out in this program. This predicate reduces the
 % coordinates of a vector into a canonical form.
 %  - returns vector with same coordinates, just minimized by substracting a common value from
-%    debit and credit, so that one of them becomes 0, for example 150,50 -> 100,0 
+%    debit and credit, so that one of them becomes 0, for example 150,50 -> 100,0.
+% if both debit and credit is 0, the coord is removed.
 /* fixme: rename to vec_reduce_coords, define vec_reduce(X) as vec_add(X, [])? */
 vec_reduce(As, Bs) :-
 	findall(B,
@@ -134,16 +135,16 @@ make_credit(value(Unit, Amount), coord(Unit, 0, Amount)).
 make_credit(coord(Unit, Dr, Zero), coord(Unit, 0, Dr)) :- Zero =:= 0.
 make_credit(coord(Unit, Zero, Cr), coord(Unit, 0, Cr)) :- Zero =:= 0.
 
-/* fixme, rename to number_to_coord*/
-integer_to_coord(Unit, Integer, coord(Unit, Debit, Credit)) :-
+/* fixme, rename to number_coord*/
+number_coord(Unit, Integer, coord(Unit, Debit, Credit)) :-
 	{Integer =:= Debit - Credit}.
 
 credit_isomorphism(Coord, C) :- 
-	integer_to_coord(_, D, Coord),
+	number_coord(_, D, Coord),
 	C is -D.
 
 debit_isomorphism(Coord, C) :- 
-	integer_to_coord(_, C, Coord).
+	number_coord(_, C, Coord).
 
 coord_or_value_of_same_unit(A, B) :-
 	coord_unit(A, A_Unit),

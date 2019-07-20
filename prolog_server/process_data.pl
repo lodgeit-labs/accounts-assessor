@@ -10,7 +10,7 @@
 % -------------------------------------------------------------------
 
 :- use_module(library(xpath)).
-:- use_module('../lib/files', []).
+:- use_module('../lib/files', [bump_tmp_directory_id/0]).
 :- use_module(loan/process_xml_loan_request, [process_xml_loan_request/2]).
 :- use_module(ledger/process_xml_ledger_request, [process_xml_ledger_request/2]).
 :- use_module(livestock/process_xml_livestock_request, [process_xml_livestock_request/2]).
@@ -23,15 +23,18 @@
 
 process_data(FileName, Path) :-
    format('Content-type: text/xml~n~n'),
-   process_data2(FileName, Path).
+   process_data1(FileName, Path).
    % writeq(DOM),
    % write(FileName),
    % write(Path).
 
-process_data2(FileName, Path) :-
+process_data1(FileName, Path) :-
    load_xml(Path, DOM, []),
    process_xml_request(FileName, DOM).
 
+process_data2(FileName, Path) :-
+	bump_tmp_directory_id,
+	process_data1(FileName, Path).
    
 % -------------------------------------------------------------------
 % process_xml_request/2
@@ -59,3 +62,5 @@ store_xml_document(FileName, XML) :-
    open(FileName, write, Stream),
    write(Stream, XML),
    close(Stream).
+
+:- locale_create(Locale, "en_AU.utf8", []), set_locale(Locale).

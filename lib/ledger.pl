@@ -17,7 +17,7 @@
 		pretty_term_string/2]).
 :- use_module('livestock', [
 		process_livestock/14,
-		livestock_counts/5]). 
+		livestock_counts/6]). 
 :- use_module('transactions', [
 		check_transaction_account/2]).
 
@@ -59,12 +59,21 @@ process_ledger(
 	'-->\n\n'], Debug_Message0),
 	writeln(Debug_Message0),
 	
-	generate_system_accounts((S_Transactions, Livestock_Types, Action_Taxonomy), Account_Hierarchy_In, Generated_Accounts),
+	generate_system_accounts((S_Transactions, Livestock_Types, Action_Taxonomy), Account_Hierarchy_In, Generated_Accounts_Nested),
+	flatten(Generated_Accounts_Nested, Generated_Accounts),
+	pretty_term_string(Generated_Accounts, Message3b),
+	atomic_list_concat([
+	'\n<!--',
+	'Generated accounts:\n', Message3b,'\n\n',
+	'-->\n\n'], Debug_Message10),
+	writeln(Debug_Message10),
 	flatten([Account_Hierarchy_In, Generated_Accounts], Account_Hierarchy),
+	
 	preprocess_s_transactions((Account_Hierarchy, Report_Currency, Action_Taxonomy, End_Days, Exchange_Rates), S_Transactions, Transactions1, Transaction_Transformation_Debug),
+	
 	process_livestock(Livestock_Doms, Livestock_Types, S_Transactions, Transactions1, Livestock_Opening_Costs_And_Counts, Start_Days, End_Days, Exchange_Rates, Account_Hierarchy, Report_Currency, Transactions_With_Livestock, Livestock_Events, Average_Costs, Average_Costs_Explanations),
 
-	livestock_counts(Livestock_Types, Transactions_With_Livestock, Livestock_Opening_Costs_And_Counts, End_Days, Livestock_Counts),
+	livestock_counts(Account_Hierarchy, Livestock_Types, Transactions_With_Livestock, Livestock_Opening_Costs_And_Counts, End_Days, Livestock_Counts),
 
 	maplist(check_transaction_account(Account_Hierarchy), Transactions_With_Livestock),
 	

@@ -5,16 +5,25 @@
 % ===================================================================
 
 :- module(accounts, [
-		account_child_parent/3,
-		extract_account_hierarchy/2, 
+		/*The public api.*/
+		/*The rest of the codebase should never deal with account terms directly, only handle them by id or role, so i am leaving out the "_id" where possible. 
+		All these predicates take and return id's or roles, and require that Accounts is passed to them as first argument*/
 		account_in_set/3, 
 		account_by_role/3, 
-		account_term_by_role/3,
-		account_parent/2, 
-		account_role/2,
+		account_child_parent/3,
+		account_exists/2,
+		account_role_by_id/3,
+		account_detail_level/3,
+		/*extract account tree specified in request xml*/
+		extract_account_hierarchy/2, 
+		/*The private api.*/
+		/*accessors of account term fields*/
 		account_id/2,
+		account_role/2,
+		account_parent/2, 
 		account_detail_level/2,
-		account_exists/2]).
+		/*you don't need this*/
+		account_term_by_role/3]).
 
 :- use_module(library(http/http_client)).
 :- use_module(library(record)).
@@ -23,31 +32,30 @@
 :- use_module('../lib/files', []).
 
 
-/*
-currently we have just a proof-of-concept level of referencing accounts, simply by names
+:- record account(id, parent, role, detail_level).
 
-what i understand is that both account names and account numbers can change
+
+/*
+from what i understand, both account names and account numbers can change
 at least the logic does not seem to ever need to care about the structure of the tree, only about identifying appropriate accounts
 so what i see we need is a user interface and a simple xml schema to express associations between accounts and their roles in the system
 the roles can have unique names, and later URLs, in the whole set of programs
 .
 <role name="Livestock sales revenue" account="4321">
+or rather <account id="xxxx" role="Financial_Investments/Realized_Gains">...
+
 mostly it is a matter of creating a user interface to specify these associations
 the program can also create sub-accounts from the specified account in runtime as needed, for example for livestock types
-then each account hierarchy can come with a default set of associations
-first we should settle on a way to identify accounts and specify the hierarchy for the prolog side
-i suppose using the accounts.json format is the way to go
-right now we identify just by names and load just from the simple xml */
-
-
-:- record account(id, parent, role, detail_level).
-
+then each account hierarchy can come with a default set of associations*/
 
 account_exists(Accounts, Id) :-
 	account_id(Account, Id),
 	member(Account, Accounts).
 	
-
+account_detail_level(Accounts, Id, Detail_Level) :-
+	account_term_by_id(Accounts, Id, Account),
+	account_detail_level(Account, Detail_Level).
+	
 % Relates an account to an ancestral account or itself
 account_in_set(Accounts, Account_Id, Root_Account_Id) :-
 	Account_Id = Root_Account_Id;
@@ -85,7 +93,11 @@ account_term_by_id(Accounts, Id, Account) :-
 	member(Account, Accounts),
 	account_id(Account, Id).
 
+account_role_by_id(Accounts, Id, Role) :-
+	account_term_by_id(Accounts, Id, Account),
+	account_role(Account, Role).
 
+	
 extract_account_hierarchy(Request_Dom, Account_Hierarchy) :-
 	(
 			xpath(Request_Dom, //reports/balanceSheetRequest/accountHierarchy, Account_Hierarchy_Dom)
@@ -146,18 +158,4 @@ yield_accounts(element(Parent_Name,_,Children), Link) :-
 			yield_accounts(Child, Link)
 		)
 	).
-
-
-movement_unit_account(Accounts, Movement_Account, Unit) :-
-	member(Account, Accounts),
-	account_role(Account, Movement_Account/Unit).
-	
-gains_movement_account(Accounts, Gains_Account, Movement) :-
-	member(Account, Accounts),
-	account_role(Account, Gains_Account/Movement).
-
-trading_gains_account(Accounts, Trading_Account, Realized_Or_Unrealized) :-
-	member(Account, Accounts),
-	account_role(Account, Trading_Account/Realized_Or_Unrealized).
-
 

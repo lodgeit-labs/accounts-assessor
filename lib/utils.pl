@@ -1,14 +1,27 @@
 :- module(utils, [
-	user:goal_expansion/2, inner_xml/3, open_tag/1, close_tag/1, write_tag/2, fields/2, field_nothrow/2, numeric_fields/2, 
-	pretty_term_string/2, pretty_term_string/2, trim_atom/2, maplist6/6, throw_string/1, semigroup_foldl/3,
-	get_indentation/2]).
-:- use_module(library(xpath)).
+		user:goal_expansion/2, 
+		inner_xml/3, 
+		open_tag/1, 
+		close_tag/1, 
+		write_tag/2, 
+		fields/2, 
+		field_nothrow/2, 
+		numeric_fields/2, 
+		pretty_term_string/2, 
+		trim_atom/2, 
+		maplist6/6, 
+		throw_string/1, 
+		semigroup_foldl/3,
+		get_indentation/2,
+		without_nonalphanum_chars/2,
+		floats_close_enough/2]).
 
+		
+:- use_module(library(xpath)).
 
 
 :- multifile user:goal_expansion/2.
 :- dynamic user:goal_expansion/2.
-
 
 
 /*executed at compile time, passess X through, and binds Names to info suitable for term_string*/	
@@ -275,3 +288,27 @@ get_indentation(Level, Indentation) :-
 
 get_indentation(0, ' ').
 
+without_nonalphanum_chars(Atom1, Atom2) :-
+	atom_chars(Atom1, Atom1_Chars),
+	maplist(replace_nonalphanum_char_with_underscore, Atom1_Chars, Atom2_Chars),
+	atom_chars(Atom2, Atom2_Chars).
+	
+replace_nonalphanum_char_with_underscore(Char1, Char2) :-
+	char_type(Char1, alnum)
+		->
+	Char1 = Char2
+		;
+	Char2 = '_'.
+	
+	
+	
+% define the value to compare expected float value with the actual float value
+% we need this value as float operations generate different values after certain precision in different machines
+min_accepted_float_difference(0.0000001).
+
+	
+floats_close_enough(Value1, Value2) :-
+	ValueDifference is abs(Value1 - Value2),
+	min_accepted_float_difference(MinimalDifference),
+	ValueDifference =< MinimalDifference.
+	

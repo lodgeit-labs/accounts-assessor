@@ -49,5 +49,5 @@ generate_unique_tmp_directory_base :-
    asserta(session_tmp_directory_base(Base)),
    bump_tmp_directory_id.
 
-
+:- initialization(generate_unique_tmp_directory_base).
 

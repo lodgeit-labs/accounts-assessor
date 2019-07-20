@@ -94,7 +94,7 @@
             <transdate>2018-06-30</transdate>
             <debit>0.00</debit>
             <credit>200.00</credit>
-            <unit>5</unit>
+            <unit>10</unit>
             <unitType>SG_Issuer_SA</unitType>
           </transaction>
 

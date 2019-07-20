@@ -13,15 +13,15 @@ test(0) :-
 	write("Are transactions where only the exchanged amount units are known and that uses a trading account preprocessed correctly?"),
 
 
-/*
-so let go over findall again.
-findall(Template, Goal, Result)
-runs goal, when it succeeds, it puts Template into Result
-*/
+	/*
+	findall(Template, Goal, Result) runs goal, when it succeeds, it puts Template into Result
+	*/
 	findall(
 		% we are collecting this template. it can contain a variable that could be bound by the Goal expression
 		Result,
 
+		/*Static_Data = (Account_Hierarchy, Report_Currency, Action_Taxonomy, End_Days, Exchange_Rates), S_Transactions, Transactions1, Transaction_Transformation_Debug),*/
+	
 		% on each yield of this goal
 		preprocess_s_transactions(
 			 % no exchange rates
@@ -31,7 +31,8 @@ runs goal, when it succeeds, it puts Template into Result
 			% s_transactions, this is the input to preprocess_s_transactions
 			[s_transaction(731125, foreign_purchase, [coord('USD',100,0)], usd_account, bases(['AUD']))], 
 			% this should be the output
-			Result),
+			Result,
+			_),
 		
 		Results
 	),
@@ -45,6 +46,7 @@ runs goal, when it succeeds, it puts Template into Result
 	% this is on our trading account with the broker
 	transaction(731125, "Some foreign income.", trading_account, [coord('USD', 100, 0), coord('AUD', 0.0, 183.83689999999999)])
 	]].
+
 
 test(0) :-
 	% Let's preprocess a transaction where the exchanged amount is known and that uses a trading account.
@@ -60,3 +62,4 @@ test(0) :-
 	transaction(731125, "Some foreign income.", trading_account, [coord('USD', 100, 0), coord('AUD', 0, 180)])]]).
 
 :- end_tests(statements).
+
