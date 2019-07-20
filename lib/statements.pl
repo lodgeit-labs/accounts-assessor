@@ -218,7 +218,7 @@ preprocess_s_transaction(Static_Data, S_Transaction, [Ts0, Ts1, Ts2, Ts3, Ts4, T
 			->
 				purchased_goods_vector_with_cost(Goods_Vector0, Converted_Vector_Ours, Goods_Vector)
 			;
-				sold_goods_vector(Goods_Vector0, Goods_Vector)
+				Goods_Vector0 = Goods_Vector
 			)
 		)
 	),
@@ -252,8 +252,7 @@ preprocess_s_transaction(Static_Data, S_Transaction, [Ts0, Ts1, Ts2, Ts3, Ts4, T
 				)
 			;
 				(
-					Goods_Vector = [coord(with_cost_per_unit(Goods_Unit0,_),_,Goods_Positive)],
-					gtrace,
+					Goods_Vector = [coord(Goods_Unit0,_,Goods_Positive)],
 					((find_items_to_sell(Pricing_Method, Goods_Unit0, Goods_Positive, Outstanding_In, Outstanding_Out, Goods_Cost_Values),!)
 						;throw_string(['not enough goods to sell'])),
 					reduce_unrealized_gains(Static_Data, Trading_Account_Id, Transaction_Day, Goods_Cost_Values, Ts5),
@@ -281,12 +280,6 @@ purchased_goods_vector_with_cost(
 			Goods_Count, 
 			0
 	)].	
-
-/* here we will create a coord with with_cost_per_unit, but with the actual unit cost left as an unbound variable.
-this should match with any with_cost_per_unit term. Maybe putting unit cost into unit wasn't the best idea.*/
-sold_goods_vector([Goods_Coord_In], [Goods_Coord_Out]) :-
-	Goods_Coord_In = coord(Goods_Unit0, Goods_Debit, Goods_Credit),
-	Goods_Coord_Out = coord(with_cost_per_unit(Goods_Unit0, _), Goods_Debit, Goods_Credit).
 
 % Make an unexchanged transaction to the unexchanged (bank) account
 % the bank account is debited/credited in the currency of the bank account, exchange will happen for report end day
