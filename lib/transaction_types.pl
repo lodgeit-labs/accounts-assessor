@@ -13,7 +13,11 @@
 
 % Predicates for asserting that the fields of given transaction types have particular values
 
-% The identifier of this transaction type, for example Borrow
+/**
+ * transaction_type_id(?Transaction_Type_Term, ?Id) is det
+ *
+ * accessor to the identifier of this transaction type, for example 'Borrow'
+ */
 transaction_type_id(transaction_type(Id, _, _, _), Id).
 
 % The account that will receive the inverse of the transaction amount after exchanging
