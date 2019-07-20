@@ -45,6 +45,7 @@
 :- http_handler('/favicon.ico', http_reply_file(my_static('favicon.ico'), []), []).
 :- http_handler(root(.), http_reply_from_files('.', []), [prefix]).
 :- http_handler(root(run/Test), tests(Test), [methods([get]), priority(1)]).
+:- http_handler(root(run/_CacheSkipDummy/Test), tests(Test), [methods([get]), priority(1)]).
 
 % -------------------------------------------------------------------
 % run_simple_server/0
