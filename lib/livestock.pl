@@ -10,7 +10,7 @@ this file needs serious cleanup, one reason to delay that might be that we can e
 		get_livestock_types/2, process_livestock/14, preprocess_livestock_buy_or_sell/3, make_livestock_accounts/2, livestock_counts/6, extract_livestock_opening_costs_and_counts/2, compute_livestock_by_simple_calculation/23]).
 :- use_module(utils, [
 		user:goal_expansion/2, inner_xml/3, fields/2, numeric_fields/2, pretty_term_string/2, maplist6/6, throw_string/1]).
-:- use_module(pacioli, [vec_add/3, vec_inverse/2, vec_reduce/2, vec_sub/3, integer_to_coord/3]).
+:- use_module(pacioli, [vec_add/3, vec_inverse/2, vec_reduce/2, vec_sub/3, number_coord/3]).
 :- use_module(accounts, [account_in_set/3, account_by_role/3]).
 :- use_module(days, [parse_date/2]).
 :- use_module(ledger_report, [balance_by_account/9]).
@@ -669,14 +669,14 @@ do_livestock_cross_check(Events, Natural_Increase_Costs, S_Transactions, Transac
 
 	balance_by_account(Exchange_Rates, Accounts, Transactions, Report_Currency, To_Day, 'Revenue', To_Day, Revenue_Credit,_),
 	vec_inverse(Revenue_Credit, [Revenue_Coord_Ledger]),
-	integer_to_coord(Currency, Revenue, Revenue_Coord),
+	number_coord(Currency, Revenue, Revenue_Coord),
 	
 	balance_by_account(Exchange_Rates, Accounts, Transactions, Report_Currency, To_Day, 'CostOfGoodsLivestock', To_Day, [Cogs_Coord_Ledger],_),
-	integer_to_coord(Currency, Livestock_COGS, Cogs_Coord),
+	number_coord(Currency, Livestock_COGS, Cogs_Coord),
 	
 	balance_by_account(Exchange_Rates, Accounts, Transactions, Report_Currency, To_Day, 'Earnings', To_Day, Earnings_Credit,_),
 	vec_inverse(Earnings_Credit, [Earnings_Coord_Ledger]),
-	integer_to_coord(Currency, Gross_Profit_on_Livestock_Trading, Earnings_Coord),
+	number_coord(Currency, Gross_Profit_on_Livestock_Trading, Earnings_Coord),
 	
 	/*
 	fixme, the simple calculator should total these three for all livestock types? if it should support multiple livestock datasets at once at all.

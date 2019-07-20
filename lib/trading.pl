@@ -7,7 +7,7 @@
 
 make_trading_buy(Static_Data, Trading_Account_Id, Pricing_Method, ST_Currency, Converted_Cost_Vector, Goods_Vector, Transaction_Day, Outstanding_In, Outstanding_Out, Ts0) :-
 	[Goods_Coord] = Goods_Vector,
-	integer_to_coord(Goods_Unit, Goods_Count, Goods_Coord),
+	number_coord(Goods_Unit, Goods_Count, Goods_Coord),
 	[coord(Converted_Currency, _, Converted_Credit)] = Converted_Cost_Vector,
 	Converted_Unit_Cost is Converted_Credit / Goods_Count,
 	add_bought_items(
@@ -22,7 +22,7 @@ make_trading_buy(Static_Data, Trading_Account_Id, Pricing_Method, ST_Currency, C
 increase_realized_gains(Static_Data, Trading_Account_Id, Sale_Vector, Converted_Vector, Goods_Vector, Transaction_Day, Goods_Cost_Values, Ts2) :-
 
 	[Goods_Coord] = Goods_Vector,
-	integer_to_coord(_, Goods_Integer, Goods_Coord),
+	number_coord(_, Goods_Integer, Goods_Coord),
 	Goods_Positive is -Goods_Integer,
 
 	Sale_Vector = [coord(Sale_Currency, Sale_Currency_Amount, _)],

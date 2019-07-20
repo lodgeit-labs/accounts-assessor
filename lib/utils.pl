@@ -312,4 +312,3 @@ floats_close_enough(Value1, Value2) :-
 	min_accepted_float_difference(MinimalDifference),
 	ValueDifference =< MinimalDifference.
 	
-	

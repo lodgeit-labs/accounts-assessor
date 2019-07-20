@@ -360,8 +360,9 @@ findall(
 	Results
 ),
 writeln('actual results'),
-writeln(Results),
-Results = 
+print_term(Results, []),
+
+Expected_Results = 
 	[[% Undo the first duplicate transaction in the hire purchase account
 		transaction(0, correction, hp_account, coord(0, 200.47)),
 		% Put the amount in the hire purchase suspense account
@@ -402,7 +403,24 @@ Results =
 		transaction(0, correction, hp_account, coord(200.47, 0)), transaction(0, correction, hp_suspense_account, coord(0, 200.47)),
 		transaction(0, correction, hp_account, coord(200.47, 0)), transaction(0, correction, hp_suspense_account, coord(0, 200.47)),
 		transaction(0, correction, hp_account, coord(200.47, 0)), transaction(0, correction, hp_suspense_account, coord(0, 200.47)),
-		transaction(0, correction, hp_account, coord(200.47, 0)), transaction(0, correction, hp_suspense_account, coord(0, 200.47))]].	
+		transaction(0, correction, hp_account, coord(200.47, 0)), transaction(0, correction, hp_suspense_account, coord(0, 200.47))]],
+
+writeln('expected results'),
+print_term(Expected_Results, []),
+
+Results = Expected_Results.
+
+/*
+< actual results
+< [ [ transaction(0,correction,hp_account,coord(200.47,0)),
+<     transaction(0,correction,hp_suspense_account,coord(0,200.47)),
+---
+> expected results
+> [ [ transaction(0,correction,hp_account,coord(0,200.47)),
+>     transaction(0,correction,hp_suspense_account,coord(200.47,0)),
+>     transaction(0,correction,hp_account,coord(0,200.47)),
+>     transaction(0,correction,hp_suspense_account,coord(200.47,0)),
+*/
 
 :- end_tests(hirepurchase).
 

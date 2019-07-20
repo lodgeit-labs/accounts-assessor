@@ -22,7 +22,7 @@ see doc/investment and dropbox Develop/videos/ledger
 		profitandloss_between/8, 
 		balance_by_account/9]).
 :- use_module('../../lib/accounts', [extract_account_hierarchy/2, account_by_role/3]).
-:- use_module('../../lib/pacioli',  [integer_to_coord/3]).
+:- use_module('../../lib/pacioli',  [number_coord/3]).
 
 
 float_comparison_max_difference(0.00000001).
@@ -311,7 +311,7 @@ account_assertion(Info, Account, Expected_Exp) :-
 	(
 		(
 			Vector = [Coord],
-			integer_to_coord(Currency, Balance, Coord),
+			number_coord(Currency, Balance, Coord),
 			!
 		)
 	;	(	Vector = [],

@@ -24,7 +24,7 @@
 		vec_inverse/2, 
 		vec_add/3, 
 		vec_sub/3, 
-		integer_to_coord/3,
+		number_coord/3,
 		make_debit/2,
 		make_credit/2,
 		value_multiply/3]).

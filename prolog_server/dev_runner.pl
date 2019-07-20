@@ -12,7 +12,7 @@ halt_on_err :-
 	(shell2(Err_Grep, 0) -> halt ; true).
 
 clean_terminal :-
-	shell2('echo "\e[3J"'),
+	shell2('echo "\e[3J" 1>&2'),
 	shell2('reset').
 
 x :-

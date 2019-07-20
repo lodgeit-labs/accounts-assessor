@@ -1,5 +1,4 @@
-<LoanSummary xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-	<IncomeYear>2018</IncomeYear>
+<LoanSummary xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="loan_response.xsd">	<IncomeYear>2018</IncomeYear>
 	<OpeningBalance>10000</OpeningBalance>
 	<InterestRate>5.3</InterestRate>
 	<MinYearlyRepayment>3692.7463898040705</MinYearlyRepayment>
