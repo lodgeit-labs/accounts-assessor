@@ -5,20 +5,17 @@
 
 */
 
-make_trading_buy(Static_Data, Trading_Account_Id, Pricing_Method, ST_Currency, Converted_Cost_Vector, Goods_Vector, Transaction_Day, Outstanding_In, Outstanding_Out, Ts0) :-
-	[Goods_Coord] = Goods_Vector,
-	number_coord(Goods_Unit, Goods_Count, Goods_Coord),
-	[coord(Converted_Currency, _, Converted_Credit)] = Converted_Cost_Vector,
-	Converted_Unit_Cost is Converted_Credit / Goods_Count,
+make_trading_buy(Static_Data, Trading_Account_Id, Pricing_Method, Purchase_Currency, Converted_Cost_Vector, Goods_With_Unit_Cost_Vector, Transaction_Day, Outstanding_In, Outstanding_Out, Ts0) :-
+	[coord(with_cost_per_unit(Goods_Unit, Unit_Cost), Goods_Count, _)] = Goods_With_Unit_Cost_Vector,
 	add_bought_items(
 		Pricing_Method, 
-		outstanding(ST_Currency, Goods_Unit, Goods_Count, value(Converted_Currency, Converted_Unit_Cost), Transaction_Day), 
+		outstanding(Purchase_Currency, Goods_Unit, Goods_Count, Unit_Cost, Transaction_Day),
 		Outstanding_In, Outstanding_Out
 	),
-	Goods_Vector_With_Cost = [coord(with_cost_per_unit(Goods_Unit, value(Converted_Currency, Converted_Unit_Cost)), Goods_Count, 0)],
-	unrealized_gains_txs(Static_Data, Trading_Account_Id, ST_Currency, Converted_Cost_Vector, Goods_Vector_With_Cost, Transaction_Day, Txs0),
+	unrealized_gains_txs(Static_Data, Trading_Account_Id, Purchase_Currency, Converted_Cost_Vector, Goods_With_Unit_Cost_Vector, Transaction_Day, Txs0),
 	txs_to_transactions(Transaction_Day, Txs0, Ts0).
 
+	
 increase_realized_gains(Static_Data, Trading_Account_Id, Sale_Vector, Converted_Vector, Goods_Vector, Transaction_Day, Goods_Cost_Values, Ts2) :-
 
 	[Goods_Coord] = Goods_Vector,

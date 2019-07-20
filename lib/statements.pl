@@ -27,7 +27,8 @@
 		number_coord/3,
 		make_debit/2,
 		make_credit/2,
-		value_multiply/3]).
+		value_multiply/3,
+		is_debit/1]).
 :- use_module('exchange', [
 		vec_change_bases/5]).
 :- use_module('exchange_rates', [
@@ -203,16 +204,26 @@ preprocess_s_transaction(Static_Data, S_Transaction, [Ts0, Ts1, Ts2, Ts3, Ts4, T
 	;
 		Shuffle_Account = Exchanged_Account
 	),
+	vec_change_bases(Exchange_Rates, Transaction_Day, Report_Currency, Vector_Ours, Converted_Vector_Ours),
 	/* todo we should probably only have Goods_Vector if we have Shuffle_Account*/
 	(
 		Goods_Vector0 = []
 	->
 		vec_inverse(Vector_Ours, Goods_Vector)
 	;
-		Goods_Vector = Goods_Vector0
+		(
+			Goods_Vector0  = [Goods_Coord0],
+			(
+				is_debit(Goods_Coord0)
+			->
+				purchased_goods_vector_with_cost(Goods_Vector0, Converted_Vector_Ours, Goods_Vector)
+			;
+				sold_goods_vector(Goods_Vector0, Goods_Vector)
+			)
+		)
 	),
 	
-	
+		
 	
 	(
 		nonvar(Shuffle_Account)
@@ -231,24 +242,22 @@ preprocess_s_transaction(Static_Data, S_Transaction, [Ts0, Ts1, Ts2, Ts3, Ts4, T
 		nonvar(Trading_Account_Id)
 	->
 		(
-			
-			vec_change_bases(Exchange_Rates, Transaction_Day, Report_Currency, Vector_Ours, Converted_Vector),
 			Pricing_Method = lifo,
-			
 			(
-				(Goods_Vector = [coord(_,_,Zero)], Zero =:= 0)
+				is_debit(Goods_Vector)
 			->
 				(
 					Vector_Ours = [coord(Purchase_Currency, _,_)],
-					make_trading_buy(Static_Data, Trading_Account_Id, Pricing_Method, Purchase_Currency, Converted_Vector, Goods_Vector, Transaction_Day, Outstanding_In, Outstanding_Out, Ts4) 
+					make_trading_buy(Static_Data, Trading_Account_Id, Pricing_Method, Purchase_Currency, Converted_Vector_Ours, Goods_Vector, Transaction_Day, Outstanding_In, Outstanding_Out, Ts4) 
 				)
 			;
 				(
-					Goods_Vector = [coord(Goods_Unit,_,Goods_Positive)],
-					((find_items_to_sell(Pricing_Method, Goods_Unit, Goods_Positive, Outstanding_In, Outstanding_Out, Goods_Cost_Values),!)
+					Goods_Vector = [coord(with_cost_per_unit(Goods_Unit0,_),_,Goods_Positive)],
+					gtrace,
+					((find_items_to_sell(Pricing_Method, Goods_Unit0, Goods_Positive, Outstanding_In, Outstanding_Out, Goods_Cost_Values),!)
 						;throw_string(['not enough goods to sell'])),
 					reduce_unrealized_gains(Static_Data, Trading_Account_Id, Transaction_Day, Goods_Cost_Values, Ts5),
-					increase_realized_gains(Static_Data, Trading_Account_Id, Vector_Ours, Converted_Vector, Goods_Vector, Transaction_Day, Goods_Cost_Values, Ts6)
+					increase_realized_gains(Static_Data, Trading_Account_Id, Vector_Ours, Converted_Vector_Ours, Goods_Vector, Transaction_Day, Goods_Cost_Values, Ts6)
 				)
 			)
 		)
@@ -256,6 +265,28 @@ preprocess_s_transaction(Static_Data, S_Transaction, [Ts0, Ts1, Ts2, Ts3, Ts4, T
 		Outstanding_Out = Outstanding_In
 	).
 	
+
+purchased_goods_vector_with_cost(
+	[coord(Goods_Unit_In, Goods_Count, Zero)],
+	Converted_Cost_Vector, Goods_Vector_With_Cost
+) :-
+	assertion(Zero =:= 0),
+	[coord(Converted_Currency, _, Converted_Price)] = Converted_Cost_Vector,
+	Converted_Unit_Cost is Converted_Price / Goods_Count,
+	Goods_Vector_With_Cost = [coord(
+		with_cost_per_unit(
+			Goods_Unit_In, 
+			value(Converted_Currency, Converted_Unit_Cost)
+		),
+			Goods_Count, 
+			0
+	)].	
+
+/* here we will create a coord with with_cost_per_unit, but with the actual unit cost left as an unbound variable.
+this should match with any with_cost_per_unit term. Maybe putting unit cost into unit wasn't the best idea.*/
+sold_goods_vector([Goods_Coord_In], [Goods_Coord_Out]) :-
+	Goods_Coord_In = coord(Goods_Unit0, Goods_Debit, Goods_Credit),
+	Goods_Coord_Out = coord(with_cost_per_unit(Goods_Unit0, _), Goods_Debit, Goods_Credit).
 
 % Make an unexchanged transaction to the unexchanged (bank) account
 % the bank account is debited/credited in the currency of the bank account, exchange will happen for report end day

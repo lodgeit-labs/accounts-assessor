@@ -15,7 +15,8 @@
 		    make_debit/2,
 		    make_credit/2,
 		    value_multiply/3,
-			debit_isomorphism/2]).
+			debit_isomorphism/2,
+			is_debit/1]).
 
 :- use_module(utils, [semigroup_foldl/3]).
 
@@ -127,6 +128,13 @@ is_zero(coord(_, Zero1, Zero2)) :-
 is_zero(value(_, Zero)) :-
 	is_zero(coord(_, Zero, 0)).
 
+is_debit(coord(_, _, Zero)) :-
+	{Zero =:= 0}.
+
+is_debit([coord(_, _, Zero)]) :-
+	{Zero =:= 0}.
+
+	
 make_debit(value(Unit, Amount), coord(Unit, Amount, 0)).
 make_debit(coord(Unit, Dr, Zero), coord(Unit, Dr, 0)) :- Zero =:= 0.
 make_debit(coord(Unit, Zero, Cr), coord(Unit, Cr, 0)) :- Zero =:= 0.
