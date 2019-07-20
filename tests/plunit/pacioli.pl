@@ -32,3 +32,24 @@ test(0) :-
 
 :- end_tests(pacioli).
 
+
+/*
+fixme: just check vec_add with this.
+:- maplist(
+
+		transaction_vector, 
+		Transactions, 
+		vec_add(
+			[
+				coord(aAAA, 5, 1), 
+				coord(aBBB, 0, 0.0), 
+				coord(aBBB, 7, 7)], 
+			[coord(aAAA, 0.0, 4)]]
+	), 
+	check_trial_balance(Transactions).
+
+
+:- maplist(transaction_vector, Transactions, [[coord(aAAA, 5, 1)], [coord(aAAA, 0.0, 4)]]), check_trial_balance(Transactions).
+:- maplist(transaction_vector, Transactions, [[coord(AAA, 5, 1), coord(BBB, 0, 0.0)], [], [coord(BBB, 7, 7)], [coord(AAA, 0.0, 4)]]), check_trial_balance(Transactions).
+:- maplist(transaction_vector, Transactions, [[coord(AAA, 45, 49), coord(BBB, 0, 0.0)], [], [coord(BBB, -7, -7)], [coord(AAA, 0.0, -4)]]), check_trial_balance(Transactions).
+*/
