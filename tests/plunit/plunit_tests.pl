@@ -5,4 +5,4 @@
 :- ['hirepurchase'].
 :- ['loans'].
 :- ['exchange_rates.pl'].
-:- ['ledger'].
+%:- ['ledger'].

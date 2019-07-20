@@ -1,6 +1,10 @@
 :- ['../../lib/days'].
 :- ['../../lib/ledger'].
 
+/*
+fixme, needs updating 
+*/
+
 :- begin_tests(ledger).
 
 
