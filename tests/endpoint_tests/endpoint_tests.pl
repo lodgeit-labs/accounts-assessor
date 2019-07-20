@@ -15,6 +15,7 @@
 :- use_module('../../lib/files').
 :- use_module('../../prolog_server/prolog_server').
 :- use_module('compare_xml').
+:- use_module('../../lib/utils', [floats_close_enough/2]).
 
 :- begin_tests(xml_testcases, [setup(run_simple_server)]).
 
@@ -37,19 +38,14 @@ test(endpoints, [forall(testcases(Testcase))]) :-
 
 :- end_tests(xml_testcases).
 
-% define the value to compare expected float value with the actual float value
-% we need this value as float operations generate different values after certain precision in different machines
-min_accepted_float_difference(0.0000001).
 
 check_value_difference(Value1, Value2) :-
 	atom_number(Value1, NValue1),
 	atom_number(Value2, NValue2),
-	ValueDifference is abs(NValue1 - NValue2),
-	min_accepted_float_difference(MinimalDifference),
-	ValueDifference =< MinimalDifference.
+	floats_close_enough(NValue1, NValue2).
+
 
 test_response(loan, ReplyXML, LoanResponseFile0) :-
-	
 	test_loan_response(ReplyXML, LoanResponseFile0),
 	test_response(general, ReplyXML, LoanResponseFile0),
 	!.

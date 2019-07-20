@@ -1,11 +1,15 @@
+[3J
+<?xml version="1.0"?>
+
 <LoanSummary xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="loan_response.xsd">
-	<IncomeYear>2015</IncomeYear>
-	<OpeningBalance>55000</OpeningBalance>
-	<InterestRate>5.95</InterestRate>
-	<MinYearlyRepayment>9834.923730309254</MinYearlyRepayment>
-	<TotalRepayment>28000</TotalRepayment>
-	<RepaymentShortfall>0</RepaymentShortfall>
-	<TotalInterest>3230.7684931506847</TotalInterest>
-	<TotalPrincipal>24769.231506849315</TotalPrincipal>
-	<ClosingBalance>50230.76849315068</ClosingBalance>
+<IncomeYear>2015</IncomeYear>
+<OpeningBalance>55000</OpeningBalance>
+<InterestRate>5.95</InterestRate>
+<MinYearlyRepayment>9834.923730309263</MinYearlyRepayment>
+<TotalRepayment>28000</TotalRepayment>
+<RepaymentShortfall>0</RepaymentShortfall>
+<TotalInterest>3230.7684931506847</TotalInterest>
+<TotalPrincipal>24769.231506849315</TotalPrincipal>
+<ClosingBalance>50230.76849315068</ClosingBalance>
 </LoanSummary>
+

@@ -12,7 +12,7 @@ halt_on_err :-
 	(shell2(Err_Grep, 0) -> halt ; true).
 
 clean_terminal :-
-	shell2('echo -e "\e[3J"'),
+	shell2('echo "\e[3J"'),
 	shell2('reset').
 
 x :-
@@ -22,7 +22,7 @@ x :-
 	clean_terminal,
 	shell2([Load_Cmd, ' -g "halt."  2>&1  |  tee err']),
 	halt_on_err,
-	writeln('ok...'),
+	format(user_error, 'ok...', []),
 	shell2([Load_Cmd, ' -g "', Goal, ', halt."  2>&1 1> arrr.xml | tee err']),
 	halt_on_err,
 	shell2([Viewer, ' arrr.xml']),

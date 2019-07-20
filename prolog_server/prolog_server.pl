@@ -28,7 +28,7 @@
 :- use_module(library(http/http_files)).
 :- use_module(library(http/http_error)). 
 
-:- use_module('../lib/files', [generate_unique_tmp_directory_base/0, bump_tmp_directory_id/0, my_tmp_file_name/2]).
+:- use_module('../lib/files', [bump_tmp_directory_id/0, my_tmp_file_name/2]).
 :- use_module('chat/residency').
 :- use_module('chat/sbe').
 :- ensure_loaded('process_data.pl').
@@ -51,7 +51,6 @@
 % -------------------------------------------------------------------
 
 run_simple_server :-
-   generate_unique_tmp_directory_base,
    Port = port(8080),
    http_server(http_dispatch, [Port]).
 
@@ -60,7 +59,6 @@ run_simple_server :-
 % -------------------------------------------------------------------
 
 run_daemon :-
-   generate_unique_tmp_directory_base,
    use_module(library(http/http_unix_daemon)),
    http_daemon().
    
@@ -89,8 +87,7 @@ upload_form(_Request) :-
 
 upload(Request) :-
    multipart_post_request(Request), !,
-   bump_tmp_directory_id,
-   /*todo: assert a unique thread-local my_tmp for each request here*/
+   bump_tmp_directory_id, /*assert a unique thread-local my_tmp for each request*/
    http_read_data(Request, Parts, [ on_filename(save_file) ]),
    memberchk(file=file(FileName, Path), Parts),
    catch(

@@ -13,7 +13,8 @@
 		throw_string/1, 
 		semigroup_foldl/3,
 		get_indentation/2,
-		without_nonalphanum_chars/2]).
+		without_nonalphanum_chars/2,
+		floats_close_enough/2]).
 
 		
 :- use_module(library(xpath)).
@@ -301,5 +302,14 @@ replace_nonalphanum_char_with_underscore(Char1, Char2) :-
 	
 	
 	
+% define the value to compare expected float value with the actual float value
+% we need this value as float operations generate different values after certain precision in different machines
+min_accepted_float_difference(0.0000001).
+
+	
+floats_close_enough(Value1, Value2) :-
+	ValueDifference is abs(Value1 - Value2),
+	min_accepted_float_difference(MinimalDifference),
+	ValueDifference =< MinimalDifference.
 	
 	

@@ -9,6 +9,7 @@
 % Modules
 %--------------------------------------------------------------------
 
+:- use_module('../../lib/utils',	[floats_close_enough/2]).
 :- use_module(library(xpath)).
 
 
@@ -47,7 +48,7 @@ compare_atoms(A,B,Error,Path, Item) :-
 		float(B_Num),
 		!,
 		(
-			A_Num =:= B_Num
+			floats_close_enough(A_Num, B_Num)
 		;
 			atomic_list_concat([A_Num, " != ", B_Num, " at ", Path, "[", Item, "]"], Error)
 		)
@@ -103,7 +104,11 @@ compare_xml_dom([Elem1 | Siblings1], [Elem2 | Siblings2], Error, Path, Num) :-
 					true
 				)
 			;
-				atomic_list_concat(["Attributes don't match at ", Path, "/", Tag1, "[", Num, "]"], Error)
+			(
+				term_string(Attrs1, Attrs1_Str, []),
+				term_string(Attrs2, Attrs2_Str, []),
+				atomic_list_concat(["Attributes don't match at ", Path, "/", Tag1, "[", Num, "]:\n", Attrs1_Str, ' vs \n', Attrs2_Str], Error)
+			)
 			)
 		;
 			atomic_list_concat(["Tags don't match: ", Tag1, " and ", Tag2, " at ", Path, "[", Num, "]"], Error)
