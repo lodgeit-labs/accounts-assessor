@@ -56,7 +56,7 @@
 
       <action>
         <id>Borrow</id>
-        <description>Shares</description>
+        <description></description>
         <exchangeAccount>Noncurrent_Loans</exchangeAccount>
       </action>
 

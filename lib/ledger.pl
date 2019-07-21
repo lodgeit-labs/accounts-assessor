@@ -1,6 +1,6 @@
 :- module(ledger, [
 		find_s_transactions_in_period/4,
-		process_ledger/13,
+		process_ledger/12,
 		emit_ledger_warnings/3]).
 
 :- use_module('system_accounts', [
@@ -14,13 +14,17 @@
 		gregorian_date/2, 
 		date_between/3]).
 :- use_module('utils', [
-		pretty_term_string/2]).
+		pretty_term_string/2,
+		coord_is_almost_zero/1]).
 :- use_module('livestock', [
 		process_livestock/14,
 		livestock_counts/6]). 
 :- use_module('transactions', [
 		check_transaction_account/2]).
+:- use_module('ledger_report', [
+		trial_balance_between/8]).
 
+		
 find_s_transactions_in_period(S_Transactions, Opening_Date, Closing_Date, Out) :-
 	findall(
 		S_Transaction,
@@ -42,7 +46,6 @@ process_ledger(
 	Report_Currency, 
 	Livestock_Types, 
 	Livestock_Opening_Costs_And_Counts, 
-	Debug_Message, 
 	Account_Hierarchy_In, 
 	Account_Hierarchy, 
 	Transactions_With_Livestock
@@ -77,7 +80,6 @@ process_ledger(
 
 	maplist(check_transaction_account(Account_Hierarchy), Transactions_With_Livestock),
 	
-	pretty_term_string(Generated_Accounts, Message1a),
 	pretty_term_string(Livestock_Events, Message0b),
 	pretty_term_string(Transactions_With_Livestock, Message1),
 	pretty_term_string(Livestock_Counts, Message12),
@@ -91,7 +93,6 @@ process_ledger(
 		Livestock_Debug = ''
 	;
 		atomic_list_concat([
-			'Generated_Accounts:\n', Message1a,'\n\n',
 			'Livestock Events:\n', Message0b,'\n\n',
 			'Livestock Counts:\n', Message12,'\n\n',
 			'Average_Costs:\n', Message5,'\n\n',
@@ -109,8 +110,20 @@ process_ledger(
 	'Transaction_Transformation_Debug:\n', Message10,'\n\n',
 	'-->\n\n'], Debug_Message)
 	),
-	writeln(Debug_Message).
-	
+	writeln(Debug_Message),
+
+	trial_balance_between(Exchange_Rates, Account_Hierarchy, Transactions_With_Livestock, Report_Currency, End_Days, Start_Days, End_Days, [Trial_Balance_Section]),
+	(
+		trial_balance_ok(Trial_Balance_Section)
+	->
+		true
+	;
+		write('<!-- SYSTEM_WARNING: trial balance: '), write(Trial_Balance_Section), writeln('-->\n')
+	).
+
+trial_balance_ok(Trial_Balance_Section) :-
+	Trial_Balance_Section = entry(_, Balance, [], _),
+	maplist(coord_is_almost_zero, Balance).
 	
 emit_ledger_warnings(S_Transactions, Start_Days, End_Days) :-
 	(
@@ -120,3 +133,5 @@ emit_ledger_warnings(S_Transactions, Start_Days, End_Days) :-
 	;
 		true
 	).
+
+	

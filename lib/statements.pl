@@ -27,7 +27,9 @@
 		number_coord/3,
 		make_debit/2,
 		make_credit/2,
-		value_multiply/3]).
+		value_multiply/3,
+		value_divide/3,
+		is_debit/1]).
 :- use_module('exchange', [
 		vec_change_bases/5]).
 :- use_module('exchange_rates', [
@@ -55,7 +57,8 @@
 		fields/2, 
 		field_nothrow/2, 
 		numeric_fields/2, 
-		throw_string/1]).
+		throw_string/1,
+		coord_is_almost_zero/1]).
 :- use_module('accounts', [
 		account_by_role/3, 
 		account_in_set/3,
@@ -93,7 +96,7 @@ preprocess_s_transactions(Static_Data, S_Transactions, Transactions_Out, Debug_I
 preprocess_s_transactions2(_, [], [], Outstanding, Outstanding, ["end."], _).
 
 preprocess_s_transactions2(Static_Data, [S_Transaction|S_Transactions], [Transactions_Out|Transactions_Out_Tail], Outstanding_In, Outstanding_Out, [Debug_Head|Debug_Tail], Debug_So_Far) :-
-	Static_Data = (Accounts, Report_Currency, _, Report_End_Date, Exchange_Rates),
+	Static_Data = (Accounts, Report_Currency, _Action_Taxonomy, Report_End_Date, Exchange_Rates),
 	check_that_s_transaction_account_exists(S_Transaction, Accounts),
 	pretty_term_string(S_Transaction, S_Transaction_String),
 	(
@@ -107,9 +110,9 @@ preprocess_s_transactions2(Static_Data, [S_Transaction|S_Transactions], [Transac
 		->
 		(
 			% filter out unbound vars from the resulting Transactions list, as some rules do not always produce all possible transactions
-			exclude(var, Transactions0, Transactions1),
-			exclude(has_empty_vector, Transactions1, Transactions2),
-			flatten(Transactions2, Transactions_Out),
+			flatten(Transactions0, Transactions1),
+			exclude(var, Transactions1, Transactions2),
+			exclude(has_empty_vector, Transactions2, Transactions_Out),
 			pretty_term_string(Transactions_Out, Transactions_String),
 			atomic_list_concat([S_Transaction_String, '==>\n', Transactions_String, '\n====\n'], Debug_Head),
 			Transactions_Out = [T|_],
@@ -171,110 +174,136 @@ Transactions using trading accounts can be decomposed into:
 	"Goods" is not a general enough word, but it avoids confusion with other terms used.
 */	
 
-preprocess_s_transaction(Static_Data, S_Transaction, [Ts0, Ts1, Ts2, Ts3, Ts4, Ts5, Ts6], Outstanding_In, Outstanding_Out) :-
+preprocess_s_transaction(Static_Data, S_Transaction, [Ts1, Ts2, Ts3, Ts4], Outstanding_In, Outstanding_Out) :-
 
-	Static_Data = (Accounts, Report_Currency, Transaction_Types, _, Exchange_Rates),
+	Pricing_Method = lifo,
+	Static_Data = (_, Report_Currency, Transaction_Types, _, Exchange_Rates),
+	check_s_transaction_action_type(Transaction_Types, S_Transaction),
+	s_transaction_exchanged(S_Transaction, vector(Counteraccount_Vector)),
+	s_transaction_account_id(S_Transaction, Bank_Account_Name), 
+	s_transaction_type_of(Transaction_Types, S_Transaction, Transaction_Type),
+	s_transaction_vector(S_Transaction, Vector_Ours),
+	s_transaction_day(S_Transaction, Transaction_Day),
+	transaction_type(_, Exchanged_Account, Trading_Account_Id, Description) = Transaction_Type,
+	(var(Description)->	Description = '?'; true),
+	[coord(Bank_Account_Currency, _,_)] = Vector_Ours,
+	vec_change_bases(Exchange_Rates, Transaction_Day, Report_Currency, Vector_Ours, Converted_Vector_Ours),
+	
+	affect_bank_account(Static_Data, Bank_Account_Name, Bank_Account_Currency, Transaction_Day, Vector_Ours, Description, Ts1), 
 	(
-		% do we have a tag that corresponds to one of known actions?
-		s_transaction_type_of(Transaction_Types, S_Transaction, Transaction_Type)
+		Counteraccount_Vector \= []
+	->
+		(
+			is_debit(Counteraccount_Vector)
+		->
+			make_buy(
+				Static_Data, Trading_Account_Id, Pricing_Method, Bank_Account_Currency, Counteraccount_Vector,
+				Converted_Vector_Ours, Exchanged_Account, Transaction_Day, Description, Outstanding_In, Outstanding_Out, Ts2)
+		;		
+			make_sell(
+				Static_Data, Trading_Account_Id, Pricing_Method, Bank_Account_Currency, Counteraccount_Vector, Vector_Ours, 
+				Converted_Vector_Ours,	Exchanged_Account, Transaction_Day, Description,	Outstanding_In, Outstanding_Out, Ts3)
+		)
+	;
+		(
+			assertion(Counteraccount_Vector = []),
+			record_earning_or_equity_or_loan(Static_Data, Vector_Ours, Exchanged_Account, Transaction_Day, Description, Ts4),
+			Outstanding_Out = Outstanding_In
+		)
+	).
+
+make_buy(Static_Data, Trading_Account_Id, Pricing_Method, Bank_Account_Currency, Goods_Vector, 
+	Converted_Vector_Ours, 
+	Exchanged_Account, Transaction_Day, Description, 
+	Outstanding_In, Outstanding_Out, [Ts1, Ts2]
+) :-
+	purchased_goods_vector_with_cost(Goods_Vector, Converted_Vector_Ours, Goods_With_Cost_Vector),
+	/* record the change in another assets account*/
+	make_transaction(Exchanged_Account, Transaction_Day, Description, Goods_With_Cost_Vector, Ts1),
+	[coord(with_cost_per_unit(Goods_Unit, Unit_Cost), Goods_Count, _)] = Goods_With_Cost_Vector,
+	add_bought_items(
+		Pricing_Method, 
+		outstanding(Bank_Account_Currency, Goods_Unit, Goods_Count, Unit_Cost, Transaction_Day),
+		Outstanding_In, Outstanding_Out
+	),
+	(var(Trading_Account_Id) -> true
+		; increase_unrealized_gains(Static_Data, Trading_Account_Id, Bank_Account_Currency, Converted_Vector_Ours, Goods_With_Cost_Vector, Transaction_Day, Ts2) 
+	).
+
+make_sell(Static_Data, Trading_Account_Id, Pricing_Method, _Bank_Account_Currency, Goods_Vector,
+	Vector_Ours, Converted_Vector_Ours,
+	Exchanged_Account, Transaction_Day, Description,
+	Outstanding_In, Outstanding_Out, [Ts1, Ts2, Ts3]
+) :-
+	Goods_Vector = [coord(Goods_Unit0,_,Goods_Positive)],
+	((find_items_to_sell(Pricing_Method, Goods_Unit0, Goods_Positive, Outstanding_In, Outstanding_Out, Goods_Cost_Values),!)
+		;throw_string(['not enough goods to sell'])), % we should probably allow going into debt
+	maplist(sold_goods_vector_with_cost, Goods_Cost_Values, Goods_With_Cost_Vectors),
+	maplist(
+		make_transaction(Exchanged_Account, Transaction_Day, Description), 
+		Goods_With_Cost_Vectors, Ts1
+	),
+	(var(Trading_Account_Id) -> true
+		;(						
+			reduce_unrealized_gains(Static_Data, Trading_Account_Id, Transaction_Day, Goods_Cost_Values, Ts2),
+			increase_realized_gains(Static_Data, Trading_Account_Id, Vector_Ours, Converted_Vector_Ours, Goods_Vector, Transaction_Day, Goods_Cost_Values, Ts3)
+		)
+	).
+
+/* when we bought something, we debited some assets account with the result of 
+	purchased_goods_vector_with_cost(Goods_Vector0, Converted_Vector_Ours, Goods_With_Cost_Vector)
+now we need to credit that account with a coord(with_cost_per_unit(..), with the same unit costs*/
+sold_goods_vector_with_cost(Goods_Cost_Value, Goods_With_Cost_Vector) :-
+	Goods_Cost_Value = outstanding(_Bank_Account_Currency, Goods_Unit, Goods_Count, Total_Cost_Value, _),
+	value_divide(Total_Cost_Value, Goods_Count, Unit_Cost_Value),
+	Goods_With_Cost_Vector = [coord(
+		with_cost_per_unit(Goods_Unit, Unit_Cost_Value),
+		0,
+		Goods_Count
+	)].
+	
+				
+affect_bank_account(Static_Data, Bank_Account_Name, Bank_Account_Currency, Transaction_Day, Vector_Ours, Description, [Ts0, Ts3]) :-
+	Static_Data = (Accounts, Report_Currency, _, _, Exchange_Rates),
+	Bank_Account_Role = ('Cash_And_Cash_Equivalents'/Bank_Account_Name),
+	account_by_role(Accounts, Bank_Account_Role, Bank_Account_Id),
+	/* record the change on our bank account */
+	make_transaction(Bank_Account_Id, Transaction_Day, Description, Vector_Ours, Ts0),
+	/* Make a difference transaction to the currency trading account. See https://www.mathstat.dal.ca/~selinger/accounting/tutorial.html . This will track the gain/loss generated by the movement of exchange rate between our asset in foreign currency and our equity/revenue in reporting currency. */
+	(
+		[Bank_Account_Currency] = Report_Currency
 	->
 		true
 	;
-		(
-			s_transaction_type_id(S_Transaction, Type_Id),
-			throw_string(['unknown action verb:',Type_Id])
-		)
-	),
-	s_transaction_exchanged(S_Transaction, vector(Goods_Vector0)),
-	s_transaction_account_id(S_Transaction, Bank_Account_Name), 
-	s_transaction_vector(S_Transaction, Vector_Ours),
-	s_transaction_day(S_Transaction, Transaction_Day), 
-	transaction_type(_Verb, Exchanged_Account, Trading_Account_Id, Description) = Transaction_Type,
-	(var(Exchanged_Account) -> throw_string('action does not specify exchanged account') ; true),
-	(var(Description)->	Description = '?'; true),
-	(
-		Goods_Vector0 = []
-	->
-		vec_inverse(Vector_Ours, Goods_Vector)
-	;
-		Goods_Vector = Goods_Vector0
-	),
-	(
-		(account_in_set(Accounts, Exchanged_Account, 'Equity')
-		;account_in_set(Accounts, Exchanged_Account, 'Earnings'))
-	->
-		Earnings_Account = Exchanged_Account
-	;
-		Shuffle_Account = Exchanged_Account
-	),
-	/* record the change on our bank account */
-	Bank_Account_Role = ('Cash_And_Cash_Equivalents'/Bank_Account_Name),
-	account_by_role(Accounts, Bank_Account_Role, Bank_Account_Id),
-	make_transaction(Bank_Account_Id, Transaction_Day, Vector_Ours, Description, Ts0),
-	(
-		nonvar(Shuffle_Account)
-	->
-		/* record the change in another assets account*/
-		make_transaction(Shuffle_Account, Transaction_Day, Goods_Vector, Description, Ts1)
-	;
-		(
-			(
-				true
-			->
-				(
-					/* Make an inverse exchanged transaction to the exchanged account.
-					this can be a revenue/expense or equity account, in case value is coming in or going out of the company*/
-					make_exchanged_transactions(Exchange_Rates, Report_Currency, Earnings_Account, Transaction_Day, Goods_Vector, Description, Ts2),
-					% Make a difference transaction to the currency trading account. See https://www.mathstat.dal.ca/~selinger/accounting/tutorial.html . This will track the gain/loss generated by the movement of exchange rate between our asset in foreign currency and our equity/revenue in reporting currency.
-					make_currency_movement_transactions(Exchange_Rates, Accounts, Bank_Account_Id, Report_Currency, Transaction_Day, Vector_Ours, [Description, ' - currency movement adjustment'], Ts3)
-				)
-			;
-				make_transaction(Earnings_Account, Transaction_Day, Vector_Ours, Description, Ts2)
-			)
-		)
-	),
-	(
-		nonvar(Trading_Account_Id)
-	->
-		(
-			
-			(
-				true
-			->
-				vec_change_bases(Exchange_Rates, Transaction_Day, Report_Currency, Vector_Ours, Converted_Vector)
-			;
-				Converted_Vector = Vector_Ours
-			),
-			
-			make_currency_movement_transactions(Exchange_Rates, Accounts, Bank_Account_Id, Report_Currency, Transaction_Day, Vector_Ours, [Description, ' - currency movement adjustment'], Ts3),
-
-			Pricing_Method = lifo,
-			(
-				(Goods_Vector = [coord(_,_,Zero)], Zero =:= 0)
-			->
-				(
-					Vector_Ours = [coord(Purchase_Currency, _,_)],
-					make_trading_buy(Static_Data, Trading_Account_Id, Pricing_Method, Purchase_Currency, Converted_Vector, Goods_Vector, Transaction_Day, Outstanding_In, Outstanding_Out, Ts4) 
-				)
-			;
-				(
-					Goods_Vector = [coord(Goods_Unit,_,Goods_Positive)],
-					((find_items_to_sell(Pricing_Method, Goods_Unit, Goods_Positive, Outstanding_In, Outstanding_Out, Goods_Cost_Values),!)
-						;throw_string(['not enough goods to sell'])),
-					reduce_unrealized_gains(Static_Data, Trading_Account_Id, Transaction_Day, Goods_Cost_Values, Ts5),
-					increase_realized_gains(Static_Data, Trading_Account_Id, Vector_Ours, Converted_Vector, Goods_Vector, Transaction_Day, Goods_Cost_Values, Ts6)
-				)
-			)
-		)
-	;
-		Outstanding_Out = Outstanding_In	
+		make_currency_movement_transactions(Exchange_Rates, Accounts, Bank_Account_Id, Report_Currency, Transaction_Day, Vector_Ours, [Description, ' - currency movement adjustment'], Ts3)
 	).
-	
+
+record_earning_or_equity_or_loan(Static_Data, Vector_Ours, Exchanged_Account, Transaction_Day, Description, Ts2) :-
+	Static_Data = (_, Report_Currency, _, _, Exchange_Rates),
+	/* Make an inverse exchanged transaction to the exchanged account. This can be a revenue, expense or equity account*/
+	vec_inverse(Vector_Ours, Vector_Exchanged),
+	make_exchanged_transactions(Exchange_Rates, Report_Currency, Exchanged_Account, Transaction_Day, Vector_Exchanged, Description, Ts2).
+
+purchased_goods_vector_with_cost(
+	[coord(Goods_Unit_In, Goods_Count, Zero)],
+	Converted_Cost_Vector, Goods_Vector_With_Cost
+) :-
+	assertion(Zero =:= 0),
+	[coord(Converted_Currency, _, Converted_Price)] = Converted_Cost_Vector,
+	Converted_Unit_Cost is Converted_Price / Goods_Count,
+	Goods_Vector_With_Cost = [coord(
+		with_cost_per_unit(
+			Goods_Unit_In, 
+			value(Converted_Currency, Converted_Unit_Cost)
+		),
+			Goods_Count, 
+			0
+	)].	
 
 % Make an unexchanged transaction to the unexchanged (bank) account
 % the bank account is debited/credited in the currency of the bank account, exchange will happen for report end day
 
-make_transaction(Account, Day, Vector, Description, Transaction) :-
+make_transaction(Account, Day, Description, Vector, Transaction) :-
 	flatten([Description], Description_Flat),
 	atomic_list_concat(Description_Flat, Description_Str),
 	transaction_day(Transaction, Day),
@@ -284,12 +313,12 @@ make_transaction(Account, Day, Vector, Description, Transaction) :-
 
 make_exchanged_transactions(Exchange_Rates, Report_Currency, Account, Day, Vector, Description, Transaction) :-
 	vec_change_bases(Exchange_Rates, Day, Report_Currency, Vector, Vector_Exchanged_To_Report),
-	make_transaction(Account, Day, Vector_Exchanged_To_Report, Description, Transaction).
+	make_transaction(Account, Day, Description, Vector_Exchanged_To_Report, Transaction).
 	
 make_currency_movement_transactions(Exchange_Rates, Accounts, Bank_Account, Report_Currency, Day, Vector, Description, Transaction) :-
 	vec_change_bases(Exchange_Rates, Day, Report_Currency, Vector, Vector_Exchanged_To_Report),
 	account_by_role(Accounts, ('Currency_Movement'/Bank_Account), Currency_Movement_Account),
-	make_transaction(Currency_Movement_Account, Day, Vector_Movement, Description, Transaction),
+	make_transaction(Currency_Movement_Account, Day, Description, Vector_Movement, Transaction),
 	vec_sub(Vector_Exchanged_To_Report, Vector, Vector_Movement).
 
 transactions_trial_balance(Exchange_Rates, Report_Currency, Day, Transactions, Vector_Converted) :-
@@ -309,28 +338,9 @@ check_trial_balance(Exchange_Rates, Report_Currency, Day, Transactions) :-
 		->
 			true
 		;
-			(
-				/*
-				pretty_term_string(['note: total is ', Total, ' on day ', Day], Err_Str),
-				format(user_error, '\n\\n~w\n\n', [Err_Str])
-				*/
-				/*format(user_error, 'note: total is ~w on day ~w\n', [Total, Day])*/ % output me in the output xml
-				true
-			)
+			format('<!-- SYSTEM_WARNING: trial balance is ~w at ~w -->\n', [Total, Day])
 		)
 	).
-
-float_comparison_max_difference(0.00000001).
-	
-coord_is_almost_zero(coord(_, D, C)) :-
-	compare_floats(D, 0),
-	compare_floats(C, 0).
-
-
-compare_floats(A, B) :-
-	float_comparison_max_difference(Max),
-	D is abs(A - B),
-	D =< Max.
 
 	
 % Gets the transaction_type term associated with the given transaction
@@ -354,7 +364,6 @@ check_that_s_transaction_account_exists(S_Transaction, Accounts) :-
 			throw_string(['account not found in hierarchy:', Account_Name])
 	).
 
-	
 
 % yield all transactions from all accounts one by one.
 % these are s_transactions, the raw transactions from bank statements. Later each s_transaction will be preprocessed
@@ -551,43 +560,20 @@ fill_in_missing_units(S_Transactions0, Report_End_Date, [Report_Currency], Used_
 	).
 	
 
+check_s_transaction_action_type(Transaction_Types, S_Transaction) :-
+	(
+		% do we have a tag that corresponds to one of known actions?
+		s_transaction_type_of(Transaction_Types, S_Transaction, Transaction_Type)
+	->
+		true
+	;
+		(
+			s_transaction_type_id(S_Transaction, Type_Id),
+			throw_string(['unknown action verb:',Type_Id])
+		)
+	),
+	transaction_type(_Verb, Exchanged_Account, _Trading_Account_Id, _Description) = Transaction_Type,
+	(var(Exchanged_Account) -> throw_string('action does not specify exchanged account') ; true).
 
+	
 
-
-% tests	
-/*
-fixme: just check vec_add with this.
-:- maplist(
-
-		transaction_vector, 
-		Transactions, 
-		vec_add(
-			[
-				coord(aAAA, 5, 1), 
-				coord(aBBB, 0, 0.0), 
-				coord(aBBB, 7, 7)], 
-			[coord(aAAA, 0.0, 4)]]
-	), 
-	check_trial_balance(Transactions).
-
-
-:- maplist(transaction_vector, Transactions, [[coord(aAAA, 5, 1)], [coord(aAAA, 0.0, 4)]]), check_trial_balance(Transactions).
-:- maplist(transaction_vector, Transactions, [[coord(AAA, 5, 1), coord(BBB, 0, 0.0)], [], [coord(BBB, 7, 7)], [coord(AAA, 0.0, 4)]]), check_trial_balance(Transactions).
-:- maplist(transaction_vector, Transactions, [[coord(AAA, 45, 49), coord(BBB, 0, 0.0)], [], [coord(BBB, -7, -7)], [coord(AAA, 0.0, -4)]]), check_trial_balance(Transactions).
-*/
-
-/*
-
-wip notes...
-
-adjustment transactions for forex :
-
-buy goog for 1 usd
-unrealized gain = goog - 1usd
-unrealized gain = goog - 1.2 aud:
-
-	goog - goog without usd movement
-	goog without usd movement - 1.2 aud
-
-
-*/

@@ -22,7 +22,7 @@ x :-
 	clean_terminal,
 	shell2([Load_Cmd, ' -g "halt."  2>&1  |  tee err']),
 	halt_on_err,
-	format(user_error, 'ok...', []),
+	format(user_error, 'ok...\n', []),
 	shell2([Load_Cmd, ' -g "', Goal, ', halt."  2>&1 1> arrr.xml | tee err']),
 	halt_on_err,
 	shell2([Viewer, ' arrr.xml']),

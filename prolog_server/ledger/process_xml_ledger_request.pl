@@ -40,7 +40,7 @@
 		fill_in_missing_units/6]).
 :- use_module('../../lib/ledger', [
 		emit_ledger_warnings/3,
-		process_ledger/13]).
+		process_ledger/12]).
 :- use_module('../../lib/livestock', [
 		get_livestock_types/2, 
 		process_livestock/14, 
@@ -86,12 +86,10 @@ process_xml_ledger_request(_, Dom) :-
 		Report_Currency, 
 		Livestock_Types, 
 		Livestock_Opening_Costs_And_Counts, 
-		Debug_Message, 
 		Account_Hierarchy0, 
 		Account_Hierarchy, 
 		Transactions),
 
-	writeln(Debug_Message),
 	output_results(S_Transactions, Transactions, Start_Days, End_Days, Exchange_Rates, Account_Hierarchy, Report_Currency, Action_Taxonomy).
 
 output_results(S_Transactions, Transactions, Start_Days, End_Days, Exchange_Rates, Account_Hierarchy, Report_Currency, Action_Taxonomy) :-
@@ -187,11 +185,10 @@ display_xbrl_ledger_response(Account_Hierarchy, Report_Currency, Start_Days, End
    maplist(write_used_unit, Used_Units), 
 
    flatten([
-		'<!-- balance sheet: -->\n', Lines3, 
-		'<!-- profit and loss: -->\n', Lines2,
-		'<!-- trial balance: -->\n',  Lines1,
-		'<!-- investment report: -->\n<!--\n', Investment_Report_Lines,
-		'\n -->\n'
+		'\n<!-- balance sheet: -->\n', Lines3, 
+		'\n<!-- profit and loss: -->\n', Lines2,
+		'\n<!-- investment report:\n', Investment_Report_Lines, '\n -->\n',
+		'\n<!-- trial balance: -->\n',  Lines1
 	], Lines),
    atomic_list_concat(Lines, LinesString),
    writeln(LinesString),
