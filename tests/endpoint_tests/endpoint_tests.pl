@@ -18,7 +18,7 @@
 :- use_module('../../lib/utils', [
 		floats_close_enough/2]).
 
-:- begin_tests(xml_testcases, [setup(run_simple_server)]).
+:- begin_tests(xml_testcases, [setup((debug,run_simple_server))]).
 
 test(start) :- nl.
 
