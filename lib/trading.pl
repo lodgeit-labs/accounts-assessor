@@ -5,7 +5,7 @@
 
 */
 
-increase_unrealized_gains(Static_Data, Trading_Account_Id, Pricing_Method, Purchase_Currency, Converted_Cost_Vector, Goods_With_Unit_Cost_Vector, Transaction_Day, Outstanding_In, Outstanding_Out, Ts0) :-
+increase_unrealized_gains(Static_Data, Trading_Account_Id, Purchase_Currency, Converted_Cost_Vector, Goods_With_Unit_Cost_Vector, Transaction_Day, Ts0) :-
 	unrealized_gains_txs(Static_Data, Trading_Account_Id, Purchase_Currency, Converted_Cost_Vector, Goods_With_Unit_Cost_Vector, Transaction_Day, Txs0),
 	txs_to_transactions(Transaction_Day, Txs0, Ts0).
 

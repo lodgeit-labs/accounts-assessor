@@ -15,6 +15,7 @@
 		    make_debit/2,
 		    make_credit/2,
 		    value_multiply/3,
+		    value_divide/3,
 			debit_isomorphism/2,
 			is_debit/1]).
 
@@ -174,3 +175,6 @@ coord_merge(value(Unit, D1), value(Unit, D2), value(Unit, D3)) :-
 
 value_multiply(value(Unit, Amount1), Multiplier, value(Unit, Amount2)) :-
 	Amount2 is Amount1 * Multiplier.
+
+value_divide(value(Unit, Amount1), Divisor, value(Unit, Amount2)) :-
+	Amount2 is Amount1 / Divisor.

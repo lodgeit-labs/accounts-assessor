@@ -1,6 +1,6 @@
 :- module(ledger, [
 		find_s_transactions_in_period/4,
-		process_ledger/13,
+		process_ledger/12,
 		emit_ledger_warnings/3]).
 
 :- use_module('system_accounts', [
@@ -42,7 +42,6 @@ process_ledger(
 	Report_Currency, 
 	Livestock_Types, 
 	Livestock_Opening_Costs_And_Counts, 
-	Debug_Message, 
 	Account_Hierarchy_In, 
 	Account_Hierarchy, 
 	Transactions_With_Livestock
@@ -77,7 +76,6 @@ process_ledger(
 
 	maplist(check_transaction_account(Account_Hierarchy), Transactions_With_Livestock),
 	
-	pretty_term_string(Generated_Accounts, Message1a),
 	pretty_term_string(Livestock_Events, Message0b),
 	pretty_term_string(Transactions_With_Livestock, Message1),
 	pretty_term_string(Livestock_Counts, Message12),
@@ -91,7 +89,6 @@ process_ledger(
 		Livestock_Debug = ''
 	;
 		atomic_list_concat([
-			'Generated_Accounts:\n', Message1a,'\n\n',
 			'Livestock Events:\n', Message0b,'\n\n',
 			'Livestock Counts:\n', Message12,'\n\n',
 			'Average_Costs:\n', Message5,'\n\n',
