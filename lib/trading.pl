@@ -5,13 +5,7 @@
 
 */
 
-make_trading_buy(Static_Data, Trading_Account_Id, Pricing_Method, Purchase_Currency, Converted_Cost_Vector, Goods_With_Unit_Cost_Vector, Transaction_Day, Outstanding_In, Outstanding_Out, Ts0) :-
-	[coord(with_cost_per_unit(Goods_Unit, Unit_Cost), Goods_Count, _)] = Goods_With_Unit_Cost_Vector,
-	add_bought_items(
-		Pricing_Method, 
-		outstanding(Purchase_Currency, Goods_Unit, Goods_Count, Unit_Cost, Transaction_Day),
-		Outstanding_In, Outstanding_Out
-	),
+increase_unrealized_gains(Static_Data, Trading_Account_Id, Pricing_Method, Purchase_Currency, Converted_Cost_Vector, Goods_With_Unit_Cost_Vector, Transaction_Day, Outstanding_In, Outstanding_Out, Ts0) :-
 	unrealized_gains_txs(Static_Data, Trading_Account_Id, Purchase_Currency, Converted_Cost_Vector, Goods_With_Unit_Cost_Vector, Transaction_Day, Txs0),
 	txs_to_transactions(Transaction_Day, Txs0, Ts0).
 
