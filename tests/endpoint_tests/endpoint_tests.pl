@@ -15,7 +15,8 @@
 :- use_module('../../lib/files').
 :- use_module('../../prolog_server/prolog_server').
 :- use_module('compare_xml').
-:- use_module('../../lib/utils', [floats_close_enough/2]).
+:- use_module('../../lib/utils', [
+		floats_close_enough/2]).
 
 :- begin_tests(xml_testcases, [setup(run_simple_server)]).
 
@@ -79,8 +80,24 @@ query_endpoint(RequestFile0, ReplyDOM) :-
 		[ access(read) ]
 	),
 	http_post('http://localhost:8080/upload', form_data([file=file(RequestFile)]), ReplyXML, [content_type('multipart/form-data')]),
+	find_warnings(ReplyXML),
 	load_structure(string(ReplyXML), ReplyDOM,[dialect(xml),space(sgml)]).
-	
+
+find_warnings(ReplyXML) :-
+	atom_string(ReplyXML, ReplyXML2),
+	split_string(ReplyXML2, '\n', '\n', Lines),
+	maplist(echo_warning_line, Lines).
+
+echo_warning_line(Line) :-
+	(
+		sub_string(Line, _, _, _, 'SYSTEM_WARNING')
+	->
+		format(user_error, '~w\n', [Line])
+	;
+		true
+	).
+
+
 testcases(Testcase) :-
 	find_test_directories(Paths),
 	member(Path, Paths),

@@ -14,13 +14,17 @@
 		gregorian_date/2, 
 		date_between/3]).
 :- use_module('utils', [
-		pretty_term_string/2]).
+		pretty_term_string/2,
+		coord_is_almost_zero/1]).
 :- use_module('livestock', [
 		process_livestock/14,
 		livestock_counts/6]). 
 :- use_module('transactions', [
 		check_transaction_account/2]).
+:- use_module('ledger_report', [
+		trial_balance_between/8]).
 
+		
 find_s_transactions_in_period(S_Transactions, Opening_Date, Closing_Date, Out) :-
 	findall(
 		S_Transaction,
@@ -106,8 +110,20 @@ process_ledger(
 	'Transaction_Transformation_Debug:\n', Message10,'\n\n',
 	'-->\n\n'], Debug_Message)
 	),
-	writeln(Debug_Message).
-	
+	writeln(Debug_Message),
+
+	trial_balance_between(Exchange_Rates, Account_Hierarchy, Transactions_With_Livestock, Report_Currency, End_Days, Start_Days, End_Days, [Trial_Balance_Section]),
+	(
+		trial_balance_ok(Trial_Balance_Section)
+	->
+		true
+	;
+		write('<!-- SYSTEM_WARNING: trial balance: '), write(Trial_Balance_Section), writeln('-->\n')
+	).
+
+trial_balance_ok(Trial_Balance_Section) :-
+	Trial_Balance_Section = entry(_, Balance, [], _),
+	maplist(coord_is_almost_zero, Balance).
 	
 emit_ledger_warnings(S_Transactions, Start_Days, End_Days) :-
 	(
@@ -117,3 +133,5 @@ emit_ledger_warnings(S_Transactions, Start_Days, End_Days) :-
 	;
 		true
 	).
+
+	

@@ -57,7 +57,8 @@
 		fields/2, 
 		field_nothrow/2, 
 		numeric_fields/2, 
-		throw_string/1]).
+		throw_string/1,
+		coord_is_almost_zero/1]).
 :- use_module('accounts', [
 		account_by_role/3, 
 		account_in_set/3,
@@ -199,10 +200,10 @@ preprocess_s_transaction(Static_Data, S_Transaction, [Ts1, Ts2, Ts3, Ts4], Outst
 			make_buy(
 				Static_Data, Trading_Account_Id, Pricing_Method, Bank_Account_Currency, Counteraccount_Vector,
 				Converted_Vector_Ours, Exchanged_Account, Transaction_Day, Description, Outstanding_In, Outstanding_Out, Ts2)
-		;		(   %gtrace,
+		;		
 			make_sell(
 				Static_Data, Trading_Account_Id, Pricing_Method, Bank_Account_Currency, Counteraccount_Vector, Vector_Ours, 
-				Converted_Vector_Ours,	Exchanged_Account, Transaction_Day, Description,	Outstanding_In, Outstanding_Out, Ts3))
+				Converted_Vector_Ours,	Exchanged_Account, Transaction_Day, Description,	Outstanding_In, Outstanding_Out, Ts3)
 		)
 	;
 		(
@@ -332,28 +333,9 @@ check_trial_balance(Exchange_Rates, Report_Currency, Day, Transactions) :-
 		->
 			true
 		;
-			(
-				/*
-				pretty_term_string(['note: total is ', Total, ' on day ', Day], Err_Str),
-				format(user_error, '\n\\n~w\n\n', [Err_Str])
-				*/
-				/*format(user_error, 'note: total is ~w on day ~w\n', [Total, Day])*/ % output me in the output xml
-				true
-			)
+			format('<!-- SYSTEM_WARNING: trial balance is ~w at ~w -->\n', [Total, Day])
 		)
 	).
-
-float_comparison_max_difference(0.00000001).
-	
-coord_is_almost_zero(coord(_, D, C)) :-
-	compare_floats(D, 0),
-	compare_floats(C, 0).
-
-
-compare_floats(A, B) :-
-	float_comparison_max_difference(Max),
-	D is abs(A - B),
-	D =< Max.
 
 	
 % Gets the transaction_type term associated with the given transaction
@@ -377,7 +359,6 @@ check_that_s_transaction_account_exists(S_Transaction, Accounts) :-
 			throw_string(['account not found in hierarchy:', Account_Name])
 	).
 
-	
 
 % yield all transactions from all accounts one by one.
 % these are s_transactions, the raw transactions from bank statements. Later each s_transaction will be preprocessed

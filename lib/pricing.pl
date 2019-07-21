@@ -11,6 +11,10 @@ for lifo, sales will be reducing/removing buys from the end, for fifo, from the 
 */
 
 
+/*
+Outstanding variable that treads through preprocess_s_transactions keeps track of currenty owned shares/goods and their purchase costs. 
+The same information could be extracted, with knowledge of the pricing method, from the transactions generated so far, although that might be inefficient. But due to how requirements evolved, the essentially same information is kept in two places now.
+*/
 add_bought_items(fifo, Added, Outstanding_In, Outstanding_Out) :- append([Added], Outstanding_In, Outstanding_Out).
 add_bought_items(lifo, Added, Outstanding_In, Outstanding_Out) :- append(Outstanding_In, [Added], Outstanding_Out).
 

@@ -185,11 +185,10 @@ display_xbrl_ledger_response(Account_Hierarchy, Report_Currency, Start_Days, End
    maplist(write_used_unit, Used_Units), 
 
    flatten([
-		'<!-- balance sheet: -->\n', Lines3, 
-		'<!-- profit and loss: -->\n', Lines2,
-		'<!-- trial balance: -->\n',  Lines1,
-		'<!-- investment report: -->\n<!--\n', Investment_Report_Lines,
-		'\n -->\n'
+		'\n<!-- balance sheet: -->\n', Lines3, 
+		'\n<!-- profit and loss: -->\n', Lines2,
+		'\n<!-- investment report:\n', Investment_Report_Lines, '\n -->\n',
+		'\n<!-- trial balance: -->\n',  Lines1
 	], Lines),
    atomic_list_concat(Lines, LinesString),
    writeln(LinesString),
