@@ -163,6 +163,12 @@ preprocess_s_transaction(Static_Data, S_Transaction, Transactions, Outstanding_I
 
 	
 preprocess_s_transaction(Static_Data, S_Transaction, Transactions, Outstanding, Outstanding) :-
+	/*
+	livestock currenty does it's own thing, using average cost computation and andjustment transactions.
+	This means that it does not handle foreign currency bank accounts as we do here.
+	Tt least the aftecting of bank account should be made handled by preprocess_s_transaction.
+	the livestock code is in need of cleanup, we will probably do that as part of implementing inventory or other pricing methods.
+	*/
 	preprocess_livestock_buy_or_sell(Static_Data, S_Transaction, Transactions).
 
 /*	

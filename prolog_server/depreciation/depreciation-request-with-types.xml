@@ -1,0 +1,30 @@
+<depreciation_request_written_down_value>
+
+	<types>
+		<type>
+			<name>corolla</name>
+			<parent>toyota</parent>
+		</type>
+		etc..
+	<rates>
+		<depreciation_rate>
+			<asset>motor_vehicles</asset>
+			<year>1</year>
+			<value>0.2</value>
+		</depreciation_rate>
+		<depreciation_rate>
+			<asset>xxx/asset>
+			<!-- all years -->
+			<value>0.2</value>
+		</depreciation_rate>
+	</rates>
+	
+	<type>corolla</type>
+	<cost>
+		<unit>USD</unit>
+		<value>	767688787</value>
+	</cost>
+	<invest_in_date>2020-1-1</invest_in_date>
+	<request_date>2021-1-2</request_date>
+
+</depreciation_request_written_down_value>

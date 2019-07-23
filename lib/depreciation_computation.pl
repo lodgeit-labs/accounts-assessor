@@ -20,7 +20,10 @@ depreciation_between_invest_in_date_and_other_date(
 ) :-
 	day_diff(date(From_year, From_Month, From_day), To_date, Days_difference),
 	Days_difference >= 0,
+	
+	/*please pass the depreciation rates into this rule, so we don't realy on an assert like this:*/
 	depreciation_rate(Account, Depreciation_year, Depreciation_rate),
+	/* account can be the type stated in the rates table*/
 
 	% amount of depreciation in the first depreciation period.
 	Depreciation_fixed_value = Invest_in_value * Depreciation_rate,
@@ -87,8 +90,7 @@ written_down_value(Transaction, Written_down_date, Method, Written_down_value):-
 		Invest_in_date, 
 		Written_down_date, 
 		Account, 
-		1,
-/* i guess this is in the sense of first year of ownership*/
+		1,/* i guess this is in the sense of first year of ownership*/
 		1/365, 
 		Total_depreciation_value
 	),
