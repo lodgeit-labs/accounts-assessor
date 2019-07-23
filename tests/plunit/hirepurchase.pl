@@ -103,7 +103,7 @@ findall(Installments_With_Balloon,
 		insert_balloon(hp_installment(Balloon_Day, 1000), Installments, Installments_With_Balloon)),
 		
 	[[hp_installment(735583, 1000), hp_installment(735614, 200.47), hp_installment(735645, 200.47), hp_installment(735673, 200.47),
-		hp_installment(735704, 200.47), hp_installment(735734, 200.47), hp_installment(735765, 200.47), hp_installment(735795, 200.47),
+/*?*/		hp_installment(735704, 200.47), hp_installment(735734, 200.47), hp_installment(735765, 200.47), hp_installment(735795, 200.47),
 		hp_installment(735826, 200.47), hp_installment(735857, 200.47), hp_installment(735887, 200.47), hp_installment(735918, 200.47),
 		hp_installment(735948, 200.47), hp_installment(735979, 200.47), hp_installment(736010, 200.47), hp_installment(736039, 200.47),
 		hp_installment(736070, 200.47), hp_installment(736100, 200.47), hp_installment(736131, 200.47), hp_installment(736161, 200.47),
@@ -332,6 +332,11 @@ findall(Interest_Rate,
 
 
 
+
+
+
+
+
 % Note that several to different interest rates can result in hire purchase
 % arrangements with the same duration. In this case, it is only the closing balance
 % after the last installment that changes.
@@ -349,11 +354,8 @@ findall(
 	Correction_Transactions,
 	(
 		recorded(transactions, Transactions),
-		writeln('okay...'),
 		absolute_day(date(2014, 12, 16), Begin_Day),
-		writeln('okay.....'),
 		installments(date(2015, 1, 16), 36, date(0, 1, 0), 200.47, Installments),
-		writeln('okay.......'),
 		hp_arr_corrections(hp_arrangement(0, 5953.2, Begin_Day, 13, Installments),
 			hp_account, hp_suspense_account, Transactions, Correction_Transactions)
 	),
@@ -404,7 +406,6 @@ Expected_Results =
 		transaction(0, correction, hp_account, coord(200.47, 0)), transaction(0, correction, hp_suspense_account, coord(0, 200.47)),
 		transaction(0, correction, hp_account, coord(200.47, 0)), transaction(0, correction, hp_suspense_account, coord(0, 200.47)),
 		transaction(0, correction, hp_account, coord(200.47, 0)), transaction(0, correction, hp_suspense_account, coord(0, 200.47))]],
-
 writeln('expected results'),
 print_term(Expected_Results, []),
 
@@ -423,4 +424,3 @@ Results = Expected_Results.
 */
 
 :- end_tests(hirepurchase).
-

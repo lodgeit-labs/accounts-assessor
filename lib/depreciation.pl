@@ -20,11 +20,11 @@ Not a part of the project yet, jsut a standalone demo. Hence the asserts etc.
 */
 
 
-:- module(depreciation, [depreciation_between_invest_in_date_and_other_date/9,
-							depreciation_between_two_dates/5,
-							asset_disposal/4]).
+:- module(depreciation, [asset_disposal/4]).
 							
 :- use_module(days, [absolute_day/2]).
+
+:- use_module(depreciation_computation, [depreciation_between_two_dates/5]).
 
 
 :- dynamic transactions/1.
@@ -46,32 +46,7 @@ Provide queries that generate depreciation values between any two dates on a dai
 between the Invest_In date and the Written Down Value Date. */
 
 
-/*
-standalone calc should probably take transaction terms as input, but it can pretty much just return the calculated values
-*/
 
-% Predicates for asserting that the fields of given transactions have particular values
-% duplicated from transactions.pl with the difference that transaction_date is used instead of transaction_day
-% ok well transactions.pl transactions now use date too, just havent renamed it yet, so we can probably use it 
-% The absolute day that the transaction happenned
-% ok well transactions.pl uses dates, not days
-% input and output xml should use dates too, so idk, best to convert it to days just inside the computation functions and convert it back after
-transaction_date(transaction(Date, _, _, _), Date).
-% A description of the transaction
-transaction_description(transaction(_, Description, _, _), Description).
-% The account that the transaction modifies
-transaction_account(transaction(_, _, Account_Id, _), Account_Id).
-% The amounts by which the account is being debited and credited
-transaction_vector(transaction(_, _, _, Vector), Vector).
-% Extract the cost of the buy from transaction data
-transaction_cost(transaction(_, _, _, t_term(Cost, _)), Cost).
-
-
-% this should be in utils
-day_diff(Date1, Date2, Days) :-
-	absolute_day(Date1, Days1),
-	absolute_day(Date2, Days2),
-	Days is Days2 - Days1.
 
 
 % Type hierarchy - i guess should be input as a table of pairs, and we dont have anything similar in concept elsewhere in the codebase, 
@@ -95,25 +70,6 @@ transactions(transaction(date(19, 7, 1), buy_car, hirepurchase_car, t_term(0, 10
 transactions(transaction(date(20, 4, 1), buy_truck, motor_vehicles, t_term(3000, 0))).
 transactions(transaction(date(20, 4, 1), buy_truck, hirepurchase_truck, t_term(0, 3000))).
 
-
-% Depreciation rates for motor vehicles depending on the year: 1, 2... after investing
-% again an input table maybe with some smartness to allow specifying/not specifying year
-depreciation_rate(motor_vehicles, _Year, 0.2).
-%depreciation_rate(motor_vehicles, _Year, 0.27).
-/*
-<depreciation_rate>
-	<asset>motor_vehicles</asset>
-	<year..
-	<value>0.2..
-</
-<depreciation_rate>
-	<asset>xxx/asset>
-	<!-- all years -->
-	<value>0.2..
-</
-...
-these should go into a list or something and be passed around, like we pass exchange_rates and accounts around everywhere.
-*/
 
 
 /* 
@@ -181,8 +137,8 @@ asset_disposal(Original_transaction, Date, Asset_price, Depreciation_method) :-
 	assert(transactions(transaction(Date, car_depreciation, accumulated_depreciation, t_term(Depreciation_value, 0)))),
 	assert(transactions(transaction(Date, sell_car, bank, t_term(Asset_price, 0)))),
 
-       /* this might need to be broken out into depreciation_computation.pl to support requests where
-       sale date is specified, and profit should be returned */
+	/* this might need to be broken out into depreciation_computation.pl to support requests where
+	sale date is specified, and profit should be returned */
 
 	Profit_and_loss is Asset_price - Asset_cost + Depreciation_value,
 	print(Profit_and_loss),

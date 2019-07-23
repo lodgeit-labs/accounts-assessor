@@ -1,5 +1,4 @@
 :- ['../../lib/loans'].
-:- ['../../lib/days'].
 
 :- begin_tests(loans).
 

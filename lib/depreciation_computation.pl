@@ -1,4 +1,14 @@
 
+:- module(depreciation_computation, [
+		written_down_value/5, 
+		depreciation_between_two_dates/6, 
+		transaction_account/2, 
+		transaction_cost/2, 
+		transaction_date/2]).
+
+
+:- use_module(days, [day_diff/3]).
+
 /*
 
 work in progress 
@@ -14,16 +24,21 @@ depreciation_between_invest_in_date_and_other_date(
 	date(From_year, From_Month, From_day),	% date of investment
 	To_date,								% date for which depreciation should be computed
 	Account,
+	Rates,
 	Depreciation_year, 						% it doesn't seem that we're actually making use of this.
 	By_day_factor, 							% 1/(days per depreciation period)
 	Total_depreciation_value
 ) :-
+	writeln(depreciation_between_invest_in_date_and_other_date),
+	writeln(date_between(date(From_year, From_Month, From_day), To_date, Days_difference)),
 	day_diff(date(From_year, From_Month, From_day), To_date, Days_difference),
+
 	Days_difference >= 0,
+	member(Rate, Rates),
+	copy_term(Rate, Rate_Copy), % Year can be an unbound variable (signifying all years), and we don't want to bind it in the table
+	Rate_Copy = depreciation_rate(Account, Depreciation_year, Depreciation_rate),
 	
-	/*please pass the depreciation rates into this rule, so we don't realy on an assert like this:*/
-	depreciation_rate(Account, Depreciation_year, Depreciation_rate),
-	/* account can be the type stated in the rates table*/
+	writeln("ok.."),
 
 	% amount of depreciation in the first depreciation period.
 	Depreciation_fixed_value = Invest_in_value * Depreciation_rate,
@@ -61,7 +76,8 @@ depreciation_between_invest_in_date_and_other_date(
 				Method, 
 				date(Next_from_year, From_Month, From_day), 
 				To_date, 
-				Account, 
+				Account,
+				Rates, 
 				Next_depreciation_year, 
 				By_day_factor, 
 				Next_depreciation_value
@@ -71,15 +87,15 @@ depreciation_between_invest_in_date_and_other_date(
 	).
 
 % Calculates depreciation between any two dates on a daily basis equal or posterior to the invest in date
-depreciation_between_two_dates(Transaction, From_date, To_date, Method, Depreciation_value):-
+depreciation_between_two_dates(Transaction, From_date, To_date, Method, Rates, Depreciation_value):-
 	day_diff(From_date, To_date, Days_difference),
 	Days_difference >= 0,
-	written_down_value(Transaction, To_date, Method, To_date_written_down_value),
-	written_down_value(Transaction, From_date, Method, From_date_written_down_value),
+	written_down_value(Transaction, To_date, Method, Rates, To_date_written_down_value),
+	written_down_value(Transaction, From_date, Method, Rates, From_date_written_down_value),
 	Depreciation_value is From_date_written_down_value - To_date_written_down_value.
 
 % Calculates written down value at a certain date equal or posterior to the invest in date using a daily basis
-written_down_value(Transaction, Written_down_date, Method, Written_down_value):-
+written_down_value(Transaction, Written_down_date, Method, Rates, Written_down_value):-
 	transaction_cost(Transaction, Cost),
 	transaction_date(Transaction, Invest_in_date),
 	transaction_account(Transaction, Account),
@@ -90,6 +106,7 @@ written_down_value(Transaction, Written_down_date, Method, Written_down_value):-
 		Invest_in_date, 
 		Written_down_date, 
 		Account, 
+		Rates,
 		1,/* i guess this is in the sense of first year of ownership*/
 		1/365, 
 		Total_depreciation_value
@@ -116,6 +133,8 @@ depreciation_by_method(
 	Days, 						% number of days elapsed
 	Depreciation_value			% value at end of current fractional depreciation period
 ):-
+	writeln("ok.."),
+
 	% Factor is the fraction of a depreciation period represented by Days
 	Factor is By_day_factor * Days, 
 	(
@@ -132,3 +151,26 @@ depreciation_by_method(
 		% assuming the asset can't depreciate by more than it's worth.
 		Depreciation_value is Factor * Depreciation_fixed_value
 	).
+
+
+/*
+standalone calc should probably take transaction terms as input, but it can pretty much just return the calculated values
+*/
+
+% Predicates for asserting that the fields of given transactions have particular values
+% duplicated from transactions.pl with the difference that transaction_date is used instead of transaction_day
+% ok well transactions.pl transactions now use date too, just havent renamed it yet, so we can probably use it 
+% The absolute day that the transaction happenned
+% ok well transactions.pl uses dates, not days
+% input and output xml should use dates too, so idk, best to convert it to days just inside the computation functions and convert it back after
+transaction_date(transaction(Date, _, _, _), Date).
+% A description of the transaction
+transaction_description(transaction(_, Description, _, _), Description).
+% The account that the transaction modifies
+transaction_account(transaction(_, _, Account_Id, _), Account_Id).
+% The amounts by which the account is being debited and credited
+transaction_vector(transaction(_, _, _, Vector), Vector).
+% Extract the cost of the buy from transaction data
+transaction_cost(transaction(_, _, _, t_term(Cost, _)), Cost).
+
+

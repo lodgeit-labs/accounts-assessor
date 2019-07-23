@@ -6,13 +6,15 @@
 
 :- module(days, [absolute_day/2,
 		 date_add/3,
-		 day_between/3,
 		 format_date/2,
 		 parse_date/2,
 		 gregorian_date/2,
 		 add_days/3,
 		 date_between/3,
-		 parse_date_into_absolute_days/2]).
+		 day_between/3,
+		 parse_date_into_absolute_days/2,
+		day_diff/3]).
+
 :- use_module(utils, [throw_string/1]).
 	
 % -------------------------------------------------------------------
@@ -142,17 +144,28 @@ gregorian_date(Abs_Day, date(Year, Month, Day)) :-
 % -------------------------------------------------------------------
 
 day_between(Opening_Date, Closing_Date, Day) :-
-	absolute_day(Opening_Date, Opening_Day),
-	absolute_day(Closing_Date, Closing_Day),
-	absolute_day(Closing_Date, Closing_Day),
-	Opening_Day =< Day, Day < Closing_Day.
+	gregorian_date(Day, Date),
+	date_between(Opening_Date, Closing_Date, Date).
 
-date_between(Opening_Date, Closing_Date, Date) :-
+date_between(
+	/*inputs*/
+	Opening_Date, 
+	Closing_Date, 
+	Date
+) :-
 	absolute_day(Opening_Date, Opening_Day),
 	absolute_day(Closing_Date, Closing_Day),
 	absolute_day(Date, Day),
 	Opening_Day =< Day, Day < Closing_Day.
 
+
+
+
+% Finds the difference of 2 dates in day format
+day_diff(Date1, Date2, Days) :-
+	absolute_day(Date1, Days1),
+	absolute_day(Date2, Days2),
+	Days is Days2 - Days1.
 
 % -------------------------------------------------------------------
 % parses date in "DD-MM-YYYY" format
