@@ -50,6 +50,10 @@
 		extract_account_hierarchy/2]).
 :- use_module('../../lib/exchange_rates', [
 		exchange_rate/5]).
+:- use_module('../../lib/files', [
+		my_tmp_file_name/2,
+		request_tmp_dir/1,
+		server_public_url/1]).
 
 % ------------------------------------------------------------------
 % process_xml_ledger_request/2
@@ -156,15 +160,34 @@ output_results(S_Transactions, Transactions, Start_Days, End_Days, Exchange_Rate
 	emit_ledger_warnings(S_Transactions, Start_Days, End_Days),
 	nl, nl.
 
+prepare_unique_taxonomy_url(Taxonomy_Dir_Url) :-
+   request_tmp_dir(Tmp_Dir),
+   server_public_url(Server_Public_Url),
+   atomic_list_concat([Server_Public_Url, '/tmp/', Tmp_Dir, '/taxonomy/'], Taxonomy_Dir_Url),
+   my_tmp_file_name('/taxonomy', Tmp_Taxonomy),
+   absolute_file_name(my_taxonomy('/'), Static_Taxonomy, [file_type(directory)]),
+   atomic_list_concat(['ln -s ', Static_Taxonomy, ' ', Tmp_Taxonomy], Cmd),
+   shell(Cmd, 0).
+
+	
 % -----------------------------------------------------
 % display_xbrl_ledger_response/4
 % -----------------------------------------------------
 
 display_xbrl_ledger_response(Account_Hierarchy, Report_Currency, Start_Days, End_Days, Balance_Sheet_Entries, Trial_Balance, ProftAndLoss_Entries, Investment_Report_Lines) :-
+	
+   (
+	true
+	->
+	prepare_unique_taxonomy_url(Taxonomy)
+	;
+	Taxonomy = ''
+	),
+   
    writeln('<xbrli:xbrl xmlns:xbrli="http://www.xbrl.org/2003/instance" xmlns:link="http://www.xbrl.org/2003/linkbase" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:iso4217="http://www.xbrl.org/2003/iso4217" xmlns:basic="http://www.xbrlsite.com/basic">'),
-   writeln('  <link:schemaRef xlink:type="simple" xlink:href="http://dev-node.uksouth.cloudapp.azure.com:7778/taxonomy/basic.xsd" xlink:title="Taxonomy schema" />'),
-   writeln('  <link:linkbaseRef xlink:type="simple" xlink:href="basic-formulas.xml" xlink:arcrole="http://www.w3.org/1999/xlink/properties/linkbase" />'),
-   writeln('  <link:linkBaseRef xlink:type="simple" xlink:href="basic-formulas-cross-checks.xml" xlink:arcrole="http://www.w3.org/1999/xlink/properties/linkbase" />'),
+   write('  <link:schemaRef xlink:type="simple" xlink:href="'), write(Taxonomy), writeln('basic.xsd" xlink:title="Taxonomy schema" />'),
+   writeln('  <link:linkbaseRef xlink:type="simple" xlink:href="'), write(Taxonomy), writeln('basic-formulas.xml" xlink:arcrole="http://www.w3.org/1999/xlink/properties/linkbase" />'),
+   writeln('  <link:linkBaseRef xlink:type="simple" xlink:href="'), write(Taxonomy), writeln('basic-formulas-cross-checks.xml" xlink:arcrole="http://www.w3.org/1999/xlink/properties/linkbase" />'),
 
    format_date(End_Days, End_Date_String),
    format_date(Start_Days, Start_Date_String),
