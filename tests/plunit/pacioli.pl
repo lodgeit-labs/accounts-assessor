@@ -4,7 +4,7 @@
 :- begin_tests(pacioli).
 
 
-test(0) :-
+test(0,all(X=[x])) :-
 	vec_units(
 		[
 			coord(aud, _,_), 
@@ -28,7 +28,8 @@ test(0) :-
 	Res0 = [coord(b, 1.0, 0.0)],
 	vec_add([coord(a, 5, 1), coord(b, 1, 0.0), coord(a, 8.0, 4)], [], Res1),
 	Res1 = [coord(a, 8.0, 0), coord(b, 1.0, 0.0)],
-	vec_add([value('AUD',25)], [value('AUD',50)], [value('AUD',75)]).
+	vec_add([value('AUD',25)], [value('AUD',50)], [value('AUD',75)]),
+	X=x.
 
 :- end_tests(pacioli).
 

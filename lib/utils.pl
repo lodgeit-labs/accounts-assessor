@@ -268,11 +268,16 @@ maplist6_([Elem1|Tail1], [Elem2|Tail2], [Elem3|Tail3], [Elem4|Tail4], [Elem5|Tai
 /*Like foldl, but without initial value. No-op on zero- and one- item lists.*/
 :- meta_predicate semigroup_foldl(3, ?, ?).
 semigroup_foldl(_Goal, [], []).
+
 semigroup_foldl(_Goal, [Item], [Item]).
-semigroup_foldl(Goal, [H1,H2|T], V) :-
+
+semigroup_foldl(Goal, [H1, H2 | T], V) :-
     call(Goal, H1, H2, V1),
-    semigroup_foldl(Goal, [V1|T], V).
-   
+    semigroup_foldl(Goal, [V1 | T], V).
+
+
+
+
    
 /* throw a string(Message) term, these errors are caught by our http server code and turned into nice error messages */
 throw_string(List_Or_Atom) :-
