@@ -26,9 +26,9 @@ Not a part of the project yet, jsut a standalone demo. Hence the asserts etc.
 							
 :- use_module(days, [absolute_day/2]).
 
-% Import transactions.pl and hirepurchase.pl
+
 :- dynamic transactions/1.
-% :- [hirepurchase, days].
+
 
 
 /* Invest_in 1 Unit of Corolla, where Corolla is a Toyota & where Toyota is a Car & where a Car is a Motor Vehicle & 
@@ -46,7 +46,8 @@ Provide queries that generate depreciation values between any two dates on a dai
 between the Invest_In date and the Written Down Value Date. */
 
 
-/*standalone calc should probably take transaction terms as input, but it can pretty much just return the calculated values
+/*
+standalone calc should probably take transaction terms as input, but it can pretty much just return the calculated values
 */
 
 % Predicates for asserting that the fields of given transactions have particular values

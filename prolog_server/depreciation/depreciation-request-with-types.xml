@@ -33,5 +33,6 @@
 	</cost>
 	<invest_in_date>2020-1-1</invest_in_date>
 	<request_date>2021-1-2</request_date>
+	<method>diminishing_value</method>
 
 </depreciation_request_written_down_value>
