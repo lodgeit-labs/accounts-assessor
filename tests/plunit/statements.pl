@@ -7,10 +7,13 @@
 test(0) :-
 	write("Are we now testing the statements subprogram?").
 
-
-
 test(0) :-
 	write("Are transactions where only the exchanged amount units are known and that uses a trading account preprocessed correctly?"),
+
+
+/*preprocess-s-transactions takes a whole list of s_transactions, and preprocess-s-transaction handles just one. 
+there has been many changes since these tests were written, mainly the function expects several more parameters.
+it is used in the simplest way in investment calculator endpoint code, that's a good starting point to go see how to fix this here*/
 
 
 	/*
