@@ -180,6 +180,10 @@ asset_disposal(Original_transaction, Date, Asset_price, Depreciation_method) :-
 	assert(transactions(transaction(Date, sell_car, motor_vehicles, t_term(0, Asset_cost)))),
 	assert(transactions(transaction(Date, car_depreciation, accumulated_depreciation, t_term(Depreciation_value, 0)))),
 	assert(transactions(transaction(Date, sell_car, bank, t_term(Asset_price, 0)))),
+
+       /* this might need to be broken out into depreciation_computation.pl to support requests where
+       sale date is specified, and profit should be returned */
+
 	Profit_and_loss is Asset_price - Asset_cost + Depreciation_value,
 	print(Profit_and_loss),
 	( Profit_and_loss >= 0 -> assert(transactions(transaction(Date, sell_car, profit_and_loss, t_term(0, Profit_and_loss))));
