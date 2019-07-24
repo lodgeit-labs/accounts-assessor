@@ -1,15 +1,18 @@
-<depreciation_response_written_down_value>
+<?xml version="1.0"?>
+<response>
+	<depreciation_response_written_down_value>
 
-	<type>corolla</type>
-	<cost>
-		<unit>USD</unit>
-		<value>	767688787</value>
-	</cost>
-	<invest_in_date>2020-1-1</invest_in_date>
-	<request_date>2021-1-2</request_date>
-	<written_down_value>
-		<unit>USD</unit>
-		<value>	xxxx</value>
-	</cost>
-	
-</depreciation_response_written_down_value>
+		<type>corolla</type>
+		<cost>
+			<unit>USD</unit>
+			<value>	767688787</value>
+		</cost>
+		<invest_in_date>2020-1-1</invest_in_date>
+		<request_date>2021-1-2</request_date>
+		<written_down_value>
+			<unit>USD</unit>
+			<value>	xxxx</value>
+		</written_down_value>
+		
+	</depreciation_response_written_down_value>
+</response>
