@@ -11,7 +11,7 @@
 :- dynamic user:file_search_path/2.
 :- multifile user:file_search_path/2.
 :- dynamic user:my_request_tmp_dir, [thread(local)].
-:- dynamic user:server_public_url/1.
+:- dynamic user:asserted_server_public_url/1.
 
 
 request_tmp_dir(Dir) :-

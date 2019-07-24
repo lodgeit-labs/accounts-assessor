@@ -37,7 +37,8 @@
 		preprocess_s_transactions/4, 
 		get_relevant_exchange_rates/5, 
 		invert_s_transaction_vector/2, 
-		fill_in_missing_units/6]).
+		fill_in_missing_units/6,
+		sort_s_transactions/2]).
 :- use_module('../../lib/ledger', [
 		emit_ledger_warnings/3,
 		process_ledger/12]).
@@ -159,7 +160,64 @@ output_results(S_Transactions, Transactions, Start_Days, End_Days, Exchange_Rate
 	display_xbrl_ledger_response(Account_Hierarchy, Report_Currency, Start_Days, End_Days, Balance_Sheet2, Trial_Balance2, ProftAndLoss2, Investment_Report_Lines),
 	emit_ledger_warnings(S_Transactions, Start_Days, End_Days),
 	nl, nl.
+	
+% -----------------------------------------------------
+% display_xbrl_ledger_response/4
+% -----------------------------------------------------
 
+display_xbrl_ledger_response(Account_Hierarchy, Report_Currency, Start_Days, End_Days, Balance_Sheet_Entries, Trial_Balance, ProftAndLoss_Entries, Investment_Report_Lines) :-
+	
+	(
+		get_flag(prepare_unique_taxonomy_url, true)
+	->
+		prepare_unique_taxonomy_url(Taxonomy)
+	;
+		Taxonomy = ''
+	),
+   
+	writeln('<xbrli:xbrl xmlns:xbrli="http://www.xbrl.org/2003/instance" xmlns:link="http://www.xbrl.org/2003/linkbase" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:iso4217="http://www.xbrl.org/2003/iso4217" xmlns:basic="http://www.xbrlsite.com/basic">'),
+	write('  <link:schemaRef xlink:type="simple" xlink:href="'), write(Taxonomy), writeln('basic.xsd" xlink:title="Taxonomy schema" />'),
+	write('  <link:linkbaseRef xlink:type="simple" xlink:href="'), write(Taxonomy), writeln('basic-formulas.xml" xlink:arcrole="http://www.w3.org/1999/xlink/properties/linkbase" />'),
+	write('  <link:linkBaseRef xlink:type="simple" xlink:href="'), write(Taxonomy), writeln('basic-formulas-cross-checks.xml" xlink:arcrole="http://www.w3.org/1999/xlink/properties/linkbase" />'),
+
+	format_date(End_Days, End_Date_String),
+	format_date(Start_Days, Start_Date_String),
+	End_Days = date(End_Year,_,_),
+
+	format( '  <xbrli:context id="D-~w">\n', End_Year),
+	writeln('    <entity>'),
+	writeln('      <identifier scheme="http://standards.iso.org/iso/17442">30810137d58f76b84afd</identifier>'),
+	writeln('    </entity>'),
+	writeln('    <period>'),
+	format( '      <startDate>~w</startDate>\n', Start_Date_String),
+	format( '      <endDate>~w</endDate>\n', End_Date_String),
+	writeln('    </period>'),
+	writeln('  </xbrli:context>'),
+
+	balance_sheet_entries(Account_Hierarchy, Report_Currency, End_Year, Balance_Sheet_Entries, ProftAndLoss_Entries, Used_Units, Lines2, Lines3),
+	format_report_entries(Account_Hierarchy, 0, Report_Currency, End_Year, Trial_Balance, [], _, [], Lines1),
+	maplist(write_used_unit, Used_Units), 
+
+   flatten([
+		'\n<!-- balance sheet: -->\n', Lines3, 
+		'\n<!-- profit and loss: -->\n', Lines2,
+		'\n<!-- investment report:\n', Investment_Report_Lines, '\n -->\n',
+		'\n<!-- trial balance: -->\n',  Lines1
+	], Lines),
+	atomic_list_concat(Lines, LinesString),
+	writeln(LinesString),
+	writeln('</xbrli:xbrl>').
+   
+write_used_unit(Unit) :-
+	format('  <xbrli:unit id="U-~w"><xbrli:measure>iso4217:~w</xbrli:measure></xbrli:unit>\n', [Unit, Unit]).
+
+
+/*
+To ensure that each response references the shared taxonomy via a unique url.
+a flag can be used when running the server, for example like this:
+```swipl -s prolog_server.pl  -g "set_flag(prepare_unique_taxonomy_url, true),run_simple_server"```
+This is done with a symlink.
+*/
 prepare_unique_taxonomy_url(Taxonomy_Dir_Url) :-
    request_tmp_dir(Tmp_Dir),
    server_public_url(Server_Public_Url),
@@ -169,57 +227,6 @@ prepare_unique_taxonomy_url(Taxonomy_Dir_Url) :-
    atomic_list_concat(['ln -s ', Static_Taxonomy, ' ', Tmp_Taxonomy], Cmd),
    shell(Cmd, 0).
 
-	
-% -----------------------------------------------------
-% display_xbrl_ledger_response/4
-% -----------------------------------------------------
-
-display_xbrl_ledger_response(Account_Hierarchy, Report_Currency, Start_Days, End_Days, Balance_Sheet_Entries, Trial_Balance, ProftAndLoss_Entries, Investment_Report_Lines) :-
-	
-   (
-	true
-	->
-	prepare_unique_taxonomy_url(Taxonomy)
-	;
-	Taxonomy = ''
-	),
-   
-   writeln('<xbrli:xbrl xmlns:xbrli="http://www.xbrl.org/2003/instance" xmlns:link="http://www.xbrl.org/2003/linkbase" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:iso4217="http://www.xbrl.org/2003/iso4217" xmlns:basic="http://www.xbrlsite.com/basic">'),
-   write('  <link:schemaRef xlink:type="simple" xlink:href="'), write(Taxonomy), writeln('basic.xsd" xlink:title="Taxonomy schema" />'),
-   write('  <link:linkbaseRef xlink:type="simple" xlink:href="'), write(Taxonomy), writeln('basic-formulas.xml" xlink:arcrole="http://www.w3.org/1999/xlink/properties/linkbase" />'),
-   write('  <link:linkBaseRef xlink:type="simple" xlink:href="'), write(Taxonomy), writeln('basic-formulas-cross-checks.xml" xlink:arcrole="http://www.w3.org/1999/xlink/properties/linkbase" />'),
-
-   format_date(End_Days, End_Date_String),
-   format_date(Start_Days, Start_Date_String),
-   End_Days = date(End_Year,_,_),
-   
-   format( '  <xbrli:context id="D-~w">\n', End_Year),
-   writeln('    <entity>'),
-   writeln('      <identifier scheme="http://standards.iso.org/iso/17442">30810137d58f76b84afd</identifier>'),
-   writeln('    </entity>'),
-   writeln('    <period>'),
-   format( '      <startDate>~w</startDate>\n', Start_Date_String),
-   format( '      <endDate>~w</endDate>\n', End_Date_String),
-   writeln('    </period>'),
-   writeln('  </xbrli:context>'),
-
-   balance_sheet_entries(Account_Hierarchy, Report_Currency, End_Year, Balance_Sheet_Entries, ProftAndLoss_Entries, Used_Units, Lines2, Lines3),
-   format_report_entries(Account_Hierarchy, 0, Report_Currency, End_Year, Trial_Balance, [], _, [], Lines1),
-   maplist(write_used_unit, Used_Units), 
-
-   flatten([
-		'\n<!-- balance sheet: -->\n', Lines3, 
-		'\n<!-- profit and loss: -->\n', Lines2,
-		'\n<!-- investment report:\n', Investment_Report_Lines, '\n -->\n',
-		'\n<!-- trial balance: -->\n',  Lines1
-	], Lines),
-   atomic_list_concat(Lines, LinesString),
-   writeln(LinesString),
-   writeln('</xbrli:xbrl>').
-   
-write_used_unit(Unit) :-
-	format('  <xbrli:unit id="U-~w"><xbrli:measure>iso4217:~w</xbrli:measure></xbrli:unit>\n', [Unit, Unit]).
-   
 	
 extract_default_currency(Dom, Default_Currency) :-
    inner_xml(Dom, //reports/balanceSheetRequest/defaultCurrency/unitType, Default_Currency).
@@ -284,107 +291,4 @@ extract_exchange_rate(End_Date, Optional_Default_Currency, Unit_Value, Exchange_
 	),	
 	parse_date(Date_Atom, Date)	.
 
-   
-sort_s_transactions(In, Out) :-
-	/*
-	If a buy and a sale of same thing happens on the same day, we want to process the buy first.
-	We first sort by our debit on the bank account. Transactions with zero of our debit are not sales.
-	*/
-	sort(
-	/*
-	this is a path inside the structure of the elements of the sorted array (inside the s_transactions):
-	3th sub-term is the amount from bank perspective. 
-	1st (and hopefully only) item of the vector is the coord,
-	3rd item of the coord is bank credit, our debit.
-	*/
-	[3,1,3], @=<,  In, Mid),
-	/*now we can sort by date ascending, and the order of transactions with same date, as sorted above, will be preserved*/
-	sort(1, @=<,  Mid, Out).
 
-
-test0 :-
-	In = [ s_transaction(736542,
-			'Borrow',
-			[coord('AUD',0,100)],
-			'NationalAustraliaBank',
-			bases(['AUD'])),
-	s_transaction(736704,
-			'Dispose_Of',
-			[coord('AUD',0.0,1000.0)],
-			'NationalAustraliaBank',
-			vector([coord('TLS',0,11)])),
-	s_transaction(736511,
-			'Introduce_Capital',
-			[coord('USD',0,200)],
-			'WellsFargo',
-			bases(['USD'])),
-	s_transaction(736704,
-			'Invest_In',
-			[coord('USD',50,0)],
-			'WellsFargo',
-			vector([coord('TLS',10,0)])),
-	s_transaction(736520,
-			'Invest_In',
-			[coord('USD',100.0,0.0)],
-			'WellsFargo',
-			vector([coord('TLS',10,0)])),
-	s_transaction(736704,
-			'Dispose_Of',
-			[coord('USD',0.0,420.0)],
-			'WellsFargo',
-			vector([coord('TLS',0,4)]))
-	],
-
-	Out = [ s_transaction(736511,
-			'Introduce_Capital',
-			[coord('USD',0,200)],
-			'WellsFargo',
-			bases(['USD'])),
-	s_transaction(736520,
-			'Invest_In',
-			[coord('USD',100.0,0.0)],
-			'WellsFargo',
-			vector([coord('TLS',10,0)])),
-	s_transaction(736542,
-			'Borrow',
-			[coord('AUD',0,100)],
-			'NationalAustraliaBank',
-			bases(['AUD'])),
-	s_transaction(736704,
-			'Invest_In',
-			[coord('USD',50,0)],
-			'WellsFargo',
-			vector([coord('TLS',10,0)])),
-	s_transaction(736704,
-			'Dispose_Of',
-			[coord('USD',0.0,420.0)],
-			'WellsFargo',
-			vector([coord('TLS',0,4)])),
-	s_transaction(736704,
-			'Dispose_Of',
-			[coord('AUD',0.0,1000.0)],
-			'NationalAustraliaBank',
-			vector([coord('TLS',0,11)]))
-	],
-	
-	sort_s_transactions(In, Out).
-test0.
-
-
-	%append(Exchange_Rates, [], Exchange_Rates_With_Inferred_Values),
-/*	
-	exchange_rate(
-		Exchange_Rates_With_Inferred_Values, date(2018,12,30), 
-		'CHF','AUD',
-		RRRRRRRR),
-	print_term(RRRRRRRR,[]),*/
-	/*
-	exchange_rate(
-		Exchange_Rates_With_Inferred_Values, End_Days, 
-		without_currency_movement_against_since('Raiffeisen Switzerland_B.V.', 
-		'USD', ['AUD'],date(2018,7,2)),
-		'AUD',
-		RRRRRRRR),
-	print_term(RRRRRRRR,[]),
-	*/
-	
