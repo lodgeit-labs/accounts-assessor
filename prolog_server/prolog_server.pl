@@ -92,7 +92,7 @@ upload(Request) :-
    http_read_data(Request, Parts, [ on_filename(save_file) ]),
    memberchk(file=file(FileName, Path), Parts),
    catch(
-	   process_data(FileName, Path),
+	   process_data(FileName, Path, Request),
 	   string(E),
 	   throw(http_reply(bad_request(string(E))))
    ).
@@ -106,10 +106,10 @@ upload(_Request) :-
 /*
  run a testcase directly
 */
-tests(Url, _) :-
+tests(Url, Request) :-
 	bump_tmp_directory_id,
 	absolute_file_name(my_tests(Url), Path, [ access(read), file_errors(fail) ]),
-	process_data(_FileName, Path).
+	process_data(_FileName, Path, Request).
 
    
 % -------------------------------------------------------------------

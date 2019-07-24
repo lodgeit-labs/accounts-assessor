@@ -1,11 +1,21 @@
-:- module(files, [generate_unique_tmp_directory_base/0, bump_tmp_directory_id/0, my_tmp_file_name/2]).
+:- module(files, [
+		generate_unique_tmp_directory_base/0, 
+		bump_tmp_directory_id/0, 
+		my_tmp_file_name/2,
+		request_tmp_dir/1,
+		server_public_url/1
+		,set_server_public_url/1
+		]).
 
 
 :- dynamic user:file_search_path/2.
 :- multifile user:file_search_path/2.
-
 :- dynamic user:my_request_tmp_dir, [thread(local)].
+:- dynamic user:asserted_server_public_url/1.
 
+
+request_tmp_dir(Dir) :-
+	my_request_tmp_dir(Dir).
 
 set_search_path(Alias, Path_From_This_Source_File) :-
 	prolog_load_context(directory, Here),
@@ -49,5 +59,17 @@ generate_unique_tmp_directory_base :-
    asserta(session_tmp_directory_base(Base)),
    bump_tmp_directory_id.
 
+   
+server_public_url(Url) :-
+	asserted_server_public_url(Url).
+		
+set_server_public_url(Url) :-
+	retractall(asserted_server_public_url(_)),
+	assert(asserted_server_public_url(Url)).
+	
+
+   
+   
+   
 :- initialization(generate_unique_tmp_directory_base).
 

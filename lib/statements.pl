@@ -14,7 +14,8 @@
 		s_transaction_account_id/2,
 		s_transaction_type_of/3,
 		s_transaction_exchanged/2,
-		s_transaction_vector/2
+		s_transaction_vector/2,
+		sort_s_transactions/2
 		]).
 
 /*fixme turn trading into module*/
@@ -582,4 +583,20 @@ check_s_transaction_action_type(Transaction_Types, S_Transaction) :-
 	(var(Exchanged_Account) -> throw_string('action does not specify exchanged account') ; true).
 
 	
+
+sort_s_transactions(In, Out) :-
+	/*
+	If a buy and a sale of same thing happens on the same day, we want to process the buy first.
+	We first sort by our debit on the bank account. Transactions with zero of our debit are not sales.
+	*/
+	sort(
+	/*
+	this is a path inside the structure of the elements of the sorted array (inside the s_transactions):
+	3th sub-term is the amount from bank perspective. 
+	1st (and hopefully only) item of the vector is the coord,
+	3rd item of the coord is bank credit, our debit.
+	*/
+	[3,1,3], @=<,  In, Mid),
+	/*now we can sort by date ascending, and the order of transactions with same date, as sorted above, will be preserved*/
+	sort(1, @=<,  Mid, Out).
 

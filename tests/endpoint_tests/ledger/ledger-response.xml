@@ -24,7 +24,7 @@ Action_Taxonomy extracted:
   transaction_type('Income','Income',_,_),
   transaction_type('Interest_Income','Interest_Income',_,_),
   transaction_type('Interest_Expenses','Interest_Expenses',_,_),
-  transaction_type('Borrow','Noncurrent_Loans',_,'Shares'),
+  transaction_type('Borrow','Noncurrent_Loans',_,_),
   transaction_type('Introduce_Capital',
 		   'Share_Capital',
 		   _,
@@ -214,13 +214,13 @@ s_transaction(date(2017,7,1),
 	      'Cash_And_Cash_Equivalents_WellsFargo',
 	      [coord('USD',200,0)]),
   transaction(date(2017,7,1),
-	      'Unit_Investment',
-	      'Share_Capital',
-	      [coord('AUD',0.0,260.1118)]),
-  transaction(date(2017,7,1),
 	      'Unit_Investment - currency movement adjustment',
 	      'Currency_Movement_Cash_And_Cash_Equivalents_WellsFargo',
-	      [coord('AUD',260.1118,0.0),coord('USD',0,200)])
+	      [coord('AUD',260.1118,0.0),coord('USD',0,200)]),
+  transaction(date(2017,7,1),
+	      'Unit_Investment',
+	      'Share_Capital',
+	      [coord('AUD',0.0,260.1118)])
 ]
 ====
 s_transaction(date(2017,7,10),
@@ -233,13 +233,13 @@ s_transaction(date(2017,7,10),
 	      'Cash_And_Cash_Equivalents_WellsFargo',
 	      [coord('USD',0.0,100.0)]),
   transaction(date(2017,7,10),
-	      'Shares',
-	      'Financial_Investments',
-	      [coord('BHP',10,0)]),
-  transaction(date(2017,7,10),
 	      'Shares - currency movement adjustment',
 	      'Currency_Movement_Cash_And_Cash_Equivalents_WellsFargo',
 	      [coord('AUD',0.0,131.464),coord('USD',100.0,0.0)]),
+  transaction(date(2017,7,10),
+	      'Shares',
+	      'Financial_Investments',
+	      [coord(with_cost_per_unit('BHP',value('AUD',13.1464)),10,0)]),
   transaction(date(2017,7,10),
 	      'comment:?, comment2:?',
 	      'Investment_Income_unrealized_only_currency_movement_BHP',
@@ -251,11 +251,9 @@ s_transaction(date(2017,7,10),
 							      date(2017,
 								   7,
 								   10)),
-		      10.0,
+		      10,
 		      0),
-		coord(with_cost_per_unit('BHP',value('AUD',13.1464)),
-		      0,
-		      10.0)
+		coord(with_cost_per_unit('BHP',value('AUD',13.1464)),0,10)
 	      ]),
   transaction(date(2017,7,10),
 	      'comment:?, comment2:?',
@@ -270,7 +268,7 @@ s_transaction(date(2017,7,10),
 								   7,
 								   10)),
 		      0,
-		      10.0)
+		      10)
 	      ])
 ]
 ====
@@ -280,13 +278,10 @@ s_transaction(date(2017,8,1),
 	      'NationalAustraliaBank',
 	      vector([]))==>
 [ transaction(date(2017,8,1),
-	      'Shares',
+	      ?,
 	      'Cash_And_Cash_Equivalents_NationalAustraliaBank',
 	      [coord('AUD',100,0)]),
-  transaction(date(2017,8,1),
-	      'Shares',
-	      'Noncurrent_Loans',
-	      [coord('AUD',0,100)])
+  transaction(date(2017,8,1),?,'Noncurrent_Loans',[coord('AUD',0.0,100.0)])
 ]
 ====
 s_transaction(date(2018,6,28),
@@ -299,13 +294,13 @@ s_transaction(date(2018,6,28),
 	      'Cash_And_Cash_Equivalents_WellsFargo',
 	      [coord('USD',0.0,10)]),
   transaction(date(2018,6,28),
-	      'No Description',
-	      'Bank_Charges',
-	      [coord('AUD',13.60971,0.0)]),
-  transaction(date(2018,6,28),
 	      'No Description - currency movement adjustment',
 	      'Currency_Movement_Cash_And_Cash_Equivalents_WellsFargo',
-	      [coord('AUD',0.0,13.60971),coord('USD',10.0,0.0)])
+	      [coord('AUD',0.0,13.60971),coord('USD',10.0,0.0)]),
+  transaction(date(2018,6,28),
+	      'No Description',
+	      'Bank_Charges',
+	      [coord('AUD',13.60971,0.0)])
 ]
 ====
 s_transaction(date(2018,8,2),
@@ -320,7 +315,7 @@ s_transaction(date(2018,8,2),
   transaction(date(2018,8,2),
 	      'Shares',
 	      'Financial_Investments',
-	      [coord('TLS',10,0)]),
+	      [coord(with_cost_per_unit('TLS',value('AUD',5.0)),10,0)]),
   transaction(date(2018,8,2),
 	      'comment:?, comment2:?',
 	      'Investment_Income_unrealized_only_currency_movement_TLS',
@@ -332,9 +327,9 @@ s_transaction(date(2018,8,2),
 							      date(2018,
 								   8,
 								   2)),
-		      10.0,
+		      10,
 		      0),
-		coord(with_cost_per_unit('TLS',value('AUD',5.0)),0,10.0)
+		coord(with_cost_per_unit('TLS',value('AUD',5.0)),0,10)
 	      ]),
   transaction(date(2018,8,2),
 	      'comment:?, comment2:?',
@@ -349,163 +344,7 @@ s_transaction(date(2018,8,2),
 								   8,
 								   2)),
 		      0,
-		      10.0)
-	      ])
-]
-====
-end.
-
--->
-
-
-
-<!--Transaction_Transformation_Debug:
-s_transaction(date(2017,7,1),
-	      'Introduce_Capital',
-	      [coord('USD',200,0)],
-	      'WellsFargo',
-	      vector([]))==>
-[ transaction(date(2017,7,1),
-	      'Unit_Investment',
-	      'Cash_And_Cash_Equivalents_WellsFargo',
-	      [coord('USD',200,0)]),
-  transaction(date(2017,7,1),
-	      'Unit_Investment',
-	      'Share_Capital',
-	      [coord('AUD',0.0,260.1118)]),
-  transaction(date(2017,7,1),
-	      'Unit_Investment - currency movement adjustment',
-	      'Currency_Movement_Cash_And_Cash_Equivalents_WellsFargo',
-	      [coord('AUD',260.1118,0.0),coord('USD',0,200)])
-]
-====
-s_transaction(date(2017,7,10),
-	      'Invest_In',
-	      [coord('USD',0.0,100.0)],
-	      'WellsFargo',
-	      vector([coord('BHP',10,0)]))==>
-[ transaction(date(2017,7,10),
-	      'Shares',
-	      'Cash_And_Cash_Equivalents_WellsFargo',
-	      [coord('USD',0.0,100.0)]),
-  transaction(date(2017,7,10),
-	      'Shares',
-	      'Financial_Investments',
-	      [coord('BHP',10,0)]),
-  transaction(date(2017,7,10),
-	      'Shares - currency movement adjustment',
-	      'Currency_Movement_Cash_And_Cash_Equivalents_WellsFargo',
-	      [coord('AUD',0.0,131.464),coord('USD',100.0,0.0)]),
-  transaction(date(2017,7,10),
-	      'comment:?, comment2:?',
-	      'Investment_Income_unrealized_only_currency_movement_BHP',
-	      [ coord(without_currency_movement_against_since(with_cost_per_unit('BHP',
-										 value('AUD',
-										       13.1464)),
-							      'USD',
-							      ['AUD'],
-							      date(2017,
-								   7,
-								   10)),
-		      10.0,
-		      0),
-		coord(with_cost_per_unit('BHP',value('AUD',13.1464)),
-		      0,
-		      10.0)
-	      ]),
-  transaction(date(2017,7,10),
-	      'comment:?, comment2:?',
-	      'Investment_Income_unrealized_without_currency_movement_BHP',
-	      [ coord('AUD',131.464,0),
-		coord(without_currency_movement_against_since(with_cost_per_unit('BHP',
-										 value('AUD',
-										       13.1464)),
-							      'USD',
-							      ['AUD'],
-							      date(2017,
-								   7,
-								   10)),
-		      0,
-		      10.0)
-	      ])
-]
-====
-s_transaction(date(2017,8,1),
-	      'Borrow',
-	      [coord('AUD',100,0)],
-	      'NationalAustraliaBank',
-	      vector([]))==>
-[ transaction(date(2017,8,1),
-	      'Shares',
-	      'Cash_And_Cash_Equivalents_NationalAustraliaBank',
-	      [coord('AUD',100,0)]),
-  transaction(date(2017,8,1),
-	      'Shares',
-	      'Noncurrent_Loans',
-	      [coord('AUD',0,100)])
-]
-====
-s_transaction(date(2018,6,28),
-	      'Pay_Bank',
-	      [coord('USD',0.0,10)],
-	      'WellsFargo',
-	      vector([]))==>
-[ transaction(date(2018,6,28),
-	      'No Description',
-	      'Cash_And_Cash_Equivalents_WellsFargo',
-	      [coord('USD',0.0,10)]),
-  transaction(date(2018,6,28),
-	      'No Description',
-	      'Bank_Charges',
-	      [coord('AUD',13.60971,0.0)]),
-  transaction(date(2018,6,28),
-	      'No Description - currency movement adjustment',
-	      'Currency_Movement_Cash_And_Cash_Equivalents_WellsFargo',
-	      [coord('AUD',0.0,13.60971),coord('USD',10.0,0.0)])
-]
-====
-s_transaction(date(2018,8,2),
-	      'Invest_In',
-	      [coord('AUD',0,50)],
-	      'NationalAustraliaBank',
-	      vector([coord('TLS',10,0)]))==>
-[ transaction(date(2018,8,2),
-	      'Shares',
-	      'Cash_And_Cash_Equivalents_NationalAustraliaBank',
-	      [coord('AUD',0,50)]),
-  transaction(date(2018,8,2),
-	      'Shares',
-	      'Financial_Investments',
-	      [coord('TLS',10,0)]),
-  transaction(date(2018,8,2),
-	      'comment:?, comment2:?',
-	      'Investment_Income_unrealized_only_currency_movement_TLS',
-	      [ coord(without_currency_movement_against_since(with_cost_per_unit('TLS',
-										 value('AUD',
-										       5.0)),
-							      'AUD',
-							      ['AUD'],
-							      date(2018,
-								   8,
-								   2)),
-		      10.0,
-		      0),
-		coord(with_cost_per_unit('TLS',value('AUD',5.0)),0,10.0)
-	      ]),
-  transaction(date(2018,8,2),
-	      'comment:?, comment2:?',
-	      'Investment_Income_unrealized_without_currency_movement_TLS',
-	      [ coord('AUD',50.0,0),
-		coord(without_currency_movement_against_since(with_cost_per_unit('TLS',
-										 value('AUD',
-										       5.0)),
-							      'AUD',
-							      ['AUD'],
-							      date(2018,
-								   8,
-								   2)),
-		      0,
-		      10.0)
+		      10)
 	      ])
 ]
 ====
@@ -552,9 +391,7 @@ end.
 		  'AUD',
 		  5.0)
   ],
-  [ exchange_rate(date(2018,6,30),'BHP','AUD',2.701608),
-    exchange_rate(date(2018,6,30),'TLS','AUD',5.0),
-    exchange_rate(date(2018,6,30),'USD','AUD',1.350804),
+  [ exchange_rate(date(2018,6,30),'USD','AUD',1.350804),
     exchange_rate(date(2018,6,30),
 		  with_cost_per_unit('BHP',value('AUD',13.1464)),
 		  'AUD',
@@ -788,7 +625,7 @@ Trial_Balance:
 -->
 
 <xbrli:xbrl xmlns:xbrli="http://www.xbrl.org/2003/instance" xmlns:link="http://www.xbrl.org/2003/linkbase" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:iso4217="http://www.xbrl.org/2003/iso4217" xmlns:basic="http://www.xbrlsite.com/basic">
-  <link:schemaRef xlink:type="simple" xlink:href="http://dev-node.uksouth.cloudapp.azure.com:7778/taxonomy/basic.xsd" xlink:title="Taxonomy schema" />
+  <link:schemaRef xlink:type="simple" xlink:href="basic.xsd" xlink:title="Taxonomy schema" />
   <link:linkbaseRef xlink:type="simple" xlink:href="basic-formulas.xml" xlink:arcrole="http://www.w3.org/1999/xlink/properties/linkbase" />
   <link:linkBaseRef xlink:type="simple" xlink:href="basic-formulas-cross-checks.xml" xlink:arcrole="http://www.w3.org/1999/xlink/properties/linkbase" />
   <xbrli:context id="D-2018">
@@ -801,6 +638,7 @@ Trial_Balance:
     </period>
   </xbrli:context>
   <xbrli:unit id="U-AUD"><xbrli:measure>iso4217:AUD</xbrli:measure></xbrli:unit>
+
 <!-- balance sheet: -->
  <basic:Assets contextRef="D-2018" unitRef="U-AUD" decimals="INF">248.59</basic:Assets>
   <basic:Current_Assets contextRef="D-2018" unitRef="U-AUD" decimals="INF">221.57</basic:Current_Assets>
@@ -818,6 +656,7 @@ Trial_Balance:
    <basic:Historical_Earnings contextRef="D-2018" unitRef="U-AUD" decimals="INF">0.00</basic:Historical_Earnings>
    <basic:Current_Earnings contextRef="D-2018" unitRef="U-AUD" decimals="INF">-111.52</basic:Current_Earnings>
  <basic:Net_Assets contextRef="D-2018" unitRef="U-AUD" decimals="INF">148.59</basic:Net_Assets>
+
 <!-- profit and loss: -->
  <basic:Earnings contextRef="D-2018" unitRef="U-AUD" decimals="INF">-111.52</basic:Earnings>
   <basic:Revenue contextRef="D-2018" unitRef="U-AUD" decimals="INF">-97.91</basic:Revenue>
@@ -831,10 +670,8 @@ Trial_Balance:
     <basic:Currency_Movement_Cash_And_Cash_Equivalents_WellsFargo contextRef="D-2018" unitRef="U-AUD" decimals="INF">6.53</basic:Currency_Movement_Cash_And_Cash_Equivalents_WellsFargo>
   <basic:Expenses contextRef="D-2018" unitRef="U-AUD" decimals="INF">-13.61</basic:Expenses>
    <basic:Bank_Charges contextRef="D-2018" unitRef="U-AUD" decimals="INF">-13.61</basic:Bank_Charges>
-<!-- trial balance: -->
- <basic:Trial_Balance contextRef="D-2018" unitRef="U-AUD" decimals="INF">0.00</basic:Trial_Balance>
-<!-- investment report: -->
-<!--
+
+<!-- investment report:
 BHP:
  realized total: []
   market gain:
@@ -855,6 +692,9 @@ TLS:
 
 
  -->
+
+<!-- trial balance: -->
+ <basic:Trial_Balance contextRef="D-2018" unitRef="U-AUD" decimals="INF">0.00</basic:Trial_Balance>
 
 </xbrli:xbrl>
 

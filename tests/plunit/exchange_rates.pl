@@ -73,3 +73,21 @@ test(4) :-
 
 :- end_tests(exchange_rates).
 
+
+	%append(Exchange_Rates, [], Exchange_Rates_With_Inferred_Values),
+/*	
+	exchange_rate(
+		Exchange_Rates_With_Inferred_Values, date(2018,12,30), 
+		'CHF','AUD',
+		RRRRRRRR),
+	print_term(RRRRRRRR,[]),*/
+	/*
+	exchange_rate(
+		Exchange_Rates_With_Inferred_Values, End_Days, 
+		without_currency_movement_against_since('Raiffeisen Switzerland_B.V.', 
+		'USD', ['AUD'],date(2018,7,2)),
+		'AUD',
+		RRRRRRRR),
+	print_term(RRRRRRRR,[]),
+	*/
+	
