@@ -6,7 +6,7 @@ Contact www.ubmatrix.com
 Copyright (c) 2002-2019 UBmatrix inc., All Rights Reserved
 Produced on 2019-07-26 11:08:49
 -->
-<xbrl xmlns="http://www.xbrl.org/2003/instance" xmlns:link="http://www.xbrl.org/2003/linkbase" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:iso4217="http://www.xbrl.org/2003/iso4217" xmlns:basic="http://www.xbrlsite.com/basic" xsi:schemaLocation="http://www.xbrlsite.com/basic ../basic.xsd http://www.xbrl.org/2003/instance http://www.xbrl.org/2003/xbrl-instance-2003-12-31.xsd http://www.xbrl.org/2003/linkbase http://www.xbrl.org/2003/xbrl-linkbase-2003-12-31.xsd">
+<xbrl xmlns="http://www.xbrl.org/2003/instance" xmlns:link="http://www.xbrl.org/2003/linkbase" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:iso4217="http://www.xbrl.org/2003/iso4217" xmlns:basic="http://www.xbrlsite.com/basic" xmlns:xbrldi="http://xbrl.org/2006/xbrldi" xsi:schemaLocation="http://www.xbrlsite.com/basic ../basic.xsd http://www.xbrl.org/2003/instance http://www.xbrl.org/2003/xbrl-instance-2003-12-31.xsd http://www.xbrl.org/2003/linkbase http://www.xbrl.org/2003/xbrl-linkbase-2003-12-31.xsd http://xbrl.org/2006/xbrldi http://www.xbrl.org/2006/xbrldi-2006.xsd">
   <link:schemaRef xlink:href="../basic.xsd" xlink:type="simple" />
   <context id="I-2003">
     <entity>
@@ -25,10 +25,56 @@ Produced on 2019-07-26 11:08:49
       <endDate>2003-12-31</endDate>
     </period>
   </context>
+  
+  
+  
+  
+  
+  
+  <context id="I-2003-WellsFargo">
+    <entity>
+      <identifier scheme="http://www.example.com">TestData</identifier>
+      <segment>
+        <xbrldi:typedMember dimension="basic:Dimension_BankAccounts">
+            <basic:BankAccount>Wells Fargo</basic:BankAccount>
+        </xbrldi:typedMember>
+      </segment>
+    </entity>
+    <period>
+      <instant>2003-12-31</instant>
+    </period>
+  </context>
+
+  <context id="I-2003-NationalAustraliaBank">
+    <entity>
+      <identifier scheme="http://www.example.com">TestData</identifier>
+      <segment>
+        <xbrldi:typedMember dimension="basic:Dimension_BankAccounts">
+            <basic:BankAccount>NationalAustraliaBank</basic:BankAccount>
+        </xbrldi:typedMember>
+      </segment>
+    </entity>
+    <period>
+      <instant>2003-12-31</instant>
+    </period>
+  </context>
+
+
+  
+  
+  
+  
+  
+  
   <unit id="U-Monetary">
     <measure>iso4217:EUR</measure>
   </unit>
-  <basic:Bank contextRef="I-2003" unitRef="U-Monetary" decimals="0">1</basic:Bank>
+
+
+  <basic:Bank contextRef="I-2003-WellsFargo" unitRef="U-Monetary" decimals="0">1</basic:Bank>
+  <basic:Bank contextRef="I-2003-NationalAustraliaBank" unitRef="U-Monetary" decimals="0">1</basic:Bank>
+
+
   <basic:CashAndCashEquivalents contextRef="I-2003" unitRef="U-Monetary" decimals="0">1</basic:CashAndCashEquivalents>
   <basic:CurrentAssets contextRef="I-2003" unitRef="U-Monetary" decimals="0">1</basic:CurrentAssets>
   <basic:Shares contextRef="I-2003" unitRef="U-Monetary" decimals="0">1</basic:Shares>
