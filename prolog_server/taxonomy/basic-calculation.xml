@@ -4,7 +4,7 @@ Taxonomy Calculation Links linkbase based on XBRL standard Version 2.1.
 Created by UBmatrix Taxonomy Designer 3.0.2.2347 (2007-12-17 12:39).  
 Contact www.ubmatrix.com
 Copyright (c) 2002-2019 UBmatrix inc., All Rights Reserved
-Produced on 2019-03-23 12:26:04
+Produced on 2019-07-26 10:57:16
 -->
 <linkbase xmlns="http://www.xbrl.org/2003/linkbase" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xlink="http://www.w3.org/1999/xlink" xsi:schemaLocation=" http://www.xbrl.org/2003/linkbase http://www.xbrl.org/2003/xbrl-linkbase-2003-12-31.xsd">
   <roleRef xlink:type="simple" xlink:href="basic.xsd#BalanceSheet" roleURI="http://www.xbrlsite.com/basic/role/BalanceSheet" />

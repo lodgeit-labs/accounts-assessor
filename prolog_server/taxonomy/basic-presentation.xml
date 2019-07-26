@@ -4,7 +4,7 @@ Taxonomy Presentation Links linkbase based on XBRL standard Version 2.1.
 Created by UBmatrix Taxonomy Designer 3.0.2.2347 (2007-12-17 12:39).  
 Contact www.ubmatrix.com
 Copyright (c) 2002-2019 UBmatrix inc., All Rights Reserved
-Produced on 2019-03-23 12:26:04
+Produced on 2019-07-26 10:57:16
 -->
 <linkbase xmlns="http://www.xbrl.org/2003/linkbase" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xlink="http://www.w3.org/1999/xlink" xsi:schemaLocation=" http://www.xbrl.org/2003/linkbase http://www.xbrl.org/2003/xbrl-linkbase-2003-12-31.xsd">
   <roleRef xlink:type="simple" xlink:href="basic.xsd#BalanceSheet" roleURI="http://www.xbrlsite.com/basic/role/BalanceSheet" />
@@ -27,24 +27,28 @@ Produced on 2019-03-23 12:26:04
     <presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="basic_BalanceSheetAbstract" xlink:to="basic_AssetsRollUp" order="1" use="optional" />
     <loc xlink:type="locator" xlink:href="basic.xsd#basic_CurrentAssetsRollUp" xlink:label="basic_CurrentAssetsRollUp" />
     <presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="basic_AssetsRollUp" xlink:to="basic_CurrentAssetsRollUp" order="1" use="optional" />
-    <loc xlink:type="locator" xlink:href="basic.xsd#basic_CashAndCashEquivalents" xlink:label="basic_CashAndCashEquivalents" />
-    <presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="basic_CurrentAssetsRollUp" xlink:to="basic_CashAndCashEquivalents" order="1" use="optional" />
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_CashCashEquivalentsRollUp" xlink:label="basic_CashCashEquivalentsRollUp" />
+    <presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="basic_CurrentAssetsRollUp" xlink:to="basic_CashCashEquivalentsRollUp" order="1" use="optional" />
     <loc xlink:type="locator" xlink:href="basic.xsd#basic_Bank" xlink:label="basic_Bank" />
-    <presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="basic_CashAndCashEquivalents" xlink:to="basic_Bank" order="1" use="optional" />
+    <presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="basic_CashCashEquivalentsRollUp" xlink:to="basic_Bank" order="1" use="optional" />
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_CashAndCashEquivalents" xlink:label="basic_CashAndCashEquivalents" />
+    <presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="basic_CashCashEquivalentsRollUp" xlink:to="basic_CashAndCashEquivalents" order="2" use="optional" />
     <loc xlink:type="locator" xlink:href="basic.xsd#basic_CurrentAssets" xlink:label="basic_CurrentAssets" />
     <presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="basic_CurrentAssetsRollUp" xlink:to="basic_CurrentAssets" order="2" use="optional" />
     <loc xlink:type="locator" xlink:href="basic.xsd#basic_NoncurrentAssetsRollUp" xlink:label="basic_NoncurrentAssetsRollUp" />
     <presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="basic_AssetsRollUp" xlink:to="basic_NoncurrentAssetsRollUp" order="2" use="optional" />
-    <loc xlink:type="locator" xlink:href="basic.xsd#basic_NoncurrentAssets" xlink:label="basic_NoncurrentAssets" />
-    <presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="basic_NoncurrentAssetsRollUp" xlink:to="basic_NoncurrentAssets" order="1" use="optional" />
-    <loc xlink:type="locator" xlink:href="basic.xsd#basic_FinancialInvestments" xlink:label="basic_FinancialInvestments" />
-    <presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="basic_NoncurrentAssetsRollUp" xlink:to="basic_FinancialInvestments" order="2" use="optional" />
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_FinancialInvestmentsRollUp" xlink:label="basic_FinancialInvestmentsRollUp" />
+    <presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="basic_NoncurrentAssetsRollUp" xlink:to="basic_FinancialInvestmentsRollUp" order="1" use="optional" />
     <loc xlink:type="locator" xlink:href="basic.xsd#basic_Shares" xlink:label="basic_Shares" />
-    <presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="basic_FinancialInvestments" xlink:to="basic_Shares" order="1" use="optional" />
+    <presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="basic_FinancialInvestmentsRollUp" xlink:to="basic_Shares" order="1" use="optional" />
     <loc xlink:type="locator" xlink:href="basic.xsd#basic_Unit_Investment" xlink:label="basic_Unit_Investment" />
-    <presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="basic_FinancialInvestments" xlink:to="basic_Unit_Investment" order="2" use="optional" />
+    <presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="basic_FinancialInvestmentsRollUp" xlink:to="basic_Unit_Investment" order="2" use="optional" />
     <loc xlink:type="locator" xlink:href="basic.xsd#basic_Bonds" xlink:label="basic_Bonds" />
-    <presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="basic_FinancialInvestments" xlink:to="basic_Bonds" order="3" use="optional" />
+    <presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="basic_FinancialInvestmentsRollUp" xlink:to="basic_Bonds" order="3" use="optional" />
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_FinancialInvestments" xlink:label="basic_FinancialInvestments" />
+    <presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="basic_FinancialInvestmentsRollUp" xlink:to="basic_FinancialInvestments" order="4" use="optional" />
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_NoncurrentAssets" xlink:label="basic_NoncurrentAssets" />
+    <presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="basic_NoncurrentAssetsRollUp" xlink:to="basic_NoncurrentAssets" order="2" use="optional" />
     <loc xlink:type="locator" xlink:href="basic.xsd#basic_Assets" xlink:label="basic_Assets" />
     <presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="basic_BalanceSheetAbstract" xlink:to="basic_Assets" order="2" use="optional" />
     <loc xlink:type="locator" xlink:href="basic.xsd#basic_LiabilitiesAndEquityRollUp" xlink:label="basic_LiabilitiesAndEquityRollUp" />
@@ -53,26 +57,28 @@ Produced on 2019-03-23 12:26:04
     <presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="basic_LiabilitiesAndEquityRollUp" xlink:to="basic_LiabilitiesRollUp" order="1" use="optional" />
     <loc xlink:type="locator" xlink:href="basic.xsd#basic_NoncurrentLiabilitiesRollUp" xlink:label="basic_NoncurrentLiabilitiesRollUp" />
     <presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="basic_LiabilitiesRollUp" xlink:to="basic_NoncurrentLiabilitiesRollUp" order="1" use="optional" />
-    <loc xlink:type="locator" xlink:href="basic.xsd#basic_NoncurrentLiabilities" xlink:label="basic_NoncurrentLiabilities" />
-    <presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="basic_NoncurrentLiabilitiesRollUp" xlink:to="basic_NoncurrentLiabilities" order="1" use="optional" />
     <loc xlink:type="locator" xlink:href="basic.xsd#basic_NoncurrentLoans" xlink:label="basic_NoncurrentLoans" />
-    <presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="basic_NoncurrentLiabilitiesRollUp" xlink:to="basic_NoncurrentLoans" order="2" use="optional" />
+    <presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="basic_NoncurrentLiabilitiesRollUp" xlink:to="basic_NoncurrentLoans" order="1" use="optional" />
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_NoncurrentLiabilities" xlink:label="basic_NoncurrentLiabilities" />
+    <presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="basic_NoncurrentLiabilitiesRollUp" xlink:to="basic_NoncurrentLiabilities" order="2" use="optional" />
     <loc xlink:type="locator" xlink:href="basic.xsd#basic_Liabilities" xlink:label="basic_Liabilities" />
     <presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="basic_LiabilitiesRollUp" xlink:to="basic_Liabilities" order="2" use="optional" />
     <loc xlink:type="locator" xlink:href="basic.xsd#basic_EquityRollUp" xlink:label="basic_EquityRollUp" />
     <presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="basic_LiabilitiesAndEquityRollUp" xlink:to="basic_EquityRollUp" order="2" use="optional" />
-    <loc xlink:type="locator" xlink:href="basic.xsd#basic_RetainedEarnings" xlink:label="basic_RetainedEarnings" />
-    <presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="basic_EquityRollUp" xlink:to="basic_RetainedEarnings" order="1" use="optional" />
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_RetainedEarningsRollUp" xlink:label="basic_RetainedEarningsRollUp" />
+    <presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="basic_EquityRollUp" xlink:to="basic_RetainedEarningsRollUp" order="1" use="optional" />
     <loc xlink:type="locator" xlink:href="basic.xsd#basic_CurrentEarningsLosses" xlink:label="basic_CurrentEarningsLosses" />
-    <presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="basic_RetainedEarnings" xlink:to="basic_CurrentEarningsLosses" order="1" use="optional" />
+    <presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="basic_RetainedEarningsRollUp" xlink:to="basic_CurrentEarningsLosses" order="1" use="optional" />
     <loc xlink:type="locator" xlink:href="basic.xsd#basic_HistoricalEarningsLosses" xlink:label="basic_HistoricalEarningsLosses" />
-    <presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="basic_RetainedEarnings" xlink:to="basic_HistoricalEarningsLosses" order="2" use="optional" />
+    <presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="basic_RetainedEarningsRollUp" xlink:to="basic_HistoricalEarningsLosses" order="2" use="optional" />
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_RetainedEarnings" xlink:label="basic_RetainedEarnings" />
+    <presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="basic_RetainedEarningsRollUp" xlink:to="basic_RetainedEarnings" order="3" use="optional" />
     <loc xlink:type="locator" xlink:href="basic.xsd#basic_ShareCapital" xlink:label="basic_ShareCapital" />
     <presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="basic_EquityRollUp" xlink:to="basic_ShareCapital" order="2" use="optional" />
     <loc xlink:type="locator" xlink:href="basic.xsd#basic_Equity" xlink:label="basic_Equity" />
-    <presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="basic_LiabilitiesAndEquityRollUp" xlink:to="basic_Equity" order="3" use="optional" />
+    <presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="basic_EquityRollUp" xlink:to="basic_Equity" order="3" use="optional" />
     <loc xlink:type="locator" xlink:href="basic.xsd#basic_LiabilitiesAndEquity" xlink:label="basic_LiabilitiesAndEquity" />
-    <presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="basic_LiabilitiesAndEquityRollUp" xlink:to="basic_LiabilitiesAndEquity" order="4" use="optional" />
+    <presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="basic_LiabilitiesAndEquityRollUp" xlink:to="basic_LiabilitiesAndEquity" order="3" use="optional" />
   </presentationLink>
   <presentationLink xlink:type="extended" xlink:role="http://www.xbrlsite.com/basic/role/IncomeStatement">
     <loc xlink:type="locator" xlink:href="basic.xsd#basic_NetIncomeLossRollUp" xlink:label="basic_NetIncomeLossRollUp" />
