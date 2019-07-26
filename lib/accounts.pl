@@ -14,6 +14,7 @@
 		account_exists/2,
 		account_role_by_id/3,
 		account_detail_level/3,
+		account_normal_side/3,
 		/*extract account tree specified in request xml*/
 		extract_account_hierarchy/2, 
 		/*The private api.*/
@@ -158,4 +159,10 @@ yield_accounts(element(Parent_Name,_,Children), Link) :-
 			yield_accounts(Child, Link)
 		)
 	).
+
+account_normal_side(Account_Hierarchy, Name, credit) :-
+	member(Credit_Side_Account_Id, ['Liabilities', 'Equity', 'Expenses', 'Earnings']),
+	once(account_in_set(Account_Hierarchy, Name, Credit_Side_Account_Id)),
+	!.
+account_normal_side(_, _, debit).
 

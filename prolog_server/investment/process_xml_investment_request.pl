@@ -105,6 +105,8 @@ process_realized(Dom, Global_Report_Date_Atom, Result) :-
 			RC_Realized_Currency_Gain = RC_Realized_Total_Gain - RC_Realized_Market_Gain
 		)
 	),
+	/* silence singleton variable warning */ 
+	nonvar(SDPC_Realized_Gain),
 	writeln('</realized_investment>'),nl,nl,
 	
 	/*
@@ -232,6 +234,8 @@ process_unrealized(Dom, Global_Report_Date, Result) :-
 			RDRC_Unrealized_Currency_Gain = RDRC_Unrealized_Total_Gain - RDRC_Unrealized_Market_Gain
 		)
 	),
+	/* silence singleton variable warning */
+	nonvar(RDPC_Unrealized_Gain),
 	writeln('</unrealized_investment>'),nl,nl,
 	
 	/*

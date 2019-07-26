@@ -93,13 +93,13 @@ expand_formulas_to_code([H|T], Expansion) :-
 		write('<!-- '), writeln(' -->'),
 		assertion(ground(((S1,Rhs)))),
 		New_Formula,
-		nonvar(V),/* silence singleton variable warning */ 
+		/*nonvar(V), silence singleton variable warning, doesn't work */ 
 		utils:open_tag(S1),  format('~2f', [V]), utils:close_tag(S1), 
 		write_tag([S1, '_Formula'], Description),
 		term_string(Rhs, A_String),
 		atomic_list_concat([S1, ' = ', A_String], Computation_String),
-		write_tag([S1, '_Computation'], Computation_String)),
-		Tail),
+		write_tag([S1, '_Computation'], Computation_String)
+		), Tail),
 	expand_formulas_to_code(T, Tail).
 
 expand_formula(Namings, (A=B), _Es_In, ((A is B), S1, Description, A)):-

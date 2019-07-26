@@ -1,4 +1,7 @@
-:- module(system_accounts, [generate_system_accounts/3, trading_account_ids/2]).
+:- module(system_accounts, [
+		generate_system_accounts/3, 
+		trading_account_ids/2,
+		bank_accounts/2]).
 
 :- use_module('accounts', [
 		account_term_by_role/3, 
@@ -6,7 +9,8 @@
 		account_role/2, 
 		account_id/2, 
 		account_parent/2,
-		account_detail_level/2]).
+		account_detail_level/2,
+		account_by_role/3]).
 :- use_module('livestock', [
 		make_livestock_accounts/2]).
 :- use_module('statements', [
@@ -211,3 +215,12 @@ free_id(Accounts, Id, Free_Id) :-
 	;
 		Free_Id = Id.
 
+bank_accounts(Accounts, Bank_Accounts) :-
+	findall(
+		Account,
+		(
+			Bank_Account_Role = ('Cash_And_Cash_Equivalents'/_Bank_Account_Name),
+			account_by_role(Accounts, Bank_Account_Role, Account)
+		),
+		Bank_Accounts
+	).

@@ -7,7 +7,7 @@
 :- module(statements, [
 		extract_transaction/3, 
 		preprocess_s_transactions/4,
-		print_relevant_exchange_rates/5, 
+		print_relevant_exchange_rates/4,
 		invert_s_transaction_vector/2, 
 		fill_in_missing_units/6,
 		s_transaction_day/2,
