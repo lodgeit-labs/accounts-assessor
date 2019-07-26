@@ -22,9 +22,9 @@
 				<value>0.2</value>
 			</depreciation_rate>
 			<depreciation_rate>
-				<asset>xxx</asset>
+				<asset>motor_vehicles</asset>
 				<!-- all years -->
-				<year>1</year>
+				<year>2</year>
 				<value>0.2</value>
 			</depreciation_rate>
 		</rates>
@@ -32,7 +32,7 @@
 		<type>corolla</type>
 		<cost>
 			<unit>USD</unit>
-			<value>	767688787</value>
+			<value>767688787</value>
 		</cost>
 		<invest_in_date>2020-01-01</invest_in_date>
 		<request_date>2021-01-02</request_date>
