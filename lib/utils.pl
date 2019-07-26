@@ -69,8 +69,7 @@ At any case there are some tradeoffs to consider, and i think this is more of a 
 some simple calculators into production quickly, not a perfect solution.
 */
 user:goal_expansion(
-	magic_formula(/*Initialization, */X/*, Namings, Expansions*/), 
-	(/*Initialization, */Code)
+	magic_formula(X), Code
 ) :-
 	term_variables(X, Vars),
 	maplist(my_variable_naming, Vars, Names),
@@ -81,8 +80,7 @@ user:goal_expansion(
 	writeln(AAA),
 	writeln('------'),
 	writeln(BBB),
-	writeln('------'),
-	true-*/.
+	writeln('------')*/.
 
 expand_formulas_to_code([], (true)).
 	
@@ -95,6 +93,7 @@ expand_formulas_to_code([H|T], Expansion) :-
 		write('<!-- '), writeln(' -->'),
 		assertion(ground(((S1,Rhs)))),
 		New_Formula,
+		nonvar(V),/* silence singleton variable warning */ 
 		utils:open_tag(S1),  format('~2f', [V]), utils:close_tag(S1), 
 		write_tag([S1, '_Formula'], Description),
 		term_string(Rhs, A_String),

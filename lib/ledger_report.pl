@@ -10,7 +10,7 @@
 		trial_balance_between/8, 
 		profitandloss_between/8, 
 		format_report_entries/9, 
-		balance_sheet_entries/8,
+		bs_and_pl_entries/8,
 		investment_report/3]).
 
 :- use_module('accounts', [
@@ -194,8 +194,8 @@ movement_between(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Fr
 
 
 
-
-balance_sheet_entries(Account_Hierarchy, Report_Currency, End_Year, Balance_Sheet_Entries, ProftAndLoss_Entries, Used_Units_Out, Lines2, Lines3) :-
+/* balance sheet and profit&loss entries*/
+bs_and_pl_entries(Account_Hierarchy, Report_Currency, End_Year, Balance_Sheet_Entries, ProftAndLoss_Entries, Used_Units_Out, Lines2, Lines3) :-
 	format_report_entries(Account_Hierarchy, 0, Report_Currency, End_Year, Balance_Sheet_Entries, [], Used_Units, [], Lines3),
 	format_report_entries(Account_Hierarchy, 0, Report_Currency, End_Year, ProftAndLoss_Entries, Used_Units, Used_Units_Out, [], Lines2).
 

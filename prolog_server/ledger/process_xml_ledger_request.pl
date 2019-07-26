@@ -30,12 +30,12 @@
 		balance_by_account/9, 
 		balance_sheet_at/8,
 		format_report_entries/9, 
-		balance_sheet_entries/8,
+		bs_and_pl_entries/8,
 		investment_report/3]).
 :- use_module('../../lib/statements', [
 		extract_transaction/3, 
 		preprocess_s_transactions/4, 
-		get_relevant_exchange_rates/5, 
+		print_relevant_exchange_rates/5, 
 		invert_s_transaction_vector/2, 
 		fill_in_missing_units/6,
 		sort_s_transactions/2]).
@@ -71,6 +71,8 @@ process_xml_ledger_request(_, Dom) :-
 	inner_xml(Dom, //reports/balanceSheetRequest/endDate, [End_Date_Atom]),
 	parse_date(End_Date_Atom, End_Days),
 
+	writeln('<?xml version="1.0"?>'), nl, nl,
+	
 	extract_exchange_rates(Dom, End_Date_Atom, Default_Currency, Exchange_Rates),
 	findall(Livestock_Dom, xpath(Dom, //reports/balanceSheetRequest/livestockData, Livestock_Dom), Livestock_Doms),
 	get_livestock_types(Livestock_Doms, Livestock_Types),
@@ -78,8 +80,6 @@ process_xml_ledger_request(_, Dom) :-
 	findall(S_Transaction, extract_transaction(Dom, Start_Date_Atom, S_Transaction), S_Transactions0),
 	maplist(invert_s_transaction_vector, S_Transactions0, S_Transactions0b),
 	sort_s_transactions(S_Transactions0b, S_Transactions),
-	
-	writeln('<?xml version="1.0"?>'), nl, nl,
 	
 	process_ledger(
 		Livestock_Doms, 
@@ -97,76 +97,38 @@ process_xml_ledger_request(_, Dom) :-
 
 	output_results(S_Transactions, Transactions, Start_Days, End_Days, Exchange_Rates, Account_Hierarchy, Report_Currency, Action_Taxonomy).
 
+/*
+some record types to streamline output of xbrl. These don't have any relation to the stuff in xbrl/ (yet)
+*/
+:- record entity(identifier, segment).
+:- record dimension_reference(id, element_name).
+:- record dimension_value(reference, value).
+:- record context(id, period, entity).
+
+context_id_base(Period_Type, Year, Base) :-
+	atomic_list_concat([Period_Type, '-', Year], Base).
+
 output_results(S_Transactions, Transactions, Start_Days, End_Days, Exchange_Rates, Account_Hierarchy, Report_Currency, Action_Taxonomy) :-
 
-	(
-		Report_Currency = []
-	->
-		true
-	;	
-		get_relevant_exchange_rates(Report_Currency, End_Days, Exchange_Rates, Transactions, Relevant_Exchange_Rates)
-	),
-	trial_balance_between(Exchange_Rates, Account_Hierarchy, Transactions, Report_Currency, End_Days, Start_Days, End_Days, Trial_Balance),
-	%assertion(Trial_Balance = entry(_, [], [], _),
-	balance_sheet_at(Exchange_Rates, Account_Hierarchy, Transactions, Report_Currency, End_Days, Start_Days, End_Days, Balance_Sheet),
-	profitandloss_between(Exchange_Rates, Account_Hierarchy, Transactions, Report_Currency, End_Days, Start_Days, End_Days, ProftAndLoss),
-
-	pretty_term_string(Relevant_Exchange_Rates, Message1c),
-	pretty_term_string(Balance_Sheet, Message4),
-	pretty_term_string(Trial_Balance, Message4b),
-	pretty_term_string(ProftAndLoss, Message4c),
+	/* first, let's build up the two non-dimensional contexts */
+	date(Context_Id_Year,_,_) = End_Days,
+	Entity_Identifier = '<identifier scheme="http://www.example.com">TestData</identifier>',
+	context_id_base('I', Context_Id_Year, Instant_Context_Id),
+	context_id_base('D', Context_Id_Year, Duration_Context_Id),
+	Contexts = [
+		context(Instant_Context_Id, End_Days, entity(Entity_Identifier, '')),
+		context(Duration_Context_Id, End_Days, entity(Entity_Identifier, ''))
+	],
+	print_relevant_exchange_rates(Report_Currency, End_Days, Exchange_Rates, Transactions),
+	infer_exchange_rates(Transactions, S_Transactions, Start_Days, End_Days, Account_Hierarchy, Report_Currency, Balance_Sheet, Exchange_Rates_With_Inferred_Values),
 	
-	atomic_list_concat([
-		'\n<!--',
-		'Exchange rates2:\n', Message1c,'\n\n',
-		'BalanceSheet:\n', Message4,'\n\n',
-		'ProftAndLoss:\n', Message4c,'\n\n',
-		'Trial_Balance:\n', Message4b,'\n\n',
-		'-->\n\n'], 
-	Debug_Message2),
-	writeln(Debug_Message2),
-	
-	assertion(ground((Balance_Sheet, ProftAndLoss, Trial_Balance))),
-	
-	/* a dry run of balance_sheet_entries to find out units used */
-	balance_sheet_entries(Account_Hierarchy, Report_Currency, none, Balance_Sheet, ProftAndLoss, Used_Units, _, _),
-	
-	pretty_term_string(Used_Units, Used_Units_Str),
-	writeln('<!-- units used in balance sheet: \n'),
-	writeln(Used_Units_Str),
-	writeln('\n-->\n'),
-
-	(
-		false
-	->
-	(
-		fill_in_missing_units(S_Transactions, End_Days, Report_Currency, Used_Units, Exchange_Rates, Inferred_Rates),
-		pretty_term_string(Inferred_Rates, Inferred_Rates_Str),
-		writeln('<!-- Inferred_Rates: \n'),
-		writeln(Inferred_Rates_Str),
-		writeln('\n-->\n'),
-		append(Exchange_Rates, Inferred_Rates, Exchange_Rates_With_Inferred_Values)
-	)
-	;
-		Exchange_Rates_With_Inferred_Values = Exchange_Rates
-	),
-
 	trial_balance_between(Exchange_Rates_With_Inferred_Values, Account_Hierarchy, Transactions, Report_Currency, End_Days, Start_Days, End_Days, Trial_Balance2),
 	balance_sheet_at(Exchange_Rates_With_Inferred_Values, Account_Hierarchy, Transactions, Report_Currency, End_Days, Start_Days, End_Days, Balance_Sheet2),
 	profitandloss_between(Exchange_Rates_With_Inferred_Values, Account_Hierarchy, Transactions, Report_Currency, End_Days, Start_Days, End_Days, ProftAndLoss2),
+	assertion(ground((Balance_Sheet2, ProftAndLoss2, Trial_Balance2))),
 	
 	investment_report((Exchange_Rates_With_Inferred_Values, Account_Hierarchy, Transactions, Report_Currency, End_Days), Action_Taxonomy, Investment_Report_Lines),
-	
-	display_xbrl_ledger_response(Account_Hierarchy, Report_Currency, Start_Days, End_Days, Balance_Sheet2, Trial_Balance2, ProftAndLoss2, Investment_Report_Lines),
-	emit_ledger_warnings(S_Transactions, Start_Days, End_Days),
-	nl, nl.
-	
-% -----------------------------------------------------
-% display_xbrl_ledger_response/4
-% -----------------------------------------------------
 
-display_xbrl_ledger_response(Account_Hierarchy, Report_Currency, Start_Days, End_Days, Balance_Sheet_Entries, Trial_Balance, ProftAndLoss_Entries, Investment_Report_Lines) :-
-	
 	(
 		get_flag(prepare_unique_taxonomy_url, true)
 	->
@@ -175,14 +137,35 @@ display_xbrl_ledger_response(Account_Hierarchy, Report_Currency, Start_Days, End
 		Taxonomy = ''
 	),
    
-	writeln('<xbrli:xbrl xmlns:xbrli="http://www.xbrl.org/2003/instance" xmlns:link="http://www.xbrl.org/2003/linkbase" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:iso4217="http://www.xbrl.org/2003/iso4217" xmlns:basic="http://www.xbrlsite.com/basic">'),
+	writeln('todo<xbrli:xbrl xmlns:xbrli="http://www.xbrl.org/2003/instance" xmlns:link="http://www.xbrl.org/2003/linkbase" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:iso4217="http://www.xbrl.org/2003/iso4217" xmlns:basic="http://www.xbrlsite.com/basic">'),
 	write('  <link:schemaRef xlink:type="simple" xlink:href="'), write(Taxonomy), writeln('basic.xsd" xlink:title="Taxonomy schema" />'),
 	write('  <link:linkbaseRef xlink:type="simple" xlink:href="'), write(Taxonomy), writeln('basic-formulas.xml" xlink:arcrole="http://www.w3.org/1999/xlink/properties/linkbase" />'),
 	write('  <link:linkBaseRef xlink:type="simple" xlink:href="'), write(Taxonomy), writeln('basic-formulas-cross-checks.xml" xlink:arcrole="http://www.w3.org/1999/xlink/properties/linkbase" />'),
 
+	print_contexts()..
+
+	bs_and_pl_entries(Account_Hierarchy, Report_Currency, End_Year, Balance_Sheet2, ProftAndLoss2, Used_Units2, Lines2, Lines3),
+	format_report_entries(Account_Hierarchy, 0, Report_Currency, End_Year, Trial_Balance2, [], _, [], Lines1),
+
+	maplist(write_used_unit, Used_Units2), 
+
+   flatten([
+		'\n<!-- balance sheet: -->\n', Lines3, 
+		'\n<!-- profit and loss: -->\n', Lines2,
+		'\n<!-- investment report:\n', Investment_Report_Lines, '\n -->\n',
+		'\n<!-- trial balance: -->\n',  Lines1
+	], Lines),
+	atomic_list_concat(Lines, LinesString),
+	writeln(LinesString),
+	writeln('</xbrli:xbrl>'),
+	emit_ledger_warnings(S_Transactions, Start_Days, End_Days),
+	nl, nl.
+
+	
+print_contexts()..
 	format_date(End_Days, End_Date_String),
 	format_date(Start_Days, Start_Date_String),
-	End_Days = date(End_Year,_,_),
+
 
 	format( '  <xbrli:context id="D-~w">\n', End_Year),
 	writeln('    <entity>'),
@@ -194,29 +177,16 @@ display_xbrl_ledger_response(Account_Hierarchy, Report_Currency, Start_Days, End
 	writeln('    </period>'),
 	writeln('  </xbrli:context>'),
 
-	balance_sheet_entries(Account_Hierarchy, Report_Currency, End_Year, Balance_Sheet_Entries, ProftAndLoss_Entries, Used_Units, Lines2, Lines3),
-	format_report_entries(Account_Hierarchy, 0, Report_Currency, End_Year, Trial_Balance, [], _, [], Lines1),
-	maplist(write_used_unit, Used_Units), 
-
-   flatten([
-		'\n<!-- balance sheet: -->\n', Lines3, 
-		'\n<!-- profit and loss: -->\n', Lines2,
-		'\n<!-- investment report:\n', Investment_Report_Lines, '\n -->\n',
-		'\n<!-- trial balance: -->\n',  Lines1
-	], Lines),
-	atomic_list_concat(Lines, LinesString),
-	writeln(LinesString),
-	writeln('</xbrli:xbrl>').
-   
+	
 write_used_unit(Unit) :-
 	format('  <xbrli:unit id="U-~w"><xbrli:measure>iso4217:~w</xbrli:measure></xbrli:unit>\n', [Unit, Unit]).
 
-
+	
 /*
-To ensure that each response references the shared taxonomy via a unique url.
+To ensure that each response references the shared taxonomy via a unique url,
 a flag can be used when running the server, for example like this:
 ```swipl -s prolog_server.pl  -g "set_flag(prepare_unique_taxonomy_url, true),run_simple_server"```
-This is done with a symlink.
+This is done with a symlink. This allows to bypass cache, for example in pesseract.
 */
 prepare_unique_taxonomy_url(Taxonomy_Dir_Url) :-
    request_tmp_dir(Tmp_Dir),
@@ -227,7 +197,50 @@ prepare_unique_taxonomy_url(Taxonomy_Dir_Url) :-
    atomic_list_concat(['ln -s ', Static_Taxonomy, ' ', Tmp_Taxonomy], Cmd),
    shell(Cmd, 0).
 
+
+   
+   
 	
+/*this functionality is disabled for now, maybe delete*/
+infer_exchange_rates(_, _, _, _, _, _, Exchange_Rates, Exchange_Rates) :- 
+	!.
+
+infer_exchange_rates(Transactions, S_Transactions, Start_Days, End_Days, Account_Hierarchy, Report_Currency, Exchange_Rates, Exchange_Rates_With_Inferred_Values) :-
+	/* a dry run of bs_and_pl_entries to find out units used */
+	trial_balance_between(Exchange_Rates, Account_Hierarchy, Transactions, Report_Currency, End_Days, Start_Days, End_Days, Trial_Balance),
+	balance_sheet_at(Exchange_Rates, Account_Hierarchy, Transactions, Report_Currency, End_Days, Start_Days, End_Days, Balance_Sheet),
+	profitandloss_between(Exchange_Rates, Account_Hierarchy, Transactions, Report_Currency, End_Days, Start_Days, End_Days, ProftAndLoss),
+	bs_and_pl_entries(Account_Hierarchy, Report_Currency, none, Balance_Sheet, ProftAndLoss, Used_Units, _, _),
+	pretty_term_string(Balance_Sheet, Message4),
+	pretty_term_string(Trial_Balance, Message4b),
+	pretty_term_string(ProftAndLoss, Message4c),
+	atomic_list_concat([
+		'\n<!--',
+		'BalanceSheet:\n', Message4,'\n\n',
+		'ProftAndLoss:\n', Message4c,'\n\n',
+		'Trial_Balance:\n', Message4b,'\n\n',
+		'-->\n\n'], 
+	Debug_Message2),
+	writeln(Debug_Message2),
+	assertion(ground((Balance_Sheet, ProftAndLoss, Trial_Balance))),
+	pretty_term_string(Used_Units, Used_Units_Str),
+	writeln('<!-- units used in balance sheet: \n'),
+	writeln(Used_Units_Str),
+	writeln('\n-->\n'),
+	fill_in_missing_units(S_Transactions, End_Days, Report_Currency, Used_Units, Exchange_Rates, Inferred_Rates),
+	pretty_term_string(Inferred_Rates, Inferred_Rates_Str),
+	writeln('<!-- Inferred_Rates: \n'),
+	writeln(Inferred_Rates_Str),
+	writeln('\n-->\n'),
+	append(Exchange_Rates, Inferred_Rates, Exchange_Rates_With_Inferred_Values).
+
+
+/*
+
+	extraction of input data from request xml
+	
+*/	
+   
 extract_default_currency(Dom, Default_Currency) :-
    inner_xml(Dom, //reports/balanceSheetRequest/defaultCurrency/unitType, Default_Currency).
 

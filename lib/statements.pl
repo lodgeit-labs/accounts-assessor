@@ -7,7 +7,7 @@
 :- module(statements, [
 		extract_transaction/3, 
 		preprocess_s_transactions/4,
-		get_relevant_exchange_rates/5, 
+		print_relevant_exchange_rates/5, 
 		invert_s_transaction_vector/2, 
 		fill_in_missing_units/6,
 		s_transaction_day/2,
@@ -466,7 +466,9 @@ extract_exchanged_value(Tx_Dom, _Account_Currency, Bank_Debit, Bank_Credit, Exch
 /*
 fixme, this get also some irrelevant ones
 */
-get_relevant_exchange_rates([Report_Currency], Report_End_Day, Exchange_Rates, Transactions, Rates_List) :-
+print_relevant_exchange_rates([], _, _, _).
+
+print_relevant_exchange_rates([Report_Currency], Report_End_Day, Exchange_Rates, Transactions) :-
 	findall(
 		Exchange_Rates2,
 		(
@@ -474,8 +476,17 @@ get_relevant_exchange_rates([Report_Currency], Report_End_Day, Exchange_Rates, T
 			;
 			get_relevant_exchange_rates2([Report_Currency], Report_End_Day, Exchange_Rates, Transactions, Exchange_Rates2)
 		),
-		Rates_List
-	).
+		Relevant_Exchange_Rates
+	),
+	pretty_term_string(Relevant_Exchange_Rates, Message1c),
+	atomic_list_concat([
+		'\n<!--',
+		'Exchange rates2:\n', Message1c,'\n\n',
+		'-->\n\n'], 
+	Debug_Message2),
+	writeln(Debug_Message2).
+
+
 				
 get_relevant_exchange_rates2([Report_Currency], Exchange_Rates, Transactions, Exchange_Rates2) :-
 	% find all days when something happened

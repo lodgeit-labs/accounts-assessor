@@ -2,17 +2,26 @@
 see doc/investment and dropbox Develop/videos/ledger
 */
 
-
-:- module(
-	process_xml_investment_request, 
-	[process_xml_investment_request/2]).
+:- module(process_xml_investment_request, 
+		[process_xml_investment_request/2]).
+		
+		
 :- use_module(library(xpath)).
 :- use_module(library(record)).
 :- use_module(library(lists)).
 :- use_module('../../lib/utils', [
-	inner_xml/3, write_tag/2, fields/2, numeric_fields/2, 
-	pretty_term_string/2 /*, magic_formula */, throw_string/1]).
-:- use_module('../../lib/days', [format_date/2, parse_date/2, gregorian_date/2]).
+		inner_xml/3, 
+		write_tag/2, 
+		fields/2, 
+		numeric_fields/2, 
+		floats_close_enough/2,
+		pretty_term_string/2,
+		/* magic_formula, */
+		throw_string/1]).
+:- use_module('../../lib/days', [
+		format_date/2, 
+		parse_date/2, 
+		gregorian_date/2]).
 :- use_module('../../lib/ledger', [
 		process_ledger/12]).
 :- use_module('../../lib/ledger_report', [
@@ -21,16 +30,11 @@ see doc/investment and dropbox Develop/videos/ledger
 		trial_balance_between/8, 
 		profitandloss_between/8, 
 		balance_by_account/9]).
-:- use_module('../../lib/accounts', [extract_account_hierarchy/2, account_by_role/3]).
-:- use_module('../../lib/pacioli',  [number_coord/3]).
-
-
-float_comparison_max_difference(0.00000001).
-
-compare_floats(A, B) :-
-	float_comparison_max_difference(Max),
-	D is abs(A - B),
-	D =< Max.
+:- use_module('../../lib/accounts', [
+		extract_account_hierarchy/2, 
+		account_by_role/3]).
+:- use_module('../../lib/pacioli',  [
+		number_coord/3]).
 
 
 	
@@ -101,8 +105,6 @@ process_realized(Dom, Global_Report_Date_Atom, Result) :-
 			RC_Realized_Currency_Gain = RC_Realized_Total_Gain - RC_Realized_Market_Gain
 		)
 	),
-	/* silence singleton variable warning */ 
-	nonvar(SDPC_Realized_Gain),
 	writeln('</realized_investment>'),nl,nl,
 	
 	/*
@@ -173,11 +175,7 @@ process_realized(Dom, Global_Report_Date_Atom, Result) :-
 	writeln('<!--'),
 	writeln(Balance_Sheet_Lines),
 	writeln('-->'),
-
-	
 	true.
-
-
 
 process_unrealized(Dom, Global_Report_Date, Result) :-
 	Result = [S_Transactions, Exchange_Rates, Gains],
@@ -234,8 +232,6 @@ process_unrealized(Dom, Global_Report_Date, Result) :-
 			RDRC_Unrealized_Currency_Gain = RDRC_Unrealized_Total_Gain - RDRC_Unrealized_Market_Gain
 		)
 	),
-	/* silence singleton variable warning */
-	nonvar(RDPC_Unrealized_Gain),
 	writeln('</unrealized_investment>'),nl,nl,
 	
 	/*
@@ -299,9 +295,6 @@ process_unrealized(Dom, Global_Report_Date, Result) :-
 	account_assertion(Info, Unrealized_Gain_Account, -RDRC_Unrealized_Total_Gain),
 
 	true.
-		
-
-	
 	
 account_assertion(Info, Account, Expected_Exp) :-
 	Info = (_,_,_,_,Currency),
@@ -320,15 +313,11 @@ account_assertion(Info, Account, Expected_Exp) :-
 		throw(('unexpected balance:', Vector)
 	))),
 	Expected is Expected_Exp,
-	assertion(compare_floats(Balance, Expected)).
+	assertion(floats_close_enough(Balance, Expected)).
 
 account_vector(Info, Account, Vector) :-
-	%print_term((Account, Info, Vector), []),
 	Info = (Exchange_Rates, Accounts, Transactions, Report_Date, Currency), 
     balance_by_account(Exchange_Rates, Accounts, Transactions, [Currency], Report_Date, Account, Report_Date, Vector, _).
-    
-    
-		
 
 process_xml_investment_request(_, DOM) :-
 	xpath(DOM, //reports/investmentRequest/investments, _),
@@ -377,7 +366,6 @@ process_investments(DOM, Report_Date, Result) :-
 	)
 	).
 	
-
 process(Investment, Report_Date, Result) :-
 	xpath(Investment, //realized_investment, _),
 	process_realized(Investment, Report_Date, Result).
@@ -385,7 +373,6 @@ process(Investment, Report_Date, Result) :-
 process(Investment, Report_Date, Result) :-
 	xpath(Investment, //unrealized_investment, _),
 	process_unrealized(Investment, Report_Date, Result).
-
 
 get_totals(Results_In, Results_Out) :-
 	Results_Out = (S_Transactions, Exchange_Rates, Totals),
@@ -467,7 +454,6 @@ crosscheck_totals(Results, Report_Date) :-
 	writeln('<!--'),
 	writeln(Balance_Sheet_Lines),
 	writeln('-->').
-
 
 print_totals(Totals) :-
 	Totals = (
