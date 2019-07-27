@@ -97,11 +97,11 @@ process_xml_ledger_request(_, Dom) :-
 
 
 	
-print_bank(Static_Data, Account, 
+print_detailed_account(Static_Data, Context_Info, Account, 
 	(Contexts_In, Contexts_Out, Used_Units_In, Used_Units_Out, Lines_In, Lines_Out)
 ) :-
-	Static_Data = ((_, End_Date, Exchange_Rates, Accounts, Transactions, Report_Currency), Context_Id_Base, Context_Template),
-	bank_context(Account, Context_Id_Base, Context_Template, Contexts_In, Contexts_Out, Context_Id),
+	Static_Data = (_, End_Date, Exchange_Rates, Accounts, Transactions, Report_Currency),
+	get_bank_context_id(Account, Context_Id_Base, Context_Template, Period_Type_Suffix, Contexts_In, Contexts_Out, Context_Id),
 	balance_by_account(Exchange_Rates, Accounts, Transactions, Report_Currency, End_Date, Account, End_Date, Balance, Transactions_Count),
 	format_report_entries(
 		Accounts, 1, Report_Currency, Context_Id, 
@@ -110,25 +110,42 @@ print_bank(Static_Data, Account,
 
 shift_variables((_, O0, _, O1, _, O2), (O0, _, O1, _, O2, _)).
 
-print_banks2(_,[],(X,X,Y,Y,Z,Z)).
+print_detailed_accounts(_,[],(X,X,Y,Y,Z,Z)).
 
-print_banks2(
-	Static_Data, 
+print_detailed_accounts(
+	Static_Data, Context_Info,
 	[Bank_Account|Bank_Accounts],  
 	(Contexts_In, Contexts_Out, Used_Units_In, Used_Units_Out, Lines_In, Lines_Out)
 ) :-
 	Variables = (Contexts_In, _, Used_Units_In, _, Lines_In, _),
-	print_bank(Static_Data, Bank_Account, Variables),
+	print_detailed_account(Static_Data, Context_Info, Bank_Account, Variables),
 	shift_variables(Variables, Variables2),
-	print_banks2(Static_Data, Bank_Accounts, Variables2),
+	print_detailed_accounts(Static_Data, Context_Info, Bank_Accounts, Variables2),
 	Variables2 = (_, Contexts_Out, _, Used_Units_Out, _, Lines_Out).
 
-print_banks(Static_Data_In, Context_Id_Base, Entity_Identifier, Variables) :- 
-	Static_Data_In = (_, End_Date, _, Accounts, _, _),
-	Static_Data2 = (Static_Data_In, Context_Id_Base, Context_Template),
-	bank_accounts(Accounts, Bank_Accounts),
+print_banks(Static_Data, Context_Id_Base, Entity_Identifier, Variables) :- 
+	Static_Data = (_, End_Date, _, Accounts, _, _),
 	Context_Template = context(_, End_Date, entity(Entity_Identifier, _)),
-	print_banks2(Static_Data2, Bank_Accounts, Variables).
+	Context_Info = context_arg0(Context_Id_Base, Context_Template, '_Instant', 'basic:Dimension_BankAccounts', 'basic:BankAccount'),
+	bank_accounts(Accounts, Bank_Accounts),
+	print_detailed_accounts(Static_Data, Context_Info, Bank_Accounts, Variables).
+
+	
+%print_banks_currency_movement(
+
+print_currency_movement_accounts() :-
+    findall(Account, account_by_role(Accounts, ('Currency_Movement'/Bank_Account), Account), Accounts),
+    print_currency_movement_accounts2(Accounts).
+
+print_currency_movement_accounts2([Movement_Account|Movement_Accounts]) :-
+	get_bank_context_id(Movement_Account, Context_Id_Base, Context_Template, '_Duration', Contexts_In, Contexts_Out, Context_Id),
+	balance_by_account(Exchange_Rates, Accounts, Transactions, Report_Currency, End_Date, Movement_Account, End_Date, Balance, Transactions_Count),
+	format_report_entries(
+		Accounts, 1, Report_Currency, Context_Id, 
+		[entry('Bank', Balance, [], Transactions_Count)],
+		Used_Units_In, Used_Units_Out, Lines_In, Lines_Out).
+	
+	
 
 
 output_results(S_Transactions, Transactions, Start_Date, End_Date, Exchange_Rates, Accounts, Report_Currency, Action_Taxonomy) :-
@@ -155,7 +172,6 @@ output_results(S_Transactions, Transactions, Start_Date, End_Date, Exchange_Rate
 	/*
 	investment_report((Exchange_Rates2, Accounts, Transactions, Report_Currency, End_Date), Action_Taxonomy, Investment_Report_Lines),
 	*/
-	
 	
 	Static_Data = (Start_Date, End_Date, Exchange_Rates, Accounts, Transactions, Report_Currency),
 	%Variables = (Contexts_In, Contexts_Out, Used_Units_In, Used_Units_Out, Lines_In, Lines_Out),
@@ -199,10 +215,10 @@ nl,
 	
 	writeln('</xbrli:xbrl>'),
 	emit_ledger_warnings(S_Transactions, Start_Date, End_Date),
-	nl, nl,
+	nl, nl/*,
 
 	format_date(End_Date, End_Date_String),
-	format_date(Start_Date, Start_Date_String).
+	format_date(Start_Date, Start_Date_String)*/.
 
 	
 /*

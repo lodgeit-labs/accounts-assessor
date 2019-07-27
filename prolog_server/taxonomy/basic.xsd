@@ -203,8 +203,15 @@ Produced on 2019-07-26 10:57:16
   <element id="basic_Shares" name="Shares" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" xbrli:periodType="instant" xbrli:balance="debit" nillable="true" />
   <element id="basic_Unit_Investment" name="Unit_Investment" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" xbrli:periodType="instant" xbrli:balance="debit" nillable="true" />
   <element id="basic_WorkInProgress" name="WorkInProgress" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" xbrli:periodType="instant" xbrli:balance="debit" nillable="true" />
-  <element id="basic_Dimension_BankAccounts" name="Dimension_BankAccounts" substitutionGroup="xbrldt:dimensionItem" xbrli:periodType="duration" abstract="true" xbrldt:typedDomainRef="#basic_Dimension_BankAccounts_DomainDeclaration"/>
-  <element id="basic_Dimension_BankAccounts_DomainDeclaration" name="BankAccount">
+
+  <element id="basic_Dimension_BankAccounts_Duration" name="Dimension_BankAccounts_Duration" substitutionGroup="xbrldt:dimensionItem" xbrli:periodType="duration" abstract="true" xbrldt:typedDomainRef="#basic_Dimension_BankAccounts_Duration_DomainDeclaration"/>
+  <element id="basic_Dimension_BankAccounts_Duration_DomainDeclaration" name="BankAccount_Duration">
+    <simpleType>
+      <restriction base="string"/>
+    </simpleType>
+  </element>
+  <element id="basic_Dimension_BankAccounts_Instant" name="Dimension_BankAccounts_Instant" substitutionGroup="xbrldt:dimensionItem" xbrli:periodType="instant" abstract="true" xbrldt:typedDomainRef="#basic_Dimension_BankAccounts_Instant_DomainDeclaration"/>
+  <element id="basic_Dimension_BankAccounts_Instant_DomainDeclaration" name="BankAccount_Instant">
     <simpleType>
       <restriction base="string"/>
     </simpleType>
