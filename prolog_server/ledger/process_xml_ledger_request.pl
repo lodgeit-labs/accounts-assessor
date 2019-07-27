@@ -109,7 +109,9 @@ print_bank(Static_Data, Account,
 		Used_Units_In, Used_Units_Out, Lines_In, Lines_Out).
 
 shift_variables((_, O0, _, O1, _, O2), (O0, _, O1, _, O2, _)).
-			
+
+print_banks2(_,[],(X,X,Y,Y,Z,Z)).
+
 print_banks2(
 	Static_Data, 
 	[Bank_Account|Bank_Accounts],  
@@ -131,6 +133,7 @@ print_banks(Static_Data_In, Context_Id_Base, Entity_Identifier, Variables) :-
 
 output_results(S_Transactions, Transactions, Start_Date, End_Date, Exchange_Rates, Accounts, Report_Currency, Action_Taxonomy) :-
 	
+	
 	print_relevant_exchange_rates(Report_Currency, End_Date, Exchange_Rates, Transactions),
 	infer_exchange_rates(Transactions, S_Transactions, Start_Date, End_Date, Accounts, Report_Currency, Exchange_Rates, Exchange_Rates2),
 
@@ -142,21 +145,25 @@ output_results(S_Transactions, Transactions, Start_Date, End_Date, Exchange_Rate
 	context_id_base('D', Context_Id_Year, Duration_Context_Id_Base),
 	Base_Contexts = [
 		context(Instant_Context_Id_Base, End_Date, entity(Entity_Identifier, '')),
-		context(Duration_Context_Id_Base, End_Date, entity(Entity_Identifier, ''))
+		context(Duration_Context_Id_Base, (Start_Date, End_Date), entity(Entity_Identifier, ''))
 	],
-	
-	Static_Data = (Start_Date, End_Date, Exchange_Rates, Accounts, Transactions, Report_Currency),
-	%Variables = (Contexts_In, Contexts_Out, Used_Units_In, Used_Units_Out, Lines_In, Lines_Out),
-	Variables = (Base_Contexts, Contexts_Out, [], _Fixme_Used_Units_Out, [], Lines_Out),
-	print_banks(Static_Data, Instant_Context_Id_Base, Entity_Identifier, Variables),
-	writeln(Lines_Out),
 	
 	trial_balance_between(Exchange_Rates2, Accounts, Transactions, Report_Currency, End_Date, Start_Date, End_Date, Trial_Balance2),
 	balance_sheet_at(Exchange_Rates2, Accounts, Transactions, Report_Currency, End_Date, Start_Date, End_Date, Balance_Sheet2),
 	profitandloss_between(Exchange_Rates2, Accounts, Transactions, Report_Currency, End_Date, Start_Date, End_Date, ProftAndLoss2),
 	assertion(ground((Balance_Sheet2, ProftAndLoss2, Trial_Balance2))),
-	
+	/*
 	investment_report((Exchange_Rates2, Accounts, Transactions, Report_Currency, End_Date), Action_Taxonomy, Investment_Report_Lines),
+	*/
+	
+	
+	Static_Data = (Start_Date, End_Date, Exchange_Rates, Accounts, Transactions, Report_Currency),
+	%Variables = (Contexts_In, Contexts_Out, Used_Units_In, Used_Units_Out, Lines_In, Lines_Out),
+	Variables = (Base_Contexts, Contexts_Out, [], _Fixme_Used_Units_Out, [], Lines_Out),
+	print_banks(Static_Data, Instant_Context_Id_Base, Entity_Identifier, Variables),
+
+	
+	Investment_Report_Lines=[iii],nonvar(Action_Taxonomy),
 
 	(
 		get_flag(prepare_unique_taxonomy_url, true)
@@ -170,12 +177,16 @@ output_results(S_Transactions, Transactions, Start_Date, End_Date, Exchange_Rate
 	write('  <link:schemaRef xlink:type="simple" xlink:href="'), write(Taxonomy), writeln('basic.xsd" xlink:title="Taxonomy schema" />'),
 	write('  <link:linkbaseRef xlink:type="simple" xlink:href="'), write(Taxonomy), writeln('basic-formulas.xml" xlink:arcrole="http://www.w3.org/1999/xlink/properties/linkbase" />'),
 	write('  <link:linkBaseRef xlink:type="simple" xlink:href="'), write(Taxonomy), writeln('basic-formulas-cross-checks.xml" xlink:arcrole="http://www.w3.org/1999/xlink/properties/linkbase" />'),
+	nl,
 
 	print_contexts(Contexts_Out),
+nl,
+	maplist(write_used_unit, Used_Units2), 
+nl,
+	maplist(writeln, Lines_Out),
 
 	bs_and_pl_entries(Accounts, Report_Currency, End_Year, Balance_Sheet2, ProftAndLoss2, Used_Units2, Lines2, Lines3),
 	format_report_entries(Accounts, 0, Report_Currency, End_Year, Trial_Balance2, [], _, [], Lines1),
-	maplist(write_used_unit, Used_Units2), 
 
    flatten([
 		'\n<!-- balance sheet: -->\n', Lines3, 
@@ -191,22 +202,7 @@ output_results(S_Transactions, Transactions, Start_Date, End_Date, Exchange_Rate
 	nl, nl,
 
 	format_date(End_Date, End_Date_String),
-	format_date(Start_Date, Start_Date_String),
-
-
-	format( '  <xbrli:context id="D-~w">\n', End_Year),
-	writeln('    <entity>'),
-	writeln('      <identifier scheme="http://standards.iso.org/iso/17442">30810137d58f76b84afd</identifier>'),
-	writeln('    </entity>'),
-	writeln('    <period>'),
-	format( '      <startDate>~w</startDate>\n', Start_Date_String),
-	format( '      <endDate>~w</endDate>\n', End_Date_String),
-	writeln('    </period>'),
-	writeln('  </xbrli:context>').
-
-	
-write_used_unit(Unit) :-
-	format('  <xbrli:unit id="U-~w"><xbrli:measure>iso4217:~w</xbrli:measure></xbrli:unit>\n', [Unit, Unit]).
+	format_date(Start_Date, Start_Date_String).
 
 	
 /*
@@ -224,9 +220,9 @@ prepare_unique_taxonomy_url(Taxonomy_Dir_Url) :-
    atomic_list_concat(['ln -s ', Static_Taxonomy, ' ', Tmp_Taxonomy], Cmd),
    shell(Cmd, 0).
 
-
-   
-   
+/**/
+write_used_unit(Unit) :-
+	format('  <xbrli:unit id="U-~w"><xbrli:measure>iso4217:~w</xbrli:measure></xbrli:unit>\n', [Unit, Unit]).
 	
 /*this functionality is disabled for now, maybe delete*/
 infer_exchange_rates(_, _, _, _, _, _, Exchange_Rates, Exchange_Rates) :- 

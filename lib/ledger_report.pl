@@ -10,7 +10,8 @@
 		trial_balance_between/8, 
 		profitandloss_between/8, 
 		format_report_entries/9, 
-		bs_and_pl_entries/8]).
+		bs_and_pl_entries/8,
+		format_balances/10]).
 
 :- use_module('accounts', [
 		account_child_parent/3,
@@ -205,7 +206,7 @@ format_report_entries(Accounts, Level, Report_Currency, Context, Entries, Used_U
 	(
 		(Balances = [],(Transactions_Count \= 0; Level = 0))
 	->
-		format_balance(Accounts, Level, Report_Currency, Context, Name, Normal_Side, [],
+		format_balance(Level, Report_Currency, Context, Name, Normal_Side, [],
 			Used_Units_In, UsedUnitsIntermediate, Lines_In, LinesIntermediate)
 	;
 		format_balances(Level, Report_Currency, Context, Name, Normal_Side, Balances, 
@@ -216,7 +217,7 @@ format_report_entries(Accounts, Level, Report_Currency, Context, Entries, Used_U
 	format_report_entries(Accounts, Level, Report_Currency, Context, EntriesTail, UsedUnitsIntermediate2, Used_Units_Out, LinesIntermediate2, LinesOut),
 	!.
 
-format_balances(_, _, _, _, _, _, [], Used_Units, Used_Units, Lines, Lines).
+format_balances(_, _, _, _, _, [], Used_Units, Used_Units, Lines, Lines).
 
 format_balances(Level, Report_Currency, Context, Name, Normal_Side, [Balance|Balances], Used_Units_In, Used_Units_Out, Lines_In, LinesOut) :-
    format_balance(Level, Report_Currency, Context, Name, Normal_Side, [Balance], Used_Units_In, UsedUnitsIntermediate, Lines_In, LinesIntermediate),
