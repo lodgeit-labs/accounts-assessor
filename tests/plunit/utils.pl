@@ -17,6 +17,21 @@ test(2) :-
 test(3) :-
 	findall(X, semigroup_foldl(mult_or_add, [1, 2, 3, 4], X), [[10],[24],[13],[36],[9],[20],[10],[24]]).
 
+test(4) :-
+	compile_with_variable_names_preserved((A=B), _N), var(A), var(B).
+
+test(5, all(D=[_{x:3}])) :-
+	X = 3, dict_from_vars(D, [X]).
+
+test(62, all(D = [_{x:x, y:y}])) :-
+	X = x, Y = y, dict_from_vars(D, [Y, X]).
+
+test(6, all(D = [_{x:3, y:xyz, z:3}])) :-
+	X = 3, Y = _, Z = X, dict_from_vars(D, [X, Y, Z]).
+
+test(7, all((Start_Date, End_Date, Accounts) = [(x, y, z)])) :-
+	dict_vars(_{start_date:x, end_date:y, accounts:z}, [Accounts, Start_Date, End_Date]).
+
 :- end_tests(utils).
 
 

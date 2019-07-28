@@ -95,58 +95,83 @@ process_xml_ledger_request(_, Dom) :-
 	
 :- ['../../lib/xbrl_contexts'].
 
+/* given information about a xbrl dimension, print each account as a point in that dimension. 
+this means each account results in a fact with a context that contains the value for that dimension.
+*/
+print_detail_accounts(_,_,[],(X,X,Y,Y,Z,Z)).
 
-	
-print_detailed_account(Static_Data, Context_Info, Account, 
-	(Contexts_In, Contexts_Out, Used_Units_In, Used_Units_Out, Lines_In, Lines_Out)
-) :-
-	Static_Data = (_, End_Date, Exchange_Rates, Accounts, Transactions, Report_Currency),
-	get_bank_context_id(Account, Context_Id_Base, Context_Template, Period_Type_Suffix, Contexts_In, Contexts_Out, Context_Id),
-	balance_by_account(Exchange_Rates, Accounts, Transactions, Report_Currency, End_Date, Account, End_Date, Balance, Transactions_Count),
-	format_report_entries(
-		Accounts, 1, Report_Currency, Context_Id, 
-		[entry('Bank', Balance, [], Transactions_Count)],
-		Used_Units_In, Used_Units_Out, Lines_In, Lines_Out).
-
-shift_variables((_, O0, _, O1, _, O2), (O0, _, O1, _, O2, _)).
-
-print_detailed_accounts(_,[],(X,X,Y,Y,Z,Z)).
-
-print_detailed_accounts(
+print_detail_accounts(
 	Static_Data, Context_Info,
 	[Bank_Account|Bank_Accounts],  
 	(Contexts_In, Contexts_Out, Used_Units_In, Used_Units_Out, Lines_In, Lines_Out)
 ) :-
 	Variables = (Contexts_In, _, Used_Units_In, _, Lines_In, _),
-	print_detailed_account(Static_Data, Context_Info, Bank_Account, Variables),
+	print_detail_account(Static_Data, Context_Info, Bank_Account, Variables),
 	shift_variables(Variables, Variables2),
-	print_detailed_accounts(Static_Data, Context_Info, Bank_Accounts, Variables2),
+	print_detail_accounts(Static_Data, Context_Info, Bank_Accounts, Variables2),
 	Variables2 = (_, Contexts_Out, _, Used_Units_Out, _, Lines_Out).
-
-print_banks(Static_Data, Context_Id_Base, Entity_Identifier, Variables) :- 
-	Static_Data = (_, End_Date, _, Accounts, _, _),
-	Context_Template = context(_, End_Date, entity(Entity_Identifier, _)),
-	Context_Info = context_arg0(Context_Id_Base, Context_Template, '_Instant', 'basic:Dimension_BankAccounts', 'basic:BankAccount'),
-	bank_accounts(Accounts, Bank_Accounts),
-	print_detailed_accounts(Static_Data, Context_Info, Bank_Accounts, Variables).
-
 	
-%print_banks_currency_movement(
-
-print_currency_movement_accounts() :-
-    findall(Account, account_by_role(Accounts, ('Currency_Movement'/Bank_Account), Account), Accounts),
-    print_currency_movement_accounts2(Accounts).
-
-print_currency_movement_accounts2([Movement_Account|Movement_Accounts]) :-
-	get_bank_context_id(Movement_Account, Context_Id_Base, Context_Template, '_Duration', Contexts_In, Contexts_Out, Context_Id),
-	balance_by_account(Exchange_Rates, Accounts, Transactions, Report_Currency, End_Date, Movement_Account, End_Date, Balance, Transactions_Count),
+print_detail_account(Static_Data, Context_Info, Account, 
+	(Contexts_In, Contexts_Out, Used_Units_In, Used_Units_Out, Lines_In, Lines_Out)
+) :-
+	dict_vars(Static_Data, [Start_Date, End_Date, Exchange_Rates, Accounts, Transactions, Report_Currency]),
+	get_context_id(Account, Context_Info, Contexts_In, Contexts_Out, Context_Id),
+	context_arg0_period_type(Context_Info, Period_Type),
+	(
+		Period_Type = duration
+	->
+		net_activity_by_account(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Account, Start_Date, End_Date, Balance, Transactions_Count)
+	;
+		balance_by_account(Exchange_Rates, Accounts, Transactions, Report_Currency, End_Date, Account, End_Date, Balance, Transactions_Count)
+	),
+	context_arg0_fact_name(Context_Info, Fact_Name),
 	format_report_entries(
 		Accounts, 1, Report_Currency, Context_Id, 
-		[entry('Bank', Balance, [], Transactions_Count)],
+		[entry(Fact_Name, Balance, [], Transactions_Count)],
 		Used_Units_In, Used_Units_Out, Lines_In, Lines_Out).
-	
-	
 
+shift_variables((_, O0, _, O1, _, O2), (O0, _, O1, _, O2, _)).
+
+print_banks(Static_Data, Context_Id_Base, Entity_Identifier, Variables) :- 
+	dict_vars(Static_Data, [End_Date, Accounts]),
+	bank_accounts(Accounts, Bank_Accounts),
+	Context_Template = context(_, End_Date, entity(Entity_Identifier, _)),
+	Context_Info = context_arg0(Context_Id_Base, Context_Template, instant, 'Bank', 'basic:Dimension_BankAccounts', 'basic:BankAccount'),
+	print_detail_accounts(Static_Data, Context_Info, Bank_Accounts, Variables).
+
+print_forex(Static_Data, Context_Id_Base, Entity_Identifier, Variables) :- 
+	dict_vars(Static_Data, [Start_Date, End_Date, Accounts]),
+    findall(Account, account_by_role(Accounts, ('Currency_Movement'/_), Account), Movement_Accounts),
+	Context_Template = context(_, (Start_Date, End_Date), entity(Entity_Identifier, _)),
+	Context_Info = context_arg0(Context_Id_Base, Context_Template, duration, 'Currency_Movement', 'basic:Dimension_BankAccounts', 'basic:BankAccount'),
+	print_detail_accounts(Static_Data, Context_Info, Movement_Accounts, Variables).
+    
+
+trading1(Transaction_Types) :-
+	findall(
+		(Sub_Account, Unit_Accounts),
+		(
+			trading_account_ids(Transaction_Types, Trading_Accounts),
+			member(Trading_Account, Trading_Accounts),
+			sub_accounts_upto_level(Accounts, Trading_Account, 2, Sub_Accounts),
+			child_accounts(Accounts, Sub_Account, Unit_Accounts),
+		),
+		Pairs
+	),
+	trading4(Paris, Variables)
+		
+	
+/* for a list of (Sub_Account, Unit_Accounts) pairs..*/
+	
+trading4(Static_Data, [(Sub_Account,Unit_Accounts)|Tail], In, Out):-
+	dict_vars(Static_Data, [Start_Date, End_Date, Entity_Identifier, Context_Id_Base]),
+	Context_Template = context(_, (Start_Date, End_Date), entity(Entity_Identifier, _)),
+	Context_Info = context_arg0(Context_Id_Base, Context_Template, duration, Sub_Account, 'basic:Dimension_Investments', 'basic:Investment'),
+	print_detail_accounts(Static_Data, Context_Info, Unit_Accounts, Results_In, ),
+	shift_variables(Variables, Variables2),
+	trading4(Static_Data, Tail, Variables2).
+	
+trading4(_,[],(X,X,Y,Y,Z,Z)).
 
 output_results(S_Transactions, Transactions, Start_Date, End_Date, Exchange_Rates, Accounts, Report_Currency, Action_Taxonomy) :-
 	
@@ -172,11 +197,17 @@ output_results(S_Transactions, Transactions, Start_Date, End_Date, Exchange_Rate
 	/*
 	investment_report((Exchange_Rates2, Accounts, Transactions, Report_Currency, End_Date), Action_Taxonomy, Investment_Report_Lines),
 	*/
-	
-	Static_Data = (Start_Date, End_Date, Exchange_Rates, Accounts, Transactions, Report_Currency),
+
+	/*contexts:
 	%Variables = (Contexts_In, Contexts_Out, Used_Units_In, Used_Units_Out, Lines_In, Lines_Out),
-	Variables = (Base_Contexts, Contexts_Out, [], _Fixme_Used_Units_Out, [], Lines_Out),
-	print_banks(Static_Data, Instant_Context_Id_Base, Entity_Identifier, Variables),
+	*/
+	
+	
+	dict_from_vars(Static_Data, [Start_Date, End_Date, Exchange_Rates, Accounts, Transactions, Report_Currency]),
+	Variables1 = (Base_Contexts, Contexts_Out, [], _Fixme_Used_Units_Out, [], Lines_Out),
+	print_banks(Static_Data, Instant_Context_Id_Base, Entity_Identifier, Variables1),
+	shift_variables(Variables1, Variables2),
+	print_forex(Static_Data, Duration_Context_Id_Base, Entity_Identifier, Variables2)
 
 	
 	Investment_Report_Lines=[iii],nonvar(Action_Taxonomy),

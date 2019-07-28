@@ -105,7 +105,6 @@ yield_traded_units(Transaction_Types, S_Transactions, Unit) :-
 		;
 		s_transaction_exchanged(S_Transaction, bases(Unit))
 	).
-		
 	
 trading_account_ids(Transaction_Types, Ids) :-
 	findall(

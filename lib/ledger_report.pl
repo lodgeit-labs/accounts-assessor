@@ -62,12 +62,12 @@ balance_by_account(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, 
 	add_days(Date, 1, Date2),
 	balance_until_day(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Account_Id, Date2, Balance_Transformed, Transactions_Count).
 	
-% Relates the period from From_Day to To_Day to the net activity during that period of
+% Relates the period from Start_Date to End_Date to the net activity during that period of
 % the given account.
-net_activity_by_account(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Account_Id, From_Day, To_Day, Net_Activity_Transformed, Transactions_Count) :-
+net_activity_by_account(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Account_Id, Start_Date, End_Date, Net_Activity_Transformed, Transactions_Count) :-
 	findall(Transaction,
 		(member(Transaction, Transactions),
-		transaction_in_period(Transaction, From_Day, To_Day),
+		transaction_in_period(Transaction, Start_Date, End_Date),
 		transaction_account_in_set(Accounts, Transaction, Account_Id)), Transactions_A),
 	length(Transactions_A, Transactions_Count),
 	transaction_vectors_total(Transactions_A, Net_Activity),
@@ -77,17 +77,17 @@ net_activity_by_account(Exchange_Rates, Accounts, Transactions, Bases, Exchange_
 
 % Now for balance sheet predicates. These build up a tree structure that corresponds to the account hierarchy, with balances for each account.
 
-balance_sheet_entry(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Account_Id, To_Day, Sheet_Entry) :-
+balance_sheet_entry(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Account_Id, End_Date, Sheet_Entry) :-
 	% find all direct children sheet entries
 	findall(Child_Sheet_Entry, (account_child_parent(Accounts, Child_Account, Account_Id),
-		balance_sheet_entry(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Child_Account, To_Day, Child_Sheet_Entry)),
+		balance_sheet_entry(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Child_Account, End_Date, Child_Sheet_Entry)),
 		Child_Sheet_Entries),
 	% find balance for this account including subaccounts (sum all transactions from beginning of time)
-	balance_by_account(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Account_Id, To_Day, Balance, Transactions_Count),
+	balance_by_account(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Account_Id, End_Date, Balance, Transactions_Count),
 	Sheet_Entry = entry(Account_Id, Balance, Child_Sheet_Entries, Transactions_Count).
 
 
-balance_sheet_at(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, From_Day, To_Day, Balance_Sheet) :-
+balance_sheet_at(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Start_Date, End_Date, Balance_Sheet) :-
 	account_by_role(Accounts, ('Accounts'/'Assets'), Assets_AID),
 	account_by_role(Accounts, ('Accounts'/'Equity'), Equity_AID),
 	account_by_role(Accounts, ('Accounts'/'Liabilities'), Liabilities_AID),
@@ -97,13 +97,13 @@ balance_sheet_at(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Fr
 	account_by_role(Accounts, ('Accounts'/'Assets'), Assets_AID),
 	account_by_role(Accounts, ('Accounts'/'Equity'), Equity_AID),
 
-	balance_sheet_entry(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Assets_AID, To_Day, Asset_Section),
-	balance_sheet_entry(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Liabilities_AID, To_Day, Liability_Section),
+	balance_sheet_entry(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Assets_AID, End_Date, Asset_Section),
+	balance_sheet_entry(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Liabilities_AID, End_Date, Liability_Section),
 	% get earnings before the report period
-	add_days(From_Day, -1, From_Day_Minus_1),
-	balance_until_day(Exchange_Rates, Accounts, Transactions, Bases, From_Day_Minus_1, Earnings_AID, From_Day, Historical_Earnings, _),
+	add_days(Start_Date, -1, From_Day_Minus_1),
+	balance_until_day(Exchange_Rates, Accounts, Transactions, Bases, From_Day_Minus_1, Earnings_AID, Start_Date, Historical_Earnings, _),
 	% get earnings change over the period
-	net_activity_by_account(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Earnings_AID, From_Day, To_Day, Current_Earnings, _),
+	net_activity_by_account(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Earnings_AID, Start_Date, End_Date, Current_Earnings, _),
 	% total them
 	/*
 	vec_add(Historical_Earnings, Current_Earnings, Earnings),
@@ -115,24 +115,24 @@ balance_sheet_at(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Fr
 		]),	*/
 		
 	/* there is no need to make up transactions here, but it makes things more uniform */
-	get_transactions_with_retained_earnings(Current_Earnings, Historical_Earnings, Transactions, From_Day, To_Day, Transactions_With_Retained_Earnings),
-	balance_sheet_entry(Exchange_Rates, Accounts, Transactions_With_Retained_Earnings, Bases, Exchange_Day, 'Equity', To_Day, Equity_Section),
-	balance_by_account(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, 'Net_Assets', To_Day, Net_Assets, Transactions_Count),
+	get_transactions_with_retained_earnings(Current_Earnings, Historical_Earnings, Transactions, Start_Date, End_Date, Transactions_With_Retained_Earnings),
+	balance_sheet_entry(Exchange_Rates, Accounts, Transactions_With_Retained_Earnings, Bases, Exchange_Day, 'Equity', End_Date, Equity_Section),
+	balance_by_account(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, 'Net_Assets', End_Date, Net_Assets, Transactions_Count),
 	Net_Assets_Section = entry('Net_Assets', Net_Assets, [], Transactions_Count),
 	Balance_Sheet = [Asset_Section, Liability_Section, Equity_Section, Net_Assets_Section].
 
 /* build a fake transaction that sets the balance of historical and current earnings */
-get_transactions_with_retained_earnings(Current_Earnings, Historical_Earnings, Transactions, From_Day, To_Day, [Historical_Earnings_Transaction, Current_Earnings_Transaction | Transactions]) :-
-	add_days(From_Day, -1, From_Day_Minus_1),
+get_transactions_with_retained_earnings(Current_Earnings, Historical_Earnings, Transactions, Start_Date, End_Date, [Historical_Earnings_Transaction, Current_Earnings_Transaction | Transactions]) :-
+	add_days(Start_Date, -1, From_Day_Minus_1),
 	Historical_Earnings_Transaction = transaction(From_Day_Minus_1,'','Historical_Earnings',Historical_Earnings),
-	Current_Earnings_Transaction = transaction(To_Day,'','Current_Earnings',Current_Earnings).
+	Current_Earnings_Transaction = transaction(End_Date,'','Current_Earnings',Current_Earnings).
 
-trial_balance_between(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, From_Day, To_Day, [Trial_Balance_Section]) :-
-	net_activity_by_account(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, 'Accounts', From_Day, To_Day, Trial_Balance, Transactions_Count),
+trial_balance_between(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Start_Date, End_Date, [Trial_Balance_Section]) :-
+	net_activity_by_account(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, 'Accounts', Start_Date, End_Date, Trial_Balance, Transactions_Count),
 	Trial_Balance_Section = entry('Trial_Balance', Trial_Balance, [], Transactions_Count).
 /*
-profitandloss_between(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, From_Day, To_Day, ProftAndLoss) :-
-	net_activity_by_account(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, 'Earnings', From_Day, To_Day, ProftAndLoss).
+profitandloss_between(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Start_Date, End_Date, ProftAndLoss) :-
+	net_activity_by_account(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, 'Earnings', Start_Date, End_Date, ProftAndLoss).
 */
 
 /*
@@ -146,31 +146,31 @@ profitandloss_between(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Da
 	])].
 */
 
-profitandloss_between(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, From_Day, To_Day, [ProftAndLoss]) :-
-	activity_entry(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, 'Earnings', From_Day, To_Day, ProftAndLoss).
+profitandloss_between(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Start_Date, End_Date, [ProftAndLoss]) :-
+	activity_entry(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, 'Earnings', Start_Date, End_Date, ProftAndLoss).
 
 % Now for trial balance predicates.
 
-activity_entry(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Account_Id, From_Day, To_Day, Trial_Balance_Entry) :-
+activity_entry(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Account_Id, Start_Date, End_Date, Trial_Balance_Entry) :-
 	findall(
 		Child_Sheet_Entry, 
 		(
 			account_child_parent(Accounts, Child_Account_Id, Account_Id),
-			activity_entry(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, 		  Child_Account_Id, From_Day, To_Day, Child_Sheet_Entry)
+			activity_entry(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, 		  Child_Account_Id, Start_Date, End_Date, Child_Sheet_Entry)
 		),
 		Child_Sheet_Entries
 	),
-	net_activity_by_account(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Account_Id, From_Day, To_Day, Net_Activity, Transactions_Count),
+	net_activity_by_account(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Account_Id, Start_Date, End_Date, Net_Activity, Transactions_Count),
 	Trial_Balance_Entry = entry(Account_Id, Net_Activity, Child_Sheet_Entries, Transactions_Count).
 /*
-trial_balance_between(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, From_Day, To_Day, Trial_Balance) :-
+trial_balance_between(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Start_Date, End_Date, Trial_Balance) :-
 	account_ids(Accounts, Assets_AID, Equity_AID, Liabilities_AID, Earnings_AID, _Earnings_AID, _, Revenue_AID, Expenses_AID),
-	balance_sheet_entry(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Assets_AID, To_Day, Asset_Section),
-	balance_sheet_entry(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Equity_AID, To_Day, Equity_Section),
-	balance_sheet_entry(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Liabilities_AID, To_Day, Liability_Section),
-	trial_balance_entry(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Revenue_AID, From_Day, To_Day, Revenue_Section),
-	trial_balance_entry(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Expenses_AID, From_Day, To_Day, Expense_Section),
-	balance_by_account(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Earnings_AID, From_Day, Earnings),
+	balance_sheet_entry(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Assets_AID, End_Date, Asset_Section),
+	balance_sheet_entry(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Equity_AID, End_Date, Equity_Section),
+	balance_sheet_entry(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Liabilities_AID, End_Date, Liability_Section),
+	trial_balance_entry(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Revenue_AID, Start_Date, End_Date, Revenue_Section),
+	trial_balance_entry(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Expenses_AID, Start_Date, End_Date, Expense_Section),
+	balance_by_account(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Earnings_AID, Start_Date, Earnings),
 	% current earnings, not retained?
 	Trial_Balance = [Asset_Section, Liability_Section, entry(Earnings_AID, Earnings, []),
 		Equity_Section, Revenue_Section, Expense_Section].
@@ -178,13 +178,13 @@ trial_balance_between(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Da
 % Now for movement predicates.
 % - this isn't made available anywhere yet
 /*
-movement_between(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, From_Day, To_Day, Movement) :-
+movement_between(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Start_Date, End_Date, Movement) :-
   account_ids(Accounts, Assets_AID, Equity_AID, Liabilities_AID, _, _, _, Revenue_AID, Expenses_AID),
-	trial_balance_entry(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Assets_AID, From_Day, To_Day, Asset_Section),
-	trial_balance_entry(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Equity_AID, From_Day, To_Day, Equity_Section),
-	trial_balance_entry(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Liabilities_AID, From_Day, To_Day, Liability_Section),
-	trial_balance_entry(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Revenue_AID, From_Day, To_Day, Revenue_Section),
-	trial_balance_entry(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Expenses_AID, From_Day, To_Day, Expense_Section),
+	trial_balance_entry(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Assets_AID, Start_Date, End_Date, Asset_Section),
+	trial_balance_entry(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Equity_AID, Start_Date, End_Date, Equity_Section),
+	trial_balance_entry(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Liabilities_AID, Start_Date, End_Date, Liability_Section),
+	trial_balance_entry(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Revenue_AID, Start_Date, End_Date, Revenue_Section),
+	trial_balance_entry(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Expenses_AID, Start_Date, End_Date, Expense_Section),
 	Movement = [Asset_Section, Liability_Section, Equity_Section, Revenue_Section, Expense_Section].
 
 */

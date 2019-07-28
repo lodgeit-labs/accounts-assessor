@@ -121,8 +121,36 @@ my_variable_naming(Var, (Name = Var)) :-
 		
 
 
+		
+/* take a list of variables, produce a dict with lowercased variable names as keys, and variables themselves as values.
+see plunit/utils for examples*/
+user:goal_expansion(
+	dict_from_vars(Dict, Vars_List), Code
+) :-
+	maplist(var_to_kv_pair, Vars_List, Pairs),
+	Code = dict_create(Dict, _, Pairs).
 
+var_to_kv_pair(Var, Pair) :-
+	var_property(Var, name(Name)),
+	downcase_atom(Name, Name_Lcase),
+	Pair = Name_Lcase-Var.
 
+/* take a list of variables, unify them with values of Dict, using lowercased names of those variables as keys.
+see plunit/utils for examples*/
+user:goal_expansion(
+	dict_vars(Dict, Vars_List), Code
+) :-
+	maplist(var_to_kv_pair, Vars_List, Pairs),
+	sort(Pairs, Pairs_Sorted),
+	Code = dict_pairs(Dict, _, Pairs_Sorted)/*,
+	writeln(Code)*/.
+
+	
+	
+	
+	
+	
+	
 
 % this gets the children of an element with ElementXPath
 inner_xml(Dom, Element_XPath, Children) :-
