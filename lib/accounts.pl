@@ -15,8 +15,11 @@
 		account_role_by_id/3,
 		account_detail_level/3,
 		account_normal_side/3,
+		sub_accounts_upto_level/4,
+		child_accounts/3,
 		/*extract account tree specified in request xml*/
 		extract_account_hierarchy/2, 
+
 		/*The private api.*/
 		/*accessors of account term fields*/
 		account_id/2,
@@ -79,6 +82,13 @@ account_child_parent(Accounts, Child_Id, Parent_Id) :-
 		member(Child, Accounts),
 		account_id(Child, Child_Id),
 		account_parent(Child, Parent_Id)
+	).
+
+account_direct_children(Accounts, Parent, Children) :-
+	findall(
+		Child,
+		account_child_parent(Accounts, Child, Parent),
+		Children
 	).
 	
 account_by_role(Accounts, Role, Account_Id) :-
@@ -161,8 +171,31 @@ yield_accounts(element(Parent_Name,_,Children), Link) :-
 	).
 
 account_normal_side(Account_Hierarchy, Name, credit) :-
-	member(Credit_Side_Account_Id, ['Liabilities', 'Equity', 'Expenses', 'Earnings']),
+	member(Credit_Side_Account_Id, ['Liabilities', 'Equity', 'Revenue']),
+	once(account_in_set(Account_Hierarchy, Name, Credit_Side_Account_Id)),
+	!.
+account_normal_side(Account_Hierarchy, Name, debit) :-
+	member(Credit_Side_Account_Id, ['Expenses']),
+	once(account_in_set(Account_Hierarchy, Name, Credit_Side_Account_Id)),
+	!.
+account_normal_side(Account_Hierarchy, Name, credit) :-
+	member(Credit_Side_Account_Id, ['Earnings']),
 	once(account_in_set(Account_Hierarchy, Name, Credit_Side_Account_Id)),
 	!.
 account_normal_side(_, _, debit).
 
+
+sub_accounts_upto_level(Accounts, Parent, Level, Sub_Accounts) :-
+	sub_accounts_upto_level2(Accounts, [Parent], Level, [], Sub_Accounts).
+
+sub_accounts_upto_level2(Accounts, [Parent|Parents], Level, In, Out) :-
+	Level > 0,
+	New_Level is Level - 1,
+	account_direct_children(Accounts, Parent, Children),
+	append(In, Children, Mid),
+	sub_accounts_upto_level2(Accounts, Children, New_Level, Mid, Mid2),
+	sub_accounts_upto_level2(Accounts, Parents, Level, Mid2, Out).
+	
+
+child_accounts(Accounts, Parent_Account, Child_Accounts) :-
+	sub_accounts_upto_level(Accounts, Parent_Account, 1, Child_Accounts).

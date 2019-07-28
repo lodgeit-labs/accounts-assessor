@@ -140,12 +140,15 @@ see plunit/utils for examples*/
 user:goal_expansion(
 	dict_vars(Dict, Vars_List), Code
 ) :-
-	maplist(var_to_kv_pair, Vars_List, Pairs),
-	sort(Pairs, Pairs_Sorted),
-	Code = dict_pairs(Dict, _, Pairs_Sorted)/*,
-	writeln(Code)*/.
+	dict_vars_assignment(Vars_List, Dict, Code).
 
-	
+dict_vars_assignment([Var|Vars], Dict, Code) :-
+	var_property(Var, name(Key)),
+	downcase_atom(Key, Key_Lcase),
+	Code = (get_dict(Key_Lcase, Dict, Var), Codes),
+	dict_vars_assignment(Vars, Dict, Codes).
+
+dict_vars_assignment([], _, true).
 	
 	
 	

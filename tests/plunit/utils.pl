@@ -23,14 +23,20 @@ test(4) :-
 test(5, all(D=[_{x:3}])) :-
 	X = 3, dict_from_vars(D, [X]).
 
-test(62, all(D = [_{x:x, y:y}])) :-
+test(6, all(D = [_{x:x, y:y}])) :-
 	X = x, Y = y, dict_from_vars(D, [Y, X]).
 
-test(6, all(D = [_{x:3, y:xyz, z:3}])) :-
+test(7, all(D = [_{x:3, y:xyz, z:3}])) :-
 	X = 3, Y = _, Z = X, dict_from_vars(D, [X, Y, Z]).
 
-test(7, all((Start_Date, End_Date, Accounts) = [(x, y, z)])) :-
+test(8, all((Start_Date, End_Date, Accounts) = [(x, y, z)])) :-
 	dict_vars(_{start_date:x, end_date:y, accounts:z}, [Accounts, Start_Date, End_Date]).
+
+test(9, all((End_Date, Accounts) = [(y, z)])) :-
+	dict_vars(_{start_date:x, end_date:y, accounts:z}, [Accounts, End_Date]).
+
+/*test(10, throws(_Error)) :-
+	End_Date = _, goal_expansion(dict_vars(_{accounts:z}, [End_Date]), _Code).*/
 
 :- end_tests(utils).
 

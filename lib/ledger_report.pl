@@ -11,7 +11,8 @@
 		profitandloss_between/8, 
 		format_report_entries/9, 
 		bs_and_pl_entries/8,
-		format_balances/10]).
+		format_balances/10,
+		net_activity_by_account/10]).
 
 :- use_module('accounts', [
 		account_child_parent/3,
