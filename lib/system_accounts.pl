@@ -61,7 +61,17 @@ bank_account_names(S_Transactions, Names) :-
 	sort(Names0, Names).
 
 ensure_bank_account_exists(Accounts_In, Name, Account) :-
-	ensure_account_exists(Accounts_In, 'Cash_And_Cash_Equivalents', 0, ('Cash_And_Cash_Equivalents'/Name), Account).
+	ensure_account_exists(Accounts_In, 'Banks', 1, ('Banks'/Name), Account).
+
+bank_accounts(Accounts, Bank_Accounts) :-
+	findall(
+		Account,
+		(
+			Bank_Account_Role = ('Banks'/_Bank_Account_Name),
+			account_by_role(Accounts, Bank_Account_Role, Account)
+		),
+		Bank_Accounts
+	).
 	
 /*
 given all s_transactions, produce all bank accounts we need to add.
@@ -214,12 +224,3 @@ free_id(Accounts, Id, Free_Id) :-
 	;
 		Free_Id = Id.
 
-bank_accounts(Accounts, Bank_Accounts) :-
-	findall(
-		Account,
-		(
-			Bank_Account_Role = ('Cash_And_Cash_Equivalents'/_Bank_Account_Name),
-			account_by_role(Accounts, Bank_Account_Role, Account)
-		),
-		Bank_Accounts
-	).

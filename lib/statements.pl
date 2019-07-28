@@ -272,7 +272,7 @@ sold_goods_vector_with_cost(Goods_Cost_Value, Goods_With_Cost_Vector) :-
 				
 affect_bank_account(Static_Data, Bank_Account_Name, Bank_Account_Currency, Transaction_Day, Vector_Ours, Description, [Ts0, Ts3]) :-
 	Static_Data = (Accounts, Report_Currency, _, _, Exchange_Rates),
-	Bank_Account_Role = ('Cash_And_Cash_Equivalents'/Bank_Account_Name),
+	Bank_Account_Role = ('Banks'/Bank_Account_Name),
 	account_by_role(Accounts, Bank_Account_Role, Bank_Account_Id),
 	/* record the change on our bank account */
 	make_transaction(Bank_Account_Id, Transaction_Day, Description, Vector_Ours, Ts0),
@@ -364,7 +364,7 @@ s_transaction_type_of(Transaction_Types, S_Transaction, Transaction_Type) :-
 check_that_s_transaction_account_exists(S_Transaction, Accounts) :-
 	s_transaction_account_id(S_Transaction, Account_Name),
 	(
-		account_by_role(Accounts, ('Cash_And_Cash_Equivalents'/Account_Name), _) 
+		account_by_role(Accounts, ('Banks'/Account_Name), _) 
 		->
 			true
 		;

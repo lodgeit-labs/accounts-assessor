@@ -15,6 +15,8 @@
 		get_indentation/2,
 		without_nonalphanum_chars/2,
 		floats_close_enough/2,
+		replace_chars_in_atom/4,
+		filter_out_chars_from_atom/3,
 		coord_is_almost_zero/1]).
 
 		
@@ -335,8 +337,34 @@ replace_nonalphanum_char_with_underscore(Char1, Char2) :-
 	Char1 = Char2
 		;
 	Char2 = '_'.
+
+
+:- meta_predicate replace_chars_in_atom(1, +, +, -).
+
+replace_chars_in_atom(Predicate, Replacement, Atom_In, Atom_Out) :-
+	atom_chars(Atom_In, Atom1_Chars),
+	maplist(replace_char_if(Predicate, Replacement), Atom1_Chars, Atom2_Chars),
+	atom_chars(Atom_Out, Atom2_Chars).
+
+replace_char_if(Predicate, Replacement, Char_In, Char_Out) :-
+	call(Predicate, Char_In) -> Char_Out = Char_In ; Char_Out = Replacement.
+
+not_alnum(Char) :-
+	char_type(Char, alnum).
+
+:- meta_predicate filter_out_chars_from_atom(1, +, -).
+
+filter_out_chars_from_atom(Predicate, Atom_In, Atom_Out) :-
+	atom_chars(Atom_In, Atom1_Chars),
+	findall(
+		[Char],
+		member(Char, Atom1_Chars),
+		Char_Lists),
+	maplist(atom_chars, Atom1_Char_Atoms, Char_Lists),
+	exclude(Predicate, Atom1_Char_Atoms, Atom2_Char_Atoms),
+	atomic_list_concat(Atom2_Char_Atoms, Atom_Out).
 	
-	
+
 	
 % define the value to compare expected float value with the actual float value
 % we need this value as float operations generate different values after certain precision in different machines

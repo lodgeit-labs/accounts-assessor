@@ -20,6 +20,7 @@
 		account_by_role/3,
 		account_role_by_id/3,
 		account_exists/2,
+		account_detail_level/3,
 		account_normal_side/3]).
 :- use_module('pacioli', [
 		vec_add/3, 
@@ -37,6 +38,7 @@
 		add_days/3]).
 :- use_module('utils', [
 		get_indentation/2,
+		filter_out_chars_from_atom/3,
 		pretty_term_string/2]).
 
 % -------------------------------------------------------------------
@@ -201,30 +203,42 @@ bs_and_pl_entries(Accounts, Report_Currency, Context, Balance_Sheet_Entries, Pro
 
 format_report_entries(_, _, _, _, [], Used_Units, Used_Units, Lines, Lines).
 
-format_report_entries(Accounts, Level, Report_Currency, Context, Entries, Used_Units_In, Used_Units_Out, Lines_In, LinesOut) :-
+format_report_entries(Accounts, Indent_Level, Report_Currency, Context, Entries, Used_Units_In, Used_Units_Out, Lines_In, Lines_Out) :-
 	[entry(Name, Balances, Children, Transactions_Count)|EntriesTail] = Entries,
-	account_normal_side(Accounts, Name, Normal_Side),
 	(
-		(Balances = [],(Transactions_Count \= 0; Level = 0))
+		account_detail_level(Accounts, Name, 1)
 	->
-		format_balance(Level, Report_Currency, Context, Name, Normal_Side, [],
-			Used_Units_In, UsedUnitsIntermediate, Lines_In, LinesIntermediate)
+		(
+			Used_Units_In = Used_Units_Out, 
+			Lines_In = Lines_Out
+		)
 	;
-		format_balances(Level, Report_Currency, Context, Name, Normal_Side, Balances, 
-			Used_Units_In, UsedUnitsIntermediate, Lines_In, LinesIntermediate)
+		(
+			account_normal_side(Accounts, Name, Normal_Side),
+			(
+				(Balances = [],(Transactions_Count \= 0; Indent_Level = 0))
+			->
+				format_balance(Indent_Level, Report_Currency, Context, Name, Normal_Side, [],
+					Used_Units_In, UsedUnitsIntermediate, Lines_In, LinesIntermediate)
+			;
+				format_balances(Indent_Level, Report_Currency, Context, Name, Normal_Side, Balances, 
+					Used_Units_In, UsedUnitsIntermediate, Lines_In, LinesIntermediate)
+			),
+			Level_New is Indent_Level + 1,
+			format_report_entries(Accounts, Level_New, Report_Currency, Context, Children, UsedUnitsIntermediate, UsedUnitsIntermediate2, LinesIntermediate, LinesIntermediate2),
+			format_report_entries(Accounts, Indent_Level, Report_Currency, Context, EntriesTail, UsedUnitsIntermediate2, Used_Units_Out, LinesIntermediate2, Lines_Out)
+		)
 	),
-	Level_New is Level + 1,
-	format_report_entries(Accounts, Level_New, Report_Currency, Context, Children, UsedUnitsIntermediate, UsedUnitsIntermediate2, LinesIntermediate, LinesIntermediate2),
-	format_report_entries(Accounts, Level, Report_Currency, Context, EntriesTail, UsedUnitsIntermediate2, Used_Units_Out, LinesIntermediate2, LinesOut),
 	!.
+			
 
 format_balances(_, _, _, _, _, [], Used_Units, Used_Units, Lines, Lines).
 
-format_balances(Level, Report_Currency, Context, Name, Normal_Side, [Balance|Balances], Used_Units_In, Used_Units_Out, Lines_In, LinesOut) :-
-   format_balance(Level, Report_Currency, Context, Name, Normal_Side, [Balance], Used_Units_In, UsedUnitsIntermediate, Lines_In, LinesIntermediate),
-   format_balances(Level, Report_Currency, Context, Name, Normal_Side, Balances, UsedUnitsIntermediate, Used_Units_Out, LinesIntermediate, LinesOut).
+format_balances(Indent_Level, Report_Currency, Context, Name, Normal_Side, [Balance|Balances], Used_Units_In, Used_Units_Out, Lines_In, Lines_Out) :-
+   format_balance(Indent_Level, Report_Currency, Context, Name, Normal_Side, [Balance], Used_Units_In, UsedUnitsIntermediate, Lines_In, LinesIntermediate),
+   format_balances(Indent_Level, Report_Currency, Context, Name, Normal_Side, Balances, UsedUnitsIntermediate, Used_Units_Out, LinesIntermediate, Lines_Out).
 
-format_balance(Level, Report_Currency_List, Context, Name, Normal_Side, [], Used_Units_In, Used_Units_Out, Lines_In, Lines_Out) :-
+format_balance(Indent_Level, Report_Currency_List, Context, Name, Normal_Side, [], Used_Units_In, Used_Units_Out, Lines_In, Lines_Out) :-
 	(
 		[Report_Currency] = Report_Currency_List
 	->
@@ -232,9 +246,9 @@ format_balance(Level, Report_Currency_List, Context, Name, Normal_Side, [], Used
 	;
 		Report_Currency = 'AUD' % just for displaying zero balance
 	),
-	format_balance(Level, _, Context, Name, Normal_Side, [coord(Report_Currency, 0, 0)], Used_Units_In, Used_Units_Out, Lines_In, Lines_Out).
+	format_balance(Indent_Level, _, Context, Name, Normal_Side, [coord(Report_Currency, 0, 0)], Used_Units_In, Used_Units_Out, Lines_In, Lines_Out).
    
-format_balance(Level, _, Context, Name, Normal_Side, [coord(Unit, Debit, Credit)], Used_Units_In, Used_Units_Out, Lines_In, LinesOut) :-
+format_balance(Indent_Level, _, Context, Name, Normal_Side, [coord(Unit, Debit, Credit)], Used_Units_In, Used_Units_Out, Lines_In, Lines_Out) :-
 	union([Unit], Used_Units_In, Used_Units_Out),
 	(
 		Normal_Side = credit
@@ -243,6 +257,9 @@ format_balance(Level, _, Context, Name, Normal_Side, [coord(Unit, Debit, Credit)
 	;
 		Balance is (Debit - Credit)
 	),
-	get_indentation(Level, Indentation),
-	format(string(BalanceSheetLine), '~w<basic:~w contextRef="~w" unitRef="U-~w" decimals="INF">~2:f</basic:~w>\n', [Indentation, Name, Context, Unit, Balance, Name]),
-	append(Lines_In, [BalanceSheetLine], LinesOut).
+	get_indentation(Indent_Level, Indentation),
+	filter_out_chars_from_atom(is_underscore, Name, Name2),
+	format(string(Line), '~w<basic:~w contextRef="~w" unitRef="U-~w" decimals="INF">~2:f</basic:~w>\n', [Indentation, Name2, Context, Unit, Balance, Name2]),
+	append(Lines_In, [Line], Lines_Out).
+
+is_underscore('_').

@@ -81,7 +81,7 @@ preprocess_livestock_buy_or_sell(Static_Data, S_Transaction, [Bank_Transaction, 
 	% produce a livestock count increase/decrease transaction
 	Livestock_Transaction = transaction(Day, Description, Count_Account, [Livestock_Coord]),
 	% produce the bank account transaction
-	Bank_Account_Role = ('Cash_And_Cash_Equivalents'/Bank_Name),
+	Bank_Account_Role = ('Banks'/Bank_Name),
 	account_by_role(Accounts, Bank_Account_Role, Bank_Account_Id),
 	Bank_Transaction = transaction(Day, Description, Bank_Account_Id, Our_Vector).
 
