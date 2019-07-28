@@ -202,6 +202,7 @@ output_results(S_Transactions, Transactions, Start_Date, End_Date, Exchange_Rate
 	Report_Currency, Transaction_Types]),
 
 	print_banks(Static_Data, Instant_Context_Id_Base, Entity_Identifier, Results0, Results1),
+	gtrace,
 	print_forex(Static_Data, Duration_Context_Id_Base, Entity_Identifier, Results1, Results2),
 	Results2 = (Contexts3, Units3, Dimensions_Lines),
 
