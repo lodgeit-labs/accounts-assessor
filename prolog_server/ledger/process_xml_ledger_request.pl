@@ -194,7 +194,7 @@ output_results(S_Transactions, Transactions, Start_Date, End_Date, Exchange_Rate
 	assertion(ground((Balance_Sheet2, ProftAndLoss2, Trial_Balance2))),
 	format_report_entries(Accounts, 0, Report_Currency, Instant_Context_Id_Base,  Balance_Sheet2, [],     Units0, [], Bs_Lines),
 	format_report_entries(Accounts, 0, Report_Currency, Duration_Context_Id_Base, ProftAndLoss2,  Units0, Units1, [], Pl_Lines),
-	format_report_entries(Accounts, 0, Report_Currency, 'TB',  Trial_Balance2, Units1, Units2, [], Tb_Lines),
+	format_report_entries(Accounts, 0, Report_Currency, Instant_Context_Id_Base,  Trial_Balance2, Units1, Units2, [], Tb_Lines),
 	investment_report(
 		(Exchange_Rates2, Accounts, Transactions, Report_Currency, End_Date), 
 		Transaction_Types, Investment_Report_Lines),
