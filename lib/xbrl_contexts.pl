@@ -14,42 +14,42 @@ print_contexts(Contexts) :-
 	maplist(print_context, Contexts).
 
 print_context(context(Id, Period, Entity)) :-
-	write('<context id="'), write(Id), writeln('">'),
+	write('<xbrli:context id="'), write(Id), writeln('">'),
 	print_period(Period),
 	print_entity(Entity),
-	writeln('</context>').
+	writeln('</xbrli:context>').
 
 print_period((Start, End)) :-
 	format_date(Start, Start_Str),
 	format_date(End, End_Str),
-	writeln('\t<period>'),
-	write('\t\t<startDate>'), write(Start_Str),	writeln('</startDate>'),
-	write('\t\t<endDate>'), write(End_Str),	writeln('</endDate>'),
-	writeln('\t</period>').
+	writeln('\t<xbrli:period>'),
+	write('\t\t<xbrli:startDate>'), write(Start_Str),	writeln('</xbrli:startDate>'),
+	write('\t\t<xbrli:endDate>'), write(End_Str),	writeln('</xbrli:endDate>'),
+	writeln('\t</xbrli:period>').
 
 print_period(Date) :-
 	format_date(Date, Date_Str),
-	writeln('\t<period>'),
-	write('\t\t<instant>'), 
+	writeln('\t<xbrli:period>'),
+	write('\t\t<xbrli:instant>'), 
 	write(Date_Str),
-	writeln('</instant>'),
-	writeln('\t</period>').
+	writeln('</xbrli:instant>'),
+	writeln('\t</xbrli:period>').
 	
 print_entity(entity(Identifier, Segment)) :-
-    writeln('\t<entity>'),
+    writeln('\t<xbrli:entity>'),
     write('\t\t'),
     writeln(Identifier),
     print_segment(Segment),
-    writeln('\t</entity>').
+    writeln('\t</xbrli:entity>').
     
 print_segment('').
 
 print_segment(segment([dimension_value(dimension_reference(Id, Element_Name), Value)])) :-
-	writeln('\t\t<segment>'),
+	writeln('\t\t<xbrli:segment>'),
 	write('\t\t\t<xbrldi:typedMember dimension="'), write(Id), writeln('">'),
     write('\t\t\t<'), write(Element_Name), write('>'), write(Value), write('</'), write(Element_Name), writeln('>'), 
 	writeln('\t\t\t</xbrldi:typedMember>'),
-	writeln('\t\t</segment>').
+	writeln('\t\t</xbrli:segment>').
 
 
 
