@@ -62,6 +62,7 @@
 		request_tmp_dir/1,
 		server_public_url/1]).
 :- use_module('../../lib/system_accounts', [
+		trading_account_ids/2,
 		bank_accounts/2]).
 
 % ------------------------------------------------------------------
@@ -144,29 +145,30 @@ print_forex(Static_Data, Context_Id_Base, Entity_Identifier, In, Out) :-
 	Context_Info = context_arg0(Context_Id_Base, Context_Template, duration, 'Currency_Movement', 'basic:Dimension_BankAccounts', 'basic:BankAccount'),
 	print_detail_accounts(Static_Data, Context_Info, Movement_Accounts, In, Out).
 
+trading_sub_account(Sd, (Movement_Account, Unit_Accounts)) :-
+	trading_account_ids(Sd.transaction_types, Trading_Accounts),
+	member(Trading_Account, Trading_Accounts),
+	account_by_role(Sd.accounts, (Trading_Account/_), Gains_Account),
+	account_by_role(Sd.accounts, (Gains_Account/_), Movement_Account),
+	child_accounts(Sd.accounts, Movement_Account, Unit_Accounts).
+	
 print_trading(Sd, In, Out) :-
 	findall(
-		(Sub_Account, Unit_Accounts),
-		(
-			trading_account_ids(Sd.transaction_types, Trading_Accounts),
-			member(Trading_Account, Trading_Accounts),
-			sub_accounts_upto_level(Sd.accounts, Trading_Account, 2, Sub_Accounts),
-			member(Sub_Account, Sub_Accounts),
-			child_accounts(Sd.accounts, Sub_Account, Unit_Accounts)
-		),
+		Pair,
+		trading_sub_account(Sd, Pair),
 		Pairs
 	),
 	print_trading2(Sd, Pairs, In, Out).
 		
 /* for a list of (Sub_Account, Unit_Accounts) pairs..*/
 print_trading2(Static_Data, [(Sub_Account,Unit_Accounts)|Tail], In, Out):-
-	dict_vars(Static_Data, [Start_Date, End_Date, Entity_Identifier, Context_Id_Base]),
+	dict_vars(Static_Data, [Start_Date, End_Date, Entity_Identifier, Duration_Context_Id_Base]),
 	Context_Template = context(_, (Start_Date, End_Date), entity(Entity_Identifier, _)),
-	Context_Info = context_arg0(Context_Id_Base, Context_Template, duration, Sub_Account, 'basic:Dimension_Investments', 'basic:Investment'),
+	Context_Info = context_arg0(Duration_Context_Id_Base, Context_Template, duration, Sub_Account, 'basic:Dimension_Investments', 'basic:Investment'),
 	print_detail_accounts(Static_Data, Context_Info, Unit_Accounts, In, Mid),
-	print_trading(Static_Data, Tail, Mid, Out).
+	print_trading2(Static_Data, Tail, Mid, Out).
 	
-print_trading(_,[],Results,Results).
+print_trading2(_,[],Results,Results).
 
 
 output_results(S_Transactions, Transactions, Start_Date, End_Date, Exchange_Rates, Accounts, Report_Currency, Transaction_Types) :-
@@ -198,17 +200,19 @@ output_results(S_Transactions, Transactions, Start_Date, End_Date, Exchange_Rate
 		Transaction_Types, Investment_Report_Lines),
 	
 	Results0 = (Base_Contexts, Units2, []),
-	dict_from_vars(Static_Data, [Start_Date, End_Date, Exchange_Rates, Accounts, Transactions, 
-	Report_Currency, Transaction_Types]),
+	dict_from_vars(Static_Data, 
+		[Start_Date, End_Date, Exchange_Rates, Accounts, Transactions, Report_Currency, Transaction_Types, Entity_Identifier, Duration_Context_Id_Base]
+	),
 
 	print_banks(Static_Data, Instant_Context_Id_Base, Entity_Identifier, Results0, Results1),
-	gtrace,
 	print_forex(Static_Data, Duration_Context_Id_Base, Entity_Identifier, Results1, Results2),
-	Results2 = (Contexts3, Units3, Dimensions_Lines),
+	print_trading(Static_Data, Results2, Results3),
+	Results3 = (Contexts3, Units3, Dimensions_Lines),
 
-	print_contexts(Contexts3), nl,
-	maplist(write_used_unit, Units3), nl,
-	maplist(writeln, Dimensions_Lines),
+	maplist(write_used_unit, Units3), nl, nl,
+	print_contexts(Contexts3), nl, nl,
+	writeln('<!-- dimensional facts: -->'),
+	maplist(write, Dimensions_Lines),
 	
 	flatten([
 		'\n<!-- balance sheet: -->\n', Bs_Lines, 

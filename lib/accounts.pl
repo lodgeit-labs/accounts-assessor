@@ -189,13 +189,21 @@ sub_accounts_upto_level(Accounts, Parent, Level, Sub_Accounts) :-
 	sub_accounts_upto_level2(Accounts, [Parent], Level, [], Sub_Accounts).
 
 sub_accounts_upto_level2(Accounts, [Parent|Parents], Level, In, Out) :-
-	Level > 0,
-	New_Level is Level - 1,
-	account_direct_children(Accounts, Parent, Children),
-	append(In, Children, Mid),
-	sub_accounts_upto_level2(Accounts, Children, New_Level, Mid, Mid2),
-	sub_accounts_upto_level2(Accounts, Parents, Level, Mid2, Out).
+	(
+		Level > 0
+	->
+		(
+			New_Level is Level - 1,
+			account_direct_children(Accounts, Parent, Children),
+			append(In, Children, Mid),
+			sub_accounts_upto_level2(Accounts, Children, New_Level, Mid, Mid2),
+			sub_accounts_upto_level2(Accounts, Parents, Level, Mid2, Out)
+		)
+	;
+		In = Out
+	).
 	
+sub_accounts_upto_level2(_, [], _, Results, Results).
 
 child_accounts(Accounts, Parent_Account, Child_Accounts) :-
 	sub_accounts_upto_level(Accounts, Parent_Account, 1, Child_Accounts).

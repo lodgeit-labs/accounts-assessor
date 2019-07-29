@@ -10,6 +10,7 @@
 		trial_balance_between/8, 
 		profitandloss_between/8, 
 		format_report_entries/9, 
+		format_report_entries/10, 
 		bs_and_pl_entries/8,
 		format_balances/10,
 		net_activity_by_account/10]).
@@ -201,12 +202,16 @@ bs_and_pl_entries(Accounts, Report_Currency, Context, Balance_Sheet_Entries, Pro
 	format_report_entries(Accounts, 0, Report_Currency, Context, Balance_Sheet_Entries, [], Used_Units, [], Lines3),
 	format_report_entries(Accounts, 0, Report_Currency, Context, ProftAndLoss_Entries, Used_Units, Used_Units_Out, [], Lines2).
 
-format_report_entries(_, _, _, _, [], Used_Units, Used_Units, Lines, Lines).
-
+/* omitting Max_Detail_Level defaults it to 0 */
 format_report_entries(Accounts, Indent_Level, Report_Currency, Context, Entries, Used_Units_In, Used_Units_Out, Lines_In, Lines_Out) :-
+	format_report_entries(0, Accounts, Indent_Level, Report_Currency, Context, Entries, Used_Units_In, Used_Units_Out, Lines_In, Lines_Out).
+	
+format_report_entries(_, _, _, _, _, [], Used_Units, Used_Units, Lines, Lines).
+
+format_report_entries(Max_Detail_Level, Accounts, Indent_Level, Report_Currency, Context, Entries, Used_Units_In, Used_Units_Out, Lines_In, Lines_Out) :-
 	[entry(Name, Balances, Children, Transactions_Count)|EntriesTail] = Entries,
 	(
-		account_detail_level(Accounts, Name, 1)
+		(account_detail_level(Accounts, Name, Detail_Level), Detail_Level > Max_Detail_Level)
 	->
 		(
 			Used_Units_In = Used_Units_Out, 
@@ -225,8 +230,8 @@ format_report_entries(Accounts, Indent_Level, Report_Currency, Context, Entries,
 					Used_Units_In, UsedUnitsIntermediate, Lines_In, LinesIntermediate)
 			),
 			Level_New is Indent_Level + 1,
-			format_report_entries(Accounts, Level_New, Report_Currency, Context, Children, UsedUnitsIntermediate, UsedUnitsIntermediate2, LinesIntermediate, LinesIntermediate2),
-			format_report_entries(Accounts, Indent_Level, Report_Currency, Context, EntriesTail, UsedUnitsIntermediate2, Used_Units_Out, LinesIntermediate2, Lines_Out)
+			format_report_entries(Max_Detail_Level, Accounts, Level_New, Report_Currency, Context, Children, UsedUnitsIntermediate, UsedUnitsIntermediate2, LinesIntermediate, LinesIntermediate2),
+			format_report_entries(Max_Detail_Level, Accounts, Indent_Level, Report_Currency, Context, EntriesTail, UsedUnitsIntermediate2, Used_Units_Out, LinesIntermediate2, Lines_Out)
 		)
 	),
 	!.
