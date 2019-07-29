@@ -52,10 +52,27 @@
 % Hence the information derived by this program will ultimately be compared to values
 % calculated by other means.
 
+/*
+data types we use here:
 
-% Relates Day to the balance at that time of the given account. 
-balance_until_day(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Account_Id, Day, Balance_Transformed, Transactions_Count) :-
-	transactions_before_day_on_account_and_subaccounts(Accounts, Transactions, Account_Id, Day, Filtered_Transactions),
+Exchange_Rates: list of exchange_rate terms
+
+Accounts: list of account terms
+
+Transactions: list of transaction terms, output of preprocess_s_transactions
+
+Bases, interchangeably also called Report_Currency. This is a list such as ['AUD']. When no report currency is specified, this list is empty. A report can only be requested for one currency, so multiple items are not possible. A report request without a currency means no conversions will take place, which is useful for debugging.
+
+Exchange_Day: the day for which to find exchange_rate's to use. Always report end date?
+
+Account_Id: the id/name of the account that the balance is computed for. Sub-accounts are found by lookup into Accounts.
+
+Balance: a list of coord's
+*/
+
+% Relates Date to the balance at that time of the given account. 
+balance_until_day(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Account_Id, Date, Balance_Transformed, Transactions_Count) :-
+	transactions_before_day_on_account_and_subaccounts(Accounts, Transactions, Account_Id, Date, Filtered_Transactions),
 	length(Filtered_Transactions, Transactions_Count),
 	transaction_vectors_total(Filtered_Transactions, Balance),
 	vec_change_bases(Exchange_Rates, Exchange_Day, Bases, Balance, Balance_Transformed).
