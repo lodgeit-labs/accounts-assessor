@@ -216,4 +216,12 @@ Produced on 2019-07-26 10:57:16
       <restriction base="string"/>
     </simpleType>
   </element>
+
+  <element id="basic_Dimension_Investments_Duration" name="Dimension_Investments_Duration" substitutionGroup="xbrldt:dimensionItem" xbrli:periodType="duration" abstract="true" xbrldt:typedDomainRef="#basic_Dimension_Investments_Duration_DomainDeclaration"/>
+  <element id="basic_Dimension_Investments_Duration_DomainDeclaration" name="Investment_Duration">
+    <simpleType>
+      <restriction base="string"/>
+    </simpleType>
+  </element>
+
 </schema>
