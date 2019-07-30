@@ -1,5 +1,0 @@
-<tag attr1="attr1_val" attr2="attr2_val">
-	<child childattr="childattr_val">A</child>
-	<child childattr="childattr_val2">B</child>
-	<sibling>50.15</sibling>
-</tag>
