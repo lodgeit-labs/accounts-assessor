@@ -435,7 +435,7 @@ crosscheck_totals(Results, Report_Date) :-
 		Accounts0, 
 		Accounts1, 
 		Transactions
-	),
+	)
    	Info = (Exchange_Rates, Accounts1, Transactions, Report_Date, report_currency),
 	account_by_role(Accounts1, 'Investment_Income'/unrealized, Unrealized_Gain_Account),
 	account_by_role(Accounts1, 'Investment_Income'/realized, Realized_Gain_Account),
@@ -447,7 +447,9 @@ crosscheck_totals(Results, Report_Date) :-
 	account_assertion(Info, Realized_Gains_Currency_Movement_Account, -Realized_Currency_Gain_Total),
 	account_assertion(Info, Unrealized_Gains_Excluding_Forex_Account, -Unrealized_Market_Gain_Total),
 	account_assertion(Info, Unrealized_Gains_Currency_Movement_Account, -Unrealized_Currency_Gain_Total),
-	
+	% account_assertion( Financial investments matches unrealized gains )
+	% account_assertion( Bank account matches Realized gains )	
+
 	profitandloss_between(Exchange_Rates, Accounts1, Transactions, [report_currency], Report_Date, date(2000,1,1), Report_Date, ProftAndLoss),
 	format_report_entries(Accounts1, 0, [report_currency], Report_Date, ProftAndLoss, [], _, [], ProftAndLoss_Lines),
 	writeln('<!--'),
