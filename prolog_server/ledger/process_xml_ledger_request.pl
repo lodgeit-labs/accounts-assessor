@@ -71,16 +71,21 @@
 % ------------------------------------------------------------------
 
 process_xml_ledger_request(_, Dom) :-
+	/*
+		first let's extract data from the request
+	*/
 	extract_default_currency(Dom, Default_Currency),
 	extract_report_currency(Dom, Report_Currency),
 	extract_action_taxonomy(Dom, Transaction_Types),
-	extract_account_hierarchy(Dom, Account_Hierarchy0),
+	extract_account_hierarchy(Dom, Accounts0),
 
 	inner_xml(Dom, //reports/balanceSheetRequest/startDate, [Start_Date_Atom]),
 	parse_date(Start_Date_Atom, Start_Date),
 	inner_xml(Dom, //reports/balanceSheetRequest/endDate, [End_Date_Atom]),
 	parse_date(End_Date_Atom, End_Date),
-
+	/*
+		this does look like a ledger request, so we print the xml header, and after that, we can print random xml comments.
+	*/
 	writeln('<?xml version="1.0"?>'), nl, nl,
 	
 	extract_exchange_rates(Dom, End_Date_Atom, Default_Currency, Exchange_Rates),
@@ -91,7 +96,13 @@ process_xml_ledger_request(_, Dom) :-
 	maplist(invert_s_transaction_vector, S_Transactions0, S_Transactions0b),
 	sort_s_transactions(S_Transactions0b, S_Transactions),
 	
-	process_ledger(Livestock_Doms, S_Transactions, Start_Date, End_Date, Exchange_Rates, Transaction_Types, Report_Currency, Livestock_Types, Livestock_Opening_Costs_And_Counts, Account_Hierarchy0, Accounts, Transactions),
+	/*
+		process_ledger turns s_transactions into transactions
+	*/
+	process_ledger(Livestock_Doms, S_Transactions, Start_Date, End_Date, Exchange_Rates, Transaction_Types, Report_Currency, Livestock_Types, Livestock_Opening_Costs_And_Counts, Accounts0, Accounts, Transactions),
+	/*
+		we will sum up the coords of all transactions for each account and apply unit conversions
+	*/
 	output_results(S_Transactions, Transactions, Start_Date, End_Date, Exchange_Rates, Accounts, Report_Currency, Transaction_Types).
 
 output_results(S_Transactions, Transactions, Start_Date, End_Date, Exchange_Rates, Accounts, Report_Currency, Transaction_Types) :-
