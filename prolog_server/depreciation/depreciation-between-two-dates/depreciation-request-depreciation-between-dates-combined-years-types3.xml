@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <reports xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
 
-	<depreciation_request_written_down_value>
+	<depreciation_request_depreciation_between_two_dates>
 
 		<types>
 			<!-- this type hierarchy should be used to look up a depreciation rate from <rates>, 
@@ -13,6 +13,14 @@
 				<name>corolla</name>
 				<parent>toyota</parent>
 			</type>
+			<type>
+				<name>toyota</name>
+				<parent>cars</parent>
+			</type>
+			<type>
+				<name>cars</name>
+				<parent>motor_vehicles</parent>
+			</type>
 		</types>
 		
 		<rates>
@@ -23,9 +31,13 @@
 			</depreciation_rate>
 			<depreciation_rate>
 				<asset>motor_vehicles</asset>
-				<!-- all years -->
 				<year>2</year>
-				<value>0.2</value>
+				<value>0.15</value>
+			</depreciation_rate>
+			<depreciation_rate>
+				<asset>real_estate</asset>
+				<!-- all years -->				
+				<value>0.1</value>
 			</depreciation_rate>
 		</rates>
 		
@@ -38,6 +50,6 @@
 		<request_date>2021-01-02</request_date>
 		<method>diminishing_value</method>
 
-	</depreciation_request_written_down_value>
+	</depreciation_request_depreciation_between_two_dates>
 	
 </reports>

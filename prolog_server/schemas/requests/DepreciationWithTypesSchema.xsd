@@ -4,6 +4,8 @@
 
 	<xs:element name="depreciation_request_written_down_value" type="DepreciationRequest"/>
 	
+	<xs:element name="depreciation_request_depreciation_between_two_dates" type="DepreciationRequest"/>
+	
 	<xs:complexType name="DepreciationRequest">
 		<xs:sequence>
 			<xs:element minOccurs="0" maxOccurs="1" name="types" type="DepreciationTypesHierarchy"/>
@@ -46,7 +48,7 @@
 	<xs:complexType name="CostData">
 		<xs:sequence>
 			<xs:element minOccurs="0" maxOccurs="1" name="unit" type="xs:string"/>
-			<xs:element minOccurs="0" maxOccurs="1" name="value" type="xs:integer"/>				
+			<xs:element minOccurs="0" maxOccurs="1" name="value" type="xs:decimal"/>				
 		</xs:sequence>
 	</xs:complexType>
 	
