@@ -7,7 +7,7 @@
 :- module(statements, [
 		extract_transaction/3, 
 		preprocess_s_transactions/4,
-		print_relevant_exchange_rates/4,
+		print_relevant_exchange_rates_comment/4,
 		invert_s_transaction_vector/2, 
 		fill_in_missing_units/6,
 		s_transaction_day/2,
@@ -86,14 +86,17 @@
 % depending on whether the term is of the form bases(...) or vector(...).
 
 /*
-at this point:
-s_transactions have to be sorted by date from oldest to newest 
-s_transactions have flipped vectors, so they are from our perspective
+	at this point:
+	s_transactions have to be sorted by date from oldest to newest 
+	s_transactions have flipped vectors, so they are from our perspective
 */
 preprocess_s_transactions(Static_Data, S_Transactions, Transactions_Out, Debug_Info) :-
 	preprocess_s_transactions2(Static_Data, S_Transactions, Transactions0, [], _, Debug_Info, []),
 	flatten(Transactions0, Transactions_Out).
 
+/*
+	call preprocess_s_transaction on each item of the S_Transactions list
+*/
 preprocess_s_transactions2(_, [], [], Outstanding, Outstanding, ["end."], _).
 
 preprocess_s_transactions2(Static_Data, [S_Transaction|S_Transactions], [Transactions_Out|Transactions_Out_Tail], Outstanding_In, Outstanding_Out, [Debug_Head|Debug_Tail], Debug_So_Far) :-
@@ -140,7 +143,9 @@ preprocess_s_transactions2(Static_Data, [S_Transaction|S_Transactions], [Transac
 	append(Debug_So_Far, [Debug_Head], Debug_So_Far2),
 	preprocess_s_transactions2(Static_Data, S_Transactions, Transactions_Out_Tail,  Outstanding_Mid, Outstanding_Out, Debug_Tail, Debug_So_Far2).
 
-	
+% ----------
+% This predicate takes a list of statement transaction terms and decomposes it into a list of plain transaction terms.
+% ----------	
 % This Prolog rule handles the case when only the exchanged units are known (for example GOOG)  and
 % hence it is desired for the program to infer the count. 
 % We passthrough the output list to the above rule, and just replace the first S_Transaction in the 
@@ -162,24 +167,16 @@ preprocess_s_transaction(Static_Data, S_Transaction, Transactions, Outstanding_I
 	s_transaction_exchanged(NS_Transaction, vector(Vector_Exchanged_Inverted)),
 	preprocess_s_transaction(Static_Data, NS_Transaction, Transactions, Outstanding_In, Outstanding_Out).
 
-	
-preprocess_s_transaction(Static_Data, S_Transaction, Transactions, Outstanding, Outstanding) :-
-	/*
+
+/*
 	livestock currenty does it's own thing, using average cost computation and andjustment transactions.
 	This means that it does not handle foreign currency bank accounts as we do here.
-	Tt least the aftecting of bank account should be made handled by preprocess_s_transaction.
-	the livestock code is in need of cleanup, we will probably do that as part of implementing inventory or other pricing methods.
-	*/
+	At least the aftecting of bank account should be changed to be handled by preprocess_s_transaction,
+	but the livestock logic is in need of a serious cleanup, we will probably do that as part of implementing inventory or other pricing methods.
+*/
+preprocess_s_transaction(Static_Data, S_Transaction, Transactions, Outstanding, Outstanding) :-
 	preprocess_livestock_buy_or_sell(Static_Data, S_Transaction, Transactions).
 
-/*	
-Transactions using trading accounts can be decomposed into:
-	a transaction of the given amount to the unexchanged account (your bank account)
-	a transaction of the transformed inverse into the exchanged account (your shares investments account)
-	and a transaction of the negative sum of these into the trading cccount. 
-	This predicate takes a list of statement transaction terms and decomposes it into a list of plain transaction terms.
-	"Goods" is not a general enough word, but it avoids confusion with other terms used.
-*/	
 
 preprocess_s_transaction(Static_Data, S_Transaction, [Ts1, Ts2, Ts3, Ts4], Outstanding_In, Outstanding_Out) :-
 
@@ -219,6 +216,11 @@ preprocess_s_transaction(Static_Data, S_Transaction, [Ts1, Ts2, Ts3, Ts4], Outst
 		)
 	).
 
+/*
+	purchased shares are recorded in an assets account without conversion. The unit is wrapped in a with_cost_per_unit
+	term.
+	Separately from that, we also change Outstanding with each buy or sell.
+*/
 make_buy(Static_Data, Trading_Account_Id, Pricing_Method, Bank_Account_Currency, Goods_Vector, 
 	Converted_Vector_Ours, 
 	Exchanged_Account, Transaction_Day, Description, 
@@ -257,9 +259,11 @@ make_sell(Static_Data, Trading_Account_Id, Pricing_Method, _Bank_Account_Currenc
 		)
 	).
 
-/* when we bought something, we debited some assets account with the result of 
+/*
+	when we bought something, we debited some assets account with the result of 
 	purchased_goods_vector_with_cost(Goods_Vector0, Converted_Vector_Ours, Goods_With_Cost_Vector)
-now we need to credit that account with a coord(with_cost_per_unit(..), with the same unit costs*/
+	now we need to credit that account with a coord(with_cost_per_unit(..), with the same unit costs
+*/
 sold_goods_vector_with_cost(Goods_Cost_Value, Goods_With_Cost_Vector) :-
 	Goods_Cost_Value = outstanding(_Bank_Account_Currency, Goods_Unit, Goods_Count, Total_Cost_Value, _),
 	value_divide(Total_Cost_Value, Goods_Count, Unit_Cost_Value),
@@ -269,7 +273,13 @@ sold_goods_vector_with_cost(Goods_Cost_Value, Goods_With_Cost_Vector) :-
 		Goods_Count
 	)].
 	
-				
+/*	
+	Transactions using currency trading accounts can be decomposed into:
+	a transaction of the given amount to the unexchanged account (your bank account)
+	a transaction of the transformed inverse into the exchanged account (your shares investments account)
+	and a transaction of the negative sum of these into the trading cccount. 
+	this "currency trading account" is not to be confused with a shares trading account.
+*/
 affect_bank_account(Static_Data, Bank_Account_Name, Bank_Account_Currency, Transaction_Day, Vector_Ours, Description, [Ts0, Ts3]) :-
 	Static_Data = (Accounts, Report_Currency, _, _, Exchange_Rates),
 	Bank_Account_Role = ('Banks'/Bank_Account_Name),
@@ -466,9 +476,9 @@ extract_exchanged_value(Tx_Dom, _Account_Currency, Bank_Debit, Bank_Credit, Exch
 /*
 fixme, this get also some irrelevant ones
 */
-print_relevant_exchange_rates([], _, _, _).
+print_relevant_exchange_rates_comment([], _, _, _).
 
-print_relevant_exchange_rates([Report_Currency], Report_End_Day, Exchange_Rates, Transactions) :-
+print_relevant_exchange_rates_comment([Report_Currency], Report_End_Day, Exchange_Rates, Transactions) :-
 	findall(
 		Exchange_Rates2,
 		(

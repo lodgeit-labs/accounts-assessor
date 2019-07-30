@@ -59,9 +59,12 @@ gains_accounts(
 
 
 /*
-txs are dicts with most of informations needed to create a transaction.
-we will produce them from a simple table:
-% Account                                                                 DR                                                               CR
+	txs are dicts with most of informations needed to create a transaction.
+	we will produce them from a simple table:
+	Account         DR           CR
+	...             ...          ...
+	the vectors or coords in the table will be coerced to the given side, debit or credit.
+	this may seem error prone, but any issues are yet to be found, and it clarifies the logic.
 */
 			
 unrealized_gains_txs((Accounts, Report_Currency, _, _, _), Trading_Account_Id, Purchase_Currency, Cost_Vector, Goods, Transaction_Day, Txs) :-

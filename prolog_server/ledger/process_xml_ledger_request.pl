@@ -37,7 +37,7 @@
 :- use_module('../../lib/statements', [
 		extract_transaction/3, 
 		preprocess_s_transactions/4, 
-		print_relevant_exchange_rates/4, 
+		print_relevant_exchange_rates_comment/4, 
 		invert_s_transaction_vector/2, 
 		fill_in_missing_units/6,
 		sort_s_transactions/2]).
@@ -64,6 +64,7 @@
 :- use_module('../../lib/system_accounts', [
 		trading_account_ids/2,
 		bank_accounts/2]).
+:- ['../../lib/xbrl_contexts'].
 
 % ------------------------------------------------------------------
 % process_xml_ledger_request/2
@@ -93,12 +94,61 @@ process_xml_ledger_request(_, Dom) :-
 	process_ledger(Livestock_Doms, S_Transactions, Start_Date, End_Date, Exchange_Rates, Transaction_Types, Report_Currency, Livestock_Types, Livestock_Opening_Costs_And_Counts, Account_Hierarchy0, Accounts, Transactions),
 	output_results(S_Transactions, Transactions, Start_Date, End_Date, Exchange_Rates, Accounts, Report_Currency, Transaction_Types).
 
-	
-	
-	
-	
-:- ['../../lib/xbrl_contexts'].
+output_results(S_Transactions, Transactions, Start_Date, End_Date, Exchange_Rates, Accounts, Report_Currency, Transaction_Types) :-
 
+	print_relevant_exchange_rates_comment(Report_Currency, End_Date, Exchange_Rates, Transactions),
+	infer_exchange_rates(Transactions, S_Transactions, Start_Date, End_Date, Accounts, Report_Currency, Exchange_Rates, Exchange_Rates2),
+
+	print_xbrl_header,
+	
+	/* first, let's build up the two non-dimensional contexts */
+	date(Context_Id_Year,_,_) = End_Date,
+	Entity_Identifier = '<identifier scheme="http://www.example.com">TestData</identifier>',
+	context_id_base('I', Context_Id_Year, Instant_Context_Id_Base),
+	context_id_base('D', Context_Id_Year, Duration_Context_Id_Base),
+	Base_Contexts = [
+		context(Instant_Context_Id_Base, End_Date, entity(Entity_Identifier, '')),
+		context(Duration_Context_Id_Base, (Start_Date, End_Date), entity(Entity_Identifier, ''))
+	],
+	
+	trial_balance_between(Exchange_Rates2, Accounts, Transactions, Report_Currency, End_Date, Start_Date, End_Date, Trial_Balance2),
+	balance_sheet_at(Exchange_Rates2, Accounts, Transactions, Report_Currency, End_Date, Start_Date, End_Date, Balance_Sheet2),
+	profitandloss_between(Exchange_Rates2, Accounts, Transactions, Report_Currency, End_Date, Start_Date, End_Date, ProftAndLoss2),
+	assertion(ground((Balance_Sheet2, ProftAndLoss2, Trial_Balance2))),
+	format_report_entries(Accounts, 0, Report_Currency, Instant_Context_Id_Base,  Balance_Sheet2, [],     Units0, [], Bs_Lines),
+	format_report_entries(Accounts, 0, Report_Currency, Duration_Context_Id_Base, ProftAndLoss2,  Units0, Units1, [], Pl_Lines),
+	format_report_entries(Accounts, 0, Report_Currency, Instant_Context_Id_Base,  Trial_Balance2, Units1, Units2, [], Tb_Lines),
+	investment_report(
+		(Exchange_Rates2, Accounts, Transactions, Report_Currency, End_Date), 
+		Transaction_Types, Investment_Report_Lines),
+	
+	Results0 = (Base_Contexts, Units2, []),
+	dict_from_vars(Static_Data, 
+		[Start_Date, End_Date, Exchange_Rates, Accounts, Transactions, Report_Currency, Transaction_Types, Entity_Identifier, Duration_Context_Id_Base]
+	),
+
+	print_banks(Static_Data, Instant_Context_Id_Base, Entity_Identifier, Results0, Results1),
+	print_forex(Static_Data, Duration_Context_Id_Base, Entity_Identifier, Results1, Results2),
+	print_trading(Static_Data, Results2, Results3),
+	Results3 = (Contexts3, Units3, Dimensions_Lines),
+
+	maplist(write_used_unit, Units3), nl, nl,
+	print_contexts(Contexts3), nl, nl,
+	writeln('<!-- dimensional facts: -->'),
+	maplist(write, Dimensions_Lines),
+	
+	flatten([
+		'\n<!-- balance sheet: -->\n', Bs_Lines, 
+		'\n<!-- profit and loss: -->\n', Pl_Lines,
+		'\n<!-- investment report:\n', Investment_Report_Lines, '\n -->\n',
+		'\n<!-- trial balance: -->\n',  Tb_Lines
+	], Report_Lines_List),
+	atomic_list_concat(Report_Lines_List, Report_Lines),
+	writeln(Report_Lines),
+	writeln('</xbrli:xbrl>'),
+	emit_ledger_warnings(S_Transactions, Start_Date, End_Date),
+	nl, nl.
+	
 /* given information about a xbrl dimension, print each account as a point in that dimension. 
 this means each account results in a fact with a context that contains the value for that dimension.
 */
@@ -169,62 +219,6 @@ print_trading2(Static_Data, [(Sub_Account,Unit_Accounts)|Tail], In, Out):-
 	print_trading2(Static_Data, Tail, Mid, Out).
 	
 print_trading2(_,[],Results,Results).
-
-
-output_results(S_Transactions, Transactions, Start_Date, End_Date, Exchange_Rates, Accounts, Report_Currency, Transaction_Types) :-
-
-	print_relevant_exchange_rates(Report_Currency, End_Date, Exchange_Rates, Transactions),
-	infer_exchange_rates(Transactions, S_Transactions, Start_Date, End_Date, Accounts, Report_Currency, Exchange_Rates, Exchange_Rates2),
-
-	print_xbrl_header,
-	
-	/* first, let's build up the two non-dimensional contexts */
-	date(Context_Id_Year,_,_) = End_Date,
-	Entity_Identifier = '<identifier scheme="http://www.example.com">TestData</identifier>',
-	context_id_base('I', Context_Id_Year, Instant_Context_Id_Base),
-	context_id_base('D', Context_Id_Year, Duration_Context_Id_Base),
-	Base_Contexts = [
-		context(Instant_Context_Id_Base, End_Date, entity(Entity_Identifier, '')),
-		context(Duration_Context_Id_Base, (Start_Date, End_Date), entity(Entity_Identifier, ''))
-	],
-	
-	trial_balance_between(Exchange_Rates2, Accounts, Transactions, Report_Currency, End_Date, Start_Date, End_Date, Trial_Balance2),
-	balance_sheet_at(Exchange_Rates2, Accounts, Transactions, Report_Currency, End_Date, Start_Date, End_Date, Balance_Sheet2),
-	profitandloss_between(Exchange_Rates2, Accounts, Transactions, Report_Currency, End_Date, Start_Date, End_Date, ProftAndLoss2),
-	assertion(ground((Balance_Sheet2, ProftAndLoss2, Trial_Balance2))),
-	format_report_entries(Accounts, 0, Report_Currency, Instant_Context_Id_Base,  Balance_Sheet2, [],     Units0, [], Bs_Lines),
-	format_report_entries(Accounts, 0, Report_Currency, Duration_Context_Id_Base, ProftAndLoss2,  Units0, Units1, [], Pl_Lines),
-	format_report_entries(Accounts, 0, Report_Currency, Instant_Context_Id_Base,  Trial_Balance2, Units1, Units2, [], Tb_Lines),
-	investment_report(
-		(Exchange_Rates2, Accounts, Transactions, Report_Currency, End_Date), 
-		Transaction_Types, Investment_Report_Lines),
-	
-	Results0 = (Base_Contexts, Units2, []),
-	dict_from_vars(Static_Data, 
-		[Start_Date, End_Date, Exchange_Rates, Accounts, Transactions, Report_Currency, Transaction_Types, Entity_Identifier, Duration_Context_Id_Base]
-	),
-
-	print_banks(Static_Data, Instant_Context_Id_Base, Entity_Identifier, Results0, Results1),
-	print_forex(Static_Data, Duration_Context_Id_Base, Entity_Identifier, Results1, Results2),
-	print_trading(Static_Data, Results2, Results3),
-	Results3 = (Contexts3, Units3, Dimensions_Lines),
-
-	maplist(write_used_unit, Units3), nl, nl,
-	print_contexts(Contexts3), nl, nl,
-	writeln('<!-- dimensional facts: -->'),
-	maplist(write, Dimensions_Lines),
-	
-	flatten([
-		'\n<!-- balance sheet: -->\n', Bs_Lines, 
-		'\n<!-- profit and loss: -->\n', Pl_Lines,
-		'\n<!-- investment report:\n', Investment_Report_Lines, '\n -->\n',
-		'\n<!-- trial balance: -->\n',  Tb_Lines
-	], Report_Lines_List),
-	atomic_list_concat(Report_Lines_List, Report_Lines),
-	writeln(Report_Lines),
-	writeln('</xbrli:xbrl>'),
-	emit_ledger_warnings(S_Transactions, Start_Date, End_Date),
-	nl, nl.
 
 
 print_xbrl_header :-
