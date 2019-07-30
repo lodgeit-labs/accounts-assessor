@@ -72,6 +72,10 @@ Balance: a list of coord's
 
 % Relates Date to the balance at that time of the given account. 
 balance_until_day(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Account_Id, Date, Balance_Transformed, Transactions_Count) :-
+	assertion(account_exists(Accounts, Account_Id)),
+	writeln('Account_Id'),
+	writeln(Account_Id),
+
 	transactions_before_day_on_account_and_subaccounts(Accounts, Transactions, Account_Id, Date, Filtered_Transactions),
 	length(Filtered_Transactions, Transactions_Count),
 	transaction_vectors_total(Filtered_Transactions, Balance),
