@@ -8,30 +8,22 @@ dependencies:
 
 ```swipl -g "pack_install(tap), pack_install(regex), pack_install(xsd)."```
 
-( needs updating )
-
-How to run the program:
-* Change directory to the root of the project
-* Enter `swipl -s src/main.pl`
+How to run the server:
+* Change directory to prolog_server/
+* Enter `swipl -s run_simple_server.pl`
 
 How to run the program tests:
-* Change directory to the root of the project
-* Enter `./tests/main.sh`
-
-How to run the web endpoint tests:
-* Change directory to the root of the project
-* Enter `./endpoint_tests/main.sh`
+* Change to the tests/ directory
+* Enter `swipl -s run_tests.pl -g halt`
 
 ## Directory Structure
 
 Outline of the directory structure of this repository:
-* [src](src) contains the source for the Prolog program
-* [examples](examples) contains examples of how Prolog can be embedded in other languages
+* [lib](lib) contains most of the source code
 * [tests](tests) contains queries that test the functionality of the main Prolog program
+** [tests/endpoint_tests](tests/endpoint_tests) contains test XML requests for the web endpoint as well as expected XML reponses
 * [docs](docs) contains correspondences and resources on accounting that I have been finding useful in making this program
 * [misc](misc) contains the stuff that does not yet clearly fit into a category
-* [endpoint_src](endpoint_src) contains the source for the web endpoint housing the Prolog program
-* [endpoint_tests](endpoint_tests) contains test XML requests for the web endpoint as well as expected XML reponses
 
 ## Current Functionality
 
