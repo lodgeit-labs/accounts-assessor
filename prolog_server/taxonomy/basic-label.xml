@@ -4,7 +4,7 @@ Taxonomy Label Links linkbase based on XBRL standard Version 2.1.
 Created by UBmatrix Taxonomy Designer 3.0.2.2347 (2007-12-17 12:39).  
 Contact www.ubmatrix.com
 Copyright (c) 2002-2019 UBmatrix inc., All Rights Reserved
-Produced on 2019-03-23 12:26:04
+Produced on 2019-07-26 10:57:16
 -->
 <linkbase xmlns="http://www.xbrl.org/2003/linkbase" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xlink="http://www.w3.org/1999/xlink" xsi:schemaLocation=" http://www.xbrl.org/2003/linkbase http://www.xbrl.org/2003/xbrl-linkbase-2003-12-31.xsd">
   <roleRef xlink:type="simple" xlink:href="http://www.xbrl.org/lrr/role/negated-2009-12-16.xsd#negatedLabel" roleURI="http://www.xbrl.org/2009/role/negatedLabel" />
@@ -66,6 +66,9 @@ Produced on 2019-03-23 12:26:04
     <loc xlink:type="locator" xlink:href="basic.xsd#basic_CashCashEquivalentsRollForward" xlink:label="basic_CashCashEquivalentsRollForward" />
     <labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="basic_CashCashEquivalentsRollForward" xlink:to="basic_CashCashEquivalentsRollForward_lbl" />
     <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/label" xlink:label="basic_CashCashEquivalentsRollForward_lbl" xml:lang="en">Cash and Cash Equivalents [Roll Forward]</label>
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_CashCashEquivalentsRollUp" xlink:label="basic_CashCashEquivalentsRollUp" />
+    <labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="basic_CashCashEquivalentsRollUp" xlink:to="basic_CashCashEquivalentsRollUp_lbl" />
+    <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/label" xlink:label="basic_CashCashEquivalentsRollUp_lbl" xml:lang="en">Cash and Cash Equivalents [Roll Up]</label>
     <loc xlink:type="locator" xlink:href="basic.xsd#basic_CashFlowStatementRollForward" xlink:label="basic_CashFlowStatementRollForward" />
     <labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="basic_CashFlowStatementRollForward" xlink:to="basic_CashFlowStatementRollForward_lbl" />
     <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/label" xlink:label="basic_CashFlowStatementRollForward_lbl" xml:lang="en">Cash Flow Statement [Roll Forward]</label>
@@ -109,6 +112,9 @@ Produced on 2019-03-23 12:26:04
     <loc xlink:type="locator" xlink:href="basic.xsd#basic_Expenses" xlink:label="basic_Expenses" />
     <labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="basic_Expenses" xlink:to="basic_Expenses_lbl" />
     <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/label" xlink:label="basic_Expenses_lbl" xml:lang="en">Expenses</label>
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_FinancialInvestmentsRollUp" xlink:label="basic_FinancialInvestmentsRollUp" />
+    <labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="basic_FinancialInvestmentsRollUp" xlink:to="basic_FinancialInvestmentsRollUp_lbl" />
+    <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/label" xlink:label="basic_FinancialInvestmentsRollUp_lbl" xml:lang="en">Financial Investments [Roll Up]</label>
     <loc xlink:type="locator" xlink:href="basic.xsd#basic_FinancialInvestments" xlink:label="basic_FinancialInvestments" />
     <labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="basic_FinancialInvestments" xlink:to="basic_FinancialInvestments_lbl" />
     <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/label" xlink:label="basic_FinancialInvestments_lbl" xml:lang="en">Financial Investments</label>
@@ -267,6 +273,9 @@ Produced on 2019-03-23 12:26:04
     <loc xlink:type="locator" xlink:href="basic.xsd#basic_RetainedEarningsRollForward" xlink:label="basic_RetainedEarningsRollForward" />
     <labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="basic_RetainedEarningsRollForward" xlink:to="basic_RetainedEarningsRollForward_lbl" />
     <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/label" xlink:label="basic_RetainedEarningsRollForward_lbl" xml:lang="en">Retained Earnings [Roll Forward]</label>
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_RetainedEarningsRollUp" xlink:label="basic_RetainedEarningsRollUp" />
+    <labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="basic_RetainedEarningsRollUp" xlink:to="basic_RetainedEarningsRollUp_lbl" />
+    <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/label" xlink:label="basic_RetainedEarningsRollUp_lbl" xml:lang="en">Retained Earnings [Roll Up]</label>
     <loc xlink:type="locator" xlink:href="basic.xsd#basic_RetainedEarnings" xlink:label="basic_RetainedEarnings" />
     <labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="basic_RetainedEarnings" xlink:to="basic_RetainedEarnings_lbl" />
     <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/periodEndLabel" xlink:label="basic_RetainedEarnings_lbl" xml:lang="en">Retained Earnings, Ending Balance</label>

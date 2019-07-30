@@ -4,7 +4,9 @@
 		<Net_Assets>
 			<Assets>
 				<Current_Assets>
-					<Cash_And_Cash_Equivalents/>
+					<Cash_And_Cash_Equivalents>
+						<Banks/>
+					</Cash_And_Cash_Equivalents>				
 					<Assets_Livestock>
 						<Assets_Livestock_At_Cost/>
 						<Assets_Livestock_At_Average_Cost/>

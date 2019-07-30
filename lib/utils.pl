@@ -15,6 +15,8 @@
 		get_indentation/2,
 		without_nonalphanum_chars/2,
 		floats_close_enough/2,
+		replace_chars_in_atom/4,
+		filter_out_chars_from_atom/3,
 		coord_is_almost_zero/1]).
 
 		
@@ -69,8 +71,7 @@ At any case there are some tradeoffs to consider, and i think this is more of a 
 some simple calculators into production quickly, not a perfect solution.
 */
 user:goal_expansion(
-	magic_formula(/*Initialization, */X/*, Namings, Expansions*/), 
-	(/*Initialization, */Code)
+	magic_formula(X), Code
 ) :-
 	term_variables(X, Vars),
 	maplist(my_variable_naming, Vars, Names),
@@ -81,8 +82,7 @@ user:goal_expansion(
 	writeln(AAA),
 	writeln('------'),
 	writeln(BBB),
-	writeln('------'),
-	true-*/.
+	writeln('------')*/.
 
 expand_formulas_to_code([], (true)).
 	
@@ -95,12 +95,13 @@ expand_formulas_to_code([H|T], Expansion) :-
 		write('<!-- '), writeln(' -->'),
 		assertion(ground(((S1,Rhs)))),
 		New_Formula,
+		/*nonvar(V), silence singleton variable warning, doesn't work */ 
 		utils:open_tag(S1),  format('~2f', [V]), utils:close_tag(S1), 
 		write_tag([S1, '_Formula'], Description),
 		term_string(Rhs, A_String),
 		atomic_list_concat([S1, ' = ', A_String], Computation_String),
-		write_tag([S1, '_Computation'], Computation_String)),
-		Tail),
+		write_tag([S1, '_Computation'], Computation_String)
+		), Tail),
 	expand_formulas_to_code(T, Tail).
 
 expand_formula(Namings, (A=B), _Es_In, ((A is B), S1, Description, A)):-
@@ -122,8 +123,39 @@ my_variable_naming(Var, (Name = Var)) :-
 		
 
 
+		
+/* take a list of variables, produce a dict with lowercased variable names as keys, and variables themselves as values.
+see plunit/utils for examples*/
+user:goal_expansion(
+	dict_from_vars(Dict, Vars_List), Code
+) :-
+	maplist(var_to_kv_pair, Vars_List, Pairs),
+	Code = dict_create(Dict, _, Pairs).
 
+var_to_kv_pair(Var, Pair) :-
+	var_property(Var, name(Name)),
+	downcase_atom(Name, Name_Lcase),
+	Pair = Name_Lcase-Var.
 
+/* take a list of variables, unify them with values of Dict, using lowercased names of those variables as keys.
+see plunit/utils for examples*/
+user:goal_expansion(
+	dict_vars(Dict, Vars_List), Code
+) :-
+	dict_vars_assignment(Vars_List, Dict, Code).
+
+dict_vars_assignment([Var|Vars], Dict, Code) :-
+	var_property(Var, name(Key)),
+	downcase_atom(Key, Key_Lcase),
+	Code = (get_dict(Key_Lcase, Dict, Var), Codes),
+	dict_vars_assignment(Vars, Dict, Codes).
+
+dict_vars_assignment([], _, true).
+	
+	
+	
+	
+	
 
 % this gets the children of an element with ElementXPath
 inner_xml(Dom, Element_XPath, Children) :-
@@ -305,8 +337,34 @@ replace_nonalphanum_char_with_underscore(Char1, Char2) :-
 	Char1 = Char2
 		;
 	Char2 = '_'.
+
+
+:- meta_predicate replace_chars_in_atom(1, +, +, -).
+
+replace_chars_in_atom(Predicate, Replacement, Atom_In, Atom_Out) :-
+	atom_chars(Atom_In, Atom1_Chars),
+	maplist(replace_char_if(Predicate, Replacement), Atom1_Chars, Atom2_Chars),
+	atom_chars(Atom_Out, Atom2_Chars).
+
+replace_char_if(Predicate, Replacement, Char_In, Char_Out) :-
+	call(Predicate, Char_In) -> Char_Out = Char_In ; Char_Out = Replacement.
+
+not_alnum(Char) :-
+	char_type(Char, alnum).
+
+:- meta_predicate filter_out_chars_from_atom(1, +, -).
+
+filter_out_chars_from_atom(Predicate, Atom_In, Atom_Out) :-
+	atom_chars(Atom_In, Atom1_Chars),
+	findall(
+		[Char],
+		member(Char, Atom1_Chars),
+		Char_Lists),
+	maplist(atom_chars, Atom1_Char_Atoms, Char_Lists),
+	exclude(Predicate, Atom1_Char_Atoms, Atom2_Char_Atoms),
+	atomic_list_concat(Atom2_Char_Atoms, Atom_Out).
 	
-	
+
 	
 % define the value to compare expected float value with the actual float value
 % we need this value as float operations generate different values after certain precision in different machines

@@ -1,4 +1,7 @@
-:- module(system_accounts, [generate_system_accounts/3, trading_account_ids/2]).
+:- module(system_accounts, [
+		generate_system_accounts/3, 
+		trading_account_ids/2,
+		bank_accounts/2]).
 
 :- use_module('accounts', [
 		account_term_by_role/3, 
@@ -6,7 +9,8 @@
 		account_role/2, 
 		account_id/2, 
 		account_parent/2,
-		account_detail_level/2]).
+		account_detail_level/2,
+		account_by_role/3]).
 :- use_module('livestock', [
 		make_livestock_accounts/2]).
 :- use_module('statements', [
@@ -57,7 +61,17 @@ bank_account_names(S_Transactions, Names) :-
 	sort(Names0, Names).
 
 ensure_bank_account_exists(Accounts_In, Name, Account) :-
-	ensure_account_exists(Accounts_In, 'Cash_And_Cash_Equivalents', 0, ('Cash_And_Cash_Equivalents'/Name), Account).
+	ensure_account_exists(Accounts_In, 'Banks', 1, ('Banks'/Name), Account).
+
+bank_accounts(Accounts, Bank_Accounts) :-
+	findall(
+		Account,
+		(
+			Bank_Account_Role = ('Banks'/_Bank_Account_Name),
+			account_by_role(Accounts, Bank_Account_Role, Account)
+		),
+		Bank_Accounts
+	).
 	
 /*
 given all s_transactions, produce all bank accounts we need to add.
@@ -101,7 +115,6 @@ yield_traded_units(Transaction_Types, S_Transactions, Unit) :-
 		;
 		s_transaction_exchanged(S_Transaction, bases(Unit))
 	).
-		
 	
 trading_account_ids(Transaction_Types, Ids) :-
 	findall(

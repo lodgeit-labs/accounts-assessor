@@ -4,9 +4,9 @@ Taxonomy based on XBRL standard Version 2.1.
 Created by UBmatrix Taxonomy Designer 3.0.2.2347 (2007-12-17 12:39).  
 Contact www.ubmatrix.com
 Copyright (c) 2002-2019 UBmatrix inc., All Rights Reserved
-Produced on 2019-03-23 12:26:04
+Produced on 2019-07-26 10:57:16
 -->
-<schema xmlns="http://www.w3.org/2001/XMLSchema" xmlns:xbrli="http://www.xbrl.org/2003/instance" xmlns:link="http://www.xbrl.org/2003/linkbase" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:basic="http://www.xbrlsite.com/basic" xmlns:generic="http://xbrl.org/2008/generic" targetNamespace="http://www.xbrlsite.com/basic" elementFormDefault="qualified" attributeFormDefault="unqualified">
+<schema xmlns="http://www.w3.org/2001/XMLSchema" xmlns:xbrli="http://www.xbrl.org/2003/instance" xmlns:link="http://www.xbrl.org/2003/linkbase" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:basic="http://www.xbrlsite.com/basic" xmlns:generic="http://xbrl.org/2008/generic" xmlns:xbrldt="http://xbrl.org/2005/xbrldt" targetNamespace="http://www.xbrlsite.com/basic" elementFormDefault="qualified" attributeFormDefault="unqualified">
   <annotation>
     <appinfo>
       <link:roleType roleURI="http://www.xbrlsite.com/basic/role/BalanceSheet" id="BalanceSheet">
@@ -122,14 +122,15 @@ Produced on 2019-03-23 12:26:04
   <element id="basic_BadDebtsWrittenOff" name="BadDebtsWrittenOff" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" xbrli:periodType="duration" xbrli:balance="credit" nillable="true" />
   <element id="basic_BalanceSheetAbstract" name="BalanceSheetAbstract" type="xbrli:stringItemType" substitutionGroup="xbrli:item" xbrli:periodType="duration" abstract="true" nillable="true" />
   <element id="basic_Bank" name="Bank" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" xbrli:periodType="instant" xbrli:balance="debit" nillable="true" />
-  <element id="basic_BankCharges" name="BankCharges" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" xbrli:periodType="instant" xbrli:balance="debit" nillable="true" />
+  <element id="basic_BankCharges" name="BankCharges" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" xbrli:periodType="duration" xbrli:balance="debit" nillable="true" />
   <element id="basic_BasisOfReporting" name="BasisOfReporting" type="xbrli:stringItemType" substitutionGroup="xbrli:item" xbrli:periodType="duration" nillable="true" />
   <element id="basic_Bonds" name="Bonds" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" xbrli:periodType="instant" xbrli:balance="debit" nillable="true" />
   <element id="basic_CapitalAdditionsPropertyPlantAndEquipment" name="CapitalAdditionsPropertyPlantAndEquipment" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" xbrli:periodType="duration" xbrli:balance="debit" nillable="true" />
   <element id="basic_CapitalAdditionsPropertyPlantAndEquipment2" name="CapitalAdditionsPropertyPlantAndEquipment2" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" xbrli:periodType="duration" xbrli:balance="credit" nillable="true" />
-  <element id="basic_CapitalGain" name="CapitalGain" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" xbrli:periodType="instant" xbrli:balance="credit" nillable="true" />
+  <element id="basic_CapitalGain" name="CapitalGain" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" xbrli:periodType="duration" xbrli:balance="credit" nillable="true" />
   <element id="basic_CashAndCashEquivalents" name="CashAndCashEquivalents" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" xbrli:periodType="instant" xbrli:balance="debit" nillable="true" />
   <element id="basic_CashCashEquivalentsRollForward" name="CashCashEquivalentsRollForward" type="xbrli:stringItemType" substitutionGroup="xbrli:item" xbrli:periodType="duration" abstract="true" nillable="true" />
+  <element id="basic_CashCashEquivalentsRollUp" name="CashCashEquivalentsRollUp" type="xbrli:stringItemType" substitutionGroup="xbrli:item" xbrli:periodType="duration" abstract="true" nillable="true" />
   <element id="basic_CashFlowStatementRollForward" name="CashFlowStatementRollForward" type="xbrli:stringItemType" substitutionGroup="xbrli:item" xbrli:periodType="duration" abstract="true" nillable="true" />
   <element id="basic_CollectionReceivables" name="CollectionReceivables" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" xbrli:periodType="duration" xbrli:balance="debit" nillable="true" />
   <element id="basic_CollectionReceivables2" name="CollectionReceivables2" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" xbrli:periodType="duration" xbrli:balance="credit" nillable="true" />
@@ -138,24 +139,25 @@ Produced on 2019-03-23 12:26:04
   <element id="basic_CurrentAssetsRollUp" name="CurrentAssetsRollUp" type="xbrli:stringItemType" substitutionGroup="xbrli:item" xbrli:periodType="duration" abstract="true" nillable="true" />
   <element id="basic_CurrentEarningsLosses" name="CurrentEarningsLosses" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" xbrli:periodType="instant" xbrli:balance="credit" nillable="true" />
   <element id="basic_DepreciationAndAmortization2" name="DepreciationAndAmortization2" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" xbrli:periodType="duration" xbrli:balance="credit" nillable="true" />
-  <element id="basic_DividendsEarned" name="DividendsEarned" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" xbrli:periodType="instant" xbrli:balance="credit" nillable="true" />
+  <element id="basic_DividendsEarned" name="DividendsEarned" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" xbrli:periodType="duration" xbrli:balance="credit" nillable="true" />
   <element id="basic_Equity" name="Equity" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" xbrli:periodType="instant" xbrli:balance="credit" nillable="true" />
   <element id="basic_EquityRollUp" name="EquityRollUp" type="xbrli:stringItemType" substitutionGroup="xbrli:item" xbrli:periodType="duration" abstract="true" nillable="true" />
-  <element id="basic_Expenses" name="Expenses" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" xbrli:periodType="instant" xbrli:balance="debit" nillable="true" />
+  <element id="basic_Expenses" name="Expenses" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" xbrli:periodType="duration" xbrli:balance="debit" nillable="true" />
   <element id="basic_ExpensesRollUp" name="ExpensesRollUp" type="xbrli:stringItemType" substitutionGroup="xbrli:item" xbrli:periodType="duration" abstract="true" nillable="true" />
   <element id="basic_FinancialInvestments" name="FinancialInvestments" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" xbrli:periodType="instant" xbrli:balance="debit" nillable="true" />
+  <element id="basic_FinancialInvestmentsRollUp" name="FinancialInvestmentsRollUp" type="xbrli:stringItemType" substitutionGroup="xbrli:item" xbrli:periodType="duration" abstract="true" nillable="true" />
   <element id="basic_FinishedGoods" name="FinishedGoods" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" xbrli:periodType="instant" xbrli:balance="debit" nillable="true" />
   <element id="basic_FinishedGoodsRollUp" name="FinishedGoodsRollUp" type="xbrli:stringItemType" substitutionGroup="xbrli:item" xbrli:periodType="duration" abstract="true" nillable="true" />
-  <element id="basic_ForexGain" name="ForexGain" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" xbrli:periodType="instant" xbrli:balance="credit" nillable="true" />
-  <element id="basic_ForexLoss" name="ForexLoss" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" xbrli:periodType="instant" xbrli:balance="debit" nillable="true" />
+  <element id="basic_ForexGain" name="ForexGain" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" xbrli:periodType="duration" xbrli:balance="credit" nillable="true" />
+  <element id="basic_ForexLoss" name="ForexLoss" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" xbrli:periodType="duration" xbrli:balance="debit" nillable="true" />
   <element id="basic_HistoricalEarningsLosses" name="HistoricalEarningsLosses" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" xbrli:periodType="instant" xbrli:balance="credit" nillable="true" />
-  <element id="basic_InterestEarned" name="InterestEarned" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" xbrli:periodType="instant" xbrli:balance="credit" nillable="true" />
+  <element id="basic_InterestEarned" name="InterestEarned" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" xbrli:periodType="duration" xbrli:balance="credit" nillable="true" />
   <element id="basic_InventoriesRollForward" name="InventoriesRollForward" type="xbrli:stringItemType" substitutionGroup="xbrli:item" xbrli:periodType="duration" abstract="true" nillable="true" />
   <element id="basic_InventoriesRollUp" name="InventoriesRollUp" type="xbrli:stringItemType" substitutionGroup="xbrli:item" xbrli:periodType="duration" abstract="true" nillable="true" />
   <element id="basic_InventoryValuationMethod" name="InventoryValuationMethod" type="xbrli:stringItemType" substitutionGroup="xbrli:item" xbrli:periodType="duration" nillable="true" />
   <element id="basic_InventoryWrittenOff" name="InventoryWrittenOff" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" xbrli:periodType="duration" xbrli:balance="credit" nillable="true" />
   <element id="basic_InvestmentIncome" name="InvestmentIncome" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" xbrli:periodType="instant" xbrli:balance="credit" nillable="true" />
-  <element id="basic_InvestmentIncomeCopy" name="InvestmentIncomeCopy" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" xbrli:periodType="instant" xbrli:balance="credit" nillable="true" />
+  <element id="basic_InvestmentIncomeCopy" name="InvestmentIncomeCopy" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" xbrli:periodType="duration" xbrli:balance="credit" nillable="true" />
   <element id="basic_InvestmentIncomeRollUp" name="InvestmentIncomeRollUp" type="xbrli:stringItemType" substitutionGroup="xbrli:item" xbrli:periodType="duration" nillable="true" />
   <element id="basic_Liabilities" name="Liabilities" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" xbrli:periodType="instant" xbrli:balance="credit" nillable="true" />
   <element id="basic_LiabilitiesAndEquity" name="LiabilitiesAndEquity" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" xbrli:periodType="instant" xbrli:balance="credit" nillable="true" />
@@ -192,7 +194,8 @@ Produced on 2019-03-23 12:26:04
   <element id="basic_RepaymentLongtermBorrowings2" name="RepaymentLongtermBorrowings2" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" xbrli:periodType="duration" xbrli:balance="credit" nillable="true" />
   <element id="basic_RetainedEarnings" name="RetainedEarnings" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" xbrli:periodType="instant" xbrli:balance="credit" nillable="true" />
   <element id="basic_RetainedEarningsRollForward" name="RetainedEarningsRollForward" type="xbrli:stringItemType" substitutionGroup="xbrli:item" xbrli:periodType="duration" abstract="true" nillable="true" />
-  <element id="basic_Revenue" name="Revenue" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" xbrli:periodType="instant" xbrli:balance="credit" nillable="true" />
+  <element id="basic_RetainedEarningsRollUp" name="RetainedEarningsRollUp" type="xbrli:stringItemType" substitutionGroup="xbrli:item" xbrli:periodType="duration" abstract="true" nillable="true" />
+  <element id="basic_Revenue" name="Revenue" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" xbrli:periodType="duration" xbrli:balance="credit" nillable="true" />
   <element id="basic_RevenueRecognition" name="RevenueRecognition" type="xbrli:stringItemType" substitutionGroup="xbrli:item" xbrli:periodType="duration" nillable="true" />
   <element id="basic_RevenueRollUp" name="RevenueRollUp" type="xbrli:sharesItemType" substitutionGroup="xbrli:item" xbrli:periodType="duration" abstract="true" nillable="true" />
   <element id="basic_Sales2" name="Sales2" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" xbrli:periodType="duration" xbrli:balance="debit" nillable="true" />
@@ -200,4 +203,25 @@ Produced on 2019-03-23 12:26:04
   <element id="basic_Shares" name="Shares" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" xbrli:periodType="instant" xbrli:balance="debit" nillable="true" />
   <element id="basic_Unit_Investment" name="Unit_Investment" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" xbrli:periodType="instant" xbrli:balance="debit" nillable="true" />
   <element id="basic_WorkInProgress" name="WorkInProgress" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" xbrli:periodType="instant" xbrli:balance="debit" nillable="true" />
+
+  <element id="basic_Dimension_BankAccounts_Duration" name="Dimension_BankAccounts_Duration" substitutionGroup="xbrldt:dimensionItem" xbrli:periodType="duration" abstract="true" xbrldt:typedDomainRef="#basic_Dimension_BankAccounts_Duration_DomainDeclaration"/>
+  <element id="basic_Dimension_BankAccounts_Duration_DomainDeclaration" name="BankAccount_Duration">
+    <simpleType>
+      <restriction base="string"/>
+    </simpleType>
+  </element>
+  <element id="basic_Dimension_BankAccounts_Instant" name="Dimension_BankAccounts_Instant" substitutionGroup="xbrldt:dimensionItem" xbrli:periodType="instant" abstract="true" xbrldt:typedDomainRef="#basic_Dimension_BankAccounts_Instant_DomainDeclaration"/>
+  <element id="basic_Dimension_BankAccounts_Instant_DomainDeclaration" name="BankAccount_Instant">
+    <simpleType>
+      <restriction base="string"/>
+    </simpleType>
+  </element>
+
+  <element id="basic_Dimension_Investments_Duration" name="Dimension_Investments_Duration" substitutionGroup="xbrldt:dimensionItem" xbrli:periodType="duration" abstract="true" xbrldt:typedDomainRef="#basic_Dimension_Investments_Duration_DomainDeclaration"/>
+  <element id="basic_Dimension_Investments_Duration_DomainDeclaration" name="Investment_Duration">
+    <simpleType>
+      <restriction base="string"/>
+    </simpleType>
+  </element>
+
 </schema>

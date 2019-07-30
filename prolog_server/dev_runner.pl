@@ -4,7 +4,7 @@ shell2(Cmd) :-
 shell2(Cmd_In, Exit_Status) :-
 	flatten([Cmd_In], Cmd_Flat),
 	atomic_list_concat(Cmd_Flat, Cmd),
-	%write(Cmd), writeln('   ...'),
+	write(Cmd), writeln('   ...'),
 	shell(Cmd, Exit_Status).
 
 halt_on_err :-
@@ -19,7 +19,7 @@ x :-
 	((current_prolog_flag(argv, [Viewer, Script, Goal]),!)
 		;(format(user_error, 'argument parsing failed.', []), halt)),
 	atomic_list_concat(['swipl -s ', Script], Load_Cmd),
-	clean_terminal,
+	%clean_terminal,
 	shell2([Load_Cmd, ' -g "halt."  2>&1  |  tee err']),
 	halt_on_err,
 	format(user_error, 'ok...\n', []),
