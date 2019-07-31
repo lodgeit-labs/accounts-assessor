@@ -368,7 +368,7 @@ filter_out_chars_from_atom(Predicate, Atom_In, Atom_Out) :-
 	
 % define the value to compare expected float value with the actual float value
 % we need this value as float operations generate different values after certain precision in different machines
-float_comparison_max_difference(0.00000001).
+float_comparison_max_difference(0.000001).
 	
 floats_close_enough(Value1, Value2) :-
 	float_comparison_max_difference(Max),

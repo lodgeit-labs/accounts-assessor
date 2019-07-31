@@ -34,7 +34,8 @@ see doc/investment and dropbox Develop/videos/ledger
 		extract_account_hierarchy/2, 
 		account_by_role/3]).
 :- use_module('../../lib/pacioli',  [
-		number_coord/3]).
+		number_coord/3,
+		vec_add/3]).
 
 
 	
@@ -51,9 +52,11 @@ see doc/investment and dropbox Develop/videos/ledger
 
 
 process_realized(Dom, Global_Report_Date_Atom, Result) :-
-	Result = [S_Transactions, Exchange_Rates, Gains],
+	Result = [S_Transactions, Exchange_Rates, Gains, PDRC_Costs, PDPC_Costs, SDRC_New_Rate_Total_Value],
 	Gains = [RC_Realized_Currency_Gain, RC_Realized_Market_Gain, 0, 0],
-	
+	PDRC_Costs = [PDRC_Total_Cost,0],
+	PDPC_Costs = [PDPC_Total_Cost,0],
+
 	/*
 		PDPC = purchase date, purchase currency
 		SDRC = sale date, report currency, etc
@@ -180,8 +183,10 @@ process_realized(Dom, Global_Report_Date_Atom, Result) :-
 	true.
 
 process_unrealized(Dom, Global_Report_Date, Result) :-
-	Result = [S_Transactions, Exchange_Rates, Gains],
+	Result = [S_Transactions, Exchange_Rates, Gains, PDRC_Costs, PDPC_Costs, 0],
 	Gains = [0,0,RDRC_Unrealized_Currency_Gain, RDRC_Unrealized_Market_Gain],
+	PDRC_Costs = [0,PDRC_Total_Cost],
+	PDPC_Costs = [0,PDPC_Total_Cost],
 	/*
 		PDPC = purchase date, purchase currency
 		RDRC = report date, report currency, etc..
@@ -299,7 +304,14 @@ process_unrealized(Dom, Global_Report_Date, Result) :-
 	account_assertion(Info, Unrealized_Gain_Account, -RDRC_Unrealized_Total_Gain),
 
 	true.
-	
+
+/*
+  Check that balance in `Account` matches `Expected_Exp` within tolerance
+  for float comparisons.
+*/	
+floats_close_enough2(_Description,actual(A),expected(B)) :-
+	floats_close_enough(A,B).
+
 account_assertion(Info, Account, Expected_Exp) :-
 	Info = (_,_,_,_,Currency),
 	account_vector(Info, Account, Vector),
@@ -309,16 +321,21 @@ account_assertion(Info, Account, Expected_Exp) :-
 			number_coord(Currency, Balance, Coord),
 			!
 		)
-	;	(	Vector = [],
+	;	(	
+			Vector = [],
 			Balance = 0,
 			!
 		)
 	;	(
-		throw(('unexpected balance:', Vector)
-	))),
+			throw(('unexpected balance:', Vector))
+		)
+	),
 	Expected is Expected_Exp,
-	assertion(floats_close_enough(Balance, Expected)).
+	assertion(floats_close_enough2(Account, actual(Balance), expected(Expected))).
 
+/*
+  Retrieve Debit/Credit vector form of balance for `Account`, return as `Vector`.
+*/
 account_vector(Info, Account, Vector) :-
 	Info = (Exchange_Rates, Accounts, Transactions, Report_Date, Currency), 
     balance_by_account(Exchange_Rates, Accounts, Transactions, [Currency], Report_Date, Account, Report_Date, Vector, _).
@@ -383,15 +400,29 @@ get_totals(Results_In, Results_Out) :-
 	Totals = (
 		Realized_Currency_Gain_Total, 
 		Realized_Market_Gain_Total,
+		Realized_Gain_Total,
 		Unrealized_Currency_Gain_Total,
-		Unrealized_Market_Gain_Total
+		Unrealized_Market_Gain_Total,
+		Unrealized_Gain_Total,
+		Gain_Total,
+		PDRC_Cost_Total,
+		PDPC_Cost_Total,
+		SDRC_Value_Total,
+		Unrealized_PDRC_Cost_Total
 	),
+
+	
+
 	maplist(nth0(0), Results_In, S_Transaction_Lists),
 	maplist(nth0(1), Results_In, Exchange_Rates_Lists),
 	maplist(nth0(2), Results_In, Gains_List),
+	maplist(nth0(3), Results_In, PDRC_Cost_List),
+	maplist(nth0(4), Results_In, PDPC_Cost_List),
+	maplist(nth0(5), Results_In, SDRC_Value_List),
 	flatten(S_Transaction_Lists,S_Transactions),
 	flatten(Exchange_Rates_Lists,Exchange_Rates),
 	
+	% Gains Totals
 	maplist(nth0(0), Gains_List, Realized_Currency_Gain_List),
 	maplist(nth0(1), Gains_List, Realized_Market_Gain_List),
 	maplist(nth0(2), Gains_List, Unrealized_Currency_Gain_List),
@@ -400,7 +431,35 @@ get_totals(Results_In, Results_Out) :-
 	sum_list(Realized_Currency_Gain_List, Realized_Currency_Gain_Total),
 	sum_list(Realized_Market_Gain_List, Realized_Market_Gain_Total),
 	sum_list(Unrealized_Currency_Gain_List, Unrealized_Currency_Gain_Total),
-	sum_list(Unrealized_Market_Gain_List, Unrealized_Market_Gain_Total).
+	sum_list(Unrealized_Market_Gain_List, Unrealized_Market_Gain_Total),
+
+
+	Realized_Gain_Total is Realized_Currency_Gain_Total + Realized_Market_Gain_Total,
+	Unrealized_Gain_Total is Unrealized_Currency_Gain_Total + Unrealized_Market_Gain_Total,
+	Gain_Total is Realized_Gain_Total + Unrealized_Gain_Total,
+
+
+	% PDRC Cost Totals
+	maplist(nth0(0), PDRC_Cost_List, Realized_PDRC_Cost_List),
+	maplist(nth0(1), PDRC_Cost_List, Unrealized_PDRC_Cost_List),
+
+	sum_list(Realized_PDRC_Cost_List, Realized_PDRC_Cost_Total),
+	sum_list(Unrealized_PDRC_Cost_List, Unrealized_PDRC_Cost_Total),
+
+	PDRC_Cost_Total is Realized_PDRC_Cost_Total + Unrealized_PDRC_Cost_Total,
+
+	% PDPC Cost Totals
+	maplist(nth0(0), PDPC_Cost_List, Realized_PDPC_Cost_List),
+	maplist(nth0(1), PDPC_Cost_List, Unrealized_PDPC_Cost_List),
+
+	sum_list(Realized_PDPC_Cost_List, Realized_PDPC_Cost_Total),
+	sum_list(Unrealized_PDPC_Cost_List, Unrealized_PDPC_Cost_Total),
+
+	PDPC_Cost_Total is Realized_PDPC_Cost_Total + Unrealized_PDPC_Cost_Total,
+
+
+	% SDPC Value Totals
+	sum_list(SDRC_Value_List, SDRC_Value_Total).
 
 crosscheck_totals(Results, Report_Date) :-
 	writeln('<!-- Totals cross-check: -->'),
@@ -409,8 +468,15 @@ crosscheck_totals(Results, Report_Date) :-
 	Totals = (
 		Realized_Currency_Gain_Total,
 		Realized_Market_Gain_Total,
+		_Realized_Gain_Total,
 		Unrealized_Currency_Gain_Total,
-		Unrealized_Market_Gain_Total
+		Unrealized_Market_Gain_Total,
+		_Unrealized_Gain_Total,
+		Gain_Total,
+		PDRC_Cost_Total,
+		_PDPC_Cost_Total,
+		SDRC_Value_Total,
+		_Unrealized_PDRC_Cost_Total
 	),
 	extract_account_hierarchy([], Accounts0),
 
@@ -437,6 +503,10 @@ crosscheck_totals(Results, Report_Date) :-
 		Transactions
 	),
    	Info = (Exchange_Rates, Accounts1, Transactions, Report_Date, report_currency),
+	/*
+		PL cross-check
+	*/
+	writeln("PL cross-check"),
 	account_by_role(Accounts1, 'Investment_Income'/unrealized, Unrealized_Gain_Account),
 	account_by_role(Accounts1, 'Investment_Income'/realized, Realized_Gain_Account),
 	account_by_role(Accounts1, Unrealized_Gain_Account/without_currency_movement, Unrealized_Gains_Excluding_Forex_Account),
@@ -447,7 +517,39 @@ crosscheck_totals(Results, Report_Date) :-
 	account_assertion(Info, Realized_Gains_Currency_Movement_Account, -Realized_Currency_Gain_Total),
 	account_assertion(Info, Unrealized_Gains_Excluding_Forex_Account, -Unrealized_Market_Gain_Total),
 	account_assertion(Info, Unrealized_Gains_Currency_Movement_Account, -Unrealized_Currency_Gain_Total),
+
+	/*
+		BS cross-check
+	*/
+	writeln("BS cross-check"),
+	Financial_Investments_Value is PDRC_Cost_Total + Gain_Total - SDRC_Value_Total,
+	writeln(Financial_Investments_Value is PDRC_Cost_Total + Gain_Total - SDRC_Value_Total),
+	account_assertion(Info, 'Financial_Investments', Financial_Investments_Value),
+
+	%writeln(Unrealized_PDRC_Cost_Total + Unrealized_Gain_Total),
+	%writeln(Bank_Value is Realized_Gain_Total - PDPC_Cost_Total),
+	%todo
+	writeln(""),
+
+	/*
+		Bank account currency movement cross-check
+	*/
+	writeln(("Bank account currency movement cross-check",(Bank_Value is SDRC_Value_Total - PDRC_Cost_Total))),
 	
+	Bank_Value is SDRC_Value_Total - PDRC_Cost_Total,
+	account_by_role(Accounts1, 'Banks'/'Bank',Bank_Account),
+	account_by_role(Accounts1, 'Currency_Movement'/Bank_Account, Bank_Currency_Account),
+	account_vector(Info, Bank_Currency_Account, [Bank_Currency_Movement_Coord]),
+	
+	number_coord(report_currency, Bank_Currency_Movement_Number, Bank_Currency_Movement_Coord),
+	%writeln(Expected_Bank_Value_With_Currency_Movement is Bank_Value - Bank_Currency_Movement_Number),
+	Expected_Bank_Value_With_Currency_Movement is Bank_Value - Bank_Currency_Movement_Number,
+	account_assertion(Info, Bank_Account, Expected_Bank_Value_With_Currency_Movement),
+	writeln(""),
+
+	/*
+		debug printout
+	*/
 	profitandloss_between(Exchange_Rates, Accounts1, Transactions, [report_currency], Report_Date, date(2000,1,1), Report_Date, ProftAndLoss),
 	format_report_entries(Accounts1, 0, [report_currency], Report_Date, ProftAndLoss, [], _, [], ProftAndLoss_Lines),
 	writeln('<!--'),
@@ -459,15 +561,37 @@ crosscheck_totals(Results, Report_Date) :-
 	writeln(Balance_Sheet_Lines),
 	writeln('-->').
 
+
+
+
+	% member(exchange_rate(Report_Start_Date, report_currency, Currency_Unique, Original_Exchange_Rate), Exchange_Rates),
+	% member(exchange_rate(Report_Date, report_currency, Bank_Currency, Current_Exchange_Rate), Exchange_Rates),
+	% Amount is Realized_Gain_Total - Unrealized_PDPC_Cost_Total,
+	% Bank_Currency_Account_Value is (Current_Exchange_Rate - Original_Exchange_Rate)*Amount,
+	% account_assertion(Info, Bank_Currency_Account, Bank_Currency_Account_Value),
+	%account_vector(Info, Bank_Account, Bank_Balance),
+	%number_coord(report_currency, Bank_Balance_With_Currency_Movement_Number, Bank_With_Currency_Movement_Coord),
+	%assertion(floats_close_enough2('bank total', actual(Bank_Balance_With_Currency_Movement_Number), expected(Bank_Value))),
+	%account_assertion(Info, Bank_Account, Bank_Value 
+
+
+
 print_totals(Totals) :-
 	Totals = (
 		Realized_Currency_Gain_Total,
 		Realized_Market_Gain_Total,
 		Unrealized_Currency_Gain_Total,
-		Unrealized_Market_Gain_Total
+		Unrealized_Market_Gain_Total,
+		_Unrealized_Gain_Total,
+		_Gain_Total,
+		_PDRC_Cost_Total,
+		_PDPC_Cost_Total,
+		_SDRC_Value_Total,
+		_Unrealized_PDRC_Cost_Total
 	),
 
 	Realized_Gain_Total is Realized_Market_Gain_Total + Realized_Currency_Gain_Total,
+writeln(Unrealized_Market_Gain_Total + Unrealized_Currency_Gain_Total),
 	Unrealized_Gain_Total is Unrealized_Market_Gain_Total + Unrealized_Currency_Gain_Total,
 	Gain_Total is Realized_Gain_Total + Unrealized_Gain_Total,	
 
