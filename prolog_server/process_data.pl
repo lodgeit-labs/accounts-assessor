@@ -13,14 +13,17 @@
 :- use_module(library(http/http_host)).
 
 :- use_module('../lib/files', [
-		bump_tmp_directory_id/0
-		,set_server_public_url/1
-		]).
+		bump_tmp_directory_id/0,
+		set_server_public_url/1
+]).
+:- use_module('../lib/utils', [
+		throw_string/1
+]).
+
 :- use_module(loan/process_xml_loan_request, [process_xml_loan_request/2]).
 :- use_module(ledger/process_xml_ledger_request, [process_xml_ledger_request/2]).
 :- use_module(livestock/process_xml_livestock_request, [process_xml_livestock_request/2]).
 :- use_module(investment/process_xml_investment_request, [process_xml_investment_request/2]).
-:- use_module('../lib/utils', [throw_string/1]).
 
 % -------------------------------------------------------------------
 % process_data/2

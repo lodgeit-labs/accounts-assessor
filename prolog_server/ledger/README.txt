@@ -22,6 +22,11 @@ Conversion is done using a list of exchange rates supplied by the user, by looku
 'without_currency_movement_against_since': used for reporting what a value of a share would be if the currency it is priced in didn't move against the report currency.
 
 After the entries tree is built up, we output everything as xbrl facts or points.
+useful xbrl resources:
+http://www.eurofiling.info/201405/presentations/20140507IntroductionToXBRLBartoszOchocki.pdf
+http://www.batavia-xbrl.com/downloads/XBRLinPlainEnglishv1.1.pdf
+https://en.wikipedia.org/wiki/XBRL#XBRL_Taxonomy
+http://www.datypic.com/sc/xbrl21/e-xbrli_context.html
 
 
 # Bank statement processing in detail
