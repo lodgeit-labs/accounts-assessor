@@ -13,7 +13,7 @@
         <Purchase_Date_Rate>0.7</Purchase_Date_Rate>
         <Report_Date_Rate>0.65</Report_Date_Rate>
       </unrealized_investment>
-<!--      <unrealized_investment>
+      <unrealized_investment>
         <Name>Amazon</Name>
         <Purchase_Date>2000-07-01</Purchase_Date>
         <Count>100</Count>
@@ -42,7 +42,7 @@
         <Sale_Unit_Price>200000</Sale_Unit_Price>
         <Purchase_Date_Rate>0.7</Purchase_Date_Rate>
         <Sale_Date_Rate>65</Sale_Date_Rate>
-      </realized_investment> -->
+      </realized_investment>
     </investments>
   </investmentRequest>
 </reports>

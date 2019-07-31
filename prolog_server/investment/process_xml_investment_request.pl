@@ -34,7 +34,8 @@ see doc/investment and dropbox Develop/videos/ledger
 		extract_account_hierarchy/2, 
 		account_by_role/3]).
 :- use_module('../../lib/pacioli',  [
-		number_coord/3]).
+		number_coord/3,
+		vec_add/3]).
 
 
 	
@@ -467,15 +468,15 @@ crosscheck_totals(Results, Report_Date) :-
 	Totals = (
 		Realized_Currency_Gain_Total,
 		Realized_Market_Gain_Total,
-		Realized_Gain_Total,
+		_Realized_Gain_Total,
 		Unrealized_Currency_Gain_Total,
 		Unrealized_Market_Gain_Total,
-		Unrealized_Gain_Total,
+		_Unrealized_Gain_Total,
 		Gain_Total,
 		PDRC_Cost_Total,
-		PDPC_Cost_Total,
+		_PDPC_Cost_Total,
 		SDRC_Value_Total,
-		Unrealized_PDRC_Cost_Total
+		_Unrealized_PDRC_Cost_Total
 	),
 	extract_account_hierarchy([], Accounts0),
 
@@ -502,6 +503,10 @@ crosscheck_totals(Results, Report_Date) :-
 		Transactions
 	),
    	Info = (Exchange_Rates, Accounts1, Transactions, Report_Date, report_currency),
+	/*
+		PL cross-check
+	*/
+	writeln("PL cross-check"),
 	account_by_role(Accounts1, 'Investment_Income'/unrealized, Unrealized_Gain_Account),
 	account_by_role(Accounts1, 'Investment_Income'/realized, Realized_Gain_Account),
 	account_by_role(Accounts1, Unrealized_Gain_Account/without_currency_movement, Unrealized_Gains_Excluding_Forex_Account),
@@ -513,35 +518,38 @@ crosscheck_totals(Results, Report_Date) :-
 	account_assertion(Info, Unrealized_Gains_Excluding_Forex_Account, -Unrealized_Market_Gain_Total),
 	account_assertion(Info, Unrealized_Gains_Currency_Movement_Account, -Unrealized_Currency_Gain_Total),
 
-	
-	% member(exchange_rate(Report_Start_Date, report_currency, Currency_Unique, Original_Exchange_Rate), Exchange_Rates),
-	
-	% member(exchange_rate(Report_Date, report_currency, Bank_Currency, Current_Exchange_Rate), Exchange_Rates),
-
-	% Amount is Realized_Gain_Total - Unrealized_PDPC_Cost_Total,
-	
+	/*
+		BS cross-check
+	*/
+	writeln("BS cross-check"),
 	Financial_Investments_Value is PDRC_Cost_Total + Gain_Total - SDRC_Value_Total,
 	writeln(Financial_Investments_Value is PDRC_Cost_Total + Gain_Total - SDRC_Value_Total),
-	writeln(Unrealized_PDRC_Cost_Total + Unrealized_Gain_Total),
-	Bank_Value is Realized_Gain_Total - PDPC_Cost_Total,
-	writeln(Bank_Value is Realized_Gain_Total - PDPC_Cost_Total),
-	% Bank_Currency_Account_Value is (Current_Exchange_Rate - Original_Exchange_Rate)*Amount,
-
 	account_assertion(Info, 'Financial_Investments', Financial_Investments_Value),
 
+	%writeln(Unrealized_PDRC_Cost_Total + Unrealized_Gain_Total),
+	%writeln(Bank_Value is Realized_Gain_Total - PDPC_Cost_Total),
+	%todo
+	writeln(""),
+
+	/*
+		Bank account currency movement cross-check
+	*/
+	writeln(("Bank account currency movement cross-check",(Bank_Value is SDRC_Value_Total - PDRC_Cost_Total))),
 	
-	trace,
+	Bank_Value is SDRC_Value_Total - PDRC_Cost_Total,
 	account_by_role(Accounts1, 'Banks'/'Bank',Bank_Account),
-	account_by_role(Accounts1, 'Currency_Movement'/'Bank', Bank_Currency_Account),
-	account_vector(Info, Bank_Account, Bank_Balance),
-	account_vector(Info, Bank_Currency_Account, Bank_Currency_Movement_Balance),
-	writeln('bbbbbbbbb', Bank_Balance, Bank_Currency_Movement_Balance),
-
-
-	account_assertion(Info, Bank_Account, Bank_Value),
-	% account_assertion(Info, Bank_Currency_Account, Bank_Currency_Account_Value),
+	account_by_role(Accounts1, 'Currency_Movement'/Bank_Account, Bank_Currency_Account),
+	account_vector(Info, Bank_Currency_Account, [Bank_Currency_Movement_Coord]),
 	
+	number_coord(report_currency, Bank_Currency_Movement_Number, Bank_Currency_Movement_Coord),
+	%writeln(Expected_Bank_Value_With_Currency_Movement is Bank_Value - Bank_Currency_Movement_Number),
+	Expected_Bank_Value_With_Currency_Movement is Bank_Value - Bank_Currency_Movement_Number,
+	account_assertion(Info, Bank_Account, Expected_Bank_Value_With_Currency_Movement),
+	writeln(""),
 
+	/*
+		debug printout
+	*/
 	profitandloss_between(Exchange_Rates, Accounts1, Transactions, [report_currency], Report_Date, date(2000,1,1), Report_Date, ProftAndLoss),
 	format_report_entries(Accounts1, 0, [report_currency], Report_Date, ProftAndLoss, [], _, [], ProftAndLoss_Lines),
 	writeln('<!--'),
@@ -552,6 +560,21 @@ crosscheck_totals(Results, Report_Date) :-
 	writeln('<!--'),
 	writeln(Balance_Sheet_Lines),
 	writeln('-->').
+
+
+
+
+	% member(exchange_rate(Report_Start_Date, report_currency, Currency_Unique, Original_Exchange_Rate), Exchange_Rates),
+	% member(exchange_rate(Report_Date, report_currency, Bank_Currency, Current_Exchange_Rate), Exchange_Rates),
+	% Amount is Realized_Gain_Total - Unrealized_PDPC_Cost_Total,
+	% Bank_Currency_Account_Value is (Current_Exchange_Rate - Original_Exchange_Rate)*Amount,
+	% account_assertion(Info, Bank_Currency_Account, Bank_Currency_Account_Value),
+	%account_vector(Info, Bank_Account, Bank_Balance),
+	%number_coord(report_currency, Bank_Balance_With_Currency_Movement_Number, Bank_With_Currency_Movement_Coord),
+	%assertion(floats_close_enough2('bank total', actual(Bank_Balance_With_Currency_Movement_Number), expected(Bank_Value))),
+	%account_assertion(Info, Bank_Account, Bank_Value 
+
+
 
 print_totals(Totals) :-
 	Totals = (
