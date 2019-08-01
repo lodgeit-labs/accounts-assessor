@@ -4,7 +4,7 @@ shell2(Cmd) :-
 shell2(Cmd_In, Exit_Status) :-
 	flatten([Cmd_In], Cmd_Flat),
 	atomic_list_concat(Cmd_Flat, Cmd),
-	write(Cmd), writeln('   ...'),
+	format(user_error, '~w\n\n', [Cmd]),
 	shell(Cmd, Exit_Status).
 
 halt_on_err :-

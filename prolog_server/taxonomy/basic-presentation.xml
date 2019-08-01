@@ -4,7 +4,7 @@ Taxonomy Presentation Links linkbase based on XBRL standard Version 2.1.
 Created by UBmatrix Taxonomy Designer 3.0.2.2347 (2007-12-17 12:39).  
 Contact www.ubmatrix.com
 Copyright (c) 2002-2019 UBmatrix inc., All Rights Reserved
-Produced on 2019-07-26 10:57:16
+Produced on 2019-07-31 20:16:20
 -->
 <linkbase xmlns="http://www.xbrl.org/2003/linkbase" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xlink="http://www.w3.org/1999/xlink" xsi:schemaLocation=" http://www.xbrl.org/2003/linkbase http://www.xbrl.org/2003/xbrl-linkbase-2003-12-31.xsd">
   <roleRef xlink:type="simple" xlink:href="basic.xsd#BalanceSheet" roleURI="http://www.xbrlsite.com/basic/role/BalanceSheet" />
@@ -21,6 +21,7 @@ Produced on 2019-07-26 10:57:16
   <roleRef xlink:type="simple" xlink:href="basic.xsd#RetainedEarnings" roleURI="http://www.xbrlsite.com/basic/role/RetainedEarnings" />
   <roleRef xlink:type="simple" xlink:href="basic.xsd#InventoriesDetail" roleURI="http://www.xbrlsite.com/basic/role/InventoriesDetail" />
   <roleRef xlink:type="simple" xlink:href="basic.xsd#FinishedGoodsDetail" roleURI="http://www.xbrlsite.com/basic/role/FinishedGoodsDetail" />
+  <roleRef xlink:type="simple" xlink:href="basic.xsd#InvestmentReport" roleURI="http://www.xbrlsite.com/basic/role/InvestmentReport" />
   <presentationLink xlink:type="extended" xlink:role="http://www.xbrlsite.com/basic/role/BalanceSheet">
     <loc xlink:type="locator" xlink:href="basic.xsd#basic_BalanceSheetAbstract" xlink:label="basic_BalanceSheetAbstract" />
     <loc xlink:type="locator" xlink:href="basic.xsd#basic_AssetsRollUp" xlink:label="basic_AssetsRollUp" />
@@ -246,5 +247,24 @@ Produced on 2019-07-26 10:57:16
     <presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="basic_FinishedGoodsRollUp" xlink:to="basic_ProductBravo" order="2" use="optional" />
     <loc xlink:type="locator" xlink:href="basic.xsd#basic_FinishedGoods" xlink:label="basic_FinishedGoods" />
     <presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="basic_FinishedGoodsRollUp" xlink:to="basic_FinishedGoods" order="3" use="optional" />
+  </presentationLink>
+  <presentationLink xlink:type="extended" xlink:role="http://www.xbrlsite.com/basic/role/InvestmentReport">
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_InvestmentReportTable" xlink:label="basic_InvestmentReportTable" />
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_LegalEntityAxis" xlink:label="basic_LegalEntityAxis" />
+    <presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="basic_InvestmentReportTable" xlink:to="basic_LegalEntityAxis" order="1" use="optional" />
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_ConsolidatedEntityMember" xlink:label="basic_ConsolidatedEntityMember" />
+    <presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="basic_LegalEntityAxis" xlink:to="basic_ConsolidatedEntityMember" order="1" use="optional" />
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_InvestmentReportLineItems" xlink:label="basic_InvestmentReportLineItems" />
+    <presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="basic_InvestmentReportTable" xlink:to="basic_InvestmentReportLineItems" order="2" use="optional" />
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_InvestmentReportHierarchy" xlink:label="basic_InvestmentReportHierarchy" />
+    <presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="basic_InvestmentReportLineItems" xlink:to="basic_InvestmentReportHierarchy" order="1" use="optional" />
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_InvestmentIncomerealizedonlycurrencymovement" xlink:label="basic_InvestmentIncomerealizedonlycurrencymovement" />
+    <presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="basic_InvestmentReportHierarchy" xlink:to="basic_InvestmentIncomerealizedonlycurrencymovement" order="1" use="optional" />
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_InvestmentIncomeunrealizedonlycurrencymovement" xlink:label="basic_InvestmentIncomeunrealizedonlycurrencymovement" />
+    <presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="basic_InvestmentReportHierarchy" xlink:to="basic_InvestmentIncomeunrealizedonlycurrencymovement" order="2" use="optional" />
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_InvestmentIncomerealizedwithoutcurrencymovement" xlink:label="basic_InvestmentIncomerealizedwithoutcurrencymovement" />
+    <presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="basic_InvestmentReportHierarchy" xlink:to="basic_InvestmentIncomerealizedwithoutcurrencymovement" order="3" use="optional" />
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_InvestmentIncomeunrealizedwithoutcurrencymovement" xlink:label="basic_InvestmentIncomeunrealizedwithoutcurrencymovement" />
+    <presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="basic_InvestmentReportHierarchy" xlink:to="basic_InvestmentIncomeunrealizedwithoutcurrencymovement" order="4" use="optional" />
   </presentationLink>
 </linkbase>

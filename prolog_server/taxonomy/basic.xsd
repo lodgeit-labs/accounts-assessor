@@ -4,9 +4,9 @@ Taxonomy based on XBRL standard Version 2.1.
 Created by UBmatrix Taxonomy Designer 3.0.2.2347 (2007-12-17 12:39).  
 Contact www.ubmatrix.com
 Copyright (c) 2002-2019 UBmatrix inc., All Rights Reserved
-Produced on 2019-07-26 10:57:16
+Produced on 2019-07-31 20:16:20
 -->
-<schema xmlns="http://www.w3.org/2001/XMLSchema" xmlns:xbrli="http://www.xbrl.org/2003/instance" xmlns:link="http://www.xbrl.org/2003/linkbase" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:basic="http://www.xbrlsite.com/basic" xmlns:generic="http://xbrl.org/2008/generic" xmlns:xbrldt="http://xbrl.org/2005/xbrldt" targetNamespace="http://www.xbrlsite.com/basic" elementFormDefault="qualified" attributeFormDefault="unqualified">
+<schema xmlns="http://www.w3.org/2001/XMLSchema" xmlns:xbrli="http://www.xbrl.org/2003/instance" xmlns:link="http://www.xbrl.org/2003/linkbase" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:basic="http://www.xbrlsite.com/basic" xmlns:generic="http://xbrl.org/2008/generic" xmlns:xbrldt="http://xbrl.org/2005/xbrldt" xmlns:nonnum="http://www.xbrl.org/dtr/type/non-numeric" targetNamespace="http://www.xbrlsite.com/basic" elementFormDefault="qualified" attributeFormDefault="unqualified">
   <annotation>
     <appinfo>
       <link:roleType roleURI="http://www.xbrlsite.com/basic/role/BalanceSheet" id="BalanceSheet">
@@ -100,19 +100,32 @@ Produced on 2019-07-26 10:57:16
         <link:usedOn>link:definitionLink</link:usedOn>
         <link:usedOn>generic:link</link:usedOn>
       </link:roleType>
+      <link:roleType roleURI="http://www.xbrlsite.com/basic/role/InvestmentReport" id="InvestmentReport">
+        <link:definition>1140 - Statement - Investement Report</link:definition>
+        <link:usedOn>link:presentationLink</link:usedOn>
+      </link:roleType>
       <link:linkbaseRef xlink:type="simple" xlink:href="basic-label.xml" xlink:role="http://www.xbrl.org/2003/role/labelLinkbaseRef" xlink:arcrole="http://www.w3.org/1999/xlink/properties/linkbase" xlink:title="Label Links, all" />
       <link:linkbaseRef xlink:type="simple" xlink:href="basic-presentation.xml" xlink:role="http://www.xbrl.org/2003/role/presentationLinkbaseRef" xlink:arcrole="http://www.w3.org/1999/xlink/properties/linkbase" xlink:title="Presentation Links, all" />
       <link:linkbaseRef xlink:type="simple" xlink:href="basic-calculation.xml" xlink:role="http://www.xbrl.org/2003/role/calculationLinkbaseRef" xlink:arcrole="http://www.w3.org/1999/xlink/properties/linkbase" xlink:title="Calculation Links, all" />
     </appinfo>
   </annotation>
   <import namespace="http://www.xbrl.org/2003/instance" schemaLocation="http://www.xbrl.org/2003/xbrl-instance-2003-12-31.xsd" />
-  <import namespace="http://www.xbrl.org/dtr/type/non-numeric" schemaLocation="http://www.xbrl.org/dtr/type/nonNumeric-2009-12-16.xsd" />
   <import namespace="http://xbrl.org/2005/xbrldt" schemaLocation="http://www.xbrl.org/2005/xbrldt-2005.xsd" />
+  <import namespace="http://www.xbrl.org/dtr/type/non-numeric" schemaLocation="http://www.xbrl.org/dtr/type/nonNumeric-2009-12-16.xsd" />
   <import namespace="http://www.xbrl.org/2009/arcrole/fact-explanatoryFact" schemaLocation="http://www.xbrl.org/lrr/arcrole/factExplanatory-2009-12-16.xsd" />
   <import namespace="http://www.xbrl.org/2009/role/negated" schemaLocation="http://www.xbrl.org/lrr/role/negated-2009-12-16.xsd" />
   <import namespace="http://www.xbrl.org/2009/role/net" schemaLocation="http://www.xbrl.org/lrr/role/net-2009-12-16.xsd" />
   <import namespace="http://www.xbrl.org/dtr/type/numeric" schemaLocation="http://www.xbrl.org/dtr/type/numeric-2009-12-16.xsd" />
   <import namespace="http://www.xbrl.org/2003/linkbase" schemaLocation="http://www.xbrl.org/2003/xbrl-linkbase-2003-12-31.xsd" />
+  <element id="basic_Dimension_BankAccounts_Duration_DomainDeclaration" name="BankAccount_Duration">
+    <simpleType>
+        <restriction base="string" /></simpleType></element>
+  <element id="basic_Dimension_BankAccounts_Instant_DomainDeclaration" name="BankAccount_Instant">
+    <simpleType>
+        <restriction base="string" /></simpleType></element>
+  <element id="basic_Dimension_Investments_Duration_DomainDeclaration" name="Investment_Duration">
+    <simpleType>
+        <restriction base="string" /></simpleType></element>
   <element id="basic_AccountsPayableRollForward" name="AccountsPayableRollForward" type="xbrli:stringItemType" substitutionGroup="xbrli:item" xbrli:periodType="duration" abstract="true" nillable="true" />
   <element id="basic_AdditionalLongtermBorrowings" name="AdditionalLongtermBorrowings" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" xbrli:periodType="duration" xbrli:balance="credit" nillable="true" />
   <element id="basic_AdditionalLongtermBorrowings2" name="AdditionalLongtermBorrowings2" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" xbrli:periodType="duration" xbrli:balance="debit" nillable="true" />
@@ -134,11 +147,15 @@ Produced on 2019-07-26 10:57:16
   <element id="basic_CashFlowStatementRollForward" name="CashFlowStatementRollForward" type="xbrli:stringItemType" substitutionGroup="xbrli:item" xbrli:periodType="duration" abstract="true" nillable="true" />
   <element id="basic_CollectionReceivables" name="CollectionReceivables" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" xbrli:periodType="duration" xbrli:balance="debit" nillable="true" />
   <element id="basic_CollectionReceivables2" name="CollectionReceivables2" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" xbrli:periodType="duration" xbrli:balance="credit" nillable="true" />
+  <element id="basic_ConsolidatedEntityMember" name="ConsolidatedEntityMember" type="nonnum:domainItemType" substitutionGroup="xbrli:item" xbrli:periodType="duration" abstract="true" nillable="true" />
   <element id="basic_CostsOfSales2" name="CostsOfSales2" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" xbrli:periodType="duration" xbrli:balance="credit" nillable="true" />
   <element id="basic_CurrentAssets" name="CurrentAssets" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" xbrli:periodType="instant" xbrli:balance="debit" nillable="true" />
   <element id="basic_CurrentAssetsRollUp" name="CurrentAssetsRollUp" type="xbrli:stringItemType" substitutionGroup="xbrli:item" xbrli:periodType="duration" abstract="true" nillable="true" />
   <element id="basic_CurrentEarningsLosses" name="CurrentEarningsLosses" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" xbrli:periodType="instant" xbrli:balance="credit" nillable="true" />
   <element id="basic_DepreciationAndAmortization2" name="DepreciationAndAmortization2" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" xbrli:periodType="duration" xbrli:balance="credit" nillable="true" />
+  <element id="basic_Dimension_BankAccounts_Duration" name="Dimension_BankAccounts_Duration" type="xbrli:stringItemType" substitutionGroup="xbrldt:dimensionItem" xbrli:periodType="duration" abstract="true" xbrldt:typedDomainRef="basic.xsd#basic_Dimension_BankAccounts_Duration_DomainDeclaration" />
+  <element id="basic_Dimension_BankAccounts_Instant" name="Dimension_BankAccounts_Instant" type="xbrli:stringItemType" substitutionGroup="xbrldt:dimensionItem" xbrli:periodType="instant" abstract="true" xbrldt:typedDomainRef="basic.xsd#basic_Dimension_BankAccounts_Instant_DomainDeclaration" />
+  <element id="basic_Dimension_Investments_Duration" name="Dimension_Investments_Duration" type="xbrli:stringItemType" substitutionGroup="xbrldt:dimensionItem" xbrli:periodType="duration" abstract="true" xbrldt:typedDomainRef="basic.xsd#basic_Dimension_Investments_Duration_DomainDeclaration" />
   <element id="basic_DividendsEarned" name="DividendsEarned" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" xbrli:periodType="duration" xbrli:balance="credit" nillable="true" />
   <element id="basic_Equity" name="Equity" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" xbrli:periodType="instant" xbrli:balance="credit" nillable="true" />
   <element id="basic_EquityRollUp" name="EquityRollUp" type="xbrli:stringItemType" substitutionGroup="xbrli:item" xbrli:periodType="duration" abstract="true" nillable="true" />
@@ -159,6 +176,14 @@ Produced on 2019-07-26 10:57:16
   <element id="basic_InvestmentIncome" name="InvestmentIncome" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" xbrli:periodType="instant" xbrli:balance="credit" nillable="true" />
   <element id="basic_InvestmentIncomeCopy" name="InvestmentIncomeCopy" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" xbrli:periodType="duration" xbrli:balance="credit" nillable="true" />
   <element id="basic_InvestmentIncomeRollUp" name="InvestmentIncomeRollUp" type="xbrli:stringItemType" substitutionGroup="xbrli:item" xbrli:periodType="duration" nillable="true" />
+  <element id="basic_InvestmentIncomerealizedonlycurrencymovement" name="InvestmentIncomerealizedonlycurrencymovement" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" xbrli:periodType="duration" xbrli:balance="credit" nillable="true" />
+  <element id="basic_InvestmentIncomerealizedwithoutcurrencymovement" name="InvestmentIncomerealizedwithoutcurrencymovement" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" xbrli:periodType="duration" xbrli:balance="credit" nillable="true" />
+  <element id="basic_InvestmentIncomeunrealizedonlycurrencymovement" name="InvestmentIncomeunrealizedonlycurrencymovement" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" xbrli:periodType="duration" xbrli:balance="credit" nillable="true" />
+  <element id="basic_InvestmentIncomeunrealizedwithoutcurrencymovement" name="InvestmentIncomeunrealizedwithoutcurrencymovement" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" xbrli:periodType="duration" xbrli:balance="credit" nillable="true" />
+  <element id="basic_InvestmentReportHierarchy" name="InvestmentReportHierarchy" type="xbrli:stringItemType" substitutionGroup="xbrli:item" xbrli:periodType="duration" abstract="true" nillable="true" />
+  <element id="basic_InvestmentReportLineItems" name="InvestmentReportLineItems" type="xbrli:stringItemType" substitutionGroup="xbrli:item" xbrli:periodType="duration" abstract="true" nillable="true" />
+  <element id="basic_InvestmentReportTable" name="InvestmentReportTable" type="xbrli:stringItemType" substitutionGroup="xbrldt:hypercubeItem" xbrli:periodType="duration" abstract="true" nillable="true" />
+  <element id="basic_LegalEntityAxis" name="LegalEntityAxis" type="xbrli:stringItemType" substitutionGroup="xbrldt:dimensionItem" xbrli:periodType="duration" abstract="true" nillable="true" />
   <element id="basic_Liabilities" name="Liabilities" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" xbrli:periodType="instant" xbrli:balance="credit" nillable="true" />
   <element id="basic_LiabilitiesAndEquity" name="LiabilitiesAndEquity" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" xbrli:periodType="instant" xbrli:balance="credit" nillable="true" />
   <element id="basic_LiabilitiesAndEquityRollUp" name="LiabilitiesAndEquityRollUp" type="xbrli:stringItemType" substitutionGroup="xbrli:item" xbrli:periodType="duration" abstract="true" nillable="true" />
@@ -203,25 +228,4 @@ Produced on 2019-07-26 10:57:16
   <element id="basic_Shares" name="Shares" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" xbrli:periodType="instant" xbrli:balance="debit" nillable="true" />
   <element id="basic_Unit_Investment" name="Unit_Investment" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" xbrli:periodType="instant" xbrli:balance="debit" nillable="true" />
   <element id="basic_WorkInProgress" name="WorkInProgress" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" xbrli:periodType="instant" xbrli:balance="debit" nillable="true" />
-
-  <element id="basic_Dimension_BankAccounts_Duration" name="Dimension_BankAccounts_Duration" substitutionGroup="xbrldt:dimensionItem" xbrli:periodType="duration" abstract="true" xbrldt:typedDomainRef="#basic_Dimension_BankAccounts_Duration_DomainDeclaration"/>
-  <element id="basic_Dimension_BankAccounts_Duration_DomainDeclaration" name="BankAccount_Duration">
-    <simpleType>
-      <restriction base="string"/>
-    </simpleType>
-  </element>
-  <element id="basic_Dimension_BankAccounts_Instant" name="Dimension_BankAccounts_Instant" substitutionGroup="xbrldt:dimensionItem" xbrli:periodType="instant" abstract="true" xbrldt:typedDomainRef="#basic_Dimension_BankAccounts_Instant_DomainDeclaration"/>
-  <element id="basic_Dimension_BankAccounts_Instant_DomainDeclaration" name="BankAccount_Instant">
-    <simpleType>
-      <restriction base="string"/>
-    </simpleType>
-  </element>
-
-  <element id="basic_Dimension_Investments_Duration" name="Dimension_Investments_Duration" substitutionGroup="xbrldt:dimensionItem" xbrli:periodType="duration" abstract="true" xbrldt:typedDomainRef="#basic_Dimension_Investments_Duration_DomainDeclaration"/>
-  <element id="basic_Dimension_Investments_Duration_DomainDeclaration" name="Investment_Duration">
-    <simpleType>
-      <restriction base="string"/>
-    </simpleType>
-  </element>
-
 </schema>

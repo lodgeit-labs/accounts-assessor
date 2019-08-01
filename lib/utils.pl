@@ -13,7 +13,7 @@
 		throw_string/1, 
 		semigroup_foldl/3,
 		get_indentation/2,
-		without_nonalphanum_chars/2,
+		replace_nonalphanum_chars_with_underscore/2,
 		floats_close_enough/2,
 		replace_chars_in_atom/4,
 		filter_out_chars_from_atom/3,
@@ -326,7 +326,7 @@ get_indentation(Level, Indentation) :-
 
 get_indentation(0, ' ').
 
-without_nonalphanum_chars(Atom1, Atom2) :-
+replace_nonalphanum_chars_with_underscore(Atom1, Atom2) :-
 	atom_chars(Atom1, Atom1_Chars),
 	maplist(replace_nonalphanum_char_with_underscore, Atom1_Chars, Atom2_Chars),
 	atom_chars(Atom2, Atom2_Chars).

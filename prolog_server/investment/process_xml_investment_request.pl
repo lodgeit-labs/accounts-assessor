@@ -538,7 +538,7 @@ crosscheck_totals(Results, Report_Date) :-
 	
 	Bank_Value is SDRC_Value_Total - PDRC_Cost_Total,
 	account_by_role(Accounts1, 'Banks'/'Bank',Bank_Account),
-	account_by_role(Accounts1, 'Currency_Movement'/Bank_Account, Bank_Currency_Account),
+	account_by_role(Accounts1, 'Currency_Movement'/'Bank', Bank_Currency_Account),
 	account_vector(Info, Bank_Currency_Account, [Bank_Currency_Movement_Coord]),
 	
 	number_coord(report_currency, Bank_Currency_Movement_Number, Bank_Currency_Movement_Coord),

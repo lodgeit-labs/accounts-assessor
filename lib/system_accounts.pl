@@ -19,7 +19,7 @@
 		s_transaction_vector/2,
 		s_transaction_exchanged/2]).
 :- use_module('utils', [
-		without_nonalphanum_chars/2]).
+		replace_nonalphanum_chars_with_underscore/2]).
 /*	
 Take the output of find_or_add_required_accounts and filter out existing accounts by role. 
 Change id's to unique if needed.
@@ -40,6 +40,17 @@ generate_system_accounts(Info, Accounts_In, Accounts_Out) :-
 
 	
 find_or_add_required_accounts((S_Transactions, Livestock_Types, Transaction_Types), Accounts_In, Accounts_Out) :-
+/*fixme*/
+	make_bank_accounts(Accounts_In, S_Transactions, Bank_Accounts),
+	flatten([Accounts_In, Bank_Accounts], Accounts2),
+	make_currency_movement_accounts(Accounts2, Bank_Accounts, Currency_Movement_Accounts),
+	maplist(make_livestock_accounts, Livestock_Types, Livestock_Accounts),
+	ensure_gains_accounts_exist(Accounts2, S_Transactions, Transaction_Types, Gains_Accounts),
+	flatten([Bank_Accounts, Currency_Movement_Accounts, Livestock_Accounts, Gains_Accounts], Accounts_Out).
+
+/*	
+	
+find_or_add_required_accounts((S_Transactions, Livestock_Types, Transaction_Types), Accounts_In, Accounts_Out) :-
 	make_bank_accounts(Accounts_In, S_Transactions, Bank_Accounts),
 	make_currency_movement_accounts(Accounts_In, Bank_Accounts, Currency_Movement_Accounts),
 	maplist(make_livestock_accounts, Livestock_Types, Livestock_Accounts),
@@ -47,7 +58,7 @@ find_or_add_required_accounts((S_Transactions, Livestock_Types, Transaction_Type
 	flatten([Bank_Accounts, Currency_Movement_Accounts, Livestock_Accounts, Gains_Accounts], Accounts_Out).
 
 	
-
+*/
 /* all bank account names required by all S_Transactions */ 
 bank_account_names(S_Transactions, Names) :-
 	findall(
@@ -91,8 +102,8 @@ make_currency_movement_accounts(Accounts_In, Bank_Accounts, Currency_Movement_Ac
 	maplist(make_currency_movement_account(Accounts_In), Bank_Accounts, Currency_Movement_Accounts).
 
 make_currency_movement_account(Accounts_In, Bank_Account, Currency_Movement_Account) :-
-	account_id(Bank_Account, Bank_Account_Id),
-	ensure_account_exists(Accounts_In, 'Currency_Movement', 0, ('Currency_Movement'/Bank_Account_Id), Currency_Movement_Account).
+	account_role(Bank_Account, (_/Role_Child)),
+	ensure_account_exists(Accounts_In, 'Currency_Movement', 0, ('Currency_Movement'/Role_Child), Currency_Movement_Account).
 	
 	
 /*
@@ -200,7 +211,7 @@ ensure_account_exists(Accounts_In, Parent_Id, Detail_Level, Role, Account) :-
 		(account_term_by_role(Accounts_In, Role, Account),!)
 	;
 		(
-			without_nonalphanum_chars(Child_Role_Raw, Child_Role_Safe),
+			replace_nonalphanum_chars_with_underscore(Child_Role_Raw, Child_Role_Safe),
 			atomic_list_concat([Parent_Id, '_', Child_Role_Safe], Id),
 			free_id(Accounts_In, Id, Free_Id),
 			account_role(Account, Role),
