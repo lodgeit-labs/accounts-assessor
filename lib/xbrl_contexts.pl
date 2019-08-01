@@ -21,9 +21,9 @@ ensure_context_exists(Short_Id, Value, Context_Info, Contexts_In, Contexts_Out, 
 	update_dimension_value(Segment_In, Period, Value, Segment),
 	update_dimension_value(Scenario_In, Period, Value, Scenario),
 	atomic_list_concat([Id_Base, '-', Short_Id], Suggested_Context_Id),
-	find_or_add_context(Contexts_In, Context, Suggested_Context_Id, Contexts_Out),
-	context_id(Context, I),
-	writeln(('so:',I)).
+	find_or_add_context(Contexts_In, Context, Suggested_Context_Id, Contexts_Out).
+	%context_id(Context, I),
+	%writeln(('so:',I)).
 
 	
 update_dimension_value('', _, _, '').
@@ -59,19 +59,19 @@ update_point(Point_In, Period, Value, Point_Out) :-
 and will be modified, if required, to be unique */
 find_or_add_context(Contexts_In, Context, Suggested_Context_Id, Contexts_Out) :-
 	assertion(ground(Contexts_In)),
-	writeln(('in:', Contexts_In)),
-	writeln(('want:', Suggested_Context_Id)),
+	%writeln(('in:', Contexts_In)),
+	%writeln(('want:', Suggested_Context_Id)),
 	(
 		member(Context, Contexts_In)
 	->
 		(
-			writeln(('found:',Context)),
+			%writeln(('found:',Context)),
 			Contexts_Out = Contexts_In
 		)
 	;
 		(
-			add_context(Contexts_In, Suggested_Context_Id, Context, Contexts_Out),
-			writeln(('added:', Context))
+			add_context(Contexts_In, Suggested_Context_Id, Context, Contexts_Out)
+			%writeln(('added:', Context))
 		)
 	).
 
