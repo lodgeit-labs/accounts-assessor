@@ -40,7 +40,7 @@ generate_system_accounts(Info, Accounts_In, Accounts_Out) :-
 
 	
 find_or_add_required_accounts((S_Transactions, Livestock_Types, Transaction_Types), Accounts_In, Accounts_Out) :-
-/*fixme*/
+/*fixme, accounts should be added one by one and id uniqueness checked against all the previously added accounts each time */
 	make_bank_accounts(Accounts_In, S_Transactions, Bank_Accounts),
 	flatten([Accounts_In, Bank_Accounts], Accounts2),
 	make_currency_movement_accounts(Accounts2, Bank_Accounts, Currency_Movement_Accounts),
