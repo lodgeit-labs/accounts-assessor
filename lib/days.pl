@@ -188,6 +188,7 @@ parse_date(DateString, YMD) :-
 
 format_date(Date, DateString) :-
    format_time(string(DateString), '%Y-%m-%d', Date).
+   /*atom()*/
 
 
    

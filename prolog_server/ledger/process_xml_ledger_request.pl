@@ -30,7 +30,7 @@
 		profitandloss_between/8, 
 		balance_by_account/9, 
 		balance_sheet_at/8,
-		format_report_entries/9, 
+		format_report_entries/10, 
 		bs_and_pl_entries/8,
 		net_activity_by_account/10]).
 :- use_module('../../lib/ledger_report_details', [
@@ -128,9 +128,9 @@ output_results(S_Transactions, Transactions, Start_Date, End_Date, Exchange_Rate
 	balance_sheet_at(Exchange_Rates2, Accounts, Transactions, Report_Currency, End_Date, Start_Date, End_Date, Balance_Sheet2),
 	profitandloss_between(Exchange_Rates2, Accounts, Transactions, Report_Currency, End_Date, Start_Date, End_Date, ProftAndLoss2),
 	assertion(ground((Balance_Sheet2, ProftAndLoss2, Trial_Balance2))),
-	format_report_entries(Accounts, 0, Report_Currency, Instant_Context_Id_Base,  Balance_Sheet2, [],     Units0, [], Bs_Lines),
-	format_report_entries(Accounts, 0, Report_Currency, Duration_Context_Id_Base, ProftAndLoss2,  Units0, Units1, [], Pl_Lines),
-	format_report_entries(Accounts, 0, Report_Currency, Instant_Context_Id_Base,  Trial_Balance2, Units1, Units2, [], Tb_Lines),
+	format_report_entries(xbrl, Accounts, 0, Report_Currency, Instant_Context_Id_Base,  Balance_Sheet2, [],     Units0, [], Bs_Lines),
+	format_report_entries(xbrl, Accounts, 0, Report_Currency, Duration_Context_Id_Base, ProftAndLoss2,  Units0, Units1, [], Pl_Lines),
+	format_report_entries(xbrl, Accounts, 0, Report_Currency, Instant_Context_Id_Base,  Trial_Balance2, Units1, Units2, [], Tb_Lines),
 	investment_report(
 		(Exchange_Rates2, Accounts, Transactions, Report_Currency, End_Date), 
 		Transaction_Types, Investment_Report_Lines),
@@ -203,7 +203,7 @@ print_detail_account(Static_Data, Context_Info, Fact_Name, Account_In,
 		balance_by_account(Exchange_Rates, Accounts, Transactions, Report_Currency, End_Date, Account, End_Date, Balance, Transactions_Count)
 	),
 	format_report_entries(
-		Accounts, 1, Report_Currency, Context_Id, 
+		xbrl, Accounts, 1, Report_Currency, Context_Id, 
 		[entry(Fact_Name, Balance, [], Transactions_Count)],
 		Used_Units_In, Used_Units_Out, Lines_In, Lines_Out).
 
