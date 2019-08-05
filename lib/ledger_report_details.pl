@@ -41,10 +41,14 @@ investment_report((Exchange_Rates, Accounts, Transactions, Report_Currency, Repo
 	format_date(Report_Date, Report_Date_Atom),
 	Header = tr([th('Investment'), th('Realized Market'), th('Realized Forex'), th('Unrealized Market'), th('Unrealized Forex')]),
 	append([Header], Report_Table_Data, Tbl),
-	Html = html(['investment report for ', Report_Date_Atom, ':', br([]), table(Tbl)]),
-	phrase(Html, Html_Tokenlist),
+	atomic_list_concat(['investment report for ', Report_Date_Atom], Title_Text),
+	Body_Tags = [Title_Text, ':', br([]), table(Tbl)],
+	Page = page(
+		title([Title_Text]),
+		Body_Tags),
+	phrase(Page, Page_Tokenlist),
 	
-	FN = 'investment_report.html_fragment',
+	FN = 'investment_report.html',
 	request_tmp_dir(Tmp_Dir),
 	server_public_url(Server_Public_Url),
 	atomic_list_concat([Server_Public_Url, '/tmp/', Tmp_Dir, '/', FN], Url),
@@ -52,7 +56,7 @@ investment_report((Exchange_Rates, Accounts, Transactions, Report_Currency, Repo
 	
 	new_memory_file(X),
 	open_memory_file(X, write, Mem_Stream),
-	print_html(Mem_Stream, Html_Tokenlist),
+	print_html(Mem_Stream, Page_Tokenlist),
 	close(Mem_Stream),
 	memory_file_to_string(X, Html_String),
 	
