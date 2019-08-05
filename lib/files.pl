@@ -48,7 +48,16 @@ bump_tmp_directory_id :-
    retractall(my_request_tmp_dir(_)),
    asserta(my_request_tmp_dir(Dir)),
    my_tmp_file_name('', Path),
-   make_directory(Path).
+   make_directory(Path),
+   (
+      (absolute_file_name(my_tmp('last'), Last, [access(none), file_errors(fail)]),!)
+      ;
+      absolute_file_name(my_tmp('last'), Last, [file_type(directory)])
+   ),
+   atomic_list_concat(['rm -f ', Last], Rm_Cmd),
+   shell(Rm_Cmd, _),
+   atomic_list_concat(['ln -s ', Path, ' ', Last], Cmd),
+   shell(Cmd, 0).
 
 /*
   assert a base for tmp directory names that should be unique for each run of the server (current time)

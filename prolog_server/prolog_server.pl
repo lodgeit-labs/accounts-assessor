@@ -44,8 +44,9 @@
 :- http_handler(root(chat/residency), residency_request, [methods([post])]).
 :- http_handler('/favicon.ico', http_reply_file(my_static('favicon.ico'), []), []).
 :- http_handler(root(.), http_reply_from_files('.', []), [prefix]).
-:- http_handler(root(run/Test), tests(Test), [methods([get]), priority(1)]). /*fixme*/
-:- http_handler(root(run/_CacheSkipDummy/Test), tests(Test), [methods([get]), priority(1)]).
+%:- http_handler(root(run/Test), tests(Test), [methods([get]), priority(1)]). /*fixme*/
+%:- http_handler(root(run/_CacheSkipDummy/Test), tests(Test), [methods([get]), priority(1)]).
+:- http_handler(root(run/Test), tests(Test), [methods([get]), priority(1)]).
 
 % -------------------------------------------------------------------
 % run_simple_server/0
@@ -109,6 +110,16 @@ upload(_Request) :-
 tests(Url, Request) :-
 	bump_tmp_directory_id,
 	absolute_file_name(my_tests(Url), Path, [ access(read), file_errors(fail) ]),
+	
+	/* supress the functionality of generating unique taxonomy urls. */
+	(
+		member(search([relativeurls='1']), Request)
+	->
+		set_flag(prepare_unique_taxonomy_url, false)
+	;
+		true
+	),
+	
 	process_data(_FileName, Path, Request).
 
    

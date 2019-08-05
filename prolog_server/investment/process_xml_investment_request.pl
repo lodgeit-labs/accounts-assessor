@@ -25,7 +25,7 @@ see doc/investment and dropbox Develop/videos/ledger
 :- use_module('../../lib/ledger', [
 		process_ledger/12]).
 :- use_module('../../lib/ledger_report', [
-		format_report_entries/9,
+		format_report_entries/10,
 		balance_sheet_at/8, 
 		trial_balance_between/8, 
 		profitandloss_between/8, 
@@ -171,12 +171,12 @@ process_realized(Dom, Global_Report_Date_Atom, Result) :-
 	account_assertion(Info, Gain_Account, -RC_Realized_Total_Gain),
 	
 	profitandloss_between(Exchange_Rates, Accounts1, Transactions, [report_currency], Sale_Date, Purchase_Date, Sale_Date, ProftAndLoss),
-	format_report_entries(Accounts1, 0, [report_currency], Sale_Date, ProftAndLoss, [], _, [], ProftAndLoss_Lines),
+	format_report_entries(xbrl, Accounts1, 0, [report_currency], Sale_Date, ProftAndLoss, [], _, [], ProftAndLoss_Lines),
 	writeln('<!--'),
 	writeln(ProftAndLoss_Lines),
 	writeln('-->'),
 	balance_sheet_at(Exchange_Rates, Accounts1, Transactions, [report_currency], Sale_Date, Purchase_Date, Sale_Date, Balance_Sheet),
-	format_report_entries(Accounts1, 0, [report_currency], Sale_Date, Balance_Sheet, [], _, [], Balance_Sheet_Lines),
+	format_report_entries(xbrl, Accounts1, 0, [report_currency], Sale_Date, Balance_Sheet, [], _, [], Balance_Sheet_Lines),
 	writeln('<!--'),
 	writeln(Balance_Sheet_Lines),
 	writeln('-->'),
@@ -285,12 +285,12 @@ process_unrealized(Dom, Global_Report_Date, Result) :-
 	),
 	
 	profitandloss_between(Exchange_Rates, Accounts1, Transactions, [report_currency], Report_Date, Purchase_Date, Report_Date, ProftAndLoss),
-	format_report_entries(Accounts1, 0, [report_currency], Report_Date, ProftAndLoss, [], _, [], ProftAndLoss_Lines),
+	format_report_entries(xbrl, Accounts1, 0, [report_currency], Report_Date, ProftAndLoss, [], _, [], ProftAndLoss_Lines),
 	writeln('<!--'),
 	writeln(ProftAndLoss_Lines),
 	writeln('-->'),
 	balance_sheet_at(Exchange_Rates, Accounts1, Transactions, [report_currency], Report_Date, Purchase_Date, Report_Date, Balance_Sheet),
-	format_report_entries(Accounts1, 0, [report_currency], Report_Date, Balance_Sheet, [], _, [], Balance_Sheet_Lines),
+	format_report_entries(xbrl, Accounts1, 0, [report_currency], Report_Date, Balance_Sheet, [], _, [], Balance_Sheet_Lines),
 	writeln('<!--'),
 	writeln(Balance_Sheet_Lines),
 	writeln('-->'),
@@ -538,7 +538,7 @@ crosscheck_totals(Results, Report_Date) :-
 	
 	Bank_Value is SDRC_Value_Total - PDRC_Cost_Total,
 	account_by_role(Accounts1, 'Banks'/'Bank',Bank_Account),
-	account_by_role(Accounts1, 'Currency_Movement'/Bank_Account, Bank_Currency_Account),
+	account_by_role(Accounts1, 'Currency_Movement'/'Bank', Bank_Currency_Account),
 	account_vector(Info, Bank_Currency_Account, [Bank_Currency_Movement_Coord]),
 	
 	number_coord(report_currency, Bank_Currency_Movement_Number, Bank_Currency_Movement_Coord),
@@ -551,12 +551,12 @@ crosscheck_totals(Results, Report_Date) :-
 		debug printout
 	*/
 	profitandloss_between(Exchange_Rates, Accounts1, Transactions, [report_currency], Report_Date, date(2000,1,1), Report_Date, ProftAndLoss),
-	format_report_entries(Accounts1, 0, [report_currency], Report_Date, ProftAndLoss, [], _, [], ProftAndLoss_Lines),
+	format_report_entries(xbrl, Accounts1, 0, [report_currency], Report_Date, ProftAndLoss, [], _, [], ProftAndLoss_Lines),
 	writeln('<!--'),
 	writeln(ProftAndLoss_Lines),
 	writeln('-->'),
 	balance_sheet_at(Exchange_Rates, Accounts1, Transactions, [report_currency], Report_Date, date(2000,1,1), Report_Date, Balance_Sheet),
-	format_report_entries(Accounts1, 0, [report_currency], Report_Date, Balance_Sheet, [], _, [], Balance_Sheet_Lines),
+	format_report_entries(xbrl, Accounts1, 0, [report_currency], Report_Date, Balance_Sheet, [], _, [], Balance_Sheet_Lines),
 	writeln('<!--'),
 	writeln(Balance_Sheet_Lines),
 	writeln('-->').
