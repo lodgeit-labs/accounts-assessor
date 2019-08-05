@@ -18,7 +18,8 @@
 		pesseract_style_table_rows/4]).
 
 :- use_module('pacioli', [
-		vec_add/3]).
+		vec_add/3,
+		vecs_are_almost_equal/2]).
 		
 :- use_module('utils', [
 		get_indentation/2,
@@ -127,7 +128,7 @@ investment_report1((Exchange_Rates, Accounts, Transactions, Report_Currency, Rep
 /*
 	generate realized and unrealized investment report sections for one trading account
 */
-investment_report2((Exchange_Rates, Accounts, Transactions, Report_Currency, Report_Date), Trading_Account, [Lines, Warnings]) :-
+investment_report2((Exchange_Rates, Accounts, Transactions, Report_Currency, Report_Date), Trading_Account, Lines) :-
 	units_traded_on_trading_account(Accounts, Trading_Account, All_Units_Roles),
 	maplist(
 		investment_report3(
@@ -140,8 +141,7 @@ investment_report2((Exchange_Rates, Accounts, Transactions, Report_Currency, Rep
 	maplist(
 		check_investment_totals(Static_Data, Trading_Account),
 		[Realized_Totals_Crosscheck_List, Unrealized_Totals_Crosscheck_List],
-		[realized, unrealized],
-		Warnings).
+		[realized, unrealized]).
 	
 investment_report3(Static_Data, Unit, Row, Realized_Total, Unrealized_Total) :-
 	Row = row(Unit, Lines1, Lines2),
@@ -187,25 +187,22 @@ units_traded_on_trading_account(Accounts, Trading_Account, All_Units_Roles) :-
 	),
 	sort(All_Units_Roles0, All_Units_Roles).
 	
-check_investment_totals((Exchange_Rates, Accounts, Transactions, Report_Currency, Report_Date), Trading_Account, Check_Totals_List_Nested, Gains_Role, Warning) :- 
+check_investment_totals((Exchange_Rates, Accounts, Transactions, Report_Currency, Report_Date), Trading_Account, Check_Totals_List_Nested, Gains_Role) :- 
 	flatten(Check_Totals_List_Nested, Check_Totals_List),
 	% the totals in investment report should be more or less equal to the account balances
 	vec_add(Check_Totals_List, [/*coord('AUD', 1, 0)*/], Total),
 	account_by_role(Accounts, (Trading_Account/Gains_Role), Account),
 	balance_by_account(Exchange_Rates, Accounts, Transactions, Report_Currency, Report_Date, Account, Report_Date, Total_Balance, _),
 	(
-		(
-			Total_Balance = Total
-		)
+		vecs_are_almost_equal(Total_Balance, Total)
 	->
-			Warning = []
+		true
 	;
 		(
 			term_string(Total_Balance, Total_Balance_Str),
 			term_string(Total, Total_Str),
-			Warning = [
-				'\n', Gains_Role, ' total balance check failed: account balance: ',
-				Total_Balance_Str, 'investment report total:', Total_Str, '.\n']
+			throw_string([Gains_Role, ' total balance check failed: account balance: ',
+				Total_Balance_Str, 'investment report total:', Total_Str, '.\n'])
 		)
 	).
 

@@ -17,9 +17,12 @@
 		    value_multiply/3,
 		    value_divide/3,
 			debit_isomorphism/2,
+			vecs_are_almost_equal/2,
 			is_debit/1]).
 
-:- use_module(utils, [semigroup_foldl/3]).
+:- use_module('utils', [
+		coord_is_almost_zero/1,
+		semigroup_foldl/3]).
 
 :- use_module(library(clpr)).
 		    
@@ -178,3 +181,7 @@ value_multiply(value(Unit, Amount1), Multiplier, value(Unit, Amount2)) :-
 
 value_divide(value(Unit, Amount1), Divisor, value(Unit, Amount2)) :-
 	Amount2 is Amount1 / Divisor.
+
+vecs_are_almost_equal(A, B) :-
+	vec_sub(A, B, C),
+	maplist(coord_is_almost_zero, C).
