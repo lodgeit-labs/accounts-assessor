@@ -34,7 +34,8 @@
 		bs_and_pl_entries/8,
 		net_activity_by_account/10]).
 :- use_module('../../lib/ledger_report_details', [
-		investment_report/3]).
+		investment_report/3,
+		bs_report/5]).
 :- use_module('../../lib/statements', [
 		extract_transaction/3, 
 		preprocess_s_transactions/4, 
@@ -129,12 +130,13 @@ output_results(S_Transactions, Transactions, Start_Date, End_Date, Exchange_Rate
 	profitandloss_between(Exchange_Rates2, Accounts, Transactions, Report_Currency, End_Date, Start_Date, End_Date, ProftAndLoss2),
 	assertion(ground((Balance_Sheet2, ProftAndLoss2, Trial_Balance2))),
 	format_report_entries(xbrl, Accounts, 0, Report_Currency, Instant_Context_Id_Base,  Balance_Sheet2, [],     Units0, [], Bs_Lines),
+	bs_report(Accounts, Report_Currency, Balance_Sheet2, End_Date, Bs_Html),
 	format_report_entries(xbrl, Accounts, 0, Report_Currency, Duration_Context_Id_Base, ProftAndLoss2,  Units0, Units1, [], Pl_Lines),
 	format_report_entries(xbrl, Accounts, 0, Report_Currency, Instant_Context_Id_Base,  Trial_Balance2, Units1, Units2, [], Tb_Lines),
 	investment_report(
 		(Exchange_Rates2, Accounts, Transactions, Report_Currency, Start_Date, End_Date), 
 		Transaction_Types, Investment_Report_Lines),
-	
+
 	Results0 = (Base_Contexts, Units2, []),
 	dict_from_vars(Static_Data, 
 		[Start_Date, End_Date, Exchange_Rates, Accounts, Transactions, Report_Currency, Transaction_Types, Entity_Identifier, Duration_Context_Id_Base]
@@ -153,6 +155,7 @@ output_results(S_Transactions, Transactions, Start_Date, End_Date, Exchange_Rate
 		'\n<!-- balance sheet: -->\n', Bs_Lines, 
 		'\n<!-- profit and loss: -->\n', Pl_Lines,
 		'\n<!-- investment report:\n', Investment_Report_Lines, '\n -->\n',
+		'\n<!-- bs html:\n', Bs_Html, '\n -->\n',
 		'\n<!-- trial balance: -->\n',  Tb_Lines
 	], Report_Lines_List),
 	atomic_list_concat(Report_Lines_List, Report_Lines),

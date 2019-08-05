@@ -13,7 +13,8 @@
 		format_report_entries/10, 
 		bs_and_pl_entries/8,
 		format_balances/11,
-		net_activity_by_account/10]).
+		net_activity_by_account/10,
+		pesseract_style_table_rows/4]).
 
 :- use_module('accounts', [
 		account_child_parent/3,
@@ -230,10 +231,12 @@ format_report_entries(Format, Accounts, Indent_Level, Report_Currency, Context, 
 format_report_entries(_, _, _, _, _, _, [], Used_Units, Used_Units, Lines, Lines).
 
 format_report_entries(Format, Max_Detail_Level, Accounts, Indent_Level, Report_Currency, Context, Entries, Used_Units_In, Used_Units_Out, Lines_In, Lines_Out) :-
-	[entry(Name, Balances, Children, Transactions_Count)|EntriesTail] = Entries,
+	[entry(Name, Balances, Children, Transactions_Count)|Entries_Tail] = Entries,
 	(
+		/* does the account have a detail level and is it greater than Max_Detail_Level? */
 		(account_detail_level(Accounts, Name, Detail_Level), Detail_Level > Max_Detail_Level)
 	->
+		/* nothing to do */
 		(
 			Used_Units_In = Used_Units_Out, 
 			Lines_In = Lines_Out
@@ -242,22 +245,67 @@ format_report_entries(Format, Max_Detail_Level, Accounts, Indent_Level, Report_C
 		(
 			account_normal_side(Accounts, Name, Normal_Side),
 			(
-				(Balances = [],(Transactions_Count \= 0; Indent_Level = 0))
+				/* should we display an account with zero transactions? */
+				(Balances = [],(Indent_Level = 0; Transactions_Count \= 0))
 			->
+				/* force-display it */
 				format_balance(Format, Indent_Level, Report_Currency, Context, Name, Normal_Side, [],
 					Used_Units_In, UsedUnitsIntermediate, Lines_In, LinesIntermediate)
 			;
+				/* if not, let the logic omit it entirely */
 				format_balances(Format, Indent_Level, Report_Currency, Context, Name, Normal_Side, Balances, 
 					Used_Units_In, UsedUnitsIntermediate, Lines_In, LinesIntermediate)
 			),
 			Level_New is Indent_Level + 1,
+			/*display child entries*/
 			format_report_entries(Format, Max_Detail_Level, Accounts, Level_New, Report_Currency, Context, Children, UsedUnitsIntermediate, UsedUnitsIntermediate2, LinesIntermediate, LinesIntermediate2),
-			format_report_entries(Format, Max_Detail_Level, Accounts, Indent_Level, Report_Currency, Context, EntriesTail, UsedUnitsIntermediate2, Used_Units_Out, LinesIntermediate2, Lines_Out)
+			/*recurse on Entries_Tail*/
+			format_report_entries(Format, Max_Detail_Level, Accounts, Indent_Level, Report_Currency, Context, Entries_Tail, UsedUnitsIntermediate2, Used_Units_Out, LinesIntermediate2, Lines_Out)
 		)
 	),
 	!.
 			
+pesseract_style_table_rows(_, _, [], []).
 
+pesseract_style_table_rows(Accounts, Report_Currency, Entries, [Lines|Lines_Tail]) :-
+	[entry(Name, Balances, Children, _)|Entries_Tail] = Entries,
+	/*render child entries*/
+	pesseract_style_table_rows(Accounts, Report_Currency, Children, Children_Lines),
+	/*render balance*/
+	maybe_balance_lines(Accounts, Name, Report_Currency, Balances, Balance_Lines),
+	(
+		Children_Lines = []
+	->
+		
+		(
+			Lines = [tr([td(Name), td(Balance_Lines)])]
+			
+		)
+	;
+		(
+			flatten([tr([td([b(Name)])]), Children_Lines, [tr([td([align="right"],[Name]), td(Balance_Lines)])]], Lines)
+
+		)		
+	),
+	/*recurse on Entries_Tail*/
+	pesseract_style_table_rows(Accounts, Report_Currency, Entries_Tail, Lines_Tail).
+			
+maybe_balance_lines(Accounts, Name, Report_Currency, Balances, Balance_Lines) :-
+	account_normal_side(Accounts, Name, Normal_Side),
+	(
+		Balances = []
+	->
+		/* force-display it */
+		format_balance(html, 0, Report_Currency, '', Name, Normal_Side, Balances,
+			[], _, [], Balance_Lines)
+	;
+		/* if not, let the logic omit it entirely */
+		format_balances(html, 0, Report_Currency, '', Name, Normal_Side, Balances, 
+			[], _, [], Balance_Lines)
+	).
+			
+			
+			
 format_balances(_, _, _, _, _, _, [], Used_Units, Used_Units, Lines, Lines).
 
 format_balances(Format, Indent_Level, Report_Currency, Context, Name, Normal_Side, [Balance|Balances], Used_Units_In, Used_Units_Out, Lines_In, Lines_Out) :-

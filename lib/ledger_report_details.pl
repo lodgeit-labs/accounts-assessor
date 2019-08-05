@@ -1,5 +1,6 @@
 :- module(ledger_report_details, [
-		investment_report/3]).
+		investment_report/3,
+		bs_report/5]).
 
 :- use_module('system_accounts', [
 		trading_account_ids/2]).
@@ -13,7 +14,8 @@
 
 :- use_module('ledger_report', [
 		balance_by_account/9,
-		format_report_entries/11]).
+		format_report_entries/11,
+		pesseract_style_table_rows/4]).
 
 :- use_module('pacioli', [
 		vec_add/3]).
@@ -31,53 +33,75 @@
 		server_public_url/1]).
 		
 :- use_module(library(http/html_write)).
-		
 
 
-investment_report((Exchange_Rates, Accounts, Transactions, Report_Currency_List, Start_Date, End_Date), Trading_Account_Id, Lines) :-
-	investment_report1((Exchange_Rates, Accounts, Transactions, Report_Currency_List, End_Date), Trading_Account_Id, Report0),
-	flatten(Report0, Report),
-	gtrace,
-	report_to_html(Report, Report_Table_Data),
-	format_date(Start_Date, Start_Date_Atom),
-	format_date(End_Date, End_Date_Atom),
+report_file_path(FN, Url, Path) :-
+	request_tmp_dir(Tmp_Dir),
+	server_public_url(Server_Public_Url),
+	atomic_list_concat([Server_Public_Url, '/tmp/', Tmp_Dir, '/', FN], Url),
+	my_tmp_file_name(FN, Path).
+
+html_tokenlist_string(Tokenlist, String) :-
+	new_memory_file(X),
+	open_memory_file(X, write, Mem_Stream),
+	print_html(Mem_Stream, Tokenlist),
+	close(Mem_Stream),
+	memory_file_to_string(X, String).
+
+write_file_from_string(File_Path, Html_String) :-
+	open(File_Path, write, File_Stream),
+	write(File_Stream, Html_String),
+	close(File_Stream).
+
+report_section(File_Name, Html_Tokenlist, Lines) :-
+	report_file_path(File_Name, Url, File_Path),
+	html_tokenlist_string(Html_Tokenlist, Html_String),
+	write_file_from_string(File_Path, Html_String),
+	Lines = ['url: ', Url, '\n', '\n', Html_String].
+
+report_currency_atom(Report_Currency_List, Report_Currency_Atom) :-
 	(
 		Report_Currency_List = [Report_Currency]
 	->
 		atomic_list_concat(['(', Report_Currency, ')'], Report_Currency_Atom)
 	;
 		Report_Currency_Atom = ''
-	),
-	atomic_list_concat(['investment report from ', Start_Date_Atom, ' to ', End_Date_Atom, ' ', Report_Currency_Atom], Title_Text),
-	Header = tr([th('Investment'), th('Realized Market'), th('Realized Forex'), th('Unrealized Market'), th('Unrealized Forex')]),
-	append([Header], Report_Table_Data, Tbl),
-	Body_Tags = [Title_Text, ':', br([]), table(Tbl)],
+	).
+
+report_page(Title_Text, Tbl, File_Name, Lines) :-
+	Body_Tags = [Title_Text, ':', br([]), table([border="1"], Tbl)],
 	Page = page(
 		title([Title_Text]),
 		Body_Tags),
 	phrase(Page, Page_Tokenlist),
-	
-	FN = 'investment_report.html',
-	request_tmp_dir(Tmp_Dir),
-	server_public_url(Server_Public_Url),
-	atomic_list_concat([Server_Public_Url, '/tmp/', Tmp_Dir, '/', FN], Url),
-	my_tmp_file_name(FN, File_Path),
-	
-	new_memory_file(X),
-	open_memory_file(X, write, Mem_Stream),
-	print_html(Mem_Stream, Page_Tokenlist),
-	close(Mem_Stream),
-	memory_file_to_string(X, Html_String),
-	
-	open(File_Path, write, File_Stream),
-	write(File_Stream, Html_String),
-	close(File_Stream),
-	
-	Lines = ['url: ', Url, '\n', '\n', Html_String].
-	
+	report_section(File_Name, Page_Tokenlist, Lines).
 
-report_to_html([], '').
-report_to_html([Item|Items], [Row|Rows]) :-
+	
+bs_report(Accounts, Report_Currency, Balance_Sheet, End_Date, Lines) :-
+	format_date(End_Date, End_Date_Atom),
+	report_currency_atom(Report_Currency, Report_Currency_Atom),
+	atomic_list_concat(['balance sheet for ', End_Date_Atom, ' ', Report_Currency_Atom], Title_Text),
+	pesseract_style_table_rows(Accounts, Report_Currency, Balance_Sheet, Report_Table_Data),
+	Header = tr([th('Account'), th(['Balance', Report_Currency_Atom])]),
+	flatten([Header, Report_Table_Data], Tbl),
+	report_page(Title_Text, Tbl, 'balance_sheet.html', Lines).
+	
+	
+investment_report((Exchange_Rates, Accounts, Transactions, Report_Currency_List, Start_Date, End_Date), Trading_Account_Id, Lines) :-
+	investment_report1((Exchange_Rates, Accounts, Transactions, Report_Currency_List, End_Date), Trading_Account_Id, Report0),
+	flatten(Report0, Report),
+	investment_report_to_html(Report, Report_Table_Data),
+	format_date(Start_Date, Start_Date_Atom),
+	format_date(End_Date, End_Date_Atom),
+	report_currency_atom(Report_Currency_List, Report_Currency_Atom),
+	atomic_list_concat(['investment report from ', Start_Date_Atom, ' to ', End_Date_Atom, ' ', Report_Currency_Atom], Title_Text),
+	Header = tr([th('Investment'), th('Realized Market'), th('Realized Forex'), th('Unrealized Market'), th('Unrealized Forex')]),
+	append([Header], Report_Table_Data, Tbl),
+	report_page(Title_Text, Tbl, 'investment_report.html', Lines).
+
+
+investment_report_to_html([], '').
+investment_report_to_html([Item|Items], [Row|Rows]) :-
 	Item = row(Unit, Realized, Unrealized),
 	Columns1 = [td(Unit)],
 	gains_html(Realized, Rea_Html),
@@ -85,7 +109,7 @@ report_to_html([Item|Items], [Row|Rows]) :-
 	append(Columns1, Rea_Html, Columns2),
 	append(Columns2, Unr_Html, Columns),
 	Row = tr(Columns),
-	report_to_html(Items, Rows).
+	investment_report_to_html(Items, Rows).
 
 gains_html((_, Market, Forex), [td(Market), td(Forex)]).
 
@@ -184,3 +208,4 @@ check_investment_totals((Exchange_Rates, Accounts, Transactions, Report_Currency
 				Total_Balance_Str, 'investment report total:', Total_Str, '.\n']
 		)
 	).
+
