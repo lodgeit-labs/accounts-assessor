@@ -34,14 +34,23 @@
 		
 
 
-investment_report((Exchange_Rates, Accounts, Transactions, Report_Currency, Report_Date), Trading_Account_Id, Lines) :-
-	investment_report1((Exchange_Rates, Accounts, Transactions, Report_Currency, Report_Date), Trading_Account_Id, Report0),
+investment_report((Exchange_Rates, Accounts, Transactions, Report_Currency_List, Start_Date, End_Date), Trading_Account_Id, Lines) :-
+	investment_report1((Exchange_Rates, Accounts, Transactions, Report_Currency_List, End_Date), Trading_Account_Id, Report0),
 	flatten(Report0, Report),
+	gtrace,
 	report_to_html(Report, Report_Table_Data),
-	format_date(Report_Date, Report_Date_Atom),
+	format_date(Start_Date, Start_Date_Atom),
+	format_date(End_Date, End_Date_Atom),
+	(
+		Report_Currency_List = [Report_Currency]
+	->
+		atomic_list_concat(['(', Report_Currency, ')'], Report_Currency_Atom)
+	;
+		Report_Currency_Atom = ''
+	),
+	atomic_list_concat(['investment report from ', Start_Date_Atom, ' to ', End_Date_Atom, ' ', Report_Currency_Atom], Title_Text),
 	Header = tr([th('Investment'), th('Realized Market'), th('Realized Forex'), th('Unrealized Market'), th('Unrealized Forex')]),
 	append([Header], Report_Table_Data, Tbl),
-	atomic_list_concat(['investment report for ', Report_Date_Atom], Title_Text),
 	Body_Tags = [Title_Text, ':', br([]), table(Tbl)],
 	Page = page(
 		title([Title_Text]),
@@ -137,7 +146,7 @@ investment_report3_balance((Exchange_Rates, Accounts, Transactions, Report_Curre
 	account_by_role(Accounts, (Gains_Account/Forex_Role), Gains_Forex_Account),
 	account_by_role(Accounts, (Gains_Forex_Account/Unit), Unit_Account),
 	balance_by_account(Exchange_Rates, Accounts, Transactions, Report_Currency, Report_Date, Unit_Account, Report_Date, Balance, Transactions_Count),
-	format_report_entries(simple, 1, Accounts, 4, Report_Currency, '', [entry(Unit_Account, Balance, [], Transactions_Count)], [], _, [], Lines).
+	format_report_entries(simple, 1, Accounts, 0, Report_Currency, '', [entry(Unit_Account, Balance, [], Transactions_Count)], [], _, [], Lines).
 
 units_traded_on_trading_account(Accounts, Trading_Account, All_Units_Roles) :-
 	findall(

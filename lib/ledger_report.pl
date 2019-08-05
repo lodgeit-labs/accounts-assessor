@@ -274,7 +274,7 @@ format_balance(Format, Indent_Level, Report_Currency_List, Context, Name, Normal
 	),
 	format_balance(Format, Indent_Level, _, Context, Name, Normal_Side, [coord(Report_Currency, 0, 0)], Used_Units_In, Used_Units_Out, Lines_In, Lines_Out).
    
-format_balance(Format, Indent_Level, _, Context, Name, Normal_Side, [coord(Unit, Debit, Credit)], Used_Units_In, Used_Units_Out, Lines_In, Lines_Out) :-
+format_balance(Format, Indent_Level, Report_Currency_List, Context, Name, Normal_Side, [coord(Unit, Debit, Credit)], Used_Units_In, Used_Units_Out, Lines_In, Lines_Out) :-
 	union([Unit], Used_Units_In, Used_Units_Out),
 	(
 		Normal_Side = credit
@@ -290,7 +290,16 @@ format_balance(Format, Indent_Level, _, Context, Name, Normal_Side, [coord(Unit,
 	->
 		format(string(Line), '~w<basic:~w contextRef="~w" unitRef="U-~w" decimals="INF">~2:f</basic:~w>\n', [Indentation, Name2, Context, Unit, Balance, Name2])
 	;
-		format(string(Line), '~2:f~w\n', [Balance, Unit])
+		(
+			(
+				Report_Currency_List = [Unit]
+			->
+				Printed_Unit = ''
+			;
+				Printed_Unit = Unit
+			),
+			format(string(Line), '~2:f~w\n', [Balance, Printed_Unit])
+		)
 	),
 	append(Lines_In, [Line], Lines_Out).
 

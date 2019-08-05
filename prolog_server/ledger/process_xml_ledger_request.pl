@@ -132,7 +132,7 @@ output_results(S_Transactions, Transactions, Start_Date, End_Date, Exchange_Rate
 	format_report_entries(xbrl, Accounts, 0, Report_Currency, Duration_Context_Id_Base, ProftAndLoss2,  Units0, Units1, [], Pl_Lines),
 	format_report_entries(xbrl, Accounts, 0, Report_Currency, Instant_Context_Id_Base,  Trial_Balance2, Units1, Units2, [], Tb_Lines),
 	investment_report(
-		(Exchange_Rates2, Accounts, Transactions, Report_Currency, End_Date), 
+		(Exchange_Rates2, Accounts, Transactions, Report_Currency, Start_Date, End_Date), 
 		Transaction_Types, Investment_Report_Lines),
 	
 	Results0 = (Base_Contexts, Units2, []),
