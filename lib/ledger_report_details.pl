@@ -1,6 +1,8 @@
 :- module(ledger_report_details, [
 		investment_report/3,
-		bs_report/5]).
+		bs_report/5,
+		pl_report/6	
+		]).
 
 :- use_module('system_accounts', [
 		trading_account_ids/2]).
@@ -77,11 +79,24 @@ report_page(Title_Text, Tbl, File_Name, Lines) :-
 	phrase(Page, Page_Tokenlist),
 	report_section(File_Name, Page_Tokenlist, Lines).
 
+pl_report(Accounts, Report_Currency, ProftAndLoss2, Start_Date, End_Date, Lines) :-
+
+	format_date(Start_Date, Start_Date_Atom),
+	format_date(End_Date, End_Date_Atom),
+	report_currency_atom(Report_Currency, Report_Currency_Atom),
+	atomic_list_concat(['profit&loss from ', Start_Date_Atom, ' to ', End_Date_Atom, ' ', Report_Currency_Atom], Title_Text),
 	
+	pesseract_style_table_rows(Accounts, Report_Currency, ProftAndLoss2, Report_Table_Data),
+	Header = tr([th('Account'), th(['Value', Report_Currency_Atom])]),
+	flatten([Header, Report_Table_Data], Tbl),
+	report_page(Title_Text, Tbl, 'profit_and_loss.html', Lines).
+		
 bs_report(Accounts, Report_Currency, Balance_Sheet, End_Date, Lines) :-
+
 	format_date(End_Date, End_Date_Atom),
 	report_currency_atom(Report_Currency, Report_Currency_Atom),
 	atomic_list_concat(['balance sheet for ', End_Date_Atom, ' ', Report_Currency_Atom], Title_Text),
+	
 	pesseract_style_table_rows(Accounts, Report_Currency, Balance_Sheet, Report_Table_Data),
 	Header = tr([th('Account'), th(['Balance', Report_Currency_Atom])]),
 	flatten([Header, Report_Table_Data], Tbl),
@@ -92,10 +107,12 @@ investment_report((Exchange_Rates, Accounts, Transactions, Report_Currency_List,
 	investment_report1((Exchange_Rates, Accounts, Transactions, Report_Currency_List, End_Date), Trading_Account_Id, Report0),
 	flatten(Report0, Report),
 	investment_report_to_html(Report, Report_Table_Data),
+	
 	format_date(Start_Date, Start_Date_Atom),
 	format_date(End_Date, End_Date_Atom),
 	report_currency_atom(Report_Currency_List, Report_Currency_Atom),
 	atomic_list_concat(['investment report from ', Start_Date_Atom, ' to ', End_Date_Atom, ' ', Report_Currency_Atom], Title_Text),
+	
 	Header = tr([th('Investment'), th('Realized Market'), th('Realized Forex'), th('Unrealized Market'), th('Unrealized Forex')]),
 	append([Header], Report_Table_Data, Tbl),
 	report_page(Title_Text, Tbl, 'investment_report.html', Lines).

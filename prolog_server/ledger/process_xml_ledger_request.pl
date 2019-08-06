@@ -35,17 +35,18 @@
 		net_activity_by_account/10]).
 :- use_module('../../lib/ledger_report_details', [
 		investment_report/3,
-		bs_report/5]).
+		bs_report/5,
+		pl_report/6]).
 :- use_module('../../lib/statements', [
 		extract_transaction/3, 
-		preprocess_s_transactions/4, 
 		print_relevant_exchange_rates_comment/4, 
 		invert_s_transaction_vector/2, 
 		fill_in_missing_units/6,
 		sort_s_transactions/2]).
 :- use_module('../../lib/ledger', [
 		emit_ledger_warnings/3,
-		process_ledger/12]).
+		emit_ledger_errors/1,
+		process_ledger/13]).
 :- use_module('../../lib/livestock', [
 		get_livestock_types/2, 
 		process_livestock/14, 
@@ -102,13 +103,13 @@ process_xml_ledger_request(_, Dom) :-
 	/*
 		process_ledger turns s_transactions into transactions
 	*/
-	process_ledger(Livestock_Doms, S_Transactions, Start_Date, End_Date, Exchange_Rates, Transaction_Types, Report_Currency, Livestock_Types, Livestock_Opening_Costs_And_Counts, Accounts0, Accounts, Transactions),
+	process_ledger(Livestock_Doms, S_Transactions, Start_Date, End_Date, Exchange_Rates, Transaction_Types, Report_Currency, Livestock_Types, Livestock_Opening_Costs_And_Counts, Accounts0, Accounts, Transactions, Transaction_Transformation_Debug),
 	/*
 		we will sum up the coords of all transactions for each account and apply unit conversions
 	*/
-	output_results(S_Transactions, Transactions, Start_Date, End_Date, Exchange_Rates, Accounts, Report_Currency, Transaction_Types).
+	output_results(S_Transactions, Transactions, Start_Date, End_Date, Exchange_Rates, Accounts, Report_Currency, Transaction_Types, Transaction_Transformation_Debug).
 
-output_results(S_Transactions, Transactions, Start_Date, End_Date, Exchange_Rates, Accounts, Report_Currency, Transaction_Types) :-
+output_results(S_Transactions, Transactions, Start_Date, End_Date, Exchange_Rates, Accounts, Report_Currency, Transaction_Types, Transaction_Transformation_Debug) :-
 
 	print_relevant_exchange_rates_comment(Report_Currency, End_Date, Exchange_Rates, Transactions),
 	infer_exchange_rates(Transactions, S_Transactions, Start_Date, End_Date, Accounts, Report_Currency, Exchange_Rates, Exchange_Rates2),
@@ -130,12 +131,13 @@ output_results(S_Transactions, Transactions, Start_Date, End_Date, Exchange_Rate
 	profitandloss_between(Exchange_Rates2, Accounts, Transactions, Report_Currency, End_Date, Start_Date, End_Date, ProftAndLoss2),
 	assertion(ground((Balance_Sheet2, ProftAndLoss2, Trial_Balance2))),
 	format_report_entries(xbrl, Accounts, 0, Report_Currency, Instant_Context_Id_Base,  Balance_Sheet2, [],     Units0, [], Bs_Lines),
-	bs_report(Accounts, Report_Currency, Balance_Sheet2, End_Date, Bs_Html),
 	format_report_entries(xbrl, Accounts, 0, Report_Currency, Duration_Context_Id_Base, ProftAndLoss2,  Units0, Units1, [], Pl_Lines),
 	format_report_entries(xbrl, Accounts, 0, Report_Currency, Instant_Context_Id_Base,  Trial_Balance2, Units1, Units2, [], Tb_Lines),
 	investment_report(
 		(Exchange_Rates2, Accounts, Transactions, Report_Currency, Start_Date, End_Date), 
 		Transaction_Types, Investment_Report_Lines),
+	bs_report(Accounts, Report_Currency, Balance_Sheet2, End_Date, Bs_Html),
+	pl_report(Accounts, Report_Currency, ProftAndLoss2, Start_Date, End_Date, Pl_Html),
 
 	Results0 = (Base_Contexts, Units2, []),
 	dict_from_vars(Static_Data, 
@@ -156,14 +158,16 @@ output_results(S_Transactions, Transactions, Start_Date, End_Date, Exchange_Rate
 		'\n<!-- profit and loss: -->\n', Pl_Lines,
 		'\n<!-- investment report:\n', Investment_Report_Lines, '\n -->\n',
 		'\n<!-- bs html:\n', Bs_Html, '\n -->\n',
+		'\n<!-- pl html:\n', Pl_Html, '\n -->\n',
 		'\n<!-- trial balance: -->\n',  Tb_Lines
 	], Report_Lines_List),
 	atomic_list_concat(Report_Lines_List, Report_Lines),
 	writeln(Report_Lines),
-	writeln('</xbrli:xbrl>'),
 	emit_ledger_warnings(S_Transactions, Start_Date, End_Date),
+	emit_ledger_errors(Transaction_Transformation_Debug),
+	writeln('</xbrli:xbrl>'),
 	nl, nl.
-	
+
 /* given information about a xbrl dimension, print each account as a point in that dimension. 
 this means each account results in a fact with a context that contains the value for that dimension.
 */

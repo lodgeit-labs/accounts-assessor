@@ -1,7 +1,8 @@
 :- module(ledger, [
 		find_s_transactions_in_period/4,
-		process_ledger/12,
-		emit_ledger_warnings/3]).
+		process_ledger/13,
+		emit_ledger_warnings/3,
+		emit_ledger_errors/1]).
 
 :- use_module('system_accounts', [
 		generate_system_accounts/3]).
@@ -48,7 +49,8 @@ process_ledger(
 	Livestock_Opening_Costs_And_Counts, 
 	Account_Hierarchy_In, 
 	Account_Hierarchy, 
-	Transactions_With_Livestock
+	Transactions_With_Livestock,
+	Transaction_Transformation_Debug
 ) :-
 	emit_ledger_warnings(S_Transactions, Start_Days, End_Days),
 	pretty_term_string(Exchange_Rates, Message1b),
@@ -73,6 +75,9 @@ process_ledger(
 	flatten([Account_Hierarchy_In, Generated_Accounts], Account_Hierarchy),
 	
 	preprocess_s_transactions((Account_Hierarchy, Report_Currency, Action_Taxonomy, End_Days, Exchange_Rates), S_Transactions, Transactions1, Transaction_Transformation_Debug),
+	
+	/*if processing s_transactions failed, we should either limit the end date for livestock processing, 
+	or we should filter the additional transactions out before creating reports*/
 	
 	process_livestock(Livestock_Doms, Livestock_Types, S_Transactions, Transactions1, Livestock_Opening_Costs_And_Counts, Start_Days, End_Days, Exchange_Rates, Account_Hierarchy, Report_Currency, Transactions_With_Livestock, Livestock_Events, Average_Costs, Average_Costs_Explanations),
 
@@ -119,7 +124,9 @@ process_ledger(
 		true
 	;
 		write('<!-- SYSTEM_WARNING: trial balance: '), write(Trial_Balance_Section), writeln('-->\n')
-	).
+	),
+	emit_ledger_warnings(S_Transactions, Start_Days, End_Days),
+	emit_ledger_errors(Transaction_Transformation_Debug).
 
 trial_balance_ok(Trial_Balance_Section) :-
 	Trial_Balance_Section = entry(_, Balance, [], _),
@@ -130,6 +137,18 @@ emit_ledger_warnings(S_Transactions, Start_Days, End_Days) :-
 		find_s_transactions_in_period(S_Transactions, Start_Days, End_Days, [])
 	->
 		writeln('<!-- WARNING: no transactions within request period -->\n')
+	;
+		true
+	).
+	
+emit_ledger_errors(Debug) :-
+	(
+		(
+			last(Debug, Last),
+			Last \== 'done.'
+		)
+	->
+		format('<!-- ERROR: ~w -->\n', [Last])		
 	;
 		true
 	).

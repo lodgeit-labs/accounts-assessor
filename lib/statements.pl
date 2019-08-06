@@ -98,7 +98,7 @@ preprocess_s_transactions(Static_Data, S_Transactions, Transactions_Out, Debug_I
 /*
 	call preprocess_s_transaction on each item of the S_Transactions list and do some error checking and cleaning up
 */
-preprocess_s_transactions2(_, [], [], Outstanding, Outstanding, ["end."], _).
+preprocess_s_transactions2(_, [], [], Outstanding, Outstanding, ['done.'], _).
 
 preprocess_s_transactions2(Static_Data, [S_Transaction|S_Transactions], [Transactions_Out|Transactions_Out_Tail], Outstanding_In, Outstanding_Out, [Debug_Head|Debug_Tail], Debug_So_Far) :-
 	Static_Data = (Accounts, Report_Currency, _Action_Taxonomy, Report_End_Date, Exchange_Rates),
@@ -106,8 +106,12 @@ preprocess_s_transactions2(Static_Data, [S_Transaction|S_Transactions], [Transac
 	pretty_term_string(S_Transaction, S_Transaction_String),
 	(
 		catch(
-			(
-			preprocess_s_transaction(Static_Data, S_Transaction, Transactions0, Outstanding_In, Outstanding_Mid)
+			catch(
+				preprocess_s_transaction(Static_Data, S_Transaction, Transactions0, Outstanding_In, Outstanding_Mid),
+				not_enough_goods_to_sell,
+				(
+					fail
+				)
 			),
 			string(E),
 			throw_string([E, ' when processing ', S_Transaction_String])
@@ -133,16 +137,19 @@ preprocess_s_transactions2(Static_Data, [S_Transaction|S_Transactions], [Transac
 					format(user_error, '\n\nwhen processing:\n~w', [Debug_Head]),
 					throw([E])
 				)
-			)
+			),
+			append(Debug_So_Far, [Debug_Head], Debug_So_Far2),
+			preprocess_s_transactions2(Static_Data, S_Transactions, Transactions_Out_Tail,  Outstanding_Mid, Outstanding_Out, Debug_Tail, Debug_So_Far2)
 		)
 		;
 		(
-			%g trace,
-			throw_string(['processing failed:', S_Transaction_String])
+			Outstanding_In = Outstanding_Out,
+			Transactions_Out_Tail = [],
+			Transactions_Out = [],
+			Debug_Tail = [],
+			atomic_list_concat([not_enough_goods_to_sell, ' when processing ', S_Transaction_String], Debug_Head)
 		)
-	),
-	append(Debug_So_Far, [Debug_Head], Debug_So_Far2),
-	preprocess_s_transactions2(Static_Data, S_Transactions, Transactions_Out_Tail,  Outstanding_Mid, Outstanding_Out, Debug_Tail, Debug_So_Far2).
+	).
 
 % ----------
 % This predicate takes a list of statement transaction terms and decomposes it into a list of plain transaction terms.
@@ -247,7 +254,7 @@ make_sell(Static_Data, Trading_Account_Id, Pricing_Method, _Bank_Account_Currenc
 ) :-
 	Goods_Vector = [coord(Goods_Unit0,_,Goods_Positive)],
 	((find_items_to_sell(Pricing_Method, Goods_Unit0, Goods_Positive, Outstanding_In, Outstanding_Out, Goods_Cost_Values),!)
-		;throw_string(['not enough goods to sell'])), % we should probably allow going into debt
+		;throw(not_enough_goods_to_sell)),
 	maplist(sold_goods_vector_with_cost, Goods_Cost_Values, Goods_With_Cost_Vectors),
 	maplist(
 		make_transaction(Exchanged_Account, Transaction_Date, Description), 
