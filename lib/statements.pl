@@ -104,6 +104,12 @@ preprocess_s_transactions2(Static_Data, [S_Transaction|S_Transactions], [Transac
 	Static_Data = (Accounts, Report_Currency, _Action_Taxonomy, Report_End_Date, Exchange_Rates),
 	check_that_s_transaction_account_exists(S_Transaction, Accounts),
 	pretty_term_string(S_Transaction, S_Transaction_String),
+	
+	/*
+	here we could get opening unit count + value for investments from outstanding, for the day before start of report,
+	but i think it will be better to filter the transactions after all of them are generated
+	*/
+	
 	(
 		catch(
 			catch(

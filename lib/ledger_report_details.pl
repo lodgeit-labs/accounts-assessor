@@ -104,6 +104,20 @@ bs_report(Accounts, Report_Currency, Balance_Sheet, End_Date, Lines) :-
 	
 	
 investment_report((Exchange_Rates, Accounts, Transactions, Report_Currency_List, Start_Date, End_Date), Trading_Account_Id, Lines) :-
+
+	/*
+	todo
+	opening cost
+	opening count
+	closing cost
+	closing count
+	
+	filter out transactions up to the day before report start
+	end date passed to here should be report or error
+	
+	
+	*/
+	
 	investment_report1((Exchange_Rates, Accounts, Transactions, Report_Currency_List, End_Date), Trading_Account_Id, Report0),
 	flatten(Report0, Report),
 	investment_report_to_html(Report, Report_Table_Data),
@@ -114,6 +128,8 @@ investment_report((Exchange_Rates, Accounts, Transactions, Report_Currency_List,
 	atomic_list_concat(['investment report from ', Start_Date_Atom, ' to ', End_Date_Atom, ' ', Report_Currency_Atom], Title_Text),
 	
 	Header = tr([th('Investment'), th('Realized Market'), th('Realized Forex'), th('Unrealized Market'), th('Unrealized Forex')]),
+	
+	
 	append([Header], Report_Table_Data, Tbl),
 	report_page(Title_Text, Tbl, 'investment_report.html', Lines).
 
