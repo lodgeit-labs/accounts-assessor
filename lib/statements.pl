@@ -115,9 +115,7 @@ preprocess_s_transactions2(Static_Data, [S_Transaction|S_Transactions], [Transac
 			catch(
 				preprocess_s_transaction(Static_Data, S_Transaction, Transactions0, Outstanding_In, Outstanding_Mid),
 				not_enough_goods_to_sell,
-				(
-					fail
-				)
+				fail
 			),
 			string(E),
 			throw_string([E, ' when processing ', S_Transaction_String])
@@ -241,9 +239,11 @@ make_buy(Static_Data, Trading_Account_Id, Pricing_Method, Bank_Account_Currency,
 	Outstanding_In, Outstanding_Out, [Ts1, Ts2]
 ) :-
 	purchased_goods_vector_with_cost(Goods_Vector, Converted_Vector_Ours, Goods_With_Cost_Vector),
-	/* record the change in another assets account*/
-	make_transaction(Exchanged_Account, Transaction_Date, Description, Goods_With_Cost_Vector, Ts1),
 	[coord(with_cost_per_unit(Goods_Unit, Unit_Cost), Goods_Count, _)] = Goods_With_Cost_Vector,
+	Static_Data = (Accounts, _, _, _, _),
+	account_by_role(Accounts, Exchanged_Account/Goods_Unit, Exchanged_Account2),
+	make_transaction(Exchanged_Account2, Transaction_Date, Description, Goods_With_Cost_Vector, Ts1),
+	
 	add_bought_items(
 		Pricing_Method, 
 		outstanding(Bank_Account_Currency, Goods_Unit, Goods_Count, Unit_Cost, Transaction_Date),
@@ -258,12 +258,15 @@ make_sell(Static_Data, Trading_Account_Id, Pricing_Method, _Bank_Account_Currenc
 	Exchanged_Account, Transaction_Date, Description,
 	Outstanding_In, Outstanding_Out, [Ts1, Ts2, Ts3]
 ) :-
-	Goods_Vector = [coord(Goods_Unit0,_,Goods_Positive)],
-	((find_items_to_sell(Pricing_Method, Goods_Unit0, Goods_Positive, Outstanding_In, Outstanding_Out, Goods_Cost_Values),!)
+	Goods_Vector = [coord(Goods_Unit,_,Goods_Positive)],
+	Static_Data = (Accounts, _, _, _, _),
+	account_by_role(Accounts, Exchanged_Account/Goods_Unit, Exchanged_Account2),
+
+	((find_items_to_sell(Pricing_Method, Goods_Unit, Goods_Positive, Outstanding_In, Outstanding_Out, Goods_Cost_Values),!)
 		;throw(not_enough_goods_to_sell)),
 	maplist(sold_goods_vector_with_cost, Goods_Cost_Values, Goods_With_Cost_Vectors),
 	maplist(
-		make_transaction(Exchanged_Account, Transaction_Date, Description), 
+		make_transaction(Exchanged_Account2, Transaction_Date, Description), 
 		Goods_With_Cost_Vectors, Ts1
 	),
 	(var(Trading_Account_Id) -> true

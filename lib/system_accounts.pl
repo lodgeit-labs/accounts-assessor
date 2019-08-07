@@ -46,7 +46,8 @@ find_or_add_required_accounts((S_Transactions, Livestock_Types, Transaction_Type
 	make_currency_movement_accounts(Accounts2, Bank_Accounts, Currency_Movement_Accounts),
 	maplist(make_livestock_accounts, Livestock_Types, Livestock_Accounts),
 	ensure_gains_accounts_exist(Accounts2, S_Transactions, Transaction_Types, Gains_Accounts),
-	flatten([Bank_Accounts, Currency_Movement_Accounts, Livestock_Accounts, Gains_Accounts], Accounts_Out).
+	financial_investments(Accounts_In, S_Transactions, Transaction_Types, Financial_Investments_Accounts),
+	flatten([Bank_Accounts, Currency_Movement_Accounts, Livestock_Accounts, Gains_Accounts, Financial_Investments_Accounts], Accounts_Out).
 
 /*	
 	
@@ -148,6 +149,10 @@ an account with id Financial_Investments_realized, either it has to have a role 
 or is not recognized as such, and a new one with proper role is proposed. This allows us to abstract away from ids,
 because Financial_Investments_realized might already be an id of another user account.
 */
+
+financial_investments(Accounts_In, S_Transactions, Transaction_Types, Accounts_Out) :-
+	traded_units(S_Transactions, Transaction_Types, Units),
+	roles_tree(Accounts_In, [(Units, 1)], 'Financial_Investments', Accounts_Out).
 
 ensure_gains_accounts_exist(Accounts_In, S_Transactions, Transaction_Types, Accounts_Out) :-
 	/* trading accounts are expected to be in user input. */

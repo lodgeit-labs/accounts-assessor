@@ -1,5 +1,9 @@
 :- module(utils, [
 		user:goal_expansion/2, 
+		/*user:goal_expansion(dict_vars(Dict, Vars_List), Code)*/
+		/*user:goal_expansion(dict_from_vars(Dict, Vars_List), Code)*/
+		/*user:goal_expansion(magic_formula(X), Code)*/
+		/*user:goal_expansion(compile_with_variable_names_preserved(X, variable_names(Names)), X)*/
 		inner_xml/3, 
 		open_tag/1, 
 		close_tag/1, 
@@ -147,7 +151,8 @@ user:goal_expansion(
 dict_vars_assignment([Var|Vars], Dict, Code) :-
 	var_property(Var, name(Key)),
 	downcase_atom(Key, Key_Lcase),
-	Code = (get_dict(Key_Lcase, Dict, Var), Codes),
+	Code0 = get_dict(Key_Lcase, Dict, Var),
+	Code = (assertion(Code0), Code0, Codes),
 	dict_vars_assignment(Vars, Dict, Codes).
 
 dict_vars_assignment([], _, true).

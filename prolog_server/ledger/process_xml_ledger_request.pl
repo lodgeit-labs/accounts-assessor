@@ -34,7 +34,7 @@
 		bs_and_pl_entries/8,
 		net_activity_by_account/10]).
 :- use_module('../../lib/ledger_report_details', [
-		investment_report/3,
+		investment_report/2,
 		bs_report/5,
 		pl_report/6]).
 :- use_module('../../lib/statements', [
@@ -104,18 +104,17 @@ process_xml_ledger_request(_, Dom) :-
 		process_ledger turns s_transactions into transactions
 	*/
 	process_ledger(Livestock_Doms, S_Transactions, Start_Date, End_Date, Exchange_Rates, Transaction_Types, Report_Currency, Livestock_Types, Livestock_Opening_Costs_And_Counts, Accounts0, Accounts, Transactions, Transaction_Transformation_Debug),
-	/*
-		we will sum up the coords of all transactions for each account and apply unit conversions
-	*/
-	output_results(S_Transactions, Transactions, Start_Date, End_Date, Exchange_Rates, Accounts, Report_Currency, Transaction_Types, Transaction_Transformation_Debug).
-
-output_results(S_Transactions, Transactions, Start_Date, End_Date, Exchange_Rates, Accounts, Report_Currency, Transaction_Types, Transaction_Transformation_Debug) :-
 
 	print_relevant_exchange_rates_comment(Report_Currency, End_Date, Exchange_Rates, Transactions),
 	infer_exchange_rates(Transactions, S_Transactions, Start_Date, End_Date, Accounts, Report_Currency, Exchange_Rates, Exchange_Rates2),
+	/*
+		we will sum up the coords of all transactions for each account and apply unit conversions
+	*/
+	output_results(S_Transactions, Transactions, Start_Date, End_Date, Exchange_Rates2, Accounts, Report_Currency, Transaction_Types, Transaction_Transformation_Debug).
 
+output_results(S_Transactions, Transactions, Start_Date, End_Date, Exchange_Rates, Accounts, Report_Currency, Transaction_Types, Transaction_Transformation_Debug) :-
 	print_xbrl_header,
-	
+
 	/* first, let's build up the two non-dimensional contexts */
 	date(Context_Id_Year,_,_) = End_Date,
 	Entity_Identifier = '<identifier scheme="http://www.example.com">TestData</identifier>',
@@ -126,23 +125,23 @@ output_results(S_Transactions, Transactions, Start_Date, End_Date, Exchange_Rate
 		context(Duration_Context_Id_Base, (Start_Date, End_Date), entity(Entity_Identifier, ''), '')
 	],
 	
-	trial_balance_between(Exchange_Rates2, Accounts, Transactions, Report_Currency, End_Date, Start_Date, End_Date, Trial_Balance2),
-	balance_sheet_at(Exchange_Rates2, Accounts, Transactions, Report_Currency, End_Date, Start_Date, End_Date, Balance_Sheet2),
-	profitandloss_between(Exchange_Rates2, Accounts, Transactions, Report_Currency, End_Date, Start_Date, End_Date, ProftAndLoss2),
+	dict_from_vars(Static_Data, 
+		[Start_Date, End_Date, Exchange_Rates, Accounts, Transactions, Report_Currency, Transaction_Types, Entity_Identifier, Duration_Context_Id_Base]
+	),
+
+	trial_balance_between(Exchange_Rates, Accounts, Transactions, Report_Currency, End_Date, Start_Date, End_Date, Trial_Balance2),
+	balance_sheet_at(Exchange_Rates, Accounts, Transactions, Report_Currency, End_Date, Start_Date, End_Date, Balance_Sheet2),
+	profitandloss_between(Exchange_Rates, Accounts, Transactions, Report_Currency, End_Date, Start_Date, End_Date, ProftAndLoss2),
 	assertion(ground((Balance_Sheet2, ProftAndLoss2, Trial_Balance2))),
 	format_report_entries(xbrl, Accounts, 0, Report_Currency, Instant_Context_Id_Base,  Balance_Sheet2, [],     Units0, [], Bs_Lines),
 	format_report_entries(xbrl, Accounts, 0, Report_Currency, Duration_Context_Id_Base, ProftAndLoss2,  Units0, Units1, [], Pl_Lines),
 	format_report_entries(xbrl, Accounts, 0, Report_Currency, Instant_Context_Id_Base,  Trial_Balance2, Units1, Units2, [], Tb_Lines),
-	investment_report(
-		(Exchange_Rates2, Accounts, Transactions, Report_Currency, Start_Date, End_Date), 
-		Transaction_Types, Investment_Report_Lines),
+	
+	investment_report(Static_Data, Investment_Report_Lines),
 	bs_report(Accounts, Report_Currency, Balance_Sheet2, End_Date, Bs_Html),
 	pl_report(Accounts, Report_Currency, ProftAndLoss2, Start_Date, End_Date, Pl_Html),
 
 	Results0 = (Base_Contexts, Units2, []),
-	dict_from_vars(Static_Data, 
-		[Start_Date, End_Date, Exchange_Rates, Accounts, Transactions, Report_Currency, Transaction_Types, Entity_Identifier, Duration_Context_Id_Base]
-	),
 	print_banks(Static_Data, Instant_Context_Id_Base, Entity_Identifier, Results0, Results1),
 	print_forex(Static_Data, Duration_Context_Id_Base, Entity_Identifier, Results1, Results2),
 	print_trading(Static_Data, Results2, Results3),

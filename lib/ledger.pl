@@ -23,7 +23,8 @@
 :- use_module('transactions', [
 		check_transaction_account/2]).
 :- use_module('ledger_report', [
-		trial_balance_between/8]).
+		trial_balance_between/8
+		]).
 
 		
 find_s_transactions_in_period(S_Transactions, Opening_Date, Closing_Date, Out) :-
@@ -75,7 +76,7 @@ process_ledger(
 	flatten([Account_Hierarchy_In, Generated_Accounts], Account_Hierarchy),
 	
 	preprocess_s_transactions((Account_Hierarchy, Report_Currency, Action_Taxonomy, End_Days, Exchange_Rates), S_Transactions, Transactions1, Transaction_Transformation_Debug),
-	
+		
 	/*if processing s_transactions failed, we should either limit the end date for livestock processing, 
 	or we should filter the additional transactions out before creating reports*/
 	
@@ -116,7 +117,7 @@ process_ledger(
 	'-->\n\n'], Debug_Message)
 	),
 	writeln(Debug_Message),
-
+	
 	trial_balance_between(Exchange_Rates, Account_Hierarchy, Transactions_With_Livestock, Report_Currency, End_Days, Start_Days, End_Days, [Trial_Balance_Section]),
 	(
 		trial_balance_ok(Trial_Balance_Section)
