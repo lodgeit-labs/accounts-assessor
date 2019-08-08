@@ -41,13 +41,14 @@ generate_system_accounts(Info, Accounts_In, Accounts_Out) :-
 	
 find_or_add_required_accounts((S_Transactions, Livestock_Types, Transaction_Types), Accounts_In, Accounts_Out) :-
 /*fixme, accounts should be added one by one and id uniqueness checked against all the previously added accounts each time */
+	Livestock_Count_Account = account('Livestock_Count', '', ''/'Livestock_Count', 0),
 	make_bank_accounts(Accounts_In, S_Transactions, Bank_Accounts),
 	flatten([Accounts_In, Bank_Accounts], Accounts2),
 	make_currency_movement_accounts(Accounts2, Bank_Accounts, Currency_Movement_Accounts),
 	maplist(make_livestock_accounts, Livestock_Types, Livestock_Accounts),
 	ensure_gains_accounts_exist(Accounts2, S_Transactions, Transaction_Types, Gains_Accounts),
 	financial_investments(Accounts_In, S_Transactions, Transaction_Types, Financial_Investments_Accounts),
-	flatten([Bank_Accounts, Currency_Movement_Accounts, Livestock_Accounts, Gains_Accounts, Financial_Investments_Accounts], Accounts_Out).
+	flatten([Livestock_Count_Account, Bank_Accounts, Currency_Movement_Accounts, Livestock_Accounts, Gains_Accounts, Financial_Investments_Accounts], Accounts_Out).
 
 /*	
 	
