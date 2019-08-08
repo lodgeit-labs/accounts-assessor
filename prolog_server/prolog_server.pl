@@ -95,10 +95,13 @@ upload(Request) :-
    catch(
 	   process_data(FileName, Path, Request),
 	   string(E),
-	   /* todo if the request content type is xml, return the errror as xml */
 	   throw(http_reply(bad_request(string(E))))
+   	   /* todo (optionally only if the request content type is xml), return the errror as xml. the status code still should be bad request, but it's not required. 
+   	   are we able to throw a bad_request and have the server produce a xml error page? if not, we'll need to 
+   	   %writeln('<xml errror blablabla>'), but this means endpoints cannot write anything to the output stream until 
+   	   everything's done. The option of generating the responses in a structured way has a lot of open questions (streaming..), so probably just redirecting endpoint's output to a file will be best choice now.
+   	   */
    ).
-   %   delete_file(Path). we shouldn't save and load those files once in production, this is just a debugging feature, a not very useful if the files get deleted after the request is done.
 
 	
 upload(_Request) :-
