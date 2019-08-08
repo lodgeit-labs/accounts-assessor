@@ -164,6 +164,7 @@ process_realized(Dom, Global_Report_Date_Atom, Result) :-
 		_
 	),
    	Info = (Exchange_Rates, Accounts1, Transactions, Sale_Date, report_currency),
+   	/*todo get Investment_Income account by role */
 	account_by_role(Accounts1, 'Investment_Income'/realized, Gain_Account),
 	account_by_role(Accounts1, Gain_Account/without_currency_movement, Gains_Excluding_Forex_Account),
 	account_by_role(Accounts1, Gain_Account/only_currency_movement, Gains_Currency_Movement_Account), 
@@ -489,6 +490,7 @@ crosscheck_totals(Results, Report_Date) :-
 		Report_Date, 
 		Exchange_Rates,
 		[ transaction_type('Invest_In',
+			/*todo get accounts by role*/
 		   'Financial_Investments',
 		   'Investment_Income',
 		   'Shares'),
@@ -510,6 +512,7 @@ crosscheck_totals(Results, Report_Date) :-
 		PL cross-check
 	*/
 	writeln("PL cross-check"),
+	/*todo get Investment_Income by role*/
 	account_by_role(Accounts1, 'Investment_Income'/unrealized, Unrealized_Gain_Account),
 	account_by_role(Accounts1, 'Investment_Income'/realized, Realized_Gain_Account),
 	account_by_role(Accounts1, Unrealized_Gain_Account/without_currency_movement, Unrealized_Gains_Excluding_Forex_Account),
@@ -540,6 +543,8 @@ crosscheck_totals(Results, Report_Date) :-
 	writeln(("Bank account currency movement cross-check",(Bank_Value is SDRC_Value_Total - PDRC_Cost_Total))),
 	
 	Bank_Value is SDRC_Value_Total - PDRC_Cost_Total,
+	
+	/*todo get accounts by role*/
 	account_by_role(Accounts1, 'Banks'/'Bank',Bank_Account),
 	account_by_role(Accounts1, 'Currency_Movement'/'Bank', Bank_Currency_Account),
 	account_vector(Info, Bank_Currency_Account, [Bank_Currency_Movement_Coord]),
@@ -563,20 +568,6 @@ crosscheck_totals(Results, Report_Date) :-
 	writeln('<!--'),
 	writeln(Balance_Sheet_Lines),
 	writeln('-->').
-
-
-
-
-	% member(exchange_rate(Report_Start_Date, report_currency, Currency_Unique, Original_Exchange_Rate), Exchange_Rates),
-	% member(exchange_rate(Report_Date, report_currency, Bank_Currency, Current_Exchange_Rate), Exchange_Rates),
-	% Amount is Realized_Gain_Total - Unrealized_PDPC_Cost_Total,
-	% Bank_Currency_Account_Value is (Current_Exchange_Rate - Original_Exchange_Rate)*Amount,
-	% account_assertion(Info, Bank_Currency_Account, Bank_Currency_Account_Value),
-	%account_vector(Info, Bank_Account, Bank_Balance),
-	%number_coord(report_currency, Bank_Balance_With_Currency_Movement_Number, Bank_With_Currency_Movement_Coord),
-	%assertion(floats_close_enough2('bank total', actual(Bank_Balance_With_Currency_Movement_Number), expected(Bank_Value))),
-	%account_assertion(Info, Bank_Account, Bank_Value 
-
 
 
 print_totals(Totals) :-
