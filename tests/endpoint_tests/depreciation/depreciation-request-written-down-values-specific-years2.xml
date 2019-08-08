@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <reports xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
 
-	<depreciation_request_depreciation_between_two_dates>
+	<depreciation_request_written_down_value>
 
 		<types>
 			<!-- this type hierarchy should be used to look up a depreciation rate from <rates>, 
@@ -35,8 +35,8 @@
 				<value>0.15</value>
 			</depreciation_rate>
 			<depreciation_rate>
-				<asset>real_estate</asset>
-				<!-- all years -->				
+				<asset>motor_vehicles</asset>
+				<year>3</year>
 				<value>0.1</value>
 			</depreciation_rate>
 		</rates>
@@ -47,9 +47,9 @@
 			<value>767688787</value>
 		</cost>
 		<invest_in_date>2020-01-01</invest_in_date>
-		<request_date>2021-01-02</request_date>
+		<request_date>2022-01-02</request_date>
 		<method>diminishing_value</method>
 
-	</depreciation_request_depreciation_between_two_dates>
+	</depreciation_request_written_down_value>
 	
 </reports>

@@ -1,7 +1,7 @@
 % ===================================================================
 % Project:   LodgeiT
 % Module:    process_xml_depreciation_request.pl
-% Date:      2019-07-30
+% Date:      2019-08-07
 % ===================================================================
 
 %--------------------------------------------------------------------
@@ -38,7 +38,9 @@ process_written_down_value(DOM) :-
 		Method, Cost_Unit, Cost_Value_In, Depreciation_Rates),	
 	
 	convert_dates_and_values(Invest_In_Date_In, Request_Date_In, Cost_Value_In,	Invest_In_Date, Request_Date, Cost_Value),
-	get_account_and_transaction(Depreciation_Request_Values, Type, Depreciation_Rates, Invest_In_Date, Cost_Value, Account, Transaction),	
+	get_account_and_transaction(Depreciation_Request_Values, Type, Depreciation_Rates, Invest_In_Date, Cost_Value, Account, Transaction),
+	% if we have account information, that indicates we also have depreciation rates.
+	% that is why, we do not need to check exception for depreciation rates here.
 	findall(depreciation_rate(Account, Value1, Value2), 
 			member(depreciation_rate(Account, Value1, Value2), Depreciation_Rates), 
 			Filtered_Depreciation_Rates),
@@ -83,7 +85,7 @@ process_depreciation_between_two_dates(DOM) :-
 	write_depreciation_response(depreciation_between_two_dates, 
 		Type, Cost_Unit, Cost_Value, Invest_In_Date_In, Request_Date_In, Cost_Unit, Depreciation_Value).
 
-	
+
 process_initial_common_values(Depreciation_Request_Values, Type, Invest_In_Date_In, Request_Date_In, 
 								Method, Cost_Unit, Cost_Value_In, Depreciation_Rates) :-
 	process_basic_values(Depreciation_Request_Values, Type, Invest_In_Date_In, Request_Date_In, Method, Cost_Unit, Cost_Value_In),	
@@ -123,6 +125,23 @@ process_depreciation_rate(Depreciation_Rates_DOM, Asset, Year, Value) :-
 	atom_number(Value_In, Value).
 
 	
+convert_dates_and_values(Invest_In_Date_In, Request_Date_In, Cost_Value_In,	Invest_In_Date, Request_Date, Cost_Value) :-
+	parse_date(Invest_In_Date_In, Invest_In_Date),
+	parse_date(Request_Date_In, Request_Date),
+	atom_number(Cost_Value_In, Cost_Value).
+
+
+% -------------------------------------------------------------------
+% extract_account/4
+% this predicate tries to find the account info from the request xml.
+% Depreciation_Rates is a list of depreciation rates. First, all type 
+% values are extracted from the xml (inside <types> tag) and 
+% a list Account_Types is created with those values. Later, we find 
+% if there is any type value in the types list for which we have 
+% a rate in the depreciation rate list. <parent> tag from type list 
+% is matched with <asset> tag value in the depreciation rate list.
+% -------------------------------------------------------------------
+
 extract_account(Depreciation_Request_Values, Type, Depreciation_Rates, Account) :-
 	xpath(Depreciation_Request_Values, //types, Types_Values),
 	findall(types(Name, Parent), 
@@ -138,7 +157,7 @@ process_account_type(Types_Values, Name, Parent) :-
 	inner_xml(Type, //parent, [Parent]).
 	
 	
-find_type(_, [], _, _). % fixme: need to process if account not found in depreciation rates
+find_type(_, [], _, _).
 find_type(Type, [Account_Type | Account_Type_List], Depreciation_Rates, Account) :-
 	Account_Type = types(Type, Type_Parent),
 	(
@@ -148,16 +167,17 @@ find_type(Type, [Account_Type | Account_Type_List], Depreciation_Rates, Account)
 	;
 		find_type(Type_Parent, Account_Type_List, Depreciation_Rates, Account)
 	).
-	
-	
-convert_dates_and_values(Invest_In_Date_In, Request_Date_In, Cost_Value_In,	Invest_In_Date, Request_Date, Cost_Value) :-
-	parse_date(Invest_In_Date_In, Invest_In_Date),
-	parse_date(Request_Date_In, Request_Date),
-	atom_number(Cost_Value_In, Cost_Value).
 
 
 get_account_and_transaction(Depreciation_Request_Values, Type, Depreciation_Rates, Invest_In_Date, Cost_Value, Account, Transaction) :-
 	extract_account(Depreciation_Request_Values, Type, Depreciation_Rates, Account),
+	( 
+	var(Account) 
+	-> 
+		throw_string('Account information is missing.') 
+	; 
+		true
+	),
 	Transaction = transaction(Invest_In_Date, '', Account, t_term(Cost_Value, _)).
 	
 

@@ -33,6 +33,7 @@
 				<year>1</year>
 				<value>0.2</value>
 			</depreciation_rate>
+			<!-- expected depreciation rate for year 2 missing -->
 		</rates>
 		
 		<type>corolla</type>

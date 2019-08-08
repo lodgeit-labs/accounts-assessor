@@ -21,17 +21,12 @@
 				<name>cars</name>
 				<parent>motor_vehicles</parent>
 			</type>
-			<type>
-				<name>motor_vehicles</name>
-				<parent>vehicles</parent>
-			</type>
 		</types>
 		
 		<rates>
 			<depreciation_rate>
-				<asset>motor_vehicles</asset>
-				<year>1</year>
-				<value>0.2</value>
+				<asset>motor_vehicles</asset>				
+				<value>0.1</value>
 			</depreciation_rate>
 		</rates>
 		
@@ -41,7 +36,7 @@
 			<value>767688787</value>
 		</cost>
 		<invest_in_date>2020-01-01</invest_in_date>
-		<request_date>2021-01-02</request_date>
+		<request_date>2019-12-31</request_date>
 		<method>diminishing_value</method>
 
 	</depreciation_request_depreciation_between_two_dates>

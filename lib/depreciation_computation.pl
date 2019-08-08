@@ -8,6 +8,7 @@
 
 
 :- use_module(days, [day_diff/3]).
+:- use_module(utils, [throw_string/1]).
 
 /*
 
@@ -32,12 +33,20 @@ depreciation_between_invest_in_date_and_other_date(
 	writeln(depreciation_between_invest_in_date_and_other_date),
 	writeln(date_between(date(From_year, From_Month, From_day), To_date, Days_difference)),
 	day_diff(date(From_year, From_Month, From_day), To_date, Days_difference),
-
-	Days_difference >= 0,
-	member(Rate, Rates),
-	copy_term(Rate, Rate_Copy), % Year can be an unbound variable (signifying all years), and we don't want to bind it in the table
-	Rate_Copy = depreciation_rate(Account, Depreciation_year, Depreciation_rate),
+	check_day_difference_validity(Days_difference),	
 	
+	% throw exception 
+	% if we do not have depreciation rate for the specific year we are looking for or
+	% if there is no depreciation rate with unbound variable for depreciation year
+	copy_term(Rates, Rates_Copy),
+	(	
+	member(depreciation_rate(Account, Depreciation_year, Depreciation_rate), Rates_Copy)
+	->
+		true
+	;
+		throw_string('Expected depreciation rate not found.')		
+	),
+		
 	writeln("ok.."),
 
 	% amount of depreciation in the first depreciation period.
@@ -89,7 +98,7 @@ depreciation_between_invest_in_date_and_other_date(
 % Calculates depreciation between any two dates on a daily basis equal or posterior to the invest in date
 depreciation_between_two_dates(Transaction, From_date, To_date, Method, Rates, Depreciation_value):-
 	day_diff(From_date, To_date, Days_difference),
-	Days_difference >= 0,
+	check_day_difference_validity(Days_difference),
 	written_down_value(Transaction, To_date, Method, Rates, To_date_written_down_value),
 	written_down_value(Transaction, From_date, Method, Rates, From_date_written_down_value),
 	Depreciation_value is From_date_written_down_value - To_date_written_down_value.
@@ -150,6 +159,18 @@ depreciation_by_method(
 		% if computed depreciation value is > initial value, then actual depreciation value = initial value.
 		% assuming the asset can't depreciate by more than it's worth.
 		Depreciation_value is Factor * Depreciation_fixed_value
+	).
+	
+
+% if days difference is less than zero, it means that the requested date 
+% in the input value is earlier than the invest in date.
+check_day_difference_validity(Days_difference) :-
+	(
+	Days_difference >= 0
+	->
+		true
+	;
+		throw_string('Request date is earlier than the invest in date.')
 	).
 
 
