@@ -7,6 +7,7 @@
 :- module(ledger_report, [
 		balance_sheet_at/8, 
 		balance_by_account/9, 
+		balance_until_day/9,
 		trial_balance_between/8, 
 		profitandloss_between/8, 
 		format_report_entries/11, 

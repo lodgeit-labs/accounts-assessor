@@ -4,7 +4,8 @@
 % Date:      2019-06-02
 % ===================================================================
 
-:- module(pacioli, [vec_add/3,
+:- module(pacioli, [
+			vec_add/3,
 		    vec_equality/2,
 		    vec_identity/1,
 		    vec_inverse/2,
@@ -12,6 +13,7 @@
 		    vec_sub/3,
 		    vec_units/2,
 		    number_coord/3,
+		    number_vec/3,
 		    make_debit/2,
 		    make_credit/2,
 		    value_multiply/3,
@@ -147,10 +149,14 @@ make_credit(value(Unit, Amount), coord(Unit, 0, Amount)).
 make_credit(coord(Unit, Dr, Zero), coord(Unit, 0, Dr)) :- Zero =:= 0.
 make_credit(coord(Unit, Zero, Cr), coord(Unit, 0, Cr)) :- Zero =:= 0.
 
-/* fixme, rename to number_coord*/
-number_coord(Unit, Integer, coord(Unit, Debit, Credit)) :-
-	{Integer =:= Debit - Credit}.
+number_coord(Unit, Number, coord(Unit, Debit, Credit)) :-
+	{Number =:= Debit - Credit}.
 
+number_vec(_, 0, []).
+number_vec(Unit, Number, [Coord]) :-
+	number_coord(Unit, Number, Coord).
+	
+	
 credit_isomorphism(Coord, C) :- 
 	number_coord(_, D, Coord),
 	C is -D.
