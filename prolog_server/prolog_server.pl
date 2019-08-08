@@ -95,6 +95,7 @@ upload(Request) :-
    catch(
 	   process_data(FileName, Path, Request),
 	   string(E),
+	   /* todo if the request content type is xml, return the errror as xml */
 	   throw(http_reply(bad_request(string(E))))
    ).
    %   delete_file(Path). we shouldn't save and load those files once in production, this is just a debugging feature, a not very useful if the files get deleted after the request is done.

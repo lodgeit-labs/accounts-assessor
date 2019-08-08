@@ -22,13 +22,28 @@
 
 test(start) :- nl.
 
+
+test(invalid, throws(_)) :-
+/*
+	todo: probably all invalid request files should have a corresponding response file, where a xml-formatted error message is. The endpoint should probably still answer with a Bad Request status code, but we should catch it in query_endpoint and parse the error xml. If the invalid requests are stored in invalid/, we just nedd to change the file search algo to list all sub-directories recursively.
+*/
+	query_endpoint('endpoint_tests/depreciation/invalid/depreciation-request-written-down-values-earlier-reuqest-date-invalid.xml', _).
+
+
 test(endpoints, [forall(testcases(Testcase))]) :-
 	Testcase = (Request, Response),
 	query_endpoint(Request, ReplyDOM),
+	/*todo check if the response is a xml with an error message */
 	(
 		var(Response)
 	->
-		true
+		(
+			true
+			/*
+			todo: we have no known response file, we should check if the actual response is an error xml and fail if it is
+			*/
+		)
+			
 	;
 		(
 			write('## Testing Response File: '), writeln(Response),
@@ -80,6 +95,9 @@ query_endpoint(RequestFile0, ReplyDOM) :-
 		[ access(read) ]
 	),
 	http_post('http://localhost:8080/upload', form_data([file=file(RequestFile)]), ReplyXML, [content_type('multipart/form-data')]),
+	/*todo: status_code(-Code)
+If this option is present and Code unifies with the HTTP status code, do not translate errors (4xx, 5xx) into an exception. Instead, http_open/3 behaves as if 2xx (success) is returned, providing the application to read the error document from the returned stream.
+*/
 	find_warnings(ReplyXML),
 	load_structure(string(ReplyXML), ReplyDOM,[dialect(xml),space(sgml)]).
 
@@ -219,3 +237,4 @@ extract_loan_response_values2(DOM, IncomeYear, OpeningBalance, InterestRate, Min
 /*
 end loan stuff
 */
+

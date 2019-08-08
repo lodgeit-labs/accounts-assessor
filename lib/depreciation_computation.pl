@@ -10,11 +10,6 @@
 :- use_module(days, [day_diff/3]).
 :- use_module(utils, [throw_string/1]).
 
-/*
-
-work in progress 
-
-*/
 
 % Calculates depreciation on a daily basis between the invest in date and any other date
 % recurses for every year, because depreciation rates may be different
@@ -30,8 +25,7 @@ depreciation_between_invest_in_date_and_other_date(
 	By_day_factor, 							% 1/(days per depreciation period)
 	Total_depreciation_value
 ) :-
-	writeln(depreciation_between_invest_in_date_and_other_date),
-	writeln(date_between(date(From_year, From_Month, From_day), To_date, Days_difference)),
+	/*format(user_error, depreciation_between_invest_in_date_and_other_date,[]),*/
 	day_diff(date(From_year, From_Month, From_day), To_date, Days_difference),
 	check_day_difference_validity(Days_difference),	
 	
@@ -47,7 +41,7 @@ depreciation_between_invest_in_date_and_other_date(
 		throw_string('Expected depreciation rate not found.')		
 	),
 		
-	writeln("ok.."),
+	/*format(user_error, "ok..\n", []),*/
 
 	% amount of depreciation in the first depreciation period.
 	Depreciation_fixed_value = Invest_in_value * Depreciation_rate,
@@ -142,7 +136,7 @@ depreciation_by_method(
 	Days, 						% number of days elapsed
 	Depreciation_value			% value at end of current fractional depreciation period
 ):-
-	writeln("ok.."),
+	/*format(user_error, "ok..\n", []),*/
 
 	% Factor is the fraction of a depreciation period represented by Days
 	Factor is By_day_factor * Days, 
