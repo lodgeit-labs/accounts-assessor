@@ -271,6 +271,7 @@ check_investment_totals(Static_Data, Trading_Account, Check_Totals_List_Nested, 
 	
 	
 investment_report_2(Static_Data, (Outstanding, Investments), Report_Output) :-
+
 	dict_vars(Static_Data, [Start_Date, End_Date, Report_Currency]),
 	format_date(Start_Date, Start_Date_Atom),
 	format_date(End_Date, End_Date_Atom),
@@ -284,9 +285,9 @@ investment_report_2(Static_Data, (Outstanding, Investments), Report_Output) :-
 	maplist(investment_report_2_sales(Static_Data), Investments, Sale_Lines),
 	writeln(Sale_Lines),
 	findall(
-		O,
+		(O, Investment_Id),
 		(
-			member(O, Outstanding),
+			member((O, Investment_Id), Outstanding),
 			outstanding_goods_count(O, C),
 			C =\= 0
 		),
