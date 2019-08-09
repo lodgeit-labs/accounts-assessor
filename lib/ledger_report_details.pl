@@ -1,7 +1,8 @@
 :- module(ledger_report_details, [
-		investment_report/2,
+		investment_report_1/2,
 		bs_report/5,
-		pl_report/6	
+		pl_report/6,
+		investment_report_2/3
 		]).
 
 :- use_module('system_accounts', [
@@ -36,6 +37,14 @@
 		my_tmp_file_name/2,
 		request_tmp_dir/1,
 		server_public_url/1]).
+
+:- use_module('exchange_rates', [
+		exchange_rate/5]).
+
+:- use_module('pricing', [
+		outstanding_goods_count/2
+]).
+
 		
 :- use_module(library(http/html_write)).
 
@@ -105,7 +114,7 @@ bs_report(Accounts, Report_Currency, Balance_Sheet, End_Date, Lines) :-
 	report_page(Title_Text, Tbl, 'balance_sheet.html', Lines).
 	
 	
-investment_report(Static_Data, Lines) :-
+investment_report_1(Static_Data, Lines) :-
 
 	investment_report1(Static_Data, Report0),
 	flatten(Report0, Report),
@@ -120,7 +129,7 @@ investment_report(Static_Data, Lines) :-
 	Header = tr([th('Investment'), th('Opening Unit #'), th('Opening Cost'), th('Closing Unit #'), th('Closing Cost'), th('Realized Market'), th('Realized Forex'), th('Unrealized Market'), th('Unrealized Forex')]),
 	
 	append([Header], Report_Table_Data, Tbl),
-	report_page(Title_Text, Tbl, 'investment_report.html', Lines).
+	report_page(Title_Text, Tbl, 'investment_report1.html', Lines).
 
 
 investment_report_to_html([], '').
@@ -258,3 +267,131 @@ check_investment_totals(Static_Data, Trading_Account, Check_Totals_List_Nested, 
 		)
 	).
 
+
+	
+	
+investment_report_2(Static_Data, (Outstanding, Investments), Report_Output) :-
+	dict_vars(Static_Data, [Start_Date, End_Date, Report_Currency]),
+	format_date(Start_Date, Start_Date_Atom),
+	format_date(End_Date, End_Date_Atom),
+	report_currency_atom(Report_Currency, Report_Currency_Atom),
+	atomic_list_concat(['investment report from ', Start_Date_Atom, ' to ', End_Date_Atom, ' ', Report_Currency_Atom], Title_Text),
+	pretty_term_string(Outstanding, Outstanding_Out_Str),
+	writeln('<!-- outstanding:'),
+	writeln(Outstanding_Out_Str),
+	writeln('-->'),
+	/* each item of Investments is a purchase with some info and list of sales */
+	maplist(investment_report_2_sales(Static_Data), Investments, Sale_Lines),
+	writeln(Sale_Lines),
+	findall(
+		O,
+		(
+			member(O, Outstanding),
+			outstanding_goods_count(O, C),
+			C =\= 0
+		),
+		Outstanding2
+	),		
+	maplist(investment_report_2_unrealized(Static_Data, Investments), Outstanding2, Non_Sale_Lines),
+	writeln(Non_Sale_Lines),
+	append(Sale_Lines, Non_Sale_Lines, Lines0),
+	flatten(Lines0, Lines1),
+	maplist(ir2_line_to_row, Lines1, Rows0),
+	/* lets sort by unit, sale date, purchase date */
+	sort(7, @=<, Rows0, Rows1),
+	sort(2, @=<, Rows1, Rows2),
+	sort(1, @=<, Rows2, Rows),
+	maplist(ir2_row_to_html, Rows, Rows_Html),
+	Header = tr([th('Unit'), th('Purchase_Date'), th('Purchase_Currency'), th('Count'), th('Purchase_Unit_Cost_Foreign'), th('Purchase_Unit_Cost_Converted'), th('Sale_Date'), th('Sale_Price'), th('Rea_Market_Gain'), th('Rea_Forex_Gain'), th('Unr_Market_Gain'), th('Unr_Forex_Gain'), th('Purchase_Currency_Current_Market_Value')]),
+	flatten([Header, Rows_Html], Tbl),
+	report_page(Title_Text, Tbl, 'investment_report2.html', Report_Output).
+
+ir2_row_to_html(Row, Html) :-
+	Row = row(Unit, Purchase_Date, Purchase_Currency, Count, Purchase_Unit_Cost_Foreign, Purchase_Unit_Cost_Converted, Sale_Date, Sale_Price, Rea_Market_Gain, Rea_Forex_Gain, Unr_Market_Gain, Unr_Forex_Gain, Purchase_Currency_Current_Market_Value),
+	format_date(Purchase_Date, Purchase_Date2),
+	(
+		Sale_Date = ''
+	->
+		Sale_Date2 = ''
+	;
+		format_date(Sale_Date, Sale_Date2)
+	),
+	Html = tr([td(Unit), td(Purchase_Date2), td(Purchase_Currency), td(Count), td(Purchase_Unit_Cost_Foreign), td(Purchase_Unit_Cost_Converted), td(Sale_Date2), td(Sale_Price), td(Rea_Market_Gain), td(Rea_Forex_Gain), td(Unr_Market_Gain), td(Unr_Forex_Gain), td(Purchase_Currency_Current_Market_Value)]).
+	
+ir2_line_to_row(Line, Row) :-
+	dict_vars(Line, realized, [
+		Unit, Purchase_Date, Purchase_Currency, Count, Purchase_Unit_Cost_Foreign, Purchase_Unit_Cost_Converted, 
+		Sale_Date, Sale_Price, Rea_Market_Gain, Rea_Forex_Gain]),
+	Row = row(Unit, Purchase_Date, Purchase_Currency, Count, Purchase_Unit_Cost_Foreign, Purchase_Unit_Cost_Converted, Sale_Date, Sale_Price, Rea_Market_Gain, Rea_Forex_Gain, 0, 0, '').
+
+ir2_line_to_row(Line, Row) :-
+	dict_vars(Line, unrealized, [
+		Unit, Purchase_Date, Purchase_Currency, Outstanding_Count, Unit_Cost_Foreign, Unit_Cost_Converted, 
+		Unr_Market_Gain, Unr_Forex_Gain, Purchase_Currency_Current_Market_Value]),
+	Row = row(Unit, Purchase_Date, Purchase_Currency, Outstanding_Count, Unit_Cost_Foreign, Unit_Cost_Converted, '', '', 0, 0, Unr_Market_Gain, Unr_Forex_Gain, Purchase_Currency_Current_Market_Value).
+	
+investment_report_2_sales(Static_Data, I, Lines) :-
+	I = investment(Info, Sales),
+	maplist(investment_report_2_sale_lines(Static_Data, Info), Sales, Lines).
+
+investment_report_2_sale_lines(Static_Data, Info, Sale, Sale_Line) :-
+	dict_vars(Static_Data, [Exchange_Rates, Report_Currency]),
+	Sale = sale(Sale_Date, Sale_Price, Sale_Count),
+	Info = outstanding(Purchase_Currency, Unit, _Purchase_Count, Purchase_Unit_Cost_Converted, Purchase_Unit_Cost_Foreign,	Purchase_Date),
+	(
+		Report_Currency = [Report_Currency_Unit]
+	->
+		ir2_forex_gain(Exchange_Rates, Purchase_Date, Sale_Date, Purchase_Currency, Report_Currency_Unit, Sale_Count, Rea_Forex_Gain)
+	;
+		Rea_Forex_Gain = ''
+	),
+	Sale_Price = value(Sale_Price_Unit, Sale_Price_Amount),
+	assertion(Sale_Price_Unit = Purchase_Currency),
+	Purchase_Unit_Cost_Foreign = value(Purchase_Unit_Cost_Foreign_Unit, Purchase_Unit_Cost_Foreign_Amount),
+	assertion(Purchase_Unit_Cost_Foreign_Unit = Purchase_Currency),
+	Rea_Market_Gain is Sale_Price_Amount * Sale_Count - Sale_Count * Purchase_Unit_Cost_Foreign_Amount,
+	Count = Sale_Count,
+	dict_from_vars(Sale_Line, realized, [
+		Unit, Purchase_Date, Purchase_Currency, Count, Purchase_Unit_Cost_Foreign, Purchase_Unit_Cost_Converted, 
+		Sale_Date, Sale_Price, Rea_Market_Gain, Rea_Forex_Gain]).
+
+investment_report_2_unrealized(Static_Data, _Investments, (Outstanding, _Investment_Id) , Line) :-
+	dict_vars(Static_Data, [End_Date, Exchange_Rates, Report_Currency]),
+	%nth0(Investment_Id, Investments, investment(Outstanding, _Sales)),
+	Outstanding = outstanding(Purchase_Currency, Unit, Outstanding_Count, Unit_Cost_Converted, Unit_Cost_Foreign, Purchase_Date),
+	(
+		Report_Currency = [Report_Currency_Unit]
+	->
+		ir2_forex_gain(Exchange_Rates, Purchase_Date, End_Date, Purchase_Currency, Report_Currency_Unit, Outstanding_Count, Unr_Forex_Gain)
+	;
+		Unr_Forex_Gain = ''
+	),
+	(
+		exchange_rate(Exchange_Rates, End_Date, Unit, Purchase_Currency, Exchange_Rate)
+	->
+		Purchase_Currency_Current_Market_Value is Outstanding_Count * Exchange_Rate
+	;
+		Purchase_Currency_Current_Market_Value = ''
+	),
+	(
+		(
+			Report_Currency = [Report_Currency_Unit],
+			exchange_rate(Exchange_Rates, End_Date, Unit, Report_Currency_Unit, Report_Currency_Current_Market_Unit_Price)
+		)
+	->
+		(
+			Unit_Cost_Converted = value(Unit_Cost_Converted_Unit, Unit_Cost_Converted_Amount),
+			assertion(Unit_Cost_Converted_Unit = Report_Currency_Unit),
+			Unr_Market_Gain is Outstanding_Count * Report_Currency_Current_Market_Unit_Price - Outstanding_Count * Unit_Cost_Converted_Amount
+		)
+	;
+		Unr_Market_Gain = ''
+	),
+	dict_from_vars(Line, unrealized, [
+		Unit, Purchase_Date, Purchase_Currency, Outstanding_Count, Unit_Cost_Foreign, Unit_Cost_Converted, 
+		Unr_Market_Gain, Unr_Forex_Gain, Purchase_Currency_Current_Market_Value]).
+		
+ir2_forex_gain(Exchange_Rates, Purchase_Date, End_Date, Purchase_Currency, Report_Currency, Unit_Count, Gain) :-
+	exchange_rate(Exchange_Rates, Purchase_Date, Purchase_Currency, Report_Currency, Old_Rate),
+	exchange_rate(Exchange_Rates, End_Date, Purchase_Currency, Report_Currency, New_Rate),
+	Gain is (Unit_Count * New_Rate) - (Unit_Count * Old_Rate).

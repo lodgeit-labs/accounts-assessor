@@ -1,6 +1,7 @@
 :- module(pricing, [
 	add_bought_items/4, 
-	find_items_to_sell/8
+	find_items_to_sell/8,
+	outstanding_goods_count/2
 ]).
 
 :- use_module(library(record)).

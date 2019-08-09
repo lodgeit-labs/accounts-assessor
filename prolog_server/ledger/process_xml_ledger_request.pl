@@ -34,7 +34,8 @@
 		bs_and_pl_entries/8,
 		net_activity_by_account/10]).
 :- use_module('../../lib/ledger_report_details', [
-		investment_report/2,
+		investment_report_1/2,
+		investment_report_2/3,
 		bs_report/5,
 		pl_report/6]).
 :- use_module('../../lib/statements', [
@@ -117,15 +118,11 @@ process_xml_ledger_request(_, Dom) :-
 	/*
 		we will sum up the coords of all transactions for each account and apply unit conversions
 	*/
-	output_results(S_Transactions, Transactions, Start_Date, End_Date, Exchange_Rates2, Accounts, Report_Currency, Transaction_Types, Transaction_Transformation_Debug),
+	output_results(S_Transactions, Transactions, Start_Date, End_Date, Exchange_Rates2, Accounts, Report_Currency, Transaction_Types, Transaction_Transformation_Debug, Outstanding_Out),
 	writeln('</xbrli:xbrl>'),
-	pretty_term_string(Outstanding_Out, Outstanding_Out_Str),
-	writeln('<!--'),
-	writeln(Outstanding_Out_Str),
-	writeln('-->'),
 	nl, nl.
 
-output_results(S_Transactions, Transactions, Start_Date, End_Date, Exchange_Rates, Accounts, Report_Currency, Transaction_Types, Transaction_Transformation_Debug) :-
+output_results(S_Transactions, Transactions, Start_Date, End_Date, Exchange_Rates, Accounts, Report_Currency, Transaction_Types, Transaction_Transformation_Debug, Outstanding_Out) :-
 	
 
 	writeln("<!-- Build contexts -->"),	
@@ -157,7 +154,8 @@ output_results(S_Transactions, Transactions, Start_Date, End_Date, Exchange_Rate
 	format_report_entries(xbrl, Accounts, 0, Report_Currency, Duration_Context_Id_Base, ProftAndLoss2,  Units0, Units1, [], Pl_Lines),
 	format_report_entries(xbrl, Accounts, 0, Report_Currency, Instant_Context_Id_Base,  Trial_Balance2, Units1, Units2, [], Tb_Lines),
 	
-	investment_report(Static_Data, Investment_Report_Lines),
+	investment_report_1(Static_Data, Investment_Report_1_Lines),
+	investment_report_2(Static_Data, Outstanding_Out, Investment_Report_2_Lines),
 	bs_report(Accounts, Report_Currency, Balance_Sheet2, End_Date, Bs_Html),
 	pl_report(Accounts, Report_Currency, ProftAndLoss2, Start_Date, End_Date, Pl_Html),
 
@@ -175,7 +173,8 @@ output_results(S_Transactions, Transactions, Start_Date, End_Date, Exchange_Rate
 	flatten([
 		'\n<!-- balance sheet: -->\n', Bs_Lines, 
 		'\n<!-- profit and loss: -->\n', Pl_Lines,
-		'\n<!-- investment report:\n', Investment_Report_Lines, '\n -->\n',
+		'\n<!-- investment report1:\n', Investment_Report_1_Lines, '\n -->\n',
+		'\n<!-- investment report2:\n', Investment_Report_2_Lines, '\n -->\n',		
 		'\n<!-- bs html:\n', Bs_Html, '\n -->\n',
 		'\n<!-- pl html:\n', Pl_Html, '\n -->\n',
 		'\n<!-- trial balance: -->\n',  Tb_Lines
@@ -185,6 +184,9 @@ output_results(S_Transactions, Transactions, Start_Date, End_Date, Exchange_Rate
 	emit_ledger_warnings(S_Transactions, Start_Date, End_Date),
 	emit_ledger_errors(Transaction_Transformation_Debug).
 
+
+
+	
 /* given information about a xbrl dimension, print each account as a point in that dimension. 
 this means each account results in a fact with a context that contains the value for that dimension.
 */
@@ -340,6 +342,7 @@ infer_exchange_rates(_, _, _, _, _, _, Exchange_Rates, Exchange_Rates) :-
 	%/* a dry run of bs_and_pl_entries to find out units used */
 	%trial_balance_between(Exchange_Rates, Accounts, Transactions, Report_Currency, End_Date, Start_Date, End_Date, Trial_Balance),
 	%balance_sheet_at(Exchange_Rates, Accounts, Transactions, Report_Currency, End_Date, Start_Date, End_Date, Balance_Sheet),
+
 	%profitandloss_between(Exchange_Rates, Accounts, Transactions, Report_Currency, End_Date, Start_Date, End_Date, ProftAndLoss),
 	%bs_and_pl_entries(Accounts, Report_Currency, none, Balance_Sheet, ProftAndLoss, Used_Units, _, _),
 	%pretty_term_string(Balance_Sheet, Message4),

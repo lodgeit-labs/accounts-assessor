@@ -136,6 +136,12 @@ user:goal_expansion(
 	maplist(var_to_kv_pair, Vars_List, Pairs),
 	Code = dict_create(Dict, _, Pairs).
 
+user:goal_expansion(
+	dict_from_vars(Dict, Name, Vars_List), Code
+) :-
+	maplist(var_to_kv_pair, Vars_List, Pairs),
+	Code = dict_create(Dict, Name, Pairs).
+
 var_to_kv_pair(Var, Pair) :-
 	var_property(Var, name(Name)),
 	downcase_atom(Name, Name_Lcase),
@@ -147,6 +153,12 @@ user:goal_expansion(
 	dict_vars(Dict, Vars_List), Code
 ) :-
 	dict_vars_assignment(Vars_List, Dict, Code).
+
+user:goal_expansion(
+	dict_vars(Dict, Tag, Vars_List), Code
+) :-
+	Code = (is_dict(Dict, Tag), Code0),
+	dict_vars_assignment(Vars_List, Dict, Code0).
 
 dict_vars_assignment([Var|Vars], Dict, Code) :-
 	var_property(Var, name(Key)),
