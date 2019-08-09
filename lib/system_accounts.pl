@@ -43,14 +43,29 @@ generate_system_accounts(Info, Accounts_In, Accounts_Out) :-
 	
 find_or_add_required_accounts((S_Transactions, Livestock_Types, Transaction_Types), Accounts_In, Accounts_Out) :-
 /*fixme, accounts should be added one by one and id uniqueness checked against all the previously added accounts each time */
-	Livestock_Count_Account = account('Livestock_Count', '', ''/'Livestock_Count', 0),
+	Missing_Stuff = [
+		/*these should more or less probably go into the taxonomy*/
+		account('Livestock_Count', '', ''/'Livestock_Count', 0),
+		account('NetAssets', 'Accounts', 'Accounts'/'NetAssets', 0),
+		account('AccountingFees', 'Accounts', 'Accounts'/'AccountingFees', 0),
+		account('ExchangeGain', 'Accounts', 'Accounts'/'ExchangeGain', 0),
+		account('ClearingAccount', 'Accounts', 'Accounts'/'ClearingAccount', 0),
+		account('CapitalIntroduced', 'Accounts', 'Accounts'/'CapitalIntroduced', 0),
+		/*this one should definitely be contained in some testing hierarchy file*/
+		account('FoodExpenses', 'Accounts', 'Accounts'/'FoodExpenses', 0),
+		account('Assets_Livestock_At_Cost', 'Accounts', 'Accounts'/'Assets_Livestock_At_Cost', 0),
+		account('Assets_Livestock_At_Average_Cost', 'Accounts', 'Accounts'/'Assets_Livestock_At_Average_Cost', 0)
+
+
+
+	],
 	make_bank_accounts(Accounts_In, S_Transactions, Bank_Accounts),
 	flatten([Accounts_In, Bank_Accounts], Accounts2),
 	make_currency_movement_accounts(Accounts2, Bank_Accounts, Currency_Movement_Accounts),
 	maplist(make_livestock_accounts, Livestock_Types, Livestock_Accounts),
 	ensure_gains_accounts_exist(Accounts2, S_Transactions, Transaction_Types, Gains_Accounts),
 	financial_investments(Accounts_In, S_Transactions, Transaction_Types, Financial_Investments_Accounts),
-	flatten([Livestock_Count_Account, Bank_Accounts, Currency_Movement_Accounts, Livestock_Accounts, Gains_Accounts, Financial_Investments_Accounts], Accounts_Out).
+	flatten([Missing_Stuff, Bank_Accounts, Currency_Movement_Accounts, Livestock_Accounts, Gains_Accounts, Financial_Investments_Accounts], Accounts_Out).
 
 /*	
 	
@@ -78,15 +93,16 @@ bank_account_names(S_Transactions, Names) :-
 ensure_bank_account_exists(Accounts_In, Name, Account) :-
 	ensure_account_exists(Accounts_In, 'Banks', 1, ('Banks'/Name), Account).
 
-bank_accounts(Accounts, Bank_Accounts) :-
+bank_accounts(Accounts, Bank_Account_Ids) :-
 	findall(
-		Account,
+		Id,
 		(
 			Bank_Account_Role = ('Banks'/_Bank_Account_Name),
 			member(Account, Accounts),
-			account_role(Account, Bank_Account_Role)
+			account_role(Account, Bank_Account_Role),
+			account_id(Account, Id)
 		),
-		Bank_Accounts
+		Bank_Account_Ids
 	).
 	
 /*

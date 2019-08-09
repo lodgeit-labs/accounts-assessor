@@ -53,14 +53,17 @@
 % -------------------------------------------------------------------
 
 run_simple_server :-
-   Port = port(8080),
-   http_server(http_dispatch, [Port]).
+   Port_Number = 8080,
+   %atomic_list_concat(['http://localhost:', Port_Number], Server_Url),
+   %set_server_public_url(Server_Url),
+   http_server(http_dispatch, [port(Port_Number)]).
 
 % -------------------------------------------------------------------
 % run_daemon/0
 % -------------------------------------------------------------------
 
 run_daemon :-
+   /*todo maybe set server public url here if we want to run requests manually from daemon's repl */
    use_module(library(http/http_unix_daemon)),
    http_daemon().
    

@@ -5,6 +5,7 @@
 		request_tmp_dir/1,
 		server_public_url/1
 		,set_server_public_url/1
+		,store_xml_document/2
 		]).
 
 
@@ -73,11 +74,20 @@ server_public_url(Url) :-
 	asserted_server_public_url(Url).
 		
 set_server_public_url(Url) :-
+	format(user_error, 'Server_Public_Url: ~w\n', [Url]),
 	retractall(asserted_server_public_url(_)),
 	assert(asserted_server_public_url(Url)).
 	
 
-   
+% -------------------------------------------------------------------
+% store_xml_document/2
+% -------------------------------------------------------------------
+/*fixme : its not xml-specific*/
+store_xml_document(FileName, XML) :-
+   open(FileName, write, Stream),
+   write(Stream, XML),
+   close(Stream).
+
    
    
 :- initialization(generate_unique_tmp_directory_base).

@@ -166,9 +166,9 @@ balance_sheet_at(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, St
 	writeln("<!-- balance_sheet_entry -->"),
 	balance_sheet_entry(Exchange_Rates, Accounts, Transactions_With_Retained_Earnings, Bases, Exchange_Day, 'Equity', End_Date, Equity_Section),
 	writeln("<!-- balance_by_account -->"),
-	balance_by_account(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, 'Net_Assets', End_Date, Net_Assets, Transactions_Count),
+	balance_by_account(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, 'NetAssets', End_Date, Net_Assets, Transactions_Count),
 	writeln("<!-- net_assets_section -->"),
-	Net_Assets_Section = entry('Net_Assets', Net_Assets, [], Transactions_Count),
+	Net_Assets_Section = entry('NetAssets', Net_Assets, [], Transactions_Count),
 	Balance_Sheet = [Asset_Section, Liability_Section, Equity_Section, Net_Assets_Section],
 	writeln("<!-- balance_sheet_at: done. -->").
 
@@ -360,7 +360,8 @@ format_balance(Format, Indent_Level, Report_Currency_List, Context, Name, Normal
 		Balance is (Debit - Credit)
 	),
 	get_indentation(Indent_Level, Indentation),
-	filter_out_chars_from_atom(is_underscore, Name, Name2),
+	%filter_out_chars_from_atom(is_underscore, Name, Name2),
+	Name2 = Name,
 	(
 		Format = xbrl
 	->
