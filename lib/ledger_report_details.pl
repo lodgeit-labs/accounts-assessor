@@ -168,7 +168,7 @@ investment_report2(Static_Data, Trading_Account, Lines) :-
 investment_report3(Static_Data, Trading_Account, Unit, Row, Realized_Total, Unrealized_Total) :-
 	Row = row(Unit, Lines0o, Lines0c, Lines1, Lines2),
 	dict_vars(Static_Data, [Start_Date, End_Date, Exchange_Rates, Accounts, Transactions, Report_Currency]),
-	account_by_role(Accounts, ('Financial_Investments'/Unit), Assets_Account),
+	account_by_role(Accounts, ('FinancialInvestments'/Unit), Assets_Account),
 	balance_until_day(Exchange_Rates, Accounts, Transactions, Report_Currency, Start_Date, Assets_Account, Start_Date, Opening_Value, _),
 	balance_until_day(Exchange_Rates, Accounts, Transactions, Report_Currency, End_Date, Assets_Account, End_Date, Closing_Value, _),
 	balance_until_day([], Accounts, Transactions, [], Start_Date, Assets_Account, Start_Date, Opening_Count, _),

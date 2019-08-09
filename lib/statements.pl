@@ -364,7 +364,7 @@ make_exchanged_transactions(Exchange_Rates, Report_Currency, Account, Day, Vecto
 make_currency_movement_transactions(Exchange_Rates, Accounts, Bank_Account, Report_Currency, Day, Vector, Description, Transaction) :-
 	vec_change_bases(Exchange_Rates, Day, Report_Currency, Vector, Vector_Exchanged_To_Report),
 	account_role_by_id(Accounts, Bank_Account, (_/Bank_Child_Role)),
-	account_by_role(Accounts, ('Currency_Movement'/Bank_Child_Role), Currency_Movement_Account),
+	account_by_role(Accounts, ('CurrencyMovement'/Bank_Child_Role), Currency_Movement_Account),
 	make_transaction(Currency_Movement_Account, Day, Description, Vector_Movement, Transaction),
 	vec_sub(Vector_Exchanged_To_Report, Vector, Vector_Movement).
 
