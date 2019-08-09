@@ -93,6 +93,8 @@ process_xml_ledger_request(_, Dom) :-
 	writeln('<?xml version="1.0"?>'), nl, nl,
 	
 	extract_exchange_rates(Dom, End_Date_Atom, Default_Currency, Exchange_Rates),
+	%writeln('<!-- exchange rates -->'),
+	%writeln(Exchange_Rates),
 	findall(Livestock_Dom, xpath(Dom, //reports/balanceSheetRequest/livestockData, Livestock_Dom), Livestock_Doms),
 	get_livestock_types(Livestock_Doms, Livestock_Types),
    	extract_livestock_opening_costs_and_counts(Livestock_Doms, Livestock_Opening_Costs_And_Counts),
@@ -107,6 +109,10 @@ process_xml_ledger_request(_, Dom) :-
 
 	print_relevant_exchange_rates_comment(Report_Currency, End_Date, Exchange_Rates, Transactions),
 	infer_exchange_rates(Transactions, S_Transactions, Start_Date, End_Date, Accounts, Report_Currency, Exchange_Rates, Exchange_Rates2),
+	writeln("<!-- exchange rates 2:"),
+	writeln(Exchange_Rates2),
+	writeln("-->"),
+
 	print_xbrl_header,
 	/*
 		we will sum up the coords of all transactions for each account and apply unit conversions
@@ -122,6 +128,7 @@ process_xml_ledger_request(_, Dom) :-
 output_results(S_Transactions, Transactions, Start_Date, End_Date, Exchange_Rates, Accounts, Report_Currency, Transaction_Types, Transaction_Transformation_Debug) :-
 	
 
+	writeln("<!-- Build contexts -->"),	
 	/* first, let's build up the two non-dimensional contexts */
 	date(Context_Id_Year,_,_) = End_Date,
 	Entity_Identifier = '<identifier scheme="http://www.example.com">TestData</identifier>',
@@ -136,9 +143,15 @@ output_results(S_Transactions, Transactions, Start_Date, End_Date, Exchange_Rate
 		[Start_Date, End_Date, Exchange_Rates, Accounts, Transactions, Report_Currency, Transaction_Types, Entity_Identifier, Duration_Context_Id_Base]
 	),
 
+	writeln("<!-- Trial balance -->"),
 	trial_balance_between(Exchange_Rates, Accounts, Transactions, Report_Currency, End_Date, Start_Date, End_Date, Trial_Balance2),
+
+	writeln("<!-- Balance sheet -->"),
 	balance_sheet_at(Exchange_Rates, Accounts, Transactions, Report_Currency, End_Date, Start_Date, End_Date, Balance_Sheet2),
+
+	writeln("<!-- Profit and loss -->"),
 	profitandloss_between(Exchange_Rates, Accounts, Transactions, Report_Currency, End_Date, Start_Date, End_Date, ProftAndLoss2),
+	
 	assertion(ground((Balance_Sheet2, ProftAndLoss2, Trial_Balance2))),
 	format_report_entries(xbrl, Accounts, 0, Report_Currency, Instant_Context_Id_Base,  Balance_Sheet2, [],     Units0, [], Bs_Lines),
 	format_report_entries(xbrl, Accounts, 0, Report_Currency, Duration_Context_Id_Base, ProftAndLoss2,  Units0, Units1, [], Pl_Lines),

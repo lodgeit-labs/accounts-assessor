@@ -74,17 +74,27 @@ Balance: a list of coord's
 
 % Relates Date to the balance at that time of the given account. 
 balance_until_day(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Account_Id, Date, Balance_Transformed, Transactions_Count) :-
+	writeln("<!-- calling: balance_until_day -->"),
 	assertion(account_exists(Accounts, Account_Id)),
+	writeln("<!-- transactions_before_day_on_account_and_subaccounts -->"),
 	transactions_before_day_on_account_and_subaccounts(Accounts, Transactions, Account_Id, Date, Filtered_Transactions),
 	length(Filtered_Transactions, Transactions_Count),
+	writeln("<!-- transaction_vectors_total -->"),
 	transaction_vectors_total(Filtered_Transactions, Balance),
-	vec_change_bases(Exchange_Rates, Exchange_Day, Bases, Balance, Balance_Transformed).
+	writeln("<!-- vec_change_bases -->"),
+	vec_change_bases(Exchange_Rates, Exchange_Day, Bases, Balance, Balance_Transformed),
+	writeln("<!-- done: balance_until_day -->").
 
 /* balance on account up to and including Date*/
 balance_by_account(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Account_Id, Date, Balance_Transformed, Transactions_Count) :-
+	writeln("<!-- calling: balance_by_account -->"),
+	writeln("<!-- checking account exists: "),
+	writeln(Account_Id),
+	writeln("-->"),
 	assertion(account_exists(Accounts, Account_Id)),
 	add_days(Date, 1, Date2),
-	balance_until_day(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Account_Id, Date2, Balance_Transformed, Transactions_Count).
+	balance_until_day(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Account_Id, Date2, Balance_Transformed, Transactions_Count),
+	writeln("<!-- done: balance_by_account -->").
 	
 % Relates the period from Start_Date to End_Date to the net activity during that period of
 % the given account.
@@ -102,31 +112,43 @@ net_activity_by_account(Exchange_Rates, Accounts, Transactions, Bases, Exchange_
 % Now for balance sheet predicates. These build up a tree structure that corresponds to the account hierarchy, with balances for each account.
 
 balance_sheet_entry(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Account_Id, End_Date, Sheet_Entry) :-
+	writeln("<!-- calling: balance_sheet_entry -->"),
 	% find all direct children sheet entries
 	findall(Child_Sheet_Entry, (account_child_parent(Accounts, Child_Account, Account_Id),
 		balance_sheet_entry(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Child_Account, End_Date, Child_Sheet_Entry)),
 		Child_Sheet_Entries),
 	% find balance for this account including subaccounts (sum all transactions from beginning of time)
 	balance_by_account(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Account_Id, End_Date, Balance, Transactions_Count),
-	Sheet_Entry = entry(Account_Id, Balance, Child_Sheet_Entries, Transactions_Count).
+	Sheet_Entry = entry(Account_Id, Balance, Child_Sheet_Entries, Transactions_Count),
+	writeln("<!-- done: balance_sheet_entry -->").
 
 
 balance_sheet_at(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Start_Date, End_Date, Balance_Sheet) :-
+	writeln("<!-- Get Accounts/Assets -->"),
 	account_by_role(Accounts, ('Accounts'/'Assets'), Assets_AID),
+	writeln("<!-- Get Accounts/Equity -->"),
 	account_by_role(Accounts, ('Accounts'/'Equity'), Equity_AID),
+	writeln("<!-- Get Accounts/Liabilities -->"),
 	account_by_role(Accounts, ('Accounts'/'Liabilities'), Liabilities_AID),
+	writeln("<!-- Get Accounts/Earnings -->"),
 	account_by_role(Accounts, ('Accounts'/'Earnings'), Earnings_AID),
+	writeln("<!-- Get Accounts/Assets ... again... -->"),
 	account_by_role(Accounts, ('Accounts'/'Assets'), Assets_AID),
 	account_by_role(Accounts, ('Accounts'/'Equity'), Equity_AID),
 	account_by_role(Accounts, ('Accounts'/'Assets'), Assets_AID),
 	account_by_role(Accounts, ('Accounts'/'Equity'), Equity_AID),
 
+	writeln("<!-- Balance sheet entries -->"),
 	balance_sheet_entry(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Assets_AID, End_Date, Asset_Section),
 	balance_sheet_entry(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Liabilities_AID, End_Date, Liability_Section),
 	% get earnings before the report period
 	add_days(Start_Date, -1, From_Day_Minus_1),
+
+	writeln("<!-- Balance until day -->"),
 	balance_until_day(Exchange_Rates, Accounts, Transactions, Bases, From_Day_Minus_1, Earnings_AID, Start_Date, Historical_Earnings, _),
 	% get earnings change over the period
+
+	writeln("<!-- Net activity by account -->"),
 	net_activity_by_account(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Earnings_AID, Start_Date, End_Date, Current_Earnings, _),
 	% total them
 	/*
@@ -139,11 +161,16 @@ balance_sheet_at(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, St
 		]),	*/
 		
 	/* there is no need to make up transactions here, but it makes things more uniform */
+	writeln("<!-- Get transactions with retained earnings -->"),
 	get_transactions_with_retained_earnings(Current_Earnings, Historical_Earnings, Transactions, Start_Date, End_Date, Transactions_With_Retained_Earnings),
+	writeln("<!-- balance_sheet_entry -->"),
 	balance_sheet_entry(Exchange_Rates, Accounts, Transactions_With_Retained_Earnings, Bases, Exchange_Day, 'Equity', End_Date, Equity_Section),
+	writeln("<!-- balance_by_account -->"),
 	balance_by_account(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, 'Net_Assets', End_Date, Net_Assets, Transactions_Count),
+	writeln("<!-- net_assets_section -->"),
 	Net_Assets_Section = entry('Net_Assets', Net_Assets, [], Transactions_Count),
-	Balance_Sheet = [Asset_Section, Liability_Section, Equity_Section, Net_Assets_Section].
+	Balance_Sheet = [Asset_Section, Liability_Section, Equity_Section, Net_Assets_Section],
+	writeln("<!-- balance_sheet_at: done. -->").
 
 /* build a fake transaction that sets the balance of historical and current earnings */
 get_transactions_with_retained_earnings(Current_Earnings, Historical_Earnings, Transactions, Start_Date, End_Date, [Historical_Earnings_Transaction, Current_Earnings_Transaction | Transactions]) :-

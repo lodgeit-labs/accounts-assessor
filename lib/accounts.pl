@@ -125,6 +125,14 @@ extract_account_hierarchy(Request_Dom, Account_Hierarchy) :-
 				)
 			;
 				(
+					xpath(Request_Dom, //reports/'link:schemaRef', element(_,Attributes,_)),
+					member('xlink:href'=Taxonomy_URL,Attributes),
+					extract_account_hierarchy_from_taxonomy(Taxonomy_URL,Dom)
+				)
+				-> 
+					true
+				;
+				(
 					%("loading default account hierarchy"),
 					absolute_file_name(my_static('account_hierarchy.xml'), Default_Account_Hierarchy_File, [ access(read) ]),
 					load_xml(Default_Account_Hierarchy_File, Dom, [])
@@ -138,10 +146,20 @@ extract_account_hierarchy(Request_Dom, Account_Hierarchy) :-
 fetch_account_hierarchy_from_url(Account_Hierarchy_Url, Account_Hierarchy_Dom) :-
    /*fixme: throw something more descriptive here and produce a human-level error message at output*/
    http_get(Account_Hierarchy_Url, Account_Hierarchy_Xml_Text, []),
+   /*fixme: load xml directly from xml text, storing should be optional*/
+   % load_structure(Account_Hierarchy_Xml_Text, Account_Hierarchy_Dom,[dialect(xml)]).
    my_tmp_file_name('fetched_account_hierarchy.xml', Fetched_File),
    store_xml_document(Fetched_File, Account_Hierarchy_Xml_Text),
    load_xml(Fetched_File, Account_Hierarchy_Dom, []).
-  
+
+extract_account_hierarchy_from_taxonomy(Taxonomy_URL, Account_Hierarchy_DOM) :-
+	setup_call_cleanup(
+		% might want to do better than hardcoding the path to the script
+		process_create(path(python3),['../xbrl/account_hierarchy/src/main.py',Taxonomy_URL],[stdout(pipe(Out))]),
+		load_structure(Out,Account_Hierarchy_DOM,[dialect(xml)]),
+		close(Out)
+	).	
+
 % ------------------------------------------------------------------
 % extract_account_hierarchy2/2
 %

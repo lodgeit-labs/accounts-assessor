@@ -157,6 +157,7 @@ Produced on 2019-07-31 20:16:20
   <element id="basic_Dimension_BankAccounts_Instant" name="Dimension_BankAccounts_Instant" type="xbrli:stringItemType" substitutionGroup="xbrldt:dimensionItem" xbrli:periodType="instant" abstract="true" xbrldt:typedDomainRef="basic.xsd#basic_Dimension_BankAccounts_Instant_DomainDeclaration" />
   <element id="basic_Dimension_Investments_Duration" name="Dimension_Investments_Duration" type="xbrli:stringItemType" substitutionGroup="xbrldt:dimensionItem" xbrli:periodType="duration" abstract="true" xbrldt:typedDomainRef="basic.xsd#basic_Dimension_Investments_Duration_DomainDeclaration" />
   <element id="basic_DividendsEarned" name="DividendsEarned" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" xbrli:periodType="duration" xbrli:balance="credit" nillable="true" />
+  <element id="basic_Earnings" name="Earnings" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" xbrli:periodType="instant" xbrli:balance="credit" nillable="true" />
   <element id="basic_Equity" name="Equity" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" xbrli:periodType="instant" xbrli:balance="credit" nillable="true" />
   <element id="basic_EquityRollUp" name="EquityRollUp" type="xbrli:stringItemType" substitutionGroup="xbrli:item" xbrli:periodType="duration" abstract="true" nillable="true" />
   <element id="basic_Expenses" name="Expenses" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" xbrli:periodType="duration" xbrli:balance="debit" nillable="true" />
