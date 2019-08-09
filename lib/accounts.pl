@@ -32,7 +32,7 @@
 :- use_module(library(http/http_client)).
 :- use_module(library(record)).
 :- use_module(library(xpath)).
-:- use_module('utils', [inner_xml/3, trim_atom/2]).
+:- use_module('utils', [inner_xml/3, trim_atom/2,pretty_term_string/2, throw_string/1]).
 :- use_module('../lib/files', []).
 
 
@@ -94,7 +94,19 @@ account_direct_children(Accounts, Parent, Children) :-
 account_by_role(Accounts, Role, Account_Id) :-
 	account_role(Account, Role),
 	account_id(Account, Account_Id),
-	member(Account, Accounts).
+	(
+		member(Account, Accounts)
+	->
+		true
+	;
+		(
+			pretty_term_string(Accounts, Accounts_Str),
+			term_string(Role, Role_Str),
+			format(atom(Err), 'accounts: ~w \naccount not found in hierarchy: ~w\n', [Accounts_Str,  Role_Str]),
+			format(user_error, Err, []),
+			throw_string(Err)
+		)
+	).
 
 account_term_by_role(Accounts, Role, Account) :-
 	account_by_role(Accounts, Role, Id),

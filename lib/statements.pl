@@ -403,13 +403,7 @@ s_transaction_type_of(Transaction_Types, S_Transaction, Transaction_Type) :-
 % throw an error if the s_transaction's account is not found in the hierarchy
 check_that_s_transaction_account_exists(S_Transaction, Accounts) :-
 	s_transaction_account_id(S_Transaction, Account_Name),
-	(
-		account_by_role(Accounts, ('Banks'/Account_Name), _) 
-		->
-			true
-		;
-			throw_string(['account not found in hierarchy:', Account_Name])
-	).
+	account_by_role(Accounts, ('Banks'/Account_Name), _).
 
 
 % yield all transactions from all accounts one by one.
