@@ -1,6 +1,6 @@
 :- module(ledger, [
 		find_s_transactions_in_period/4,
-		process_ledger/13,
+		process_ledger/14,
 		emit_ledger_warnings/3,
 		emit_ledger_errors/1]).
 
@@ -8,7 +8,7 @@
 		generate_system_accounts/3]).
 :- use_module('statements', [
 		s_transaction_day/2,
-		preprocess_s_transactions/4]).
+		preprocess_s_transactions/5]).
 :- use_module('days', [
 		format_date/2, 
 		parse_date/2, 
@@ -51,7 +51,8 @@ process_ledger(
 	Account_Hierarchy_In, 
 	Account_Hierarchy, 
 	Transactions_With_Livestock,
-	Transaction_Transformation_Debug
+	Transaction_Transformation_Debug,
+	Outstanding_Out
 ) :-
 	emit_ledger_warnings(S_Transactions, Start_Days, End_Days),
 	pretty_term_string(Exchange_Rates, Message1b),
@@ -75,7 +76,7 @@ process_ledger(
 	writeln(Debug_Message10),
 	flatten([Account_Hierarchy_In, Generated_Accounts], Account_Hierarchy),
 	
-	preprocess_s_transactions((Account_Hierarchy, Report_Currency, Action_Taxonomy, End_Days, Exchange_Rates), S_Transactions, Transactions1, Transaction_Transformation_Debug),
+	preprocess_s_transactions((Account_Hierarchy, Report_Currency, Action_Taxonomy, End_Days, Exchange_Rates), S_Transactions, Transactions1, Outstanding_Out, Transaction_Transformation_Debug),
 		
 	/*if processing s_transactions failed, we should either limit the end date for livestock processing, 
 	or we should filter the additional transactions out before creating reports*/

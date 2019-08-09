@@ -46,7 +46,7 @@
 :- use_module('../../lib/ledger', [
 		emit_ledger_warnings/3,
 		emit_ledger_errors/1,
-		process_ledger/13]).
+		process_ledger/14]).
 :- use_module('../../lib/livestock', [
 		get_livestock_types/2, 
 		process_livestock/14, 
@@ -103,17 +103,24 @@ process_xml_ledger_request(_, Dom) :-
 	/*
 		process_ledger turns s_transactions into transactions
 	*/
-	process_ledger(Livestock_Doms, S_Transactions, Start_Date, End_Date, Exchange_Rates, Transaction_Types, Report_Currency, Livestock_Types, Livestock_Opening_Costs_And_Counts, Accounts0, Accounts, Transactions, Transaction_Transformation_Debug),
+	process_ledger(Livestock_Doms, S_Transactions, Start_Date, End_Date, Exchange_Rates, Transaction_Types, Report_Currency, Livestock_Types, Livestock_Opening_Costs_And_Counts, Accounts0, Accounts, Transactions, Transaction_Transformation_Debug, Outstanding_Out),
 
 	print_relevant_exchange_rates_comment(Report_Currency, End_Date, Exchange_Rates, Transactions),
 	infer_exchange_rates(Transactions, S_Transactions, Start_Date, End_Date, Accounts, Report_Currency, Exchange_Rates, Exchange_Rates2),
+	print_xbrl_header,
 	/*
 		we will sum up the coords of all transactions for each account and apply unit conversions
 	*/
-	output_results(S_Transactions, Transactions, Start_Date, End_Date, Exchange_Rates2, Accounts, Report_Currency, Transaction_Types, Transaction_Transformation_Debug).
+	output_results(S_Transactions, Transactions, Start_Date, End_Date, Exchange_Rates2, Accounts, Report_Currency, Transaction_Types, Transaction_Transformation_Debug),
+	writeln('</xbrli:xbrl>'),
+	pretty_term_string(Outstanding_Out, Outstanding_Out_Str),
+	writeln('<!--'),
+	writeln(Outstanding_Out_Str),
+	writeln('-->'),
+	nl, nl.
 
 output_results(S_Transactions, Transactions, Start_Date, End_Date, Exchange_Rates, Accounts, Report_Currency, Transaction_Types, Transaction_Transformation_Debug) :-
-	print_xbrl_header,
+	
 
 	/* first, let's build up the two non-dimensional contexts */
 	date(Context_Id_Year,_,_) = End_Date,
@@ -163,9 +170,7 @@ output_results(S_Transactions, Transactions, Start_Date, End_Date, Exchange_Rate
 	atomic_list_concat(Report_Lines_List, Report_Lines),
 	writeln(Report_Lines),
 	emit_ledger_warnings(S_Transactions, Start_Date, End_Date),
-	emit_ledger_errors(Transaction_Transformation_Debug),
-	writeln('</xbrli:xbrl>'),
-	nl, nl.
+	emit_ledger_errors(Transaction_Transformation_Debug).
 
 /* given information about a xbrl dimension, print each account as a point in that dimension. 
 this means each account results in a fact with a context that contains the value for that dimension.

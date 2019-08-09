@@ -3,13 +3,13 @@
 
 :- begin_tests(pricing).
 
-test(0, all(Cost_Of_Goods = [[outstanding('CZK', 'TLS', 2, value('AUD',10), date(2000, 1, 1))]])) :-
+test(0, all(Cost_Of_Goods = [[goods('CZK', 'TLS', 2, value('AUD',10), date(2000, 1, 1))]])) :-
 	Pricing_Method = lifo,
+%	gtrace,
 	add_bought_items(Pricing_Method, 
-		outstanding('CZK', 'TLS', 5, value('AUD', 5), date(2000, 1, 1)), 
-		[], Outstanding_Out),
-	/* todo: should find_items_to_sell leave a choice-point? */
-	find_items_to_sell(Pricing_Method, 'TLS', 2, Outstanding_Out, _Outstanding_Out2, Cost_Of_Goods).
+		outstanding('CZK', 'TLS', 5, value('AUD', 5), value('CZK', 100), date(2000, 1, 1)), 
+		([],[]), Outstanding_Out),
+	find_items_to_sell(Pricing_Method, 'TLS', 2, d, p, Outstanding_Out, _Outstanding_Out2, Cost_Of_Goods).
 		
 test(1) :-
 	Pricing_Method = lifo,

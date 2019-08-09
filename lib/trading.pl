@@ -90,7 +90,7 @@ unrealized_gains_txs((Accounts, Report_Currency, _, _, _), Trading_Account_Id, P
 
 	
 unrealized_gains_reduction_txs((Accounts, Report_Currency, _, _, _), Trading_Account_Id, Purchase_Info, Txs) :-
-	outstanding(ST_Currency, Goods_Unit_Name, Goods_Count, Cost, Purchase_Date) = Purchase_Info,
+	goods(ST_Currency, Goods_Unit_Name, Goods_Count, Cost, Purchase_Date) = Purchase_Info,
 	
 	gains_accounts(
 		Accounts, Trading_Account_Id, unrealized, Goods_Unit_Name, 
@@ -119,7 +119,7 @@ unrealized_gains_reduction_txs((Accounts, Report_Currency, _, _, _), Trading_Acc
 
 	
 realized_gains_txs((Accounts, Report_Bases, _, _,Exchange_Rates), Sale_Currency, Sale_Currency_Unit_Price, Trading_Account_Id, Sale_Unit_Price_Converted, Purchase_Info, Txs) :-
-	outstanding(_ST_Currency, Goods_Unit, Goods_Count, Cost, Purchase_Date) = Purchase_Info,
+	goods(_ST_Currency, Goods_Unit, Goods_Count, Cost, Purchase_Date) = Purchase_Info,
 	
 	gains_accounts(
 		Accounts, Trading_Account_Id, realized, Goods_Unit, 
