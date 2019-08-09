@@ -47,6 +47,8 @@ ST_Currency is the s_transaction currency, which is the bank account's currency,
 
 If the transaction type has a trading account specified, this is an earnings account with 2 sub-accounts: realized and unrealized gains, each containing 2 accounts: without_currency_movement and only_currency_movement. This is handled in trading.pl. The transactions on these accounts add up to a zero as long as the shares value does not change. The special without_currency_movement_against_since is used here.
 
+You can make any pair of accounts (foo, bar) behave like Financial_Investments and Investment_Income (wrt the investments logic) by using "<exchangeAccount>foo</exchangeAccount><tradingAccount>bar</tradingAccount>" and in the actual transactions including <unit> and <unitType>.
+
 
 # documentation todo
 would be nice to have clickable links to predicate definitions / documentation. In theory this should be possible with pldoc, but i have not had much luck with it yet. 

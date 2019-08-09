@@ -23,7 +23,7 @@ see doc/investment and dropbox Develop/videos/ledger
 		parse_date/2, 
 		gregorian_date/2]).
 :- use_module('../../lib/ledger', [
-		process_ledger/13]).
+		process_ledger/14]).
 :- use_module('../../lib/ledger_report', [
 		format_report_entries/10,
 		balance_sheet_at/8, 
@@ -161,6 +161,7 @@ process_realized(Dom, Global_Report_Date_Atom, Result) :-
 		Accounts0, 
 		Accounts1, 
 		Transactions,
+		_,
 		_
 	),
    	Info = (Exchange_Rates, Accounts1, Transactions, Sale_Date, report_currency),
@@ -284,6 +285,7 @@ process_unrealized(Dom, Global_Report_Date, Result) :-
 		Accounts0, 
 		Accounts1, 
 		Transactions,
+		_,
 		_
 	),
 	
@@ -505,6 +507,7 @@ crosscheck_totals(Results, Report_Date) :-
 		Accounts0, 
 		Accounts1, 
 		Transactions,
+		_,
 		_
 	),
    	Info = (Exchange_Rates, Accounts1, Transactions, Report_Date, report_currency),

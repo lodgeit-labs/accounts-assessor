@@ -92,17 +92,17 @@ account_direct_children(Accounts, Parent, Children) :-
 	).
 	
 account_by_role(Accounts, Role, Account_Id) :-
-	member(Account, Accounts),
 	account_role(Account, Role),
-	account_id(Account, Account_Id).
+	account_id(Account, Account_Id),
+	member(Account, Accounts).
 
 account_term_by_role(Accounts, Role, Account) :-
 	account_by_role(Accounts, Role, Id),
 	account_term_by_id(Accounts, Id, Account).
 	
 account_term_by_id(Accounts, Id, Account) :-
-	member(Account, Accounts),
-	account_id(Account, Id).
+	account_id(Account, Id),
+	member(Account, Accounts).
 
 account_role_by_id(Accounts, Id, Role) :-
 	account_term_by_id(Accounts, Id, Account),

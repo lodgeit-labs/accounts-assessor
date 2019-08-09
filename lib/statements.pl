@@ -6,7 +6,7 @@
 
 :- module(statements, [
 		extract_transaction/3, 
-		preprocess_s_transactions/4,
+		preprocess_s_transactions/5,
 		print_relevant_exchange_rates_comment/4,
 		invert_s_transaction_vector/2, 
 		fill_in_missing_units/6,
@@ -70,7 +70,7 @@
 		parse_date/2]).
 :- use_module('pricing', [
 		add_bought_items/4, 
-		find_items_to_sell/6]).
+		find_items_to_sell/8]).
 
 :- use_module(library(record)).
 :- use_module(library(xpath)).
@@ -91,8 +91,8 @@
 	s_transactions have to be sorted by date from oldest to newest 
 	s_transactions have flipped vectors, so they are from our perspective
 */
-preprocess_s_transactions(Static_Data, S_Transactions, Transactions_Out, Debug_Info) :-
-	preprocess_s_transactions2(Static_Data, S_Transactions, Transactions0, [], _, Debug_Info, []),
+preprocess_s_transactions(Static_Data, S_Transactions, Transactions_Out, Outstanding_Out, Debug_Info) :-
+	preprocess_s_transactions2(Static_Data, S_Transactions, Transactions0, ([],[]), Outstanding_Out, Debug_Info, []),
 	flatten(Transactions0, Transactions_Out).
 
 /*
@@ -102,59 +102,64 @@ preprocess_s_transactions2(_, [], [], Outstanding, Outstanding, ['done.'], _).
 
 preprocess_s_transactions2(Static_Data, [S_Transaction|S_Transactions], [Transactions_Out|Transactions_Out_Tail], Outstanding_In, Outstanding_Out, [Debug_Head|Debug_Tail], Debug_So_Far) :-
 	Static_Data = (Accounts, Report_Currency, _Action_Taxonomy, Report_End_Date, Exchange_Rates),
-	check_that_s_transaction_account_exists(S_Transaction, Accounts),
 	pretty_term_string(S_Transaction, S_Transaction_String),
-	
-	/*
-	here we could get opening unit count + value for investments from outstanding, for the day before start of report,
-	but i think it will be better to filter the transactions after all of them are generated
-	*/
-	
-	(
-		catch(
-			catch(
-				preprocess_s_transaction(Static_Data, S_Transaction, Transactions0, Outstanding_In, Outstanding_Mid),
-				not_enough_goods_to_sell,
-				fail
-			),
-			string(E),
-			throw_string([E, ' when processing ', S_Transaction_String])
-		)
-		->
+	catch(
 		(
-			% filter out unbound vars from the resulting Transactions list, as some rules do not always produce all possible transactions
-			flatten(Transactions0, Transactions1),
-			exclude(var, Transactions1, Transactions2),
-			exclude(has_empty_vector, Transactions2, Transactions_Out),
-			pretty_term_string(Transactions_Out, Transactions_String),
-			atomic_list_concat([S_Transaction_String, '==>\n', Transactions_String, '\n====\n'], Debug_Head),
-			Transactions_Out = [T|_],
-			transaction_day(T, Transaction_Date),
+			check_that_s_transaction_account_exists(S_Transaction, Accounts),
 			catch(
 				(
-					check_trial_balance(Exchange_Rates, Report_Currency, Transaction_Date, Transactions_Out),
-					check_trial_balance(Exchange_Rates, Report_Currency, Report_End_Date, Transactions_Out)
+					(preprocess_s_transaction(Static_Data, S_Transaction, Transactions0, Outstanding_In, Outstanding_Mid)
+					-> true; (/*gtrace,fail,*/throw_string('internal error'))),
+					% filter out unbound vars from the resulting Transactions list, as some rules do not always produce all possible transactions
+					flatten(Transactions0, Transactions1),
+					exclude(var, Transactions1, Transactions2),
+					exclude(has_empty_vector, Transactions2, Transactions_Out),
+					pretty_term_string(Transactions_Out, Transactions_String),
+					atomic_list_concat([S_Transaction_String, '==>\n', Transactions_String, '\n====\n'], Debug_Head),
+					Transactions_Out = [T|_],
+					transaction_day(T, Transaction_Date),
+					check_trial_balance0(Exchange_Rates, Report_Currency, Transaction_Date, Transactions_Out, Report_End_Date, Debug_So_Far, Debug_Head),
+					append(Debug_So_Far, [Debug_Head], Debug_So_Far2)
 				),
-				E,
+				not_enough_goods_to_sell,
 				(
-					format(user_error, '\n\\n~w\n\n', [Debug_So_Far]),
-					format(user_error, '\n\nwhen processing:\n~w', [Debug_Head]),
-					throw([E])
+					atomic_list_concat([not_enough_goods_to_sell, ' when processing ', S_Transaction_String], Debug_Head),
+					Outstanding_In = Outstanding_Out,
+					Transactions_Out_Tail = [],
+					Transactions_Out = [],
+					Debug_Tail = []
 				)
-			),
-			append(Debug_So_Far, [Debug_Head], Debug_So_Far2),
-			preprocess_s_transactions2(Static_Data, S_Transactions, Transactions_Out_Tail,  Outstanding_Mid, Outstanding_Out, Debug_Tail, Debug_So_Far2)
-		)
-		;
+			)
+		),
+		string(E_Str),
 		(
-			Outstanding_In = Outstanding_Out,
-			Transactions_Out_Tail = [],
-			Transactions_Out = [],
-			Debug_Tail = [],
-			atomic_list_concat([not_enough_goods_to_sell, ' when processing ', S_Transaction_String], Debug_Head)
+			%term_string(E, E_Str),
+			throw_string([E_Str, ' when processing ', S_Transaction_String])
+		)
+	),
+	(
+		var(Debug_Tail) /* debug tail is left free if processing this transaction succeeded ... */
+	->
+		preprocess_s_transactions2(Static_Data, S_Transactions, Transactions_Out_Tail,  Outstanding_Mid, Outstanding_Out, Debug_Tail, Debug_So_Far2)
+	;
+		true
+	).
+
+check_trial_balance0(Exchange_Rates, Report_Currency, Transaction_Date, Transactions_Out, Report_End_Date, Debug_So_Far, Debug_Head) :-
+	catch(
+		(
+			check_trial_balance(Exchange_Rates, Report_Currency, Transaction_Date, Transactions_Out),
+			check_trial_balance(Exchange_Rates, Report_Currency, Report_End_Date, Transactions_Out)
+		),
+		E, 
+		(
+			format(user_error, '\n\\n~w\n\n', [Debug_So_Far]),
+			format(user_error, '\n\nwhen processing:\n~w', [Debug_Head]),
+			throw_string([E])
 		)
 	).
 
+	
 % ----------
 % This predicate takes a list of statement transaction terms and decomposes it into a list of plain transaction terms.
 % ----------	
@@ -191,7 +196,6 @@ preprocess_s_transaction(Static_Data, S_Transaction, Transactions, Outstanding, 
 
 
 preprocess_s_transaction(Static_Data, S_Transaction, [Ts1, Ts2, Ts3, Ts4], Outstanding_In, Outstanding_Out) :-
-
 	Pricing_Method = lifo,
 	Static_Data = (_, Report_Currency, Transaction_Types, _, Exchange_Rates),
 	check_s_transaction_action_type(Transaction_Types, S_Transaction),
@@ -214,7 +218,7 @@ preprocess_s_transaction(Static_Data, S_Transaction, [Ts1, Ts2, Ts3, Ts4], Outst
 		->
 			make_buy(
 				Static_Data, Trading_Account_Id, Pricing_Method, Bank_Account_Currency, Counteraccount_Vector,
-				Converted_Vector_Ours, Exchanged_Account, Transaction_Date, Description, Outstanding_In, Outstanding_Out, Ts2)
+				Converted_Vector_Ours, Vector_Ours, Exchanged_Account, Transaction_Date, Description, Outstanding_In, Outstanding_Out, Ts2)
 		;		
 			make_sell(
 				Static_Data, Trading_Account_Id, Pricing_Method, Bank_Account_Currency, Counteraccount_Vector, Vector_Ours, 
@@ -234,19 +238,21 @@ preprocess_s_transaction(Static_Data, S_Transaction, [Ts1, Ts2, Ts3, Ts4], Outst
 	Separately from that, we also change Outstanding with each buy or sell.
 */
 make_buy(Static_Data, Trading_Account_Id, Pricing_Method, Bank_Account_Currency, Goods_Vector, 
-	Converted_Vector_Ours, 
+	Converted_Vector_Ours, Vector_Ours,
 	Exchanged_Account, Transaction_Date, Description, 
 	Outstanding_In, Outstanding_Out, [Ts1, Ts2]
 ) :-
 	purchased_goods_vector_with_cost(Goods_Vector, Converted_Vector_Ours, Goods_With_Cost_Vector),
 	[coord(with_cost_per_unit(Goods_Unit, Unit_Cost), Goods_Count, _)] = Goods_With_Cost_Vector,
+	purchased_goods_vector_with_cost(
+		Goods_Vector, Vector_Ours, 
+		[coord(with_cost_per_unit(Goods_Unit, Unit_Cost_Foreign), Goods_Count, _)]),
 	Static_Data = (Accounts, _, _, _, _),
 	account_by_role(Accounts, Exchanged_Account/Goods_Unit, Exchanged_Account2),
 	make_transaction(Exchanged_Account2, Transaction_Date, Description, Goods_With_Cost_Vector, Ts1),
-	
 	add_bought_items(
 		Pricing_Method, 
-		outstanding(Bank_Account_Currency, Goods_Unit, Goods_Count, Unit_Cost, Transaction_Date),
+		outstanding(Bank_Account_Currency, Goods_Unit, Goods_Count, Unit_Cost, Unit_Cost_Foreign, Transaction_Date),
 		Outstanding_In, Outstanding_Out
 	),
 	(var(Trading_Account_Id) -> true
@@ -261,9 +267,9 @@ make_sell(Static_Data, Trading_Account_Id, Pricing_Method, _Bank_Account_Currenc
 	Goods_Vector = [coord(Goods_Unit,_,Goods_Positive)],
 	Static_Data = (Accounts, _, _, _, _),
 	account_by_role(Accounts, Exchanged_Account/Goods_Unit, Exchanged_Account2),
-
-	((find_items_to_sell(Pricing_Method, Goods_Unit, Goods_Positive, Outstanding_In, Outstanding_Out, Goods_Cost_Values),!)
-		;throw(not_enough_goods_to_sell)),
+	bank_debit_to_unit_price(Vector_Ours, Goods_Positive, Sale_Unit_Price),
+	((find_items_to_sell(Pricing_Method, Goods_Unit, Goods_Positive, Transaction_Date, Sale_Unit_Price, Outstanding_In, Outstanding_Out, Goods_Cost_Values),!)
+		;(throw(not_enough_goods_to_sell))),
 	maplist(sold_goods_vector_with_cost, Goods_Cost_Values, Goods_With_Cost_Vectors),
 	maplist(
 		make_transaction(Exchanged_Account2, Transaction_Date, Description), 
@@ -276,13 +282,19 @@ make_sell(Static_Data, Trading_Account_Id, Pricing_Method, _Bank_Account_Currenc
 		)
 	).
 
+bank_debit_to_unit_price(Vector_Ours, Goods_Positive, value(Unit, Number2)) :-
+	Vector_Ours = [Coord],
+	number_coord(Unit, Number, Coord),
+	Number2 is Number / Goods_Positive.
+
+	
 /*
 	when we bought something, we debited some assets account with the result of 
 	purchased_goods_vector_with_cost(Goods_Vector0, Converted_Vector_Ours, Goods_With_Cost_Vector)
 	now we need to credit that account with a coord(with_cost_per_unit(..), with the same unit costs
 */
 sold_goods_vector_with_cost(Goods_Cost_Value, Goods_With_Cost_Vector) :-
-	Goods_Cost_Value = outstanding(_Bank_Account_Currency, Goods_Unit, Goods_Count, Total_Cost_Value, _),
+	Goods_Cost_Value = goods(_Bank_Account_Currency, Goods_Unit, Goods_Count, Total_Cost_Value, _),
 	value_divide(Total_Cost_Value, Goods_Count, Unit_Cost_Value),
 	Goods_With_Cost_Vector = [coord(
 		with_cost_per_unit(Goods_Unit, Unit_Cost_Value),
@@ -320,15 +332,15 @@ record_earning_or_equity_or_loan(Static_Data, Vector_Ours, Exchanged_Account, Tr
 
 purchased_goods_vector_with_cost(
 	[coord(Goods_Unit_In, Goods_Count, Zero)],
-	Converted_Cost_Vector, Goods_Vector_With_Cost
+	Cost_Vector, Goods_Vector_With_Cost
 ) :-
 	assertion(Zero =:= 0),
-	[coord(Converted_Currency, _, Converted_Price)] = Converted_Cost_Vector,
-	Converted_Unit_Cost is Converted_Price / Goods_Count,
+	[coord(Currency, _, Price)] = Cost_Vector,
+	Unit_Cost is Price / Goods_Count,
 	Goods_Vector_With_Cost = [coord(
 		with_cost_per_unit(
 			Goods_Unit_In, 
-			value(Converted_Currency, Converted_Unit_Cost)
+			value(Currency, Unit_Cost)
 		),
 			Goods_Count, 
 			0
