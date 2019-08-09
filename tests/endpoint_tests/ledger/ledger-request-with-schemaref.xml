@@ -3,7 +3,7 @@
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
   xmlns:xsd="http://www.w3.org/2001/XMLSchema"
   xsi:schemaLocation="http://localhost:8080/taxonomy/basic.xsd">
-  <link:schemaRef xlink:type="simple" xlink:href="http://localhost:7778/taxonomy/basic.xsd" xlink:title="Taxonomy schema" />
+  <link:schemaRef xlink:type="simple" xlink:href="http://localhost:8080/taxonomy/basic.xsd" xlink:title="Taxonomy schema" />
   
   <balanceSheetRequest>
     <generator>
