@@ -9,8 +9,7 @@
 		account_role/2, 
 		account_id/2, 
 		account_parent/2,
-		account_detail_level/2,
-		account_by_role/3]).
+		account_detail_level/2]).
 :- use_module('livestock', [
 		make_livestock_accounts/2]).
 :- use_module('statements', [
@@ -26,6 +25,7 @@ Change id's to unique if needed.
 We could present this as a proposal to the user to add these accounts. But here we will do it immediately.
 */
 generate_system_accounts(Info, Accounts_In, Accounts_Out) :-
+	writeln('<!--generate system accounts...-->'),
 	find_or_add_required_accounts(Info, Accounts_In, Accounts_With_Generated_Accounts),
 	findall(
 		Account,
@@ -36,7 +36,9 @@ generate_system_accounts(Info, Accounts_In, Accounts_Out) :-
 			\+member(Possibly_Already_Existing_Account, Accounts_In)
 		),
 		Accounts_Out
-	).
+	),
+	writeln('<!--...generated system accounts-->')
+.
 
 	
 find_or_add_required_accounts((S_Transactions, Livestock_Types, Transaction_Types), Accounts_In, Accounts_Out) :-
@@ -215,7 +217,10 @@ roles_tree(_, [], _, []).
 ensure_account_exists(Accounts_In, Parent_Id, Detail_Level, Role, Account) :-
 	Role = (_/Child_Role_Raw),
 	(
-		(account_term_by_role(Accounts_In, Role, Account),!)
+		(
+			%writeln(ensure_account_exists(Accounts_In, Parent_Id, Detail_Level, Role, Account)),
+			(account_term_by_role(Accounts_In, Role, Account),!)
+		)
 	;
 		(
 			replace_nonalphanum_chars_with_underscore(Child_Role_Raw, Child_Role_Safe),

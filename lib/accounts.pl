@@ -109,8 +109,8 @@ account_by_role(Accounts, Role, Account_Id) :-
 	).
 
 account_term_by_role(Accounts, Role, Account) :-
-	account_by_role(Accounts, Role, Id),
-	account_term_by_id(Accounts, Id, Account).
+	member(Account, Accounts),
+	account_role(Account, Role).
 	
 account_term_by_id(Accounts, Id, Account) :-
 	account_id(Account, Id),
