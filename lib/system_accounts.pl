@@ -81,7 +81,8 @@ bank_accounts(Accounts, Bank_Accounts) :-
 		Account,
 		(
 			Bank_Account_Role = ('Banks'/_Bank_Account_Name),
-			account_by_role(Accounts, Bank_Account_Role, Account)
+			member(Account, Accounts),
+			account_role(Account, Bank_Account_Role)
 		),
 		Bank_Accounts
 	).
@@ -105,7 +106,7 @@ make_currency_movement_accounts(Accounts_In, Bank_Accounts, Currency_Movement_Ac
 
 make_currency_movement_account(Accounts_In, Bank_Account, Currency_Movement_Account) :-
 	account_role(Bank_Account, (_/Role_Child)),
-	ensure_account_exists(Accounts_In, 'Currency_Movement', 0, ('Currency_Movement'/Role_Child), Currency_Movement_Account).
+	ensure_account_exists(Accounts_In, 'CurrencyMovement', 0, ('CurrencyMovement'/Role_Child), Currency_Movement_Account).
 	
 	
 /*
@@ -153,7 +154,7 @@ because Financial_Investments_realized might already be an id of another user ac
 
 financial_investments(Accounts_In, S_Transactions, Transaction_Types, Accounts_Out) :-
 	traded_units(S_Transactions, Transaction_Types, Units),
-	roles_tree(Accounts_In, [(Units, 1)], 'Financial_Investments', Accounts_Out).
+	roles_tree(Accounts_In, [(Units, 1)], 'FinancialInvestments', Accounts_Out).
 
 ensure_gains_accounts_exist(Accounts_In, S_Transactions, Transaction_Types, Accounts_Out) :-
 	/* trading accounts are expected to be in user input. */

@@ -254,7 +254,7 @@ print_banks(Static_Data, Context_Id_Base, Entity_Identifier, In, Out) :-
 
 print_forex(Static_Data, Context_Id_Base, Entity_Identifier, In, Out) :- 
 	dict_vars(Static_Data, [Start_Date, End_Date, Accounts]),
-    findall(Account, account_by_role(Accounts, ('Currency_Movement'/_), Account), Movement_Accounts),
+    findall(Account, account_by_role(Accounts, ('CurrencyMovement'/_), Account), Movement_Accounts),
 	Context_Info = context_arg0(
 		Context_Id_Base, 
 		(Start_Date, End_Date), 
@@ -264,7 +264,7 @@ print_forex(Static_Data, Context_Id_Base, Entity_Identifier, In, Out) :-
 		),
 		''
 	),
-	print_detail_accounts(Static_Data, Context_Info, 'Currency_Movement', Movement_Accounts, In, Out).
+	print_detail_accounts(Static_Data, Context_Info, 'CurrencyMovement', Movement_Accounts, In, Out).
 
 /* for a list of (Sub_Account, Unit_Accounts) pairs..*/
 print_trading2(Static_Data, [(Sub_Account,Unit_Accounts)|Tail], In, Out):-

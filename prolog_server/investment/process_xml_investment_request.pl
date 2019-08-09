@@ -148,12 +148,12 @@ process_realized(Dom, Global_Report_Date_Atom, Result) :-
 		Sale_Date, 
 		Exchange_Rates,
 		[ transaction_type('Invest_In',
-		   'Financial_Investments',
-		   'Investment_Income',
+		   'FinancialInvestments',
+		   'InvestmentIncome',
 		   'Shares'),
 		transaction_type('Dispose_Of',
-		   'Financial_Investments',
-		   'Investment_Income',
+		   'FinancialInvestments',
+		   'InvestmentIncome',
 		   'Shares')],
 		[report_currency], 
 		[], 
@@ -166,7 +166,7 @@ process_realized(Dom, Global_Report_Date_Atom, Result) :-
 	),
    	Info = (Exchange_Rates, Accounts1, Transactions, Sale_Date, report_currency),
    	/*todo get Investment_Income account by role */
-	account_by_role(Accounts1, 'Investment_Income'/realized, Gain_Account),
+	account_by_role(Accounts1, 'InvestmentIncome'/realized, Gain_Account),
 	account_by_role(Accounts1, Gain_Account/without_currency_movement, Gains_Excluding_Forex_Account),
 	account_by_role(Accounts1, Gain_Account/only_currency_movement, Gains_Currency_Movement_Account), 
     account_assertion(Info, Gains_Excluding_Forex_Account, -RC_Realized_Market_Gain),
@@ -275,8 +275,8 @@ process_unrealized(Dom, Global_Report_Date, Result) :-
 		Report_Date, 
 		Exchange_Rates,
 		[ transaction_type('Invest_In',
-		   'Financial_Investments',
-		   'Investment_Income',
+		   'FinancialInvestments',
+		   'InvestmentIncome',
 		   'Shares')
 		],
 		[report_currency], 
@@ -301,7 +301,7 @@ process_unrealized(Dom, Global_Report_Date, Result) :-
 	writeln('-->'),
 
    	Info = (Exchange_Rates, Accounts1, Transactions, Report_Date, report_currency),
-	account_by_role(Accounts1, 'Investment_Income'/unrealized, Unrealized_Gain_Account),
+	account_by_role(Accounts1, 'InvestmentIncome'/unrealized, Unrealized_Gain_Account),
 	account_by_role(Accounts1, Unrealized_Gain_Account/without_currency_movement, Unrealized_Gains_Excluding_Forex_Account),
 	account_by_role(Accounts1, Unrealized_Gain_Account/only_currency_movement, Unrealized_Gains_Currency_Movement_Account),
    	account_assertion(Info, Unrealized_Gains_Excluding_Forex_Account, -RDRC_Unrealized_Market_Gain),
@@ -493,12 +493,12 @@ crosscheck_totals(Results, Report_Date) :-
 		Exchange_Rates,
 		[ transaction_type('Invest_In',
 			/*todo get accounts by role*/
-		   'Financial_Investments',
-		   'Investment_Income',
+		   'FinancialInvestments',
+		   'InvestmentIncome',
 		   'Shares'),
 		  transaction_type('Dispose_Of',
-		   'Financial_Investments',
-		   'Investment_Income',
+		   'FinancialInvestments',
+		   'InvestmentIncome',
 		   'Shares')
 		],
 		[report_currency], 
@@ -516,8 +516,8 @@ crosscheck_totals(Results, Report_Date) :-
 	*/
 	writeln("PL cross-check"),
 	/*todo get Investment_Income by role*/
-	account_by_role(Accounts1, 'Investment_Income'/unrealized, Unrealized_Gain_Account),
-	account_by_role(Accounts1, 'Investment_Income'/realized, Realized_Gain_Account),
+	account_by_role(Accounts1, 'InvestmentIncome'/unrealized, Unrealized_Gain_Account),
+	account_by_role(Accounts1, 'InvestmentIncome'/realized, Realized_Gain_Account),
 	account_by_role(Accounts1, Unrealized_Gain_Account/without_currency_movement, Unrealized_Gains_Excluding_Forex_Account),
 	account_by_role(Accounts1, Unrealized_Gain_Account/only_currency_movement, Unrealized_Gains_Currency_Movement_Account),
 	account_by_role(Accounts1, Realized_Gain_Account/without_currency_movement, Realized_Gains_Excluding_Forex_Account),
@@ -533,7 +533,7 @@ crosscheck_totals(Results, Report_Date) :-
 	writeln("BS cross-check"),
 	Financial_Investments_Value is PDRC_Cost_Total + Gain_Total - SDRC_Value_Total,
 	writeln(Financial_Investments_Value is PDRC_Cost_Total + Gain_Total - SDRC_Value_Total),
-	account_assertion(Info, 'Financial_Investments', Financial_Investments_Value),
+	account_assertion(Info, 'FinancialInvestments', Financial_Investments_Value),
 
 	%writeln(Unrealized_PDRC_Cost_Total + Unrealized_Gain_Total),
 	%writeln(Bank_Value is Realized_Gain_Total - PDPC_Cost_Total),
@@ -549,7 +549,7 @@ crosscheck_totals(Results, Report_Date) :-
 	
 	/*todo get accounts by role*/
 	account_by_role(Accounts1, 'Banks'/'Bank',Bank_Account),
-	account_by_role(Accounts1, 'Currency_Movement'/'Bank', Bank_Currency_Account),
+	account_by_role(Accounts1, 'CurrencyMovement'/'Bank', Bank_Currency_Account),
 	account_vector(Info, Bank_Currency_Account, [Bank_Currency_Movement_Coord]),
 	
 	number_coord(report_currency, Bank_Currency_Movement_Number, Bank_Currency_Movement_Coord),
