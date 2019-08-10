@@ -63,7 +63,8 @@ find_items_to_sell2(
 			outstanding(ST_Currency, Type, Outstanding_Count, Unit_Cost, Unit_Cost_Foreign, Date),
 			Investment_Id
 		)
-		|Outstanding_Tail], Investments_In,
+		|Outstanding_Tail
+	], Investments_In,
 	/* output */
 	Outstanding_Out, Investments_Out, Goods
 ) :-
@@ -93,7 +94,8 @@ find_items_to_sell2(
 			),
 			Investment_Id
 		)
-		|Outstanding_Tail], Investments_In,
+		|Outstanding_Tail
+	], Investments_In,
 	/* output */
 	Outstanding_Out, Investments_Out, Goods
 ) :-
@@ -120,8 +122,7 @@ record_sale(Investment_Id, Investments_In, Sale_Date, Sale_Price, Sale_Count, In
 	Investment2 = investment(Info, Sales2),
 	append(Sales1, [Sale], Sales2),
 	Sale = sale(Sale_Date, Sale_Price, Sale_Count),
-	append(Investments_Rest, [Investment2], Investments_Out).
-	
+	nth0(Investment_Id, Investments_Out, Investment2, Investments_Rest).	
 	
 	
 	

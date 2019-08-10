@@ -271,7 +271,6 @@ check_investment_totals(Static_Data, Trading_Account, Check_Totals_List_Nested, 
 	
 	
 investment_report_2(Static_Data, (Outstanding, Investments), Report_Output) :-
-
 	dict_vars(Static_Data, [Start_Date, End_Date, Report_Currency]),
 	format_date(Start_Date, Start_Date_Atom),
 	format_date(End_Date, End_Date_Atom),
@@ -302,14 +301,49 @@ investment_report_2(Static_Data, (Outstanding, Investments), Report_Output) :-
 	sort(7, @=<, Rows0, Rows1),
 	sort(2, @=<, Rows1, Rows2),
 	sort(1, @=<, Rows2, Rows),
-	maplist(ir2_row_to_html, Rows, Rows_Html),
-	Header = tr([th('Unit'), th('Purchase_Date'), th('Purchase_Currency'), th('Count'), th('Purchase_Unit_Cost_Foreign'), th('Purchase_Unit_Cost_Converted'), th('Sale_Date'), th('Sale_Price'), th('Rea_Market_Gain'), th('Rea_Forex_Gain'), th('Unr_Market_Gain'), th('Unr_Forex_Gain'), th('Purchase_Currency_Current_Market_Value')]),
+	maplist(ir2_row_to_html(Report_Currency), Rows, Rows_Html),
+	Header = tr([th('Unit'), th('Purchased'), th('Currency'), th('Count'), th('Sale_Date'), th('Rea_Market_Gain'), th('Rea_Forex_Gain'), th('Unr_Market_Gain'), th('Unr_Forex_Gain'), th('Purchase_Unit_Cost_Foreign'), th('Purchase_Unit_Cost_Converted'), th('Sale_Price'), th('Purchase_Currency_Current_Market_Value')]),
 	flatten([Header, Rows_Html], Tbl),
 	report_page(Title_Text, Tbl, 'investment_report2.html', Report_Output).
 
-ir2_row_to_html(Row, Html) :-
+format_money(Optional_Implicit_Unit, In, Out) :-
+	(
+		In = ''
+	->
+		Out = ''
+	;
+		(
+			In = value(Unit1,X)
+		->
+			true
+		;
+			(
+				X = In,
+				Unit1 = ''
+			)
+		),
+		(
+			member(Unit1, Optional_Implicit_Unit)
+		->
+			Unit2 = ''
+		;
+			Unit2 = Unit1
+		),
+		format(string(Out), '~2:f~w', [X, Unit2])
+	).
+	
+ir2_row_to_html(Report_Currency, Row, Html) :-
+
 	Row = row(Unit, Purchase_Date, Purchase_Currency, Count, Purchase_Unit_Cost_Foreign, Purchase_Unit_Cost_Converted, Sale_Date, Sale_Price, Rea_Market_Gain, Rea_Forex_Gain, Unr_Market_Gain, Unr_Forex_Gain, Purchase_Currency_Current_Market_Value),
 	format_date(Purchase_Date, Purchase_Date2),
+	format_money(Report_Currency, Purchase_Unit_Cost_Foreign, Purchase_Unit_Cost_Foreign2),
+	format_money(Report_Currency, Purchase_Unit_Cost_Converted, Purchase_Unit_Cost_Converted2),
+	format_money(Report_Currency, Sale_Price, Sale_Price2),
+	format_money(Report_Currency, Rea_Market_Gain, Rea_Market_Gain2),
+	format_money(Report_Currency, Rea_Forex_Gain, Rea_Forex_Gain2),
+	format_money(Report_Currency, Unr_Market_Gain, Unr_Market_Gain2),
+	format_money(Report_Currency, Unr_Forex_Gain, Unr_Forex_Gain2),
+	format_money(Report_Currency, Purchase_Currency_Current_Market_Value, Purchase_Currency_Current_Market_Value2),
 	(
 		Sale_Date = ''
 	->
@@ -317,7 +351,7 @@ ir2_row_to_html(Row, Html) :-
 	;
 		format_date(Sale_Date, Sale_Date2)
 	),
-	Html = tr([td(Unit), td(Purchase_Date2), td(Purchase_Currency), td(Count), td(Purchase_Unit_Cost_Foreign), td(Purchase_Unit_Cost_Converted), td(Sale_Date2), td(Sale_Price), td(Rea_Market_Gain), td(Rea_Forex_Gain), td(Unr_Market_Gain), td(Unr_Forex_Gain), td(Purchase_Currency_Current_Market_Value)]).
+	Html = tr([td(Unit), td(Purchase_Date2), td(Purchase_Currency), td(Count), td(Sale_Date2), td(Rea_Market_Gain2), td(Rea_Forex_Gain2), td(Unr_Market_Gain2), td(Unr_Forex_Gain2), td(Purchase_Unit_Cost_Foreign2), td(Purchase_Unit_Cost_Converted2), td(Sale_Price2), td(Purchase_Currency_Current_Market_Value2)]).
 	
 ir2_line_to_row(Line, Row) :-
 	dict_vars(Line, realized, [
