@@ -147,6 +147,9 @@ unify_coords(coord(U, D1, C1), coord(U, D2, C2)) :-
 	unify_numbers(D1, D2),
 	unify_numbers(C1, C2).
 
+unify_coords(value(U, V1), value(U, V2)) :-
+	unify_numbers(V1, V2).
+
 unify_numbers(A,B) :-
 	(
 		A = B

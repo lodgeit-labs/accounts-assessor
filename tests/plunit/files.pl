@@ -3,7 +3,7 @@
 :- begin_tests(files).
 
 test(0) :-
-    absolute_file_name(my_static('account_hierarchy.xml'), _,
+    absolute_file_name(my_static('default_account_hierarchy.xml'), _,
                        [ access(read) ]),
     absolute_file_name(my_static('default_action_taxonomy.xml'), _,
                        [ access(read) ]),

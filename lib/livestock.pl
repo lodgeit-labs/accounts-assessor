@@ -834,16 +834,16 @@ make_livestock_accounts(Livestock_Type, Accounts) :-
 	count_account(Livestock_Type, Count_Name),
 	cogs_rations_account(Livestock_Type, CogsRations_Name),
 
-	Cogs  = account(Cogs_Name, 'Cost_Of_Goods_Livestock', '', 0),
-	Sales = account(Sales_Name, 'Sales_Of_Livestock', '', 0),
-	Count = account(Count_Name, 'Livestock_Count', '', 0),
+	Cogs  = account(Cogs_Name, 'CostOfGoodsLivestock', '', 0),
+	Sales = account(Sales_Name, 'SalesOfLivestock', '', 0),
+	Count = account(Count_Name, 'LivestockCount', '', 0),
 	CogsRations = account(CogsRations_Name, Cogs_Name, '', 0).
 	
 cogs_account(Livestock_Type, Cogs_Account) :-
 	atom_concat(Livestock_Type, 'Cogs', Cogs_Account).
 
 cogs_rations_account(Livestock_Type, Cogs_Rations_Account) :-
-	atom_concat(Livestock_Type, 'Cogs_Rations', Cogs_Rations_Account).
+	atom_concat(Livestock_Type, 'CogsRations', Cogs_Rations_Account).
 	
 sales_account(Livestock_Type, Sales_Account) :-
 	atom_concat(Livestock_Type, 'Sales', Sales_Account).
