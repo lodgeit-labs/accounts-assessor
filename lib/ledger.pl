@@ -6,6 +6,8 @@
 
 :- use_module('system_accounts', [
 		generate_system_accounts/3]).
+:- use_module('accounts', [
+		check_account_parent/2]).
 :- use_module('statements', [
 		s_transaction_day/2,
 		preprocess_s_transactions/5]).
@@ -75,7 +77,9 @@ process_ledger(
 	'-->\n\n'], Debug_Message10),
 	writeln(Debug_Message10),
 	flatten([Account_Hierarchy_In, Generated_Accounts], Account_Hierarchy),
-	
+	%check_accounts(Account_Hierarchy)
+	maplist(check_account_parent(Account_Hierarchy), Account_Hierarchy), 
+
 	preprocess_s_transactions((Account_Hierarchy, Report_Currency, Action_Taxonomy, End_Days, Exchange_Rates), S_Transactions, Transactions1, Outstanding_Out, Transaction_Transformation_Debug),
 		
 	/*if processing s_transactions failed, we should either limit the end date for livestock processing, 
@@ -154,5 +158,3 @@ emit_ledger_errors(Debug) :-
 	;
 		true
 	).
-
-	

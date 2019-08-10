@@ -19,6 +19,7 @@
 		child_accounts/3,
 		/*extract account tree specified in request xml*/
 		extract_account_hierarchy/2, 
+		check_account_parent/2,
 
 		/*The private api.*/
 		/*accessors of account term fields*/
@@ -138,6 +139,7 @@ extract_account_hierarchy(Request_Dom, Account_Hierarchy) :-
 				)
 			;
 				(
+					false,
 					xpath(Request_Dom, //reports/'link:schemaRef', element(_,Attributes,_)),
 					member('xlink:href'=Taxonomy_URL,Attributes),
 					extract_account_hierarchy_from_taxonomy(Taxonomy_URL,Dom)
@@ -146,15 +148,15 @@ extract_account_hierarchy(Request_Dom, Account_Hierarchy) :-
 					true
 				;
 				(
-					server_public_url(Server_Url),
+					/*server_public_url(Server_Url),
 					atomic_list_concat([Server_Url, '/taxonomy/basic.xsd'],Taxonomy_URL),
 					format(user_error, 'loading default taxonomy from ~w\n', [Taxonomy_URL]),
 					extract_account_hierarchy_from_taxonomy(Taxonomy_URL,Dom)
-					/*
-					%("loading default account hierarchy"),
-					absolute_file_name(my_static('account_hierarchy.xml'), Default_Account_Hierarchy_File, [ access(read) ]),
-					load_xml(Default_Account_Hierarchy_File, Dom, [])
 					*/
+					%("loading default account hierarchy"),
+					absolute_file_name(my_static('default_account_hierarchy.xml'), Default_Account_Hierarchy_File, [ access(read) ]),
+					load_xml(Default_Account_Hierarchy_File, Dom, [])
+					
 				)
 			)
 		),
@@ -176,9 +178,10 @@ extract_account_hierarchy_from_taxonomy(Taxonomy_URL, Account_Hierarchy_DOM) :-
 		% might want to do better than hardcoding the path to the script
 		process_create(path(python3),['../xbrl/account_hierarchy/src/main.py',Taxonomy_URL],[stdout(pipe(Out))]),
 		(
+			load_structure(Out,Account_Hierarchy_DOM,[dialect(xml)]),
 			my_tmp_file_name('account_hierarchy_from_taxonomy.xml', FN),
-			store_xml_document(FN, Out),
-			load_structure(Out,Account_Hierarchy_DOM,[dialect(xml)])
+			open(FN, write, Stream),
+			xml_write(Stream, Account_Hierarchy_DOM, [])
 		),
 		close(Out)
 	).	
@@ -189,9 +192,9 @@ extract_account_hierarchy_from_taxonomy(Taxonomy_URL, Account_Hierarchy_DOM) :-
 % Load Account Hierarchy terms from Dom
 % ------------------------------------------------------------------
 
-extract_account_hierarchy2(Account_Hierarchy_Dom, Account_Hierarchy) :-   
-   findall(Account, xpath(Account_Hierarchy_Dom, *, Account), Accounts),
-   findall(Link, (member(Top_Level_Account, Accounts), yield_accounts(Top_Level_Account, Link)), Account_Hierarchy0),
+extract_account_hierarchy2(Account_Hierarchy_Dom, Account_Hierarchy) :-
+   %findall(Account, xpath(Account_Hierarchy_Dom, *, Account), Accounts),
+   findall(Link, yield_accounts(Account_Hierarchy_Dom, Link), Account_Hierarchy0),
    sort(Account_Hierarchy0, Account_Hierarchy).
 
  
@@ -249,3 +252,21 @@ sub_accounts_upto_level2(_, [], _, Results, Results).
 
 child_accounts(Accounts, Parent_Account, Child_Accounts) :-
 	sub_accounts_upto_level(Accounts, Parent_Account, 1, Child_Accounts).
+
+
+check_account_parent(Accounts, Account) :-
+	account_id(Account, Id),
+	account_parent(Account, Parent),
+	(
+		Parent == 'accountHierarchy'
+	->
+		true
+	;
+		(
+			account_exists(Accounts, Parent)
+		->
+			true
+		;
+			throw_string(['account "', Id, '" parent "', Parent, '" missing.'])
+		)
+	).

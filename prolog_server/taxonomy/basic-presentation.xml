@@ -4,7 +4,7 @@ Taxonomy Presentation Links linkbase based on XBRL standard Version 2.1.
 Created by UBmatrix Taxonomy Designer 3.0.2.2347 (2007-12-17 12:39).  
 Contact www.ubmatrix.com
 Copyright (c) 2002-2019 UBmatrix inc., All Rights Reserved
-Produced on 2019-07-31 20:16:20
+Produced on 2019-08-09 09:56:41
 -->
 <linkbase xmlns="http://www.xbrl.org/2003/linkbase" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xlink="http://www.w3.org/1999/xlink" xsi:schemaLocation=" http://www.xbrl.org/2003/linkbase http://www.xbrl.org/2003/xbrl-linkbase-2003-12-31.xsd">
   <roleRef xlink:type="simple" xlink:href="basic.xsd#BalanceSheet" roleURI="http://www.xbrlsite.com/basic/role/BalanceSheet" />
@@ -51,9 +51,9 @@ Produced on 2019-07-31 20:16:20
     <loc xlink:type="locator" xlink:href="basic.xsd#basic_NoncurrentAssets" xlink:label="basic_NoncurrentAssets" />
     <presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="basic_NoncurrentAssetsRollUp" xlink:to="basic_NoncurrentAssets" order="2" use="optional" />
     <loc xlink:type="locator" xlink:href="basic.xsd#basic_Assets" xlink:label="basic_Assets" />
-    <presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="basic_BalanceSheetAbstract" xlink:to="basic_Assets" order="2" use="optional" />
+    <presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="basic_AssetsRollUp" xlink:to="basic_Assets" order="3" use="optional" />
     <loc xlink:type="locator" xlink:href="basic.xsd#basic_LiabilitiesAndEquityRollUp" xlink:label="basic_LiabilitiesAndEquityRollUp" />
-    <presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="basic_BalanceSheetAbstract" xlink:to="basic_LiabilitiesAndEquityRollUp" order="3" use="optional" />
+    <presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="basic_BalanceSheetAbstract" xlink:to="basic_LiabilitiesAndEquityRollUp" order="2" use="optional" />
     <loc xlink:type="locator" xlink:href="basic.xsd#basic_LiabilitiesRollUp" xlink:label="basic_LiabilitiesRollUp" />
     <presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="basic_LiabilitiesAndEquityRollUp" xlink:to="basic_LiabilitiesRollUp" order="1" use="optional" />
     <loc xlink:type="locator" xlink:href="basic.xsd#basic_NoncurrentLiabilitiesRollUp" xlink:label="basic_NoncurrentLiabilitiesRollUp" />
@@ -80,6 +80,10 @@ Produced on 2019-07-31 20:16:20
     <presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="basic_EquityRollUp" xlink:to="basic_Equity" order="3" use="optional" />
     <loc xlink:type="locator" xlink:href="basic.xsd#basic_LiabilitiesAndEquity" xlink:label="basic_LiabilitiesAndEquity" />
     <presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="basic_LiabilitiesAndEquityRollUp" xlink:to="basic_LiabilitiesAndEquity" order="3" use="optional" />
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_NetAssetsRollUp" xlink:label="basic_NetAssetsRollUp" />
+    <presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="basic_BalanceSheetAbstract" xlink:to="basic_NetAssetsRollUp" order="3" use="optional" />
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_NetAssets" xlink:label="basic_NetAssets" />
+    <presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="basic_NetAssetsRollUp" xlink:to="basic_NetAssets" order="1" use="optional" />
   </presentationLink>
   <presentationLink xlink:type="extended" xlink:role="http://www.xbrlsite.com/basic/role/IncomeStatement">
     <loc xlink:type="locator" xlink:href="basic.xsd#basic_NetIncomeLossRollUp" xlink:label="basic_NetIncomeLossRollUp" />

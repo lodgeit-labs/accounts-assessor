@@ -179,6 +179,7 @@ get_transactions_with_retained_earnings(Current_Earnings, Historical_Earnings, T
 	Current_Earnings_Transaction = transaction(End_Date,'','Current_Earnings',Current_Earnings).
 
 trial_balance_between(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Start_Date, End_Date, [Trial_Balance_Section]) :-
+	/* 'Accounts' does not exist by itself, but it's a parent to all the top-level accounts */
 	net_activity_by_account(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, 'Accounts', Start_Date, End_Date, Trial_Balance, Transactions_Count),
 	Trial_Balance_Section = entry('Trial_Balance', Trial_Balance, [], Transactions_Count).
 /*

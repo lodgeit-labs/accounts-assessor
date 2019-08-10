@@ -48,7 +48,7 @@ class ArelleController(Cntlr.Cntlr):
 				to_elements.add(linkTo)
 
 		accountHierarchy = ET.Element("accountHierarchy")
-		accountsElement = ET.Element("accounts")
+		accountsElement = ET.Element("Accounts")
 		accountHierarchy.append(accountsElement)
 
 		root_elements = from_elements - to_elements

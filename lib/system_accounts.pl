@@ -45,16 +45,19 @@ find_or_add_required_accounts((S_Transactions, Livestock_Types, Transaction_Type
 /*fixme, accounts should be added one by one and id uniqueness checked against all the previously added accounts each time */
 	Missing_Stuff = [
 		/*these should more or less probably go into the taxonomy*/
-		account('Livestock_Count', '', ''/'Livestock_Count', 0),
-		account('NetAssets', 'Accounts', 'Accounts'/'NetAssets', 0),
-		account('AccountingFees', 'Accounts', 'Accounts'/'AccountingFees', 0),
-		account('ExchangeGain', 'Accounts', 'Accounts'/'ExchangeGain', 0),
-		account('ClearingAccount', 'Accounts', 'Accounts'/'ClearingAccount', 0),
-		account('CapitalIntroduced', 'Accounts', 'Accounts'/'CapitalIntroduced', 0),
+		account('Inventory', 					'accountHierarchy', 		'accountHierarchy'/'Inventory', 0),
+		account('LivestockCount', 				'Inventory', 				'Inventory'/'LivestockCount', 0),
+		account('NetAssets', 					'Accounts', 				'Accounts'/'NetAssets', 0),
+		account('Banks', 						'CashAndCashEquivalents', 	'Accounts'/'Banks', 0),
+		account('AccountingFees', 				'Accounts', 				'Accounts'/'AccountingFees', 0),
+		account('CurrencyMovement', 			'Revenue', 					'Accounts'/'CurrencyMovement', 0),
+		account('ExchangeGain', 				'Accounts', 				'Accounts'/'ExchangeGain', 0),
+		account('ClearingAccount', 				'Accounts', 				'Accounts'/'ClearingAccount', 0),
+		account('CapitalIntroduced', 			'Accounts', 				'Accounts'/'CapitalIntroduced', 0),
 		/*this one should definitely be contained in some testing hierarchy file*/
-		account('FoodExpenses', 'Accounts', 'Accounts'/'FoodExpenses', 0),
-		account('Assets_Livestock_At_Cost', 'Accounts', 'Accounts'/'Assets_Livestock_At_Cost', 0),
-		account('Assets_Livestock_At_Average_Cost', 'Accounts', 'Accounts'/'Assets_Livestock_At_Average_Cost', 0)
+		account('FoodExpenses', 				'Accounts', 				'Accounts'/'FoodExpenses', 0),
+		account('AssetsLivestockAtCost', 		'Accounts', 				'Accounts'/'AssetsLivestockAtCost', 0),
+		account('AssetsLivestockAtAverageCost', 'Accounts', 				'Accounts'/'AssetsLivestockAtAverageCost', 0)
 
 
 

@@ -24,6 +24,8 @@
 :- use_module('pacioli', [
 		vec_add/3,
 	    number_vec/3,
+	    value_subtract/3,
+	    value_multiply/3,
 		vecs_are_almost_equal/2]).
 		
 :- use_module('utils', [
@@ -42,9 +44,10 @@
 		exchange_rate/5]).
 
 :- use_module('pricing', [
-		outstanding_goods_count/2
-]).
+		outstanding_goods_count/2]).
 
+:- use_module('exchange', [
+		vec_change_bases/5]).
 		
 :- use_module(library(http/html_write)).
 
@@ -268,6 +271,15 @@ check_investment_totals(Static_Data, Trading_Account, Check_Totals_List_Nested, 
 	).
 
 
+/*
+todo:
+clip_investments :-
+	filter out sales outside of report period
+	filter out investments where there was no holding during report period
+	clip start date, adjust purchase price
+..
+*/
+
 	
 	
 investment_report_2(Static_Data, (Outstanding, Investments), Report_Output) :-
@@ -373,18 +385,46 @@ investment_report_2_sale_lines(Static_Data, Info, Sale, Sale_Line) :-
 	dict_vars(Static_Data, [Exchange_Rates, Report_Currency]),
 	Sale = sale(Sale_Date, Sale_Price, Sale_Count),
 	Info = outstanding(Purchase_Currency, Unit, _Purchase_Count, Purchase_Unit_Cost_Converted, Purchase_Unit_Cost_Foreign,	Purchase_Date),
+	%Purchase_Unit_Cost_Converted = value(Purchase_Unit_Cost_Converted_Unit, Purchase_Unit_Cost_Converted_Amount),
+	%Purchase_Unit_Cost_Converted_Coord = coord(Purchase_Unit_Cost_Converted_Unit, Purchase_Unit_Cost_Converted_Amount, 0),
+	Sale_Price = value(Sale_Price_Unit, Sale_Price_Amount),
+	assertion(Sale_Price_Unit = Purchase_Currency),
+	Market_Price_Unit = without_currency_movement_against_since(
+		Sale_Price_Unit, Purchase_Currency, Report_Currency, Purchase_Date
+	), 
 	(
-		Report_Currency = [Report_Currency_Unit]
+		Report_Currency = [_Report_Currency_Unit]
 	->
-		ir2_forex_gain(Exchange_Rates, Purchase_Date, Sale_Date, Purchase_Currency, Report_Currency_Unit, Sale_Count, Rea_Forex_Gain)
+		(
+			vec_change_bases(Exchange_Rates, Sale_Date, Report_Currency, 
+				[
+					coord(Sale_Price_Unit, 0, Sale_Price_Amount),
+					coord(Market_Price_Unit, Sale_Price_Amount, 0)
+				],
+				Rea_Forex_Gain_Vec
+			),
+			number_vec(Rea_Forex_Gain_Unit, Rea_Forex_Gain_Amount, Rea_Forex_Gain_Vec),
+			Rea_Forex_Gain_Amount_Total is -Rea_Forex_Gain_Amount * Sale_Count,
+			Rea_Forex_Gain = value(Rea_Forex_Gain_Unit, Rea_Forex_Gain_Amount_Total)
+		)
 	;
 		Rea_Forex_Gain = ''
 	),
-	Sale_Price = value(Sale_Price_Unit, Sale_Price_Amount),
-	assertion(Sale_Price_Unit = Purchase_Currency),
-	Purchase_Unit_Cost_Foreign = value(Purchase_Unit_Cost_Foreign_Unit, Purchase_Unit_Cost_Foreign_Amount),
+	
+	vec_change_bases(Exchange_Rates, Sale_Date, Report_Currency, 
+		[coord(Market_Price_Unit, Sale_Price_Amount, 0)],
+		[coord(Sale_Market_Price_Unit_Converted, Sale_Market_Price_Amount_Converted, 0)]
+	),
+	
+	Sale_Market_Unit_Price_Converted = value(Sale_Market_Price_Unit_Converted, Sale_Market_Price_Amount_Converted),
+
+	Purchase_Unit_Cost_Foreign = value(Purchase_Unit_Cost_Foreign_Unit, _),
 	assertion(Purchase_Unit_Cost_Foreign_Unit = Purchase_Currency),
-	Rea_Market_Gain is Sale_Price_Amount * Sale_Count - Sale_Count * Purchase_Unit_Cost_Foreign_Amount,
+	value_multiply(Sale_Market_Unit_Price_Converted, Sale_Count, Sale_Total_Price_Converted),
+	%value_multiply(Purchase_Unit_Cost_Foreign, Sale_Count, Purchase_Total_Cost_Foreign),
+	value_multiply(Purchase_Unit_Cost_Converted, Sale_Count, Purchase_Total_Cost_Converted),
+	value_subtract(Sale_Total_Price_Converted, Purchase_Total_Cost_Converted, Rea_Market_Gain),
+	
 	Count = Sale_Count,
 	dict_from_vars(Sale_Line, realized, [
 		Unit, Purchase_Date, Purchase_Currency, Count, Purchase_Unit_Cost_Foreign, Purchase_Unit_Cost_Converted, 
@@ -404,7 +444,10 @@ investment_report_2_unrealized(Static_Data, _Investments, (Outstanding, _Investm
 	(
 		exchange_rate(Exchange_Rates, End_Date, Unit, Purchase_Currency, Exchange_Rate)
 	->
-		Purchase_Currency_Current_Market_Value is Outstanding_Count * Exchange_Rate
+		(
+			Purchase_Currency_Current_Market_Value_Amount is Outstanding_Count * Exchange_Rate,
+			Purchase_Currency_Current_Market_Value = value(Purchase_Currency, Purchase_Currency_Current_Market_Value_Amount)
+		)
 	;
 		Purchase_Currency_Current_Market_Value = ''
 	),

@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<reports xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xsi:schemaLocation="http://localhost:8080/taxonomy/basic.xsd">
+<reports xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <balanceSheetRequest>
     <generator>
       <date>2019-07-09T11:48:58.1513095Z</date>
