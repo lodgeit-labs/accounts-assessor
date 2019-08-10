@@ -368,14 +368,14 @@ ir2_row_to_html(Report_Currency, Row, Html) :-
 ir2_line_to_row(Line, Row) :-
 	dict_vars(Line, realized, [
 		Unit, Purchase_Date, Purchase_Currency, Count, Purchase_Unit_Cost_Foreign, Purchase_Unit_Cost_Converted, 
-		Sale_Date, Sale_Price, Rea_Market_Gain, Rea_Forex_Gain]),
-	Row = row(Unit, Purchase_Date, Purchase_Currency, Count, Purchase_Unit_Cost_Foreign, Purchase_Unit_Cost_Converted, Sale_Date, Sale_Price, Rea_Market_Gain, Rea_Forex_Gain, 0, 0, '').
+		End_Date, Sale_Price, Market_Gain, Forex_Gain]),
+	Row = row(Unit, Purchase_Date, Purchase_Currency, Count, Purchase_Unit_Cost_Foreign, Purchase_Unit_Cost_Converted, End_Date, Sale_Price, Market_Gain, Forex_Gain, 0, 0, '').
 
 ir2_line_to_row(Line, Row) :-
 	dict_vars(Line, unrealized, [
-		Unit, Purchase_Date, Purchase_Currency, Outstanding_Count, Unit_Cost_Foreign, Unit_Cost_Converted, 
-		Unr_Market_Gain, Unr_Forex_Gain, Purchase_Currency_Current_Market_Value]),
-	Row = row(Unit, Purchase_Date, Purchase_Currency, Outstanding_Count, Unit_Cost_Foreign, Unit_Cost_Converted, '', '', 0, 0, Unr_Market_Gain, Unr_Forex_Gain, Purchase_Currency_Current_Market_Value).
+		Unit, Purchase_Date, Purchase_Currency, Count, Unit_Cost_Foreign, Unit_Cost_Converted, 
+		Market_Gain, Forex_Gain, Purchase_Currency_Current_Market_Value]),
+	Row = row(Unit, Purchase_Date, Purchase_Currency, Count, Unit_Cost_Foreign, Unit_Cost_Converted, '', '', 0, 0, Market_Gain, Forex_Gain, Purchase_Currency_Current_Market_Value).
 	
 investment_report_2_sales(Static_Data, I, Lines) :-
 	I = investment(Info, Sales),
@@ -383,93 +383,73 @@ investment_report_2_sales(Static_Data, I, Lines) :-
 
 investment_report_2_sale_lines(Static_Data, Info, Sale, Sale_Line) :-
 	dict_vars(Static_Data, [Exchange_Rates, Report_Currency]),
-	Sale = sale(Sale_Date, Sale_Price, Sale_Count),
+	Sale = sale(End_Date, Sale_Price, Count),
 	Info = outstanding(Purchase_Currency, Unit, _Purchase_Count, Purchase_Unit_Cost_Converted, Purchase_Unit_Cost_Foreign,	Purchase_Date),
-	%Purchase_Unit_Cost_Converted = value(Purchase_Unit_Cost_Converted_Unit, Purchase_Unit_Cost_Converted_Amount),
-	%Purchase_Unit_Cost_Converted_Coord = coord(Purchase_Unit_Cost_Converted_Unit, Purchase_Unit_Cost_Converted_Amount, 0),
-	Sale_Price = value(Sale_Price_Unit, Sale_Price_Amount),
-	assertion(Sale_Price_Unit = Purchase_Currency),
-	Market_Price_Unit = without_currency_movement_against_since(
-		Sale_Price_Unit, Purchase_Currency, Report_Currency, Purchase_Date
-	), 
-	(
-		Report_Currency = [_Report_Currency_Unit]
-	->
-		(
-			vec_change_bases(Exchange_Rates, Sale_Date, Report_Currency, 
-				[
-					coord(Sale_Price_Unit, 0, Sale_Price_Amount),
-					coord(Market_Price_Unit, Sale_Price_Amount, 0)
-				],
-				Rea_Forex_Gain_Vec
-			),
-			number_vec(Rea_Forex_Gain_Unit, Rea_Forex_Gain_Amount, Rea_Forex_Gain_Vec),
-			Rea_Forex_Gain_Amount_Total is -Rea_Forex_Gain_Amount * Sale_Count,
-			Rea_Forex_Gain = value(Rea_Forex_Gain_Unit, Rea_Forex_Gain_Amount_Total)
-		)
-	;
-		Rea_Forex_Gain = ''
-	),
-	
-	vec_change_bases(Exchange_Rates, Sale_Date, Report_Currency, 
-		[coord(Market_Price_Unit, Sale_Price_Amount, 0)],
-		[coord(Sale_Market_Price_Unit_Converted, Sale_Market_Price_Amount_Converted, 0)]
-	),
-	
-	Sale_Market_Unit_Price_Converted = value(Sale_Market_Price_Unit_Converted, Sale_Market_Price_Amount_Converted),
-
-	Purchase_Unit_Cost_Foreign = value(Purchase_Unit_Cost_Foreign_Unit, _),
-	assertion(Purchase_Unit_Cost_Foreign_Unit = Purchase_Currency),
-	value_multiply(Sale_Market_Unit_Price_Converted, Sale_Count, Sale_Total_Price_Converted),
-	%value_multiply(Purchase_Unit_Cost_Foreign, Sale_Count, Purchase_Total_Cost_Foreign),
-	value_multiply(Purchase_Unit_Cost_Converted, Sale_Count, Purchase_Total_Cost_Converted),
-	value_subtract(Sale_Total_Price_Converted, Purchase_Total_Cost_Converted, Rea_Market_Gain),
-	
-	Count = Sale_Count,
+	Sale_Price = value(End_Price_Unit, End_Price_Amount),
+	ir2_forex_gain(Exchange_Rates, Purchase_Date, Sale_Price, End_Date, Purchase_Currency, Report_Currency, Count, Forex_Gain),
+	ir2_market_gain(Exchange_Rates, Purchase_Date, End_Date, Purchase_Currency, Report_Currency, Count, Purchase_Unit_Cost_Converted, End_Price_Unit, End_Price_Amount, Market_Gain),
 	dict_from_vars(Sale_Line, realized, [
 		Unit, Purchase_Date, Purchase_Currency, Count, Purchase_Unit_Cost_Foreign, Purchase_Unit_Cost_Converted, 
-		Sale_Date, Sale_Price, Rea_Market_Gain, Rea_Forex_Gain]).
+		End_Date, Sale_Price, Market_Gain, Forex_Gain]).
 
 investment_report_2_unrealized(Static_Data, _Investments, (Outstanding, _Investment_Id) , Line) :-
+	/* bind local variables to members of Static_Data */
 	dict_vars(Static_Data, [End_Date, Exchange_Rates, Report_Currency]),
-	%nth0(Investment_Id, Investments, investment(Outstanding, _Sales)),
-	Outstanding = outstanding(Purchase_Currency, Unit, Outstanding_Count, Unit_Cost_Converted, Unit_Cost_Foreign, Purchase_Date),
-	(
-		Report_Currency = [Report_Currency_Unit]
-	->
-		ir2_forex_gain(Exchange_Rates, Purchase_Date, End_Date, Purchase_Currency, Report_Currency_Unit, Outstanding_Count, Unr_Forex_Gain)
-	;
-		Unr_Forex_Gain = ''
+	Outstanding = outstanding(Purchase_Currency, Unit, Count, Unit_Cost_Converted, Unit_Cost_Foreign, Purchase_Date),
+	vec_change_bases(Exchange_Rates, End_Date, [Purchase_Currency], 
+		[coord(with_cost_per_unit(Unit, Unit_Cost_Converted), 1, 0)],
+		[coord(End_Price_Unit, End_Price_Amount, 0)]
 	),
+	ir2_forex_gain(Exchange_Rates, Purchase_Date, value(End_Price_Unit, End_Price_Amount), End_Date, Purchase_Currency, Report_Currency, Count, Forex_Gain),
+	ir2_market_gain(Exchange_Rates, Purchase_Date, End_Date, Purchase_Currency, Report_Currency, Count, Unit_Cost_Converted, End_Price_Unit, End_Price_Amount, Market_Gain),
 	(
 		exchange_rate(Exchange_Rates, End_Date, Unit, Purchase_Currency, Exchange_Rate)
 	->
 		(
-			Purchase_Currency_Current_Market_Value_Amount is Outstanding_Count * Exchange_Rate,
+			Purchase_Currency_Current_Market_Value_Amount is Count * Exchange_Rate,
 			Purchase_Currency_Current_Market_Value = value(Purchase_Currency, Purchase_Currency_Current_Market_Value_Amount)
 		)
 	;
 		Purchase_Currency_Current_Market_Value = ''
 	),
+	dict_from_vars(Line, unrealized, [
+		Unit, Purchase_Date, Purchase_Currency, Count, Unit_Cost_Foreign, Unit_Cost_Converted, 
+		Market_Gain, Forex_Gain, Purchase_Currency_Current_Market_Value]).
+		
+ir2_forex_gain(Exchange_Rates, Purchase_Date, End_Price, End_Date, Purchase_Currency, Report_Currency, Count, Gain) :-
+	End_Price = value(End_Price_Unit, End_Price_Amount),
+	assertion(End_Price_Unit = Purchase_Currency),
+	Market_Price_Unit = without_currency_movement_against_since(
+		End_Price_Unit, Purchase_Currency, Report_Currency, Purchase_Date
+	), 
 	(
-		(
-			Report_Currency = [Report_Currency_Unit],
-			exchange_rate(Exchange_Rates, End_Date, Unit, Report_Currency_Unit, Report_Currency_Current_Market_Unit_Price)
-		)
+		Report_Currency = [_Report_Currency_Unit]
 	->
 		(
-			Unit_Cost_Converted = value(Unit_Cost_Converted_Unit, Unit_Cost_Converted_Amount),
-			assertion(Unit_Cost_Converted_Unit = Report_Currency_Unit),
-			Unr_Market_Gain is Outstanding_Count * Report_Currency_Current_Market_Unit_Price - Outstanding_Count * Unit_Cost_Converted_Amount
+			vec_change_bases(Exchange_Rates, End_Date, Report_Currency, 
+				[
+					coord(End_Price_Unit, 0, End_Price_Amount),
+					coord(Market_Price_Unit, End_Price_Amount, 0)
+				],
+				Forex_Gain_Vec
+			),
+			number_vec(Forex_Gain_Unit, Forex_Gain_Amount, Forex_Gain_Vec),
+			Forex_Gain_Amount_Total is -Forex_Gain_Amount * Count,
+			Gain = value(Forex_Gain_Unit, Forex_Gain_Amount_Total)
 		)
 	;
-		Unr_Market_Gain = ''
+		Gain = ''
+	).
+
+ir2_market_gain(Exchange_Rates, Purchase_Date, End_Date, Purchase_Currency, Report_Currency, Count, Purchase_Unit_Cost_Converted, End_Price_Unit, End_Price_Amount, Gain) :-
+	Market_Price_Unit = without_currency_movement_against_since(
+		End_Price_Unit, Purchase_Currency, Report_Currency, Purchase_Date
+	), 
+	vec_change_bases(Exchange_Rates, End_Date, Report_Currency, 
+		[coord(Market_Price_Unit, End_Price_Amount, 0)],
+		[coord(End_Market_Price_Unit_Converted, End_Market_Price_Amount_Converted, 0)]
 	),
-	dict_from_vars(Line, unrealized, [
-		Unit, Purchase_Date, Purchase_Currency, Outstanding_Count, Unit_Cost_Foreign, Unit_Cost_Converted, 
-		Unr_Market_Gain, Unr_Forex_Gain, Purchase_Currency_Current_Market_Value]).
-		
-ir2_forex_gain(Exchange_Rates, Purchase_Date, End_Date, Purchase_Currency, Report_Currency, Unit_Count, Gain) :-
-	exchange_rate(Exchange_Rates, Purchase_Date, Purchase_Currency, Report_Currency, Old_Rate),
-	exchange_rate(Exchange_Rates, End_Date, Purchase_Currency, Report_Currency, New_Rate),
-	Gain is (Unit_Count * New_Rate) - (Unit_Count * Old_Rate).
+	End_Market_Unit_Price_Converted = value(End_Market_Price_Unit_Converted, End_Market_Price_Amount_Converted),
+	value_multiply(End_Market_Unit_Price_Converted, Count, End_Total_Price_Converted),
+	value_multiply(Purchase_Unit_Cost_Converted, Count, Purchase_Total_Cost_Converted),
+	value_subtract(End_Total_Price_Converted, Purchase_Total_Cost_Converted, Gain).
