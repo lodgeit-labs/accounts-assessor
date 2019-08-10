@@ -131,8 +131,8 @@ investment_report_1(Static_Data, Lines) :-
 	
 	Header = tr([th('Investment'), th('Opening Unit #'), th('Opening Cost'), th('Closing Unit #'), th('Closing Cost'), th('Realized Market'), th('Realized Forex'), th('Unrealized Market'), th('Unrealized Forex')]),
 	
-	append([Header], Report_Table_Data, Tbl),
-	report_page(Title_Text, Tbl, 'investment_report1.html', Lines).
+	append([Header], Report_Table_Data, Tbl)/*,
+	report_page(Title_Text, Tbl, 'investment_report1.html', Lines)*/.
 
 
 investment_report_to_html([], '').
