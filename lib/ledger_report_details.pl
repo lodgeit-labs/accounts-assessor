@@ -133,7 +133,7 @@ investment_report_1(Static_Data, Lines) :-
 	
 	append([Header], Report_Table_Data, Tbl),
 	/*report_page(Title_Text, Tbl, 'investment_report1.html', Lines)*/
-	Lines = ''.
+	nonvar(Title_Text), nonvar(Tbl), Lines = ''.
 
 
 investment_report_to_html([], '').
