@@ -80,6 +80,7 @@ process_ledger(
 	%check_accounts(Account_Hierarchy)
 	maplist(check_account_parent(Account_Hierarchy), Account_Hierarchy), 
 
+	/*todo dont process s_transactions after end_days*/7467
 	preprocess_s_transactions((Account_Hierarchy, Report_Currency, Action_Taxonomy, End_Days, Exchange_Rates), S_Transactions, Transactions1, Outstanding_Out, Transaction_Transformation_Debug),
 		
 	/*if processing s_transactions failed, we should either limit the end date for livestock processing, 

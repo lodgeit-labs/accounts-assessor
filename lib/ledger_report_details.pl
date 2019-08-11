@@ -273,111 +273,11 @@ check_investment_totals(Static_Data, Trading_Account, Check_Totals_List_Nested, 
 
 
 /*
-todo:
-clip_investments :-
-	filter out sales outside of report period
-	filter out investments where there was no holding during report period
-	clip start date, adjust purchase price
-..
+
+	investment_report_2
+
 */
 
-	
-	
-investment_report_2(Static_Data, (Outstanding, Investments), Report_Output) :-
-	dict_vars(Static_Data, [Start_Date, End_Date, Report_Currency]),
-	format_date(Start_Date, Start_Date_Atom),
-	format_date(End_Date, End_Date_Atom),
-	report_currency_atom(Report_Currency, Report_Currency_Atom),
-	atomic_list_concat(['investment report from ', Start_Date_Atom, ' to ', End_Date_Atom, ' ', Report_Currency_Atom], Title_Text),
-	pretty_term_string(Outstanding, Outstanding_Out_Str),
-	writeln('<!-- outstanding:'),
-	writeln(Outstanding_Out_Str),
-	writeln('-->'),
-	/* each item of Investments is a purchase with some info and list of sales */
-	maplist(investment_report_2_sales(Static_Data), Investments, Sale_Lines),
-	writeln(Sale_Lines),
-	findall(
-		(O, Investment_Id),
-		(
-			member((O, Investment_Id), Outstanding),
-			outstanding_goods_count(O, C),
-			C =\= 0
-		),
-		Outstanding2
-	),		
-	maplist(investment_report_2_unrealized(Static_Data, Investments), Outstanding2, Non_Sale_Lines),
-	writeln(Non_Sale_Lines),
-	append(Sale_Lines, Non_Sale_Lines, Lines0),
-	flatten(Lines0, Lines1),
-	maplist(ir2_line_to_row, Lines1, Rows0),
-	/* lets sort by unit, sale date, purchase date */
-	sort(7, @=<, Rows0, Rows1),
-	sort(2, @=<, Rows1, Rows2),
-	sort(1, @=<, Rows2, Rows),
-	maplist(ir2_row_to_html(Report_Currency), Rows, Rows_Html),
-	Header = tr([th('Unit'), th('Purchased'), th('Currency'), th('Count'), th('Sale_Date'), th('Rea_Market_Gain'), th('Rea_Forex_Gain'), th('Unr_Market_Gain'), th('Unr_Forex_Gain'), th('Purchase_Unit_Cost_Foreign'), th('Purchase_Unit_Cost_Converted'), th('Sale_Price'), th('Current_Market_Value'), th('Purchase_Currency_Current_Market_Value')]),
-	flatten([Header, Rows_Html], Tbl),
-	report_page(Title_Text, Tbl, 'investment_report2.html', Report_Output).
-
-format_money(Optional_Implicit_Unit, In, Out) :-
-	(
-		In = ''
-	->
-		Out = ''
-	;
-		(
-			In = value(Unit1,X)
-		->
-			true
-		;
-			(
-				X = In,
-				Unit1 = ''
-			)
-		),
-		(
-			member(Unit1, Optional_Implicit_Unit)
-		->
-			Unit2 = ''
-		;
-			Unit2 = Unit1
-		),
-		format(string(Out), '~2:f~w', [X, Unit2])
-	).
-	
-ir2_row_to_html(Report_Currency, Row, Html) :-
-
-	Row = row(Unit, Purchase_Date, Purchase_Currency, Count, Purchase_Unit_Cost_Foreign, Purchase_Unit_Cost_Converted, Sale_Date, Sale_Price, Rea_Market_Gain, Rea_Forex_Gain, Unr_Market_Gain, Unr_Forex_Gain, Current_Market_Value, Purchase_Currency_Current_Market_Value),
-	format_date(Purchase_Date, Purchase_Date2),
-	format_money(Report_Currency, Purchase_Unit_Cost_Foreign, Purchase_Unit_Cost_Foreign2),
-	format_money(Report_Currency, Purchase_Unit_Cost_Converted, Purchase_Unit_Cost_Converted2),
-	format_money(Report_Currency, Sale_Price, Sale_Price2),
-	format_money(Report_Currency, Rea_Market_Gain, Rea_Market_Gain2),
-	format_money(Report_Currency, Rea_Forex_Gain, Rea_Forex_Gain2),
-	format_money(Report_Currency, Unr_Market_Gain, Unr_Market_Gain2),
-	format_money(Report_Currency, Unr_Forex_Gain, Unr_Forex_Gain2),
-	format_money(Report_Currency, Purchase_Currency_Current_Market_Value, Purchase_Currency_Current_Market_Value2),
-	format_money(Report_Currency, Current_Market_Value, Current_Market_Value2),
-	(
-		Sale_Date = ''
-	->
-		Sale_Date2 = ''
-	;
-		format_date(Sale_Date, Sale_Date2)
-	),
-	Html = tr([td(Unit), td(Purchase_Date2), td(Purchase_Currency), td(Count), td(Sale_Date2), td(Rea_Market_Gain2), td(Rea_Forex_Gain2), td(Unr_Market_Gain2), td(Unr_Forex_Gain2), td(Purchase_Unit_Cost_Foreign2), td(Purchase_Unit_Cost_Converted2), td(Sale_Price2), td(Current_Market_Value2), td(Purchase_Currency_Current_Market_Value2)]).
-	
-ir2_line_to_row(Line, Row) :-
-	dict_vars(Line, realized, [
-		Unit, Purchase_Date, Purchase_Currency, Count, Purchase_Unit_Cost_Foreign, Purchase_Unit_Cost_Converted, 
-		End_Date, Sale_Price, Market_Gain, Forex_Gain]),
-	Row = row(Unit, Purchase_Date, Purchase_Currency, Count, Purchase_Unit_Cost_Foreign, Purchase_Unit_Cost_Converted, End_Date, Sale_Price, Market_Gain, Forex_Gain, '', '', '', '').
-
-ir2_line_to_row(Line, Row) :-
-	dict_vars(Line, unrealized, [
-		Unit, Purchase_Date, Purchase_Currency, Count, Unit_Cost_Foreign, Unit_Cost_Converted, 
-		Market_Gain, Forex_Gain, Current_Market_Value, Purchase_Currency_Current_Market_Value]),
-	Row = row(Unit, Purchase_Date, Purchase_Currency, Count, Unit_Cost_Foreign, Unit_Cost_Converted, '', '', '', '', Market_Gain, Forex_Gain, Current_Market_Value, Purchase_Currency_Current_Market_Value).
 	
 investment_report_2_sales(Static_Data, I, Lines) :-
 	I = investment(Info, Sales),
@@ -394,10 +294,11 @@ investment_report_2_sale_lines(Static_Data, Info, Sale, Sale_Line) :-
 		Unit, Purchase_Date, Purchase_Currency, Count, Purchase_Unit_Cost_Foreign, Purchase_Unit_Cost_Converted, 
 		End_Date, Sale_Price, Market_Gain, Forex_Gain]).
 
-investment_report_2_unrealized(Static_Data, _Investments, (Outstanding, _Investment_Id) , Line) :-
+investment_report_2_unrealized(Static_Data, (Outstanding, Investment_Info), Line) :-
 	/* bind local variables to members of Static_Data */
 	dict_vars(Static_Data, [End_Date, Exchange_Rates, Report_Currency]),
-	Outstanding = outstanding(Purchase_Currency, Unit, Count, Unit_Cost_Converted, Unit_Cost_Foreign, Purchase_Date),
+	Outstanding = outstanding(_, _, Count, _, _, _),
+	Investment_Info = outstanding(Purchase_Currency, Unit, _, Unit_Cost_Converted, Unit_Cost_Foreign, Purchase_Date),
 	vec_change_bases(Exchange_Rates, End_Date, [Purchase_Currency], 
 		[coord(with_cost_per_unit(Unit, Unit_Cost_Converted), 1, 0)],
 		[coord(End_Price_Unit, End_Price_Amount, 0)]
@@ -468,3 +369,147 @@ ir2_market_gain(Exchange_Rates, Purchase_Date, End_Date, Purchase_Currency, Repo
 	value_multiply(End_Market_Unit_Price_Converted, Count, End_Total_Price_Converted),
 	value_multiply(Purchase_Unit_Cost_Converted, Count, Purchase_Total_Cost_Converted),
 	value_subtract(End_Total_Price_Converted, Purchase_Total_Cost_Converted, Gain).
+
+
+	
+	
+	/*
+	filter out investments where there was no holding during report period
+	this amounts to finding if the investment already had all units sold before the beginning. 
+	this would be best done by marking it as such in pricing. Here we could run into
+	floating point precision issues, which i tried to avoid by using the Outstanding 
+	list to look up unrealized investments.
+	but quick and dirty:
+*/
+	findall(Count, member(sale(_,_,Count), Sales), Counts),
+	sum_list(Counts, Sold_Count),
+	is_almost_zero(Sold_Count)
+
+	
+	
+clip_investments(Outstanding_In, Realized_Investments, Unrealized_Investments) :-
+	findall(
+		(rea, Info_Clipped, Count)
+		(
+			member((outstanding(_, _, Count, _, _, _), Investment_Id), Outstanding_In),
+			outstanding_goods_count(O, C),
+			C =\= 0,
+			nth0(Investment_Id, Investments, investment(Info, _Sales)),
+			clip_investment(Info, Info_Clipped, [], [])
+		),
+		Unrealized_Investments
+	),		
+	findall(
+		(unr, Info_Clipped, Sales_Clipped),
+		(
+			member(investment(Info, Sales), Investments),
+			clip_investment(Info, Info_Clipped, Sales, Sales_Clipped)
+		),
+		Realized_Investments
+	).
+	
+/*
+	investments are already clipped from the report end date side, 
+	or should be.
+*/	
+clip_investment(Info, Info_Clipped, Sales, Sales_Clipped) :-
+/*
+	filter out sales before report period
+*/
+	exclude(sale_before(Start_Date), Sales, Sales2),
+	
+	clip start date, adjust purchase price
+..
+*/
+	
+	
+investment_report_2(Static_Data, Outstanding_In, Report_Output) :-
+	clip_investments(Outstanding_In, Realized_Investments, Unrealized_Investments),
+
+	dict_vars(Static_Data, [Start_Date, End_Date, Report_Currency]),
+	format_date(Start_Date, Start_Date_Atom),
+	format_date(End_Date, End_Date_Atom),
+	report_currency_atom(Report_Currency, Report_Currency_Atom),
+	atomic_list_concat(['investment report from ', Start_Date_Atom, ' to ', End_Date_Atom, ' ', Report_Currency_Atom], Title_Text),
+	/*pretty_term_string(Outstanding, Outstanding_Out_Str),
+	writeln('<!-- outstanding:'),
+	writeln(Outstanding_Out_Str),
+	writeln('-->'),
+	*/
+	/* each item of Investments is a purchase with some info and list of sales */
+	maplist(investment_report_2_sales(Static_Data), Realized_Investments, Sale_Lines),
+	writeln(Sale_Lines),
+	maplist(investment_report_2_unrealized(Static_Data), Unrealized_Investments, Non_Sale_Lines),
+	writeln(Non_Sale_Lines),
+	append(Sale_Lines, Non_Sale_Lines, Lines0),
+	flatten(Lines0, Lines1),
+	maplist(ir2_line_to_row, Lines1, Rows0),
+	/* lets sort by unit, sale date, purchase date */
+	sort(7, @=<, Rows0, Rows1),
+	sort(2, @=<, Rows1, Rows2),
+	sort(1, @=<, Rows2, Rows),
+	maplist(ir2_row_to_html(Report_Currency), Rows, Rows_Html),
+	Header = tr([th('Unit'), th('Purchased'), th('Currency'), th('Count'), th('Sale_Date'), th('Rea_Market_Gain'), th('Rea_Forex_Gain'), th('Unr_Market_Gain'), th('Unr_Forex_Gain'), th('Purchase_Unit_Cost_Foreign'), th('Purchase_Unit_Cost_Converted'), th('Sale_Price'), th('Current_Market_Value'), th('Purchase_Currency_Current_Market_Value')]),
+	flatten([Header, Rows_Html], Tbl),
+	report_page(Title_Text, Tbl, 'investment_report2.html', Report_Output).
+
+ir2_row_to_html(Report_Currency, Row, Html) :-
+
+	Row = row(Unit, Purchase_Date, Purchase_Currency, Count, Purchase_Unit_Cost_Foreign, Purchase_Unit_Cost_Converted, Sale_Date, Sale_Price, Rea_Market_Gain, Rea_Forex_Gain, Unr_Market_Gain, Unr_Forex_Gain, Current_Market_Value, Purchase_Currency_Current_Market_Value),
+	format_date(Purchase_Date, Purchase_Date2),
+	format_money(Report_Currency, Purchase_Unit_Cost_Foreign, Purchase_Unit_Cost_Foreign2),
+	format_money(Report_Currency, Purchase_Unit_Cost_Converted, Purchase_Unit_Cost_Converted2),
+	format_money(Report_Currency, Sale_Price, Sale_Price2),
+	format_money(Report_Currency, Rea_Market_Gain, Rea_Market_Gain2),
+	format_money(Report_Currency, Rea_Forex_Gain, Rea_Forex_Gain2),
+	format_money(Report_Currency, Unr_Market_Gain, Unr_Market_Gain2),
+	format_money(Report_Currency, Unr_Forex_Gain, Unr_Forex_Gain2),
+	format_money(Report_Currency, Purchase_Currency_Current_Market_Value, Purchase_Currency_Current_Market_Value2),
+	format_money(Report_Currency, Current_Market_Value, Current_Market_Value2),
+	(
+		Sale_Date = ''
+	->
+		Sale_Date2 = ''
+	;
+		format_date(Sale_Date, Sale_Date2)
+	),
+	Html = tr([td(Unit), td(Purchase_Date2), td(Purchase_Currency), td(Count), td(Sale_Date2), td(Rea_Market_Gain2), td(Rea_Forex_Gain2), td(Unr_Market_Gain2), td(Unr_Forex_Gain2), td(Purchase_Unit_Cost_Foreign2), td(Purchase_Unit_Cost_Converted2), td(Sale_Price2), td(Current_Market_Value2), td(Purchase_Currency_Current_Market_Value2)]).
+	
+ir2_line_to_row(Line, Row) :-
+	dict_vars(Line, realized, [
+		Unit, Purchase_Date, Purchase_Currency, Count, Purchase_Unit_Cost_Foreign, Purchase_Unit_Cost_Converted, 
+		End_Date, Sale_Price, Market_Gain, Forex_Gain]),
+	Row = row(Unit, Purchase_Date, Purchase_Currency, Count, Purchase_Unit_Cost_Foreign, Purchase_Unit_Cost_Converted, End_Date, Sale_Price, Market_Gain, Forex_Gain, '', '', '', '').
+
+ir2_line_to_row(Line, Row) :-
+	dict_vars(Line, unrealized, [
+		Unit, Purchase_Date, Purchase_Currency, Count, Unit_Cost_Foreign, Unit_Cost_Converted, 
+		Market_Gain, Forex_Gain, Current_Market_Value, Purchase_Currency_Current_Market_Value]),
+	Row = row(Unit, Purchase_Date, Purchase_Currency, Count, Unit_Cost_Foreign, Unit_Cost_Converted, '', '', '', '', Market_Gain, Forex_Gain, Current_Market_Value, Purchase_Currency_Current_Market_Value).
+
+format_money(Optional_Implicit_Unit, In, Out) :-
+	(
+		In = ''
+	->
+		Out = ''
+	;
+		(
+			In = value(Unit1,X)
+		->
+			true
+		;
+			(
+				X = In,
+				Unit1 = ''
+			)
+		),
+		(
+			member(Unit1, Optional_Implicit_Unit)
+		->
+			Unit2 = ''
+		;
+			Unit2 = Unit1
+		),
+		format(string(Out), '~2:f~w', [X, Unit2])
+	).
+	
