@@ -10,7 +10,8 @@
 		check_account_parent/2]).
 :- use_module('statements', [
 		s_transaction_day/2,
-		preprocess_s_transactions/5]).
+		preprocess_s_transactions/5,
+		s_transactions_up_to/3]).
 :- use_module('days', [
 		format_date/2, 
 		parse_date/2, 
@@ -42,9 +43,9 @@ find_s_transactions_in_period(S_Transactions, Opening_Date, Closing_Date, Out) :
 
 process_ledger(
 	Livestock_Doms, 
-	S_Transactions, 
-	Start_Days, 
-	End_Days, 
+	S_Transactions0, 
+	Start_Date, 
+	End_Date, 
 	Exchange_Rates, 
 	Action_Taxonomy, 
 	Report_Currency, 
@@ -56,7 +57,8 @@ process_ledger(
 	Transaction_Transformation_Debug,
 	Outstanding_Out
 ) :-
-	emit_ledger_warnings(S_Transactions, Start_Days, End_Days),
+	s_transactions_up_to(End_Date, S_Transactions0, S_Transactions),
+	emit_ledger_warnings(S_Transactions, Start_Date, End_Date),
 	pretty_term_string(Exchange_Rates, Message1b),
 	pretty_term_string(Action_Taxonomy, Message2),
 	pretty_term_string(Account_Hierarchy_In, Message3),
@@ -80,15 +82,15 @@ process_ledger(
 	%check_accounts(Account_Hierarchy)
 	maplist(check_account_parent(Account_Hierarchy), Account_Hierarchy), 
 
-	/*todo dont process s_transactions after end_days*/7467
-	preprocess_s_transactions((Account_Hierarchy, Report_Currency, Action_Taxonomy, End_Days, Exchange_Rates), S_Transactions, Transactions1, Outstanding_Out, Transaction_Transformation_Debug),
+	/*todo dont process s_transactions after end_days*/
+	preprocess_s_transactions((Account_Hierarchy, Report_Currency, Action_Taxonomy, End_Date, Exchange_Rates), S_Transactions, Transactions1, Outstanding_Out, Transaction_Transformation_Debug),
 		
 	/*if processing s_transactions failed, we should either limit the end date for livestock processing, 
 	or we should filter the additional transactions out before creating reports*/
 	
-	process_livestock(Livestock_Doms, Livestock_Types, S_Transactions, Transactions1, Livestock_Opening_Costs_And_Counts, Start_Days, End_Days, Exchange_Rates, Account_Hierarchy, Report_Currency, Transactions_With_Livestock, Livestock_Events, Average_Costs, Average_Costs_Explanations),
+	process_livestock(Livestock_Doms, Livestock_Types, S_Transactions, Transactions1, Livestock_Opening_Costs_And_Counts, Start_Date, End_Date, Exchange_Rates, Account_Hierarchy, Report_Currency, Transactions_With_Livestock, Livestock_Events, Average_Costs, Average_Costs_Explanations),
 
-	livestock_counts(Account_Hierarchy, Livestock_Types, Transactions_With_Livestock, Livestock_Opening_Costs_And_Counts, End_Days, Livestock_Counts),
+	livestock_counts(Account_Hierarchy, Livestock_Types, Transactions_With_Livestock, Livestock_Opening_Costs_And_Counts, End_Date, Livestock_Counts),
 
 	maplist(check_transaction_account(Account_Hierarchy), Transactions_With_Livestock),
 	
@@ -124,7 +126,7 @@ process_ledger(
 	),
 	writeln(Debug_Message),
 	
-	trial_balance_between(Exchange_Rates, Account_Hierarchy, Transactions_With_Livestock, Report_Currency, End_Days, Start_Days, End_Days, [Trial_Balance_Section]),
+	trial_balance_between(Exchange_Rates, Account_Hierarchy, Transactions_With_Livestock, Report_Currency, End_Date, Start_Date, End_Date, [Trial_Balance_Section]),
 	(
 		trial_balance_ok(Trial_Balance_Section)
 	->
@@ -132,16 +134,16 @@ process_ledger(
 	;
 		write('<!-- SYSTEM_WARNING: trial balance: '), write(Trial_Balance_Section), writeln('-->\n')
 	),
-	emit_ledger_warnings(S_Transactions, Start_Days, End_Days),
+	emit_ledger_warnings(S_Transactions, Start_Date, End_Date),
 	emit_ledger_errors(Transaction_Transformation_Debug).
 
 trial_balance_ok(Trial_Balance_Section) :-
 	Trial_Balance_Section = entry(_, Balance, [], _),
 	maplist(coord_is_almost_zero, Balance).
 	
-emit_ledger_warnings(S_Transactions, Start_Days, End_Days) :-
+emit_ledger_warnings(S_Transactions, Start_Date, End_Date) :-
 	(
-		find_s_transactions_in_period(S_Transactions, Start_Days, End_Days, [])
+		find_s_transactions_in_period(S_Transactions, Start_Date, End_Date, [])
 	->
 		writeln('<!-- WARNING: no transactions within request period -->\n')
 	;

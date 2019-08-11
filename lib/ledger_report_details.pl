@@ -277,16 +277,114 @@ check_investment_totals(Static_Data, Trading_Account, Check_Totals_List_Nested, 
 	investment_report_2
 
 */
+investment_report_2(Static_Data, Outstanding_In, Report_Output) :-
+	clip_investments(Static_Data, Outstanding_In, Realized_Investments, Unrealized_Investments),
+	dict_vars(Static_Data, [Start_Date, End_Date, Report_Currency]),
+	format_date(Start_Date, Start_Date_Atom),
+	format_date(End_Date, End_Date_Atom),
+	report_currency_atom(Report_Currency, Report_Currency_Atom),
+	atomic_list_concat(['investment report from ', Start_Date_Atom, ' to ', End_Date_Atom, ' ', Report_Currency_Atom], Title_Text),
+	/*pretty_term_string(Outstanding, Outstanding_Out_Str),
+	writeln('<!-- outstanding:'),
+	writeln(Outstanding_Out_Str),
+	writeln('-->'),
+	*/
+	/* each item of Investments is a purchase with some info and list of sales */
+	maplist(investment_report_2_sales(Static_Data), Realized_Investments, Sale_Lines),
+	writeln(Sale_Lines),
+	maplist(investment_report_2_unrealized(Static_Data), Unrealized_Investments, Non_Sale_Lines),
+	writeln(Non_Sale_Lines),
+	append(Sale_Lines, Non_Sale_Lines, Lines0),
+	flatten(Lines0, Lines1),
+	maplist(ir2_line_to_row, Lines1, Rows0),
+	/* lets sort by unit, sale date, purchase date */
+	sort(7, @=<, Rows0, Rows1),
+	sort(2, @=<, Rows1, Rows2),
+	sort(1, @=<, Rows2, Rows),
+	maplist(ir2_row_to_html(Report_Currency), Rows, Rows_Html),
+	Header = tr([th('Unit'), th('Purchased'), th('Currency'), th('Count'), th('Sale_Date'), th('Rea_Market_Gain'), th('Rea_Forex_Gain'), th('Unr_Market_Gain'), th('Unr_Forex_Gain'), th('Purchase_Unit_Cost_Foreign'), th('Purchase_Unit_Cost_Converted'), th('Sale_Price'), th('Current_Market_Value'), th('Purchase_Currency_Current_Market_Value')]),
+	flatten([Header, Rows_Html], Tbl),
+	report_page(Title_Text, Tbl, 'investment_report2.html', Report_Output).
 
 	
+	
+clip_investments(Static_Data, (Outstanding_In, Investments_In), Realized_Investments, Unrealized_Investments) :-
+	print_term(clip_investments(Investments_In, Realized_Investments, Unrealized_Investments),[]),
+	findall(
+		I,
+		(
+			(
+				member((O, Investment_Id), Outstanding_In),
+				outstanding_goods_count(O, Count),
+				Count =\= 0,
+				nth0(Investment_Id, Investments_In, investment(Info, _Sales)),
+				I = (unr, Info, Count, [])
+			)
+			;
+			(
+				I = (rea, Info, 0, Sales),
+				member(investment(Info, Sales), Investments_In)
+			)
+		),
+		Investments1
+	),
+
+	maplist(clip_investment(Static_Data), Investments1, Investments2),
+	findall(I, (member(I, Investments2), I = (unr, _, _, _)), Unrealized_Investments),
+	findall(I, (member(I, Investments2), I = (rea, _, _, _)), Realized_Investments).
+
+/*
+	
+*/	
+clip_investment(Static_Data, I1, I2) :-
+	dict_vars(Static_Data, [Start_Date, Exchange_Rates, Report_Currency]),
+	[Report_Currency_Unit] = Report_Currency,
+	
+	I1 = (Tag, Info1, Outstanding_Count, Sales1),
+	I2 = (Tag, Info2, Outstanding_Count, Sales2),
+/*
+	everything's already clipped from the report end date side.
+	filter out sales before report period.
+*/
+	exclude(sale_before(Start_Date), Sales1, Sales2),
+	
+	Info1 = outstanding(Purchase_Currency, Unit, _, Purchase_Unit_Cost_Converted, Purchase_Unit_Cost_Foreign, Purchase_Date),
+	Info2 = outstanding(Purchase_Currency, Unit, x, Opening_Unit_Cost_Converted, Opening_Unit_Cost_Foreign, Opening_Date),
+	(
+		Purchase_Date @>= Start_Date
+	->
+		(
+			Opening_Unit_Cost_Foreign = Purchase_Unit_Cost_Foreign,
+			Opening_Unit_Cost_Converted = Purchase_Unit_Cost_Converted,
+			Opening_Date = Purchase_Date
+		)
+	;
+		(
+		/*	
+			clip start date, adjust purchase price.
+			the simplest case is when the price in purchase currency at report start date is specified by user.
+		*/
+			add_days(Start_Date, -1, Before_Start_Date),
+			Opening_Date = Before_Start_Date,
+			exchange_rate(Exchange_Rates, Opening_Date, Unit, Purchase_Currency, Before_Opening_Exchange_Rate_Foreign),
+			Opening_Unit_Cost_Foreign = value(Purchase_Currency, Before_Opening_Exchange_Rate_Foreign),
+			exchange_rate(Exchange_Rates, Opening_Date, Unit, Report_Currency_Unit, Before_Opening_Exchange_Rate_Converted),			
+			Opening_Unit_Cost_Converted = value(Report_Currency_Unit, Before_Opening_Exchange_Rate_Converted)
+		)
+	).
+			
+
+sale_before(Start_Date, sale(Date,_,_)) :- 
+	Date @< Start_Date.
+	
 investment_report_2_sales(Static_Data, I, Lines) :-
-	I = investment(Info, Sales),
+	I = (rea, Info, 0, Sales),
 	maplist(investment_report_2_sale_lines(Static_Data, Info), Sales, Lines).
 
 investment_report_2_sale_lines(Static_Data, Info, Sale, Sale_Line) :-
 	dict_vars(Static_Data, [Exchange_Rates, Report_Currency]),
 	Sale = sale(End_Date, Sale_Price, Count),
-	Info = outstanding(Purchase_Currency, Unit, _Purchase_Count, Purchase_Unit_Cost_Converted, Purchase_Unit_Cost_Foreign,	Purchase_Date),
+	Info = outstanding(Purchase_Currency, Unit, _Purchase_Count, Purchase_Unit_Cost_Converted, Purchase_Unit_Cost_Foreign, Purchase_Date),
 	Sale_Price = value(End_Price_Unit, End_Price_Amount),
 	ir2_forex_gain(Exchange_Rates, Purchase_Date, Sale_Price, End_Date, Purchase_Currency, Report_Currency, Count, Forex_Gain),
 	ir2_market_gain(Exchange_Rates, Purchase_Date, End_Date, Purchase_Currency, Report_Currency, Count, Purchase_Unit_Cost_Converted, End_Price_Unit, End_Price_Amount, Market_Gain),
@@ -294,11 +392,11 @@ investment_report_2_sale_lines(Static_Data, Info, Sale, Sale_Line) :-
 		Unit, Purchase_Date, Purchase_Currency, Count, Purchase_Unit_Cost_Foreign, Purchase_Unit_Cost_Converted, 
 		End_Date, Sale_Price, Market_Gain, Forex_Gain]).
 
-investment_report_2_unrealized(Static_Data, (Outstanding, Investment_Info), Line) :-
+investment_report_2_unrealized(Static_Data, Investment, Line) :-
 	/* bind local variables to members of Static_Data */
 	dict_vars(Static_Data, [End_Date, Exchange_Rates, Report_Currency]),
-	Outstanding = outstanding(_, _, Count, _, _, _),
-	Investment_Info = outstanding(Purchase_Currency, Unit, _, Unit_Cost_Converted, Unit_Cost_Foreign, Purchase_Date),
+	Investment = (unr, Info, Count, []),
+	Info = outstanding(Purchase_Currency, Unit, _Original_Purchase_Count, Unit_Cost_Converted, Unit_Cost_Foreign, Purchase_Date),
 	vec_change_bases(Exchange_Rates, End_Date, [Purchase_Currency], 
 		[coord(with_cost_per_unit(Unit, Unit_Cost_Converted), 1, 0)],
 		[coord(End_Price_Unit, End_Price_Amount, 0)]
@@ -370,88 +468,7 @@ ir2_market_gain(Exchange_Rates, Purchase_Date, End_Date, Purchase_Currency, Repo
 	value_multiply(Purchase_Unit_Cost_Converted, Count, Purchase_Total_Cost_Converted),
 	value_subtract(End_Total_Price_Converted, Purchase_Total_Cost_Converted, Gain).
 
-
 	
-	
-	/*
-	filter out investments where there was no holding during report period
-	this amounts to finding if the investment already had all units sold before the beginning. 
-	this would be best done by marking it as such in pricing. Here we could run into
-	floating point precision issues, which i tried to avoid by using the Outstanding 
-	list to look up unrealized investments.
-	but quick and dirty:
-*/
-	findall(Count, member(sale(_,_,Count), Sales), Counts),
-	sum_list(Counts, Sold_Count),
-	is_almost_zero(Sold_Count)
-
-	
-	
-clip_investments(Outstanding_In, Realized_Investments, Unrealized_Investments) :-
-	findall(
-		(rea, Info_Clipped, Count)
-		(
-			member((outstanding(_, _, Count, _, _, _), Investment_Id), Outstanding_In),
-			outstanding_goods_count(O, C),
-			C =\= 0,
-			nth0(Investment_Id, Investments, investment(Info, _Sales)),
-			clip_investment(Info, Info_Clipped, [], [])
-		),
-		Unrealized_Investments
-	),		
-	findall(
-		(unr, Info_Clipped, Sales_Clipped),
-		(
-			member(investment(Info, Sales), Investments),
-			clip_investment(Info, Info_Clipped, Sales, Sales_Clipped)
-		),
-		Realized_Investments
-	).
-	
-/*
-	investments are already clipped from the report end date side, 
-	or should be.
-*/	
-clip_investment(Info, Info_Clipped, Sales, Sales_Clipped) :-
-/*
-	filter out sales before report period
-*/
-	exclude(sale_before(Start_Date), Sales, Sales2),
-	
-	clip start date, adjust purchase price
-..
-*/
-	
-	
-investment_report_2(Static_Data, Outstanding_In, Report_Output) :-
-	clip_investments(Outstanding_In, Realized_Investments, Unrealized_Investments),
-
-	dict_vars(Static_Data, [Start_Date, End_Date, Report_Currency]),
-	format_date(Start_Date, Start_Date_Atom),
-	format_date(End_Date, End_Date_Atom),
-	report_currency_atom(Report_Currency, Report_Currency_Atom),
-	atomic_list_concat(['investment report from ', Start_Date_Atom, ' to ', End_Date_Atom, ' ', Report_Currency_Atom], Title_Text),
-	/*pretty_term_string(Outstanding, Outstanding_Out_Str),
-	writeln('<!-- outstanding:'),
-	writeln(Outstanding_Out_Str),
-	writeln('-->'),
-	*/
-	/* each item of Investments is a purchase with some info and list of sales */
-	maplist(investment_report_2_sales(Static_Data), Realized_Investments, Sale_Lines),
-	writeln(Sale_Lines),
-	maplist(investment_report_2_unrealized(Static_Data), Unrealized_Investments, Non_Sale_Lines),
-	writeln(Non_Sale_Lines),
-	append(Sale_Lines, Non_Sale_Lines, Lines0),
-	flatten(Lines0, Lines1),
-	maplist(ir2_line_to_row, Lines1, Rows0),
-	/* lets sort by unit, sale date, purchase date */
-	sort(7, @=<, Rows0, Rows1),
-	sort(2, @=<, Rows1, Rows2),
-	sort(1, @=<, Rows2, Rows),
-	maplist(ir2_row_to_html(Report_Currency), Rows, Rows_Html),
-	Header = tr([th('Unit'), th('Purchased'), th('Currency'), th('Count'), th('Sale_Date'), th('Rea_Market_Gain'), th('Rea_Forex_Gain'), th('Unr_Market_Gain'), th('Unr_Forex_Gain'), th('Purchase_Unit_Cost_Foreign'), th('Purchase_Unit_Cost_Converted'), th('Sale_Price'), th('Current_Market_Value'), th('Purchase_Currency_Current_Market_Value')]),
-	flatten([Header, Rows_Html], Tbl),
-	report_page(Title_Text, Tbl, 'investment_report2.html', Report_Output).
 
 ir2_row_to_html(Report_Currency, Row, Html) :-
 
@@ -512,4 +529,27 @@ format_money(Optional_Implicit_Unit, In, Out) :-
 		),
 		format(string(Out), '~2:f~w', [X, Unit2])
 	).
+	
+
+	
+	
+	
+	
+	
+	
+	
+	
+	/*
+	filter out investments where there was no holding during report period
+	this amounts to finding if the investment already had all units sold before the beginning. 
+	this would be best done by marking it as such in pricing. Here we could run into
+	floating point precision issues, which i tried to avoid by using the Outstanding 
+	list to look up unrealized investments.
+	but quick and dirty:
+*/
+/*
+	findall(Count, member(sale(_,_,Count), Sales), Counts),
+	sum_list(Counts, Sold_Count),
+	is_almost_zero(Sold_Count)
+*/
 	

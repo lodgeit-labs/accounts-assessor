@@ -71,18 +71,26 @@ run_daemon :-
 % -------------------------------------------------------------------
 
 upload_form(_Request) :-
-   reply_html_page(
-            title('LodgeiT Demo'),
-	    [ h1('LodgeiT Demo'),
-	      form([ method('POST'),
-		     action(location_by_id(upload)),
-		     enctype('multipart/form-data')
-		   ],
-		   table([],
-			 [ tr([td(input([type(file), name(file)]))]),
-			   tr([td(align(left), input([type(submit), value('Upload XML file')]))])
-			 ]))
-	    ]).
+reply_html_page(
+			title('LodgeiT Demo'),
+		[ 
+			h1('LodgeiT Demo'),
+			form(
+				[
+					method('POST'),
+					action(location_by_id(upload)),
+					enctype('multipart/form-data')
+				],
+				table([],
+				[
+					tr([td(input([type(file), name(file)]))]),
+					tr([td(align(left), input([type(submit), value('Upload XML file')]))])
+				])
+			),
+			h2('instructions'),
+			p(['Upload your request xml file here. You can also browse ', a([href="http://dev-node.uksouth.cloudapp.azure.com:7778/tests/endpoint_tests/"], 'available example request files'),' and ', a([href="http://dev-node.uksouth.cloudapp.azure.com:7778/run/endpoint_tests/depreciation/depreciation-request-depreciation-between-dates-all-years.xml"], 'run them directly like this')]),
+			p(['a new directory is generated for each request: ', a([href="http://dev-node.uksouth.cloudapp.azure.com:7778/tmp/"], 'tmp/'), ', where you should be able to find the uploaded request file and generated report files.'])
+		]).
 
 
 % -------------------------------------------------------------------

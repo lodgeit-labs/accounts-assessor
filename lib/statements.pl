@@ -15,7 +15,8 @@
 		s_transaction_type_of/3,
 		s_transaction_exchanged/2,
 		s_transaction_vector/2,
-		sort_s_transactions/2
+		sort_s_transactions/2,
+		s_transactions_up_to/3
 		]).
 
 /*fixme turn trading into module*/
@@ -645,3 +646,13 @@ sort_s_transactions(In, Out) :-
 	/*now we can sort by date ascending, and the order of transactions with same date, as sorted above, will be preserved*/
 	sort(1, @=<,  Mid, Out).
 
+s_transactions_up_to(End_Date, S_Transactions_In, S_Transactions_Out) :-
+	findall(
+		T,
+		(
+			member(T, S_Transactions_In),
+			s_transaction_day(T, D),
+			D @=< End_Date
+		),
+		S_Transactions_Out
+	).

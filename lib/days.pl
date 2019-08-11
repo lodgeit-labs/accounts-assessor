@@ -159,8 +159,6 @@ date_between(
 	Opening_Day =< Day, Day < Closing_Day.
 
 
-
-
 % Finds the difference of 2 dates in day format
 day_diff(Date1, Date2, Days) :-
 	absolute_day(Date1, Days1),
