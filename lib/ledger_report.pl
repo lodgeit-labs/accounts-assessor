@@ -124,15 +124,10 @@ balance_sheet_entry(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day,
 
 
 balance_sheet_at(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Start_Date, End_Date, Balance_Sheet) :-
-	writeln("<!-- Get Accounts/Assets -->"),
 	account_by_role(Accounts, ('Accounts'/'Assets'), Assets_AID),
-	writeln("<!-- Get Accounts/Equity -->"),
 	account_by_role(Accounts, ('Accounts'/'Equity'), Equity_AID),
-	writeln("<!-- Get Accounts/Liabilities -->"),
 	account_by_role(Accounts, ('Accounts'/'Liabilities'), Liabilities_AID),
-	writeln("<!-- Get Accounts/Earnings -->"),
 	account_by_role(Accounts, ('Accounts'/'Earnings'), Earnings_AID),
-	writeln("<!-- Get Accounts/Assets ... again... -->"),
 	account_by_role(Accounts, ('Accounts'/'Assets'), Assets_AID),
 	account_by_role(Accounts, ('Accounts'/'Equity'), Equity_AID),
 	account_by_role(Accounts, ('Accounts'/'Assets'), Assets_AID),
@@ -141,42 +136,34 @@ balance_sheet_at(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, St
 	writeln("<!-- Balance sheet entries -->"),
 	balance_sheet_entry(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Assets_AID, End_Date, Asset_Section),
 	balance_sheet_entry(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Liabilities_AID, End_Date, Liability_Section),
+	balance_by_account(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, 'NetAssets', End_Date, Net_Assets, Transactions_Count),
+	Net_Assets_Section = entry('NetAssets', Net_Assets, [], Transactions_Count),
+
 	% get earnings before the report period
-	add_days(Start_Date, -1, From_Day_Minus_1),
-
-	writeln("<!-- Balance until day -->"),
-	balance_until_day(Exchange_Rates, Accounts, Transactions, Bases, From_Day_Minus_1, Earnings_AID, Start_Date, Historical_Earnings, _),
+	balance_until_day(Exchange_Rates, Accounts, Transactions, Bases, 
+	/*exchange day*/
+	Start_Date, 
+	Earnings_AID, 
+	/*transactions until day*/
+	Start_Date, 
+	Historical_Earnings, _),
+	
 	% get earnings change over the period
-
 	writeln("<!-- Net activity by account -->"),
 	net_activity_by_account(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Earnings_AID, Start_Date, End_Date, Current_Earnings, _),
-	% total them
-	/*
-	vec_add(Historical_Earnings, Current_Earnings, Earnings),
-	vec_reduce(Earnings, Earnings_Reduced),
-	Retained_Earnings_Section = entry('RetainedEarnings', Earnings_Reduced,
-		[
-		entry('HistoricalEarnings', Historical_Earnings, []), 
-		entry('CurrentEarnings', Current_Earnings, [])
-		]),	*/
 		
 	/* there is no need to make up transactions here, but it makes things more uniform */
-	writeln("<!-- Get transactions with retained earnings -->"),
+	writeln("<!-- Get transactions with retained earnings -->"),gtrace,
 	get_transactions_with_retained_earnings(Current_Earnings, Historical_Earnings, Transactions, Start_Date, End_Date, Transactions_With_Retained_Earnings),
-	writeln("<!-- balance_sheet_entry -->"),
 	balance_sheet_entry(Exchange_Rates, Accounts, Transactions_With_Retained_Earnings, Bases, Exchange_Day, 'Equity', End_Date, Equity_Section),
-	writeln("<!-- balance_by_account -->"),
-	balance_by_account(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, 'NetAssets', End_Date, Net_Assets, Transactions_Count),
-	writeln("<!-- net_assets_section -->"),
-	Net_Assets_Section = entry('NetAssets', Net_Assets, [], Transactions_Count),
+	
 	Balance_Sheet = [Asset_Section, Liability_Section, Equity_Section, Net_Assets_Section],
 	writeln("<!-- balance_sheet_at: done. -->").
 
 /* build a fake transaction that sets the balance of historical and current earnings */
-get_transactions_with_retained_earnings(Current_Earnings, Historical_Earnings, Transactions, Start_Date, End_Date, [Historical_Earnings_Transaction, Current_Earnings_Transaction | Transactions]) :-
-	add_days(Start_Date, -1, From_Day_Minus_1),
-	Historical_Earnings_Transaction = transaction(From_Day_Minus_1,'','Historical_Earnings',Historical_Earnings),
-	Current_Earnings_Transaction = transaction(End_Date,'','Current_Earnings',Current_Earnings).
+get_transactions_with_retained_earnings(Current_Earnings, Historical_Earnings, Transactions, Start_Date, _End_Date, [Historical_Earnings_Transaction, Current_Earnings_Transaction | Transactions]) :-
+	Historical_Earnings_Transaction = transaction(Start_Date,'','HistoricalEarnings',Historical_Earnings),
+	Current_Earnings_Transaction = transaction(Start_Date,'','CurrentEarnings',Current_Earnings).
 
 trial_balance_between(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Start_Date, End_Date, [Trial_Balance_Section]) :-
 	/* 'Accounts' does not exist by itself, but it's a parent to all the top-level accounts */
@@ -382,3 +369,13 @@ format_balance(Format, Indent_Level, Report_Currency_List, Context, Name, Normal
 	append(Lines_In, [Line], Lines_Out).
 
 is_underscore('_').
+
+
+	/*
+	vec_add(Historical_Earnings, Current_Earnings, Retained_Earnings),
+	Retained_Earnings_Section = entry('RetainedEarnings', Retained_Earnings,
+		[
+			entry('HistoricalEarnings', Historical_Earnings, []), 
+			entry('CurrentEarnings', Current_Earnings, [])
+		]
+	),*/

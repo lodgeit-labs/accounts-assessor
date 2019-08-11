@@ -19,6 +19,7 @@
 		gregorian_date/2]).
 :- use_module('../../lib/utils', [
 		inner_xml/3, 
+		inner_xml_throw/3,
 		write_tag/2, 
 		fields/2, 
 		numeric_fields/2, 
@@ -376,10 +377,10 @@ infer_exchange_rates(_, _, _, _, _, _, Exchange_Rates, Exchange_Rates) :-
 */	
    
 extract_default_currency(Dom, Default_Currency) :-
-   inner_xml(Dom, //reports/balanceSheetRequest/defaultCurrency/unitType, Default_Currency).
+	inner_xml_throw(Dom, //reports/balanceSheetRequest/defaultCurrency/unitType, Default_Currency).
 
 extract_report_currency(Dom, Report_Currency) :-
-   inner_xml(Dom, //reports/balanceSheetRequest/reportCurrency/unitType, Report_Currency).
+	inner_xml_throw(Dom, //reports/balanceSheetRequest/reportCurrency/unitType, Report_Currency).
 
 extract_action_taxonomy(Dom, Transaction_Types) :-
 	(

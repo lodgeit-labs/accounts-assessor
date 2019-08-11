@@ -364,8 +364,7 @@ clip_investment(Static_Data, I1, I2) :-
 			clip start date, adjust purchase price.
 			the simplest case is when the price in purchase currency at report start date is specified by user.
 		*/
-			add_days(Start_Date, -1, Before_Start_Date),
-			Opening_Date = Before_Start_Date,
+			Opening_Date = Start_Date,
 			exchange_rate(Exchange_Rates, Opening_Date, Unit, Purchase_Currency, Before_Opening_Exchange_Rate_Foreign),
 			Opening_Unit_Cost_Foreign = value(Purchase_Currency, Before_Opening_Exchange_Rate_Foreign),
 			exchange_rate(Exchange_Rates, Opening_Date, Unit, Report_Currency_Unit, Before_Opening_Exchange_Rate_Converted),			
