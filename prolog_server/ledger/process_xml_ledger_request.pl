@@ -40,7 +40,7 @@
 		bs_report/5,
 		pl_report/6]).
 :- use_module('../../lib/statements', [
-		extract_transaction/3, 
+		extract_s_transaction/3, 
 		print_relevant_exchange_rates_comment/4, 
 		invert_s_transaction_vector/2, 
 		fill_in_missing_units/6,
@@ -102,7 +102,7 @@ process_xml_ledger_request(_, Dom) :-
 	findall(Livestock_Dom, xpath(Dom, //reports/balanceSheetRequest/livestockData, Livestock_Dom), Livestock_Doms),
 	get_livestock_types(Livestock_Doms, Livestock_Types),
    	extract_livestock_opening_costs_and_counts(Livestock_Doms, Livestock_Opening_Costs_And_Counts),
-	findall(S_Transaction, extract_transaction(Dom, Start_Date_Atom, S_Transaction), S_Transactions0),
+	findall(S_Transaction, extract_s_transaction(Dom, Start_Date_Atom, S_Transaction), S_Transactions0),
 	maplist(invert_s_transaction_vector, S_Transactions0, S_Transactions0b),
 	sort_s_transactions(S_Transactions0b, S_Transactions),
 	

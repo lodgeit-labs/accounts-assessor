@@ -36,7 +36,9 @@
 		transaction_account_in_set/3,
 		transaction_in_period/3,
 		transaction_vectors_total/2,
-		transactions_before_day_on_account_and_subaccounts/5]).
+		transactions_before_day_on_account_and_subaccounts/5,
+		make_transaction/5
+]).
 :- use_module('days', [
 		add_days/3]).
 :- use_module('utils', [
@@ -128,6 +130,8 @@ balance_sheet_entry(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day,
 
 
 balance_sheet_at(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Start_Date, End_Date, Balance_Sheet) :-
+	assertion(ground(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Start_Date, End_Date)),
+	
 	account_by_role(Accounts, ('Accounts'/'Assets'), Assets_AID),
 	account_by_role(Accounts, ('Accounts'/'Equity'), Equity_AID),
 	account_by_role(Accounts, ('Accounts'/'Liabilities'), Liabilities_AID),
@@ -158,16 +162,17 @@ balance_sheet_at(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, St
 		
 	/* there is no need to make up transactions here, but it makes things more uniform */
 	writeln("<!-- Get transactions with retained earnings -->"),
-	get_transactions_with_retained_earnings(Current_Earnings, Historical_Earnings, Transactions, Start_Date, End_Date, Transactions_With_Retained_Earnings),
+	get_transactions_with_retained_earnings(Current_Earnings, Historical_Earnings, Start_Date, End_Date, Retained_Earnings_Transactions),
+	append(Transactions, Retained_Earnings_Transactions, Transactions_With_Retained_Earnings),
 	balance_sheet_entry(Exchange_Rates, Accounts, Transactions_With_Retained_Earnings, Bases, Exchange_Day, 'Equity', End_Date, Equity_Section),
 	
 	Balance_Sheet = [Asset_Section, Liability_Section, Equity_Section, Net_Assets_Section],
 	writeln("<!-- balance_sheet_at: done. -->").
 
 /* build a fake transaction that sets the balance of historical and current earnings */
-get_transactions_with_retained_earnings(Current_Earnings, Historical_Earnings, Transactions, Start_Date, _End_Date, [Historical_Earnings_Transaction, Current_Earnings_Transaction | Transactions]) :-
-	Historical_Earnings_Transaction = transaction(Start_Date,'','HistoricalEarnings',Historical_Earnings),
-	Current_Earnings_Transaction = transaction(Start_Date,'','CurrentEarnings',Current_Earnings).
+get_transactions_with_retained_earnings(Current_Earnings, Historical_Earnings, Start_Date, _End_Date, Historical_Earnings_Transaction, Current_Earnings_Transaction) :-
+	make_transaction(Start_Date, '', 'HistoricalEarnings', Historical_Earnings, Historical_Earnings_Transaction),
+	make_transaction(Start_Date, '', 'CurrentEarnings', Current_Earnings, Current_Earnings_Transaction).
 
 trial_balance_between(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, _Start_Date, End_Date, [Trial_Balance_Section]) :-
 	/*net_activity_by_account(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, 'Accounts', Start_Date, End_Date, Trial_Balance, Transactions_Count),*/

@@ -5,7 +5,7 @@
 % ===================================================================
 
 :- module(statements, [
-		extract_transaction/3, 
+		extract_s_transaction/3, 
 		preprocess_s_transactions/5,
 		print_relevant_exchange_rates_comment/4,
 		invert_s_transaction_vector/2, 
@@ -51,7 +51,10 @@
 		transaction_day/2,
 		transaction_description/2,
 		transaction_account_id/2,
-		transaction_vector/2]).
+		transaction_vector/2,
+		make_transaction/5,
+		make_transaction2/5
+		]).
 :- use_module('utils', [
 		pretty_term_string/2, 
 		inner_xml/3, 
@@ -347,17 +350,6 @@ purchased_goods_vector_with_cost(
 			0
 	)].	
 
-% Make an unexchanged transaction to the unexchanged (bank) account
-% the bank account is debited/credited in the currency of the bank account, exchange will happen for report end day
-
-make_transaction(Account, Date, Description, Vector, Transaction) :-
-	flatten([Description], Description_Flat),
-	atomic_list_concat(Description_Flat, Description_Str),
-	transaction_day(Transaction, Date),
-	transaction_description(Transaction, Description_Str),
-	transaction_vector(Transaction, Vector),
-	transaction_account_id(Transaction, Account).
-
 make_exchanged_transactions(Exchange_Rates, Report_Currency, Account, Date, Vector, Description, Transaction) :-
 	vec_change_bases(Exchange_Rates, Date, Report_Currency, Vector, Vector_Exchanged_To_Report),
 	make_transaction(Account, Date, Description, Vector_Exchanged_To_Report, Transaction).
@@ -372,52 +364,54 @@ make_currency_movement_transactions(Static_Data, Bank_Account, Date, Vector, Des
 	/* find the account to affect */
 	account_role_by_id(Accounts, Bank_Account, (_/Bank_Child_Role)),
 	account_by_role(Accounts, ('CurrencyMovement'/Bank_Child_Role), Currency_Movement_Account),
-
 	/* 
 		we will be tracking the movement of Vector (in foreign currency) against the revenue/expense in report currency. 
 		the value of this transaction will grow as the exchange rate of foreign currency moves against report currency.
 	*/
 	without_movement(Report_Currency, Date, Vector, Vector_Exchanged_To_Report_Currency),
-	[Report_Currency_Coord] = Vector_Exchanged_To_Report_Currency,
+	%[Report_Currency_Coord] = Vector_Exchanged_To_Report_Currency,
 
-	(
-		Date @< Start_Date
-	->
-		(
-			/* the historical earnings difference transaction tracks asset value change against converted/frozen earnings value, up to report start date  */
-			Vector_Frozen_After_Start_Date = without_movement_against_after(Vector, Report_Currency, Start_Date),
-			make_difference_transaction(
-				Currency_Movement_Account, Date, Description, 
+	%(
+		%Date @< Start_Date
+	%->
+		%(
+			%/* the historical earnings difference transaction tracks asset value change against converted/frozen earnings value, up to report start date  */
+			%Vector_Frozen_After_Start_Date = without_movement_against_after(Vector, Report_Currency, Start_Date),
+			%make_difference_transaction(
+				%Currency_Movement_Account, Date, Description, 
 				
-				Vector_Frozen_After_Start_Date
-				Report_Currency_Coord,
+				%Vector_Frozen_After_Start_Date
+				%Report_Currency_Coord,
 				
-				Transaction1),
-			/* the current earnings difference transaction tracks asset value change against opening value */
-			without_movement(Vector, Vector_Frozen_At_Opening_Date),
-			make_difference_transaction(
-				Currency_Movement_Account, Start_Date, Description, 
+				%Transaction1),
+			%/* the current earnings difference transaction tracks asset value change against opening value */
+			%without_movement(Vector, Vector_Frozen_At_Opening_Date),
+			%make_difference_transaction(
+				%Currency_Movement_Account, Start_Date, Description, 
 				
-				Vector,
-				Vector_Frozen_At_Opening_Date,
+				%Vector,
+				%Vector_Frozen_At_Opening_Date,
 				
-				Transaction2)
-		)
-	;
+				%Transaction2)
+		%)
+	%;
 		make_difference_transaction(
 			Currency_Movement_Account, Date, Description, 
 			
 			Vector,
 			Vector_Exchanged_To_Report_Currency, 
 			
-			Transaction1)
-	).
+			Transaction1
+		)
+	%)
+	.
 
 make_difference_transaction(Account, Date, Description, What, Against, Transaction) :-
 	vec_sub(What, Against, Diff),
 	/* when an asset account goes up, it rises in debit, and the revenue has to rise in credit to add up to 0 */
 	vec_inverse(Diff, Diff_Revenue),
-	make_transaction(Account, Date, Description, Diff_Revenue, Transaction).
+	make_transaction2(Account, Date, Description, Diff_Revenue, Transaction),
+	transaction_type(Transaction, tracking).
 	
 
 without_movement(Report_Currency, Since, [coord(Unit, D, C)], [coord(Unit2, D, C)]) :-
@@ -470,7 +464,7 @@ check_that_s_transaction_account_exists(S_Transaction, Accounts) :-
 % these are s_transactions, the raw transactions from bank statements. Later each s_transaction will be preprocessed
 % into multiple transaction(..) terms.
 % fixme dont fail silently
-extract_transaction(Dom, Start_Date, Transaction) :-
+extract_s_transaction(Dom, Start_Date, Transaction) :-
 	xpath(Dom, //reports/balanceSheetRequest/bankStatement/accountDetails, Account),
 	catch(
 		fields(Account, [
@@ -485,7 +479,7 @@ extract_transaction(Dom, Start_Date, Transaction) :-
 	,
 	xpath(Account, transactions/transaction, Tx_Dom),
 	catch(
-		extract_transaction2(Tx_Dom, Account_Currency, Account_Name, Start_Date, Transaction),
+		extract_s_transaction2(Tx_Dom, Account_Currency, Account_Name, Start_Date, Transaction),
 		Error,
 		(
 			term_string(Error, Str1),
@@ -495,7 +489,7 @@ extract_transaction(Dom, Start_Date, Transaction) :-
 		)),
 	true.
 
-extract_transaction2(Tx_Dom, Account_Currency, Account, Start_Date, ST) :-
+extract_s_transaction2(Tx_Dom, Account_Currency, Account, Start_Date, ST) :-
 	numeric_fields(Tx_Dom, [
 		debit, (Bank_Debit, 0),
 		credit, (Bank_Credit, 0)]),

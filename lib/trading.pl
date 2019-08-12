@@ -4,9 +4,9 @@
 
 */
 
-increase_unrealized_gains(Static_Data, Trading_Account_Id, Purchase_Currency, Converted_Cost_Vector, Goods_With_Unit_Cost_Vector, Transaction_Day, [Ts0, Ts1]) :-
+increase_unrealized_gains(_Static_Data, Trading_Account_Id, Purchase_Currency, Converted_Cost_Vector, Goods_With_Unit_Cost_Vector, Transaction_Day, [Ts0, Ts1]) :-
 	unrealized_gains_increase_txs(Static_Data, Trading_Account_Id, Purchase_Currency, Converted_Cost_Vector, Goods_With_Unit_Cost_Vector, Transaction_Day, Txs0, Current_Txs),
-	txs_to_transactions(Transaction_Day, Txs0, Ts0),
+	txs_to_transactions(Transaction_Day, Txs0, Ts0)/*,
 	dict_vars(Static_Data, [Start_Date]),
 	(
 		Transaction_Day @< Start_Date
@@ -14,7 +14,7 @@ increase_unrealized_gains(Static_Data, Trading_Account_Id, Purchase_Currency, Co
 		txs_to_transactions(Start_Date, Current_Txs, Ts1)
 	;
 		Ts1 = []
-	).	
+	)*/.	
 
 	
 increase_realized_gains(Static_Data, Trading_Account_Id, Sale_Vector, Converted_Vector, Goods_Vector, Transaction_Day, Goods_Cost_Values, Ts2) :-
@@ -74,6 +74,7 @@ unrealized_gains_increase_txs(Static_Data, Trading_Account_Id, Purchase_Currency
 
 	/*now, for tracking unrealized gains after report start date*/
 	/* goods value as it was at the start date */
+	/*
 	Opening_Goods_Value = [coord(
 		without_currency_movement_against_since(Goods_Unit, Goods_Unit_Bare, Report_Currency, Start_Date), 
 		Goods_Debit, Goods_Credit)
@@ -86,7 +87,8 @@ unrealized_gains_increase_txs(Static_Data, Trading_Account_Id, Purchase_Currency
 		% Account                                                                 DR                                                               CR
 		(Unrealized_Gains_Currency_Movement,                Current_Without_Currency_Movement,        Goods),
 		(Unrealized_Gains_Excluding_Forex,	                Opening_Goods_Value,       Current_Without_Currency_Movement)
-	], Current_Txs).
+	], Current_Txs)*/
+	true.
 
 	
 unrealized_gains_reduction_txs(Static_Data, Trading_Account_Id, Purchase_Info, Txs) :-

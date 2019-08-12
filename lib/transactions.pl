@@ -14,7 +14,11 @@
 			 transaction_description/2,
 			 transaction_account_id/2,
 			 transaction_vector/2,
-			 check_transaction_account/2]).
+			 transaction_type/2,
+			 check_transaction_account/2,
+	 		make_transaction/5,
+	 		make_transaction2/5,
+]).
 
 :- use_module(accounts, [account_in_set/3, account_exists/2]).
 :- use_module(days, [absolute_day/2, gregorian_date/2]).
@@ -24,12 +28,12 @@
 % -------------------------------------------------------------------
 
 
-:- record transaction(day, description, account_id, vector).
+:- record transaction(day, description, account_id, vector, type).
 % - The absolute day that the transaction happenned
 % - A description of the transaction
 % - The account that the transaction modifies
 % - The amounts by which the account is being debited and credited
-
+% - instant or tracking
 
 transaction_account_in_set(Accounts, Transaction, Root_Account_Id) :-
 	transaction_account_id(Transaction, Transaction_Account_Id),
@@ -92,3 +96,16 @@ check_transaction_account(Accounts, Transaction) :-
 	
 has_empty_vector(T) :-
 	transaction_vector(T, []).
+
+	
+make_transaction2(Account, Date, Description, Vector, Transaction) :-
+	flatten([Description], Description_Flat),
+	atomic_list_concat(Description_Flat, Description_Str),
+	transaction_day(Transaction, Date),
+	transaction_description(Transaction, Description_Str),
+	transaction_vector(Transaction, Vector),
+	transaction_account_id(Transaction, Account).
+
+make_transaction(Account, Date, Description, Vector, Transaction) :-
+	make_transaction2(Account, Date, Description, Vector, Transaction),
+	transaction_type(Transaction, instant).
