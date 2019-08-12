@@ -5,7 +5,7 @@
 */
 
 increase_unrealized_gains(Static_Data, Trading_Account_Id, Purchase_Currency, Converted_Cost_Vector, Goods_With_Unit_Cost_Vector, Transaction_Day, [Ts0, Ts1]) :-
-	unrealized_gains_txs(Static_Data, Trading_Account_Id, Purchase_Currency, Converted_Cost_Vector, Goods_With_Unit_Cost_Vector, Transaction_Day, Txs0, Current_Txs),
+	unrealized_gains_increase_txs(Static_Data, Trading_Account_Id, Purchase_Currency, Converted_Cost_Vector, Goods_With_Unit_Cost_Vector, Transaction_Day, Txs0, Current_Txs),
 	txs_to_transactions(Transaction_Day, Txs0, Ts0),
 	dict_vars(Static_Data, [Start_Date]),
 	(
@@ -54,7 +54,7 @@ reduce_unrealized_gains(Static_Data, Trading_Account_Id, Transaction_Day, Goods_
 	this may seem error prone, but any issues are yet to be found, and it clarifies the logic.
 */
 			
-unrealized_gains_txs(Static_Data, Trading_Account_Id, Purchase_Currency, Cost_Vector, Goods, Transaction_Day, Txs, Current_Txs) :-
+unrealized_gains_increase_txs(Static_Data, Trading_Account_Id, Purchase_Currency, Cost_Vector, Goods, Transaction_Day, Txs, Current_Txs) :-
 	dict_vars(Static_Data, [Accounts, Report_Currency, Start_Date]),
 	Goods = [coord(Goods_Unit, Goods_Debit, Goods_Credit)],
 	Goods_Unit = with_cost_per_unit(Goods_Unit_Bare, _),
@@ -72,6 +72,8 @@ unrealized_gains_txs(Static_Data, Trading_Account_Id, Purchase_Currency, Cost_Ve
 		(Unrealized_Gains_Excluding_Forex,	                 Cost_Vector,      	                Goods_Without_Currency_Movement)
 	], Txs),
 
+	/*now, for tracking unrealized gains after report start date*/
+	/* goods value as it was at the start date */
 	Opening_Goods_Value = [coord(
 		without_currency_movement_against_since(Goods_Unit, Goods_Unit_Bare, Report_Currency, Start_Date), 
 		Goods_Debit, Goods_Credit)

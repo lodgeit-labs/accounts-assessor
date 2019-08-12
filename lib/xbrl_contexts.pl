@@ -149,3 +149,6 @@ print_scenario([dimension_value(dimension_reference(Id, Element_Name), Value)]) 
 	writeln('\t\t\t</xbrldi:typedMember>'),
 	writeln('\t\t</xbrli:scenario>').
 
+/*
+With our Ledger solution, we want to be able to have a consolidated entity where the various entities that make up the consolidated entity have their own aspects - i.e. instead of Geo Area Aspect, have Sub Entity Aspect
+*/
