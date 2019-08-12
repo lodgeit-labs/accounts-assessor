@@ -291,6 +291,7 @@ investment_report_2(Static_Data, Outstanding_In, Report_Output) :-
 	writeln('-->'),
 	*/
 	/* each item of Investments is a purchase with some info and list of sales */
+	gtrace,
 	maplist(investment_report_2_sales(Static_Data), Realized_Investments, Sale_Lines),
 	maplist(investment_report_2_unrealized(Static_Data), Unrealized_Investments, Non_Sale_Lines),
 	flatten(Sale_Lines, Non_Sale_Lines, Rows0),
@@ -309,74 +310,6 @@ investment_report_2(Static_Data, Outstanding_In, Report_Output) :-
 	flatten([Header, Rows_Html], Tbl),
 	report_page(Title_Text, Tbl, 'investment_report.html', Report_Output).
 
-	
-	
-clip_investments(Static_Data, (Outstanding_In, Investments_In), Realized_Investments, Unrealized_Investments) :-
-	%print_term(clip_investments(Investments_In, Realized_Investments, Unrealized_Investments),[]),
-	findall(
-		I,
-		(
-			(
-				member((O, Investment_Id), Outstanding_In),
-				outstanding_goods_count(O, Count),
-				Count =\= 0,
-				nth0(Investment_Id, Investments_In, investment(Info, _Sales)),
-				I = (unr, Info, Count, [])
-			)
-			;
-			(
-				I = (rea, Info, 0, Sales),
-				member(investment(Info, Sales), Investments_In)
-			)
-		),
-		Investments1
-	),
-	maplist(clip_investment(Static_Data), Investments1, Investments2),
-	findall(I, (member(I, Investments2), I = (unr, _, _, _)), Unrealized_Investments),
-	findall(I, (member(I, Investments2), I = (rea, _, _, _)), Realized_Investments).
-/*
-	
-*/	
-clip_investment(Static_Data, I1, I2) :-
-	dict_vars(Static_Data, [Start_Date, Exchange_Rates, Report_Currency]),
-	[Report_Currency_Unit] = Report_Currency,
-	
-	I1 = (Tag, Info1, Outstanding_Count, Sales1),
-	I2 = (Tag, Info2, Outstanding_Count, Sales2),
-/*
-	everything's already clipped from the report end date side.
-	filter out sales before report period.
-*/
-	exclude(sale_before(Start_Date), Sales1, Sales2),
-	
-	Info1 = outstanding(Purchase_Currency, Unit, _, Purchase_Unit_Cost_Converted, Purchase_Unit_Cost_Foreign, Purchase_Date),
-	Info2 = outstanding(Purchase_Currency, Unit, x, Opening_Unit_Cost_Converted, Opening_Unit_Cost_Foreign, Opening_Date),
-	(
-		Purchase_Date @>= Start_Date
-	->
-		(
-			Opening_Unit_Cost_Foreign = Purchase_Unit_Cost_Foreign,
-			Opening_Unit_Cost_Converted = Purchase_Unit_Cost_Converted,
-			Opening_Date = Purchase_Date
-		)
-	;
-		(
-		/*	
-			clip start date, adjust purchase price.
-			the simplest case is when the price in purchase currency at report start date is specified by user.
-		*/
-			Opening_Date = Start_Date,
-			exchange_rate(Exchange_Rates, Opening_Date, Unit, Purchase_Currency, Before_Opening_Exchange_Rate_Foreign),
-			Opening_Unit_Cost_Foreign = value(Purchase_Currency, Before_Opening_Exchange_Rate_Foreign),
-			exchange_rate(Exchange_Rates, Opening_Date, Unit, Report_Currency_Unit, Before_Opening_Exchange_Rate_Converted),			
-			Opening_Unit_Cost_Converted = value(Report_Currency_Unit, Before_Opening_Exchange_Rate_Converted)
-		)
-	).
-			
-
-sale_before(Start_Date, sale(Date,_,_)) :- 
-	Date @< Start_Date.
-	
 investment_report_2_sales(Static_Data, I, Lines) :-
 	I = (rea, Info, 0, Sales),
 	maplist(investment_report_2_sale_lines(Static_Data, Info), Sales, Lines).
@@ -584,3 +517,69 @@ ir2_market_gain(Exchange_Rates, Purchase_Date, End_Date, Purchase_Currency, Repo
 	value_multiply(Purchase_Unit_Cost_Converted, Count, Purchase_Total_Cost_Converted),
 	value_subtract(End_Total_Price_Converted, Purchase_Total_Cost_Converted, Gain).
 
+	
+	
+clip_investments(Static_Data, (Outstanding_In, Investments_In), Realized_Investments, Unrealized_Investments) :-
+	%print_term(clip_investments(Investments_In, Realized_Investments, Unrealized_Investments),[]),
+	findall(
+		I,
+		(
+			(
+				member((O, Investment_Id), Outstanding_In),
+				outstanding_goods_count(O, Count),
+				Count =\= 0,
+				nth0(Investment_Id, Investments_In, investment(Info, _Sales)),
+				I = (unr, Info, Count, [])
+			)
+			;
+			(
+				I = (rea, Info, 0, Sales),
+				member(investment(Info, Sales), Investments_In)
+			)
+		),
+		Investments1
+	),
+	maplist(clip_investment(Static_Data), Investments1, Investments2),
+	findall(I, (member(I, Investments2), I = (unr, _, _, _)), Unrealized_Investments),
+	findall(I, (member(I, Investments2), I = (rea, _, _, _)), Realized_Investments).
+/*
+	
+*/	
+clip_investment(Static_Data, I1, I2) :-
+	dict_vars(Static_Data, [Start_Date, Exchange_Rates, Report_Currency]),
+	[Report_Currency_Unit] = Report_Currency,
+	
+	I1 = (Tag, Info1, Outstanding_Count, Sales1),
+	I2 = (Tag, Info2, Outstanding_Count, Sales2),
+/*
+	everything's already clipped from the report end date side.
+	filter out sales before report period.
+*/
+	exclude(sale_before(Start_Date), Sales1, Sales2),
+	
+	Info1 = outstanding(Purchase_Currency, Unit, _, Purchase_Unit_Cost_Converted, Purchase_Unit_Cost_Foreign, Purchase_Date),
+	Info2 = outstanding(Purchase_Currency, Unit, x, Opening_Unit_Cost_Converted, Opening_Unit_Cost_Foreign, Opening_Date),
+	(
+		Purchase_Date @>= Start_Date
+	->
+		(
+			Opening_Unit_Cost_Foreign = Purchase_Unit_Cost_Foreign,
+			Opening_Unit_Cost_Converted = Purchase_Unit_Cost_Converted,
+			Opening_Date = Purchase_Date
+		)
+	;
+		(
+		/*	
+			clip start date, adjust purchase price.
+			the simplest case is when the price in purchase currency at report start date is specified by user.
+		*/
+			Opening_Date = Start_Date,
+			exchange_rate(Exchange_Rates, Opening_Date, Unit, Purchase_Currency, Before_Opening_Exchange_Rate_Foreign),
+			Opening_Unit_Cost_Foreign = value(Purchase_Currency, Before_Opening_Exchange_Rate_Foreign),
+			exchange_rate(Exchange_Rates, Opening_Date, Unit, Report_Currency_Unit, Before_Opening_Exchange_Rate_Converted),			
+			Opening_Unit_Cost_Converted = value(Report_Currency_Unit, Before_Opening_Exchange_Rate_Converted)
+		)
+	).
+
+sale_before(Start_Date, sale(Date,_,_)) :- 
+	Date @< Start_Date.
