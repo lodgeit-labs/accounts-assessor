@@ -102,7 +102,7 @@ preprocess_s_transactions(Static_Data, S_Transactions, Transactions_Out, Outstan
 preprocess_s_transactions2(_, [], [], Outstanding, Outstanding, ['done.'], _).
 
 preprocess_s_transactions2(Static_Data, [S_Transaction|S_Transactions], [Transactions_Out|Transactions_Out_Tail], Outstanding_In, Outstanding_Out, [Debug_Head|Debug_Tail], Debug_So_Far) :-
-	Static_Data = (Accounts, Report_Currency, _Action_Taxonomy, Report_End_Date, Exchange_Rates),
+	dict_vars(Static_Data, [Accounts, Report_Currency, End_Date, Exchange_Rates]),
 	pretty_term_string(S_Transaction, S_Transaction_String),
 	catch(
 		(
@@ -119,7 +119,7 @@ preprocess_s_transactions2(Static_Data, [S_Transaction|S_Transactions], [Transac
 					atomic_list_concat([S_Transaction_String, '==>\n', Transactions_String, '\n====\n'], Debug_Head),
 					Transactions_Out = [T|_],
 					transaction_day(T, Transaction_Date),
-					check_trial_balance0(Exchange_Rates, Report_Currency, Transaction_Date, Transactions_Out, Report_End_Date, Debug_So_Far, Debug_Head),
+					check_trial_balance0(Exchange_Rates, Report_Currency, Transaction_Date, Transactions_Out, End_Date, Debug_So_Far, Debug_Head),
 					append(Debug_So_Far, [Debug_Head], Debug_So_Far2)
 				),
 				not_enough_goods_to_sell,
@@ -169,7 +169,7 @@ check_trial_balance0(Exchange_Rates, Report_Currency, Transaction_Date, Transact
 % We passthrough the output list to the above rule, and just replace the first S_Transaction in the 
 % input list with a modified one (NS_Transaction).
 preprocess_s_transaction(Static_Data, S_Transaction, Transactions, Outstanding_In, Outstanding_Out) :-
-	Static_Data = (_, _, _, _, Exchange_Rates),
+	dict_vars(Static_Data, [Exchange_Rates]),
 	s_transaction_exchanged(S_Transaction, bases(Goods_Bases)),
 	s_transaction_day(S_Transaction, Transaction_Date), 
 	s_transaction_day(NS_Transaction, Transaction_Date),
@@ -198,7 +198,7 @@ preprocess_s_transaction(Static_Data, S_Transaction, Transactions, Outstanding, 
 
 preprocess_s_transaction(Static_Data, S_Transaction, [Ts1, Ts2, Ts3, Ts4], Outstanding_In, Outstanding_Out) :-
 	Pricing_Method = lifo,
-	Static_Data = (_, Report_Currency, Transaction_Types, _, Exchange_Rates),
+	dict_vars(Static_Data, [Report_Currency, Transaction_Types, Exchange_Rates]),
 	check_s_transaction_action_type(Transaction_Types, S_Transaction),
 	s_transaction_exchanged(S_Transaction, vector(Counteraccount_Vector)),
 	s_transaction_account_id(S_Transaction, Bank_Account_Name), 
@@ -248,7 +248,7 @@ make_buy(Static_Data, Trading_Account_Id, Pricing_Method, Bank_Account_Currency,
 	purchased_goods_vector_with_cost(
 		Goods_Vector, Vector_Ours, 
 		[coord(with_cost_per_unit(Goods_Unit, Unit_Cost_Foreign), Goods_Count, _)]),
-	Static_Data = (Accounts, _, _, _, _),
+	dict_vars(Static_Data, [Accounts]),
 	account_by_role(Accounts, Exchanged_Account/Goods_Unit, Exchanged_Account2),
 	make_transaction(Exchanged_Account2, Transaction_Date, Description, Goods_With_Cost_Vector, Ts1),
 	add_bought_items(
@@ -266,7 +266,7 @@ make_sell(Static_Data, Trading_Account_Id, Pricing_Method, _Bank_Account_Currenc
 	Outstanding_In, Outstanding_Out, [Ts1, Ts2, Ts3]
 ) :-
 	Goods_Vector = [coord(Goods_Unit,_,Goods_Positive)],
-	Static_Data = (Accounts, _, _, _, _),
+	dict_vars(Static_Data, [Accounts]),
 	account_by_role(Accounts, Exchanged_Account/Goods_Unit, Exchanged_Account2),
 	bank_debit_to_unit_price(Vector_Ours, Goods_Positive, Sale_Unit_Price),
 	((find_items_to_sell(Pricing_Method, Goods_Unit, Goods_Positive, Transaction_Date, Sale_Unit_Price, Outstanding_In, Outstanding_Out, Goods_Cost_Values),!)
@@ -311,7 +311,7 @@ sold_goods_vector_with_cost(Goods_Cost_Value, Goods_With_Cost_Vector) :-
 	this "currency trading account" is not to be confused with a shares trading account.
 */
 affect_bank_account(Static_Data, Bank_Account_Name, Bank_Account_Currency, Transaction_Date, Vector_Ours, Description, [Ts0, Ts3]) :-
-	Static_Data = (Accounts, Report_Currency, _, _, Exchange_Rates),
+	dict_vars(Static_Data, [Accounts, Report_Currency]),
 	Bank_Account_Role = ('Banks'/Bank_Account_Name),
 	account_by_role(Accounts, Bank_Account_Role, Bank_Account_Id),
 	/* record the change on our bank account */
@@ -322,11 +322,11 @@ affect_bank_account(Static_Data, Bank_Account_Name, Bank_Account_Currency, Trans
 	->
 		true
 	;
-		make_currency_movement_transactions(Exchange_Rates, Accounts, Bank_Account_Id, Report_Currency, Transaction_Date, Vector_Ours, [Description, ' - currency movement adjustment'], Ts3)
+		make_currency_movement_transactions(Static_Data, Bank_Account_Id, Transaction_Date, Vector_Ours, [Description, ' - currency movement adjustment'], Ts3)
 	).
 
 record_earning_or_equity_or_loan(Static_Data, Vector_Ours, Exchanged_Account, Transaction_Date, Description, Ts2) :-
-	Static_Data = (_, Report_Currency, _, _, Exchange_Rates),
+	dict_vars(Static_Data, [Report_Currency, Exchange_Rates]),
 	/* Make an inverse exchanged transaction to the exchanged account. This can be a revenue, expense or equity account*/
 	vec_inverse(Vector_Ours, Vector_Exchanged),
 	make_exchanged_transactions(Exchange_Rates, Report_Currency, Exchanged_Account, Transaction_Date, Vector_Exchanged, Description, Ts2).
@@ -367,8 +367,8 @@ make_exchanged_transactions(Exchange_Rates, Report_Currency, Account, Day, Vecto
 	Day - transaction day
 	https://www.mathstat.dal.ca/~selinger/accounting/tutorial.html#4
 */
-make_currency_movement_transactions(_Exchange_Rates, Accounts, Bank_Account, Report_Currency, Day, Vector, Description, [Transaction1, Transaction2]) :-
-gtrace,
+make_currency_movement_transactions(Static_Data, Bank_Account, Day, Vector, Description, [Transaction1, Transaction2]) :-
+	dict_vars(Static_Data, [Accounts, Start_Date, Report_Currency]),
 	/* find the account to affect */
 	account_role_by_id(Accounts, Bank_Account, (_/Bank_Child_Role)),
 	account_by_role(Accounts, ('CurrencyMovement'/Bank_Child_Role), Currency_Movement_Account),

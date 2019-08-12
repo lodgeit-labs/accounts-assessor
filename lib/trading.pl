@@ -46,7 +46,8 @@ reduce_unrealized_gains(Static_Data, Trading_Account_Id, Transaction_Day, Goods_
 	this may seem error prone, but any issues are yet to be found, and it clarifies the logic.
 */
 			
-unrealized_gains_txs((Accounts, Report_Currency, _, _, _), Trading_Account_Id, Purchase_Currency, Cost_Vector, Goods, Transaction_Day, Txs, Current_Txs) :-
+unrealized_gains_txs(Static_Data, Trading_Account_Id, Purchase_Currency, Cost_Vector, Goods, Transaction_Day, Txs, Current_Txs) :-
+	dict_vars(Static_Data, [Accounts, Report_Currency]),
 	Goods = [coord(Goods_Unit, Goods_Debit, Goods_Credit)],
 	Goods_Unit = with_cost_per_unit(Goods_Unit_Name, _),
 	gains_accounts(
@@ -77,7 +78,9 @@ unrealized_gains_txs((Accounts, Report_Currency, _, _, _), Trading_Account_Id, P
 	].
 
 	
-unrealized_gains_reduction_txs((Accounts, Report_Currency, _, _, _), Trading_Account_Id, Purchase_Info, Txs) :-
+unrealized_gains_reduction_txs(Static_Data, Trading_Account_Id, Purchase_Info, Txs) :-
+	dict_vars(Static_Data, [Accounts, Report_Currency]),
+
 	goods(ST_Currency, Goods_Unit_Name, Goods_Count, Cost, Purchase_Date) = Purchase_Info,
 	
 	gains_accounts(
@@ -106,7 +109,8 @@ unrealized_gains_reduction_txs((Accounts, Report_Currency, _, _, _), Trading_Acc
 	T0.comment = 'reduce unrealized gain by outgoing asset and its cost'.
 
 	
-realized_gains_txs((Accounts, Report_Bases, _, _,Exchange_Rates), Sale_Currency, Sale_Currency_Unit_Price, Trading_Account_Id, Sale_Unit_Price_Converted, Purchase_Info, Txs) :-
+realized_gains_txs(Static_Data, Sale_Currency, Sale_Currency_Unit_Price, Trading_Account_Id, Sale_Unit_Price_Converted, Purchase_Info, Txs) :-
+	dict_vars(Static_Data, [Accounts, Report_Bases, Exchange_Rates]),
 	goods(_ST_Currency, Goods_Unit, Goods_Count, Cost, Purchase_Date) = Purchase_Info,
 	
 	gains_accounts(

@@ -47,12 +47,12 @@ process_ledger(
 	Start_Date, 
 	End_Date, 
 	Exchange_Rates, 
-	Action_Taxonomy, 
+	Transaction_Types, 
 	Report_Currency, 
 	Livestock_Types, 
 	Livestock_Opening_Costs_And_Counts, 
-	Account_Hierarchy_In, 
-	Account_Hierarchy, 
+	Accounts_In, 
+	Accounts, 
 	Transactions_With_Livestock,
 	Transaction_Transformation_Debug,
 	Outstanding_Out
@@ -60,17 +60,17 @@ process_ledger(
 	s_transactions_up_to(End_Date, S_Transactions0, S_Transactions),
 	emit_ledger_warnings(S_Transactions, Start_Date, End_Date),
 	pretty_term_string(Exchange_Rates, Message1b),
-	pretty_term_string(Action_Taxonomy, Message2),
-	pretty_term_string(Account_Hierarchy_In, Message3),
+	pretty_term_string(Transaction_Types, Message2),
+	pretty_term_string(Accounts_In, Message3),
 	atomic_list_concat([
 	'\n<!--',
 	'Exchange rates extracted:\n', Message1b,'\n\n',
-	'Action_Taxonomy extracted:\n',Message2,'\n\n',
-	'Account_Hierarchy extracted:\n',Message3,'\n\n',
+	'Transaction_Types extracted:\n',Message2,'\n\n',
+	'Accounts extracted:\n',Message3,'\n\n',
 	'-->\n\n'], Debug_Message0),
 	writeln(Debug_Message0),
 	
-	generate_system_accounts((S_Transactions, Livestock_Types, Action_Taxonomy), Account_Hierarchy_In, Generated_Accounts_Nested),
+	generate_system_accounts((S_Transactions, Livestock_Types, Transaction_Types), Accounts_In, Generated_Accounts_Nested),
 	flatten(Generated_Accounts_Nested, Generated_Accounts),
 	pretty_term_string(Generated_Accounts, Message3b),
 	atomic_list_concat([
@@ -78,21 +78,22 @@ process_ledger(
 	'Generated accounts:\n', Message3b,'\n\n',
 	'-->\n\n'], Debug_Message10),
 	writeln(Debug_Message10),
-	flatten([Account_Hierarchy_In, Generated_Accounts], Account_Hierarchy),
-	%check_accounts(Account_Hierarchy)
-	maplist(check_account_parent(Account_Hierarchy), Account_Hierarchy), 
+	flatten([Accounts_In, Generated_Accounts], Accounts),
+	%check_accounts(Accounts)
+	maplist(check_account_parent(Accounts), Accounts), 
 
 	/*todo dont process s_transactions after end_days*/
-	preprocess_s_transactions((Account_Hierarchy, Report_Currency, Action_Taxonomy, End_Date, Exchange_Rates), S_Transactions, Transactions1, Outstanding_Out, Transaction_Transformation_Debug),
+	dict_from_vars(Static_Data, [Accounts, Report_Currency, Start_Date, End_Date, Exchange_Rates, Transaction_Types]),
+	preprocess_s_transactions(Static_Data, S_Transactions, Transactions1, Outstanding_Out, Transaction_Transformation_Debug),
 		
 	/*if processing s_transactions failed, we should either limit the end date for livestock processing, 
 	or we should filter the additional transactions out before creating reports*/
 	
-	process_livestock(Livestock_Doms, Livestock_Types, S_Transactions, Transactions1, Livestock_Opening_Costs_And_Counts, Start_Date, End_Date, Exchange_Rates, Account_Hierarchy, Report_Currency, Transactions_With_Livestock, Livestock_Events, Average_Costs, Average_Costs_Explanations),
+	process_livestock(Livestock_Doms, Livestock_Types, S_Transactions, Transactions1, Livestock_Opening_Costs_And_Counts, Start_Date, End_Date, Exchange_Rates, Accounts, Report_Currency, Transactions_With_Livestock, Livestock_Events, Average_Costs, Average_Costs_Explanations),
 
-	livestock_counts(Account_Hierarchy, Livestock_Types, Transactions_With_Livestock, Livestock_Opening_Costs_And_Counts, End_Date, Livestock_Counts),
+	livestock_counts(Accounts, Livestock_Types, Transactions_With_Livestock, Livestock_Opening_Costs_And_Counts, End_Date, Livestock_Counts),
 
-	maplist(check_transaction_account(Account_Hierarchy), Transactions_With_Livestock),
+	maplist(check_transaction_account(Accounts), Transactions_With_Livestock),
 	
 	pretty_term_string(Livestock_Events, Message0b),
 	pretty_term_string(Transactions_With_Livestock, Message1),
@@ -126,7 +127,7 @@ process_ledger(
 	),
 	writeln(Debug_Message),
 	
-	trial_balance_between(Exchange_Rates, Account_Hierarchy, Transactions_With_Livestock, Report_Currency, End_Date, Start_Date, End_Date, [Trial_Balance_Section]),
+	trial_balance_between(Exchange_Rates, Accounts, Transactions_With_Livestock, Report_Currency, End_Date, Start_Date, End_Date, [Trial_Balance_Section]),
 	(
 		trial_balance_ok(Trial_Balance_Section)
 	->
