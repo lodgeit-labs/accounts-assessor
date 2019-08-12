@@ -1,7 +1,6 @@
 
 /*
 
-	this is the high-level interface that preprocess_s_transaction uses
 
 */
 
@@ -37,26 +36,6 @@ reduce_unrealized_gains(Static_Data, Trading_Account_Id, Transaction_Day, Goods_
 	maplist(unrealized_gains_reduction_txs(Static_Data, Trading_Account_Id), Goods_Cost_Values, Txs1),
 	txs_to_transactions(Transaction_Day, Txs1, Ts1).
 	
-
-/*
-
-	find accounts to affect
-
-*/
-
-gains_accounts(
-	/*input*/
-	Accounts, Trading_Account_Id, Realized_Or_Unrealized, Goods_Unit, 
-	/*output*/
-	Currency_Movement_Account,
-	Excluding_Forex_Account
-) :-
-	account_by_role(Accounts, (Trading_Account_Id/Realized_Or_Unrealized), Unrealized_Gains_Account),
-	account_by_role(Accounts, (Unrealized_Gains_Account/only_currency_movement), Unrealized_Gains_Currency_Movement),
-	account_by_role(Accounts, (Unrealized_Gains_Account/without_currency_movement), Unrealized_Gains_Excluding_Forex),
-	account_by_role(Accounts, (Unrealized_Gains_Currency_Movement/Goods_Unit), Currency_Movement_Account),
-	account_by_role(Accounts, (Unrealized_Gains_Excluding_Forex/Goods_Unit), Excluding_Forex_Account).
-
 
 /*
 	txs are dicts with most of informations needed to create a transaction.
@@ -125,9 +104,6 @@ realized_gains_txs((Accounts, Report_Bases, _, _,Exchange_Rates), Sale_Currency,
 		Accounts, Trading_Account_Id, realized, Goods_Unit, 
 		Realized_Gains_Currency_Movement, Realized_Gains_Excluding_Forex),
 	
-	%[Report_Currency] = Report_Bases,
-	%Sale_Unit_Price_Converted = value(Report_Currency, _),
-
 	Sale_Currency_Amount is Sale_Currency_Unit_Price * Goods_Count,
 	
 	/*what would be the Report_Currency value we'd get for this sale currency amount if purchase/sale currency didn't move against Report_Currency since the day of the purchase?*/
@@ -182,8 +158,25 @@ tx_to_transaction(Day, Tx, Transaction) :-
 	transaction_account_id(Transaction, Account),
 	transaction_vector(Transaction, Vector_Flattened),
 	flatten(Vector, Vector_Flattened).
+	
+/*
+	find accounts to affect
+*/
+gains_accounts(
+	/*input*/
+	Accounts, Trading_Account_Id, Realized_Or_Unrealized, Goods_Unit, 
+	/*output*/
+	Currency_Movement_Account,
+	Excluding_Forex_Account
+) :-
+	account_by_role(Accounts, (Trading_Account_Id/Realized_Or_Unrealized), Unrealized_Gains_Account),
+	account_by_role(Accounts, (Unrealized_Gains_Account/only_currency_movement), Unrealized_Gains_Currency_Movement),
+	account_by_role(Accounts, (Unrealized_Gains_Account/without_currency_movement), Unrealized_Gains_Excluding_Forex),
+	account_by_role(Accounts, (Unrealized_Gains_Currency_Movement/Goods_Unit), Currency_Movement_Account),
+	account_by_role(Accounts, (Unrealized_Gains_Excluding_Forex/Goods_Unit), Excluding_Forex_Account).
 
 
+	
 /*
 we bought the shares with some currency. we can think of gains as having two parts:
 	share value against that currency.
@@ -202,27 +195,4 @@ we bought the shares with some currency. we can think of gains as having two par
 			account: Gains_Currency_Movement,
 			vector: Cost_In_Report_Vs_Purchase_Currency_Inverted
 		}],
-
-	pretty_term_string(Exchange_Day, Exchange_Day_Str),
-	pretty_term_string(Report_Currency, Report_Currency_Str),
-	pretty_term_string(	Cost_In_Purchase_Currency, Cost_Vector_Str),
-	atomic_list_concat(['cost:', Cost_Vector_Str, ' exchanged to ', Report_Currency_Str, ' on ', Exchange_Day_Str], Tx2_Comment2),
-
-*/
-
-/*
-gains_account__has_forex_accounts(Gains_Account, Gains_Excluding_Forex, Gains_Currency_Movement) :-
-	atom_concat(Gains_Account, '_Excluding_Forex', Gains_Excluding_Forex),
-	atom_concat(Gains_Account, '_Currency_Movement', Gains_Currency_Movement).
-gains_account(Trading,Unit,Forex,unrealized) :-
-	trading_account_has_gains_account(Trading, Gains),
-	gains_account_has_forex_account(Gains, Forex),
-	forex_account_has_unit_account(Forex, Unit, Unit_Account).
-						    
-trading_account_has_gains_account(Trading, realized) :-
-
-	
-
-	atomic_list_concat(Gains_Account, '_Excluding_Forex', Gains_Excluding_Forex),
-	atom_concat(Gains_Account, '_Currency_Movement', Gains_Currency_Movement).
 */
