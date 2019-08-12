@@ -99,10 +99,14 @@ balance_by_account(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, 
 % Relates the period from Start_Date to End_Date to the net activity during that period of
 % the given account.
 net_activity_by_account(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Account_Id, Start_Date, End_Date, Net_Activity_Transformed, Transactions_Count) :-
-	findall(Transaction,
-		(member(Transaction, Transactions),
-		transaction_in_period(Transaction, Start_Date, End_Date),
-		transaction_account_in_set(Accounts, Transaction, Account_Id)), Transactions_A),
+	findall(
+		Transaction,
+		(	
+			member(Transaction, Transactions),
+			transaction_in_period(Transaction, Start_Date, End_Date),
+			transaction_account_in_set(Accounts, Transaction, Account_Id)
+		), 
+		Transactions_A),
 	length(Transactions_A, Transactions_Count),
 	transaction_vectors_total(Transactions_A, Net_Activity),
 	vec_change_bases(Exchange_Rates, Exchange_Day, Bases, Net_Activity, Net_Activity_Transformed).

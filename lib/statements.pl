@@ -350,51 +350,75 @@ purchased_goods_vector_with_cost(
 % Make an unexchanged transaction to the unexchanged (bank) account
 % the bank account is debited/credited in the currency of the bank account, exchange will happen for report end day
 
-make_transaction(Account, Day, Description, Vector, Transaction) :-
+make_transaction(Account, Date, Description, Vector, Transaction) :-
 	flatten([Description], Description_Flat),
 	atomic_list_concat(Description_Flat, Description_Str),
-	transaction_day(Transaction, Day),
+	transaction_day(Transaction, Date),
 	transaction_description(Transaction, Description_Str),
 	transaction_vector(Transaction, Vector),
 	transaction_account_id(Transaction, Account).
 
-make_exchanged_transactions(Exchange_Rates, Report_Currency, Account, Day, Vector, Description, Transaction) :-
-	vec_change_bases(Exchange_Rates, Day, Report_Currency, Vector, Vector_Exchanged_To_Report),
-	make_transaction(Account, Day, Description, Vector_Exchanged_To_Report, Transaction).
+make_exchanged_transactions(Exchange_Rates, Report_Currency, Account, Date, Vector, Description, Transaction) :-
+	vec_change_bases(Exchange_Rates, Date, Report_Currency, Vector, Vector_Exchanged_To_Report),
+	make_transaction(Account, Date, Description, Vector_Exchanged_To_Report, Transaction).
 	
 /*
 	Vector  - the amount by which the assets account is changed
-	Day - transaction day
+	Date - transaction day
 	https://www.mathstat.dal.ca/~selinger/accounting/tutorial.html#4
 */
-make_currency_movement_transactions(Static_Data, Bank_Account, Day, Vector, Description, [Transaction1, Transaction2]) :-
+make_currency_movement_transactions(Static_Data, Bank_Account, Date, Vector, Description, [Transaction1, Transaction2]) :-
 	dict_vars(Static_Data, [Accounts, Start_Date, Report_Currency]),
 	/* find the account to affect */
 	account_role_by_id(Accounts, Bank_Account, (_/Bank_Child_Role)),
 	account_by_role(Accounts, ('CurrencyMovement'/Bank_Child_Role), Currency_Movement_Account),
 
-	without_movement(Report_Currency, Day, Vector, Vector_Exchanged_To_Report_Currency),
 	/* 
 		we will be tracking the movement of Vector (in foreign currency) against the revenue/expense in report currency. 
 		the value of this transaction will grow as the exchange rate of foreign currency moves against report currency.
 	*/
-	vec_sub(Vector, Vector_Exchanged_To_Report_Currency, Vector_Movement1),
-	/* but revenue/expenses are normally credit to balance out the assets change, so.. */
-	vec_inverse(Vector_Movement1, Vector_Movement2),
+	without_movement(Report_Currency, Date, Vector, Vector_Exchanged_To_Report_Currency),
+	[Report_Currency_Coord] = Vector_Exchanged_To_Report_Currency,
 
-	make_transaction(Currency_Movement_Account, Day, Description, Vector_Movement2, Transaction1),
 	(
-		Day @< Start_Date
+		Date @< Start_Date
 	->
 		(
-			make_transaction(Currency_Movement_Account, Start_Date, Description, Vector_Movement_Current, Transaction2),
-			without_movement(Report_Currency, Start_Date, Vector, Vector_Without_Movement),
-			vec_sub(Vector, Vector_Without_Movement, V3),
-			vec_inverse(V3, Vector_Movement_Current)
+			/* the historical earnings difference transaction tracks asset value change against converted/frozen earnings value, up to report start date  */
+			Vector_Frozen_After_Start_Date = without_movement_against_after(Vector, Report_Currency, Start_Date),
+			make_difference_transaction(
+				Currency_Movement_Account, Date, Description, 
+				
+				Vector_Frozen_After_Start_Date
+				Report_Currency_Coord,
+				
+				Transaction1),
+			/* the current earnings difference transaction tracks asset value change against opening value */
+			without_movement(Vector, Vector_Frozen_At_Opening_Date),
+			make_difference_transaction(
+				Currency_Movement_Account, Start_Date, Description, 
+				
+				Vector,
+				Vector_Frozen_At_Opening_Date,
+				
+				Transaction2)
 		)
-		;
-			true
+	;
+		make_difference_transaction(
+			Currency_Movement_Account, Date, Description, 
+			
+			Vector,
+			Vector_Exchanged_To_Report_Currency, 
+			
+			Transaction1)
 	).
+
+make_difference_transaction(Account, Date, Description, What, Against, Transaction) :-
+	vec_sub(What, Against, Diff),
+	/* when an asset account goes up, it rises in debit, and the revenue has to rise in credit to add up to 0 */
+	vec_inverse(Diff, Diff_Revenue),
+	make_transaction(Account, Date, Description, Diff_Revenue, Transaction).
+	
 
 without_movement(Report_Currency, Since, [coord(Unit, D, C)], [coord(Unit2, D, C)]) :-
 	Unit2 = without_currency_movement_against_since(
@@ -404,13 +428,13 @@ without_movement(Report_Currency, Since, [coord(Unit, D, C)], [coord(Unit2, D, C
 		Since
 	).
 
-transactions_trial_balance(Exchange_Rates, Report_Currency, Day, Transactions, Vector_Converted) :-
+transactions_trial_balance(Exchange_Rates, Report_Currency, Date, Transactions, Vector_Converted) :-
 	maplist(transaction_vector, Transactions, Vectors_Nested),
 	flatten(Vectors_Nested, Vector),
-	vec_change_bases(Exchange_Rates, Day, Report_Currency, Vector, Vector_Converted).
+	vec_change_bases(Exchange_Rates, Date, Report_Currency, Vector, Vector_Converted).
 
-check_trial_balance(Exchange_Rates, Report_Currency, Day, Transactions) :-
-	transactions_trial_balance(Exchange_Rates, Report_Currency, Day, Transactions, Total),
+check_trial_balance(Exchange_Rates, Report_Currency, Date, Transactions) :-
+	transactions_trial_balance(Exchange_Rates, Report_Currency, Date, Transactions, Total),
 	(
 		Total = []
 	->
@@ -421,7 +445,7 @@ check_trial_balance(Exchange_Rates, Report_Currency, Day, Transactions) :-
 		->
 			true
 		;
-			format('<!-- SYSTEM_WARNING: trial balance is ~w at ~w -->\n', [Total, Day])
+			format('<!-- SYSTEM_WARNING: trial balance is ~w at ~w -->\n', [Total, Date])
 		)
 	).
 
@@ -490,9 +514,9 @@ extract_transaction2(Tx_Dom, Account_Currency, Account, Start_Date, ST) :-
 			writeln("date missing, assuming beginning of request period")
 		)
 	),
-	parse_date(Date_Atom, Absolute_Days),
+	parse_date(Date_Atom, Date),
 	Coord = coord(Account_Currency, Bank_Debit, Bank_Credit),
-	ST = s_transaction(Absolute_Days, Desc, [Coord], Account, Exchanged),
+	ST = s_transaction(Date, Desc, [Coord], Account, Exchanged),
 	extract_exchanged_value(Tx_Dom, Account_Currency, Bank_Debit, Bank_Credit, Exchanged).
 
 extract_exchanged_value(Tx_Dom, _Account_Currency, Bank_Debit, Bank_Credit, Exchanged) :-
@@ -538,13 +562,13 @@ fixme, this get also some irrelevant ones
 */
 print_relevant_exchange_rates_comment([], _, _, _).
 
-print_relevant_exchange_rates_comment([Report_Currency], Report_End_Day, Exchange_Rates, Transactions) :-
+print_relevant_exchange_rates_comment([Report_Currency], Report_End_Date, Exchange_Rates, Transactions) :-
 	findall(
 		Exchange_Rates2,
 		(
 			get_relevant_exchange_rates2([Report_Currency], Exchange_Rates, Transactions, Exchange_Rates2)
 			;
-			get_relevant_exchange_rates2([Report_Currency], Report_End_Day, Exchange_Rates, Transactions, Exchange_Rates2)
+			get_relevant_exchange_rates2([Report_Currency], Report_End_Date, Exchange_Rates, Transactions, Exchange_Rates2)
 		),
 		Relevant_Exchange_Rates
 	),
@@ -561,22 +585,22 @@ print_relevant_exchange_rates_comment([Report_Currency], Report_End_Day, Exchang
 get_relevant_exchange_rates2([Report_Currency], Exchange_Rates, Transactions, Exchange_Rates2) :-
 	% find all days when something happened
 	findall(
-		Day,
+		Date,
 		(
 			member(T, Transactions),
-			transaction_day(T, Day)
+			transaction_day(T, Date)
 		),
-		Days_Unsorted0
+		Dates_Unsorted0
 	),
-	sort(Days_Unsorted0, Days),
-	member(Day, Days),
+	sort(Dates_Unsorted0, Dates),
+	member(Date, Dates),
 	%find all currencies used
 	findall(
 		Currency,
 		(
 			member(T, Transactions),
 			transaction_vector(T, Vector),
-			transaction_day(T,Day),
+			transaction_day(T,Date),
 			member(coord(Currency, _,_), Vector)
 		),
 		Currencies_Unsorted
@@ -584,16 +608,16 @@ get_relevant_exchange_rates2([Report_Currency], Exchange_Rates, Transactions, Ex
 	sort(Currencies_Unsorted, Currencies),
 	% produce all exchange rates
 	findall(
-		exchange_rate(Day, Src_Currency, Report_Currency, Exchange_Rate),
+		exchange_rate(Date, Src_Currency, Report_Currency, Exchange_Rate),
 		(
 			member(Src_Currency, Currencies),
 			\+member(Src_Currency, [Report_Currency]),
-			exchange_rate(Exchange_Rates, Day, Src_Currency, Report_Currency, Exchange_Rate)
+			exchange_rate(Exchange_Rates, Date, Src_Currency, Report_Currency, Exchange_Rate)
 		),
 		Exchange_Rates2
 	).
 
-get_relevant_exchange_rates2([Report_Currency], Day, Exchange_Rates, Transactions, Exchange_Rates2) :-
+get_relevant_exchange_rates2([Report_Currency], Date, Exchange_Rates, Transactions, Exchange_Rates2) :-
 	%find all currencies from all transactions, todo, find only all currencies appearing in totals of accounts at the report end date
 	findall(
 		Currency,
@@ -607,19 +631,19 @@ get_relevant_exchange_rates2([Report_Currency], Day, Exchange_Rates, Transaction
 	sort(Currencies_Unsorted, Currencies),
 	% produce all exchange rates
 	findall(
-		exchange_rate(Day, Src_Currency, Report_Currency, Exchange_Rate),
+		exchange_rate(Date, Src_Currency, Report_Currency, Exchange_Rate),
 		(
 			member(Src_Currency, Currencies),
 			\+member(Src_Currency, [Report_Currency]),
-			exchange_rate(Exchange_Rates, Day, Src_Currency, Report_Currency, Exchange_Rate)
+			exchange_rate(Exchange_Rates, Date, Src_Currency, Report_Currency, Exchange_Rate)
 		),
 		Exchange_Rates2
 	).
 	
 	
 invert_s_transaction_vector(T0, T1) :-
-	T0 = s_transaction(Day, Type_id, Vector, Account_id, Exchanged),
-	T1 = s_transaction(Day, Type_id, Vector_Inverted, Account_id, Exchanged),
+	T0 = s_transaction(Date, Type_id, Vector, Account_id, Exchanged),
+	T1 = s_transaction(Date, Type_id, Vector_Inverted, Account_id, Exchanged),
 	vec_inverse(Vector, Vector_Inverted).
 	
 
