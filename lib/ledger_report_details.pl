@@ -291,10 +291,9 @@ investment_report_2(Static_Data, Outstanding_In, Report_Output) :-
 	writeln('-->'),
 	*/
 	/* each item of Investments is a purchase with some info and list of sales */
-	gtrace,
 	maplist(investment_report_2_sales(Static_Data), Realized_Investments, Sale_Lines),
 	maplist(investment_report_2_unrealized(Static_Data), Unrealized_Investments, Non_Sale_Lines),
-	flatten(Sale_Lines, Non_Sale_Lines, Rows0),
+	flatten([Sale_Lines, Non_Sale_Lines], Rows0),
 	/* lets sort by unit, sale date, purchase date */
 	sort(7, @=<, Rows0, Rows1),
 	sort(2, @=<, Rows1, Rows2),
@@ -355,13 +354,14 @@ investment_report_2_unrealized(Static_Data, Investment, Row) :-
 	optional_currency_conversion(Exchange_Rates, Purchase_Date, Purchase_Currency, Report_Currency, Purchase_Currency_Conversion),
 	optional_currency_conversion(Exchange_Rates, End_Date, Purchase_Currency, Report_Currency, Closing_Currency_Conversion),
 	exchange_rate(Exchange_Rates, End_Date, Unit, Purchase_Currency, Closing_Unit_Price_Foreign_Amount),
-	Closing_Unit_Price_Foreign = value(Closing_Unit_Price_Foreign_Amount, Purchase_Currency),
+	Closing_Unit_Price_Foreign = value(Purchase_Currency, Closing_Unit_Price_Foreign_Amount),
 	Purchase_Currency_Current_Market_Value_Amount is Count * Closing_Unit_Price_Foreign_Amount,
 	Purchase_Currency_Current_Market_Value = value(Purchase_Currency, Purchase_Currency_Current_Market_Value_Amount),
+	[Report_Currency_Unit] = Report_Currency,
 	exchange_rate(Exchange_Rates, End_Date, Unit, Report_Currency_Unit, Closing_Unit_Price_Converted_Amount),
 	Current_Market_Value_Amount is Count * Closing_Unit_Price_Converted_Amount,
 	Current_Market_Value = value(Report_Currency_Unit, Current_Market_Value_Amount),
-	value_multiply(Closing_Unit_Price_Foreign, Closing_Currency_Conversion, Closing_Unit_Price_Converted),
+	optional_converted_value(Closing_Unit_Price_Foreign, Closing_Currency_Conversion, Closing_Unit_Price_Converted),
 	
 	Row = row(
 		Unit, Count, Purchase_Currency,
@@ -465,9 +465,14 @@ optional_currency_conversion(Exchange_Rates, Date, Src, Optional_Dst, Conversion
 	;
 		Conversion = ''
 	).
+
+format_conversion(_Report_Currency, '', '').
 	
 format_conversion(_Report_Currency, Conversion, String) :-
-	pretty_term_string(Conversion, String).
+	Conversion = exchange_rate(_, Src, Dst, Rate),
+	Inverse is 1 / Rate,
+	format(string(String), '1~w=~2:f~w', [Dst, Inverse, Src]). 
+	%pretty_term_string(Conversion, String).
 
 optional_converted_value(V1, C, V2) :-
 	(
@@ -519,7 +524,7 @@ ir2_market_gain(Exchange_Rates, Purchase_Date, End_Date, Purchase_Currency, Repo
 
 	
 	
-clip_investments(Static_Data, (Outstanding_In, Investments_In), Realized_Investments, Unrealized_Investments) :-
+clip_investments(_Static_Data, (Outstanding_In, Investments_In), Realized_Investments, Unrealized_Investments) :-
 	%print_term(clip_investments(Investments_In, Realized_Investments, Unrealized_Investments),[]),
 	findall(
 		I,
@@ -539,7 +544,8 @@ clip_investments(Static_Data, (Outstanding_In, Investments_In), Realized_Investm
 		),
 		Investments1
 	),
-	maplist(clip_investment(Static_Data), Investments1, Investments2),
+	%maplist(clip_investment(Static_Data), Investments1, Investments2),
+	Investments1 = Investments2,
 	findall(I, (member(I, Investments2), I = (unr, _, _, _)), Unrealized_Investments),
 	findall(I, (member(I, Investments2), I = (rea, _, _, _)), Realized_Investments).
 /*

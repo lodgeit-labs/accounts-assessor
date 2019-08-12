@@ -201,7 +201,10 @@ coord_merge(coord(Unit, D1, C1), coord(Unit, D2, C2), coord(Unit, D3, C3)) :-
 coord_merge(value(Unit, D1), value(Unit, D2), value(Unit, D3)) :-
 	D3 is D2 + D1.
 
-value_convert(value(Unit, Amount1), rate(_,Unit,Unit2,_,Rate), value(Unit2, Amount2)) :-
+value_convert(value(Unit, Amount1), exchange_rate(_,Src,Dst,Rate), value(Unit2, Amount2)) :-
+	assertion(Unit = Src),
+	assertion(Unit2 = Dst),
+	Unit2 = Dst,
 	Amount2 is Amount1 * Rate.
 	
 value_multiply(value(Unit, Amount1), Multiplier, value(Unit, Amount2)) :-
