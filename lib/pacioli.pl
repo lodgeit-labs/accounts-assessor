@@ -19,6 +19,7 @@
 		    value_multiply/3,
 		    value_divide/3,
 		    value_subtract/3,
+		    value_convert/3,
 			debit_isomorphism/2,
 			vecs_are_almost_equal/2,
 			is_debit/1]).
@@ -200,7 +201,9 @@ coord_merge(coord(Unit, D1, C1), coord(Unit, D2, C2), coord(Unit, D3, C3)) :-
 coord_merge(value(Unit, D1), value(Unit, D2), value(Unit, D3)) :-
 	D3 is D2 + D1.
 
-
+value_convert(value(Unit, Amount1), rate(_,Unit,Unit2,_,Rate), value(Unit2, Amount2)) :-
+	Amount2 is Amount1 * Rate.
+	
 value_multiply(value(Unit, Amount1), Multiplier, value(Unit, Amount2)) :-
 	Amount2 is Amount1 * Multiplier.
 

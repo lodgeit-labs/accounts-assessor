@@ -153,7 +153,7 @@ balance_sheet_at(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, St
 	net_activity_by_account(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Earnings_AID, Start_Date, End_Date, Current_Earnings, _),
 		
 	/* there is no need to make up transactions here, but it makes things more uniform */
-	writeln("<!-- Get transactions with retained earnings -->"),gtrace,
+	writeln("<!-- Get transactions with retained earnings -->"),
 	get_transactions_with_retained_earnings(Current_Earnings, Historical_Earnings, Transactions, Start_Date, End_Date, Transactions_With_Retained_Earnings),
 	balance_sheet_entry(Exchange_Rates, Accounts, Transactions_With_Retained_Earnings, Bases, Exchange_Day, 'Equity', End_Date, Equity_Section),
 	

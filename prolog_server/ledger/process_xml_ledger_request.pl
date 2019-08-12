@@ -77,6 +77,7 @@
 % ------------------------------------------------------------------
 
 process_xml_ledger_request(_, Dom) :-
+	inner_xml(Dom, //reports/balanceSheetRequest, _),
 	/*
 		first let's extract data from the request
 	*/
@@ -155,7 +156,7 @@ output_results(S_Transactions, Transactions, Start_Date, End_Date, Exchange_Rate
 	format_report_entries(xbrl, Accounts, 0, Report_Currency, Duration_Context_Id_Base, ProftAndLoss2,  Units0, Units1, [], Pl_Lines),
 	format_report_entries(xbrl, Accounts, 0, Report_Currency, Instant_Context_Id_Base,  Trial_Balance2, Units1, Units2, [], Tb_Lines),
 	
-	investment_report_1(Static_Data, Investment_Report_1_Lines),
+	investment_report_1(Static_Data, _Investment_Report_1_Lines),
 	investment_report_2(Static_Data, Outstanding_Out, Investment_Report_2_Lines),
 	bs_report(Accounts, Report_Currency, Balance_Sheet2, End_Date, Bs_Html),
 	pl_report(Accounts, Report_Currency, ProftAndLoss2, Start_Date, End_Date, Pl_Html),
@@ -174,8 +175,8 @@ output_results(S_Transactions, Transactions, Start_Date, End_Date, Exchange_Rate
 	flatten([
 		'\n<!-- balance sheet: -->\n', Bs_Lines, 
 		'\n<!-- profit and loss: -->\n', Pl_Lines,
-		'\n<!-- investment report1:\n', Investment_Report_1_Lines, '\n -->\n',
-		'\n<!-- investment report2:\n', Investment_Report_2_Lines, '\n -->\n',		
+		%'\n<!-- investment report1:\n', Investment_Report_1_Lines, '\n -->\n',
+		'\n<!-- investment report:\n', Investment_Report_2_Lines, '\n -->\n',		
 		'\n<!-- bs html:\n', Bs_Html, '\n -->\n',
 		'\n<!-- pl html:\n', Pl_Html, '\n -->\n',
 		'\n<!-- trial balance: -->\n',  Tb_Lines
