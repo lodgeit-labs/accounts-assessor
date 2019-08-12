@@ -119,7 +119,7 @@ unrealized_gains_reduction_txs(Static_Data, Trading_Account_Id, Purchase_Info, T
 
 	
 realized_gains_txs(Static_Data, Sale_Currency, Sale_Currency_Unit_Price, Trading_Account_Id, Sale_Unit_Price_Converted, Purchase_Info, Txs) :-
-	dict_vars(Static_Data, [Accounts, Report_Bases, Exchange_Rates]),
+	dict_vars(Static_Data, [Accounts, Report_Currency, Exchange_Rates]),
 	goods(_ST_Currency, Goods_Unit, Goods_Count, Cost, Purchase_Date) = Purchase_Info,
 	
 	gains_accounts(
@@ -132,7 +132,7 @@ realized_gains_txs(Static_Data, Sale_Currency, Sale_Currency_Unit_Price, Trading
 	vec_change_bases(
 		Exchange_Rates, 
 		Purchase_Date, 
-		Report_Bases, 
+		Report_Currency, 
 		[coord(Sale_Currency, 0, Sale_Currency_Amount)],
 		Sale_Without_Currency_Movement
 	),

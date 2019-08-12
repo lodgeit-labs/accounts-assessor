@@ -193,6 +193,7 @@ preprocess_s_transaction(Static_Data, S_Transaction, Transactions, Outstanding_I
 	but the livestock logic is in need of a serious cleanup, we will probably do that as part of implementing inventory or other pricing methods.
 */
 preprocess_s_transaction(Static_Data, S_Transaction, Transactions, Outstanding, Outstanding) :-
+	gtrace,
 	preprocess_livestock_buy_or_sell(Static_Data, S_Transaction, Transactions).
 
 

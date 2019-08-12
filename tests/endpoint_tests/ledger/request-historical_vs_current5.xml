@@ -53,14 +53,14 @@
 
       <unitValue>
         <unitType>Leonteq_N</unitType>
-        <unitValue>10</unitValue>
+        <unitValue>11</unitValue>
         <unitValueCurrency>CHF</unitValueCurrency>
         <unitValueDate>2018-01-01</unitValueDate>
       </unitValue>
 
       <unitValue>
         <unitType>Leonteq_N</unitType>
-        <unitValue>10</unitValue>
+        <unitValue>12</unitValue>
         <unitValueCurrency>CHF</unitValueCurrency>
         <unitValueDate>2018-12-30</unitValueDate>
       </unitValue>
