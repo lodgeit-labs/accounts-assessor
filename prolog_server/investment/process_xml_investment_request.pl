@@ -27,7 +27,6 @@ see doc/investment and dropbox Develop/videos/ledger
 :- use_module('../../lib/ledger_report', [
 		format_report_entries/10,
 		balance_sheet_at/8, 
-		trial_balance_between/8, 
 		profitandloss_between/8, 
 		balance_by_account/9]).
 :- use_module('../../lib/accounts', [

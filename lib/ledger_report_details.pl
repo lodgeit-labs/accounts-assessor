@@ -75,7 +75,7 @@ report_section(File_Name, Html_Tokenlist, Lines) :-
 	report_file_path(File_Name, Url, File_Path),
 	html_tokenlist_string(Html_Tokenlist, Html_String),
 	write_file_from_string(File_Path, Html_String),
-	Lines = ['url: ', Url, '\n', '\n', Html_String].
+	Lines = ['url: ', Url, '\n'/*, '\n', Html_String*/].
 
 report_currency_atom(Report_Currency_List, Report_Currency_Atom) :-
 	(
@@ -353,12 +353,24 @@ investment_report_2_unrealized(Static_Data, Investment, Row) :-
 
 	optional_currency_conversion(Exchange_Rates, Purchase_Date, Purchase_Currency, Report_Currency, Purchase_Currency_Conversion),
 	optional_currency_conversion(Exchange_Rates, End_Date, Purchase_Currency, Report_Currency, Closing_Currency_Conversion),
-	exchange_rate(Exchange_Rates, End_Date, Unit, Purchase_Currency, Closing_Unit_Price_Foreign_Amount),
+	(
+		exchange_rate(Exchange_Rates, End_Date, Unit, Purchase_Currency, Closing_Unit_Price_Foreign_Amount)
+	->
+		true
+	;
+		throw(exchange_rate(Exchange_Rates, End_Date, Unit, Purchase_Currency, Closing_Unit_Price_Foreign_Amount))
+	),
 	Closing_Unit_Price_Foreign = value(Purchase_Currency, Closing_Unit_Price_Foreign_Amount),
 	Purchase_Currency_Current_Market_Value_Amount is Count * Closing_Unit_Price_Foreign_Amount,
 	Purchase_Currency_Current_Market_Value = value(Purchase_Currency, Purchase_Currency_Current_Market_Value_Amount),
 	[Report_Currency_Unit] = Report_Currency,
-	exchange_rate(Exchange_Rates, End_Date, Unit, Report_Currency_Unit, Closing_Unit_Price_Converted_Amount),
+	(
+		exchange_rate(Exchange_Rates, End_Date, Unit, Report_Currency_Unit, Closing_Unit_Price_Converted_Amount)
+	->
+		true
+	;
+		throw(exchange_rate(Exchange_Rates, End_Date, Unit, Report_Currency_Unit, Closing_Unit_Price_Converted_Amount))
+	),		
 	Current_Market_Value_Amount is Count * Closing_Unit_Price_Converted_Amount,
 	Current_Market_Value = value(Report_Currency_Unit, Current_Market_Value_Amount),
 	optional_converted_value(Closing_Unit_Price_Foreign, Closing_Currency_Conversion, Closing_Unit_Price_Converted),
