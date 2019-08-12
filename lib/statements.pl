@@ -362,12 +362,44 @@ make_exchanged_transactions(Exchange_Rates, Report_Currency, Account, Day, Vecto
 	vec_change_bases(Exchange_Rates, Day, Report_Currency, Vector, Vector_Exchanged_To_Report),
 	make_transaction(Account, Day, Description, Vector_Exchanged_To_Report, Transaction).
 	
-make_currency_movement_transactions(Exchange_Rates, Accounts, Bank_Account, Report_Currency, Day, Vector, Description, Transaction) :-
-	vec_change_bases(Exchange_Rates, Day, Report_Currency, Vector, Vector_Exchanged_To_Report),
+/*
+	Vector  - the amount by which the assets account is changed
+	Day - transaction day
+	https://www.mathstat.dal.ca/~selinger/accounting/tutorial.html#4
+*/
+make_currency_movement_transactions(_Exchange_Rates, Accounts, Bank_Account, Report_Currency, Day, Vector, Description, [Transaction1, Transaction2]) :-
+	/* find the account to affect */
 	account_role_by_id(Accounts, Bank_Account, (_/Bank_Child_Role)),
 	account_by_role(Accounts, ('CurrencyMovement'/Bank_Child_Role), Currency_Movement_Account),
-	make_transaction(Currency_Movement_Account, Day, Description, Vector_Movement, Transaction),
-	vec_sub(Vector_Exchanged_To_Report, Vector, Vector_Movement).
+
+	without_movement(Report_Currency, Day, Vector, Vector_Exchanged_To_Report_Currency),
+	/* 
+		we will be tracking the movement of Vector (in foreign currency) against the revenue/expense in report currency. 
+		the value of this transaction will grow as the exchange rate of foreign currency moves against report currency.
+	*/
+	vec_sub(Vector, Vector_Exchanged_To_Report_Currency, Vector_Movement1),
+	/* but revenue/expenses are normally credit to balance out the assets change, so.. */
+	vec_inverse(Vector_Movement1, Vector_Movement2),
+
+	make_transaction(Currency_Movement_Account, Day, Description, Vector_Movement2, Transaction1),
+	(
+		Day @< Start_Date
+	->
+		(
+			make_transaction(Currency_Movement_Account, Start_Date, Description, Vector_Movement_Current, Transaction2),
+			without_movement(Report_Currency, Start_Date, Vector, Vector_Without_Movement),
+			vec_sub(Vector, Vector_Without_Movement, V3),
+			vec_inverse(V3, Vector_Movement_Current)
+		)
+	).
+
+without_movement(Report_Currency, Since, [coord(Unit, D, C)], [coord(Unit2, D, C)]) :-
+	Unit2 = without_currency_movement_against_since(
+		Unit, 
+		Unit, 
+		Report_Currency,
+		Since
+	).
 
 transactions_trial_balance(Exchange_Rates, Report_Currency, Day, Transactions, Vector_Converted) :-
 	maplist(transaction_vector, Transactions, Vectors_Nested),

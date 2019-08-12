@@ -261,3 +261,22 @@ is_exchangeable_into_request_bases(Table, Day, Src_Currency, Bases) :-
 	exchange_rate(Table, Day, Src_Currency, Dest_Currency, _Exchange_Rate).
 
 	
+
+/*
+notes
+	Vector = [Asset_Change_Coord],
+	Asset_Change_Coord = coord(Src, _, _),
+	exchange_rate_term(Exchange_Rates, Day, Unit, Report_Currency, Exchange_Rate),
+	convert_coord(Asset_Change_Coord, Exchange_Rate...
+	exchange_rate(Day, Src, Dst, Rate)	
+	25 aud = 1
+	usd = 1
+
+	% Dimensions: <Mass, Time, Length>
+	% Basis1: <kg, seconds, meters>
+	% Basis2: <pounds, minutes, feet>
+	% minutes = 60 seconds	
+
+	% vec_change_bases(Input_Basis1, Input_Basis2, Input_Vector_In_Basis1, Output_Vector_In_Basis2)
+	% currency_conversion(...)
+*/
