@@ -59,6 +59,7 @@
 		sub_accounts_upto_level/4,
 		child_accounts/3,
 		account_by_role/3,
+		account_by_role_nothrow/3, 
 		account_role_by_id/3
 		]).
 :- use_module('../../lib/exchange_rates', [
@@ -258,7 +259,7 @@ print_banks(Static_Data, Context_Id_Base, Entity_Identifier, In, Out) :-
 
 print_forex(Static_Data, Context_Id_Base, Entity_Identifier, In, Out) :- 
 	dict_vars(Static_Data, [Start_Date, End_Date, Accounts]),
-    findall(Account, account_by_role(Accounts, ('CurrencyMovement'/_), Account), Movement_Accounts),
+    findall(Account, account_by_role_nothrow(Accounts, ('CurrencyMovement'/_), Account), Movement_Accounts),
 	Context_Info = context_arg0(
 		Context_Id_Base, 
 		(Start_Date, End_Date), 

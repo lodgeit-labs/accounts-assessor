@@ -10,6 +10,7 @@
 		All these predicates take and return id's or roles, and require that Accounts is passed to them as first argument*/
 		account_in_set/3, 
 		account_by_role/3, 
+		account_by_role_nothrow/3, 
 		account_child_parent/3,
 		account_exists/2,
 		account_role_by_id/3,
@@ -93,17 +94,21 @@ account_direct_children(Accounts, Parent, Children) :-
 		Children
 	).
 	
-account_by_role(Accounts, Role, Account_Id) :-
+account_by_role_nothrow(Accounts, Role, Account_Id) :-
 	account_role(Account, Role),
 	account_id(Account, Account_Id),
+	member(Account, Accounts).
+
+account_by_role(Accounts, Role, Account_Id) :-
 	(
-		member(Account, Accounts)
+		account_by_role_nothrow(Accounts, Role, Account_Id)
 	->
 		true
 	;
 		(
 			pretty_term_string(Accounts, Accounts_Str),
 			term_string(Role, Role_Str),
+			gtrace,
 			format(atom(Err), 'accounts: ~w \naccount not found in hierarchy: ~w\n', [Accounts_Str,  Role_Str]),
 			format(user_error, Err, []),
 			throw_string(Err)

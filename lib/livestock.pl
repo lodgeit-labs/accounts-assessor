@@ -66,7 +66,7 @@ average cost is defined for date and livestock type as follows:
 */
 
 preprocess_livestock_buy_or_sell(Static_Data, S_Transaction, [Bank_Transaction, Livestock_Transaction]) :-
-	Static_Data = (Accounts, _, _, _, _),
+	dict_vars(Static_Data, [Accounts]),
 	% here we don't know Livestock_Type, so s_transaction_is_livestock_buy_or_sell actually yields garbage, that we filter out by existence of appropriate account. Usually we pass it a bounded Livestock_Type.
 	s_transaction_is_livestock_buy_or_sell(S_Transaction, Day, Livestock_Type, Livestock_Coord, _Bank_Vector, Our_Vector, Bank_Name, MoneyDebit, _),
 	count_account(Livestock_Type, Count_Account),
