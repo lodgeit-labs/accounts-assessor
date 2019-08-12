@@ -35,6 +35,7 @@
 :- use_module('transactions', [
 		transaction_account_in_set/3,
 		transaction_in_period/3,
+		transaction_type/2,
 		transaction_vectors_total/2,
 		transactions_before_day_on_account_and_subaccounts/5,
 		make_transaction/5
@@ -105,7 +106,14 @@ net_activity_by_account(Exchange_Rates, Accounts, Transactions, Bases, Exchange_
 		Transaction,
 		(	
 			member(Transaction, Transactions),
-			transaction_in_period(Transaction, Start_Date, End_Date),
+			(
+				transaction_in_period(Transaction, Start_Date, End_Date)
+				/*nope;
+				(
+					\+transaction_in_period(Transaction, Start_Date, End_Date),
+					transaction_type(Transaction, tracking)
+				)*/
+			),
 			transaction_account_in_set(Accounts, Transaction, Account_Id)
 		), 
 		Transactions_A),
@@ -120,9 +128,13 @@ net_activity_by_account(Exchange_Rates, Accounts, Transactions, Bases, Exchange_
 balance_sheet_entry(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Account_Id, End_Date, Sheet_Entry) :-
 	writeln("<!-- calling: balance_sheet_entry -->"),
 	% find all direct children sheet entries
-	findall(Child_Sheet_Entry, (account_child_parent(Accounts, Child_Account, Account_Id),
-		balance_sheet_entry(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Child_Account, End_Date, Child_Sheet_Entry)),
-		Child_Sheet_Entries),
+	findall(Child_Sheet_Entry, 
+		(
+			account_child_parent(Accounts, Child_Account, Account_Id),
+			balance_sheet_entry(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Child_Account, End_Date, Child_Sheet_Entry)
+		),
+		Child_Sheet_Entries
+	),
 	% find balance for this account including subaccounts (sum all transactions from beginning of time)
 	balance_by_account(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Account_Id, End_Date, Balance, Transactions_Count),
 	Sheet_Entry = entry(Account_Id, Balance, Child_Sheet_Entries, Transactions_Count),
@@ -130,7 +142,13 @@ balance_sheet_entry(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day,
 
 
 balance_sheet_at(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Start_Date, End_Date, Balance_Sheet) :-
-	assertion(ground(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Start_Date, End_Date)),
+	assertion(ground(Exchange_Rates)),
+	assertion(ground(Accounts)),
+	assertion(ground(Transactions)),
+	assertion(ground(Bases)),
+	assertion(ground(Exchange_Day)),
+	assertion(ground(Start_Date)),
+	assertion(ground(End_Date)),
 	
 	account_by_role(Accounts, ('Accounts'/'Assets'), Assets_AID),
 	account_by_role(Accounts, ('Accounts'/'Equity'), Equity_AID),
@@ -160,19 +178,18 @@ balance_sheet_at(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, St
 	writeln("<!-- Net activity by account -->"),
 	net_activity_by_account(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Earnings_AID, Start_Date, End_Date, Current_Earnings, _),
 		
-	/* there is no need to make up transactions here, but it makes things more uniform */
 	writeln("<!-- Get transactions with retained earnings -->"),
-	get_transactions_with_retained_earnings(Current_Earnings, Historical_Earnings, Start_Date, End_Date, Retained_Earnings_Transactions),
+	/* build a fake transaction that sets the balance of historical and current earnings.
+	there is no need to make up transactions here, but it makes things more uniform */
+	make_transaction(Start_Date, '', 'HistoricalEarnings', Historical_Earnings, Historical_Earnings_Transaction),
+	make_transaction(Start_Date, '', 'CurrentEarnings', Current_Earnings, Current_Earnings_Transaction),
+	Retained_Earnings_Transactions = [Current_Earnings_Transaction, Historical_Earnings_Transaction],
 	append(Transactions, Retained_Earnings_Transactions, Transactions_With_Retained_Earnings),
+	
 	balance_sheet_entry(Exchange_Rates, Accounts, Transactions_With_Retained_Earnings, Bases, Exchange_Day, 'Equity', End_Date, Equity_Section),
 	
 	Balance_Sheet = [Asset_Section, Liability_Section, Equity_Section, Net_Assets_Section],
 	writeln("<!-- balance_sheet_at: done. -->").
-
-/* build a fake transaction that sets the balance of historical and current earnings */
-get_transactions_with_retained_earnings(Current_Earnings, Historical_Earnings, Start_Date, _End_Date, Historical_Earnings_Transaction, Current_Earnings_Transaction) :-
-	make_transaction(Start_Date, '', 'HistoricalEarnings', Historical_Earnings, Historical_Earnings_Transaction),
-	make_transaction(Start_Date, '', 'CurrentEarnings', Current_Earnings, Current_Earnings_Transaction).
 
 trial_balance_between(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, _Start_Date, End_Date, [Trial_Balance_Section]) :-
 	/*net_activity_by_account(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, 'Accounts', Start_Date, End_Date, Trial_Balance, Transactions_Count),*/

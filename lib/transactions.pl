@@ -17,7 +17,7 @@
 			 transaction_type/2,
 			 check_transaction_account/2,
 	 		make_transaction/5,
-	 		make_transaction2/5,
+	 		make_transaction2/5
 ]).
 
 :- use_module(accounts, [account_in_set/3, account_exists/2]).
@@ -98,14 +98,14 @@ has_empty_vector(T) :-
 	transaction_vector(T, []).
 
 	
-make_transaction2(Account, Date, Description, Vector, Transaction) :-
+make_transaction2(Date, Description, Account, Vector, Transaction) :-
 	flatten([Description], Description_Flat),
 	atomic_list_concat(Description_Flat, Description_Str),
 	transaction_day(Transaction, Date),
 	transaction_description(Transaction, Description_Str),
-	transaction_vector(Transaction, Vector),
-	transaction_account_id(Transaction, Account).
+	transaction_account_id(Transaction, Account),
+	transaction_vector(Transaction, Vector).
 
-make_transaction(Account, Date, Description, Vector, Transaction) :-
-	make_transaction2(Account, Date, Description, Vector, Transaction),
+make_transaction(Date, Description, Account, Vector, Transaction) :-
+	make_transaction2(Date, Description, Account, Vector, Transaction),
 	transaction_type(Transaction, instant).
