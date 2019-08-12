@@ -368,6 +368,7 @@ make_exchanged_transactions(Exchange_Rates, Report_Currency, Account, Day, Vecto
 	https://www.mathstat.dal.ca/~selinger/accounting/tutorial.html#4
 */
 make_currency_movement_transactions(_Exchange_Rates, Accounts, Bank_Account, Report_Currency, Day, Vector, Description, [Transaction1, Transaction2]) :-
+gtrace,
 	/* find the account to affect */
 	account_role_by_id(Accounts, Bank_Account, (_/Bank_Child_Role)),
 	account_by_role(Accounts, ('CurrencyMovement'/Bank_Child_Role), Currency_Movement_Account),
@@ -391,6 +392,8 @@ make_currency_movement_transactions(_Exchange_Rates, Accounts, Bank_Account, Rep
 			vec_sub(Vector, Vector_Without_Movement, V3),
 			vec_inverse(V3, Vector_Movement_Current)
 		)
+		;
+			true
 	).
 
 without_movement(Report_Currency, Since, [coord(Unit, D, C)], [coord(Unit2, D, C)]) :-
