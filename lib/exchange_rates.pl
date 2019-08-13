@@ -118,6 +118,18 @@ special_exchange_rate(Table, Day, Src_Currency, Report_Currency, Rate) :-
 	exchange_rate(Table, Day, Goods_Unit, Report_Currency, Current),
 	Rate is Current / New_Rate * Old_Rate.
 
+/**/
+special_exchange_rate(Table, Exchange_Date, Src_Currency, Report_Currency, Rate) :-
+	Src_Currency = without_movement_after(Goods_Unit, Freeze_Date),
+	(
+		Freeze_Date @>= Exchange_Date
+	->
+		Exchange_Date2 = Exchange_Date
+	;
+		Exchange_Date2 = Freeze_Date 
+	),
+	exchange_rate(Table, Exchange_Date2, Goods_Unit, Report_Currency, Rate).
+
 /* obtain the Report_Currency value using the with_cost_per_unit data */
 special_exchange_rate(Table, Day, Src_Currency, Report_Currency, Rate) :-
 	Src_Currency = with_cost_per_unit(Goods_Unit, value(Report_Currency, Unit_Cost)),

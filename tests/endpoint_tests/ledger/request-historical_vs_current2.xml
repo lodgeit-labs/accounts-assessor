@@ -73,9 +73,3 @@
   </balanceSheetRequest>
 </reports>
 
-<!--
-Historical earnings -200AUD. Leonteq_N does not have a value specified for report start period, so the purchase price in AUD is used. This is 200. Meanwhile, since the purchase until report start date, the bank overdraft has risen from 200AUD to 400AUD.
-Then Leonteq_N is 10CHF on report end date, which is 600AUD. Less purchase cost = 400AUD. That would be 200
-<basic:CurrentEarnings contextRef="I-2018" unitRef="U-without_currency_movement_against_since(with_cost_per_unit(Leonteq_N,value(AUD,20.0)),Leonteq_N,[AUD],date(2018,1,1))" decimals="INF">-10.00</basic:CurrentEarnings>
-
--->

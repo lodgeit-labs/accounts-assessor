@@ -72,7 +72,8 @@
 		account_exists/2]).
 :- use_module('days', [
 		format_date/2, 
-		parse_date/2]).
+		parse_date/2,
+		add_days/3]).
 :- use_module('pricing', [
 		add_bought_items/4, 
 		find_items_to_sell/8]).
@@ -360,7 +361,8 @@ make_exchanged_transactions(Exchange_Rates, Report_Currency, Account, Date, Vect
 	Date - transaction day
 	https://www.mathstat.dal.ca/~selinger/accounting/tutorial.html#4
 */
-make_currency_movement_transactions(Static_Data, Bank_Account, Date, Vector, Description, [Transaction1, _Transaction2]) :-
+make_currency_movement_transactions(Static_Data, Bank_Account, Date, Vector, Description, [Transaction1, Transaction2, Transaction3]) :-
+
 	dict_vars(Static_Data, [Accounts, Start_Date, Report_Currency]),
 	/* find the account to affect */
 	account_role_by_id(Accounts, Bank_Account, (_/Bank_Child_Role)),
@@ -371,22 +373,22 @@ make_currency_movement_transactions(Static_Data, Bank_Account, Date, Vector, Des
 	*/
 	without_movement(Report_Currency, Date, Vector, Vector_Exchanged_To_Report_Currency),
 	[Report_Currency_Coord] = Vector_Exchanged_To_Report_Currency,
-
+	
 	(
 		Date @< Start_Date
 	->
 		(
 			/* the historical earnings difference transaction tracks asset value change against converted/frozen earnings value, up to report start date  */
-			Vector_Frozen_After_Start_Date = without_movement_against_after(Vector, Report_Currency, Start_Date),
+			vector_without_movement_after(Vector, Start_Date, Vector_Frozen_After_Start_Date),
 			make_difference_transaction(
 				Currency_Movement_Account, Date, Description, 
 				
-				Vector_Frozen_After_Start_Date
-				Report_Currency_Coord,
+				Vector_Frozen_After_Start_Date,
+				[Report_Currency_Coord],
 				
 				Transaction1),
 			/* the current earnings difference transaction tracks asset value change against opening value */
-			without_movement(Vector, Vector_Frozen_At_Opening_Date),
+			vector_without_movement_after(Vector, Start_Date, Vector_Frozen_At_Opening_Date),
 			make_difference_transaction(
 				Currency_Movement_Account, Start_Date, Description, 
 				
@@ -402,11 +404,14 @@ make_currency_movement_transactions(Static_Data, Bank_Account, Date, Vector, Des
 			Vector,
 			Vector_Exchanged_To_Report_Currency, 
 			
-			Transaction1
+			Transaction3
 		)
 	)
 	.
 
+vector_without_movement_after([coord(Unit1,D,C)], Start_Date, [coord(Unit2,D,C)]) :-
+	Unit2 = without_movement_after(Unit1, Start_Date).
+	
 make_difference_transaction(Account, Date, Description, What, Against, Transaction) :-
 	vec_sub(What, Against, Diff),
 	/* when an asset account goes up, it rises in debit, and the revenue has to rise in credit to add up to 0 */

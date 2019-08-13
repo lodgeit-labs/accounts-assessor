@@ -37,7 +37,7 @@
 :- use_module('../../lib/ledger_report_details', [
 		investment_report_1/2,
 		investment_report_2/3,
-		bs_report/5,
+		bs_report/6,
 		pl_report/6]).
 :- use_module('../../lib/statements', [
 		extract_s_transaction/3, 
