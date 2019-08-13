@@ -98,7 +98,7 @@ account_by_role_nothrow(Accounts, Role, Account_Id) :-
 	account_role(Account, Role),
 	account_id(Account, Account_Id),
 	member(Account, Accounts).
-
+/* todo: account_by_role_nothrow is legitimate. but we also want account_by_role(_throw). But it shouldn't cut after first result, otherwise we unnecessarily break order invariance in calling code. */
 account_by_role(Accounts, Role, Account_Id) :-
 	(
 		account_by_role_nothrow(Accounts, Role, Account_Id)
@@ -108,7 +108,6 @@ account_by_role(Accounts, Role, Account_Id) :-
 		(
 			pretty_term_string(Accounts, Accounts_Str),
 			term_string(Role, Role_Str),
-			gtrace,
 			format(atom(Err), 'accounts: ~w \naccount not found in hierarchy: ~w\n', [Accounts_Str,  Role_Str]),
 			format(user_error, Err, []),
 			throw_string(Err)
