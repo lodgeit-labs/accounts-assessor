@@ -501,6 +501,7 @@ optional_converted_value(V1, C, V2) :-
 
 ir2_forex_gain(Exchange_Rates, Purchase_Date, End_Price, End_Date, Purchase_Currency, Report_Currency, Count, Gain) :-
 	End_Price = value(End_Price_Unit, End_Price_Amount),
+	gtrace,
 	assertion(End_Price_Unit = Purchase_Currency),
 	Market_Price_Unit = without_currency_movement_against_since(
 		End_Price_Unit, Purchase_Currency, Report_Currency, Purchase_Date
