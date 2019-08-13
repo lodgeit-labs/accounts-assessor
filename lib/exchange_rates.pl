@@ -6,6 +6,7 @@
 
 :- module(exchange_rates, [
 		exchange_rate/5, 
+		exchange_rate_throw/5, 
 		is_exchangeable_into_request_bases/4
 ]).
 
@@ -231,7 +232,6 @@ exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate_Out) :-
 	->
 		true
 	;
-		/*format(user_error, 'no exchange rate found: Day:~w, Src_Currency:~w, Dest_Currency:~w\n', [Day, Src_Currency, Dest_Currency]),*/
 		fail
 	),
 	findall(
@@ -268,6 +268,19 @@ exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate_Out) :-
 		[Exchange_Rate_Out|_] = Exchange_Rates
 		)
 	).	
+
+exchange_rate_throw(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate_Out) :-
+	(
+		exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate_Out)
+	->
+		true
+	;
+		(gtrace,
+			format(string(Str), 'no exchange rate found: Day:~w, Src_Currency:~w, Dest_Currency:~w\n', [Day, Src_Currency, Dest_Currency]),
+			throw_string(Str)
+		)
+	).
+
 	
 is_exchangeable_into_request_bases(Table, Day, Src_Currency, Bases) :-
 	member(Dest_Currency, Bases),

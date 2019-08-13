@@ -202,10 +202,10 @@ output_results(S_Transactions, Transactions, Start_Date, End_Date, Exchange_Rate
 
 static_data_all_time(Static_Data, Static_Data_All_Time) :-
 	dict_vars(Static_Data, 
-		[Exchange_Rates, Accounts, Transactions, Report_Currency, Transaction_Types, Entity_Identifier, Duration_Context_Id_Base]
+		[End_Date, Exchange_Rates, Accounts, Transactions, Report_Currency, Transaction_Types, Entity_Identifier, Duration_Context_Id_Base]
 	),
 	Start_Date = date(1,1,1),
-	End_Date = date(9999,9,9),
+	%End_Date = date(9999,9,9), % we dont have exchange rates for this, so commented out
 	dict_from_vars(Static_Data_All_Time, 
 		[Start_Date, End_Date, Exchange_Rates, Accounts, Transactions, Report_Currency, Transaction_Types, Entity_Identifier, Duration_Context_Id_Base]
 	).
