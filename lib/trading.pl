@@ -80,7 +80,7 @@ unrealized_gains_increase_txs(Static_Data, Trading_Account_Id, Purchase_Currency
 					without_currency_movement_against_since(
 						Goods_Unit, Purchase_Currency, Report_Currency, Transaction_Day
 					), 
-					Transaction_Day
+					Start_Date
 				),
 				Goods_Debit, Goods_Credit)
 			],
@@ -111,9 +111,8 @@ unrealized_gains_increase_txs(Static_Data, Trading_Account_Id, Purchase_Currency
 	
 unrealized_gains_reduction_txs(Static_Data, Transaction_Day, Trading_Account_Id, Purchase_Info, Txs, Historical_Txs, Current_Txs) :-
 	dict_vars(Static_Data, [Accounts, Report_Currency, Start_Date]),
+	goods(Purchase_Currency, Goods_Unit_Name, Goods_Count, Cost, Purchase_Date) = Purchase_Info,
 
-	goods(ST_Currency, Goods_Unit_Name, Goods_Count, Cost, Purchase_Date) = Purchase_Info,
-	
 	gains_accounts(
 		Accounts, Trading_Account_Id, unrealized, Goods_Unit_Name, 
 		Unrealized_Gains_Currency_Movement, Unrealized_Gains_Excluding_Forex),
@@ -121,14 +120,15 @@ unrealized_gains_reduction_txs(Static_Data, Transaction_Day, Trading_Account_Id,
 	Cost = value(Cost_Currency, Cost_Amount),
 	Unit_Cost_Amount is Cost_Amount / Goods_Count,
 	Unit_Cost = value(Cost_Currency, Unit_Cost_Amount),
-	Goods_Unit_With_Cost = with_cost_per_unit(Goods_Unit_Name, Unit_Cost),
+	Goods_Unit = with_cost_per_unit(Goods_Unit_Name, Unit_Cost),
 		
 	Goods_Without_Currency_Movement = [coord(
-		without_currency_movement_against_since(Goods_Unit_With_Cost, ST_Currency, Report_Currency, Purchase_Date), 
+		without_currency_movement_against_since(Goods_Unit, Purchase_Currency, Report_Currency, Purchase_Date), 
 		Goods_Count, 0)
 	],
-	Goods = value(Goods_Unit_With_Cost, Goods_Count),
 	
+	Goods = value(Goods_Unit, Goods_Count),
+	Goods_Debit = Goods_Count, Goods_Credit = 0,
 	
 	/*
 	the transactions produced should be an inverse of in increase ones, we should abstract out a generator of them, for a given tx date 
@@ -160,6 +160,7 @@ unrealized_gains_reduction_txs(Static_Data, Transaction_Day, Trading_Account_Id,
 				),
 				Goods_Debit, Goods_Credit)
 			],
+				
 			dr_cr_table_to_txs([
 			% Account                                     DR                                                  CR
 			(Unrealized_Gains_Currency_Movement,          Goods_Historical    ,                     Historical_Without_Currency_Movement),

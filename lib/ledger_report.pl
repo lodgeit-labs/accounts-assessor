@@ -106,14 +106,7 @@ net_activity_by_account(Exchange_Rates, Accounts, Transactions, Bases, Exchange_
 		Transaction,
 		(	
 			member(Transaction, Transactions),
-			(
-				transaction_in_period(Transaction, Start_Date, End_Date)
-				/*nope;
-				(
-					\+transaction_in_period(Transaction, Start_Date, End_Date),
-					transaction_type(Transaction, tracking)
-				)*/
-			),
+			transaction_in_period(Transaction, Start_Date, End_Date),
 			transaction_account_in_set(Accounts, Transaction, Account_Id)
 		), 
 		Transactions_A),
@@ -221,7 +214,7 @@ activity_entry(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Acco
 		Child_Sheet_Entry, 
 		(
 			account_child_parent(Accounts, Child_Account_Id, Account_Id),
-			activity_entry(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, 		  Child_Account_Id, Start_Date, End_Date, Child_Sheet_Entry)
+			activity_entry(Exchange_Rates, Accounts, Transactions, Bases, Exchange_Day, Child_Account_Id, Start_Date, End_Date, Child_Sheet_Entry)
 		),
 		Child_Sheet_Entries
 	),

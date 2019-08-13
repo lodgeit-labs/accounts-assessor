@@ -15,6 +15,7 @@
 
 :- use_module('../../lib/days', [
 		format_date/2, 
+		add_days/3, 
 		parse_date/2, 
 		gregorian_date/2]).
 :- use_module('../../lib/utils', [
@@ -152,15 +153,20 @@ output_results(S_Transactions, Transactions, Start_Date, End_Date, Exchange_Rate
 	writeln("<!-- Profit and loss -->"),
 	profitandloss_between(Exchange_Rates, Accounts, Transactions, Report_Currency, End_Date, Start_Date, End_Date, ProftAndLoss2),
 	
-	assertion(ground((Balance_Sheet2, ProftAndLoss2, Trial_Balance2))),
+	add_days(Start_Date, -1, Before_Start),
+	profitandloss_between(Exchange_Rates, Accounts, Transactions, Report_Currency, Start_Date, date(0,0,0), Before_Start, ProftAndLoss2_Historical),
+	
+	assertion(ground((Balance_Sheet2, ProftAndLoss2, ProftAndLoss2_Historical, Trial_Balance2))),
 	format_report_entries(xbrl, Accounts, 0, Report_Currency, Instant_Context_Id_Base,  Balance_Sheet2, [],     Units0, [], Bs_Lines),
 	format_report_entries(xbrl, Accounts, 0, Report_Currency, Duration_Context_Id_Base, ProftAndLoss2,  Units0, Units1, [], Pl_Lines),
+	format_report_entries(xbrl, Accounts, 0, Report_Currency, Duration_Context_Id_Base, ProftAndLoss2_Historical,  Units0, Units1, [], Pl_Historical_Lines),
 	format_report_entries(xbrl, Accounts, 0, Report_Currency, Instant_Context_Id_Base,  Trial_Balance2, Units1, Units2, [], Tb_Lines),
 	
 	investment_report_1(Static_Data, _Investment_Report_1_Lines),
 	investment_report_2(Static_Data, Outstanding_Out, Investment_Report_2_Lines),
 	bs_report(Accounts, Report_Currency, Balance_Sheet2, Start_Date, End_Date, Bs_Html),
 	pl_report(Accounts, Report_Currency, ProftAndLoss2, Start_Date, End_Date, Pl_Html),
+	pl_report(Accounts, Report_Currency, ProftAndLoss2_Historical, date(0,0,0), Before_Start, Pl_Html_Historical),
 
 	Results0 = (Base_Contexts, Units2, []),
 	print_banks(Static_Data, Instant_Context_Id_Base, Entity_Identifier, Results0, Results1),
@@ -174,12 +180,14 @@ output_results(S_Transactions, Transactions, Start_Date, End_Date, Exchange_Rate
 	maplist(write, Dimensions_Lines),
 	
 	flatten([
-		'\n<!-- balance sheet: -->\n', Bs_Lines, 
-		'\n<!-- profit and loss: -->\n', Pl_Lines,
 		%'\n<!-- investment report1:\n', Investment_Report_1_Lines, '\n -->\n',
 		'\n<!-- investment report:\n', Investment_Report_2_Lines, '\n -->\n',		
 		'\n<!-- bs html:\n', Bs_Html, '\n -->\n',
 		'\n<!-- pl html:\n', Pl_Html, '\n -->\n',
+		'\n<!-- balance sheet: -->\n', Bs_Lines, 
+		'\n<!-- profit and loss: -->\n', Pl_Lines,
+		'\n<!-- historical profit and loss: \n', Pl_Historical_Lines, '\n-->\n',
+		'\n<!-- historical pl html:\n', Pl_Html_Historical, '\n -->\n',
 		'\n<!-- trial balance: -->\n',  Tb_Lines
 	], Report_Lines_List),
 	atomic_list_concat(Report_Lines_List, Report_Lines),
