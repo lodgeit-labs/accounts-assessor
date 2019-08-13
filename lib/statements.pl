@@ -361,7 +361,7 @@ make_exchanged_transactions(Exchange_Rates, Report_Currency, Account, Date, Vect
 	https://www.mathstat.dal.ca/~selinger/accounting/tutorial.html#4
 */
 make_currency_movement_transactions(Static_Data, Bank_Account, Date, Vector, Description, [Transaction1, _Transaction2]) :-
-	dict_vars(Static_Data, [Accounts/*, Start_Date**/, Report_Currency]),
+	dict_vars(Static_Data, [Accounts, Start_Date, Report_Currency]),
 	/* find the account to affect */
 	account_role_by_id(Accounts, Bank_Account, (_/Bank_Child_Role)),
 	account_by_role(Accounts, ('CurrencyMovement'/Bank_Child_Role), Currency_Movement_Account),
@@ -370,32 +370,32 @@ make_currency_movement_transactions(Static_Data, Bank_Account, Date, Vector, Des
 		the value of this transaction will grow as the exchange rate of foreign currency moves against report currency.
 	*/
 	without_movement(Report_Currency, Date, Vector, Vector_Exchanged_To_Report_Currency),
-	%[Report_Currency_Coord] = Vector_Exchanged_To_Report_Currency,
+	[Report_Currency_Coord] = Vector_Exchanged_To_Report_Currency,
 
-	%(
-		%Date @< Start_Date
-	%->
-		%(
-			%/* the historical earnings difference transaction tracks asset value change against converted/frozen earnings value, up to report start date  */
-			%Vector_Frozen_After_Start_Date = without_movement_against_after(Vector, Report_Currency, Start_Date),
-			%make_difference_transaction(
-				%Currency_Movement_Account, Date, Description, 
+	(
+		Date @< Start_Date
+	->
+		(
+			/* the historical earnings difference transaction tracks asset value change against converted/frozen earnings value, up to report start date  */
+			Vector_Frozen_After_Start_Date = without_movement_against_after(Vector, Report_Currency, Start_Date),
+			make_difference_transaction(
+				Currency_Movement_Account, Date, Description, 
 				
-				%Vector_Frozen_After_Start_Date
-				%Report_Currency_Coord,
+				Vector_Frozen_After_Start_Date
+				Report_Currency_Coord,
 				
-				%Transaction1),
-			%/* the current earnings difference transaction tracks asset value change against opening value */
-			%without_movement(Vector, Vector_Frozen_At_Opening_Date),
-			%make_difference_transaction(
-				%Currency_Movement_Account, Start_Date, Description, 
+				Transaction1),
+			/* the current earnings difference transaction tracks asset value change against opening value */
+			without_movement(Vector, Vector_Frozen_At_Opening_Date),
+			make_difference_transaction(
+				Currency_Movement_Account, Start_Date, Description, 
 				
-				%Vector,
-				%Vector_Frozen_At_Opening_Date,
+				Vector,
+				Vector_Frozen_At_Opening_Date,
 				
-				%Transaction2)
-		%)
-	%;
+				Transaction2)
+		)
+	;
 		make_difference_transaction(
 			Currency_Movement_Account, Date, Description, 
 			
@@ -404,7 +404,7 @@ make_currency_movement_transactions(Static_Data, Bank_Account, Date, Vector, Des
 			
 			Transaction1
 		)
-	%)
+	)
 	.
 
 make_difference_transaction(Account, Date, Description, What, Against, Transaction) :-
