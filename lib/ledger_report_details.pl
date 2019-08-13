@@ -2,7 +2,7 @@
 		investment_report_1/2,
 		bs_report/6,
 		pl_report/7,
-		investment_report_2/3
+		investment_report_2/4
 		]).
 
 :- use_module('system_accounts', [
@@ -280,7 +280,7 @@ check_investment_totals(Static_Data, Trading_Account, Check_Totals_List_Nested, 
 	investment_report_2
 
 */
-investment_report_2(Static_Data, Outstanding_In, Report_Output) :-
+investment_report_2(Static_Data, Outstanding_In, Filename_Suffix, Report_Output) :-
 	clip_investments(Static_Data, Outstanding_In, Realized_Investments, Unrealized_Investments),
 	dict_vars(Static_Data, [Start_Date, End_Date, Report_Currency]),
 	format_date(Start_Date, Start_Date_Atom),
@@ -309,7 +309,8 @@ investment_report_2(Static_Data, Outstanding_In, Report_Output) :-
 		th('Closing_Unit_Price_Foreign'), th('Currency Conversion'), th('Closing_Unit_Price_Converted'),
 		th('Closing_Market_Value_Foreign'), th('Closing_Market_Value_Converted')]),
 	flatten([Header, Rows_Html], Tbl),
-	report_page(Title_Text, Tbl, 'investment_report.html', Report_Output).
+	atomic_list_concat(['investment_report', Filename_Suffix, '.html'], Filename),
+	report_page(Title_Text, Tbl, Filename, Report_Output).
 
 investment_report_2_sales(Static_Data, I, Lines) :-
 	I = (rea, Info, 0, Sales),
@@ -538,7 +539,7 @@ ir2_market_gain(Exchange_Rates, Purchase_Date, End_Date, Purchase_Currency, Repo
 
 	
 	
-clip_investments(_Static_Data, (Outstanding_In, Investments_In), Realized_Investments, Unrealized_Investments) :-
+clip_investments(Static_Data, (Outstanding_In, Investments_In), Realized_Investments, Unrealized_Investments) :-
 	%print_term(clip_investments(Investments_In, Realized_Investments, Unrealized_Investments),[]),
 	findall(
 		I,
@@ -558,8 +559,8 @@ clip_investments(_Static_Data, (Outstanding_In, Investments_In), Realized_Invest
 		),
 		Investments1
 	),
-	%maplist(clip_investment(Static_Data), Investments1, Investments2),
-	Investments1 = Investments2,
+	maplist(clip_investment(Static_Data), Investments1, Investments2),
+	%Investments1 = Investments2,nonvar(Static_Data)
 	findall(I, (member(I, Investments2), I = (unr, _, _, _)), Unrealized_Investments),
 	findall(I, (member(I, Investments2), I = (rea, _, _, _)), Realized_Investments).
 /*

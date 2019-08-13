@@ -37,7 +37,7 @@
 		net_activity_by_account/10]).
 :- use_module('../../lib/ledger_report_details', [
 		investment_report_1/2,
-		investment_report_2/3,
+		investment_report_2/4,
 		bs_report/6,
 		pl_report/7]).
 :- use_module('../../lib/statements', [
@@ -163,7 +163,10 @@ output_results(S_Transactions, Transactions, Start_Date, End_Date, Exchange_Rate
 	format_report_entries(xbrl, Accounts, 0, Report_Currency, Instant_Context_Id_Base,  Trial_Balance2, Units1, Units2, [], Tb_Lines),
 	
 	investment_report_1(Static_Data, _Investment_Report_1_Lines),
-	investment_report_2(Static_Data, Outstanding_Out, Investment_Report_2_Lines),
+	investment_report_2(Static_Data, Outstanding_Out, '', Investment_Report_2_Lines),
+	static_data_all_time(Static_Data, Static_Data_All_Time),
+	investment_report_2(Static_Data_All_Time, Outstanding_Out, '_all_time', Investment_Report_2_All_Time_Lines),
+
 	bs_report(Accounts, Report_Currency, Balance_Sheet2, Start_Date, End_Date, Bs_Html),
 	pl_report(Accounts, Report_Currency, ProftAndLoss2, Start_Date, End_Date, '', Pl_Html),
 	pl_report(Accounts, Report_Currency, ProftAndLoss2_Historical, date(1,1,1), Before_Start, '_historical', Pl_Html_Historical),
@@ -188,6 +191,7 @@ output_results(S_Transactions, Transactions, Start_Date, End_Date, Exchange_Rate
 		'\n<!-- profit and loss: -->\n', Pl_Lines,
 		'\n<!-- historical profit and loss: \n', Pl_Historical_Lines, '\n-->\n',
 		'\n<!-- historical pl html:\n', Pl_Html_Historical, '\n -->\n',
+		'\n<!-- investment report all time:\n', Investment_Report_2_All_Time_Lines, '\n -->\n',		
 		'\n<!-- trial balance: -->\n',  Tb_Lines
 	], Report_Lines_List),
 	atomic_list_concat(Report_Lines_List, Report_Lines),
@@ -196,6 +200,15 @@ output_results(S_Transactions, Transactions, Start_Date, End_Date, Exchange_Rate
 	emit_ledger_errors(Transaction_Transformation_Debug).
 
 
+static_data_all_time(Static_Data, Static_Data_All_Time) :-
+	dict_vars(Static_Data, 
+		[Exchange_Rates, Accounts, Transactions, Report_Currency, Transaction_Types, Entity_Identifier, Duration_Context_Id_Base]
+	),
+	Start_Date = date(1,1,1),
+	End_Date = date(9999,9,9),
+	dict_from_vars(Static_Data_All_Time, 
+		[Start_Date, End_Date, Exchange_Rates, Accounts, Transactions, Report_Currency, Transaction_Types, Entity_Identifier, Duration_Context_Id_Base]
+	).
 
 	
 /* given information about a xbrl dimension, print each account as a point in that dimension. 
