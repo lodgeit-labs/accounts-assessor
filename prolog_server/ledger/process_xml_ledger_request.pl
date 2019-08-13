@@ -39,7 +39,7 @@
 		investment_report_1/2,
 		investment_report_2/3,
 		bs_report/6,
-		pl_report/6]).
+		pl_report/7]).
 :- use_module('../../lib/statements', [
 		extract_s_transaction/3, 
 		print_relevant_exchange_rates_comment/4, 
@@ -154,7 +154,7 @@ output_results(S_Transactions, Transactions, Start_Date, End_Date, Exchange_Rate
 	profitandloss_between(Exchange_Rates, Accounts, Transactions, Report_Currency, End_Date, Start_Date, End_Date, ProftAndLoss2),
 	
 	add_days(Start_Date, -1, Before_Start),
-	profitandloss_between(Exchange_Rates, Accounts, Transactions, Report_Currency, Start_Date, date(0,0,0), Before_Start, ProftAndLoss2_Historical),
+	profitandloss_between(Exchange_Rates, Accounts, Transactions, Report_Currency, Start_Date, date(1,1,1), Before_Start, ProftAndLoss2_Historical),
 	
 	assertion(ground((Balance_Sheet2, ProftAndLoss2, ProftAndLoss2_Historical, Trial_Balance2))),
 	format_report_entries(xbrl, Accounts, 0, Report_Currency, Instant_Context_Id_Base,  Balance_Sheet2, [],     Units0, [], Bs_Lines),
@@ -165,8 +165,8 @@ output_results(S_Transactions, Transactions, Start_Date, End_Date, Exchange_Rate
 	investment_report_1(Static_Data, _Investment_Report_1_Lines),
 	investment_report_2(Static_Data, Outstanding_Out, Investment_Report_2_Lines),
 	bs_report(Accounts, Report_Currency, Balance_Sheet2, Start_Date, End_Date, Bs_Html),
-	pl_report(Accounts, Report_Currency, ProftAndLoss2, Start_Date, End_Date, Pl_Html),
-	pl_report(Accounts, Report_Currency, ProftAndLoss2_Historical, date(0,0,0), Before_Start, Pl_Html_Historical),
+	pl_report(Accounts, Report_Currency, ProftAndLoss2, Start_Date, End_Date, '', Pl_Html),
+	pl_report(Accounts, Report_Currency, ProftAndLoss2_Historical, date(1,1,1), Before_Start, '_historical', Pl_Html_Historical),
 
 	Results0 = (Base_Contexts, Units2, []),
 	print_banks(Static_Data, Instant_Context_Id_Base, Entity_Identifier, Results0, Results1),

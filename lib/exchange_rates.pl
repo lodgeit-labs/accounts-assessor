@@ -158,6 +158,7 @@ extracted_exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate) 
 % Obtains the exchange rate from Src_Currency to Dest_Currency on the day Day using the
 % exchange_rates predicate. Given the fetched table, this predicate works in any direction between any two currencies
 fetched_exchange_rate(Day, Src_Currency, Dest_Currency, Exchange_Rate) :-
+	format(user_error, 'using API exchange rates for Day:~w, Src_Currency:~w, Dest_Currency:~w ...\n', [Day, Src_Currency, Dest_Currency]),
 	exchange_rates(Day, Exchange_Rates),
 	member(Src_Currency = Src_Exchange_Rate, Exchange_Rates),
 	member(Dest_Currency = Dest_Exchange_Rate, Exchange_Rates),
@@ -252,8 +253,8 @@ exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate_Out) :-
 		true
 	;
 		(
-			pretty_term_string(Exchange_Rates_Sorted, Str),
-			throw_string(['multiple different exchange rates found: ', Str])
+			format(string(Str), 'multiple different exchange rates found for: Day:~w, Src_Currency:~w, Dest_Currency:~w, rates found:~w\n', [Day, Src_Currency, Dest_Currency, Exchange_Rates_Sorted]),
+			throw_string(Str)
 		)
 	),
 	(

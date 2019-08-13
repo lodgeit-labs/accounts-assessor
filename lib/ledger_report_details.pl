@@ -1,7 +1,7 @@
 :- module(ledger_report_details, [
 		investment_report_1/2,
 		bs_report/6,
-		pl_report/6,
+		pl_report/7,
 		investment_report_2/3
 		]).
 
@@ -94,7 +94,7 @@ report_page(Title_Text, Tbl, File_Name, Lines) :-
 	phrase(Page, Page_Tokenlist),
 	report_section(File_Name, Page_Tokenlist, Lines).
 
-pl_report(Accounts, Report_Currency, ProftAndLoss2, Start_Date, End_Date, Lines) :-
+pl_report(Accounts, Report_Currency, ProftAndLoss2, Start_Date, End_Date, Filename_Suffix, Lines) :-
 
 	format_date(Start_Date, Start_Date_Atom),
 	format_date(End_Date, End_Date_Atom),
@@ -104,7 +104,8 @@ pl_report(Accounts, Report_Currency, ProftAndLoss2, Start_Date, End_Date, Lines)
 	pesseract_style_table_rows(Accounts, Report_Currency, ProftAndLoss2, Report_Table_Data),
 	Header = tr([th('Account'), th(['Value', Report_Currency_Atom])]),
 	flatten([Header, Report_Table_Data], Tbl),
-	report_page(Title_Text, Tbl, 'profit_and_loss.html', Lines).
+	atomic_list_concat(['profit_and_loss', Filename_Suffix, '.html'], Filename),
+	report_page(Title_Text, Tbl, Filename, Lines).
 		
 bs_report(Accounts, Report_Currency, Balance_Sheet, Start_Date, End_Date, Lines) :-
 

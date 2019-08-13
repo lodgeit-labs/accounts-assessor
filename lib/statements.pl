@@ -161,7 +161,8 @@ check_trial_balance0(Exchange_Rates, Report_Currency, Transaction_Date, Transact
 		(
 			format(user_error, '\n\\n~w\n\n', [Debug_So_Far]),
 			format(user_error, '\n\nwhen processing:\n~w', [Debug_Head]),
-			throw_string([E])
+			pretty_term_string(E, E_Str),
+			throw_string([E_Str])
 		)
 	).
 
