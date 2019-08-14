@@ -160,7 +160,7 @@ extracted_exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate) 
 % exchange_rates predicate. Given the fetched table, this predicate works in any direction between any two currencies
 fetched_exchange_rate(Day, Src_Currency, Dest_Currency, Exchange_Rate) :-
 	%format(user_error, 'using API exchange rates for Day:~w, Src_Currency:~w, Dest_Currency:~w ...\n', [Day, Src_Currency, Dest_Currency]),
-	format('using API exchange rates for Day:~w, Src_Currency:~w, Dest_Currency:~w ...\n', [Day, Src_Currency, Dest_Currency]),
+	format('<!--using API exchange rates for Day:~w, Src_Currency:~w, Dest_Currency:~w ...-->\n', [Day, Src_Currency, Dest_Currency]),
 	exchange_rates(Day, Exchange_Rates),
 	member(Src_Currency = Src_Exchange_Rate, Exchange_Rates),
 	member(Dest_Currency = Dest_Exchange_Rate, Exchange_Rates),
