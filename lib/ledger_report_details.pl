@@ -304,11 +304,14 @@ investment_report_2(Static_Data, Outstanding_In, Filename_Suffix, Report_Output)
 	maplist(ir2_row_to_html(Report_Currency), Rows, Rows_Html),
 	Header = tr([
 		th('Unit'), th('Count'), th('Currency'),
-		th('Opening Date'), th('Opening_Unit_Cost_Foreign'), th('Currency Conversion'), th('Opening_Unit_Cost_Converted'), 
-		th('Sale_Date'), th('Sale_Unit_Price_Foreign'), th('Currency Conversion'), th('Sale_Unit_Price_Converted'),
-		th('Rea_Market_Gain'), th('Rea_Forex_Gain'), th('Unr_Market_Gain'), th('Unr_Forex_Gain'), 
-		th('Closing_Unit_Price_Foreign'), th('Currency Conversion'), th('Closing_Unit_Price_Converted'),
-		th('Closing_Market_Value_Foreign'), th('Closing_Market_Value_Converted')]),
+		th('Opening Date'), th('Opening Unit Cost Foreign'), th('Currency Conversion'), th('Opening Unit Cost Converted'), th('Opening Total Cost Foreign'), th('Opening Total Cost Converted'), 
+		
+		th('Sale Date'), th('Sale Unit Price Foreign'), th('Currency Conversion'), th('Sale Unit Price Converted'),
+		
+		th('Rea Market Gain'), th('Rea Forex Gain'), th('Unr Market Gain'), th('Unr Forex Gain'), 
+		
+		th('Closing Unit Price Foreign'), th('Currency Conversion'), th('Closing Unit Price Converted'),
+		th('Closing Total Value Foreign'), th('Closing Total Value Converted')]),
 	flatten([Header, Rows_Html], Tbl),
 	atomic_list_concat(['investment_report', Filename_Suffix, '.html'], Filename),
 	report_page(Title_Text, Tbl, Filename, Report_Output).
@@ -320,18 +323,24 @@ investment_report_2_sales(Static_Data, I, Lines) :-
 investment_report_2_sale_lines(Static_Data, Info, Sale, Row) :-
 	dict_vars(Static_Data, [Exchange_Rates, Report_Currency]),
 	Sale = sale(Sale_Date, Sale_Unit_Price_Foreign, Count),
-	Info = outstanding(Purchase_Currency, Unit, _Purchase_Count, Purchase_Unit_Cost_Converted, Purchase_Unit_Cost_Foreign, Purchase_Date),
 	Sale_Unit_Price_Foreign = value(End_Price_Unit, End_Price_Amount),
-	ir2_forex_gain(Exchange_Rates, Purchase_Date, Sale_Unit_Price_Foreign, Sale_Date, Purchase_Currency, Report_Currency, Count, Forex_Gain),
-	ir2_market_gain(Exchange_Rates, Purchase_Date, Sale_Date, Purchase_Currency, Report_Currency, Count, Purchase_Unit_Cost_Converted, End_Price_Unit, End_Price_Amount, Market_Gain),
-	optional_currency_conversion(Exchange_Rates, Purchase_Date, Purchase_Currency, Report_Currency, Purchase_Currency_Conversion),
-	optional_currency_conversion(Exchange_Rates, Sale_Date, Purchase_Currency, Report_Currency,
+	Info = outstanding(Investment_Currency, Unit, _Purchase_Count, Opening_Unit_Cost_Converted, Opening_Unit_Cost_Foreign, Opening_Date),
+
+	ir2_forex_gain(Exchange_Rates, Opening_Date, Sale_Unit_Price_Foreign, Sale_Date, Investment_Currency, Report_Currency, Count, Forex_Gain),
+	ir2_market_gain(Exchange_Rates, Opening_Date, Sale_Date, Investment_Currency, Report_Currency, Count, Opening_Unit_Cost_Converted, End_Price_Unit, End_Price_Amount, Market_Gain),
+
+	optional_currency_conversion(Exchange_Rates, Opening_Date, Investment_Currency, Report_Currency, Opening_Currency_Conversion),
+	optional_currency_conversion(Exchange_Rates, Sale_Date, Investment_Currency, Report_Currency,
 	Sale_Currency_Conversion),
 	optional_converted_value(Sale_Unit_Price_Foreign, Sale_Currency_Conversion, Sale_Unit_Price_Converted),
+
+	value_multiply(Opening_Unit_Cost_Foreign, Count, Opening_Total_Cost_Foreign),
+	value_multiply(Opening_Unit_Cost_Converted, Count, Opening_Total_Cost_Converted),
+
 	Row = row(
-		Unit, Count, Purchase_Currency,
-		
-		Purchase_Date, Purchase_Unit_Cost_Foreign, Purchase_Currency_Conversion, Purchase_Unit_Cost_Converted, 
+		Unit, Count, Investment_Currency,
+
+		Opening_Date, Opening_Unit_Cost_Foreign, Opening_Currency_Conversion, Opening_Unit_Cost_Converted, Opening_Total_Cost_Foreign, Opening_Total_Cost_Converted,
 		
 		Sale_Date, Sale_Unit_Price_Foreign, Sale_Currency_Conversion, Sale_Unit_Price_Converted,
 		
@@ -347,30 +356,33 @@ investment_report_2_unrealized(Static_Data, Investment, Row) :-
 	/* bind local variables to members of Static_Data */
 	dict_vars(Static_Data, [End_Date, Exchange_Rates, Report_Currency]),
 	Investment = (unr, Info, Count, []),
-	Info = outstanding(Purchase_Currency, Unit, _Original_Purchase_Count, Purchase_Unit_Cost_Converted, Purchase_Unit_Cost_Foreign, Purchase_Date),
-	vec_change_bases(Exchange_Rates, End_Date, [Purchase_Currency], 
-		[coord(with_cost_per_unit(Unit, Purchase_Unit_Cost_Converted), 1, 0)],
+	Info = outstanding(Investment_Currency, Unit, _Original_Purchase_Count, Opening_Unit_Cost_Converted, Opening_Unit_Cost_Foreign, Opening_Date),
+	vec_change_bases(Exchange_Rates, End_Date, [Investment_Currency], 
+		[coord(with_cost_per_unit(Unit, Opening_Unit_Cost_Converted), 1, 0)],
 		[coord(End_Price_Unit, End_Price_Amount, 0)]
 	),
-	ir2_forex_gain(Exchange_Rates, Purchase_Date, value(End_Price_Unit, End_Price_Amount), End_Date, Purchase_Currency, Report_Currency, Count, Forex_Gain),
-	ir2_market_gain(Exchange_Rates, Purchase_Date, End_Date, Purchase_Currency, Report_Currency, Count, Purchase_Unit_Cost_Converted, End_Price_Unit, End_Price_Amount, Market_Gain),
+	ir2_forex_gain(Exchange_Rates, Opening_Date, value(End_Price_Unit, End_Price_Amount), End_Date, Investment_Currency, Report_Currency, Count, Forex_Gain),
+	ir2_market_gain(Exchange_Rates, Opening_Date, End_Date, Investment_Currency, Report_Currency, Count, Opening_Unit_Cost_Converted, End_Price_Unit, End_Price_Amount, Market_Gain),
 
-	optional_currency_conversion(Exchange_Rates, Purchase_Date, Purchase_Currency, Report_Currency, Purchase_Currency_Conversion),
-	optional_currency_conversion(Exchange_Rates, End_Date, Purchase_Currency, Report_Currency, Closing_Currency_Conversion),
-	exchange_rate_throw(Exchange_Rates, End_Date, Unit, Purchase_Currency, Closing_Unit_Price_Foreign_Amount),
-	Closing_Unit_Price_Foreign = value(Purchase_Currency, Closing_Unit_Price_Foreign_Amount),
-	Purchase_Currency_Current_Market_Value_Amount is Count * Closing_Unit_Price_Foreign_Amount,
-	Purchase_Currency_Current_Market_Value = value(Purchase_Currency, Purchase_Currency_Current_Market_Value_Amount),
+	optional_currency_conversion(Exchange_Rates, Opening_Date, Investment_Currency, Report_Currency, Opening_Currency_Conversion),
+	optional_currency_conversion(Exchange_Rates, End_Date, Investment_Currency, Report_Currency, Closing_Currency_Conversion),
+	exchange_rate_throw(Exchange_Rates, End_Date, Unit, Investment_Currency, Closing_Unit_Price_Foreign_Amount),
+	Closing_Unit_Price_Foreign = value(Investment_Currency, Closing_Unit_Price_Foreign_Amount),
+	Investment_Currency_Current_Market_Value_Amount is Count * Closing_Unit_Price_Foreign_Amount,
+	Investment_Currency_Current_Market_Value = value(Investment_Currency, Investment_Currency_Current_Market_Value_Amount),
 	[Report_Currency_Unit] = Report_Currency,
 	exchange_rate_throw(Exchange_Rates, End_Date, Unit, Report_Currency_Unit, Closing_Unit_Price_Converted_Amount),
 	Current_Market_Value_Amount is Count * Closing_Unit_Price_Converted_Amount,
 	Current_Market_Value = value(Report_Currency_Unit, Current_Market_Value_Amount),
 	optional_converted_value(Closing_Unit_Price_Foreign, Closing_Currency_Conversion, Closing_Unit_Price_Converted),
+
+	value_multiply(Opening_Unit_Cost_Foreign, Count, Opening_Total_Cost_Foreign),
+	value_multiply(Opening_Unit_Cost_Converted, Count, Opening_Total_Cost_Converted),
 	
 	Row = row(
-		Unit, Count, Purchase_Currency,
+		Unit, Count, Investment_Currency,
 	
-		Purchase_Date, Purchase_Unit_Cost_Foreign, Purchase_Currency_Conversion, Purchase_Unit_Cost_Converted,
+		Opening_Date, Opening_Unit_Cost_Foreign, Opening_Currency_Conversion, Opening_Unit_Cost_Converted, Opening_Total_Cost_Foreign, Opening_Total_Cost_Converted,
 		
 		'', '', '', '',
 		
@@ -378,16 +390,16 @@ investment_report_2_unrealized(Static_Data, Investment, Row) :-
 		
 		Closing_Unit_Price_Foreign, Closing_Currency_Conversion, Closing_Unit_Price_Converted,
 		
-		Purchase_Currency_Current_Market_Value, Current_Market_Value
+		Investment_Currency_Current_Market_Value, Current_Market_Value
 	).
 		
 
 ir2_row_to_html(Report_Currency, Row, Html) :-
 
 	Row = row(
-		Unit, Count, Purchase_Currency, 
+		Unit, Count, Investment_Currency, 
 
-		Purchase_Date, Purchase_Unit_Cost_Foreign, Purchase_Conversion, Purchase_Unit_Cost_Converted, 
+		Opening_Date, Opening_Unit_Cost_Foreign, Opening_Conversion, Opening_Unit_Cost_Converted, Opening_Total_Cost_Foreign, Opening_Total_Cost_Converted, 
 		
 		Sale_Date, Sale_Unit_Price_Foreign, Sale_Conversion, Sale_Unit_Price_Converted,
 		
@@ -397,10 +409,12 @@ ir2_row_to_html(Report_Currency, Row, Html) :-
 		
 		Closing_Market_Value_Foreign, Closing_Market_Value_Converted),
 		
-	format_date(Purchase_Date, Purchase_Date2),
-	format_money(Report_Currency, Purchase_Unit_Cost_Foreign, Purchase_Unit_Cost_Foreign2),
-	format_conversion(Report_Currency, Purchase_Conversion, Purchase_Conversion2),
-	format_money(Report_Currency, Purchase_Unit_Cost_Converted, Purchase_Unit_Cost_Converted2),
+	format_date(Opening_Date, Opening_Date2),
+	format_money(Report_Currency, Opening_Unit_Cost_Foreign, Opening_Unit_Cost_Foreign2),
+	format_conversion(Report_Currency, Opening_Conversion, Opening_Conversion2),
+	format_money(Report_Currency, Opening_Unit_Cost_Converted, Opening_Unit_Cost_Converted2),
+	format_money(Report_Currency, Opening_Total_Cost_Foreign, Opening_Total_Cost_Foreign2),
+	format_money(Report_Currency, Opening_Total_Cost_Converted, Opening_Total_Cost_Converted2),
 
 	(Sale_Date = '' -> Sale_Date2 = '' ; format_date(Sale_Date, Sale_Date2)),
 	format_money(Report_Currency, Sale_Unit_Price_Foreign, Sale_Unit_Price_Foreign2),
@@ -420,9 +434,9 @@ ir2_row_to_html(Report_Currency, Row, Html) :-
 	format_money(Report_Currency, Closing_Market_Value_Converted, Closing_Market_Value_Converted2),
 	
 	Html = tr([
-		td(Unit), td(Count), td(Purchase_Currency), 
+		td(Unit), td(Count), td(Investment_Currency), 
 		
-		td(Purchase_Date2), td(Purchase_Unit_Cost_Foreign2), td(Purchase_Conversion2), td(Purchase_Unit_Cost_Converted2),
+		td(Opening_Date2), td(Opening_Unit_Cost_Foreign2), td(Opening_Conversion2), td(Opening_Unit_Cost_Converted2), td(Opening_Total_Cost_Foreign2), td(Opening_Total_Cost_Converted2),
 		
 		td(Sale_Date2), td(Sale_Unit_Price_Foreign2), td(Sale_Conversion2), td(Sale_Unit_Price_Converted2),
 		
@@ -488,12 +502,12 @@ optional_converted_value(V1, C, V2) :-
 	).
 
 
-ir2_forex_gain(Exchange_Rates, Purchase_Date, End_Price, End_Date, Purchase_Currency, Report_Currency, Count, Gain) :-
+ir2_forex_gain(Exchange_Rates, Opening_Date, End_Price, End_Date, Investment_Currency, Report_Currency, Count, Gain) :-
 	End_Price = value(End_Price_Unit, End_Price_Amount),
-	(End_Price_Unit = Purchase_Currency->true;gtrace),
-	assertion(End_Price_Unit = Purchase_Currency),
+	%(End_Price_Unit = Investment_Currency->true;gtrace),
+	assertion(End_Price_Unit = Investment_Currency),
 	Market_Price_Unit = without_currency_movement_against_since(
-		End_Price_Unit, Purchase_Currency, Report_Currency, Purchase_Date
+		End_Price_Unit, Investment_Currency, Report_Currency, Opening_Date
 	),
 	(
 		Report_Currency = [_Report_Currency_Unit]
@@ -514,9 +528,9 @@ ir2_forex_gain(Exchange_Rates, Purchase_Date, End_Price, End_Date, Purchase_Curr
 		Gain = ''
 	).
 
-ir2_market_gain(Exchange_Rates, Purchase_Date, End_Date, Purchase_Currency, Report_Currency, Count, Purchase_Unit_Cost_Converted, End_Price_Unit, End_Price_Amount, Gain) :-
+ir2_market_gain(Exchange_Rates, Opening_Date, End_Date, Investment_Currency, Report_Currency, Count, Opening_Unit_Cost_Converted, End_Price_Unit, End_Price_Amount, Gain) :-
 	Market_Price_Unit = without_currency_movement_against_since(
-		End_Price_Unit, Purchase_Currency, Report_Currency, Purchase_Date
+		End_Price_Unit, Investment_Currency, Report_Currency, Opening_Date
 	), 
 	vec_change_bases(Exchange_Rates, End_Date, Report_Currency, 
 		[coord(Market_Price_Unit, End_Price_Amount, 0)],
@@ -524,8 +538,8 @@ ir2_market_gain(Exchange_Rates, Purchase_Date, End_Date, Purchase_Currency, Repo
 	),
 	End_Market_Unit_Price_Converted = value(End_Market_Price_Unit_Converted, End_Market_Price_Amount_Converted),
 	value_multiply(End_Market_Unit_Price_Converted, Count, End_Total_Price_Converted),
-	value_multiply(Purchase_Unit_Cost_Converted, Count, Purchase_Total_Cost_Converted),
-	value_subtract(End_Total_Price_Converted, Purchase_Total_Cost_Converted, Gain).
+	value_multiply(Opening_Unit_Cost_Converted, Count, Opening_Total_Cost_Converted),
+	value_subtract(End_Total_Price_Converted, Opening_Total_Cost_Converted, Gain).
 
 	
 	
@@ -582,8 +596,8 @@ clip_investment(Static_Data, I1, I2) :-
 	[Report_Currency_Unit] = Report_Currency,
 	I1 = (Tag, Info1, Outstanding_Count, Sales),
 	I2 = (Tag, Info2, Outstanding_Count, Sales),
-	Info1 = outstanding(Purchase_Currency, Unit, _, Purchase_Unit_Cost_Converted, Purchase_Unit_Cost_Foreign, Purchase_Date),
-	Info2 = outstanding(Purchase_Currency, Unit, x, Opening_Unit_Cost_Converted, Opening_Unit_Cost_Foreign, Opening_Date),
+	Info1 = outstanding(Investment_Currency, Unit, _, Purchase_Unit_Cost_Converted, Purchase_Unit_Cost_Foreign, Purchase_Date),
+	Info2 = outstanding(Investment_Currency, Unit, x, Opening_Unit_Cost_Converted, Opening_Unit_Cost_Foreign, Opening_Date),
 	(
 		Purchase_Date @>= Start_Date
 	->
@@ -599,8 +613,8 @@ clip_investment(Static_Data, I1, I2) :-
 			the simplest case is when the price in purchase currency at report start date is specified by user.
 		*/
 			Opening_Date = Start_Date,
-			exchange_rate_throw(Exchange_Rates, Opening_Date, Unit, Purchase_Currency, Before_Opening_Exchange_Rate_Foreign),
-			Opening_Unit_Cost_Foreign = value(Purchase_Currency, Before_Opening_Exchange_Rate_Foreign),
+			exchange_rate_throw(Exchange_Rates, Opening_Date, Unit, Investment_Currency, Before_Opening_Exchange_Rate_Foreign),
+			Opening_Unit_Cost_Foreign = value(Investment_Currency, Before_Opening_Exchange_Rate_Foreign),
 			exchange_rate_throw(Exchange_Rates, Opening_Date, Unit, Report_Currency_Unit, Before_Opening_Exchange_Rate_Converted),			
 			Opening_Unit_Cost_Converted = value(Report_Currency_Unit, Before_Opening_Exchange_Rate_Converted)
 		)
