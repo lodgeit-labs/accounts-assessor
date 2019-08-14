@@ -1,2 +1,4 @@
-random collection of tests. No need to homogenize everything into one format, let us just write a top-level script that
-runs everything, and let's make sure all the sub-runners work, and write instructions how/scripts to set them up.
+run from prolog_server directory, so the http server can serve files.
+```
+reset;echo -e "\e[3J";   swipl -s ../tests/run_tests.pl   -g "halt"
+```

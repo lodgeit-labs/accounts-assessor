@@ -205,55 +205,55 @@
     <actionTaxonomy>
       <action>
         <id>Invest_In</id>
-        <exchangeAccount>Financial_Investments</exchangeAccount>
-        <tradingAccount>Investment_Income</tradingAccount>
+        <exchangeAccount>FinancialInvestments</exchangeAccount>
+        <tradingAccount>InvestmentIncome</tradingAccount>
         <description>Shares</description>
       </action>
       <action>
         <id>Dispose_Off</id>
-        <exchangeAccount>Financial_Investments</exchangeAccount>
-        <tradingAccount>Investment_Income</tradingAccount>
+        <exchangeAccount>FinancialInvestments</exchangeAccount>
+        <tradingAccount>InvestmentIncome</tradingAccount>
         <description>Shares</description>
       </action>
       <action>
         <id>Borrow</id>
-        <exchangeAccount>Non_Current_Loans</exchangeAccount>
+        <exchangeAccount>NonCurrentLoans</exchangeAccount>
         <tradingAccount />
         <description>Shares</description>
       </action>
       <action>
         <id>Introduce_Capital</id>
-        <exchangeAccount>Share_Capital</exchangeAccount>
+        <exchangeAccount>ShareCapital</exchangeAccount>
         <tradingAccount />
         <description />
       </action>
       <action>
         <id>Transfers</id>
-        <exchangeAccount>Exchange_Gain</exchangeAccount>
+        <exchangeAccount>ExchangeGain</exchangeAccount>
         <tradingAccount />
         <description />
       </action>
       <action>
         <id>Bank_Charges</id>
-        <exchangeAccount>Bank_Charges</exchangeAccount>
+        <exchangeAccount>BankCharges</exchangeAccount>
         <tradingAccount />
         <description />
       </action>
       <action>
         <id>Interest_Expenses </id>
-        <exchangeAccount>Interest_Expenses</exchangeAccount>
+        <exchangeAccount>InterestExpenses</exchangeAccount>
         <tradingAccount />
         <description />
       </action>
       <action>
         <id>Accountancy_Fees</id>
-        <exchangeAccount>Accounting_Fees</exchangeAccount>
+        <exchangeAccount>AccountingFees</exchangeAccount>
         <tradingAccount />
         <description />
       </action>
       <action>
         <id>Interest_Income</id>
-        <exchangeAccount>Interest_Earned</exchangeAccount>
+        <exchangeAccount>InterestEarned</exchangeAccount>
         <tradingAccount />
         <description />
       </action>

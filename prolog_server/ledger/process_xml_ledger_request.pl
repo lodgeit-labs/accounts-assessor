@@ -15,10 +15,12 @@
 
 :- use_module('../../lib/days', [
 		format_date/2, 
+		add_days/3, 
 		parse_date/2, 
 		gregorian_date/2]).
 :- use_module('../../lib/utils', [
 		inner_xml/3, 
+		inner_xml_throw/3,
 		write_tag/2, 
 		fields/2, 
 		numeric_fields/2, 
@@ -34,11 +36,12 @@
 		bs_and_pl_entries/8,
 		net_activity_by_account/10]).
 :- use_module('../../lib/ledger_report_details', [
-		investment_report/2,
-		bs_report/5,
-		pl_report/6]).
+		investment_report_1/2,
+		investment_report_2/4,
+		bs_report/6,
+		pl_report/7]).
 :- use_module('../../lib/statements', [
-		extract_transaction/3, 
+		extract_s_transaction/3, 
 		print_relevant_exchange_rates_comment/4, 
 		invert_s_transaction_vector/2, 
 		fill_in_missing_units/6,
@@ -57,6 +60,7 @@
 		sub_accounts_upto_level/4,
 		child_accounts/3,
 		account_by_role/3,
+		account_by_role_nothrow/3, 
 		account_role_by_id/3
 		]).
 :- use_module('../../lib/exchange_rates', [
@@ -75,6 +79,7 @@
 % ------------------------------------------------------------------
 
 process_xml_ledger_request(_, Dom) :-
+	inner_xml(Dom, //reports/balanceSheetRequest, _),
 	/*
 		first let's extract data from the request
 	*/
@@ -93,10 +98,12 @@ process_xml_ledger_request(_, Dom) :-
 	writeln('<?xml version="1.0"?>'), nl, nl,
 	
 	extract_exchange_rates(Dom, End_Date_Atom, Default_Currency, Exchange_Rates),
+	%writeln('<!-- exchange rates -->'),
+	%writeln(Exchange_Rates),
 	findall(Livestock_Dom, xpath(Dom, //reports/balanceSheetRequest/livestockData, Livestock_Dom), Livestock_Doms),
 	get_livestock_types(Livestock_Doms, Livestock_Types),
    	extract_livestock_opening_costs_and_counts(Livestock_Doms, Livestock_Opening_Costs_And_Counts),
-	findall(S_Transaction, extract_transaction(Dom, Start_Date_Atom, S_Transaction), S_Transactions0),
+	findall(S_Transaction, extract_s_transaction(Dom, Start_Date_Atom, S_Transaction), S_Transactions0),
 	maplist(invert_s_transaction_vector, S_Transactions0, S_Transactions0b),
 	sort_s_transactions(S_Transactions0b, S_Transactions),
 	
@@ -107,21 +114,22 @@ process_xml_ledger_request(_, Dom) :-
 
 	print_relevant_exchange_rates_comment(Report_Currency, End_Date, Exchange_Rates, Transactions),
 	infer_exchange_rates(Transactions, S_Transactions, Start_Date, End_Date, Accounts, Report_Currency, Exchange_Rates, Exchange_Rates2),
+	writeln("<!-- exchange rates 2:"),
+	writeln(Exchange_Rates2),
+	writeln("-->"),
+
 	print_xbrl_header,
 	/*
 		we will sum up the coords of all transactions for each account and apply unit conversions
 	*/
-	output_results(S_Transactions, Transactions, Start_Date, End_Date, Exchange_Rates2, Accounts, Report_Currency, Transaction_Types, Transaction_Transformation_Debug),
+	output_results(S_Transactions, Transactions, Start_Date, End_Date, Exchange_Rates2, Accounts, Report_Currency, Transaction_Types, Transaction_Transformation_Debug, Outstanding_Out),
 	writeln('</xbrli:xbrl>'),
-	pretty_term_string(Outstanding_Out, Outstanding_Out_Str),
-	writeln('<!--'),
-	writeln(Outstanding_Out_Str),
-	writeln('-->'),
 	nl, nl.
 
-output_results(S_Transactions, Transactions, Start_Date, End_Date, Exchange_Rates, Accounts, Report_Currency, Transaction_Types, Transaction_Transformation_Debug) :-
+output_results(S_Transactions, Transactions, Start_Date, End_Date, Exchange_Rates, Accounts, Report_Currency, Transaction_Types, Transaction_Transformation_Debug, Outstanding_Out) :-
 	
 
+	writeln("<!-- Build contexts -->"),	
 	/* first, let's build up the two non-dimensional contexts */
 	date(Context_Id_Year,_,_) = End_Date,
 	Entity_Identifier = '<identifier scheme="http://www.example.com">TestData</identifier>',
@@ -136,17 +144,32 @@ output_results(S_Transactions, Transactions, Start_Date, End_Date, Exchange_Rate
 		[Start_Date, End_Date, Exchange_Rates, Accounts, Transactions, Report_Currency, Transaction_Types, Entity_Identifier, Duration_Context_Id_Base]
 	),
 
+	writeln("<!-- Trial balance -->"),
 	trial_balance_between(Exchange_Rates, Accounts, Transactions, Report_Currency, End_Date, Start_Date, End_Date, Trial_Balance2),
+
+	writeln("<!-- Balance sheet -->"),
 	balance_sheet_at(Exchange_Rates, Accounts, Transactions, Report_Currency, End_Date, Start_Date, End_Date, Balance_Sheet2),
+
+	writeln("<!-- Profit and loss -->"),
 	profitandloss_between(Exchange_Rates, Accounts, Transactions, Report_Currency, End_Date, Start_Date, End_Date, ProftAndLoss2),
-	assertion(ground((Balance_Sheet2, ProftAndLoss2, Trial_Balance2))),
+	
+	add_days(Start_Date, -1, Before_Start),
+	profitandloss_between(Exchange_Rates, Accounts, Transactions, Report_Currency, Start_Date, date(1,1,1), Before_Start, ProftAndLoss2_Historical),
+	
+	assertion(ground((Balance_Sheet2, ProftAndLoss2, ProftAndLoss2_Historical, Trial_Balance2))),
 	format_report_entries(xbrl, Accounts, 0, Report_Currency, Instant_Context_Id_Base,  Balance_Sheet2, [],     Units0, [], Bs_Lines),
 	format_report_entries(xbrl, Accounts, 0, Report_Currency, Duration_Context_Id_Base, ProftAndLoss2,  Units0, Units1, [], Pl_Lines),
+	format_report_entries(xbrl, Accounts, 0, Report_Currency, Duration_Context_Id_Base, ProftAndLoss2_Historical,  Units0, Units1, [], Pl_Historical_Lines),
 	format_report_entries(xbrl, Accounts, 0, Report_Currency, Instant_Context_Id_Base,  Trial_Balance2, Units1, Units2, [], Tb_Lines),
 	
-	investment_report(Static_Data, Investment_Report_Lines),
-	bs_report(Accounts, Report_Currency, Balance_Sheet2, End_Date, Bs_Html),
-	pl_report(Accounts, Report_Currency, ProftAndLoss2, Start_Date, End_Date, Pl_Html),
+	investment_report_1(Static_Data, _Investment_Report_1_Lines),
+	investment_report_2(Static_Data, Outstanding_Out, '', Investment_Report_2_Lines),
+	static_data_all_time(Static_Data, Static_Data_All_Time),
+	investment_report_2(Static_Data_All_Time, Outstanding_Out, '_all_time', Investment_Report_2_All_Time_Lines),
+
+	bs_report(Accounts, Report_Currency, Balance_Sheet2, Start_Date, End_Date, Bs_Html),
+	pl_report(Accounts, Report_Currency, ProftAndLoss2, Start_Date, End_Date, '', Pl_Html),
+	pl_report(Accounts, Report_Currency, ProftAndLoss2_Historical, date(1,1,1), Before_Start, '_historical', Pl_Html_Historical),
 
 	Results0 = (Base_Contexts, Units2, []),
 	print_banks(Static_Data, Instant_Context_Id_Base, Entity_Identifier, Results0, Results1),
@@ -160,11 +183,15 @@ output_results(S_Transactions, Transactions, Start_Date, End_Date, Exchange_Rate
 	maplist(write, Dimensions_Lines),
 	
 	flatten([
-		'\n<!-- balance sheet: -->\n', Bs_Lines, 
-		'\n<!-- profit and loss: -->\n', Pl_Lines,
-		'\n<!-- investment report:\n', Investment_Report_Lines, '\n -->\n',
+		%'\n<!-- investment report1:\n', Investment_Report_1_Lines, '\n -->\n',
+		'\n<!-- investment report:\n', Investment_Report_2_Lines, '\n -->\n',		
 		'\n<!-- bs html:\n', Bs_Html, '\n -->\n',
 		'\n<!-- pl html:\n', Pl_Html, '\n -->\n',
+		'\n<!-- balance sheet: -->\n', Bs_Lines, 
+		'\n<!-- profit and loss: -->\n', Pl_Lines,
+		'\n<!-- historical profit and loss: \n', Pl_Historical_Lines, '\n-->\n',
+		'\n<!-- historical pl html:\n', Pl_Html_Historical, '\n -->\n',
+		'\n<!-- investment report all time:\n', Investment_Report_2_All_Time_Lines, '\n -->\n',		
 		'\n<!-- trial balance: -->\n',  Tb_Lines
 	], Report_Lines_List),
 	atomic_list_concat(Report_Lines_List, Report_Lines),
@@ -172,6 +199,18 @@ output_results(S_Transactions, Transactions, Start_Date, End_Date, Exchange_Rate
 	emit_ledger_warnings(S_Transactions, Start_Date, End_Date),
 	emit_ledger_errors(Transaction_Transformation_Debug).
 
+
+static_data_all_time(Static_Data, Static_Data_All_Time) :-
+	dict_vars(Static_Data, 
+		[End_Date, Exchange_Rates, Accounts, Transactions, Report_Currency, Transaction_Types, Entity_Identifier, Duration_Context_Id_Base]
+	),
+	Start_Date = date(1,1,1),
+	%End_Date = date(9999,9,9), % we dont have exchange rates for this, so commented out
+	dict_from_vars(Static_Data_All_Time, 
+		[Start_Date, End_Date, Exchange_Rates, Accounts, Transactions, Report_Currency, Transaction_Types, Entity_Identifier, Duration_Context_Id_Base]
+	).
+
+	
 /* given information about a xbrl dimension, print each account as a point in that dimension. 
 this means each account results in a fact with a context that contains the value for that dimension.
 */
@@ -241,7 +280,7 @@ print_banks(Static_Data, Context_Id_Base, Entity_Identifier, In, Out) :-
 
 print_forex(Static_Data, Context_Id_Base, Entity_Identifier, In, Out) :- 
 	dict_vars(Static_Data, [Start_Date, End_Date, Accounts]),
-    findall(Account, account_by_role(Accounts, ('Currency_Movement'/_), Account), Movement_Accounts),
+    findall(Account, account_by_role_nothrow(Accounts, ('CurrencyMovement'/_), Account), Movement_Accounts),
 	Context_Info = context_arg0(
 		Context_Id_Base, 
 		(Start_Date, End_Date), 
@@ -251,7 +290,7 @@ print_forex(Static_Data, Context_Id_Base, Entity_Identifier, In, Out) :-
 		),
 		''
 	),
-	print_detail_accounts(Static_Data, Context_Info, 'Currency_Movement', Movement_Accounts, In, Out).
+	print_detail_accounts(Static_Data, Context_Info, 'CurrencyMovement', Movement_Accounts, In, Out).
 
 /* for a list of (Sub_Account, Unit_Accounts) pairs..*/
 print_trading2(Static_Data, [(Sub_Account,Unit_Accounts)|Tail], In, Out):-
@@ -327,6 +366,7 @@ infer_exchange_rates(_, _, _, _, _, _, Exchange_Rates, Exchange_Rates) :-
 	%/* a dry run of bs_and_pl_entries to find out units used */
 	%trial_balance_between(Exchange_Rates, Accounts, Transactions, Report_Currency, End_Date, Start_Date, End_Date, Trial_Balance),
 	%balance_sheet_at(Exchange_Rates, Accounts, Transactions, Report_Currency, End_Date, Start_Date, End_Date, Balance_Sheet),
+
 	%profitandloss_between(Exchange_Rates, Accounts, Transactions, Report_Currency, End_Date, Start_Date, End_Date, ProftAndLoss),
 	%bs_and_pl_entries(Accounts, Report_Currency, none, Balance_Sheet, ProftAndLoss, Used_Units, _, _),
 	%pretty_term_string(Balance_Sheet, Message4),
@@ -360,10 +400,10 @@ infer_exchange_rates(_, _, _, _, _, _, Exchange_Rates, Exchange_Rates) :-
 */	
    
 extract_default_currency(Dom, Default_Currency) :-
-   inner_xml(Dom, //reports/balanceSheetRequest/defaultCurrency/unitType, Default_Currency).
+	inner_xml_throw(Dom, //reports/balanceSheetRequest/defaultCurrency/unitType, Default_Currency).
 
 extract_report_currency(Dom, Report_Currency) :-
-   inner_xml(Dom, //reports/balanceSheetRequest/reportCurrency/unitType, Report_Currency).
+	inner_xml_throw(Dom, //reports/balanceSheetRequest/reportCurrency/unitType, Report_Currency).
 
 extract_action_taxonomy(Dom, Transaction_Types) :-
 	(

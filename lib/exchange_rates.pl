@@ -6,6 +6,7 @@
 
 :- module(exchange_rates, [
 		exchange_rate/5, 
+		exchange_rate_throw/5, 
 		is_exchangeable_into_request_bases/4
 ]).
 
@@ -118,6 +119,18 @@ special_exchange_rate(Table, Day, Src_Currency, Report_Currency, Rate) :-
 	exchange_rate(Table, Day, Goods_Unit, Report_Currency, Current),
 	Rate is Current / New_Rate * Old_Rate.
 
+/**/
+special_exchange_rate(Table, Exchange_Date, Src_Currency, Report_Currency, Rate) :-
+	Src_Currency = without_movement_after(Goods_Unit, Freeze_Date),
+	(
+		Freeze_Date @>= Exchange_Date
+	->
+		Exchange_Date2 = Exchange_Date
+	;
+		Exchange_Date2 = Freeze_Date 
+	),
+	exchange_rate(Table, Exchange_Date2, Goods_Unit, Report_Currency, Rate).
+
 /* obtain the Report_Currency value using the with_cost_per_unit data */
 special_exchange_rate(Table, Day, Src_Currency, Report_Currency, Rate) :-
 	Src_Currency = with_cost_per_unit(Goods_Unit, value(Report_Currency, Unit_Cost)),
@@ -146,6 +159,8 @@ extracted_exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate) 
 % Obtains the exchange rate from Src_Currency to Dest_Currency on the day Day using the
 % exchange_rates predicate. Given the fetched table, this predicate works in any direction between any two currencies
 fetched_exchange_rate(Day, Src_Currency, Dest_Currency, Exchange_Rate) :-
+	%format(user_error, 'using API exchange rates for Day:~w, Src_Currency:~w, Dest_Currency:~w ...\n', [Day, Src_Currency, Dest_Currency]),
+	format('<!--using API exchange rates for Day:~w, Src_Currency:~w, Dest_Currency:~w ...-->\n', [Day, Src_Currency, Dest_Currency]),
 	exchange_rates(Day, Exchange_Rates),
 	member(Src_Currency = Src_Exchange_Rate, Exchange_Rates),
 	member(Dest_Currency = Dest_Exchange_Rate, Exchange_Rates),
@@ -218,7 +233,6 @@ exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate_Out) :-
 	->
 		true
 	;
-		/*format(user_error, 'no exchange rate found: Day:~w, Src_Currency:~w, Dest_Currency:~w\n', [Day, Src_Currency, Dest_Currency]),*/
 		fail
 	),
 	findall(
@@ -240,8 +254,8 @@ exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate_Out) :-
 		true
 	;
 		(
-			pretty_term_string(Exchange_Rates_Sorted, Str),
-			throw_string(['multiple different exchange rates found: ', Str])
+			format(string(Str), 'multiple different exchange rates found for: Day:~w, Src_Currency:~w, Dest_Currency:~w, rates found:~w\n', [Day, Src_Currency, Dest_Currency, Exchange_Rates_Sorted]),
+			throw_string(Str)
 		)
 	),
 	(
@@ -255,9 +269,42 @@ exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate_Out) :-
 		[Exchange_Rate_Out|_] = Exchange_Rates
 		)
 	).	
+
+exchange_rate_throw(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate_Out) :-
+	(
+		exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate_Out)
+	->
+		true
+	;
+		(
+			%gtrace,
+			format(string(Str), 'no exchange rate found: Day:~w, Src_Currency:~w, Dest_Currency:~w\n', [Day, Src_Currency, Dest_Currency]),
+			throw_string(Str)
+		)
+	).
+
 	
 is_exchangeable_into_request_bases(Table, Day, Src_Currency, Bases) :-
 	member(Dest_Currency, Bases),
 	exchange_rate(Table, Day, Src_Currency, Dest_Currency, _Exchange_Rate).
 
 	
+
+/*
+notes
+	Vector = [Asset_Change_Coord],
+	Asset_Change_Coord = coord(Src, _, _),
+	exchange_rate_term(Exchange_Rates, Day, Unit, Report_Currency, Exchange_Rate),
+	convert_coord(Asset_Change_Coord, Exchange_Rate...
+	exchange_rate(Day, Src, Dst, Rate)	
+	25 aud = 1
+	usd = 1
+
+	% Dimensions: <Mass, Time, Length>
+	% Basis1: <kg, seconds, meters>
+	% Basis2: <pounds, minutes, feet>
+	% minutes = 60 seconds	
+
+	% vec_change_bases(Input_Basis1, Input_Basis2, Input_Vector_In_Basis1, Output_Vector_In_Basis2)
+	% currency_conversion(...)
+*/

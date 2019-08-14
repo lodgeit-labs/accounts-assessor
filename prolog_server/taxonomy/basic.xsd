@@ -4,7 +4,7 @@ Taxonomy based on XBRL standard Version 2.1.
 Created by UBmatrix Taxonomy Designer 3.0.2.2347 (2007-12-17 12:39).  
 Contact www.ubmatrix.com
 Copyright (c) 2002-2019 UBmatrix inc., All Rights Reserved
-Produced on 2019-07-31 20:16:20
+Produced on 2019-08-09 09:56:41
 -->
 <schema xmlns="http://www.w3.org/2001/XMLSchema" xmlns:xbrli="http://www.xbrl.org/2003/instance" xmlns:link="http://www.xbrl.org/2003/linkbase" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:basic="http://www.xbrlsite.com/basic" xmlns:generic="http://xbrl.org/2008/generic" xmlns:xbrldt="http://xbrl.org/2005/xbrldt" xmlns:nonnum="http://www.xbrl.org/dtr/type/non-numeric" targetNamespace="http://www.xbrlsite.com/basic" elementFormDefault="qualified" attributeFormDefault="unqualified">
   <annotation>
@@ -104,6 +104,10 @@ Produced on 2019-07-31 20:16:20
         <link:definition>1140 - Statement - Investement Report</link:definition>
         <link:usedOn>link:presentationLink</link:usedOn>
       </link:roleType>
+      <link:roleType roleURI="http://www.xbrlsite.com/basic/role/role-1455" id="role-1455">
+        <link:definition>1150 - Statement - Trial Balance</link:definition>
+        <link:usedOn>link:presentationLink</link:usedOn>
+      </link:roleType>
       <link:linkbaseRef xlink:type="simple" xlink:href="basic-label.xml" xlink:role="http://www.xbrl.org/2003/role/labelLinkbaseRef" xlink:arcrole="http://www.w3.org/1999/xlink/properties/linkbase" xlink:title="Label Links, all" />
       <link:linkbaseRef xlink:type="simple" xlink:href="basic-presentation.xml" xlink:role="http://www.xbrl.org/2003/role/presentationLinkbaseRef" xlink:arcrole="http://www.w3.org/1999/xlink/properties/linkbase" xlink:title="Presentation Links, all" />
       <link:linkbaseRef xlink:type="simple" xlink:href="basic-calculation.xml" xlink:role="http://www.xbrl.org/2003/role/calculationLinkbaseRef" xlink:arcrole="http://www.w3.org/1999/xlink/properties/linkbase" xlink:title="Calculation Links, all" />
@@ -189,6 +193,8 @@ Produced on 2019-07-31 20:16:20
   <element id="basic_LiabilitiesAndEquityRollUp" name="LiabilitiesAndEquityRollUp" type="xbrli:stringItemType" substitutionGroup="xbrli:item" xbrli:periodType="duration" abstract="true" nillable="true" />
   <element id="basic_LiabilitiesRollUp" name="LiabilitiesRollUp" type="xbrli:stringItemType" substitutionGroup="xbrli:item" xbrli:periodType="duration" abstract="true" nillable="true" />
   <element id="basic_LongtermDebtRollForward" name="LongtermDebtRollForward" type="xbrli:stringItemType" substitutionGroup="xbrli:item" xbrli:periodType="duration" abstract="true" nillable="true" />
+  <element id="basic_NetAssets" name="NetAssets" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" xbrli:periodType="instant" xbrli:balance="debit" nillable="true" />
+  <element id="basic_NetAssetsRollUp" name="NetAssetsRollUp" type="xbrli:stringItemType" substitutionGroup="xbrli:item" xbrli:periodType="duration" abstract="true" nillable="true" />
   <element id="basic_NetCashFlow" name="NetCashFlow" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" xbrli:periodType="duration" xbrli:balance="debit" nillable="true" />
   <element id="basic_NetCashFlowFinancingActivities" name="NetCashFlowFinancingActivities" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" xbrli:periodType="duration" xbrli:balance="debit" nillable="true" />
   <element id="basic_NetCashFlowFinancingActivitiesRollUp" name="NetCashFlowFinancingActivitiesRollUp" type="xbrli:stringItemType" substitutionGroup="xbrli:item" xbrli:periodType="duration" abstract="true" nillable="true" />

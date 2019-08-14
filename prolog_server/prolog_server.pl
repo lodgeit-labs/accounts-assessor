@@ -43,24 +43,26 @@
 :- http_handler(root(chat/sbe), sbe_request, [methods([post])]).
 :- http_handler(root(chat/residency), residency_request, [methods([post])]).
 :- http_handler('/favicon.ico', http_reply_file(my_static('favicon.ico'), []), []).
+%todo:- http_handler(root(tmp), http_reply_from_files('./tmp', []), [prefix]).
 :- http_handler(root(.), http_reply_from_files('.', []), [prefix]).
-%:- http_handler(root(run/Test), tests(Test), [methods([get]), priority(1)]). /*fixme*/
-%:- http_handler(root(run/_CacheSkipDummy/Test), tests(Test), [methods([get]), priority(1)]).
-:- http_handler(root(run/Test), tests(Test), [methods([get]), priority(1)]).
+:- http_handler(root(run/Test), tests(Test), [methods([get])]).
 
 % -------------------------------------------------------------------
 % run_simple_server/0
 % -------------------------------------------------------------------
 
 run_simple_server :-
-   Port = port(8080),
-   http_server(http_dispatch, [Port]).
+   Port_Number = 8080,
+   %atomic_list_concat(['http://localhost:', Port_Number], Server_Url),
+   %set_server_public_url(Server_Url),
+   http_server(http_dispatch, [port(Port_Number)]).
 
 % -------------------------------------------------------------------
 % run_daemon/0
 % -------------------------------------------------------------------
 
 run_daemon :-
+   /*todo maybe set server public url here if we want to run requests manually from daemon's repl */
    use_module(library(http/http_unix_daemon)),
    http_daemon().
    
@@ -69,18 +71,26 @@ run_daemon :-
 % -------------------------------------------------------------------
 
 upload_form(_Request) :-
-   reply_html_page(
-            title('LodgeiT Demo'),
-	    [ h1('LodgeiT Demo'),
-	      form([ method('POST'),
-		     action(location_by_id(upload)),
-		     enctype('multipart/form-data')
-		   ],
-		   table([],
-			 [ tr([td(input([type(file), name(file)]))]),
-			   tr([td(align(left), input([type(submit), value('Upload XML file')]))])
-			 ]))
-	    ]).
+reply_html_page(
+			title('LodgeiT Demo'),
+		[ 
+			h1('LodgeiT Demo'),
+			form(
+				[
+					method('POST'),
+					action(location_by_id(upload)),
+					enctype('multipart/form-data')
+				],
+				table([],
+				[
+					tr([td(input([type(file), name(file)]))]),
+					tr([td(align(left), input([type(submit), value('Upload XML file')]))])
+				])
+			),
+			h2('instructions'),
+			p(['Upload your request xml file here. You can also browse ', a([href="http://dev-node.uksouth.cloudapp.azure.com:7778/tests/endpoint_tests/"], 'available example request files'),' and ', a([href="http://dev-node.uksouth.cloudapp.azure.com:7778/run/endpoint_tests/depreciation/depreciation-request-depreciation-between-dates-all-years.xml"], 'run them directly like this')]),
+			p(['a new directory is generated for each request: ', a([href="http://dev-node.uksouth.cloudapp.azure.com:7778/tmp/"], 'tmp/'), ', where you should be able to find the uploaded request file and generated report files.'])
+		]).
 
 
 % -------------------------------------------------------------------

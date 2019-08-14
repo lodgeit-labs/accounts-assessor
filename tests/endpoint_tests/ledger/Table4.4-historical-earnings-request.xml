@@ -84,19 +84,19 @@
     <actionTaxonomy>
       <action>
         <id>Introduce_Capital</id>
-        <exchangeAccount>Share_Capital</exchangeAccount>
+        <exchangeAccount>ShareCapital</exchangeAccount>
         <tradingAccount />
         <description>introduce capital</description>
       </action>
       <action>
         <id>Exchange</id>
-        <exchangeAccount>Clearing_Account</exchangeAccount>
+        <exchangeAccount>ClearingAccount</exchangeAccount>
         <tradingAccount />
         <description>exchange</description>
       </action>
       <action>
         <id>Buy_Food</id>
-        <exchangeAccount>Food_Expenses</exchangeAccount>
+        <exchangeAccount>FoodExpenses</exchangeAccount>
         <tradingAccount />
         <description>buy food</description>
       </action>

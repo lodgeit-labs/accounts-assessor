@@ -18,6 +18,8 @@
 		    make_credit/2,
 		    value_multiply/3,
 		    value_divide/3,
+		    value_subtract/3,
+		    value_convert/3,
 			debit_isomorphism/2,
 			vecs_are_almost_equal/2,
 			is_debit/1]).
@@ -70,8 +72,10 @@ vec_reduce(As, Bs) :-
 			member(B, As),
 			B = value(_,_)
 		),
-		Bs
-	),!.
+		Bs_Raw
+	),
+	maplist(unify_coords, Bs, Bs_Raw),
+	!.
 
 
 coord_or_value_unit(coord(Unit,_,_), Unit).
@@ -140,6 +144,22 @@ is_debit(coord(_, _, Zero)) :-
 is_debit([coord(_, _, Zero)]) :-
 	{Zero =:= 0}.
 
+unify_coords(coord(U, D1, C1), coord(U, D2, C2)) :-
+	unify_numbers(D1, D2),
+	unify_numbers(C1, C2).
+
+unify_coords(value(U, V1), value(U, V2)) :-
+	unify_numbers(V1, V2).
+
+unify_numbers(A,B) :-
+	(
+		A = B
+	->
+		true
+	;
+		A =:= B
+	).
+
 	
 make_debit(value(Unit, Amount), coord(Unit, Amount, 0)).
 make_debit(coord(Unit, Dr, Zero), coord(Unit, Dr, 0)) :- Zero =:= 0.
@@ -181,13 +201,22 @@ coord_merge(coord(Unit, D1, C1), coord(Unit, D2, C2), coord(Unit, D3, C3)) :-
 coord_merge(value(Unit, D1), value(Unit, D2), value(Unit, D3)) :-
 	D3 is D2 + D1.
 
-
+value_convert(value(Unit, Amount1), exchange_rate(_,Src,Dst,Rate), value(Unit2, Amount2)) :-
+	assertion(Unit = Src),
+	assertion(Unit2 = Dst),
+	Unit2 = Dst,
+	Amount2 is Amount1 * Rate.
+	
 value_multiply(value(Unit, Amount1), Multiplier, value(Unit, Amount2)) :-
 	Amount2 is Amount1 * Multiplier.
 
 value_divide(value(Unit, Amount1), Divisor, value(Unit, Amount2)) :-
 	Amount2 is Amount1 / Divisor.
 
+value_subtract(value(Unit1, Amount1), value(Unit2, Amount2), value(Unit2, Amount3)) :-
+	assertion(Unit1 == Unit2),
+	Amount3 is Amount1 - Amount2.
+	
 vecs_are_almost_equal(A, B) :-
 	vec_sub(A, B, C),
 	maplist(coord_is_almost_zero, C).

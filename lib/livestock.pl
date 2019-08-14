@@ -8,12 +8,15 @@ this file needs serious cleanup, one reason to delay that might be that we can e
 
 :- module(livestock, [
 		get_livestock_types/2, process_livestock/14, preprocess_livestock_buy_or_sell/3, make_livestock_accounts/2, livestock_counts/6, extract_livestock_opening_costs_and_counts/2, compute_livestock_by_simple_calculation/23]).
-:- use_module(utils, [
+:- use_module('utils', [
 		user:goal_expansion/2, inner_xml/3, fields/2, numeric_fields/2, pretty_term_string/2, maplist6/6, throw_string/1]).
-:- use_module(pacioli, [vec_add/3, vec_inverse/2, vec_reduce/2, vec_sub/3, number_coord/3]).
-:- use_module(accounts, [account_in_set/3, account_by_role/3]).
-:- use_module(days, [parse_date/2]).
-:- use_module(ledger_report, [balance_by_account/9]).
+:- use_module('pacioli', [vec_add/3, vec_inverse/2, vec_reduce/2, vec_sub/3, number_coord/3]).
+:- use_module('accounts', [account_in_set/3, account_by_role/3]).
+:- use_module('days', [parse_date/2]).
+:- use_module('ledger_report', [balance_by_account/9]).
+:- use_module('transactions', [
+		make_transaction/5
+]).
 
 /*
 
@@ -66,7 +69,7 @@ average cost is defined for date and livestock type as follows:
 */
 
 preprocess_livestock_buy_or_sell(Static_Data, S_Transaction, [Bank_Transaction, Livestock_Transaction]) :-
-	Static_Data = (Accounts, _, _, _, _),
+	dict_vars(Static_Data, [Accounts]),
 	% here we don't know Livestock_Type, so s_transaction_is_livestock_buy_or_sell actually yields garbage, that we filter out by existence of appropriate account. Usually we pass it a bounded Livestock_Type.
 	s_transaction_is_livestock_buy_or_sell(S_Transaction, Day, Livestock_Type, Livestock_Coord, _Bank_Vector, Our_Vector, Bank_Name, MoneyDebit, _),
 	count_account(Livestock_Type, Count_Account),
@@ -79,22 +82,20 @@ preprocess_livestock_buy_or_sell(Static_Data, S_Transaction, [Bank_Transaction, 
 	),
 	
 	% produce a livestock count increase/decrease transaction
-	Livestock_Transaction = transaction(Day, Description, Count_Account, [Livestock_Coord]),
+	make_transaction(Day, Description, Count_Account, [Livestock_Coord], Livestock_Transaction),
 	% produce the bank account transaction
 	Bank_Account_Role = ('Banks'/Bank_Name),
 	account_by_role(Accounts, Bank_Account_Role, Bank_Account_Id),
-	Bank_Transaction = transaction(Day, Description, Bank_Account_Id, Our_Vector).
+	make_transaction(Day, Description, Bank_Account_Id, Our_Vector, Bank_Transaction).
 
 /*
 BUY - 
 	DR assets / current assets / inventory on hand / livestock at cost - 	this is our LivestockAtCost or Assets_1204_Livestock_at_Cost.
 	?
 */
-preprocess_buys2(Day, Livestock_Type, Expense_Vector, Buy_Transactions) :-
+preprocess_buys2(Day, Livestock_Type, Expense_Vector, [Buy_Transaction]) :-
 	% DR expenses / direct costs / purchases
-	Buy_Transactions = [
-		transaction(Day, 'livestock buy', Cogs_Account, Expense_Vector)
-	],
+	make_transaction(Day, 'livestock buy', Cogs_Account, Expense_Vector, Buy_Transaction),
 	cogs_account(Livestock_Type, Cogs_Account).
 	
 preprocess_sales2(Day, Livestock_Type, _Average_Rate, _Livestock_Count, Bank_Vector, Sales_Transactions) :-
@@ -123,12 +124,11 @@ equity / loans to associated persons
 equity / drawings by sole trader
 equity / partners equity / drawings
 */
-preprocess_rations2(Livestock_Type, Day, Cost, Currency, Equity_3145_Drawings_by_Sole_Trader, Output) :- 
-	Output = [
-		% DR OWNERS_EQUITY -->DRAWINGS. I.E. THE OWNER TAKES SOMETHING OF VALUE. 
-		transaction(Day, 'rations', Equity_3145_Drawings_by_Sole_Trader, [coord(Currency, Cost, 0)]),
-		%	CR COST_OF_GOODS. I.E. DECREASES COST. 	% expenses / cost of goods / stock adjustment
-		transaction(Day, 'rations', Cogs_Rations_Account, [coord(Currency, 0, Cost)])],
+preprocess_rations2(Livestock_Type, Day, Cost, Currency, Equity_3145_Drawings_by_Sole_Trader, [T1, T2]) :- 
+	% DR OWNERS_EQUITY -->DRAWINGS. I.E. THE OWNER TAKES SOMETHING OF VALUE. 
+	make_transaction(Day, 'rations', Equity_3145_Drawings_by_Sole_Trader, [coord(Currency, Cost, 0)], T1),
+	%	CR COST_OF_GOODS. I.E. DECREASES COST. 	% expenses / cost of goods / stock adjustment
+	make_transaction(Day, 'rations', Cogs_Rations_Account, [coord(Currency, 0, Cost)], T2),
 	cogs_rations_account(Livestock_Type, Cogs_Rations_Account).
 
 	
@@ -168,12 +168,11 @@ yield_livestock_cogs_transactions(
 		vec_sub(Closing_Debit, Opening_Cost, Adjustment_Debit),
 		vec_inverse(Adjustment_Debit, Adjustment_Credit),
 		
-		Cogs_Transactions = [
-			% expense/revenue
-			transaction(To_Day, "livestock adjustment", Cogs_Account, Adjustment_Credit),
-			% assets
-			transaction(To_Day, "livestock adjustment", 'Assets_Livestock_At_Average_Cost', Adjustment_Debit)
-		],
+		Cogs_Transactions = [T1, T2],
+		% expense/revenue
+		make_transaction(To_Day, "livestock adjustment", Cogs_Account, Adjustment_Credit, T1),
+		% assets
+		make_transaction(To_Day, "livestock adjustment", 'AssetsLivestockAtAverageCost', Adjustment_Debit, T2),
 		cogs_account(Livestock_Type, Cogs_Account).
 
 
@@ -296,9 +295,9 @@ s_transaction_is_livestock_buy_or_sell(S_Transaction, Day, Livestock_Type, Lives
 
 
 
-livestock_account_ids('Livestock', 'Livestock_At_Cost', 'Drawings', 'Livestock_Rations').
+livestock_account_ids('Livestock', 'LivestockAtCost', 'Drawings', 'LivestockRations').
 expenses__direct_costs__purchases__account_id('Purchases').
-cost_of_goods_livestock_account_id('Cost_Of_Goods_Livestock').
+cost_of_goods_livestock_account_id('CostOfGoodsLivestock').
 
 
 
@@ -306,17 +305,17 @@ cost_of_goods_livestock_account_id('Cost_Of_Goods_Livestock').
 preprocess_livestock_event(Event, Transaction) :-
 	Event = born(Type, Day, Count),
 	count_account(Type, Count_Account),
-	Transaction = transaction(Day, 'livestock born', Count_Account, [coord(Type, Count, 0)]).
+	make_transaction(Day, 'livestock born', Count_Account, [coord(Type, Count, 0)], Transaction).
 	
 preprocess_livestock_event(Event, Transaction) :-
 	Event = loss(Type, Day, Count),
 	count_account(Type, Count_Account),
-	Transaction = transaction(Day, 'livestock loss', Count_Account, [coord(Type, 0, Count)]).
+	make_transaction(Day, 'livestock loss', Count_Account, [coord(Type, 0, Count)], Transaction).
 	
 preprocess_livestock_event(Event, Transaction) :-
 	Event = rations(Type, Day, Count),
 	count_account(Type, Count_Account),
-	Transaction = transaction(Day, 'livestock rations', Count_Account, [coord(Type, 0, Count)]).
+	make_transaction(Day, 'livestock rations', Count_Account, [coord(Type, 0, Count)], Transaction).
 
 
 	
@@ -556,8 +555,8 @@ extract_livestock_event2(Type, Days, Count, element(rations,_,_),               
 
 /* we should have probably just put the livestock count accounts under inventory */
 yield_livestock_inventory_transaction(Livestock_Type, Opening_Cost_And_Count, Average_Cost_Exchange_Rate, End_Days, Transactions_In, Inventory_Transaction) :-
-	Inventory_Transaction = transaction(End_Days, 'livestock closing inventory', 'Assets_Livestock_At_Cost', Vector),
-	livestock_at_average_cost_at_day(Livestock_Type, Transactions_In, Opening_Cost_And_Count, End_Days, Average_Cost_Exchange_Rate, Vector).
+	livestock_at_average_cost_at_day(Livestock_Type, Transactions_In, Opening_Cost_And_Count, End_Days, Average_Cost_Exchange_Rate, Vector),
+	make_transaction(End_Days, 'livestock closing inventory', 'AssetsLivestockAtCost', Vector, Inventory_Transaction).
 
 get_livestock_inventory_transactions(Livestock_Types, Opening_Costs_And_Counts, Average_Costs, End_Days, Transactions_In, Assets_Transactions) :-
 	findall(Inventory_Transaction,
@@ -575,10 +574,9 @@ opening_inventory_transactions(Start_Days, Opening_Costs_And_Counts, Livestock_T
 	member(Opening_Cost_And_Count, Opening_Costs_And_Counts),
 	opening_cost_and_count(Livestock_Type, Opening_Vector, _) = Opening_Cost_And_Count,
 	vec_inverse(Opening_Vector, Opening_Vector_Credit),
-	Opening_Inventory_Transactions = [
-		transaction(Start_Days, 'livestock opening inventory', 'Assets_Livestock_At_Cost', Opening_Vector),
-		transaction(Start_Days, 'livestock opening inventory', 'Capital_Introduced', Opening_Vector_Credit)
-	].
+	Opening_Inventory_Transactions = [T1, T2],
+	make_transaction(Start_Days, 'livestock opening inventory', 'AssetsLivestockAtCost', Opening_Vector, T1),
+	make_transaction(Start_Days, 'livestock opening inventory', 'CapitalIntroduced', Opening_Vector_Credit, T2).
 	
 	
 process_livestock(Livestock_Doms, Livestock_Types, S_Transactions, Transactions_In, Opening_Costs_And_Counts, Start_Days, End_Days, _Exchange_Rates, Accounts, _Report_Currency, Transactions_Out, Livestock_Events, Average_Costs, Average_Costs_Explanations) :-
@@ -834,16 +832,16 @@ make_livestock_accounts(Livestock_Type, Accounts) :-
 	count_account(Livestock_Type, Count_Name),
 	cogs_rations_account(Livestock_Type, CogsRations_Name),
 
-	Cogs  = account(Cogs_Name, 'Cost_Of_Goods_Livestock', '', 0),
-	Sales = account(Sales_Name, 'Sales_Of_Livestock', '', 0),
-	Count = account(Count_Name, 'Livestock_Count', '', 0),
+	Cogs  = account(Cogs_Name, 'CostOfGoodsLivestock', '', 0),
+	Sales = account(Sales_Name, 'SalesOfLivestock', '', 0),
+	Count = account(Count_Name, 'LivestockCount', '', 0),
 	CogsRations = account(CogsRations_Name, Cogs_Name, '', 0).
 	
 cogs_account(Livestock_Type, Cogs_Account) :-
 	atom_concat(Livestock_Type, 'Cogs', Cogs_Account).
 
 cogs_rations_account(Livestock_Type, Cogs_Rations_Account) :-
-	atom_concat(Livestock_Type, 'Cogs_Rations', Cogs_Rations_Account).
+	atom_concat(Livestock_Type, 'CogsRations', Cogs_Rations_Account).
 	
 sales_account(Livestock_Type, Sales_Account) :-
 	atom_concat(Livestock_Type, 'Sales', Sales_Account).

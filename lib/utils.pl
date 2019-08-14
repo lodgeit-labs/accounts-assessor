@@ -5,6 +5,7 @@
 		/*user:goal_expansion(magic_formula(X), Code)*/
 		/*user:goal_expansion(compile_with_variable_names_preserved(X, variable_names(Names)), X)*/
 		inner_xml/3, 
+		inner_xml_throw/3,
 		open_tag/1, 
 		close_tag/1, 
 		write_tag/2, 
@@ -136,6 +137,12 @@ user:goal_expansion(
 	maplist(var_to_kv_pair, Vars_List, Pairs),
 	Code = dict_create(Dict, _, Pairs).
 
+user:goal_expansion(
+	dict_from_vars(Dict, Name, Vars_List), Code
+) :-
+	maplist(var_to_kv_pair, Vars_List, Pairs),
+	Code = dict_create(Dict, Name, Pairs).
+
 var_to_kv_pair(Var, Pair) :-
 	var_property(Var, name(Name)),
 	downcase_atom(Name, Name_Lcase),
@@ -147,6 +154,12 @@ user:goal_expansion(
 	dict_vars(Dict, Vars_List), Code
 ) :-
 	dict_vars_assignment(Vars_List, Dict, Code).
+
+user:goal_expansion(
+	dict_vars(Dict, Tag, Vars_List), Code
+) :-
+	Code = (is_dict(Dict, Tag), Code0),
+	dict_vars_assignment(Vars_List, Dict, Code0).
 
 dict_vars_assignment([Var|Vars], Dict, Code) :-
 	var_property(Var, name(Key)),
@@ -166,6 +179,18 @@ dict_vars_assignment([], _, true).
 inner_xml(Dom, Element_XPath, Children) :-
 	xpath(Dom, Element_XPath, element(_,_,Children)).
 
+inner_xml_throw(Dom, Element_XPath, Children) :-
+	(
+		xpath(Dom, Element_XPath, element(_,_,Children))
+	->
+		true
+	;
+		(
+			pretty_term_string(Element_XPath, Element_XPath_Str),
+			throw_string(['element missing:', Element_XPath_Str])
+		)
+	).
+	
 trimmed_field(Dom, Element_XPath, Value) :-
 	xpath(Dom, Element_XPath, element(_,_,[Child_Atom])),
 	trim_atom(Child_Atom, Value).
@@ -227,7 +252,8 @@ fields(Dom, [Name_String, Value|Rest]) :-
 		);
 		(
 			pretty_term_string(Dom, Dom_String),
-			atomic_list_concat([Name_String, " field missing in ", Dom_String], Error),
+			pretty_term_string(Name_String, Pretty_Name_String),
+			atomic_list_concat([Pretty_Name_String, " field missing in ", Dom_String], Error),
 			throw(Error)
 		)
 	),

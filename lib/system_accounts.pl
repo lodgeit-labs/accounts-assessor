@@ -9,8 +9,7 @@
 		account_role/2, 
 		account_id/2, 
 		account_parent/2,
-		account_detail_level/2,
-		account_by_role/3]).
+		account_detail_level/2]).
 :- use_module('livestock', [
 		make_livestock_accounts/2]).
 :- use_module('statements', [
@@ -26,6 +25,7 @@ Change id's to unique if needed.
 We could present this as a proposal to the user to add these accounts. But here we will do it immediately.
 */
 generate_system_accounts(Info, Accounts_In, Accounts_Out) :-
+	writeln('<!--generate system accounts...-->'),
 	find_or_add_required_accounts(Info, Accounts_In, Accounts_With_Generated_Accounts),
 	findall(
 		Account,
@@ -36,19 +36,39 @@ generate_system_accounts(Info, Accounts_In, Accounts_Out) :-
 			\+member(Possibly_Already_Existing_Account, Accounts_In)
 		),
 		Accounts_Out
-	).
+	),
+	writeln('<!--...generated system accounts-->')
+.
 
 	
 find_or_add_required_accounts((S_Transactions, Livestock_Types, Transaction_Types), Accounts_In, Accounts_Out) :-
 /*fixme, accounts should be added one by one and id uniqueness checked against all the previously added accounts each time */
-	Livestock_Count_Account = account('Livestock_Count', '', ''/'Livestock_Count', 0),
+	Missing_Stuff = [
+		/*these should more or less probably go into the taxonomy*/
+		account('Inventory', 					'accountHierarchy', 		'accountHierarchy'/'Inventory', 0),
+		account('LivestockCount', 				'Inventory', 				'Inventory'/'LivestockCount', 0),
+		account('NetAssets', 					'Accounts', 				'Accounts'/'NetAssets', 0),
+		account('Banks', 						'CashAndCashEquivalents', 	'Accounts'/'Banks', 0),
+		account('AccountingFees', 				'Accounts', 				'Accounts'/'AccountingFees', 0),
+		account('CurrencyMovement', 			'Revenue', 					'Accounts'/'CurrencyMovement', 0),
+		account('ExchangeGain', 				'Accounts', 				'Accounts'/'ExchangeGain', 0),
+		account('ClearingAccount', 				'Accounts', 				'Accounts'/'ClearingAccount', 0),
+		account('CapitalIntroduced', 			'Accounts', 				'Accounts'/'CapitalIntroduced', 0),
+		/*this one should definitely be contained in some testing hierarchy file*/
+		account('FoodExpenses', 				'Accounts', 				'Accounts'/'FoodExpenses', 0),
+		account('AssetsLivestockAtCost', 		'Accounts', 				'Accounts'/'AssetsLivestockAtCost', 0),
+		account('AssetsLivestockAtAverageCost', 'Accounts', 				'Accounts'/'AssetsLivestockAtAverageCost', 0)
+
+
+
+	],
 	make_bank_accounts(Accounts_In, S_Transactions, Bank_Accounts),
 	flatten([Accounts_In, Bank_Accounts], Accounts2),
 	make_currency_movement_accounts(Accounts2, Bank_Accounts, Currency_Movement_Accounts),
 	maplist(make_livestock_accounts, Livestock_Types, Livestock_Accounts),
 	ensure_gains_accounts_exist(Accounts2, S_Transactions, Transaction_Types, Gains_Accounts),
 	financial_investments(Accounts_In, S_Transactions, Transaction_Types, Financial_Investments_Accounts),
-	flatten([Livestock_Count_Account, Bank_Accounts, Currency_Movement_Accounts, Livestock_Accounts, Gains_Accounts, Financial_Investments_Accounts], Accounts_Out).
+	flatten([Missing_Stuff, Bank_Accounts, Currency_Movement_Accounts, Livestock_Accounts, Gains_Accounts, Financial_Investments_Accounts], Accounts_Out).
 
 /*	
 	
@@ -76,14 +96,16 @@ bank_account_names(S_Transactions, Names) :-
 ensure_bank_account_exists(Accounts_In, Name, Account) :-
 	ensure_account_exists(Accounts_In, 'Banks', 1, ('Banks'/Name), Account).
 
-bank_accounts(Accounts, Bank_Accounts) :-
+bank_accounts(Accounts, Bank_Account_Ids) :-
 	findall(
-		Account,
+		Id,
 		(
 			Bank_Account_Role = ('Banks'/_Bank_Account_Name),
-			account_by_role(Accounts, Bank_Account_Role, Account)
+			member(Account, Accounts),
+			account_role(Account, Bank_Account_Role),
+			account_id(Account, Id)
 		),
-		Bank_Accounts
+		Bank_Account_Ids
 	).
 	
 /*
@@ -105,7 +127,7 @@ make_currency_movement_accounts(Accounts_In, Bank_Accounts, Currency_Movement_Ac
 
 make_currency_movement_account(Accounts_In, Bank_Account, Currency_Movement_Account) :-
 	account_role(Bank_Account, (_/Role_Child)),
-	ensure_account_exists(Accounts_In, 'Currency_Movement', 0, ('Currency_Movement'/Role_Child), Currency_Movement_Account).
+	ensure_account_exists(Accounts_In, 'CurrencyMovement', 0, ('CurrencyMovement'/Role_Child), Currency_Movement_Account).
 	
 	
 /*
@@ -153,7 +175,7 @@ because Financial_Investments_realized might already be an id of another user ac
 
 financial_investments(Accounts_In, S_Transactions, Transaction_Types, Accounts_Out) :-
 	traded_units(S_Transactions, Transaction_Types, Units),
-	roles_tree(Accounts_In, [(Units, 1)], 'Financial_Investments', Accounts_Out).
+	roles_tree(Accounts_In, [(Units, 1)], 'FinancialInvestments', Accounts_Out).
 
 ensure_gains_accounts_exist(Accounts_In, S_Transactions, Transaction_Types, Accounts_Out) :-
 	/* trading accounts are expected to be in user input. */
@@ -214,7 +236,10 @@ roles_tree(_, [], _, []).
 ensure_account_exists(Accounts_In, Parent_Id, Detail_Level, Role, Account) :-
 	Role = (_/Child_Role_Raw),
 	(
-		(account_term_by_role(Accounts_In, Role, Account),!)
+		(
+			%writeln(ensure_account_exists(Accounts_In, Parent_Id, Detail_Level, Role, Account)),
+			(account_term_by_role(Accounts_In, Role, Account),!)
+		)
 	;
 		(
 			replace_nonalphanum_chars_with_underscore(Child_Role_Raw, Child_Role_Safe),

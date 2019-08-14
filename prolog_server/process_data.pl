@@ -14,7 +14,8 @@
 
 :- use_module('../lib/files', [
 		bump_tmp_directory_id/0,
-		set_server_public_url/1
+		set_server_public_url/1,
+		store_xml_document/2
 ]).
 :- use_module('../lib/utils', [
 		throw_string/1
@@ -28,8 +29,10 @@
 :- use_module(depreciation/process_xml_depreciation_request, [process_xml_depreciation_request/2]).
 :- use_module('../lib/utils', [throw_string/1]).
 
+
+
 % -------------------------------------------------------------------
-% process_data/2
+% process_data/3
 % -------------------------------------------------------------------
 
 process_data(FileName, Path, Request) :-
@@ -69,14 +72,6 @@ process_xml_request(FileName, DOM) :-
    (process_xml_depreciation_request(FileName, DOM) -> true)))))).
 
 
-% -------------------------------------------------------------------
-% store_xml_document/2
-% -------------------------------------------------------------------
-
-store_xml_document(FileName, XML) :-
-   open(FileName, write, Stream),
-   write(Stream, XML),
-   close(Stream).
 
 :- locale_create(Locale, "en_AU.utf8", []), set_locale(Locale).
 
