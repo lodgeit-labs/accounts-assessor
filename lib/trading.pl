@@ -27,7 +27,7 @@ reduce_unrealized_gains(Static_Data, Description, Trading_Account_Id, Transactio
 unrealized_gains_increase_txs(Static_Data, Description, Trading_Account_Id, Purchase_Currency, Cost_Vector, Goods, Transaction_Day, Txs, Historical_Txs, Current_Txs) :-
 	dict_vars(Static_Data, [Accounts, Report_Currency, Start_Date]),
 	Goods = [coord(Goods_Unit, Goods_Debit, Goods_Credit)],
-	Goods_Unit = with_cost_per_unit(Goods_Unit_Bare, _),
+	unit_bare(Goods_Unit, Goods_Unit_Bare),
 	gains_accounts(
 		Accounts, Trading_Account_Id, unrealized, Goods_Unit_Bare, 
 		Unrealized_Gains_Currency_Movement, Unrealized_Gains_Excluding_Forex),
@@ -91,10 +91,18 @@ unrealized_gains_reduction_txs(Static_Data, Description, Transaction_Day, Tradin
 		Accounts, Trading_Account_Id, unrealized, Goods_Unit_Name, 
 		Unrealized_Gains_Currency_Movement, Unrealized_Gains_Excluding_Forex),
 
-	Cost = value(Cost_Currency, Cost_Amount),
-	Unit_Cost_Amount is Cost_Amount / Goods_Count,
-	Unit_Cost = value(Cost_Currency, Unit_Cost_Amount),
-	Goods_Unit = with_cost_per_unit(Goods_Unit_Name, Unit_Cost),
+	(
+		Static_Data.cost_or_market = cost
+	->
+		(
+			Cost = value(Cost_Currency, Cost_Amount),
+			Unit_Cost_Amount is Cost_Amount / Goods_Count,
+			Unit_Cost = value(Cost_Currency, Unit_Cost_Amount),
+			Goods_Unit = with_cost_per_unit(Goods_Unit_Name, Unit_Cost)
+		)
+	;
+		Goods_Unit = Goods_Unit_Name
+	),
 		
 	Goods_Without_Currency_Movement = [coord(
 		without_currency_movement_against_since(Goods_Unit, Purchase_Currency, Report_Currency, Purchase_Date), 
@@ -293,3 +301,6 @@ we bought the shares with some currency. we can think of gains as having two par
 			vector: Cost_In_Report_Vs_Purchase_Currency_Inverted
 		}],
 */
+
+unit_bare(with_cost_per_unit(Unit, Cost), Unit).
+	

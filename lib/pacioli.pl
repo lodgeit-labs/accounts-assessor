@@ -5,31 +5,34 @@
 % ===================================================================
 
 :- module(pacioli, [
-			vec_add/3,
-		    vec_equality/2,
-		    vec_identity/1,
-		    vec_inverse/2,
-		    vec_reduce/2,
-		    vec_sub/3,
-		    vec_units/2,
-		    number_coord/3,
-		    number_vec/3,
-		    make_debit/2,
-		    make_credit/2,
-		    value_multiply/3,
-		    value_divide/3,
-		    value_subtract/3,
-		    value_convert/3,
-			debit_isomorphism/2,
-			vecs_are_almost_equal/2,
-			is_debit/1]).
+		coord_unit/2,
+		vec_add/3,
+		vec_equality/2,
+		vec_identity/1,
+		vec_inverse/2,
+		vec_reduce/2,
+		vec_sub/3,
+		vec_units/2,
+		number_coord/3,
+		number_vec/3,
+		make_debit/2,
+		make_credit/2,
+		value_multiply/3,
+		value_divide/3,
+		value_subtract/3,
+		value_convert/3,
+		debit_isomorphism/2,
+		vecs_are_almost_equal/2,
+		is_debit/1]).
 
 :- use_module('utils', [
 		coord_is_almost_zero/1,
 		semigroup_foldl/3]).
 
 :- use_module(library(clpq)).
-		    
+:- use_module(library(record)).
+
+:- record coord(unit, debit, credit).
 % -------------------------------------------------------------------
 % Pacioli group operations. These operations operate on vectors. A vector is a list of
 % coordinates. A coordinate is a triple comprising a unit, a debit amount, and a credit

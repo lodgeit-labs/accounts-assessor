@@ -1,6 +1,6 @@
 :- module(ledger, [
 		find_s_transactions_in_period/4,
-		process_ledger/14,
+		process_ledger/15,
 		emit_ledger_warnings/3,
 		emit_ledger_errors/1]).
 
@@ -42,11 +42,12 @@ find_s_transactions_in_period(S_Transactions, Opening_Date, Closing_Date, Out) :
 	).
 
 process_ledger(
+	Cost_Or_Market, 
 	Livestock_Doms, 
 	S_Transactions0, 
 	Start_Date, 
 	End_Date, 
-	Exchange_Rates, 
+	Exchange_Rates0, 
 	Transaction_Types, 
 	Report_Currency, 
 	Livestock_Types, 
@@ -59,7 +60,7 @@ process_ledger(
 ) :-
 	s_transactions_up_to(End_Date, S_Transactions0, S_Transactions),
 	emit_ledger_warnings(S_Transactions, Start_Date, End_Date),
-	pretty_term_string(Exchange_Rates, Message1b),
+	pretty_term_string(Exchange_Rates0, Message1b),
 	pretty_term_string(Transaction_Types, Message2),
 	pretty_term_string(Accounts_In, Message3),
 	atomic_list_concat([
@@ -69,6 +70,15 @@ process_ledger(
 	'Accounts extracted:\n',Message3,'\n\n',
 	'-->\n\n'], Debug_Message0),
 	writeln(Debug_Message0),
+	
+	/*todo: if there are no unit values, force Cost_Or_Market = cost?*/
+	(
+		Cost_Or_Market = cost
+	->
+		filter_out_market_values(Exchange_Rates0, Exchange_Rates)
+	;
+		Exchange_Rates0 = Exchange_Rates
+	),
 	
 	generate_system_accounts((S_Transactions, Livestock_Types, Transaction_Types), Accounts_In, Generated_Accounts_Nested),
 	flatten(Generated_Accounts_Nested, Generated_Accounts),
@@ -82,11 +92,10 @@ process_ledger(
 	%check_accounts(Accounts)
 	maplist(check_account_parent(Accounts), Accounts), 
 
-	/*todo dont process s_transactions after end_days*/
-	dict_from_vars(Static_Data, [Accounts, Report_Currency, Start_Date, End_Date, Exchange_Rates, Transaction_Types]),
+	dict_from_vars(Static_Data, [Accounts, Report_Currency, Start_Date, End_Date, Exchange_Rates, Transaction_Types, Cost_Or_Market]),
 	preprocess_s_transactions(Static_Data, S_Transactions, Transactions1, Outstanding_Out, Transaction_Transformation_Debug),
 		
-	/*if processing s_transactions failed, we should either limit the end date for livestock processing, 
+	/*todo if processing s_transactions ended prematurely, we should either limit the end date for livestock processing, 
 	or we should filter the additional transactions out before creating reports*/
 	
 	process_livestock(Livestock_Doms, Livestock_Types, S_Transactions, Transactions1, Livestock_Opening_Costs_And_Counts, Start_Date, End_Date, Exchange_Rates, Accounts, Report_Currency, Transactions_With_Livestock, Livestock_Events, Average_Costs, Average_Costs_Explanations),

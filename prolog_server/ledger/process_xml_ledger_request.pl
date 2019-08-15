@@ -48,7 +48,7 @@
 :- use_module('../../lib/ledger', [
 		emit_ledger_warnings/3,
 		emit_ledger_errors/1,
-		process_ledger/14]).
+		process_ledger/15]).
 :- use_module('../../lib/livestock', [
 		get_livestock_types/2, 
 		process_livestock/14, 
@@ -87,7 +87,7 @@ process_xml_ledger_request(_, Dom) :-
 	/*
 		first let's extract data from the request
 	*/
-	extract_cost_or_market(Dom, _Cost_Or_Market),
+	extract_cost_or_market(Dom, Cost_Or_Market),
 	extract_default_currency(Dom, Default_Currency),
 	extract_report_currency(Dom, Report_Currency),
 	extract_action_taxonomy(Dom, Transaction_Types),
@@ -103,10 +103,11 @@ process_xml_ledger_request(_, Dom) :-
 	get_livestock_types(Livestock_Doms, Livestock_Types),
    	extract_livestock_opening_costs_and_counts(Livestock_Doms, Livestock_Opening_Costs_And_Counts),
 	findall(S_Transaction, extract_s_transaction(Dom, Start_Date_Atom, S_Transaction), S_Transactions0),
+	/* flip from bank's perspective to our perspective */
 	maplist(invert_s_transaction_vector, S_Transactions0, S_Transactions0b),
 	sort_s_transactions(S_Transactions0b, S_Transactions),
 	/* process_ledger turns s_transactions into transactions */
-	process_ledger(Livestock_Doms, S_Transactions, Start_Date, End_Date, Exchange_Rates, Transaction_Types, Report_Currency, Livestock_Types, Livestock_Opening_Costs_And_Counts, Accounts0, Accounts, Transactions, Transaction_Transformation_Debug, Outstanding_Out),
+	process_ledger(Cost_Or_Market, Livestock_Doms, S_Transactions, Start_Date, End_Date, Exchange_Rates, Transaction_Types, Report_Currency, Livestock_Types, Livestock_Opening_Costs_And_Counts, Accounts0, Accounts, Transactions, Transaction_Transformation_Debug, Outstanding_Out),
 	print_relevant_exchange_rates_comment(Report_Currency, End_Date, Exchange_Rates, Transactions),
 	infer_exchange_rates(Transactions, S_Transactions, Start_Date, End_Date, Accounts, Report_Currency, Exchange_Rates, Exchange_Rates2),
 	writeln("<!-- exchange rates 2:"),

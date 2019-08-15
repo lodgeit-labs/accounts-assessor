@@ -354,11 +354,23 @@ investment_report_2_unrealized(Static_Data, Investment, Row) :-
 	End_Date = Static_Data.end_date,
 	Exchange_Rates = Static_Data.exchange_rates,
 	Report_Currency = Static_Data.report_currency,
+	Cost_Or_Market = Static_Data.cost_or_market,
 	Investment = (unr, Info, Count, []),
+	
 	Info = info(Investment_Currency, Unit, Opening_Unit_Cost_Converted, Opening_Unit_Cost_Foreign, Opening_Date),
-	vec_change_bases(Exchange_Rates, End_Date, [Investment_Currency], 
-		[coord(with_cost_per_unit(Unit, Opening_Unit_Cost_Converted), 1, 0)],
-		[coord(End_Unit_Price_Unit, End_Unit_Price_Amount, 0)]
+	
+	(
+		Cost_Or_Market = cost
+	->
+		vec_change_bases(Exchange_Rates, End_Date, [Investment_Currency], 
+			[coord(with_cost_per_unit(Unit, Opening_Unit_Cost_Converted), 1, 0)],
+			[coord(End_Unit_Price_Unit, End_Unit_Price_Amount, 0)]
+		)
+	;
+		vec_change_bases(Exchange_Rates, End_Date, [Investment_Currency], 
+			[coord(Unit, 1, 0)],
+			[coord(End_Unit_Price_Unit, End_Unit_Price_Amount, 0)]
+		)		
 	),
 	ir2_forex_gain(Exchange_Rates, Opening_Date, value(End_Unit_Price_Unit, End_Unit_Price_Amount), End_Date, Investment_Currency, Report_Currency, Count, Forex_Gain),
 	ir2_market_gain(Exchange_Rates, Opening_Date, End_Date, Investment_Currency, Report_Currency, Count, Opening_Unit_Cost_Converted, End_Unit_Price_Unit, End_Unit_Price_Amount, Market_Gain),

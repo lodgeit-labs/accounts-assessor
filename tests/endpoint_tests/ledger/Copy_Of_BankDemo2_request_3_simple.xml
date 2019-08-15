@@ -21,9 +21,8 @@
     
     
     <startDate>2018-07-13</startDate>
-
-
     <endDate>2019-06-30</endDate>
+	<costOrMarket>market</costOrMarket>
 
 
     <defaultCurrency>
@@ -36,7 +35,6 @@
 	
 	<unitValues>
       
-
 
       <unitValue>
         <unitType>SG Issuer_SA_USD_1</unitType>

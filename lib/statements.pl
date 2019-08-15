@@ -19,7 +19,6 @@
 		s_transactions_up_to/3
 		]).
 
-/*fixme turn trading into module*/
 :- [trading].
 
 :- use_module('pacioli',  [
@@ -83,8 +82,7 @@
 
 % -------------------------------------------------------------------
 % bank statement transaction record, these are in the input xml
-:- record
-	s_transaction(day, type_id, vector, account_id, exchanged).
+:- record s_transaction(day, type_id, vector, account_id, exchanged).
 % - The absolute day that the transaction happenned
 % - The type identifier/action tag of the transaction
 % - The amounts that are being moved in this transaction
@@ -92,12 +90,12 @@
 % - Either the units or the amount to which the transaction amount will be converted to
 % depending on whether the term is of the form bases(...) or vector(...).
 
+preprocess_s_transactions(Static_Data, S_Transactions, Transactions_Out, Outstanding_Out, Debug_Info) :-
 /*
 	at this point:
 	s_transactions have to be sorted by date from oldest to newest 
 	s_transactions have flipped vectors, so they are from our perspective
 */
-preprocess_s_transactions(Static_Data, S_Transactions, Transactions_Out, Outstanding_Out, Debug_Info) :-
 	preprocess_s_transactions2(Static_Data, S_Transactions, Transactions0, ([],[]), Outstanding_Out, Debug_Info, []),
 	flatten(Transactions0, Transactions_Out).
 
@@ -215,9 +213,8 @@ preprocess_s_transaction(Static_Data, S_Transaction, [Ts1, Ts2, Ts3, Ts4], Outst
 	%(var(Description)->	Description = '?'; true),
 	Description = Transaction_Type_Id,
 	[coord(Bank_Account_Currency, _,_)] = Vector_Ours,
-	vec_change_bases(Exchange_Rates, Transaction_Date, Report_Currency, Vector_Ours, Converted_Vector_Ours),
-	
 	affect_bank_account(Static_Data, Bank_Account_Name, Bank_Account_Currency, Transaction_Date, Vector_Ours, Description, Ts1), 
+	vec_change_bases(Exchange_Rates, Transaction_Date, Report_Currency, Vector_Ours, Converted_Vector_Ours),
 	(
 		Counteraccount_Vector \= []
 	->
@@ -241,8 +238,7 @@ preprocess_s_transaction(Static_Data, S_Transaction, [Ts1, Ts2, Ts3, Ts4], Outst
 	).
 
 /*
-	purchased shares are recorded in an assets account without conversion. The unit is wrapped in a with_cost_per_unit
-	term.
+	purchased shares are recorded in an assets account without conversion. The unit is optionally wrapped in a with_cost_per_unit term.
 	Separately from that, we also change Outstanding with each buy or sell.
 */
 make_buy(Static_Data, Trading_Account_Id, Pricing_Method, Bank_Account_Currency, Goods_Vector, 
@@ -250,21 +246,29 @@ make_buy(Static_Data, Trading_Account_Id, Pricing_Method, Bank_Account_Currency,
 	Exchanged_Account, Transaction_Date, Description, 
 	Outstanding_In, Outstanding_Out, [Ts1, Ts2]
 ) :-
-	purchased_goods_vector_with_cost(Goods_Vector, Converted_Vector_Ours, Goods_With_Cost_Vector),
-	[coord(with_cost_per_unit(Goods_Unit, Unit_Cost), Goods_Count, _)] = Goods_With_Cost_Vector,
-	purchased_goods_vector_with_cost(
-		Goods_Vector, Vector_Ours, 
-		[coord(with_cost_per_unit(Goods_Unit, Unit_Cost_Foreign), Goods_Count, _)]),
-	dict_vars(Static_Data, [Accounts]),
+	[Coord_Ours] = Vector_Ours,
+	[Goods_Coord] = Goods_Vector,
+	[Coord_Ours_Converted] = Converted_Vector_Ours,
+	unit_cost_value(Coord_Ours, Goods_Coord, Unit_Cost_Foreign),
+	unit_cost_value(Coord_Ours_Converted, Goods_Coord, Unit_Cost_Converted),
+	coord_unit(Goods_Coord, Goods_Unit),
+	dict_vars(Static_Data, [Accounts, Cost_Or_Market]),
 	account_by_role(Accounts, Exchanged_Account/Goods_Unit, Exchanged_Account2),
-	make_transaction(Transaction_Date, Description, Exchanged_Account2, Goods_With_Cost_Vector, Ts1),
+	(
+		Cost_Or_Market = cost
+	->
+		purchased_goods_coord_with_cost(Goods_Vector, Converted_Vector_Ours, Goods_Vector2)
+	;
+		Goods_Vector2 = Goods_Vector
+	),
+	make_transaction(Transaction_Date, Description, Exchanged_Account2, Goods_Vector2, Ts1),
 	add_bought_items(
 		Pricing_Method, 
-		outstanding(Bank_Account_Currency, Goods_Unit, Goods_Count, Unit_Cost, Unit_Cost_Foreign, Transaction_Date),
+		outstanding(Bank_Account_Currency, Goods_Unit, Goods_Count, Unit_Cost_Converted, Unit_Cost_Foreign, Transaction_Date),
 		Outstanding_In, Outstanding_Out
 	),
 	(var(Trading_Account_Id) -> true
-		; increase_unrealized_gains(Static_Data, Description, Trading_Account_Id, Bank_Account_Currency, Converted_Vector_Ours, Goods_With_Cost_Vector, Transaction_Date, Ts2) 
+		; increase_unrealized_gains(Static_Data, Description, Trading_Account_Id, Bank_Account_Currency, Converted_Vector_Ours, Goods_Vector2, Transaction_Date, Ts2) 
 	).
 
 make_sell(Static_Data, Trading_Account_Id, Pricing_Method, _Bank_Account_Currency, Goods_Vector,
@@ -278,7 +282,7 @@ make_sell(Static_Data, Trading_Account_Id, Pricing_Method, _Bank_Account_Currenc
 	bank_debit_to_unit_price(Vector_Ours, Goods_Positive, Sale_Unit_Price),
 	((find_items_to_sell(Pricing_Method, Goods_Unit, Goods_Positive, Transaction_Date, Sale_Unit_Price, Outstanding_In, Outstanding_Out, Goods_Cost_Values),!)
 		;(throw(not_enough_goods_to_sell))),
-	maplist(sold_goods_vector_with_cost, Goods_Cost_Values, Goods_With_Cost_Vectors),
+	maplist(sold_goods_vector_with_cost(Static_Data), Goods_Cost_Values, Goods_With_Cost_Vectors),
 	maplist(
 		make_transaction(Transaction_Date, Description, Exchanged_Account2), 
 		Goods_With_Cost_Vectors, Ts1
@@ -295,20 +299,6 @@ bank_debit_to_unit_price(Vector_Ours, Goods_Positive, value(Unit, Number2)) :-
 	number_coord(Unit, Number, Coord),
 	Number2 is Number / Goods_Positive.
 
-	
-/*
-	when we bought something, we debited some assets account with the result of 
-	purchased_goods_vector_with_cost(Goods_Vector0, Converted_Vector_Ours, Goods_With_Cost_Vector)
-	now we need to credit that account with a coord(with_cost_per_unit(..), with the same unit costs
-*/
-sold_goods_vector_with_cost(Goods_Cost_Value, Goods_With_Cost_Vector) :-
-	Goods_Cost_Value = goods(_Bank_Account_Currency, Goods_Unit, Goods_Count, Total_Cost_Value, _),
-	value_divide(Total_Cost_Value, Goods_Count, Unit_Cost_Value),
-	Goods_With_Cost_Vector = [coord(
-		with_cost_per_unit(Goods_Unit, Unit_Cost_Value),
-		0,
-		Goods_Count
-	)].
 	
 /*	
 	Transactions using currency trading accounts can be decomposed into:
@@ -346,21 +336,37 @@ record_earning_or_equity_or_loan(Static_Data, Vector_Ours, Exchanged_Account, Tr
 	vec_inverse(Vector_Ours, Vector_Exchanged),
 	make_exchanged_transactions(Exchange_Rates, Report_Currency, Exchanged_Account, Transaction_Date, Vector_Exchanged, Description, Ts2).
 
-purchased_goods_vector_with_cost(
-	[coord(Goods_Unit_In, Goods_Count, Zero)],
-	Cost_Vector, Goods_Vector_With_Cost
-) :-
-	assertion(Zero =:= 0),
-	[coord(Currency, _, Price)] = Cost_Vector,
+purchased_goods_coord_with_cost(Goods_Coord, Cost_Coord, Goods_Coord_With_Cost) :-
+	unit_cost_value(Cost_Coord, Goods_Coord, Unit_Cost),
+	Goods_Coord = coord(Goods_Unit, Goods_Count, _),
+	Goods_Coord_With_Cost = coord(
+		with_cost_per_unit(Goods_Unit, Unit_Cost),
+		Goods_Count, 
+		0
+	).
+
+unit_cost_value(Cost_Coord, Goods_Coord, Unit_Cost) :-
+	Goods_Coord = coord(Goods_Unit_In, Goods_Count, Zero1),
+	assertion(Zero1 =:= 0),
+	Cost_Coord = coord(Currency, Zero2, Price),
+	assertion(Zero2 =:= 0),
 	Unit_Cost is Price / Goods_Count,
-	Goods_Vector_With_Cost = [coord(
-		with_cost_per_unit(
-			Goods_Unit_In, 
-			value(Currency, Unit_Cost)
-		),
-			Goods_Count, 
-			0
-	)].	
+	Unit_Cost = value(Currency, Unit_Cost).
+
+sold_goods_vector_with_cost(Static_Data, Goods_Cost_Value, [Goods_Coord_With_Cost]) :-
+	Goods_Cost_Value = goods(_, Goods_Unit, Goods_Count, Total_Cost_Value, _),
+	(
+		Static_Data.cost_or_market = cost
+	->
+		Unit = Goods_Unit
+	;
+		(
+			value_divide(Total_Cost_Value, Goods_Count, Unit_Cost_Value),
+			Unit = with_cost_per_unit(Goods_Unit, Unit_Cost_Value)
+		)
+	),
+	Goods_Coord_With_Cost_Vector = coord(Unit, 0, Goods_Count).
+
 
 make_exchanged_transactions(Exchange_Rates, Report_Currency, Account, Date, Vector, Description, Transaction) :-
 	vec_change_bases(Exchange_Rates, Date, Report_Currency, Vector, Vector_Exchanged_To_Report),
@@ -655,7 +661,6 @@ invert_s_transaction_vector(T0, T1) :-
 	T0 = s_transaction(Date, Type_id, Vector, Account_id, Exchanged),
 	T1 = s_transaction(Date, Type_id, Vector_Inverted, Account_id, Exchanged),
 	vec_inverse(Vector, Vector_Inverted).
-	
 
 
 	
@@ -712,8 +717,11 @@ sort_s_transactions(In, Out) :-
 	3rd item of the coord is bank credit, our debit.
 	*/
 	[3,1,3], @=<,  In, Mid),
-	/*now we can sort by date ascending, and the order of transactions with same date, as sorted above, will be preserved*/
+	/*
+	now we can sort by date ascending, and the order of transactions with same date, as sorted above, will be preserved
+	*/
 	sort(1, @=<,  Mid, Out).
+
 
 s_transactions_up_to(End_Date, S_Transactions_In, S_Transactions_Out) :-
 	findall(
