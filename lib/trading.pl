@@ -8,48 +8,23 @@
 	this may seem error prone, but any issues are yet to be found, and it clarifies the logic.
 */
 			
-increase_unrealized_gains(Static_Data, Trading_Account_Id, Purchase_Currency, Converted_Cost_Vector, Goods_With_Unit_Cost_Vector, Transaction_Day, [Ts0, Ts1, Ts2]) :-
-	unrealized_gains_increase_txs(Static_Data, Trading_Account_Id, Purchase_Currency, Converted_Cost_Vector, Goods_With_Unit_Cost_Vector, Transaction_Day, Txs0, Historical_Txs, Current_Txs),
+increase_unrealized_gains(Static_Data, Description, Trading_Account_Id, Purchase_Currency, Converted_Cost_Vector, Goods_With_Unit_Cost_Vector, Transaction_Day, [Ts0, Ts1, Ts2]) :-
+	unrealized_gains_increase_txs(Static_Data, Description, Trading_Account_Id, Purchase_Currency, Converted_Cost_Vector, Goods_With_Unit_Cost_Vector, Transaction_Day, Txs0, Historical_Txs, Current_Txs),
 	Start_Date = Static_Data.start_date,
 	add_days(Start_Date, -1, Before_Start),
 	(nonvar(Txs0) -> txs_to_transactions(Transaction_Day, Txs0, Ts0) ; true),
 	(nonvar(Current_Txs) -> txs_to_transactions(Start_Date, Current_Txs, Ts1) ; true),
 	(nonvar(Historical_Txs) -> txs_to_transactions(Before_Start, Historical_Txs, Ts2) ; true).	
 
-reduce_unrealized_gains(Static_Data, Trading_Account_Id, Transaction_Day, Goods_Cost_Values, [Ts0, Ts1, Ts2]) :-
-	maplist(unrealized_gains_reduction_txs(Static_Data, Transaction_Day, Trading_Account_Id), Goods_Cost_Values, Txs0, Historical_Txs, Current_Txs),
+reduce_unrealized_gains(Static_Data, Description, Trading_Account_Id, Transaction_Day, Goods_Cost_Values, [Ts0, Ts1, Ts2]) :-
+	maplist(unrealized_gains_reduction_txs(Static_Data, Description, Transaction_Day, Trading_Account_Id), Goods_Cost_Values, Txs0, Historical_Txs, Current_Txs),
 	Start_Date = Static_Data.start_date,
 	add_days(Start_Date, -1, Before_Start),
 	(nonvar(Txs0) -> txs_to_transactions(Transaction_Day, Txs0, Ts0) ; true),
 	(nonvar(Current_Txs) -> txs_to_transactions(Start_Date, Current_Txs, Ts1) ; true),
 	(nonvar(Historical_Txs) -> txs_to_transactions(Before_Start, Historical_Txs, Ts2) ; true).	
-	
-increase_realized_gains(Static_Data, Trading_Account_Id, Sale_Vector, Converted_Vector, Goods_Vector, Transaction_Day, Goods_Cost_Values, Ts2) :-
 
-	[Goods_Coord] = Goods_Vector,
-	number_coord(_, Goods_Integer, Goods_Coord),
-	Goods_Positive is -Goods_Integer,
-
-	Sale_Vector = [coord(Sale_Currency, Sale_Currency_Amount, _)],
-	Sale_Currency_Unit_Price is Sale_Currency_Amount / Goods_Positive,
-	
-	[coord(Converted_Currency, Converted_Debit, _)] = Converted_Vector,
-	Sale_Unit_Price_Amount is Converted_Debit / Goods_Positive,
-	
-	maplist(
-		realized_gains_txs(
-			Static_Data, 
-			Transaction_Day,
-			Sale_Currency,
-			Sale_Currency_Unit_Price,
-			Trading_Account_Id, 
-			value(Converted_Currency, Sale_Unit_Price_Amount)
-		), 
-		Goods_Cost_Values, Txs2
-	),
-	txs_to_transactions(Transaction_Day, Txs2, Ts2).
-
-unrealized_gains_increase_txs(Static_Data, Trading_Account_Id, Purchase_Currency, Cost_Vector, Goods, Transaction_Day, Txs, Historical_Txs, Current_Txs) :-
+unrealized_gains_increase_txs(Static_Data, Description, Trading_Account_Id, Purchase_Currency, Cost_Vector, Goods, Transaction_Day, Txs, Historical_Txs, Current_Txs) :-
 	dict_vars(Static_Data, [Accounts, Report_Currency, Start_Date]),
 	Goods = [coord(Goods_Unit, Goods_Debit, Goods_Credit)],
 	Goods_Unit = with_cost_per_unit(Goods_Unit_Bare, _),
@@ -64,10 +39,10 @@ unrealized_gains_increase_txs(Static_Data, Trading_Account_Id, Purchase_Currency
 		Transaction_Day @>= Start_Date
 	->
 		dr_cr_table_to_txs([
-			% Account                                                                 DR                                                               CR
-			(Unrealized_Gains_Currency_Movement,                Goods_Without_Currency_Movement,        Goods),
-			(Unrealized_Gains_Excluding_Forex,	                 Cost_Vector,      	                Goods_Without_Currency_Movement)
-		], Txs)
+			% Account                               DR                                       CR
+			(Unrealized_Gains_Currency_Movement,    Goods_Without_Currency_Movement,        Goods),
+			(Unrealized_Gains_Excluding_Forex,	    Cost_Vector,      	                Goods_Without_Currency_Movement)
+		], Txs, [Description, ' - only current period'], cr)
 	;
 		(
 			/*historical:*/
@@ -85,10 +60,10 @@ unrealized_gains_increase_txs(Static_Data, Trading_Account_Id, Purchase_Currency
 				Goods_Debit, Goods_Credit)
 			],
 			dr_cr_table_to_txs([
-				% Account                                                DR                                              CR
-				(Unrealized_Gains_Currency_Movement,                Historical_Without_Currency_Movement,        Goods_Historical),
-				(Unrealized_Gains_Excluding_Forex,	                Cost_Vector,       Historical_Without_Currency_Movement)
-			], Historical_Txs),
+				% Account                             DR                                              CR
+				(Unrealized_Gains_Currency_Movement,  Historical_Without_Currency_Movement,        Goods_Historical),
+				(Unrealized_Gains_Excluding_Forex,	  Cost_Vector,             Historical_Without_Currency_Movement)
+			], Historical_Txs, [Description, ' - historical part'], cr),
 		
 			/*now, for tracking unrealized gains after report start date*/
 			/* goods value as it was at the start date */
@@ -101,15 +76,14 @@ unrealized_gains_increase_txs(Static_Data, Trading_Account_Id, Purchase_Currency
 				Goods_Debit, Goods_Credit)
 			],
 			dr_cr_table_to_txs([
-				% Account                                                                 DR                                                               CR
-				(Unrealized_Gains_Currency_Movement,                Current_Without_Currency_Movement,        Goods),
-				(Unrealized_Gains_Excluding_Forex,	                Opening_Goods_Value,       Current_Without_Currency_Movement)
-			], Current_Txs)
+				% Account                                DR                                   CR
+				(Unrealized_Gains_Currency_Movement,     Current_Without_Currency_Movement,        Goods),
+				(Unrealized_Gains_Excluding_Forex,	     Opening_Goods_Value,       Current_Without_Currency_Movement)
+			], Current_Txs, [Description, ' - current part'], cr)
 		)
 	).
-
 	
-unrealized_gains_reduction_txs(Static_Data, Transaction_Day, Trading_Account_Id, Purchase_Info, Txs, Historical_Txs, Current_Txs) :-
+unrealized_gains_reduction_txs(Static_Data, Description, Transaction_Day, Trading_Account_Id, Purchase_Info, Txs, Historical_Txs, Current_Txs) :-
 	dict_vars(Static_Data, [Accounts, Report_Currency, Start_Date]),
 	goods(Purchase_Currency, Goods_Unit_Name, Goods_Count, Cost, Purchase_Date) = Purchase_Info,
 
@@ -139,11 +113,11 @@ unrealized_gains_reduction_txs(Static_Data, Transaction_Day, Trading_Account_Id,
 	->
 		(
 			dr_cr_table_to_txs([
-			% Account                                     DR                                                  CR
-			(Unrealized_Gains_Currency_Movement,          Goods    ,                                Goods_Without_Currency_Movement),
-			(Unrealized_Gains_Excluding_Forex,            Goods_Without_Currency_Movement    ,      Cost)
+			% Account                                 DR                                         CR
+			(Unrealized_Gains_Currency_Movement,      Goods,         Goods_Without_Currency_Movement),
+			(Unrealized_Gains_Excluding_Forex,        Goods_Without_Currency_Movement    ,      Cost)
 			],
-			Txs)
+			Txs, [Description, ' - only current period'], dr)
 		)
 	;
 		(
@@ -166,7 +140,7 @@ unrealized_gains_reduction_txs(Static_Data, Transaction_Day, Trading_Account_Id,
 			(Unrealized_Gains_Currency_Movement,          Goods_Historical    ,                     Historical_Without_Currency_Movement),
 			(Unrealized_Gains_Excluding_Forex,            Historical_Without_Currency_Movement    , Cost)
 			],
-			Historical_Txs),
+			Historical_Txs, [Description, ' - historical part'], dr),
 			
 			Opening_Goods_Value = [coord(
 				without_movement_after(Goods_Unit, Start_Date), 
@@ -180,20 +154,41 @@ unrealized_gains_reduction_txs(Static_Data, Transaction_Day, Trading_Account_Id,
 				% Account                             DR                                           CR
 				(Unrealized_Gains_Currency_Movement,  Goods,                  Current_Without_Currency_Movement),
 				(Unrealized_Gains_Excluding_Forex,	  Current_Without_Currency_Movement,    Opening_Goods_Value)
-			], Current_Txs)
+			], Current_Txs, [Description, ' - current part'], dr)
 		)
 	).
-			
-			
-			
-
-			/*
-	Txs= [T0, T1],
-	T0.comment = T1.comment,
+/*
 	T0.comment = 'reduce unrealized gain by outgoing asset and its cost'.
 */
+
+
+increase_realized_gains(Static_Data, Description, Trading_Account_Id, Sale_Vector, Converted_Vector, Goods_Vector, Transaction_Day, Goods_Cost_Values, Ts2) :-
+
+	[Goods_Coord] = Goods_Vector,
+	number_coord(_, Goods_Integer, Goods_Coord),
+	Goods_Positive is -Goods_Integer,
+
+	Sale_Vector = [coord(Sale_Currency, Sale_Currency_Amount, _)],
+	Sale_Currency_Unit_Price is Sale_Currency_Amount / Goods_Positive,
 	
-realized_gains_txs(Static_Data, _Transaction_Day, Sale_Currency, Sale_Currency_Unit_Price, Trading_Account_Id, Sale_Unit_Price_Converted, Purchase_Info, Txs) :-
+	[coord(Converted_Currency, Converted_Debit, _)] = Converted_Vector,
+	Sale_Unit_Price_Amount is Converted_Debit / Goods_Positive,
+	
+	maplist(
+		realized_gains_txs(
+			Static_Data, 
+			Description,
+			Transaction_Day,
+			Sale_Currency,
+			Sale_Currency_Unit_Price,
+			Trading_Account_Id, 
+			value(Converted_Currency, Sale_Unit_Price_Amount)
+		), 
+		Goods_Cost_Values, Txs2
+	),
+	txs_to_transactions(Transaction_Day, Txs2, Ts2).
+
+realized_gains_txs(Static_Data, Description, _Transaction_Day, Sale_Currency, Sale_Currency_Unit_Price, Trading_Account_Id, Sale_Unit_Price_Converted, Purchase_Info, Txs) :-
 	dict_vars(Static_Data, [Accounts, Report_Currency, Exchange_Rates]),
 	goods(_ST_Currency, Goods_Unit, Goods_Count, Converted_Cost, Purchase_Date) = Purchase_Info,
 	Sale_Currency_Amount is Sale_Currency_Unit_Price * Goods_Count,
@@ -216,23 +211,27 @@ realized_gains_txs(Static_Data, _Transaction_Day, Sale_Currency, Sale_Currency_U
 		(Realized_Gains_Currency_Movement,	     Sale_Without_Currency_Movement,       /*offset cash increase*/Sale),
 		(Realized_Gains_Excluding_Forex,         Converted_Cost,                       Sale_Without_Currency_Movement)
 		],
-		Txs
-	).
+		Txs, Description, cr).
 
-
-dr_cr_table_to_txs(Table, Txs) :-
-	maplist(dr_cr_table_line_to_tx, Table, Txs).
+dr_cr_table_to_txs(Table, Txs, Description, Order_Hint) :-
+	maplist(dr_cr_table_line_to_tx(Description, Order_Hint), Table, Txs).
 	
-dr_cr_table_line_to_tx(Line, Tx) :-
+dr_cr_table_line_to_tx(Description, Order_Hint, Line, Tx) :-
 	Line = (Account, Dr0, Cr0),
 	flatten([Dr0], Dr1),
 	flatten([Cr0], Cr1),
 	maplist(make_debit, Dr1, Dr2),
 	maplist(make_credit, Cr1, Cr2),
-	append(Dr2, Cr2, Vector),
+	(
+		Order_Hint = dr
+	->
+		append(Dr2, Cr2, Vector)
+	;
+		append(Cr2, Dr2, Vector)
+	),
 	Tx = tx{
 		comment: _,
-		comment2: _,
+		comment2: Description,
 		account: Account,
 		vector: Vector
 	}.
@@ -248,7 +247,8 @@ tx_to_transaction(Day, Tx, Transaction) :-
 	ground(Vector),
 	(var(Comment) -> Comment = '?'; true),
 	(var(Comment2) -> Comment2 = '?'; true),
-	atomic_list_concat(['comment:', Comment, ', comment2:', Comment2], Description),
+	flatten(['comment:', Comment, ', comment2:', Comment2], Description0),
+	atomic_list_concat(Description0, Description),
 	transaction_day(Transaction, Day),
 	transaction_description(Transaction, Description),
 	transaction_account_id(Transaction, Account),
