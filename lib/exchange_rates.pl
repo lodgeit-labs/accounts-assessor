@@ -135,6 +135,7 @@ special_exchange_rate(Table, Exchange_Date, Src_Currency, Report_Currency, Rate)
 special_exchange_rate(Table, Day, Src_Currency, Report_Currency, Rate) :-
 	Src_Currency = with_cost_per_unit(Goods_Unit, value(Report_Currency, Unit_Cost)),
 	(
+		false,
 		% if we have an exchange rate for this day and unit, return it
 		exchange_rate(Table, Day, 
 		Goods_Unit, Report_Currency, Rate)

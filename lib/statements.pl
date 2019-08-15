@@ -115,7 +115,7 @@ preprocess_s_transactions2(Static_Data, [S_Transaction|S_Transactions], [Transac
 			catch(
 				(
 					(preprocess_s_transaction(Static_Data, S_Transaction, Transactions0, Outstanding_In, Outstanding_Mid)
-					-> true; (/*gtrace,fail,*/throw_string('internal error'))),
+					-> true; (/*trace,fail,*/throw_string('internal error'))),
 					% filter out unbound vars from the resulting Transactions list, as some rules do not always produce all possible transactions
 					flatten(Transactions0, Transactions1),
 					exclude(var, Transactions1, Transactions2),
@@ -211,8 +211,9 @@ preprocess_s_transaction(Static_Data, S_Transaction, [Ts1, Ts2, Ts3, Ts4], Outst
 	s_transaction_type_of(Transaction_Types, S_Transaction, Transaction_Type),
 	s_transaction_vector(S_Transaction, Vector_Ours),
 	s_transaction_day(S_Transaction, Transaction_Date),
-	transaction_type(_, Exchanged_Account, Trading_Account_Id, Description) = Transaction_Type,
-	(var(Description)->	Description = '?'; true),
+	transaction_type(Transaction_Type_Id, Exchanged_Account, Trading_Account_Id, _Transaction_Type_Description) = Transaction_Type,
+	%(var(Description)->	Description = '?'; true),
+	Description = Transaction_Type_Id,
 	[coord(Bank_Account_Currency, _,_)] = Vector_Ours,
 	vec_change_bases(Exchange_Rates, Transaction_Date, Report_Currency, Vector_Ours, Converted_Vector_Ours),
 	
@@ -263,7 +264,7 @@ make_buy(Static_Data, Trading_Account_Id, Pricing_Method, Bank_Account_Currency,
 		Outstanding_In, Outstanding_Out
 	),
 	(var(Trading_Account_Id) -> true
-		; increase_unrealized_gains(Static_Data, Trading_Account_Id, Bank_Account_Currency, Converted_Vector_Ours, Goods_With_Cost_Vector, Transaction_Date, Ts2) 
+		; increase_unrealized_gains(Static_Data, Description, Trading_Account_Id, Bank_Account_Currency, Converted_Vector_Ours, Goods_With_Cost_Vector, Transaction_Date, Ts2) 
 	).
 
 make_sell(Static_Data, Trading_Account_Id, Pricing_Method, _Bank_Account_Currency, Goods_Vector,
@@ -284,8 +285,8 @@ make_sell(Static_Data, Trading_Account_Id, Pricing_Method, _Bank_Account_Currenc
 	),
 	(var(Trading_Account_Id) -> true
 		;(						
-			reduce_unrealized_gains(Static_Data, Trading_Account_Id, Transaction_Date, Goods_Cost_Values, Ts2),
-			increase_realized_gains(Static_Data, Trading_Account_Id, Vector_Ours, Converted_Vector_Ours, Goods_Vector, Transaction_Date, Goods_Cost_Values, Ts3)
+			reduce_unrealized_gains(Static_Data, Description, Trading_Account_Id, Transaction_Date, Goods_Cost_Values, Ts2),
+			increase_realized_gains(Static_Data, Description, Trading_Account_Id, Vector_Ours, Converted_Vector_Ours, Goods_Vector, Transaction_Date, Goods_Cost_Values, Ts3)
 		)
 	).
 
@@ -316,7 +317,15 @@ sold_goods_vector_with_cost(Goods_Cost_Value, Goods_With_Cost_Vector) :-
 	and a transaction of the negative sum of these into the trading cccount. 
 	this "currency trading account" is not to be confused with a shares trading account.
 */
-affect_bank_account(Static_Data, Bank_Account_Name, Bank_Account_Currency, Transaction_Date, Vector_Ours, Description, [Ts0, Ts3]) :-
+affect_bank_account(Static_Data, Bank_Account_Name, Bank_Account_Currency, Transaction_Date, Vector_Ours, Description0, [Ts0, Ts3]) :-
+	(
+		is_debit(Vector_Ours)
+	->
+		Description1 = 'incoming money'
+	;
+		Description1 = 'outgoing money'
+	),
+	[Description0, ' - ', Description1] = Description,
 	dict_vars(Static_Data, [Accounts, Report_Currency]),
 	Bank_Account_Role = ('Banks'/Bank_Account_Name),
 	account_by_role(Accounts, Bank_Account_Role, Bank_Account_Id),
@@ -382,7 +391,7 @@ make_currency_movement_transactions(Static_Data, Bank_Account, Date, Vector, Des
 			/* the historical earnings difference transaction tracks asset value change against converted/frozen earnings value, up to report start date  */
 			vector_without_movement_after(Vector, Start_Date, Vector_Frozen_After_Start_Date),
 			make_difference_transaction(
-				Currency_Movement_Account, Date, Description, 
+				Currency_Movement_Account, Date, [Description, ' - historical part'], 
 				
 				Vector_Frozen_After_Start_Date,
 				[Report_Currency_Coord],
@@ -391,7 +400,7 @@ make_currency_movement_transactions(Static_Data, Bank_Account, Date, Vector, Des
 			/* the current earnings difference transaction tracks asset value change against opening value */
 			vector_without_movement_after(Vector, Start_Date, Vector_Frozen_At_Opening_Date),
 			make_difference_transaction(
-				Currency_Movement_Account, Start_Date, Description, 
+				Currency_Movement_Account, Start_Date, [Description, ' - current part'], 
 				
 				Vector,
 				Vector_Frozen_At_Opening_Date,
@@ -400,7 +409,7 @@ make_currency_movement_transactions(Static_Data, Bank_Account, Date, Vector, Des
 		)
 	;
 		make_difference_transaction(
-			Currency_Movement_Account, Date, Description, 
+			Currency_Movement_Account, Date, [Description, ' - only current period'], 
 			
 			Vector,
 			Vector_Exchanged_To_Report_Currency, 

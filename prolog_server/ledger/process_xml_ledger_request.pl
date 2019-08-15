@@ -164,8 +164,10 @@ output_results(S_Transactions, Transactions, Start_Date, End_Date, Exchange_Rate
 	
 	investment_report_1(Static_Data, _Investment_Report_1_Lines),
 	investment_report_2(Static_Data, Outstanding_Out, '', Investment_Report_2_Lines),
-	static_data_all_time(Static_Data, Static_Data_All_Time),
-	investment_report_2(Static_Data_All_Time, Outstanding_Out, '_all_time', Investment_Report_2_All_Time_Lines),
+	
+	%static_data_all_time(Static_Data, Static_Data_All_Time),
+	%investment_report_2(Static_Data_All_Time, Outstanding_Out, '_all_time', Investment_Report_2_All_Time_Lines),
+	Investment_Report_2_All_Time_Lines = '',
 
 	bs_report(Accounts, Report_Currency, Balance_Sheet2, Start_Date, End_Date, Bs_Html),
 	pl_report(Accounts, Report_Currency, ProftAndLoss2, Start_Date, End_Date, '', Pl_Html),
