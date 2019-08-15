@@ -70,7 +70,7 @@ process_ledger(
 	'Accounts extracted:\n',Message3,'\n\n',
 	'-->\n\n'], Debug_Message0),
 	writeln(Debug_Message0),
-	
+
 	/*todo: if there are no unit values, force Cost_Or_Market = cost?*/
 	(
 		Cost_Or_Market = cost
@@ -171,3 +171,8 @@ emit_ledger_errors(Debug) :-
 	;
 		true
 	).
+
+filter_out_market_values(Exchange_Rates0, Exchange_Rates) :-
+	Exchange_Rates0 = Exchange_Rates,
+	throw(fixme).
+	

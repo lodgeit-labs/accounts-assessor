@@ -72,22 +72,19 @@ vec_reduce(As, Bs) :-
 vec_reduce2(As, Bs) :-
 	maplist(vec_reduce3, As, Bs).
 
-vec_reduce3([A|As], [B|Bs]) :-
-	coord_reduced(A, B),
-	vec_reduce3(As, Bs).
+vec_reduce3(A, B) :-
+	coord_reduced(A, B).
 
-vec_reduce3([A|As], [A|Bs]) :-
-	A = value(_,_),
-	vec_reduce3(As, Bs).
+vec_reduce3(A, A) :-
+	A = value(_,_).
 
 coord_reduced(coord(Unit, A_Debit, A_Credit), coord(Unit, B_Debit, B_Credit)) :-
-	{Common_value = min(A_Debit, A_Credit),
+	Common_value is min(A_Debit, A_Credit),
 	B_Debit is A_Debit - Common_value,
-	B_Credit is A_Credit - Common_value}.
+	B_Credit is A_Credit - Common_value.
 	
 coord_or_value_unit(coord(Unit,_,_), Unit).
 coord_or_value_unit(value(Unit,_), Unit).
-
 
 vec_units(Vec, Units) :-
 	findall(Unit,

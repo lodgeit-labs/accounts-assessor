@@ -22,6 +22,7 @@
 :- [trading].
 
 :- use_module('pacioli',  [
+		coord_unit/2,
 		vec_inverse/2, 
 		vec_add/3, 
 		vec_sub/3, 
@@ -105,7 +106,7 @@ preprocess_s_transactions(Static_Data, S_Transactions, Transactions_Out, Outstan
 preprocess_s_transactions2(_, [], [], Outstanding, Outstanding, ['done.'], _).
 
 preprocess_s_transactions2(Static_Data, [S_Transaction|S_Transactions], [Transactions_Out|Transactions_Out_Tail], Outstanding_In, Outstanding_Out, [Debug_Head|Debug_Tail], Debug_So_Far) :-
-	dict_vars(Static_Data, [Accounts, Report_Currency, End_Date, Exchange_Rates]),
+	dict_vars(Static_Data, [Accounts, Report_Currency, Start_Date, End_Date, Exchange_Rates]),
 	pretty_term_string(S_Transaction, S_Transaction_String),
 	catch(
 		(
@@ -122,7 +123,7 @@ preprocess_s_transactions2(Static_Data, [S_Transaction|S_Transactions], [Transac
 					atomic_list_concat([S_Transaction_String, '==>\n', Transactions_String, '\n====\n'], Debug_Head),
 					Transactions_Out = [T|_],
 					transaction_day(T, Transaction_Date),
-					check_trial_balance0(Exchange_Rates, Report_Currency, Transaction_Date, Transactions_Out, End_Date, Debug_So_Far, Debug_Head),
+					check_trial_balance0(Exchange_Rates, Report_Currency, Transaction_Date, Transactions_Out, Start_Date, End_Date, Debug_So_Far, Debug_Head),
 					append(Debug_So_Far, [Debug_Head], Debug_So_Far2)
 				),
 				not_enough_goods_to_sell,
@@ -149,11 +150,13 @@ preprocess_s_transactions2(Static_Data, [S_Transaction|S_Transactions], [Transac
 		true
 	).
 
-check_trial_balance0(Exchange_Rates, Report_Currency, Transaction_Date, Transactions_Out, Report_End_Date, Debug_So_Far, Debug_Head) :-
+check_trial_balance0(Exchange_Rates, Report_Currency, Transaction_Date, Transactions_Out, _Start_Date, End_Date, Debug_So_Far, Debug_Head) :-
 	catch(
 		(
 			check_trial_balance(Exchange_Rates, Report_Currency, Transaction_Date, Transactions_Out),
-			check_trial_balance(Exchange_Rates, Report_Currency, Report_End_Date, Transactions_Out)
+			check_trial_balance(Exchange_Rates, Report_Currency, End_Date, Transactions_Out)
+			%(
+			%	Transaction_Date @< Start_Date...
 		),
 		E, 
 		(
@@ -201,6 +204,7 @@ preprocess_s_transaction(Static_Data, S_Transaction, Transactions, Outstanding, 
 
 
 preprocess_s_transaction(Static_Data, S_Transaction, [Ts1, Ts2, Ts3, Ts4], Outstanding_In, Outstanding_Out) :-
+	%gtrace,
 	Pricing_Method = lifo,
 	dict_vars(Static_Data, [Report_Currency, Transaction_Types, Exchange_Rates]),
 	check_s_transaction_action_type(Transaction_Types, S_Transaction),
@@ -251,7 +255,7 @@ make_buy(Static_Data, Trading_Account_Id, Pricing_Method, Bank_Account_Currency,
 	[Coord_Ours_Converted] = Converted_Vector_Ours,
 	unit_cost_value(Coord_Ours, Goods_Coord, Unit_Cost_Foreign),
 	unit_cost_value(Coord_Ours_Converted, Goods_Coord, Unit_Cost_Converted),
-	coord_unit(Goods_Coord, Goods_Unit),
+	number_coord(Goods_Unit, Goods_Count, Goods_Coord),
 	dict_vars(Static_Data, [Accounts, Cost_Or_Market]),
 	account_by_role(Accounts, Exchanged_Account/Goods_Unit, Exchanged_Account2),
 	(
@@ -346,12 +350,12 @@ purchased_goods_coord_with_cost(Goods_Coord, Cost_Coord, Goods_Coord_With_Cost) 
 	).
 
 unit_cost_value(Cost_Coord, Goods_Coord, Unit_Cost) :-
-	Goods_Coord = coord(Goods_Unit_In, Goods_Count, Zero1),
+	Goods_Coord = coord(_, Goods_Count, Zero1),
 	assertion(Zero1 =:= 0),
 	Cost_Coord = coord(Currency, Zero2, Price),
 	assertion(Zero2 =:= 0),
-	Unit_Cost is Price / Goods_Count,
-	Unit_Cost = value(Currency, Unit_Cost).
+	Unit_Cost_Amount is Price / Goods_Count,
+	Unit_Cost = value(Currency, Unit_Cost_Amount).
 
 sold_goods_vector_with_cost(Static_Data, Goods_Cost_Value, [Goods_Coord_With_Cost]) :-
 	Goods_Cost_Value = goods(_, Goods_Unit, Goods_Count, Total_Cost_Value, _),
@@ -365,7 +369,7 @@ sold_goods_vector_with_cost(Static_Data, Goods_Cost_Value, [Goods_Coord_With_Cos
 			Unit = with_cost_per_unit(Goods_Unit, Unit_Cost_Value)
 		)
 	),
-	Goods_Coord_With_Cost_Vector = coord(Unit, 0, Goods_Count).
+	Goods_Coord_With_Cost = coord(Unit, 0, Goods_Count).
 
 
 make_exchanged_transactions(Exchange_Rates, Report_Currency, Account, Date, Vector, Description, Transaction) :-

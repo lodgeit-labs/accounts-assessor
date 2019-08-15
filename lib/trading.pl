@@ -302,5 +302,6 @@ we bought the shares with some currency. we can think of gains as having two par
 		}],
 */
 
-unit_bare(with_cost_per_unit(Unit, Cost), Unit).
+unit_bare(with_cost_per_unit(Unit, _), Unit).
+unit_bare(Unit, Unit).
 	

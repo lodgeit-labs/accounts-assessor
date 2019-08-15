@@ -123,28 +123,17 @@ special_exchange_rate(Table, Day, Src_Currency, Report_Currency, Rate) :-
 special_exchange_rate(Table, Exchange_Date, Src_Currency, Report_Currency, Rate) :-
 	Src_Currency = without_movement_after(Goods_Unit, Freeze_Date),
 	(
-		Freeze_Date @>= Exchange_Date
+		Freeze_Date @> Exchange_Date
 	->
 		Exchange_Date2 = Exchange_Date
 	;
 		Exchange_Date2 = Freeze_Date 
 	),
-	exchange_rate(Table, Exchange_Date2, Goods_Unit, Report_Currency, Rate).
+	chained_exchange_rate(Table, Exchange_Date2, Goods_Unit, Report_Currency, Rate, 2).
 
 /* obtain the Report_Currency value using the with_cost_per_unit data */
-special_exchange_rate(Table, Day, Src_Currency, Report_Currency, Rate) :-
-	Src_Currency = with_cost_per_unit(Goods_Unit, value(Report_Currency, Unit_Cost)),
-	(
-		false,
-		% if we have an exchange rate for this day and unit, return it
-		exchange_rate(Table, Day, 
-		Goods_Unit, Report_Currency, Rate)
-	->
-		true
-	;
-		% otherwise report at cost
-		Rate = Unit_Cost
-	).
+special_exchange_rate(_Table, _Day, Src_Currency, Report_Currency, Rate) :-
+	Src_Currency = with_cost_per_unit(_Goods_Unit, value(Report_Currency, Rate)).
 
 % Obtains the exchange rate from Src_Currency to Dest_Currency on the day Day using the
 % given lookup table.
@@ -289,23 +278,3 @@ is_exchangeable_into_request_bases(Table, Day, Src_Currency, Bases) :-
 	member(Dest_Currency, Bases),
 	exchange_rate(Table, Day, Src_Currency, Dest_Currency, _Exchange_Rate).
 
-	
-
-/*
-notes
-	Vector = [Asset_Change_Coord],
-	Asset_Change_Coord = coord(Src, _, _),
-	exchange_rate_term(Exchange_Rates, Day, Unit, Report_Currency, Exchange_Rate),
-	convert_coord(Asset_Change_Coord, Exchange_Rate...
-	exchange_rate(Day, Src, Dst, Rate)	
-	25 aud = 1
-	usd = 1
-
-	% Dimensions: <Mass, Time, Length>
-	% Basis1: <kg, seconds, meters>
-	% Basis2: <pounds, minutes, feet>
-	% minutes = 60 seconds	
-
-	% vec_change_bases(Input_Basis1, Input_Basis2, Input_Vector_In_Basis1, Output_Vector_In_Basis2)
-	% currency_conversion(...)
-*/
