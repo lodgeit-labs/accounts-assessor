@@ -67,7 +67,8 @@ test(4) :-
 	date(2018,6,30),
 	without_currency_movement_against_since('SG_Issuer_SA','USD', ['AUD'],date(2017,7,1)),
 	'AUD',
-	57.97101449275363).
+	X),
+	floats_close_enough(X, 57.97101449275363).
 
 
 

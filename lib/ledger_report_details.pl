@@ -1,7 +1,7 @@
 :- module(ledger_report_details, [
 		investment_report_1/2,
-		bs_report/6,
-		pl_report/7,
+		bs_report/3,
+		pl_report/4,
 		investment_report_2/4
 		]).
 
@@ -95,26 +95,24 @@ report_page(Title_Text, Tbl, File_Name, Lines) :-
 	phrase(Page, Page_Tokenlist),
 	report_section(File_Name, Page_Tokenlist, Lines).
 
-pl_report(Accounts, Report_Currency, ProftAndLoss2, Start_Date, End_Date, Filename_Suffix, Lines) :-
-
+pl_report(Static_Data, ProftAndLoss2, Filename_Suffix, Lines) :-
+	dict_vars(Static_Data, [Accounts, Start_Date, End_Date, Report_Currency]),
 	format_date(Start_Date, Start_Date_Atom),
 	format_date(End_Date, End_Date_Atom),
 	report_currency_atom(Report_Currency, Report_Currency_Atom),
 	atomic_list_concat(['profit&loss from ', Start_Date_Atom, ' to ', End_Date_Atom, ' ', Report_Currency_Atom], Title_Text),
-	
 	pesseract_style_table_rows(Accounts, Report_Currency, ProftAndLoss2, Report_Table_Data),
 	Header = tr([th('Account'), th(['Value', Report_Currency_Atom])]),
 	flatten([Header, Report_Table_Data], Tbl),
 	atomic_list_concat(['profit_and_loss', Filename_Suffix, '.html'], Filename),
 	report_page(Title_Text, Tbl, Filename, Lines).
 		
-bs_report(Accounts, Report_Currency, Balance_Sheet, Start_Date, End_Date, Lines) :-
-
+bs_report(Static_Data, Balance_Sheet, Lines) :-
+	dict_vars(Static_Data, [Accounts, Start_Date, End_Date, Report_Currency]),
 	format_date(Start_Date, Start_Date_Atom),
 	format_date(End_Date, End_Date_Atom),
 	report_currency_atom(Report_Currency, Report_Currency_Atom),
 	atomic_list_concat(['balance sheet from ', Start_Date_Atom, ' to ', End_Date_Atom, ' ', Report_Currency_Atom], Title_Text),
-	
 	pesseract_style_table_rows(Accounts, Report_Currency, Balance_Sheet, Report_Table_Data),
 	Header = tr([th('Account'), th(['Balance', Report_Currency_Atom])]),
 	flatten([Header, Report_Table_Data], Tbl),

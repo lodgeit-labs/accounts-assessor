@@ -16,7 +16,8 @@
 ]).
 :- use_module('utils', [
 		pretty_term_string/2, 
-		throw_string/1
+		throw_string/1,
+		floats_close_enough/2
 ]).
 :- use_module(library(http/http_open)).
 :- use_module(library(http/json)).
@@ -107,12 +108,12 @@ assert_rates(Date, Exchange_Rates) :-
 /* this one lets us compute unrealized gains without currency movement declaratively */
 special_exchange_rate(Table, Day, Src_Currency, Report_Currency, Rate) :-
 	Src_Currency = without_currency_movement_against_since(Goods_Unit, Purchase_Currency, [Report_Currency], Purchase_Date),
-	exchange_rate(Table, Purchase_Date, 
+	exchange_rate2(Table, Purchase_Date, 
 		Purchase_Currency, Report_Currency, Old_Rate),
-	exchange_rate(Table, Day, 
+	exchange_rate2(Table, Day, 
 		Purchase_Currency, Report_Currency, New_Rate),
-	exchange_rate(Table, Day, Goods_Unit, Report_Currency, Current),
-	Rate is Current / New_Rate * Old_Rate.
+	exchange_rate2(Table, Day, Goods_Unit, Report_Currency, Current),
+	Rate = Current / New_Rate * Old_Rate.
 
 /* obtain the Report_Currency value using the with_cost_per_unit data */
 special_exchange_rate(_Table, _Day, Src_Currency, Report_Currency, Rate) :-
@@ -127,17 +128,17 @@ extracted_exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate) 
 extracted_exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate) :-
   member(exchange_rate(Day, Dest_Currency, Src_Currency, Inverted_Exchange_Rate), Table),
   Inverted_Exchange_Rate =\= 0,
-  Exchange_Rate is 1 / Inverted_Exchange_Rate.
+  Exchange_Rate = 1 / Inverted_Exchange_Rate.
 
 % Obtains the exchange rate from Src_Currency to Dest_Currency on the day Day using the
 % exchange_rates predicate. Given the fetched table, this predicate works in any direction between any two currencies
 fetched_exchange_rate(Day, Src_Currency, Dest_Currency, Exchange_Rate) :-
 	%format(user_error, 'using API exchange rates for Day:~w, Src_Currency:~w, Dest_Currency:~w ...\n', [Day, Src_Currency, Dest_Currency]),
-	format('<!--using API exchange rates for Day:~w, Src_Currency:~w, Dest_Currency:~w ...-->\n', [Day, Src_Currency, Dest_Currency]),
+	%format('<!--using API exchange rates for Day:~w, Src_Currency:~w, Dest_Currency:~w ...-->\n', [Day, Src_Currency, Dest_Currency]),
 	exchange_rates(Day, Exchange_Rates),
 	member(Src_Currency = Src_Exchange_Rate, Exchange_Rates),
 	member(Dest_Currency = Dest_Exchange_Rate, Exchange_Rates),
-	Exchange_Rate is Dest_Exchange_Rate / Src_Exchange_Rate.
+	Exchange_Rate = Dest_Exchange_Rate / Src_Exchange_Rate.
 
 /* currency to itself has exchange rate 1 */
 best_nonchained_exchange_rates(_, _, Src_Currency, Src_Currency, [(Src_Currency, 1)]).
@@ -173,7 +174,7 @@ chained_exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate, Le
 	Int_Currency \= Src_Currency,
 	New_Length is Length - 1,
 	chained_exchange_rate(Table, Day, Int_Currency, Dest_Currency, Tail_Exchange_Rate, New_Length),
-	Exchange_Rate is Head_Exchange_Rate * Tail_Exchange_Rate.
+	Exchange_Rate = Head_Exchange_Rate * Tail_Exchange_Rate.
 
 /* cant take historical eachange rate and chain it with a nonhistorical one*/
 without_movement_after(Table, Exchange_Date, Src, Dst, Rate) :-
@@ -185,18 +186,19 @@ without_movement_after(Table, Exchange_Date, Src, Dst, Rate) :-
 	;
 		Exchange_Date2 = Freeze_Date 
 	),
-	chained_exchange_rate(Table, Exchange_Date2, Unit, Dst, Rate, 2).
+	exchange_rate2(Table, Exchange_Date2, Unit, Dst, Rate).
 	
 all_exchange_rates(Table, Day, Src_Currency, Dest_Currency, Exchange_Rates_Full) :-
 	assertion(nonvar(Dest_Currency)),
+	findall(
+		(Dest_Currency, Rate), 
+		without_movement_after(Table, Day, Src_Currency, Dest_Currency, Rate),
+		Best_Rates1
+	),
 	(
-		findall(
-			(Dest_Currency, Rate), 
-			without_movement_after(Table, Day, Src_Currency, Dest_Currency, Rate),
-			Best_Rates
-		)
+		Best_Rates1 \= []
 	-> 
-		true
+		Best_Rates = Best_Rates1
 	;
 		(
 			best_nonchained_exchange_rates(Table, Day, Src_Currency, Dest_Currency, Best_Rates)
@@ -219,7 +221,7 @@ all_exchange_rates(Table, Day, Src_Currency, Dest_Currency, Exchange_Rates_Full)
 % Derive an exchange rate from the source to the destination currency by chaining together
 % =< 2 exchange rates.
 
-exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate_Out) :-
+exchange_rate2(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate_Out) :-
 	/*either we will allow this pred to take unbound arguments or not, not decided yet, hence the sorting by params below */
 	assertion(ground((Table, Day, Src_Currency, Dest_Currency))),
 	all_exchange_rates(Table, Day, Src_Currency, Dest_Currency, Exchange_Rates_Full),
@@ -239,17 +241,33 @@ exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate_Out) :-
 		Exchange_Rates
 	),
 	sort(Exchange_Rates, Exchange_Rates_Sorted),
-	(
-		[Exchange_Rate_Out] = Exchange_Rates_Sorted
-	->
-		true
-	;
+	findall(
+		_,
 		(
-			format(string(Str), 'multiple different exchange rates found for: Day:~w, Src_Currency:~w, Dest_Currency:~w, rates found:~w\n', [Day, Src_Currency, Dest_Currency, Exchange_Rates_Sorted]),
-			throw_string(Str)
-		)
-	).	
+			member(R1, Exchange_Rates_Sorted),
+			member(R2, Exchange_Rates_Sorted),
+			(
+				floats_close_enough(R1, R2)
+			->
+				true
+			;
+				(
+					format(string(Str), 'multiple different exchange rates found for: Day:~w, Src_Currency:~w, Dest_Currency:~w, rates found:~w\n', [Day, Src_Currency, Dest_Currency, Exchange_Rates_Sorted]),
+					throw_string(Str)
+				)
+			)
+		),
+		_
+	),
+	Exchange_Rates_Sorted = [Exchange_Rate_Out|_].
 
+exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate_Out) :-
+	%write(exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate_Out)),writeln('...'),
+	exchange_rate2(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate_Out)
+	%,writeln('ok')
+	.
+
+	
 exchange_rate_throw(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate_Out) :-
 	(
 		exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate_Out)

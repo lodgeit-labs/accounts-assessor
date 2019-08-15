@@ -33,12 +33,13 @@
 		balance_by_account/9, 
 		balance_sheet_at/2,
 		format_report_entries/10, 
-		bs_and_pl_entries/8]).
+		bs_and_pl_entries/8,
+		net_activity_by_account/4]).
 :- use_module('../../lib/ledger_report_details', [
 		investment_report_1/2,
 		investment_report_2/4,
-		bs_report/6,
-		pl_report/7]).
+		bs_report/3,
+		pl_report/4]).
 :- use_module('../../lib/statements', [
 		extract_s_transaction/3, 
 		print_relevant_exchange_rates_comment/4, 
@@ -70,8 +71,17 @@
 :- use_module('../../lib/system_accounts', [
 		trading_account_ids/2,
 		bank_accounts/2]).
-:- ['../../lib/xbrl_contexts'].
-:- ['../../lib/print_detail_accounts'].
+:- use_module('../../lib/xbrl_contexts', [
+		print_contexts/1,
+		context_id_base/3
+]).
+:- use_module('../../lib/print_detail_accounts', [
+		print_banks/5,
+		print_forex/5,
+		print_trading/3
+]).
+
+
 
 % ------------------------------------------------------------------
 % process_xml_ledger_request/2
@@ -114,11 +124,11 @@ process_xml_ledger_request(_, Dom) :-
 	writeln(Exchange_Rates2),
 	writeln("-->"),
 	print_xbrl_header,
-	output_results(S_Transactions, Transactions, Start_Date, End_Date, Exchange_Rates2, Accounts, Report_Currency, Transaction_Types, Transaction_Transformation_Debug, Outstanding_Out),
+	output_results(Cost_Or_Market, S_Transactions, Transactions, Start_Date, End_Date, Exchange_Rates2, Accounts, Report_Currency, Transaction_Types, Transaction_Transformation_Debug, Outstanding_Out),
 	writeln('</xbrli:xbrl>'),
 	nl, nl.
 
-output_results(S_Transactions, Transactions, Start_Date, End_Date, Exchange_Rates, Accounts, Report_Currency, Transaction_Types, Transaction_Transformation_Debug, Outstanding_Out) :-
+output_results(Cost_Or_Market, S_Transactions, Transactions, Start_Date, End_Date, Exchange_Rates, Accounts, Report_Currency, Transaction_Types, Transaction_Transformation_Debug, Outstanding_Out) :-
 	
 	writeln("<!-- Build contexts -->"),	
 	/* build up two basic non-dimensional contexts used for simple xbrl facts */
@@ -133,7 +143,7 @@ output_results(S_Transactions, Transactions, Start_Date, End_Date, Exchange_Rate
 	
 	Exchange_Date = End_Date,
 	dict_from_vars(Static_Data, 
-		[Start_Date, End_Date, Exchange_Date, Exchange_Rates, Accounts, Transactions, Report_Currency, Transaction_Types, Entity_Identifier, Duration_Context_Id_Base]
+		[Cost_Or_Market, Start_Date, End_Date, Exchange_Date, Exchange_Rates, Accounts, Transactions, Report_Currency, Transaction_Types, Entity_Identifier, Duration_Context_Id_Base]
 	),
 
 	/* sum up the coords of all transactions for each account and apply unit conversions */

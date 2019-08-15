@@ -1,3 +1,37 @@
+:- module(print_detail_accounts, [
+		print_banks/5,
+		print_forex/5,
+		print_trading/3
+]).
+
+:- use_module('system_accounts', [
+		trading_account_ids/2,
+		bank_accounts/2]).
+
+:- use_module('accounts', [
+		child_accounts/3,
+		account_by_role/3,
+		account_role_by_id/3,
+		account_by_role_nothrow/3
+]).
+
+:- use_module('utils', [
+		replace_nonalphanum_chars_with_underscore/2]).
+
+:- use_module('xbrl_contexts', [
+		ensure_context_exists/6,
+		context_arg0_period/2
+]).
+
+:- use_module('ledger_report', [
+		balance_by_account/9,
+		format_report_entries/10,
+		net_activity_by_account/4
+
+]).
+
+
+
 /* given information about a xbrl dimension, print each account as a point in that dimension. 
 this means each account results in a fact with a context that contains the value for that dimension.
 */
