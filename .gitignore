@@ -346,3 +346,4 @@ mcedit
 .#*
 *.swp
 cache/*
+.vscode
