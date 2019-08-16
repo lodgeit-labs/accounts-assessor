@@ -210,7 +210,7 @@ increase_realized_gains(Static_Data, Description, Trading_Account_Id, Sale_Vecto
 	txs_to_transactions(Transaction_Day, Txs2, Ts2).
 
 realized_gains_txs(Static_Data, Description, _Transaction_Day, Sale_Currency, Sale_Currency_Unit_Price, Trading_Account_Id, Sale_Unit_Price_Converted, Purchase_Info, Txs) :-
-	dict_vars(Static_Data, [Accounts, Report_Currency, Exchange_Rates]),
+	dict_vars(Static_Data, [Start_Date, Accounts, Report_Currency, Exchange_Rates]),
 	goods(_ST_Currency, Goods_Unit, Goods_Count, Converted_Cost, Purchase_Date) = Purchase_Info,
 	Sale_Currency_Amount is Sale_Currency_Unit_Price * Goods_Count,
 	value_multiply(Sale_Unit_Price_Converted, Goods_Count, Sale),
@@ -231,8 +231,36 @@ realized_gains_txs(Static_Data, Description, _Transaction_Day, Sale_Currency, Sa
 	->
 		Cost2 = Converted_Cost
 	;
+		Cost2 = Converted_Cost
+
+	
+	/*todo:
+		(
+		Purchase_Date @>= Start_Date
+	->
+		(
+			Cost2 = Converted_Cost,
+			Sale_Without_Currency_Movement = [coord(
+				without_currency_movement_against_since(Sale_Currency, Purchase_Currency, Report_Currency, Start_Date), 
+				Goods_Debit, Goods_Credit)
+			],
+				
+				, 
+				
+				0, Sale_Currency_Amount)],
+	vec_change_bases(
+		Exchange_Rates, 
+		Purchase_Date, 
+		Report_Currency, 
+		
+
+		)
+	;
 	
 		
+	
+	),
+*/
 	
 	),
 	dr_cr_table_to_txs([
