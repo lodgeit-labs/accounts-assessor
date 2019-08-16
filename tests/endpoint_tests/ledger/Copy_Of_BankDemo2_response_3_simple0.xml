@@ -1,0 +1,940 @@
+<?xml version="1.0"?>
+
+
+<!-- WARNING: no transactions within request period -->
+
+
+<!--Exchange rates extracted:
+[ exchange_rate(date(2019,6,30),'SG Issuer_SA_USD_1','AUD',40),
+  exchange_rate(date(2018,7,1),'SG Issuer_SA_USD_1','AUD',40),
+  exchange_rate(date(2018,7,2),'SG Issuer_SA_USD_1','AUD',40),
+  exchange_rate(date(2018,7,13),'SG Issuer_SA_USD_1','AUD',40),
+  exchange_rate(date(2018,7,1),'USD','AUD',1.2852),
+  exchange_rate(date(2018,7,2),'USD','AUD',1.35284),
+  exchange_rate(date(2018,7,12),'USD','AUD',1.360979),
+  exchange_rate(date(2018,7,13),'USD','AUD',1.346966),
+  exchange_rate(date(2018,8,13),'USD','AUD',1.358327),
+  exchange_rate(date(2018,9,1),'USD','AUD',1.363232),
+  exchange_rate(date(2018,10,15),'USD','AUD',1.35888),
+  exchange_rate(date(2019,6,30),'USD','AUD',1.423897)
+]
+
+Transaction_Types extracted:
+[ transaction_type('Transfers','ClearingAccount',_,_),
+  transaction_type('Invest_In',
+		   'FinancialInvestments',
+		   'InvestmentIncome',
+		   'Shares'),
+  transaction_type('Dispose_Of',
+		   'FinancialInvestments',
+		   'InvestmentIncome',
+		   'Shares'),
+  transaction_type('Bank_Charges','BankCharges',_,_),
+  transaction_type('Expenses','OtherExpenses',_,_),
+  transaction_type('Gain','OtherGain',_,_),
+  transaction_type('Loss','ShareCapital',_,'No Description'),
+  transaction_type('Income','Income',_,_),
+  transaction_type('Interest_Income','InterestIncome',_,_),
+  transaction_type('Interest_Expenses','InterestExpenses',_,_),
+  transaction_type('Borrow','NoncurrentLoans',_,_),
+  transaction_type('Introduce_Capital',
+		   'ShareCapital',
+		   _,
+		   'Unit_Investment'),
+  transaction_type('Pay_Bank','BankCharges',_,'No Description'),
+  transaction_type('Accountancy_Fees',
+		   'AccountancyFees',
+		   _,
+		   'No Description')
+]
+
+Accounts extracted:
+[ account('AccountingFees','Expenses','Accounts'/'AccountingFees',0),
+  account('Accounts',accountHierarchy,'Accounts'/'Accounts',0),
+  account('Assets','NetAssets','Accounts'/'Assets',0),
+  account('AssetsLivestock','CurrentAssets','Accounts'/'AssetsLivestock',0),
+  account('AssetsLivestockAtAverageCost',
+	  'AssetsLivestock',
+	  'Accounts' / 'AssetsLivestockAtAverageCost',
+	  0),
+  account('AssetsLivestockAtCost',
+	  'AssetsLivestock',
+	  'Accounts' / 'AssetsLivestockAtCost',
+	  0),
+  account('BankCharges','Expenses','Accounts'/'BankCharges',0),
+  account('Banks','CashAndCashEquivalents','Accounts'/'Banks',0),
+  account('CapitalIntroduced','Equity','Accounts'/'CapitalIntroduced',0),
+  account('CashAndCashEquivalents',
+	  'CurrentAssets',
+	  'Accounts' / 'CashAndCashEquivalents',
+	  0),
+  account('ClearingAccount','Revenue','Accounts'/'ClearingAccount',0),
+  account('CostOfGoodsLivestock',
+	  'Expenses',
+	  'Accounts' / 'CostOfGoodsLivestock',
+	  0),
+  account('CurrencyMovement','Revenue','Accounts'/'CurrencyMovement',0),
+  account('CurrentAssets','Assets','Accounts'/'CurrentAssets',0),
+  account('CurrentEarnings','RetainedEarnings','Accounts'/'CurrentEarnings',0),
+  account('CurrentLiabilities','Liabilities','Accounts'/'CurrentLiabilities',0),
+  account('CurrentLoans','CurrentLiabilities','Accounts'/'CurrentLoans',0),
+  account('Drawings','Equity','Accounts'/'Drawings',0),
+  account('Earnings','Accounts','Accounts'/'Earnings',0),
+  account('EarningsFinancialInvestments',
+	  'OtherIncome',
+	  'Accounts' / 'EarningsFinancialInvestments',
+	  0),
+  account('Equity','Accounts','Accounts'/'Equity',0),
+  account('ExchangeGain','OtherIncome','Accounts'/'ExchangeGain',0),
+  account('Expenses','Earnings','Accounts'/'Expenses',0),
+  account('FinancialInvestments',
+	  'NoncurrentAssets',
+	  'Accounts' / 'FinancialInvestments',
+	  0),
+  account('FoodExpenses','Expenses','Accounts'/'FoodExpenses',0),
+  account('ForexLoss','Expenses','Accounts'/'ForexLoss',0),
+  account('HistoricalEarnings',
+	  'RetainedEarnings',
+	  'Accounts' / 'HistoricalEarnings',
+	  0),
+  account('Income','Revenue','Accounts'/'Income',0),
+  account('InterestEarned','OtherIncome','Accounts'/'InterestEarned',0),
+  account('InterestExpenses','Expenses','Accounts'/'InterestExpenses',0),
+  account('InterestIncome','OtherIncome','Accounts'/'InterestIncome',0),
+  account('InvestmentIncome','Revenue','Accounts'/'InvestmentIncome',0),
+  account('Liabilities','NetAssets','Accounts'/'Liabilities',0),
+  account('LivestockAdjustment','Expenses','Accounts'/'LivestockAdjustment',0),
+  account('NetAssets','Accounts','Accounts'/'NetAssets',0),
+  account('NoncurrentAssets','Assets','Accounts'/'NoncurrentAssets',0),
+  account('NoncurrentLiabilities',
+	  'Liabilities',
+	  'Accounts' / 'NoncurrentLiabilities',
+	  0),
+  account('NoncurrentLoans',
+	  'NoncurrentLiabilities',
+	  'Accounts' / 'NoncurrentLoans',
+	  0),
+  account('OtherExpenses','Expenses','Accounts'/'OtherExpenses',0),
+  account('OtherGain','Revenue','Accounts'/'OtherGain',0),
+  account('OtherIncome','Revenue','Accounts'/'OtherIncome',0),
+  account('Purchases','Expenses','Accounts'/'Purchases',0),
+  account('RationsRevenue','Revenue','Accounts'/'RationsRevenue',0),
+  account('RetainedEarnings','Equity','Accounts'/'RetainedEarnings',0),
+  account('Revenue','Earnings','Accounts'/'Revenue',0),
+  account('SalesOfLivestock','Revenue','Accounts'/'SalesOfLivestock',0),
+  account('ShareCapital','Equity','Accounts'/'ShareCapital',0)
+]
+
+-->
+
+
+<!--generate system accounts...-->
+<!--...generated system accounts-->
+
+<!--Generated accounts:
+[ account('Inventory',accountHierarchy,accountHierarchy/'Inventory',0),
+  account('LivestockCount','Inventory','Inventory'/'LivestockCount',0),
+  account('Banks_USD_Bank','Banks','Banks'/'USD_Bank',1),
+  account('CurrencyMovement_USD_Bank',
+	  'CurrencyMovement',
+	  'CurrencyMovement' / 'USD_Bank',
+	  0),
+  account('InvestmentIncome_realized',
+	  'InvestmentIncome',
+	  'InvestmentIncome' / realized,
+	  0),
+  account('InvestmentIncome_realized_only_currency_movement',
+	  'InvestmentIncome_realized',
+	  'InvestmentIncome_realized' / only_currency_movement,
+	  0),
+  account('InvestmentIncome_realized_only_currency_movement_SG_Issuer_SA_USD_1',
+	  'InvestmentIncome_realized_only_currency_movement',
+	  'InvestmentIncome_realized_only_currency_movement' / 'SG Issuer_SA_USD_1',
+	  1),
+  account('InvestmentIncome_realized_without_currency_movement',
+	  'InvestmentIncome_realized',
+	  'InvestmentIncome_realized' / without_currency_movement,
+	  0),
+  account('InvestmentIncome_realized_without_currency_movement_SG_Issuer_SA_USD_1',
+	  'InvestmentIncome_realized_without_currency_movement',
+	  'InvestmentIncome_realized_without_currency_movement' / 'SG Issuer_SA_USD_1',
+	  1),
+  account('InvestmentIncome_unrealized',
+	  'InvestmentIncome',
+	  'InvestmentIncome' / unrealized,
+	  0),
+  account('InvestmentIncome_unrealized_only_currency_movement',
+	  'InvestmentIncome_unrealized',
+	  'InvestmentIncome_unrealized' / only_currency_movement,
+	  0),
+  account('InvestmentIncome_unrealized_only_currency_movement_SG_Issuer_SA_USD_1',
+	  'InvestmentIncome_unrealized_only_currency_movement',
+	  'InvestmentIncome_unrealized_only_currency_movement' / 'SG Issuer_SA_USD_1',
+	  1),
+  account('InvestmentIncome_unrealized_without_currency_movement',
+	  'InvestmentIncome_unrealized',
+	  'InvestmentIncome_unrealized' / without_currency_movement,
+	  0),
+  account('InvestmentIncome_unrealized_without_currency_movement_SG_Issuer_SA_USD_1',
+	  'InvestmentIncome_unrealized_without_currency_movement',
+	  'InvestmentIncome_unrealized_without_currency_movement' / 'SG Issuer_SA_USD_1',
+	  1),
+  account('FinancialInvestments_SG_Issuer_SA_USD_1',
+	  'FinancialInvestments',
+	  'FinancialInvestments' / 'SG Issuer_SA_USD_1',
+	  1)
+]
+
+-->
+
+
+
+<!--Transaction_Transformation_Debug:
+s_transaction(date(2018,7,1),
+	      'Invest_In',
+	      [coord('USD',0,139760.32)],
+	      'USD_Bank',
+	      vector([coord('SG Issuer_SA_USD_1',140000,0)]))==>
+date(2018,7,1): Banks_USD_Bank
+  Invest_In - outgoing money
+  CR:U1:coord('USD',0,139760.32)
+
+date(2018,7,1): CurrencyMovement_USD_Bank
+  Invest_In - outgoing money - currency movement adjustment - historical part
+  DR:U2:coord(without_movement_after('USD',date(2018,7,13)),139760.32,0)
+  CR:U3:coord(without_currency_movement_against_since('USD','USD',['AUD'],date(2018,7,1)),0,139760.32)
+
+date(2018,7,13): CurrencyMovement_USD_Bank
+  Invest_In - outgoing money - currency movement adjustment - current part
+  DR:U1:coord('USD',139760.32,0)
+  CR:U2:coord(without_movement_after('USD',date(2018,7,13)),0,139760.32)
+
+date(2018,7,1): FinancialInvestments_SG_Issuer_SA_USD_1
+  Invest_In
+  DR:U4:coord('SG Issuer_SA_USD_1',140000,0)
+
+date(2018,7,13): InvestmentIncome_unrealized_only_currency_movement_SG_Issuer_SA_USD_1
+  comment:?, comment2:Invest_In - current part
+  CR:U4:coord('SG Issuer_SA_USD_1',0,140000)
+  DR:U5:coord(without_currency_movement_against_since('SG Issuer_SA_USD_1','USD',['AUD'],date(2018,7,13)),140000,0)
+
+date(2018,7,13): InvestmentIncome_unrealized_without_currency_movement_SG_Issuer_SA_USD_1
+  comment:?, comment2:Invest_In - current part
+  CR:U5:coord(without_currency_movement_against_since('SG Issuer_SA_USD_1','USD',['AUD'],date(2018,7,13)),0,140000)
+  DR:U6:coord(without_movement_after('SG Issuer_SA_USD_1',date(2018,7,13)),140000,0)
+
+date(2018,7,1): InvestmentIncome_unrealized_only_currency_movement_SG_Issuer_SA_USD_1
+  comment:?, comment2:Invest_In - historical part
+  CR:U6:coord(without_movement_after('SG Issuer_SA_USD_1',date(2018,7,13)),0,140000)
+  DR:U7:coord(without_movement_after(without_currency_movement_against_since('SG Issuer_SA_USD_1','USD',['AUD'],date(2018,7,1)),date(2018,7,13)),140000,0)
+
+date(2018,7,1): InvestmentIncome_unrealized_without_currency_movement_SG_Issuer_SA_USD_1
+  comment:?, comment2:Invest_In - historical part
+  CR:U7:coord(without_movement_after(without_currency_movement_against_since('SG Issuer_SA_USD_1','USD',['AUD'],date(2018,7,1)),date(2018,7,13)),0,140000)
+  DR:U8:coord('AUD',179619.963264,0)
+
+
+====
+done.
+
+-->
+
+
+<!-- calling: balance_by_account -->
+<!-- checking account exists: 
+Accounts
+-->
+<!-- calling: balance_until_day -->
+<!-- transactions_before_day_on_account_and_subaccounts -->
+<!-- transaction_vectors_total -->
+<!-- vec_change_bases -->
+<!-- done: balance_until_day -->
+<!-- done: balance_by_account -->
+<!-- WARNING: no transactions within request period -->
+
+
+<!--Exchange rates2:
+[ [ exchange_rate(date(2018,7,1),'SG Issuer_SA_USD_1','AUD',40.0),
+    exchange_rate(date(2018,7,1),'USD','AUD',1.2852),
+    exchange_rate(date(2018,7,1),
+		  without_movement_after('SG Issuer_SA_USD_1',
+					 date(2018,7,13)),
+		  'AUD',
+		  40.0),
+    exchange_rate(date(2018,7,1),
+		  without_movement_after('USD',date(2018,7,13)),
+		  'AUD',
+		  1.2852),
+    exchange_rate(date(2018,7,1),
+		  without_movement_after(without_currency_movement_against_since('SG Issuer_SA_USD_1',
+										 'USD',
+										 [ 'AUD'
+										 ],
+										 date(2018,
+										      7,
+										      1)),
+					 date(2018,7,13)),
+		  'AUD',
+		  40.0),
+    exchange_rate(date(2018,7,1),
+		  without_currency_movement_against_since('USD',
+							  'USD',
+							  ['AUD'],
+							  date(2018,
+							       7,
+							       1)),
+		  'AUD',
+		  1.2852)
+  ],
+  [ exchange_rate(date(2018,7,13),'SG Issuer_SA_USD_1','AUD',40.0),
+    exchange_rate(date(2018,7,13),'USD','AUD',1.346966),
+    exchange_rate(date(2018,7,13),
+		  without_movement_after('SG Issuer_SA_USD_1',
+					 date(2018,7,13)),
+		  'AUD',
+		  40.0),
+    exchange_rate(date(2018,7,13),
+		  without_movement_after('USD',date(2018,7,13)),
+		  'AUD',
+		  1.346966),
+    exchange_rate(date(2018,7,13),
+		  without_currency_movement_against_since('SG Issuer_SA_USD_1',
+							  'USD',
+							  ['AUD'],
+							  date(2018,
+							       7,
+							       13)),
+		  'AUD',
+		  40.0)
+  ],
+  [ exchange_rate(date(2019,6,30),'SG Issuer_SA_USD_1','AUD',40.0),
+    exchange_rate(date(2019,6,30),'USD','AUD',1.423897),
+    exchange_rate(date(2019,6,30),
+		  without_movement_after('SG Issuer_SA_USD_1',
+					 date(2018,7,13)),
+		  'AUD',
+		  40.0),
+    exchange_rate(date(2019,6,30),
+		  without_movement_after('USD',date(2018,7,13)),
+		  'AUD',
+		  1.346966),
+    exchange_rate(date(2019,6,30),
+		  without_movement_after(without_currency_movement_against_since('SG Issuer_SA_USD_1',
+										 'USD',
+										 [ 'AUD'
+										 ],
+										 date(2018,
+										      7,
+										      1)),
+					 date(2018,7,13)),
+		  'AUD',
+		  38.165774043294334),
+    exchange_rate(date(2019,6,30),
+		  without_currency_movement_against_since('SG Issuer_SA_USD_1',
+							  'USD',
+							  ['AUD'],
+							  date(2018,
+							       7,
+							       13)),
+		  'AUD',
+		  37.8388605355584),
+    exchange_rate(date(2019,6,30),
+		  without_currency_movement_against_since('USD',
+							  'USD',
+							  ['AUD'],
+							  date(2018,
+							       7,
+							       1)),
+		  'AUD',
+		  1.2852)
+  ]
+]
+
+-->
+
+
+<!-- exchange rates 2:
+[exchange_rate(date(2019,6,30),SG Issuer_SA_USD_1,AUD,40),exchange_rate(date(2018,7,1),SG Issuer_SA_USD_1,AUD,40),exchange_rate(date(2018,7,2),SG Issuer_SA_USD_1,AUD,40),exchange_rate(date(2018,7,13),SG Issuer_SA_USD_1,AUD,40),exchange_rate(date(2018,7,1),USD,AUD,1.2852),exchange_rate(date(2018,7,2),USD,AUD,1.35284),exchange_rate(date(2018,7,12),USD,AUD,1.360979),exchange_rate(date(2018,7,13),USD,AUD,1.346966),exchange_rate(date(2018,8,13),USD,AUD,1.358327),exchange_rate(date(2018,9,1),USD,AUD,1.363232),exchange_rate(date(2018,10,15),USD,AUD,1.35888),exchange_rate(date(2019,6,30),USD,AUD,1.423897)]
+-->
+<xbrli:xbrl xmlns:xbrli="http://www.xbrl.org/2003/instance" xmlns:link="http://www.xbrl.org/2003/linkbase" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:iso4217="http://www.xbrl.org/2003/iso4217" xmlns:basic="http://www.xbrlsite.com/basic" xmlns:xbrldi="http://xbrl.org/2006/xbrldi" xsi:schemaLocation="http://www.xbrlsite.com/basic basic.xsd http://www.xbrl.org/2003/instance http://www.xbrl.org/2003/xbrl-instance-2003-12-31.xsd http://www.xbrl.org/2003/linkbase http://www.xbrl.org/2003/xbrl-linkbase-2003-12-31.xsd http://xbrl.org/2006/xbrldi http://www.xbrl.org/2006/xbrldi-2006.xsd">
+  <link:schemaRef xlink:type="simple" xlink:href="basic.xsd" xlink:title="Taxonomy schema" />
+  <link:linkbaseRef xlink:type="simple" xlink:href="basic-formulas.xml" xlink:arcrole="http://www.w3.org/1999/xlink/properties/linkbase" />
+  <link:linkBaseRef xlink:type="simple" xlink:href="basic-formulas-cross-checks.xml" xlink:arcrole="http://www.w3.org/1999/xlink/properties/linkbase" />
+
+<!-- Build contexts -->
+<!-- Trial balance -->
+<!-- calling: balance_by_account -->
+<!-- checking account exists: 
+Accounts
+-->
+<!-- calling: balance_until_day -->
+<!-- transactions_before_day_on_account_and_subaccounts -->
+<!-- transaction_vectors_total -->
+<!-- vec_change_bases -->
+<!-- done: balance_until_day -->
+<!-- done: balance_by_account -->
+<!-- Balance sheet -->
+<!-- Balance sheet entries -->
+<!-- calling: balance_sheet_entry -->
+<!-- calling: balance_sheet_entry -->
+<!-- calling: balance_sheet_entry -->
+<!-- calling: balance_sheet_entry -->
+<!-- calling: balance_by_account -->
+<!-- checking account exists: 
+AssetsLivestockAtAverageCost
+-->
+<!-- calling: balance_until_day -->
+<!-- transactions_before_day_on_account_and_subaccounts -->
+<!-- transaction_vectors_total -->
+<!-- vec_change_bases -->
+<!-- done: balance_until_day -->
+<!-- done: balance_by_account -->
+<!-- done: balance_sheet_entry -->
+<!-- calling: balance_sheet_entry -->
+<!-- calling: balance_by_account -->
+<!-- checking account exists: 
+AssetsLivestockAtCost
+-->
+<!-- calling: balance_until_day -->
+<!-- transactions_before_day_on_account_and_subaccounts -->
+<!-- transaction_vectors_total -->
+<!-- vec_change_bases -->
+<!-- done: balance_until_day -->
+<!-- done: balance_by_account -->
+<!-- done: balance_sheet_entry -->
+<!-- calling: balance_by_account -->
+<!-- checking account exists: 
+AssetsLivestock
+-->
+<!-- calling: balance_until_day -->
+<!-- transactions_before_day_on_account_and_subaccounts -->
+<!-- transaction_vectors_total -->
+<!-- vec_change_bases -->
+<!-- done: balance_until_day -->
+<!-- done: balance_by_account -->
+<!-- done: balance_sheet_entry -->
+<!-- calling: balance_sheet_entry -->
+<!-- calling: balance_sheet_entry -->
+<!-- calling: balance_sheet_entry -->
+<!-- calling: balance_by_account -->
+<!-- checking account exists: 
+Banks_USD_Bank
+-->
+<!-- calling: balance_until_day -->
+<!-- transactions_before_day_on_account_and_subaccounts -->
+<!-- transaction_vectors_total -->
+<!-- vec_change_bases -->
+<!-- done: balance_until_day -->
+<!-- done: balance_by_account -->
+<!-- done: balance_sheet_entry -->
+<!-- calling: balance_by_account -->
+<!-- checking account exists: 
+Banks
+-->
+<!-- calling: balance_until_day -->
+<!-- transactions_before_day_on_account_and_subaccounts -->
+<!-- transaction_vectors_total -->
+<!-- vec_change_bases -->
+<!-- done: balance_until_day -->
+<!-- done: balance_by_account -->
+<!-- done: balance_sheet_entry -->
+<!-- calling: balance_by_account -->
+<!-- checking account exists: 
+CashAndCashEquivalents
+-->
+<!-- calling: balance_until_day -->
+<!-- transactions_before_day_on_account_and_subaccounts -->
+<!-- transaction_vectors_total -->
+<!-- vec_change_bases -->
+<!-- done: balance_until_day -->
+<!-- done: balance_by_account -->
+<!-- done: balance_sheet_entry -->
+<!-- calling: balance_by_account -->
+<!-- checking account exists: 
+CurrentAssets
+-->
+<!-- calling: balance_until_day -->
+<!-- transactions_before_day_on_account_and_subaccounts -->
+<!-- transaction_vectors_total -->
+<!-- vec_change_bases -->
+<!-- done: balance_until_day -->
+<!-- done: balance_by_account -->
+<!-- done: balance_sheet_entry -->
+<!-- calling: balance_sheet_entry -->
+<!-- calling: balance_sheet_entry -->
+<!-- calling: balance_sheet_entry -->
+<!-- calling: balance_by_account -->
+<!-- checking account exists: 
+FinancialInvestments_SG_Issuer_SA_USD_1
+-->
+<!-- calling: balance_until_day -->
+<!-- transactions_before_day_on_account_and_subaccounts -->
+<!-- transaction_vectors_total -->
+<!-- vec_change_bases -->
+<!-- done: balance_until_day -->
+<!-- done: balance_by_account -->
+<!-- done: balance_sheet_entry -->
+<!-- calling: balance_by_account -->
+<!-- checking account exists: 
+FinancialInvestments
+-->
+<!-- calling: balance_until_day -->
+<!-- transactions_before_day_on_account_and_subaccounts -->
+<!-- transaction_vectors_total -->
+<!-- vec_change_bases -->
+<!-- done: balance_until_day -->
+<!-- done: balance_by_account -->
+<!-- done: balance_sheet_entry -->
+<!-- calling: balance_by_account -->
+<!-- checking account exists: 
+NoncurrentAssets
+-->
+<!-- calling: balance_until_day -->
+<!-- transactions_before_day_on_account_and_subaccounts -->
+<!-- transaction_vectors_total -->
+<!-- vec_change_bases -->
+<!-- done: balance_until_day -->
+<!-- done: balance_by_account -->
+<!-- done: balance_sheet_entry -->
+<!-- calling: balance_by_account -->
+<!-- checking account exists: 
+Assets
+-->
+<!-- calling: balance_until_day -->
+<!-- transactions_before_day_on_account_and_subaccounts -->
+<!-- transaction_vectors_total -->
+<!-- vec_change_bases -->
+<!-- done: balance_until_day -->
+<!-- done: balance_by_account -->
+<!-- done: balance_sheet_entry -->
+<!-- calling: balance_sheet_entry -->
+<!-- calling: balance_sheet_entry -->
+<!-- calling: balance_sheet_entry -->
+<!-- calling: balance_by_account -->
+<!-- checking account exists: 
+CurrentLoans
+-->
+<!-- calling: balance_until_day -->
+<!-- transactions_before_day_on_account_and_subaccounts -->
+<!-- transaction_vectors_total -->
+<!-- vec_change_bases -->
+<!-- done: balance_until_day -->
+<!-- done: balance_by_account -->
+<!-- done: balance_sheet_entry -->
+<!-- calling: balance_by_account -->
+<!-- checking account exists: 
+CurrentLiabilities
+-->
+<!-- calling: balance_until_day -->
+<!-- transactions_before_day_on_account_and_subaccounts -->
+<!-- transaction_vectors_total -->
+<!-- vec_change_bases -->
+<!-- done: balance_until_day -->
+<!-- done: balance_by_account -->
+<!-- done: balance_sheet_entry -->
+<!-- calling: balance_sheet_entry -->
+<!-- calling: balance_sheet_entry -->
+<!-- calling: balance_by_account -->
+<!-- checking account exists: 
+NoncurrentLoans
+-->
+<!-- calling: balance_until_day -->
+<!-- transactions_before_day_on_account_and_subaccounts -->
+<!-- transaction_vectors_total -->
+<!-- vec_change_bases -->
+<!-- done: balance_until_day -->
+<!-- done: balance_by_account -->
+<!-- done: balance_sheet_entry -->
+<!-- calling: balance_by_account -->
+<!-- checking account exists: 
+NoncurrentLiabilities
+-->
+<!-- calling: balance_until_day -->
+<!-- transactions_before_day_on_account_and_subaccounts -->
+<!-- transaction_vectors_total -->
+<!-- vec_change_bases -->
+<!-- done: balance_until_day -->
+<!-- done: balance_by_account -->
+<!-- done: balance_sheet_entry -->
+<!-- calling: balance_by_account -->
+<!-- checking account exists: 
+Liabilities
+-->
+<!-- calling: balance_until_day -->
+<!-- transactions_before_day_on_account_and_subaccounts -->
+<!-- transaction_vectors_total -->
+<!-- vec_change_bases -->
+<!-- done: balance_until_day -->
+<!-- done: balance_by_account -->
+<!-- done: balance_sheet_entry -->
+<!-- calling: balance_by_account -->
+<!-- checking account exists: 
+NetAssets
+-->
+<!-- calling: balance_until_day -->
+<!-- transactions_before_day_on_account_and_subaccounts -->
+<!-- transaction_vectors_total -->
+<!-- vec_change_bases -->
+<!-- done: balance_until_day -->
+<!-- done: balance_by_account -->
+<!-- calling: balance_until_day -->
+<!-- transactions_before_day_on_account_and_subaccounts -->
+<!-- transaction_vectors_total -->
+<!-- vec_change_bases -->
+<!-- done: balance_until_day -->
+<!-- Net activity by account -->
+<!-- Get transactions with retained earnings -->
+<!-- calling: balance_sheet_entry -->
+<!-- calling: balance_sheet_entry -->
+<!-- calling: balance_by_account -->
+<!-- checking account exists: 
+CapitalIntroduced
+-->
+<!-- calling: balance_until_day -->
+<!-- transactions_before_day_on_account_and_subaccounts -->
+<!-- transaction_vectors_total -->
+<!-- vec_change_bases -->
+<!-- done: balance_until_day -->
+<!-- done: balance_by_account -->
+<!-- done: balance_sheet_entry -->
+<!-- calling: balance_sheet_entry -->
+<!-- calling: balance_by_account -->
+<!-- checking account exists: 
+Drawings
+-->
+<!-- calling: balance_until_day -->
+<!-- transactions_before_day_on_account_and_subaccounts -->
+<!-- transaction_vectors_total -->
+<!-- vec_change_bases -->
+<!-- done: balance_until_day -->
+<!-- done: balance_by_account -->
+<!-- done: balance_sheet_entry -->
+<!-- calling: balance_sheet_entry -->
+<!-- calling: balance_sheet_entry -->
+<!-- calling: balance_by_account -->
+<!-- checking account exists: 
+CurrentEarnings
+-->
+<!-- calling: balance_until_day -->
+<!-- transactions_before_day_on_account_and_subaccounts -->
+<!-- transaction_vectors_total -->
+<!-- vec_change_bases -->
+<!-- done: balance_until_day -->
+<!-- done: balance_by_account -->
+<!-- done: balance_sheet_entry -->
+<!-- calling: balance_sheet_entry -->
+<!-- calling: balance_by_account -->
+<!-- checking account exists: 
+HistoricalEarnings
+-->
+<!-- calling: balance_until_day -->
+<!-- transactions_before_day_on_account_and_subaccounts -->
+<!-- transaction_vectors_total -->
+<!-- vec_change_bases -->
+<!-- done: balance_until_day -->
+<!-- done: balance_by_account -->
+<!-- done: balance_sheet_entry -->
+<!-- calling: balance_by_account -->
+<!-- checking account exists: 
+RetainedEarnings
+-->
+<!-- calling: balance_until_day -->
+<!-- transactions_before_day_on_account_and_subaccounts -->
+<!-- transaction_vectors_total -->
+<!-- vec_change_bases -->
+<!-- done: balance_until_day -->
+<!-- done: balance_by_account -->
+<!-- done: balance_sheet_entry -->
+<!-- calling: balance_sheet_entry -->
+<!-- calling: balance_by_account -->
+<!-- checking account exists: 
+ShareCapital
+-->
+<!-- calling: balance_until_day -->
+<!-- transactions_before_day_on_account_and_subaccounts -->
+<!-- transaction_vectors_total -->
+<!-- vec_change_bases -->
+<!-- done: balance_until_day -->
+<!-- done: balance_by_account -->
+<!-- done: balance_sheet_entry -->
+<!-- calling: balance_by_account -->
+<!-- checking account exists: 
+Equity
+-->
+<!-- calling: balance_until_day -->
+<!-- transactions_before_day_on_account_and_subaccounts -->
+<!-- transaction_vectors_total -->
+<!-- vec_change_bases -->
+<!-- done: balance_until_day -->
+<!-- done: balance_by_account -->
+<!-- done: balance_sheet_entry -->
+<!-- balance_sheet_at: done. -->
+<!-- Profit and loss -->
+<!-- calling: balance_until_day -->
+<!-- transactions_before_day_on_account_and_subaccounts -->
+<!-- transaction_vectors_total -->
+<!-- vec_change_bases -->
+<!-- done: balance_until_day -->
+<!-- calling: balance_until_day -->
+<!-- transactions_before_day_on_account_and_subaccounts -->
+<!-- transaction_vectors_total -->
+<!-- vec_change_bases -->
+<!-- done: balance_until_day -->
+<!-- calling: balance_until_day -->
+<!-- transactions_before_day_on_account_and_subaccounts -->
+<!-- transaction_vectors_total -->
+<!-- vec_change_bases -->
+<!-- done: balance_until_day -->
+<!-- calling: balance_until_day -->
+<!-- transactions_before_day_on_account_and_subaccounts -->
+<!-- transaction_vectors_total -->
+<!-- vec_change_bases -->
+<!-- done: balance_until_day -->
+<!-- calling: balance_by_account -->
+<!-- checking account exists: 
+InvestmentIncome_realized_without_currency_movement_SG_Issuer_SA_USD_1
+-->
+<!-- calling: balance_until_day -->
+<!-- transactions_before_day_on_account_and_subaccounts -->
+<!-- transaction_vectors_total -->
+<!-- vec_change_bases -->
+<!-- done: balance_until_day -->
+<!-- done: balance_by_account -->
+<!-- calling: balance_by_account -->
+<!-- checking account exists: 
+InvestmentIncome_realized_only_currency_movement_SG_Issuer_SA_USD_1
+-->
+<!-- calling: balance_until_day -->
+<!-- transactions_before_day_on_account_and_subaccounts -->
+<!-- transaction_vectors_total -->
+<!-- vec_change_bases -->
+<!-- done: balance_until_day -->
+<!-- done: balance_by_account -->
+<!-- calling: balance_by_account -->
+<!-- checking account exists: 
+InvestmentIncome_unrealized_without_currency_movement_SG_Issuer_SA_USD_1
+-->
+<!-- calling: balance_until_day -->
+<!-- transactions_before_day_on_account_and_subaccounts -->
+<!-- transaction_vectors_total -->
+<!-- vec_change_bases -->
+<!-- done: balance_until_day -->
+<!-- done: balance_by_account -->
+<!-- calling: balance_by_account -->
+<!-- checking account exists: 
+InvestmentIncome_unrealized_only_currency_movement_SG_Issuer_SA_USD_1
+-->
+<!-- calling: balance_until_day -->
+<!-- transactions_before_day_on_account_and_subaccounts -->
+<!-- transaction_vectors_total -->
+<!-- vec_change_bases -->
+<!-- done: balance_until_day -->
+<!-- done: balance_by_account -->
+<!-- calling: balance_by_account -->
+<!-- checking account exists: 
+InvestmentIncome_realized
+-->
+<!-- calling: balance_until_day -->
+<!-- transactions_before_day_on_account_and_subaccounts -->
+<!-- transaction_vectors_total -->
+<!-- vec_change_bases -->
+<!-- done: balance_until_day -->
+<!-- done: balance_by_account -->
+<!-- calling: balance_by_account -->
+<!-- checking account exists: 
+InvestmentIncome_unrealized
+-->
+<!-- calling: balance_until_day -->
+<!-- transactions_before_day_on_account_and_subaccounts -->
+<!-- transaction_vectors_total -->
+<!-- vec_change_bases -->
+<!-- done: balance_until_day -->
+<!-- done: balance_by_account -->
+clip_investments([ outstanding('USD',
+			       'SG Issuer_SA_USD_1',
+			       140000,
+			       value('AUD',1.2829997376),
+			       value('USD',0.9982880000000001),
+			       date(2018,7,1)) ',' 0
+		 ],
+		 [ investment(outstanding('USD',
+					  'SG Issuer_SA_USD_1',
+					  140000,
+					  value('AUD',1.2829997376),
+					  value('USD',0.9982880000000001),
+					  date(2018,7,1)),
+			      [])
+		 ],
+		 [],
+		 [ unr ',' info('USD',
+			'SG Issuer_SA_USD_1',
+			value('AUD',40.0),
+			value('USD',29.6963694703504),
+			date(2018,7,13)) ',' 140000 ',' []
+		 ])clip_investments([ outstanding('USD',
+			       'SG Issuer_SA_USD_1',
+			       140000,
+			       value('AUD',1.2829997376),
+			       value('USD',0.9982880000000001),
+			       date(2018,7,1)) ',' 0
+		 ],
+		 [ investment(outstanding('USD',
+					  'SG Issuer_SA_USD_1',
+					  140000,
+					  value('AUD',1.2829997376),
+					  value('USD',0.9982880000000001),
+					  date(2018,7,1)),
+			      [])
+		 ],
+		 [],
+		 [ unr ',' info('USD',
+			'SG Issuer_SA_USD_1',
+			value('AUD',1.2829997376),
+			value('USD',0.9982880000000001),
+			date(2018,7,1)) ',' 140000 ',' []
+		 ])<!-- calling: balance_by_account -->
+<!-- checking account exists: 
+Banks_USD_Bank
+-->
+<!-- calling: balance_until_day -->
+<!-- transactions_before_day_on_account_and_subaccounts -->
+<!-- transaction_vectors_total -->
+<!-- vec_change_bases -->
+<!-- done: balance_until_day -->
+<!-- done: balance_by_account -->
+  <xbrli:unit id="U-AUD"><xbrli:measure>iso4217:AUD</xbrli:measure></xbrli:unit>
+
+
+<xbrli:context id="I-2019">
+	<xbrli:period>
+		<xbrli:instant>2019-06-30</xbrli:instant>
+	</xbrli:period>
+	<xbrli:entity>
+		<identifier scheme="http://www.example.com">TestData</identifier>
+	</xbrli:entity>
+</xbrli:context>
+<xbrli:context id="D-2019">
+	<xbrli:period>
+		<xbrli:startDate>2018-07-13</xbrli:startDate>
+		<xbrli:endDate>2019-06-30</xbrli:endDate>
+	</xbrli:period>
+	<xbrli:entity>
+		<identifier scheme="http://www.example.com">TestData</identifier>
+	</xbrli:entity>
+</xbrli:context>
+<xbrli:context id="I-2019-USD_Bank">
+	<xbrli:period>
+		<xbrli:instant>2019-06-30</xbrli:instant>
+	</xbrli:period>
+	<xbrli:entity>
+		<identifier scheme="http://www.example.com">TestData</identifier>
+	</xbrli:entity>
+		<xbrli:scenario>
+			<xbrldi:typedMember dimension="basic:Dimension_BankAccounts_Instant">
+			<basic:BankAccount_Instant><name>Banks_USD_Bank</name><value>10000</value></basic:BankAccount_Instant>
+			</xbrldi:typedMember>
+		</xbrli:scenario>
+</xbrli:context>
+<xbrli:context id="D-2019-USD_Bank">
+	<xbrli:period>
+		<xbrli:startDate>2018-07-13</xbrli:startDate>
+		<xbrli:endDate>2019-06-30</xbrli:endDate>
+	</xbrli:period>
+	<xbrli:entity>
+		<identifier scheme="http://www.example.com">TestData</identifier>
+		<xbrli:segment>
+			<xbrldi:typedMember dimension="basic:Dimension_BankAccounts_Duration">
+			<basic:BankAccount_Duration>USD_Bank</basic:BankAccount_Duration>
+			</xbrldi:typedMember>
+		</xbrli:segment>
+	</xbrli:entity>
+</xbrli:context>
+<xbrli:context id="D-2019-SG_Issuer_SA_USD_1">
+	<xbrli:period>
+		<xbrli:startDate>2018-07-13</xbrli:startDate>
+		<xbrli:endDate>2019-06-30</xbrli:endDate>
+	</xbrli:period>
+	<xbrli:entity>
+		<identifier scheme="http://www.example.com">TestData</identifier>
+		<xbrli:segment>
+			<xbrldi:typedMember dimension="basic:Dimension_Investments_Duration">
+			<basic:Investment_Duration>SG_Issuer_SA_USD_1</basic:Investment_Duration>
+			</xbrldi:typedMember>
+		</xbrli:segment>
+	</xbrli:entity>
+</xbrli:context>
+
+
+<!-- dimensional facts: -->
+  <basic:Bank contextRef="I-2019-USD_Bank" unitRef="U-AUD" decimals="INF">-199,004.30</basic:Bank>
+  <basic:CurrencyMovement contextRef="D-2019-USD_Bank" unitRef="U-AUD" decimals="INF">-10,751.90</basic:CurrencyMovement>
+
+<!-- investment report:
+url: http://localhost:8080/tmp/1565973944.7263985.2/investment_report.html
+
+ -->
+
+<!-- bs html:
+url: http://localhost:8080/tmp/1565973944.7263985.2/balance_sheet.html
+
+ -->
+
+<!-- pl html:
+url: http://localhost:8080/tmp/1565973944.7263985.2/profit_and_loss.html
+
+ -->
+
+<!-- balance sheet: -->
+ <basic:Assets contextRef="I-2019" unitRef="U-AUD" decimals="INF">5,400,995.70</basic:Assets>
+  <basic:CurrentAssets contextRef="I-2019" unitRef="U-AUD" decimals="INF">-199,004.30</basic:CurrentAssets>
+   <basic:CashAndCashEquivalents contextRef="I-2019" unitRef="U-AUD" decimals="INF">-199,004.30</basic:CashAndCashEquivalents>
+    <basic:Banks contextRef="I-2019" unitRef="U-AUD" decimals="INF">-199,004.30</basic:Banks>
+  <basic:NoncurrentAssets contextRef="I-2019" unitRef="U-AUD" decimals="INF">5,600,000.00</basic:NoncurrentAssets>
+   <basic:FinancialInvestments contextRef="I-2019" unitRef="U-AUD" decimals="INF">5,600,000.00</basic:FinancialInvestments>
+ <basic:Liabilities contextRef="I-2019" unitRef="U-AUD" decimals="INF">0.00</basic:Liabilities>
+ <basic:Equity contextRef="I-2019" unitRef="U-AUD" decimals="INF">5,400,995.70</basic:Equity>
+  <basic:RetainedEarnings contextRef="I-2019" unitRef="U-AUD" decimals="INF">5,400,995.70</basic:RetainedEarnings>
+   <basic:CurrentEarnings contextRef="I-2019" unitRef="U-AUD" decimals="INF">-10,751.90</basic:CurrentEarnings>
+   <basic:HistoricalEarnings contextRef="I-2019" unitRef="U-AUD" decimals="INF">5,411,747.60</basic:HistoricalEarnings>
+ <basic:NetAssets contextRef="I-2019" unitRef="U-AUD" decimals="INF">5,400,995.70</basic:NetAssets>
+
+<!-- profit and loss: -->
+ <basic:Earnings contextRef="D-2019" unitRef="U-AUD" decimals="INF">-10,751.90</basic:Earnings>
+  <basic:Revenue contextRef="D-2019" unitRef="U-AUD" decimals="INF">-10,751.90</basic:Revenue>
+   <basic:CurrencyMovement contextRef="D-2019" unitRef="U-AUD" decimals="INF">-10,751.90</basic:CurrencyMovement>
+    <basic:CurrencyMovement_USD_Bank contextRef="D-2019" unitRef="U-AUD" decimals="INF">-10,751.90</basic:CurrencyMovement_USD_Bank>
+   <basic:InvestmentIncome contextRef="D-2019" unitRef="U-AUD" decimals="INF">0.00</basic:InvestmentIncome>
+    <basic:InvestmentIncome_unrealized contextRef="D-2019" unitRef="U-AUD" decimals="INF">0.00</basic:InvestmentIncome_unrealized>
+     <basic:InvestmentIncome_unrealized_only_currency_movement contextRef="D-2019" unitRef="U-AUD" decimals="INF">302,559.53</basic:InvestmentIncome_unrealized_only_currency_movement>
+     <basic:InvestmentIncome_unrealized_without_currency_movement contextRef="D-2019" unitRef="U-AUD" decimals="INF">-302,559.53</basic:InvestmentIncome_unrealized_without_currency_movement>
+
+<!-- historical profit and loss: 
+ <basic:Earnings contextRef="D-2019" unitRef="U-AUD" decimals="INF">5,411,747.60</basic:Earnings>
+  <basic:Revenue contextRef="D-2019" unitRef="U-AUD" decimals="INF">5,411,747.60</basic:Revenue>
+   <basic:CurrencyMovement contextRef="D-2019" unitRef="U-AUD" decimals="INF">-8,632.44</basic:CurrencyMovement>
+    <basic:CurrencyMovement_USD_Bank contextRef="D-2019" unitRef="U-AUD" decimals="INF">-8,632.44</basic:CurrencyMovement_USD_Bank>
+   <basic:InvestmentIncome contextRef="D-2019" unitRef="U-AUD" decimals="INF">5,420,380.04</basic:InvestmentIncome>
+    <basic:InvestmentIncome_unrealized contextRef="D-2019" unitRef="U-AUD" decimals="INF">5,420,380.04</basic:InvestmentIncome_unrealized>
+     <basic:InvestmentIncome_unrealized_only_currency_movement contextRef="D-2019" unitRef="U-AUD" decimals="INF">256,791.63</basic:InvestmentIncome_unrealized_only_currency_movement>
+     <basic:InvestmentIncome_unrealized_without_currency_movement contextRef="D-2019" unitRef="U-AUD" decimals="INF">5,163,588.40</basic:InvestmentIncome_unrealized_without_currency_movement>
+
+-->
+
+<!-- historical pl html:
+url: http://localhost:8080/tmp/1565973944.7263985.2/profit_and_loss_historical.html
+
+ -->
+
+<!-- investment report all time:
+url: http://localhost:8080/tmp/1565973944.7263985.2/investment_report_all_time.html
+
+ -->
+
+<!-- trial balance: -->
+ <basic:Trial_Balance contextRef="I-2019" unitRef="U-AUD" decimals="INF">0.00</basic:Trial_Balance>
+
+<!-- WARNING: no transactions within request period -->
+
+</xbrli:xbrl>
+
+

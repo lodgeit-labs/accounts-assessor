@@ -119,7 +119,7 @@ preprocess_s_transactions2(Static_Data, [S_Transaction|S_Transactions], [Transac
 					flatten(Transactions0, Transactions1),
 					exclude(var, Transactions1, Transactions2),
 					exclude(has_empty_vector, Transactions2, Transactions_Out),
-					pretty_term_string(Transactions_Out, Transactions_String),
+					pretty_transactions_string(Transactions_Out, Transactions_String),
 					atomic_list_concat([S_Transaction_String, '==>\n', Transactions_String, '\n====\n'], Debug_Head),
 					Transactions_Out = [T|_],
 					transaction_day(T, Transaction_Date),
@@ -740,3 +740,57 @@ s_transactions_up_to(End_Date, S_Transactions_In, S_Transactions_Out) :-
 		),
 		S_Transactions_Out
 	).
+
+pretty_transactions_string(Transactions, String) :-
+	Seen_Units = [],
+	
+	pretty_transactions_string2(Seen_Units, Transactions, String).
+
+pretty_transactions_string2(_, [], '').
+pretty_transactions_string2(Seen_Units0, [Transaction|Transactions], String) :-
+	transaction_day(Transaction, Date),
+	term_string(Date, Date_Str),
+	transaction_description(Transaction, Description),
+	transaction_account_id(Transaction, Account),
+	transaction_vector(Transaction, Vector),
+	pretty_vector_string(Seen_Units0, Seen_Units1, Vector, Vector_Str),
+	atomic_list_concat([
+		Date_Str, ': ', Account, '\n',
+		'  ', Description, '\n',
+		Vector_Str,
+	'\n'], Transaction_String),
+	pretty_transactions_string2(Seen_Units1, Transactions, String_Rest),
+	atomic_list_concat([Transaction_String, String_Rest], String).
+
+pretty_vector_string(Seen_Units, Seen_Units, [], '').
+pretty_vector_string(Seen_Units0, Seen_Units_Out, [Coord|Rest], Vector_Str) :-
+	Coord = coord(Unit, Dr, Cr),
+	(
+		Cr =:= 0
+	->
+		Side = 'DR'
+	;
+		(
+			Dr =:= 0
+		->
+			Side = 'CR'
+		;
+			Side = 'DR+CR'
+		)
+	),
+	(
+		member((Shorthand = Unit), Seen_Units0)
+	->
+		Seen_Units1 = Seen_Units0
+	;
+		(
+			gensym('U', Shorthand),
+			Seen_Unit = (Shorthand = Unit),
+			append(Seen_Units0, [Seen_Unit], Seen_Units1)
+		)
+	),
+	term_string(Coord, Coord_Str0),
+	atomic_list_concat(['  ', Side, ':', Shorthand, ':', Coord_Str0, '\n'], Coord_Str),
+	pretty_vector_string(Seen_Units1, Seen_Units_Out, Rest, Rest_Str),
+	atomic_list_concat([Coord_Str, Rest_Str], Vector_Str).
+

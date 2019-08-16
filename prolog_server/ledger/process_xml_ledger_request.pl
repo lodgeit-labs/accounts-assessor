@@ -176,8 +176,8 @@ output_results(Cost_Or_Market, S_Transactions, Transactions, Start_Date, End_Dat
 	investment_report_2(Static_Data, Outstanding_Out, '', Investment_Report_2_Lines),
 	
 	% this isnt really all_time, just since beginning of time, but once we can do at cost, it can be
-	%investment_report_2(Static_Data.put(start_date, date(1,1,1)), Outstanding_Out, '_all_time', Investment_Report_2_All_Time_Lines),
-	Investment_Report_2_All_Time_Lines = '',
+	investment_report_2(Static_Data.put(start_date, date(1,1,1)), Outstanding_Out, '_all_time', Investment_Report_2_All_Time_Lines),
+	%Investment_Report_2_All_Time_Lines = '',
 
 	bs_report(Static_Data, Balance_Sheet2, Bs_Html),
 	pl_report(Static_Data, ProftAndLoss2, '', Pl_Html),

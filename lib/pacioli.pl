@@ -33,6 +33,9 @@
 :- use_module(library(record)).
 
 :- record coord(unit, debit, credit).
+:- record value(unit, amount).
+
+	
 % -------------------------------------------------------------------
 % Pacioli group operations. These operations operate on vectors. A vector is a list of
 % coordinates. A coordinate is a triple comprising a unit, a debit amount, and a credit
@@ -201,9 +204,6 @@ coord_or_value_of_same_unit(A, B) :-
 coord_or_value_of_same_unit(A, B) :-
 	value_unit(A, A_Unit),
 	value_unit(B, A_Unit).
-
-coord_unit(coord(Unit, _, _), Unit).
-value_unit(value(Unit, _), Unit).
 
 coord_merge(coord(Unit, D1, C1), coord(Unit, D2, C2), coord(Unit, D3, C3)) :-
 	D3 is D2 + D1,

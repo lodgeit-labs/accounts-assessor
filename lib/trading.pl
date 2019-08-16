@@ -11,10 +11,10 @@
 increase_unrealized_gains(Static_Data, Description, Trading_Account_Id, Purchase_Currency, Converted_Cost_Vector, Goods_With_Unit_Cost_Vector, Transaction_Day, [Ts0, Ts1, Ts2]) :-
 	unrealized_gains_increase_txs(Static_Data, Description, Trading_Account_Id, Purchase_Currency, Converted_Cost_Vector, Goods_With_Unit_Cost_Vector, Transaction_Day, Txs0, Historical_Txs, Current_Txs),
 	Start_Date = Static_Data.start_date,
-	add_days(Start_Date, -1, Before_Start),
+	%add_days(Start_Date, -1, Before_Start),
 	(nonvar(Txs0) -> txs_to_transactions(Transaction_Day, Txs0, Ts0) ; true),
 	(nonvar(Current_Txs) -> txs_to_transactions(Start_Date, Current_Txs, Ts1) ; true),
-	(nonvar(Historical_Txs) -> txs_to_transactions(Before_Start, Historical_Txs, Ts2) ; true).	
+	(nonvar(Historical_Txs) -> txs_to_transactions(Transaction_Day, Historical_Txs, Ts2) ; true).	
 
 reduce_unrealized_gains(Static_Data, Description, Trading_Account_Id, Transaction_Day, Goods_Cost_Values, [Ts0, Ts1, Ts2]) :-
 	maplist(unrealized_gains_reduction_txs(Static_Data, Description, Transaction_Day, Trading_Account_Id), Goods_Cost_Values, Txs0, Historical_Txs, Current_Txs),
@@ -42,7 +42,7 @@ unrealized_gains_increase_txs(Static_Data, Description, Trading_Account_Id, Purc
 			% Account                               DR                                       CR
 			(Unrealized_Gains_Currency_Movement,    Goods_Without_Currency_Movement,        Goods),
 			(Unrealized_Gains_Excluding_Forex,	    Cost_Vector,      	                Goods_Without_Currency_Movement)
-		], Txs, [Description, ' - only current period'], cr)
+		], Txs, [Description, ' - single period'], cr)
 	;
 		(
 			/*historical:*/
@@ -83,6 +83,7 @@ unrealized_gains_increase_txs(Static_Data, Description, Trading_Account_Id, Purc
 		)
 	).
 	
+/* the transactions produced should be an inverse of the increase ones, we should abstract it out */
 unrealized_gains_reduction_txs(Static_Data, Description, Transaction_Day, Trading_Account_Id, Purchase_Info, Txs, Historical_Txs, Current_Txs) :-
 	dict_vars(Static_Data, [Accounts, Report_Currency, Start_Date]),
 	goods(Purchase_Currency, Goods_Unit_Name, Goods_Count, Cost, Purchase_Date) = Purchase_Info,
@@ -103,29 +104,31 @@ unrealized_gains_reduction_txs(Static_Data, Description, Transaction_Day, Tradin
 	;
 		Goods_Unit = Goods_Unit_Name
 	),
-		
-	Goods_Without_Currency_Movement = [coord(
-		without_currency_movement_against_since(Goods_Unit, Purchase_Currency, Report_Currency, Purchase_Date), 
-		Goods_Count, 0)
-	],
 	
 	Goods = value(Goods_Unit, Goods_Count),
 	Goods_Debit = Goods_Count, Goods_Credit = 0,
-	
-	/*
-	the transactions produced should be an inverse of in increase ones, we should abstract out a generator of them, for a given tx date 
-	*/
-	
+
 	(
 		Transaction_Day @>= Start_Date
 	->
 		(
-			dr_cr_table_to_txs([
-			% Account                                 DR                                         CR
-			(Unrealized_Gains_Currency_Movement,      Goods,         Goods_Without_Currency_Movement),
-			(Unrealized_Gains_Excluding_Forex,        Goods_Without_Currency_Movement    ,      Cost)
+			(
+					Purchase_Date @> Start_Date
+				->
+					Purchase_Date_Clipped = Purchase_Date
+				;
+					Purchase_Date_Clipped = Start_Date
+			),
+			Goods_Without_Currency_Movement = [coord(
+				without_currency_movement_against_since(Goods_Unit, Purchase_Currency, Report_Currency, Purchase_Date_Clipped), 
+				Goods_Count, 0)
 			],
-			Txs, [Description, ' - only current period'], dr)
+			dr_cr_table_to_txs([
+				% Account                                 DR                                         CR
+				(Unrealized_Gains_Currency_Movement,      Goods,         Goods_Without_Currency_Movement),
+				(Unrealized_Gains_Excluding_Forex,        Goods_Without_Currency_Movement    ,      Cost)
+			], Txs, [Description, ' - single period'], dr
+			)
 		)
 	;
 		(
@@ -144,12 +147,11 @@ unrealized_gains_reduction_txs(Static_Data, Description, Transaction_Day, Tradin
 			],
 				
 			dr_cr_table_to_txs([
-			% Account                                     DR                                                  CR
-			(Unrealized_Gains_Currency_Movement,          Goods_Historical    ,                     Historical_Without_Currency_Movement),
-			(Unrealized_Gains_Excluding_Forex,            Historical_Without_Currency_Movement    , Cost)
-			],
-			Historical_Txs, [Description, ' - historical part'], dr),
-			
+				% Account                                     DR                                                  CR
+				(Unrealized_Gains_Currency_Movement,          Goods_Historical    ,                     Historical_Without_Currency_Movement),
+				(Unrealized_Gains_Excluding_Forex,            Historical_Without_Currency_Movement    , Cost)
+			], Historical_Txs, [Description, ' - historical part'], dr
+			),
 			Opening_Goods_Value = [coord(
 				without_movement_after(Goods_Unit, Start_Date), 
 				Goods_Debit, Goods_Credit)
@@ -162,7 +164,8 @@ unrealized_gains_reduction_txs(Static_Data, Description, Transaction_Day, Tradin
 				% Account                             DR                                           CR
 				(Unrealized_Gains_Currency_Movement,  Goods,                  Current_Without_Currency_Movement),
 				(Unrealized_Gains_Excluding_Forex,	  Current_Without_Currency_Movement,    Opening_Goods_Value)
-			], Current_Txs, [Description, ' - current part'], dr)
+			], Current_Txs, [Description, ' - current part'], dr
+			)
 		)
 	).
 /*
