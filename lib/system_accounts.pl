@@ -1,4 +1,5 @@
 :- module(system_accounts, [
+		traded_units/3,
 		generate_system_accounts/3, 
 		trading_account_ids/2,
 		bank_accounts/2]).

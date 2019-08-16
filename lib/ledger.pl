@@ -5,6 +5,7 @@
 		emit_ledger_errors/1]).
 
 :- use_module('system_accounts', [
+		traded_units/3,
 		generate_system_accounts/3]).
 :- use_module('accounts', [
 		check_account_parent/2]).
@@ -75,7 +76,7 @@ process_ledger(
 	(
 		Cost_Or_Market = cost
 	->
-		filter_out_market_values(Exchange_Rates0, Exchange_Rates)
+		filter_out_market_values(S_Transactions, Transaction_Types, Exchange_Rates0, Exchange_Rates)
 	;
 		Exchange_Rates0 = Exchange_Rates
 	),
@@ -172,7 +173,19 @@ emit_ledger_errors(Debug) :-
 		true
 	).
 
-filter_out_market_values(Exchange_Rates0, Exchange_Rates) :-
-	Exchange_Rates0 = Exchange_Rates,
-	throw(fixme).
+filter_out_market_values(S_Transactions, Transaction_Types, Exchange_Rates0, Exchange_Rates) :-
+	traded_units(S_Transactions, Transaction_Types, Units),
+	findall(
+		R,
+		(
+			member(R, Exchange_Rates0),
+			R = exchange_rate(_, Src, Dst, _),
+			\+member(Src, Units),
+			\+member(Dst, Units)
+		),
+		Exchange_Rates
+	).
+			
+	
+	
 	
