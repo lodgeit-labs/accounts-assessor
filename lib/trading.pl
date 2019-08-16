@@ -218,50 +218,21 @@ realized_gains_txs(Static_Data, Description, _Transaction_Day, Sale_Currency, Sa
 		Accounts, Trading_Account_Id, realized, Goods_Unit, 
 		Realized_Gains_Currency_Movement, Realized_Gains_Excluding_Forex),
 	
-	/*what would be the Report_Currency value we'd get for this sale currency amount if purchase/sale currency didn't move against Report_Currency since the day of the purchase?*/
-	vec_change_bases(
-		Exchange_Rates, 
-		Purchase_Date, 
-		Report_Currency, 
-		[coord(Sale_Currency, 0, Sale_Currency_Amount)],
-		Sale_Without_Currency_Movement
-	),
+	/*what would be the Report_Currency value we'd get for this sale currency amount if purchase/sale currency didn't move against Report_Currency since the day of the purchase? This only makes sense for shares or similar where the price you sell it for is gonna be a result of healthy public trading or somesuch.*/
 	(
-		Purchase_Date @>= Start_Date
-	->
-		Cost2 = Converted_Cost
-	;
-		Cost2 = Converted_Cost
-
-	
-	/*todo:
-		(
 		Purchase_Date @>= Start_Date
 	->
 		(
 			Cost2 = Converted_Cost,
 			Sale_Without_Currency_Movement = [coord(
-				without_currency_movement_against_since(Sale_Currency, Purchase_Currency, Report_Currency, Start_Date), 
-				Goods_Debit, Goods_Credit)
-			],
-				
-				, 
-				
+				without_currency_movement_against_since(Sale_Currency, Sale_Currency, Report_Currency, Purchase_Date),
 				0, Sale_Currency_Amount)],
-	vec_change_bases(
-		Exchange_Rates, 
-		Purchase_Date, 
-		Report_Currency, 
-		
-
 		)
 	;
-	
+		(
 		
 	
-	),
-*/
-	
+		)
 	),
 	dr_cr_table_to_txs([
 		% Account                                            DR                        CR
