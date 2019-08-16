@@ -419,25 +419,25 @@ ir2_row_to_html(Report_Currency, Row, Html) :-
 		Closing_Market_Value_Foreign, Closing_Market_Value_Converted),
 		
 	format_date(Opening_Date, Opening_Date2),
-	format_money(Report_Currency, Opening_Unit_Cost_Foreign, Opening_Unit_Cost_Foreign2),
+	format_money_precise(Report_Currency, Opening_Unit_Cost_Foreign, Opening_Unit_Cost_Foreign2),
 	format_conversion(Report_Currency, Opening_Conversion, Opening_Conversion2),
-	format_money(Report_Currency, Opening_Unit_Cost_Converted, Opening_Unit_Cost_Converted2),
+	format_money_precise(Report_Currency, Opening_Unit_Cost_Converted, Opening_Unit_Cost_Converted2),
 	format_money(Report_Currency, Opening_Total_Cost_Foreign, Opening_Total_Cost_Foreign2),
 	format_money(Report_Currency, Opening_Total_Cost_Converted, Opening_Total_Cost_Converted2),
 
 	(Sale_Date = '' -> Sale_Date2 = '' ; format_date(Sale_Date, Sale_Date2)),
-	format_money(Report_Currency, Sale_Unit_Price_Foreign, Sale_Unit_Price_Foreign2),
+	format_money_precise(Report_Currency, Sale_Unit_Price_Foreign, Sale_Unit_Price_Foreign2),
 	format_conversion(Report_Currency, Sale_Conversion, Sale_Conversion2),
-	format_money(Report_Currency, Sale_Unit_Price_Converted, Sale_Unit_Price_Converted2),
+	format_money_precise(Report_Currency, Sale_Unit_Price_Converted, Sale_Unit_Price_Converted2),
 		
 	format_money(Report_Currency, Rea_Market_Gain, Rea_Market_Gain2),
 	format_money(Report_Currency, Rea_Forex_Gain, Rea_Forex_Gain2),
 	format_money(Report_Currency, Unr_Market_Gain, Unr_Market_Gain2),
 	format_money(Report_Currency, Unr_Forex_Gain, Unr_Forex_Gain2),
 
-	format_money(Report_Currency, Closing_Unit_Price_Foreign, Closing_Unit_Price_Foreign2),
+	format_money_precise(Report_Currency, Closing_Unit_Price_Foreign, Closing_Unit_Price_Foreign2),
 	format_conversion(Report_Currency, Closing_Currency_Conversion, Closing_Currency_Conversion2),
-	format_money(Report_Currency, Closing_Unit_Price_Converted, Closing_Unit_Price_Converted2),
+	format_money_precise(Report_Currency, Closing_Unit_Price_Converted, Closing_Unit_Price_Converted2),
 
 	format_money(Report_Currency, Closing_Market_Value_Foreign, Closing_Market_Value_Foreign2),
 	format_money(Report_Currency, Closing_Market_Value_Converted, Closing_Market_Value_Converted2),
@@ -455,7 +455,13 @@ ir2_row_to_html(Report_Currency, Row, Html) :-
 		
 		td(Closing_Market_Value_Foreign2), td(Closing_Market_Value_Converted2)]).
 
-format_money(_Optional_Implicit_Unit, In, Out) :-
+format_money_precise(Optional_Implicit_Unit, In, Out) :-
+	format_money2(Optional_Implicit_Unit, 6, In, Out).
+	
+format_money(Optional_Implicit_Unit, In, Out) :-
+	format_money2(Optional_Implicit_Unit, 2, In, Out).
+
+format_money2(_Optional_Implicit_Unit, Precision, In, Out) :-
 	(
 		In = ''
 	->
@@ -478,7 +484,8 @@ format_money(_Optional_Implicit_Unit, In, Out) :-
 		;
 			Unit2 = Unit1
 		),
-		format(string(Out), '~2:f~w', [X, Unit2])
+		atomic_list_concat(['~',Precision,':f~w'], Format_String),
+		format(string(Out), Format_String, [X, Unit2])
 	).
 	
 optional_currency_conversion(Exchange_Rates, Date, Src, Optional_Dst, Conversion) :-
@@ -498,7 +505,7 @@ format_conversion(_Report_Currency, '', '').
 format_conversion(_Report_Currency, Conversion, String) :-
 	Conversion = exchange_rate(_, Src, Dst, Rate),
 	Inverse is 1 / Rate,
-	format(string(String), '1~w=~2:f~w', [Dst, Inverse, Src]). 
+	format(string(String), '1~w=~6:f~w', [Dst, Inverse, Src]). 
 	%pretty_term_string(Conversion, String).
 
 optional_converted_value(V1, C, V2) :-

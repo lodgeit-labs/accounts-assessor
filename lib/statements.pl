@@ -261,7 +261,10 @@ make_buy(Static_Data, Trading_Account_Id, Pricing_Method, Bank_Account_Currency,
 	(
 		Cost_Or_Market = cost
 	->
-		purchased_goods_coord_with_cost(Goods_Vector, Converted_Vector_Ours, Goods_Vector2)
+		(
+			purchased_goods_coord_with_cost(Goods_Coord, Coord_Ours_Converted, Goods_Coord_With_Cost),
+			Goods_Vector2 = [Goods_Coord_With_Cost]
+		)
 	;
 		Goods_Vector2 = Goods_Vector
 	),
@@ -360,7 +363,7 @@ unit_cost_value(Cost_Coord, Goods_Coord, Unit_Cost) :-
 sold_goods_vector_with_cost(Static_Data, Goods_Cost_Value, [Goods_Coord_With_Cost]) :-
 	Goods_Cost_Value = goods(_, Goods_Unit, Goods_Count, Total_Cost_Value, _),
 	(
-		Static_Data.cost_or_market = cost
+		Static_Data.cost_or_market = market
 	->
 		Unit = Goods_Unit
 	;

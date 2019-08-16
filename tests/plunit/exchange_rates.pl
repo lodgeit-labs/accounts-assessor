@@ -1,4 +1,5 @@
 :- ['../../lib/exchange_rates'].
+:- ['../../lib/exchange'].
 :- ['../../lib/days'].
 :- use_module('../../lib/utils',	[floats_close_enough/2]).
 
@@ -71,6 +72,13 @@ test(4) :-
 	floats_close_enough(X, 57.97101449275363).
 
 
+test(4) :-
+	vec_change_bases(Exchange_Rates, Day, Bases, [A | As], Bs) :-
+	coord(without_movement_after('SG Issuer_SA_USD_1',
+					     date(2018,7,13)),
+		      0,
+		      140000),
+		      
 
 :- end_tests(exchange_rates).
 
