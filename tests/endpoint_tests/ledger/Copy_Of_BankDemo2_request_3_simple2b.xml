@@ -1,10 +1,4 @@
 <?xml version="1.0"?>
-
-		  <!--
-investition in historical period
-		  -->
-
-
 <reports xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <balanceSheetRequest>
     <generator>
@@ -84,11 +78,6 @@ investition in historical period
       </unitValue>
       <unitValue>
         <unitType>USD</unitType>
-        <unitValue>1.346966</unitValue>
-        <unitValueDate>2018-07-13</unitValueDate>
-      </unitValue>
-      <unitValue>
-        <unitType>USD</unitType>
         <unitValue>1.358327</unitValue>
         <unitValueDate>2018-08-13</unitValueDate>
       </unitValue>
@@ -124,10 +113,18 @@ investition in historical period
         <transactions>
           <transaction>
             <transdesc>Invest_In</transdesc>
-            <transdate>2018-07-01</transdate>
+            <transdate>2018-07-13</transdate>
             <debit>139760.32</debit>
             <credit>0</credit>
-            <unit>140000</unit>
+            <unit>10000</unit>
+            <unitType>SG Issuer_SA_USD_1</unitType>
+          </transaction>
+          <transaction>
+            <transdesc>Dispose_Of</transdesc>
+            <transdate>2018-12-30</transdate>
+            <debit>0</debit>
+            <credit>10000</credit>
+            <unit>10000</unit>
             <unitType>SG Issuer_SA_USD_1</unitType>
           </transaction>
         </transactions>

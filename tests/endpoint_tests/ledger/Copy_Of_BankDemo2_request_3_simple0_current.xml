@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 
 		  <!--
-investition in historical period
+investition in current period
 		  -->
 
 
@@ -26,7 +26,7 @@ investition in historical period
     </company>
     
     
-    <startDate>2018-07-13</startDate>
+    <startDate>2018-07-01</startDate>
     <endDate>2019-06-30</endDate>
 	<costOrMarket>market</costOrMarket>
 

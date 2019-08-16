@@ -1,4 +1,10 @@
 <?xml version="1.0"?>
+
+		  <!--
+two investitions in historical period
+		  -->
+
+
 <reports xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <balanceSheetRequest>
     <generator>
@@ -116,6 +122,7 @@
         <bankID />
         <currency>USD</currency>
         <transactions>
+
           <transaction>
             <transdesc>Invest_In</transdesc>
             <transdate>2018-07-01</transdate>
@@ -133,17 +140,8 @@
             <unit>10000</unit>
             <unitType>SG Issuer_SA_USD_1</unitType>
           </transaction>
-		  <!--
-          <transaction>
-            <transdesc>Dispose_Of</transdesc>
-            <transdate>2018-12-30</transdate>
-            <debit>0</debit>
-            <credit>145000</credit>
-            <unit>145000</unit>
-            <unitType>SG Issuer_SA_USD_1</unitType>
-          </transaction>
-		  -->
-        </transactions>
+
+		  </transactions>
       </accountDetails>
     </bankStatement>
   </balanceSheetRequest>
