@@ -137,6 +137,19 @@ balance_sheet_entry(Exchange_Rates, Accounts, Transactions, Report_Currency, Exc
 	writeln("<!-- done: balance_sheet_entry -->").
 
 
+/*
+todo: could/should the concept of what a balance of some account is be specified declaratively somewhere so that we could
+abstract out of simply assoticating the specific earnings logic to the NetIncomeLoss role?
+*/
+
+accounts_report() :-
+	do balance by account on the whole tree,
+	except handle the NetIncomeLoss role'd account specially, like we do below, 
+that is, take balance until start date, take net activity between start and end date, 
+stick the results into historical and current earnings, report only the current period
+
+
+/*we'll throw this thing away
 balance_sheet_at(Static_Data, Balance_Sheet) :-
 	dict_vars(Static_Data, 
 		[Start_Date, End_Date, Exchange_Date, Exchange_Rates, Accounts, Transactions, Report_Currency]
@@ -186,10 +199,11 @@ balance_sheet_at(Static_Data, Balance_Sheet) :-
 	balance_sheet_entry(Exchange_Rates, Accounts, Transactions_With_Retained_Earnings, Report_Currency, Exchange_Date, 'Equity', End_Date, Equity_Section),
 	Balance_Sheet = [Asset_Section, Liability_Section, Equity_Section, Net_Assets_Section],
 	writeln("<!-- balance_sheet_at: done. -->").
-
+*/
 trial_balance_between(Exchange_Rates, Accounts, Transactions, Report_Currency, Exchange_Date, _Start_Date, End_Date, [Trial_Balance_Section]) :-
 	/*net_activity_by_account(Exchange_Rates, Accounts, Transactions, Report_Currency, Exchange_Date, 'Accounts', Start_Date, End_Date, Trial_Balance, Transactions_Count),*/
 	balance_by_account(Exchange_Rates, Accounts, Transactions, Report_Currency, Exchange_Date, 'Accounts', End_Date, Trial_Balance, Transactions_Count),
+this one seems fine, too bad there isnt a trial balance concept in the taxonomy yet, but not a problem
 	Trial_Balance_Section = entry('Trial_Balance', Trial_Balance, [], Transactions_Count).
 /*
 profitandloss_between(Exchange_Rates, Accounts, Transactions, Report_Currency, Exchange_Date, Start_Date, End_Date, ProftAndLoss) :-

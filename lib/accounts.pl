@@ -129,7 +129,23 @@ account_role_by_id(Accounts, Id, Role) :-
 	
 extract_account_hierarchy(Request_Dom, Account_Hierarchy) :-
 	(
-			xpath(Request_Dom, //reports/balanceSheetRequest/accountHierarchy, Account_Hierarchy_Dom)
+		findall(Dom, xpath(Request_Dom, //reports/balanceSheetRequest/accountHierarchy, Account_Hierarchy_Dom), Doms).
+		maplist(add_accounts(Dom, Accounts)),
+		flatten(Accounts, Account_Hierarchy).
+
+add_accounts(Dom, Accounts) :-
+		is it a tree of account tags? use it
+		does it look like an url? (starts with http:// or https://, idk, assume its a taxonomy
+		does it say "defaultAccountHierarchy"? load the file
+		does it say "defaultTaxonomy"? point the extractor to the url (something like serverUrl, server url is set in files.pl) + taxonomy/blabla)
+			server_public_url(Server_Url),
+			atomic_list_concat([Server_Url, '/taxonomy/basic.xsd'], Full_Url),
+		
+
+
+
+
+
 		->
 			true
 		;
@@ -258,6 +274,9 @@ child_accounts(Accounts, Parent_Account, Child_Accounts) :-
 	sub_accounts_upto_level(Accounts, Parent_Account, 1, Child_Accounts).
 
 
+/*
+check that each account has a parent. Together with checking that each generated transaction has a valid account,
+this should ensure that the account balances we are getting with the new taxonomy is correct*/
 check_account_parent(Accounts, Account) :-
 	account_id(Account, Id),
 	account_parent(Account, Parent),

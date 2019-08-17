@@ -2,9 +2,14 @@
 <reports 
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
   xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-  xsi:schemaLocation="http://localhost:8080/taxonomy/basic.xsd">
-  <link:schemaRef xlink:type="simple" xlink:href="http://localhost:8080/taxonomy/basic.xsd" xlink:title="Taxonomy schema" />
-  
+
+  xsi:schemaLocation="http://node-dev...:7778/schema/ledgerRequest.xsd">
+	im strongly convinced this tag is for referencing the xsd that describest this request file, and has nothing to do with xbrl
+agreed
+
+link:schemaRef has nothing to do here
+
+
   <balanceSheetRequest>
     <generator>
       <date>2014-08-28T10:58:40.000165Z</date>
@@ -25,7 +30,45 @@
     <!-- Needed for computation of most fields in balance sheet. -->
     <endDate>2018-06-30</endDate>
 
-    <!-- If a unitType is not specified in a transaction below, then the first usable unitType from this list is taken. -->
+
+
+
+	<!-- simplest solution that satisfies all the criteria: -->
+	<taxonomy href="path/to/taxonomy.xsd"/>
+
+	<!-- for readability, write the simple xml hierarchy to the tmp directories -->
+	<!-- later, for writability, generate the required taxonomy data from the simple xml hierarchy
+		and write the generated taxonomy files to the tmp directories, and link to them from the
+		response xml
+	-->
+
+
+
+
+	<!-- it can still find a local relative filepath w/o going through the http server tho. if you can make arelle take file paths, fine, yep -->
+	<accounts>relative/path/to/defaultTaxonomy.xsd</accounts>
+
+	<!-- why multiple taxonomy files? should just reference one main taxonomy file that links to the rest of the taxonomy data and let arelle or w/e figure it out -->
+	<accounts>http://some/other/taxonomy/basic.xsd</accounts>
+
+	<!-- for url-loaded simple xml hierarchies, same issue as w/ yummyFoods below -->
+	<accounts>http://food_hierarchy.xml</accounts>
+	<accounts>relative/path/to/lodgeit'sDefaultFavoriteFoodsHierarchy.xml</accounts>
+
+	<!-- how does the "yummyFoods" account get into the taxonomy that the xbrl viewers will use? -->
+	<accounts>
+		<yummyFoods>
+			<mashedPotatoes>
+		</yummyFoods>
+	</accounts>
+
+
+
+
+	<!-- <investmentValueReportingMethod> or some such? -->
+	<costOrMarket>market</costOrMarket>
+
+    <!-- if a unitValueCurrency is not specified in a unitValue below, this currency is assumed -->
     <defaultCurrency>
       <unitType>AUD</unitType>
     </defaultCurrency>
@@ -33,7 +76,9 @@
       <unitType>AUD</unitType>
     </reportCurrency>
 
-    <!-- Needed for the tracking of units in inventory. Also needed for correct computation of gains and losses. -->
+    <!-- Needed for the tracking of units in inventory. Also needed for correct computation of gains and losses.
+		if unitValueDate is omitted, report date is assumed.
+	 -->
     <unitValues>
       <unitValue>
         <unitType>BHP</unitType>
@@ -48,7 +93,7 @@
     </unitValues>    
 
     <!-- custom account hierarchy can be referenced. If not, the default is used. It can also be included directly here. -->
-    <!-- 
+    <!--  well..
         <accountHierarchyUrl>https://raw.githubusercontent.com/LodgeiT/labs-accounts-assessor/prolog_server_ledger/prolog_server/ledger/default_account_hierarchy.xml?token=AAA34ZATJ5VPKDNFZXQRHVK434H2M</accountHierarchyUrl>
     -->
 
