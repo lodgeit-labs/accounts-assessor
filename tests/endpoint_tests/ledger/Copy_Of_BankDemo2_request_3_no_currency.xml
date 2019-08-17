@@ -29,7 +29,7 @@
       <unitType>AUD</unitType>
     </defaultCurrency>
     <reportCurrency>
-      <unitType>AUD</unitType>
+      <unitType></unitType>
     </reportCurrency>
 
 	

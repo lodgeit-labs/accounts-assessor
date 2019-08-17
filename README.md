@@ -6,7 +6,7 @@ This repository hosts a program that derives, validates, and corrects the financ
 
 dependencies:
 
-```swipl -g "pack_install(tap), pack_install(regex), pack_install(xsd)."```
+```swipl -g "pack_install(tap), pack_install(regex), pack_install(xsd), pack_install(rdet)."```
 
 How to run the server:
 * Change directory to prolog_server/

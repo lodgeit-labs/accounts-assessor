@@ -27,7 +27,6 @@
 :- use_module(investment/process_xml_investment_request, [process_xml_investment_request/2]).
 :- use_module(car_request/process_xml_car_request, [process_xml_car_request/2]).
 :- use_module(depreciation/process_xml_depreciation_request, [process_xml_depreciation_request/2]).
-:- use_module('../lib/utils', [throw_string/1]).
 
 
 

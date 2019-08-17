@@ -17,6 +17,24 @@
 		net_activity_by_account/4,
 		pesseract_style_table_rows/4]).
 
+:- use_module(library(rdet)).
+
+:- rdet(profitandloss_between/2).
+:- rdet(bs_and_pl_entries/8).
+:- rdet(maybe_balance_lines/5).
+:- rdet(format_balance/11).
+:- rdet(format_balances/11).
+:- rdet(pesseract_style_table_rows/4).
+:- rdet(format_report_entries/10).
+:- rdet(format_report_entries/11).
+:- rdet(activity_entry/3).
+:- rdet(trial_balance_between/8).
+:- rdet(balance_sheet_at/2).	
+:- rdet(balance_sheet_entry/8).
+:- rdet(balance_until_day/9).	
+:- rdet(balance_by_account/9).	
+:- rdet(net_activity_by_account/4).	
+
 :- use_module('accounts', [
 		account_child_parent/3,
 		account_in_set/3,
@@ -102,9 +120,13 @@ balance_by_account(Exchange_Rates, Accounts, Transactions, Report_Currency, Exch
 % Relates the period from Start_Date to End_Date to the net activity during that period of
 % the given account.
 net_activity_by_account(Static_Data, Account_Id, Net_Activity_Transformed, Transactions_Count) :-
-	dict_vars(Static_Data, 
-		[Start_Date, End_Date, Exchange_Date, Exchange_Rates, Accounts, Transactions, Report_Currency]
-	),
+	Static_Data.start_date = Start_Date,
+	Static_Data.end_date = End_Date,
+	Static_Data.exchange_date = Exchange_Date,
+	Static_Data.exchange_rates = Exchange_Rates,
+	Static_Data.accounts = Accounts,
+	Static_Data.transactions = Transactions,
+	Static_Data.report_currency = Report_Currency,
 	findall(
 		Transaction,
 		(	
@@ -116,8 +138,6 @@ net_activity_by_account(Static_Data, Account_Id, Net_Activity_Transformed, Trans
 	length(Transactions_A, Transactions_Count),
 	transaction_vectors_total(Transactions_A, Net_Activity),
 	vec_change_bases(Exchange_Rates, Exchange_Date, Report_Currency, Net_Activity, Net_Activity_Transformed).
-
-	
 
 % Now for balance sheet predicates. These build up a tree structure that corresponds to the account hierarchy, with balances for each account.
 
@@ -138,9 +158,14 @@ balance_sheet_entry(Exchange_Rates, Accounts, Transactions, Report_Currency, Exc
 
 
 balance_sheet_at(Static_Data, Balance_Sheet) :-
-	dict_vars(Static_Data, 
-		[Start_Date, End_Date, Exchange_Date, Exchange_Rates, Accounts, Transactions, Report_Currency]
-	),
+	Static_Data.start_date = Start_Date,
+	Static_Data.end_date = End_Date,
+	Static_Data.exchange_date = Exchange_Date,
+	Static_Data.exchange_rates = Exchange_Rates,
+	Static_Data.accounts = Accounts,
+	Static_Data.transactions = Transactions,
+	Static_Data.report_currency = Report_Currency,
+
 	assertion(ground(Accounts)),
 	assertion(ground(Transactions)),
 	assertion(ground(Exchange_Rates)),
@@ -253,21 +278,18 @@ movement_between(Exchange_Rates, Accounts, Transactions, Report_Currency, Exchan
 
 
 
-
-
 /* balance sheet and profit&loss entries*/
 bs_and_pl_entries(Accounts, Report_Currency, Context, Balance_Sheet_Entries, ProftAndLoss_Entries, Used_Units_Out, Lines2, Lines3) :-
 	format_report_entries(xbrl, Accounts, 0, Report_Currency, Context, Balance_Sheet_Entries, [], Used_Units, [], Lines3),
 	format_report_entries(xbrl, Accounts, 0, Report_Currency, Context, ProftAndLoss_Entries, Used_Units, Used_Units_Out, [], Lines2).
 
-	
-	
 
 /* omitting Max_Detail_Level defaults it to 0 */
 format_report_entries(Format, Accounts, Indent_Level, Report_Currency, Context, Entries, Used_Units_In, Used_Units_Out, Lines_In, Lines_Out) :-
 	format_report_entries(Format, 0, Accounts, Indent_Level, Report_Currency, Context, Entries, Used_Units_In, Used_Units_Out, Lines_In, Lines_Out).
 	
-format_report_entries(_, _, _, _, _, _, [], Used_Units, Used_Units, Lines, Lines).
+format_report_entries(_, _, _, _, _, _, [], Used_Units_In, Used_Units_Out, Lines_In, Lines_Out) :-
+	(Used_Units_In = Used_Units_Out, Lines_In = Lines_Out -> true ; throw('internal error')).
 
 format_report_entries(Format, Max_Detail_Level, Accounts, Indent_Level, Report_Currency, Context, Entries, Used_Units_In, Used_Units_Out, Lines_In, Lines_Out) :-
 	[entry(Name, Balances, Children, Transactions_Count)|Entries_Tail] = Entries,
@@ -303,7 +325,7 @@ format_report_entries(Format, Max_Detail_Level, Accounts, Indent_Level, Report_C
 		)
 	),
 	!.
-			
+	
 pesseract_style_table_rows(_, _, [], []).
 
 pesseract_style_table_rows(Accounts, Report_Currency, Entries, [Lines|Lines_Tail]) :-
@@ -342,8 +364,6 @@ maybe_balance_lines(Accounts, Name, Report_Currency, Balances, Balance_Lines) :-
 		format_balances(html, 0, Report_Currency, '', Name, Normal_Side, Balances, 
 			[], _, [], Balance_Lines)
 	).
-			
-			
 			
 format_balances(_, _, _, _, _, _, [], Used_Units, Used_Units, Lines, Lines).
 
@@ -392,6 +412,15 @@ format_balance(Format, Indent_Level, Report_Currency_List, Context, Name, Normal
 	append(Lines_In, [Line], Lines_Out).
 
 is_underscore('_').
+
+:- rdet(ttt/0).
+:- rdet(ddd/0).
+
+ttt :-
+	ddd.
+
+ddd :-
+	fail.
 
 
 	/*

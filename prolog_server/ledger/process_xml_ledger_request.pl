@@ -12,6 +12,7 @@
 :- module(process_xml_ledger_request, [process_xml_ledger_request/2]).
 
 :- use_module(library(xpath)).
+:- use_module(library(rdet)).
 
 :- use_module('../../lib/days', [
 		format_date/2, 
@@ -94,6 +95,11 @@ process_xml_ledger_request(_, Dom) :-
 		print the xml header, and after that, we can print random xml comments.
 	*/
 	writeln('<?xml version="1.0"?>'), nl, nl,
+	process_xml_ledger_request2(_, Dom).
+
+:- rdet(
+process_xml_ledger_request2/2).	
+process_xml_ledger_request2(_, Dom) :-
 	/*
 		first let's extract data from the request
 	*/
@@ -128,6 +134,8 @@ process_xml_ledger_request(_, Dom) :-
 	writeln('</xbrli:xbrl>'),
 	nl, nl.
 
+:- rdet(
+output_results/11).
 output_results(Cost_Or_Market, S_Transactions, Transactions, Start_Date, End_Date, Exchange_Rates, Accounts, Report_Currency, Transaction_Types, Transaction_Transformation_Debug, Outstanding_Out) :-
 	
 	writeln("<!-- Build contexts -->"),	
@@ -168,8 +176,10 @@ output_results(Cost_Or_Market, S_Transactions, Transactions, Start_Date, End_Dat
 	
 	format_report_entries(xbrl, Accounts, 0, Report_Currency, Instant_Context_Id_Base,  Balance_Sheet2, [], Units0, [], Bs_Lines),
 	format_report_entries(xbrl, Accounts, 0, Report_Currency, Duration_Context_Id_Base, ProftAndLoss2,  Units0, Units1, [], Pl_Lines),
-	format_report_entries(xbrl, Accounts, 0, Report_Currency, Duration_Context_Id_Base, ProftAndLoss2_Historical,  Units0, Units1, [], Pl_Historical_Lines),
-	format_report_entries(xbrl, Accounts, 0, Report_Currency, Instant_Context_Id_Base,  Trial_Balance2, Units1, Units2, [], Tb_Lines),
+	%write_term(format_report_entries(xbrl, Accounts, 0, Report_Currency, Duration_Context_Id_Base, ProftAndLoss2_Historical,  Units0, Units1, [], Pl_Historical_Lines), [quoted(true)]),
+	format_report_entries(xbrl, Accounts, 0, Report_Currency, Duration_Context_Id_Base, ProftAndLoss2_Historical,  Units1, Units2, [], Pl_Historical_Lines),
+	/*todo can we do without this units in units out nonsense? */
+	format_report_entries(xbrl, Accounts, 0, Report_Currency, Instant_Context_Id_Base,  Trial_Balance2, Units2, Units3, [], Tb_Lines),
 	
 	/* investment_report_1 is useless but does useful cross-checks while it's being compiled */
 	investment_report_1(Static_Data, _),
@@ -184,13 +194,13 @@ output_results(Cost_Or_Market, S_Transactions, Transactions, Start_Date, End_Dat
 	pl_report(Static_Data_Historical, ProftAndLoss2_Historical, '_historical', Pl_Html_Historical),
 
 	/* print dimensional facts */
-	Results0 = (Base_Contexts, Units2, []),
+	Results0 = (Base_Contexts, Units3, []),
 	print_banks(Static_Data, Instant_Context_Id_Base, Entity_Identifier, Results0, Results1),
 	print_forex(Static_Data, Duration_Context_Id_Base, Entity_Identifier, Results1, Results2),
 	print_trading(Static_Data, Results2, Results3),
-	Results3 = (Contexts3, Units3, Dimensions_Lines),
+	Results3 = (Contexts3, Units4, Dimensions_Lines),
 
-	maplist(write_used_unit, Units3), nl, nl,
+	maplist(write_used_unit, Units4), nl, nl,
 	print_contexts(Contexts3), nl, nl,
 	writeln('<!-- dimensional facts: -->'),
 	maplist(write, Dimensions_Lines),
