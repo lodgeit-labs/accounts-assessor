@@ -61,7 +61,7 @@ them into the right place in the taxonomy. They'll show up in the html report / 
 		account('CapitalIntroduced', 			'Accounts', 				'Accounts'/'CapitalIntroduced', 0),
 		account('ClearingAccount', 				'Accounts', 				'Accounts'/'ClearingAccount', 0),
 		account('ExchangeGain', 				'Accounts', 				'Accounts'/'ExchangeGain', 0),
-		account('AccountingFees', 				'Accounts', 				'Accounts'/'AccountingFees', 0),
+		account('AccountingFees', 				'Accounts', 				'Accounts'/'AccountingFees', 0)
 
 
 	],

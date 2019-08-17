@@ -30,8 +30,8 @@
 :- use_module('../../lib/ledger_report', [
 		trial_balance_between/8, 
 		profitandloss_between/2, 
-		balance_by_account/9, 
-		balance_sheet_at/2,
+		balance_by_account/9,
+		accounts_report/2,
 		format_report_entries/10, 
 		bs_and_pl_entries/8,
 		net_activity_by_account/4]).
@@ -117,6 +117,7 @@ process_xml_ledger_request(_, Dom) :-
 	maplist(invert_s_transaction_vector, S_Transactions0, S_Transactions0b),
 	sort_s_transactions(S_Transactions0b, S_Transactions),
 	/* process_ledger turns s_transactions into transactions */
+
 	process_ledger(Cost_Or_Market, Livestock_Doms, S_Transactions, Start_Date, End_Date, Exchange_Rates, Transaction_Types, Report_Currency, Livestock_Types, Livestock_Opening_Costs_And_Counts, Accounts0, Accounts, Transactions, Transaction_Transformation_Debug, Outstanding_Out),
 	print_relevant_exchange_rates_comment(Report_Currency, End_Date, Exchange_Rates, Transactions),
 	infer_exchange_rates(Transactions, S_Transactions, Start_Date, End_Date, Accounts, Report_Currency, Exchange_Rates, Exchange_Rates2),
@@ -124,6 +125,7 @@ process_xml_ledger_request(_, Dom) :-
 	writeln(Exchange_Rates2),
 	writeln("-->"),
 	print_xbrl_header,
+
 	output_results(Cost_Or_Market, S_Transactions, Transactions, Start_Date, End_Date, Exchange_Rates2, Accounts, Report_Currency, Transaction_Types, Transaction_Transformation_Debug, Outstanding_Out),
 	writeln('</xbrli:xbrl>'),
 	nl, nl.
@@ -142,17 +144,50 @@ output_results(Cost_Or_Market, S_Transactions, Transactions, Start_Date, End_Dat
 	],
 	
 	Exchange_Date = End_Date,
-	dict_from_vars(Static_Data, 
-		[Cost_Or_Market, Start_Date, End_Date, Exchange_Date, Exchange_Rates, Accounts, Transactions, Report_Currency, Transaction_Types, Entity_Identifier, Duration_Context_Id_Base]
+
+	
+	dict_from_vars(
+		Static_Data, 
+		[
+			Cost_Or_Market,
+			Start_Date,
+			End_Date,
+			Exchange_Date,
+			Exchange_Rates,
+			Accounts,
+			Transactions,
+			Report_Currency,
+			Transaction_Types,
+			Entity_Identifier,
+			Duration_Context_Id_Base
+		]
 	),
+
+	/*
+	%dict_from_vars(
+	Static_Data =  [
+		Cost_Or_Market,
+		Start_Date,
+		End_Date,
+		Exchange_Date,
+		Exchange_Rates,
+		Accounts,
+		Transactions,
+		Report_Currency,
+		Transaction_Types,
+		Entity_Identifier,
+		Duration_Context_Id_Base
+	],
+	*/
 
 	/* sum up the coords of all transactions for each account and apply unit conversions */
 
 	writeln("<!-- Trial balance -->"),
+	%trial_balance_between(Static_Data, Trial_Balance2),
 	trial_balance_between(Exchange_Rates, Accounts, Transactions, Report_Currency, End_Date, Start_Date, End_Date, Trial_Balance2),
 
 	writeln("<!-- Balance sheet -->"),
-	balance_sheet_at(Static_Data, Balance_Sheet2),
+	accounts_report(Static_Data, Balance_Sheet2),
 
 	writeln("<!-- Profit and loss -->"),
 	profitandloss_between(Static_Data, ProftAndLoss2),

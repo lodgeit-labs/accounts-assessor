@@ -596,8 +596,8 @@ clip_investments(Static_Data, (Outstanding_In, Investments_In), Realized_Investm
 	maplist(clip_investment(Static_Data), Investments3, Investments4),
 	%Investments1 = Investments4,nonvar(Static_Data)
 	findall(I, (member(I, Investments4), I = (unr, _, _, _)), Unrealized_Investments),
-	findall(I, (member(I, Investments4), I = (rea, _, _, _)), Realized_Investments),
-	print_term(clip_investments(Outstanding_In, Investments_In, Realized_Investments, Unrealized_Investments),[])
+	findall(I, (member(I, Investments4), I = (rea, _, _, _)), Realized_Investments)%,
+	%print_term(clip_investments(Outstanding_In, Investments_In, Realized_Investments, Unrealized_Investments),[])
 	.
 /*
 	

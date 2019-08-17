@@ -45,7 +45,7 @@ process_data(FileName, Path, Request) :-
    % write(Path).
 
 process_data1(FileName, Path) :-
-   load_xml(Path, DOM, []),
+   load_xml(Path, DOM, [space(remove)]),
    process_xml_request(FileName, DOM).
 
 process_data2(FileName, Path) :-

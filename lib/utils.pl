@@ -22,7 +22,8 @@
 		floats_close_enough/2,
 		replace_chars_in_atom/4,
 		filter_out_chars_from_atom/3,
-		coord_is_almost_zero/1]).
+		coord_is_almost_zero/1,
+		is_uri/1]).
 
 		
 :- use_module(library(xpath)).
@@ -195,11 +196,14 @@ trimmed_field(Dom, Element_XPath, Value) :-
 	xpath(Dom, Element_XPath, element(_,_,[Child_Atom])),
 	trim_atom(Child_Atom, Value).
 	
-trim_atom(Child_Atom, Value) :-
-	atom_string(Child_Atom, Child),
-	split_string(Child, "", "\s\t\n", [Value_String]),
-	atom_string(Value, Value_String).
+trim_atom(Atom, Trimmed_Atom) :-
+	atom_string(Atom, Atom_String),
+	trim_string(Atom_String, Trimmed_String),
+	%split_string(Atom_String, "", "\s\t\n", [Trimmed_String]),
+	atom_string(Trimmed_Atom, Trimmed_String).
 
+trim_string(String, Trimmed_String) :-
+	split_string(String, "", "\s\t\n", [Trimmed_String]).
 
 write_tag(Tag_Name_Input,Tag_Value) :-
 	flatten([Tag_Name_Input], Tag_Name_List),
@@ -383,6 +387,11 @@ replace_char_if(Predicate, Replacement, Char_In, Char_Out) :-
 not_alnum(Char) :-
 	char_type(Char, alnum).
 
+
+%whitespace_chars("\s\t\n").
+
+
+
 :- meta_predicate filter_out_chars_from_atom(1, +, -).
 
 filter_out_chars_from_atom(Predicate, Atom_In, Atom_Out) :-
@@ -410,3 +419,6 @@ coord_is_almost_zero(coord(_, D, C)) :-
 	floats_close_enough(D, 0),
 	floats_close_enough(C, 0).
 
+is_uri(URI) :-
+	% atom_prefix is deprecated
+	atom_prefix(URI,"http").

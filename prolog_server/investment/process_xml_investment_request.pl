@@ -26,7 +26,7 @@ see doc/investment and dropbox Develop/videos/ledger
 		process_ledger/15]).
 :- use_module('../../lib/ledger_report', [
 		format_report_entries/10,
-		balance_sheet_at/2, 
+		% balance_sheet_at/2, 
 		profitandloss_between/2, 
 		balance_by_account/9]).
 :- use_module('../../lib/accounts', [

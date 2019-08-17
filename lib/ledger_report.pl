@@ -5,7 +5,7 @@
 % ===================================================================
 
 :- module(ledger_report, [
-		balance_sheet_at/2, 
+		accounts_report/2,
 		balance_by_account/9, 
 		balance_until_day/9,
 		trial_balance_between/8, 
@@ -24,7 +24,8 @@
 		account_role_by_id/3,
 		account_exists/2,
 		account_detail_level/3,
-		account_normal_side/3]).
+		account_normal_side/3,
+		account_parent/2]).
 :- use_module('pacioli', [
 		vec_add/3, 
 		vec_inverse/2, 
@@ -77,27 +78,17 @@ Balance: a list of coord's
 
 % Relates Date to the balance at that time of the given account. 
 balance_until_day(Exchange_Rates, Accounts, Transactions, Report_Currency, Exchange_Date, Account_Id, Date, Balance_Transformed, Transactions_Count) :-
-	writeln("<!-- calling: balance_until_day -->"),
 	assertion(account_exists(Accounts, Account_Id)),
-	writeln("<!-- transactions_before_day_on_account_and_subaccounts -->"),
 	transactions_before_day_on_account_and_subaccounts(Accounts, Transactions, Account_Id, Date, Filtered_Transactions),
 	length(Filtered_Transactions, Transactions_Count),
-	writeln("<!-- transaction_vectors_total -->"),
 	transaction_vectors_total(Filtered_Transactions, Balance),
-	writeln("<!-- vec_change_bases -->"),
-	vec_change_bases(Exchange_Rates, Exchange_Date, Report_Currency, Balance, Balance_Transformed),
-	writeln("<!-- done: balance_until_day -->").
+	vec_change_bases(Exchange_Rates, Exchange_Date, Report_Currency, Balance, Balance_Transformed).
 
 /* balance on account up to and including Date*/
 balance_by_account(Exchange_Rates, Accounts, Transactions, Report_Currency, Exchange_Date, Account_Id, Date, Balance_Transformed, Transactions_Count) :-
-	writeln("<!-- calling: balance_by_account -->"),
-	writeln("<!-- checking account exists: "),
-	writeln(Account_Id),
-	writeln("-->"),
 	assertion(account_exists(Accounts, Account_Id)),
 	add_days(Date, 1, Date2),
-	balance_until_day(Exchange_Rates, Accounts, Transactions, Report_Currency, Exchange_Date, Account_Id, Date2, Balance_Transformed, Transactions_Count),
-	writeln("<!-- done: balance_by_account -->").
+	balance_until_day(Exchange_Rates, Accounts, Transactions, Report_Currency, Exchange_Date, Account_Id, Date2, Balance_Transformed, Transactions_Count).
 	
 % Relates the period from Start_Date to End_Date to the net activity during that period of
 % the given account.
@@ -122,7 +113,6 @@ net_activity_by_account(Static_Data, Account_Id, Net_Activity_Transformed, Trans
 % Now for balance sheet predicates. These build up a tree structure that corresponds to the account hierarchy, with balances for each account.
 
 balance_sheet_entry(Exchange_Rates, Accounts, Transactions, Report_Currency, Exchange_Date, Account_Id, End_Date, Sheet_Entry) :-
-	writeln("<!-- calling: balance_sheet_entry -->"),
 	% find all direct children sheet entries
 	findall(Child_Sheet_Entry, 
 		(
@@ -133,21 +123,74 @@ balance_sheet_entry(Exchange_Rates, Accounts, Transactions, Report_Currency, Exc
 	),
 	% find balance for this account including subaccounts (sum all transactions from beginning of time)
 	balance_by_account(Exchange_Rates, Accounts, Transactions, Report_Currency, Exchange_Date, Account_Id, End_Date, Balance, Transactions_Count),
-	Sheet_Entry = entry(Account_Id, Balance, Child_Sheet_Entries, Transactions_Count),
-	writeln("<!-- done: balance_sheet_entry -->").
+	Sheet_Entry = entry(Account_Id, Balance, Child_Sheet_Entries, Transactions_Count).
+
+/*
+
+
+
+
++
++transactions_by_account(Transactions, Accounts, Dict) :-
++       
++
++
++
++accounts_report2(Static_Data, Account, Entry) :-
++       dict_vars(Static_Data, [Exchange_Rates, Accounts, Transactions, Report_Currency, Exchange_Date, End_Date]),
++       Entry = entry(Account, Balance, Child_Sheet_Entries, Transactions_Count),
++       (
++               account_role(Account, ('Accounts'/'NetIncomeLoss'))
++       ->
++               accounts_report2_income(Static_Data, Account, Entry)
++       ;
++               accounts_report2_balance(Static_Data, Account, Entry)
++       ).
+
+
+
+
+
+*/
+
+
+
 
 
 /*
 todo: could/should the concept of what a balance of some account is be specified declaratively somewhere so that we could
 abstract out of simply assoticating the specific earnings logic to the NetIncomeLoss role?
+yes
 */
-
-accounts_report() :-
-	do balance by account on the whole tree,
-	except handle the NetIncomeLoss role'd account specially, like we do below, 
+/*
+do balance by account on the whole tree,
+except handle the NetIncomeLoss role'd account specially, like we do below, 
 that is, take balance until start date, take net activity between start and end date, 
 stick the results into historical and current earnings, report only the current period
+	* let's put that behavior in the balance calculation, not the reporting
+*/
 
+accounts_report(Static_Data, Accounts_Report) :-
+	dict_vars(Static_Data, 
+		[End_Date, Exchange_Date, Exchange_Rates, Accounts, Transactions, Report_Currency]
+	),
+
+	convlist(
+		[X,X]>>(
+			account_parent(X,'Accounts')
+		),
+		Accounts,
+		Top_Level_Accounts
+	),
+
+	maplist(
+		[Account, Entry]>>(
+			Account = account(Account_Id,_,_,_),
+			balance_sheet_entry(Exchange_Rates, Accounts, Transactions, Report_Currency, Exchange_Date, Account_Id, End_Date, Entry)
+		),
+		Top_Level_Accounts,
+		Accounts_Report
+	).
 
 /*we'll throw this thing away
 balance_sheet_at(Static_Data, Balance_Sheet) :-
@@ -200,10 +243,16 @@ balance_sheet_at(Static_Data, Balance_Sheet) :-
 	Balance_Sheet = [Asset_Section, Liability_Section, Equity_Section, Net_Assets_Section],
 	writeln("<!-- balance_sheet_at: done. -->").
 */
+
+
+%trial_balance_between(Static_Data,[Trial_Balance_Section]) :-
 trial_balance_between(Exchange_Rates, Accounts, Transactions, Report_Currency, Exchange_Date, _Start_Date, End_Date, [Trial_Balance_Section]) :-
+	%dict_vars(Static_Data, 
+	%	[_, End_Date, Exchange_Date, Exchange_Rates, Accounts, Transactions, Report_Currency]
+	%),
 	/*net_activity_by_account(Exchange_Rates, Accounts, Transactions, Report_Currency, Exchange_Date, 'Accounts', Start_Date, End_Date, Trial_Balance, Transactions_Count),*/
 	balance_by_account(Exchange_Rates, Accounts, Transactions, Report_Currency, Exchange_Date, 'Accounts', End_Date, Trial_Balance, Transactions_Count),
-this one seems fine, too bad there isnt a trial balance concept in the taxonomy yet, but not a problem
+% this one seems fine, too bad there isnt a trial balance concept in the taxonomy yet, but not a problem
 	Trial_Balance_Section = entry('Trial_Balance', Trial_Balance, [], Transactions_Count).
 /*
 profitandloss_between(Exchange_Rates, Accounts, Transactions, Report_Currency, Exchange_Date, Start_Date, End_Date, ProftAndLoss) :-

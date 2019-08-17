@@ -34,11 +34,12 @@
 :- use_module(library(http/http_client)).
 :- use_module(library(record)).
 :- use_module(library(xpath)).
-:- use_module('utils', [inner_xml/3, trim_atom/2,pretty_term_string/2, throw_string/1]).
+:- use_module('utils', [inner_xml/3, trim_atom/2,pretty_term_string/2, throw_string/1, is_uri/1]).
 :- use_module('../lib/files', [server_public_url/1, my_tmp_file_name/2	,store_xml_document/2
 ]).
 :- use_module(library(http/http_dispatch), [http_safe_file/2]).
-
+:- use_module(library(http/http_open), [http_open/3]).
+% :- use_module(library(yall)).
 
 :- record account(id, parent, role, detail_level).
 
@@ -128,75 +129,127 @@ account_role_by_id(Accounts, Id, Role) :-
 	account_role(Account, Role).
 
 	
-extract_account_hierarchy(Request_Dom, Account_Hierarchy) :-
-	(
-		findall(Dom, xpath(Request_Dom, //reports/balanceSheetRequest/accountHierarchy, Account_Hierarchy_Dom), Doms).
-		maplist(add_accounts(Dom, Accounts)),
-		flatten(Accounts, Account_Hierarchy).
+extract_account_hierarchy(Request_DOM, Account_Hierarchy) :-
+	% writeln(Request_DOM),
+	findall(
+		DOM,
+		xpath(Request_DOM, //reports/balanceSheetRequest/accounts, element(_,_,DOM)), 
+		DOMs
+	),
+	maplist(add_accounts, DOMs, Accounts),
+	flatten(Accounts, Account_Hierarchy).
 
-add_accounts(Dom, Accounts) :-
+/*
+	would be simplified by a generic "load_file" or w/e, that can take either a URL
+	or a filepath and returns the contents. then we just differentiate based on whether
+	it's a taxonomy or a simple accounts hierarchy
+
+	would be even more simplified if we differentiated between <accounts> and <taxonomy> tags
+	so that we're not trying to dispatch by inferring the file contents
+	
+	<taxonomy> tag:
+		we'll probably end up extracting more info from the taxonomies later anyway
+		should only be one taxonomy tag
+		because: should only be one main taxonomy file that does the linking to other taxonomy files (if any)
+			(until we have some use-case for "supporting multiple taxonomies" ?)
+		arelle doesn't care whether you send it a filepath or URL
+
+	<accounts> tag:
+		now only two cases:
+			1) DOM = element(_,_,_)
+			2) [Atom] = DOM
+				then just generic "load_file(Atom, Contents), extract_simple_account_hierarchy(Contents, Account_Hierarchy)"
+
+*/
+
+
+% "read_links_from_accounts_tag"
+add_accounts(DOM, Accounts) :-
+	% "read_dom_from_accounts_tag"
 	(
 		%is it a tree of account tags? use it
-		Dom = element(_,_._)
+		DOM = [element(_,_,_)]
 	->
-		Account_Hierarchy_Dom = Dom
+		Accounts_DOM = DOM
 	;
 		(
-			[Atom] = Dom,
-			trim_atom(Atom0, Path),
+			[Atom] = DOM,
+			trim_atom(Atom, Path),
 			(
-				atom_prefix(Path, 'http')
+				is_uri(Path)
 			->
 				(
-					(
-						fetch_account_hierarchy_from_url(Account_Hierarchy_Url, Accounts_Dom)
-					->
-						true
-					;
-						extract_account_hierarchy_from_taxonomy(Path, Accounts_Dom)
-					),
-					extract_account_hierarchy2(Accounts_Dom, Accounts)
+					accounts_dom_from_url(Path, Accounts_DOM)
 				)
 			;
+				% Path not recognized as a URI, assume it represents a local filepath
 				(
-					http_safe_file(Atom, []),
-					absolute_file_name(my_static(Atom), File_Path, [ access(read) ])
-					accounts_dom_from_file_path(File_Path, Account_Hierarchy_Dom)
+					writeln("Filepath"),
+					fail,
+					accounts_dom_from_file_path(Path, Accounts_DOM)
 				)
 			)
 		)
 	),
-	extract_account_hierarchy2(Account_Hierarchy_Dom, Account_Hierarchy).
+	% "read_links_from_accounts_dom"
+	extract_account_hierarchy2(Accounts_DOM, Accounts).
 
 /*server_public_url(Server_Url),
 atomic_list_concat([Server_Url, '/taxonomy/basic.xsd'],Taxonomy_URL),
 format(user_error, 'loading default taxonomy from ~w\n', [Taxonomy_URL]),
 extract_account_hierarchy_from_taxonomy(Taxonomy_URL,Dom)*/
 
-/**/	
-fetch_account_hierarchy_from_url(Account_Hierarchy_Url, Account_Hierarchy_Dom) :-
-   /*fixme: throw something more descriptive here and produce a human-level error message at output*/
-   http_get(Account_Hierarchy_Url, Account_Hierarchy_Xml_Text, []),
-   /*fixme: load xml directly from xml text, storing should be optional*/
-   % load_structure(Account_Hierarchy_Xml_Text, Account_Hierarchy_Dom,[dialect(xml)]).
-   my_tmp_file_name('fetched_account_hierarchy.xml', Fetched_File),
-   store_xml_document(Fetched_File, Account_Hierarchy_Xml_Text),
-   load_xml(Fetched_File, Account_Hierarchy_Dom0, []),
-   xpath(Account_Hierarchy_Dom0, //accountHierarchy, Account_Hierarchy_Dom).
+accounts_dom_from_url(URL, Accounts_DOM) :-
+	(
+		fetch_account_hierarchy_from_url(URL, Accounts_DOM)
+	->
+		true
+	;
+		(
+			arelle(taxonomy, URL, Accounts_DOM)
+		)
+	).
 
-extract_account_hierarchy_from_taxonomy(Taxonomy_URL, Account_Hierarchy_Dom) :-
+% NOTE: we have to load an entire taxonomy file just to determine that it's not a simple XML hierarchy
+fetch_account_hierarchy_from_url(Account_Hierarchy_URL, Account_Hierarchy_DOM) :-
+	/*fixme: throw something more descriptive here and produce a human-level error message at output*/
 	setup_call_cleanup(
-		% might want to do better than hardcoding the path to the script
+        http_open(Account_Hierarchy_URL, In, []),
+		load_structure(In, File_DOM, [dialect(xml),space(remove)]),
+        close(In)
+    ),
+
+	xpath(File_DOM, //accountHierarchy, Account_Hierarchy_DOM).
+
+% if we do more XBRL taxonomy processing we'll probably be adding more cases to `arelle`
+arelle(taxonomy, Taxonomy_URL, Account_Hierarchy_DOM) :-
+	setup_call_cleanup(
 		process_create(path(python3),['../xbrl/account_hierarchy/src/main.py',Taxonomy_URL],[stdout(pipe(Out))]),
 		(
-			load_structure(Out,Account_Hierarchy_Dom0,[dialect(xml)]),
+			load_structure(Out, File_DOM, [dialect(xml),space(remove)]),
 			my_tmp_file_name('account_hierarchy_from_taxonomy.xml', FN),
 			open(FN, write, Stream),
-			xml_write(Stream, Account_Hierarchy_Dom0, [])
+			xml_write(Stream, File_DOM, [])
 		),
-		close(Out),
-		xpath(Account_Hierarchy_Dom0, //accountHierarchy, Account_Hierarchy_Dom).
-	).	
+		close(Out)
+	),
+	% should probably just pass back the whole File_DOM so that it can be treated homogeneously
+	% with other sources of account hierarchy XMLs, since we keep repeating this line
+
+	xpath(File_DOM, //accountHierarchy, Account_Hierarchy_DOM).
+
+accounts_dom_from_file_path(File_Path, Accounts_DOM) :-
+	http_safe_file(File_Path, []),
+	absolute_file_name(my_static(File_Path), Absolute_Path, [ access(read) ]),
+	(
+		load_xml(Absolute_Path, File_DOM, [space(remove)]),
+		xpath(File_DOM, //accountHierarchy, Accounts_DOM)
+	->
+		true
+	;
+		arelle(taxonomy, Absolute_Path, Accounts_DOM)
+	).
+
 
 % ------------------------------------------------------------------
 % extract_account_hierarchy2/2
