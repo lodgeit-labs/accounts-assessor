@@ -28,8 +28,8 @@ Produced on 2019-08-09 09:56:41
     <calculationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/summation-item" xlink:from="basic_Assets" xlink:to="basic_CurrentAssets" order="1" weight="1" use="optional" />
     <loc xlink:type="locator" xlink:href="basic.xsd#basic_CashAndCashEquivalents" xlink:label="basic_CashAndCashEquivalents" />
     <calculationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/summation-item" xlink:from="basic_CurrentAssets" xlink:to="basic_CashAndCashEquivalents" order="1" weight="1" use="optional" />
-    <loc xlink:type="locator" xlink:href="basic.xsd#basic_Bank" xlink:label="basic_Bank" />
-    <calculationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/summation-item" xlink:from="basic_CashAndCashEquivalents" xlink:to="basic_Bank" order="1" weight="1" use="optional" />
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_Banks" xlink:label="basic_Banks" />
+    <calculationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/summation-item" xlink:from="basic_CashAndCashEquivalents" xlink:to="basic_Banks" order="1" weight="1" use="optional" />
     <loc xlink:type="locator" xlink:href="basic.xsd#basic_NoncurrentAssets" xlink:label="basic_NoncurrentAssets" />
     <calculationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/summation-item" xlink:from="basic_Assets" xlink:to="basic_NoncurrentAssets" order="2" weight="1" use="optional" />
     <loc xlink:type="locator" xlink:href="basic.xsd#basic_FinancialInvestments" xlink:label="basic_FinancialInvestments" />
