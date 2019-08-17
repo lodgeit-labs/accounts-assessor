@@ -37,6 +37,7 @@
 :- use_module('utils', [inner_xml/3, trim_atom/2,pretty_term_string/2, throw_string/1]).
 :- use_module('../lib/files', [server_public_url/1, my_tmp_file_name/2	,store_xml_document/2
 ]).
+:- use_module(library(http/http_dispatch), [http_safe_file/2]).
 
 
 :- record account(id, parent, role, detail_level).
@@ -134,56 +135,45 @@ extract_account_hierarchy(Request_Dom, Account_Hierarchy) :-
 		flatten(Accounts, Account_Hierarchy).
 
 add_accounts(Dom, Accounts) :-
-		is it a tree of account tags? use it
-		does it look like an url? (starts with http:// or https://, idk, assume its a taxonomy
-		does it say "defaultAccountHierarchy"? load the file
-		does it say "defaultTaxonomy"? point the extractor to the url (something like serverUrl, server url is set in files.pl) + taxonomy/blabla)
-			server_public_url(Server_Url),
-			atomic_list_concat([Server_Url, '/taxonomy/basic.xsd'], Full_Url),
-		
-
-
-
-
-
-		->
-			true
-		;
+	(
+		%is it a tree of account tags? use it
+		Dom = element(_,_._)
+	->
+		Account_Hierarchy_Dom = Dom
+	;
 		(
+			[Atom] = Dom,
+			trim_atom(Atom0, Path),
 			(
-				inner_xml(Request_Dom, //reports/balanceSheetRequest/accountHierarchyUrl, [Account_Hierarchy_Url0])
+				atom_prefix(Path, 'http')
 			->
 				(
-					trim_atom(Account_Hierarchy_Url0, Account_Hierarchy_Url),
-					fetch_account_hierarchy_from_url(Account_Hierarchy_Url, Dom)
+					(
+						fetch_account_hierarchy_from_url(Account_Hierarchy_Url, Accounts_Dom)
+					->
+						true
+					;
+						extract_account_hierarchy_from_taxonomy(Path, Accounts_Dom)
+					),
+					extract_account_hierarchy2(Accounts_Dom, Accounts)
 				)
 			;
 				(
-					false,
-					xpath(Request_Dom, //reports/'link:schemaRef', element(_,Attributes,_)),
-					member('xlink:href'=Taxonomy_URL,Attributes),
-					extract_account_hierarchy_from_taxonomy(Taxonomy_URL,Dom)
-				)
-				-> 
-					true
-				;
-				(
-					/*server_public_url(Server_Url),
-					atomic_list_concat([Server_Url, '/taxonomy/basic.xsd'],Taxonomy_URL),
-					format(user_error, 'loading default taxonomy from ~w\n', [Taxonomy_URL]),
-					extract_account_hierarchy_from_taxonomy(Taxonomy_URL,Dom)
-					*/
-					%("loading default account hierarchy"),
-					absolute_file_name(my_static('default_account_hierarchy.xml'), Default_Account_Hierarchy_File, [ access(read) ]),
-					load_xml(Default_Account_Hierarchy_File, Dom, [])
-					
+					http_safe_file(Atom, []),
+					absolute_file_name(my_static(Atom), File_Path, [ access(read) ])
+					accounts_dom_from_file_path(File_Path, Account_Hierarchy_Dom)
 				)
 			)
-		),
-		xpath(Dom, //accountHierarchy, Account_Hierarchy_Dom)
+		)
 	),
 	extract_account_hierarchy2(Account_Hierarchy_Dom, Account_Hierarchy).
-         
+
+/*server_public_url(Server_Url),
+atomic_list_concat([Server_Url, '/taxonomy/basic.xsd'],Taxonomy_URL),
+format(user_error, 'loading default taxonomy from ~w\n', [Taxonomy_URL]),
+extract_account_hierarchy_from_taxonomy(Taxonomy_URL,Dom)*/
+
+/**/	
 fetch_account_hierarchy_from_url(Account_Hierarchy_Url, Account_Hierarchy_Dom) :-
    /*fixme: throw something more descriptive here and produce a human-level error message at output*/
    http_get(Account_Hierarchy_Url, Account_Hierarchy_Xml_Text, []),
@@ -191,19 +181,21 @@ fetch_account_hierarchy_from_url(Account_Hierarchy_Url, Account_Hierarchy_Dom) :
    % load_structure(Account_Hierarchy_Xml_Text, Account_Hierarchy_Dom,[dialect(xml)]).
    my_tmp_file_name('fetched_account_hierarchy.xml', Fetched_File),
    store_xml_document(Fetched_File, Account_Hierarchy_Xml_Text),
-   load_xml(Fetched_File, Account_Hierarchy_Dom, []).
+   load_xml(Fetched_File, Account_Hierarchy_Dom0, []),
+   xpath(Account_Hierarchy_Dom0, //accountHierarchy, Account_Hierarchy_Dom).
 
-extract_account_hierarchy_from_taxonomy(Taxonomy_URL, Account_Hierarchy_DOM) :-
+extract_account_hierarchy_from_taxonomy(Taxonomy_URL, Account_Hierarchy_Dom) :-
 	setup_call_cleanup(
 		% might want to do better than hardcoding the path to the script
 		process_create(path(python3),['../xbrl/account_hierarchy/src/main.py',Taxonomy_URL],[stdout(pipe(Out))]),
 		(
-			load_structure(Out,Account_Hierarchy_DOM,[dialect(xml)]),
+			load_structure(Out,Account_Hierarchy_Dom0,[dialect(xml)]),
 			my_tmp_file_name('account_hierarchy_from_taxonomy.xml', FN),
 			open(FN, write, Stream),
-			xml_write(Stream, Account_Hierarchy_DOM, [])
+			xml_write(Stream, Account_Hierarchy_Dom0, [])
 		),
-		close(Out)
+		close(Out),
+		xpath(Account_Hierarchy_Dom0, //accountHierarchy, Account_Hierarchy_Dom).
 	).	
 
 % ------------------------------------------------------------------
