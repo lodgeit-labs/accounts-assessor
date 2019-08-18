@@ -184,8 +184,6 @@ add_accounts(DOM, Accounts) :-
 			;
 				% Path not recognized as a URI, assume it represents a local filepath
 				(
-					writeln("Filepath"),
-					fail,
 					accounts_dom_from_file_path(Path, Accounts_DOM)
 				)
 			)
