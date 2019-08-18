@@ -5,6 +5,12 @@
 		investment_report_2/4
 		]).
 
+:- use_module(library(rdet)).
+:- rdet(investment_report_1/2).
+:- rdet(investment_report_2/4).
+:- rdet(pl_report/4).
+:- rdet(bs_report/3).
+		
 :- use_module('system_accounts', [
 		trading_account_ids/2]).
 

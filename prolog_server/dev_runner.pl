@@ -16,8 +16,21 @@ clean_terminal :-
 	shell2('reset').
 
 x :-
-	((current_prolog_flag(argv, [Viewer, Script, Goal]),!)
-		;(format(user_error, 'argument parsing failed.', []), halt)),
+	current_prolog_flag(argv, Argv), 
+	(
+		(
+			Argv=[Viewer, Script, Goal]
+		;
+			Argv=['--', Viewer, Script, Goal] % swipl 8.1.11 weirdness
+		)
+	->
+		true
+	;
+		(
+			format(user_error, 'argument parsing failed.', []),
+			halt
+		)
+	),
 	atomic_list_concat(['swipl -s ', Script], Load_Cmd),
 	%clean_terminal,
 	shell2([Load_Cmd, ' -g "halt."  2>&1  |  tee err']),
