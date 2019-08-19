@@ -34,7 +34,7 @@
 :- use_module('../../lib/ledger_report', [
 		trial_balance_between/8, 
 		profitandloss_between/2, 
-		balance_by_account/9,
+		%balance_by_account/9,
 		accounts_report/2,
 		format_report_entries/10, 
 		bs_and_pl_entries/8,
@@ -78,6 +78,9 @@
 :- use_module('../../lib/xbrl_contexts', [
 		print_contexts/1,
 		context_id_base/3
+]).
+:- use_module('../../lib/transactions', [
+		transactions_by_account/2
 ]).
 :- use_module('../../lib/print_detail_accounts', [
 		print_banks/5,
@@ -131,8 +134,10 @@ process_xml_ledger_request2(_, Dom) :-
 	writeln(Exchange_Rates),
 	writeln("-->"),
 	print_xbrl_header,
-	dict_from_vars(Static_Data, 
+	dict_from_vars(Static_Data,
 		[Cost_Or_Market, Start_Date, End_Date, Exchange_Rates, Accounts, Transactions, Report_Currency, Transaction_Types]),
+	transactions_by_account(Static_Data, Transactions_By_Account),
+	Static_Data.put(accounts_transactions, Transactions_By_Account),
 	output_results(Static_Data, S_Transactions, Transaction_Transformation_Debug, Outstanding),
 	writeln('</xbrli:xbrl>'),
 	nl, nl.
@@ -168,6 +173,7 @@ output_results(Static_Data0, S_Transactions, Transaction_Transformation_Debug, O
 	trial_balance_between(Exchange_Rates, Accounts, Transactions, Report_Currency, End_Date, Start_Date, End_Date, Trial_Balance2),
 
 	writeln("<!-- Balance sheet -->"),
+	% fix to only include balance  sheet accounts
 	accounts_report(Static_Data, Balance_Sheet2),
 
 	writeln("<!-- Profit and loss -->"),

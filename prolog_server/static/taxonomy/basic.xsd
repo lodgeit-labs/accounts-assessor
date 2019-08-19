@@ -155,7 +155,8 @@ Produced on 2019-08-09 09:56:41
   <element id="basic_CostsOfSales2" name="CostsOfSales2" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" xbrli:periodType="duration" xbrli:balance="credit" nillable="true" />
   <element id="basic_CurrentAssets" name="CurrentAssets" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" xbrli:periodType="instant" xbrli:balance="debit" nillable="true" />
   <element id="basic_CurrentAssetsRollUp" name="CurrentAssetsRollUp" type="xbrli:stringItemType" substitutionGroup="xbrli:item" xbrli:periodType="duration" abstract="true" nillable="true" />
-  <element id="basic_CurrentEarningsLosses" name="CurrentEarningsLosses" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" xbrli:periodType="instant" xbrli:balance="credit" nillable="true" />
+  <!-- <element id="basic_CurrentEarningsLosses" name="CurrentEarningsLosses" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" xbrli:periodType="instant" xbrli:balance="credit" nillable="true" /> -->
+  <element id="basic_CurrentEarnings" name="CurrentEarnings" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" xbrli:periodType="instant" xbrli:balance="credit" nillable="true" />
   <element id="basic_DepreciationAndAmortization2" name="DepreciationAndAmortization2" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" xbrli:periodType="duration" xbrli:balance="credit" nillable="true" />
   <element id="basic_Dimension_BankAccounts_Duration" name="Dimension_BankAccounts_Duration" type="xbrli:stringItemType" substitutionGroup="xbrldt:dimensionItem" xbrli:periodType="duration" abstract="true" xbrldt:typedDomainRef="basic.xsd#basic_Dimension_BankAccounts_Duration_DomainDeclaration" />
   <element id="basic_Dimension_BankAccounts_Instant" name="Dimension_BankAccounts_Instant" type="xbrli:stringItemType" substitutionGroup="xbrldt:dimensionItem" xbrli:periodType="instant" abstract="true" xbrldt:typedDomainRef="basic.xsd#basic_Dimension_BankAccounts_Instant_DomainDeclaration" />
@@ -171,7 +172,8 @@ Produced on 2019-08-09 09:56:41
   <element id="basic_FinishedGoodsRollUp" name="FinishedGoodsRollUp" type="xbrli:stringItemType" substitutionGroup="xbrli:item" xbrli:periodType="duration" abstract="true" nillable="true" />
   <element id="basic_ForexGain" name="ForexGain" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" xbrli:periodType="duration" xbrli:balance="credit" nillable="true" />
   <element id="basic_ForexLoss" name="ForexLoss" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" xbrli:periodType="duration" xbrli:balance="debit" nillable="true" />
-  <element id="basic_HistoricalEarningsLosses" name="HistoricalEarningsLosses" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" xbrli:periodType="instant" xbrli:balance="credit" nillable="true" />
+  <!-- <element id="basic_HistoricalEarningsLosses" name="HistoricalEarningsLosses" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" xbrli:periodType="instant" xbrli:balance="credit" nillable="true" />-->
+  <element id="basic_HistoricalEarnings" name="HistoricalEarnings" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" xbrli:periodType="instant" xbrli:balance="credit" nillable="true" />
   <element id="basic_InterestEarned" name="InterestEarned" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" xbrli:periodType="duration" xbrli:balance="credit" nillable="true" />
   <element id="basic_InventoriesRollForward" name="InventoriesRollForward" type="xbrli:stringItemType" substitutionGroup="xbrli:item" xbrli:periodType="duration" abstract="true" nillable="true" />
   <element id="basic_InventoriesRollUp" name="InventoriesRollUp" type="xbrli:stringItemType" substitutionGroup="xbrli:item" xbrli:periodType="duration" abstract="true" nillable="true" />

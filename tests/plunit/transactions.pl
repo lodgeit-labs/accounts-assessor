@@ -1,11 +1,11 @@
-:- ['../../lib/ledger_report'].
 :- ['../../lib/transactions'].
+:- ['../../lib/accounts'].
 
 
-:- begin_tests(ledger_report).
+:- begin_tests(transactions).
 
 
-test(0, true(Dict == _{'a': A_Ts, 'b': B_Ts})) :-
+test(0, true(Dict =@= account_txs{'a': A_Ts, 'b': B_Ts})) :-
 	Accounts = [A, B, C],
 	account_id(A, a),
 	account_id(B, b),
@@ -19,6 +19,6 @@ test(0, true(Dict == _{'a': A_Ts, 'b': B_Ts})) :-
 	transactions_by_account(Ts, Accounts, Dict).
 	
 
-:- end_tests(ledger_report).
+:- end_tests(transactions).
 
 

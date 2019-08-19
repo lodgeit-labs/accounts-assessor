@@ -8,6 +8,7 @@
 		accounts_report/2,
 		balance_by_account/9, 
 		balance_until_day/9,
+		balance/5,
 		trial_balance_between/8, 
 		profitandloss_between/2, 
 		format_report_entries/11, 
@@ -29,7 +30,7 @@
 :- rdet(format_report_entries/11).
 :- rdet(activity_entry/3).
 :- rdet(trial_balance_between/8).
-:- rdet(balance_sheet_at/2).	
+%:- rdet(balance_sheet_at/2).	
 :- rdet(balance_sheet_entry/8).
 :- rdet(balance_until_day/9).	
 :- rdet(balance_by_account/9).	
@@ -57,6 +58,7 @@
 		transaction_type/2,
 		transaction_vectors_total/2,
 		transactions_before_day_on_account_and_subaccounts/5,
+		transactions_by_account/2,
 		make_transaction/5
 ]).
 :- use_module('days', [
@@ -94,7 +96,13 @@ Account_Id: the id/name of the account that the balance is computed for. Sub-acc
 Balance: a list of coord's
 */
 
-% Relates Date to the balance at that time of the given account. 
+% Relates Date to the balance at that time of the given account.
+% "balance until day" is really "balance at day" or just "balance (account, day)"
+% actually it's "balance (account, day - 1)" but why? better to just make it "balance(account, day)" and
+% then we can collapse these two predicates into one and in the rest of the code we just have to
+% worry about manipulating the dates we call this predicate w/
+
+% leave these in place until we've got everything updated w/ balance/5
 balance_until_day(Exchange_Rates, Accounts, Transactions, Report_Currency, Exchange_Date, Account_Id, Date, Balance_Transformed, Transactions_Count) :-
 	assertion(account_exists(Accounts, Account_Id)),
 	transactions_before_day_on_account_and_subaccounts(Accounts, Transactions, Account_Id, Date, Filtered_Transactions),
@@ -107,7 +115,42 @@ balance_by_account(Exchange_Rates, Accounts, Transactions, Report_Currency, Exch
 	assertion(account_exists(Accounts, Account_Id)),
 	add_days(Date, 1, Date2),
 	balance_until_day(Exchange_Rates, Accounts, Transactions, Report_Currency, Exchange_Date, Account_Id, Date2, Balance_Transformed, Transactions_Count).
-	
+
+% TODO: do "Transactions_Count" elsewhere
+balance(Static_Data, Account_Id, Date, Balance, Transactions_Count) :-
+	dict_vars(Static_Data, 
+		[Exchange_Date, Exchange_Rates, Accounts, Accounts_Transactions, Report_Currency]
+	),
+	assertion(account_exists(Accounts, Account_Id)),
+	add_days(Date,1,Date2),
+	(
+		Account_Id = 'CurrentEarnings'
+	->
+		writeln("Before 'Account_Transactions = Transactions.get(Account_Id)'")
+	;
+		true
+	),
+	Account_Transactions = Accounts_Transactions.get(Account_Id),
+
+	(
+		Account_Id = 'CurrentEarnings'
+	->
+		writeln("After 'Account_Transactions = Transactions.get(Account_Id)'")
+	;
+		true
+	),
+	findall(
+		Transaction,
+		(
+			member(Transaction, Account_Transactions),
+			transaction_before(Transaction, Date2)
+		),
+		Filtered_Transactions
+	),
+	length(Filtered_Transactions, Transactions_Count),
+	transaction_vectors_total(Filtered_Transactions, Totals),
+	vec_change_bases(Exchange_Rates, Exchange_Date, Report_Currency, Totals, Balance).
+
 % Relates the period from Start_Date to End_Date to the net activity during that period of
 % the given account.
 net_activity_by_account(Static_Data, Account_Id, Net_Activity_Transformed, Transactions_Count) :-
@@ -118,6 +161,7 @@ net_activity_by_account(Static_Data, Account_Id, Net_Activity_Transformed, Trans
 	Static_Data.accounts = Accounts,
 	Static_Data.transactions = Transactions,
 	Static_Data.report_currency = Report_Currency,
+
 	findall(
 		Transaction,
 		(	
@@ -125,37 +169,55 @@ net_activity_by_account(Static_Data, Account_Id, Net_Activity_Transformed, Trans
 			transaction_in_period(Transaction, Start_Date, End_Date),
 			transaction_account_in_set(Accounts, Transaction, Account_Id)
 		), 
-		Transactions_A),
+		Transactions_A
+	),
+
 	length(Transactions_A, Transactions_Count),
 	transaction_vectors_total(Transactions_A, Net_Activity),
 	vec_change_bases(Exchange_Rates, Exchange_Date, Report_Currency, Net_Activity, Net_Activity_Transformed).
 
+
+
 % Now for balance sheet predicates. These build up a tree structure that corresponds to the account hierarchy, with balances for each account.
 
-balance_sheet_entry(Exchange_Rates, Accounts, Transactions, Report_Currency, Exchange_Date, Account_Id, End_Date, Sheet_Entry) :-
+balance_sheet_entry(Static_Data, Account_Id, Entry) :-
+%balance_sheet_entry(Exchange_Rates, Accounts, Transactions, Report_Currency, Exchange_Date, Account_Id, End_Date, Sheet_Entry) :-
+	/*
+	dict_vars(Static_Data, 
+		[End_Date, Exchange_Date, Exchange_Rates, Accounts, Transactions, Report_Currency]
+	),
+	*/
 	% find all direct children sheet entries
-	findall(Child_Sheet_Entry, 
+	findall(
+		Child_Sheet_Entry, 
 		(
-			account_child_parent(Accounts, Child_Account, Account_Id),
-			balance_sheet_entry(Exchange_Rates, Accounts, Transactions, Report_Currency, Exchange_Date, Child_Account, End_Date, Child_Sheet_Entry)
+			account_child_parent(Static_Data.accounts, Child_Account, Account_Id),
+			balance_sheet_entry(Static_Data, Child_Account, Child_Sheet_Entry)
+			%balance_sheet_entry(Exchange_Rates, Accounts, Transactions, Report_Currency, Exchange_Date, Child_Account, End_Date, Child_Sheet_Entry)
 		),
 		Child_Sheet_Entries
 	),
 	% find balance for this account including subaccounts (sum all transactions from beginning of time)
-	balance_by_account(Exchange_Rates, Accounts, Transactions, Report_Currency, Exchange_Date, Account_Id, End_Date, Balance, Transactions_Count),
-	Sheet_Entry = entry(Account_Id, Balance, Child_Sheet_Entries, Transactions_Count).
+	balance(Static_Data, Account_Id, Static_Data.end_date, Balance, Transactions_Count),
+	% balance_by_account(Exchange_Rates, Accounts, Transactions, Report_Currency, Exchange_Date, Account_Id, End_Date, Balance, Transactions_Count),
+	Entry = entry(Account_Id, Balance, Child_Sheet_Entries, Transactions_Count).
+
+
+% account_value becomes equivalent to account_balance when we regard Historical and Current Earnings as just
+% containing the transactions of the Historical vs. Current periods, respectively
+/*
+account_value(Static_Data, Account_Id, Date, Value) :-
+	% this one because we're either adding the empty lists just once in transactions.pl or we're adding them every
+	% time we use the transactions dict
+	Account_Transactions = Static_Data.transactions.get(Account_Id),
+
+	% vectors_total(some_vector_list)
+	transaction_vectors_total(Account_Transactions,Value).
+*/
+
+
 
 /*
-
-
-
-
-+
-+transactions_by_account(Transactions, Accounts, Dict) :-
-+       
-+
-+
-+
 +accounts_report2(Static_Data, Account, Entry) :-
 +       dict_vars(Static_Data, [Exchange_Rates, Accounts, Transactions, Report_Currency, Exchange_Date, End_Date]),
 +       Entry = entry(Account, Balance, Child_Sheet_Entries, Transactions_Count),
@@ -188,29 +250,22 @@ except handle the NetIncomeLoss role'd account specially, like we do below,
 that is, take balance until start date, take net activity between start and end date, 
 stick the results into historical and current earnings, report only the current period
 	* let's put that behavior in the balance calculation, not the reporting
+
+TODO: should probably take an argument which gives a list of accounts to include and it
+includes just those accounts and their ancestors
+
+how does the concept of "accounts_report" differ from the concept of "balance_sheet" ?
+
 */
 
 accounts_report(Static_Data, Accounts_Report) :-
+	/*
 	dict_vars(Static_Data, 
 		[End_Date, Exchange_Date, Exchange_Rates, Accounts, Transactions, Report_Currency]
 	),
-
-	convlist(
-		[X,X]>>(
-			account_parent(X,'Accounts')
-		),
-		Accounts,
-		Top_Level_Accounts
-	),
-
-	maplist(
-		[Account, Entry]>>(
-			Account = account(Account_Id,_,_,_),
-			balance_sheet_entry(Exchange_Rates, Accounts, Transactions, Report_Currency, Exchange_Date, Account_Id, End_Date, Entry)
-		),
-		Top_Level_Accounts,
-		Accounts_Report
-	).
+	*/
+	balance_sheet_entry(Static_Data, 'Accounts', Entry),
+	Entry = entry(_,_,Accounts_Report,_).
 
 /*we'll throw this thing away
 balance_sheet_at(Static_Data, Balance_Sheet) :-
@@ -245,6 +300,10 @@ balance_sheet_at(Static_Data, Balance_Sheet) :-
 	balance_by_account(Exchange_Rates, Accounts, Transactions, Report_Currency, Exchange_Date, 'NetAssets', End_Date, Net_Assets, Transactions_Count),
 	Net_Assets_Section = entry('NetAssets', Net_Assets, [], Transactions_Count),
 
+
+	% so... maybe transactions_by_account should get the relevant transactions for these accounts?
+	% then account_value can just be a simple total and can be directly equated with account_balance
+
 	% get earnings before the report period
 	balance_until_day(Exchange_Rates, Accounts, Transactions, Report_Currency, 
 	/*exchange day = */Start_Date, 
@@ -259,8 +318,10 @@ balance_sheet_at(Static_Data, Balance_Sheet) :-
 	writeln("<!-- Get transactions with retained earnings -->"),
 	/* build a fake transaction that sets the balance of historical and current earnings.
 	there is no need to make up transactions here, but it makes things more uniform */
+
 	make_transaction(Start_Date, '', 'HistoricalEarnings', Historical_Earnings, Historical_Earnings_Transaction),
 	make_transaction(Start_Date, '', 'CurrentEarnings', Current_Earnings, Current_Earnings_Transaction),
+
 	Retained_Earnings_Transactions = [Current_Earnings_Transaction, Historical_Earnings_Transaction],
 	append(Transactions, Retained_Earnings_Transactions, Transactions_With_Retained_Earnings),
 	
