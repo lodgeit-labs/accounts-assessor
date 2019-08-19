@@ -189,23 +189,7 @@ output_results(Static_Data0, S_Transactions, Transaction_Transformation_Debug, O
 	/*todo can we do without this units in units out nonsense? */
 	format_report_entries(xbrl, Accounts, 0, Report_Currency, Instant_Context_Id_Base,  Trial_Balance2, Units2, Units3, [], Tb_Lines),
 	
-	catch( /*fixme*/
-		(
-			/* investment_report_1 is useless but does useful cross-checks while it's being compiled */
-			investment_report_1(Static_Data, _),
-			investment_report_2(Static_Data, Outstanding, '', Investment_Report_2_Lines),
-			% this isnt really all_time, just since beginning of time, but once we can do at cost, it can be
-			investment_report_2(Static_Data.put(start_date, date(1,1,1)), Outstanding, '_all_time', Investment_Report_2_All_Time_Lines)
-			%Investment_Report_2_All_Time_Lines = ''
-		),
-		_,
-		(
-			writeln('SYSTEM_WARNING:investment reports fail'),
-			Investment_Report_2_Lines = 'internal error',
-			Investment_Report_2_All_Time_Lines = 'internal error'
-		)
-	),
-
+	investment_reports(Static_Data, Outstanding, Investment_Report_2_Lines, Investment_Report_2_All_Time_Lines),
 	bs_report(Static_Data, Balance_Sheet2, Bs_Html),
 	pl_report(Static_Data, ProftAndLoss2, '', Pl_Html),
 	pl_report(Static_Data_Historical, ProftAndLoss2_Historical, '_historical', Pl_Html_Historical),
@@ -238,6 +222,26 @@ output_results(Static_Data0, S_Transactions, Transaction_Transformation_Debug, O
 	emit_ledger_warnings(S_Transactions, Start_Date, End_Date),
 	emit_ledger_errors(Transaction_Transformation_Debug).
 
+investment_reports(Static_Data, Outstanding, Investment_Report_2_Lines, Investment_Report_2_All_Time_Lines) :-
+	catch( /*fixme*/
+		(
+			/* investment_report_1 is useless but does useful cross-checks while it's being compiled */
+			investment_report_1(Static_Data, _),
+			investment_report_2(Static_Data, Outstanding, '', Investment_Report_2_Lines),
+			% this isnt really all_time, just since beginning of time, but once we can do at cost, it can be
+			investment_report_2(Static_Data.put(start_date, date(1,1,1)), Outstanding, '_all_time', Investment_Report_2_All_Time_Lines)
+			%Investment_Report_2_All_Time_Lines = ''
+		),
+		E,
+		(
+			writeln('SYSTEM_WARNING:investment reports fail:'),
+			print_term(E, []),
+			Investment_Report_2_Lines = 'internal error',
+			Investment_Report_2_All_Time_Lines = 'internal error'
+		)
+	).
+
+	
 print_xbrl_header :-
 	(
 		get_flag(prepare_unique_taxonomy_url, true)
@@ -376,14 +380,20 @@ extract_exchange_rate(End_Date, Optional_Default_Currency, Unit_Value, Exchange_
 	parse_date(Date_Atom, Date)	.
 
 extract_cost_or_market(Dom, Cost_Or_Market) :-
-	inner_xml_throw(Dom, //reports/balanceSheetRequest/costOrMarket, [Cost_Or_Market]),
 	(
-		member(Cost_Or_Market, [cost, market])
+		inner_xml(Dom, //reports/balanceSheetRequest/costOrMarket, [Cost_Or_Market])
 	->
-		true
+		(
+			member(Cost_Or_Market, [cost, market])
+		->
+			true
+		;
+			throw_string('//reports/balanceSheetRequest/costOrMarket tag\'s content must be "cost" or "market"')
+		)
 	;
-		throw_string('//reports/balanceSheetRequest/costOrMarket tag\'s content must be "cost" or "market"')
-	).
+		Cost_Or_Market = market
+	)
+	.
 	
 	
 	

@@ -23,7 +23,7 @@ test(4) :-
 test(5, all(D=[_{x:3}])) :-
 	X = 3, dict_from_vars(D, [X]).
 
-test(5b, all(Y=[3])) :-
+test(b5, all(Y=[3])) :-
 	X = 3, dict_from_vars(D, [X]), Y = X.x.
 
 test(6, all(D = [_{x:x, y:y}])) :-

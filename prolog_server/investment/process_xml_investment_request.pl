@@ -172,20 +172,20 @@ process_realized(Dom, Global_Report_Date_Atom, Result) :-
     account_assertion(Info, Gains_Excluding_Forex_Account, -RC_Realized_Market_Gain),
 	account_assertion(Info, Gains_Currency_Movement_Account, -RC_Realized_Currency_Gain),
 	account_assertion(Info, Gain_Account, -RC_Realized_Total_Gain),
-	
-	profitandloss_between(Exchange_Rates, Accounts, Transactions, [report_currency], Sale_Date, Purchase_Date, Sale_Date, ProftAndLoss),
-	format_report_entries(xbrl, Accounts, 0, [report_currency], Sale_Date, ProftAndLoss, [], _, [], ProftAndLoss_Lines),
-	writeln('<!--'),
-	writeln(ProftAndLoss_Lines),
-	writeln('-->'),
-	
-	dict_vars(Static_Data0, [Exchange_Rates, Accounts, Transactions]),
+
+	dict_from_vars(Static_Data0, [Exchange_Rates, Accounts, Transactions]),
 	Static_Data = Static_Data0.put(
 		report_currency, [report_currency]).put(
 		start_date, Purchase_Date).put(
 		end_date, Sale_Date).put(
 		exchange_date, Sale_Date),
-
+	
+	profitandloss_between(Static_Data, ProftAndLoss),
+	format_report_entries(xbrl, Accounts, 0, [report_currency], Sale_Date, ProftAndLoss, [], _, [], ProftAndLoss_Lines),
+	writeln('<!--'),
+	writeln(ProftAndLoss_Lines),
+	writeln('-->'),
+	
 	balance_sheet_at(Static_Data, Balance_Sheet),
 	format_report_entries(xbrl, Accounts, 0, [report_currency], Sale_Date, Balance_Sheet, [], _, [], Balance_Sheet_Lines),
 	writeln('<!--'),
