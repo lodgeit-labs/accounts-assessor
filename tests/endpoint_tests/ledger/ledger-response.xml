@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 
-
+<!-- fixme: investment dimensional facts missing -->
 
 <!--Exchange rates extracted:
 [ exchange_rate(date(2018,6,30),'BHP','USD',2),

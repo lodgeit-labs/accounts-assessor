@@ -559,8 +559,13 @@ optional_converted_value(V1, C, V2) :-
 ir2_forex_gain(Exchange_Rates, Opening_Date, End_Price, End_Date, Investment_Currency, Report_Currency, Count, Gain) :-
 	End_Price = value(End_Unit_Price_Unit, End_Unit_Price_Amount),
 	%(End_Unit_Price_Unit == Investment_Currency ->true;(gtrace,true)),
-	assertion(End_Unit_Price_Unit = Investment_Currency),
-	
+	(
+		End_Unit_Price_Unit = Investment_Currency
+	->
+		true
+	;
+		throw_string("exchange rate missing")
+	),
 	% old investment currency rate to report currency
 	Market_Price_Unit = without_currency_movement_against_since(
 		End_Unit_Price_Unit, Investment_Currency, Report_Currency, Opening_Date
