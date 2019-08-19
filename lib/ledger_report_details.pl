@@ -31,7 +31,8 @@
 		
 :- use_module('utils', [
 		get_indentation/2,
-		pretty_term_string/2]).
+		pretty_term_string/2,
+		throw_string/1]).
 
 :- use_module('days', [
 		format_date/2]).
@@ -52,6 +53,43 @@
 		vec_change_bases/5]).
 		
 :- use_module(library(http/html_write)).
+:- use_module(library(rdet)).
+
+
+:- rdet(ir2_forex_gain/8).
+:- rdet(ir2_market_gain/10).
+:- rdet(clip_investments/4).
+:- rdet(filter_investment_sales/3).
+:- rdet(clip_investment/3).
+:- rdet(optional_converted_value/3).
+:- rdet(format_conversion/3).
+:- rdet(optional_currency_conversion/5).
+:- rdet(format_money_precise/3).
+:- rdet(format_money/3).
+:- rdet(format_money2/4).
+:- rdet(ir2_row_to_html/3).
+:- rdet(investment_report_2_unrealized/3).
+:- rdet(investment_report_2_sale_lines/4).
+:- rdet(investment_report_2_sales/3).
+:- rdet(investment_report_2/4).
+:- rdet(check_investment_totals/4).
+:- rdet(units_traded_on_trading_account/3).
+:- rdet(investment_report3_balance/7).
+:- rdet(investment_report3_lines/6).
+:- rdet(strip_unit_costs/2).
+:- rdet(investment_report3/6).
+:- rdet(investment_report2/3).
+:- rdet(investment_report1/2).
+:- rdet(investment_report_to_html/2).
+:- rdet(investment_report_1/2).
+:- rdet(bs_report/3).
+:- rdet(pl_report/4).
+:- rdet(report_page/4).
+:- rdet(report_currency_atom/2).
+:- rdet(report_section/3).
+:- rdet(write_file_from_string/2).
+:- rdet(html_tokenlist_string/2).
+:- rdet(report_file_path/3).
 
 
 report_file_path(FN, Url, Path) :-
@@ -520,9 +558,14 @@ optional_converted_value(V1, C, V2) :-
 
 ir2_forex_gain(Exchange_Rates, Opening_Date, End_Price, End_Date, Investment_Currency, Report_Currency, Count, Gain) :-
 	End_Price = value(End_Unit_Price_Unit, End_Unit_Price_Amount),
-	%(End_Unit_Price_Unit = Investment_Currency->true;gtrace),
-	assertion(End_Unit_Price_Unit = Investment_Currency),
-	
+	%(End_Unit_Price_Unit == Investment_Currency ->true;(gtrace,true)),
+	(
+		End_Unit_Price_Unit = Investment_Currency
+	->
+		true
+	;
+		throw_string("exchange rate missing")
+	),
 	% old investment currency rate to report currency
 	Market_Price_Unit = without_currency_movement_against_since(
 		End_Unit_Price_Unit, Investment_Currency, Report_Currency, Opening_Date
@@ -532,6 +575,11 @@ ir2_forex_gain(Exchange_Rates, Opening_Date, End_Price, End_Date, Investment_Cur
 		Report_Currency = [Report_Currency_Unit]
 	->
 		(
+			/*
+			the vec_change_bases here silently fails now. when we also add "at cost" logic, it might be even less clean to obtain the exchange rate manually..
+			vec_add([coord(End_Unit_Price_Unit, End_Unit_Price_Amount, 0)], 
+			*/
+			exchange_rate_throw(Exchange_Rates, End_Date, Market_Price_Unit, Report_Currency_Unit, _),
 			vec_change_bases(Exchange_Rates, End_Date, Report_Currency, 
 				[
 					% unit price in investment currency
@@ -542,8 +590,7 @@ ir2_forex_gain(Exchange_Rates, Opening_Date, End_Price, End_Date, Investment_Cur
 				% forex gain, in report currency, on one investment unit between start and end dates
 				Forex_Gain_Vec
 			),
-			number_vec(Forex_Gain_Unit, Forex_Gain_Amount, Forex_Gain_Vec),
-			assertion(Forex_Gain_Unit == Report_Currency_Unit),
+			number_vec(Report_Currency_Unit, Forex_Gain_Amount, Forex_Gain_Vec),
 			Forex_Gain_Amount_Total is Forex_Gain_Amount * Count,
 			Gain = value(Report_Currency_Unit, Forex_Gain_Amount_Total)
 		)
@@ -564,7 +611,6 @@ ir2_market_gain(Exchange_Rates, Opening_Date, End_Date, Investment_Currency, Rep
 	value_multiply(Opening_Unit_Cost_Converted, Count, Opening_Total_Cost_Converted),
 	value_subtract(End_Total_Price_Converted, Opening_Total_Cost_Converted, Gain).
 
-	
 	
 clip_investments(Static_Data, (Outstanding_In, Investments_In), Realized_Investments, Unrealized_Investments) :-
 	findall(
@@ -596,8 +642,8 @@ clip_investments(Static_Data, (Outstanding_In, Investments_In), Realized_Investm
 	maplist(clip_investment(Static_Data), Investments3, Investments4),
 	%Investments1 = Investments4,nonvar(Static_Data)
 	findall(I, (member(I, Investments4), I = (unr, _, _, _)), Unrealized_Investments),
-	findall(I, (member(I, Investments4), I = (rea, _, _, _)), Realized_Investments)%,
-	%print_term(clip_investments(Outstanding_In, Investments_In, Realized_Investments, Unrealized_Investments),[])
+	findall(I, (member(I, Investments4), I = (rea, _, _, _)), Realized_Investments)
+	%,print_term(clip_investments(Outstanding_In, Investments_In, Realized_Investments, Unrealized_Investments),[])
 	.
 /*
 	

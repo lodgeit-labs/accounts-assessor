@@ -209,8 +209,10 @@ increase_realized_gains(Static_Data, Description, Trading_Account_Id, Sale_Vecto
 	),
 	txs_to_transactions(Transaction_Day, Txs2, Ts2).
 
-realized_gains_txs(Static_Data, Description, _Transaction_Day, Sale_Currency, Sale_Currency_Unit_Price, Trading_Account_Id, Sale_Unit_Price_Converted, Purchase_Info, Txs) :-
-	dict_vars(Static_Data, [Start_Date, Accounts, Report_Currency, Exchange_Rates]),
+realized_gains_txs(Static_Data, Description, Transaction_Day, Sale_Currency, Sale_Currency_Unit_Price, Trading_Account_Id, Sale_Unit_Price_Converted, Purchase_Info, Txs) :-
+	Static_Data.accounts = Accounts,
+	Static_Data.report_currency = Report_Currency,
+	Static_Data.start_date = Start_Date,
 	goods(_ST_Currency, Goods_Unit, Goods_Count, Converted_Cost, Purchase_Date) = Purchase_Info,
 	Sale_Currency_Amount is Sale_Currency_Unit_Price * Goods_Count,
 	value_multiply(Sale_Unit_Price_Converted, Goods_Count, Sale),
@@ -218,58 +220,53 @@ realized_gains_txs(Static_Data, Description, _Transaction_Day, Sale_Currency, Sa
 		Accounts, Trading_Account_Id, realized, Goods_Unit, 
 		Realized_Gains_Currency_Movement, Realized_Gains_Excluding_Forex),
 	
-	/*what would be the Report_Currency value we'd get for this sale currency amount if purchase/sale currency didn't move against Report_Currency since the day of the purchase?*/
-	vec_change_bases(
-		Exchange_Rates, 
-		Purchase_Date, 
-		Report_Currency, 
-		[coord(Sale_Currency, 0, Sale_Currency_Amount)],
-		Sale_Without_Currency_Movement
-	),
+	/*what would be the Report_Currency value we'd get for this sale currency amount if purchase/sale currency didn't move against Report_Currency since the day of the purchase? This only makes sense for shares or similar where the price you sell it for is gonna be a result of healthy public trading or somesuch.*/
+	
+	Sale_Without_Currency_Movement = value(
+		without_currency_movement_against_since(Sale_Currency, Sale_Currency, Report_Currency, Purchase_Date),
+		Sale_Currency_Amount),
+		
 	(
 		Purchase_Date @>= Start_Date
 	->
-		Cost2 = Converted_Cost
-	;
-		Cost2 = Converted_Cost
-
-	
-	/*todo:
 		(
-		Purchase_Date @>= Start_Date
-	->
-		(
-			Cost2 = Converted_Cost,
-			Sale_Without_Currency_Movement = [coord(
-				without_currency_movement_against_since(Sale_Currency, Purchase_Currency, Report_Currency, Start_Date), 
-				Goods_Debit, Goods_Credit)
-			],
-				
-				, 
-				
-				0, Sale_Currency_Amount)],
-	vec_change_bases(
-		Exchange_Rates, 
-		Purchase_Date, 
-		Report_Currency, 
-		
-
+			dr_cr_table_to_txs([
+				% Account                            DR                                CR
+				(Realized_Gains_Currency_Movement,	 Sale_Without_Currency_Movement,   Sale),
+				(Realized_Gains_Excluding_Forex,     Converted_Cost,                   Sale_Without_Currency_Movement)
+			], Txs, Description, cr)
 		)
 	;
-	
-		
-	
-	),
+		(
+			Transaction_Day @< Start_Date 
+		->
+			(
+				
+				dr_cr_table_to_txs([
+					% Account                            DR                                CR
+					(Realized_Gains_Currency_Movement,	 Sale_Without_Currency_Movement,   Sale),
+					(Realized_Gains_Excluding_Forex,     Converted_Cost,                   Sale_Without_Currency_Movement)
+				], Txs, Description, cr)
+			)
+		;   
+			(
+				/* historical purchase, current sale */
+				Opening_Goods_Value = value(without_movement_after(Goods_Unit, Start_Date), Goods_Count),
+				Sale_Without_Currency_Movement_Current = value(
+					without_currency_movement_against_since(Sale_Currency, Sale_Currency, Report_Currency, Start_Date),
+					Sale_Currency_Amount),
+				dr_cr_table_to_txs([
+					% Account                            DR                                        CR
+					(Realized_Gains_Currency_Movement,	 Sale_Without_Currency_Movement_Current,   Sale),
+					(Realized_Gains_Excluding_Forex,     Opening_Goods_Value,              Sale_Without_Currency_Movement_Current)
+				], Txs, Description, cr)
+			)
+		)
+	).
+/*
+ Order_Hint - irrelevant for functionality, ordering coords for easy reading
+ Txs - output
 */
-	
-	),
-	dr_cr_table_to_txs([
-		% Account                                            DR                        CR
-		(Realized_Gains_Currency_Movement,	     Sale_Without_Currency_Movement,       /*offset cash increase*/Sale),
-		(Realized_Gains_Excluding_Forex,         Cost2,                       Sale_Without_Currency_Movement)
-		],
-		Txs, Description, cr).
-
 dr_cr_table_to_txs(Table, Txs, Description, Order_Hint) :-
 	maplist(dr_cr_table_line_to_tx(Description, Order_Hint), Table, Txs).
 	

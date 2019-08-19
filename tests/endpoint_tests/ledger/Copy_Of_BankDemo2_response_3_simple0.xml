@@ -750,49 +750,7 @@ InvestmentIncome_unrealized
 <!-- vec_change_bases -->
 <!-- done: balance_until_day -->
 <!-- done: balance_by_account -->
-clip_investments([ outstanding('USD',
-			       'SG Issuer_SA_USD_1',
-			       140000,
-			       value('AUD',1.2829997376),
-			       value('USD',0.9982880000000001),
-			       date(2018,7,1)) ',' 0
-		 ],
-		 [ investment(outstanding('USD',
-					  'SG Issuer_SA_USD_1',
-					  140000,
-					  value('AUD',1.2829997376),
-					  value('USD',0.9982880000000001),
-					  date(2018,7,1)),
-			      [])
-		 ],
-		 [],
-		 [ unr ',' info('USD',
-			'SG Issuer_SA_USD_1',
-			value('AUD',40.0),
-			value('USD',29.6963694703504),
-			date(2018,7,13)) ',' 140000 ',' []
-		 ])clip_investments([ outstanding('USD',
-			       'SG Issuer_SA_USD_1',
-			       140000,
-			       value('AUD',1.2829997376),
-			       value('USD',0.9982880000000001),
-			       date(2018,7,1)) ',' 0
-		 ],
-		 [ investment(outstanding('USD',
-					  'SG Issuer_SA_USD_1',
-					  140000,
-					  value('AUD',1.2829997376),
-					  value('USD',0.9982880000000001),
-					  date(2018,7,1)),
-			      [])
-		 ],
-		 [],
-		 [ unr ',' info('USD',
-			'SG Issuer_SA_USD_1',
-			value('AUD',1.2829997376),
-			value('USD',0.9982880000000001),
-			date(2018,7,1)) ',' 140000 ',' []
-		 ])<!-- calling: balance_by_account -->
+<!-- calling: balance_by_account -->
 <!-- checking account exists: 
 Banks_USD_Bank
 -->
@@ -870,17 +828,17 @@ Banks_USD_Bank
   <basic:CurrencyMovement contextRef="D-2019-USD_Bank" unitRef="U-AUD" decimals="INF">-10,751.90</basic:CurrencyMovement>
 
 <!-- investment report:
-url: http://localhost:8080/tmp/1565973944.7263985.2/investment_report.html
+url: http://localhost:8080/tmp/1566218306.4658864.2/investment_report.html
 
  -->
 
 <!-- bs html:
-url: http://localhost:8080/tmp/1565973944.7263985.2/balance_sheet.html
+url: http://localhost:8080/tmp/1566218306.4658864.2/balance_sheet.html
 
  -->
 
 <!-- pl html:
-url: http://localhost:8080/tmp/1565973944.7263985.2/profit_and_loss.html
+url: http://localhost:8080/tmp/1566218306.4658864.2/profit_and_loss.html
 
  -->
 
@@ -921,12 +879,12 @@ url: http://localhost:8080/tmp/1565973944.7263985.2/profit_and_loss.html
 -->
 
 <!-- historical pl html:
-url: http://localhost:8080/tmp/1565973944.7263985.2/profit_and_loss_historical.html
+url: http://localhost:8080/tmp/1566218306.4658864.2/profit_and_loss_historical.html
 
  -->
 
 <!-- investment report all time:
-url: http://localhost:8080/tmp/1565973944.7263985.2/investment_report_all_time.html
+url: http://localhost:8080/tmp/1566218306.4658864.2/investment_report_all_time.html
 
  -->
 

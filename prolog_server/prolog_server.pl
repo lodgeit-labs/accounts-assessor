@@ -64,7 +64,7 @@ run_simple_server :-
 run_daemon :-
    /*todo maybe set server public url here if we want to run requests manually from daemon's repl */
    use_module(library(http/http_unix_daemon)),
-   http_daemon().
+   http_daemon.
    
 % -------------------------------------------------------------------
 % upload_form/1

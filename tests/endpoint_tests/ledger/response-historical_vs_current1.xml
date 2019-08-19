@@ -1,7 +1,3 @@
-Server_Public_Url: http://localhost:8080
-% Started server at http://localhost:8080/
-Server_Public_Url: http://localhost:8080
-% Started server at http://localhost:8080/
 <?xml version="1.0"?>
 
 
@@ -170,30 +166,25 @@ s_transaction(date(2015,1,1),
 	      [coord('CHF',1,0)],
 	      'CHF_Bank',
 	      vector([]))==>
-[ transaction(date(2015,1,1),?,'Banks_CHF_Bank',[coord('CHF',1,0)],instant),
-  transaction(date(2015,1,1),
-	      '? - currency movement adjustment',
-	      'CurrencyMovement_CHF_Bank',
-	      [ coord(without_movement_after('CHF',date(2018,1,1)),0,1),
-		coord(without_currency_movement_against_since('CHF',
-							      'CHF',
-							      ['AUD'],
-							      date(2015,
-								   1,
-								   1)),
-		      1,
-		      0)
-	      ],
-	      tracking),
-  transaction(date(2018,1,1),
-	      '? - currency movement adjustment',
-	      'CurrencyMovement_CHF_Bank',
-	      [ coord('CHF',0,1),
-		coord(without_movement_after('CHF',date(2018,1,1)),1,0)
-	      ],
-	      tracking),
-  transaction(date(2015,1,1),?,'Income',[coord('AUD',0.0,2.0)],instant)
-]
+date(2015,1,1): Banks_CHF_Bank
+  Income - incoming money
+  DR:U1:coord('CHF',1,0)
+
+date(2015,1,1): CurrencyMovement_CHF_Bank
+  Income - incoming money - currency movement adjustment - historical part
+  CR:U2:coord(without_movement_after('CHF',date(2018,1,1)),0,1)
+  DR:U3:coord(without_currency_movement_against_since('CHF','CHF',['AUD'],date(2015,1,1)),1,0)
+
+date(2018,1,1): CurrencyMovement_CHF_Bank
+  Income - incoming money - currency movement adjustment - current part
+  CR:U1:coord('CHF',0,1)
+  DR:U2:coord(without_movement_after('CHF',date(2018,1,1)),1,0)
+
+date(2015,1,1): Income
+  Income
+  CR:U4:coord('AUD',0.0,2.0)
+
+
 ====
 done.
 
@@ -643,6 +634,21 @@ Banks_CHF_Bank
   <basic:Bank contextRef="I-2018-CHF_Bank" unitRef="U-AUD" decimals="INF">6.00</basic:Bank>
   <basic:CurrencyMovement contextRef="D-2018-CHF_Bank" unitRef="U-AUD" decimals="INF">2.00</basic:CurrencyMovement>
 
+<!-- investment report:
+url: http://localhost:8080/tmp/1566218929.0463715.2/investment_report.html
+
+ -->
+
+<!-- bs html:
+url: http://localhost:8080/tmp/1566218929.0463715.2/balance_sheet.html
+
+ -->
+
+<!-- pl html:
+url: http://localhost:8080/tmp/1566218929.0463715.2/profit_and_loss.html
+
+ -->
+
 <!-- balance sheet: -->
  <basic:Assets contextRef="I-2018" unitRef="U-AUD" decimals="INF">6.00</basic:Assets>
   <basic:CurrentAssets contextRef="I-2018" unitRef="U-AUD" decimals="INF">6.00</basic:CurrentAssets>
@@ -661,18 +667,22 @@ Banks_CHF_Bank
    <basic:CurrencyMovement contextRef="D-2018" unitRef="U-AUD" decimals="INF">2.00</basic:CurrencyMovement>
     <basic:CurrencyMovement_CHF_Bank contextRef="D-2018" unitRef="U-AUD" decimals="INF">2.00</basic:CurrencyMovement_CHF_Bank>
 
-<!-- investment report:
-url: http://localhost:8080/tmp/1565706626.5977664.2/investment_report.html
+<!-- historical profit and loss: 
+ <basic:Earnings contextRef="D-2018" unitRef="U-AUD" decimals="INF">4.00</basic:Earnings>
+  <basic:Revenue contextRef="D-2018" unitRef="U-AUD" decimals="INF">4.00</basic:Revenue>
+   <basic:CurrencyMovement contextRef="D-2018" unitRef="U-AUD" decimals="INF">2.00</basic:CurrencyMovement>
+    <basic:CurrencyMovement_CHF_Bank contextRef="D-2018" unitRef="U-AUD" decimals="INF">2.00</basic:CurrencyMovement_CHF_Bank>
+   <basic:Income contextRef="D-2018" unitRef="U-AUD" decimals="INF">2.00</basic:Income>
+
+-->
+
+<!-- historical pl html:
+url: http://localhost:8080/tmp/1566218929.0463715.2/profit_and_loss_historical.html
 
  -->
 
-<!-- bs html:
-url: http://localhost:8080/tmp/1565706626.5977664.2/balance_sheet.html
-
- -->
-
-<!-- pl html:
-url: http://localhost:8080/tmp/1565706626.5977664.2/profit_and_loss.html
+<!-- investment report all time:
+url: http://localhost:8080/tmp/1566218929.0463715.2/investment_report_all_time.html
 
  -->
 
