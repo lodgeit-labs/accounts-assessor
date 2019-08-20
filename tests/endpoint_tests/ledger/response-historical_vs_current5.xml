@@ -188,121 +188,45 @@ s_transaction(date(2015,1,1),
 	      [coord('CHF',0,100)],
 	      'CHF_Bank',
 	      vector([coord('Leonteq_N',10,0)]))==>
-[ transaction(date(2015,1,1),
-	      'Shares',
-	      'Banks_CHF_Bank',
-	      [coord('CHF',0,100)],
-	      instant),
-  transaction(date(2015,1,1),
-	      'Shares - currency movement adjustment',
-	      'CurrencyMovement_CHF_Bank',
-	      [ coord(without_movement_after('CHF',date(2018,1,1)),100,0),
-		coord(without_currency_movement_against_since('CHF',
-							      'CHF',
-							      ['AUD'],
-							      date(2015,
-								   1,
-								   1)),
-		      0,
-		      100)
-	      ],
-	      tracking),
-  transaction(date(2018,1,1),
-	      'Shares - currency movement adjustment',
-	      'CurrencyMovement_CHF_Bank',
-	      [ coord('CHF',100,0),
-		coord(without_movement_after('CHF',date(2018,1,1)),0,100)
-	      ],
-	      tracking),
-  transaction(date(2015,1,1),
-	      'Shares',
-	      'FinancialInvestments_Leonteq_N',
-	      [ coord(with_cost_per_unit('Leonteq_N',value('AUD',20.0)),
-		      10,
-		      0)
-	      ],
-	      instant),
-  transaction(date(2018,1,1),
-	      'comment:?, comment2:?',
-	      'InvestmentIncome_unrealized_only_currency_movement_Leonteq_N',
-	      [ coord(without_currency_movement_against_since(with_cost_per_unit('Leonteq_N',
-										 value('AUD',
-										       20.0)),
-							      'CHF',
-							      ['AUD'],
-							      date(2018,
-								   1,
-								   1)),
-		      10,
-		      0),
-		coord(with_cost_per_unit('Leonteq_N',value('AUD',20.0)),
-		      0,
-		      10)
-	      ],
-	      ?),
-  transaction(date(2018,1,1),
-	      'comment:?, comment2:?',
-	      'InvestmentIncome_unrealized_without_currency_movement_Leonteq_N',
-	      [ coord(without_movement_after(with_cost_per_unit('Leonteq_N',
-								value('AUD',
-								      20.0)),
-					     date(2018,1,1)),
-		      10,
-		      0),
-		coord(without_currency_movement_against_since(with_cost_per_unit('Leonteq_N',
-										 value('AUD',
-										       20.0)),
-							      'CHF',
-							      ['AUD'],
-							      date(2018,
-								   1,
-								   1)),
-		      0,
-		      10)
-	      ],
-	      ?),
-  transaction(date(2017,12,31),
-	      'comment:?, comment2:?',
-	      'InvestmentIncome_unrealized_only_currency_movement_Leonteq_N',
-	      [ coord(without_movement_after(without_currency_movement_against_since(with_cost_per_unit('Leonteq_N',
-													value('AUD',
-													      20.0)),
-										     'CHF',
-										     [ 'AUD'
-										     ],
-										     date(2015,
-											  1,
-											  1)),
-					     date(2015,1,1)),
-		      10,
-		      0),
-		coord(without_movement_after(with_cost_per_unit('Leonteq_N',
-								value('AUD',
-								      20.0)),
-					     date(2018,1,1)),
-		      0,
-		      10)
-	      ],
-	      ?),
-  transaction(date(2017,12,31),
-	      'comment:?, comment2:?',
-	      'InvestmentIncome_unrealized_without_currency_movement_Leonteq_N',
-	      [ coord('AUD',200.0,0),
-		coord(without_movement_after(without_currency_movement_against_since(with_cost_per_unit('Leonteq_N',
-													value('AUD',
-													      20.0)),
-										     'CHF',
-										     [ 'AUD'
-										     ],
-										     date(2015,
-											  1,
-											  1)),
-					     date(2015,1,1)),
-		      0,
-		      10)
-	      ],
-	      ?)
-]
+date(2015,1,1): Banks_CHF_Bank
+  Invest_In - outgoing money
+  CR:U1:coord('CHF',0,100)
+
+date(2015,1,1): CurrencyMovement_CHF_Bank
+  Invest_In - outgoing money - currency movement adjustment - historical part
+  DR:U2:coord(without_movement_after('CHF',date(2018,1,1)),100,0)
+  CR:U3:coord(without_currency_movement_against_since('CHF','CHF',['AUD'],date(2015,1,1)),0,100)
+
+date(2018,1,1): CurrencyMovement_CHF_Bank
+  Invest_In - outgoing money - currency movement adjustment - current part
+  DR:U1:coord('CHF',100,0)
+  CR:U2:coord(without_movement_after('CHF',date(2018,1,1)),0,100)
+
+date(2015,1,1): FinancialInvestments_Leonteq_N
+  Invest_In
+  DR:U4:coord('Leonteq_N',10,0)
+
+date(2018,1,1): InvestmentIncome_unrealized_only_currency_movement_Leonteq_N
+  comment:?, comment2:Invest_In - current part
+  CR:U4:coord('Leonteq_N',0,10)
+  DR:U5:coord(without_currency_movement_against_since('Leonteq_N','CHF',['AUD'],date(2018,1,1)),10,0)
+
+date(2018,1,1): InvestmentIncome_unrealized_without_currency_movement_Leonteq_N
+  comment:?, comment2:Invest_In - current part
+  CR:U5:coord(without_currency_movement_against_since('Leonteq_N','CHF',['AUD'],date(2018,1,1)),0,10)
+  DR:U6:coord(without_movement_after('Leonteq_N',date(2018,1,1)),10,0)
+
+date(2015,1,1): InvestmentIncome_unrealized_only_currency_movement_Leonteq_N
+  comment:?, comment2:Invest_In - historical part
+  CR:U6:coord(without_movement_after('Leonteq_N',date(2018,1,1)),0,10)
+  DR:U7:coord(without_movement_after(without_currency_movement_against_since('Leonteq_N','CHF',['AUD'],date(2015,1,1)),date(2018,1,1)),10,0)
+
+date(2015,1,1): InvestmentIncome_unrealized_without_currency_movement_Leonteq_N
+  comment:?, comment2:Invest_In - historical part
+  CR:U7:coord(without_movement_after(without_currency_movement_against_since('Leonteq_N','CHF',['AUD'],date(2015,1,1)),date(2018,1,1)),0,10)
+  DR:U8:coord('AUD',200.0,0)
+
+
 ====
 done.
 
@@ -325,10 +249,6 @@ Accounts
 <!--Exchange rates2:
 [ [ exchange_rate(date(2015,1,1),'CHF','AUD',2.0),
     exchange_rate(date(2015,1,1),
-		  with_cost_per_unit('Leonteq_N',value('AUD',20.0)),
-		  'AUD',
-		  20.0),
-    exchange_rate(date(2015,1,1),
 		  without_movement_after('CHF',date(2018,1,1)),
 		  'AUD',
 		  2.0),
@@ -342,47 +262,18 @@ Accounts
 		  'AUD',
 		  2.0)
   ],
-  [ exchange_rate(date(2017,12,31),
-		  without_movement_after(with_cost_per_unit('Leonteq_N',
-							    value('AUD',
-								  20.0)),
-					 date(2018,1,1)),
-		  'AUD',
-		  20.0),
-    exchange_rate(date(2017,12,31),
-		  without_movement_after(without_currency_movement_against_since(with_cost_per_unit('Leonteq_N',
-												    value('AUD',
-													  20.0)),
-										 'CHF',
-										 [ 'AUD'
-										 ],
-										 date(2015,
-										      1,
-										      1)),
-					 date(2015,1,1)),
-		  'AUD',
-		  20.0)
-  ],
   [ exchange_rate(date(2018,1,1),'CHF','AUD',4.0),
-    exchange_rate(date(2018,1,1),
-		  with_cost_per_unit('Leonteq_N',value('AUD',20.0)),
-		  'AUD',
-		  44.0),
+    exchange_rate(date(2018,1,1),'Leonteq_N','AUD',44.0),
     exchange_rate(date(2018,1,1),
 		  without_movement_after('CHF',date(2018,1,1)),
 		  'AUD',
 		  4.0),
     exchange_rate(date(2018,1,1),
-		  without_movement_after(with_cost_per_unit('Leonteq_N',
-							    value('AUD',
-								  20.0)),
-					 date(2018,1,1)),
+		  without_movement_after('Leonteq_N',date(2018,1,1)),
 		  'AUD',
 		  44.0),
     exchange_rate(date(2018,1,1),
-		  without_currency_movement_against_since(with_cost_per_unit('Leonteq_N',
-									     value('AUD',
-										   20.0)),
+		  without_currency_movement_against_since('Leonteq_N',
 							  'CHF',
 							  ['AUD'],
 							  date(2018,
@@ -392,34 +283,26 @@ Accounts
 		  44.0)
   ],
   [ exchange_rate(date(2018,12,30),'CHF','AUD',6.0),
-    exchange_rate(date(2018,12,30),
-		  with_cost_per_unit('Leonteq_N',value('AUD',20.0)),
-		  'AUD',
-		  72.0),
+    exchange_rate(date(2018,12,30),'Leonteq_N','AUD',72.0),
     exchange_rate(date(2018,12,30),
 		  without_movement_after('CHF',date(2018,1,1)),
 		  'AUD',
 		  4.0),
     exchange_rate(date(2018,12,30),
-		  without_movement_after(with_cost_per_unit('Leonteq_N',
-							    value('AUD',
-								  20.0)),
-					 date(2018,1,1)),
+		  without_movement_after('Leonteq_N',date(2018,1,1)),
 		  'AUD',
 		  44.0),
     exchange_rate(date(2018,12,30),
-		  without_movement_after(without_currency_movement_against_since(with_cost_per_unit('Leonteq_N',
-												    value('AUD',
-													  20.0)),
+		  without_movement_after(without_currency_movement_against_since('Leonteq_N',
 										 'CHF',
 										 [ 'AUD'
 										 ],
 										 date(2015,
 										      1,
 										      1)),
-					 date(2015,1,1)),
+					 date(2018,1,1)),
 		  'AUD',
-		  20.0),
+		  22.0),
     exchange_rate(date(2018,12,30),
 		  without_currency_movement_against_since('CHF',
 							  'CHF',
@@ -430,9 +313,7 @@ Accounts
 		  'AUD',
 		  2.0),
     exchange_rate(date(2018,12,30),
-		  without_currency_movement_against_since(with_cost_per_unit('Leonteq_N',
-									     value('AUD',
-										   20.0)),
+		  without_currency_movement_against_since('Leonteq_N',
 							  'CHF',
 							  ['AUD'],
 							  date(2018,
@@ -919,6 +800,23 @@ Banks_CHF_Bank
 <!-- dimensional facts: -->
   <basic:Bank contextRef="I-2018-CHF_Bank" unitRef="U-AUD" decimals="INF">-600.00</basic:Bank>
   <basic:CurrencyMovement contextRef="D-2018-CHF_Bank" unitRef="U-AUD" decimals="INF">-200.00</basic:CurrencyMovement>
+  <basic:InvestmentIncome_unrealized_only_currency_movement contextRef="D-2018-Leonteq_N" unitRef="U-AUD" decimals="INF">240.00</basic:InvestmentIncome_unrealized_only_currency_movement>
+  <basic:InvestmentIncome_unrealized_without_currency_movement contextRef="D-2018-Leonteq_N" unitRef="U-AUD" decimals="INF">40.00</basic:InvestmentIncome_unrealized_without_currency_movement>
+
+<!-- investment report:
+url: http://localhost:8080/tmp/1566325287.705949.2/investment_report.html
+
+ -->
+
+<!-- bs html:
+url: http://localhost:8080/tmp/1566325287.705949.2/balance_sheet.html
+
+ -->
+
+<!-- pl html:
+url: http://localhost:8080/tmp/1566325287.705949.2/profit_and_loss.html
+
+ -->
 
 <!-- balance sheet: -->
  <basic:Assets contextRef="I-2018" unitRef="U-AUD" decimals="INF">120.00</basic:Assets>
@@ -944,18 +842,25 @@ Banks_CHF_Bank
      <basic:InvestmentIncome_unrealized_only_currency_movement contextRef="D-2018" unitRef="U-AUD" decimals="INF">240.00</basic:InvestmentIncome_unrealized_only_currency_movement>
      <basic:InvestmentIncome_unrealized_without_currency_movement contextRef="D-2018" unitRef="U-AUD" decimals="INF">40.00</basic:InvestmentIncome_unrealized_without_currency_movement>
 
-<!-- investment report:
-url: http://localhost:8080/tmp/1565709041.9743285.2/investment_report.html
+<!-- historical profit and loss: 
+ <basic:Earnings contextRef="D-2018" unitRef="U-AUD" decimals="INF">40.00</basic:Earnings>
+  <basic:Revenue contextRef="D-2018" unitRef="U-AUD" decimals="INF">40.00</basic:Revenue>
+   <basic:CurrencyMovement contextRef="D-2018" unitRef="U-AUD" decimals="INF">-200.00</basic:CurrencyMovement>
+    <basic:CurrencyMovement_CHF_Bank contextRef="D-2018" unitRef="U-AUD" decimals="INF">-200.00</basic:CurrencyMovement_CHF_Bank>
+   <basic:InvestmentIncome contextRef="D-2018" unitRef="U-AUD" decimals="INF">240.00</basic:InvestmentIncome>
+    <basic:InvestmentIncome_unrealized contextRef="D-2018" unitRef="U-AUD" decimals="INF">240.00</basic:InvestmentIncome_unrealized>
+     <basic:InvestmentIncome_unrealized_only_currency_movement contextRef="D-2018" unitRef="U-AUD" decimals="INF">220.00</basic:InvestmentIncome_unrealized_only_currency_movement>
+     <basic:InvestmentIncome_unrealized_without_currency_movement contextRef="D-2018" unitRef="U-AUD" decimals="INF">20.00</basic:InvestmentIncome_unrealized_without_currency_movement>
+
+-->
+
+<!-- historical pl html:
+url: http://localhost:8080/tmp/1566325287.705949.2/profit_and_loss_historical.html
 
  -->
 
-<!-- bs html:
-url: http://localhost:8080/tmp/1565709041.9743285.2/balance_sheet.html
-
- -->
-
-<!-- pl html:
-url: http://localhost:8080/tmp/1565709041.9743285.2/profit_and_loss.html
+<!-- investment report all time:
+url: http://localhost:8080/tmp/1566325287.705949.2/investment_report_all_time.html
 
  -->
 
