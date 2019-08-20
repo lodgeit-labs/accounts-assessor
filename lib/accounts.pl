@@ -278,6 +278,7 @@ yield_accounts(element(Parent_Name,_,Children), Link) :-
 		)
 	).
 
+/* @Bob fixme, we should be getting this info from the taxonomy */
 account_normal_side(Account_Hierarchy, Name, credit) :-
 	member(Credit_Side_Account_Id, ['Liabilities', 'Equity', 'Revenue']),
 	once(account_in_set(Account_Hierarchy, Name, Credit_Side_Account_Id)),
@@ -287,7 +288,7 @@ account_normal_side(Account_Hierarchy, Name, debit) :-
 	once(account_in_set(Account_Hierarchy, Name, Credit_Side_Account_Id)),
 	!.
 account_normal_side(Account_Hierarchy, Name, credit) :-
-	member(Credit_Side_Account_Id, ['Earnings']),
+	member(Credit_Side_Account_Id, ['Earnings', 'NetIncomeLoss']),
 	once(account_in_set(Account_Hierarchy, Name, Credit_Side_Account_Id)),
 	!.
 account_normal_side(_, _, debit).

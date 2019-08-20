@@ -51,14 +51,14 @@ find_or_add_required_accounts((S_Transactions, Livestock_Types, Transaction_Type
 		/* we can happily generate these for now and they can be added to / matched up with the taxonomy when needed */
 		account('Inventory', 					'accountHierarchy', 		'accountHierarchy'/'Inventory', 0),
 		account('LivestockCount', 				'Inventory', 				'Inventory'/'LivestockCount', 0),
-		account('AssetsLivestockAtCost', 		'Accounts', 				'Accounts'/'AssetsLivestockAtCost', 0),
-		account('AssetsLivestockAtAverageCost', 'Accounts', 				'Accounts'/'AssetsLivestockAtAverageCost', 0),
+		account('AssetsLivestockAtCost', 		'NoncurrentAssets', 				'Accounts'/'AssetsLivestockAtCost', 0),
+		account('AssetsLivestockAtAverageCost', 'NoncurrentAssets', 				'Accounts'/'AssetsLivestockAtAverageCost', 0),
 
 		/* should mostly be contained in some testing hierarchy file / directly in a request / .. */
-		account('CapitalIntroduced', 			'Accounts', 				'Accounts'/'CapitalIntroduced', 0),
-		account('ClearingAccount', 				'Accounts', 				'Accounts'/'ClearingAccount', 0),
-		account('ExchangeGain', 				'Accounts', 				'Accounts'/'ExchangeGain', 0),
-		account('AccountingFees', 				'Accounts', 				'Accounts'/'AccountingFees', 0)
+		account('CapitalIntroduced', 			'Equity', 				'Accounts'/'CapitalIntroduced', 0),
+		account('ClearingAccount', 				'Equity', 				'Accounts'/'ClearingAccount', 0),
+		account('ExchangeGain', 				'Revenue', 				'Accounts'/'ExchangeGain', 0),
+		account('AccountingFees', 				'Expenses', 				'Accounts'/'AccountingFees', 0)
 
 
 	],

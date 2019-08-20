@@ -7,6 +7,7 @@
 :- module(pacioli, [
 		coord_unit/2,
 		vec_add/3,
+		vec_sum/2,
 		vec_equality/2,
 		vec_identity/1,
 		vec_inverse/2,
@@ -125,6 +126,9 @@ vec_add(As, Bs, Cs_Reduced) :-
 	,Cs),
 	flatten(Cs, Cs_Flat),
 	vec_reduce(Cs_Flat, Cs_Reduced).
+
+vec_sum(Vectors, Sum) :-
+	foldl(vec_add, Vectors, [], Sum).
 
 % Subtracts the vector Bs from As by inverting Bs and adding it to As.
 

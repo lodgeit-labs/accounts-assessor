@@ -6,6 +6,7 @@
 
 :- module(ledger_report, [
 		accounts_report/2,
+		balance_sheet_at/2,
 		balance_by_account/9, 
 		balance_until_day/9,
 		balance/5,
@@ -47,6 +48,7 @@
 		account_parent/2]).
 :- use_module('pacioli', [
 		vec_add/3, 
+		vec_sum/2,
 		vec_inverse/2, 
 		vec_reduce/2, 
 		vec_sub/3]).
@@ -55,6 +57,7 @@
 :- use_module('transactions', [
 		transaction_account_in_set/3,
 		transaction_in_period/3,
+		transaction_before/2,
 		transaction_type/2,
 		transaction_vectors_total/2,
 		transactions_before_day_on_account_and_subaccounts/5,
@@ -117,6 +120,7 @@ balance_by_account(Exchange_Rates, Accounts, Transactions, Report_Currency, Exch
 	balance_until_day(Exchange_Rates, Accounts, Transactions, Report_Currency, Exchange_Date, Account_Id, Date2, Balance_Transformed, Transactions_Count).
 
 % TODO: do "Transactions_Count" elsewhere
+% TODO: get rid of the add_days(...) and use generic period selector(s)
 balance(Static_Data, Account_Id, Date, Balance, Transactions_Count) :-
 	dict_vars(Static_Data, 
 		[Exchange_Date, Exchange_Rates, Accounts, Accounts_Transactions, Report_Currency]
@@ -124,21 +128,14 @@ balance(Static_Data, Account_Id, Date, Balance, Transactions_Count) :-
 	assertion(account_exists(Accounts, Account_Id)),
 	add_days(Date,1,Date2),
 	(
-		Account_Id = 'CurrentEarnings'
+		Account_Transactions = Accounts_Transactions.get(Account_Id)
 	->
-		writeln("Before 'Account_Transactions = Transactions.get(Account_Id)'")
-	;
 		true
+	;
+		Account_Transactions = []
 	),
-	Account_Transactions = Accounts_Transactions.get(Account_Id),
+	%format('~w transactions ~p~n:',[Account_Id, Account_Transactions]),
 
-	(
-		Account_Id = 'CurrentEarnings'
-	->
-		writeln("After 'Account_Transactions = Transactions.get(Account_Id)'")
-	;
-		true
-	),
 	findall(
 		Transaction,
 		(
@@ -149,7 +146,20 @@ balance(Static_Data, Account_Id, Date, Balance, Transactions_Count) :-
 	),
 	length(Filtered_Transactions, Transactions_Count),
 	transaction_vectors_total(Filtered_Transactions, Totals),
-	vec_change_bases(Exchange_Rates, Exchange_Date, Report_Currency, Totals, Balance).
+	/*
+	recursively compute balance for subaccounts and add them to this total
+	*/
+	findall(
+		Child_Balance,
+		(
+			account_child_parent(Static_Data.accounts, Child_Account, Account_Id),
+			balance(Static_Data, Child_Account, Date, Child_Balance, _)
+		),
+		Child_Balances
+	),
+	append([Totals], Child_Balances, Balance_Components),
+	vec_sum(Balance_Components, Totals2),	
+	vec_change_bases(Exchange_Rates, Exchange_Date, Report_Currency, Totals2, Balance).
 
 % Relates the period from Start_Date to End_Date to the net activity during that period of
 % the given account.
@@ -181,6 +191,7 @@ net_activity_by_account(Static_Data, Account_Id, Net_Activity_Transformed, Trans
 % Now for balance sheet predicates. These build up a tree structure that corresponds to the account hierarchy, with balances for each account.
 
 balance_sheet_entry(Static_Data, Account_Id, Entry) :-
+	%format('balance_sheet_entry: ~w~n',[Account_Id]),
 %balance_sheet_entry(Exchange_Rates, Accounts, Transactions, Report_Currency, Exchange_Date, Account_Id, End_Date, Sheet_Entry) :-
 	/*
 	dict_vars(Static_Data, 
@@ -201,6 +212,7 @@ balance_sheet_entry(Static_Data, Account_Id, Entry) :-
 	balance(Static_Data, Account_Id, Static_Data.end_date, Balance, Transactions_Count),
 	% balance_by_account(Exchange_Rates, Accounts, Transactions, Report_Currency, Exchange_Date, Account_Id, End_Date, Balance, Transactions_Count),
 	Entry = entry(Account_Id, Balance, Child_Sheet_Entries, Transactions_Count).
+	%format('balance_sheet_entry; done: ~p~n',[Entry]).
 
 
 % account_value becomes equivalent to account_balance when we regard Historical and Current Earnings as just
@@ -265,7 +277,12 @@ accounts_report(Static_Data, Accounts_Report) :-
 	),
 	*/
 	balance_sheet_entry(Static_Data, 'Accounts', Entry),
+	% print_term(Entry,[]),
 	Entry = entry(_,_,Accounts_Report,_).
+
+balance_sheet_at(Static_Data, [Net_Assets_Entry, Equity_Entry]) :-
+	balance_sheet_entry(Static_Data, 'NetAssets', Net_Assets_Entry),
+	balance_sheet_entry(Static_Data, 'Equity', Equity_Entry).
 
 /*we'll throw this thing away
 balance_sheet_at(Static_Data, Balance_Sheet) :-
@@ -357,7 +374,7 @@ profitandloss_between(Exchange_Rates, Accounts, Transactions, Report_Currency, E
 */
 
 profitandloss_between(Static_Data, [ProftAndLoss]) :-
-	activity_entry(Static_Data, 'Earnings', ProftAndLoss).
+	activity_entry(Static_Data, 'NetIncomeLoss', ProftAndLoss).
 
 % Now for trial balance predicates.
 

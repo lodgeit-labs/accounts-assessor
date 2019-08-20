@@ -35,7 +35,8 @@
 		trial_balance_between/8, 
 		profitandloss_between/2, 
 		%balance_by_account/9,
-		accounts_report/2,
+		%accounts_report/2,
+		balance_sheet_at/2,
 		format_report_entries/10, 
 		bs_and_pl_entries/8,
 		net_activity_by_account/4]).
@@ -134,20 +135,22 @@ process_xml_ledger_request2(_, Dom) :-
 	writeln(Exchange_Rates),
 	writeln("-->"),
 	print_xbrl_header,
+%gtrace,
 	dict_from_vars(Static_Data,
 		[Cost_Or_Market, Start_Date, End_Date, Exchange_Rates, Accounts, Transactions, Report_Currency, Transaction_Types]),
 	transactions_by_account(Static_Data, Transactions_By_Account),
-	Static_Data.put(accounts_transactions, Transactions_By_Account),
-	output_results(Static_Data, S_Transactions, Transaction_Transformation_Debug, Outstanding),
+	% print_term(Transactions_By_Account, []),
+	Static_Data2 = Static_Data.put(accounts_transactions, Transactions_By_Account),
+	output_results(Static_Data2, S_Transactions, Transaction_Transformation_Debug, Outstanding),
 	writeln('</xbrli:xbrl>'),
 	nl, nl.
 
 output_results(Static_Data0, S_Transactions, Transaction_Transformation_Debug, Outstanding) :-
 	
-	Static_Data = Static_Data0.put(
-		exchange_date, End_Date).put(
-		entity_identifier, Entity_Identifier).put(
-		duration_context_id_base, Duration_Context_Id_Base),
+	Static_Data = Static_Data0.put([
+		exchange_date=End_Date,
+		entity_identifier=Entity_Identifier,
+		duration_context_id_base=Duration_Context_Id_Base]),
 
 	Static_Data.start_date = Start_Date,
 	Static_Data.end_date = End_Date, 
@@ -174,7 +177,8 @@ output_results(Static_Data0, S_Transactions, Transaction_Transformation_Debug, O
 
 	writeln("<!-- Balance sheet -->"),
 	% fix to only include balance  sheet accounts
-	accounts_report(Static_Data, Balance_Sheet2),
+	%accounts_report(Static_Data, Balance_Sheet2),
+	balance_sheet_at(Static_Data, Balance_Sheet2),
 
 	writeln("<!-- Profit and loss -->"),
 	profitandloss_between(Static_Data, ProftAndLoss2),
@@ -184,8 +188,10 @@ output_results(Static_Data0, S_Transactions, Transaction_Transformation_Debug, O
 		start_date, date(1,1,1)).put(
 		end_date, Before_Start).put(
 		exchange_date, Start_Date),
+	
 	profitandloss_between(Static_Data_Historical, ProftAndLoss2_Historical),
-		
+	
+	
 	assertion(ground((Balance_Sheet2, ProftAndLoss2, ProftAndLoss2_Historical, Trial_Balance2))),
 	
 	format_report_entries(xbrl, Accounts, 0, Report_Currency, Instant_Context_Id_Base,  Balance_Sheet2, [], Units0, [], Bs_Lines),

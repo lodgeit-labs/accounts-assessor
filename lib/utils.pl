@@ -23,7 +23,8 @@
 		replace_chars_in_atom/4,
 		filter_out_chars_from_atom/3,
 		coord_is_almost_zero/1,
-		is_uri/1]).
+		is_uri/1,
+		sort_into_dict/3]).
 
 		
 :- use_module(library(xpath)).
@@ -343,8 +344,6 @@ semigroup_foldl(Goal, [H1, H2 | T], V) :-
     semigroup_foldl(Goal, [V1 | T], V).
 
 
-
-
    
 /* throw a string(Message) term, these errors are caught by our http server code and turned into nice error messages */
 throw_string(List_Or_Atom) :-
@@ -422,3 +421,26 @@ coord_is_almost_zero(coord(_, D, C)) :-
 is_uri(URI) :-
 	% atom_prefix is deprecated
 	atom_prefix(URI,"http").
+
+
+% basically "index by" Selector_Predicate (or really the values of the 2nd arg to it)
+sort_into_dict(Selector_Predicate, Ts, D) :-
+	sort_into_dict(Selector_Predicate, Ts, _{}, D).
+
+:- meta_predicate sort_into_dict(2, ?, ?, ?).
+
+sort_into_dict(Selector_Predicate, [T|Ts], D, D_Out) :-
+	call(Selector_Predicate, T, A),
+	(
+		L = D.get(A)
+	->
+		true
+	;
+		L = []
+	),
+	append(L, [T], L2),
+	D2 = D.put(A, L2),
+	sort_into_dict(Selector_Predicate, Ts, D2, D_Out).
+
+sort_into_dict(_, [], D, D).
+
