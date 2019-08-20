@@ -133,8 +133,8 @@ print_trading2(_,[],Results,Results).
 trading_sub_account(Sd, (Movement_Account, Unit_Accounts)) :-
 	trading_account_ids(Sd.transaction_types, Trading_Accounts),
 	member(Trading_Account, Trading_Accounts),
-	account_by_role(Sd.accounts, (Trading_Account/_), Gains_Account),
-	account_by_role(Sd.accounts, (Gains_Account/_), Movement_Account),
+	account_by_role_nothrow(Sd.accounts, (Trading_Account/_), Gains_Account),
+	account_by_role_nothrow(Sd.accounts, (Gains_Account/_), Movement_Account),
 	child_accounts(Sd.accounts, Movement_Account, Unit_Accounts).
 	
 print_trading(Sd, In, Out) :-
