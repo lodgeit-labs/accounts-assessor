@@ -347,3 +347,4 @@ mcedit
 *.swp
 cache/*
 .vscode
+xbrl/account_hierarchy/venv/
