@@ -123,7 +123,13 @@ preprocess_s_transactions2(Static_Data, [S_Transaction|S_Transactions], [Transac
 					atomic_list_concat([S_Transaction_String, '==>\n', Transactions_String, '\n====\n'], Debug_Head),
 					Transactions_Out = [T|_],
 					transaction_day(T, Transaction_Date),
-					check_trial_balance0(Exchange_Rates, Report_Currency, Transaction_Date, Transactions_Out, Start_Date, End_Date, Debug_So_Far, Debug_Head),
+					(
+						Report_Currency = []
+					->
+						true
+					;
+						check_trial_balance0(Exchange_Rates, Report_Currency, Transaction_Date, Transactions_Out, Start_Date, End_Date, Debug_So_Far, Debug_Head)
+					),
 					append(Debug_So_Far, [Debug_Head], Debug_So_Far2)
 				),
 				not_enough_goods_to_sell,

@@ -64,6 +64,13 @@
         <unitValueDate>2018-01-01</unitValueDate>
       </unitValue>
 
+	  <unitValue> <!-- not sure if we should require the unitValue, since it can be obtained from the sale -->
+        <unitType>Leonteq_N</unitType>
+        <unitValue>10</unitValue>
+        <unitValueCurrency>CHF</unitValueCurrency>
+        <unitValueDate>2015-05-01</unitValueDate>
+      </unitValue>
+
       <unitValue>
         <unitType>Leonteq_N</unitType>
         <unitValue>10</unitValue>
