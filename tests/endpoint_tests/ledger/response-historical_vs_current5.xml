@@ -72,19 +72,17 @@ Accounts extracted:
   account('CurrentLiabilities','Liabilities','Accounts'/'CurrentLiabilities',0),
   account('CurrentLoans','CurrentLiabilities','Accounts'/'CurrentLoans',0),
   account('Drawings','Equity','Accounts'/'Drawings',0),
-  account('Earnings','Accounts','Accounts'/'Earnings',0),
   account('EarningsFinancialInvestments',
 	  'OtherIncome',
 	  'Accounts' / 'EarningsFinancialInvestments',
 	  0),
   account('Equity','Accounts','Accounts'/'Equity',0),
   account('ExchangeGain','OtherIncome','Accounts'/'ExchangeGain',0),
-  account('Expenses','Earnings','Accounts'/'Expenses',0),
+  account('Expenses','NetIncomeLoss','Accounts'/'Expenses',0),
   account('FinancialInvestments',
 	  'NoncurrentAssets',
 	  'Accounts' / 'FinancialInvestments',
 	  0),
-  account('FoodExpenses','Expenses','Accounts'/'FoodExpenses',0),
   account('ForexLoss','Expenses','Accounts'/'ForexLoss',0),
   account('HistoricalEarnings',
 	  'RetainedEarnings',
@@ -98,6 +96,7 @@ Accounts extracted:
   account('Liabilities','NetAssets','Accounts'/'Liabilities',0),
   account('LivestockAdjustment','Expenses','Accounts'/'LivestockAdjustment',0),
   account('NetAssets','Accounts','Accounts'/'NetAssets',0),
+  account('NetIncomeLoss','Accounts','Accounts'/'NetIncomeLoss',0),
   account('NoncurrentAssets','Assets','Accounts'/'NoncurrentAssets',0),
   account('NoncurrentLiabilities',
 	  'Liabilities',
@@ -113,7 +112,7 @@ Accounts extracted:
   account('Purchases','Expenses','Accounts'/'Purchases',0),
   account('RationsRevenue','Revenue','Accounts'/'RationsRevenue',0),
   account('RetainedEarnings','Equity','Accounts'/'RetainedEarnings',0),
-  account('Revenue','Earnings','Accounts'/'Revenue',0),
+  account('Revenue','NetIncomeLoss','Accounts'/'Revenue',0),
   account('SalesOfLivestock','Revenue','Accounts'/'SalesOfLivestock',0),
   account('ShareCapital','Equity','Accounts'/'ShareCapital',0)
 ]
@@ -233,16 +232,6 @@ done.
 -->
 
 
-<!-- calling: balance_by_account -->
-<!-- checking account exists: 
-Accounts
--->
-<!-- calling: balance_until_day -->
-<!-- transactions_before_day_on_account_and_subaccounts -->
-<!-- transaction_vectors_total -->
-<!-- vec_change_bases -->
-<!-- done: balance_until_day -->
-<!-- done: balance_by_account -->
 <!-- WARNING: no transactions within request period -->
 
 
@@ -337,403 +326,8 @@ Accounts
 
 <!-- Build contexts -->
 <!-- Trial balance -->
-<!-- calling: balance_by_account -->
-<!-- checking account exists: 
-Accounts
--->
-<!-- calling: balance_until_day -->
-<!-- transactions_before_day_on_account_and_subaccounts -->
-<!-- transaction_vectors_total -->
-<!-- vec_change_bases -->
-<!-- done: balance_until_day -->
-<!-- done: balance_by_account -->
 <!-- Balance sheet -->
-<!-- Balance sheet entries -->
-<!-- calling: balance_sheet_entry -->
-<!-- calling: balance_sheet_entry -->
-<!-- calling: balance_sheet_entry -->
-<!-- calling: balance_sheet_entry -->
-<!-- calling: balance_by_account -->
-<!-- checking account exists: 
-AssetsLivestockAtAverageCost
--->
-<!-- calling: balance_until_day -->
-<!-- transactions_before_day_on_account_and_subaccounts -->
-<!-- transaction_vectors_total -->
-<!-- vec_change_bases -->
-<!-- done: balance_until_day -->
-<!-- done: balance_by_account -->
-<!-- done: balance_sheet_entry -->
-<!-- calling: balance_sheet_entry -->
-<!-- calling: balance_by_account -->
-<!-- checking account exists: 
-AssetsLivestockAtCost
--->
-<!-- calling: balance_until_day -->
-<!-- transactions_before_day_on_account_and_subaccounts -->
-<!-- transaction_vectors_total -->
-<!-- vec_change_bases -->
-<!-- done: balance_until_day -->
-<!-- done: balance_by_account -->
-<!-- done: balance_sheet_entry -->
-<!-- calling: balance_by_account -->
-<!-- checking account exists: 
-AssetsLivestock
--->
-<!-- calling: balance_until_day -->
-<!-- transactions_before_day_on_account_and_subaccounts -->
-<!-- transaction_vectors_total -->
-<!-- vec_change_bases -->
-<!-- done: balance_until_day -->
-<!-- done: balance_by_account -->
-<!-- done: balance_sheet_entry -->
-<!-- calling: balance_sheet_entry -->
-<!-- calling: balance_sheet_entry -->
-<!-- calling: balance_sheet_entry -->
-<!-- calling: balance_by_account -->
-<!-- checking account exists: 
-Banks_CHF_Bank
--->
-<!-- calling: balance_until_day -->
-<!-- transactions_before_day_on_account_and_subaccounts -->
-<!-- transaction_vectors_total -->
-<!-- vec_change_bases -->
-<!-- done: balance_until_day -->
-<!-- done: balance_by_account -->
-<!-- done: balance_sheet_entry -->
-<!-- calling: balance_by_account -->
-<!-- checking account exists: 
-Banks
--->
-<!-- calling: balance_until_day -->
-<!-- transactions_before_day_on_account_and_subaccounts -->
-<!-- transaction_vectors_total -->
-<!-- vec_change_bases -->
-<!-- done: balance_until_day -->
-<!-- done: balance_by_account -->
-<!-- done: balance_sheet_entry -->
-<!-- calling: balance_by_account -->
-<!-- checking account exists: 
-CashAndCashEquivalents
--->
-<!-- calling: balance_until_day -->
-<!-- transactions_before_day_on_account_and_subaccounts -->
-<!-- transaction_vectors_total -->
-<!-- vec_change_bases -->
-<!-- done: balance_until_day -->
-<!-- done: balance_by_account -->
-<!-- done: balance_sheet_entry -->
-<!-- calling: balance_by_account -->
-<!-- checking account exists: 
-CurrentAssets
--->
-<!-- calling: balance_until_day -->
-<!-- transactions_before_day_on_account_and_subaccounts -->
-<!-- transaction_vectors_total -->
-<!-- vec_change_bases -->
-<!-- done: balance_until_day -->
-<!-- done: balance_by_account -->
-<!-- done: balance_sheet_entry -->
-<!-- calling: balance_sheet_entry -->
-<!-- calling: balance_sheet_entry -->
-<!-- calling: balance_sheet_entry -->
-<!-- calling: balance_by_account -->
-<!-- checking account exists: 
-FinancialInvestments_Leonteq_N
--->
-<!-- calling: balance_until_day -->
-<!-- transactions_before_day_on_account_and_subaccounts -->
-<!-- transaction_vectors_total -->
-<!-- vec_change_bases -->
-<!-- done: balance_until_day -->
-<!-- done: balance_by_account -->
-<!-- done: balance_sheet_entry -->
-<!-- calling: balance_by_account -->
-<!-- checking account exists: 
-FinancialInvestments
--->
-<!-- calling: balance_until_day -->
-<!-- transactions_before_day_on_account_and_subaccounts -->
-<!-- transaction_vectors_total -->
-<!-- vec_change_bases -->
-<!-- done: balance_until_day -->
-<!-- done: balance_by_account -->
-<!-- done: balance_sheet_entry -->
-<!-- calling: balance_by_account -->
-<!-- checking account exists: 
-NoncurrentAssets
--->
-<!-- calling: balance_until_day -->
-<!-- transactions_before_day_on_account_and_subaccounts -->
-<!-- transaction_vectors_total -->
-<!-- vec_change_bases -->
-<!-- done: balance_until_day -->
-<!-- done: balance_by_account -->
-<!-- done: balance_sheet_entry -->
-<!-- calling: balance_by_account -->
-<!-- checking account exists: 
-Assets
--->
-<!-- calling: balance_until_day -->
-<!-- transactions_before_day_on_account_and_subaccounts -->
-<!-- transaction_vectors_total -->
-<!-- vec_change_bases -->
-<!-- done: balance_until_day -->
-<!-- done: balance_by_account -->
-<!-- done: balance_sheet_entry -->
-<!-- calling: balance_sheet_entry -->
-<!-- calling: balance_sheet_entry -->
-<!-- calling: balance_sheet_entry -->
-<!-- calling: balance_by_account -->
-<!-- checking account exists: 
-CurrentLoans
--->
-<!-- calling: balance_until_day -->
-<!-- transactions_before_day_on_account_and_subaccounts -->
-<!-- transaction_vectors_total -->
-<!-- vec_change_bases -->
-<!-- done: balance_until_day -->
-<!-- done: balance_by_account -->
-<!-- done: balance_sheet_entry -->
-<!-- calling: balance_by_account -->
-<!-- checking account exists: 
-CurrentLiabilities
--->
-<!-- calling: balance_until_day -->
-<!-- transactions_before_day_on_account_and_subaccounts -->
-<!-- transaction_vectors_total -->
-<!-- vec_change_bases -->
-<!-- done: balance_until_day -->
-<!-- done: balance_by_account -->
-<!-- done: balance_sheet_entry -->
-<!-- calling: balance_sheet_entry -->
-<!-- calling: balance_sheet_entry -->
-<!-- calling: balance_by_account -->
-<!-- checking account exists: 
-NoncurrentLoans
--->
-<!-- calling: balance_until_day -->
-<!-- transactions_before_day_on_account_and_subaccounts -->
-<!-- transaction_vectors_total -->
-<!-- vec_change_bases -->
-<!-- done: balance_until_day -->
-<!-- done: balance_by_account -->
-<!-- done: balance_sheet_entry -->
-<!-- calling: balance_by_account -->
-<!-- checking account exists: 
-NoncurrentLiabilities
--->
-<!-- calling: balance_until_day -->
-<!-- transactions_before_day_on_account_and_subaccounts -->
-<!-- transaction_vectors_total -->
-<!-- vec_change_bases -->
-<!-- done: balance_until_day -->
-<!-- done: balance_by_account -->
-<!-- done: balance_sheet_entry -->
-<!-- calling: balance_by_account -->
-<!-- checking account exists: 
-Liabilities
--->
-<!-- calling: balance_until_day -->
-<!-- transactions_before_day_on_account_and_subaccounts -->
-<!-- transaction_vectors_total -->
-<!-- vec_change_bases -->
-<!-- done: balance_until_day -->
-<!-- done: balance_by_account -->
-<!-- done: balance_sheet_entry -->
-<!-- calling: balance_by_account -->
-<!-- checking account exists: 
-NetAssets
--->
-<!-- calling: balance_until_day -->
-<!-- transactions_before_day_on_account_and_subaccounts -->
-<!-- transaction_vectors_total -->
-<!-- vec_change_bases -->
-<!-- done: balance_until_day -->
-<!-- done: balance_by_account -->
-<!-- calling: balance_until_day -->
-<!-- transactions_before_day_on_account_and_subaccounts -->
-<!-- transaction_vectors_total -->
-<!-- vec_change_bases -->
-<!-- done: balance_until_day -->
-<!-- Net activity by account -->
-<!-- Get transactions with retained earnings -->
-<!-- calling: balance_sheet_entry -->
-<!-- calling: balance_sheet_entry -->
-<!-- calling: balance_by_account -->
-<!-- checking account exists: 
-CapitalIntroduced
--->
-<!-- calling: balance_until_day -->
-<!-- transactions_before_day_on_account_and_subaccounts -->
-<!-- transaction_vectors_total -->
-<!-- vec_change_bases -->
-<!-- done: balance_until_day -->
-<!-- done: balance_by_account -->
-<!-- done: balance_sheet_entry -->
-<!-- calling: balance_sheet_entry -->
-<!-- calling: balance_by_account -->
-<!-- checking account exists: 
-Drawings
--->
-<!-- calling: balance_until_day -->
-<!-- transactions_before_day_on_account_and_subaccounts -->
-<!-- transaction_vectors_total -->
-<!-- vec_change_bases -->
-<!-- done: balance_until_day -->
-<!-- done: balance_by_account -->
-<!-- done: balance_sheet_entry -->
-<!-- calling: balance_sheet_entry -->
-<!-- calling: balance_sheet_entry -->
-<!-- calling: balance_by_account -->
-<!-- checking account exists: 
-CurrentEarnings
--->
-<!-- calling: balance_until_day -->
-<!-- transactions_before_day_on_account_and_subaccounts -->
-<!-- transaction_vectors_total -->
-<!-- vec_change_bases -->
-<!-- done: balance_until_day -->
-<!-- done: balance_by_account -->
-<!-- done: balance_sheet_entry -->
-<!-- calling: balance_sheet_entry -->
-<!-- calling: balance_by_account -->
-<!-- checking account exists: 
-HistoricalEarnings
--->
-<!-- calling: balance_until_day -->
-<!-- transactions_before_day_on_account_and_subaccounts -->
-<!-- transaction_vectors_total -->
-<!-- vec_change_bases -->
-<!-- done: balance_until_day -->
-<!-- done: balance_by_account -->
-<!-- done: balance_sheet_entry -->
-<!-- calling: balance_by_account -->
-<!-- checking account exists: 
-RetainedEarnings
--->
-<!-- calling: balance_until_day -->
-<!-- transactions_before_day_on_account_and_subaccounts -->
-<!-- transaction_vectors_total -->
-<!-- vec_change_bases -->
-<!-- done: balance_until_day -->
-<!-- done: balance_by_account -->
-<!-- done: balance_sheet_entry -->
-<!-- calling: balance_sheet_entry -->
-<!-- calling: balance_by_account -->
-<!-- checking account exists: 
-ShareCapital
--->
-<!-- calling: balance_until_day -->
-<!-- transactions_before_day_on_account_and_subaccounts -->
-<!-- transaction_vectors_total -->
-<!-- vec_change_bases -->
-<!-- done: balance_until_day -->
-<!-- done: balance_by_account -->
-<!-- done: balance_sheet_entry -->
-<!-- calling: balance_by_account -->
-<!-- checking account exists: 
-Equity
--->
-<!-- calling: balance_until_day -->
-<!-- transactions_before_day_on_account_and_subaccounts -->
-<!-- transaction_vectors_total -->
-<!-- vec_change_bases -->
-<!-- done: balance_until_day -->
-<!-- done: balance_by_account -->
-<!-- done: balance_sheet_entry -->
-<!-- balance_sheet_at: done. -->
 <!-- Profit and loss -->
-<!-- calling: balance_until_day -->
-<!-- transactions_before_day_on_account_and_subaccounts -->
-<!-- transaction_vectors_total -->
-<!-- vec_change_bases -->
-<!-- done: balance_until_day -->
-<!-- calling: balance_until_day -->
-<!-- transactions_before_day_on_account_and_subaccounts -->
-<!-- transaction_vectors_total -->
-<!-- vec_change_bases -->
-<!-- done: balance_until_day -->
-<!-- calling: balance_until_day -->
-<!-- transactions_before_day_on_account_and_subaccounts -->
-<!-- transaction_vectors_total -->
-<!-- vec_change_bases -->
-<!-- done: balance_until_day -->
-<!-- calling: balance_until_day -->
-<!-- transactions_before_day_on_account_and_subaccounts -->
-<!-- transaction_vectors_total -->
-<!-- vec_change_bases -->
-<!-- done: balance_until_day -->
-<!-- calling: balance_by_account -->
-<!-- checking account exists: 
-InvestmentIncome_realized_without_currency_movement_Leonteq_N
--->
-<!-- calling: balance_until_day -->
-<!-- transactions_before_day_on_account_and_subaccounts -->
-<!-- transaction_vectors_total -->
-<!-- vec_change_bases -->
-<!-- done: balance_until_day -->
-<!-- done: balance_by_account -->
-<!-- calling: balance_by_account -->
-<!-- checking account exists: 
-InvestmentIncome_realized_only_currency_movement_Leonteq_N
--->
-<!-- calling: balance_until_day -->
-<!-- transactions_before_day_on_account_and_subaccounts -->
-<!-- transaction_vectors_total -->
-<!-- vec_change_bases -->
-<!-- done: balance_until_day -->
-<!-- done: balance_by_account -->
-<!-- calling: balance_by_account -->
-<!-- checking account exists: 
-InvestmentIncome_unrealized_without_currency_movement_Leonteq_N
--->
-<!-- calling: balance_until_day -->
-<!-- transactions_before_day_on_account_and_subaccounts -->
-<!-- transaction_vectors_total -->
-<!-- vec_change_bases -->
-<!-- done: balance_until_day -->
-<!-- done: balance_by_account -->
-<!-- calling: balance_by_account -->
-<!-- checking account exists: 
-InvestmentIncome_unrealized_only_currency_movement_Leonteq_N
--->
-<!-- calling: balance_until_day -->
-<!-- transactions_before_day_on_account_and_subaccounts -->
-<!-- transaction_vectors_total -->
-<!-- vec_change_bases -->
-<!-- done: balance_until_day -->
-<!-- done: balance_by_account -->
-<!-- calling: balance_by_account -->
-<!-- checking account exists: 
-InvestmentIncome_realized
--->
-<!-- calling: balance_until_day -->
-<!-- transactions_before_day_on_account_and_subaccounts -->
-<!-- transaction_vectors_total -->
-<!-- vec_change_bases -->
-<!-- done: balance_until_day -->
-<!-- done: balance_by_account -->
-<!-- calling: balance_by_account -->
-<!-- checking account exists: 
-InvestmentIncome_unrealized
--->
-<!-- calling: balance_until_day -->
-<!-- transactions_before_day_on_account_and_subaccounts -->
-<!-- transaction_vectors_total -->
-<!-- vec_change_bases -->
-<!-- done: balance_until_day -->
-<!-- done: balance_by_account -->
-<!-- calling: balance_by_account -->
-<!-- checking account exists: 
-Banks_CHF_Bank
--->
-<!-- calling: balance_until_day -->
-<!-- transactions_before_day_on_account_and_subaccounts -->
-<!-- transaction_vectors_total -->
-<!-- vec_change_bases -->
-<!-- done: balance_until_day -->
-<!-- done: balance_by_account -->
   <xbrli:unit id="U-AUD"><xbrli:measure>iso4217:AUD</xbrli:measure></xbrli:unit>
 
 
@@ -804,36 +398,35 @@ Banks_CHF_Bank
   <basic:InvestmentIncome_unrealized_without_currency_movement contextRef="D-2018-Leonteq_N" unitRef="U-AUD" decimals="INF">40.00</basic:InvestmentIncome_unrealized_without_currency_movement>
 
 <!-- investment report:
-url: http://localhost:8080/tmp/1566325287.705949.2/investment_report.html
+url: http://localhost:8080/tmp/1566330494.8435822.2/investment_report.html
 
  -->
 
 <!-- bs html:
-url: http://localhost:8080/tmp/1566325287.705949.2/balance_sheet.html
+url: http://localhost:8080/tmp/1566330494.8435822.2/balance_sheet.html
 
  -->
 
 <!-- pl html:
-url: http://localhost:8080/tmp/1566325287.705949.2/profit_and_loss.html
+url: http://localhost:8080/tmp/1566330494.8435822.2/profit_and_loss.html
 
  -->
 
 <!-- balance sheet: -->
- <basic:Assets contextRef="I-2018" unitRef="U-AUD" decimals="INF">120.00</basic:Assets>
-  <basic:CurrentAssets contextRef="I-2018" unitRef="U-AUD" decimals="INF">-600.00</basic:CurrentAssets>
-   <basic:CashAndCashEquivalents contextRef="I-2018" unitRef="U-AUD" decimals="INF">-600.00</basic:CashAndCashEquivalents>
-    <basic:Banks contextRef="I-2018" unitRef="U-AUD" decimals="INF">-600.00</basic:Banks>
-  <basic:NoncurrentAssets contextRef="I-2018" unitRef="U-AUD" decimals="INF">720.00</basic:NoncurrentAssets>
-   <basic:FinancialInvestments contextRef="I-2018" unitRef="U-AUD" decimals="INF">720.00</basic:FinancialInvestments>
- <basic:Liabilities contextRef="I-2018" unitRef="U-AUD" decimals="INF">0.00</basic:Liabilities>
+ <basic:NetAssets contextRef="I-2018" unitRef="U-AUD" decimals="INF">120.00</basic:NetAssets>
+  <basic:Assets contextRef="I-2018" unitRef="U-AUD" decimals="INF">120.00</basic:Assets>
+   <basic:CurrentAssets contextRef="I-2018" unitRef="U-AUD" decimals="INF">-600.00</basic:CurrentAssets>
+    <basic:CashAndCashEquivalents contextRef="I-2018" unitRef="U-AUD" decimals="INF">-600.00</basic:CashAndCashEquivalents>
+     <basic:Banks contextRef="I-2018" unitRef="U-AUD" decimals="INF">-600.00</basic:Banks>
+   <basic:NoncurrentAssets contextRef="I-2018" unitRef="U-AUD" decimals="INF">720.00</basic:NoncurrentAssets>
+    <basic:FinancialInvestments contextRef="I-2018" unitRef="U-AUD" decimals="INF">720.00</basic:FinancialInvestments>
  <basic:Equity contextRef="I-2018" unitRef="U-AUD" decimals="INF">120.00</basic:Equity>
   <basic:RetainedEarnings contextRef="I-2018" unitRef="U-AUD" decimals="INF">120.00</basic:RetainedEarnings>
    <basic:CurrentEarnings contextRef="I-2018" unitRef="U-AUD" decimals="INF">80.00</basic:CurrentEarnings>
    <basic:HistoricalEarnings contextRef="I-2018" unitRef="U-AUD" decimals="INF">40.00</basic:HistoricalEarnings>
- <basic:NetAssets contextRef="I-2018" unitRef="U-AUD" decimals="INF">120.00</basic:NetAssets>
 
 <!-- profit and loss: -->
- <basic:Earnings contextRef="D-2018" unitRef="U-AUD" decimals="INF">80.00</basic:Earnings>
+ <basic:NetIncomeLoss contextRef="D-2018" unitRef="U-AUD" decimals="INF">80.00</basic:NetIncomeLoss>
   <basic:Revenue contextRef="D-2018" unitRef="U-AUD" decimals="INF">80.00</basic:Revenue>
    <basic:CurrencyMovement contextRef="D-2018" unitRef="U-AUD" decimals="INF">-200.00</basic:CurrencyMovement>
     <basic:CurrencyMovement_CHF_Bank contextRef="D-2018" unitRef="U-AUD" decimals="INF">-200.00</basic:CurrencyMovement_CHF_Bank>
@@ -843,7 +436,7 @@ url: http://localhost:8080/tmp/1566325287.705949.2/profit_and_loss.html
      <basic:InvestmentIncome_unrealized_without_currency_movement contextRef="D-2018" unitRef="U-AUD" decimals="INF">40.00</basic:InvestmentIncome_unrealized_without_currency_movement>
 
 <!-- historical profit and loss: 
- <basic:Earnings contextRef="D-2018" unitRef="U-AUD" decimals="INF">40.00</basic:Earnings>
+ <basic:NetIncomeLoss contextRef="D-2018" unitRef="U-AUD" decimals="INF">40.00</basic:NetIncomeLoss>
   <basic:Revenue contextRef="D-2018" unitRef="U-AUD" decimals="INF">40.00</basic:Revenue>
    <basic:CurrencyMovement contextRef="D-2018" unitRef="U-AUD" decimals="INF">-200.00</basic:CurrencyMovement>
     <basic:CurrencyMovement_CHF_Bank contextRef="D-2018" unitRef="U-AUD" decimals="INF">-200.00</basic:CurrencyMovement_CHF_Bank>
@@ -855,12 +448,12 @@ url: http://localhost:8080/tmp/1566325287.705949.2/profit_and_loss.html
 -->
 
 <!-- historical pl html:
-url: http://localhost:8080/tmp/1566325287.705949.2/profit_and_loss_historical.html
+url: http://localhost:8080/tmp/1566330494.8435822.2/profit_and_loss_historical.html
 
  -->
 
 <!-- investment report all time:
-url: http://localhost:8080/tmp/1566325287.705949.2/investment_report_all_time.html
+url: http://localhost:8080/tmp/1566330494.8435822.2/investment_report_all_time.html
 
  -->
 

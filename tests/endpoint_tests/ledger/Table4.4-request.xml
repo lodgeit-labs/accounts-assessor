@@ -103,14 +103,13 @@
     </actionTaxonomy>
 
 
-	
 	<accounts>
 		default_account_hierarchy.xml
 	</accounts>
-	
+
 	<accounts>
 		<Expenses>
-			<FoodExpenses>
+			<FoodExpenses/>
 		</Expenses>
 	</accounts>
 			

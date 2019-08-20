@@ -136,8 +136,17 @@ extract_account_hierarchy(Request_DOM, Account_Hierarchy) :-
 		xpath(Request_DOM, //reports/balanceSheetRequest/accounts, element(_,_,DOM)), 
 		DOMs
 	),
-	maplist(add_accounts, DOMs, Accounts),
-	flatten(Accounts, Account_Hierarchy).
+	(
+		DOMs = []
+	->
+		add_accounts(['default_account_hierarchy.xml'], Account_Hierarchy)
+	;
+		(
+			maplist(add_accounts, DOMs, Accounts),
+			flatten(Accounts, Account_Hierarchy_Unsorted),
+			sort(Account_Hierarchy_Unsorted, Account_Hierarchy)
+		)
+	).
 
 /*
 	would be simplified by a generic "load_file" or w/e, that can take either a URL
@@ -168,9 +177,10 @@ add_accounts(DOM, Accounts) :-
 	% "read_dom_from_accounts_tag"
 	(
 		%is it a tree of account tags? use it
-		DOM = [element(_,_,_)]
+		DOM = [Inner_XML],
+		Inner_XML = element(_,_,_)
 	->
-		Accounts_DOM = DOM
+		Accounts_DOM = Inner_XML
 	;
 		(
 			[Atom] = DOM,

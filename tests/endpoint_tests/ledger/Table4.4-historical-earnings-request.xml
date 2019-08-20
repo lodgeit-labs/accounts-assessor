@@ -109,7 +109,7 @@
 	
 	<accounts>
 		<Expenses>
-			<FoodExpenses>
+			<FoodExpenses/>
 		</Expenses>
 	</accounts>
 			
