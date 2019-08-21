@@ -180,7 +180,9 @@ Produced on 2019-08-09 09:56:41
   <element id="basic_InventoryValuationMethod" name="InventoryValuationMethod" type="xbrli:stringItemType" substitutionGroup="xbrli:item" xbrli:periodType="duration" nillable="true" />
   <element id="basic_InventoryWrittenOff" name="InventoryWrittenOff" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" xbrli:periodType="duration" xbrli:balance="credit" nillable="true" />
   <element id="basic_InvestmentIncome" name="InvestmentIncome" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" xbrli:periodType="instant" xbrli:balance="credit" nillable="true" />
+  <!--
   <element id="basic_InvestmentIncomeCopy" name="InvestmentIncomeCopy" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" xbrli:periodType="duration" xbrli:balance="credit" nillable="true" />
+  -->
   <element id="basic_InvestmentIncomeRollUp" name="InvestmentIncomeRollUp" type="xbrli:stringItemType" substitutionGroup="xbrli:item" xbrli:periodType="duration" nillable="true" />
   <element id="basic_InvestmentIncomerealizedonlycurrencymovement" name="InvestmentIncomerealizedonlycurrencymovement" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" xbrli:periodType="duration" xbrli:balance="credit" nillable="true" />
   <element id="basic_InvestmentIncomerealizedwithoutcurrencymovement" name="InvestmentIncomerealizedwithoutcurrencymovement" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" xbrli:periodType="duration" xbrli:balance="credit" nillable="true" />
