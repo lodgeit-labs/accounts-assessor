@@ -139,7 +139,11 @@ process_ledger(
 	
 	trial_balance_between(Exchange_Rates, Accounts, Transactions_With_Livestock, Report_Currency, End_Date, Start_Date, End_Date, [Trial_Balance_Section]),
 	(
-		trial_balance_ok(Trial_Balance_Section)
+		(
+			trial_balance_ok(Trial_Balance_Section)
+		;
+			Report_Currency = []
+		)
 	->
 		true
 	;
