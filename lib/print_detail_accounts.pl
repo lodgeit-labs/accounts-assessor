@@ -97,7 +97,7 @@ print_banks(Static_Data, Context_Id_Base, Entity_Identifier, In, Out) :-
 		),
 		Accounts_And_Points
 	),
-	print_detail_accounts(Static_Data, Context_Info, 'Bank', Accounts_And_Points, In, Out).
+	print_detail_accounts(Static_Data, Context_Info, 'Banks', Accounts_And_Points, In, Out).
 
 print_forex(Static_Data, Context_Id_Base, Entity_Identifier, In, Out) :- 
 	dict_vars(Static_Data, [Start_Date, End_Date, Accounts]),

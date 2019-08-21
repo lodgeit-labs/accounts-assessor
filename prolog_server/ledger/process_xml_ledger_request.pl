@@ -108,6 +108,7 @@ process_xml_ledger_request2(_, Dom) :-
 	/*
 		first let's extract data from the request
 	*/
+	extract_output_dimensional_facts(Dom, Output_Dimensional_Facts),
 	extract_cost_or_market(Dom, Cost_Or_Market),
 	extract_default_currency(Dom, Default_Currency),
 	extract_report_currency(Dom, Report_Currency),
@@ -137,7 +138,7 @@ process_xml_ledger_request2(_, Dom) :-
 	print_xbrl_header,
 %gtrace,
 	dict_from_vars(Static_Data,
-		[Cost_Or_Market, Start_Date, End_Date, Exchange_Rates, Accounts, Transactions, Report_Currency, Transaction_Types]),
+		[Cost_Or_Market, Output_Dimensional_Facts, Start_Date, End_Date, Exchange_Rates, Accounts, Transactions, Report_Currency, Transaction_Types]),
 	transactions_by_account(Static_Data, Transactions_By_Account),
 	% print_term(Transactions_By_Account, []),
 	Static_Data2 = Static_Data.put(accounts_transactions, Transactions_By_Account),
@@ -158,7 +159,7 @@ output_results(Static_Data0, S_Transactions, Transaction_Transformation_Debug, O
 	Static_Data.accounts = Accounts, 
 	Static_Data.transactions = Transactions, 
 	Static_Data.report_currency = Report_Currency, 
-	
+		
 	writeln("<!-- Build contexts -->"),	
 	/* build up two basic non-dimensional contexts used for simple xbrl facts */
 	date(Context_Id_Year,_,_) = End_Date,
@@ -190,8 +191,7 @@ output_results(Static_Data0, S_Transactions, Transaction_Transformation_Debug, O
 		exchange_date, Start_Date),
 	
 	profitandloss_between(Static_Data_Historical, ProftAndLoss2_Historical),
-	
-	
+
 	assertion(ground((Balance_Sheet2, ProftAndLoss2, ProftAndLoss2_Historical, Trial_Balance2))),
 	
 	format_report_entries(xbrl, Accounts, 0, Report_Currency, Instant_Context_Id_Base,  Balance_Sheet2, [], Units0, [], Bs_Lines),
@@ -206,12 +206,17 @@ output_results(Static_Data0, S_Transactions, Transaction_Transformation_Debug, O
 	pl_report(Static_Data, ProftAndLoss2, '', Pl_Html),
 	pl_report(Static_Data_Historical, ProftAndLoss2_Historical, '_historical', Pl_Html_Historical),
 
-	/* print dimensional facts */
-	Results0 = (Base_Contexts, Units3, []),
-	print_banks(Static_Data, Instant_Context_Id_Base, Entity_Identifier, Results0, Results1),
-	print_forex(Static_Data, Duration_Context_Id_Base, Entity_Identifier, Results1, Results2),
-	print_trading(Static_Data, Results2, Results3),
-	Results3 = (Contexts3, Units4, Dimensions_Lines),
+	(
+		Static_Data.output_dimensional_facts = on
+	->
+		print_dimensional_facts(Static_Data, Instant_Context_Id_Base, Duration_Context_Id_Base, Entity_Identifier, (Base_Contexts, Units3, []), (Contexts3, Units4, Dimensions_Lines))
+	;
+		(
+			Contexts3 = Base_Contexts, 
+			Units4 = Units3, 
+			Dimensions_Lines = ['<!-- off -->\n']
+		)
+	),
 
 	maplist(write_used_unit, Units4), nl, nl,
 	print_contexts(Contexts3), nl, nl,
@@ -234,6 +239,11 @@ output_results(Static_Data0, S_Transactions, Transaction_Transformation_Debug, O
 	emit_ledger_warnings(S_Transactions, Start_Date, End_Date),
 	emit_ledger_errors(Transaction_Transformation_Debug).
 
+print_dimensional_facts(Static_Data, Instant_Context_Id_Base, Duration_Context_Id_Base, Entity_Identifier, Results0, Results3) :-
+	print_banks(Static_Data, Instant_Context_Id_Base, Entity_Identifier, Results0, Results1),
+	print_forex(Static_Data, Duration_Context_Id_Base, Entity_Identifier, Results1, Results2),
+	print_trading(Static_Data, Results2, Results3).
+	
 investment_reports(Static_Data, Outstanding, Investment_Report_2_Lines, Investment_Report_2_All_Time_Lines) :-
 	catch( /*fixme*/
 		(
@@ -404,9 +414,23 @@ extract_cost_or_market(Dom, Cost_Or_Market) :-
 		)
 	;
 		Cost_Or_Market = market
-	)
-	.
+	).
 	
+extract_output_dimensional_facts(Dom, Output_Dimensional_Facts) :-
+	(
+		inner_xml(Dom, //reports/balanceSheetRequest/outputDimensionalFacts, [Output_Dimensional_Facts])
+	->
+		(
+			member(Output_Dimensional_Facts, [on, off])
+		->
+			true
+		;
+			throw_string('//reports/balanceSheetRequest/outputDimensionalFacts tag\'s content must be "on" or "off"')
+		)
+	;
+		Output_Dimensional_Facts = on
+	).
 	
+
 	
 	
