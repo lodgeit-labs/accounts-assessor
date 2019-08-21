@@ -111,8 +111,10 @@ Produced on 2019-08-09 09:56:41
     <presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="basic_ExpensesRollUp" xlink:to="basic_ForexLoss" order="2" use="optional" />
     <loc xlink:type="locator" xlink:href="basic.xsd#basic_Expenses" xlink:label="basic_Expenses" />
     <presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="basic_ExpensesRollUp" xlink:to="basic_Expenses" order="3" use="optional" />
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_CurrencyMovement" xlink:label="basic_CurrencyMovement" />
+    <presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="basic_NetIncomeLossRollUp" xlink:to="basic_CurrencyMovement" order="3" use="optional" />
     <loc xlink:type="locator" xlink:href="basic.xsd#basic_NetIncomeLoss" xlink:label="basic_NetIncomeLoss" />
-    <presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="basic_NetIncomeLossRollUp" xlink:to="basic_NetIncomeLoss" order="3" use="optional" />
+    <presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="basic_NetIncomeLossRollUp" xlink:to="basic_NetIncomeLoss" order="4" use="optional" />
   </presentationLink>
   <presentationLink xlink:type="extended" xlink:role="http://www.xbrlsite.com/basic/role/CashFlowStatement">
     <loc xlink:type="locator" xlink:href="basic.xsd#basic_CashFlowStatementRollForward" xlink:label="basic_CashFlowStatementRollForward" />
