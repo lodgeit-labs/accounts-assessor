@@ -188,7 +188,7 @@ ensure_gains_accounts_exist(Accounts_In, S_Transactions, Transaction_Types, Acco
 			Accounts_In, 
 			[
 				([realized, unrealized], 0), 
-				([without_currency_movement, only_currency_movement], 0),
+				([withoutcurrencymovement, onlycurrencymovement], 0),
 				(Units, 1)
 			]
 		), 
@@ -243,7 +243,7 @@ ensure_account_exists(Accounts_In, Parent_Id, Detail_Level, Role, Account) :-
 	;
 		(
 			replace_nonalphanum_chars_with_underscore(Child_Role_Raw, Child_Role_Safe),
-			atomic_list_concat([Parent_Id, '_', Child_Role_Safe], Id),
+			atomic_list_concat([Parent_Id, '', Child_Role_Safe], Id),
 			free_id(Accounts_In, Id, Free_Id),
 			account_role(Account, Role),
 			account_parent(Account, Parent_Id),

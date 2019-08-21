@@ -321,8 +321,8 @@ gains_accounts(
 	Excluding_Forex_Account
 ) :-
 	account_by_role(Accounts, (Trading_Account_Id/Realized_Or_Unrealized), Unrealized_Gains_Account),
-	account_by_role(Accounts, (Unrealized_Gains_Account/only_currency_movement), Unrealized_Gains_Currency_Movement),
-	account_by_role(Accounts, (Unrealized_Gains_Account/without_currency_movement), Unrealized_Gains_Excluding_Forex),
+	account_by_role(Accounts, (Unrealized_Gains_Account/onlycurrencymovement), Unrealized_Gains_Currency_Movement),
+	account_by_role(Accounts, (Unrealized_Gains_Account/withoutcurrencymovement), Unrealized_Gains_Excluding_Forex),
 	account_by_role(Accounts, (Unrealized_Gains_Currency_Movement/Goods_Unit), Currency_Movement_Account),
 	account_by_role(Accounts, (Unrealized_Gains_Excluding_Forex/Goods_Unit), Excluding_Forex_Account).
 

@@ -263,8 +263,8 @@ strip_unit_costs(V1, V3) :-
 	
 	
 investment_report3_lines(Static_Data, Trading_Account, Unit, Gains_Role, Lines, Total) :-
-	investment_report3_balance(Static_Data, Trading_Account, Gains_Role, without_currency_movement, Unit, Gains_Market_Balance, Gains_Market_Lines),
-	investment_report3_balance(Static_Data, Trading_Account, Gains_Role, only_currency_movement, Unit, Gains_Forex_Balance, Gains_Forex_Lines),
+	investment_report3_balance(Static_Data, Trading_Account, Gains_Role, withoutcurrencymovement, Unit, Gains_Market_Balance, Gains_Market_Lines),
+	investment_report3_balance(Static_Data, Trading_Account, Gains_Role, onlycurrencymovement, Unit, Gains_Forex_Balance, Gains_Forex_Lines),
 	vec_add(Gains_Market_Balance, Gains_Forex_Balance, Total),
 	Lines = (Gains_Role, Gains_Market_Lines, Gains_Forex_Lines).
 
@@ -282,7 +282,7 @@ units_traded_on_trading_account(Accounts, Trading_Account, All_Units_Roles) :-
 		(
 			member(Gains_Role, [realized, unrealized]),
 			account_by_role(Accounts, (Trading_Account/Gains_Role), Gains_Account),
-			member(Forex_Role, [without_currency_movement, only_currency_movement]),
+			member(Forex_Role, [withoutcurrencymovement, onlycurrencymovement]),
 			account_by_role(Accounts, (Gains_Account/Forex_Role), Forex_Account),
 			account_child_parent(Accounts, Unit_Account_Id, Forex_Account),
 			account_role_by_id(Accounts, Unit_Account_Id, (_Parent_Id/Unit_Account_Role))
