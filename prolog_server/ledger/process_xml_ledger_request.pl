@@ -289,7 +289,7 @@ prepare_unique_taxonomy_url(Taxonomy_Dir_Url) :-
    server_public_url(Server_Public_Url),
    atomic_list_concat([Server_Public_Url, '/tmp/', Tmp_Dir, '/taxonomy/'], Taxonomy_Dir_Url),
    my_tmp_file_name('/taxonomy', Tmp_Taxonomy),
-   absolute_file_name(my_taxonomy('/'), Static_Taxonomy, [file_type(directory)]),
+   absolute_file_name(my_static('taxonomy/'), Static_Taxonomy, [file_type(directory)]),
    atomic_list_concat(['ln -s ', Static_Taxonomy, ' ', Tmp_Taxonomy], Cmd),
    shell(Cmd, 0).
 
