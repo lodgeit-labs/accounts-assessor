@@ -158,9 +158,12 @@ Produced on 2019-08-09 09:56:41
     <labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="basic_InventoryWrittenOff" xlink:to="basic_InventoryWrittenOff_lbl" />
     <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/label" xlink:label="basic_InventoryWrittenOff_lbl" xml:lang="en">Inventory Written Off</label>
     <label xlink:type="resource" xlink:role="http://www.xbrl.org/2009/role/negatedLabel" xlink:label="basic_InventoryWrittenOff_lbl" xml:lang="en">Inventory Written Off</label>
+
     <loc xlink:type="locator" xlink:href="basic.xsd#basic_InvestmentIncome" xlink:label="basic_InvestmentIncome" />
     <labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="basic_InvestmentIncome" xlink:to="basic_InvestmentIncome_lbl" />
     <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/label" xlink:label="basic_InvestmentIncome_lbl" xml:lang="en">Investment Income</label>
+
+
     <loc xlink:type="locator" xlink:href="basic.xsd#basic_InvestmentIncomeRollUp" xlink:label="basic_InvestmentIncomeRollUp" />
     <labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="basic_InvestmentIncomeRollUp" xlink:to="basic_InvestmentIncomeRollUp_lbl" />
     <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/label" xlink:label="basic_InvestmentIncomeRollUp_lbl" xml:lang="en">Investment Income [Roll Up]</label>
@@ -180,9 +183,7 @@ Produced on 2019-08-09 09:56:41
     <labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="basic_InvestmentIncomeunrealizedwithoutcurrencymovement" xlink:to="basic_InvestmentIncomeunrealizedwithoutcurrencymovement_lbl" />
     <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/documentation" xlink:label="basic_InvestmentIncomeunrealizedwithoutcurrencymovement_lbl" xml:lang="en">Sed eu nibh. Fusce vitae mi. Sed dapibus venenatis ipsum. Sed in purus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos hymenaeos.</label>
     <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/label" xlink:label="basic_InvestmentIncomeunrealizedwithoutcurrencymovement_lbl" xml:lang="en">Unrealized Market</label>
-    <loc xlink:type="locator" xlink:href="basic.xsd#basic_InvestmentIncome" xlink:label="basic_InvestmentIncome" />
-    <labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="basic_InvestmentIncome" xlink:to="basic_InvestmentIncome_lbl" />
-    <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/label" xlink:label="basic_InvestmentIncome_lbl" xml:lang="en">Investment Income</label>
+
     <loc xlink:type="locator" xlink:href="basic.xsd#basic_InvestmentReportHierarchy" xlink:label="basic_InvestmentReportHierarchy" />
     <labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="basic_InvestmentReportHierarchy" xlink:to="basic_InvestmentReportHierarchy_lbl" />
     <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/documentation" xlink:label="basic_InvestmentReportHierarchy_lbl" xml:lang="en">Praesent fringilla feugiat magna. Suspendisse et lorem eu risus convallis placerat.</label>

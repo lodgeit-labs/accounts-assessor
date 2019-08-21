@@ -89,6 +89,8 @@ Produced on 2019-08-09 09:56:41
     <loc xlink:type="locator" xlink:href="basic.xsd#basic_NetIncomeLossRollUp" xlink:label="basic_NetIncomeLossRollUp" />
     <loc xlink:type="locator" xlink:href="basic.xsd#basic_RevenueRollUp" xlink:label="basic_RevenueRollUp" />
     <presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="basic_NetIncomeLossRollUp" xlink:to="basic_RevenueRollUp" order="1" use="optional" />
+
+
     <loc xlink:type="locator" xlink:href="basic.xsd#basic_InvestmentIncomeRollUp" xlink:label="basic_InvestmentIncomeRollUp" />
     <presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="basic_RevenueRollUp" xlink:to="basic_InvestmentIncomeRollUp" order="1" use="optional" />
     <loc xlink:type="locator" xlink:href="basic.xsd#basic_InterestEarned" xlink:label="basic_InterestEarned" />
@@ -99,8 +101,11 @@ Produced on 2019-08-09 09:56:41
     <presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="basic_InvestmentIncomeRollUp" xlink:to="basic_CapitalGain" order="3" use="optional" />
     <loc xlink:type="locator" xlink:href="basic.xsd#basic_ForexGain" xlink:label="basic_ForexGain" />
     <presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="basic_InvestmentIncomeRollUp" xlink:to="basic_ForexGain" order="4" use="optional" />
+
+
     <loc xlink:type="locator" xlink:href="basic.xsd#basic_InvestmentIncome" xlink:label="basic_InvestmentIncome" />
     <presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="basic_InvestmentIncomeRollUp" xlink:to="basic_InvestmentIncome" order="5" use="optional" />
+
     <loc xlink:type="locator" xlink:href="basic.xsd#basic_Revenue" xlink:label="basic_Revenue" />
     <presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="basic_RevenueRollUp" xlink:to="basic_Revenue" order="2" use="optional" />
     <loc xlink:type="locator" xlink:href="basic.xsd#basic_ExpensesRollUp" xlink:label="basic_ExpensesRollUp" />
