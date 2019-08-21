@@ -7,193 +7,176 @@
   exchange_rate(date(2018,6,30),'TLS','AUD',5)
 ]
 
-Action_Taxonomy extracted:
-[ transaction_type('Transfers','Clearing_Account',_,_),
+Transaction_Types extracted:
+[ transaction_type('Transfers','ClearingAccount',_,_),
   transaction_type('Invest_In',
-		   'Financial_Investments',
-		   'Investment_Income',
+		   'FinancialInvestments',
+		   'InvestmentIncome',
 		   'Shares'),
   transaction_type('Dispose_Of',
-		   'Financial_Investments',
-		   'Investment_Income',
+		   'FinancialInvestments',
+		   'InvestmentIncome',
 		   'Shares'),
-  transaction_type('Bank_Charges','Bank_Charges',_,_),
-  transaction_type('Expenses','Other_Expenses',_,_),
-  transaction_type('Gain','Other_Gain',_,_),
-  transaction_type('Loss','Share_Capital',_,'No Description'),
+  transaction_type('Bank_Charges','BankCharges',_,_),
+  transaction_type('Expenses','OtherExpenses',_,_),
+  transaction_type('Gain','OtherGain',_,_),
+  transaction_type('Loss','ShareCapital',_,'No Description'),
   transaction_type('Income','Income',_,_),
-  transaction_type('Interest_Income','Interest_Income',_,_),
-  transaction_type('Interest_Expenses','Interest_Expenses',_,_),
-  transaction_type('Borrow','Noncurrent_Loans',_,_),
+  transaction_type('Interest_Income','InterestIncome',_,_),
+  transaction_type('Interest_Expenses','InterestExpenses',_,_),
+  transaction_type('Borrow','NoncurrentLoans',_,_),
   transaction_type('Introduce_Capital',
-		   'Share_Capital',
+		   'ShareCapital',
 		   _,
 		   'Unit_Investment'),
-  transaction_type('Pay_Bank','Bank_Charges',_,'No Description'),
+  transaction_type('Pay_Bank','BankCharges',_,'No Description'),
   transaction_type('Accountancy_Fees',
-		   'Accountancy_Fees',
+		   'AccountancyFees',
 		   _,
 		   'No Description')
 ]
 
-Account_Hierarchy extracted:
-[ account('Net_Assets','Accounts','Accounts'/'Net_Assets',0),
-  account('Assets','Net_Assets','Accounts'/'Assets',0),
-  account('Current_Assets','Assets','Accounts'/'Current_Assets',0),
-  account('Cash_And_Cash_Equivalents',
-	  'Current_Assets',
-	  'Accounts' / 'Cash_And_Cash_Equivalents',
+Accounts extracted:
+[ account('AccountingFees','Expenses','Accounts'/'AccountingFees',0),
+  account('Accounts',accountHierarchy,'Accounts'/'Accounts',0),
+  account('Assets','NetAssets','Accounts'/'Assets',0),
+  account('AssetsLivestock','CurrentAssets','Accounts'/'AssetsLivestock',0),
+  account('AssetsLivestockAtAverageCost',
+	  'AssetsLivestock',
+	  'Accounts' / 'AssetsLivestockAtAverageCost',
 	  0),
-  account('Banks','Cash_And_Cash_Equivalents','Accounts'/'Banks',0),
-  account('Assets_Livestock','Current_Assets','Accounts'/'Assets_Livestock',0),
-  account('Assets_Livestock_At_Cost',
-	  'Assets_Livestock',
-	  'Accounts' / 'Assets_Livestock_At_Cost',
+  account('AssetsLivestockAtCost',
+	  'AssetsLivestock',
+	  'Accounts' / 'AssetsLivestockAtCost',
 	  0),
-  account('Assets_Livestock_At_Average_Cost',
-	  'Assets_Livestock',
-	  'Accounts' / 'Assets_Livestock_At_Average_Cost',
+  account('BankCharges','Expenses','Accounts'/'BankCharges',0),
+  account('Banks','CashAndCashEquivalents','Accounts'/'Banks',0),
+  account('CapitalIntroduced','Equity','Accounts'/'CapitalIntroduced',0),
+  account('CashAndCashEquivalents',
+	  'CurrentAssets',
+	  'Accounts' / 'CashAndCashEquivalents',
 	  0),
-  account('Noncurrent_Assets','Assets','Accounts'/'Noncurrent_Assets',0),
-  account('Financial_Investments',
-	  'Noncurrent_Assets',
-	  'Accounts' / 'Financial_Investments',
+  account('ClearingAccount','Revenue','Accounts'/'ClearingAccount',0),
+  account('CostOfGoodsLivestock',
+	  'Expenses',
+	  'Accounts' / 'CostOfGoodsLivestock',
 	  0),
-  account('Liabilities','Net_Assets','Accounts'/'Liabilities',0),
-  account('Noncurrent_Liabilities',
-	  'Liabilities',
-	  'Accounts' / 'Noncurrent_Liabilities',
-	  0),
-  account('Noncurrent_Loans',
-	  'Noncurrent_Liabilities',
-	  'Accounts' / 'Noncurrent_Loans',
-	  0),
-  account('Current_Liabilities',
-	  'Liabilities',
-	  'Accounts' / 'Current_Liabilities',
-	  0),
-  account('Current_Loans','Current_Liabilities','Accounts'/'Current_Loans',0),
-  account('Equity','Accounts','Accounts'/'Equity',0),
-  account('Share_Capital','Equity','Accounts'/'Share_Capital',0),
-  account('Retained_Earnings','Equity','Accounts'/'Retained_Earnings',0),
-  account('Historical_Earnings',
-	  'Retained_Earnings',
-	  'Accounts' / 'Historical_Earnings',
-	  0),
-  account('Current_Earnings',
-	  'Retained_Earnings',
-	  'Accounts' / 'Current_Earnings',
-	  0),
-  account('Capital_Introduced','Equity','Accounts'/'Capital_Introduced',0),
+  account('CurrencyMovement','Revenue','Accounts'/'CurrencyMovement',0),
+  account('CurrentAssets','Assets','Accounts'/'CurrentAssets',0),
+  account('CurrentEarnings','RetainedEarnings','Accounts'/'CurrentEarnings',0),
+  account('CurrentLiabilities','Liabilities','Accounts'/'CurrentLiabilities',0),
+  account('CurrentLoans','CurrentLiabilities','Accounts'/'CurrentLoans',0),
   account('Drawings','Equity','Accounts'/'Drawings',0),
-  account('Earnings','Accounts','Accounts'/'Earnings',0),
-  account('Revenue','Earnings','Accounts'/'Revenue',0),
-  account('Clearing_Account','Revenue','Accounts'/'Clearing_Account',0),
+  account('EarningsFinancialInvestments',
+	  'OtherIncome',
+	  'Accounts' / 'EarningsFinancialInvestments',
+	  0),
+  account('Equity','Accounts','Accounts'/'Equity',0),
+  account('ExchangeGain','OtherIncome','Accounts'/'ExchangeGain',0),
+  account('Expenses','NetIncomeLoss','Accounts'/'Expenses',0),
+  account('FinancialInvestments',
+	  'NoncurrentAssets',
+	  'Accounts' / 'FinancialInvestments',
+	  0),
+  account('ForexLoss','Expenses','Accounts'/'ForexLoss',0),
+  account('HistoricalEarnings',
+	  'RetainedEarnings',
+	  'Accounts' / 'HistoricalEarnings',
+	  0),
   account('Income','Revenue','Accounts'/'Income',0),
-  account('Investment_Income','Revenue','Accounts'/'Investment_Income',0),
-  account('Other_Income','Revenue','Accounts'/'Other_Income',0),
-  account('Interest_Income','Other_Income','Accounts'/'Interest_Income',0),
-  account('Interest_Earned','Other_Income','Accounts'/'Interest_Earned',0),
-  account('Earnings_Financial_Investments',
-	  'Other_Income',
-	  'Accounts' / 'Earnings_Financial_Investments',
+  account('InterestEarned','OtherIncome','Accounts'/'InterestEarned',0),
+  account('InterestExpenses','Expenses','Accounts'/'InterestExpenses',0),
+  account('InterestIncome','OtherIncome','Accounts'/'InterestIncome',0),
+  account('InvestmentIncome','Revenue','Accounts'/'InvestmentIncome',0),
+  account('Liabilities','NetAssets','Accounts'/'Liabilities',0),
+  account('LivestockAdjustment','Expenses','Accounts'/'LivestockAdjustment',0),
+  account('NetAssets','Accounts','Accounts'/'NetAssets',0),
+  account('NetIncomeLoss','Accounts','Accounts'/'NetIncomeLoss',0),
+  account('NoncurrentAssets','Assets','Accounts'/'NoncurrentAssets',0),
+  account('NoncurrentLiabilities',
+	  'Liabilities',
+	  'Accounts' / 'NoncurrentLiabilities',
 	  0),
-  account('Exchange_Gain','Other_Income','Accounts'/'Exchange_Gain',0),
-  account('Sales_Of_Livestock','Revenue','Accounts'/'Sales_Of_Livestock',0),
-  account('Rations_Revenue','Revenue','Accounts'/'Rations_Revenue',0),
-  account('Other_Gain','Revenue','Accounts'/'Other_Gain',0),
-  account('Currency_Movement','Revenue','Accounts'/'Currency_Movement',0),
-  account('Expenses','Earnings','Accounts'/'Expenses',0),
-  account('Bank_Charges','Expenses','Accounts'/'Bank_Charges',0),
-  account('Accounting_Fees','Expenses','Accounts'/'Accounting_Fees',0),
-  account('Forex_Loss','Expenses','Accounts'/'Forex_Loss',0),
-  account('Interest_Expenses','Expenses','Accounts'/'Interest_Expenses',0),
-  account('Livestock_Adjustment',
-	  'Expenses',
-	  'Accounts' / 'Livestock_Adjustment',
+  account('NoncurrentLoans',
+	  'NoncurrentLiabilities',
+	  'Accounts' / 'NoncurrentLoans',
 	  0),
+  account('OtherExpenses','Expenses','Accounts'/'OtherExpenses',0),
+  account('OtherGain','Revenue','Accounts'/'OtherGain',0),
+  account('OtherIncome','Revenue','Accounts'/'OtherIncome',0),
   account('Purchases','Expenses','Accounts'/'Purchases',0),
-  account('Cost_Of_Goods_Livestock',
-	  'Expenses',
-	  'Accounts' / 'Cost_Of_Goods_Livestock',
-	  0),
-  account('Other_Expenses','Expenses','Accounts'/'Other_Expenses',0),
-  account('Food_Expenses','Expenses','Accounts'/'Food_Expenses',0)
+  account('RationsRevenue','Revenue','Accounts'/'RationsRevenue',0),
+  account('RetainedEarnings','Equity','Accounts'/'RetainedEarnings',0),
+  account('Revenue','NetIncomeLoss','Accounts'/'Revenue',0),
+  account('SalesOfLivestock','Revenue','Accounts'/'SalesOfLivestock',0),
+  account('ShareCapital','Equity','Accounts'/'ShareCapital',0)
 ]
 
 -->
 
 
+<!--generate system accounts...-->
+<!--...generated system accounts-->
 
 <!--Generated accounts:
-[ account('Banks_NationalAustraliaBank',
+[ account('Inventory',accountHierarchy,accountHierarchy/'Inventory',0),
+  account('LivestockCount','Inventory','Inventory'/'LivestockCount',0),
+  account('Banks_NationalAustraliaBank',
 	  'Banks',
 	  'Banks' / 'NationalAustraliaBank',
 	  1),
   account('Banks_WellsFargo','Banks','Banks'/'WellsFargo',1),
-  account('Currency_Movement_NationalAustraliaBank',
-	  'Currency_Movement',
-	  'Currency_Movement' / 'NationalAustraliaBank',
+  account('CurrencyMovement_NationalAustraliaBank',
+	  'CurrencyMovement',
+	  'CurrencyMovement' / 'NationalAustraliaBank',
 	  0),
-  account('Currency_Movement_WellsFargo',
-	  'Currency_Movement',
-	  'Currency_Movement' / 'WellsFargo',
+  account('CurrencyMovement_WellsFargo',
+	  'CurrencyMovement',
+	  'CurrencyMovement' / 'WellsFargo',
 	  0),
-  account('Investment_Income_realized',
-	  'Investment_Income',
-	  'Investment_Income' / realized,
+  account('InvestmentIncome_realized',
+	  'InvestmentIncome',
+	  'InvestmentIncome' / realized,
 	  0),
-  account('Investment_Income_realized_only_currency_movement',
-	  'Investment_Income_realized',
-	  'Investment_Income_realized' / only_currency_movement,
+  account('InvestmentIncome_realized_only_currency_movement',
+	  'InvestmentIncome_realized',
+	  'InvestmentIncome_realized' / only_currency_movement,
 	  0),
-  account('Investment_Income_realized_only_currency_movement_BHP',
-	  'Investment_Income_realized_only_currency_movement',
-	  'Investment_Income_realized_only_currency_movement' / 'BHP',
+  account('InvestmentIncome_realized_only_currency_movement_BHP',
+	  'InvestmentIncome_realized_only_currency_movement',
+	  'InvestmentIncome_realized_only_currency_movement' / 'BHP',
 	  1),
-  account('Investment_Income_realized_only_currency_movement_TLS',
-	  'Investment_Income_realized_only_currency_movement',
-	  'Investment_Income_realized_only_currency_movement' / 'TLS',
-	  1),
-  account('Investment_Income_realized_without_currency_movement',
-	  'Investment_Income_realized',
-	  'Investment_Income_realized' / without_currency_movement,
+  account('InvestmentIncome_realized_without_currency_movement',
+	  'InvestmentIncome_realized',
+	  'InvestmentIncome_realized' / without_currency_movement,
 	  0),
-  account('Investment_Income_realized_without_currency_movement_BHP',
-	  'Investment_Income_realized_without_currency_movement',
-	  'Investment_Income_realized_without_currency_movement' / 'BHP',
+  account('InvestmentIncome_realized_without_currency_movement_BHP',
+	  'InvestmentIncome_realized_without_currency_movement',
+	  'InvestmentIncome_realized_without_currency_movement' / 'BHP',
 	  1),
-  account('Investment_Income_realized_without_currency_movement_TLS',
-	  'Investment_Income_realized_without_currency_movement',
-	  'Investment_Income_realized_without_currency_movement' / 'TLS',
-	  1),
-  account('Investment_Income_unrealized',
-	  'Investment_Income',
-	  'Investment_Income' / unrealized,
+  account('InvestmentIncome_unrealized',
+	  'InvestmentIncome',
+	  'InvestmentIncome' / unrealized,
 	  0),
-  account('Investment_Income_unrealized_only_currency_movement',
-	  'Investment_Income_unrealized',
-	  'Investment_Income_unrealized' / only_currency_movement,
+  account('InvestmentIncome_unrealized_only_currency_movement',
+	  'InvestmentIncome_unrealized',
+	  'InvestmentIncome_unrealized' / only_currency_movement,
 	  0),
-  account('Investment_Income_unrealized_only_currency_movement_BHP',
-	  'Investment_Income_unrealized_only_currency_movement',
-	  'Investment_Income_unrealized_only_currency_movement' / 'BHP',
+  account('InvestmentIncome_unrealized_only_currency_movement_BHP',
+	  'InvestmentIncome_unrealized_only_currency_movement',
+	  'InvestmentIncome_unrealized_only_currency_movement' / 'BHP',
 	  1),
-  account('Investment_Income_unrealized_only_currency_movement_TLS',
-	  'Investment_Income_unrealized_only_currency_movement',
-	  'Investment_Income_unrealized_only_currency_movement' / 'TLS',
-	  1),
-  account('Investment_Income_unrealized_without_currency_movement',
-	  'Investment_Income_unrealized',
-	  'Investment_Income_unrealized' / without_currency_movement,
+  account('InvestmentIncome_unrealized_without_currency_movement',
+	  'InvestmentIncome_unrealized',
+	  'InvestmentIncome_unrealized' / without_currency_movement,
 	  0),
-  account('Investment_Income_unrealized_without_currency_movement_BHP',
-	  'Investment_Income_unrealized_without_currency_movement',
-	  'Investment_Income_unrealized_without_currency_movement' / 'BHP',
+  account('InvestmentIncome_unrealized_without_currency_movement_BHP',
+	  'InvestmentIncome_unrealized_without_currency_movement',
+	  'InvestmentIncome_unrealized_without_currency_movement' / 'BHP',
 	  1),
-  account('Investment_Income_unrealized_without_currency_movement_TLS',
-	  'Investment_Income_unrealized_without_currency_movement',
-	  'Investment_Income_unrealized_without_currency_movement' / 'TLS',
+  account('FinancialInvestments_BHP',
+	  'FinancialInvestments',
+	  'FinancialInvestments' / 'BHP',
 	  1)
 ]
 
@@ -207,144 +190,85 @@ s_transaction(date(2017,7,1),
 	      [coord('USD',200,0)],
 	      'WellsFargo',
 	      vector([]))==>
-[ transaction(date(2017,7,1),
-	      'Unit_Investment',
-	      'Banks_WellsFargo',
-	      [coord('USD',200,0)]),
-  transaction(date(2017,7,1),
-	      'Unit_Investment - currency movement adjustment',
-	      'Currency_Movement_WellsFargo',
-	      [coord('AUD',260.1118,0.0),coord('USD',0,200)]),
-  transaction(date(2017,7,1),
-	      'Unit_Investment',
-	      'Share_Capital',
-	      [coord('AUD',0.0,260.1118)])
-]
+date(2017,7,1): Banks_WellsFargo
+  Introduce_Capital - incoming money
+  DR:U1:coord('USD',200,0)
+
+date(2017,7,1): CurrencyMovement_WellsFargo
+  Introduce_Capital - incoming money - currency movement adjustment - only current period
+  CR:U1:coord('USD',0,200)
+  DR:U2:coord(without_currency_movement_against_since('USD','USD',['AUD'],date(2017,7,1)),200,0)
+
+date(2017,7,1): ShareCapital
+  Introduce_Capital
+  CR:U3:coord('AUD',0.0,260.1118)
+
+
 ====
 s_transaction(date(2017,7,10),
 	      'Invest_In',
 	      [coord('USD',0.0,100.0)],
 	      'WellsFargo',
 	      vector([coord('BHP',10,0)]))==>
-[ transaction(date(2017,7,10),
-	      'Shares',
-	      'Banks_WellsFargo',
-	      [coord('USD',0.0,100.0)]),
-  transaction(date(2017,7,10),
-	      'Shares - currency movement adjustment',
-	      'Currency_Movement_WellsFargo',
-	      [coord('AUD',0.0,131.464),coord('USD',100.0,0.0)]),
-  transaction(date(2017,7,10),
-	      'Shares',
-	      'Financial_Investments',
-	      [coord(with_cost_per_unit('BHP',value('AUD',13.1464)),10,0)]),
-  transaction(date(2017,7,10),
-	      'comment:?, comment2:?',
-	      'Investment_Income_unrealized_only_currency_movement_BHP',
-	      [ coord(without_currency_movement_against_since(with_cost_per_unit('BHP',
-										 value('AUD',
-										       13.1464)),
-							      'USD',
-							      ['AUD'],
-							      date(2017,
-								   7,
-								   10)),
-		      10,
-		      0),
-		coord(with_cost_per_unit('BHP',value('AUD',13.1464)),0,10)
-	      ]),
-  transaction(date(2017,7,10),
-	      'comment:?, comment2:?',
-	      'Investment_Income_unrealized_without_currency_movement_BHP',
-	      [ coord('AUD',131.464,0),
-		coord(without_currency_movement_against_since(with_cost_per_unit('BHP',
-										 value('AUD',
-										       13.1464)),
-							      'USD',
-							      ['AUD'],
-							      date(2017,
-								   7,
-								   10)),
-		      0,
-		      10)
-	      ])
-]
+date(2017,7,10): Banks_WellsFargo
+  Invest_In - outgoing money
+  CR:U4:coord('USD',0.0,100.0)
+
+date(2017,7,10): CurrencyMovement_WellsFargo
+  Invest_In - outgoing money - currency movement adjustment - only current period
+  DR:U4:coord('USD',100.0,0.0)
+  CR:U5:coord(without_currency_movement_against_since('USD','USD',['AUD'],date(2017,7,10)),0.0,100.0)
+
+date(2017,7,10): FinancialInvestments_BHP
+  Invest_In
+  DR:U6:coord('BHP',10,0)
+
+date(2017,7,10): InvestmentIncome_unrealized_only_currency_movement_BHP
+  comment:?, comment2:Invest_In - single period
+  CR:U6:coord('BHP',0,10)
+  DR:U7:coord(without_currency_movement_against_since('BHP','USD',['AUD'],date(2017,7,10)),10,0)
+
+date(2017,7,10): InvestmentIncome_unrealized_without_currency_movement_BHP
+  comment:?, comment2:Invest_In - single period
+  CR:U7:coord(without_currency_movement_against_since('BHP','USD',['AUD'],date(2017,7,10)),0,10)
+  DR:U8:coord('AUD',131.464,0)
+
+
 ====
 s_transaction(date(2017,8,1),
 	      'Borrow',
 	      [coord('AUD',100,0)],
 	      'NationalAustraliaBank',
 	      vector([]))==>
-[ transaction(date(2017,8,1),
-	      ?,
-	      'Banks_NationalAustraliaBank',
-	      [coord('AUD',100,0)]),
-  transaction(date(2017,8,1),?,'Noncurrent_Loans',[coord('AUD',0.0,100.0)])
-]
+date(2017,8,1): Banks_NationalAustraliaBank
+  Borrow - incoming money
+  DR:U9:coord('AUD',100,0)
+
+date(2017,8,1): NoncurrentLoans
+  Borrow
+  CR:U9:coord('AUD',0.0,100.0)
+
+
 ====
 s_transaction(date(2018,6,28),
 	      'Pay_Bank',
 	      [coord('USD',0.0,10)],
 	      'WellsFargo',
 	      vector([]))==>
-[ transaction(date(2018,6,28),
-	      'No Description',
-	      'Banks_WellsFargo',
-	      [coord('USD',0.0,10)]),
-  transaction(date(2018,6,28),
-	      'No Description - currency movement adjustment',
-	      'Currency_Movement_WellsFargo',
-	      [coord('AUD',0.0,13.60971),coord('USD',10.0,0.0)]),
-  transaction(date(2018,6,28),
-	      'No Description',
-	      'Bank_Charges',
-	      [coord('AUD',13.60971,0.0)])
-]
-====
-s_transaction(date(2018,8,2),
-	      'Invest_In',
-	      [coord('AUD',0,50)],
-	      'NationalAustraliaBank',
-	      vector([coord('TLS',10,0)]))==>
-[ transaction(date(2018,8,2),
-	      'Shares',
-	      'Banks_NationalAustraliaBank',
-	      [coord('AUD',0,50)]),
-  transaction(date(2018,8,2),
-	      'Shares',
-	      'Financial_Investments',
-	      [coord(with_cost_per_unit('TLS',value('AUD',5.0)),10,0)]),
-  transaction(date(2018,8,2),
-	      'comment:?, comment2:?',
-	      'Investment_Income_unrealized_only_currency_movement_TLS',
-	      [ coord(without_currency_movement_against_since(with_cost_per_unit('TLS',
-										 value('AUD',
-										       5.0)),
-							      'AUD',
-							      ['AUD'],
-							      date(2018,
-								   8,
-								   2)),
-		      10,
-		      0),
-		coord(with_cost_per_unit('TLS',value('AUD',5.0)),0,10)
-	      ]),
-  transaction(date(2018,8,2),
-	      'comment:?, comment2:?',
-	      'Investment_Income_unrealized_without_currency_movement_TLS',
-	      [ coord('AUD',50.0,0),
-		coord(without_currency_movement_against_since(with_cost_per_unit('TLS',
-										 value('AUD',
-										       5.0)),
-							      'AUD',
-							      ['AUD'],
-							      date(2018,
-								   8,
-								   2)),
-		      0,
-		      10)
-	      ])
-]
+date(2018,6,28): Banks_WellsFargo
+  Pay_Bank - outgoing money
+  CR:U10:coord('USD',0.0,10)
+
+date(2018,6,28): CurrencyMovement_WellsFargo
+  Pay_Bank - outgoing money - currency movement adjustment - only current period
+  DR:U10:coord('USD',10.0,0.0)
+  CR:U11:coord(without_currency_movement_against_since('USD','USD',['AUD'],date(2018,6,28)),0.0,10.0)
+
+date(2018,6,28): BankCharges
+  Pay_Bank
+  DR:U12:coord('AUD',13.60971,0.0)
+
+
 ====
 done.
 
@@ -353,55 +277,44 @@ done.
 
 
 <!--Exchange rates2:
-[ [exchange_rate(date(2017,7,1),'USD','AUD',1.300559)],
+[ [ exchange_rate(date(2017,7,1),'USD','AUD',1.300559),
+    exchange_rate(date(2017,7,1),
+		  without_currency_movement_against_since('USD',
+							  'USD',
+							  ['AUD'],
+							  date(2017,
+							       7,
+							       1)),
+		  'AUD',
+		  1.300559)
+  ],
   [ exchange_rate(date(2017,7,10),'USD','AUD',1.31464),
     exchange_rate(date(2017,7,10),
-		  with_cost_per_unit('BHP',value('AUD',13.1464)),
-		  'AUD',
-		  13.1464),
-    exchange_rate(date(2017,7,10),
-		  without_currency_movement_against_since(with_cost_per_unit('BHP',
-									     value('AUD',
-										   13.1464)),
+		  without_currency_movement_against_since('USD',
 							  'USD',
 							  ['AUD'],
 							  date(2017,
 							       7,
 							       10)),
 		  'AUD',
-		  13.1464)
+		  1.31464)
   ],
   [],
-  [exchange_rate(date(2018,6,28),'USD','AUD',1.360971)],
-  [ exchange_rate(date(2018,8,2),
-		  with_cost_per_unit('TLS',value('AUD',5.0)),
-		  'AUD',
-		  5.0),
-    exchange_rate(date(2018,8,2),
-		  without_currency_movement_against_since(with_cost_per_unit('TLS',
-									     value('AUD',
-										   5.0)),
-							  'AUD',
+  [ exchange_rate(date(2018,6,28),'USD','AUD',1.360971),
+    exchange_rate(date(2018,6,28),
+		  without_currency_movement_against_since('USD',
+							  'USD',
 							  ['AUD'],
 							  date(2018,
-							       8,
-							       2)),
+							       6,
+							       28)),
 		  'AUD',
-		  5.0)
+		  1.360971)
   ],
-  [ exchange_rate(date(2018,6,30),'USD','AUD',1.350804),
+  [ exchange_rate(date(2018,6,30),'BHP','AUD',2.701608),
+    exchange_rate(date(2018,6,30),'USD','AUD',1.350804),
     exchange_rate(date(2018,6,30),
-		  with_cost_per_unit('BHP',value('AUD',13.1464)),
-		  'AUD',
-		  2.701608),
-    exchange_rate(date(2018,6,30),
-		  with_cost_per_unit('TLS',value('AUD',5.0)),
-		  'AUD',
-		  5.0),
-    exchange_rate(date(2018,6,30),
-		  without_currency_movement_against_since(with_cost_per_unit('BHP',
-									     value('AUD',
-										   13.1464)),
+		  without_currency_movement_against_since('BHP',
 							  'USD',
 							  ['AUD'],
 							  date(2017,
@@ -410,27 +323,50 @@ done.
 		  'AUD',
 		  2.62928),
     exchange_rate(date(2018,6,30),
-		  without_currency_movement_against_since(with_cost_per_unit('TLS',
-									     value('AUD',
-										   5.0)),
-							  'AUD',
+		  without_currency_movement_against_since('USD',
+							  'USD',
+							  ['AUD'],
+							  date(2017,
+							       7,
+							       1)),
+		  'AUD',
+		  1.300559),
+    exchange_rate(date(2018,6,30),
+		  without_currency_movement_against_since('USD',
+							  'USD',
+							  ['AUD'],
+							  date(2017,
+							       7,
+							       10)),
+		  'AUD',
+		  1.31464),
+    exchange_rate(date(2018,6,30),
+		  without_currency_movement_against_since('USD',
+							  'USD',
 							  ['AUD'],
 							  date(2018,
-							       8,
-							       2)),
+							       6,
+							       28)),
 		  'AUD',
-		  5.0)
+		  1.360971)
   ]
 ]
 
 -->
 
 
+<!-- exchange rates 2:
+[exchange_rate(date(2018,6,30),BHP,USD,2),exchange_rate(date(2018,6,30),TLS,AUD,5)]
+-->
 <xbrli:xbrl xmlns:xbrli="http://www.xbrl.org/2003/instance" xmlns:link="http://www.xbrl.org/2003/linkbase" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:iso4217="http://www.xbrl.org/2003/iso4217" xmlns:basic="http://www.xbrlsite.com/basic" xmlns:xbrldi="http://xbrl.org/2006/xbrldi" xsi:schemaLocation="http://www.xbrlsite.com/basic basic.xsd http://www.xbrl.org/2003/instance http://www.xbrl.org/2003/xbrl-instance-2003-12-31.xsd http://www.xbrl.org/2003/linkbase http://www.xbrl.org/2003/xbrl-linkbase-2003-12-31.xsd http://xbrl.org/2006/xbrldi http://www.xbrl.org/2006/xbrldi-2006.xsd">
   <link:schemaRef xlink:type="simple" xlink:href="basic.xsd" xlink:title="Taxonomy schema" />
   <link:linkbaseRef xlink:type="simple" xlink:href="basic-formulas.xml" xlink:arcrole="http://www.w3.org/1999/xlink/properties/linkbase" />
   <link:linkBaseRef xlink:type="simple" xlink:href="basic-formulas-cross-checks.xml" xlink:arcrole="http://www.w3.org/1999/xlink/properties/linkbase" />
 
+<!-- Build contexts -->
+<!-- Trial balance -->
+<!-- Balance sheet -->
+<!-- Profit and loss -->
   <xbrli:unit id="U-AUD"><xbrli:measure>iso4217:AUD</xbrli:measure></xbrli:unit>
 
 
@@ -519,291 +455,75 @@ done.
 		</xbrli:segment>
 	</xbrli:entity>
 </xbrli:context>
-<xbrli:context id="D-2018-TLS">
-	<xbrli:period>
-		<xbrli:startDate>2015-07-01</xbrli:startDate>
-		<xbrli:endDate>2018-06-30</xbrli:endDate>
-	</xbrli:period>
-	<xbrli:entity>
-		<identifier scheme="http://www.example.com">TestData</identifier>
-		<xbrli:segment>
-			<xbrldi:typedMember dimension="basic:Dimension_Investments_Duration">
-			<basic:Investment_Duration>TLS</basic:Investment_Duration>
-			</xbrldi:typedMember>
-		</xbrli:segment>
-	</xbrli:entity>
-</xbrli:context>
 
 
 <!-- dimensional facts: -->
   <basic:Bank contextRef="I-2018-NationalAustraliaBank" unitRef="U-AUD" decimals="INF">100.00</basic:Bank>
   <basic:Bank contextRef="I-2018-WellsFargo" unitRef="U-AUD" decimals="INF">121.57</basic:Bank>
   <basic:CurrencyMovement contextRef="D-2018-WellsFargo" unitRef="U-AUD" decimals="INF">6.53</basic:CurrencyMovement>
-  <basic:InvestmentIncomeunrealizedonlycurrencymovement contextRef="D-2018-BHP" unitRef="U-AUD" decimals="INF">0.72</basic:InvestmentIncomeunrealizedonlycurrencymovement>
-  <basic:InvestmentIncomeunrealizedwithoutcurrencymovement contextRef="D-2018-BHP" unitRef="U-AUD" decimals="INF">-105.17</basic:InvestmentIncomeunrealizedwithoutcurrencymovement>
-
-<!-- balance sheet: -->
- <basic:Assets contextRef="I-2018" unitRef="U-AUD" decimals="INF">248.59</basic:Assets>
-  <basic:CurrentAssets contextRef="I-2018" unitRef="U-AUD" decimals="INF">221.57</basic:CurrentAssets>
-   <basic:CashAndCashEquivalents contextRef="I-2018" unitRef="U-AUD" decimals="INF">221.57</basic:CashAndCashEquivalents>
-    <basic:Banks contextRef="I-2018" unitRef="U-AUD" decimals="INF">221.57</basic:Banks>
-  <basic:NoncurrentAssets contextRef="I-2018" unitRef="U-AUD" decimals="INF">27.02</basic:NoncurrentAssets>
-   <basic:FinancialInvestments contextRef="I-2018" unitRef="U-AUD" decimals="INF">27.02</basic:FinancialInvestments>
- <basic:Liabilities contextRef="I-2018" unitRef="U-AUD" decimals="INF">100.00</basic:Liabilities>
-  <basic:NoncurrentLiabilities contextRef="I-2018" unitRef="U-AUD" decimals="INF">100.00</basic:NoncurrentLiabilities>
-   <basic:NoncurrentLoans contextRef="I-2018" unitRef="U-AUD" decimals="INF">100.00</basic:NoncurrentLoans>
- <basic:Equity contextRef="I-2018" unitRef="U-AUD" decimals="INF">148.59</basic:Equity>
-  <basic:ShareCapital contextRef="I-2018" unitRef="U-AUD" decimals="INF">260.11</basic:ShareCapital>
-  <basic:RetainedEarnings contextRef="I-2018" unitRef="U-AUD" decimals="INF">-111.52</basic:RetainedEarnings>
-   <basic:HistoricalEarnings contextRef="I-2018" unitRef="U-AUD" decimals="INF">0.00</basic:HistoricalEarnings>
-   <basic:CurrentEarnings contextRef="I-2018" unitRef="U-AUD" decimals="INF">-111.52</basic:CurrentEarnings>
- <basic:NetAssets contextRef="I-2018" unitRef="U-AUD" decimals="INF">148.59</basic:NetAssets>
-
-<!-- profit and loss: -->
- <basic:Earnings contextRef="D-2018" unitRef="U-AUD" decimals="INF">-111.52</basic:Earnings>
-  <basic:Revenue contextRef="D-2018" unitRef="U-AUD" decimals="INF">-97.91</basic:Revenue>
-   <basic:InvestmentIncome contextRef="D-2018" unitRef="U-AUD" decimals="INF">-104.45</basic:InvestmentIncome>
-    <basic:InvestmentIncomeunrealized contextRef="D-2018" unitRef="U-AUD" decimals="INF">-104.45</basic:InvestmentIncomeunrealized>
-     <basic:InvestmentIncomeunrealizedonlycurrencymovement contextRef="D-2018" unitRef="U-AUD" decimals="INF">0.72</basic:InvestmentIncomeunrealizedonlycurrencymovement>
-     <basic:InvestmentIncomeunrealizedwithoutcurrencymovement contextRef="D-2018" unitRef="U-AUD" decimals="INF">-105.17</basic:InvestmentIncomeunrealizedwithoutcurrencymovement>
-   <basic:CurrencyMovement contextRef="D-2018" unitRef="U-AUD" decimals="INF">6.53</basic:CurrencyMovement>
-    <basic:CurrencyMovementWellsFargo contextRef="D-2018" unitRef="U-AUD" decimals="INF">6.53</basic:CurrencyMovementWellsFargo>
-  <basic:Expenses contextRef="D-2018" unitRef="U-AUD" decimals="INF">13.61</basic:Expenses>
-   <basic:BankCharges contextRef="D-2018" unitRef="U-AUD" decimals="INF">13.61</basic:BankCharges>
+  <basic:InvestmentIncome_unrealized_only_currency_movement contextRef="D-2018-BHP" unitRef="U-AUD" decimals="INF">0.72</basic:InvestmentIncome_unrealized_only_currency_movement>
+  <basic:InvestmentIncome_unrealized_without_currency_movement contextRef="D-2018-BHP" unitRef="U-AUD" decimals="INF">-105.17</basic:InvestmentIncome_unrealized_without_currency_movement>
 
 <!-- investment report:
-url: http://localhost:8080/tmp/1565113152.9723532.2/investment_report.html
-
-<!DOCTYPE html>
-<html>
-<head>
-<title>investment report from 2015-07-01 to 2018-06-30 (AUD)</title>
-
-<meta http-equiv="content-type" content="text/html; charset=UTF-8">
-
-</head>
-<body>
-investment report from 2015-07-01 to 2018-06-30 (AUD):<br>
-
-<table border="1">
-<tr><th>Investment</th><th>Realized Market</th><th>Realized Forex</th><th>Unrealized Market</th><th>Unrealized Forex</th></tr>
-<tr><td>BHP</td><td>0.00
-</td><td>0.00
-</td><td>-105.17
-</td><td>0.72
-</td></tr>
-<tr><td>TLS</td><td>0.00
-</td><td>0.00
-</td><td>0.00
-</td><td>0.00
-</td></tr>
-
-</table>
-
-</body>
-</html>
+url: http://localhost:8080/tmp/1566328864.9949994.2/investment_report.html
 
  -->
 
 <!-- bs html:
-url: http://localhost:8080/tmp/1565113152.9723532.2/balance_sheet.html
-
-<!DOCTYPE html>
-<html>
-<head>
-<title>balance sheet for 2018-06-30 (AUD)</title>
-
-<meta http-equiv="content-type" content="text/html; charset=UTF-8">
-
-</head>
-<body>
-balance sheet for 2018-06-30 (AUD):<br>
-
-<table border="1">
-<tr><th>Account</th><th>Balance(AUD)</th></tr>
-<tr><td><b>Assets</b></td></tr>
-<tr><td><b>Current_Assets</b></td></tr>
-<tr><td><b>Cash_And_Cash_Equivalents</b></td></tr>
-<tr><td><b>Banks</b></td></tr>
-<tr><td>Banks_NationalAustraliaBank</td><td>100.00
-</td></tr>
-<tr><td>Banks_WellsFargo</td><td>121.57
-</td></tr>
-<tr><td align="right">Banks</td><td>221.57
-</td></tr>
-<tr><td align="right">Cash_And_Cash_Equivalents</td><td>221.57
-</td></tr>
-<tr><td><b>Assets_Livestock</b></td></tr>
-<tr><td>Assets_Livestock_At_Cost</td><td>0.00
-</td></tr>
-<tr><td>Assets_Livestock_At_Average_Cost</td><td>0.00
-</td></tr>
-<tr><td align="right">Assets_Livestock</td><td>0.00
-</td></tr>
-<tr><td align="right">Current_Assets</td><td>221.57
-</td></tr>
-<tr><td><b>Noncurrent_Assets</b></td></tr>
-<tr><td>Financial_Investments</td><td>27.02
-</td></tr>
-<tr><td align="right">Noncurrent_Assets</td><td>27.02
-</td></tr>
-<tr><td align="right">Assets</td><td>248.59
-</td></tr>
-<tr><td><b>Liabilities</b></td></tr>
-<tr><td><b>Noncurrent_Liabilities</b></td></tr>
-<tr><td>Noncurrent_Loans</td><td>100.00
-</td></tr>
-<tr><td align="right">Noncurrent_Liabilities</td><td>100.00
-</td></tr>
-<tr><td><b>Current_Liabilities</b></td></tr>
-<tr><td>Current_Loans</td><td>0.00
-</td></tr>
-<tr><td align="right">Current_Liabilities</td><td>0.00
-</td></tr>
-<tr><td align="right">Liabilities</td><td>100.00
-</td></tr>
-<tr><td><b>Equity</b></td></tr>
-<tr><td>Share_Capital</td><td>260.11
-</td></tr>
-<tr><td><b>Retained_Earnings</b></td></tr>
-<tr><td>Historical_Earnings</td><td>0.00
-</td></tr>
-<tr><td>Current_Earnings</td><td>-111.52
-</td></tr>
-<tr><td align="right">Retained_Earnings</td><td>-111.52
-</td></tr>
-<tr><td>Capital_Introduced</td><td>0.00
-</td></tr>
-<tr><td>Drawings</td><td>0.00
-</td></tr>
-<tr><td align="right">Equity</td><td>148.59
-</td></tr>
-<tr><td>Net_Assets</td><td>148.59
-</td></tr>
-</table>
-
-</body>
-</html>
+url: http://localhost:8080/tmp/1566328864.9949994.2/balance_sheet.html
 
  -->
 
 <!-- pl html:
-url: http://localhost:8080/tmp/1565113152.9723532.2/profit_and_loss.html
+url: http://localhost:8080/tmp/1566328864.9949994.2/profit_and_loss.html
 
-<!DOCTYPE html>
-<html>
-<head>
-<title>profit&amp;loss from 2015-07-01 to 2018-06-30 (AUD)</title>
+ -->
 
-<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<!-- balance sheet: -->
+ <basic:NetAssets contextRef="I-2018" unitRef="U-AUD" decimals="INF">148.59</basic:NetAssets>
+  <basic:Assets contextRef="I-2018" unitRef="U-AUD" decimals="INF">248.59</basic:Assets>
+   <basic:CurrentAssets contextRef="I-2018" unitRef="U-AUD" decimals="INF">221.57</basic:CurrentAssets>
+    <basic:CashAndCashEquivalents contextRef="I-2018" unitRef="U-AUD" decimals="INF">221.57</basic:CashAndCashEquivalents>
+     <basic:Banks contextRef="I-2018" unitRef="U-AUD" decimals="INF">221.57</basic:Banks>
+   <basic:NoncurrentAssets contextRef="I-2018" unitRef="U-AUD" decimals="INF">27.02</basic:NoncurrentAssets>
+    <basic:FinancialInvestments contextRef="I-2018" unitRef="U-AUD" decimals="INF">27.02</basic:FinancialInvestments>
+  <basic:Liabilities contextRef="I-2018" unitRef="U-AUD" decimals="INF">100.00</basic:Liabilities>
+   <basic:NoncurrentLiabilities contextRef="I-2018" unitRef="U-AUD" decimals="INF">100.00</basic:NoncurrentLiabilities>
+    <basic:NoncurrentLoans contextRef="I-2018" unitRef="U-AUD" decimals="INF">100.00</basic:NoncurrentLoans>
+ <basic:Equity contextRef="I-2018" unitRef="U-AUD" decimals="INF">148.59</basic:Equity>
+  <basic:RetainedEarnings contextRef="I-2018" unitRef="U-AUD" decimals="INF">-111.52</basic:RetainedEarnings>
+   <basic:CurrentEarnings contextRef="I-2018" unitRef="U-AUD" decimals="INF">-111.52</basic:CurrentEarnings>
+  <basic:ShareCapital contextRef="I-2018" unitRef="U-AUD" decimals="INF">260.11</basic:ShareCapital>
 
-</head>
-<body>
-profit&amp;loss from 2015-07-01 to 2018-06-30 (AUD):<br>
+<!-- profit and loss: -->
+ <basic:NetIncomeLoss contextRef="D-2018" unitRef="U-AUD" decimals="INF">-111.52</basic:NetIncomeLoss>
+  <basic:Expenses contextRef="D-2018" unitRef="U-AUD" decimals="INF">13.61</basic:Expenses>
+   <basic:BankCharges contextRef="D-2018" unitRef="U-AUD" decimals="INF">13.61</basic:BankCharges>
+  <basic:Revenue contextRef="D-2018" unitRef="U-AUD" decimals="INF">-97.91</basic:Revenue>
+   <basic:CurrencyMovement contextRef="D-2018" unitRef="U-AUD" decimals="INF">6.53</basic:CurrencyMovement>
+    <basic:CurrencyMovement_WellsFargo contextRef="D-2018" unitRef="U-AUD" decimals="INF">6.53</basic:CurrencyMovement_WellsFargo>
+   <basic:InvestmentIncome contextRef="D-2018" unitRef="U-AUD" decimals="INF">-104.45</basic:InvestmentIncome>
+    <basic:InvestmentIncome_unrealized contextRef="D-2018" unitRef="U-AUD" decimals="INF">-104.45</basic:InvestmentIncome_unrealized>
+     <basic:InvestmentIncome_unrealized_only_currency_movement contextRef="D-2018" unitRef="U-AUD" decimals="INF">0.72</basic:InvestmentIncome_unrealized_only_currency_movement>
+     <basic:InvestmentIncome_unrealized_without_currency_movement contextRef="D-2018" unitRef="U-AUD" decimals="INF">-105.17</basic:InvestmentIncome_unrealized_without_currency_movement>
 
-<table border="1">
-<tr><th>Account</th><th>Value(AUD)</th></tr>
-<tr><td><b>Earnings</b></td></tr>
-<tr><td><b>Revenue</b></td></tr>
-<tr><td>Clearing_Account</td><td>0.00
-</td></tr>
-<tr><td>Income</td><td>0.00
-</td></tr>
-<tr><td><b>Investment_Income</b></td></tr>
-<tr><td><b>Investment_Income_realized</b></td></tr>
-<tr><td><b>Investment_Income_realized_only_currency_movement</b></td></tr>
-<tr><td>Investment_Income_realized_only_currency_movement_BHP</td><td>0.00
-</td></tr>
-<tr><td>Investment_Income_realized_only_currency_movement_TLS</td><td>0.00
-</td></tr>
-<tr><td align="right">Investment_Income_realized_only_currency_movement</td><td>0.00
-</td></tr>
-<tr><td><b>Investment_Income_realized_without_currency_movement</b></td></tr>
-<tr><td>Investment_Income_realized_without_currency_movement_BHP</td><td>0.00
-</td></tr>
-<tr><td>Investment_Income_realized_without_currency_movement_TLS</td><td>0.00
-</td></tr>
-<tr><td align="right">Investment_Income_realized_without_currency_movement</td><td>0.00
-</td></tr>
-<tr><td align="right">Investment_Income_realized</td><td>0.00
-</td></tr>
-<tr><td><b>Investment_Income_unrealized</b></td></tr>
-<tr><td><b>Investment_Income_unrealized_only_currency_movement</b></td></tr>
-<tr><td>Investment_Income_unrealized_only_currency_movement_BHP</td><td>0.72
-</td></tr>
-<tr><td>Investment_Income_unrealized_only_currency_movement_TLS</td><td>0.00
-</td></tr>
-<tr><td align="right">Investment_Income_unrealized_only_currency_movement</td><td>0.72
-</td></tr>
-<tr><td><b>Investment_Income_unrealized_without_currency_movement</b></td></tr>
-<tr><td>Investment_Income_unrealized_without_currency_movement_BHP</td><td>-105.17
-</td></tr>
-<tr><td>Investment_Income_unrealized_without_currency_movement_TLS</td><td>0.00
-</td></tr>
-<tr><td align="right">Investment_Income_unrealized_without_currency_movement</td><td>-105.17
-</td></tr>
-<tr><td align="right">Investment_Income_unrealized</td><td>-104.45
-</td></tr>
-<tr><td align="right">Investment_Income</td><td>-104.45
-</td></tr>
-<tr><td><b>Other_Income</b></td></tr>
-<tr><td>Interest_Income</td><td>0.00
-</td></tr>
-<tr><td>Interest_Earned</td><td>0.00
-</td></tr>
-<tr><td>Earnings_Financial_Investments</td><td>0.00
-</td></tr>
-<tr><td>Exchange_Gain</td><td>0.00
-</td></tr>
-<tr><td align="right">Other_Income</td><td>0.00
-</td></tr>
-<tr><td>Sales_Of_Livestock</td><td>0.00
-</td></tr>
-<tr><td>Rations_Revenue</td><td>0.00
-</td></tr>
-<tr><td>Other_Gain</td><td>0.00
-</td></tr>
-<tr><td><b>Currency_Movement</b></td></tr>
-<tr><td>Currency_Movement_NationalAustraliaBank</td><td>0.00
-</td></tr>
-<tr><td>Currency_Movement_WellsFargo</td><td>6.53
-</td></tr>
-<tr><td align="right">Currency_Movement</td><td>6.53
-</td></tr>
-<tr><td align="right">Revenue</td><td>-97.91
-</td></tr>
-<tr><td><b>Expenses</b></td></tr>
-<tr><td>Bank_Charges</td><td>13.61
-</td></tr>
-<tr><td>Accounting_Fees</td><td>0.00
-</td></tr>
-<tr><td>Forex_Loss</td><td>0.00
-</td></tr>
-<tr><td>Interest_Expenses</td><td>0.00
-</td></tr>
-<tr><td>Livestock_Adjustment</td><td>0.00
-</td></tr>
-<tr><td>Purchases</td><td>0.00
-</td></tr>
-<tr><td>Cost_Of_Goods_Livestock</td><td>0.00
-</td></tr>
-<tr><td>Other_Expenses</td><td>0.00
-</td></tr>
-<tr><td>Food_Expenses</td><td>0.00
-</td></tr>
-<tr><td align="right">Expenses</td><td>13.61
-</td></tr>
-<tr><td align="right">Earnings</td><td>-111.52
-</td></tr>
-</table>
+<!-- historical profit and loss: 
+ <basic:NetIncomeLoss contextRef="D-2018" unitRef="U-AUD" decimals="INF">0.00</basic:NetIncomeLoss>
 
-</body>
-</html>
+-->
+
+<!-- historical pl html:
+url: http://localhost:8080/tmp/1566328864.9949994.2/profit_and_loss_historical.html
+
+ -->
+
+<!-- investment report all time:
+url: http://localhost:8080/tmp/1566328864.9949994.2/investment_report_all_time.html
 
  -->
 
 <!-- trial balance: -->
- <basic:TrialBalance contextRef="I-2018" unitRef="U-AUD" decimals="INF">0.00</basic:TrialBalance>
+ <basic:Trial_Balance contextRef="I-2018" unitRef="U-AUD" decimals="INF">0.00</basic:Trial_Balance>
 
 </xbrli:xbrl>
 

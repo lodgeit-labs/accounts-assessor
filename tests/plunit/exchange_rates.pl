@@ -1,4 +1,5 @@
 :- ['../../lib/exchange_rates'].
+:- ['../../lib/exchange'].
 :- ['../../lib/days'].
 :- use_module('../../lib/utils',	[floats_close_enough/2]).
 
@@ -67,9 +68,48 @@ test(4) :-
 	date(2018,6,30),
 	without_currency_movement_against_since('SG_Issuer_SA','USD', ['AUD'],date(2017,7,1)),
 	'AUD',
-	57.97101449275363).
+	X),
+	floats_close_enough(X, 57.97101449275363).
 
 
+test(5, all( [R0, R1, R2] = [ [
+	[ coord('AUD', 0.0, 40.0) ],
+	[ coord('AUD', 0.0, 30.0) ],
+	[ coord('AUD', 0.0, 30.0) ]
+	] ] ) ) :-
+	Rates = [
+		exchange_rate(date(2018,7,1),'SG Issuer_SA_USD_1','AUD',40),
+		exchange_rate(date(2018,7,12),'SG Issuer_SA_USD_1','AUD',30),
+		exchange_rate(date(2018,7,13),'SG Issuer_SA_USD_1','AUD',40)
+	],
+	vec_change_bases(Rates, date(2018,7,1), ['AUD'], 
+		[coord(without_movement_after('SG Issuer_SA_USD_1', date(2018,7,12)), 0, 1)], R0),
+	vec_change_bases(Rates, date(2018,7,12), ['AUD'], 
+		[coord(without_movement_after('SG Issuer_SA_USD_1', date(2018,7,12)), 0, 1)], R1),
+	vec_change_bases(Rates, date(2018,7,13), ['AUD'], 
+		[coord(without_movement_after('SG Issuer_SA_USD_1', date(2018,7,12)), 0, 1)], R2).
+		      
+test(6, all( [R0, R1, R2] = [ [
+	[ coord('xxx', 0.0, 40.0) ],
+	[ coord('xxx', 0.0, 360.0) ],
+	[ coord('xxx', 0.0, 360.0) ]
+	] ] ) ) :-
+	Rates = [
+		exchange_rate(date(2018,7,1),'SG Issuer_SA_USD_1','USD',40),
+		exchange_rate(date(2018,7,12),'SG Issuer_SA_USD_1','USD',30),
+		exchange_rate(date(2018,7,13),'SG Issuer_SA_USD_1','USD',40),
+		exchange_rate(date(2018,7,1),'USD','xxx',1),
+		exchange_rate(date(2018,7,12),'USD','xxx',12),
+		exchange_rate(date(2018,7,13),'USD','xxx',13),
+		exchange_rate(date(2018,7,20),'USD','xxx',20)
+	],
+	vec_change_bases(Rates, date(2018,7,1), ['xxx'], 
+		[coord(without_movement_after('SG Issuer_SA_USD_1', date(2018,7,12)), 0, 1)], R0),
+	vec_change_bases(Rates, date(2018,7,12), ['xxx'], 
+		[coord(without_movement_after('SG Issuer_SA_USD_1', date(2018,7,12)), 0, 1)], R1),
+	vec_change_bases(Rates, date(2018,7,13), ['xxx'], 
+		[coord(without_movement_after('SG Issuer_SA_USD_1', date(2018,7,12)), 0, 1)], R2).
+		      
 
 :- end_tests(exchange_rates).
 

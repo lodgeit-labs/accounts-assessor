@@ -22,7 +22,9 @@
 		floats_close_enough/2,
 		replace_chars_in_atom/4,
 		filter_out_chars_from_atom/3,
-		coord_is_almost_zero/1]).
+		coord_is_almost_zero/1,
+		is_uri/1,
+		sort_into_dict/3]).
 
 		
 :- use_module(library(xpath)).
@@ -195,11 +197,14 @@ trimmed_field(Dom, Element_XPath, Value) :-
 	xpath(Dom, Element_XPath, element(_,_,[Child_Atom])),
 	trim_atom(Child_Atom, Value).
 	
-trim_atom(Child_Atom, Value) :-
-	atom_string(Child_Atom, Child),
-	split_string(Child, "", "\s\t\n", [Value_String]),
-	atom_string(Value, Value_String).
+trim_atom(Atom, Trimmed_Atom) :-
+	atom_string(Atom, Atom_String),
+	trim_string(Atom_String, Trimmed_String),
+	%split_string(Atom_String, "", "\s\t\n", [Trimmed_String]),
+	atom_string(Trimmed_Atom, Trimmed_String).
 
+trim_string(String, Trimmed_String) :-
+	split_string(String, "", "\s\t\n", [Trimmed_String]).
 
 write_tag(Tag_Name_Input,Tag_Value) :-
 	flatten([Tag_Name_Input], Tag_Name_List),
@@ -339,8 +344,6 @@ semigroup_foldl(Goal, [H1, H2 | T], V) :-
     semigroup_foldl(Goal, [V1 | T], V).
 
 
-
-
    
 /* throw a string(Message) term, these errors are caught by our http server code and turned into nice error messages */
 throw_string(List_Or_Atom) :-
@@ -383,6 +386,11 @@ replace_char_if(Predicate, Replacement, Char_In, Char_Out) :-
 not_alnum(Char) :-
 	char_type(Char, alnum).
 
+
+%whitespace_chars("\s\t\n").
+
+
+
 :- meta_predicate filter_out_chars_from_atom(1, +, -).
 
 filter_out_chars_from_atom(Predicate, Atom_In, Atom_Out) :-
@@ -409,4 +417,30 @@ floats_close_enough(Value1, Value2) :-
 coord_is_almost_zero(coord(_, D, C)) :-
 	floats_close_enough(D, 0),
 	floats_close_enough(C, 0).
+
+is_uri(URI) :-
+	% atom_prefix is deprecated
+	atom_prefix(URI,"http").
+
+
+% basically "index by" Selector_Predicate (or really the values of the 2nd arg to it)
+sort_into_dict(Selector_Predicate, Ts, D) :-
+	sort_into_dict(Selector_Predicate, Ts, _{}, D).
+
+:- meta_predicate sort_into_dict(2, ?, ?, ?).
+
+sort_into_dict(Selector_Predicate, [T|Ts], D, D_Out) :-
+	call(Selector_Predicate, T, A),
+	(
+		L = D.get(A)
+	->
+		true
+	;
+		L = []
+	),
+	append(L, [T], L2),
+	D2 = D.put(A, L2),
+	sort_into_dict(Selector_Predicate, Ts, D2, D_Out).
+
+sort_into_dict(_, [], D, D).
 

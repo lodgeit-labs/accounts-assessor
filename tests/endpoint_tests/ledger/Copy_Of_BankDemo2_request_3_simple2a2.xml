@@ -1,0 +1,142 @@
+<?xml version="1.0"?>
+<reports xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <balanceSheetRequest>
+    <generator>
+      <date>2019-07-09T11:48:58.1513095Z</date>
+      <source>LodgeiT Tool</source>
+      <author>
+        <firstname>waqas</firstname>
+        <lastname>awan</lastname>
+        <company>uhudsoft</company>
+      </author>
+    </generator>
+    <company>
+      <abn>12345678912</abn>
+      <tfn />
+      <clientcode />
+      <anzsic />
+      <notes />
+      <directors />
+    </company>
+    
+    
+    <startDate>2018-07-13</startDate>
+    <endDate>2019-06-30</endDate>
+	<costOrMarket>market</costOrMarket>
+
+
+    <defaultCurrency>
+      <unitType>AUD</unitType>
+    </defaultCurrency>
+    <reportCurrency>
+      <unitType>AUD</unitType>
+    </reportCurrency>
+
+	
+	<unitValues>
+      
+
+      <unitValue>
+        <unitType>SG Issuer_SA_USD_1</unitType>
+        <unitValue>40</unitValue>
+        <unitValueCurrency />
+      </unitValue>
+      <unitValue>
+        <unitType>SG Issuer_SA_USD_1</unitType>
+        <unitValue>40</unitValue>
+        <unitValueDate>2018-07-01</unitValueDate>
+        <unitValueCurrency />
+      </unitValue>
+      <unitValue>
+        <unitType>SG Issuer_SA_USD_1</unitType>
+        <unitValue>40</unitValue>
+        <unitValueDate>2018-07-02</unitValueDate>
+        <unitValueCurrency />
+      </unitValue>
+      <unitValue>
+        <unitType>SG Issuer_SA_USD_1</unitType>
+        <unitValue>40</unitValue>
+        <unitValueDate>2018-07-13</unitValueDate>
+        <unitValueCurrency />
+      </unitValue>
+
+
+      <unitValue>
+        <unitType>USD</unitType>
+        <unitValue>1.285200</unitValue>
+        <unitValueDate>2018-07-01</unitValueDate>
+      </unitValue>
+      <unitValue>
+        <unitType>USD</unitType>
+        <unitValue>1.352840</unitValue>
+        <unitValueDate>2018-07-02</unitValueDate>
+      </unitValue>
+      <unitValue>
+        <unitType>USD</unitType>
+        <unitValue>1.360979</unitValue>
+        <unitValueDate>2018-07-12</unitValueDate>
+      </unitValue>
+      <unitValue>
+        <unitType>USD</unitType>
+        <unitValue>1.358327</unitValue>
+        <unitValueDate>2018-08-13</unitValueDate>
+      </unitValue>
+      <unitValue>
+        <unitType>USD</unitType>
+        <unitValue>1.363232</unitValue>
+        <unitValueDate>2018-09-01</unitValueDate>
+      </unitValue>
+      <unitValue>
+        <unitType>USD</unitType>
+        <unitValue>1.358880</unitValue>
+        <unitValueDate>2018-10-15</unitValueDate>
+      </unitValue>
+      <unitValue>
+        <unitType>USD</unitType>
+        <unitValue>1.423897</unitValue>
+        <unitValueDate>2019-06-30</unitValueDate>
+      </unitValue>
+
+
+    </unitValues>
+
+
+	
+	<bankStatement>
+      <title>Bank Statement</title>
+      <period>2018-07-01 - 2018-12-30</period>
+      <accountDetails>
+        <accountNo />
+        <accountName>USD_Bank </accountName>
+        <bankID />
+        <currency>USD</currency>
+        <transactions>
+          <transaction>
+            <transdesc>Invest_In</transdesc>
+            <transdate>2018-07-01</transdate>
+            <debit>139760.32</debit>
+            <credit>0</credit>
+            <unit>140000</unit>
+            <unitType>SG Issuer_SA_USD_1</unitType>
+          </transaction>
+          <transaction>
+            <transdesc>Invest_In</transdesc>
+            <transdate>2018-07-02</transdate>
+            <debit>139760.32</debit>
+            <credit>0</credit>
+            <unit>10000</unit>
+            <unitType>SG Issuer_SA_USD_1</unitType>
+          </transaction>
+          <transaction>
+            <transdesc>Dispose_Of</transdesc>
+            <transdate>2018-12-30</transdate>
+            <debit>0</debit>
+            <credit>140000</credit>
+            <unit>140000</unit>
+            <unitType>SG Issuer_SA_USD_1</unitType>
+          </transaction>
+        </transactions>
+      </accountDetails>
+    </bankStatement>
+  </balanceSheetRequest>
+</reports>

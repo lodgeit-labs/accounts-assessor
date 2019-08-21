@@ -1,9 +1,17 @@
+:- module(xbrl_contexts, [
+		print_contexts/1,
+		context_id_base/3,
+		ensure_context_exists/6,
+		context_arg0_period/2,
+		context_id_base/3
+]).
 
-/*
-some record types to streamline output of xbrl contexts. No relation to the stuff in xbrl/ (yet)
-*/
+:- use_module(days, [format_date/2]).
 :- use_module(library(record)).
 
+/*
+some record types to streamline output of xbrl contexts. No relation to the stuff in xbrl/
+*/
 :- record entity(identifier, segment).
 :- record dimension_reference(id, element_name).
 :- record dimension_value(reference, value).

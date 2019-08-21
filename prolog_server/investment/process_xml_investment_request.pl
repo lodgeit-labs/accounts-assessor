@@ -23,11 +23,11 @@ see doc/investment and dropbox Develop/videos/ledger
 		parse_date/2, 
 		gregorian_date/2]).
 :- use_module('../../lib/ledger', [
-		process_ledger/14]).
+		process_ledger/15]).
 :- use_module('../../lib/ledger_report', [
 		format_report_entries/10,
-		balance_sheet_at/8, 
-		profitandloss_between/8, 
+		% balance_sheet_at/2, 
+		profitandloss_between/2, 
 		balance_by_account/9]).
 :- use_module('../../lib/accounts', [
 		extract_account_hierarchy/2, 
@@ -141,6 +141,7 @@ process_realized(Dom, Global_Report_Date_Atom, Result) :-
 		)
 	], 
 	process_ledger(
+		market, 
 		[],
 		S_Transactions,	
 		Purchase_Date, 
@@ -158,27 +159,35 @@ process_realized(Dom, Global_Report_Date_Atom, Result) :-
 		[], 
 		[], 
 		Accounts0, 
-		Accounts1, 
+		Accounts, 
 		Transactions,
 		_,
 		_
 	),
-   	Info = (Exchange_Rates, Accounts1, Transactions, Sale_Date, report_currency),
+   	Info = (Exchange_Rates, Accounts, Transactions, Sale_Date, report_currency),
    	/*todo get Investment_Income account by role */
-	account_by_role(Accounts1, 'InvestmentIncome'/realized, Gain_Account),
-	account_by_role(Accounts1, Gain_Account/without_currency_movement, Gains_Excluding_Forex_Account),
-	account_by_role(Accounts1, Gain_Account/only_currency_movement, Gains_Currency_Movement_Account), 
+	account_by_role(Accounts, 'InvestmentIncome'/realized, Gain_Account),
+	account_by_role(Accounts, Gain_Account/without_currency_movement, Gains_Excluding_Forex_Account),
+	account_by_role(Accounts, Gain_Account/only_currency_movement, Gains_Currency_Movement_Account), 
     account_assertion(Info, Gains_Excluding_Forex_Account, -RC_Realized_Market_Gain),
 	account_assertion(Info, Gains_Currency_Movement_Account, -RC_Realized_Currency_Gain),
 	account_assertion(Info, Gain_Account, -RC_Realized_Total_Gain),
+
+	dict_from_vars(Static_Data0, [Exchange_Rates, Accounts, Transactions]),
+	Static_Data = Static_Data0.put(
+		report_currency, [report_currency]).put(
+		start_date, Purchase_Date).put(
+		end_date, Sale_Date).put(
+		exchange_date, Sale_Date),
 	
-	profitandloss_between(Exchange_Rates, Accounts1, Transactions, [report_currency], Sale_Date, Purchase_Date, Sale_Date, ProftAndLoss),
-	format_report_entries(xbrl, Accounts1, 0, [report_currency], Sale_Date, ProftAndLoss, [], _, [], ProftAndLoss_Lines),
+	profitandloss_between(Static_Data, ProftAndLoss),
+	format_report_entries(xbrl, Accounts, 0, [report_currency], Sale_Date, ProftAndLoss, [], _, [], ProftAndLoss_Lines),
 	writeln('<!--'),
 	writeln(ProftAndLoss_Lines),
 	writeln('-->'),
-	balance_sheet_at(Exchange_Rates, Accounts1, Transactions, [report_currency], Sale_Date, Purchase_Date, Sale_Date, Balance_Sheet),
-	format_report_entries(xbrl, Accounts1, 0, [report_currency], Sale_Date, Balance_Sheet, [], _, [], Balance_Sheet_Lines),
+	
+	balance_sheet_at(Static_Data, Balance_Sheet),
+	format_report_entries(xbrl, Accounts, 0, [report_currency], Sale_Date, Balance_Sheet, [], _, [], Balance_Sheet_Lines),
 	writeln('<!--'),
 	writeln(Balance_Sheet_Lines),
 	writeln('-->'),
@@ -268,6 +277,7 @@ process_unrealized(Dom, Global_Report_Date, Result) :-
 
 	extract_account_hierarchy([], Accounts0),
 	process_ledger(
+		market,
 		[],
 		S_Transactions,
 		Purchase_Date, 
@@ -282,27 +292,27 @@ process_unrealized(Dom, Global_Report_Date, Result) :-
 		[], 
 		[], 
 		Accounts0, 
-		Accounts1, 
+		Accounts, 
 		Transactions,
 		_,
 		_
 	),
 	
-	profitandloss_between(Exchange_Rates, Accounts1, Transactions, [report_currency], Report_Date, Purchase_Date, Report_Date, ProftAndLoss),
-	format_report_entries(xbrl, Accounts1, 0, [report_currency], Report_Date, ProftAndLoss, [], _, [], ProftAndLoss_Lines),
+	profitandloss_between(Exchange_Rates, Accounts, Transactions, [report_currency], Report_Date, Purchase_Date, Report_Date, ProftAndLoss),
+	format_report_entries(xbrl, Accounts, 0, [report_currency], Report_Date, ProftAndLoss, [], _, [], ProftAndLoss_Lines),
 	writeln('<!--'),
 	writeln(ProftAndLoss_Lines),
 	writeln('-->'),
-	balance_sheet_at(Exchange_Rates, Accounts1, Transactions, [report_currency], Report_Date, Purchase_Date, Report_Date, Balance_Sheet),
-	format_report_entries(xbrl, Accounts1, 0, [report_currency], Report_Date, Balance_Sheet, [], _, [], Balance_Sheet_Lines),
+	balance_sheet_at(Exchange_Rates, Accounts, Transactions, [report_currency], Report_Date, Purchase_Date, Report_Date, Balance_Sheet),
+	format_report_entries(xbrl, Accounts, 0, [report_currency], Report_Date, Balance_Sheet, [], _, [], Balance_Sheet_Lines),
 	writeln('<!--'),
 	writeln(Balance_Sheet_Lines),
 	writeln('-->'),
 
-   	Info = (Exchange_Rates, Accounts1, Transactions, Report_Date, report_currency),
-	account_by_role(Accounts1, 'InvestmentIncome'/unrealized, Unrealized_Gain_Account),
-	account_by_role(Accounts1, Unrealized_Gain_Account/without_currency_movement, Unrealized_Gains_Excluding_Forex_Account),
-	account_by_role(Accounts1, Unrealized_Gain_Account/only_currency_movement, Unrealized_Gains_Currency_Movement_Account),
+   	Info = (Exchange_Rates, Accounts, Transactions, Report_Date, report_currency),
+	account_by_role(Accounts, 'InvestmentIncome'/unrealized, Unrealized_Gain_Account),
+	account_by_role(Accounts, Unrealized_Gain_Account/without_currency_movement, Unrealized_Gains_Excluding_Forex_Account),
+	account_by_role(Accounts, Unrealized_Gain_Account/only_currency_movement, Unrealized_Gains_Currency_Movement_Account),
    	account_assertion(Info, Unrealized_Gains_Excluding_Forex_Account, -RDRC_Unrealized_Market_Gain),
 	account_assertion(Info, Unrealized_Gains_Currency_Movement_Account, -RDRC_Unrealized_Currency_Gain),
 	account_assertion(Info, Unrealized_Gain_Account, -RDRC_Unrealized_Total_Gain),
@@ -485,6 +495,7 @@ crosscheck_totals(Results, Report_Date) :-
 	extract_account_hierarchy([], Accounts0),
 
 	process_ledger(
+		market,
 		[],
 		S_Transactions,
 		date(2000,1,1), 
@@ -504,23 +515,23 @@ crosscheck_totals(Results, Report_Date) :-
 		[], 
 		[], 
 		Accounts0, 
-		Accounts1, 
+		Accounts, 
 		Transactions,
 		_,
 		_
 	),
-   	Info = (Exchange_Rates, Accounts1, Transactions, Report_Date, report_currency),
+   	Info = (Exchange_Rates, Accounts, Transactions, Report_Date, report_currency),
 	/*
 		PL cross-check
 	*/
 	writeln("PL cross-check"),
 	/*todo get Investment_Income by role*/
-	account_by_role(Accounts1, 'InvestmentIncome'/unrealized, Unrealized_Gain_Account),
-	account_by_role(Accounts1, 'InvestmentIncome'/realized, Realized_Gain_Account),
-	account_by_role(Accounts1, Unrealized_Gain_Account/without_currency_movement, Unrealized_Gains_Excluding_Forex_Account),
-	account_by_role(Accounts1, Unrealized_Gain_Account/only_currency_movement, Unrealized_Gains_Currency_Movement_Account),
-	account_by_role(Accounts1, Realized_Gain_Account/without_currency_movement, Realized_Gains_Excluding_Forex_Account),
-	account_by_role(Accounts1, Realized_Gain_Account/only_currency_movement, Realized_Gains_Currency_Movement_Account),
+	account_by_role(Accounts, 'InvestmentIncome'/unrealized, Unrealized_Gain_Account),
+	account_by_role(Accounts, 'InvestmentIncome'/realized, Realized_Gain_Account),
+	account_by_role(Accounts, Unrealized_Gain_Account/without_currency_movement, Unrealized_Gains_Excluding_Forex_Account),
+	account_by_role(Accounts, Unrealized_Gain_Account/only_currency_movement, Unrealized_Gains_Currency_Movement_Account),
+	account_by_role(Accounts, Realized_Gain_Account/without_currency_movement, Realized_Gains_Excluding_Forex_Account),
+	account_by_role(Accounts, Realized_Gain_Account/only_currency_movement, Realized_Gains_Currency_Movement_Account),
 	account_assertion(Info, Realized_Gains_Excluding_Forex_Account, -Realized_Market_Gain_Total),
 	account_assertion(Info, Realized_Gains_Currency_Movement_Account, -Realized_Currency_Gain_Total),
 	account_assertion(Info, Unrealized_Gains_Excluding_Forex_Account, -Unrealized_Market_Gain_Total),
@@ -547,8 +558,8 @@ crosscheck_totals(Results, Report_Date) :-
 	Bank_Value is SDRC_Value_Total - PDRC_Cost_Total,
 	
 	/*todo get accounts by role*/
-	account_by_role(Accounts1, 'Banks'/'Bank',Bank_Account),
-	account_by_role(Accounts1, 'CurrencyMovement'/'Bank', Bank_Currency_Account),
+	account_by_role(Accounts, 'Banks'/'Bank',Bank_Account),
+	account_by_role(Accounts, 'CurrencyMovement'/'Bank', Bank_Currency_Account),
 	account_vector(Info, Bank_Currency_Account, [Bank_Currency_Movement_Coord]),
 	
 	number_coord(report_currency, Bank_Currency_Movement_Number, Bank_Currency_Movement_Coord),
@@ -560,13 +571,13 @@ crosscheck_totals(Results, Report_Date) :-
 	/*
 		debug printout
 	*/
-	profitandloss_between(Exchange_Rates, Accounts1, Transactions, [report_currency], Report_Date, date(2000,1,1), Report_Date, ProftAndLoss),
-	format_report_entries(xbrl, Accounts1, 0, [report_currency], Report_Date, ProftAndLoss, [], _, [], ProftAndLoss_Lines),
+	profitandloss_between(Exchange_Rates, Accounts, Transactions, [report_currency], Report_Date, date(2000,1,1), Report_Date, ProftAndLoss),
+	format_report_entries(xbrl, Accounts, 0, [report_currency], Report_Date, ProftAndLoss, [], _, [], ProftAndLoss_Lines),
 	writeln('<!--'),
 	writeln(ProftAndLoss_Lines),
 	writeln('-->'),
-	balance_sheet_at(Exchange_Rates, Accounts1, Transactions, [report_currency], Report_Date, date(2000,1,1), Report_Date, Balance_Sheet),
-	format_report_entries(xbrl, Accounts1, 0, [report_currency], Report_Date, Balance_Sheet, [], _, [], Balance_Sheet_Lines),
+	balance_sheet_at(Exchange_Rates, Accounts, Transactions, [report_currency], Report_Date, date(2000,1,1), Report_Date, Balance_Sheet),
+	format_report_entries(xbrl, Accounts, 0, [report_currency], Report_Date, Balance_Sheet, [], _, [], Balance_Sheet_Lines),
 	writeln('<!--'),
 	writeln(Balance_Sheet_Lines),
 	writeln('-->').

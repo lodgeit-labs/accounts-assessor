@@ -5,31 +5,38 @@
 % ===================================================================
 
 :- module(pacioli, [
-			vec_add/3,
-		    vec_equality/2,
-		    vec_identity/1,
-		    vec_inverse/2,
-		    vec_reduce/2,
-		    vec_sub/3,
-		    vec_units/2,
-		    number_coord/3,
-		    number_vec/3,
-		    make_debit/2,
-		    make_credit/2,
-		    value_multiply/3,
-		    value_divide/3,
-		    value_subtract/3,
-		    value_convert/3,
-			debit_isomorphism/2,
-			vecs_are_almost_equal/2,
-			is_debit/1]).
+		coord_unit/2,
+		vec_add/3,
+		vec_sum/2,
+		vec_equality/2,
+		vec_identity/1,
+		vec_inverse/2,
+		vec_reduce/2,
+		vec_sub/3,
+		vec_units/2,
+		number_coord/3,
+		number_vec/3,
+		make_debit/2,
+		make_credit/2,
+		value_multiply/3,
+		value_divide/3,
+		value_subtract/3,
+		value_convert/3,
+		debit_isomorphism/2,
+		vecs_are_almost_equal/2,
+		is_debit/1]).
 
 :- use_module('utils', [
 		coord_is_almost_zero/1,
 		semigroup_foldl/3]).
 
-:- use_module(library(clpr)).
-		    
+:- use_module(library(clpq)).
+:- use_module(library(record)).
+
+:- record coord(unit, debit, credit).
+:- record value(unit, amount).
+
+	
 % -------------------------------------------------------------------
 % Pacioli group operations. These operations operate on vectors. A vector is a list of
 % coordinates. A coordinate is a triple comprising a unit, a debit amount, and a credit
@@ -56,31 +63,32 @@ coord_inverse(unit(Unit, Value), unit(Unit, Value_Inverted)) :-
 %  - returns vector with same coordinates, just minimized by substracting a common value from
 %    debit and credit, so that one of them becomes 0, for example 150,50 -> 100,0.
 % if both debit and credit is 0, the coord is removed.
-/* fixme: rename to vec_reduce_coords, define vec_reduce(X) as vec_add(X, [])? */
+
+/* fixme: rename to vec_reduce_coords, because this reduces individual coords to normal form, but not against each other.
+define vec_reduce(X) as vec_add(X, [])? */
+
 vec_reduce(As, Bs) :-
-	findall(B,
-		(
-			member(coord(Unit, A_Debit, A_Credit), As),
-			Common_value = min(A_Debit, A_Credit),
-			B_Debit is A_Debit - Common_value,
-			B_Credit is A_Credit - Common_value,
-			B = coord(Unit, B_Debit, B_Credit),
-			\+ is_zero(B)
-		)
-		;
-		(
-			member(B, As),
-			B = value(_,_)
-		),
-		Bs_Raw
-	),
-	maplist(unify_coords, Bs, Bs_Raw),
-	!.
+	vec_reduce2(As, Bs_Raw),
+	exclude(is_zero_coord, Bs_Raw, Bs_Raw2), 
+	maplist(unify_coords_or_values, Bs, Bs_Raw2),
+	!/*needed?*/.
 
+vec_reduce2(As, Bs) :-
+	maplist(vec_reduce3, As, Bs).
 
+vec_reduce3(A, B) :-
+	coord_reduced(A, B).
+
+vec_reduce3(A, A) :-
+	A = value(_,_).
+
+coord_reduced(coord(Unit, A_Debit, A_Credit), coord(Unit, B_Debit, B_Credit)) :-
+	Common_value is min(A_Debit, A_Credit),
+	B_Debit is A_Debit - Common_value,
+	B_Credit is A_Credit - Common_value.
+	
 coord_or_value_unit(coord(Unit,_,_), Unit).
 coord_or_value_unit(value(Unit,_), Unit).
-
 
 vec_units(Vec, Units) :-
 	findall(Unit,
@@ -119,6 +127,9 @@ vec_add(As, Bs, Cs_Reduced) :-
 	flatten(Cs, Cs_Flat),
 	vec_reduce(Cs_Flat, Cs_Reduced).
 
+vec_sum(Vectors, Sum) :-
+	foldl(vec_add, Vectors, [], Sum).
+
 % Subtracts the vector Bs from As by inverting Bs and adding it to As.
 
 vec_sub(As, Bs, Cs) :-
@@ -132,11 +143,18 @@ vec_equality(As, Bs) :-
 	vec_sub(As, Bs, Cs),
 	forall(member(C, Cs), is_zero(C)).
 
-is_zero(coord(_, Zero1, Zero2)) :-
+is_zero(Coord) :-
+	is_zero_coord(Coord).
+	
+is_zero(Value) :-
+	is_zero_value(Value).
+	
+is_zero_coord(coord(_, Zero1, Zero2)) :-
 	{Zero1 =:= 0,
 	Zero2 =:= 0}.
-is_zero(value(_, Zero)) :-
-	is_zero(coord(_, Zero, 0)).
+
+is_zero_value(value(_, Zero)) :-
+	is_zero_coord(coord(_, Zero, 0)).
 
 is_debit(coord(_, _, Zero)) :-
 	{Zero =:= 0}.
@@ -144,11 +162,11 @@ is_debit(coord(_, _, Zero)) :-
 is_debit([coord(_, _, Zero)]) :-
 	{Zero =:= 0}.
 
-unify_coords(coord(U, D1, C1), coord(U, D2, C2)) :-
+unify_coords_or_values(coord(U, D1, C1), coord(U, D2, C2)) :-
 	unify_numbers(D1, D2),
 	unify_numbers(C1, C2).
 
-unify_coords(value(U, V1), value(U, V2)) :-
+unify_coords_or_values(value(U, V1), value(U, V2)) :-
 	unify_numbers(V1, V2).
 
 unify_numbers(A,B) :-
@@ -190,9 +208,6 @@ coord_or_value_of_same_unit(A, B) :-
 coord_or_value_of_same_unit(A, B) :-
 	value_unit(A, A_Unit),
 	value_unit(B, A_Unit).
-
-coord_unit(coord(Unit, _, _), Unit).
-value_unit(value(Unit, _), Unit).
 
 coord_merge(coord(Unit, D1, C1), coord(Unit, D2, C2), coord(Unit, D3, C3)) :-
 	D3 is D2 + D1,

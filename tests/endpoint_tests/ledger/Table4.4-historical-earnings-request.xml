@@ -102,7 +102,18 @@
       </action>
     </actionTaxonomy>
 
-
+	
+	<accounts>
+		default_account_hierarchy.xml
+	</accounts>
+	
+	<accounts>
+		<Expenses>
+			<FoodExpenses/>
+		</Expenses>
+	</accounts>
+			
+	
     <bankStatement>
       <title>Bank Statement</title>
       <period>2018-07-02 - 2018-12-30</period>

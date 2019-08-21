@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<reports xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+<reports xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xsi:schemaLocation="http://localhost:8080/taxonomy/basic.xsd">
   <balanceSheetRequest>
     <generator>
       <date>2019-07-09T11:48:58.1513095Z</date>
@@ -18,21 +18,18 @@
       <notes />
       <directors />
     </company>
+    
+    <outputDimensionalFacts>off</outputDimensionalFacts>
 
-
-    <startDate>2018-07-13</startDate>
-	<endDate>2019-06-30</endDate>
-        
-
+    <startDate>2018-07-01</startDate>
+    <endDate>2019-06-30</endDate>
     <defaultCurrency>
       <unitType>AUD</unitType>
     </defaultCurrency>
     <reportCurrency>
       <unitType>AUD</unitType>
     </reportCurrency>
-
-	
-	<unitValues>
+    <unitValues>
       <unitValue>
         <unitType>SG_Issuer_SA</unitType>
         <unitValue>0</unitValue>
@@ -68,53 +65,16 @@
         <unitValue>0</unitValue>
         <unitValueCurrency />
       </unitValue>
- 
- 
       <unitValue>
         <unitType>Raiffeisen Switzerland_B.V.</unitType>
         <unitValue>7.05</unitValue>
         <unitValueCurrency />
       </unitValue>
       <unitValue>
-        <unitType>Raiffeisen Switzerland_B.V.</unitType>
-        <unitValue>7.05</unitValue>
-        <unitValueCurrency />
-        <unitValueDate>2018-07-02</unitValueDate>
-      </unitValue>
-      <unitValue>
-        <unitType>Raiffeisen Switzerland_B.V.</unitType>
-        <unitValue>7.05</unitValue>
-        <unitValueCurrency />
-        <unitValueDate>2018-07-13</unitValueDate>
-      </unitValue>
-
-
-
-      <unitValue>
         <unitType>SG Issuer_SA_USD_1</unitType>
         <unitValue>40</unitValue>
         <unitValueCurrency />
       </unitValue>
-      <unitValue>
-        <unitType>SG Issuer_SA_USD_1</unitType>
-        <unitValue>40</unitValue>
-        <unitValueDate>2018-07-01</unitValueDate>
-        <unitValueCurrency />
-      </unitValue>
-      <unitValue>
-        <unitType>SG Issuer_SA_USD_1</unitType>
-        <unitValue>40</unitValue>
-        <unitValueDate>2018-07-02</unitValueDate>
-        <unitValueCurrency />
-      </unitValue>
-      <unitValue>
-        <unitType>SG Issuer_SA_USD_1</unitType>
-        <unitValue>40</unitValue>
-        <unitValueDate>2018-07-13</unitValueDate>
-        <unitValueCurrency />
-      </unitValue>
-
-
       <unitValue>
         <unitType>Leonteq Securities AG USD</unitType>
         <unitValue>0</unitValue>
@@ -223,12 +183,6 @@
         <unitValue>1.365001</unitValue>
         <unitValueDate>2018-12-30</unitValueDate>
       </unitValue>
-<!--      <unitValue>
-        <unitType>CHF</unitType>
-        <unitValue>1.465001</unitValue>
-        <unitValueDate>2019-06-30</unitValueDate>
-      </unitValue>
--->
 
       <unitValue>
         <unitType>USD</unitType>
@@ -260,12 +214,6 @@
         <unitValue>1.358880</unitValue>
         <unitValueDate>2018-10-15</unitValueDate>
       </unitValue>
-<!--      <unitValue>
-        <unitType>USD</unitType>
-        <unitValue>1.348880</unitValue>
-        <unitValueDate>2019-06-30</unitValueDate>
-      </unitValue>
--->
 
 
 
@@ -347,22 +295,6 @@
             <debit>139760.32</debit>
             <credit>0</credit>
             <unit>140000</unit>
-            <unitType>SG Issuer_SA_USD_1</unitType>
-          </transaction>
-          <transaction>
-            <transdesc>Invest_In</transdesc>
-            <transdate>2018-07-02</transdate>
-            <debit>139760.32</debit>
-            <credit>0</credit>
-            <unit>10000</unit>
-            <unitType>SG Issuer_SA_USD_1</unitType>
-          </transaction>
-          <transaction>
-            <transdesc>Dispose_Off</transdesc>
-            <transdate>2018-12-30</transdate>
-            <debit>0</debit>
-            <credit>145000</credit>
-            <unit>145000</unit>
             <unitType>SG Issuer_SA_USD_1</unitType>
           </transaction>
           <transaction>

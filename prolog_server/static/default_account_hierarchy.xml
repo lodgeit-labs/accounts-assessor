@@ -34,7 +34,7 @@
 			<CapitalIntroduced/>
 			<Drawings/>
 		</Equity>
-		<Earnings>
+		<NetIncomeLoss>
 			<Revenue>
 				<ClearingAccount/>
 				<Income/>
@@ -59,8 +59,7 @@
 				<Purchases/>
 				<CostOfGoodsLivestock/>
 				<OtherExpenses/>
-				<FoodExpenses/>
 			</Expenses>
-		</Earnings>
+		</NetIncomeLoss>
 	</Accounts>
 </accountHierarchy>

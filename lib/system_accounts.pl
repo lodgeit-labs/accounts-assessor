@@ -1,4 +1,5 @@
 :- module(system_accounts, [
+		traded_units/3,
 		generate_system_accounts/3, 
 		trading_account_ids/2,
 		bank_accounts/2]).
@@ -44,21 +45,20 @@ generate_system_accounts(Info, Accounts_In, Accounts_Out) :-
 find_or_add_required_accounts((S_Transactions, Livestock_Types, Transaction_Types), Accounts_In, Accounts_Out) :-
 /*fixme, accounts should be added one by one and id uniqueness checked against all the previously added accounts each time */
 	Missing_Stuff = [
-		/*these should more or less probably go into the taxonomy*/
+		/* needs to go into taxonomy */
+		account('CurrencyMovement', 			'Revenue', 					'Accounts'/'CurrencyMovement', 0),
+
+		/* we can happily generate these for now and they can be added to / matched up with the taxonomy when needed */
 		account('Inventory', 					'accountHierarchy', 		'accountHierarchy'/'Inventory', 0),
 		account('LivestockCount', 				'Inventory', 				'Inventory'/'LivestockCount', 0),
-		account('NetAssets', 					'Accounts', 				'Accounts'/'NetAssets', 0),
-		account('Banks', 						'CashAndCashEquivalents', 	'Accounts'/'Banks', 0),
-		account('AccountingFees', 				'Accounts', 				'Accounts'/'AccountingFees', 0),
-		account('CurrencyMovement', 			'Revenue', 					'Accounts'/'CurrencyMovement', 0),
-		account('ExchangeGain', 				'Accounts', 				'Accounts'/'ExchangeGain', 0),
-		account('ClearingAccount', 				'Accounts', 				'Accounts'/'ClearingAccount', 0),
-		account('CapitalIntroduced', 			'Accounts', 				'Accounts'/'CapitalIntroduced', 0),
-		/*this one should definitely be contained in some testing hierarchy file*/
-		account('FoodExpenses', 				'Accounts', 				'Accounts'/'FoodExpenses', 0),
-		account('AssetsLivestockAtCost', 		'Accounts', 				'Accounts'/'AssetsLivestockAtCost', 0),
-		account('AssetsLivestockAtAverageCost', 'Accounts', 				'Accounts'/'AssetsLivestockAtAverageCost', 0)
+		account('AssetsLivestockAtCost', 		'NoncurrentAssets', 				'Accounts'/'AssetsLivestockAtCost', 0),
+		account('AssetsLivestockAtAverageCost', 'NoncurrentAssets', 				'Accounts'/'AssetsLivestockAtAverageCost', 0),
 
+		/* should mostly be contained in some testing hierarchy file / directly in a request / .. */
+		account('CapitalIntroduced', 			'Equity', 				'Accounts'/'CapitalIntroduced', 0),
+		account('ClearingAccount', 				'Equity', 				'Accounts'/'ClearingAccount', 0),
+		account('ExchangeGain', 				'Revenue', 				'Accounts'/'ExchangeGain', 0),
+		account('AccountingFees', 				'Expenses', 				'Accounts'/'AccountingFees', 0)
 
 
 	],
