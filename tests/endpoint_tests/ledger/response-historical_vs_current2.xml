@@ -123,7 +123,7 @@ Accounts extracted:
 <!--Generated accounts:
 [ account('Inventory',accountHierarchy,accountHierarchy/'Inventory',0),
   account('LivestockCount','Inventory','Inventory'/'LivestockCount',0),
-  account('Banks_CHF_Bank','Banks','Banks'/'CHF_Bank',1),
+  account('BanksCHF_Bank','Banks','Banks'/'CHF_Bank',1),
   account('CurrencyMovement_CHF_Bank',
 	  'CurrencyMovement',
 	  'CurrencyMovement' / 'CHF_Bank',
@@ -152,21 +152,21 @@ Accounts extracted:
 	  'InvestmentIncome',
 	  'InvestmentIncome' / unrealized,
 	  0),
-  account('InvestmentIncome_unrealized_only_currency_movement',
+  account('InvestmentIncomeUnrealizedOnlyCurrencyMovement',
 	  'InvestmentIncome_unrealized',
 	  'InvestmentIncome_unrealized' / only_currency_movement,
 	  0),
-  account('InvestmentIncome_unrealized_only_currency_movement_Leonteq_N',
-	  'InvestmentIncome_unrealized_only_currency_movement',
-	  'InvestmentIncome_unrealized_only_currency_movement' / 'Leonteq_N',
+  account('InvestmentIncomeUnrealizedOnlyCurrencyMovement_Leonteq_N',
+	  'InvestmentIncomeUnrealizedOnlyCurrencyMovement',
+	  'InvestmentIncomeUnrealizedOnlyCurrencyMovement' / 'Leonteq_N',
 	  1),
-  account('InvestmentIncome_unrealized_without_currency_movement',
+  account('InvestmentIncomeUnrealizedWithoutCurrencyMovement',
 	  'InvestmentIncome_unrealized',
 	  'InvestmentIncome_unrealized' / without_currency_movement,
 	  0),
-  account('InvestmentIncome_unrealized_without_currency_movement_Leonteq_N',
-	  'InvestmentIncome_unrealized_without_currency_movement',
-	  'InvestmentIncome_unrealized_without_currency_movement' / 'Leonteq_N',
+  account('InvestmentIncomeUnrealizedWithoutCurrencyMovement_Leonteq_N',
+	  'InvestmentIncomeUnrealizedWithoutCurrencyMovement',
+	  'InvestmentIncomeUnrealizedWithoutCurrencyMovement' / 'Leonteq_N',
 	  1),
   account('FinancialInvestments_Leonteq_N',
 	  'FinancialInvestments',
@@ -184,7 +184,7 @@ s_transaction(date(2015,1,1),
 	      [coord('CHF',0,100)],
 	      'CHF_Bank',
 	      vector([coord('Leonteq_N',10,0)]))==>
-date(2015,1,1): Banks_CHF_Bank
+date(2015,1,1): BanksCHF_Bank
   Invest_In - outgoing money
   CR:U1:coord('CHF',0,100)
 
@@ -192,22 +192,22 @@ date(2015,1,1): FinancialInvestments_Leonteq_N
   Invest_In
   DR:U2:coord('Leonteq_N',10,0)
 
-date(2018,1,1): InvestmentIncome_unrealized_only_currency_movement_Leonteq_N
+date(2018,1,1): InvestmentIncomeUnrealizedOnlyCurrencyMovement_Leonteq_N
   comment:?, comment2:Invest_In - current part
   CR:U2:coord('Leonteq_N',0,10)
   DR:U3:coord(without_currency_movement_against_since('Leonteq_N','CHF',['CHF'],date(2018,1,1)),10,0)
 
-date(2018,1,1): InvestmentIncome_unrealized_without_currency_movement_Leonteq_N
+date(2018,1,1): InvestmentIncomeUnrealizedWithoutCurrencyMovement_Leonteq_N
   comment:?, comment2:Invest_In - current part
   CR:U3:coord(without_currency_movement_against_since('Leonteq_N','CHF',['CHF'],date(2018,1,1)),0,10)
   DR:U4:coord(without_movement_after('Leonteq_N',date(2018,1,1)),10,0)
 
-date(2015,1,1): InvestmentIncome_unrealized_only_currency_movement_Leonteq_N
+date(2015,1,1): InvestmentIncomeUnrealizedOnlyCurrencyMovement_Leonteq_N
   comment:?, comment2:Invest_In - historical part
   CR:U4:coord(without_movement_after('Leonteq_N',date(2018,1,1)),0,10)
   DR:U5:coord(without_movement_after(without_currency_movement_against_since('Leonteq_N','CHF',['CHF'],date(2015,1,1)),date(2018,1,1)),10,0)
 
-date(2015,1,1): InvestmentIncome_unrealized_without_currency_movement_Leonteq_N
+date(2015,1,1): InvestmentIncomeUnrealizedWithoutCurrencyMovement_Leonteq_N
   comment:?, comment2:Invest_In - historical part
   CR:U5:coord(without_movement_after(without_currency_movement_against_since('Leonteq_N','CHF',['CHF'],date(2015,1,1)),date(2018,1,1)),0,10)
   DR:U1:coord('CHF',100.0,0)
@@ -311,7 +311,7 @@ done.
 	</xbrli:entity>
 		<xbrli:scenario>
 			<xbrldi:typedMember dimension="basic:Dimension_BankAccounts_Instant">
-			<basic:BankAccount_Instant><name>Banks_CHF_Bank</name><value>10000</value></basic:BankAccount_Instant>
+			<basic:BankAccount_Instant><name>BanksCHF_Bank</name><value>10000</value></basic:BankAccount_Instant>
 			</xbrldi:typedMember>
 		</xbrli:scenario>
 </xbrli:context>
@@ -346,9 +346,9 @@ done.
 
 
 <!-- dimensional facts: -->
-  <basic:Bank contextRef="I-2018-CHF_Bank" unitRef="U-CHF" decimals="INF">-100.00</basic:Bank>
-  <basic:InvestmentIncome_unrealized_only_currency_movement contextRef="D-2018-Leonteq_N" unitRef="U-CHF" decimals="INF">0.00</basic:InvestmentIncome_unrealized_only_currency_movement>
-  <basic:InvestmentIncome_unrealized_without_currency_movement contextRef="D-2018-Leonteq_N" unitRef="U-CHF" decimals="INF">50.00</basic:InvestmentIncome_unrealized_without_currency_movement>
+  <basic:Banks contextRef="I-2018-CHF_Bank" unitRef="U-CHF" decimals="INF">-100.00</basic:Banks>
+  <basic:InvestmentIncomeUnrealizedOnlyCurrencyMovement contextRef="D-2018-Leonteq_N" unitRef="U-CHF" decimals="INF">0.00</basic:InvestmentIncomeUnrealizedOnlyCurrencyMovement>
+  <basic:InvestmentIncomeUnrealizedWithoutCurrencyMovement contextRef="D-2018-Leonteq_N" unitRef="U-CHF" decimals="INF">50.00</basic:InvestmentIncomeUnrealizedWithoutCurrencyMovement>
 
 <!-- investment report:
 url: http://localhost:8080/tmp/1566374912.6446788.2/investment_report.html
@@ -382,17 +382,17 @@ url: http://localhost:8080/tmp/1566374912.6446788.2/profit_and_loss.html
  <basic:NetIncomeLoss contextRef="D-2018" unitRef="U-CHF" decimals="INF">50.00</basic:NetIncomeLoss>
   <basic:Revenue contextRef="D-2018" unitRef="U-CHF" decimals="INF">50.00</basic:Revenue>
    <basic:InvestmentIncome contextRef="D-2018" unitRef="U-CHF" decimals="INF">50.00</basic:InvestmentIncome>
-    <basic:InvestmentIncome_unrealized contextRef="D-2018" unitRef="U-CHF" decimals="INF">50.00</basic:InvestmentIncome_unrealized>
-     <basic:InvestmentIncome_unrealized_only_currency_movement contextRef="D-2018" unitRef="U-CHF" decimals="INF">0.00</basic:InvestmentIncome_unrealized_only_currency_movement>
-     <basic:InvestmentIncome_unrealized_without_currency_movement contextRef="D-2018" unitRef="U-CHF" decimals="INF">50.00</basic:InvestmentIncome_unrealized_without_currency_movement>
+    <basic:InvestmentIncomeUnrealized contextRef="D-2018" unitRef="U-CHF" decimals="INF">50.00</basic:InvestmentIncomeUnrealized>
+     <basic:InvestmentIncomeUnrealizedOnlyCurrencyMovement contextRef="D-2018" unitRef="U-CHF" decimals="INF">0.00</basic:InvestmentIncomeUnrealizedOnlyCurrencyMovement>
+     <basic:InvestmentIncomeUnrealizedWithoutCurrencyMovement contextRef="D-2018" unitRef="U-CHF" decimals="INF">50.00</basic:InvestmentIncomeUnrealizedWithoutCurrencyMovement>
 
 <!-- historical profit and loss: 
  <basic:NetIncomeLoss contextRef="D-2018" unitRef="U-CHF" decimals="INF">50.00</basic:NetIncomeLoss>
   <basic:Revenue contextRef="D-2018" unitRef="U-CHF" decimals="INF">50.00</basic:Revenue>
    <basic:InvestmentIncome contextRef="D-2018" unitRef="U-CHF" decimals="INF">50.00</basic:InvestmentIncome>
     <basic:InvestmentIncome_unrealized contextRef="D-2018" unitRef="U-CHF" decimals="INF">50.00</basic:InvestmentIncome_unrealized>
-     <basic:InvestmentIncome_unrealized_only_currency_movement contextRef="D-2018" unitRef="U-CHF" decimals="INF">0.00</basic:InvestmentIncome_unrealized_only_currency_movement>
-     <basic:InvestmentIncome_unrealized_without_currency_movement contextRef="D-2018" unitRef="U-CHF" decimals="INF">50.00</basic:InvestmentIncome_unrealized_without_currency_movement>
+     <basic:InvestmentIncomeUnrealizedOnlyCurrencyMovement contextRef="D-2018" unitRef="U-CHF" decimals="INF">0.00</basic:InvestmentIncomeUnrealizedOnlyCurrencyMovement>
+     <basic:InvestmentIncomeUnrealizedWithoutCurrencyMovement contextRef="D-2018" unitRef="U-CHF" decimals="INF">50.00</basic:InvestmentIncomeUnrealizedWithoutCurrencyMovement>
 
 -->
 

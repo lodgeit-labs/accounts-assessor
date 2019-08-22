@@ -294,7 +294,7 @@ done.
 	</xbrli:entity>
 		<xbrli:scenario>
 			<xbrldi:typedMember dimension="basic:Dimension_BankAccounts_Instant">
-			<basic:BankAccount_Instant><name>Banks_CHF_Bank</name><value>10000</value></basic:BankAccount_Instant>
+			<basic:BankAccount_Instant><name>BanksCHF_Bank</name><value>10000</value></basic:BankAccount_Instant>
 			</xbrldi:typedMember>
 		</xbrli:scenario>
 </xbrli:context>
@@ -315,7 +315,7 @@ done.
 
 
 <!-- dimensional facts: -->
-  <basic:Bank contextRef="I-2018-CHF_Bank" unitRef="U-AUD" decimals="INF">0.00</basic:Bank>
+  <basic:Banks contextRef="I-2018-CHF_Bank" unitRef="U-AUD" decimals="INF">0.00</basic:Banks>
   <basic:CurrencyMovement contextRef="D-2018-CHF_Bank" unitRef="U-AUD" decimals="INF">0.00</basic:CurrencyMovement>
 
 <!-- investment report:
@@ -344,7 +344,7 @@ url: http://localhost:8080/tmp/1566374573.0464115.2/profit_and_loss.html
    <basic:BankCharges contextRef="D-2018" unitRef="U-AUD" decimals="INF">400.00</basic:BankCharges>
   <basic:Revenue contextRef="D-2018" unitRef="U-AUD" decimals="INF">400.00</basic:Revenue>
    <basic:CurrencyMovement contextRef="D-2018" unitRef="U-AUD" decimals="INF">0.00</basic:CurrencyMovement>
-    <basic:CurrencyMovement_CHF_Bank contextRef="D-2018" unitRef="U-AUD" decimals="INF">0.00</basic:CurrencyMovement_CHF_Bank>
+    <basic:CurrencyMovementCHF_Bank contextRef="D-2018" unitRef="U-AUD" decimals="INF">0.00</basic:CurrencyMovementCHF_Bank>
    <basic:Income contextRef="D-2018" unitRef="U-AUD" decimals="INF">400.00</basic:Income>
 
 <!-- historical profit and loss: 

@@ -269,13 +269,13 @@ Produced on 2019-08-09 09:56:41
     <presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="basic_InvestmentReportTable" xlink:to="basic_InvestmentReportLineItems" order="2" use="optional" />
     <loc xlink:type="locator" xlink:href="basic.xsd#basic_InvestmentReportHierarchy" xlink:label="basic_InvestmentReportHierarchy" />
     <presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="basic_InvestmentReportLineItems" xlink:to="basic_InvestmentReportHierarchy" order="1" use="optional" />
-    <loc xlink:type="locator" xlink:href="basic.xsd#basic_InvestmentIncomerealizedonlycurrencymovement" xlink:label="basic_InvestmentIncomerealizedonlycurrencymovement" />
-    <presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="basic_InvestmentReportHierarchy" xlink:to="basic_InvestmentIncomerealizedonlycurrencymovement" order="1" use="optional" />
-    <loc xlink:type="locator" xlink:href="basic.xsd#basic_InvestmentIncomeunrealizedonlycurrencymovement" xlink:label="basic_InvestmentIncomeunrealizedonlycurrencymovement" />
-    <presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="basic_InvestmentReportHierarchy" xlink:to="basic_InvestmentIncomeunrealizedonlycurrencymovement" order="2" use="optional" />
-    <loc xlink:type="locator" xlink:href="basic.xsd#basic_InvestmentIncomerealizedwithoutcurrencymovement" xlink:label="basic_InvestmentIncomerealizedwithoutcurrencymovement" />
-    <presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="basic_InvestmentReportHierarchy" xlink:to="basic_InvestmentIncomerealizedwithoutcurrencymovement" order="3" use="optional" />
-    <loc xlink:type="locator" xlink:href="basic.xsd#basic_InvestmentIncomeunrealizedwithoutcurrencymovement" xlink:label="basic_InvestmentIncomeunrealizedwithoutcurrencymovement" />
-    <presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="basic_InvestmentReportHierarchy" xlink:to="basic_InvestmentIncomeunrealizedwithoutcurrencymovement" order="4" use="optional" />
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_InvestmentIncomeRealizedOnlyCurrencyMovement" xlink:label="basic_InvestmentIncomeRealizedOnlyCurrencyMovement" />
+    <presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="basic_InvestmentReportHierarchy" xlink:to="basic_InvestmentIncomeRealizedOnlyCurrencyMovement" order="1" use="optional" />
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_InvestmentIncomeUnrealizedOnlyCurrencyMovement" xlink:label="basic_InvestmentIncomeUnrealizedOnlyCurrencyMovement" />
+    <presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="basic_InvestmentReportHierarchy" xlink:to="basic_InvestmentIncomeUnrealizedOnlyCurrencyMovement" order="2" use="optional" />
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_InvestmentIncomeRealizedWithoutCurrencyMovement" xlink:label="basic_InvestmentIncomeRealizedWithoutCurrencyMovement" />
+    <presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="basic_InvestmentReportHierarchy" xlink:to="basic_InvestmentIncomeRealizedWithoutCurrencyMovement" order="3" use="optional" />
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_InvestmentIncomeUnrealizedWithoutCurrencyMovement" xlink:label="basic_InvestmentIncomeUnrealizedWithoutCurrencymovement" />
+    <presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="basic_InvestmentReportHierarchy" xlink:to="basic_InvestmentIncomeUnrealizedWithoutCurrencyMovement" order="4" use="optional" />
   </presentationLink>
 </linkbase>

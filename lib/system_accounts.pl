@@ -19,7 +19,8 @@
 		s_transaction_vector/2,
 		s_transaction_exchanged/2]).
 :- use_module('utils', [
-		replace_nonalphanum_chars_with_underscore/2]).
+		replace_nonalphanum_chars_with_underscore/2,
+		capitalize_atom/2]).
 /*	
 Take the output of find_or_add_required_accounts and filter out existing accounts by role. 
 Change id's to unique if needed.
@@ -188,7 +189,7 @@ ensure_gains_accounts_exist(Accounts_In, S_Transactions, Transaction_Types, Acco
 			Accounts_In, 
 			[
 				([realized, unrealized], 0), 
-				([withoutcurrencymovement, onlycurrencymovement], 0),
+				([withoutCurrencyMovement, onlyCurrencyMovement], 0),
 				(Units, 1)
 			]
 		), 
@@ -243,7 +244,8 @@ ensure_account_exists(Accounts_In, Parent_Id, Detail_Level, Role, Account) :-
 	;
 		(
 			replace_nonalphanum_chars_with_underscore(Child_Role_Raw, Child_Role_Safe),
-			atomic_list_concat([Parent_Id, '', Child_Role_Safe], Id),
+			capitalize_atom(Child_Role_Safe, Child_Role_Capitalized),
+			atomic_list_concat([Parent_Id, '', Child_Role_Capitalized], Id),
 			free_id(Accounts_In, Id, Free_Id),
 			account_role(Account, Role),
 			account_parent(Account, Parent_Id),
