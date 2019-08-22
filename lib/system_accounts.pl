@@ -47,6 +47,7 @@ find_or_add_required_accounts((S_Transactions, Livestock_Types, Transaction_Type
 	Missing_Stuff = [
 		/* needs to go into taxonomy */
 		account('CurrencyMovement', 			'Revenue', 					'Accounts'/'CurrencyMovement', 0),
+		account('ClearingAccount', 				'Equity', 				'Accounts'/'ClearingAccount', 0),
 
 		/* we can happily generate these for now and they can be added to / matched up with the taxonomy when needed */
 		account('Inventory', 					'accountHierarchy', 		'accountHierarchy'/'Inventory', 0),
@@ -56,7 +57,6 @@ find_or_add_required_accounts((S_Transactions, Livestock_Types, Transaction_Type
 
 		/* should mostly be contained in some testing hierarchy file / directly in a request / .. */
 		account('CapitalIntroduced', 			'Equity', 				'Accounts'/'CapitalIntroduced', 0),
-		account('ClearingAccount', 				'Equity', 				'Accounts'/'ClearingAccount', 0),
 		account('ExchangeGain', 				'Revenue', 				'Accounts'/'ExchangeGain', 0),
 		account('AccountingFees', 				'Expenses', 				'Accounts'/'AccountingFees', 0)
 
