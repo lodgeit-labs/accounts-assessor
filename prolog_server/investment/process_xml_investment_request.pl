@@ -35,7 +35,8 @@ see doc/investment and dropbox Develop/videos/ledger
 :- use_module('../../lib/pacioli',  [
 		number_coord/3,
 		vec_add/3]).
-
+:- use_module('../../lib/transactions', [
+		transactions_by_account/2]).
 
 	
 :- record investment(
@@ -174,18 +175,34 @@ process_realized(Dom, Global_Report_Date_Atom, Result) :-
 	account_assertion(Info, Gain_Account, -RC_Realized_Total_Gain),
 
 	dict_from_vars(Static_Data0, [Exchange_Rates, Accounts, Transactions]),
-	Static_Data = Static_Data0.put(
-		report_currency, [report_currency]).put(
-		start_date, Purchase_Date).put(
-		end_date, Sale_Date).put(
-		exchange_date, Sale_Date),
+
+	Static_Data1 = Static_Data0.put(
+		report_currency, 
+		[report_currency]
+	).put(
+		start_date,
+		Purchase_Date
+	).put(
+		end_date,
+		Sale_Date
+	).put(
+		exchange_date,
+		Sale_Date
+	),
+
+	transactions_by_account(Static_Data1, Transactions_By_Account),
+
+	Static_Data = Static_Data1.put(
+		accounts_transactions,
+		Transactions_By_Account
+	),
 	
 	profitandloss_between(Static_Data, ProftAndLoss),
 	format_report_entries(xbrl, Accounts, 0, [report_currency], Sale_Date, ProftAndLoss, [], _, [], ProftAndLoss_Lines),
 	writeln('<!--'),
 	writeln(ProftAndLoss_Lines),
 	writeln('-->'),
-	
+
 	balance_sheet_at(Static_Data, Balance_Sheet),
 	format_report_entries(xbrl, Accounts, 0, [report_currency], Sale_Date, Balance_Sheet, [], _, [], Balance_Sheet_Lines),
 	writeln('<!--'),
@@ -297,13 +314,37 @@ process_unrealized(Dom, Global_Report_Date, Result) :-
 		_,
 		_
 	),
-	
-	profitandloss_between(Exchange_Rates, Accounts, Transactions, [report_currency], Report_Date, Purchase_Date, Report_Date, ProftAndLoss),
+
+
+	dict_from_vars(Static_Data0, [Exchange_Rates, Accounts, Transactions]),
+
+	Static_Data1 = Static_Data0.put(
+		report_currency, 
+		[report_currency]
+	).put(
+		start_date,
+		Purchase_Date
+	).put(
+		end_date,
+		Report_Date
+	).put(
+		exchange_date,
+		Report_Date
+	),
+
+	transactions_by_account(Static_Data1, Transactions_By_Account),
+
+	Static_Data = Static_Data1.put(
+		accounts_transactions,
+		Transactions_By_Account
+	),
+
+	profitandloss_between(Static_Data, ProftAndLoss),
 	format_report_entries(xbrl, Accounts, 0, [report_currency], Report_Date, ProftAndLoss, [], _, [], ProftAndLoss_Lines),
 	writeln('<!--'),
 	writeln(ProftAndLoss_Lines),
 	writeln('-->'),
-	balance_sheet_at(Exchange_Rates, Accounts, Transactions, [report_currency], Report_Date, Purchase_Date, Report_Date, Balance_Sheet),
+	balance_sheet_at(Static_Data, Balance_Sheet),
 	format_report_entries(xbrl, Accounts, 0, [report_currency], Report_Date, Balance_Sheet, [], _, [], Balance_Sheet_Lines),
 	writeln('<!--'),
 	writeln(Balance_Sheet_Lines),
@@ -355,6 +396,7 @@ account_vector(Info, Account, Vector) :-
     balance_by_account(Exchange_Rates, Accounts, Transactions, [Currency], Report_Date, Account, Report_Date, Vector, _).
 
 process_xml_investment_request(_, DOM) :-
+	% gtrace,
 	xpath(DOM, //reports/investmentRequest/investments, _),
 	writeln('<?xml version="1.0"?>'),
 	writeln('<response>'),
@@ -571,12 +613,39 @@ crosscheck_totals(Results, Report_Date) :-
 	/*
 		debug printout
 	*/
-	profitandloss_between(Exchange_Rates, Accounts, Transactions, [report_currency], Report_Date, date(2000,1,1), Report_Date, ProftAndLoss),
-	format_report_entries(xbrl, Accounts, 0, [report_currency], Report_Date, ProftAndLoss, [], _, [], ProftAndLoss_Lines),
+	dict_from_vars(Static_Data0, [Exchange_Rates, Accounts, Transactions]),
+
+	Static_Data1 = Static_Data0.put(
+		report_currency, 
+		[report_currency]
+	).put(
+		start_date,
+		date(2000,1,1)
+	).put(
+		end_date,
+		Report_Date
+	).put(
+		exchange_date,
+		Report_Date
+	),
+
+	transactions_by_account(Static_Data1, Transactions_By_Account),
+
+	Static_Data = Static_Data1.put(
+		accounts_transactions,
+		Transactions_By_Account
+	),
+
+
+
+	%profitandloss_between(Exchange_Rates, Accounts, Transactions, [report_currency], Report_Date, date(2000,1,1), Report_Date, ProftAndLoss),
+	profitandloss_between(Static_Data, ProfitAndLoss),
+	format_report_entries(xbrl, Accounts, 0, [report_currency], Report_Date, ProfitAndLoss, [], _, [], ProfitAndLoss_Lines),
 	writeln('<!--'),
-	writeln(ProftAndLoss_Lines),
+	writeln(ProfitAndLoss_Lines),
 	writeln('-->'),
-	balance_sheet_at(Exchange_Rates, Accounts, Transactions, [report_currency], Report_Date, date(2000,1,1), Report_Date, Balance_Sheet),
+	%balance_sheet_at(Exchange_Rates, Accounts, Transactions, [report_currency], Report_Date, date(2000,1,1), Report_Date, Balance_Sheet),
+	balance_sheet_at(Static_Data, Balance_Sheet),	
 	format_report_entries(xbrl, Accounts, 0, [report_currency], Report_Date, Balance_Sheet, [], _, [], Balance_Sheet_Lines),
 	writeln('<!--'),
 	writeln(Balance_Sheet_Lines),
