@@ -166,8 +166,11 @@ user:goal_expansion(
 dict_vars_assignment([Var|Vars], Dict, Code) :-
 	var_property(Var, name(Key)),
 	downcase_atom(Key, Key_Lcase),
-	Code0 = get_dict(Key_Lcase, Dict, Var),
-	Code = (assertion(Code0), Code0, Codes),
+	
+	%Code0 = get_dict_ex(Key_Lcase, Dict, Var), % not supported in some versions?
+	Code0 = ((get_dict(Key_Lcase, Dict, Var)->true;throw(existence_error(key, Key_Lcase, Dict)))),
+	
+	Code = (Code0, Codes),
 	dict_vars_assignment(Vars, Dict, Codes).
 
 dict_vars_assignment([], _, true).

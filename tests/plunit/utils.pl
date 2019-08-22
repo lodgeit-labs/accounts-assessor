@@ -38,6 +38,15 @@ test(8, all((Start_Date, End_Date, Accounts) = [(x, y, z)])) :-
 test(9, all((End_Date, Accounts) = [(y, z)])) :-
 	dict_vars(_{start_date:x, end_date:y, accounts:z}, [Accounts, End_Date]).
 
+/*test(b8, throws(error(existence_error(_,_,_),_))) :-
+	dict_vars(_{z:z}, [A]), A=A.*/ % evaluates at compile time?
+
+test(b9, throws(error(existence_error(_,_),_))) :-
+	get_a(_{z:z}).
+	
+get_a(Dict) :-
+	dict_vars(Dict, [a]).
+	
 /*test(10, throws(_Error)) :-
 	End_Date = _, goal_expansion(dict_vars(_{accounts:z}, [End_Date]), _Code).*/
 

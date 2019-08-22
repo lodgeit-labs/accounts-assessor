@@ -35,8 +35,7 @@
 :- use_module(library(record)).
 :- use_module(library(xpath)).
 :- use_module('utils', [inner_xml/3, trim_atom/2,pretty_term_string/2, throw_string/1, is_uri/1]).
-:- use_module('../lib/files', [server_public_url/1, my_tmp_file_name/2	,store_xml_document/2
-]).
+:- use_module('../lib/files', [server_public_url/1, my_tmp_file_name/2]).
 :- use_module(library(http/http_dispatch), [http_safe_file/2]).
 :- use_module(library(http/http_open), [http_open/3]).
 % :- use_module(library(yall)).

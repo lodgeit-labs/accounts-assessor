@@ -9,7 +9,7 @@
 % Modules
 % -------------------------------------------------------------------
 
-:- module(process_xml_ledger_request, [process_xml_ledger_request/2]).
+:- module(process_xml_ledger_request, [process_xml_ledger_request/3]).
 
 :- use_module(library(xpath)).
 :- use_module(library(rdet)).
@@ -91,11 +91,7 @@
 
 
 
-% ------------------------------------------------------------------
-% process_xml_ledger_request/2
-% ------------------------------------------------------------------
-
-process_xml_ledger_request(_, Dom) :-
+process_xml_ledger_request(_, Dom, files{}) :-
 	/* does it look like a ledger request? */
 	inner_xml(Dom, //reports/balanceSheetRequest, _),
 	/*

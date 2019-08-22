@@ -157,15 +157,7 @@ is_request_file(Atom) :-
 	sub_atom_icasechk(Atom, _Start2, 'request').
 
 response_file(Atom, Response) :-
-	atom_string(Atom, String),
-	(
-		(
-			re_replace('request', 'response', String, Response);
-			re_replace('Request', 'Response', String, Response);
-			re_replace('REQUEST', 'RESPONSE', String, Response)
-		),
-		String \= Response
-	),
+	replace_request_with_response(Atom, Response),
 	absolute_file_name(my_tests(Response),_,[ access(read), file_errors(fail) ]),
 	!.
 

@@ -119,12 +119,13 @@ upload(_, _) :-
 tests(Url, Request) :-
 	bump_tmp_directory_id,
 	absolute_file_name(my_tests(Url), Path, [ access(read), file_errors(fail) ]),
-	copy_test_file_into_tmp(Url, Tmp_Request_File_Path),
-	process_data(_FileName, Path, Request).
+	copy_test_file_into_tmp(Path, Url),
+	exclude_file_location_from_filename(Path, File_Name),
+	process_data(File_Name, Path, Request).
 
-copy_test_file_into_tmp(Url, Tmp_Request_File_Path) :-
+copy_test_file_into_tmp(Path, Url) :-
 	tmp_file_path_from_url(Url, Tmp_Request_File_Path),
-	copy_file(Path, Tmp_Request_File_Path),
+	copy_file(Path, Tmp_Request_File_Path).
 
 % -------------------------------------------------------------------
 % multipart_post_request/1
