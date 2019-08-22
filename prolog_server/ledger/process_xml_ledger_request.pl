@@ -104,6 +104,7 @@ process_xml_ledger_request2(_, Dom) :-
 	/*
 		first let's extract data from the request
 	*/
+
 	extract_output_dimensional_facts(Dom, Output_Dimensional_Facts),
 	extract_cost_or_market(Dom, Cost_Or_Market),
 	extract_default_currency(Dom, Default_Currency),

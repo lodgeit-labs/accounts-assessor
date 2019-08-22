@@ -30,14 +30,14 @@
         <id>Invest_In</id>
         <description>Shares</description>
         <exchangeAccount>FinancialInvestments</exchangeAccount>
-        <tradingAccount>InvestmentIncomeCopy</tradingAccount>
+        <tradingAccount>InvestmentIncome</tradingAccount>
       </action>
 
       <action>
         <id>Dispose_Of</id>
         <description>Shares</description>
         <exchangeAccount>FinancialInvestments</exchangeAccount>
-        <tradingAccount>InvestmentIncomeCopy</tradingAccount>
+        <tradingAccount>InvestmentIncome</tradingAccount>
       </action>
 
       <action>

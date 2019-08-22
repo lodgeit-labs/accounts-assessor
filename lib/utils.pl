@@ -24,7 +24,8 @@
 		filter_out_chars_from_atom/3,
 		coord_is_almost_zero/1,
 		is_uri/1,
-		sort_into_dict/3]).
+		sort_into_dict/3,
+		capitalize_atom/2]).
 
 		
 :- use_module(library(xpath)).
@@ -366,6 +367,13 @@ get_indentation(0, ' ').
 replace_nonalphanum_chars_with_underscore(Atom1, Atom2) :-
 	atom_chars(Atom1, Atom1_Chars),
 	maplist(replace_nonalphanum_char_with_underscore, Atom1_Chars, Atom2_Chars),
+	atom_chars(Atom2, Atom2_Chars).
+	
+capitalize_atom(Atom1, Atom2) :-
+	atom_chars(Atom1, Atom1_Chars),
+	[First_Char|Atom1_Chars_Rest] = Atom1_Chars,
+	char_type(Upper, to_upper(First_Char)),
+	[Upper|Atom1_Chars_Rest] = Atom2_Chars,
 	atom_chars(Atom2, Atom2_Chars).
 	
 replace_nonalphanum_char_with_underscore(Char1, Char2) :-

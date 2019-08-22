@@ -154,25 +154,25 @@ Accounts extracted:
 	  'InvestmentIncome_realized_without_currency_movement',
 	  'InvestmentIncome_realized_without_currency_movement' / 'BHP',
 	  1),
-  account('InvestmentIncome_unrealized',
+  account('InvestmentIncomeUnrealized',
 	  'InvestmentIncome',
 	  'InvestmentIncome' / unrealized,
 	  0),
-  account('InvestmentIncome_unrealized_only_currency_movement',
-	  'InvestmentIncome_unrealized',
-	  'InvestmentIncome_unrealized' / only_currency_movement,
+  account('InvestmentIncomeUnrealizedOnlyCurrencyMovement',
+	  'InvestmentIncomeUnrealized',
+	  'InvestmentIncomeUnrealized' / only_currency_movement,
 	  0),
-  account('InvestmentIncome_unrealized_only_currency_movement_BHP',
-	  'InvestmentIncome_unrealized_only_currency_movement',
-	  'InvestmentIncome_unrealized_only_currency_movement' / 'BHP',
+  account('InvestmentIncomeUnrealizedOnlyCurrencyMovement_BHP',
+	  'InvestmentIncomeUnrealizedOnlyCurrencyMovement',
+	  'InvestmentIncomeUnrealizedOnlyCurrencyMovement' / 'BHP',
 	  1),
-  account('InvestmentIncome_unrealized_without_currency_movement',
-	  'InvestmentIncome_unrealized',
-	  'InvestmentIncome_unrealized' / without_currency_movement,
+  account('InvestmentIncomeUnrealizedWithoutCurrencyMovement',
+	  'InvestmentIncomeUnrealized',
+	  'InvestmentIncomeUnrealized' / without_currency_movement,
 	  0),
-  account('InvestmentIncome_unrealized_without_currency_movement_BHP',
-	  'InvestmentIncome_unrealized_without_currency_movement',
-	  'InvestmentIncome_unrealized_without_currency_movement' / 'BHP',
+  account('InvestmentIncomeUnrealizedWithoutCurrencyMovement_BHP',
+	  'InvestmentIncomeUnrealizedWithoutCurrencyMovement',
+	  'InvestmentIncomeUnrealizedWithoutCurrencyMovement' / 'BHP',
 	  1),
   account('FinancialInvestments_BHP',
 	  'FinancialInvestments',
@@ -223,12 +223,12 @@ date(2017,7,10): FinancialInvestments_BHP
   Invest_In
   DR:U6:coord('BHP',10,0)
 
-date(2017,7,10): InvestmentIncome_unrealized_only_currency_movement_BHP
+date(2017,7,10): InvestmentIncomeUnrealizedOnlyCurrencyMovement_BHP
   comment:?, comment2:Invest_In - single period
   CR:U6:coord('BHP',0,10)
   DR:U7:coord(without_currency_movement_against_since('BHP','USD',['AUD'],date(2017,7,10)),10,0)
 
-date(2017,7,10): InvestmentIncome_unrealized_without_currency_movement_BHP
+date(2017,7,10): InvestmentIncomeUnrealizedWithoutCurrencyMovement_BHP
   comment:?, comment2:Invest_In - single period
   CR:U7:coord(without_currency_movement_against_since('BHP','USD',['AUD'],date(2017,7,10)),0,10)
   DR:U8:coord('AUD',131.464,0)
@@ -396,7 +396,7 @@ done.
 	</xbrli:entity>
 		<xbrli:scenario>
 			<xbrldi:typedMember dimension="basic:Dimension_BankAccounts_Instant">
-			<basic:BankAccount_Instant><name>Banks_NationalAustraliaBank</name><value>10000</value></basic:BankAccount_Instant>
+			<basic:BankAccount_Instant><name>BanksNationalAustraliaBank</name><value>10000</value></basic:BankAccount_Instant>
 			</xbrldi:typedMember>
 		</xbrli:scenario>
 </xbrli:context>
@@ -409,7 +409,7 @@ done.
 	</xbrli:entity>
 		<xbrli:scenario>
 			<xbrldi:typedMember dimension="basic:Dimension_BankAccounts_Instant">
-			<basic:BankAccount_Instant><name>Banks_WellsFargo</name><value>20000</value></basic:BankAccount_Instant>
+			<basic:BankAccount_Instant><name>BanksWellsFargo</name><value>20000</value></basic:BankAccount_Instant>
 			</xbrldi:typedMember>
 		</xbrli:scenario>
 </xbrli:context>
@@ -458,11 +458,11 @@ done.
 
 
 <!-- dimensional facts: -->
-  <basic:Bank contextRef="I-2018-NationalAustraliaBank" unitRef="U-AUD" decimals="INF">100.00</basic:Bank>
-  <basic:Bank contextRef="I-2018-WellsFargo" unitRef="U-AUD" decimals="INF">121.57</basic:Bank>
+  <basic:Banks contextRef="I-2018-NationalAustraliaBank" unitRef="U-AUD" decimals="INF">100.00</basic:Banks>
+  <basic:Banks contextRef="I-2018-WellsFargo" unitRef="U-AUD" decimals="INF">121.57</basic:Banks>
   <basic:CurrencyMovement contextRef="D-2018-WellsFargo" unitRef="U-AUD" decimals="INF">6.53</basic:CurrencyMovement>
-  <basic:InvestmentIncome_unrealized_only_currency_movement contextRef="D-2018-BHP" unitRef="U-AUD" decimals="INF">0.72</basic:InvestmentIncome_unrealized_only_currency_movement>
-  <basic:InvestmentIncome_unrealized_without_currency_movement contextRef="D-2018-BHP" unitRef="U-AUD" decimals="INF">-105.17</basic:InvestmentIncome_unrealized_without_currency_movement>
+  <basic:InvestmentIncomeUnrealizedOnlyCurrencyMovement contextRef="D-2018-BHP" unitRef="U-AUD" decimals="INF">0.72</basic:InvestmentIncomeUnrealizedOnlyCurrencyMovement>
+  <basic:InvestmentIncomeUnrealizedWithoutCurrencyMovement contextRef="D-2018-BHP" unitRef="U-AUD" decimals="INF">-105.17</basic:InvestmentIncomeUnrealizedWithoutCurrencyMovement>
 
 <!-- investment report:
 url: http://localhost:8080/tmp/1566328864.9949994.2/investment_report.html
@@ -501,11 +501,11 @@ url: http://localhost:8080/tmp/1566328864.9949994.2/profit_and_loss.html
    <basic:BankCharges contextRef="D-2018" unitRef="U-AUD" decimals="INF">13.61</basic:BankCharges>
   <basic:Revenue contextRef="D-2018" unitRef="U-AUD" decimals="INF">-97.91</basic:Revenue>
    <basic:CurrencyMovement contextRef="D-2018" unitRef="U-AUD" decimals="INF">6.53</basic:CurrencyMovement>
-    <basic:CurrencyMovement_WellsFargo contextRef="D-2018" unitRef="U-AUD" decimals="INF">6.53</basic:CurrencyMovement_WellsFargo>
+    <basic:CurrencyMovementWellsFargo contextRef="D-2018" unitRef="U-AUD" decimals="INF">6.53</basic:CurrencyMovementWellsFargo>
    <basic:InvestmentIncome contextRef="D-2018" unitRef="U-AUD" decimals="INF">-104.45</basic:InvestmentIncome>
-    <basic:InvestmentIncome_unrealized contextRef="D-2018" unitRef="U-AUD" decimals="INF">-104.45</basic:InvestmentIncome_unrealized>
-     <basic:InvestmentIncome_unrealized_only_currency_movement contextRef="D-2018" unitRef="U-AUD" decimals="INF">0.72</basic:InvestmentIncome_unrealized_only_currency_movement>
-     <basic:InvestmentIncome_unrealized_without_currency_movement contextRef="D-2018" unitRef="U-AUD" decimals="INF">-105.17</basic:InvestmentIncome_unrealized_without_currency_movement>
+    <basic:InvestmentIncomeUnrealized contextRef="D-2018" unitRef="U-AUD" decimals="INF">-104.45</basic:InvestmentIncomeUnrealized>
+     <basic:InvestmentIncomeUnrealizedOnlyCurrencyMovement contextRef="D-2018" unitRef="U-AUD" decimals="INF">0.72</basic:InvestmentIncomeUnrealizedOnlyCurrencyMovement>
+     <basic:InvestmentIncomeUnrealizedWithoutCurrencyMovement contextRef="D-2018" unitRef="U-AUD" decimals="INF">-105.17</basic:InvestmentIncomeUnrealizedWithoutCurrencyMovement>
 
 <!-- historical profit and loss: 
  <basic:NetIncomeLoss contextRef="D-2018" unitRef="U-AUD" decimals="INF">0.00</basic:NetIncomeLoss>

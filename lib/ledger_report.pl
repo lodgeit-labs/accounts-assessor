@@ -100,10 +100,6 @@ Balance: a list of coord's
 */
 
 % Relates Date to the balance at that time of the given account.
-% "balance until day" is really "balance at day" or just "balance (account, day)"
-% actually it's "balance (account, day - 1)" but why? better to just make it "balance(account, day)" and
-% then we can collapse these two predicates into one and in the rest of the code we just have to
-% worry about manipulating the dates we call this predicate w/
 
 % leave these in place until we've got everything updated w/ balance/5
 balance_until_day(Exchange_Rates, Accounts, Transactions, Report_Currency, Exchange_Date, Account_Id, Date, Balance_Transformed, Transactions_Count) :-
