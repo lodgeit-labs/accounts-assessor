@@ -370,10 +370,16 @@ investment_report_2_sale_lines(Static_Data, Info, Sale, Row) :-
 	value_multiply(Opening_Unit_Cost_Foreign, Count, Opening_Total_Cost_Foreign),
 	value_multiply(Opening_Unit_Cost_Converted, Count, Opening_Total_Cost_Converted),
 
+	purchase_and_opening_columns(, 
+		
+	
+		Purchase_Columns, Opening_Columns
+	),
+	
 	Row = row(
 		Unit, Count, Investment_Currency,
 
-		Opening_Date, Opening_Unit_Cost_Foreign, Opening_Currency_Conversion, Opening_Unit_Cost_Converted, Opening_Total_Cost_Foreign, Opening_Total_Cost_Converted,
+		Purchase_Columns, Opening_Columns,
 		
 		Sale_Date, Sale_Unit_Price_Foreign, Sale_Currency_Conversion, Sale_Unit_Price_Converted,
 		
@@ -383,7 +389,26 @@ investment_report_2_sale_lines(Static_Data, Info, Sale, Row) :-
 		
 		'', ''
 	).
-		
+
+purchase_and_opening_columns(, Purchase_Columns, Opening_Columns) :-
+	Purchase_Columns = values{
+		date:Purchase_Date, 
+		unit_value_foreign: Purchase_Unit_Cost_Foreign, 
+		currency_conversion: Purchase_Currency_Conversion,
+		unit_value_converted: Purchase_Unit_Cost_Converted, 
+		total_value_foreign: Purchase_Total_Cost_Foreign, 
+		total_value_converted Purchase_Total_Cost_Converted},
+	assertion(ground(Purchase_Columns)),
+
+	Opening_Columns = values{
+		date:Opening_Date, 
+		unit_value_foreign: Opening_Unit_Cost_Foreign, 
+		currency_conversion: Opening_Currency_Conversion,
+		unit_value_converted: Opening_Unit_Cost_Converted, 
+		total_value_foreign: Opening_Total_Cost_Foreign, 
+		total_value_converted Opening_Total_Cost_Converted},
+	assertion(ground(Opening_Columns)).	
+
 		
 investment_report_2_unrealized(Static_Data, Investment, Row) :-
 	
@@ -394,6 +419,11 @@ investment_report_2_unrealized(Static_Data, Investment, Row) :-
 	Investment = (unr, Info, Count, []),
 	
 	Info = info(Investment_Currency, Unit, Opening_Unit_Cost_Converted, Opening_Unit_Cost_Foreign, Opening_Date),
+	
+	/* future todo, we should be able to omit the forex columns and still generate a report, if we dont have an Investment_Currency -> Report_Currency exchange rate for the end date, but still have the report currency unit value.
+	Could be done here but is more suitable for an equation solving approach.
+	*/
+	
 	exchange_rate_throw(Exchange_Rates, End_Date, Unit, Investment_Currency, _),
 	(
 		Cost_Or_Market = cost
