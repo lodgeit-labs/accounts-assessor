@@ -201,7 +201,7 @@ output_results(Static_Data0, S_Transactions, Transaction_Transformation_Debug, O
 	/*todo can we do without this units in units out nonsense? */
 	format_report_entries(xbrl, Accounts, 0, Report_Currency, Instant_Context_Id_Base,  Trial_Balance2, Units2, Units3, [], Tb_Lines),
 	%gtrace,	
-	investment_reports(Static_Data, Outstanding, Investment_Report_2_Lines, Investment_Report_2_All_Time_Lines),
+	investment_reports(Static_Data, Outstanding, Investment_Report_2_Lines, Investment_Report_2_Since_Beginning_Lines),
 	bs_report(Static_Data, Balance_Sheet2, Bs_Html),
 	pl_report(Static_Data, ProftAndLoss2, '', Pl_Html),
 	pl_report(Static_Data_Historical, ProftAndLoss2_Historical, '_historical', Pl_Html_Historical),
@@ -231,7 +231,7 @@ output_results(Static_Data0, S_Transactions, Transaction_Transformation_Debug, O
 		'\n<!-- profit and loss: -->\n', Pl_Lines,
 		'\n<!-- historical profit and loss: \n', Pl_Historical_Lines, '\n-->\n',
 		'\n<!-- historical pl html:\n', Pl_Html_Historical, '\n -->\n',
-		'\n<!-- investment report all time:\n', Investment_Report_2_All_Time_Lines, '\n -->\n',		
+		'\n<!-- investment report all time:\n', Investment_Report_2_Since_Beginning_Lines, '\n -->\n',		
 		'\n<!-- trial balance: -->\n',  Tb_Lines
 	], Report_Lines_List),
 	atomic_list_concat(Report_Lines_List, Report_Lines),
@@ -244,22 +244,22 @@ print_dimensional_facts(Static_Data, Instant_Context_Id_Base, Duration_Context_I
 	print_forex(Static_Data, Duration_Context_Id_Base, Entity_Identifier, Results1, Results2),
 	print_trading(Static_Data, Results2, Results3).
 	
-investment_reports(Static_Data, Outstanding, Investment_Report_2_Lines, Investment_Report_2_All_Time_Lines) :-
+investment_reports(Static_Data, Outstanding, Investment_Report_2_Lines, Investment_Report_2_Since_Beginning_Lines) :-
 	catch( /*fixme*/
 		(
 			/* investment_report_1 is useless but does useful cross-checks while it's being compiled */
 			investment_report_1(Static_Data, _),
 			investment_report_2(Static_Data, Outstanding, '', Investment_Report_2_Lines),
-			% this isnt really all_time, just since beginning of time, but once we can do at cost, it can be
-			investment_report_2(Static_Data.put(start_date, date(1,1,1)), Outstanding, '_all_time', Investment_Report_2_All_Time_Lines)
-			%Investment_Report_2_All_Time_Lines = ''
+			/* todo we cant do all_time without market values, use last known? */
+			investment_report_2(Static_Data.put(start_date, date(1,1,1)), Outstanding, '_since_beginning', Investment_Report_2_Since_Beginning_Lines)
 		),
-		E,
+		Err,
 		(
-			writeln('SYSTEM_WARNING:investment reports fail:'),
-			print_term(E, []),
-			Investment_Report_2_Lines = 'internal error',
-			Investment_Report_2_All_Time_Lines = 'internal error'
+			term_string(Err, Err_Str),
+			format(string(Msg), 'SYSTEM_WARNING:investment reports fail: ~w', [Err_Str]),
+			writeln(Msg),
+			Investment_Report_2_Lines = Msg,
+			Investment_Report_2_Since_Beginning_Lines = Msg
 		)
 	).
 
