@@ -115,7 +115,8 @@ process_data1(File_Name, Path, Xml_String, Info) :-
 /* used from command line */
 process_data2(File_Name, Path) :-
 	bump_tmp_directory_id,
-	process_data1(File_Name, Path, _).
+	process_data1(File_Name, Path, Xml_String, _Info),
+	write(Xml_String).
    
 % -------------------------------------------------------------------
 % process_xml_request/2
