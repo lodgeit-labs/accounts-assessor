@@ -40,6 +40,7 @@
 
 :- http_handler(root(.),      upload_form, []).
 :- http_handler(root(upload), upload,      []).
+:- http_handler(root(upload_and_get_json_reports_list), upload_and_get_json_reports_list,      []).
 :- http_handler(root(chat/sbe), sbe_request, [methods([post])]).
 :- http_handler(root(chat/residency), residency_request, [methods([post])]).
 :- http_handler('/favicon.ico', http_reply_file(my_static('favicon.ico'), []), []).
@@ -93,52 +94,40 @@ reply_html_page(
 		]).
 
 
-% -------------------------------------------------------------------
-% upload/1
-% -------------------------------------------------------------------
-
 upload(Request) :-
-   multipart_post_request(Request), !,
-   bump_tmp_directory_id, /*assert a unique thread-local my_tmp for each request*/
-   http_read_data(Request, Parts, [ on_filename(save_file) ]),
-   memberchk(file=file(FileName, Path), Parts),
-   catch(
-	   process_data(FileName, Path, Request),
-	   string(E),
-	   throw(http_reply(bad_request(string(E))))
-   	   /* todo (optionally only if the request content type is xml), return the errror as xml. the status code still should be bad request, but it's not required. 
-   	   are we able to throw a bad_request and have the server produce a xml error page? if not, we'll need to 
-   	   %writeln('<xml errror blablabla>'), but this means endpoints cannot write anything to the output stream until 
-   	   everything's done. The option of generating the responses in a structured way has a lot of open questions (streaming..), so probably just redirecting endpoint's output to a file will be best choice now.
-   	   */
-   ).
+	multipart_post_request(Request), !,
+	bump_tmp_directory_id, /*assert a unique thread-local my_tmp for each request*/
+	http_read_data(Request, Parts, [ on_filename(save_file) ]),
+	memberchk(file=file(FileName, Path), Parts),
+	catch(
+		process_data(FileName, Path, Request),
+		string(E),
+		throw(http_reply(bad_request(string(E))))
+		/* todo (optionally only if the request content type is xml), return the errror as xml. the status code still should be bad request, but it's not required. 
+		are we able to throw a bad_request and have the server produce a xml error page? if not, we'll need to 
+		%writeln('<xml errror blablabla>'), but this means endpoints cannot write anything to the output stream until 
+		everything's done. The option of generating the responses in a structured way has a lot of open questions (streaming..), so probably just redirecting endpoint's output to a file will be best choice now.
+		*/
+	).
 
-	
-upload(_Request) :-
+upload(_, _) :-
    throw(http_reply(bad_request(bad_file_upload))).
 
-
 /*
- run a testcase directly
+ run a testcase directly, without uploading
 */
 tests(Url, Request) :-
 	bump_tmp_directory_id,
 	absolute_file_name(my_tests(Url), Path, [ access(read), file_errors(fail) ]),
-	
-	/* supress the functionality of generating unique taxonomy urls. */
-	(
-		member(search([relativeurls='1']), Request)
-	->
-		set_flag(prepare_unique_taxonomy_url, false)
-	;
-		true
-	),
-	
+	copy_test_file_into_tmp(Url, Tmp_Request_File_Path),
 	process_data(_FileName, Path, Request).
 
-   
+copy_test_file_into_tmp(Url, Tmp_Request_File_Path) :-
+	tmp_file_path_from_url(Url, Tmp_Request_File_Path),
+	copy_file(Path, Tmp_Request_File_Path),
+
 % -------------------------------------------------------------------
-% multipart_post_request/
+% multipart_post_request/1
 % -------------------------------------------------------------------
 
 multipart_post_request(Request) :-
@@ -154,15 +143,17 @@ multipart_post_request(Request) :-
 :- public save_file/3.
 
 save_file(In, file(FileName, Path), Options) :-
-   option(filename(FileName), Options),
-   exclude_file_location_from_filename(FileName, FileName2),
-   http_safe_file(FileName2, []),
-   my_tmp_file_name(FileName2, Path),
-   setup_call_cleanup(open(Path, write, Out), copy_stream_data(In, Out), close(Out)).
+	option(filename(FileName), Options),
+	% (for Internet Explorer/Microsoft Edge)
+	tmp_file_path_from_url(FileName, Path),
+	setup_call_cleanup(open(Path, write, Out), copy_stream_data(In, Out), close(Out)).
 
+tmp_file_path_from_url(FileName, Path) :-
+	exclude_file_location_from_filename(FileName, FileName2),
+	http_safe_file(FileName2, []),
+	my_tmp_file_name(FileName2, Path).
 
 exclude_file_location_from_filename(Name_In, Name_Out) :-
-   % (for Internet Explorer/Microsoft Edge)
    atom_chars(Name_In, Name1),
    remove_before('\\', Name1, Name2),
    remove_before('/', Name2, Name3),
