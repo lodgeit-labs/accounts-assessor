@@ -68,10 +68,10 @@ coord_inverse(unit(Unit, Value), unit(Unit, Value_Inverted)) :-
 define vec_reduce(X) as vec_add(X, [])? */
 
 vec_reduce(As, Bs) :-
-	vec_reduce2(As, Bs_Raw),
-	exclude(is_zero_coord, Bs_Raw, Bs_Raw2), 
-	maplist(unify_coords_or_values, Bs, Bs_Raw2),
-	!/*needed?*/.
+	vec_reduce2(As, Result_Raw),
+	exclude(is_zero_coord, Result_Raw, Result_Nonzeroes), 
+	maplist(unify_coords_or_values, Bs, Result_Nonzeroes),
+	!/*is the cut needed?*/.
 
 vec_reduce2(As, Bs) :-
 	maplist(vec_reduce3, As, Bs).
@@ -190,10 +190,12 @@ make_credit(coord(Unit, Zero, Cr), coord(Unit, 0, Cr)) :- Zero =:= 0.
 number_coord(Unit, Number, coord(Unit, Debit, Credit)) :-
 	{Number =:= Debit - Credit}.
 
-number_vec(_, 0, []).
+number_vec(_, Zero, []) :-
+	unify_numbers(Zero, 0).
+	
 number_vec(Unit, Number, [Coord]) :-
 	number_coord(Unit, Number, Coord).
-	
+
 	
 credit_isomorphism(Coord, C) :- 
 	number_coord(_, D, Coord),

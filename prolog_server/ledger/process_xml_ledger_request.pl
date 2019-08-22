@@ -200,7 +200,7 @@ output_results(Static_Data0, S_Transactions, Transaction_Transformation_Debug, O
 	format_report_entries(xbrl, Accounts, 0, Report_Currency, Duration_Context_Id_Base, ProftAndLoss2_Historical,  Units1, Units2, [], Pl_Historical_Lines),
 	/*todo can we do without this units in units out nonsense? */
 	format_report_entries(xbrl, Accounts, 0, Report_Currency, Instant_Context_Id_Base,  Trial_Balance2, Units2, Units3, [], Tb_Lines),
-	
+	%gtrace,	
 	investment_reports(Static_Data, Outstanding, Investment_Report_2_Lines, Investment_Report_2_All_Time_Lines),
 	bs_report(Static_Data, Balance_Sheet2, Bs_Html),
 	pl_report(Static_Data, ProftAndLoss2, '', Pl_Html),

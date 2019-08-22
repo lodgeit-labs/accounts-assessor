@@ -394,20 +394,23 @@ investment_report_2_unrealized(Static_Data, Investment, Row) :-
 	Investment = (unr, Info, Count, []),
 	
 	Info = info(Investment_Currency, Unit, Opening_Unit_Cost_Converted, Opening_Unit_Cost_Foreign, Opening_Date),
-	
+	exchange_rate_throw(Exchange_Rates, End_Date, Unit, Investment_Currency, _),
 	(
 		Cost_Or_Market = cost
 	->
 		vec_change_bases(Exchange_Rates, End_Date, [Investment_Currency], 
 			[coord(with_cost_per_unit(Unit, Opening_Unit_Cost_Converted), 1, 0)],
-			[coord(End_Unit_Price_Unit, End_Unit_Price_Amount, 0)]
+			End_Unit_Price_Coord
 		)
 	;
 		vec_change_bases(Exchange_Rates, End_Date, [Investment_Currency], 
 			[coord(Unit, 1, 0)],
-			[coord(End_Unit_Price_Unit, End_Unit_Price_Amount, 0)]
+			End_Unit_Price_Coord
 		)		
 	),
+	End_Unit_Price_Unit = Investment_Currency,
+	number_vec(End_Unit_Price_Unit, End_Unit_Price_Amount, End_Unit_Price_Coord),
+	
 	ir2_forex_gain(Exchange_Rates, Opening_Date, value(End_Unit_Price_Unit, End_Unit_Price_Amount), End_Date, Investment_Currency, Report_Currency, Count, Forex_Gain),
 	ir2_market_gain(Exchange_Rates, Opening_Date, End_Date, Investment_Currency, Report_Currency, Count, Opening_Unit_Cost_Converted, End_Unit_Price_Unit, End_Unit_Price_Amount, Market_Gain),
 
@@ -601,12 +604,11 @@ ir2_forex_gain(Exchange_Rates, Opening_Date, End_Price, End_Date, Investment_Cur
 ir2_market_gain(Exchange_Rates, Opening_Date, End_Date, Investment_Currency, Report_Currency, Count, Opening_Unit_Cost_Converted, End_Unit_Price_Unit, End_Unit_Price_Amount, Gain) :-
 	Market_Price_Unit = without_currency_movement_against_since(
 		End_Unit_Price_Unit, Investment_Currency, Report_Currency, Opening_Date
-	), 
-	vec_change_bases(Exchange_Rates, End_Date, Report_Currency, 
-		[coord(Market_Price_Unit, End_Unit_Price_Amount, 0)],
-		[coord(End_Market_Price_Unit_Converted, End_Market_Price_Amount_Converted, 0)]
 	),
-	End_Market_Unit_Price_Converted = value(End_Market_Price_Unit_Converted, End_Market_Price_Amount_Converted),
+	Report_Currency = [Report_Currency_Unit],
+	exchange_rate_throw(Exchange_Rates, End_Date, Market_Price_Unit, Report_Currency_Unit, End_Market_Price_Rate),
+	End_Market_Price_Amount_Converted is End_Unit_Price_Amount * End_Market_Price_Rate,
+	End_Market_Unit_Price_Converted = value(Report_Currency_Unit, End_Market_Price_Amount_Converted),
 	value_multiply(End_Market_Unit_Price_Converted, Count, End_Total_Price_Converted),
 	value_multiply(Opening_Unit_Cost_Converted, Count, Opening_Total_Cost_Converted),
 	value_subtract(End_Total_Price_Converted, Opening_Total_Cost_Converted, Gain).
