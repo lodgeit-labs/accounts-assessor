@@ -26,7 +26,7 @@ see doc/investment and dropbox Develop/videos/ledger
 		process_ledger/15]).
 :- use_module('../../lib/ledger_report', [
 		format_report_entries/10,
-		% balance_sheet_at/2, 
+		balance_sheet_at/2, 
 		profitandloss_between/2, 
 		balance_by_account/9]).
 :- use_module('../../lib/accounts', [
@@ -167,8 +167,8 @@ process_realized(Dom, Global_Report_Date_Atom, Result) :-
    	Info = (Exchange_Rates, Accounts, Transactions, Sale_Date, report_currency),
    	/*todo get Investment_Income account by role */
 	account_by_role(Accounts, 'InvestmentIncome'/realized, Gain_Account),
-	account_by_role(Accounts, Gain_Account/without_currency_movement, Gains_Excluding_Forex_Account),
-	account_by_role(Accounts, Gain_Account/only_currency_movement, Gains_Currency_Movement_Account), 
+	account_by_role(Accounts, Gain_Account/withoutcurrencymovement, Gains_Excluding_Forex_Account),
+	account_by_role(Accounts, Gain_Account/onlycurrencymovement, Gains_Currency_Movement_Account), 
     account_assertion(Info, Gains_Excluding_Forex_Account, -RC_Realized_Market_Gain),
 	account_assertion(Info, Gains_Currency_Movement_Account, -RC_Realized_Currency_Gain),
 	account_assertion(Info, Gain_Account, -RC_Realized_Total_Gain),
@@ -311,8 +311,8 @@ process_unrealized(Dom, Global_Report_Date, Result) :-
 
    	Info = (Exchange_Rates, Accounts, Transactions, Report_Date, report_currency),
 	account_by_role(Accounts, 'InvestmentIncome'/unrealized, Unrealized_Gain_Account),
-	account_by_role(Accounts, Unrealized_Gain_Account/without_currency_movement, Unrealized_Gains_Excluding_Forex_Account),
-	account_by_role(Accounts, Unrealized_Gain_Account/only_currency_movement, Unrealized_Gains_Currency_Movement_Account),
+	account_by_role(Accounts, Unrealized_Gain_Account/withoutcurrencymovement, Unrealized_Gains_Excluding_Forex_Account),
+	account_by_role(Accounts, Unrealized_Gain_Account/onlycurrencymovement, Unrealized_Gains_Currency_Movement_Account),
    	account_assertion(Info, Unrealized_Gains_Excluding_Forex_Account, -RDRC_Unrealized_Market_Gain),
 	account_assertion(Info, Unrealized_Gains_Currency_Movement_Account, -RDRC_Unrealized_Currency_Gain),
 	account_assertion(Info, Unrealized_Gain_Account, -RDRC_Unrealized_Total_Gain),
@@ -528,10 +528,10 @@ crosscheck_totals(Results, Report_Date) :-
 	/*todo get Investment_Income by role*/
 	account_by_role(Accounts, 'InvestmentIncome'/unrealized, Unrealized_Gain_Account),
 	account_by_role(Accounts, 'InvestmentIncome'/realized, Realized_Gain_Account),
-	account_by_role(Accounts, Unrealized_Gain_Account/without_currency_movement, Unrealized_Gains_Excluding_Forex_Account),
-	account_by_role(Accounts, Unrealized_Gain_Account/only_currency_movement, Unrealized_Gains_Currency_Movement_Account),
-	account_by_role(Accounts, Realized_Gain_Account/without_currency_movement, Realized_Gains_Excluding_Forex_Account),
-	account_by_role(Accounts, Realized_Gain_Account/only_currency_movement, Realized_Gains_Currency_Movement_Account),
+	account_by_role(Accounts, Unrealized_Gain_Account/withoutcurrencymovement, Unrealized_Gains_Excluding_Forex_Account),
+	account_by_role(Accounts, Unrealized_Gain_Account/onlycurrencymovement, Unrealized_Gains_Currency_Movement_Account),
+	account_by_role(Accounts, Realized_Gain_Account/withoutcurrencymovement, Realized_Gains_Excluding_Forex_Account),
+	account_by_role(Accounts, Realized_Gain_Account/onlycurrencymovement, Realized_Gains_Currency_Movement_Account),
 	account_assertion(Info, Realized_Gains_Excluding_Forex_Account, -Realized_Market_Gain_Total),
 	account_assertion(Info, Realized_Gains_Currency_Movement_Account, -Realized_Currency_Gain_Total),
 	account_assertion(Info, Unrealized_Gains_Excluding_Forex_Account, -Unrealized_Market_Gain_Total),
