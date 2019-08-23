@@ -85,6 +85,15 @@ reply_html_page(
 				table([],
 				[
 					tr([td(input([type(file), name(file)]))]),
+					tr([td(['output format:']), td(
+						select(name=requested_output_format, [
+							option([selected='true',value=json_reports_list],[json_reports_list]), 
+							option([value=xbrl_instance],[xbrl_instance])
+					]))]),
+					/*tr([
+						input([type="radio", name="requested_output_format", value="json_reports_list", checked='true'],[json_reports_list]),
+						input([type="radio", name="requested_output_format", value="xbrl_instance"],[xbrl_instance])
+					]),*/
 					tr([td(align(left), input([type(submit), value('Upload XML file')]))])
 				])
 			),
@@ -99,8 +108,15 @@ upload(Request) :-
 	bump_tmp_directory_id, /*assert a unique thread-local my_tmp for each request*/
 	http_read_data(Request, Parts, [ on_filename(save_file) ]),
 	memberchk(file=file(FileName, Path), Parts),
+	(
+		memberchk(requested_output_format=Requested_Output_Format, Parts)
+	->
+		Options = [requested_output_format=Requested_Output_Format]
+	;
+		Options = []
+	),
 	catch(
-		process_data(FileName, Path, Request),
+		process_data(FileName, Path, Request, Options),
 		string(E),
 		throw(http_reply(bad_request(string(E))))
 		/* todo (optionally only if the request content type is xml), return the errror as xml. the status code still should be bad request, but it's not required. 
@@ -121,7 +137,7 @@ tests(Url, Request) :-
 	absolute_file_name(my_tests(Url), Path, [ access(read), file_errors(fail) ]),
 	copy_test_file_into_tmp(Path, Url),
 	exclude_file_location_from_filename(Path, File_Name),
-	process_data(File_Name, Path, Request).
+	process_data(File_Name, Path, Request, []).
 
 copy_test_file_into_tmp(Path, Url) :-
 	tmp_file_path_from_url(Url, Tmp_Request_File_Path),

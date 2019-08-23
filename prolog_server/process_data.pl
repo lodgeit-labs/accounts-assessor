@@ -31,10 +31,10 @@
 		throw_string/1
 ]).
 
-get_requested_output_type(Request, Requested_Output_Type) :-
+get_requested_output_type(Options2, Output) :-
 	Known_Output_Types = [json_reports_list, xbrl_instance],
 	(
-		member(search([output=Output]), Request)
+		member(requested_output_format=Output, Options2)
 	->
 		(
 			member(Output, Known_Output_Types)
@@ -48,12 +48,12 @@ get_requested_output_type(Request, Requested_Output_Type) :-
 			)
 		)
 	;
-		Requested_Output_Type = json_reports_list
+		Output = json_reports_list
 	).
 
-maybe_supress_generating_unique_taxonomy_urls(Request) :-
+maybe_supress_generating_unique_taxonomy_urls(Options2) :-
 	(
-		member(search([relativeurls='1']), Request)
+		member(relativeurls='1', Options2)
 	->
 		set_flag(prepare_unique_taxonomy_url, false)
 	;
@@ -65,13 +65,20 @@ maybe_supress_generating_unique_taxonomy_urls(Request) :-
 % process_data/3
 % -------------------------------------------------------------------
 
-process_data(Request_File_Name, Path, Request) :-
+process_data(Request_File_Name, Path, Request, Options0) :-
+	(
+		member(search(Get_Options), Request)
+	->
+		append(Options0, Get_Options, Options2)
+	;
+		Options2 = Options0
+	),
 	
 	http_public_host_url(Request, Server_Public_Url),
 	set_server_public_url(Server_Public_Url),
 
-	maybe_supress_generating_unique_taxonomy_urls(Request),
-	get_requested_output_type(Request, Requested_Output_Type),
+	maybe_supress_generating_unique_taxonomy_urls(Options2),
+	get_requested_output_type(Options2, Requested_Output_Type),
 
 	process_data1(Request_File_Name, Path, Response_Xml_String, (Report_Files, Response_Title)),
 	
@@ -80,7 +87,7 @@ process_data(Request_File_Name, Path, Request) :-
 	write_file(Response_File_Path, Response_Xml_String),
 	tmp_file_url(Response_File_Name, Response_File_Url),
 	Report_Files2 = Report_Files.put(Response_Title, Response_File_Url),
-	
+
 	(
 		Requested_Output_Type = xbrl_instance
 	->
