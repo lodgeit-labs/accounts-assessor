@@ -120,7 +120,8 @@ process_ledger(
 			(
 				last(Processed_S_Transactions, Last_Processed_S_Transaction),
 				s_transaction_day(Last_Processed_S_Transaction, Date),
-				Processed_Until = with_note(Date, 'until error'),
+				%Processed_Until = with_note(Date, 'until error'),
+				Processed_Until = Date,
 				add_days(Date, -1, Last_Good_Day)
 			)
 		)
