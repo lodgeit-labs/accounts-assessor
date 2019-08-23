@@ -156,15 +156,14 @@ process_xml_ledger_request2(Dom, Reports_Out) :-
 	
 	nl, nl.
 
-output_results(Static_Data0, Outstanding, /*todo use me*/_Processed_Until, Reports) :-
-	
+output_results(Static_Data0, Outstanding, Processed_Until, Reports) :-
 	Static_Data = Static_Data0.put([
-		exchange_date=End_Date,
+		end_date=Processed_Until,
+		exchange_date=Processed_Until,
 		entity_identifier=Entity_Identifier,
 		duration_context_id_base=Duration_Context_Id_Base]),
 
 	Static_Data.start_date = Start_Date,
-	Static_Data.end_date = End_Date, 
 	Static_Data.exchange_rates = Exchange_Rates, 
 	Static_Data.accounts = Accounts, 
 	Static_Data.transactions = Transactions, 
@@ -172,19 +171,19 @@ output_results(Static_Data0, Outstanding, /*todo use me*/_Processed_Until, Repor
 		
 	writeln("<!-- Build contexts -->"),	
 	/* build up two basic non-dimensional contexts used for simple xbrl facts */
-	date(Context_Id_Year,_,_) = End_Date,
+	date(Context_Id_Year,_,_) = Processed_Until,
 	Entity_Identifier = '<identifier scheme="http://www.example.com">TestData</identifier>',
 	context_id_base('I', Context_Id_Year, Instant_Context_Id_Base),
 	context_id_base('D', Context_Id_Year, Duration_Context_Id_Base),
 	Base_Contexts = [
-		context(Instant_Context_Id_Base, End_Date, entity(Entity_Identifier, ''), ''),
-		context(Duration_Context_Id_Base, (Start_Date, End_Date), entity(Entity_Identifier, ''), '')
+		context(Instant_Context_Id_Base, Processed_Until, entity(Entity_Identifier, ''), ''),
+		context(Duration_Context_Id_Base, (Start_Date, Processed_Until), entity(Entity_Identifier, ''), '')
 	],
 	/* sum up the coords of all transactions for each account and apply unit conversions */
 
 	writeln("<!-- Trial balance -->"),
 	%trial_balance_between(Static_Data, Trial_Balance2),
-	trial_balance_between(Exchange_Rates, Accounts, Transactions, Report_Currency, End_Date, Start_Date, End_Date, Trial_Balance2),
+	trial_balance_between(Exchange_Rates, Accounts, Transactions, Report_Currency, Processed_Until, Start_Date, Processed_Until, Trial_Balance2),
 
 	writeln("<!-- Balance sheet -->"),
 	% fix to only include balance  sheet accounts
