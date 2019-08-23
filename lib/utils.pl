@@ -455,3 +455,7 @@ sort_into_dict(Selector_Predicate, [T|Ts], D, D_Out) :-
 
 sort_into_dict(_, [], D, D).
 
+/*
+dict_path_get(Dict, (X/Y), Value) :-
+	dict_path_get(Dict, (X/Y), Value) :-
+*/

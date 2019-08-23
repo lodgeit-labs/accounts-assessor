@@ -91,16 +91,16 @@
 
 
 
-process_xml_ledger_request(_, Dom, files{}) :-
+process_xml_ledger_request(_, Dom, Report_Files) :-
 	/* does it look like a ledger request? */
 	inner_xml(Dom, //reports/balanceSheetRequest, _),
 	/*
 		print the xml header, and after that, we can print random xml comments.
 	*/
 	writeln('<?xml version="1.0"?>'), nl, nl,
-	process_xml_ledger_request2(_, Dom).
+	process_xml_ledger_request2(Dom, Report_Files).
 
-process_xml_ledger_request2(_, Dom) :-
+process_xml_ledger_request2(Dom, Report_Files) :-
 	/*
 		first let's extract data from the request
 	*/
@@ -139,11 +139,11 @@ process_xml_ledger_request2(_, Dom) :-
 	transactions_by_account(Static_Data, Transactions_By_Account),
 	% print_term(Transactions_By_Account, []),
 	Static_Data2 = Static_Data.put(accounts_transactions, Transactions_By_Account),
-	output_results(Static_Data2, S_Transactions, Transaction_Transformation_Debug, Outstanding),
+	output_results(Static_Data2, S_Transactions, Transaction_Transformation_Debug, Outstanding, Report_Files),
 	writeln('</xbrli:xbrl>'),
 	nl, nl.
 
-output_results(Static_Data0, S_Transactions, Transaction_Transformation_Debug, Outstanding) :-
+output_results(Static_Data0, S_Transactions, Transaction_Transformation_Debug, Outstanding, Report_Files) :-
 	
 	Static_Data = Static_Data0.put([
 		exchange_date=End_Date,
@@ -190,19 +190,26 @@ output_results(Static_Data0, S_Transactions, Transaction_Transformation_Debug, O
 	profitandloss_between(Static_Data_Historical, ProftAndLoss2_Historical),
 
 	assertion(ground((Balance_Sheet2, ProftAndLoss2, ProftAndLoss2_Historical, Trial_Balance2))),
-	
+
+	/*todo can we do without this units in units out nonsense? */
 	format_report_entries(xbrl, Accounts, 0, Report_Currency, Instant_Context_Id_Base,  Balance_Sheet2, [], Units0, [], Bs_Lines),
 	format_report_entries(xbrl, Accounts, 0, Report_Currency, Duration_Context_Id_Base, ProftAndLoss2,  Units0, Units1, [], Pl_Lines),
-	%write_term(format_report_entries(xbrl, Accounts, 0, Report_Currency, Duration_Context_Id_Base, ProftAndLoss2_Historical,  Units0, Units1, [], Pl_Historical_Lines), [quoted(true)]),
 	format_report_entries(xbrl, Accounts, 0, Report_Currency, Duration_Context_Id_Base, ProftAndLoss2_Historical,  Units1, Units2, [], Pl_Historical_Lines),
-	/*todo can we do without this units in units out nonsense? */
 	format_report_entries(xbrl, Accounts, 0, Report_Currency, Instant_Context_Id_Base,  Trial_Balance2, Units2, Units3, [], Tb_Lines),
-	%gtrace,	
-	investment_reports(Static_Data, Outstanding, Investment_Report_2_Lines, Investment_Report_2_Since_Beginning_Lines),
-	bs_report(Static_Data, Balance_Sheet2, Bs_Html),
-	pl_report(Static_Data, ProftAndLoss2, '', Pl_Html),
-	pl_report(Static_Data_Historical, ProftAndLoss2_Historical, '_historical', Pl_Html_Historical),
+	
+	investment_reports(Static_Data, Outstanding, Investment_Report_2_Info1, Investment_Report_2_Info2),
+	bs_report(Static_Data, Balance_Sheet2, Bs_Report_Info),
+	pl_report(Static_Data, ProftAndLoss2, '', Pl_Report_Info),
+	pl_report(Static_Data_Historical, ProftAndLoss2_Historical, '_historical', Pl_Html_Historical_Info),
 
+	dict_pairs(Report_Files, files, [
+		Investment_Report_2_Info1, 
+		Investment_Report_2_Info2, 
+		Bs_Report_Info,
+		Pl_Report_Info,
+		Pl_Html_Historical_Info
+	]),
+	
 	(
 		Static_Data.output_dimensional_facts = on
 	->
@@ -220,15 +227,13 @@ output_results(Static_Data0, S_Transactions, Transaction_Transformation_Debug, O
 	writeln('<!-- dimensional facts: -->'),
 	maplist(write, Dimensions_Lines),
 	
+	pretty_term_string(Report_Files, Report_Files_Str),
+	
 	flatten([
-		'\n<!-- investment report:\n', Investment_Report_2_Lines, '\n -->\n',		
-		'\n<!-- bs html:\n', Bs_Html, '\n -->\n',
-		'\n<!-- pl html:\n', Pl_Html, '\n -->\n',
+		'\n<!-- Report_Files:\n', Report_Files_Str, '\n -->\n',		
 		'\n<!-- balance sheet: -->\n', Bs_Lines, 
 		'\n<!-- profit and loss: -->\n', Pl_Lines,
 		'\n<!-- historical profit and loss: \n', Pl_Historical_Lines, '\n-->\n',
-		'\n<!-- historical pl html:\n', Pl_Html_Historical, '\n -->\n',
-		'\n<!-- investment report all time:\n', Investment_Report_2_Since_Beginning_Lines, '\n -->\n',		
 		'\n<!-- trial balance: -->\n',  Tb_Lines
 	], Report_Lines_List),
 	atomic_list_concat(Report_Lines_List, Report_Lines),
@@ -241,22 +246,22 @@ print_dimensional_facts(Static_Data, Instant_Context_Id_Base, Duration_Context_I
 	print_forex(Static_Data, Duration_Context_Id_Base, Entity_Identifier, Results1, Results2),
 	print_trading(Static_Data, Results2, Results3).
 	
-investment_reports(Static_Data, Outstanding, Investment_Report_2_Lines, Investment_Report_2_Since_Beginning_Lines) :-
+investment_reports(Static_Data, Outstanding, Info1, Info2) :-
 	catch( /*fixme*/
 		(
 			/* investment_report_1 is useless but does useful cross-checks while it's being compiled */
 			investment_report_1(Static_Data, _),
-			investment_report_2(Static_Data, Outstanding, '', Investment_Report_2_Lines),
+			investment_report_2(Static_Data, Outstanding, '', Info1),
 			/* todo we cant do all_time without market values, use last known? */
-			investment_report_2(Static_Data.put(start_date, date(1,1,1)), Outstanding, '_since_beginning', Investment_Report_2_Since_Beginning_Lines)
+			investment_report_2(Static_Data.put(start_date, date(1,1,1)), Outstanding, '_since_beginning', Info2)
 		),
 		Err,
 		(
 			term_string(Err, Err_Str),
 			format(string(Msg), 'SYSTEM_WARNING:investment reports fail: ~w', [Err_Str]),
 			writeln(Msg),
-			Investment_Report_2_Lines = Msg,
-			Investment_Report_2_Since_Beginning_Lines = Msg
+			Info1 = 'error'-Msg,
+			Info2 = 'error'-Msg
 		)
 	).
 

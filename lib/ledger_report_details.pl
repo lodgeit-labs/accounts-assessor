@@ -110,11 +110,10 @@ write_file_from_string(File_Path, Html_String) :-
 	write(File_Stream, Html_String),
 	close(File_Stream).
 
-report_section(File_Name, Html_Tokenlist, Lines) :-
+report_section(File_Name, Html_Tokenlist, Url) :-
 	report_file_path(File_Name, Url, File_Path),
 	html_tokenlist_string(Html_Tokenlist, Html_String),
-	write_file_from_string(File_Path, Html_String),
-	Lines = ['url: ', Url, '\n'/*, '\n', Html_String*/].
+	write_file_from_string(File_Path, Html_String).
 
 report_currency_atom(Report_Currency_List, Report_Currency_Atom) :-
 	(
@@ -125,13 +124,15 @@ report_currency_atom(Report_Currency_List, Report_Currency_Atom) :-
 		Report_Currency_Atom = ''
 	).
 
-report_page(Title_Text, Tbl, File_Name, Lines) :-
+report_page(Title_Text, Tbl, File_Name, Info) :-
 	Body_Tags = [Title_Text, ':', br([]), table([border="1"], Tbl)],
 	Page = page(
 		title([Title_Text]),
 		Body_Tags),
 	phrase(Page, Page_Tokenlist),
-	report_section(File_Name, Page_Tokenlist, Lines).
+	report_section(File_Name, Page_Tokenlist, Url),
+	Info = Title_Text-Url.
+	
 
 pl_report(Static_Data, ProftAndLoss2, Filename_Suffix, Lines) :-
 	dict_vars(Static_Data, [Accounts, Start_Date, End_Date, Report_Currency]),
