@@ -453,107 +453,157 @@ investment_report_2_unrealized(Static_Data, Investment, Row) :-
 	).
 
 		
-table_to_html(Raw_Table, HTML) :-
-	% apply options to table
-	apply_table_options(Raw_Table, Table),
-	table_contents_to_html(Table, Table_Contents),
-	Title = Table.get(title),
-	HTML = [
-		Title,
-		':',
+table_to_html(
+	Table, 
+	[
+		Table.title, ':',
 		br([]),
-		Table_Contents
-	].
+		HTML_Table
+	]
+) :-
+	format_table(Table, Formatted_Table),
+	table_contents_to_html(Formatted_Table, HTML_Table).
 
-table_contents_to_html(Table, HTML) :-
-	% extract data from Table
-	Columns = Table.get(columns),
-	Rows = Table.get(rows),
-	
+table_contents_to_html(
+	table{title:_, columns: Columns, rows: Rows},
+	table([border="1"],[HTML_Header | HTML_Rows])
+) :-
 	% make HTML Header
-	findall(
-		td(Column_Header_Value),
-		(
-			% Column in Columns
-			% Column_Header_Value = Column.title...
-		),
-		Column_Header_Cells
+	maplist(
+		[Column,Header_Cell]>>(Header_Cell is td(Column.title)), 
+		Columns, 
+		Header_Cells
 	),
-	HTML_Header = tr(Column_Header_Cells),
+	/*
+	findall(
+		td(Header_Value),
+		(
+			member(Column, Columns),
+			Header_Value = Column.title
+		),
+		Header_Cells
+	),
+	*/
+
+	HTML_Header = tr(Header_Cells),
 
 	% make HTML Rows 
+	% maplist ?
 	findall(
 		tr(HTML_Row),
 		(
 			member(Row,Rows),
-			findall(td(Cell), member(Cell, Row), HTML_Row)
-		)
+			findall(
+				td(Cell),
+				(
+					member(Column, Columns),
+					Cell = Row.(Column.id)
+				),
+				HTML_Row
+			)
+		),
 		HTML_Rows
+	).
+
+format_table(
+	table{title:Title, columns:Columns, rows:Rows}, 
+	table{title:Title, columns:Columns, rows:Formatted_Rows}
+) :-
+	maplist(format_row(Columns),Rows,Formatted_Rows).
+
+format_row(Columns, Row, Formatted_Row) :-
+	findall(
+		Column_Id:Formatted_Cell,
+		(
+			member(Column, Columns),
+			Column_Id = Column.id
+			format_cell(Row.Column_Id, Column.options, Formatted_Cell)
+		),
+		Formatted_Row_KVs
 	),
-
-	append(HTML_Header, HTML_Rows, HTML_Table_Rows),
-	HTML = table([border="1"],HTML_Table_Rows).
-	
-apply_table_options(Table, Output) :-
-	...
+	dict_create(Formatted_Row,row,Formatted_Row_KVs).
 
 
-/*
 
-*/
 
 investment_report_2_table :-
-	Event = [(date, date, _{}}, ...
-	report = [group(Event, opening_event},...
+	Unit_Columns = [
+		column{id:unit, title:"Unit", options:_{}},
+		column{id:count, title:"Count", options:_{}},
+		column{id:currency, title:"Investment Currency", options:_{}}
+	]
+
+	Event_Details = [
+		column{id:date, title:"Date", options:_{}},
+		column{id:unit_cost_foreign, title:"Unit Cost Foreign", options:_{}},
+		column{id:conversion, title:"Conversion", options:_{}},
+		column{id:unit_cost_converted, title:"Unit Cost Converted", options:_{}},
+		column{id:total_cost_foreign, title:"Total Cost Foreign", options:_{}},
+		column{id:total_cost_converted, title:"Total Cost Converted", options:_{}}
+	],
+
+	Event_Groups = [ 
+		group{id:purchase, title:"Purchase", members:Event_Details},
+		group{id:opening, title:"Opening", members:Event_Details},
+		group{id:sale, title:"Sale", members:Event_Details},
+		group{id:closing, title:"Closing", members:Event_Details}
+	],
+
+	flatten_columns(Event_Groups, Event_Columns),
+
+	Gains_Details = [
+		column{id:market, title:"Market Gain", options:_{}},
+		column{id:forex, title:"Forex Gain", options:_{}}
+	],
+
+	Gains_Groups = [
+		group{id:realized, title:"Realized", members:Gains_Details},
+		group{id:unrealized, title:"Unrealized", members:Gains_Details}
+	],
+
+	flatten_columns(Gains_Groups, Gains_Columns),
+
+	flatten([Unit_Columns, Event_Columns, Gains_Columns], Report_Columns).
 
 
+flatten_groups(Groups, Columns) :-
+	findall(
+		Group_Columns,
+		(
+			member(Group, Groups),
+			group_columns(Group, Group_Columns)
+		),
+		Columns_Nested
+	),
+	flatten(Columns_Nested, Columns).
+
+group_columns(
+	group{id:Group_ID, title:Group_Title, members:Group_Members},
+	Group_Columns
+) :-
+	findall(
+		column{
+			id:Group_ID/Member_ID,
+			title:Column_Title,
+			options:Options
+		},
+		(
+			member(column{id:Member_ID, title:Member_Title, options:Options}, Group_Members),
+			atomics_to_string([Group_Title, Member_Title], " ", Column_Title),
+		),
+		Group_Columns
+	).
+
+	
 ir2_row_to_html(Report_Currency, Row, Html) :-
 	/*
-	columns:
-		list? <- fine for now
-		dict?
-	
-		grouping?
-	*/
-
-	% column specification:
-	/*
-{key: val}
-[visible(true)]
-x/y/z
-
-		title : string
-		data
-			pass in data directly?
-			path syntax for dicts?
-		options = {
-			format; [
-				format_string ?
-				lambda ?
-				precision ?
-			]
-				default = []
-			visible
-				default = true
-		}
-	*/
-
-	/*
-	Data groups:
-		Purchase_Date, Purchase_Unit_Cost_Foreign, Purchase_Conversion, Purchase_Unit_Cost_Converted, Purchase_Total_Cost_Foreign, Purchase_Total_Cost_Converted, 
-		Opening_Date, Opening_Unit_Cost_Foreign, Opening_Conversion, Opening_Unit_Cost_Converted, Opening_Total_Cost_Foreign, Opening_Total_Cost_Converted, 
-
-		Sale_Date, Sale_Unit_Price_Foreign, Sale_Conversion, Sale_Unit_Price_Converted, Sale_Total_Price_Foreign, Sale_Total_Price_Converted
-
-		Closing_Unit_Price_Foreign, Closing_Currency_Conversion, Closing_Unit_Price_Converted, Closing_Market_Value_Foreign, Closing_Market_Value_Converted
-
 		Rea_Market_Gain, Rea_Forex_Gain, Unr_Market_Gain, Unr_Forex_Gain, 
 	*/
 
 	Row = row(
 		Unit, Count, Investment_Currency, 
 
-		Purchase_Data, Opening_Data,
+ 		Purchase_Data, Opening_Data,
 		Sale_Data
 		
 		Gains_Data
@@ -606,6 +656,29 @@ x/y/z
 		% could use the 6-item group here too
 		td(Closing_Unit_Price_Foreign2), td(Closing_Currency_Conversion2), td(Closing_Unit_Price_Converted2),
 		td(Closing_Market_Value_Foreign2), td(Closing_Market_Value_Converted2)]).
+*/
+
+format_cell(date(Date), Options, Output) :-
+	!,
+	format_date(Date, Output).
+
+format_cell(value(Unit, Value), Options, Output) :-
+	!,
+	(
+		Precision = Options.get(precision)
+	->
+		true
+	;
+		Precision = 2
+	),
+	format_money2(_, Precision, value(Unit, Value), Output).
+
+format_cell(exchange_rate(Date, Src, Dst, Rate), Options, Output) :-
+	!,
+	format_conversion(_, exchange_rate(Date, Src, Dst, Rate), Output).
+
+format_cell(Other, Options, Other).
+
 
 format_money_precise(Optional_Implicit_Unit, In, Out) :-
 	format_money2(Optional_Implicit_Unit, 6, In, Out).
