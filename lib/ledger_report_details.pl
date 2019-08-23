@@ -322,19 +322,24 @@ investment_report_2(Static_Data, Outstanding_In, Filename_Suffix, Report_Output)
 	End_Date = Static_Data.end_date,
 	Report_Currency = Static_Data.report_currency,
 	clip_investments(Static_Data, Outstanding_In, Realized_Investments, Unrealized_Investments),
+
 	format_date(Start_Date, Start_Date_Atom),
 	format_date(End_Date, End_Date_Atom),
 	report_currency_atom(Report_Currency, Report_Currency_Atom),
 	atomic_list_concat(['investment report from ', Start_Date_Atom, ' to ', End_Date_Atom, ' ', Report_Currency_Atom], Title_Text),
+
 	/* each item of Investments is a purchase with some info and list of sales */
 	maplist(investment_report_2_sales(Static_Data), Realized_Investments, Sale_Lines),
 	maplist(investment_report_2_unrealized(Static_Data), Unrealized_Investments, Non_Sale_Lines),
 	flatten([Sale_Lines, Non_Sale_Lines], Rows0),
+
 	/* lets sort by unit, sale date, purchase date */
 	sort(7, @=<, Rows0, Rows1),
 	sort(2, @=<, Rows1, Rows2),
 	sort(1, @=<, Rows2, Rows),
+
 	maplist(ir2_row_to_html(Report_Currency), Rows, Rows_Html),
+
 	Header = tr([
 		th('Unit'), th('Count'), th('Currency'),
 		th('Opening Date'), th('Opening Unit Cost Foreign'), th('Currency Conversion'), th('Opening Unit Cost Converted'), th('Opening Total Cost Foreign'), th('Opening Total Cost Converted'), 
@@ -346,12 +351,14 @@ investment_report_2(Static_Data, Outstanding_In, Filename_Suffix, Report_Output)
 		th('Closing Unit Price Foreign'), th('Currency Conversion'), th('Closing Unit Price Converted'),
 		th('Closing Total Value Foreign'), th('Closing Total Value Converted')]),
 	flatten([Header, Rows_Html], Tbl),
+
 	atomic_list_concat(['investment_report', Filename_Suffix, '.html'], Filename),
 	report_page(Title_Text, Tbl, Filename, Report_Output).
 
 investment_report_2_sales(Static_Data, I, Lines) :-
 	I = (rea, Info, 0, Sales),
 	maplist(investment_report_2_sale_lines(Static_Data, Info), Sales, Lines).
+
 
 investment_report_2_sale_lines(Static_Data, Info, Sale, Row) :-
 	dict_vars(Static_Data, [Exchange_Rates, Report_Currency]),
@@ -394,6 +401,7 @@ investment_report_2_unrealized(Static_Data, Investment, Row) :-
 	Investment = (unr, Info, Count, []),
 	
 	Info = info(Investment_Currency, Unit, Opening_Unit_Cost_Converted, Opening_Unit_Cost_Foreign, Opening_Date),
+
 	exchange_rate_throw(Exchange_Rates, End_Date, Unit, Investment_Currency, _),
 	(
 		Cost_Or_Market = cost
@@ -442,23 +450,122 @@ investment_report_2_unrealized(Static_Data, Investment, Row) :-
 		
 		Investment_Currency_Current_Market_Value, Current_Market_Value
 	).
+
 		
+table_to_html(Raw_Table, HTML) :-
+	% apply options to table
+	apply_table_options(Raw_Table, Table),
+	table_contents_to_html(Table, Table_Contents),
+	Title = Table.get(title),
+	HTML = [
+		Title,
+		':',
+		br([]),
+		Table_Contents
+	].
+
+table_contents_to_html(Table, HTML) :-
+	% extract data from Table
+	Columns = Table.get(columns),
+	Rows = Table.get(rows),
+	
+	% make HTML Header
+	findall(
+		td(Column_Header_Value),
+		(
+			% Column in Columns
+			% Column_Header_Value = Column.title...
+		),
+		Column_Header_Cells
+	),
+	HTML_Header = tr(Column_Header_Cells),
+
+	% make HTML Rows 
+	findall(
+		tr(HTML_Row),
+		(
+			member(Row,Rows),
+			findall(td(Cell), member(Cell, Row), HTML_Row)
+		)
+		HTML_Rows
+	),
+
+	append(HTML_Header, HTML_Rows, HTML_Table_Rows),
+	HTML = table([border="1"],HTML_Table_Rows).
+	
+apply_table_options(Table, Output) :-
+	...
+
+
+/*
+
+*/
+
+investment_report_2_table :-
+	Event = [(date, date, _{}}, ...
+	report = [group(Event, opening_event},...
+
 
 ir2_row_to_html(Report_Currency, Row, Html) :-
+	/*
+	columns:
+		list? <- fine for now
+		dict?
+	
+		grouping?
+	*/
+
+	% column specification:
+	/*
+{key: val}
+[visible(true)]
+x/y/z
+
+		title : string
+		data
+			pass in data directly?
+			path syntax for dicts?
+		options = {
+			format; [
+				format_string ?
+				lambda ?
+				precision ?
+			]
+				default = []
+			visible
+				default = true
+		}
+	*/
+
+	/*
+	Data groups:
+		Purchase_Date, Purchase_Unit_Cost_Foreign, Purchase_Conversion, Purchase_Unit_Cost_Converted, Purchase_Total_Cost_Foreign, Purchase_Total_Cost_Converted, 
+		Opening_Date, Opening_Unit_Cost_Foreign, Opening_Conversion, Opening_Unit_Cost_Converted, Opening_Total_Cost_Foreign, Opening_Total_Cost_Converted, 
+
+		Sale_Date, Sale_Unit_Price_Foreign, Sale_Conversion, Sale_Unit_Price_Converted, Sale_Total_Price_Foreign, Sale_Total_Price_Converted
+
+		Closing_Unit_Price_Foreign, Closing_Currency_Conversion, Closing_Unit_Price_Converted, Closing_Market_Value_Foreign, Closing_Market_Value_Converted
+
+		Rea_Market_Gain, Rea_Forex_Gain, Unr_Market_Gain, Unr_Forex_Gain, 
+	*/
 
 	Row = row(
 		Unit, Count, Investment_Currency, 
 
-		Opening_Date, Opening_Unit_Cost_Foreign, Opening_Conversion, Opening_Unit_Cost_Converted, Opening_Total_Cost_Foreign, Opening_Total_Cost_Converted, 
+		Purchase_Data, Opening_Data,
+		Sale_Data
 		
-		Sale_Date, Sale_Unit_Price_Foreign, Sale_Conversion, Sale_Unit_Price_Converted,
-		
-		Rea_Market_Gain, Rea_Forex_Gain, Unr_Market_Gain, Unr_Forex_Gain, 
-		
-		Closing_Unit_Price_Foreign, Closing_Currency_Conversion, Closing_Unit_Price_Converted,
-		
-		Closing_Market_Value_Foreign, Closing_Market_Value_Converted),
-		
+		Gains_Data
+
+		Closing_Data
+		),
+	
+	/*
+	date(...)
+	value(...)
+	exchange_rate(...)
+	or plain atom -> pass through
+	*/
 	format_date(Opening_Date, Opening_Date2),
 	format_money_precise(Report_Currency, Opening_Unit_Cost_Foreign, Opening_Unit_Cost_Foreign2),
 	format_conversion(Report_Currency, Opening_Conversion, Opening_Conversion2),
@@ -483,17 +590,20 @@ ir2_row_to_html(Report_Currency, Row, Html) :-
 	format_money(Report_Currency, Closing_Market_Value_Foreign, Closing_Market_Value_Foreign2),
 	format_money(Report_Currency, Closing_Market_Value_Converted, Closing_Market_Value_Converted2),
 	
+	% maplist td onto row data
 	Html = tr([
 		td(Unit), td(Count), td(Investment_Currency), 
 		
 		td(Opening_Date2), td(Opening_Unit_Cost_Foreign2), td(Opening_Conversion2), td(Opening_Unit_Cost_Converted2), td(Opening_Total_Cost_Foreign2), td(Opening_Total_Cost_Converted2),
+		% todo purchase td(Opening_Date2), td(Opening_Unit_Cost_Foreign2), td(Opening_Conversion2), td(Opening_Unit_Cost_Converted2), td(Opening_Total_Cost_Foreign2), td(Opening_Total_Cost_Converted2),
 		
+		% probably use the same 6-items group:
 		td(Sale_Date2), td(Sale_Unit_Price_Foreign2), td(Sale_Conversion2), td(Sale_Unit_Price_Converted2),
 		
 		td(Rea_Market_Gain2), td(Rea_Forex_Gain2), td(Unr_Market_Gain2), td(Unr_Forex_Gain2),		
 		
+		% could use the 6-item group here too
 		td(Closing_Unit_Price_Foreign2), td(Closing_Currency_Conversion2), td(Closing_Unit_Price_Converted2),
-		
 		td(Closing_Market_Value_Foreign2), td(Closing_Market_Value_Converted2)]).
 
 format_money_precise(Optional_Implicit_Unit, In, Out) :-
@@ -645,7 +755,7 @@ clip_investments(Static_Data, (Outstanding_In, Investments_In), Realized_Investm
 	%Investments1 = Investments4,nonvar(Static_Data)
 	findall(I, (member(I, Investments4), I = (unr, _, _, _)), Unrealized_Investments),
 	findall(I, (member(I, Investments4), I = (rea, _, _, _)), Realized_Investments)
-	%,print_term(clip_investments(Outstanding_In, Investments_In, Realized_Investments, Unrealized_Investments),[])
+	,print_term(clip_investments(Outstanding_In, Investments_In, Realized_Investments, Unrealized_Investments),[])
 	.
 /*
 	
