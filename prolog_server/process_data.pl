@@ -87,36 +87,54 @@ process_data(Request_File_Name, Path, Request, Options0) :-
 		
 	tmp_file_url(Output_File_Name, Output_File_Url),
 	tmp_file_url(Request_File_Name, Request_File_Url),
-	
-	append(Reports, [
+
+	Files = Reports.files,
+
+	append(Files, [
 		Output_File_Title:url(Output_File_Url),
 		request_xml:url(Request_File_Url)
-	], Reports2),
-
+		], Files2),
+	to_json(Files2, Files3),
+	
+	flatten([Reports.errors, Reports.warnings], Alerts2),
+	findall(
+		Alert, 
+		(
+			member(Key:Val, Alerts2), 
+			atomic_list_concat([Key,':',Val], Alert)
+		), 
+		Alerts3
+	),
+	
+	Json_Out = _{
+		alerts:Alerts3, 
+		reports:Files3
+	},
+	
 	(
 		Requested_Output_Type = xbrl_instance
 	->
 		(
 			format('Content-type: text/xml~n~n'),
-			with_output_to(string(Response_Xml_String), print_xml_response(Reports2, Output_Xml_String)),
+			with_output_to(string(Response_Xml_String), print_xml_response(Json_Out, Output_Xml_String)),
 			write_file(Output_File_Path, Response_Xml_String),
 			write(Response_Xml_String)
 		)
 	;
 		(
 			format('Content-type: application/json~n~n'),
-			print_reports(Reports2)
+			json_write(current_output, Json_Out)
 		)
 	).
 
-print_xml_response(Reports2, Output_Xml_String) :-
+print_xml_response(Json_Out, Output_Xml_String) :-
 	writeln('<?xml version="1.0"?>'), nl, nl,
 	format(' <!-- '),
-	print_reports(Reports2),
+	json_write(current_output, Json_Out),
 	format(' --> '),
 	write(Output_Xml_String).	   
    
-print_reports(Reports) :-
+to_json(Reports, Reports2) :-
 	findall(
 		_{key:Key, val:Val}, 
 		(
@@ -129,9 +147,8 @@ print_reports(Reports) :-
 				Val = Val0
 			)
 		),
-		Json
-	),
-	json_write(current_output, Json).
+		Reports2
+	).
    
 response_file_name(Request_File_Name, Response_File_Name) :-
 	(

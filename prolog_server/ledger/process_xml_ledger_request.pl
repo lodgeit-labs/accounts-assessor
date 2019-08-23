@@ -138,10 +138,14 @@ process_xml_ledger_request2(Dom, Reports_Out) :-
 	transactions_by_account(Static_Data, Transactions_By_Account),
 	Static_Data2 = Static_Data.put(accounts_transactions, Transactions_By_Account),
 
-	output_results(Static_Data2, Outstanding, Processed_Until, Report_Files),
+	output_results(Static_Data2, Outstanding, Processed_Until, Reports),
 	
-	flatten([Errors, Warnings, Report_Files], Reports_Out),
-			
+	Reports_Out = _{
+		files: Reports.files,
+		errors: [Errors, Reports.errors],
+		warnings: [Warnings, Reports.warnings]
+	},
+		
 	writeln('</xbrli:xbrl>'),
 
 	writeln('<!-- '),
@@ -206,19 +210,11 @@ output_results(Static_Data0, Outstanding, /*todo use me*/_Processed_Until, Repor
 	format_report_entries(xbrl, Accounts, 0, Report_Currency, Duration_Context_Id_Base, ProftAndLoss2_Historical,  Units1, Units2, [], Pl_Historical_Lines),
 	format_report_entries(xbrl, Accounts, 0, Report_Currency, Instant_Context_Id_Base,  Trial_Balance2, Units2, Units3, [], Tb_Lines),
 	
-	investment_reports(Static_Data, Outstanding, Investment_Report_2_Info1, Investment_Report_2_Info2),
+	investment_reports(Static_Data, Outstanding, Investment_Report_Info),
 	bs_report(Static_Data, Balance_Sheet2, Bs_Report_Info),
 	pl_report(Static_Data, ProftAndLoss2, '', Pl_Report_Info),
 	pl_report(Static_Data_Historical, ProftAndLoss2_Historical, '_historical', Pl_Html_Historical_Info),
 
-	Reports = [
-		Investment_Report_2_Info1, 
-		Investment_Report_2_Info2, 
-		Bs_Report_Info,
-		Pl_Report_Info,
-		Pl_Html_Historical_Info
-	],
-	
 	(
 		Static_Data.output_dimensional_facts = on
 	->
@@ -243,7 +239,22 @@ output_results(Static_Data0, Outstanding, /*todo use me*/_Processed_Until, Repor
 		'\n<!-- trial balance: -->\n',  Tb_Lines
 	], Report_Lines_List),
 	atomic_list_concat(Report_Lines_List, Report_Lines),
-	writeln(Report_Lines).
+	writeln(Report_Lines),
+	
+	append([
+			Bs_Report_Info,
+			Pl_Report_Info,
+			Pl_Html_Historical_Info
+		],
+		Investment_Report_Info.files,
+		Files
+	),
+	
+	Reports = _{
+		files:Files,
+		errors:Investment_Report_Info.alerts,
+		warnings:[]
+	}.
 	
 
 print_dimensional_facts(Static_Data, Instant_Context_Id_Base, Duration_Context_Id_Base, Entity_Identifier, Results0, Results3) :-
@@ -251,24 +262,28 @@ print_dimensional_facts(Static_Data, Instant_Context_Id_Base, Duration_Context_I
 	print_forex(Static_Data, Duration_Context_Id_Base, Entity_Identifier, Results1, Results2),
 	print_trading(Static_Data, Results2, Results3).
 	
-investment_reports(Static_Data, Outstanding, Info1, Info2) :-
+investment_reports(Static_Data, Outstanding, Reports) :-
 	catch( /*fixme*/
 		(
 			/* investment_report_1 is useless but does useful cross-checks while it's being compiled */
 			investment_report_1(Static_Data, _),
-			investment_report_2(Static_Data, Outstanding, '', Info1),
+			investment_report_2(Static_Data, Outstanding, '', Files1),
 			/* todo we cant do all_time without market values, use last known? */
-			investment_report_2(Static_Data.put(start_date, date(1,1,1)), Outstanding, '_since_beginning', Info2)
+			investment_report_2(Static_Data.put(start_date, date(1,1,1)), Outstanding, '_since_beginning', Files2),
+			Alerts = []
 		),
 		Err,
 		(
 			term_string(Err, Err_Str),
-			format(string(Msg), 'SYSTEM_WARNING:investment reports fail: ~w', [Err_Str]),
-			writeln(Msg),
-			Info1 = 'error1'-Msg,
-			Info2 = 'error2'-Msg
+			format(string(Msg), 'investment reports fail: ~w', [Err_Str]),
+			Alerts = ['SYSTEM_WARNING':Msg],
+			writeq(Alerts)
+			
 		)
-	).
+	),
+	flatten([Files1, Files2], Files3),
+	exclude(var, Files3, Files),
+	Reports = _{files: Files, alerts:Alerts}.
 
 	
 print_xbrl_header :-
