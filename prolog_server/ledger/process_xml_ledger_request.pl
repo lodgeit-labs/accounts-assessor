@@ -260,8 +260,8 @@ investment_reports(Static_Data, Outstanding, Info1, Info2) :-
 			term_string(Err, Err_Str),
 			format(string(Msg), 'SYSTEM_WARNING:investment reports fail: ~w', [Err_Str]),
 			writeln(Msg),
-			Info1 = 'error'-Msg,
-			Info2 = 'error'-Msg
+			Info1 = 'error1'-Msg,
+			Info2 = 'error2'-Msg
 		)
 	).
 
