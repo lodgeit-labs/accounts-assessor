@@ -80,32 +80,59 @@ process_data(Request_File_Name, Path, Request, Options0) :-
 	maybe_supress_generating_unique_taxonomy_urls(Options2),
 	get_requested_output_type(Options2, Requested_Output_Type),
 
-	process_data1(Request_File_Name, Path, Response_Xml_String, (Report_Files, Response_Title)),
+	process_data1(Request_File_Name, Path, Output_Xml_String, (Reports, Output_File_Title)),
 	
-	response_file_name(Request_File_Name, Response_File_Name),
-	my_tmp_file_name(Response_File_Name, Response_File_Path),
-	write_file(Response_File_Path, Response_Xml_String),
-	tmp_file_url(Response_File_Name, Response_File_Url),
-	Report_Files2 = Report_Files.put(Response_Title, Response_File_Url),
+	response_file_name(Request_File_Name, Output_File_Name),
+	my_tmp_file_name(Output_File_Name, Output_File_Path),
+		
+	tmp_file_url(Output_File_Name, Output_File_Url),
+	tmp_file_url(Request_File_Name, Request_File_Url),
+	
+	append(Reports, [
+		Output_File_Title:url(Output_File_Url),
+		request_xml:url(Request_File_Url)
+	], Reports2),
 
 	(
 		Requested_Output_Type = xbrl_instance
 	->
 		(
 			format('Content-type: text/xml~n~n'),
+			with_output_to(string(Response_Xml_String), print_xml_response(Reports2, Output_Xml_String)),
+			write_file(Output_File_Path, Response_Xml_String),
 			write(Response_Xml_String)
 		)
 	;
 		(
 			format('Content-type: application/json~n~n'),
-			json_write(current_output, Report_Files2)
+			print_reports(Reports2)
 		)
 	).
-	
-   % writeq(Dom),
-   % write(File_Name),
-   % write(Path).
 
+print_xml_response(Reports2, Output_Xml_String) :-
+	writeln('<?xml version="1.0"?>'), nl, nl,
+	format(' <!-- '),
+	print_reports(Reports2),
+	format(' --> '),
+	write(Output_Xml_String).	   
+   
+print_reports(Reports) :-
+	findall(
+		_{key:Key, val:Val}, 
+		(
+			member((Key:Val0), Reports),
+			(
+				Val0 = url(Url)
+			->
+				Val = _{url:Url}
+			;
+				Val = Val0
+			)
+		),
+		Json
+	),
+	json_write(current_output, Json).
+   
 response_file_name(Request_File_Name, Response_File_Name) :-
 	(
 		replace_request_with_response(Request_File_Name, Response_File_Name)
@@ -122,6 +149,7 @@ process_data1(File_Name, Path, Xml_String, Info) :-
 /* used from command line */
 process_data2(File_Name, Path) :-
 	bump_tmp_directory_id,
+	writeln('<?xml version="1.0"?>'), nl, nl,
 	process_data1(File_Name, Path, Xml_String, _Info),
 	write(Xml_String).
    

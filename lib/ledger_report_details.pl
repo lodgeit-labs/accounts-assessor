@@ -131,7 +131,7 @@ report_page(Title_Text, Tbl, File_Name, Info) :-
 		Body_Tags),
 	phrase(Page, Page_Tokenlist),
 	report_section(File_Name, Page_Tokenlist, Url),
-	Info = Title_Text-Url.
+	Info = Title_Text:url(Url).
 	
 
 pl_report(Static_Data, ProftAndLoss2, Filename_Suffix, Lines) :-
