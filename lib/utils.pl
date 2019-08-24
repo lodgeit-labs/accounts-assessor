@@ -88,7 +88,7 @@ user:goal_expansion(
 	expand_formulas_to_code(Expansions, Code)/*,
 	Code = (AAA,BBB,_),
 	writeln(AAA),
-	writeln('------'),
+	writeln('------')
 	writeln(BBB),
 	writeln('------')*/.
 

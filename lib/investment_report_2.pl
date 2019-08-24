@@ -1,4 +1,6 @@
-	
+:- module(investment_report_2, [investment_report_2/5]).
+
+:- [tables].	
 
 :- record investment_report_item(type, info, outstanding_count, sales, clipped).
 
@@ -24,44 +26,29 @@ investment_report_2(Static_Data, Outstanding_In, Filename_Suffix, Report_Data, R
 	report_currency_atom(Report_Currency, Report_Currency_Atom),
 	atomic_list_concat(['investment report from ', Start_Date_Atom, ' to ', End_Date_Atom, ' ', Report_Currency_Atom], Title_Text),
 
-	Report_Data = _{
-		rows: Rows,
-		totals: Totals,
-	},
+	columns(Columns),
+	rows(Static_Data, Outstanding_In, Rows),
+	totals(Rows, Totals),
 
-	investment_report_2_rows(Static_Data, Outstanding_In, Rows),
-	investment_totals(Rows, Totals),
 	flatten([Rows, Totals], Rows2),
-
-	
-
-	maplist(ir2_row_to_html(Report_Currency), Rows, Rows_Html),
-
-	Header = tr([
-		th('Unit'), th('Count'), th('Currency'),
-		th('Opening Date'), th('Opening Unit Cost Foreign'), th('Currency Conversion'), th('Opening Unit Cost Converted'), th('Opening Total Cost Foreign'), th('Opening Total Cost Converted'), 
-		
-		th('Sale Date'), th('Sale Unit Price Foreign'), th('Currency Conversion'), th('Sale Unit Price Converted'),
-		
-		th('Rea Market Gain'), th('Rea Forex Gain'), th('Unr Market Gain'), th('Unr Forex Gain'), 
-		
-		th('Closing Unit Price Foreign'), th('Currency Conversion'), th('Closing Unit Price Converted'),
-		th('Closing Total Value Foreign'), th('Closing Total Value Converted')]),
-	flatten([Header, Rows_Html], Tbl),
-
-
-
-
+	Table = _{rows: Rows, columns: Columns},
+	table_to_html(Table, Html),
 
 	atomic_list_concat(['investment_report', Filename_Suffix, '.html'], Filename),
-	report_page(Title_Text, Tbl, Filename, Report_File_Info).
+	report_page(Title_Text, Html, Filename, Report_File_Info).
 	
+	Report = _{
+		data: _{
+			rows: Rows,
+			totals: Totals,
+		},
+		files: [Report_File_Info]
+	}.
+
+totals(Rows, Totals) :-
+	table_totals([
 	
-
-
-
-
-investment_report_2_columns :-
+investment_report_2_columns(Columns) :-
 	Unit_Columns = [
 		column{id:unit, title:"Unit", options:_{}},
 		column{id:count, title:"Count", options:_{}},
@@ -223,23 +210,6 @@ optional_currency_conversion(Exchange_Rates, Date, Src, Optional_Dst, Conversion
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-	
 ir2_row_to_html(Report_Currency, Row, Html) :-
 	/*
 		Rea_Market_Gain, Rea_Forex_Gain, Unr_Market_Gain, Unr_Forex_Gain, 
