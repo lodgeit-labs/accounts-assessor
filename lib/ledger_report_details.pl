@@ -87,16 +87,14 @@
 :- rdet(report_page/4).
 :- rdet(report_currency_atom/2).
 :- rdet(report_section/3).
-:- rdet(write_file_from_string/2).
 :- rdet(html_tokenlist_string/2).
 :- rdet(report_file_path/3).
 
 
-report_file_path(FN, Url, Path) :-
-	request_tmp_dir(Tmp_Dir),
-	server_public_url(Server_Public_Url),
-	atomic_list_concat([Server_Public_Url, '/tmp/', Tmp_Dir, '/', FN], Url),
-	my_tmp_file_name(FN, Path).
+
+:- [investment_report_1].
+
+
 
 html_tokenlist_string(Tokenlist, String) :-
 	new_memory_file(X),
@@ -105,15 +103,10 @@ html_tokenlist_string(Tokenlist, String) :-
 	close(Mem_Stream),
 	memory_file_to_string(X, String).
 
-write_file_from_string(File_Path, Html_String) :-
-	open(File_Path, write, File_Stream),
-	write(File_Stream, Html_String),
-	close(File_Stream).
-
 report_section(File_Name, Html_Tokenlist, Url) :-
 	report_file_path(File_Name, Url, File_Path),
 	html_tokenlist_string(Html_Tokenlist, Html_String),
-	write_file_from_string(File_Path, Html_String).
+	write_file(File_Path, Html_String).
 
 report_currency_atom(Report_Currency_List, Report_Currency_Atom) :-
 	(
@@ -134,7 +127,7 @@ report_page(Title_Text, Tbl, File_Name, Info) :-
 	Info = Title_Text-Url.
 	
 
-pl_report(Static_Data, ProftAndLoss2, Filename_Suffix, Lines) :-
+pl_html(Static_Data, ProftAndLoss2, Filename_Suffix, Report) :-
 	dict_vars(Static_Data, [Accounts, Start_Date, End_Date, Report_Currency]),
 	format_date(Start_Date, Start_Date_Atom),
 	format_date(End_Date, End_Date_Atom),
@@ -144,9 +137,9 @@ pl_report(Static_Data, ProftAndLoss2, Filename_Suffix, Lines) :-
 	Header = tr([th('Account'), th(['Value', Report_Currency_Atom])]),
 	flatten([Header, Report_Table_Data], Tbl),
 	atomic_list_concat(['profit_and_loss', Filename_Suffix, '.html'], Filename),
-	report_page(Title_Text, Tbl, Filename, Lines).
+	report_page(Title_Text, Tbl, Filename, Report).
 		
-bs_report(Static_Data, Balance_Sheet, Lines) :-
+bs_html(Static_Data, Balance_Sheet, Report) :-
 	dict_vars(Static_Data, [Accounts, Start_Date, End_Date, Report_Currency]),
 	format_date(Start_Date, Start_Date_Atom),
 	format_date(End_Date, End_Date_Atom),
@@ -155,170 +148,49 @@ bs_report(Static_Data, Balance_Sheet, Lines) :-
 	pesseract_style_table_rows(Accounts, Report_Currency, Balance_Sheet, Report_Table_Data),
 	Header = tr([th('Account'), th(['Balance', Report_Currency_Atom])]),
 	flatten([Header, Report_Table_Data], Tbl),
-	report_page(Title_Text, Tbl, 'balance_sheet.html', Lines).
+	report_page(Title_Text, Tbl, 'balance_sheet.html', Report).
 	
-	
-investment_report_1(Static_Data, Lines) :-
+crosschecks_report(Pl, Bs, Ir, Report) :-
+	Report = [
+		equality(account_balance(Pl, 'Accounts'/'InvestmentIncome'), sum(Ir.totals.gains)),
+		equality(account_balance(Bs, 'Accounts'/'FinancialInvestments'), sum(Ir.totals.closing.total_converted)),
 
-	investment_report1(Static_Data, Report0),
-	flatten(Report0, Report),
-	investment_report_to_html(Report, Report_Table_Data),
-
-	dict_vars(Static_Data, [Start_Date, End_Date, Report_Currency]),
-	format_date(Start_Date, Start_Date_Atom),
-	format_date(End_Date, End_Date_Atom),
-	report_currency_atom(Report_Currency, Report_Currency_Atom),
-	atomic_list_concat(['investment report from ', Start_Date_Atom, ' to ', End_Date_Atom, ' ', Report_Currency_Atom], Title_Text),
-	
-	Header = tr([th('Investment'), th('Opening Unit #'), th('Opening Cost'), th('Closing Unit #'), th('Closing Cost'), th('Realized Market'), th('Realized Forex'), th('Unrealized Market'), th('Unrealized Forex')]),
-	
-	append([Header], Report_Table_Data, Tbl),
-	/*report_page(Title_Text, Tbl, 'investment_report1.html', Lines)*/
-	nonvar(Title_Text), nonvar(Tbl), Lines = ''.
-
-
-investment_report_to_html([], '').
-investment_report_to_html([Item|Items], [tr(Columns)|Rows]) :-
-	Item = row(Unit, Opening, Closing, Realized, Unrealized),
-	assets_html(Opening, Opening_Html),
-	assets_html(Closing, Closing_Html),
-	gains_html(Realized, Rea_Html),
-	gains_html(Unrealized, Unr_Html),
-	flatten([td(Unit), Opening_Html, Closing_Html, Rea_Html, Unr_Html], Columns),
-	investment_report_to_html(Items, Rows).
-
-gains_html((_, Market, Forex), [td(Market), td(Forex)]).
-assets_html((Count, Cost), [td(Count), td(Cost)]).
-
-
-/*
-	generate realized and unrealized investment report sections for each trading account
-*/
-investment_report1(Static_Data, Lines) :-
-	dict_vars(Static_Data, [Transaction_Types]),
-	trading_account_ids(Transaction_Types, Trading_Account_Ids),
-	maplist(
-		investment_report2(Static_Data),
-		Trading_Account_Ids, 
-		Lines).
 		
-/*
-	generate realized and unrealized investment report sections for one trading account
-*/
-investment_report2(Static_Data, Trading_Account, Lines) :-
-	dict_vars(Static_Data, [Accounts]),
-	units_traded_on_trading_account(Accounts, Trading_Account, All_Units_Roles),
-	maplist(
-		investment_report3(Static_Data, Trading_Account),
-		All_Units_Roles,
-		Lines,
-		Realized_Totals_Crosscheck_List,
-		Unrealized_Totals_Crosscheck_List),
-	maplist(
-		check_investment_totals(Static_Data, Trading_Account),
-		[Realized_Totals_Crosscheck_List, Unrealized_Totals_Crosscheck_List],
-		[realized, unrealized]).
-	
-investment_report3(Static_Data, Trading_Account, Unit, Row, Realized_Total, Unrealized_Total) :-
-	Row = row(Unit, Lines0o, Lines0c, Lines1, Lines2),
-	dict_vars(Static_Data, [Start_Date, End_Date, Exchange_Rates, Accounts, Transactions, Report_Currency]),
-	account_by_role(Accounts, ('FinancialInvestments'/Unit), Assets_Account),
-	balance_until_day(Exchange_Rates, Accounts, Transactions, Report_Currency, Start_Date, Assets_Account, Start_Date, Opening_Value, _),
-	balance_until_day(Exchange_Rates, Accounts, Transactions, Report_Currency, End_Date, Assets_Account, End_Date, Closing_Value, _),
-	balance_until_day([], Accounts, Transactions, [], Start_Date, Assets_Account, Start_Date, Opening_Count, _),
-	balance_until_day([], Accounts, Transactions, [], End_Date, Assets_Account, End_Date, Closing_Count, _),
-	/*fixme check the units here:*/
-	/*
-	not very systematic, but there are gonna be multiple units with different with_cost_per_unit here
-	*/
-	strip_unit_costs(Opening_Count, Opening_Count_Stripped),
-	strip_unit_costs(Closing_Count, Closing_Count_Stripped),
+crosschecks_evaluation :-
 
-	number_vec(_, Opening_Count2, Opening_Count_Stripped),
-	number_vec(_, Opening_Value2, Opening_Value),
-	number_vec(_, Closing_Count2, Closing_Count_Stripped),
-	number_vec(_, Closing_Value2, Closing_Value),
-	Lines0o = (Opening_Count2, Opening_Value2),
-	Lines0c = (Closing_Count2, Closing_Value2),
-	investment_report3_lines(Static_Data, Trading_Account, Unit, realized, Lines1, Realized_Total),
-	investment_report3_lines(Static_Data, Trading_Account, Unit, unrealized, Lines2, Unrealized_Total).
+
+crosschecks_html :-
 	
-strip_unit_costs(V1, V3) :-
-	findall(
-		coord(True_Unit, D, C),
-		(
-			member(coord(Unit, D, C), V1),
-			(
-				Unit = with_cost_per_unit(True_Unit, _)
-				;
-				(
-					Unit \= with_cost_per_unit(_, _),
-					True_Unit = Unit
-				)
-			)
-		),
-		V2
-	),
-	vec_add(V2, [], V3).
-				
+
+:- record investment_report_item(type, info, outstanding_count, sales, clipped).
+
+event(Event, Date, Unit_Cost_Foreign, Currency_Conversion, Unit_Cost_Converted, Total_Cost_Foreign, Total_Cost_Converted) :-
+	Event = _{
+		date: Date, 
+		unit_cost_foreign: Unit_Cost_Foreign, 
+		currency_conversion: Currency_Conversion, 
+		unit_cost_converted: Unit_Cost_Converted, 
+		total_cost_foreign: Total_Cost_Foreign, 
+		total_cost_converted: Total_Cost_Converted
+	}.
+
+
+investment_report_2(Static_Data, Outstanding_In, Filename_Suffix, Report_Data, Report_File_Info) :-
+	Report_Data = _{
+		rows: Rows,
+		totals: Totals,
+	},
+	investment_report_2_rows(Static_Data, Outstanding_In, Rows),
+	investment_totals(Rows, Totals),
+
+	atomic_list_concat(['investment_report', Filename_Suffix, '.html'], Filename),
+	report_page(Title_Text, Tbl, Filename, Report_File_Info).
 	
 	
-investment_report3_lines(Static_Data, Trading_Account, Unit, Gains_Role, Lines, Total) :-
-	investment_report3_balance(Static_Data, Trading_Account, Gains_Role, withoutCurrencyMovement, Unit, Gains_Market_Balance, Gains_Market_Lines),
-	investment_report3_balance(Static_Data, Trading_Account, Gains_Role, onlyCurrencyMovement, Unit, Gains_Forex_Balance, Gains_Forex_Lines),
-	vec_add(Gains_Market_Balance, Gains_Forex_Balance, Total),
-	Lines = (Gains_Role, Gains_Market_Lines, Gains_Forex_Lines).
-
-investment_report3_balance(Static_Data, Trading_Account, Gains_Role, Forex_Role, Unit, Balance, Lines) :-
-	dict_vars(Static_Data, [Exchange_Rates, Accounts, Transactions, Report_Currency, End_Date]),
-	account_by_role(Accounts, (Trading_Account/Gains_Role), Gains_Account),
-	account_by_role(Accounts, (Gains_Account/Forex_Role), Gains_Forex_Account),
-	account_by_role(Accounts, (Gains_Forex_Account/Unit), Unit_Account),
-	balance_by_account(Exchange_Rates, Accounts, Transactions, Report_Currency, End_Date, Unit_Account, End_Date, Balance, Transactions_Count),
-	format_report_entries(simple, 1, Accounts, 0, Report_Currency, '', [entry(Unit_Account, Balance, [], Transactions_Count)], [], _, [], Lines).
-
-units_traded_on_trading_account(Accounts, Trading_Account, All_Units_Roles) :-
-	findall(
-		Unit_Account_Role,
-		(
-			member(Gains_Role, [realized, unrealized]),
-			account_by_role(Accounts, (Trading_Account/Gains_Role), Gains_Account),
-			member(Forex_Role, [withoutCurrencyMovement, onlyCurrencyMovement]),
-			account_by_role(Accounts, (Gains_Account/Forex_Role), Forex_Account),
-			account_child_parent(Accounts, Unit_Account_Id, Forex_Account),
-			account_role_by_id(Accounts, Unit_Account_Id, (_Parent_Id/Unit_Account_Role))
-		),
-		All_Units_Roles0
-	),
-	sort(All_Units_Roles0, All_Units_Roles).
-	
-check_investment_totals(Static_Data, Trading_Account, Check_Totals_List_Nested, Gains_Role) :- 
-	dict_vars(Static_Data, [Exchange_Rates, Accounts, Transactions, Report_Currency, End_Date]),
-	flatten(Check_Totals_List_Nested, Check_Totals_List),
-	% the totals in investment report should be more or less equal to the account balances
-	vec_add(Check_Totals_List, [/*coord('AUD', 1, 0)*/], Total),
-	account_by_role(Accounts, (Trading_Account/Gains_Role), Account),
-	balance_by_account(Exchange_Rates, Accounts, Transactions, Report_Currency, End_Date, Account, End_Date, Total_Balance, _),
-	(
-		vecs_are_almost_equal(Total_Balance, Total)
-	->
-		true
-	;
-		(
-			term_string(Total_Balance, Total_Balance_Str),
-			term_string(Total, Total_Str),
-			throw_string([Gains_Role, ' total balance check failed: account balance: ',
-				Total_Balance_Str, 'investment report total:', Total_Str, '.\n'])
-		)
-	).
 
 
-/*
 
-	investment_report_2
-
-*/
-investment_report_2(Static_Data, Outstanding_In, Filename_Suffix, Report_Output) :-
+investment_report_2_rows(Static_Data, Outstanding_In, Filename_Suffix, Report_Output) :-
 	Start_Date = Static_Data.start_date,
 	End_Date = Static_Data.end_date,
 	Report_Currency = Static_Data.report_currency,
@@ -353,15 +225,13 @@ investment_report_2(Static_Data, Outstanding_In, Filename_Suffix, Report_Output)
 		th('Closing Total Value Foreign'), th('Closing Total Value Converted')]),
 	flatten([Header, Rows_Html], Tbl),
 
-	atomic_list_concat(['investment_report', Filename_Suffix, '.html'], Filename),
-	report_page(Title_Text, Tbl, Filename, Report_Output).
 
 investment_report_2_sales(Static_Data, I, Lines) :-
-	I = (rea, Info, 0, Sales),
-	maplist(investment_report_2_sale_lines(Static_Data, Info), Sales, Lines).
+	I = investment_report_item(rea, Info, 0, Sales, Clipped),
+	maplist(investment_report_2_sale_lines(Static_Data, Info, Clipped), Sales, Lines).
 
 
-investment_report_2_sale_lines(Static_Data, Info, Sale, Row) :-
+investment_report_2_sale_lines(Static_Data, Info, Clipped, Sale, Row) :-
 	dict_vars(Static_Data, [Exchange_Rates, Report_Currency]),
 	Sale = sale(Sale_Date, Sale_Unit_Price_Foreign, Count),
 	Sale_Unit_Price_Foreign = value(End_Unit_Price_Unit, End_Unit_Price_Amount),
@@ -378,20 +248,18 @@ investment_report_2_sale_lines(Static_Data, Info, Sale, Row) :-
 	value_multiply(Opening_Unit_Cost_Foreign, Count, Opening_Total_Cost_Foreign),
 	value_multiply(Opening_Unit_Cost_Converted, Count, Opening_Total_Cost_Converted),
 
-	Row = row(
-		Unit, Count, Investment_Currency,
-
-		Opening_Date, Opening_Unit_Cost_Foreign, Opening_Currency_Conversion, Opening_Unit_Cost_Converted, Opening_Total_Cost_Foreign, Opening_Total_Cost_Converted,
-		
-		Sale_Date, Sale_Unit_Price_Foreign, Sale_Currency_Conversion, Sale_Unit_Price_Converted,
-		
-		Market_Gain, Forex_Gain, '', '', 
-		
-		'', '', '',
-		
-		'', ''
+	event(Opening0, Opening_Date, Opening_Unit_Cost_Foreign, Opening_Currency_Conversion, Opening_Unit_Cost_Converted, Opening_Total_Cost_Foreign, Opening_Total_Cost_Converted),
+	(Clipped = clipped	->
+		(Opening = Opening0, Purchase = _{})
+	;	(Opening = _{},	Purchase = Opening0)),		
+	event(Sale, Sale_Date, Sale_Unit_Price_Foreign, Sale_Currency_Conversion, Sale_Unit_Price_Converted, '', ''),
+	Row = _{
+		unit: Unit, count: Count, investment_currency: Investment_Currency,
+		opening: Opening, purchase: Purchase, sale: Sale,
+		gains: _{unr: _{}, rea: _{market: Market_Gain, forex: Forex_Gain}},
+		closing: _{}
 	).
-		
+
 		
 investment_report_2_unrealized(Static_Data, Investment, Row) :-
 	
@@ -399,9 +267,9 @@ investment_report_2_unrealized(Static_Data, Investment, Row) :-
 	Exchange_Rates = Static_Data.exchange_rates,
 	Report_Currency = Static_Data.report_currency,
 	Cost_Or_Market = Static_Data.cost_or_market,
-	Investment = (unr, Info, Count, []),
-	
+	Investment = investment_report_item(unr, Info, Count, [], Clipped),
 	Info = info(Investment_Currency, Unit, Opening_Unit_Cost_Converted, Opening_Unit_Cost_Foreign, Opening_Date),
+
 
 	exchange_rate_throw(Exchange_Rates, End_Date, Unit, Investment_Currency, _),
 	(
@@ -437,19 +305,21 @@ investment_report_2_unrealized(Static_Data, Investment, Row) :-
 
 	value_multiply(Opening_Unit_Cost_Foreign, Count, Opening_Total_Cost_Foreign),
 	value_multiply(Opening_Unit_Cost_Converted, Count, Opening_Total_Cost_Converted),
-	
-	Row = row(
-		Unit, Count, Investment_Currency,
-	
-		Opening_Date, Opening_Unit_Cost_Foreign, Opening_Currency_Conversion, Opening_Unit_Cost_Converted, Opening_Total_Cost_Foreign, Opening_Total_Cost_Converted,
-		
-		'', '', '', '',
-		
-		'', '', Market_Gain, Forex_Gain, 
-		
-		Closing_Unit_Price_Foreign, Closing_Currency_Conversion, Closing_Unit_Price_Converted,
-		
-		Investment_Currency_Current_Market_Value, Current_Market_Value
+	Unr_Market_Explanation = 
+
+
+
+
+	event(Opening0, Opening_Date, Opening_Unit_Cost_Foreign, Opening_Currency_Conversion, Opening_Unit_Cost_Converted, Opening_Total_Cost_Foreign, Opening_Total_Cost_Converted),
+	(Clipped = clipped	->
+		(Opening = Opening0, Purchase = _{})
+	;	(Opening = _{},	Purchase = Opening0)),		
+	event(Closing, Closing_Unit_Price_Foreign, Closing_Currency_Conversion, Closing_Unit_Price_Converted, Investment_Currency_Current_Market_Value, Current_Market_Value),
+	Row = _{
+		unit: Unit, count: Count, investment_currency: Investment_Currency,
+		opening: Opening, purchase: Purchase, sale: _{},
+		gains: _{rea: _{}, unr: _{market: Market_Gain, forex: Forex_Gain}},
+		closing: Closing
 	).
 
 		
@@ -526,7 +396,7 @@ format_row(Columns, Row, Formatted_Row) :-
 
 
 
-investment_report_2_table :-
+investment_report_2_columns :-
 	Unit_Columns = [
 		column{id:unit, title:"Unit", options:_{}},
 		column{id:count, title:"Count", options:_{}},
@@ -826,11 +696,11 @@ clip_investments(Static_Data, (Outstanding_In, Investments_In), Realized_Investm
 	exclude(irrelevant_investment(Static_Data), Investments2, Investments3),
 
 	maplist(clip_investment(Static_Data), Investments3, Investments4),
-	%Investments1 = Investments4,nonvar(Static_Data)
-	findall(I, (member(I, Investments4), I = (unr, _, _, _)), Unrealized_Investments),
-	findall(I, (member(I, Investments4), I = (rea, _, _, _)), Realized_Investments)
-	,print_term(clip_investments(Outstanding_In, Investments_In, Realized_Investments, Unrealized_Investments),[])
+	findall(I, (member(I, Investments4), investment_report_item_type(I,unr)), Unrealized_Investments),
+	findall(I, (member(I, Investments4), investment_report_item_type(I,rea)), Realized_Investments)
+	%,print_term(clip_investments(Outstanding_In, Investments_In, Realized_Investments, Unrealized_Investments),[])
 	.
+
 /*
 	
 */	
@@ -860,7 +730,7 @@ clip_investment(Static_Data, I1, I2) :-
 	%dict_vars(Static_Data, [Start_Date, Exchange_Rates, Report_Currency]),
 	[Report_Currency_Unit] = Report_Currency,
 	I1 = (Tag, Info1, Outstanding_Count, Sales),
-	I2 = (Tag, Info2, Outstanding_Count, Sales),
+	I2 = (Tag, Info2, Outstanding_Count, Sales, Clipped),
 	Info1 = info(Investment_Currency, Unit, Purchase_Unit_Cost_Converted, Purchase_Unit_Cost_Foreign, Purchase_Date),
 	Info2 = info(Investment_Currency, Unit, Opening_Unit_Cost_Converted, Opening_Unit_Cost_Foreign, Opening_Date),
 	(
@@ -869,7 +739,8 @@ clip_investment(Static_Data, I1, I2) :-
 		(
 			Opening_Unit_Cost_Foreign = Purchase_Unit_Cost_Foreign,
 			Opening_Unit_Cost_Converted = Purchase_Unit_Cost_Converted,
-			Opening_Date = Purchase_Date
+			Opening_Date = Purchase_Date,
+			Clipped = unclipped
 		)
 	;
 		(
@@ -881,7 +752,8 @@ clip_investment(Static_Data, I1, I2) :-
 			exchange_rate_throw(Exchange_Rates, Opening_Date, Unit, Investment_Currency, Before_Opening_Exchange_Rate_Foreign),
 			Opening_Unit_Cost_Foreign = value(Investment_Currency, Before_Opening_Exchange_Rate_Foreign),
 			exchange_rate_throw(Exchange_Rates, Opening_Date, Unit, Report_Currency_Unit, Before_Opening_Exchange_Rate_Converted),			
-			Opening_Unit_Cost_Converted = value(Report_Currency_Unit, Before_Opening_Exchange_Rate_Converted)
+			Opening_Unit_Cost_Converted = value(Report_Currency_Unit, Before_Opening_Exchange_Rate_Converted),
+			Clipped = clipped
 		)
 	).
 

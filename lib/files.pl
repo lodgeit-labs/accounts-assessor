@@ -40,6 +40,13 @@ my_tmp_file_name(File_Name, Absolute_File_Name) :-
 	my_tmp_file_path(File_Name, File_Path_Relative_To_Tmp),
 	absolute_file_name(my_tmp(File_Path_Relative_To_Tmp), Absolute_File_Name, []).
 
+/* my_tmp_file_url? */
+report_file_path(FN, Url, Path) :-
+	request_tmp_dir(Tmp_Dir),
+	server_public_url(Server_Public_Url),
+	atomic_list_concat([Server_Public_Url, '/tmp/', Tmp_Dir, '/', FN], Url),
+	my_tmp_file_name(FN, Path).
+
 my_tmp_file_path(File_Name, File_Path_Relative_To_Tmp) :-
 	my_request_tmp_dir(Tmp_Dir),
 	atomic_list_concat([Tmp_Dir, '/', File_Name], File_Path_Relative_To_Tmp).
