@@ -25,7 +25,8 @@
 		coord_is_almost_zero/1,
 		is_uri/1,
 		sort_into_dict/3,
-		capitalize_atom/2]).
+		capitalize_atom/2,
+		path_get_dict/3]).
 
 		
 :- use_module(library(xpath)).
@@ -455,7 +456,10 @@ sort_into_dict(Selector_Predicate, [T|Ts], D, D_Out) :-
 
 sort_into_dict(_, [], D, D).
 
-/*
-dict_path_get(Dict, (X/Y), Value) :-
-	dict_path_get(Dict, (X/Y), Value) :-
-*/
+path_get_dict((X/Y), Dict, Y_Value) :-
+	path_get_dict(X, Dict, X_Value),
+	path_get_dict(Y, X_Value, Y_Value).
+
+path_get_dict(K, Dict, V) :-
+	K \= (_/_),
+	get_dict(K, Dict, V).
