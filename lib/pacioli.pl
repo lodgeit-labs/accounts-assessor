@@ -24,10 +24,10 @@
 		value_convert/3,
 		debit_isomorphism/2,
 		vecs_are_almost_equal/2,
+		coord_is_almost_zero/1,
 		is_debit/1]).
 
 :- use_module('utils', [
-		coord_is_almost_zero/1,
 		semigroup_foldl/3]).
 
 :- use_module(library(clpq)).
@@ -237,3 +237,11 @@ value_subtract(value(Unit1, Amount1), value(Unit2, Amount2), value(Unit2, Amount
 vecs_are_almost_equal(A, B) :-
 	vec_sub(A, B, C),
 	maplist(coord_is_almost_zero, C).
+
+coord_is_almost_zero(coord(_, D, C)) :-
+	floats_close_enough(D, 0),
+	floats_close_enough(C, 0).
+
+coord_is_almost_zero(value(_, V)) :-
+	floats_close_enough(V, 0).
+

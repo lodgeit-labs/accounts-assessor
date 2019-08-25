@@ -46,8 +46,8 @@ investment_report_2(Static_Data, Outstanding_In, Filename_Suffix, Report_Data, R
 	}.
 
 totals(Rows, Totals) :-
-	table_totals([
-	
+ 	table_totals([rea/market, rea/forex, unr/market, unr/forex, closing/total_converted], Totals).
+  	
 investment_report_2_columns(Columns) :-
 	Unit_Columns = [
 		column{id:unit, title:"Unit", options:_{}},

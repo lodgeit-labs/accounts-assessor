@@ -155,13 +155,45 @@ bs_html(Static_Data, Balance_Sheet, Report) :-
 	report_page(Title_Text, Tbl, 'balance_sheet.html', Report).
 
 
-/*
+
 crosschecks_report(Pl, Bs, Ir, Report) :-
 	Report = [
-		equality(account_balance(Pl, 'Accounts'/'InvestmentIncome'), sum(Ir.totals.gains)),
-		equality(account_balance(Bs, 'Accounts'/'FinancialInvestments'), sum(Ir.totals.closing.total_converted)),
-		
-crosschecks_evaluation :-
+		equality(account_balance(Pl, 'Accounts'/'InvestmentIncome', cr), sum(Ir.totals.gains)),
+		  equality(account_balance(Bs, 'Accounts'/'FinancialInvestments', cr), sum(Ir.totals.closing.total_converted)).
+	
+crosschecks_evaluate(In, Out) :-
+	maplist(evaluate_equality, In, Out).
+		 
+evaluate_equality(E, Result) :-
+	E = equality(A, B),
+	evaluate(A, A2),
+	evaluate(B, B2),
+	(
+	 crosscheck_compare(A2, B2)
+	->
+	 (
+	  Equality_Str = '=',
+	  Status = 'ok',
+	  Error = ''
+	 )
+	;
+	 (
+	  Equality_Str = 'does not equal',
+	  Status = 'error',
+	  Error = Result
+	 )
+	),
+	format(
+	       string(Result),
+	       '~w ~w ~w ... ~w',
+	       [A_Str, Equality_Str, B_Str, Status]).
+	
 
+crosscheck_compare(A, B) :-
+	vecs_are_almost_equal(A, B)
+	
+	
+	
+	
 crosschecks_html :-
-*/
+

@@ -425,10 +425,6 @@ floats_close_enough(Value1, Value2) :-
 	ValueDifference is abs(Value1 - Value2),
 	ValueDifference =< Max.
 
-coord_is_almost_zero(coord(_, D, C)) :-
-	floats_close_enough(D, 0),
-	floats_close_enough(C, 0).
-
 is_uri(URI) :-
 	% atom_prefix is deprecated
 	atom_prefix(URI,"http").
