@@ -23,7 +23,7 @@ see doc/investment and dropbox Develop/videos/ledger
 		parse_date/2, 
 		gregorian_date/2]).
 :- use_module('../../lib/ledger', [
-		process_ledger/15]).
+		process_ledger/19]).
 :- use_module('../../lib/ledger_report', [
 		format_report_entries/10,
 		balance_sheet_at/2, 
@@ -142,8 +142,6 @@ process_realized(Dom, Global_Report_Date_Atom, Result) :-
 		)
 	], 
 	process_ledger(
-		market, 
-		[],
 		S_Transactions,	
 		Purchase_Date, 
 		Sale_Date, 
@@ -157,13 +155,9 @@ process_realized(Dom, Global_Report_Date_Atom, Result) :-
 		   'InvestmentIncome',
 		   'Shares')],
 		[report_currency], 
-		[], 
-		[], 
 		Accounts0, 
 		Accounts, 
-		Transactions,
-		_,
-		_
+		Transactions
 	),
    	Info = (Exchange_Rates, Accounts, Transactions, Sale_Date, report_currency),
    	/*todo get Investment_Income account by role */
@@ -294,8 +288,6 @@ process_unrealized(Dom, Global_Report_Date, Result) :-
 
 	extract_account_hierarchy([], Accounts0),
 	process_ledger(
-		market,
-		[],
 		S_Transactions,
 		Purchase_Date, 
 		Report_Date, 
@@ -306,13 +298,9 @@ process_unrealized(Dom, Global_Report_Date, Result) :-
 		   'Shares')
 		],
 		[report_currency], 
-		[], 
-		[], 
 		Accounts0, 
 		Accounts, 
-		Transactions,
-		_,
-		_
+		Transactions
 	),
 
 
@@ -537,8 +525,6 @@ crosscheck_totals(Results, Report_Date) :-
 	extract_account_hierarchy([], Accounts0),
 
 	process_ledger(
-		market,
-		[],
 		S_Transactions,
 		date(2000,1,1), 
 		Report_Date, 
@@ -554,13 +540,9 @@ crosscheck_totals(Results, Report_Date) :-
 		   'Shares')
 		],
 		[report_currency], 
-		[], 
-		[], 
 		Accounts0, 
 		Accounts, 
-		Transactions,
-		_,
-		_
+		Transactions
 	),
    	Info = (Exchange_Rates, Accounts, Transactions, Report_Date, report_currency),
 	/*
@@ -682,4 +664,38 @@ writeln(Unrealized_Market_Gain_Total + Unrealized_Currency_Gain_Total),
 write_float_tag(Name, Value) :-
 	format(string(String), '~2f', [Value]),
 	write_tag(Name, String).
+
+
+process_ledger(
+	S_Transactions,	
+	Purchase_Date, 
+	Sale_Date, 
+	Exchange_Rates,
+	Transaction_Types,
+	Report_Currency,
+	Accounts0, 
+	Accounts, 
+	Transactions
+) :-
+	process_ledger(
+		market,
+		[],
+		S_Transactions,	
+		_,
+		Purchase_Date, 
+		Sale_Date, 
+		Exchange_Rates,
+		Transaction_Types,
+		Report_Currency,
+		[], 
+		[], 
+		Accounts0, 
+		Accounts, 
+		Transactions,
+		_,
+		_,
+		_,
+		_,
+		_
+	).
 

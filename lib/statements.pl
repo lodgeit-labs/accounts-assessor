@@ -6,7 +6,7 @@
 
 :- module(statements, [
 		extract_s_transaction/3, 
-		preprocess_s_transactions/5,
+		preprocess_s_transactions/6,
 		print_relevant_exchange_rates_comment/4,
 		invert_s_transaction_vector/2, 
 		fill_in_missing_units/6,
@@ -80,6 +80,13 @@
 
 :- use_module(library(record)).
 :- use_module(library(xpath)).
+:- use_module(library(rdet)).
+
+
+/*
+todo add more rdet declarations here
+*/
+:- rdet(preprocess_s_transaction/5).
 
 % -------------------------------------------------------------------
 % bank statement transaction record, these are in the input xml
@@ -91,21 +98,22 @@
 % - Either the units or the amount to which the transaction amount will be converted to
 % depending on whether the term is of the form bases(...) or vector(...).
 
-preprocess_s_transactions(Static_Data, S_Transactions, Transactions_Out, Outstanding_Out, Debug_Info) :-
+preprocess_s_transactions(Static_Data, S_Transactions, Processed_S_Transactions, Transactions_Out, Outstanding_Out, Debug_Info) :-
 /*
 	at this point:
 	s_transactions have to be sorted by date from oldest to newest 
 	s_transactions have flipped vectors, so they are from our perspective
 */
-	preprocess_s_transactions2(Static_Data, S_Transactions, Transactions0, ([],[]), Outstanding_Out, Debug_Info, []),
+	preprocess_s_transactions2(Static_Data, S_Transactions, Processed_S_Transactions, Transactions0, ([],[]), Outstanding_Out, Debug_Info, []),
 	flatten(Transactions0, Transactions_Out).
 
 /*
 	call preprocess_s_transaction on each item of the S_Transactions list and do some error checking and cleaning up
 */
-preprocess_s_transactions2(_, [], [], Outstanding, Outstanding, ['done.'], _).
+preprocess_s_transactions2(_, [], [], [], Outstanding, Outstanding, ['done.'], _).
 
-preprocess_s_transactions2(Static_Data, [S_Transaction|S_Transactions], [Transactions_Out|Transactions_Out_Tail], Outstanding_In, Outstanding_Out, [Debug_Head|Debug_Tail], Debug_So_Far) :-
+preprocess_s_transactions2(Static_Data, [S_Transaction|S_Transactions], Processed_S_Transactions, [Transactions_Out|Transactions_Out_Tail], Outstanding_In, Outstanding_Out, [Debug_Head|Debug_Tail], Debug_So_Far) :-
+
 	dict_vars(Static_Data, [Accounts, Report_Currency, Start_Date, End_Date, Exchange_Rates]),
 	pretty_term_string(S_Transaction, S_Transaction_String),
 	catch(
@@ -114,7 +122,7 @@ preprocess_s_transactions2(Static_Data, [S_Transaction|S_Transactions], [Transac
 			catch(
 				(
 					(preprocess_s_transaction(Static_Data, S_Transaction, Transactions0, Outstanding_In, Outstanding_Mid)
-					-> true; (/*trace,fail,*/throw_string('internal error'))),
+					-> true; (/*trace,*/fail)),
 					% filter out unbound vars from the resulting Transactions list, as some rules do not always produce all possible transactions
 					flatten(Transactions0, Transactions1),
 					exclude(var, Transactions1, Transactions2),
@@ -130,7 +138,8 @@ preprocess_s_transactions2(Static_Data, [S_Transaction|S_Transactions], [Transac
 					;
 						check_trial_balance0(Exchange_Rates, Report_Currency, Transaction_Date, Transactions_Out, Start_Date, End_Date, Debug_So_Far, Debug_Head)
 					),
-					append(Debug_So_Far, [Debug_Head], Debug_So_Far2)
+					append(Debug_So_Far, [Debug_Head], Debug_So_Far2),
+					Processed_S_Transactions = [S_Transaction|Processed_S_Transactions_Tail]
 				),
 				not_enough_goods_to_sell,
 				(
@@ -138,20 +147,21 @@ preprocess_s_transactions2(Static_Data, [S_Transaction|S_Transactions], [Transac
 					Outstanding_In = Outstanding_Out,
 					Transactions_Out_Tail = [],
 					Transactions_Out = [],
-					Debug_Tail = []
+					Debug_Tail = [],
+					Processed_S_Transactions = []
 				)
 			)
 		),
-		string(E_Str),
+		E,
 		(
-			%term_string(E, E_Str),
-			throw_string([E_Str, ' when processing ', S_Transaction_String])
+			term_string(E, E_Str),
+			throw_string([E_Str, ' when processing ', S_Transaction_String]) /*hmm shouldn't throw string here*/
 		)
 	),
 	(
 		var(Debug_Tail) /* debug tail is left free if processing this transaction succeeded ... */
 	->
-		preprocess_s_transactions2(Static_Data, S_Transactions, Transactions_Out_Tail,  Outstanding_Mid, Outstanding_Out, Debug_Tail, Debug_So_Far2)
+		preprocess_s_transactions2(Static_Data, S_Transactions, Processed_S_Transactions_Tail, Transactions_Out_Tail,  Outstanding_Mid, Outstanding_Out, Debug_Tail, Debug_So_Far2)
 	;
 		true
 	).

@@ -4,17 +4,17 @@ This repository hosts a program that derives, validates, and corrects the financ
 
 ## Getting Started
 
-dependencies:
+Install dependencies:
+* ```swipl -g "pack_install(tap), pack_install(regex), pack_install(xsd), pack_install('https://github.com/rla/rdet.git')."```
 
-```swipl -g "pack_install(tap), pack_install(regex), pack_install(xsd), pack_install('https://github.com/rla/rdet.git')."```
-
-How to run the server:
+How to run it:
 * Change directory to prolog_server/
-* Enter `swipl -s run_simple_server.pl`
 
-How to run the program tests:
-* Change to the tests/ directory
-* Enter `swipl -s run_tests.pl -g halt`
+Run the tests:
+* Enter `swipl -s ../tests/run_tests.pl -g halt`
+
+Run the server:
+* Enter `swipl -s run_simple_server.pl`
 
 ## Directory Structure
 
@@ -25,7 +25,7 @@ Outline of the directory structure of this repository:
 * [docs](docs) contains correspondences and resources on accounting that I have been finding useful in making this program
 * [misc](misc) contains the stuff that does not yet clearly fit into a category
 
-## Current Functionality
+## Current Functionality (fixme)
 
 The functionality of the program at present:
 * Given a ledger it can derive balance sheets, trial balances, and movements

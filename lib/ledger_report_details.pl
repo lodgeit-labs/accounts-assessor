@@ -127,8 +127,7 @@ report_page(Title_Text, Tbl, File_Name, Info) :-
 		Body_Tags),
 	phrase(Page, Page_Tokenlist),
 	report_section(File_Name, Page_Tokenlist, Url),
-	Info = Title_Text-Url.
-
+	Info = Title_Text:url(Url).
 	
 
 pl_html(Static_Data, ProftAndLoss2, Filename_Suffix, Report) :-
@@ -153,21 +152,39 @@ bs_html(Static_Data, Balance_Sheet, Report) :-
 	Header = tr([th('Account'), th(['Balance', Report_Currency_Atom])]),
 	flatten([Header, Report_Table_Data], Tbl),
 	report_page(Title_Text, Tbl, 'balance_sheet.html', Report).
-
-
-
+/*
+Totals = _{
+  gains: _{
+    rea: _{market:, forex: },
+    unr: _{market:, forex: },
+    market: ,
+    forex: ,
+    gains:
+  },
+  closing:_{total_converted: },
+  }
+*/
 crosschecks_report(Pl, Bs, Ir, Report) :-
-	Report = [
-		equality(account_balance(Pl, 'Accounts'/'InvestmentIncome', cr), sum(Ir.totals.gains)),
-		  equality(account_balance(Bs, 'Accounts'/'FinancialInvestments', cr), sum(Ir.totals.closing.total_converted)).
+	dict_vars(Sd, [Pl, Bs, Ir]),
+	Crosschecks = [
+		       equality(account_balance(pl, 'Accounts'/'InvestmentIncome'), report_value(ir, totals/gains)),
+		       equality(account_balance(bs, 'Accounts'/'FinancialInvestments'), report_value(ir, totals/closing/total_converted))],
+	crosschecks_evaluate(Sd, Crosschecks, Results),
+	do we want to generate more json here? i guess yes.
+
+evaluate(Sd, X, Balance) :-
+	X = account_balance(Report, Role),
+	report_entry_by_role(Sd, Report, Role, Entry),
+	entry_balance(Entry, Balance).
+
+evaluate(Sd, X, Value) :-
+	X = report_value(Report, Key),
+	path_get_dict(Key, Report, Value).
 	
-crosschecks_evaluate(In, Out) :-
-	maplist(evaluate_equality, In, Out).
-		 
-evaluate_equality(E, Result) :-
+evaluate_equality(Sd, E, Result) :-
 	E = equality(A, B),
-	evaluate(A, A2),
-	evaluate(B, B2),
+	evaluate(Sd, A, A2),
+	evaluate(Sd, B, B2),
 	(
 	 crosscheck_compare(A2, B2)
 	->
@@ -191,8 +208,6 @@ evaluate_equality(E, Result) :-
 
 crosscheck_compare(A, B) :-
 	vecs_are_almost_equal(A, B)
-	
-	
 	
 	
 crosschecks_html :-

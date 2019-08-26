@@ -1,8 +1,7 @@
 :- module(ledger, [
 		find_s_transactions_in_period/4,
-		process_ledger/15,
-		emit_ledger_warnings/3,
-		emit_ledger_errors/1]).
+		process_ledger/19
+	]).
 
 :- use_module('system_accounts', [
 		traded_units/3,
@@ -11,12 +10,13 @@
 		check_account_parent/2]).
 :- use_module('statements', [
 		s_transaction_day/2,
-		preprocess_s_transactions/5,
+		preprocess_s_transactions/6,
 		s_transactions_up_to/3]).
 :- use_module('days', [
 		format_date/2, 
 		parse_date/2, 
 		gregorian_date/2, 
+		add_days/3,
 		date_between/3]).
 :- use_module('utils', [
 		pretty_term_string/2,
@@ -29,6 +29,8 @@
 :- use_module('ledger_report', [
 		trial_balance_between/8
 		]).
+
+:- use_module(library(rdet)).
 
 		
 find_s_transactions_in_period(S_Transactions, Opening_Date, Closing_Date, Out) :-
@@ -46,6 +48,7 @@ process_ledger(
 	Cost_Or_Market, 
 	Livestock_Doms, 
 	S_Transactions0, 
+	Processed_S_Transactions,
 	Start_Date, 
 	End_Date, 
 	Exchange_Rates0, 
@@ -57,10 +60,18 @@ process_ledger(
 	Accounts, 
 	Transactions_With_Livestock,
 	Transaction_Transformation_Debug,
-	Outstanding_Out
+	Outstanding_Out,
+	Processed_Until,
+	Warnings,
+	Errors
 ) :-
+
+	gather_ledger_warnings(S_Transactions0, Start_Date, End_Date, Warnings0),
+	writeln('<!-- '),
+	writeq(Warnings0),
+	writeln(' -->'),
+
 	s_transactions_up_to(End_Date, S_Transactions0, S_Transactions),
-	emit_ledger_warnings(S_Transactions, Start_Date, End_Date),
 	pretty_term_string(Exchange_Rates0, Message1b),
 	pretty_term_string(Transaction_Types, Message2),
 	pretty_term_string(Accounts_In, Message3),
@@ -93,15 +104,32 @@ process_ledger(
 	%check_accounts(Accounts)
 	maplist(check_account_parent(Accounts), Accounts), 
 
-	dict_from_vars(Static_Data, [Accounts, Report_Currency, Start_Date, End_Date, Exchange_Rates, Transaction_Types, Cost_Or_Market]),
-	preprocess_s_transactions(Static_Data, S_Transactions, Transactions1, Outstanding_Out, Transaction_Transformation_Debug),
+	(
+		dict_from_vars(Static_Data0, [Accounts, Report_Currency, Start_Date, End_Date, Exchange_Rates, Transaction_Types, Cost_Or_Market]),
 		
-	/*todo if processing s_transactions ended prematurely, we should either limit the end date for livestock processing, 
-	or we should filter the additional transactions out before creating reports*/
+		preprocess_s_transactions(Static_Data0, S_Transactions, Processed_S_Transactions, Transactions1, Outstanding_Out, Transaction_Transformation_Debug),
+		
+		(
+			S_Transactions = Processed_S_Transactions
+		-> 
+			(
+				Processed_Until = End_Date,
+				Last_Good_Day = End_Date
+			)
+		;
+			(
+				last(Processed_S_Transactions, Last_Processed_S_Transaction),
+				s_transaction_day(Last_Processed_S_Transaction, Date),
+				%Processed_Until = with_note(Date, 'until error'),
+				Processed_Until = Date,
+				add_days(Date, -1, Last_Good_Day)
+			)
+		)
+	),
 	
-	process_livestock(Livestock_Doms, Livestock_Types, S_Transactions, Transactions1, Livestock_Opening_Costs_And_Counts, Start_Date, End_Date, Exchange_Rates, Accounts, Report_Currency, Transactions_With_Livestock, Livestock_Events, Average_Costs, Average_Costs_Explanations),
-
-	livestock_counts(Accounts, Livestock_Types, Transactions_With_Livestock, Livestock_Opening_Costs_And_Counts, End_Date, Livestock_Counts),
+	
+	process_livestock(Livestock_Doms, Livestock_Types, Processed_S_Transactions, Transactions1, Livestock_Opening_Costs_And_Counts, Start_Date, Last_Good_Day, Exchange_Rates, Accounts, Report_Currency, Transactions_With_Livestock, Livestock_Events, Average_Costs, Average_Costs_Explanations),
+	livestock_counts(Accounts, Livestock_Types, Transactions_With_Livestock, Livestock_Opening_Costs_And_Counts, Last_Good_Day, Livestock_Counts),
 
 	maplist(check_transaction_account(Accounts), Transactions_With_Livestock),
 	
@@ -145,36 +173,40 @@ process_ledger(
 			Report_Currency = []
 		)
 	->
-		true
+		Warnings1 = []
 	;
-		write('<!-- SYSTEM_WARNING: trial balance: '), write(Trial_Balance_Section), writeln('-->\n')
+		Warnings1 = ['SYSTEM_WARNING':trial_balance(Trial_Balance_Section)]
 	),
-	emit_ledger_warnings(S_Transactions, Start_Date, End_Date),
-	emit_ledger_errors(Transaction_Transformation_Debug).
+	gather_ledger_errors(Transaction_Transformation_Debug, Errors),
+	flatten([Warnings0, Warnings1], Warnings),
+	writeln('<!-- '),
+	writeq(Warnings),
+	writeq(Errors),
+	writeln(' -->').
 
 trial_balance_ok(Trial_Balance_Section) :-
 	Trial_Balance_Section = entry(_, Balance, [], _),
 	maplist(coord_is_almost_zero, Balance).
 	
-emit_ledger_warnings(S_Transactions, Start_Date, End_Date) :-
+gather_ledger_warnings(S_Transactions, Start_Date, End_Date, Warnings) :-
 	(
 		find_s_transactions_in_period(S_Transactions, Start_Date, End_Date, [])
 	->
-		writeln('<!-- WARNING: no transactions within request period -->\n')
+		Warnings = ['WARNING':'no transactions within request period']
 	;
-		true
+		Warnings = []
 	).
 	
-emit_ledger_errors(Debug) :-
+gather_ledger_errors(Debug, Errors) :-
 	(
 		(
 			last(Debug, Last),
 			Last \== 'done.'
 		)
 	->
-		format('<!-- ERROR: ~w -->\n', [Last])		
+		Errors = ['ERROR':Last]		
 	;
-		true
+		Errors = []
 	).
 
 filter_out_market_values(S_Transactions, Transaction_Types, Exchange_Rates0, Exchange_Rates) :-

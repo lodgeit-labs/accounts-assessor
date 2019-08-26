@@ -52,9 +52,7 @@
 		fill_in_missing_units/6,
 		sort_s_transactions/2]).
 :- use_module('../../lib/ledger', [
-		emit_ledger_warnings/3,
-		emit_ledger_errors/1,
-		process_ledger/15]).
+		process_ledger/19]).
 :- use_module('../../lib/livestock', [
 		get_livestock_types/2, 
 		process_livestock/14, 
@@ -90,21 +88,18 @@
 ]).
 
 
-
-process_xml_ledger_request(_, Dom, Report_Files) :-
+process_xml_ledger_request(_, Dom, Reports) :-
 	/* does it look like a ledger request? */
 	inner_xml(Dom, //reports/balanceSheetRequest, _),
 	/*
 		print the xml header, and after that, we can print random xml comments.
 	*/
-	writeln('<?xml version="1.0"?>'), nl, nl,
-	process_xml_ledger_request2(Dom, Report_Files).
+	process_xml_ledger_request2(Dom, Reports).
 
-process_xml_ledger_request2(Dom, Report_Files) :-
+process_xml_ledger_request2(Dom, Reports_Out) :-
 	/*
 		first let's extract data from the request
 	*/
-
 	extract_output_dimensional_facts(Dom, Output_Dimensional_Facts),
 	extract_cost_or_market(Dom, Cost_Or_Market),
 	extract_default_currency(Dom, Default_Currency),
@@ -122,36 +117,53 @@ process_xml_ledger_request2(Dom, Report_Files) :-
 	get_livestock_types(Livestock_Doms, Livestock_Types),
    	extract_livestock_opening_costs_and_counts(Livestock_Doms, Livestock_Opening_Costs_And_Counts),
 	findall(S_Transaction, extract_s_transaction(Dom, Start_Date_Atom, S_Transaction), S_Transactions0),
+	
 	/* flip from bank's perspective to our perspective */
 	maplist(invert_s_transaction_vector, S_Transactions0, S_Transactions0b),
 	sort_s_transactions(S_Transactions0b, S_Transactions),
+
 	/* process_ledger turns s_transactions into transactions */
-	process_ledger(Cost_Or_Market, Livestock_Doms, S_Transactions, Start_Date, End_Date, Exchange_Rates0, Transaction_Types, Report_Currency, Livestock_Types, Livestock_Opening_Costs_And_Counts, Accounts0, Accounts, Transactions, Transaction_Transformation_Debug, Outstanding),
+	process_ledger(Cost_Or_Market, Livestock_Doms, S_Transactions, Processed_S_Transactions, Start_Date, End_Date, Exchange_Rates0, Transaction_Types, Report_Currency, Livestock_Types, Livestock_Opening_Costs_And_Counts, Accounts0, Accounts, Transactions, _Transaction_Transformation_Debug, Outstanding, Processed_Until, Warnings, Errors),
+
 	print_relevant_exchange_rates_comment(Report_Currency, End_Date, Exchange_Rates0, Transactions),
-	infer_exchange_rates(Transactions, S_Transactions, Start_Date, End_Date, Accounts, Report_Currency, Exchange_Rates0, Exchange_Rates),
+	infer_exchange_rates(Transactions, Processed_S_Transactions, Start_Date, End_Date, Accounts, Report_Currency, Exchange_Rates0, Exchange_Rates),
 	writeln("<!-- exchange rates 2:"),
 	writeln(Exchange_Rates),
 	writeln("-->"),
 	print_xbrl_header,
-%gtrace,
+
 	dict_from_vars(Static_Data,
 		[Cost_Or_Market, Output_Dimensional_Facts, Start_Date, End_Date, Exchange_Rates, Accounts, Transactions, Report_Currency, Transaction_Types]),
+	
 	transactions_by_account(Static_Data, Transactions_By_Account),
-	% print_term(Transactions_By_Account, []),
 	Static_Data2 = Static_Data.put(accounts_transactions, Transactions_By_Account),
-	output_results(Static_Data2, S_Transactions, Transaction_Transformation_Debug, Outstanding, Report_Files),
+
+	output_results(Static_Data2, Outstanding, Processed_Until, Reports),
+	
+	Reports_Out = _{
+		files: Reports.files,
+		errors: [Errors, Reports.errors],
+		warnings: [Warnings, Reports.warnings]
+	},
+		
 	writeln('</xbrli:xbrl>'),
+
+	writeln('<!-- '),
+	writeq(Warnings),
+	nl,
+	writeq(Errors),
+	writeln(' -->'),
+	
 	nl, nl.
 
-output_results(Static_Data0, S_Transactions, Transaction_Transformation_Debug, Outstanding, Report_Files) :-
-	
+output_results(Static_Data0, Outstanding, Processed_Until, Reports) :-
 	Static_Data = Static_Data0.put([
-		exchange_date=End_Date,
+		end_date=Processed_Until,
+		exchange_date=Processed_Until,
 		entity_identifier=Entity_Identifier,
 		duration_context_id_base=Duration_Context_Id_Base]),
 
 	Static_Data.start_date = Start_Date,
-	Static_Data.end_date = End_Date, 
 	Static_Data.exchange_rates = Exchange_Rates, 
 	Static_Data.accounts = Accounts, 
 	Static_Data.transactions = Transactions, 
@@ -159,19 +171,19 @@ output_results(Static_Data0, S_Transactions, Transaction_Transformation_Debug, O
 		
 	writeln("<!-- Build contexts -->"),	
 	/* build up two basic non-dimensional contexts used for simple xbrl facts */
-	date(Context_Id_Year,_,_) = End_Date,
+	date(Context_Id_Year,_,_) = Processed_Until,
 	Entity_Identifier = '<identifier scheme="http://www.example.com">TestData</identifier>',
 	context_id_base('I', Context_Id_Year, Instant_Context_Id_Base),
 	context_id_base('D', Context_Id_Year, Duration_Context_Id_Base),
 	Base_Contexts = [
-		context(Instant_Context_Id_Base, End_Date, entity(Entity_Identifier, ''), ''),
-		context(Duration_Context_Id_Base, (Start_Date, End_Date), entity(Entity_Identifier, ''), '')
+		context(Instant_Context_Id_Base, Processed_Until, entity(Entity_Identifier, ''), ''),
+		context(Duration_Context_Id_Base, (Start_Date, Processed_Until), entity(Entity_Identifier, ''), '')
 	],
 	/* sum up the coords of all transactions for each account and apply unit conversions */
 
 	writeln("<!-- Trial balance -->"),
 	%trial_balance_between(Static_Data, Trial_Balance2),
-	trial_balance_between(Exchange_Rates, Accounts, Transactions, Report_Currency, End_Date, Start_Date, End_Date, Trial_Balance2),
+	trial_balance_between(Exchange_Rates, Accounts, Transactions, Report_Currency, Processed_Until, Start_Date, Processed_Until, Trial_Balance2),
 
 	writeln("<!-- Balance sheet -->"),
 	% fix to only include balance  sheet accounts
@@ -197,19 +209,11 @@ output_results(Static_Data0, S_Transactions, Transaction_Transformation_Debug, O
 	format_report_entries(xbrl, Accounts, 0, Report_Currency, Duration_Context_Id_Base, ProftAndLoss2_Historical,  Units1, Units2, [], Pl_Historical_Lines),
 	format_report_entries(xbrl, Accounts, 0, Report_Currency, Instant_Context_Id_Base,  Trial_Balance2, Units2, Units3, [], Tb_Lines),
 	
-	investment_reports(Static_Data, Outstanding, Investment_Report_2_Info1, Investment_Report_2_Info2),
+	investment_reports(Static_Data, Outstanding, Investment_Report_Info),
 	bs_report(Static_Data, Balance_Sheet2, Bs_Report_Info),
 	pl_report(Static_Data, ProftAndLoss2, '', Pl_Report_Info),
 	pl_report(Static_Data_Historical, ProftAndLoss2_Historical, '_historical', Pl_Html_Historical_Info),
 
-	dict_pairs(Report_Files, files, [
-		Investment_Report_2_Info1, 
-		Investment_Report_2_Info2, 
-		Bs_Report_Info,
-		Pl_Report_Info,
-		Pl_Html_Historical_Info
-	]),
-	
 	(
 		Static_Data.output_dimensional_facts = on
 	->
@@ -227,10 +231,7 @@ output_results(Static_Data0, S_Transactions, Transaction_Transformation_Debug, O
 	writeln('<!-- dimensional facts: -->'),
 	maplist(write, Dimensions_Lines),
 	
-	pretty_term_string(Report_Files, Report_Files_Str),
-	
 	flatten([
-		'\n<!-- Report_Files:\n', Report_Files_Str, '\n -->\n',		
 		'\n<!-- balance sheet: -->\n', Bs_Lines, 
 		'\n<!-- profit and loss: -->\n', Pl_Lines,
 		'\n<!-- historical profit and loss: \n', Pl_Historical_Lines, '\n-->\n',
@@ -238,32 +239,50 @@ output_results(Static_Data0, S_Transactions, Transaction_Transformation_Debug, O
 	], Report_Lines_List),
 	atomic_list_concat(Report_Lines_List, Report_Lines),
 	writeln(Report_Lines),
-	emit_ledger_warnings(S_Transactions, Start_Date, End_Date),
-	emit_ledger_errors(Transaction_Transformation_Debug).
+	
+	append([
+			Bs_Report_Info,
+			Pl_Report_Info,
+			Pl_Html_Historical_Info
+		],
+		Investment_Report_Info.files,
+		Files
+	),
+	
+	Reports = _{
+		files:Files,
+		errors:Investment_Report_Info.alerts,
+		warnings:[]
+	}.
+	
 
 print_dimensional_facts(Static_Data, Instant_Context_Id_Base, Duration_Context_Id_Base, Entity_Identifier, Results0, Results3) :-
 	print_banks(Static_Data, Instant_Context_Id_Base, Entity_Identifier, Results0, Results1),
 	print_forex(Static_Data, Duration_Context_Id_Base, Entity_Identifier, Results1, Results2),
 	print_trading(Static_Data, Results2, Results3).
 	
-investment_reports(Static_Data, Outstanding, Info1, Info2) :-
+investment_reports(Static_Data, Outstanding, Reports) :-
 	catch( /*fixme*/
 		(
 			/* investment_report_1 is useless but does useful cross-checks while it's being compiled */
 			investment_report_1(Static_Data, _),
-			investment_report_2(Static_Data, Outstanding, '', Info1),
+			investment_report_2(Static_Data, Outstanding, '', Files1),
 			/* todo we cant do all_time without market values, use last known? */
-			investment_report_2(Static_Data.put(start_date, date(1,1,1)), Outstanding, '_since_beginning', Info2)
+			investment_report_2(Static_Data.put(start_date, date(1,1,1)), Outstanding, '_since_beginning', Files2),
+			Alerts = []
 		),
 		Err,
 		(
 			term_string(Err, Err_Str),
-			format(string(Msg), 'SYSTEM_WARNING:investment reports fail: ~w', [Err_Str]),
-			writeln(Msg),
-			Info1 = 'error'-Msg,
-			Info2 = 'error'-Msg
+			format(string(Msg), 'investment reports fail: ~w', [Err_Str]),
+			Alerts = ['SYSTEM_WARNING':Msg],
+			writeq(Alerts)
+			
 		)
-	).
+	),
+	flatten([Files1, Files2], Files3),
+	exclude(var, Files3, Files),
+	Reports = _{files: Files, alerts:Alerts}.
 
 	
 print_xbrl_header :-
