@@ -22,7 +22,6 @@
 		floats_close_enough/2,
 		replace_chars_in_atom/4,
 		filter_out_chars_from_atom/3,
-		coord_is_almost_zero/1,
 		is_uri/1,
 		sort_into_dict/3,
 		capitalize_atom/2,

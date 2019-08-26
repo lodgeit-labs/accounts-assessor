@@ -98,7 +98,6 @@
 
 
 
-
 html_tokenlist_string(Tokenlist, String) :-
 	new_memory_file(X),
 	open_memory_file(X, write, Mem_Stream),

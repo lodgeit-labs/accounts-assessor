@@ -1,22 +1,4 @@
-/*
-% i would just call this table_html because the particular html representation
-				% may change but the pred is still just converting a table to html in any case <- this seems to be the point
-^ lol at the indenting
-idk, table_div seems more to the point
-well, i dont care, whatever you deem right
-but table_html should be just table html, not table title + stuff + html
-  lets keep going
-  well the terminology is somewhat inadequate here because there's html tables
-  but then there's our internal notion of a table
-  which should maybe be called a "report" instead, idk
-  nvm, just report is right
-  just as long as we can be clear that the semantics of this pred is supposed to be like
-  yea, i deally we would have a clearer mental model for the different pieces of this
-  but i guess that's a work in progress
-  i'd agree
-  lets keep going
-*/
- 
+
 /*
   <internal representation of ... whatever> to <html something>
   Table - internal representation of whatever
@@ -33,21 +15,7 @@ table_html(
   this one converts the actual tabular data in the report to an
   actual html table
   first argument - internal representation of tabular data, formatted into strings, flat?
-with id's like a or a/b? that's how it's currently set up yea, which is simplest if we're
-  only anticipating to produce a flat table as output
-  if we end up wanting something like multi-level headers to indicate the grouping then
-  we might want to be passing it the structured data here
-  ok one problem with the code now is that dict keys have to be simple atoms
-  i'd go for the structuredness
-  ic
-  
   second argument - html_write table term/input
-  no its just a plain term
-  phrase/2 translates the plain term into ... other stuff
-  here i'm just looking for some term that differentiates these compound
-  atoms representing html from actual <table>...</table> html
-  html_write terms
-  html_write input
   
 */
 table_contents_to_html(
@@ -72,9 +40,8 @@ table_contents_to_html(
 			findall(
 				td(Cell),
 				(
-				 member(Column, Columns),
-				 path_get_dict(Column.id, Row, Cell) %should do
-				%	Cell = Row.(Column.id)
+				 	member(Column, Columns),
+				 	path_get_dict(Column.id, Row, Cell)
 				),
 				HTML_Row
 			)
@@ -82,49 +49,34 @@ table_contents_to_html(
 		HTML_Rows
 	).
 
-/*
-  should we just maplist in table_p directly?
-  my thought here was that we might have different output formats besides HTML
-  but the formatting itself (in the abstract) stays the same
-  idk, this is just like...when we have other formats, we can abstract it
-  other formats like xbrl maybe?
-  idk what other formats you anticipate, i would have to tahink a while to imagine how we'd use it with xbrl
-  w/e
-  well, what i'm really thinking here now is that the table_html shouldn't be concerned w/ this
-  type of formatting and should be receiving pre-formatted data as input
-  sounds good but i'd bet money that each hypothetical output format will need to do different formatting
-*/
+
 format_table(
 	table{title:Title, columns:Columns, rows:Rows}, 
 	table{title:Title, columns:Columns, rows:Formatted_Rows}
 ) :-
 	maplist(format_row(Columns),Rows,Formatted_Rows).
 
-/*
- so i guess this one needs to recurse on groups basically
- or maybe rather when it encounters a group needs to call something like
- format_group which does that
-*/
+
 format_row(Columns, Row, Formatted_Row) :-
 	findall(
 		Column_ID:Formatted_Cell,
 		(
-		 member(Column, Columns),
-		% maybe split this part off into a predicate that can do this if/else as
-		 % pattern-matching in the head
-		 (
-		  % if it's a group of columns, recurse on the members
-		  Column = group{id:Column_ID, title:_, members:Group_Members}
-		 ->
-		  format_row(Group_Members, Row.Column_ID, Formatted_Cell)
-		 ;
-		  (
-		   % else if it's a single column, format the individual cell
-		   Column = column{id:Column_ID, title:_, options:Column_Options}
-		  ->
-		   format_cell(Row.Column_ID, Column_Options, Formatted_Cell)
-		  )
-		 )		  
+			member(Column, Columns),
+			% maybe split this part off into a predicate that can do this if/else as
+		 	% pattern-matching in the head
+		 	(
+		  		% if it's a group of columns, recurse on the members
+		  		Column = group{id:Column_ID, title:_, members:Group_Members}
+		 	->
+		  		format_row(Group_Members, Row.Column_ID, Formatted_Cell)
+		 	;
+		  		(
+		   			% else if it's a single column, format the individual cell
+		   			Column = column{id:Column_ID, title:_, options:Column_Options}
+		  		->
+		   			format_cell(Row.Column_ID, Column_Options, Formatted_Cell)
+		  		)
+		 	)
 		),
 		Formatted_Row_KVs
 	),
@@ -247,10 +199,14 @@ optional_converted_value(V1, C, V2) :-
 table_totals(Rows, Keys, Totals) :-
 	table_totals2(Rows, Keys, _{}, Totals).
 
-table_totals(Rows, [Key|Keys], In, Out) :-
-	Out = In.put(Key, Total),
+table_totals2(Rows, [Key|Keys], In, Out) :-
+	Mid = In.put(Key, Total),
 	column_by_key(Rows, Key, Vals),
-	sum_cells(Vals, Total).
+	sum_cells(Vals, Total),
+	table_totals2(Rows, Keys, Mid, Out).
+
+table_totals2(Rows, [], Dict, Dict).
+
 
 column_by_key(Rows, Key, Vals) :-
 	findall(

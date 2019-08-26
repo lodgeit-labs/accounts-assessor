@@ -31,7 +31,8 @@
 		make_credit/2,
 		value_multiply/3,
 		value_divide/3,
-		is_debit/1]).
+		is_debit/1,
+		coord_is_almost_zero/1]).
 :- use_module('exchange', [
 		vec_change_bases/5]).
 :- use_module('exchange_rates', [
@@ -63,8 +64,7 @@
 		fields/2, 
 		field_nothrow/2, 
 		numeric_fields/2, 
-		throw_string/1,
-		coord_is_almost_zero/1]).
+		throw_string/1]).
 :- use_module('accounts', [
 		account_by_role/3, 
 		account_in_set/3,
