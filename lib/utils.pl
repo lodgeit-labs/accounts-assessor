@@ -27,6 +27,7 @@
 		capitalize_atom/2,
 		path_get_dict/3]).
 
+
 		
 :- use_module(library(xpath)).
 

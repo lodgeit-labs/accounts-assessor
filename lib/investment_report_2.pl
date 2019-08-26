@@ -1,4 +1,5 @@
 :- module(investment_report_2, [investment_report_2/5]).
+:- use_module(library(record)).
 
 :- [tables].	
 
@@ -26,34 +27,33 @@ investment_report_2(Static_Data, Outstanding_In, Filename_Suffix, Report_Data, R
 	report_currency_atom(Report_Currency, Report_Currency_Atom),
 	atomic_list_concat(['investment report from ', Start_Date_Atom, ' to ', End_Date_Atom, ' ', Report_Currency_Atom], Title_Text),
 
+
+	
 	columns(Columns),
 	rows(Static_Data, Outstanding_In, Rows),
 	totals(Rows, Totals),
 
 	flatten([Rows, Totals], Rows2),
-	Table = _{rows: Rows, columns: Columns},
+	Table = _{rows: Rows2, columns: Columns},
 	table_to_html(Table, Html),
 
 	atomic_list_concat(['investment_report', Filename_Suffix, '.html'], Filename),
-	report_page(Title_Text, Html, Filename, Report_File_Info).
+	report_page(Title_Text, Html, Filename, Report_File_Info),
 	
-	Report = _{
-		data: _{
-			rows: Rows,
-			totals: Totals,
-		},
-		files: [Report_File_Info]
+	Report_Data = _{
+		rows: Rows,
+		totals: Totals
 	}.
 
 totals(Rows, Totals) :-
- 	table_totals([rea/market, rea/forex, unr/market, unr/forex, closing/total_converted], Totals).
+ 	table_totals(Rows, [rea/market, rea/forex, unr/market, unr/forex, closing/total_converted], Totals).
   	
-investment_report_2_columns(Columns) :-
+columns(Columns) :-
 	Unit_Columns = [
 		column{id:unit, title:"Unit", options:_{}},
 		column{id:count, title:"Count", options:_{}},
 		column{id:currency, title:"Investment Currency", options:_{}}
-	]
+	],
 
 	Event_Details = [
 		column{id:date, title:"Date", options:_{}},
@@ -85,12 +85,11 @@ investment_report_2_columns(Columns) :-
 
 	flatten_columns(Gains_Groups, Gains_Columns),
 
-	flatten([Unit_Columns, Event_Columns, Gains_Columns], Report_Columns).
+	flatten([Unit_Columns, Event_Columns, Gains_Columns], Columns).
 
 
 
-
-investment_report_2_rows(Static_Data, Outstanding_In, Filename_Suffix, Report_Output) :-
+rows(Static_Data, Outstanding_In, Rows) :-
 	clip_investments(Static_Data, Outstanding_In, Realized_Investments, Unrealized_Investments),
 	maplist(investment_report_2_sales(Static_Data), Realized_Investments, Sale_Lines),
 	maplist(investment_report_2_unrealized(Static_Data), Unrealized_Investments, Non_Sale_Lines),
@@ -134,7 +133,7 @@ investment_report_2_sale_lines(Static_Data, Info, Clipped, Sale, Row) :-
 		opening: Opening, purchase: Purchase, sale: Sale,
 		gains: _{unr: _{}, rea: _{market: Market_Gain, forex: Forex_Gain}},
 		closing: _{}
-	).
+	       }.
 
 		
 investment_report_2_unrealized(Static_Data, Investment, Row) :-
@@ -193,7 +192,7 @@ investment_report_2_unrealized(Static_Data, Investment, Row) :-
 		opening: Opening, purchase: Purchase, sale: _{},
 		gains: _{rea: _{}, unr: _{market: Market_Gain, forex: Forex_Gain}},
 		closing: Closing
-	).
+	}.
 
 	
 optional_currency_conversion(Exchange_Rates, Date, Src, Optional_Dst, Conversion) :-
@@ -209,29 +208,18 @@ optional_currency_conversion(Exchange_Rates, Date, Src, Optional_Dst, Conversion
 	).
 
 
-
+/*
 ir2_row_to_html(Report_Currency, Row, Html) :-
-	/*
-		Rea_Market_Gain, Rea_Forex_Gain, Unr_Market_Gain, Unr_Forex_Gain, 
-	*/
-
-	Row = row(
-		Unit, Count, Investment_Currency, 
-
- 		Purchase_Data, Opening_Data,
-		Sale_Data
-		
-		Gains_Data
-
-		Closing_Data
-		),
 	
-	/*
+	Row = row(Unit, Count, Investment_Currency, Purchase_Data, Opening_Data, Sale_Data, Gains_Data, Closing_Data),
+	
+	
 	date(...)
 	value(...)
 	exchange_rate(...)
 	or plain atom -> pass through
-	*/
+	
+	  
 	format_date(Opening_Date, Opening_Date2),
 	format_money_precise(Report_Currency, Opening_Unit_Cost_Foreign, Opening_Unit_Cost_Foreign2),
 	format_conversion(Report_Currency, Opening_Conversion, Opening_Conversion2),
@@ -243,7 +231,7 @@ ir2_row_to_html(Report_Currency, Row, Html) :-
 	format_money_precise(Report_Currency, Sale_Unit_Price_Foreign, Sale_Unit_Price_Foreign2),
 	format_conversion(Report_Currency, Sale_Conversion, Sale_Conversion2),
 	format_money_precise(Report_Currency, Sale_Unit_Price_Converted, Sale_Unit_Price_Converted2),
-		
+	jjjjjjjjjjj	
 	format_money(Report_Currency, Rea_Market_Gain, Rea_Market_Gain2),
 	format_money(Report_Currency, Rea_Forex_Gain, Rea_Forex_Gain2),
 	format_money(Report_Currency, Unr_Market_Gain, Unr_Market_Gain2),
@@ -313,10 +301,10 @@ ir2_forex_gain(Exchange_Rates, Opening_Date, End_Price, End_Date, Investment_Cur
 			Gain = value(Report_Currency_Unit, Forex_Gain_Amount_Total)
 		)
 	;
-		Gain = ''
+	$$%$%$%	Gain = ''
 	).
 
-ir2_market_gain(Exchange_Rates, Opening_Date, End_Date, Investment_Currency, Report_Currency, Count, Opening_Unit_Cost_Converted, End_Unit_Price_Unit, End_Unit_Price_Amount, Gain) :-
+ir2_market_gain(Exchange_Rates, Opening_Date, End_Date, Investment_Currency, Report_Currency, Count, Opening_Unit_Cost_Converted, Investment_Currency, End_Unit_Price_Amount, Gain) :-
 	Report_Currency = [Report_Currency_Unit],
 	Market_Price_Without_Movement_Unit = without_currency_movement_against_since(
 		Investment_Currency, Investment_Currency, Report_Currency, Opening_Date),
