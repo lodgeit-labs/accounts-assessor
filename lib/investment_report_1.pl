@@ -1,4 +1,19 @@
-	
+:- module(investment_report_1, [investment_report_1/2]).
+
+:-use_module(library(rdet)).
+
+:- rdet(check_investment_totals/4).
+:- rdet(units_traded_on_trading_account/3).
+:- rdet(investment_report3_balance/7).
+:- rdet(investment_report3_lines/6).
+:- rdet(strip_unit_costs/2).
+:- rdet(investment_report3/6).
+:- rdet(investment_report2/3).
+:- rdet(investment_report1/2).
+:- rdet(investment_report_to_html/2).
+:- rdet(investment_report_1/2).
+
+
 investment_report_1(Static_Data, Lines) :-
 
 	investment_report1(Static_Data, Report0),

@@ -19,8 +19,7 @@
 		add_days/3,
 		date_between/3]).
 :- use_module('utils', [
-		pretty_term_string/2,
-		coord_is_almost_zero/1]).
+		pretty_term_string/2]).
 :- use_module('livestock', [
 		process_livestock/14,
 		livestock_counts/6]). 
@@ -29,6 +28,8 @@
 :- use_module('ledger_report', [
 		trial_balance_between/8
 		]).
+:- use_module('pacioli', [
+		coord_is_almost_zero/1]).
 
 :- use_module(library(rdet)).
 

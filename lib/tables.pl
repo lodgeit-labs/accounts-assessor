@@ -1,4 +1,6 @@
 
+:- module('tables', [table_html/2]).
+
 /*
   <internal representation of ... whatever> to <html something>
   Table - internal representation of whatever
@@ -205,7 +207,7 @@ table_totals2(Rows, [Key|Keys], In, Out) :-
 	sum_cells(Vals, Total),
 	table_totals2(Rows, Keys, Mid, Out).
 
-table_totals2(Rows, [], Dict, Dict).
+table_totals2(_Rows, [], Dict, Dict).
 
 
 column_by_key(Rows, Key, Vals) :-

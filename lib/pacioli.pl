@@ -28,7 +28,8 @@
 		is_debit/1]).
 
 :- use_module('utils', [
-		semigroup_foldl/3]).
+			semigroup_foldl/3,
+			floats_close_enough/2]).
 
 :- use_module(library(clpq)).
 :- use_module(library(record)).

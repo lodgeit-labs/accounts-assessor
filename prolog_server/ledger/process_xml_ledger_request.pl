@@ -40,11 +40,8 @@
 		format_report_entries/10, 
 		bs_and_pl_entries/8,
 		net_activity_by_account/4]).
-:- use_module('../../lib/ledger_report_details', [
-		investment_report_1/2,
-		investment_report_2/4,
-		bs_report/3,
-		pl_report/4]).
+:- use_module('../../lib/ledger_html_reports').
+
 :- use_module('../../lib/statements', [
 		extract_s_transaction/3, 
 		print_relevant_exchange_rates_comment/4, 
@@ -86,6 +83,10 @@
 		print_forex/5,
 		print_trading/3
 ]).
+
+:- use_module('../../lib/investment_report_1').		      
+:- use_module('../../lib/investment_report_2').
+:- use_module('../../lib/crosschecks_report').
 
 
 process_xml_ledger_request(_, Dom, Reports) :-
@@ -210,9 +211,9 @@ output_results(Static_Data0, Outstanding, Processed_Until, Reports) :-
 	format_report_entries(xbrl, Accounts, 0, Report_Currency, Instant_Context_Id_Base,  Trial_Balance2, Units2, Units3, [], Tb_Lines),
 	
 	investment_reports(Static_Data, Outstanding, Investment_Report_Info),
-	bs_report(Static_Data, Balance_Sheet2, Bs_Report_Info),
-	pl_report(Static_Data, ProftAndLoss2, '', Pl_Report_Info),
-	pl_report(Static_Data_Historical, ProftAndLoss2_Historical, '_historical', Pl_Html_Historical_Info),
+	ledger_html_reports:bs_page(Static_Data, Balance_Sheet2, Bs_Report_Page_Info),
+	ledger_html_reports:pl_page(Static_Data, ProftAndLoss2, '', Pl_Report_Page_Info),
+	ledger_html_reports:pl_page(Static_Data_Historical, ProftAndLoss2_Historical, '_historical', Pl_Html_Historical_Info),
 
 	(
 		Static_Data.output_dimensional_facts = on
@@ -241,8 +242,8 @@ output_results(Static_Data0, Outstanding, Processed_Until, Reports) :-
 	writeln(Report_Lines),
 	
 	append([
-			Bs_Report_Info,
-			Pl_Report_Info,
+			Bs_Report_Page_Info,
+			Pl_Report_Page_Info,
 			Pl_Html_Historical_Info
 		],
 		Investment_Report_Info.files,
@@ -265,10 +266,10 @@ investment_reports(Static_Data, Outstanding, Reports) :-
 	catch( /*fixme*/
 		(
 			/* investment_report_1 is useless but does useful cross-checks while it's being compiled */
-			investment_report_1(Static_Data, _),
-			investment_report_2(Static_Data, Outstanding, '', Files1),
+			investment_report_1:investment_report_1(Static_Data, _),
+			investment_report_2:investment_report_2(Static_Data, Outstanding, '', Files1),
 			/* todo we cant do all_time without market values, use last known? */
-			investment_report_2(Static_Data.put(start_date, date(1,1,1)), Outstanding, '_since_beginning', Files2),
+			investment_report_2:investment_report_2(Static_Data.put(start_date, date(1,1,1)), Outstanding, '_since_beginning', Files2),
 			Alerts = []
 		),
 		Err,

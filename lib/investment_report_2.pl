@@ -1,7 +1,20 @@
 :- module(investment_report_2, [investment_report_2/5]).
-:- use_module(library(record)).
 
-:- [tables].	
+:- use_module('tables').
+
+:- use_module(library(record)).
+:- use_module(library(rdet)).
+
+:- rdet(investment_report_2_unrealized/3).
+:- rdet(investment_report_2_sale_lines/4).
+:- rdet(investment_report_2_sales/3).
+:- rdet(investment_report_2/4).
+:- rdet(ir2_forex_gain/8).
+:- rdet(ir2_market_gain/10).
+:- rdet(clip_investments/4).
+:- rdet(filter_investment_sales/3).
+:- rdet(clip_investment/3).
+	
 
 :- record investment_report_item(type, info, outstanding_count, sales, clipped).
 
@@ -231,7 +244,7 @@ ir2_row_to_html(Report_Currency, Row, Html) :-
 	format_money_precise(Report_Currency, Sale_Unit_Price_Foreign, Sale_Unit_Price_Foreign2),
 	format_conversion(Report_Currency, Sale_Conversion, Sale_Conversion2),
 	format_money_precise(Report_Currency, Sale_Unit_Price_Converted, Sale_Unit_Price_Converted2),
-	jjjjjjjjjjj	
+	
 	format_money(Report_Currency, Rea_Market_Gain, Rea_Market_Gain2),
 	format_money(Report_Currency, Rea_Forex_Gain, Rea_Forex_Gain2),
 	format_money(Report_Currency, Unr_Market_Gain, Unr_Market_Gain2),
