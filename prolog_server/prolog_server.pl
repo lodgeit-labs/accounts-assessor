@@ -116,7 +116,7 @@ upload(Request) :-
 		Options = []
 	),
 	catch(
-		process_data(FileName, Path, Request, Options),
+		process_request(FileName, Path, Request, Options),
 		string(E),
 		throw(http_reply(bad_request(string(E))))
 		/* todo (optionally only if the request content type is xml), return the errror as xml. the status code still should be bad request, but it's not required. 
@@ -137,7 +137,7 @@ tests(Url, Request) :-
 	absolute_file_name(my_tests(Url), Path, [ access(read), file_errors(fail) ]),
 	copy_test_file_into_tmp(Path, Url),
 	exclude_file_location_from_filename(Path, File_Name),
-	process_data(File_Name, Path, Request, []).
+	process_request(File_Name, Path, Request, []).
 
 copy_test_file_into_tmp(Path, Url) :-
 	tmp_file_path_from_url(Url, Tmp_Request_File_Path),
@@ -199,4 +199,27 @@ prolog:message(bad_file_upload) -->
 
 prolog:message(string(S)) --> [ S ].
 
+
+process_request(Request_File_Name, Path, Request, Options0) :-
+	(
+		member(search(Get_Options), Request)
+	->
+		append(Options0, Get_Options, Options2)
+	;
+		Options2 = Options0
+	),
+	
+	http_public_host_url(Request, Server_Public_Url),
+	set_server_public_url(Server_Public_Url),
+	get_requested_output_type(Options2, Requested_Output_Type),
+
+	(
+		Requested_Output_Type = xbrl_instance
+	->
+		format('Content-type: text/xml~n~n'),
+	;
+		format('Content-type: application/json~n~n'),
+	),
+
+	process_data(Request_File_Name, Path, Options).
 

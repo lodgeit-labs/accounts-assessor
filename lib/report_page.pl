@@ -20,7 +20,7 @@ html_tokenlist_string(Tokenlist, String) :-
 	memory_file_to_string(X, String).
 
 report_section(File_Name, Html_Tokenlist, Url) :-
-	filee:report_file_path(File_Name, Url, File_Path),
+	files:report_file_path(File_Name, Url, File_Path),
 	html_tokenlist_string(Html_Tokenlist, Html_String),
 	write_file(File_Path, Html_String).
 

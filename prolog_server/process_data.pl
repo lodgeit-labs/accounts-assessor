@@ -60,27 +60,13 @@ maybe_supress_generating_unique_taxonomy_urls(Options2) :-
 		true
 	).
 
-	
-% -------------------------------------------------------------------
-% process_data/3
-% -------------------------------------------------------------------
+process_data(Request_File_Name, Path, Options) :-
 
-process_data(Request_File_Name, Path, Request, Options0) :-
-	(
-		member(search(Get_Options), Request)
-	->
-		append(Options0, Get_Options, Options2)
-	;
-		Options2 = Options0
-	),
-	
-	http_public_host_url(Request, Server_Public_Url),
-	set_server_public_url(Server_Public_Url),
+	maybe_supress_generating_unique_taxonomy_urls(Options),
+	get_requested_output_type(Options, Requested_Output_Type),
 
-	maybe_supress_generating_unique_taxonomy_urls(Options2),
-	get_requested_output_type(Options2, Requested_Output_Type),
-
-	process_data1(Request_File_Name, Path, Output_Xml_String, (Reports, Output_File_Title)),
+	load_xml(Path, Request_Dom, [space(remove)]),
+	with_output_to(string(Output_Xml_String), process_xml_request(Request_File_Name, Request_Dom, (Reports, Output_File_Title))),
 	
 	response_file_name(Request_File_Name, Output_File_Name),
 	my_tmp_file_name(Output_File_Name, Output_File_Path),
@@ -115,65 +101,26 @@ process_data(Request_File_Name, Path, Request, Options0) :-
 		Requested_Output_Type = xbrl_instance
 	->
 		(
-			format('Content-type: text/xml~n~n'),
 			with_output_to(string(Response_Xml_String), print_xml_response(Json_Out, Output_Xml_String)),
 			write_file(Output_File_Path, Response_Xml_String),
 			write(Response_Xml_String)
 		)
 	;
-		(
-			format('Content-type: application/json~n~n'),
-			json_write(current_output, Json_Out)
-		)
+		json_write(current_output, Json_Out)
 	).
 
 print_xml_response(Json_Out, Output_Xml_String) :-
 	writeln('<?xml version="1.0"?>'), nl, nl,
-	format(' <!-- '),
+	format(' <!-- files: '),
 	json_write(current_output, Json_Out),
 	format(' --> '),
 	write(Output_Xml_String).	   
    
-to_json(Reports, Reports2) :-
-	findall(
-		_{key:Key, val:Val}, 
-		(
-			member((Key:Val0), Reports),
-			(
-				Val0 = url(Url)
-			->
-				Val = _{url:Url}
-			;
-				Val = Val0
-			)
-		),
-		Reports2
-	).
-   
-response_file_name(Request_File_Name, Response_File_Name) :-
-	(
-		replace_request_with_response(Request_File_Name, Response_File_Name)
-	->
-		true
-	;
-		atomic_list_concat(['response-',Request_File_Name], Response_File_Name)
-	).
-   
-process_data1(File_Name, Path, Xml_String, Info) :-
-	load_xml(Path, Dom, [space(remove)]),
-	with_output_to(string(Xml_String), process_xml_request(File_Name, Dom, Info)).
-
 /* used from command line */
-process_data2(File_Name, Path) :-
+process_data_cmdline(File_Name, Path) :-
 	bump_tmp_directory_id,
-	writeln('<?xml version="1.0"?>'), nl, nl,
-	process_data1(File_Name, Path, Xml_String, _Info),
-	write(Xml_String).
+	process_data(File_Name, Path, []).
    
-% -------------------------------------------------------------------
-% process_xml_request/2
-% -------------------------------------------------------------------
-
 process_xml_request(File_Name, Dom, (Report_Files, Response_Title)) :-
 	(
 		xpath(Dom, //reports, _)
@@ -195,6 +142,32 @@ process_xml_request(File_Name, Dom, (Report_Files, Response_Title)) :-
 	;
 		true
 	).
+
+response_file_name(Request_File_Name, Response_File_Name) :-
+	(
+		replace_request_with_response(Request_File_Name, Response_File_Name)
+	->
+		true
+	;
+		atomic_list_concat(['response-',Request_File_Name], Response_File_Name)
+	).
+
+to_json(Reports, Reports2) :-
+	findall(
+		_{key:Key, val:Val}, 
+		(
+			member((Key:Val0), Reports),
+			(
+				Val0 = url(Url)
+			->
+				Val = _{url:Url}
+			;
+				Val = Val0
+			)
+		),
+		Reports2
+	).
+ 
 
 
 /* for formatting numbers */
