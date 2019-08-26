@@ -420,9 +420,10 @@ extract_action_taxonomy2(Dom, Transaction_Types) :-
    findall(Action, xpath(Dom, //action, Action), Actions),
    maplist(extract_action, Actions, Transaction_Types).
    
-extract_action(In, transaction_type(Id, Exchange_Account, Trading_Account, Description)) :-
+extract_action(In, transaction_type(Id, Exchange_Account, Trading_Account, Description, NormalDirection)) :-
 	fields(In, [
 		id, Id,
+		normalDirection, (normalDirection, _),
 		description, (Description, _),
 		exchangeAccount, (Exchange_Account, _),
 		tradingAccount, (Trading_Account, _)]).

@@ -1,7 +1,7 @@
 :- module(ledger, [
 		find_s_transactions_in_period/4,
 		process_ledger/14,
-		emit_ledger_warnings/3,
+		emit_ledger_warnings/4,
 		emit_ledger_errors/1]).
 
 :- use_module('system_accounts', [
@@ -142,14 +142,26 @@ trial_balance_ok(Trial_Balance_Section) :-
 	Trial_Balance_Section = entry(_, Balance, [], _),
 	maplist(coord_is_almost_zero, Balance).
 	
-emit_ledger_warnings(S_Transactions, Start_Date, End_Date) :-
+emit_ledger_warnings(Transaction_Types, S_Transactions, Start_Date, End_Date) :-
 	(
 		find_s_transactions_in_period(S_Transactions, Start_Date, End_Date, [])
 	->
 		writeln('<!-- WARNING: no transactions within request period -->\n')
 	;
 		true
-	).
+	),
+	(
+		transaction_type_id(Transaction_Types, ID),
+		transaction_type_direction(Transaction_Types, Direction),
+		open("../prolog_servers/static/default_action_taxonomy", read, DOM),
+		xpath(DOM, //actionTaxonomy/action, Actions),!,
+		xpath(Action, /id, ID),
+		xpath(Action, /normalDirection, Direction),
+	)
+	->
+		writeln('<!-- WARNING: Direction of debit/credit is incorrect>').
+	
+
 	
 emit_ledger_errors(Debug) :-
 	(

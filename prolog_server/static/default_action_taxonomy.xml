@@ -9,6 +9,7 @@
         <description>Shares</description>
         <exchangeAccount>FinancialInvestments</exchangeAccount>
         <tradingAccount>InvestmentIncome</tradingAccount>
+		<normalDirection>Credit</normalDirection>
       </action>
 
       <action>
@@ -16,6 +17,7 @@
         <description>Shares</description>
         <exchangeAccount>FinancialInvestments</exchangeAccount>
         <tradingAccount>InvestmentIncome</tradingAccount>
+		<normalDirection>Debit</normalDirection>
       </action>
 
       <action>
@@ -26,11 +28,13 @@
       <action>
         <id>Expenses</id>
         <exchangeAccount>OtherExpenses</exchangeAccount>
+		<normalDirection>Credit</normalDirection>
       </action>
 
       <action>
         <id>Gain</id>
         <exchangeAccount>OtherGain</exchangeAccount>
+		<normalDirection>Debit</normalDirection>
       </action>
 
       <action>
@@ -42,22 +46,26 @@
       <action>
         <id>Income</id>
         <exchangeAccount>Income</exchangeAccount>
+		<normalDirection>Debit</normalDirection>
       </action>
 
       <action>
         <id>Interest_Income</id>
         <exchangeAccount>InterestIncome</exchangeAccount>
+		<normalDirection>Debit</normalDirection>
       </action>
 
       <action>
         <id>Interest_Expenses</id>
         <exchangeAccount>InterestExpenses</exchangeAccount>
+		<normalDirection>Credit</normalDirection>
       </action>
 
       <action>
         <id>Borrow</id>
         <description></description>
         <exchangeAccount>NoncurrentLoans</exchangeAccount>
+		<normalDirection>Credit</normalDirection>
       </action>
 
       <action>
@@ -70,12 +78,14 @@
         <id>Pay_Bank</id>
         <description>No Description</description>
         <exchangeAccount>BankCharges</exchangeAccount>
+		<normalDirection>Credit</normalDirection>
       </action>
 
       <action>
         <id>Accountancy_Fees</id>
         <description>No Description</description>
         <exchangeAccount>AccountancyFees</exchangeAccount>
+		<normalDirection>Credit</normalDirection>
       </action>
 
 

@@ -471,7 +471,7 @@ check_that_s_transaction_account_exists(S_Transaction, Accounts) :-
 % these are s_transactions, the raw transactions from bank statements. Later each s_transaction will be preprocessed
 % into multiple transaction(..) terms.
 % fixme dont fail silently
-extract_s_transaction(Dom, Start_Date, Transaction) :-
+extract_s_transaction(Dom, Start_Date, S_Transaction) :-
 	xpath(Dom, //reports/balanceSheetRequest/bankStatement/accountDetails, Account),
 	catch(
 		fields(Account, [
@@ -486,14 +486,15 @@ extract_s_transaction(Dom, Start_Date, Transaction) :-
 	,
 	xpath(Account, transactions/transaction, Tx_Dom),
 	catch(
-		extract_s_transaction2(Tx_Dom, Account_Currency, Account_Name, Start_Date, Transaction),
+		extract_s_transaction2(Tx_Dom, Account_Currency, Account_Name, Start_Date, S_Transaction),
 		Error,
 		(
 			term_string(Error, Str1),
 			term_string(Tx_Dom, Str2),
 			atomic_list_concat([Str1, Str2], Message),
 			throw(Message)
-		)),
+		)
+	),
 	true.
 
 extract_s_transaction2(Tx_Dom, Account_Currency, Account, Start_Date, ST) :-
