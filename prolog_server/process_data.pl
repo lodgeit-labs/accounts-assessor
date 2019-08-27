@@ -67,7 +67,17 @@ process_data(Request_File_Name, Path, Options) :-
 	get_requested_output_type(Options, Requested_Output_Type),
 
 	load_xml(Path, Request_Dom, [space(remove)]),
-	with_output_to(string(Output_Xml_String), process_xml_request(Request_File_Name, Request_Dom, (Reports, Output_File_Title))),
+	with_output_to(
+		string(Output_Xml_String),
+		catch_with_backtrace(
+			process_xml_request(Request_File_Name, Request_Dom, (Reports, Output_File_Title)),
+			Error,
+			(
+				print_message(error, Error),
+				fail
+			)
+		)
+	),
 	
 	response_file_name(Request_File_Name, Output_File_Name),
 	my_tmp_file_name(Output_File_Name, Output_File_Path),

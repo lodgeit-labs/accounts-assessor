@@ -73,13 +73,27 @@ row_to_html(Row, Columns, HTML_Row) :-
 		HTML_Row
 	).
 
-column_to_html(group{id:Group_ID, title:_, members:Group_Members}, Row, Cells) :-
-	row_to_html(Row.Group_ID, Group_Members, Cells).
+column_to_html(group{id:_, title:_, members:Group_Members}, '', Cells) :-
+	!,
+	blank_row(Group_Members, Cells).
 
-column_to_html(column{id:Column_ID, title:_, options:_}, Row, [td(Row.Column_ID)]).
+column_to_html(group{id:_, title:_, members:Group_Members}, Row, Cells) :-
+	row_to_html(Row, Group_Members, Cells).
+
+column_to_html(column{id:_, title:_, options:_}, Cell, [td(Cell)]).
+	
+blank_row(group{id:_, title:_, members:Group_Members}, Cells) :-
+	findall(
+		Child_Cells,
+		(
+			member(Column, Group_Members),
+			blank_row(Column, Child_Cells)
+		),
+		Cells
+	).
+blank_row(column{id:_, title:_, options:_}, [td('')]).
 	
 
-	
 format_table(
 	table{title:Title, columns:Columns, rows:Rows}, 
 	table{title:Title, columns:Columns, rows:Formatted_Rows}
