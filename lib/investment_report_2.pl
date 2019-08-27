@@ -5,6 +5,9 @@
 :- use_module('days').
 :- use_module('pricing').
 :- use_module('report_page').
+:- use_module('pacioli').
+:- use_module('exchange').
+:- use_module('exchange_rates').
 
 :- use_module(library(record)).
 :- use_module(library(rdet)).
@@ -20,7 +23,8 @@
 :- rdet(clip_investment/3).
 	
 
-:- record investment_report_item(type, info, outstanding_count, sales, clipped).
+:- record ir_item(type, info, outstanding_count, sales, clipped).
+
 
 event(Event, Date, Unit_Cost_Foreign, Currency_Conversion, Unit_Cost_Converted, Total_Cost_Foreign, Total_Cost_Converted) :-
 	Event = _{
@@ -44,7 +48,7 @@ investment_report_2(Static_Data, Outstanding_In, Filename_Suffix, Report_Data, R
 	format_date(End_Date, End_Date_Atom),
 	report_currency_atom(Report_Currency, Report_Currency_Atom),
 	atomic_list_concat(['investment report from ', Start_Date_Atom, ' to ', End_Date_Atom, ' ', Report_Currency_Atom], Title_Text),
-	
+
 	columns(Columns),
 	rows(Static_Data, Outstanding_In, Rows),
 	totals(Rows, Totals),
@@ -112,13 +116,15 @@ rows(Static_Data, Outstanding_In, Rows) :-
 	flatten([Sale_Lines, Non_Sale_Lines], Rows0),
 
 	/* lets sort by unit, sale date, purchase date */
+/*how to sort dicts?
 	sort(7, @=<, Rows0, Rows1),
 	sort(2, @=<, Rows1, Rows2),
 	sort(1, @=<, Rows2, Rows).
-
+*/
+	Rows = Rows0.
 
 investment_report_2_sales(Static_Data, I, Lines) :-
-	I = investment_report_item(rea, Info, 0, Sales, Clipped),
+	I = ir_item(rea, Info, 0, Sales, Clipped),
 	maplist(investment_report_2_sale_lines(Static_Data, Info, Clipped), Sales, Lines).
 
 
@@ -170,7 +176,7 @@ investment_report_2_unrealized(Static_Data, Investment, Row) :-
 	Exchange_Rates = Static_Data.exchange_rates,
 	Report_Currency = Static_Data.report_currency,
 	Cost_Or_Market = Static_Data.cost_or_market,
-	Investment = investment_report_item(unr, Info, Count, [], Clipped),
+	Investment = ir_item(unr, Info, Count, [], Clipped),
 	Info = info(Investment_Currency, Unit, Opening_Unit_Cost_Converted, Opening_Unit_Cost_Foreign, Opening_Date),
 
 	exchange_rate_throw(Exchange_Rates, End_Date, Unit, Investment_Currency, _),
@@ -226,7 +232,7 @@ investment_report_2_unrealized(Static_Data, Investment, Row) :-
 		)
 	),		
 
-	event(Closing, Closing_Unit_Price_Foreign, Closing_Currency_Conversion, Closing_Unit_Price_Converted, Investment_Currency_Current_Market_Value, Current_Market_Value),
+	event(Closing, End_Date, Closing_Unit_Price_Foreign, Closing_Currency_Conversion, Closing_Unit_Price_Converted, Investment_Currency_Current_Market_Value, Current_Market_Value),
 
 	Row = _{
 		unit: Unit,
@@ -396,8 +402,8 @@ clip_investments(Static_Data, (Outstanding_In, Investments_In), Realized_Investm
 	exclude(irrelevant_investment(Static_Data), Investments2, Investments3),
 
 	maplist(clip_investment(Static_Data), Investments3, Investments4),
-	findall(I, (member(I, Investments4), investment_report_item_type(I,unr)), Unrealized_Investments),
-	findall(I, (member(I, Investments4), investment_report_item_type(I,rea)), Realized_Investments)
+	findall(I, (member(I, Investments4), ir_item_type(I,unr)), Unrealized_Investments),
+	findall(I, (member(I, Investments4), ir_item_type(I,rea)), Realized_Investments)
 	%,print_term(clip_investments(Outstanding_In, Investments_In, Realized_Investments, Unrealized_Investments),[])
 	.
 
@@ -430,7 +436,7 @@ clip_investment(Static_Data, I1, I2) :-
 	%dict_vars(Static_Data, [Start_Date, Exchange_Rates, Report_Currency]),
 	[Report_Currency_Unit] = Report_Currency,
 	I1 = (Tag, Info1, Outstanding_Count, Sales),
-	I2 = (Tag, Info2, Outstanding_Count, Sales, Clipped),
+	I2 = ir_item(Tag, Info2, Outstanding_Count, Sales, Clipped),
 	Info1 = info(Investment_Currency, Unit, Purchase_Unit_Cost_Converted, Purchase_Unit_Cost_Foreign, Purchase_Date),
 	Info2 = info(Investment_Currency, Unit, Opening_Unit_Cost_Converted, Opening_Unit_Cost_Foreign, Opening_Date),
 	(
@@ -461,3 +467,12 @@ sale_before(Start_Date, sale(Date,_,_)) :-
 	Date @< Start_Date.
 
 
+
+optional_converted_value(V1, C, V2) :-
+	(
+		C = ''
+	->
+		V2 = ''
+	;
+		value_convert(V1, C, V2)
+	).

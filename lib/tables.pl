@@ -2,6 +2,7 @@
 :- module('tables', [table_html/2, table_totals/3]).
 
 :- use_module('utils').
+:- use_module('pacioli').
 
 :- use_module(library(rdet)).
 
@@ -20,13 +21,10 @@ do cuts caused by the rdet ifs still cut into the findalling?
 */ 
 table_html(
 	Table, 
-	[div([span([Table.title, ':']), HTML_Table])]
+	/*[div([span([Table.title, ':']), HTML_Table])]*/
+	HTML_Table
 ) :-
-	print_term("Input table:",[]),
-	print_term(Table,[]),
 	format_table(Table, Formatted_Table),
-	print_term("Formatted table:",[]),
-	print_term(Formatted_Table,[]),
 	table_contents_to_html(Formatted_Table, HTML_Table).
 
 /*
@@ -38,7 +36,8 @@ table_html(
 */
 table_contents_to_html(
 	table{title:_, columns: Columns, rows: Rows},
-	table([border="1"],[HTML_Header | HTML_Rows])
+	[HTML_Header | HTML_Rows]
+	/*table([border="1"],[HTML_Header | HTML_Rows])*/
 ) :-
 	header_html(Columns, HTML_Header),
 
@@ -92,7 +91,6 @@ column_header_html(column{id:_, title:Column_Title, options:_}, Prefix, th(Heade
 	).
 
 row_to_html(Row, Columns, HTML_Row) :-
-	writeln(Row),
 	findall(
 		Cells,
 		(
@@ -100,8 +98,7 @@ row_to_html(Row, Columns, HTML_Row) :-
 			column_to_html(Column, Row.(Column.id), Cells)
 		),
 		HTML_Row
-	),
-	writeln(HTML_Row).
+	).
 
 /*
 column_to_html(group{id:_, title:_, members:Group_Members}, '', Cells) :-
@@ -118,15 +115,15 @@ column_to_html(group{id:Group_ID, title:Group_Title, members:Group_Members}, Row
 		row_to_html(Row, Group_Members, Cells)
 	).
 
-column_to_html(column{id:_, title:Column_Title, options:_}, Cell, [td(Cell_Value)]) :-
-	(
+column_to_html(column{id:_, title:_, options:_}, Cell, [td(Cell)]).% :-
+/*	(
 		Cell = []
 	->
 		atomics_to_string([Column_Title, "[]"], ": ", Cell_Value)
 	;
 		atomics_to_string([Column_Title, Cell], ": ", Cell_Value)
 	).
-
+*/
 blank_row(group{id:_, title:_, members:Group_Members}, Cells) :-
 	findall(
 		Child_Cells,
@@ -138,8 +135,8 @@ blank_row(group{id:_, title:_, members:Group_Members}, Cells) :-
 	),
 	writeln(Cells).
 
-blank_row(column{id:Column_ID, title:_, options:_}, [td(Cell_Value)]) :-
-	atomics_to_string([Column_ID, "Blank"], ": ", Cell_Value).
+blank_row(column{id:_, title:_, options:_}, [td("")]). % :-
+	/*atomics_to_string([Column_ID, "Blank"], ": ", Cell_Value).*/
 	
 
 format_table(
@@ -266,15 +263,6 @@ format_conversion(_Report_Currency, Conversion, String) :-
 	format(string(String), '1~w=~6:f~w', [Dst, Inverse, Src]). 
 	%pretty_term_string(Conversion, String).
 
-optional_converted_value(V1, C, V2) :-
-	(
-		C = ''
-	->
-		V2 = ''
-	;
-		value_convert(V1, C, V2)
-	).
-
 
 /* Rows - dict, possibly with subdicts */
 /* Keys - list of id's that should be totalled */
@@ -302,8 +290,8 @@ column_by_key(Rows, Key, Vals) :-
 	       ).
 
 sum_cells(Values, Sum) :-
-	foldl(add_cells, Values, [], Sum).
-	
+	semigroup_foldl(add_cells, Values, Sum).
+	/*well, it should be just a fold, and vec_add, and then we should deal with the resulting vector..*/
 add_cells(A, B, C) :-
 	coord_merge(A, B, C).
 

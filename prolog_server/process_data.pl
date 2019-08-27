@@ -71,7 +71,9 @@ process_data(Request_File_Name, Path, Options) :-
 	tmp_file_url(Output_File_Name, Output_File_Url),
 	tmp_file_url(Request_File_Name, Request_File_Url),
 
-	Files = Reports.files,
+	(get_dict(files, Reports, Files) -> true; Files  = []),
+	(get_dict(errors, Reports, Errors) -> true; Errors  = []),
+	(get_dict(warnings, Reports, Warnings) -> true; Warnings  = []),
 
 	append(Files, [
 		Output_File_Title:url(Output_File_Url),
@@ -79,7 +81,7 @@ process_data(Request_File_Name, Path, Options) :-
 		], Files2),
 	to_json(Files2, Files3),
 	
-	flatten([Reports.errors, Reports.warnings], Alerts2),
+	flatten([Errors, Warnings], Alerts2),
 	findall(
 		Alert, 
 		(
@@ -113,9 +115,6 @@ print_xml_response(Json_Out, Output_Xml_String) :-
    
 /* used from command line */
 process_data_cmdline(Path) :-
-
-	%gtrace,
-
 	bump_tmp_directory_id,
 	process_data(_, Path, []).
    

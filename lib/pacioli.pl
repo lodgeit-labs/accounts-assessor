@@ -25,7 +25,8 @@
 		debit_isomorphism/2,
 		vecs_are_almost_equal/2,
 		coord_is_almost_zero/1,
-		is_debit/1]).
+		is_debit/1,
+		coord_merge/3]).
 
 :- use_module('utils', [
 			semigroup_foldl/3,
