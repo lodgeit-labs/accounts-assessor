@@ -16,6 +16,9 @@
 %--------------------------------------------------------------------
 % Modules
 %--------------------------------------------------------------------
+:- use_module(library(xpath)).
+:- use_module(library(http/http_host)).
+:- use_module(library(http/json)).
 
 :- use_module(library(http/thread_httpd)).
 :- use_module(library(http/http_dispatch)).

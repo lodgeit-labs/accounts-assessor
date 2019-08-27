@@ -22,7 +22,11 @@ table_html(
 	Table, 
 	[div([span([Table.title, ':']), HTML_Table])]
 ) :-
+	print_term("Input table:",[]),
+	print_term(Table,[]),
 	format_table(Table, Formatted_Table),
+	print_term("Formatted table:",[]),
+	print_term(Formatted_Table,[]),
 	table_contents_to_html(Formatted_Table, HTML_Table).
 
 /*

@@ -1,17 +1,4 @@
-% ===================================================================
-% Project:   LodgeiT
-% File:      process_data.pl
-% Author:    Rolf Schwitter
-% Date:      2019-06-08
-% ===================================================================
-
-% -------------------------------------------------------------------
-% Modules
-% -------------------------------------------------------------------
-
 :- use_module(library(xpath)).
-:- use_module(library(http/http_host)).
-:- use_module(library(http/json)).
 
 :- use_module(loan/process_xml_loan_request, [process_xml_loan_request/2]).
 :- use_module(ledger/process_xml_ledger_request, [process_xml_ledger_request/3]).
@@ -108,6 +95,7 @@ process_data(Request_File_Name, Path, Options) :-
 	},
 	with_output_to(string(Response_Xml_String), print_xml_response(Json_Out, Output_Xml_String)),
 	write_file(Output_File_Path, Response_Xml_String),
+
 	(
 		Requested_Output_Type = xbrl_instance
 	->
@@ -125,6 +113,9 @@ print_xml_response(Json_Out, Output_Xml_String) :-
    
 /* used from command line */
 process_data_cmdline(Path) :-
+
+	%gtrace,
+
 	bump_tmp_directory_id,
 	process_data(_, Path, []).
    
@@ -175,7 +166,7 @@ to_json(Reports, Reports2) :-
 		Reports2
 	).
  
-
+x :- c.
 
 /* for formatting numbers */
 :- locale_create(Locale, "en_AU.utf8", []), set_locale(Locale).
