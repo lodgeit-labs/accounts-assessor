@@ -25,11 +25,16 @@
 		is_uri/1,
 		sort_into_dict/3,
 		capitalize_atom/2,
-		path_get_dict/3]).
+		path_get_dict/3,
+		report_currency_atom/2]).
 
 
 		
 :- use_module(library(xpath)).
+:- use_module(library(rdet)).
+
+
+:- rdet(report_currency_atom/2).
 
 
 :- multifile user:goal_expansion/2.
@@ -459,3 +464,14 @@ path_get_dict((X/Y), Dict, Y_Value) :-
 path_get_dict(K, Dict, V) :-
 	K \= (_/_),
 	get_dict(K, Dict, V).
+
+	
+	
+report_currency_atom(Report_Currency_List, Report_Currency_Atom) :-
+	(
+		Report_Currency_List = [Report_Currency]
+	->
+		atomic_list_concat(['(', Report_Currency, ')'], Report_Currency_Atom)
+	;
+		Report_Currency_Atom = ''
+	).

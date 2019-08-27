@@ -6,7 +6,6 @@
 :- use_module(library(rdet)).
 
 :- rdet(report_page/4).
-:- rdet(report_currency_atom/2).
 :- rdet(report_section/3).
 :- rdet(html_tokenlist_string/2).
 :- rdet(report_file_path/3).
@@ -23,15 +22,6 @@ report_section(File_Name, Html_Tokenlist, Url) :-
 	files:report_file_path(File_Name, Url, File_Path),
 	html_tokenlist_string(Html_Tokenlist, Html_String),
 	write_file(File_Path, Html_String).
-
-report_currency_atom(Report_Currency_List, Report_Currency_Atom) :-
-	(
-		Report_Currency_List = [Report_Currency]
-	->
-		atomic_list_concat(['(', Report_Currency, ')'], Report_Currency_Atom)
-	;
-		Report_Currency_Atom = ''
-	).
 
 report_page(Title_Text, Tbl, File_Name, Info) :-
 	Body_Tags = [Title_Text, ':', br([]), table([border="1"], Tbl)],

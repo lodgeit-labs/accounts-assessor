@@ -1,6 +1,14 @@
 :- module(investment_report_1, [investment_report_1/2]).
 
-:-use_module(library(rdet)).
+:- use_module('system_accounts').
+:- use_module('accounts').
+:- use_module('pacioli').
+:- use_module('utils').
+:- use_module('days').
+:- use_module('ledger').
+:- use_module('ledger_report').
+
+:- use_module(library(rdet)).
 
 :- rdet(check_investment_totals/4).
 :- rdet(units_traded_on_trading_account/3).

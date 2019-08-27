@@ -1,6 +1,7 @@
 :- module(investment_report_2, [investment_report_2/5]).
 
 :- use_module('tables').
+:- use_module('utils').
 
 :- use_module(library(record)).
 :- use_module(library(rdet)).
