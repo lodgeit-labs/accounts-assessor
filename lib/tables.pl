@@ -109,18 +109,24 @@ column_to_html(group{id:_, title:_, members:Group_Members}, '', Cells) :-
 	blank_row(Group_Members, Cells).
 */
 
-column_to_html(group{id:_, title:_, members:Group_Members}, Row, Cells) :-
+column_to_html(group{id:Group_ID, title:Group_Title, members:Group_Members}, Row, Cells) :-
 	(
 		Row = ''
 	->
-		blank_row(Group_Members, Cells)
+		blank_row(group{id:Group_ID, title:Group_Title, members:Group_Members}, Cells)
 	;
 		row_to_html(Row, Group_Members, Cells)
 	).
 
 column_to_html(column{id:_, title:Column_Title, options:_}, Cell, [td(Cell_Value)]) :-
-	atomics_to_string([Column_Title, Cell], ": ", Cell_Value).
-	
+	(
+		Cell = []
+	->
+		atomics_to_string([Column_Title, "[]"], ": ", Cell_Value)
+	;
+		atomics_to_string([Column_Title, Cell], ": ", Cell_Value)
+	).
+
 blank_row(group{id:_, title:_, members:Group_Members}, Cells) :-
 	findall(
 		Child_Cells,
@@ -129,8 +135,11 @@ blank_row(group{id:_, title:_, members:Group_Members}, Cells) :-
 			blank_row(Column, Child_Cells)
 		),
 		Cells
-	).
-blank_row(column{id:_, title:_, options:_}, [td("Blank")]).
+	),
+	writeln(Cells).
+
+blank_row(column{id:Column_ID, title:_, options:_}, [td(Cell_Value)]) :-
+	atomics_to_string([Column_ID, "Blank"], ": ", Cell_Value).
 	
 
 format_table(
