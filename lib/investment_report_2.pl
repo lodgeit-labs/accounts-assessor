@@ -93,12 +93,13 @@ columns(Columns) :-
 	],
 
 	Gains_Groups = [
-		group{id:realized, title:"Realized", members:Gains_Details},
-		group{id:unrealized, title:"Unrealized", members:Gains_Details}
+		group{id:rea, title:"Realized", members:Gains_Details},
+		group{id:unr, title:"Unrealized", members:Gains_Details}
 	],
-	
+
+		
 	Gains = [
-		group{id:gains, title:"Gains", members: Gains_Groups}],
+		group{id:gains, title:"", members: Gains_Groups}],
 
 	flatten([Unit_Columns, Events, Gains], Columns).
 
@@ -142,13 +143,25 @@ investment_report_2_sale_lines(Static_Data, Info, Clipped, Sale, Row) :-
 	(Clipped = clipped	->
 		(Opening = Opening0, Purchase = _{})
 	;	(Opening = _{},	Purchase = Opening0)),		
+
 	event(Sale, Sale_Date, Sale_Unit_Price_Foreign, Sale_Currency_Conversion, Sale_Unit_Price_Converted, '', ''),
+
 	Row = _{
-		unit: Unit, count: Count, investment_currency: Investment_Currency,
-		opening: Opening, purchase: Purchase, sale: Sale,
-		gains: _{unr: _{}, rea: _{market: Market_Gain, forex: Forex_Gain}},
+		unit: Unit,
+		count: Count,
+		investment_currency: Investment_Currency,
+		opening: Opening,
+		purchase: Purchase,
+		sale: Sale,
+		gains: _{
+			unr: _{},
+			rea: _{
+				market: Market_Gain,
+				forex: Forex_Gain
+			}
+		},
 		closing: _{}
-	       }.
+	}.
 
 		
 investment_report_2_unrealized(Static_Data, Investment, Row) :-
@@ -198,14 +211,37 @@ investment_report_2_unrealized(Static_Data, Investment, Row) :-
 	/*Unr_Market_Explanation = */
 
 	event(Opening0, Opening_Date, Opening_Unit_Cost_Foreign, Opening_Currency_Conversion, Opening_Unit_Cost_Converted, Opening_Total_Cost_Foreign, Opening_Total_Cost_Converted),
-	(Clipped = clipped	->
-		(Opening = Opening0, Purchase = _{})
-	;	(Opening = _{},	Purchase = Opening0)),		
+
+	(
+		Clipped = clipped
+	->
+		(
+			Opening = Opening0,
+			Purchase = _{}
+		)
+	;	
+		(
+			Opening = _{},
+			Purchase = Opening0
+		)
+	),		
+
 	event(Closing, Closing_Unit_Price_Foreign, Closing_Currency_Conversion, Closing_Unit_Price_Converted, Investment_Currency_Current_Market_Value, Current_Market_Value),
+
 	Row = _{
-		unit: Unit, count: Count, investment_currency: Investment_Currency,
-		opening: Opening, purchase: Purchase, sale: _{},
-		gains: _{rea: _{}, unr: _{market: Market_Gain, forex: Forex_Gain}},
+		unit: Unit,
+		count: Count,
+		investment_currency: Investment_Currency,
+		opening: Opening,
+		purchase: Purchase,
+		sale: _{},
+		gains: _{
+			rea: _{},
+			unr: _{
+				market: Market_Gain,
+				forex: Forex_Gain
+			}
+		},
 		closing: Closing
 	}.
 

@@ -22,10 +22,8 @@ table_html(
 	Table, 
 	[div([span([Table.title, ':']), HTML_Table])]
 ) :-
-	writeln("Table to HTML"),
 	format_table(Table, Formatted_Table),
-	table_contents_to_html(Formatted_Table, HTML_Table),
-	writeln(HTML_Table).
+	table_contents_to_html(Formatted_Table, HTML_Table).
 
 /*
   this one converts the actual tabular data in the report to an
@@ -38,18 +36,7 @@ table_contents_to_html(
 	table{title:_, columns: Columns, rows: Rows},
 	table([border="1"],[HTML_Header | HTML_Rows])
 ) :-
-	% make HTML Header
-	maplist(
-		[Column,Header_Cell]>>(
-			/*Column2_Title = Column.title -- this gets incorrectly expanded above the maplist*/
-			get_dict(title,Column,Column2_Title)
-			, Header_Cell = td(Column2_Title)
-		), 
-		Columns, 
-		Header_Cells
-	),
-
-	HTML_Header = tr(Header_Cells),
+	header_html(Columns, HTML_Header),
 
 	% make HTML Rows 
 	% maplist ?
@@ -63,7 +50,45 @@ table_contents_to_html(
 		HTML_Rows
 	).
 
+header_html(Columns, tr(Header_Row)) :-
+	findall(
+		Cells,
+		(
+			member(Column, Columns),
+			column_header_html(Column, "", Cells)
+		),
+		HTML_Header_Nested
+	),
+	flatten(HTML_Header_Nested, Header_Row).
+
+column_header_html(group{id:_, title:Group_Title, members:Group_Members}, Prefix, Cells) :-
+	(
+		Prefix = ""
+	->
+		Group_Prefix = Group_Title
+	;
+		atomics_to_string([Prefix, Group_Title], " ", Group_Prefix)
+	),
+	findall(
+		Child_Cells,
+		(
+			member(Column, Group_Members),
+			column_header_html(Column, Group_Prefix, Child_Cells)
+		),
+		Cells
+	).
+
+column_header_html(column{id:_, title:Column_Title, options:_}, Prefix, th(Header_Value)) :-
+	(
+		Prefix = ""
+	->
+		Header_Value = Column_Title
+	;
+		atomics_to_string([Prefix, Column_Title], " ", Header_Value)
+	).
+
 row_to_html(Row, Columns, HTML_Row) :-
+	writeln(Row),
 	findall(
 		Cells,
 		(
@@ -71,16 +96,26 @@ row_to_html(Row, Columns, HTML_Row) :-
 			column_to_html(Column, Row.(Column.id), Cells)
 		),
 		HTML_Row
-	).
+	),
+	writeln(HTML_Row).
 
+/*
 column_to_html(group{id:_, title:_, members:Group_Members}, '', Cells) :-
 	!,
 	blank_row(Group_Members, Cells).
+*/
 
 column_to_html(group{id:_, title:_, members:Group_Members}, Row, Cells) :-
-	row_to_html(Row, Group_Members, Cells).
+	(
+		Row = ''
+	->
+		blank_row(Group_Members, Cells)
+	;
+		row_to_html(Row, Group_Members, Cells)
+	).
 
-column_to_html(column{id:_, title:_, options:_}, Cell, [td(Cell)]).
+column_to_html(column{id:_, title:Column_Title, options:_}, Cell, [td(Cell_Value)]) :-
+	atomics_to_string([Column_Title, Cell], ": ", Cell_Value).
 	
 blank_row(group{id:_, title:_, members:Group_Members}, Cells) :-
 	findall(
@@ -91,7 +126,7 @@ blank_row(group{id:_, title:_, members:Group_Members}, Cells) :-
 		),
 		Cells
 	).
-blank_row(column{id:_, title:_, options:_}, [td('')]).
+blank_row(column{id:_, title:_, options:_}, [td("Blank")]).
 	
 
 format_table(

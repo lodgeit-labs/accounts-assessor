@@ -62,7 +62,7 @@ maybe_supress_generating_unique_taxonomy_urls(Options2) :-
 
 process_data(Request_File_Name, Path, Options) :-
 	exclude_file_location_from_filename(Path, Request_File_Name),
-
+	gtrace,
 	maybe_supress_generating_unique_taxonomy_urls(Options),
 	get_requested_output_type(Options, Requested_Output_Type),
 
