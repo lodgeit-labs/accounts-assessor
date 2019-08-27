@@ -22,8 +22,10 @@ table_html(
 	Table, 
 	[div([span([Table.title, ':']), HTML_Table])]
 ) :-
+	writeln("Table to HTML"),
 	format_table(Table, Formatted_Table),
-	table_contents_to_html(Formatted_Table, HTML_Table).
+	table_contents_to_html(Formatted_Table, HTML_Table),
+	writeln(HTML_Table).
 
 /*
   this one converts the actual tabular data in the report to an
@@ -55,17 +57,27 @@ table_contents_to_html(
 		tr(HTML_Row),
 		(
 			member(Row,Rows),
-			findall(
-				td(Cell),
-				(
-				 	member(Column5, Columns),
-				 	path_get_dict(Column5.id, Row, Cell)
-				),
-				HTML_Row
-			)
+			row_to_html(Row, Columns, HTML_Row_Nested),
+			flatten(HTML_Row_Nested, HTML_Row)
 		),
 		HTML_Rows
 	).
+
+row_to_html(Row, Columns, HTML_Row) :-
+	findall(
+		Cells,
+		(
+			member(Column, Columns),
+			column_to_html(Column, Row.(Column.id), Cells)
+		),
+		HTML_Row
+	).
+
+column_to_html(group{id:Group_ID, title:_, members:Group_Members}, Row, Cells) :-
+	row_to_html(Row.Group_ID, Group_Members, Cells).
+
+column_to_html(column{id:Column_ID, title:_, options:_}, Row, [td(Row.Column_ID)]).
+	
 
 	
 format_table(
