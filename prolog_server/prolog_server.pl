@@ -202,9 +202,9 @@ prolog:message(string(S)) --> [ S ].
 
 process_request(Request_File_Name, Path, Request, Options0) :-
 	(
-		member(search(Get_Options), Request)
+		member(search(GET_Options), Request)
 	->
-		append(Options0, Get_Options, Options2)
+		append(Options0, GET_Options, Options2)
 	;
 		Options2 = Options0
 	),
@@ -216,10 +216,10 @@ process_request(Request_File_Name, Path, Request, Options0) :-
 	(
 		Requested_Output_Type = xbrl_instance
 	->
-		format('Content-type: text/xml~n~n'),
+		format('Content-type: text/xml~n~n')
 	;
-		format('Content-type: application/json~n~n'),
+		format('Content-type: application/json~n~n')
 	),
 
-	process_data(Request_File_Name, Path, Options).
+	process_data(Request_File_Name, Path, Options2).
 

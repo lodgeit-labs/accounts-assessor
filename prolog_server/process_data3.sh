@@ -5,7 +5,7 @@ FILEPATH=$2
 
 if [ -f "$FILEPATH" ]
 then
-	swipl -s dev_runner.pl -- "$VIEWER"  debug1.pl "prolog_server:process_data2(_, '$FILEPATH')"
+	swipl -s dev_runner.pl -- "$VIEWER"  debug1.pl "prolog_server:process_data_cmdline('$FILEPATH')"
 else
 	echo "$FILEPATH not found"
 fi
