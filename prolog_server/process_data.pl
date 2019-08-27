@@ -62,7 +62,6 @@ maybe_supress_generating_unique_taxonomy_urls(Options2) :-
 
 process_data(Request_File_Name, Path, Options) :-
 	exclude_file_location_from_filename(Path, Request_File_Name),
-	gtrace,
 	maybe_supress_generating_unique_taxonomy_urls(Options),
 	get_requested_output_type(Options, Requested_Output_Type),
 
@@ -107,15 +106,12 @@ process_data(Request_File_Name, Path, Options) :-
 		alerts:Alerts3, 
 		files:Files3
 	},
-	
+	with_output_to(string(Response_Xml_String), print_xml_response(Json_Out, Output_Xml_String)),
+	write_file(Output_File_Path, Response_Xml_String),
 	(
 		Requested_Output_Type = xbrl_instance
 	->
-		(
-			with_output_to(string(Response_Xml_String), print_xml_response(Json_Out, Output_Xml_String)),
-			write_file(Output_File_Path, Response_Xml_String),
-			write(Response_Xml_String)
-		)
+		write(Response_Xml_String)
 	;
 		json_write(current_output, Json_Out)
 	).
