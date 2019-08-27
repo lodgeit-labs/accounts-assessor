@@ -263,15 +263,15 @@ print_dimensional_facts(Static_Data, Instant_Context_Id_Base, Duration_Context_I
 	print_trading(Static_Data, Results2, Results3).
 	
 investment_reports(Static_Data, Outstanding, Reports) :-
-	catch( /*fixme*/
-		(
+/*	catch(
+		(*/
 			/* investment_report_1 is useless but does useful cross-checks while it's being compiled */
 			investment_report_1:investment_report_1(Static_Data, _),
 			investment_report_2:investment_report_2(Static_Data, Outstanding, '', _Investment_Report_2_Json, Files1),
 			/* todo we cant do all_time without market values, use last known? */
-			investment_report_2:investment_report_2(Static_Data.put(start_date, date(1,1,1)), Outstanding, '_since_beginning', Files2),
+			investment_report_2:investment_report_2(Static_Data.put(start_date, date(1,1,1)), Outstanding, '_since_beginning', _Investment_Report_2_Json2, Files2),
 			Alerts = []
-		),
+		/*),
 		Err,
 		(
 			term_string(Err, Err_Str),
@@ -280,7 +280,7 @@ investment_reports(Static_Data, Outstanding, Reports) :-
 			writeq(Alerts)
 			
 		)
-	),
+	)*/,
 	flatten([Files1, Files2], Files3),
 	exclude(var, Files3, Files),
 	Reports = _{files: Files, alerts:Alerts}.

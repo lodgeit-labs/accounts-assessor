@@ -1,5 +1,17 @@
 
-:- module('tables', [table_html/2]).
+:- module('tables', [table_html/2, table_totals/3]).
+
+:- use_module('utils').
+
+:- use_module(library(rdet)).
+
+/*
+do cuts caused by the rdet ifs still cut into the findalling?
+:- rdet(formatted_row_kvs/3).
+:- rdet(group_columns/2).
+:- rdet(format_column/3).
+*/
+
 
 /*
   <internal representation of ... whatever> to <html something>
@@ -11,8 +23,8 @@ table_html(
 	[div([span([Table.title, ':']), HTML_Table])]
 ) :-
 	format_table(Table, Formatted_Table),
-	table_contents_to_html(Formatted_Table, HTML_Table)
-	.
+	table_contents_to_html(Formatted_Table, HTML_Table).
+
 /*
   this one converts the actual tabular data in the report to an
   actual html table
@@ -26,7 +38,11 @@ table_contents_to_html(
 ) :-
 	% make HTML Header
 	maplist(
-		[Column,Header_Cell]>>(Header_Cell is td(Column.title)), 
+		[Column,Header_Cell]>>(
+			/*Column2_Title = Column.title -- this gets incorrectly expanded above the maplist*/
+			get_dict(title,Column,Column2_Title)
+			, Header_Cell = td(Column2_Title)
+		), 
 		Columns, 
 		Header_Cells
 	),
@@ -42,8 +58,8 @@ table_contents_to_html(
 			findall(
 				td(Cell),
 				(
-				 	member(Column, Columns),
-				 	path_get_dict(Column.id, Row, Cell)
+				 	member(Column5, Columns),
+				 	path_get_dict(Column5.id, Row, Cell)
 				),
 				HTML_Row
 			)
@@ -51,7 +67,7 @@ table_contents_to_html(
 		HTML_Rows
 	).
 
-
+	
 format_table(
 	table{title:Title, columns:Columns, rows:Rows}, 
 	table{title:Title, columns:Columns, rows:Formatted_Rows}
@@ -60,33 +76,24 @@ format_table(
 
 
 format_row(Columns, Row, Formatted_Row) :-
-	findall(
-		Column_ID:Formatted_Cell,
-		(
-			member(Column, Columns),
-			% maybe split this part off into a predicate that can do this if/else as
-		 	% pattern-matching in the head
-		 	(
-		  		% if it's a group of columns, recurse on the members
-		  		Column = group{id:Column_ID, title:_, members:Group_Members}
-		 	->
-		  		format_row(Group_Members, Row.Column_ID, Formatted_Cell)
-		 	;
-		  		(
-		   			% else if it's a single column, format the individual cell
-		   			Column = column{id:Column_ID, title:_, options:Column_Options}
-		  		->
-		   			format_cell(Row.Column_ID, Column_Options, Formatted_Cell)
-		  		)
-		 	)
-		),
-		Formatted_Row_KVs
-	),
+	findall(KV, formatted_row_kvs(Columns, Row, KV), Formatted_Row_KVs),
 	dict_create(Formatted_Row,row,Formatted_Row_KVs).
 
-% format_group(group{id:Group_ID, title:_, members:Group_Members}, Row, Group_ID:Formatted_Group) :-
-	
+formatted_row_kvs(Columns, Row, KV) :-
+	member(Column, Columns),
+	(
+		get_dict(Column.id, Row, _)
+	->
+		format_column(Column, Row, KV)
+	;
+		KV = (Column.id):''
+	).
 
+format_column(group{id:Column_ID, title:_, members:Group_Members}, Row, Column_ID:Formatted_Group) :-
+	format_row(Group_Members, Row.Column_ID, Formatted_Group).
+
+format_column(column{id:Column_ID, title:_, options:Column_Options}, Row, Column_ID:Formatted_Cell) :-
+	format_cell(Row.Column_ID, Column_Options, Formatted_Cell).
 
 flatten_groups(Groups, Columns) :-
 	findall(

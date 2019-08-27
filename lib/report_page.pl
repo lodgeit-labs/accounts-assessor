@@ -1,4 +1,4 @@
-:- module('report_page', [report_page/4]).
+:- module(_, [report_page/4]).
 
 :- use_module('files').
 

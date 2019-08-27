@@ -2,6 +2,9 @@
 
 :- use_module('tables').
 :- use_module('utils').
+:- use_module('days').
+:- use_module('pricing').
+:- use_module('report_page').
 
 :- use_module(library(record)).
 :- use_module(library(rdet)).
@@ -32,24 +35,23 @@ event(Event, Date, Unit_Cost_Foreign, Currency_Conversion, Unit_Cost_Converted, 
 
 
 investment_report_2(Static_Data, Outstanding_In, Filename_Suffix, Report_Data, Report_File_Info) :-
-
+	
 	Start_Date = Static_Data.start_date,
 	End_Date = Static_Data.end_date,
 	Report_Currency = Static_Data.report_currency,
+	
 	format_date(Start_Date, Start_Date_Atom),
 	format_date(End_Date, End_Date_Atom),
 	report_currency_atom(Report_Currency, Report_Currency_Atom),
 	atomic_list_concat(['investment report from ', Start_Date_Atom, ' to ', End_Date_Atom, ' ', Report_Currency_Atom], Title_Text),
-
-
 	
 	columns(Columns),
 	rows(Static_Data, Outstanding_In, Rows),
 	totals(Rows, Totals),
-
 	flatten([Rows, Totals], Rows2),
-	Table = _{rows: Rows2, columns: Columns},
-	table_to_html(Table, Html),
+	
+	Table = _{title: Title_Text, rows: Rows2, columns: Columns},
+	tables:table_html(Table, Html),
 
 	atomic_list_concat(['investment_report', Filename_Suffix, '.html'], Filename),
 	report_page(Title_Text, Html, Filename, Report_File_Info),
@@ -60,7 +62,7 @@ investment_report_2(Static_Data, Outstanding_In, Filename_Suffix, Report_Data, R
 	}.
 
 totals(Rows, Totals) :-
- 	table_totals(Rows, [rea/market, rea/forex, unr/market, unr/forex, closing/total_converted], Totals).
+ 	tables:table_totals(Rows, [rea/market, rea/forex, unr/market, unr/forex, closing/total_converted], Totals).
   	
 columns(Columns) :-
 	Unit_Columns = [
@@ -78,14 +80,12 @@ columns(Columns) :-
 		column{id:total_cost_converted, title:"Total Cost Converted", options:_{}}
 	],
 
-	Event_Groups = [ 
+	Events = [ 
 		group{id:purchase, title:"Purchase", members:Event_Details},
 		group{id:opening, title:"Opening", members:Event_Details},
 		group{id:sale, title:"Sale", members:Event_Details},
 		group{id:closing, title:"Closing", members:Event_Details}
 	],
-
-	flatten_columns(Event_Groups, Event_Columns),
 
 	Gains_Details = [
 		column{id:market, title:"Market Gain", options:_{}},
@@ -96,10 +96,11 @@ columns(Columns) :-
 		group{id:realized, title:"Realized", members:Gains_Details},
 		group{id:unrealized, title:"Unrealized", members:Gains_Details}
 	],
+	
+	Gains = [
+		group{id:gains, title:"Gains", members: Gains_Groups}],
 
-	flatten_columns(Gains_Groups, Gains_Columns),
-
-	flatten([Unit_Columns, Event_Columns, Gains_Columns], Columns).
+	flatten([Unit_Columns, Events, Gains], Columns).
 
 
 
