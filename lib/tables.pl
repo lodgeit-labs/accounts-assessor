@@ -133,8 +133,7 @@ blank_row(group{id:_, title:_, members:Group_Members}, Cells) :-
 			blank_row(Column, Child_Cells)
 		),
 		Cells
-	),
-	writeln(Cells).
+	).
 
 blank_row(column{id:_, title:_, options:_}, [td("")]). % :-
 	/*atomics_to_string([Column_ID, "Blank"], ": ", Cell_Value).*/

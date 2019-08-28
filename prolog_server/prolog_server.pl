@@ -49,7 +49,7 @@
 :- http_handler('/favicon.ico', http_reply_file(my_static('favicon.ico'), []), []).
 %todo:- http_handler(root(tmp), http_reply_from_files('./tmp', []), [prefix]).
 :- http_handler(root(.), http_reply_from_files('.', []), [prefix]).
-%:- http_handler(root(run/Test), tests(Test), [methods([get])]).
+:- http_handler(root(run/Test), tests(Test), [methods([get])]).
 
 % -------------------------------------------------------------------
 % run_simple_server/0

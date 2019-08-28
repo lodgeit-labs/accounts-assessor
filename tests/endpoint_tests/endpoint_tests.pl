@@ -95,7 +95,8 @@ query_endpoint(RequestFile0, ReplyDOM) :-
 		[ access(read) ]
 	),
 	%gtrace,
-	http_post('http://localhost:8080/upload', form_data([file=file(RequestFile)]), ReplyXML, [content_type('multipart/form-data')]),
+				/* not really xbrl_instance but lets tackle that later */
+	http_post('http://localhost:8080/upload?requested_output_format=xbrl_instance', form_data([file=file(RequestFile)]), ReplyXML, [content_type('multipart/form-data')]),
 	/*todo: status_code(-Code)
 If this option is present and Code unifies with the HTTP status code, do not translate errors (4xx, 5xx) into an exception. Instead, http_open/3 behaves as if 2xx (success) is returned, providing the application to read the error document from the returned stream.
 */

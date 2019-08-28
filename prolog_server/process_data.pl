@@ -47,6 +47,7 @@ maybe_supress_generating_unique_taxonomy_urls(Options2) :-
 		true
 	).
 	
+/*catch_with_backtrace doesnt exist on older swipl's*/
 maybe_catch_with_backtrace(A,B,C) :-
 	(
 		current_predicate(catch_with_backtrace/3)
@@ -121,7 +122,8 @@ print_xml_response(Json_Out, Output_Xml_String) :-
 	format(' <!-- reports: '),
 	json_write(current_output, Json_Out),
 	format(' --> '),
-	write(Output_Xml_String).	   
+	write(Output_Xml_String).
+
    
 /* used from command line */
 process_data_cmdline(Path) :-
