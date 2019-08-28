@@ -60,7 +60,7 @@ process_data(Request_File_Name, Path, Options) :-
 			Error,
 			(
 				print_message(error, Error),
-				fail
+				throw(Error)
 			)
 		)
 	),
@@ -164,8 +164,6 @@ to_json(Reports, Reports2) :-
 		),
 		Reports2
 	).
- 
-x :- c.
 
 /* for formatting numbers */
 :- locale_create(Locale, "en_AU.utf8", []), set_locale(Locale).

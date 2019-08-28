@@ -491,3 +491,19 @@ optional_converted_value(V1, C, V2) :-
 	;
 		value_convert(V1, C, V2)
 	).
+
+
+/*
+todo:
+
+change "opening cost" to "opening total market value", "opening unit market vale"
+same for closing: closing unit market value foreign/converted..
+
+hide opening date, closing date
+
+replace Market Gain with:
+	market gain foreign
+	market gain converted
+*/
+
+
