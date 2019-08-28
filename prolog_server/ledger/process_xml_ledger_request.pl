@@ -209,7 +209,7 @@ output_results(Static_Data0, Outstanding, Processed_Until, Reports) :-
 	format_report_entries(xbrl, Accounts, 0, Report_Currency, Duration_Context_Id_Base, ProftAndLoss2,  Units0, Units1, [], Pl_Lines),
 	format_report_entries(xbrl, Accounts, 0, Report_Currency, Duration_Context_Id_Base, ProftAndLoss2_Historical,  Units1, Units2, [], Pl_Historical_Lines),
 	format_report_entries(xbrl, Accounts, 0, Report_Currency, Instant_Context_Id_Base,  Trial_Balance2, Units2, Units3, [], Tb_Lines),
-	gtrace,
+	
 	investment_reports(Static_Data, Outstanding, Investment_Report_Info),
 	ledger_html_reports:bs_page(Static_Data, Balance_Sheet2, Bs_Report_Page_Info),
 	ledger_html_reports:pl_page(Static_Data, ProftAndLoss2, '', Pl_Report_Page_Info),

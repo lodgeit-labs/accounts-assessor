@@ -1,6 +1,7 @@
 
 :- module('tables', [table_html/2, table_totals/3]).
 
+:- use_module('days').
 :- use_module('utils').
 :- use_module('pacioli').
 
@@ -194,12 +195,17 @@ group_columns(
 		Group_Columns
 	).
 
-format_cell(date(Date), _, Output) :-
-	!,
-	format_date(Date, Output).
+format_cell(Date, _, Output) :-
+	Date = date(_,_,_),
+	format_date(Date, Output),
+	!.
 
+format_cell([], _Options, '') :- !.
+
+format_cell([X], Options, Output) :- 
+	format_cell(X, Options, Output),!.
+	
 format_cell(value(Unit, Value), Options, Output) :-
-	!,
 	(
 		Precision = Options.get(precision)
 	->
@@ -207,13 +213,18 @@ format_cell(value(Unit, Value), Options, Output) :-
 	;
 		Precision = 2
 	),
-	format_money2(_, Precision, value(Unit, Value), Output).
+	format_money2(_, Precision, value(Unit, Value), Output),
+	!.
 
 format_cell(exchange_rate(Date, Src, Dst, Rate), _, Output) :-
-	!,
-	format_conversion(_, exchange_rate(Date, Src, Dst, Rate), Output).
+	format_conversion(_, exchange_rate(Date, Src, Dst, Rate), Output),
+	!.
 
-format_cell(Other, _, Other).
+format_cell(Other, _, Other) :-
+	atom(Other),!.
+
+format_cell(Other, _, Str) :-
+	term_string(Other, Str).
 
 
 format_money_precise(Optional_Implicit_Unit, In, Out) :-
@@ -274,6 +285,7 @@ table_totals2(Rows, [Key|Keys], In, Out) :-
 	Mid = In.put(Key, Total),
 	column_by_key(Rows, Key, Vals),
 	sum_cells(Vals, Total),
+	%print_term(table_totals2('rrrr', Rows, 'vvvvv', Total, Key, In, Mid), []),
 	table_totals2(Rows, Keys, Mid, Out).
 
 table_totals2(_Rows, [], Dict, Dict).

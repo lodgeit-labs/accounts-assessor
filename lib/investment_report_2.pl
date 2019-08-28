@@ -30,7 +30,7 @@ event(Event, Date, Unit_Cost_Foreign, Currency_Conversion, Unit_Cost_Converted, 
 	Event = _{
 		date: Date, 
 		unit_cost_foreign: Unit_Cost_Foreign, 
-		currency_conversion: Currency_Conversion, 
+		conversion: Currency_Conversion, 
 		unit_cost_converted: Unit_Cost_Converted, 
 		total_cost_foreign: Total_Cost_Foreign, 
 		total_cost_converted: Total_Cost_Converted
@@ -53,6 +53,8 @@ investment_report_2(Static_Data, Outstanding_In, Filename_Suffix, Report_Data, R
 	rows(Static_Data, Outstanding_In, Rows),
 	totals(Rows, Totals),
 	flatten([Rows, Totals], Rows2),
+
+	%gtrace,
 	
 	Table = _{title: Title_Text, rows: Rows2, columns: Columns},
 	tables:table_html(Table, Html),
@@ -116,12 +118,15 @@ rows(Static_Data, Outstanding_In, Rows) :-
 	flatten([Sale_Lines, Non_Sale_Lines], Rows0),
 
 	/* lets sort by unit, sale date, purchase date */
-/*how to sort dicts?
-	sort(7, @=<, Rows0, Rows1),
-	sort(2, @=<, Rows1, Rows2),
-	sort(1, @=<, Rows2, Rows).
-*/
-	Rows = Rows0.
+
+/*how to sort with nested dicts with optional keys?*/
+
+	sort(unit, @=<, Rows0, Rows).
+
+/*,
+	sort([sale,date], @=<, Rows1, Rows2),
+	sort([purchase,date], @=<, Rows2, Rows).*/
+
 
 investment_report_2_sales(Static_Data, I, Lines) :-
 	I = ir_item(rea, Info, 0, Sales, Clipped),
@@ -155,7 +160,7 @@ investment_report_2_sale_lines(Static_Data, Info, Clipped, Sale, Row) :-
 	Row = _{
 		unit: Unit,
 		count: Count,
-		investment_currency: Investment_Currency,
+		currency: Investment_Currency,
 		opening: Opening,
 		purchase: Purchase,
 		sale: Sale,
@@ -237,7 +242,7 @@ investment_report_2_unrealized(Static_Data, Investment, Row) :-
 	Row = _{
 		unit: Unit,
 		count: Count,
-		investment_currency: Investment_Currency,
+		currency: Investment_Currency,
 		opening: Opening,
 		purchase: Purchase,
 		sale: _{},
@@ -358,7 +363,7 @@ ir2_forex_gain(Exchange_Rates, Opening_Date, End_Price, End_Date, Investment_Cur
 			Gain = value(Report_Currency_Unit, Forex_Gain_Amount_Total)
 		)
 	;
-	$$%$%$%	Gain = ''
+		Gain = ''
 	).
 
 ir2_market_gain(Exchange_Rates, Opening_Date, End_Date, Investment_Currency, Report_Currency, Count, Opening_Unit_Cost_Converted, Investment_Currency, End_Unit_Price_Amount, Gain) :-
