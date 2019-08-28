@@ -13,7 +13,7 @@ do cuts caused by the rdet ifs still cut into the findalling?
 :- rdet(group_columns/2).
 :- rdet(format_column/3).
 */
-
+:- rdet(table_totals/3).
 
 /*
   <internal representation of ... whatever> to <html something>
@@ -202,8 +202,11 @@ format_cell(Date, _, Output) :-
 
 format_cell([], _Options, '') :- !.
 
-format_cell([X], Options, Output) :- 
-	format_cell(X, Options, Output),!.
+format_cell([X|Xs], Options, Output) :- 
+	format_cell(X, Options, Output1),
+	format_cell(Xs, Options, Output2),
+	atomic_list_concat([Output1, ', ', Output2], Output),
+	!.
 	
 format_cell(value(Unit, Value), Options, Output) :-
 	(
@@ -259,11 +262,6 @@ format_money2(_Optional_Implicit_Unit, Precision, In, Out) :-
 		atomic_list_concat(['~',Precision,':f~w'], Format_String),
 		format(string(Out), Format_String, [X, Unit2])
 	).
-
-
-
-
-
 
 
 format_conversion(_Report_Currency, '', '').

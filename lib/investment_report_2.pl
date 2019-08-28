@@ -70,7 +70,12 @@ investment_report_2(Static_Data, Outstanding_In, Filename_Suffix, Report_Data, [
 	}.
 
 totals(Rows, Totals) :-
- 	tables:table_totals(Rows, [gains/rea/market, gains/rea/forex, gains/unr/market, gains/unr/forex, closing/total_converted], Totals).
+ 	tables:table_totals(Rows,
+	[
+	 gains/rea/market_foreign, gains/rea/market_converted, gains/rea/forex,
+	 gains/unr/market_foreign, gains/unr/market_converted, gains/unr/forex,
+	 closing/total_cost_foreign, closing/total_cost_converted
+	], Totals).
   	
 columns(Columns) :-
 	Unit_Columns = [
@@ -96,7 +101,8 @@ columns(Columns) :-
 	],
 
 	Gains_Details = [
-		column{id:market, title:"Market Gain", options:_{}},
+		column{id:market_foreign, title:"Market Foreign Gain", options:_{}},
+		column{id:market_converted, title:"Market Converted Gain", options:_{}},
 		column{id:forex, title:"Forex Gain", options:_{}}
 	],
 
@@ -162,6 +168,9 @@ investment_report_2_sale_lines(Static_Data, Info, Clipped, Sale, Row) :-
 	value_multiply(Sale_Unit_Price_Converted, Count, Sale_Total_Price_Converted),
 
 	event(Sale_Event, Sale_Date, Sale_Unit_Price_Foreign, Sale_Currency_Conversion, Sale_Unit_Price_Converted, Sale_Total_Price_Foreign, Sale_Total_Price_Converted),
+
+	value_subtract(Sale_Total_Price_Foreign, Opening_Total_Cost_Foreign, Market_Gain_Foreign),
+
 	gensym(iri, Id),
 
 	Row = _{
@@ -174,8 +183,9 @@ investment_report_2_sale_lines(Static_Data, Info, Clipped, Sale, Row) :-
 		sale: Sale_Event,
 		gains: _{
 			unr: _{},
-			rea: _{
-				market: Market_Gain,
+			 rea: _{
+				market_foreign: Market_Gain_Foreign,
+				market_converted: Market_Gain,
 				forex: Forex_Gain
 			}
 		},
@@ -211,7 +221,6 @@ investment_report_2_unrealized(Static_Data, Investment, Row) :-
 	
 	ir2_forex_gain(Exchange_Rates, Opening_Date, value(End_Unit_Price_Unit, End_Unit_Price_Amount), End_Date, Investment_Currency, Report_Currency, Count, Forex_Gain),
 	ir2_market_gain(Exchange_Rates, Opening_Date, End_Date, Investment_Currency, Report_Currency, Count, Opening_Unit_Cost_Converted, End_Unit_Price_Unit, End_Unit_Price_Amount, Market_Gain),
-
 	optional_currency_conversion(Exchange_Rates, Opening_Date, Investment_Currency, Report_Currency, Opening_Currency_Conversion),
 	optional_currency_conversion(Exchange_Rates, End_Date, Investment_Currency, Report_Currency, Closing_Currency_Conversion),
 	exchange_rate_throw(Exchange_Rates, End_Date, Unit, Investment_Currency, Closing_Unit_Price_Foreign_Amount),
@@ -246,6 +255,9 @@ investment_report_2_unrealized(Static_Data, Investment, Row) :-
 	),		
 
 	event(Closing, End_Date, Closing_Unit_Price_Foreign, Closing_Currency_Conversion, Closing_Unit_Price_Converted, Investment_Currency_Current_Market_Value, Current_Market_Value),
+
+	value_subtract(Investment_Currency_Current_Market_Value, Opening_Total_Cost_Foreign, Market_Gain_Foreign),
+
 	gensym(iri, Id),
 
 	Row = _{
@@ -258,8 +270,9 @@ investment_report_2_unrealized(Static_Data, Investment, Row) :-
 		sale: _{},
 		gains: _{
 			rea: _{},
-			unr: _{
-				market: Market_Gain,
+			 unr: _{
+				market_foreign: Market_Gain_Foreign,
+				market_converted: Market_Gain,
 				forex: Forex_Gain
 			}
 		},
