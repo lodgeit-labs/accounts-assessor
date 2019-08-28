@@ -26,11 +26,15 @@
 		vecs_are_almost_equal/2,
 		coord_is_almost_zero/1,
 		is_debit/1,
-		coord_merge/3]).
+		    coord_merge/3,
+		    coord_normal_side_value/3,
+		    vector_of_coords_to_vector_of_values/4]).
 
 :- use_module('utils', [
 			semigroup_foldl/3,
 			floats_close_enough/2]).
+
+:- use_module('accounts').
 
 :- use_module(library(clpq)).
 :- use_module(library(record)).
@@ -56,7 +60,7 @@ vec_inverse(As, Bs) :-
 	maplist(coord_inverse, As, Bs).
 
 coord_inverse(coord(Unit, A_Debit,  A_Credit), coord(Unit, A_Credit, A_Debit)).
-coord_inverse(unit(Unit, Value), unit(Unit, Value_Inverted)) :-
+coord_inverse(value(Unit, Value), value(Unit, Value_Inverted)) :-
 	Value_Inverted is - Value.
 
 % Each coordinate of a vector can be replaced by other coordinates that equivalent for the
@@ -192,6 +196,12 @@ make_credit(coord(Unit, Zero, Cr), coord(Unit, 0, Cr)) :- Zero =:= 0.
 number_coord(Unit, Number, coord(Unit, Debit, Credit)) :-
 	{Number =:= Debit - Credit}.
 
+coord_normal_side_value(coord(Unit, C, D), debit, value(Unit, V)) :-
+	{V =:= D - C}.
+
+coord_normal_side_value(coord(Unit, C, D), credit, value(Unit, V)) :-
+	{V =:= C - D}.
+
 number_vec(_, Zero, []) :-
 	unify_numbers(Zero, 0).
 	
@@ -247,3 +257,8 @@ coord_is_almost_zero(coord(_, D, C)) :-
 coord_is_almost_zero(value(_, V)) :-
 	floats_close_enough(V, 0).
 
+vector_of_coords_to_vector_of_values(_, _, [], []).
+vector_of_coords_to_vector_of_values(Sd, Account_Id, [Coord|Coords], [Value|Values]) :-
+	account_normal_side(Sd.accounts, Account_Id, Side),
+	coord_normal_side_value(Coord, Side, Value),
+	vector_of_coords_to_vector_of_values(Sd, Account_Id, Coords, Values).

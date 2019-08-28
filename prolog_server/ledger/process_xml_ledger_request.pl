@@ -157,7 +157,7 @@ process_xml_ledger_request2(Dom, Reports_Out) :-
 	
 	nl, nl.
 
-output_results(Static_Data0, Outstanding, Processed_Until, Reports) :-
+output_results(Static_Data0, Outstanding, Processed_Until, Json_Request_Results) :-
 	Static_Data = Static_Data0.put([
 		end_date=Processed_Until,
 		exchange_date=Processed_Until,
@@ -186,34 +186,51 @@ output_results(Static_Data0, Outstanding, Processed_Until, Reports) :-
 	%trial_balance_between(Static_Data, Trial_Balance2),
 	trial_balance_between(Exchange_Rates, Accounts, Transactions, Report_Currency, Processed_Until, Start_Date, Processed_Until, Trial_Balance2),
 
+		
 	writeln("<!-- Balance sheet -->"),
-	% fix to only include balance  sheet accounts
-	%accounts_report(Static_Data, Balance_Sheet2),
 	balance_sheet_at(Static_Data, Balance_Sheet2),
-
 	writeln("<!-- Profit and loss -->"),
-	profitandloss_between(Static_Data, ProftAndLoss2),
+	profitandloss_between(Static_Data, ProfitAndLoss2),
 
 	add_days(Start_Date, -1, Before_Start),
 	Static_Data_Historical = Static_Data.put(
 		start_date, date(1,1,1)).put(
 		end_date, Before_Start).put(
 		exchange_date, Start_Date),
-	
-	profitandloss_between(Static_Data_Historical, ProftAndLoss2_Historical),
 
-	assertion(ground((Balance_Sheet2, ProftAndLoss2, ProftAndLoss2_Historical, Trial_Balance2))),
+	balance_sheet_at(Static_Data_Historical, Balance_Sheet2_Historical),
+	profitandloss_between(Static_Data_Historical, ProfitAndLoss2_Historical),
+
+
+	assertion(ground((Balance_Sheet2, ProfitAndLoss2, ProfitAndLoss2_Historical, Trial_Balance2))),
 
 	/*todo can we do without this units in units out nonsense? */
 	format_report_entries(xbrl, Accounts, 0, Report_Currency, Instant_Context_Id_Base,  Balance_Sheet2, [], Units0, [], Bs_Lines),
-	format_report_entries(xbrl, Accounts, 0, Report_Currency, Duration_Context_Id_Base, ProftAndLoss2,  Units0, Units1, [], Pl_Lines),
-	format_report_entries(xbrl, Accounts, 0, Report_Currency, Duration_Context_Id_Base, ProftAndLoss2_Historical,  Units1, Units2, [], Pl_Historical_Lines),
+	format_report_entries(xbrl, Accounts, 0, Report_Currency, Duration_Context_Id_Base, ProfitAndLoss2,  Units0, Units1, [], Pl_Lines),
+	format_report_entries(xbrl, Accounts, 0, Report_Currency, Duration_Context_Id_Base, ProfitAndLoss2_Historical,  Units1, Units2, [], Pl_Historical_Lines),
 	format_report_entries(xbrl, Accounts, 0, Report_Currency, Instant_Context_Id_Base,  Trial_Balance2, Units2, Units3, [], Tb_Lines),
 	
 	investment_reports(Static_Data, Outstanding, Investment_Report_Info),
+
 	ledger_html_reports:bs_page(Static_Data, Balance_Sheet2, Bs_Report_Page_Info),
-	ledger_html_reports:pl_page(Static_Data, ProftAndLoss2, '', Pl_Report_Page_Info),
-	ledger_html_reports:pl_page(Static_Data_Historical, ProftAndLoss2_Historical, '_historical', Pl_Html_Historical_Info),
+	ledger_html_reports:pl_page(Static_Data, ProfitAndLoss2, '', Pl_Report_Page_Info),
+	ledger_html_reports:pl_page(Static_Data_Historical, ProfitAndLoss2_Historical, '_historical', Pl_Html_Historical_Info),
+
+	Reports = _{
+		pl: _{
+			current: ProfitAndLoss2,
+			historical: ProfitAndLoss2_Historical
+		},
+		ir: Investment_Report_Info.ir,
+		bs: _{
+			current: Balance_Sheet2,
+			historical: Balance_Sheet2_Historical
+		},
+		tb: Trial_Balance2
+	},
+
+	crosschecks_report:report(Static_Data, Reports, Crosschecks_Report_Files_Info, Crosschecks_Report_Json),
+	Reports2 = Reports.put(crosschecks, Crosschecks_Report_Json),
 
 	(
 		Static_Data.output_dimensional_facts = on
@@ -249,11 +266,12 @@ output_results(Static_Data0, Outstanding, Processed_Until, Reports) :-
 		Investment_Report_Info.files,
 		Files
 	),
-	
-	Reports = _{
-		files:Files,
-		errors:Investment_Report_Info.alerts,
-		warnings:[]
+
+	Json_Request_Results = _{
+		files:[Files, Crosschecks_Report_Files_Info],
+		errors:[Investment_Report_Info.alerts, Crosschecks_Report_Json.errors],
+		warnings:[],
+		reports: Reports2
 	}.
 	
 
@@ -263,27 +281,49 @@ print_dimensional_facts(Static_Data, Instant_Context_Id_Base, Duration_Context_I
 	print_trading(Static_Data, Results2, Results3).
 	
 investment_reports(Static_Data, Outstanding, Reports) :-
-/*	catch(
-		(*/
+	catch(
+		(
 			/* investment_report_1 is useless but does useful cross-checks while it's being compiled */
+			get_dict(start_date, Static_Data, Report_Start),
+			add_days(Report_Start, -1, Before_Start),
+
 			investment_report_1:investment_report_1(Static_Data, _),
-			investment_report_2:investment_report_2(Static_Data, Outstanding, '', _Investment_Report_2_Json, Files1),
+
+			% report period	
+			investment_report_2:investment_report_2(Static_Data, Outstanding, '', Json1, Files1),
+
+			% all time
 			/* todo we cant do all_time without market values, use last known? */
-			investment_report_2:investment_report_2(Static_Data.put(start_date, date(1,1,1)), Outstanding, '_since_beginning', _Investment_Report_2_Json2, Files2),
-			Alerts = []
-		/*),
+			investment_report_2:investment_report_2(Static_Data.put(start_date, date(1,1,1)), Outstanding, '_since_beginning', Json2, Files2),
+
+			% historical
+			investment_report_2:investment_report_2(Static_Data.put(start_date, date(1,1,1)).put(end_date, Before_Start), Outstanding, '_historical', Json3, Files3),
+
+		 Alerts = [],
+		 Ir =  _{
+			 historical: Json3,
+			 current: Json1,
+			 since_beginning: Json2
+			}
+
+		),
 		Err,
 		(
-			term_string(Err, Err_Str),
-			format(string(Msg), 'investment reports fail: ~w', [Err_Str]),
-			Alerts = ['SYSTEM_WARNING':Msg],
-			writeq(Alerts)
-			
+		 term_string(Err, Err_Str),
+		 format(string(Msg), 'investment reports fail: ~w', [Err_Str]),
+		 Alerts = ['SYSTEM_WARNING':Msg],
+		 writeq(Alerts),
+		 Ir =  _{}
 		)
-	)*/,
-	flatten([Files1, Files2], Files3),
-	exclude(var, Files3, Files),
-	Reports = _{files: Files, alerts:Alerts}.
+	),
+
+	flatten([Files1, Files2, Files3], Files_Flat),
+	exclude(var, Files_Flat, Files),
+	Reports = _{
+		files: Files, 
+		alerts:Alerts,
+		ir: Ir
+	}.
 
 	
 print_xbrl_header :-
@@ -328,20 +368,20 @@ infer_exchange_rates(_, _, _, _, _, _, Exchange_Rates, Exchange_Rates) :-
 	%trial_balance_between(Exchange_Rates, Accounts, Transactions, Report_Currency, End_Date, Start_Date, End_Date, Trial_Balance),
 	%balance_sheet_at(Exchange_Rates, Accounts, Transactions, Report_Currency, End_Date, Start_Date, End_Date, Balance_Sheet),
 
-	%profitandloss_between(Exchange_Rates, Accounts, Transactions, Report_Currency, End_Date, Start_Date, End_Date, ProftAndLoss),
-	%bs_and_pl_entries(Accounts, Report_Currency, none, Balance_Sheet, ProftAndLoss, Used_Units, _, _),
+	%profitandloss_between(Exchange_Rates, Accounts, Transactions, Report_Currency, End_Date, Start_Date, End_Date, ProfitAndLoss),
+	%bs_and_pl_entries(Accounts, Report_Currency, none, Balance_Sheet, ProfitAndLoss, Used_Units, _, _),
 	%pretty_term_string(Balance_Sheet, Message4),
 	%pretty_term_string(Trial_Balance, Message4b),
-	%pretty_term_string(ProftAndLoss, Message4c),
+	%pretty_term_string(ProfitAndLoss, Message4c),
 	%atomic_list_concat([
 		%'\n<!--',
 		%'BalanceSheet:\n', Message4,'\n\n',
-		%'ProftAndLoss:\n', Message4c,'\n\n',
+		%'ProfitAndLoss:\n', Message4c,'\n\n',
 		%'Trial_Balance:\n', Message4b,'\n\n',
 		%'-->\n\n'], 
 	%Debug_Message2),
 	%writeln(Debug_Message2),
-	%assertion(ground((Balance_Sheet, ProftAndLoss, Trial_Balance))),
+	%assertion(ground((Balance_Sheet, ProfitAndLoss, Trial_Balance))),
 	%pretty_term_string(Used_Units, Used_Units_Str),
 	%writeln('<!-- units used in balance sheet: \n'),
 	%writeln(Used_Units_Str),

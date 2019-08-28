@@ -17,9 +17,13 @@
 		bs_and_pl_entries/8,
 		format_balances/11,
 		net_activity_by_account/4,
-		pesseract_style_table_rows/4]).
+			  pesseract_style_table_rows/4,
+			  entry_balance/2,
+			  entry_account_id/2,
+			  entry_child_sheet_entries/2]).
 
 :- use_module(library(rdet)).
+:- use_module(library(record)).
 
 :- rdet(profitandloss_between/2).
 :- rdet(bs_and_pl_entries/8).
@@ -70,6 +74,8 @@
 		get_indentation/2,
 		filter_out_chars_from_atom/3,
 		pretty_term_string/2]).
+
+:- record entry(account_id, balance, child_sheet_entries, transactions_count).
 
 % -------------------------------------------------------------------
 % The purpose of the following program is to derive the summary information of a ledger.
@@ -550,17 +556,7 @@ format_balance(Format, Indent_Level, Report_Currency_List, Context, Name, Normal
 
 is_underscore('_').
 
-:- rdet(ttt/0).
-:- rdet(ddd/0).
-
-ttt :-
-	ddd.
-
-ddd :-
-	fail.
-
-
-	/*
+/*
 	vec_add(Historical_Earnings, Current_Earnings, Retained_Earnings),
 	Retained_Earnings_Section = entry('RetainedEarnings', Retained_Earnings,
 		[

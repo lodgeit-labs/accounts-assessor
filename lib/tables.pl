@@ -37,7 +37,7 @@ table_html(
 */
 table_contents_to_html(
 	table{title:_, columns: Columns, rows: Rows},
-	[HTML_Header | HTML_Rows]
+	[HTML_Header | HTML_Rows_Highlighted]
 	/*table([border="1"],[HTML_Header | HTML_Rows])*/
 ) :-
 	header_html(Columns, HTML_Header),
@@ -52,7 +52,14 @@ table_contents_to_html(
 			flatten(HTML_Row_Nested, HTML_Row)
 		),
 		HTML_Rows
-	).
+	),
+	highlight_totals(HTML_Rows,HTML_Rows_Highlighted).
+
+highlight_totals([Row1, Row2 | Rows], [Row1 | Highlighted]) :-
+	highlight_totals([Row2 | Rows], Highlighted).
+
+highlight_totals([tr(Row)], [tr([style="background-color:#DDDDEE; font-weight:bold"],Row)]).
+
 
 header_html(Columns, tr(Header_Row)) :-
 	findall(

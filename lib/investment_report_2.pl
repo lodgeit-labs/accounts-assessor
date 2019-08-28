@@ -83,7 +83,11 @@ totals(Rows, Totals) :-
 	 gains/rea/market_foreign, gains/rea/market_converted, gains/rea/forex,
 	 gains/unr/market_foreign, gains/unr/market_converted, gains/unr/forex,
 	 closing/total_cost_foreign, closing/total_cost_converted
-	], Totals).
+	], Totals0),
+	Totals = Totals0.put(gains/realized_total, Realized_Total).put(gains/unrealized_total, Unrealized_Total).put(gains/total, Total),
+	vec_add(Totals0.gains.rea.market_converted, gains.rea.forex, Realized_Total),
+	vec_add(Totals0.gains.unr.market_converted, gains.unr.forex, Unrealized_Total),
+	vec_add(Realized_Total, Unrealized_Total, Total).
   	
 columns(Columns) :-
 	Unit_Columns = [
@@ -187,7 +191,8 @@ investment_report_2_sale_lines(Static_Data, Info, Clipped, Sale, Row) :-
 	;	
 		(
 			Opening = _{},
-			Purchase = Opening0
+			Purchase0 = Opening0,
+			Purchase = Purchase0.put(date,Opening_Date)
 		)
 	),		
 

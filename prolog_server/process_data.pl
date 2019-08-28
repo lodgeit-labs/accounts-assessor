@@ -86,7 +86,7 @@ process_data(_, Path, Options) :-
 	(get_dict(errors, Reports, Errors) -> true; Errors  = []),
 	(get_dict(warnings, Reports, Warnings) -> true; Warnings  = []),
 
-	append(Files, [
+	flatten([Files, 
 		Output_File_Title:url(Output_File_Url),
 		request_xml:url(Request_File_Url)
 		], Files2),
