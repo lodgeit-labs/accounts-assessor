@@ -202,6 +202,10 @@ format_cell(Date, _, Output) :-
 
 format_cell([], _Options, '') :- !.
 
+format_cell([X], Options, Output) :- 
+	format_cell(X, Options, Output),
+	!.
+
 format_cell([X|Xs], Options, Output) :- 
 	format_cell(X, Options, Output1),
 	format_cell(Xs, Options, Output2),
@@ -300,11 +304,13 @@ column_by_key(Rows, Key, Vals) :-
 	       ).
 
 sum_cells(Values, Sum) :-
+	flatten(Values, Vec),
+	vec_add(Vec, [], Sum).
+/*
 	semigroup_foldl(add_cells, Values, Sum).
-	/*well, it should be just a fold, and vec_add, and then we should deal with the resulting vector..*/
 add_cells(A, B, C) :-
 	coord_merge(A, B, C).
-
+*/
 
 
 
