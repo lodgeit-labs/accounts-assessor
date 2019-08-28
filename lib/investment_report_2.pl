@@ -54,8 +54,6 @@ investment_report_2(Static_Data, Outstanding_In, Filename_Suffix, Report_Data, R
 	totals(Rows, Totals),
 	flatten([Rows, Totals], Rows2),
 
-	%gtrace,
-	
 	Table = _{title: Title_Text, rows: Rows2, columns: Columns},
 	tables:table_html(Table, Html),
 
@@ -113,7 +111,6 @@ columns(Columns) :-
 
 rows(Static_Data, Outstanding_In, Rows) :-
 	clip_investments(Static_Data, Outstanding_In, Realized_Investments, Unrealized_Investments),
-gtrace,
 	maplist(investment_report_2_sales(Static_Data), Realized_Investments, Sale_Lines),
 	maplist(investment_report_2_unrealized(Static_Data), Unrealized_Investments, Non_Sale_Lines),
 	flatten([Sale_Lines, Non_Sale_Lines], Rows0),
@@ -130,7 +127,7 @@ gtrace,
 
 
 investment_report_2_sales(Static_Data, I, Lines) :-
-	print_term(I,[]),
+	%print_term(I,[]),
 	I = ir_item(rea, Info, 0, Sales, Clipped),
 	maplist(investment_report_2_sale_lines(Static_Data, Info, Clipped), Sales, Lines).
 
@@ -157,7 +154,10 @@ investment_report_2_sale_lines(Static_Data, Info, Clipped, Sale, Row) :-
 		(Opening = Opening0, Purchase = _{})
 	;	(Opening = _{},	Purchase = Opening0)),		
 
-	event(Sale, Sale_Date, Sale_Unit_Price_Foreign, Sale_Currency_Conversion, Sale_Unit_Price_Converted, '', ''),
+	value_multiply(Sale_Unit_Price_Foreign, Count, Sale_Total_Price_Foreign),
+	value_multiply(Sale_Unit_Price_Converted, Count, Sale_Total_Price_Converted),
+
+	event(Sale_Event, Sale_Date, Sale_Unit_Price_Foreign, Sale_Currency_Conversion, Sale_Unit_Price_Converted, Sale_Total_Price_Foreign, Sale_Total_Price_Converted),
 
 	Row = _{
 		unit: Unit,
@@ -165,7 +165,7 @@ investment_report_2_sale_lines(Static_Data, Info, Clipped, Sale, Row) :-
 		currency: Investment_Currency,
 		opening: Opening,
 		purchase: Purchase,
-		sale: Sale,
+		sale: Sale_Event,
 		gains: _{
 			unr: _{},
 			rea: _{
