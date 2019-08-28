@@ -47,7 +47,8 @@ maybe_supress_generating_unique_taxonomy_urls(Options2) :-
 		true
 	).
 
-process_data(Request_File_Name, Path, Options) :-
+process_data(_, Path, Options) :-
+/*User_Request_File_Path, Saved_Request_File_Path*/
 	exclude_file_location_from_filename(Path, Request_File_Name),
 	maybe_supress_generating_unique_taxonomy_urls(Options),
 	get_requested_output_type(Options, Requested_Output_Type),
@@ -116,7 +117,7 @@ print_xml_response(Json_Out, Output_Xml_String) :-
 /* used from command line */
 process_data_cmdline(Path) :-
 	bump_tmp_directory_id,
-	process_data(_, Path, []).
+	process_data(Path, Path, []).
    
 process_xml_request(File_Name, Dom, (Report_Files, Response_Title)) :-
 	(
