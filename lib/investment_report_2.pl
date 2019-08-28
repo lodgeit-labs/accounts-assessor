@@ -26,7 +26,7 @@
 :- record ir_item(type, info, outstanding_count, sales, clipped).
 
 
-event(Event, Date, Unit_Cost_Foreign, Currency_Conversion, Unit_Cost_Converted, Total_Cost_Foreign, Total_Cost_Converted) :-
+event_with_date(Event, Date, Unit_Cost_Foreign, Currency_Conversion, Unit_Cost_Converted, Total_Cost_Foreign, Total_Cost_Converted) :-
 	Event = _{
 		date: Date, 
 		unit_cost_foreign: Unit_Cost_Foreign, 
@@ -36,6 +36,14 @@ event(Event, Date, Unit_Cost_Foreign, Currency_Conversion, Unit_Cost_Converted, 
 		total_cost_converted: Total_Cost_Converted
 	}.
 
+event(Event, Unit_Cost_Foreign, Currency_Conversion, Unit_Cost_Converted, Total_Cost_Foreign, Total_Cost_Converted) :-
+	Event = _{
+		unit_cost_foreign: Unit_Cost_Foreign, 
+		conversion: Currency_Conversion, 
+		unit_cost_converted: Unit_Cost_Converted, 
+		total_cost_foreign: Total_Cost_Foreign, 
+		total_cost_converted: Total_Cost_Converted
+	}.
 
 
 investment_report_2(Static_Data, Outstanding_In, Filename_Suffix, Report_Data, [Report_File_Info, Json_Filename:Json_Url]) :-
@@ -84,7 +92,7 @@ columns(Columns) :-
 		column{id:currency, title:"Investment Currency", options:_{}}
 	],
 
-	Event_Details = [
+	Sale_Event_Details = [
 		column{id:date, title:"Date", options:_{}},
 		column{id:unit_cost_foreign, title:"Unit Cost Foreign", options:_{}},
 		column{id:conversion, title:"Conversion", options:_{}},
@@ -93,16 +101,24 @@ columns(Columns) :-
 		column{id:total_cost_converted, title:"Total Cost Converted", options:_{}}
 	],
 
+	Market_Event_Details = [
+		column{id:unit_cost_foreign, title:"Unit Market Value Foreign", options:_{}},
+		column{id:conversion, title:"Conversion", options:_{}},
+		column{id:unit_cost_converted, title:"Unit Market Value Converted", options:_{}},
+		column{id:total_cost_foreign, title:"Total Market Value Foreign", options:_{}},
+		column{id:total_cost_converted, title:"Total Market Value Converted", options:_{}}
+	],
+
 	Events = [ 
-		group{id:purchase, title:"Purchase", members:Event_Details},
-		group{id:opening, title:"Opening", members:Event_Details},
-		group{id:sale, title:"Sale", members:Event_Details},
-		group{id:closing, title:"Closing", members:Event_Details}
+		group{id:purchase, title:"Purchase", members:Sale_Event_Details},
+		group{id:opening, title:"Opening", members:Market_Event_Details},
+		group{id:sale, title:"Sale", members:Sale_Event_Details},
+		group{id:closing, title:"Closing", members:Market_Event_Details}
 	],
 
 	Gains_Details = [
-		column{id:market_foreign, title:"Market Foreign Gain", options:_{}},
-		column{id:market_converted, title:"Market Converted Gain", options:_{}},
+		column{id:market_foreign, title:"Market Gain Foreign", options:_{}},
+		column{id:market_converted, title:"Market Gain Converted", options:_{}},
 		column{id:forex, title:"Forex Gain", options:_{}}
 	],
 
@@ -159,15 +175,26 @@ investment_report_2_sale_lines(Static_Data, Info, Clipped, Sale, Row) :-
 	value_multiply(Opening_Unit_Cost_Foreign, Count, Opening_Total_Cost_Foreign),
 	value_multiply(Opening_Unit_Cost_Converted, Count, Opening_Total_Cost_Converted),
 
-	event(Opening0, Opening_Date, Opening_Unit_Cost_Foreign, Opening_Currency_Conversion, Opening_Unit_Cost_Converted, Opening_Total_Cost_Foreign, Opening_Total_Cost_Converted),
-	(Clipped = clipped	->
-		(Opening = Opening0, Purchase = _{})
-	;	(Opening = _{},	Purchase = Opening0)),		
+	event(Opening0, Opening_Unit_Cost_Foreign, Opening_Currency_Conversion, Opening_Unit_Cost_Converted, Opening_Total_Cost_Foreign, Opening_Total_Cost_Converted),
+
+	(
+		Clipped = clipped	
+	->
+		(
+			Opening = Opening0,
+			Purchase = _{}
+		)
+	;	
+		(
+			Opening = _{},
+			Purchase = Opening0
+		)
+	),		
 
 	value_multiply(Sale_Unit_Price_Foreign, Count, Sale_Total_Price_Foreign),
 	value_multiply(Sale_Unit_Price_Converted, Count, Sale_Total_Price_Converted),
 
-	event(Sale_Event, Sale_Date, Sale_Unit_Price_Foreign, Sale_Currency_Conversion, Sale_Unit_Price_Converted, Sale_Total_Price_Foreign, Sale_Total_Price_Converted),
+	event_with_date(Sale_Event, Sale_Date, Sale_Unit_Price_Foreign, Sale_Currency_Conversion, Sale_Unit_Price_Converted, Sale_Total_Price_Foreign, Sale_Total_Price_Converted),
 
 	value_subtract(Sale_Total_Price_Foreign, Opening_Total_Cost_Foreign, Market_Gain_Foreign),
 
@@ -238,7 +265,7 @@ investment_report_2_unrealized(Static_Data, Investment, Row) :-
 
 	/*Unr_Market_Explanation = */
 
-	event(Opening0, Opening_Date, Opening_Unit_Cost_Foreign, Opening_Currency_Conversion, Opening_Unit_Cost_Converted, Opening_Total_Cost_Foreign, Opening_Total_Cost_Converted),
+	event(Opening0, Opening_Unit_Cost_Foreign, Opening_Currency_Conversion, Opening_Unit_Cost_Converted, Opening_Total_Cost_Foreign, Opening_Total_Cost_Converted),
 
 	(
 		Clipped = clipped
@@ -250,11 +277,12 @@ investment_report_2_unrealized(Static_Data, Investment, Row) :-
 	;	
 		(
 			Opening = _{},
-			Purchase = Opening0
+			Purchase0 = Opening0,
+			Purchase = Purchase0.put(date, Opening_Date)
 		)
 	),		
 
-	event(Closing, End_Date, Closing_Unit_Price_Foreign, Closing_Currency_Conversion, Closing_Unit_Price_Converted, Investment_Currency_Current_Market_Value, Current_Market_Value),
+	event(Closing, Closing_Unit_Price_Foreign, Closing_Currency_Conversion, Closing_Unit_Price_Converted, Investment_Currency_Current_Market_Value, Current_Market_Value),
 
 	value_subtract(Investment_Currency_Current_Market_Value, Opening_Total_Cost_Foreign, Market_Gain_Foreign),
 
@@ -514,6 +542,7 @@ same for closing: closing unit market value foreign/converted..
 
 hide opening date, closing date
 
+  done:
 replace Market Gain with:
 	market gain foreign
 	market gain converted
