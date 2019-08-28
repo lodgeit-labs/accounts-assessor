@@ -38,7 +38,7 @@ event(Event, Date, Unit_Cost_Foreign, Currency_Conversion, Unit_Cost_Converted, 
 
 
 
-investment_report_2(Static_Data, Outstanding_In, Filename_Suffix, Report_Data, Report_File_Info) :-
+investment_report_2(Static_Data, Outstanding_In, Filename_Suffix, Report_Data, [Report_File_Info, Json_Filename:Json_Url]) :-
 	
 	Start_Date = Static_Data.start_date,
 	End_Date = Static_Data.end_date,
@@ -59,6 +59,10 @@ investment_report_2(Static_Data, Outstanding_In, Filename_Suffix, Report_Data, R
 
 	atomic_list_concat(['investment_report', Filename_Suffix, '.html'], Filename),
 	report_page(Title_Text, Html, Filename, Report_File_Info),
+	
+	atomic_list_concat(['investment_report', Filename_Suffix, '.json'], Json_Filename),
+	dict_json_text(Table, Json_Text),
+	report_item(Json_Filename, Json_Text, Json_Url),
 	
 	Report_Data = _{
 		rows: Rows,
@@ -158,8 +162,10 @@ investment_report_2_sale_lines(Static_Data, Info, Clipped, Sale, Row) :-
 	value_multiply(Sale_Unit_Price_Converted, Count, Sale_Total_Price_Converted),
 
 	event(Sale_Event, Sale_Date, Sale_Unit_Price_Foreign, Sale_Currency_Conversion, Sale_Unit_Price_Converted, Sale_Total_Price_Foreign, Sale_Total_Price_Converted),
+	gensym(iri, Id),
 
 	Row = _{
+		id: Id,
 		unit: Unit,
 		count: Count,
 		currency: Investment_Currency,
@@ -240,8 +246,10 @@ investment_report_2_unrealized(Static_Data, Investment, Row) :-
 	),		
 
 	event(Closing, End_Date, Closing_Unit_Price_Foreign, Closing_Currency_Conversion, Closing_Unit_Price_Converted, Investment_Currency_Current_Market_Value, Current_Market_Value),
+	gensym(iri, Id),
 
 	Row = _{
+		id: Id,
 		unit: Unit,
 		count: Count,
 		currency: Investment_Currency,

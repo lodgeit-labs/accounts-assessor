@@ -26,10 +26,12 @@
 		sort_into_dict/3,
 		capitalize_atom/2,
 		path_get_dict/3,
-		report_currency_atom/2]).
+		report_currency_atom/2,
+		dict_json_text/2]).
 
 
 		
+:- use_module(library(http/json)).
 :- use_module(library(xpath)).
 :- use_module(library(rdet)).
 
@@ -326,6 +328,13 @@ pretty_term_string(Term, String, Options) :-
 	close(S),
 	memory_file_to_string(X, String).
 
+
+dict_json_text(Dict, Text) :-
+	new_memory_file(X),
+	open_memory_file(X, write, S),
+	json_write(S, Dict, [serialize_unknown(true)]),
+	close(S),
+	memory_file_to_string(X, Text).
 
 
 /* standard library only has maplist up to arity 5, maplist/6 is not in standard library */
