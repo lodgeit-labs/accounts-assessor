@@ -46,7 +46,16 @@ maybe_supress_generating_unique_taxonomy_urls(Options2) :-
 	;
 		true
 	).
-
+	
+maybe_catch_with_backtrace(A,B,C) :-
+	(
+		current_predicate(catch_with_backtrace/3)
+	->
+		catch_with_backtrace(A,B,C)
+	;
+		catch(A,B,C)
+	).
+	
 process_data(_, Path, Options) :-
 /*User_Request_File_Path, Saved_Request_File_Path*/
 	exclude_file_location_from_filename(Path, Request_File_Name),
@@ -56,7 +65,7 @@ process_data(_, Path, Options) :-
 	load_xml(Path, Request_Dom, [space(remove)]),
 	with_output_to(
 		string(Output_Xml_String),
-		catch_with_backtrace(
+		maybe_catch_with_backtrace(
 			process_xml_request(Request_File_Name, Request_Dom, (Reports, Output_File_Title)),
 			Error,
 			(
