@@ -104,13 +104,12 @@ reply_html_page(
 			p(['Upload your request xml file here. You can also browse ', a([href="http://dev-node.uksouth.cloudapp.azure.com:7778/tests/endpoint_tests/"], 'available example request files'),' and ', a([href="http://dev-node.uksouth.cloudapp.azure.com:7778/run/endpoint_tests/depreciation/depreciation-request-depreciation-between-dates-all-years.xml"], 'run them directly like this')]),
 			p(['a new directory is generated for each request: ', a([href="http://dev-node.uksouth.cloudapp.azure.com:7778/tmp/"], 'tmp/'), ', where you should be able to find the uploaded request file and generated report files.'])
 		]).
-
-
+		
 upload(Request) :-
 	multipart_post_request(Request), !,
 	bump_tmp_directory_id, /*assert a unique thread-local my_tmp for each request*/
 	http_read_data(Request, Parts, [ on_filename(save_file) ]),
-	memberchk(file=file(FileName, Path), Parts),
+	memberchk(file=file(User_File_Path, Tmp_File_Path), Parts),
 	(
 		memberchk(requested_output_format=Requested_Output_Format, Parts)
 	->
@@ -119,7 +118,7 @@ upload(Request) :-
 		Options = []
 	),
 	catch(
-		process_request(FileName, Path, Request, Options),
+		process_request(User_File_Path, Tmp_File_Path, Request, Options),
 		string(E),
 		throw(http_reply(bad_request(string(E))))
 		/* todo (optionally only if the request content type is xml), return the errror as xml. the status code still should be bad request, but it's not required. 
@@ -129,6 +128,10 @@ upload(Request) :-
 		*/
 	).
 
+:- guitracer.		
+:- tspy(upload/1).
+
+	
 upload(_, _) :-
    throw(http_reply(bad_request(bad_file_upload))).
 
@@ -137,10 +140,10 @@ upload(_, _) :-
 */
 tests(Url, Request) :-
 	bump_tmp_directory_id,
-	absolute_file_name(my_tests(Url), Path, [ access(read), file_errors(fail) ]),
-	copy_test_file_into_tmp(Path, Url),
-	exclude_file_location_from_filename(Path, File_Name),
-	process_request(File_Name, Path, Request, []).
+	absolute_file_name(my_tests(Url), Test_File_Path, [ access(read), file_errors(fail) ]),
+	copy_test_file_into_tmp(Test_File_Path, Url),
+	%exclude_file_location_from_filename(Path, File_Name),
+	process_request(Url, Test_File_Path, Request, []).
 
 copy_test_file_into_tmp(Path, Url) :-
 	tmp_file_path_from_url(Url, Tmp_Request_File_Path),
@@ -162,11 +165,11 @@ multipart_post_request(Request) :-
 
 :- public save_file/3.
 
-save_file(In, file(FileName, Path), Options) :-
-	option(filename(FileName), Options),
+save_file(In, file(User_File_Path, Tmp_File_Path), Options) :-
+	option(filename(User_File_Path), Options),
 	% (for Internet Explorer/Microsoft Edge)
-	tmp_file_path_from_url(FileName, Path),
-	setup_call_cleanup(open(Path, write, Out), copy_stream_data(In, Out), close(Out)).
+	tmp_file_path_from_url(User_File_Path, Tmp_File_Path),
+	setup_call_cleanup(open(Tmp_File_Path, write, Out), copy_stream_data(In, Out), close(Out)).
 
 tmp_file_path_from_url(FileName, Path) :-
 	exclude_file_location_from_filename(FileName, FileName2),
@@ -203,7 +206,7 @@ prolog:message(bad_file_upload) -->
 prolog:message(string(S)) --> [ S ].
 
 
-process_request(Request_File_Name, Path, Request, Options0) :-
+process_request(Usr_File_Path, Tmp_File_Path, Request, Options0) :-
 	(
 		member(search(GET_Options), Request)
 	->
@@ -224,5 +227,5 @@ process_request(Request_File_Name, Path, Request, Options0) :-
 		format('Content-type: application/json~n~n')
 	),
 
-	process_data(Request_File_Name, Path, Options2).
+	process_data(Usr_File_Path, Tmp_File_Path, Options2).
 
