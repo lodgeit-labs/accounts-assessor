@@ -4,8 +4,18 @@ This repository hosts a program that derives, validates, and corrects the financ
 
 ## Getting Started
 
-Install dependencies:
+Install SWIPL dependencies:
 * ```swipl -g "pack_install(tap), pack_install(regex), pack_install(xsd), pack_install('https://github.com/rla/rdet.git')."```
+
+Install Arelle:
+* ```git clone https://github.com/Arelle/Arelle``` into some path PATH_TO_ARELLE_DIR
+* Set up a virtual environment in PROJECT_DIR/xbrl/account_hierarchy:
+	* ```cd PROJECT_DIR/xbrl/account_hierarchy```
+	* ```python3 -m venv venv```
+* Install Arelle into virtual environment
+	* If using bash: ```source venv/bin/activate```
+	* ```pip install PATH_TO_ARELLE_DIR```
+	* ```deactivate```
 
 How to run it:
 * Change directory to prolog_server/
