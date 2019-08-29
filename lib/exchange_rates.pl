@@ -275,9 +275,16 @@ exchange_rate_throw(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate_Out) 
 		true
 	;
 		(
-			%gtrace,
-			format(string(Str), 'no exchange rate found: Day:~w, Src_Currency:~w, Dest_Currency:~w\n', [Day, Src_Currency, Dest_Currency]),
-			throw_string(Str)
+			format(string(Msg1), 'no exchange rate found: Day:~w, Src_Currency:~w, Dest_Currency:~w\n', [Day, Src_Currency, Dest_Currency]),
+			date(Today),
+			(
+				Day @> Today
+			->
+				Msg2 = ', date in future?'
+			;
+				Msg2 = ''
+			),
+			throw_string([Msg1, Msg2])
 		)
 	).
 

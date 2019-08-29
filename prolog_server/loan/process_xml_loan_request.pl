@@ -63,7 +63,6 @@ display_xml_loan_response(FileNameOut, IncomeYear,
 
    % populate loan response xml
    atomic_list_concat([
-   '<?xml version="1.0"?>\n\n',
    '<LoanSummary xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="loan_response.xsd">\n',
    '<IncomeYear>', IncomeYear, '</IncomeYear>\n', 
    '<OpeningBalance>', OpeningBalance, '</OpeningBalance>\n', 
@@ -101,7 +100,6 @@ display_xml_loan_response(FileNameOut, IncomeYear,
      writeln(LoanResponseXML)     
    ;
      atomic_list_concat([
-     '<?xml version="1.0"?>\n\n',
      '<LoanSummary xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="loan_response.xsd">\n',
      '<ErrorMessage>Validation failed for xml loan response.</ErrorMessage>',
      '</LoanSummary>\n'],

@@ -16,6 +16,8 @@ for lifo, sales will be reducing/removing buys from the end, for fifo, from the 
 :- record outstanding(purchase_currency, goods_unit, goods_count, unit_cost, unit_cost_foreign, purchase_date).
 /* ST_Currency is the s_transaction currency, which is the bank account's currency, which is the currency that we bought the shares with. Cost is recorded in report currency.
 */
+:- record investment(Info, Sales).
+
 
 /*
 Outstanding variable treads through preprocess_s_transactions keeps track of currenty owned shares/goods and their purchase costs. 

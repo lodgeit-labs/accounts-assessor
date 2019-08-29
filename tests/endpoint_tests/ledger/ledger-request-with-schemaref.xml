@@ -66,9 +66,11 @@ link:schemaRef has nothing to do here
 
 	<!-- how does the "yummyFoods" account get into the taxonomy that the xbrl viewers will use? -->
 	<accounts>
-		<yummyFoods>
-			<mashedPotatoes/>
-		</yummyFoods>
+		<Expenses>
+			<yummyFoods>
+				<mashedPotatoes/>
+			</yummyFoods>
+		</Expenses>
 	</accounts>
 
 
@@ -112,13 +114,13 @@ link:schemaRef has nothing to do here
         <id>Invest_In</id>
         <description>Shares</description>
         <exchangeAccount>FinancialInvestments</exchangeAccount>
-        <tradingAccount>InvestmentIncomeCopy</tradingAccount>
+        <tradingAccount>InvestmentIncome</tradingAccount>
       </action>
       <action>
         <id>Dispose_Off</id>
         <description>Shares</description>
         <exchangeAccount>FinancialInvestments</exchangeAccount>
-        <tradingAccount>InvestmentIncomeCopy</tradingAccount>
+        <tradingAccount>InvestmentIncome</tradingAccount>
       </action>
       <action>
         <id>Borrow</id>

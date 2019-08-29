@@ -383,7 +383,7 @@ done.
 	</xbrli:entity>
 		<xbrli:scenario>
 			<xbrldi:typedMember dimension="basic:Dimension_BankAccounts_Instant">
-			<basic:BankAccount_Instant><name>Banks_USD_Bank</name><value>10000</value></basic:BankAccount_Instant>
+			<basic:BankAccount_Instant><name>BanksUSD_Bank</name><value>10000</value></basic:BankAccount_Instant>
 			</xbrldi:typedMember>
 		</xbrli:scenario>
 </xbrli:context>
@@ -418,10 +418,10 @@ done.
 
 
 <!-- dimensional facts: -->
-  <basic:Bank contextRef="I-2019-USD_Bank" unitRef="U-AUD" decimals="INF">-199,004.30</basic:Bank>
+  <basic:Banks contextRef="I-2019-USD_Bank" unitRef="U-AUD" decimals="INF">-199,004.30</basic:Banks>
   <basic:CurrencyMovement contextRef="D-2019-USD_Bank" unitRef="U-AUD" decimals="INF">-10,751.90</basic:CurrencyMovement>
-  <basic:InvestmentIncome_unrealized_only_currency_movement contextRef="D-2019-SG_Issuer_SA_USD_1" unitRef="U-AUD" decimals="INF">302,559.53</basic:InvestmentIncome_unrealized_only_currency_movement>
-  <basic:InvestmentIncome_unrealized_without_currency_movement contextRef="D-2019-SG_Issuer_SA_USD_1" unitRef="U-AUD" decimals="INF">-302,559.53</basic:InvestmentIncome_unrealized_without_currency_movement>
+  <basic:InvestmentIncomeUnrealizedOnlyCurrencyMovement contextRef="D-2019-SG_Issuer_SA_USD_1" unitRef="U-AUD" decimals="INF">302,559.53</basic:InvestmentIncomeUnrealizedOnlyCurrencyMovement>
+  <basic:InvestmentIncomeUnrealizedWithoutCurrencyMovement contextRef="D-2019-SG_Issuer_SA_USD_1" unitRef="U-AUD" decimals="INF">-302,559.53</basic:InvestmentIncomeUnrealizedWithoutCurrencyMovement>
 
 <!-- investment report:
 url: http://localhost:8080/tmp/1566327449.9022386.2/investment_report.html
@@ -455,11 +455,11 @@ url: http://localhost:8080/tmp/1566327449.9022386.2/profit_and_loss.html
  <basic:NetIncomeLoss contextRef="D-2019" unitRef="U-AUD" decimals="INF">-10,751.90</basic:NetIncomeLoss>
   <basic:Revenue contextRef="D-2019" unitRef="U-AUD" decimals="INF">-10,751.90</basic:Revenue>
    <basic:CurrencyMovement contextRef="D-2019" unitRef="U-AUD" decimals="INF">-10,751.90</basic:CurrencyMovement>
-    <basic:CurrencyMovement_USD_Bank contextRef="D-2019" unitRef="U-AUD" decimals="INF">-10,751.90</basic:CurrencyMovement_USD_Bank>
+    <basic:CurrencyMovementUSD_Bank contextRef="D-2019" unitRef="U-AUD" decimals="INF">-10,751.90</basic:CurrencyMovementUSD_Bank>
    <basic:InvestmentIncome contextRef="D-2019" unitRef="U-AUD" decimals="INF">0.00</basic:InvestmentIncome>
-    <basic:InvestmentIncome_unrealized contextRef="D-2019" unitRef="U-AUD" decimals="INF">0.00</basic:InvestmentIncome_unrealized>
-     <basic:InvestmentIncome_unrealized_only_currency_movement contextRef="D-2019" unitRef="U-AUD" decimals="INF">302,559.53</basic:InvestmentIncome_unrealized_only_currency_movement>
-     <basic:InvestmentIncome_unrealized_without_currency_movement contextRef="D-2019" unitRef="U-AUD" decimals="INF">-302,559.53</basic:InvestmentIncome_unrealized_without_currency_movement>
+    <basic:InvestmentIncomeUnrealized contextRef="D-2019" unitRef="U-AUD" decimals="INF">0.00</basic:InvestmentIncomeUnrealized>
+     <basic:InvestmentIncomeUnrealizedOnlyCurrencyMovement contextRef="D-2019" unitRef="U-AUD" decimals="INF">302,559.53</basic:InvestmentIncomeUnrealizedOnlyCurrencyMovement>
+     <basic:InvestmentIncomeUnrealizedWithoutCurrencyMovement contextRef="D-2019" unitRef="U-AUD" decimals="INF">-302,559.53</basic:InvestmentIncomeUnrealizedWithoutCurrencyMovement>
 
 <!-- historical profit and loss: 
  <basic:NetIncomeLoss contextRef="D-2019" unitRef="U-AUD" decimals="INF">5,411,747.60</basic:NetIncomeLoss>

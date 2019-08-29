@@ -24,11 +24,17 @@
 		value_convert/3,
 		debit_isomorphism/2,
 		vecs_are_almost_equal/2,
-		is_debit/1]).
+		coord_is_almost_zero/1,
+		is_debit/1,
+		    coord_merge/3,
+		    coord_normal_side_value/3,
+		    vector_of_coords_to_vector_of_values/4]).
 
 :- use_module('utils', [
-		coord_is_almost_zero/1,
-		semigroup_foldl/3]).
+			semigroup_foldl/3,
+			floats_close_enough/2]).
+
+:- use_module('accounts').
 
 :- use_module(library(clpq)).
 :- use_module(library(record)).
@@ -54,7 +60,7 @@ vec_inverse(As, Bs) :-
 	maplist(coord_inverse, As, Bs).
 
 coord_inverse(coord(Unit, A_Debit,  A_Credit), coord(Unit, A_Credit, A_Debit)).
-coord_inverse(unit(Unit, Value), unit(Unit, Value_Inverted)) :-
+coord_inverse(value(Unit, Value), value(Unit, Value_Inverted)) :-
 	Value_Inverted is - Value.
 
 % Each coordinate of a vector can be replaced by other coordinates that equivalent for the
@@ -68,10 +74,10 @@ coord_inverse(unit(Unit, Value), unit(Unit, Value_Inverted)) :-
 define vec_reduce(X) as vec_add(X, [])? */
 
 vec_reduce(As, Bs) :-
-	vec_reduce2(As, Bs_Raw),
-	exclude(is_zero_coord, Bs_Raw, Bs_Raw2), 
-	maplist(unify_coords_or_values, Bs, Bs_Raw2),
-	!/*needed?*/.
+	vec_reduce2(As, Result_Raw),
+	exclude(is_zero_coord, Result_Raw, Result_Nonzeroes), 
+	maplist(unify_coords_or_values, Bs, Result_Nonzeroes),
+	!/*is the cut needed?*/.
 
 vec_reduce2(As, Bs) :-
 	maplist(vec_reduce3, As, Bs).
@@ -190,10 +196,18 @@ make_credit(coord(Unit, Zero, Cr), coord(Unit, 0, Cr)) :- Zero =:= 0.
 number_coord(Unit, Number, coord(Unit, Debit, Credit)) :-
 	{Number =:= Debit - Credit}.
 
-number_vec(_, 0, []).
+coord_normal_side_value(coord(Unit, C, D), debit, value(Unit, V)) :-
+	{V =:= D - C}.
+
+coord_normal_side_value(coord(Unit, C, D), credit, value(Unit, V)) :-
+	{V =:= C - D}.
+
+number_vec(_, Zero, []) :-
+	unify_numbers(Zero, 0).
+	
 number_vec(Unit, Number, [Coord]) :-
 	number_coord(Unit, Number, Coord).
-	
+
 	
 credit_isomorphism(Coord, C) :- 
 	number_coord(_, D, Coord),
@@ -235,3 +249,16 @@ value_subtract(value(Unit1, Amount1), value(Unit2, Amount2), value(Unit2, Amount
 vecs_are_almost_equal(A, B) :-
 	vec_sub(A, B, C),
 	maplist(coord_is_almost_zero, C).
+
+coord_is_almost_zero(coord(_, D, C)) :-
+	floats_close_enough(D, 0),
+	floats_close_enough(C, 0).
+
+coord_is_almost_zero(value(_, V)) :-
+	floats_close_enough(V, 0).
+
+vector_of_coords_to_vector_of_values(_, _, [], []).
+vector_of_coords_to_vector_of_values(Sd, Account_Id, [Coord|Coords], [Value|Values]) :-
+	account_normal_side(Sd.accounts, Account_Id, Side),
+	coord_normal_side_value(Coord, Side, Value),
+	vector_of_coords_to_vector_of_values(Sd, Account_Id, Coords, Values).

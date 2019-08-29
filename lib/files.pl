@@ -5,7 +5,9 @@
 		request_tmp_dir/1,
 		server_public_url/1
 		,set_server_public_url/1
-		,store_xml_document/2
+		,write_file/2
+		,replace_request_with_response/2
+		,tmp_file_url/2
 		]).
 
 
@@ -31,15 +33,28 @@ set_search_path(Alias, Path_From_This_Source_File) :-
 :- set_search_path(my_cache, '/../cache').
 :- set_search_path(my_tmp, '/../prolog_server/tmp').
 
-
 /*
   to be used instead of absolute_file_name for request-specific tmp files
 */
 my_tmp_file_name(File_Name, Absolute_File_Name) :-
-	my_request_tmp_dir(Tmp_Dir),
-	atomic_list_concat([Tmp_Dir, '/', File_Name], Path),
-	absolute_file_name(my_tmp(Path), Absolute_File_Name, []).
+	my_tmp_file_path(File_Name, File_Path_Relative_To_Tmp),
+	absolute_file_name(my_tmp(File_Path_Relative_To_Tmp), Absolute_File_Name, []).
 
+/* my_tmp_file_url? */
+report_file_path(FN, Url, Path) :-
+	request_tmp_dir(Tmp_Dir),
+	server_public_url(Server_Public_Url),
+	atomic_list_concat([Server_Public_Url, '/tmp/', Tmp_Dir, '/', FN], Url),
+	my_tmp_file_name(FN, Path).
+
+my_tmp_file_path(File_Name, File_Path_Relative_To_Tmp) :-
+	my_request_tmp_dir(Tmp_Dir),
+	atomic_list_concat([Tmp_Dir, '/', File_Name], File_Path_Relative_To_Tmp).
+
+tmp_file_url(File_Name, Url) :-
+	server_public_url(Server),
+	my_tmp_file_path(File_Name, File_Path_Relative_To_Tmp),
+	atomic_list_concat([Server, '/tmp/', File_Path_Relative_To_Tmp], Url).
 /*
   create a new unique directory under my_tmp and assert my_request_tmp_dir
 */
@@ -80,13 +95,25 @@ set_server_public_url(Url) :-
 	
 
 % -------------------------------------------------------------------
-% store_xml_document/2
+% write_file/2
 % -------------------------------------------------------------------
 /*fixme : its not xml-specific*/
-store_xml_document(FileName, XML) :-
+write_file(FileName, Text) :-
    open(FileName, write, Stream),
-   write(Stream, XML),
+   write(Stream, Text),
    close(Stream).
+
+
+replace_request_with_response(Atom, Response) :-
+	atom_string(Atom, String),
+	(
+		(
+			re_replace('request', 'response', String, Response);
+			re_replace('Request', 'Response', String, Response);
+			re_replace('REQUEST', 'RESPONSE', String, Response)
+		),
+		String \= Response
+	).
 
    
    

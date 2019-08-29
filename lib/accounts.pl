@@ -35,8 +35,7 @@
 :- use_module(library(record)).
 :- use_module(library(xpath)).
 :- use_module('utils', [inner_xml/3, trim_atom/2,pretty_term_string/2, throw_string/1, is_uri/1]).
-:- use_module('../lib/files', [server_public_url/1, my_tmp_file_name/2	,store_xml_document/2
-]).
+:- use_module('../lib/files', [server_public_url/1, my_tmp_file_name/2]).
 :- use_module(library(http/http_dispatch), [http_safe_file/2]).
 :- use_module(library(http/http_open), [http_open/3]).
 % :- use_module(library(yall)).
@@ -232,12 +231,14 @@ fetch_account_hierarchy_from_url(Account_Hierarchy_URL, Account_Hierarchy_DOM) :
 % if we do more XBRL taxonomy processing we'll probably be adding more cases to `arelle`
 arelle(taxonomy, Taxonomy_URL, Account_Hierarchy_DOM) :-
 	setup_call_cleanup(
-		process_create(path(python3),['../xbrl/account_hierarchy/src/main.py',Taxonomy_URL],[stdout(pipe(Out))]),
+		% should be activating the venv here
+		process_create(path(python3),['../xbrl/account_hierarchy/src/venv-wrapper.py',Taxonomy_URL],[stdout(pipe(Out))]),
 		(
 			load_structure(Out, File_DOM, [dialect(xml),space(remove)]),
 			my_tmp_file_name('account_hierarchy_from_taxonomy.xml', FN),
 			open(FN, write, Stream),
 			xml_write(Stream, File_DOM, [])
+			% shouldn't we be closing FN here?
 		),
 		close(Out)
 	),

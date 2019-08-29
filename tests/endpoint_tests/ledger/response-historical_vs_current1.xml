@@ -153,7 +153,7 @@ Accounts extracted:
   account('ClearingAccount','Equity','Accounts'/'ClearingAccount',0),
   account('ExchangeGain','Revenue','Accounts'/'ExchangeGain',0),
   account('AccountingFees','Expenses','Accounts'/'AccountingFees',0),
-  account('Banks_CHF_Bank','Banks','Banks'/'CHF_Bank',1),
+  account('BanksCHF_Bank','Banks','Banks'/'CHF_Bank',1),
   account('CurrencyMovement_CHF_Bank',
 	  'CurrencyMovement',
 	  'CurrencyMovement' / 'CHF_Bank',
@@ -194,7 +194,7 @@ s_transaction(date(2015,1,1),
 	      [coord('CHF',1,0)],
 	      'CHF_Bank',
 	      vector([]))==>
-date(2015,1,1): Banks_CHF_Bank
+date(2015,1,1): BanksCHF_Bank
   Income - incoming money
   DR:U1:coord('CHF',1,0)
 
@@ -305,7 +305,7 @@ done.
 	</xbrli:entity>
 		<xbrli:scenario>
 			<xbrldi:typedMember dimension="basic:Dimension_BankAccounts_Instant">
-			<basic:BankAccount_Instant><name>Banks_CHF_Bank</name><value>10000</value></basic:BankAccount_Instant>
+			<basic:BankAccount_Instant><name>BanksCHF_Bank</name><value>10000</value></basic:BankAccount_Instant>
 			</xbrldi:typedMember>
 		</xbrli:scenario>
 </xbrli:context>
@@ -326,7 +326,7 @@ done.
 
 
 <!-- dimensional facts: -->
-  <basic:Bank contextRef="I-2018-CHF_Bank" unitRef="U-AUD" decimals="INF">6.00</basic:Bank>
+  <basic:Banks contextRef="I-2018-CHF_Bank" unitRef="U-AUD" decimals="INF">6.00</basic:Banks>
   <basic:CurrencyMovement contextRef="D-2018-CHF_Bank" unitRef="U-AUD" decimals="INF">2.00</basic:CurrencyMovement>
 
 <!-- investment report:
@@ -359,7 +359,7 @@ url: http://localhost:8080/tmp/1566330244.4487815.2/profit_and_loss.html
  <basic:NetIncomeLoss contextRef="D-2018" unitRef="U-AUD" decimals="INF">2.00</basic:NetIncomeLoss>
   <basic:Revenue contextRef="D-2018" unitRef="U-AUD" decimals="INF">2.00</basic:Revenue>
    <basic:CurrencyMovement contextRef="D-2018" unitRef="U-AUD" decimals="INF">2.00</basic:CurrencyMovement>
-    <basic:CurrencyMovement_CHF_Bank contextRef="D-2018" unitRef="U-AUD" decimals="INF">2.00</basic:CurrencyMovement_CHF_Bank>
+    <basic:CurrencyMovementCHF_Bank contextRef="D-2018" unitRef="U-AUD" decimals="INF">2.00</basic:CurrencyMovementCHF_Bank>
 
 <!-- historical profit and loss: 
  <basic:NetIncomeLoss contextRef="D-2018" unitRef="U-AUD" decimals="INF">4.00</basic:NetIncomeLoss>

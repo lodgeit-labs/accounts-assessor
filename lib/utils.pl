@@ -22,12 +22,22 @@
 		floats_close_enough/2,
 		replace_chars_in_atom/4,
 		filter_out_chars_from_atom/3,
-		coord_is_almost_zero/1,
 		is_uri/1,
-		sort_into_dict/3]).
+		sort_into_dict/3,
+		capitalize_atom/2,
+		path_get_dict/3,
+		report_currency_atom/2,
+		  dict_json_text/2,
+		  catch_maybe_with_backtrace/3]).
+
 
 		
+:- use_module(library(http/json)).
 :- use_module(library(xpath)).
+:- use_module(library(rdet)).
+
+
+:- rdet(report_currency_atom/2).
 
 
 :- multifile user:goal_expansion/2.
@@ -87,7 +97,7 @@ user:goal_expansion(
 	expand_formulas_to_code(Expansions, Code)/*,
 	Code = (AAA,BBB,_),
 	writeln(AAA),
-	writeln('------'),
+	writeln('------')
 	writeln(BBB),
 	writeln('------')*/.
 
@@ -166,8 +176,11 @@ user:goal_expansion(
 dict_vars_assignment([Var|Vars], Dict, Code) :-
 	var_property(Var, name(Key)),
 	downcase_atom(Key, Key_Lcase),
-	Code0 = get_dict(Key_Lcase, Dict, Var),
-	Code = (assertion(Code0), Code0, Codes),
+	
+	%Code0 = get_dict_ex(Key_Lcase, Dict, Var), % not supported in some versions?
+	Code0 = ((get_dict(Key_Lcase, Dict, Var)->true;throw(existence_error(key, Key_Lcase, Dict)))),
+	
+	Code = (Code0, Codes),
 	dict_vars_assignment(Vars, Dict, Codes).
 
 dict_vars_assignment([], _, true).
@@ -317,6 +330,13 @@ pretty_term_string(Term, String, Options) :-
 	memory_file_to_string(X, String).
 
 
+dict_json_text(Dict, Text) :-
+	new_memory_file(X),
+	open_memory_file(X, write, S),
+	json_write(S, Dict, [serialize_unknown(true)]),
+	close(S),
+	memory_file_to_string(X, Text).
+
 
 /* standard library only has maplist up to arity 5, maplist/6 is not in standard library */
 :- meta_predicate maplist6(6, ?, ?, ?, ?, ?).
@@ -363,6 +383,13 @@ get_indentation(0, ' ').
 replace_nonalphanum_chars_with_underscore(Atom1, Atom2) :-
 	atom_chars(Atom1, Atom1_Chars),
 	maplist(replace_nonalphanum_char_with_underscore, Atom1_Chars, Atom2_Chars),
+	atom_chars(Atom2, Atom2_Chars).
+	
+capitalize_atom(Atom1, Atom2) :-
+	atom_chars(Atom1, Atom1_Chars),
+	[First_Char|Atom1_Chars_Rest] = Atom1_Chars,
+	char_type(Upper, to_upper(First_Char)),
+	[Upper|Atom1_Chars_Rest] = Atom2_Chars,
 	atom_chars(Atom2, Atom2_Chars).
 	
 replace_nonalphanum_char_with_underscore(Char1, Char2) :-
@@ -414,10 +441,6 @@ floats_close_enough(Value1, Value2) :-
 	ValueDifference is abs(Value1 - Value2),
 	ValueDifference =< Max.
 
-coord_is_almost_zero(coord(_, D, C)) :-
-	floats_close_enough(D, 0),
-	floats_close_enough(C, 0).
-
 is_uri(URI) :-
 	% atom_prefix is deprecated
 	atom_prefix(URI,"http").
@@ -443,4 +466,34 @@ sort_into_dict(Selector_Predicate, [T|Ts], D, D_Out) :-
 	sort_into_dict(Selector_Predicate, Ts, D2, D_Out).
 
 sort_into_dict(_, [], D, D).
+
+path_get_dict((X/Y), Dict, Y_Value) :-
+	path_get_dict(X, Dict, X_Value),
+	path_get_dict(Y, X_Value, Y_Value).
+
+path_get_dict(K, Dict, V) :-
+	K \= (_/_),
+	get_dict(K, Dict, V).
+
+	
+	
+report_currency_atom(Report_Currency_List, Report_Currency_Atom) :-
+	(
+		Report_Currency_List = [Report_Currency]
+	->
+		atomic_list_concat(['(', Report_Currency, ')'], Report_Currency_Atom)
+	;
+		Report_Currency_Atom = ''
+	).
+
+/*catch_with_backtrace doesnt exist on older swipl's*/
+catch_maybe_with_backtrace(A,B,C) :-
+	(
+		current_predicate(catch_with_backtrace/3)
+	->
+		catch_with_backtrace(A,B,C)
+	;
+		catch(A,B,C)
+	).
+	
 
