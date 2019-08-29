@@ -101,14 +101,13 @@ preprocess_buys2(Day, Livestock_Type, Expense_Vector, [Buy_Transaction]) :-
 preprocess_sales2(Day, Livestock_Type, _Average_Rate, _Livestock_Count, Bank_Vector, Sales_Transactions) :-
 	%vec_inverse(Bank_Vector, Ours_Vector),
 	Description = "livestock sell",
-	
-	Sales_Transactions = [
-		% CR SALES_OF_LIVESTOCK (REVENUE INCREASES) 
-		transaction(Day, Description, Sales_Account, Bank_Vector)
-		% CR Assets_1204_Livestock_at_Cost (STOCK ON HAND DECREASES,VALUE HELD DECREASES), 
-		% DR COST_OF_GOODS_LIVESTOCK (EXPENSE ASSOCIATED WITH REVENUE INCREASES). 
-		% we do this, at average cost, by creating the adjustment transaction
-	],
+
+	% CR SALES_OF_LIVESTOCK (REVENUE INCREASES) 
+	make_transaction(Day, Description, Sales_Account, Bank_Vector, Sale_Transaction),
+	% CR Assets_1204_Livestock_at_Cost (STOCK ON HAND DECREASES,VALUE HELD DECREASES), 
+	% DR COST_OF_GOODS_LIVESTOCK (EXPENSE ASSOCIATED WITH REVENUE INCREASES). 
+	% we do this, at average cost, by creating the adjustment transaction
+	Sales_Transactions = [Sale_Transaction],
 	sales_account(Livestock_Type, Sales_Account)/*,
 	cogs_account(Livestock_Type, Cogs_Account)*/.
 	

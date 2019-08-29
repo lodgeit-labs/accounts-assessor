@@ -301,6 +301,7 @@ investment_reports(Static_Data, Outstanding, Reports) :-
 		   }.
 
 investment_reports2(Static_Data, Outstanding, Alerts, Ir, Files) :-
+	(Static_Data.report_currency = [_] -> true ; throw_string('report currency expected')),
 	/*get_dict(start_date, Static_Data, Report_Start),
 	add_days(Report_Start, -1, Before_Start),*/
 
