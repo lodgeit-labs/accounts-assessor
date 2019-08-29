@@ -2,6 +2,6 @@
 set -x
 killall swipl; 
 git pull; 
-swipl run_daemon.pl --http=7778  --debug="http(request)"   --output=log; 
+swipl run_daemon.pl --http=7778  --debug="http(request)" --debug="process_data"   --output=log; 
 netstat -ltnp
 

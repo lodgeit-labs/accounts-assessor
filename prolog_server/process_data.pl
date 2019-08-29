@@ -162,9 +162,15 @@ process_data(_, Path, Options) :-
 	(
 		Requested_Output_Type = xbrl_instance
 	->
-		write(Response_Xml_String)
+		(
+			write(Response_Xml_String),
+			debug(process_data, 'returning xml', [])
+		)
 	;
-		json_write(current_output, Json_Out)
+		(
+			json_write(current_output, Json_Out),
+			debug(process_data, 'returning json', [])
+		)
 	).
 
 
