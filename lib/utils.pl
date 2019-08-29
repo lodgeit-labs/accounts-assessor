@@ -27,7 +27,8 @@
 		capitalize_atom/2,
 		path_get_dict/3,
 		report_currency_atom/2,
-		dict_json_text/2]).
+		  dict_json_text/2,
+		  catch_maybe_with_backtrace/3]).
 
 
 		
@@ -484,3 +485,15 @@ report_currency_atom(Report_Currency_List, Report_Currency_Atom) :-
 	;
 		Report_Currency_Atom = ''
 	).
+
+/*catch_with_backtrace doesnt exist on older swipl's*/
+catch_maybe_with_backtrace(A,B,C) :-
+	(
+		current_predicate(catch_with_backtrace/3)
+	->
+		catch_with_backtrace(A,B,C)
+	;
+		catch(A,B,C)
+	).
+	
+

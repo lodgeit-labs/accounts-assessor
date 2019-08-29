@@ -14,9 +14,7 @@
 		write_file/2,
 		tmp_file_url/2
 ]).
-:- use_module('../lib/utils', [
-		throw_string/1
-]).
+:- use_module('../lib/utils').
 
 get_requested_output_type(Options2, Output) :-
 	Known_Output_Types = [json_reports_list, xbrl_instance],
@@ -46,76 +44,7 @@ maybe_supress_generating_unique_taxonomy_urls(Options2) :-
 	;
 		true
 	).
-	
-/*catch_with_backtrace doesnt exist on older swipl's*/
-maybe_catch_with_backtrace(A,B,C) :-
-	(
-		current_predicate(catch_with_backtrace/3)
-	->
-		catch_with_backtrace(A,B,C)
-	;
-		catch(A,B,C)
-	).
-	
-process_data(_, Path, Options) :-
-/*User_Request_File_Path, Saved_Request_File_Path*/
-	exclude_file_location_from_filename(Path, Request_File_Name),
-	maybe_supress_generating_unique_taxonomy_urls(Options),
-	get_requested_output_type(Options, Requested_Output_Type),
 
-	load_xml(Path, Request_Dom, [space(remove)]),
-	with_output_to(
-		string(Output_Xml_String),
-		maybe_catch_with_backtrace(
-			process_xml_request(Request_File_Name, Request_Dom, (Reports, Output_File_Title)),
-			Error,
-			(
-				print_message(error, Error),
-				throw(Error)
-			)
-		)
-	),
-	
-	response_file_name(Request_File_Name, Output_File_Name),
-	my_tmp_file_name(Output_File_Name, Output_File_Path),
-		
-	tmp_file_url(Output_File_Name, Output_File_Url),
-	tmp_file_url(Request_File_Name, Request_File_Url),
-
-	(get_dict(files, Reports, Files) -> true; Files  = []),
-	(get_dict(errors, Reports, Errors) -> true; Errors  = []),
-	(get_dict(warnings, Reports, Warnings) -> true; Warnings  = []),
-
-	flatten([Files, 
-		Output_File_Title:url(Output_File_Url),
-		request_xml:url(Request_File_Url)
-		], Files2),
-	to_json(Files2, Files3),
-	
-	flatten([Errors, Warnings], Alerts2),
-	findall(
-		Alert, 
-		(
-			member(Key:Val, Alerts2), 
-			atomic_list_concat([Key,':',Val], Alert)
-		), 
-		Alerts3
-	),
-	
-	Json_Out = _{
-		alerts:Alerts3, 
-		files:Files3
-	},
-	with_output_to(string(Response_Xml_String), print_xml_response(Json_Out, Output_Xml_String)),
-	write_file(Output_File_Path, Response_Xml_String),
-
-	(
-		Requested_Output_Type = xbrl_instance
-	->
-		write(Response_Xml_String)
-	;
-		json_write(current_output, Json_Out)
-	).
 
 print_xml_response(Json_Out, Output_Xml_String) :-
 	writeln('<?xml version="1.0"?>'), nl, nl,
@@ -176,6 +105,68 @@ to_json(Reports, Reports2) :-
 		),
 		Reports2
 	).
+
+
+process_data(_, Path, Options) :-
+/*User_Request_File_Path, Saved_Request_File_Path*/
+	exclude_file_location_from_filename(Path, Request_File_Name),
+	maybe_supress_generating_unique_taxonomy_urls(Options),
+	get_requested_output_type(Options, Requested_Output_Type),
+
+	load_xml(Path, Request_Dom, [space(remove)]),
+	with_output_to(
+		string(Output_Xml_String),
+		catch_maybe_with_backtrace(
+			prolog_server:process_xml_request(Request_File_Name, Request_Dom, (Reports, Output_File_Title)),
+			Error,
+			(
+				print_message(error, Error),
+				throw(Error)
+			)
+		)
+	),
+	
+	response_file_name(Request_File_Name, Output_File_Name),
+	my_tmp_file_name(Output_File_Name, Output_File_Path),
+		
+	tmp_file_url(Output_File_Name, Output_File_Url),
+	tmp_file_url(Request_File_Name, Request_File_Url),
+
+	(get_dict(files, Reports, Files) -> true; Files  = []),
+	(get_dict(errors, Reports, Errors) -> true; Errors  = []),
+	(get_dict(warnings, Reports, Warnings) -> true; Warnings  = []),
+
+	flatten([Files, 
+		Output_File_Title:url(Output_File_Url),
+		request_xml:url(Request_File_Url)
+		], Files2),
+	to_json(Files2, Files3),
+	
+	flatten([Errors, Warnings], Alerts2),
+	findall(
+		Alert, 
+		(
+			member(Key:Val, Alerts2), 
+			atomic_list_concat([Key,':',Val], Alert)
+		), 
+		Alerts3
+	),
+	
+	Json_Out = _{
+		alerts:Alerts3, 
+		files:Files3
+	},
+	with_output_to(string(Response_Xml_String), print_xml_response(Json_Out, Output_Xml_String)),
+	write_file(Output_File_Path, Response_Xml_String),
+
+	(
+		Requested_Output_Type = xbrl_instance
+	->
+		write(Response_Xml_String)
+	;
+		json_write(current_output, Json_Out)
+	).
+
 
 /* for formatting numbers */
 :- locale_create(Locale, "en_AU.utf8", []), set_locale(Locale).

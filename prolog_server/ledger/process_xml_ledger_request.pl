@@ -30,7 +30,8 @@
 		numeric_fields/2, 
 		pretty_term_string/2, 
 		throw_string/1,
-		replace_nonalphanum_chars_with_underscore/2]).
+	  replace_nonalphanum_chars_with_underscore/2,
+	  catch_maybe_with_backtrace/3]).
 :- use_module('../../lib/ledger_report', [
 		trial_balance_between/8, 
 		profitandloss_between/2, 
@@ -281,49 +282,47 @@ print_dimensional_facts(Static_Data, Instant_Context_Id_Base, Duration_Context_I
 	print_trading(Static_Data, Results2, Results3).
 	
 investment_reports(Static_Data, Outstanding, Reports) :-
-	catch(
-		(
-			/* investment_report_1 is useless but does useful cross-checks while it's being compiled */
-			get_dict(start_date, Static_Data, Report_Start),
-			add_days(Report_Start, -1, Before_Start),
-
-			investment_report_1:investment_report_1(Static_Data, _),
-
-			% report period	
-			investment_report_2:investment_report_2(Static_Data, Outstanding, '', Json1, Files1),
-
-			% all time
-			/* todo we cant do all_time without market values, use last known? */
-			investment_report_2:investment_report_2(Static_Data.put(start_date, date(1,1,1)), Outstanding, '_since_beginning', Json2, Files2),
-
-			% historical
-			investment_report_2:investment_report_2(Static_Data.put(start_date, date(1,1,1)).put(end_date, Before_Start), Outstanding, '_historical', Json3, Files3),
-
-		 Alerts = [],
-		 Ir =  _{
-			 historical: Json3,
-			 current: Json1,
-			 since_beginning: Json2
-			}
-
-		),
-		Err,
-		(
-		 term_string(Err, Err_Str),
-		 format(string(Msg), 'investment reports fail: ~w', [Err_Str]),
-		 Alerts = ['SYSTEM_WARNING':Msg],
-		 writeq(Alerts),
-		 Ir =  _{}
-		)
-	),
-
-	flatten([Files1, Files2, Files3], Files_Flat),
-	exclude(var, Files_Flat, Files),
+	catch_maybe_with_backtrace(
+				   process_xml_ledger_request:investment_reports2(Static_Data, Outstanding, Alerts, Ir, Files),
+				   Err,
+				   (
+				    term_string(Err, Err_Str),
+				    format(string(Msg), 'investment reports fail: ~w', [Err_Str]),
+				    Alerts = ['SYSTEM_WARNING':Msg],
+				    writeq(Alerts),
+				    Ir =  _{},
+				    Files = []
+				   )
+				  ),
 	Reports = _{
-		files: Files, 
-		alerts:Alerts,
-		ir: Ir
-	}.
+		    files: Files, 
+		    alerts:Alerts,
+		    ir: Ir
+		   }.
+
+investment_reports2(Static_Data, Outstanding, Alerts, Ir, Files) :-
+	get_dict(start_date, Static_Data, Report_Start),
+	add_days(Report_Start, -1, Before_Start),
+
+	catch_maybe_with_backtrace(
+				   /* investment_report_1 is useless but does useful cross-checks while it's being compiled */
+				   investment_report_1:investment_report_1(Static_Data, _),
+
+	% report period	
+	investment_report_2:investment_report_2(Static_Data, Outstanding, '', Json1, Files1),
+	% all time
+	/* todo we cant do all_time without market values, use last known? */
+	investment_report_2:investment_report_2(Static_Data.put(start_date, date(1,1,1)), Outstanding, '_since_beginning', Json2, Files2),
+	% historical
+	investment_report_2:investment_report_2(Static_Data.put(start_date, date(1,1,1)).put(end_date, Before_Start), Outstanding, '_historical', Json3, Files3),
+	Alerts = [],
+	Ir =  _{
+		 historical: Json3,
+		 current: Json1,
+		 since_beginning: Json2
+		},
+	flatten([Files1, Files2, Files3], Files_Flat),
+	exclude(var, Files_Flat, Files).
 
 	
 print_xbrl_header :-
