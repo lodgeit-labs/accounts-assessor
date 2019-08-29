@@ -114,7 +114,7 @@ process_xml_ledger_request2(Dom, Reports_Out) :-
 	inner_xml(Dom, //reports/balanceSheetRequest/endDate, [End_Date_Atom]),
 	parse_date(End_Date_Atom, End_Date),
 	
-	extract_exchange_rates(Dom, End_Date_Atom, Default_Currency, Exchange_Rates0),
+	extract_exchange_rates(Dom, Start_Date, End_Date, Default_Currency, Exchange_Rates0),
 	findall(Livestock_Dom, xpath(Dom, //reports/balanceSheetRequest/livestockData, Livestock_Dom), Livestock_Doms),
 	get_livestock_types(Livestock_Doms, Livestock_Types),
    	extract_livestock_opening_costs_and_counts(Livestock_Doms, Livestock_Opening_Costs_And_Counts),
@@ -301,27 +301,29 @@ investment_reports(Static_Data, Outstanding, Reports) :-
 		   }.
 
 investment_reports2(Static_Data, Outstanding, Alerts, Ir, Files) :-
-	get_dict(start_date, Static_Data, Report_Start),
-	add_days(Report_Start, -1, Before_Start),
+	/*get_dict(start_date, Static_Data, Report_Start),
+	add_days(Report_Start, -1, Before_Start),*/
 
-	catch_maybe_with_backtrace(
+%	catch_maybe_with_backtrace(
 				   /* investment_report_1 is useless but does useful cross-checks while it's being compiled */
-				   investment_report_1:investment_report_1(Static_Data, _),
+%				   investment_report_1:investment_report_1(Static_Data, _),
+%				   E,
 
 	% report period	
 	investment_report_2:investment_report_2(Static_Data, Outstanding, '', Json1, Files1),
-	% all time
+
 	/* todo we cant do all_time without market values, use last known? */
 	investment_report_2:investment_report_2(Static_Data.put(start_date, date(1,1,1)), Outstanding, '_since_beginning', Json2, Files2),
+	
 	% historical
-	investment_report_2:investment_report_2(Static_Data.put(start_date, date(1,1,1)).put(end_date, Before_Start), Outstanding, '_historical', Json3, Files3),
+	%investment_report_2:investment_report_2(Static_Data.put(start_date, date(1,1,1)).put(end_date, Before_Start), Outstanding, '_historical', Json3, Files3),
 	Alerts = [],
 	Ir =  _{
-		 historical: Json3,
+	%	 historical: Json3,
 		 current: Json1,
 		 since_beginning: Json2
 		},
-	flatten([Files1, Files2, Files3], Files_Flat),
+	flatten([Files1, Files2/*, Files3*/], Files_Flat),
 	exclude(var, Files_Flat, Files).
 
 	
@@ -427,19 +429,19 @@ extract_action(In, transaction_type(Id, Exchange_Account, Trading_Account, Descr
 		exchangeAccount, (Exchange_Account, _),
 		tradingAccount, (Trading_Account, _)]).
    
-extract_exchange_rates(Dom, End_Date, Default_Currency, Exchange_Rates_Out) :-
+extract_exchange_rates(Dom, Start_Date, End_Date, Default_Currency, Exchange_Rates_Out) :-
 /*If an investment was held prior to the from date then it MUST have an opening market value if the reports are expressed in.market rather than cost.You can't mix market value and cost in one set of reports. One or the other.2:27 AMi see. Have you thought about how to let the user specify the method?Andrew, 2:31 AMMarket or Cost. M or C. Sorry. Never mentioned it to you.2:44 AMyou mentioned the different approaches, but i ended up assuming that this would be best selected by specifying or not specifying the unitValues. I see there is a field for it already in the excel templateAndrew, 2:47 AMCost value per unit will always be there if there are units of anything i.e. sheep for livestock trading or shares for InvestmentsAndrew, 3:04 AMBut I suppose if you do not find any market values then assume cost basis.*/
    findall(Unit_Value_Dom, xpath(Dom, //reports/balanceSheetRequest/unitValues/unitValue, Unit_Value_Dom), Unit_Value_Doms),
-   maplist(extract_exchange_rate(End_Date, Default_Currency), Unit_Value_Doms, Exchange_Rates),
+   maplist(extract_exchange_rate(Start_Date, End_Date, Default_Currency), Unit_Value_Doms, Exchange_Rates),
    include(ground, Exchange_Rates, Exchange_Rates_Out).
    
-extract_exchange_rate(End_Date, Optional_Default_Currency, Unit_Value, Exchange_Rate) :-
+extract_exchange_rate(Start_Date, End_Date, Optional_Default_Currency, Unit_Value, Exchange_Rate) :-
 	Exchange_Rate = exchange_rate(Date, Src_Currency, Dest_Currency, Rate),
 	fields(Unit_Value, [
 		unitType, Src_Currency,
 		unitValueCurrency, (Dest_Currency, _),
 		unitValue, (Rate_Atom, _),
-		unitValueDate, (Date_Atom, End_Date)]),
+		unitValueDate, (Date_Atom, _)]),
 	(
 		var(Rate_Atom)
 	->
@@ -459,8 +461,23 @@ extract_exchange_rate(End_Date, Optional_Default_Currency, Unit_Value, Exchange_
 		)
 	;
 		true
-	),	
-	parse_date(Date_Atom, Date)	.
+	),
+	(var(Date_Atom) -> Date_Atom = closing ; true),
+	(
+		Date_Atom = opening
+	->
+		Date = Start_Date
+	;
+		(
+			(
+				Date_Atom = closing
+			->
+				Date = End_Date
+			;
+				parse_date(Date_Atom, Date)
+			)
+		)
+	).
 
 extract_cost_or_market(Dom, Cost_Or_Market) :-
 	(

@@ -140,7 +140,8 @@ columns(Columns) :-
 
 
 rows(Static_Data, Outstanding_In, Rows) :-
-	clip_investments(Static_Data, Outstanding_In, Realized_Investments, Unrealized_Investments),
+    clip_investments(Static_Data, Outstanding_In, Realized_Investments, Unrealized_Investments),
+    
 	maplist(investment_report_2_sales(Static_Data), Realized_Investments, Sale_Lines),
 	maplist(investment_report_2_unrealized(Static_Data), Unrealized_Investments, Non_Sale_Lines),
 	flatten([Sale_Lines, Non_Sale_Lines], Rows0),
