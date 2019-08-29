@@ -154,7 +154,7 @@ process_data(_, Path, Options) :-
 	
 	Json_Out = _{
 		alerts:Alerts3, 
-		files:Files3
+		reports:Files3
 	},
 	with_output_to(string(Response_Xml_String), print_xml_response(Json_Out, Output_Xml_String)),
 	write_file(Output_File_Path, Response_Xml_String),

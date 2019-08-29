@@ -46,7 +46,7 @@ event(Event, Unit_Cost_Foreign, Currency_Conversion, Unit_Cost_Converted, Total_
 	}.
 
 
-investment_report_2(Static_Data, Outstanding_In, Filename_Suffix, Report_Data, [Report_File_Info, Json_Filename:Json_Url]) :-
+investment_report_2(Static_Data, Outstanding_In, Filename_Suffix, Report_Data, [Report_File_Info, Json_Filename:url(Json_Url)]) :-
 	
 	Start_Date = Static_Data.start_date,
 	End_Date = Static_Data.end_date,
@@ -71,6 +71,7 @@ investment_report_2(Static_Data, Outstanding_In, Filename_Suffix, Report_Data, [
 	atomic_list_concat(['investment_report', Filename_Suffix, '.json'], Json_Filename),
 	dict_json_text(Table, Json_Text),
 	report_item(Json_Filename, Json_Text, Json_Url),
+	nonvar(Json_Url),
 	
 	Report_Data = _{
 		rows: Rows,
