@@ -13,15 +13,15 @@ report(Sd, Reports, File_Info, Json) :-
 	%gtrace,
 	crosschecks_report(Sd.put(reports,Reports), Json),
 	findall(
-		p([Result]),
-		member(Result, Json.results),
+		p([p([Check]), p([Evaluation]), p([Status])]),
+		member([Check, Evaluation, Status], Json.results),
 		Html),
 	report_page('crosschecks', Html, 'crosschecks.html', File_Info).
 
 crosschecks_report(Sd, Json) :-
 	Crosschecks = [
-		       equality(account_balance(reports/pl/current, 'Accounts'/'InvestmentIncome'), report_value(reports/ir/current/totals/gains)),
-		       equality(account_balance(reports/bs/current, 'Accounts'/'FinancialInvestments'), report_value(reports/ir/current/totals/closing/total_converted)),
+		       equality(account_balance(reports/pl/current, 'Accounts'/'InvestmentIncome'), report_value(reports/ir/current/totals/gains/total)),
+		       equality(account_balance(reports/bs/current, 'Accounts'/'FinancialInvestments'), report_value(reports/ir/current/totals/closing/total_cost_converted)),
 		       equality(account_balance(reports/bs/current, 'Accounts'/'HistoricalEarnings'), account_balance(reports/pl/historical, 'Accounts'/'NetIncomeLoss'))
 		      ],
 	maplist(evaluate_equality(Sd), Crosschecks, Results, Errors),
@@ -30,26 +30,7 @@ crosschecks_report(Sd, Json) :-
 		 errors: Errors
 	}.
 
-evaluate(Sd, Term, Value) :-
-	(
-	 evaluate2(Sd, Term, Value)
-	->
-	 true
-	;
-	 Value = evaluation_failed(Term)
-	).
-
-evaluate2(Sd, account_balance(Report_Id, Role), Values_List) :-
-	path_get_dict(Report_Id, Sd, Report),
-	report_entry_by_role(Sd, Report, Role, Entry),
-	entry_balance(Entry, Balance),
-	entry_account_id(Entry, Account_Id),
-	vector_of_coords_to_vector_of_values(Sd, Account_Id, Balance, Values_List).
-
-evaluate2(Sd, report_value(Key), Values_List) :-
-	path_get_dict(Key, Sd, Values_List).
-	
-evaluate_equality(Sd, E, Result, Error) :-
+evaluate_equality(Sd, E, [Check, Evaluation, Status], Error) :-
 	E = equality(A, B),
 	evaluate(Sd, A, A2),
 	evaluate(Sd, B, B2),
@@ -65,7 +46,7 @@ evaluate_equality(Sd, E, Result, Error) :-
 	 (
 	  Equality_Str = '≠',
 	  Status = 'error',
-	  Error = Result
+	  Error = Check
 	 )
 	),
 	term_string(A, A_Str),
@@ -73,9 +54,13 @@ evaluate_equality(Sd, E, Result, Error) :-
 	term_string(A2, A2_Str),
 	term_string(B2, B2_Str),
 	format(
-	       string(Result),
-	       '~w ~w ~w ... ~w ~w ~w ... ~w',
-	       [A_Str, Equality_Str, B_Str, A2_Str, Equality_Str, B2_Str, Status]).
+	       string(Check),
+	       '~w = ~w',
+	       [A_Str, B_Str]),
+	format(
+	       string(Evaluation),
+	       '~w ~w ~w',
+	       [A2_Str, Equality_Str, B2_Str]).
 	
 
 crosscheck_compare(A, B) :-
@@ -107,15 +92,22 @@ find_thing_in_tree(Root, Matcher, Children_Yielder, Thing) :-
 	
 						 
 
+evaluate(Sd, Term, Value) :-
+	(
+	 evaluate2(Sd, Term, Value)
+	->
+	 true
+	;
+	 Value = evaluation_failed(Term)
+	).
 
-	/*report_entry_by_account(Report, Id).
+evaluate2(Sd, account_balance(Report_Id, Role), Values_List) :-
+	path_get_dict(Report_Id, Sd, Report),
+	report_entry_by_role(Sd, Report, Role, Entry),
+	entry_balance(Entry, Balance),
+	entry_account_id(Entry, Account_Id),
+	vector_of_coords_to_vector_of_values(Sd, Account_Id, Balance, Values_List).
 
-report_entry_by_account(Report, Id, Entry) :-
-	member(Entry, Report),
-	entry_account_id(Entry, Account_Id).
+evaluate2(Sd, report_value(Key), Values_List) :-
+	path_get_dict(Key, Sd, Values_List).
 
-report_entry_by_account(Report, Id, Entry) :-
-	entry_child_sheet_entries(Report, Children),
-	member(Child, Children),
-	report_entry_by_account(Child, Id, Entry).
-*/

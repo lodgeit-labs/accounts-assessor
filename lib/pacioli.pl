@@ -196,10 +196,10 @@ make_credit(coord(Unit, Zero, Cr), coord(Unit, 0, Cr)) :- Zero =:= 0.
 number_coord(Unit, Number, coord(Unit, Debit, Credit)) :-
 	{Number =:= Debit - Credit}.
 
-coord_normal_side_value(coord(Unit, C, D), debit, value(Unit, V)) :-
+coord_normal_side_value(coord(Unit, D, C), debit, value(Unit, V)) :-
 	{V =:= D - C}.
 
-coord_normal_side_value(coord(Unit, C, D), credit, value(Unit, V)) :-
+coord_normal_side_value(coord(Unit, D, C), credit, value(Unit, V)) :-
 	{V =:= C - D}.
 
 number_vec(_, Zero, []) :-
