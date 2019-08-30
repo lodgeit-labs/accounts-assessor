@@ -20,10 +20,37 @@ report(Sd, Reports, File_Info, Json) :-
 
 crosschecks_report(Sd, Json) :-
 	Crosschecks = [
-		       equality(account_balance(reports/pl/current, 'Accounts'/'InvestmentIncome'), report_value(reports/ir/current/totals/gains/total)),
-		       equality(account_balance(reports/bs/current, 'Accounts'/'FinancialInvestments'), report_value(reports/ir/current/totals/closing/total_cost_converted)),
-		       equality(account_balance(reports/bs/current, 'Accounts'/'HistoricalEarnings'), account_balance(reports/pl/historical, 'Accounts'/'NetIncomeLoss'))
-		      ],
+		equality(
+			account_balance(reports/pl/current, 'InvestmentIncomeRealized'/withoutCurrencyMovement), 
+			report_value(reports/ir/current/totals/gains/rea/market_converted)),
+		equality(
+			account_balance(reports/pl/current, 'InvestmentIncomeRealized'/onlyCurrencyMovement), 
+			report_value(reports/ir/current/totals/gains/rea/forex)),
+		equality(
+			account_balance(reports/pl/current, 'InvestmentIncomeUnrealized'/withoutCurrencyMovement), 
+			report_value(reports/ir/current/totals/gains/unr/market_converted)),
+		equality(
+			account_balance(reports/pl/current, 'InvestmentIncomeUnrealized'/onlyCurrencyMovement), 
+			report_value(reports/ir/current/totals/gains/unr/forex)),
+	
+	
+	
+		equality(
+			account_balance(reports/pl/current, 'Accounts'/'InvestmentIncome'), 
+			report_value(reports/ir/current/totals/gains/total)),
+		equality(
+			account_balance(reports/pl/current, 'InvestmentIncome'/'unrealized'), 
+			report_value(reports/ir/current/totals/gains/unrealized_total)),
+		equality(
+			account_balance(reports/pl/current, 'InvestmentIncome'/'realized'), 
+			report_value(reports/ir/current/totals/gains/realized_total)),
+		       
+       equality(account_balance(reports/bs/current, 'Accounts'/'FinancialInvestments'), report_value(reports/ir/current/totals/closing/total_cost_converted)),
+
+       equality(account_balance(reports/bs/current, 'Accounts'/'HistoricalEarnings'), account_balance(reports/pl/historical, 'Accounts'/'NetIncomeLoss')),
+		       
+		equality(account_balance(reports/bs/current, 'Accounts'/'NetAssets'), account_balance(reports/bs/current, 'Accounts'/'Equity'))
+	],
 	maplist(evaluate_equality(Sd), Crosschecks, Results, Errors),
 	Json = _{
 		 results: Results,

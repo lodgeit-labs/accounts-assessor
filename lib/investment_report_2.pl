@@ -85,7 +85,10 @@ totals(Rows, Totals) :-
 	 gains/unr/market_foreign, gains/unr/market_converted, gains/unr/forex,
 	 closing/total_cost_foreign, closing/total_cost_converted
 	], Totals0),
-	Totals = Totals0.put(gains/realized_total, Realized_Total).put(gains/unrealized_total, Unrealized_Total).put(gains/total, Total),
+	Totals = Totals0.put(
+		gains/realized_total, Realized_Total).put(
+		gains/unrealized_total, Unrealized_Total).put(
+		gains/total, Total),
 	vec_add(Totals0.gains.rea.market_converted, Totals0.gains.rea.forex, Realized_Total),
 	vec_add(Totals0.gains.unr.market_converted, Totals0.gains.unr.forex, Unrealized_Total),
 	vec_add(Realized_Total, Unrealized_Total, Total).
