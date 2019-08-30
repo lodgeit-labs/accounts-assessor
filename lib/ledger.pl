@@ -1,6 +1,6 @@
 :- module(ledger, [
 		find_s_transactions_in_period/4,
-		process_ledger/19
+		process_ledger/20
 	]).
 
 :- use_module('system_accounts', [
@@ -30,10 +30,16 @@
 		]).
 :- use_module('pacioli', [
 		coord_is_almost_zero/1]).
-
+:- use_module('exchange', [
+		vec_change_bases/5]).
 :- use_module(library(rdet)).
 
-		
+:- rdet(generate_gl_data/6).
+:- rdet(make_gl_entry/4).
+:- rdet(s_transaction_to_dict/2).	
+:- rdet(transaction_to_dict/2).
+:- rdet(transaction_with_converted_vector/4).
+
 find_s_transactions_in_period(S_Transactions, Opening_Date, Closing_Date, Out) :-
 	findall(
 		S_Transaction,
@@ -64,7 +70,8 @@ process_ledger(
 	Outstanding_Out,
 	Processed_Until,
 	Warnings,
-	Errors
+	Errors,
+	Gl
 ) :-
 
 	gather_ledger_warnings(S_Transactions0, Start_Date, End_Date, Warnings0),
@@ -108,7 +115,7 @@ process_ledger(
 	(
 		dict_from_vars(Static_Data0, [Accounts, Report_Currency, Start_Date, End_Date, Exchange_Rates, Transaction_Types, Cost_Or_Market]),
 		
-		preprocess_s_transactions(Static_Data0, S_Transactions, Processed_S_Transactions, Transactions1, Outstanding_Out, Transaction_Transformation_Debug),
+		preprocess_s_transactions(Static_Data0, S_Transactions, Processed_S_Transactions, Transactions0, Outstanding_Out, Transaction_Transformation_Debug),
 		
 		(
 			S_Transactions = Processed_S_Transactions
@@ -127,13 +134,18 @@ process_ledger(
 			)
 		)
 	),
-	
+	flatten(Transactions0, Transactions1),
 	
 	process_livestock(Livestock_Doms, Livestock_Types, Processed_S_Transactions, Transactions1, Livestock_Opening_Costs_And_Counts, Start_Date, Last_Good_Day, Exchange_Rates, Accounts, Report_Currency, Transactions_With_Livestock, Livestock_Events, Average_Costs, Average_Costs_Explanations),
 	livestock_counts(Accounts, Livestock_Types, Transactions_With_Livestock, Livestock_Opening_Costs_And_Counts, Last_Good_Day, Livestock_Counts),
 
 	maplist(check_transaction_account(Accounts), Transactions_With_Livestock),
-	
+
+
+	Static_Data2 = Static_Data0.put(end_date, Processed_Until),
+	/*pure spaghetti, we should have time to redo the whole data managenemnt approach soon*/
+	generate_gl_data(Static_Data2, Processed_S_Transactions, Transactions0, Transactions1, Transactions_With_Livestock, Gl),
+		
 	pretty_term_string(Livestock_Events, Message0b),
 	pretty_term_string(Transactions_With_Livestock, Message1),
 	pretty_term_string(Livestock_Counts, Message12),
@@ -185,6 +197,41 @@ process_ledger(
 	writeq(Errors),
 	writeln(' -->').
 
+generate_gl_data(Sd, Processed_S_Transactions, Transactions0, Transactions1, Transactions_With_Livestock, Gl) :-
+	append(Transactions1, Livestock_Transactions, Transactions_With_Livestock),
+	append(Transactions0, [Livestock_Transactions], Outputs),
+	append(Processed_S_Transactions, ['livestock'], Sources),
+	maplist(make_gl_entry(Sd), Sources, Outputs, Gl).
+
+make_gl_entry(Sd, Source, Transactions, Entry) :-
+	Entry = _{source: S, transactions: T},
+	(atom(Source) -> S = Source ; s_transaction_to_dict(Source, S)),
+	maplist(transaction_to_dict, Transactions, T0),
+	maplist(transaction_with_converted_vector(Sd), T0, T).
+	
+s_transaction_to_dict(St, D) :-
+	St = s_transaction(Day, Verb, Vector, Account, Exchanged),
+	D = _{
+		date: Day,
+		verb: Verb,
+		vector: Vector,
+		account: Account,
+		exchanged: Exchanged}.
+	
+transaction_to_dict(T, D) :-
+	T = transaction(Day, Description, Account, Vector, Type),
+	D = _{
+		date: Day,
+		description: Description,
+		account: Account,
+		vector: Vector,
+		type: Type}.
+
+transaction_with_converted_vector(Sd, Transaction, Transaction_Converted) :-
+	Transaction_Converted = Transaction.put(vector_converted, Vector_Converted),
+	vec_change_bases(Sd.exchange_rates, Sd.end_date, Sd.report_currency, Transaction.vector, Vector_Converted).
+
+		
 trial_balance_ok(Trial_Balance_Section) :-
 	Trial_Balance_Section = entry(_, Balance, [], _),
 	maplist(coord_is_almost_zero, Balance).

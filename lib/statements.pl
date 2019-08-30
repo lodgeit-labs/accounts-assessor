@@ -104,8 +104,8 @@ preprocess_s_transactions(Static_Data, S_Transactions, Processed_S_Transactions,
 	s_transactions have to be sorted by date from oldest to newest 
 	s_transactions have flipped vectors, so they are from our perspective
 */
-	preprocess_s_transactions2(Static_Data, S_Transactions, Processed_S_Transactions, Transactions0, ([],[]), Outstanding_Out, Debug_Info, []),
-	flatten(Transactions0, Transactions_Out).
+	preprocess_s_transactions2(Static_Data, S_Transactions, Processed_S_Transactions, Transactions_Out, ([],[]), Outstanding_Out, Debug_Info, [])/*,
+	flatten(Transactions0, Transactions_Out)*/.
 
 /*
 	call preprocess_s_transaction on each item of the S_Transactions list and do some error checking and cleaning up

@@ -31,7 +31,8 @@
 		pretty_term_string/2, 
 		throw_string/1,
 	  replace_nonalphanum_chars_with_underscore/2,
-	  catch_maybe_with_backtrace/3]).
+	  catch_maybe_with_backtrace/3,
+	  dict_json_text/2]).
 :- use_module('../../lib/ledger_report', [
 		trial_balance_between/8, 
 		profitandloss_between/2, 
@@ -42,7 +43,7 @@
 		bs_and_pl_entries/8,
 		net_activity_by_account/4]).
 :- use_module('../../lib/ledger_html_reports').
-
+:- use_module('../../lib/report_page').
 :- use_module('../../lib/statements', [
 		extract_s_transaction/3, 
 		print_relevant_exchange_rates_comment/4, 
@@ -50,7 +51,7 @@
 		fill_in_missing_units/6,
 		sort_s_transactions/2]).
 :- use_module('../../lib/ledger', [
-		process_ledger/19]).
+		process_ledger/20]).
 :- use_module('../../lib/livestock', [
 		get_livestock_types/2, 
 		process_livestock/14, 
@@ -123,9 +124,9 @@ process_xml_ledger_request2(Dom, Reports_Out) :-
 	/* flip from bank's perspective to our perspective */
 	maplist(invert_s_transaction_vector, S_Transactions0, S_Transactions0b),
 	sort_s_transactions(S_Transactions0b, S_Transactions),
-
+	
 	/* process_ledger turns s_transactions into transactions */
-	process_ledger(Cost_Or_Market, Livestock_Doms, S_Transactions, Processed_S_Transactions, Start_Date, End_Date, Exchange_Rates0, Transaction_Types, Report_Currency, Livestock_Types, Livestock_Opening_Costs_And_Counts, Accounts0, Accounts, Transactions, _Transaction_Transformation_Debug, Outstanding, Processed_Until, Warnings, Errors),
+	process_ledger(Cost_Or_Market, Livestock_Doms, S_Transactions, Processed_S_Transactions, Start_Date, End_Date, Exchange_Rates0, Transaction_Types, Report_Currency, Livestock_Types, Livestock_Opening_Costs_And_Counts, Accounts0, Accounts, Transactions, _Transaction_Transformation_Debug, Outstanding, Processed_Until, Warnings, Errors, Gl),
 
 	print_relevant_exchange_rates_comment(Report_Currency, End_Date, Exchange_Rates0, Transactions),
 	infer_exchange_rates(Transactions, Processed_S_Transactions, Start_Date, End_Date, Accounts, Report_Currency, Exchange_Rates0, Exchange_Rates),
@@ -135,7 +136,7 @@ process_xml_ledger_request2(Dom, Reports_Out) :-
 	print_xbrl_header,
 
 	dict_from_vars(Static_Data,
-		[Cost_Or_Market, Output_Dimensional_Facts, Start_Date, End_Date, Exchange_Rates, Accounts, Transactions, Report_Currency, Transaction_Types]),
+		[Cost_Or_Market, Output_Dimensional_Facts, Start_Date, End_Date, Exchange_Rates, Accounts, Transactions, Report_Currency, Transaction_Types, Gl]),
 	
 	transactions_by_account(Static_Data, Transactions_By_Account),
 	Static_Data2 = Static_Data.put(accounts_transactions, Transactions_By_Account),
@@ -268,13 +269,18 @@ output_results(Static_Data0, Outstanding, Processed_Until, Json_Request_Results)
 		Files
 	),
 
+	gl_report(Static_Data, Gl_Report_Files_Info),
+	
 	Json_Request_Results = _{
-		files:[Files, Crosschecks_Report_Files_Info],
+		files:[Files, Crosschecks_Report_Files_Info, Gl_Report_Files_Info],
 		errors:[Investment_Report_Info.alerts, Crosschecks_Report_Json.errors],
 		warnings:[],
 		reports: Reports2
 	}.
-	
+
+gl_report(Sd, [Json_File_Info]) :-
+	dict_json_text(Sd.gl, Json_Text),
+	report_page:report_item('general_ledger.json', Json_Text, Json_File_Info).
 
 print_dimensional_facts(Static_Data, Instant_Context_Id_Base, Duration_Context_Id_Base, Entity_Identifier, Results0, Results3) :-
 	print_banks(Static_Data, Instant_Context_Id_Base, Entity_Identifier, Results0, Results1),
