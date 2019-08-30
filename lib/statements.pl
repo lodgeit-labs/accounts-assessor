@@ -112,8 +112,7 @@ preprocess_s_transactions(Static_Data, S_Transactions, Processed_S_Transactions,
 */
 preprocess_s_transactions2(_, [], [], [], Outstanding, Outstanding, ['done.'], _).
 
-preprocess_s_transactions2(Static_Data, [S_Transaction|S_Transactions], Processed_S_Transactions, [Transactions_Out|Transactions_Out_Tail], Outstanding_In, Outstanding_Out, [Debug_Head|Debug_Tail], Debug_So_Far) :-
-
+preprocess_s_transactions2(Static_Data, [S_Transaction|S_Transactions], Processed_S_Transactions, Transactions_Out, Outstanding_In, Outstanding_Out, [Debug_Head|Debug_Tail], Debug_So_Far) :-
 	dict_vars(Static_Data, [Accounts, Report_Currency, Start_Date, End_Date, Exchange_Rates]),
 	pretty_term_string(S_Transaction, S_Transaction_String),
 	catch(
@@ -126,26 +125,28 @@ preprocess_s_transactions2(Static_Data, [S_Transaction|S_Transactions], Processe
 					% filter out unbound vars from the resulting Transactions list, as some rules do not always produce all possible transactions
 					flatten(Transactions0, Transactions1),
 					exclude(var, Transactions1, Transactions2),
-					exclude(has_empty_vector, Transactions2, Transactions_Out),
-					pretty_transactions_string(Transactions_Out, Transactions_String),
+					exclude(has_empty_vector, Transactions2, Transactions_Result),
+					pretty_transactions_string(Transactions_Result, Transactions_String),
 					atomic_list_concat([S_Transaction_String, '==>\n', Transactions_String, '\n====\n'], Debug_Head),
-					Transactions_Out = [T|_],
+					
+					append(Debug_So_Far, [Debug_Head], Debug_So_Far2),
+					Processed_S_Transactions = [S_Transaction|Processed_S_Transactions_Tail],
+					Transactions_Out = [Transactions_Result|Transactions_Out_Tail],
+					
+					Transactions_Result = [T|_],
 					transaction_day(T, Transaction_Date),
 					(
 						Report_Currency = []
 					->
 						true
 					;
-						check_trial_balance0(Exchange_Rates, Report_Currency, Transaction_Date, Transactions_Out, Start_Date, End_Date, Debug_So_Far, Debug_Head)
-					),
-					append(Debug_So_Far, [Debug_Head], Debug_So_Far2),
-					Processed_S_Transactions = [S_Transaction|Processed_S_Transactions_Tail]
+						check_trial_balance0(Exchange_Rates, Report_Currency, Transaction_Date, Transactions_Result, Start_Date, End_Date, Debug_So_Far, Debug_Head)
+					)
 				),
 				not_enough_goods_to_sell,
 				(
 					atomic_list_concat([not_enough_goods_to_sell, ' when processing ', S_Transaction_String], Debug_Head),
 					Outstanding_In = Outstanding_Out,
-					Transactions_Out_Tail = [],
 					Transactions_Out = [],
 					Debug_Tail = [],
 					Processed_S_Transactions = []

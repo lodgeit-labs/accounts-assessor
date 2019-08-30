@@ -269,18 +269,12 @@ output_results(Static_Data0, Outstanding, Processed_Until, Json_Request_Results)
 		Files
 	),
 
-	gl_report(Static_Data, Gl_Report_Files_Info),
-	
 	Json_Request_Results = _{
-		files:[Files, Crosschecks_Report_Files_Info, Gl_Report_Files_Info],
+		files:[Files, Crosschecks_Report_Files_Info, Static_Data.gl],
 		errors:[Investment_Report_Info.alerts, Crosschecks_Report_Json.errors],
 		warnings:[],
 		reports: Reports2
 	}.
-
-gl_report(Sd, [Json_File_Info]) :-
-	dict_json_text(Sd.gl, Json_Text),
-	report_page:report_item('general_ledger.json', Json_Text, Json_File_Info).
 
 print_dimensional_facts(Static_Data, Instant_Context_Id_Base, Duration_Context_Id_Base, Entity_Identifier, Results0, Results3) :-
 	print_banks(Static_Data, Instant_Context_Id_Base, Entity_Identifier, Results0, Results1),

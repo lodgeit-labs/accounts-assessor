@@ -26,9 +26,9 @@
 		vecs_are_almost_equal/2,
 		coord_is_almost_zero/1,
 		is_debit/1,
-		    coord_merge/3,
-		    coord_normal_side_value/3,
-		    vector_of_coords_to_vector_of_values/4]).
+	    coord_merge/3,
+	    coord_normal_side_value/3,
+	    vector_of_coords_to_vector_of_values/4]).
 
 :- use_module('utils', [
 			semigroup_foldl/3,

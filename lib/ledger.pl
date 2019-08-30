@@ -19,7 +19,8 @@
 		add_days/3,
 		date_between/3]).
 :- use_module('utils', [
-		pretty_term_string/2]).
+		pretty_term_string/2,
+		dict_json_text/2]).
 :- use_module('livestock', [
 		process_livestock/14,
 		livestock_counts/6]). 
@@ -29,9 +30,12 @@
 		trial_balance_between/8
 		]).
 :- use_module('pacioli', [
-		coord_is_almost_zero/1]).
+		coord_is_almost_zero/1,
+		number_vec/3]).
 :- use_module('exchange', [
 		vec_change_bases/5]).
+:- use_module('report_page').
+
 :- use_module(library(rdet)).
 
 :- rdet(generate_gl_data/6).
@@ -197,17 +201,39 @@ process_ledger(
 	writeq(Errors),
 	writeln(' -->').
 
-generate_gl_data(Sd, Processed_S_Transactions, Transactions0, Transactions1, Transactions_With_Livestock, Gl) :-
+generate_gl_data(Sd, Processed_S_Transactions, Transactions0, Transactions1, Transactions_With_Livestock, [Report1, Report2]) :-
 	append(Transactions1, Livestock_Transactions, Transactions_With_Livestock),
 	append(Transactions0, [Livestock_Transactions], Outputs),
 	append(Processed_S_Transactions, ['livestock'], Sources),
-	maplist(make_gl_entry(Sd), Sources, Outputs, Gl).
+	make_gl_report(Sd, Sources, '', Outputs, Report1),
+	make_gl_report(Sd, Processed_S_Transactions, '_no_livestock', Transactions0, Report2).
+
+make_gl_report(Sd, Sources, Suffix, Outputs, Gl) :-
+	maplist(make_gl_entry(Sd), Sources, Outputs, Dict),
+	dict_json_text(Dict, Json_Text),
+	atomic_list_concat(['general_ledger', Suffix, '.json'], Fn),
+	report_page:report_item(Fn, Json_Text, Gl).
 
 make_gl_entry(Sd, Source, Transactions, Entry) :-
 	Entry = _{source: S, transactions: T},
-	(atom(Source) -> S = Source ; s_transaction_to_dict(Source, S)),
+	(
+		atom(Source)
+	-> 
+		S = Source
+	; 
+		(
+			s_transaction_to_dict(Source, S0),
+			s_transaction_with_transacted_amount(Sd, S0, S)
+		)
+	),
 	maplist(transaction_to_dict, Transactions, T0),
 	maplist(transaction_with_converted_vector(Sd), T0, T).
+	
+s_transaction_with_transacted_amount(Sd, D1, D2) :-
+	D2 = D1.put(report_currency_transacted_amount, Amount),
+	vec_change_bases(Sd.exchange_rates, D1.date, Sd.report_currency, D1.vector, Vector_Converted),
+	number_vec(_, Amount0, Vector_Converted),
+	Amount is float(abs(Amount0)).
 	
 s_transaction_to_dict(St, D) :-
 	St = s_transaction(Day, Verb, Vector, Account, Exchanged),

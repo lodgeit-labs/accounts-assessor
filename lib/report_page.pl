@@ -18,13 +18,13 @@ html_tokenlist_string(Tokenlist, String) :-
 	close(Mem_Stream),
 	memory_file_to_string(X, String).
 
-report_section(File_Name, Html_Tokenlist, Url) :-
-	html_tokenlist_string(Html_Tokenlist, Html_String),
-	report_item(File_Name, Html_String, Url).
-
 report_item(File_Name, Text, Url) :-
 	files:report_file_path(File_Name, Url, File_Path),
 	write_file(File_Path, Text).
+
+report_section(File_Name, Html_Tokenlist, Url) :-
+	html_tokenlist_string(Html_Tokenlist, Html_String),
+	report_item(File_Name, Html_String, Url).
 
 report_page(Title_Text, Tbl, File_Name, Info) :-
 	Body_Tags = [Title_Text, ':', br([]), table([border="1"], Tbl)],
