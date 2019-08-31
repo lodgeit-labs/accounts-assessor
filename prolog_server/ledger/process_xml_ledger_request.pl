@@ -36,8 +36,6 @@
 :- use_module('../../lib/ledger_report', [
 		trial_balance_between/8, 
 		profitandloss_between/2, 
-		%balance_by_account/9,
-		%accounts_report/2,
 		balance_sheet_at/2,
 		format_report_entries/10, 
 		bs_and_pl_entries/8,
