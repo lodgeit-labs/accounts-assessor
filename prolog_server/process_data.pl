@@ -128,10 +128,11 @@ process_data(_, Path, Options) :-
 	
 	response_file_name(Request_File_Name, Output_File_Name),
 	my_tmp_file_name(Output_File_Name, Output_File_Path),
+	my_tmp_file_name('response.json', Json_Response_File_Path),
+	
 		
 	tmp_file_url(Output_File_Name, Output_File_Url),
 	tmp_file_url(Request_File_Name, Request_File_Url),
-
 	(get_dict(files, Reports, Files) -> true; Files  = []),
 	(get_dict(errors, Reports, Errors) -> true; Errors  = []),
 	(get_dict(warnings, Reports, Warnings) -> true; Warnings  = []),
@@ -158,6 +159,8 @@ process_data(_, Path, Options) :-
 	},
 	with_output_to(string(Response_Xml_String), print_xml_response(Json_Out, Output_Xml_String)),
 	write_file(Output_File_Path, Response_Xml_String),
+	with_output_to(string(Response_Json_String), json_write(current_output, Json_Out)),
+	write_file(Json_Response_File_Path, Response_Json_String),
 
 	(
 		Requested_Output_Type = xbrl_instance
@@ -168,7 +171,7 @@ process_data(_, Path, Options) :-
 		)
 	;
 		(
-			json_write(current_output, Json_Out),
+			write(Response_Json_String),
 			debug(process_data, 'returning json', [])
 		)
 	).
