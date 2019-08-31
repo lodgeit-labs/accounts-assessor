@@ -7,9 +7,12 @@
 		,set_server_public_url/1
 		,write_file/2
 		,replace_request_with_response/2
-		,tmp_file_url/2
+		,tmp_file_url/2,
+		write_tmp_json_file/2
 		]).
 
+:- use_module('utils').
+		
 
 :- dynamic user:file_search_path/2.
 :- multifile user:file_search_path/2.
@@ -98,12 +101,19 @@ set_server_public_url(Url) :-
 % write_file/2
 % -------------------------------------------------------------------
 /*fixme : its not xml-specific*/
-write_file(FileName, Text) :-
-   open(FileName, write, Stream),
+write_file(Path, Text) :-
+   open(Path, write, Stream),
    write(Stream, Text),
    close(Stream).
 
+write_tmp_file(Name, Text) :-
+	my_tmp_file_name(Name, Path),
+	write_file(Path, Text).
 
+write_tmp_json_file(Name, Json) :-
+	utils:dict_json_text(Json, Text),
+	write_tmp_file(Name, Text).
+		
 replace_request_with_response(Atom, Response) :-
 	atom_string(Atom, String),
 	(
@@ -115,7 +125,6 @@ replace_request_with_response(Atom, Response) :-
 		String \= Response
 	).
 
-   
    
 :- initialization(generate_unique_tmp_directory_base).
 

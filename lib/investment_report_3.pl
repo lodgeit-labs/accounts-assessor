@@ -63,3 +63,18 @@ evaluate(Conversion, value(Conversion, Rate, _{})) :-
 
 	how about top-down instead?
 */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

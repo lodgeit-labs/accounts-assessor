@@ -6,8 +6,7 @@
 :- use_module('system_accounts', [
 		traded_units/3,
 		generate_system_accounts/3]).
-:- use_module('accounts', [
-		check_account_parent/2]).
+:- use_module('accounts').
 :- use_module('statements', [
 		s_transaction_day/2,
 		preprocess_s_transactions/6,
@@ -114,28 +113,26 @@ process_ledger(
 	writeln(Debug_Message10),
 	flatten([Accounts_In, Generated_Accounts], Accounts),
 	%check_accounts(Accounts)
-	maplist(check_account_parent(Accounts), Accounts), 
-
+	maplist(accounts:check_account_parent(Accounts), Accounts), 
+	accounts:write_accounts_json_report(Accounts),
+	
+	dict_from_vars(Static_Data0, [Accounts, Report_Currency, Start_Date, End_Date, Exchange_Rates, Transaction_Types, Cost_Or_Market]),
+	preprocess_s_transactions(Static_Data0, S_Transactions, Processed_S_Transactions, Transactions0, Outstanding_Out, Transaction_Transformation_Debug),
+	
 	(
-		dict_from_vars(Static_Data0, [Accounts, Report_Currency, Start_Date, End_Date, Exchange_Rates, Transaction_Types, Cost_Or_Market]),
-		
-		preprocess_s_transactions(Static_Data0, S_Transactions, Processed_S_Transactions, Transactions0, Outstanding_Out, Transaction_Transformation_Debug),
-		
+		S_Transactions = Processed_S_Transactions
+	-> 
 		(
-			S_Transactions = Processed_S_Transactions
-		-> 
-			(
-				Processed_Until = End_Date,
-				Last_Good_Day = End_Date
-			)
-		;
-			(
-				last(Processed_S_Transactions, Last_Processed_S_Transaction),
-				s_transaction_day(Last_Processed_S_Transaction, Date),
-				%Processed_Until = with_note(Date, 'until error'),
-				Processed_Until = Date,
-				add_days(Date, -1, Last_Good_Day)
-			)
+			Processed_Until = End_Date,
+			Last_Good_Day = End_Date
+		)
+	;
+		(
+			last(Processed_S_Transactions, Last_Processed_S_Transaction),
+			s_transaction_day(Last_Processed_S_Transaction, Date),
+			%Processed_Until = with_note(Date, 'until error'),
+			Processed_Until = Date,
+			add_days(Date, -1, Last_Good_Day)
 		)
 	),
 	flatten(Transactions0, Transactions1),

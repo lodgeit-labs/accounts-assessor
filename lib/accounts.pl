@@ -29,13 +29,14 @@
 		account_parent/2, 
 		account_detail_level/2,
 		/*you don't need this*/
-		account_term_by_role/3]).
+		account_term_by_role/3,
+		write_accounts_json_report/1]).
 
 :- use_module(library(http/http_client)).
 :- use_module(library(record)).
 :- use_module(library(xpath)).
 :- use_module('utils', [inner_xml/3, trim_atom/2,pretty_term_string/2, throw_string/1, is_uri/1]).
-:- use_module('../lib/files', [server_public_url/1, my_tmp_file_name/2]).
+:- use_module('../lib/files', [server_public_url/1, my_tmp_file_name/2, write_tmp_json_file/2]).
 :- use_module(library(http/http_dispatch), [http_safe_file/2]).
 :- use_module(library(http/http_open), [http_open/3]).
 % :- use_module(library(yall)).
@@ -343,3 +344,19 @@ check_account_parent(Accounts, Account) :-
 			throw_string(['account "', Id, '" parent "', Parent, '" missing.'])
 		)
 	).
+
+write_accounts_json_report(Accounts) :-	
+	maplist(account_to_dict, Accounts, Dicts),
+	write_tmp_json_file('accounts.json', Dicts).
+
+account_to_dict(Account, Dict) :-
+	Dict = _{
+		id: Id,
+		parent: Parent,
+		role: Role,
+		detail_level: Detail_Level
+	},
+	Account = account(Id, Parent, Role, Detail_Level).
+
+	
+	

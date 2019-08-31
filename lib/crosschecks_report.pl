@@ -20,6 +20,7 @@ report(Sd, Reports, File_Info, Json) :-
 
 crosschecks_report(Sd, Json) :-
 	Crosschecks = [
+	
 		equality(
 			account_balance(reports/pl/current, 'InvestmentIncomeRealized'/withoutCurrencyMovement), 
 			report_value(reports/ir/current/totals/gains/rea/market_converted)),
@@ -93,31 +94,6 @@ evaluate_equality(Sd, E, [Check, Evaluation, Status], Error) :-
 crosscheck_compare(A, B) :-
 	vecs_are_almost_equal(A, B).
 	
-report_entry_by_role(Sd, Report, Role, Entry) :-
-	
-	account_by_role(Sd.accounts, Role, Id),
-	find_thing_in_tree(
-			   Report,
-			   [Entry1]>>(ledger_report:entry_account_id(Entry1, Id)),
-			   [Entry2, Child]>>(entry_child_sheet_entries(Entry2, Children), member(Child, Children)),
-			   Entry).
-		
-:- meta_predicate find_thing_in_tree(?, 2, 3, ?).
-
-find_thing_in_tree(Root, Matcher, _, Root) :-
-	call(Matcher, Root).
-						 
-find_thing_in_tree([Entry|_], Matcher, Children_Yielder, Thing) :-
-	find_thing_in_tree(Entry, Matcher, Children_Yielder, Thing).
-	
-find_thing_in_tree([_|Entries], Matcher, Children_Yielder, Thing) :-
-	find_thing_in_tree(Entries, Matcher, Children_Yielder, Thing).	
-				 
-find_thing_in_tree(Root, Matcher, Children_Yielder, Thing) :-
-	call(Children_Yielder, Root, Child),
-	find_thing_in_tree(Child, Matcher, Children_Yielder, Thing).
-	
-						 
 
 evaluate(Sd, Term, Value) :-
 	(
@@ -128,13 +104,35 @@ evaluate(Sd, Term, Value) :-
 	 Value = evaluation_failed(Term)
 	).
 
-evaluate2(Sd, account_balance(Report_Id, Role), Values_List) :-
-	path_get_dict(Report_Id, Sd, Report),
-	report_entry_by_role(Sd, Report, Role, Entry),
-	entry_balance(Entry, Balance),
-	entry_account_id(Entry, Account_Id),
-	vector_of_coords_to_vector_of_values(Sd, Account_Id, Balance, Values_List).
-
 evaluate2(Sd, report_value(Key), Values_List) :-
 	path_get_dict(Key, Sd, Values_List).
+		
+/* get vector of values in normal side, of an account, as provided by tree of entry(..) terms. Return [] if not found. */
+evaluate2(Sd, account_balance(Report_Id, Role), Values_List) :-
+	path_get_dict(Report_Id, Sd, Report),
+	(
+		accounts_report_entry_by_account_role(Sd, Report, Role, Entry)
+	->
+		(
+			entry_balance(Entry, Balance),
+			entry_account_id(Entry, Account_Id),
+			vector_of_coords_to_vector_of_values(Sd, Account_Id, Balance, Values_List)
+		)
+	;
+		Values_List = []
+	).
+
+accounts_report_entry_by_account_role(Sd, Report, Role, Entry) :-
+	account_by_role_nothrow(Sd.accounts, Role, Id),
+	accounts_report_entry_by_account_id(Report, Id, Entry).
+
+accounts_report_entry_by_account_id(Report, Id, Entry) :-
+	utils:find_thing_in_tree(
+			   Report,
+			   [Entry1]>>(ledger_report:entry_account_id(Entry1, Id)),
+			   [Entry2, Child]>>(ledger_report:entry_child_sheet_entries(Entry2, Children), member(Child, Children)),
+			   Entry).
+	
+	
+	
 

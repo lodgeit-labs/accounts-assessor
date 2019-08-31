@@ -28,7 +28,8 @@
 		path_get_dict/3,
 		report_currency_atom/2,
 		  dict_json_text/2,
-		  catch_maybe_with_backtrace/3]).
+		  catch_maybe_with_backtrace/3,
+		  find_thing_in_tree/4]).
 
 
 		
@@ -497,3 +498,19 @@ catch_maybe_with_backtrace(A,B,C) :-
 	).
 	
 
+:- meta_predicate find_thing_in_tree(?, 2, 3, ?).
+
+find_thing_in_tree(Root, Matcher, _, Root) :-
+	call(Matcher, Root).
+						 
+find_thing_in_tree([Entry|_], Matcher, Children_Yielder, Thing) :-
+	find_thing_in_tree(Entry, Matcher, Children_Yielder, Thing).
+	
+find_thing_in_tree([_|Entries], Matcher, Children_Yielder, Thing) :-
+	find_thing_in_tree(Entries, Matcher, Children_Yielder, Thing).	
+				 
+find_thing_in_tree(Root, Matcher, Children_Yielder, Thing) :-
+	call(Children_Yielder, Root, Child),
+	find_thing_in_tree(Child, Matcher, Children_Yielder, Thing).
+	
+						 

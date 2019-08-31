@@ -170,9 +170,10 @@ investment_report_2_sales(Static_Data, I, Lines) :-
 investment_report_2_sale_lines(Static_Data, Info, Clipped, Sale, Row) :-
 	dict_vars(Static_Data, [Exchange_Rates, Report_Currency]),
 	Sale = sale(Sale_Date, Sale_Unit_Price_Foreign, Count),
-	Sale_Unit_Price_Foreign = value(End_Unit_Price_Unit, End_Unit_Price_Amount),
 	Info = info(Investment_Currency, Unit, Opening_Unit_Cost_Converted, Opening_Unit_Cost_Foreign, Opening_Date),
-
+	
+	value(End_Unit_Price_Unit, End_Unit_Price_Amount) = Sale_Unit_Price_Foreign,
+	
 	ir2_forex_gain(Exchange_Rates, Opening_Date, Sale_Unit_Price_Foreign, Sale_Date, Investment_Currency, Report_Currency, Count, Forex_Gain),
 	ir2_market_gain(Exchange_Rates, Opening_Date, Sale_Date, Investment_Currency, Report_Currency, Count, Opening_Unit_Cost_Converted, End_Unit_Price_Unit, End_Unit_Price_Amount, Market_Gain),
 
