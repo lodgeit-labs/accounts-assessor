@@ -338,7 +338,17 @@ dict_json_text(Dict, Text) :-
 	close(S),
 	memory_file_to_string(X, Text).
 
+:- multifile term_dict/4.
+term_dict(
+	coord(U, D, C),
+	coord{unit:U, debit:D, credit:C}
+).
+	
+json:json_write_hook(Term, Stream, _, _) :-
+	term_dict(Term, Dict),
+	json_write(Stream, Dict, [serialize_unknown(true)]).
 
+	
 /* standard library only has maplist up to arity 5, maplist/6 is not in standard library */
 :- meta_predicate maplist6(6, ?, ?, ?, ?, ?).
 :- meta_predicate maplist6_(?, ?, ?, ?, ?, 6).
