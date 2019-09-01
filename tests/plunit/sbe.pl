@@ -1,4 +1,4 @@
-:- ['../../prolog_server/chat/sbe'].
+:- ['../../lib/chat/sbe'].
 
 :- begin_tests(sbe).
 test(0) :-

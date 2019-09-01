@@ -13,7 +13,7 @@
 :- use_module(library(http/http_client)).
 :- use_module(library(xpath)).
 :- use_module('../../lib/files').
-:- use_module('../../prolog_server/prolog_server').
+:- use_module('../../lib/prolog_server').
 :- use_module('compare_xml').
 :- use_module('../../lib/utils', [
 		floats_close_enough/2]).
