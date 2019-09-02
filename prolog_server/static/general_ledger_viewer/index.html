@@ -12,7 +12,7 @@
 <body>
 
 <div id="top">
-	<account_selector_item :item="accounts_filter"></account_selector_item>
+	<account_selector_item :item="accounts_filter" style="float:left"></account_selector_item>
 	<transformations :items="transformations"></transformations>
 </div>
 
@@ -106,33 +106,33 @@
 		});
 	};
 	
-	function load_accounts()
+
+	function load_data()
 	{
-			$.ajax({
-			dataType: "json",
-			url: "../accounts.json",
-			data: "",
-			success: function(data)
-			{
-				vm.accounts_index = accounts_list_to_tree(data);
-				vm.accounts = vm.accounts_index['Accounts'];
-				vm.accounts_filter_index = []
-				vm.accounts_filter = create_filter_item_from_account(vm.accounts_filter_index, vm.accounts);
-				load_transactions();
-			}
-		});
+	/*
+		load our data. if this becomes messy, look for a library / an abstraction that will also handle stuff like batching / streaming / more declarative way of specifying pipeline dependencies / making the loading/processing process a first-class thing in the user interface with friendly error and progress reporting, ...
+	*/
+	    Promise.all([
+		load_data("accounts").then(process_loaded_accounts_data),
+		load_data("general_ledger")
+	    ]).then(results => process_loaded_general_ledger_data(results[1]));
 	};
 
-	function load_transactions()
+	
+	function process_loaded_accounts_data(data)
 	{
-			$.ajax({
-			dataType: "json",
-			url: "../general_ledger.json",
-			data: "",
-			success: function(data)
-			{
-				let transformation_id = 0;
-				let transaction_id = 0;
+				vm.accounts_index = accounts_list_to_tree(data);
+				vm.accounts = vm.accounts_index['Accounts'];
+	    vm.accounts_filter_index = [];
+				vm.accounts_filter = create_filter_item_from_account(vm.accounts_filter_index, vm.accounts);
+	};
+
+function process_loaded_general_ledger_data(data)
+{
+
+    /* the id's should probably be coming from the prolog side, but in prolog there's little use for them, so...*/
+    let transformation_id = 0;
+		let transaction_id = 0;
 				
 				data.forEach(item => {
 					item.id = transformation_id++;
@@ -145,6 +145,26 @@
 		});
 	}
 
+	function load_data(name) {
+		return load_data2("../"+name+"json");
+	}
+
+	function load_data2(url) {
+		return new Promise(function(resolve,reject){
+		$.ajax({
+			dataType: "json",
+			mimeType: "application/json",
+			url: url,
+			success: function(data){
+			    resolve(data);
+			}
+		}).catch(window.alert("loading "+url+" failed');
+	}
+
+	
+
+	var accounts_json = await load_data_promise("accounts.json");
+	
 	function create_filter_item_from_account(index, account)
 	{
 		let r = {
