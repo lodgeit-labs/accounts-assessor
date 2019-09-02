@@ -7,16 +7,8 @@ ul{
     border-color: "gray";
     border-style: none none none inset;
     border-radius: 2em;
-
 }
 
-.local{
-    border-style: inset;
+ul {
+  list-style-type: none;
 }
-
-
-.thing {
-    border-color: #FFFF00;
-    box-shadow: 0 0 10px #000000;
-}
-

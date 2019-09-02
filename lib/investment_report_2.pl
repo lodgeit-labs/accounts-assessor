@@ -240,7 +240,15 @@ investment_report_2_unrealized(Static_Data, Investment, Row) :-
 	Investment = ir_item(unr, Info, Count, [], Clipped),
 	Info = info(Investment_Currency, Unit, Opening_Unit_Cost_Converted, Opening_Unit_Cost_Foreign, Opening_Date),
 
+	/*
+	todo: with at-cost reporting, the goods unit will be a with_cost_per_unit, and there will be no exchange rate in the table.
+	
+	maybe Opening_Unit_Cost_Converted, Opening_Unit_Cost_Foreign should already be stripped of and taken from  with_cost_per_unit?
+	
+	*/
+	
 	exchange_rate_throw(Exchange_Rates, End_Date, Unit, Investment_Currency, _),
+	
 	(
 		Cost_Or_Market = cost
 	->

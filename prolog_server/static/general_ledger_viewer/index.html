@@ -10,22 +10,45 @@
 	<link rel="stylesheet" href="styles.css">
 </head>
 <body>
+
 <div id="top">
 	<account_selector_item :item="accounts_filter"></account_selector_item>
-	
+	<transformations :items="transformations"></transformations>
 </div>
+
 <script type="text/javascript">
 	'use strict';
-		
+
 	Vue.component('account_selector_item', {
 		props: ['item'],
 		template: `
 			<div class="account_selector">
-				<input type="checkbox" id="checkbox" v-model="item.checked">{{ item.id }}
+				<input type="checkbox" id="checkbox" v-model="item.checked" @change="change_checked_on_children_recursively($event)">{{ item.id }}
 				<ul>
 					<div v-for="child in item.children" :key="child.id">
 						<li>
-							<account_selector_item :item="child"></account_selector_item>
+							<account_selector_item ref="child" :item="child"></account_selector_item>
+						</li>
+					</div>
+				</ul>
+			</div>
+		`,
+		methods: {
+			change_checked_on_children_recursively: function(e){
+				this.item.children.forEach(child => {
+					change_checked(child, this.item.checked);
+				});
+			}}
+	});
+
+	Vue.component('transformations', {
+		props: ['items'],
+		template: `
+			<div class="transformations"> transformations:
+				<ul>
+					<div v-for="item in items" :key="item.id">
+						<li>
+							<transformation :id="item.id" :source="item.source" :transactions="item.transactions"></transformation>
 						</li>
 					</div>
 				</ul>
@@ -33,19 +56,53 @@
 		`
 	});
 	
-	var vm = new Vue({
-		el: '#top',
-		data: {
-			accounts: {},
-			accounts_filter: {'id': 'Accounts', children:[{'id':'Assets', 'children':[]}]}
-		},
-		mounted: function ()
-		{
-			console.log( "mounted!" );
-			load_accounts();
-		}
-	});
+	Vue.component('transformation', {
+		props: ['id', 'source', 'transactions'],
+		template: `
+			<div class="transformation">
 
+				<span v-if='xxx()'></span>
+							
+				<span v-if='typeof source == "string"'>
+					{{ source }}
+				</span>
+				<span v-else>
+					{{ source }}
+				</span>
+				:
+				<ul>
+					<li v-for="item in transactions" :key="item.id">
+							<span v-if="$root.accounts_filter_index[item.account].checked">
+								<transaction :data="item"></transaction>
+							</span>
+							<span v-else>
+								hidden
+							</span>
+					</li>
+				</ul>
+			</div>
+		`,
+		methods: {xxx : function() { console.log(this); }}
+	});
+	
+	Vue.component('transaction', {
+		props: ['data'],
+		template: `
+			<div class="transaction"> {{ data }}
+			</div>
+		`
+	});
+	
+	function change_checked(item, checked)
+	{
+		item.checked = checked;
+		item.children.forEach(child => 
+		{
+			child.checked = checked;
+			change_checked(child, checked)
+		});
+	};
+	
 	function load_accounts()
 	{
 			$.ajax({
@@ -56,21 +113,45 @@
 			{
 				vm.accounts_index = accounts_list_to_tree(data);
 				vm.accounts = vm.accounts_index['Accounts'];
-				vm.accounts_filter = create_filter_item_from_account(vm.accounts);
-				//load_transactions(0);
+				vm.accounts_filter_index = []
+				vm.accounts_filter = create_filter_item_from_account(vm.accounts_filter_index, vm.accounts);
+				load_transactions();
 			}
 		});
 	};
 
-	function create_filter_item_from_account(account)
+	function load_transactions()
+	{
+			$.ajax({
+			dataType: "json",
+			url: "../general_ledger.json",
+			data: "",
+			success: function(data)
+			{
+				let transformation_id = 0;
+				let transaction_id = 0;
+				
+				data.forEach(item => {
+					item.id = transformation_id++;
+					item.transactions.forEach(tr => {
+						tr.id = transaction_id++
+					});
+				});
+				vm.transformations = data;
+			}
+		});
+	}
+
+	function create_filter_item_from_account(index, account)
 	{
 		let r = {
 			'id': account.id,
 			'checked': true,
 			'children': []
 		};
+		index[r.id] = r;
 		account.children.forEach(child => {
-			r.children.push(create_filter_item_from_account(child));
+			r.children.push(create_filter_item_from_account(index, child));
 		});
 		return r;
 	};
@@ -93,12 +174,23 @@
 	};
 
 	$( document ).ready(function() {
-
-		vm.index = {}
 		console.log( "ready!" );
-
 	});
 
+	var vm = new Vue({
+		el: '#top',
+		data: {
+			transformations: [],
+			accounts: {},
+			accounts_filter: {'id': 'Accounts', children:[{'id':'loading...', 'children':[]}]}
+		},
+		mounted: function ()
+		{
+			console.log( "mounted!" );
+			load_accounts();
+		}
+	});
+		
 
 </script>
 </body>
