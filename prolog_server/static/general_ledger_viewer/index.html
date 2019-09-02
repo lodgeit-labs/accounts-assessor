@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8"/>
+
+	<script type="text/javascript" src="vue.js"></script>
+	<script type="text/javascript" src="jquery-3.3.1.js"></script>
+	<script src="lodash.js"></script>
+
+	<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div id="top">
+	<account_selector_item :item="accounts_filter"></account_selector_item>
+	
+</div>
+<script type="text/javascript">
+	'use strict';
+		
+	Vue.component('account_selector_item', {
+		props: ['item'],
+		template: `
+			<div class="account_selector">
+				<input type="checkbox" id="checkbox" v-model="item.checked">{{ item.id }}
+				<ul>
+					<div v-for="child in item.children" :key="child.id">
+						<li>
+							<account_selector_item :item="child"></account_selector_item>
+						</li>
+					</div>
+				</ul>
+			</div>
+		`
+	});
+	
+	var vm = new Vue({
+		el: '#top',
+		data: {
+			accounts: {},
+			accounts_filter: {'id': 'Accounts', children:[{'id':'Assets', 'children':[]}]}
+		},
+		mounted: function ()
+		{
+			console.log( "mounted!" );
+			load_accounts();
+		}
+	});
+
+	function load_accounts()
+	{
+			$.ajax({
+			dataType: "json",
+			url: "../accounts.json",
+			data: "",
+			success: function(data)
+			{
+				vm.accounts_index = accounts_list_to_tree(data);
+				vm.accounts = vm.accounts_index['Accounts'];
+				vm.accounts_filter = create_filter_item_from_account(vm.accounts);
+				//load_transactions(0);
+			}
+		});
+	};
+
+	function create_filter_item_from_account(account)
+	{
+		let r = {
+			'id': account.id,
+			'checked': true,
+			'children': []
+		};
+		account.children.forEach(child => {
+			r.children.push(create_filter_item_from_account(child));
+		});
+		return r;
+	};
+	
+	function accounts_list_to_tree(data)
+	{
+		let index = {};
+		data.forEach(account => {
+			account.children = []
+		});
+		data.forEach(account => {
+			index[account.id] = account
+		});
+		data.forEach(account => {
+			let p = account.parent;
+			if (p != 'accountHierarchy')
+				index[account.parent].children.push(account);
+		});
+		return index;
+	};
+
+	$( document ).ready(function() {
+
+		vm.index = {}
+		console.log( "ready!" );
+
+	});
+
+
+</script>
+</body>
+</html>
+
