@@ -451,7 +451,7 @@ extract_exchange_rate(Start_Date, End_Date, Optional_Default_Currency, Unit_Valu
 	;
 		atom_number(Rate_Atom, Rate)
 	),
-
+	
 	(
 		var(Date_Atom)
 	->
@@ -469,7 +469,7 @@ extract_exchange_rate(Start_Date, End_Date, Optional_Default_Currency, Unit_Valu
 			)
 		)
 	;
-		true
+		Src_Currency = Src_Currency0
 	),
 	
 	(
