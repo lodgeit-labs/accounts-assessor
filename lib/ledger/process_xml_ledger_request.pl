@@ -437,17 +437,41 @@ extract_exchange_rates(Dom, Start_Date, End_Date, Default_Currency, Exchange_Rat
 extract_exchange_rate(Start_Date, End_Date, Optional_Default_Currency, Unit_Value, Exchange_Rate) :-
 	Exchange_Rate = exchange_rate(Date, Src_Currency, Dest_Currency, Rate),
 	fields(Unit_Value, [
-		unitType, Src_Currency,
+		unitType, Src_Currency0,
 		unitValueCurrency, (Dest_Currency, _),
 		unitValue, (Rate_Atom, _),
-		unitValueDate, (Date_Atom, _)]),
+		unitValueDate, (Date_Atom, _)]
+	),
+
 	(
 		var(Rate_Atom)
 	->
-		 format(user_error, 'unitValue missing, ignoring\n', [])
+		format(user_error, 'unitValue missing, ignoring\n', [])
+		/*Rate will stay unbound and the whole term will be filtered out in the caller*/
 	;
 		atom_number(Rate_Atom, Rate)
 	),
+
+	(
+		var(Date_Atom)
+	->
+		(
+			once(append('closing | ', Src_Currency, Src_Currency0))
+		->
+			Date_Atom = 'closing'
+		;
+			(
+				once(append('opening | ', Src_Currency, Src_Currency0))
+			->
+				Date_Atom = 'opening'
+			;
+				Src_Currency = Src_Currency0
+			)
+		)
+	;
+		true
+	),
+	
 	(
 		var(Dest_Currency)
 	->
