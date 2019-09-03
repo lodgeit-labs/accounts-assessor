@@ -442,7 +442,7 @@ extract_exchange_rate(Start_Date, End_Date, Optional_Default_Currency, Unit_Valu
 		unitValue, (Rate_Atom, _),
 		unitValueDate, (Date_Atom, _)]
 	),
-
+%gtrace,
 	(
 		var(Rate_Atom)
 	->
@@ -456,12 +456,12 @@ extract_exchange_rate(Start_Date, End_Date, Optional_Default_Currency, Unit_Valu
 		var(Date_Atom)
 	->
 		(
-			once(append('closing | ', Src_Currency, Src_Currency0))
+			once(string_concat('closing | ', Src_Currency, Src_Currency0))
 		->
 			Date_Atom = 'closing'
 		;
 			(
-				once(append('opening | ', Src_Currency, Src_Currency0))
+				once(string_concat('opening | ', Src_Currency, Src_Currency0))
 			->
 				Date_Atom = 'opening'
 			;
