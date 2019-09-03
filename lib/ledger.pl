@@ -189,7 +189,10 @@ process_ledger(
 	->
 		Warnings1 = []
 	;
-		Warnings1 = ['SYSTEM_WARNING':trial_balance(Trial_Balance_Section)]
+		(
+			term_string(trial_balance(Trial_Balance_Section), Tb_Str),
+			Warnings1 = ['SYSTEM_WARNING':Tb_Str]
+		)
 	),
 	gather_ledger_errors(Transaction_Transformation_Debug, Errors),
 	flatten([Warnings0, Warnings1], Warnings),
