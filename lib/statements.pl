@@ -471,8 +471,28 @@ transactions_trial_balance(Exchange_Rates, Report_Currency, Date, Transactions, 
 	flatten(Vectors_Nested, Vector),
 	vec_change_bases(Exchange_Rates, Date, Report_Currency, Vector, Vector_Converted).
 
+is_livestock_transaction(X) :-
+	transaction_description(X, Desc),
+	(
+		Desc = 'livestock sell'
+	; 
+		Desc = 'livestock buy'
+	).
+
 check_trial_balance(Exchange_Rates, Report_Currency, Date, Transactions) :-
-	transactions_trial_balance(Exchange_Rates, Report_Currency, Date, Transactions, Total),
+	/*
+	writeln("Check Trial Balance: xxxxxxxxxx"),
+	writeln(Exchange_Rates),
+	writeln(Transactions),
+	maplist(transaction_description,Transactions, Transaction_Descriptions),
+	writeln(Transaction_Descriptions),
+	*/
+	exclude(
+		is_livestock_transaction,
+		Transactions,
+		Transactions_Without_Livestock
+	),
+	transactions_trial_balance(Exchange_Rates, Report_Currency, Date, Transactions_Without_Livestock, Total),
 	(
 		Total = []
 	->
