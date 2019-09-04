@@ -139,7 +139,7 @@ livestock_counts(Accounts, Livestock_Types, Transactions, Opening_Costs_And_Coun
 		member(Livestock_Type, Livestock_Types),
 		member(Opening_Cost_And_Count, Opening_Costs_And_Counts),
 		opening_cost_and_count(Livestock_Type, _, _)  = Opening_Cost_And_Count,
-		livestock_count(Accounts, Livestock_Type, Transaction, Opening_Cost_And_Count, To_Day, Count)
+		livestock_count(Accounts, Livestock_Type, Transactions, Opening_Cost_And_Count, To_Day, Count)
 	),
 	Counts).
 
@@ -160,7 +160,7 @@ yield_livestock_cogs_transactions(
 	Accounts, 
 	Livestock_Type, 
 	Opening_Cost_And_Count, Average_Cost,
-	(_From_Day, To_Day, _Average_Costs, Input_Transactions, _S_Transactions, Transactions_By_Account),
+	(_From_Day, To_Day, _Average_Costs, Transactions_By_Account, _S_Transactions, Transactions_By_Account),
 	Cogs_Transactions
 ) :-
 		livestock_at_average_cost_at_day(Accounts, Livestock_Type, Transactions_By_Account, Opening_Cost_And_Count, To_Day, Average_Cost, Closing_Debit),
@@ -600,7 +600,7 @@ process_livestock(Livestock_Doms, Livestock_Types, S_Transactions, Transactions_
 	append(Transactions2, More_Transactions, Transactions3),  
 
 	dict_from_vars(Static_Data, [Accounts]),
-	Static_Data2 = Static_Data.put(transactions, Transactions3),
+	Static_Data2 = Static_Data.put(transactions, Transactions3).put(start_date,Start_Days).put(end_date,End_Days),
 	transactions_by_account(Static_Data2, Transactions_By_Account),
 
 	get_livestock_cogs_transactions(Accounts, Livestock_Types, Opening_Costs_And_Counts, Average_Costs, (Start_Days, End_Days, Average_Costs, Transactions_By_Account, S_Transactions),  Cogs_Transactions),
