@@ -1,6 +1,6 @@
 :- module(ledger, [
 		find_s_transactions_in_period/4,
-		process_ledger/20
+		process_ledger/21
 	]).
 
 :- use_module('system_accounts', [
@@ -24,7 +24,8 @@
 		process_livestock/14,
 		livestock_counts/6]). 
 :- use_module('transactions', [
-		check_transaction_account/2]).
+		check_transaction_account/2,
+		transactions_by_account/2]).
 :- use_module('ledger_report', [
 		trial_balance_between/8
 		]).
@@ -69,6 +70,7 @@ process_ledger(
 	Accounts_In, 
 	Accounts, 
 	Transactions_With_Livestock,
+	Transactions_By_Account,
 	Transaction_Transformation_Debug,
 	Outstanding_Out,
 	Processed_Until,
@@ -117,6 +119,7 @@ process_ledger(
 	accounts:write_accounts_json_report(Accounts),
 	
 	dict_from_vars(Static_Data0, [Accounts, Report_Currency, Start_Date, End_Date, Exchange_Rates, Transaction_Types, Cost_Or_Market]),
+	
 	preprocess_s_transactions(Static_Data0, S_Transactions, Processed_S_Transactions, Transactions0, Outstanding_Out, Transaction_Transformation_Debug),
 	
 	(
@@ -179,7 +182,11 @@ process_ledger(
 	),
 	writeln(Debug_Message),
 	
-	trial_balance_between(Exchange_Rates, Accounts, Transactions_With_Livestock, Report_Currency, End_Date, Start_Date, End_Date, [Trial_Balance_Section]),
+	Static_Data3 = Static_Data2.put(transactions, Transactions_With_Livestock),
+	transactions_by_account(Static_Data3, Transactions_By_Account),
+	%Static_Data4 = Static_Data3.put(transactions_by_account, Transactions_With_Livestock),
+	
+	trial_balance_between(Exchange_Rates, Accounts, Transactions_By_Account, Report_Currency, End_Date, Start_Date, End_Date, [Trial_Balance_Section]),
 	(
 		(
 			trial_balance_ok(Trial_Balance_Section)

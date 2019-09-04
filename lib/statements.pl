@@ -104,8 +104,7 @@ preprocess_s_transactions(Static_Data, S_Transactions, Processed_S_Transactions,
 	s_transactions have to be sorted by date from oldest to newest 
 	s_transactions have flipped vectors, so they are from our perspective
 */
-	preprocess_s_transactions2(Static_Data, S_Transactions, Processed_S_Transactions, Transactions_Out, ([],[]), Outstanding_Out, Debug_Info, [])/*,
-	flatten(Transactions0, Transactions_Out)*/.
+	preprocess_s_transactions2(Static_Data, S_Transactions, Processed_S_Transactions, Transactions_Out, ([],[]), Outstanding_Out, Debug_Info, []).
 
 /*
 	call preprocess_s_transaction on each item of the S_Transactions list and do some error checking and cleaning up
@@ -221,7 +220,6 @@ preprocess_s_transaction(Static_Data, S_Transaction, Transactions, Outstanding, 
 
 
 preprocess_s_transaction(Static_Data, S_Transaction, [Ts1, Ts2, Ts3, Ts4], Outstanding_In, Outstanding_Out) :-
-	%gtrace,
 	Pricing_Method = lifo,
 	dict_vars(Static_Data, [Report_Currency, Transaction_Types, Exchange_Rates]),
 	check_s_transaction_action_type(Transaction_Types, S_Transaction),

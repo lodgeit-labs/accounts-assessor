@@ -19,7 +19,8 @@
 			transactions_by_account/2,
 			 check_transaction_account/2,
 	 		make_transaction/5,
-	 		make_transaction2/5
+	 		make_transaction2/5,
+	 		transactions_in_account_set/4
 ]).
 
 :- use_module(accounts, [account_id/2, account_in_set/3, account_exists/2]).
@@ -72,29 +73,35 @@ transaction_vectors_total([Hd_Transaction | Tl_Transaction], Reduced_Net_Activit
 	vec_reduce(Net_Activity, Reduced_Net_Activity).
 
 
-transactions_in_period_on_account_and_subaccounts(Accounts, Transactions, Account_Id, Start_Date, End_Date, Filtered_Transactions) :-
-	assertion(nonvar(Transactions)),
+transactions_in_account_set(Accounts, Transactions_By_Account, Account_Id, Result) :-
+	findall(
+		Transactions,
+		(
+			account_in_set(Accounts, Account_Id2, Account_Id),
+			get_dict(Account_Id2, Transactions_By_Account, Transactions)
+		),
+		Transactions2
+	),
+	flatten(Transactions2, Result).
 	
+transactions_in_period_on_account_and_subaccounts(Accounts, Transactions_By_Account, Account_Id, Start_Date, End_Date, Filtered_Transactions) :-
+	transactions_in_account_set(Accounts, Transactions_By_Account, Account_Id, Transactions),
 	findall(
 		Transaction,
 		(
 			member(Transaction,Transactions),
-			transaction_in_period(Transaction, Start_Date, End_Date),
-			transaction_account_in_set(Accounts, Transaction, Account_Id)
+			transaction_in_period(Transaction, Start_Date, End_Date)
 		),
 		Filtered_Transactions
 	).
 
-transactions_before_day_on_account_and_subaccounts(Accounts, Transactions, Account_Id, Day, Filtered_Transactions) :-
-	assertion(nonvar(Transactions)),
-
+transactions_before_day_on_account_and_subaccounts(Accounts, Transactions_By_Account, Account_Id, Day, Filtered_Transactions) :-
+	transactions_in_account_set(Accounts, Transactions_By_Account, Account_Id, Transactions),
 	findall(
 		Transaction,
 		(
 			member(Transaction, Transactions),
-			transaction_before(Transaction, Day),
-			% transaction account is Account_Id or sub-account
-			transaction_account_in_set(Accounts, Transaction, Account_Id)
+			transaction_before(Transaction, Day)
 		),
 		Filtered_Transactions
 	).
@@ -105,41 +112,13 @@ transactions_by_account(Static_Data, Transactions_By_Account) :-
 	),
 
 	assertion(nonvar(Transactions)),
-
-	/*
-	Dict = defaultdict(list)
-
-	for Transaction in Transactions:
-		Dict[Transaction.account].append(Transaction)
-	*/
-	/*
-	findall(
-		Key_Value,
-		(
-			member(Account,Accounts),
-			account_id(Account, Account_Id),
-			findall(
-				Transaction,
-				(
-					member(Transaction,Transactions),
-					transaction_account_id(Transaction,Account_Id)
-				),
-				Account_Transactions
-			),
-			Key_Value = Account_Id:Account_Transactions
-		),
-		Pairs
-	),
-
-	dict_create(Dict,account_txs,Pairs),
-	*/
 	sort_into_dict(transactions:transaction_account_id, Transactions, Dict),	
 
-
-	transactions_before_day_on_account_and_subaccounts(Accounts, Transactions, 'NetIncomeLoss', Start_Date, Historical_Earnings_Transactions),
+	/*this should be somewhere in ledger code*/
+	transactions_before_day_on_account_and_subaccounts(Accounts, Dict, 'NetIncomeLoss', Start_Date, Historical_Earnings_Transactions),
 	Dict2 = Dict.put('HistoricalEarnings', Historical_Earnings_Transactions),
 
-	transactions_in_period_on_account_and_subaccounts(Accounts, Transactions, 'NetIncomeLoss', Start_Date, End_Date, Current_Earnings_Transactions),
+	transactions_in_period_on_account_and_subaccounts(Accounts, Dict, 'NetIncomeLoss', Start_Date, End_Date, Current_Earnings_Transactions),
 	Transactions_By_Account = Dict2.put('CurrentEarnings', Current_Earnings_Transactions).
 
 
@@ -175,3 +154,33 @@ make_transaction2(Date, Description, Account, Vector, Transaction) :-
 make_transaction(Date, Description, Account, Vector, Transaction) :-
 	make_transaction2(Date, Description, Account, Vector, Transaction),
 	transaction_type(Transaction, instant).
+
+	
+	
+	/*
+	Dict = defaultdict(list)
+
+	for Transaction in Transactions:
+		Dict[Transaction.account].append(Transaction)
+	*/
+	/*
+	findall(
+		Key_Value,
+		(
+			member(Account,Accounts),
+			account_id(Account, Account_Id),
+			findall(
+				Transaction,
+				(
+					member(Transaction,Transactions),
+					transaction_account_id(Transaction,Account_Id)
+				),
+				Account_Transactions
+			),
+			Key_Value = Account_Id:Account_Transactions
+		),
+		Pairs
+	),
+
+	dict_create(Dict,account_txs,Pairs),
+	*/

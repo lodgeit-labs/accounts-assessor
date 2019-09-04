@@ -58,6 +58,7 @@ investment_report_2(Static_Data, Outstanding_In, Filename_Suffix, Report_Data, [
 	atomic_list_concat(['investment report from ', Start_Date_Atom, ' to ', End_Date_Atom, ' ', Report_Currency_Atom], Title_Text),
 
 	columns(Columns),
+	%write('<!-- '),print_term(Outstanding_In,[]), write(' -->'),
 	rows(Static_Data, Outstanding_In, Rows),
 	totals(Rows, Totals),
 	flatten([Rows, Totals], Rows2),

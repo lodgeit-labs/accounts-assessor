@@ -85,12 +85,12 @@ investment_report2(Static_Data, Trading_Account, Lines) :-
 	
 investment_report3(Static_Data, Trading_Account, Unit, Row, Realized_Total, Unrealized_Total) :-
 	Row = row(Unit, Lines0o, Lines0c, Lines1, Lines2),
-	dict_vars(Static_Data, [Start_Date, End_Date, Exchange_Rates, Accounts, Transactions, Report_Currency]),
+	dict_vars(Static_Data, [Start_Date, End_Date, Exchange_Rates, Accounts, Transactions_By_Account, Report_Currency]),
 	account_by_role(Accounts, ('FinancialInvestments'/Unit), Assets_Account),
-	balance_until_day(Exchange_Rates, Accounts, Transactions, Report_Currency, Start_Date, Assets_Account, Start_Date, Opening_Value, _),
-	balance_until_day(Exchange_Rates, Accounts, Transactions, Report_Currency, End_Date, Assets_Account, End_Date, Closing_Value, _),
-	balance_until_day([], Accounts, Transactions, [], Start_Date, Assets_Account, Start_Date, Opening_Count, _),
-	balance_until_day([], Accounts, Transactions, [], End_Date, Assets_Account, End_Date, Closing_Count, _),
+	balance_until_day(Exchange_Rates, Accounts, Transactions_By_Account, Report_Currency, Start_Date, Assets_Account, Start_Date, Opening_Value, _),
+	balance_until_day(Exchange_Rates, Accounts, Transactions_By_Account, Report_Currency, End_Date, Assets_Account, End_Date, Closing_Value, _),
+	balance_until_day([], Accounts, Transactions_By_Account, [], Start_Date, Assets_Account, Start_Date, Opening_Count, _),
+	balance_until_day([], Accounts, Transactions_By_Account, [], End_Date, Assets_Account, End_Date, Closing_Count, _),
 	/*fixme check the units here:*/
 	/*
 	not very systematic, but there are gonna be multiple units with different with_cost_per_unit here
@@ -134,11 +134,11 @@ investment_report3_lines(Static_Data, Trading_Account, Unit, Gains_Role, Lines, 
 	Lines = (Gains_Role, Gains_Market_Lines, Gains_Forex_Lines).
 
 investment_report3_balance(Static_Data, Trading_Account, Gains_Role, Forex_Role, Unit, Balance, Lines) :-
-	dict_vars(Static_Data, [Exchange_Rates, Accounts, Transactions, Report_Currency, End_Date]),
+	dict_vars(Static_Data, [Exchange_Rates, Accounts, Transactions_By_Account, Report_Currency, End_Date]),
 	account_by_role(Accounts, (Trading_Account/Gains_Role), Gains_Account),
 	account_by_role(Accounts, (Gains_Account/Forex_Role), Gains_Forex_Account),
 	account_by_role(Accounts, (Gains_Forex_Account/Unit), Unit_Account),
-	balance_by_account(Exchange_Rates, Accounts, Transactions, Report_Currency, End_Date, Unit_Account, End_Date, Balance, Transactions_Count),
+	balance_by_account(Exchange_Rates, Accounts, Transactions_By_Account, Report_Currency, End_Date, Unit_Account, End_Date, Balance, Transactions_Count),
 	format_report_entries(simple, 1, Accounts, 0, Report_Currency, '', [entry(Unit_Account, Balance, [], Transactions_Count)], [], _, [], Lines).
 
 units_traded_on_trading_account(Accounts, Trading_Account, All_Units_Roles) :-
@@ -157,12 +157,12 @@ units_traded_on_trading_account(Accounts, Trading_Account, All_Units_Roles) :-
 	sort(All_Units_Roles0, All_Units_Roles).
 	
 check_investment_totals(Static_Data, Trading_Account, Check_Totals_List_Nested, Gains_Role) :- 
-	dict_vars(Static_Data, [Exchange_Rates, Accounts, Transactions, Report_Currency, End_Date]),
+	dict_vars(Static_Data, [Exchange_Rates, Accounts, Transactions_By_Account, Report_Currency, End_Date]),
 	flatten(Check_Totals_List_Nested, Check_Totals_List),
 	% the totals in investment report should be more or less equal to the account balances
 	vec_add(Check_Totals_List, [/*coord('AUD', 1, 0)*/], Total),
 	account_by_role(Accounts, (Trading_Account/Gains_Role), Account),
-	balance_by_account(Exchange_Rates, Accounts, Transactions, Report_Currency, End_Date, Account, End_Date, Total_Balance, _),
+	balance_by_account(Exchange_Rates, Accounts, Transactions_By_Account, Report_Currency, End_Date, Account, End_Date, Total_Balance, _),
 	(
 		vecs_are_almost_equal(Total_Balance, Total)
 	->
