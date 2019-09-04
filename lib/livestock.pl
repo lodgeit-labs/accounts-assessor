@@ -142,10 +142,10 @@ livestock_counts(Accounts, Livestock_Types, Transactions, Opening_Costs_And_Coun
 	),
 	Counts).
 
-livestock_count(Accounts, Livestock_Type, Transactions, Opening_Cost_And_Count, To_Day, Count) :-
+livestock_count(Accounts, Livestock_Type, Transactions_By_Account, Opening_Cost_And_Count, To_Day, Count) :-
 	opening_cost_and_count(Livestock_Type, _, Opening_Count) = Opening_Cost_And_Count,
 	count_account(Livestock_Type, Count_Account),
-	balance_by_account([], Accounts, Transactions, [], _, Count_Account, To_Day, Count_Vector, _),
+	balance_by_account([], Accounts, Transactions_By_Account, [], _, Count_Account, To_Day, Count_Vector, _),
 	vec_add(Count_Vector, [coord(Livestock_Type, Opening_Count, 0)], Count).
 
 livestock_at_average_cost_at_day(Accounts, Livestock_Type, Transactions, Opening_Cost_And_Count, To_Day, Average_Cost_Exchange_Rate, Cost_Vector) :-
@@ -598,6 +598,8 @@ process_livestock(Livestock_Doms, Livestock_Types, S_Transactions, Transactions_
 
 	get_livestock_cogs_transactions(Accounts, Livestock_Types, Opening_Costs_And_Counts, Average_Costs, (Start_Days, End_Days, Average_Costs, Transactions3, S_Transactions),  Cogs_Transactions),
 	append(Transactions3, Cogs_Transactions, Transactions_Out)/*,
+
+	/*todo transactions_by_account here...*/
 	
 	maplist(do_livestock_cross_check(Livestock_Events, Natural_Increase_Costs, S_Transactions, Transactions_Out, Opening_Costs_And_Counts, Start_Days, End_Days, Exchange_Rates, Accounts, Report_Currency, Average_Costs), Livestock_Types)*/.
 

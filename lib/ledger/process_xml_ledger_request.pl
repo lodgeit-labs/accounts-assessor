@@ -49,7 +49,7 @@
 		fill_in_missing_units/6,
 		sort_s_transactions/2]).
 :- use_module('../../lib/ledger', [
-		process_ledger/20]).
+		process_ledger/21]).
 :- use_module('../../lib/livestock', [
 		get_livestock_types/2, 
 		process_livestock/14, 
@@ -75,9 +75,6 @@
 		print_contexts/1,
 		context_id_base/3
 ]).
-:- use_module('../../lib/transactions', [
-		transactions_by_account/2
-]).
 :- use_module('../../lib/print_detail_accounts', [
 		print_banks/5,
 		print_forex/5,
@@ -97,6 +94,7 @@ process_xml_ledger_request(_, Dom, Reports) :-
 	*/
 	process_xml_ledger_request2(Dom, Reports).
 
+	
 process_xml_ledger_request2(Dom, Reports_Out) :-
 	/*
 		first let's extract data from the request
@@ -124,7 +122,8 @@ process_xml_ledger_request2(Dom, Reports_Out) :-
 	sort_s_transactions(S_Transactions0b, S_Transactions),
 	
 	/* process_ledger turns s_transactions into transactions */
-	process_ledger(Cost_Or_Market, Livestock_Doms, S_Transactions, Processed_S_Transactions, Start_Date, End_Date, Exchange_Rates0, Transaction_Types, Report_Currency, Livestock_Types, Livestock_Opening_Costs_And_Counts, Accounts0, Accounts, Transactions, _Transaction_Transformation_Debug, Outstanding, Processed_Until, Warnings, Errors, Gl),
+	
+	process_ledger(Cost_Or_Market, Livestock_Doms, S_Transactions, Processed_S_Transactions, Start_Date, End_Date, Exchange_Rates0, Transaction_Types, Report_Currency, Livestock_Types, Livestock_Opening_Costs_And_Counts, Accounts0, Accounts, Transactions, Transactions_By_Account, _Transaction_Transformation_Debug, Outstanding, Processed_Until, Warnings, Errors, Gl),
 
 	print_relevant_exchange_rates_comment(Report_Currency, End_Date, Exchange_Rates0, Transactions),
 	infer_exchange_rates(Transactions, Processed_S_Transactions, Start_Date, End_Date, Accounts, Report_Currency, Exchange_Rates0, Exchange_Rates),
@@ -136,8 +135,7 @@ process_xml_ledger_request2(Dom, Reports_Out) :-
 	dict_from_vars(Static_Data,
 		[Cost_Or_Market, Output_Dimensional_Facts, Start_Date, End_Date, Exchange_Rates, Accounts, Transactions, Report_Currency, Transaction_Types, Gl]),
 	
-	transactions_by_account(Static_Data, Transactions_By_Account),
-	Static_Data2 = Static_Data.put(accounts_transactions, Transactions_By_Account),
+	Static_Data2 = Static_Data.put(transactions_by_account, Transactions_By_Account),
 
 	output_results(Static_Data2, Outstanding, Processed_Until, Reports),
 	
@@ -158,6 +156,7 @@ process_xml_ledger_request2(Dom, Reports_Out) :-
 	nl, nl.
 
 output_results(Static_Data0, Outstanding, Processed_Until, Json_Request_Results) :-
+	
 	Static_Data = Static_Data0.put([
 		end_date=Processed_Until,
 		exchange_date=Processed_Until,
@@ -167,7 +166,8 @@ output_results(Static_Data0, Outstanding, Processed_Until, Json_Request_Results)
 	Static_Data.start_date = Start_Date,
 	Static_Data.exchange_rates = Exchange_Rates, 
 	Static_Data.accounts = Accounts, 
-	Static_Data.transactions = Transactions, 
+	Static_Data.transactions_by_account = Transactions_By_Account, 
+	
 	Static_Data.report_currency = Report_Currency, 
 		
 	writeln("<!-- Build contexts -->"),	
@@ -183,8 +183,7 @@ output_results(Static_Data0, Outstanding, Processed_Until, Json_Request_Results)
 	/* sum up the coords of all transactions for each account and apply unit conversions */
 
 	writeln("<!-- Trial balance -->"),
-	%trial_balance_between(Static_Data, Trial_Balance2),
-	trial_balance_between(Exchange_Rates, Accounts, Transactions, Report_Currency, Processed_Until, Start_Date, Processed_Until, Trial_Balance2),
+	trial_balance_between(Exchange_Rates, Accounts, Transactions_By_Account, Report_Currency, Processed_Until, Start_Date, Processed_Until, Trial_Balance2),
 
 		
 	writeln("<!-- Balance sheet -->"),
@@ -535,3 +534,4 @@ extract_output_dimensional_facts(Dom, Output_Dimensional_Facts) :-
 
 	
 	
+%:- tspy(process_xml_ledger_request2/2).

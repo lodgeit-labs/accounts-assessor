@@ -52,7 +52,7 @@ print_detail_accounts(
 print_detail_account(Static_Data, Context_Info, Fact_Name, Account_In,
 	(Contexts_In, Used_Units_In, Lines_In), (Contexts_Out, Used_Units_Out, Lines_Out)
 ) :-
-	dict_vars(Static_Data, [End_Date, Exchange_Rates, Accounts, Transactions, Report_Currency]),
+	dict_vars(Static_Data, [End_Date, Exchange_Rates, Accounts, Transactions_By_Account, Report_Currency]),
 	(
 		(Account, Dimension_Value) = Account_In
 	->
@@ -71,7 +71,7 @@ print_detail_account(Static_Data, Context_Info, Fact_Name, Account_In,
 	->
 		net_activity_by_account(Static_Data, Account, Balance, Transactions_Count)
 	;
-		balance_by_account(Exchange_Rates, Accounts, Transactions, Report_Currency, End_Date, Account, End_Date, Balance, Transactions_Count)
+		balance_by_account(Exchange_Rates, Accounts, Transactions_By_Account, Report_Currency, End_Date, Account, End_Date, Balance, Transactions_Count)
 	),
 	format_report_entries(
 		xbrl, Accounts, 1, Report_Currency, Context_Id, 

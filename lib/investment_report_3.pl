@@ -1,5 +1,3 @@
-
-
 /*
 Start_Currency_Conversion = conversion(Investment_Currency, Report_Currency, Opening_Date)
 End_Currency_Conversion = conversion(Investment_Currency, Report_Currency, Opening_Date)
@@ -33,9 +31,6 @@ evaluate(Conversion, value(Conversion, Rate, _{})) :-
 %evaluate(Value * Value
 */
 
-
-
-
 /*
 	trying from bottom up here..
 	Formulas = [
@@ -63,18 +58,3 @@ evaluate(Conversion, value(Conversion, Rate, _{})) :-
 
 	how about top-down instead?
 */
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

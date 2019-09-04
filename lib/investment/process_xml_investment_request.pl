@@ -23,7 +23,7 @@ see doc/investment and dropbox Develop/videos/ledger
 		parse_date/2, 
 		gregorian_date/2]).
 :- use_module('../../lib/ledger', [
-		process_ledger/20]).
+		process_ledger/21]).
 :- use_module('../../lib/ledger_report', [
 		format_report_entries/10,
 		balance_sheet_at/2, 
@@ -692,6 +692,7 @@ process_ledger(
 		Accounts0, 
 		Accounts, 
 		Transactions,
+		_Transactions_By_Account,
 		_,
 		_,
 		_,
