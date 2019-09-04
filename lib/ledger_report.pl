@@ -129,6 +129,7 @@ balance(Static_Data, Account_Id, Date, Balance, Transactions_Count) :-
 	
 	/* todo use transactions_in_account_set here */
 	
+	nonvar(Accounts),
 	assertion(account_exists(Accounts, Account_Id)),
 	add_days(Date,1,Date2),
 	(
@@ -231,9 +232,8 @@ balance_sheet_at(Static_Data, [Net_Assets_Entry, Equity_Entry]) :-
 	balance_sheet_entry(Static_Data, 'NetAssets', Net_Assets_Entry),
 	balance_sheet_entry(Static_Data, 'Equity', Equity_Entry).
 
-
-
 trial_balance_between(Exchange_Rates, Accounts, Transactions_By_Account, Report_Currency, Exchange_Date, _Start_Date, End_Date, [Trial_Balance_Section]) :-
+
 	balance_by_account(Exchange_Rates, Accounts, Transactions_By_Account, Report_Currency, Exchange_Date, 'Accounts', End_Date, Accounts_Balance, Transactions_Count),
 	balance_by_account(Exchange_Rates, Accounts, Transactions_By_Account, Report_Currency, Exchange_Date, 'CurrentEarnings', End_Date, Current_Earnings_Balance, _),
 	balance_by_account(Exchange_Rates, Accounts, Transactions_By_Account, Report_Currency, Exchange_Date, 'HistoricalEarnings', End_Date, Historical_Earnings_Balance, _),

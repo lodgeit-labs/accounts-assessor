@@ -163,6 +163,13 @@ is_zero_coord(coord(_, Zero1, Zero2)) :-
 	{Zero1 =:= 0,
 	Zero2 =:= 0}.
 
+/*	
+	non-cplq version for speed..
+
+is_zero_coord(coord(_, Zero1, Zero2)) :-
+	(Zero1 = 0 -> true ; Zero1 = 0.0),
+	(Zero2 = 0 -> true ; Zero2 = 0.0).
+*/
 is_zero_value(value(_, Zero)) :-
 	is_zero_coord(coord(_, Zero, 0)).
 

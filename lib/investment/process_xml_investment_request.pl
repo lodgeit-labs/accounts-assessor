@@ -377,7 +377,13 @@ account_assertion(Info, Account, Expected_Exp) :-
 		)
 	),
 	Expected is Expected_Exp,
-	assertion(floats_close_enough2(Account, actual(Balance), expected(Expected))).
+	(
+		floats_close_enough2(Account, actual(Balance), expected(Expected))
+	->
+		true
+	;
+		throw('crosscheck failed')
+	).
 
 /*
   Retrieve Debit/Credit vector form of balance for `Account`, return as `Vector`.
