@@ -15,7 +15,8 @@ this file needs serious cleanup, one reason to delay that might be that we can e
 :- use_module('days', [parse_date/2]).
 :- use_module('ledger_report', [balance_by_account/9]).
 :- use_module('transactions', [
-		make_transaction/5
+		make_transaction/5,
+		transactions_by_account/2
 ]).
 
 /*
@@ -138,7 +139,7 @@ livestock_counts(Accounts, Livestock_Types, Transactions, Opening_Costs_And_Coun
 		member(Livestock_Type, Livestock_Types),
 		member(Opening_Cost_And_Count, Opening_Costs_And_Counts),
 		opening_cost_and_count(Livestock_Type, _, _)  = Opening_Cost_And_Count,
-		livestock_count(Accounts, Livestock_Type, Opening_Cost_And_Count, Transactions, To_Day, Count)
+		livestock_count(Accounts, Livestock_Type, Transaction, Opening_Cost_And_Count, To_Day, Count)
 	),
 	Counts).
 
@@ -148,8 +149,8 @@ livestock_count(Accounts, Livestock_Type, Transactions_By_Account, Opening_Cost_
 	balance_by_account([], Accounts, Transactions_By_Account, [], _, Count_Account, To_Day, Count_Vector, _),
 	vec_add(Count_Vector, [coord(Livestock_Type, Opening_Count, 0)], Count).
 
-livestock_at_average_cost_at_day(Accounts, Livestock_Type, Transactions, Opening_Cost_And_Count, To_Day, Average_Cost_Exchange_Rate, Cost_Vector) :-
-	livestock_count(Accounts, Livestock_Type, Transactions, Opening_Cost_And_Count, To_Day, Count_Vector),
+livestock_at_average_cost_at_day(Accounts, Livestock_Type, Transactions_By_Account, Opening_Cost_And_Count, To_Day, Average_Cost_Exchange_Rate, Cost_Vector) :-
+	livestock_count(Accounts, Livestock_Type, Transactions_By_Account, Opening_Cost_And_Count, To_Day, Count_Vector),
 	exchange_rate(_, _, Dest_Currency, Average_Cost) = Average_Cost_Exchange_Rate,
 	[coord(_, Count, _)] = Count_Vector,
 	Cost is Average_Cost * Count,
@@ -159,9 +160,10 @@ yield_livestock_cogs_transactions(
 	Accounts, 
 	Livestock_Type, 
 	Opening_Cost_And_Count, Average_Cost,
-	(_From_Day, To_Day, _Average_Costs, Input_Transactions, _S_Transactions),
-	Cogs_Transactions) :-
-		livestock_at_average_cost_at_day(Accounts, Livestock_Type, Input_Transactions, Opening_Cost_And_Count, To_Day, Average_Cost, Closing_Debit),
+	(_From_Day, To_Day, _Average_Costs, Input_Transactions, _S_Transactions, Transactions_By_Account),
+	Cogs_Transactions
+) :-
+		livestock_at_average_cost_at_day(Accounts, Livestock_Type, Transactions_By_Account, Opening_Cost_And_Count, To_Day, Average_Cost, Closing_Debit),
 		opening_cost_and_count(Livestock_Type, Opening_Cost, _) = Opening_Cost_And_Count,
 	
 		vec_sub(Closing_Debit, Opening_Cost, Adjustment_Debit),
@@ -578,6 +580,7 @@ opening_inventory_transactions(Start_Days, Opening_Costs_And_Counts, Livestock_T
 	make_transaction(Start_Days, 'livestock opening inventory', 'CapitalIntroduced', Opening_Vector_Credit, T2).
 	
 	
+/*todo transactions_by_account here...*/
 process_livestock(Livestock_Doms, Livestock_Types, S_Transactions, Transactions_In, Opening_Costs_And_Counts, Start_Days, End_Days, _Exchange_Rates, Accounts, _Report_Currency, Transactions_Out, Livestock_Events, Average_Costs, Average_Costs_Explanations) :-
 	extract_livestock_events(Livestock_Doms, Livestock_Events),
 	extract_natural_increase_costs(Livestock_Doms, Natural_Increase_Costs),
@@ -596,7 +599,11 @@ process_livestock(Livestock_Doms, Livestock_Types, S_Transactions, Transactions_
 	get_more_livestock_transactions(Livestock_Types, Average_Costs, S_Transactions, Livestock_Events, More_Transactions),
 	append(Transactions2, More_Transactions, Transactions3),  
 
-	get_livestock_cogs_transactions(Accounts, Livestock_Types, Opening_Costs_And_Counts, Average_Costs, (Start_Days, End_Days, Average_Costs, Transactions3, S_Transactions),  Cogs_Transactions),
+	dict_from_vars(Static_Data, [Accounts]),
+	Static_Data2 = Static_Data.put(transactions, Transactions3),
+	transactions_by_account(Static_Data2, Transactions_By_Account),
+
+	get_livestock_cogs_transactions(Accounts, Livestock_Types, Opening_Costs_And_Counts, Average_Costs, (Start_Days, End_Days, Average_Costs, Transactions_By_Account, S_Transactions),  Cogs_Transactions),
 	append(Transactions3, Cogs_Transactions, Transactions_Out)/*,
 
 	/*todo transactions_by_account here...*/

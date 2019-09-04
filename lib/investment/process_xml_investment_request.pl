@@ -159,14 +159,6 @@ process_realized(Dom, Global_Report_Date_Atom, Result) :-
 		Accounts, 
 		Transactions
 	),
-   	Info = (Exchange_Rates, Accounts, Transactions, Sale_Date, report_currency),
-   	/*todo get Investment_Income account by role */
-	account_by_role(Accounts, 'InvestmentIncome'/realized, Gain_Account),
-	account_by_role(Accounts, Gain_Account/withoutCurrencyMovement, Gains_Excluding_Forex_Account),
-	account_by_role(Accounts, Gain_Account/onlyCurrencyMovement, Gains_Currency_Movement_Account), 
-    account_assertion(Info, Gains_Excluding_Forex_Account, -RC_Realized_Market_Gain),
-	account_assertion(Info, Gains_Currency_Movement_Account, -RC_Realized_Currency_Gain),
-	account_assertion(Info, Gain_Account, -RC_Realized_Total_Gain),
 
 	dict_from_vars(Static_Data0, [Exchange_Rates, Accounts, Transactions]),
 
@@ -187,9 +179,20 @@ process_realized(Dom, Global_Report_Date_Atom, Result) :-
 	transactions_by_account(Static_Data1, Transactions_By_Account),
 
 	Static_Data = Static_Data1.put(
-		accounts_transactions,
+		transactions_by_account,
 		Transactions_By_Account
 	),
+
+
+   	Info = (Exchange_Rates, Accounts, Transactions_By_Account, Sale_Date, report_currency),
+   	/*todo get Investment_Income account by role */
+	account_by_role(Accounts, 'InvestmentIncome'/realized, Gain_Account),
+	account_by_role(Accounts, Gain_Account/withoutCurrencyMovement, Gains_Excluding_Forex_Account),
+	account_by_role(Accounts, Gain_Account/onlyCurrencyMovement, Gains_Currency_Movement_Account), 
+    account_assertion(Info, Gains_Excluding_Forex_Account, -RC_Realized_Market_Gain),
+	account_assertion(Info, Gains_Currency_Movement_Account, -RC_Realized_Currency_Gain),
+	account_assertion(Info, Gain_Account, -RC_Realized_Total_Gain),
+
 	
 	profitandloss_between(Static_Data, ProftAndLoss),
 	format_report_entries(xbrl, Accounts, 0, [report_currency], Sale_Date, ProftAndLoss, [], _, [], ProftAndLoss_Lines),
@@ -323,7 +326,7 @@ process_unrealized(Dom, Global_Report_Date, Result) :-
 	transactions_by_account(Static_Data1, Transactions_By_Account),
 
 	Static_Data = Static_Data1.put(
-		accounts_transactions,
+		transactions_by_account,
 		Transactions_By_Account
 	),
 
@@ -338,7 +341,7 @@ process_unrealized(Dom, Global_Report_Date, Result) :-
 	writeln(Balance_Sheet_Lines),
 	writeln('-->'),
 
-   	Info = (Exchange_Rates, Accounts, Transactions, Report_Date, report_currency),
+   	Info = (Exchange_Rates, Accounts, Transactions_By_Account, Report_Date, report_currency),
 	account_by_role(Accounts, 'InvestmentIncome'/unrealized, Unrealized_Gain_Account),
 	account_by_role(Accounts, Unrealized_Gain_Account/withoutCurrencyMovement, Unrealized_Gains_Excluding_Forex_Account),
 	account_by_role(Accounts, Unrealized_Gain_Account/onlyCurrencyMovement, Unrealized_Gains_Currency_Movement_Account),
@@ -544,7 +547,37 @@ crosscheck_totals(Results, Report_Date) :-
 		Accounts, 
 		Transactions
 	),
-   	Info = (Exchange_Rates, Accounts, Transactions, Report_Date, report_currency),
+
+
+	dict_from_vars(Static_Data0, [Exchange_Rates, Accounts, Transactions]),
+
+	Static_Data1 = Static_Data0.put(
+		report_currency, 
+		[report_currency]
+	).put(
+		start_date,
+		date(2000,1,1)
+	).put(
+		end_date,
+		Report_Date
+	).put(
+		exchange_date,
+		Report_Date
+	),
+
+	transactions_by_account(Static_Data1, Transactions_By_Account),
+
+	Static_Data = Static_Data1.put(
+		transactions_by_account,
+		Transactions_By_Account
+	),
+
+
+
+
+
+
+   	Info = (Exchange_Rates, Accounts, Transactions_By_Account, Report_Date, report_currency),
 	/*
 		PL cross-check
 	*/
@@ -595,29 +628,6 @@ crosscheck_totals(Results, Report_Date) :-
 	/*
 		debug printout
 	*/
-	dict_from_vars(Static_Data0, [Exchange_Rates, Accounts, Transactions]),
-
-	Static_Data1 = Static_Data0.put(
-		report_currency, 
-		[report_currency]
-	).put(
-		start_date,
-		date(2000,1,1)
-	).put(
-		end_date,
-		Report_Date
-	).put(
-		exchange_date,
-		Report_Date
-	),
-
-	transactions_by_account(Static_Data1, Transactions_By_Account),
-
-	Static_Data = Static_Data1.put(
-		accounts_transactions,
-		Transactions_By_Account
-	),
-
 
 
 	%profitandloss_between(Exchange_Rates, Accounts, Transactions, [report_currency], Report_Date, date(2000,1,1), Report_Date, ProftAndLoss),
