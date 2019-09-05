@@ -211,12 +211,23 @@ process_ledger(
 	writeq(Errors),
 	writeln(' -->').
 
-generate_gl_data(Sd, Processed_S_Transactions, Transactions0, Transactions1, Transactions_With_Livestock, [Report1, Report2]) :-
+generate_gl_data(Sd, Processed_S_Transactions, Transactions0, Transactions1, Transactions_With_Livestock, [Report1, Report2, Report3]) :-
 	append(Transactions1, Livestock_Transactions, Transactions_With_Livestock),
 	append(Transactions0, [Livestock_Transactions], Outputs),
 	append(Processed_S_Transactions, ['livestock'], Sources),
 	make_gl_report(Sd, Sources, '', Outputs, Report1),
-	make_gl_report(Sd, Processed_S_Transactions, '_no_livestock', Transactions0, Report2).
+	make_gl_report(Sd, Processed_S_Transactions, '_no_livestock', Transactions0, Report2),
+	make_gl_viewer_report(Report3).
+
+make_gl_viewer_report(Info) :-
+	Viewer_Dir = 'general_ledger_viewer',
+	absolute_file_name(my_static(Viewer_Dir), Viewer_Dir_Absolute, [file_type(directory)]),
+	files:my_tmp_file_name(Viewer_Dir, Tmp_Viewer_Dir_Absolute),
+	atomic_list_concat(['cp -r ', Viewer_Dir_Absolute, ' ', Tmp_Viewer_Dir_Absolute], Cmd),
+	shell(Cmd),
+	files:report_file_path(Viewer_Dir, Url, _),
+	report_page:report_entry('GL viewer', Url, Info).
+	
 
 make_gl_report(Sd, Sources, Suffix, Outputs, Gl) :-
 	maplist(make_gl_entry(Sd), Sources, Outputs, Dict),

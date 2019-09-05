@@ -1,4 +1,4 @@
-:- module(_, [report_page/4, report_item/3]).
+:- module(_, [report_page/4, report_item/3, report_entry/3]).
 
 :- use_module('files').
 
@@ -18,6 +18,7 @@ html_tokenlist_string(Tokenlist, String) :-
 	close(Mem_Stream),
 	memory_file_to_string(X, String).
 
+/*todo rename*/
 report_item(File_Name, Text, Url) :-
 	files:report_file_path(File_Name, Url, File_Path),
 	write_file(File_Path, Text).
@@ -33,5 +34,8 @@ report_page(Title_Text, Tbl, File_Name, Info) :-
 		Body_Tags),
 	phrase(Page, Page_Tokenlist),
 	report_section(File_Name, Page_Tokenlist, Url),
-	Info = Title_Text:url(Url).
+	report_entry(Title_Text, Url, Info).
 	
+report_entry(Title_Text, Url, Info) :-
+	Info = Title_Text:url(Url).
+
