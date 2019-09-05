@@ -59,7 +59,7 @@ then each account hierarchy can come with a default set of associations*/
 
 account_exists(Accounts, Id) :-
 	account_id(Account, Id),
-	member(Account, Accounts).
+	memberchk(Account, Accounts).
 	
 account_detail_level(Accounts, Id, Detail_Level) :-
 	account_term_by_id(Accounts, Id, Account),
@@ -69,9 +69,9 @@ account_detail_level(Accounts, Id, Detail_Level) :-
 account_in_set(Accounts, Account_Id, Root_Account_Id) :-
 	Account_Id = Root_Account_Id;
 	(
-		member(Child_Account, Accounts),
 		account_id(Child_Account, Child_Id),
 		account_parent(Child_Account, Root_Account_Id),
+		member(Child_Account, Accounts),
 		account_in_set(Accounts, Account_Id, Child_Id)
 	).
 

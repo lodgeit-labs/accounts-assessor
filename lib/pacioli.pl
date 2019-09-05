@@ -113,8 +113,8 @@ vec_units(Vec, Units) :-
 vec_filtered_by_unit(Vec, Unit, Filtered) :-
 	findall(Coord,
 	(
-		member(Coord, Vec),
-		coord_or_value_unit(Coord, Unit)
+		coord_or_value_unit(Coord, Unit),
+		member(Coord, Vec)
 	),
 	Filtered).
 
@@ -130,8 +130,8 @@ vec_add(As, Bs, Cs_Reduced) :-
 	vec_units(As_And_Bs, Units),
 	findall(Coord,
 	(
-		member(Unit, Units),
-		vec_unit_value(As_And_Bs, Unit, Coord)
+		vec_unit_value(As_And_Bs, Unit, Coord),
+		memberchk(Unit, Units)
 	)
 	,Cs),
 	flatten(Cs, Cs_Flat),
@@ -158,18 +158,17 @@ is_zero(Coord) :-
 	
 is_zero(Value) :-
 	is_zero_value(Value).
-	
+/*	
 is_zero_coord(coord(_, Zero1, Zero2)) :-
 	{Zero1 =:= 0,
 	Zero2 =:= 0}.
 
-/*	
 	non-cplq version for speed..
-
+*/
 is_zero_coord(coord(_, Zero1, Zero2)) :-
 	(Zero1 = 0 -> true ; Zero1 = 0.0),
 	(Zero2 = 0 -> true ; Zero2 = 0.0).
-*/
+
 is_zero_value(value(_, Zero)) :-
 	is_zero_coord(coord(_, Zero, 0)).
 
