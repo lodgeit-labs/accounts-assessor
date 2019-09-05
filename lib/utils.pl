@@ -24,6 +24,7 @@
 		filter_out_chars_from_atom/3,
 		is_uri/1,
 		sort_into_dict/3,
+		sort_into_assoc/3,
 		capitalize_atom/2,
 		path_get_dict/3,
 		report_currency_atom/2,
@@ -477,6 +478,27 @@ sort_into_dict(Selector_Predicate, [T|Ts], D, D_Out) :-
 	sort_into_dict(Selector_Predicate, Ts, D2, D_Out).
 
 sort_into_dict(_, [], D, D).
+
+sort_into_assoc(Selector_Predicate, Ts, D) :-
+	empty_assoc(A),
+	sort_into_assoc(Selector_Predicate, Ts, A, D).
+
+:- meta_predicate sort_into_assoc(2, ?, ?, ?).
+
+sort_into_assoc(Selector_Predicate, [T|Ts], D, D_Out) :-
+	call(Selector_Predicate, T, A),
+	(
+		get_assoc(A, D, L)
+	->
+		true
+	;
+		L = []
+	),
+	append(L, [T], L2),
+	put_assoc(A, D, L2, D2),
+	sort_into_assoc(Selector_Predicate, Ts, D2, D_Out).
+
+sort_into_assoc(_, [], D, D).
 
 path_get_dict((X/Y), Dict, Y_Value) :-
 	path_get_dict(X, Dict, X_Value),

@@ -32,7 +32,10 @@
 
 :- use_module('utils', [
 			semigroup_foldl/3,
-			floats_close_enough/2]).
+			floats_close_enough/2,
+			sort_into_dict/3,
+			sort_into_assoc/3
+]).
 
 :- use_module('accounts').
 
@@ -126,15 +129,51 @@ vec_unit_value(Vec, Unit, Coord) :-
 
 vec_add(As, Bs, Cs_Reduced) :-
 	assertion((flatten(As, As), flatten(Bs, Bs))),
+	/*paste the two vectors togetner*/
 	append(As, Bs, As_And_Bs),
-	vec_units(As_And_Bs, Units),
+	/*find all units*/
+	/*vec_units(As_And_Bs, Units),*/
+
+	sort_into_assoc(pacioli:coord_or_value_unit, As_And_Bs, Sorted),
+	assoc_to_values(Sorted, Valueses),
+
+/*	maplist(foldl(coord_merge), Valueses, Totals),
+	 flatten(Totals, Cs_Flat),*/
+
+
+	findall(
+		Total,
+		(
+			member(Values, Valueses),
+			foldl(coord_merge, Values, coord(_,0,0), Total)
+		),
+		Cs_Flat
+	),
+			
+/*
+	findall(
+		Unit_Total,
+		(
+			get_assoc*
+			Sorted.get(_Unit, Coords),
+			semigroup_foldl(coord_merge, Coords, [Unit_Total])
+		),
+		Cs_Flat
+	),
+*/			
+
+/*	maplist(vec_unit_value(As_And_Bs), Units, Cs),*/
+	/*
 	findall(Coord,
 	(
+		%for each unit
 		member(Unit, Units),
+		%find all coords of that unit and get the total
 		vec_unit_value(As_And_Bs, Unit, Coord)
 	)
 	,Cs),
-	flatten(Cs, Cs_Flat),
+	*/
+/*	flatten(Cs, Cs_Flat),*/
 	vec_reduce(Cs_Flat, Cs_Reduced).
 
 vec_sum(Vectors, Sum) :-
