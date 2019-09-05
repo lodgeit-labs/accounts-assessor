@@ -91,8 +91,8 @@ process_xml_ledger_request(_, Dom, Reports) :-
 	inner_xml(Dom, //reports/balanceSheetRequest, _),
 	/*
 		print the xml header, and after that, we can print random xml comments.
-	*/
-	process_xml_ledger_request2(Dom, Reports).
+	*//*gtrace,
+	profile(*/process_xml_ledger_request2(Dom, Reports).
 
 	
 process_xml_ledger_request2(Dom, Reports_Out) :-

@@ -105,7 +105,7 @@ Balance: a list of coord's
 */
 
 % Relates Date to the balance at that time of the given account.
-
+%:- table balance_until_day/9.
 % leave these in place until we've got everything updated w/ balance/5
 balance_until_day(Exchange_Rates, Accounts, Transactions_By_Account, Report_Currency, Exchange_Date, Account_Id, Date, Balance_Transformed, Transactions_Count) :-
 	assertion(account_exists(Accounts, Account_Id)),
@@ -120,6 +120,7 @@ balance_by_account(Exchange_Rates, Accounts, Transactions_By_Account, Report_Cur
 	add_days(Date, 1, Date2),
 	balance_until_day(Exchange_Rates, Accounts, Transactions_By_Account, Report_Currency, Exchange_Date, Account_Id, Date2, Balance_Transformed, Transactions_Count).
 
+:- table balance/5.
 % TODO: do "Transactions_Count" elsewhere
 % TODO: get rid of the add_days(...) and use generic period selector(s)
 balance(Static_Data, Account_Id, Date, Balance, Transactions_Count) :-
@@ -129,6 +130,7 @@ balance(Static_Data, Account_Id, Date, Balance, Transactions_Count) :-
 	
 	/* todo use transactions_in_account_set here */
 	
+	nonvar(Accounts),
 	assertion(account_exists(Accounts, Account_Id)),
 	add_days(Date,1,Date2),
 	(
@@ -195,20 +197,24 @@ net_activity_by_account(Static_Data, Account_Id, Net_Activity_Transformed, Trans
 
 % Now for balance sheet predicates. These build up a tree structure that corresponds to the account hierarchy, with balances for each account.
 
+
+
 balance_sheet_entry(Static_Data, Account_Id, Entry) :-
-	%format('balance_sheet_entry: ~w~n',[Account_Id]),
-%balance_sheet_entry(Exchange_Rates, Accounts, Transactions, Report_Currency, Exchange_Date, Account_Id, End_Date, Sheet_Entry) :-
-	/*
-	dict_vars(Static_Data, 
-		[End_Date, Exchange_Date, Exchange_Rates, Accounts, Transactions, Report_Currency]
-	),
-	*/
+	
+	/*this doesnt seem to help with tabling performance at all*/
+	dict_vars(Static_Data, [End_Date, Exchange_Date, Exchange_Rates, Accounts, Transactions_By_Account, Report_Currency]),
+	dict_from_vars(Static_Data_Simplified, [End_Date, Exchange_Date, Exchange_Rates, Accounts, Transactions_By_Account, Report_Currency]),
+	
+	balance_sheet_entry2(Static_Data_Simplified, Account_Id, Entry).
+
+:- table balance_sheet_entry2/3.
+balance_sheet_entry2(Static_Data, Account_Id, Entry) :-
 	% find all direct children sheet entries
 	findall(
 		Child_Sheet_Entry, 
 		(
 			account_child_parent(Static_Data.accounts, Child_Account, Account_Id),
-			balance_sheet_entry(Static_Data, Child_Account, Child_Sheet_Entry)
+			balance_sheet_entry2(Static_Data, Child_Account, Child_Sheet_Entry)
 			%balance_sheet_entry(Exchange_Rates, Accounts, Transactions, Report_Currency, Exchange_Date, Child_Account, End_Date, Child_Sheet_Entry)
 		),
 		Child_Sheet_Entries
@@ -218,22 +224,15 @@ balance_sheet_entry(Static_Data, Account_Id, Entry) :-
 	Entry = entry(Account_Id, Balance, Child_Sheet_Entries, Transactions_Count).
 
 accounts_report(Static_Data, Accounts_Report) :-
-	/*
-	dict_vars(Static_Data, 
-		[End_Date, Exchange_Date, Exchange_Rates, Accounts, Transactions, Report_Currency]
-	),
-	*/
 	balance_sheet_entry(Static_Data, 'Accounts', Entry),
-	% print_term(Entry,[]),
 	Entry = entry(_,_,Accounts_Report,_).
 
 balance_sheet_at(Static_Data, [Net_Assets_Entry, Equity_Entry]) :-
 	balance_sheet_entry(Static_Data, 'NetAssets', Net_Assets_Entry),
 	balance_sheet_entry(Static_Data, 'Equity', Equity_Entry).
 
-
-
 trial_balance_between(Exchange_Rates, Accounts, Transactions_By_Account, Report_Currency, Exchange_Date, _Start_Date, End_Date, [Trial_Balance_Section]) :-
+
 	balance_by_account(Exchange_Rates, Accounts, Transactions_By_Account, Report_Currency, Exchange_Date, 'Accounts', End_Date, Accounts_Balance, Transactions_Count),
 	balance_by_account(Exchange_Rates, Accounts, Transactions_By_Account, Report_Currency, Exchange_Date, 'CurrentEarnings', End_Date, Current_Earnings_Balance, _),
 	balance_by_account(Exchange_Rates, Accounts, Transactions_By_Account, Report_Currency, Exchange_Date, 'HistoricalEarnings', End_Date, Historical_Earnings_Balance, _),
