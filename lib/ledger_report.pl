@@ -120,6 +120,29 @@ balance_by_account(Exchange_Rates, Accounts, Transactions_By_Account, Report_Cur
 	add_days(Date, 1, Date2),
 	balance_until_day(Exchange_Rates, Accounts, Transactions_By_Account, Report_Currency, Exchange_Date, Account_Id, Date2, Balance_Transformed, Transactions_Count).
 
+
+account_own_transactions_sum(Exchange_Rates, Exchange_Date, Report_Currency, Account, Date, Transactions_By_Account, Sum, Transactions_Count) :-
+	add_days(Date,1,Date2),
+	(
+		Account_Transactions = Transactions_By_Account.get(Account)
+	->
+		true
+	;
+		Account_Transactions = []
+	),
+	findall(
+		Transaction,
+		(
+			member(Transaction, Account_Transactions),
+			transaction_before(Transaction, Date2)
+		),
+		Filtered_Transactions
+	),
+	length(Filtered_Transactions, Transactions_Count),
+	transaction_vectors_total(Filtered_Transactions, Totals),
+	vec_change_bases(Exchange_Rates, Exchange_Date, Report_Currency, Totals, Sum).
+	
+
 :- table balance/5.
 % TODO: do "Transactions_Count" elsewhere
 % TODO: get rid of the add_days(...) and use generic period selector(s)
@@ -215,7 +238,6 @@ balance_sheet_entry2(Static_Data, Account_Id, Entry) :-
 		(
 			account_child_parent(Static_Data.accounts, Child_Account, Account_Id),
 			balance_sheet_entry2(Static_Data, Child_Account, Child_Sheet_Entry)
-			%balance_sheet_entry(Exchange_Rates, Accounts, Transactions, Report_Currency, Exchange_Date, Child_Account, End_Date, Child_Sheet_Entry)
 		),
 		Child_Sheet_Entries
 	),
@@ -229,10 +251,12 @@ balance_sheet_entry2(Static_Data, Account_Id, Entry) :-
 		Child_Count,
 		member(entry(_,_,_,Child_Count),Child_Sheet_Entries),
 		Child_Counts
-	),
-	vec_sum(Child_Balances, Balance),
-	sum_list(Child_Counts, Transactions_Count),
-	%balance(Static_Data, Account_Id, Static_Data.end_date, Balance, Transactions_Count),
+	       ),
+	account_own_transactions_sum(Static_Data.exchange_rates, Static_Data.exchange_date, Static_Data.report_currency, Account_Id, Static_Data.end_date, Static_Data.transactions_by_account, Own_Sum, Own_Transactions_Count),
+	
+	vec_sum([Own_Sum | Child_Balances], Balance),
+	sum_list(Child_Counts, Children_Transaction_Count),
+	Transactions_Count is Children_Transaction_Count + Own_Transactions_Count,
 	Entry = entry(Account_Id, Balance, Child_Sheet_Entries, Transactions_Count).
 
 accounts_report(Static_Data, Accounts_Report) :-
