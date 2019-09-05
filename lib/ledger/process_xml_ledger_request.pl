@@ -528,7 +528,7 @@ extract_output_dimensional_facts(Dom, Output_Dimensional_Facts) :-
 			throw_string('//reports/balanceSheetRequest/outputDimensionalFacts tag\'s content must be "on" or "off"')
 		)
 	;
-		Output_Dimensional_Facts = on
+		Output_Dimensional_Facts = off
 	).
 	
 
