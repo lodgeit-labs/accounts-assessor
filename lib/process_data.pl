@@ -147,7 +147,8 @@ process_data(_, Path, Options) :-
 	findall(
 		Alert, 
 		(
-			member(Key:Val, Alerts2), 
+			member(KV, Alerts2), 
+			((Key:Val) = KV -> true ; throw('internal error')),
 			atomic_list_concat([Key,':',Val], Alert)
 		), 
 		Alerts3

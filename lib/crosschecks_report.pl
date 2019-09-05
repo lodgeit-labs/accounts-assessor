@@ -53,9 +53,10 @@ crosschecks_report(Sd, Json) :-
 		equality(account_balance(reports/bs/current, 'Accounts'/'NetAssets'), account_balance(reports/bs/current, 'Accounts'/'Equity'))
 	],
 	maplist(evaluate_equality(Sd), Crosschecks, Results, Errors),
+	exclude(var, Errors, Errors2),
 	Json = _{
 		 results: Results,
-		 errors: Errors
+		 errors: Errors2
 	}.
 
 evaluate_equality(Sd, E, [Check, Evaluation, Status], Error) :-
@@ -68,13 +69,13 @@ evaluate_equality(Sd, E, [Check, Evaluation, Status], Error) :-
 	 (
 	  Equality_Str = '=',
 	  Status = 'ok',
-	  Error = ''
+	  Error = _
 	 )
 	;
 	 (
 	  Equality_Str = '≠',
 	  Status = 'error',
-	  Error = Check
+	  Error = ('crosscheck':Check)
 	 )
 	),
 	term_string(A, A_Str),
@@ -83,8 +84,8 @@ evaluate_equality(Sd, E, [Check, Evaluation, Status], Error) :-
 	term_string(B2, B2_Str),
 	format(
 	       string(Check),
-	       '~w = ~w',
-	       [A_Str, B_Str]),
+	       '~w ~w ~w',
+	       [A_Str, Equality_Str, B_Str]),
 	format(
 	       string(Evaluation),
 	       '~w ~w ~w',

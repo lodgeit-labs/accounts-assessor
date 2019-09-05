@@ -233,8 +233,8 @@ make_gl_viewer_report(Info) :-
 	files:report_file_path(Viewer_Dir, Url, Tmp_Viewer_Dir_Absolute),
 	atomic_list_concat(['cp -r ', Viewer_Dir_Absolute, ' ', Tmp_Viewer_Dir_Absolute], Cmd),
 	shell(Cmd),
-	%files:report_file_path(Viewer_Dir, Url, _),
-	report_page:report_entry('GL viewer', Url, Info).
+	atomic_list_concat([Url, '/'], Url_With_Slash),
+	report_page:report_entry('GL viewer', Url_With_Slash, Info).
 	
 
 make_gl_report(Sd, Sources, Suffix, Outputs, Gl) :-
