@@ -246,8 +246,11 @@ investment_report_2_unrealized(Static_Data, Investment, Row) :-
 	
 	maybe Opening_Unit_Cost_Converted, Opening_Unit_Cost_Foreign should already be stripped of and taken from  with_cost_per_unit?
 	
+	well, since the problem is only with closing values, we'd only need to solve it here, for unrealized
+
 	*/
 	
+	/*hm, actually this looks like it should maybe work*/
 	exchange_rate_throw(Exchange_Rates, End_Date, Unit, Investment_Currency, _),
 	
 	(
