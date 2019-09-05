@@ -217,7 +217,15 @@ generate_gl_data(Sd, Processed_S_Transactions, Transactions0, Transactions1, Tra
 	append(Processed_S_Transactions, ['livestock'], Sources),
 	make_gl_report(Sd, Sources, '', Outputs, Report1),
 	make_gl_report(Sd, Processed_S_Transactions, '_no_livestock', Transactions0, Report2),
-	make_gl_viewer_report(Report3).
+
+	/*this fails when generating reports from within investment endpoint, which calls process_ledger multiple times.
+	if we want to generate these reports for each call from within investment endpoint, we should come up with a unique directory for each.*/
+	catch(
+		make_gl_viewer_report(Report3),
+		error(existence_error(_,_),_),
+
+		true
+	).
 
 make_gl_viewer_report(Info) :-
 	Viewer_Dir = 'general_ledger_viewer',
