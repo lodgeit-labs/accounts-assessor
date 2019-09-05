@@ -107,7 +107,7 @@ print_contexts(Contexts) :-
 	maplist(print_context, Contexts).
 
 print_context(Context) :-
-	assertion(print_context2(Context)).
+	print_context2(Context).
 	
 print_context2(context(Id, Period, Entity, Scenario)) :-
 	write('<xbrli:context id="'), write(Id), writeln('">'),
