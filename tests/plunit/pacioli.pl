@@ -45,11 +45,11 @@ test(1,all(x=[x])) :-
 test(1,all(Res0 = [[coord(b, 1.0, 0.0)]])) :-
 	vec_add([coord(a, 5, 1), coord(b, 1, 0.0)], [coord(a, 0.0, 4)], Res0).
 
-test(1,all(x=[x])) :-
-	vec_add([coord(a, 5, 1), coord(b, 1, 0.0), coord(a, 8.0, 4)], [], Res1),
-	Res1 = [coord(a, 8.0, 0), coord(b, 1.0, 0.0)],
-	vec_add([value('AUD',25)], [value('AUD',50)], R),
-	R = [value('AUD',75)].
+test(1,all(Res1 = [[coord(a, 8.0, 0), coord(b, 1.0, 0.0)]])) :-
+	vec_add([coord(a, 5, 1), coord(b, 1, 0.0), coord(a, 8.0, 4)], [], Res1).
+
+test(1,all(R = [[value('AUD',75)]])) :-
+	vec_add([value('AUD',25)], [value('AUD',50)], R).
 
 :- end_tests(pacioli).
 

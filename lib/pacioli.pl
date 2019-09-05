@@ -145,7 +145,7 @@ vec_add(As, Bs, Cs_Reduced) :-
 		Total,
 		(
 			member(Values, Valueses),
-			foldl(coord_merge, Values, coord(_,0,0), Total)
+			foldl(coord_merge, Values, coord(_,0,0), Total) /*breaks adding vectors of values*/
 		),
 		Cs_Flat
 	),
