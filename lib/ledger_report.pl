@@ -220,7 +220,19 @@ balance_sheet_entry2(Static_Data, Account_Id, Entry) :-
 		Child_Sheet_Entries
 	),
 	% find balance for this account including subaccounts (sum all transactions from beginning of time)
-	balance(Static_Data, Account_Id, Static_Data.end_date, Balance, Transactions_Count),
+	findall(
+		Child_Balance,
+		member(entry(_,Child_Balance,_,_),Child_Sheet_Entries),
+		Child_Balances
+	),
+	findall(
+		Child_Count,
+		member(entry(_,_,_,Child_Count),Child_Sheet_Entries),
+		Child_Counts
+	),
+	vec_sum(Child_Balances, Balance),
+	sum_list(Child_Counts, Transactions_Count),
+	%balance(Static_Data, Account_Id, Static_Data.end_date, Balance, Transactions_Count),
 	Entry = entry(Account_Id, Balance, Child_Sheet_Entries, Transactions_Count).
 
 accounts_report(Static_Data, Accounts_Report) :-
