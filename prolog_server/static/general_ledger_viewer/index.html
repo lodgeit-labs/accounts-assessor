@@ -12,7 +12,8 @@
 <body>
 
 <div id="top">
-	<account_selector_item :item="accounts_filter" style="float:left; height:100%"></account_selector_item>
+	<!--  style="float:left; height:100%" -->
+	<account_selector_item :item="accounts_filter"></account_selector_item>
 	<transformations :items="transformations"></transformations>
 </div>
 
@@ -35,7 +36,7 @@
 		`,
 		methods: {
 			change_checked_on_children_recursively: function(e){
-/				this.item.children.forEach(child => {
+				this.item.children.forEach(child => {
 					change_checked(child, this.item.checked);
 				});
 			}}
@@ -72,7 +73,7 @@
 					<ul>
 						<li v-for="item in transactions" :key="item.id">
 								<span v-if="$root.accounts_filter_index[item.account].checked">
-									GL transaction: <transaction :data="item"></transaction>
+									GL: <transaction :data="item"></transaction>
 								</span>
 						</li>
 					</ul>

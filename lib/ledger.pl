@@ -222,10 +222,10 @@ generate_gl_data(Sd, Processed_S_Transactions, Transactions0, Transactions1, Tra
 make_gl_viewer_report(Info) :-
 	Viewer_Dir = 'general_ledger_viewer',
 	absolute_file_name(my_static(Viewer_Dir), Viewer_Dir_Absolute, [file_type(directory)]),
-	files:my_tmp_file_name(Viewer_Dir, Tmp_Viewer_Dir_Absolute),
+	files:report_file_path(Viewer_Dir, Url, Tmp_Viewer_Dir_Absolute),
 	atomic_list_concat(['cp -r ', Viewer_Dir_Absolute, ' ', Tmp_Viewer_Dir_Absolute], Cmd),
 	shell(Cmd),
-	files:report_file_path(Viewer_Dir, Url, _),
+	%files:report_file_path(Viewer_Dir, Url, _),
 	report_page:report_entry('GL viewer', Url, Info).
 	
 
