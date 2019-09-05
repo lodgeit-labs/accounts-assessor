@@ -130,8 +130,8 @@ vec_add(As, Bs, Cs_Reduced) :-
 	vec_units(As_And_Bs, Units),
 	findall(Coord,
 	(
-		vec_unit_value(As_And_Bs, Unit, Coord),
-		memberchk(Unit, Units)
+		member(Unit, Units),
+		vec_unit_value(As_And_Bs, Unit, Coord)
 	)
 	,Cs),
 	flatten(Cs, Cs_Flat),
