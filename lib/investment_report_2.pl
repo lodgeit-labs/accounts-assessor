@@ -242,7 +242,7 @@ investment_report_2_unrealized(Static_Data, Investment, Row) :-
 	Info = info(Investment_Currency, Unit, Opening_Unit_Cost_Converted, Opening_Unit_Cost_Foreign, Opening_Date),
 
 	/*
-	todo: with at-cost reporting, the goods unit will be a with_cost_per_unit, and there will be no exchange rate in the table.
+	TODO: with at-cost reporting, the goods unit will be a with_cost_per_unit, and there will be no exchange rate in the table.
 	
 	maybe Opening_Unit_Cost_Converted, Opening_Unit_Cost_Foreign should already be stripped of and taken from  with_cost_per_unit?
 	
@@ -385,7 +385,7 @@ ir2_row_to_html(Report_Currency, Row, Html) :-
 		td(Unit), td(Count), td(Investment_Currency), 
 		
 		td(Opening_Date2), td(Opening_Unit_Cost_Foreign2), td(Opening_Conversion2), td(Opening_Unit_Cost_Converted2), td(Opening_Total_Cost_Foreign2), td(Opening_Total_Cost_Converted2),
-		% todo purchase td(Opening_Date2), td(Opening_Unit_Cost_Foreign2), td(Opening_Conversion2), td(Opening_Unit_Cost_Converted2), td(Opening_Total_Cost_Foreign2), td(Opening_Total_Cost_Converted2),
+		% TODO purchase td(Opening_Date2), td(Opening_Unit_Cost_Foreign2), td(Opening_Conversion2), td(Opening_Unit_Cost_Converted2), td(Opening_Total_Cost_Foreign2), td(Opening_Total_Cost_Converted2),
 		
 		% probably use the same 6-items group:
 		td(Sale_Date2), td(Sale_Unit_Price_Foreign2), td(Sale_Conversion2), td(Sale_Unit_Price_Converted2),
@@ -558,7 +558,7 @@ optional_converted_value(V1, C, V2) :-
 
 
 /*
-todo:
+TODO:
 
 change "opening cost" to "opening total market value", "opening unit market vale"
 same for closing: closing unit market value foreign/converted..

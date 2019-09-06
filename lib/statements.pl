@@ -84,7 +84,7 @@
 
 
 /*
-todo add more rdet declarations here
+TODO add more rdet declarations here
 */
 :- rdet(preprocess_s_transaction/5).
 
@@ -676,7 +676,7 @@ get_relevant_exchange_rates2([Report_Currency], Exchange_Rates, Transactions, Ex
 	).
 
 get_relevant_exchange_rates2([Report_Currency], Date, Exchange_Rates, Transactions, Exchange_Rates2) :-
-	%find all currencies from all transactions, todo, find only all currencies appearing in totals of accounts at the report end date
+	%find all currencies from all transactions, TODO: , find only all currencies appearing in totals of accounts at the report end date
 	findall(
 		Currency,
 		(

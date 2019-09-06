@@ -65,7 +65,7 @@
 :- use_module('../../lib/exchange_rates', [
 		exchange_rate/5]).
 :- use_module('../../lib/files', [
-		my_tmp_file_name/2,
+		absolute_tmp_path/2,
 		request_tmp_dir/1,
 		server_public_url/1]).
 :- use_module('../../lib/system_accounts', [
@@ -203,7 +203,7 @@ output_results(Static_Data0, Outstanding, Processed_Until, Json_Request_Results)
 
 	assertion(ground((Balance_Sheet2, ProfitAndLoss2, ProfitAndLoss2_Historical, Trial_Balance2))),
 
-	/*todo can we do without this units in units out nonsense? */
+	/* TODO can we do without this units in units out nonsense? */
 	format_report_entries(xbrl, Accounts, 0, Report_Currency, Instant_Context_Id_Base,  Balance_Sheet2, [], Units0, [], Bs_Lines),
 	format_report_entries(xbrl, Accounts, 0, Report_Currency, Duration_Context_Id_Base, ProfitAndLoss2,  Units0, Units1, [], Pl_Lines),
 	format_report_entries(xbrl, Accounts, 0, Report_Currency, Duration_Context_Id_Base, ProfitAndLoss2_Historical,  Units1, Units2, [], Pl_Historical_Lines),
@@ -310,7 +310,7 @@ investment_reports2(Static_Data, Outstanding, Alerts, Ir, Files) :-
 	% report period	
 	investment_report_2:investment_report_2(Static_Data, Outstanding, '', Json1, Files1),
 
-	/* todo we cant do all_time without market values, use last known? */
+	/* TODO: we cant do all_time without market values, use last known? */
 	investment_report_2:investment_report_2(Static_Data.put(start_date, date(1,1,1)), Outstanding, '_since_beginning', Json2, Files2),
 	
 	% historical
@@ -349,7 +349,7 @@ prepare_unique_taxonomy_url(Taxonomy_Dir_Url) :-
    request_tmp_dir(Tmp_Dir),
    server_public_url(Server_Public_Url),
    atomic_list_concat([Server_Public_Url, '/tmp/', Tmp_Dir, '/taxonomy/'], Taxonomy_Dir_Url),
-   my_tmp_file_name('/taxonomy', Tmp_Taxonomy),
+   absolute_tmp_path('/taxonomy', Tmp_Taxonomy),
    absolute_file_name(my_static('taxonomy/'), Static_Taxonomy, [file_type(directory)]),
    atomic_list_concat(['ln -s ', Static_Taxonomy, ' ', Tmp_Taxonomy], Cmd),
    shell(Cmd, 0).

@@ -151,7 +151,7 @@ balance(Static_Data, Account_Id, Date, Balance, Transactions_Count) :-
 		[Exchange_Date, Exchange_Rates, Accounts, Transactions_By_Account, Report_Currency]
 	),
 	
-	/* todo use transactions_in_account_set here */
+	/* TODO use transactions_in_account_set here */
 	
 	nonvar(Accounts),
 	assertion(account_exists(Accounts, Account_Id)),
@@ -174,7 +174,7 @@ balance(Static_Data, Account_Id, Date, Balance, Transactions_Count) :-
 		Filtered_Transactions
 	),
 	
-	/* todo should take total including sub-accounts, probably */
+	/* TODO should take total including sub-accounts, probably */
 	length(Filtered_Transactions, Transactions_Count),
 	transaction_vectors_total(Filtered_Transactions, Totals),
 	/*
@@ -548,7 +548,7 @@ account_value(Static_Data, Account_Id, Date, Value) :-
 
 
 /*
-todo: could/should the concept of what a balance of some account is be specified declaratively somewhere so that we could
+TODO: could/should the concept of what a balance of some account is be specified declaratively somewhere so that we could
 abstract out of simply assoticating the specific earnings logic to the NetIncomeLoss role?
 yes
 */

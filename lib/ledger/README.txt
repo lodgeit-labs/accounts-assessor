@@ -44,5 +44,5 @@ If the transaction type has a trading account specified, this is an earnings acc
 You can make any pair of accounts (foo, bar) behave like Financial_Investments and Investment_Income (wrt the investments logic) by using "<exchangeAccount>foo</exchangeAccount><tradingAccount>bar</tradingAccount>" and in the actual transactions including <unit> and <unitType>.
 
 
-# documentation todo
+# documentation TODO
 would be nice to have clickable links to predicate definitions / documentation. In theory this should be possible with pldoc, but i have not had much luck with it yet. 

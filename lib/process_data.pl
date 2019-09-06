@@ -127,8 +127,8 @@ process_data(_, Path, Options) :-
 	),
 	
 	response_file_name(Request_File_Name, Output_File_Name),
-	my_tmp_file_name(Output_File_Name, Output_File_Path),
-	my_tmp_file_name('response.json', Json_Response_File_Path),
+	absolute_tmp_path(Output_File_Name, Output_File_Path),
+	absolute_tmp_path('response.json', Json_Response_File_Path),
 	
 		
 	tmp_file_url(Output_File_Name, Output_File_Url),

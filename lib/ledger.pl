@@ -96,7 +96,7 @@ process_ledger(
 	'-->\n\n'], Debug_Message0),
 	writeln(Debug_Message0),
 
-	/*todo: if there are no unit values, force Cost_Or_Market = cost?*/
+	/*TODO: if there are no unit values, force Cost_Or_Market = cost?*/
 	(
 		Cost_Or_Market = cost
 	->

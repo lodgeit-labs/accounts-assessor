@@ -1,6 +1,6 @@
 % see also doc/ledger-livestock
 
-/*todo:
+/*TODO:
 beginning and ending dates are often ignored
 
 this file needs serious cleanup, one reason to delay that might be that we can end up abstracting this into a general average cost pricing with adjustment transactions method.
@@ -33,14 +33,14 @@ when bank statements are processed:
 	If there is a livestock unit ("cows") set on a bank account transaction:
 		count has to be set to ("20"). 
 		
-		maybe todo:
+		maybe TODO:
 			internally, we tag the transaction with a sell/buy livestock action type. 
 			user should have sell/buy livestock action types in their action taxonomy.
 			the "exchanged" account will be one where livestock increase/decrease transactions are internally collected. 
 		
 		SYSTEM CAN INFER BUY/SELL i.e. A BUY IS A PAYMENT & A SELL IS A DEPOSIT. OF COURSE, THE UNIT TYPE MUST BE DESCRIBED. COW. PIG, ETC. AND THE UNIT TYPE MUST HAVE AN ACCOUNTS TAXONOMICAL RELATIONSHIP
 		
-		maybe todo:
+		maybe TODO:
 			internally, livestock buys and sells are transformed into "livestock buy/sell events" OK.
 		
 		one excel sheet for bank statement, one for each livestock type: natural increase, loss, rations..
@@ -580,7 +580,7 @@ opening_inventory_transactions(Start_Days, Opening_Costs_And_Counts, Livestock_T
 	make_transaction(Start_Days, 'livestock opening inventory', 'CapitalIntroduced', Opening_Vector_Credit, T2).
 	
 	
-/*todo transactions_by_account here...*/
+/*TODO transactions_by_account here...*/
 process_livestock(Livestock_Doms, Livestock_Types, S_Transactions, Transactions_In, Opening_Costs_And_Counts, Start_Days, End_Days, _Exchange_Rates, Accounts, _Report_Currency, Transactions_Out, Livestock_Events, Average_Costs, Average_Costs_Explanations) :-
 	extract_livestock_events(Livestock_Doms, Livestock_Events),
 	extract_natural_increase_costs(Livestock_Doms, Natural_Increase_Costs),
@@ -606,7 +606,7 @@ process_livestock(Livestock_Doms, Livestock_Types, S_Transactions, Transactions_
 	get_livestock_cogs_transactions(Accounts, Livestock_Types, Opening_Costs_And_Counts, Average_Costs, (Start_Days, End_Days, Average_Costs, Transactions_By_Account, S_Transactions),  Cogs_Transactions),
 	append(Transactions3, Cogs_Transactions, Transactions_Out)/*,
 
-	/*todo transactions_by_account here...*/
+	/*TODO transactions_by_account here...*/
 	
 	maplist(do_livestock_cross_check(Livestock_Events, Natural_Increase_Costs, S_Transactions, Transactions_Out, Opening_Costs_And_Counts, Start_Days, End_Days, Exchange_Rates, Accounts, Report_Currency, Average_Costs), Livestock_Types)*/.
 

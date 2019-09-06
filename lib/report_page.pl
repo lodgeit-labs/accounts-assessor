@@ -18,7 +18,7 @@ html_tokenlist_string(Tokenlist, String) :-
 	close(Mem_Stream),
 	memory_file_to_string(X, String).
 
-/*todo rename*/
+/*TODO rename*/
 report_item(File_Name, Text, Url) :-
 	files:report_file_path(File_Name, Url, File_Path),
 	write_file(File_Path, Text).

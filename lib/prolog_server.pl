@@ -31,7 +31,7 @@
 :- use_module(library(http/http_files)).
 :- use_module(library(http/http_error)). 
 
-:- use_module('../lib/files', [bump_tmp_directory_id/0, my_tmp_file_name/2]).
+:- use_module('../lib/files', [bump_tmp_directory_id/0, absolute_tmp_path/2]).
 :- use_module('chat/residency').
 :- use_module('chat/sbe').
 :- ensure_loaded('process_data.pl').
@@ -47,7 +47,7 @@
 :- http_handler(root(chat/sbe), sbe_request, [methods([post])]).
 :- http_handler(root(chat/residency), residency_request, [methods([post])]).
 :- http_handler('/favicon.ico', http_reply_file(my_static('favicon.ico'), []), []).
-%todo:- http_handler(root(tmp), http_reply_from_files('./tmp', []), [prefix]).
+% TODO : - http_handler(root(tmp), http_reply_from_files('./tmp', []), [prefix]).
 :- http_handler(root(.), http_reply_from_files('.', []), [prefix]).
 :- http_handler(root(run/Test), tests(Test), [methods([get])]).
 
@@ -66,7 +66,7 @@ run_simple_server :-
 % -------------------------------------------------------------------
 
 run_daemon :-
-   /*todo maybe set server public url here if we want to run requests manually from daemon's repl */
+   /*TODO maybe set server public url here if we want to run requests manually from daemon's repl */
    use_module(library(http/http_unix_daemon)),
    http_daemon.
    
@@ -121,7 +121,7 @@ upload(Request) :-
 		process_request(User_File_Path, Tmp_File_Path, Request, Options),
 		string(E),
 		throw(http_reply(bad_request(string(E))))
-		/* todo (optionally only if the request content type is xml), return the errror as xml. the status code still should be bad request, but it's not required. 
+		/* TODO (optionally only if the request content type is xml), return the errror as xml. the status code still should be bad request, but it's not required. 
 		are we able to throw a bad_request and have the server produce a xml error page? if not, we'll need to 
 		%writeln('<xml errror blablabla>'), but this means endpoints cannot write anything to the output stream until 
 		everything's done. The option of generating the responses in a structured way has a lot of open questions (streaming..), so probably just redirecting endpoint's output to a file will be best choice now.
@@ -174,7 +174,7 @@ save_file(In, file(User_File_Path, Tmp_File_Path), Options) :-
 tmp_file_path_from_url(FileName, Path) :-
 	exclude_file_location_from_filename(FileName, FileName2),
 	http_safe_file(FileName2, []),
-	my_tmp_file_name(FileName2, Path).
+	absolute_tmp_path(FileName2, Path).
 
 exclude_file_location_from_filename(Name_In, Name_Out) :-
    atom_chars(Name_In, Name1),

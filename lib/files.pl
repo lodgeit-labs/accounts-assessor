@@ -1,7 +1,7 @@
 :- module(files, [
 		generate_unique_tmp_directory_base/0, 
 		bump_tmp_directory_id/0, 
-		my_tmp_file_name/2,
+		absolute_tmp_path/2,
 		request_tmp_dir/1,
 		server_public_url/1
 		,set_server_public_url/1
@@ -39,7 +39,7 @@ set_search_path(Alias, Path_From_This_Source_File) :-
 /*
   to be used instead of absolute_file_name for request-specific tmp files
 */
-my_tmp_file_name(File_Name, Absolute_File_Name) :-
+absolute_tmp_path(File_Name, Absolute_File_Name) :-
 	my_tmp_file_path(File_Name, File_Path_Relative_To_Tmp),
 	absolute_file_name(my_tmp(File_Path_Relative_To_Tmp), Absolute_File_Name, []).
 
@@ -48,7 +48,7 @@ report_file_path(FN, Url, Path) :-
 	request_tmp_dir(Tmp_Dir),
 	server_public_url(Server_Public_Url),
 	atomic_list_concat([Server_Public_Url, '/tmp/', Tmp_Dir, '/', FN], Url),
-	my_tmp_file_name(FN, Path).
+	absolute_tmp_path(FN, Path).
 
 my_tmp_file_path(File_Name, File_Path_Relative_To_Tmp) :-
 	my_request_tmp_dir(Tmp_Dir),
@@ -66,7 +66,7 @@ bump_tmp_directory_id :-
    gensym(Base, Dir),
    retractall(my_request_tmp_dir(_)),
    asserta(my_request_tmp_dir(Dir)),
-   my_tmp_file_name('', Path),
+   absolute_tmp_path('', Path),
    make_directory(Path),
    (
       (absolute_file_name(my_tmp('last'), Last, [access(none), file_errors(fail)]),!)
@@ -107,7 +107,7 @@ write_file(Path, Text) :-
    close(Stream).
 
 write_tmp_file(Name, Text) :-
-	my_tmp_file_name(Name, Path),
+	absolute_tmp_path(Name, Path),
 	write_file(Path, Text).
 
 write_tmp_json_file(Name, Json) :-
