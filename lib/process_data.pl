@@ -57,6 +57,9 @@ print_xml_response(Json_Out, Output_Xml_String) :-
 /* used from command line */
 process_data_cmdline(Path) :-
 	bump_tmp_directory_id,
+	files:exclude_file_location_from_filename(Path, Request_Fn),
+	absolute_tmp_path(Request_Fn, Tmp_Request_File_Path),
+	copy_file(Path, Tmp_Request_File_Path),
 	process_data(Path, Path, []).
    
 process_xml_request(File_Name, Dom, (Report_Files, Response_Title)) :-
@@ -109,7 +112,7 @@ to_json(Reports, Reports2) :-
 
 process_data(_, Path, Options) :-
 /*User_Request_File_Path, Saved_Request_File_Path*/
-	exclude_file_location_from_filename(Path, Request_File_Name),
+	files:exclude_file_location_from_filename(Path, Request_File_Name),
 	maybe_supress_generating_unique_taxonomy_urls(Options),
 	get_requested_output_type(Options, Requested_Output_Type),
 

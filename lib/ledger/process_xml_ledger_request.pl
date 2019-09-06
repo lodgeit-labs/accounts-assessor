@@ -117,12 +117,15 @@ process_xml_ledger_request2(Dom, Reports_Out) :-
    	extract_livestock_opening_costs_and_counts(Livestock_Doms, Livestock_Opening_Costs_And_Counts),
 	findall(S_Transaction, extract_s_transaction(Dom, Start_Date_Atom, S_Transaction), S_Transactions0),
 	
-	/* flip from bank's perspective to our perspective */
+	/* 
+		flip s_transactions from bank's perspective to our perspective and sort 
+	*/
 	maplist(invert_s_transaction_vector, S_Transactions0, S_Transactions0b),
 	sort_s_transactions(S_Transactions0b, S_Transactions),
 	
-	/* process_ledger turns s_transactions into transactions */
-	
+	/* 
+		process_ledger turns s_transactions into transactions
+	*/
 	process_ledger(Cost_Or_Market, Livestock_Doms, S_Transactions, Processed_S_Transactions, Start_Date, End_Date, Exchange_Rates0, Transaction_Types, Report_Currency, Livestock_Types, Livestock_Opening_Costs_And_Counts, Accounts0, Accounts, Transactions, Transactions_By_Account, _Transaction_Transformation_Debug, Outstanding, Processed_Until, Warnings, Errors, Gl),
 
 	print_relevant_exchange_rates_comment(Report_Currency, End_Date, Exchange_Rates0, Transactions),
@@ -130,14 +133,12 @@ process_xml_ledger_request2(Dom, Reports_Out) :-
 	writeln("<!-- exchange rates 2:"),
 	writeln(Exchange_Rates),
 	writeln("-->"),
+	
 	print_xbrl_header,
 
 	dict_from_vars(Static_Data,
-		[Cost_Or_Market, Output_Dimensional_Facts, Start_Date, End_Date, Exchange_Rates, Accounts, Transactions, Report_Currency, Transaction_Types, Gl]),
-	
-	Static_Data2 = Static_Data.put(transactions_by_account, Transactions_By_Account),
-
-	output_results(Static_Data2, Outstanding, Processed_Until, Reports),
+		[Cost_Or_Market, Output_Dimensional_Facts, Start_Date, End_Date, Exchange_Rates, Accounts, Transactions, Report_Currency, Transaction_Types, Gl, Transactions_By_Account]),
+	output_results(Static_Data, Outstanding, Processed_Until, Reports),
 	
 	Reports_Out = _{
 		files: Reports.files,
@@ -148,11 +149,9 @@ process_xml_ledger_request2(Dom, Reports_Out) :-
 	writeln('</xbrli:xbrl>'),
 
 	writeln('<!-- '),
-	writeq(Warnings),
-	nl,
+	writeq(Warnings), nl,
 	writeq(Errors),
 	writeln(' -->'),
-	
 	nl, nl.
 
 output_results(Static_Data0, Outstanding, Processed_Until, Json_Request_Results) :-
@@ -208,13 +207,15 @@ output_results(Static_Data0, Outstanding, Processed_Until, Json_Request_Results)
 	format_report_entries(xbrl, Accounts, 0, Report_Currency, Duration_Context_Id_Base, ProfitAndLoss2,  Units0, Units1, [], Pl_Lines),
 	format_report_entries(xbrl, Accounts, 0, Report_Currency, Duration_Context_Id_Base, ProfitAndLoss2_Historical,  Units1, Units2, [], Pl_Historical_Lines),
 	format_report_entries(xbrl, Accounts, 0, Report_Currency, Instant_Context_Id_Base,  Trial_Balance2, Units2, Units3, [], Tb_Lines),
-	
-	investment_reports(Static_Data, Outstanding, Investment_Report_Info),
 
+	investment_reports(Static_Data, Outstanding, Investment_Report_Info),
 	ledger_html_reports:bs_page(Static_Data, Balance_Sheet2, Bs_Report_Page_Info),
 	ledger_html_reports:pl_page(Static_Data, ProfitAndLoss2, '', Pl_Report_Page_Info),
 	ledger_html_reports:pl_page(Static_Data_Historical, ProfitAndLoss2_Historical, '_historical', Pl_Html_Historical_Info),
 
+	make_gl_viewer_report(Gl_Viewer_Page_Info),
+	make_gl_report(Static_Data0.gl, '', Gl_Report_File_Info),
+	
 	Reports = _{
 		pl: _{
 			current: ProfitAndLoss2,
@@ -258,9 +259,11 @@ output_results(Static_Data0, Outstanding, Processed_Until, Json_Request_Results)
 	writeln(Report_Lines),
 	
 	append([
+		   	Gl_Viewer_Page_Info,
 			Bs_Report_Page_Info,
 			Pl_Report_Page_Info,
-			Pl_Html_Historical_Info
+			Pl_Html_Historical_Info,
+			Gl_Report_File_Info
 		],
 		Investment_Report_Info.files,
 		Files
@@ -272,6 +275,22 @@ output_results(Static_Data0, Outstanding, Processed_Until, Json_Request_Results)
 		warnings:[],
 		reports: Reports2
 	}.
+
+/* todo this should be done in output_results */
+make_gl_viewer_report(Info) :-
+	%gtrace,
+	Viewer_Dir = 'general_ledger_viewer',
+	absolute_file_name(my_static(Viewer_Dir), Viewer_Dir_Absolute, [file_type(directory)]),
+	files:report_file_path(Viewer_Dir, Url, Tmp_Viewer_Dir_Absolute),
+	atomic_list_concat(['cp -r ', Viewer_Dir_Absolute, ' ', Tmp_Viewer_Dir_Absolute], Cmd),
+	shell(Cmd),
+	atomic_list_concat([Url, '/'], Url_With_Slash),
+	report_page:report_entry('GL viewer', Url_With_Slash, Info).
+	
+make_gl_report(Dict, Suffix, Report_File_Info) :-
+	dict_json_text(Dict, Json_Text),
+	atomic_list_concat(['general_ledger', Suffix, '.json'], Fn),
+	report_page:report_item(Fn, Json_Text, Report_File_Info).
 
 print_dimensional_facts(Static_Data, Instant_Context_Id_Base, Duration_Context_Id_Base, Entity_Identifier, Results0, Results3) :-
 	print_banks(Static_Data, Instant_Context_Id_Base, Entity_Identifier, Results0, Results1),

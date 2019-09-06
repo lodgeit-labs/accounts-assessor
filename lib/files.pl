@@ -125,6 +125,31 @@ replace_request_with_response(Atom, Response) :-
 		String \= Response
 	).
 
+
+% -------------------------------------------------------------------
+% save_file/3
+% -------------------------------------------------------------------
+
+%:- public save_file/3.
+
+save_file(In, file(User_File_Path, Tmp_File_Path), Options) :-
+	option(filename(User_File_Path), Options),
+	% (for Internet Explorer/Microsoft Edge)
+	tmp_file_path_from_url(User_File_Path, Tmp_File_Path),
+	setup_call_cleanup(open(Tmp_File_Path, write, Out), copy_stream_data(In, Out), close(Out)).
+
+tmp_file_path_from_url(FileName, Path) :-
+	exclude_file_location_from_filename(FileName, FileName2),
+	http_safe_file(FileName2, []),
+	absolute_tmp_path(FileName2, Path).
+
+exclude_file_location_from_filename(Name_In, Name_Out) :-
+   atom_chars(Name_In, Name1),
+   utils:remove_before('\\', Name1, Name2),
+   utils:remove_before('/', Name2, Name3),
+   atomic_list_concat(Name3, Name_Out).
+
+
    
 :- initialization(generate_unique_tmp_directory_base).
 

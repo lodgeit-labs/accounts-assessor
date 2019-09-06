@@ -142,10 +142,9 @@ tests(Url, Request) :-
 	bump_tmp_directory_id,
 	absolute_file_name(my_tests(Url), Test_File_Path, [ access(read), file_errors(fail) ]),
 	copy_test_file_into_tmp(Test_File_Path, Url),
-	%exclude_file_location_from_filename(Path, File_Name),
 	process_request(Url, Test_File_Path, Request, []).
 
-copy_test_file_into_tmp(Path, Url) :-
+copy_test_file_into_tmp(/*+*/Path, /*+*/Url) :-
 	tmp_file_path_from_url(Url, Tmp_Request_File_Path),
 	copy_file(Path, Tmp_Request_File_Path).
 
@@ -158,40 +157,6 @@ multipart_post_request(Request) :-
    memberchk(content_type(ContentType), Request),
    http_parse_header_value(content_type, ContentType, media(multipart/'form-data', _)).
 
-
-% -------------------------------------------------------------------
-% save_file/3
-% -------------------------------------------------------------------
-
-:- public save_file/3.
-
-save_file(In, file(User_File_Path, Tmp_File_Path), Options) :-
-	option(filename(User_File_Path), Options),
-	% (for Internet Explorer/Microsoft Edge)
-	tmp_file_path_from_url(User_File_Path, Tmp_File_Path),
-	setup_call_cleanup(open(Tmp_File_Path, write, Out), copy_stream_data(In, Out), close(Out)).
-
-tmp_file_path_from_url(FileName, Path) :-
-	exclude_file_location_from_filename(FileName, FileName2),
-	http_safe_file(FileName2, []),
-	absolute_tmp_path(FileName2, Path).
-
-exclude_file_location_from_filename(Name_In, Name_Out) :-
-   atom_chars(Name_In, Name1),
-   remove_before('\\', Name1, Name2),
-   remove_before('/', Name2, Name3),
-   atomic_list_concat(Name3, Name_Out).
-
-remove_before(Slash, Name_In, Name_Out) :-
-   once((
-   memberchk(Slash, Name_In)
-   ->  
-     reverse(Name_In, RName),
-     append(RFName, [Slash|_R1], RName),
-     reverse(RFName, Name_Out)
-   ;   
-     Name_Out = Name_In)
-    ).
 
 % -------------------------------------------------------------------
 % message/1

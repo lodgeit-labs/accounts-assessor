@@ -546,3 +546,14 @@ find_thing_in_tree(Root, Matcher, Children_Yielder, Thing) :-
 	find_thing_in_tree(Child, Matcher, Children_Yielder, Thing).
 	
 						 
+
+remove_before(Slash, Name_In, Name_Out) :-
+   once((
+   memberchk(Slash, Name_In)
+   ->  
+     reverse(Name_In, RName),
+     append(RFName, [Slash|_R1], RName),
+     reverse(RFName, Name_Out)
+   ;   
+     Name_Out = Name_In)
+    ).

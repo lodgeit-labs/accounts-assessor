@@ -150,7 +150,6 @@ process_ledger(
 
 
 	Static_Data2 = Static_Data0.put(end_date, Processed_Until),
-	/*pure spaghetti, we should have time to redo the whole data managenemnt approach soon*/
 	generate_gl_data(Static_Data2, Processed_S_Transactions, Transactions0, Transactions1, Transactions_With_Livestock, Gl),
 		
 	pretty_term_string(Livestock_Events, Message0b),
@@ -211,37 +210,11 @@ process_ledger(
 	writeq(Errors),
 	writeln(' -->').
 
-generate_gl_data(Sd, Processed_S_Transactions, Transactions0, Transactions1, Transactions_With_Livestock, [Report1, Report2, Report3]) :-
+generate_gl_data(Sd, Processed_S_Transactions, Transactions0, Transactions1, Transactions_With_Livestock, Report_Dict) :-
 	append(Transactions1, Livestock_Transactions, Transactions_With_Livestock),
 	append(Transactions0, [Livestock_Transactions], Outputs),
 	append(Processed_S_Transactions, ['livestock'], Sources),
-	make_gl_report(Sd, Sources, '', Outputs, Report1),
-	make_gl_report(Sd, Processed_S_Transactions, '_no_livestock', Transactions0, Report2),
-
-	/*this fails when generating reports from within investment endpoint, which calls process_ledger multiple times.
-	if we want to generate these reports for each call from within investment endpoint, we should come up with a unique directory for each.*/
-	catch(
-		make_gl_viewer_report(Report3),
-		error(existence_error(_,_),_),
-
-		true
-	).
-
-make_gl_viewer_report(Info) :-
-	Viewer_Dir = 'general_ledger_viewer',
-	absolute_file_name(my_static(Viewer_Dir), Viewer_Dir_Absolute, [file_type(directory)]),
-	files:report_file_path(Viewer_Dir, Url, Tmp_Viewer_Dir_Absolute),
-	atomic_list_concat(['cp -r ', Viewer_Dir_Absolute, ' ', Tmp_Viewer_Dir_Absolute], Cmd),
-	shell(Cmd),
-	atomic_list_concat([Url, '/'], Url_With_Slash),
-	report_page:report_entry('GL viewer', Url_With_Slash, Info).
-	
-
-make_gl_report(Sd, Sources, Suffix, Outputs, Gl) :-
-	maplist(make_gl_entry(Sd), Sources, Outputs, Dict),
-	dict_json_text(Dict, Json_Text),
-	atomic_list_concat(['general_ledger', Suffix, '.json'], Fn),
-	report_page:report_item(Fn, Json_Text, Gl).
+	maplist(make_gl_entry(Sd), Sources, Outputs, Report_Dict).
 
 make_gl_entry(Sd, Source, Transactions, Entry) :-
 	Entry = _{source: S, transactions: T},
