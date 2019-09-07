@@ -312,13 +312,6 @@ column_by_key(Rows, Key, Vals) :-
 sum_cells(Values, Sum) :-
 	flatten(Values, Vec),
 	vec_add(Vec, [], Sum).
-/*
-	semigroup_foldl(add_cells, Values, Sum).
-add_cells(A, B, C) :-
-	coord_merge(A, B, C).
-*/
-
-
 
 		  
 

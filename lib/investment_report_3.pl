@@ -1,3 +1,13 @@
+Unrealized Forex Gain total = sum(Unrealized Forex Gains)
+iow
+
+
+
+
+
+
+
+
 /*
 Start_Currency_Conversion = conversion(Investment_Currency, Report_Currency, Opening_Date)
 End_Currency_Conversion = conversion(Investment_Currency, Report_Currency, Opening_Date)
