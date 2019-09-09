@@ -66,12 +66,10 @@ transaction_before(Transaction, End_Day) :-
 
 transaction_vectors_total([], []).
 
-transaction_vectors_total([Hd_Transaction | Tl_Transaction], Reduced_Net_Activity) :-
+transaction_vectors_total([Hd_Transaction | Tl_Transaction], Net_Activity) :-
 	transaction_vector(Hd_Transaction, Curr),
 	transaction_vectors_total(Tl_Transaction, Acc),
-	vec_add(Curr, Acc, Net_Activity),
-	vec_reduce(Net_Activity, Reduced_Net_Activity).
-
+	vec_add(Curr, Acc, Net_Activity).
 
 transactions_in_account_set(Accounts, Transactions_By_Account, Account_Id, Result) :-
 	findall(

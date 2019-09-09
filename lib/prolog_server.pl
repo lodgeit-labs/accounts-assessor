@@ -27,7 +27,6 @@
 :- use_module(library(http/http_client)).
 :- use_module(library(http/html_write)).
 :- use_module(library(option)).
-:- use_module(library(http/http_dispatch), [http_safe_file/2]).
 :- use_module(library(http/http_files)).
 :- use_module(library(http/http_error)). 
 
@@ -108,7 +107,7 @@ reply_html_page(
 upload(Request) :-
 	multipart_post_request(Request), !,
 	bump_tmp_directory_id, /*assert a unique thread-local my_tmp for each request*/
-	http_read_data(Request, Parts, [ on_filename(save_file) ]),
+	http_read_data(Request, Parts, [ on_filename(files:save_file) ]),
 	memberchk(file=file(User_File_Path, Tmp_File_Path), Parts),
 	(
 		memberchk(requested_output_format=Requested_Output_Format, Parts)

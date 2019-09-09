@@ -34,9 +34,9 @@ exchange_amount(Exchange_Rates, Day, [_ | Bases_Tl], coord(Unit, Debit, Credit),
 
 vec_change_bases(_, _, _, [], []).
 
-vec_change_bases(Exchange_Rates, Day, Bases, [A | As], Bs) :-
+vec_change_bases(Exchange_Rates, Day, Bases, As, Bs) :-
 	assertion(flatten(Bases, Bases)),
-	exchange_amount(Exchange_Rates, Day, Bases, A, A_Exchanged),
-	vec_change_bases(Exchange_Rates, Day, Bases, As, As_Exchanged),
-	vec_add([A_Exchanged], As_Exchanged, Bs).
+	maplist(exchange_amount(Exchange_Rates, Day, Bases), As, As_Exchanged),
+	/*and reduce*/
+	vec_add([], As_Exchanged, Bs).
 
