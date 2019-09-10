@@ -273,7 +273,73 @@ investment_report_2_unrealized(Static_Data, Investment, Row) :-
 	exchange_rate_throw(Exchange_Rates, End_Date, Unit, Report_Currency_Unit, Closing_Unit_Price_Converted_Amount),
 	Current_Market_Value_Amount is Count * Closing_Unit_Price_Converted_Amount,
 	Current_Market_Value = value(Report_Currency_Unit, Current_Market_Value_Amount),
+	
 	optional_converted_value(Closing_Unit_Price_Foreign, Closing_Currency_Conversion, Closing_Unit_Price_Converted),
+/*		* Closing_Unit_Price_Foreign : Foreign/Unit
+			* Foreign^1 * Unit^-1
+			* {
+				"foreign": 1,
+				"unit": -1
+			  }
+			* semantic_thing(..)
+		* Closing_Currency_Conversion : Report/Foreign
+			* exchange_rate(Report/Foreign)
+		* Closing_Unit_Price_Converted : Report/Unit
+			
+		m/s
+		m^2
+
+		5m + 10m
+		m + m  <-- pure dimensional arithmetic
+		5m * 10m <-- vs. quantity arithmetic
+		m*m = m^2 = Area
+		5m * 2s 
+		5m / 2s 
+		5m + 2s <-- nope
+		5minutes + 2seconds ? <-- yep, because they're both just units of time dimension
+		5apples + 4 oranges ? <-- maybe?
+			* if there's a common conversion into some dimension?
+			* ex. you have 9 fruits..
+
+		dimensions: ex time, mass, length				
+		units: ex. minutes, kilograms, feet				<--
+		quantities: 5 minutes, 10 kilograms, 8 feet		<-- these two levels well worked out in the Python
+
+		Given:
+		60 seconds / minute
+		60 minutes / hour
+		24 hours / day
+
+		How many seconds in a day...
+		
+		There are also explicitly dimensionless quantities...
+		* haven't had to actually deal w/ this yet
+		
+		(Count : Unit) * (Price : Currency/Unit) = (Price * Count) : Currency
+
+		Can read the units directly out of the quantity for reporting purposes and potentially for automatically figuring out calculations
+			like w/ the seconds -> days conversion, etc...
+	
+
+		r1: market value today
+		r2: contract rate
+		r3: market value at contract maturity
+
+		r1 USD/AUD today
+
+
+		in the future:
+		contract rate: r2 USD/AUD
+
+		but the market value in the future might be r3
+
+		r2 vs r3 is "the spread" <-- definitely a factor in gains
+		but i'm not sure about r1
+
+		r4 : virtual rate computed from the price gotten at selling the contract(?)
+
+
+*/
 
 	value_multiply(Opening_Unit_Cost_Foreign, Count, Opening_Total_Cost_Foreign),
 	value_multiply(Opening_Unit_Cost_Converted, Count, Opening_Total_Cost_Converted),
