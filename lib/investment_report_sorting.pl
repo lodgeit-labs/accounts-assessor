@@ -1,3 +1,4 @@
+work in progress
 :- module(dict_sort, []).
 
 run :-
