@@ -269,7 +269,7 @@ format_money2(_Optional_Implicit_Unit, Precision, In, Out) :-
 		;
 			Unit2 = Unit1
 		),
-		atomic_list_concat(['<nobr>~',Precision,':f~w</nobr>'], Format_String),
+		atomic_list_concat(['~',Precision,':f~w<'], Format_String),
 		format(string(Out), Format_String, [X, Unit2])
 	).
 
