@@ -123,7 +123,8 @@ column_to_html(group{id:Group_ID, title:Group_Title, members:Group_Members}, Row
 		row_to_html(Row, Group_Members, Cells)
 	).
 
-column_to_html(column{id:_, title:_, options:_}, Cell, [td(Cell)]).% :-
+column_to_html(column{id:_, title:_, options:_}, Cell, [td(Cell_Flat)]) :-
+	flatten(Cell, Cell_Flat).
 /*	(
 		Cell = []
 	->
@@ -206,16 +207,16 @@ format_cell(Date, _, Output) :-
 	format_date(Date, Output),
 	!.
 
-format_cell([], _Options, '') :- !.
+format_cell([], _Options, []) :- !.
 
-format_cell([X], Options, Output) :- 
-	format_cell(X, Options, Output),
-	!.
+%format_cell([X], Options, Output) :- 
+%	format_cell(X, Options, Output),
+%	!.
 
-format_cell([X|Xs], Options, Output) :- 
+format_cell([X|Xs], Options, [Output1, Output2]) :- 
 	format_cell(X, Options, Output1),
 	format_cell(Xs, Options, Output2),
-	atomic_list_concat([Output1, ', ', Output2], Output),
+	%atomic_list_concat([Output1, ', ', Output2], Output),
 	!.
 	
 format_cell(value(Unit, Value), Options, Output) :-
@@ -269,9 +270,9 @@ format_money2(_Optional_Implicit_Unit, Precision, In, Out) :-
 		;
 			Unit2 = Unit1
 		),
-		atomic_list_concat(['~',Precision,':f~w<'], Format_String),
+		atomic_list_concat(['~',Precision,':f~w'], Format_String),
 		format(string(Out_Str), Format_String, [X, Unit2]),
-		Out = nobr([Out_Str])
+		Out = span([class=money_amount], [Out_Str])
 	).
 
 

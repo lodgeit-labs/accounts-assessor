@@ -31,6 +31,11 @@ report_page(Title_Text, Tbl, File_Name, Info) :-
 	Body_Tags = [Title_Text, ':', br([]), table([border="1"], Tbl)],
 	Page = page(
 		title([Title_Text]),
+		link([
+			type('text/css'),
+			rel('stylesheet'),
+			href('../static/report_stylesheet.css')
+		]),
 		Body_Tags),
 	phrase(Page, Page_Tokenlist),
 	report_section(File_Name, Page_Tokenlist, Url),
