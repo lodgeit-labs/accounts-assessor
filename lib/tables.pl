@@ -270,7 +270,8 @@ format_money2(_Optional_Implicit_Unit, Precision, In, Out) :-
 			Unit2 = Unit1
 		),
 		atomic_list_concat(['~',Precision,':f~w<'], Format_String),
-		format(string(Out), Format_String, [X, Unit2])
+		format(string(Out_Str), Format_String, [X, Unit2]),
+		Out = nobr([Out_Str])
 	).
 
 
