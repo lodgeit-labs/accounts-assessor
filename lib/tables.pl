@@ -272,7 +272,7 @@ format_money2(_Optional_Implicit_Unit, Precision, In, Out) :-
 		),
 		atomic_list_concat(['~',Precision,':f~w'], Format_String),
 		format(string(Out_Str), Format_String, [X, Unit2]),
-		Out = span([class=money_amount], [Out_Str])
+		Out = div([class=money_amount], [Out_Str])
 	).
 
 
