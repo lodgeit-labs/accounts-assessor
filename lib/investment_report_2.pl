@@ -84,6 +84,7 @@ totals(Rows, Totals) :-
 	[
 	 gains/rea/market_foreign, gains/rea/market_converted, gains/rea/forex,
 	 gains/unr/market_foreign, gains/unr/market_converted, gains/unr/forex,
+	 opening/total_cost_foreign, opening/total_cost_converted,
 	 closing/total_cost_foreign, closing/total_cost_converted
 	], Totals0),
 	Totals = Totals0.put(
