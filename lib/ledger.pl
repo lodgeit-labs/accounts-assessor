@@ -34,7 +34,6 @@
 		number_vec/3]).
 :- use_module('exchange', [
 		vec_change_bases/5]).
-:- use_module('report_page').
 
 :- use_module(library(rdet)).
 

@@ -64,10 +64,10 @@ investment_report_2(Static_Data, Outstanding_In, Filename_Suffix, Report_Data, [
 	flatten([Rows, Totals], Rows2),
 
 	Table = _{title: Title_Text, rows: Rows2, columns: Columns},
-	tables:table_html(Table, Html),
+	tables:table_html(Table, Table_Html),
 
 	atomic_list_concat(['investment_report', Filename_Suffix, '.html'], Filename),
-	report_page(Title_Text, Html, Filename, Report_File_Info),
+	report_page_with_table(Title_Text, Table_Html, Filename, Report_File_Info),
 	
 	atomic_list_concat(['investment_report', Filename_Suffix, '.json'], Json_Filename),
 	dict_json_text(Table, Json_Text),

@@ -1,5 +1,6 @@
 <?xml version="1.0"?>
 <response>
+<livestocks>
 <livestock>
 <name>Sheep</name>
 <currency>AUD</currency>
@@ -15,4 +16,5 @@
 <Livestock_COGS>-54</Livestock_COGS>
 <Gross_Profit_on_Livestock_Trading>554</Gross_Profit_on_Livestock_Trading>
 </livestock>
+</livestocks>
 </response>

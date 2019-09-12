@@ -1,4 +1,4 @@
-:- module(_, [report_page/4, report_item/3, report_entry/3]).
+:- module(_, [report_page_with_table/4, report_page/4, report_item/3, report_entry/3]).
 
 :- use_module('files').
 
@@ -27,8 +27,10 @@ report_section(File_Name, Html_Tokenlist, Url) :-
 	html_tokenlist_string(Html_Tokenlist, Html_String),
 	report_item(File_Name, Html_String, Url).
 
-report_page(Title_Text, Tbl, File_Name, Info) :-
-	Body_Tags = [Title_Text, ':', br([]), table([border="1"], Tbl)],
+report_page_with_table(Title_Text, Tbl, File_Name, Info) :-
+	report_page(Title_Text, [Title_Text, ':', br([]), table([border="1"], Tbl)], File_Name, Info).
+	
+report_page(Title_Text, Body_Tags, File_Name, Info) :-
 	Page = page(
 		title([Title_Text]),
 		link([

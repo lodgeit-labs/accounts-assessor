@@ -28,7 +28,7 @@ get_requested_output_type(Options2, Output) :-
 		;
 			(
 				term_string(Known_Output_Types, Known_Output_Types_Str),
-				atomic_list_concat(['output parameter must be one of ', Known_Output_Types_Str], Msg),
+				atomic_list_concat(['requested_output_format must be one of ', Known_Output_Types_Str], Msg),
 				throw(http_reply(bad_request(string(Msg))))
 			)
 		)

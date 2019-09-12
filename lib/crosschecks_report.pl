@@ -1,5 +1,5 @@
 :- module(_, []).
-:- use_module('report_page', [report_page/4]).
+:- use_module('report_page').
 :- use_module('utils').
 :- use_module('pacioli').
 :- use_module('accounts').
@@ -10,13 +10,12 @@
 :- rdet(crosschecks_report/4).
 
 report(Sd, Reports, File_Info, Json) :-
-	%gtrace,
 	crosschecks_report(Sd.put(reports,Reports), Json),
 	findall(
 		p([p([Check]), p([Evaluation]), p([Status])]),
 		member([Check, Evaluation, Status], Json.results),
 		Html),
-	report_page('crosschecks', Html, 'crosschecks.html', File_Info).
+	report_page:report_page('crosschecks', Html, 'crosschecks.html', File_Info).
 
 crosschecks_report(Sd, Json) :-
 	Crosschecks = [

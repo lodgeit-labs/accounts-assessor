@@ -17,12 +17,12 @@
 :- rdet(output_results/4).
 :- rdet(process_xml_ledger_request2/2).	
 
-:- use_module('../../lib/days', [
+:- use_module('../days', [
 		format_date/2, 
 		add_days/3, 
 		parse_date/2, 
 		gregorian_date/2]).
-:- use_module('../../lib/utils', [
+:- use_module('../utils', [
 		inner_xml/3, 
 		inner_xml_throw/3,
 		write_tag/2, 
@@ -33,57 +33,57 @@
 	  replace_nonalphanum_chars_with_underscore/2,
 	  catch_maybe_with_backtrace/3,
 	  dict_json_text/2]).
-:- use_module('../../lib/ledger_report', [
+:- use_module('../ledger_report', [
 		trial_balance_between/8, 
 		profitandloss_between/2, 
 		balance_sheet_at/2,
 		format_report_entries/10, 
 		bs_and_pl_entries/8,
 		net_activity_by_account/4]).
-:- use_module('../../lib/ledger_html_reports').
-:- use_module('../../lib/report_page').
-:- use_module('../../lib/statements', [
+:- use_module('../ledger_html_reports').
+:- use_module('../report_page').
+:- use_module('../statements', [
 		extract_s_transaction/3, 
 		print_relevant_exchange_rates_comment/4, 
 		invert_s_transaction_vector/2, 
 		fill_in_missing_units/6,
 		sort_s_transactions/2]).
-:- use_module('../../lib/ledger', [
+:- use_module('../ledger', [
 		process_ledger/21]).
-:- use_module('../../lib/livestock', [
+:- use_module('../livestock', [
 		get_livestock_types/2, 
 		process_livestock/14, 
 		make_livestock_accounts/2,
 		extract_livestock_opening_costs_and_counts/2]).
-:- use_module('../../lib/accounts', [
+:- use_module('../accounts', [
 		extract_account_hierarchy/2,
 		sub_accounts_upto_level/4,
 		child_accounts/3,
 		account_by_role/3,
 		account_by_role_nothrow/3, 
 		account_role_by_id/3]).
-:- use_module('../../lib/exchange_rates', [
+:- use_module('../exchange_rates', [
 		exchange_rate/5]).
-:- use_module('../../lib/files', [
+:- use_module('../files', [
 		absolute_tmp_path/2,
 		request_tmp_dir/1,
 		server_public_url/1]).
-:- use_module('../../lib/system_accounts', [
+:- use_module('../system_accounts', [
 		trading_account_ids/2,
 		bank_accounts/2]).
-:- use_module('../../lib/xbrl_contexts', [
+:- use_module('../xbrl_contexts', [
 		print_contexts/1,
 		context_id_base/3
 ]).
-:- use_module('../../lib/print_detail_accounts', [
+:- use_module('../print_detail_accounts', [
 		print_banks/5,
 		print_forex/5,
 		print_trading/3
 ]).
 
-:- use_module('../../lib/investment_report_1').		      
-:- use_module('../../lib/investment_report_2').
-:- use_module('../../lib/crosschecks_report').
+:- use_module('../investment_report_1').		      
+:- use_module('../investment_report_2').
+:- use_module('../crosschecks_report').
 
 
 process_xml_ledger_request(_, Dom, Reports) :-
@@ -285,12 +285,12 @@ make_gl_viewer_report(Info) :-
 	atomic_list_concat(['cp -r ', Viewer_Dir_Absolute, ' ', Tmp_Viewer_Dir_Absolute], Cmd),
 	shell(Cmd),
 	atomic_list_concat([Url, '/'], Url_With_Slash),
-	report_page:report_entry('GL viewer', Url_With_Slash, Info).
+	report_entry('GL viewer', Url_With_Slash, Info).
 	
 make_gl_report(Dict, Suffix, Report_File_Info) :-
 	dict_json_text(Dict, Json_Text),
 	atomic_list_concat(['general_ledger', Suffix, '.json'], Fn),
-	report_page:report_item(Fn, Json_Text, Report_File_Info).
+	report_item(Fn, Json_Text, Report_File_Info).
 
 print_dimensional_facts(Static_Data, Instant_Context_Id_Base, Duration_Context_Id_Base, Entity_Identifier, Results0, Results3) :-
 	print_banks(Static_Data, Instant_Context_Id_Base, Entity_Identifier, Results0, Results1),
