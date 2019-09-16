@@ -90,11 +90,11 @@ reply_html_page(
 					tr([td(['output format:']), td(
 						select(name=requested_output_format, [
 							option([selected='true',value=json_reports_list],[json_reports_list]), 
-							option([value=xbrl_instance],[xbrl_instance])
+							option([value=xml],[xml])
 					]))]),
 					/*tr([
 						input([type="radio", name="requested_output_format", value="json_reports_list", checked='true'],[json_reports_list]),
-						input([type="radio", name="requested_output_format", value="xbrl_instance"],[xbrl_instance])
+						input([type="radio", name="requested_output_format", value="xml"],[xml])
 					]),*/
 					tr([td(align(left), input([type(submit), value('Upload XML file')]))])
 				])
@@ -184,7 +184,7 @@ process_request(Usr_File_Path, Tmp_File_Path, Request, Options0) :-
 	get_requested_output_type(Options2, Requested_Output_Type),
 
 	(
-		Requested_Output_Type = xbrl_instance
+		Requested_Output_Type = xml
 	->
 		format('Content-type: text/xml~n~n')
 	;

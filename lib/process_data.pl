@@ -17,7 +17,7 @@
 :- use_module('../lib/utils').
 
 get_requested_output_type(Options2, Output) :-
-	Known_Output_Types = [json_reports_list, xbrl_instance],
+	Known_Output_Types = [json_reports_list, xml],
 	(
 		member(requested_output_format=Output, Options2)
 	->
@@ -167,7 +167,7 @@ process_data(_, Path, Options) :-
 	write_file(Json_Response_File_Path, Response_Json_String),
 
 	(
-		Requested_Output_Type = xbrl_instance
+		Requested_Output_Type = xml
 	->
 		(
 			write(Response_Xml_String),
