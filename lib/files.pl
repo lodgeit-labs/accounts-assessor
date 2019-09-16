@@ -72,9 +72,13 @@ bump_tmp_directory_id :-
 	atomic_list_concat(['rm -f ', Last], Rm_Cmd),
 	shell(Rm_Cmd, _),
 	atomic_list_concat(['ln -s ', Path, ' ', Last], Cmd),
-	shell(Cmd, 0).
+	shell(Cmd, 0),
+	atomic_list_concat(['ln -s . ', Path, '/this_directory'], Cmd2),
+	shell(Cmd2, 0)
+	.
 
 absolute_whatever(Path_Specifier, Absolute) :-
+	/*absolute_file_name will not fail if the file doesnt exist, but will fail if it is a directory. whacky.*/
 	(
 		(absolute_file_name(Path_Specifier, Absolute, [access(none), file_errors(fail)]),!)
 	;

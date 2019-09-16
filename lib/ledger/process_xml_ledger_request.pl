@@ -345,13 +345,7 @@ investment_reports2(Static_Data, Outstanding, Alerts, Ir, Files) :-
 
 	
 print_xbrl_header :-
-	(
-		get_flag(prepare_unique_taxonomy_url, true)
-	->
-		prepare_unique_taxonomy_url(Taxonomy)
-	;
-		Taxonomy = ''
-	),
+	maybe_prepare_unique_taxonomy_url(Taxonomy),
 	write('<xbrli:xbrl xmlns:xbrli="http://www.xbrl.org/2003/instance" xmlns:link="http://www.xbrl.org/2003/linkbase" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:iso4217="http://www.xbrl.org/2003/iso4217" xmlns:basic="http://www.xbrlsite.com/basic" xmlns:xbrldi="http://xbrl.org/2006/xbrldi" xsi:schemaLocation="http://www.xbrlsite.com/basic '),write(Taxonomy),writeln('basic.xsd http://www.xbrl.org/2003/instance http://www.xbrl.org/2003/xbrl-instance-2003-12-31.xsd http://www.xbrl.org/2003/linkbase http://www.xbrl.org/2003/xbrl-linkbase-2003-12-31.xsd http://xbrl.org/2006/xbrldi http://www.xbrl.org/2006/xbrldi-2006.xsd">'),
 	write('  <link:schemaRef xlink:type="simple" xlink:href="'), write(Taxonomy), writeln('basic.xsd" xlink:title="Taxonomy schema" />'),
 	write('  <link:linkbaseRef xlink:type="simple" xlink:href="'), write(Taxonomy), writeln('basic-formulas.xml" xlink:arcrole="http://www.w3.org/1999/xlink/properties/linkbase" />'),
@@ -364,14 +358,21 @@ a flag can be used when running the server, for example like this:
 ```swipl -s prolog_server.pl  -g "set_flag(prepare_unique_taxonomy_url, true),run_simple_server"```
 This is done with a symlink. This allows to bypass cache, for example in pesseract.
 */
-prepare_unique_taxonomy_url(Taxonomy_Dir_Url) :-
-   request_tmp_dir(Tmp_Dir),
-   server_public_url(Server_Public_Url),
-   atomic_list_concat([Server_Public_Url, '/tmp/', Tmp_Dir, '/taxonomy/'], Taxonomy_Dir_Url),
-   absolute_tmp_path('/taxonomy', Tmp_Taxonomy),
-   absolute_file_name(my_static('taxonomy/'), Static_Taxonomy, [file_type(directory)]),
-   atomic_list_concat(['ln -s ', Static_Taxonomy, ' ', Tmp_Taxonomy], Cmd),
-   shell(Cmd, 0).
+maybe_prepare_unique_taxonomy_url(Taxonomy_Dir_Url) :-
+	request_tmp_dir(Tmp_Dir),
+	server_public_url(Server_Public_Url),
+	atomic_list_concat([Server_Public_Url, '/tmp/', Tmp_Dir, '/taxonomy/'], Unique_Taxonomy_Dir_Url),
+	absolute_tmp_path('/taxonomy', Tmp_Taxonomy),
+	absolute_file_name(my_static('taxonomy/'), Static_Taxonomy, [file_type(directory)]),
+	atomic_list_concat(['ln -s ', Static_Taxonomy, ' ', Tmp_Taxonomy], Cmd),
+	shell(Cmd, 0),
+	(
+		get_flag(prepare_unique_taxonomy_url, true)
+	->
+		Taxonomy_Dir_Url = Unique_Taxonomy_Dir_Url
+	;
+		Taxonomy_Dir_Url = 'taxonomy/'
+	).
 
 /**/
 write_used_unit(Unit) :-
