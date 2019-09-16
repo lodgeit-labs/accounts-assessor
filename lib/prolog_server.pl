@@ -87,15 +87,16 @@ reply_html_page(
 				table([],
 				[
 					tr([td(input([type(file), name(file)]))]),
+					tr([td(['taxonomy URLs:']), td(
+						select(name=relativeurls, [
+							option([selected='true',value=0],[absolute]), 
+							option([value=1],[relative])
+					]))]),
 					tr([td(['output format:']), td(
 						select(name=requested_output_format, [
 							option([selected='true',value=json_reports_list],[json_reports_list]), 
 							option([value=xml],[xml])
 					]))]),
-					/*tr([
-						input([type="radio", name="requested_output_format", value="json_reports_list", checked='true'],[json_reports_list]),
-						input([type="radio", name="requested_output_format", value="xml"],[xml])
-					]),*/
 					tr([td(align(left), input([type(submit), value('Upload XML file')]))])
 				])
 			),
@@ -109,13 +110,7 @@ upload(Request) :-
 	bump_tmp_directory_id, /*assert a unique thread-local my_tmp for each request*/
 	http_read_data(Request, Parts, [ on_filename(files:save_file) ]),
 	memberchk(file=file(User_File_Path, Tmp_File_Path), Parts),
-	(
-		memberchk(requested_output_format=Requested_Output_Format, Parts)
-	->
-		Options = [requested_output_format=Requested_Output_Format]
-	;
-		Options = []
-	),
+	Options = Parts,
 	catch(
 		process_request(User_File_Path, Tmp_File_Path, Request, Options),
 		string(E),

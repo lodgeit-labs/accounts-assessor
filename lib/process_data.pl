@@ -133,15 +133,14 @@ process_data(_, Path, Options) :-
 	response_file_name(Request_File_Name, Output_File_Name),
 	absolute_tmp_path(Output_File_Name, Output_File_Path),
 	absolute_tmp_path('response.json', Json_Response_File_Path),
-	
-		
+			
 	tmp_file_url(Output_File_Name, Output_File_Url),
 	tmp_file_url(Request_File_Name, Request_File_Url),
 	(get_dict(files, Reports, Files) -> true; Files  = []),
 	(get_dict(errors, Reports, Errors) -> true; Errors  = []),
 	(get_dict(warnings, Reports, Warnings) -> true; Warnings  = []),
 
-	files:report_file_path('', Tmp_Dir_Url, Tmp_Dir_Path),
+	files:report_file_path('', Tmp_Dir_Url, _),
 	flatten([
 		Files, 
 		Output_File_Title:url(Output_File_Url),
@@ -169,7 +168,7 @@ process_data(_, Path, Options) :-
 	write_file(Output_File_Path, Response_Xml_String),
 	with_output_to(string(Response_Json_String), json_write(current_output, Json_Out)),
 	write_file(Json_Response_File_Path, Response_Json_String),
-	archive_create('all_files.zip', ['.'], [format(zip), directory(Tmp_Dir_Path)]),
+	make_zip,
 	(
 		Requested_Output_Type = xml
 	->
@@ -184,6 +183,13 @@ process_data(_, Path, Options) :-
 		)
 	).
 
+make_zip :-
+	files:my_request_tmp_dir(Tmp_Dir),
+	atomic_list_concat([Tmp_Dir, '.zip'], Zip_Fn),
+	atomic_list_concat(['tmp/', Zip_Fn], Zip_In_Tmp),
+	archive_create(Zip_In_Tmp, [Tmp_Dir], [format(zip), directory('tmp')]),
+	atomic_list_concat(['mv ', Zip_In_Tmp, ' tmp/', Tmp_Dir], Cmd),
+	shell(Cmd, _).
 
 /* for formatting numbers */
 :- locale_create(Locale, "en_AU.utf8", []), set_locale(Locale).
