@@ -41,7 +41,7 @@ set_search_path(Alias, Path_From_This_Source_File) :-
 */
 absolute_tmp_path(File_Name, Absolute_File_Name) :-
 	my_tmp_file_path(File_Name, File_Path_Relative_To_Tmp),
-	absolute_file_name(my_tmp(File_Path_Relative_To_Tmp), Absolute_File_Name, []).
+	absolute_whatever(my_tmp(File_Path_Relative_To_Tmp), Absolute_File_Name).
 
 /* my_tmp_file_url? */
 report_file_path(FN, Url, Path) :-
@@ -62,21 +62,25 @@ tmp_file_url(File_Name, Url) :-
   create a new unique directory under my_tmp and assert my_request_tmp_dir
 */
 bump_tmp_directory_id :-
-   session_tmp_directory_base(Base),
-   gensym(Base, Dir),
-   retractall(my_request_tmp_dir(_)),
-   asserta(my_request_tmp_dir(Dir)),
-   absolute_tmp_path('', Path),
-   make_directory(Path),
-   (
-      (absolute_file_name(my_tmp('last'), Last, [access(none), file_errors(fail)]),!)
-      ;
-      absolute_file_name(my_tmp('last'), Last, [file_type(directory)])
-   ),
-   atomic_list_concat(['rm -f ', Last], Rm_Cmd),
-   shell(Rm_Cmd, _),
-   atomic_list_concat(['ln -s ', Path, ' ', Last], Cmd),
-   shell(Cmd, 0).
+	session_tmp_directory_base(Base),
+	gensym(Base, Dir),
+	retractall(my_request_tmp_dir(_)),
+	asserta(my_request_tmp_dir(Dir)),
+	absolute_tmp_path('', Path),
+	make_directory(Path),
+	absolute_whatever(my_tmp('last'), Last),
+	atomic_list_concat(['rm -f ', Last], Rm_Cmd),
+	shell(Rm_Cmd, _),
+	atomic_list_concat(['ln -s ', Path, ' ', Last], Cmd),
+	shell(Cmd, 0).
+
+absolute_whatever(Path_Specifier, Absolute) :-
+	(
+		(absolute_file_name(Path_Specifier, Absolute, [access(none), file_errors(fail)]),!)
+	;
+		absolute_file_name(Path_Specifier, Absolute, [file_type(directory)])
+	).
+
 
 /*
   assert a base for tmp directory names that should be unique for each run of the server (current time)

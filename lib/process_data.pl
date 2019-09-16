@@ -140,9 +140,12 @@ process_data(_, Path, Options) :-
 	(get_dict(errors, Reports, Errors) -> true; Errors  = []),
 	(get_dict(warnings, Reports, Warnings) -> true; Warnings  = []),
 
-	flatten([Files, 
+	files:report_file_path('', Tmp_Dir_Url, _),
+	flatten([
+		Files, 
 		Output_File_Title:url(Output_File_Url),
-		request_xml:url(Request_File_Url)
+		request_xml:url(Request_File_Url),
+		'all files':url(Tmp_Dir_Url)
 		], Files2),
 	to_json(Files2, Files3),
 	
