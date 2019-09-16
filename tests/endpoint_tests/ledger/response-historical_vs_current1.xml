@@ -1,389 +1,90 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
 
-
-<!-- WARNING: no transactions within request period -->
-
-
-<!--Exchange rates extracted:
-[ exchange_rate(date(2015,1,1),'CHF','AUD',2),
-  exchange_rate(date(2018,1,1),'CHF','AUD',4),
-  exchange_rate(date(2018,12,30),'CHF','AUD',6)
-]
-
-Transaction_Types extracted:
-[ transaction_type('Transfers','ClearingAccount',_,_),
-  transaction_type('Invest_In',
-		   'FinancialInvestments',
-		   'InvestmentIncomeCopy',
-		   'Shares'),
-  transaction_type('Dispose_Of',
-		   'FinancialInvestments',
-		   'InvestmentIncomeCopy',
-		   'Shares'),
-  transaction_type('Bank_Charges','BankCharges',_,_),
-  transaction_type('Expenses','OtherExpenses',_,_),
-  transaction_type('Gain','OtherGain',_,_),
-  transaction_type('Loss','ShareCapital',_,'No Description'),
-  transaction_type('Income','Revenue',_,_),
-  transaction_type('Interest_Income','InterestIncome',_,_),
-  transaction_type('Interest_Expenses','InterestExpenses',_,_),
-  transaction_type('Borrow','NoncurrentLoans',_,_),
-  transaction_type('Introduce_Capital',
-		   'ShareCapital',
-		   _,
-		   'Unit_Investment'),
-  transaction_type('Pay_Bank','BankCharges',_,'No Description'),
-  transaction_type('Accountancy_Fees',
-		   'AccountancyFees',
-		   _,
-		   'No Description')
-]
-
-Accounts extracted:
-[ account('Accounts',accountHierarchy,'Accounts'/'Accounts',0),
-  account('AdditionalLongtermBorrowings2',
-	  'NetCashFlowFinancingActivities',
-	  'Accounts' / 'AdditionalLongtermBorrowings2',
-	  0),
-  account('Assets','NetAssets','Accounts'/'Assets',0),
-  account('BankCharges','Expenses','Accounts'/'BankCharges',0),
-  account('Banks','CashAndCashEquivalents','Accounts'/'Banks',0),
-  account('Bonds','FinancialInvestments','Accounts'/'Bonds',0),
-  account('CapitalAdditionsPropertyPlantAndEquipment2',
-	  'NetCashFlowInvestingActivities',
-	  'Accounts' / 'CapitalAdditionsPropertyPlantAndEquipment2',
-	  0),
-  account('CapitalGain','InvestmentIncomeCopy','Accounts'/'CapitalGain',0),
-  account('CashAndCashEquivalents',
-	  'CurrentAssets',
-	  'Accounts' / 'CashAndCashEquivalents',
-	  0),
-  account('CollectionReceivables',
-	  'NetCashFlowOperatingActivities',
-	  'Accounts' / 'CollectionReceivables',
-	  0),
-  account('CurrentAssets','Assets','Accounts'/'CurrentAssets',0),
-  account('CurrentEarnings','RetainedEarnings','Accounts'/'CurrentEarnings',0),
-  account('DividendsEarned',
-	  'InvestmentIncomeCopy',
-	  'Accounts' / 'DividendsEarned',
-	  0),
-  account('Equity','Accounts','Accounts'/'Equity',0),
-  account('Expenses','NetIncomeLoss','Accounts'/'Expenses',0),
-  account('FinancialInvestments',
-	  'NoncurrentAssets',
-	  'Accounts' / 'FinancialInvestments',
-	  0),
-  account('FinishedGoods','Accounts','Accounts'/'FinishedGoods',0),
-  account('ForexGain','InvestmentIncomeCopy','Accounts'/'ForexGain',0),
-  account('ForexLoss','Expenses','Accounts'/'ForexLoss',0),
-  account('HistoricalEarnings',
-	  'RetainedEarnings',
-	  'Accounts' / 'HistoricalEarnings',
-	  0),
-  account('InterestEarned',
-	  'InvestmentIncomeCopy',
-	  'Accounts' / 'InterestEarned',
-	  0),
-  account('InvestmentIncomeCopy','Revenue','Accounts'/'InvestmentIncomeCopy',0),
-  account('Liabilities','NetAssets','Accounts'/'Liabilities',0),
-  account('NetAssets','Accounts','Accounts'/'NetAssets',0),
-  account('NetCashFlow','Accounts','Accounts'/'NetCashFlow',0),
-  account('NetCashFlowFinancingActivities',
-	  'NetCashFlow',
-	  'Accounts' / 'NetCashFlowFinancingActivities',
-	  0),
-  account('NetCashFlowInvestingActivities',
-	  'NetCashFlow',
-	  'Accounts' / 'NetCashFlowInvestingActivities',
-	  0),
-  account('NetCashFlowOperatingActivities',
-	  'NetCashFlow',
-	  'Accounts' / 'NetCashFlowOperatingActivities',
-	  0),
-  account('NetIncomeLoss','Accounts','Accounts'/'NetIncomeLoss',0),
-  account('NoncurrentAssets','Assets','Accounts'/'NoncurrentAssets',0),
-  account('NoncurrentLiabilities',
-	  'Liabilities',
-	  'Accounts' / 'NoncurrentLiabilities',
-	  0),
-  account('NoncurrentLoans',
-	  'NoncurrentLiabilities',
-	  'Accounts' / 'NoncurrentLoans',
-	  0),
-  account('PaymentOfAccountsPayable',
-	  'NetCashFlowOperatingActivities',
-	  'Accounts' / 'PaymentOfAccountsPayable',
-	  0),
-  account('ProductAlpha','FinishedGoods','Accounts'/'ProductAlpha',0),
-  account('ProductBravo','FinishedGoods','Accounts'/'ProductBravo',0),
-  account('RepaymentLongtermBorrowings2',
-	  'NetCashFlowFinancingActivities',
-	  'Accounts' / 'RepaymentLongtermBorrowings2',
-	  0),
-  account('RetainedEarnings','Equity','Accounts'/'RetainedEarnings',0),
-  account('Revenue','NetIncomeLoss','Accounts'/'Revenue',0),
-  account('ShareCapital','Equity','Accounts'/'ShareCapital',0),
-  account('Shares','FinancialInvestments','Accounts'/'Shares',0),
-  account('Unit_Investment',
-	  'FinancialInvestments',
-	  'Accounts' / 'Unit_Investment',
-	  0)
-]
-
--->
-
-
-<!--generate system accounts...-->
-<!--...generated system accounts-->
-
-<!--Generated accounts:
-[ account('CurrencyMovement','Revenue','Accounts'/'CurrencyMovement',0),
-  account('Inventory',accountHierarchy,accountHierarchy/'Inventory',0),
-  account('LivestockCount','Inventory','Inventory'/'LivestockCount',0),
-  account('AssetsLivestockAtCost',
-	  'NoncurrentAssets',
-	  'Accounts' / 'AssetsLivestockAtCost',
-	  0),
-  account('AssetsLivestockAtAverageCost',
-	  'NoncurrentAssets',
-	  'Accounts' / 'AssetsLivestockAtAverageCost',
-	  0),
-  account('CapitalIntroduced','Equity','Accounts'/'CapitalIntroduced',0),
-  account('ClearingAccount','Equity','Accounts'/'ClearingAccount',0),
-  account('ExchangeGain','Revenue','Accounts'/'ExchangeGain',0),
-  account('AccountingFees','Expenses','Accounts'/'AccountingFees',0),
-  account('BanksCHF_Bank','Banks','Banks'/'CHF_Bank',1),
-  account('CurrencyMovement_CHF_Bank',
-	  'CurrencyMovement',
-	  'CurrencyMovement' / 'CHF_Bank',
-	  0),
-  account('InvestmentIncomeCopy_realized',
-	  'InvestmentIncomeCopy',
-	  'InvestmentIncomeCopy' / realized,
-	  0),
-  account('InvestmentIncomeCopy_realized_only_currency_movement',
-	  'InvestmentIncomeCopy_realized',
-	  'InvestmentIncomeCopy_realized' / only_currency_movement,
-	  0),
-  account('InvestmentIncomeCopy_realized_without_currency_movement',
-	  'InvestmentIncomeCopy_realized',
-	  'InvestmentIncomeCopy_realized' / without_currency_movement,
-	  0),
-  account('InvestmentIncomeCopy_unrealized',
-	  'InvestmentIncomeCopy',
-	  'InvestmentIncomeCopy' / unrealized,
-	  0),
-  account('InvestmentIncomeCopy_unrealized_only_currency_movement',
-	  'InvestmentIncomeCopy_unrealized',
-	  'InvestmentIncomeCopy_unrealized' / only_currency_movement,
-	  0),
-  account('InvestmentIncomeCopy_unrealized_without_currency_movement',
-	  'InvestmentIncomeCopy_unrealized',
-	  'InvestmentIncomeCopy_unrealized' / without_currency_movement,
-	  0)
-]
-
--->
-
-
-
-<!--Transaction_Transformation_Debug:
-s_transaction(date(2015,1,1),
-	      'Income',
-	      [coord('CHF',1,0)],
-	      'CHF_Bank',
-	      vector([]))==>
-date(2015,1,1): BanksCHF_Bank
-  Income - incoming money
-  DR:U1:coord('CHF',1,0)
-
-date(2015,1,1): CurrencyMovement_CHF_Bank
-  Income - incoming money - currency movement adjustment - historical part
-  CR:U2:coord(without_movement_after('CHF',date(2018,1,1)),0,1)
-  DR:U3:coord(without_currency_movement_against_since('CHF','CHF',['AUD'],date(2015,1,1)),1,0)
-
-date(2018,1,1): CurrencyMovement_CHF_Bank
-  Income - incoming money - currency movement adjustment - current part
-  CR:U1:coord('CHF',0,1)
-  DR:U2:coord(without_movement_after('CHF',date(2018,1,1)),1,0)
-
-date(2015,1,1): Revenue
-  Income
-  CR:U4:coord('AUD',0.0,2.0)
-
-
-====
-done.
-
--->
-
-
-<!-- WARNING: no transactions within request period -->
-
-
-<!--Exchange rates2:
-[ [ exchange_rate(date(2015,1,1),'CHF','AUD',2.0),
-    exchange_rate(date(2015,1,1),
-		  without_movement_after('CHF',date(2018,1,1)),
-		  'AUD',
-		  2.0),
-    exchange_rate(date(2015,1,1),
-		  without_currency_movement_against_since('CHF',
-							  'CHF',
-							  ['AUD'],
-							  date(2015,
-							       1,
-							       1)),
-		  'AUD',
-		  2.0)
-  ],
-  [ exchange_rate(date(2018,1,1),'CHF','AUD',4.0),
-    exchange_rate(date(2018,1,1),
-		  without_movement_after('CHF',date(2018,1,1)),
-		  'AUD',
-		  4.0)
-  ],
-  [ exchange_rate(date(2018,12,30),'CHF','AUD',6.0),
-    exchange_rate(date(2018,12,30),
-		  without_movement_after('CHF',date(2018,1,1)),
-		  'AUD',
-		  4.0),
-    exchange_rate(date(2018,12,30),
-		  without_currency_movement_against_since('CHF',
-							  'CHF',
-							  ['AUD'],
-							  date(2015,
-							       1,
-							       1)),
-		  'AUD',
-		  2.0)
-  ]
-]
-
--->
-
-
-<!-- exchange rates 2:
-[exchange_rate(date(2015,1,1),CHF,AUD,2),exchange_rate(date(2018,1,1),CHF,AUD,4),exchange_rate(date(2018,12,30),CHF,AUD,6)]
--->
-<xbrli:xbrl xmlns:xbrli="http://www.xbrl.org/2003/instance" xmlns:link="http://www.xbrl.org/2003/linkbase" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:iso4217="http://www.xbrl.org/2003/iso4217" xmlns:basic="http://www.xbrlsite.com/basic" xmlns:xbrldi="http://xbrl.org/2006/xbrldi" xsi:schemaLocation="http://www.xbrlsite.com/basic basic.xsd http://www.xbrl.org/2003/instance http://www.xbrl.org/2003/xbrl-instance-2003-12-31.xsd http://www.xbrl.org/2003/linkbase http://www.xbrl.org/2003/xbrl-linkbase-2003-12-31.xsd http://xbrl.org/2006/xbrldi http://www.xbrl.org/2006/xbrldi-2006.xsd">
-  <link:schemaRef xlink:type="simple" xlink:href="basic.xsd" xlink:title="Taxonomy schema" />
-  <link:linkbaseRef xlink:type="simple" xlink:href="basic-formulas.xml" xlink:arcrole="http://www.w3.org/1999/xlink/properties/linkbase" />
-  <link:linkBaseRef xlink:type="simple" xlink:href="basic-formulas-cross-checks.xml" xlink:arcrole="http://www.w3.org/1999/xlink/properties/linkbase" />
-
-<!-- Build contexts -->
-<!-- Trial balance -->
-<!-- Balance sheet -->
-<!-- Profit and loss -->
-  <xbrli:unit id="U-AUD"><xbrli:measure>iso4217:AUD</xbrli:measure></xbrli:unit>
-
-
-<xbrli:context id="I-2018">
-	<xbrli:period>
-		<xbrli:instant>2018-12-30</xbrli:instant>
-	</xbrli:period>
-	<xbrli:entity>
-		<identifier scheme="http://www.example.com">TestData</identifier>
-	</xbrli:entity>
-</xbrli:context>
-<xbrli:context id="D-2018">
-	<xbrli:period>
-		<xbrli:startDate>2018-01-01</xbrli:startDate>
-		<xbrli:endDate>2018-12-30</xbrli:endDate>
-	</xbrli:period>
-	<xbrli:entity>
-		<identifier scheme="http://www.example.com">TestData</identifier>
-	</xbrli:entity>
-</xbrli:context>
-<xbrli:context id="I-2018-CHF_Bank">
-	<xbrli:period>
-		<xbrli:instant>2018-12-30</xbrli:instant>
-	</xbrli:period>
-	<xbrli:entity>
-		<identifier scheme="http://www.example.com">TestData</identifier>
-	</xbrli:entity>
-		<xbrli:scenario>
-			<xbrldi:typedMember dimension="basic:Dimension_BankAccounts_Instant">
-			<basic:BankAccount_Instant><name>BanksCHF_Bank</name><value>10000</value></basic:BankAccount_Instant>
-			</xbrldi:typedMember>
-		</xbrli:scenario>
-</xbrli:context>
-<xbrli:context id="D-2018-CHF_Bank">
-	<xbrli:period>
-		<xbrli:startDate>2018-01-01</xbrli:startDate>
-		<xbrli:endDate>2018-12-30</xbrli:endDate>
-	</xbrli:period>
-	<xbrli:entity>
-		<identifier scheme="http://www.example.com">TestData</identifier>
-		<xbrli:segment>
-			<xbrldi:typedMember dimension="basic:Dimension_BankAccounts_Duration">
-			<basic:BankAccount_Duration>CHF_Bank</basic:BankAccount_Duration>
-			</xbrldi:typedMember>
-		</xbrli:segment>
-	</xbrli:entity>
-</xbrli:context>
-
-
-<!-- dimensional facts: -->
+<xbrli:xbrl
+    xmlns:xbrli="http://www.xbrl.org/2003/instance"
+    xmlns:link="http://www.xbrl.org/2003/linkbase"
+    xmlns:xlink="http://www.w3.org/1999/xlink"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:iso4217="http://www.xbrl.org/2003/iso4217"
+    xmlns:basic="http://www.xbrlsite.com/basic"
+    xmlns:xbrldi="http://xbrl.org/2006/xbrldi"
+    xsi:schemaLocation="http://www.xbrlsite.com/basic taxonomy/basic.xsd http://www.xbrl.org/2003/instance http://www.xbrl.org/2003/xbrl-instance-2003-12-31.xsd http://www.xbrl.org/2003/linkbase http://www.xbrl.org/2003/xbrl-linkbase-2003-12-31.xsd http://xbrl.org/2006/xbrldi http://www.xbrl.org/2006/xbrldi-2006.xsd">
+  <link:schemaRef
+      xlink:type="simple"
+      xlink:href="taxonomy/basic.xsd"
+      xlink:title="Taxonomy schema"/>
+  <link:linkbaseRef
+      xlink:type="simple"
+      xlink:href="taxonomy/basic-formulas.xml"
+      xlink:arcrole="http://www.w3.org/1999/xlink/properties/linkbase"/>
+  <link:linkBaseRef
+      xlink:type="simple"
+      xlink:href="taxonomy/basic-formulas-cross-checks.xml"
+      xlink:arcrole="http://www.w3.org/1999/xlink/properties/linkbase"/>
+  <xbrli:unit id="U-AUD">
+    <xbrli:measure>iso4217:AUD</xbrli:measure>
+  </xbrli:unit>
+  <xbrli:context id="I-2018">
+    <xbrli:period>
+      <xbrli:instant>2018-12-30</xbrli:instant>
+    </xbrli:period>
+    <xbrli:entity>
+      <identifier scheme="http://www.example.com">TestData</identifier>
+    </xbrli:entity>
+  </xbrli:context>
+  <xbrli:context id="D-2018">
+    <xbrli:period>
+      <xbrli:startDate>2018-01-01</xbrli:startDate>
+      <xbrli:endDate>2018-12-30</xbrli:endDate>
+    </xbrli:period>
+    <xbrli:entity>
+      <identifier scheme="http://www.example.com">TestData</identifier>
+    </xbrli:entity>
+  </xbrli:context>
+  <xbrli:context id="I-2018-CHF_Bank">
+    <xbrli:period>
+      <xbrli:instant>2018-12-30</xbrli:instant>
+    </xbrli:period>
+    <xbrli:entity>
+      <identifier scheme="http://www.example.com">TestData</identifier>
+    </xbrli:entity>
+    <xbrli:scenario>
+      <xbrldi:typedMember dimension="basic:Dimension_BankAccounts_Instant">
+	<basic:BankAccount_Instant>
+	  <name>BanksCHF_Bank</name>
+	  <value>10000</value>
+	</basic:BankAccount_Instant>
+      </xbrldi:typedMember>
+    </xbrli:scenario>
+  </xbrli:context>
+  <xbrli:context id="D-2018-CHF_Bank">
+    <xbrli:period>
+      <xbrli:startDate>2018-01-01</xbrli:startDate>
+      <xbrli:endDate>2018-12-30</xbrli:endDate>
+    </xbrli:period>
+    <xbrli:entity>
+      <identifier scheme="http://www.example.com">TestData</identifier>
+      <xbrli:segment>
+	<xbrldi:typedMember dimension="basic:Dimension_BankAccounts_Duration">
+	  <basic:BankAccount_Duration>CHF_Bank</basic:BankAccount_Duration>
+	</xbrldi:typedMember>
+      </xbrli:segment>
+    </xbrli:entity>
+  </xbrli:context>
   <basic:Banks contextRef="I-2018-CHF_Bank" unitRef="U-AUD" decimals="INF">6.00</basic:Banks>
   <basic:CurrencyMovement contextRef="D-2018-CHF_Bank" unitRef="U-AUD" decimals="INF">2.00</basic:CurrencyMovement>
-
-<!-- investment report:
-url: http://localhost:8080/tmp/1566330244.4487815.2/investment_report.html
-
- -->
-
-<!-- bs html:
-url: http://localhost:8080/tmp/1566330244.4487815.2/balance_sheet.html
-
- -->
-
-<!-- pl html:
-url: http://localhost:8080/tmp/1566330244.4487815.2/profit_and_loss.html
-
- -->
-
-<!-- balance sheet: -->
- <basic:NetAssets contextRef="I-2018" unitRef="U-AUD" decimals="INF">6.00</basic:NetAssets>
+  <basic:NetAssets contextRef="I-2018" unitRef="U-AUD" decimals="INF">6.00</basic:NetAssets>
   <basic:Assets contextRef="I-2018" unitRef="U-AUD" decimals="INF">6.00</basic:Assets>
-   <basic:CurrentAssets contextRef="I-2018" unitRef="U-AUD" decimals="INF">6.00</basic:CurrentAssets>
-    <basic:CashAndCashEquivalents contextRef="I-2018" unitRef="U-AUD" decimals="INF">6.00</basic:CashAndCashEquivalents>
-     <basic:Banks contextRef="I-2018" unitRef="U-AUD" decimals="INF">6.00</basic:Banks>
- <basic:Equity contextRef="I-2018" unitRef="U-AUD" decimals="INF">6.00</basic:Equity>
+  <basic:CurrentAssets contextRef="I-2018" unitRef="U-AUD" decimals="INF">6.00</basic:CurrentAssets>
+  <basic:CashAndCashEquivalents contextRef="I-2018" unitRef="U-AUD" decimals="INF">6.00</basic:CashAndCashEquivalents>
+  <basic:Banks contextRef="I-2018" unitRef="U-AUD" decimals="INF">6.00</basic:Banks>
+  <basic:Equity contextRef="I-2018" unitRef="U-AUD" decimals="INF">6.00</basic:Equity>
   <basic:RetainedEarnings contextRef="I-2018" unitRef="U-AUD" decimals="INF">6.00</basic:RetainedEarnings>
-   <basic:CurrentEarnings contextRef="I-2018" unitRef="U-AUD" decimals="INF">2.00</basic:CurrentEarnings>
-   <basic:HistoricalEarnings contextRef="I-2018" unitRef="U-AUD" decimals="INF">4.00</basic:HistoricalEarnings>
-
-<!-- profit and loss: -->
- <basic:NetIncomeLoss contextRef="D-2018" unitRef="U-AUD" decimals="INF">2.00</basic:NetIncomeLoss>
+  <basic:CurrentEarnings contextRef="I-2018" unitRef="U-AUD" decimals="INF">2.00</basic:CurrentEarnings>
+  <basic:HistoricalEarnings contextRef="I-2018" unitRef="U-AUD" decimals="INF">4.00</basic:HistoricalEarnings>
+  <basic:NetIncomeLoss contextRef="D-2018" unitRef="U-AUD" decimals="INF">2.00</basic:NetIncomeLoss>
   <basic:Revenue contextRef="D-2018" unitRef="U-AUD" decimals="INF">2.00</basic:Revenue>
-   <basic:CurrencyMovement contextRef="D-2018" unitRef="U-AUD" decimals="INF">2.00</basic:CurrencyMovement>
-    <basic:CurrencyMovementCHF_Bank contextRef="D-2018" unitRef="U-AUD" decimals="INF">2.00</basic:CurrencyMovementCHF_Bank>
-
-<!-- historical profit and loss: 
- <basic:NetIncomeLoss contextRef="D-2018" unitRef="U-AUD" decimals="INF">4.00</basic:NetIncomeLoss>
-  <basic:Revenue contextRef="D-2018" unitRef="U-AUD" decimals="INF">4.00</basic:Revenue>
-   <basic:CurrencyMovement contextRef="D-2018" unitRef="U-AUD" decimals="INF">2.00</basic:CurrencyMovement>
-    <basic:CurrencyMovement_CHF_Bank contextRef="D-2018" unitRef="U-AUD" decimals="INF">2.00</basic:CurrencyMovement_CHF_Bank>
-
--->
-
-<!-- historical pl html:
-url: http://localhost:8080/tmp/1566330244.4487815.2/profit_and_loss_historical.html
-
- -->
-
-<!-- investment report all time:
-url: http://localhost:8080/tmp/1566330244.4487815.2/investment_report_all_time.html
-
- -->
-
-<!-- trial balance: -->
- <basic:Trial_Balance contextRef="I-2018" unitRef="U-AUD" decimals="INF">0.00</basic:Trial_Balance>
-
-<!-- WARNING: no transactions within request period -->
-
+  <basic:CurrencyMovement contextRef="D-2018" unitRef="U-AUD" decimals="INF">2.00</basic:CurrencyMovement>
+  <basic:CurrencyMovementCHF_Bank contextRef="D-2018" unitRef="U-AUD" decimals="INF">2.00</basic:CurrencyMovementCHF_Bank>
+  <basic:Trial_Balance contextRef="I-2018" unitRef="U-AUD" decimals="INF">0.00</basic:Trial_Balance>
 </xbrli:xbrl>
-
-

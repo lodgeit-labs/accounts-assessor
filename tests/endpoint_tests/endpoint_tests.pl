@@ -22,15 +22,18 @@
 
 test(start) :- nl.
 
-
 test(invalid, throws(_)) :-
 /*
 	todo: probably all invalid request files should have a corresponding response file, where a xml-formatted error message is. The endpoint should probably still answer with a Bad Request status code, but we should catch it in query_endpoint and parse the error xml. If the invalid requests are stored in invalid/, we just nedd to change the file search algo to list all sub-directories recursively.
 */
 	query_endpoint('endpoint_tests/depreciation/invalid/depreciation-request-written-down-values-earlier-reuqest-date-invalid.xml', _).
 
-
 test(endpoints, [forall(testcases(Testcase))]) :-
+	run_endpoint_test(Testcase).
+
+:- end_tests(xml_testcases).
+
+run_endpoint_test(Testcase) :-
 	Testcase = (Request, Response),
 	query_endpoint(Request, ReplyDOM),
 	/*todo check if the response is a xml with an error message */
@@ -52,9 +55,6 @@ test(endpoints, [forall(testcases(Testcase))]) :-
 		)
 	).
 
-:- end_tests(xml_testcases).
-
-
 check_value_difference(Value1, Value2) :-
 	atom_number(Value1, NValue1),
 	atom_number(Value2, NValue2),
@@ -73,17 +73,27 @@ test_response(_, Reply_Dom, Expected_Response_File_Relative_Path) :-
 		[ access(read) ]
 	),
 	load_xml(Expected_Response_File_Absolute_Path, Expected_Reply_Dom, [space(sgml)]),
-	compare_xml_dom(Reply_Dom, Expected_Reply_Dom,Error),
+	compare_xml_dom(Reply_Dom, Expected_Reply_Dom, Error),
 	(
 		var(Error)
 	->
 		true
 	;
 		(
-			write_term("Error: ",[]),
-			writeln(Error),
-			writeln(""),
-			fail
+			get_flag(overwrite_response_files, true)
+		->
+			(
+				open(Expected_Response_File_Absolute_Path, write, Stream),
+				xml_write(Stream, Reply_Dom, []),
+				close(Stream)
+			)
+		;
+			(
+				write_term("Error: ",[]),
+				writeln(Error),
+				writeln(""),
+				fail
+			)
 		)
 	).
 	
