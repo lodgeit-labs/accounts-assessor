@@ -74,13 +74,16 @@ compare_xml_attrs([Attr1 | Attrs1], [Attr2 | Attrs2]) :-
 	writeln(""),
 	compare_xml_attrs(Attrs1,Attrs2).
 
-compare_xml_dom([], [], _Error, _Path, _Num).
+compare_xml_dom([], [], _Error, _Path, _Num) :-!.
 
 % can move some of this stuff into pattern matching in the head w/ multiple rules
 % but i'll save that for later
 % change this into an xml_diff(DOM1, DOM2, Difference) predicate
 % xml_equal(DOM1, DOM2) = xml_diff(DOM1, DOM2, [])
-
+/*
+compare_xml_dom([_ | _], [], 'element count differs, _, _).
+compare_xml_dom([], [_|_], 'element count differs, _, _).
+*/
 compare_xml_dom(Elements1, Elements2, Error, Path, Num) :-
 	(
 		(
