@@ -48,7 +48,10 @@ process(DOM, [], Report_File_Info) :-
 		'unitsDeceased',					Losses_count]),
 
 	compute_livestock_by_simple_calculation(	Natural_increase_count,Natural_increase_value_per_head,Sales_count,Sales_value,Killed_for_rations_or_exchanged_for_goods_count,Stock_on_hand_at_beginning_of_year_count,Stock_on_hand_at_beginning_of_year_value,Stock_on_hand_at_end_of_year_count_input,Purchases_count,Purchases_value,Losses_count,Killed_for_rations_or_exchanged_for_goods_value,Stock_on_hand_at_end_of_year_value,Closing_and_killed_and_sales_minus_losses_count,Closing_and_killed_and_sales_value,Opening_and_purchases_and_increase_count,Opening_and_purchases_value,Natural_Increase_value,Average_cost,Revenue,Livestock_COGS,Gross_Profit_on_Livestock_Trading, Explanation),
-
+	
+	findall(Line, (member(L, Explanation), atomic_list_concat(L, Line)),  Explanation_Lines),
+	atomic_list_concat(Explanation_Lines, '\n', Explanation_Str),
+		
     write_tag('Killed_for_rations_or_exchanged_for_goods_value',	Killed_for_rations_or_exchanged_for_goods_value),
     write_tag('Stock_on_hand_at_end_of_year_value',					Stock_on_hand_at_end_of_year_value),
     write_tag('Closing_and_killed_and_sales_minus_losses_count',	Closing_and_killed_and_sales_minus_losses_count),
@@ -60,6 +63,7 @@ process(DOM, [], Report_File_Info) :-
     write_tag('Revenue',											Revenue),
     write_tag('Livestock_COGS',										Livestock_COGS),
     write_tag('Gross_Profit_on_Livestock_Trading', 					Gross_Profit_on_Livestock_Trading),
+    write_tag('Explanation', 										Explanation_Str),
 	writeln('</livestock>'),
 
 	Columns = [
