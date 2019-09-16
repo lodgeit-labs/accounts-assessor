@@ -786,15 +786,12 @@ compute_livestock_by_simple_calculation(
 	;
 		throw_string(["closing count mismatch, should be:", Stock_on_hand_at_end_of_year_count_Out])
 	),
-	atomic_list_concat([
-		'<!--\n',
-		'Gross_Profit_on_Livestock_Trading:\n', Gross_Profit_on_Livestock_Trading_Formula_String, '\n',
-		Gross_Profit_on_Livestock_Trading_Formula_String2,
-		'\n',
-		'Average_cost:\n', Average_cost_Formula_String, '\n',
-		Average_cost_Formula_String2,
-		'\n-->'
-	], Explanation).
+	Explanation = [
+		(['Gross_Profit_on_Livestock_Trading = ', Gross_Profit_on_Livestock_Trading_Formula_String]),
+		(['Gross_Profit_on_Livestock_Trading = ', Gross_Profit_on_Livestock_Trading_Formula_String2]),
+		(['Average_cost = ', Average_cost_Formula_String]),
+		(['Average_cost = ', Average_cost_Formula_String2])
+	].
 		
 		
 sales_and_buys_count(Livestock_Type, S_Transactions, Buys_Count, Buys_Value, Sales_Count, Sales_Value) :-

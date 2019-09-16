@@ -1,28 +1,30 @@
 % standalone livestock calculator
 
-:- module(process_xml_livestock_request, [process_xml_livestock_request/2]).
+:- module(process_xml_livestock_request, []).
 :- use_module(library(xpath)).
 :- use_module('../../lib/utils', [
 	inner_xml/3, write_tag/2, fields/2, numeric_fields/2, 
 	pretty_term_string/2]).
 :- use_module('../../lib/livestock', [compute_livestock_by_simple_calculation/23]).
 :- use_module('../report_page').
+:- use_module('../tables').
 
 
-process_xml_livestock_request(_, DOM) :-
+process_xml_livestock_request(_, DOM, Reports) :-
 
 	findall(Livestock, xpath(DOM, //reports/livestockaccount/livestocks/livestock, Livestock), Livestocks),
 	Livestocks \= [],
 
 	writeln('<response>'),
 	writeln('<livestocks>'),
-	maplist(process, Livestocks),
+	maplist(process, Livestocks, Alerts, File_Infos),
 	writeln('</livestocks>'),
 	writeln('</response>'),
-	nl, nl.
+	nl, nl,
+	Reports = _{alerts:Alerts, files:File_Infos}.
 
 	
-process(DOM) :-
+process(DOM, [], Report_File_Info) :-
 	writeln('<livestock>'),
 	inner_xml(DOM, //name, [Name]),
 	inner_xml(DOM, //currency, [Currency]),
@@ -58,11 +60,34 @@ process(DOM) :-
     write_tag('Revenue',											Revenue),
     write_tag('Livestock_COGS',										Livestock_COGS),
     write_tag('Gross_Profit_on_Livestock_Trading', 					Gross_Profit_on_Livestock_Trading),
-	writeln(Explanation),
-	writeln('</livestock>')
+	writeln('</livestock>'),
+
+	Columns = [
+		column{id:name, title:"Livestock", options:_{}},
+		column{id:currency, title:"Currency", options:_{}},
+		column{id:average_cost, title:"Average Cost", options:_{}},
+		column{id:cogs, title:"Cost Of Goods Sold", options:_{}},
+		column{id:gross_profit, title:"Gross Profit", options:_{}}
+	],
+
+	Row0 = _{
+		name: Name,
+		currency: Currency, 
+		average_cost: value(Currency, Average_cost), 
+		cogs: value(Currency, Livestock_COGS),
+		gross_profit: value(Currency, Gross_Profit_on_Livestock_Trading)
+	},
+
+	tables:format_row(Columns, Row0, Formatted_Row),
+	tables:row_to_html(Columns, Formatted_Row, Row_Html),
+
+	findall(tr(td([colspan="5"],R)), member(R, Explanation), Explanations),
+	tables:header_html(Columns, Html_Header),
+	flatten([Html_Header, Row_Html, Explanations], Table_Contents_Html),
 	
-	
-	.
+	utils:replace_nonalphanum_chars_with_underscore(Name, Fn_Suffix),
+	atomic_list_concat(['livestock_report_', Fn_Suffix, '.html'], Fn),
+	report_page:report_page_with_table(Name, Table_Contents_Html, Fn, Report_File_Info).
 
 /*
 Optimally we should preload the Excel sheet with test data that when pressed, provides a controlled natural language response describing the set of processes the data underwent as a result of the computational rules along with a solution to the problem.

@@ -2,7 +2,7 @@
 
 :- use_module(loan/process_xml_loan_request, [process_xml_loan_request/2]).
 :- use_module(ledger/process_xml_ledger_request, [process_xml_ledger_request/3]).
-:- use_module(livestock/process_xml_livestock_request, [process_xml_livestock_request/2]).
+:- use_module(livestock/process_xml_livestock_request).
 :- use_module(investment/process_xml_investment_request, [process_xml_investment_request/2]).
 :- use_module(car_request/process_xml_car_request, [process_xml_car_request/2]).
 :- use_module(depreciation/process_xml_depreciation_request, [process_xml_depreciation_request/2]).
@@ -73,7 +73,7 @@ process_xml_request(File_Name, Dom, (Report_Files, Response_Title)) :-
 	(process_xml_car_request(File_Name, Dom) -> Report_Files = files{};
 	(process_xml_loan_request(File_Name, Dom) -> Report_Files = files{};
 	(process_xml_ledger_request(File_Name, Dom, Report_Files) -> Response_Title = 'xbrl instance';
-	(process_xml_livestock_request(File_Name, Dom) -> Report_Files = files{};
+	(process_xml_livestock_request:process_xml_livestock_request(File_Name, Dom, Report_Files);
 	(process_xml_investment_request(File_Name, Dom) -> Report_Files = files{};
 	(process_xml_depreciation_request(File_Name, Dom) -> Report_Files = files{})))))),
 	(

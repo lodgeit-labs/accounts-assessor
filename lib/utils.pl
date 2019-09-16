@@ -28,9 +28,9 @@
 		capitalize_atom/2,
 		path_get_dict/3,
 		report_currency_atom/2,
-		  dict_json_text/2,
-		  catch_maybe_with_backtrace/3,
-		  find_thing_in_tree/4]).
+		dict_json_text/2,
+		catch_maybe_with_backtrace/3,
+		find_thing_in_tree/4]).
 
 
 		
