@@ -1,4 +1,5 @@
 :- use_module(library(xpath)).
+:- use_module(library(archive)).
 
 :- use_module(loan/process_xml_loan_request, [process_xml_loan_request/2]).
 :- use_module(ledger/process_xml_ledger_request, [process_xml_ledger_request/3]).
@@ -140,7 +141,7 @@ process_data(_, Path, Options) :-
 	(get_dict(errors, Reports, Errors) -> true; Errors  = []),
 	(get_dict(warnings, Reports, Warnings) -> true; Warnings  = []),
 
-	files:report_file_path('', Tmp_Dir_Url, _),
+	files:report_file_path('', Tmp_Dir_Url, Tmp_Dir_Path),
 	flatten([
 		Files, 
 		Output_File_Title:url(Output_File_Url),
@@ -168,7 +169,7 @@ process_data(_, Path, Options) :-
 	write_file(Output_File_Path, Response_Xml_String),
 	with_output_to(string(Response_Json_String), json_write(current_output, Json_Out)),
 	write_file(Json_Response_File_Path, Response_Json_String),
-
+	archive_create('all_files.zip', ['.'], [format(zip), directory(Tmp_Dir_Path)]),
 	(
 		Requested_Output_Type = xml
 	->
