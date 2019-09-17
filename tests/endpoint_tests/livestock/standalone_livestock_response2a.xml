@@ -5,6 +5,17 @@
     <livestock>
       <name>Sheep</name>
       <currency>AUD</currency>
+      <unitsBorn>32</unitsBorn>
+      <naturalIncreaseValuePerUnit>54</naturalIncreaseValuePerUnit>
+      <unitsSales>30</unitsSales>
+      <saleValue>500</saleValue>
+      <unitsRations>0</unitsRations>
+      <unitsOpening>0</unitsOpening>
+      <openingValue>0</openingValue>
+      <unitsClosing>1,_17104</unitsClosing>
+      <unitsPurchases>0</unitsPurchases>
+      <purchaseValue>0</purchaseValue>
+      <unitsDeceased>1</unitsDeceased>
       <Killed_for_rations_value>0</Killed_for_rations_value>
       <Stock_on_hand_at_end_of_year_value>54</Stock_on_hand_at_end_of_year_value>
       <Closing_and_killed_and_sales_minus_losses_count>30</Closing_and_killed_and_sales_minus_losses_count>
