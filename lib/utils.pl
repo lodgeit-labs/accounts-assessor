@@ -557,3 +557,7 @@ remove_before(Slash, Name_In, Name_Out) :-
    ;   
      Name_Out = Name_In)
     ).
+
+unzip([], [], []).
+unzip([X,Y|T], [X|XT], [Y|YT]) :-
+	unzip(T, XT, YT).

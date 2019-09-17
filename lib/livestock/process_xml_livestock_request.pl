@@ -2,6 +2,7 @@
 
 :- module(process_xml_livestock_request, []).
 :- use_module(library(xpath)).
+%:- use_module(library(yall)).
 :- use_module('../../lib/utils', [
 	inner_xml/3, write_tag/2, fields/2, numeric_fields/2, 
 	pretty_term_string/2]).
@@ -31,8 +32,8 @@ process(DOM, [], Report_File_Info) :-
 	write_tag('name', Name),
 	write_tag('currency', Currency),
 
-	numeric_fields(DOM, [
-
+	Inputs = 
+	[
 		'unitsBorn',						Natural_increase_count,
 		'naturalIncreaseValuePerUnit',		Natural_increase_value_per_head,
 		'unitsSales',						Sales_count,
@@ -45,13 +46,19 @@ process(DOM, [], Report_File_Info) :-
 		'unitsPurchases',		 			Purchases_count,
 		% todo maybe rename to purchasesValue
 		'purchaseValue',					Purchases_value,
-		'unitsDeceased',					Losses_count]),
+		'unitsDeceased',					Losses_count
+	],
+
+	numeric_fields(DOM, Inputs),
 
 	compute_livestock_by_simple_calculation(	Natural_increase_count,Natural_increase_value_per_head,Sales_count,Sales_value,Killed_for_rations_count,Stock_on_hand_at_beginning_of_year_count,Stock_on_hand_at_beginning_of_year_value,Stock_on_hand_at_end_of_year_count_input,Purchases_count,Purchases_value,Losses_count,Killed_for_rations_value,Stock_on_hand_at_end_of_year_value,Closing_and_killed_and_sales_minus_losses_count,Closing_and_killed_and_sales_value,Opening_and_purchases_and_increase_count,Opening_and_purchases_value,Natural_Increase_value,Average_cost,Revenue,Livestock_COGS,Gross_Profit_on_Livestock_Trading, Explanation),
 	
 	findall(Line, (member(L, Explanation), atomic_list_concat(L, Line)),  Explanation_Lines),
 	atomic_list_concat(Explanation_Lines, '\n', Explanation_Str),
-		
+	
+	utils:unzip(Inputs, Input_Tags, Input_Vars),
+	maplist(write_tag, Input_Tags, Input_Vars),
+
     write_tag('Killed_for_rations_value',	Killed_for_rations_value),
     write_tag('Stock_on_hand_at_end_of_year_value',					Stock_on_hand_at_end_of_year_value),
     write_tag('Closing_and_killed_and_sales_minus_losses_count',	Closing_and_killed_and_sales_minus_losses_count),
