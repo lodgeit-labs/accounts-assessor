@@ -1,4 +1,13 @@
-
+"""
+7.09.19 23:48:22<ditable-log-koo5>just the basic gaussian thingy you expl
+ained the other day
+17.09.19 23:48:59<ditable-log-koo5>or something like that
+17.09.19 23:49:11<ditable-log-koo5>only for the case where each formula ca
+n be solved separately
+17.09.19 23:50:40<ditable-log-koo5>which i think would still be good enoug
+h to let us write ir fully declaratively and have it deal with absence of 
+exchange rates and with selling with different currency than buying
+"""
 	
 class Solution:
 	cost = 0
