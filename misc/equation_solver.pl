@@ -36,6 +36,9 @@ test_run :-
 	writeln(Results),
 	format("Assets: ~w~n", [Results.assets]).
 
+	
+% produce a dict of vars
+	
 analyze_term(X + Y, Vars_In, Vars_Out) :-
 	!,
 	analyze_term(X,Vars_In, Vars_Out1),
@@ -75,6 +78,12 @@ analyze_context([Rel | Rest], Vars_In, Vars_Out) :-
 	analyze_rel(Rel, Vars_In, Vars_Out1),
 	analyze_context(Rest, Vars_Out1, Vars_Out).
 
+	
+	
+	
+	
+	
+	
 clpqify_term(X + Y, Vars, X2 + Y2) :-
 	!,
 	clpqify_term(X, Vars, X2),
@@ -116,6 +125,14 @@ clpqify_context([Rel | Rest], Vars) :-
 	clpqify_rel(Rel, Vars),
 	clpqify_context(Rest, Vars).
 
+	
+	
+	
+	
+	
+	
+	
+	
 solve(Context, Vars) :-
 	analyze_context(Context, _{}, Vars),
 	clpqify_context(Context, Vars).

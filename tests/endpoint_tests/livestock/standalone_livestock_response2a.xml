@@ -5,7 +5,7 @@
     <livestock>
       <name>Sheep</name>
       <currency>AUD</currency>
-      <Killed_for_rations_or_exchanged_for_goods_value>0</Killed_for_rations_or_exchanged_for_goods_value>
+      <Killed_for_rations_value>0</Killed_for_rations_value>
       <Stock_on_hand_at_end_of_year_value>54</Stock_on_hand_at_end_of_year_value>
       <Closing_and_killed_and_sales_minus_losses_count>30</Closing_and_killed_and_sales_minus_losses_count>
       <Closing_and_killed_and_sales_value>554</Closing_and_killed_and_sales_value>
@@ -16,7 +16,7 @@
       <Revenue>500</Revenue>
       <Livestock_COGS>-54</Livestock_COGS>
       <Gross_Profit_on_Livestock_Trading>554</Gross_Profit_on_Livestock_Trading>
-      <Explanation>Gross_Profit_on_Livestock_Trading = Sales_value-(Stock_on_hand_at_beginning_of_year_value+Purchases_value-Average_cost*(Stock_on_hand_at_beginning_of_year_count+Natural_increase_count+Purchases_count-Killed_for_rations_or_exchanged_for_goods_count-Losses_count-Sales_count)-Killed_for_rations_or_exchanged_for_goods_count*Average_cost)
+      <Explanation>Gross_Profit_on_Livestock_Trading = Sales_value-(Stock_on_hand_at_beginning_of_year_value+Purchases_value-Average_cost*(Stock_on_hand_at_beginning_of_year_count+Natural_increase_count+Purchases_count-Killed_for_rations_count-Losses_count-Sales_count)-Killed_for_rations_count*Average_cost)
 Gross_Profit_on_Livestock_Trading = 500 - (0 + 0 - 54 * (0 + 32 + 0 - 0 - 1 - 30) - 0 * 54)
 Average_cost = (Stock_on_hand_at_beginning_of_year_value+Purchases_value+Natural_increase_count*Natural_increase_value_per_head)/(Stock_on_hand_at_beginning_of_year_count+Purchases_count+Natural_increase_count)
 Average_cost = (0 + 0 + 32 * 54) / (0 + 0 + 32)</Explanation>
