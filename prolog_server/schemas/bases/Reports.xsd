@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:include schemaLocation="Schema.xsd" />
+  <xs:include schemaLocation="Div7ALoan.xsd" />
+  <xs:include schemaLocation="BalanceSheetRequest.xsd" />
+
+  <xs:element name="reports" nillable="true" type="ReportContainer" />
+  <xs:complexType name="ReportContainer">
+    <xs:sequence>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element minOccurs="0" maxOccurs="1" name="payrollActivitySummary" type="PayrollActivitySummary" />
+        <xs:element minOccurs="0" maxOccurs="1" name="activityStatement" type="ActivityStatement" />
+        <xs:element minOccurs="0" maxOccurs="1" name="activityStatementTradeAdjustmentsTool" type="ActivityStatementTradeAdjustmentsTool" />
+        <xs:element minOccurs="0" maxOccurs="1" name="activityStatementTradeTransactionTool" type="ActivityStatementTradeTransactionTool" />
+        <xs:element minOccurs="0" maxOccurs="1" name="trustTaxReturn" type="TrustTaxReturn" />
+        <xs:element minOccurs="0" maxOccurs="1" name="employeesDetails" type="EmployeesDetails" />
+        <xs:element minOccurs="0" maxOccurs="1" name="balanceSheet" type="BalanceSheet" />
+        <xs:element minOccurs="0" maxOccurs="1" name="profitLoss" type="ProfitAndLoss" />
+        <xs:element minOccurs="0" maxOccurs="1" name="generalLedgerSummary" type="GeneralLedgerSummary" />
+        <xs:element minOccurs="0" maxOccurs="1" name="generalLedger" type="GeneralLedgerDetail" />
+        <!-- <xs:element minOccurs="0" maxOccurs="1" name="generalledgeractivity" type="GeneralLedgerActivity" /> -->
+        <xs:element minOccurs="0" maxOccurs="1" name="generalLedgerMovement" type="MyobGeneralLedgerActivity" />
+        <xs:element minOccurs="0" maxOccurs="1" name="trialBalance" type="TrialBalance" />
+        <!-- <xs:element minOccurs="0" maxOccurs="1" name="partnerorBeneficiary" type="PartnerorBeneficiary" /> -->
+        <!-- <xs:element minOccurs="0" maxOccurs="1" name="beneficiaryShare" type="BeneficiaryShare" /> -->
+        <xs:element minOccurs="0" maxOccurs="1" name="depreciationSchedule" type="DepreciationSchedule" />
+        <xs:element minOccurs="0" maxOccurs="1" name="depreciationPool" type="DepreciationPool" />
+        <xs:element minOccurs="0" maxOccurs="1" name="customerCardListDetails" type="CustomerCardListDetails" />
+        <xs:element minOccurs="0" maxOccurs="1" name="supplierCardListDetails" type="SupplierCardListDetails" />
+        <xs:element minOccurs="0" maxOccurs="1" name="accountsReceivableSummarywithTax" type="ReceivablewithTax" />
+        <xs:element minOccurs="0" maxOccurs="1" name="accountsPayableSummarywithTax" type="PayablewithTax" />
+        <xs:element minOccurs="0" maxOccurs="1" name="accountsReceivableSummary" type="CustomerOutstandingSummary" />
+        <xs:element minOccurs="0" maxOccurs="1" name="accountsPayableSummary" type="SupplierOutstandingSummary" />
+        <xs:element minOccurs="0" maxOccurs="1" name="accountsReceivableDetail" type="ReceivableReconciliationDetail" />
+        <xs:element minOccurs="0" maxOccurs="1" name="accountsPayableDetail" type="PayableReconciliationDetail" />
+        <xs:element minOccurs="0" maxOccurs="1" name="taxLiability" type="TaxLiability" />
+        <xs:element minOccurs="0" maxOccurs="1" name="dividendHistoryASX" type="DividendHistoryASX" />
+        <xs:element minOccurs="0" maxOccurs="1" name="bankReconciliation" type="BankReconciliation" />
+        <xs:element minOccurs="0" maxOccurs="1" name="bankStatement" type="BankStatement" />
+        <xs:element minOccurs="0" maxOccurs="1" name="journals" type="Journals" />
+        <xs:element minOccurs="0" maxOccurs="1" name="livestock" type="LiveStockQuantities" />
+        <xs:element minOccurs="0" maxOccurs="1" name="quantities" type="GenericQuantities" />
+        <xs:element minOccurs="0" maxOccurs="1" name="cropping" type="CroppingReport" />
+        <xs:element minOccurs="0" maxOccurs="1" name="loanDetails" type="LoanDetails" />
+        <xs:element minOccurs="0" maxOccurs="1" name="balanceSheetRequest" type="BalanceSheetRequest" />
+        <!-- <xs:element minOccurs="0" maxOccurs="1" name="investmentRequest" type="InvestmentRequest" /> -->
+      </xs:choice>
+    </xs:sequence>
+  </xs:complexType>
+</xs:schema>

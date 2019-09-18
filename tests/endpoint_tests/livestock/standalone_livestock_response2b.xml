@@ -1,28 +1,36 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
+
 <response>
-<livestock>
-<name>Sheep</name>
-<currency>AUD</currency>
-<Killed_for_rations_or_exchanged_for_goods_value>636.0</Killed_for_rations_or_exchanged_for_goods_value>
-<Stock_on_hand_at_end_of_year_value>424.0</Stock_on_hand_at_end_of_year_value>
-<Closing_and_killed_and_sales_minus_losses_count>25</Closing_and_killed_and_sales_minus_losses_count>
-<Closing_and_killed_and_sales_value>1060.0</Closing_and_killed_and_sales_value>
-<Opening_and_purchases_and_increase_count>25</Opening_and_purchases_and_increase_count>
-<Opening_and_purchases_value>1000</Opening_and_purchases_value>
-<Natural_Increase_value>60</Natural_Increase_value>
-<Average_cost>42.4</Average_cost>
-<Revenue>0</Revenue>
-<Livestock_COGS>-60.0</Livestock_COGS>
-<Gross_Profit_on_Livestock_Trading>60.0</Gross_Profit_on_Livestock_Trading>
-<!--
-Gross_Profit_on_Livestock_Trading:
-Sales_value-(Stock_on_hand_at_beginning_of_year_value+Purchases_value-Average_cost*(Stock_on_hand_at_beginning_of_year_count+Natural_increase_count+Purchases_count-Killed_for_rations_or_exchanged_for_goods_count-Losses_count-Sales_count)-Killed_for_rations_or_exchanged_for_goods_count*Average_cost)
-0 - (0 + 1000 - 42.4 * (0 + 15 + 10 - 15 - 0 - 0) - 15 * 42.4)
-Average_cost:
-(Stock_on_hand_at_beginning_of_year_value+Purchases_value+Natural_increase_count*Natural_increase_value_per_head)/(Stock_on_hand_at_beginning_of_year_count+Purchases_count+Natural_increase_count)
-(0 + 1000 + 15 * 4) / (0 + 10 + 15)
--->
-</livestock>
+  <livestocks>
+    <livestock>
+      <name>Sheep</name>
+      <currency>AUD</currency>
+      <unitsBorn>15</unitsBorn>
+      <naturalIncreaseValuePerUnit>4</naturalIncreaseValuePerUnit>
+      <unitsSales>0</unitsSales>
+      <saleValue>0</saleValue>
+      <unitsRations>15</unitsRations>
+      <unitsOpening>0</unitsOpening>
+      <openingValue>0</openingValue>
+      <unitsClosing>10</unitsClosing>
+      <unitsPurchases>10</unitsPurchases>
+      <purchaseValue>1000</purchaseValue>
+      <unitsDeceased>0</unitsDeceased>
+      <Killed_for_rations_value>636.0</Killed_for_rations_value>
+      <Stock_on_hand_at_end_of_year_value>424.0</Stock_on_hand_at_end_of_year_value>
+      <Closing_and_killed_and_sales_minus_losses_count>25</Closing_and_killed_and_sales_minus_losses_count>
+      <Closing_and_killed_and_sales_value>1060.0</Closing_and_killed_and_sales_value>
+      <Opening_and_purchases_and_increase_count>25</Opening_and_purchases_and_increase_count>
+      <Opening_and_purchases_value>1000</Opening_and_purchases_value>
+      <Natural_Increase_value>60</Natural_Increase_value>
+      <Average_cost>42.4</Average_cost>
+      <Revenue>0</Revenue>
+      <Livestock_COGS>-60.0</Livestock_COGS>
+      <Gross_Profit_on_Livestock_Trading>60.0</Gross_Profit_on_Livestock_Trading>
+      <Explanation>Gross_Profit_on_Livestock_Trading = Sales_value-(Stock_on_hand_at_beginning_of_year_value+Purchases_value-Average_cost*(Stock_on_hand_at_beginning_of_year_count+Natural_increase_count+Purchases_count-Killed_for_rations_count-Losses_count-Sales_count)-Killed_for_rations_count*Average_cost)
+Gross_Profit_on_Livestock_Trading = 0 - (0 + 1000 - 42.4 * (0 + 15 + 10 - 15 - 0 - 0) - 15 * 42.4)
+Average_cost = (Stock_on_hand_at_beginning_of_year_value+Purchases_value+Natural_increase_count*Natural_increase_value_per_head)/(Stock_on_hand_at_beginning_of_year_count+Purchases_count+Natural_increase_count)
+Average_cost = (0 + 1000 + 15 * 4) / (0 + 10 + 15)</Explanation>
+    </livestock>
+  </livestocks>
 </response>
-
-

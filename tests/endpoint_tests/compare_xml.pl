@@ -74,56 +74,74 @@ compare_xml_attrs([Attr1 | Attrs1], [Attr2 | Attrs2]) :-
 	writeln(""),
 	compare_xml_attrs(Attrs1,Attrs2).
 
-compare_xml_dom([], [], _Error, _Path, _Num).
+compare_xml_dom([], [], _Error, _Path, _Num) :-!.
 
 % can move some of this stuff into pattern matching in the head w/ multiple rules
 % but i'll save that for later
 % change this into an xml_diff(DOM1, DOM2, Difference) predicate
 % xml_equal(DOM1, DOM2) = xml_diff(DOM1, DOM2, [])
-
-compare_xml_dom([Elem1 | Siblings1], [Elem2 | Siblings2], Error, Path, Num) :-
+/*
+compare_xml_dom([_ | _], [], 'element count differs, _, _).
+compare_xml_dom([], [_|_], 'element count differs, _, _).
+*/
+compare_xml_dom(Elements1, Elements2, Error, Path, Num) :-
 	(
-		Elem1 = element(Tag1, Attrs1,Children1),
-		Elem2 = element(Tag2, Attrs2,Children2),
-		!,
 		(
-			Tag1 = Tag2,
-			!,
+			length(Elements1, Len),
+			length(Elements2, Len)
+		)
+	->
+		(	
+			Elements1 = [Elem1 | Siblings1], 
+			Elements2 = [Elem2 | Siblings2],
 			(
-				% 
-				Attrs1 = Attrs2,
+				Elem1 = element(Tag1, Attrs1,Children1),
+				Elem2 = element(Tag2, Attrs2,Children2),
 				!,
-				atomic_list_concat([Path,"/",Tag1],Path_Tag1),
-				compare_xml_dom(Children1, Children2, Error, Path_Tag1,0),
+				(
+					Tag1 = Tag2,
+					!,
+					(
+						% 
+						Attrs1 = Attrs2,
+						!,
+						atomic_list_concat([Path,"/",Tag1],Path_Tag1),
+						compare_xml_dom(Children1, Children2, Error, Path_Tag1,0),
+						(
+							var(Error),
+							!,
+							Next_Num is Num + 1,
+							compare_xml_dom(Siblings1, Siblings2, Error, Path, Next_Num)
+						;
+							true
+						)
+					;
+					(
+						term_string(Attrs1, Attrs1_Str, []),
+						term_string(Attrs2, Attrs2_Str, []),
+						atomic_list_concat(["Attributes don't match at ", Path, "/", Tag1, "[", Num, "]:\n", Attrs1_Str, ' vs \n', Attrs2_Str], Error)
+					)
+					)
+				;
+					atomic_list_concat(["Tags don't match: ", Tag1, " and ", Tag2, " at ", Path, "[", Num, "]"], Error)
+				)
+			;
+				atom(Elem1),
+				atom(Elem2),
+				compare_atoms(Elem1, Elem2, Error, Path, Num),
 				(
 					var(Error),
 					!,
 					Next_Num is Num + 1,
-					compare_xml_dom(Siblings1, Siblings2, Error, Path, Next_Num)
+					compare_xml_dom(Siblings1,Siblings2, Error, Path, Next_Num)
 				;
 					true
 				)
-			;
-			(
-				term_string(Attrs1, Attrs1_Str, []),
-				term_string(Attrs2, Attrs2_Str, []),
-				atomic_list_concat(["Attributes don't match at ", Path, "/", Tag1, "[", Num, "]:\n", Attrs1_Str, ' vs \n', Attrs2_Str], Error)
 			)
-			)
-		;
-			atomic_list_concat(["Tags don't match: ", Tag1, " and ", Tag2, " at ", Path, "[", Num, "]"], Error)
 		)
-	;
-		atom(Elem1),
-		atom(Elem2),
-		compare_atoms(Elem1, Elem2, Error, Path, Num),
-		(
-			var(Error),
-			!,
-			Next_Num is Num + 1,
-			compare_xml_dom(Siblings1,Siblings2, Error, Path, Next_Num)
 		;
-			true
+		(
+			Error = 'element counts differ'
 		)
 	).
 

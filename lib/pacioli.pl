@@ -26,21 +26,28 @@
 		vecs_are_almost_equal/2,
 		coord_is_almost_zero/1,
 		is_debit/1,
-		    coord_merge/3,
-		    coord_normal_side_value/3,
-		    vector_of_coords_to_vector_of_values/4]).
+	    coord_merge/3,
+	    coord_normal_side_value/3,
+	    vector_of_coords_to_vector_of_values/4]).
 
 :- use_module('utils', [
 			semigroup_foldl/3,
-			floats_close_enough/2]).
+			floats_close_enough/2,
+			sort_into_dict/3,
+			sort_into_assoc/3
+]).
 
 :- use_module('accounts').
 
 :- use_module(library(clpq)).
 :- use_module(library(record)).
+:- use_module(library(http/json)).
 
 :- record coord(unit, debit, credit).
 :- record value(unit, amount).
+
+
+
 
 	
 % -------------------------------------------------------------------
@@ -109,8 +116,8 @@ vec_units(Vec, Units) :-
 vec_filtered_by_unit(Vec, Unit, Filtered) :-
 	findall(Coord,
 	(
-		member(Coord, Vec),
-		coord_or_value_unit(Coord, Unit)
+		coord_or_value_unit(Coord, Unit),
+		member(Coord, Vec)
 	),
 	Filtered).
 
@@ -122,15 +129,20 @@ vec_unit_value(Vec, Unit, Coord) :-
 
 vec_add(As, Bs, Cs_Reduced) :-
 	assertion((flatten(As, As), flatten(Bs, Bs))),
+	/*paste the two vectors togetner*/
 	append(As, Bs, As_And_Bs),
-	vec_units(As_And_Bs, Units),
-	findall(Coord,
-	(
-		member(Unit, Units),
-		vec_unit_value(As_And_Bs, Unit, Coord)
-	)
-	,Cs),
-	flatten(Cs, Cs_Flat),
+
+	sort_into_assoc(pacioli:coord_or_value_unit, As_And_Bs, Sorted),
+	assoc_to_values(Sorted, Valueses),
+
+	findall(
+		Total,
+		(
+			member(Values, Valueses),
+			semigroup_foldl(coord_merge, Values, [Total]) 
+		),
+		Cs_Flat
+	),
 	vec_reduce(Cs_Flat, Cs_Reduced).
 
 vec_sum(Vectors, Sum) :-
@@ -154,10 +166,16 @@ is_zero(Coord) :-
 	
 is_zero(Value) :-
 	is_zero_value(Value).
-	
+/*	
 is_zero_coord(coord(_, Zero1, Zero2)) :-
 	{Zero1 =:= 0,
 	Zero2 =:= 0}.
+
+	non-cplq version for speed..
+*/
+is_zero_coord(coord(_, Zero1, Zero2)) :-
+	(Zero1 = 0 -> true ; Zero1 = 0.0),
+	(Zero2 = 0 -> true ; Zero2 = 0.0).
 
 is_zero_value(value(_, Zero)) :-
 	is_zero_coord(coord(_, Zero, 0)).
@@ -196,10 +214,10 @@ make_credit(coord(Unit, Zero, Cr), coord(Unit, 0, Cr)) :- Zero =:= 0.
 number_coord(Unit, Number, coord(Unit, Debit, Credit)) :-
 	{Number =:= Debit - Credit}.
 
-coord_normal_side_value(coord(Unit, C, D), debit, value(Unit, V)) :-
+coord_normal_side_value(coord(Unit, D, C), debit, value(Unit, V)) :-
 	{V =:= D - C}.
 
-coord_normal_side_value(coord(Unit, C, D), credit, value(Unit, V)) :-
+coord_normal_side_value(coord(Unit, D, C), credit, value(Unit, V)) :-
 	{V =:= C - D}.
 
 number_vec(_, Zero, []) :-

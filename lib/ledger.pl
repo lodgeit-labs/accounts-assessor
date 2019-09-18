@@ -1,13 +1,12 @@
 :- module(ledger, [
 		find_s_transactions_in_period/4,
-		process_ledger/19
+		process_ledger/21
 	]).
 
 :- use_module('system_accounts', [
 		traded_units/3,
 		generate_system_accounts/3]).
-:- use_module('accounts', [
-		check_account_parent/2]).
+:- use_module('accounts').
 :- use_module('statements', [
 		s_transaction_day/2,
 		preprocess_s_transactions/6,
@@ -19,21 +18,31 @@
 		add_days/3,
 		date_between/3]).
 :- use_module('utils', [
-		pretty_term_string/2]).
+		pretty_term_string/2,
+		dict_json_text/2]).
 :- use_module('livestock', [
 		process_livestock/14,
 		livestock_counts/6]). 
 :- use_module('transactions', [
-		check_transaction_account/2]).
+		check_transaction_account/2,
+		transactions_by_account/2]).
 :- use_module('ledger_report', [
 		trial_balance_between/8
 		]).
 :- use_module('pacioli', [
-		coord_is_almost_zero/1]).
+		coord_is_almost_zero/1,
+		number_vec/3]).
+:- use_module('exchange', [
+		vec_change_bases/5]).
 
 :- use_module(library(rdet)).
 
-		
+:- rdet(generate_gl_data/6).
+:- rdet(make_gl_entry/4).
+:- rdet(s_transaction_to_dict/2).	
+:- rdet(transaction_to_dict/2).
+:- rdet(transaction_with_converted_vector/4).
+
 find_s_transactions_in_period(S_Transactions, Opening_Date, Closing_Date, Out) :-
 	findall(
 		S_Transaction,
@@ -60,11 +69,13 @@ process_ledger(
 	Accounts_In, 
 	Accounts, 
 	Transactions_With_Livestock,
+	Transactions_By_Account,
 	Transaction_Transformation_Debug,
 	Outstanding_Out,
 	Processed_Until,
 	Warnings,
-	Errors
+	Errors,
+	Gl
 ) :-
 
 	gather_ledger_warnings(S_Transactions0, Start_Date, End_Date, Warnings0),
@@ -84,7 +95,7 @@ process_ledger(
 	'-->\n\n'], Debug_Message0),
 	writeln(Debug_Message0),
 
-	/*todo: if there are no unit values, force Cost_Or_Market = cost?*/
+	/*TODO: if there are no unit values, force Cost_Or_Market = cost?*/
 	(
 		Cost_Or_Market = cost
 	->
@@ -103,37 +114,43 @@ process_ledger(
 	writeln(Debug_Message10),
 	flatten([Accounts_In, Generated_Accounts], Accounts),
 	%check_accounts(Accounts)
-	maplist(check_account_parent(Accounts), Accounts), 
-
+	maplist(accounts:check_account_parent(Accounts), Accounts), 
+	accounts:write_accounts_json_report(Accounts),
+	
+	dict_from_vars(Static_Data0, [Accounts, Report_Currency, Start_Date, End_Date, Exchange_Rates, Transaction_Types, Cost_Or_Market]),
+	
+	preprocess_s_transactions(Static_Data0, S_Transactions, Processed_S_Transactions, Transactions0, Outstanding_Out, Transaction_Transformation_Debug),
+	
 	(
-		dict_from_vars(Static_Data0, [Accounts, Report_Currency, Start_Date, End_Date, Exchange_Rates, Transaction_Types, Cost_Or_Market]),
-		
-		preprocess_s_transactions(Static_Data0, S_Transactions, Processed_S_Transactions, Transactions1, Outstanding_Out, Transaction_Transformation_Debug),
-		
+		S_Transactions = Processed_S_Transactions
+	-> 
 		(
-			S_Transactions = Processed_S_Transactions
-		-> 
-			(
-				Processed_Until = End_Date,
-				Last_Good_Day = End_Date
-			)
-		;
-			(
-				last(Processed_S_Transactions, Last_Processed_S_Transaction),
-				s_transaction_day(Last_Processed_S_Transaction, Date),
-				%Processed_Until = with_note(Date, 'until error'),
-				Processed_Until = Date,
-				add_days(Date, -1, Last_Good_Day)
-			)
+			Processed_Until = End_Date,
+			Last_Good_Day = End_Date
+		)
+	;
+		(
+			last(Processed_S_Transactions, Last_Processed_S_Transaction),
+			s_transaction_day(Last_Processed_S_Transaction, Date),
+			%Processed_Until = with_note(Date, 'until error'),
+			Processed_Until = Date,
+			add_days(Date, -1, Last_Good_Day)
 		)
 	),
-	
+	flatten(Transactions0, Transactions1),
 	
 	process_livestock(Livestock_Doms, Livestock_Types, Processed_S_Transactions, Transactions1, Livestock_Opening_Costs_And_Counts, Start_Date, Last_Good_Day, Exchange_Rates, Accounts, Report_Currency, Transactions_With_Livestock, Livestock_Events, Average_Costs, Average_Costs_Explanations),
-	livestock_counts(Accounts, Livestock_Types, Transactions_With_Livestock, Livestock_Opening_Costs_And_Counts, Last_Good_Day, Livestock_Counts),
+	dict_from_vars(Static_Data_Livestock_Counts0, [Accounts, Start_Date, End_Date]),
+	Static_Data_Livestock_Counts = Static_Data_Livestock_Counts0.put(transactions, Transactions_With_Livestock),
+	transactions_by_account(Static_Data_Livestock_Counts, Transactions_By_Account_With_Livestock),
+	livestock_counts(Accounts, Livestock_Types, Transactions_By_Account_With_Livestock, Livestock_Opening_Costs_And_Counts, Last_Good_Day, Livestock_Counts),
 
 	maplist(check_transaction_account(Accounts), Transactions_With_Livestock),
-	
+
+
+	Static_Data2 = Static_Data0.put(end_date, Processed_Until),
+	generate_gl_data(Static_Data2, Processed_S_Transactions, Transactions0, Transactions1, Transactions_With_Livestock, Gl),
+		
 	pretty_term_string(Livestock_Events, Message0b),
 	pretty_term_string(Transactions_With_Livestock, Message1),
 	pretty_term_string(Livestock_Counts, Message12),
@@ -166,7 +183,11 @@ process_ledger(
 	),
 	writeln(Debug_Message),
 	
-	trial_balance_between(Exchange_Rates, Accounts, Transactions_With_Livestock, Report_Currency, End_Date, Start_Date, End_Date, [Trial_Balance_Section]),
+	Static_Data3 = Static_Data2.put(transactions, Transactions_With_Livestock),
+	transactions_by_account(Static_Data3, Transactions_By_Account),
+	%Static_Data4 = Static_Data3.put(transactions_by_account, Transactions_With_Livestock),
+	
+	trial_balance_between(Exchange_Rates, Accounts, Transactions_By_Account, Report_Currency, End_Date, Start_Date, End_Date, [Trial_Balance_Section]),
 	(
 		(
 			trial_balance_ok(Trial_Balance_Section)
@@ -176,7 +197,10 @@ process_ledger(
 	->
 		Warnings1 = []
 	;
-		Warnings1 = ['SYSTEM_WARNING':trial_balance(Trial_Balance_Section)]
+		(
+			term_string(trial_balance(Trial_Balance_Section), Tb_Str),
+			Warnings1 = ['SYSTEM_WARNING':Tb_Str]
+		)
 	),
 	gather_ledger_errors(Transaction_Transformation_Debug, Errors),
 	flatten([Warnings0, Warnings1], Warnings),
@@ -185,6 +209,56 @@ process_ledger(
 	writeq(Errors),
 	writeln(' -->').
 
+generate_gl_data(Sd, Processed_S_Transactions, Transactions0, Transactions1, Transactions_With_Livestock, Report_Dict) :-
+	append(Transactions1, Livestock_Transactions, Transactions_With_Livestock),
+	append(Transactions0, [Livestock_Transactions], Outputs),
+	append(Processed_S_Transactions, ['livestock'], Sources),
+	maplist(make_gl_entry(Sd), Sources, Outputs, Report_Dict).
+
+make_gl_entry(Sd, Source, Transactions, Entry) :-
+	Entry = _{source: S, transactions: T},
+	(
+		atom(Source)
+	-> 
+		S = Source
+	; 
+		(
+			s_transaction_to_dict(Source, S0),
+			s_transaction_with_transacted_amount(Sd, S0, S)
+		)
+	),
+	maplist(transaction_to_dict, Transactions, T0),
+	maplist(transaction_with_converted_vector(Sd), T0, T).
+	
+s_transaction_with_transacted_amount(Sd, D1, D2) :-
+	D2 = D1.put(report_currency_transacted_amount, Amount),
+	vec_change_bases(Sd.exchange_rates, D1.date, Sd.report_currency, D1.vector, Vector_Converted),
+	number_vec(_, Amount0, Vector_Converted),
+	Amount is float(abs(Amount0)).
+	
+s_transaction_to_dict(St, D) :-
+	St = s_transaction(Day, Verb, Vector, Account, Exchanged),
+	D = _{
+		date: Day,
+		verb: Verb,
+		vector: Vector,
+		account: Account,
+		exchanged: Exchanged}.
+	
+transaction_to_dict(T, D) :-
+	T = transaction(Day, Description, Account, Vector, Type),
+	D = _{
+		date: Day,
+		description: Description,
+		account: Account,
+		vector: Vector,
+		type: Type}.
+
+transaction_with_converted_vector(Sd, Transaction, Transaction_Converted) :-
+	Transaction_Converted = Transaction.put(vector_converted, Vector_Converted),
+	vec_change_bases(Sd.exchange_rates, Sd.end_date, Sd.report_currency, Transaction.vector, Vector_Converted).
+
+		
 trial_balance_ok(Trial_Balance_Section) :-
 	Trial_Balance_Section = entry(_, Balance, [], _),
 	maplist(coord_is_almost_zero, Balance).

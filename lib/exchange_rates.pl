@@ -158,7 +158,7 @@ best_nonchained_exchange_rate(Table, Day, Src_Currency, Dest_Currency, Rate) :-
 
 % Derive an exchange rate from the source to the destination currency by chaining together
 % =< Length exchange rates.
-chained_exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate, _Length) :-
+chained_exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate, _) :-
 	best_nonchained_exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate).
 
 chained_exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate, Length) :-
@@ -170,6 +170,7 @@ chained_exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate, Le
 	;
 		Dest_Currency \= Src_Currency
 	),
+	/* get conversions into any currency */
 	best_nonchained_exchange_rate(Table, Day, Src_Currency, Int_Currency, Head_Exchange_Rate),
 	Int_Currency \= Src_Currency,
 	New_Length is Length - 1,
@@ -200,14 +201,27 @@ all_exchange_rates(Table, Day, Src_Currency, Dest_Currency, Exchange_Rates_Full)
 	-> 
 		Best_Rates = Best_Rates1
 	;
-		(
+		/*(
+			is called by chained_exchange_rate:
 			best_nonchained_exchange_rates(Table, Day, Src_Currency, Dest_Currency, Best_Rates)
 		->
 			true
-		;
+		;*/
+		(
+			fail
+		->
+			%finding all exchange rates just to make sure they are all the same:
 			findall((Dest_Currency, Rate), chained_exchange_rate(Table, Day, Src_Currency, Dest_Currency, Rate, 2), Best_Rates)
+		;			
+			(
+				Best_Rates = [(Dest_Currency, Rate)], 
+				once(chained_exchange_rate(Table, Day, Src_Currency, Dest_Currency, Rate, 2))
+			)
 		)
 	),
+	force_rates_into_float(Day, Src_Currency, Best_Rates, Exchange_Rates_Full).
+
+force_rates_into_float(Day, Src_Currency, Best_Rates, Exchange_Rates_Full) :-
 	findall(
 		rate(Day, Src_Currency, Dest_Currency, Exchange_Rate),
 		(
@@ -261,13 +275,14 @@ exchange_rate2(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate_Out) :-
 	),
 	Exchange_Rates_Sorted = [Exchange_Rate_Out|_].
 
+:- table(exchange_rate/5).
 exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate_Out) :-
 	%write(exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate_Out)),writeln('...'),
 	exchange_rate2(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate_Out)
 	%,writeln('ok')
 	.
 
-	
+%:- table(exchange_rate_throw/5).
 exchange_rate_throw(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate_Out) :-
 	(
 		exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate_Out)

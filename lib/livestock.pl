@@ -1,6 +1,6 @@
 % see also doc/ledger-livestock
 
-/*todo:
+/*TODO:
 beginning and ending dates are often ignored
 
 this file needs serious cleanup, one reason to delay that might be that we can end up abstracting this into a general average cost pricing with adjustment transactions method.
@@ -15,7 +15,8 @@ this file needs serious cleanup, one reason to delay that might be that we can e
 :- use_module('days', [parse_date/2]).
 :- use_module('ledger_report', [balance_by_account/9]).
 :- use_module('transactions', [
-		make_transaction/5
+		make_transaction/5,
+		transactions_by_account/2
 ]).
 
 /*
@@ -32,14 +33,14 @@ when bank statements are processed:
 	If there is a livestock unit ("cows") set on a bank account transaction:
 		count has to be set to ("20"). 
 		
-		maybe todo:
+		maybe TODO:
 			internally, we tag the transaction with a sell/buy livestock action type. 
 			user should have sell/buy livestock action types in their action taxonomy.
 			the "exchanged" account will be one where livestock increase/decrease transactions are internally collected. 
 		
 		SYSTEM CAN INFER BUY/SELL i.e. A BUY IS A PAYMENT & A SELL IS A DEPOSIT. OF COURSE, THE UNIT TYPE MUST BE DESCRIBED. COW. PIG, ETC. AND THE UNIT TYPE MUST HAVE AN ACCOUNTS TAXONOMICAL RELATIONSHIP
 		
-		maybe todo:
+		maybe TODO:
 			internally, livestock buys and sells are transformed into "livestock buy/sell events" OK.
 		
 		one excel sheet for bank statement, one for each livestock type: natural increase, loss, rations..
@@ -138,18 +139,18 @@ livestock_counts(Accounts, Livestock_Types, Transactions, Opening_Costs_And_Coun
 		member(Livestock_Type, Livestock_Types),
 		member(Opening_Cost_And_Count, Opening_Costs_And_Counts),
 		opening_cost_and_count(Livestock_Type, _, _)  = Opening_Cost_And_Count,
-		livestock_count(Accounts, Livestock_Type, Opening_Cost_And_Count, Transactions, To_Day, Count)
+		livestock_count(Accounts, Livestock_Type, Transactions, Opening_Cost_And_Count, To_Day, Count)
 	),
 	Counts).
 
-livestock_count(Accounts, Livestock_Type, Transactions, Opening_Cost_And_Count, To_Day, Count) :-
+livestock_count(Accounts, Livestock_Type, Transactions_By_Account, Opening_Cost_And_Count, To_Day, Count) :-
 	opening_cost_and_count(Livestock_Type, _, Opening_Count) = Opening_Cost_And_Count,
 	count_account(Livestock_Type, Count_Account),
-	balance_by_account([], Accounts, Transactions, [], _, Count_Account, To_Day, Count_Vector, _),
+	balance_by_account([], Accounts, Transactions_By_Account, [], _, Count_Account, To_Day, Count_Vector, _),
 	vec_add(Count_Vector, [coord(Livestock_Type, Opening_Count, 0)], Count).
 
-livestock_at_average_cost_at_day(Accounts, Livestock_Type, Transactions, Opening_Cost_And_Count, To_Day, Average_Cost_Exchange_Rate, Cost_Vector) :-
-	livestock_count(Accounts, Livestock_Type, Transactions, Opening_Cost_And_Count, To_Day, Count_Vector),
+livestock_at_average_cost_at_day(Accounts, Livestock_Type, Transactions_By_Account, Opening_Cost_And_Count, To_Day, Average_Cost_Exchange_Rate, Cost_Vector) :-
+	livestock_count(Accounts, Livestock_Type, Transactions_By_Account, Opening_Cost_And_Count, To_Day, Count_Vector),
 	exchange_rate(_, _, Dest_Currency, Average_Cost) = Average_Cost_Exchange_Rate,
 	[coord(_, Count, _)] = Count_Vector,
 	Cost is Average_Cost * Count,
@@ -159,9 +160,10 @@ yield_livestock_cogs_transactions(
 	Accounts, 
 	Livestock_Type, 
 	Opening_Cost_And_Count, Average_Cost,
-	(_From_Day, To_Day, _Average_Costs, Input_Transactions, _S_Transactions),
-	Cogs_Transactions) :-
-		livestock_at_average_cost_at_day(Accounts, Livestock_Type, Input_Transactions, Opening_Cost_And_Count, To_Day, Average_Cost, Closing_Debit),
+	(_From_Day, To_Day, _Average_Costs, Transactions_By_Account, _S_Transactions, Transactions_By_Account),
+	Cogs_Transactions
+) :-
+		livestock_at_average_cost_at_day(Accounts, Livestock_Type, Transactions_By_Account, Opening_Cost_And_Count, To_Day, Average_Cost, Closing_Debit),
 		opening_cost_and_count(Livestock_Type, Opening_Cost, _) = Opening_Cost_And_Count,
 	
 		vec_sub(Closing_Debit, Opening_Cost, Adjustment_Debit),
@@ -578,6 +580,7 @@ opening_inventory_transactions(Start_Days, Opening_Costs_And_Counts, Livestock_T
 	make_transaction(Start_Days, 'livestock opening inventory', 'CapitalIntroduced', Opening_Vector_Credit, T2).
 	
 	
+/*TODO transactions_by_account here...*/
 process_livestock(Livestock_Doms, Livestock_Types, S_Transactions, Transactions_In, Opening_Costs_And_Counts, Start_Days, End_Days, _Exchange_Rates, Accounts, _Report_Currency, Transactions_Out, Livestock_Events, Average_Costs, Average_Costs_Explanations) :-
 	extract_livestock_events(Livestock_Doms, Livestock_Events),
 	extract_natural_increase_costs(Livestock_Doms, Natural_Increase_Costs),
@@ -596,8 +599,14 @@ process_livestock(Livestock_Doms, Livestock_Types, S_Transactions, Transactions_
 	get_more_livestock_transactions(Livestock_Types, Average_Costs, S_Transactions, Livestock_Events, More_Transactions),
 	append(Transactions2, More_Transactions, Transactions3),  
 
-	get_livestock_cogs_transactions(Accounts, Livestock_Types, Opening_Costs_And_Counts, Average_Costs, (Start_Days, End_Days, Average_Costs, Transactions3, S_Transactions),  Cogs_Transactions),
+	dict_from_vars(Static_Data, [Accounts]),
+	Static_Data2 = Static_Data.put(transactions, Transactions3).put(start_date,Start_Days).put(end_date,End_Days),
+	transactions_by_account(Static_Data2, Transactions_By_Account),
+
+	get_livestock_cogs_transactions(Accounts, Livestock_Types, Opening_Costs_And_Counts, Average_Costs, (Start_Days, End_Days, Average_Costs, Transactions_By_Account, S_Transactions),  Cogs_Transactions),
 	append(Transactions3, Cogs_Transactions, Transactions_Out)/*,
+
+	/*TODO transactions_by_account here...*/
 	
 	maplist(do_livestock_cross_check(Livestock_Events, Natural_Increase_Costs, S_Transactions, Transactions_Out, Opening_Costs_And_Counts, Start_Days, End_Days, Exchange_Rates, Accounts, Report_Currency, Average_Costs), Livestock_Types)*/.
 
@@ -694,14 +703,14 @@ compute_livestock_by_simple_calculation(
 	Natural_increase_value_per_head_In,
 	Sales_count_In,
 	Sales_value_In,
-	Killed_for_rations_or_exchanged_for_goods_count_In,
+	Killed_for_rations_count_In,
 	Stock_on_hand_at_beginning_of_year_count_In,
 	Stock_on_hand_at_beginning_of_year_value_In,
 	Stock_on_hand_at_end_of_year_count_In,
 	Purchases_count_In,
 	Purchases_value_In,
 	Losses_count_In,
-	Killed_for_rations_or_exchanged_for_goods_value_Out,
+	Killed_for_rations_value_Out,
 	Stock_on_hand_at_end_of_year_value_Out,
 	Closing_and_killed_and_sales_minus_losses_count_Out,
 	Closing_and_killed_and_sales_value_Out,
@@ -715,17 +724,17 @@ compute_livestock_by_simple_calculation(
 	Explanation
 	) :-
 	compile_with_variable_names_preserved((
-		Stock_on_hand_at_end_of_year_count = Stock_on_hand_at_beginning_of_year_count + Natural_increase_count + Purchases_count - Killed_for_rations_or_exchanged_for_goods_count - Losses_count - Sales_count,
+		Stock_on_hand_at_end_of_year_count = Stock_on_hand_at_beginning_of_year_count + Natural_increase_count + Purchases_count - Killed_for_rations_count - Losses_count - Sales_count,
 		Natural_Increase_value = Natural_increase_count * Natural_increase_value_per_head,
 		Opening_and_purchases_and_increase_count = Stock_on_hand_at_beginning_of_year_count + Purchases_count + Natural_increase_count,
 		Opening_and_purchases_value = Stock_on_hand_at_beginning_of_year_value + Purchases_value,
 		Average_cost_Formula = (Opening_and_purchases_value + Natural_Increase_value) /  Opening_and_purchases_and_increase_count,
 		Stock_on_hand_at_end_of_year_value = Average_cost * Stock_on_hand_at_end_of_year_count,
-		Killed_for_rations_or_exchanged_for_goods_value = Killed_for_rations_or_exchanged_for_goods_count * Average_cost,
-		Closing_and_killed_and_sales_minus_losses_count = Sales_count + Killed_for_rations_or_exchanged_for_goods_count + Stock_on_hand_at_end_of_year_count - Losses_count,
-		Closing_and_killed_and_sales_value = Sales_value + Killed_for_rations_or_exchanged_for_goods_value + Stock_on_hand_at_end_of_year_value,
+		Killed_for_rations_value = Killed_for_rations_count * Average_cost,
+		Closing_and_killed_and_sales_minus_losses_count = Sales_count + Killed_for_rations_count + Stock_on_hand_at_end_of_year_count - Losses_count,
+		Closing_and_killed_and_sales_value = Sales_value + Killed_for_rations_value + Stock_on_hand_at_end_of_year_value,
 		Revenue = Sales_value,
-		Livestock_COGS = Opening_and_purchases_value - Stock_on_hand_at_end_of_year_value - Killed_for_rations_or_exchanged_for_goods_value,
+		Livestock_COGS = Opening_and_purchases_value - Stock_on_hand_at_end_of_year_value - Killed_for_rations_value,
 		Gross_Profit_on_Livestock_Trading = Revenue - Livestock_COGS
 	),	Names1),
     term_string(Gross_Profit_on_Livestock_Trading, Gross_Profit_on_Livestock_Trading_Formula_String, [Names1]),
@@ -734,7 +743,7 @@ compute_livestock_by_simple_calculation(
 	Natural_increase_value_per_head = Natural_increase_value_per_head_In,
 	Sales_count = Sales_count_In,
 	Sales_value = Sales_value_In,
-	Killed_for_rations_or_exchanged_for_goods_count = Killed_for_rations_or_exchanged_for_goods_count_In,
+	Killed_for_rations_count = Killed_for_rations_count_In,
 	Stock_on_hand_at_beginning_of_year_count = Stock_on_hand_at_beginning_of_year_count_In,
 	Stock_on_hand_at_beginning_of_year_value = Stock_on_hand_at_beginning_of_year_value_In,
 	Purchases_count = Purchases_count_In,
@@ -744,9 +753,9 @@ compute_livestock_by_simple_calculation(
 	Average_cost is Average_cost_Formula,
 	pretty_term_string(Gross_Profit_on_Livestock_Trading, Gross_Profit_on_Livestock_Trading_Formula_String2),
 
-	Killed_for_rations_or_exchanged_for_goods_value_Out 
+	Killed_for_rations_value_Out 
 	is 
-	Killed_for_rations_or_exchanged_for_goods_value,
+	Killed_for_rations_value,
 	Stock_on_hand_at_end_of_year_value_Out 
 	is 
 	Stock_on_hand_at_end_of_year_value,
@@ -777,15 +786,12 @@ compute_livestock_by_simple_calculation(
 	;
 		throw_string(["closing count mismatch, should be:", Stock_on_hand_at_end_of_year_count_Out])
 	),
-	atomic_list_concat([
-		'<!--\n',
-		'Gross_Profit_on_Livestock_Trading:\n', Gross_Profit_on_Livestock_Trading_Formula_String, '\n',
-		Gross_Profit_on_Livestock_Trading_Formula_String2,
-		'\n',
-		'Average_cost:\n', Average_cost_Formula_String, '\n',
-		Average_cost_Formula_String2,
-		'\n-->'
-	], Explanation).
+	Explanation = [
+		(['Gross_Profit_on_Livestock_Trading = ', Gross_Profit_on_Livestock_Trading_Formula_String]),
+		(['Gross_Profit_on_Livestock_Trading = ', Gross_Profit_on_Livestock_Trading_Formula_String2]),
+		(['Average_cost = ', Average_cost_Formula_String]),
+		(['Average_cost = ', Average_cost_Formula_String2])
+	].
 		
 		
 sales_and_buys_count(Livestock_Type, S_Transactions, Buys_Count, Buys_Value, Sales_Count, Sales_Value) :-

@@ -30,7 +30,7 @@ pl_page(Static_Data, ProftAndLoss2, Filename_Suffix, File_Info) :-
 	Header = tr([th('Account'), th(['Value', Report_Currency_Atom])]),
 	flatten([Header, Report_Table_Data], Tbl),
 	atomic_list_concat(['profit_and_loss', Filename_Suffix, '.html'], Filename),
-	report_page(Title_Text, Tbl, Filename, File_Info).
+	report_page_with_table(Title_Text, Tbl, Filename, File_Info).
 		
 bs_page(Static_Data, Balance_Sheet, File_Info) :-
 	dict_vars(Static_Data, [Accounts, Start_Date, End_Date, Report_Currency]),
@@ -41,4 +41,4 @@ bs_page(Static_Data, Balance_Sheet, File_Info) :-
 	pesseract_style_table_rows(Accounts, Report_Currency, Balance_Sheet, Report_Table_Data),
 	Header = tr([th('Account'), th(['Balance', Report_Currency_Atom])]),
 	flatten([Header, Report_Table_Data], Tbl),
-	report_page(Title_Text, Tbl, 'balance_sheet.html', File_Info).
+	report_page_with_table(Title_Text, Tbl, 'balance_sheet.html', File_Info).

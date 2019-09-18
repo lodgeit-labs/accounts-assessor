@@ -29,13 +29,14 @@
 		account_parent/2, 
 		account_detail_level/2,
 		/*you don't need this*/
-		account_term_by_role/3]).
+		account_term_by_role/3,
+		write_accounts_json_report/1]).
 
 :- use_module(library(http/http_client)).
 :- use_module(library(record)).
 :- use_module(library(xpath)).
 :- use_module('utils', [inner_xml/3, trim_atom/2,pretty_term_string/2, throw_string/1, is_uri/1]).
-:- use_module('../lib/files', [server_public_url/1, my_tmp_file_name/2]).
+:- use_module('../lib/files', [server_public_url/1, absolute_tmp_path/2, write_tmp_json_file/2]).
 :- use_module(library(http/http_dispatch), [http_safe_file/2]).
 :- use_module(library(http/http_open), [http_open/3]).
 % :- use_module(library(yall)).
@@ -58,7 +59,7 @@ then each account hierarchy can come with a default set of associations*/
 
 account_exists(Accounts, Id) :-
 	account_id(Account, Id),
-	member(Account, Accounts).
+	memberchk(Account, Accounts).
 	
 account_detail_level(Accounts, Id, Detail_Level) :-
 	account_term_by_id(Accounts, Id, Account),
@@ -68,9 +69,9 @@ account_detail_level(Accounts, Id, Detail_Level) :-
 account_in_set(Accounts, Account_Id, Root_Account_Id) :-
 	Account_Id = Root_Account_Id;
 	(
-		member(Child_Account, Accounts),
 		account_id(Child_Account, Child_Id),
 		account_parent(Child_Account, Root_Account_Id),
+		member(Child_Account, Accounts),
 		account_in_set(Accounts, Account_Id, Child_Id)
 	).
 
@@ -99,7 +100,7 @@ account_by_role_nothrow(Accounts, Role, Account_Id) :-
 	account_role(Account, Role),
 	account_id(Account, Account_Id),
 	member(Account, Accounts).
-/* todo: account_by_role_nothrow is legitimate. but we also want account_by_role(_throw). But it shouldn't cut after first result, otherwise we unnecessarily break order invariance in calling code. */
+/* TODO: account_by_role_nothrow is legitimate. but we also want account_by_role(_throw). But it shouldn't cut after first result, otherwise we unnecessarily break order invariance in calling code. */
 account_by_role(Accounts, Role, Account_Id) :-
 	(
 		account_by_role_nothrow(Accounts, Role, Account_Id)
@@ -235,7 +236,7 @@ arelle(taxonomy, Taxonomy_URL, Account_Hierarchy_DOM) :-
 		process_create(path(python3),['../xbrl/account_hierarchy/src/venv-wrapper.py',Taxonomy_URL],[stdout(pipe(Out))]),
 		(
 			load_structure(Out, File_DOM, [dialect(xml),space(remove)]),
-			my_tmp_file_name('account_hierarchy_from_taxonomy.xml', FN),
+			absolute_tmp_path('account_hierarchy_from_taxonomy.xml', FN),
 			open(FN, write, Stream),
 			xml_write(Stream, File_DOM, [])
 			% shouldn't we be closing FN here?
@@ -278,7 +279,7 @@ yield_accounts(element(Parent_Name,_,Children), Link) :-
 	Child = element(Child_Name,_,_),
 	(
 		(
-			/* todo: extract role, if specified */
+			/* TODO: extract role, if specified */
 			Role = ('Accounts' / Child_Name),
 			Link = account(Child_Name, Parent_Name, Role, 0)
 		)
@@ -343,3 +344,19 @@ check_account_parent(Accounts, Account) :-
 			throw_string(['account "', Id, '" parent "', Parent, '" missing.'])
 		)
 	).
+
+write_accounts_json_report(Accounts) :-	
+	maplist(account_to_dict, Accounts, Dicts),
+	write_tmp_json_file('accounts.json', Dicts).
+
+account_to_dict(Account, Dict) :-
+	Dict = _{
+		id: Id,
+		parent: Parent,
+		role: Role,
+		detail_level: Detail_Level
+	},
+	Account = account(Id, Parent, Role, Detail_Level).
+
+	
+	

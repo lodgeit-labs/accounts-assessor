@@ -1,5 +1,5 @@
 
-:- module('tables', [table_html/2, table_totals/3]).
+:- module('tables', []).
 
 :- use_module('days').
 :- use_module('utils').
@@ -14,6 +14,9 @@ do cuts caused by the rdet ifs still cut into the findalling?
 :- rdet(format_column/3).
 */
 :- rdet(table_totals/3).
+:- rdet(table_html/2).
+:- rdet(format_row/3).
+:- rdet(row_to_html/3).
 
 /*
   <internal representation of ... whatever> to <html something>
@@ -41,19 +44,13 @@ table_contents_to_html(
 	/*table([border="1"],[HTML_Header | HTML_Rows])*/
 ) :-
 	header_html(Columns, HTML_Header),
-
-	% make HTML Rows 
-	% maplist ?
-	findall(
-		tr(HTML_Row),
-		(
-			member(Row,Rows),
-			row_to_html(Row, Columns, HTML_Row_Nested),
-			flatten(HTML_Row_Nested, HTML_Row)
-		),
-		HTML_Rows
-	),
+	rows_to_html(Columns, Rows, HTML_Rows),
 	highlight_totals(HTML_Rows,HTML_Rows_Highlighted).
+
+rows_to_html(Columns, Rows, Html3) :-
+	maplist(row_to_html(Columns), Rows, Html1),
+	findall(tr(Row_Flat), (member(Row, Html1), flatten(Row, Row_Flat)), Html3).
+
 
 highlight_totals([Row1, Row2 | Rows], [Row1 | Highlighted]) :-
 	highlight_totals([Row2 | Rows], Highlighted).
@@ -98,7 +95,7 @@ column_header_html(column{id:_, title:Column_Title, options:_}, Prefix, th(Heade
 		atomics_to_string([Prefix, Column_Title], " ", Header_Value)
 	).
 
-row_to_html(Row, Columns, HTML_Row) :-
+row_to_html(Columns, Row, HTML_Row) :-
 	findall(
 		Cells,
 		(
@@ -120,10 +117,11 @@ column_to_html(group{id:Group_ID, title:Group_Title, members:Group_Members}, Row
 	->
 		blank_row(group{id:Group_ID, title:Group_Title, members:Group_Members}, Cells)
 	;
-		row_to_html(Row, Group_Members, Cells)
+		row_to_html(Group_Members, Row, Cells)
 	).
 
-column_to_html(column{id:_, title:_, options:_}, Cell, [td(Cell)]).% :-
+column_to_html(column{id:_, title:_, options:_}, Cell, [td(Cell_Flat)]) :-
+	flatten(Cell, Cell_Flat).
 /*	(
 		Cell = []
 	->
@@ -206,16 +204,16 @@ format_cell(Date, _, Output) :-
 	format_date(Date, Output),
 	!.
 
-format_cell([], _Options, '') :- !.
+format_cell([], _Options, []) :- !.
 
-format_cell([X], Options, Output) :- 
-	format_cell(X, Options, Output),
-	!.
+%format_cell([X], Options, Output) :- 
+%	format_cell(X, Options, Output),
+%	!.
 
-format_cell([X|Xs], Options, Output) :- 
+format_cell([X|Xs], Options, [Output1, Output2]) :- 
 	format_cell(X, Options, Output1),
 	format_cell(Xs, Options, Output2),
-	atomic_list_concat([Output1, ', ', Output2], Output),
+	%atomic_list_concat([Output1, ', ', Output2], Output),
 	!.
 	
 format_cell(value(Unit, Value), Options, Output) :-
@@ -270,7 +268,8 @@ format_money2(_Optional_Implicit_Unit, Precision, In, Out) :-
 			Unit2 = Unit1
 		),
 		atomic_list_concat(['~',Precision,':f~w'], Format_String),
-		format(string(Out), Format_String, [X, Unit2])
+		format(string(Out_Str), Format_String, [X, Unit2]),
+		Out = div([class=money_amount], [Out_Str])
 	).
 
 
@@ -312,13 +311,6 @@ column_by_key(Rows, Key, Vals) :-
 sum_cells(Values, Sum) :-
 	flatten(Values, Vec),
 	vec_add(Vec, [], Sum).
-/*
-	semigroup_foldl(add_cells, Values, Sum).
-add_cells(A, B, C) :-
-	coord_merge(A, B, C).
-*/
-
-
 
 		  
 

@@ -24,11 +24,13 @@
 		filter_out_chars_from_atom/3,
 		is_uri/1,
 		sort_into_dict/3,
+		sort_into_assoc/3,
 		capitalize_atom/2,
 		path_get_dict/3,
 		report_currency_atom/2,
-		  dict_json_text/2,
-		  catch_maybe_with_backtrace/3]).
+		dict_json_text/2,
+		catch_maybe_with_backtrace/3,
+		find_thing_in_tree/4]).
 
 
 		
@@ -337,7 +339,17 @@ dict_json_text(Dict, Text) :-
 	close(S),
 	memory_file_to_string(X, Text).
 
+:- multifile term_dict/4.
+term_dict(
+	coord(U, D, C),
+	coord{unit:U, debit:D, credit:C}
+).
+	
+json:json_write_hook(Term, Stream, _, _) :-
+	term_dict(Term, Dict),
+	json_write(Stream, Dict, [serialize_unknown(true)]).
 
+	
 /* standard library only has maplist up to arity 5, maplist/6 is not in standard library */
 :- meta_predicate maplist6(6, ?, ?, ?, ?, ?).
 :- meta_predicate maplist6_(?, ?, ?, ?, ?, 6).
@@ -467,6 +479,27 @@ sort_into_dict(Selector_Predicate, [T|Ts], D, D_Out) :-
 
 sort_into_dict(_, [], D, D).
 
+sort_into_assoc(Selector_Predicate, Ts, D) :-
+	empty_assoc(A),
+	sort_into_assoc(Selector_Predicate, Ts, A, D).
+
+:- meta_predicate sort_into_assoc(2, ?, ?, ?).
+
+sort_into_assoc(Selector_Predicate, [T|Ts], D, D_Out) :-
+	call(Selector_Predicate, T, A),
+	(
+		get_assoc(A, D, L)
+	->
+		true
+	;
+		L = []
+	),
+	append(L, [T], L2),
+	put_assoc(A, D, L2, D2),
+	sort_into_assoc(Selector_Predicate, Ts, D2, D_Out).
+
+sort_into_assoc(_, [], D, D).
+
 path_get_dict((X/Y), Dict, Y_Value) :-
 	path_get_dict(X, Dict, X_Value),
 	path_get_dict(Y, X_Value, Y_Value).
@@ -497,3 +530,34 @@ catch_maybe_with_backtrace(A,B,C) :-
 	).
 	
 
+:- meta_predicate find_thing_in_tree(?, 2, 3, ?).
+
+find_thing_in_tree(Root, Matcher, _, Root) :-
+	call(Matcher, Root).
+						 
+find_thing_in_tree([Entry|_], Matcher, Children_Yielder, Thing) :-
+	find_thing_in_tree(Entry, Matcher, Children_Yielder, Thing).
+	
+find_thing_in_tree([_|Entries], Matcher, Children_Yielder, Thing) :-
+	find_thing_in_tree(Entries, Matcher, Children_Yielder, Thing).	
+				 
+find_thing_in_tree(Root, Matcher, Children_Yielder, Thing) :-
+	call(Children_Yielder, Root, Child),
+	find_thing_in_tree(Child, Matcher, Children_Yielder, Thing).
+	
+						 
+
+remove_before(Slash, Name_In, Name_Out) :-
+   once((
+   memberchk(Slash, Name_In)
+   ->  
+     reverse(Name_In, RName),
+     append(RFName, [Slash|_R1], RName),
+     reverse(RFName, Name_Out)
+   ;   
+     Name_Out = Name_In)
+    ).
+
+unzip([], [], []).
+unzip([X,Y|T], [X|XT], [Y|YT]) :-
+	unzip(T, XT, YT).

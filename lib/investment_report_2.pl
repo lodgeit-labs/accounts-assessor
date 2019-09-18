@@ -47,6 +47,7 @@ event(Event, Unit_Cost_Foreign, Currency_Conversion, Unit_Cost_Converted, Total_
 
 
 investment_report_2(Static_Data, Outstanding_In, Filename_Suffix, Report_Data, [Report_File_Info, Json_Filename:url(Json_Url)]) :-
+	%write('<!-- '),print_term(Outstanding_In,[]), write(' -->'),
 	
 	Start_Date = Static_Data.start_date,
 	End_Date = Static_Data.end_date,
@@ -63,10 +64,10 @@ investment_report_2(Static_Data, Outstanding_In, Filename_Suffix, Report_Data, [
 	flatten([Rows, Totals], Rows2),
 
 	Table = _{title: Title_Text, rows: Rows2, columns: Columns},
-	tables:table_html(Table, Html),
+	tables:table_html(Table, Table_Html),
 
 	atomic_list_concat(['investment_report', Filename_Suffix, '.html'], Filename),
-	report_page(Title_Text, Html, Filename, Report_File_Info),
+	report_page_with_table(Title_Text, Table_Html, Filename, Report_File_Info),
 	
 	atomic_list_concat(['investment_report', Filename_Suffix, '.json'], Json_Filename),
 	dict_json_text(Table, Json_Text),
@@ -83,9 +84,13 @@ totals(Rows, Totals) :-
 	[
 	 gains/rea/market_foreign, gains/rea/market_converted, gains/rea/forex,
 	 gains/unr/market_foreign, gains/unr/market_converted, gains/unr/forex,
+	 opening/total_cost_foreign, opening/total_cost_converted,
 	 closing/total_cost_foreign, closing/total_cost_converted
 	], Totals0),
-	Totals = Totals0.put(gains/realized_total, Realized_Total).put(gains/unrealized_total, Unrealized_Total).put(gains/total, Total),
+	Totals = Totals0.put(
+		gains/realized_total, Realized_Total).put(
+		gains/unrealized_total, Unrealized_Total).put(
+		gains/total, Total),
 	vec_add(Totals0.gains.rea.market_converted, Totals0.gains.rea.forex, Realized_Total),
 	vec_add(Totals0.gains.unr.market_converted, Totals0.gains.unr.forex, Unrealized_Total),
 	vec_add(Realized_Total, Unrealized_Total, Total).
@@ -146,14 +151,10 @@ rows(Static_Data, Outstanding_In, Rows) :-
 	maplist(investment_report_2_sales(Static_Data), Realized_Investments, Sale_Lines),
 	maplist(investment_report_2_unrealized(Static_Data), Unrealized_Investments, Non_Sale_Lines),
 	flatten([Sale_Lines, Non_Sale_Lines], Rows0),
-
 	/* lets sort by unit, sale date, purchase date */
-
-/*how to sort with nested dicts with optional keys?*/
-
+	/*how to sort with nested dicts with optional keys?*/
 	sort(unit, @=<, Rows0, Rows).
-
-/*,
+	/*,
 	sort([sale,date], @=<, Rows1, Rows2),
 	sort([purchase,date], @=<, Rows2, Rows).*/
 
@@ -167,9 +168,10 @@ investment_report_2_sales(Static_Data, I, Lines) :-
 investment_report_2_sale_lines(Static_Data, Info, Clipped, Sale, Row) :-
 	dict_vars(Static_Data, [Exchange_Rates, Report_Currency]),
 	Sale = sale(Sale_Date, Sale_Unit_Price_Foreign, Count),
-	Sale_Unit_Price_Foreign = value(End_Unit_Price_Unit, End_Unit_Price_Amount),
 	Info = info(Investment_Currency, Unit, Opening_Unit_Cost_Converted, Opening_Unit_Cost_Foreign, Opening_Date),
-
+	
+	value(End_Unit_Price_Unit, End_Unit_Price_Amount) = Sale_Unit_Price_Foreign,
+	
 	ir2_forex_gain(Exchange_Rates, Opening_Date, Sale_Unit_Price_Foreign, Sale_Date, Investment_Currency, Report_Currency, Count, Forex_Gain),
 	ir2_market_gain(Exchange_Rates, Opening_Date, Sale_Date, Investment_Currency, Report_Currency, Count, Opening_Unit_Cost_Converted, End_Unit_Price_Unit, End_Unit_Price_Amount, Market_Gain),
 
@@ -236,7 +238,14 @@ investment_report_2_unrealized(Static_Data, Investment, Row) :-
 	Investment = ir_item(unr, Info, Count, [], Clipped),
 	Info = info(Investment_Currency, Unit, Opening_Unit_Cost_Converted, Opening_Unit_Cost_Foreign, Opening_Date),
 
+	/*
+	TODO: with at-cost reporting, the goods unit will be a with_cost_per_unit, and there will be no exchange rate in the table.
+	
+	maybe Opening_Unit_Cost_Converted, Opening_Unit_Cost_Foreign should already be stripped of and taken from  with_cost_per_unit?
+	*/
+	
 	exchange_rate_throw(Exchange_Rates, End_Date, Unit, Investment_Currency, _),
+	
 	(
 		Cost_Or_Market = cost
 	->
@@ -265,7 +274,73 @@ investment_report_2_unrealized(Static_Data, Investment, Row) :-
 	exchange_rate_throw(Exchange_Rates, End_Date, Unit, Report_Currency_Unit, Closing_Unit_Price_Converted_Amount),
 	Current_Market_Value_Amount is Count * Closing_Unit_Price_Converted_Amount,
 	Current_Market_Value = value(Report_Currency_Unit, Current_Market_Value_Amount),
+	
 	optional_converted_value(Closing_Unit_Price_Foreign, Closing_Currency_Conversion, Closing_Unit_Price_Converted),
+/*		* Closing_Unit_Price_Foreign : Foreign/Unit
+			* Foreign^1 * Unit^-1
+			* {
+				"foreign": 1,
+				"unit": -1
+			  }
+			* semantic_thing(..)
+		* Closing_Currency_Conversion : Report/Foreign
+			* exchange_rate(Report/Foreign)
+		* Closing_Unit_Price_Converted : Report/Unit
+			
+		m/s
+		m^2
+
+		5m + 10m
+		m + m  <-- pure dimensional arithmetic
+		5m * 10m <-- vs. quantity arithmetic
+		m*m = m^2 = Area
+		5m * 2s 
+		5m / 2s 
+		5m + 2s <-- nope
+		5minutes + 2seconds ? <-- yep, because they're both just units of time dimension
+		5apples + 4 oranges ? <-- maybe?
+			* if there's a common conversion into some dimension?
+			* ex. you have 9 fruits..
+
+		dimensions: ex time, mass, length				
+		units: ex. minutes, kilograms, feet				<--
+		quantities: 5 minutes, 10 kilograms, 8 feet		<-- these two levels well worked out in the Python
+
+		Given:
+		60 seconds / minute
+		60 minutes / hour
+		24 hours / day
+
+		How many seconds in a day...
+		
+		There are also explicitly dimensionless quantities...
+		* haven't had to actually deal w/ this yet
+		
+		(Count : Unit) * (Price : Currency/Unit) = (Price * Count) : Currency
+
+		Can read the units directly out of the quantity for reporting purposes and potentially for automatically figuring out calculations
+			like w/ the seconds -> days conversion, etc...
+	
+
+		r1: market value today
+		r2: contract rate
+		r3: market value at contract maturity
+
+		r1 USD/AUD today
+
+
+		in the future:
+		contract rate: r2 USD/AUD
+
+		but the market value in the future might be r3
+
+		r2 vs r3 is "the spread" <-- definitely a factor in gains
+		but i'm not sure about r1
+
+		r4 : virtual rate computed from the price gotten at selling the contract(?)
+
+
+*/
 
 	value_multiply(Opening_Unit_Cost_Foreign, Count, Opening_Total_Cost_Foreign),
 	value_multiply(Opening_Unit_Cost_Converted, Count, Opening_Total_Cost_Converted),
@@ -328,60 +403,6 @@ optional_currency_conversion(Exchange_Rates, Date, Src, Optional_Dst, Conversion
 	).
 
 
-/*
-ir2_row_to_html(Report_Currency, Row, Html) :-
-	
-	Row = row(Unit, Count, Investment_Currency, Purchase_Data, Opening_Data, Sale_Data, Gains_Data, Closing_Data),
-	
-	
-	date(...)
-	value(...)
-	exchange_rate(...)
-	or plain atom -> pass through
-	
-	  
-	format_date(Opening_Date, Opening_Date2),
-	format_money_precise(Report_Currency, Opening_Unit_Cost_Foreign, Opening_Unit_Cost_Foreign2),
-	format_conversion(Report_Currency, Opening_Conversion, Opening_Conversion2),
-	format_money_precise(Report_Currency, Opening_Unit_Cost_Converted, Opening_Unit_Cost_Converted2),
-	format_money(Report_Currency, Opening_Total_Cost_Foreign, Opening_Total_Cost_Foreign2),
-	format_money(Report_Currency, Opening_Total_Cost_Converted, Opening_Total_Cost_Converted2),
-
-	(Sale_Date = '' -> Sale_Date2 = '' ; format_date(Sale_Date, Sale_Date2)),
-	format_money_precise(Report_Currency, Sale_Unit_Price_Foreign, Sale_Unit_Price_Foreign2),
-	format_conversion(Report_Currency, Sale_Conversion, Sale_Conversion2),
-	format_money_precise(Report_Currency, Sale_Unit_Price_Converted, Sale_Unit_Price_Converted2),
-	
-	format_money(Report_Currency, Rea_Market_Gain, Rea_Market_Gain2),
-	format_money(Report_Currency, Rea_Forex_Gain, Rea_Forex_Gain2),
-	format_money(Report_Currency, Unr_Market_Gain, Unr_Market_Gain2),
-	format_money(Report_Currency, Unr_Forex_Gain, Unr_Forex_Gain2),
-
-	format_money_precise(Report_Currency, Closing_Unit_Price_Foreign, Closing_Unit_Price_Foreign2),
-	format_conversion(Report_Currency, Closing_Currency_Conversion, Closing_Currency_Conversion2),
-	format_money_precise(Report_Currency, Closing_Unit_Price_Converted, Closing_Unit_Price_Converted2),
-
-	format_money(Report_Currency, Closing_Market_Value_Foreign, Closing_Market_Value_Foreign2),
-	format_money(Report_Currency, Closing_Market_Value_Converted, Closing_Market_Value_Converted2),
-	
-	% maplist td onto row data
-	Html = tr([
-		td(Unit), td(Count), td(Investment_Currency), 
-		
-		td(Opening_Date2), td(Opening_Unit_Cost_Foreign2), td(Opening_Conversion2), td(Opening_Unit_Cost_Converted2), td(Opening_Total_Cost_Foreign2), td(Opening_Total_Cost_Converted2),
-		% todo purchase td(Opening_Date2), td(Opening_Unit_Cost_Foreign2), td(Opening_Conversion2), td(Opening_Unit_Cost_Converted2), td(Opening_Total_Cost_Foreign2), td(Opening_Total_Cost_Converted2),
-		
-		% probably use the same 6-items group:
-		td(Sale_Date2), td(Sale_Unit_Price_Foreign2), td(Sale_Conversion2), td(Sale_Unit_Price_Converted2),
-		
-		td(Rea_Market_Gain2), td(Rea_Forex_Gain2), td(Unr_Market_Gain2), td(Unr_Forex_Gain2),		
-		
-		% could use the 6-item group here too
-		td(Closing_Unit_Price_Foreign2), td(Closing_Currency_Conversion2), td(Closing_Unit_Price_Converted2),
-		td(Closing_Market_Value_Foreign2), td(Closing_Market_Value_Converted2)]).
-*/
-
-
 ir2_forex_gain(Exchange_Rates, Opening_Date, End_Price, End_Date, Investment_Currency, Report_Currency, Count, Gain) :-
 	End_Price = value(End_Unit_Price_Unit, End_Unit_Price_Amount),
 	%(End_Unit_Price_Unit == Investment_Currency ->true;(gtrace,true)),
@@ -424,7 +445,8 @@ ir2_forex_gain(Exchange_Rates, Opening_Date, End_Price, End_Date, Investment_Cur
 		Gain = ''
 	).
 
-ir2_market_gain(Exchange_Rates, Opening_Date, End_Date, Investment_Currency, Report_Currency, Count, Opening_Unit_Cost_Converted, Investment_Currency, End_Unit_Price_Amount, Gain) :-
+ir2_market_gain(Exchange_Rates, Opening_Date, End_Date, Investment_Currency, Report_Currency, Count, Opening_Unit_Cost_Converted, Investment_Currency, End_Unit_Price_Amount, Gain
+) :-
 	Report_Currency = [Report_Currency_Unit],
 	Market_Price_Without_Movement_Unit = without_currency_movement_against_since(
 		Investment_Currency, Investment_Currency, Report_Currency, Opening_Date),
@@ -539,20 +561,4 @@ optional_converted_value(V1, C, V2) :-
 	;
 		value_convert(V1, C, V2)
 	).
-
-
-/*
-todo:
-
-change "opening cost" to "opening total market value", "opening unit market vale"
-same for closing: closing unit market value foreign/converted..
-
-hide opening date, closing date
-
-  done:
-replace Market Gain with:
-	market gain foreign
-	market gain converted
-*/
-
 

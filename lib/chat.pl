@@ -9,7 +9,7 @@ swipl version 8 required.
 "question id" is the state of the FSM.
 */
 
-/*todo: 
+/*TODO: 
 add more tests
 sbe question ids start at 0, residency at 1, change sbe
 */

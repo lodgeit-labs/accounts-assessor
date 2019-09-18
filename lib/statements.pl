@@ -84,7 +84,7 @@
 
 
 /*
-todo add more rdet declarations here
+TODO add more rdet declarations here
 */
 :- rdet(preprocess_s_transaction/5).
 
@@ -104,16 +104,14 @@ preprocess_s_transactions(Static_Data, S_Transactions, Processed_S_Transactions,
 	s_transactions have to be sorted by date from oldest to newest 
 	s_transactions have flipped vectors, so they are from our perspective
 */
-	preprocess_s_transactions2(Static_Data, S_Transactions, Processed_S_Transactions, Transactions0, ([],[]), Outstanding_Out, Debug_Info, []),
-	flatten(Transactions0, Transactions_Out).
+	preprocess_s_transactions2(Static_Data, S_Transactions, Processed_S_Transactions, Transactions_Out, ([],[]), Outstanding_Out, Debug_Info, []).
 
 /*
 	call preprocess_s_transaction on each item of the S_Transactions list and do some error checking and cleaning up
 */
 preprocess_s_transactions2(_, [], [], [], Outstanding, Outstanding, ['done.'], _).
 
-preprocess_s_transactions2(Static_Data, [S_Transaction|S_Transactions], Processed_S_Transactions, [Transactions_Out|Transactions_Out_Tail], Outstanding_In, Outstanding_Out, [Debug_Head|Debug_Tail], Debug_So_Far) :-
-
+preprocess_s_transactions2(Static_Data, [S_Transaction|S_Transactions], Processed_S_Transactions, Transactions_Out, Outstanding_In, Outstanding_Out, [Debug_Head|Debug_Tail], Debug_So_Far) :-
 	dict_vars(Static_Data, [Accounts, Report_Currency, Start_Date, End_Date, Exchange_Rates]),
 	pretty_term_string(S_Transaction, S_Transaction_String),
 	catch(
@@ -126,26 +124,28 @@ preprocess_s_transactions2(Static_Data, [S_Transaction|S_Transactions], Processe
 					% filter out unbound vars from the resulting Transactions list, as some rules do not always produce all possible transactions
 					flatten(Transactions0, Transactions1),
 					exclude(var, Transactions1, Transactions2),
-					exclude(has_empty_vector, Transactions2, Transactions_Out),
-					pretty_transactions_string(Transactions_Out, Transactions_String),
+					exclude(has_empty_vector, Transactions2, Transactions_Result),
+					pretty_transactions_string(Transactions_Result, Transactions_String),
 					atomic_list_concat([S_Transaction_String, '==>\n', Transactions_String, '\n====\n'], Debug_Head),
-					Transactions_Out = [T|_],
+					
+					append(Debug_So_Far, [Debug_Head], Debug_So_Far2),
+					Processed_S_Transactions = [S_Transaction|Processed_S_Transactions_Tail],
+					Transactions_Out = [Transactions_Result|Transactions_Out_Tail],
+					
+					Transactions_Result = [T|_],
 					transaction_day(T, Transaction_Date),
 					(
 						Report_Currency = []
 					->
 						true
 					;
-						check_trial_balance0(Exchange_Rates, Report_Currency, Transaction_Date, Transactions_Out, Start_Date, End_Date, Debug_So_Far, Debug_Head)
-					),
-					append(Debug_So_Far, [Debug_Head], Debug_So_Far2),
-					Processed_S_Transactions = [S_Transaction|Processed_S_Transactions_Tail]
+						check_trial_balance0(Exchange_Rates, Report_Currency, Transaction_Date, Transactions_Result, Start_Date, End_Date, Debug_So_Far, Debug_Head)
+					)
 				),
 				not_enough_goods_to_sell,
 				(
 					atomic_list_concat([not_enough_goods_to_sell, ' when processing ', S_Transaction_String], Debug_Head),
 					Outstanding_In = Outstanding_Out,
-					Transactions_Out_Tail = [],
 					Transactions_Out = [],
 					Debug_Tail = [],
 					Processed_S_Transactions = []
@@ -220,7 +220,6 @@ preprocess_s_transaction(Static_Data, S_Transaction, Transactions, Outstanding, 
 
 
 preprocess_s_transaction(Static_Data, S_Transaction, [Ts1, Ts2, Ts3, Ts4], Outstanding_In, Outstanding_Out) :-
-	%gtrace,
 	Pricing_Method = lifo,
 	dict_vars(Static_Data, [Report_Currency, Transaction_Types, Exchange_Rates]),
 	check_s_transaction_action_type(Transaction_Types, S_Transaction),
@@ -472,8 +471,28 @@ transactions_trial_balance(Exchange_Rates, Report_Currency, Date, Transactions, 
 	flatten(Vectors_Nested, Vector),
 	vec_change_bases(Exchange_Rates, Date, Report_Currency, Vector, Vector_Converted).
 
+is_livestock_transaction(X) :-
+	transaction_description(X, Desc),
+	(
+		Desc = 'livestock sell'
+	; 
+		Desc = 'livestock buy'
+	).
+
 check_trial_balance(Exchange_Rates, Report_Currency, Date, Transactions) :-
-	transactions_trial_balance(Exchange_Rates, Report_Currency, Date, Transactions, Total),
+	/*
+	writeln("Check Trial Balance: xxxxxxxxxx"),
+	writeln(Exchange_Rates),
+	writeln(Transactions),
+	maplist(transaction_description,Transactions, Transaction_Descriptions),
+	writeln(Transaction_Descriptions),
+	*/
+	exclude(
+		is_livestock_transaction,
+		Transactions,
+		Transactions_Without_Livestock
+	),
+	transactions_trial_balance(Exchange_Rates, Report_Currency, Date, Transactions_Without_Livestock, Total),
 	(
 		Total = []
 	->
@@ -657,7 +676,7 @@ get_relevant_exchange_rates2([Report_Currency], Exchange_Rates, Transactions, Ex
 	).
 
 get_relevant_exchange_rates2([Report_Currency], Date, Exchange_Rates, Transactions, Exchange_Rates2) :-
-	%find all currencies from all transactions, todo, find only all currencies appearing in totals of accounts at the report end date
+	%find all currencies from all transactions, TODO: , find only all currencies appearing in totals of accounts at the report end date
 	findall(
 		Currency,
 		(

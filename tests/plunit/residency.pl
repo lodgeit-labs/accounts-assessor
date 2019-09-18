@@ -1,4 +1,4 @@
-:- ['../../prolog_server/chat/residency'].
+:- ['../../lib/chat/residency'].
 
 :- begin_tests(residency).
 

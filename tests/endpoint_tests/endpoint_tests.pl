@@ -13,7 +13,7 @@
 :- use_module(library(http/http_client)).
 :- use_module(library(xpath)).
 :- use_module('../../lib/files').
-:- use_module('../../prolog_server/prolog_server').
+:- use_module('../../lib/prolog_server').
 :- use_module('compare_xml').
 :- use_module('../../lib/utils', [
 		floats_close_enough/2]).
@@ -22,15 +22,18 @@
 
 test(start) :- nl.
 
-
 test(invalid, throws(_)) :-
 /*
 	todo: probably all invalid request files should have a corresponding response file, where a xml-formatted error message is. The endpoint should probably still answer with a Bad Request status code, but we should catch it in query_endpoint and parse the error xml. If the invalid requests are stored in invalid/, we just nedd to change the file search algo to list all sub-directories recursively.
 */
 	query_endpoint('endpoint_tests/depreciation/invalid/depreciation-request-written-down-values-earlier-reuqest-date-invalid.xml', _).
 
-
 test(endpoints, [forall(testcases(Testcase))]) :-
+	run_endpoint_test(Testcase).
+
+:- end_tests(xml_testcases).
+
+run_endpoint_test(Testcase) :-
 	Testcase = (Request, Response),
 	query_endpoint(Request, ReplyDOM),
 	/*todo check if the response is a xml with an error message */
@@ -52,9 +55,6 @@ test(endpoints, [forall(testcases(Testcase))]) :-
 		)
 	).
 
-:- end_tests(xml_testcases).
-
-
 check_value_difference(Value1, Value2) :-
 	atom_number(Value1, NValue1),
 	atom_number(Value2, NValue2),
@@ -73,17 +73,27 @@ test_response(_, Reply_Dom, Expected_Response_File_Relative_Path) :-
 		[ access(read) ]
 	),
 	load_xml(Expected_Response_File_Absolute_Path, Expected_Reply_Dom, [space(sgml)]),
-	compare_xml_dom(Reply_Dom, Expected_Reply_Dom,Error),
+	compare_xml_dom(Reply_Dom, Expected_Reply_Dom, Error),
 	(
 		var(Error)
 	->
 		true
 	;
 		(
-			write_term("Error: ",[]),
-			writeln(Error),
-			writeln(""),
-			fail
+			get_flag(overwrite_response_files, true)
+		->
+			(
+				open(Expected_Response_File_Absolute_Path, write, Stream),
+				xml_write(Stream, Reply_Dom, []),
+				close(Stream)
+			)
+		;
+			(
+				write_term("Error: ",[]),
+				writeln(Error),
+				writeln(""),
+				fail
+			)
 		)
 	).
 	
@@ -94,9 +104,7 @@ query_endpoint(RequestFile0, ReplyDOM) :-
 		RequestFile,
 		[ access(read) ]
 	),
-	%gtrace,
-				/* not really xbrl_instance but lets tackle that later */
-	http_post('http://localhost:8080/upload?requested_output_format=xbrl_instance', form_data([file=file(RequestFile)]), ReplyXML, [content_type('multipart/form-data')]),
+	http_post('http://localhost:8080/upload?requested_output_format=xml', form_data([file=file(RequestFile)]), ReplyXML, [content_type('multipart/form-data')]),
 	/*todo: status_code(-Code)
 If this option is present and Code unifies with the HTTP status code, do not translate errors (4xx, 5xx) into an exception. Instead, http_open/3 behaves as if 2xx (success) is returned, providing the application to read the error document from the returned stream.
 */
