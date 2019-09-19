@@ -443,9 +443,16 @@ filter_out_chars_from_atom(Predicate, Atom_In, Atom_Out) :-
 	atomic_list_concat(Atom2_Char_Atoms, Atom_Out).
 	
 
+is_uri(URI) :-
+	% todo atom_prefix is deprecated
+	atom_prefix(URI,"http").
+
+
 	
-% define the value to compare expected float value with the actual float value
-% we need this value as float operations generate different values after certain precision in different machines
+/*
+	we need this constant, because float math operations generate different values after certain precision in different machines,
+	also to compare results of essentially different computations that should lead to same results
+*/	
 float_comparison_max_difference(0.000001).
 	
 floats_close_enough(Value1, Value2) :-
@@ -453,12 +460,10 @@ floats_close_enough(Value1, Value2) :-
 	ValueDifference is abs(Value1 - Value2),
 	ValueDifference =< Max.
 
-is_uri(URI) :-
-	% atom_prefix is deprecated
-	atom_prefix(URI,"http").
-
-
-% basically "index by" Selector_Predicate (or really the values of the 2nd arg to it)
+/*
+	given a list of terms, for example, of transactions, and a Selector_Predicate, for example transaction_account_id,
+	produce a dict with keys returned by the selector, and values lists of terms
+*/
 sort_into_dict(Selector_Predicate, Ts, D) :-
 	sort_into_dict(Selector_Predicate, Ts, _{}, D).
 

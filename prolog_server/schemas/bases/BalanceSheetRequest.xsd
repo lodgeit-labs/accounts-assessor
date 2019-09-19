@@ -84,7 +84,7 @@
   <xs:complexType name="LivestockData">
     <xs:sequence>
       <xs:element minOccurs="0" maxOccurs="1" name="type" type="xs:string"/>
-      <xs:element minOccurs="0" maxOccurs="1" name="naturalIncreasePerUnit" type="xs:decimal"/>
+      <xs:element minOccurs="0" maxOccurs="1" name="naturalIncreaseValuePerUnit" type="xs:decimal"/>
       <xs:element minOccurs="0" maxOccurs="1" name="openingCount" type="xs:integer"/>
       <xs:element minOccurs="0" maxOccurs="1" name="openingCost" type="xs:decimal"/>
       <xs:element minOccurs="0" maxOccurs="1" name="events">
@@ -101,7 +101,7 @@
   <xs:complexType name="LivestockEvent">
     <xs:sequence>
       <xs:element minOccurs="0" maxOccurs="1" name="date" type="xs:date"/>
-      <xs:element minOccurs="0" maxOccurs="1" name="count" type="xs:integer"/>
+      <xs:element minOccurs="1" maxOccurs="1" name="count" type="xs:integer"/>
     </xs:sequence>
   </xs:complexType>
 </xs:schema>
