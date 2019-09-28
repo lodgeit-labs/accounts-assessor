@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="actionTaxonomy" nillable="true" type="ActionTaxonomy" />
+  <xs:complexType name="ActionTaxonomy">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="action" type="ActionVerb" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="ActionVerb">
+    <xs:sequence>
+      <xs:element minOccurs="1" maxOccurs="1" name="id" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="description" type="xs:string" />
+      <xs:element minOccurs="1" maxOccurs="1" name="exchangeAccount" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="tradingAccount" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="direction" type="DebitOrCredit" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:simpleType name="DebitOrCredit">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="debit"/>
+      <xs:enumeration value="credit"/>
+    </xs:restriction>
+  </xs:simpleType>
+</xs:schema>
+
+<!--
+<action>
+	<id>Dispose_Of</id>
+	<description>Shares</description>
+	<exchangeAccount>FinancialInvestments</exchangeAccount>
+	<tradingAccount>InvestmentIncome</tradingAccount>
+</action>
+-->
