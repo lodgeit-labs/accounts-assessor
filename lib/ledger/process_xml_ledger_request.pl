@@ -13,6 +13,8 @@
 
 :- use_module(library(xpath)).
 :- use_module(library(rdet)).
+:- use_module(library(xsd/validate)).
+:- use_module(library(sgml)).
 
 :- rdet(output_results/4).
 :- rdet(process_xml_ledger_request2/2).	
@@ -30,6 +32,7 @@
 		numeric_fields/2, 
 		pretty_term_string/2, 
 		throw_string/1,
+		flatten_xml/2,
 	  replace_nonalphanum_chars_with_underscore/2,
 	  catch_maybe_with_backtrace/3,
 	  dict_json_text/2]).
@@ -89,6 +92,13 @@
 process_xml_ledger_request(_, Dom, Reports) :-
 	/* does it look like a ledger request? */
 	inner_xml(Dom, //reports/balanceSheetRequest, _),
+	/*
+	load_structure(my_schemas('bases/BalanceSheetRequest.xsd'), Schema_DOM, [dialect(xmlns), space(remove), keep_prefix(true)]),
+	flatten_xml(Dom, Instance_ID),
+	flatten_xml(Schema_DOM, Schema_ID),
+	validate(Schema_ID, Instance_ID),
+	*/
+
 	/*
 		print the xml header, and after that, we can print random xml comments.
 	*//*gtrace,

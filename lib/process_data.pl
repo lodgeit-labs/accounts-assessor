@@ -1,5 +1,6 @@
 :- use_module(library(xpath)).
 :- use_module(library(archive)).
+:- use_module(library(sgml)).
 
 :- use_module(loan/process_xml_loan_request, [process_xml_loan_request/2]).
 :- use_module(ledger/process_xml_ledger_request, [process_xml_ledger_request/3]).
@@ -117,7 +118,8 @@ process_data(_, Path, Options) :-
 	maybe_supress_generating_unique_taxonomy_urls(Options),
 	get_requested_output_type(Options, Requested_Output_Type),
 
-	load_xml(Path, Request_Dom, [space(remove)]),
+	%load_xml(Path, Request_Dom, [space(remove)]),
+	load_structure(Path, Request_Dom, [dialect(xmlns), space(remove), keep_prefix(true)]),
 	with_output_to(
 		string(Output_Xml_String),
 		catch_maybe_with_backtrace(

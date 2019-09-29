@@ -30,12 +30,12 @@
     </xs:sequence>
   </xs:complexType>
   <xs:complexType name="UnitValue">
-    <xs:sequence>
-      <xs:element minOccurs="0" maxOccurs="1" name="valuationDate" type="xs:string" />
-      <xs:element minOccurs="0" maxOccurs="1" name="unitType" type="xs:string" />
-      <xs:element minOccurs="0" maxOccurs="1" name="unitValue" type="xs:decimal" />
-      <xs:element minOccurs="0" maxOccurs="1" name="unitValueCurrency" type="xs:string" />
-    </xs:sequence>
+    <xs:all>
+      <xs:element minOccurs="0" name="unitType" type="xs:string" />
+      <xs:element minOccurs="0" name="unitValue" type="xs:decimal" />
+      <xs:element minOccurs="0" name="unitValueCurrency" type="xs:string" />
+      <xs:element minOccurs="0" name="unitValueDate" type="xs:string" />
+    </xs:all>
   </xs:complexType>
   <xs:complexType name="BankStatementBS">
     <xs:sequence>

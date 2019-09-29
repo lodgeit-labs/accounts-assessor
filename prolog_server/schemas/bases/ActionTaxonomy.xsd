@@ -7,13 +7,13 @@
     </xs:sequence>
   </xs:complexType>
   <xs:complexType name="ActionVerb">
-    <xs:sequence>
-      <xs:element minOccurs="1" maxOccurs="1" name="id" type="xs:string" />
-      <xs:element minOccurs="0" maxOccurs="1" name="description" type="xs:string" />
-      <xs:element minOccurs="1" maxOccurs="1" name="exchangeAccount" type="xs:string" />
-      <xs:element minOccurs="0" maxOccurs="1" name="tradingAccount" type="xs:string" />
-      <xs:element minOccurs="0" maxOccurs="1" name="direction" type="DebitOrCredit" />
-    </xs:sequence>
+    <xs:all>
+      <xs:element minOccurs="1" name="id" type="xs:string" />
+      <xs:element minOccurs="0" name="description" type="xs:string" />
+      <xs:element minOccurs="1" name="exchangeAccount" type="xs:string" />
+      <xs:element minOccurs="0" name="tradingAccount" type="xs:string" />
+      <xs:element minOccurs="0" name="direction" type="DebitOrCredit" />
+    </xs:all>
   </xs:complexType>
   <xs:simpleType name="DebitOrCredit">
     <xs:restriction base="xs:string">
