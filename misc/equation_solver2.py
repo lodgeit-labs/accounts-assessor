@@ -39,10 +39,12 @@ class Solution:
 		return 'S(' + str(s.value) + ')'
 
 def solutions(inputs, formulas):
-	variables_to_solve = []
+	variables_to_solve = set()
 	for f in formulas:
-		variables_to_solve += f.vars()
+		for v in f.vars():
+			variables_to_solve.add(v)
 
+	#substitutions and failures and stack are each just a "global" for all these nested functions
 	solutions = {}
 	failures = {}
 	stack = []
@@ -52,12 +54,16 @@ def solutions(inputs, formulas):
 		solutions[k].value = v
 	
 	def solve(v):
+		# if variable already solved or found unsolvable
 		if v in union(failures, solutions): return
+
+		# prevent infinite recursion 
 		if v in stack: return
 		stack.append(v)
+
 		for f in formulas:
 			r = rearrange_for(f, v)
-			if r.items[1] != v: continue
+			if r == None: continue
 			for free_var in vars_without_substitutions(r):
 				solve(free_var)
 			if vars_without_substitutions(r) == []:
@@ -72,6 +78,7 @@ def solutions(inputs, formulas):
 			else:
 				print('new failure')
 				failures[v] = True
+
 		stack.pop()
 
 	def evl(t):
@@ -116,9 +123,15 @@ def solutions(inputs, formulas):
 	print('solutions after:', solutions)
 	print('failures after:', failures)
 	
-
+# (symbolically) isolate variable v in formula f
+# probably better named isolate(v,f)
 def rearrange_for(f, v):
-	# can be a no-op for livestock
+	"""
+		would re-arrange the formula so that the variable being solved(v) is on the lhs of the '=', by itself
+		this is kinda just a presentation thing. Also fail if the formula cannot be rearranged that way (maybe doesnt contain the variable at all)
+		can be a no-op for standalone livestock formulas.
+	"""
+	if f.items[1] != v: return
 	return f
 
 def get_input():

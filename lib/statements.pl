@@ -289,8 +289,8 @@ make_buy(Static_Data, Trading_Account_Id, Pricing_Method, Bank_Account_Currency,
 		outstanding(Bank_Account_Currency, Goods_Unit, Goods_Count, Unit_Cost_Converted, Unit_Cost_Foreign, Transaction_Date),
 		Outstanding_In, Outstanding_Out
 	),
-	(var(Trading_Account_Id) -> true
-		; increase_unrealized_gains(Static_Data, Description, Trading_Account_Id, Bank_Account_Currency, Converted_Vector_Ours, Goods_Vector2, Transaction_Date, Ts2) 
+	(nonvar(Trading_Account_Id) -> 
+		increase_unrealized_gains(Static_Data, Description, Trading_Account_Id, Bank_Account_Currency, Converted_Vector_Ours, Goods_Vector2, Transaction_Date, Ts2) ; true
 	).
 
 make_sell(Static_Data, Trading_Account_Id, Pricing_Method, _Bank_Account_Currency, Goods_Vector,
@@ -309,11 +309,12 @@ make_sell(Static_Data, Trading_Account_Id, Pricing_Method, _Bank_Account_Currenc
 		make_transaction(Transaction_Date, Description, Exchanged_Account2), 
 		Goods_With_Cost_Vectors, Ts1
 	),
-	(var(Trading_Account_Id) -> true
-		;(						
+	(nonvar(Trading_Account_Id) -> 
+		(						
 			reduce_unrealized_gains(Static_Data, Description, Trading_Account_Id, Transaction_Date, Goods_Cost_Values, Ts2),
 			increase_realized_gains(Static_Data, Description, Trading_Account_Id, Vector_Ours, Converted_Vector_Ours, Goods_Vector, Transaction_Date, Goods_Cost_Values, Ts3)
 		)
+	; true
 	).
 
 bank_debit_to_unit_price(Vector_Ours, Goods_Positive, value(Unit, Number2)) :-
