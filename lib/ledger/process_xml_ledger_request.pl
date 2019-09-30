@@ -91,13 +91,14 @@
 
 process_xml_ledger_request(_, Dom, Reports) :-
 	/* does it look like a ledger request? */
-	%inner_xml(Dom, //reports/balanceSheetRequest, _),
+	inner_xml(Dom, //reports/balanceSheetRequest, _),
 	
-	
+	/*
 	load_structure(my_schemas('bases/Reports.xsd'), Schema_DOM, [dialect(xmlns), space(remove), keep_prefix(true)]),
 	flatten_xml(Dom, Instance_ID),
 	flatten_xml(Schema_DOM, Schema_ID),
 	validate(Schema_ID, Instance_ID),
+	*/
 
 	/*
 		print the xml header, and after that, we can print random xml comments.
