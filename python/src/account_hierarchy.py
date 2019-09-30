@@ -2,6 +2,7 @@ from arelle import (Cntlr, FileSource, ModelManager, ModelXbrl, ModelDocument, X
 import xml.etree.ElementTree as ET
 from xml.dom import minidom
 import sys
+import argparse
 
 def remove_prefix(text, prefix):
     if text.startswith(prefix):
@@ -77,12 +78,11 @@ class ArelleController(Cntlr.Cntlr):
 		else:
 			print(message)
 def main():
-	if len(sys.argv) < 2:
-		assert False, "No filepath given."
-	elif len(sys.argv) > 2:
-		assert False, "Too many arguments given."
-	else:
-		ArelleController().run(sys.argv[1])
+	ap = argparse.ArgumentParser(description="Extract account hierarchy from XBRL taxonomy")
+	ap.add_argument("taxonomy", help="XBRL Taxonomy file-path/URL")
+	args = ap.parse_args()
+	
+	ArelleController().run(args.taxonomy)
 
 if __name__ == "__main__":
 	main()
