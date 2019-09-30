@@ -8,15 +8,21 @@ Install SWIPL 8.1.14
 Install SWIPL dependencies:
 * ```swipl -g "pack_install(tap), pack_install(regex), pack_install(xsd), pack_install('https://github.com/rla/rdet.git')."```
 
-Install Arelle:
+Get Arelle:
 * ```git clone https://github.com/Arelle/Arelle``` into some path PATH_TO_ARELLE_DIR
-* Set up a virtual environment in PROJECT_DIR/xbrl/account_hierarchy:
-	* ```cd PROJECT_DIR/xbrl/account_hierarchy```
+
+Install Python dependencies:
+* Set up a virtual environment in PROJECT_DIR/python:
+	* ```cd PROJECT_DIR/python```
 	* ```python3 -m venv venv```
-* Install Arelle into virtual environment
+* Activate virtual environment:
 	* If using bash: ```source venv/bin/activate```
+* Install Arelle:
 	* ```pip install PATH_TO_ARELLE_DIR```
-	* ```deactivate```
+* Install other dependencies:
+	* ```pip install xmlschema```
+* Deactivate virtual environment:
+	* ```deactivate``` 
 
 How to run it:
 * Change directory to prolog_server/
