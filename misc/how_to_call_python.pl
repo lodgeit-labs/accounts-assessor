@@ -17,7 +17,7 @@ Run this from the prolog_server directory.
 	Schema_File = 'schemas/bases/Reports.xsd',
 	catch(
 		setup_call_cleanup(
-			process_create('../xbrl/account_hierarchy/venv/bin/python3',['../xbrl/account_hierarchy/src/xmlschema_runner.py',Instance_File,Schema_File],[]),
+			process_create('../python/venv/bin/python3',['../python/src/xmlschema_runner.py',Instance_File,Schema_File],[]),
 			writeln("Success..."),
 			writeln("Done...")
 		),

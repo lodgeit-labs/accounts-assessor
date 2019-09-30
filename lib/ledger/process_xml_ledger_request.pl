@@ -101,6 +101,19 @@ process_xml_ledger_request(_, Dom, Reports) :-
 	*/
 
 	/*
+	catch(
+		setup_call_cleanup(
+			process_create('../xbrl/account_hierarchy/venv/bin/python3',['../xbrl/account_hierarchy/src/xmlschema_runner.py',Instance_File,Schema_File],[]),
+			writeln("Success..."),
+			writeln("Done...")
+		),
+		Catcher,
+		format("Caught exception: ~w~n",[Catcher])
+	).
+	*/
+
+
+	/*
 		print the xml header, and after that, we can print random xml comments.
 	*//*gtrace,
 	profile(*/process_xml_ledger_request2(Dom, Reports).
