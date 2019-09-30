@@ -2,7 +2,7 @@
 <xs:schema elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
   <xs:include schemaLocation="Schema.xsd" />
   <xs:include schemaLocation="Div7ALoan.xsd" />
-  <xs:include schemaLocation="BalanceSheetRequest.xsd" />
+  <xs:include schemaLocation="../requests/BalanceSheetRequest.xsd" />
 
   <xs:element name="reports" nillable="true" type="ReportContainer" />
   <xs:complexType name="ReportContainer">

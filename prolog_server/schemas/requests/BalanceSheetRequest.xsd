@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <xs:schema elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
-  <xs:include schemaLocation="Schema.xsd" />
-  <xs:include schemaLocation="ActionTaxonomy.xsd" />
-  <xs:element name="BalanceSheetRequest" nillable="true" type="BalanceSheetRequest" />
+  <xs:include schemaLocation="../bases/Schema.xsd" />
+  <xs:include schemaLocation="../bases/ActionTaxonomy.xsd" />
+  <xs:element name="balanceSheetRequest" nillable="true" type="BalanceSheetRequest" />
   <xs:complexType name="BalanceSheetRequest">
     <xs:complexContent mixed="false">
       <xs:extension base="ReportBase">
