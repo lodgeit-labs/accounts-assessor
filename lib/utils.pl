@@ -30,8 +30,8 @@
 		report_currency_atom/2,
 		dict_json_text/2,
 		catch_maybe_with_backtrace/3,
-		find_thing_in_tree/4,
-		flatten_xml/2]).
+		find_thing_in_tree/4
+]).
 
 
 		

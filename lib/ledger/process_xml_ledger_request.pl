@@ -32,7 +32,6 @@
 		numeric_fields/2, 
 		pretty_term_string/2, 
 		throw_string/1,
-		flatten_xml/2,
 	  replace_nonalphanum_chars_with_underscore/2,
 	  catch_maybe_with_backtrace/3,
 	  dict_json_text/2]).
@@ -83,6 +82,9 @@
 		print_forex/5,
 		print_trading/3
 ]).
+:- use_module('../xml', [
+		validate_xml/2
+]).
 
 :- use_module('../investment_report_1').		      
 :- use_module('../investment_report_2').
@@ -91,21 +93,28 @@
 
 process_xml_ledger_request(File_Name, Dom, Reports) :-
 	/* does it look like a ledger request? */
-	% we can omit this validation step by making it part of the XSD validation below
+	% can't omit this because 
 	inner_xml(Dom, //reports/balanceSheetRequest, _),
 
 	% this works but need to fix the failing test cases;	
+	/*
 	absolute_tmp_path(File_Name, Instance_File),
 
 	catch(
 		setup_call_cleanup(
 			process_create('../python/venv/bin/python3',['../python/src/xmlschema_runner.py',Instance_File,'schemas/bases/Reports.xsd'],[]),
-			process_xml_ledger_request2(Dom, Reports),
+			true,
 			true
 		),
-		Catcher,
+		_,
 		throw('Input file failed XSD schema validation.')
-	).
+	),
+	*/
+
+	absolute_tmp_path(File_Name, Instance_File),
+	validate_xml(Instance_File, 'schemas/bases/Reports.xsd'),
+
+	process_xml_ledger_request2(Dom, Reports).
 
 	%process_xml_ledger_request2(Dom, Reports).
 
