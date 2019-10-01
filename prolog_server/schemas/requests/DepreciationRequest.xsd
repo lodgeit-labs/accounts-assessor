@@ -1,11 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <xs:schema elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
-
-	<xs:element name="depreciation_request_written_down_value" type="DepreciationRequest"/>
-	
-	<xs:element name="depreciation_request_depreciation_between_two_dates" type="DepreciationRequest"/>
-	
+ 
 	<xs:complexType name="DepreciationRequest">
 		<xs:sequence>
 			<xs:element minOccurs="0" maxOccurs="1" name="types" type="DepreciationTypesHierarchy"/>
