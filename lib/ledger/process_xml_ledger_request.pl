@@ -89,34 +89,28 @@
 :- use_module('../crosschecks_report').
 
 
-process_xml_ledger_request(_, Dom, Reports) :-
+process_xml_ledger_request(File_Name, Dom, Reports) :-
 	/* does it look like a ledger request? */
+	% we can omit this validation step by making it part of the XSD validation below
 	inner_xml(Dom, //reports/balanceSheetRequest, _),
-	
-	/*
-	load_structure(my_schemas('bases/Reports.xsd'), Schema_DOM, [dialect(xmlns), space(remove), keep_prefix(true)]),
-	flatten_xml(Dom, Instance_ID),
-	flatten_xml(Schema_DOM, Schema_ID),
-	validate(Schema_ID, Instance_ID),
-	*/
 
 	/*
+	% this works but need to fix the failing test cases;	
+	absolute_tmp_path(File_Name, Instance_File),
+
 	catch(
 		setup_call_cleanup(
-			process_create('../xbrl/account_hierarchy/venv/bin/python3',['../xbrl/account_hierarchy/src/xmlschema_runner.py',Instance_File,Schema_File],[]),
-			writeln("Success..."),
-			writeln("Done...")
+			process_create('../python/venv/bin/python3',['../python/src/xmlschema_runner.py',Instance_File,'schemas/bases/Reports.xsd'],[]),
+			process_xml_ledger_request2(Dom, Reports),
+			true
 		),
 		Catcher,
-		format("Caught exception: ~w~n",[Catcher])
+		throw('Input file failed XSD schema validation.')
 	).
 	*/
 
+	process_xml_ledger_request2(Dom, Reports).
 
-	/*
-		print the xml header, and after that, we can print random xml comments.
-	*//*gtrace,
-	profile(*/process_xml_ledger_request2(Dom, Reports).
 
 	
 process_xml_ledger_request2(Dom, Reports_Out) :-
