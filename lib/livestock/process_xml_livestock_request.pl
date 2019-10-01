@@ -9,12 +9,21 @@
 :- use_module('../../lib/livestock', [compute_livestock_by_simple_calculation/23]).
 :- use_module('../report_page').
 :- use_module('../tables').
+:- use_module('../files', [
+	absolute_tmp_path/2
+]).
+:- use_module('../xml', [
+	validate_xml/2
+]).
 
 
-process_xml_livestock_request(_, DOM, Reports) :-
+process_xml_livestock_request(File_Name, DOM, Reports) :-
 
 	findall(Livestock, xpath(DOM, //reports/livestockaccount/livestocks/livestock, Livestock), Livestocks),
 	Livestocks \= [],
+
+	absolute_tmp_path(File_Name, Instance_File),
+	validate_xml(Instance_File, 'schemas/bases/Reports.xsd'),
 
 	writeln('<response>'),
 	writeln('<livestocks>'),

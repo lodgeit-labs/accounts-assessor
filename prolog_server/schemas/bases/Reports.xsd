@@ -5,6 +5,7 @@
   <xs:include schemaLocation="../requests/BalanceSheetRequest.xsd" />
   <xs:include schemaLocation="../requests/CarAPIRequest.xsd"/>
   <xs:include schemaLocation="../requests/InvestmentRequest.xsd"/>
+  <xs:include schemaLocation="../requests/LivestockRequest.xsd"/>
 
   <xs:element name="reports" nillable="true" type="ReportContainer" />
   <xs:complexType name="ReportContainer">
@@ -48,6 +49,7 @@
         <xs:element minOccurs="0" maxOccurs="1" name="car_request" type="xs:string"/>
         <xs:element minOccurs="0" maxOccurs="1" name="is_car_response" type="xs:string"/>
         <xs:element minOccurs="0" maxOccurs="1" name="investmentRequest" type="InvestmentRequest" />
+        <xs:element minOccurs="0" maxOccurs="1" name="livestockaccount" type="LivestockAccount" />
       </xs:choice>
     </xs:sequence>
   </xs:complexType>
