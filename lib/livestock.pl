@@ -285,7 +285,7 @@ preprocess_buys(Livestock_Type, _Average_cost, S_Transaction, Buy_Transactions) 
 	;
 		Buy_Transactions = [].
 
-ooooooooooooooooiii(S_Transaction, Day, Livestock_Type, Livestock_Coord, Bank_Vector, Our_Vector, Unexchanged_Account_Id, Our_Debit, Our_Credit) :-
+s_transaction_is_livestock_buy_or_sell(S_Transaction, Day, Livestock_Type, Livestock_Coord, Bank_Vector, Our_Vector, Unexchanged_Account_Id, Our_Debit, Our_Credit) :-
 	S_Transaction = s_transaction(Day, '', Our_Vector, Unexchanged_Account_Id, Exchanged),
 	vector([Livestock_Coord]) = Exchanged,
 	coord(Livestock_Type, _, _) = Livestock_Coord,
@@ -851,7 +851,7 @@ cogs_rations_account(Livestock_Type, Cogs_Rations_Account) :-
 sales_account(Livestock_Type, Sales_Account) :-
 	atom_concat(Livestock_Type, 'Sales', Sales_Account).
 
-eeeeeeeeeeennn(Livestock_Type, Count_Account) :-
+count_account(Livestock_Type, Count_Account) :-
 	atom_concat(Livestock_Type, 'Count', Count_Account).
 
 with_info_value_and_info(with_info(Value, Info), Value, Info).
