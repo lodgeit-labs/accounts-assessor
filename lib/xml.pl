@@ -17,9 +17,10 @@ flatten_xml(XML, ID) :-
 Validates an XML instance against an XSD schema by calling an external Python script
 */
 validate_xml(Instance_File, Schema_File) :-
+	Args = ['../python/src/xmlschema_runner.py',Instance_File,Schema_File],
 	catch(
 		setup_call_cleanup(
-			process_create('../python/venv/bin/python3',['../python/src/xmlschema_runner.py',Instance_File,Schema_File],[]),
+			process_create('../python/venv/bin/python3',Args,[]),
 			true,
 			true
 		),
