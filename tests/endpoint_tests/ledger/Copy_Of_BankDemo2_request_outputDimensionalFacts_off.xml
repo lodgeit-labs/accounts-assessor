@@ -19,10 +19,13 @@
       <directors />
     </company>
     
-    <outputDimensionalFacts>off</outputDimensionalFacts>
 
     <startDate>2018-07-01</startDate>
     <endDate>2019-06-30</endDate>
+
+
+    <outputDimensionalFacts>off</outputDimensionalFacts>
+
     <defaultCurrency>
       <unitType>AUD</unitType>
     </defaultCurrency>

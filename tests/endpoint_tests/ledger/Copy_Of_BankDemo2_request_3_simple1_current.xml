@@ -28,8 +28,6 @@ two investitions in current period
     
     <startDate>2018-01-01</startDate>
     <endDate>2019-06-30</endDate>
-	<costOrMarket>market</costOrMarket>
-
 
     <defaultCurrency>
       <unitType>AUD</unitType>
@@ -107,11 +105,9 @@ two investitions in current period
         <unitValue>1.423897</unitValue>
         <unitValueDate>2019-06-30</unitValueDate>
       </unitValue>
-
-
     </unitValues>
 
-
+	<costOrMarket>market</costOrMarket>
 	
 	<bankStatement>
       <title>Bank Statement</title>

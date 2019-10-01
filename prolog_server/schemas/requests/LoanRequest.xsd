@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <xs:schema elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
-  <xs:include schemaLocation="Schema.xsd" />
+  <xs:include schemaLocation="../bases/Schema.xsd" />
   <xs:complexType name="RepaymentSection">
     <xs:sequence>
       <xs:element minOccurs="0" maxOccurs="unbounded" name="repayment" type="RepaymentField" />
@@ -16,12 +16,27 @@
     </xs:simpleContent>
   </xs:complexType>
 
+  <xs:complexType name="LoanAgreementSection">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="field" type="LoanAgreementField"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="LoanAgreementField">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute name="name" type="xs:string" />
+        <xs:attribute name="value" type="xs:string" />
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+
+
   <xs:element name="LoanDetails" nillable="true" type="LoanDetails" />
   <xs:complexType name="LoanDetails">
     <xs:complexContent mixed="false">
       <xs:extension base="ReportBase">
         <xs:sequence>
-          <xs:element minOccurs="0" maxOccurs="1" name="loanAgreement" type="ReportSectionOfString" />
+          <xs:element minOccurs="0" maxOccurs="1" name="loanAgreement" type="LoanAgreementSection" />
           <xs:element minOccurs="0" maxOccurs="1" name="repayments" type="RepaymentSection" />
         </xs:sequence>
       </xs:extension>

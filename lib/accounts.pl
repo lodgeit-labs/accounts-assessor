@@ -233,7 +233,7 @@ fetch_account_hierarchy_from_url(Account_Hierarchy_URL, Account_Hierarchy_DOM) :
 arelle(taxonomy, Taxonomy_URL, Account_Hierarchy_DOM) :-
 	setup_call_cleanup(
 		% should be activating the venv here
-		process_create(path(python3),['../xbrl/account_hierarchy/src/venv-wrapper.py',Taxonomy_URL],[stdout(pipe(Out))]),
+		process_create('../python/venv/bin/python3',['../python/src/account_hierarchy.py',Taxonomy_URL],[stdout(pipe(Out))]),
 		(
 			load_structure(Out, File_DOM, [dialect(xml),space(remove)]),
 			absolute_tmp_path('account_hierarchy_from_taxonomy.xml', FN),

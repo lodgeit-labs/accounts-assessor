@@ -13,6 +13,8 @@
 
 :- use_module(library(xpath)).
 :- use_module(library(rdet)).
+:- use_module(library(xsd/validate)).
+:- use_module(library(sgml)).
 
 :- rdet(output_results/4).
 :- rdet(process_xml_ledger_request2/2).	
@@ -80,19 +82,42 @@
 		print_forex/5,
 		print_trading/3
 ]).
+:- use_module('../xml', [
+		validate_xml/2
+]).
 
 :- use_module('../investment_report_1').		      
 :- use_module('../investment_report_2').
 :- use_module('../crosschecks_report').
 
 
-process_xml_ledger_request(_, Dom, Reports) :-
+process_xml_ledger_request(File_Name, Dom, Reports) :-
 	/* does it look like a ledger request? */
+	% can't omit this because 
 	inner_xml(Dom, //reports/balanceSheetRequest, _),
+
+	% this works but need to fix the failing test cases;	
 	/*
-		print the xml header, and after that, we can print random xml comments.
-	*//*gtrace,
-	profile(*/process_xml_ledger_request2(Dom, Reports).
+	absolute_tmp_path(File_Name, Instance_File),
+
+	catch(
+		setup_call_cleanup(
+			process_create('../python/venv/bin/python3',['../python/src/xmlschema_runner.py',Instance_File,'schemas/bases/Reports.xsd'],[]),
+			true,
+			true
+		),
+		_,
+		throw('Input file failed XSD schema validation.')
+	),
+	*/
+
+	absolute_tmp_path(File_Name, Instance_File),
+	validate_xml(Instance_File, 'schemas/bases/Reports.xsd'),
+
+	process_xml_ledger_request2(Dom, Reports).
+
+	%process_xml_ledger_request2(Dom, Reports).
+
 
 	
 process_xml_ledger_request2(Dom, Reports_Out) :-

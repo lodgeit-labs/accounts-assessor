@@ -1,8 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <xs:schema elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
   <xs:include schemaLocation="Schema.xsd" />
-  <xs:include schemaLocation="Div7ALoan.xsd" />
-  <xs:include schemaLocation="BalanceSheetRequest.xsd" />
+  <xs:include schemaLocation="../requests/BalanceSheetRequest.xsd" />
+  <xs:include schemaLocation="../requests/CarAPIRequest.xsd"/>
+  <xs:include schemaLocation="../requests/InvestmentRequest.xsd"/>
+  <xs:include schemaLocation="../requests/LivestockRequest.xsd"/>
+  <xs:include schemaLocation="../requests/LoanRequest.xsd" />
+  <xs:include schemaLocation="../requests/DepreciationRequest.xsd" />
 
   <xs:element name="reports" nillable="true" type="ReportContainer" />
   <xs:complexType name="ReportContainer">
@@ -43,7 +47,12 @@
         <xs:element minOccurs="0" maxOccurs="1" name="cropping" type="CroppingReport" />
         <xs:element minOccurs="0" maxOccurs="1" name="loanDetails" type="LoanDetails" />
         <xs:element minOccurs="0" maxOccurs="1" name="balanceSheetRequest" type="BalanceSheetRequest" />
-        <!-- <xs:element minOccurs="0" maxOccurs="1" name="investmentRequest" type="InvestmentRequest" /> -->
+        <xs:element minOccurs="0" maxOccurs="1" name="car_request" type="xs:string"/>
+        <xs:element minOccurs="0" maxOccurs="1" name="is_car_response" type="xs:string"/>
+        <xs:element minOccurs="0" maxOccurs="1" name="investmentRequest" type="InvestmentRequest" />
+        <xs:element minOccurs="0" maxOccurs="1" name="livestockaccount" type="LivestockAccount" />
+        <xs:element minOccurs="0" maxOccurs="1" name="depreciation_request_depreciation_between_two_dates" type="DepreciationRequest" />
+        <xs:element minOccurs="0" maxOccurs="1" name="depreciation_request_written_down_value" type="DepreciationRequest" />
       </xs:choice>
     </xs:sequence>
   </xs:complexType>

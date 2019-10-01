@@ -26,8 +26,6 @@
     
     <startDate>2018-07-13</startDate>
     <endDate>2019-06-30</endDate>
-	<costOrMarket>market</costOrMarket>
-
 
     <defaultCurrency>
       <unitType>AUD</unitType>
@@ -104,7 +102,7 @@
 
     </unitValues>
 
-
+	<costOrMarket>market</costOrMarket>
 	
 	<bankStatement>
       <title>Bank Statement</title>

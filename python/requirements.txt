@@ -1,0 +1,2 @@
+Arelle==1.0.0
+xmlschema==1.0.14

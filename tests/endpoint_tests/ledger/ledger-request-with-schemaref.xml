@@ -32,6 +32,30 @@ link:schemaRef has nothing to do here
     <endDate>2018-06-30</endDate>
 
 
+    <defaultCurrency>
+      <unitType>AUD</unitType>
+    </defaultCurrency>
+    <reportCurrency>
+      <unitType>AUD</unitType>
+    </reportCurrency>
+
+    <!-- if a unitValueCurrency is not specified in a unitValue below, this currency is assumed -->
+    <!-- Needed for the tracking of units in inventory. Also needed for correct computation of gains and losses.
+		if unitValueDate is omitted, report date is assumed.
+	 -->
+    <unitValues>
+      <unitValue>
+        <unitType>BHP</unitType>
+        <unitValue>2</unitValue>
+        <unitValueCurrency>USD</unitValueCurrency>
+      </unitValue>
+      <unitValue>
+        <unitType>TLS</unitType>
+        <unitValue>5</unitValue>
+        <unitValueCurrency>AUD</unitValueCurrency>
+      </unitValue>
+    </unitValues>    
+
 
 
 	<!-- 
@@ -73,40 +97,13 @@ link:schemaRef has nothing to do here
 		</Expenses>
 	</accounts>
 
-
-
-
-	<!-- <investmentValueReportingMethod> or some such? -->
-	<costOrMarket>market</costOrMarket>
-
-    <!-- if a unitValueCurrency is not specified in a unitValue below, this currency is assumed -->
-    <defaultCurrency>
-      <unitType>AUD</unitType>
-    </defaultCurrency>
-    <reportCurrency>
-      <unitType>AUD</unitType>
-    </reportCurrency>
-
-    <!-- Needed for the tracking of units in inventory. Also needed for correct computation of gains and losses.
-		if unitValueDate is omitted, report date is assumed.
-	 -->
-    <unitValues>
-      <unitValue>
-        <unitType>BHP</unitType>
-        <unitValue>2</unitValue>
-        <unitValueCurrency>USD</unitValueCurrency>
-      </unitValue>
-      <unitValue>
-        <unitType>TLS</unitType>
-        <unitValue>5</unitValue>
-        <unitValueCurrency>AUD</unitValueCurrency>
-      </unitValue>
-    </unitValues>    
-
     <!-- custom account hierarchy can be referenced. If not, the default is used. It can also be included directly here. -->
     <!--  well..
         <accountHierarchyUrl>https://raw.githubusercontent.com/LodgeiT/labs-accounts-assessor/prolog_server_ledger/prolog_server/ledger/default_account_hierarchy.xml?token=AAA34ZATJ5VPKDNFZXQRHVK434H2M</accountHierarchyUrl>
     -->
+
+
+
 
     <!-- if not included, default is used -->
     <actionTaxonomy>
@@ -148,7 +145,11 @@ link:schemaRef has nothing to do here
         <exchangeAccount>BankCharges</exchangeAccount>
       </action>
     </actionTaxonomy>
-    
+
+ 	<!-- <investmentValueReportingMethod> or some such? -->
+	<costOrMarket>market</costOrMarket>
+
+   
     <bankStatement>
       <title>Bank Statement</title>
       <period>2010-01-01 - 2010-06-30</period>

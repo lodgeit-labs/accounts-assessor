@@ -30,14 +30,15 @@
 		report_currency_atom/2,
 		dict_json_text/2,
 		catch_maybe_with_backtrace/3,
-		find_thing_in_tree/4]).
+		find_thing_in_tree/4
+]).
 
 
 		
 :- use_module(library(http/json)).
 :- use_module(library(xpath)).
 :- use_module(library(rdet)).
-
+:- use_module(library(xsd/flatten)).
 
 :- rdet(report_currency_atom/2).
 
@@ -566,3 +567,9 @@ remove_before(Slash, Name_In, Name_Out) :-
 unzip([], [], []).
 unzip([X,Y|T], [X|XT], [Y|YT]) :-
 	unzip(T, XT, YT).
+
+flatten_xml(XML, ID) :-
+	flatten:root_id(Root_ID),
+	flatten:register_file_id(ID),
+	flatten:xml_flatten_nodes(ID,Root_ID,0,XML),
+	!.

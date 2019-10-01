@@ -16,24 +16,33 @@
 :- use_module('../../lib/depreciation_computation', [
 		written_down_value/5, 
 		depreciation_between_two_dates/6]).
-
+:- use_module('../files', [
+		absolute_tmp_path/2
+]).
+:- use_module('../xml', [
+		validate_xml/2
+]).
 
 % -------------------------------------------------------------------
 % process_xml_depreciation_request/2
 % -------------------------------------------------------------------
 
-process_xml_depreciation_request(_, DOM) :-
+process_xml_depreciation_request(File_Name, DOM) :-
 	(
 		xpath(DOM, //depreciation_request_written_down_value, _)
 	->
-		process_written_down_value(DOM)
+		process_written_down_value(File_Name, DOM)
 	;
-		process_depreciation_between_two_dates(DOM)
+		process_depreciation_between_two_dates(File_Name, DOM)
 	).
 
 
-process_written_down_value(DOM) :-
+process_written_down_value(File_Name, DOM) :-
 	xpath(DOM, //reports/depreciation_request_written_down_value, Depreciation_Request_Values),
+
+	absolute_tmp_path(File_Name, Instance_File),
+	validate_xml(Instance_File, 'schemas/bases/Reports.xsd'),
+
 	process_initial_common_values(Depreciation_Request_Values, Type, Invest_In_Date_In, Request_Date_In, 
 		Method, Cost_Unit, Cost_Value_In, Depreciation_Rates),	
 	
@@ -60,8 +69,12 @@ process_written_down_value(DOM) :-
 		Type, Cost_Unit, Cost_Value, Invest_In_Date_In, Request_Date_In, Cost_Unit, Written_Down_Value).
 	
 
-process_depreciation_between_two_dates(DOM) :-
+process_depreciation_between_two_dates(File_Name, DOM) :-
 	xpath(DOM, //reports/depreciation_request_depreciation_between_two_dates, Depreciation_Request_Values),
+
+	absolute_tmp_path(File_Name, Instance_File),
+	validate_xml(Instance_File, 'schemas/bases/Reports.xsd'),
+
 	process_initial_common_values(Depreciation_Request_Values, Type, Invest_In_Date_In, Request_Date_In, 
 		Method, Cost_Unit, Cost_Value_In, Depreciation_Rates),	
 		
