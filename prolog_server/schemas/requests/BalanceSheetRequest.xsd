@@ -7,12 +7,14 @@
     <xs:complexContent mixed="false">
       <xs:extension base="ReportBase">
         <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="outputDimensionalFacts" type="OnOrOff"/>
           <xs:element minOccurs="1" maxOccurs="1" name="defaultCurrency" type="CurrencyType" />
           <xs:element minOccurs="1" maxOccurs="1" name="reportCurrency" type="CurrencyType" />
           <xs:element minOccurs="0" maxOccurs="1" name="unitValues" type="UnitValues" />
-          <xs:element minOccurs="0" maxOccurs="1" name="accountHierarchyUrl" type="xs:string" />
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="accounts" type="Accounts" />
           <xs:element minOccurs="0" maxOccurs="1" name="actionTaxonomy" type="ActionTaxonomy" />
           <xs:element minOccurs="0" maxOccurs="1" name="livestockData" type="LivestockData" />
+          <xs:element minOccurs="0" maxOccurs="1" name="costOrMarket" type="CostOrMarket" />
           <xs:element minOccurs="0" maxOccurs="1" name="bankStatement" type="BankStatementBS" />
         </xs:sequence>
       </xs:extension>
@@ -92,4 +94,21 @@
       <xs:element minOccurs="1" maxOccurs="1" name="count" type="xs:integer"/>
     </xs:sequence>
   </xs:complexType>
+  <xs:complexType name="Accounts" mixed="true">
+    <xs:sequence>
+      <xs:any minOccurs="0" processContents="skip"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:simpleType name="CostOrMarket">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="cost"/>
+      <xs:enumeration value="market"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="OnOrOff">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="on"/>
+      <xs:enumeration value="off"/>
+    </xs:restriction>
+  </xs:simpleType>
 </xs:schema>

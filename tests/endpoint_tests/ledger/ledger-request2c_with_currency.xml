@@ -145,7 +145,8 @@
             <debit>10</debit>
             <credit>0.00</credit>
           </transaction>
-
+        </transactions>
+      </accountDetails>
 
 
       <accountDetails>
@@ -222,10 +223,6 @@
             <debit>10</debit>
             <credit>0.00</credit>
           </transaction>
-
-
-        </transactions>
-      </accountDetails>
 
 
         </transactions>

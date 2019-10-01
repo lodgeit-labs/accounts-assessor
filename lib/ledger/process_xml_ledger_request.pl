@@ -94,7 +94,6 @@ process_xml_ledger_request(File_Name, Dom, Reports) :-
 	% we can omit this validation step by making it part of the XSD validation below
 	inner_xml(Dom, //reports/balanceSheetRequest, _),
 
-	/*
 	% this works but need to fix the failing test cases;	
 	absolute_tmp_path(File_Name, Instance_File),
 
@@ -107,9 +106,8 @@ process_xml_ledger_request(File_Name, Dom, Reports) :-
 		Catcher,
 		throw('Input file failed XSD schema validation.')
 	).
-	*/
 
-	process_xml_ledger_request2(Dom, Reports).
+	%process_xml_ledger_request2(Dom, Reports).
 
 
 	

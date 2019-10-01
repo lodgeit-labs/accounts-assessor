@@ -28,8 +28,6 @@ two investitions in historical period
     
     <startDate>2018-07-13</startDate>
     <endDate>2019-06-30</endDate>
-	<costOrMarket>market</costOrMarket>
-
 
     <defaultCurrency>
       <unitType>AUD</unitType>
@@ -111,6 +109,7 @@ two investitions in historical period
 
     </unitValues>
 
+	<costOrMarket>market</costOrMarket>
 
 	
 	<bankStatement>
