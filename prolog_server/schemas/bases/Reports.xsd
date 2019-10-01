@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <xs:schema elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
   <xs:include schemaLocation="Schema.xsd" />
-  <xs:include schemaLocation="Div7ALoan.xsd" />
   <xs:include schemaLocation="../requests/BalanceSheetRequest.xsd" />
   <xs:include schemaLocation="../requests/CarAPIRequest.xsd"/>
   <xs:include schemaLocation="../requests/InvestmentRequest.xsd"/>
   <xs:include schemaLocation="../requests/LivestockRequest.xsd"/>
+  <xs:include schemaLocation="../requests/LoanRequest.xsd" />
 
   <xs:element name="reports" nillable="true" type="ReportContainer" />
   <xs:complexType name="ReportContainer">
