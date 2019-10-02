@@ -36,8 +36,8 @@
     <xs:complexContent mixed="false">
       <xs:extension base="ReportBase">
         <xs:sequence>
-          <xs:element minOccurs="0" maxOccurs="1" name="loanAgreement" type="LoanAgreementSection" />
-          <xs:element minOccurs="0" maxOccurs="1" name="repayments" type="RepaymentSection" />
+          <xs:element minOccurs="1" maxOccurs="1" name="loanAgreement" type="LoanAgreementSection" />
+          <xs:element minOccurs="1" maxOccurs="1" name="repayments" type="RepaymentSection" />
         </xs:sequence>
       </xs:extension>
     </xs:complexContent>
