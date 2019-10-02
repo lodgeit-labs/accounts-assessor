@@ -13,7 +13,7 @@
           <xs:element minOccurs="0" maxOccurs="1" name="unitValues" type="UnitValues" />
           <xs:element minOccurs="0" maxOccurs="unbounded" name="accounts" type="Accounts" />
           <xs:element minOccurs="0" maxOccurs="1" name="actionTaxonomy" type="ActionTaxonomy" />
-          <xs:element minOccurs="0" maxOccurs="1" name="livestockData" type="LivestockData" />
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="livestockData" type="LivestockData" />
           <xs:element minOccurs="0" maxOccurs="1" name="costOrMarket" type="CostOrMarket" />
           <xs:element minOccurs="0" maxOccurs="1" name="bankStatement" type="BankStatementBS" />
         </xs:sequence>
@@ -73,11 +73,11 @@
   </xs:complexType>
   <xs:complexType name="LivestockData">
     <xs:sequence>
-      <xs:element minOccurs="0" maxOccurs="1" name="type" type="xs:string"/>
-      <xs:element minOccurs="0" maxOccurs="1" name="naturalIncreaseValuePerUnit" type="xs:decimal"/>
-      <xs:element minOccurs="0" maxOccurs="1" name="openingCount" type="xs:integer"/>
-      <xs:element minOccurs="0" maxOccurs="1" name="openingCost" type="xs:decimal"/>
-      <xs:element minOccurs="0" maxOccurs="1" name="events">
+      <xs:element minOccurs="1" maxOccurs="1" name="type" type="xs:string"/>
+      <xs:element minOccurs="1" maxOccurs="1" name="naturalIncreaseValuePerUnit" type="xs:decimal"/>
+      <xs:element minOccurs="1" maxOccurs="1" name="openingCount" type="xs:integer"/>
+      <xs:element minOccurs="1" maxOccurs="1" name="openingCost" type="xs:decimal"/>
+      <xs:element minOccurs="1" maxOccurs="1" name="events">
         <xs:complexType>
           <xs:choice minOccurs="0" maxOccurs="unbounded">
             <xs:element name="naturalIncrease" type="LivestockEvent"/>
