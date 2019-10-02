@@ -95,6 +95,7 @@ response_file_name(Request_File_Name, Response_File_Name) :-
 		atomic_list_concat(['response-',Request_File_Name], Response_File_Name)
 	).
 
+
 to_json(Reports, Reports2) :-
 	findall(
 		_{key:Key, val:Val}, 
@@ -143,14 +144,14 @@ process_data(_, Path, Options) :-
 	(get_dict(warnings, Reports, Warnings) -> true; Warnings  = []),
 
 	files:report_file_path('', Tmp_Dir_Url, _),
+
 	flatten([
-		Files, 
-		Output_File_Title:url(Output_File_Url),
-		request_xml:url(Request_File_Url),
-		'all files':url(Tmp_Dir_Url)
-		], Files2),
-	to_json(Files2, Files3),
-	
+		Files,
+		_{key:Output_File_Title, val:_{url:Output_File_Url}, id:response_xml},
+		_{key:request_xml, val:_{url:Request_File_Url}, id:request_xml},
+		_{key:'all files', val:_{url:Tmp_Dir_Url}, id:all}
+	], Files3),
+
 	flatten([Errors, Warnings], Alerts2),
 	findall(
 		Alert, 
@@ -166,6 +167,11 @@ process_data(_, Path, Options) :-
 		alerts:Alerts3, 
 		reports:Files3
 	},
+	/*
+	format(user_error, "~w~n", [Json_Out]),
+	json_write(current_output, Json_Out),
+	%throw(_),
+	*/
 	with_output_to(string(Response_Xml_String), print_xml_response(Json_Out, Output_Xml_String)),
 	write_file(Output_File_Path, Response_Xml_String),
 	with_output_to(string(Response_Json_String), json_write(current_output, Json_Out)),
@@ -175,12 +181,12 @@ process_data(_, Path, Options) :-
 		Requested_Output_Type = xml
 	->
 		(
-			write(Response_Xml_String),
+			writeln(Response_Xml_String),
 			debug(process_data, 'returning xml', [])
 		)
 	;
 		(
-			write(Response_Json_String),
+			writeln(Response_Json_String),
 			debug(process_data, 'returning json', [])
 		)
 	).

@@ -35,8 +35,22 @@ test(endpoints, [forall(testcases(Testcase))]) :-
 
 run_endpoint_test(Testcase) :-
 	Testcase = (Request, Response),
+	/* todo:
+		* query for response json
+		* check for error messages
+		* xsd validate response xml
+		* test response against the reference
+		* validations of other json docs
+		* each test-case should get its own directory
+			* request.xml
+			* responses/
+	*/
+	% query_endpoint(Request_XML, Response_JSON),
 	query_endpoint(Request, ReplyDOM),
+	/*todo check if the response is a JSON with an error message */
 	/*todo check if the response is a xml with an error message */
+	% extract response xml from Response JSON
+	% xsd validate response xml
 	(
 		var(Response)
 	->
@@ -104,10 +118,17 @@ query_endpoint(RequestFile0, ReplyDOM) :-
 		RequestFile,
 		[ access(read) ]
 	),
+	%http_post('http://localhost:8080/upload?requested_output_format=json_reports_list', form_data([file=file(RequestFile)]), Response_String, [content_type('multipart/form-data')]),
 	http_post('http://localhost:8080/upload?requested_output_format=xml', form_data([file=file(RequestFile)]), ReplyXML, [content_type('multipart/form-data')]),
 	/*todo: status_code(-Code)
 If this option is present and Code unifies with the HTTP status code, do not translate errors (4xx, 5xx) into an exception. Instead, http_open/3 behaves as if 2xx (success) is returned, providing the application to read the error document from the returned stream.
 */
+
+    % json_read_dict(Response_String, Response_JSON_Raw),
+	% transform Response_JSON_Raw into Response_JSON
+	% find_errors(Response_JSON),
+	% ...
+
 	find_warnings(ReplyXML),
 	load_structure(string(ReplyXML), ReplyDOM,[dialect(xml),space(sgml)]).
 

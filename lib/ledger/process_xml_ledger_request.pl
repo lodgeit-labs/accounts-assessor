@@ -93,30 +93,14 @@
 
 process_xml_ledger_request(File_Name, Dom, Reports) :-
 	/* does it look like a ledger request? */
-	% can't omit this because 
+	% ideally should be able to omit this and have this check be done as part of the schema validation, but currently that's problematic. 
 	inner_xml(Dom, //reports/balanceSheetRequest, _),
-
-	% this works but need to fix the failing test cases;	
-	/*
-	absolute_tmp_path(File_Name, Instance_File),
-
-	catch(
-		setup_call_cleanup(
-			process_create('../python/venv/bin/python3',['../python/src/xmlschema_runner.py',Instance_File,'schemas/bases/Reports.xsd'],[]),
-			true,
-			true
-		),
-		_,
-		throw('Input file failed XSD schema validation.')
-	),
-	*/
 
 	absolute_tmp_path(File_Name, Instance_File),
 	validate_xml(Instance_File, 'schemas/bases/Reports.xsd'),
 
 	process_xml_ledger_request2(Dom, Reports).
 
-	%process_xml_ledger_request2(Dom, Reports).
 
 
 	
@@ -295,7 +279,7 @@ output_results(Static_Data0, Outstanding, Processed_Until, Json_Request_Results)
 	),
 
 	Json_Request_Results = _{
-		files:[Files, Crosschecks_Report_Files_Info, Static_Data.gl],
+		files:[Files, Crosschecks_Report_Files_Info],
 		errors:[Investment_Report_Info.alerts, Crosschecks_Report_Json.errors],
 		warnings:[],
 		reports: Reports2
@@ -310,12 +294,13 @@ make_gl_viewer_report(Info) :-
 	atomic_list_concat(['cp -r ', Viewer_Dir_Absolute, ' ', Tmp_Viewer_Dir_Absolute], Cmd),
 	shell(Cmd),
 	atomic_list_concat([Url, '/gl.html'], Url_With_Slash),
-	report_entry('GL viewer', Url_With_Slash, Info).
+	report_entry('GL viewer', Url_With_Slash, 'gl_html', Info).
 	
 make_gl_report(Dict, Suffix, Report_File_Info) :-
 	dict_json_text(Dict, Json_Text),
 	atomic_list_concat(['general_ledger', Suffix, '.json'], Fn),
-	report_item(Fn, Json_Text, Report_File_Info).
+	report_item(Fn, Json_Text, Report_File_URL),
+	report_entry('General Ledger Report', Report_File_URL, 'genereal_ledger_json', Report_File_Info).
 
 print_dimensional_facts(Static_Data, Instant_Context_Id_Base, Duration_Context_Id_Base, Entity_Identifier, Results0, Results3) :-
 	print_banks(Static_Data, Instant_Context_Id_Base, Entity_Identifier, Results0, Results1),

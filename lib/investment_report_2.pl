@@ -46,7 +46,8 @@ event(Event, Unit_Cost_Foreign, Currency_Conversion, Unit_Cost_Converted, Total_
 	}.
 
 
-investment_report_2(Static_Data, Outstanding_In, Filename_Suffix, Report_Data, [Report_File_Info, Json_Filename:url(Json_Url)]) :-
+investment_report_2(Static_Data, Outstanding_In, Filename_Suffix, Report_Data, [Report_File_Info, JSON_File_Info]) :-
+%investment_report_2(Static_Data, Outstanding_In, Filename_Suffix, Report_Data, [Report_File_Info, Json_Filename:url(Json_Url)]) :-
 	%write('<!-- '),print_term(Outstanding_In,[]), write(' -->'),
 	
 	Start_Date = Static_Data.start_date,
@@ -67,12 +68,15 @@ investment_report_2(Static_Data, Outstanding_In, Filename_Suffix, Report_Data, [
 	tables:table_html(Table, Table_Html),
 
 	atomic_list_concat(['investment_report', Filename_Suffix, '.html'], Filename),
-	report_page_with_table(Title_Text, Table_Html, Filename, Report_File_Info),
+	atomic_list_concat(['investment_report', Filename_Suffix, '_html'], HTML_ID),
+	report_page_with_table(Title_Text, Table_Html, Filename, HTML_ID, Report_File_Info),
 	
 	atomic_list_concat(['investment_report', Filename_Suffix, '.json'], Json_Filename),
+	atomic_list_concat(['investment_report', Filename_Suffix, '_json'], JSON_ID),
 	dict_json_text(Table, Json_Text),
 	report_item(Json_Filename, Json_Text, Json_Url),
 	nonvar(Json_Url),
+	report_entry(Json_Filename, Json_Url, JSON_ID, JSON_File_Info),
 	
 	Report_Data = _{
 		rows: Rows,

@@ -124,7 +124,8 @@ process(DOM, [], Report_File_Info) :-
 	
 	utils:replace_nonalphanum_chars_with_underscore(Name, Fn_Suffix),
 	atomic_list_concat(['livestock_report_', Fn_Suffix, '.html'], Fn),
-	report_page:report_page_with_table(Name, Table_Contents_Html, Fn, Report_File_Info).
+	atomic_list_concat(['livestock_report_', Fn_Suffix, '_html'], Id),
+	report_page:report_page_with_table(Name, Table_Contents_Html, Fn, Id, Report_File_Info).
 
 /*
 Optimally we should preload the Excel sheet with test data that when pressed, provides a controlled natural language response describing the set of processes the data underwent as a result of the computational rules along with a solution to the problem.
