@@ -47,18 +47,7 @@ run_endpoint_test(Testcase) :-
 	% Response_Errors = Response_JSON.alerts
 	% Response_JSON.alerts = [_], % there is an error
 
-	
-	parse_url(Response_JSON.reports.response_xml.url,[_,_,_,path(Response_XML_File_Path)]),
-	atom_string(Response_XML_File_Path, Response_XML_File_Path_String),
-	split_string(Response_XML_File_Path_String,"/","",[_|[_|Rest]]),
-	atomic_list_concat(Rest,"/",Response_XML_File_Path2),
-
-	% xsd validate the response xml
-	% nvm because we'll be validating it in the request processing already
-
-	% load XML as string so that we can find warnings
-	read_file_to_string(my_tmp(Response_XML_File_Path2),Response_XML,[]),
-
+	http_get(Response_JSON.reports.response_xml.url, Response_XML, []),
 	find_warnings(Response_XML),
 	load_structure(string(Response_XML), Response_DOM,[dialect(xml),space(sgml)]),
 
