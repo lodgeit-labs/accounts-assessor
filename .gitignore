@@ -349,3 +349,4 @@ cache/*
 .vscode
 xbrl/account_hierarchy/venv/
 prolog_server/log
+venv/
