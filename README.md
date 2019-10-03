@@ -23,7 +23,15 @@ Install Python dependencies:
 	* ```pip install xmlschema```
 * Deactivate virtual environment:
 	* ```deactivate``` 
-
+Set up python server (separate from above python stuff for now):
+```
+cd python_server
+python3 -m venv venv
+. venv/bin/activate.fish 
+pip install -r requirements.txt
+venv/bin/python3 manage.py migrate
+venv/bin/python3 manage.py runserver
+```
 How to run it:
 * Change directory to prolog_server/
 
