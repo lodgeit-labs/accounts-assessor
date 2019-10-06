@@ -1,2 +1,3 @@
-Arelle==1.0.0
+-e https://github.com/Arelle/Arelle
 xmlschema==1.0.14
+django
