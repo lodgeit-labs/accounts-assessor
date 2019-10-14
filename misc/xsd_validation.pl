@@ -3,8 +3,8 @@
 :- use_module(library(xsd/validate)).
 :- use_module(library(xsd/flatten)).
 :- use_module(library(sgml)).
-:- use_module('../lib/files.pl').
-:- use_module('../lib/utils.pl').
+:- use_module('../lib/files').
+:- use_module('../lib/utils').
 
 :-
 	

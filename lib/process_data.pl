@@ -9,14 +9,14 @@
 :- use_module(car_request/process_xml_car_request, [process_xml_car_request/2]).
 :- use_module(depreciation/process_xml_depreciation_request, [process_xml_depreciation_request/2]).
 
-:- use_module('../lib/files', [
+:- use_module('files', [
 		bump_tmp_directory_id/0,
 		set_server_public_url/1,
 		replace_request_with_response/2,
 		write_file/2,
 		tmp_file_url/2
 ]).
-:- use_module('../lib/utils').
+:- use_module('utils').
 
 get_requested_output_type(Options2, Output) :-
 	Known_Output_Types = [json_reports_list, xml],

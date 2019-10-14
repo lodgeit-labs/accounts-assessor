@@ -1,7 +1,7 @@
 :- module(static_tests, []).
 
 :- use_module(library(xsd)).
-:- use_module('../lib/files.pl').
+:- use_module('../lib/files').
 
 :- begin_tests('Static XSD validations').
 test(0) :-

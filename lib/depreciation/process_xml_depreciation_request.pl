@@ -11,9 +11,9 @@
 :- module(process_xml_depreciation_request, [process_xml_depreciation_request/2]).
 
 :- use_module(library(xpath)).
-:- use_module('../../lib/utils', [inner_xml/3, write_tag/2, fields/2, throw_string/1]).
-:- use_module('../../lib/days', [parse_date/2]).
-:- use_module('../../lib/depreciation_computation', [
+:- use_module('../utils', [inner_xml/3, write_tag/2, fields/2, throw_string/1]).
+:- use_module('../days', [parse_date/2]).
+:- use_module('../depreciation_computation', [
 		written_down_value/5, 
 		depreciation_between_two_dates/6]).
 :- use_module('../files', [
