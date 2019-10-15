@@ -31,6 +31,7 @@ ner_api_url("http://13.239.25.136:8012/NER/").
 query_ner_api(Request_Text, Response_JSON) :-
 	uri_encoded(query_value,Request_Text,Request_Text_Encoded),
 	ner_api_url(API_URL),
+	gtrace,
 	atomic_list_concat([API_URL,Request_Text_Encoded],'',Request_URI),
 	setup_call_cleanup(
         http_open(Request_URI, In, [request_header('Accept'='application/json')]),
