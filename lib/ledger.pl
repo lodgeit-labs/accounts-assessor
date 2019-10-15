@@ -140,7 +140,17 @@ process_ledger(
 	flatten(Transactions0, Transactions1),
 	
 	livestock:process_livestock(Livestock_Doms, Livestock_Types, Processed_S_Transactions, Transactions1, Livestock_Opening_Costs_And_Counts, Start_Date, Last_Good_Day, Exchange_Rates, Accounts, Report_Currency, Transactions_With_Livestock, Livestock_Events, Average_Costs, Average_Costs_Explanations, Livestock_Counts),
+
+	/*
 	
+	this is probably the right place to plug in hirepurchase and depreciation,
+	take Transactions_With_Livestock and produce an updated list.
+	notes:
+	transaction term now carries date() instead of absolute days count.
+	transactions are produced with transactions:make_transaction.
+	account id is obtained like this: accounts:account_by_role(Accounts, ('Accounts'/'Assets'), Assets_AID).
+		
+	*/
 
 	maplist(check_transaction_account(Accounts), Transactions_With_Livestock),
 
