@@ -45,7 +45,6 @@
 		transaction_type_description/2]).
 :- use_module('livestock', [
 		preprocess_livestock_buy_or_sell/3, 
-		process_livestock/14, 
 		make_livestock_accounts/2]).
 :- use_module('transactions', [
 		has_empty_vector/1,

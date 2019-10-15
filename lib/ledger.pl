@@ -21,7 +21,7 @@
 		pretty_term_string/2,
 		dict_json_text/2]).
 :- use_module('livestock', [
-		process_livestock/14,
+		/*process_livestock/14,*/
 		livestock_counts/6]). 
 :- use_module('transactions', [
 		check_transaction_account/2,
@@ -139,12 +139,11 @@ process_ledger(
 	),
 	flatten(Transactions0, Transactions1),
 	
-	process_livestock(Livestock_Doms, Livestock_Types, Processed_S_Transactions, Transactions1, Livestock_Opening_Costs_And_Counts, Start_Date, Last_Good_Day, Exchange_Rates, Accounts, Report_Currency, Transactions_With_Livestock, Livestock_Events, Average_Costs, Average_Costs_Explanations),
-	dict_from_vars(Static_Data_Livestock_Counts0, [Accounts, Start_Date, End_Date]),
-	Static_Data_Livestock_Counts = Static_Data_Livestock_Counts0.put(transactions, Transactions_With_Livestock),
-	transactions_by_account(Static_Data_Livestock_Counts, Transactions_By_Account_With_Livestock),
-	livestock_counts(Accounts, Livestock_Types, Transactions_By_Account_With_Livestock, Livestock_Opening_Costs_And_Counts, Last_Good_Day, Livestock_Counts),
+	livestock:process_livestock(Livestock_Doms, Livestock_Types, Processed_S_Transactions, Transactions1, Livestock_Opening_Costs_And_Counts, Start_Date, Last_Good_Day, Exchange_Rates, Accounts, Report_Currency, Transactions_With_Livestock, Livestock_Events, Average_Costs, Average_Costs_Explanations, Livestock_Counts),
 
+
+
+	
 	maplist(check_transaction_account(Accounts), Transactions_With_Livestock),
 
 
@@ -185,7 +184,6 @@ process_ledger(
 	
 	Static_Data3 = Static_Data2.put(transactions, Transactions_With_Livestock),
 	transactions_by_account(Static_Data3, Transactions_By_Account),
-	%Static_Data4 = Static_Data3.put(transactions_by_account, Transactions_With_Livestock),
 	
 	trial_balance_between(Exchange_Rates, Accounts, Transactions_By_Account, Report_Currency, End_Date, Start_Date, End_Date, [Trial_Balance_Section]),
 	(

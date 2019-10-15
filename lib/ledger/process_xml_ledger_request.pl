@@ -54,8 +54,6 @@
 		process_ledger/21]).
 :- use_module('../livestock', [
 		get_livestock_types/2, 
-		process_livestock/14, 
-		make_livestock_accounts/2,
 		extract_livestock_opening_costs_and_counts/2]).
 :- use_module('../accounts', [
 		extract_account_hierarchy/2,
