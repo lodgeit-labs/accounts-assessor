@@ -7,7 +7,8 @@ this file needs serious cleanup, one reason to delay that might be that we can e
 */
 
 :- module(livestock, [
-		get_livestock_types/2, process_livestock/14, preprocess_livestock_buy_or_sell/3, make_livestock_accounts/2, livestock_counts/6, extract_livestock_opening_costs_and_counts/2, compute_livestock_by_simple_calculation/23]).
+		get_livestock_types/2, process_livestock/15,
+		preprocess_livestock_buy_or_sell/3, make_livestock_accounts/2, livestock_counts/6, extract_livestock_opening_costs_and_counts/2, compute_livestock_by_simple_calculation/23]).
 :- use_module('utils', [
 		user:goal_expansion/2, inner_xml/3, fields/2, numeric_fields/2, pretty_term_string/2, maplist6/6, throw_string/1]).
 :- use_module('pacioli', [vec_add/3, vec_inverse/2, vec_reduce/2, vec_sub/3, number_coord/3]).
@@ -555,11 +556,11 @@ extract_livestock_event2(Type, Days, Count, element(rations,_,_),               
 
 
 /* we should have probably just put the livestock count accounts under inventory */
-yield_livestock_inventory_transaction(Livestock_Type, Opening_Cost_And_Count, Average_Cost_Exchange_Rate, End_Days, Transactions_In, Inventory_Transaction) :-
-	livestock_at_average_cost_at_day(Livestock_Type, Transactions_In, Opening_Cost_And_Count, End_Days, Average_Cost_Exchange_Rate, Vector),
-	make_transaction(End_Days, 'livestock closing inventory', 'AssetsLivestockAtCost', Vector, Inventory_Transaction).
+yield_livestock_inventory_transaction(Livestock_Type, Opening_Cost_And_Count, Average_Cost_Exchange_Rate, End_Date, Transactions_In, Inventory_Transaction) :-
+	livestock_at_average_cost_at_day(Livestock_Type, Transactions_In, Opening_Cost_And_Count, End_Date, Average_Cost_Exchange_Rate, Vector),
+	make_transaction(End_Date, 'livestock closing inventory', 'AssetsLivestockAtCost', Vector, Inventory_Transaction).
 
-get_livestock_inventory_transactions(Livestock_Types, Opening_Costs_And_Counts, Average_Costs, End_Days, Transactions_In, Assets_Transactions) :-
+get_livestock_inventory_transactions(Livestock_Types, Opening_Costs_And_Counts, Average_Costs, End_Date, Transactions_In, Assets_Transactions) :-
 	findall(Inventory_Transaction,
 	(
 		member(Livestock_Type, Livestock_Types),
@@ -567,25 +568,25 @@ get_livestock_inventory_transactions(Livestock_Types, Opening_Costs_And_Counts, 
 		opening_cost_and_count(Livestock_Type, _, _) = Opening_Cost_And_Count,
 		member(Average_Cost, Average_Costs),
 		exchange_rate(_, Livestock_Type, _, _) = Average_Cost,
-		yield_livestock_inventory_transaction(Livestock_Type, Opening_Cost_And_Count, Average_Cost, End_Days, Transactions_In, Inventory_Transaction)
+		yield_livestock_inventory_transaction(Livestock_Type, Opening_Cost_And_Count, Average_Cost, End_Date, Transactions_In, Inventory_Transaction)
 	),
 	Assets_Transactions).
 
-opening_inventory_transactions(Start_Days, Opening_Costs_And_Counts, Livestock_Type, Opening_Inventory_Transactions) :-
+opening_inventory_transactions(Start_Date, Opening_Costs_And_Counts, Livestock_Type, Opening_Inventory_Transactions) :-
 	member(Opening_Cost_And_Count, Opening_Costs_And_Counts),
 	opening_cost_and_count(Livestock_Type, Opening_Vector, _) = Opening_Cost_And_Count,
 	vec_inverse(Opening_Vector, Opening_Vector_Credit),
 	Opening_Inventory_Transactions = [T1, T2],
-	make_transaction(Start_Days, 'livestock opening inventory', 'AssetsLivestockAtCost', Opening_Vector, T1),
-	make_transaction(Start_Days, 'livestock opening inventory', 'CapitalIntroduced', Opening_Vector_Credit, T2).
+	make_transaction(Start_Date, 'livestock opening inventory', 'AssetsLivestockAtCost', Opening_Vector, T1),
+	make_transaction(Start_Date, 'livestock opening inventory', 'CapitalIntroduced', Opening_Vector_Credit, T2).
 	
 	
 /*TODO transactions_by_account here...*/
-process_livestock(Livestock_Doms, Livestock_Types, S_Transactions, Transactions_In, Opening_Costs_And_Counts, Start_Days, End_Days, _Exchange_Rates, Accounts, _Report_Currency, Transactions_Out, Livestock_Events, Average_Costs, Average_Costs_Explanations) :-
+process_livestock(Livestock_Doms, Livestock_Types, S_Transactions, Transactions_In, Opening_Costs_And_Counts, Start_Date, End_Date, _Exchange_Rates, Accounts, _Report_Currency, Transactions_Out, Livestock_Events, Average_Costs, Average_Costs_Explanations, Counts) :-
 	extract_livestock_events(Livestock_Doms, Livestock_Events),
 	extract_natural_increase_costs(Livestock_Doms, Natural_Increase_Costs),
 
-	maplist(opening_inventory_transactions(Start_Days, Opening_Costs_And_Counts), Livestock_Types, Opening_Inventory_Transactions0),
+	maplist(opening_inventory_transactions(Start_Date, Opening_Costs_And_Counts), Livestock_Types, Opening_Inventory_Transactions0),
 	flatten(Opening_Inventory_Transactions0, Opening_Inventory_Transactions),
 	append(Transactions_In, Opening_Inventory_Transactions, Transactions1),
 
@@ -593,23 +594,27 @@ process_livestock(Livestock_Doms, Livestock_Types, S_Transactions, Transactions_
 	flatten(Livestock_Event_Transactions_Nested, Livestock_Event_Transactions),
 	append(Transactions1, Livestock_Event_Transactions, Transactions2),
 
-	get_average_costs(Livestock_Types, Opening_Costs_And_Counts, (Start_Days, End_Days, S_Transactions, Livestock_Events, Natural_Increase_Costs), Average_Costs_With_Explanations),
+	get_average_costs(Livestock_Types, Opening_Costs_And_Counts, (Start_Date, End_Date, S_Transactions, Livestock_Events, Natural_Increase_Costs), Average_Costs_With_Explanations),
 	maplist(with_info_value_and_info, Average_Costs_With_Explanations, Average_Costs, Average_Costs_Explanations),
   
 	get_more_livestock_transactions(Livestock_Types, Average_Costs, S_Transactions, Livestock_Events, More_Transactions),
 	append(Transactions2, More_Transactions, Transactions3),  
 
-	dict_from_vars(Static_Data, [Accounts]),
-	Static_Data2 = Static_Data.put(transactions, Transactions3).put(start_date,Start_Days).put(end_date,End_Days),
-	transactions_by_account(Static_Data2, Transactions_By_Account),
+	dict_from_vars(Static_Data0, [Accounts, Start_Date, End_Date]),
+	Static_Data1 = Static_Data0.put(transactions,Transactions3),
+	transactions_by_account(Static_Data1, Transactions_By_Account),
 
-	get_livestock_cogs_transactions(Accounts, Livestock_Types, Opening_Costs_And_Counts, Average_Costs, (Start_Days, End_Days, Average_Costs, Transactions_By_Account, S_Transactions),  Cogs_Transactions),
-	append(Transactions3, Cogs_Transactions, Transactions_Out)/*,
+	get_livestock_cogs_transactions(Accounts, Livestock_Types, Opening_Costs_And_Counts, Average_Costs, (Start_Date, End_Date, Average_Costs, Transactions_By_Account, S_Transactions),  Cogs_Transactions),
+	append(Transactions3, Cogs_Transactions, Transactions_Out),
 
-	/*TODO transactions_by_account here...*/
+	Static_Data2 = Static_Data1.put(transactions,Transactions_Out),
+	transactions_by_account(Static_Data2, Transactions_With_Livestock_By_Account),
+
+	livestock_counts(Accounts, Livestock_Types, Transactions_With_Livestock_By_Account, Opening_Costs_And_Counts, End_Date, Counts),
+
+	%maplist(do_livestock_cross_check(Livestock_Events, Natural_Increase_Costs, S_Transactions, Transactions_Out, Opening_Costs_And_Counts, Start_Date, End_Date, Exchange_Rates, Accounts, Report_Currency, Average_Costs), Livestock_Types)
+	true.
 	
-	maplist(do_livestock_cross_check(Livestock_Events, Natural_Increase_Costs, S_Transactions, Transactions_Out, Opening_Costs_And_Counts, Start_Days, End_Days, Exchange_Rates, Accounts, Report_Currency, Average_Costs), Livestock_Types)*/.
-
 
 	
 do_livestock_cross_check(Events, Natural_Increase_Costs, S_Transactions, Transactions, Opening_Costs_And_Counts, _From_Day, To_Day, Exchange_Rates, Accounts, Report_Currency, Average_Costs, Type) :-

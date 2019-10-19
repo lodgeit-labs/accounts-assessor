@@ -36,7 +36,7 @@
 :- use_module(library(record)).
 :- use_module(library(xpath)).
 :- use_module('utils', [inner_xml/3, trim_atom/2,pretty_term_string/2, throw_string/1, is_uri/1]).
-:- use_module('../lib/files', [server_public_url/1, absolute_tmp_path/2, write_tmp_json_file/2]).
+:- use_module('files', [server_public_url/1, absolute_tmp_path/2, write_tmp_json_file/2]).
 :- use_module(library(http/http_dispatch), [http_safe_file/2]).
 :- use_module(library(http/http_open), [http_open/3]).
 % :- use_module(library(yall)).
@@ -233,7 +233,7 @@ fetch_account_hierarchy_from_url(Account_Hierarchy_URL, Account_Hierarchy_DOM) :
 arelle(taxonomy, Taxonomy_URL, Account_Hierarchy_DOM) :-
 	setup_call_cleanup(
 		% should be activating the venv here
-		process_create(path(python3),['../xbrl/account_hierarchy/src/venv-wrapper.py',Taxonomy_URL],[stdout(pipe(Out))]),
+		process_create('../python/venv/bin/python3',['../python/src/account_hierarchy.py',Taxonomy_URL],[stdout(pipe(Out))]),
 		(
 			load_structure(Out, File_DOM, [dialect(xml),space(remove)]),
 			absolute_tmp_path('account_hierarchy_from_taxonomy.xml', FN),

@@ -119,14 +119,21 @@ clpqify_rel(LHS = RHS, Vars) :-
 	{LHS2 =:= RHS2},
 	!.
 
-clpqify_context([], _).
+clpqify_context([], Vars) :- print_stuff(Vars).
 
 clpqify_context([Rel | Rest], Vars) :-
+	print_stuff(Vars),
 	clpqify_rel(Rel, Vars),
 	clpqify_context(Rest, Vars).
 
+print_stuff(X) :-
+	print_term(X, [attributes(write)]), nl,writeln('that is,').
+	%dict_pairs(X, _, Pairs),
+	%maplist(print_with_attrs, Pairs), nl,nl.
 	
-	
+print_with_attrs(X) :-
+	print_term(X, [attributes(write)]), nl.
+	       
 	
 	
 	

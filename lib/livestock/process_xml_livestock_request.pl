@@ -3,18 +3,27 @@
 :- module(process_xml_livestock_request, []).
 :- use_module(library(xpath)).
 %:- use_module(library(yall)).
-:- use_module('../../lib/utils', [
+:- use_module('../utils', [
 	inner_xml/3, write_tag/2, fields/2, numeric_fields/2, 
 	pretty_term_string/2]).
-:- use_module('../../lib/livestock', [compute_livestock_by_simple_calculation/23]).
+:- use_module('../livestock', [compute_livestock_by_simple_calculation/23]).
 :- use_module('../report_page').
 :- use_module('../tables').
+:- use_module('../files', [
+	absolute_tmp_path/2
+]).
+:- use_module('../xml', [
+	validate_xml/2
+]).
 
 
-process_xml_livestock_request(_, DOM, Reports) :-
+process_xml_livestock_request(File_Name, DOM, Reports) :-
 
 	findall(Livestock, xpath(DOM, //reports/livestockaccount/livestocks/livestock, Livestock), Livestocks),
 	Livestocks \= [],
+
+	absolute_tmp_path(File_Name, Instance_File),
+	validate_xml(Instance_File, 'schemas/bases/Reports.xsd'),
 
 	writeln('<response>'),
 	writeln('<livestocks>'),
@@ -115,7 +124,8 @@ process(DOM, [], Report_File_Info) :-
 	
 	utils:replace_nonalphanum_chars_with_underscore(Name, Fn_Suffix),
 	atomic_list_concat(['livestock_report_', Fn_Suffix, '.html'], Fn),
-	report_page:report_page_with_table(Name, Table_Contents_Html, Fn, Report_File_Info).
+	atomic_list_concat(['livestock_report_', Fn_Suffix, '_html'], Id),
+	report_page:report_page_with_table(Name, Table_Contents_Html, Fn, Id, Report_File_Info).
 
 /*
 Optimally we should preload the Excel sheet with test data that when pressed, provides a controlled natural language response describing the set of processes the data underwent as a result of the computational rules along with a solution to the problem.

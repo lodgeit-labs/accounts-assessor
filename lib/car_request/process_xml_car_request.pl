@@ -16,6 +16,13 @@
 :- use_module(library(http/json)).
 :- use_module(library(http/http_open)).
 
+:- use_module('../files', [
+		absolute_tmp_path/2
+]).
+:- use_module('../xml', [
+		validate_xml/2
+]).
+
 :- dynamic(known_ner_response/2).
 
 
@@ -55,8 +62,25 @@ process_ner_api_results(Response_JSON,Result_XML) :-
 	),
 	Result_XML = element(reports,[],[element(is_car_response,[],[Result])]).
 
-process_xml_car_request(_,DOM) :-
+process_xml_car_request(File_Name,DOM) :-
 	xpath(DOM, //reports/car_request, element(_,_,[Request_Text])),
+
+	/*
+	absolute_tmp_path(File_Name, Instance_File),
+	catch(
+		setup_call_cleanup(
+			process_create('../python/venv/bin/python3',['../python/src/xmlschema_runner.py',Instance_File,'schemas/bases/Reports.xsd'],[]),
+			true,
+			true
+		),
+		_,
+		throw('Input file failed XSD schema validation.')
+	),
+	*/
+
+	absolute_tmp_path(File_Name, Instance_File),
+	validate_xml(Instance_File, 'schemas/bases/Reports.xsd'),
+
 	cached_ner_data(Request_Text,Response_JSON),
 	process_ner_api_results(Response_JSON,Result_XML),
 	xml_write(Result_XML,[]).

@@ -19,16 +19,16 @@
       <directors />
     </company>
 
-	<reportCurrency>
-      <unitType>CHF</unitType>
-    </reportCurrency>
+	<startDate>2018-01-01</startDate>
+    <endDate>2018-12-30</endDate>
+
 
 	<defaultCurrency>
       <unitType></unitType>
     </defaultCurrency>
-
-	<startDate>2018-01-01</startDate>
-    <endDate>2018-12-30</endDate>
+	<reportCurrency>
+      <unitType>CHF</unitType>
+    </reportCurrency>
 
     <unitValues>
 

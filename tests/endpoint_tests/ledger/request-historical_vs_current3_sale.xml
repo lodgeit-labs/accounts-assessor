@@ -18,18 +18,20 @@
       <notes />
       <directors />
     </company>
+	<startDate>2018-01-01</startDate>
+    <endDate>2018-12-30</endDate>
 
-	<reportCurrency>
-      <unitType>AUD</unitType>
-    </reportCurrency>
+
 
 	<defaultCurrency>
       <unitType>AUD</unitType>
     </defaultCurrency>
+	<reportCurrency>
+      <unitType>AUD</unitType>
+    </reportCurrency>
 
 
-	<startDate>2018-01-01</startDate>
-    <endDate>2018-12-30</endDate>
+
 
     <unitValues>
 

@@ -81,6 +81,18 @@
 
    
     </unitValues>
+
+	<accounts>
+		default_account_hierarchy.xml
+	</accounts>
+
+	<accounts>
+		<Expenses>
+			<FoodExpenses/>
+		</Expenses>
+	</accounts>
+	
+
     <actionTaxonomy>
       <action>
         <id>Introduce_Capital</id>
@@ -103,16 +115,7 @@
     </actionTaxonomy>
 
 
-	<accounts>
-		default_account_hierarchy.xml
-	</accounts>
-
-	<accounts>
-		<Expenses>
-			<FoodExpenses/>
-		</Expenses>
-	</accounts>
-			
+		
 
 
 

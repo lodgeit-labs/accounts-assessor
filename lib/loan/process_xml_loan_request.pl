@@ -15,10 +15,12 @@
 :- use_module(library(xsd)).
 :- use_module(library(xpath)).
 
-:- use_module('../../lib/files').
-:- use_module('../../lib/loans', [loan_agr_summary/2]).
-:- use_module('../../lib/days',  [absolute_day/2, parse_date/2, parse_date_into_absolute_days/2]).
-
+:- use_module('../files').
+:- use_module('../loans', [loan_agr_summary/2]).
+:- use_module('../days',  [absolute_day/2, parse_date/2, parse_date_into_absolute_days/2]).
+:- use_module('../xml', [
+	validate_xml/2
+]).
 
 % -------------------------------------------------------------------
 % process_xml_loan_request/2: loan-request.xml
@@ -42,6 +44,11 @@ process_xml_loan_request(FileNameIn, DOM) :-
    ;
      OpeningBalance = -1
    ),   
+
+   absolute_tmp_path(FileNameIn, Instance_File),
+   validate_xml(Instance_File, 'schemas/bases/Reports.xsd'),
+
+
    % need to handle empty repayments/repayment, needs to be tested
    findall(loan_repayment(Date, Value), xpath(DOM, //reports/loanDetails/repayments/repayment(@date=Date, @value=Value), _E7), LoanRepayments),
    atom_number(ComputationYear, NIncomeYear),

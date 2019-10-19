@@ -1,85 +1,143 @@
 """
-7.09.19 23:48:22<ditable-log-koo5>just the basic gaussian thingy you expl
-ained the other day
-17.09.19 23:48:59<ditable-log-koo5>or something like that
-17.09.19 23:49:11<ditable-log-koo5>only for the case where each formula ca
-n be solved separately
-17.09.19 23:50:40<ditable-log-koo5>which i think would still be good enoug
-h to let us write ir fully declaratively and have it deal with absence of 
-exchange rates and with selling with different currency than buying
+just the basic gaussian elimination thingy or something like that
+only for the case where each formula can be solved separately
+which i think would still be good enough to let us write ir fully declaratively and have it deal with absence of exchange rates and with selling with different currency than buying
 """
-	
+
+def union(d1, d2):
+	c = d1.copy()
+	c.update(d2)
+	return c
+
+class F:
+	def __init__(s, items):
+		s.items = []
+		for x in items:
+			if isinstance(x, list):
+				a = F(x)
+			else:
+				a = x
+			s.items.append(a)
+	def vars(s):
+		r = []
+		for x in s.items:
+			if isinstance(x, F):
+				r = r + x.vars()
+			elif x.isidentifier():
+				r.append(x)
+		print('vars:', s, r)
+		return r
+	def __repr__(s):
+		return 'F(' + str(s.items) + ')'
+
 class Solution:
 	cost = 0
 	value = None
 	original_formula = None
 	rearranged_formula = None
+	def __repr__(s):
+		return 'S(' + str(s.value) + ')'
 
 def solutions(inputs, formulas):
-	variables_to_solve = []
+	variables_to_solve = set()
 	for f in formulas:
-		variables_to_solve += f.vars()
+		for v in f.vars():
+			variables_to_solve.add(v)
 
+	#substitutions and failures and stack are each just a "global" for all these nested functions
 	solutions = {}
 	failures = {}
-
-	for k,v in inputs:
+	stack = []
+	
+	for k,v in inputs.items():
 		solutions[k] = Solution()
 		solutions[k].value = v
-
-	def solve(v):
-		if v in failures + solutions: return
-		for f in original_formulas:
-			for r in rearrange_for(f, v):
-				for free_var in vars_without_substitutions(r):
-					solve(free_var)
-				if vars_without_substitutions(r) = []:
-					solutions[v] = Solution()
-					solutions[v].value = evaluate(r)
-					solutions[v].cost = sum([x.cost for x in vars(r)])
-
-	def evaluate(f):
-		subs = dict([k,s.value for k,s in solutions.items()])
-		f.subs(subs)..?
-
-	for v in variables to solve:
-		solve(v)
 	
+	def solve(v):
+		# if variable already solved or found unsolvable
+		if v in union(failures, solutions): return
 
+		# prevent infinite recursion 
+		if v in stack: return
+		stack.append(v)
+
+		for f in formulas:
+			r = rearrange_for(f, v)
+			if r == None: continue
+			for free_var in vars_without_substitutions(r):
+				solve(free_var)
+			if vars_without_substitutions(r) == []:
+				print('new solution')
+				new_v = evl(r)
+				solutions[v] = Solution()
+				solutions[v].value = new_v
+				print('r:', r)
+				vs = r.vars()
+				print('vs:', vs)
+				solutions[v].cost = sum([solutions[x].cost for x in vs if x != v])
+			else:
+				print('new failure')
+				failures[v] = True
+
+		stack.pop()
+
+	def evl(t):
+		print('evl:', t)
+		print('sols:', solutions)
+		if isinstance(t, str):
+			return solutions[t].value
+		op = t.items[0]
+		if op == '=':
+			return evl(t.items[2])
+		vs = [evl(x) for x in t.items[1:]]
+		if op == '+':
+			return vs[0] + vs[1]
+		if op == '-':
+			if len(vs) == 2:
+				return vs[0] - vs[1]
+			else:
+				return -vs[0]
+		if op == '/':
+			return vs[0] / vs[1]
+		if op == '*':
+			return vs[0] * vs[1]		
+
+	def vars_without_substitutions(f):
+		return vars_without_substitutions2(0, f)
+	
+	def vars_without_substitutions2(depth, f):
+		print('vars_without_substitutions', depth, '(',f,')')
+		if isinstance(f, str):
+			vars = [f]
+		elif f.items[0] == '=':
+			vars = vars_without_substitutions2(depth + 1, f.items[2])
+		else:
+			vars = f.vars()
+		r = [x for x in vars if x not in solutions.keys()]
+		print('vars_without_substitutions', depth, ':', r)
+		return r
+
+	print('solutions before:', solutions)
+	for v in variables_to_solve:
+		solve(v)
+	print('solutions after:', solutions)
+	print('failures after:', failures)
+	
+# (symbolically) isolate variable v in formula f
+# probably better named isolate(v,f)
 def rearrange_for(f, v):
-	# can be a no-op for livestock
+	"""
+		would re-arrange the formula so that the variable being solved(v) is on the lhs of the '=', by itself
+		this is kinda just a presentation thing. Also fail if the formula cannot be rearranged that way (maybe doesnt contain the variable at all)
+		can be a no-op for standalone livestock formulas.
+	"""
+	if f.items[1] != v: return
 	return f
 
-solve_livestock():
-	i = get_input()
-	f = get_formulas()
-	print(solutions(i, f))
-	
-get_input():
+def get_input():
 	req = """<?xml version="1.0"?>
 <reports xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <livestockaccount>
-    <generator>
-      <date>2017-03-25T05:53:43.887542Z</date>
-      <source>ACCRIP</source>
-      <author>
-        <firstname>waqas</firstname>
-        <lastname>awan</lastname>
-        <company>Uhudsoft</company>
-      </author>
-    </generator>
-    <company>
-      <abn>12345678900</abn>
-      <tfn />
-      <clientcode />
-      <anzsic />
-      <notes />
-      <directors />
-    </company>
-    <title>Livestock Account Details</title>
-    <period>1 July, 2014 to 30 June, 2015</period>
-    <startDate>2014-07-01</startDate>
-    <endDate>2015-06-30</endDate>
     <livestocks>
       <livestock>
         <name>Sheep</name>
@@ -103,54 +161,41 @@ get_input():
 	from untangle import untangle
 	p = untangle.parse(req)
 	inputs = {}
-	for e in p.reports.livestockaccount.livestocks.livestock.children:
-		try:
-			inputs[e.name] = int(e.cdata)
-		except:
-			pass
+	e = p.reports.livestockaccount.livestocks.livestock
+	inputs['name'] = e.name.cdata
+	inputs['natural_increase_value_per_head'] = int(e.naturalIncreaseValuePerUnit.cdata)
+	inputs['losses_count'] = int(e.unitsDeceased.cdata)
+	inputs['killed_for_rations_count'] = int(e.unitsRations.cdata)
+	inputs['sales_count'] = int(e.unitsSales.cdata)
+	#inputs['purchases_count'] = int(e.unitsPurchases.cdata)
+	inputs['natural_increase_count'] = int(e.unitsBorn.cdata)
+	inputs['opening_count'] = int(e.unitsOpening.cdata)
+	inputs['opening_value'] = int(e.openingValue.cdata)
+	inputs['sales_value'] = int(e.saleValue.cdata)
+	inputs['purchases_value'] = int(e.purchaseValue.cdata)
 	return inputs
 
-
-	
-
 def get_formulas():
-	text = """
-		eq(Stock_on_hand_at_end_of_year_count,Stock_on_hand_at_beginning_of_year_count + Natural_increase_count + Purchases_count - Killed_for_rations_count - Losses_count - Sales_count)
+	formulas = [F(x) for x in [
+		["=","closing_count",["-",["-",["-",["+",["+","opening_count","natural_increase_count",],"purchases_count",],"killed_for_rations_count",],"losses_count",],"sales_count",],],
+		["=","natural_increase_value",["*","natural_increase_count","natural_increase_value_per_head",],],
+		["=","opening_and_purchases_and_increase_count",["+",["+","opening_count","purchases_count",],"natural_increase_count",],],
+		["=","opening_and_purchases_value",["+","opening_value","purchases_value",],],
+		["=","average_cost",["/",["+","opening_and_purchases_value","natural_increase_value",],"opening_and_purchases_and_increase_count",],],
+		["=","value_closing",["*","average_cost","closing_count",],],
+		["=","killed_for_rations_value",["*","killed_for_rations_count","average_cost",],],
+		["=","closing_and_killed_and_sales_minus_losses_count",["-",["+",["+","sales_count","killed_for_rations_count",],"closing_count",],"losses_count",],],
+		["=","closing_and_killed_and_sales_value",["+",["+","sales_value","killed_for_rations_value",],"value_closing",],],
+		["=","revenue","sales_value",],
+		["=","livestock_cogs",["-",["-","opening_and_purchases_value","value_closing",],"killed_for_rations_value",],],
+		["=","gross_profit_on_livestock_trading",["-","revenue","livestock_cogs",],],
+	]]
+	return formulas
 		
-		eq(Natural_Increase_value, Natural_increase_count * Natural_increase_value_per_head)
-		
-		eq(Opening_and_purchases_and_increase_count, Stock_on_hand_at_beginning_of_year_count + Purchases_count + Natural_increase_count)
-		
-		eq(Opening_and_purchases_value, Stock_on_hand_at_beginning_of_year_value + Purchases_value)
-		
-		eq(Average_cost, (Opening_and_purchases_value + Natural_Increase_value) /  Opening_and_purchases_and_increase_count)
-		
-		
-		
-		eq(Stock_on_hand_at_end_of_year_value, Average_cost * Stock_on_hand_at_end_of_year_count)
-		
-		eq(Killed_for_rations_value, Killed_for_rations_count * Average_cost)
-		
-		eq(Closing_and_killed_and_sales_minus_losses_count, Sales_count + Killed_for_rations_count + Stock_on_hand_at_end_of_year_count - Losses_count)
-		
-		eq(Closing_and_killed_and_sales_value, Sales_value + Killed_for_rations_value + Stock_on_hand_at_end_of_year_value)
-		
-		eq(Revenue, Sales_value)
-		
-		eq(Livestock_COGS, Opening_and_purchases_value - Stock_on_hand_at_end_of_year_value - Killed_for_rations_value)
-		
-		eq(Gross_Profit_on_Livestock_Trading, Revenue - Livestock_COGS)
-	"""
-	formulas = [y for y in [x.strip() for x in text.splitlines()] if 'eq(' in y]
-	from sympy.parsing import sympy_parser 
-	eqs = [sympy_parser.parse_expr(x) for x in formulas]
-	return eqs
-
-		
+def solve_livestock():
+	i = get_input()
+	f = get_formulas()
+	print(solutions(i, f))
 	
-	
-	
-	
-	
-	
-	
+if __name__ == '__main__':
+	solve_livestock()

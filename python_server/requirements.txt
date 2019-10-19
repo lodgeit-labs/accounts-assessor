@@ -1,0 +1,4 @@
+django
+xmlschema
+untangle
+sympy

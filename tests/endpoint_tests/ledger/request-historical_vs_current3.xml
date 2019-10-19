@@ -19,17 +19,17 @@
       <directors />
     </company>
 
-	<reportCurrency>
-      <unitType>AUD</unitType>
-    </reportCurrency>
+	<startDate>2018-01-01</startDate>
+    <endDate>2018-12-30</endDate>
+
 
 	<defaultCurrency>
       <unitType>AUD</unitType>
     </defaultCurrency>
+	<reportCurrency>
+      <unitType>AUD</unitType>
+    </reportCurrency>
 
-
-	<startDate>2018-01-01</startDate>
-    <endDate>2018-12-30</endDate>
 
     <unitValues>
 

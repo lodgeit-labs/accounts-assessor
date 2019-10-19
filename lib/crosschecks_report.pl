@@ -15,7 +15,7 @@ report(Sd, Reports, File_Info, Json) :-
 		p([p([Check]), p([Evaluation]), p([Status])]),
 		member([Check, Evaluation, Status], Json.results),
 		Html),
-	report_page:report_page('crosschecks', Html, 'crosschecks.html', File_Info).
+	report_page:report_page('crosschecks', Html, 'crosschecks.html', 'crosschecks_html', File_Info).
 
 crosschecks_report(Sd, Json) :-
 	Crosschecks = [

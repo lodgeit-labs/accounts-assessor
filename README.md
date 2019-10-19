@@ -3,20 +3,35 @@
 This repository hosts a program that derives, validates, and corrects the financial information that it is given. The program uses redundancy to carry out its validations and corrections. By this it is meant that knowledge of parts of a company's financial data imposes certain constraints on the company's other financial data. If the program is given a company's ledger, then it knows what the balance sheet should look like. If the program is given a company's balance sheet, then it has a rough idea of what the ledger should look like.
 
 ## Getting Started
+Install SWIPL 8.1.14
 
 Install SWIPL dependencies:
 * ```swipl -g "pack_install(tap), pack_install(regex), pack_install(xsd), pack_install('https://github.com/rla/rdet.git')."```
 
-Install Arelle:
+Get Arelle:
 * ```git clone https://github.com/Arelle/Arelle``` into some path PATH_TO_ARELLE_DIR
-* Set up a virtual environment in PROJECT_DIR/xbrl/account_hierarchy:
-	* ```cd PROJECT_DIR/xbrl/account_hierarchy```
-	* ```python3 -m venv venv```
-* Install Arelle into virtual environment
-	* If using bash: ```source venv/bin/activate```
-	* ```pip install PATH_TO_ARELLE_DIR```
-	* ```deactivate```
 
+Install Python dependencies:
+* Set up a virtual environment in PROJECT_DIR/python:
+	* ```cd PROJECT_DIR/python```
+	* ```python3 -m venv venv```
+* Activate virtual environment:
+	* If using bash: ```source venv/bin/activate```
+* Install Arelle:
+	* ```pip install PATH_TO_ARELLE_DIR```
+* Install other dependencies:
+	* ```pip install xmlschema```
+* Deactivate virtual environment:
+	* ```deactivate``` 
+Set up python server (separate from above python stuff for now):
+```
+cd python_server
+python3 -m venv venv
+. venv/bin/activate.fish 
+pip install -r requirements.txt
+venv/bin/python3 manage.py migrate
+venv/bin/python3 manage.py runserver
+```
 How to run it:
 * Change directory to prolog_server/
 

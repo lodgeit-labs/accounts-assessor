@@ -30,10 +30,10 @@
 :- use_module(library(http/http_files)).
 :- use_module(library(http/http_error)). 
 
-:- use_module('../lib/files', [bump_tmp_directory_id/0, absolute_tmp_path/2]).
+:- use_module('files', [bump_tmp_directory_id/0, absolute_tmp_path/2]).
 :- use_module('chat/residency').
 :- use_module('chat/sbe').
-:- ensure_loaded('process_data.pl').
+:- ensure_loaded('process_data').
 
 
 % -------------------------------------------------------------------

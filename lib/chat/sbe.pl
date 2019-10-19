@@ -8,8 +8,8 @@
 :- module(sbe, [sbe_request/1]).
 
 :- use_module(library(http/http_json)).
-:- use_module('../../lib/prompt', [prompt/3]).
-:- use_module('../../lib/chat').
+:- use_module('../prompt', [prompt/3]).
+:- use_module('../chat').
 
 
 sbe_request(Request) :-

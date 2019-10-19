@@ -1,5 +1,6 @@
 :- use_module(library(xpath)).
 :- use_module(library(archive)).
+:- use_module(library(sgml)).
 
 :- use_module(loan/process_xml_loan_request, [process_xml_loan_request/2]).
 :- use_module(ledger/process_xml_ledger_request, [process_xml_ledger_request/3]).
@@ -8,14 +9,14 @@
 :- use_module(car_request/process_xml_car_request, [process_xml_car_request/2]).
 :- use_module(depreciation/process_xml_depreciation_request, [process_xml_depreciation_request/2]).
 
-:- use_module('../lib/files', [
+:- use_module('files', [
 		bump_tmp_directory_id/0,
 		set_server_public_url/1,
 		replace_request_with_response/2,
 		write_file/2,
 		tmp_file_url/2
 ]).
-:- use_module('../lib/utils').
+:- use_module('utils').
 
 get_requested_output_type(Options2, Output) :-
 	Known_Output_Types = [json_reports_list, xml],
@@ -94,6 +95,7 @@ response_file_name(Request_File_Name, Response_File_Name) :-
 		atomic_list_concat(['response-',Request_File_Name], Response_File_Name)
 	).
 
+
 to_json(Reports, Reports2) :-
 	findall(
 		_{key:Key, val:Val}, 
@@ -117,7 +119,8 @@ process_data(_, Path, Options) :-
 	maybe_supress_generating_unique_taxonomy_urls(Options),
 	get_requested_output_type(Options, Requested_Output_Type),
 
-	load_xml(Path, Request_Dom, [space(remove)]),
+	%load_xml(Path, Request_Dom, [space(remove)]),
+	load_structure(Path, Request_Dom, [dialect(xmlns), space(remove), keep_prefix(true)]),
 	with_output_to(
 		string(Output_Xml_String),
 		catch_maybe_with_backtrace(
@@ -141,14 +144,14 @@ process_data(_, Path, Options) :-
 	(get_dict(warnings, Reports, Warnings) -> true; Warnings  = []),
 
 	files:report_file_path('', Tmp_Dir_Url, _),
+
 	flatten([
-		Files, 
-		Output_File_Title:url(Output_File_Url),
-		request_xml:url(Request_File_Url),
-		'all files':url(Tmp_Dir_Url)
-		], Files2),
-	to_json(Files2, Files3),
-	
+		Files,
+		_{key:Output_File_Title, val:_{url:Output_File_Url}, id:response_xml},
+		_{key:request_xml, val:_{url:Request_File_Url}, id:request_xml},
+		_{key:'all files', val:_{url:Tmp_Dir_Url}, id:all}
+	], Files3),
+
 	flatten([Errors, Warnings], Alerts2),
 	findall(
 		Alert, 
@@ -164,6 +167,11 @@ process_data(_, Path, Options) :-
 		alerts:Alerts3, 
 		reports:Files3
 	},
+	/*
+	format(user_error, "~w~n", [Json_Out]),
+	json_write(current_output, Json_Out),
+	%throw(_),
+	*/
 	with_output_to(string(Response_Xml_String), print_xml_response(Json_Out, Output_Xml_String)),
 	write_file(Output_File_Path, Response_Xml_String),
 	with_output_to(string(Response_Json_String), json_write(current_output, Json_Out)),
@@ -173,12 +181,12 @@ process_data(_, Path, Options) :-
 		Requested_Output_Type = xml
 	->
 		(
-			write(Response_Xml_String),
+			writeln(Response_Xml_String),
 			debug(process_data, 'returning xml', [])
 		)
 	;
 		(
-			write(Response_Json_String),
+			writeln(Response_Json_String),
 			debug(process_data, 'returning json', [])
 		)
 	).

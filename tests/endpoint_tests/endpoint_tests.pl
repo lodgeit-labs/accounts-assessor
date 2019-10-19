@@ -11,7 +11,9 @@
 
 :- use_module(library(debug), [assertion/1]).
 :- use_module(library(http/http_client)).
+:- use_module(library(http/json)).
 :- use_module(library(xpath)).
+:- use_module(library(readutil)).
 :- use_module('../../lib/files').
 :- use_module('../../lib/prolog_server').
 :- use_module('compare_xml').
@@ -34,9 +36,22 @@ test(endpoints, [forall(testcases(Testcase))]) :-
 :- end_tests(xml_testcases).
 
 run_endpoint_test(Testcase) :-
-	Testcase = (Request, Response),
-	query_endpoint(Request, ReplyDOM),
-	/*todo check if the response is a xml with an error message */
+	Testcase = (Request_XML_File_Path, Response),
+	/* todo: each test-case should get its own directory
+			* request.xml
+			* responses/
+	*/
+	query_endpoint(Request_XML_File_Path, Response_JSON),
+
+	% check for error messages
+	% Response_Errors = Response_JSON.alerts
+	% Response_JSON.alerts = [_], % there is an error
+
+	http_get(Response_JSON.reports.response_xml.url, Response_XML, []),
+	find_warnings(Response_XML),
+	load_structure(string(Response_XML), Response_DOM,[dialect(xml),space(sgml)]),
+
+
 	(
 		var(Response)
 	->
@@ -50,10 +65,12 @@ run_endpoint_test(Testcase) :-
 	;
 		(
 			write('## Testing Response File: '), writeln(Response),
-			get_request_context(Request, Context),
-			test_response(Context, ReplyDOM, Response)
+			get_request_context(Request_XML_File_Path, Context),
+			test_response(Context, Response_DOM, Response)
 		)
 	).
+
+	% todo: validate other json docs.
 
 check_value_difference(Value1, Value2) :-
 	atom_number(Value1, NValue1),
@@ -97,19 +114,34 @@ test_response(_, Reply_Dom, Expected_Response_File_Relative_Path) :-
 		)
 	).
 	
-query_endpoint(RequestFile0, ReplyDOM) :-
+query_endpoint(RequestFile0, Response_JSON) :-
 	write('## Testing Request File: '), writeln(RequestFile0),
 	absolute_file_name(my_tests(
 		RequestFile0),
 		RequestFile,
 		[ access(read) ]
 	),
-	http_post('http://localhost:8080/upload?requested_output_format=xml', form_data([file=file(RequestFile)]), ReplyXML, [content_type('multipart/form-data')]),
+	http_post('http://localhost:8080/upload?requested_output_format=json_reports_list', form_data([file=file(RequestFile)]), Response_String, [content_type('multipart/form-data')]),
+	%http_post('http://localhost:8080/upload?requested_output_format=xml', form_data([file=file(RequestFile)]), ReplyXML, [content_type('multipart/form-data')]),
 	/*todo: status_code(-Code)
 If this option is present and Code unifies with the HTTP status code, do not translate errors (4xx, 5xx) into an exception. Instead, http_open/3 behaves as if 2xx (success) is returned, providing the application to read the error document from the returned stream.
 */
-	find_warnings(ReplyXML),
-	load_structure(string(ReplyXML), ReplyDOM,[dialect(xml),space(sgml)]).
+
+	%writeln("Before json_read_dict"),
+    %json_read_dict(Response_String, Response_JSON_Raw),
+    atom_json_dict(Response_String, Response_JSON_Raw,[value_string_as(atom)]),
+	%writeln("After json_read_dict"),
+	% transform Response_JSON_Raw into Response_JSON
+	findall(
+		ID-_{title:Title,url:URL},
+		member(_{id:ID,key:Title,val:_{url:URL}}, Response_JSON_Raw.reports),
+		Reports
+	),
+	dict_pairs(Reports_Dict,_,Reports),
+	Response_JSON = _{
+		alerts:Response_JSON_Raw.alerts,
+		reports:Reports_Dict
+	}.
 
 find_warnings(ReplyXML) :-
 	atom_string(ReplyXML, ReplyXML2),

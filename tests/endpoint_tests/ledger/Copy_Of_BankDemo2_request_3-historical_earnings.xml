@@ -19,17 +19,17 @@
       <directors />
     </company>
 	
+	<startDate>2018-11-01</startDate>
+    <endDate>2019-06-30</endDate>
+
+	<defaultCurrency>
+      <unitType></unitType>
+    </defaultCurrency>
 	<reportCurrency>
       <unitType>CHF</unitType>
     </reportCurrency>
 	
-	<defaultCurrency>
-      <unitType></unitType>
-    </defaultCurrency>
-	
-	<startDate>2018-11-01</startDate>
-    <endDate>2019-06-30</endDate>
-    <unitValues>
+	<unitValues>
 
 	<unitValue>
         <unitType>Leonteq_N</unitType>
