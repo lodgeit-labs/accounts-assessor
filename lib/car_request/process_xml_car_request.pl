@@ -65,19 +65,6 @@ process_ner_api_results(Response_JSON,Result_XML) :-
 process_xml_car_request(File_Name,DOM) :-
 	xpath(DOM, //reports/car_request, element(_,_,[Request_Text])),
 
-	/*
-	absolute_tmp_path(File_Name, Instance_File),
-	catch(
-		setup_call_cleanup(
-			process_create('../python/venv/bin/python3',['../python/src/xmlschema_runner.py',Instance_File,'schemas/bases/Reports.xsd'],[]),
-			true,
-			true
-		),
-		_,
-		throw('Input file failed XSD schema validation.')
-	),
-	*/
-
 	absolute_tmp_path(File_Name, Instance_File),
 	validate_xml(Instance_File, 'schemas/bases/Reports.xsd'),
 

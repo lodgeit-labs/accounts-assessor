@@ -95,7 +95,7 @@ response_file_name(Request_File_Name, Response_File_Name) :-
 		atomic_list_concat(['response-',Request_File_Name], Response_File_Name)
 	).
 
-
+/*
 to_json(Reports, Reports2) :-
 	findall(
 		_{key:Key, val:Val}, 
@@ -111,7 +111,7 @@ to_json(Reports, Reports2) :-
 		),
 		Reports2
 	).
-
+*/
 
 process_data(_, Path, Options) :-
 /*User_Request_File_Path, Saved_Request_File_Path*/
@@ -167,11 +167,6 @@ process_data(_, Path, Options) :-
 		alerts:Alerts3, 
 		reports:Files3
 	},
-	/*
-	format(user_error, "~w~n", [Json_Out]),
-	json_write(current_output, Json_Out),
-	%throw(_),
-	*/
 	with_output_to(string(Response_Xml_String), print_xml_response(Json_Out, Output_Xml_String)),
 	write_file(Output_File_Path, Response_Xml_String),
 	with_output_to(string(Response_Json_String), json_write(current_output, Json_Out)),
