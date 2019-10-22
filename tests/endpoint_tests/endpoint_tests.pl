@@ -36,11 +36,15 @@ test(endpoints, [forall(testcases(Testcase))]) :-
 :- end_tests(xml_testcases).
 
 run_endpoint_test(Testcase) :-
-	Testcase = (Request_XML_File_Path, Response),
+	format("run_endpoint_tests; test-case: ~w~n",[Testcase]),
+	%Testcase = (Request_XML_File_Path, Response),
 	/* todo: each test-case should get its own directory
 			* request.xml
 			* responses/
 	*/
+	
+	atomic_list_concat([Testcase, "request.xml"], "/", Request_XML_File_Path),
+
 	query_endpoint(Request_XML_File_Path, Response_JSON),
 
 	% check for error messages
@@ -52,21 +56,28 @@ run_endpoint_test(Testcase) :-
 	load_structure(string(Response_XML), Response_DOM,[dialect(xml),space(sgml)]),
 
 
+	atomic_list_concat([Testcase, "responses/response.xml"], "/", Saved_Response_XML_File_Path),
+	absolute_file_name(Saved_Response_XML_File_Path, Saved_Response_XML_Absolute_Path, []),
+	
+
 	(
-		var(Response)
+		%var(Response)
+		\+exists_file(Saved_Response_XML_Absolute_Path)
 	->
 		(
 			true
+	
 			/*
 			todo: we have no known response file, we should check if the actual response is an error xml and fail if it is
 			*/
+	
 		)
 			
 	;
 		(
-			write('## Testing Response File: '), writeln(Response),
-			get_request_context(Request_XML_File_Path, Context),
-			test_response(Context, Response_DOM, Response)
+			write('## Testing Response File: '), writeln(Saved_Response_XML_File_Path),
+			%get_request_context(Request_XML_File_Path, Context),
+			test_response(nonloan, Response_DOM, Saved_Response_XML_Absolute_Path)
 		)
 	).
 
@@ -83,12 +94,14 @@ test_response(loan, ReplyXML, LoanResponseFile0) :-
 	test_response(general, ReplyXML, LoanResponseFile0),
 	!.
 
-test_response(_, Reply_Dom, Expected_Response_File_Relative_Path) :-
+test_response(_, Reply_Dom, /*Expected_Response_File_Relative_Path*/ Expected_Response_File_Absolute_Path) :-
+	/*
 	absolute_file_name(my_tests(
 		Expected_Response_File_Relative_Path),
 		Expected_Response_File_Absolute_Path,
 		[ access(read) ]
 	),
+	*/
 	load_xml(Expected_Response_File_Absolute_Path, Expected_Reply_Dom, [space(sgml)]),
 	compare_xml_dom(Reply_Dom, Expected_Reply_Dom, Error),
 	(
@@ -156,6 +169,39 @@ echo_warning_line(Line) :-
 	;
 		true
 	).
+testcases(Testcase) :-
+	find_test_cases_in('endpoint_tests', Testcase).
+
+% it's a test-case directory if there's a request.xml file, otherwise it's a regular directory
+% if it's a test-case directory, yield it
+% if it's a regular directory, recurse over subdirectories
+
+find_test_cases_in(Current_Directory, Test_Case) :-
+	%format("Current directory: ~w~n", [Current_Directory]),
+	absolute_file_name(my_tests(Current_Directory), Current_Directory_Absolute, [file_type(directory)]),
+	directory_files(Current_Directory_Absolute, Entries),
+	(
+		member('request.xml',Entries)
+	->
+		Test_Case = Current_Directory
+	;
+		(
+			member(Subdirectory, Entries),
+			\+member(Subdirectory, ['.','..']),
+			atomic_list_concat([Current_Directory, Subdirectory], '/', Subdirectory_Relative_Path),	
+			%format("Subdirectory: ~w~n", [Subdirectory_Relative_Path]),
+			catch(
+				(
+					absolute_file_name(my_tests(Subdirectory_Relative_Path), Subdirectory_Absolute_Path, [file_type(directory)]),
+					exists_directory(Subdirectory_Absolute_Path),
+					find_test_cases_in(Subdirectory_Relative_Path, Test_Case)
+				),
+				_,
+				fail
+			)	
+		) 
+	).
+
 
 
 testcases(Testcase) :-
@@ -206,11 +252,12 @@ response_file(Atom, Response) :-
 response_file(_, _).
 	
 % find the subdirectory of endpoint_tests that this request file is in
+/*
 get_request_context(Request, Context) :-
 	atom_chars(Request, RequestChars),
 	once(append(['e','n','d','p','o','i','n','t','_','t','e','s','t','s','/' | ContextChars], ['/' | _], RequestChars)),
 	atomic_list_concat(ContextChars, Context).
-
+*/
 	
 /* 
 loan endpoint specific testing. General xml comparison should handle it just fine, but let's leave it here as an example for when endpoint-specific testing actually is necessary
