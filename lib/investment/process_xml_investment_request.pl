@@ -38,7 +38,7 @@ see doc/investment and dropbox Develop/videos/ledger
 :- use_module('../transactions', [
 		transactions_by_account/2]).
 :- use_module('../xml', [
-		validate_xml/2
+		validate_xml/3
 ]).
 :- use_module('../files', [
 		absolute_tmp_path/2
@@ -403,7 +403,8 @@ process_xml_investment_request(File_Name, DOM) :-
 	xpath(DOM, //reports/investmentRequest/investments, _),
 
 	absolute_tmp_path(File_Name, Instance_File),
-	validate_xml(Instance_File, 'schemas/bases/Reports.xsd'),
+	absolute_file_name(my_schemas('bases/Reports.xsd'), Schema_File, []),
+	validate_xml(Instance_File, Schema_File, []),
 
 	writeln('<?xml version="1.0"?>'),
 	writeln('<response>'),

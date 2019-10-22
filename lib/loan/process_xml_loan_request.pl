@@ -19,7 +19,7 @@
 :- use_module('../loans', [loan_agr_summary/2]).
 :- use_module('../days',  [absolute_day/2, parse_date/2, parse_date_into_absolute_days/2]).
 :- use_module('../xml', [
-	validate_xml/2
+	validate_xml/3
 ]).
 
 % -------------------------------------------------------------------
@@ -46,8 +46,8 @@ process_xml_loan_request(FileNameIn, DOM) :-
    ),   
 
    absolute_tmp_path(FileNameIn, Instance_File),
-   validate_xml(Instance_File, 'schemas/bases/Reports.xsd'),
-
+   absolute_file_name(my_schemas('bases/Reports.xsd'), Schema_File, []),
+   validate_xml(Instance_File, Schema_File, []),
 
    % need to handle empty repayments/repayment, needs to be tested
    findall(loan_repayment(Date, Value), xpath(DOM, //reports/loanDetails/repayments/repayment(@date=Date, @value=Value), _E7), LoanRepayments),

@@ -20,7 +20,7 @@
 		absolute_tmp_path/2
 ]).
 :- use_module('../xml', [
-		validate_xml/2
+		validate_xml/3
 ]).
 
 :- dynamic(known_ner_response/2).
@@ -66,7 +66,8 @@ process_xml_car_request(File_Name,DOM) :-
 	xpath(DOM, //reports/car_request, element(_,_,[Request_Text])),
 
 	absolute_tmp_path(File_Name, Instance_File),
-	validate_xml(Instance_File, 'schemas/bases/Reports.xsd'),
+	absolute_file_name(my_schemas('bases/Reports.xsd'), Schema_File, []),
+	validate_xml(Instance_File, Schema_File, []),
 
 	cached_ner_data(Request_Text,Response_JSON),
 	process_ner_api_results(Response_JSON,Result_XML),

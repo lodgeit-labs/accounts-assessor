@@ -13,7 +13,7 @@
 	absolute_tmp_path/2
 ]).
 :- use_module('../xml', [
-	validate_xml/2
+	validate_xml/3
 ]).
 
 
@@ -23,7 +23,8 @@ process_xml_livestock_request(File_Name, DOM, Reports) :-
 	Livestocks \= [],
 
 	absolute_tmp_path(File_Name, Instance_File),
-	validate_xml(Instance_File, 'schemas/bases/Reports.xsd'),
+	absolute_file_name(my_schemas('bases/Reports.xsd'), Schema_File, []),
+	validate_xml(Instance_File, Schema_File, []),
 
 	writeln('<response>'),
 	writeln('<livestocks>'),

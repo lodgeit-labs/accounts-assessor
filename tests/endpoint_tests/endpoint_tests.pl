@@ -20,6 +20,8 @@
 :- use_module('../../lib/utils', [
 		floats_close_enough/2]).
 
+
+
 :- begin_tests(xml_testcases, [setup((debug,run_simple_server))]).
 
 test(start) :- nl.
@@ -44,10 +46,16 @@ test(car, [forall(testcases('endpoint_tests/car',Testcase)), fixme('NER API serv
 
 :- end_tests(xml_testcases).
 
+
+
+
 run_endpoint_test(Testcase) :-
 	atomic_list_concat([Testcase, "request.xml"], "/", Request_XML_File_Path),
 
 	query_endpoint(Request_XML_File_Path, Response_JSON),
+
+	% todo: schema validations on outputs..
+
 	atomic_list_concat([Testcase, "responses/response.xml"], "/", Saved_Response_XML_File_Path),
 	catch(
 		absolute_file_name(my_tests(Saved_Response_XML_File_Path), Saved_Response_XML_Absolute_Path, []),
@@ -67,6 +75,7 @@ run_endpoint_test(Testcase) :-
 			check_saved_response(Response_JSON, Request_XML_File_Path, Saved_Response_XML_Absolute_Path)
 		)
 	).
+
 print_alerts(Response_JSON, Alert_Types) :-
 	findall(
 		_,
@@ -157,9 +166,10 @@ testcases(Top_Level, Testcase) :-
 	format("testcases: ~w~n", [Top_Level]),
 	find_test_cases_in(Top_Level, Testcase).
 
-% it's a test-case directory if there's a request.xml file, otherwise it's a regular directory
-% if it's a test-case directory, yield it
-% if it's a regular directory, recurse over subdirectories
+/*
+if there's a "request.xml" file, it's a test-case directory, so yield it
+otherwise, recurse over subdirectories
+*/
 
 find_test_cases_in(Current_Directory, Test_Case) :-
 	absolute_file_name(my_tests(Current_Directory), Current_Directory_Absolute, [file_type(directory)]),
