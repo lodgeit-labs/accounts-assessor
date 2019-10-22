@@ -1,3 +1,7 @@
+% to revert the changes to try again, simply use:
+% git reset --hard
+% git clean -d -f
+
 :- use_module('../lib/files.pl').
 
 find_test_directories(Paths) :-
@@ -25,8 +29,12 @@ generate_new_directory(Atom, Response) :-
 		),
 		String \= Response0,
 		atom_concat(Response1,'.xml',Response0),
-		re_replace('(-|_)+$','', Response1, Response)
-		% remove trailing punctuation...
+		% remove leading punctuation
+		re_replace('^(-|_|\\.)+','', Response1, Response2),
+		% remove trailing punctuation
+		re_replace('(-|_|\\.)+$','', Response2, Response3),
+		% replace '.' with '_'
+		re_replace('\\.','_', Response3, Response)
 
 	).
 
@@ -78,9 +86,11 @@ response_file(Atom, Response) :-
 					format("Request: ~w~n", [Full_Request_Path]),
 					format("Directory: ~w~n", [New_Directory_Path]),
 					format("Response directory: ~w~n",[Response_Directory_Path]),
+					atomic_list_concat([New_Directory_Path,"request.xml"],"/",New_Request_Path),
 					make_directory(New_Directory_Path),
 					make_directory(Response_Directory_Path),
-					atomic_list_concat(['git', 'mv', Full_Request_Path, New_Directory_Path], " ", Request_Mv_Command),
+					format("New request path: ~w~n", [New_Request_Path]),
+					atomic_list_concat(['git', 'mv', Full_Request_Path, New_Request_Path], " ", Request_Mv_Command),
 					writeln(Request_Mv_Command),
 					shell(Request_Mv_Command),
 					(
@@ -89,8 +99,9 @@ response_file(Atom, Response) :-
 						(
 							absolute_file_name(my_tests(Response_Path),Full_Response_Path,[]),
 							format("Response: ~w~n", [Full_Response_Path]),
-							%process_create('git',['mv',Full_Response_Path,Response_Directory_Path],[])
-							atomic_list_concat(['git', 'mv', Full_Response_Path, Response_Directory_Path], " ", Response_Mv_Command),
+							atomic_list_concat([Response_Directory_Path,"response.xml"], "/", New_Response_Path),
+							format("New response path: ~w~n", [New_Response_Path]),
+							atomic_list_concat(['git', 'mv', Full_Response_Path, New_Response_Path], " ", Response_Mv_Command),
 							writeln(Response_Mv_Command),
 							shell(Response_Mv_Command)
 						)
