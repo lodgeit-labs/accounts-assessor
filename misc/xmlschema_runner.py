@@ -1,5 +1,6 @@
-#note: this script slows down automated testing a bit
-#importing xmlschema takes about 300ms, loading a simple xsd takes also about 300ms, loading Reports.xsd takes almost a second. Running python with -O makes things worse. Validation is almost instant. We should turn this into a service, probably in a "python server" along with equation solver.
+""" a command-line tool to validate a xml against a xsd """
+
+#importing xmlschema takes about 300ms, loading a simple xsd takes also about 300ms, loading Reports.xsd takes almost a second. Running python with -O makes things worse. Validation is almost instant. 
 
 import argparse
 import xmlschema

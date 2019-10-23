@@ -1,3 +1,5 @@
+"""Extract account hierarchy from XBRL taxonomy"""
+
 from arelle import (Cntlr, FileSource, ModelManager, ModelXbrl, ModelDocument, XmlUtil, Version, ViewFileFactTable, ViewFileRelationshipSet, XbrlConst)
 import xml.etree.ElementTree as ET
 from xml.dom import minidom

@@ -149,6 +149,9 @@ process_ledger(
 	transaction term now carries date() instead of absolute days count.
 	transactions are produced with transactions:make_transaction.
 	account id is obtained like this: accounts:account_by_role(Accounts, ('Accounts'/'Assets'), Assets_AID).
+	to be explained:
+		how to get balance on account
+		how to generate and return json+html reports
 		
 	*/
 
