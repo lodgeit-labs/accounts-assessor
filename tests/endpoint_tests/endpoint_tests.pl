@@ -58,34 +58,10 @@ run_endpoint_test(Type, Testcase) :-
 
 	query_endpoint(Request_XML_File_Path, Response_JSON),
 
+	tmp_uri_to_path(Response_JSON.reports.response_xml.url, Response_XML_Path),
+	check_output_schema(Type, Response_XML_Path),
 
-	uri_components(Response_JSON.reports.response_xml.url, uri_components(_,_,Response_XML_Path0,_,_)),
-	atom_string(Response_XML_Path0, Response_XML_Path0_String),
-	split_string(Response_XML_Path0_String,"/","",[_|[_|Response_XML_Path_Components]]),
-	atomic_list_concat(Response_XML_Path_Components,"/",Response_XML_Path),
-	absolute_file_name(my_tmp(Response_XML_Path), Response_XML_Absolute_Path, []),
-	(
-		output_schema(Type, Schema_Relative_Path)
-    ->
-		(
-			absolute_file_name(my_schemas(Schema_Relative_Path), Schema_Absolute_Path, []),
-			validate_xml(Response_XML_Absolute_Path, Schema_Absolute_Path, Schema_Errors),
-			(
-				Schema_Errors = []
-			->
-				true
-			;
-				(
-					format("Errors: ~w~n", [Schema_Errors]),
-					fail
-				)
-			)
-		)
-	;
-		true
-	),
-
-
+	% todo: xbrl validation on ledger response XBRL
 
 	atomic_list_concat([Testcase, "responses/response.xml"], "/", Saved_Response_XML_File_Path),
 	catch(
@@ -230,4 +206,33 @@ find_test_cases_in(Current_Directory, Test_Case) :-
 	).
 
 
+tmp_uri_to_path(URI, Path) :-
+	uri_components(URI, uri_components(_,_,Path0,_,_)),
+	atom_string(Path0, Path0_String),
+	split_string(Path0_String,"/","",[_|[_|Path_Components]]),
+	atomic_list_concat(Path_Components,"/",Path).
+
+
+check_output_schema(Type, Response_XML_Path) :-
+	absolute_file_name(my_tmp(Response_XML_Path), Response_XML_Absolute_Path, []),
+	(
+		output_schema(Type, Schema_Relative_Path)
+    ->
+		(
+			absolute_file_name(my_schemas(Schema_Relative_Path), Schema_Absolute_Path, []),
+			validate_xml(Response_XML_Absolute_Path, Schema_Absolute_Path, Schema_Errors),
+			(
+				Schema_Errors = []
+			->
+				true
+			;
+				(
+					format("Errors: ~w~n", [Schema_Errors]),
+					fail
+				)
+			)
+		)
+	;
+		true
+	).
 
