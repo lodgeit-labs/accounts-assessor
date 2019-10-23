@@ -19,7 +19,7 @@
 :- use_module('compare_xml').
 :- use_module('../../lib/utils', [
 		floats_close_enough/2]).
-
+:- use_module('../../lib/xml').
 
 
 :- begin_tests(xml_testcases, [setup((debug,run_simple_server))]).
@@ -27,34 +27,65 @@
 test(start) :- nl.
 
 test(ledger, [forall(testcases('endpoint_tests/ledger',Testcase))]) :-
-	run_endpoint_test(Testcase).
+	run_endpoint_test(ledger, Testcase).
 
 test(loan, [forall(testcases('endpoint_tests/loan',Testcase))]) :-
-	run_endpoint_test(Testcase).
+	run_endpoint_test(loan, Testcase).
 
 test(depreciation, [forall(testcases('endpoint_tests/depreciation',Testcase))]) :-
-	run_endpoint_test(Testcase).
+	run_endpoint_test(depreciation, Testcase).
 
 test(livestock, [forall(testcases('endpoint_tests/livestock',Testcase))]) :-
-	run_endpoint_test(Testcase).
+	run_endpoint_test(livestock, Testcase).
 
 test(investment, [forall(testcases('endpoint_tests/investment', Testcase))]) :-
-	run_endpoint_test(Testcase).
+	run_endpoint_test(investment, Testcase).
 
 test(car, [forall(testcases('endpoint_tests/car',Testcase)), fixme('NER API server is down.')]) :-
-	run_endpoint_test(Testcase).
+	run_endpoint_test(car, Testcase).
 
 :- end_tests(xml_testcases).
 
 
+output_schema(loan,'responses/LoanResponse.xsd').
+output_schema(depreciation,'responses/DepreciationResponse.xsd').
+output_schema(livestock,'responses/LivestockResponse.xsd').
+output_schema(investment,'responses/InvestmentResponse.xsd').
+output_schema(car,'responses/CarAPIResponse.xsd').
 
-
-run_endpoint_test(Testcase) :-
+run_endpoint_test(Type, Testcase) :-
 	atomic_list_concat([Testcase, "request.xml"], "/", Request_XML_File_Path),
 
 	query_endpoint(Request_XML_File_Path, Response_JSON),
 
-	% todo: schema validations on outputs..
+
+	uri_components(Response_JSON.reports.response_xml.url, uri_components(_,_,Response_XML_Path0,_,_)),
+	atom_string(Response_XML_Path0, Response_XML_Path0_String),
+	split_string(Response_XML_Path0_String,"/","",[_|[_|Response_XML_Path_Components]]),
+	atomic_list_concat(Response_XML_Path_Components,"/",Response_XML_Path),
+	absolute_file_name(my_tmp(Response_XML_Path), Response_XML_Absolute_Path, []),
+	(
+		output_schema(Type, Schema_Relative_Path)
+    ->
+		(
+			absolute_file_name(my_schemas(Schema_Relative_Path), Schema_Absolute_Path, []),
+			validate_xml(Response_XML_Absolute_Path, Schema_Absolute_Path, Schema_Errors),
+			(
+				Schema_Errors = []
+			->
+				true
+			;
+				(
+					format("Errors: ~w~n", [Schema_Errors]),
+					fail
+				)
+			)
+		)
+	;
+		true
+	),
+
+
 
 	atomic_list_concat([Testcase, "responses/response.xml"], "/", Saved_Response_XML_File_Path),
 	catch(
@@ -62,6 +93,9 @@ run_endpoint_test(Testcase) :-
 		_,
 		true
 	),
+
+
+
 	(
 		\+exists_file(Saved_Response_XML_Absolute_Path)
 	->

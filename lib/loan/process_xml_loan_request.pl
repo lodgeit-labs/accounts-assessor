@@ -91,9 +91,9 @@ display_xml_loan_response(FileNameOut, IncomeYear,
    close(XMLStream),
 
    % read the schema file
-   absolute_file_name(my_schemas('responses/loan-response.xsd'), FileLoanResponseXSD, []),
+   absolute_file_name(my_schemas('responses/LoanResponse.xsd'), FileLoanResponseXSD, []),
    read_file_to_string(FileLoanResponseXSD, LoanResponseXSD, []),   
-   absolute_tmp_path('loan_response.xsd', TempFileLoanResponseXSD),
+   absolute_tmp_path('LoanResponse.xsd', TempFileLoanResponseXSD),
    % create a temporary loan xsd file to validate the response against the schema
    % a bug in XSD library requires that we create a new schema file for each validation
    open(TempFileLoanResponseXSD, write, XSDStream),

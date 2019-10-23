@@ -55,7 +55,6 @@ process_written_down_value(File_Name, DOM) :-
 			member(depreciation_rate(Account, Value1, Value2), Depreciation_Rates), 
 			Filtered_Depreciation_Rates),
 	
-	writeln('<?xml version="1.0"?>'),
 	writeln('<!--'),
 	(
 		written_down_value(Transaction, Request_Date, Method, Filtered_Depreciation_Rates, Written_Down_Value)
@@ -86,7 +85,6 @@ process_depreciation_between_two_dates(File_Name, DOM) :-
 			member(depreciation_rate(Account, Value1, Value2), Depreciation_Rates), 
 			Filtered_Depreciation_Rates),
 	
-	writeln('<?xml version="1.0"?>'),
 	writeln('<!--'),
 	(
 		depreciation_between_two_dates(Transaction, Invest_In_Date, Request_Date, Method, Filtered_Depreciation_Rates, Depreciation_Value)

@@ -406,7 +406,6 @@ process_xml_investment_request(File_Name, DOM) :-
 	absolute_file_name(my_schemas('bases/Reports.xsd'), Schema_File, []),
 	validate_xml(Instance_File, Schema_File, []),
 
-	writeln('<?xml version="1.0"?>'),
 	writeln('<response>'),
 	xpath(DOM, //reports/investmentRequest, InvestmentRequest),
 	% get global report date
@@ -598,7 +597,6 @@ crosscheck_totals(Results, Report_Date) :-
 	/*
 		PL cross-check
 	*/
-	writeln("PL cross-check"),
 	/*TODO get Investment_Income by role*/
 	account_by_role(Accounts, 'InvestmentIncome'/unrealized, Unrealized_Gain_Account),
 	account_by_role(Accounts, 'InvestmentIncome'/realized, Realized_Gain_Account),
@@ -614,9 +612,7 @@ crosscheck_totals(Results, Report_Date) :-
 	/*
 		BS cross-check
 	*/
-	writeln("BS cross-check"),
 	Financial_Investments_Value is PDRC_Cost_Total + Gain_Total - SDRC_Value_Total,
-	writeln(Financial_Investments_Value is PDRC_Cost_Total + Gain_Total - SDRC_Value_Total),
 	account_assertion(Info, 'FinancialInvestments', Financial_Investments_Value),
 
 	%writeln(Unrealized_PDRC_Cost_Total + Unrealized_Gain_Total),
@@ -627,7 +623,6 @@ crosscheck_totals(Results, Report_Date) :-
 	/*
 		Bank account currency movement cross-check
 	*/
-	writeln(("Bank account currency movement cross-check",(Bank_Value is SDRC_Value_Total - PDRC_Cost_Total))),
 	
 	Bank_Value is SDRC_Value_Total - PDRC_Cost_Total,
 	
@@ -676,7 +671,6 @@ print_totals(Totals) :-
 	),
 
 	Realized_Gain_Total is Realized_Market_Gain_Total + Realized_Currency_Gain_Total,
-writeln(Unrealized_Market_Gain_Total + Unrealized_Currency_Gain_Total),
 	Unrealized_Gain_Total is Unrealized_Market_Gain_Total + Unrealized_Currency_Gain_Total,
 	Gain_Total is Realized_Gain_Total + Unrealized_Gain_Total,	
 
