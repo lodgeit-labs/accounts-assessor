@@ -24,7 +24,7 @@
       <notes />
       <directors />
     </company>
-    <startDate>2000-01-01</startDate>
+    <startDate>2000-01-03</startDate>
     <endDate>2020-12-12</endDate>
 
     <defaultCurrency>
@@ -82,15 +82,18 @@
    
     </unitValues>
 
-	<accountHierarchy>
+	<accounts>
 		default_account_hierarchy.xml
-	</accountHierarchy>
-
-	<accountHierarchy>
+	</accounts>
+	
+	<accounts>
 		<Expenses>
 			<FoodExpenses/>
 		</Expenses>
-	</accountHierarchy>
+		<Liabilities>
+			<RandomLiabilityType/>
+		</Liabilities>
+	</accounts>
 	
 
     <actionTaxonomy>
@@ -114,11 +117,9 @@
       </action>
     </actionTaxonomy>
 
-
+	
 		
-
-
-
+	
     <bankStatement>
       <title>Bank Statement</title>
       <period>2018-07-02 - 2018-12-30</period>

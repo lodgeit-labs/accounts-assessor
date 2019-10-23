@@ -53,6 +53,8 @@ output_schema(livestock,'responses/LivestockResponse.xsd').
 output_schema(investment,'responses/InvestmentResponse.xsd').
 output_schema(car,'responses/CarAPIResponse.xsd').
 
+output_taxonomy(ledger,'taxonomy/basic.xsd').
+
 run_endpoint_test(Type, Testcase) :-
 	atomic_list_concat([Testcase, "request.xml"], "/", Request_XML_File_Path),
 
@@ -60,6 +62,7 @@ run_endpoint_test(Type, Testcase) :-
 
 	tmp_uri_to_path(Response_JSON.reports.response_xml.url, Response_XML_Path),
 	check_output_schema(Type, Response_XML_Path),
+%	check_output_taxonomy(Type, Response_XML_Path),
 
 	% todo: xbrl validation on ledger response XBRL
 
@@ -220,6 +223,28 @@ check_output_schema(Type, Response_XML_Path) :-
     ->
 		(
 			absolute_file_name(my_schemas(Schema_Relative_Path), Schema_Absolute_Path, []),
+			validate_xml(Response_XML_Absolute_Path, Schema_Absolute_Path, Schema_Errors),
+			(
+				Schema_Errors = []
+			->
+				true
+			;
+				(
+					format("Errors: ~w~n", [Schema_Errors]),
+					fail
+				)
+			)
+		)
+	;
+		true
+	).
+check_output_taxonomy(Type, Response_XML_Path) :-
+	absolute_file_name(my_tmp(Response_XML_Path), Response_XML_Absolute_Path, []),
+	(
+		output_taxonomy(Type, Schema_Relative_Path)
+    ->
+		(
+			absolute_file_name(my_static(Schema_Relative_Path), Schema_Absolute_Path, []),
 			validate_xml(Response_XML_Absolute_Path, Schema_Absolute_Path, Schema_Errors),
 			(
 				Schema_Errors = []

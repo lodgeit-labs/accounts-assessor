@@ -82,15 +82,15 @@
    
     </unitValues>
 
-	<accounts>
+	<accountHierarchy>
 		default_account_hierarchy.xml
-	</accounts>
+	</accountHierarchy>
 	
-	<accounts>
+	<accountHierarchy>
 		<Expenses>
 			<FoodExpenses/>
 		</Expenses>
-	</accounts>
+	</accountHierarchy>
 	
 
     <actionTaxonomy>
