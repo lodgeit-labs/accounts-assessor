@@ -9,8 +9,7 @@
 % Modules
 % -------------------------------------------------------------------
 
-:- module(process_xml_car_request, 
-		[process_xml_car_request/2]).
+:- module(process_xml_car_request, []).
 
 :- use_module(library(xpath)).
 :- use_module(library(http/json)).
@@ -62,13 +61,27 @@ process_ner_api_results(Response_JSON,Result_XML) :-
 	),
 	Result_XML = element(reports,[],[element(is_car_response,[],[Result])]).
 
-process_xml_car_request(File_Name,DOM) :-
+process_xml_car_request(File_Name, DOM, Reports) :-
 	xpath(DOM, //reports/car_request, element(_,_,[Request_Text])),
+
+
+	Reports = _{
+		files: [],
+		errors: Schema_Errors,
+		warnings: []
+	},
 
 	absolute_tmp_path(File_Name, Instance_File),
 	absolute_file_name(my_schemas('bases/Reports.xsd'), Schema_File, []),
-	validate_xml(Instance_File, Schema_File, []),
-
-	cached_ner_data(Request_Text,Response_JSON),
-	process_ner_api_results(Response_JSON,Result_XML),
-	xml_write(Result_XML,[]).
+	validate_xml(Instance_File, Schema_File, Schema_Errors),
+	(
+		Schema_Errors = []
+	->
+		(
+			cached_ner_data(Request_Text,Response_JSON),
+			process_ner_api_results(Response_JSON,Result_XML),
+			xml_write(Result_XML,[])
+		)
+	;
+		true
+	).

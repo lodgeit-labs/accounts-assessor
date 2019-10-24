@@ -2,8 +2,7 @@
 see doc/investment and dropbox Develop/videos/ledger
 */
 
-:- module(process_xml_investment_request, 
-		[process_xml_investment_request/2]).
+:- module(process_xml_investment_request, []).
 		
 		
 :- use_module(library(xpath)).
@@ -398,43 +397,57 @@ account_vector(Info, Account, Vector) :-
 	Info = (Exchange_Rates, Accounts, Transactions, Report_Date, Currency), 
     balance_by_account(Exchange_Rates, Accounts, Transactions, [Currency], Report_Date, Account, Report_Date, Vector, _).
 
-process_xml_investment_request(File_Name, DOM) :-
+process_xml_investment_request(File_Name, DOM, Report_Files) :-
 	% gtrace,
 	xpath(DOM, //reports/investmentRequest/investments, _),
 
+	Report_Files = _{
+		files: [],
+		errors: Schema_Errors,
+		warnings: []
+	},
+
 	absolute_tmp_path(File_Name, Instance_File),
 	absolute_file_name(my_schemas('bases/Reports.xsd'), Schema_File, []),
-	validate_xml(Instance_File, Schema_File, []),
+	validate_xml(Instance_File, Schema_File, Schema_Errors),
 
-	writeln('<response>'),
-	xpath(DOM, //reports/investmentRequest, InvestmentRequest),
-	% get global report date
-	fields(InvestmentRequest, [report_date, (Report_Date, _)]),
 	(
-		nonvar(Report_Date)
-	->	write_tag('Report_Date', Report_Date)
-	;true
-	),
-	findall(
-		Result,
-		process_investments(DOM, Report_Date, Result),
-		Results
-	),
-	get_totals(Results, Processed_Results),
-	(
-		nonvar(Report_Date)
-	->	
+		Schema_Errors = []
+	->
 		(
-			parse_date(Report_Date, Report_Date_Parsed),
-			crosscheck_totals(Processed_Results, Report_Date_Parsed)
+			writeln('<response>'),
+			xpath(DOM, //reports/investmentRequest, InvestmentRequest),
+			% get global report date
+			fields(InvestmentRequest, [report_date, (Report_Date, _)]),
+			(
+				nonvar(Report_Date)
+			->	write_tag('Report_Date', Report_Date)
+			;true
+			),
+			findall(
+				Result,
+				process_investments(DOM, Report_Date, Result),
+				Results
+			),
+			get_totals(Results, Processed_Results),
+			(
+				nonvar(Report_Date)
+			->	
+				(
+					parse_date(Report_Date, Report_Date_Parsed),
+					crosscheck_totals(Processed_Results, Report_Date_Parsed)
+				)
+			;
+				true
+			),
+			Processed_Results = (_, _, Totals),
+			print_totals(Totals),
+			writeln('</response>'),
+			nl, nl
 		)
 	;
 		true
-	),
-	Processed_Results = (_, _, Totals),
-	print_totals(Totals),
-	writeln('</response>'),
-	nl, nl.
+	).
 
 process_investments(DOM, Report_Date, Result) :-
 	% for each unrealized investment, we will unify investment report date against global report date

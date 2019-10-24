@@ -8,7 +8,7 @@
 % Modules
 %--------------------------------------------------------------------
 
-:- module(process_xml_depreciation_request, [process_xml_depreciation_request/2]).
+:- module(process_xml_depreciation_request, []).
 
 :- use_module(library(xpath)).
 :- use_module('../utils', [inner_xml/3, write_tag/2, fields/2, throw_string/1]).
@@ -27,76 +27,103 @@
 % process_xml_depreciation_request/2
 % -------------------------------------------------------------------
 
-process_xml_depreciation_request(File_Name, DOM) :-
+process_xml_depreciation_request(File_Name, DOM, Reports) :-
 	(
 		xpath(DOM, //depreciation_request_written_down_value, _)
 	->
-		process_written_down_value(File_Name, DOM)
+		process_written_down_value(File_Name, DOM, Reports)
 	;
-		process_depreciation_between_two_dates(File_Name, DOM)
+		process_depreciation_between_two_dates(File_Name, DOM, Reports)
 	).
 
 
-process_written_down_value(File_Name, DOM) :-
+process_written_down_value(File_Name, DOM, Reports) :-
 	xpath(DOM, //reports/depreciation_request_written_down_value, Depreciation_Request_Values),
 
+	Reports = _{
+		files: [],
+		errors: Schema_Errors,
+		warnings: []
+	},
+
 	absolute_tmp_path(File_Name, Instance_File),
 	absolute_file_name(my_schemas('bases/Reports.xsd'), Schema_File, []),
-	validate_xml(Instance_File, Schema_File, []),
+	validate_xml(Instance_File, Schema_File, Schema_Errors),
 
-	process_initial_common_values(Depreciation_Request_Values, Type, Invest_In_Date_In, Request_Date_In, 
-		Method, Cost_Unit, Cost_Value_In, Depreciation_Rates),	
-	
-	convert_dates_and_values(Invest_In_Date_In, Request_Date_In, Cost_Value_In,	Invest_In_Date, Request_Date, Cost_Value),
-	get_account_and_transaction(Depreciation_Request_Values, Type, Depreciation_Rates, Invest_In_Date, Cost_Value, Account, Transaction),
-	% if we have account information, that indicates we also have depreciation rates.
-	% that is why, we do not need to check exception for depreciation rates here.
-	findall(depreciation_rate(Account, Value1, Value2), 
-			member(depreciation_rate(Account, Value1, Value2), Depreciation_Rates), 
-			Filtered_Depreciation_Rates),
-	
-	writeln('<!--'),
 	(
-		written_down_value(Transaction, Request_Date, Method, Filtered_Depreciation_Rates, Written_Down_Value)
-	-> 
+		Schema_Errors = []
+	->
+		(
+			process_initial_common_values(Depreciation_Request_Values, Type, Invest_In_Date_In, Request_Date_In, 
+				Method, Cost_Unit, Cost_Value_In, Depreciation_Rates),	
+			
+			convert_dates_and_values(Invest_In_Date_In, Request_Date_In, Cost_Value_In,	Invest_In_Date, Request_Date, Cost_Value),
+			get_account_and_transaction(Depreciation_Request_Values, Type, Depreciation_Rates, Invest_In_Date, Cost_Value, Account, Transaction),
+			% if we have account information, that indicates we also have depreciation rates.
+			% that is why, we do not need to check exception for depreciation rates here.
+			findall(depreciation_rate(Account, Value1, Value2), 
+					member(depreciation_rate(Account, Value1, Value2), Depreciation_Rates), 
+					Filtered_Depreciation_Rates),
+			
+			writeln('<!--'),
+			(
+				written_down_value(Transaction, Request_Date, Method, Filtered_Depreciation_Rates, Written_Down_Value)
+			-> 
+				true
+			; 
+				throw_string('Cannot compute the requested value.')
+			),	
+			writeln('-->'),	
+			
+			write_depreciation_response(written_down_value, 
+				Type, Cost_Unit, Cost_Value, Invest_In_Date_In, Request_Date_In, Cost_Unit, Written_Down_Value)
+		)
+	;
 		true
-	; 
-		throw_string('Cannot compute the requested value.')
-	),	
-	writeln('-->'),	
-	
-	write_depreciation_response(written_down_value, 
-		Type, Cost_Unit, Cost_Value, Invest_In_Date_In, Request_Date_In, Cost_Unit, Written_Down_Value).
-	
+	).
+			
 
-process_depreciation_between_two_dates(File_Name, DOM) :-
+process_depreciation_between_two_dates(File_Name, DOM, Reports) :-
 	xpath(DOM, //reports/depreciation_request_depreciation_between_two_dates, Depreciation_Request_Values),
 
+	Reports = _{
+		files: [],
+		errors: Schema_Errors,
+		warnings: []
+	},
 	absolute_tmp_path(File_Name, Instance_File),
 	absolute_file_name(my_schemas('bases/Reports.xsd'), Schema_File, []),
-	validate_xml(Instance_File, Schema_File, []),
+	validate_xml(Instance_File, Schema_File, Schema_Errors),
 
-	process_initial_common_values(Depreciation_Request_Values, Type, Invest_In_Date_In, Request_Date_In, 
-		Method, Cost_Unit, Cost_Value_In, Depreciation_Rates),	
-		
-	convert_dates_and_values(Invest_In_Date_In, Request_Date_In, Cost_Value_In,	Invest_In_Date, Request_Date, Cost_Value),
-	get_account_and_transaction(Depreciation_Request_Values, Type, Depreciation_Rates, Invest_In_Date, Cost_Value, Account, Transaction),
-	findall(depreciation_rate(Account, Value1, Value2), 
-			member(depreciation_rate(Account, Value1, Value2), Depreciation_Rates), 
-			Filtered_Depreciation_Rates),
-	
-	writeln('<!--'),
 	(
-		depreciation_between_two_dates(Transaction, Invest_In_Date, Request_Date, Method, Filtered_Depreciation_Rates, Depreciation_Value)
-	-> 
+		Schema_Errors = []
+	->
+		(
+			process_initial_common_values(Depreciation_Request_Values, Type, Invest_In_Date_In, Request_Date_In, 
+				Method, Cost_Unit, Cost_Value_In, Depreciation_Rates),	
+				
+			convert_dates_and_values(Invest_In_Date_In, Request_Date_In, Cost_Value_In,	Invest_In_Date, Request_Date, Cost_Value),
+			get_account_and_transaction(Depreciation_Request_Values, Type, Depreciation_Rates, Invest_In_Date, Cost_Value, Account, Transaction),
+			findall(depreciation_rate(Account, Value1, Value2), 
+					member(depreciation_rate(Account, Value1, Value2), Depreciation_Rates), 
+					Filtered_Depreciation_Rates),
+			
+			writeln('<!--'),
+			(
+				depreciation_between_two_dates(Transaction, Invest_In_Date, Request_Date, Method, Filtered_Depreciation_Rates, Depreciation_Value)
+			-> 
+				true
+			; 
+				throw_string('Cannot compute the requested value.')
+			),
+			writeln('-->'),
+			
+			write_depreciation_response(depreciation_between_two_dates, 
+				Type, Cost_Unit, Cost_Value, Invest_In_Date_In, Request_Date_In, Cost_Unit, Depreciation_Value)
+		)
+	;
 		true
-	; 
-		throw_string('Cannot compute the requested value.')
-	),
-	writeln('-->'),
-	
-	write_depreciation_response(depreciation_between_two_dates, 
-		Type, Cost_Unit, Cost_Value, Invest_In_Date_In, Request_Date_In, Cost_Unit, Depreciation_Value).
+	).
 
 
 process_initial_common_values(Depreciation_Request_Values, Type, Invest_In_Date_In, Request_Date_In, 
