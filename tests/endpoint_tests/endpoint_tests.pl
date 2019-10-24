@@ -62,9 +62,9 @@ run_endpoint_test(Type, Testcase) :-
 
 	tmp_uri_to_path(Response_JSON.reports.response_xml.url, Response_XML_Path),
 	check_output_schema(Type, Response_XML_Path),
-%	check_output_taxonomy(Type, Response_XML_Path),
 
 	% todo: xbrl validation on ledger response XBRL
+	%check_output_taxonomy(Type, Response_XML_Path),
 
 	atomic_list_concat([Testcase, "responses/response.xml"], "/", Saved_Response_XML_File_Path),
 	catch(
@@ -100,7 +100,7 @@ print_alerts(Response_JSON, Alert_Types) :-
 		_
 	).
 
-check_saved_response(Response_JSON, Request_XML_File_Path, Saved_Response_XML_File_Path) :-
+check_saved_response(Response_JSON, _, Saved_Response_XML_File_Path) :-
 	/*
 	todo: check all json files in the response, not just the response_xml
 	*/
@@ -238,6 +238,8 @@ check_output_schema(Type, Response_XML_Path) :-
 	;
 		true
 	).
+
+/*
 check_output_taxonomy(Type, Response_XML_Path) :-
 	absolute_file_name(my_tmp(Response_XML_Path), Response_XML_Absolute_Path, []),
 	(
@@ -260,4 +262,4 @@ check_output_taxonomy(Type, Response_XML_Path) :-
 	;
 		true
 	).
-
+*/

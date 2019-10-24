@@ -268,12 +268,12 @@ balance_sheet_at(Static_Data, [Net_Assets_Entry, Equity_Entry]) :-
 	balance_sheet_entry(Static_Data, 'Equity', Equity_Entry).
 
 trial_balance_between(Exchange_Rates, Accounts, Transactions_By_Account, Report_Currency, Exchange_Date, _Start_Date, End_Date, [Trial_Balance_Section]) :-
+	balance_by_account(Exchange_Rates, Accounts, Transactions_By_Account, Report_Currency, Exchange_Date, 'NetAssets', End_Date, Net_Assets_Balance, Net_Assets_Count),
+	balance_by_account(Exchange_Rates, Accounts, Transactions_By_Account, Report_Currency, Exchange_Date, 'Equity', End_Date, Equity_Balance, Equity_Count),
 
-	balance_by_account(Exchange_Rates, Accounts, Transactions_By_Account, Report_Currency, Exchange_Date, 'Accounts', End_Date, Accounts_Balance, Transactions_Count),
-	balance_by_account(Exchange_Rates, Accounts, Transactions_By_Account, Report_Currency, Exchange_Date, 'CurrentEarnings', End_Date, Current_Earnings_Balance, _),
-	balance_by_account(Exchange_Rates, Accounts, Transactions_By_Account, Report_Currency, Exchange_Date, 'HistoricalEarnings', End_Date, Historical_Earnings_Balance, _),
-	vec_sum([Current_Earnings_Balance, Historical_Earnings_Balance], Earnings_Balance),	
-	vec_sub(Accounts_Balance, Earnings_Balance, Trial_Balance),
+	vec_sum([Net_Assets_Balance, Equity_Balance], Trial_Balance),
+	Transactions_Count is Net_Assets_Count + Equity_Count,
+
 	% too bad there isnt a trial balance concept in the taxonomy yet, but not a problem
 	Trial_Balance_Section = entry('Trial_Balance', Trial_Balance, [], Transactions_Count).
 
