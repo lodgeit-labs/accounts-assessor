@@ -9,7 +9,7 @@
 % Modules
 %--------------------------------------------------------------------
 
-:- module(process_xml_loan_request, [process_xml_loan_request/2]).
+:- module(process_xml_loan_request, []).
 
 % use "XSD" library to validate XML
 :- use_module(library(xsd)).
@@ -19,14 +19,14 @@
 :- use_module('../loans', [loan_agr_summary/2]).
 :- use_module('../days',  [absolute_day/2, parse_date/2, parse_date_into_absolute_days/2]).
 :- use_module('../xml', [
-	validate_xml/2
+	validate_xml/3
 ]).
 
 % -------------------------------------------------------------------
 % process_xml_loan_request/2: loan-request.xml
 % -------------------------------------------------------------------
 
-process_xml_loan_request(FileNameIn, DOM) :-
+process_xml_loan_request(FileNameIn, DOM, Reports) :-
    (
       FileNameIn  = 'loan-request.xml'
       ->
@@ -45,18 +45,31 @@ process_xml_loan_request(FileNameIn, DOM) :-
      OpeningBalance = -1
    ),   
 
+   Reports = _{
+		files: [],
+		errors: Schema_Errors,
+		warnings: []
+   },
+
    absolute_tmp_path(FileNameIn, Instance_File),
-   validate_xml(Instance_File, 'schemas/bases/Reports.xsd'),
-
-
-   % need to handle empty repayments/repayment, needs to be tested
-   findall(loan_repayment(Date, Value), xpath(DOM, //reports/loanDetails/repayments/repayment(@date=Date, @value=Value), _E7), LoanRepayments),
-   atom_number(ComputationYear, NIncomeYear),
-   convert_xpath_results(CreationIncomeYear,  Term,  PrincipalAmount,  LodgementDate,  ComputationYear,  OpeningBalance,  LoanRepayments,
-		         NCreationIncomeYear, NTerm, NPrincipalAmount, NLodgementDate, NComputationYear, NOpeningBalance, NLoanRepayments),   
-   loan_agr_summary(loan_agreement(0, NPrincipalAmount, NLodgementDate, NCreationIncomeYear, NTerm, 
-				   NComputationYear, NOpeningBalance, NLoanRepayments), Summary),
-   display_xml_loan_response(FileNameOut, NIncomeYear, Summary).
+   absolute_file_name(my_schemas('bases/Reports.xsd'), Schema_File, []),
+   validate_xml(Instance_File, Schema_File, Schema_Errors),
+   (
+		Schema_Errors = []
+	->
+		(
+			% need to handle empty repayments/repayment, needs to be tested
+			findall(loan_repayment(Date, Value), xpath(DOM, //reports/loanDetails/repayments/repayment(@date=Date, @value=Value), _E7), LoanRepayments),
+			atom_number(ComputationYear, NIncomeYear),
+			convert_xpath_results(CreationIncomeYear,  Term,  PrincipalAmount,  LodgementDate,  ComputationYear,  OpeningBalance,  LoanRepayments,
+						 NCreationIncomeYear, NTerm, NPrincipalAmount, NLodgementDate, NComputationYear, NOpeningBalance, NLoanRepayments),   
+			loan_agr_summary(loan_agreement(0, NPrincipalAmount, NLodgementDate, NCreationIncomeYear, NTerm, 
+						   NComputationYear, NOpeningBalance, NLoanRepayments), Summary),
+			display_xml_loan_response(FileNameOut, NIncomeYear, Summary)
+		)
+	;
+		true
+	).
 
    
 % -------------------------------------------------------------------
@@ -91,9 +104,9 @@ display_xml_loan_response(FileNameOut, IncomeYear,
    close(XMLStream),
 
    % read the schema file
-   absolute_file_name(my_schemas('responses/loan-response.xsd'), FileLoanResponseXSD, []),
+   absolute_file_name(my_schemas('responses/LoanResponse.xsd'), FileLoanResponseXSD, []),
    read_file_to_string(FileLoanResponseXSD, LoanResponseXSD, []),   
-   absolute_tmp_path('loan_response.xsd', TempFileLoanResponseXSD),
+   absolute_tmp_path('LoanResponse.xsd', TempFileLoanResponseXSD),
    % create a temporary loan xsd file to validate the response against the schema
    % a bug in XSD library requires that we create a new schema file for each validation
    open(TempFileLoanResponseXSD, write, XSDStream),

@@ -12,6 +12,7 @@
 :- use_module(library(debug), [assertion/1]).
 :- use_module(library(http/http_client)).
 :- use_module(library(http/json)).
+:- use_module(library(http/http_open)).
 :- use_module(library(xpath)).
 :- use_module(library(readutil)).
 :- use_module('../../lib/files').
@@ -19,58 +20,136 @@
 :- use_module('compare_xml').
 :- use_module('../../lib/utils', [
 		floats_close_enough/2]).
+:- use_module('../../lib/xml').
+
 
 :- begin_tests(xml_testcases, [setup((debug,run_simple_server))]).
 
 test(start) :- nl.
 
-test(invalid, throws(_)) :-
-/*
-	todo: probably all invalid request files should have a corresponding response file, where a xml-formatted error message is. The endpoint should probably still answer with a Bad Request status code, but we should catch it in query_endpoint and parse the error xml. If the invalid requests are stored in invalid/, we just nedd to change the file search algo to list all sub-directories recursively.
-*/
-	query_endpoint('endpoint_tests/depreciation/invalid/depreciation-request-written-down-values-earlier-reuqest-date-invalid.xml', _).
+test(ledger, [forall(testcases('endpoint_tests/ledger',Testcase))]) :-
+	run_endpoint_test(ledger, Testcase).
 
-test(endpoints, [forall(testcases(Testcase))]) :-
-	run_endpoint_test(Testcase).
+test(loan, [forall(testcases('endpoint_tests/loan',Testcase))]) :-
+	run_endpoint_test(loan, Testcase).
+
+test(depreciation, [forall(testcases('endpoint_tests/depreciation',Testcase))]) :-
+	run_endpoint_test(depreciation, Testcase).
+
+test(livestock, [forall(testcases('endpoint_tests/livestock',Testcase))]) :-
+	run_endpoint_test(livestock, Testcase).
+
+test(investment, [forall(testcases('endpoint_tests/investment', Testcase))]) :-
+	run_endpoint_test(investment, Testcase).
+
+test(car, [forall(testcases('endpoint_tests/car',Testcase)), fixme('NER API server is down.')]) :-
+	run_endpoint_test(car, Testcase).
 
 :- end_tests(xml_testcases).
 
-run_endpoint_test(Testcase) :-
-	Testcase = (Request_XML_File_Path, Response),
-	/* todo: each test-case should get its own directory
-			* request.xml
-			* responses/
-	*/
+
+output_schema(loan,'responses/LoanResponse.xsd').
+output_schema(depreciation,'responses/DepreciationResponse.xsd').
+output_schema(livestock,'responses/LivestockResponse.xsd').
+output_schema(investment,'responses/InvestmentResponse.xsd').
+output_schema(car,'responses/CarAPIResponse.xsd').
+
+output_taxonomy(ledger,'taxonomy/basic.xsd').
+
+output_file(loan, 'response_xml', xml).
+output_file(depreciation, 'response_xml', xml).
+output_file(livestock, 'response_xml', xml).
+output_file(investment, 'response_xml', xml).
+output_file(car, 'response_xml', xml).
+output_file(ledger, 'response_xml', xml).
+output_file(ledger, 'general_ledger_json', json).
+output_file(ledger, 'investment_report_json', json).
+output_file(ledger, 'investment_report_since_beginning_json', json).
+
+run_endpoint_test(Type, Testcase) :-
+	atomic_list_concat([Testcase, "request.xml"], "/", Request_XML_File_Path),
+
 	query_endpoint(Request_XML_File_Path, Response_JSON),
 
-	% check for error messages
-	% Response_Errors = Response_JSON.alerts
-	% Response_JSON.alerts = [_], % there is an error
+	tmp_uri_to_path(Response_JSON.reports.response_xml.url, Response_XML_Path),
+	check_output_schema(Type, Response_XML_Path),
+	% todo: xbrl validation on ledger response XBRL
+	%check_output_taxonomy(Type, Response_XML_Path),
 
-	http_get(Response_JSON.reports.response_xml.url, Response_XML, []),
-	find_warnings(Response_XML),
-	load_structure(string(Response_XML), Response_DOM,[dialect(xml),space(sgml)]),
-
+	tmp_uri_to_saved_response_path(Testcase, Response_JSON.reports.response_xml.url, Saved_Response_XML_Path),
 
 	(
-		var(Response)
+		\+exists_file(Saved_Response_XML_Path)
 	->
 		(
-			true
-			/*
-			todo: we have no known response file, we should check if the actual response is an error xml and fail if it is
-			*/
+			print_alerts(Response_JSON, ['ERROR', 'WARNING', 'SYSTEM_WARNING']),
+			Response_JSON.alerts = []
 		)
-			
 	;
 		(
-			write('## Testing Response File: '), writeln(Response),
-			get_request_context(Request_XML_File_Path, Context),
-			test_response(Context, Response_DOM, Response)
+			print_alerts(Response_JSON, ['SYSTEM_WARNING']),
+			findall(
+				Errors,
+				(
+					output_file(Type, File_ID, File_Type),
+					check_saved_response(Testcase, Response_JSON, File_ID, File_Type, Errors)
+				),
+				Error_List
+			),
+			flatten(Error_List, Error_List_Flat),
+			(
+				Error_List_Flat = []
+			->
+				true
+			;
+				(
+					format("Errors: ~w~n", [Error_List_Flat]),
+					fail
+				)
+			)
 		)
+	),
+	!,
+	% because we use gensym in investment reports and it will keep incrementing throughout the test-cases, causing fresh responses to not match saved responses.
+	reset_gensym(iri).
+
+print_alerts(Response_JSON, Alert_Types) :-
+	findall(
+		_,
+		(
+			member(_{type:Type,value:Alert}, Response_JSON.alerts),
+			member(Type, Alert_Types),
+			format("~w: ~w~n", [Type, Alert])
+		),
+		_
 	).
 
-	% todo: validate other json docs.
+check_saved_response(Testcase, Response_JSON, File_ID, File_Type, Errors) :-
+	(
+		get_dict(File_ID, Response_JSON.reports, _)
+	->
+		(
+			tmp_uri_to_saved_response_path(Testcase, Response_JSON.reports.File_ID.url, Saved_Response_Path),
+			(
+				exists_file(Saved_Response_Path)
+			->
+				(
+					format("## Testing Response File: ~w~n", [Saved_Response_Path]),
+					test_response(Response_JSON.reports.File_ID.url, Saved_Response_Path, File_Type, Errors0),
+					findall(
+						File_ID:Error,
+						member(Error,Errors0),
+						Errors
+					)
+				)
+			;
+				Errors = []
+			)
+		)
+	;
+		Errors = []
+	).
+
 
 check_value_difference(Value1, Value2) :-
 	atom_number(Value1, NValue1),
@@ -78,42 +157,52 @@ check_value_difference(Value1, Value2) :-
 	floats_close_enough(NValue1, NValue2).
 
 
-test_response(loan, ReplyXML, LoanResponseFile0) :-
-	test_loan_response(ReplyXML, LoanResponseFile0),
-	test_response(general, ReplyXML, LoanResponseFile0),
-	!.
+test_response(Response_URL, Saved_Response_Path, xml, Errors) :-
+	http_get(Response_URL, Response_XML, []),
+	load_structure(string(Response_XML), Response_DOM,[dialect(xml),space(sgml)]),
 
-test_response(_, Reply_Dom, Expected_Response_File_Relative_Path) :-
-	absolute_file_name(my_tests(
-		Expected_Response_File_Relative_Path),
-		Expected_Response_File_Absolute_Path,
-		[ access(read) ]
-	),
-	load_xml(Expected_Response_File_Absolute_Path, Expected_Reply_Dom, [space(sgml)]),
-	compare_xml_dom(Reply_Dom, Expected_Reply_Dom, Error),
+	load_xml(Saved_Response_Path, Saved_Response_DOM, [space(sgml)]),
+	compare_xml_dom(Response_DOM, Saved_Response_DOM, Error),
 	(
 		var(Error)
 	->
-		true
+		Errors = []
 	;
+		Errors = [Error], 
 		(
 			get_flag(overwrite_response_files, true)
 		->
 			(
-				open(Expected_Response_File_Absolute_Path, write, Stream),
-				xml_write(Stream, Reply_Dom, []),
+				open(Saved_Response_Path, write, Stream),
+				xml_write(Stream, Response_DOM, []),
 				close(Stream)
-			)
-		;
-			(
-				write_term("Error: ",[]),
-				writeln(Error),
-				writeln(""),
-				fail
 			)
 		)
 	).
+
+
+test_response(Response_URL, Saved_Response_Path, json, Error) :-
+	setup_call_cleanup(
+        http_open(Response_URL, In, [request_header('Accept'='application/json')]),
+        json_read_dict(In, Response_JSON),
+        close(In)
+    ),
+	setup_call_cleanup(
+		open(Saved_Response_Path, read, Saved_Response_Stream, []),
+		json_read_dict(Saved_Response_Stream, Saved_Response_JSON),
+		close(Saved_Response_Stream)
+	),	
+	(
+		Response_JSON = Saved_Response_JSON
+	->
+		Error = []
+	;
+		Error = ["JSON not equal"]
+	).
+		
 	
+
+
 query_endpoint(RequestFile0, Response_JSON) :-
 	write('## Testing Request File: '), writeln(RequestFile0),
 	absolute_file_name(my_tests(
@@ -127,11 +216,7 @@ query_endpoint(RequestFile0, Response_JSON) :-
 If this option is present and Code unifies with the HTTP status code, do not translate errors (4xx, 5xx) into an exception. Instead, http_open/3 behaves as if 2xx (success) is returned, providing the application to read the error document from the returned stream.
 */
 
-	%writeln("Before json_read_dict"),
-    %json_read_dict(Response_String, Response_JSON_Raw),
     atom_json_dict(Response_String, Response_JSON_Raw,[value_string_as(atom)]),
-	%writeln("After json_read_dict"),
-	% transform Response_JSON_Raw into Response_JSON
 	findall(
 		ID-_{title:Title,url:URL},
 		member(_{id:ID,key:Title,val:_{url:URL}}, Response_JSON_Raw.reports),
@@ -143,132 +228,104 @@ If this option is present and Code unifies with the HTTP status code, do not tra
 		reports:Reports_Dict
 	}.
 
-find_warnings(ReplyXML) :-
-	atom_string(ReplyXML, ReplyXML2),
-	split_string(ReplyXML2, '\n', '\n', Lines),
-	maplist(echo_warning_line, Lines).
 
-echo_warning_line(Line) :-
+testcases(Top_Level, Testcase) :-
+	format("testcases: ~w~n", [Top_Level]),
+	find_test_cases_in(Top_Level, Testcase).
+
+/*
+if there's a "request.xml" file, it's a test-case directory, so yield it
+otherwise, recurse over subdirectories
+*/
+
+find_test_cases_in(Current_Directory, Test_Case) :-
+	absolute_file_name(my_tests(Current_Directory), Current_Directory_Absolute, [file_type(directory)]),
+	directory_files(Current_Directory_Absolute, Entries),
 	(
-		sub_string(Line, _, _, _, 'SYSTEM_WARNING')
+		member('request.xml',Entries)
 	->
-		format(user_error, '~w\n', [Line])
+		Test_Case = Current_Directory
+	;
+		(
+			member(Subdirectory, Entries),
+			\+member(Subdirectory, ['.','..']),
+			atomic_list_concat([Current_Directory, Subdirectory], '/', Subdirectory_Relative_Path),	
+			catch(
+				(
+					absolute_file_name(my_tests(Subdirectory_Relative_Path), Subdirectory_Absolute_Path, [file_type(directory)]),
+					exists_directory(Subdirectory_Absolute_Path),
+					find_test_cases_in(Subdirectory_Relative_Path, Test_Case)
+				),
+				_,
+				fail
+			)	
+		) 
+	).
+
+
+tmp_uri_to_path(URI, Path) :-
+	uri_components(URI, uri_components(_,_,Path0,_,_)),
+	atom_string(Path0, Path0_String),
+	split_string(Path0_String,"/","",[_|[_|Path_Components]]),
+	atomic_list_concat(Path_Components,"/",Relative_Path),
+	absolute_file_name(my_tmp(Relative_Path), Path, []).
+
+tmp_uri_to_saved_response_path(Testcase, URI, Path) :-
+	uri_components(URI, uri_components(_,_,Path0,_,_)),
+	atom_string(Path0, Path0_String),
+	split_string(Path0_String, "/", "", Path_Components),
+	append(_,[X],Path_Components), % get last item in list
+	atomic_list_concat([Testcase, 'responses', X], "/", Relative_Path),
+	catch(
+		absolute_file_name(my_tests(Relative_Path), Path, []),
+		_,
+		true
+	).
+
+check_output_schema(Type, Response_XML_Path) :-
+	%absolute_file_name(my_tmp(Response_XML_Path), Response_XML_Absolute_Path, []),
+	(
+		output_schema(Type, Schema_Relative_Path)
+    ->
+		(
+			absolute_file_name(my_schemas(Schema_Relative_Path), Schema_Absolute_Path, []),
+			validate_xml(Response_XML_Path, Schema_Absolute_Path, Schema_Errors),
+			(
+				Schema_Errors = []
+			->
+				true
+			;
+				(
+					format("Errors: ~w~n", [Schema_Errors]),
+					fail
+				)
+			)
+		)
 	;
 		true
 	).
 
-
-testcases(Testcase) :-
-	find_test_directories(Paths),
-	member(Path, Paths),
-	find_requests(Path, Testcases),
-	member(Testcase, Testcases).
-
-find_test_directories(Paths) :-
-	Top_Level_Directory = 'endpoint_tests',
-	absolute_file_name(my_tests(Top_Level_Directory), Endpoint_Tests_Path, [file_type(directory)]),
-	directory_files(Endpoint_Tests_Path, Entries),
-	findall(Relative_Path,
-		(
-			member(Directory, Entries),
-			\+sub_atom_icasechk(Directory, _Start, '.'),
-			atomic_list_concat([Top_Level_Directory, '/', Directory], Relative_Path),
-			atomic_list_concat([Endpoint_Tests_Path, '/', Directory], Absolute_Path),
-			exists_directory(Absolute_Path)
-		),
-		Paths
-	).
-
-find_requests(Path, Testcases) :-
-	absolute_file_name(my_tests(Path), Full_Path, [file_type(directory)]),
-	directory_files(Full_Path, Entries),
-	include(is_request_file, Entries, Requests0),
-	sort(Requests0, Requests),
-	findall(
-		(Request_Path, Response_Path),
-		(
-			member(Request, Requests),
-			atomic_list_concat([Path, '/', Request], Request_Path),
-			response_file(Request_Path, Response_Path)
-		),
-		Testcases
-	).
-
-is_request_file(Atom) :-
-	atom_concat(_,'.xml',Atom),
-	sub_atom_icasechk(Atom, _Start2, 'request').
-
-response_file(Atom, Response) :-
-	replace_request_with_response(Atom, Response),
-	absolute_file_name(my_tests(Response),_,[ access(read), file_errors(fail) ]),
-	!.
-
-response_file(_, _).
-	
-% find the subdirectory of endpoint_tests that this request file is in
-get_request_context(Request, Context) :-
-	atom_chars(Request, RequestChars),
-	once(append(['e','n','d','p','o','i','n','t','_','t','e','s','t','s','/' | ContextChars], ['/' | _], RequestChars)),
-	atomic_list_concat(ContextChars, Context).
-
-	
-/* 
-loan endpoint specific testing. General xml comparison should handle it just fine, but let's leave it here as an example for when endpoint-specific testing actually is necessary
-*/
-	
-test_loan_response(ActualReplyDOM, Expected_LoanResponseFile0) :-
-	
-	absolute_file_name(my_tests(
-		Expected_LoanResponseFile0),
-		Expected_LoanResponseFile,
-		[ access(read) ]
-	),
-	
-	load_xml(Expected_LoanResponseFile, ExpectedReplyDOM, [space(sgml)]),
-
-	% do the comparison here?	
-	% seems fine to me
-
-	extract_loan_response_values(ActualReplyDOM, ActualIncomeYear, ActualOpeningBalance, ActualInterestRate, ActualMinYearlyRepayment, ActualTotalRepayment, 
-		ActualRepaymentShortfall, ActualTotalInterest, ActualTotalPrincipal, ActualClosingBalance),
-	
-	extract_loan_response_values(ExpectedReplyDOM, ExpectedIncomeYear, ExpectedOpeningBalance, ExpectedInterestRate, ExpectedMinYearlyRepayment, ExpectedTotalRepayment, 
-		ExpectedRepaymentShortfall, ExpectedTotalInterest, ExpectedTotalPrincipal, ExpectedClosingBalance),
-
-	assertion(check_value_difference(ActualIncomeYear, ExpectedIncomeYear)),
-	assertion(check_value_difference(ActualOpeningBalance, ExpectedOpeningBalance)),
-	assertion(check_value_difference(ActualInterestRate, ExpectedInterestRate)),
-	assertion(check_value_difference(ActualMinYearlyRepayment, ExpectedMinYearlyRepayment)),
-	assertion(check_value_difference(ActualTotalRepayment, ExpectedTotalRepayment)),
-	assertion(check_value_difference(ActualRepaymentShortfall, ExpectedRepaymentShortfall)),
-	assertion(check_value_difference(ActualTotalInterest, ExpectedTotalInterest)),
-	assertion(check_value_difference(ActualTotalPrincipal, ExpectedTotalPrincipal)),
-	assertion(check_value_difference(ActualClosingBalance, ExpectedClosingBalance)).
-
-% -------------------------------------------------------------------
-% Extract all required information from the loan response XML
-% -------------------------------------------------------------------
-
-extract_loan_response_values(DOM, IncomeYear, OpeningBalance, InterestRate, MinYearlyRepayment, TotalRepayment, RepaymentShortfall, TotalInterest, TotalPrincipal, ClosingBalance) :-
-	findall(
-		x,
-		extract_loan_response_values2(DOM, IncomeYear, OpeningBalance, InterestRate, MinYearlyRepayment, TotalRepayment, RepaymentShortfall, TotalInterest, TotalPrincipal, ClosingBalance),
-		[x]),
-	once(extract_loan_response_values2(DOM, IncomeYear, OpeningBalance, InterestRate, MinYearlyRepayment, TotalRepayment, RepaymentShortfall, TotalInterest, TotalPrincipal, ClosingBalance)).
-
-		
-extract_loan_response_values2(DOM, IncomeYear, OpeningBalance, InterestRate, MinYearlyRepayment, TotalRepayment, RepaymentShortfall, TotalInterest, TotalPrincipal, ClosingBalance) :-
-	xpath(DOM, //'LoanSummary'/'IncomeYear', element(_, _, [IncomeYear])),
-	xpath(DOM, //'LoanSummary'/'OpeningBalance', element(_, _, [OpeningBalance])),
-	xpath(DOM, //'LoanSummary'/'InterestRate', element(_, _, [InterestRate])),
-	xpath(DOM, //'LoanSummary'/'MinYearlyRepayment', element(_, _, [MinYearlyRepayment])),
-	xpath(DOM, //'LoanSummary'/'TotalRepayment', element(_, _, [TotalRepayment])),
-	xpath(DOM, //'LoanSummary'/'RepaymentShortfall', element(_, _, [RepaymentShortfall])),
-	xpath(DOM, //'LoanSummary'/'TotalInterest', element(_, _, [TotalInterest])),
-	xpath(DOM, //'LoanSummary'/'TotalPrincipal', element(_, _, [TotalPrincipal])),
-	xpath(DOM, //'LoanSummary'/'ClosingBalance', element(_, _, [ClosingBalance])).
-	
 /*
-end loan stuff
+check_output_taxonomy(Type, Response_XML_Path) :-
+	absolute_file_name(my_tmp(Response_XML_Path), Response_XML_Absolute_Path, []),
+	(
+		output_taxonomy(Type, Schema_Relative_Path)
+    ->
+		(
+			absolute_file_name(my_static(Schema_Relative_Path), Schema_Absolute_Path, []),
+			validate_xml(Response_XML_Absolute_Path, Schema_Absolute_Path, Schema_Errors),
+			(
+				Schema_Errors = []
+			->
+				true
+			;
+				(
+					format("Errors: ~w~n", [Schema_Errors]),
+					fail
+				)
+			)
+		)
+	;
+		true
+	).
 */
-

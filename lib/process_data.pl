@@ -2,12 +2,12 @@
 :- use_module(library(archive)).
 :- use_module(library(sgml)).
 
-:- use_module(loan/process_xml_loan_request, [process_xml_loan_request/2]).
-:- use_module(ledger/process_xml_ledger_request, [process_xml_ledger_request/3]).
+:- use_module(loan/process_xml_loan_request).
+:- use_module(ledger/process_xml_ledger_request).
 :- use_module(livestock/process_xml_livestock_request).
-:- use_module(investment/process_xml_investment_request, [process_xml_investment_request/2]).
-:- use_module(car_request/process_xml_car_request, [process_xml_car_request/2]).
-:- use_module(depreciation/process_xml_depreciation_request, [process_xml_depreciation_request/2]).
+:- use_module(investment/process_xml_investment_request).
+:- use_module(car_request/process_xml_car_request).
+:- use_module(depreciation/process_xml_depreciation_request).
 
 :- use_module('files', [
 		bump_tmp_directory_id/0,
@@ -72,12 +72,12 @@ process_xml_request(File_Name, Dom, (Report_Files, Response_Title)) :-
 	;
 		throw_string('<reports> tag not found')
 	),
-	(process_xml_car_request(File_Name, Dom) -> Report_Files = files{};
-	(process_xml_loan_request(File_Name, Dom) -> Report_Files = files{};
-	(process_xml_ledger_request(File_Name, Dom, Report_Files) -> Response_Title = 'xbrl instance';
+	(process_xml_car_request:process_xml_car_request(File_Name, Dom, Report_Files);
+	(process_xml_loan_request:process_xml_loan_request(File_Name, Dom, Report_Files);
+	(process_xml_ledger_request:process_xml_ledger_request(File_Name, Dom, Report_Files) -> Response_Title = 'xbrl instance';
 	(process_xml_livestock_request:process_xml_livestock_request(File_Name, Dom, Report_Files);
-	(process_xml_investment_request(File_Name, Dom) -> Report_Files = files{};
-	(process_xml_depreciation_request(File_Name, Dom) -> Report_Files = files{})))))),
+	(process_xml_investment_request:process_xml_investment_request(File_Name, Dom, Report_Files);
+	(process_xml_depreciation_request:process_xml_depreciation_request(File_Name, Dom, Report_Files))))))),
 	(
 		var(Response_Title)
 	->
@@ -95,7 +95,7 @@ response_file_name(Request_File_Name, Response_File_Name) :-
 		atomic_list_concat(['response-',Request_File_Name], Response_File_Name)
 	).
 
-
+/*
 to_json(Reports, Reports2) :-
 	findall(
 		_{key:Key, val:Val}, 
@@ -111,7 +111,7 @@ to_json(Reports, Reports2) :-
 		),
 		Reports2
 	).
-
+*/
 
 process_data(_, Path, Options) :-
 /*User_Request_File_Path, Saved_Request_File_Path*/
@@ -167,11 +167,6 @@ process_data(_, Path, Options) :-
 		alerts:Alerts3, 
 		reports:Files3
 	},
-	/*
-	format(user_error, "~w~n", [Json_Out]),
-	json_write(current_output, Json_Out),
-	%throw(_),
-	*/
 	with_output_to(string(Response_Xml_String), print_xml_response(Json_Out, Output_Xml_String)),
 	write_file(Output_File_Path, Response_Xml_String),
 	with_output_to(string(Response_Json_String), json_write(current_output, Json_Out)),

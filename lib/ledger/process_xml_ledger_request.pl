@@ -81,7 +81,7 @@
 		print_trading/3
 ]).
 :- use_module('../xml', [
-		validate_xml/2
+		validate_xml/3
 ]).
 
 :- use_module('../investment_report_1').		      
@@ -91,18 +91,31 @@
 
 process_xml_ledger_request(File_Name, Dom, Reports) :-
 	/* does it look like a ledger request? */
-	% ideally should be able to omit this and have this check be done as part of the schema validation, but currently that's problematic. 
+	% ideally should be able to omit this and have this check be done as part of the schema validation, but currently that's problematic because process_data.pl is using this to check whether to use this endpoint. 
 	inner_xml(Dom, //reports/balanceSheetRequest, _),
 
 	absolute_tmp_path(File_Name, Instance_File),
-	validate_xml(Instance_File, 'schemas/bases/Reports.xsd'),
+	absolute_file_name(my_schemas('bases/Reports.xsd'), Schema_File, []),
+	validate_xml(Instance_File, Schema_File, Schema_Errors),
+	(
+		Schema_Errors = []
+	->
+		process_xml_ledger_request2(Dom, Reports)
+	;
+		Reports = _{
+			files: [],
+			errors: Schema_Errors,
+			warnings: []
+		}
+	).
 
-	process_xml_ledger_request2(Dom, Reports).
 
 
 
 	
 process_xml_ledger_request2(Dom, Reports_Out) :-
+
+
 	/*
 		first let's extract data from the request
 	*/
@@ -298,7 +311,7 @@ make_gl_report(Dict, Suffix, Report_File_Info) :-
 	dict_json_text(Dict, Json_Text),
 	atomic_list_concat(['general_ledger', Suffix, '.json'], Fn),
 	report_item(Fn, Json_Text, Report_File_URL),
-	report_entry('General Ledger Report', Report_File_URL, 'genereal_ledger_json', Report_File_Info).
+	report_entry('General Ledger Report', Report_File_URL, 'general_ledger_json', Report_File_Info).
 
 print_dimensional_facts(Static_Data, Instant_Context_Id_Base, Duration_Context_Id_Base, Entity_Identifier, Results0, Results3) :-
 	print_banks(Static_Data, Instant_Context_Id_Base, Entity_Identifier, Results0, Results1),

@@ -13,7 +13,7 @@
 	absolute_tmp_path/2
 ]).
 :- use_module('../xml', [
-	validate_xml/2
+	validate_xml/3
 ]).
 
 
@@ -22,17 +22,28 @@ process_xml_livestock_request(File_Name, DOM, Reports) :-
 	findall(Livestock, xpath(DOM, //reports/livestockaccount/livestocks/livestock, Livestock), Livestocks),
 	Livestocks \= [],
 
+	Reports = _{
+		files: File_Infos,
+		errors: [Schema_Errors, Alerts],
+		warnings: []
+	},
+
 	absolute_tmp_path(File_Name, Instance_File),
-	validate_xml(Instance_File, 'schemas/bases/Reports.xsd'),
+	absolute_file_name(my_schemas('bases/Reports.xsd'), Schema_File, []),
+	validate_xml(Instance_File, Schema_File, Schema_Errors),
+	(
+		Schema_Errors = []
+	->
+		(
 
-	writeln('<response>'),
-	writeln('<livestocks>'),
-	maplist(process, Livestocks, Alerts, File_Infos),
-	writeln('</livestocks>'),
-	writeln('</response>'),
-	nl, nl,
-	Reports = _{alerts:Alerts, files:File_Infos}.
-
+			writeln('<response>'),
+			writeln('<livestocks>'),
+			maplist(process, Livestocks, Alerts, File_Infos),
+			writeln('</livestocks>'),
+			writeln('</response>'),
+			nl, nl
+		)
+	).
 	
 process(DOM, [], Report_File_Info) :-
 	writeln('<livestock>'),

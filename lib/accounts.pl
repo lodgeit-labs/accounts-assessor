@@ -133,13 +133,13 @@ extract_account_hierarchy(Request_DOM, Account_Hierarchy) :-
 	% writeln(Request_DOM),
 	findall(
 		DOM,
-		xpath(Request_DOM, //reports/balanceSheetRequest/accounts, element(_,_,DOM)), 
+		xpath(Request_DOM, //reports/balanceSheetRequest/accountHierarchy, DOM), 
 		DOMs
 	),
 	(
 		DOMs = []
 	->
-		add_accounts(['default_account_hierarchy.xml'], Account_Hierarchy)
+		add_accounts(element(_,_,['default_account_hierarchy.xml']), Account_Hierarchy)
 	;
 		(
 			maplist(add_accounts, DOMs, Accounts),
@@ -177,13 +177,12 @@ add_accounts(DOM, Accounts) :-
 	% "read_dom_from_accounts_tag"
 	(
 		%is it a tree of account tags? use it
-		DOM = [Inner_XML],
-		Inner_XML = element(_,_,_)
+		DOM = element(_,_,[element(_,_,_)|_])
 	->
-		Accounts_DOM = Inner_XML
+		Accounts_DOM = DOM
 	;
 		(
-			[Atom] = DOM,
+			element(_,_,[Atom]) = DOM,
 			trim_atom(Atom, Path),
 			(
 				is_uri(Path)
@@ -268,9 +267,8 @@ accounts_dom_from_file_path(File_Path, Accounts_DOM) :-
 % ------------------------------------------------------------------
 
 extract_account_hierarchy2(Account_Hierarchy_Dom, Account_Hierarchy) :-
-   %findall(Account, xpath(Account_Hierarchy_Dom, *, Account), Accounts),
-   findall(Link, yield_accounts(Account_Hierarchy_Dom, Link), Account_Hierarchy0),
-   sort(Account_Hierarchy0, Account_Hierarchy).
+	findall(Link, yield_accounts(Account_Hierarchy_Dom, Link), Account_Hierarchy0),
+	sort(Account_Hierarchy0, Account_Hierarchy).
 
  
 % extracts and yields all accounts one by one
