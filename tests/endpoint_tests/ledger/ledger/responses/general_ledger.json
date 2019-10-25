@@ -1,0 +1,190 @@
+[
+  {
+    "source": {
+      "account":"WellsFargo",
+      "date":"date(2017,7,1)",
+      "exchanged":"vector([])",
+      "report_currency_transacted_amount":260.11179999999996,
+      "vector": [ {"credit":0, "debit":200, "unit":"USD"} ],
+      "verb":"Introduce_Capital"
+    },
+    "transactions": [
+      {
+	"account":"BanksWellsFargo",
+	"date":"date(2017,7,1)",
+	"description":"Introduce_Capital - incoming money",
+	"type":"instant",
+	"vector": [ {"credit":0, "debit":200, "unit":"USD"} ],
+	"vector_converted": [ {"credit":0.0, "debit":270.1608, "unit":"AUD"} ]
+      },
+      {
+	"account":"CurrencyMovementWellsFargo",
+	"date":"date(2017,7,1)",
+	"description":"Introduce_Capital - incoming money - currency movement adjustment - only current period",
+	"type":"tracking",
+	"vector": [
+	   {"credit":200, "debit":0, "unit":"USD"},
+	   {
+  "credit":0,
+  "debit":200,
+  "unit":"without_currency_movement_against_since('USD','USD',['AUD'],date(2017,7,1))"
+}
+	],
+	"vector_converted": [ {"credit":10.048999999999978, "debit":0.0, "unit":"AUD"} ]
+      },
+      {
+	"account":"ShareCapital",
+	"date":"date(2017,7,1)",
+	"description":"Introduce_Capital",
+	"type":"instant",
+	"vector": [ {"credit":260.1118, "debit":0.0, "unit":"AUD"} ],
+	"vector_converted": [ {"credit":260.1118, "debit":0.0, "unit":"AUD"} ]
+      }
+    ]
+  },
+  {
+    "source": {
+      "account":"WellsFargo",
+      "date":"date(2017,7,10)",
+      "exchanged":"vector([coord('BHP',10,0)])",
+      "report_currency_transacted_amount":131.464,
+      "vector": [ {"credit":100.0, "debit":0.0, "unit":"USD"} ],
+      "verb":"Invest_In"
+    },
+    "transactions": [
+      {
+	"account":"BanksWellsFargo",
+	"date":"date(2017,7,10)",
+	"description":"Invest_In - outgoing money",
+	"type":"instant",
+	"vector": [ {"credit":100.0, "debit":0.0, "unit":"USD"} ],
+	"vector_converted": [ {"credit":135.0804, "debit":0.0, "unit":"AUD"} ]
+      },
+      {
+	"account":"CurrencyMovementWellsFargo",
+	"date":"date(2017,7,10)",
+	"description":"Invest_In - outgoing money - currency movement adjustment - only current period",
+	"type":"tracking",
+	"vector": [
+	   {"credit":0.0, "debit":100.0, "unit":"USD"},
+	   {
+  "credit":100.0,
+  "debit":0.0,
+  "unit":"without_currency_movement_against_since('USD','USD',['AUD'],date(2017,7,10))"
+}
+	],
+	"vector_converted": [ {"credit":0.0, "debit":3.6163999999999987, "unit":"AUD"} ]
+      },
+      {
+	"account":"FinancialInvestmentsBHP",
+	"date":"date(2017,7,10)",
+	"description":"Invest_In",
+	"type":"instant",
+	"vector": [ {"credit":0, "debit":10, "unit":"BHP"} ],
+	"vector_converted": [ {"credit":0.0, "debit":27.01608, "unit":"AUD"} ]
+      },
+      {
+	"account":"InvestmentIncomeUnrealizedOnlyCurrencyMovementBHP",
+	"date":"date(2017,7,10)",
+	"description":"comment:?, comment2:Invest_In - single period",
+	"type":"?",
+	"vector": [
+	   {"credit":10, "debit":0, "unit":"BHP"},
+	   {
+  "credit":0,
+  "debit":10,
+  "unit":"without_currency_movement_against_since('BHP','USD',['AUD'],date(2017,7,10))"
+}
+	],
+	"vector_converted": [ {"credit":0.723279999999999, "debit":0.0, "unit":"AUD"} ]
+      },
+      {
+	"account":"InvestmentIncomeUnrealizedWithoutCurrencyMovementBHP",
+	"date":"date(2017,7,10)",
+	"description":"comment:?, comment2:Invest_In - single period",
+	"type":"?",
+	"vector": [
+	   {
+  "credit":10,
+  "debit":0,
+  "unit":"without_currency_movement_against_since('BHP','USD',['AUD'],date(2017,7,10))"
+},
+	   {"credit":0, "debit":131.464, "unit":"AUD"}
+	],
+	"vector_converted": [ {"credit":0.0, "debit":105.1712, "unit":"AUD"} ]
+      }
+    ]
+  },
+  {
+    "source": {
+      "account":"NationalAustraliaBank",
+      "date":"date(2017,8,1)",
+      "exchanged":"vector([])",
+      "report_currency_transacted_amount":100.0,
+      "vector": [ {"credit":0, "debit":100, "unit":"AUD"} ],
+      "verb":"Borrow"
+    },
+    "transactions": [
+      {
+	"account":"BanksNationalAustraliaBank",
+	"date":"date(2017,8,1)",
+	"description":"Borrow - incoming money",
+	"type":"instant",
+	"vector": [ {"credit":0, "debit":100, "unit":"AUD"} ],
+	"vector_converted": [ {"credit":0.0, "debit":100.0, "unit":"AUD"} ]
+      },
+      {
+	"account":"NoncurrentLoans",
+	"date":"date(2017,8,1)",
+	"description":"Borrow",
+	"type":"instant",
+	"vector": [ {"credit":100.0, "debit":0.0, "unit":"AUD"} ],
+	"vector_converted": [ {"credit":100.0, "debit":0.0, "unit":"AUD"} ]
+      }
+    ]
+  },
+  {
+    "source": {
+      "account":"WellsFargo",
+      "date":"date(2018,6,28)",
+      "exchanged":"vector([])",
+      "report_currency_transacted_amount":13.60971,
+      "vector": [ {"credit":10, "debit":0.0, "unit":"USD"} ],
+      "verb":"Pay_Bank"
+    },
+    "transactions": [
+      {
+	"account":"BanksWellsFargo",
+	"date":"date(2018,6,28)",
+	"description":"Pay_Bank - outgoing money",
+	"type":"instant",
+	"vector": [ {"credit":10, "debit":0.0, "unit":"USD"} ],
+	"vector_converted": [ {"credit":13.50804, "debit":0.0, "unit":"AUD"} ]
+      },
+      {
+	"account":"CurrencyMovementWellsFargo",
+	"date":"date(2018,6,28)",
+	"description":"Pay_Bank - outgoing money - currency movement adjustment - only current period",
+	"type":"tracking",
+	"vector": [
+	   {"credit":0.0, "debit":10.0, "unit":"USD"},
+	   {
+  "credit":10.0,
+  "debit":0.0,
+  "unit":"without_currency_movement_against_since('USD','USD',['AUD'],date(2018,6,28))"
+}
+	],
+	"vector_converted": [ {"credit":0.10167000000000037, "debit":0.0, "unit":"AUD"} ]
+      },
+      {
+	"account":"BankCharges",
+	"date":"date(2018,6,28)",
+	"description":"Pay_Bank",
+	"type":"instant",
+	"vector": [ {"credit":0.0, "debit":13.60971, "unit":"AUD"} ],
+	"vector_converted": [ {"credit":0.0, "debit":13.60971, "unit":"AUD"} ]
+      }
+    ]
+  },
+  {"source":"livestock", "transactions": []}
+]

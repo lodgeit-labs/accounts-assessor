@@ -12,6 +12,7 @@
 :- use_module(library(debug), [assertion/1]).
 :- use_module(library(http/http_client)).
 :- use_module(library(http/json)).
+:- use_module(library(http/http_open)).
 :- use_module(library(xpath)).
 :- use_module(library(readutil)).
 :- use_module('../../lib/files').
@@ -55,6 +56,16 @@ output_schema(car,'responses/CarAPIResponse.xsd').
 
 output_taxonomy(ledger,'taxonomy/basic.xsd').
 
+output_file(loan, 'response_xml', xml).
+output_file(depreciation, 'response_xml', xml).
+output_file(livestock, 'response_xml', xml).
+output_file(investment, 'response_xml', xml).
+output_file(car, 'response_xml', xml).
+output_file(ledger, 'response_xml', xml).
+output_file(ledger, 'general_ledger_json', json).
+output_file(ledger, 'investment_report_json', json).
+output_file(ledger, 'investment_report_since_beginning_json', json).
+
 run_endpoint_test(Type, Testcase) :-
 	atomic_list_concat([Testcase, "request.xml"], "/", Request_XML_File_Path),
 
@@ -62,21 +73,13 @@ run_endpoint_test(Type, Testcase) :-
 
 	tmp_uri_to_path(Response_JSON.reports.response_xml.url, Response_XML_Path),
 	check_output_schema(Type, Response_XML_Path),
-
 	% todo: xbrl validation on ledger response XBRL
 	%check_output_taxonomy(Type, Response_XML_Path),
 
-	atomic_list_concat([Testcase, "responses/response.xml"], "/", Saved_Response_XML_File_Path),
-	catch(
-		absolute_file_name(my_tests(Saved_Response_XML_File_Path), Saved_Response_XML_Absolute_Path, []),
-		_,
-		true
-	),
-
-
+	tmp_uri_to_saved_response_path(Testcase, Response_JSON.reports.response_xml.url, Saved_Response_XML_Path),
 
 	(
-		\+exists_file(Saved_Response_XML_Absolute_Path)
+		\+exists_file(Saved_Response_XML_Path)
 	->
 		(
 			print_alerts(Response_JSON, ['ERROR', 'WARNING', 'SYSTEM_WARNING']),
@@ -85,9 +88,30 @@ run_endpoint_test(Type, Testcase) :-
 	;
 		(
 			print_alerts(Response_JSON, ['SYSTEM_WARNING']),
-			check_saved_response(Response_JSON, Request_XML_File_Path, Saved_Response_XML_Absolute_Path)
+			findall(
+				Errors,
+				(
+					output_file(Type, File_ID, File_Type),
+					check_saved_response(Testcase, Response_JSON, File_ID, File_Type, Errors)
+				),
+				Error_List
+			),
+			flatten(Error_List, Error_List_Flat),
+			(
+				Error_List_Flat = []
+			->
+				true
+			;
+				(
+					format("Errors: ~w~n", [Error_List_Flat]),
+					fail
+				)
+			)
 		)
-	).
+	),
+	!,
+	% because we use gensym in investment reports and it will keep incrementing throughout the test-cases, causing fresh responses to not match saved responses.
+	reset_gensym(iri).
 
 print_alerts(Response_JSON, Alert_Types) :-
 	findall(
@@ -100,16 +124,31 @@ print_alerts(Response_JSON, Alert_Types) :-
 		_
 	).
 
-check_saved_response(Response_JSON, _, Saved_Response_XML_File_Path) :-
-	/*
-	todo: check all json files in the response, not just the response_xml
-	*/
-	http_get(Response_JSON.reports.response_xml.url, Response_XML, []),
-	load_structure(string(Response_XML), Response_DOM,[dialect(xml),space(sgml)]),
-
-
-	write('## Testing Response File: '), writeln(Saved_Response_XML_File_Path),
-	test_response(nonloan, Response_DOM, Saved_Response_XML_File_Path).
+check_saved_response(Testcase, Response_JSON, File_ID, File_Type, Errors) :-
+	(
+		get_dict(File_ID, Response_JSON.reports, _)
+	->
+		(
+			tmp_uri_to_saved_response_path(Testcase, Response_JSON.reports.File_ID.url, Saved_Response_Path),
+			(
+				exists_file(Saved_Response_Path)
+			->
+				(
+					format("## Testing Response File: ~w~n", [Saved_Response_Path]),
+					test_response(Response_JSON.reports.File_ID.url, Saved_Response_Path, File_Type, Errors0),
+					findall(
+						File_ID:Error,
+						member(Error,Errors0),
+						Errors
+					)
+				)
+			;
+				Errors = []
+			)
+		)
+	;
+		Errors = []
+	).
 
 
 check_value_difference(Value1, Value2) :-
@@ -118,37 +157,52 @@ check_value_difference(Value1, Value2) :-
 	floats_close_enough(NValue1, NValue2).
 
 
-test_response('endpoint_tests/loan', ReplyXML, LoanResponseFile0) :-
-	test_loan_response(ReplyXML, LoanResponseFile0),
-	test_response(general, ReplyXML, LoanResponseFile0),
-	!.
+test_response(Response_URL, Saved_Response_Path, xml, Errors) :-
+	http_get(Response_URL, Response_XML, []),
+	load_structure(string(Response_XML), Response_DOM,[dialect(xml),space(sgml)]),
 
-test_response(_, Reply_Dom, Expected_Response_File_Absolute_Path) :-
-	load_xml(Expected_Response_File_Absolute_Path, Expected_Reply_Dom, [space(sgml)]),
-	compare_xml_dom(Reply_Dom, Expected_Reply_Dom, Error),
+	load_xml(Saved_Response_Path, Saved_Response_DOM, [space(sgml)]),
+	compare_xml_dom(Response_DOM, Saved_Response_DOM, Error),
 	(
 		var(Error)
 	->
-		true
+		Errors = []
 	;
+		Errors = [Error], 
 		(
 			get_flag(overwrite_response_files, true)
 		->
 			(
-				open(Expected_Response_File_Absolute_Path, write, Stream),
-				xml_write(Stream, Reply_Dom, []),
+				open(Saved_Response_Path, write, Stream),
+				xml_write(Stream, Response_DOM, []),
 				close(Stream)
-			)
-		;
-			(
-				write_term("Error: ",[]),
-				writeln(Error),
-				writeln(""),
-				fail
 			)
 		)
 	).
+
+
+test_response(Response_URL, Saved_Response_Path, json, Error) :-
+	setup_call_cleanup(
+        http_open(Response_URL, In, [request_header('Accept'='application/json')]),
+        json_read_dict(In, Response_JSON),
+        close(In)
+    ),
+	setup_call_cleanup(
+		open(Saved_Response_Path, read, Saved_Response_Stream, []),
+		json_read_dict(Saved_Response_Stream, Saved_Response_JSON),
+		close(Saved_Response_Stream)
+	),	
+	(
+		Response_JSON = Saved_Response_JSON
+	->
+		Error = []
+	;
+		Error = ["JSON not equal"]
+	).
+		
 	
+
+
 query_endpoint(RequestFile0, Response_JSON) :-
 	write('## Testing Request File: '), writeln(RequestFile0),
 	absolute_file_name(my_tests(
@@ -213,17 +267,29 @@ tmp_uri_to_path(URI, Path) :-
 	uri_components(URI, uri_components(_,_,Path0,_,_)),
 	atom_string(Path0, Path0_String),
 	split_string(Path0_String,"/","",[_|[_|Path_Components]]),
-	atomic_list_concat(Path_Components,"/",Path).
+	atomic_list_concat(Path_Components,"/",Relative_Path),
+	absolute_file_name(my_tmp(Relative_Path), Path, []).
 
+tmp_uri_to_saved_response_path(Testcase, URI, Path) :-
+	uri_components(URI, uri_components(_,_,Path0,_,_)),
+	atom_string(Path0, Path0_String),
+	split_string(Path0_String, "/", "", Path_Components),
+	append(_,[X],Path_Components), % get last item in list
+	atomic_list_concat([Testcase, 'responses', X], "/", Relative_Path),
+	catch(
+		absolute_file_name(my_tests(Relative_Path), Path, []),
+		_,
+		true
+	).
 
 check_output_schema(Type, Response_XML_Path) :-
-	absolute_file_name(my_tmp(Response_XML_Path), Response_XML_Absolute_Path, []),
+	%absolute_file_name(my_tmp(Response_XML_Path), Response_XML_Absolute_Path, []),
 	(
 		output_schema(Type, Schema_Relative_Path)
     ->
 		(
 			absolute_file_name(my_schemas(Schema_Relative_Path), Schema_Absolute_Path, []),
-			validate_xml(Response_XML_Absolute_Path, Schema_Absolute_Path, Schema_Errors),
+			validate_xml(Response_XML_Path, Schema_Absolute_Path, Schema_Errors),
 			(
 				Schema_Errors = []
 			->

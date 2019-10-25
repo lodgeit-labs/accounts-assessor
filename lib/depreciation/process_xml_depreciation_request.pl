@@ -212,7 +212,7 @@ find_type(Type, [Account_Type | Account_Type_List], Depreciation_Rates, Account)
 get_account_and_transaction(Depreciation_Request_Values, Type, Depreciation_Rates, Invest_In_Date, Cost_Value, Account, Transaction) :-
 	extract_account(Depreciation_Request_Values, Type, Depreciation_Rates, Account),
 	( 
-	var(Account) 
+		var(Account) 
 	-> 
 		throw_string('Account information is missing.') 
 	; 

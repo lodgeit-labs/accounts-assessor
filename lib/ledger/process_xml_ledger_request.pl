@@ -311,7 +311,7 @@ make_gl_report(Dict, Suffix, Report_File_Info) :-
 	dict_json_text(Dict, Json_Text),
 	atomic_list_concat(['general_ledger', Suffix, '.json'], Fn),
 	report_item(Fn, Json_Text, Report_File_URL),
-	report_entry('General Ledger Report', Report_File_URL, 'genereal_ledger_json', Report_File_Info).
+	report_entry('General Ledger Report', Report_File_URL, 'general_ledger_json', Report_File_Info).
 
 print_dimensional_facts(Static_Data, Instant_Context_Id_Base, Duration_Context_Id_Base, Entity_Identifier, Results0, Results3) :-
 	print_banks(Static_Data, Instant_Context_Id_Base, Entity_Identifier, Results0, Results1),
