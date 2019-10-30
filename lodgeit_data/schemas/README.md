@@ -1,3 +1,5 @@
+### the schema files after some organization and cleanup
+
 schemas/bases:
 * generic stuff for reusing in other schemas
 

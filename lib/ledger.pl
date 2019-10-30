@@ -83,7 +83,9 @@ process_ledger(
 	writeq(Warnings0),
 	writeln(' -->'),
 
+	/* filter out transactions after report end date */
 	s_transactions_up_to(End_Date, S_Transactions0, S_Transactions),
+	
 	pretty_term_string(Exchange_Rates0, Message1b),
 	pretty_term_string(Transaction_Types, Message2),
 	pretty_term_string(Accounts_In, Message3),
@@ -106,6 +108,7 @@ process_ledger(
 	
 	generate_system_accounts((S_Transactions, Livestock_Types, Transaction_Types), Accounts_In, Generated_Accounts_Nested),
 	flatten(Generated_Accounts_Nested, Generated_Accounts),
+	
 	pretty_term_string(Generated_Accounts, Message3b),
 	atomic_list_concat([
 	'\n<!--',
