@@ -1,4 +1,5 @@
-django
-xmlschema
 untangle
 sympy
+-e https://github.com/Arelle/Arelle
+xmlschema==1.0.14
+django
