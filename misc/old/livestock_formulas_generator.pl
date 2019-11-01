@@ -4,7 +4,7 @@ x :-
 		natural_increase_value = natural_increase_count * natural_increase_value_per_head,
 		opening_and_purchases_and_increase_count = stock_on_hand_at_beginning_of_year_count + purchases_count + natural_increase_count,
 		opening_and_purchases_value = stock_on_hand_at_beginning_of_year_value + purchases_value,
-		average_cost_formula = (opening_and_purchases_value + natural_increase_value) /  opening_and_purchases_and_increase_count,
+		average_cost = (opening_and_purchases_value + natural_increase_value) /  opening_and_purchases_and_increase_count,
 		stock_on_hand_at_end_of_year_value = average_cost * stock_on_hand_at_end_of_year_count,
 		killed_for_rations_value = killed_for_rations_count * average_cost,
 		closing_and_killed_and_sales_minus_losses_count = sales_count + killed_for_rations_count + stock_on_hand_at_end_of_year_count - losses_count,
