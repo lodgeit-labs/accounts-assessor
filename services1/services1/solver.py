@@ -6,7 +6,7 @@ which i think would still be good enough to let us write IR fully declaratively 
 
 
 from services1.formula_parser import parse_formulas
-import sympy
+#import sympy
 import logging
 
 

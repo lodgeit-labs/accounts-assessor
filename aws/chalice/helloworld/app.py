@@ -7,9 +7,10 @@ app.debug = True
 
 @app.route('/')
 def index():
-    return {'hello': 'world'}
+	return {'hello': 'world'}
 
 @app.route('/bad')
+def x():
 	raise BadRequestError("bad")
 
 
