@@ -45,6 +45,9 @@ test(investment, [forall(testcases('endpoint_tests/investment', Testcase))]) :-
 test(car, [forall(testcases('endpoint_tests/car',Testcase)), fixme('NER API server is down.')]) :-
 	run_endpoint_test(car, Testcase).
 
+test(depreciation_invalid, [forall(testcases('endpoint_tests/depreciation_invalid',Testcase)), throws(_)]) :-
+	run_endpoint_test(depreciation_invalid, Testcase).
+
 :- end_tests(xml_testcases).
 
 
