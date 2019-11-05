@@ -1,0 +1,1543 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="ReportAddressUsageCode" type="ReportAddressUsageCode" />
+  <xs:simpleType name="ReportAddressUsageCode">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="BUS" />
+      <xs:enumeration value="CNT" />
+      <xs:enumeration value="DEL" />
+      <xs:enumeration value="PMT" />
+      <xs:enumeration value="POS" />
+      <xs:enumeration value="RES" />
+      <xs:enumeration value="RO" />
+      <xs:enumeration value="TEM" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:element name="ReportAddress" nillable="true" type="ReportAddress" />
+  <xs:complexType name="ReportAddress">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="line1" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="line2" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="locality" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="state" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="postCode" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="countryName" type="xs:string" />
+      <xs:element minOccurs="1" maxOccurs="1" name="usageCode" type="ReportAddressUsageCode" />
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:element name="CardListAddress" nillable="true" type="CardListAddress" />
+  <xs:complexType name="CardListAddress">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="line1" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="line2" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="city" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="state" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="postCode" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="phone1" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="phone2" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="phone3" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="fax" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="email" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="www" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="solutation" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="contact" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="OutstandingDetail" nillable="true" type="OutstandingDetail" />
+  <xs:complexType name="OutstandingDetail">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="amountoutstanding" type="xs:decimal" />
+      <xs:element minOccurs="0" maxOccurs="1" name="taxoutstanding" type="xs:decimal" />
+    </xs:sequence>
+    <xs:attribute name="name" type="xs:string" />
+  </xs:complexType>
+  <xs:element name="SummaryDetails" nillable="true" type="SummaryDetails" />
+  <xs:complexType name="SummaryDetails">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="period1" type="ReportFieldOfDecimal" />
+      <xs:element minOccurs="0" maxOccurs="1" name="period2" type="ReportFieldOfDecimal" />
+      <xs:element minOccurs="0" maxOccurs="1" name="period3" type="ReportFieldOfDecimal" />
+      <xs:element minOccurs="0" maxOccurs="1" name="period4" type="ReportFieldOfDecimal" />
+    </xs:sequence>
+  </xs:complexType>
+  
+  <xs:element name="OutstandingSummary" nillable="true" type="OutstandingSummary" />
+  <xs:complexType name="OutstandingSummary">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="totaldue" type="xs:decimal" />
+      <xs:element minOccurs="0" maxOccurs="1"  name="summarydetail" type="SummaryDetails" />
+    </xs:sequence>
+    <xs:attribute name="name" type="xs:string" />
+  </xs:complexType>
+
+  <xs:element name="InvoiceDetail" nillable="true" type="InvoiceDetail" />
+  <xs:complexType name="InvoiceDetail">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1"  name="invoicenumber" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1"  name="invoicedate" type="xs:dateTime" />
+      <xs:element minOccurs="0" maxOccurs="1"  name="invoicevalue" type="xs:decimal" />
+    </xs:sequence>
+  </xs:complexType>
+  
+  <xs:element name="ReconciliationDetail" nillable="true" type="ReconciliationDetail" />
+  <xs:complexType name="ReconciliationDetail">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded"  name="invoice" type="InvoiceDetail" />
+      <xs:element minOccurs="0" maxOccurs="1" name="totaldue" type="xs:decimal" />
+    </xs:sequence>
+    <xs:attribute name="name" type="xs:string" />
+  </xs:complexType>
+  
+  
+  <xs:element name="TemplateFieldType" type="TemplateFieldType" />
+  <xs:simpleType name="TemplateFieldType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Decimal" />
+      <xs:enumeration value="String" />
+      <xs:enumeration value="Date" />
+      <xs:enumeration value="Address" />
+      <xs:enumeration value="Person" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="emptyDateType">
+    <xs:annotation>
+      <xs:documentation>
+        Union of xs:date and empty xs:string to allow
+        empty elements
+      </xs:documentation>
+    </xs:annotation>
+    <xs:union memberTypes="xs:date">
+      <xs:simpleType>
+        <xs:restriction base="xs:string">
+          <xs:enumeration value=""/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:union>
+  </xs:simpleType>
+  <xs:element name="PayrollActivityItem" nillable="true" type="PayrollActivityItem" />
+  <xs:complexType name="PayrollActivityItem">
+    <xs:sequence>
+      <xs:element minOccurs="1" maxOccurs="1" name="wages" type="xs:decimal" />
+      <xs:element minOccurs="1" maxOccurs="1" name="deductions" type="xs:decimal" />
+      <xs:element minOccurs="1" maxOccurs="1" name="taxes" type="xs:decimal" />
+      <xs:element minOccurs="1" maxOccurs="1" name="netPay" type="xs:decimal" />
+      <xs:element minOccurs="1" maxOccurs="1" name="expenses" type="xs:decimal" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="PayrollActivityEmployee" nillable="true" type="PayrollActivityEmployee" />
+  <xs:complexType name="PayrollActivityEmployee">
+    <xs:complexContent mixed="false">
+      <xs:extension base="PayrollActivityItem">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="firstName" type="xs:string" />
+          <xs:element minOccurs="0" maxOccurs="1" name="lastName" type="xs:string" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="ReportBase" nillable="true" type="ReportBase" />
+  <xs:complexType name="ReportBase" abstract="true">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="generator" type="GeneratedByDetail" />
+      <xs:element minOccurs="0" maxOccurs="1" name="company" type="CompanyDetail" />
+      <xs:element minOccurs="0" maxOccurs="1" name="title" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="period" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="startDate" type="xs:date" />
+      <xs:element minOccurs="0" maxOccurs="1" name="endDate" type="xs:date" />
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:element name="AccountsBase" nillable="true" type="AccountsBase" />
+  <xs:complexType name="AccountsBase">
+    <xs:complexContent mixed="false">
+      <xs:extension base="ReportBase">
+        <xs:sequence>
+          
+          <xs:element minOccurs="0" maxOccurs="1" name="accountant" type="AccountantDetail" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  
+  <xs:complexType name="GeneratedByDetail">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="date" type="xs:dateTime" />
+      <xs:element minOccurs="0" maxOccurs="1" name="source" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="author" type="GeneratorAuthor" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="CompanyDetail">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="abn" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="tfn" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="clientcode" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="anzsic" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="notes" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="directors" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="AccountantDetail">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="business" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="trading" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="abn" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="tfn" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="address" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="phone" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="fax" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="email" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  
+  <xs:complexType name="GeneratorAuthor">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="firstname" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="lastname" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="company" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="TrustTaxReturn" nillable="true" type="TrustTaxReturn" />
+  <xs:complexType name="TrustTaxReturn">
+    <xs:complexContent mixed="false">
+      <xs:extension base="ReportBase">
+        <xs:sequence>
+          <xs:element minOccurs="1" maxOccurs="1" name="taxCreditsAbnNotQuoted" type="xs:int" />
+          <xs:element minOccurs="1" maxOccurs="1" name="taxCreditsForeignResidentWithholding" type="xs:int" />
+          <xs:element minOccurs="1" maxOccurs="1" name="taxCreditsInterestOnEarlyPayments" type="xs:decimal" />
+          <xs:element minOccurs="1" maxOccurs="1" name="ptPrimaryDistnsFromPships" type="xs:int" />
+          <xs:element minOccurs="1" maxOccurs="1" name="ptPrimaryDistnsFromTrusts" type="xs:int" />
+          <xs:element minOccurs="1" maxOccurs="1" name="ptPrimaryExpenses" type="xs:int" />
+          <xs:element minOccurs="1" maxOccurs="1" name="ptNonPrimaryDistnsFromPships" type="xs:int" />
+          <xs:element minOccurs="1" maxOccurs="1" name="ptNonPrimaryDistnsFromTrusts" type="xs:int" />
+          <xs:element minOccurs="1" maxOccurs="1" name="ptNonPrimaryExpenses" type="xs:int" />
+          <xs:element minOccurs="1" maxOccurs="1" name="ptNonPrimaryFrankedDistnsFromTrusts" type="xs:int" />
+          <xs:element minOccurs="1" maxOccurs="1" name="ptNonPrimaryDedFrankedDistnsFromTrusts" type="xs:int" />
+          <xs:element minOccurs="1" maxOccurs="1" name="shareCreditsTaxWithheldAbnNotQuoted" type="xs:int" />
+          <xs:element minOccurs="1" maxOccurs="1" name="shareCreditsFromForeignResidentWithholding" type="xs:int" />
+          <xs:element minOccurs="1" maxOccurs="1" name="shareCreditsFromUnitTrustDistns" type="xs:decimal" />
+          <xs:element minOccurs="1" maxOccurs="1" name="shareCreditsFromCloselyHeldTrust" type="xs:decimal" />
+          <xs:element minOccurs="1" maxOccurs="1" name="shareCreditsFromFrankedDividents" type="xs:decimal" />
+          <xs:element minOccurs="1" maxOccurs="1" name="rentTotalGross" type="xs:int" />
+          <xs:element minOccurs="1" maxOccurs="1" name="rentInterestDeductions" type="xs:int" />
+          <xs:element minOccurs="1" maxOccurs="1" name="rentCapitalWorksDeductions" type="xs:int" />
+          <xs:element minOccurs="1" maxOccurs="1" name="rentOtherDeductions" type="xs:int" />
+          <xs:element minOccurs="1" maxOccurs="1" name="forestyManagedIncome" type="xs:int" />
+          <xs:element minOccurs="1" maxOccurs="1" name="interestGross" type="xs:int" />
+          <xs:element minOccurs="1" maxOccurs="1" name="interestTfnAmounts" type="xs:decimal" />
+          <xs:element minOccurs="1" maxOccurs="1" name="dividentsFranked" type="xs:int" />
+          <xs:element minOccurs="1" maxOccurs="1" name="dividentsUnfranked" type="xs:int" />
+          <xs:element minOccurs="1" maxOccurs="1" name="dividentsFrankingCredit" type="xs:int" />
+          <xs:element minOccurs="1" maxOccurs="1" name="dividentsTfnAmounts" type="xs:decimal" />
+          <xs:element minOccurs="1" maxOccurs="1" name="lumpSumsNonDependantTaxed" type="xs:int" />
+          <xs:element minOccurs="1" maxOccurs="1" name="lumpSumsNonDependantUntaxed" type="xs:int" />
+          <xs:element minOccurs="1" maxOccurs="1" name="lumpSumsDependantTaxable" type="xs:int" />
+          <xs:element minOccurs="1" maxOccurs="1" name="lumpSumsNonDependantTaxable" type="xs:int" />
+          <xs:element minOccurs="0" maxOccurs="1" name="otherIncomes" type="FinancialSection" />
+          <xs:element minOccurs="1" maxOccurs="1" name="deductionsRelatingAusIncome" type="xs:int" />
+          <xs:element minOccurs="1" maxOccurs="1" name="deductionsRelatingFrankedDistr" type="xs:int" />
+          <xs:element minOccurs="1" maxOccurs="1" name="forestyManagedInvesrSchemeDeduction" type="xs:int" />
+          <xs:element minOccurs="0" maxOccurs="1" name="otherDeductions" type="FinancialSection" />
+          <xs:element minOccurs="1" maxOccurs="1" name="capitalGainsNetCapitalGain" type="xs:int" />
+          <xs:element minOccurs="1" maxOccurs="1" name="foreignIncomeListedCountry" type="xs:int" />
+          <xs:element minOccurs="1" maxOccurs="1" name="foreignIncomeSection404Country" type="xs:int" />
+          <xs:element minOccurs="1" maxOccurs="1" name="foreignIncomeUnlistedCountry" type="xs:int" />
+          <xs:element minOccurs="1" maxOccurs="1" name="foreignIncomeGross" type="xs:int" />
+          <xs:element minOccurs="1" maxOccurs="1" name="foreignIncomeNet" type="xs:int" />
+          <xs:element minOccurs="1" maxOccurs="1" name="foreignIncomeTaxOffset" type="xs:decimal" />
+          <xs:element minOccurs="1" maxOccurs="1" name="foreignIncomeNewZelandCompany" type="xs:int" />
+          <xs:element minOccurs="1" maxOccurs="1" name="taxLossesDeducted" type="xs:int" />
+          <xs:element minOccurs="1" maxOccurs="1" name="lossesInfTaxLossesCarriedFroward" type="xs:int" />
+          <xs:element minOccurs="1" maxOccurs="1" name="lossesInfNetCapitalLosses" type="xs:int" />
+          <xs:element minOccurs="1" maxOccurs="1" name="landscareAndWaterFacilityTaxOffset" type="xs:int" />
+          <xs:element minOccurs="1" maxOccurs="1" name="overseasTransTaxSparedForeignIncome" type="xs:int" />
+          <xs:element minOccurs="1" maxOccurs="1" name="overseasTransInterestSection128Fa" type="xs:int" />
+          <xs:element minOccurs="1" maxOccurs="1" name="overseasTransInterestForFinancialInstruction" type="xs:int" />
+          <xs:element minOccurs="1" maxOccurs="1" name="tofaGains" type="xs:int" />
+          <xs:element minOccurs="1" maxOccurs="1" name="tofaLosses" type="xs:int" />
+          <xs:element minOccurs="1" maxOccurs="1" name="tofaBalancing" type="xs:int" />
+          <xs:element minOccurs="1" maxOccurs="1" name="tofaGainsUnrealised" type="xs:int" />
+          <xs:element minOccurs="1" maxOccurs="1" name="capitalGainsOnWhichTrusteeHasChosen" type="xs:int" />
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="individualNonBusiness" type="TrustTaxReturnIndividualNonBusiness" />
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="beneficiary" type="TrustTaxReturnBeneficiary" />
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="rentalSchedule" type="RentalSchedule" />
+          <xs:element minOccurs="0" maxOccurs="1" name="cgtSchedule" type="CgtSchedule" />
+          <xs:element minOccurs="0" maxOccurs="1" name="lossesSchedule" type="LossesSchedule" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="FinancialSection">
+    <xs:complexContent mixed="false">
+      <xs:extension base="ReportSectionOfDecimal">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="total" type="ReportFieldOfDecimal" />
+        </xs:sequence>
+        <xs:attribute name="value" type="xs:string" />
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="ReportSectionGLSummary">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="beginningbalance" type="xs:decimal" />
+      <xs:element minOccurs="0" maxOccurs="1" name="endbalance" type="xs:decimal" />
+      <xs:element minOccurs="0" maxOccurs="1" name="movement" type="xs:decimal" />
+    </xs:sequence>
+    <xs:attribute name="name" type="xs:string" />
+  </xs:complexType>
+  
+  <xs:complexType name="ReportSectionGLDetail">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="transaction" type="FinancialFieldGLDetail" />
+    </xs:sequence>
+    <xs:attribute name="title" type="xs:string" />
+    <xs:attribute name="accountno" type="xs:string" />
+  </xs:complexType>
+  <xs:complexType name="ReportSectionJournal">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="transaction" type="JournalTransaction" />
+    </xs:sequence>
+    <xs:attribute name="source" type="xs:string" />
+    <xs:attribute name="id" type="xs:string" />
+    <xs:attribute name="reference" type="xs:string" />
+    <xs:attribute name="referenceDate" type="xs:string" />
+    <xs:attribute name="comment" type="xs:string" />
+    <xs:attribute name="description" type="xs:string" />
+    <xs:attribute name="type" type="xs:string" />
+    <xs:attribute name="date" type="xs:date" />
+  </xs:complexType>
+  
+  <xs:complexType name="ReportSectionOfDecimal">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="field" type="ReportFieldOfDecimal" />
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="section" type="ReportSectionOfDecimal" />
+    </xs:sequence>
+    <xs:attribute name="name" type="xs:string" />
+  </xs:complexType>
+  <xs:complexType name="ReportFieldOfDecimal">
+    <xs:simpleContent>
+      <xs:extension base="xs:decimal">
+        <xs:attribute name="name" type="xs:string" />
+        <xs:attribute name="value" type="xs:string" />
+      </xs:extension>
+    </xs:simpleContent>
+ 
+  </xs:complexType>
+  <xs:complexType name="TrustTaxReturnIndividualNonBusiness">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="abn" type="xs:string" />
+      <xs:element minOccurs="1" maxOccurs="1" name="taxWithheldFromSalaryAndWages" type="xs:decimal" />
+      <xs:element minOccurs="1" maxOccurs="1" name="grossPayment" type="xs:int" />
+      <xs:element minOccurs="1" maxOccurs="1" name="taxWitheldFromLumpSumLeaveAfter15Aug78" type="xs:decimal" />
+      <xs:element minOccurs="1" maxOccurs="1" name="lumpSumForUnusedLeaveA" type="xs:int" />
+      <xs:element minOccurs="1" maxOccurs="1" name="taxWitheldFromLumpSumLeaveBefore16Aug78" type="xs:decimal" />
+      <xs:element minOccurs="1" maxOccurs="1" name="lumpSumForUnusedLeaveB" type="xs:int" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="TrustTaxReturnBeneficiary">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="tfn" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="tfnTrailingNumeric" type="xs:string" />
+      <xs:element minOccurs="1" maxOccurs="1" name="entityType" type="TrustTaxReturnBeneficiaryType" />
+      <xs:element minOccurs="0" maxOccurs="1" name="individualName" type="ReportPersonName" />
+      <xs:element minOccurs="0" maxOccurs="1" name="nonIndividualName" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="address" type="ReportAddress" />
+      <xs:element minOccurs="1" maxOccurs="1" name="birthDate" type="xs:dateTime" />
+      <xs:element minOccurs="1" maxOccurs="1" name="assessmentCalculationCode" type="xs:int" />
+      <xs:element minOccurs="1" maxOccurs="1" name="netCapitalgain" type="xs:int" />
+      <xs:element minOccurs="1" maxOccurs="1" name="shareOfTrustEstate" type="xs:int" />
+      <xs:element minOccurs="1" maxOccurs="1" name="attributedForeignIncome" type="xs:int" />
+      <xs:element minOccurs="1" maxOccurs="1" name="frankedDistributions" type="xs:int" />
+      <xs:element minOccurs="1" maxOccurs="1" name="otherAssessForeignIncome" type="xs:int" />
+      <xs:element minOccurs="1" maxOccurs="1" name="primaryIncome" type="xs:int" />
+      <xs:element minOccurs="1" maxOccurs="1" name="nonPrimaryIncome" type="xs:int" />
+      <xs:element minOccurs="1" maxOccurs="1" name="frankingCredit" type="xs:decimal" />
+      <xs:element minOccurs="1" maxOccurs="1" name="taxWithAbnNotQuited" type="xs:int" />
+      <xs:element minOccurs="1" maxOccurs="1" name="tfnAmountsWithheld" type="xs:decimal" />
+      <xs:element minOccurs="1" maxOccurs="1" name="tfnAmountsWithheldCloselyHeldTrusts" type="xs:decimal" />
+      <xs:element minOccurs="1" maxOccurs="1" name="foreignIncomeTaxOffset" type="xs:decimal" />
+      <xs:element minOccurs="1" maxOccurs="1" name="foreignResidentWitholding" type="xs:int" />
+      <xs:element minOccurs="1" maxOccurs="1" name="frankingCreditsNewZelandCompany" type="xs:int" />
+      <xs:element minOccurs="1" maxOccurs="1" name="shareNationalRental" type="xs:decimal" />
+      <xs:element minOccurs="1" maxOccurs="1" name="taxOffsetNetIncome" type="xs:int" />
+      <xs:element minOccurs="1" maxOccurs="1" name="s983Assessable" type="xs:int" />
+      <xs:element minOccurs="1" maxOccurs="1" name="s984Assessable" type="xs:int" />
+      <xs:element minOccurs="1" maxOccurs="1" name="taxPreffered" type="xs:int" />
+      <xs:element minOccurs="1" maxOccurs="1" name="untaxedPartOfShare" type="xs:int" />
+      <xs:element minOccurs="1" maxOccurs="1" name="distributionFromOrdinary" type="xs:int" />
+      <xs:element minOccurs="1" maxOccurs="1" name="totalTfnFromPayments" type="xs:int" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:simpleType name="TrustTaxReturnBeneficiaryType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="I" />
+      <xs:enumeration value="T" />
+      <xs:enumeration value="C" />
+      <xs:enumeration value="P" />
+      <xs:enumeration value="F" />
+      <xs:enumeration value="S" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:complexType name="ReportPersonName">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="title" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="nameSuffix" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="familyName" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="givenName" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="otherGivenName" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="RentalSchedule">
+    <xs:complexContent mixed="false">
+      <xs:extension base="ReportBase">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="address" type="ReportAddress" />
+          <xs:element minOccurs="1" maxOccurs="1" name="rentalIncomeFirstEarned" type="xs:int" />
+          <xs:element minOccurs="1" maxOccurs="1" name="rentalWeeks" type="xs:int" />
+          <xs:element minOccurs="1" maxOccurs="1" name="rentalWeeksAvailable" type="xs:int" />
+          <xs:element minOccurs="1" maxOccurs="1" name="ownershipPercent" type="xs:int" />
+          <xs:element minOccurs="1" maxOccurs="1" name="dateProperyWasPurchased" type="xs:dateTime" />
+          <xs:element minOccurs="1" maxOccurs="1" name="propertyPurchase" type="xs:int" />
+          <xs:element minOccurs="1" maxOccurs="1" name="dateProperyWasSold" type="xs:dateTime" />
+          <xs:element minOccurs="1" maxOccurs="1" name="propertySale" type="xs:int" />
+          <xs:element minOccurs="1" maxOccurs="1" name="capitalAllowancesRecouped" type="xs:int" />
+          <xs:element minOccurs="1" maxOccurs="1" name="capitalWorksDeductionsRecouped" type="xs:int" />
+          <xs:element minOccurs="1" maxOccurs="1" name="capitalGainsNet" type="xs:int" />
+          <xs:element minOccurs="1" maxOccurs="1" name="rentalIncome" type="xs:int" />
+          <xs:element minOccurs="1" maxOccurs="1" name="otherRentalRelatedIncome" type="xs:int" />
+          <xs:element minOccurs="1" maxOccurs="1" name="interestDeductions" type="xs:int" />
+          <xs:element minOccurs="1" maxOccurs="1" name="capitalWorksDeductions" type="xs:int" />
+          <xs:element minOccurs="1" maxOccurs="1" name="councilRates" type="xs:int" />
+          <xs:element minOccurs="1" maxOccurs="1" name="waterCharges" type="xs:int" />
+          <xs:element minOccurs="1" maxOccurs="1" name="landTax" type="xs:int" />
+          <xs:element minOccurs="1" maxOccurs="1" name="advertisingForTenants" type="xs:int" />
+          <xs:element minOccurs="1" maxOccurs="1" name="bodyCorporateFees" type="xs:int" />
+          <xs:element minOccurs="1" maxOccurs="1" name="borrowingExpenses" type="xs:int" />
+          <xs:element minOccurs="1" maxOccurs="1" name="cleaning" type="xs:int" />
+          <xs:element minOccurs="1" maxOccurs="1" name="gardeningMowing" type="xs:int" />
+          <xs:element minOccurs="1" maxOccurs="1" name="insurance" type="xs:int" />
+          <xs:element minOccurs="1" maxOccurs="1" name="legalFees" type="xs:int" />
+          <xs:element minOccurs="1" maxOccurs="1" name="pestControl" type="xs:int" />
+          <xs:element minOccurs="1" maxOccurs="1" name="propertyAgentFees" type="xs:int" />
+          <xs:element minOccurs="1" maxOccurs="1" name="repairsAndMaintenance" type="xs:int" />
+          <xs:element minOccurs="1" maxOccurs="1" name="stationery" type="xs:int" />
+          <xs:element minOccurs="1" maxOccurs="1" name="travelExpenses" type="xs:int" />
+          <xs:element minOccurs="1" maxOccurs="1" name="sundryRentalExpenses" type="xs:int" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="CgtSchedule">
+    <xs:complexContent mixed="false">
+      <xs:extension base="ReportBase">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="naaDiscountMethod" type="CgtScheduleNonActiveAssets" />
+          <xs:element minOccurs="0" maxOccurs="1" name="naaOtherCapitalGains" type="CgtScheduleNonActiveAssets" />
+          <xs:element minOccurs="0" maxOccurs="1" name="aaDiscountMethod" type="CgtScheduleActiveAssets" />
+          <xs:element minOccurs="0" maxOccurs="1" name="aaOtherCapitalGains" type="CgtScheduleActiveAssets" />
+          <xs:element minOccurs="0" maxOccurs="1" name="currentYearCapitalLosses" type="CgtScheduleCurrentYearCapitalLosses" />
+          <xs:element minOccurs="0" maxOccurs="1" name="applyingCapitalLossesDiscountMethod" type="CgtScheduleApplyingCapitalLosses" />
+          <xs:element minOccurs="0" maxOccurs="1" name="applyingCapitalLossesOtherCapitalGains" type="CgtScheduleApplyingCapitalLosses" />
+          <xs:element minOccurs="0" maxOccurs="1" name="cyCapitalGainsDiscountMethod" type="CgtScheduleCurrentYearCapitalGains" />
+          <xs:element minOccurs="0" maxOccurs="1" name="cyCapitalGainsOtherCapitalGains" type="CgtScheduleCurrentYearCapitalGains" />
+          <xs:element minOccurs="0" maxOccurs="1" name="applyingCgtDiscountDiscountMethod" type="CgtScheduleCurrentYearCapitalGains" />
+          <xs:element minOccurs="0" maxOccurs="1" name="applyingCgtConcessionsDiscountMethod" type="CgtScheduleApplyingCgtConcessions" />
+          <xs:element minOccurs="0" maxOccurs="1" name="applyingCgtConcessionsOtherCapitalGains" type="CgtScheduleApplyingCgtConcessions" />
+          <xs:element minOccurs="0" maxOccurs="1" name="unappliedNet" type="CgtScheduleUnappliedNet" />
+          <xs:element minOccurs="0" maxOccurs="1" name="smallBusiness15YearExemption" type="CgtScheduleSmallBusiness15YearExemption" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="CgtScheduleNonActiveAssets">
+    <xs:complexContent mixed="false">
+      <xs:extension base="CgtScheduleActiveAssets">
+        <xs:sequence>
+          <xs:element minOccurs="1" maxOccurs="1" name="collectable" type="xs:int" />
+          <xs:element minOccurs="1" maxOccurs="1" name="hedging" type="xs:int" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="CgtScheduleActiveAssets">
+    <xs:sequence>
+      <xs:element minOccurs="1" maxOccurs="1" name="shareAndUnits" type="xs:int" />
+      <xs:element minOccurs="1" maxOccurs="1" name="forestyManaged" type="xs:int" />
+      <xs:element minOccurs="1" maxOccurs="1" name="realEstate" type="xs:int" />
+      <xs:element minOccurs="1" maxOccurs="1" name="otherCgtAssets" type="xs:int" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="CgtScheduleCurrentYearCapitalLosses">
+    <xs:complexContent mixed="false">
+      <xs:extension base="CgtScheduleActiveAssets">
+        <xs:sequence>
+          <xs:element minOccurs="1" maxOccurs="1" name="hedging" type="xs:int" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="CgtScheduleApplyingCapitalLosses">
+    <xs:sequence>
+      <xs:element minOccurs="1" maxOccurs="1" name="currentYear" type="xs:int" />
+      <xs:element minOccurs="1" maxOccurs="1" name="priorYearNet" type="xs:int" />
+      <xs:element minOccurs="1" maxOccurs="1" name="transferred" type="xs:int" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="CgtScheduleCurrentYearCapitalGains">
+    <xs:sequence>
+      <xs:element minOccurs="1" maxOccurs="1" name="nonActiveAssets" type="xs:int" />
+      <xs:element minOccurs="1" maxOccurs="1" name="activeAssets" type="xs:int" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="CgtScheduleApplyingCgtConcessions">
+    <xs:sequence>
+      <xs:element minOccurs="1" maxOccurs="1" name="smallBusActiveAssets" type="xs:int" />
+      <xs:element minOccurs="1" maxOccurs="1" name="smallBusRetirementExemption" type="xs:int" />
+      <xs:element minOccurs="1" maxOccurs="1" name="smallBusRollover" type="xs:int" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="CgtScheduleUnappliedNet">
+    <xs:sequence>
+      <xs:element minOccurs="1" maxOccurs="1" name="fromCollecatables" type="xs:int" />
+      <xs:element minOccurs="1" maxOccurs="1" name="fromAllOtherCgtAssets" type="xs:int" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="CgtScheduleSmallBusiness15YearExemption">
+    <xs:sequence>
+      <xs:element minOccurs="1" maxOccurs="1" name="exemptCapitalGains" type="xs:int" />
+      <xs:element minOccurs="1" maxOccurs="1" name="cgtAssets" type="xs:int" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="LossesSchedule">
+    <xs:complexContent mixed="false">
+      <xs:extension base="ReportBase">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="taxLossesCarriedForward" type="LossesScheduleIncomeYears" />
+          <xs:element minOccurs="0" maxOccurs="1" name="netCapitalLossesCarriedForward" type="LossesScheduleIncomeYears" />
+          <xs:element minOccurs="0" maxOccurs="1" name="lossesDeductedContinuity" type="LossesScheduleLosses" />
+          <xs:element minOccurs="0" maxOccurs="1" name="lossesSameBusTestPassed" type="LossesScheduleLosses" />
+          <xs:element minOccurs="0" maxOccurs="1" name="lifeInsurance" type="LossesScheduleLifeInsurance" />
+          <xs:element minOccurs="0" maxOccurs="1" name="foreignSourceLosses" type="LossesScheduleForeignSourceLosses" />
+          <xs:element minOccurs="0" maxOccurs="1" name="reconciliation" type="LossesScheduleReconciliation" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="LossesScheduleIncomeYears">
+    <xs:sequence>
+      <xs:element minOccurs="1" maxOccurs="1" name="yearOfLossA" type="xs:int" />
+      <xs:element minOccurs="1" maxOccurs="1" name="yearOfLossB" type="xs:int" />
+      <xs:element minOccurs="1" maxOccurs="1" name="yearOfLossC" type="xs:int" />
+      <xs:element minOccurs="1" maxOccurs="1" name="yearOfLossD" type="xs:int" />
+      <xs:element minOccurs="1" maxOccurs="1" name="yearOfLossE" type="xs:int" />
+      <xs:element minOccurs="1" maxOccurs="1" name="yearOfLossF" type="xs:int" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="LossesScheduleLosses">
+    <xs:sequence>
+      <xs:element minOccurs="1" maxOccurs="1" name="taxLosses" type="xs:int" />
+      <xs:element minOccurs="1" maxOccurs="1" name="netCapitalLosses" type="xs:int" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="LossesScheduleLifeInsurance">
+    <xs:sequence>
+      <xs:element minOccurs="1" maxOccurs="1" name="lifeInsuranceTaxLossesFhsaClass" type="xs:int" />
+      <xs:element minOccurs="1" maxOccurs="1" name="lifeInsuranceNetCapitalLossesFhsaClass" type="xs:int" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="LossesScheduleForeignSourceLosses">
+    <xs:sequence>
+      <xs:element minOccurs="1" maxOccurs="1" name="foreignLossComponentTaxLosses" type="xs:int" />
+      <xs:element minOccurs="1" maxOccurs="1" name="foreignLossComponentNetCapitalLosses" type="xs:int" />
+      <xs:element minOccurs="1" maxOccurs="1" name="controlledForeignCompanyTaxLosses" type="xs:int" />
+      <xs:element minOccurs="1" maxOccurs="1" name="controlledForeignCompanyTaxLossesDeducted" type="xs:int" />
+      <xs:element minOccurs="1" maxOccurs="1" name="controlledForeignCompanyTaxLossesCarriedForward" type="xs:int" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="LossesScheduleReconciliation">
+    <xs:sequence>
+      <xs:element minOccurs="1" maxOccurs="1" name="balanceOfTaxLosses" type="xs:int" />
+      <xs:element minOccurs="1" maxOccurs="1" name="convertibleForeignLosses" type="xs:int" />
+      <xs:element minOccurs="1" maxOccurs="1" name="forgivenDebtNet" type="xs:int" />
+      <xs:element minOccurs="1" maxOccurs="1" name="incurred" type="xs:int" />
+      <xs:element minOccurs="1" maxOccurs="1" name="conversionOfExcess" type="xs:int" />
+      <xs:element minOccurs="1" maxOccurs="1" name="exemptIncomeNet" type="xs:int" />
+      <xs:element minOccurs="1" maxOccurs="1" name="forgone" type="xs:int" />
+      <xs:element minOccurs="1" maxOccurs="1" name="deducted" type="xs:int" />
+      <xs:element minOccurs="1" maxOccurs="1" name="transferredOut" type="xs:int" />
+      <xs:element minOccurs="1" maxOccurs="1" name="carriedForwardLaterIncomeYears" type="xs:int" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="BalanceSheet" nillable="true" type="BalanceSheet" />
+  <xs:complexType name="BalanceSheet">
+    <xs:complexContent mixed="false">
+      <xs:extension base="AccountsBase">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="currentAssets" type="FinancialSection" />
+          <xs:element minOccurs="0" maxOccurs="1" name="bank" type="FinancialSection" />
+          <xs:element minOccurs="0" maxOccurs="1" name="fixedAssets" type="FinancialSection" />
+          <xs:element minOccurs="0" maxOccurs="1" name="nonCurrentAssets" type="FinancialSection" />
+          <xs:element minOccurs="0" maxOccurs="1" name="totalAssets" type="ReportFieldOfDecimal" />
+          <xs:element minOccurs="0" maxOccurs="1" name="currentLiabilities" type="FinancialSection" />
+          <xs:element minOccurs="0" maxOccurs="1" name="nonCurrentLiabilities" type="FinancialSection" />
+          <xs:element minOccurs="0" maxOccurs="1" name="totalLiabilities" type="ReportFieldOfDecimal" />
+          <xs:element minOccurs="0" maxOccurs="1" name="netAssets" type="ReportFieldOfDecimal" />
+          <xs:element minOccurs="0" maxOccurs="1" name="equity" type="FinancialSection" />
+          <xs:element minOccurs="0" maxOccurs="1" name="trustfund" type="FinancialSection" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  
+  <xs:complexType name="GeneralLedgerSummary">
+    <xs:complexContent mixed="false">
+      <xs:extension base="ReportBase">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="account" type="ReportSectionGLSummary" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+ 
+  <xs:complexType name="GeneralLedgerDetail">
+    <xs:complexContent mixed="false">
+      <xs:extension base="ReportBase">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="account" type="ReportSectionGLDetail" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <!--
+  <xs:complexType name="GeneralLedgerHandiDetail">
+    <xs:complexContent mixed="false">
+      <xs:extension base="ReportBase">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="gldetail" type="ReportSectionHandiGLDetail" />
+
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  -->
+
+  <xs:complexType name="Journals">
+    <xs:complexContent mixed="false">
+      <xs:extension base="ReportBase">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="journal" type="ReportSectionGLDetail" />
+
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  
+  <xs:element name="MyobGeneralLedgerActivity" nillable="true" type="MyobGeneralLedgerActivity" />
+  <xs:complexType name="MyobGeneralLedgerActivity">
+    <xs:complexContent mixed="false">
+      <xs:extension base="ReportBase">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="currentAssets" type="FinancialSectionGL" />
+          <xs:element minOccurs="0" maxOccurs="1" name="nonCurrentAssets" type="FinancialSectionGL" />
+          <xs:element minOccurs="0" maxOccurs="1" name="currentLiabilities" type="FinancialSectionGL" />
+          <xs:element minOccurs="0" maxOccurs="1" name="nonCurrentLiabilities" type="FinancialSectionGL" />
+          <xs:element minOccurs="0" maxOccurs="1" name="income" type="FinancialSectionGL" />
+          <xs:element minOccurs="0" maxOccurs="1" name="otherOperatingIncome" type="FinancialSection" />
+          <xs:element minOccurs="0" maxOccurs="1" name="nonOperatingIncome" type="FinancialSection" />
+          <xs:element minOccurs="0" maxOccurs="1" name="equity" type="FinancialSectionGL" />
+          <xs:element minOccurs="0" maxOccurs="1" name="costOfSales" type="FinancialSectionGL" />
+          <xs:element minOccurs="0" maxOccurs="1" name="operatingExpenses" type="FinancialSectionGL" />
+          <xs:element minOccurs="0" maxOccurs="1" name="nonOperatingExpenses" type="FinancialSectionGL" />
+          <xs:element minOccurs="0" maxOccurs="1" name="unClassified" type="FinancialSectionGL" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="ProfitAndLoss">
+    <xs:complexContent mixed="false">
+      <xs:extension base="AccountsBase">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="incomeFromTrade" type="FinancialSection" />
+          <xs:element minOccurs="0" maxOccurs="1" name="otherOperatingIncome" type="FinancialSection" />
+          <xs:element minOccurs="0" maxOccurs="1" name="nonOperatingIncome" type="FinancialSection" />
+          <xs:element minOccurs="0" maxOccurs="1" name="costOfGoodsSold" type="FinancialSection" />
+          <xs:element minOccurs="0" maxOccurs="1" name="otherDirectCosts" type="FinancialSection" />
+          <xs:element minOccurs="0" maxOccurs="1" name="nonOperatingCosts" type="FinancialSection" />
+          <xs:element minOccurs="0" maxOccurs="1" name="grossProfit" type="ReportFieldOfDecimal" />
+          <xs:element minOccurs="0" maxOccurs="1" name="operatingProfit" type="ReportFieldOfDecimal" />
+          <xs:element minOccurs="0" maxOccurs="1" name="netProfit" type="ReportFieldOfDecimal" />
+          
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="TrialBalance" nillable="true" type="TrialBalance" />
+  <xs:complexType name="TrialBalance">
+    <xs:complexContent mixed="false">
+      <xs:extension base="ReportBase">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="income" type="FinancialSection" />
+          <xs:element minOccurs="0" maxOccurs="1" name="otherIncome" type="FinancialSection" />
+          <xs:element minOccurs="0" maxOccurs="1" name="nonOperatingIncome" type="FinancialSection" />
+          <xs:element minOccurs="0" maxOccurs="1" name="costOfSales" type="FinancialSection" />
+          <xs:element minOccurs="0" maxOccurs="1" name="operatingExpenses" type="FinancialSection" />
+          <xs:element minOccurs="0" maxOccurs="1" name="nonOperatingExpenses" type="FinancialSection" />
+          <xs:element minOccurs="0" maxOccurs="1" name="grossProfit" type="ReportFieldOfDecimal" />
+          <xs:element minOccurs="0" maxOccurs="1" name="operatingProfit" type="ReportFieldOfDecimal" />
+          <xs:element minOccurs="0" maxOccurs="1" name="netProfit" type="ReportFieldOfDecimal" />
+          <xs:element minOccurs="0" maxOccurs="1" name="currentAssets" type="FinancialSection" />
+          <xs:element minOccurs="0" maxOccurs="1" name="bank" type="FinancialSection" />
+          <xs:element minOccurs="0" maxOccurs="1" name="fixedAssets" type="FinancialSection" />
+          <xs:element minOccurs="0" maxOccurs="1" name="nonCurrentAssets" type="FinancialSection" />
+          <xs:element minOccurs="0" maxOccurs="1" name="totalAssets" type="ReportFieldOfDecimal" />
+          <xs:element minOccurs="0" maxOccurs="1" name="currentLiabilities" type="FinancialSection" />
+          <xs:element minOccurs="0" maxOccurs="1" name="nonCurrentLiabilities" type="FinancialSection" />
+          <xs:element minOccurs="0" maxOccurs="1" name="totalLiabilities" type="ReportFieldOfDecimal" />
+          <xs:element minOccurs="0" maxOccurs="1" name="netAssets" type="ReportFieldOfDecimal" />
+          <xs:element minOccurs="0" maxOccurs="1" name="equity" type="FinancialSection" />
+          <xs:element minOccurs="0" maxOccurs="1" name="trustfund" type="FinancialSection" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="ActivityStatementTradeAdjustmentsTool" nillable="true" type="ActivityStatementTradeAdjustmentsTool" />
+  <xs:complexType name="ActivityStatementTradeAdjustmentsTool">
+    <xs:complexContent mixed="false">
+      <xs:extension base="ReportBase">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="method" type="xs:string" />
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="gst" type="GstTrade" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="GstTrans">
+    <xs:sequence>
+      <xs:element minOccurs="1" maxOccurs="1" name="includeGst" type="xs:boolean" />
+      <xs:element minOccurs="1" maxOccurs="1" name="changeNote" type="xs:string" />
+      <xs:element minOccurs="1" maxOccurs="1" name="g1" type="xs:decimal" />
+      <xs:element minOccurs="1" maxOccurs="1" name="g2" type="xs:decimal" />
+      <xs:element minOccurs="1" maxOccurs="1" name="g3" type="xs:decimal" />
+      <xs:element minOccurs="1" maxOccurs="1" name="g10" type="xs:decimal" />
+      <xs:element minOccurs="1" maxOccurs="1" name="g11" type="xs:decimal" />
+      <xs:element minOccurs="1" maxOccurs="1" name="gstOnSales" type="xs:decimal" />
+      <xs:element minOccurs="1" maxOccurs="1" name="gstOnPurchase" type="xs:decimal" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="GstTrade">
+    <xs:complexContent mixed="false">
+      <xs:extension base="GstTrans">
+        <xs:sequence>
+          <xs:element minOccurs="1" maxOccurs="1" name="changeJournalNumber" type="xs:int" />
+          <xs:element minOccurs="1" maxOccurs="1" name="sourceSystemTransID" type="xs:int" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="ActivityStatementTradeTransactionTool" nillable="true" type="ActivityStatementTradeTransactionTool" />
+  <xs:complexType name="ActivityStatementTradeTransactionTool">
+    <xs:complexContent mixed="false">
+      <xs:extension base="ReportBase">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="method" type="xs:string" />
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="gst" type="GstTrans" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:element name="ActivityStatement" nillable="true" type="ActivityStatement" />
+  <xs:complexType name="ActivityStatement">
+    <xs:complexContent mixed="false">
+      <xs:extension base="ReportBase">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="gst" type="Gst" />
+          <xs:element minOccurs="0" maxOccurs="1" name="paygW" type="PaygW" />
+          <xs:element minOccurs="0" maxOccurs="1" name="paygI" type="PaygI" />
+          <xs:element minOccurs="0" maxOccurs="1" name="summary" type="Summary" />
+          <xs:element minOccurs="1" maxOccurs="1" name="revisionIndicator" type="xs:boolean" />
+          <xs:element minOccurs="1" maxOccurs="1" name="accountingMethod" type="xs:boolean" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  
+  <xs:complexType name="Gst">
+    <xs:sequence>
+      <xs:element minOccurs="1" maxOccurs="1" name="includeGst" type="xs:boolean" />
+      <xs:element minOccurs="1" maxOccurs="1" name="g1" type="xs:decimal" />
+      <xs:element minOccurs="1" maxOccurs="1" name="g2" type="xs:decimal" />
+      <xs:element minOccurs="1" maxOccurs="1" name="g3" type="xs:decimal" />
+      <xs:element minOccurs="1" maxOccurs="1" name="g10" type="xs:decimal" />
+      <xs:element minOccurs="1" maxOccurs="1" name="g11" type="xs:decimal" />
+      <xs:element minOccurs="1" maxOccurs="1" name="g21" type="xs:decimal" />
+      <xs:element minOccurs="1" maxOccurs="1" name="g22" type="xs:decimal" />
+      <xs:element minOccurs="1" maxOccurs="1" name="g23" type="xs:decimal" />
+      <xs:element minOccurs="1" maxOccurs="1" name="g24" type="xs:decimal" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="PaygW">
+    <xs:sequence>
+      <xs:element minOccurs="1" maxOccurs="1" name="w1" type="xs:decimal" />
+      <xs:element minOccurs="1" maxOccurs="1" name="w2" type="xs:decimal" />
+      <xs:element minOccurs="1" maxOccurs="1" name="w3" type="xs:decimal" />
+      <xs:element minOccurs="1" maxOccurs="1" name="w4" type="xs:decimal" />
+      <xs:element minOccurs="1" maxOccurs="1" name="w5" type="xs:decimal" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="PaygI">
+    <xs:sequence>
+      <xs:element minOccurs="1" maxOccurs="1" name="t1" type="xs:decimal" />
+      <xs:element minOccurs="1" maxOccurs="1" name="t2" type="xs:decimal" />
+      <xs:element minOccurs="1" maxOccurs="1" name="t3" type="xs:decimal" />
+      <xs:element minOccurs="0" maxOccurs="1" name="t4" type="xs:string" />
+      <xs:element minOccurs="1" maxOccurs="1" name="t7" type="xs:decimal" />
+      <xs:element minOccurs="1" maxOccurs="1" name="t8" type="xs:decimal" />
+      <xs:element minOccurs="1" maxOccurs="1" name="t9" type="xs:decimal" />
+      <xs:element minOccurs="1" maxOccurs="1" name="t11" type="xs:decimal" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="Summary">
+    <xs:sequence>
+      <xs:element minOccurs="1" maxOccurs="1" name="gstOnSales" type="xs:decimal" />
+      <xs:element minOccurs="1" maxOccurs="1" name="gstOnPurchase" type="xs:decimal" />
+      <xs:element minOccurs="1" maxOccurs="1" name="wineEqualisationTax" type="xs:decimal" />
+      <xs:element minOccurs="1" maxOccurs="1" name="luxuryCarTax" type="xs:decimal" />
+      <xs:element minOccurs="1" maxOccurs="1" name="instalmentPayable" type="xs:decimal" />
+      <xs:element minOccurs="1" maxOccurs="1" name="fringeBenefitsTax" type="xs:decimal" />
+      <xs:element minOccurs="1" maxOccurs="1" name="fuelTax" type="xs:decimal" />
+      <xs:element minOccurs="1" maxOccurs="1" name="statementSummary" type="xs:decimal" />
+      <xs:element minOccurs="1" maxOccurs="1" name="wineEqualisationTaxClaimable" type="xs:decimal" />
+      <xs:element minOccurs="1" maxOccurs="1" name="luxuryCarTaxClaimable" type="xs:decimal" />
+      <xs:element minOccurs="1" maxOccurs="1" name="IncomeTaxClaimable" type="xs:decimal" />
+      <xs:element minOccurs="1" maxOccurs="1" name="fringeBenefitsTaxClaimable" type="xs:decimal" />
+      <xs:element minOccurs="1" maxOccurs="1" name="fuelTaxClaimable" type="xs:decimal" />
+      <xs:element minOccurs="1" maxOccurs="1" name="liabilityInstalments" type="xs:decimal" />
+      <xs:element minOccurs="1" maxOccurs="1" name="statementSummaryRefund" type="xs:decimal" />
+      <xs:element minOccurs="1" maxOccurs="1" name="paymentOrRefundAmount" type="xs:decimal" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="Gst" nillable="true" type="Gst" />
+  <xs:element name="PaygW" nillable="true" type="PaygW" />
+  <xs:element name="PaygI" nillable="true" type="PaygI" />
+  <xs:element name="Fbt" nillable="true" type="Fbt" />
+  <xs:complexType name="Fbt">
+    <xs:sequence>
+      <xs:element minOccurs="1" maxOccurs="1" name="f1" type="xs:decimal" />
+      <xs:element minOccurs="1" maxOccurs="1" name="f2" type="xs:decimal" />
+      <xs:element minOccurs="1" maxOccurs="1" name="f3" type="xs:decimal" />
+      <xs:element minOccurs="0" maxOccurs="1" name="f4" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="Summary" nillable="true" type="Summary" />
+  <xs:element name="TrustTaxReturnIndividualNonBusiness" nillable="true" type="TrustTaxReturnIndividualNonBusiness" />
+  <xs:element name="LossesScheduleIncomeYears" nillable="true" type="LossesScheduleIncomeYears" />
+  <xs:element name="LossesScheduleLosses" nillable="true" type="LossesScheduleLosses" />
+  <xs:element name="LossesScheduleLifeInsurance" nillable="true" type="LossesScheduleLifeInsurance" />
+  <xs:element name="LossesScheduleForeignSourceLosses" nillable="true" type="LossesScheduleForeignSourceLosses" />
+  <xs:element name="LossesScheduleReconciliation" nillable="true" type="LossesScheduleReconciliation" />
+  <xs:element name="LossesSchedule" nillable="true" type="LossesSchedule" />
+  <xs:element name="RentalSchedule" nillable="true" type="RentalSchedule" />
+  
+  <xs:complexType name="PayrollActivitySummary">
+    <xs:complexContent mixed="false">
+      <xs:extension base="ReportBase">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="employee" type="PayrollActivityEmployee" />
+          <xs:element minOccurs="0" maxOccurs="1" name="total" type="PayrollActivityItem" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="DepreciationSchedule">
+    <xs:complexContent>
+      <xs:extension base="ReportBase">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="category" type="DepreciationCategory" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="DepreciationPool">
+    <xs:complexContent>
+      <xs:extension base="ReportBase">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="category" type="DepreciationPoolCategory" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+ 
+  <xs:complexType name="DepreciationPoolCategory">
+      <xs:sequence>
+        <xs:element minOccurs="0" maxOccurs="unbounded" name="asset" type="DepreciationPoolAsset" />
+      </xs:sequence>
+      <xs:attribute name="name" type="xs:string" />
+  </xs:complexType>
+  
+  <xs:complexType name="DepreciationCategory">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="asset" type="DepreciationAsset" />
+    </xs:sequence>
+    <xs:attribute name="name" type="xs:string" />
+  </xs:complexType>
+  
+  <xs:complexType name="DepreciationPoolAsset" >
+    <xs:sequence>
+      <xs:any />
+    </xs:sequence>
+    <xs:attribute name="name" type="xs:string" />
+    <xs:attribute name="date" type="xs:dateTime" />
+  </xs:complexType>
+
+  <xs:complexType name="DepreciationAsset" >
+    <xs:complexContent>
+      <xs:extension base="DepreciationPoolAsset">
+          <xs:attribute name="rate" type="xs:decimal" />
+          <xs:attribute name="type" type="xs:string" />
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  
+  <!--
+  <xs:complexType name="TrustFundsLoans">
+    <xs:complexContent mixed="false">
+      <xs:extension base="ReportBase">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="shareofprofit" type="FinancialSection" />
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="shareholder" type="FinancialSection" />
+          <xs:element minOccurs="0" maxOccurs="1" name="totalfund" type="TotalFund" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  -->
+  <xs:complexType name="Partners">
+    <xs:complexContent mixed="false">
+      <xs:extension base="ReportBase">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="partner" type="FinancialSection" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <!--
+  <xs:complexType name="BeneficiaryShare">
+    <xs:complexContent mixed="false">
+      <xs:extension base="ReportBase">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="shareofprofit" type="FinancialSection" />
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="beneficiary" type="FinancialSection" />
+          <xs:element minOccurs="0" maxOccurs="1" name="totalfund" type="TotalFund" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  -->
+  <xs:complexType name="CustomerCardListDetails">
+    <xs:complexContent mixed="false">
+      <xs:extension base="ReportBase">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="customer" type="CardListDetail" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="PayablewithTax">
+    <xs:complexContent mixed="false">
+      <xs:extension base="ReportBase">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="payable" type="OutstandingDetail" />
+          <xs:element minOccurs="0" maxOccurs="1" name="total" type="OutstandingDetail" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="ReceivablewithTax">
+    <xs:complexContent mixed="false">
+      <xs:extension base="ReportBase">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="receivable" type="OutstandingDetail" />
+          <xs:element minOccurs="0" maxOccurs="1" name="total" type="OutstandingDetail" />
+    </xs:sequence>
+    </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="CustomerOutstandingSummary">
+    <xs:complexContent mixed="false">
+      <xs:extension base="ReportBase">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="customer" type="OutstandingSummary" />
+          <xs:element minOccurs="0" maxOccurs="1" name="total" type="OutstandingSummary" />
+          <xs:element minOccurs="0" maxOccurs="1"  name="receivableaccount" type="xs:decimal" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  
+  <xs:complexType name="SupplierOutstandingSummary">
+    <xs:complexContent mixed="false">
+      <xs:extension base="ReportBase">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="supplier" type="OutstandingSummary" />
+          <xs:element minOccurs="0" maxOccurs="1" name="total" type="OutstandingSummary" />
+          <xs:element minOccurs="0" maxOccurs="1"  name="payableaccount" type="xs:decimal" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:element name="GenericQuantities" nillable="true" type="GenericQuantities" />
+
+  <xs:complexType name="GenericQuantities">
+    <xs:complexContent mixed="false">
+      <xs:extension base="ReportBase">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="generic" type="GenericQuantityFields" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="GenericQuantityFields">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded"  name="field" type="QuantityField" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="QuantityField">
+    <xs:attribute name="location" type="xs:string" />
+    <xs:attribute name="currency" type="xs:string" />
+    <xs:attribute name="changeMethod" type="xs:string" />
+    <xs:attribute name="unitValue" type="xs:decimal" />
+    <xs:attribute name="unit" type="xs:string" />
+    <xs:attribute name="quantity" type="xs:int" />
+    <xs:attribute name="date" type="xs:string" />
+    <xs:attribute name="classified" type="xs:string" />
+    <xs:attribute name="tag" type="xs:string" />
+    <xs:attribute name="name" type="xs:string" />
+
+
+    
+    
+    
+    
+    
+  </xs:complexType>
+  
+  <xs:element name="LiveStockQuantities" nillable="true" type="LiveStockQuantities" />
+
+  <xs:complexType name="LiveStockQuantities">
+    <xs:complexContent mixed="false">
+      <xs:extension base="ReportBase">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="animal" type="Animals" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="Animals">
+    <xs:attribute name="name" type="xs:string" />
+    <xs:attribute name="currency" type="xs:string" />
+    <xs:attribute name="tag" type="xs:string" />
+    <xs:attribute name="location" type="xs:string" />
+    <xs:attribute name="openingValue" type="xs:decimal" />
+    <xs:attribute name="closingValue" type="xs:decimal" />
+    <xs:attribute name="rationsValue" type="xs:decimal" />
+    <xs:attribute name="deceasedValue" type="xs:decimal" />
+    <xs:attribute name="bornValue" type="xs:decimal" />
+    <xs:attribute name="saleValue" type="xs:decimal" />
+    <xs:attribute name="purchaseValue" type="xs:decimal" />
+    <xs:attribute name="grossValue" type="xs:decimal" />
+    <xs:attribute name="unitsOpening" type="xs:integer" />
+    <xs:attribute name="unitsClosing" type="xs:integer" />
+    <xs:attribute name="unitsRations" type="xs:integer" />
+    <xs:attribute name="unitsDeceased" type="xs:integer" />
+    <xs:attribute name="unitsBorn" type="xs:integer" />
+    <xs:attribute name="unitsSales" type="xs:integer" />
+    <xs:attribute name="unitsPurchases" type="xs:integer" />
+  </xs:complexType>
+
+  <xs:complexType name="ReceivableReconciliationDetail">
+    <xs:complexContent mixed="false">
+      <xs:extension base="ReportBase">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="customer" type="ReconciliationDetail" />
+          <xs:element minOccurs="0" maxOccurs="1" name="grandtotal" type="xs:decimal" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="PayableReconciliationDetail">
+    <xs:complexContent mixed="false">
+      <xs:extension base="ReportBase">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="supplier" type="ReconciliationDetail" />
+          <xs:element minOccurs="0" maxOccurs="1" name="grandtotal" type="xs:decimal" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  
+  <xs:complexType name="SupplierCardListDetails">
+    <xs:complexContent mixed="false">
+      <xs:extension base="ReportBase">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="supplier" type="CardListDetail" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  
+  <xs:complexType name="CardListDetail">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="name" type="xs:string" />
+      
+      <xs:element minOccurs="0" maxOccurs="1" name="balance" type="xs:string" />
+      <xs:element minOccurs="1" maxOccurs="1" name="cardid" type="xs:string" />
+      <xs:element minOccurs="1" maxOccurs="1" name="firstaddress" type="CardListAddress" />
+      <xs:element minOccurs="0" maxOccurs="1" name="secondaddress" type="CardListAddress" />
+      <xs:element minOccurs="0" maxOccurs="1" name="otherdetails" type="ReportSectionOfString" />
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="TaxLiability">
+    <xs:complexContent mixed="false">
+      <xs:extension base="ReportBase">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="goodsandservicestax" type="FinancialSection" />
+          <xs:element minOccurs="0" maxOccurs="1" name="netvalueofsalesexgst" type="ReportFieldOfDecimal" />
+          <xs:element minOccurs="0" maxOccurs="1" name="netvalueofpurchasesexgst" type="ReportFieldOfDecimal" />
+          <xs:element minOccurs="0" maxOccurs="1" name="totalinputtaxfreesales" type="ReportFieldOfDecimal" />
+          <xs:element minOccurs="0" maxOccurs="1" name="totalinputtaxfreepurchases" type="ReportFieldOfDecimal" />
+          <xs:element minOccurs="0" maxOccurs="1" name="salestax" type="FinancialSection" />
+          <xs:element minOccurs="0" maxOccurs="1" name="netvalueofsalesextax" type="ReportFieldOfDecimal" />
+          <xs:element minOccurs="0" maxOccurs="1" name="totalvalueofothersales" type="ReportFieldOfDecimal" />
+          <xs:element minOccurs="0" maxOccurs="1" name="totalvalueofotherpurchases" type="ReportFieldOfDecimal" />
+          
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="CroppingReport">
+    <xs:complexContent mixed="false">
+      <xs:extension base="ReportBase">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="farmconfiguration" type="Farmconfiguration" />
+          <xs:element minOccurs="0" maxOccurs="1" name="portzone" type="Portzone" />
+          <xs:element minOccurs="0" maxOccurs="1" name="sownarea" type="Sownarea" />
+          <xs:element minOccurs="0" maxOccurs="1" name="harvestedweight" type="HarvestedWeight" />
+          <xs:element minOccurs="0" maxOccurs="1" name="graindirect" type="Graindirect" />
+          <xs:element minOccurs="0" maxOccurs="1" name="fedlivestock" type="Fedlivestock" />
+          <xs:element minOccurs="0" maxOccurs="1" name="grainsown" type="Grainsown" />
+          <xs:element minOccurs="0" maxOccurs="1" name="graininventory" type="Graininventory" />
+          <xs:element minOccurs="0" maxOccurs="1" name="chemicalsonhand" type="Chemicalsonhand" />
+          <xs:element minOccurs="0" maxOccurs="1" name="sharefarming" type="Sharefarming" />
+          <xs:element minOccurs="0" maxOccurs="1" name="rainfall" type="Rainfall" />
+          
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  
+  <!--Farm configuration xml starts here-->
+  <xs:complexType name="Farmconfiguration">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded"  name="farm" type="FarmArea" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="FarmArea">
+    <xs:attribute name="unit" type="xs:string"  />
+    <xs:attribute name="type" type="xs:string" />
+    <xs:attribute name="seededCropping" type="xs:decimal" />
+    <xs:attribute name="seededIrrigation" type="xs:decimal" />
+    <xs:attribute name="seededWinterCrop" type="xs:decimal" />
+    <xs:attribute name="seededSummerCrop" type="xs:decimal" />
+
+    <xs:attribute name="doubleCropArea" type="xs:decimal" />
+    <xs:attribute name="fallow" type="xs:decimal" />
+    <xs:attribute name="arable" type="xs:decimal" />
+    <xs:attribute name="nonArable" type="xs:decimal" />
+    <xs:attribute name="total" type="xs:decimal" />
+  </xs:complexType>
+  <xs:complexType name="Portzone">
+    <xs:attribute name="portzone" type="xs:string"  />
+    <xs:attribute name="silosite" type="xs:string" />
+    <xs:attribute name="state" type="xs:string" />
+  </xs:complexType>
+
+  <xs:complexType name="Sownarea">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded"  name="crop" type="SownareaCrop" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="SownareaCrop">
+    <xs:attribute name="unit" type="xs:string"  />
+    <xs:attribute name="type" type="xs:string" />
+    <xs:attribute name="sown" type="xs:decimal" />
+  </xs:complexType>
+
+  <xs:complexType name="HarvestedWeight">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded"  name="crop" type="HarvestedWeightCrop" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="HarvestedWeightCrop">
+    <xs:attribute name="unit" type="xs:string"  />
+    <xs:attribute name="type" type="xs:string" />
+    <xs:attribute name="harvested" type="xs:decimal" />
+  </xs:complexType>
+
+  <xs:complexType name="Graindirect">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded"  name="crop" type="GrainDirectCrop" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="GrainDirectCrop">
+    <xs:attribute name="unit" type="xs:string"  />
+    <xs:attribute name="type" type="xs:string" />
+    <xs:attribute name="quantity" type="xs:decimal" />
+    <xs:attribute name="actualfreightValue" type="xs:decimal" />
+    <xs:attribute name="localsiloValue" type="xs:decimal" />
+  </xs:complexType>
+
+  <xs:complexType name="Fedlivestock">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded"  name="crop" type="FedlivestockCrop" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="FedlivestockCrop">
+    <xs:attribute name="unit" type="xs:string"  />
+    <xs:attribute name="type" type="xs:string" />
+    <xs:attribute name="quantity" type="xs:decimal" />
+    <xs:attribute name="unitValue" type="xs:decimal" />
+  </xs:complexType>
+
+  <xs:complexType name="Grainsown">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded"  name="crop" type="GrainsownCrop" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="GrainsownCrop">
+    <xs:attribute name="unit" type="xs:string"  />
+    <xs:attribute name="type" type="xs:string" />
+    <xs:attribute name="sown" type="xs:decimal" />
+    <xs:attribute name="unitValue" type="xs:decimal" />
+  </xs:complexType>
+
+  <xs:complexType name="Graininventory">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded"  name="crop" type="GraininventoryCrop" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="GraininventoryCrop">
+    <xs:attribute name="unit" type="xs:string"  />
+    <xs:attribute name="type" type="xs:string" />
+    <xs:attribute name="inventory" type="xs:decimal" />
+    <xs:attribute name="unitValue" type="xs:decimal" />
+  </xs:complexType>
+
+  <xs:complexType name="Chemicalsonhand">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded"  name="crop" type="Chemical" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="Chemical">
+    <xs:attribute name="type" type="xs:string" />
+    <xs:attribute name="value" type="xs:decimal" />
+  </xs:complexType>
+
+  <xs:complexType name="Sharefarming">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded"  name="crop" type="Sharefarm" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="Sharefarm">
+    <xs:attribute name="name" type="xs:string"  />
+    <xs:attribute name="hectaressown" type="xs:decimal" />
+    <xs:attribute name="landlordcostpercent" type="xs:decimal" />
+    <xs:attribute name="growercostpercent" type="xs:decimal" />
+    <xs:attribute name="landlordrevenue" type="xs:decimal" />
+    <xs:attribute name="growerrevenue" type="xs:decimal" />
+  </xs:complexType>
+
+  <xs:complexType name="Rainfall">
+    <xs:attribute name="january" type="xs:decimal"  />
+    <xs:attribute name="february" type="xs:decimal"  />
+    <xs:attribute name="march" type="xs:decimal"  />
+    <xs:attribute name="april" type="xs:decimal"  />
+    <xs:attribute name="may" type="xs:decimal"  />
+    <xs:attribute name="june" type="xs:decimal"  />
+    <xs:attribute name="july" type="xs:decimal"  />
+    <xs:attribute name="august" type="xs:decimal"  />
+    <xs:attribute name="september" type="xs:decimal"  />
+    <xs:attribute name="october" type="xs:decimal"  />
+    <xs:attribute name="november" type="xs:decimal"  />
+    <xs:attribute name="december" type="xs:decimal"  />
+  </xs:complexType>
+  <!--Farm xml Ends here-->
+  
+  <xs:complexType name="DividendHistoryASX">
+    <xs:complexContent mixed="false">
+      <xs:extension base="ReportBase">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="dividendcompanies" type="DividendRecord" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+ 
+  <xs:complexType name="DividendRecord">
+    <xs:sequence>
+      <xs:element minOccurs="1" maxOccurs="1" name="LtdAustralianCompanyStockTickerASXListed" type="xs:string" />
+      <xs:element minOccurs="1" maxOccurs="1" name="LtdAustralianCompanyASXListed" type="xs:string" />
+      <xs:element minOccurs="1" maxOccurs="1" name="ASXIndustrySectorsGICS" type="xs:string" />
+      <xs:element minOccurs="1" maxOccurs="1" name="DividendAmtPaidPerShare" type="xs:decimal" />
+      <xs:element minOccurs="1" maxOccurs="1" name="Frankingpercentage" type="xs:decimal" />
+      <xs:element minOccurs="1" maxOccurs="1" name="ExDividendDate" type="xs:dateTime" />
+      <xs:element minOccurs="1" maxOccurs="1" name="BooksCloseDate" type="xs:dateTime" />
+      <xs:element minOccurs="1" maxOccurs="1" name="DateDividendPayable" type="xs:dateTime" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="BankStatement">
+    <xs:complexContent mixed="false">
+      <xs:extension base="ReportBase">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="bankaccountnumber" type="xs:string" />
+          <xs:element minOccurs="0" maxOccurs="1" name="bankaccountname" type="xs:string" />
+          <xs:element minOccurs="0" maxOccurs="1" name="bankaccountbsb" type="xs:string" />
+          <xs:element minOccurs="0" maxOccurs="1" name="bankbalanceperbankstatement" type="xs:decimal" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="BankReconciliation">
+    <xs:complexContent mixed="false">
+      <xs:extension base="ReportBase">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="bankaccountnumber" type="xs:string" />
+          <xs:element minOccurs="0" maxOccurs="1" name="bankaccountname" type="xs:string" />
+          <xs:element minOccurs="0" maxOccurs="1" name="bankaccountbsb" type="xs:string" />
+          <xs:element minOccurs="0" maxOccurs="1" name="bankbalancepergeneralledger" type="xs:decimal" />
+          <xs:element minOccurs="0" maxOccurs="1" name="computedbankstatementbalance" type="xs:decimal" />
+          <xs:element minOccurs="0" maxOccurs="1"  name="outstandingpayments" type="BankReconciliationSection" />
+          <xs:element minOccurs="0" maxOccurs="1"  name="outstandingdeposits" type="BankReconciliationSection" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="BankReconciliationDetail" nillable="true" type="BankReconciliationDetail" />
+  <xs:complexType name="BankReconciliationDetail">
+    <xs:sequence>
+    
+    </xs:sequence>
+    
+  </xs:complexType>
+  <xs:element name="BankReconciliationSection" nillable="true" type="BankReconciliationSection" />
+  <xs:complexType name="BankReconciliationSection">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded"  name="transactions" type="BankTransactionDetail" />
+    </xs:sequence>
+    <xs:attribute name="value" type="xs:string" />
+    <xs:attribute name="name" type="xs:string" />
+  </xs:complexType>
+  <xs:element name="BankTransactionBase" nillable="true" type="BankTransactionBase" />
+  <xs:complexType name="BankTransactionBase">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute name="deposit" type="xs:string" />
+        <xs:attribute name="payment" type="xs:string" />
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+
+  <xs:complexType name="BankTransactionDetail">
+    <xs:simpleContent>
+      <xs:extension base="BankTransactionBase">
+        <xs:attribute name="transid" type="xs:string" />
+        <xs:attribute name="transdate" type="xs:dateTime" />
+        <xs:attribute name="transdesc" type="xs:string" />
+      </xs:extension>
+    </xs:simpleContent>
+
+    <!--
+    <xs:complexContent mixed="false">
+      <xs:extension base="BankTransactionBase">
+        <xs:attribute name="transid" type="xs:string" />
+        <xs:attribute name="transdate" type="xs:dateTime" />
+        <xs:attribute name="transdesc" type="xs:string" />
+      </xs:extension>
+    </xs:complexContent>
+    -->
+  </xs:complexType>
+  <xs:complexType name="EmployeesDetails">
+    <xs:complexContent mixed="false">
+      <xs:extension base="ReportBase">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="employee" type="EmployeeDetails" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="EmployeeDetails">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="firstName" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="lastName" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="tfn" type="xs:string" />
+      <xs:element minOccurs="1" maxOccurs="1" name="birthDate" type="xs:dateTime" />
+      <xs:element minOccurs="1" maxOccurs="1" name="startDate" type="xs:dateTime" />
+      <xs:element minOccurs="0" maxOccurs="1" name="address" type="ReportAddress" />
+      <xs:element minOccurs="0" maxOccurs="1" name="fields" type="ReportSectionOfString" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="ReportSectionOfString">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="field" type="ReportFieldOfString" />
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="section" type="ReportSectionOfString" />
+    </xs:sequence>
+    <xs:attribute name="title" type="xs:string" />
+  </xs:complexType>
+  <xs:complexType name="ReportFieldOfString">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute name="name" type="xs:string" />
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+
+  <xs:complexType name="FinancialFieldGL">
+    <xs:simpleContent>
+      <xs:extension base="xs:decimal">
+        <xs:attribute name="name" type="xs:string" />
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+  <xs:complexType name="FinancialFieldGLDetail">
+   
+          <xs:sequence>
+            <xs:element  minOccurs="0" maxOccurs="unbounded" name="info" type="GLTransactionInfo" />
+          </xs:sequence>
+        <xs:attribute name="id" type="xs:string"  use="required"/>
+        <xs:attribute name="name" type="xs:string" use="required"/>
+        <xs:attribute name="description" type="xs:string" use="required"/>
+        <xs:attribute name="type" type="xs:string" use="required"/>
+        <xs:attribute name="transValue" type="xs:string" use="required"/>
+        <xs:attribute name="balance" type="xs:string" use="required"/>
+        
+        <xs:attribute name="date" type="xs:date" />
+        <xs:attribute name="credit" type="xs:string" use="required"/>
+        <xs:attribute name="debit" type="xs:string" use="required"/>
+        
+    
+    <!--<xs:simpleContent>
+      <xs:extension base="ReportFieldOfString">
+        <xs:attribute name="description" type="xs:string" />
+        <xs:attribute name="type" type="xs:string" />
+        <xs:attribute name="transValue" type="xs:string" />
+        <xs:attribute name="balance" type="xs:string" />
+        <xs:attribute name="date" type="xs:date" />
+        <xs:attribute name="credit" type="xs:string" use="required"/>
+        <xs:attribute name="debit" type="xs:string" use="required"/>
+        
+        
+        <xs:attribute name="transInfo1" type="xs:string"  use="required"/>
+        <xs:attribute  name="transInfo2" type="xs:string" use="required" />
+        <xs:attribute name="transInfo3" type="xs:string"  use="required"/>
+        <xs:attribute name="transInfo4" type="xs:string"  use="required"/>
+        <xs:attribute name="transInfo5" type="xs:string"  use="required"/>
+        <xs:attribute name="transInfo6" type="xs:string"  use="required"/>
+      </xs:extension>
+    </xs:simpleContent>-->
+   
+  </xs:complexType>
+  <xs:complexType name="JournalTransaction">
+
+    <xs:attribute name="name" type="xs:string" />
+    <xs:attribute name="tag" type="xs:string" />
+    <xs:attribute name="addedCategory" type="xs:string" />
+    <xs:attribute name="value" type="xs:string" />
+    <xs:attribute name="classified" type="xs:string" />
+
+  </xs:complexType>
+  <xs:complexType name="GLTransactionInfo" >
+    <xs:sequence>
+      <xs:any />
+    </xs:sequence>
+    <xs:attribute name="name" type="xs:string" />
+  </xs:complexType>
+
+  <xs:simpleType name="NonEmptyString">
+      <xs:restriction base="xs:string">
+        <xs:length value="1" />
+      </xs:restriction>
+    </xs:simpleType>
+  <xs:complexType name="ReportSectionGL">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="field" type="FinancialFieldGL" />
+    </xs:sequence>
+    <xs:attribute name="name" type="xs:string" />
+  </xs:complexType>
+  
+  <xs:complexType name="FinancialSectionGL">
+    <xs:complexContent mixed="false">
+      <xs:extension base="ReportSectionOfDecimal">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="total" type="ReportFieldOfDecimal" />
+        </xs:sequence>
+        <xs:attribute name="value" type="xs:string" />
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="PayrollActivitySummary" nillable="true" type="PayrollActivitySummary" />
+  <xs:element name="TrustTaxReturnBeneficiaryType" type="TrustTaxReturnBeneficiaryType" />
+  <xs:element name="TrustTaxReturnBeneficiary" nillable="true" type="TrustTaxReturnBeneficiary" />
+  <xs:element name="CgtScheduleActiveAssets" nillable="true" type="CgtScheduleActiveAssets" />
+  <xs:element name="CgtScheduleNonActiveAssets" nillable="true" type="CgtScheduleNonActiveAssets" />
+  <xs:element name="CgtScheduleCurrentYearCapitalLosses" nillable="true" type="CgtScheduleCurrentYearCapitalLosses" />
+  <xs:element name="CgtScheduleApplyingCapitalLosses" nillable="true" type="CgtScheduleApplyingCapitalLosses" />
+  <xs:element name="CgtScheduleCurrentYearCapitalGains" nillable="true" type="CgtScheduleCurrentYearCapitalGains" />
+  <xs:element name="CgtScheduleApplyingCgtConcessions" nillable="true" type="CgtScheduleApplyingCgtConcessions" />
+  <xs:element name="CgtScheduleUnappliedNet" nillable="true" type="CgtScheduleUnappliedNet" />
+  <xs:element name="CgtScheduleSmallBusiness15YearExemption" nillable="true" type="CgtScheduleSmallBusiness15YearExemption" />
+  <xs:element name="CgtSchedule" nillable="true" type="CgtSchedule" />
+  <xs:element name="ProfitAndLoss" nillable="true" type="ProfitAndLoss" />
+  <xs:element name="GeneralLedgerDetail" nillable="true" type="GeneralLedgerDetail" />
+  <xs:element name="Journals" nillable="true" type="Journals" />
+  <xs:element name="FinancialSection" nillable="true" type="FinancialSection" />
+  <xs:element name="EmployeeDetails" nillable="true" type="EmployeeDetails" />
+  <xs:element name="TemplateField" nillable="true" type="TemplateField" />
+  <xs:complexType name="TemplateField">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="title" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="description" type="xs:string" />
+    </xs:sequence>
+    <xs:attribute name="name" type="xs:string" />
+    <xs:attribute name="type" type="TemplateFieldType" use="required" />
+    <xs:attribute name="isColumn" type="xs:boolean" use="required" />
+  </xs:complexType>
+  <xs:element name="EmployeesDetails" nillable="true" type="EmployeesDetails" />
+  <xs:element name="ReportPersonName" nillable="true" type="ReportPersonName" />
+  <!-- <xs:element name="PartnerorBeneficiary" nillable="true" type="PartnerorBeneficiary" /> -->
+  <!-- <xs:element name="BeneficiaryShare" nillable="true" type="BeneficiaryShare" /> -->
+  <xs:element name="ArrayOfTemplateField" nillable="true" type="ArrayOfTemplateField" />
+  <xs:complexType name="ArrayOfTemplateField">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="TemplateField" nillable="true" type="TemplateField" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="template" nillable="true" type="GateTemplateModel" />
+  <xs:complexType name="GateTemplateModel">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="title" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="fields" type="ArrayOfTemplateField1" />
+    </xs:sequence>
+    <xs:attribute name="name" type="xs:string" />
+  </xs:complexType>
+  <xs:complexType name="ArrayOfTemplateField1">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="field" nillable="true" type="TemplateField" />
+    </xs:sequence>
+  </xs:complexType>
+
+ 
+</xs:schema>

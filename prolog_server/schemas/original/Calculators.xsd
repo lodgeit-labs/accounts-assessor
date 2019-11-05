@@ -1,0 +1,197 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:include schemaLocation="Schema.xsd" />
+  <xs:complexType name="RepaymentSection">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="repayment" type="RepaymentField" />
+    </xs:sequence>
+    <xs:attribute name="name" type="xs:string" />
+  </xs:complexType>
+  <xs:complexType name="RepaymentField">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute name="value" type="xs:string" />
+        <xs:attribute name="date" type="xs:string" />
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+
+  <xs:element name="LoanDetails" nillable="true" type="LoanDetails" />
+  <xs:complexType name="LoanDetails">
+    <xs:complexContent mixed="false">
+      <xs:extension base="ReportBase">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="loanAgreement" type="ReportSectionOfString" />
+          <xs:element minOccurs="0" maxOccurs="1" name="repayments" type="RepaymentSection" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="LoanSummary" nillable="true" type="LoanSummary" />
+  <xs:complexType name="LoanSummary">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="IncomeYear" type="xs:integer" />
+      <xs:element minOccurs="0" maxOccurs="1" name="OpeningBalance" type="xs:decimal" />
+      <xs:element minOccurs="0" maxOccurs="1" name="TotalPrincipal" type="xs:decimal" />
+      <xs:element minOccurs="0" maxOccurs="1" name="TotalInterest" type="xs:decimal" />
+      <xs:element minOccurs="0" maxOccurs="1" name="TotalRepayment" type="xs:decimal" />
+      <xs:element minOccurs="0" maxOccurs="1" name="RepaymentShortfall" type="xs:decimal" />
+      <xs:element minOccurs="0" maxOccurs="1" name="InterestRate" type="xs:decimal" />
+      <xs:element minOccurs="0" maxOccurs="1" name="ClosingBalance" type="xs:decimal" />
+      <xs:element minOccurs="0" maxOccurs="1" name="MinYearlyRepayment" type="xs:decimal" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="ArrayOfLoanSummary">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="LoanSummary" type="LoanSummary" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="BalanceSheetRequest" nillable="true" type="BalanceSheetRequest" />
+  <xs:complexType name="BalanceSheetRequest">
+    <xs:complexContent mixed="false">
+      <xs:extension base="ReportBase">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="defaultCurrency" type="CurrencyType" />
+          <xs:element minOccurs="0" maxOccurs="1" name="reportCurrency" type="CurrencyType" />
+          <xs:element minOccurs="0" maxOccurs="1" name="unitValues" type="UnitValues" />
+          <xs:element minOccurs="0" maxOccurs="1" name="unitTypes" type="UnitTypes" />
+          <xs:element minOccurs="0" maxOccurs="1" name="accountHierarchyUrl" type="xs:string" />
+          <xs:element minOccurs="0" maxOccurs="1" name="actionTaxonomy" type="BSActionVerbs" />
+          <xs:element minOccurs="0" maxOccurs="1" name="bankStatement" type="BankStatementBS" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="CurrencyType" nillable="true" type="CurrencyType" />
+  <xs:complexType name="CurrencyType">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="unitType" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="UnitValues">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="unitValue" type="UnitValue" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="UnitValue">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="unitValueDate" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="unitType" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="unitValue" type="xs:decimal" />
+      <xs:element minOccurs="0" maxOccurs="1" name="unitValueCurrency" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="UnitTypes">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="unitType" type="UnitType" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="UnitType">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="unitType" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="unitCategory" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="BSActionVerbs">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="action" type="BSActionVerb" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="BSActionVerb">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="valuationDate" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="unitType" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="BSActionVerb" type="xs:decimal" />
+      <xs:element minOccurs="0" maxOccurs="1" name="BSActionVerbCurrency" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="BankStatementBS">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="title" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="period" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="accountDetails" type="AccountDetails" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="AccountDetails">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="accountNo" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="accountName" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="dateofBankStatement" type="xs:date" />
+      <xs:element minOccurs="0" maxOccurs="1" name="bankID" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="currency" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="openingBalance" type="xs:decimal" />
+      <xs:element minOccurs="0" maxOccurs="1" name="transactions" type="BSTransactions" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="BSTransactions">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="transaction" type="BSTransaction" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="BSTransaction">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="transdesc" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="transdate" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="debit" type="xs:decimal" />
+      <xs:element minOccurs="0" maxOccurs="1" name="credit" type="xs:decimal" />
+      <xs:element minOccurs="0" maxOccurs="1" name="unit" type="xs:integer" />
+      <xs:element minOccurs="0" maxOccurs="1" name="unitType" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="LivestockData">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="type" type="xs:string"/>
+      <xs:element minOccurs="0" maxOccurs="1" name="naturalIncreaseValuePerUnit" type="xs:decimal"/>
+      <xs:element minOccurs="0" maxOccurs="1" name="openingCount" type="xs:integer"/>
+      <xs:element minOccurs="0" maxOccurs="1" name="openingCost" type="xs:decimal"/>
+      <xs:element minOccurs="0" maxOccurs="1" name="events">
+        <xs:complexType>
+          <xs:choice minOccurs="0" maxOccurs="unbounded">
+            <xs:element name="naturalIncrease" type="LivestockEvent"/>
+            <xs:element name="loss" type="LivestockEvent"/>
+            <xs:element name="rations" type="LivestockEvent"/>
+          </xs:choice>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="LiveStockRequest" nillable="true" type="LiveStockRequest" />
+
+  <xs:complexType name="LiveStockRequest">
+    <xs:complexContent mixed="false">
+      <xs:extension base="ReportBase">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="livestocks" type="LivestockItem" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="LiveStockItems">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="livestock" type="LivestockItem" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="LivestockItem">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="name" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="currency" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="naturalIncreaseValuePerUnit" type="xs:decimal" />
+      <xs:element minOccurs="0" maxOccurs="1" name="openingValue" type="xs:decimal" />
+      <xs:element minOccurs="0" maxOccurs="1" name="saleValue" type="xs:decimal" />
+      <xs:element minOccurs="0" maxOccurs="1" name="purchaseValue" type="xs:decimal" />
+      <xs:element minOccurs="0" maxOccurs="1" name="unitsOpening" type="xs:integer" />
+      <xs:element minOccurs="0" maxOccurs="1" name="unitsBorn" type="xs:integer" />
+      <xs:element minOccurs="0" maxOccurs="1" name="unitsPurchases" type="xs:integer" />
+      <xs:element minOccurs="0" maxOccurs="1" name="unitsSales" type="xs:integer" />
+      <xs:element minOccurs="0" maxOccurs="1" name="unitsRations" type="xs:integer" />
+      <xs:element minOccurs="0" maxOccurs="1" name="unitsDeceased" type="xs:integer" />
+      <xs:element minOccurs="0" maxOccurs="1" name="unitsClosing" type="xs:integer" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="LivestockEvent">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="date" type="xs:date"/>
+      <xs:element minOccurs="0" maxOccurs="1" name="count" type="xs:integer"/>
+    </xs:sequence>
+  </xs:complexType>
+</xs:schema>

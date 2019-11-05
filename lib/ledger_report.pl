@@ -307,7 +307,7 @@ format_report_entries(Format, Accounts, Indent_Level, Report_Currency, Context, 
 	format_report_entries(Format, 0, Accounts, Indent_Level, Report_Currency, Context, Entries, Used_Units_In, Used_Units_Out, Lines_In, Lines_Out).
 	
 format_report_entries(_, _, _, _, _, _, [], Used_Units_In, Used_Units_Out, Lines_In, Lines_Out) :-
-	(Used_Units_In = Used_Units_Out, Lines_In = Lines_Out -> true ; throw('internal error')).
+	(Used_Units_In = Used_Units_Out, Lines_In = Lines_Out -> true ; throw('internal error 2')).
 
 format_report_entries(Format, Max_Detail_Level, Accounts, Indent_Level, Report_Currency, Context, Entries, Used_Units_In, Used_Units_Out, Lines_In, Lines_Out) :-
 	[entry(Name, Balances, Children, Transactions_Count)|Entries_Tail] = Entries,

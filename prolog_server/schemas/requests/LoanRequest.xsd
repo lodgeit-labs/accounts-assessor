@@ -1,0 +1,64 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:include schemaLocation="../bases/Schema.xsd" />
+  <xs:complexType name="RepaymentSection">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="repayment" type="RepaymentField" />
+    </xs:sequence>
+    <xs:attribute name="name" type="xs:string" />
+  </xs:complexType>
+  <xs:complexType name="RepaymentField">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute name="value" type="xs:string" />
+        <xs:attribute name="date" type="xs:string" />
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+
+  <xs:complexType name="LoanAgreementSection">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="field" type="LoanAgreementField"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="LoanAgreementField">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute name="name" type="xs:string" />
+        <xs:attribute name="value" type="xs:string" />
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+
+
+  <xs:element name="LoanDetails" nillable="true" type="LoanDetails" />
+  <xs:complexType name="LoanDetails">
+    <xs:complexContent mixed="false">
+      <xs:extension base="ReportBase">
+        <xs:sequence>
+          <xs:element minOccurs="1" maxOccurs="1" name="loanAgreement" type="LoanAgreementSection" />
+          <xs:element minOccurs="1" maxOccurs="1" name="repayments" type="RepaymentSection" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="LoanSummary" nillable="true" type="LoanSummary" />
+  <xs:complexType name="LoanSummary">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="IncomeYear" type="xs:integer" />
+      <xs:element minOccurs="0" maxOccurs="1" name="OpeningBalance" type="xs:decimal" />
+      <xs:element minOccurs="0" maxOccurs="1" name="TotalPrincipal" type="xs:decimal" />
+      <xs:element minOccurs="0" maxOccurs="1" name="TotalInterest" type="xs:decimal" />
+      <xs:element minOccurs="0" maxOccurs="1" name="TotalRepayment" type="xs:decimal" />
+      <xs:element minOccurs="0" maxOccurs="1" name="RepaymentShortfall" type="xs:decimal" />
+      <xs:element minOccurs="0" maxOccurs="1" name="InterestRate" type="xs:decimal" />
+      <xs:element minOccurs="0" maxOccurs="1" name="ClosingBalance" type="xs:decimal" />
+      <xs:element minOccurs="0" maxOccurs="1" name="MinYearlyRepayment" type="xs:decimal" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="ArrayOfLoanSummary">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="LoanSummary" type="LoanSummary" />
+    </xs:sequence>
+  </xs:complexType>
+</xs:schema>

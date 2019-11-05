@@ -42,7 +42,7 @@ validate_xml(Instance_File, Schema_File, Schema_Errors) :-
 		Schema_Errors = []
 	;
 		atomic_list_concat([Response_JSON.error_type, Response_JSON.error_message], ": ", Schema_Error),
-		Schema_Errors = [Schema_Error]
+		Schema_Errors = [error:Schema_Error]
 	).	
 	/*
 	Args = ['../python/src/xmlschema_runner.py',Instance_File,Schema_File],

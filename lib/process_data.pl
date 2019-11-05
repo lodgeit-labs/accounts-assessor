@@ -157,7 +157,7 @@ process_data(_, Path, Options) :-
 		Alert, 
 		(
 			member(KV, Alerts2), 
-			((Key:Val) = KV -> true ; throw('internal error')),
+			((Key:Val) = KV -> true ; throw('internal error 1')),
 			atomic_list_concat([Key,':',Val], Alert)
 		), 
 		Alerts3
