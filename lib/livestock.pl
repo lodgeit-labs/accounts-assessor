@@ -319,6 +319,12 @@ preprocess_livestock_event(Event, Transaction) :-
 	count_account(Type, Count_Account),
 	make_transaction(Day, 'livestock rations', Count_Account, [coord(Type, 0, Count)], Transaction).
 
+preprocess_livestock_event(Event, _) :-
+	Event = sale(_,_,_).
+
+preprocess_livestock_event(Event, _) :-
+	Event = purchase(_,_,_).
+
 
 	
 % natural increase count given livestock type and all livestock events
@@ -552,7 +558,8 @@ extract_livestock_event(Type, Dom, Event) :-
 extract_livestock_event2(Type, Days, Count, element(naturalIncrease,_,_),  born(Type, Days, Count)).
 extract_livestock_event2(Type, Days, Count, element(loss,_,_),                     loss(Type, Days, Count)).
 extract_livestock_event2(Type, Days, Count, element(rations,_,_),                rations(Type, Days, Count)).
-
+extract_livestock_event2(Type, Days, Count, element(sale,_,_),                sale(Type, Days, Count)).
+extract_livestock_event2(Type, Days, Count, element(purchase,_,_),                purchase(Type, Days, Count)).
 
 
 /* we should have probably just put the livestock count accounts under inventory */
@@ -591,7 +598,8 @@ process_livestock(Livestock_Doms, Livestock_Types, S_Transactions, Transactions_
 	append(Transactions_In, Opening_Inventory_Transactions, Transactions1),
 
 	maplist(preprocess_livestock_event, Livestock_Events, Livestock_Event_Transactions_Nested),
-	flatten(Livestock_Event_Transactions_Nested, Livestock_Event_Transactions),
+	flatten(Livestock_Event_Transactions_Nested, Livestock_Event_Transactions0),
+	exclude(var, Livestock_Event_Transactions0, Livestock_Event_Transactions),
 	append(Transactions1, Livestock_Event_Transactions, Transactions2),
 
 	get_average_costs(Livestock_Types, Opening_Costs_And_Counts, (Start_Date, End_Date, S_Transactions, Livestock_Events, Natural_Increase_Costs), Average_Costs_With_Explanations),

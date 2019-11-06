@@ -11,6 +11,7 @@
           <xs:element minOccurs="1" maxOccurs="1" name="defaultCurrency" type="CurrencyType" />
           <xs:element minOccurs="1" maxOccurs="1" name="reportCurrency" type="CurrencyType" />
           <xs:element minOccurs="0" maxOccurs="1" name="unitValues" type="UnitValues" />
+          <xs:element minOccurs="0" maxOccurs="1" name="unitTypes" type="UnitTypes" />
           <xs:element minOccurs="0" maxOccurs="unbounded" name="accountHierarchy" type="Accounts" />
           <xs:element minOccurs="0" maxOccurs="1" name="actionTaxonomy" type="ActionTaxonomy" />
           <xs:element minOccurs="0" maxOccurs="unbounded" name="livestockData" type="LivestockData" />
@@ -20,6 +21,21 @@
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
+  
+  
+ <xs:complexType name = "UnitTypes">
+   <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="unitType" type="UnitType" />
+   </xs:sequence>
+ </xs:complexType>
+	
+  <xs:complexType name="UnitType">
+    <xs:all>
+      <xs:element minOccurs="0" name="unitType" type="xs:string" />
+      <xs:element minOccurs="0" name="unitCategory" type="xs:string" />
+    </xs:all>
+  </xs:complexType>
+  
   <xs:element name="CurrencyType" nillable="true" type="CurrencyType" />
   <xs:complexType name="CurrencyType">
     <xs:sequence>
@@ -53,6 +69,7 @@
       <xs:element minOccurs="0" maxOccurs="1" name="dateofBankStatement" type="xs:date" />
       <xs:element minOccurs="0" maxOccurs="1" name="bankID" type="xs:string" />
       <xs:element minOccurs="0" maxOccurs="1" name="currency" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="openingBalance" type="xs:decimal" />
       <xs:element minOccurs="0" maxOccurs="1" name="transactions" type="BSTransactions" />
     </xs:sequence>
   </xs:complexType>
@@ -83,6 +100,8 @@
             <xs:element name="naturalIncrease" type="LivestockEvent"/>
             <xs:element name="loss" type="LivestockEvent"/>
             <xs:element name="rations" type="LivestockEvent"/>
+            <xs:element name="sale" type="LivestockEvent"/>
+            <xs:element name="purchase" type="LivestockEvent"/>
           </xs:choice>
         </xs:complexType>
       </xs:element>
