@@ -38,11 +38,7 @@
 :- use_module('exchange_rates', [
 		exchange_rate/5, 
 		is_exchangeable_into_request_bases/4]).
-:- use_module('transaction_types', [
-		transaction_type_id/2,
-		transaction_type_exchanged_account_id/2,
-		transaction_type_trading_account_id/2,
-		transaction_type_description/2]).
+:- use_module('action_verbs', []).
 :- use_module('livestock', [
 		preprocess_livestock_buy_or_sell/3, 
 		make_livestock_accounts/2]).
@@ -509,13 +505,13 @@ check_trial_balance(Exchange_Rates, Report_Currency, Date, Transactions) :-
 
 	
 % Gets the transaction_type term associated with the given transaction
-s_transaction_type_of(Transaction_Types, S_Transaction, Transaction_Type) :-
+s_transaction_type_of(Transaction_Types, S_Transaction, Action_Verb) :-
 	% get type id
 	s_transaction_type_id(S_Transaction, Type_Id),
 	% construct type term with parent variable unbound
-	transaction_type_id(Transaction_Type, Type_Id),
+	action_verb_id(Transaction_Type, Type_Id),
 	% match it with what's in Transaction_Types
-	member(Transaction_Type, Transaction_Types).
+	member(Action_Verb, Transaction_Types).
 
 
 % throw an error if the s_transaction's account is not found in the hierarchy

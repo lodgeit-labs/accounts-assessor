@@ -146,6 +146,11 @@ process_realized(Dom, Global_Report_Date_Atom, Result) :-
 			vector([coord(Unit_Unique, 0, Count)])
 		)
 	], 
+
+action_verb_id(Invest_In_Action_Verb, 'Invest_In'),
+exchanged_account_id(Invest_In_Action_Verb, 'FinancialInvestments'),
+
+
 	process_ledger(
 		S_Transactions,	
 		Purchase_Date, 
