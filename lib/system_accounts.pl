@@ -1,7 +1,7 @@
 :- module(system_accounts, [
 		traded_units/2,
 		generate_system_accounts/3, 
-		trading_account_ids/2,
+		trading_account_ids/1,
 		bank_accounts/2]).
 
 :- use_module('accounts', [
@@ -15,12 +15,14 @@
 		make_livestock_accounts/2]).
 :- use_module('statements', [
 		s_transaction_account_id/2,
-		s_transaction_type_of/3,
 		s_transaction_vector/2,
 		s_transaction_exchanged/2]).
 :- use_module('utils', [
 		replace_nonalphanum_chars_with_underscore/2,
 		capitalize_atom/2]).
+
+:- use_module(library(semweb/rdf11)).
+
 /*	
 Take the output of find_or_add_required_accounts and filter out existing accounts by role. 
 Change id's to unique if needed.
@@ -143,9 +145,7 @@ yield_traded_units(S_Transactions, Unit) :-
 trading_account_ids(Ids) :-
 	findall(
 		A,
-		(
-			rdf(_, l:has_trading_account_id, A),
-		),
+		rdf(_, l:has_trading_account_id, A),
 		Ids0
 	),
 	sort(Ids0, Ids).

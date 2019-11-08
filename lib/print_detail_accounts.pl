@@ -4,9 +4,7 @@
 		print_trading/3
 ]).
 
-:- use_module('system_accounts', [
-		trading_account_ids/2,
-		bank_accounts/2]).
+:- use_module('system_accounts', []).
 
 :- use_module('accounts', [
 		child_accounts/3,
@@ -80,7 +78,7 @@ print_detail_account(Static_Data, Context_Info, Fact_Name, Account_In,
 
 print_banks(Static_Data, Context_Id_Base, Entity_Identifier, In, Out) :- 
 	dict_vars(Static_Data, [End_Date, Accounts]),
-	bank_accounts(Accounts, Bank_Accounts),
+	system_accounts:bank_accounts(Accounts, Bank_Accounts),
 	Context_Info = context_arg0(
 		Context_Id_Base, 
 		End_Date, 
@@ -131,7 +129,7 @@ print_trading2(Static_Data, [(Sub_Account,Unit_Accounts)|Tail], In, Out):-
 print_trading2(_,[],Results,Results).
 	
 trading_sub_account(Sd, (Movement_Account, Unit_Accounts)) :-
-	trading_account_ids(Sd.transaction_types, Trading_Accounts),
+	system_accounts:trading_account_ids(Trading_Accounts),
 	member(Trading_Account, Trading_Accounts),
 	account_by_role_nothrow(Sd.accounts, (Trading_Account/_), Gains_Account),
 	account_by_role_nothrow(Sd.accounts, (Gains_Account/_), Movement_Account),

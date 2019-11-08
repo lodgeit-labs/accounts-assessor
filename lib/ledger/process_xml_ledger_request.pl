@@ -51,7 +51,7 @@
 		fill_in_missing_units/6,
 		sort_s_transactions/2]).
 :- use_module('../ledger', [
-		process_ledger/21]).
+		process_ledger/20]).
 :- use_module('../livestock', [
 		get_livestock_types/2, 
 		extract_livestock_opening_costs_and_counts/2]).
@@ -69,7 +69,6 @@
 		request_tmp_dir/1,
 		server_public_url/1]).
 :- use_module('../system_accounts', [
-		trading_account_ids/2,
 		bank_accounts/2]).
 :- use_module('../xbrl_contexts', [
 		print_contexts/1,
@@ -83,6 +82,7 @@
 :- use_module('../xml', [
 		validate_xml/3
 ]).
+:- use_module('../action_verbs', []).
 
 :- use_module('../investment_report_2').
 :- use_module('../crosschecks_report').
@@ -122,7 +122,7 @@ process_xml_ledger_request2(Dom, Reports_Out) :-
 	extract_cost_or_market(Dom, Cost_Or_Market),
 	extract_default_currency(Dom, Default_Currency),
 	extract_report_currency(Dom, Report_Currency),
-	extract_action_verbs(Dom),
+	action_verbs:extract_action_verbs_from_bs_request(Dom),
 	extract_account_hierarchy(Dom, Accounts0),
 
 	inner_xml(Dom, //reports/balanceSheetRequest/startDate, [Start_Date_Atom]),

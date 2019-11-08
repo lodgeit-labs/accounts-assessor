@@ -42,6 +42,7 @@ see doc/investment and dropbox Develop/videos/ledger
 :- use_module('../files', [
 		absolute_tmp_path/2
 ]).
+:- use_module('../action_verbs', []).
 
 	
 :- record investment(
@@ -147,7 +148,7 @@ process_realized(Dom, Global_Report_Date_Atom, Result) :-
 		)
 	], 
 
-	add_action_verbs_from_default_action_taxonomy,
+	action_verbs:add_action_verbs_from_default_action_taxonomy,
 
 	process_ledger(
 		S_Transactions,	
@@ -290,7 +291,7 @@ process_unrealized(Dom, Global_Report_Date, Result) :-
 	],	
 
 	extract_account_hierarchy([], Accounts0),
-	add_action_verbs_from_default_action_taxonomy,
+	action_verbs:add_action_verbs_from_default_action_taxonomy,
 
 	process_ledger(
 		S_Transactions,
@@ -547,7 +548,7 @@ crosscheck_totals(Results, Report_Date) :-
 		_Unrealized_PDRC_Cost_Total
 	),
 	extract_account_hierarchy([], Accounts0),
-	add_action_verbs_from_default_action_taxonomy,
+	action_verbs:add_action_verbs_from_default_action_taxonomy,
 	process_ledger(
 		S_Transactions,
 		date(2000,1,1), 

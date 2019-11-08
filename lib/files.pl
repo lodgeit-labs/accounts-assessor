@@ -13,6 +13,7 @@
 
 :- use_module('utils').
 :- use_module(library(http/http_dispatch), [http_safe_file/2]).
+:- use_module(library(semweb/rdf11)).
 
 :- dynamic user:file_search_path/2.
 :- multifile user:file_search_path/2.

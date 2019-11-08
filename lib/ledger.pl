@@ -1,6 +1,6 @@
 :- module(ledger, [
 		find_s_transactions_in_period/4,
-		process_ledger/21
+		process_ledger/20
 	]).
 
 :- use_module('system_accounts', [
