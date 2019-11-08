@@ -22,7 +22,7 @@ see doc/investment and dropbox Develop/videos/ledger
 		parse_date/2, 
 		gregorian_date/2]).
 :- use_module('../ledger', [
-		process_ledger/21]).
+		process_ledger/20]).
 :- use_module('../ledger_report', [
 		format_report_entries/10,
 		balance_sheet_at/2, 
@@ -147,23 +147,13 @@ process_realized(Dom, Global_Report_Date_Atom, Result) :-
 		)
 	], 
 
-action_verb_id(Invest_In_Action_Verb, 'Invest_In'),
-exchanged_account_id(Invest_In_Action_Verb, 'FinancialInvestments'),
-
+	add_action_verbs_from_default_action_taxonomy,
 
 	process_ledger(
 		S_Transactions,	
 		Purchase_Date, 
 		Sale_Date, 
 		Exchange_Rates,
-		[ transaction_type('Invest_In',
-		   'FinancialInvestments',
-		   'InvestmentIncome',
-		   'Shares'),
-		transaction_type('Dispose_Of',
-		   'FinancialInvestments',
-		   'InvestmentIncome',
-		   'Shares')],
 		[report_currency], 
 		Accounts0, 
 		Accounts, 
@@ -300,16 +290,13 @@ process_unrealized(Dom, Global_Report_Date, Result) :-
 	],	
 
 	extract_account_hierarchy([], Accounts0),
+	add_action_verbs_from_default_action_taxonomy,
+
 	process_ledger(
 		S_Transactions,
 		Purchase_Date, 
 		Report_Date, 
 		Exchange_Rates,
-		[ transaction_type('Invest_In',
-		   'FinancialInvestments',
-		   'InvestmentIncome',
-		   'Shares')
-		],
 		[report_currency], 
 		Accounts0, 
 		Accounts, 
@@ -560,22 +547,12 @@ crosscheck_totals(Results, Report_Date) :-
 		_Unrealized_PDRC_Cost_Total
 	),
 	extract_account_hierarchy([], Accounts0),
-
+	add_action_verbs_from_default_action_taxonomy,
 	process_ledger(
 		S_Transactions,
 		date(2000,1,1), 
 		Report_Date, 
 		Exchange_Rates,
-		[ transaction_type('Invest_In',
-			/*TODO get accounts by role*/
-		   'FinancialInvestments',
-		   'InvestmentIncome',
-		   'Shares'),
-		  transaction_type('Dispose_Of',
-		   'FinancialInvestments',
-		   'InvestmentIncome',
-		   'Shares')
-		],
 		[report_currency], 
 		Accounts0, 
 		Accounts, 
@@ -710,7 +687,6 @@ process_ledger(
 	Purchase_Date, 
 	Sale_Date, 
 	Exchange_Rates,
-	Transaction_Types,
 	Report_Currency,
 	Accounts0, 
 	Accounts, 
@@ -724,7 +700,6 @@ process_ledger(
 		Purchase_Date, 
 		Sale_Date, 
 		Exchange_Rates,
-		Transaction_Types,
 		Report_Currency,
 		[], 
 		[], 

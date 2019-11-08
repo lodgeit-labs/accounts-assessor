@@ -66,6 +66,7 @@ bump_tmp_directory_id :-
 	gensym(Base, Dir),
 	retractall(my_request_tmp_dir(_)),
 	asserta(my_request_tmp_dir(Dir)),
+	rdf_default_graph(_, Dir),
 	absolute_tmp_path('', Path),
 	make_directory(Path),
 	absolute_whatever(my_tmp('last'), Last),

@@ -84,7 +84,6 @@
 		validate_xml/3
 ]).
 
-:- use_module('../investment_report_1').		      
 :- use_module('../investment_report_2').
 :- use_module('../crosschecks_report').
 
@@ -123,7 +122,7 @@ process_xml_ledger_request2(Dom, Reports_Out) :-
 	extract_cost_or_market(Dom, Cost_Or_Market),
 	extract_default_currency(Dom, Default_Currency),
 	extract_report_currency(Dom, Report_Currency),
-	extract_action_taxonomy(Dom, Transaction_Types),
+	extract_action_verbs(Dom),
 	extract_account_hierarchy(Dom, Accounts0),
 
 	inner_xml(Dom, //reports/balanceSheetRequest/startDate, [Start_Date_Atom]),
@@ -146,7 +145,7 @@ process_xml_ledger_request2(Dom, Reports_Out) :-
 	/* 
 		process_ledger turns s_transactions into transactions
 	*/
-	process_ledger(Cost_Or_Market, Livestock_Doms, S_Transactions, Processed_S_Transactions, Start_Date, End_Date, Exchange_Rates0, Transaction_Types, Report_Currency, Livestock_Types, Livestock_Opening_Costs_And_Counts, Accounts0, Accounts, Transactions, Transactions_By_Account, _Transaction_Transformation_Debug, Outstanding, Processed_Until, Warnings, Errors, Gl),
+	process_ledger(Cost_Or_Market, Livestock_Doms, S_Transactions, Processed_S_Transactions, Start_Date, End_Date, Exchange_Rates0, Report_Currency, Livestock_Types, Livestock_Opening_Costs_And_Counts, Accounts0, Accounts, Transactions, Transactions_By_Account, _Transaction_Transformation_Debug, Outstanding, Processed_Until, Warnings, Errors, Gl),
 
 	print_relevant_exchange_rates_comment(Report_Currency, End_Date, Exchange_Rates0, Transactions),
 	infer_exchange_rates(Transactions, Processed_S_Transactions, Start_Date, End_Date, Accounts, Report_Currency, Exchange_Rates0, Exchange_Rates),
@@ -157,7 +156,7 @@ process_xml_ledger_request2(Dom, Reports_Out) :-
 	print_xbrl_header,
 
 	dict_from_vars(Static_Data,
-		[Cost_Or_Market, Output_Dimensional_Facts, Start_Date, End_Date, Exchange_Rates, Accounts, Transactions, Report_Currency, Transaction_Types, Gl, Transactions_By_Account]),
+		[Cost_Or_Market, Output_Dimensional_Facts, Start_Date, End_Date, Exchange_Rates, Accounts, Transactions, Report_Currency, Gl, Transactions_By_Account]),
 	output_results(Static_Data, Outstanding, Processed_Until, Reports),
 	
 	Reports_Out = _{
@@ -342,11 +341,6 @@ investment_reports2(Static_Data, Outstanding, Alerts, Ir, Files) :-
 	/*get_dict(start_date, Static_Data, Report_Start),
 	add_days(Report_Start, -1, Before_Start),*/
 
-%	catch_maybe_with_backtrace(
-				   /* investment_report_1 is useless but does useful cross-checks while it's being compiled */
-%				   investment_report_1:investment_report_1(Static_Data, _),
-%				   E,
-
 	% report period	
 	investment_report_2:investment_report_2(Static_Data, Outstanding, '', Json1, Files1),
 
@@ -446,27 +440,6 @@ extract_default_currency(Dom, Default_Currency) :-
 extract_report_currency(Dom, Report_Currency) :-
 	inner_xml_throw(Dom, //reports/balanceSheetRequest/reportCurrency/unitType, Report_Currency).
 
-extract_action_taxonomy(Dom, Transaction_Types) :-
-	(
-		(xpath(Dom, //reports/balanceSheetRequest/actionTaxonomy, Taxonomy_Dom),!)
-	;
-		(
-			absolute_file_name(my_static('default_action_taxonomy.xml'), Default_Transaction_Types_File, [ access(read) ]),
-			load_xml(Default_Transaction_Types_File, Taxonomy_Dom, [])
-		)
-	),
-	extract_action_taxonomy2(Taxonomy_Dom, Transaction_Types).
-   
-extract_action_taxonomy2(Dom, Transaction_Types) :-
-   findall(Action, xpath(Dom, //action, Action), Actions),
-   maplist(extract_action, Actions, Transaction_Types).
-   
-extract_action(In, transaction_type(Id, Exchange_Account, Trading_Account, Description)) :-
-	fields(In, [
-		id, Id,
-		description, (Description, _),
-		exchangeAccount, (Exchange_Account, _),
-		tradingAccount, (Trading_Account, _)]).
    
 extract_exchange_rates(Dom, Start_Date, End_Date, Default_Currency, Exchange_Rates_Out) :-
 /*If an investment was held prior to the from date then it MUST have an opening market value if the reports are expressed in.market rather than cost.You can't mix market value and cost in one set of reports. One or the other.2:27 AMi see. Have you thought about how to let the user specify the method?Andrew, 2:31 AMMarket or Cost. M or C. Sorry. Never mentioned it to you.2:44 AMyou mentioned the different approaches, but i ended up assuming that this would be best selected by specifying or not specifying the unitValues. I see there is a field for it already in the excel templateAndrew, 2:47 AMCost value per unit will always be there if there are units of anything i.e. sheep for livestock trading or shares for InvestmentsAndrew, 3:04 AMBut I suppose if you do not find any market values then assume cost basis.*/

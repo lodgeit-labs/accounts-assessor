@@ -4,7 +4,7 @@
 	]).
 
 :- use_module('system_accounts', [
-		traded_units/3,
+		traded_units/2,
 		generate_system_accounts/3]).
 :- use_module('accounts').
 :- use_module('statements', [
@@ -62,7 +62,6 @@ process_ledger(
 	Start_Date, 
 	End_Date, 
 	Exchange_Rates0, 
-	Transaction_Types, 
 	Report_Currency, 
 	Livestock_Types, 
 	Livestock_Opening_Costs_And_Counts, 
@@ -85,12 +84,10 @@ process_ledger(
 
 	s_transactions_up_to(End_Date, S_Transactions0, S_Transactions),
 	pretty_term_string(Exchange_Rates0, Message1b),
-	pretty_term_string(Transaction_Types, Message2),
 	pretty_term_string(Accounts_In, Message3),
 	atomic_list_concat([
 	'\n<!--',
 	'Exchange rates extracted:\n', Message1b,'\n\n',
-	'Transaction_Types extracted:\n',Message2,'\n\n',
 	'Accounts extracted:\n',Message3,'\n\n',
 	'-->\n\n'], Debug_Message0),
 	writeln(Debug_Message0),
@@ -99,12 +96,12 @@ process_ledger(
 	(
 		Cost_Or_Market = cost
 	->
-		filter_out_market_values(S_Transactions, Transaction_Types, Exchange_Rates0, Exchange_Rates)
+		filter_out_market_values(S_Transactions, Exchange_Rates0, Exchange_Rates)
 	;
 		Exchange_Rates0 = Exchange_Rates
 	),
 	
-	generate_system_accounts((S_Transactions, Livestock_Types, Transaction_Types), Accounts_In, Generated_Accounts_Nested),
+	generate_system_accounts((S_Transactions, Livestock_Types), Accounts_In, Generated_Accounts_Nested),
 	flatten(Generated_Accounts_Nested, Generated_Accounts),
 	pretty_term_string(Generated_Accounts, Message3b),
 	atomic_list_concat([
@@ -117,7 +114,7 @@ process_ledger(
 	maplist(accounts:check_account_parent(Accounts), Accounts), 
 	accounts:write_accounts_json_report(Accounts),
 	
-	dict_from_vars(Static_Data0, [Accounts, Report_Currency, Start_Date, End_Date, Exchange_Rates, Transaction_Types, Cost_Or_Market]),
+	dict_from_vars(Static_Data0, [Accounts, Report_Currency, Start_Date, End_Date, Exchange_Rates, Cost_Or_Market]),
 	
 	preprocess_s_transactions(Static_Data0, S_Transactions, Processed_S_Transactions, Transactions0, Outstanding_Out, Transaction_Transformation_Debug),
 	
@@ -288,8 +285,8 @@ gather_ledger_errors(Debug, Errors) :-
 		Errors = []
 	).
 
-filter_out_market_values(S_Transactions, Transaction_Types, Exchange_Rates0, Exchange_Rates) :-
-	traded_units(S_Transactions, Transaction_Types, Units),
+filter_out_market_values(S_Transactions, Exchange_Rates0, Exchange_Rates) :-
+	traded_units(S_Transactions, Units),
 	findall(
 		R,
 		(

@@ -216,14 +216,19 @@ preprocess_s_transaction(Static_Data, S_Transaction, Transactions, Outstanding, 
 
 preprocess_s_transaction(Static_Data, S_Transaction, [Ts1, Ts2, Ts3, Ts4], Outstanding_In, Outstanding_Out) :-
 	Pricing_Method = lifo,
-	dict_vars(Static_Data, [Report_Currency, Transaction_Types, Exchange_Rates]),
-	check_s_transaction_action_type(Transaction_Types, S_Transaction),
+	dict_vars(Static_Data, [Report_Currency, Exchange_Rates]),
+	check_s_transaction_action_type(S_Transaction),
 	s_transaction_exchanged(S_Transaction, vector(Counteraccount_Vector)),
 	s_transaction_account_id(S_Transaction, Bank_Account_Name), 
-	s_transaction_type_of(Transaction_Types, S_Transaction, Transaction_Type),
+	s_transaction_action_verb(S_Transaction, Action_Verb),
 	s_transaction_vector(S_Transaction, Vector_Ours),
 	s_transaction_day(S_Transaction, Transaction_Date),
-	transaction_type(Transaction_Type_Id, Exchanged_Account, Trading_Account_Id, _Transaction_Type_Description) = Transaction_Type,
+	
+	rdf(Action_Verb, l:has_id, Transaction_Type_Id),
+	rdf(Action_Verb, l:has_exchanged_account, Exchanged_Account),
+	%rdf(Action_Verb, l:has_trading_account_account, Exchanged_Account),
+	transaction_type(, Exchanged_Account, Trading_Account_Id, _Transaction_Type_Description) = Transaction_Type,
+
 	%(var(Description)->	Description = '?'; true),
 	Description = Transaction_Type_Id,
 	[coord(Bank_Account_Currency, _,_)] = Vector_Ours,
@@ -505,14 +510,10 @@ check_trial_balance(Exchange_Rates, Report_Currency, Date, Transactions) :-
 
 	
 % Gets the transaction_type term associated with the given transaction
-s_transaction_type_of(Transaction_Types, S_Transaction, Action_Verb) :-
-	% get type id
+s_transaction_action_verb(S_Transaction, Action_Verb) :-
 	s_transaction_type_id(S_Transaction, Type_Id),
-	% construct type term with parent variable unbound
-	action_verb_id(Transaction_Type, Type_Id),
-	% match it with what's in Transaction_Types
-	member(Action_Verb, Transaction_Types).
-
+	rdf(Action_Verb, rdf:type l:action_verb),
+	rdf(Action_Verb, l:has_id, Type_Id).
 
 % throw an error if the s_transaction's account is not found in the hierarchy
 check_that_s_transaction_account_exists(S_Transaction, Accounts) :-
@@ -724,23 +725,25 @@ fill_in_missing_units(S_Transactions0, Report_End_Date, [Report_Currency], Used_
 		Inferred_Rates
 	).
 	
-
-check_s_transaction_action_type(Transaction_Types, S_Transaction) :-
+ 
+check_s_transaction_action_type(S_Transaction) :-
+	s_transaction_type_id(S_Transaction, Type_Id),
+	rdf(X, rdf:type l:action_verb),
+	rdf(X, l:has_id, Rdf_Type_Id),
 	(
-		% do we have a tag that corresponds to one of known actions?
-		s_transaction_type_of(Transaction_Types, S_Transaction, Transaction_Type)
+		Rdf_Type_Id = Type_Id
 	->
 		true
 	;
-		(
-			s_transaction_type_id(S_Transaction, Type_Id),
-			throw_string(['unknown action verb:',Type_Id])
-		)
+		throw_string(['unknown action verb:',Type_Id])
 	),
-	transaction_type(_Verb, Exchanged_Account, _Trading_Account_Id, _Description) = Transaction_Type,
-	(var(Exchanged_Account) -> throw_string('action does not specify exchanged account') ; true).
-
-	
+	(
+		rdf(X, l:has_exchanged_account, E)
+	->
+		true
+	;
+		throw_string('action does not specify exchanged account')
+	).
 
 sort_s_transactions(In, Out) :-
 	/*
