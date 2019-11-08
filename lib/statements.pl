@@ -217,7 +217,7 @@ preprocess_s_transaction(Static_Data, S_Transaction, Transactions, Outstanding, 
 preprocess_s_transaction(Static_Data, S_Transaction, [Ts1, Ts2, Ts3, Ts4], Outstanding_In, Outstanding_Out) :-
 	Pricing_Method = lifo,
 	dict_vars(Static_Data, [Report_Currency, Exchange_Rates]),
-	check_s_transaction_action_type(S_Transaction),
+	check_s_transaction_action_verb(S_Transaction),
 	s_transaction_exchanged(S_Transaction, vector(Counteraccount_Vector)),
 	s_transaction_account_id(S_Transaction, Bank_Account_Name), 
 	s_transaction_action_verb(S_Transaction, Action_Verb),
@@ -225,11 +225,9 @@ preprocess_s_transaction(Static_Data, S_Transaction, [Ts1, Ts2, Ts3, Ts4], Outst
 	s_transaction_day(S_Transaction, Transaction_Date),
 	
 	rdf(Action_Verb, l:has_id, Transaction_Type_Id),
-	rdf(Action_Verb, l:has_exchanged_account, Exchanged_Account),
-	%rdf(Action_Verb, l:has_trading_account_account, Exchanged_Account),
-	transaction_type(, Exchanged_Account, Trading_Account_Id, _Transaction_Type_Description) = Transaction_Type,
+	rdf(Action_Verb, l:has_exchange_account, Exchanged_Account),
+	(rdf(Action_Verb, l:has_trading_account, Trading_Account)->true;true),	
 
-	%(var(Description)->	Description = '?'; true),
 	Description = Transaction_Type_Id,
 	[coord(Bank_Account_Currency, _,_)] = Vector_Ours,
 	affect_bank_account(Static_Data, Bank_Account_Name, Bank_Account_Currency, Transaction_Date, Vector_Ours, Description, Ts1), 
@@ -726,7 +724,7 @@ fill_in_missing_units(S_Transactions0, Report_End_Date, [Report_Currency], Used_
 	).
 	
  
-check_s_transaction_action_type(S_Transaction) :-
+check_s_transaction_action_verb(S_Transaction) :-
 	s_transaction_type_id(S_Transaction, Type_Id),
 	rdf(X, rdf:type l:action_verb),
 	rdf(X, l:has_id, Rdf_Type_Id),
