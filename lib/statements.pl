@@ -77,6 +77,7 @@
 
 :- [trading].
 
+:- debug(bs).
 
 /*
 TODO add more rdet declarations here
@@ -213,7 +214,13 @@ preprocess_s_transaction(Static_Data, S_Transaction, Transactions, Outstanding_I
 preprocess_s_transaction(Static_Data, S_Transaction, Transactions, Outstanding, Outstanding) :-
 	preprocess_livestock_buy_or_sell(Static_Data, S_Transaction, Transactions).
 
-
+/*
+dump_all_rdf :-
+	list_debug_topics,
+	debug(bs, 'all rdf:', []),
+	findall(_,(rdf(S,P,O),debug(bs, '~k', [(S,P,O)])),_),
+	debug(bs, '.', []).
+*/
 preprocess_s_transaction(Static_Data, S_Transaction, [Ts1, Ts2, Ts3, Ts4], Outstanding_In, Outstanding_Out) :-
 	Pricing_Method = lifo,
 	dict_vars(Static_Data, [Report_Currency, Exchange_Rates]),
@@ -223,7 +230,7 @@ preprocess_s_transaction(Static_Data, S_Transaction, [Ts1, Ts2, Ts3, Ts4], Outst
 	s_transaction_action_verb(S_Transaction, Action_Verb),
 	s_transaction_vector(S_Transaction, Vector_Ours),
 	s_transaction_day(S_Transaction, Transaction_Date),
-	
+	%dump_all_rdf,
 	rdf(Action_Verb, l:has_id, Transaction_Type_Id),
 	rdf(Action_Verb, l:has_exchange_account, Exchanged_Account),
 	(rdf(Action_Verb, l:has_trading_account, Trading_Account)->true;true),	
@@ -726,20 +733,22 @@ fill_in_missing_units(S_Transactions0, Report_End_Date, [Report_Currency], Used_
  
 check_s_transaction_action_verb(S_Transaction) :-
 	s_transaction_type_id(S_Transaction, Type_Id),
-	rdf(X, rdf:type, l:action_verb),
 	(
-		rdf(X, l:has_id, Type_Id)
+		(
+			rdf(X, rdf:type, l:action_verb),
+			rdf(X, l:has_id, Type_Id)
+		)
 	->
 		true
 	;
 		throw_string(['unknown action verb:',Type_Id])
 	),
 	(
-		rdf(X, l:has_exchanged_account, _)
+		rdf(X, l:has_exchange_account, _)
 	->
 		true
 	;
-		throw_string('action does not specify exchanged account')
+		throw_string('action does not specify exchange account')
 	).
 
 sort_s_transactions(In, Out) :-

@@ -145,7 +145,10 @@ yield_traded_units(S_Transactions, Unit) :-
 trading_account_ids(Ids) :-
 	findall(
 		A,
-		rdf(_, l:has_trading_account_id, A),
+		(
+			rdf(X, rdf:type, l:action_verb),
+			rdf(X, l:has_trading_account, A)
+		),
 		Ids0
 	),
 	sort(Ids0, Ids).
