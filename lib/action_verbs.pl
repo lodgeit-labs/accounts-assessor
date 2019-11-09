@@ -7,8 +7,6 @@
 
 :- use_module('utils', []).
 
-:- rdf_register_prefix(l, 'https://lodgeit.net.au#').
-
 request_graph(G) :-
 	my_request_tmp_dir(G).
 

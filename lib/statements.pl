@@ -69,11 +69,12 @@
 :- use_module('pricing', [
 		add_bought_items/4, 
 		find_items_to_sell/8]).
+:- use_module('files', []).
 
+:- use_module(library(semweb/rdf11)).
 :- use_module(library(record)).
 :- use_module(library(xpath)).
 :- use_module(library(rdet)).
-:- use_module(library(semweb/rdf11)).
 
 :- [trading].
 
@@ -214,13 +215,6 @@ preprocess_s_transaction(Static_Data, S_Transaction, Transactions, Outstanding_I
 preprocess_s_transaction(Static_Data, S_Transaction, Transactions, Outstanding, Outstanding) :-
 	preprocess_livestock_buy_or_sell(Static_Data, S_Transaction, Transactions).
 
-/*
-dump_all_rdf :-
-	list_debug_topics,
-	debug(bs, 'all rdf:', []),
-	findall(_,(rdf(S,P,O),debug(bs, '~k', [(S,P,O)])),_),
-	debug(bs, '.', []).
-*/
 preprocess_s_transaction(Static_Data, S_Transaction, [Ts1, Ts2, Ts3, Ts4], Outstanding_In, Outstanding_Out) :-
 	Pricing_Method = lifo,
 	dict_vars(Static_Data, [Report_Currency, Exchange_Rates]),
@@ -230,10 +224,11 @@ preprocess_s_transaction(Static_Data, S_Transaction, [Ts1, Ts2, Ts3, Ts4], Outst
 	s_transaction_action_verb(S_Transaction, Action_Verb),
 	s_transaction_vector(S_Transaction, Vector_Ours),
 	s_transaction_day(S_Transaction, Transaction_Date),
-	%dump_all_rdf,
-	rdf(Action_Verb, l:has_id, Transaction_Type_Id),
-	rdf(Action_Verb, l:has_exchange_account, Exchanged_Account),
-	(rdf(Action_Verb, l:has_trading_account, Trading_Account)->true;true),	
+	
+	files:my_rdf_graph(G),
+	rdf(Action_Verb, l:has_id, Transaction_Type_Id, G),
+	rdf(Action_Verb, l:has_exchange_account, Exchanged_Account, G),
+	(rdf(Action_Verb, l:has_trading_account, Trading_Account, G)->true;true),	
 
 	Description = Transaction_Type_Id,
 	[coord(Bank_Account_Currency, _,_)] = Vector_Ours,
@@ -517,8 +512,9 @@ check_trial_balance(Exchange_Rates, Report_Currency, Date, Transactions) :-
 % Gets the transaction_type term associated with the given transaction
 s_transaction_action_verb(S_Transaction, Action_Verb) :-
 	s_transaction_type_id(S_Transaction, Type_Id),
-	rdf(Action_Verb, rdf:type, l:action_verb),
-	rdf(Action_Verb, l:has_id, Type_Id).
+	files:my_rdf_graph(G),
+	rdf(Action_Verb, rdf:type, l:action_verb, G),
+	rdf(Action_Verb, l:has_id, Type_Id, G).
 
 % throw an error if the s_transaction's account is not found in the hierarchy
 check_that_s_transaction_account_exists(S_Transaction, Accounts) :-
@@ -733,10 +729,11 @@ fill_in_missing_units(S_Transactions0, Report_End_Date, [Report_Currency], Used_
  
 check_s_transaction_action_verb(S_Transaction) :-
 	s_transaction_type_id(S_Transaction, Type_Id),
+	files:my_rdf_graph(G),
 	(
 		(
-			rdf(X, rdf:type, l:action_verb),
-			rdf(X, l:has_id, Type_Id)
+			rdf(X, rdf:type, l:action_verb, G),
+			rdf(X, l:has_id, Type_Id, G)
 		)
 	->
 		true
@@ -744,7 +741,7 @@ check_s_transaction_action_verb(S_Transaction) :-
 		throw_string(['unknown action verb:',Type_Id])
 	),
 	(
-		rdf(X, l:has_exchange_account, _)
+		rdf(X, l:has_exchange_account, _, G)
 	->
 		true
 	;

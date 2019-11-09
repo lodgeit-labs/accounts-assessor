@@ -8,7 +8,8 @@
 		,write_file/2
 		,replace_request_with_response/2
 		,tmp_file_url/2,
-		write_tmp_json_file/2
+		write_tmp_json_file/2,
+		my_rdf_graph/1
 		]).
 
 :- use_module('utils').
@@ -21,8 +22,14 @@
 :- dynamic user:asserted_server_public_url/1.
 
 
+:- rdf_register_prefix(l, 'https://lodgeit.net.au#').
+
+
 request_tmp_dir(Dir) :-
 	my_request_tmp_dir(Dir).
+
+my_rdf_graph(G) :-
+	my_request_tmp_dir(G).
 
 set_search_path(Alias, Path_From_This_Source_File) :-
 	prolog_load_context(directory, Here),
