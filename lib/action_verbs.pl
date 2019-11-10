@@ -6,6 +6,7 @@
 :- use_module(library(xpath)).
 
 :- use_module('utils', []).
+:- use_module('rdf_stuff', []).
 
 request_graph(G) :-
 	my_request_tmp_dir(G).

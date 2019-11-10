@@ -21,7 +21,7 @@
 		replace_nonalphanum_chars_with_underscore/2,
 		capitalize_atom/2]).
 
-:- use_module('files', []).
+:- use_module('rdf_stuff', []).
 :- use_module(library(semweb/rdf11)).
 
 /*	
@@ -147,7 +147,7 @@ trading_account_ids(Ids) :-
 	findall(
 		A,
 		(
-			files:my_rdf_graph(Dir),
+			rdf_stuff:my_rdf_graph(Dir),
 			rdf(X, rdf:type, l:action_verb,Dir),
 			rdf(X, l:has_trading_account, A,Dir)
 
