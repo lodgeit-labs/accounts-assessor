@@ -34,7 +34,7 @@ x :-
 	atomic_list_concat(['swipl -O -s ', Script], Load_Cmd),
 	%clean_terminal,
 	shell2([Load_Cmd, ' -g "halt."  2>&1  |  tee err']),
-	%halt_on_err,
+	halt_on_err,
 	format(user_error, 'ok...\n', []),
 	shell2([Load_Cmd, ' -g "', Goal, ', halt."  2>&1 1> arrr.xml | tee err']),
 	halt_on_err,
