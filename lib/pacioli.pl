@@ -28,7 +28,8 @@
 		is_debit/1,
 	    coord_merge/3,
 	    coord_normal_side_value/3,
-	    vector_of_coords_to_vector_of_values/4]).
+	    vector_of_coords_to_vector_of_values/4,
+		split_vector_by_percent/4]).
 
 :- use_module('utils', [
 			semigroup_foldl/3,
@@ -280,3 +281,17 @@ vector_of_coords_to_vector_of_values(Sd, Account_Id, [Coord|Coords], [Value|Valu
 	account_normal_side(Sd.accounts, Account_Id, Side),
 	coord_normal_side_value(Coord, Side, Value),
 	vector_of_coords_to_vector_of_values(Sd, Account_Id, Coords, Values).
+
+split_vector_by_percent(V0, Rate, V1, V2) :-
+	maplist(split_coord_by_percent, V0, Rate, V1, V2).
+
+split_coord_by_percent(H0, Rate, H1, H2) :-
+	H0 = coord(U, D0, C0),
+	D1 is D0 * 100 / Rate,
+	C1 is C0 * 100 / Rate,
+	D2 is D0 - D1,
+	C2 is C0 - C1,
+	H1 = coord(U, D1, C1),
+	H2 = coord(U, D2, C2).
+
+	
