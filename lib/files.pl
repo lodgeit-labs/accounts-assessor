@@ -11,6 +11,8 @@
 		write_tmp_json_file/2
 		]).
 
+:- use_module(library(semweb/rdf11)).
+
 :- use_module('utils').
 :- use_module(library(http/http_dispatch), [http_safe_file/2]).
 
@@ -19,9 +21,9 @@
 :- dynamic user:my_request_tmp_dir, [thread(local)].
 :- dynamic user:asserted_server_public_url/1.
 
-
 request_tmp_dir(Dir) :-
 	my_request_tmp_dir(Dir).
+
 
 set_search_path(Alias, Path_From_This_Source_File) :-
 	prolog_load_context(directory, Here),
@@ -66,6 +68,7 @@ bump_tmp_directory_id :-
 	gensym(Base, Dir),
 	retractall(my_request_tmp_dir(_)),
 	asserta(my_request_tmp_dir(Dir)),
+	rdf_default_graph(_, Dir),
 	absolute_tmp_path('', Path),
 	make_directory(Path),
 	absolute_whatever(my_tmp('last'), Last),

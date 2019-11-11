@@ -12,14 +12,11 @@
 		fill_in_missing_units/6,
 		s_transaction_day/2,
 		s_transaction_account_id/2,
-		s_transaction_type_of/3,
 		s_transaction_exchanged/2,
 		s_transaction_vector/2,
 		sort_s_transactions/2,
 		s_transactions_up_to/3
 		]).
-
-:- [trading].
 
 :- use_module('pacioli',  [
 		coord_unit/2,
@@ -38,11 +35,7 @@
 :- use_module('exchange_rates', [
 		exchange_rate/5, 
 		is_exchangeable_into_request_bases/4]).
-:- use_module('transaction_types', [
-		transaction_type_id/2,
-		transaction_type_exchanged_account_id/2,
-		transaction_type_trading_account_id/2,
-		transaction_type_description/2]).
+:- use_module('action_verbs', []).
 :- use_module('livestock', [
 		preprocess_livestock_buy_or_sell/3, 
 		make_livestock_accounts/2]).
@@ -76,11 +69,14 @@
 :- use_module('pricing', [
 		add_bought_items/4, 
 		find_items_to_sell/8]).
+:- use_module('rdf_stuff', []).
 
+:- use_module(library(semweb/rdf11)).
 :- use_module(library(record)).
 :- use_module(library(xpath)).
 :- use_module(library(rdet)).
 
+:- [trading].
 
 /*
 TODO add more rdet declarations here
@@ -217,18 +213,21 @@ preprocess_s_transaction(Static_Data, S_Transaction, Transactions, Outstanding_I
 preprocess_s_transaction(Static_Data, S_Transaction, Transactions, Outstanding, Outstanding) :-
 	preprocess_livestock_buy_or_sell(Static_Data, S_Transaction, Transactions).
 
-
 preprocess_s_transaction(Static_Data, S_Transaction, [Ts1, Ts2, Ts3, Ts4], Outstanding_In, Outstanding_Out) :-
 	Pricing_Method = lifo,
-	dict_vars(Static_Data, [Report_Currency, Transaction_Types, Exchange_Rates]),
-	check_s_transaction_action_type(Transaction_Types, S_Transaction),
+	dict_vars(Static_Data, [Report_Currency, Exchange_Rates]),
+	check_s_transaction_action_verb(S_Transaction),
 	s_transaction_exchanged(S_Transaction, vector(Counteraccount_Vector)),
 	s_transaction_account_id(S_Transaction, Bank_Account_Name), 
-	s_transaction_type_of(Transaction_Types, S_Transaction, Transaction_Type),
+	s_transaction_action_verb(S_Transaction, Action_Verb),
 	s_transaction_vector(S_Transaction, Vector_Ours),
 	s_transaction_day(S_Transaction, Transaction_Date),
-	transaction_type(Transaction_Type_Id, Exchanged_Account, Trading_Account_Id, _Transaction_Type_Description) = Transaction_Type,
-	%(var(Description)->	Description = '?'; true),
+	
+	rdf_stuff:my_rdf_graph(G),
+	rdf(Action_Verb, l:has_id, Transaction_Type_Id, G),
+	rdf(Action_Verb, l:has_exchange_account, Exchanged_Account, G),
+	(rdf(Action_Verb, l:has_trading_account, Trading_Account, G)->true;true),	
+
 	Description = Transaction_Type_Id,
 	[coord(Bank_Account_Currency, _,_)] = Vector_Ours,
 	affect_bank_account(Static_Data, Bank_Account_Name, Bank_Account_Currency, Transaction_Date, Vector_Ours, Description, Ts1), 
@@ -240,11 +239,11 @@ preprocess_s_transaction(Static_Data, S_Transaction, [Ts1, Ts2, Ts3, Ts4], Outst
 			is_debit(Counteraccount_Vector)
 		->
 			make_buy(
-				Static_Data, Trading_Account_Id, Pricing_Method, Bank_Account_Currency, Counteraccount_Vector,
+				Static_Data, Trading_Account, Pricing_Method, Bank_Account_Currency, Counteraccount_Vector,
 				Converted_Vector_Ours, Vector_Ours, Exchanged_Account, Transaction_Date, Description, Outstanding_In, Outstanding_Out, Ts2)
 		;		
 			make_sell(
-				Static_Data, Trading_Account_Id, Pricing_Method, Bank_Account_Currency, Counteraccount_Vector, Vector_Ours, 
+				Static_Data, Trading_Account, Pricing_Method, Bank_Account_Currency, Counteraccount_Vector, Vector_Ours, 
 				Converted_Vector_Ours,	Exchanged_Account, Transaction_Date, Description,	Outstanding_In, Outstanding_Out, Ts3)
 		)
 	;
@@ -259,7 +258,7 @@ preprocess_s_transaction(Static_Data, S_Transaction, [Ts1, Ts2, Ts3, Ts4], Outst
 	purchased shares are recorded in an assets account without conversion. The unit is optionally wrapped in a with_cost_per_unit term.
 	Separately from that, we also change Outstanding with each buy or sell.
 */
-make_buy(Static_Data, Trading_Account_Id, Pricing_Method, Bank_Account_Currency, Goods_Vector, 
+make_buy(Static_Data, Trading_Account, Pricing_Method, Bank_Account_Currency, Goods_Vector, 
 	Converted_Vector_Ours, Vector_Ours,
 	Exchanged_Account, Transaction_Date, Description, 
 	Outstanding_In, Outstanding_Out, [Ts1, Ts2]
@@ -288,11 +287,11 @@ make_buy(Static_Data, Trading_Account_Id, Pricing_Method, Bank_Account_Currency,
 		outstanding(Bank_Account_Currency, Goods_Unit, Goods_Count, Unit_Cost_Converted, Unit_Cost_Foreign, Transaction_Date),
 		Outstanding_In, Outstanding_Out
 	),
-	(nonvar(Trading_Account_Id) -> 
-		increase_unrealized_gains(Static_Data, Description, Trading_Account_Id, Bank_Account_Currency, Converted_Vector_Ours, Goods_Vector2, Transaction_Date, Ts2) ; true
+	(nonvar(Trading_Account) -> 
+		increase_unrealized_gains(Static_Data, Description, Trading_Account, Bank_Account_Currency, Converted_Vector_Ours, Goods_Vector2, Transaction_Date, Ts2) ; true
 	).
 
-make_sell(Static_Data, Trading_Account_Id, Pricing_Method, _Bank_Account_Currency, Goods_Vector,
+make_sell(Static_Data, Trading_Account, Pricing_Method, _Bank_Account_Currency, Goods_Vector,
 	Vector_Ours, Converted_Vector_Ours,
 	Exchanged_Account, Transaction_Date, Description,
 	Outstanding_In, Outstanding_Out, [Ts1, Ts2, Ts3]
@@ -308,10 +307,10 @@ make_sell(Static_Data, Trading_Account_Id, Pricing_Method, _Bank_Account_Currenc
 		make_transaction(Transaction_Date, Description, Exchanged_Account2), 
 		Goods_With_Cost_Vectors, Ts1
 	),
-	(nonvar(Trading_Account_Id) -> 
+	(nonvar(Trading_Account) -> 
 		(						
-			reduce_unrealized_gains(Static_Data, Description, Trading_Account_Id, Transaction_Date, Goods_Cost_Values, Ts2),
-			increase_realized_gains(Static_Data, Description, Trading_Account_Id, Vector_Ours, Converted_Vector_Ours, Goods_Vector, Transaction_Date, Goods_Cost_Values, Ts3)
+			reduce_unrealized_gains(Static_Data, Description, Trading_Account, Transaction_Date, Goods_Cost_Values, Ts2),
+			increase_realized_gains(Static_Data, Description, Trading_Account, Vector_Ours, Converted_Vector_Ours, Goods_Vector, Transaction_Date, Goods_Cost_Values, Ts3)
 		)
 	; true
 	).
@@ -509,14 +508,11 @@ check_trial_balance(Exchange_Rates, Report_Currency, Date, Transactions) :-
 
 	
 % Gets the transaction_type term associated with the given transaction
-s_transaction_type_of(Transaction_Types, S_Transaction, Transaction_Type) :-
-	% get type id
+s_transaction_action_verb(S_Transaction, Action_Verb) :-
 	s_transaction_type_id(S_Transaction, Type_Id),
-	% construct type term with parent variable unbound
-	transaction_type_id(Transaction_Type, Type_Id),
-	% match it with what's in Transaction_Types
-	member(Transaction_Type, Transaction_Types).
-
+	rdf_stuff:my_rdf_graph(G),
+	rdf(Action_Verb, rdf:type, l:action_verb, G),
+	rdf(Action_Verb, l:has_id, Type_Id, G).
 
 % throw an error if the s_transaction's account is not found in the hierarchy
 check_that_s_transaction_account_exists(S_Transaction, Accounts) :-
@@ -728,23 +724,27 @@ fill_in_missing_units(S_Transactions0, Report_End_Date, [Report_Currency], Used_
 		Inferred_Rates
 	).
 	
-
-check_s_transaction_action_type(Transaction_Types, S_Transaction) :-
+ 
+check_s_transaction_action_verb(S_Transaction) :-
+	s_transaction_type_id(S_Transaction, Type_Id),
+	rdf_stuff:my_rdf_graph(G),
 	(
-		% do we have a tag that corresponds to one of known actions?
-		s_transaction_type_of(Transaction_Types, S_Transaction, Transaction_Type)
+		(
+			rdf(X, rdf:type, l:action_verb, G),
+			rdf(X, l:has_id, Type_Id, G)
+		)
 	->
 		true
 	;
-		(
-			s_transaction_type_id(S_Transaction, Type_Id),
-			throw_string(['unknown action verb:',Type_Id])
-		)
+		throw_string(['unknown action verb:',Type_Id])
 	),
-	transaction_type(_Verb, Exchanged_Account, _Trading_Account_Id, _Description) = Transaction_Type,
-	(var(Exchanged_Account) -> throw_string('action does not specify exchanged account') ; true).
-
-	
+	(
+		rdf(X, l:has_exchange_account, _, G)
+	->
+		true
+	;
+		throw_string('action does not specify exchange account')
+	).
 
 sort_s_transactions(In, Out) :-
 	/*

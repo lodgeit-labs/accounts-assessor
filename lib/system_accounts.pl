@@ -1,7 +1,7 @@
 :- module(system_accounts, [
-		traded_units/3,
+		traded_units/2,
 		generate_system_accounts/3, 
-		trading_account_ids/2,
+		trading_account_ids/1,
 		bank_accounts/2]).
 
 :- use_module('accounts', [
@@ -15,12 +15,15 @@
 		make_livestock_accounts/2]).
 :- use_module('statements', [
 		s_transaction_account_id/2,
-		s_transaction_type_of/3,
 		s_transaction_vector/2,
 		s_transaction_exchanged/2]).
 :- use_module('utils', [
 		replace_nonalphanum_chars_with_underscore/2,
 		capitalize_atom/2]).
+
+:- use_module('rdf_stuff', []).
+:- use_module(library(semweb/rdf11)).
+
 /*	
 Take the output of find_or_add_required_accounts and filter out existing accounts by role. 
 Change id's to unique if needed.
@@ -43,7 +46,7 @@ generate_system_accounts(Info, Accounts_In, Accounts_Out) :-
 .
 
 	
-find_or_add_required_accounts((S_Transactions, Livestock_Types, Transaction_Types), Accounts_In, Accounts_Out) :-
+find_or_add_required_accounts((S_Transactions, Livestock_Types), Accounts_In, Accounts_Out) :-
 /*fixme, accounts should be added one by one and id uniqueness checked against all the previously added accounts each time */
 	Missing_Stuff = [
 		/* needs to go into taxonomy */
@@ -67,21 +70,10 @@ find_or_add_required_accounts((S_Transactions, Livestock_Types, Transaction_Type
 	flatten([Accounts_In, Bank_Accounts], Accounts2),
 	make_currency_movement_accounts(Accounts2, Bank_Accounts, Currency_Movement_Accounts),
 	maplist(make_livestock_accounts, Livestock_Types, Livestock_Accounts),
-	ensure_gains_accounts_exist(Accounts2, S_Transactions, Transaction_Types, Gains_Accounts),
-	financial_investments(Accounts_In, S_Transactions, Transaction_Types, Financial_Investments_Accounts),
+	ensure_gains_accounts_exist(Accounts2, S_Transactions, Gains_Accounts),
+	financial_investments(Accounts_In, S_Transactions, Financial_Investments_Accounts),
 	flatten([Missing_Stuff, Bank_Accounts, Currency_Movement_Accounts, Livestock_Accounts, Gains_Accounts, Financial_Investments_Accounts], Accounts_Out).
 
-/*	
-	
-find_or_add_required_accounts((S_Transactions, Livestock_Types, Transaction_Types), Accounts_In, Accounts_Out) :-
-	make_bank_accounts(Accounts_In, S_Transactions, Bank_Accounts),
-	make_currency_movement_accounts(Accounts_In, Bank_Accounts, Currency_Movement_Accounts),
-	maplist(make_livestock_accounts, Livestock_Types, Livestock_Accounts),
-	ensure_gains_accounts_exist(Accounts_In, S_Transactions, Transaction_Types, Gains_Accounts),
-	flatten([Bank_Accounts, Currency_Movement_Accounts, Livestock_Accounts, Gains_Accounts], Accounts_Out).
-
-	
-*/
 /* all bank account names required by all S_Transactions */ 
 bank_account_names(S_Transactions, Names) :-
 	findall(
@@ -134,31 +126,31 @@ make_currency_movement_account(Accounts_In, Bank_Account, Currency_Movement_Acco
 /*
 return all units that appear in s_transactions with an action type that specifies a trading account
 */
-traded_units(S_Transactions, Transaction_Types, Units_Out) :-
+traded_units(S_Transactions, Units_Out) :-
 	findall(
 		Unit,
-		yield_traded_units(Transaction_Types, S_Transactions, Unit),
+		yield_traded_units(S_Transactions, Unit),
 		Units
 	),
 	sort(Units, Units_Out).
 
-yield_traded_units(Transaction_Types, S_Transactions, Unit) :-
+yield_traded_units(S_Transactions, Unit) :-
 	member(S_Transaction, S_Transactions),
-	s_transaction_type_of(Transaction_Types, S_Transaction, Transaction_Type),
-	Transaction_Type = transaction_type(_, _, _Trading_Account_Id, _),
+	s_transaction_exchanged(S_Transaction, E),
 	(
-		s_transaction_exchanged(S_Transaction, vector([coord(Unit,_,_)]))
-		;
-		s_transaction_exchanged(S_Transaction, bases(Unit))
+		E = vector([coord(Unit,_,_)])
+	;
+		E = bases(Unit)
 	).
 	
-trading_account_ids(Transaction_Types, Ids) :-
+trading_account_ids(Ids) :-
 	findall(
-		Trading_Account_Id,
+		A,
 		(
-			member(T, Transaction_Types),
-			T = transaction_type(_, _, Trading_Account_Id, _),
-			nonvar(Trading_Account_Id)
+			rdf_stuff:my_rdf_graph(Dir),
+			rdf(X, rdf:type, l:action_verb,Dir),
+			rdf(X, l:has_trading_account, A,Dir)
+
 		),
 		Ids0
 	),
@@ -174,15 +166,15 @@ or is not recognized as such, and a new one with proper role is proposed. This a
 because Financial_Investments_realized might already be an id of another user account.
 */
 
-financial_investments(Accounts_In, S_Transactions, Transaction_Types, Accounts_Out) :-
-	traded_units(S_Transactions, Transaction_Types, Units),
+financial_investments(Accounts_In, S_Transactions, Accounts_Out) :-
+	traded_units(S_Transactions, Units),
 	roles_tree(Accounts_In, [(Units, 1)], 'FinancialInvestments', Accounts_Out).
 
-ensure_gains_accounts_exist(Accounts_In, S_Transactions, Transaction_Types, Accounts_Out) :-
+ensure_gains_accounts_exist(Accounts_In, S_Transactions, Accounts_Out) :-
 	/* trading accounts are expected to be in user input. */
-	trading_account_ids(Transaction_Types, Trading_Account_Ids),
+	trading_account_ids(Trading_Account_Ids),
 	/* each unit gets its own sub-account in each category */
-	traded_units(S_Transactions, Transaction_Types, Units),
+	traded_units(S_Transactions, Units),
 	/* create realized and unrealized gains accounts for each trading account*/
 	maplist(
 		roles_tree(

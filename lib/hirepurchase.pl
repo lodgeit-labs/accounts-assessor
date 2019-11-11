@@ -49,6 +49,11 @@ hp_arr_interest_rate(hp_arrangement(_, _, _, Interest_Rate, _), Interest_Rate).
 % installments where the account balance is negative are ignored.
 hp_arr_installments(hp_arrangement(_, _, _, _, Installments), Installments).
 
+/*
+hirepurchase_arrangements sheet columns:
+Contract_Number,Cash_Price,Begin_Day,Interest_Rate
+*/
+
 % Predicates for asserting the fields of a hire purchase record
 
 % Records are indexed in chronological order

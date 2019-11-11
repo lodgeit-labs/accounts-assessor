@@ -60,6 +60,7 @@ test(regular_schedule) :-
 write("Is the output for the installment schedule correct?"),
 
 findall(Installments,
+	% create 100 installments, 1 each month 
 	installments(date(2015, 1, 16), 100, date(0, 1, 0), 200.47, Installments),
 	
 	[[hp_installment(735614, 200.47), hp_installment(735645, 200.47), hp_installment(735673, 200.47), hp_installment(735704, 200.47),
