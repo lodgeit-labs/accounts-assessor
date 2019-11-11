@@ -283,12 +283,12 @@ vector_of_coords_to_vector_of_values(Sd, Account_Id, [Coord|Coords], [Value|Valu
 	vector_of_coords_to_vector_of_values(Sd, Account_Id, Coords, Values).
 
 split_vector_by_percent(V0, Rate, V1, V2) :-
-	maplist(split_coord_by_percent, V0, Rate, V1, V2).
+	maplist(split_coord_by_percent(Rate), V0, V1, V2).
 
-split_coord_by_percent(H0, Rate, H1, H2) :-
+split_coord_by_percent(Rate, H0, H1, H2) :-
 	H0 = coord(U, D0, C0),
-	D1 is D0 * 100 / Rate,
-	C1 is C0 * 100 / Rate,
+	D1 is D0 * Rate / 100,
+	C1 is C0 * Rate / 100,
 	D2 is D0 - D1,
 	C2 is C0 - C1,
 	H1 = coord(U, D1, C1),

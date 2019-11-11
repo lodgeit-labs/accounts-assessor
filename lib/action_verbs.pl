@@ -35,10 +35,11 @@ add_action_verb_from_xml(In) :-
 		description, (Description, _),
 		exchangeAccount, (Exchange_Account, _),
 		tradingAccount, (Trading_Account, _),
-		gstRatePercent, (Gst_Rate, 0),
-		gstReceivableaccount, (Gst_Receivable, _),
-		gstPayableaccount, (Gst_Payable, _)
+		gstRatePercent, (Gst_Rate_Atom, '0'),
+		gstReceivableAccount, (Gst_Receivable, _),
+		gstPayableAccount, (Gst_Payable, _)
 	]),
+	atom_number(Gst_Rate_Atom, Gst_Rate),
 	rdf_create_bnode(Uri), % will see if this causes any problems
 	rdf_assert(Uri, rdf:type, l:action_verb),
 	rdf_assert(Uri, l:has_id, Id),

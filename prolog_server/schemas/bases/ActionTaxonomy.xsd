@@ -12,6 +12,9 @@
       <xs:element minOccurs="0" name="description" type="xs:string" />
       <xs:element minOccurs="1" name="exchangeAccount" type="xs:string" />
       <xs:element minOccurs="0" name="tradingAccount" type="xs:string" />
+      <xs:element minOccurs="0" name="gstRatePercent" type="xs:string" />
+      <xs:element minOccurs="0" name="gstPayableAccount" type="xs:string" />
+      <xs:element minOccurs="0" name="gstReceivableAccount" type="xs:string" />
       <xs:element minOccurs="0" name="direction" type="DebitOrCredit" />
     </xs:all>
   </xs:complexType>
