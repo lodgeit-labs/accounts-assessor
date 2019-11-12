@@ -249,7 +249,7 @@ preprocess_s_transaction(Static_Data, S_Transaction, [Ts1, Ts2, Ts3, Ts4], Outst
 	;
 		(
 			assertion(Counteraccount_Vector = []),
-			record_expense_of_earning_or_equity_or_loan(Static_Data, Action_Verb, Vector_Ours, Exchanged_Account, Transaction_Date, Description, Ts4),
+			record_expense_or_earning_or_equity_or_loan(Static_Data, Action_Verb, Vector_Ours, Exchanged_Account, Transaction_Date, Description, Ts4),
 			Outstanding_Out = Outstanding_In
 		)
 	).
@@ -352,7 +352,7 @@ affect_bank_account(Static_Data, Bank_Account_Name, Bank_Account_Currency, Trans
 	).
 
 /* Make an inverse exchanged transaction to the exchanged account.*/
-record_expense_of_earning_or_equity_or_loan(Static_Data, Action_Verb, Vector_Ours, Exchanged_Account, Date, Description, [T0,T1]) :-
+record_expense_or_earning_or_equity_or_loan(Static_Data, Action_Verb, Vector_Ours, Exchanged_Account, Date, Description, [T0,T1]) :-
 	dict_vars(Static_Data, [Report_Currency, Exchange_Rates]),
 	vec_inverse(Vector_Ours, Vector_Ours2),
 	vec_change_bases(Exchange_Rates, Date, Report_Currency, Vector_Ours2, Vector_Converted),
