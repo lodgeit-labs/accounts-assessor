@@ -22,6 +22,10 @@
 				</NoncurrentLiabilities>
 				<CurrentLiabilities>
 					<CurrentLoans/>
+					<Gst>
+						<GstReceivable/>
+						<GstPayable/>
+					</Gst>
 				</CurrentLiabilities>
 			</Liabilities>
 		</NetAssets>

@@ -249,7 +249,7 @@ preprocess_s_transaction(Static_Data, S_Transaction, [Ts1, Ts2, Ts3, Ts4], Outst
 	;
 		(
 			assertion(Counteraccount_Vector = []),
-			record_earning_or_equity_or_loan(Static_Data, Vector_Ours, Exchanged_Account, Transaction_Date, Description, Ts4),
+			record_expense_of_earning_or_equity_or_loan(Static_Data, Action_Verb, Vector_Ours, Exchanged_Account, Transaction_Date, Description, Ts4),
 			Outstanding_Out = Outstanding_In
 		)
 	).
@@ -351,11 +351,36 @@ affect_bank_account(Static_Data, Bank_Account_Name, Bank_Account_Currency, Trans
 		make_currency_movement_transactions(Static_Data, Bank_Account_Id, Transaction_Date, Vector_Ours, [Description, ' - currency movement adjustment'], Ts3)
 	).
 
-record_earning_or_equity_or_loan(Static_Data, Vector_Ours, Exchanged_Account, Transaction_Date, Description, Ts2) :-
+/* Make an inverse exchanged transaction to the exchanged account.*/
+record_expense_of_earning_or_equity_or_loan(Static_Data, Action_Verb, Vector_Ours, Exchanged_Account, Date, Description, [T0,T1]) :-
 	dict_vars(Static_Data, [Report_Currency, Exchange_Rates]),
-	/* Make an inverse exchanged transaction to the exchanged account. This can be a revenue, expense or equity account*/
-	vec_inverse(Vector_Ours, Vector_Exchanged),
-	make_exchanged_transactions(Exchange_Rates, Report_Currency, Exchanged_Account, Transaction_Date, Vector_Exchanged, Description, Ts2).
+	vec_inverse(Vector_Ours, Vector_Ours2),
+	vec_change_bases(Exchange_Rates, Date, Report_Currency, Vector_Ours2, Vector_Converted),
+	rdf_stuff:my_rdf_graph(G),
+	(
+		(
+			rdf(Action_Verb, l:has_gst_rate, Gst_Rate^^_, G),
+			Gst_Rate =\= 0
+		)
+	->
+		(
+			(
+				/*we sold stuff with tax included and received money, gotta pay GST*/
+				is_debit(Vector_Ours)
+			->
+				rdf(Action_Verb, l:has_gst_payable_account, Gst_Acc, G)
+			;
+				rdf(Action_Verb, l:has_gst_receivable_account, Gst_Acc, G)
+			),
+			pacioli:split_vector_by_percent(Vector_Converted, Gst_Rate, Gst_Vector, Vector_Converted_Remainder),
+			make_transaction(Date, Description, Gst_Acc, Gst_Vector, T0)
+		)
+	;
+		Vector_Converted_Remainder = Vector_Converted
+	),
+	make_transaction(Date, Description, Exchanged_Account, Vector_Converted_Remainder, T1).
+	
+
 
 purchased_goods_coord_with_cost(Goods_Coord, Cost_Coord, Goods_Coord_With_Cost) :-
 	unit_cost_value(Cost_Coord, Goods_Coord, Unit_Cost),
@@ -388,11 +413,6 @@ sold_goods_vector_with_cost(Static_Data, Goods_Cost_Value, [Goods_Coord_With_Cos
 	),
 	Goods_Coord_With_Cost = coord(Unit, 0, Goods_Count).
 
-
-make_exchanged_transactions(Exchange_Rates, Report_Currency, Account, Date, Vector, Description, Transaction) :-
-	vec_change_bases(Exchange_Rates, Date, Report_Currency, Vector, Vector_Exchanged_To_Report),
-	make_transaction(Date, Description, Account, Vector_Exchanged_To_Report, Transaction).
-	
 /*
 	Vector  - the amount by which the assets account is changed
 	Date - transaction day

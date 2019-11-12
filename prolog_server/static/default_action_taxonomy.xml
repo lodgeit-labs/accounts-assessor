@@ -78,6 +78,22 @@
         <exchangeAccount>AccountancyFees</exchangeAccount>
       </action>
 
+      <action>
+        <id>Purchase_Method_C</id>
+        <description>No Description</description>
+        <exchangeAccount>Purchases</exchangeAccount>
+        <gstRatePercent>10</gstRatePercent>
+        <gstReceivableAccount>GstReceivable</gstReceivableAccount>
+      </action>
+
+      <action>
+        <id>Sale_Method_C</id>
+        <description>No Description</description>
+        <exchangeAccount>Income</exchangeAccount>
+        <gstRatePercent>10</gstRatePercent>
+        <gstPayableAccount>GstPayable</gstPayableAccount>
+      </action>
+
 
 
 </actionTaxonomy>
