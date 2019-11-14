@@ -27,7 +27,14 @@ maybe_halt_on_err :-
 	).
 
 halt_on_problems :-
-	Err_Grep = 'grep -q -E -i "Warn|err" err',
+	opts(Opts),
+	(
+		(memberchk(problem_lines_whitelist(Whitelist_File), Opts), nonvar(Whitelist_File))
+	->
+		Err_Grep = ['grep -E -i "Warn|err" err | grep -q -v -x -F -f ', Whitelist_File]
+	;
+		Err_Grep = 'grep -q -E -i "Warn|err" err'
+	),
 	(shell2(Err_Grep, 0) -> halt ; true).
 
 clean_terminal :-
@@ -61,8 +68,10 @@ x(Source_File, Goal) :-
 		[opt(viewer), type(atom), default(vim), shortflags([v]), longflags([viewer])]
 		,[opt(debug), type(boolean), default(true), shortflags([d]), longflags([debug])]
 		,[opt(halt_on_problems), type(boolean), default(true), shortflags([h]), longflags([halt_on_problems])]
+		,[opt(problem_lines_whitelist), type(atom), longflags([problem_lines_whitelist])]
 ],
-	opt_arguments(Spec, Opts, Args),
+	opt_arguments(Spec, Opts, Args0),
+	(Args0 = ['--'|Args]; Args = Args0),
 	assert(opts(Opts)),
 	compile_with_variable_names_preserved(
 		Expected_Args = [Source_File, Goal],

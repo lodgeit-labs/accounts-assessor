@@ -113,8 +113,6 @@ process_xml_ledger_request(File_Name, Dom, Reports) :-
 
 	
 process_xml_ledger_request2(Dom, Reports_Out) :-
-
-
 	/*
 		first let's extract data from the request
 	*/
@@ -143,7 +141,7 @@ process_xml_ledger_request2(Dom, Reports_Out) :-
 	sort_s_transactions(S_Transactions0b, S_Transactions),
 	
 	/* 
-		process_ledger turns s_transactions into transactions
+		generate transactions (ledger entries) from s_transactions
 	*/
 	process_ledger(Cost_Or_Market, Livestock_Doms, S_Transactions, Processed_S_Transactions, Start_Date, End_Date, Exchange_Rates0, Report_Currency, Livestock_Types, Livestock_Opening_Costs_And_Counts, Accounts0, Accounts, Transactions, Transactions_By_Account, _Transaction_Transformation_Debug, Outstanding, Processed_Until, Warnings, Errors, Gl),
 
@@ -152,7 +150,9 @@ process_xml_ledger_request2(Dom, Reports_Out) :-
 	writeln("<!-- exchange rates 2:"),
 	writeln(Exchange_Rates),
 	writeln("-->"),
-	
+
+	process_invoices_payable,
+
 	print_xbrl_header,
 
 	dict_from_vars(Static_Data,
@@ -295,9 +295,7 @@ output_results(Static_Data0, Outstanding, Processed_Until, Json_Request_Results)
 		reports: Reports2
 	}.
 
-/* todo this should be done in output_results */
 make_gl_viewer_report(Info) :-
-	%gtrace,
 	Viewer_Dir = 'general_ledger_viewer',
 	absolute_file_name(my_static(Viewer_Dir), Viewer_Dir_Absolute, [file_type(directory)]),
 	files:report_file_path(Viewer_Dir, Url, Tmp_Viewer_Dir_Absolute),

@@ -353,7 +353,8 @@ affect_bank_account(Static_Data, Bank_Account_Name, Bank_Account_Currency, Trans
 
 /* Make an inverse exchanged transaction to the exchanged account.*/
 record_expense_or_earning_or_equity_or_loan(Static_Data, Action_Verb, Vector_Ours, Exchanged_Account, Date, Description, [T0,T1]) :-
-	dict_vars(Static_Data, [Report_Currency, Exchange_Rates]),
+	Report_Currency = Static_Data.report_currency,
+	Exchange_Rates = Static_Data.exchange_rates,
 	vec_inverse(Vector_Ours, Vector_Ours2),
 	vec_change_bases(Exchange_Rates, Date, Report_Currency, Vector_Ours2, Vector_Converted),
 	rdf_stuff:my_rdf_graph(G),
@@ -738,7 +739,7 @@ fill_in_missing_units(S_Transactions0, Report_End_Date, [Report_Currency], Used_
 				;
 				Unit = Unit2
 			),
-			infer_unit_cost_from_last_buy_or_sell(Unit2, S_Transactions, Rate),
+			pricing:infer_unit_cost_from_last_buy_or_sell(Unit2, S_Transactions, Rate),
 			Rate = exchange_rate(Report_End_Date, _, _, _)
 		),
 		Inferred_Rates

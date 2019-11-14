@@ -1,0 +1,209 @@
+{
+  "columns": [
+    {"id":"unit", "options": {}, "title":"Unit"},
+    {"id":"count", "options": {}, "title":"Count"},
+    {"id":"currency", "options": {}, "title":"Investment Currency"},
+    {
+      "id":"purchase",
+      "members": [
+	{"id":"date", "options": {}, "title":"Date"},
+	{
+	  "id":"unit_cost_foreign",
+	  "options": {},
+	  "title":"Unit Cost Foreign"
+	},
+	{"id":"conversion", "options": {}, "title":"Conversion"},
+	{
+	  "id":"unit_cost_converted",
+	  "options": {},
+	  "title":"Unit Cost Converted"
+	},
+	{
+	  "id":"total_cost_foreign",
+	  "options": {},
+	  "title":"Total Cost Foreign"
+	},
+	{
+	  "id":"total_cost_converted",
+	  "options": {},
+	  "title":"Total Cost Converted"
+	}
+      ],
+      "title":"Purchase"
+    },
+    {
+      "id":"opening",
+      "members": [
+	{
+	  "id":"unit_cost_foreign",
+	  "options": {},
+	  "title":"Unit Market Value Foreign"
+	},
+	{"id":"conversion", "options": {}, "title":"Conversion"},
+	{
+	  "id":"unit_cost_converted",
+	  "options": {},
+	  "title":"Unit Market Value Converted"
+	},
+	{
+	  "id":"total_cost_foreign",
+	  "options": {},
+	  "title":"Total Market Value Foreign"
+	},
+	{
+	  "id":"total_cost_converted",
+	  "options": {},
+	  "title":"Total Market Value Converted"
+	}
+      ],
+      "title":"Opening"
+    },
+    {
+      "id":"sale",
+      "members": [
+	{"id":"date", "options": {}, "title":"Date"},
+	{
+	  "id":"unit_cost_foreign",
+	  "options": {},
+	  "title":"Unit Cost Foreign"
+	},
+	{"id":"conversion", "options": {}, "title":"Conversion"},
+	{
+	  "id":"unit_cost_converted",
+	  "options": {},
+	  "title":"Unit Cost Converted"
+	},
+	{
+	  "id":"total_cost_foreign",
+	  "options": {},
+	  "title":"Total Cost Foreign"
+	},
+	{
+	  "id":"total_cost_converted",
+	  "options": {},
+	  "title":"Total Cost Converted"
+	}
+      ],
+      "title":"Sale"
+    },
+    {
+      "id":"closing",
+      "members": [
+	{
+	  "id":"unit_cost_foreign",
+	  "options": {},
+	  "title":"Unit Market Value Foreign"
+	},
+	{"id":"conversion", "options": {}, "title":"Conversion"},
+	{
+	  "id":"unit_cost_converted",
+	  "options": {},
+	  "title":"Unit Market Value Converted"
+	},
+	{
+	  "id":"total_cost_foreign",
+	  "options": {},
+	  "title":"Total Market Value Foreign"
+	},
+	{
+	  "id":"total_cost_converted",
+	  "options": {},
+	  "title":"Total Market Value Converted"
+	}
+      ],
+      "title":"Closing"
+    },
+    {
+      "id":"gains",
+      "members": [
+	{
+	  "id":"rea",
+	  "members": [
+	    {
+	      "id":"market_foreign",
+	      "options": {},
+	      "title":"Market Gain Foreign"
+	    },
+	    {
+	      "id":"market_converted",
+	      "options": {},
+	      "title":"Market Gain Converted"
+	    },
+	    {"id":"forex", "options": {}, "title":"Forex Gain"}
+	  ],
+	  "title":"Realized"
+	},
+	{
+	  "id":"unr",
+	  "members": [
+	    {
+	      "id":"market_foreign",
+	      "options": {},
+	      "title":"Market Gain Foreign"
+	    },
+	    {
+	      "id":"market_converted",
+	      "options": {},
+	      "title":"Market Gain Converted"
+	    },
+	    {"id":"forex", "options": {}, "title":"Forex Gain"}
+	  ],
+	  "title":"Unrealized"
+	}
+      ],
+      "title":""
+    }
+  ],
+  "rows": [
+    {
+      "closing": {
+	"conversion":"exchange_rate(date(2018,6,30),'USD','AUD',1.350804)",
+	"total_cost_converted":"value('AUD',27.01608)",
+	"total_cost_foreign":"value('USD',20.0)",
+	"unit_cost_converted":"value('AUD',2.701608)",
+	"unit_cost_foreign":"value('USD',2.0)"
+      },
+      "count":10,
+      "currency":"USD",
+      "gains": {
+	"rea": {},
+	"unr": {
+	  "forex":"value('AUD',21105660150 rdiv 29180483561)",
+	  "market_converted":"value('AUD',-105.1712)",
+	  "market_foreign":"value('USD',-80.0)"
+	}
+      },
+      "id":"iri2",
+      "opening": {},
+      "purchase": {
+	"conversion":"exchange_rate(date(2017,7,10),'USD','AUD',1.31464)",
+	"date":"date(2017,7,10)",
+	"total_cost_converted":"value('AUD',131.464)",
+	"total_cost_foreign":"value('USD',100.0)",
+	"unit_cost_converted":"value('AUD',13.1464)",
+	"unit_cost_foreign":"value('USD',10.0)"
+      },
+      "sale": {},
+      "unit":"BHP"
+    },
+    {
+      "closing": {
+	"total_cost_converted": ["value('AUD',27.01608)" ],
+	"total_cost_foreign": ["value('USD',20.0)" ]
+      },
+      "gains": {
+	"rea": {"forex": [], "market_converted": [], "market_foreign": []},
+	"realized_total": [],
+	"total": ["value('AUD',-104.44792)" ],
+	"unr": {
+	  "forex": ["value('AUD',21105660150 rdiv 29180483561)" ],
+	  "market_converted": ["value('AUD',-105.1712)" ],
+	  "market_foreign": ["value('USD',-80.0)" ]
+	},
+	"unrealized_total": ["value('AUD',-104.44792)" ]
+      },
+      "opening": {"total_cost_converted": [], "total_cost_foreign": []}
+    }
+  ],
+  "title":"investment report from 1-01-01 to 2018-06-30 (AUD)"
+}
