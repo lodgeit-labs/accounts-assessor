@@ -9,8 +9,8 @@ FILEPATH = argv[-1]
 viewer = argv[-2]
 args = argv[1:-2]
 
-print(FILEPATH)
-print(viewer)
-print(args)
+#print(FILEPATH)
+#print(viewer)
+#print(args)
 
 subprocess.run(['swipl', '-s', '../lib/dev_runner.pl', '--'] + args + ['-v', viewer,  "prolog_server:process_data_cmdline('" + FILEPATH + "')"])

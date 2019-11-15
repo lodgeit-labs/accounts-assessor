@@ -152,7 +152,7 @@ process_xml_ledger_request2(Dom, Reports_Out) :-
 	writeln(Exchange_Rates),
 	writeln("-->"),
 
-	invoices:process_invoices_payable,
+	invoices:process_invoices_payable(Dom),
 
 	print_xbrl_header,
 

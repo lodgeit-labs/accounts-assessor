@@ -17,6 +17,13 @@
           <xs:element minOccurs="0" maxOccurs="unbounded" name="livestockData" type="LivestockData" />
           <xs:element minOccurs="0" maxOccurs="1" name="costOrMarket" type="CostOrMarket" />
           <xs:element minOccurs="0" maxOccurs="1" name="bankStatement" type="BankStatementBS" />
+          <xs:element name="invoicesPayable">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:any processContents="skip" namespace="##any" minOccurs="0" maxOccurs="unbounded"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
         </xs:sequence>
       </xs:extension>
     </xs:complexContent>
