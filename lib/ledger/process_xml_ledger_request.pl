@@ -86,6 +86,7 @@
 
 :- use_module('../investment_report_2').
 :- use_module('../crosschecks_report').
+:- use_module('../invoices').
 
 
 process_xml_ledger_request(File_Name, Dom, Reports) :-
@@ -151,7 +152,7 @@ process_xml_ledger_request2(Dom, Reports_Out) :-
 	writeln(Exchange_Rates),
 	writeln("-->"),
 
-	process_invoices_payable,
+	invoices:process_invoices_payable,
 
 	print_xbrl_header,
 
