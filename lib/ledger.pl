@@ -16,24 +16,29 @@
 		parse_date/2, 
 		gregorian_date/2, 
 		add_days/3,
-		date_between/3]).
+		date_between/3
+]).
 :- use_module('utils', [
 		pretty_term_string/2,
-		dict_json_text/2]).
+		dict_json_text/2
+]).
 :- use_module('livestock', [
-		/*process_livestock/14,*/
-		livestock_counts/6]). 
+		livestock_counts/6
+]). 
 :- use_module('transactions', [
 		check_transaction_account/2,
-		transactions_by_account/2]).
+		transactions_by_account/2
+]).
 :- use_module('ledger_report', [
 		trial_balance_between/8
-		]).
+]).
 :- use_module('pacioli', [
 		coord_is_almost_zero/1,
-		number_vec/3]).
+		number_vec/3
+]).
 :- use_module('exchange', [
-		vec_change_bases/5]).
+		vec_change_bases/5
+]).
 
 :- use_module(library(rdet)).
 

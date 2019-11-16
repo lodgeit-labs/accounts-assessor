@@ -154,8 +154,6 @@ process_xml_ledger_request2(Dom, Reports_Out) :-
 
 	invoices:process_invoices_payable(Dom),
 
-	print_xbrl_header,
-
 	dict_from_vars(Static_Data,
 		[Cost_Or_Market, Output_Dimensional_Facts, Start_Date, End_Date, Exchange_Rates, Accounts, Transactions, Report_Currency, Gl, Transactions_By_Account]),
 	output_results(Static_Data, Outstanding, Processed_Until, Reports),
@@ -166,8 +164,6 @@ process_xml_ledger_request2(Dom, Reports_Out) :-
 		warnings: [Warnings, Reports.warnings]
 	},
 		
-	writeln('</xbrli:xbrl>'),
-
 	writeln('<!-- '),
 	writeq(Warnings), nl,
 	writeq(Errors),
@@ -175,36 +171,21 @@ process_xml_ledger_request2(Dom, Reports_Out) :-
 	nl, nl.
 
 output_results(Static_Data0, Outstanding, Processed_Until, Json_Request_Results) :-
-	
 	Static_Data = Static_Data0.put([
 		end_date=Processed_Until,
 		exchange_date=Processed_Until,
 		entity_identifier=Entity_Identifier,
 		duration_context_id_base=Duration_Context_Id_Base]),
 
-	Static_Data.start_date = Start_Date,
-	Static_Data.exchange_rates = Exchange_Rates, 
-	Static_Data.accounts = Accounts, 
-	Static_Data.transactions_by_account = Transactions_By_Account, 
-	
-	Static_Data.report_currency = Report_Currency, 
-		
-	writeln("<!-- Build contexts -->"),	
-	/* build up two basic non-dimensional contexts used for simple xbrl facts */
-	date(Context_Id_Year,_,_) = Processed_Until,
-	Entity_Identifier = '<identifier scheme="http://www.example.com">TestData</identifier>',
-	context_id_base('I', Context_Id_Year, Instant_Context_Id_Base),
-	context_id_base('D', Context_Id_Year, Duration_Context_Id_Base),
-	Base_Contexts = [
-		context(Instant_Context_Id_Base, Processed_Until, entity(Entity_Identifier, ''), ''),
-		context(Duration_Context_Id_Base, (Start_Date, Processed_Until), entity(Entity_Identifier, ''), '')
-	],
-	/* sum up the coords of all transactions for each account and apply unit conversions */
+	Start_Date = Static_Data.start_date,
+	Exchange_Rates = Static_Data.exchange_rates, 
+	Accounts = Static_Data.accounts, 
+	Transactions_By_Account = Static_Data.transactions_by_account, 
+	Report_Currency = Static_Data.report_currency, 
 
+	/* sum up the coords of all transactions for each account and apply unit conversions */
 	writeln("<!-- Trial balance -->"),
 	trial_balance_between(Exchange_Rates, Accounts, Transactions_By_Account, Report_Currency, Processed_Until, Start_Date, Processed_Until, Trial_Balance2),
-
-		
 	writeln("<!-- Balance sheet -->"),
 	balance_sheet_at(Static_Data, Balance_Sheet2),
 	writeln("<!-- Profit and loss -->"),
@@ -218,39 +199,22 @@ output_results(Static_Data0, Outstanding, Processed_Until, Json_Request_Results)
 
 	balance_sheet_at(Static_Data_Historical, Balance_Sheet2_Historical),
 	profitandloss_between(Static_Data_Historical, ProfitAndLoss2_Historical),
-
-
 	assertion(ground((Balance_Sheet2, ProfitAndLoss2, ProfitAndLoss2_Historical, Trial_Balance2))),
+
+
+
+
+
+	maybe_prepare_unique_taxonomy_url(Taxonomy_Url_Base),
+	xbrl_output:print_header(Taxonomy_Url_Base),
+	Entity_Identifier = '<identifier scheme="http://www.example.com">TestData</identifier>',
+	xbrl_output:build_base_contexts(Processed_Until, Entity_Identifier, Instant_Context_Id_Base, Duration_Context_Id_Base, Base_Contexts),
 
 	/* TODO can we do without this units in units out nonsense? */
 	format_report_entries(xbrl, Accounts, 0, Report_Currency, Instant_Context_Id_Base,  Balance_Sheet2, [], Units0, [], Bs_Lines),
 	format_report_entries(xbrl, Accounts, 0, Report_Currency, Duration_Context_Id_Base, ProfitAndLoss2,  Units0, Units1, [], Pl_Lines),
 	format_report_entries(xbrl, Accounts, 0, Report_Currency, Duration_Context_Id_Base, ProfitAndLoss2_Historical,  Units1, Units2, [], Pl_Historical_Lines),
 	format_report_entries(xbrl, Accounts, 0, Report_Currency, Instant_Context_Id_Base,  Trial_Balance2, Units2, Units3, [], Tb_Lines),
-
-	investment_reports(Static_Data, Outstanding, Investment_Report_Info),
-	ledger_html_reports:bs_page(Static_Data, Balance_Sheet2, Bs_Report_Page_Info),
-	ledger_html_reports:pl_page(Static_Data, ProfitAndLoss2, '', Pl_Report_Page_Info),
-	ledger_html_reports:pl_page(Static_Data_Historical, ProfitAndLoss2_Historical, '_historical', Pl_Html_Historical_Info),
-
-	make_gl_viewer_report(Gl_Viewer_Page_Info),
-	make_gl_report(Static_Data0.gl, '', Gl_Report_File_Info),
-	
-	Reports = _{
-		pl: _{
-			current: ProfitAndLoss2,
-			historical: ProfitAndLoss2_Historical
-		},
-		ir: Investment_Report_Info.ir,
-		bs: _{
-			current: Balance_Sheet2,
-			historical: Balance_Sheet2_Historical
-		},
-		tb: Trial_Balance2
-	},
-
-	crosschecks_report:report(Static_Data, Reports, Crosschecks_Report_Files_Info, Crosschecks_Report_Json),
-	Reports2 = Reports.put(crosschecks, Crosschecks_Report_Json),
 
 	(
 		Static_Data.output_dimensional_facts = on
@@ -277,7 +241,36 @@ output_results(Static_Data0, Outstanding, Processed_Until, Json_Request_Results)
 	], Report_Lines_List),
 	atomic_list_concat(Report_Lines_List, Report_Lines),
 	writeln(Report_Lines),
+
+	xbrl_output:print_footer,
+
+
+
+	investment_reports(Static_Data, Outstanding, Investment_Report_Info),
+	ledger_html_reports:bs_page(Static_Data, Balance_Sheet2, Bs_Report_Page_Info),
+	ledger_html_reports:pl_page(Static_Data, ProfitAndLoss2, '', Pl_Report_Page_Info),
+	ledger_html_reports:pl_page(Static_Data_Historical, ProfitAndLoss2_Historical, '_historical', Pl_Html_Historical_Info),
+
+	make_gl_viewer_report(Gl_Viewer_Page_Info),
+	make_gl_report(Static_Data0.gl, '', Gl_Report_File_Info),
 	
+	/* All the info in a json-like format. Currently only used in crosschecks */
+	Structured_Reports = _{
+		pl: _{
+			current: ProfitAndLoss2,
+			historical: ProfitAndLoss2_Historical
+		},
+		ir: Investment_Report_Info.ir,
+		bs: _{
+			current: Balance_Sheet2,
+			historical: Balance_Sheet2_Historical
+		},
+		tb: Trial_Balance2
+	},
+
+	crosschecks_report:report(Static_Data, Structured_Reports, Crosschecks_Report_Files_Info, Crosschecks_Report_Json),
+	Structured_Reports2 = Structured_Reports.put(crosschecks, Crosschecks_Report_Json),
+
 	append([
 		   	Gl_Viewer_Page_Info,
 			Bs_Report_Page_Info,
@@ -293,8 +286,9 @@ output_results(Static_Data0, Outstanding, Processed_Until, Json_Request_Results)
 		files:[Files, Crosschecks_Report_Files_Info],
 		errors:[Investment_Report_Info.alerts, Crosschecks_Report_Json.errors],
 		warnings:[],
-		reports: Reports2
+		structured: Structured_Reports2
 	}.
+
 
 make_gl_viewer_report(Info) :-
 	Viewer_Dir = 'general_ledger_viewer',
@@ -357,15 +351,6 @@ investment_reports2(Static_Data, Outstanding, Alerts, Ir, Files) :-
 	flatten([Files1, Files2/*, Files3*/], Files_Flat),
 	exclude(var, Files_Flat, Files).
 
-	
-print_xbrl_header :-
-	maybe_prepare_unique_taxonomy_url(Taxonomy),
-	write('<xbrli:xbrl xmlns:xbrli="http://www.xbrl.org/2003/instance" xmlns:link="http://www.xbrl.org/2003/linkbase" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:iso4217="http://www.xbrl.org/2003/iso4217" xmlns:basic="http://www.xbrlsite.com/basic" xmlns:xbrldi="http://xbrl.org/2006/xbrldi" xsi:schemaLocation="http://www.xbrlsite.com/basic '),write(Taxonomy),writeln('basic.xsd http://www.xbrl.org/2003/instance http://www.xbrl.org/2003/xbrl-instance-2003-12-31.xsd http://www.xbrl.org/2003/linkbase http://www.xbrl.org/2003/xbrl-linkbase-2003-12-31.xsd http://xbrl.org/2006/xbrldi http://www.xbrl.org/2006/xbrldi-2006.xsd">'),
-	write('  <link:schemaRef xlink:type="simple" xlink:href="'), write(Taxonomy), writeln('basic.xsd" xlink:title="Taxonomy schema" />'),
-	write('  <link:linkbaseRef xlink:type="simple" xlink:href="'), write(Taxonomy), writeln('basic-formulas.xml" xlink:arcrole="http://www.w3.org/1999/xlink/properties/linkbase" />'),
-	write('  <link:linkBaseRef xlink:type="simple" xlink:href="'), write(Taxonomy), writeln('basic-formulas-cross-checks.xml" xlink:arcrole="http://www.w3.org/1999/xlink/properties/linkbase" />'),
-	nl.
- 
 /*
 To ensure that each response references the shared taxonomy via a unique url,
 a flag can be used when running the server, for example like this:
