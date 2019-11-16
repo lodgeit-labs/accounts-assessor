@@ -144,19 +144,18 @@ process_xml_ledger_request2(Dom, Reports_Out) :-
 	/* 
 		generate transactions (ledger entries) from s_transactions
 	*/
-	process_ledger(Cost_Or_Market, Livestock_Doms, S_Transactions, Processed_S_Transactions, Start_Date, End_Date, Exchange_Rates0, Report_Currency, Livestock_Types, Livestock_Opening_Costs_And_Counts, Accounts0, Accounts, Transactions, Transactions_By_Account, _Transaction_Transformation_Debug, Outstanding, Processed_Until, Warnings, Errors, Gl),
+	process_ledger(Cost_Or_Market, Livestock_Doms, S_Transactions, Processed_S_Transactions, Start_Date, End_Date, Exchange_Rates0, Report_Currency, Livestock_Types, Livestock_Opening_Costs_And_Counts, Accounts0, Accounts, Transactions, Transactions_By_Account, _Transaction_Transformation_Debug, Outstanding, Report_Date, Warnings, Errors, Gl),
 
 	print_relevant_exchange_rates_comment(Report_Currency, End_Date, Exchange_Rates0, Transactions),
-	infer_exchange_rates(Transactions, Processed_S_Transactions, Start_Date, End_Date, Accounts, Report_Currency, Exchange_Rates0, Exchange_Rates),
 	writeln("<!-- exchange rates 2:"),
-	writeln(Exchange_Rates),
+	writeln(Exchange_Rates0),
 	writeln("-->"),
 
 	invoices:process_invoices_payable(Dom),
 
 	dict_from_vars(Static_Data,
-		[Cost_Or_Market, Output_Dimensional_Facts, Start_Date, End_Date, Exchange_Rates, Accounts, Transactions, Report_Currency, Gl, Transactions_By_Account]),
-	output_results(Static_Data, Outstanding, Processed_Until, Reports),
+		[Cost_Or_Market, Output_Dimensional_Facts, Start_Date, End_Date, Exchange_Rates0, Accounts, Transactions, Report_Currency, Gl, Transactions_By_Account]),
+	create_reports(Static_Data, Outstanding, Report_Date, Reports),
 	
 	Reports_Out = _{
 		files: Reports.files,
@@ -170,10 +169,11 @@ process_xml_ledger_request2(Dom, Reports_Out) :-
 	writeln(' -->'),
 	nl, nl.
 
-output_results(Static_Data0, Outstanding, Processed_Until, Json_Request_Results) :-
+
+create_reports(Static_Data0, Outstanding, Report_Date, Json_Request_Results) :-
 	Static_Data = Static_Data0.put([
-		end_date=Processed_Until,
-		exchange_date=Processed_Until,
+		end_date=Report_Date,
+		exchange_date=Report_Date,
 		entity_identifier=Entity_Identifier,
 		duration_context_id_base=Duration_Context_Id_Base]),
 
@@ -185,11 +185,11 @@ output_results(Static_Data0, Outstanding, Processed_Until, Json_Request_Results)
 
 	/* sum up the coords of all transactions for each account and apply unit conversions */
 	writeln("<!-- Trial balance -->"),
-	trial_balance_between(Exchange_Rates, Accounts, Transactions_By_Account, Report_Currency, Processed_Until, Start_Date, Processed_Until, Trial_Balance2),
+	trial_balance_between(Exchange_Rates, Accounts, Transactions_By_Account, Report_Currency, Report_Date, Start_Date, Report_Date, Trial_Balance),
 	writeln("<!-- Balance sheet -->"),
-	balance_sheet_at(Static_Data, Balance_Sheet2),
+	balance_sheet_at(Static_Data, Balance_Sheet),
 	writeln("<!-- Profit and loss -->"),
-	profitandloss_between(Static_Data, ProfitAndLoss2),
+	profitandloss_between(Static_Data, ProfitAndLoss),
 
 	add_days(Start_Date, -1, Before_Start),
 	Static_Data_Historical = Static_Data.put(
@@ -199,56 +199,18 @@ output_results(Static_Data0, Outstanding, Processed_Until, Json_Request_Results)
 
 	balance_sheet_at(Static_Data_Historical, Balance_Sheet2_Historical),
 	profitandloss_between(Static_Data_Historical, ProfitAndLoss2_Historical),
-	assertion(ground((Balance_Sheet2, ProfitAndLoss2, ProfitAndLoss2_Historical, Trial_Balance2))),
-
-
-
-
-
-	maybe_prepare_unique_taxonomy_url(Taxonomy_Url_Base),
-	xbrl_output:print_header(Taxonomy_Url_Base),
-	Entity_Identifier = '<identifier scheme="http://www.example.com">TestData</identifier>',
-	xbrl_output:build_base_contexts(Processed_Until, Entity_Identifier, Instant_Context_Id_Base, Duration_Context_Id_Base, Base_Contexts),
-
-	/* TODO can we do without this units in units out nonsense? */
-	format_report_entries(xbrl, Accounts, 0, Report_Currency, Instant_Context_Id_Base,  Balance_Sheet2, [], Units0, [], Bs_Lines),
-	format_report_entries(xbrl, Accounts, 0, Report_Currency, Duration_Context_Id_Base, ProfitAndLoss2,  Units0, Units1, [], Pl_Lines),
-	format_report_entries(xbrl, Accounts, 0, Report_Currency, Duration_Context_Id_Base, ProfitAndLoss2_Historical,  Units1, Units2, [], Pl_Historical_Lines),
-	format_report_entries(xbrl, Accounts, 0, Report_Currency, Instant_Context_Id_Base,  Trial_Balance2, Units2, Units3, [], Tb_Lines),
-
-	(
-		Static_Data.output_dimensional_facts = on
-	->
-		print_dimensional_facts(Static_Data, Instant_Context_Id_Base, Duration_Context_Id_Base, Entity_Identifier, (Base_Contexts, Units3, []), (Contexts3, Units4, Dimensions_Lines))
-	;
-		(
-			Contexts3 = Base_Contexts, 
-			Units4 = Units3, 
-			Dimensions_Lines = ['<!-- off -->\n']
-		)
-	),
-
-	maplist(write_used_unit, Units4), nl, nl,
-	print_contexts(Contexts3), nl, nl,
-	writeln('<!-- dimensional facts: -->'),
-	maplist(write, Dimensions_Lines),
 	
-	flatten([
-		'\n<!-- balance sheet: -->\n', Bs_Lines, 
-		'\n<!-- profit and loss: -->\n', Pl_Lines,
-		'\n<!-- historical profit and loss: \n', Pl_Historical_Lines, '\n-->\n',
-		'\n<!-- trial balance: -->\n',  Tb_Lines
-	], Report_Lines_List),
-	atomic_list_concat(Report_Lines_List, Report_Lines),
-	writeln(Report_Lines),
-
-	xbrl_output:print_footer,
+	
+	assertion(ground((Balance_Sheet, ProfitAndLoss, ProfitAndLoss2_Historical, Trial_Balance))),
+	maybe_prepare_unique_taxonomy_url(Taxonomy_Url_Base),
+	xbrl_output:create_instance(Static_Data, Taxonomy_Url_Base, Report_Date, Accounts, Report_Currency, Balance_Sheet, ProfitAndLoss, ProfitAndLoss2_Historical, Trial_Balance),
+	other_reports(Static_Data, Outstanding, Balance_Sheet, ProfitAndLoss, Static_Data_Historical, ProfitAndLoss2_Historical, Json_Request_Results).
 
 
-
+other_reports(Static_Data, Outstanding, Balance_Sheet, ProfitAndLoss, Static_Data_Historical, ProfitAndLoss2_Historical, Json_Request_Results) :-
 	investment_reports(Static_Data, Outstanding, Investment_Report_Info),
-	ledger_html_reports:bs_page(Static_Data, Balance_Sheet2, Bs_Report_Page_Info),
-	ledger_html_reports:pl_page(Static_Data, ProfitAndLoss2, '', Pl_Report_Page_Info),
+	ledger_html_reports:bs_page(Static_Data, Balance_Sheet, Bs_Report_Page_Info),
+	ledger_html_reports:pl_page(Static_Data, ProfitAndLoss, '', Pl_Report_Page_Info),
 	ledger_html_reports:pl_page(Static_Data_Historical, ProfitAndLoss2_Historical, '_historical', Pl_Html_Historical_Info),
 
 	make_gl_viewer_report(Gl_Viewer_Page_Info),
@@ -257,15 +219,15 @@ output_results(Static_Data0, Outstanding, Processed_Until, Json_Request_Results)
 	/* All the info in a json-like format. Currently only used in crosschecks */
 	Structured_Reports = _{
 		pl: _{
-			current: ProfitAndLoss2,
+			current: ProfitAndLoss,
 			historical: ProfitAndLoss2_Historical
 		},
 		ir: Investment_Report_Info.ir,
 		bs: _{
-			current: Balance_Sheet2,
+			current: Balance_Sheet,
 			historical: Balance_Sheet2_Historical
 		},
-		tb: Trial_Balance2
+		tb: Trial_Balance
 	},
 
 	crosschecks_report:report(Static_Data, Structured_Reports, Crosschecks_Report_Files_Info, Crosschecks_Report_Json),
@@ -290,6 +252,7 @@ output_results(Static_Data0, Outstanding, Processed_Until, Json_Request_Results)
 	}.
 
 
+
 make_gl_viewer_report(Info) :-
 	Viewer_Dir = 'general_ledger_viewer',
 	absolute_file_name(my_static(Viewer_Dir), Viewer_Dir_Absolute, [file_type(directory)]),
@@ -305,11 +268,8 @@ make_gl_report(Dict, Suffix, Report_File_Info) :-
 	report_item(Fn, Json_Text, Report_File_URL),
 	report_entry('General Ledger Report', Report_File_URL, 'general_ledger_json', Report_File_Info).
 
-print_dimensional_facts(Static_Data, Instant_Context_Id_Base, Duration_Context_Id_Base, Entity_Identifier, Results0, Results3) :-
-	print_banks(Static_Data, Instant_Context_Id_Base, Entity_Identifier, Results0, Results1),
-	print_forex(Static_Data, Duration_Context_Id_Base, Entity_Identifier, Results1, Results2),
-	print_trading(Static_Data, Results2, Results3).
-	
+
+
 investment_reports(Static_Data, Outstanding, Reports) :-
 	catch_maybe_with_backtrace(
 				   process_xml_ledger_request:investment_reports2(Static_Data, Outstanding, Alerts, Ir, Files),
@@ -373,45 +333,7 @@ maybe_prepare_unique_taxonomy_url(Taxonomy_Dir_Url) :-
 		Taxonomy_Dir_Url = 'taxonomy/'
 	).
 
-/**/
-write_used_unit(Unit) :-
-	format('  <xbrli:unit id="U-~w"><xbrli:measure>iso4217:~w</xbrli:measure></xbrli:unit>\n', [Unit, Unit]).
 	
-/*this functionality is disabled for now, maybe delete*/
-infer_exchange_rates(_, _, _, _, _, _, Exchange_Rates, Exchange_Rates) :- 
-	!.
-
-%infer_exchange_rates(Transactions, S_Transactions, Start_Date, End_Date, Accounts, Report_Currency, Exchange_Rates, Exchange_Rates_With_Inferred_Values) :-
-	%/* a dry run of bs_and_pl_entries to find out units used */
-	%trial_balance_between(Exchange_Rates, Accounts, Transactions, Report_Currency, End_Date, Start_Date, End_Date, Trial_Balance),
-	%balance_sheet_at(Exchange_Rates, Accounts, Transactions, Report_Currency, End_Date, Start_Date, End_Date, Balance_Sheet),
-
-	%profitandloss_between(Exchange_Rates, Accounts, Transactions, Report_Currency, End_Date, Start_Date, End_Date, ProfitAndLoss),
-	%bs_and_pl_entries(Accounts, Report_Currency, none, Balance_Sheet, ProfitAndLoss, Used_Units, _, _),
-	%pretty_term_string(Balance_Sheet, Message4),
-	%pretty_term_string(Trial_Balance, Message4b),
-	%pretty_term_string(ProfitAndLoss, Message4c),
-	%atomic_list_concat([
-		%'\n<!--',
-		%'BalanceSheet:\n', Message4,'\n\n',
-		%'ProfitAndLoss:\n', Message4c,'\n\n',
-		%'Trial_Balance:\n', Message4b,'\n\n',
-		%'-->\n\n'], 
-	%Debug_Message2),
-	%writeln(Debug_Message2),
-	%assertion(ground((Balance_Sheet, ProfitAndLoss, Trial_Balance))),
-	%pretty_term_string(Used_Units, Used_Units_Str),
-	%writeln('<!-- units used in balance sheet: \n'),
-	%writeln(Used_Units_Str),
-	%writeln('\n-->\n'),
-	%fill_in_missing_units(S_Transactions, End_Date, Report_Currency, Used_Units, Exchange_Rates, Inferred_Rates),
-	%pretty_term_string(Inferred_Rates, Inferred_Rates_Str),
-	%writeln('<!-- Inferred_Rates: \n'),
-	%writeln(Inferred_Rates_Str),
-	%writeln('\n-->\n'),
-	%append(Exchange_Rates, Inferred_Rates, Exchange_Rates_With_Inferred_Values).
-
-
 /*
 
 	extraction of input data from request xml
@@ -439,7 +361,6 @@ extract_exchange_rate(Start_Date, End_Date, Optional_Default_Currency, Unit_Valu
 		unitValue, (Rate_Atom, _),
 		unitValueDate, (Date_Atom, _)]
 	),
-%gtrace,
 	(
 		var(Rate_Atom)
 	->
