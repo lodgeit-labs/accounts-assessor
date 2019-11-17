@@ -87,6 +87,7 @@
 :- use_module('../investment_report_2').
 :- use_module('../crosschecks_report').
 :- use_module('../invoices').
+:- use_module('../xbrl_output').
 
 
 process_xml_ledger_request(File_Name, Dom, Reports) :-
@@ -191,20 +192,23 @@ create_reports(Static_Data0, Outstanding, Report_Date, Json_Request_Results) :-
 	writeln("<!-- Profit and loss -->"),
 	profitandloss_between(Static_Data, ProfitAndLoss),
 
+	static_data_historical(Start_Date, Static_Data, Static_Data_Historical),
+
+	balance_sheet_at(Static_Data_Historical, Balance_Sheet2_Historical),
+	profitandloss_between(Static_Data_Historical, ProfitAndLoss2_Historical),
+	gtrace,
+
+	assertion(ground((Balance_Sheet, ProfitAndLoss, ProfitAndLoss2_Historical, Trial_Balance))),
+	maybe_prepare_unique_taxonomy_url(Taxonomy_Url_Base),
+	xbrl_output:create_instance(Static_Data, Taxonomy_Url_Base, Start_Date, End_Date, Accounts, Report_Currency, Balance_Sheet, ProfitAndLoss, ProfitAndLoss2_Historical, Trial_Balance),
+	other_reports(Static_Data, Outstanding, Balance_Sheet, ProfitAndLoss, Static_Data_Historical, ProfitAndLoss2_Historical, Json_Request_Results).
+
+static_data_historical(Start_Date, Static_Data, Static_Data_Historical) :-
 	add_days(Start_Date, -1, Before_Start),
 	Static_Data_Historical = Static_Data.put(
 		start_date, date(1,1,1)).put(
 		end_date, Before_Start).put(
-		exchange_date, Start_Date),
-
-	balance_sheet_at(Static_Data_Historical, Balance_Sheet2_Historical),
-	profitandloss_between(Static_Data_Historical, ProfitAndLoss2_Historical),
-	
-	
-	assertion(ground((Balance_Sheet, ProfitAndLoss, ProfitAndLoss2_Historical, Trial_Balance))),
-	maybe_prepare_unique_taxonomy_url(Taxonomy_Url_Base),
-	xbrl_output:create_instance(Static_Data, Taxonomy_Url_Base, Report_Date, Accounts, Report_Currency, Balance_Sheet, ProfitAndLoss, ProfitAndLoss2_Historical, Trial_Balance),
-	other_reports(Static_Data, Outstanding, Balance_Sheet, ProfitAndLoss, Static_Data_Historical, ProfitAndLoss2_Historical, Json_Request_Results).
+		exchange_date, Start_Date).
 
 
 other_reports(Static_Data, Outstanding, Balance_Sheet, ProfitAndLoss, Static_Data_Historical, ProfitAndLoss2_Historical, Json_Request_Results) :-

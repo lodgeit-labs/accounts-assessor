@@ -18,16 +18,16 @@ process_invoices_payable2([]).
 process_invoices_payable2([Dom|Doms]) :-
 	debug(d, 'XXXXXXXX', [])
 	,Cac='urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2'
-	,findall(Line,xpath(Dom, ns(_,Cac):'InvoiceLine',Line),Lines),
+	,findall(Line,xpath(Dom, ns(_,Cac):'InvoiceLine',Line),Lines)
 	%,print_term(Dom2, [output(user_error)]) 
 	,maplist(process_line, Lines)
 	,process_invoices_payable2(Doms)
 	.
 process_line(Line) :-
 	cac(Cac),cbc(Cbc)
-	,xpath(Line, ns(_,Cbc):'InvoicedQuantity',Q)
-	,xpath(Line, ns(_,Cbc):'LineExtensionAmount',A)
-	,xpath(Line, ns(_,Cac):'Item',I)
+	,xpath(Line, ns(_,Cbc):'InvoicedQuantity',_Q)
+	,xpath(Line, ns(_,Cbc):'LineExtensionAmount',_A)
+	,xpath(Line, ns(_,Cac):'Item',_I)
 	. 
 
 cac('urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2').

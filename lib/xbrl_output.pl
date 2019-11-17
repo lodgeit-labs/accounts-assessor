@@ -1,18 +1,18 @@
 :- module(_, []).
 
-create_instance(Static_Data, Taxonomy_Url_Base. Report_Date, Accounts, Report_Currency, Balance_Sheet, ProfitAndLoss, ProfitAndLoss2_Historical, Trial_Balance) :-
+create_instance(Static_Data, Taxonomy_Url_Base, Start_Date, End_Date, Accounts, Report_Currency, Balance_Sheet, ProfitAndLoss, ProfitAndLoss2_Historical, Trial_Balance) :-
 	xbrl_output:print_header(Taxonomy_Url_Base),
 	Entity_Identifier = '<identifier scheme="http://www.example.com">TestData</identifier>',
-	xbrl_output:build_base_contexts(Report_Date, Entity_Identifier, Instant_Context_Id_Base, Duration_Context_Id_Base, Base_Contexts),
-	fact_lines(Accounts, Report_Currency, Balance_Sheet, ProfitAndLoss, ProfitAndLoss2_Historical, Trial_Balance, Fact_Lines),
+	xbrl_output:build_base_contexts(Start_Date, End_Date, Entity_Identifier, Instant_Context_Id_Base, Duration_Context_Id_Base, Base_Contexts),
+	fact_lines(Accounts, Report_Currency, Balance_Sheet, ProfitAndLoss, ProfitAndLoss2_Historical, Trial_Balance, Fact_Lines, Units0),
 	(
 		Static_Data.output_dimensional_facts = on
 	->
-		print_dimensional_facts(Static_Data, Instant_Context_Id_Base, Duration_Context_Id_Base, Entity_Identifier, (Base_Contexts, Units3, []), (Contexts3, Units4, Dimensions_Lines))
+		print_dimensional_facts(Static_Data, Instant_Context_Id_Base, Duration_Context_Id_Base, Entity_Identifier, (Base_Contexts, Units0, []), (Contexts3, Units4, Dimensions_Lines))
 	;
 		(
 			Contexts3 = Base_Contexts, 
-			Units4 = Units3, 
+			Units4 = Units0, 
 			Dimensions_Lines = ['<!-- off -->\n']
 		)
 	),
@@ -26,7 +26,8 @@ create_instance(Static_Data, Taxonomy_Url_Base. Report_Date, Accounts, Report_Cu
 
 
 print_header(Taxonomy_Url_Base) :-
-	write('<xbrli:xbrl xmlns:xbrli="http://www.xbrl.org/2003/instance" xmlns:link="http://www.xbrl.org/2003/linkbase" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:iso4217="http://www.xbrl.org/2003/iso4217" xmlns:basic="http://www.xbrlsite.com/basic" xmlns:xbrldi="http://xbrl.org/2006/xbrldi" xsi:schemaLocation="http://www.xbrlsite.com/basic '),write(Taxonomy),writeln('basic.xsd http://www.xbrl.org/2003/instance http://www.xbrl.org/2003/xbrl-instance-2003-12-31.xsd http://www.xbrl.org/2003/linkbase http://www.xbrl.org/2003/xbrl-linkbase-2003-12-31.xsd http://xbrl.org/2006/xbrldi http://www.xbrl.org/2006/xbrldi-2006.xsd">'),
+	write('<xbrli:xbrl xmlns:xbrli="http://www.xbrl.org/2003/instance" xmlns:link="http://www.xbrl.org/2003/linkbase" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:iso4217="http://www.xbrl.org/2003/iso4217" xmlns:basic="http://www.xbrlsite.com/basic" xmlns:xbrldi="http://xbrl.org/2006/xbrldi" xsi:schemaLocation="http://www.xbrlsite.com/basic '),
+	write(Taxonomy_Url_Base),writeln('basic.xsd http://www.xbrl.org/2003/instance http://www.xbrl.org/2003/xbrl-instance-2003-12-31.xsd http://www.xbrl.org/2003/linkbase http://www.xbrl.org/2003/xbrl-linkbase-2003-12-31.xsd http://xbrl.org/2006/xbrldi http://www.xbrl.org/2006/xbrldi-2006.xsd">'),
 	write('  <link:schemaRef xlink:type="simple" xlink:href="'), write(Taxonomy_Url_Base), writeln('basic.xsd" xlink:title="Taxonomy schema" />'),
 	write('  <link:linkbaseRef xlink:type="simple" xlink:href="'), write(Taxonomy_Url_Base), writeln('basic-formulas.xml" xlink:arcrole="http://www.w3.org/1999/xlink/properties/linkbase" />'),
 	write('  <link:linkBaseRef xlink:type="simple" xlink:href="'), write(Taxonomy_Url_Base), writeln('basic-formulas-cross-checks.xml" xlink:arcrole="http://www.w3.org/1999/xlink/properties/linkbase" />'),
@@ -35,18 +36,18 @@ print_header(Taxonomy_Url_Base) :-
 print_footer :-
 	writeln('</xbrli:xbrl>').
 
-build_base_contexts(Report_End_Date, Entity_Identifier, Instant_Context_Id_Base, Duration_Context_Id_Base, Base_Contexts) :-
+build_base_contexts(Start_Date, End_Date, Entity_Identifier, Instant_Context_Id_Base, Duration_Context_Id_Base, Base_Contexts) :-
 	Entity = entity(Entity_Identifier, ''),
 	/* build up two basic non-dimensional contexts used for simple xbrl facts */
-	date(Context_Id_Year,_,_) = Report_End_Date,
+	date(Context_Id_Year,_,_) = End_Date,
 	context_id_base('I', Context_Id_Year, Instant_Context_Id_Base),
 	context_id_base('D', Context_Id_Year, Duration_Context_Id_Base),
 	Base_Contexts = [
-		context(Instant_Context_Id_Base, Report_End_Date, Entity, ''),
-		context(Duration_Context_Id_Base, (Start_Date, Report_End_Date), Entity, '')
+		context(Instant_Context_Id_Base, End_Date, Entity, ''),
+		context(Duration_Context_Id_Base, (Start_Date, End_Date), Entity, '')
 	].
 
-fact_lines(Accounts, Report_Currency, Balance_Sheet, ProfitAndLoss, ProfitAndLoss2_Historical, Trial_Balance, Fact_Lines) :-
+fact_lines(Accounts, Report_Currency, Balance_Sheet, ProfitAndLoss, ProfitAndLoss2_Historical, Trial_Balance, Fact_Lines, Units_Out) :-
 	format_report_entries(xbrl, Accounts, 0, Report_Currency, 
 		Instant_Context_Id_Base, Balance_Sheet, [], Units0, [], Bs_Lines),
 	format_report_entries(xbrl, Accounts, 0, Report_Currency, 
@@ -54,7 +55,7 @@ fact_lines(Accounts, Report_Currency, Balance_Sheet, ProfitAndLoss, ProfitAndLos
 	format_report_entries(xbrl, Accounts, 0, Report_Currency, 
 		Duration_Context_Id_Base, ProfitAndLoss2_Historical,  Units1, Units2, [], Pl_Historical_Lines),
 	format_report_entries(xbrl, Accounts, 0, Report_Currency, 
-		Instant_Context_Id_Base, Trial_Balance, Units2, Units3, [], Tb_Lines),
+		Instant_Context_Id_Base, Trial_Balance, Units2, Units_Out, [], Tb_Lines),
 
 	flatten([
 		'\n<!-- balance sheet: -->\n', Bs_Lines, 
