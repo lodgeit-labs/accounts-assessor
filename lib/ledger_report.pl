@@ -302,14 +302,12 @@ bs_and_pl_entries(Accounts, Report_Currency, Context, Balance_Sheet_Entries, Pro
 	format_report_entries(xbrl, Accounts, 0, Report_Currency, Context, ProftAndLoss_Entries, Used_Units, Used_Units_Out, [], Lines2).
 
 
-/* omitting Max_Detail_Level defaults it to 0 */
-format_report_entries(Format, Accounts, Indent_Level, Report_Currency, Context, Entries, Used_Units_In, Used_Units_Out, Lines_In, Lines_Out) :-
-	format_report_entries(Format, 0, Accounts, Indent_Level, Report_Currency, Context, Entries, Used_Units_In, Used_Units_Out, Lines_In, Lines_Out).
-	
-format_report_entries(_, _, _, _, _, _, [], Used_Units_In, Used_Units_Out, Lines_In, Lines_Out) :-
+/* format_report_entries/10:omitting Max_Detail_Level defaults it to 0 */
+
+format_report_entries (_, _, _, _, _, _, [], Used_Units_In, Used_Units_Out, Lines_In, Lines_Out) :-
 	(Used_Units_In = Used_Units_Out, Lines_In = Lines_Out -> true ; throw('internal error 2')).
 
-format_report_entries(Format, Max_Detail_Level, Accounts, Indent_Level, Report_Currency, Context, Entries, Used_Units_In, Used_Units_Out, Lines_In, Lines_Out) :-
+format_report_entries (G, Format, Max_Detail_Level, Accounts, Indent_Level, Report_Currency, Context, Entries, Used_Units_In, Used_Units_Out, Lines_In, Lines_Out) :-
 	[entry(Name, Balances, Children, Transactions_Count)|Entries_Tail] = Entries,
 	(
 		/* does the account have a detail level and is it greater than Max_Detail_Level? */

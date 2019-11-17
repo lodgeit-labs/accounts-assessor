@@ -4,7 +4,25 @@ create_instance(Static_Data, Taxonomy_Url_Base, Start_Date, End_Date, Accounts, 
 	xbrl_output:print_header(Taxonomy_Url_Base),
 	Entity_Identifier = '<identifier scheme="http://www.example.com">TestData</identifier>',
 	xbrl_output:build_base_contexts(Start_Date, End_Date, Entity_Identifier, Instant_Context_Id_Base, Duration_Context_Id_Base, Base_Contexts),
-	fact_lines(Accounts, Report_Currency, Balance_Sheet, ProfitAndLoss, ProfitAndLoss2_Historical, Trial_Balance, Fact_Lines, Units0),
+	
+	
+
+	Fact_Sections = [section()],
+	format_report_entries(xbrl, Accounts, 0, Report_Currency, 
+		Instant_Context_Id_Base, Balance_Sheet, [], Units0, [], Bs_Lines),
+	format_report_entries(xbrl, Accounts, 0, Report_Currency, 
+		Duration_Context_Id_Base, ProfitAndLoss,  Units0, Units1, [], Pl_Lines),
+	format_report_entries(xbrl, Accounts, 0, Report_Currency, 
+		Duration_Context_Id_Base, ProfitAndLoss2_Historical,  Units1, Units2, [], Pl_Historical_Lines),
+	format_report_entries(xbrl, Accounts, 0, Report_Currency, 
+		Instant_Context_Id_Base, Trial_Balance, Units2, Units_Out, [], Tb_Lines),
+
+	maplist(fact_lines(Accounts, Report_Currency), Fact_Sections, Report_Lines_List)
+
+	atomic_list_concat(Report_Lines_List, Fact_Lines).
+
+
+
 	(
 		Static_Data.output_dimensional_facts = on
 	->
@@ -25,15 +43,27 @@ create_instance(Static_Data, Taxonomy_Url_Base, Start_Date, End_Date, Accounts, 
 
 (header, footer, context, entries)
 
-fact_lines(Accounts, Report_Currency, Balance_Sheet, ProfitAndLoss, ProfitAndLoss2_Historical, Trial_Balance, Fact_Lines, Units_Out) :-
+fact_lines(Accounts, Report_Currency, [Section|Sections], [Lines_Out|Lines_Tail], Units_In, Units_Out) :-
+	Lines_Out = [Header, Fact_Lines, Footer],
+	section_header(Section, Header),
+	section_footer(Section, Footer),
+	section_context(Section, Context),
+	section_entries(Section, Entries),
+
+
+
+
+/* global data of the xbrl-instance-outputting operation */
+new_global_data_handle(H),
+rdf_assert(op, format, xbrl),
+Max_Detail_Level
+
+
+
+
+
 	format_report_entries(xbrl, Accounts, 0, Report_Currency, 
-		Instant_Context_Id_Base, Balance_Sheet, [], Units0, [], Bs_Lines),
-	format_report_entries(xbrl, Accounts, 0, Report_Currency, 
-		Duration_Context_Id_Base, ProfitAndLoss,  Units0, Units1, [], Pl_Lines),
-	format_report_entries(xbrl, Accounts, 0, Report_Currency, 
-		Duration_Context_Id_Base, ProfitAndLoss2_Historical,  Units1, Units2, [], Pl_Historical_Lines),
-	format_report_entries(xbrl, Accounts, 0, Report_Currency, 
-		Instant_Context_Id_Base, Trial_Balance, Units2, Units_Out, [], Tb_Lines),
+		Context, Entries, Units_In, Units_Mid, [], Fact_Lines),
 
 	flatten([
 		'\n<!-- balance sheet: -->\n', Bs_Lines, 
@@ -41,7 +71,7 @@ fact_lines(Accounts, Report_Currency, Balance_Sheet, ProfitAndLoss, ProfitAndLos
 		'\n<!-- historical profit and loss (fixme wrong context id): \n', Pl_Historical_Lines, '\n-->\n',
 		'\n<!-- trial balance: -->\n',  Tb_Lines
 	], Report_Lines_List),
-	atomic_list_concat(Report_Lines_List, Fact_Lines).
+	
 
 print_dimensional_facts(Static_Data, Instant_Context_Id_Base, Duration_Context_Id_Base, Entity_Identifier, Results0, Results3) :-
 	print_banks(Static_Data, Instant_Context_Id_Base, Entity_Identifier, Results0, Results1),

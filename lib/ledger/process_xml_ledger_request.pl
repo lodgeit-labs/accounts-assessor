@@ -39,7 +39,6 @@
 		trial_balance_between/8, 
 		profitandloss_between/2, 
 		balance_sheet_at/2,
-		format_report_entries/10, 
 		bs_and_pl_entries/8,
 		net_activity_by_account/4]).
 :- use_module('../ledger_html_reports').

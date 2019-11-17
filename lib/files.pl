@@ -11,9 +11,9 @@
 		write_tmp_json_file/2
 		]).
 
-:- use_module(library(semweb/rdf11)).
-
+:- use_module('my_rdf').
 :- use_module('utils').
+
 :- use_module(library(http/http_dispatch), [http_safe_file/2]).
 
 :- dynamic user:file_search_path/2.
@@ -68,7 +68,7 @@ bump_tmp_directory_id :-
 	gensym(Base, Dir),
 	retractall(my_request_tmp_dir(_)),
 	asserta(my_request_tmp_dir(Dir)),
-	rdf_default_graph(_, Dir),
+	my_rdf:init_request_graph(Dir),
 	absolute_tmp_path('', Path),
 	make_directory(Path),
 	absolute_whatever(my_tmp('last'), Last),
