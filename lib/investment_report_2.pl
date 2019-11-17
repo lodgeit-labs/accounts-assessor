@@ -123,11 +123,16 @@ columns(Columns) :-
 		column{id:total_cost_converted, title:"Total Market Value Converted", options:_{}}
 	],
 
+	append(Market_Event_Details, [
+		column{id:purchase_total_cost_foreign_on_hand, title:"Purchase Total Cost Foreign On Hand", options:_{hide_group_prefix:true}},
+		column{id:purchase_total_cost_converted_on_hand, title:"Purchase Total Cost Converted On Hand", options:_{hide_group_prefix:true}}
+	], Closing_Details),
+
 	Events = [ 
 		group{id:purchase, title:"Purchase", members:Sale_Event_Details},
 		group{id:opening, title:"Opening", members:Market_Event_Details},
 		group{id:sale, title:"Sale", members:Sale_Event_Details},
-		group{id:closing, title:"Closing", members:Market_Event_Details}
+		group{id:closing, title:"Closing", members:Closing_Details}
 	],
 
 	Gains_Details = [
@@ -150,8 +155,8 @@ columns(Columns) :-
 
 
 rows(Static_Data, Outstanding_In, Rows) :-
-    clip_investments(Static_Data, Outstanding_In, Realized_Investments, Unrealized_Investments),
-    
+	clip_investments(Static_Data, Outstanding_In, Realized_Investments, Unrealized_Investments),
+
 	maplist(investment_report_2_sales(Static_Data), Realized_Investments, Sale_Lines),
 	maplist(investment_report_2_unrealized(Static_Data), Unrealized_Investments, Non_Sale_Lines),
 	flatten([Sale_Lines, Non_Sale_Lines], Rows0),
@@ -368,7 +373,9 @@ investment_report_2_unrealized(Static_Data, Investment, Row) :-
 		)
 	),		
 
-	event(Closing, Closing_Unit_Price_Foreign, Closing_Currency_Conversion, Closing_Unit_Price_Converted, Investment_Currency_Current_Market_Value, Current_Market_Value),
+	event(Closing0, Closing_Unit_Price_Foreign, Closing_Currency_Conversion, Closing_Unit_Price_Converted, Investment_Currency_Current_Market_Value, Current_Market_Value),
+
+	Closing = Closing0.put(purchase_total_cost_foreign_on_hand, 
 
 	value_subtract(Investment_Currency_Current_Market_Value, Opening_Total_Cost_Foreign, Market_Gain_Foreign),
 
