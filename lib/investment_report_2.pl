@@ -123,18 +123,25 @@ columns(Columns) :-
 		column{id:total_cost_converted, title:"Total Market Value Converted", options:_{}}
 	],
 
-	append(Market_Event_Details, [
-		column{id:purchase_total_cost_foreign_on_hand, title:"On Hand at Cost (foreign)", options:_{hide_group_prefix:true}},
-		column{id:purchase_total_cost_converted_on_hand, title:"On Hand at Cost (converted at purchase date)", options:_{hide_group_prefix:true}}
-	], Closing_Details),
-
-/*On Hand at Cost ((converted at balance date), Unrealised Currency Gain/Loss between Cost at Purchase Date and Cost at Report Date
-*/
+	On_Hand_At_Cost_Details = [
+		column{id:unit_cost_foreign, title:"Foreign Per Unit", options:_{}},
+		column{id:count, title:"Count", options:_{}},
+		column{id:total_foreign, title:"Foreign Total", options:_{}},
+		column{id:total_converted_at_purchase, title:"Converted at Purchase Date Total", options:_{}},
+		column{id:total_converted_at_balance, title:"Converted at Balance Date Total", options:_{}},
+		column{id:total_forex_gain, title:"Currency Gain/(loss) Total", options:_{}},
+	],
+/*options:_{hide_group_prefix:true}*/
+/*On Hand at Cost ((converted at balance date), Unrealised Currency Gain/Loss between Cost at Purchase Date and Cost at Report Date*/
+/*group{id:on_hand_at_cost, title:"On Hand At Cost Per Unit", members:On_Hand_At_Cost_Per_Unit_Details},
+column{id:count, title:"Count", options:_{}},
+group{id:on_hand_at_cost, title:"On Hand At Cost Total", members:On_Hand_At_Cost_Total_Details},*/
 	Events = [ 
 		group{id:purchase, title:"Purchase", members:Sale_Event_Details},
 		group{id:opening, title:"Opening", members:Market_Event_Details},
 		group{id:sale, title:"Sale", members:Sale_Event_Details},
-		group{id:closing, title:"Closing", members:Closing_Details}
+		group{id:closing, title:"Closing", members:Market_Event_Details},
+		group{id:on_hand_at_cost, title:"On Hand At Cost", members:On_Hand_At_Cost_Details}
 	],
 
 	Gains_Details = [
@@ -284,13 +291,11 @@ investment_report_2_unrealized(Static_Data, Investment, Row) :-
 	exchange_rate_throw(Exchange_Rates, End_Date, Unit, Report_Currency_Unit, Closing_Unit_Price_Converted_Amount),
 	Current_Market_Value_Amount is Count * Closing_Unit_Price_Converted_Amount,
 	Current_Market_Value = value(Report_Currency_Unit, Current_Market_Value_Amount),
-	
+
 	optional_converted_value(Closing_Unit_Price_Foreign, Closing_Currency_Conversion, Closing_Unit_Price_Converted),
 
 	value_multiply(Opening_Unit_Cost_Foreign, Count, Opening_Total_Cost_Foreign),
 	value_multiply(Opening_Unit_Cost_Converted, Count, Opening_Total_Cost_Converted),
-
-	/*Unr_Market_Explanation = */
 
 	event(Opening0, Opening_Unit_Cost_Foreign, Opening_Currency_Conversion, Opening_Unit_Cost_Converted, Opening_Total_Cost_Foreign, Opening_Total_Cost_Converted),
 
@@ -309,15 +314,7 @@ investment_report_2_unrealized(Static_Data, Investment, Row) :-
 		)
 	),		
 
-	event(Closing0, Closing_Unit_Price_Foreign, Closing_Currency_Conversion, Closing_Unit_Price_Converted, Investment_Currency_Current_Market_Value, Current_Market_Value),
-
-	Original_Purchase_Info = original_purchase_info(Original_Purchase_Unit_Cost_Converted, Original_Purchase_Unit_Cost_Foreign, _Original_Purchase_Date),
-	value_multiply(Original_Purchase_Unit_Cost_Foreign, Count, Original_Purchase_Total_Cost_Foreign),
-	value_multiply(Original_Purchase_Unit_Cost_Converted, Count, Original_Purchase_Total_Cost_Converted),
-	Closing = Closing0.put([
-		purchase_total_cost_foreign_on_hand=Original_Purchase_Total_Cost_Foreign,
-		purchase_total_cost_converted_on_hand=Original_Purchase_Total_Cost_Converted
-	]),
+	event(Closing, Closing_Unit_Price_Foreign, Closing_Currency_Conversion, Closing_Unit_Price_Converted, Investment_Currency_Current_Market_Value, Current_Market_Value),
 
 	value_subtract(Investment_Currency_Current_Market_Value, Opening_Total_Cost_Foreign, Market_Gain_Foreign),
 
@@ -339,8 +336,25 @@ investment_report_2_unrealized(Static_Data, Investment, Row) :-
 				forex: Forex_Gain
 			}
 		},
-		closing: Closing
-	}.
+		closing: Closing,
+		on_hand_at_cost: On_Hand_At_Cost
+	},
+
+	Original_Purchase_Info = original_purchase_info(Original_Purchase_Unit_Cost_Converted, Original_Purchase_Unit_Cost_Foreign, _Original_Purchase_Date),
+	value_multiply(Original_Purchase_Unit_Cost_Foreign, Count, Original_Purchase_Total_Cost_Foreign),
+	value_multiply(Original_Purchase_Unit_Cost_Converted, Count, Original_Purchase_Total_Cost_Converted),
+	On_Hand_At_Cost = _{
+		unit_cost_foreign: Original_Purchase_Unit_Cost_Foreign,
+		count: Count,
+		total_foreign: Original_Purchase_Total_Cost_Foreign,
+		total_converted_at_purchase: Original_Purchase_Total_Cost_Converted,
+		total_converted_at_balance: Original_Purchase_Total_Cost_Converted_At_Balance,
+		total_forex_gain: Total_At_Cost_Forex_Gain
+	]),
+	Original_Purchase_Total_Cost_Converted_At_Balance,
+	Total_At_Cost_Forex_Gain
+	
+	.
 
 	
 optional_currency_conversion(Exchange_Rates, Date, Src, Optional_Dst, Conversion) :-
