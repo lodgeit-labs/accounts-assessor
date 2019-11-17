@@ -177,7 +177,7 @@ investment_report_2_sales(Static_Data, I, Lines) :-
 investment_report_2_sale_lines(Static_Data, Info, Clipped, Sale, Row) :-
 	dict_vars(Static_Data, [Exchange_Rates, Report_Currency]),
 	Sale = sale(Sale_Date, Sale_Unit_Price_Foreign, Count),
-	Info = info(Investment_Currency, Unit, Opening_Unit_Cost_Converted, Opening_Unit_Cost_Foreign, Opening_Date),
+	Info = info2(Investment_Currency, Unit, Opening_Unit_Cost_Converted, Opening_Unit_Cost_Foreign, Opening_Date, _),
 	
 	value(End_Unit_Price_Unit, End_Unit_Price_Amount) = Sale_Unit_Price_Foreign,
 	
@@ -245,11 +245,10 @@ investment_report_2_unrealized(Static_Data, Investment, Row) :-
 	Report_Currency = Static_Data.report_currency,
 	Cost_Or_Market = Static_Data.cost_or_market,
 	Investment = ir_item(unr, Info, Count, [], Clipped),
-	Info = info(Investment_Currency, Unit, Opening_Unit_Cost_Converted, Opening_Unit_Cost_Foreign, Opening_Date),
+	Info = info2(Investment_Currency, Unit, Opening_Unit_Cost_Converted, Opening_Unit_Cost_Foreign, Opening_Date, Original_Purchase_Info),
 
 	/*
 	TODO: with at-cost reporting, the goods unit will be a with_cost_per_unit, and there will be no exchange rate in the table.
-	
 	maybe Opening_Unit_Cost_Converted, Opening_Unit_Cost_Foreign should already be stripped of and taken from  with_cost_per_unit?
 	*/
 	
@@ -285,71 +284,6 @@ investment_report_2_unrealized(Static_Data, Investment, Row) :-
 	Current_Market_Value = value(Report_Currency_Unit, Current_Market_Value_Amount),
 	
 	optional_converted_value(Closing_Unit_Price_Foreign, Closing_Currency_Conversion, Closing_Unit_Price_Converted),
-/*		* Closing_Unit_Price_Foreign : Foreign/Unit
-			* Foreign^1 * Unit^-1
-			* {
-				"foreign": 1,
-				"unit": -1
-			  }
-			* semantic_thing(..)
-		* Closing_Currency_Conversion : Report/Foreign
-			* exchange_rate(Report/Foreign)
-		* Closing_Unit_Price_Converted : Report/Unit
-			
-		m/s
-		m^2
-
-		5m + 10m
-		m + m  <-- pure dimensional arithmetic
-		5m * 10m <-- vs. quantity arithmetic
-		m*m = m^2 = Area
-		5m * 2s 
-		5m / 2s 
-		5m + 2s <-- nope
-		5minutes + 2seconds ? <-- yep, because they're both just units of time dimension
-		5apples + 4 oranges ? <-- maybe?
-			* if there's a common conversion into some dimension?
-			* ex. you have 9 fruits..
-
-		dimensions: ex time, mass, length				
-		units: ex. minutes, kilograms, feet				<--
-		quantities: 5 minutes, 10 kilograms, 8 feet		<-- these two levels well worked out in the Python
-
-		Given:
-		60 seconds / minute
-		60 minutes / hour
-		24 hours / day
-
-		How many seconds in a day...
-		
-		There are also explicitly dimensionless quantities...
-		* haven't had to actually deal w/ this yet
-		
-		(Count : Unit) * (Price : Currency/Unit) = (Price * Count) : Currency
-
-		Can read the units directly out of the quantity for reporting purposes and potentially for automatically figuring out calculations
-			like w/ the seconds -> days conversion, etc...
-	
-
-		r1: market value today
-		r2: contract rate
-		r3: market value at contract maturity
-
-		r1 USD/AUD today
-
-
-		in the future:
-		contract rate: r2 USD/AUD
-
-		but the market value in the future might be r3
-
-		r2 vs r3 is "the spread" <-- definitely a factor in gains
-		but i'm not sure about r1
-
-		r4 : virtual rate computed from the price gotten at selling the contract(?)
-
-
-*/
 
 	value_multiply(Opening_Unit_Cost_Foreign, Count, Opening_Total_Cost_Foreign),
 	value_multiply(Opening_Unit_Cost_Converted, Count, Opening_Total_Cost_Converted),
@@ -375,7 +309,11 @@ investment_report_2_unrealized(Static_Data, Investment, Row) :-
 
 	event(Closing0, Closing_Unit_Price_Foreign, Closing_Currency_Conversion, Closing_Unit_Price_Converted, Investment_Currency_Current_Market_Value, Current_Market_Value),
 
-	Closing = Closing0.put(purchase_total_cost_foreign_on_hand, 
+	Original_Purchase_Info = original_purchase_info(Original_Purchase_Unit_Cost_Converted, Original_Purchase_Unit_Cost_Foreign, Original_Purchase_Date),
+	Closing = Closing0.put([
+		purchase_total_cost_foreign_on_hand=Original_Purchase_Unit_Cost_Foreign,
+		purchase_total_cost_converted_on_hand=Original_Purchase_Unit_Cost_Converted,
+	]),
 
 	value_subtract(Investment_Currency_Current_Market_Value, Opening_Total_Cost_Foreign, Market_Gain_Foreign),
 
@@ -474,16 +412,21 @@ clip_investments(Static_Data, (Outstanding_In, Investments_In), Realized_Investm
 	findall(
 		I,
 		(
+			/* all unrealized */
 			(
 				member((O, Investment_Id), Outstanding_In),
 				outstanding_goods_count(O, Count),
 				Count =\= 0,
 				nth0(Investment_Id, Investments_In, investment(Info1, _Sales)),
+				
+				/*just re-pack outstanding() into info(), omitting third arg */
 				Info1 = outstanding(Investment_Currency, Unit, _, Purchase_Unit_Cost_Converted, Purchase_Unit_Cost_Foreign, Purchase_Date),
 				Info2 = info(Investment_Currency, Unit, Purchase_Unit_Cost_Converted, Purchase_Unit_Cost_Foreign, Purchase_Date),
+				
 				I = (unr, Info2, Count, [])
 			)
 			;
+			/* all realized */
 			(
 				member(investment(Info1, Sales), Investments_In),
 				Info1 = outstanding(Investment_Currency, Unit, _, Purchase_Unit_Cost_Converted, Purchase_Unit_Cost_Foreign, Purchase_Date),
@@ -503,15 +446,11 @@ clip_investments(Static_Data, (Outstanding_In, Investments_In), Realized_Investm
 	%,print_term(clip_investments(Outstanding_In, Investments_In, Realized_Investments, Unrealized_Investments),[])
 	.
 
-/*
-	
-*/	
+/*filter out investments sold before report period start. */
 filter_investment_sales(Static_Data, I1, I2) :-
 	dict_vars(Static_Data, [Start_Date]),
 	I1 = (Tag, Info, Outstanding_Count, Sales1),
 	I2 = (Tag, Info, Outstanding_Count, Sales2),
-	/*	everything's already clipped from the report end date side.
-	filter out sales before report period. */
 	exclude(sale_before(Start_Date), Sales1, Sales2).
 
 irrelevant_investment(_Static_Data, I1) :-
@@ -534,7 +473,8 @@ clip_investment(Static_Data, I1, I2) :-
 	I1 = (Tag, Info1, Outstanding_Count, Sales),
 	I2 = ir_item(Tag, Info2, Outstanding_Count, Sales, Clipped),
 	Info1 = info(Investment_Currency, Unit, Purchase_Unit_Cost_Converted, Purchase_Unit_Cost_Foreign, Purchase_Date),
-	Info2 = info(Investment_Currency, Unit, Opening_Unit_Cost_Converted, Opening_Unit_Cost_Foreign, Opening_Date),
+	Info2 = info2(Investment_Currency, Unit, Opening_Unit_Cost_Converted, Opening_Unit_Cost_Foreign, Opening_Date, Original_Purchase_Info),
+	Original_Purchase_Info = original_purchase_info(Purchase_Unit_Cost_Converted, Purchase_Unit_Cost_Foreign, Purchase_Date),
 	(
 		Purchase_Date @>= Start_Date
 	->
@@ -573,3 +513,69 @@ optional_converted_value(V1, C, V2) :-
 		value_convert(V1, C, V2)
 	).
 
+
+/*		* Closing_Unit_Price_Foreign : Foreign/Unit
+			* Foreign^1 * Unit^-1
+			* {
+				"foreign": 1,
+				"unit": -1
+			  }
+			* semantic_thing(..)
+		* Closing_Currency_Conversion : Report/Foreign
+			* exchange_rate(Report/Foreign)
+		* Closing_Unit_Price_Converted : Report/Unit
+			
+		m/s
+		m^2
+
+		5m + 10m
+		m + m  <-- pure dimensional arithmetic
+		5m * 10m <-- vs. quantity arithmetic
+		m*m = m^2 = Area
+		5m * 2s 
+		5m / 2s 
+		5m + 2s <-- nope
+		5minutes + 2seconds ? <-- yep, because they're both just units of time dimension
+		5apples + 4 oranges ? <-- maybe?
+			* if there's a common conversion into some dimension?
+			* ex. you have 9 fruits..
+
+		dimensions: ex time, mass, length				
+		units: ex. minutes, kilograms, feet				<--
+		quantities: 5 minutes, 10 kilograms, 8 feet		<-- these two levels well worked out in the Python
+
+		Given:
+		60 seconds / minute
+		60 minutes / hour
+		24 hours / day
+
+		How many seconds in a day...
+		
+		There are also explicitly dimensionless quantities...
+		* haven't had to actually deal w/ this yet
+		
+		(Count : Unit) * (Price : Currency/Unit) = (Price * Count) : Currency
+
+		Can read the units directly out of the quantity for reporting purposes and potentially for automatically figuring out calculations
+			like w/ the seconds -> days conversion, etc...
+	
+
+		r1: market value today
+		r2: contract rate
+		r3: market value at contract maturity
+
+		r1 USD/AUD today
+
+
+		in the future:
+		contract rate: r2 USD/AUD
+
+		but the market value in the future might be r3
+
+		r2 vs r3 is "the spread" <-- definitely a factor in gains
+		but i'm not sure about r1
+
+		r4 : virtual rate computed from the price gotten at selling the contract(?)
+
+
+*/
