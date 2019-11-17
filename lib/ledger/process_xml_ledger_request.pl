@@ -130,7 +130,7 @@ process_xml_ledger_request2(Dom, Reports_Out) :-
 	inner_xml(Dom, //reports/balanceSheetRequest/endDate, [End_Date_Atom]),
 	parse_date(End_Date_Atom, End_Date),
 	
-	extract_exchange_rates(Dom, Start_Date, End_Date, Default_Currency, Exchange_Rates0),
+	extract_exchange_rates(Dom, Start_Date, End_Date, Default_Currency, Exchange_Rates),
 	findall(Livestock_Dom, xpath(Dom, //reports/balanceSheetRequest/livestockData, Livestock_Dom), Livestock_Doms),
 	get_livestock_types(Livestock_Doms, Livestock_Types),
    	extract_livestock_opening_costs_and_counts(Livestock_Doms, Livestock_Opening_Costs_And_Counts),
@@ -145,18 +145,22 @@ process_xml_ledger_request2(Dom, Reports_Out) :-
 	/* 
 		generate transactions (ledger entries) from s_transactions
 	*/
-	process_ledger(Cost_Or_Market, Livestock_Doms, S_Transactions, Processed_S_Transactions, Start_Date, End_Date, Exchange_Rates0, Report_Currency, Livestock_Types, Livestock_Opening_Costs_And_Counts, Accounts0, Accounts, Transactions, Transactions_By_Account, _Transaction_Transformation_Debug, Outstanding, Report_Date, Warnings, Errors, Gl),
+	process_ledger(Cost_Or_Market, Livestock_Doms, S_Transactions, _Processed_S_Transactions, Start_Date, End_Date, Exchange_Rates, Report_Currency, Livestock_Types, Livestock_Opening_Costs_And_Counts, Accounts0, Accounts, Transactions, Transactions_By_Account, _Transaction_Transformation_Debug, Outstanding, Processed_Until_Date, Warnings, Errors, Gl),
 
-	print_relevant_exchange_rates_comment(Report_Currency, End_Date, Exchange_Rates0, Transactions),
+	print_relevant_exchange_rates_comment(Report_Currency, End_Date, Exchange_Rates, Transactions),
 	writeln("<!-- exchange rates 2:"),
-	writeln(Exchange_Rates0),
+	writeln(Exchange_Rates),
 	writeln("-->"),
 
 	invoices:process_invoices_payable(Dom),
 
-	dict_from_vars(Static_Data,
-		[Cost_Or_Market, Output_Dimensional_Facts, Start_Date, End_Date, Exchange_Rates0, Accounts, Transactions, Report_Currency, Gl, Transactions_By_Account]),
-	create_reports(Static_Data, Outstanding, Report_Date, Reports),
+	dict_from_vars(Static_Data0,
+		[Cost_Or_Market, Output_Dimensional_Facts, Start_Date, Exchange_Rates, Accounts, Transactions, Report_Currency, Gl, Transactions_By_Account, Outstanding]),
+	Static_Data1 = Static_Data0.put([
+		end_date=Processed_Until_Date
+		,exchange_date=Processed_Until_Date
+	]),
+	create_reports(Static_Data1, Reports),
 	
 	Reports_Out = _{
 		files: Reports.files,
@@ -171,54 +175,40 @@ process_xml_ledger_request2(Dom, Reports_Out) :-
 	nl, nl.
 
 
-create_reports(Static_Data0, Outstanding, Report_Date, Json_Request_Results) :-
-	Static_Data = Static_Data0.put([
-		end_date=Report_Date,
-		exchange_date=Report_Date,
-		entity_identifier=Entity_Identifier,
-		duration_context_id_base=Duration_Context_Id_Base]),
-
-	Start_Date = Static_Data.start_date,
-	Exchange_Rates = Static_Data.exchange_rates, 
-	Accounts = Static_Data.accounts, 
-	Transactions_By_Account = Static_Data.transactions_by_account, 
-	Report_Currency = Static_Data.report_currency, 
-
+create_reports(Static_Data, Json_Request_Results) :-
+%balance_entries :-
 	/* sum up the coords of all transactions for each account and apply unit conversions */
 	writeln("<!-- Trial balance -->"),
-	trial_balance_between(Exchange_Rates, Accounts, Transactions_By_Account, Report_Currency, Report_Date, Start_Date, Report_Date, Trial_Balance),
+	trial_balance_between(Static_Data.exchange_rates, Static_Data.accounts, Static_Data.transactions_by_account, Static_Data.report_currency, Static_Data.end_date, Static_Data.start_date, Static_Data.end_date, Trial_Balance),
 	writeln("<!-- Balance sheet -->"),
 	balance_sheet_at(Static_Data, Balance_Sheet),
 	writeln("<!-- Profit and loss -->"),
 	profitandloss_between(Static_Data, ProfitAndLoss),
-
-	static_data_historical(Start_Date, Static_Data, Static_Data_Historical),
-
+	static_data_historical(Static_Data, Static_Data_Historical),
 	balance_sheet_at(Static_Data_Historical, Balance_Sheet2_Historical),
 	profitandloss_between(Static_Data_Historical, ProfitAndLoss2_Historical),
-	gtrace,
-
 	assertion(ground((Balance_Sheet, ProfitAndLoss, ProfitAndLoss2_Historical, Trial_Balance))),
-	maybe_prepare_unique_taxonomy_url(Taxonomy_Url_Base),
-	xbrl_output:create_instance(Static_Data, Taxonomy_Url_Base, Start_Date, End_Date, Accounts, Report_Currency, Balance_Sheet, ProfitAndLoss, ProfitAndLoss2_Historical, Trial_Balance),
-	other_reports(Static_Data, Outstanding, Balance_Sheet, ProfitAndLoss, Static_Data_Historical, ProfitAndLoss2_Historical, Json_Request_Results).
 
-static_data_historical(Start_Date, Static_Data, Static_Data_Historical) :-
-	add_days(Start_Date, -1, Before_Start),
+	maybe_prepare_unique_taxonomy_url(Taxonomy_Url_Base),
+	xbrl_output:create_instance(Static_Data, Taxonomy_Url_Base, Static_Data.start_date, Static_Data.end_date, Static_Data.accounts, Static_Data.report_currency, Balance_Sheet, ProfitAndLoss, ProfitAndLoss2_Historical, Trial_Balance),
+	other_reports(Static_Data, Static_Data.outstanding, Balance_Sheet, ProfitAndLoss, Static_Data_Historical, Balance_Sheet2_Historical, ProfitAndLoss2_Historical, Trial_Balance, Json_Request_Results).
+
+static_data_historical(Static_Data, Static_Data_Historical) :-
+	add_days(Static_Data.start_date, -1, Before_Start),
 	Static_Data_Historical = Static_Data.put(
 		start_date, date(1,1,1)).put(
 		end_date, Before_Start).put(
-		exchange_date, Start_Date).
+		exchange_date, Static_Data.start_date).
 
 
-other_reports(Static_Data, Outstanding, Balance_Sheet, ProfitAndLoss, Static_Data_Historical, ProfitAndLoss2_Historical, Json_Request_Results) :-
+other_reports(Static_Data, Outstanding, Balance_Sheet, ProfitAndLoss, Static_Data_Historical, Balance_Sheet2_Historical, ProfitAndLoss2_Historical, Trial_Balance, Json_Request_Results) :-
 	investment_reports(Static_Data, Outstanding, Investment_Report_Info),
 	ledger_html_reports:bs_page(Static_Data, Balance_Sheet, Bs_Report_Page_Info),
 	ledger_html_reports:pl_page(Static_Data, ProfitAndLoss, '', Pl_Report_Page_Info),
 	ledger_html_reports:pl_page(Static_Data_Historical, ProfitAndLoss2_Historical, '_historical', Pl_Html_Historical_Info),
 
 	make_gl_viewer_report(Gl_Viewer_Page_Info),
-	make_gl_report(Static_Data0.gl, '', Gl_Report_File_Info),
+	make_gl_report(Static_Data.gl, '', Gl_Report_File_Info),
 	
 	/* All the info in a json-like format. Currently only used in crosschecks */
 	Structured_Reports = _{
@@ -322,13 +312,7 @@ a flag can be used when running the server, for example like this:
 This is done with a symlink. This allows to bypass cache, for example in pesseract.
 */
 maybe_prepare_unique_taxonomy_url(Taxonomy_Dir_Url) :-
-	request_tmp_dir(Tmp_Dir),
-	server_public_url(Server_Public_Url),
-	atomic_list_concat([Server_Public_Url, '/tmp/', Tmp_Dir, '/taxonomy/'], Unique_Taxonomy_Dir_Url),
-	absolute_tmp_path('/taxonomy', Tmp_Taxonomy),
-	absolute_file_name(my_static('taxonomy/'), Static_Taxonomy, [file_type(directory)]),
-	atomic_list_concat(['ln -s ', Static_Taxonomy, ' ', Tmp_Taxonomy], Cmd),
-	shell(Cmd, 0),
+	symlink_tmp_taxonomy_to_static_taxonomy(Unique_Taxonomy_Dir_Url),
 	(
 		get_flag(prepare_unique_taxonomy_url, true)
 	->
@@ -336,6 +320,16 @@ maybe_prepare_unique_taxonomy_url(Taxonomy_Dir_Url) :-
 	;
 		Taxonomy_Dir_Url = 'taxonomy/'
 	).
+
+symlink_tmp_taxonomy_to_static_taxonomy(Unique_Taxonomy_Dir_Url) :-
+	request_tmp_dir(Tmp_Dir),
+	server_public_url(Server_Public_Url),
+	atomic_list_concat([Server_Public_Url, '/tmp/', Tmp_Dir, '/taxonomy/'], Unique_Taxonomy_Dir_Url),
+	absolute_tmp_path('/taxonomy', Tmp_Taxonomy),
+	absolute_file_name(my_static('taxonomy/'), Static_Taxonomy, [file_type(directory)]),
+	atomic_list_concat(['ln -s ', Static_Taxonomy, ' ', Tmp_Taxonomy], Cmd),
+	shell(Cmd, 0),
+
 
 	
 /*
