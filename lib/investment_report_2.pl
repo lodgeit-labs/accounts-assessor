@@ -124,10 +124,12 @@ columns(Columns) :-
 	],
 
 	append(Market_Event_Details, [
-		column{id:purchase_total_cost_foreign_on_hand, title:"Purchase Total Cost Foreign On Hand", options:_{hide_group_prefix:true}},
-		column{id:purchase_total_cost_converted_on_hand, title:"Purchase Total Cost Converted On Hand", options:_{hide_group_prefix:true}}
+		column{id:purchase_total_cost_foreign_on_hand, title:"On Hand at Cost (foreign)", options:_{hide_group_prefix:true}},
+		column{id:purchase_total_cost_converted_on_hand, title:"On Hand at Cost (converted at purchase date)", options:_{hide_group_prefix:true}}
 	], Closing_Details),
 
+/*On Hand at Cost ((converted at balance date), Unrealised Currency Gain/Loss between Cost at Purchase Date and Cost at Report Date
+*/
 	Events = [ 
 		group{id:purchase, title:"Purchase", members:Sale_Event_Details},
 		group{id:opening, title:"Opening", members:Market_Event_Details},
@@ -309,10 +311,12 @@ investment_report_2_unrealized(Static_Data, Investment, Row) :-
 
 	event(Closing0, Closing_Unit_Price_Foreign, Closing_Currency_Conversion, Closing_Unit_Price_Converted, Investment_Currency_Current_Market_Value, Current_Market_Value),
 
-	Original_Purchase_Info = original_purchase_info(Original_Purchase_Unit_Cost_Converted, Original_Purchase_Unit_Cost_Foreign, Original_Purchase_Date),
+	Original_Purchase_Info = original_purchase_info(Original_Purchase_Unit_Cost_Converted, Original_Purchase_Unit_Cost_Foreign, _Original_Purchase_Date),
+	value_multiply(Original_Purchase_Unit_Cost_Foreign, Count, Original_Purchase_Total_Cost_Foreign),
+	value_multiply(Original_Purchase_Unit_Cost_Converted, Count, Original_Purchase_Total_Cost_Converted),
 	Closing = Closing0.put([
-		purchase_total_cost_foreign_on_hand=Original_Purchase_Unit_Cost_Foreign,
-		purchase_total_cost_converted_on_hand=Original_Purchase_Unit_Cost_Converted,
+		purchase_total_cost_foreign_on_hand=Original_Purchase_Total_Cost_Foreign,
+		purchase_total_cost_converted_on_hand=Original_Purchase_Total_Cost_Converted
 	]),
 
 	value_subtract(Investment_Currency_Current_Market_Value, Opening_Total_Cost_Foreign, Market_Gain_Foreign),
