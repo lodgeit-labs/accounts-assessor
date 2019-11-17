@@ -63,3 +63,10 @@ init_request_graph(Dir) :-
 rdf_update,
 rdf_seq
 */
+
+/* 
+%global data of the xbrl-instance-outputting operation 
+new_global_data_handle(H),
+rdf_assert(op, format, xbrl),
+Max_Detail_Level
+*/

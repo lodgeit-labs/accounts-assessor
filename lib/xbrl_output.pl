@@ -1,83 +1,58 @@
 :- module(_, []).
 
+:- use_module(library(record)).
+
+:- record section(header, footer, context, entries).
+
 create_instance(Static_Data, Taxonomy_Url_Base, Start_Date, End_Date, Accounts, Report_Currency, Balance_Sheet, ProfitAndLoss, ProfitAndLoss2_Historical, Trial_Balance) :-
+	Fact_Sections = [
+		section('\n<!-- balance sheet: -->\n', '', Instant_Context_Id_Base, Balance_Sheet),
+		section('\n<!-- profit and loss: -->\n', '', Duration_Context_Id_Base, ProfitAndLoss),
+		section('\n<!-- historical profit and loss (fixme wrong context id): \n', '\n-->\n', ProfitAndLoss2_Historical),
+		section('\n<!-- trial balance: -->\n', '', Trial_Balance)
+	],
 	xbrl_output:print_header(Taxonomy_Url_Base),
 	Entity_Identifier = '<identifier scheme="http://www.example.com">TestData</identifier>',
-	xbrl_output:build_base_contexts(Start_Date, End_Date, Entity_Identifier, Instant_Context_Id_Base, Duration_Context_Id_Base, Base_Contexts),
-	
-	
-
-	Fact_Sections = [section()],
-	format_report_entries(xbrl, Accounts, 0, Report_Currency, 
-		Instant_Context_Id_Base, Balance_Sheet, [], Units0, [], Bs_Lines),
-	format_report_entries(xbrl, Accounts, 0, Report_Currency, 
-		Duration_Context_Id_Base, ProfitAndLoss,  Units0, Units1, [], Pl_Lines),
-	format_report_entries(xbrl, Accounts, 0, Report_Currency, 
-		Duration_Context_Id_Base, ProfitAndLoss2_Historical,  Units1, Units2, [], Pl_Historical_Lines),
-	format_report_entries(xbrl, Accounts, 0, Report_Currency, 
-		Instant_Context_Id_Base, Trial_Balance, Units2, Units_Out, [], Tb_Lines),
-
-	maplist(fact_lines(Accounts, Report_Currency), Fact_Sections, Report_Lines_List)
-
-	atomic_list_concat(Report_Lines_List, Fact_Lines).
-
-
-
-	(
-		Static_Data.output_dimensional_facts = on
-	->
-		print_dimensional_facts(Static_Data, Instant_Context_Id_Base, Duration_Context_Id_Base, Entity_Identifier, (Base_Contexts, Units0, []), (Contexts3, Units4, Dimensions_Lines))
-	;
-		(
-			Contexts3 = Base_Contexts, 
-			Units4 = Units0, 
-			Dimensions_Lines = ['<!-- off -->\n']
-		)
-	),
-	maplist(write_used_unit, Units4), nl, nl,
-	print_contexts(Contexts3), nl, nl,
+	xbrl_output:build_base_contexts(Start_Date, End_Date, Entity_Identifier, Instant_Context_Id_Base, Duration_Context_Id_Base, Contexts0),
+	fact_lines(Accounts, Report_Currency, Fact_Sections, Report_Lines_List_Nested, [], Units0),
+	atomic_list_concat(Report_Lines_List_Nested, Fact_Lines),
+	maybe_print_dimensional_facts(Static_Data, Instant_Context_Id_Base, Duration_Context_Id_Base, Entity_Identifier, Contexts0, Contexts1, Units0, Units1, Dimensional_Facts_Lines),
+	maplist(print_used_unit, Units1), nl, nl,
+	print_contexts(Contexts1), nl, nl,
 	writeln('<!-- dimensional facts: -->'),
-	maplist(write, Dimensions_Lines),
+	maplist(write, Dimensional_Facts_Lines),
 	writeln(Fact_Lines),
 	xbrl_output:print_footer.
 
-(header, footer, context, entries)
+fact_lines(_, _, [], [], Units_In, Units_In).
 
-fact_lines(Accounts, Report_Currency, [Section|Sections], [Lines_Out|Lines_Tail], Units_In, Units_Out) :-
+fact_lines(Accounts, Report_Currency, [Section|Sections], [Lines_H|Lines_T], Units_In, Units_Out) :-
 	Lines_Out = [Header, Fact_Lines, Footer],
 	section_header(Section, Header),
 	section_footer(Section, Footer),
 	section_context(Section, Context),
 	section_entries(Section, Entries),
-
-
-
-
-/* global data of the xbrl-instance-outputting operation */
-new_global_data_handle(H),
-rdf_assert(op, format, xbrl),
-Max_Detail_Level
-
-
-
-
-
 	format_report_entries(xbrl, Accounts, 0, Report_Currency, 
-		Context, Entries, Units_In, Units_Mid, [], Fact_Lines),
+		Context, Entries, Units_In, Units_Mid, [], Lines_H),
+	fact_lines(Accounts, Report_Currency, Sections, Lines_T, Units_Mid, Units_Out) :-
 
-	flatten([
-		'\n<!-- balance sheet: -->\n', Bs_Lines, 
-		'\n<!-- profit and loss: -->\n', Pl_Lines,
-		'\n<!-- historical profit and loss (fixme wrong context id): \n', Pl_Historical_Lines, '\n-->\n',
-		'\n<!-- trial balance: -->\n',  Tb_Lines
-	], Report_Lines_List),
-	
+maybe_print_dimensional_facts(Static_Data, Instant_Context_Id_Base, Duration_Context_Id_Base, Entity_Identifier, Contexts_In, Contexts_Out, Units_In, Units_Out, Lines) :-
+	(
+		Static_Data.output_dimensional_facts = on
+	->
+		print_dimensional_facts(Static_Data, Instant_Context_Id_Base, Duration_Context_Id_Base, Entity_Identifier, (Contexts_In, Units_In, []), (Contexts_Out, Units_Out, Lines))
+	;
+		(
+			Contexts_In = Contexts_Out, 
+			Units_In = Units_Out, 
+			Lines = ['<!-- dimensional facts off -->\n']
+		)
+	).
 
 print_dimensional_facts(Static_Data, Instant_Context_Id_Base, Duration_Context_Id_Base, Entity_Identifier, Results0, Results3) :-
 	print_banks(Static_Data, Instant_Context_Id_Base, Entity_Identifier, Results0, Results1),
 	print_forex(Static_Data, Duration_Context_Id_Base, Entity_Identifier, Results1, Results2),
 	print_trading(Static_Data, Results2, Results3).
-
 
 build_base_contexts(Start_Date, End_Date, Entity_Identifier, Instant_Context_Id_Base, Duration_Context_Id_Base, Base_Contexts) :-
 	Entity = entity(Entity_Identifier, ''),
@@ -90,10 +65,8 @@ build_base_contexts(Start_Date, End_Date, Entity_Identifier, Instant_Context_Id_
 		context(Duration_Context_Id_Base, (Start_Date, End_Date), Entity, '')
 	].
 	
-write_used_unit(Unit) :-
+print_used_unit(Unit) :-
 	format('  <xbrli:unit id="U-~w"><xbrli:measure>iso4217:~w</xbrli:measure></xbrli:unit>\n', [Unit, Unit]).
-
-
 
 print_header(Taxonomy_Url_Base) :-
 	write('<xbrli:xbrl xmlns:xbrli="http://www.xbrl.org/2003/instance" xmlns:link="http://www.xbrl.org/2003/linkbase" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:iso4217="http://www.xbrl.org/2003/iso4217" xmlns:basic="http://www.xbrlsite.com/basic" xmlns:xbrldi="http://xbrl.org/2006/xbrldi" xsi:schemaLocation="http://www.xbrlsite.com/basic '),

@@ -13,7 +13,6 @@
 		trial_balance_between/8, 
 		profitandloss_between/2, 
 		format_report_entries/11, 
-		format_report_entries/10, 
 		bs_and_pl_entries/8,
 		format_balances/11,
 		net_activity_by_account/4,
@@ -31,7 +30,6 @@
 :- rdet(format_balance/11).
 :- rdet(format_balances/11).
 :- rdet(pesseract_style_table_rows/4).
-:- rdet(format_report_entries/10).
 :- rdet(format_report_entries/11).
 :- rdet(activity_entry/3).
 :- rdet(trial_balance_between/8).
