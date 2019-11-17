@@ -86,9 +86,9 @@ column_header_html(group{id:_, title:Group_Title, members:Group_Members}, Prefix
 		Cells
 	).
 
-column_header_html(column{id:_, title:Column_Title, options:_}, Prefix, th(Header_Value)) :-
+column_header_html(column{id:_, title:Column_Title, options:Options}, Prefix, th(Header_Value)) :-
 	(
-		Prefix = ""
+		(Prefix = "" ; get_dict(hide_group_prefix, Options, true))
 	->
 		Header_Value = Column_Title
 	;
