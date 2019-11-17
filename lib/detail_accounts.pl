@@ -1,4 +1,4 @@
-:- module(print_detail_accounts, [
+:- module(_, [
 		print_banks/5,
 		print_forex/5,
 		print_trading/3

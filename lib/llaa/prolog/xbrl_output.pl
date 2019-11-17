@@ -1,19 +1,21 @@
 :- module(_, []).
 
+:- use_module('../../lib/detail_accounts').
+
 :- use_module(library(record)).
 
-:- record section(header, footer, context, entries).
+:- record section(context, header, footer, entries).
 
 create_instance(Static_Data, Taxonomy_Url_Base, Start_Date, End_Date, Accounts, Report_Currency, Balance_Sheet, ProfitAndLoss, ProfitAndLoss2_Historical, Trial_Balance) :-
 	Fact_Sections = [
-		section('\n<!-- balance sheet: -->\n', '', Instant_Context_Id_Base, Balance_Sheet),
-		section('\n<!-- profit and loss: -->\n', '', Duration_Context_Id_Base, ProfitAndLoss),
-		section('\n<!-- historical profit and loss (fixme wrong context id): \n', '\n-->\n', ProfitAndLoss2_Historical),
-		section('\n<!-- trial balance: -->\n', '', Trial_Balance)
+		section(Instant_Context_Id_Base, '\n<!-- balance sheet: -->\n', Balance_Sheet, ''),
+		section(Duration_Context_Id_Base, '\n<!-- profit and loss: -->\n', ProfitAndLoss, ''),
+		section(Duration_Context_Id_Base, '\n<!-- historical profit and loss (fixme wrong context id): \n', ProfitAndLoss2_Historical, '\n-->\n'),
+		section(Instant_Context_Id_Base, '\n<!-- trial balance: -->\n', Trial_Balance, '')
 	],
-	xbrl_output:print_header(Taxonomy_Url_Base),
+	print_header(Taxonomy_Url_Base),
 	Entity_Identifier = '<identifier scheme="http://www.example.com">TestData</identifier>',
-	xbrl_output:build_base_contexts(Start_Date, End_Date, Entity_Identifier, Instant_Context_Id_Base, Duration_Context_Id_Base, Contexts0),
+	build_base_contexts(Start_Date, End_Date, Entity_Identifier, Instant_Context_Id_Base, Duration_Context_Id_Base, Contexts0),
 	fact_lines(Accounts, Report_Currency, Fact_Sections, Report_Lines_List_Nested, [], Units0),
 	atomic_list_concat(Report_Lines_List_Nested, Fact_Lines),
 	maybe_print_dimensional_facts(Static_Data, Instant_Context_Id_Base, Duration_Context_Id_Base, Entity_Identifier, Contexts0, Contexts1, Units0, Units1, Dimensional_Facts_Lines),
@@ -50,9 +52,9 @@ maybe_print_dimensional_facts(Static_Data, Instant_Context_Id_Base, Duration_Con
 	).
 
 print_dimensional_facts(Static_Data, Instant_Context_Id_Base, Duration_Context_Id_Base, Entity_Identifier, Results0, Results3) :-
-	print_banks(Static_Data, Instant_Context_Id_Base, Entity_Identifier, Results0, Results1),
-	print_forex(Static_Data, Duration_Context_Id_Base, Entity_Identifier, Results1, Results2),
-	print_trading(Static_Data, Results2, Results3).
+	detail_accounts:print_banks(Static_Data, Instant_Context_Id_Base, Entity_Identifier, Results0, Results1),
+	detail_accounts:print_forex(Static_Data, Duration_Context_Id_Base, Entity_Identifier, Results1, Results2),
+	detail_accounts:print_trading(Static_Data, Results2, Results3).
 
 build_base_contexts(Start_Date, End_Date, Entity_Identifier, Instant_Context_Id_Base, Duration_Context_Id_Base, Base_Contexts) :-
 	Entity = entity(Entity_Identifier, ''),
