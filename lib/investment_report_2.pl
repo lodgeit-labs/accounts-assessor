@@ -84,13 +84,18 @@ investment_report_2(Static_Data, Outstanding_In, Filename_Suffix, Report_Data, [
 	}.
 
 totals(Rows, Totals) :-
+	/*these are computed automatically*/
  	tables:table_totals(Rows,
 	[
-	 gains/rea/market_foreign, gains/rea/market_converted, gains/rea/forex,
-	 gains/unr/market_foreign, gains/unr/market_converted, gains/unr/forex,
-	 opening/total_cost_foreign, opening/total_cost_converted,
-	 closing/total_cost_foreign, closing/total_cost_converted
+		gains/rea/market_foreign, gains/rea/market_converted, gains/rea/forex,
+		gains/unr/market_foreign, gains/unr/market_converted, gains/unr/forex,
+		opening/total_cost_foreign, opening/total_cost_converted,
+		closing/total_cost_foreign, closing/total_cost_converted,
+		on_hand_at_cost/total_converted_at_purchase,
+		on_hand_at_cost/total_converted_at_balance,
+		on_hand_at_cost/total_forex_gain
 	], Totals0),
+	/*these are not computed automatically*/
 	Totals = Totals0.put(
 		gains/realized_total, Realized_Total).put(
 		gains/unrealized_total, Unrealized_Total).put(
@@ -129,7 +134,7 @@ columns(Columns) :-
 		column{id:total_foreign, title:"Foreign Total", options:_{}},
 		column{id:total_converted_at_purchase, title:"Converted at Purchase Date Total", options:_{}},
 		column{id:total_converted_at_balance, title:"Converted at Balance Date Total", options:_{}},
-		column{id:total_forex_gain, title:"Currency Gain/(loss) Total", options:_{}},
+		column{id:total_forex_gain, title:"Currency Gain/(loss) Total", options:_{}}
 	],
 /*options:_{hide_group_prefix:true}*/
 /*On Hand at Cost ((converted at balance date), Unrealised Currency Gain/Loss between Cost at Purchase Date and Cost at Report Date*/
@@ -350,11 +355,11 @@ investment_report_2_unrealized(Static_Data, Investment, Row) :-
 		total_converted_at_purchase: Original_Purchase_Total_Cost_Converted,
 		total_converted_at_balance: Original_Purchase_Total_Cost_Converted_At_Balance,
 		total_forex_gain: Total_At_Cost_Forex_Gain
-	]),
-	Original_Purchase_Total_Cost_Converted_At_Balance,
-	Total_At_Cost_Forex_Gain
+	},
+
+	optional_converted_value(Original_Purchase_Total_Cost_Foreign, Closing_Currency_Conversion, Original_Purchase_Total_Cost_Converted_At_Balance),
 	
-	.
+	value_subtract(Original_Purchase_Total_Cost_Converted_At_Balance, Original_Purchase_Total_Cost_Converted, Total_At_Cost_Forex_Gain).
 
 	
 optional_currency_conversion(Exchange_Rates, Date, Src, Optional_Dst, Conversion) :-
