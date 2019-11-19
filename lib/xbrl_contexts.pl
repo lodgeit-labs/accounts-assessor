@@ -2,8 +2,7 @@
 		print_contexts/1,
 		context_id_base/3,
 		ensure_context_exists/6,
-		context_arg0_period/2,
-		context_id_base/3
+		context_arg0_period/2
 ]).
 
 :- use_module(days, [format_date/2]).

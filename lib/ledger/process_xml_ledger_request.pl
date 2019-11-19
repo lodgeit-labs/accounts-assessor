@@ -69,15 +69,6 @@
 		server_public_url/1]).
 :- use_module('../system_accounts', [
 		bank_accounts/2]).
-:- use_module('../xbrl_contexts', [
-		print_contexts/1,
-		context_id_base/3
-]).
-:- use_module('../print_detail_accounts', [
-		print_banks/5,
-		print_forex/5,
-		print_trading/3
-]).
 :- use_module('../xml', [
 		validate_xml/3
 ]).
@@ -173,9 +164,15 @@ process_xml_ledger_request2(Dom, Reports_Out) :-
 	writeln(' -->'),
 	nl, nl.
 
-
 create_reports(Static_Data, Json_Request_Results) :-
-%balance_entries :-
+	static_data_historical(Static_Data, Static_Data_Historical),
+	balance_entries(Static_Data, Static_Data_Historical, Entries),
+	dict_vars(Entries, [Balance_Sheet, ProfitAndLoss, Balance_Sheet2_Historical, ProfitAndLoss2_Historical, Trial_Balance]),
+	maybe_prepare_unique_taxonomy_url(Taxonomy_Url_Base),
+	xbrl_output:create_instance(Static_Data, Taxonomy_Url_Base, Static_Data.start_date, Static_Data.end_date, Static_Data.accounts, Static_Data.report_currency, Balance_Sheet, ProfitAndLoss, ProfitAndLoss2_Historical, Trial_Balance),
+	other_reports(Static_Data, Static_Data_Historical, Static_Data.outstanding, Balance_Sheet, ProfitAndLoss, Balance_Sheet2_Historical, ProfitAndLoss2_Historical, Trial_Balance, Json_Request_Results).
+
+balance_entries(Static_Data, Static_Data_Historical, Entries) :-
 	/* sum up the coords of all transactions for each account and apply unit conversions */
 	writeln("<!-- Trial balance -->"),
 	trial_balance_between(Static_Data.exchange_rates, Static_Data.accounts, Static_Data.transactions_by_account, Static_Data.report_currency, Static_Data.end_date, Static_Data.start_date, Static_Data.end_date, Trial_Balance),
@@ -183,14 +180,11 @@ create_reports(Static_Data, Json_Request_Results) :-
 	balance_sheet_at(Static_Data, Balance_Sheet),
 	writeln("<!-- Profit and loss -->"),
 	profitandloss_between(Static_Data, ProfitAndLoss),
-	static_data_historical(Static_Data, Static_Data_Historical),
 	balance_sheet_at(Static_Data_Historical, Balance_Sheet2_Historical),
 	profitandloss_between(Static_Data_Historical, ProfitAndLoss2_Historical),
 	assertion(ground((Balance_Sheet, ProfitAndLoss, ProfitAndLoss2_Historical, Trial_Balance))),
+	dict_from_vars(Entries, [Balance_Sheet, ProfitAndLoss, Balance_Sheet2_Historical, ProfitAndLoss2_Historical, Trial_Balance]).
 
-	maybe_prepare_unique_taxonomy_url(Taxonomy_Url_Base),
-	xbrl_output:create_instance(Static_Data, Taxonomy_Url_Base, Static_Data.start_date, Static_Data.end_date, Static_Data.accounts, Static_Data.report_currency, Balance_Sheet, ProfitAndLoss, ProfitAndLoss2_Historical, Trial_Balance),
-	other_reports(Static_Data, Static_Data.outstanding, Balance_Sheet, ProfitAndLoss, Static_Data_Historical, Balance_Sheet2_Historical, ProfitAndLoss2_Historical, Trial_Balance, Json_Request_Results).
 
 static_data_historical(Static_Data, Static_Data_Historical) :-
 	add_days(Static_Data.start_date, -1, Before_Start),
@@ -200,7 +194,7 @@ static_data_historical(Static_Data, Static_Data_Historical) :-
 		exchange_date, Static_Data.start_date).
 
 
-other_reports(Static_Data, Outstanding, Balance_Sheet, ProfitAndLoss, Static_Data_Historical, Balance_Sheet2_Historical, ProfitAndLoss2_Historical, Trial_Balance, Json_Request_Results) :-
+other_reports(Static_Data, Static_Data_Historical, Outstanding, Balance_Sheet, ProfitAndLoss, Balance_Sheet2_Historical, ProfitAndLoss2_Historical, Trial_Balance, Json_Request_Results) :-
 	investment_reports(Static_Data, Outstanding, Investment_Report_Info),
 	ledger_html_reports:bs_page(Static_Data, Balance_Sheet, Bs_Report_Page_Info),
 	ledger_html_reports:pl_page(Static_Data, ProfitAndLoss, '', Pl_Report_Page_Info),
@@ -327,8 +321,7 @@ symlink_tmp_taxonomy_to_static_taxonomy(Unique_Taxonomy_Dir_Url) :-
 	absolute_tmp_path('/taxonomy', Tmp_Taxonomy),
 	absolute_file_name(my_static('taxonomy/'), Static_Taxonomy, [file_type(directory)]),
 	atomic_list_concat(['ln -s ', Static_Taxonomy, ' ', Tmp_Taxonomy], Cmd),
-	shell(Cmd, 0),
-
+	shell(Cmd, 0).
 
 	
 /*

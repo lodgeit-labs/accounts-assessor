@@ -1,10 +1,16 @@
 :- module(_, []).
 
-:- use_module('../../lib/detail_accounts').
+:- use_module('detail_accounts').
+:- use_module('xbrl_contexts', [
+		print_contexts/1,
+		context_id_base/3
+]).
+:- use_module('fact_output').
+:- use_module('utils').
 
 :- use_module(library(record)).
 
-:- record section(context, header, footer, entries).
+:- record section(context, header, entries, footer).
 
 create_instance(Static_Data, Taxonomy_Url_Base, Start_Date, End_Date, Accounts, Report_Currency, Balance_Sheet, ProfitAndLoss, ProfitAndLoss2_Historical, Trial_Balance) :-
 	Fact_Sections = [
@@ -17,8 +23,15 @@ create_instance(Static_Data, Taxonomy_Url_Base, Start_Date, End_Date, Accounts, 
 	Entity_Identifier = '<identifier scheme="http://www.example.com">TestData</identifier>',
 	build_base_contexts(Start_Date, End_Date, Entity_Identifier, Instant_Context_Id_Base, Duration_Context_Id_Base, Contexts0),
 	fact_lines(Accounts, Report_Currency, Fact_Sections, Report_Lines_List_Nested, [], Units0),
-	atomic_list_concat(Report_Lines_List_Nested, Fact_Lines),
-	maybe_print_dimensional_facts(Static_Data, Instant_Context_Id_Base, Duration_Context_Id_Base, Entity_Identifier, Contexts0, Contexts1, Units0, Units1, Dimensional_Facts_Lines),
+	flatten(Report_Lines_List_Nested, Report_Lines_List),
+	atomic_list_concat(Report_Lines_List, Fact_Lines),
+	maybe_print_dimensional_facts(
+		Static_Data.put([
+			entity_identifier=Entity_Identifier,
+			instant_context_id_base=Instant_Context_Id_Base,
+			duration_context_id_base=Duration_Context_Id_Base
+		]), Contexts0, Contexts1, Units0, Units1, Dimensional_Facts_Lines
+	),
 	maplist(print_used_unit, Units1), nl, nl,
 	print_contexts(Contexts1), nl, nl,
 	writeln('<!-- dimensional facts: -->'),
@@ -29,20 +42,20 @@ create_instance(Static_Data, Taxonomy_Url_Base, Start_Date, End_Date, Accounts, 
 fact_lines(_, _, [], [], Units_In, Units_In).
 
 fact_lines(Accounts, Report_Currency, [Section|Sections], [Lines_H|Lines_T], Units_In, Units_Out) :-
-	Lines_Out = [Header, Fact_Lines, Footer],
+	Lines_H = [Header, Fact_Lines, Footer],
 	section_header(Section, Header),
 	section_footer(Section, Footer),
 	section_context(Section, Context),
 	section_entries(Section, Entries),
-	format_report_entries(xbrl, Accounts, 0, Report_Currency, 
-		Context, Entries, Units_In, Units_Mid, [], Lines_H),
-	fact_lines(Accounts, Report_Currency, Sections, Lines_T, Units_Mid, Units_Out) :-
+	fact_output:format_report_entries(xbrl, 0, Accounts, 0, Report_Currency, 
+		Context, Entries, Units_In, Units_Mid, [], Fact_Lines),
+	fact_lines(Accounts, Report_Currency, Sections, Lines_T, Units_Mid, Units_Out).
 
-maybe_print_dimensional_facts(Static_Data, Instant_Context_Id_Base, Duration_Context_Id_Base, Entity_Identifier, Contexts_In, Contexts_Out, Units_In, Units_Out, Lines) :-
+maybe_print_dimensional_facts(Static_Data,Contexts_In, Contexts_Out, Units_In, Units_Out, Lines) :-
 	(
 		Static_Data.output_dimensional_facts = on
 	->
-		print_dimensional_facts(Static_Data, Instant_Context_Id_Base, Duration_Context_Id_Base, Entity_Identifier, (Contexts_In, Units_In, []), (Contexts_Out, Units_Out, Lines))
+		print_dimensional_facts(Static_Data, (Contexts_In, Units_In, []), (Contexts_Out, Units_Out, Lines))
 	;
 		(
 			Contexts_In = Contexts_Out, 
@@ -51,9 +64,10 @@ maybe_print_dimensional_facts(Static_Data, Instant_Context_Id_Base, Duration_Con
 		)
 	).
 
-print_dimensional_facts(Static_Data, Instant_Context_Id_Base, Duration_Context_Id_Base, Entity_Identifier, Results0, Results3) :-
-	detail_accounts:print_banks(Static_Data, Instant_Context_Id_Base, Entity_Identifier, Results0, Results1),
-	detail_accounts:print_forex(Static_Data, Duration_Context_Id_Base, Entity_Identifier, Results1, Results2),
+print_dimensional_facts(Static_Data, Results0, Results3) :-
+ 	dict_vars(Static_Data, [Instant_Context_Id_Base, Duration_Context_Id_Base]),
+	detail_accounts:print_banks(Static_Data, Instant_Context_Id_Base, Results0, Results1),
+	detail_accounts:print_forex(Static_Data, Duration_Context_Id_Base, Results1, Results2),
 	detail_accounts:print_trading(Static_Data, Results2, Results3).
 
 build_base_contexts(Start_Date, End_Date, Entity_Identifier, Instant_Context_Id_Base, Duration_Context_Id_Base, Base_Contexts) :-

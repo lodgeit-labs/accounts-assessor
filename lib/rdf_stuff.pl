@@ -47,9 +47,9 @@ check_empty(G) :-
 	(
 		findall(_, rdf(_,_,_,G), [])
 	->
-		throw("oops")
-	;
 		true
+	;
+		throw(error(this_shouldnt_happen,_))
 	).
 
 init_request_graph(Dir) :-
