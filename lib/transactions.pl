@@ -20,7 +20,8 @@
 			 check_transaction_account/2,
 	 		make_transaction/5,
 	 		make_transaction2/5,
-	 		transactions_in_account_set/4
+	 		transactions_in_account_set/4,
+			transaction_to_dict/2
 ]).
 
 :- use_module(accounts, [account_id/2, account_in_set/3, account_exists/2]).
@@ -40,6 +41,17 @@
 % - The account that the transaction modifies
 % - The amounts by which the account is being debited and credited
 % - instant or tracking
+
+	
+transaction_to_dict(T, D) :-
+	T = transaction(Day, Description, Account, Vector, Type),
+	D = _{
+		date: Day,
+		description: Description,
+		account: Account,
+		vector: Vector,
+		type: Type}.
+
 
 transaction_account_in_set(Accounts, Transaction, Root_Account_Id) :-
 	transaction_account_id(Transaction, Transaction_Account_Id),
