@@ -1,0 +1,200 @@
+diff --git a/lib/ledger.pl b/lib/ledger.pl
+index 588977d..bd7c640 100644
+--- a/lib/ledger.pl
++++ b/lib/ledger.pl
+@@ -1,7 +1,7 @@
+ :- module(ledger, [
+ 		find_s_transactions_in_period/4,
+ 		process_ledger/14,
+-		emit_ledger_warnings/3,
++		emit_ledger_warnings/4,
+ 		emit_ledger_errors/1]).
+ 
+ :- use_module('system_accounts', [
+@@ -142,14 +142,26 @@ trial_balance_ok(Trial_Balance_Section) :-
+ 	Trial_Balance_Section = entry(_, Balance, [], _),
+ 	maplist(coord_is_almost_zero, Balance).
+ 	
+-emit_ledger_warnings(S_Transactions, Start_Date, End_Date) :-
++emit_ledger_warnings(Transaction_Types, S_Transactions, Start_Date, End_Date) :-
+ 	(
+ 		find_s_transactions_in_period(S_Transactions, Start_Date, End_Date, [])
+ 	->
+ 		writeln('<!-- WARNING: no transactions within request period -->\n')
+ 	;
+ 		true
+-	).
++	),
++	(
++		transaction_type_id(Transaction_Types, ID),
++		transaction_type_direction(Transaction_Types, Direction),
++		open("../prolog_servers/static/default_action_taxonomy", read, DOM),
++		xpath(DOM, //actionTaxonomy/action, Actions),!,
++		xpath(Action, /id, ID),
++		xpath(Action, /normalDirection, Direction),
++	)
++	->
++		writeln('<!-- WARNING: Direction of debit/credit is incorrect>').
++	
++
+ 	
+ emit_ledger_errors(Debug) :-
+ 	(
+diff --git a/lib/statements.pl b/lib/statements.pl
+index c37aad3..63c464c 100644
+--- a/lib/statements.pl
++++ b/lib/statements.pl
+@@ -471,7 +471,7 @@ check_that_s_transaction_account_exists(S_Transaction, Accounts) :-
+ % these are s_transactions, the raw transactions from bank statements. Later each s_transaction will be preprocessed
+ % into multiple transaction(..) terms.
+ % fixme dont fail silently
+-extract_s_transaction(Dom, Start_Date, Transaction) :-
++extract_s_transaction(Dom, Start_Date, S_Transaction) :-
+ 	xpath(Dom, //reports/balanceSheetRequest/bankStatement/accountDetails, Account),
+ 	catch(
+ 		fields(Account, [
+@@ -486,14 +486,15 @@ extract_s_transaction(Dom, Start_Date, Transaction) :-
+ 	,
+ 	xpath(Account, transactions/transaction, Tx_Dom),
+ 	catch(
+-		extract_s_transaction2(Tx_Dom, Account_Currency, Account_Name, Start_Date, Transaction),
++		extract_s_transaction2(Tx_Dom, Account_Currency, Account_Name, Start_Date, S_Transaction),
+ 		Error,
+ 		(
+ 			term_string(Error, Str1),
+ 			term_string(Tx_Dom, Str2),
+ 			atomic_list_concat([Str1, Str2], Message),
+ 			throw(Message)
+-		)),
++		)
++	),
+ 	true.
+ 
+ extract_s_transaction2(Tx_Dom, Account_Currency, Account, Start_Date, ST) :-
+diff --git a/lib/transaction_types.pl b/lib/transaction_types.pl
+index 2160ab6..50f642f 100644
+--- a/lib/transaction_types.pl
++++ b/lib/transaction_types.pl
+@@ -7,7 +7,8 @@
+ :- module(transaction_types, [transaction_type_id/2,
+ 			      transaction_type_exchanged_account_id/2,
+ 			      transaction_type_trading_account_id/2,
+-			      transaction_type_description/2]).
++			      transaction_type_description/2],
++				  transaction_type_Direction/2).
+ 
+ % transaction types aka actions aka transaction descriptions aka tags
+ 
+@@ -18,13 +19,16 @@
+  *
+  * accessor to the identifier of this transaction type, for example 'Borrow'
+  */
+-transaction_type_id(transaction_type(Id, _, _, _), Id).
++transaction_type_id(transaction_type(Id, _, _, _, _), Id).
+ 
+ % The account that will receive the inverse of the transaction amount after exchanging
+-transaction_type_exchanged_account_id(transaction_type(_, Exchanged_Account_Id, _, _), Exchanged_Account_Id).
++transaction_type_exchanged_account_id(transaction_type(_, Exchanged_Account_Id, _, _, _), Exchanged_Account_Id).
+ 
+ % The account that will record the gains and losses on the transaction amount
+-transaction_type_trading_account_id(transaction_type(_, _, Trading_Account_Id, _), Trading_Account_Id).
++transaction_type_trading_account_id(transaction_type(_, _, Trading_Account_Id, _, _), Trading_Account_Id).
+ 
+ % A description of this transaction type
+-transaction_type_description(transaction_type(_, _, _, Description), Description).
++transaction_type_description(transaction_type(_, _, _, Description, _), Description).
++
++% A description of this transaction debit/credit
++transaction_type_direction(transaction_type(_, _, _, _, Direction), Direction).
+diff --git a/prolog_server/ledger/process_xml_ledger_request.pl b/prolog_server/ledger/process_xml_ledger_request.pl
+index 8cc75ff..550da22 100644
+--- a/prolog_server/ledger/process_xml_ledger_request.pl
++++ b/prolog_server/ledger/process_xml_ledger_request.pl
+@@ -420,9 +420,10 @@ extract_action_taxonomy2(Dom, Transaction_Types) :-
+    findall(Action, xpath(Dom, //action, Action), Actions),
+    maplist(extract_action, Actions, Transaction_Types).
+    
+-extract_action(In, transaction_type(Id, Exchange_Account, Trading_Account, Description)) :-
++extract_action(In, transaction_type(Id, Exchange_Account, Trading_Account, Description, NormalDirection)) :-
+ 	fields(In, [
+ 		id, Id,
++		normalDirection, (normalDirection, _),
+ 		description, (Description, _),
+ 		exchangeAccount, (Exchange_Account, _),
+ 		tradingAccount, (Trading_Account, _)]).
+diff --git a/prolog_server/static/default_action_taxonomy.xml b/prolog_server/static/default_action_taxonomy.xml
+index 02e8176..7d41972 100644
+--- a/prolog_server/static/default_action_taxonomy.xml
++++ b/prolog_server/static/default_action_taxonomy.xml
+@@ -9,6 +9,7 @@
+         <description>Shares</description>
+         <exchangeAccount>FinancialInvestments</exchangeAccount>
+         <tradingAccount>InvestmentIncome</tradingAccount>
++		<normalDirection>Credit</normalDirection>
+       </action>
+ 
+       <action>
+@@ -16,6 +17,7 @@
+         <description>Shares</description>
+         <exchangeAccount>FinancialInvestments</exchangeAccount>
+         <tradingAccount>InvestmentIncome</tradingAccount>
++		<normalDirection>Debit</normalDirection>
+       </action>
+ 
+       <action>
+@@ -26,11 +28,13 @@
+       <action>
+         <id>Expenses</id>
+         <exchangeAccount>OtherExpenses</exchangeAccount>
++		<normalDirection>Credit</normalDirection>
+       </action>
+ 
+       <action>
+         <id>Gain</id>
+         <exchangeAccount>OtherGain</exchangeAccount>
++		<normalDirection>Debit</normalDirection>
+       </action>
+ 
+       <action>
+@@ -42,22 +46,26 @@
+       <action>
+         <id>Income</id>
+         <exchangeAccount>Income</exchangeAccount>
++		<normalDirection>Debit</normalDirection>
+       </action>
+ 
+       <action>
+         <id>Interest_Income</id>
+         <exchangeAccount>InterestIncome</exchangeAccount>
++		<normalDirection>Debit</normalDirection>
+       </action>
+ 
+       <action>
+         <id>Interest_Expenses</id>
+         <exchangeAccount>InterestExpenses</exchangeAccount>
++		<normalDirection>Credit</normalDirection>
+       </action>
+ 
+       <action>
+         <id>Borrow</id>
+         <description></description>
+         <exchangeAccount>NoncurrentLoans</exchangeAccount>
++		<normalDirection>Credit</normalDirection>
+       </action>
+ 
+       <action>
+@@ -70,12 +78,14 @@
+         <id>Pay_Bank</id>
+         <description>No Description</description>
+         <exchangeAccount>BankCharges</exchangeAccount>
++		<normalDirection>Credit</normalDirection>
+       </action>
+ 
+       <action>
+         <id>Accountancy_Fees</id>
+         <description>No Description</description>
+         <exchangeAccount>AccountancyFees</exchangeAccount>
++		<normalDirection>Credit</normalDirection>
+       </action>
+ 
+ 
