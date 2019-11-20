@@ -15,7 +15,8 @@
 		s_transaction_exchanged/2,
 		s_transaction_vector/2,
 		sort_s_transactions/2,
-		s_transactions_up_to/3
+		s_transactions_up_to/3,
+		s_transaction_to_dict/2
 		]).
 
 :- use_module('pacioli',  [
@@ -82,6 +83,7 @@
 TODO add more rdet declarations here
 */
 :- rdet(preprocess_s_transaction/5).
+:- rdet(s_transaction_to_dict/2).
 
 % -------------------------------------------------------------------
 % bank statement transaction record, these are in the input xml
@@ -92,6 +94,15 @@ TODO add more rdet declarations here
 % - The account that the transaction modifies without using exchange rate conversions
 % - Either the units or the amount to which the transaction amount will be converted to
 % depending on whether the term is of the form bases(...) or vector(...).
+
+s_transaction_to_dict(St, D) :-
+	St = s_transaction(Day, Verb, Vector, Account, Exchanged),
+	D = _{
+		date: Day,
+		verb: Verb,
+		vector: Vector,
+		account: Account,
+		exchanged: Exchanged}.
 
 preprocess_s_transactions(Static_Data, S_Transactions, Processed_S_Transactions, Transactions_Out, Outstanding_Out, Debug_Info) :-
 /*

@@ -39,7 +39,6 @@
 
 :- rdet(generate_gl_data/6).
 :- rdet(make_gl_entry/4).
-:- rdet(s_transaction_to_dict/2).	
 :- rdet(transaction_to_dict/2).
 :- rdet(transaction_with_converted_vector/4).
 
@@ -186,7 +185,17 @@ process_ledger(
 
 
 	Static_Data2 = Static_Data0.put(end_date, Processed_Until).put(transactions, Transactions_With_Livestock),
-	generate_gl_data(Static_Data2, Processed_S_Transactions, Transactions0, Transactions1, Transactions_With_Livestock, Gl),
+	generate_gl_data(
+		Static_Data2, 
+		Processed_S_Transactions, 
+		/* list of lists */
+		Transactions0, 
+		/* flat list */
+		Transactions1, 
+		/* flat list also with livestock transactions */
+		Transactions_With_Livestock, 
+		/* output */
+		Gl),
 	transactions_by_account(Static_Data2, Transactions_By_Account),
 	trial_balance_between(Exchange_Rates, Accounts, Transactions_By_Account, Report_Currency, End_Date, Start_Date, End_Date, [Trial_Balance_Section]),
 	(
@@ -211,9 +220,16 @@ process_ledger(
 	writeln(' -->').
 
 generate_gl_data(Sd, Processed_S_Transactions, Transactions0, Transactions1, Transactions_With_Livestock, Report_Dict) :-
+	
+	/* extract Livestock_Transactions from Transactions_With_Livestock */
 	append(Transactions1, Livestock_Transactions, Transactions_With_Livestock),
+	
+	/* Outputs list is lists of generated transactions */
 	append(Transactions0, [Livestock_Transactions], Outputs),
+	
+	/* Sources list is all the s_transactions + livestock adjustment transactions */
 	append(Processed_S_Transactions, ['livestock'], Sources),
+
 	maplist(make_gl_entry(Sd), Sources, Outputs, Report_Dict).
 
 make_gl_entry(Sd, Source, Transactions, Entry) :-
@@ -224,7 +240,8 @@ make_gl_entry(Sd, Source, Transactions, Entry) :-
 		S = Source
 	; 
 		(
-			s_transaction_to_dict(Source, S0),
+			statements:s_transaction_to_dict(Source, S0),
+			/* currently this is converted at transaction date */
 			s_transaction_with_transacted_amount(Sd, S0, S)
 		)
 	),
@@ -232,33 +249,22 @@ make_gl_entry(Sd, Source, Transactions, Entry) :-
 	maplist(transaction_with_converted_vector(Sd), T0, T).
 	
 s_transaction_with_transacted_amount(Sd, D1, D2) :-
-	D2 = D1.put(report_currency_transacted_amount, Amount),
-	vec_change_bases(Sd.exchange_rates, D1.date, Sd.report_currency, D1.vector, Vector_Converted),
-	number_vec(_, Amount0, Vector_Converted),
-	Amount is float(abs(Amount0)).
-	
-s_transaction_to_dict(St, D) :-
-	St = s_transaction(Day, Verb, Vector, Account, Exchanged),
-	D = _{
-		date: Day,
-		verb: Verb,
-		vector: Vector,
-		account: Account,
-		exchanged: Exchanged}.
-	
-transaction_to_dict(T, D) :-
-	T = transaction(Day, Description, Account, Vector, Type),
-	D = _{
-		date: Day,
-		description: Description,
-		account: Account,
-		vector: Vector,
-		type: Type}.
+	D2 = D1.put([
+		report_currency_transacted_amount_converted_at_transaction_date, AmountA,report_currency_transacted_amount_converted_at_transaction_date, AmountB]),
+	vec_change_bases(Sd.exchange_rates, D1.date, Sd.report_currency, D1.vector, Vector_ConvertedA),
+	number_vec(_, AmountA0, Vector_ConvertedA),
+	AmountA is float(abs(AmountA0)),
+	vec_change_bases(Sd.exchange_rates, Sd.end_date, Sd.report_currency, D1.vector, Vector_ConvertedB),
+	number_vec(_, AmountB0, Vector_ConvertedB),
+	AmountB is float(abs(AmountB0)).
 
 transaction_with_converted_vector(Sd, Transaction, Transaction_Converted) :-
-	Transaction_Converted = Transaction.put(vector_converted, Vector_Converted),
-	vec_change_bases(Sd.exchange_rates, Sd.end_date, Sd.report_currency, Transaction.vector, Vector_Converted).
-
+	Transaction_Converted = Transaction.put([
+		vector_converted_at_transaction_date=Vector_ConvertedA,
+		vector_converted_at_end_date=Vector_ConvertedB
+	]),
+	vec_change_bases(Sd.exchange_rates, Transaction.date, Sd.report_currency, Transaction.vector, Vector_ConvertedA),
+	vec_change_bases(Sd.exchange_rates, Sd.end_date, Sd.report_currency, Transaction.vector, Vector_ConvertedB).
 		
 trial_balance_ok(Trial_Balance_Section) :-
 	Trial_Balance_Section = entry(_, Balance, [], _),
