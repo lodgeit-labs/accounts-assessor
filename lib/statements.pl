@@ -83,6 +83,7 @@
 TODO add more rdet declarations here
 */
 :- rdet(preprocess_s_transaction/5).
+:- rdet(s_transaction_to_dict/2).
 
 % -------------------------------------------------------------------
 % bank statement transaction record, these are in the input xml

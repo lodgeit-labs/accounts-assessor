@@ -39,7 +39,6 @@
 
 :- rdet(generate_gl_data/6).
 :- rdet(make_gl_entry/4).
-:- rdet(s_transaction_to_dict/2).	
 :- rdet(transaction_to_dict/2).
 :- rdet(transaction_with_converted_vector/4).
 
@@ -241,7 +240,7 @@ make_gl_entry(Sd, Source, Transactions, Entry) :-
 		S = Source
 	; 
 		(
-			s_transaction_to_dict(Source, S0),
+			statements:s_transaction_to_dict(Source, S0),
 			/* currently this is converted at transaction date */
 			s_transaction_with_transacted_amount(Sd, S0, S)
 		)

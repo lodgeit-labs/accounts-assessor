@@ -81,9 +81,23 @@ output_file(ledger, 'investment_report_json', json).
 output_file(ledger, 'investment_report_since_beginning_json', json).
 
 
+testcase_request_xml_file_path(Testcase, Request_XML_File_Path) :-
+	atomic_list_concat([Testcase, "request.xml"], "/", Request_XML_File_Path).
+
+/*
+new design:
+
+
+*/
+
 run_endpoint_test(Type, Testcase) :-
-	atomic_list_concat([Testcase, "request.xml"], "/", Request_XML_File_Path),
+	testcase_request_xml_file_path(Testcase, Request_XML_File_Path),
 	query_endpoint(Request_XML_File_Path, Response_JSON),
+	gtrace,
+
+
+
+
 	tmp_uri_to_path(Response_JSON.reports.response_xml.url, Response_XML_Path),
 	check_output_schema(Type, Response_XML_Path),
 	% todo: xbrl validation on ledger response XBRL
