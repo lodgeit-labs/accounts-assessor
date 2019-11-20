@@ -350,3 +350,4 @@ cache/*
 xbrl/account_hierarchy/venv/
 prolog_server/log
 venv/
+*.ods#

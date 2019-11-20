@@ -41,3 +41,9 @@ This directory has following sub-directories:
 Sample request and response files are available in endpoint_tests/ directory.
 
 This directory also contains a file run_daemon.pl to run the http server as a daemon process.
+
+running a testcase:
+
+`../lib/process_data4.py  --problem_lines_whitelist problem_lines_whitelist  ../lib/debug1.pl vim tests/endpoint_tests/ledger/ledger/request.xml`
+
+

@@ -12,7 +12,7 @@ shell2(Cmd) :-
 shell2(Cmd_In, Exit_Status) :-
 	flatten([Cmd_In], Cmd_Flat),
 	atomic_list_concat(Cmd_Flat, Cmd),
-	format(user_error, '~w\n\n', [Cmd]),
+	%format(user_error, '~w\n\n', [Cmd]),
 	shell(Cmd, Exit_Status).
 
 maybe_halt_on_err :- 
@@ -27,14 +27,42 @@ maybe_halt_on_err :-
 	).
 
 halt_on_problems :-
-	Err_Grep = 'grep -q -E -i "Warn|err" err',
-	(shell2(Err_Grep, 0) -> halt ; true).
+	opts(Opts),
+	(
+		(memberchk(problem_lines_whitelist(Whitelist_File), Opts), nonvar(Whitelist_File))
+	->
+		Err_Grep = ['grep -E -i "Warn|err" err | grep -q -v -x -F -f ', Whitelist_File]
+	;
+		Err_Grep = 'grep -q -E -i "Warn|err" err'
+	),
+	(
+		shell2(Err_Grep, 0)
+	 ->
+	 	(
+			format(user_error, "that's an error, halting.\n", []),
+	 		halt 
+		)
+	;
+		true
+	).
 
-clean_terminal :-
-	shell2('echo "\e[3J" 1>&2'),
-	shell2('reset').
+maybe_clean_terminal :-
+	opts(Opts),
+	memberchk(clear_terminal(Clear), Opts),
+	(
+		Clear = true
+	->
+		(
+			shell2('echo "\e[3J" 1>&2'),
+			shell2('timeout 3 reset')
+
+		)
+	;
+		true
+	).
 
 x(Source_File, Goal) :-
+	format(user_error, '============...\n', []),
 	opts(Opts),
 	memberchk(debug(Debug), Opts),
 	(
@@ -45,7 +73,7 @@ x(Source_File, Goal) :-
 		Optimization = '-O'
 	),
 	atomic_list_concat(['swipl ', Optimization, ' -s ', Source_File], Load_Cmd),
-	%clean_terminal,
+	maybe_clean_terminal,
 	shell2([Load_Cmd, ' -g "halt."  2>&1  |  tee err']),
 	maybe_halt_on_err,
 	format(user_error, 'ok...\n', []),
@@ -61,8 +89,11 @@ x(Source_File, Goal) :-
 		[opt(viewer), type(atom), default(vim), shortflags([v]), longflags([viewer])]
 		,[opt(debug), type(boolean), default(true), shortflags([d]), longflags([debug])]
 		,[opt(halt_on_problems), type(boolean), default(true), shortflags([h]), longflags([halt_on_problems])]
-],
-	opt_arguments(Spec, Opts, Args),
+		,[opt(problem_lines_whitelist), type(atom), longflags([problem_lines_whitelist])]
+		,[opt(clear_terminal), type(boolean), default(false), shortflags([c]), longflags([clear_terminal])]
+	],
+	opt_arguments(Spec, Opts, Args0),
+	(Args0 = ['--'|Args]; Args = Args0),
 	assert(opts(Opts)),
 	compile_with_variable_names_preserved(
 		Expected_Args = [Source_File, Goal],

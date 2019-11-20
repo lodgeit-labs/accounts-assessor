@@ -8,9 +8,6 @@
 :- use_module('utils', []).
 :- use_module('rdf_stuff', []).
 
-request_graph(G) :-
-	my_request_tmp_dir(G).
-
 extract_action_verbs_from_bs_request(Dom) :-
 	(
 		xpath(Dom, //reports/balanceSheetRequest/actionTaxonomy, Taxonomy_Dom)

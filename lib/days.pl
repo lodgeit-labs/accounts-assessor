@@ -4,16 +4,18 @@
 % Date:      2019-06-02
 % ===================================================================
 
-:- module(days, [absolute_day/2,
-		 date_add/3,
-		 format_date/2,
-		 parse_date/2,
-		 gregorian_date/2,
-		 add_days/3,
-		 date_between/3,
-		 day_between/3,
-		 parse_date_into_absolute_days/2,
-		day_diff/3]).
+:- module(days, [
+	absolute_day/2,
+	date_add/3,
+	format_date/2,
+	parse_date/2,
+	gregorian_date/2,
+	add_days/3,
+	date_between/3,
+	day_between/3,
+	parse_date_into_absolute_days/2,
+	day_diff/3
+]).
 
 :- use_module(utils, [throw_string/1]).
 	
@@ -185,15 +187,9 @@ parse_date(DateString, YMD) :-
 		throw_string(['failed parsing date:', DateString]).
 
 format_date(Date, DateString) :-
-   format_time(string(DateString), '%Y-%m-%d', Date).
-   /*atom()*/
-
-
-   
+	format_time(string(DateString), '%Y-%m-%d', Date).
 
 add_days(Date, Absolute_Days, Date2) :-
 	absolute_day(Date, Day),
 	Day2 is Day + Absolute_Days,
 	gregorian_date(Day2, Date2).
-
-	

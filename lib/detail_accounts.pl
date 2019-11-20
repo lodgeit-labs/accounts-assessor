@@ -1,8 +1,4 @@
-:- module(print_detail_accounts, [
-		print_banks/5,
-		print_forex/5,
-		print_trading/3
-]).
+:- module(_, []).
 
 :- use_module('system_accounts', []).
 
@@ -23,11 +19,10 @@
 
 :- use_module('ledger_report', [
 		balance_by_account/9,
-		format_report_entries/10,
 		net_activity_by_account/4
-
 ]).
 
+:- use_module('fact_output').
 
 
 /* given information about a xbrl dimension, print each account as a point in that dimension. 
@@ -71,13 +66,13 @@ print_detail_account(Static_Data, Context_Info, Fact_Name, Account_In,
 	;
 		balance_by_account(Exchange_Rates, Accounts, Transactions_By_Account, Report_Currency, End_Date, Account, End_Date, Balance, Transactions_Count)
 	),
-	format_report_entries(
-		xbrl, Accounts, 1, Report_Currency, Context_Id, 
+	fact_output:format_report_entries(
+		xbrl, 0, Accounts, 1, Report_Currency, Context_Id, 
 		[entry(Fact_Name, Balance, [], Transactions_Count)],
 		Used_Units_In, Used_Units_Out, Lines_In, Lines_Out).
 
-print_banks(Static_Data, Context_Id_Base, Entity_Identifier, In, Out) :- 
-	dict_vars(Static_Data, [End_Date, Accounts]),
+print_banks(Static_Data, Context_Id_Base, In, Out) :- 
+	dict_vars(Static_Data, [End_Date, Accounts, Entity_Identifier]),
 	system_accounts:bank_accounts(Accounts, Bank_Accounts),
 	Context_Info = context_arg0(
 		Context_Id_Base, 
@@ -97,8 +92,8 @@ print_banks(Static_Data, Context_Id_Base, Entity_Identifier, In, Out) :-
 	),
 	print_detail_accounts(Static_Data, Context_Info, 'Banks', Accounts_And_Points, In, Out).
 
-print_forex(Static_Data, Context_Id_Base, Entity_Identifier, In, Out) :- 
-	dict_vars(Static_Data, [Start_Date, End_Date, Accounts]),
+print_forex(Static_Data, Context_Id_Base, In, Out) :- 
+	dict_vars(Static_Data, [Start_Date, End_Date, Entity_Identifier, Accounts]),
     findall(Account, account_by_role_nothrow(Accounts, ('CurrencyMovement'/_), Account), Movement_Accounts),
 	Context_Info = context_arg0(
 		Context_Id_Base, 
@@ -110,6 +105,14 @@ print_forex(Static_Data, Context_Id_Base, Entity_Identifier, In, Out) :-
 		''
 	),
 	print_detail_accounts(Static_Data, Context_Info, 'CurrencyMovement', Movement_Accounts, In, Out).
+
+print_trading(Sd, In, Out) :-
+	findall(
+		Pair,
+		trading_sub_account(Sd, Pair),
+		Pairs
+	),
+	print_trading2(Sd, Pairs, In, Out).
 
 /* for a list of (Sub_Account, Unit_Accounts) pairs..*/
 print_trading2(Static_Data, [(Sub_Account,Unit_Accounts)|Tail], In, Out):-
@@ -135,10 +138,3 @@ trading_sub_account(Sd, (Movement_Account, Unit_Accounts)) :-
 	account_by_role_nothrow(Sd.accounts, (Gains_Account/_), Movement_Account),
 	child_accounts(Sd.accounts, Movement_Account, Unit_Accounts).
 	
-print_trading(Sd, In, Out) :-
-	findall(
-		Pair,
-		trading_sub_account(Sd, Pair),
-		Pairs
-	),
-	print_trading2(Sd, Pairs, In, Out).
