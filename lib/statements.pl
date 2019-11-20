@@ -193,6 +193,7 @@ check_trial_balance0(Exchange_Rates, Report_Currency, Transaction_Date, Transact
 % ----------
 % This predicate takes a list of statement transaction terms and decomposes it into a list of plain transaction terms.
 % ----------	
+
 % This Prolog rule handles the case when only the exchanged units are known (for example GOOG)  and
 % hence it is desired for the program to infer the count. 
 % We passthrough the output list to the above rule, and just replace the first S_Transaction in the 
@@ -222,7 +223,9 @@ preprocess_s_transaction(Static_Data, S_Transaction, Transactions, Outstanding_I
 	but the livestock logic is in need of a serious cleanup, we will probably do that as part of implementing inventory or other pricing methods.
 */
 preprocess_s_transaction(Static_Data, S_Transaction, Transactions, Outstanding, Outstanding) :-
-	preprocess_livestock_buy_or_sell(Static_Data, S_Transaction, Transactions).
+	preprocess_livestock_buy_or_sell(Static_Data, S_Transaction, Transactions)/*,!*/.
+
+
 
 preprocess_s_transaction(Static_Data, S_Transaction, [Ts1, Ts2, Ts3, Ts4], Outstanding_In, Outstanding_Out) :-
 	Pricing_Method = lifo,
