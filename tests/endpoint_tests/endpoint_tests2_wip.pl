@@ -240,7 +240,7 @@ check_value_difference(Value1, Value2) :-
 	floats_close_enough(NValue1, NValue2).
 
 query_endpoint(RequestFile0, Response_JSON) :-
-	write('## Testing Request File: '), writeln(RequestFile0),
+	nl, write('## Testing Request File: '), writeln(RequestFile0),
 	absolute_file_name(my_tests(
 		RequestFile0),
 		RequestFile,

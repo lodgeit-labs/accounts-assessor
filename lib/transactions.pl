@@ -32,7 +32,8 @@
 :- use_module(library(rdet)).
 
 :- rdet(transactions_by_account/2).
-% -------------------------------------------------------------------
+%:- rdet(transaction_to_dict/2).
+
 
 
 :- record transaction(day, description, account_id, vector, type).

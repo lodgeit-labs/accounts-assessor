@@ -13,4 +13,5 @@ args = argv[1:-2]
 #print(viewer)
 #print(args)
 
+#subprocess.run(['reset'])
 subprocess.run(['swipl', '-s', '../lib/dev_runner.pl', '--'] + args + ['-v', viewer,  "prolog_server:process_data_cmdline('" + FILEPATH + "')"])

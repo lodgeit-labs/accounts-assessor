@@ -53,9 +53,9 @@ maybe_clean_terminal :-
 		Clear = true
 	->
 		(
+			shell2('timeout 0.1 reset'),
 			shell2('echo "\e[3J" 1>&2'),
-			shell2('timeout 3 reset')
-
+			shell2('timeout 0.1 reset')
 		)
 	;
 		true

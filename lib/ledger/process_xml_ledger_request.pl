@@ -174,11 +174,11 @@ create_reports(Static_Data, Json_Request_Results) :-
 
 balance_entries(Static_Data, Static_Data_Historical, Entries) :-
 	/* sum up the coords of all transactions for each account and apply unit conversions */
-	writeln("<!-- Trial balance -->"),
+	writeln("<!-- compiling Trial balance -->"),
 	trial_balance_between(Static_Data.exchange_rates, Static_Data.accounts, Static_Data.transactions_by_account, Static_Data.report_currency, Static_Data.end_date, Static_Data.start_date, Static_Data.end_date, Trial_Balance),
-	writeln("<!-- Balance sheet -->"),
+	writeln("<!-- compiling Balance sheet -->"),
 	balance_sheet_at(Static_Data, Balance_Sheet),
-	writeln("<!-- Profit and loss -->"),
+	writeln("<!-- compiling Profit and loss -->"),
 	profitandloss_between(Static_Data, ProfitAndLoss),
 	balance_sheet_at(Static_Data_Historical, Balance_Sheet2_Historical),
 	profitandloss_between(Static_Data_Historical, ProfitAndLoss2_Historical),

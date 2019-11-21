@@ -44,7 +44,6 @@
 
 :- rdet(generate_gl_data/6).
 :- rdet(make_gl_entry/4).
-:- rdet(transaction_to_dict/2).
 :- rdet(transaction_with_converted_vector/4).
 
 find_s_transactions_in_period(S_Transactions, Opening_Date, Closing_Date, Out) :-
@@ -250,12 +249,12 @@ make_gl_entry(Sd, Source, Transactions, Entry) :-
 			s_transaction_with_transacted_amount(Sd, S0, S)
 		)
 	),
-	maplist(transaction_to_dict, Transactions, T0),
+	maplist(transactions:transaction_to_dict, Transactions, T0),
 	maplist(transaction_with_converted_vector(Sd), T0, T).
 	
 s_transaction_with_transacted_amount(Sd, D1, D2) :-
 	D2 = D1.put([
-		report_currency_transacted_amount_converted_at_transaction_date, AmountA,report_currency_transacted_amount_converted_at_transaction_date, AmountB]),
+		report_currency_transacted_amount_converted_at_transaction_date=AmountA,report_currency_transacted_amount_converted_at_balance_date=AmountB]),
 	vec_change_bases(Sd.exchange_rates, D1.date, Sd.report_currency, D1.vector, Vector_ConvertedA),
 	number_vec(_, AmountA0, Vector_ConvertedA),
 	AmountA is float(abs(AmountA0)),
@@ -266,7 +265,7 @@ s_transaction_with_transacted_amount(Sd, D1, D2) :-
 transaction_with_converted_vector(Sd, Transaction, Transaction_Converted) :-
 	Transaction_Converted = Transaction.put([
 		vector_converted_at_transaction_date=Vector_ConvertedA,
-		vector_converted_at_end_date=Vector_ConvertedB
+		vector_converted_at_balance_date=Vector_ConvertedB
 	]),
 	vec_change_bases(Sd.exchange_rates, Transaction.date, Sd.report_currency, Transaction.vector, Vector_ConvertedA),
 	vec_change_bases(Sd.exchange_rates, Sd.end_date, Sd.report_currency, Transaction.vector, Vector_ConvertedB).

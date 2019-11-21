@@ -27,8 +27,7 @@ see doc/investment and dropbox Develop/videos/ledger
 		balance_sheet_at/2, 
 		profitandloss_between/2, 
 		balance_by_account/9]).
-:- use_module('../fact_output'/*, [
-		format_report_entries/11]*/).
+:- use_module('../fact_output', []).
 :- use_module('../accounts', [
 		extract_account_hierarchy/2, 
 		account_by_role/3]).
@@ -203,7 +202,7 @@ process_realized(Dom, Global_Report_Date_Atom, Result) :-
 	writeln('-->'),
 
 	balance_sheet_at(Static_Data, Balance_Sheet),
-	format_report_entries(xbrl, 0, Accounts, 0, [report_currency], Sale_Date, Balance_Sheet, [], _, [], Balance_Sheet_Lines),
+	fact_output:format_report_entries(xbrl, 0, Accounts, 0, [report_currency], Sale_Date, Balance_Sheet, [], _, [], Balance_Sheet_Lines),
 	writeln('<!--'),
 	writeln(Balance_Sheet_Lines),
 	writeln('-->'),
@@ -330,12 +329,12 @@ process_unrealized(Dom, Global_Report_Date, Result) :-
 	),
 
 	profitandloss_between(Static_Data, ProftAndLoss),
-	format_report_entries(xbrl, 0, Accounts, 0, [report_currency], Report_Date, ProftAndLoss, [], _, [], ProftAndLoss_Lines),
+	fact_output:format_report_entries(xbrl, 0, Accounts, 0, [report_currency], Report_Date, ProftAndLoss, [], _, [], ProftAndLoss_Lines),
 	writeln('<!--'),
 	writeln(ProftAndLoss_Lines),
 	writeln('-->'),
 	balance_sheet_at(Static_Data, Balance_Sheet),
-	format_report_entries(xbrl, 0, Accounts, 0, [report_currency], Report_Date, Balance_Sheet, [], _, [], Balance_Sheet_Lines),
+	fact_output:format_report_entries(xbrl, 0, Accounts, 0, [report_currency], Report_Date, Balance_Sheet, [], _, [], Balance_Sheet_Lines),
 	writeln('<!--'),
 	writeln(Balance_Sheet_Lines),
 	writeln('-->'),
@@ -641,13 +640,13 @@ crosscheck_totals(Results, Report_Date) :-
 
 	%profitandloss_between(Exchange_Rates, Accounts, Transactions, [report_currency], Report_Date, date(2000,1,1), Report_Date, ProftAndLoss),
 	profitandloss_between(Static_Data, ProfitAndLoss),
-	format_report_entries(xbrl, 0, Accounts, 0, [report_currency], Report_Date, ProfitAndLoss, [], _, [], ProfitAndLoss_Lines),
+	fact_output:format_report_entries(xbrl, 0, Accounts, 0, [report_currency], Report_Date, ProfitAndLoss, [], _, [], ProfitAndLoss_Lines),
 	writeln('<!--'),
 	writeln(ProfitAndLoss_Lines),
 	writeln('-->'),
 	%balance_sheet_at(Exchange_Rates, Accounts, Transactions, [report_currency], Report_Date, date(2000,1,1), Report_Date, Balance_Sheet),
 	balance_sheet_at(Static_Data, Balance_Sheet),	
-	format_report_entries(xbrl, 0, Accounts, 0, [report_currency], Report_Date, Balance_Sheet, [], _, [], Balance_Sheet_Lines),
+	fact_output:format_report_entries(xbrl, 0, Accounts, 0, [report_currency], Report_Date, Balance_Sheet, [], _, [], Balance_Sheet_Lines),
 	writeln('<!--'),
 	writeln(Balance_Sheet_Lines),
 	writeln('-->').
