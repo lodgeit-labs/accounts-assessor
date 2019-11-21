@@ -22,53 +22,42 @@
 		floats_close_enough/2]).
 :- use_module('../../lib/xml').
 
-/* we run all the tests against the http server that we start in this process. This makes things a bit confusing. But the plan is to move to a python (or aws) gateway */
+
 :- begin_tests(xml_testcases, [setup((debug,run_simple_server))]).
 
 test(start) :- nl.
 
-/*
-hardcoded plunit test rules, one for each endpoint, so we can use things like "throws"
-*/
-
-test(ledger, 
-	[forall(testcases('endpoint_tests/ledger',Testcase))]) :-
+test(ledger, [forall(testcases('endpoint_tests/ledger',Testcase))]) :-
 	run_endpoint_test(ledger, Testcase).
 
-test(loan, 
-	[forall(testcases('endpoint_tests/loan',Testcase))]) :-
+test(loan, [forall(testcases('endpoint_tests/loan',Testcase))]) :-
 	run_endpoint_test(loan, Testcase).
 
-test(depreciation, 
-	[forall(testcases('endpoint_tests/depreciation',Testcase))]) :-
+test(depreciation, [forall(testcases('endpoint_tests/depreciation',Testcase))]) :-
 	run_endpoint_test(depreciation, Testcase).
 
-test(livestock, 
-	[forall(testcases('endpoint_tests/livestock',Testcase))]) :-
+test(livestock, [forall(testcases('endpoint_tests/livestock',Testcase))]) :-
 	run_endpoint_test(livestock, Testcase).
 
-test(investment, 
-	[forall(testcases('endpoint_tests/investment', Testcase))]) :-
+test(investment, [forall(testcases('endpoint_tests/investment', Testcase))]) :-
 	run_endpoint_test(investment, Testcase).
 
-test(car, 
-	[forall(testcases('endpoint_tests/car',Testcase)), fixme('NER API server is down.')]) :-
+test(car, [forall(testcases('endpoint_tests/car',Testcase)), fixme('NER API server is down.')]) :-
 	run_endpoint_test(car, Testcase).
 
-test(depreciation_invalid, 
-	[forall(testcases('endpoint_tests/depreciation_invalid',Testcase)), throws(_)]) :-
+test(depreciation_invalid, [forall(testcases('endpoint_tests/depreciation_invalid',Testcase)), throws(_)]) :-
 	run_endpoint_test(depreciation_invalid, Testcase).
 
 :- end_tests(xml_testcases).
 
-/* mapping endpoints to response xsd files */
+
 output_schema(loan,'responses/LoanResponse.xsd').
 output_schema(depreciation,'responses/DepreciationResponse.xsd').
 output_schema(livestock,'responses/LivestockResponse.xsd').
 output_schema(investment,'responses/InvestmentResponse.xsd').
 output_schema(car,'responses/CarAPIResponse.xsd').
-output_taxonomy(ledger,'taxonomy/basic.xsd').
 
+output_taxonomy(ledger,'taxonomy/basic.xsd').
 
 output_file(loan, 'response_xml', xml).
 output_file(depreciation, 'response_xml', xml).
@@ -80,29 +69,10 @@ output_file(ledger, 'general_ledger_json', json).
 output_file(ledger, 'investment_report_json', json).
 output_file(ledger, 'investment_report_since_beginning_json', json).
 
-
-testcase_request_xml_file_path(Testcase, Request_XML_File_Path) :-
-	atomic_list_concat([Testcase, "request.xml"], "/", Request_XML_File_Path).
-
-/*
-todo new design:
-write out all response files to some directory, print it out. or just print out the url for now. Print out the differences.
-
-for all files in both response and saved:
-
-for all files only in response:
-
-for all files only in saved:
-
-*/
-
 run_endpoint_test(Type, Testcase) :-
-	testcase_request_xml_file_path(Testcase, Request_XML_File_Path),
+	atomic_list_concat([Testcase, "request.xml"], "/", Request_XML_File_Path),
+
 	query_endpoint(Request_XML_File_Path, Response_JSON),
-	gtrace,
-
-
-
 
 	tmp_uri_to_path(Response_JSON.reports.response_xml.url, Response_XML_Path),
 	check_output_schema(Type, Response_XML_Path),
@@ -116,7 +86,6 @@ run_endpoint_test(Type, Testcase) :-
 	->
 		(
 			print_alerts(Response_JSON, ['ERROR', 'WARNING', 'SYSTEM_WARNING']),
-			/* if we have no saved xml response, and there are alerts in the json, fail the test */
 			Response_JSON.alerts = []
 		)
 	;
@@ -147,15 +116,16 @@ run_endpoint_test(Type, Testcase) :-
 	% because we use gensym in investment reports and it will keep incrementing throughout the test-cases, causing fresh responses to not match saved responses.
 	reset_gensym(iri).
 
-check_reports(Response_JSON, Urls) :-
-	dict_pairs(Response_JSON.reports, _, Pairs),
-	maplist(check_report, Pairs, ).
-	
-
-check_report(Pair) :-
-	Pair.url,
-	Pair.
-	
+print_alerts(Response_JSON, Alert_Types) :-
+	findall(
+		_,
+		(
+			member(_{type:Type,value:Alert}, Response_JSON.alerts),
+			member(Type, Alert_Types),
+			format("~w: ~w~n", [Type, Alert])
+		),
+		_
+	).
 
 check_saved_response(Testcase, Response_JSON, File_ID, File_Type, Errors) :-
 	(
@@ -182,6 +152,13 @@ check_saved_response(Testcase, Response_JSON, File_ID, File_Type, Errors) :-
 	;
 		Errors = []
 	).
+
+
+check_value_difference(Value1, Value2) :-
+	atom_number(Value1, NValue1),
+	atom_number(Value2, NValue2),
+	floats_close_enough(NValue1, NValue2).
+
 
 test_response(Response_URL, Saved_Response_Path, xml, Errors) :-
 	http_get(Response_URL, Response_XML, []),
@@ -229,24 +206,8 @@ test_response(Response_URL, Saved_Response_Path, json, Error) :-
 	
 
 
-print_alerts(Response_JSON, Alert_Types) :-
-	findall(
-		_,
-		(
-			member(_{type:Type,value:Alert}, Response_JSON.alerts),
-			member(Type, Alert_Types),
-			format("~w: ~w~n", [Type, Alert])
-		),
-		_
-	).
-
-check_value_difference(Value1, Value2) :-
-	atom_number(Value1, NValue1),
-	atom_number(Value2, NValue2),
-	floats_close_enough(NValue1, NValue2).
-
 query_endpoint(RequestFile0, Response_JSON) :-
-	nl, write('## Testing Request File: '), writeln(RequestFile0),
+	write('## Testing Request File: '), writeln(RequestFile0),
 	absolute_file_name(my_tests(
 		RequestFile0),
 		RequestFile,
@@ -276,7 +237,7 @@ testcases(Top_Level, Testcase) :-
 	find_test_cases_in(Top_Level, Testcase).
 
 /*
-if there's a "request.xml" file, it's a test-case directory, so yield it,
+if there's a "request.xml" file, it's a test-case directory, so yield it
 otherwise, recurse over subdirectories
 */
 

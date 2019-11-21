@@ -107,8 +107,9 @@ format_balance(Format, Indent_Level, Report_Currency_List, Context, Name, Normal
 	),
 	format_balance(Format, Indent_Level, _, Context, Name, Normal_Side, [coord(Report_Currency, 0, 0)], Used_Units_In, Used_Units_Out, Lines_In, Lines_Out).
    
-format_balance(Format, Indent_Level, Report_Currency_List, Context, Name, Normal_Side, [coord(Unit, Debit, Credit)], Used_Units_In, Used_Units_Out, Lines_In, Lines_Out) :-
-	union([Unit], Used_Units_In, Used_Units_Out),
+format_balance(Format, Indent_Level, Report_Currency_List, Context, Name, Normal_Side, Coord, Units_In, Units_Out, Lines_In, Lines_Out) :-
+	[coord(Unit, Debit, Credit)] = Coord,
+	sane_unit_id(Units_In, Units_Out, Unit, Unit_Xml_Id),
 	(
 		Normal_Side = credit
 	->
@@ -122,7 +123,7 @@ format_balance(Format, Indent_Level, Report_Currency_List, Context, Name, Normal
 	(
 		Format = xbrl
 	->
-		format(string(Line), '~w<basic:~w contextRef="~w" unitRef="U-~w" decimals="INF">~2:f</basic:~w>\n', [Indentation, Name2, Context, Unit, Balance, Name2])
+		format(string(Line), '~w<basic:~w contextRef="~w" unitRef="U-~w" decimals="INF">~2:f</basic:~w>\n', [Indentation, Name2, Context, Unit_Xml_Id, Balance, Name2])
 	;
 		(
 			(
@@ -136,4 +137,13 @@ format_balance(Format, Indent_Level, Report_Currency_List, Context, Name, Normal
 		)
 	),
 	append(Lines_In, [Line], Lines_Out).
+
+sane_unit_id(Units_In, Units_Out, Unit, Id) :-
+	member(unit_id(Unit, Id), Units_In),
+	Units_In = Units_Out,
+	!.
+
+sane_unit_id(Units_In, Units_Out, Unit, Id) :-
+	utils:sane_xml_element_id_from_term(Unit, Id),
+	append(Units_In, [unit_id(Unit, Id)], Units_Out).
 

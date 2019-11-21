@@ -265,7 +265,7 @@ investment_reports(Static_Data, Outstanding, Reports) :-
 				    term_string(Err, Err_Str),
 				    format(string(Msg), 'investment reports fail: ~w', [Err_Str]),
 				    Alerts = ['SYSTEM_WARNING':Msg],
-				    writeq(Alerts),
+				    utils:print_xml_comment(Alerts),
 				    Ir =  _{},
 				    Files = []
 				   )

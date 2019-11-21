@@ -81,8 +81,10 @@ build_base_contexts(Start_Date, End_Date, Entity_Identifier, Instant_Context_Id_
 		context(Duration_Context_Id_Base, (Start_Date, End_Date), Entity, '')
 	].
 	
-print_used_unit(Unit) :-
-	format('  <xbrli:unit id="U-~w"><xbrli:measure>iso4217:~w</xbrli:measure></xbrli:unit>\n', [Unit, Unit]).
+print_used_unit(unit_id(Unit, Id)) :-
+	term_string(Unit, Unit_Str),
+	utils:print_xml_comment(Unit_Str),
+	format('  <xbrli:unit id="U-~w"><xbrli:measure>iso4217:~w</xbrli:measure></xbrli:unit>\n', [Id, Id]).
 
 print_header(Taxonomy_Url_Base) :-
 	write('<xbrli:xbrl xmlns:xbrli="http://www.xbrl.org/2003/instance" xmlns:link="http://www.xbrl.org/2003/linkbase" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:iso4217="http://www.xbrl.org/2003/iso4217" xmlns:basic="http://www.xbrlsite.com/basic" xmlns:xbrldi="http://xbrl.org/2006/xbrldi" xsi:schemaLocation="http://www.xbrlsite.com/basic '),

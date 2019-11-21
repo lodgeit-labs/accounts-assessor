@@ -18,7 +18,8 @@ process_invoices_payable(Request_Dom) :-
 	.
 process_invoices_payable2([]).
 process_invoices_payable2([Dom|Doms]) :-
-	debug(d, 'XXXXXXXX', [])
+	true
+	%debug(d, 'XXXXXXXX', [])
 	,Cac='urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2'
 	,findall(Line,xpath(Dom, ns(_,Cac):'InvoiceLine',Line),Lines)
 	%,print_term(Dom2, [output(user_error)]) 
