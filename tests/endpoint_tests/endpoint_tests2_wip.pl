@@ -18,8 +18,7 @@
 :- use_module('../../lib/files').
 :- use_module('../../lib/prolog_server').
 :- use_module('compare_xml').
-:- use_module('../../lib/utils', [
-		floats_close_enough/2]).
+:- use_module('../../lib/utils', []).
 :- use_module('../../lib/xml').
 
 /* we run all the tests against the http server that we start in this process. This makes things a bit confusing. But the plan is to move to a python (or aws) gateway */
@@ -81,9 +80,6 @@ output_file(ledger, 'investment_report_json', json).
 output_file(ledger, 'investment_report_since_beginning_json', json).
 
 
-testcase_request_xml_file_path(Testcase, Request_XML_File_Path) :-
-	atomic_list_concat([Testcase, "request.xml"], "/", Request_XML_File_Path).
-
 /*
 todo new design:
 write out all response files to some directory, print it out. or just print out the url for now. Print out the differences.
@@ -99,25 +95,45 @@ for all files only in saved:
 run_endpoint_test(Type, Testcase) :-
 	testcase_request_xml_file_path(Testcase, Request_XML_File_Path),
 	query_endpoint(Request_XML_File_Path, Response_JSON),
-	gtrace,
+	dict_pairs(Response_JSON.reports, _, Reports),
+	maplist(check_returned, Reports),
+	all_saved_files(Testcase, Saved_Files),
+	maplist(check_saved, Saved_Files),
+	% because we use gensym in investment reports and it will keep incrementing throughout the test-cases, causing fresh responses to not match saved responses.
+	reset_gensym(iri).
 
+check_saved(Testcase, Reports, Saved_File) :-
+	findall(
+		Report,
+		(
+			member(Report, Reports),
+			tmp_uri_to_saved_response_path(Testcase, Report.url, Saved_File)
+		),
+		Reports_Corresponding_To_Saved_File
+	),
+	(	Reports_Corresponding_To_Saved_File = [_]
+	->	true
+	;	(	Reports_Corresponding_To_Saved_File = []
+		->	(	get_flag(add_missing_response_files, true)
+			->	copy
+			;	throw('report missing')
+			)
+		;	throw('this is weird')
+		)
+	).
 
+check_returned(Testcase, Report) :-
 
-
-	tmp_uri_to_path(Response_JSON.reports.response_xml.url, Response_XML_Path),
-	check_output_schema(Type, Response_XML_Path),
-	% todo: xbrl validation on ledger response XBRL
-	%check_output_taxonomy(Type, Response_XML_Path),
-
-	tmp_uri_to_saved_response_path(Testcase, Response_JSON.reports.response_xml.url, Saved_Response_XML_Path),
-
+	tmp_uri_to_path(Report.url, Report_Path),
+	tmp_uri_to_saved_response_path(Testcase, Report.url, Saved_Path),
 	(
-		\+exists_file(Saved_Response_XML_Path)
+		\+exists_file(Saved_Path)
 	->
 		(
 			print_alerts(Response_JSON, ['ERROR', 'WARNING', 'SYSTEM_WARNING']),
 			/* if we have no saved xml response, and there are alerts in the json, fail the test */
-			Response_JSON.alerts = []
+			/*Response_JSON.alerts = []*/
+			fail
 		)
 	;
 		(
@@ -142,19 +158,7 @@ run_endpoint_test(Type, Testcase) :-
 				)
 			)
 		)
-	),
-	!,
-	% because we use gensym in investment reports and it will keep incrementing throughout the test-cases, causing fresh responses to not match saved responses.
-	reset_gensym(iri).
-
-check_reports(Response_JSON, Urls) :-
-	dict_pairs(Response_JSON.reports, _, Pairs),
-	maplist(check_report, Pairs, ).
-	
-
-check_report(Pair) :-
-	Pair.url,
-	Pair.
+	).
 	
 
 check_saved_response(Testcase, Response_JSON, File_ID, File_Type, Errors) :-
@@ -187,6 +191,10 @@ test_response(Response_URL, Saved_Response_Path, xml, Errors) :-
 	http_get(Response_URL, Response_XML, []),
 	load_structure(string(Response_XML), Response_DOM,[dialect(xml),space(sgml)]),
 
+	check_output_schema(Type, Response_XML_Path),
+	% todo: xbrl validation on ledger response XBRL
+	%check_output_taxonomy(Type, Response_XML_Path),
+
 	load_xml(Saved_Response_Path, Saved_Response_DOM, [space(sgml)]),
 	compare_xml_dom(Response_DOM, Saved_Response_DOM, Error),
 	(
@@ -204,8 +212,8 @@ test_response(Response_URL, Saved_Response_Path, xml, Errors) :-
 				close(Stream)
 			)
 		)
-	).
-
+	),
+	!.
 
 test_response(Response_URL, Saved_Response_Path, json, Error) :-
 	setup_call_cleanup(
@@ -224,9 +232,14 @@ test_response(Response_URL, Saved_Response_Path, json, Error) :-
 		Error = []
 	;
 		Error = ["JSON not equal"]
-	).
+	),
+	!.
 		
-	
+test_response(Response_URL, Saved_Response_Path, _, Error) :-
+	diff.
+
+
+
 
 
 print_alerts(Response_JSON, Alert_Types) :-
@@ -243,7 +256,7 @@ print_alerts(Response_JSON, Alert_Types) :-
 check_value_difference(Value1, Value2) :-
 	atom_number(Value1, NValue1),
 	atom_number(Value2, NValue2),
-	floats_close_enough(NValue1, NValue2).
+	utils:floats_close_enough(NValue1, NValue2).
 
 query_endpoint(RequestFile0, Response_JSON) :-
 	nl, write('## Testing Request File: '), writeln(RequestFile0),
@@ -305,24 +318,29 @@ find_test_cases_in(Current_Directory, Test_Case) :-
 	).
 
 
-tmp_uri_to_path(URI, Path) :-
+/*tmp_uri_to_path(URI, Path) :-
 	uri_components(URI, uri_components(_,_,Path0,_,_)),
 	atom_string(Path0, Path0_String),
 	split_string(Path0_String,"/","",[_|[_|Path_Components]]),
 	atomic_list_concat(Path_Components,"/",Relative_Path),
 	absolute_file_name(my_tmp(Relative_Path), Path, []).
-
+*/
 tmp_uri_to_saved_response_path(Testcase, URI, Path) :-
 	uri_components(URI, uri_components(_,_,Path0,_,_)),
 	atom_string(Path0, Path0_String),
 	split_string(Path0_String, "/", "", Path_Components),
 	append(_,[X],Path_Components), % get last item in list
 	atomic_list_concat([Testcase, 'responses', X], "/", Relative_Path),
-	catch(
+	/*catch(
 		absolute_file_name(my_tests(Relative_Path), Path, []),
 		_,
 		true
-	).
+	)*/.
+
+
+testcase_request_xml_file_path(Testcase, Request_XML_File_Path) :-
+	atomic_list_concat([Testcase, "request.xml"], "/", Request_XML_File_Path).
+
 
 check_output_schema(Type, Response_XML_Path) :-
 	%absolute_file_name(my_tmp(Response_XML_Path), Response_XML_Absolute_Path, []),

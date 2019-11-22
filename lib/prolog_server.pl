@@ -19,7 +19,7 @@
 :- use_module(library(xpath)).
 :- use_module(library(http/http_host)).
 :- use_module(library(http/json)).
-
+:- use_module(library(http/mimetype), []).
 :- use_module(library(http/thread_httpd)).
 :- use_module(library(http/http_dispatch)).
 :- use_module(library(http/http_header)).
@@ -35,6 +35,8 @@
 :- use_module('chat/sbe').
 :- ensure_loaded('process_data').
 
+
+mime:mime_extension('xsd', 'application/xml').
 
 % -------------------------------------------------------------------
 % Handler
