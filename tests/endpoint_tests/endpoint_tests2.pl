@@ -85,13 +85,11 @@ run_endpoint_test(Endpoint_Type, Testcase) :-
 		(
 			testcase_request_xml_file_path(Testcase, Request_XML_File_Path),
 			query_endpoint(Request_XML_File_Path, Response_JSON),
-			dict_pairs(Response_JSON.reports, _, Reports0),
-			findall(V, (member(K-V, Reports0), K \='all'), Reports1),
-			maplist(check_returned(Endpoint_Type, Testcase), Reports1),
-			all_saved_files(Testcase, Saved_Files),
-			maplist(check_saved(Testcase, Reports1), Saved_Files),
-			% because we use gensym in investment reports and it will keep incrementing throughout the test-cases, causing fresh responses to not match saved responses.
-			reset_gensym(iri)
+			dict_pairs(Response_JSON.reports, _, Reports),
+			maplist(check_returned(Endpoint_Type, Testcase), Reports),
+			/*todo: all_saved_files(Testcase, Saved_Files),
+			maplist(check_saved(Testcase, Reports), Saved_Files),*/
+			reset_gensym(iri) % because we use gensym in investment reports and it will keep incrementing throughout the test-cases, causing fresh responses to not match saved responses.
 		),
 		Error,
 		(
@@ -116,7 +114,9 @@ check_saved(Testcase, Reports, Saved_File) :-
 		)
 	).
 
-check_returned(Endpoint_Type, Testcase, Report) :-
+check_returned(_, _, all-_). /* the report with the key "all" is a link to the directory with the report files */
+
+check_returned(Endpoint_Type, Testcase, Key-Report) :-
 	tmp_uri_to_path(Report.url, Returned_Report_Path),
 	tmp_uri_to_saved_response_path(Testcase, Report.url, Saved_Path),
 	(	\+exists_file(Saved_Path)
@@ -129,14 +129,15 @@ check_returned(Endpoint_Type, Testcase, Report) :-
 				)
 			)
 		)
-	;	check_saved_report0(Endpoint_Type, Returned_Report_Path, Saved_Path)).
+	;	check_saved_report0(Endpoint_Type, Key, Returned_Report_Path, Saved_Path)).
 
-check_saved_report0(Endpoint_Type, Returned_Report_Path, Saved_Path) :-
+check_saved_report0(Endpoint_Type, Key, Returned_Report_Path, Saved_Path) :-
 	findall(
 		Errors,
 		(
-			output_file(Endpoint_Type, File_ID, File_Type),
-			check_saved_report1(Endpoint_Type, Returned_Report_Path, Saved_Path, File_ID, File_Type, Errors)
+			/*output_file(Endpoint_Type, Key, File_Type),*/
+			file_type_by_extension(Returned_Report_Path, File_Type),
+			check_saved_report1(Endpoint_Type, Returned_Report_Path, Saved_Path, Key, File_Type, Errors)
 		),
 		Error_List
 	),
@@ -150,17 +151,18 @@ check_saved_report0(Endpoint_Type, Returned_Report_Path, Saved_Path) :-
 	).
 	
 
-check_saved_report1(Endpoint_Type, Returned_Report_Path, Saved_Response_Path, File_ID, File_Type, Errors) :-
+check_saved_report1(Endpoint_Type, Returned_Report_Path, Saved_Response_Path, Key, File_Type, Errors) :-
 	format("## Testing Response File: ~w~n", [Saved_Response_Path]),
 	test_response(Endpoint_Type, Returned_Report_Path, Saved_Response_Path, File_Type, Errors0),
 	findall(
-		File_ID:Error,
+		Key:Error,
 		member(Error,Errors0),
 		Errors
 	).
 
 
 test_response(Endpoint_Type, Returned_Report_Path, Saved_Response_Path, xml, Errors) :-
+	!,
 	load_structure(Returned_Report_Path, Response_DOM, [dialect(xml),space(sgml)]),
 	check_output_schema(Endpoint_Type, Returned_Report_Path),
 	% todo: xbrl validation on ledger response XBRL
@@ -182,10 +184,10 @@ test_response(Endpoint_Type, Returned_Report_Path, Saved_Response_Path, xml, Err
 				close(Stream)
 			)
 		)
-	),
-	!.
+	).
 
 test_response(_, Returned_Report_Path, Saved_Response_Path, json, Error) :-
+	!,
 	setup_call_cleanup(
 		open(Returned_Report_Path, read, Stream),
 		json_read_dict(Stream, Response_JSON),
@@ -198,8 +200,7 @@ test_response(_, Returned_Report_Path, Saved_Response_Path, json, Error) :-
 	),	
 	(	Response_JSON = Saved_Response_JSON
 	->	Error = []
-	;	Error = ["JSON not equal"]),
-	!.
+	;	Error = ["JSON not equal"]).
 		
 test_response(_, Returned_Report_Path, Saved_Response_Path, _, Error) :-
 	(	utils:shell2(['diff', Returned_Report_Path, Saved_Response_Path], 0)
@@ -362,7 +363,15 @@ check_output_schema(Endpoint_Type, Response_XML_Path) :-
 	).
 
 copy_report_to_saved(R, S) :-
+	directory_file_path(D, _, S),
+	make_directory_path(D),
 	copy_file(R,S).
+
+file_type_by_extension(Returned_Report_Path, File_Type) :-
+	string_lower(Returned_Report_Path, P),
+	split_string(P, ".", ".", List),
+	last(List, Last),
+	atom_string(File_Type, Last).
 
 /*
 check_output_taxonomy(Type, Response_XML_Path) :-
