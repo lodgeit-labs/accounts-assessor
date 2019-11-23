@@ -80,121 +80,91 @@ output_file(ledger, 'investment_report_json', json).
 output_file(ledger, 'investment_report_since_beginning_json', json).
 
 
-/*
-todo new design:
-write out all response files to some directory, print it out. or just print out the url for now. Print out the differences.
-
-for all files in both response and saved:
-
-for all files only in response:
-
-for all files only in saved:
-
-*/
-
-run_endpoint_test(Type, Testcase) :-
-	testcase_request_xml_file_path(Testcase, Request_XML_File_Path),
-	query_endpoint(Request_XML_File_Path, Response_JSON),
-	dict_pairs(Response_JSON.reports, _, Reports),
-	maplist(check_returned, Reports),
-	all_saved_files(Testcase, Saved_Files),
-	maplist(check_saved, Saved_Files),
-	% because we use gensym in investment reports and it will keep incrementing throughout the test-cases, causing fresh responses to not match saved responses.
-	reset_gensym(iri).
+run_endpoint_test(Endpoint_Type, Testcase) :-
+	catch_with_backtrace(
+		(
+			testcase_request_xml_file_path(Testcase, Request_XML_File_Path),
+			query_endpoint(Request_XML_File_Path, Response_JSON),
+			dict_pairs(Response_JSON.reports, _, Reports0),
+			findall(V, (member(K-V, Reports0), K \='all'), Reports1),
+			maplist(check_returned(Endpoint_Type, Testcase), Reports1),
+			all_saved_files(Testcase, Saved_Files),
+			maplist(check_saved(Testcase, Reports1), Saved_Files),
+			% because we use gensym in investment reports and it will keep incrementing throughout the test-cases, causing fresh responses to not match saved responses.
+			reset_gensym(iri)
+		),
+		Error,
+		(
+			(	Error = testcase_error(Msg)
+			->	print_message(error, Msg)
+			;	print_message(error, Error)
+			),
+			fail
+		)
+	).
 
 check_saved(Testcase, Reports, Saved_File) :-
-	findall(
-		Report,
-		(
-			member(Report, Reports),
-			tmp_uri_to_saved_response_path(Testcase, Report.url, Saved_File)
-		),
-		Reports_Corresponding_To_Saved_File
-	),
+	reports_corresponding_to_saved(Testcase, Reports, Saved_File, Reports_Corresponding_To_Saved_File),
 	(	Reports_Corresponding_To_Saved_File = [_]
-	->	true
+	->	true % handled by check_returned
 	;	(	Reports_Corresponding_To_Saved_File = []
-		->	(	get_flag(add_missing_response_files, true)
-			->	copy
-			;	throw('report missing')
+		->	(	
+				format('missing corresponding report file, saved file: ~w', [Saved_File]),
+				throw('report missing')
 			)
 		;	throw('this is weird')
 		)
 	).
 
-check_returned(Testcase, Report) :-
-
-	tmp_uri_to_path(Report.url, Report_Path),
+check_returned(Endpoint_Type, Testcase, Report) :-
+	tmp_uri_to_path(Report.url, Returned_Report_Path),
 	tmp_uri_to_saved_response_path(Testcase, Report.url, Saved_Path),
-	(
-		\+exists_file(Saved_Path)
-	->
-		(
-			print_alerts(Response_JSON, ['ERROR', 'WARNING', 'SYSTEM_WARNING']),
-			/* if we have no saved xml response, and there are alerts in the json, fail the test */
-			/*Response_JSON.alerts = []*/
-			fail
-		)
-	;
-		(
-			print_alerts(Response_JSON, ['SYSTEM_WARNING']),
-			findall(
-				Errors,
-				(
-					output_file(Type, File_ID, File_Type),
-					check_saved_response(Testcase, Response_JSON, File_ID, File_Type, Errors)
-				),
-				Error_List
-			),
-			flatten(Error_List, Error_List_Flat),
-			(
-				Error_List_Flat = []
-			->
-				true
-			;
-				(
-					format("Errors: ~w~n", [Error_List_Flat]),
-					fail
+	(	\+exists_file(Saved_Path)
+	->	(
+			(get_flag(add_missing_response_files, true)
+			->	copy_report_to_saved(Returned_Report_Path, Saved_Path)
+			;	(
+					format(string(Msg), 'file contained in response is not found in saved files: cp ~w ~w ?', [Returned_Report_Path, Saved_Path]),
+					throw(testcase_error(Msg))
 				)
 			)
+		)
+	;	check_saved_report0(Endpoint_Type, Returned_Report_Path, Saved_Path)).
+
+check_saved_report0(Endpoint_Type, Returned_Report_Path, Saved_Path) :-
+	findall(
+		Errors,
+		(
+			output_file(Endpoint_Type, File_ID, File_Type),
+			check_saved_report1(Endpoint_Type, Returned_Report_Path, Saved_Path, File_ID, File_Type, Errors)
+		),
+		Error_List
+	),
+	flatten(Error_List, Error_List_Flat),
+	(	Error_List_Flat = []
+	->	true
+	;	(
+			format("Errors: ~w~n", [Error_List_Flat]),
+			fail
 		)
 	).
 	
 
-check_saved_response(Testcase, Response_JSON, File_ID, File_Type, Errors) :-
-	(
-		get_dict(File_ID, Response_JSON.reports, _)
-	->
-		(
-			tmp_uri_to_saved_response_path(Testcase, Response_JSON.reports.File_ID.url, Saved_Response_Path),
-			(
-				exists_file(Saved_Response_Path)
-			->
-				(
-					format("## Testing Response File: ~w~n", [Saved_Response_Path]),
-					test_response(Response_JSON.reports.File_ID.url, Saved_Response_Path, File_Type, Errors0),
-					findall(
-						File_ID:Error,
-						member(Error,Errors0),
-						Errors
-					)
-				)
-			;
-				Errors = []
-			)
-		)
-	;
-		Errors = []
+check_saved_report1(Endpoint_Type, Returned_Report_Path, Saved_Response_Path, File_ID, File_Type, Errors) :-
+	format("## Testing Response File: ~w~n", [Saved_Response_Path]),
+	test_response(Endpoint_Type, Returned_Report_Path, Saved_Response_Path, File_Type, Errors0),
+	findall(
+		File_ID:Error,
+		member(Error,Errors0),
+		Errors
 	).
 
-test_response(Response_URL, Saved_Response_Path, xml, Errors) :-
-	http_get(Response_URL, Response_XML, []),
-	load_structure(string(Response_XML), Response_DOM,[dialect(xml),space(sgml)]),
 
-	check_output_schema(Type, Response_XML_Path),
+test_response(Endpoint_Type, Returned_Report_Path, Saved_Response_Path, xml, Errors) :-
+	load_structure(Returned_Report_Path, Response_DOM, [dialect(xml),space(sgml)]),
+	check_output_schema(Endpoint_Type, Returned_Report_Path),
 	% todo: xbrl validation on ledger response XBRL
-	%check_output_taxonomy(Type, Response_XML_Path),
-
+	%check_output_taxonomy(Endpoint_Type, Response_XML_Path),
 	load_xml(Saved_Response_Path, Saved_Response_DOM, [space(sgml)]),
 	compare_xml_dom(Response_DOM, Saved_Response_DOM, Error),
 	(
@@ -215,32 +185,61 @@ test_response(Response_URL, Saved_Response_Path, xml, Errors) :-
 	),
 	!.
 
-test_response(Response_URL, Saved_Response_Path, json, Error) :-
+test_response(_, Returned_Report_Path, Saved_Response_Path, json, Error) :-
 	setup_call_cleanup(
-        http_open(Response_URL, In, [request_header('Accept'='application/json')]),
-        json_read_dict(In, Response_JSON),
-        close(In)
-    ),
+		open(Returned_Report_Path, read, Stream),
+		json_read_dict(Stream, Response_JSON),
+		close(Stream)
+	),
 	setup_call_cleanup(
-		open(Saved_Response_Path, read, Saved_Response_Stream, []),
+		open(Saved_Response_Path, read, Saved_Response_Stream),
 		json_read_dict(Saved_Response_Stream, Saved_Response_JSON),
 		close(Saved_Response_Stream)
 	),	
-	(
-		Response_JSON = Saved_Response_JSON
-	->
-		Error = []
-	;
-		Error = ["JSON not equal"]
-	),
+	(	Response_JSON = Saved_Response_JSON
+	->	Error = []
+	;	Error = ["JSON not equal"]),
 	!.
 		
-test_response(Response_URL, Saved_Response_Path, _, Error) :-
-	diff.
+test_response(_, Returned_Report_Path, Saved_Response_Path, _, Error) :-
+	(	utils:shell2(['diff', Returned_Report_Path, Saved_Response_Path], 0)
+	->	Error = []
+	->	Error = ['files differ']).
+
+/*test_response(_, Returned_Report_Path, Saved_Response_Path, _, Error) :-
+	utils:shell2(['diff', Returned_Report_Path, Saved_Response_Path], Zero_For_No_Difference),
+	(	Zero_For_No_Difference = 0
+	->	Error = []
+	->	Error = ['files differ']).
+*/
+/*
+test_response(_, Returned_Report_Path, Saved_Response_Path, _, Error) :-
+	(	utils:shell2(['diff', Returned_Report_Path, Saved_Response_Path]) = 0
+	->	Error = []
+	->	Error = ['files differ']).
+
+test_response(_, Returned_Report_Path, Saved_Response_Path, _, Error) :-
+	(	(	utils:shell2(['diff', Returned_Report_Path, Saved_Response_Path], 0),
+			Error = []
+		)
+	;
+		Error = ['files differ']
+	),
+	!.
+*/
+
+	
 
 
-
-
+reports_corresponding_to_saved(Testcase, Reports, Saved_File, Reports_Corresponding_To_Saved_File) :-
+	findall(
+		Report,
+		(
+			member(Report, Reports),
+			tmp_uri_to_saved_response_path(Testcase, Report.url, Saved_File)
+		),
+		Reports_Corresponding_To_Saved_File
+	).
 
 print_alerts(Response_JSON, Alert_Types) :-
 	findall(
@@ -318,34 +317,31 @@ find_test_cases_in(Current_Directory, Test_Case) :-
 	).
 
 
-/*tmp_uri_to_path(URI, Path) :-
+tmp_uri_to_path(URI, Path) :-
 	uri_components(URI, uri_components(_,_,Path0,_,_)),
 	atom_string(Path0, Path0_String),
 	split_string(Path0_String,"/","",[_|[_|Path_Components]]),
 	atomic_list_concat(Path_Components,"/",Relative_Path),
-	absolute_file_name(my_tmp(Relative_Path), Path, []).
-*/
+	files:absolute_whatever(my_tmp(Relative_Path), Path).
+
+
 tmp_uri_to_saved_response_path(Testcase, URI, Path) :-
 	uri_components(URI, uri_components(_,_,Path0,_,_)),
 	atom_string(Path0, Path0_String),
 	split_string(Path0_String, "/", "", Path_Components),
 	append(_,[X],Path_Components), % get last item in list
 	atomic_list_concat([Testcase, 'responses', X], "/", Relative_Path),
-	/*catch(
-		absolute_file_name(my_tests(Relative_Path), Path, []),
-		_,
-		true
-	)*/.
+	files:absolute_whatever(my_tests(Relative_Path), Path).
 
 
 testcase_request_xml_file_path(Testcase, Request_XML_File_Path) :-
 	atomic_list_concat([Testcase, "request.xml"], "/", Request_XML_File_Path).
 
 
-check_output_schema(Type, Response_XML_Path) :-
+check_output_schema(Endpoint_Type, Response_XML_Path) :-
 	%absolute_file_name(my_tmp(Response_XML_Path), Response_XML_Absolute_Path, []),
 	(
-		output_schema(Type, Schema_Relative_Path)
+		output_schema(Endpoint_Type, Schema_Relative_Path)
     ->
 		(
 			absolute_file_name(my_schemas(Schema_Relative_Path), Schema_Absolute_Path, []),
@@ -389,3 +385,13 @@ check_output_taxonomy(Type, Response_XML_Path) :-
 		true
 	).
 */
+
+%			print_alerts(Response_JSON, ['ERROR', 'WARNING', 'SYSTEM_WARNING']),
+			/* if we have no saved xml response, and there are alerts in the json, fail the test */
+			/*Response_JSON.alerts = []*/
+%			fail
+
+
+	%print_alerts(Response_JSON, ['SYSTEM_WARNING']),
+
+%	http_get(Response_URL, Response_XML, []),

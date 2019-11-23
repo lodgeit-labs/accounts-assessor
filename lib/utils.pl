@@ -603,3 +603,13 @@ flatten_xml(XML, ID) :-
 	flatten:register_file_id(ID),
 	flatten:xml_flatten_nodes(ID,Root_ID,0,XML),
 	!.
+
+shell2(Cmd) :-
+	shell2(Cmd, _).
+
+shell2(Cmd_In, Exit_Status) :-
+	flatten([Cmd_In], Cmd_Flat),
+	atomic_list_concat(Cmd_Flat, " ", Cmd),
+	%format(user_error, '~w\n\n', [Cmd]),
+	shell(Cmd, Exit_Status).
+
