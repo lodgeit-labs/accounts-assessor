@@ -361,6 +361,9 @@ check_output_schema(Endpoint_Type, Response_XML_Path) :-
 		true
 	).
 
+copy_report_to_saved(R, S) :-
+	copy_file(R,S).
+
 /*
 check_output_taxonomy(Type, Response_XML_Path) :-
 	absolute_file_name(my_tmp(Response_XML_Path), Response_XML_Absolute_Path, []),
