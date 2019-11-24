@@ -16,13 +16,13 @@
 :- use_module(library(xpath)).
 :- use_module(library(readutil)).
 :- use_module('../../lib/files').
-:- use_module('../../lib/prolog_server').
+:- use_module('../../lib/prolog_server', []).
 :- use_module('compare_xml').
 :- use_module('../../lib/utils', []).
 :- use_module('../../lib/xml').
 
 /* we run all the tests against the http server that we start in this process. This makes things a bit confusing. But the plan is to move to a python (or aws) gateway */
-:- begin_tests(xml_testcases, [setup((debug,run_simple_server))]).
+:- begin_tests(xml_testcases, [setup((debug,prolog_server:run_simple_server))]).
 
 test(start) :- nl.
 
@@ -81,25 +81,29 @@ output_file(ledger, 'investment_report_since_beginning_json', json).
 
 
 run_endpoint_test(Endpoint_Type, Testcase) :-
+	writeq(run_endpoint_test(Endpoint_Type, Testcase)),
 	catch_with_backtrace(
-		(
-			testcase_request_xml_file_path(Testcase, Request_XML_File_Path),
-			query_endpoint(Request_XML_File_Path, Response_JSON),
-			dict_pairs(Response_JSON.reports, _, Reports),
-			maplist(check_returned(Endpoint_Type, Testcase), Reports),
-			/*todo: all_saved_files(Testcase, Saved_Files),
-			maplist(check_saved(Testcase, Reports), Saved_Files),*/
-			reset_gensym(iri) % because we use gensym in investment reports and it will keep incrementing throughout the test-cases, causing fresh responses to not match saved responses.
-		),
+		run_endpoint_test2(Endpoint_Type, Testcase),
 		Error,
-		(
-			(	Error = testcase_error(Msg)
-			->	print_message(error, Msg)
-			;	print_message(error, Error)
-			),
-			fail
-		)
+		print_testcase_error(Error)
 	).
+
+print_testcase_error(Error) :-
+	(	Error = testcase_error(Msg)
+	->	print_message(error, Msg)
+	;	print_message(error, Error)
+	),
+	fail.
+
+run_endpoint_test2(Endpoint_Type, Testcase) :-
+	testcase_request_xml_file_path(Testcase, Request_XML_File_Path),
+	query_endpoint(Request_XML_File_Path, Response_JSON),
+	dict_pairs(Response_JSON.reports, _, Reports),
+	maplist(check_returned(Endpoint_Type, Testcase), Reports),
+	/*todo: all_saved_files(Testcase, Saved_Files),
+	maplist(check_saved(Testcase, Reports), Saved_Files),*/
+	reset_gensym(iri). % because we use gensym in investment reports and it will keep incrementing throughout the test-cases, causing fresh responses to not match saved responses.
+
 
 check_saved(Testcase, Reports, Saved_File) :-
 	reports_corresponding_to_saved(Testcase, Reports, Saved_File, Reports_Corresponding_To_Saved_File),
@@ -114,22 +118,22 @@ check_saved(Testcase, Reports, Saved_File) :-
 		)
 	).
 
-check_returned(_, _, all-_). /* the report with the key "all" is a link to the directory with the report files */
+check_returned(_, _, all-_) :- !. /* the report with the key "all" is a link to the directory with the report files */
 
 check_returned(Endpoint_Type, Testcase, Key-Report) :-
 	tmp_uri_to_path(Report.url, Returned_Report_Path),
 	tmp_uri_to_saved_response_path(Testcase, Report.url, Saved_Path),
 	(	\+exists_file(Saved_Path)
 	->	(
-			(get_flag(add_missing_response_files, true)
+			get_flag(add_missing_response_files, true)
 			->	copy_report_to_saved(Returned_Report_Path, Saved_Path)
 			;	(
 					format(string(Msg), 'file contained in response is not found in saved files: cp ~w ~w ?', [Returned_Report_Path, Saved_Path]),
 					throw(testcase_error(Msg))
 				)
-			)
 		)
-	;	check_saved_report0(Endpoint_Type, Key, Returned_Report_Path, Saved_Path)).
+	;	check_saved_report0(Endpoint_Type, Key, Returned_Report_Path, Saved_Path)
+	).
 
 check_saved_report0(Endpoint_Type, Key, Returned_Report_Path, Saved_Path) :-
 	findall(
@@ -146,7 +150,10 @@ check_saved_report0(Endpoint_Type, Key, Returned_Report_Path, Saved_Path) :-
 	->	true
 	;	(
 			format("Errors: ~w~n", [Error_List_Flat]),
-			fail
+			(	get_flag(overwrite_response_files, true)
+			->	copy_report_to_saved(Returned_Report_Path, Saved_Path)
+			;	fail
+			)
 		)
 	).
 	
@@ -154,11 +161,7 @@ check_saved_report0(Endpoint_Type, Key, Returned_Report_Path, Saved_Path) :-
 check_saved_report1(Endpoint_Type, Returned_Report_Path, Saved_Response_Path, Key, File_Type, Errors) :-
 	format("## Testing Response File: ~w~n", [Saved_Response_Path]),
 	test_response(Endpoint_Type, Returned_Report_Path, Saved_Response_Path, File_Type, Errors0),
-	findall(
-		Key:Error,
-		member(Error,Errors0),
-		Errors
-	).
+	findall(Key:Error, member(Error,Errors0), Errors).
 
 
 test_response(Endpoint_Type, Returned_Report_Path, Saved_Response_Path, xml, Errors) :-
@@ -174,16 +177,7 @@ test_response(Endpoint_Type, Returned_Report_Path, Saved_Response_Path, xml, Err
 	->
 		Errors = []
 	;
-		Errors = [Error], 
-		(
-			get_flag(overwrite_response_files, true)
-		->
-			(
-				open(Saved_Response_Path, write, Stream),
-				xml_write(Stream, Response_DOM, []),
-				close(Stream)
-			)
-		)
+		Errors = [Error]
 	).
 
 test_response(_, Returned_Report_Path, Saved_Response_Path, json, Error) :-
@@ -265,13 +259,16 @@ query_endpoint(RequestFile0, Response_JSON) :-
 		RequestFile,
 		[ access(read) ]
 	),
-	http_post('http://localhost:8080/upload?requested_output_format=json_reports_list', form_data([file=file(RequestFile)]), Response_String, [content_type('multipart/form-data')]),
+	catch(
+		http_post('http://localhost:8080/upload?requested_output_format=json_reports_list', form_data([file=file(RequestFile)]), Response_String, [content_type('multipart/form-data')]),
+		error(existence_error(_,_),_),
+		throw(testcase_error(400))
+	),
 	%http_post('http://localhost:8080/upload?requested_output_format=xml', form_data([file=file(RequestFile)]), ReplyXML, [content_type('multipart/form-data')]),
 	/*todo: status_code(-Code)
 If this option is present and Code unifies with the HTTP status code, do not translate errors (4xx, 5xx) into an exception. Instead, http_open/3 behaves as if 2xx (success) is returned, providing the application to read the error document from the returned stream.
 */
-
-    atom_json_dict(Response_String, Response_JSON_Raw,[value_string_as(atom)]),
+	atom_json_dict(Response_String, Response_JSON_Raw,[value_string_as(atom)]),
 	findall(
 		ID-_{title:Title,url:URL},
 		member(_{id:ID,key:Title,val:_{url:URL}}, Response_JSON_Raw.reports),
@@ -330,7 +327,7 @@ tmp_uri_to_saved_response_path(Testcase, URI, Path) :-
 	uri_components(URI, uri_components(_,_,Path0,_,_)),
 	atom_string(Path0, Path0_String),
 	split_string(Path0_String, "/", "", Path_Components),
-	append(_,[X],Path_Components), % get last item in list
+	last(Path_Components, X), % get last item in list
 	atomic_list_concat([Testcase, 'responses', X], "/", Relative_Path),
 	files:absolute_whatever(my_tests(Relative_Path), Path).
 
@@ -371,7 +368,8 @@ file_type_by_extension(Returned_Report_Path, File_Type) :-
 	string_lower(Returned_Report_Path, P),
 	split_string(P, ".", ".", List),
 	last(List, Last),
-	atom_string(File_Type, Last).
+	atom_string(File_Type, Last),
+	!.
 
 /*
 check_output_taxonomy(Type, Response_XML_Path) :-
