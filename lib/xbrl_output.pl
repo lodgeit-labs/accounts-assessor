@@ -1,4 +1,4 @@
-:- module(_, []).
+:- module(_, [create_instance/10]).
 
 :- use_module('detail_accounts').
 :- use_module('xbrl_contexts', [

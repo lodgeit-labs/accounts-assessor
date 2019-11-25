@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+
+
+ <!-- reports:  {
+  "alerts": [],
+  "reports": [
+    {
+      "id":"response_xml",
+      "key":"xml response",
+      "val": {
+	"url":"http://koom-KVM:8080/tmp/1574486829.0812657.86/response.xml"
+      }
+    },
+    {
+      "id":"request_xml",
+      "key":"request_xml",
+      "val": {
+	"url":"http://koom-KVM:8080/tmp/1574486829.0812657.86/request.xml"
+      }
+    },
+    {
+      "id":"all",
+      "key":"all files",
+      "val": {"url":"http://koom-KVM:8080/tmp/1574486829.0812657.86/"}
+    }
+  ]
+} --> <!--
+-->
+<response>
+<depreciation_response_depreciation_between_two_dates>
+<type>corolla</type>
+<cost>
+<unit>USD</unit>
+<value>767688787</value>
+</cost>
+<invest_in_date>2020-01-01</invest_in_date>
+<request_date>2021-01-02</request_date>
+<depreciation_between_two_dates>
+<unit>USD</unit>
+<value>76958171.83</value>
+</depreciation_between_two_dates>
+</depreciation_response_depreciation_between_two_dates>
+</response>
+
+

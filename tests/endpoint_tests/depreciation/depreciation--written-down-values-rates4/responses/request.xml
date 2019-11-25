@@ -1,0 +1,59 @@
+<?xml version="1.0"?>
+<reports xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+	<depreciation_request_written_down_value>
+
+		<types>
+			<!-- this type hierarchy should be used to look up a depreciation rate from <rates>, 
+				given a <type>corolla</type> in the request. But you can skip writing this logic at first,
+				and just require that the request has directly for example  <type>motor_vehicles</type>
+			-->
+
+			<type>
+				<name>corolla</name>
+				<parent>toyota</parent>
+			</type>
+			<type>
+				<name>toyota</name>
+				<parent>cars</parent>
+			</type>
+			<type>
+				<name>cars</name>
+				<parent>motor_vehicles</parent>
+			</type>
+			<type>
+				<name>motor_vehicles</name>
+				<parent>vehicles</parent>
+			</type>
+		</types>
+		
+		<rates>
+			<depreciation_rate>
+				<asset>motor_vehicles</asset>
+				<!-- all years -->				
+				<value>0.1</value>
+			</depreciation_rate>
+			<depreciation_rate>
+				<asset>real_estate</asset>
+				<year>1</year>
+				<value>0.15</value>
+			</depreciation_rate>
+			<depreciation_rate>
+				<asset>real_estate</asset>
+				<year>2</year>				
+				<value>0.12</value>
+			</depreciation_rate>
+		</rates>
+		
+		<type>corolla</type>
+		<cost>
+			<unit>USD</unit>
+			<value>767688787</value>
+		</cost>
+		<invest_in_date>2020-01-01</invest_in_date>
+		<request_date>2021-01-02</request_date>
+		<method>diminishing_value</method>
+
+	</depreciation_request_written_down_value>
+	
+</reports>

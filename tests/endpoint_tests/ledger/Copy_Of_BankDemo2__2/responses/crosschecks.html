@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link type="text/css" rel="stylesheet" href="../../static/report_stylesheet.css">
+
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+
+</head>
+<body>
+
+<p>
+
+<p>
+account_balance(reports/pl/current,'InvestmentIncomeRealized'/withoutCurrencyMovement) = report_value(reports/ir/current/totals/gains/rea/market_converted)</p>
+
+<p>
+[value('AUD',-26462820939 rdiv 5045)] = [value('AUD',-5245355.983944501)]</p>
+
+<p>
+ok</p></p>
+
+<p>
+
+<p>
+account_balance(reports/pl/current,'InvestmentIncomeRealized'/onlyCurrencyMovement) = report_value(reports/ir/current/totals/gains/rea/forex)</p>
+
+<p>
+[value('AUD',3201961394785 rdiv 226050909)] = [value('AUD',1781065281455824637380077 rdiv 125739000637907856860)]</p>
+
+<p>
+ok</p></p>
+
+<p>
+
+<p>
+account_balance(reports/pl/current,'InvestmentIncomeUnrealized'/withoutCurrencyMovement) = report_value(reports/ir/current/totals/gains/unr/market_converted)</p>
+
+<p>
+[value('AUD',34192254625 rdiv 358099)] = [value('AUD',95482.68670116362)]</p>
+
+<p>
+ok</p></p>
+
+<p>
+
+<p>
+account_balance(reports/pl/current,'InvestmentIncomeUnrealized'/onlyCurrencyMovement) = report_value(reports/ir/current/totals/gains/unr/forex)</p>
+
+<p>
+[value('AUD',40637194175 rdiv 4071603)] = [value('AUD',87962483500 rdiv 8813313)]</p>
+
+<p>
+ok</p></p>
+
+<p>
+
+<p>
+account_balance(reports/pl/current,'Accounts'/'InvestmentIncome') = report_value(reports/ir/current/totals/gains/total)</p>
+
+<p>
+[value('AUD',-216223704873 rdiv 42184)] = [value('AUD',-5125727.879598901)]</p>
+
+<p>
+ok</p></p>
+
+<p>
+
+<p>
+account_balance(reports/pl/current,'InvestmentIncome'/unrealized) = report_value(reports/ir/current/totals/gains/unrealized_total)</p>
+
+<p>
+[value('AUD',16478644429 rdiv 156250)] = [value('AUD',105463.32434559995)]</p>
+
+<p>
+ok</p></p>
+
+<p>
+
+<p>
+account_balance(reports/pl/current,'InvestmentIncome'/realized) = report_value(reports/ir/current/totals/gains/realized_total)</p>
+
+<p>
+[value('AUD',-144025156227 rdiv 27532)] = [value('AUD',-5231191.203944501)]</p>
+
+<p>
+ok</p></p>
+
+<p>
+
+<p>
+account_balance(reports/bs/current,'Accounts'/'FinancialInvestments') = report_value(reports/ir/current/totals/closing/total_cost_converted)</p>
+
+<p>
+[value('AUD',200000)] = [value('AUD',200000.0)]</p>
+
+<p>
+ok</p></p>
+
+<p>
+
+<p>
+account_balance(reports/bs/current,'Accounts'/'HistoricalEarnings') = account_balance(reports/pl/historical,'Accounts'/'NetIncomeLoss')</p>
+
+<p>
+[value('AUD',367742807825 rdiv 67963)] = [value('AUD',367742807825 rdiv 67963)]</p>
+
+<p>
+ok</p></p>
+
+<p>
+
+<p>
+account_balance(reports/bs/current,'Accounts'/'NetAssets') = account_balance(reports/bs/current,'Accounts'/'Equity')</p>
+
+<p>
+[value('AUD',103712621772 rdiv 306385)] = [value('AUD',65864801129 rdiv 194576)]</p>
+
+<p>
+ok</p></p>
+</body>
+</html>

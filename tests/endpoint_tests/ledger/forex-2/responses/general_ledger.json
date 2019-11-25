@@ -1,0 +1,193 @@
+[
+  {
+    "source": {
+      "account":"NationalAustraliaBank",
+      "date":"date(2016,1,1)",
+      "exchanged":"vector([coord('GOOG',1,0)])",
+      "report_currency_transacted_amount_converted_at_balance_date":2000.0,
+      "report_currency_transacted_amount_converted_at_transaction_date":1000.0,
+      "vector": [ {"credit":500, "debit":0, "unit":"bananas"} ],
+      "verb":"Invest_In"
+    },
+    "transactions": [
+      {
+	"account":"BanksNationalAustraliaBank",
+	"date":"date(2016,1,1)",
+	"description":"Invest_In - outgoing money",
+	"type":"instant",
+	"vector": [ {"credit":500, "debit":0, "unit":"bananas"} ],
+	"vector_converted_at_balance_date": [ {"credit":2000.0, "debit":0.0, "unit":"oranges"} ],
+	"vector_converted_at_transaction_date": [ {"credit":1000.0, "debit":0.0, "unit":"oranges"} ]
+      },
+      {
+	"account":"CurrencyMovementNationalAustraliaBank",
+	"date":"date(2016,1,1)",
+	"description":"Invest_In - outgoing money - currency movement adjustment - only current period",
+	"type":"tracking",
+	"vector": [
+	   {"credit":0, "debit":500, "unit":"bananas"},
+	   {
+  "credit":500,
+  "debit":0,
+  "unit":"without_currency_movement_against_since(bananas,bananas,[oranges],date(2016,1,1))"
+}
+	],
+	"vector_converted_at_balance_date": [ {"credit":0.0, "debit":1000.0, "unit":"oranges"} ],
+	"vector_converted_at_transaction_date": []
+      },
+      {
+	"account":"FinancialInvestmentsGOOG",
+	"date":"date(2016,1,1)",
+	"description":"Invest_In",
+	"type":"instant",
+	"vector": [ {"credit":0, "debit":1, "unit":"GOOG"} ],
+	"vector_converted_at_balance_date": [ {"credit":0.0, "debit":4000.0, "unit":"oranges"} ],
+	"vector_converted_at_transaction_date": [ {"credit":0.0, "debit":1000.0, "unit":"oranges"} ]
+      },
+      {
+	"account":"InvestmentIncomeUnrealizedOnlyCurrencyMovementGOOG",
+	"date":"date(2016,1,1)",
+	"description":"comment:?, comment2:Invest_In - single period",
+	"type":"?",
+	"vector": [
+	   {"credit":1, "debit":0, "unit":"GOOG"},
+	   {
+  "credit":0,
+  "debit":1,
+  "unit":"without_currency_movement_against_since('GOOG',bananas,[oranges],date(2016,1,1))"
+}
+	],
+	"vector_converted_at_balance_date": [ {"credit":2000.0, "debit":0.0, "unit":"oranges"} ],
+	"vector_converted_at_transaction_date": []
+      },
+      {
+	"account":"InvestmentIncomeUnrealizedWithoutCurrencyMovementGOOG",
+	"date":"date(2016,1,1)",
+	"description":"comment:?, comment2:Invest_In - single period",
+	"type":"?",
+	"vector": [
+	   {
+  "credit":1,
+  "debit":0,
+  "unit":"without_currency_movement_against_since('GOOG',bananas,[oranges],date(2016,1,1))"
+},
+	   {"credit":0, "debit":1000.0, "unit":"oranges"}
+	],
+	"vector_converted_at_balance_date": [ {"credit":1000.0, "debit":0.0, "unit":"oranges"} ],
+	"vector_converted_at_transaction_date": []
+      }
+    ]
+  },
+  {
+    "source": {
+      "account":"NationalAustraliaBank",
+      "date":"date(2017,1,1)",
+      "exchanged":"vector([coord('GOOG',0,1)])",
+      "report_currency_transacted_amount_converted_at_balance_date":4000.0,
+      "report_currency_transacted_amount_converted_at_transaction_date":2000.0,
+      "vector": [ {"credit":0, "debit":1000, "unit":"bananas"} ],
+      "verb":"Dispose_Of"
+    },
+    "transactions": [
+      {
+	"account":"BanksNationalAustraliaBank",
+	"date":"date(2017,1,1)",
+	"description":"Dispose_Of - incoming money",
+	"type":"instant",
+	"vector": [ {"credit":0, "debit":1000, "unit":"bananas"} ],
+	"vector_converted_at_balance_date": [ {"credit":0.0, "debit":4000.0, "unit":"oranges"} ],
+	"vector_converted_at_transaction_date": [ {"credit":0.0, "debit":2000.0, "unit":"oranges"} ]
+      },
+      {
+	"account":"CurrencyMovementNationalAustraliaBank",
+	"date":"date(2017,1,1)",
+	"description":"Dispose_Of - incoming money - currency movement adjustment - only current period",
+	"type":"tracking",
+	"vector": [
+	   {"credit":1000, "debit":0, "unit":"bananas"},
+	   {
+  "credit":0,
+  "debit":1000,
+  "unit":"without_currency_movement_against_since(bananas,bananas,[oranges],date(2017,1,1))"
+}
+	],
+	"vector_converted_at_balance_date": [ {"credit":2000.0, "debit":0.0, "unit":"oranges"} ],
+	"vector_converted_at_transaction_date": []
+      },
+      {
+	"account":"FinancialInvestmentsGOOG",
+	"date":"date(2017,1,1)",
+	"description":"Dispose_Of",
+	"type":"instant",
+	"vector": [ {"credit":1, "debit":0, "unit":"GOOG"} ],
+	"vector_converted_at_balance_date": [ {"credit":4000.0, "debit":0.0, "unit":"oranges"} ],
+	"vector_converted_at_transaction_date": [ {"credit":2000.0, "debit":0.0, "unit":"oranges"} ]
+      },
+      {
+	"account":"InvestmentIncomeUnrealizedOnlyCurrencyMovementGOOG",
+	"date":"date(2017,1,1)",
+	"description":"comment:?, comment2:Dispose_Of - single period",
+	"type":"?",
+	"vector": [
+	   {"credit":0, "debit":1, "unit":"GOOG"},
+	   {
+  "credit":1,
+  "debit":0,
+  "unit":"without_currency_movement_against_since('GOOG',bananas,[oranges],date(2016,1,1))"
+}
+	],
+	"vector_converted_at_balance_date": [ {"credit":0.0, "debit":2000.0, "unit":"oranges"} ],
+	"vector_converted_at_transaction_date": []
+      },
+      {
+	"account":"InvestmentIncomeUnrealizedWithoutCurrencyMovementGOOG",
+	"date":"date(2017,1,1)",
+	"description":"comment:?, comment2:Dispose_Of - single period",
+	"type":"?",
+	"vector": [
+	   {
+  "credit":0,
+  "debit":1,
+  "unit":"without_currency_movement_against_since('GOOG',bananas,[oranges],date(2016,1,1))"
+},
+	   {"credit":1000.0, "debit":0, "unit":"oranges"}
+	],
+	"vector_converted_at_balance_date": [ {"credit":0.0, "debit":1000.0, "unit":"oranges"} ],
+	"vector_converted_at_transaction_date": [ {"credit":0.0, "debit":1000.0, "unit":"oranges"} ]
+      },
+      {
+	"account":"InvestmentIncomeRealizedOnlyCurrencyMovementGOOG",
+	"date":"date(2017,1,1)",
+	"description":"comment:?, comment2:Dispose_Of",
+	"type":"?",
+	"vector": [
+	   {"credit":2000.0, "debit":0, "unit":"oranges"},
+	   {
+  "credit":0,
+  "debit":1000,
+  "unit":"without_currency_movement_against_since(bananas,bananas,[oranges],date(2016,1,1))"
+}
+	],
+	"vector_converted_at_balance_date": [],
+	"vector_converted_at_transaction_date": []
+      },
+      {
+	"account":"InvestmentIncomeRealizedWithoutCurrencyMovementGOOG",
+	"date":"date(2017,1,1)",
+	"description":"comment:?, comment2:Dispose_Of",
+	"type":"?",
+	"vector": [
+	   {
+  "credit":1000,
+  "debit":0,
+  "unit":"without_currency_movement_against_since(bananas,bananas,[oranges],date(2016,1,1))"
+},
+	   {"credit":0, "debit":1000.0, "unit":"oranges"}
+	],
+	"vector_converted_at_balance_date": [ {"credit":1000.0, "debit":0.0, "unit":"oranges"} ],
+	"vector_converted_at_transaction_date": [ {"credit":1000.0, "debit":0.0, "unit":"oranges"} ]
+      }
+    ]
+  },
+  {"source":"livestock", "transactions": []}
+]
