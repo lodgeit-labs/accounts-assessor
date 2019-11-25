@@ -2,6 +2,10 @@
 % Project:   LodgeiT
 % Date:      2019-07-09
 % ===================================================================
+/*
+this runs the requests in tests/endpoint_tests and compares the responses against saved files.
+Note that the http server is spawned in this process. This should change in future.
+*/
 
 :- module(endpoint_tests, []).
 
@@ -21,8 +25,15 @@
 :- use_module('../../lib/utils', []).
 :- use_module('../../lib/xml').
 
+:- multifile
+	prolog:message//1.
+
+prolog:message(testcase_error(Msg)) -->
+	['test failed: ~w; ', [Msg] ].
+
+
 /* we run all the tests against the http server that we start in this process. This makes things a bit confusing. But the plan is to move to a python (or aws) gateway */
-:- begin_tests(xml_testcases, [setup((debug,prolog_server:run_simple_server))]).
+:- begin_tests(endpoints, [setup((debug,prolog_server:run_simple_server))]).
 
 test(start) :- nl.
 
@@ -38,10 +49,6 @@ test(loan,
 	[forall(testcases('endpoint_tests/loan',Testcase))]) :-
 	run_endpoint_test(loan, Testcase).
 
-test(depreciation, 
-	[forall(testcases('endpoint_tests/depreciation',Testcase))]) :-
-	run_endpoint_test(depreciation, Testcase).
-
 test(livestock, 
 	[forall(testcases('endpoint_tests/livestock',Testcase))]) :-
 	run_endpoint_test(livestock, Testcase).
@@ -54,11 +61,16 @@ test(car,
 	[forall(testcases('endpoint_tests/car',Testcase)), fixme('NER API server is down.')]) :-
 	run_endpoint_test(car, Testcase).
 
+test(depreciation, 
+	[forall(testcases('endpoint_tests/depreciation',Testcase))]) :-
+	run_endpoint_test(depreciation, Testcase).
+
 test(depreciation_invalid, 
-	[forall(testcases('endpoint_tests/depreciation_invalid',Testcase)), throws(_)]) :-
+	/* todo: the endpoint shouldnt die with a bad_request, it should return json with alerts, and we should simply check against a saved one */
+	[forall(testcases('endpoint_tests/depreciation_invalid',Testcase)), throws(testcase_error(400))]) :-
 	run_endpoint_test(depreciation_invalid, Testcase).
 
-:- end_tests(xml_testcases).
+:- end_tests(endpoints).
 
 /* mapping endpoints to response xsd files */
 output_schema(loan,'responses/LoanResponse.xsd').
@@ -68,6 +80,7 @@ output_schema(investment,'responses/InvestmentResponse.xsd').
 output_schema(car,'responses/CarAPIResponse.xsd').
 output_taxonomy(ledger,'taxonomy/basic.xsd').
 
+/* hmm maybe we should trust the endpoint to reference the right schema / do the validation? */
 
 output_file(loan, 'response_xml', xml).
 output_file(depreciation, 'response_xml', xml).
@@ -81,30 +94,20 @@ output_file(ledger, 'investment_report_since_beginning_json', json).
 
 
 run_endpoint_test(Endpoint_Type, Testcase) :-
-	writeq(run_endpoint_test(Endpoint_Type, Testcase)),
-	catch_with_backtrace(
-		run_endpoint_test2(Endpoint_Type, Testcase),
-		Error,
-		print_testcase_error(Error)
-	).
-
-print_testcase_error(Error) :-
-	(	Error = testcase_error(Msg)
-	->	print_message(error, Msg)
-	;	print_message(error, Error)
-	),
-	fail.
+	debug(endpoint_tests, '(run_endpoint_test(~w, ~w)', [Endpoint_Type, Testcase]),
+	run_endpoint_test2(Endpoint_Type, Testcase).
 
 run_endpoint_test2(Endpoint_Type, Testcase) :-
+	reset_gensym(iri), % because we use gensym in investment reports and it will keep incrementing throughout the test-cases, causing fresh responses to not match saved responses.
 	testcase_request_xml_file_path(Testcase, Request_XML_File_Path),
 	query_endpoint(Request_XML_File_Path, Response_JSON),
 	dict_pairs(Response_JSON.reports, _, Reports),
-	maplist(check_returned(Endpoint_Type, Testcase), Reports),
+	maplist(check_returned(Endpoint_Type, Testcase), Reports).
 	/*todo: all_saved_files(Testcase, Saved_Files),
 	maplist(check_saved(Testcase, Reports), Saved_Files),*/
-	reset_gensym(iri). % because we use gensym in investment reports and it will keep incrementing throughout the test-cases, causing fresh responses to not match saved responses.
+	
 
-
+/*
 check_saved(Testcase, Reports, Saved_File) :-
 	reports_corresponding_to_saved(Testcase, Reports, Saved_File, Reports_Corresponding_To_Saved_File),
 	(	Reports_Corresponding_To_Saved_File = [_]
@@ -117,7 +120,7 @@ check_saved(Testcase, Reports, Saved_File) :-
 		;	throw('this is weird')
 		)
 	).
-
+*/
 check_returned(_, _, all-_) :- !. /* the report with the key "all" is a link to the directory with the report files */
 
 check_returned(Endpoint_Type, Testcase, Key-Report) :-
@@ -136,16 +139,8 @@ check_returned(Endpoint_Type, Testcase, Key-Report) :-
 	).
 
 check_saved_report0(Endpoint_Type, Key, Returned_Report_Path, Saved_Path) :-
-	findall(
-		Errors,
-		(
-			/*output_file(Endpoint_Type, Key, File_Type),*/
-			file_type_by_extension(Returned_Report_Path, File_Type),
-			check_saved_report1(Endpoint_Type, Returned_Report_Path, Saved_Path, Key, File_Type, Errors)
-		),
-		Error_List
-	),
-	flatten(Error_List, Error_List_Flat),
+	file_type_by_extension(Returned_Report_Path, File_Type),
+	check_saved_report1(Endpoint_Type, Returned_Report_Path, Saved_Path, Key, File_Type, Error_List_Flat),
 	(	Error_List_Flat = []
 	->	true
 	;	(
@@ -159,15 +154,14 @@ check_saved_report0(Endpoint_Type, Key, Returned_Report_Path, Saved_Path) :-
 	
 
 check_saved_report1(Endpoint_Type, Returned_Report_Path, Saved_Response_Path, Key, File_Type, Errors) :-
-	format("## Testing Response File: ~w~n", [Saved_Response_Path]),
-	test_response(Endpoint_Type, Returned_Report_Path, Saved_Response_Path, File_Type, Errors0),
+	test_response(Endpoint_Type, Returned_Report_Path, Saved_Response_Path, Key, File_Type, Errors0),
 	findall(Key:Error, member(Error,Errors0), Errors).
 
 
-test_response(Endpoint_Type, Returned_Report_Path, Saved_Response_Path, xml, Errors) :-
+test_response(Endpoint_Type, Returned_Report_Path, Saved_Response_Path, Key, xml, Errors) :-
 	!,
 	load_structure(Returned_Report_Path, Response_DOM, [dialect(xml),space(sgml)]),
-	check_output_schema(Endpoint_Type, Returned_Report_Path),
+	check_output_schema(Endpoint_Type, Key, Returned_Report_Path),
 	% todo: xbrl validation on ledger response XBRL
 	%check_output_taxonomy(Endpoint_Type, Response_XML_Path),
 	load_xml(Saved_Response_Path, Saved_Response_DOM, [space(sgml)]),
@@ -177,10 +171,15 @@ test_response(Endpoint_Type, Returned_Report_Path, Saved_Response_Path, xml, Err
 	->
 		Errors = []
 	;
-		Errors = [Error]
+		(
+			Errors = [Error],
+			nl,nl,
+			diff2(Saved_Response_Path, Returned_Report_Path, _, [cmd(['../python/venv/bin/python3','../python/src/structural_xmldiff.py'])]),
+			nl,nl
+		)
 	).
 
-test_response(_, Returned_Report_Path, Saved_Response_Path, json, Error) :-
+test_response(_, Returned_Report_Path, Saved_Response_Path, _Key, json, Error) :-
 	!,
 	setup_call_cleanup(
 		open(Returned_Report_Path, read, Stream),
@@ -194,37 +193,31 @@ test_response(_, Returned_Report_Path, Saved_Response_Path, json, Error) :-
 	),	
 	(	Response_JSON = Saved_Response_JSON
 	->	Error = []
-	;	Error = ["JSON not equal"]).
-		
-test_response(_, Returned_Report_Path, Saved_Response_Path, _, Error) :-
-	(	utils:shell2(['diff', Returned_Report_Path, Saved_Response_Path], 0)
-	->	Error = []
-	->	Error = ['files differ']).
-
-/*test_response(_, Returned_Report_Path, Saved_Response_Path, _, Error) :-
-	utils:shell2(['diff', Returned_Report_Path, Saved_Response_Path], Zero_For_No_Difference),
-	(	Zero_For_No_Difference = 0
-	->	Error = []
-	->	Error = ['files differ']).
-*/
-/*
-test_response(_, Returned_Report_Path, Saved_Response_Path, _, Error) :-
-	(	utils:shell2(['diff', Returned_Report_Path, Saved_Response_Path]) = 0
-	->	Error = []
-	->	Error = ['files differ']).
-
-test_response(_, Returned_Report_Path, Saved_Response_Path, _, Error) :-
-	(	(	utils:shell2(['diff', Returned_Report_Path, Saved_Response_Path], 0),
-			Error = []
+	;	(
+			Error = ["JSON not equal"],
+			nl,nl,diff(Saved_Response_Path, Returned_Report_Path, _),nl,nl
 		)
-	;
-		Error = ['files differ']
-	),
-	!.
-*/
+	).
+		
+test_response(_, Returned_Report_Path, Saved_Response_Path, _, _, Error) :-
+	(	diff(Saved_Response_Path, Returned_Report_Path, true)
+	->	Error = []
+	;	Error = ['files differ']).
 
-	
+diff(Saved_Response_Path, Returned_Report_Path, Are_Same) :-
+	diff2(Saved_Response_Path, Returned_Report_Path, Are_Same, [cmd(diff)]).
 
+diff2(Saved_Response_Path, Returned_Report_Path, Are_Same, Options) :-
+	memberchk(cmd(Executable), Options),
+	utils:shell3([Executable, Saved_Response_Path, Returned_Report_Path], [exit_status(Exit_Status), command(Cmdline)]),
+	(	Exit_Status = 0
+	->	Are_Same = true
+	;	(
+			Are_Same = false,
+			format(user_error, '~n^^that was ~w~n', [Cmdline])
+		)
+	).
+	%awk -v len=40 '{ if (length($0) > len) print substr($0, 1, len-3) "..."; else print; }'
 
 reports_corresponding_to_saved(Testcase, Reports, Saved_File, Reports_Corresponding_To_Saved_File) :-
 	findall(
@@ -253,7 +246,7 @@ check_value_difference(Value1, Value2) :-
 	utils:floats_close_enough(NValue1, NValue2).
 
 query_endpoint(RequestFile0, Response_JSON) :-
-	nl, write('## Testing Request File: '), writeln(RequestFile0),
+	debug(endpoint_tests, '~n## Testing Request File: ~w', [RequestFile0]),
 	absolute_file_name(my_tests(
 		RequestFile0),
 		RequestFile,
@@ -282,7 +275,7 @@ If this option is present and Code unifies with the HTTP status code, do not tra
 
 
 testcases(Top_Level, Testcase) :-
-	format("testcases: ~w~n", [Top_Level]),
+	debug(endpoint_tests, "testcases: ~w~n", [Top_Level]),
 	find_test_cases_in(Top_Level, Testcase).
 
 /*
@@ -336,11 +329,13 @@ testcase_request_xml_file_path(Testcase, Request_XML_File_Path) :-
 	atomic_list_concat([Testcase, "request.xml"], "/", Request_XML_File_Path).
 
 
-check_output_schema(Endpoint_Type, Response_XML_Path) :-
-	%absolute_file_name(my_tmp(Response_XML_Path), Response_XML_Absolute_Path, []),
+check_output_schema(Endpoint_Type, Key, Response_XML_Path) :-
 	(
-		output_schema(Endpoint_Type, Schema_Relative_Path)
-    ->
+		(
+			output_file(Endpoint_Type, Key, xml),
+			output_schema(Endpoint_Type, Schema_Relative_Path)
+		)
+	->
 		(
 			absolute_file_name(my_schemas(Schema_Relative_Path), Schema_Absolute_Path, []),
 			validate_xml(Response_XML_Path, Schema_Absolute_Path, Schema_Errors),
@@ -349,10 +344,7 @@ check_output_schema(Endpoint_Type, Response_XML_Path) :-
 			->
 				true
 			;
-				(
-					format("Errors: ~w~n", [Schema_Errors]),
-					fail
-				)
+				format("Errors: ~w~n", [Schema_Errors])
 			)
 		)
 	;

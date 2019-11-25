@@ -1,0 +1,252 @@
+{
+  "columns": [
+    {"id":"unit", "options": {}, "title":"Unit"},
+    {"id":"count", "options": {}, "title":"Count"},
+    {"id":"currency", "options": {}, "title":"Investment Currency"},
+    {
+      "id":"purchase",
+      "members": [
+	{"id":"date", "options": {}, "title":"Date"},
+	{
+	  "id":"unit_cost_foreign",
+	  "options": {},
+	  "title":"Unit Cost Foreign"
+	},
+	{"id":"conversion", "options": {}, "title":"Conversion"},
+	{
+	  "id":"unit_cost_converted",
+	  "options": {},
+	  "title":"Unit Cost Converted"
+	},
+	{
+	  "id":"total_cost_foreign",
+	  "options": {},
+	  "title":"Total Cost Foreign"
+	},
+	{
+	  "id":"total_cost_converted",
+	  "options": {},
+	  "title":"Total Cost Converted"
+	}
+      ],
+      "title":"Purchase"
+    },
+    {
+      "id":"opening",
+      "members": [
+	{
+	  "id":"unit_cost_foreign",
+	  "options": {},
+	  "title":"Unit Market Value Foreign"
+	},
+	{"id":"conversion", "options": {}, "title":"Conversion"},
+	{
+	  "id":"unit_cost_converted",
+	  "options": {},
+	  "title":"Unit Market Value Converted"
+	},
+	{
+	  "id":"total_cost_foreign",
+	  "options": {},
+	  "title":"Total Market Value Foreign"
+	},
+	{
+	  "id":"total_cost_converted",
+	  "options": {},
+	  "title":"Total Market Value Converted"
+	}
+      ],
+      "title":"Opening"
+    },
+    {
+      "id":"sale",
+      "members": [
+	{"id":"date", "options": {}, "title":"Date"},
+	{
+	  "id":"unit_cost_foreign",
+	  "options": {},
+	  "title":"Unit Cost Foreign"
+	},
+	{"id":"conversion", "options": {}, "title":"Conversion"},
+	{
+	  "id":"unit_cost_converted",
+	  "options": {},
+	  "title":"Unit Cost Converted"
+	},
+	{
+	  "id":"total_cost_foreign",
+	  "options": {},
+	  "title":"Total Cost Foreign"
+	},
+	{
+	  "id":"total_cost_converted",
+	  "options": {},
+	  "title":"Total Cost Converted"
+	}
+      ],
+      "title":"Sale"
+    },
+    {
+      "id":"closing",
+      "members": [
+	{
+	  "id":"unit_cost_foreign",
+	  "options": {},
+	  "title":"Unit Market Value Foreign"
+	},
+	{"id":"conversion", "options": {}, "title":"Conversion"},
+	{
+	  "id":"unit_cost_converted",
+	  "options": {},
+	  "title":"Unit Market Value Converted"
+	},
+	{
+	  "id":"total_cost_foreign",
+	  "options": {},
+	  "title":"Total Market Value Foreign"
+	},
+	{
+	  "id":"total_cost_converted",
+	  "options": {},
+	  "title":"Total Market Value Converted"
+	}
+      ],
+      "title":"Closing"
+    },
+    {
+      "id":"on_hand_at_cost",
+      "members": [
+	{
+	  "id":"unit_cost_foreign",
+	  "options": {},
+	  "title":"Foreign Per Unit"
+	},
+	{"id":"count", "options": {}, "title":"Count"},
+	{"id":"total_foreign", "options": {}, "title":"Foreign Total"},
+	{
+	  "id":"total_converted_at_purchase",
+	  "options": {},
+	  "title":"Converted at Purchase Date Total"
+	},
+	{
+	  "id":"total_converted_at_balance",
+	  "options": {},
+	  "title":"Converted at Balance Date Total"
+	},
+	{
+	  "id":"total_forex_gain",
+	  "options": {},
+	  "title":"Currency Gain/(loss) Total"
+	}
+      ],
+      "title":"On Hand At Cost"
+    },
+    {
+      "id":"gains",
+      "members": [
+	{
+	  "id":"rea",
+	  "members": [
+	    {
+	      "id":"market_foreign",
+	      "options": {},
+	      "title":"Market Gain Foreign"
+	    },
+	    {
+	      "id":"market_converted",
+	      "options": {},
+	      "title":"Market Gain Converted"
+	    },
+	    {"id":"forex", "options": {}, "title":"Forex Gain"}
+	  ],
+	  "title":"Realized"
+	},
+	{
+	  "id":"unr",
+	  "members": [
+	    {
+	      "id":"market_foreign",
+	      "options": {},
+	      "title":"Market Gain Foreign"
+	    },
+	    {
+	      "id":"market_converted",
+	      "options": {},
+	      "title":"Market Gain Converted"
+	    },
+	    {"id":"forex", "options": {}, "title":"Forex Gain"}
+	  ],
+	  "title":"Unrealized"
+	}
+      ],
+      "title":""
+    }
+  ],
+  "rows": [
+    {
+      "closing": {
+	"conversion":"exchange_rate(date(2019,6,30),'CHF','CHF',1.0)",
+	"total_cost_converted":"value('CHF',20.0)",
+	"total_cost_foreign":"value('CHF',20.0)",
+	"unit_cost_converted":"value('CHF',20.0)",
+	"unit_cost_foreign":"value('CHF',20.0)"
+      },
+      "count":1,
+      "currency":"CHF",
+      "gains": {
+	"rea": {},
+	"unr": {
+	  "forex":"value('CHF',0)",
+	  "market_converted":"value('CHF',5.0)",
+	  "market_foreign":"value('CHF',5.0)"
+	}
+      },
+      "id":"iri1",
+      "on_hand_at_cost": {
+	"count":1,
+	"total_converted_at_balance":"value('CHF',10.0)",
+	"total_converted_at_purchase":"value('CHF',10.0)",
+	"total_foreign":"value('CHF',10)",
+	"total_forex_gain":"value('CHF',0.0)",
+	"unit_cost_foreign":"value('CHF',10)"
+      },
+      "opening": {
+	"conversion":"exchange_rate(date(2018,11,1),'CHF','CHF',1.0)",
+	"total_cost_converted":"value('CHF',15.0)",
+	"total_cost_foreign":"value('CHF',15.0)",
+	"unit_cost_converted":"value('CHF',15.0)",
+	"unit_cost_foreign":"value('CHF',15.0)"
+      },
+      "purchase": {},
+      "sale": {},
+      "unit":"Leonteq_N"
+    },
+    {
+      "closing": {
+	"total_cost_converted": ["value('CHF',20.0)" ],
+	"total_cost_foreign": ["value('CHF',20.0)" ]
+      },
+      "gains": {
+	"rea": {"forex": [], "market_converted": [], "market_foreign": []},
+	"realized_total": [],
+	"total": ["value('CHF',5.0)" ],
+	"unr": {
+	  "forex": ["value('CHF',0)" ],
+	  "market_converted": ["value('CHF',5.0)" ],
+	  "market_foreign": ["value('CHF',5.0)" ]
+	},
+	"unrealized_total": ["value('CHF',5.0)" ]
+      },
+      "on_hand_at_cost": {
+	"total_converted_at_balance": ["value('CHF',10.0)" ],
+	"total_converted_at_purchase": ["value('CHF',10.0)" ],
+	"total_forex_gain": ["value('CHF',0.0)" ]
+      },
+      "opening": {
+	"total_cost_converted": ["value('CHF',15.0)" ],
+	"total_cost_foreign": ["value('CHF',15.0)" ]
+      }
+    }
+  ],
+  "title":"investment report from 2018-11-01 to 2019-06-30 (CHF)"
+}

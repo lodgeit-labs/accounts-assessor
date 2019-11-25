@@ -1,0 +1,70 @@
+[
+  {
+    "source": {
+      "account":"CHF_Bank",
+      "date":"date(2015,1,1)",
+      "exchanged":"vector([])",
+      "report_currency_transacted_amount_converted_at_balance_date":6.0,
+      "report_currency_transacted_amount_converted_at_transaction_date":2.0,
+      "vector": [ {"credit":0, "debit":1, "unit":"CHF"} ],
+      "verb":"Income"
+    },
+    "transactions": [
+      {
+	"account":"BanksCHF_Bank",
+	"date":"date(2015,1,1)",
+	"description":"Income - incoming money",
+	"type":"instant",
+	"vector": [ {"credit":0, "debit":1, "unit":"CHF"} ],
+	"vector_converted_at_balance_date": [ {"credit":0.0, "debit":6.0, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": [ {"credit":0.0, "debit":2.0, "unit":"AUD"} ]
+      },
+      {
+	"account":"CurrencyMovementCHF_Bank",
+	"date":"date(2015,1,1)",
+	"description":"Income - incoming money - currency movement adjustment - historical part",
+	"type":"tracking",
+	"vector": [
+	   {
+  "credit":1,
+  "debit":0,
+  "unit":"without_movement_after('CHF',date(2018,1,1))"
+},
+	   {
+  "credit":0,
+  "debit":1,
+  "unit":"without_currency_movement_against_since('CHF','CHF',['AUD'],date(2015,1,1))"
+}
+	],
+	"vector_converted_at_balance_date": [ {"credit":2.0, "debit":0.0, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": []
+      },
+      {
+	"account":"CurrencyMovementCHF_Bank",
+	"date":"date(2018,1,1)",
+	"description":"Income - incoming money - currency movement adjustment - current part",
+	"type":"tracking",
+	"vector": [
+	   {"credit":1, "debit":0, "unit":"CHF"},
+	   {
+  "credit":0,
+  "debit":1,
+  "unit":"without_movement_after('CHF',date(2018,1,1))"
+}
+	],
+	"vector_converted_at_balance_date": [ {"credit":2.0, "debit":0.0, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": []
+      },
+      {
+	"account":"Revenue",
+	"date":"date(2015,1,1)",
+	"description":"Income",
+	"type":"instant",
+	"vector": [ {"credit":2.0, "debit":0.0, "unit":"AUD"} ],
+	"vector_converted_at_balance_date": [ {"credit":2.0, "debit":0.0, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": [ {"credit":2.0, "debit":0.0, "unit":"AUD"} ]
+      }
+    ]
+  },
+  {"source":"livestock", "transactions": []}
+]

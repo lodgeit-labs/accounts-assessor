@@ -1,0 +1,159 @@
+[
+  {
+    "source": {
+      "account":"NationalAustraliaBank",
+      "date":"date(2018,3,2)",
+      "exchanged":"vector([coord('Sheep',0,30)])",
+      "report_currency_transacted_amount_converted_at_balance_date":500.0,
+      "report_currency_transacted_amount_converted_at_transaction_date":500.0,
+      "vector": [ {"credit":0, "debit":500, "unit":"AUD"} ],
+      "verb":""
+    },
+    "transactions": [
+      {
+	"account":"BanksNationalAustraliaBank",
+	"date":"date(2018,3,2)",
+	"description":"livestock sell",
+	"type":"instant",
+	"vector": [ {"credit":0, "debit":500, "unit":"AUD"} ],
+	"vector_converted_at_balance_date": [ {"credit":0.0, "debit":500.0, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": [ {"credit":0.0, "debit":500.0, "unit":"AUD"} ]
+      },
+      {
+	"account":"SheepCount",
+	"date":"date(2018,3,2)",
+	"description":"livestock sell",
+	"type":"instant",
+	"vector": [ {"credit":30, "debit":0, "unit":"Sheep"} ],
+	"vector_converted_at_balance_date": [ {"credit":30, "debit":0, "unit":"Sheep"} ],
+	"vector_converted_at_transaction_date": [ {"credit":30, "debit":0, "unit":"Sheep"} ]
+      }
+    ]
+  },
+  {
+    "source": {
+      "account":"NationalAustraliaBank",
+      "date":"date(2018,3,2)",
+      "exchanged":"vector([coord('Sheep',3,0)])",
+      "report_currency_transacted_amount_converted_at_balance_date":1800.0,
+      "report_currency_transacted_amount_converted_at_transaction_date":1800.0,
+      "vector": [ {"credit":1800, "debit":0, "unit":"AUD"} ],
+      "verb":""
+    },
+    "transactions": [
+      {
+	"account":"BanksNationalAustraliaBank",
+	"date":"date(2018,3,2)",
+	"description":"livestock buy",
+	"type":"instant",
+	"vector": [ {"credit":1800, "debit":0, "unit":"AUD"} ],
+	"vector_converted_at_balance_date": [ {"credit":1800.0, "debit":0.0, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": [ {"credit":1800.0, "debit":0.0, "unit":"AUD"} ]
+      },
+      {
+	"account":"SheepCount",
+	"date":"date(2018,3,2)",
+	"description":"livestock buy",
+	"type":"instant",
+	"vector": [ {"credit":0, "debit":3, "unit":"Sheep"} ],
+	"vector_converted_at_balance_date": [ {"credit":0, "debit":3, "unit":"Sheep"} ],
+	"vector_converted_at_transaction_date": [ {"credit":0, "debit":3, "unit":"Sheep"} ]
+      }
+    ]
+  },
+  {
+    "source":"livestock",
+    "transactions": [
+      {
+	"account":"AssetsLivestockAtCost",
+	"date":"date(2015,7,1)",
+	"description":"livestock opening inventory",
+	"type":"instant",
+	"vector": [ {"credit":0, "debit":1234, "unit":"AUD"} ],
+	"vector_converted_at_balance_date": [ {"credit":0.0, "debit":1234.0, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": [ {"credit":0.0, "debit":1234.0, "unit":"AUD"} ]
+      },
+      {
+	"account":"CapitalIntroduced",
+	"date":"date(2015,7,1)",
+	"description":"livestock opening inventory",
+	"type":"instant",
+	"vector": [ {"credit":1234, "debit":0, "unit":"AUD"} ],
+	"vector_converted_at_balance_date": [ {"credit":1234.0, "debit":0.0, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": [ {"credit":1234.0, "debit":0.0, "unit":"AUD"} ]
+      },
+      {
+	"account":"SheepCount",
+	"date":"date(2018,1,30)",
+	"description":"livestock born",
+	"type":"instant",
+	"vector": [ {"credit":0, "debit":12, "unit":"Sheep"} ],
+	"vector_converted_at_balance_date": [ {"credit":0, "debit":12, "unit":"Sheep"} ],
+	"vector_converted_at_transaction_date": [ {"credit":0, "debit":12, "unit":"Sheep"} ]
+      },
+      {
+	"account":"SheepCount",
+	"date":"date(2018,2,3)",
+	"description":"livestock born",
+	"type":"instant",
+	"vector": [ {"credit":0, "debit":50, "unit":"Sheep"} ],
+	"vector_converted_at_balance_date": [ {"credit":0, "debit":50, "unit":"Sheep"} ],
+	"vector_converted_at_transaction_date": [ {"credit":0, "debit":50, "unit":"Sheep"} ]
+      },
+      {
+	"account":"SheepCount",
+	"date":"date(2018,2,1)",
+	"description":"livestock loss",
+	"type":"instant",
+	"vector": [ {"credit":1, "debit":0, "unit":"Sheep"} ],
+	"vector_converted_at_balance_date": [ {"credit":1, "debit":0, "unit":"Sheep"} ],
+	"vector_converted_at_transaction_date": [ {"credit":1, "debit":0, "unit":"Sheep"} ]
+      },
+      {
+	"account":"SheepCount",
+	"date":"date(2018,2,1)",
+	"description":"livestock rations",
+	"type":"instant",
+	"vector": [ {"credit":11, "debit":0, "unit":"Sheep"} ],
+	"vector_converted_at_balance_date": [ {"credit":11, "debit":0, "unit":"Sheep"} ],
+	"vector_converted_at_transaction_date": [ {"credit":11, "debit":0, "unit":"Sheep"} ]
+      },
+      {
+	"account":"Drawings",
+	"date":"date(2018,2,1)",
+	"description":"rations",
+	"type":"instant",
+	"vector": [ {"credit":0, "debit":511.0217391304348, "unit":"AUD"} ],
+	"vector_converted_at_balance_date": [ {"credit":0.0, "debit":511.0217391304348, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": [ {"credit":0.0, "debit":511.0217391304348, "unit":"AUD"} ]
+      },
+      {
+	"account":"SheepCogsRations",
+	"date":"date(2018,2,1)",
+	"description":"rations",
+	"type":"instant",
+	"vector": [ {"credit":511.0217391304348, "debit":0, "unit":"AUD"} ],
+	"vector_converted_at_balance_date": [ {"credit":511.0217391304348, "debit":0.0, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": [ {"credit":511.0217391304348, "debit":0.0, "unit":"AUD"} ]
+      },
+      {
+	"account":"SheepSales",
+	"date":"date(2018,3,2)",
+	"description":"livestock sell",
+	"type":"instant",
+	"vector": [ {"credit":500, "debit":0, "unit":"AUD"} ],
+	"vector_converted_at_balance_date": [ {"credit":500.0, "debit":0.0, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": [ {"credit":500.0, "debit":0.0, "unit":"AUD"} ]
+      },
+      {
+	"account":"SheepCogs",
+	"date":"date(2018,3,2)",
+	"description":"livestock buy",
+	"type":"instant",
+	"vector": [ {"credit":0, "debit":1800, "unit":"AUD"} ],
+	"vector_converted_at_balance_date": [ {"credit":0.0, "debit":1800.0, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": [ {"credit":0.0, "debit":1800.0, "unit":"AUD"} ]
+      }
+    ]
+  }
+]

@@ -19,7 +19,7 @@
 :- dynamic user:file_search_path/2.
 :- multifile user:file_search_path/2.
 :- dynamic user:my_request_tmp_dir, [thread(local)].
-:- dynamic user:asserted_server_public_url/1.
+:- thread_local asserted_server_public_url/1.
 
 request_tmp_dir(Dir) :-
 	my_request_tmp_dir(Dir).
@@ -103,7 +103,13 @@ server_public_url(Url) :-
 	asserted_server_public_url(Url).
 		
 set_server_public_url(Url) :-
-	format(user_error, 'Server_Public_Url: ~w\n', [Url]),
+	asserted_server_public_url(Url), !.
+
+set_server_public_url(Url) :-
+	(	asserted_server_public_url(Old)
+	->	format(user_error, 'old Server_Public_Url: ~qw\n', [Old])
+	;	true),
+	%format(user_error, 'Server_Public_Url: ~q\n', [Url]),
 	retractall(asserted_server_public_url(_)),
 	assert(asserted_server_public_url(Url)).
 	

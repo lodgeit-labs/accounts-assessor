@@ -65,6 +65,7 @@ x(Source_File, Goal) :-
 	format(user_error, '============...\n', []),
 	opts(Opts),
 	memberchk(debug(Debug), Opts),
+	memberchk(viewer(Viewer), Opts),
 	(
 		Debug = true
 	->
@@ -77,16 +78,18 @@ x(Source_File, Goal) :-
 	shell2([Load_Cmd, ' -g "halt."  2>&1  |  tee err']),
 	maybe_halt_on_err,
 	format(user_error, 'ok...\n', []),
-	shell2([Load_Cmd, ' -g "', Goal, ', halt."  2>&1 1> arrr.xml | tee err']),
-	maybe_halt_on_err,
-	opts(Opts),
-	memberchk(viewer(Viewer), Opts),
-	shell2([Viewer, ' arrr.xml']),
+	(	nonvar(Viewer)
+	->	Redirection = ' 1> arrr.xml | tee err'
+	;	Redirection = ''),
+	shell2([Load_Cmd, ' -g "', Goal, ', halt."  2>&1 ', Redirection]),
+	(	nonvar(Viewer)
+	->	(maybe_halt_on_err, shell2([Viewer, ' arrr.xml']))
+	;	true),
 	halt.
 
 :- 
 	Spec = [
-		[opt(viewer), type(atom), default(vim), shortflags([v]), longflags([viewer])]
+		[opt(viewer), type(atom), shortflags([v]), longflags([viewer])]
 		,[opt(debug), type(boolean), default(true), shortflags([d]), longflags([debug])]
 		,[opt(halt_on_problems), type(boolean), default(true), shortflags([h]), longflags([halt_on_problems])]
 		,[opt(problem_lines_whitelist), type(atom), longflags([problem_lines_whitelist])]

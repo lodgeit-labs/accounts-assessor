@@ -47,8 +47,7 @@ event(Event, Unit_Cost_Foreign, Currency_Conversion, Unit_Cost_Converted, Total_
 
 
 investment_report_2(Static_Data, Outstanding_In, Filename_Suffix, Report_Data, [Report_File_Info, JSON_File_Info]) :-
-%investment_report_2(Static_Data, Outstanding_In, Filename_Suffix, Report_Data, [Report_File_Info, Json_Filename:url(Json_Url)]) :-
-	%write('<!-- '),print_term(Outstanding_In,[]), write(' -->'),
+	reset_gensym(iri),
 	
 	Start_Date = Static_Data.start_date,
 	End_Date = Static_Data.end_date,

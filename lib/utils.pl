@@ -41,6 +41,9 @@
 :- use_module(library(xsd/flatten)).
 
 :- rdet(report_currency_atom/2).
+:- rdet(shell2/1).
+:- rdet(shell2/2).
+:- rdet(shell3/3).
 
 
 :- multifile user:goal_expansion/2.
@@ -163,31 +166,40 @@ var_to_kv_pair(Var, Pair) :-
 	downcase_atom(Name, Name_Lcase),
 	Pair = Name_Lcase-Var.
 
+
+
 /* take a list of variables, unify them with values of Dict, using lowercased names of those variables as keys.
 see plunit/utils for examples*/
-user:goal_expansion(
-	dict_vars(Dict, Vars_List), Code
-) :-
-	dict_vars_assignment(Vars_List, Dict, Code).
-
 user:goal_expansion(
 	dict_vars(Dict, Tag, Vars_List), Code
 ) :-
 	Code = (is_dict(Dict, Tag), Code0),
 	dict_vars_assignment(Vars_List, Dict, Code0).
 
+user:goal_expansion(
+	dict_vars(Dict, Vars_List), Code
+) :-
+	dict_vars_assignment(Vars_List, Dict, Code).
+	%(dict_vars_assignment(Vars_List, Dict, Code) -> true ; (format(user_error, 'xxxxx', []))).
+
 dict_vars_assignment([Var|Vars], Dict, Code) :-
-	var_property(Var, name(Key)),
-	downcase_atom(Key, Key_Lcase),
-	
-	%Code0 = get_dict_ex(Key_Lcase, Dict, Var), % not supported in some versions?
-	Code0 = ((get_dict(Key_Lcase, Dict, Var)->true;throw(existence_error(key, Key_Lcase, Dict)))),
-	
 	Code = (Code0, Codes),
-	dict_vars_assignment(Vars, Dict, Codes).
+	%Code0 = (debug(dict_vars, '~w', [Key]), get_dict(Key_Lcase, Dict, Var)),
+	Code0 = ((debug(dict_vars, '~w', [Key]), (get_dict(Key_Lcase, Dict, Var)->true;throw(existence_error(key, Key_Lcase, Dict))))),
+	%Code0 = get_dict_ex(Key_Lcase, Dict, Var), % not supported in some versions?
+    (
+        (
+            var_property(Var, name(Key)),
+            downcase_atom(Key, Key_Lcase)
+        )
+    ->
+        true
+    ;
+        (writeq(Code), nl, nl/*, Key_Lcase = yy*/)
+    ),
+    dict_vars_assignment(Vars, Dict, Codes).
 
 dict_vars_assignment([], _, true).
-	
 	
 	
 	
@@ -608,8 +620,18 @@ shell2(Cmd) :-
 	shell2(Cmd, _).
 
 shell2(Cmd_In, Exit_Status) :-
+	shell3(Cmd_In, [exit_status(Exit_Status)]).
+
+shell3(Cmd_In, Options) :-
 	flatten([Cmd_In], Cmd_Flat),
 	atomic_list_concat(Cmd_Flat, " ", Cmd),
-	%format(user_error, '~w\n\n', [Cmd]),
-	shell(Cmd, Exit_Status).
-
+	(	memberchk(print_command(true), Options)
+	->	format(user_error, '~w\n\n', [Cmd])
+	;	true),
+	shell(Cmd, Exit_Status),
+	(	memberchk(exit_status(E), Options)
+	->	E = Exit_Status
+	;	true),
+	(	memberchk(command(C), Options)
+	->	C = Cmd
+	;	true).

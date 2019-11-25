@@ -1,0 +1,82 @@
+[
+  {
+    "source": {
+      "account":"NationalAustraliaBank",
+      "date":"date(2016,1,1)",
+      "exchanged":"vector([coord('GOOG',1,0)])",
+      "report_currency_transacted_amount_converted_at_balance_date":641.1025,
+      "report_currency_transacted_amount_converted_at_transaction_date":686.9649999999999,
+      "vector": [ {"credit":500, "debit":0, "unit":"USD"} ],
+      "verb":"Invest_In"
+    },
+    "transactions": [
+      {
+	"account":"BanksNationalAustraliaBank",
+	"date":"date(2016,1,1)",
+	"description":"Invest_In - outgoing money",
+	"type":"instant",
+	"vector": [ {"credit":500, "debit":0, "unit":"USD"} ],
+	"vector_converted_at_balance_date": [ {"credit":641.1025, "debit":0.0, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": [ {"credit":686.965, "debit":0.0, "unit":"AUD"} ]
+      },
+      {
+	"account":"CurrencyMovementNationalAustraliaBank",
+	"date":"date(2016,1,1)",
+	"description":"Invest_In - outgoing money - currency movement adjustment - only current period",
+	"type":"tracking",
+	"vector": [
+	   {"credit":0, "debit":500, "unit":"USD"},
+	   {
+  "credit":500,
+  "debit":0,
+  "unit":"without_currency_movement_against_since('USD','USD',['AUD'],date(2016,1,1))"
+}
+	],
+	"vector_converted_at_balance_date": [ {"credit":45.86250000000007, "debit":0.0, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": []
+      },
+      {
+	"account":"FinancialInvestmentsGOOG",
+	"date":"date(2016,1,1)",
+	"description":"Invest_In",
+	"type":"instant",
+	"vector": [ {"credit":0, "debit":1, "unit":"GOOG"} ],
+	"vector_converted_at_balance_date": [ {"credit":0.0, "debit":1282.205, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": [ {"credit":0.0, "debit":686.965, "unit":"AUD"} ]
+      },
+      {
+	"account":"InvestmentIncomeUnrealizedOnlyCurrencyMovementGOOG",
+	"date":"date(2016,1,1)",
+	"description":"comment:?, comment2:Invest_In - single period",
+	"type":"?",
+	"vector": [
+	   {"credit":1, "debit":0, "unit":"GOOG"},
+	   {
+  "credit":0,
+  "debit":1,
+  "unit":"without_currency_movement_against_since('GOOG','USD',['AUD'],date(2016,1,1))"
+}
+	],
+	"vector_converted_at_balance_date": [ {"credit":0.0, "debit":91.72499999999991, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": []
+      },
+      {
+	"account":"InvestmentIncomeUnrealizedWithoutCurrencyMovementGOOG",
+	"date":"date(2016,1,1)",
+	"description":"comment:?, comment2:Invest_In - single period",
+	"type":"?",
+	"vector": [
+	   {
+  "credit":1,
+  "debit":0,
+  "unit":"without_currency_movement_against_since('GOOG','USD',['AUD'],date(2016,1,1))"
+},
+	   {"credit":0, "debit":686.965, "unit":"AUD"}
+	],
+	"vector_converted_at_balance_date": [ {"credit":686.9649999999998, "debit":0.0, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": []
+      }
+    ]
+  },
+  {"source":"livestock", "transactions": []}
+]

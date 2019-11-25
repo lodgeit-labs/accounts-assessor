@@ -77,7 +77,7 @@
 :- use_module('../investment_report_2').
 :- use_module('../crosschecks_report').
 :- use_module('../invoices').
-:- use_module('../xbrl_output').
+:- use_module('../xbrl_output', [create_instance/10]).
 
 
 process_xml_ledger_request(File_Name, Dom, Reports) :-
@@ -123,7 +123,7 @@ process_xml_ledger_request2(Dom, Reports_Out) :-
 	extract_exchange_rates(Dom, Start_Date, End_Date, Default_Currency, Exchange_Rates),
 	findall(Livestock_Dom, xpath(Dom, //reports/balanceSheetRequest/livestockData, Livestock_Dom), Livestock_Doms),
 	get_livestock_types(Livestock_Doms, Livestock_Types),
-   	extract_livestock_opening_costs_and_counts(Livestock_Doms, Livestock_Opening_Costs_And_Counts),
+	extract_livestock_opening_costs_and_counts(Livestock_Doms, Livestock_Opening_Costs_And_Counts),
 	findall(S_Transaction, extract_s_transaction(Dom, Start_Date_Atom, S_Transaction), S_Transactions0),
 	
 	/* 
@@ -169,7 +169,7 @@ create_reports(Static_Data, Json_Request_Results) :-
 	balance_entries(Static_Data, Static_Data_Historical, Entries),
 	dict_vars(Entries, [Balance_Sheet, ProfitAndLoss, Balance_Sheet2_Historical, ProfitAndLoss2_Historical, Trial_Balance]),
 	maybe_prepare_unique_taxonomy_url(Taxonomy_Url_Base),
-	xbrl_output:create_instance(Static_Data, Taxonomy_Url_Base, Static_Data.start_date, Static_Data.end_date, Static_Data.accounts, Static_Data.report_currency, Balance_Sheet, ProfitAndLoss, ProfitAndLoss2_Historical, Trial_Balance),
+	/*xbrl_output:*/create_instance(Static_Data, Taxonomy_Url_Base, Static_Data.start_date, Static_Data.end_date, Static_Data.accounts, Static_Data.report_currency, Balance_Sheet, ProfitAndLoss, ProfitAndLoss2_Historical, Trial_Balance),
 	other_reports(Static_Data, Static_Data_Historical, Static_Data.outstanding, Balance_Sheet, ProfitAndLoss, Balance_Sheet2_Historical, ProfitAndLoss2_Historical, Trial_Balance, Json_Request_Results).
 
 balance_entries(Static_Data, Static_Data_Historical, Entries) :-
