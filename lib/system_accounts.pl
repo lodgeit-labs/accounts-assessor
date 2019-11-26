@@ -13,7 +13,7 @@
 		account_detail_level/2]).
 :- use_module('livestock', [
 		make_livestock_accounts/2]).
-:- use_module('statements', [
+:- use_module('bank_statement', [
 		s_transaction_account_id/2,
 		s_transaction_vector/2,
 		s_transaction_exchanged/2]).

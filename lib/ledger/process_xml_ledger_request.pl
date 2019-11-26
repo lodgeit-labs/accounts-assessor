@@ -43,7 +43,7 @@
 		net_activity_by_account/4]).
 :- use_module('../ledger_html_reports').
 :- use_module('../report_page').
-:- use_module('../statements', [
+:- use_module('../bank_statement', [
 		extract_s_transaction/3, 
 		print_relevant_exchange_rates_comment/4, 
 		invert_s_transaction_vector/2, 

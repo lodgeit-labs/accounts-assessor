@@ -1,10 +1,4 @@
-% ===================================================================
-% Project:   LodgeiT
-% Module:    statements.pl
-% Date:      2019-06-02
-% ===================================================================
-
-:- module(statements, [
+:- module(_, [
 		extract_s_transaction/3, 
 		preprocess_s_transactions/6,
 		print_relevant_exchange_rates_comment/4,
@@ -215,20 +209,20 @@ preprocess_s_transaction(Static_Data, S_Transaction, Transactions, Outstanding_I
 	s_transaction_exchanged(NS_Transaction, vector(Vector_Exchanged_Inverted)),
 	preprocess_s_transaction(Static_Data, NS_Transaction, Transactions, Outstanding_In, Outstanding_Out).
 
-
 /*
-	livestock currenty does it's own thing, using average cost computation and andjustment transactions.
-	This means that it does not handle foreign currency bank accounts as we do here.
-	At least the aftecting of bank account should be changed to be handled by preprocess_s_transaction,
-	but the livestock logic is in need of a serious cleanup, we will probably do that as part of implementing inventory or other pricing methods.
+-       livestock currenty does it's own thing, using average cost computation and andjustment tra
+nsactions.
+-       This means that it does not handle foreign currency bank accounts as we do here.
+-       At least the aftecting of bank account should be changed to be handled by preprocess_s_tra
+nsaction,
+-       but the livestock logic is in need of a serious cleanup, we will probably do that as part
+of implementing inventory or other pricing methods.
 */
 preprocess_s_transaction(Static_Data, S_Transaction, Transactions, Outstanding, Outstanding) :-
-	preprocess_livestock_buy_or_sell(Static_Data, S_Transaction, Transactions)/*,!*/.
+    preprocess_livestock_buy_or_sell(Static_Data, S_Transaction, Transactions),!.
 
-
-
-preprocess_s_transaction(Static_Data, S_Transaction, [Ts1, Ts2, Ts3, Ts4], Outstanding_In, Outstanding_Out) :-
-	Pricing_Method = lifo,
+preprocess_s_transaction(Static_Data, S_Transaction, Gl_Entries, Outstanding_Before, Outstanding_After) :-
+	rdf_stuff:my_rdf_graph(G),
 	dict_vars(Static_Data, [Report_Currency, Exchange_Rates]),
 	check_s_transaction_action_verb(S_Transaction),
 	s_transaction_exchanged(S_Transaction, vector(Counteraccount_Vector)),
@@ -236,37 +230,45 @@ preprocess_s_transaction(Static_Data, S_Transaction, [Ts1, Ts2, Ts3, Ts4], Outst
 	s_transaction_action_verb(S_Transaction, Action_Verb),
 	s_transaction_vector(S_Transaction, Vector_Ours),
 	s_transaction_day(S_Transaction, Transaction_Date),
+	Pricing_Method = lifo,
 	
-	rdf_stuff:my_rdf_graph(G),
-	rdf(Action_Verb, l:has_id, Transaction_Type_Id, G),
-	rdf(Action_Verb, l:has_exchange_account, Exchanged_Account, G),
-	(rdf(Action_Verb, l:has_trading_account, Trading_Account, G)->true;true),	
-
-	Description = Transaction_Type_Id,
-	[coord(Bank_Account_Currency, _,_)] = Vector_Ours,
-	affect_bank_account(Static_Data, Bank_Account_Name, Bank_Account_Currency, Transaction_Date, Vector_Ours, Description, Ts1), 
-	vec_change_bases(Exchange_Rates, Transaction_Date, Report_Currency, Vector_Ours, Converted_Vector_Ours),
-	(
-		Counteraccount_Vector \= []
-	->
-		(
-			is_debit(Counteraccount_Vector)
-		->
-			make_buy(
-				Static_Data, Trading_Account, Pricing_Method, Bank_Account_Currency, Counteraccount_Vector,
-				Converted_Vector_Ours, Vector_Ours, Exchanged_Account, Transaction_Date, Description, Outstanding_In, Outstanding_Out, Ts2)
-		;		
-			make_sell(
-				Static_Data, Trading_Account, Pricing_Method, Bank_Account_Currency, Counteraccount_Vector, Vector_Ours, 
-				Converted_Vector_Ours,	Exchanged_Account, Transaction_Date, Description,	Outstanding_In, Outstanding_Out, Ts3)
-		)
+	/*Action_Verb = l:livestock_buy
+	-> preprocess_livestock_buy(Static_Data, S_Transaction, Transactions)
+	Action_Verb = l:livestock_sell
+	-> preprocess_livestock_sell(Static_Data, S_Transaction, Transactions)
 	;
+	(*/
+		/* if running backwards, possibly trying with every known action verb */
+		rdf(Action_Verb, l:has_id, Transaction_Type_Id, G),
+		
+		rdf(Action_Verb, l:has_exchange_account, Exchanged_Account, G),
+		(rdf(Action_Verb, l:has_trading_account, Trading_Account, G)->true;true),	
+
+		Description = Transaction_Type_Id,
+		[coord(Bank_Account_Currency, _,_)] = Vector_Ours,
+		affect_bank_account(Static_Data, Bank_Account_Name, Bank_Account_Currency, Transaction_Date, Vector_Ours, Description, Ts1), 
+		vec_change_bases(Exchange_Rates, Transaction_Date, Report_Currency, Vector_Ours, Converted_Vector_Ours),
 		(
-			assertion(Counteraccount_Vector = []),
-			record_expense_or_earning_or_equity_or_loan(Static_Data, Action_Verb, Vector_Ours, Exchanged_Account, Transaction_Date, Description, Ts4),
-			Outstanding_Out = Outstanding_In
-		)
-	).
+			Counteraccount_Vector \= []
+		->
+			(
+				is_debit(Counteraccount_Vector)
+			->
+				make_buy(
+					Static_Data, Trading_Account, Pricing_Method, Bank_Account_Currency, Counteraccount_Vector,
+					Converted_Vector_Ours, Vector_Ours, Exchanged_Account, Transaction_Date, Description, Outstanding_In, Outstanding_Out, Ts2)
+			;		
+				make_sell(
+					Static_Data, Trading_Account, Pricing_Method, Bank_Account_Currency, Counteraccount_Vector, Vector_Ours, 
+					Converted_Vector_Ours,	Exchanged_Account, Transaction_Date, Description,	Outstanding_In, Outstanding_Out, Ts3)
+			)
+		;
+			(
+				assertion(Counteraccount_Vector = []),
+				record_expense_or_earning_or_equity_or_loan(Static_Data, Action_Verb, Vector_Ours, Exchanged_Account, Transaction_Date, Description, Ts4),
+				Outstanding_Out = Outstanding_In
+			)
+		).
 
 /*
 	purchased shares are recorded in an assets account without conversion. The unit is optionally wrapped in a with_cost_per_unit term.

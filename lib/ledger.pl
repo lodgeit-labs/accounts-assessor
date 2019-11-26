@@ -7,7 +7,7 @@
 		traded_units/2,
 		generate_system_accounts/3]).
 :- use_module('accounts').
-:- use_module('statements', [
+:- use_module('bank_statement', [
 		s_transaction_day/2,
 		preprocess_s_transactions/6,
 		s_transactions_up_to/3]).
@@ -244,7 +244,7 @@ make_gl_entry(Sd, Source, Transactions, Entry) :-
 		S = Source
 	; 
 		(
-			statements:s_transaction_to_dict(Source, S0),
+			bank_statement:s_transaction_to_dict(Source, S0),
 			/* currently this is converted at transaction date */
 			s_transaction_with_transacted_amount(Sd, S0, S)
 		)
