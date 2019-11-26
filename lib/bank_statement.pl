@@ -64,7 +64,7 @@
 :- use_module('pricing', [
 		add_bought_items/4, 
 		find_items_to_sell/8]).
-:- use_module('rdf_stuff', []).
+:- use_module('my_rdf', []).
 
 :- use_module(library(semweb/rdf11)).
 :- use_module(library(record)).
@@ -73,9 +73,7 @@
 
 :- [trading].
 
-/*
-TODO add more rdet declarations here
-*/
+/*TODO add more rdet declarations here*/
 :- rdet(preprocess_s_transaction/5).
 :- rdet(s_transaction_to_dict/2).
 
@@ -89,14 +87,6 @@ TODO add more rdet declarations here
 % - Either the units or the amount to which the transaction amount will be converted to
 % depending on whether the term is of the form bases(...) or vector(...).
 
-s_transaction_to_dict(St, D) :-
-	St = s_transaction(Day, Verb, Vector, Account, Exchanged),
-	D = _{
-		date: Day,
-		verb: Verb,
-		vector: Vector,
-		account: Account,
-		exchanged: Exchanged}.
 
 preprocess_s_transactions(Static_Data, S_Transactions, Processed_S_Transactions, Transactions_Out, Outstanding_Out, Debug_Info) :-
 /*
@@ -166,63 +156,20 @@ preprocess_s_transactions2(Static_Data, [S_Transaction|S_Transactions], Processe
 		true
 	).
 
-check_trial_balance0(Exchange_Rates, Report_Currency, Transaction_Date, Transactions_Out, _Start_Date, End_Date, Debug_So_Far, Debug_Head) :-
-	catch(
-		(
-			check_trial_balance(Exchange_Rates, Report_Currency, Transaction_Date, Transactions_Out),
-			check_trial_balance(Exchange_Rates, Report_Currency, End_Date, Transactions_Out)
-			%(
-			%	Transaction_Date @< Start_Date...
-		),
-		E, 
-		(
-			format(user_error, '\n\\n~w\n\n', [Debug_So_Far]),
-			format(user_error, '\n\nwhen processing:\n~w', [Debug_Head]),
-			pretty_term_string(E, E_Str),
-			throw_string([E_Str])
-		)
-	).
-
-	
 % ----------
 % This predicate takes a list of statement transaction terms and decomposes it into a list of plain transaction terms.
 % ----------	
 
-% This Prolog rule handles the case when only the exchanged units are known (for example GOOG)  and
-% hence it is desired for the program to infer the count. 
-% We passthrough the output list to the above rule, and just replace the first S_Transaction in the 
-% input list with a modified one (NS_Transaction).
 preprocess_s_transaction(Static_Data, S_Transaction, Transactions, Outstanding_In, Outstanding_Out) :-
-	dict_vars(Static_Data, [Exchange_Rates]),
-	s_transaction_exchanged(S_Transaction, bases(Goods_Bases)),
-	s_transaction_day(S_Transaction, Transaction_Date), 
-	s_transaction_day(NS_Transaction, Transaction_Date),
-	s_transaction_type_id(S_Transaction, Type_Id), 
-	s_transaction_type_id(NS_Transaction, Type_Id),
-	s_transaction_vector(S_Transaction, Vector_Bank), 
-	s_transaction_vector(NS_Transaction, Vector_Bank),
-	s_transaction_account_id(S_Transaction, Unexchanged_Account_Id), 
-	s_transaction_account_id(NS_Transaction, Unexchanged_Account_Id),
-	% infer the count by money debit/credit and exchange rate
-	vec_change_bases(Exchange_Rates, Transaction_Date, Goods_Bases, Vector_Bank, Vector_Exchanged),
-	vec_inverse(Vector_Exchanged, Vector_Exchanged_Inverted),
-	s_transaction_exchanged(NS_Transaction, vector(Vector_Exchanged_Inverted)),
+    infer_exchanged_units_count(Static_Data, S_Transaction, NS_Transaction),
 	preprocess_s_transaction(Static_Data, NS_Transaction, Transactions, Outstanding_In, Outstanding_Out).
 
-/*
--       livestock currenty does it's own thing, using average cost computation and andjustment tra
-nsactions.
--       This means that it does not handle foreign currency bank accounts as we do here.
--       At least the aftecting of bank account should be changed to be handled by preprocess_s_tra
-nsaction,
--       but the livestock logic is in need of a serious cleanup, we will probably do that as part
-of implementing inventory or other pricing methods.
-*/
 preprocess_s_transaction(Static_Data, S_Transaction, Transactions, Outstanding, Outstanding) :-
-    preprocess_livestock_buy_or_sell(Static_Data, S_Transaction, Transactions),!.
+    infer_livestock_action_verb(S_Transaction, NS_Transaction),
+	preprocess_s_transaction(Static_Data, NS_Transaction, Transactions, Outstanding_In, Outstanding_Out).
 
 preprocess_s_transaction(Static_Data, S_Transaction, Gl_Entries, Outstanding_Before, Outstanding_After) :-
-	rdf_stuff:my_rdf_graph(G),
+	my_rdf:my_rdf_graph(G),
 	dict_vars(Static_Data, [Report_Currency, Exchange_Rates]),
 	check_s_transaction_action_verb(S_Transaction),
 	s_transaction_exchanged(S_Transaction, vector(Counteraccount_Vector)),
@@ -373,7 +320,7 @@ record_expense_or_earning_or_equity_or_loan(Static_Data, Action_Verb, Vector_Our
 	Exchange_Rates = Static_Data.exchange_rates,
 	vec_inverse(Vector_Ours, Vector_Ours2),
 	vec_change_bases(Exchange_Rates, Date, Report_Currency, Vector_Ours2, Vector_Converted),
-	rdf_stuff:my_rdf_graph(G),
+	my_rdf:my_rdf_graph(G),
 	(
 		(
 			rdf(Action_Verb, l:has_gst_rate, Gst_Rate^^_, G),
@@ -547,7 +494,7 @@ check_trial_balance(Exchange_Rates, Report_Currency, Date, Transactions) :-
 % Gets the transaction_type term associated with the given transaction
 s_transaction_action_verb(S_Transaction, Action_Verb) :-
 	s_transaction_type_id(S_Transaction, Type_Id),
-	rdf_stuff:my_rdf_graph(G),
+	my_rdf:my_rdf_graph(G),
 	rdf(Action_Verb, rdf:type, l:action_verb, G),
 	rdf(Action_Verb, l:has_id, Type_Id, G).
 
@@ -614,12 +561,12 @@ extract_exchanged_value(Tx_Dom, _Account_Currency, Bank_Debit, Bank_Credit, Exch
    % if unit type and count is specified, unifies Exchanged with a one-item vector with a coord with those values
    % otherwise unifies Exchanged with bases(..) to trigger unit conversion later
    (
-      field_nothrow(Tx_Dom, [unitType, Unit_Type]),
-      (
-         (
-            field_nothrow(Tx_Dom, [unit, Unit_Count_Atom]),
-            atom_number(Unit_Count_Atom, Unit_Count),
-           	Count_Absolute is abs(Unit_Count),
+	  field_nothrow(Tx_Dom, [unitType, Unit_Type]),
+	  (
+		 (
+			field_nothrow(Tx_Dom, [unit, Unit_Count_Atom]),
+			atom_number(Unit_Count_Atom, Unit_Count),
+			Count_Absolute is abs(Unit_Count),
 			(
 				Bank_Debit > 0
 			->
@@ -631,17 +578,17 @@ extract_exchanged_value(Tx_Dom, _Account_Currency, Bank_Debit, Bank_Credit, Exch
 					Exchanged = vector([coord(Unit_Type, 0, Count_Absolute)])
 			),
 			!
-         )
-         ;
-         (
-            % If the user has specified only a unit type, then infer count by exchange rate
-            Exchanged = bases([Unit_Type])
-         )
-      ),!
+		 )
+		 ;
+		 (
+			% If the user has specified only a unit type, then infer count by exchange rate
+			Exchanged = bases([Unit_Type])
+		 )
+	  ),!
    )
    ;
    (
-      Exchanged = vector([])
+	  Exchanged = vector([])
    ).
 
 
@@ -764,7 +711,7 @@ fill_in_missing_units(S_Transactions0, Report_End_Date, [Report_Currency], Used_
  
 check_s_transaction_action_verb(S_Transaction) :-
 	s_transaction_type_id(S_Transaction, Type_Id),
-	rdf_stuff:my_rdf_graph(G),
+	my_rdf:my_rdf_graph(G),
 	(
 		(
 			rdf(X, rdf:type, l:action_verb, G),
@@ -865,4 +812,51 @@ pretty_vector_string(Seen_Units0, Seen_Units_Out, [Coord|Rest], Vector_Str) :-
 	atomic_list_concat(['  ', Side, ':', Shorthand, ':', Coord_Str0, '\n'], Coord_Str),
 	pretty_vector_string(Seen_Units1, Seen_Units_Out, Rest, Rest_Str),
 	atomic_list_concat([Coord_Str, Rest_Str], Vector_Str).
+
+
+% This Prolog rule handles the case when only the exchanged units are known (for example GOOG)  and
+% hence it is desired for the program to infer the count.
+infer_exchanged_units_count(Static_Data, S_Transaction, NS_Transaction) :-
+	dict_vars(Static_Data, [Exchange_Rates]),
+	s_transaction_exchanged(S_Transaction, bases(Goods_Bases)),
+	s_transaction_day(S_Transaction, Transaction_Date),
+	s_transaction_day(NS_Transaction, Transaction_Date),
+	s_transaction_type_id(S_Transaction, Type_Id),
+	s_transaction_type_id(NS_Transaction, Type_Id),
+	s_transaction_vector(S_Transaction, Vector_Bank),
+	s_transaction_vector(NS_Transaction, Vector_Bank),
+	s_transaction_account_id(S_Transaction, Unexchanged_Account_Id),
+	s_transaction_account_id(NS_Transaction, Unexchanged_Account_Id),
+	% infer the count by money debit/credit and exchange rate
+	vec_change_bases(Exchange_Rates, Transaction_Date, Goods_Bases, Vector_Bank, Vector_Exchanged),
+	vec_inverse(Vector_Exchanged, Vector_Exchanged_Inverted),
+	s_transaction_exchanged(NS_Transaction, vector(Vector_Exchanged_Inverted)).
+
+
+s_transaction_to_dict(St, D) :-
+	St = s_transaction(Day, Verb, Vector, Account, Exchanged),
+	D = _{
+		date: Day,
+		verb: Verb,
+		vector: Vector,
+		account: Account,
+		exchanged: Exchanged}.
+
+
+check_trial_balance0(Exchange_Rates, Report_Currency, Transaction_Date, Transactions_Out, _Start_Date, End_Date, Debug_So_Far, Debug_Head) :-
+	catch(
+		(
+			check_trial_balance(Exchange_Rates, Report_Currency, Transaction_Date, Transactions_Out),
+			check_trial_balance(Exchange_Rates, Report_Currency, End_Date, Transactions_Out)
+			%(
+			%	Transaction_Date @< Start_Date...
+		),
+		E,
+		(
+			format(user_error, '\n\\n~w\n\n', [Debug_So_Far]),
+			format(user_error, '\n\nwhen processing:\n~w', [Debug_Head]),
+			pretty_term_string(E, E_Str),
+			throw_string([E_Str])
+		)
+	).
 

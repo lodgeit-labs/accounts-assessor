@@ -6,7 +6,7 @@
 :- use_module(library(xpath)).
 
 :- use_module('utils', []).
-:- use_module('rdf_stuff', []).
+:- use_module('my_rdf', []).
 
 extract_action_verbs_from_bs_request(Dom) :-
 	(

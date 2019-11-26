@@ -7,8 +7,13 @@ this file needs serious cleanup, one reason to delay that might be that we can e
 */
 
 :- module(livestock, [
-		get_livestock_types/2, process_livestock/15,
-		preprocess_livestock_buy_or_sell/3, make_livestock_accounts/2, livestock_counts/6, extract_livestock_opening_costs_and_counts/2, compute_livestock_by_simple_calculation/23]).
+		get_livestock_types/2,
+		process_livestock/15,
+		preprocess_livestock_buy_or_sell/3,
+		make_livestock_accounts/2,
+		livestock_counts/6,
+		compute_livestock_by_simple_calculation/23
+]).
 :- use_module('utils', [
 		user:goal_expansion/2, inner_xml/3, fields/2, numeric_fields/2, pretty_term_string/2, maplist6/6, throw_string/1]).
 :- use_module('pacioli', [vec_add/3, vec_inverse/2, vec_reduce/2, vec_sub/3, number_coord/3]).
@@ -20,55 +25,37 @@ this file needs serious cleanup, one reason to delay that might be that we can e
 		transactions_by_account/2
 ]).
 
-/*
+infer_livestock_action_verb(S_Transaction, NS_Transaction) :-
+	gtrace,
 
-<howThisShouldWork>
+	s_transaction_type_id(S_Transaction, ''),
+	s_transaction_exchanged(S_Transaction, Exchanged),
 
-account taxonomy must include accounts for individual livestock types
-a list of livestock units will be defined in the sheet, for example "cows, horses".
-Natural_Increase_Cost_Per_Head has to be input for each livestock type, for example cows $20.
+	Exchanged = [coord(Unit,_,_)],
+	findall(
+		L,
+		(
+			my_with_subgraphs(L, rdf:a, l:livestock_data),
+			my_with_subgraphs(L, livestock:type, Unit/*?*/)
+		),
+		Known_Livestock_Datas
+	),
+	length(Known_Livestock_Datas, Known_Livestock_Datas_Length),
+	(   Known_Livestock_Datas_Length > 1
+	->  throw(xxx)
+	;   true),
 
-FOR CURRENT ITERATION, ASSUME THAT ALL TRANSACTIONS ARE IN THE BANK STATEMENT. I.E. NO OPENING BALANCES.WHY? BECAUSE OPENING BALANCES IN LIVESTOCK WILL REQUIRE A COMPLETE SET OF OPENING BALANCES. I.E. A COMPLETE OPENING BALANCE SHEET. 
+	s_transaction_type_id(NS_Transaction, livestock:trade),
+	s_transaction_exchanged(NS_Transaction, Exchanged).
 
-when bank statements are processed: 
-	If there is a livestock unit ("cows") set on a bank account transaction:
-		count has to be set to ("20"). 
-		
-		maybe TODO:
-			internally, we tag the transaction with a sell/buy livestock action type. 
-			user should have sell/buy livestock action types in their action taxonomy.
-			the "exchanged" account will be one where livestock increase/decrease transactions are internally collected. 
-		
-		SYSTEM CAN INFER BUY/SELL i.e. A BUY IS A PAYMENT & A SELL IS A DEPOSIT. OF COURSE, THE UNIT TYPE MUST BE DESCRIBED. COW. PIG, ETC. AND THE UNIT TYPE MUST HAVE AN ACCOUNTS TAXONOMICAL RELATIONSHIP
-		
-		maybe TODO:
-			internally, livestock buys and sells are transformed into "livestock buy/sell events" OK.
-		
-		one excel sheet for bank statement, one for each livestock type: natural increase, loss, rations..
-				
-		all livestock event types change the count accordingly.
-		livestock events have effects on other accounts beside the livestock count account:
-			buy/sell:
-				cost is taken from the bank transaction
-
-			natural increase:  NATURAL INCREASE IS AN ABSTRACT VALUE THAT IMPACTS THE LIVESTOCK_AT_MARKET_VALUE AT REPORT RUN TIME. THERE IS NO NEED TO STORE/SAVE THE (monetary) VALUE IN THE LEDGER. WHEN A COW IS BORN, NO CASH CHANGES HAND. 
-				dont: affect Assets_1203_Livestock_at_Cost by Natural_Increase_Cost_Per_Head as set by user
-		
-fixme:		
-average cost is defined for date and livestock type as follows:
-	stock count and value at beginning of year is taken from beginning of year balance on:
-		the livestock count account
-		Assets_1203_Livestock_at_Cost, Assets_1204_Livestock_at_Average_Cost
-	subsequent transactions until the given date are processed to get purchases count/value and natural increase count/value
-	then we calculate:
-		Natural_Increase_value is Natural_Increase_Count * Natural_Increase_Cost_Per_Head,
-		Opening_And_Purchases_And_Increase_Count is Stock_on_hand_at_beginning_of_year_count + Purchases_Count + Natural_Increase_Count,
-		Opening_and_purchases_and_increase_value is Stock_on_hand_at_beginning_of_year_value + Purchases_value + Natural_Increase_value,
-		Average_Cost is Opening_and_purchases_and_increase_value / Opening_And_Purchases_And_Increase_Count,
+	s_transaction_day(S_Transaction, Transaction_Date),
+	s_transaction_day(NS_Transaction, Transaction_Date),
+	s_transaction_vector(S_Transaction, Vector_Bank),
+	s_transaction_vector(NS_Transaction, Vector_Bank),
+	s_transaction_account_id(S_Transaction, Unexchanged_Account_Id),
+	s_transaction_account_id(NS_Transaction, Unexchanged_Account_Id).
 
 
-</howThisShouldWork>
-*/
 
 preprocess_livestock_buy_or_sell(Static_Data, S_Transaction, [Bank_Transaction, Livestock_Transaction]) :-
 	dict_vars(Static_Data, [Accounts]),
@@ -387,8 +374,8 @@ average_cost(Type, Opening_Cost0, Opening_Count0, Info, Exchange_Rate) :-
 		Average_Cost_Exp = Opening_And_Purchases_And_Increase_Value_Exp / Opening_And_Purchases_And_Increase_Count_Exp
 	),	Names1),
 	%	replace_underscores_in_variable_names_with_spaces(Names0, Names1),
-    
-    term_string(Average_Cost_Exp, Formula_String1, [Names1]),
+
+	term_string(Average_Cost_Exp, Formula_String1, [Names1]),
 	%pretty_term_string(Average_Cost_Exp, Formula_String1, [Namings]),
 
 	% now let's fill in the values
@@ -465,17 +452,11 @@ The currency reference should be standalone i.e. it is encoded in the transactio
 The taxonomy construct could have been done as Current Liabilities --> Current Loans --> Current Beneficiary Loans.  And the pattern could have been repeated in non current liabilities, current assets & non current assets. This structure is adopted to allow LodgeiT users better visibility over where to classify beneficiary loans to. These structures are social conventions where SEC & US GAAP taxonomies will not have the exact same shape. 
 
  Optimally we will have lots of useful taxonomy structures in a collection URL endpoint. i.e. Australian Livestock farmer trading through a trust. We must be able to read & use all manner of conformant XBRL taxonomies so we will start by making the attached JSON taxonomy XBRL compliant. Waqas already started the process. 
-
 */
 
 % finally, other predicates used from process_xml_ledger_request.pl */
 
-get_livestock_types(Livestock_Doms, Livestock_Types) :-
-	maplist(extract_livestock_type, Livestock_Doms, Livestock_Types).
 
-extract_livestock_type(Livestock_Dom, Livestock_Type) :-
-	inner_xml(Livestock_Dom, type, [Livestock_Type]).
-	
 get_average_costs(Livestock_Types, Opening_Costs_And_Counts, Info, Average_Costs) :-
 	maplist(get_average_costs2(Opening_Costs_And_Counts, Info), Livestock_Types, Average_Costs).
 
@@ -518,48 +499,6 @@ yield_more_transactions(Average_costs, S_Transactions, Livestock_Events, Livesto
 	maplist(preprocess_rations(Livestock_Type, Average_Cost), Livestock_Events, Rations_Transactions),
 	maplist(preprocess_sales(Livestock_Type, Average_Cost), S_Transactions, Sales_Transactions),
 	maplist(preprocess_buys(Livestock_Type, Average_Cost), S_Transactions, Buys_Transactions).
-
-extract_natural_increase_costs(Livestock_Doms, Natural_Increase_Costs) :-
-	maplist(
-		extract_natural_increase_cost,
-		Livestock_Doms,
-		Natural_Increase_Costs).
-
-extract_natural_increase_cost(Livestock_Dom, natural_increase_cost(Type, [coord('AUD', Cost, 0)])) :-
-	fields(Livestock_Dom, ['type', Type]),
-	numeric_fields(Livestock_Dom, ['naturalIncreaseValuePerUnit', Cost]).
-
-extract_livestock_opening_costs_and_counts(Livestock_Doms, Opening_Costs_And_Counts) :-
-	maplist(extract_opening_cost_and_count,	Livestock_Doms, Opening_Costs_And_Counts).
-
-extract_opening_cost_and_count(Livestock_Dom,	Opening_Cost_And_Count) :-
-	numeric_fields(Livestock_Dom, [
-		'openingCost', Opening_Cost,
-		'openingCount', Opening_Count]),
-	fields(Livestock_Dom, ['type', Type]),
-	Opening_Cost_And_Count = opening_cost_and_count(Type, [coord('AUD', Opening_Cost, 0)], Opening_Count).
-	
-extract_livestock_events(Livestock_Doms, Events) :-
-   maplist(extract_livestock_events2, Livestock_Doms, Events_Nested),
-   flatten(Events_Nested, Events).
-   
-extract_livestock_events2(Data, Events) :-
-   inner_xml(Data, type, [Type]),
-   findall(Event, xpath(Data, events/(*), Event), Xml_Events),
-   maplist(extract_livestock_event(Type), Xml_Events, Events).
-
-extract_livestock_event(Type, Dom, Event) :-
-   inner_xml(Dom, date, [Date]),
-   parse_date(Date, Days),
-   inner_xml(Dom, count, [Count_Atom]),
-   atom_number(Count_Atom, Count),
-   extract_livestock_event2(Type, Days, Count, Dom, Event).
-
-extract_livestock_event2(Type, Days, Count, element(naturalIncrease,_,_),  born(Type, Days, Count)).
-extract_livestock_event2(Type, Days, Count, element(loss,_,_),                     loss(Type, Days, Count)).
-extract_livestock_event2(Type, Days, Count, element(rations,_,_),                rations(Type, Days, Count)).
-extract_livestock_event2(Type, Days, Count, element(sale,_,_),                sale(Type, Days, Count)).
-extract_livestock_event2(Type, Days, Count, element(purchase,_,_),                purchase(Type, Days, Count)).
 
 
 /* we should have probably just put the livestock count accounts under inventory */
@@ -750,8 +689,8 @@ compute_livestock_by_simple_calculation(
 		Livestock_COGS = Opening_and_purchases_value - Stock_on_hand_at_end_of_year_value - Killed_for_rations_value,
 		Gross_Profit_on_Livestock_Trading = Revenue - Livestock_COGS
 	),	Names1),
-    term_string(Gross_Profit_on_Livestock_Trading, Gross_Profit_on_Livestock_Trading_Formula_String, [Names1]),
-    term_string(Average_cost_Formula, Average_cost_Formula_String, [Names1]),
+	term_string(Gross_Profit_on_Livestock_Trading, Gross_Profit_on_Livestock_Trading_Formula_String, [Names1]),
+	term_string(Average_cost_Formula, Average_cost_Formula_String, [Names1]),
 	Natural_increase_count = Natural_increase_count_In,
 	Natural_increase_value_per_head = Natural_increase_value_per_head_In,
 	Sales_count = Sales_count_In,
@@ -868,3 +807,64 @@ count_account(Livestock_Type, Count_Account) :-
 	atom_concat(Livestock_Type, 'Count', Count_Account).
 
 with_info_value_and_info(with_info(Value, Info), Value, Info).
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*<howThisShouldWork>
+
+account taxonomy must include accounts for individual livestock types
+a list of livestock units will be defined in the sheet, for example "cows, horses".
+Natural_Increase_Cost_Per_Head has to be input for each livestock type, for example cows $20.
+
+FOR CURRENT ITERATION, ASSUME THAT ALL TRANSACTIONS ARE IN THE BANK STATEMENT. I.E. NO OPENING BALANCES.WHY? BECAUSE OPENING BALANCES IN LIVESTOCK WILL REQUIRE A COMPLETE SET OF OPENING BALANCES. I.E. A COMPLETE OPENING BALANCE SHEET.
+
+when bank statements are processed:
+	If there is a livestock unit ("cows") set on a bank account transaction:
+		count has to be set to ("20").
+
+		maybe TODO:
+			internally, we tag the transaction with a sell/buy livestock action type.
+			user should have sell/buy livestock action types in their action taxonomy.
+			the "exchanged" account will be one where livestock increase/decrease transactions are internally collected.
+
+		SYSTEM CAN INFER BUY/SELL i.e. A BUY IS A PAYMENT & A SELL IS A DEPOSIT. OF COURSE, THE UNIT TYPE MUST BE DESCRIBED. COW. PIG, ETC. AND THE UNIT TYPE MUST HAVE AN ACCOUNTS TAXONOMICAL RELATIONSHIP
+
+		maybe TODO:
+			internally, livestock buys and sells are transformed into "livestock buy/sell events" OK.
+
+		one excel sheet for bank statement, one for each livestock type: natural increase, loss, rations..
+
+		all livestock event types change the count accordingly.
+		livestock events have effects on other accounts beside the livestock count account:
+			buy/sell:
+				cost is taken from the bank transaction
+
+			natural increase:  NATURAL INCREASE IS AN ABSTRACT VALUE THAT IMPACTS THE LIVESTOCK_AT_MARKET_VALUE AT REPORT RUN TIME. THERE IS NO NEED TO STORE/SAVE THE (monetary) VALUE IN THE LEDGER. WHEN A COW IS BORN, NO CASH CHANGES HAND.
+				dont: affect Assets_1203_Livestock_at_Cost by Natural_Increase_Cost_Per_Head as set by user
+
+fixme:
+average cost is defined for date and livestock type as follows:
+	stock count and value at beginning of year is taken from beginning of year balance on:
+		the livestock count account
+		Assets_1203_Livestock_at_Cost, Assets_1204_Livestock_at_Average_Cost
+	subsequent transactions until the given date are processed to get purchases count/value and natural increase count/value
+	then we calculate:
+		Natural_Increase_value is Natural_Increase_Count * Natural_Increase_Cost_Per_Head,
+		Opening_And_Purchases_And_Increase_Count is Stock_on_hand_at_beginning_of_year_count + Purchases_Count + Natural_Increase_Count,
+		Opening_and_purchases_and_increase_value is Stock_on_hand_at_beginning_of_year_value + Purchases_value + Natural_Increase_value,
+		Average_Cost is Opening_and_purchases_and_increase_value / Opening_And_Purchases_And_Increase_Count,
+
+
+</howThisShouldWork>
+*/
