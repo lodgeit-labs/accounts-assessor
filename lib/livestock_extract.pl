@@ -10,22 +10,23 @@ extract_livestock_data(Livestock_Dom) :-
 	rdf_create_bnode(B),
 
 	utils:fields(Livestock_Dom, [
-		'type', Type
+		'name', Type
 		'currency', Currency]),
 	utils:numeric_fields(Livestock_Dom, [
 	    'naturalIncreaseValuePerUnit', NaturalIncreaseValuePerUnit,
-
 		'openingValue'  ,Opening_Cost,
 		'unitsOpening'  ,Opening_Count,
+		'unitsClosing'  ,Closing_Count,
+		'closingValue'  ,Closing_Value,
+		'unitsRations'  ,Rations_Count,
+		'rationsValue'  ,Rations_Value,
+		'unitsDeceased' ,Losses_Count,
+		'unitsBorn'     ,Born_Count,
 		'saleValue'     ,(Sale_Cost,_),
 		'unitsSales'    ,(Sale_Count,_),
 		'purchaseValue' ,(Purchase_Cost,_),
-		'unitsPurchases',(Purchase_Count,_)]),
-
-		'unitsClosing'  ,Closing_Count,
-		'unitsRations'  ,Rations_Count,
-		'unitsDeceased' ,Losses_Count,
-		'unitsBorn'     ,Born_Count]),
+        'unitsPurchases',(Purchase_Count,_)
+    ]),
 
 	my_rdf:add          (B, rdf:a, l:livestock_data, G),
 	my_rdf:add          (B, livestock:type, Type, G),
@@ -40,7 +41,9 @@ extract_livestock_data(Livestock_Dom) :-
 	my_rdf:add_if_ground(B, livestock:purchase_count, value(count,    Purchase_Count), G),
 
 	my_rdf:add_if_ground(B, livestock:closing_count,  value(count,    Closing_Count ), G),
+    my_rdf:add_if_ground(B, livestock:closing_value,  value(Currency, Closing_Value ), G),
 	my_rdf:add          (B, livestock:rations_count,  value(count,    Rations_Count ), G),
+    my_rdf:add_if_ground(B, livestock:rations_value,  value(Currency, Rations_Value ), G),
     my_rdf:add          (B, livestock:losses_count,   value(count,    Losses_Count  ), G),
     my_rdf:add          (B, livestock:born_count,     value(count,    Born_Count    ), G).
 

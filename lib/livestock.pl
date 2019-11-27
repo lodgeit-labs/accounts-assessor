@@ -56,22 +56,31 @@ infer_livestock_action_verb(S_Transaction, NS_Transaction) :-
 	s_transaction_account_id(NS_Transaction, Unexchanged_Account_Id).
 
 
+s_transaction_is_livestock_buy_or_sell(S_Transaction, Day, Livestock_Type, Livestock_Coord, Bank_Vector, Our_Vector, Unexchanged_Account_Id, Our_Debit, Our_Credit) :-
+	S_Transaction = s_transaction(Day, '', Our_Vector, Unexchanged_Account_Id, Exchanged),
+	vector([Livestock_Coord]) = Exchanged,
+	coord(Livestock_Type, _, _) = Livestock_Coord,
+	% member(Livestock_Type, Livestock_Types),
+	% bank statements are from the perspective of the bank, their debit is our credit
+	vec_inverse(Bank_Vector, Our_Vector),
+	[coord(_, Our_Debit, Our_Credit)] = Our_Vector.
+
 
 preprocess_livestock_buy_or_sell(Static_Data, S_Transaction, [Bank_Transaction, Livestock_Transaction]) :-
 	dict_vars(Static_Data, [Accounts]),
 	% here we don't know Livestock_Type, so s_transaction_is_livestock_buy_or_sell actually yields garbage, that we filter out by existence of appropriate account. Usually we pass it a bounded Livestock_Type.
 	s_transaction_is_livestock_buy_or_sell(S_Transaction, Day, Livestock_Type, Livestock_Coord, _Bank_Vector, Our_Vector, Bank_Name, MoneyDebit, _),
+
+
 	count_account(Livestock_Type, Count_Account),
-	account_in_set(Accounts, Count_Account, _),
-	
-	(MoneyDebit > 0 ->
-			Description = 'livestock sell'
-		;
-			Description = 'livestock buy'
-	),
+
+	(   MoneyDebit > 0
+	->  Description = 'livestock sale'
+	;   Description = 'livestock purchase'),
 	
 	% produce a livestock count increase/decrease transaction
-	make_transaction(Day, Description, Count_Account, [Livestock_Coord], Livestock_Transaction),
+	make_transaction(Day, Description, Count_Account, [Livestock_Coord], Livestock_Count_Transaction),
+
 	% produce the bank account transaction
 	Bank_Account_Role = ('Banks'/Bank_Name),
 	account_by_role(Accounts, Bank_Account_Role, Bank_Account_Id),
@@ -272,16 +281,6 @@ preprocess_buys(Livestock_Type, _Average_cost, S_Transaction, Buy_Transactions) 
 		preprocess_buys2(Day, Livestock_Type, Bank_Vector, Buy_Transactions)
 	;
 		Buy_Transactions = [].
-
-s_transaction_is_livestock_buy_or_sell(S_Transaction, Day, Livestock_Type, Livestock_Coord, Bank_Vector, Our_Vector, Unexchanged_Account_Id, Our_Debit, Our_Credit) :-
-	S_Transaction = s_transaction(Day, '', Our_Vector, Unexchanged_Account_Id, Exchanged),
-	vector([Livestock_Coord]) = Exchanged,
-	coord(Livestock_Type, _, _) = Livestock_Coord,
-	% member(Livestock_Type, Livestock_Types),
-	% bank statements are from the perspective of the bank, their debit is our credit
-	vec_inverse(Bank_Vector, Our_Vector),
-	[coord(_, Our_Debit, Our_Credit)] = Our_Vector.
-
 
 
 livestock_account_ids('Livestock', 'LivestockAtCost', 'Drawings', 'LivestockRations').

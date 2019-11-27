@@ -67,7 +67,8 @@ account_detail_level(Accounts, Id, Detail_Level) :-
 	
 % Relates an account to an ancestral account or itself
 account_in_set(Accounts, Account_Id, Root_Account_Id) :-
-	Account_Id = Root_Account_Id;
+    	Account_Id = Root_Account_Id
+	;
 	(
 		account_id(Child_Account, Child_Id),
 		account_parent(Child_Account, Root_Account_Id),

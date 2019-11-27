@@ -32,8 +32,8 @@
 		is_exchangeable_into_request_bases/4]).
 :- use_module('action_verbs', []).
 :- use_module('livestock', [
-		preprocess_livestock_buy_or_sell/3, 
-		make_livestock_accounts/2]).
+		preprocess_livestock_buy_or_sell/3
+		]).
 :- use_module('transactions', [
 		has_empty_vector/1,
 		transaction_day/2,
