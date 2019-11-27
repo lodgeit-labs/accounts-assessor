@@ -294,4 +294,4 @@ split_coord_by_percent(Rate, H0, H1, H2) :-
 	H1 = coord(U, D1, C1),
 	H2 = coord(U, D2, C2).
 
-	
+vector_unit([coord(U, _,_)], U).
