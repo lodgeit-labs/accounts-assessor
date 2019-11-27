@@ -2,36 +2,39 @@
 
 :- use_module(library(clpfd)).
 
-time(T):- T #>= 0, T #=<10000.
+time(T):- T #>= -1, T #=<10000.
 
 initiated(F,T):- happens(E,T), initiates(E,F,T), time(T).
 initiated(F,-1):- initially(F).
 
 terminated(F,T):- happens(E,T), terminates(E,F,T), time(T).
 
-initiatedBefore(F,T1,T) :- initiated(F,T1), T1<T, time(T), time(T1).
-terminatedBetween(F,T1,T2) :- terminated(F,T), T>=T1, T<T2, time(T), time(T1), time(T2).
+initiatedBefore(F,T1,T):- initiated(F,T1), T1<T, time(T), time(T1).
+terminatedBetween(F,T1,T2):- terminated(F,T), T>=T1, T<T2, time(T), time(T1), time(T2).
+terminatedAfter(F,T1,T):- terminated(F,T), T>=T1, time(T), time(T1).
 
 holdsAt(F,T):- initiatedBefore(F,T1,T), \+ terminatedBetween(F,T1,T), time(T), time(T1).
 
-% interval ]...], a fluent holds in a continuous interval
-% holdsExactlyBetween(F,T1,T2):- initiated(F,T1), \+ terminatedBetween(F,T1,T2), terminated(F,T2), time(T1), time(T2).
+holdsAtAsset(Asset,in_pool(Asset,Pool),T):- holdsAt(in_pool(Asset,Pool),T).
+holdsAtAsset(Asset,not_in_pool(Asset),T):- holdsAt(not_in_pool(Asset),T).
 
-get_intervals_from_begin_end([],[],[]).
-get_intervals_from_begin_end([Begin],[],[[Begin,'End']]).
-get_intervals_from_begin_end([Begin|RestBegins],[End|RestEnds],[[Begin,End]|RestIntervals]):- 
-    get_intervals_from_begin_end(RestBegins,RestEnds,RestIntervals), labeling([up],RestBegins),labeling([up],RestEnds).
+lifeOfAnAsset(_,T2,T2,[]).
 
-getHoldsIntervals(F,HoldsIntervals) :- 
-    findall(T,initiated(F,T),Begins),
-    findall(T,terminated(F,T),Ends),
-    get_intervals_from_begin_end(Begins,Ends,HoldsIntervals).
+lifeOfAnAsset(Asset,T1,T2,[[H,T1,T]|RestOfLife]):- 
+    T1 < T2,
+    holdsAtAsset(Asset,H,T1),
+    terminatedAfter(H,T1,T),
+    New_T1 is T + 1,
+    lifeOfAnAsset(Asset,New_T1,T2,RestOfLife).
 
-lifeOfAnAssetInPool(Asset,Pool,HoldsIntervals):- pool(Pool), asset(Asset), getHoldsIntervals(in_pool(Asset,Pool),HoldsIntervals).
+lifeOfAnAsset(Asset,T1,T2,[[H,T1,T2]|RestOfLife]):- 
+    T1 < T2,
+    holdsAtAsset(Asset,H,T1),
+    \+ terminatedAfter(H,T1,_),
+    lifeOfAnAsset(_,T2,T2,RestOfLife).
 
-lifeOfAnAsset(Asset,PoolIntervals):- 
-    asset(Asset), 
-    findall([Pool,HoldsIntervals],lifeOfAnAssetInPool(Asset,Pool,HoldsIntervals),PoolIntervals).
+% For debugging
+%start:-lifeOfAnAsset(car123,0,20,Result).
 
 asset(car123).
 
@@ -40,15 +43,19 @@ pool(low_value_pool).
 pool(software_pool).
 
 fluent(in_pool(Asset,Pool)):- pool(Pool),asset(Asset).
+fluent(not_in_pool(Asset)):- asset(Asset).
 
 event(transfer_asset_to_pool(Asset, Pool)):- pool(Pool),asset(Asset).
 event(remove_asset_from_pool(Asset, Pool)):- pool(Pool),asset(Asset).
 
 initiates(transfer_asset_to_pool(Asset, Pool), in_pool(Asset, Pool),T):- time(T),asset(Asset),pool(Pool).
+initiates(remove_asset_from_pool(Asset, Pool), not_in_pool(Asset),T):- time(T),asset(Asset),pool(Pool).
+
 terminates(remove_asset_from_pool(Asset, Pool), in_pool(Asset, Pool),T):- time(T),asset(Asset),pool(Pool).
+terminates(transfer_asset_to_pool(Asset, Pool), not_in_pool(Asset),T):- time(T),asset(Asset),pool(Pool).
 
 % Asset begins not in any pool
-initially(\+in_pool(car123,_)).
+initially(not_in_pool(car123)).
 happens(transfer_asset_to_pool(car123,general_pool),3).
 happens(remove_asset_from_pool(car123,general_pool),6).
 happens(transfer_asset_to_pool(car123,low_value_pool),10).
