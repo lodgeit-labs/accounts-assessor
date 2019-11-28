@@ -121,21 +121,8 @@ process_xml_ledger_request2(Dom, Reports_Out) :-
 	parse_date(End_Date_Atom, End_Date),
 	
 	extract_exchange_rates(Dom, Start_Date, End_Date, Default_Currency, Exchange_Rates),
-
 	livestock_extract:extract(Doms),
-	findall(Livestock_Dom, xpath(Dom, //reports/balanceSheetRequest/livestockData, Livestock_Dom), Livestock_Doms),
-	get_livestock_types(Livestock_Doms, Livestock_Types),
-
-
-	extract_livestock_opening_costs_and_counts(Livestock_Doms, Livestock_Opening_Costs_And_Counts),
-	findall(S_Transaction, extract_s_transaction(Dom, Start_Date_Atom, S_Transaction), S_Transactions0),
-	
-	/* 
-		flip s_transactions from bank's perspective to our perspective and sort 
-	*/
-	maplist(invert_s_transaction_vector, S_Transactions0, S_Transactions0b),
-	sort_s_transactions(S_Transactions0b, S_Transactions),
-	
+    extract_s_transactions(Dom, Start_Date_Atom, S_Transactions),
 	/* 
 		generate transactions (ledger entries) from s_transactions
 	*/
@@ -444,6 +431,14 @@ extract_output_dimensional_facts(Dom, Output_Dimensional_Facts) :-
 		Output_Dimensional_Facts = on
 	).
 	
+
+extract_s_transactions(Dom, Start_Date_Atom, S_Transactions) :-
+	findall(S_Transaction, extract_s_transaction(Dom, Start_Date_Atom, S_Transaction), S_Transactions0),
+	/*
+		flip s_transactions from bank's perspective to our perspective and sort
+	*/
+	maplist(invert_s_transaction_vector, S_Transactions0, S_Transactions0b),
+	sort_s_transactions(S_Transactions0b, S_Transactions).
 
 	
 	

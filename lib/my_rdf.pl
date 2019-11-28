@@ -11,8 +11,8 @@
 :- rdf_meta my_rdf(r,r,r).
 my_rdf(S,P,O) :-
 	my_rdf_graph(G),
-	rdf(S,P,O,G).
-my_with_subgraphs(S,P,O) :-
+	my_rdf(S,P,O,G).
+my_rdf(S,P,O) :-
 	my_rdf_graph(G),
     with_subgraphs(S,P,O,G).
 with_subgraphs(S,P,O,G) :-

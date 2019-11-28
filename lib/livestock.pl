@@ -38,12 +38,15 @@
 	transactions_by_account/2
 ]).
 
+livestock_data(Uri) :-
+	my_with_subgraphs(Uri, rdf:a, l:livestock_data).
+
 find_livestock_data_by_vector_unit(Exchanged) :-
 	vector_unit(Exchanged, Unit),
 	findall(
 		L,
 		(
-			my_with_subgraphs(L, rdf:a, l:livestock_data),
+			livestock_data(L),
 			my_with_subgraphs(L, livestock:type, Unit/*?*/)
 		),
 		Known_Livestock_Datas
@@ -159,133 +162,11 @@ cost_of_goods_livestock_account_id('CostOfGoodsLivestock').
 
 
 
-preprocess_livestock_event(Event, Transaction) :-
-	Event = born(Type, Day, Count),
-	count_account(Type, Count_Account),
-	make_transaction(Day, 'livestock born', Count_Account, [coord(Type, Count, 0)], Transaction).
-	
-preprocess_livestock_event(Event, Transaction) :-
-	Event = loss(Type, Day, Count),
-	count_account(Type, Count_Account),
-	make_transaction(Day, 'livestock loss', Count_Account, [coord(Type, 0, Count)], Transaction).
-	
-preprocess_livestock_event(Event, Transaction) :-
-	Event = rations(Type, Day, Count),
-	count_account(Type, Count_Account),
-	make_transaction(Day, 'livestock rations', Count_Account, [coord(Type, 0, Count)], Transaction).
 
-preprocess_livestock_event(Event, _) :-
-	Event = sale(_,_,_).
-
-preprocess_livestock_event(Event, _) :-
-	Event = purchase(_,_,_).
 
 
 	
-% natural increase count given livestock type and all livestock events
-natural_increase_count(Type, [E | Events], Natural_Increase_Count) :-
-	(E = born(Type, _Day, Count) ->
-		C = Count;
-		C = 0),
-	natural_increase_count(Type, Events, Natural_Increase_Count_1),
-	Natural_Increase_Count is Natural_Increase_Count_1 + C.
-	
-natural_increase_count(_, [], 0).
 
-
-
-livestock_purchases_cost_and_count(Type, [ST | S_Transactions], Purchases_Cost, Purchases_Count) :-
-	(
-		(
-			s_transaction_is_livestock_buy_or_sell(ST, _Day, Type, Livestock_Coord, _, Vector_Ours, _, _, _),
-			Vector_Ours = [coord(_, 0, _)]
-		)
-		->
-		(
-			Livestock_Coord = coord(Type, Count, 0),
-			Cost = Vector_Ours
-		)
-		;
-		(
-			Cost = [], Count = 0
-		)
-	),
-	livestock_purchases_cost_and_count(Type, S_Transactions, Purchases_Cost_2, Purchases_Count_2),
-	vec_add(Cost, Purchases_Cost_2, Purchases_Cost),
-	Purchases_Count is Purchases_Count_2 + Count.
-
-livestock_purchases_cost_and_count(_, [], [], 0).
-
-
-
-/*
-The Livestock calculator is an average cost calculator. 
-Cost, average cost, market value. 
-There may be other ways of measuring value. But any way is simply units held at some time point * defined value. 
-Think about what any asset is worth?
-Unless you sell it you don't really know
-You have to estimate.
-*/
-average_cost(Type, Opening_Cost0, Opening_Count0, Info, Exchange_Rate) :-
-	Info = (_From_Day, _To_Day, S_Transactions, Livestock_Events, Natural_Increase_Costs),
-	/*?
-	for now, we ignore _From_Day (and _To_Day), 
-	and use Opening_Cost and Opening_Count as stated in the request.
-	*/
-	Exchange_Rate = with_info(exchange_rate(_, Type, Currency, Average_Cost), Explanation),
-	Explanation = {formula: Formula_String1, computation: Formula_String2},
-	
-	compile_with_variable_names_preserved((
-		Natural_Increase_Value = Natural_Increase_Cost_Per_Head * Natural_Increase_Count,
-		Opening_And_Purchases_And_Increase_Value_Exp = Opening_Value + Purchases_Value + Natural_Increase_Value,
-		Opening_And_Purchases_And_Increase_Count_Exp = Opening_Count + Purchases_Count + Natural_Increase_Count,
-		Average_Cost_Exp = Opening_And_Purchases_And_Increase_Value_Exp / Opening_And_Purchases_And_Increase_Count_Exp
-	),	Names1),
-	%	replace_underscores_in_variable_names_with_spaces(Names0, Names1),
-
-	term_string(Average_Cost_Exp, Formula_String1, [Names1]),
-	%pretty_term_string(Average_Cost_Exp, Formula_String1, [Namings]),
-
-	% now let's fill in the values
-	Opening_Cost = Opening_Cost0,
-	Opening_Count = Opening_Count0,
-	[coord(Currency, Opening_Value, 0)] = Opening_Cost, 
-	member(natural_increase_cost(Type, [coord(Currency, Natural_Increase_Cost_Per_Head, 0)]), Natural_Increase_Costs),
-	natural_increase_count(Type, Livestock_Events, Natural_Increase_Count),
-	livestock_purchases_cost_and_count(Type, S_Transactions, Purchases_Cost, Purchases_Count),
-
-	(
-			Purchases_Cost == []
-		->
-			Purchases_Value = 0
-		;
-			[coord(Currency, 0, Purchases_Value)] = Purchases_Cost
-	),
-	
-	pretty_term_string(Average_Cost_Exp, Formula_String2),
-	
-	% avoid division by zero and evaluate the formula
-	Opening_And_Purchases_And_Increase_Count is Opening_And_Purchases_And_Increase_Count_Exp,
-	(
-		Opening_And_Purchases_And_Increase_Count > 0
-	->
-		Average_Cost is Average_Cost_Exp
-	;
-		Average_Cost = 0
-	).
-
-vector_single_item([Item], Item).
-	
-
-
-
-get_average_costs(Livestock_Types, Opening_Costs_And_Counts, Info, Average_Costs) :-
-	maplist(get_average_costs2(Opening_Costs_And_Counts, Info), Livestock_Types, Average_Costs).
-
-get_average_costs2(Opening_Costs_And_Counts, Info, Livestock_Type, Rate) :-
-	member(opening_cost_and_count(Livestock_Type, Opening_Cost, Opening_Count), Opening_Costs_And_Counts),
-	average_cost(Livestock_Type, Opening_Cost, Opening_Count, Info, Rate).
-	
 get_livestock_cogs_transactions(Accounts, Livestock_Types, Opening_Costs_And_Counts, Average_Costs, Info, Transactions_Out) :-
 	findall(Txs, 
 		(
@@ -329,36 +210,61 @@ get_livestock_inventory_transactions(Livestock_Types, Opening_Costs_And_Counts, 
 
 
 /*TODO transactions_by_account here...*/
-process_livestock(Livestock_Doms, Livestock_Types, S_Transactions, Transactions_In, Opening_Costs_And_Counts, Start_Date, End_Date, _Exchange_Rates, Accounts, _Report_Currency, Transactions_Out, Livestock_Events, Average_Costs, Average_Costs_Explanations, Counts) :-
-	extract_livestock_events(Livestock_Doms, Livestock_Events),
-	extract_natural_increase_costs(Livestock_Doms, Natural_Increase_Costs),
+process_livestock(Livestock_Types, S_Transactions, Transactions_In, Start_Date, End_Date, Accounts, _Report_Currency, Transactions_Out) :-
+	findall(
+		Ts,
+		(
+			livestock_data(L),
+			process_livestock2(L, Ts)
+		),
+		Transactions_Out
+	).
 
-	maplist(opening_inventory_transactions(Start_Date, Opening_Costs_And_Counts), Livestock_Types, Opening_Inventory_Transactions0),
-	flatten(Opening_Inventory_Transactions0, Opening_Inventory_Transactions),
+
+process_livestock2(S_Transactions, Transactions_In, Opening_Costs_And_Counts, Start_Date, End_Date, _Exchange_Rates, Accounts, _Report_Currency, Transactions_Out, Livestock_Events, Average_Costs, Average_Costs_Explanations, Counts, Livestock_Type) :-
+
+	/*
+	preprocess_livestock_buy_or_sell happens first, as part of preprocess_s_transaction.
+	it affects bank account and livestock headcount.
+	*/
+
+	/* record opening value in assets */
+	opening_inventory_transactions(End_Date, Livestock_Type, Opening_Inventory_Transactions),
 	append(Transactions_In, Opening_Inventory_Transactions, Transactions1),
 
-	maplist(preprocess_livestock_event, Livestock_Events, Livestock_Event_Transactions_Nested),
-	flatten(Livestock_Event_Transactions_Nested, Livestock_Event_Transactions0),
-	exclude(var, Livestock_Event_Transactions0, Livestock_Event_Transactions),
-	append(Transactions1, Livestock_Event_Transactions, Transactions2),
+	/* purchase/sale headcount changes were already processed in preprocess_livestock_buy_or_sell.
+	here we handle born, loss, rations */
+	preprocess_headcount_changes(End_Date, Livestock_Type, Headcount_Change_Transactions),
+	append(Transactions1, Headcount_Change_Transactions, Transactions2),
 
-	get_average_costs(Livestock_Types, Opening_Costs_And_Counts, (Start_Date, End_Date, S_Transactions, Livestock_Events, Natural_Increase_Costs), Average_Costs_With_Explanations),
-	maplist(with_info_value_and_info, Average_Costs_With_Explanations, Average_Costs, Average_Costs_Explanations),
-  
-	livestock_adjustment_transactions(Livestock_Types, S_Transactions, More_Transactions),
-	append(Transactions2, More_Transactions, Transactions3),  
+
+	/* avg cost relies on Opening_And_Purchases_And_Increase */
+	get_average_costs(Livestock_Type, Opening_Costs_And_Counts, (Start_Date, End_Date, S_Transactions, Livestock_Events, Natural_Increase_Costs), Average_Costs_With_Explanations),
+
+	/* rations value is derived from avg cost */
+	preprocess_rations(Livestock_Type, Date, Rations_Transactions) :-
+	append(Transactions2, Rations_Transactions, Transactions3),
+
+
+
 
 	dict_from_vars(Static_Data0, [Accounts, Start_Date, End_Date]),
 	Static_Data1 = Static_Data0.put(transactions,Transactions3),
 	transactions_by_account(Static_Data1, Transactions_By_Account),
 
+
+
 	get_livestock_cogs_transactions(Accounts, Livestock_Types, Opening_Costs_And_Counts, Average_Costs, (Start_Date, End_Date, Average_Costs, Transactions_By_Account, S_Transactions),  Cogs_Transactions),
 	append(Transactions3, Cogs_Transactions, Transactions_Out),
 
+
+
+	/*
 	Static_Data2 = Static_Data1.put(transactions,Transactions_Out),
 	transactions_by_account(Static_Data2, Transactions_With_Livestock_By_Account),
-
 	livestock_counts(Accounts, Livestock_Types, Transactions_With_Livestock_By_Account, Opening_Costs_And_Counts, End_Date, Counts),
+	*/
+
 
 	%maplist(do_livestock_cross_check(Livestock_Events, Natural_Increase_Costs, S_Transactions, Transactions_Out, Opening_Costs_And_Counts, Start_Date, End_Date, Exchange_Rates, Accounts, Report_Currency, Average_Costs), Livestock_Types)
 	true.
