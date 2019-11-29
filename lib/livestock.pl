@@ -41,7 +41,7 @@
 :- rdet(process_livestock2/x).
 
 livestock_data(Uri) :-
-	my_with_subgraphs(Uri, rdf:a, l:livestock_data).
+	doc(Uri, rdf:a, l:livestock_data).
 
 find_livestock_data_by_vector_unit(Exchanged) :-
 	vector_unit(Exchanged, Unit),
@@ -73,19 +73,16 @@ infer_livestock_action_verb(S_Transaction, NS_Transaction) :-
 	s_transaction_account_id(S_Transaction, Unexchanged_Account_Id),
 	s_transaction_account_id(NS_Transaction, Unexchanged_Account_Id).
 
-s_transaction_is_livestock_buy_or_sell(S_Transaction, Day, Livestock_Type, Livestock_Coord, Bank_Vector, Our_Vector, Unexchanged_Account_Id, Our_Debit, Our_Credit) :-
-	S_Transaction = s_transaction(Day, '', Our_Vector, Unexchanged_Account_Id, Exchanged),
-	vector([Livestock_Coord]) = Exchanged,
-	coord(Livestock_Type, _, _) = Livestock_Coord,
-	% member(Livestock_Type, Livestock_Types),
-	% bank statements are from the perspective of the bank, their debit is our credit
-	vec_inverse(Bank_Vector, Our_Vector),
-	[coord(_, Our_Debit, Our_Credit)] = Our_Vector.
+s_transaction_is_livestock_buy_or_sell(S_Transaction, Day, Livestock_Type, Livestock_Coord, Money_Coord) :-
+	S_Transaction = s_transaction(Day, '', [Money_Coord], Unexchanged_Account_Id, vector([Livestock_Coord])),
+	coord_unit(Livestock_Coord, Livestock_Type),
+	livestock_data(Livestock),
+	doc(Livestock, livestock:name, Livestock_Type).
 
 preprocess_livestock_buy_or_sell(Static_Data, S_Transaction, [Bank_Txs, Livestock_Count_Transaction, Pl_Transaction]) :-
 	dict_vars(Static_Data, [Accounts]),
-	s_transaction_is_livestock_buy_or_sell(S_Transaction, Day, Livestock_Type, Livestock_Coord, _, _, _, MoneyDebit, _),
-	(   MoneyDebit > 0
+	s_transaction_is_livestock_buy_or_sell(S_Transaction, Day, Livestock_Type, Livestock_Coord, Money_Coord),
+	(   is_debit(Money_Coord)
 	->  Description = 'livestock sale'
 	;   Description = 'livestock purchase'),
 	count_account(Livestock_Type, Count_Account),
@@ -111,41 +108,27 @@ process_livestock2(S_Transactions, Transactions_In, Start_Date, End_Date, Accoun
 	*/
 
 	/* record opening value in assets */
-	opening_inventory_transactions(Accounts, Start_Date, Livestock, Opening_Inventory_Transactions),
+	opening_inventory_transactions(Livestock, Start_Date, Opening_Inventory_Transactions),
 	append(Transactions_In, Opening_Inventory_Transactions, Transactions1),
 
 	/* born, loss, rations */
-	preprocess_headcount_changes(End_Date, Livestock, Headcount_Change_Transactions),
+	preprocess_headcount_changes(Livestock, End_Date, Headcount_Change_Transactions),
 	append(Transactions1, Headcount_Change_Transactions, Transactions2),
 
-
 	/* avg cost relies on Opening_And_Purchases_And_Increase */
-	get_average_costs(Livestock, Opening_Costs_And_Counts, (Start_Date, End_Date, S_Transactions, Livestock_Events, Natural_Increase_Costs), Average_Costs_With_Explanations),
+	infer_average_cost(Livestock, Start_Date, End_Date, S_Transactions),
 
 	/* rations value is derived from avg cost */
 	preprocess_rations(Livestock, Date, Rations_Transactions) :-
 	append(Transactions2, Rations_Transactions, Transactions3),
 
-
-
-
-	dict_from_vars(Static_Data0, [Accounts, Start_Date, End_Date]),
+	/* counts were changed by buys/sells and by rations, losses and borns */
+	dict_from_vars(Static_Data0, [Start_Date, End_Date]),
 	Static_Data1 = Static_Data0.put(transactions,Transactions3),
 	transactions_by_account(Static_Data1, Transactions_By_Account),
 
-
-
-	get_livestock_cogs_transactions(Accounts, Livestocks, Opening_Costs_And_Counts, Average_Costs, (Start_Date, End_Date, Average_Costs, Transactions_By_Account, S_Transactions),  Cogs_Transactions),
-	append(Transactions3, Cogs_Transactions, Transactions_Out),
-
-
-
-	/*
-	Static_Data2 = Static_Data1.put(transactions,Transactions_Out),
-	transactions_by_account(Static_Data2, Transactions_With_Livestock_By_Account),
-	livestock_counts(Accounts, Livestocks, Transactions_With_Livestock_By_Account, Opening_Costs_And_Counts, End_Date, Counts),
-	*/
-
+	closing_inventory_transactions(Livestocks, End_Date, Transactions_By_Account, Closing_Transactions),
+	append(Transactions3, Closing_Transactions, Transactions_Out),
 
 	%maplist(do_livestock_cross_check(Livestock_Events, Natural_Increase_Costs, S_Transactions, Transactions_Out, Opening_Costs_And_Counts, Start_Date, End_Date, Exchange_Rates, Accounts, Report_Currency, Average_Costs), Livestocks)
 	true.

@@ -204,7 +204,9 @@ unify_numbers(A,B) :-
 	).
 
 	
-make_debit(value(Unit, Amount), coord(Unit, Amount, 0)).
+make_debit(value(Unit, Amount), coord(Unit, Amount, Zero)) :-
+	gtrace, unify_numbers(Zero, 0).
+
 make_debit(coord(Unit, Dr, Zero), coord(Unit, Dr, 0)) :- Zero =:= 0.
 make_debit(coord(Unit, Zero, Cr), coord(Unit, Cr, 0)) :- Zero =:= 0.
 

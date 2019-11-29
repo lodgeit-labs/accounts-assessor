@@ -1,48 +1,20 @@
 
-average_cost(Type, Opening_Cost0, Opening_Count0, Info, Exchange_Rate) :-
-	Info = (_From_Day, _To_Day, S_Transactions, Livestock_Events, Natural_Increase_Costs),
-	/*?
-	for now, we ignore _From_Day (and _To_Day),
-	and use Opening_Cost and Opening_Count as stated in the request.
-	*/
-	Exchange_Rate = with_info(exchange_rate(_, Type, Currency, Average_Cost), Explanation),
-	Explanation = {formula: Formula_String1, computation: Formula_String2},
-
-	compile_with_variable_names_preserved((
-		Natural_Increase_Value = Natural_Increase_Cost_Per_Head * Natural_Increase_Count,
-		Opening_And_Purchases_And_Increase_Value_Exp = Opening_Value + Purchases_Value + Natural_Increase_Value,
-		Opening_And_Purchases_And_Increase_Count_Exp = Opening_Count + Purchases_Count + Natural_Increase_Count,
-		Average_Cost_Exp = Opening_And_Purchases_And_Increase_Value_Exp / Opening_And_Purchases_And_Increase_Count_Exp
-	),	Names1),
-	term_string(Average_Cost_Exp, Formula_String1, [Names1]),
-
-	% now let's fill in the values
-	Opening_Cost = Opening_Cost0,
-	Opening_Count = Opening_Count0,
-	[coord(Currency, Opening_Value, 0)] = Opening_Cost,
-	member(natural_increase_cost(Type, [coord(Currency, Natural_Increase_Cost_Per_Head, 0)]), Natural_Increase_Costs),
-	natural_increase_count(Type, Livestock_Events, Natural_Increase_Count),
+infer_average_cost(Livestock, Start_Date, End_Date, S_Transactions) :-
+	doc(Livestock, livestock:name, Type),
+	doc(Livestock, livestock:currency, Currency),
+	doc(Livestock, livestock:average_cost, Average_Cost),
+	doc(Livestock, livestock:opening_cost, Opening_Cost),
+	doc(Livestock, livestock:opening_count, Opening_Count),
+	doc(Livestock, livestock:natural_increase_value_per_unit, Natural_Increase_Cost_Per_Head),
+	doc(Livestock, livestock:born_count, Natural_Increase_Count),
 	livestock_purchases_cost_and_count(Type, S_Transactions, Purchases_Cost, Purchases_Count),
-
-	(
-			Purchases_Cost == []
-		->
-			Purchases_Value = 0
-		;
-			[coord(Currency, 0, Purchases_Value)] = Purchases_Cost
-	),
-
-	pretty_term_string(Average_Cost_Exp, Formula_String2),
-
-	% avoid division by zero and evaluate the formula
-	Opening_And_Purchases_And_Increase_Count is Opening_And_Purchases_And_Increase_Count_Exp,
-	(
-		Opening_And_Purchases_And_Increase_Count > 0
-	->
-		Average_Cost is Average_Cost_Exp
-	;
-		Average_Cost = 0
-	).
+	value_convert(Natural_Increase_Count, Natural_Increase_Cost_Per_Head, Natural_Increase_Value),
+	value_sum([Opening_Cost, Purchases_Cost, Natural_Increase_Value], Opening_And_Purchases_And_Increase_Value),
+	value_sum([Opening_Count, Purchases_Count, Natural_Increase_Count], Opening_And_Purchases_And_Increase_Count),
+	(	is_zero(Opening_And_Purchases_And_Increase_Count)
+	->	Average_Cost = value(Currency, 0)
+	;	value_div(Opening_And_Purchases_And_Increase_Value, Opening_And_Purchases_And_Increase_Count, Average_Cost)),
+	true.
 
 
 % natural increase count given livestock type and all livestock events
@@ -56,40 +28,43 @@ natural_increase_count(Type, [E | Events], Natural_Increase_Count) :-
 natural_increase_count(_, [], 0).
 
 
-livestock_purchases_cost_and_count(Type, [ST | S_Transactions], Purchases_Cost, Purchases_Count) :-
-	(
-		(
-			s_transaction_is_livestock_buy_or_sell(ST, _Day, Type, Livestock_Coord, _, Vector_Ours, _, _, _),
-			Vector_Ours = [coord(_, 0, _)]
+/* todo this should eventually work off transactions */
+
+purchases_cost_and_count(Type, S_Transactions, Cost, Count) :-
+	purchases_cost_and_count2(Type, [ST | S_Transactions], Costs, Counts),
+	flatten(Costs, Cost_Vec),
+	flatten(Counts, Counts_Vec),
+	gtrace,
+	vec_sum(Cost_Vec, Cost_Coord),
+	vec_sum(Count_Vec, Count_Coord),
+	make_debit(Cost_Coord, Cost),
+	make_debit(Count_Coord, Count).
+
+purchases_cost_and_count2(_, [], [], []).
+
+purchases_cost_and_count2(Type, [ST | S_Transactions], [Cost|Costs], [Count|Counts]) :-
+	gtrace,
+	(	(
+			s_transaction_is_livestock_buy_or_sell(ST, _, Type, Livestock_Coord, Money_Coord),
+			is_credit(Money_Cord)
 		)
-		->
-		(
-			Livestock_Coord = coord(Type, Count, 0),
-			Cost = Vector_Ours
+	->	(	make_credit(Cost, Money_Coord),
+			number_vec(Type, Count, Livestock_Coord)
 		)
-		;
-		(
-			Cost = [], Count = 0
-		)
-	),
-	livestock_purchases_cost_and_count(Type, S_Transactions, Purchases_Cost_2, Purchases_Count_2),
-	vec_add(Cost, Purchases_Cost_2, Purchases_Cost),
-	Purchases_Count is Purchases_Count_2 + Count.
-
-livestock_purchases_cost_and_count(_, [], [], 0).
+	;	purchases_cost_and_count2(Type, S_Transactions, Costs, Counts).
 
 
-livestock_count(Accounts, Livestock_Type, Transactions_By_Account, Opening_Cost_And_Count, To_Day, Count) :-
-	opening_cost_and_count(Livestock_Type, _, Opening_Count) = Opening_Cost_And_Count,
-	count_account(Livestock_Type, Count_Account),
-	balance_by_account([], Accounts, Transactions_By_Account, [], _, Count_Account, To_Day, Count_Vector, _),
-	vec_add(Count_Vector, [coord(Livestock_Type, Opening_Count, 0)], Count).
+livestock_at_average_cost_at_day(Livestock, Transactions_By_Account, End_Date, Closing_Value) :-
+	livestock_count(Livestock, Transactions_By_Account, End_Date, Count),
+	doc(Livestock, livestock:average_cost,  Average_Cost),
+	value_convert(Count, Average_Cost, Closing_Value).
 
-livestock_at_average_cost_at_day(Accounts, Livestock_Type, Transactions_By_Account, Opening_Cost_And_Count, To_Day, Average_Cost_Exchange_Rate, Cost_Vector) :-
-	livestock_count(Accounts, Livestock_Type, Transactions_By_Account, Opening_Cost_And_Count, To_Day, Count_Vector),
-	exchange_rate(_, _, Dest_Currency, Average_Cost) = Average_Cost_Exchange_Rate,
-	[coord(_, Count, _)] = Count_Vector,
-	Cost is Average_Cost * Count,
-	Cost_Vector = [coord(Dest_Currency, Cost, 0)].
-
+livestock_count(Livestock, Transactions_By_Account, End_Date, Count) :-
+gtrace,
+	doc(Livestock, livestock:opening_count, Opening_Count_Value),
+	value_debit_vec(Opening_Count_Value, Opening_Count_Vec),
+	count_account(Livestock, Count_Account),
+	doc(l:request, l:accounts, Accounts),
+	balance_by_account([], Accounts, Transactions_By_Account, [], _, Count_Account, End_Date, Count_Vector, _),
+	vec_add(Count_Vector, Opening_Count_Vec, Closing_Vec).
 
