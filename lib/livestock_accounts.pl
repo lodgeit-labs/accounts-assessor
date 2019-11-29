@@ -31,3 +31,8 @@ count_account(Livestock_Type, Count_Account) :-
 with_info_value_and_info(with_info(Value, Info), Value, Info).
 
 
+
+
+livestock_account_ids('Livestock', 'LivestockAtCost', 'Drawings', 'LivestockRations').
+expenses__direct_costs__purchases__account_id('Purchases').
+cost_of_goods_livestock_account_id('CostOfGoodsLivestock').

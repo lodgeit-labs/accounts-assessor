@@ -5,6 +5,7 @@ extract(Doms) :-
 	maplist(extract_livestock_data, Doms).
 
 extract_livestock_data(Livestock_Dom) :-
+	my_docs:new_theory(T)
 	new_graph(G),
 	rdf_assert(G, g:is_extracted_from_request_xml, true), /* goes into request graph */
 	rdf_create_bnode(B),

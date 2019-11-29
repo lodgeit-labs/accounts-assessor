@@ -1,5 +1,16 @@
 
 
+/*livestock_counts(Accounts, Livestock_Types, Transactions, Opening_Costs_And_Counts, To_Day, Counts) :-
+	findall(
+	Count,
+	(
+		member(Livestock_Type, Livestock_Types),
+		member(Opening_Cost_And_Count, Opening_Costs_And_Counts),
+		opening_cost_and_count(Livestock_Type, _, _)  = Opening_Cost_And_Count,
+		livestock_count(Accounts, Livestock_Type, Transactions, Opening_Cost_And_Count, To_Day, Count)
+	),
+	Counts).*/
+
 
 
 

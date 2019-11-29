@@ -56,7 +56,6 @@ natural_increase_count(Type, [E | Events], Natural_Increase_Count) :-
 natural_increase_count(_, [], 0).
 
 
-
 livestock_purchases_cost_and_count(Type, [ST | S_Transactions], Purchases_Cost, Purchases_Count) :-
 	(
 		(
@@ -78,5 +77,19 @@ livestock_purchases_cost_and_count(Type, [ST | S_Transactions], Purchases_Cost, 
 	Purchases_Count is Purchases_Count_2 + Count.
 
 livestock_purchases_cost_and_count(_, [], [], 0).
+
+
+livestock_count(Accounts, Livestock_Type, Transactions_By_Account, Opening_Cost_And_Count, To_Day, Count) :-
+	opening_cost_and_count(Livestock_Type, _, Opening_Count) = Opening_Cost_And_Count,
+	count_account(Livestock_Type, Count_Account),
+	balance_by_account([], Accounts, Transactions_By_Account, [], _, Count_Account, To_Day, Count_Vector, _),
+	vec_add(Count_Vector, [coord(Livestock_Type, Opening_Count, 0)], Count).
+
+livestock_at_average_cost_at_day(Accounts, Livestock_Type, Transactions_By_Account, Opening_Cost_And_Count, To_Day, Average_Cost_Exchange_Rate, Cost_Vector) :-
+	livestock_count(Accounts, Livestock_Type, Transactions_By_Account, Opening_Cost_And_Count, To_Day, Count_Vector),
+	exchange_rate(_, _, Dest_Currency, Average_Cost) = Average_Cost_Exchange_Rate,
+	[coord(_, Count, _)] = Count_Vector,
+	Cost is Average_Cost * Count,
+	Cost_Vector = [coord(Dest_Currency, Cost, 0)].
 
 
