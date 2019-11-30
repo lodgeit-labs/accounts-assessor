@@ -34,7 +34,7 @@
 
 :- use_module('utils', [inner_xml/3, trim_atom/2,pretty_term_string/2, throw_string/1, is_uri/1]).
 :- use_module('files', [server_public_url/1, absolute_tmp_path/2, write_tmp_json_file/2]).
-
+:- use_module('doc', [doc/3, doc_add/3, doc_new_theory/1, doc_new_uri/1]).
 
 :- use_module(library(http/http_client)).
 :- use_module(library(record)).
@@ -132,29 +132,6 @@ account_role_by_id(Accounts, Id, Role) :-
 	account_role(Account, Role).
 
 
-extract_account_hierarchy(Request_DOM, Account_Hierarchy) :-
-	extract_account_hierarchy2(Request_DOM, Account_Hierarchy),
-	doc(T, rdf:a, l:request),
-	doc_add(T, l:accounts, Account_Hierarchy).
-
-extract_account_hierarchy2(Request_DOM, Account_Hierarchy) :-
-
-	findall(
-		DOM,
-		xpath(Request_DOM, //reports/balanceSheetRequest/accountHierarchy, DOM), 
-		DOMs
-	),
-	(
-		DOMs = []
-	->
-		add_accounts(element(_,_,['default_account_hierarchy.xml']), Account_Hierarchy)
-	;
-		(
-			maplist(add_accounts, DOMs, Accounts),
-			flatten(Accounts, Account_Hierarchy_Unsorted),
-			sort(Account_Hierarchy_Unsorted, Account_Hierarchy)
-		)
-	).
 
 /*
 	would be simplified by a generic "load_file" or w/e, that can take either a URL
@@ -163,7 +140,7 @@ extract_account_hierarchy2(Request_DOM, Account_Hierarchy) :-
 
 	would be even more simplified if we differentiated between <accounts> and <taxonomy> tags
 	so that we're not trying to dispatch by inferring the file contents
-	
+
 	<taxonomy> tag:
 		we'll probably end up extracting more info from the taxonomies later anyway
 		should only be one taxonomy tag
@@ -176,19 +153,28 @@ extract_account_hierarchy2(Request_DOM, Account_Hierarchy) :-
 			1) DOM = element(_,_,_)
 			2) [Atom] = DOM
 				then just generic "load_file(Atom, Contents), extract_simple_account_hierarchy(Contents, Account_Hierarchy)"
-
 */
+extract_account_hierarchy(Request_DOM, Account_Hierarchy) :-
+	findall(DOM, xpath(Request_DOM, //reports/balanceSheetRequest/accountHierarchy, DOM), DOMs),
+	(	DOMs = []
+	->	add_accounts(element(_,_,['default_account_hierarchy.xml']), Account_Hierarchy)
+	;	extract_account_hierarchy2(DOMs, Account_Hierarchy)),
+	doc(T, rdf:a, l:request),
+	doc_add(T, l:accounts, Account_Hierarchy).
 
+extract_account_hierarchy2(DOMs, Account_Hierarchy) :-
+	maplist(add_accounts, DOMs, Accounts),
+	flatten(Accounts, Account_Hierarchy_Unsorted),
+	sort(Account_Hierarchy_Unsorted, Account_Hierarchy).
 
-% "read_links_from_accounts_tag"
 add_accounts(DOM, Accounts) :-
-	% "read_dom_from_accounts_tag"
 	(
 		%is it a tree of account tags? use it
 		DOM = element(_,_,[element(_,_,_)|_])
 	->
 		Accounts_DOM = DOM
 	;
+		% is it a filename or url?
 		(
 			element(_,_,[Atom]) = DOM,
 			trim_atom(Atom, Path),
