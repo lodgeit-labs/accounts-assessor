@@ -15,10 +15,10 @@
 :- use_module(library(xsd)).
 :- use_module(library(xpath)).
 
-:- use_module('../files').
-:- use_module('../loans', [loan_agr_summary/2]).
-:- use_module('../days',  [absolute_day/2, parse_date/2, parse_date_into_absolute_days/2]).
-:- use_module('../xml', [
+:- use_module('files').
+:- use_module('loans', [loan_agr_summary/2]).
+:- use_module('days',  [absolute_day/2, parse_date/2, parse_date_into_absolute_days/2]).
+:- use_module('xml', [
 	validate_xml/3
 ]).
 

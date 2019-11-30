@@ -1,3 +1,14 @@
+
+
+
+# livestock
+see https://docs.google.com/document/d/1d65WPmugD7UgdOoVBP8NOaZj670aKU8kW-z7M7Zso9I/edit
+
+
+# investment
+see doc/investment and dropbox Develop/videos/ledger
+
+
 # ledger
 ## introduction
 This endpoint deals with the general ledger. 

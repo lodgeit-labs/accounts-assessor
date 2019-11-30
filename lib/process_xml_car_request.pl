@@ -15,10 +15,10 @@
 :- use_module(library(http/json)).
 :- use_module(library(http/http_open)).
 
-:- use_module('../files', [
+:- use_module('files', [
 		absolute_tmp_path/2
 ]).
-:- use_module('../xml', [
+:- use_module('xml', [
 		validate_xml/3
 ]).
 

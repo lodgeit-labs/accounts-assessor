@@ -10,12 +10,12 @@
 % -------------------------------------------------------------------
 :- module(process_xml_ledger_request, [process_xml_ledger_request/3]).
 
-:- use_module('../days', [
+:- use_module('days', [
 		format_date/2, 
 		add_days/3, 
 		parse_date/2, 
 		gregorian_date/2]).
-:- use_module('../utils', [
+:- use_module('utils', [
 		inner_xml/3, 
 		inner_xml_throw/3,
 		write_tag/2, 
@@ -26,46 +26,46 @@
 	  replace_nonalphanum_chars_with_underscore/2,
 	  catch_maybe_with_backtrace/3,
 	  dict_json_text/2]).
-:- use_module('../ledger_report', [
+:- use_module('ledger_report', [
 		trial_balance_between/8, 
 		profitandloss_between/2, 
 		balance_sheet_at/2,
 		bs_and_pl_entries/8,
 		net_activity_by_account/4]).
-:- use_module('../ledger_html_reports').
-:- use_module('../report_page').
-:- use_module('../bank_statement', [
+:- use_module('ledger_html_reports').
+:- use_module('report_page').
+:- use_module('bank_statement', [
 		extract_s_transaction/3, 
 		print_relevant_exchange_rates_comment/4, 
 		invert_s_transaction_vector/2, 
 		fill_in_missing_units/6,
 		sort_s_transactions/2]).
-:- use_module('../ledger', []).
-:- use_module('../livestock', []).
-:- use_module('../accounts', [
+:- use_module('ledger', []).
+:- use_module('livestock', []).
+:- use_module('accounts', [
 		extract_account_hierarchy/2,
 		sub_accounts_upto_level/4,
 		child_accounts/3,
 		account_by_role/3,
 		account_by_role_nothrow/3, 
 		account_role_by_id/3]).
-:- use_module('../exchange_rates', [
+:- use_module('exchange_rates', [
 		exchange_rate/5]).
-:- use_module('../files', [
+:- use_module('files', [
 		absolute_tmp_path/2,
 		request_tmp_dir/1,
 		server_public_url/1]).
-:- use_module('../system_accounts', [
+:- use_module('system_accounts', [
 		bank_accounts/2]).
-:- use_module('../xml', [
+:- use_module('xml', [
 		validate_xml/3
 ]).
-:- use_module('../action_verbs', []).
-:- use_module('../investment_report_2').
-:- use_module('../crosschecks_report').
-:- use_module('../invoices').
-:- use_module('../xbrl_output', [create_instance/10]).
-:- use_module('../doc', [doc/3, doc_add/3, doc_new_theory/1, doc_new_uri/1]).
+:- use_module('action_verbs', []).
+:- use_module('investment_report_2').
+:- use_module('crosschecks_report').
+:- use_module('invoices').
+:- use_module('xbrl_output', [create_instance/10]).
+:- use_module('doc', [doc/3, doc_add/3, doc_new_theory/1, doc_new_uri/1]).
 :- use_module(library(xpath)).
 :- use_module(library(rdet)).
 :- use_module(library(xsd/validate)).

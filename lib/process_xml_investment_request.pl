@@ -8,7 +8,7 @@ see doc/investment and dropbox Develop/videos/ledger
 :- use_module(library(xpath)).
 :- use_module(library(record)).
 :- use_module(library(lists)).
-:- use_module('../utils', [
+:- use_module('utils', [
 		/* magic_formula, */
 		inner_xml/3, 
 		write_tag/2, 
@@ -17,31 +17,31 @@ see doc/investment and dropbox Develop/videos/ledger
 		floats_close_enough/2,
 		pretty_term_string/2,
 		throw_string/1]).
-:- use_module('../days', [
+:- use_module('days', [
 		format_date/2, 
 		parse_date/2, 
 		gregorian_date/2]).
-:- use_module('../ledger', []).
-:- use_module('../ledger_report', [
+:- use_module('ledger', []).
+:- use_module('ledger_report', [
 		balance_sheet_at/2, 
 		profitandloss_between/2, 
 		balance_by_account/9]).
-:- use_module('../fact_output', []).
-:- use_module('../accounts', [
+:- use_module('fact_output', []).
+:- use_module('accounts', [
 		extract_account_hierarchy/2, 
 		account_by_role/3]).
-:- use_module('../pacioli',  [
+:- use_module('pacioli',  [
 		number_coord/3,
 		vec_add/3]).
-:- use_module('../transactions', [
+:- use_module('transactions', [
 		transactions_by_account/2]).
-:- use_module('../xml', [
+:- use_module('xml', [
 		validate_xml/3
 ]).
-:- use_module('../files', [
+:- use_module('files', [
 		absolute_tmp_path/2
 ]).
-:- use_module('../action_verbs', []).
+:- use_module('action_verbs', []).
 
 	
 :- record investment(

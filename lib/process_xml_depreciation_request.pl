@@ -11,15 +11,15 @@
 :- module(process_xml_depreciation_request, []).
 
 :- use_module(library(xpath)).
-:- use_module('../utils', [inner_xml/3, write_tag/2, fields/2, throw_string/1]).
-:- use_module('../days', [parse_date/2]).
-:- use_module('../depreciation_computation', [
+:- use_module('utils', [inner_xml/3, write_tag/2, fields/2, throw_string/1]).
+:- use_module('days', [parse_date/2]).
+:- use_module('depreciation_computation', [
 		written_down_value/5, 
 		depreciation_between_two_dates/6]).
-:- use_module('../files', [
+:- use_module('files', [
 		absolute_tmp_path/2
 ]).
-:- use_module('../xml', [
+:- use_module('xml', [
 		validate_xml/3
 ]).
 

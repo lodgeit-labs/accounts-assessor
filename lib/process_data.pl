@@ -2,12 +2,12 @@
 :- use_module(library(archive)).
 :- use_module(library(sgml)).
 
-:- use_module(loan/process_xml_loan_request).
-:- use_module(ledger/process_xml_ledger_request).
-:- use_module(livestock/process_xml_livestock_request).
-:- use_module(investment/process_xml_investment_request).
-:- use_module(car_request/process_xml_car_request).
-:- use_module(depreciation/process_xml_depreciation_request).
+:- use_module(process_xml_loan_request).
+:- use_module(process_xml_ledger_request).
+:- use_module(process_xml_livestock_request).
+:- use_module(process_xml_investment_request).
+:- use_module(process_xml_car_request).
+:- use_module(process_xml_depreciation_request).
 
 :- use_module('files', [
 		bump_tmp_directory_id/0,
