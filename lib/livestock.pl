@@ -125,7 +125,7 @@ process_livestock2((S_Transactions, Transactions_In, Start_Date, End_Date), Live
 	append(Transactions1, Headcount_Change_Transactions, Transactions2),
 
 	/* avg cost relies on Opening_And_Purchases_And_Increase */
-	infer_average_cost(Livestock, Start_Date, End_Date, S_Transactions),
+	infer_average_cost(Livestock/*, Start_Date, End_Date*/, S_Transactions),
 
 	/* rations value is derived from avg cost */
 	preprocess_rations(Livestock, End_Date, Rations_Transactions),

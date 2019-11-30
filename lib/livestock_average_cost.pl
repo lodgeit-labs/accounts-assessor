@@ -1,5 +1,5 @@
 
-infer_average_cost(Livestock, Start_Date, End_Date, S_Transactions) :-
+infer_average_cost(Livestock, /*Start_Date, End_Date, */S_Transactions) :-
 	doc(Livestock, livestock:name, Type),
 	doc(Livestock, livestock:currency, Currency),
 	doc(Livestock, livestock:average_cost, Average_Cost),
@@ -31,9 +31,9 @@ natural_increase_count(_, [], 0).
 /* todo this should eventually work off transactions */
 
 purchases_cost_and_count(Type, S_Transactions, Cost, Count) :-
-	purchases_cost_and_count2(Type, [ST | S_Transactions], Costs, Counts),
+	purchases_cost_and_count2(Type, S_Transactions, Costs, Counts),
 	flatten(Costs, Cost_Vec),
-	flatten(Counts, Counts_Vec),
+	flatten(Counts, Count_Vec),
 	gtrace,
 	vec_sum(Cost_Vec, Cost_Coord),
 	vec_sum(Count_Vec, Count_Coord),
@@ -46,12 +46,12 @@ purchases_cost_and_count2(Type, [ST | S_Transactions], [Cost|Costs], [Count|Coun
 	gtrace,
 	(	(
 			s_transaction_is_livestock_buy_or_sell(ST, _, Type, Livestock_Coord, Money_Coord),
-			is_credit(Money_Cord)
+			is_credit(Money_Coord)
 		)
 	->	(	make_credit(Cost, Money_Coord),
 			number_vec(Type, Count, Livestock_Coord)
 		)
-	;	purchases_cost_and_count2(Type, S_Transactions, Costs, Counts).
+	;	purchases_cost_and_count2(Type, S_Transactions, Costs, Counts)).
 
 
 livestock_at_average_cost_at_day(Livestock, Transactions_By_Account, End_Date, Closing_Value) :-
@@ -66,5 +66,8 @@ gtrace,
 	count_account(Livestock, Count_Account),
 	doc(l:request, l:accounts, Accounts),
 	balance_by_account([], Accounts, Transactions_By_Account, [], _, Count_Account, End_Date, Count_Vector, _),
-	vec_add(Count_Vector, Opening_Count_Vec, Closing_Vec).
+	vec_add(Count_Vector, Opening_Count_Vec, Closing_Vec),
+	gtrace,
+	value_debit_vec(Count, Closing_Vec).
+
 

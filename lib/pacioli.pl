@@ -297,3 +297,7 @@ split_coord_by_percent(Rate, H0, H1, H2) :-
 	H2 = coord(U, D2, C2).
 
 vector_unit([coord(U, _,_)], U).
+
+
+value_debit_vec(value(Unit, Number), [Coord]) :-
+	number_coord(Unit, Number, Coord).
