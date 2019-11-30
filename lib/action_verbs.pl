@@ -6,7 +6,7 @@
 :- use_module(library(xpath)).
 
 :- use_module('utils', []).
-:- use_module('doc', [doc/3]).
+:- use_module('doc', [doc/3, doc_add/3, doc_new_uri/1]).
 
 extract_action_verbs_from_bs_request(Dom) :-
 	(

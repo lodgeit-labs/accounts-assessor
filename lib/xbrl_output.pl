@@ -6,9 +6,11 @@
 		context_id_base/3
 ]).
 :- use_module('fact_output').
-:- use_module(library(xbrl/structured_xml)).
 
+
+:- use_module(library(xbrl/structured_xml)).
 :- use_module(library(record)).
+
 
 :- record section(context, header, entries, footer).
 

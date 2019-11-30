@@ -1,5 +1,5 @@
 % see also doc/ledger-livestock
-/*TODO:beginning and ending dates are often ignored*/
+/*TODO:beginning and ending dates in livestockData are missing/ignored*/
 
 :- module(livestock, []).
 :- use_module('utils', [

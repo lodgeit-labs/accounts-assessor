@@ -8,7 +8,6 @@
 % -------------------------------------------------------------------
 % Modules
 % -------------------------------------------------------------------
-
 :- module(process_xml_ledger_request, [process_xml_ledger_request/3]).
 
 :- use_module('../days', [
@@ -62,14 +61,11 @@
 		validate_xml/3
 ]).
 :- use_module('../action_verbs', []).
-
 :- use_module('../investment_report_2').
 :- use_module('../crosschecks_report').
 :- use_module('../invoices').
 :- use_module('../xbrl_output', [create_instance/10]).
 :- use_module('../doc', [doc/3, doc_add/3, doc_new_theory/1, doc_new_uri/1]).
-
-
 :- use_module(library(xpath)).
 :- use_module(library(rdet)).
 :- use_module(library(xsd/validate)).
