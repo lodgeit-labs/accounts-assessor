@@ -1,8 +1,9 @@
 :- module(_, []).
 :- use_module('utils', []).
 
-extract(Doms) :-
-	maplist(extract_livestock_data, Doms).
+extract(Request_Dom) :-
+	findall(Livestock_Dom, xpath(Request_Dom, //reports/balanceSheetRequest/livestockData, Livestock_Dom), Livestock_Doms),
+	maplist(extract_livestock_data, Livestock_Doms).
 
 extract_livestock_data(Livestock_Dom) :-
 	doc_new_theory(B),

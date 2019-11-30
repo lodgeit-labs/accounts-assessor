@@ -31,9 +31,7 @@
 		exchange_rate/5, 
 		is_exchangeable_into_request_bases/4]).
 :- use_module('action_verbs', []).
-:- use_module('livestock', [
-		preprocess_livestock_buy_or_sell/3
-		]).
+:- use_module('livestock', []).
 :- use_module('transactions', [
 		has_empty_vector/1,
 		transaction_day/2,
@@ -64,9 +62,7 @@
 :- use_module('pricing', [
 		add_bought_items/4, 
 		find_items_to_sell/8]).
-:- use_module('my_rdf', []).
 
-:- use_module(library(semweb/rdf11)).
 :- use_module(library(record)).
 :- use_module(library(xpath)).
 :- use_module(library(rdet)).
@@ -166,11 +162,13 @@ preprocess_s_transaction(Static_Data, S_Transaction, Transactions, Outstanding_I
 
 preprocess_s_transaction(Static_Data, S_Transaction, Transactions, Outstanding, Outstanding) :-
     infer_livestock_action_verb(S_Transaction, NS_Transaction),
-	preprocess_s_transaction(Static_Data, NS_Transaction, Transactions, Outstanding_In, Outstanding_Out).
+	s_transaction_action_verb(S_Transaction, Action_Verb),
+	(Action_Verb = l:livestock_buy;Action_Verb = l:livestock_sell),
+	!,
+	livestock:preprocess_livestock_buy_or_sell(S_Transaction, Transactions)
 
 preprocess_s_transaction(Static_Data, S_Transaction, Gl_Entries, Outstanding_Before, Outstanding_After) :-
 	Gl_Entries = [Ts1, Ts2, Ts3, Ts4],
-	my_rdf:my_rdf_graph(G),
 	dict_vars(Static_Data, [Report_Currency, Exchange_Rates]),
 	check_s_transaction_action_verb(S_Transaction),
 	s_transaction_exchanged(S_Transaction, vector(Counteraccount_Vector)),
@@ -179,45 +177,34 @@ preprocess_s_transaction(Static_Data, S_Transaction, Gl_Entries, Outstanding_Bef
 	s_transaction_vector(S_Transaction, Vector_Ours),
 	s_transaction_day(S_Transaction, Transaction_Date),
 	Pricing_Method = lifo,
-	
-	/*Action_Verb = l:livestock_buy
-	-> preprocess_livestock_buy(Static_Data, S_Transaction, Transactions)
-	Action_Verb = l:livestock_sell
-	-> preprocess_livestock_sell(Static_Data, S_Transaction, Transactions)
-	;
-	(*/
-		/* if running backwards, possibly trying with every known action verb */
-		rdf(Action_Verb, l:has_id, Transaction_Type_Id, G),
-
-		rdf(Action_Verb, l:has_exchange_account, Exchanged_Account, G),
-		(rdf(Action_Verb, l:has_trading_account, Trading_Account, G)->true;true),	
-
-		Description = Transaction_Type_Id,
-		affect_bank_account(Static_Data, S_Transaction, Description, Ts1),
-
-		vector_unit(Vector_Ours, Bank_Account_Currency),
-		vec_change_bases(Exchange_Rates, Transaction_Date, Report_Currency, Vector_Ours, Converted_Vector_Ours),
+	doc(Action_Verb, l:has_id, Transaction_Type_Id),
+	doc(Action_Verb, l:has_exchange_account, Exchanged_Account),
+	(doc(Action_Verb, l:has_trading_account, Trading_Account)->true;true),
+	Description = Transaction_Type_Id,
+	affect_bank_account(Static_Data, S_Transaction, Description, Ts1),
+	vector_unit(Vector_Ours, Bank_Account_Currency),
+	vec_change_bases(Exchange_Rates, Transaction_Date, Report_Currency, Vector_Ours, Converted_Vector_Ours),
+	(
+		Counteraccount_Vector = []
+	->
 		(
-			Counteraccount_Vector \= []
+			assertion(Counteraccount_Vector = []),
+			record_expense_or_earning_or_equity_or_loan(Static_Data, Action_Verb, Vector_Ours, Exchanged_Account, Transaction_Date, Description, Ts4),
+			Outstanding_Out = Outstanding_In
+		)
+	;
+		(
+			is_debit(Counteraccount_Vector)
 		->
-			(
-				is_debit(Counteraccount_Vector)
-			->
-				make_buy(
-					Static_Data, Trading_Account, Pricing_Method, Bank_Account_Currency, Counteraccount_Vector,
-					Converted_Vector_Ours, Vector_Ours, Exchanged_Account, Transaction_Date, Description, Outstanding_In, Outstanding_Out, Ts2)
-			;		
-				make_sell(
-					Static_Data, Trading_Account, Pricing_Method, Bank_Account_Currency, Counteraccount_Vector, Vector_Ours, 
-					Converted_Vector_Ours,	Exchanged_Account, Transaction_Date, Description,	Outstanding_In, Outstanding_Out, Ts3)
-			)
+			make_buy(
+				Static_Data, Trading_Account, Pricing_Method, Bank_Account_Currency, Counteraccount_Vector,
+				Converted_Vector_Ours, Vector_Ours, Exchanged_Account, Transaction_Date, Description, Outstanding_In, Outstanding_Out, Ts2)
 		;
-			(
-				assertion(Counteraccount_Vector = []),
-				record_expense_or_earning_or_equity_or_loan(Static_Data, Action_Verb, Vector_Ours, Exchanged_Account, Transaction_Date, Description, Ts4),
-				Outstanding_Out = Outstanding_In
-			)
-		).
+			make_sell(
+				Static_Data, Trading_Account, Pricing_Method, Bank_Account_Currency, Counteraccount_Vector, Vector_Ours,
+				Converted_Vector_Ours,	Exchanged_Account, Transaction_Date, Description,	Outstanding_In, Outstanding_Out, Ts3)
+		)
+	).
 
 /*
 	purchased shares are recorded in an assets account without conversion. The unit is optionally wrapped in a with_cost_per_unit term.
@@ -320,10 +307,9 @@ record_expense_or_earning_or_equity_or_loan(Static_Data, Action_Verb, Vector_Our
 	Exchange_Rates = Static_Data.exchange_rates,
 	vec_inverse(Vector_Ours, Vector_Ours2),
 	vec_change_bases(Exchange_Rates, Date, Report_Currency, Vector_Ours2, Vector_Converted),
-	my_rdf:my_rdf_graph(G),
 	(
 		(
-			rdf(Action_Verb, l:has_gst_rate, Gst_Rate^^_, G),
+			doc(Action_Verb, l:has_gst_rate, Gst_Rate^^_),
 			Gst_Rate =\= 0
 		)
 	->
@@ -332,9 +318,9 @@ record_expense_or_earning_or_equity_or_loan(Static_Data, Action_Verb, Vector_Our
 				/*we sold stuff with tax included and received money, gotta pay GST*/
 				is_debit(Vector_Ours)
 			->
-				rdf(Action_Verb, l:has_gst_payable_account, Gst_Acc, G)
+				doc(Action_Verb, l:has_gst_payable_account, Gst_Acc)
 			;
-				rdf(Action_Verb, l:has_gst_receivable_account, Gst_Acc, G)
+				doc(Action_Verb, l:has_gst_receivable_account, Gst_Acc)
 			),
 			pacioli:split_vector_by_percent(Vector_Converted, Gst_Rate, Gst_Vector, Vector_Converted_Remainder),
 			make_transaction(Date, Description, Gst_Acc, Gst_Vector, T0)
@@ -494,9 +480,8 @@ check_trial_balance(Exchange_Rates, Report_Currency, Date, Transactions) :-
 % Gets the transaction_type term associated with the given transaction
 s_transaction_action_verb(S_Transaction, Action_Verb) :-
 	s_transaction_type_id(S_Transaction, Type_Id),
-	my_rdf:my_rdf_graph(G),
-	rdf(Action_Verb, rdf:type, l:action_verb, G),
-	rdf(Action_Verb, l:has_id, Type_Id, G).
+	doc(Action_Verb, rdf:type, l:action_verb),
+	doc(Action_Verb, l:has_id, Type_Id).
 
 % throw an error if the s_transaction's account is not found in the hierarchy
 check_that_s_transaction_account_exists(S_Transaction, Accounts) :-
@@ -711,11 +696,10 @@ fill_in_missing_units(S_Transactions0, Report_End_Date, [Report_Currency], Used_
  
 check_s_transaction_action_verb(S_Transaction) :-
 	s_transaction_type_id(S_Transaction, Type_Id),
-	my_rdf:my_rdf_graph(G),
 	(
 		(
-			rdf(X, rdf:type, l:action_verb, G),
-			rdf(X, l:has_id, Type_Id, G)
+			doc(X, rdf:type, l:action_verb),
+			doc(X, l:has_id, Type_Id)
 		)
 	->
 		true
@@ -723,7 +707,7 @@ check_s_transaction_action_verb(S_Transaction) :-
 		throw_string(['unknown action verb:',Type_Id])
 	),
 	(
-		rdf(X, l:has_exchange_account, _, G)
+		doc(X, l:has_exchange_account, _)
 	->
 		true
 	;

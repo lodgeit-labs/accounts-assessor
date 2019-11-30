@@ -129,9 +129,14 @@ account_role_by_id(Accounts, Id, Role) :-
 	account_term_by_id(Accounts, Id, Account),
 	account_role(Account, Role).
 
-	
+
 extract_account_hierarchy(Request_DOM, Account_Hierarchy) :-
-	% writeln(Request_DOM),
+	extract_account_hierarchy2(Request_DOM, Account_Hierarchy),
+	doc(T, rdf:a, l:request),
+	doc_add(T, l:accounts, Account_Hierarchy).
+
+extract_account_hierarchy2(Request_DOM, Account_Hierarchy) :-
+
 	findall(
 		DOM,
 		xpath(Request_DOM, //reports/balanceSheetRequest/accountHierarchy, DOM), 

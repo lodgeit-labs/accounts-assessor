@@ -6,7 +6,7 @@
 :- use_module(library(xpath)).
 
 :- use_module('utils', []).
-:- use_module('my_rdf', []).
+:- use_module('doc', [doc/3]).
 
 extract_action_verbs_from_bs_request(Dom) :-
 	(
@@ -37,13 +37,13 @@ add_action_verb_from_xml(In) :-
 		gstPayableAccount, (Gst_Payable, _)
 	]),
 	atom_number(Gst_Rate_Atom, Gst_Rate),
-	rdf_create_bnode(Uri), % will see if this causes any problems
-	rdf_assert(Uri, rdf:type, l:action_verb),
-	rdf_assert(Uri, l:has_id, Id),
-	(nonvar(Description) -> rdf_assert(Uri, l:has_description, Description) ; true),
-	(nonvar(Exchange_Account) -> rdf_assert(Uri, l:has_exchange_account, Exchange_Account) ; true),
-	(nonvar(Trading_Account) -> rdf_assert(Uri, l:has_trading_account, Trading_Account) ; true),
-	rdf_assert(Uri, l:has_gst_rate, Gst_Rate),
-	(nonvar(Gst_Receivable) -> rdf_assert(Uri, l:has_gst_receivable_account, Gst_Receivable) ; true),
-	(nonvar(Gst_Payable) -> rdf_assert(Uri, l:has_gst_payable_account, Gst_Payable) ; true).
+	doc_new_uri(Uri),
+	doc_add(Uri, rdf:type, l:action_verb),
+	doc_add(Uri, l:has_id, Id),
+	(nonvar(Description) -> doc_add(Uri, l:has_description, Description) ; true),
+	(nonvar(Exchange_Account) -> doc_add(Uri, l:has_exchange_account, Exchange_Account) ; true),
+	(nonvar(Trading_Account) -> doc_add(Uri, l:has_trading_account, Trading_Account) ; true),
+	doc_add(Uri, l:has_gst_rate, Gst_Rate),
+	(nonvar(Gst_Receivable) -> doc_add(Uri, l:has_gst_receivable_account, Gst_Receivable) ; true),
+	(nonvar(Gst_Payable) -> doc_add(Uri, l:has_gst_payable_account, Gst_Payable) ; true).
 

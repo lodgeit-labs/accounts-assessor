@@ -105,6 +105,8 @@ process_xml_ledger_request(File_Name, Dom, Reports) :-
 
 	
 process_xml_ledger_request2(Dom, Reports_Out) :-
+	doc_new_uri(R),
+	doc_add(R, rdf:a, l:request),
 	/*
 		first let's extract data from the request
 	*/

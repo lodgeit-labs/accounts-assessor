@@ -10,8 +10,8 @@ make_livestock_accounts(Livestock_Type, Accounts) :-
 	count_account(Livestock_Type, Count_Name),
 	cogs_rations_account(Livestock_Type, CogsRations_Name),
 
-	Cogs  = account(Cogs_Name, /*Expenses/*/'CostOfGoodsLivestock', '', 0),
-	Sales = account(Sales_Name, /*Revenue/*/'SalesOfLivestock', '', 0),
+	Cogs  = account(Cogs_Name, /*Expenses/ */'CostOfGoodsLivestock', '', 0),
+	Sales = account(Sales_Name, /*Revenue/ */'SalesOfLivestock', '', 0),
 	Count = account(Count_Name, 'LivestockCount', '', 0),
 	CogsRations = account(CogsRations_Name, Cogs_Name, '', 0).
 
@@ -28,11 +28,4 @@ sales_account(Livestock_Type, Sales_Account) :-
 count_account(Livestock_Type, Count_Account) :-
 	atom_concat(Livestock_Type, 'Count', Count_Account).
 
-with_info_value_and_info(with_info(Value, Info), Value, Info).
 
-
-
-
-livestock_account_ids('Livestock', 'LivestockAtCost', 'Drawings', 'LivestockRations').
-expenses__direct_costs__purchases__account_id('Purchases').
-cost_of_goods_livestock_account_id('CostOfGoodsLivestock').

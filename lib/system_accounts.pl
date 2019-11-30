@@ -21,8 +21,7 @@
 		replace_nonalphanum_chars_with_underscore/2,
 		capitalize_atom/2]).
 
-:- use_module('my_rdf', []).
-:- use_module(library(semweb/rdf11)).
+:- use_module('doc', [doc/3]).
 
 /*	
 Take the output of find_or_add_required_accounts and filter out existing accounts by role. 
@@ -147,10 +146,8 @@ trading_account_ids(Ids) :-
 	findall(
 		A,
 		(
-			my_rdf:my_rdf_graph(Dir),
-			rdf(X, rdf:type, l:action_verb,Dir),
-			rdf(X, l:has_trading_account, A,Dir)
-
+			doc(X, rdf:type, l:action_verb,Dir),
+			doc(X, l:has_trading_account, A,Dir)
 		),
 		Ids0
 	),

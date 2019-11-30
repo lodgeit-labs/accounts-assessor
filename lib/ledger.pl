@@ -138,8 +138,8 @@ process_ledger(
 		)
 	),
 	flatten(Transactions0, Transactions1),
-	
-	livestock:process_livestock(Livestock_Doms, Livestock_Types, Processed_S_Transactions, Transactions1, Livestock_Opening_Costs_And_Counts, Start_Date, Last_Good_Day, Exchange_Rates, Accounts, Report_Currency, Transactions_With_Livestock, Livestock_Events, Average_Costs, Average_Costs_Explanations, Livestock_Counts),
+
+	livestock:process_livestock(Processed_S_Transactions, Transactions1, Start_Date, Last_Good_Day, Transactions_With_Livestock, Average_Costs),
 
 	/*
 	
@@ -164,17 +164,14 @@ process_ledger(
 		Livestock_Debug = ''
 	;
 		(
-			pretty_term_string(Livestock_Events, Message0b),
 			pretty_term_string(Transactions_With_Livestock, Message1),
-			pretty_term_string(Livestock_Counts, Message12),
+			/*pretty_term_string(Livestock_Counts, Message12),
 			pretty_term_string(Average_Costs, Message5),
-			pretty_term_string(Average_Costs_Explanations, Message5b),
+			pretty_term_string(Average_Costs_Explanations, Message5b),*/
 
 			atomic_list_concat([
-				'Livestock Events:\n', Message0b,'\n\n',
-				'Livestock Counts:\n', Message12,'\n\n',
-				'Average_Costs:\n', Message5,'\n\n',
-				'Average_Costs_Explanations:\n', Message5b,'\n\n',
+/*				'Average_Costs:\n', Message5,'\n\n',
+				'Average_Costs_Explanations:\n', Message5b,'\n\n',*/
 				'Transactions_With_Livestock:\n', Message1,'\n\n'
 			], Livestock_Debug)
 		)
