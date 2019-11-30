@@ -455,36 +455,6 @@ filter_out_chars_from_atom(Predicate, Atom_In, Atom_Out) :-
 	exclude(Predicate, Atom1_Char_Atoms, Atom2_Char_Atoms),
 	atomic_list_concat(Atom2_Char_Atoms, Atom_Out).
 
-sane_xml_element_id_from_term(Term, Id) :-
-	term_string(Term, String, [quoted(false)]),
-	replace_nonalphanum_chars_with_underscore(String, Id).
-	
-sanitize_xml_comment(In, Out) :-
-	string_chars(In, Chars),
-	sanitize_xml_comment2(Chars, Chars_Out),
-	string_chars(Out, Chars_Out).
-
-print_xml_comment(String) :-
-	string(String),
-	print_xml_comment_string(String),
-	!.
-
-print_xml_comment(Term) :-
-	term_string(Term, String, [quoted(false)]),
-	print_xml_comment_string(String),
-	!.
-
-print_xml_comment_string(String) :-
-	sanitize_xml_comment(String, Comment),
-	format('<!-- ~w -->\n', [Comment]).
-
-sanitize_xml_comment2(In, Out) :-
-	append(Head, ['-', '-'|Rest], In),
-	append(Head, ['(','-',')','(','-',')'|Chars_Out_Rest], Out),
-	sanitize_xml_comment2(Rest, Chars_Out_Rest),
-	!.
-
-sanitize_xml_comment2(X, X).
 
 is_uri(URI) :-
 	% todo atom_prefix is deprecated

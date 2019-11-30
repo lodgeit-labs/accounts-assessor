@@ -1,6 +1,5 @@
 :- module(ledger, [
-		find_s_transactions_in_period/4,
-		process_ledger/20
+		find_s_transactions_in_period/4
 	]).
 
 :- use_module('system_accounts', [
@@ -22,9 +21,7 @@
 		pretty_term_string/2,
 		dict_json_text/2
 ]).
-:- use_module('livestock', [
-		livestock_counts/6
-]). 
+:- use_module('livestock', []).
 :- use_module('transactions', [
 		check_transaction_account/2,
 		transactions_by_account/2
@@ -59,16 +56,12 @@ find_s_transactions_in_period(S_Transactions, Opening_Date, Closing_Date, Out) :
 
 process_ledger(
 	Cost_Or_Market, 
-	Livestock_Doms, 
-	S_Transactions0, 
-	Processed_S_Transactions,
-	Start_Date, 
+	S_Transactions0,
+	Start_Date,
 	End_Date, 
 	Exchange_Rates0, 
-	Report_Currency, 
-	Livestock_Types, 
-	Livestock_Opening_Costs_And_Counts, 
-	Accounts_In, 
+	Report_Currency,
+	Accounts_In,
 	Accounts, 
 	Transactions_With_Livestock,
 	Transactions_By_Account,
@@ -104,7 +97,7 @@ process_ledger(
 		Exchange_Rates0 = Exchange_Rates
 	),
 	
-	generate_system_accounts((S_Transactions, Livestock_Types), Accounts_In, Generated_Accounts_Nested),
+	generate_system_accounts(S_Transactions, Accounts_In, Generated_Accounts_Nested),
 	flatten(Generated_Accounts_Nested, Generated_Accounts),
 	pretty_term_string(Generated_Accounts, Message3b),
 	atomic_list_concat([
@@ -125,21 +118,21 @@ process_ledger(
 		S_Transactions = Processed_S_Transactions
 	-> 
 		(
-			Processed_Until = End_Date,
-			Last_Good_Day = End_Date
+			Processed_Until = End_Date/*,
+			Last_Good_Day = End_Date*/
 		)
 	;
 		(
 			last(Processed_S_Transactions, Last_Processed_S_Transaction),
 			s_transaction_day(Last_Processed_S_Transaction, Date),
 			% todo we could/should do: Processed_Until = with_note(Date, 'until error'),
-			Processed_Until = Date,
-			add_days(Date, -1, Last_Good_Day)
+			Processed_Until = Date/*,
+			add_days(Date, -1, Last_Good_Day)*/
 		)
 	),
 	flatten(Transactions0, Transactions1),
 
-	livestock:process_livestock(Processed_S_Transactions, Transactions1, Start_Date, Last_Good_Day, Transactions_With_Livestock, Average_Costs),
+	livestock:process_livestock((Processed_S_Transactions, Transactions1), Transactions_With_Livestock),
 
 	/*
 	
@@ -159,7 +152,7 @@ process_ledger(
 
 	atomic_list_concat(Transaction_Transformation_Debug, Message10),
 	(
-		Livestock_Doms = []
+		once(livestock:livestock_data(_))
 	->
 		Livestock_Debug = ''
 	;

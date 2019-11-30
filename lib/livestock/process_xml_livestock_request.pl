@@ -2,11 +2,9 @@
 
 :- module(process_xml_livestock_request, []).
 :- use_module(library(xpath)).
-%:- use_module(library(yall)).
 :- use_module('../utils', [
 	inner_xml/3, write_tag/2, fields/2, numeric_fields/2, 
 	pretty_term_string/2]).
-:- use_module('../livestock', [compute_livestock_by_simple_calculation/23]).
 :- use_module('../report_page').
 :- use_module('../tables').
 :- use_module('../files', [
@@ -16,6 +14,8 @@
 	validate_xml/3
 ]).
 
+
+:- ['../livestock_calculator'].
 
 process_xml_livestock_request(File_Name, DOM, Reports) :-
 

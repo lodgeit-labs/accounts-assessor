@@ -22,6 +22,10 @@
 :- use_module('days', [
 	parse_date/2
 ]).
+:- use_module(library(semweb/rdf11)).
+:- use_module('doc', [
+	doc/3
+]).
 :- use_module('ledger_report', [
 	balance_by_account/9
 ]).
@@ -31,7 +35,7 @@
 ]).
 :- use_module(library(rdet)).
 
-:- ['livestock_accounts', 'livestock_average_cost', 'livestock_crosscheck', 'livestock_misc', 'livestock_adjustment_transactions', 'livestock_calculator', 'livestock_extract'].
+:- ['livestock_accounts', 'livestock_average_cost', 'livestock_crosscheck', 'livestock_misc', 'livestock_adjustment_transactions', 'livestock_extract'].
 
 
 :- rdet(preprocess_livestock_buy_or_sell/3).
@@ -69,8 +73,8 @@ infer_livestock_action_verb(S_Transaction, NS_Transaction) :-
 	s_transaction_account_id(S_Transaction, Unexchanged_Account_Id),
 	s_transaction_account_id(NS_Transaction, Unexchanged_Account_Id).
 
-s_transaction_is_livestock_buy_or_sell(S_Transaction, Day, Livestock_Type, Livestock_Coord, Money_Coord) :-
-	S_Transaction = s_transaction(Day, '', [Money_Coord], _, vector([Livestock_Coord])),
+s_transaction_is_livestock_buy_or_sell(S_Transaction, Date, Livestock_Type, Livestock_Coord, Money_Coord) :-
+	S_Transaction = s_transaction(Date, '', [Money_Coord], _, vector([Livestock_Coord])),
 	coord_unit(Livestock_Coord, Livestock_Type),
 	livestock_data(Livestock),
 	doc(Livestock, livestock:name, Livestock_Type).
@@ -109,7 +113,13 @@ process_livestock(Info, Transactions_Out) :-
 	),
 	flatten(Txs_List, Transactions_Out).
 
-process_livestock2((S_Transactions, Transactions_In, Start_Date, End_Date), Livestock, Transactions_Out) :-
+process_livestock2((S_Transactions, Transactions_In), Livestock, Transactions_Out) :-
+
+	/*
+	todo send livestock dates from excel and check them here
+	*/
+	doc:request_has_property(l:start_date, Start_Date),
+	doc:request_has_property(l:end_date, End_Date),
 
 	/*
 	preprocess_livestock_buy_or_sell happens first, as part of preprocess_s_transaction.
@@ -117,18 +127,18 @@ process_livestock2((S_Transactions, Transactions_In, Start_Date, End_Date), Live
 	*/
 
 	/* record opening value in assets */
-	opening_inventory_transactions(Livestock, Start_Date, Opening_Inventory_Transactions),
+	opening_inventory_transactions(Livestock, Opening_Inventory_Transactions),
 	append(Transactions_In, Opening_Inventory_Transactions, Transactions1),
 
 	/* born, loss, rations */
-	preprocess_headcount_changes(Livestock, End_Date, Headcount_Change_Transactions),
+	preprocess_headcount_changes(Livestock, Headcount_Change_Transactions),
 	append(Transactions1, Headcount_Change_Transactions, Transactions2),
 
 	/* avg cost relies on Opening_And_Purchases_And_Increase */
-	infer_average_cost(Livestock/*, Start_Date, End_Date*/, S_Transactions),
+	infer_average_cost(Livestock, S_Transactions),
 
 	/* rations value is derived from avg cost */
-	preprocess_rations(Livestock, End_Date, Rations_Transactions),
+	preprocess_rations(Livestock, Rations_Transactions),
 	append(Transactions2, Rations_Transactions, Transactions3),
 
 	/* counts were changed by buys/sells and by rations, losses and borns */
@@ -136,7 +146,7 @@ process_livestock2((S_Transactions, Transactions_In, Start_Date, End_Date), Live
 	Static_Data1 = Static_Data0.put(transactions,Transactions3),
 	transactions_by_account(Static_Data1, Transactions_By_Account),
 
-	closing_inventory_transactions(Livestock, End_Date, Transactions_By_Account, Closing_Transactions),
+	closing_inventory_transactions(Livestock, Transactions_By_Account, Closing_Transactions),
 	append(Transactions3, Closing_Transactions, Transactions_Out),
 
 	%maplist(do_livestock_cross_check(Livestock_Events, Natural_Increase_Costs, S_Transactions, Transactions_Out, Opening_Costs_And_Counts, Start_Date, End_Date, Exchange_Rates, Accounts, Report_Currency, Average_Costs), Livestocks)

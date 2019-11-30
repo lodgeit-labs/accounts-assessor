@@ -1,5 +1,5 @@
 
-infer_average_cost(Livestock, /*Start_Date, End_Date, */S_Transactions) :-
+infer_average_cost(Livestock, S_Transactions) :-
 	doc(Livestock, livestock:name, Type),
 	doc(Livestock, livestock:currency, Currency),
 	doc(Livestock, livestock:average_cost, Average_Cost),
@@ -7,7 +7,7 @@ infer_average_cost(Livestock, /*Start_Date, End_Date, */S_Transactions) :-
 	doc(Livestock, livestock:opening_count, Opening_Count),
 	doc(Livestock, livestock:natural_increase_value_per_unit, Natural_Increase_Cost_Per_Head),
 	doc(Livestock, livestock:born_count, Natural_Increase_Count),
-	livestock_purchases_cost_and_count(Type, S_Transactions, Purchases_Cost, Purchases_Count),
+	purchases_cost_and_count(Type, S_Transactions, Purchases_Cost, Purchases_Count),
 	value_convert(Natural_Increase_Count, Natural_Increase_Cost_Per_Head, Natural_Increase_Value),
 	value_sum([Opening_Cost, Purchases_Cost, Natural_Increase_Value], Opening_And_Purchases_And_Increase_Value),
 	value_sum([Opening_Count, Purchases_Count, Natural_Increase_Count], Opening_And_Purchases_And_Increase_Count),
@@ -45,8 +45,10 @@ purchases_cost_and_count2(_, [], [], []).
 purchases_cost_and_count2(Type, [ST | S_Transactions], [Cost|Costs], [Count|Counts]) :-
 	gtrace,
 	(	(
-			s_transaction_is_livestock_buy_or_sell(ST, _, Type, Livestock_Coord, Money_Coord),
+			s_transaction_is_livestock_buy_or_sell(ST, Date, Type, Livestock_Coord, Money_Coord),
+			days:date_in_request_period(Date),
 			is_credit(Money_Coord)
+
 		)
 	->	(	make_credit(Cost, Money_Coord),
 			number_vec(Type, Count, Livestock_Coord)

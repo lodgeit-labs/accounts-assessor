@@ -2,6 +2,10 @@
 /*
 create livestock-specific accounts that could be missing in user account hierarchy. This ignores roles for now, fixme
 */
+make_livestock_accounts(Accounts) :-
+	livestock_units(Units),
+	maplist(Units, Accounts).
+
 make_livestock_accounts(Livestock_Type, Accounts) :-
 	Accounts = [Cogs, CogsRations, Sales, Count],
 
@@ -28,4 +32,14 @@ sales_account(Livestock_Type, Sales_Account) :-
 count_account(Livestock_Type, Count_Account) :-
 	atom_concat(Livestock_Type, 'Count', Count_Account).
 
+
+livestock_units(Units) :-
+	findall(
+		Unit,
+		(
+			doc_add(L, rdf:a, l:livestock_data),
+			doc(L, livestock:name, Unit)
+		),
+		Units
+	).
 

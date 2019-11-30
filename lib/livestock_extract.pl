@@ -1,5 +1,6 @@
 :- module(_, []).
 :- use_module('utils', []).
+:- use_module(library(xpath)).
 
 extract(Request_Dom) :-
 	findall(Livestock_Dom, xpath(Request_Dom, //reports/balanceSheetRequest/livestockData, Livestock_Dom), Livestock_Doms),
@@ -10,7 +11,7 @@ extract_livestock_data(Livestock_Dom) :-
 	/* optimally, we'd also create a 'user_input' graph and link it to the theory */
 	/*doc_assert(G, g:is_extracted_from_request_xml, true), goes into request graph */
 	utils:fields(Livestock_Dom, [
-		'name', Name
+		'name', Name,
 		'currency', Currency]),
 	utils:numeric_fields(Livestock_Dom, [
 	    'naturalIncreaseValuePerUnit', NaturalIncreaseValuePerUnit,

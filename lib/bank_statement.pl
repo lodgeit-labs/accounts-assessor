@@ -62,7 +62,10 @@
 :- use_module('pricing', [
 		add_bought_items/4, 
 		find_items_to_sell/8]).
+:- use_module('doc', [doc/3]).
 
+
+:- use_module(library(semweb/rdf11)).
 :- use_module(library(record)).
 :- use_module(library(xpath)).
 :- use_module(library(rdet)).
@@ -160,19 +163,19 @@ preprocess_s_transaction(Static_Data, S_Transaction, Transactions, Outstanding_I
     infer_exchanged_units_count(Static_Data, S_Transaction, NS_Transaction),
 	preprocess_s_transaction(Static_Data, NS_Transaction, Transactions, Outstanding_In, Outstanding_Out).
 
-preprocess_s_transaction(Static_Data, S_Transaction, Transactions, Outstanding, Outstanding) :-
+preprocess_s_transaction(_Static_Data, S_Transaction, Transactions, Outstanding, Outstanding) :-
     infer_livestock_action_verb(S_Transaction, NS_Transaction),
-	s_transaction_action_verb(S_Transaction, Action_Verb),
+	s_transaction_action_verb(NS_Transaction, Action_Verb),
 	(Action_Verb = l:livestock_buy;Action_Verb = l:livestock_sell),
 	!,
-	livestock:preprocess_livestock_buy_or_sell(S_Transaction, Transactions)
+	livestock:preprocess_livestock_buy_or_sell(NS_Transaction, Transactions).
 
 preprocess_s_transaction(Static_Data, S_Transaction, Gl_Entries, Outstanding_Before, Outstanding_After) :-
 	Gl_Entries = [Ts1, Ts2, Ts3, Ts4],
 	dict_vars(Static_Data, [Report_Currency, Exchange_Rates]),
 	check_s_transaction_action_verb(S_Transaction),
 	s_transaction_exchanged(S_Transaction, vector(Counteraccount_Vector)),
-	s_transaction_account_id(S_Transaction, Bank_Account_Name), 
+	%s_transaction_account_id(S_Transaction, Bank_Account_Name),
 	s_transaction_action_verb(S_Transaction, Action_Verb),
 	s_transaction_vector(S_Transaction, Vector_Ours),
 	s_transaction_day(S_Transaction, Transaction_Date),
@@ -190,7 +193,7 @@ preprocess_s_transaction(Static_Data, S_Transaction, Gl_Entries, Outstanding_Bef
 		(
 			assertion(Counteraccount_Vector = []),
 			record_expense_or_earning_or_equity_or_loan(Static_Data, Action_Verb, Vector_Ours, Exchanged_Account, Transaction_Date, Description, Ts4),
-			Outstanding_Out = Outstanding_In
+			Outstanding_After = Outstanding_Before
 		)
 	;
 		(
@@ -198,11 +201,11 @@ preprocess_s_transaction(Static_Data, S_Transaction, Gl_Entries, Outstanding_Bef
 		->
 			make_buy(
 				Static_Data, Trading_Account, Pricing_Method, Bank_Account_Currency, Counteraccount_Vector,
-				Converted_Vector_Ours, Vector_Ours, Exchanged_Account, Transaction_Date, Description, Outstanding_In, Outstanding_Out, Ts2)
+				Converted_Vector_Ours, Vector_Ours, Exchanged_Account, Transaction_Date, Description, Outstanding_Before, Outstanding_After, Ts2)
 		;
 			make_sell(
 				Static_Data, Trading_Account, Pricing_Method, Bank_Account_Currency, Counteraccount_Vector, Vector_Ours,
-				Converted_Vector_Ours,	Exchanged_Account, Transaction_Date, Description,	Outstanding_In, Outstanding_Out, Ts3)
+				Converted_Vector_Ours,	Exchanged_Account, Transaction_Date, Description,	Outstanding_Before, Outstanding_After, Ts3)
 		)
 	).
 
@@ -284,7 +287,7 @@ bank_debit_to_unit_price(Vector_Ours, Goods_Positive, value(Unit, Number2)) :-
 affect_bank_account(Static_Data, S_Transaction, Description0, [Ts0, Ts3]) :-
 	s_transaction_account_id(S_Transaction, Bank_Account_Name),
 	s_transaction_vector(S_Transaction, Vector),
-	vector_unit(Vector_Ours, Bank_Account_Currency),
+	vector_unit(Vector, Bank_Account_Currency),
 	s_transaction_day(S_Transaction, Transaction_Date),
 	(	is_debit(Vector)
 	->	Description1 = 'incoming money'

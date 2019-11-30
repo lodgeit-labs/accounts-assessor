@@ -21,8 +21,7 @@ see doc/investment and dropbox Develop/videos/ledger
 		format_date/2, 
 		parse_date/2, 
 		gregorian_date/2]).
-:- use_module('../ledger', [
-		process_ledger/20]).
+:- use_module('../ledger', []).
 :- use_module('../ledger_report', [
 		balance_sheet_at/2, 
 		profitandloss_between/2, 
@@ -693,21 +692,18 @@ process_ledger(
 	Accounts, 
 	Transactions
 ) :-
-	process_ledger(
+	ledger:process_ledger(
 		market,
 		[],
 		S_Transactions,	
-		_,
-		Purchase_Date, 
+		Purchase_Date,
 		Sale_Date, 
 		Exchange_Rates,
 		Report_Currency,
-		[], 
-		[], 
-		Accounts0, 
+		Accounts0,
 		Accounts, 
 		Transactions,
-		_Transactions_By_Account,
+		_,
 		_,
 		_,
 		_,

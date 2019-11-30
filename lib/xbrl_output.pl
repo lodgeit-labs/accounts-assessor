@@ -6,7 +6,7 @@
 		context_id_base/3
 ]).
 :- use_module('fact_output').
-:- use_module('utils').
+:- use_module(library(xbrl/structured_xml)).
 
 :- use_module(library(record)).
 
@@ -83,7 +83,7 @@ build_base_contexts(Start_Date, End_Date, Entity_Identifier, Instant_Context_Id_
 	
 print_used_unit(unit_id(Unit, Id)) :-
 	term_string(Unit, Unit_Str),
-	utils:print_xml_comment(Unit_Str),
+	structured_xml:print_xml_comment(Unit_Str),
 	format('  <xbrli:unit id="U-~w"><xbrli:measure>iso4217:~w</xbrli:measure></xbrli:unit>\n', [Id, Id]).
 
 print_header(Taxonomy_Url_Base) :-

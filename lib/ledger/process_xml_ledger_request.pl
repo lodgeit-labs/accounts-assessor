@@ -11,14 +11,6 @@
 
 :- module(process_xml_ledger_request, [process_xml_ledger_request/3]).
 
-:- use_module(library(xpath)).
-:- use_module(library(rdet)).
-:- use_module(library(xsd/validate)).
-:- use_module(library(sgml)).
-
-:- rdet(output_results/4).
-:- rdet(process_xml_ledger_request2/2).	
-
 :- use_module('../days', [
 		format_date/2, 
 		add_days/3, 
@@ -49,11 +41,8 @@
 		invert_s_transaction_vector/2, 
 		fill_in_missing_units/6,
 		sort_s_transactions/2]).
-:- use_module('../ledger', [
-		process_ledger/20]).
-:- use_module('../livestock', [
-		get_livestock_types/2, 
-		extract_livestock_opening_costs_and_counts/2]).
+:- use_module('../ledger', []).
+:- use_module('../livestock', []).
 :- use_module('../accounts', [
 		extract_account_hierarchy/2,
 		sub_accounts_upto_level/4,
@@ -78,6 +67,17 @@
 :- use_module('../crosschecks_report').
 :- use_module('../invoices').
 :- use_module('../xbrl_output', [create_instance/10]).
+:- use_module('../doc', [doc/3, doc_add/3, doc_new_theory/1, doc_new_uri/1]).
+
+
+:- use_module(library(xpath)).
+:- use_module(library(rdet)).
+:- use_module(library(xsd/validate)).
+:- use_module(library(sgml)).
+:- use_module(library(xbrl/structured_xml)).
+
+
+:- rdet(process_xml_ledger_request2/2).
 
 
 process_xml_ledger_request(File_Name, Dom, Reports) :-
@@ -105,6 +105,11 @@ process_xml_ledger_request(File_Name, Dom, Reports) :-
 
 	
 process_xml_ledger_request2(Dom, Reports_Out) :-
+
+	/*
+	i'm storing some data in the 'doc' rdf-like database, only as an experiment for now.
+	livestock data exclusively, other data in parallel with passing the around in variables
+	*/
 	doc_new_uri(R),
 	doc_add(R, rdf:a, l:request),
 	/*
@@ -119,16 +124,18 @@ process_xml_ledger_request2(Dom, Reports_Out) :-
 
 	inner_xml(Dom, //reports/balanceSheetRequest/startDate, [Start_Date_Atom]),
 	parse_date(Start_Date_Atom, Start_Date),
+	doc_add(R, l:start_date, Start_Date),
 	inner_xml(Dom, //reports/balanceSheetRequest/endDate, [End_Date_Atom]),
 	parse_date(End_Date_Atom, End_Date),
+	doc_add(R, l:end_date, End_Date),
 	
 	extract_exchange_rates(Dom, Start_Date, End_Date, Default_Currency, Exchange_Rates),
-	livestock_extract:extract(Doms),
+	livestock_extract:extract(Dom),
     extract_s_transactions(Dom, Start_Date_Atom, S_Transactions),
 	/* 
 		generate transactions (ledger entries) from s_transactions
 	*/
-	process_ledger(Cost_Or_Market, Livestock_Doms, S_Transactions, _Processed_S_Transactions, Start_Date, End_Date, Exchange_Rates, Report_Currency, Livestock_Types, Livestock_Opening_Costs_And_Counts, Accounts0, Accounts, Transactions, Transactions_By_Account, _Transaction_Transformation_Debug, Outstanding, Processed_Until_Date, Warnings, Errors, Gl),
+	ledger:process_ledger(Cost_Or_Market, S_Transactions, Start_Date, End_Date, Exchange_Rates, Report_Currency, Accounts0, Accounts, Transactions, Transactions_By_Account, Outstanding, Processed_Until_Date, Warnings, Errors, Gl),
 
 	print_relevant_exchange_rates_comment(Report_Currency, End_Date, Exchange_Rates, Transactions),
 	writeln("<!-- exchange rates 2:"),
@@ -258,7 +265,7 @@ investment_reports(Static_Data, Outstanding, Reports) :-
 				    term_string(Err, Err_Str),
 				    format(string(Msg), 'investment reports fail: ~w', [Err_Str]),
 				    Alerts = ['SYSTEM_WARNING':Msg],
-				    utils:print_xml_comment(Alerts),
+				    structured_xml:print_xml_comment(Alerts),
 				    Ir =  _{},
 				    Files = []
 				   )

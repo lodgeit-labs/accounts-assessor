@@ -1,4 +1,4 @@
-:- module(_, [doc/3, doc_add/3, doc_new_theory/1]).
+:- module(_, [doc/3, doc_add/3, doc_new_theory/1, doc_new_uri/1]).
 
 :- use_module(library(semweb/rdf11)).
 
@@ -29,4 +29,6 @@ doc_new_uri(Uri) :-
 	assertion(\+doc(T,_,_)),
 	assertion(\+doc(_,_,T)).
 
-
+request_has_property(P, O) :-
+	doc(R, rdf:a, l:request),
+	doc(R, P, O).
