@@ -3,14 +3,7 @@
 		preprocess_s_transactions/6,
 		print_relevant_exchange_rates_comment/4,
 		invert_s_transaction_vector/2, 
-		fill_in_missing_units/6,
-		s_transaction_day/2,
-		s_transaction_account_id/2,
-		s_transaction_exchanged/2,
-		s_transaction_vector/2,
-		sort_s_transactions/2,
-		s_transactions_up_to/3,
-		s_transaction_to_dict/2
+		fill_in_missing_units/6
 		]).
 
 :- use_module('pacioli',  [
@@ -42,7 +35,7 @@
 		make_transaction/5,
 		make_transaction2/5
 		]).
-:- use_module('utils', [
+:- use_module(library(xbrl/utils), [
 		pretty_term_string/2, 
 		inner_xml/3, 
 		write_tag/2, 
@@ -63,10 +56,19 @@
 		add_bought_items/4, 
 		find_items_to_sell/8]).
 :- use_module('doc', [doc/3]).
+:- use_module('s_transaction', [
+		s_transaction_day/2,
+		s_transaction_type_id/2,
+		s_transaction_vector/2,
+		s_transaction_account_id/2,
+		s_transaction_exchanged/2,
+		sort_s_transactions/2,
+		s_transactions_up_to/3,
+		s_transaction_to_dict/2
+]).
 
 
 :- use_module(library(semweb/rdf11)).
-:- use_module(library(record)).
 :- use_module(library(xpath)).
 :- use_module(library(rdet)).
 
@@ -74,17 +76,8 @@
 
 /*TODO add more rdet declarations here*/
 :- rdet(preprocess_s_transaction/5).
-:- rdet(s_transaction_to_dict/2).
 
-% -------------------------------------------------------------------
-% bank statement transaction record, these are in the input xml
-:- record s_transaction(day, type_id, vector, account_id, exchanged).
-% - The absolute day that the transaction happenned
-% - The type identifier/action tag of the transaction
-% - The amounts that are being moved in this transaction
-% - The account that the transaction modifies without using exchange rate conversions
-% - Either the units or the amount to which the transaction amount will be converted to
-% depending on whether the term is of the form bases(...) or vector(...).
+
 
 
 preprocess_s_transactions(Static_Data, S_Transactions, Processed_S_Transactions, Transactions_Out, Outstanding_Out, Debug_Info) :-
@@ -163,15 +156,18 @@ preprocess_s_transaction(Static_Data, S_Transaction, Transactions, Outstanding_I
     infer_exchanged_units_count(Static_Data, S_Transaction, NS_Transaction),
 	preprocess_s_transaction(Static_Data, NS_Transaction, Transactions, Outstanding_In, Outstanding_Out).
 
-preprocess_s_transaction(_Static_Data, S_Transaction, Transactions, Outstanding, Outstanding) :-
+preprocess_s_transaction(Static_Data, S_Transaction, Transactions, Outstanding_In, Outstanding_Out) :-
     livestock:infer_livestock_action_verb(S_Transaction, NS_Transaction),
-	s_transaction_action_verb(NS_Transaction, Action_Verb),
+    preprocess_s_transaction(Static_Data, NS_Transaction, Transactions, Outstanding_In, Outstanding_Out).
+
+preprocess_s_transaction(_, S_Transaction, Transactions, Outstanding, Outstanding) :-
+	s_transaction_action_verb(S_Transaction, Action_Verb),
 	(Action_Verb = l:livestock_buy;Action_Verb = l:livestock_sell),
 	!,
-	livestock:preprocess_livestock_buy_or_sell(NS_Transaction, Transactions).
+	livestock:preprocess_livestock_buy_or_sell(S_Transaction, Transactions).
 
-preprocess_s_transaction(Static_Data, S_Transaction, Gl_Entries, Outstanding_Before, Outstanding_After) :-
-	Gl_Entries = [Ts1, Ts2, Ts3, Ts4],
+preprocess_s_transaction(Static_Data, S_Transaction, Transactions, Outstanding_Before, Outstanding_After) :-
+	Transactions = [Ts1, Ts2, Ts3, Ts4],
 	dict_vars(Static_Data, [Report_Currency, Exchange_Rates]),
 	check_s_transaction_action_verb(S_Transaction),
 	s_transaction_exchanged(S_Transaction, vector(Counteraccount_Vector)),
@@ -185,7 +181,7 @@ preprocess_s_transaction(Static_Data, S_Transaction, Gl_Entries, Outstanding_Bef
 	(doc(Action_Verb, l:has_trading_account, Trading_Account)->true;true),
 	Description = Transaction_Type_Id,
 	affect_bank_account(Static_Data, S_Transaction, Description, Ts1),
-	vector_unit(Vector_Ours, Bank_Account_Currency),
+	pacioli:vector_unit(Vector_Ours, Bank_Account_Currency),
 	vec_change_bases(Exchange_Rates, Transaction_Date, Report_Currency, Vector_Ours, Converted_Vector_Ours),
 	(
 		Counteraccount_Vector = []
@@ -287,7 +283,7 @@ bank_debit_to_unit_price(Vector_Ours, Goods_Positive, value(Unit, Number2)) :-
 affect_bank_account(Static_Data, S_Transaction, Description0, [Ts0, Ts3]) :-
 	s_transaction_account_id(S_Transaction, Bank_Account_Name),
 	s_transaction_vector(S_Transaction, Vector),
-	vector_unit(Vector, Bank_Account_Currency),
+	pacioli:vector_unit(Vector, Bank_Account_Currency),
 	s_transaction_day(S_Transaction, Transaction_Date),
 	(	is_debit(Vector)
 	->	Description1 = 'incoming money'
@@ -717,36 +713,6 @@ check_s_transaction_action_verb(S_Transaction) :-
 		throw_string('action does not specify exchange account')
 	).
 
-sort_s_transactions(In, Out) :-
-	/*
-	If a buy and a sale of same thing happens on the same day, we want to process the buy first.
-	We first sort by our debit on the bank account. Transactions with zero of our debit are not sales.
-	*/
-	sort(
-	/*
-	this is a path inside the structure of the elements of the sorted array (inside the s_transactions):
-	3th sub-term is the amount from bank perspective. 
-	1st (and hopefully only) item of the vector is the coord,
-	3rd item of the coord is bank credit, our debit.
-	*/
-	[3,1,3], @=<,  In, Mid),
-	/*
-	now we can sort by date ascending, and the order of transactions with same date, as sorted above, will be preserved
-	*/
-	sort(1, @=<,  Mid, Out).
-
-
-s_transactions_up_to(End_Date, S_Transactions_In, S_Transactions_Out) :-
-	findall(
-		T,
-		(
-			member(T, S_Transactions_In),
-			s_transaction_day(T, D),
-			D @=< End_Date
-		),
-		S_Transactions_Out
-	).
-
 pretty_transactions_string(Transactions, String) :-
 	Seen_Units = [],
 	
@@ -819,15 +785,6 @@ infer_exchanged_units_count(Static_Data, S_Transaction, NS_Transaction) :-
 	vec_inverse(Vector_Exchanged, Vector_Exchanged_Inverted),
 	s_transaction_exchanged(NS_Transaction, vector(Vector_Exchanged_Inverted)).
 
-
-s_transaction_to_dict(St, D) :-
-	St = s_transaction(Day, Verb, Vector, Account, Exchanged),
-	D = _{
-		date: Day,
-		verb: Verb,
-		vector: Vector,
-		account: Account,
-		exchanged: Exchanged}.
 
 
 check_trial_balance0(Exchange_Rates, Report_Currency, Transaction_Date, Transactions_Out, _Start_Date, End_Date, Debug_So_Far, Debug_Head) :-

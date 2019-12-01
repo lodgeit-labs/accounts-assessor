@@ -9,7 +9,7 @@
 		account_by_role_nothrow/3
 ]).
 
-:- use_module('utils', [
+:- use_module(library(xbrl/utils), [
 		replace_nonalphanum_chars_with_underscore/2]).
 
 :- use_module('xbrl_contexts', [

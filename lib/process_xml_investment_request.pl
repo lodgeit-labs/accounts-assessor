@@ -8,7 +8,7 @@ see doc/investment and dropbox Develop/videos/ledger
 :- use_module(library(xpath)).
 :- use_module(library(record)).
 :- use_module(library(lists)).
-:- use_module('utils', [
+:- use_module(library(xbrl/utils), [
 		/* magic_formula, */
 		inner_xml/3, 
 		write_tag/2, 

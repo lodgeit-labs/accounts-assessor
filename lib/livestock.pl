@@ -2,7 +2,7 @@
 /*TODO:beginning and ending dates in livestockData are missing/ignored*/
 
 :- module(livestock, []).
-:- use_module('utils', [
+:- use_module(library(xbrl/utils), [
 	user:goal_expansion/2,
 	pretty_term_string/2,
 	maplist6/6,
@@ -33,6 +33,8 @@
 	make_transaction/5,
 	transactions_by_account/2
 ]).
+:- use_module('s_transaction', []).
+
 :- use_module(library(rdet)).
 
 :- ['livestock_accounts', 'livestock_average_cost', 'livestock_crosscheck', 'livestock_misc', 'livestock_adjustment_transactions', 'livestock_extract'].
@@ -59,19 +61,19 @@ find_livestock_data_by_vector_unit(Exchanged) :-
 	;   true).
 
 infer_livestock_action_verb(S_Transaction, NS_Transaction) :-
+	s_transaction:s_transaction_type_id(S_Transaction, ''),
 	gtrace,
-	s_transaction_type_id(S_Transaction, ''),
-	s_transaction_type_id(NS_Transaction, livestock:trade),
-	s_transaction_exchanged(S_Transaction, Exchanged),
+	s_transaction:s_transaction_type_id(NS_Transaction, livestock:trade),
+	s_transaction:s_transaction_exchanged(S_Transaction, Exchanged),
 	find_livestock_data_by_vector_unit(Exchanged),
 	/* just copy these over */
-	s_transaction_exchanged(NS_Transaction, Exchanged),
-	s_transaction_day(S_Transaction, Transaction_Date),
-	s_transaction_day(NS_Transaction, Transaction_Date),
-	s_transaction_vector(S_Transaction, Vector),
-	s_transaction_vector(NS_Transaction, Vector),
-	s_transaction_account_id(S_Transaction, Unexchanged_Account_Id),
-	s_transaction_account_id(NS_Transaction, Unexchanged_Account_Id).
+	s_transaction:s_transaction_exchanged(NS_Transaction, Exchanged),
+	s_transaction:s_transaction_day(S_Transaction, Transaction_Date),
+	s_transaction:s_transaction_day(NS_Transaction, Transaction_Date),
+	s_transaction:s_transaction_vector(S_Transaction, Vector),
+	s_transaction:s_transaction_vector(NS_Transaction, Vector),
+	s_transaction:s_transaction_account_id(S_Transaction, Unexchanged_Account_Id),
+	s_transaction:s_transaction_account_id(NS_Transaction, Unexchanged_Account_Id).
 
 s_transaction_is_livestock_buy_or_sell(S_Transaction, Date, Livestock_Type, Livestock_Coord, Money_Coord) :-
 	S_Transaction = s_transaction(Date, '', [Money_Coord], _, vector([Livestock_Coord])),
@@ -102,7 +104,7 @@ preprocess_livestock_buy_or_sell(Static_Data, S_Transaction, [Bank_Txs, Livestoc
 
 
 
-process_livestock(Info, Transactions_Out) :-
+process_livestock(Info, Livestock_Transactions) :-
 	findall(
 		Txs,
 		(
@@ -111,10 +113,9 @@ process_livestock(Info, Transactions_Out) :-
 		),
 		Txs_List
 	),
-	flatten(Txs_List, Transactions_Out).
+	flatten(Txs_List, Livestock_Transactions).
 
 process_livestock2((S_Transactions, Transactions_In), Livestock, Transactions_Out) :-
-
 	/*
 	todo send livestock dates from excel and check them here
 	*/
@@ -126,9 +127,9 @@ process_livestock2((S_Transactions, Transactions_In), Livestock, Transactions_Ou
 	it affects bank account and livestock headcount.
 	*/
 
-	/* record opening value in assets */
+	/* record opening value in assets */gtrace,
 	opening_inventory_transactions(Livestock, Opening_Inventory_Transactions),
-	append(Transactions_In, Opening_Inventory_Transactions, Transactions1),
+	Transactions1 = Opening_Inventory_Transactions,
 
 	/* born, loss, rations */
 	preprocess_headcount_changes(Livestock, Headcount_Change_Transactions),
@@ -143,7 +144,8 @@ process_livestock2((S_Transactions, Transactions_In), Livestock, Transactions_Ou
 
 	/* counts were changed by buys/sells and by rations, losses and borns */
 	dict_from_vars(Static_Data0, [Start_Date, End_Date]),
-	Static_Data1 = Static_Data0.put(transactions,Transactions3),
+	append(Transactions_In, Transactions3, Transactions_Total),
+	Static_Data1 = Static_Data0.put(transactions,Transactions_Total),
 	transactions_by_account(Static_Data1, Transactions_By_Account),
 
 	closing_inventory_transactions(Livestock, Transactions_By_Account, Closing_Transactions),

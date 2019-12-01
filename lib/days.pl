@@ -17,7 +17,7 @@
 	day_diff/3
 ]).
 
-:- use_module(utils, [throw_string/1]).
+:- use_module(library(xbrl/utils), [throw_string/1]).
 	
 % -------------------------------------------------------------------
 % The purpose of the following program is to define modular dates, a generalization of

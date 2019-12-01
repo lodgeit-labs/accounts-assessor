@@ -1,6 +1,7 @@
 #!/usr/bin/env swipl
 
-:- use_module(utils).
+:- asserta(user:file_search_path(library, '../prolog_xbrl_public/xbrl/prolog')).
+:- use_module(library(xbrl/utils)).
 
 /*
 running this takes a while because it first does just a load to find compile errors, and then runs swipl again to actually execute goal. Maybe next version will consult Script directly, but idk how to eval() a goal, except by parsing it first..

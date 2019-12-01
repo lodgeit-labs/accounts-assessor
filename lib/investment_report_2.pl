@@ -1,7 +1,7 @@
 :- module(investment_report_2, [investment_report_2/5]).
 
 :- use_module('tables').
-:- use_module('utils').
+:- use_module(library(xbrl/utils)).
 :- use_module('days').
 :- use_module('pricing').
 :- use_module('report_page').

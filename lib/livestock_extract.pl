@@ -1,5 +1,5 @@
 :- module(_, []).
-:- use_module('utils', []).
+:- use_module(library(xbrl/utils), []).
 :- use_module(library(xpath)).
 
 extract(Request_Dom) :-

@@ -31,7 +31,7 @@
 	    vector_of_coords_to_vector_of_values/4,
 		split_vector_by_percent/4]).
 
-:- use_module('utils', [
+:- use_module(library(xbrl/utils), [
 			semigroup_foldl/3,
 			floats_close_enough/2,
 			sort_into_dict/3,

@@ -12,11 +12,11 @@
 		account_parent/2,
 		account_detail_level/2]).
 :- use_module('livestock', []).
-:- use_module('bank_statement', [
+:- use_module('s_transaction', [
 		s_transaction_account_id/2,
 		s_transaction_vector/2,
 		s_transaction_exchanged/2]).
-:- use_module('utils', [
+:- use_module(library(xbrl/utils), [
 		replace_nonalphanum_chars_with_underscore/2,
 		capitalize_atom/2]).
 

@@ -16,7 +16,7 @@
 		write_file/2,
 		tmp_file_url/2
 ]).
-:- use_module('utils').
+:- use_module(library(xbrl/utils)).
 
 get_requested_output_type(Options2, Output) :-
 	Known_Output_Types = [json_reports_list, xml],

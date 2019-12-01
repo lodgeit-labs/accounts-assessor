@@ -1,9 +1,10 @@
 :- module(_, []).
 
 :- use_module('accounts').
-:- use_module('utils').
+:- use_module(library(xbrl/utils)).
 
 :- use_module(library(rdet)).
+:- use_module(library(xbrl/structured_xml)).
 
 :- rdet(format_balance/11).
 :- rdet(format_balances/11).
@@ -144,6 +145,6 @@ sane_unit_id(Units_In, Units_Out, Unit, Id) :-
 	!.
 
 sane_unit_id(Units_In, Units_Out, Unit, Id) :-
-	utils:sane_xml_element_id_from_term(Unit, Id),
+	structured_xml:sane_xml_element_id_from_term(Unit, Id),
 	append(Units_In, [unit_id(Unit, Id)], Units_Out).
 

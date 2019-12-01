@@ -11,7 +11,8 @@
 		write_tmp_json_file/2
 		]).
 
-:- use_module('utils').
+:- asserta(user:file_search_path(library, '../prolog_xbrl_public/xbrl/prolog')).
+:- use_module(library(xbrl/utils)).
 
 :- use_module(library(http/http_dispatch), [http_safe_file/2]).
 

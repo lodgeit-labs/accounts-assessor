@@ -13,7 +13,7 @@
 :- use_module('days', [
 		add_days/3, 
 		parse_date/2]).
-:- use_module('utils', [
+:- use_module(library(xbrl/utils), [
 		inner_xml/3, 
 		inner_xml_throw/3,
 		fields/2,
@@ -31,8 +31,9 @@
 		extract_s_transaction/3, 
 		print_relevant_exchange_rates_comment/4, 
 		invert_s_transaction_vector/2, 
-		fill_in_missing_units/6,
-		sort_s_transactions/2]).
+		fill_in_missing_units/6
+]).
+:- use_module('s_transaction', []).
 :- use_module('ledger', []).
 :- use_module('livestock', []).
 :- use_module('files', [
@@ -441,7 +442,7 @@ extract_s_transactions(Dom, Start_Date_Atom, S_Transactions) :-
 		flip s_transactions from bank's perspective to our perspective and sort
 	*/
 	maplist(invert_s_transaction_vector, S_Transactions0, S_Transactions0b),
-	sort_s_transactions(S_Transactions0b, S_Transactions).
+	s_transaction:sort_s_transactions(S_Transactions0b, S_Transactions).
 
 	
 	

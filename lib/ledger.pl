@@ -5,11 +5,13 @@
 :- use_module('system_accounts', [
 		traded_units/2,
 		generate_system_accounts/3]).
-:- use_module('accounts').
 :- use_module('bank_statement', [
+		preprocess_s_transactions/6
+]).
+:- use_module('s_transaction', [
 		s_transaction_day/2,
-		preprocess_s_transactions/6,
-		s_transactions_up_to/3]).
+		s_transactions_up_to/3
+]).
 :- use_module('days', [
 		format_date/2, 
 		parse_date/2, 
@@ -17,7 +19,7 @@
 		add_days/3,
 		date_between/3
 ]).
-:- use_module('utils', [
+:- use_module(library(xbrl/utils), [
 		pretty_term_string/2,
 		dict_json_text/2
 ]).
@@ -131,7 +133,8 @@ process_ledger(
 	),
 	flatten(Transactions0, Transactions1),
 
-	livestock:process_livestock((Processed_S_Transactions, Transactions1), Transactions_With_Livestock),
+	livestock:process_livestock((Processed_S_Transactions, Transactions1), Livestock_Transactions),
+	flatten([Transactions1,	Livestock_Transactions], Transactions_With_Livestock),
 
 	/*
 	
@@ -183,10 +186,7 @@ process_ledger(
 		Processed_S_Transactions, 
 		/* list of lists */
 		Transactions0, 
-		/* flat list */
-		Transactions1, 
-		/* flat list also with livestock transactions */
-		Transactions_With_Livestock, 
+		Livestock_Transactions,
 		/* output */
 		Gl),
 	transactions_by_account(Static_Data2, Transactions_By_Account),
@@ -212,18 +212,12 @@ process_ledger(
 	writeq(Errors),
 	writeln(' -->').
 
-generate_gl_data(Sd, Processed_S_Transactions, Transactions0, Transactions1, Transactions_With_Livestock, Report_Dict) :-
-	
-	/* extract Livestock_Transactions from Transactions_With_Livestock */
-	append(Transactions1, Livestock_Transactions, Transactions_With_Livestock),
-	
+generate_gl_data(Sd, Processed_S_Transactions, Transactions0, Livestock_Transactions, Report_Dict) :-
 	/* Outputs list is lists of generated transactions */
-	append(Transactions0, [Livestock_Transactions], Outputs),
-	
-	/* Sources list is all the s_transactions + livestock adjustment transactions */
+	append(Transactions0, [Livestock_Transactions], Processing_Results),
+	/* Sources list is all the s_transactions + livestock */
 	append(Processed_S_Transactions, ['livestock'], Sources),
-
-	maplist(make_gl_entry(Sd), Sources, Outputs, Report_Dict).
+	maplist(make_gl_entry(Sd), Sources, Processing_Results, Report_Dict).
 
 make_gl_entry(Sd, Source, Transactions, Entry) :-
 	Entry = _{source: S, transactions: T},

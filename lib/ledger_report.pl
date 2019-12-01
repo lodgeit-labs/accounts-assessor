@@ -65,7 +65,7 @@
 :- use_module('days', [
 		add_days/3
 ]).
-:- use_module('utils', [
+:- use_module(library(xbrl/utils), [
 		get_indentation/2,
 		filter_out_chars_from_atom/3,
 		pretty_term_string/2

@@ -2,7 +2,7 @@
 
 :- module(process_xml_livestock_request, []).
 :- use_module(library(xpath)).
-:- use_module('utils', [
+:- use_module(library(xbrl/utils), [
 	inner_xml/3, write_tag/2, fields/2, numeric_fields/2, 
 	pretty_term_string/2]).
 :- use_module('report_page').

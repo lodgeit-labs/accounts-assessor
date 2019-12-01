@@ -29,7 +29,7 @@
 		account_term_by_role/3,
 		write_accounts_json_report/1]).
 
-:- use_module('utils', [inner_xml/3, trim_atom/2,pretty_term_string/2, throw_string/1, is_url/1]).
+:- use_module(library(xbrl/utils), [inner_xml/3, trim_atom/2,pretty_term_string/2, throw_string/1, is_url/1]).
 :- use_module('files', [server_public_url/1, absolute_tmp_path/2, write_tmp_json_file/2]).
 :- use_module('doc', [doc/3, doc_add/3, doc_new_theory/1, doc_new_uri/1]).
 

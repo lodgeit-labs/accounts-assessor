@@ -1,6 +1,6 @@
 :- module(_, []).
 :- use_module('report_page').
-:- use_module('utils').
+:- use_module(library(xbrl/utils)).
 :- use_module('pacioli').
 :- use_module('accounts').
 :- use_module('ledger_report').

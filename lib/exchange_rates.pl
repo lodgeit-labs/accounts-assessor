@@ -14,7 +14,7 @@
 :- use_module('days', [
 		gregorian_date/2
 ]).
-:- use_module('utils', [
+:- use_module(library(xbrl/utils), [
 		pretty_term_string/2, 
 		throw_string/1,
 		floats_close_enough/2
