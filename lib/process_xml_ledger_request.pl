@@ -11,27 +11,20 @@
 :- module(process_xml_ledger_request, [process_xml_ledger_request/3]).
 
 :- use_module('days', [
-		format_date/2, 
 		add_days/3, 
-		parse_date/2, 
-		gregorian_date/2]).
+		parse_date/2]).
 :- use_module('utils', [
 		inner_xml/3, 
 		inner_xml_throw/3,
-		write_tag/2, 
-		fields/2, 
-		numeric_fields/2, 
+		fields/2,
 		pretty_term_string/2, 
 		throw_string/1,
-	  replace_nonalphanum_chars_with_underscore/2,
-	  catch_maybe_with_backtrace/3,
-	  dict_json_text/2]).
+		catch_maybe_with_backtrace/3,
+		dict_json_text/2]).
 :- use_module('ledger_report', [
 		trial_balance_between/8, 
 		profitandloss_between/2, 
-		balance_sheet_at/2,
-		bs_and_pl_entries/8,
-		net_activity_by_account/4]).
+		balance_sheet_at/2]).
 :- use_module('ledger_html_reports').
 :- use_module('report_page').
 :- use_module('bank_statement', [
@@ -42,25 +35,15 @@
 		sort_s_transactions/2]).
 :- use_module('ledger', []).
 :- use_module('livestock', []).
-:- use_module('accounts', [
-		extract_account_hierarchy/2,
-		sub_accounts_upto_level/4,
-		child_accounts/3,
-		account_by_role/3,
-		account_by_role_nothrow/3, 
-		account_role_by_id/3]).
-:- use_module('exchange_rates', [
-		exchange_rate/5]).
 :- use_module('files', [
 		absolute_tmp_path/2,
 		request_tmp_dir/1,
 		server_public_url/1]).
-:- use_module('system_accounts', [
-		bank_accounts/2]).
 :- use_module('xml', [
 		validate_xml/3
 ]).
 :- use_module('action_verbs', []).
+:- use_module('accounts_extract', []).
 :- use_module('investment_report_2').
 :- use_module('crosschecks_report').
 :- use_module('invoices').
@@ -77,6 +60,7 @@
 
 
 process_xml_ledger_request(File_Name, Dom, Reports) :-
+
 	/* does it look like a ledger request? */
 	% ideally should be able to omit this and have this check be done as part of the schema validation, but currently that's problematic because process_data.pl is using this to check whether to use this endpoint. 
 	inner_xml(Dom, //reports/balanceSheetRequest, _),
@@ -116,8 +100,7 @@ process_xml_ledger_request2(Dom, Reports_Out) :-
 	extract_default_currency(Dom, Default_Currency),
 	extract_report_currency(Dom, Report_Currency),
 	action_verbs:extract_action_verbs_from_bs_request(Dom),
-	extract_account_hierarchy(Dom, Accounts0),
-
+	accounts_extract:extract_account_hierarchy_from_request_dom(Dom, Accounts0),
 	inner_xml(Dom, //reports/balanceSheetRequest/startDate, [Start_Date_Atom]),
 	parse_date(Start_Date_Atom, Start_Date),
 	doc_add(R, l:start_date, Start_Date),
@@ -131,7 +114,22 @@ process_xml_ledger_request2(Dom, Reports_Out) :-
 	/* 
 		generate transactions (ledger entries) from s_transactions
 	*/
-	ledger:process_ledger(Cost_Or_Market, S_Transactions, Start_Date, End_Date, Exchange_Rates, Report_Currency, Accounts0, Accounts, Transactions, Transactions_By_Account, Outstanding, Processed_Until_Date, Warnings, Errors, Gl),
+	ledger:process_ledger(
+		Cost_Or_Market,
+		S_Transactions,
+		Start_Date,
+		End_Date,
+		Exchange_Rates,
+		Report_Currency,
+		Accounts0,
+		Accounts,
+		Transactions,
+		Transactions_By_Account,
+		Outstanding,
+		Processed_Until_Date,
+		Warnings,
+		Errors,
+		Gl),
 
 	print_relevant_exchange_rates_comment(Report_Currency, End_Date, Exchange_Rates, Transactions),
 	writeln("<!-- exchange rates 2:"),

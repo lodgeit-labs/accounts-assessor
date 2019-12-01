@@ -22,7 +22,7 @@
 		floats_close_enough/2,
 		replace_chars_in_atom/4,
 		filter_out_chars_from_atom/3,
-		is_uri/1,
+		is_url/1,
 		sort_into_dict/3,
 		sort_into_assoc/3,
 		capitalize_atom/2,
@@ -39,6 +39,7 @@
 :- use_module(library(xpath)).
 :- use_module(library(rdet)).
 :- use_module(library(xsd/flatten)).
+:- use_module(library(http/http_dispatch), [http_safe_file/2]).
 
 :- rdet(report_currency_atom/2).
 :- rdet(shell2/1).
@@ -456,7 +457,7 @@ filter_out_chars_from_atom(Predicate, Atom_In, Atom_Out) :-
 	atomic_list_concat(Atom2_Char_Atoms, Atom_Out).
 
 
-is_uri(URI) :-
+is_url(URI) :-
 	% todo atom_prefix is deprecated
 	atom_prefix(URI,"http").
 
@@ -605,3 +606,26 @@ shell3(Cmd_In, Options) :-
 	(	memberchk(command(C), Options)
 	->	C = Cmd
 	;	true).
+
+xml_write_file(File_Name, Term, Options) :-
+	setup_call_cleanup(
+		open(File_Name, write, Stream),
+		xml_write(Stream, Term, Options),
+		close(Stream)).
+
+xml_from_url(Url, Dom) :-
+	/*fixme: throw something more descriptive here and produce a human-level error message at output*/
+	setup_call_cleanup(
+        http_open(Url, In, []),
+		load_structure(In, Dom, [dialect(xml),space(remove)]),
+        close(In)).
+
+xml_from_path(File_Path, Dom) :-
+	http_safe_file(File_Path, []),
+	absolute_file_name(my_static(File_Path), Absolute_Path, [ access(read) ]),
+	load_xml(Absolute_Path, Dom, [space(remove)]).
+
+xml_from_path_or_url(Url, Dom) :-
+		is_url(Url)
+	->	xml_from_url(Url, Dom)
+	;	xml_from_path(Url, Dom).

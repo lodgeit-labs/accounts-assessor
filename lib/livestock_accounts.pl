@@ -37,7 +37,7 @@ livestock_units(Units) :-
 	findall(
 		Unit,
 		(
-			doc_add(L, rdf:a, l:livestock_data),
+			doc(L, rdf:a, l:livestock_data),
 			doc(L, livestock:name, Unit)
 		),
 		Units

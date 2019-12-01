@@ -65,7 +65,6 @@ process_ledger(
 	Accounts, 
 	Transactions_With_Livestock,
 	Transactions_By_Account,
-	Transaction_Transformation_Debug,
 	Outstanding_Out,
 	Processed_Until,
 	Warnings,

@@ -164,7 +164,7 @@ preprocess_s_transaction(Static_Data, S_Transaction, Transactions, Outstanding_I
 	preprocess_s_transaction(Static_Data, NS_Transaction, Transactions, Outstanding_In, Outstanding_Out).
 
 preprocess_s_transaction(_Static_Data, S_Transaction, Transactions, Outstanding, Outstanding) :-
-    infer_livestock_action_verb(S_Transaction, NS_Transaction),
+    livestock:infer_livestock_action_verb(S_Transaction, NS_Transaction),
 	s_transaction_action_verb(NS_Transaction, Action_Verb),
 	(Action_Verb = l:livestock_buy;Action_Verb = l:livestock_sell),
 	!,

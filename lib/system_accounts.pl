@@ -145,8 +145,8 @@ trading_account_ids(Ids) :-
 	findall(
 		A,
 		(
-			doc(X, rdf:type, l:action_verb,Dir),
-			doc(X, l:has_trading_account, A,Dir)
+			doc(X, rdf:type, l:action_verb),
+			doc(X, l:has_trading_account, A)
 		),
 		Ids0
 	),

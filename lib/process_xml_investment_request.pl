@@ -28,7 +28,6 @@ see doc/investment and dropbox Develop/videos/ledger
 		balance_by_account/9]).
 :- use_module('fact_output', []).
 :- use_module('accounts', [
-		extract_account_hierarchy/2, 
 		account_by_role/3]).
 :- use_module('pacioli',  [
 		number_coord/3,
@@ -129,7 +128,7 @@ process_realized(Dom, Global_Report_Date_Atom, Result) :-
 			exchange_rate(Purchase_Date, Unit_Unique, Currency_Unique, PDPC_Unit_Cost),
 			exchange_rate(Sale_Date, Unit_Unique, Currency_Unique, SDPC_Unit_Price)
 	],
-	extract_account_hierarchy([], Accounts0),
+	accounts_extract:extract_account_hierarchy_from_request_dom([], Accounts0),
 	S_Transactions = [
 		s_transaction(
 			Purchase_Date, 
@@ -289,7 +288,7 @@ process_unrealized(Dom, Global_Report_Date, Result) :-
 		)
 	],	
 
-	extract_account_hierarchy([], Accounts0),
+	accounts_extract:extract_account_hierarchy_from_request_dom([], Accounts0),
 	action_verbs:add_action_verbs_from_default_action_taxonomy,
 
 	process_ledger(
@@ -390,7 +389,6 @@ account_vector(Info, Account, Vector) :-
     balance_by_account(Exchange_Rates, Accounts, Transactions, [Currency], Report_Date, Account, Report_Date, Vector, _).
 
 process_xml_investment_request(File_Name, DOM, Report_Files) :-
-	% gtrace,
 	xpath(DOM, //reports/investmentRequest/investments, _),
 
 	Report_Files = _{
@@ -546,7 +544,7 @@ crosscheck_totals(Results, Report_Date) :-
 		SDRC_Value_Total,
 		_Unrealized_PDRC_Cost_Total
 	),
-	extract_account_hierarchy([], Accounts0),
+	accounts_extract:extract_account_hierarchy_from_request_dom([], Accounts0),
 	action_verbs:add_action_verbs_from_default_action_taxonomy,
 	process_ledger(
 		S_Transactions,
@@ -694,8 +692,7 @@ process_ledger(
 ) :-
 	ledger:process_ledger(
 		market,
-		[],
-		S_Transactions,	
+		S_Transactions,
 		Purchase_Date,
 		Sale_Date, 
 		Exchange_Rates,
@@ -708,7 +705,11 @@ process_ledger(
 		_,
 		_,
 		_,
-		_,
 		_
 	).
+
+
+
+
+
 
