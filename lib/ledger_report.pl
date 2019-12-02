@@ -29,7 +29,7 @@
 :- rdet(trial_balance_between/8).
 :- rdet(balance_sheet_entry/8).
 :- rdet(balance_until_day/9).	
-:- rdet(balance_by_account/9).	
+%:- rdet(balance_by_account/9).
 :- rdet(net_activity_by_account/4).	
 
 :- use_module('accounts', [

@@ -50,7 +50,8 @@ preprocess_rations(Livestock, [T1, T2]) :-
 	pacioli:value_debit_vec(Rations_Value, Dr),
 	pacioli:vec_inverse(Dr, Cr),
 	accounts:account_by_role('Accounts'/'Drawings', Drawings),
-	cogs_rations_account(Livestock, Cogs_Rations_Account),
+	doc(Livestock, livestock:name, Type),
+	cogs_rations_account(Type, Cogs_Rations_Account),
 	% DR OWNERS_EQUITY -->DRAWINGS. I.E. THE OWNER TAKES SOMETHING OF VALUE.
 	make_transaction(Date, 'rations', Drawings, Dr, T1),
 	%	CR COST_OF_GOODS. I.E. DECREASES COST.
@@ -63,7 +64,8 @@ closing_inventory_transactions(Livestock, Transactions_By_Account, [T1, T2]) :-
 	doc(Livestock, livestock:opening_cost, Opening_Cost_Value),
 	vec_sub(Closing_Vec, [Opening_Cost_Value], Adjustment_Debit),
 	vec_inverse(Adjustment_Debit, Adjustment_Credit),
-	cogs_account(Livestock, Cogs_Account),
+	doc(Livestock, livestock:name, Type),
+	cogs_account(Type, Cogs_Account),
 	accounts:account_by_role('Accounts'/'AssetsLivestockAtAverageCost', AssetsLivestockAtAverageCost),
 	make_transaction(Date, "livestock adjustment", Cogs_Account, Adjustment_Credit, T1),
 	make_transaction(Date, "livestock adjustment", AssetsLivestockAtAverageCost, Adjustment_Debit, T2).

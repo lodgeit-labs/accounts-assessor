@@ -58,11 +58,12 @@ livestock_at_average_cost_at_day(Livestock, Transactions_By_Account, End_Date, C
 	pacioli:value_convert(Count, Average_Cost, Closing_Value).
 
 livestock_count(Livestock, Transactions_By_Account, End_Date, Count) :-
-gtrace,
 	doc(Livestock, livestock:opening_count, Opening_Count_Value),
 	pacioli:value_debit_vec(Opening_Count_Value, Opening_Count_Vec),
-	count_account(Livestock, Count_Account),
+	doc(Livestock, livestock:name, Type),
+	count_account(Type, Count_Account),
 	doc:request_has_property(l:accounts, Accounts),
+gtrace,
 	ledger_report:balance_by_account([], Accounts, Transactions_By_Account, [], _, Count_Account, End_Date, Count_Vector, _),
 	pacioli:vec_add(Count_Vector, Opening_Count_Vec, Closing_Vec),
 	gtrace,

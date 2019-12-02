@@ -32,9 +32,7 @@ extract_account_hierarchy_from_request_dom(Request_DOM, Account_Hierarchy) :-
 	->	extract_account_hierarchy_from_accountHierarchy_element(element(accountHierarchy, [], ['default_account_hierarchy.xml']), Account_Hierarchy0)
 	;	extract_account_hierarchy_from_accountHierarchy_elements(DOMs, Account_Hierarchy0)),
 	flatten(Account_Hierarchy0, Account_Hierarchy1),
-	sort(Account_Hierarchy1, Account_Hierarchy),
-	doc(T, rdf:a, l:request),
-	doc_add(T, l:accounts, Account_Hierarchy).
+	sort(Account_Hierarchy1, Account_Hierarchy).
 
 extract_account_hierarchy_from_accountHierarchy_elements(DOMs, Account_Hierarchy) :-
 	maplist(extract_account_hierarchy_from_accountHierarchy_element, DOMs, Accounts),

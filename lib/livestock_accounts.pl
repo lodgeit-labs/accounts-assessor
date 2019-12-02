@@ -4,7 +4,7 @@ create livestock-specific accounts that could be missing in user account hierarc
 */
 make_livestock_accounts(Accounts) :-
 	livestock_units(Units),
-	maplist(Units, Accounts).
+	maplist(make_livestock_accounts, Units, Accounts).
 
 make_livestock_accounts(Livestock_Type, Accounts) :-
 	Accounts = [Cogs, CogsRations, Sales, Count],
