@@ -163,7 +163,7 @@ preprocess_s_transaction(Static_Data, S_Transaction, Transactions, Outstanding_B
 	s_transaction_day(S_Transaction, Transaction_Date),
 	Pricing_Method = lifo,
 	doc(Action_Verb, l:has_id, Action_Verb_Id),
-	doc(Action_Verb, l:has_counteraccount, Exchanged_Account),
+	(doc(Action_Verb, l:has_counteraccount, Exchanged_Account)->true;throw_string('action verb does not specify exchange account')),
 	(doc(Action_Verb, l:has_trading_account, Trading_Account)->true;true),
 	Description = Action_Verb_Id,
 	affect_bank_account(Static_Data, S_Transaction, Description, Ts1),
@@ -462,12 +462,6 @@ check_trial_balance(Exchange_Rates, Report_Currency, Date, Transactions) :-
 	).
 
 	
-% Gets the transaction_type term associated with the given transaction
-s_transaction_action_verb(S_Transaction, Action_Verb) :-
-	s_transaction_type_id(S_Transaction, Type_Id),
-	doc(Action_Verb, rdf:type, l:action_verb),
-	doc(Action_Verb, l:has_id, Type_Id).
-
 % throw an error if the s_transaction's account is not found in the hierarchy
 check_that_s_transaction_account_exists(S_Transaction, Accounts) :-
 	s_transaction_account_id(S_Transaction, Account_Name),
@@ -679,26 +673,6 @@ fill_in_missing_units(S_Transactions0, Report_End_Date, [Report_Currency], Used_
 	).
 	
  
-check_s_transaction_action_verb(S_Transaction) :-
-	s_transaction_type_id(S_Transaction, Type_Id),
-	(
-		(
-			doc(X, rdf:type, l:action_verb),
-			doc(X, l:has_id, Type_Id)
-		)
-	->
-		true
-	;
-		throw_string(['unknown action verb:',Type_Id])
-	),
-	(
-		doc(X, l:has_counteraccount, _)
-	->
-		true
-	;
-		throw_string('action does not specify exchange account')
-	).
-
 pretty_transactions_string(Transactions, String) :-
 	Seen_Units = [],
 	
@@ -753,23 +727,6 @@ pretty_vector_string(Seen_Units0, Seen_Units_Out, [Coord|Rest], Vector_Str) :-
 	atomic_list_concat([Coord_Str, Rest_Str], Vector_Str).
 
 
-% This Prolog rule handles the case when only the exchanged units are known (for example GOOG)  and
-% hence it is desired for the program to infer the count.
-infer_exchanged_units_count(Static_Data, S_Transaction, NS_Transaction) :-
-	dict_vars(Static_Data, [Exchange_Rates]),
-	s_transaction_exchanged(S_Transaction, bases(Goods_Bases)),
-	s_transaction_day(S_Transaction, Transaction_Date),
-	s_transaction_day(NS_Transaction, Transaction_Date),
-	s_transaction_type_id(S_Transaction, Type_Id),
-	s_transaction_type_id(NS_Transaction, Type_Id),
-	s_transaction_vector(S_Transaction, Vector_Bank),
-	s_transaction_vector(NS_Transaction, Vector_Bank),
-	s_transaction_account_id(S_Transaction, Unexchanged_Account_Id),
-	s_transaction_account_id(NS_Transaction, Unexchanged_Account_Id),
-	% infer the count by money debit/credit and exchange rate
-	vec_change_bases(Exchange_Rates, Transaction_Date, Goods_Bases, Vector_Bank, Vector_Exchanged),
-	vec_inverse(Vector_Exchanged, Vector_Exchanged_Inverted),
-	s_transaction_exchanged(NS_Transaction, vector(Vector_Exchanged_Inverted)).
 
 
 

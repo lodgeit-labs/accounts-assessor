@@ -18,7 +18,8 @@
 ]).
 
 :- use_module(library(xbrl/utils), [throw_string/1]).
-	
+:- use_module('doc', []).
+
 % -------------------------------------------------------------------
 % The purpose of the following program is to define modular dates, a generalization of
 % Gregorian dates where the day and month can take on any integral value. They allow you

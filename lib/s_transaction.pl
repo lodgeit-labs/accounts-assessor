@@ -9,6 +9,10 @@
 		s_transaction_to_dict/2
 ]).
 
+:- use_module('doc', [
+	doc/3
+]).
+:- use_module(library(xbrl/utils), []).
 :- use_module(library(record)).
 :- use_module(library(rdet)).
 
@@ -81,8 +85,7 @@ prepreprocess_s_transaction(Static_Data, In, Out) :-
 	prepreprocess_s_transaction(Static_Data, Mid, Out).
 
 /* from verb label to verb uri */
-prepreprocess_s_transaction(Static_Data, In, Out) :-
-	check_s_transaction_action_verb(S_Transaction),
+prepreprocess_s_transaction(Static_Data, S_Transaction, Out) :-
 	s_transaction_action_verb(S_Transaction, Action_Verb),
 	!,
 	s_transaction:s_transaction_type_id(NS_Transaction, uri(Action_Verb)),
@@ -97,7 +100,37 @@ prepreprocess_s_transaction(Static_Data, In, Out) :-
 	s_transaction:s_transaction_account_id(NS_Transaction, Unexchanged_Account_Id),
 	prepreprocess_s_transaction(Static_Data, NS_Transaction, Out).
 
-prepreprocess_s_transaction(Static_Data, T, T) :-
+prepreprocess_s_transaction(_, T, T) :-
 	(	s_transaction:s_transaction_type_id(T, uri(_))
 	->	true
 	;	utils:throw_string(unrecognized_bank_statement_transaction)).
+
+
+% This Prolog rule handles the case when only the exchanged units are known (for example GOOG)  and
+% hence it is desired for the program to infer the count.
+infer_exchanged_units_count(Static_Data, S_Transaction, NS_Transaction) :-
+	dict_vars(Static_Data, [Exchange_Rates]),
+	s_transaction_exchanged(S_Transaction, bases(Goods_Bases)),
+	s_transaction_day(S_Transaction, Transaction_Date),
+	s_transaction_day(NS_Transaction, Transaction_Date),
+	s_transaction_type_id(S_Transaction, Type_Id),
+	s_transaction_type_id(NS_Transaction, Type_Id),
+	s_transaction_vector(S_Transaction, Vector_Bank),
+	s_transaction_vector(NS_Transaction, Vector_Bank),
+	s_transaction_account_id(S_Transaction, Unexchanged_Account_Id),
+	s_transaction_account_id(NS_Transaction, Unexchanged_Account_Id),
+	% infer the count by money debit/credit and exchange rate
+	vec_change_bases(Exchange_Rates, Transaction_Date, Goods_Bases, Vector_Bank, Vector_Exchanged),
+	vec_inverse(Vector_Exchanged, Vector_Exchanged_Inverted),
+	s_transaction_exchanged(NS_Transaction, vector(Vector_Exchanged_Inverted)).
+
+
+s_transaction_action_verb(S_Transaction, Action_Verb) :-
+	s_transaction_type_id(S_Transaction, Type_Id),
+	Type_Id \= uri(_),
+	(	(
+			doc(Action_Verb, rdf:a, l:action_verb),
+			doc(Action_Verb, l:has_id, Type_Id)
+		)
+	->	true
+	;	(utils:throw_string(['unknown action verb:',Type_Id]))).

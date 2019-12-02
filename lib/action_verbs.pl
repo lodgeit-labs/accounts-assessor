@@ -24,7 +24,8 @@ add_action_verbs_from_default_action_taxonomy :-
 
 extract_action_taxonomy2(Dom) :-
    findall(Action, xpath(Dom, //action, Action), Actions),
-   maplist(add_action_verb_from_xml, Actions).
+   maplist(add_action_verb_from_xml, Actions),
+   add_builtin_action_verbs.
    
 add_action_verb_from_xml(In) :-
 	utils:fields(In, [
@@ -38,7 +39,7 @@ add_action_verb_from_xml(In) :-
 	]),
 	atom_number(Gst_Rate_Atom, Gst_Rate),
 	doc_new_uri(Uri),
-	doc_add(Uri, rdf:type, l:action_verb),
+	doc_add(Uri, rdf:a, l:action_verb),
 	doc_add(Uri, l:has_id, Id),
 	(nonvar(Description) -> doc_add(Uri, l:has_description, Description) ; true),
 	(nonvar(Exchange_Account) -> doc_add(Uri, l:has_counteraccount, Exchange_Account) ; true),
@@ -46,4 +47,10 @@ add_action_verb_from_xml(In) :-
 	doc_add(Uri, l:has_gst_rate, Gst_Rate),
 	(nonvar(Gst_Receivable) -> doc_add(Uri, l:has_gst_receivable_account, Gst_Receivable) ; true),
 	(nonvar(Gst_Payable) -> doc_add(Uri, l:has_gst_payable_account, Gst_Payable) ; true).
+
+add_builtin_action_verbs :-
+	doc_add(l:livestock_sale, rdf:a, l:action_verb),
+	doc_add(l:livestock_sale, l:has_id, 'Livestock_Sale'),
+	doc_add(l:livestock_purchase, rdf:a, l:action_verb),
+	doc_add(l:livestock_purchase, l:has_id, 'Livestock_Purchase').
 

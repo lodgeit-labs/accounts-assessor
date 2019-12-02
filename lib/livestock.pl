@@ -39,6 +39,8 @@
 
 :- ['livestock_accounts', 'livestock_average_cost', 'livestock_crosscheck', 'livestock_misc', 'livestock_adjustment_transactions', 'livestock_extract'].
 
+:- use_module('bank_statement', []).
+
 
 :- rdet(preprocess_livestock_buy_or_sell/3).
 
@@ -57,8 +59,14 @@ livestock_data_by_vector_unit(Livestock, Exchanged) :-
 	),
 	length(Known_Livestock_Datas, Known_Livestock_Datas_Length),
 	(   Known_Livestock_Datas_Length > 1
-	->  throw(xxx)
+	->  utils:throw_string(multiple_livestock_types_match)
 	;   true),
+	(	Known_Livestock_Datas_Length = 0
+	->	(
+			findall(U,(livestock_data(L),doc(L, livestock:name, U)),Units),
+			format(user_error, 'WARNING:looking for livestock unit ~q, known units: ~q', [Unit, Units])
+		)
+	;	true),
 	[Livestock] = Known_Livestock_Datas.
 
 infer_livestock_action_verb(S_Transaction, NS_Transaction) :-
@@ -85,22 +93,21 @@ s_transaction_is_livestock_buy_or_sell(S_Transaction, Date, Livestock_Type, Live
 	!,
 	V = [Livestock_Coord],
 	pacioli:coord_unit(Livestock_Coord, Livestock_Type),
-	gtrace,
 	livestock_data_by_vector_unit(_, V).
 
 preprocess_livestock_buy_or_sell(Static_Data, S_Transaction, [Bank_Txs, Livestock_Count_Transaction, Pl_Transaction]) :-
-	gtrace,
+	%gtrace,
 	s_transaction_is_livestock_buy_or_sell(S_Transaction, Day, Livestock_Type, Livestock_Coord, Money_Coord),
-	(   is_debit(Money_Coord)
+	(   pacioli:is_debit(Money_Coord)
 	->  Description = 'livestock sale'
 	;   Description = 'livestock purchase'),
 	count_account(Livestock_Type, Count_Account),
 	make_transaction(Day, Description, Count_Account, [Livestock_Coord], Livestock_Count_Transaction),
-	affect_bank_account(Static_Data, S_Transaction, Description, Bank_Txs),
-	(   is_credit(Money_Coord)
+	bank_statement:affect_bank_account(Static_Data, S_Transaction, Description, Bank_Txs),
+	(   pacioli:is_credit(Money_Coord)
 	->	(
 			cogs_account(Livestock_Type, Cogs_Account),
-			vec_inverse([Money_Coord], Expense_Vector),
+			pacioli:vec_inverse([Money_Coord], Expense_Vector),
 			make_transaction(Day, 'livestock buy', Cogs_Account, Expense_Vector, Pl_Transaction)
 		)
 	;
@@ -110,14 +117,15 @@ preprocess_livestock_buy_or_sell(Static_Data, S_Transaction, [Bank_Txs, Livestoc
 		)
 	).
 
-
-
 process_livestock(Info, Livestock_Transactions) :-
 	findall(
 		Txs,
 		(
 			livestock_data(L),
-			(process_livestock2(Info, L, Txs) -> true;throw(err))
+			(	process_livestock2(Info, L, Txs)
+			->	true
+			;	(gtrace,utils:throw_string('process_livestock2 failed'))
+			)
 		),
 		Txs_List
 	),
@@ -135,16 +143,19 @@ process_livestock2((S_Transactions, Transactions_In), Livestock, Transactions_Ou
 	it affects bank account and livestock headcount.
 	*/
 
-	/* record opening value in assets */gtrace,
+	/* record opening value in assets */
 	opening_inventory_transactions(Livestock, Opening_Inventory_Transactions),
 	Transactions1 = Opening_Inventory_Transactions,
 
 	/* born, loss, rations */
 	preprocess_headcount_changes(Livestock, Headcount_Change_Transactions),
 	append(Transactions1, Headcount_Change_Transactions, Transactions2),
-
+	gtrace,
 	/* avg cost relies on Opening_And_Purchases_And_Increase */
 	infer_average_cost(Livestock, S_Transactions),
+	doc(Livestock, livestock:average_cost, exchange_rate(_,_,_,XXX)),
+	term_string(XXX, XXXX, [attributes(write)]),
+	format(user_error, 'XXXX~wXXXX~n', [XXXX]),
 
 	/* rations value is derived from avg cost */
 	preprocess_rations(Livestock, Rations_Transactions),

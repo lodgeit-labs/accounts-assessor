@@ -37,6 +37,8 @@ doc_new_uri(Uri) :-
 	assertion(\+doc(Uri,_,_)),
 	assertion(\+doc(_,_,Uri)).
 
+:- rdf_meta request_has_property(r,r).
+
 request_has_property(P, O) :-
 	doc(R, rdf:a, l:request),
 	doc(R, P, O).

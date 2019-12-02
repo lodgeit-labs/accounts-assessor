@@ -46,7 +46,7 @@
     </unitValues>
 	
     <livestockData>
-      <name>CATTLE</name>
+      <name>Cow</name>
 	  <currency>AUD</currency>
       <naturalIncreaseValuePerUnit>20</naturalIncreaseValuePerUnit>
       <unitsOpening>25</unitsOpening>

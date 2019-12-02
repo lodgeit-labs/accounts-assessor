@@ -18,37 +18,38 @@ opening_inventory_transactions(Livestock, [T1, T2]) :-
 	*/
 	/* this also seamlessly converts actual rdf to value/2 */
 	doc(Livestock, livestock:opening_cost, Cost),
-	value_debit_vec(Cost, Opening_Vector),
-	value_credit_vec(Cost, Opening_Vector_Credit),
-	account_by_role('Accounts'/'AssetsLivestockAtCost', A0),
-	account_by_role('Accounts'/'CapitalIntroduced', A1),
+	pacioli:value_debit_vec(Cost, Opening_Vector),
+	pacioli:value_credit_vec(Cost, Opening_Vector_Credit),
+	accounts:account_by_role('Accounts'/'AssetsLivestockAtCost', A0),
+	accounts:account_by_role('Accounts'/'CapitalIntroduced', A1),
 	doc:request_has_property(l:end_date, End_Date),
 	make_transaction(End_Date, 'livestock opening inventory', A0, Opening_Vector, T1),
 	make_transaction(End_Date, 'livestock opening inventory', A1, Opening_Vector_Credit, T2).
 
-preprocess_headcount_changes(Livestock, Date, [Tx0, Tx1, Tx2]) :-
+preprocess_headcount_changes(Livestock, [Tx0, Tx1, Tx2]) :-
+	doc:request_has_property(l:end_date, Date),
 	doc(Livestock, livestock:name, Type),
 	count_account(Type, Count_Account),
 	doc(Livestock, livestock:born_count, B),
-	value_debit_vec(B, B_V),
+	pacioli:value_debit_vec(B, B_V),
 	doc:request_has_property(l:end_date, Date),
 	make_transaction(Date, 'livestock born', Count_Account, B_V, Tx0),
 	doc(Livestock, livestock:losses_count, L),
-	value_credit_vec(L, L_V),
+	pacioli:value_credit_vec(L, L_V),
 	make_transaction(Date, 'livestock loss', Count_Account, L_V, Tx1),
 	doc(Livestock, livestock:rations_count, R),
-	value_credit_vec(R, R_V),
+	pacioli:value_credit_vec(R, R_V),
 	make_transaction(Date, 'livestock rations', Count_Account, R_V, Tx2).
 
 % the average cost value has to be computed first
 preprocess_rations(Livestock, [T1, T2]) :-
 	doc:request_has_property(l:end_date, Date),
-    doc(Livestock, livestock:rations_count, Rations_Count),
-    doc(Livestock, livestock:average_cost,  Average_Cost),
-	value_convert(Rations_Count, Average_Cost, Rations_Value),
-	value_debit_vec(Rations_Value, Dr),
-	vec_invert(Dr, Cr),
-	account_by_role('Accounts'/'Drawings', Drawings),
+	doc(Livestock, livestock:rations_count, Rations_Count),
+	doc(Livestock, livestock:average_cost,  Average_Cost),
+	pacioli:value_convert(Rations_Count, Average_Cost, Rations_Value),
+	pacioli:value_debit_vec(Rations_Value, Dr),
+	pacioli:vec_invert(Dr, Cr),
+	accounts:account_by_role('Accounts'/'Drawings', Drawings),
 	cogs_rations_account(Livestock, Cogs_Rations_Account),
 	% DR OWNERS_EQUITY -->DRAWINGS. I.E. THE OWNER TAKES SOMETHING OF VALUE.
 	make_transaction(Date, 'rations', Drawings, Dr, T1),
@@ -63,7 +64,7 @@ closing_inventory_transactions(Livestock, Transactions_By_Account, [T1, T2]) :-
 	vec_sub(Closing_Vec, [Opening_Cost_Value], Adjustment_Debit),
 	vec_inverse(Adjustment_Debit, Adjustment_Credit),
 	cogs_account(Livestock, Cogs_Account),
-	account_by_role('Accounts'/'AssetsLivestockAtAverageCost', AssetsLivestockAtAverageCost),
+	accounts:account_by_role('Accounts'/'AssetsLivestockAtAverageCost', AssetsLivestockAtAverageCost),
 	make_transaction(Date, "livestock adjustment", Cogs_Account, Adjustment_Credit, T1),
 	make_transaction(Date, "livestock adjustment", AssetsLivestockAtAverageCost, Adjustment_Debit, T2).
 

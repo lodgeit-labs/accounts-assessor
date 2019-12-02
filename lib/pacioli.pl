@@ -167,6 +167,10 @@ is_zero(Coord) :-
 	
 is_zero(Value) :-
 	is_zero_value(Value).
+
+is_zero([X]) :-
+	is_zero(X).
+
 /*	
 is_zero_coord(coord(_, Zero1, Zero2)) :-
 	{Zero1 =:= 0,
@@ -184,8 +188,14 @@ is_zero_value(value(_, Zero)) :-
 is_debit(coord(_, _, Zero)) :-
 	{Zero =:= 0}.
 
-is_debit([coord(_, _, Zero)]) :-
+is_debit([Coord]) :-
+	is_debit(Coord).
+
+is_credit(coord(_, Zero, _)) :-
 	{Zero =:= 0}.
+
+is_credit([Coord]) :-
+	is_credit(Coord).
 
 unify_coords_or_values(coord(U, D1, C1), coord(U, D2, C2)) :-
 	unify_numbers(D1, D2),
@@ -204,18 +214,16 @@ unify_numbers(A,B) :-
 	).
 
 	
-make_debit(value(Unit, Amount), coord(Unit, Amount, Zero)) :-
-	gtrace, unify_numbers(Zero, 0).
-
 make_debit(coord(Unit, Dr, Zero), coord(Unit, Dr, 0)) :- Zero =:= 0.
 make_debit(coord(Unit, Zero, Cr), coord(Unit, Cr, 0)) :- Zero =:= 0.
-
-make_credit(value(Unit, Amount), coord(Unit, 0, Amount)).
 make_credit(coord(Unit, Dr, Zero), coord(Unit, 0, Dr)) :- Zero =:= 0.
 make_credit(coord(Unit, Zero, Cr), coord(Unit, 0, Cr)) :- Zero =:= 0.
 
 number_coord(Unit, Number, coord(Unit, Debit, Credit)) :-
 	{Number =:= Debit - Credit}.
+
+/*value_debit(value(Unit, Amount), coord(Unit, Amount, Zero)) :- unify_numbers(Zero, 0).
+value_credit(value(Unit, Amount), coord(Unit, Zero, Amount)) :- unify_numbers(Zero, 0).*/
 
 coord_normal_side_value(coord(Unit, D, C), debit, value(Unit, V)) :-
 	{V =:= D - C}.
@@ -263,6 +271,9 @@ value_multiply(value(Unit, Amount1), Multiplier, value(Unit, Amount2)) :-
 value_divide(value(Unit, Amount1), Divisor, value(Unit, Amount2)) :-
 	Amount2 is Amount1 / Divisor.
 
+value_divide2(value(U1, A1), value(U2, A2), exchange_rate(xxx, U2, U1, Rate)) :-
+	{A1 / A2 = Rate}.
+
 value_subtract(value(Unit1, Amount1), value(Unit2, Amount2), value(Unit2, Amount3)) :-
 	assertion(Unit1 == Unit2),
 	Amount3 is Amount1 - Amount2.
@@ -299,5 +310,8 @@ split_coord_by_percent(Rate, H0, H1, H2) :-
 vector_unit([coord(U, _,_)], U).
 
 
-value_debit_vec(value(Unit, Number), [Coord]) :-
-	number_coord(Unit, Number, Coord).
+value_debit_vec(Value, [Coord]) :-
+	coord_normal_side_value(Coord, debit, Value).
+
+value_credit_vec(Value, [Coord]) :-
+	coord_normal_side_value(Coord, credit, Value).

@@ -98,8 +98,9 @@ account_by_role_nothrow(Accounts, Role, Account_Id) :-
 	account_role(Account, Role),
 	account_id(Account, Account_Id),
 	member(Account, Accounts).
-/* TODO: account_by_role_nothrow is legitimate. but we also want account_by_role(_throw). But it shouldn't cut after first result, otherwise we unnecessarily break order invariance in calling code. */
+
 account_by_role(Accounts, Role, Account_Id) :-
+	/* TODO: shouldn't cut after first result, otherwise we unnecessarily break order invariance in calling code. */
 	(
 		account_by_role_nothrow(Accounts, Role, Account_Id)
 	->
@@ -113,6 +114,12 @@ account_by_role(Accounts, Role, Account_Id) :-
 			throw_string(Err)
 		)
 	).
+
+account_by_role(Role, Account_Id) :-
+	doc(T, rdf:a, l:request),
+	doc(T, l:accounts, Accounts),
+	account_by_role(Accounts, Role, Account_Id).
+
 
 account_term_by_role(Accounts, Role, Account) :-
 	member(Account, Accounts),
