@@ -96,23 +96,29 @@
     </xs:sequence>
   </xs:complexType>
   <xs:complexType name="LivestockData">
-    <xs:sequence>
-      <xs:element minOccurs="1" maxOccurs="1" name="type" type="xs:string"/>
-      <xs:element minOccurs="1" maxOccurs="1" name="naturalIncreaseValuePerUnit" type="xs:decimal"/>
-      <xs:element minOccurs="1" maxOccurs="1" name="openingCount" type="xs:integer"/>
-      <xs:element minOccurs="1" maxOccurs="1" name="openingCost" type="xs:decimal"/>
-      <xs:element minOccurs="1" maxOccurs="1" name="events">
-        <xs:complexType>
-          <xs:choice minOccurs="0" maxOccurs="unbounded">
-            <xs:element name="naturalIncrease" type="LivestockEvent"/>
-            <xs:element name="loss" type="LivestockEvent"/>
-            <xs:element name="rations" type="LivestockEvent"/>
-            <xs:element name="sale" type="LivestockEvent"/>
-            <xs:element name="purchase" type="LivestockEvent"/>
-          </xs:choice>
-        </xs:complexType>
-      </xs:element>
-    </xs:sequence>
+    <xs:all>
+      <xs:element minOccurs="1" maxOccurs="1" name="name" type="xs:string"/>
+      <xs:element minOccurs="1" maxOccurs="1" name="currency" type="xs:string"/>
+      <xs:element minOccurs="0" maxOccurs="1" name="naturalIncreaseValuePerUnit" type="xs:decimal"/>
+      
+	  <xs:element minOccurs="0" maxOccurs="1" name="unitsOpening" type="xs:integer"/>
+      <xs:element minOccurs="0" maxOccurs="1" name="openingValue" type="xs:decimal"/>
+
+	  <xs:element minOccurs="0" maxOccurs="1" name="unitsBorn" type="xs:integer"/>
+	  <xs:element minOccurs="0" maxOccurs="1" name="bornValue" type="xs:decimal"/>
+	  
+	  <xs:element minOccurs="0" maxOccurs="1" name="unitsRations" type="xs:integer"/>
+	  <xs:element minOccurs="0" maxOccurs="1" name="rationsValue" type="xs:decimal"/>
+
+	  <xs:element minOccurs="0" maxOccurs="1" name="unitsDeceased" type="xs:integer"/>
+	  <xs:element minOccurs="0" maxOccurs="1" name="deceasedValue" type="xs:decimal"/>
+	  
+	  <xs:element minOccurs="0" maxOccurs="1" name="unitsSales" type="xs:integer"/>
+	  <xs:element minOccurs="0" maxOccurs="1" name="salesValue" type="xs:decimal"/>
+
+	  <xs:element minOccurs="0" maxOccurs="1" name="unitsPurchases" type="xs:integer"/>
+	  <xs:element minOccurs="0" maxOccurs="1" name="purchasesValue" type="xs:decimal"/>
+    </xs:all>
   </xs:complexType>
   <xs:complexType name="LivestockEvent">
     <xs:sequence>

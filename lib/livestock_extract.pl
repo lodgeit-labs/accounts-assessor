@@ -1,6 +1,7 @@
 :- module(_, []).
 :- use_module(library(xbrl/utils), []).
 :- use_module(library(xpath)).
+:- use_module('doc', [doc/3, doc_add/3, doc_new_theory/1, doc_new_uri/1]).
 
 extract(Request_Dom) :-
 	findall(Livestock_Dom, xpath(Request_Dom, //reports/balanceSheetRequest/livestockData, Livestock_Dom), Livestock_Doms),
@@ -14,20 +15,20 @@ extract_livestock_data(Livestock_Dom) :-
 		'name', Name,
 		'currency', Currency]),
 	utils:numeric_fields(Livestock_Dom, [
-	    'naturalIncreaseValuePerUnit', NaturalIncreaseValuePerUnit,
+		'naturalIncreaseValuePerUnit', NaturalIncreaseValuePerUnit,
 		'openingValue'  ,Opening_Cost,
 		'unitsOpening'  ,Opening_Count,
-		'unitsClosing'  ,Closing_Count,
-		'closingValue'  ,Closing_Value,
+		'closingValue'  ,(Closing_Value,_),
+		'unitsClosing'  ,(Closing_Count,_),
+		'rationsValue'  ,(Rations_Value,_),
 		'unitsRations'  ,Rations_Count,
-		'rationsValue'  ,Rations_Value,
 		'unitsDeceased' ,Losses_Count,
 		'unitsBorn'     ,Born_Count,
 		'saleValue'     ,(Sale_Cost,_),
 		'unitsSales'    ,(Sale_Count,_),
 		'purchaseValue' ,(Purchase_Cost,_),
-        'unitsPurchases',(Purchase_Count,_)
-    ]),
+		'unitsPurchases',(Purchase_Count,_)
+	]),
 	doc_add(B, rdf:a, l:livestock_data),
 	doc_add(B, livestock:name, Name),
 	doc_add(B, livestock:currency, Currency),
@@ -36,15 +37,13 @@ extract_livestock_data(Livestock_Dom) :-
 	doc_add(B, livestock:opening_count,  value(count,    Opening_Count )),
 	doc_add(B, livestock:purchase_cost,  value(Currency, Purchase_Cost )),
 	doc_add(B, livestock:purchase_count, value(count,    Purchase_Count)),
-    doc_add(B, livestock:rations_value,  value(Currency, Rations_Value )),
+	doc_add(B, livestock:rations_value,  value(Currency, Rations_Value )),
 	doc_add(B, livestock:rations_count,  value(count,    Rations_Count )),
 	doc_add(B, livestock:sale_cost,      value(Currency, Sale_Cost     )),
 	doc_add(B, livestock:sale_count,     value(count,    Sale_Count    )),
-    doc_add(B, livestock:closing_value,  value(Currency, Closing_Value )),
+	doc_add(B, livestock:closing_value,  value(Currency, Closing_Value )),
 	doc_add(B, livestock:closing_count,  value(count,    Closing_Count )),
-    doc_add(B, livestock:losses_count,   value(count,    Losses_Count  )),
-    doc_add(B, livestock:born_count,     value(count,    Born_Count    )),
-    doc_add(B, livestock:average_cost,   value(Currency, _             )),
-
+	doc_add(B, livestock:losses_count,   value(count,    Losses_Count  )),
+	doc_add(B, livestock:born_count,     value(count,    Born_Count    )),
+	doc_add(B, livestock:average_cost,   value(Currency, _             )),
     true.
-

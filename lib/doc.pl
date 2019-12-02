@@ -3,6 +3,7 @@
 :- use_module('files', []).
 
 :- use_module(library(semweb/rdf11)).
+:- use_module(library(debug)).
 
 :- dynamic doc_data/4.
 
@@ -12,8 +13,11 @@
 
 :- rdf_meta doc_add(r,r,r).
 
+:- debug(doc).
+
 doc_add(S,P,O) :-
 	files:my_request_tmp_dir(R),
+	debug(doc, '~q~n', [doc_data(R,S,P,O)]),
 	assertz(doc_data(R,S,P,O)).
 
 :- rdf_meta doc(r,r,r).

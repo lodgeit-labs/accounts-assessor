@@ -45,43 +45,51 @@
 livestock_data(Uri) :-
 	doc(Uri, rdf:a, l:livestock_data).
 
-find_livestock_data_by_vector_unit(Exchanged) :-
-	vector_unit(Exchanged, Unit),
+livestock_data_by_vector_unit(Livestock, Exchanged) :-
+	pacioli:vector_unit(Exchanged, Unit),
 	findall(
 		L,
 		(
 			livestock_data(L),
-			my_with_subgraphs(L, livestock:type, Unit/*?*/)
+			doc(L, livestock:name, Unit/*?*/)
 		),
 		Known_Livestock_Datas
 	),
 	length(Known_Livestock_Datas, Known_Livestock_Datas_Length),
 	(   Known_Livestock_Datas_Length > 1
 	->  throw(xxx)
-	;   true).
+	;   true),
+	[Livestock] = Known_Livestock_Datas.
 
 infer_livestock_action_verb(S_Transaction, NS_Transaction) :-
 	s_transaction:s_transaction_type_id(S_Transaction, ''),
-	gtrace,
-	s_transaction:s_transaction_type_id(NS_Transaction, livestock:trade),
-	s_transaction:s_transaction_exchanged(S_Transaction, Exchanged),
-	find_livestock_data_by_vector_unit(Exchanged),
+	s_transaction:s_transaction_type_id(NS_Transaction, uri(Action_Verb)),
 	/* just copy these over */
-	s_transaction:s_transaction_exchanged(NS_Transaction, Exchanged),
+	s_transaction:s_transaction_exchanged(S_Transaction, vector(Exchanged)),
+	s_transaction:s_transaction_exchanged(NS_Transaction, vector(Exchanged)),
 	s_transaction:s_transaction_day(S_Transaction, Transaction_Date),
 	s_transaction:s_transaction_day(NS_Transaction, Transaction_Date),
 	s_transaction:s_transaction_vector(S_Transaction, Vector),
 	s_transaction:s_transaction_vector(NS_Transaction, Vector),
 	s_transaction:s_transaction_account_id(S_Transaction, Unexchanged_Account_Id),
-	s_transaction:s_transaction_account_id(NS_Transaction, Unexchanged_Account_Id).
+	s_transaction:s_transaction_account_id(NS_Transaction, Unexchanged_Account_Id),
+	/* if.. */
+	livestock_data_by_vector_unit(_,Exchanged),
+	(	pacioli:is_debit(Vector)
+	->	Action_Verb = l:livestock_sale
+	;	Action_Verb = l:livestock_purchase).
 
 s_transaction_is_livestock_buy_or_sell(S_Transaction, Date, Livestock_Type, Livestock_Coord, Money_Coord) :-
-	S_Transaction = s_transaction(Date, '', [Money_Coord], _, vector([Livestock_Coord])),
-	coord_unit(Livestock_Coord, Livestock_Type),
-	livestock_data(Livestock),
-	doc(Livestock, livestock:name, Livestock_Type).
+	S_Transaction = s_transaction(Date, uri(Action_Verb), [Money_Coord], _, vector(V)),
+	(Action_Verb = l:livestock_purchase;Action_Verb = l:livestock_sale),
+	!,
+	V = [Livestock_Coord],
+	pacioli:coord_unit(Livestock_Coord, Livestock_Type),
+	gtrace,
+	livestock_data_by_vector_unit(_, V).
 
 preprocess_livestock_buy_or_sell(Static_Data, S_Transaction, [Bank_Txs, Livestock_Count_Transaction, Pl_Transaction]) :-
+	gtrace,
 	s_transaction_is_livestock_buy_or_sell(S_Transaction, Day, Livestock_Type, Livestock_Coord, Money_Coord),
 	(   is_debit(Money_Coord)
 	->  Description = 'livestock sale'

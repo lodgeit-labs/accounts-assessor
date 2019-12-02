@@ -61,3 +61,43 @@ s_transaction_to_dict(St, D) :-
 		account: Account,
 		exchanged: Exchanged}.
 
+prepreprocess(Static_Data, In, Out) :-
+	/*
+	at this point:
+	s_transactions have to be sorted by date from oldest to newest
+	s_transactions have flipped vectors, so they are from our perspective
+	*/
+	maplist(prepreprocess_s_transaction(Static_Data), In, Out).
+
+prepreprocess_s_transaction(Static_Data, In, Out) :-
+	infer_exchanged_units_count(Static_Data, In, Mid),
+	!,
+	prepreprocess_s_transaction(Static_Data, Mid, Out).
+
+/* add livestock verb uri */
+prepreprocess_s_transaction(Static_Data, In, Out) :-
+	livestock:infer_livestock_action_verb(In, Mid),
+	!,
+	prepreprocess_s_transaction(Static_Data, Mid, Out).
+
+/* from verb label to verb uri */
+prepreprocess_s_transaction(Static_Data, In, Out) :-
+	check_s_transaction_action_verb(S_Transaction),
+	s_transaction_action_verb(S_Transaction, Action_Verb),
+	!,
+	s_transaction:s_transaction_type_id(NS_Transaction, uri(Action_Verb)),
+	/* just copy these over */
+	s_transaction:s_transaction_exchanged(S_Transaction, Exchanged),
+	s_transaction:s_transaction_exchanged(NS_Transaction, Exchanged),
+	s_transaction:s_transaction_day(S_Transaction, Transaction_Date),
+	s_transaction:s_transaction_day(NS_Transaction, Transaction_Date),
+	s_transaction:s_transaction_vector(S_Transaction, Vector),
+	s_transaction:s_transaction_vector(NS_Transaction, Vector),
+	s_transaction:s_transaction_account_id(S_Transaction, Unexchanged_Account_Id),
+	s_transaction:s_transaction_account_id(NS_Transaction, Unexchanged_Account_Id),
+	prepreprocess_s_transaction(Static_Data, NS_Transaction, Out).
+
+prepreprocess_s_transaction(Static_Data, T, T) :-
+	(	s_transaction:s_transaction_type_id(T, uri(_))
+	->	true
+	;	utils:throw_string(unrecognized_bank_statement_transaction)).

@@ -46,33 +46,14 @@
     </unitValues>
 	
     <livestockData>
-      <type>Cow</type>
+      <name>CATTLE</name>
+	  <currency>AUD</currency>
       <naturalIncreaseValuePerUnit>20</naturalIncreaseValuePerUnit>
-      <openingCount>25</openingCount>
-      <openingCost>4000</openingCost>
-      <events>
-
-        <naturalIncrease>
-          <date>2018-02-03</date>
-          <count>5</count>
-        </naturalIncrease>
-
-        <naturalIncrease>
-          <date>2018-02-04</date>
-          <count>5</count>
-        </naturalIncrease>
-
-        <loss>
-          <date>2018-02-01</date>
-          <count>5</count>
-        </loss>
-		
-        <rations>
-          <date>2018-02-01</date>
-          <count>5</count>
-        </rations>
-		
-      </events>
+      <unitsOpening>25</unitsOpening>
+      <openingValue>4000</openingValue>
+	  <unitsBorn>10</unitsBorn>
+	  <unitsRations>5</unitsRations>
+	  <unitsDeceased>5</unitsDeceased>
     </livestockData>  
 
     <bankStatement>

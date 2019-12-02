@@ -81,11 +81,6 @@
 
 
 preprocess_s_transactions(Static_Data, S_Transactions, Processed_S_Transactions, Transactions_Out, Outstanding_Out, Debug_Info) :-
-/*
-	at this point:
-	s_transactions have to be sorted by date from oldest to newest 
-	s_transactions have flipped vectors, so they are from our perspective
-*/
 	preprocess_s_transactions2(Static_Data, S_Transactions, Processed_S_Transactions, Transactions_Out, ([],[]), Outstanding_Out, Debug_Info, []).
 
 /*
@@ -152,34 +147,25 @@ preprocess_s_transactions2(Static_Data, [S_Transaction|S_Transactions], Processe
 % This predicate takes a list of statement transaction terms and decomposes it into a list of plain transaction terms.
 % ----------	
 
-preprocess_s_transaction(Static_Data, S_Transaction, Transactions, Outstanding_In, Outstanding_Out) :-
-    infer_exchanged_units_count(Static_Data, S_Transaction, NS_Transaction),
-	preprocess_s_transaction(Static_Data, NS_Transaction, Transactions, Outstanding_In, Outstanding_Out).
-
-preprocess_s_transaction(Static_Data, S_Transaction, Transactions, Outstanding_In, Outstanding_Out) :-
-    livestock:infer_livestock_action_verb(S_Transaction, NS_Transaction),
-    preprocess_s_transaction(Static_Data, NS_Transaction, Transactions, Outstanding_In, Outstanding_Out).
-
-preprocess_s_transaction(_, S_Transaction, Transactions, Outstanding, Outstanding) :-
-	s_transaction_action_verb(S_Transaction, Action_Verb),
-	(Action_Verb = l:livestock_buy;Action_Verb = l:livestock_sell),
+preprocess_s_transaction(Static_Data, S_Transaction, Transactions, Outstanding, Outstanding) :-
+	s_transaction_type_id(S_Transaction, uri(Action_Verb)),
+	(Action_Verb = l:livestock_purchase;Action_Verb = l:livestock_sale),
 	!,
-	livestock:preprocess_livestock_buy_or_sell(S_Transaction, Transactions).
+	livestock:preprocess_livestock_buy_or_sell(Static_Data, S_Transaction, Transactions).
 
 preprocess_s_transaction(Static_Data, S_Transaction, Transactions, Outstanding_Before, Outstanding_After) :-
 	Transactions = [Ts1, Ts2, Ts3, Ts4],
 	dict_vars(Static_Data, [Report_Currency, Exchange_Rates]),
-	check_s_transaction_action_verb(S_Transaction),
 	s_transaction_exchanged(S_Transaction, vector(Counteraccount_Vector)),
 	%s_transaction_account_id(S_Transaction, Bank_Account_Name),
-	s_transaction_action_verb(S_Transaction, Action_Verb),
+	s_transaction_type_id(S_Transaction, uri(Action_Verb)),
 	s_transaction_vector(S_Transaction, Vector_Ours),
 	s_transaction_day(S_Transaction, Transaction_Date),
 	Pricing_Method = lifo,
-	doc(Action_Verb, l:has_id, Transaction_Type_Id),
-	doc(Action_Verb, l:has_exchange_account, Exchanged_Account),
+	doc(Action_Verb, l:has_id, Action_Verb_Id),
+	doc(Action_Verb, l:has_counteraccount, Exchanged_Account),
 	(doc(Action_Verb, l:has_trading_account, Trading_Account)->true;true),
-	Description = Transaction_Type_Id,
+	Description = Action_Verb_Id,
 	affect_bank_account(Static_Data, S_Transaction, Description, Ts1),
 	pacioli:vector_unit(Vector_Ours, Bank_Account_Currency),
 	vec_change_bases(Exchange_Rates, Transaction_Date, Report_Currency, Vector_Ours, Converted_Vector_Ours),
@@ -706,7 +692,7 @@ check_s_transaction_action_verb(S_Transaction) :-
 		throw_string(['unknown action verb:',Type_Id])
 	),
 	(
-		doc(X, l:has_exchange_account, _)
+		doc(X, l:has_counteraccount, _)
 	->
 		true
 	;

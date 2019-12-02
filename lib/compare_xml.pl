@@ -9,7 +9,8 @@
 % Modules
 %--------------------------------------------------------------------
 
-:- use_module('../../lib/utils',	[floats_close_enough/2]).
+:- asserta(user:file_search_path(library, '../prolog_xbrl_public/xbrl/prolog')).
+:- use_module(library(xbrl/utils), []).
 :- use_module(library(xpath)).
 
 
@@ -48,7 +49,7 @@ compare_atoms(A,B,Error,Path, Item) :-
 		float(B_Num),
 		!,
 		(
-			floats_close_enough(A_Num, B_Num)
+			utils:floats_close_enough(A_Num, B_Num)
 		;
 			atomic_list_concat([A_Num, " != ", B_Num, " at ", Path, "[", Item, "]"], Error)
 		)

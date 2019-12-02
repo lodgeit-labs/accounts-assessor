@@ -19,11 +19,12 @@ Note that the http server is spawned in this process. This should change in futu
 :- use_module(library(http/http_open)).
 :- use_module(library(xpath)).
 :- use_module(library(readutil)).
-:- use_module('../../lib/files').
-:- use_module('../../lib/prolog_server', []).
+:- use_module('files').
+:- use_module('prolog_server', []).
 :- use_module('compare_xml').
-:- use_module('../../lib/utils', []).
-:- use_module('../../lib/xml').
+:- asserta(user:file_search_path(library, '../prolog_xbrl_public/xbrl/prolog')).
+:- use_module(library(xbrl/utils), []).
+:- use_module('xml').
 
 :- multifile
 	prolog:message//1.
@@ -122,6 +123,7 @@ check_saved(Testcase, Reports, Saved_File) :-
 	).
 */
 check_returned(_, _, all-_) :- !. /* the report with the key "all" is a link to the directory with the report files */
+check_returned(_, _, request_xml-_) :- !.
 
 check_returned(Endpoint_Type, Testcase, Key-Report) :-
 	tmp_uri_to_path(Report.url, Returned_Report_Path),

@@ -41,7 +41,7 @@ add_action_verb_from_xml(In) :-
 	doc_add(Uri, rdf:type, l:action_verb),
 	doc_add(Uri, l:has_id, Id),
 	(nonvar(Description) -> doc_add(Uri, l:has_description, Description) ; true),
-	(nonvar(Exchange_Account) -> doc_add(Uri, l:has_exchange_account, Exchange_Account) ; true),
+	(nonvar(Exchange_Account) -> doc_add(Uri, l:has_counteraccount, Exchange_Account) ; true),
 	(nonvar(Trading_Account) -> doc_add(Uri, l:has_trading_account, Trading_Account) ; true),
 	doc_add(Uri, l:has_gst_rate, Gst_Rate),
 	(nonvar(Gst_Receivable) -> doc_add(Uri, l:has_gst_receivable_account, Gst_Receivable) ; true),
