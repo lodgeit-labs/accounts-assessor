@@ -15,6 +15,7 @@
 :- use_module(library(xbrl/utils), []).
 :- use_module(library(record)).
 :- use_module(library(rdet)).
+:- use_module('action_verbs', []).
 
 :- rdet(s_transaction_to_dict/2).
 
@@ -124,13 +125,13 @@ infer_exchanged_units_count(Static_Data, S_Transaction, NS_Transaction) :-
 	vec_inverse(Vector_Exchanged, Vector_Exchanged_Inverted),
 	s_transaction_exchanged(NS_Transaction, vector(Vector_Exchanged_Inverted)).
 
-
+/* used on raw s_transaction during prepreprocessing */
 s_transaction_action_verb(S_Transaction, Action_Verb) :-
 	s_transaction_type_id(S_Transaction, Type_Id),
 	Type_Id \= uri(_),
 	(	(
-			doc(Action_Verb, rdf:a, l:action_verb),
+			action_verbs:action_verb(Action_Verb),
 			doc(Action_Verb, l:has_id, Type_Id)
 		)
 	->	true
-	;	(utils:throw_string(['unknown action verb:',Type_Id]))).
+	;	(gtrace,utils:throw_string(['unknown action verb:',Type_Id]))).

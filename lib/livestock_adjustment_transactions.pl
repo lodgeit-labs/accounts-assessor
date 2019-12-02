@@ -48,7 +48,7 @@ preprocess_rations(Livestock, [T1, T2]) :-
 	doc(Livestock, livestock:average_cost,  Average_Cost),
 	pacioli:value_convert(Rations_Count, Average_Cost, Rations_Value),
 	pacioli:value_debit_vec(Rations_Value, Dr),
-	pacioli:vec_invert(Dr, Cr),
+	pacioli:vec_inverse(Dr, Cr),
 	accounts:account_by_role('Accounts'/'Drawings', Drawings),
 	cogs_rations_account(Livestock, Cogs_Rations_Account),
 	% DR OWNERS_EQUITY -->DRAWINGS. I.E. THE OWNER TAKES SOMETHING OF VALUE.

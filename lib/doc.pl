@@ -1,5 +1,5 @@
-:- module(_, [doc/3, doc_add/3, doc_new_theory/1, doc_new_uri/1]).
-:- use_module(doc_core, [doc/3, doc_add/3]).
+:- module(_, [doc/3, docm/3, doc_add/3, doc_new_theory/1, doc_new_uri/1]).
+:- use_module(doc_core, [doc/3, docm/3, doc_add/3]).
 :- use_module('files', []).
 :- use_module(library(semweb/rdf11)).
 

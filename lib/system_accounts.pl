@@ -3,7 +3,7 @@
 		generate_system_accounts/3, 
 		trading_account_ids/1,
 		bank_accounts/2]).
-
+:- use_module('action_verbs', []).
 :- use_module('accounts', [
 		account_term_by_role/3, 
 		account_exists/2,
@@ -145,8 +145,8 @@ trading_account_ids(Ids) :-
 	findall(
 		A,
 		(
-			doc(X, rdf:a, l:action_verb),
-			doc(X, l:has_trading_account, A)
+			action_verbs:action_verb(Action_Verb),
+			doc(Action_Verb, l:has_trading_account, A)
 		),
 		Ids0
 	),

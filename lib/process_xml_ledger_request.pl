@@ -91,6 +91,7 @@ process_xml_ledger_request2(Dom, Reports_Out) :-
 	i'm storing some data in the 'doc' rdf-like database, only as an experiment for now.
 	livestock data exclusively, other data in parallel with passing the around in variables
 	*/
+	doc_core:doc_clear,
 	doc_new_uri(R),
 	doc_add(R, rdf:a, l:request),
 	/*
