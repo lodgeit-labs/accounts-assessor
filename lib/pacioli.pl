@@ -16,8 +16,6 @@
 		vec_units/2,
 		number_coord/3,
 		number_vec/3,
-		make_debit/2,
-		make_credit/2,
 		value_multiply/3,
 		value_divide/3,
 		value_subtract/3,
@@ -204,12 +202,6 @@ unify_numbers(A,B) :-
 		A =:= B
 	).
 
-	
-make_debit(coord(Unit, Dr), coord(Unit, Dr)) :- Dr >= 0.
-make_debit(coord(Unit, DrA), coord(Unit, DrB)) :- DrA < 0, DrB is -DrA.
-
-make_credit(coord(Unit, DrA), coord(Unit, DrB)) :- DrA > 0, DrB is -DrA.
-make_credit(coord(Unit, Dr), coord(Unit, Dr)) :- Dr =< 0.
 
 number_coord(Unit, Number, coord(Unit, Number)).
 credit_coord(Unit, Credit, coord(Unit, Number)) :- {Credit = -Number}.

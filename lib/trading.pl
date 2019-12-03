@@ -262,6 +262,15 @@ realized_gains_txs(Static_Data, Description, Transaction_Day, Sale_Currency, Sal
 			)
 		)
 	).
+
+make_debit(value(Unit, Amount), coord(Unit, Amount)).
+make_debit(coord(Unit, Dr), coord(Unit, Dr)) :- Dr >= 0.
+make_debit(coord(Unit, DrA), coord(Unit, DrB)) :- DrA < 0, DrB is -DrA.
+
+make_credit(value(Unit, Amount), coord(Unit, Amount2)) :- Amount2 is -Amount.
+make_credit(coord(Unit, DrA), coord(Unit, DrB)) :- DrA > 0, DrB is -DrA.
+make_credit(coord(Unit, Dr), coord(Unit, Dr)) :- Dr =< 0.
+
 /*
  Order_Hint - irrelevant for functionality, ordering coords for easy reading
  Txs - output
