@@ -28,9 +28,8 @@
 :- use_module('ledger_html_reports').
 :- use_module('report_page').
 :- use_module('bank_statement', [
-		extract_s_transaction/3, 
-		print_relevant_exchange_rates_comment/4, 
-		invert_s_transaction_vector/2, 
+		print_relevant_exchange_rates_comment/4,
+
 		fill_in_missing_units/6
 ]).
 :- use_module('s_transaction', []).
@@ -112,7 +111,7 @@ process_xml_ledger_request2(Dom, Reports_Out) :-
 	
 	extract_exchange_rates(Dom, Start_Date, End_Date, Default_Currency, Exchange_Rates),
 	livestock_extract:extract(Dom),
-    extract_s_transactions(Dom, Start_Date_Atom, S_Transactions),
+    s_transaction:extract_s_transactions(Dom, Start_Date_Atom, S_Transactions),
 	/* 
 		generate transactions (ledger entries) from s_transactions
 	*/
@@ -437,14 +436,6 @@ extract_output_dimensional_facts(Dom, Output_Dimensional_Facts) :-
 	).
 	
 
-extract_s_transactions(Dom, Start_Date_Atom, S_Transactions) :-
-	findall(S_Transaction, extract_s_transaction(Dom, Start_Date_Atom, S_Transaction), S_Transactions0),
-	/*
-		flip s_transactions from bank's perspective to our perspective and sort
-	*/
-	maplist(invert_s_transaction_vector, S_Transactions0, S_Transactions0b),
-	s_transaction:sort_s_transactions(S_Transactions0b, S_Transactions).
 
-	
 	
 %:- tspy(process_xml_ledger_request2/2).

@@ -1,8 +1,6 @@
 :- module(_, [
-		extract_s_transaction/3, 
 		preprocess_s_transactions/6,
 		print_relevant_exchange_rates_comment/4,
-		invert_s_transaction_vector/2, 
 		fill_in_missing_units/6
 		]).
 
@@ -75,7 +73,8 @@
 :- [trading].
 
 /*TODO add more rdet declarations here*/
-:- rdet(preprocess_s_transaction/5).
+:- rdet(preprocess_s_transactions/6).
+:- rdet(preprocess_s_transactions2/8).
 
 
 
@@ -95,30 +94,7 @@ preprocess_s_transactions2(Static_Data, [S_Transaction|S_Transactions], Processe
 		(
 			check_that_s_transaction_account_exists(S_Transaction, Accounts),
 			catch(
-				(
-					(preprocess_s_transaction(Static_Data, S_Transaction, Transactions0, Outstanding_In, Outstanding_Mid)
-					-> true; (/*trace,*/fail)),
-					% filter out unbound vars from the resulting Transactions list, as some rules do not always produce all possible transactions
-					flatten(Transactions0, Transactions1),
-					exclude(var, Transactions1, Transactions2),
-					exclude(has_empty_vector, Transactions2, Transactions_Result),
-					pretty_transactions_string(Transactions_Result, Transactions_String),
-					atomic_list_concat([S_Transaction_String, '==>\n', Transactions_String, '\n====\n'], Debug_Head),
-					
-					append(Debug_So_Far, [Debug_Head], Debug_So_Far2),
-					Processed_S_Transactions = [S_Transaction|Processed_S_Transactions_Tail],
-					Transactions_Out = [Transactions_Result|Transactions_Out_Tail],
-					
-					Transactions_Result = [T|_],
-					transaction_day(T, Transaction_Date),
-					(
-						Report_Currency = []
-					->
-						true
-					;
-						check_trial_balance0(Exchange_Rates, Report_Currency, Transaction_Date, Transactions_Result, Start_Date, End_Date, Debug_So_Far, Debug_Head)
-					)
-				),
+				preprocess(Static_Data, S_Transaction, S_Transaction_String, Outstanding_In, Outstanding_Mid, Debug_Head, Transactions_Out_Tail, Debug_So_Far, Debug_So_Far2, Processed_S_Transactions, Processed_S_Transactions_Tail, Report_Currency, Exchange_Rates, Start_Date, End_Date, Transactions_Out),
 				not_enough_goods_to_sell,
 				(
 					atomic_list_concat([not_enough_goods_to_sell, ' when processing ', S_Transaction_String], Debug_Head),
@@ -142,6 +118,37 @@ preprocess_s_transactions2(Static_Data, [S_Transaction|S_Transactions], Processe
 	;
 		true
 	).
+
+preprocess(Static_Data, S_Transaction, S_Transaction_String, Outstanding_In, Outstanding_Mid, Debug_Head, Transactions_Out_Tail, Debug_So_Far, Debug_So_Far2, Processed_S_Transactions, Processed_S_Transactions_Tail, Report_Currency, Exchange_Rates, Start_Date, End_Date, Transactions_Out) :-
+	(	preprocess_s_transaction(Static_Data, S_Transaction, Transactions0, Outstanding_In, Outstanding_Mid)
+	->	true
+	;	gtrace),
+	cleanup(Transactions0, Transactions_Result, S_Transaction_String, Debug_Head),
+	Transactions_Out = [Transactions_Result|Transactions_Out_Tail],
+	append(Debug_So_Far, [Debug_Head], Debug_So_Far2),
+	Processed_S_Transactions = [S_Transaction|Processed_S_Transactions_Tail],
+	check_trial_balance0_at_date_of_last_transaction_in_list(Transactions_Result, Report_Currency, Exchange_Rates, Start_Date, End_Date, Debug_So_Far, Debug_Head).
+
+cleanup(Transactions0, Transactions_Result, S_Transaction_String, Debug_Head) :-
+	% filter out unbound vars from the resulting Transactions list, as some rules do not always produce all possible transactions
+	flatten(Transactions0, Transactions1),
+	exclude(var, Transactions1, Transactions2),
+	exclude(has_empty_vector, Transactions2, Transactions_Result),
+	pretty_transactions_string(Transactions_Result, Transactions_String),
+	atomic_list_concat([S_Transaction_String, '==>\n', Transactions_String, '\n====\n'], Debug_Head).
+
+
+check_trial_balance0_at_date_of_last_transaction_in_list(Transactions_Result, Report_Currency, Exchange_Rates, Start_Date, End_Date, Debug_So_Far, Debug_Head) :-
+	Transactions_Result = [T|_],
+	transaction_day(T, Transaction_Date),
+	(
+		Report_Currency = []
+	->
+		true
+	;
+		check_trial_balance0(Exchange_Rates, Report_Currency, Transaction_Date, Transactions_Result, Start_Date, End_Date, Debug_So_Far, Debug_Head)
+	).
+
 
 % ----------
 % This predicate takes a list of statement transaction terms and decomposes it into a list of plain transaction terms.
@@ -233,7 +240,7 @@ make_sell(Static_Data, Trading_Account, Pricing_Method, _Bank_Account_Currency, 
 	Exchanged_Account, Transaction_Date, Description,
 	Outstanding_In, Outstanding_Out, [Ts1, Ts2, Ts3]
 ) :-
-	pacioli:credit_coord(Goods_Unit,Goods_Positive,Goods_Vector),
+	pacioli:credit_vec(Goods_Unit,Goods_Positive,Goods_Vector),
 	dict_vars(Static_Data, [Accounts]),
 	account_by_role(Accounts, Exchanged_Account/Goods_Unit, Exchanged_Account2),
 	bank_debit_to_unit_price(Vector_Ours, Goods_Positive, Sale_Unit_Price),
@@ -328,7 +335,7 @@ purchased_goods_coord_with_cost(Goods_Coord, Cost_Coord, Goods_Coord_With_Cost) 
 unit_cost_value(Cost_Coord, Goods_Coord, Unit_Cost) :-
 	Goods_Coord = coord(_, Goods_Count),
 	assertion(Goods_Count > 0),
-	credit_coord(Currency, Price, Cost_Coord),
+	pacioli:credit_coord(Currency, Price, Cost_Coord),
 	assertion(Price >= 0),
 	Unit_Cost_Amount is Price / Goods_Count,
 	Unit_Cost = value(Currency, Unit_Cost_Amount).
@@ -345,7 +352,7 @@ sold_goods_vector_with_cost(Static_Data, Goods_Cost_Value, [Goods_Coord_With_Cos
 			Unit = with_cost_per_unit(Goods_Unit, Unit_Cost_Value)
 		)
 	),
-	credit_coord(Unit, Goods_Count, Goods_Coord_With_Cost).
+	pacioli:credit_coord(Unit, Goods_Count, Goods_Coord_With_Cost).
 
 /*
 	Vector  - the amount by which the assets account is changed
@@ -467,94 +474,6 @@ check_that_s_transaction_account_exists(S_Transaction, Accounts) :-
 	account_by_role(Accounts, ('Banks'/Account_Name), _).
 
 
-% yield all transactions from all accounts one by one.
-% these are s_transactions, the raw transactions from bank statements. Later each s_transaction will be preprocessed
-% into multiple transaction(..) terms.
-% fixme dont fail silently
-extract_s_transaction(Dom, Start_Date, Transaction) :-
-	xpath(Dom, //reports/balanceSheetRequest/bankStatement/accountDetails, Account),
-	catch(
-		fields(Account, [
-			accountName, Account_Name,
-			currency, Account_Currency
-			]),
-			E,
-			(
-				pretty_term_string(E, E_Str),
-				throw(http_reply(bad_request(string(E_Str)))))
-			)
-	,
-	xpath(Account, transactions/transaction, Tx_Dom),
-	catch(
-		extract_s_transaction2(Tx_Dom, Account_Currency, Account_Name, Start_Date, Transaction),
-		Error,
-		(
-			term_string(Error, Str1),
-			term_string(Tx_Dom, Str2),
-			atomic_list_concat([Str1, Str2], Message),
-			throw(Message)
-		)),
-	true.
-
-extract_s_transaction2(Tx_Dom, Account_Currency, Account, Start_Date, ST) :-
-	numeric_fields(Tx_Dom, [
-		debit, (Bank_Debit, 0),
-		credit, (Bank_Credit, 0)]),
-	fields(Tx_Dom, [
-		transdesc, (Desc, '')
-	]),
-	(
-		(
-			xpath(Tx_Dom, transdate, element(_,_,[Date_Atom]))
-			,
-			!
-		)
-		;
-		(
-			Date_Atom=Start_Date, 
-			writeln("date missing, assuming beginning of request period")
-		)
-	),
-	parse_date(Date_Atom, Date),
-	Dr is Bank_Debit - Bank_Credit,
-	Coord = coord(Account_Currency, Dr),
-	ST = s_transaction(Date, Desc, [Coord], Account, Exchanged),
-	extract_exchanged_value(Tx_Dom, Account_Currency, Dr, Exchanged).
-
-extract_exchanged_value(Tx_Dom, _Account_Currency, Bank_Dr, Exchanged) :-
-   % if unit type and count is specified, unifies Exchanged with a one-item vector with a coord with those values
-   % otherwise unifies Exchanged with bases(..) to trigger unit conversion later
-   (
-	  field_nothrow(Tx_Dom, [unitType, Unit_Type]),
-	  (
-		 (
-			field_nothrow(Tx_Dom, [unit, Unit_Count_Atom]),
-			atom_number(Unit_Count_Atom, Unit_Count),
-			Count_Absolute is abs(Unit_Count),
-			(
-				Bank_Dr > 0
-			->
-					Exchanged = vector([coord(Unit_Type, Count_Absolute)])
-			;
-				(
-					Count_Credit is -Count_Absolute,
-					Exchanged = vector([coord(Unit_Type, Count_Credit)])
-				)
-			),
-			!
-		 )
-		 ;
-		 (
-			% If the user has specified only a unit type, then infer count by exchange rate
-			Exchanged = bases([Unit_Type])
-		 )
-	  ),!
-   )
-   ;
-   (
-	  Exchanged = vector([])
-   ).
-
 
 
 
@@ -642,14 +561,6 @@ get_relevant_exchange_rates2([Report_Currency], Date, Exchange_Rates, Transactio
 		),
 		Exchange_Rates2
 	).
-	
-	
-invert_s_transaction_vector(T0, T1) :-
-	T0 = s_transaction(Date, Type_id, Vector, Account_id, Exchanged),
-	T1 = s_transaction(Date, Type_id, Vector_Inverted, Account_id, Exchanged),
-	vec_inverse(Vector, Vector_Inverted).
-
-
 	
 
 fill_in_missing_units(_,_, [], _, _, []).

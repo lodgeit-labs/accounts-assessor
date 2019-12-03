@@ -42,7 +42,7 @@
 
 :- use_module(library(rdet)).
 
-:- rdet(generate_gl_data/6).
+:- rdet(generate_gl_data/5).
 :- rdet(make_gl_entry/4).
 :- rdet(transaction_with_converted_vector/4).
 
@@ -115,32 +115,14 @@ process_ledger(
 	doc_add(T, l:accounts, Accounts),
 
 	dict_from_vars(Static_Data0, [Accounts, Report_Currency, Start_Date, End_Date, Exchange_Rates, Cost_Or_Market]),
-	s_transaction:prepreprocess(Static_Data0, S_Transactions, Preprocessed_S_Transactions),
-	preprocess_s_transactions(Static_Data0, Preprocessed_S_Transactions, Processed_S_Transactions, Transactions0, Outstanding_Out, Transaction_Transformation_Debug),
-
-	(
-		S_Transactions = Processed_S_Transactions
-	-> 
-		(
-			Processed_Until = End_Date/*,
-			Last_Good_Day = End_Date*/
-		)
-	;
-		(
-			last(Processed_S_Transactions, Last_Processed_S_Transaction),
-			s_transaction_day(Last_Processed_S_Transaction, Date),
-			% todo we could/should do: Processed_Until = with_note(Date, 'until error'),
-			Processed_Until = Date/*,
-			add_days(Date, -1, Last_Good_Day)*/
-		)
-	),
+	s_transaction:prepreprocess(Static_Data0, S_Transactions, Prepreprocessed_S_Transactions),
+	preprocess_until_error(Static_Data0, Prepreprocessed_S_Transactions, Processed_S_Transactions, Transactions0, Outstanding_Out, Transaction_Transformation_Debug, End_Date, Processed_Until),
 	flatten(Transactions0, Transactions1),
 
 	livestock:process_livestock((Processed_S_Transactions, Transactions1), Livestock_Transactions),
 	flatten([Transactions1,	Livestock_Transactions], Transactions_With_Livestock),
 
 	/*
-	
 	this is probably the right place to plug in hirepurchase and depreciation,
 	take Transactions_With_Livestock and produce an updated list.
 	notes:
@@ -150,7 +132,6 @@ process_ledger(
 	to be explained:
 		how to get balance on account
 		how to generate and return json+html reports
-		
 	*/
 
 	maplist(check_transaction_account(Accounts), Transactions_With_Livestock),
@@ -214,6 +195,26 @@ process_ledger(
 	writeq(Warnings),
 	writeq(Errors),
 	writeln(' -->').
+
+preprocess_until_error(Static_Data0, Prepreprocessed_S_Transactions, Preprocessed_S_Transactions, Transactions0, Outstanding_Out, Transaction_Transformation_Debug, Report_End_Date, Processed_Until) :-
+	preprocess_s_transactions(Static_Data0, Prepreprocessed_S_Transactions, Preprocessed_S_Transactions, Transactions0, Outstanding_Out, Transaction_Transformation_Debug),
+	%gtrace,
+	(
+		Preprocessed_S_Transactions = Prepreprocessed_S_Transactions
+	->
+		(
+			Processed_Until = Report_End_Date/*,
+			Last_Good_Day = Report_End_Date*/
+		)
+	;
+		(
+			last(Preprocessed_S_Transactions, Last_Processed_S_Transaction),
+			s_transaction_day(Last_Processed_S_Transaction, Date),
+			% todo we could/should do: Processed_Until = with_note(Date, 'until error'),
+			Processed_Until = Date/*,
+			add_days(Date, -1, Last_Good_Day)*/
+		)
+	).
 
 generate_gl_data(Sd, Processed_S_Transactions, Transactions0, Livestock_Transactions, Report_Dict) :-
 	/* Outputs list is lists of generated transactions */

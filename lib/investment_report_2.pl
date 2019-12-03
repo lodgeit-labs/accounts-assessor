@@ -48,7 +48,7 @@ event(Event, Unit_Cost_Foreign, Currency_Conversion, Unit_Cost_Converted, Total_
 
 investment_report_2(Static_Data, Outstanding_In, Filename_Suffix, Report_Data, [Report_File_Info, JSON_File_Info]) :-
 	reset_gensym(iri),
-	
+
 	Start_Date = Static_Data.start_date,
 	End_Date = Static_Data.end_date,
 	Report_Currency = Static_Data.report_currency,
@@ -398,7 +398,7 @@ ir2_forex_gain(Exchange_Rates, Opening_Date, End_Price, End_Date, Investment_Cur
 			vec_add([coord(End_Unit_Price_Unit, End_Unit_Price_Amount, 0)], 
 			*/
 			exchange_rate_throw(Exchange_Rates, End_Date, Market_Price_Unit, Report_Currency_Unit, _),
-			credit_coord(Market_Price_Unit, End_Unit_Price_Amount, Coord_X1),
+			pacioli:credit_coord(Market_Price_Unit, End_Unit_Price_Amount, Coord_X1),
 			vec_change_bases(Exchange_Rates, End_Date, Report_Currency, 
 				[
 					% unit price in investment currency
@@ -409,7 +409,7 @@ ir2_forex_gain(Exchange_Rates, Opening_Date, End_Price, End_Date, Investment_Cur
 				% forex gain, in report currency, on one investment unit between start and end dates
 				Forex_Gain_Vec
 			),
-			number_vec(Report_Currency_Unit, Forex_Gain_Amount, Forex_Gain_Vec),
+			pacioli:number_vec(Report_Currency_Unit, Forex_Gain_Amount, Forex_Gain_Vec),
 			Forex_Gain_Amount_Total is Forex_Gain_Amount * Count,
 			Gain = value(Report_Currency_Unit, Forex_Gain_Amount_Total)
 		)

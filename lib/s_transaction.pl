@@ -12,10 +12,12 @@
 :- use_module('doc', [
 	doc/3
 ]).
+:- use_module('days', []).
 :- use_module(library(xbrl/utils), []).
 :- use_module(library(record)).
 :- use_module(library(rdet)).
 :- use_module('action_verbs', []).
+:- use_module(library(xpath)).
 
 :- rdet(s_transaction_to_dict/2).
 
@@ -135,3 +137,105 @@ s_transaction_action_verb(S_Transaction, Action_Verb) :-
 		)
 	->	true
 	;	(gtrace,utils:throw_string(['unknown action verb:',Type_Id]))).
+
+
+% yield all transactions from all accounts one by one.
+% these are s_transactions, the raw transactions from bank statements. Later each s_transaction will be preprocessed
+% into multiple transaction(..) terms.
+% fixme dont fail silently
+extract_s_transaction(Dom, Start_Date, Transaction) :-
+	xpath(Dom, //reports/balanceSheetRequest/bankStatement/accountDetails, Account),
+	catch(
+		utils:fields(Account, [
+			accountName, Account_Name,
+			currency, Account_Currency
+			]),
+			E,
+			(
+				utils:pretty_term_string(E, E_Str),
+				throw(http_reply(bad_request(string(E_Str)))))
+			)
+	,
+	xpath(Account, transactions/transaction, Tx_Dom),
+	catch(
+		extract_s_transaction2(Tx_Dom, Account_Currency, Account_Name, Start_Date, Transaction),
+		Error,
+		(
+			term_string(Error, Str1),
+			term_string(Tx_Dom, Str2),
+			atomic_list_concat([Str1, Str2], Message),
+			throw(Message)
+		)),
+	true.
+
+extract_s_transaction2(Tx_Dom, Account_Currency, Account, Start_Date, ST) :-
+	utils:numeric_fields(Tx_Dom, [
+		debit, (Bank_Debit, 0),
+		credit, (Bank_Credit, 0)]),
+	utils:fields(Tx_Dom, [
+		transdesc, (Desc, '')
+	]),
+	(
+		(
+			xpath(Tx_Dom, transdate, element(_,_,[Date_Atom]))
+			,
+			!
+		)
+		;
+		(
+			Date_Atom=Start_Date,
+			writeln("date missing, assuming beginning of request period")
+		)
+	),
+	days:parse_date(Date_Atom, Date),
+	Dr is Bank_Debit - Bank_Credit,
+	Coord = coord(Account_Currency, Dr),
+	ST = s_transaction(Date, Desc, [Coord], Account, Exchanged),
+	extract_exchanged_value(Tx_Dom, Account_Currency, Dr, Exchanged).
+
+extract_exchanged_value(Tx_Dom, _Account_Currency, Bank_Dr, Exchanged) :-
+   % if unit type and count is specified, unifies Exchanged with a one-item vector with a coord with those values
+   % otherwise unifies Exchanged with bases(..) to trigger unit conversion later
+   (
+	  utils:field_nothrow(Tx_Dom, [unitType, Unit_Type]),
+	  (
+		 (
+			utils:field_nothrow(Tx_Dom, [unit, Unit_Count_Atom]),
+			atom_number(Unit_Count_Atom, Unit_Count),
+			Count_Absolute is abs(Unit_Count),
+			(
+				Bank_Dr > 0
+			->
+					Exchanged = vector([coord(Unit_Type, Count_Absolute)])
+			;
+				(
+					Count_Credit is -Count_Absolute,
+					Exchanged = vector([coord(Unit_Type, Count_Credit)])
+				)
+			),
+			!
+		 )
+		 ;
+		 (
+			% If the user has specified only a unit type, then infer count by exchange rate
+			Exchanged = bases([Unit_Type])
+		 )
+	  ),!
+   )
+   ;
+   (
+	  Exchanged = vector([])
+   ).
+
+extract_s_transactions(Dom, Start_Date_Atom, S_Transactions) :-
+	findall(S_Transaction, extract_s_transaction(Dom, Start_Date_Atom, S_Transaction), S_Transactions0),
+	maplist(invert_s_transaction_vector, S_Transactions0, S_Transactions0b),
+	s_transaction:sort_s_transactions(S_Transactions0b, S_Transactions).
+
+
+invert_s_transaction_vector(T0, T1) :-
+	T0 = s_transaction(Date, Type_id, Vector, Account_id, Exchanged),
+	T1 = s_transaction(Date, Type_id, Vector_Inverted, Account_id, Exchanged),
+	pacioli:vec_inverse(Vector, Vector_Inverted).
+
+

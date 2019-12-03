@@ -45,17 +45,17 @@ preprocess_rations(Livestock, [T1, T2]) :-
 
 
 closing_inventory_transactions(Livestock, Transactions_By_Account, [T1, T2]) :-
-	gtrace,
 	doc:request_has_property(l:end_date, Date),
-	livestock_at_average_cost_at_day(Livestock, Transactions_By_Account, Date, Closing_Vec),
+	livestock_at_average_cost_at_day(Livestock, Transactions_By_Account, Date, Closing_Value),
 	doc(Livestock, livestock:opening_cost, Opening_Cost_Value),
-	vec_sub(Closing_Vec, [Opening_Cost_Value], Adjustment_Debit),
-	vec_inverse(Adjustment_Debit, Adjustment_Credit),
+	pacioli:value_subtract(Closing_Value, Opening_Cost_Value, Adjustment_Value),
+	pacioli:coord_normal_side_value(Adjustment_Debit, debit, Adjustment_Value),
+	pacioli:coord_normal_side_value(Adjustment_Credit,credit,Adjustment_Value),
 	doc(Livestock, livestock:name, Type),
 	cogs_account(Type, Cogs_Account),
 	accounts:account_by_role('Accounts'/'AssetsLivestockAtAverageCost', AssetsLivestockAtAverageCost),
-	make_transaction(Date, "livestock adjustment", Cogs_Account, Adjustment_Credit, T1),
-	make_transaction(Date, "livestock adjustment", AssetsLivestockAtAverageCost, Adjustment_Debit, T2).
+	make_transaction(Date, "livestock adjustment", Cogs_Account, [Adjustment_Credit], T1),
+	make_transaction(Date, "livestock adjustment", AssetsLivestockAtAverageCost, [Adjustment_Debit], T2).
 
 
 /* todo what would this look like in logtalk, if these were methods on the Livestock object? */
