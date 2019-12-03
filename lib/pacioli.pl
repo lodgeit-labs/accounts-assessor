@@ -205,8 +205,8 @@ unify_numbers(A,B) :-
 
 number_coord(Unit, Number, coord(Unit, Number)).
 credit_coord(Unit, Credit, coord(Unit, Number)) :- {Credit = -Number}.
-dr_cr_coord(Unit, Number, Zero, coord(Unit, Number)) :- Number >= 0, (Zero = 0 -> true ; Zero = 0.0).
-dr_cr_coord(Unit, Zero, Number, coord(Unit, Number)) :- Number >= 0, (Zero = 0 -> true ; Zero = 0.0).
+dr_cr_coord(Unit, Number, Zero, coord(Unit, Number)) :- {Number >= 0, Zero = 0}.
+dr_cr_coord(Unit, Zero, Number, coord(Unit, Number)) :- {Number < 0, Zero = 0}.
 
 
 /*value_debit(value(Unit, Amount), coord(Unit, Amount, Zero)) :- unify_numbers(Zero, 0).

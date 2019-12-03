@@ -78,9 +78,12 @@ rol_member(T,SpogA) :-
 	->	(!,fail)
 	;	SpogA = SpogB).
 
-
-
-
+	/*match(SpogA, SpogB)).
+match((S1,P1,O1,G1),(S2,P2,O2,G2))
+	(	S1 = S2
+	->	true
+	;	rdf_equal(?Resource1, ?Resource2)
+*/
 :- use_module(library(debug)).
 
 :- begin_tests(theory).

@@ -9,9 +9,7 @@
 		s_transaction_to_dict/2
 ]).
 
-:- use_module('doc', [
-	doc/3
-]).
+:- use_module('doc', [doc/3]).
 :- use_module('days', []).
 :- use_module(library(xbrl/utils), []).
 :- use_module(library(record)).
@@ -58,12 +56,16 @@ s_transactions_up_to(End_Date, S_Transactions_In, S_Transactions_Out) :-
 		),
 		S_Transactions_Out
 	).
-
+:- use_module(library(semweb/rdf11)).
 s_transaction_to_dict(St, D) :-
-	St = s_transaction(Day, Verb, Vector, Account, Exchanged),
+	St = s_transaction(Day, uri(Verb), Vector, Account, Exchanged),
+	(	/* here's an example of the shortcoming of ignoring the rdf prefix issue, fixme */
+		doc(Verb, l:has_id, Verb_Label)
+	->	true
+	;	Verb_Label = Verb),
 	D = _{
 		date: Day,
-		verb: Verb,
+		verb: Verb_Label,
 		vector: Vector,
 		account: Account,
 		exchanged: Exchanged}.

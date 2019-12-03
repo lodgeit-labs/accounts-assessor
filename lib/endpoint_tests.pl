@@ -103,7 +103,10 @@ run_endpoint_test2(Endpoint_Type, Testcase) :-
 	testcase_request_xml_file_path(Testcase, Request_XML_File_Path),
 	query_endpoint(Request_XML_File_Path, Response_JSON),
 	dict_pairs(Response_JSON.reports, _, Reports),
-	maplist(check_returned(Endpoint_Type, Testcase), Reports).
+	maplist(check_returned(Endpoint_Type, Testcase), Reports, Errors),
+	assertion(Errors = []).
+	%					throw(testcase_error(Msg))
+	%			format("Errors: ~w~n", [Error_List_Flat]),
 	/*todo: all_saved_files(Testcase, Saved_Files),
 	maplist(check_saved(Testcase, Reports), Saved_Files),*/
 	
@@ -122,10 +125,10 @@ check_saved(Testcase, Reports, Saved_File) :-
 		)
 	).
 */
-check_returned(_, _, all-_) :- !. /* the report with the key "all" is a link to the directory with the report files */
-check_returned(_, _, request_xml-_) :- !.
+check_returned(_, _, all-_, Errors) :- !. /* the report with the key "all" is a link to the directory with the report files */
+check_returned(_, _, request_xml-_, Errors) :- !.
 
-check_returned(Endpoint_Type, Testcase, Key-Report) :-
+check_returned(Endpoint_Type, Testcase, Key-Report, Errors) :-
 	tmp_uri_to_path(Report.url, Returned_Report_Path),
 	tmp_uri_to_saved_response_path(Testcase, Report.url, Saved_Path),
 	(	\+exists_file(Saved_Path)
@@ -134,28 +137,30 @@ check_returned(Endpoint_Type, Testcase, Key-Report) :-
 			->	copy_report_to_saved(Returned_Report_Path, Saved_Path)
 			;	(
 					format(string(Msg), 'file contained in response is not found in saved files: cp ~w ~w ?', [Returned_Report_Path, Saved_Path]),
-					throw(testcase_error(Msg))
+					Errors = [Msg]
 				)
 		)
-	;	check_saved_report0(Endpoint_Type, Key, Returned_Report_Path, Saved_Path)
+	;	check_saved_report0(Endpoint_Type, Key, Returned_Report_Path, Saved_Path, Errors)
 	).
 
-check_saved_report0(Endpoint_Type, Key, Returned_Report_Path, Saved_Path) :-
+check_saved_report0(Endpoint_Type, Key, Returned_Report_Path, Saved_Path, Errors) :-
 	file_type_by_extension(Returned_Report_Path, File_Type),
-	check_saved_report1(Endpoint_Type, Returned_Report_Path, Saved_Path, Key, File_Type, Error_List_Flat),
-	(	Error_List_Flat = []
+	check_saved_report1(Endpoint_Type, Returned_Report_Path, Saved_Path, Key, File_Type, Errors),
+	(	Errors = []
 	->	true
 	;	(
-			format("Errors: ~w~n", [Error_List_Flat]),
 			(	get_flag(overwrite_response_files, true)
 			->	copy_report_to_saved(Returned_Report_Path, Saved_Path)
-			;	fail
+			;	(	current_prolog_flag(move_on_after_first_error,true)
+				->	throw(testcase_error(Errors))
+				;	true)
 			)
 		)
 	).
 	
 
 check_saved_report1(Endpoint_Type, Returned_Report_Path, Saved_Response_Path, Key, File_Type, Errors) :-
+	debug(endpoint_tests, '~n## ~q: ~n', [check_saved_report1(Endpoint_Type, Returned_Report_Path, Saved_Response_Path, Key, File_Type, Errors)]),
 	test_response(Endpoint_Type, Returned_Report_Path, Saved_Response_Path, Key, File_Type, Errors0),
 	findall(Key:Error, member(Error,Errors0), Errors).
 
