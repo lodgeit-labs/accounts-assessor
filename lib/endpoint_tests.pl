@@ -125,8 +125,8 @@ check_saved(Testcase, Reports, Saved_File) :-
 		)
 	).
 */
-check_returned(_, _, all-_, Errors) :- !. /* the report with the key "all" is a link to the directory with the report files */
-check_returned(_, _, request_xml-_, Errors) :- !.
+check_returned(_, _, all-_, _) :- !. /* the report with the key "all" is a link to the directory with the report files */
+check_returned(_, _, request_xml-_, _) :- !.
 
 check_returned(Endpoint_Type, Testcase, Key-Report, Errors) :-
 	tmp_uri_to_path(Report.url, Returned_Report_Path),

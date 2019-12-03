@@ -36,11 +36,11 @@ sort_s_transactions(In, Out) :-
 	sort(
 	/*
 	this is a path inside the structure of the elements of the sorted array (inside the s_transactions):
-	3th sub-term is the amount from bank perspective. FIXME, it's already flipped
-	1st (and hopefully only) item of the vector is the coord,
-	3rd item of the coord is bank credit, our debit.
+	3th sub-term is the transaction vector from our perspective
+	1st (and hopefully only) item of the vector is a coord,
+	2rd item of the coord is our bank account debit.
 	*/
-	[3,1,2/*??????*/], @=<,  In, Mid),
+	[3,1,2], @=<,  In, Mid),
 	/*
 	now we can sort by date ascending, and the order of transactions with same date, as sorted above, will be preserved
 	*/
