@@ -104,7 +104,7 @@ run_endpoint_test2(Endpoint_Type, Testcase) :-
 	query_endpoint(Request_XML_File_Path, Response_JSON),
 	dict_pairs(Response_JSON.reports, _, Reports),
 	maplist(check_returned(Endpoint_Type, Testcase), Reports, Errors),
-	assertion(Errors = []).
+	assertion(findall(_,member([],Errors),_)).
 	%					throw(testcase_error(Msg))
 	%			format("Errors: ~w~n", [Error_List_Flat]),
 	/*todo: all_saved_files(Testcase, Saved_Files),
