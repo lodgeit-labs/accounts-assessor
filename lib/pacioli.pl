@@ -117,10 +117,6 @@ vec_filtered_by_unit(Vec, Unit, Filtered) :-
 	),
 	Filtered).
 
-vec_unit_value(Vec, Unit, Coord) :-
-	vec_filtered_by_unit(Vec, Unit, Filtered),
-	semigroup_foldl(coord_merge, Filtered, Coord).
-
 % Adds the two given vectors together.
 
 vec_add(As, Bs, Cs_Reduced) :-
@@ -300,3 +296,5 @@ value_debit_vec(Value, [Coord]) :-
 
 value_credit_vec(Value, [Coord]) :-
 	coord_normal_side_value(Coord, credit, Value).
+
+

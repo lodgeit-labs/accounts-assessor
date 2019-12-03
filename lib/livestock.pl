@@ -103,16 +103,16 @@ preprocess_livestock_buy_or_sell(Static_Data, S_Transaction, [Bank_Txs, Livestoc
 	count_account(Livestock_Type, Count_Account),
 	make_transaction(Day, Description, Count_Account, [Livestock_Coord], Livestock_Count_Transaction),
 	bank_statement:affect_bank_account(Static_Data, S_Transaction, Description, Bank_Txs),
+	pacioli:vec_inverse([Money_Coord], Pl_Vector),
 	(   pacioli:is_credit(Money_Coord)
 	->	(
 			cogs_account(Livestock_Type, Cogs_Account),
-			pacioli:vec_inverse([Money_Coord], Expense_Vector),
-			make_transaction(Day, 'livestock buy', Cogs_Account, Expense_Vector, Pl_Transaction)
+			make_transaction(Day, Description, Cogs_Account, Pl_Vector, Pl_Transaction)
 		)
 	;
 		(
 			sales_account(Livestock_Type, Sales_Account),
-			make_transaction(Day, Description, Sales_Account, [Money_Coord], Pl_Transaction)
+			make_transaction(Day, Description, Sales_Account, Pl_Vector, Pl_Transaction)
 		)
 	).
 

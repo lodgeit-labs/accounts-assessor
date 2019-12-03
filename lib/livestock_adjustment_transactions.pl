@@ -54,8 +54,11 @@ closing_inventory_transactions(Livestock, Transactions_By_Account, [T1, T2]) :-
 	doc(Livestock, livestock:name, Type),
 	cogs_account(Type, Cogs_Account),
 	accounts:account_by_role('Accounts'/'AssetsLivestockAtAverageCost', AssetsLivestockAtAverageCost),
-	make_transaction(Date, "livestock adjustment", Cogs_Account, [Adjustment_Credit], T1),
-	make_transaction(Date, "livestock adjustment", AssetsLivestockAtAverageCost, [Adjustment_Debit], T2).
+
+	format(string(Description), 'livestock closing inventory adjustment', []),
+
+	make_transaction(Date, Description, Cogs_Account, [Adjustment_Credit], T1),
+	make_transaction(Date, Description, AssetsLivestockAtAverageCost, [Adjustment_Debit], T2).
 
 
 /* todo what would this look like in logtalk, if these were methods on the Livestock object? */

@@ -114,10 +114,14 @@ format_balance(Format, Indent_Level, Report_Currency_List, Context, Name, Normal
 	(
 		Normal_Side = credit
 	->
-		Balance is -Debit
+		Balance0 is -Debit
 	;
-		Balance is Debit
+		Balance0 is Debit
 	),
+	(
+		Balance0 =:= 0
+	->	Balance = 0
+	;	Balance = Balance0),
 	utils:get_indentation(Indent_Level, Indentation),
 	%filter_out_chars_from_atom(is_underscore, Name, Name2),
 	Name2 = Name,

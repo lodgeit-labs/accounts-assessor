@@ -1,13 +1,12 @@
 
 infer_average_cost(Livestock, S_Transactions) :-
-	doc(Livestock, livestock:name, Type),
 	doc(Livestock, livestock:currency, Currency),
 	doc(Livestock, livestock:average_cost, Average_Cost),
 	doc(Livestock, livestock:opening_cost, Opening_Cost),
 	doc(Livestock, livestock:opening_count, Opening_Count),
 	doc(Livestock, livestock:natural_increase_value_per_unit, Natural_Increase_Cost_Per_Head),
 	doc(Livestock, livestock:born_count, Natural_Increase_Count),
-	purchases_cost_and_count(Type, S_Transactions, Purchases_Cost, Purchases_Count),
+	purchases_cost_and_count(Livestock, S_Transactions, Purchases_Cost, Purchases_Count),
 	pacioli:value_convert(Natural_Increase_Count, Natural_Increase_Cost_Per_Head, Natural_Increase_Value),
 	pacioli:vec_add([Opening_Cost, Purchases_Cost, Natural_Increase_Value], [], [Opening_And_Purchases_And_Increase_Value]),
 	pacioli:vec_add([Opening_Count, Purchases_Count, Natural_Increase_Count], [],[Opening_And_Purchases_And_Increase_Count]),
@@ -30,7 +29,7 @@ natural_increase_count(_, [], 0).
 
 /* todo this should eventually work off transactions */
 
-purchases_cost_and_count(Type, S_Transactions, Cost, Count) :-
+purchases_cost_and_count(Livestock, S_Transactions, Cost, Count) :-
 	findall(
 		T,
 		(
@@ -38,12 +37,16 @@ purchases_cost_and_count(Type, S_Transactions, Cost, Count) :-
 			s_transaction:s_transaction_type_id(T, uri(l:livestock_purchase))
 		),
 		Ts),
+	doc(Livestock, livestock:name, Type),
+	doc(Livestock, livestock:currency, Currency),
+	/* a bit overcomplicated, since we should supply the currency and livestock unit in case there were no transactions. */
 	maplist(purchase_cost_and_count(Type), Ts, Costs, Counts),
-	pacioli:vec_add(Costs, [], [Cost]),
-	pacioli:vec_add(Counts, [], [Count]).
+	foldl(pacioli:coord_merge, Costs, value(Currency, 0), Cost),
+	foldl(pacioli:coord_merge, Counts, value(Type, 0), Count).
 
 
 purchase_cost_and_count(Type, ST, Cost, Count) :-
+	/* fixme, this should work off gl transactions, probably expenses? */
 	s_transaction_is_livestock_buy_or_sell(ST, Date, Type, Livestock_Coord, Money_Coord),
 	days:date_in_request_period(Date),
 	pacioli:is_credit(Money_Coord),
