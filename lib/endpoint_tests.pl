@@ -215,8 +215,8 @@ diff2(Saved_Response_Path, Returned_Report_Path, Are_Same, Options) :-
 	(	Exit_Status = 0
 	->	Are_Same = true
 	;	(
-			Are_Same = false,
-			format(user_error, '~n^^that was ~w~n', [Cmdline])
+			format(user_error, '~n^^that was ~w~n', [Cmdline]),
+			Are_Same = false % this must be the last statement
 		)
 	).
 	%awk -v len=40 '{ if (length($0) > len) print substr($0, 1, len-3) "..."; else print; }'

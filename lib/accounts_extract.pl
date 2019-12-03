@@ -1,6 +1,7 @@
 :- module(_, []).
 
 :- use_module('doc', [doc/3, doc_add/3]).
+:- use_module('files', []).
 
 :- use_module(library(xpath)).
 
@@ -67,7 +68,7 @@ arelle(taxonomy, Taxonomy_URL, AccountHierarchy_Elements) :-
 		process_create('../python/venv/bin/python3',['../python/src/account_hierarchy.py',Taxonomy_URL],[stdout(pipe(Out))]),
 		(
 			load_structure(Out, AccountHierarchy_Elements, [dialect(xml),space(remove)]),
-			absolute_tmp_path('account_hierarchy_from_taxonomy.xml', FN),
+			files:absolute_tmp_path('account_hierarchy_from_taxonomy.xml', FN),
 			utils:xml_write_file(FN, AccountHierarchy_Elements, [])
 		),
 		close(Out)
