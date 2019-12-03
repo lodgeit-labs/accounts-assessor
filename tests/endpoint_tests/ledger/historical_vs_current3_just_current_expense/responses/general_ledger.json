@@ -16,8 +16,8 @@
 	"description":"Bank_Charges - outgoing money",
 	"type":"instant",
 	"vector": [ {"credit":100, "debit":0, "unit":"CHF"} ],
-	"vector_converted_at_balance_date": [ {"credit":600.0, "debit":0.0, "unit":"AUD"} ],
-	"vector_converted_at_transaction_date": [ {"credit":400.0, "debit":0.0, "unit":"AUD"} ]
+	"vector_converted_at_balance_date": [ {"credit":600, "debit":0, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": [ {"credit":400, "debit":0, "unit":"AUD"} ]
       },
       {
 	"account":"CurrencyMovementCHF_Bank",
@@ -32,7 +32,7 @@
   "unit":"without_currency_movement_against_since('CHF','CHF',['AUD'],date(2018,1,1))"
 }
 	],
-	"vector_converted_at_balance_date": [ {"credit":0.0, "debit":200.0, "unit":"AUD"} ],
+	"vector_converted_at_balance_date": [ {"credit":0, "debit":200.0, "unit":"AUD"} ],
 	"vector_converted_at_transaction_date": []
       },
       {
@@ -40,9 +40,9 @@
 	"date":"date(2018,1,1)",
 	"description":"Bank_Charges",
 	"type":"instant",
-	"vector": [ {"credit":0.0, "debit":400.0, "unit":"AUD"} ],
-	"vector_converted_at_balance_date": [ {"credit":0.0, "debit":400.0, "unit":"AUD"} ],
-	"vector_converted_at_transaction_date": [ {"credit":0.0, "debit":400.0, "unit":"AUD"} ]
+	"vector": [ {"credit":0, "debit":400.0, "unit":"AUD"} ],
+	"vector_converted_at_balance_date": [ {"credit":0, "debit":400.0, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": [ {"credit":0, "debit":400.0, "unit":"AUD"} ]
       }
     ]
   },
@@ -63,8 +63,8 @@
 	"description":"Income - incoming money",
 	"type":"instant",
 	"vector": [ {"credit":0, "debit":100, "unit":"CHF"} ],
-	"vector_converted_at_balance_date": [ {"credit":0.0, "debit":600.0, "unit":"AUD"} ],
-	"vector_converted_at_transaction_date": [ {"credit":0.0, "debit":400.0, "unit":"AUD"} ]
+	"vector_converted_at_balance_date": [ {"credit":0, "debit":600.0, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": [ {"credit":0, "debit":400.0, "unit":"AUD"} ]
       },
       {
 	"account":"CurrencyMovementCHF_Bank",
@@ -79,7 +79,7 @@
   "unit":"without_currency_movement_against_since('CHF','CHF',['AUD'],date(2018,5,1))"
 }
 	],
-	"vector_converted_at_balance_date": [ {"credit":200.0, "debit":0.0, "unit":"AUD"} ],
+	"vector_converted_at_balance_date": [ {"credit":200, "debit":0, "unit":"AUD"} ],
 	"vector_converted_at_transaction_date": []
       },
       {
@@ -87,9 +87,9 @@
 	"date":"date(2018,5,1)",
 	"description":"Income",
 	"type":"instant",
-	"vector": [ {"credit":400.0, "debit":0.0, "unit":"AUD"} ],
-	"vector_converted_at_balance_date": [ {"credit":400.0, "debit":0.0, "unit":"AUD"} ],
-	"vector_converted_at_transaction_date": [ {"credit":400.0, "debit":0.0, "unit":"AUD"} ]
+	"vector": [ {"credit":400, "debit":0, "unit":"AUD"} ],
+	"vector_converted_at_balance_date": [ {"credit":400, "debit":0, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": [ {"credit":400, "debit":0, "unit":"AUD"} ]
       }
     ]
   },

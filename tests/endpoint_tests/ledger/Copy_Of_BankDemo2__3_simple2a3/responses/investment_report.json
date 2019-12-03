@@ -189,7 +189,7 @@
       "currency":"USD",
       "gains": {
 	"rea": {
-	  "forex":"value('AUD',254744 rdiv 25)",
+	  "forex":"value('AUD',10189.759999999995)",
 	  "market_converted":"value('AUD',-5411424.76)",
 	  "market_foreign":"value('USD',-4017491.725849056)"
 	},
@@ -218,7 +218,7 @@
       "closing": {"total_cost_converted": [], "total_cost_foreign": []},
       "gains": {
 	"rea": {
-	  "forex": ["value('AUD',254744 rdiv 25)" ],
+	  "forex": ["value('AUD',10189.759999999995)" ],
 	  "market_converted": ["value('AUD',-5411424.76)" ],
 	  "market_foreign": ["value('USD',-4017491.725849056)" ]
 	},

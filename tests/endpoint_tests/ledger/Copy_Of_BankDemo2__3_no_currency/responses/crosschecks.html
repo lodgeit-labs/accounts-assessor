@@ -36,7 +36,7 @@ error</p></p>
 account_balance(reports/pl/current,'InvestmentIncomeUnrealized'/withoutCurrencyMovement) ≠ report_value(reports/ir/current/totals/gains/unr/market_converted)</p>
 
 <p>
-[value(without_movement_after(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',13.976032)),date(2018,7,13)),-5000),value(without_currency_movement_against_since(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',13.976032)),'USD',[],date(2018,7,13)),5000)] ≠ evaluation_failed(report_value(reports/ir/current/totals/gains/unr/market_converted))</p>
+[value(without_movement_after(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',436751 rdiv 31250)),date(2018,7,13)),-5000),value(without_currency_movement_against_since(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',436751 rdiv 31250)),'USD',[],date(2018,7,13)),5000)] ≠ evaluation_failed(report_value(reports/ir/current/totals/gains/unr/market_converted))</p>
 
 <p>
 error</p></p>
@@ -47,7 +47,7 @@ error</p></p>
 account_balance(reports/pl/current,'InvestmentIncomeUnrealized'/onlyCurrencyMovement) ≠ report_value(reports/ir/current/totals/gains/unr/forex)</p>
 
 <p>
-[value(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',13.976032)),5000),value(without_currency_movement_against_since(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',13.976032)),'USD',[],date(2018,7,13)),-5000)] ≠ evaluation_failed(report_value(reports/ir/current/totals/gains/unr/forex))</p>
+[value(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',436751 rdiv 31250)),5000),value(without_currency_movement_against_since(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',436751 rdiv 31250)),'USD',[],date(2018,7,13)),-5000)] ≠ evaluation_failed(report_value(reports/ir/current/totals/gains/unr/forex))</p>
 
 <p>
 error</p></p>
@@ -58,7 +58,7 @@ error</p></p>
 account_balance(reports/pl/current,'Accounts'/'InvestmentIncome') ≠ report_value(reports/ir/current/totals/gains/total)</p>
 
 <p>
-[value('CHF',1391239 rdiv 10),value('USD',145000),value(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',13.976032)),5000),value(without_movement_after('SG Issuer_SA_USD_1',date(2018,7,13)),-145000),value(without_movement_after(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',13.976032)),date(2018,7,13)),-5000)] ≠ evaluation_failed(report_value(reports/ir/current/totals/gains/total))</p>
+[value('CHF',597532599896355 rdiv 4294967291),value('USD',145000),value(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',436751 rdiv 31250)),5000),value(without_movement_after('SG Issuer_SA_USD_1',date(2018,7,13)),-145000),value(without_movement_after(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',436751 rdiv 31250)),date(2018,7,13)),-5000)] ≠ evaluation_failed(report_value(reports/ir/current/totals/gains/total))</p>
 
 <p>
 error</p></p>
@@ -69,7 +69,7 @@ error</p></p>
 account_balance(reports/pl/current,'InvestmentIncome'/unrealized) ≠ report_value(reports/ir/current/totals/gains/unrealized_total)</p>
 
 <p>
-[value(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',13.976032)),5000),value(without_movement_after(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',13.976032)),date(2018,7,13)),-5000)] ≠ evaluation_failed(report_value(reports/ir/current/totals/gains/unrealized_total))</p>
+[value(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',436751 rdiv 31250)),5000),value(without_movement_after(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',436751 rdiv 31250)),date(2018,7,13)),-5000)] ≠ evaluation_failed(report_value(reports/ir/current/totals/gains/unrealized_total))</p>
 
 <p>
 error</p></p>
@@ -80,7 +80,7 @@ error</p></p>
 account_balance(reports/pl/current,'InvestmentIncome'/realized) ≠ report_value(reports/ir/current/totals/gains/realized_total)</p>
 
 <p>
-[value('CHF',1391239 rdiv 10),value('USD',145000),value(without_movement_after('SG Issuer_SA_USD_1',date(2018,7,13)),-145000)] ≠ evaluation_failed(report_value(reports/ir/current/totals/gains/realized_total))</p>
+[value('CHF',597532599896355 rdiv 4294967291),value('USD',145000),value(without_movement_after('SG Issuer_SA_USD_1',date(2018,7,13)),-145000)] ≠ evaluation_failed(report_value(reports/ir/current/totals/gains/realized_total))</p>
 
 <p>
 error</p></p>
@@ -91,7 +91,7 @@ error</p></p>
 account_balance(reports/bs/current,'Accounts'/'FinancialInvestments') ≠ report_value(reports/ir/current/totals/closing/total_cost_converted)</p>
 
 <p>
-[value(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',13.976032)),5000)] ≠ evaluation_failed(report_value(reports/ir/current/totals/closing/total_cost_converted))</p>
+[value(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',436751 rdiv 31250)),5000)] ≠ evaluation_failed(report_value(reports/ir/current/totals/closing/total_cost_converted))</p>
 
 <p>
 error</p></p>
@@ -102,7 +102,7 @@ error</p></p>
 account_balance(reports/bs/current,'Accounts'/'HistoricalEarnings') = account_balance(reports/pl/historical,'Accounts'/'NetIncomeLoss')</p>
 
 <p>
-[value('CHF',-1000),value('USD',-496333893968855 rdiv 2147483648),value(without_movement_after('CHF',date(2018,7,13)),-1000),value(without_movement_after('USD',date(2018,7,13)),-5778087 rdiv 25),value(without_movement_after(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',0.9982880000000001)),date(2018,7,13)),140000),value(without_movement_after(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',13.976032)),date(2018,7,13)),10000),value(without_currency_movement_against_since('CHF','CHF',[],date(2018,7,10)),1000),value(without_currency_movement_against_since('USD','USD',[],date(2018,7,1)),3494008 rdiv 25),value(without_currency_movement_against_since('USD','USD',[],date(2018,7,2)),4534079 rdiv 25),value(without_currency_movement_against_since('USD','USD',[],date(2018,7,12)),-90000)] = [value('CHF',-1000),value('USD',-496333893968855 rdiv 2147483648),value(without_movement_after('CHF',date(2018,7,13)),-1000),value(without_movement_after('USD',date(2018,7,13)),-5778087 rdiv 25),value(without_movement_after(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',0.9982880000000001)),date(2018,7,13)),140000),value(without_movement_after(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',13.976032)),date(2018,7,13)),10000),value(without_currency_movement_against_since('CHF','CHF',[],date(2018,7,10)),1000),value(without_currency_movement_against_since('USD','USD',[],date(2018,7,1)),3494008 rdiv 25),value(without_currency_movement_against_since('USD','USD',[],date(2018,7,2)),4534079 rdiv 25),value(without_currency_movement_against_since('USD','USD',[],date(2018,7,12)),-90000)]</p>
+[value('CHF',-1000),value('USD',-496333893968855 rdiv 2147483648),value(without_movement_after('CHF',date(2018,7,13)),-1000),value(without_movement_after('USD',date(2018,7,13)),-5778087 rdiv 25),value(without_movement_after(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',62393 rdiv 62500)),date(2018,7,13)),140000),value(without_movement_after(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',436751 rdiv 31250)),date(2018,7,13)),10000),value(without_currency_movement_against_since('CHF','CHF',[],date(2018,7,10)),1000),value(without_currency_movement_against_since('USD','USD',[],date(2018,7,1)),3494008 rdiv 25),value(without_currency_movement_against_since('USD','USD',[],date(2018,7,2)),4534079 rdiv 25),value(without_currency_movement_against_since('USD','USD',[],date(2018,7,12)),-90000)] = [value('CHF',-1000),value('USD',-496333893968855 rdiv 2147483648),value(without_movement_after('CHF',date(2018,7,13)),-1000),value(without_movement_after('USD',date(2018,7,13)),-5778087 rdiv 25),value(without_movement_after(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',62393 rdiv 62500)),date(2018,7,13)),140000),value(without_movement_after(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',436751 rdiv 31250)),date(2018,7,13)),10000),value(without_currency_movement_against_since('CHF','CHF',[],date(2018,7,10)),1000),value(without_currency_movement_against_since('USD','USD',[],date(2018,7,1)),3494008 rdiv 25),value(without_currency_movement_against_since('USD','USD',[],date(2018,7,2)),4534079 rdiv 25),value(without_currency_movement_against_since('USD','USD',[],date(2018,7,12)),-90000)]</p>
 
 <p>
 ok</p></p>
@@ -113,7 +113,7 @@ ok</p></p>
 account_balance(reports/bs/current,'Accounts'/'NetAssets') ≠ account_balance(reports/bs/current,'Accounts'/'Equity')</p>
 
 <p>
-[value('CHF',374578987049611 rdiv 11453246121),value('USD',243902678805297 rdiv 3817748702),value(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',13.976032)),5000)] ≠ [value('CHF',1123736960985308 rdiv 17179869179),value('USD',243902678805297 rdiv 1908874351),value(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',13.976032)),5000),value(without_movement_after('SG Issuer_SA_USD_1',date(2018,7,13)),-145000),value(without_movement_after(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',0.9982880000000001)),date(2018,7,13)),140000),value(without_movement_after(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',13.976032)),date(2018,7,13)),5000),value(without_currency_movement_against_since('CHF','CHF',[],date(2018,7,10)),1000),value(without_currency_movement_against_since('CHF','CHF',[],date(2018,8,16)),31477 rdiv 20),value(without_currency_movement_against_since('CHF','CHF',[],date(2018,10,1)),808761 rdiv 10),value(without_currency_movement_against_since('CHF','CHF',[],date(2018,10,15)),105000),value(without_currency_movement_against_since('CHF','CHF',[],date(2018,12,30)),-221155),value(without_currency_movement_against_since('USD','USD',[],date(2018,7,1)),3494008 rdiv 25),value(without_currency_movement_against_since('USD','USD',[],date(2018,7,2)),4534079 rdiv 25),value(without_currency_movement_against_since('USD','USD',[],date(2018,7,12)),-90000),value(without_currency_movement_against_since('USD','USD',[],date(2018,8,13)),20),value(without_currency_movement_against_since('USD','USD',[],date(2018,9,1)),-30),value(without_currency_movement_against_since('USD','USD',[],date(2018,10,15)),-150000),value(without_currency_movement_against_since('USD','USD',[],date(2018,12,30)),-145000)]</p>
+[value('CHF',654101 rdiv 20),value('USD',1597163 rdiv 25),value(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',436751 rdiv 31250)),5000)] ≠ [value('CHF',187289493443043 rdiv 2863311529),value('USD',243902678805297 rdiv 1908874351),value(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',436751 rdiv 31250)),5000),value(without_movement_after('SG Issuer_SA_USD_1',date(2018,7,13)),-145000),value(without_movement_after(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',62393 rdiv 62500)),date(2018,7,13)),140000),value(without_movement_after(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',436751 rdiv 31250)),date(2018,7,13)),5000),value(without_currency_movement_against_since('CHF','CHF',[],date(2018,7,10)),1000),value(without_currency_movement_against_since('CHF','CHF',[],date(2018,8,16)),31477 rdiv 20),value(without_currency_movement_against_since('CHF','CHF',[],date(2018,10,1)),808761 rdiv 10),value(without_currency_movement_against_since('CHF','CHF',[],date(2018,10,15)),105000),value(without_currency_movement_against_since('CHF','CHF',[],date(2018,12,30)),-221155),value(without_currency_movement_against_since('USD','USD',[],date(2018,7,1)),3494008 rdiv 25),value(without_currency_movement_against_since('USD','USD',[],date(2018,7,2)),4534079 rdiv 25),value(without_currency_movement_against_since('USD','USD',[],date(2018,7,12)),-90000),value(without_currency_movement_against_since('USD','USD',[],date(2018,8,13)),20),value(without_currency_movement_against_since('USD','USD',[],date(2018,9,1)),-30),value(without_currency_movement_against_since('USD','USD',[],date(2018,10,15)),-150000),value(without_currency_movement_against_since('USD','USD',[],date(2018,12,30)),-145000)]</p>
 
 <p>
 error</p></p>

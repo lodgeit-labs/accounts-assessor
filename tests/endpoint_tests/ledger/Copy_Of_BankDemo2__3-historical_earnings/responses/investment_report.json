@@ -205,7 +205,7 @@
       "on_hand_at_cost": {
 	"count":1,
 	"total_converted_at_balance":"value('CHF',10.0)",
-	"total_converted_at_purchase":"value('CHF',10.0)",
+	"total_converted_at_purchase":"value('CHF',10)",
 	"total_foreign":"value('CHF',10)",
 	"total_forex_gain":"value('CHF',0.0)",
 	"unit_cost_foreign":"value('CHF',10)"
@@ -239,7 +239,7 @@
       },
       "on_hand_at_cost": {
 	"total_converted_at_balance": ["value('CHF',10.0)" ],
-	"total_converted_at_purchase": ["value('CHF',10.0)" ],
+	"total_converted_at_purchase": ["value('CHF',10)" ],
 	"total_forex_gain": ["value('CHF',0.0)" ]
       },
       "opening": {

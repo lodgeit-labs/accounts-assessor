@@ -3,7 +3,7 @@
     "source": {
       "account":"NationalAustraliaBank",
       "date":"date(2016,1,1)",
-      "exchanged":"vector([coord('GOOG',1,0)])",
+      "exchanged":"vector([coord('GOOG',1)])",
       "report_currency_transacted_amount_converted_at_balance_date":1000.0,
       "report_currency_transacted_amount_converted_at_transaction_date":1000.0,
       "vector": [ {"credit":500, "debit":0, "unit":"bananas"} ],
@@ -16,8 +16,8 @@
 	"description":"Invest_In - outgoing money",
 	"type":"instant",
 	"vector": [ {"credit":500, "debit":0, "unit":"bananas"} ],
-	"vector_converted_at_balance_date": [ {"credit":1000.0, "debit":0.0, "unit":"oranges"} ],
-	"vector_converted_at_transaction_date": [ {"credit":1000.0, "debit":0.0, "unit":"oranges"} ]
+	"vector_converted_at_balance_date": [ {"credit":1000, "debit":0, "unit":"oranges"} ],
+	"vector_converted_at_transaction_date": [ {"credit":1000, "debit":0, "unit":"oranges"} ]
       },
       {
 	"account":"CurrencyMovementNationalAustraliaBank",
@@ -41,8 +41,8 @@
 	"description":"Invest_In",
 	"type":"instant",
 	"vector": [ {"credit":0, "debit":1, "unit":"GOOG"} ],
-	"vector_converted_at_balance_date": [ {"credit":0.0, "debit":2000.0, "unit":"oranges"} ],
-	"vector_converted_at_transaction_date": [ {"credit":0.0, "debit":1000.0, "unit":"oranges"} ]
+	"vector_converted_at_balance_date": [ {"credit":0, "debit":2000.0, "unit":"oranges"} ],
+	"vector_converted_at_transaction_date": [ {"credit":0, "debit":1000.0, "unit":"oranges"} ]
       },
       {
 	"account":"InvestmentIncomeUnrealizedOnlyCurrencyMovementGOOG",
@@ -73,7 +73,7 @@
 },
 	   {"credit":0, "debit":1000.0, "unit":"oranges"}
 	],
-	"vector_converted_at_balance_date": [ {"credit":1000.0, "debit":0.0, "unit":"oranges"} ],
+	"vector_converted_at_balance_date": [ {"credit":1000, "debit":0, "unit":"oranges"} ],
 	"vector_converted_at_transaction_date": []
       }
     ]

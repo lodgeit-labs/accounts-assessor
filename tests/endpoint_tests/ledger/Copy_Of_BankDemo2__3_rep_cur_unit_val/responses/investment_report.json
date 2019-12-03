@@ -189,9 +189,9 @@
       "currency":"CHF",
       "gains": {
 	"rea": {
-	  "forex":"value('AUD',44131761870000 rdiv 11830556593)",
-	  "market_converted":"value('AUD',187545.27777549997)",
-	  "market_foreign":"value('CHF',139123.9)"
+	  "forex":"value('AUD',3730.32000000002)",
+	  "market_converted":"value('AUD',187545.2777755)",
+	  "market_foreign":"value('CHF',139123.90000000002)"
 	},
 	"unr": {}
       },
@@ -200,10 +200,10 @@
       "purchase": {
 	"conversion":"exchange_rate(date(2018,10,1),'CHF','AUD',1.348045)",
 	"date":"date(2018,10,1)",
-	"total_cost_converted":"value('AUD',109024.62222450001)",
-	"total_cost_foreign":"value('CHF',80876.1)",
-	"unit_cost_converted":"value('AUD',3.6341540741500005)",
-	"unit_cost_foreign":"value('CHF',2.69587)"
+	"total_cost_converted":"value('AUD',105302739671 rdiv 965862)",
+	"total_cost_foreign":"value('CHF',808761 rdiv 10)",
+	"unit_cost_converted":"value('AUD',105302739671 rdiv 28975860000)",
+	"unit_cost_foreign":"value('CHF',269587 rdiv 100000)"
       },
       "sale": {
 	"conversion":"exchange_rate(date(2018,12,30),'CHF','AUD',1.365001)",
@@ -221,7 +221,7 @@
       "currency":"USD",
       "gains": {
 	"rea": {
-	  "forex":"value('AUD',254744 rdiv 25)",
+	  "forex":"value('AUD',10189.759999999995)",
 	  "market_converted":"value('AUD',-5411424.76)",
 	  "market_foreign":"value('USD',-4017491.725849056)"
 	},
@@ -252,7 +252,7 @@
       "currency":"USD",
       "gains": {
 	"rea": {
-	  "forex":"value('AUD',9098 rdiv 25)",
+	  "forex":"value('AUD',363.9199999999998)",
 	  "market_converted":"value('AUD',-193265.17)",
 	  "market_foreign":"value('USD',-143481.84735175202)"
 	},
@@ -290,7 +290,7 @@
       "gains": {
 	"rea": {},
 	"unr": {
-	  "forex":"value('AUD',769841435000 rdiv 71244031)",
+	  "forex":"value('AUD',10805.697322207983)",
 	  "market_converted":"value('AUD',-10805.697322207998)",
 	  "market_foreign":"value('USD',-8022.249501626618)"
 	}
@@ -298,11 +298,11 @@
       "id":"iri4",
       "on_hand_at_cost": {
 	"count":5000,
-	"total_converted_at_balance":"value('AUD',99502.15018352)",
-	"total_converted_at_purchase":"value('AUD',94536.67565440002)",
-	"total_foreign":"value('USD',69880.16)",
-	"total_forex_gain":"value('AUD',4965.47452911998)",
-	"unit_cost_foreign":"value('USD',13.976032)"
+	"total_converted_at_balance":"value('AUD',99502.15018351999)",
+	"total_converted_at_purchase":"value('AUD',14771355571 rdiv 156250)",
+	"total_foreign":"value('USD',1747004 rdiv 25)",
+	"total_forex_gain":"value('AUD',4965.474529119994)",
+	"unit_cost_foreign":"value('USD',436751 rdiv 31250)"
       },
       "opening": {
 	"conversion":"exchange_rate(date(2018,7,13),'USD','AUD',1.346966)",
@@ -322,23 +322,26 @@
       },
       "gains": {
 	"rea": {
-	  "forex": ["value('AUD',4224691759360306 rdiv 295763914825)" ],
+	  "forex": ["value('AUD',14284.000000000015)" ],
 	  "market_converted": ["value('AUD',-5417144.6522245)" ],
-	  "market_foreign": ["value('CHF',139123.9)", "value('USD',-4160973.5732008084)" ]
+	  "market_foreign": [
+	    "value('CHF',139123.90000000002)",
+	    "value('USD',-4160973.5732008084)"
+	  ]
 	},
 	"realized_total": ["value('AUD',-5402860.6522245)" ],
 	"total": ["value('AUD',-5402860.6522245)" ],
 	"unr": {
-	  "forex": ["value('AUD',769841435000 rdiv 71244031)" ],
+	  "forex": ["value('AUD',10805.697322207983)" ],
 	  "market_converted": ["value('AUD',-10805.697322207998)" ],
 	  "market_foreign": ["value('USD',-8022.249501626618)" ]
 	},
-	"unrealized_total": ["value('AUD',-5.093170329928398e-11)" ]
+	"unrealized_total": ["value('AUD',-1.4551915228366852e-11)" ]
       },
       "on_hand_at_cost": {
-	"total_converted_at_balance": ["value('AUD',99502.15018352)" ],
-	"total_converted_at_purchase": ["value('AUD',94536.67565440002)" ],
-	"total_forex_gain": ["value('AUD',4965.47452911998)" ]
+	"total_converted_at_balance": ["value('AUD',99502.15018351999)" ],
+	"total_converted_at_purchase": ["value('AUD',14771355571 rdiv 156250)" ],
+	"total_forex_gain": ["value('AUD',4965.474529119994)" ]
       },
       "opening": {
 	"total_cost_converted": ["value('AUD',6000000.0)" ],

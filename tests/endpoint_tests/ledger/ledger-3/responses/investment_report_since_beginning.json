@@ -189,9 +189,9 @@
       "currency":"USD",
       "gains": {
 	"rea": {
-	  "forex":"value('AUD',-1982145313 rdiv 4478564147)",
+	  "forex":"value('AUD',-0.4425850000000011)",
 	  "market_converted":"value('AUD',1.3146400000000007)",
-	  "market_foreign":"value('USD',1.0)"
+	  "market_foreign":"value('USD',1)"
 	},
 	"unr": {}
       },
@@ -200,10 +200,10 @@
       "purchase": {
 	"conversion":"exchange_rate(date(2017,7,10),'USD','AUD',1.31464)",
 	"date":"date(2017,7,10)",
-	"total_cost_converted":"value('AUD',13.1464)",
-	"total_cost_foreign":"value('USD',10.0)",
-	"unit_cost_converted":"value('AUD',13.1464)",
-	"unit_cost_foreign":"value('USD',10.0)"
+	"total_cost_converted":"value('AUD',16433 rdiv 1250)",
+	"total_cost_foreign":"value('USD',10)",
+	"unit_cost_converted":"value('AUD',16433 rdiv 1250)",
+	"unit_cost_foreign":"value('USD',10)"
       },
       "sale": {
 	"conversion":"exchange_rate(date(2018,1,10),'USD','AUD',1.274405)",
@@ -228,7 +228,7 @@
       "gains": {
 	"rea": {},
 	"unr": {
-	  "forex":"value('AUD',8100611496 rdiv 6723898789)",
+	  "forex":"value('AUD',1.2047491716044627)",
 	  "market_converted":"value('AUD',-74.52234917160445)",
 	  "market_foreign":"value('USD',-56.68650670267485)"
 	}
@@ -237,19 +237,19 @@
       "on_hand_at_cost": {
 	"count":9,
 	"total_converted_at_balance":"value('AUD',121.57235999999999)",
-	"total_converted_at_purchase":"value('AUD',118.3176)",
-	"total_foreign":"value('USD',90.0)",
+	"total_converted_at_purchase":"value('AUD',147897 rdiv 1250)",
+	"total_foreign":"value('USD',90)",
 	"total_forex_gain":"value('AUD',3.2547599999999903)",
-	"unit_cost_foreign":"value('USD',10.0)"
+	"unit_cost_foreign":"value('USD',10)"
       },
       "opening": {},
       "purchase": {
 	"conversion":"exchange_rate(date(2017,7,10),'USD','AUD',1.31464)",
 	"date":"date(2017,7,10)",
-	"total_cost_converted":"value('AUD',118.3176)",
-	"total_cost_foreign":"value('USD',90.0)",
-	"unit_cost_converted":"value('AUD',13.1464)",
-	"unit_cost_foreign":"value('USD',10.0)"
+	"total_cost_converted":"value('AUD',147897 rdiv 1250)",
+	"total_cost_foreign":"value('USD',90)",
+	"unit_cost_converted":"value('AUD',16433 rdiv 1250)",
+	"unit_cost_foreign":"value('USD',10)"
       },
       "sale": {},
       "unit":"TLS"
@@ -267,8 +267,8 @@
       "gains": {
 	"rea": {},
 	"unr": {
-	  "forex":"value('AUD',4938354610 rdiv 1746292271)",
-	  "market_converted":"value('AUD',-16.548158416024812)",
+	  "forex":"value('AUD',2.8279084160248225)",
+	  "market_converted":"value('AUD',-16.548158416024805)",
 	  "market_foreign":"value('USD',-12.985007447416493)"
 	}
       },
@@ -276,18 +276,18 @@
       "on_hand_at_cost": {
 	"count":10,
 	"total_converted_at_balance":"value('AUD',67.5402)",
-	"total_converted_at_purchase":"value('AUD',63.72025)",
+	"total_converted_at_purchase":"value('AUD',254881 rdiv 4000)",
 	"total_foreign":"value('USD',50)",
-	"total_forex_gain":"value('AUD',3.8199499999999986)",
+	"total_forex_gain":"value('AUD',3.8199500000000057)",
 	"unit_cost_foreign":"value('USD',5)"
       },
       "opening": {},
       "purchase": {
 	"conversion":"exchange_rate(date(2018,1,10),'USD','AUD',1.274405)",
 	"date":"date(2018,1,10)",
-	"total_cost_converted":"value('AUD',63.72025)",
+	"total_cost_converted":"value('AUD',254881 rdiv 4000)",
 	"total_cost_foreign":"value('USD',50)",
-	"unit_cost_converted":"value('AUD',6.372025)",
+	"unit_cost_converted":"value('AUD',254881 rdiv 40000)",
 	"unit_cost_foreign":"value('USD',5)"
       },
       "sale": {},
@@ -300,23 +300,23 @@
       },
       "gains": {
 	"rea": {
-	  "forex": ["value('AUD',-1982145313 rdiv 4478564147)" ],
+	  "forex": ["value('AUD',-0.4425850000000011)" ],
 	  "market_converted": ["value('AUD',1.3146400000000007)" ],
-	  "market_foreign": ["value('USD',1.0)" ]
+	  "market_foreign": ["value('USD',1)" ]
 	},
 	"realized_total": ["value('AUD',0.8720549999999996)" ],
-	"total": ["value('AUD',-86.16579499999997)" ],
+	"total": ["value('AUD',-86.16579499999996)" ],
 	"unr": {
-	  "forex": ["value('AUD',47351031827670114706 rdiv 11741892486216959819)" ],
-	  "market_converted": ["value('AUD',-91.07050758762927)" ],
+	  "forex": ["value('AUD',4.032657587629285)" ],
+	  "market_converted": ["value('AUD',-91.07050758762925)" ],
 	  "market_foreign": ["value('USD',-69.67151415009134)" ]
 	},
-	"unrealized_total": ["value('AUD',-87.03784999999998)" ]
+	"unrealized_total": ["value('AUD',-87.03784999999996)" ]
       },
       "on_hand_at_cost": {
 	"total_converted_at_balance": ["value('AUD',189.11255999999997)" ],
-	"total_converted_at_purchase": ["value('AUD',182.03785)" ],
-	"total_forex_gain": ["value('AUD',7.074709999999989)" ]
+	"total_converted_at_purchase": ["value('AUD',3640757 rdiv 20000)" ],
+	"total_forex_gain": ["value('AUD',7.074709999999996)" ]
       },
       "opening": {"total_cost_converted": [], "total_cost_foreign": []}
     }

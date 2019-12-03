@@ -196,7 +196,7 @@
       "gains": {
 	"rea": {},
 	"unr": {
-	  "forex":"value('AUD',200)",
+	  "forex":"value('AUD',200.0)",
 	  "market_converted":"value('AUD',0.0)",
 	  "market_foreign":"value('CHF',0.0)"
 	}
@@ -205,7 +205,7 @@
       "on_hand_at_cost": {
 	"count":10,
 	"total_converted_at_balance":"value('AUD',600.0)",
-	"total_converted_at_purchase":"value('AUD',200.0)",
+	"total_converted_at_purchase":"value('AUD',200)",
 	"total_foreign":"value('CHF',100)",
 	"total_forex_gain":"value('AUD',400.0)",
 	"unit_cost_foreign":"value('CHF',10)"
@@ -231,7 +231,7 @@
 	"realized_total": [],
 	"total": ["value('AUD',200.0)" ],
 	"unr": {
-	  "forex": ["value('AUD',200)" ],
+	  "forex": ["value('AUD',200.0)" ],
 	  "market_converted": ["value('AUD',0.0)" ],
 	  "market_foreign": ["value('CHF',0.0)" ]
 	},
@@ -239,7 +239,7 @@
       },
       "on_hand_at_cost": {
 	"total_converted_at_balance": ["value('AUD',600.0)" ],
-	"total_converted_at_purchase": ["value('AUD',200.0)" ],
+	"total_converted_at_purchase": ["value('AUD',200)" ],
 	"total_forex_gain": ["value('AUD',400.0)" ]
       },
       "opening": {

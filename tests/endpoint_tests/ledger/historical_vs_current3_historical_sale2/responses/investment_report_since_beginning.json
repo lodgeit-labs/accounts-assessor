@@ -200,9 +200,9 @@
       "purchase": {
 	"conversion":"exchange_rate(date(2015,1,1),'CHF','AUD',2.0)",
 	"date":"date(2015,1,1)",
-	"total_cost_converted":"value('AUD',200.0)",
+	"total_cost_converted":"value('AUD',200)",
 	"total_cost_foreign":"value('CHF',100)",
-	"unit_cost_converted":"value('AUD',20.0)",
+	"unit_cost_converted":"value('AUD',20)",
 	"unit_cost_foreign":"value('CHF',10)"
       },
       "sale": {

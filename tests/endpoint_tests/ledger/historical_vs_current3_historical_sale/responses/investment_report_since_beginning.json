@@ -189,7 +189,7 @@
       "currency":"CHF",
       "gains": {
 	"rea": {
-	  "forex":"value('AUD',-3710325 rdiv 58352)",
+	  "forex":"value('AUD',-63.58522415684124)",
 	  "market_converted":"value('AUD',0.0)",
 	  "market_foreign":"value('CHF',0)"
 	},
@@ -200,9 +200,9 @@
       "purchase": {
 	"conversion":"exchange_rate(date(2015,1,1),'CHF','AUD',2.0)",
 	"date":"date(2015,1,1)",
-	"total_cost_converted":"value('AUD',200.0)",
+	"total_cost_converted":"value('AUD',200)",
 	"total_cost_foreign":"value('CHF',100)",
-	"unit_cost_converted":"value('AUD',20.0)",
+	"unit_cost_converted":"value('AUD',20)",
 	"unit_cost_foreign":"value('CHF',10)"
       },
       "sale": {
@@ -219,12 +219,12 @@
       "closing": {"total_cost_converted": [], "total_cost_foreign": []},
       "gains": {
 	"rea": {
-	  "forex": ["value('AUD',-3710325 rdiv 58352)" ],
+	  "forex": ["value('AUD',-63.58522415684124)" ],
 	  "market_converted": ["value('AUD',0.0)" ],
 	  "market_foreign": ["value('CHF',0)" ]
 	},
-	"realized_total": ["value('AUD',-63.585224156841235)" ],
-	"total": ["value('AUD',-63.585224156841235)" ],
+	"realized_total": ["value('AUD',-63.58522415684124)" ],
+	"total": ["value('AUD',-63.58522415684124)" ],
 	"unr": {"forex": [], "market_converted": [], "market_foreign": []},
 	"unrealized_total": []
       },

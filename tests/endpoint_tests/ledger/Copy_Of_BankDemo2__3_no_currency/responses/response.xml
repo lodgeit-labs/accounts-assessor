@@ -19,62 +19,62 @@
       "id":"gl_html",
       "key":"GL viewer",
       "val": {
-	"url":"http://koom-KVM:8080/tmp/1574716559.545875.6/general_ledger_viewer/gl.html"
+	"url":"http://koom-KVM:8080/tmp/1575373234.0167632.6/general_ledger_viewer/gl.html"
       }
     },
     {
       "id":"balance_sheet_html",
       "key":"balance sheet from 2018-07-13 to 2019-06-30 ",
       "val": {
-	"url":"http://koom-KVM:8080/tmp/1574716559.545875.6/balance_sheet.html"
+	"url":"http://koom-KVM:8080/tmp/1575373234.0167632.6/balance_sheet.html"
       }
     },
     {
       "id":"profit_and_loss_html",
       "key":"profit&loss from 2018-07-13 to 2019-06-30 ",
       "val": {
-	"url":"http://koom-KVM:8080/tmp/1574716559.545875.6/profit_and_loss.html"
+	"url":"http://koom-KVM:8080/tmp/1575373234.0167632.6/profit_and_loss.html"
       }
     },
     {
       "id":"profit_and_loss_historical_html",
       "key":"profit&loss from 1-01-01 to 2018-07-12 ",
       "val": {
-	"url":"http://koom-KVM:8080/tmp/1574716559.545875.6/profit_and_loss_historical.html"
+	"url":"http://koom-KVM:8080/tmp/1575373234.0167632.6/profit_and_loss_historical.html"
       }
     },
     {
       "id":"general_ledger_json",
       "key":"General Ledger Report",
       "val": {
-	"url":"http://koom-KVM:8080/tmp/1574716559.545875.6/general_ledger.json"
+	"url":"http://koom-KVM:8080/tmp/1575373234.0167632.6/general_ledger.json"
       }
     },
     {
       "id":"crosschecks_html",
       "key":"crosschecks",
       "val": {
-	"url":"http://koom-KVM:8080/tmp/1574716559.545875.6/crosschecks.html"
+	"url":"http://koom-KVM:8080/tmp/1575373234.0167632.6/crosschecks.html"
       }
     },
     {
       "id":"response_xml",
       "key":"xbrl instance",
       "val": {
-	"url":"http://koom-KVM:8080/tmp/1574716559.545875.6/response.xml"
+	"url":"http://koom-KVM:8080/tmp/1575373234.0167632.6/response.xml"
       }
     },
     {
       "id":"request_xml",
       "key":"request_xml",
       "val": {
-	"url":"http://koom-KVM:8080/tmp/1574716559.545875.6/request.xml"
+	"url":"http://koom-KVM:8080/tmp/1575373234.0167632.6/request.xml"
       }
     },
     {
       "id":"all",
       "key":"all files",
-      "val": {"url":"http://koom-KVM:8080/tmp/1574716559.545875.6/"}
+      "val": {"url":"http://koom-KVM:8080/tmp/1575373234.0167632.6/"}
     }
   ]
 } --> <!-- 
@@ -324,473 +324,1403 @@ Accounts extracted:
 
 
 
-<!--Transaction_Transformation_Debug:
-s_transaction(date(2018,7,1),
+<!--Transactions_With_Livestock:
+[ transaction(date(2018,7,1),
+	      'Invest_In - outgoing money',
+	      'BanksUSD_Bank',
+	      [coord('USD',-3494008 rdiv 25)],
+	      instant),
+  transaction(date(2018,7,1),
+	      'Invest_In - outgoing money - currency movement adjustment - historical part',
+	      'CurrencyMovementUSD_Bank',
+	      [ coord(without_movement_after('USD',date(2018,7,13)),
+		      3494008 rdiv 25),
+		coord(without_currency_movement_against_since('USD',
+							      'USD',
+							      [],
+							      date(2018,
+								   7,
+								   1)),
+		      -3494008 rdiv 25)
+	      ],
+	      tracking),
+  transaction(date(2018,7,13),
+	      'Invest_In - outgoing money - currency movement adjustment - current part',
+	      'CurrencyMovementUSD_Bank',
+	      [ coord('USD',3494008 rdiv 25),
+		coord(without_movement_after('USD',date(2018,7,13)),
+		      -3494008 rdiv 25)
+	      ],
+	      tracking),
+  transaction(date(2018,7,1),
 	      'Invest_In',
-	      [coord('USD',0,139760.32)],
+	      'FinancialInvestmentsSG_Issuer_SA_USD_1',
+	      [ coord(with_cost_per_unit('SG Issuer_SA_USD_1',
+					 value('USD',62393 rdiv 62500)),
+		      140000)
+	      ],
+	      instant),
+  transaction(date(2018,7,13),
+	      'comment:?, comment2:Invest_In - current part',
+	      'InvestmentIncomeUnrealizedOnlyCurrencyMovementSG_Issuer_SA_USD_1',
+	      [ coord(with_cost_per_unit('SG Issuer_SA_USD_1',
+					 value('USD',62393 rdiv 62500)),
+		      -140000),
+		coord(without_currency_movement_against_since(with_cost_per_unit('SG Issuer_SA_USD_1',
+										 value('USD',
+										       62393 rdiv 62500)),
+							      'USD',
+							      [],
+							      date(2018,
+								   7,
+								   13)),
+		      140000)
+	      ],
+	      ?),
+  transaction(date(2018,7,13),
+	      'comment:?, comment2:Invest_In - current part',
+	      'InvestmentIncomeUnrealizedWithoutCurrencyMovementSG_Issuer_SA_USD_1',
+	      [ coord(without_currency_movement_against_since(with_cost_per_unit('SG Issuer_SA_USD_1',
+										 value('USD',
+										       62393 rdiv 62500)),
+							      'USD',
+							      [],
+							      date(2018,
+								   7,
+								   13)),
+		      -140000),
+		coord(without_movement_after(with_cost_per_unit('SG Issuer_SA_USD_1',
+								value('USD',
+								      62393 rdiv 62500)),
+					     date(2018,7,13)),
+		      140000)
+	      ],
+	      ?),
+  transaction(date(2018,7,1),
+	      'comment:?, comment2:Invest_In - historical part',
+	      'InvestmentIncomeUnrealizedOnlyCurrencyMovementSG_Issuer_SA_USD_1',
+	      [ coord(without_movement_after(with_cost_per_unit('SG Issuer_SA_USD_1',
+								value('USD',
+								      62393 rdiv 62500)),
+					     date(2018,7,13)),
+		      -140000),
+		coord(without_movement_after(without_currency_movement_against_since(with_cost_per_unit('SG Issuer_SA_USD_1',
+													value('USD',
+													      62393 rdiv 62500)),
+										     'USD',
+										     [],
+										     date(2018,
+											  7,
+											  1)),
+					     date(2018,7,13)),
+		      140000)
+	      ],
+	      ?),
+  transaction(date(2018,7,1),
+	      'comment:?, comment2:Invest_In - historical part',
+	      'InvestmentIncomeUnrealizedWithoutCurrencyMovementSG_Issuer_SA_USD_1',
+	      [ coord(without_movement_after(without_currency_movement_against_since(with_cost_per_unit('SG Issuer_SA_USD_1',
+													value('USD',
+													      62393 rdiv 62500)),
+										     'USD',
+										     [],
+										     date(2018,
+											  7,
+											  1)),
+					     date(2018,7,13)),
+		      -140000),
+		coord('USD',3494008 rdiv 25)
+	      ],
+	      ?),
+  transaction(date(2018,7,2),
+	      'Invest_In - outgoing money',
+	      'BanksUSD_Bank',
+	      [coord('USD',-3494008 rdiv 25)],
+	      instant),
+  transaction(date(2018,7,2),
+	      'Invest_In - outgoing money - currency movement adjustment - historical part',
+	      'CurrencyMovementUSD_Bank',
+	      [ coord(without_movement_after('USD',date(2018,7,13)),
+		      3494008 rdiv 25),
+		coord(without_currency_movement_against_since('USD',
+							      'USD',
+							      [],
+							      date(2018,
+								   7,
+								   2)),
+		      -3494008 rdiv 25)
+	      ],
+	      tracking),
+  transaction(date(2018,7,13),
+	      'Invest_In - outgoing money - currency movement adjustment - current part',
+	      'CurrencyMovementUSD_Bank',
+	      [ coord('USD',3494008 rdiv 25),
+		coord(without_movement_after('USD',date(2018,7,13)),
+		      -3494008 rdiv 25)
+	      ],
+	      tracking),
+  transaction(date(2018,7,2),
+	      'Invest_In',
+	      'FinancialInvestmentsSG_Issuer_SA_USD_1',
+	      [ coord(with_cost_per_unit('SG Issuer_SA_USD_1',
+					 value('USD',436751 rdiv 31250)),
+		      10000)
+	      ],
+	      instant),
+  transaction(date(2018,7,13),
+	      'comment:?, comment2:Invest_In - current part',
+	      'InvestmentIncomeUnrealizedOnlyCurrencyMovementSG_Issuer_SA_USD_1',
+	      [ coord(with_cost_per_unit('SG Issuer_SA_USD_1',
+					 value('USD',436751 rdiv 31250)),
+		      -10000),
+		coord(without_currency_movement_against_since(with_cost_per_unit('SG Issuer_SA_USD_1',
+										 value('USD',
+										       436751 rdiv 31250)),
+							      'USD',
+							      [],
+							      date(2018,
+								   7,
+								   13)),
+		      10000)
+	      ],
+	      ?),
+  transaction(date(2018,7,13),
+	      'comment:?, comment2:Invest_In - current part',
+	      'InvestmentIncomeUnrealizedWithoutCurrencyMovementSG_Issuer_SA_USD_1',
+	      [ coord(without_currency_movement_against_since(with_cost_per_unit('SG Issuer_SA_USD_1',
+										 value('USD',
+										       436751 rdiv 31250)),
+							      'USD',
+							      [],
+							      date(2018,
+								   7,
+								   13)),
+		      -10000),
+		coord(without_movement_after(with_cost_per_unit('SG Issuer_SA_USD_1',
+								value('USD',
+								      436751 rdiv 31250)),
+					     date(2018,7,13)),
+		      10000)
+	      ],
+	      ?),
+  transaction(date(2018,7,2),
+	      'comment:?, comment2:Invest_In - historical part',
+	      'InvestmentIncomeUnrealizedOnlyCurrencyMovementSG_Issuer_SA_USD_1',
+	      [ coord(without_movement_after(with_cost_per_unit('SG Issuer_SA_USD_1',
+								value('USD',
+								      436751 rdiv 31250)),
+					     date(2018,7,13)),
+		      -10000),
+		coord(without_movement_after(without_currency_movement_against_since(with_cost_per_unit('SG Issuer_SA_USD_1',
+													value('USD',
+													      436751 rdiv 31250)),
+										     'USD',
+										     [],
+										     date(2018,
+											  7,
+											  2)),
+					     date(2018,7,13)),
+		      10000)
+	      ],
+	      ?),
+  transaction(date(2018,7,2),
+	      'comment:?, comment2:Invest_In - historical part',
+	      'InvestmentIncomeUnrealizedWithoutCurrencyMovementSG_Issuer_SA_USD_1',
+	      [ coord(without_movement_after(without_currency_movement_against_since(with_cost_per_unit('SG Issuer_SA_USD_1',
+													value('USD',
+													      436751 rdiv 31250)),
+										     'USD',
+										     [],
+										     date(2018,
+											  7,
+											  2)),
+					     date(2018,7,13)),
+		      -10000),
+		coord('USD',3494008 rdiv 25)
+	      ],
+	      ?),
+  transaction(date(2018,7,2),
+	      'Invest_In - outgoing money',
+	      'BanksUSD_Bank',
+	      [coord('USD',-1040071 rdiv 25)],
+	      instant),
+  transaction(date(2018,7,2),
+	      'Invest_In - outgoing money - currency movement adjustment - historical part',
+	      'CurrencyMovementUSD_Bank',
+	      [ coord(without_movement_after('USD',date(2018,7,13)),
+		      1040071 rdiv 25),
+		coord(without_currency_movement_against_since('USD',
+							      'USD',
+							      [],
+							      date(2018,
+								   7,
+								   2)),
+		      -1040071 rdiv 25)
+	      ],
+	      tracking),
+  transaction(date(2018,7,13),
+	      'Invest_In - outgoing money - currency movement adjustment - current part',
+	      'CurrencyMovementUSD_Bank',
+	      [ coord('USD',1040071 rdiv 25),
+		coord(without_movement_after('USD',date(2018,7,13)),
+		      -1040071 rdiv 25)
+	      ],
+	      tracking),
+  transaction(date(2018,7,2),
+	      'Invest_In',
+	      'FinancialInvestmentsRaiffeisen_Switzerland_B_V_',
+	      [ coord(with_cost_per_unit('Raiffeisen Switzerland_B.V.',
+					 value('USD',1040071 rdiv 52125)),
+		      2085)
+	      ],
+	      instant),
+  transaction(date(2018,7,13),
+	      'comment:?, comment2:Invest_In - current part',
+	      'InvestmentIncomeUnrealizedOnlyCurrencyMovementRaiffeisen_Switzerland_B_V_',
+	      [ coord(with_cost_per_unit('Raiffeisen Switzerland_B.V.',
+					 value('USD',1040071 rdiv 52125)),
+		      -2085),
+		coord(without_currency_movement_against_since(with_cost_per_unit('Raiffeisen Switzerland_B.V.',
+										 value('USD',
+										       1040071 rdiv 52125)),
+							      'USD',
+							      [],
+							      date(2018,
+								   7,
+								   13)),
+		      2085)
+	      ],
+	      ?),
+  transaction(date(2018,7,13),
+	      'comment:?, comment2:Invest_In - current part',
+	      'InvestmentIncomeUnrealizedWithoutCurrencyMovementRaiffeisen_Switzerland_B_V_',
+	      [ coord(without_currency_movement_against_since(with_cost_per_unit('Raiffeisen Switzerland_B.V.',
+										 value('USD',
+										       1040071 rdiv 52125)),
+							      'USD',
+							      [],
+							      date(2018,
+								   7,
+								   13)),
+		      -2085),
+		coord(without_movement_after(with_cost_per_unit('Raiffeisen Switzerland_B.V.',
+								value('USD',
+								      1040071 rdiv 52125)),
+					     date(2018,7,13)),
+		      2085)
+	      ],
+	      ?),
+  transaction(date(2018,7,2),
+	      'comment:?, comment2:Invest_In - historical part',
+	      'InvestmentIncomeUnrealizedOnlyCurrencyMovementRaiffeisen_Switzerland_B_V_',
+	      [ coord(without_movement_after(with_cost_per_unit('Raiffeisen Switzerland_B.V.',
+								value('USD',
+								      1040071 rdiv 52125)),
+					     date(2018,7,13)),
+		      -2085),
+		coord(without_movement_after(without_currency_movement_against_since(with_cost_per_unit('Raiffeisen Switzerland_B.V.',
+													value('USD',
+													      1040071 rdiv 52125)),
+										     'USD',
+										     [],
+										     date(2018,
+											  7,
+											  2)),
+					     date(2018,7,13)),
+		      2085)
+	      ],
+	      ?),
+  transaction(date(2018,7,2),
+	      'comment:?, comment2:Invest_In - historical part',
+	      'InvestmentIncomeUnrealizedWithoutCurrencyMovementRaiffeisen_Switzerland_B_V_',
+	      [ coord(without_movement_after(without_currency_movement_against_since(with_cost_per_unit('Raiffeisen Switzerland_B.V.',
+													value('USD',
+													      1040071 rdiv 52125)),
+										     'USD',
+										     [],
+										     date(2018,
+											  7,
+											  2)),
+					     date(2018,7,13)),
+		      -2085),
+		coord('USD',1040071 rdiv 25)
+	      ],
+	      ?),
+  transaction(date(2018,7,10),
+	      'Accountancy_Fees - outgoing money',
+	      'BanksCHF_Bank',
+	      [coord('CHF',-1000)],
+	      instant),
+  transaction(date(2018,7,10),
+	      'Accountancy_Fees - outgoing money - currency movement adjustment - historical part',
+	      'CurrencyMovementCHF_Bank',
+	      [ coord(without_movement_after('CHF',date(2018,7,13)),1000),
+		coord(without_currency_movement_against_since('CHF',
+							      'CHF',
+							      [],
+							      date(2018,
+								   7,
+								   10)),
+		      -1000)
+	      ],
+	      tracking),
+  transaction(date(2018,7,13),
+	      'Accountancy_Fees - outgoing money - currency movement adjustment - current part',
+	      'CurrencyMovementCHF_Bank',
+	      [ coord('CHF',1000),
+		coord(without_movement_after('CHF',date(2018,7,13)),
+		      -1000)
+	      ],
+	      tracking),
+  transaction(date(2018,7,10),
+	      'Accountancy_Fees',
+	      'AccountingFees',
+	      [coord('CHF',1000)],
+	      instant),
+  transaction(date(2018,7,12),
+	      'Dispose_Off - incoming money',
+	      'BanksUSD_Bank',
+	      [coord('USD',90000)],
+	      instant),
+  transaction(date(2018,7,12),
+	      'Dispose_Off - incoming money - currency movement adjustment - historical part',
+	      'CurrencyMovementUSD_Bank',
+	      [ coord(without_movement_after('USD',date(2018,7,13)),
+		      -90000),
+		coord(without_currency_movement_against_since('USD',
+							      'USD',
+							      [],
+							      date(2018,
+								   7,
+								   12)),
+		      90000)
+	      ],
+	      tracking),
+  transaction(date(2018,7,13),
+	      'Dispose_Off - incoming money - currency movement adjustment - current part',
+	      'CurrencyMovementUSD_Bank',
+	      [ coord('USD',-90000),
+		coord(without_movement_after('USD',date(2018,7,13)),
+		      90000)
+	      ],
+	      tracking),
+  transaction(date(2018,7,12),
+	      'Dispose_Off',
+	      'FinancialInvestmentsRaiffeisen_Switzerland_B_V_',
+	      [ coord(with_cost_per_unit('Raiffeisen Switzerland_B.V.',
+					 value('USD',1040071 rdiv 52125)),
+		      -2085)
+	      ],
+	      instant),
+  transaction(date(2018,7,13),
+	      'comment:?, comment2:Dispose_Off - current part',
+	      'InvestmentIncomeUnrealizedOnlyCurrencyMovementRaiffeisen_Switzerland_B_V_',
+	      [ coord(with_cost_per_unit('Raiffeisen Switzerland_B.V.',
+					 value('USD',1040071 rdiv 52125)),
+		      2085),
+		coord(without_currency_movement_against_since(with_cost_per_unit('Raiffeisen Switzerland_B.V.',
+										 value('USD',
+										       1040071 rdiv 52125)),
+							      'USD',
+							      [],
+							      date(2018,
+								   7,
+								   13)),
+		      -2085)
+	      ],
+	      ?),
+  transaction(date(2018,7,13),
+	      'comment:?, comment2:Dispose_Off - current part',
+	      'InvestmentIncomeUnrealizedWithoutCurrencyMovementRaiffeisen_Switzerland_B_V_',
+	      [ coord(without_currency_movement_against_since(with_cost_per_unit('Raiffeisen Switzerland_B.V.',
+										 value('USD',
+										       1040071 rdiv 52125)),
+							      'USD',
+							      [],
+							      date(2018,
+								   7,
+								   13)),
+		      2085),
+		coord(without_movement_after(with_cost_per_unit('Raiffeisen Switzerland_B.V.',
+								value('USD',
+								      1040071 rdiv 52125)),
+					     date(2018,7,13)),
+		      -2085)
+	      ],
+	      ?),
+  transaction(date(2018,7,12),
+	      'comment:?, comment2:Dispose_Off - historical part',
+	      'InvestmentIncomeUnrealizedOnlyCurrencyMovementRaiffeisen_Switzerland_B_V_',
+	      [ coord(without_movement_after(with_cost_per_unit('Raiffeisen Switzerland_B.V.',
+								value('USD',
+								      1040071 rdiv 52125)),
+					     date(2018,7,13)),
+		      2085),
+		coord(without_movement_after(without_currency_movement_against_since(with_cost_per_unit('Raiffeisen Switzerland_B.V.',
+													value('USD',
+													      1040071 rdiv 52125)),
+										     'USD',
+										     [],
+										     date(2018,
+											  7,
+											  12)),
+					     date(2018,7,12)),
+		      -2085)
+	      ],
+	      ?),
+  transaction(date(2018,7,12),
+	      'comment:?, comment2:Dispose_Off - historical part',
+	      'InvestmentIncomeUnrealizedWithoutCurrencyMovementRaiffeisen_Switzerland_B_V_',
+	      [ coord(without_movement_after(without_currency_movement_against_since(with_cost_per_unit('Raiffeisen Switzerland_B.V.',
+													value('USD',
+													      1040071 rdiv 52125)),
+										     'USD',
+										     [],
+										     date(2018,
+											  7,
+											  12)),
+					     date(2018,7,12)),
+		      2085),
+		coord('USD',-1040071 rdiv 25)
+	      ],
+	      ?),
+  transaction(date(2018,7,12),
+	      'comment:?, comment2:Dispose_Off',
+	      'InvestmentIncomeRealizedOnlyCurrencyMovementRaiffeisen_Switzerland_B_V_',
+	      [ coord('USD',-90000.0),
+		coord(without_currency_movement_against_since('USD',
+							      'USD',
+							      [],
+							      date(2018,
+								   7,
+								   2)),
+		      90000.0)
+	      ],
+	      ?),
+  transaction(date(2018,7,12),
+	      'comment:?, comment2:Dispose_Off',
+	      'InvestmentIncomeRealizedWithoutCurrencyMovementRaiffeisen_Switzerland_B_V_',
+	      [ coord(without_currency_movement_against_since('USD',
+							      'USD',
+							      [],
+							      date(2018,
+								   7,
+								   2)),
+		      -90000.0),
+		coord('USD',1040071 rdiv 25)
+	      ],
+	      ?),
+  transaction(date(2018,8,13),
+	      'Bank_Charges - outgoing money',
+	      'BanksUSD_Bank',
+	      [coord('USD',-20)],
+	      instant),
+  transaction(date(2018,8,13),
+	      'Bank_Charges - outgoing money - currency movement adjustment - only current period',
+	      'CurrencyMovementUSD_Bank',
+	      [ coord('USD',20),
+		coord(without_currency_movement_against_since('USD',
+							      'USD',
+							      [],
+							      date(2018,
+								   8,
+								   13)),
+		      -20)
+	      ],
+	      tracking),
+  transaction(date(2018,8,13),
+	      'Bank_Charges',
+	      'BankCharges',
+	      [coord('USD',20)],
+	      instant),
+  transaction(date(2018,8,16),
+	      'Bank_Charges - outgoing money',
+	      'BanksCHF_Bank',
+	      [coord('CHF',-31477 rdiv 20)],
+	      instant),
+  transaction(date(2018,8,16),
+	      'Bank_Charges - outgoing money - currency movement adjustment - only current period',
+	      'CurrencyMovementCHF_Bank',
+	      [ coord('CHF',31477 rdiv 20),
+		coord(without_currency_movement_against_since('CHF',
+							      'CHF',
+							      [],
+							      date(2018,
+								   8,
+								   16)),
+		      -31477 rdiv 20)
+	      ],
+	      tracking),
+  transaction(date(2018,8,16),
+	      'Bank_Charges',
+	      'BankCharges',
+	      [coord('CHF',31477 rdiv 20)],
+	      instant),
+  transaction(date(2018,9,1),
+	      'Interest_Income - incoming money',
+	      'BanksUSD_Bank',
+	      [coord('USD',30)],
+	      instant),
+  transaction(date(2018,9,1),
+	      'Interest_Income - incoming money - currency movement adjustment - only current period',
+	      'CurrencyMovementUSD_Bank',
+	      [ coord('USD',-30),
+		coord(without_currency_movement_against_since('USD',
+							      'USD',
+							      [],
+							      date(2018,
+								   9,
+								   1)),
+		      30)
+	      ],
+	      tracking),
+  transaction(date(2018,9,1),
+	      'Interest_Income',
+	      'InterestEarned',
+	      [coord('USD',-30)],
+	      instant),
+  transaction(date(2018,10,1),
+	      'Invest_In - outgoing money',
+	      'BanksCHF_Bank',
+	      [coord('CHF',-808761 rdiv 10)],
+	      instant),
+  transaction(date(2018,10,1),
+	      'Invest_In - outgoing money - currency movement adjustment - only current period',
+	      'CurrencyMovementCHF_Bank',
+	      [ coord('CHF',808761 rdiv 10),
+		coord(without_currency_movement_against_since('CHF',
+							      'CHF',
+							      [],
+							      date(2018,
+								   10,
+								   1)),
+		      -808761 rdiv 10)
+	      ],
+	      tracking),
+  transaction(date(2018,10,1),
+	      'Invest_In',
+	      'FinancialInvestmentsLeonteq_N',
+	      [ coord(with_cost_per_unit('Leonteq_N',
+					 value('CHF',269587 rdiv 100000)),
+		      30000)
+	      ],
+	      instant),
+  transaction(date(2018,10,1),
+	      'comment:?, comment2:Invest_In - single period',
+	      'InvestmentIncomeUnrealizedOnlyCurrencyMovementLeonteq_N',
+	      [ coord(with_cost_per_unit('Leonteq_N',
+					 value('CHF',269587 rdiv 100000)),
+		      -30000),
+		coord(without_currency_movement_against_since(with_cost_per_unit('Leonteq_N',
+										 value('CHF',
+										       269587 rdiv 100000)),
+							      'CHF',
+							      [],
+							      date(2018,
+								   10,
+								   1)),
+		      30000)
+	      ],
+	      ?),
+  transaction(date(2018,10,1),
+	      'comment:?, comment2:Invest_In - single period',
+	      'InvestmentIncomeUnrealizedWithoutCurrencyMovementLeonteq_N',
+	      [ coord(without_currency_movement_against_since(with_cost_per_unit('Leonteq_N',
+										 value('CHF',
+										       269587 rdiv 100000)),
+							      'CHF',
+							      [],
+							      date(2018,
+								   10,
+								   1)),
+		      -30000),
+		coord('CHF',808761 rdiv 10)
+	      ],
+	      ?),
+  transaction(date(2018,10,15),
+	      'Transfers - outgoing money',
+	      'BanksCHF_Bank',
+	      [coord('CHF',-105000)],
+	      instant),
+  transaction(date(2018,10,15),
+	      'Transfers - outgoing money - currency movement adjustment - only current period',
+	      'CurrencyMovementCHF_Bank',
+	      [ coord('CHF',105000),
+		coord(without_currency_movement_against_since('CHF',
+							      'CHF',
+							      [],
+							      date(2018,
+								   10,
+								   15)),
+		      -105000)
+	      ],
+	      tracking),
+  transaction(date(2018,10,15),
+	      'Transfers',
+	      'ClearingAccount',
+	      [coord('CHF',105000)],
+	      instant),
+  transaction(date(2018,10,15),
+	      'Transfers - incoming money',
+	      'BanksUSD_Bank',
+	      [coord('USD',150000)],
+	      instant),
+  transaction(date(2018,10,15),
+	      'Transfers - incoming money - currency movement adjustment - only current period',
+	      'CurrencyMovementUSD_Bank',
+	      [ coord('USD',-150000),
+		coord(without_currency_movement_against_since('USD',
+							      'USD',
+							      [],
+							      date(2018,
+								   10,
+								   15)),
+		      150000)
+	      ],
+	      tracking),
+  transaction(date(2018,10,15),
+	      'Transfers',
+	      'ClearingAccount',
+	      [coord('USD',-150000)],
+	      instant),
+  transaction(date(2018,12,30),
+	      'Interest_Income - incoming money',
+	      'BanksCHF_Bank',
+	      [coord('CHF',1155)],
+	      instant),
+  transaction(date(2018,12,30),
+	      'Interest_Income - incoming money - currency movement adjustment - only current period',
+	      'CurrencyMovementCHF_Bank',
+	      [ coord('CHF',-1155),
+		coord(without_currency_movement_against_since('CHF',
+							      'CHF',
+							      [],
+							      date(2018,
+								   12,
+								   30)),
+		      1155)
+	      ],
+	      tracking),
+  transaction(date(2018,12,30),
+	      'Interest_Income',
+	      'InterestEarned',
+	      [coord('CHF',-1155)],
+	      instant),
+  transaction(date(2018,12,30),
+	      'Dispose_Off - incoming money',
+	      'BanksUSD_Bank',
+	      [coord('USD',145000)],
+	      instant),
+  transaction(date(2018,12,30),
+	      'Dispose_Off - incoming money - currency movement adjustment - only current period',
+	      'CurrencyMovementUSD_Bank',
+	      [ coord('USD',-145000),
+		coord(without_currency_movement_against_since('USD',
+							      'USD',
+							      [],
+							      date(2018,
+								   12,
+								   30)),
+		      145000)
+	      ],
+	      tracking),
+  transaction(date(2018,12,30),
+	      'Dispose_Off',
+	      'FinancialInvestmentsSG_Issuer_SA_USD_1',
+	      [ coord(with_cost_per_unit('SG Issuer_SA_USD_1',
+					 value('USD',62393 rdiv 62500)),
+		      -140000)
+	      ],
+	      instant),
+  transaction(date(2018,12,30),
+	      'Dispose_Off',
+	      'FinancialInvestmentsSG_Issuer_SA_USD_1',
+	      [ coord(with_cost_per_unit('SG Issuer_SA_USD_1',
+					 value('USD',436751 rdiv 31250)),
+		      -5000)
+	      ],
+	      instant),
+  transaction(date(2018,12,30),
+	      'comment:?, comment2:Dispose_Off - single period',
+	      'InvestmentIncomeUnrealizedOnlyCurrencyMovementSG_Issuer_SA_USD_1',
+	      [ coord(with_cost_per_unit('SG Issuer_SA_USD_1',
+					 value('USD',62393 rdiv 62500)),
+		      140000),
+		coord(without_currency_movement_against_since(with_cost_per_unit('SG Issuer_SA_USD_1',
+										 value('USD',
+										       62393 rdiv 62500)),
+							      'USD',
+							      [],
+							      date(2018,
+								   7,
+								   13)),
+		      -140000)
+	      ],
+	      ?),
+  transaction(date(2018,12,30),
+	      'comment:?, comment2:Dispose_Off - single period',
+	      'InvestmentIncomeUnrealizedWithoutCurrencyMovementSG_Issuer_SA_USD_1',
+	      [ coord(without_currency_movement_against_since(with_cost_per_unit('SG Issuer_SA_USD_1',
+										 value('USD',
+										       62393 rdiv 62500)),
+							      'USD',
+							      [],
+							      date(2018,
+								   7,
+								   13)),
+		      140000),
+		coord(without_movement_after(with_cost_per_unit('SG Issuer_SA_USD_1',
+								value('USD',
+								      62393 rdiv 62500)),
+					     date(2018,7,13)),
+		      -140000)
+	      ],
+	      ?),
+  transaction(date(2018,12,30),
+	      'comment:?, comment2:Dispose_Off - single period',
+	      'InvestmentIncomeUnrealizedOnlyCurrencyMovementSG_Issuer_SA_USD_1',
+	      [ coord(with_cost_per_unit('SG Issuer_SA_USD_1',
+					 value('USD',436751 rdiv 31250)),
+		      5000),
+		coord(without_currency_movement_against_since(with_cost_per_unit('SG Issuer_SA_USD_1',
+										 value('USD',
+										       436751 rdiv 31250)),
+							      'USD',
+							      [],
+							      date(2018,
+								   7,
+								   13)),
+		      -5000)
+	      ],
+	      ?),
+  transaction(date(2018,12,30),
+	      'comment:?, comment2:Dispose_Off - single period',
+	      'InvestmentIncomeUnrealizedWithoutCurrencyMovementSG_Issuer_SA_USD_1',
+	      [ coord(without_currency_movement_against_since(with_cost_per_unit('SG Issuer_SA_USD_1',
+										 value('USD',
+										       436751 rdiv 31250)),
+							      'USD',
+							      [],
+							      date(2018,
+								   7,
+								   13)),
+		      5000),
+		coord(without_movement_after(with_cost_per_unit('SG Issuer_SA_USD_1',
+								value('USD',
+								      436751 rdiv 31250)),
+					     date(2018,7,13)),
+		      -5000)
+	      ],
+	      ?),
+  transaction(date(2018,12,30),
+	      'comment:?, comment2:Dispose_Off',
+	      'InvestmentIncomeRealizedOnlyCurrencyMovementSG_Issuer_SA_USD_1',
+	      [ coord('USD',-140000),
+		coord(without_currency_movement_against_since('USD',
+							      'USD',
+							      [],
+							      date(2018,
+								   7,
+								   13)),
+		      140000)
+	      ],
+	      ?),
+  transaction(date(2018,12,30),
+	      'comment:?, comment2:Dispose_Off',
+	      'InvestmentIncomeRealizedWithoutCurrencyMovementSG_Issuer_SA_USD_1',
+	      [ coord(without_currency_movement_against_since('USD',
+							      'USD',
+							      [],
+							      date(2018,
+								   7,
+								   13)),
+		      -140000),
+		coord(without_movement_after('SG Issuer_SA_USD_1',
+					     date(2018,7,13)),
+		      140000)
+	      ],
+	      ?),
+  transaction(date(2018,12,30),
+	      'comment:?, comment2:Dispose_Off',
+	      'InvestmentIncomeRealizedOnlyCurrencyMovementSG_Issuer_SA_USD_1',
+	      [ coord('USD',-5000),
+		coord(without_currency_movement_against_since('USD',
+							      'USD',
+							      [],
+							      date(2018,
+								   7,
+								   13)),
+		      5000)
+	      ],
+	      ?),
+  transaction(date(2018,12,30),
+	      'comment:?, comment2:Dispose_Off',
+	      'InvestmentIncomeRealizedWithoutCurrencyMovementSG_Issuer_SA_USD_1',
+	      [ coord(without_currency_movement_against_since('USD',
+							      'USD',
+							      [],
+							      date(2018,
+								   7,
+								   13)),
+		      -5000),
+		coord(without_movement_after('SG Issuer_SA_USD_1',
+					     date(2018,7,13)),
+		      5000)
+	      ],
+	      ?),
+  transaction(date(2018,12,30),
+	      'Dispose_Off - incoming money',
+	      'BanksCHF_Bank',
+	      [coord('CHF',220000)],
+	      instant),
+  transaction(date(2018,12,30),
+	      'Dispose_Off - incoming money - currency movement adjustment - only current period',
+	      'CurrencyMovementCHF_Bank',
+	      [ coord('CHF',-220000),
+		coord(without_currency_movement_against_since('CHF',
+							      'CHF',
+							      [],
+							      date(2018,
+								   12,
+								   30)),
+		      220000)
+	      ],
+	      tracking),
+  transaction(date(2018,12,30),
+	      'Dispose_Off',
+	      'FinancialInvestmentsLeonteq_N',
+	      [ coord(with_cost_per_unit('Leonteq_N',
+					 value('CHF',269587 rdiv 100000)),
+		      -30000)
+	      ],
+	      instant),
+  transaction(date(2018,12,30),
+	      'comment:?, comment2:Dispose_Off - single period',
+	      'InvestmentIncomeUnrealizedOnlyCurrencyMovementLeonteq_N',
+	      [ coord(with_cost_per_unit('Leonteq_N',
+					 value('CHF',269587 rdiv 100000)),
+		      30000),
+		coord(without_currency_movement_against_since(with_cost_per_unit('Leonteq_N',
+										 value('CHF',
+										       269587 rdiv 100000)),
+							      'CHF',
+							      [],
+							      date(2018,
+								   10,
+								   1)),
+		      -30000)
+	      ],
+	      ?),
+  transaction(date(2018,12,30),
+	      'comment:?, comment2:Dispose_Off - single period',
+	      'InvestmentIncomeUnrealizedWithoutCurrencyMovementLeonteq_N',
+	      [ coord(without_currency_movement_against_since(with_cost_per_unit('Leonteq_N',
+										 value('CHF',
+										       269587 rdiv 100000)),
+							      'CHF',
+							      [],
+							      date(2018,
+								   10,
+								   1)),
+		      30000),
+		coord('CHF',-808761 rdiv 10)
+	      ],
+	      ?),
+  transaction(date(2018,12,30),
+	      'comment:?, comment2:Dispose_Off',
+	      'InvestmentIncomeRealizedOnlyCurrencyMovementLeonteq_N',
+	      [ coord('CHF',-220000.0),
+		coord(without_currency_movement_against_since('CHF',
+							      'CHF',
+							      [],
+							      date(2018,
+								   10,
+								   1)),
+		      220000.0)
+	      ],
+	      ?),
+  transaction(date(2018,12,30),
+	      'comment:?, comment2:Dispose_Off',
+	      'InvestmentIncomeRealizedWithoutCurrencyMovementLeonteq_N',
+	      [ coord(without_currency_movement_against_since('CHF',
+							      'CHF',
+							      [],
+							      date(2018,
+								   10,
+								   1)),
+		      -220000.0),
+		coord('CHF',808761 rdiv 10)
+	      ],
+	      ?)
+]
+
+Transaction_Transformation_Debug:
+s_transaction(date(2018,7,1),
+	      uri("1575373234.0167632.6/rdf#bn57"),
+	      [coord('USD',-3494008 rdiv 25)],
 	      'USD_Bank',
-	      vector([coord('SG Issuer_SA_USD_1',140000,0)]))==>
+	      vector([coord('SG Issuer_SA_USD_1',140000)]))==>
 date(2018,7,1): BanksUSD_Bank
   Invest_In - outgoing money
-  CR:U133:coord('USD',0,139760.32)
+  CR:U133:coord('USD',-3494008 rdiv 25)
 
 date(2018,7,1): CurrencyMovementUSD_Bank
   Invest_In - outgoing money - currency movement adjustment - historical part
-  DR:U134:coord(without_movement_after('USD',date(2018,7,13)),139760.32,0)
-  CR:U135:coord(without_currency_movement_against_since('USD','USD',[],date(2018,7,1)),0,139760.32)
+  DR:U134:coord(without_movement_after('USD',date(2018,7,13)),3494008 rdiv 25)
+  CR:U135:coord(without_currency_movement_against_since('USD','USD',[],date(2018,7,1)),-3494008 rdiv 25)
 
 date(2018,7,13): CurrencyMovementUSD_Bank
   Invest_In - outgoing money - currency movement adjustment - current part
-  DR:U133:coord('USD',139760.32,0)
-  CR:U134:coord(without_movement_after('USD',date(2018,7,13)),0,139760.32)
+  DR:U133:coord('USD',3494008 rdiv 25)
+  CR:U134:coord(without_movement_after('USD',date(2018,7,13)),-3494008 rdiv 25)
 
 date(2018,7,1): FinancialInvestmentsSG_Issuer_SA_USD_1
   Invest_In
-  DR:U136:coord(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',0.9982880000000001)),140000,0)
+  DR:U136:coord(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',62393 rdiv 62500)),140000)
 
 date(2018,7,13): InvestmentIncomeUnrealizedOnlyCurrencyMovementSG_Issuer_SA_USD_1
   comment:?, comment2:Invest_In - current part
-  CR:U136:coord(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',0.9982880000000001)),0,140000)
-  DR:U137:coord(without_currency_movement_against_since(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',0.9982880000000001)),'USD',[],date(2018,7,13)),140000,0)
+  CR:U136:coord(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',62393 rdiv 62500)),-140000)
+  DR:U137:coord(without_currency_movement_against_since(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',62393 rdiv 62500)),'USD',[],date(2018,7,13)),140000)
 
 date(2018,7,13): InvestmentIncomeUnrealizedWithoutCurrencyMovementSG_Issuer_SA_USD_1
   comment:?, comment2:Invest_In - current part
-  CR:U137:coord(without_currency_movement_against_since(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',0.9982880000000001)),'USD',[],date(2018,7,13)),0,140000)
-  DR:U138:coord(without_movement_after(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',0.9982880000000001)),date(2018,7,13)),140000,0)
+  CR:U137:coord(without_currency_movement_against_since(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',62393 rdiv 62500)),'USD',[],date(2018,7,13)),-140000)
+  DR:U138:coord(without_movement_after(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',62393 rdiv 62500)),date(2018,7,13)),140000)
 
 date(2018,7,1): InvestmentIncomeUnrealizedOnlyCurrencyMovementSG_Issuer_SA_USD_1
   comment:?, comment2:Invest_In - historical part
-  CR:U138:coord(without_movement_after(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',0.9982880000000001)),date(2018,7,13)),0,140000)
-  DR:U139:coord(without_movement_after(without_currency_movement_against_since(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',0.9982880000000001)),'USD',[],date(2018,7,1)),date(2018,7,13)),140000,0)
+  CR:U138:coord(without_movement_after(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',62393 rdiv 62500)),date(2018,7,13)),-140000)
+  DR:U139:coord(without_movement_after(without_currency_movement_against_since(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',62393 rdiv 62500)),'USD',[],date(2018,7,1)),date(2018,7,13)),140000)
 
 date(2018,7,1): InvestmentIncomeUnrealizedWithoutCurrencyMovementSG_Issuer_SA_USD_1
   comment:?, comment2:Invest_In - historical part
-  CR:U139:coord(without_movement_after(without_currency_movement_against_since(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',0.9982880000000001)),'USD',[],date(2018,7,1)),date(2018,7,13)),0,140000)
-  DR:U133:coord('USD',139760.32,0)
+  CR:U139:coord(without_movement_after(without_currency_movement_against_since(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',62393 rdiv 62500)),'USD',[],date(2018,7,1)),date(2018,7,13)),-140000)
+  DR:U133:coord('USD',3494008 rdiv 25)
 
 
 ====
 s_transaction(date(2018,7,2),
-	      'Invest_In',
-	      [coord('USD',0,41602.84)],
+	      uri("1575373234.0167632.6/rdf#bn57"),
+	      [coord('USD',-3494008 rdiv 25)],
 	      'USD_Bank',
-	      vector([coord('Raiffeisen Switzerland_B.V.',2085,0)]))==>
+	      vector([coord('SG Issuer_SA_USD_1',10000)]))==>
 date(2018,7,2): BanksUSD_Bank
   Invest_In - outgoing money
-  CR:U140:coord('USD',0,41602.84)
+  CR:U140:coord('USD',-3494008 rdiv 25)
 
 date(2018,7,2): CurrencyMovementUSD_Bank
   Invest_In - outgoing money - currency movement adjustment - historical part
-  DR:U141:coord(without_movement_after('USD',date(2018,7,13)),41602.84,0)
-  CR:U142:coord(without_currency_movement_against_since('USD','USD',[],date(2018,7,2)),0,41602.84)
+  DR:U141:coord(without_movement_after('USD',date(2018,7,13)),3494008 rdiv 25)
+  CR:U142:coord(without_currency_movement_against_since('USD','USD',[],date(2018,7,2)),-3494008 rdiv 25)
 
 date(2018,7,13): CurrencyMovementUSD_Bank
   Invest_In - outgoing money - currency movement adjustment - current part
-  DR:U140:coord('USD',41602.84,0)
-  CR:U141:coord(without_movement_after('USD',date(2018,7,13)),0,41602.84)
-
-date(2018,7,2): FinancialInvestmentsRaiffeisen_Switzerland_B_V_
-  Invest_In
-  DR:U143:coord(with_cost_per_unit('Raiffeisen Switzerland_B.V.',value('USD',19.953400479616306)),2085,0)
-
-date(2018,7,13): InvestmentIncomeUnrealizedOnlyCurrencyMovementRaiffeisen_Switzerland_B_V_
-  comment:?, comment2:Invest_In - current part
-  CR:U143:coord(with_cost_per_unit('Raiffeisen Switzerland_B.V.',value('USD',19.953400479616306)),0,2085)
-  DR:U144:coord(without_currency_movement_against_since(with_cost_per_unit('Raiffeisen Switzerland_B.V.',value('USD',19.953400479616306)),'USD',[],date(2018,7,13)),2085,0)
-
-date(2018,7,13): InvestmentIncomeUnrealizedWithoutCurrencyMovementRaiffeisen_Switzerland_B_V_
-  comment:?, comment2:Invest_In - current part
-  CR:U144:coord(without_currency_movement_against_since(with_cost_per_unit('Raiffeisen Switzerland_B.V.',value('USD',19.953400479616306)),'USD',[],date(2018,7,13)),0,2085)
-  DR:U145:coord(without_movement_after(with_cost_per_unit('Raiffeisen Switzerland_B.V.',value('USD',19.953400479616306)),date(2018,7,13)),2085,0)
-
-date(2018,7,2): InvestmentIncomeUnrealizedOnlyCurrencyMovementRaiffeisen_Switzerland_B_V_
-  comment:?, comment2:Invest_In - historical part
-  CR:U145:coord(without_movement_after(with_cost_per_unit('Raiffeisen Switzerland_B.V.',value('USD',19.953400479616306)),date(2018,7,13)),0,2085)
-  DR:U146:coord(without_movement_after(without_currency_movement_against_since(with_cost_per_unit('Raiffeisen Switzerland_B.V.',value('USD',19.953400479616306)),'USD',[],date(2018,7,2)),date(2018,7,13)),2085,0)
-
-date(2018,7,2): InvestmentIncomeUnrealizedWithoutCurrencyMovementRaiffeisen_Switzerland_B_V_
-  comment:?, comment2:Invest_In - historical part
-  CR:U146:coord(without_movement_after(without_currency_movement_against_since(with_cost_per_unit('Raiffeisen Switzerland_B.V.',value('USD',19.953400479616306)),'USD',[],date(2018,7,2)),date(2018,7,13)),0,2085)
-  DR:U140:coord('USD',41602.84,0)
-
-
-====
-s_transaction(date(2018,7,2),
-	      'Invest_In',
-	      [coord('USD',0,139760.32)],
-	      'USD_Bank',
-	      vector([coord('SG Issuer_SA_USD_1',10000,0)]))==>
-date(2018,7,2): BanksUSD_Bank
-  Invest_In - outgoing money
-  CR:U147:coord('USD',0,139760.32)
-
-date(2018,7,2): CurrencyMovementUSD_Bank
-  Invest_In - outgoing money - currency movement adjustment - historical part
-  DR:U148:coord(without_movement_after('USD',date(2018,7,13)),139760.32,0)
-  CR:U149:coord(without_currency_movement_against_since('USD','USD',[],date(2018,7,2)),0,139760.32)
-
-date(2018,7,13): CurrencyMovementUSD_Bank
-  Invest_In - outgoing money - currency movement adjustment - current part
-  DR:U147:coord('USD',139760.32,0)
-  CR:U148:coord(without_movement_after('USD',date(2018,7,13)),0,139760.32)
+  DR:U140:coord('USD',3494008 rdiv 25)
+  CR:U141:coord(without_movement_after('USD',date(2018,7,13)),-3494008 rdiv 25)
 
 date(2018,7,2): FinancialInvestmentsSG_Issuer_SA_USD_1
   Invest_In
-  DR:U150:coord(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',13.976032)),10000,0)
+  DR:U143:coord(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',436751 rdiv 31250)),10000)
 
 date(2018,7,13): InvestmentIncomeUnrealizedOnlyCurrencyMovementSG_Issuer_SA_USD_1
   comment:?, comment2:Invest_In - current part
-  CR:U150:coord(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',13.976032)),0,10000)
-  DR:U151:coord(without_currency_movement_against_since(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',13.976032)),'USD',[],date(2018,7,13)),10000,0)
+  CR:U143:coord(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',436751 rdiv 31250)),-10000)
+  DR:U144:coord(without_currency_movement_against_since(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',436751 rdiv 31250)),'USD',[],date(2018,7,13)),10000)
 
 date(2018,7,13): InvestmentIncomeUnrealizedWithoutCurrencyMovementSG_Issuer_SA_USD_1
   comment:?, comment2:Invest_In - current part
-  CR:U151:coord(without_currency_movement_against_since(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',13.976032)),'USD',[],date(2018,7,13)),0,10000)
-  DR:U152:coord(without_movement_after(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',13.976032)),date(2018,7,13)),10000,0)
+  CR:U144:coord(without_currency_movement_against_since(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',436751 rdiv 31250)),'USD',[],date(2018,7,13)),-10000)
+  DR:U145:coord(without_movement_after(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',436751 rdiv 31250)),date(2018,7,13)),10000)
 
 date(2018,7,2): InvestmentIncomeUnrealizedOnlyCurrencyMovementSG_Issuer_SA_USD_1
   comment:?, comment2:Invest_In - historical part
-  CR:U152:coord(without_movement_after(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',13.976032)),date(2018,7,13)),0,10000)
-  DR:U153:coord(without_movement_after(without_currency_movement_against_since(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',13.976032)),'USD',[],date(2018,7,2)),date(2018,7,13)),10000,0)
+  CR:U145:coord(without_movement_after(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',436751 rdiv 31250)),date(2018,7,13)),-10000)
+  DR:U146:coord(without_movement_after(without_currency_movement_against_since(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',436751 rdiv 31250)),'USD',[],date(2018,7,2)),date(2018,7,13)),10000)
 
 date(2018,7,2): InvestmentIncomeUnrealizedWithoutCurrencyMovementSG_Issuer_SA_USD_1
   comment:?, comment2:Invest_In - historical part
-  CR:U153:coord(without_movement_after(without_currency_movement_against_since(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',13.976032)),'USD',[],date(2018,7,2)),date(2018,7,13)),0,10000)
-  DR:U147:coord('USD',139760.32,0)
+  CR:U146:coord(without_movement_after(without_currency_movement_against_since(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',436751 rdiv 31250)),'USD',[],date(2018,7,2)),date(2018,7,13)),-10000)
+  DR:U140:coord('USD',3494008 rdiv 25)
+
+
+====
+s_transaction(date(2018,7,2),
+	      uri("1575373234.0167632.6/rdf#bn57"),
+	      [coord('USD',-1040071 rdiv 25)],
+	      'USD_Bank',
+	      vector([coord('Raiffeisen Switzerland_B.V.',2085)]))==>
+date(2018,7,2): BanksUSD_Bank
+  Invest_In - outgoing money
+  CR:U147:coord('USD',-1040071 rdiv 25)
+
+date(2018,7,2): CurrencyMovementUSD_Bank
+  Invest_In - outgoing money - currency movement adjustment - historical part
+  DR:U148:coord(without_movement_after('USD',date(2018,7,13)),1040071 rdiv 25)
+  CR:U149:coord(without_currency_movement_against_since('USD','USD',[],date(2018,7,2)),-1040071 rdiv 25)
+
+date(2018,7,13): CurrencyMovementUSD_Bank
+  Invest_In - outgoing money - currency movement adjustment - current part
+  DR:U147:coord('USD',1040071 rdiv 25)
+  CR:U148:coord(without_movement_after('USD',date(2018,7,13)),-1040071 rdiv 25)
+
+date(2018,7,2): FinancialInvestmentsRaiffeisen_Switzerland_B_V_
+  Invest_In
+  DR:U150:coord(with_cost_per_unit('Raiffeisen Switzerland_B.V.',value('USD',1040071 rdiv 52125)),2085)
+
+date(2018,7,13): InvestmentIncomeUnrealizedOnlyCurrencyMovementRaiffeisen_Switzerland_B_V_
+  comment:?, comment2:Invest_In - current part
+  CR:U150:coord(with_cost_per_unit('Raiffeisen Switzerland_B.V.',value('USD',1040071 rdiv 52125)),-2085)
+  DR:U151:coord(without_currency_movement_against_since(with_cost_per_unit('Raiffeisen Switzerland_B.V.',value('USD',1040071 rdiv 52125)),'USD',[],date(2018,7,13)),2085)
+
+date(2018,7,13): InvestmentIncomeUnrealizedWithoutCurrencyMovementRaiffeisen_Switzerland_B_V_
+  comment:?, comment2:Invest_In - current part
+  CR:U151:coord(without_currency_movement_against_since(with_cost_per_unit('Raiffeisen Switzerland_B.V.',value('USD',1040071 rdiv 52125)),'USD',[],date(2018,7,13)),-2085)
+  DR:U152:coord(without_movement_after(with_cost_per_unit('Raiffeisen Switzerland_B.V.',value('USD',1040071 rdiv 52125)),date(2018,7,13)),2085)
+
+date(2018,7,2): InvestmentIncomeUnrealizedOnlyCurrencyMovementRaiffeisen_Switzerland_B_V_
+  comment:?, comment2:Invest_In - historical part
+  CR:U152:coord(without_movement_after(with_cost_per_unit('Raiffeisen Switzerland_B.V.',value('USD',1040071 rdiv 52125)),date(2018,7,13)),-2085)
+  DR:U153:coord(without_movement_after(without_currency_movement_against_since(with_cost_per_unit('Raiffeisen Switzerland_B.V.',value('USD',1040071 rdiv 52125)),'USD',[],date(2018,7,2)),date(2018,7,13)),2085)
+
+date(2018,7,2): InvestmentIncomeUnrealizedWithoutCurrencyMovementRaiffeisen_Switzerland_B_V_
+  comment:?, comment2:Invest_In - historical part
+  CR:U153:coord(without_movement_after(without_currency_movement_against_since(with_cost_per_unit('Raiffeisen Switzerland_B.V.',value('USD',1040071 rdiv 52125)),'USD',[],date(2018,7,2)),date(2018,7,13)),-2085)
+  DR:U147:coord('USD',1040071 rdiv 25)
 
 
 ====
 s_transaction(date(2018,7,10),
-	      'Accountancy_Fees',
-	      [coord('CHF',0,1000)],
+	      uri("1575373234.0167632.6/rdf#bn64"),
+	      [coord('CHF',-1000)],
 	      'CHF_Bank',
 	      vector([]))==>
 date(2018,7,10): BanksCHF_Bank
   Accountancy_Fees - outgoing money
-  CR:U154:coord('CHF',0,1000)
+  CR:U154:coord('CHF',-1000)
 
 date(2018,7,10): CurrencyMovementCHF_Bank
   Accountancy_Fees - outgoing money - currency movement adjustment - historical part
-  DR:U155:coord(without_movement_after('CHF',date(2018,7,13)),1000,0)
-  CR:U156:coord(without_currency_movement_against_since('CHF','CHF',[],date(2018,7,10)),0,1000)
+  DR:U155:coord(without_movement_after('CHF',date(2018,7,13)),1000)
+  CR:U156:coord(without_currency_movement_against_since('CHF','CHF',[],date(2018,7,10)),-1000)
 
 date(2018,7,13): CurrencyMovementCHF_Bank
   Accountancy_Fees - outgoing money - currency movement adjustment - current part
-  DR:U154:coord('CHF',1000,0)
-  CR:U155:coord(without_movement_after('CHF',date(2018,7,13)),0,1000)
+  DR:U154:coord('CHF',1000)
+  CR:U155:coord(without_movement_after('CHF',date(2018,7,13)),-1000)
 
 date(2018,7,10): AccountingFees
   Accountancy_Fees
-  DR:U154:coord('CHF',1000,0)
+  DR:U154:coord('CHF',1000)
 
 
 ====
 s_transaction(date(2018,7,12),
-	      'Dispose_Off',
-	      [coord('USD',90000,0)],
+	      uri("1575373234.0167632.6/rdf#bn58"),
+	      [coord('USD',90000)],
 	      'USD_Bank',
-	      vector([coord('Raiffeisen Switzerland_B.V.',0,2085)]))==>
+	      vector([coord('Raiffeisen Switzerland_B.V.',-2085)]))==>
 date(2018,7,12): BanksUSD_Bank
   Dispose_Off - incoming money
-  DR:U157:coord('USD',90000,0)
+  DR:U157:coord('USD',90000)
 
 date(2018,7,12): CurrencyMovementUSD_Bank
   Dispose_Off - incoming money - currency movement adjustment - historical part
-  CR:U158:coord(without_movement_after('USD',date(2018,7,13)),0,90000)
-  DR:U159:coord(without_currency_movement_against_since('USD','USD',[],date(2018,7,12)),90000,0)
+  CR:U158:coord(without_movement_after('USD',date(2018,7,13)),-90000)
+  DR:U159:coord(without_currency_movement_against_since('USD','USD',[],date(2018,7,12)),90000)
 
 date(2018,7,13): CurrencyMovementUSD_Bank
   Dispose_Off - incoming money - currency movement adjustment - current part
-  CR:U157:coord('USD',0,90000)
-  DR:U158:coord(without_movement_after('USD',date(2018,7,13)),90000,0)
+  CR:U157:coord('USD',-90000)
+  DR:U158:coord(without_movement_after('USD',date(2018,7,13)),90000)
 
 date(2018,7,12): FinancialInvestmentsRaiffeisen_Switzerland_B_V_
   Dispose_Off
-  CR:U160:coord(with_cost_per_unit('Raiffeisen Switzerland_B.V.',value('USD',19.953400479616306)),0,2085)
+  CR:U160:coord(with_cost_per_unit('Raiffeisen Switzerland_B.V.',value('USD',1040071 rdiv 52125)),-2085)
 
 date(2018,7,13): InvestmentIncomeUnrealizedOnlyCurrencyMovementRaiffeisen_Switzerland_B_V_
   comment:?, comment2:Dispose_Off - current part
-  DR:U160:coord(with_cost_per_unit('Raiffeisen Switzerland_B.V.',value('USD',19.953400479616306)),2085,0)
-  CR:U161:coord(without_currency_movement_against_since(with_cost_per_unit('Raiffeisen Switzerland_B.V.',value('USD',19.953400479616306)),'USD',[],date(2018,7,13)),0,2085)
+  DR:U160:coord(with_cost_per_unit('Raiffeisen Switzerland_B.V.',value('USD',1040071 rdiv 52125)),2085)
+  CR:U161:coord(without_currency_movement_against_since(with_cost_per_unit('Raiffeisen Switzerland_B.V.',value('USD',1040071 rdiv 52125)),'USD',[],date(2018,7,13)),-2085)
 
 date(2018,7,13): InvestmentIncomeUnrealizedWithoutCurrencyMovementRaiffeisen_Switzerland_B_V_
   comment:?, comment2:Dispose_Off - current part
-  DR:U161:coord(without_currency_movement_against_since(with_cost_per_unit('Raiffeisen Switzerland_B.V.',value('USD',19.953400479616306)),'USD',[],date(2018,7,13)),2085,0)
-  CR:U162:coord(without_movement_after(with_cost_per_unit('Raiffeisen Switzerland_B.V.',value('USD',19.953400479616306)),date(2018,7,13)),0,2085)
+  DR:U161:coord(without_currency_movement_against_since(with_cost_per_unit('Raiffeisen Switzerland_B.V.',value('USD',1040071 rdiv 52125)),'USD',[],date(2018,7,13)),2085)
+  CR:U162:coord(without_movement_after(with_cost_per_unit('Raiffeisen Switzerland_B.V.',value('USD',1040071 rdiv 52125)),date(2018,7,13)),-2085)
 
 date(2018,7,12): InvestmentIncomeUnrealizedOnlyCurrencyMovementRaiffeisen_Switzerland_B_V_
   comment:?, comment2:Dispose_Off - historical part
-  DR:U162:coord(without_movement_after(with_cost_per_unit('Raiffeisen Switzerland_B.V.',value('USD',19.953400479616306)),date(2018,7,13)),2085,0)
-  CR:U163:coord(without_movement_after(without_currency_movement_against_since(with_cost_per_unit('Raiffeisen Switzerland_B.V.',value('USD',19.953400479616306)),'USD',[],date(2018,7,12)),date(2018,7,12)),0,2085)
+  DR:U162:coord(without_movement_after(with_cost_per_unit('Raiffeisen Switzerland_B.V.',value('USD',1040071 rdiv 52125)),date(2018,7,13)),2085)
+  CR:U163:coord(without_movement_after(without_currency_movement_against_since(with_cost_per_unit('Raiffeisen Switzerland_B.V.',value('USD',1040071 rdiv 52125)),'USD',[],date(2018,7,12)),date(2018,7,12)),-2085)
 
 date(2018,7,12): InvestmentIncomeUnrealizedWithoutCurrencyMovementRaiffeisen_Switzerland_B_V_
   comment:?, comment2:Dispose_Off - historical part
-  DR:U163:coord(without_movement_after(without_currency_movement_against_since(with_cost_per_unit('Raiffeisen Switzerland_B.V.',value('USD',19.953400479616306)),'USD',[],date(2018,7,12)),date(2018,7,12)),2085,0)
-  CR:U157:coord('USD',0,41602.84)
+  DR:U163:coord(without_movement_after(without_currency_movement_against_since(with_cost_per_unit('Raiffeisen Switzerland_B.V.',value('USD',1040071 rdiv 52125)),'USD',[],date(2018,7,12)),date(2018,7,12)),2085)
+  CR:U157:coord('USD',-1040071 rdiv 25)
 
 date(2018,7,12): InvestmentIncomeRealizedOnlyCurrencyMovementRaiffeisen_Switzerland_B_V_
   comment:?, comment2:Dispose_Off
-  CR:U157:coord('USD',0,90000.0)
-  DR:U164:coord(without_currency_movement_against_since('USD','USD',[],date(2018,7,2)),90000.0,0)
+  CR:U157:coord('USD',-90000.0)
+  DR:U164:coord(without_currency_movement_against_since('USD','USD',[],date(2018,7,2)),90000.0)
 
 date(2018,7,12): InvestmentIncomeRealizedWithoutCurrencyMovementRaiffeisen_Switzerland_B_V_
   comment:?, comment2:Dispose_Off
-  CR:U164:coord(without_currency_movement_against_since('USD','USD',[],date(2018,7,2)),0,90000.0)
-  DR:U157:coord('USD',41602.84,0)
+  CR:U164:coord(without_currency_movement_against_since('USD','USD',[],date(2018,7,2)),-90000.0)
+  DR:U157:coord('USD',1040071 rdiv 25)
 
 
 ====
 s_transaction(date(2018,8,13),
-	      'Bank_Charges',
-	      [coord('USD',0,20)],
+	      uri("1575373234.0167632.6/rdf#bn62"),
+	      [coord('USD',-20)],
 	      'USD_Bank',
 	      vector([]))==>
 date(2018,8,13): BanksUSD_Bank
   Bank_Charges - outgoing money
-  CR:U165:coord('USD',0,20)
+  CR:U165:coord('USD',-20)
 
 date(2018,8,13): CurrencyMovementUSD_Bank
   Bank_Charges - outgoing money - currency movement adjustment - only current period
-  DR:U165:coord('USD',20,0)
-  CR:U166:coord(without_currency_movement_against_since('USD','USD',[],date(2018,8,13)),0,20)
+  DR:U165:coord('USD',20)
+  CR:U166:coord(without_currency_movement_against_since('USD','USD',[],date(2018,8,13)),-20)
 
 date(2018,8,13): BankCharges
   Bank_Charges
-  DR:U165:coord('USD',20,0)
+  DR:U165:coord('USD',20)
 
 
 ====
 s_transaction(date(2018,8,16),
-	      'Bank_Charges',
-	      [coord('CHF',0,1573.85)],
+	      uri("1575373234.0167632.6/rdf#bn62"),
+	      [coord('CHF',-31477 rdiv 20)],
 	      'CHF_Bank',
 	      vector([]))==>
 date(2018,8,16): BanksCHF_Bank
   Bank_Charges - outgoing money
-  CR:U167:coord('CHF',0,1573.85)
+  CR:U167:coord('CHF',-31477 rdiv 20)
 
 date(2018,8,16): CurrencyMovementCHF_Bank
   Bank_Charges - outgoing money - currency movement adjustment - only current period
-  DR:U167:coord('CHF',1573.85,0)
-  CR:U168:coord(without_currency_movement_against_since('CHF','CHF',[],date(2018,8,16)),0,1573.85)
+  DR:U167:coord('CHF',31477 rdiv 20)
+  CR:U168:coord(without_currency_movement_against_since('CHF','CHF',[],date(2018,8,16)),-31477 rdiv 20)
 
 date(2018,8,16): BankCharges
   Bank_Charges
-  DR:U167:coord('CHF',1573.85,0)
+  DR:U167:coord('CHF',31477 rdiv 20)
 
 
 ====
 s_transaction(date(2018,9,1),
-	      'Interest_Income',
-	      [coord('USD',30,0)],
+	      uri("1575373234.0167632.6/rdf#bn65"),
+	      [coord('USD',30)],
 	      'USD_Bank',
 	      vector([]))==>
 date(2018,9,1): BanksUSD_Bank
   Interest_Income - incoming money
-  DR:U169:coord('USD',30,0)
+  DR:U169:coord('USD',30)
 
 date(2018,9,1): CurrencyMovementUSD_Bank
   Interest_Income - incoming money - currency movement adjustment - only current period
-  CR:U169:coord('USD',0,30)
-  DR:U170:coord(without_currency_movement_against_since('USD','USD',[],date(2018,9,1)),30,0)
+  CR:U169:coord('USD',-30)
+  DR:U170:coord(without_currency_movement_against_since('USD','USD',[],date(2018,9,1)),30)
 
 date(2018,9,1): InterestEarned
   Interest_Income
-  CR:U169:coord('USD',0,30)
+  CR:U169:coord('USD',-30)
 
 
 ====
 s_transaction(date(2018,10,1),
-	      'Invest_In',
-	      [coord('CHF',0,80876.1)],
+	      uri("1575373234.0167632.6/rdf#bn57"),
+	      [coord('CHF',-808761 rdiv 10)],
 	      'CHF_Bank',
-	      vector([coord('Leonteq_N',30000,0)]))==>
+	      vector([coord('Leonteq_N',30000)]))==>
 date(2018,10,1): BanksCHF_Bank
   Invest_In - outgoing money
-  CR:U171:coord('CHF',0,80876.1)
+  CR:U171:coord('CHF',-808761 rdiv 10)
 
 date(2018,10,1): CurrencyMovementCHF_Bank
   Invest_In - outgoing money - currency movement adjustment - only current period
-  DR:U171:coord('CHF',80876.1,0)
-  CR:U172:coord(without_currency_movement_against_since('CHF','CHF',[],date(2018,10,1)),0,80876.1)
+  DR:U171:coord('CHF',808761 rdiv 10)
+  CR:U172:coord(without_currency_movement_against_since('CHF','CHF',[],date(2018,10,1)),-808761 rdiv 10)
 
 date(2018,10,1): FinancialInvestmentsLeonteq_N
   Invest_In
-  DR:U173:coord(with_cost_per_unit('Leonteq_N',value('CHF',2.69587)),30000,0)
+  DR:U173:coord(with_cost_per_unit('Leonteq_N',value('CHF',269587 rdiv 100000)),30000)
 
 date(2018,10,1): InvestmentIncomeUnrealizedOnlyCurrencyMovementLeonteq_N
   comment:?, comment2:Invest_In - single period
-  CR:U173:coord(with_cost_per_unit('Leonteq_N',value('CHF',2.69587)),0,30000)
-  DR:U174:coord(without_currency_movement_against_since(with_cost_per_unit('Leonteq_N',value('CHF',2.69587)),'CHF',[],date(2018,10,1)),30000,0)
+  CR:U173:coord(with_cost_per_unit('Leonteq_N',value('CHF',269587 rdiv 100000)),-30000)
+  DR:U174:coord(without_currency_movement_against_since(with_cost_per_unit('Leonteq_N',value('CHF',269587 rdiv 100000)),'CHF',[],date(2018,10,1)),30000)
 
 date(2018,10,1): InvestmentIncomeUnrealizedWithoutCurrencyMovementLeonteq_N
   comment:?, comment2:Invest_In - single period
-  CR:U174:coord(without_currency_movement_against_since(with_cost_per_unit('Leonteq_N',value('CHF',2.69587)),'CHF',[],date(2018,10,1)),0,30000)
-  DR:U171:coord('CHF',80876.1,0)
+  CR:U174:coord(without_currency_movement_against_since(with_cost_per_unit('Leonteq_N',value('CHF',269587 rdiv 100000)),'CHF',[],date(2018,10,1)),-30000)
+  DR:U171:coord('CHF',808761 rdiv 10)
 
 
 ====
 s_transaction(date(2018,10,15),
-	      'Transfers',
-	      [coord('USD',150000,0)],
-	      'USD_Bank',
-	      vector([]))==>
-date(2018,10,15): BanksUSD_Bank
-  Transfers - incoming money
-  DR:U175:coord('USD',150000,0)
-
-date(2018,10,15): CurrencyMovementUSD_Bank
-  Transfers - incoming money - currency movement adjustment - only current period
-  CR:U175:coord('USD',0,150000)
-  DR:U176:coord(without_currency_movement_against_since('USD','USD',[],date(2018,10,15)),150000,0)
-
-date(2018,10,15): ClearingAccount
-  Transfers
-  CR:U175:coord('USD',0,150000)
-
-
-====
-s_transaction(date(2018,10,15),
-	      'Transfers',
-	      [coord('CHF',0,105000)],
+	      uri("1575373234.0167632.6/rdf#bn61"),
+	      [coord('CHF',-105000)],
 	      'CHF_Bank',
 	      vector([]))==>
 date(2018,10,15): BanksCHF_Bank
   Transfers - outgoing money
-  CR:U177:coord('CHF',0,105000)
+  CR:U175:coord('CHF',-105000)
 
 date(2018,10,15): CurrencyMovementCHF_Bank
   Transfers - outgoing money - currency movement adjustment - only current period
-  DR:U177:coord('CHF',105000,0)
-  CR:U178:coord(without_currency_movement_against_since('CHF','CHF',[],date(2018,10,15)),0,105000)
+  DR:U175:coord('CHF',105000)
+  CR:U176:coord(without_currency_movement_against_since('CHF','CHF',[],date(2018,10,15)),-105000)
 
 date(2018,10,15): ClearingAccount
   Transfers
-  DR:U177:coord('CHF',105000,0)
+  DR:U175:coord('CHF',105000)
 
 
 ====
-s_transaction(date(2018,12,30),
-	      'Dispose_Off',
-	      [coord('USD',145000,0)],
+s_transaction(date(2018,10,15),
+	      uri("1575373234.0167632.6/rdf#bn61"),
+	      [coord('USD',150000)],
 	      'USD_Bank',
-	      vector([coord('SG Issuer_SA_USD_1',0,145000)]))==>
-date(2018,12,30): BanksUSD_Bank
-  Dispose_Off - incoming money
-  DR:U179:coord('USD',145000,0)
+	      vector([]))==>
+date(2018,10,15): BanksUSD_Bank
+  Transfers - incoming money
+  DR:U177:coord('USD',150000)
 
-date(2018,12,30): CurrencyMovementUSD_Bank
-  Dispose_Off - incoming money - currency movement adjustment - only current period
-  CR:U179:coord('USD',0,145000)
-  DR:U180:coord(without_currency_movement_against_since('USD','USD',[],date(2018,12,30)),145000,0)
+date(2018,10,15): CurrencyMovementUSD_Bank
+  Transfers - incoming money - currency movement adjustment - only current period
+  CR:U177:coord('USD',-150000)
+  DR:U178:coord(without_currency_movement_against_since('USD','USD',[],date(2018,10,15)),150000)
 
-date(2018,12,30): FinancialInvestmentsSG_Issuer_SA_USD_1
-  Dispose_Off
-  CR:U181:coord(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',0.9982880000000001)),0,140000)
-
-date(2018,12,30): FinancialInvestmentsSG_Issuer_SA_USD_1
-  Dispose_Off
-  CR:U182:coord(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',13.976032)),0,5000)
-
-date(2018,12,30): InvestmentIncomeUnrealizedOnlyCurrencyMovementSG_Issuer_SA_USD_1
-  comment:?, comment2:Dispose_Off - single period
-  DR:U181:coord(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',0.9982880000000001)),140000,0)
-  CR:U183:coord(without_currency_movement_against_since(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',0.9982880000000001)),'USD',[],date(2018,7,13)),0,140000)
-
-date(2018,12,30): InvestmentIncomeUnrealizedWithoutCurrencyMovementSG_Issuer_SA_USD_1
-  comment:?, comment2:Dispose_Off - single period
-  DR:U183:coord(without_currency_movement_against_since(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',0.9982880000000001)),'USD',[],date(2018,7,13)),140000,0)
-  CR:U184:coord(without_movement_after(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',0.9982880000000001)),date(2018,7,13)),0,140000)
-
-date(2018,12,30): InvestmentIncomeUnrealizedOnlyCurrencyMovementSG_Issuer_SA_USD_1
-  comment:?, comment2:Dispose_Off - single period
-  DR:U182:coord(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',13.976032)),5000,0)
-  CR:U185:coord(without_currency_movement_against_since(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',13.976032)),'USD',[],date(2018,7,13)),0,5000)
-
-date(2018,12,30): InvestmentIncomeUnrealizedWithoutCurrencyMovementSG_Issuer_SA_USD_1
-  comment:?, comment2:Dispose_Off - single period
-  DR:U185:coord(without_currency_movement_against_since(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',13.976032)),'USD',[],date(2018,7,13)),5000,0)
-  CR:U186:coord(without_movement_after(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',13.976032)),date(2018,7,13)),0,5000)
-
-date(2018,12,30): InvestmentIncomeRealizedOnlyCurrencyMovementSG_Issuer_SA_USD_1
-  comment:?, comment2:Dispose_Off
-  CR:U179:coord('USD',0,140000)
-  DR:U187:coord(without_currency_movement_against_since('USD','USD',[],date(2018,7,13)),140000,0)
-
-date(2018,12,30): InvestmentIncomeRealizedWithoutCurrencyMovementSG_Issuer_SA_USD_1
-  comment:?, comment2:Dispose_Off
-  CR:U187:coord(without_currency_movement_against_since('USD','USD',[],date(2018,7,13)),0,140000)
-  DR:U188:coord(without_movement_after('SG Issuer_SA_USD_1',date(2018,7,13)),140000,0)
-
-date(2018,12,30): InvestmentIncomeRealizedOnlyCurrencyMovementSG_Issuer_SA_USD_1
-  comment:?, comment2:Dispose_Off
-  CR:U179:coord('USD',0,5000)
-  DR:U187:coord(without_currency_movement_against_since('USD','USD',[],date(2018,7,13)),5000,0)
-
-date(2018,12,30): InvestmentIncomeRealizedWithoutCurrencyMovementSG_Issuer_SA_USD_1
-  comment:?, comment2:Dispose_Off
-  CR:U187:coord(without_currency_movement_against_since('USD','USD',[],date(2018,7,13)),0,5000)
-  DR:U188:coord(without_movement_after('SG Issuer_SA_USD_1',date(2018,7,13)),5000,0)
+date(2018,10,15): ClearingAccount
+  Transfers
+  CR:U177:coord('USD',-150000)
 
 
 ====
 s_transaction(date(2018,12,30),
-	      'Interest_Income',
-	      [coord('CHF',1155,0)],
+	      uri("1575373234.0167632.6/rdf#bn65"),
+	      [coord('CHF',1155)],
 	      'CHF_Bank',
 	      vector([]))==>
 date(2018,12,30): BanksCHF_Bank
   Interest_Income - incoming money
-  DR:U189:coord('CHF',1155,0)
+  DR:U179:coord('CHF',1155)
 
 date(2018,12,30): CurrencyMovementCHF_Bank
   Interest_Income - incoming money - currency movement adjustment - only current period
-  CR:U189:coord('CHF',0,1155)
-  DR:U190:coord(without_currency_movement_against_since('CHF','CHF',[],date(2018,12,30)),1155,0)
+  CR:U179:coord('CHF',-1155)
+  DR:U180:coord(without_currency_movement_against_since('CHF','CHF',[],date(2018,12,30)),1155)
 
 date(2018,12,30): InterestEarned
   Interest_Income
-  CR:U189:coord('CHF',0,1155)
+  CR:U179:coord('CHF',-1155)
 
 
 ====
 s_transaction(date(2018,12,30),
-	      'Dispose_Off',
-	      [coord('CHF',220000,0)],
+	      uri("1575373234.0167632.6/rdf#bn58"),
+	      [coord('USD',145000)],
+	      'USD_Bank',
+	      vector([coord('SG Issuer_SA_USD_1',-145000)]))==>
+date(2018,12,30): BanksUSD_Bank
+  Dispose_Off - incoming money
+  DR:U181:coord('USD',145000)
+
+date(2018,12,30): CurrencyMovementUSD_Bank
+  Dispose_Off - incoming money - currency movement adjustment - only current period
+  CR:U181:coord('USD',-145000)
+  DR:U182:coord(without_currency_movement_against_since('USD','USD',[],date(2018,12,30)),145000)
+
+date(2018,12,30): FinancialInvestmentsSG_Issuer_SA_USD_1
+  Dispose_Off
+  CR:U183:coord(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',62393 rdiv 62500)),-140000)
+
+date(2018,12,30): FinancialInvestmentsSG_Issuer_SA_USD_1
+  Dispose_Off
+  CR:U184:coord(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',436751 rdiv 31250)),-5000)
+
+date(2018,12,30): InvestmentIncomeUnrealizedOnlyCurrencyMovementSG_Issuer_SA_USD_1
+  comment:?, comment2:Dispose_Off - single period
+  DR:U183:coord(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',62393 rdiv 62500)),140000)
+  CR:U185:coord(without_currency_movement_against_since(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',62393 rdiv 62500)),'USD',[],date(2018,7,13)),-140000)
+
+date(2018,12,30): InvestmentIncomeUnrealizedWithoutCurrencyMovementSG_Issuer_SA_USD_1
+  comment:?, comment2:Dispose_Off - single period
+  DR:U185:coord(without_currency_movement_against_since(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',62393 rdiv 62500)),'USD',[],date(2018,7,13)),140000)
+  CR:U186:coord(without_movement_after(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',62393 rdiv 62500)),date(2018,7,13)),-140000)
+
+date(2018,12,30): InvestmentIncomeUnrealizedOnlyCurrencyMovementSG_Issuer_SA_USD_1
+  comment:?, comment2:Dispose_Off - single period
+  DR:U184:coord(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',436751 rdiv 31250)),5000)
+  CR:U187:coord(without_currency_movement_against_since(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',436751 rdiv 31250)),'USD',[],date(2018,7,13)),-5000)
+
+date(2018,12,30): InvestmentIncomeUnrealizedWithoutCurrencyMovementSG_Issuer_SA_USD_1
+  comment:?, comment2:Dispose_Off - single period
+  DR:U187:coord(without_currency_movement_against_since(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',436751 rdiv 31250)),'USD',[],date(2018,7,13)),5000)
+  CR:U188:coord(without_movement_after(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',436751 rdiv 31250)),date(2018,7,13)),-5000)
+
+date(2018,12,30): InvestmentIncomeRealizedOnlyCurrencyMovementSG_Issuer_SA_USD_1
+  comment:?, comment2:Dispose_Off
+  CR:U181:coord('USD',-140000)
+  DR:U189:coord(without_currency_movement_against_since('USD','USD',[],date(2018,7,13)),140000)
+
+date(2018,12,30): InvestmentIncomeRealizedWithoutCurrencyMovementSG_Issuer_SA_USD_1
+  comment:?, comment2:Dispose_Off
+  CR:U189:coord(without_currency_movement_against_since('USD','USD',[],date(2018,7,13)),-140000)
+  DR:U190:coord(without_movement_after('SG Issuer_SA_USD_1',date(2018,7,13)),140000)
+
+date(2018,12,30): InvestmentIncomeRealizedOnlyCurrencyMovementSG_Issuer_SA_USD_1
+  comment:?, comment2:Dispose_Off
+  CR:U181:coord('USD',-5000)
+  DR:U189:coord(without_currency_movement_against_since('USD','USD',[],date(2018,7,13)),5000)
+
+date(2018,12,30): InvestmentIncomeRealizedWithoutCurrencyMovementSG_Issuer_SA_USD_1
+  comment:?, comment2:Dispose_Off
+  CR:U189:coord(without_currency_movement_against_since('USD','USD',[],date(2018,7,13)),-5000)
+  DR:U190:coord(without_movement_after('SG Issuer_SA_USD_1',date(2018,7,13)),5000)
+
+
+====
+s_transaction(date(2018,12,30),
+	      uri("1575373234.0167632.6/rdf#bn58"),
+	      [coord('CHF',220000)],
 	      'CHF_Bank',
-	      vector([coord('Leonteq_N',0,30000)]))==>
+	      vector([coord('Leonteq_N',-30000)]))==>
 date(2018,12,30): BanksCHF_Bank
   Dispose_Off - incoming money
-  DR:U191:coord('CHF',220000,0)
+  DR:U191:coord('CHF',220000)
 
 date(2018,12,30): CurrencyMovementCHF_Bank
   Dispose_Off - incoming money - currency movement adjustment - only current period
-  CR:U191:coord('CHF',0,220000)
-  DR:U192:coord(without_currency_movement_against_since('CHF','CHF',[],date(2018,12,30)),220000,0)
+  CR:U191:coord('CHF',-220000)
+  DR:U192:coord(without_currency_movement_against_since('CHF','CHF',[],date(2018,12,30)),220000)
 
 date(2018,12,30): FinancialInvestmentsLeonteq_N
   Dispose_Off
-  CR:U193:coord(with_cost_per_unit('Leonteq_N',value('CHF',2.69587)),0,30000)
+  CR:U193:coord(with_cost_per_unit('Leonteq_N',value('CHF',269587 rdiv 100000)),-30000)
 
 date(2018,12,30): InvestmentIncomeUnrealizedOnlyCurrencyMovementLeonteq_N
   comment:?, comment2:Dispose_Off - single period
-  DR:U193:coord(with_cost_per_unit('Leonteq_N',value('CHF',2.69587)),30000,0)
-  CR:U194:coord(without_currency_movement_against_since(with_cost_per_unit('Leonteq_N',value('CHF',2.69587)),'CHF',[],date(2018,10,1)),0,30000)
+  DR:U193:coord(with_cost_per_unit('Leonteq_N',value('CHF',269587 rdiv 100000)),30000)
+  CR:U194:coord(without_currency_movement_against_since(with_cost_per_unit('Leonteq_N',value('CHF',269587 rdiv 100000)),'CHF',[],date(2018,10,1)),-30000)
 
 date(2018,12,30): InvestmentIncomeUnrealizedWithoutCurrencyMovementLeonteq_N
   comment:?, comment2:Dispose_Off - single period
-  DR:U194:coord(without_currency_movement_against_since(with_cost_per_unit('Leonteq_N',value('CHF',2.69587)),'CHF',[],date(2018,10,1)),30000,0)
-  CR:U191:coord('CHF',0,80876.1)
+  DR:U194:coord(without_currency_movement_against_since(with_cost_per_unit('Leonteq_N',value('CHF',269587 rdiv 100000)),'CHF',[],date(2018,10,1)),30000)
+  CR:U191:coord('CHF',-808761 rdiv 10)
 
 date(2018,12,30): InvestmentIncomeRealizedOnlyCurrencyMovementLeonteq_N
   comment:?, comment2:Dispose_Off
-  CR:U191:coord('CHF',0,220000.0)
-  DR:U195:coord(without_currency_movement_against_since('CHF','CHF',[],date(2018,10,1)),220000.0,0)
+  CR:U191:coord('CHF',-220000.0)
+  DR:U195:coord(without_currency_movement_against_since('CHF','CHF',[],date(2018,10,1)),220000.0)
 
 date(2018,12,30): InvestmentIncomeRealizedWithoutCurrencyMovementLeonteq_N
   comment:?, comment2:Dispose_Off
-  CR:U195:coord(without_currency_movement_against_since('CHF','CHF',[],date(2018,10,1)),0,220000.0)
-  DR:U191:coord('CHF',80876.1,0)
+  CR:U195:coord(without_currency_movement_against_since('CHF','CHF',[],date(2018,10,1)),-220000.0)
+  DR:U191:coord('CHF',808761 rdiv 10)
 
 
 ====
@@ -816,14 +1746,14 @@ done.
   <xbrli:unit id="U-CHF"><xbrli:measure>iso4217:CHF</xbrli:measure></xbrli:unit>
 <!-- 'USD' -->
   <xbrli:unit id="U-USD"><xbrli:measure>iso4217:USD</xbrli:measure></xbrli:unit>
-<!-- with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',13.976032)) -->
-  <xbrli:unit id="U-with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_13_976032__"><xbrli:measure>iso4217:with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_13_976032__</xbrli:measure></xbrli:unit>
+<!-- with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',436751 rdiv 31250)) -->
+  <xbrli:unit id="U-with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_436751_rdiv_31250__"><xbrli:measure>iso4217:with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_436751_rdiv_31250__</xbrli:measure></xbrli:unit>
 <!-- without_movement_after('SG Issuer_SA_USD_1',date(2018,7,13)) -->
   <xbrli:unit id="U-without_movement_after_SG_Issuer_SA_USD_1_date_2018_7_13__"><xbrli:measure>iso4217:without_movement_after_SG_Issuer_SA_USD_1_date_2018_7_13__</xbrli:measure></xbrli:unit>
-<!-- without_movement_after(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',0.9982880000000001)),date(2018,7,13)) -->
-  <xbrli:unit id="U-without_movement_after_with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_0_9982880000000001___date_2018_7_13__"><xbrli:measure>iso4217:without_movement_after_with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_0_9982880000000001___date_2018_7_13__</xbrli:measure></xbrli:unit>
-<!-- without_movement_after(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',13.976032)),date(2018,7,13)) -->
-  <xbrli:unit id="U-without_movement_after_with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_13_976032___date_2018_7_13__"><xbrli:measure>iso4217:without_movement_after_with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_13_976032___date_2018_7_13__</xbrli:measure></xbrli:unit>
+<!-- without_movement_after(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',62393 rdiv 62500)),date(2018,7,13)) -->
+  <xbrli:unit id="U-without_movement_after_with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_62393_rdiv_62500___date_2018_7_13__"><xbrli:measure>iso4217:without_movement_after_with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_62393_rdiv_62500___date_2018_7_13__</xbrli:measure></xbrli:unit>
+<!-- without_movement_after(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',436751 rdiv 31250)),date(2018,7,13)) -->
+  <xbrli:unit id="U-without_movement_after_with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_436751_rdiv_31250___date_2018_7_13__"><xbrli:measure>iso4217:without_movement_after_with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_436751_rdiv_31250___date_2018_7_13__</xbrli:measure></xbrli:unit>
 <!-- without_currency_movement_against_since('CHF','CHF',[],date(2018,7,10)) -->
   <xbrli:unit id="U-without_currency_movement_against_since_CHF_CHF____date_2018_7_10__"><xbrli:measure>iso4217:without_currency_movement_against_since_CHF_CHF____date_2018_7_10__</xbrli:measure></xbrli:unit>
 <!-- without_currency_movement_against_since('CHF','CHF',[],date(2018,8,16)) -->
@@ -854,16 +1784,16 @@ done.
   <xbrli:unit id="U-without_movement_after_USD_date_2018_7_13__"><xbrli:measure>iso4217:without_movement_after_USD_date_2018_7_13__</xbrli:measure></xbrli:unit>
 <!-- without_currency_movement_against_since('USD','USD',[],date(2018,7,13)) -->
   <xbrli:unit id="U-without_currency_movement_against_since_USD_USD____date_2018_7_13__"><xbrli:measure>iso4217:without_currency_movement_against_since_USD_USD____date_2018_7_13__</xbrli:measure></xbrli:unit>
-<!-- without_currency_movement_against_since(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',13.976032)),'USD',[],date(2018,7,13)) -->
-  <xbrli:unit id="U-without_currency_movement_against_since_with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_13_976032___USD____date_2018_7_13__"><xbrli:measure>iso4217:without_currency_movement_against_since_with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_13_976032___USD____date_2018_7_13__</xbrli:measure></xbrli:unit>
-<!-- without_movement_after(without_currency_movement_against_since(with_cost_per_unit('Raiffeisen Switzerland_B.V.',value('USD',19.953400479616306)),'USD',[],date(2018,7,2)),date(2018,7,13)) -->
-  <xbrli:unit id="U-without_movement_after_without_currency_movement_against_since_with_cost_per_unit_Raiffeisen_Switzerland_B_V__value_USD_19_953400479616306___USD____date_2018_7_2___date_2018_7_13__"><xbrli:measure>iso4217:without_movement_after_without_currency_movement_against_since_with_cost_per_unit_Raiffeisen_Switzerland_B_V__value_USD_19_953400479616306___USD____date_2018_7_2___date_2018_7_13__</xbrli:measure></xbrli:unit>
-<!-- without_movement_after(without_currency_movement_against_since(with_cost_per_unit('Raiffeisen Switzerland_B.V.',value('USD',19.953400479616306)),'USD',[],date(2018,7,12)),date(2018,7,12)) -->
-  <xbrli:unit id="U-without_movement_after_without_currency_movement_against_since_with_cost_per_unit_Raiffeisen_Switzerland_B_V__value_USD_19_953400479616306___USD____date_2018_7_12___date_2018_7_12__"><xbrli:measure>iso4217:without_movement_after_without_currency_movement_against_since_with_cost_per_unit_Raiffeisen_Switzerland_B_V__value_USD_19_953400479616306___USD____date_2018_7_12___date_2018_7_12__</xbrli:measure></xbrli:unit>
-<!-- without_movement_after(without_currency_movement_against_since(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',0.9982880000000001)),'USD',[],date(2018,7,1)),date(2018,7,13)) -->
-  <xbrli:unit id="U-without_movement_after_without_currency_movement_against_since_with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_0_9982880000000001___USD____date_2018_7_1___date_2018_7_13__"><xbrli:measure>iso4217:without_movement_after_without_currency_movement_against_since_with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_0_9982880000000001___USD____date_2018_7_1___date_2018_7_13__</xbrli:measure></xbrli:unit>
-<!-- without_movement_after(without_currency_movement_against_since(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',13.976032)),'USD',[],date(2018,7,2)),date(2018,7,13)) -->
-  <xbrli:unit id="U-without_movement_after_without_currency_movement_against_since_with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_13_976032___USD____date_2018_7_2___date_2018_7_13__"><xbrli:measure>iso4217:without_movement_after_without_currency_movement_against_since_with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_13_976032___USD____date_2018_7_2___date_2018_7_13__</xbrli:measure></xbrli:unit>
+<!-- without_currency_movement_against_since(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',436751 rdiv 31250)),'USD',[],date(2018,7,13)) -->
+  <xbrli:unit id="U-without_currency_movement_against_since_with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_436751_rdiv_31250___USD____date_2018_7_13__"><xbrli:measure>iso4217:without_currency_movement_against_since_with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_436751_rdiv_31250___USD____date_2018_7_13__</xbrli:measure></xbrli:unit>
+<!-- without_movement_after(without_currency_movement_against_since(with_cost_per_unit('Raiffeisen Switzerland_B.V.',value('USD',1040071 rdiv 52125)),'USD',[],date(2018,7,2)),date(2018,7,13)) -->
+  <xbrli:unit id="U-without_movement_after_without_currency_movement_against_since_with_cost_per_unit_Raiffeisen_Switzerland_B_V__value_USD_1040071_rdiv_52125___USD____date_2018_7_2___date_2018_7_13__"><xbrli:measure>iso4217:without_movement_after_without_currency_movement_against_since_with_cost_per_unit_Raiffeisen_Switzerland_B_V__value_USD_1040071_rdiv_52125___USD____date_2018_7_2___date_2018_7_13__</xbrli:measure></xbrli:unit>
+<!-- without_movement_after(without_currency_movement_against_since(with_cost_per_unit('Raiffeisen Switzerland_B.V.',value('USD',1040071 rdiv 52125)),'USD',[],date(2018,7,12)),date(2018,7,12)) -->
+  <xbrli:unit id="U-without_movement_after_without_currency_movement_against_since_with_cost_per_unit_Raiffeisen_Switzerland_B_V__value_USD_1040071_rdiv_52125___USD____date_2018_7_12___date_2018_7_12__"><xbrli:measure>iso4217:without_movement_after_without_currency_movement_against_since_with_cost_per_unit_Raiffeisen_Switzerland_B_V__value_USD_1040071_rdiv_52125___USD____date_2018_7_12___date_2018_7_12__</xbrli:measure></xbrli:unit>
+<!-- without_movement_after(without_currency_movement_against_since(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',62393 rdiv 62500)),'USD',[],date(2018,7,1)),date(2018,7,13)) -->
+  <xbrli:unit id="U-without_movement_after_without_currency_movement_against_since_with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_62393_rdiv_62500___USD____date_2018_7_1___date_2018_7_13__"><xbrli:measure>iso4217:without_movement_after_without_currency_movement_against_since_with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_62393_rdiv_62500___USD____date_2018_7_1___date_2018_7_13__</xbrli:measure></xbrli:unit>
+<!-- without_movement_after(without_currency_movement_against_since(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',436751 rdiv 31250)),'USD',[],date(2018,7,2)),date(2018,7,13)) -->
+  <xbrli:unit id="U-without_movement_after_without_currency_movement_against_since_with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_436751_rdiv_31250___USD____date_2018_7_2___date_2018_7_13__"><xbrli:measure>iso4217:without_movement_after_without_currency_movement_against_since_with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_436751_rdiv_31250___USD____date_2018_7_2___date_2018_7_13__</xbrli:measure></xbrli:unit>
 <!-- 'AUD' -->
   <xbrli:unit id="U-AUD"><xbrli:measure>iso4217:AUD</xbrli:measure></xbrli:unit>
 
@@ -1008,34 +1938,34 @@ done.
   <basic:InvestmentIncomeRealizedWithoutCurrencyMovement contextRef="D-2019-SG_Issuer_SA_USD_1" unitRef="U-without_currency_movement_against_since_USD_USD____date_2018_7_13__" decimals="INF">145,000.00</basic:InvestmentIncomeRealizedWithoutCurrencyMovement>
   <basic:InvestmentIncomeUnrealizedOnlyCurrencyMovement contextRef="D-2019-Leonteq_N" unitRef="U-AUD" decimals="INF">0.00</basic:InvestmentIncomeUnrealizedOnlyCurrencyMovement>
   <basic:InvestmentIncomeUnrealizedOnlyCurrencyMovement contextRef="D-2019-Raiffeisen_Switzerland_B_V_" unitRef="U-AUD" decimals="INF">0.00</basic:InvestmentIncomeUnrealizedOnlyCurrencyMovement>
-  <basic:InvestmentIncomeUnrealizedOnlyCurrencyMovement contextRef="D-2019-SG_Issuer_SA_USD_1" unitRef="U-with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_13_976032__" decimals="INF">5,000.00</basic:InvestmentIncomeUnrealizedOnlyCurrencyMovement>
-  <basic:InvestmentIncomeUnrealizedOnlyCurrencyMovement contextRef="D-2019-SG_Issuer_SA_USD_1" unitRef="U-without_currency_movement_against_since_with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_13_976032___USD____date_2018_7_13__" decimals="INF">-5,000.00</basic:InvestmentIncomeUnrealizedOnlyCurrencyMovement>
+  <basic:InvestmentIncomeUnrealizedOnlyCurrencyMovement contextRef="D-2019-SG_Issuer_SA_USD_1" unitRef="U-with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_436751_rdiv_31250__" decimals="INF">5,000.00</basic:InvestmentIncomeUnrealizedOnlyCurrencyMovement>
+  <basic:InvestmentIncomeUnrealizedOnlyCurrencyMovement contextRef="D-2019-SG_Issuer_SA_USD_1" unitRef="U-without_currency_movement_against_since_with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_436751_rdiv_31250___USD____date_2018_7_13__" decimals="INF">-5,000.00</basic:InvestmentIncomeUnrealizedOnlyCurrencyMovement>
   <basic:InvestmentIncomeUnrealizedWithoutCurrencyMovement contextRef="D-2019-Leonteq_N" unitRef="U-AUD" decimals="INF">0.00</basic:InvestmentIncomeUnrealizedWithoutCurrencyMovement>
   <basic:InvestmentIncomeUnrealizedWithoutCurrencyMovement contextRef="D-2019-Raiffeisen_Switzerland_B_V_" unitRef="U-AUD" decimals="INF">0.00</basic:InvestmentIncomeUnrealizedWithoutCurrencyMovement>
-  <basic:InvestmentIncomeUnrealizedWithoutCurrencyMovement contextRef="D-2019-SG_Issuer_SA_USD_1" unitRef="U-without_movement_after_with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_13_976032___date_2018_7_13__" decimals="INF">-5,000.00</basic:InvestmentIncomeUnrealizedWithoutCurrencyMovement>
-  <basic:InvestmentIncomeUnrealizedWithoutCurrencyMovement contextRef="D-2019-SG_Issuer_SA_USD_1" unitRef="U-without_currency_movement_against_since_with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_13_976032___USD____date_2018_7_13__" decimals="INF">5,000.00</basic:InvestmentIncomeUnrealizedWithoutCurrencyMovement>
+  <basic:InvestmentIncomeUnrealizedWithoutCurrencyMovement contextRef="D-2019-SG_Issuer_SA_USD_1" unitRef="U-without_movement_after_with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_436751_rdiv_31250___date_2018_7_13__" decimals="INF">-5,000.00</basic:InvestmentIncomeUnrealizedWithoutCurrencyMovement>
+  <basic:InvestmentIncomeUnrealizedWithoutCurrencyMovement contextRef="D-2019-SG_Issuer_SA_USD_1" unitRef="U-without_currency_movement_against_since_with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_436751_rdiv_31250___USD____date_2018_7_13__" decimals="INF">5,000.00</basic:InvestmentIncomeUnrealizedWithoutCurrencyMovement>
 
 <!-- balance sheet: -->
  <basic:NetAssets contextRef="I-2019" unitRef="U-CHF" decimals="INF">32,705.05</basic:NetAssets>
  <basic:NetAssets contextRef="I-2019" unitRef="U-USD" decimals="INF">63,886.52</basic:NetAssets>
- <basic:NetAssets contextRef="I-2019" unitRef="U-with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_13_976032__" decimals="INF">5,000.00</basic:NetAssets>
+ <basic:NetAssets contextRef="I-2019" unitRef="U-with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_436751_rdiv_31250__" decimals="INF">5,000.00</basic:NetAssets>
   <basic:Assets contextRef="I-2019" unitRef="U-CHF" decimals="INF">32,705.05</basic:Assets>
   <basic:Assets contextRef="I-2019" unitRef="U-USD" decimals="INF">63,886.52</basic:Assets>
-  <basic:Assets contextRef="I-2019" unitRef="U-with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_13_976032__" decimals="INF">5,000.00</basic:Assets>
+  <basic:Assets contextRef="I-2019" unitRef="U-with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_436751_rdiv_31250__" decimals="INF">5,000.00</basic:Assets>
    <basic:CurrentAssets contextRef="I-2019" unitRef="U-CHF" decimals="INF">32,705.05</basic:CurrentAssets>
    <basic:CurrentAssets contextRef="I-2019" unitRef="U-USD" decimals="INF">63,886.52</basic:CurrentAssets>
     <basic:CashAndCashEquivalents contextRef="I-2019" unitRef="U-CHF" decimals="INF">32,705.05</basic:CashAndCashEquivalents>
     <basic:CashAndCashEquivalents contextRef="I-2019" unitRef="U-USD" decimals="INF">63,886.52</basic:CashAndCashEquivalents>
      <basic:Banks contextRef="I-2019" unitRef="U-CHF" decimals="INF">32,705.05</basic:Banks>
      <basic:Banks contextRef="I-2019" unitRef="U-USD" decimals="INF">63,886.52</basic:Banks>
-   <basic:NoncurrentAssets contextRef="I-2019" unitRef="U-with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_13_976032__" decimals="INF">5,000.00</basic:NoncurrentAssets>
-    <basic:FinancialInvestments contextRef="I-2019" unitRef="U-with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_13_976032__" decimals="INF">5,000.00</basic:FinancialInvestments>
+   <basic:NoncurrentAssets contextRef="I-2019" unitRef="U-with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_436751_rdiv_31250__" decimals="INF">5,000.00</basic:NoncurrentAssets>
+    <basic:FinancialInvestments contextRef="I-2019" unitRef="U-with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_436751_rdiv_31250__" decimals="INF">5,000.00</basic:FinancialInvestments>
  <basic:Equity contextRef="I-2019" unitRef="U-CHF" decimals="INF">65,410.10</basic:Equity>
  <basic:Equity contextRef="I-2019" unitRef="U-USD" decimals="INF">127,773.04</basic:Equity>
- <basic:Equity contextRef="I-2019" unitRef="U-with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_13_976032__" decimals="INF">5,000.00</basic:Equity>
+ <basic:Equity contextRef="I-2019" unitRef="U-with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_436751_rdiv_31250__" decimals="INF">5,000.00</basic:Equity>
  <basic:Equity contextRef="I-2019" unitRef="U-without_movement_after_SG_Issuer_SA_USD_1_date_2018_7_13__" decimals="INF">-145,000.00</basic:Equity>
- <basic:Equity contextRef="I-2019" unitRef="U-without_movement_after_with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_0_9982880000000001___date_2018_7_13__" decimals="INF">140,000.00</basic:Equity>
- <basic:Equity contextRef="I-2019" unitRef="U-without_movement_after_with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_13_976032___date_2018_7_13__" decimals="INF">5,000.00</basic:Equity>
+ <basic:Equity contextRef="I-2019" unitRef="U-without_movement_after_with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_62393_rdiv_62500___date_2018_7_13__" decimals="INF">140,000.00</basic:Equity>
+ <basic:Equity contextRef="I-2019" unitRef="U-without_movement_after_with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_436751_rdiv_31250___date_2018_7_13__" decimals="INF">5,000.00</basic:Equity>
  <basic:Equity contextRef="I-2019" unitRef="U-without_currency_movement_against_since_CHF_CHF____date_2018_7_10__" decimals="INF">1,000.00</basic:Equity>
  <basic:Equity contextRef="I-2019" unitRef="U-without_currency_movement_against_since_CHF_CHF____date_2018_8_16__" decimals="INF">1,573.85</basic:Equity>
  <basic:Equity contextRef="I-2019" unitRef="U-without_currency_movement_against_since_CHF_CHF____date_2018_10_1__" decimals="INF">80,876.10</basic:Equity>
@@ -1050,10 +1980,10 @@ done.
  <basic:Equity contextRef="I-2019" unitRef="U-without_currency_movement_against_since_USD_USD____date_2018_12_30__" decimals="INF">-145,000.00</basic:Equity>
   <basic:RetainedEarnings contextRef="I-2019" unitRef="U-CHF" decimals="INF">65,410.10</basic:RetainedEarnings>
   <basic:RetainedEarnings contextRef="I-2019" unitRef="U-USD" decimals="INF">127,773.04</basic:RetainedEarnings>
-  <basic:RetainedEarnings contextRef="I-2019" unitRef="U-with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_13_976032__" decimals="INF">5,000.00</basic:RetainedEarnings>
+  <basic:RetainedEarnings contextRef="I-2019" unitRef="U-with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_436751_rdiv_31250__" decimals="INF">5,000.00</basic:RetainedEarnings>
   <basic:RetainedEarnings contextRef="I-2019" unitRef="U-without_movement_after_SG_Issuer_SA_USD_1_date_2018_7_13__" decimals="INF">-145,000.00</basic:RetainedEarnings>
-  <basic:RetainedEarnings contextRef="I-2019" unitRef="U-without_movement_after_with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_0_9982880000000001___date_2018_7_13__" decimals="INF">140,000.00</basic:RetainedEarnings>
-  <basic:RetainedEarnings contextRef="I-2019" unitRef="U-without_movement_after_with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_13_976032___date_2018_7_13__" decimals="INF">5,000.00</basic:RetainedEarnings>
+  <basic:RetainedEarnings contextRef="I-2019" unitRef="U-without_movement_after_with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_62393_rdiv_62500___date_2018_7_13__" decimals="INF">140,000.00</basic:RetainedEarnings>
+  <basic:RetainedEarnings contextRef="I-2019" unitRef="U-without_movement_after_with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_436751_rdiv_31250___date_2018_7_13__" decimals="INF">5,000.00</basic:RetainedEarnings>
   <basic:RetainedEarnings contextRef="I-2019" unitRef="U-without_currency_movement_against_since_CHF_CHF____date_2018_7_10__" decimals="INF">1,000.00</basic:RetainedEarnings>
   <basic:RetainedEarnings contextRef="I-2019" unitRef="U-without_currency_movement_against_since_CHF_CHF____date_2018_8_16__" decimals="INF">1,573.85</basic:RetainedEarnings>
   <basic:RetainedEarnings contextRef="I-2019" unitRef="U-without_currency_movement_against_since_CHF_CHF____date_2018_10_1__" decimals="INF">80,876.10</basic:RetainedEarnings>
@@ -1068,11 +1998,11 @@ done.
   <basic:RetainedEarnings contextRef="I-2019" unitRef="U-without_currency_movement_against_since_USD_USD____date_2018_12_30__" decimals="INF">-145,000.00</basic:RetainedEarnings>
    <basic:CurrentEarnings contextRef="I-2019" unitRef="U-CHF" decimals="INF">66,410.10</basic:CurrentEarnings>
    <basic:CurrentEarnings contextRef="I-2019" unitRef="U-USD" decimals="INF">358,896.52</basic:CurrentEarnings>
-   <basic:CurrentEarnings contextRef="I-2019" unitRef="U-with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_13_976032__" decimals="INF">5,000.00</basic:CurrentEarnings>
+   <basic:CurrentEarnings contextRef="I-2019" unitRef="U-with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_436751_rdiv_31250__" decimals="INF">5,000.00</basic:CurrentEarnings>
    <basic:CurrentEarnings contextRef="I-2019" unitRef="U-without_movement_after_CHF_date_2018_7_13__" decimals="INF">1,000.00</basic:CurrentEarnings>
    <basic:CurrentEarnings contextRef="I-2019" unitRef="U-without_movement_after_SG_Issuer_SA_USD_1_date_2018_7_13__" decimals="INF">-145,000.00</basic:CurrentEarnings>
    <basic:CurrentEarnings contextRef="I-2019" unitRef="U-without_movement_after_USD_date_2018_7_13__" decimals="INF">231,123.48</basic:CurrentEarnings>
-   <basic:CurrentEarnings contextRef="I-2019" unitRef="U-without_movement_after_with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_13_976032___date_2018_7_13__" decimals="INF">-5,000.00</basic:CurrentEarnings>
+   <basic:CurrentEarnings contextRef="I-2019" unitRef="U-without_movement_after_with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_436751_rdiv_31250___date_2018_7_13__" decimals="INF">-5,000.00</basic:CurrentEarnings>
    <basic:CurrentEarnings contextRef="I-2019" unitRef="U-without_currency_movement_against_since_CHF_CHF____date_2018_8_16__" decimals="INF">1,573.85</basic:CurrentEarnings>
    <basic:CurrentEarnings contextRef="I-2019" unitRef="U-without_currency_movement_against_since_CHF_CHF____date_2018_10_1__" decimals="INF">80,876.10</basic:CurrentEarnings>
    <basic:CurrentEarnings contextRef="I-2019" unitRef="U-without_currency_movement_against_since_CHF_CHF____date_2018_10_15__" decimals="INF">105,000.00</basic:CurrentEarnings>
@@ -1085,8 +2015,8 @@ done.
    <basic:HistoricalEarnings contextRef="I-2019" unitRef="U-USD" decimals="INF">-231,123.48</basic:HistoricalEarnings>
    <basic:HistoricalEarnings contextRef="I-2019" unitRef="U-without_movement_after_CHF_date_2018_7_13__" decimals="INF">-1,000.00</basic:HistoricalEarnings>
    <basic:HistoricalEarnings contextRef="I-2019" unitRef="U-without_movement_after_USD_date_2018_7_13__" decimals="INF">-231,123.48</basic:HistoricalEarnings>
-   <basic:HistoricalEarnings contextRef="I-2019" unitRef="U-without_movement_after_with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_0_9982880000000001___date_2018_7_13__" decimals="INF">140,000.00</basic:HistoricalEarnings>
-   <basic:HistoricalEarnings contextRef="I-2019" unitRef="U-without_movement_after_with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_13_976032___date_2018_7_13__" decimals="INF">10,000.00</basic:HistoricalEarnings>
+   <basic:HistoricalEarnings contextRef="I-2019" unitRef="U-without_movement_after_with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_62393_rdiv_62500___date_2018_7_13__" decimals="INF">140,000.00</basic:HistoricalEarnings>
+   <basic:HistoricalEarnings contextRef="I-2019" unitRef="U-without_movement_after_with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_436751_rdiv_31250___date_2018_7_13__" decimals="INF">10,000.00</basic:HistoricalEarnings>
    <basic:HistoricalEarnings contextRef="I-2019" unitRef="U-without_currency_movement_against_since_CHF_CHF____date_2018_7_10__" decimals="INF">1,000.00</basic:HistoricalEarnings>
    <basic:HistoricalEarnings contextRef="I-2019" unitRef="U-without_currency_movement_against_since_USD_USD____date_2018_7_1__" decimals="INF">139,760.32</basic:HistoricalEarnings>
    <basic:HistoricalEarnings contextRef="I-2019" unitRef="U-without_currency_movement_against_since_USD_USD____date_2018_7_2__" decimals="INF">181,363.16</basic:HistoricalEarnings>
@@ -1095,11 +2025,11 @@ done.
 <!-- profit and loss: -->
  <basic:NetIncomeLoss contextRef="D-2019" unitRef="U-CHF" decimals="INF">66,410.10</basic:NetIncomeLoss>
  <basic:NetIncomeLoss contextRef="D-2019" unitRef="U-USD" decimals="INF">358,896.52</basic:NetIncomeLoss>
- <basic:NetIncomeLoss contextRef="D-2019" unitRef="U-with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_13_976032__" decimals="INF">5,000.00</basic:NetIncomeLoss>
+ <basic:NetIncomeLoss contextRef="D-2019" unitRef="U-with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_436751_rdiv_31250__" decimals="INF">5,000.00</basic:NetIncomeLoss>
  <basic:NetIncomeLoss contextRef="D-2019" unitRef="U-without_movement_after_CHF_date_2018_7_13__" decimals="INF">1,000.00</basic:NetIncomeLoss>
  <basic:NetIncomeLoss contextRef="D-2019" unitRef="U-without_movement_after_SG_Issuer_SA_USD_1_date_2018_7_13__" decimals="INF">-145,000.00</basic:NetIncomeLoss>
  <basic:NetIncomeLoss contextRef="D-2019" unitRef="U-without_movement_after_USD_date_2018_7_13__" decimals="INF">231,123.48</basic:NetIncomeLoss>
- <basic:NetIncomeLoss contextRef="D-2019" unitRef="U-without_movement_after_with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_13_976032___date_2018_7_13__" decimals="INF">-5,000.00</basic:NetIncomeLoss>
+ <basic:NetIncomeLoss contextRef="D-2019" unitRef="U-without_movement_after_with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_436751_rdiv_31250___date_2018_7_13__" decimals="INF">-5,000.00</basic:NetIncomeLoss>
  <basic:NetIncomeLoss contextRef="D-2019" unitRef="U-without_currency_movement_against_since_CHF_CHF____date_2018_8_16__" decimals="INF">1,573.85</basic:NetIncomeLoss>
  <basic:NetIncomeLoss contextRef="D-2019" unitRef="U-without_currency_movement_against_since_CHF_CHF____date_2018_10_1__" decimals="INF">80,876.10</basic:NetIncomeLoss>
  <basic:NetIncomeLoss contextRef="D-2019" unitRef="U-without_currency_movement_against_since_CHF_CHF____date_2018_10_15__" decimals="INF">105,000.00</basic:NetIncomeLoss>
@@ -1114,11 +2044,11 @@ done.
    <basic:BankCharges contextRef="D-2019" unitRef="U-USD" decimals="INF">20.00</basic:BankCharges>
   <basic:Revenue contextRef="D-2019" unitRef="U-CHF" decimals="INF">67,983.95</basic:Revenue>
   <basic:Revenue contextRef="D-2019" unitRef="U-USD" decimals="INF">358,916.52</basic:Revenue>
-  <basic:Revenue contextRef="D-2019" unitRef="U-with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_13_976032__" decimals="INF">5,000.00</basic:Revenue>
+  <basic:Revenue contextRef="D-2019" unitRef="U-with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_436751_rdiv_31250__" decimals="INF">5,000.00</basic:Revenue>
   <basic:Revenue contextRef="D-2019" unitRef="U-without_movement_after_CHF_date_2018_7_13__" decimals="INF">1,000.00</basic:Revenue>
   <basic:Revenue contextRef="D-2019" unitRef="U-without_movement_after_SG_Issuer_SA_USD_1_date_2018_7_13__" decimals="INF">-145,000.00</basic:Revenue>
   <basic:Revenue contextRef="D-2019" unitRef="U-without_movement_after_USD_date_2018_7_13__" decimals="INF">231,123.48</basic:Revenue>
-  <basic:Revenue contextRef="D-2019" unitRef="U-without_movement_after_with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_13_976032___date_2018_7_13__" decimals="INF">-5,000.00</basic:Revenue>
+  <basic:Revenue contextRef="D-2019" unitRef="U-without_movement_after_with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_436751_rdiv_31250___date_2018_7_13__" decimals="INF">-5,000.00</basic:Revenue>
   <basic:Revenue contextRef="D-2019" unitRef="U-without_currency_movement_against_since_CHF_CHF____date_2018_8_16__" decimals="INF">1,573.85</basic:Revenue>
   <basic:Revenue contextRef="D-2019" unitRef="U-without_currency_movement_against_since_CHF_CHF____date_2018_10_1__" decimals="INF">80,876.10</basic:Revenue>
   <basic:Revenue contextRef="D-2019" unitRef="U-without_currency_movement_against_since_CHF_CHF____date_2018_10_15__" decimals="INF">105,000.00</basic:Revenue>
@@ -1155,9 +2085,9 @@ done.
     <basic:CurrencyMovementUSD_Bank contextRef="D-2019" unitRef="U-without_currency_movement_against_since_USD_USD____date_2018_12_30__" decimals="INF">-145,000.00</basic:CurrencyMovementUSD_Bank>
    <basic:InvestmentIncome contextRef="D-2019" unitRef="U-CHF" decimals="INF">139,123.90</basic:InvestmentIncome>
    <basic:InvestmentIncome contextRef="D-2019" unitRef="U-USD" decimals="INF">145,000.00</basic:InvestmentIncome>
-   <basic:InvestmentIncome contextRef="D-2019" unitRef="U-with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_13_976032__" decimals="INF">5,000.00</basic:InvestmentIncome>
+   <basic:InvestmentIncome contextRef="D-2019" unitRef="U-with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_436751_rdiv_31250__" decimals="INF">5,000.00</basic:InvestmentIncome>
    <basic:InvestmentIncome contextRef="D-2019" unitRef="U-without_movement_after_SG_Issuer_SA_USD_1_date_2018_7_13__" decimals="INF">-145,000.00</basic:InvestmentIncome>
-   <basic:InvestmentIncome contextRef="D-2019" unitRef="U-without_movement_after_with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_13_976032___date_2018_7_13__" decimals="INF">-5,000.00</basic:InvestmentIncome>
+   <basic:InvestmentIncome contextRef="D-2019" unitRef="U-without_movement_after_with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_436751_rdiv_31250___date_2018_7_13__" decimals="INF">-5,000.00</basic:InvestmentIncome>
     <basic:InvestmentIncomeRealized contextRef="D-2019" unitRef="U-CHF" decimals="INF">139,123.90</basic:InvestmentIncomeRealized>
     <basic:InvestmentIncomeRealized contextRef="D-2019" unitRef="U-USD" decimals="INF">145,000.00</basic:InvestmentIncomeRealized>
     <basic:InvestmentIncomeRealized contextRef="D-2019" unitRef="U-without_movement_after_SG_Issuer_SA_USD_1_date_2018_7_13__" decimals="INF">-145,000.00</basic:InvestmentIncomeRealized>
@@ -1169,12 +2099,12 @@ done.
      <basic:InvestmentIncomeRealizedWithoutCurrencyMovement contextRef="D-2019" unitRef="U-without_movement_after_SG_Issuer_SA_USD_1_date_2018_7_13__" decimals="INF">-145,000.00</basic:InvestmentIncomeRealizedWithoutCurrencyMovement>
      <basic:InvestmentIncomeRealizedWithoutCurrencyMovement contextRef="D-2019" unitRef="U-without_currency_movement_against_since_CHF_CHF____date_2018_10_1__" decimals="INF">220,000.00</basic:InvestmentIncomeRealizedWithoutCurrencyMovement>
      <basic:InvestmentIncomeRealizedWithoutCurrencyMovement contextRef="D-2019" unitRef="U-without_currency_movement_against_since_USD_USD____date_2018_7_13__" decimals="INF">145,000.00</basic:InvestmentIncomeRealizedWithoutCurrencyMovement>
-    <basic:InvestmentIncomeUnrealized contextRef="D-2019" unitRef="U-with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_13_976032__" decimals="INF">5,000.00</basic:InvestmentIncomeUnrealized>
-    <basic:InvestmentIncomeUnrealized contextRef="D-2019" unitRef="U-without_movement_after_with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_13_976032___date_2018_7_13__" decimals="INF">-5,000.00</basic:InvestmentIncomeUnrealized>
-     <basic:InvestmentIncomeUnrealizedOnlyCurrencyMovement contextRef="D-2019" unitRef="U-with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_13_976032__" decimals="INF">5,000.00</basic:InvestmentIncomeUnrealizedOnlyCurrencyMovement>
-     <basic:InvestmentIncomeUnrealizedOnlyCurrencyMovement contextRef="D-2019" unitRef="U-without_currency_movement_against_since_with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_13_976032___USD____date_2018_7_13__" decimals="INF">-5,000.00</basic:InvestmentIncomeUnrealizedOnlyCurrencyMovement>
-     <basic:InvestmentIncomeUnrealizedWithoutCurrencyMovement contextRef="D-2019" unitRef="U-without_movement_after_with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_13_976032___date_2018_7_13__" decimals="INF">-5,000.00</basic:InvestmentIncomeUnrealizedWithoutCurrencyMovement>
-     <basic:InvestmentIncomeUnrealizedWithoutCurrencyMovement contextRef="D-2019" unitRef="U-without_currency_movement_against_since_with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_13_976032___USD____date_2018_7_13__" decimals="INF">5,000.00</basic:InvestmentIncomeUnrealizedWithoutCurrencyMovement>
+    <basic:InvestmentIncomeUnrealized contextRef="D-2019" unitRef="U-with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_436751_rdiv_31250__" decimals="INF">5,000.00</basic:InvestmentIncomeUnrealized>
+    <basic:InvestmentIncomeUnrealized contextRef="D-2019" unitRef="U-without_movement_after_with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_436751_rdiv_31250___date_2018_7_13__" decimals="INF">-5,000.00</basic:InvestmentIncomeUnrealized>
+     <basic:InvestmentIncomeUnrealizedOnlyCurrencyMovement contextRef="D-2019" unitRef="U-with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_436751_rdiv_31250__" decimals="INF">5,000.00</basic:InvestmentIncomeUnrealizedOnlyCurrencyMovement>
+     <basic:InvestmentIncomeUnrealizedOnlyCurrencyMovement contextRef="D-2019" unitRef="U-without_currency_movement_against_since_with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_436751_rdiv_31250___USD____date_2018_7_13__" decimals="INF">-5,000.00</basic:InvestmentIncomeUnrealizedOnlyCurrencyMovement>
+     <basic:InvestmentIncomeUnrealizedWithoutCurrencyMovement contextRef="D-2019" unitRef="U-without_movement_after_with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_436751_rdiv_31250___date_2018_7_13__" decimals="INF">-5,000.00</basic:InvestmentIncomeUnrealizedWithoutCurrencyMovement>
+     <basic:InvestmentIncomeUnrealizedWithoutCurrencyMovement contextRef="D-2019" unitRef="U-without_currency_movement_against_since_with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_436751_rdiv_31250___USD____date_2018_7_13__" decimals="INF">5,000.00</basic:InvestmentIncomeUnrealizedWithoutCurrencyMovement>
    <basic:OtherIncome contextRef="D-2019" unitRef="U-CHF" decimals="INF">1,155.00</basic:OtherIncome>
    <basic:OtherIncome contextRef="D-2019" unitRef="U-USD" decimals="INF">30.00</basic:OtherIncome>
     <basic:InterestEarned contextRef="D-2019" unitRef="U-CHF" decimals="INF">1,155.00</basic:InterestEarned>
@@ -1185,8 +2115,8 @@ done.
  <basic:NetIncomeLoss contextRef="D-2019" unitRef="U-USD" decimals="INF">-231,123.48</basic:NetIncomeLoss>
  <basic:NetIncomeLoss contextRef="D-2019" unitRef="U-without_movement_after_CHF_date_2018_7_13__" decimals="INF">-1,000.00</basic:NetIncomeLoss>
  <basic:NetIncomeLoss contextRef="D-2019" unitRef="U-without_movement_after_USD_date_2018_7_13__" decimals="INF">-231,123.48</basic:NetIncomeLoss>
- <basic:NetIncomeLoss contextRef="D-2019" unitRef="U-without_movement_after_with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_0_9982880000000001___date_2018_7_13__" decimals="INF">140,000.00</basic:NetIncomeLoss>
- <basic:NetIncomeLoss contextRef="D-2019" unitRef="U-without_movement_after_with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_13_976032___date_2018_7_13__" decimals="INF">10,000.00</basic:NetIncomeLoss>
+ <basic:NetIncomeLoss contextRef="D-2019" unitRef="U-without_movement_after_with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_62393_rdiv_62500___date_2018_7_13__" decimals="INF">140,000.00</basic:NetIncomeLoss>
+ <basic:NetIncomeLoss contextRef="D-2019" unitRef="U-without_movement_after_with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_436751_rdiv_31250___date_2018_7_13__" decimals="INF">10,000.00</basic:NetIncomeLoss>
  <basic:NetIncomeLoss contextRef="D-2019" unitRef="U-without_currency_movement_against_since_CHF_CHF____date_2018_7_10__" decimals="INF">1,000.00</basic:NetIncomeLoss>
  <basic:NetIncomeLoss contextRef="D-2019" unitRef="U-without_currency_movement_against_since_USD_USD____date_2018_7_1__" decimals="INF">139,760.32</basic:NetIncomeLoss>
  <basic:NetIncomeLoss contextRef="D-2019" unitRef="U-without_currency_movement_against_since_USD_USD____date_2018_7_2__" decimals="INF">181,363.16</basic:NetIncomeLoss>
@@ -1196,8 +2126,8 @@ done.
   <basic:Revenue contextRef="D-2019" unitRef="U-USD" decimals="INF">-231,123.48</basic:Revenue>
   <basic:Revenue contextRef="D-2019" unitRef="U-without_movement_after_CHF_date_2018_7_13__" decimals="INF">-1,000.00</basic:Revenue>
   <basic:Revenue contextRef="D-2019" unitRef="U-without_movement_after_USD_date_2018_7_13__" decimals="INF">-231,123.48</basic:Revenue>
-  <basic:Revenue contextRef="D-2019" unitRef="U-without_movement_after_with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_0_9982880000000001___date_2018_7_13__" decimals="INF">140,000.00</basic:Revenue>
-  <basic:Revenue contextRef="D-2019" unitRef="U-without_movement_after_with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_13_976032___date_2018_7_13__" decimals="INF">10,000.00</basic:Revenue>
+  <basic:Revenue contextRef="D-2019" unitRef="U-without_movement_after_with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_62393_rdiv_62500___date_2018_7_13__" decimals="INF">140,000.00</basic:Revenue>
+  <basic:Revenue contextRef="D-2019" unitRef="U-without_movement_after_with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_436751_rdiv_31250___date_2018_7_13__" decimals="INF">10,000.00</basic:Revenue>
   <basic:Revenue contextRef="D-2019" unitRef="U-without_currency_movement_against_since_CHF_CHF____date_2018_7_10__" decimals="INF">1,000.00</basic:Revenue>
   <basic:Revenue contextRef="D-2019" unitRef="U-without_currency_movement_against_since_USD_USD____date_2018_7_1__" decimals="INF">139,760.32</basic:Revenue>
   <basic:Revenue contextRef="D-2019" unitRef="U-without_currency_movement_against_since_USD_USD____date_2018_7_2__" decimals="INF">181,363.16</basic:Revenue>
@@ -1215,27 +2145,27 @@ done.
     <basic:CurrencyMovementUSD_Bank contextRef="D-2019" unitRef="U-without_currency_movement_against_since_USD_USD____date_2018_7_2__" decimals="INF">181,363.16</basic:CurrencyMovementUSD_Bank>
     <basic:CurrencyMovementUSD_Bank contextRef="D-2019" unitRef="U-without_currency_movement_against_since_USD_USD____date_2018_7_12__" decimals="INF">-90,000.00</basic:CurrencyMovementUSD_Bank>
    <basic:InvestmentIncome contextRef="D-2019" unitRef="U-USD" decimals="INF">-231,123.48</basic:InvestmentIncome>
-   <basic:InvestmentIncome contextRef="D-2019" unitRef="U-without_movement_after_with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_0_9982880000000001___date_2018_7_13__" decimals="INF">140,000.00</basic:InvestmentIncome>
-   <basic:InvestmentIncome contextRef="D-2019" unitRef="U-without_movement_after_with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_13_976032___date_2018_7_13__" decimals="INF">10,000.00</basic:InvestmentIncome>
+   <basic:InvestmentIncome contextRef="D-2019" unitRef="U-without_movement_after_with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_62393_rdiv_62500___date_2018_7_13__" decimals="INF">140,000.00</basic:InvestmentIncome>
+   <basic:InvestmentIncome contextRef="D-2019" unitRef="U-without_movement_after_with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_436751_rdiv_31250___date_2018_7_13__" decimals="INF">10,000.00</basic:InvestmentIncome>
     <basic:InvestmentIncomeRealized contextRef="D-2019" unitRef="U-USD" decimals="INF">48,397.16</basic:InvestmentIncomeRealized>
      <basic:InvestmentIncomeRealizedOnlyCurrencyMovement contextRef="D-2019" unitRef="U-USD" decimals="INF">90,000.00</basic:InvestmentIncomeRealizedOnlyCurrencyMovement>
      <basic:InvestmentIncomeRealizedOnlyCurrencyMovement contextRef="D-2019" unitRef="U-without_currency_movement_against_since_USD_USD____date_2018_7_2__" decimals="INF">-90,000.00</basic:InvestmentIncomeRealizedOnlyCurrencyMovement>
      <basic:InvestmentIncomeRealizedWithoutCurrencyMovement contextRef="D-2019" unitRef="U-USD" decimals="INF">-41,602.84</basic:InvestmentIncomeRealizedWithoutCurrencyMovement>
      <basic:InvestmentIncomeRealizedWithoutCurrencyMovement contextRef="D-2019" unitRef="U-without_currency_movement_against_since_USD_USD____date_2018_7_2__" decimals="INF">90,000.00</basic:InvestmentIncomeRealizedWithoutCurrencyMovement>
     <basic:InvestmentIncomeUnrealized contextRef="D-2019" unitRef="U-USD" decimals="INF">-279,520.64</basic:InvestmentIncomeUnrealized>
-    <basic:InvestmentIncomeUnrealized contextRef="D-2019" unitRef="U-without_movement_after_with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_0_9982880000000001___date_2018_7_13__" decimals="INF">140,000.00</basic:InvestmentIncomeUnrealized>
-    <basic:InvestmentIncomeUnrealized contextRef="D-2019" unitRef="U-without_movement_after_with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_13_976032___date_2018_7_13__" decimals="INF">10,000.00</basic:InvestmentIncomeUnrealized>
-     <basic:InvestmentIncomeUnrealizedOnlyCurrencyMovement contextRef="D-2019" unitRef="U-without_movement_after_with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_0_9982880000000001___date_2018_7_13__" decimals="INF">140,000.00</basic:InvestmentIncomeUnrealizedOnlyCurrencyMovement>
-     <basic:InvestmentIncomeUnrealizedOnlyCurrencyMovement contextRef="D-2019" unitRef="U-without_movement_after_with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_13_976032___date_2018_7_13__" decimals="INF">10,000.00</basic:InvestmentIncomeUnrealizedOnlyCurrencyMovement>
-     <basic:InvestmentIncomeUnrealizedOnlyCurrencyMovement contextRef="D-2019" unitRef="U-without_movement_after_without_currency_movement_against_since_with_cost_per_unit_Raiffeisen_Switzerland_B_V__value_USD_19_953400479616306___USD____date_2018_7_2___date_2018_7_13__" decimals="INF">-2,085.00</basic:InvestmentIncomeUnrealizedOnlyCurrencyMovement>
-     <basic:InvestmentIncomeUnrealizedOnlyCurrencyMovement contextRef="D-2019" unitRef="U-without_movement_after_without_currency_movement_against_since_with_cost_per_unit_Raiffeisen_Switzerland_B_V__value_USD_19_953400479616306___USD____date_2018_7_12___date_2018_7_12__" decimals="INF">2,085.00</basic:InvestmentIncomeUnrealizedOnlyCurrencyMovement>
-     <basic:InvestmentIncomeUnrealizedOnlyCurrencyMovement contextRef="D-2019" unitRef="U-without_movement_after_without_currency_movement_against_since_with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_0_9982880000000001___USD____date_2018_7_1___date_2018_7_13__" decimals="INF">-140,000.00</basic:InvestmentIncomeUnrealizedOnlyCurrencyMovement>
-     <basic:InvestmentIncomeUnrealizedOnlyCurrencyMovement contextRef="D-2019" unitRef="U-without_movement_after_without_currency_movement_against_since_with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_13_976032___USD____date_2018_7_2___date_2018_7_13__" decimals="INF">-10,000.00</basic:InvestmentIncomeUnrealizedOnlyCurrencyMovement>
+    <basic:InvestmentIncomeUnrealized contextRef="D-2019" unitRef="U-without_movement_after_with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_62393_rdiv_62500___date_2018_7_13__" decimals="INF">140,000.00</basic:InvestmentIncomeUnrealized>
+    <basic:InvestmentIncomeUnrealized contextRef="D-2019" unitRef="U-without_movement_after_with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_436751_rdiv_31250___date_2018_7_13__" decimals="INF">10,000.00</basic:InvestmentIncomeUnrealized>
+     <basic:InvestmentIncomeUnrealizedOnlyCurrencyMovement contextRef="D-2019" unitRef="U-without_movement_after_with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_62393_rdiv_62500___date_2018_7_13__" decimals="INF">140,000.00</basic:InvestmentIncomeUnrealizedOnlyCurrencyMovement>
+     <basic:InvestmentIncomeUnrealizedOnlyCurrencyMovement contextRef="D-2019" unitRef="U-without_movement_after_with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_436751_rdiv_31250___date_2018_7_13__" decimals="INF">10,000.00</basic:InvestmentIncomeUnrealizedOnlyCurrencyMovement>
+     <basic:InvestmentIncomeUnrealizedOnlyCurrencyMovement contextRef="D-2019" unitRef="U-without_movement_after_without_currency_movement_against_since_with_cost_per_unit_Raiffeisen_Switzerland_B_V__value_USD_1040071_rdiv_52125___USD____date_2018_7_2___date_2018_7_13__" decimals="INF">-2,085.00</basic:InvestmentIncomeUnrealizedOnlyCurrencyMovement>
+     <basic:InvestmentIncomeUnrealizedOnlyCurrencyMovement contextRef="D-2019" unitRef="U-without_movement_after_without_currency_movement_against_since_with_cost_per_unit_Raiffeisen_Switzerland_B_V__value_USD_1040071_rdiv_52125___USD____date_2018_7_12___date_2018_7_12__" decimals="INF">2,085.00</basic:InvestmentIncomeUnrealizedOnlyCurrencyMovement>
+     <basic:InvestmentIncomeUnrealizedOnlyCurrencyMovement contextRef="D-2019" unitRef="U-without_movement_after_without_currency_movement_against_since_with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_62393_rdiv_62500___USD____date_2018_7_1___date_2018_7_13__" decimals="INF">-140,000.00</basic:InvestmentIncomeUnrealizedOnlyCurrencyMovement>
+     <basic:InvestmentIncomeUnrealizedOnlyCurrencyMovement contextRef="D-2019" unitRef="U-without_movement_after_without_currency_movement_against_since_with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_436751_rdiv_31250___USD____date_2018_7_2___date_2018_7_13__" decimals="INF">-10,000.00</basic:InvestmentIncomeUnrealizedOnlyCurrencyMovement>
      <basic:InvestmentIncomeUnrealizedWithoutCurrencyMovement contextRef="D-2019" unitRef="U-USD" decimals="INF">-279,520.64</basic:InvestmentIncomeUnrealizedWithoutCurrencyMovement>
-     <basic:InvestmentIncomeUnrealizedWithoutCurrencyMovement contextRef="D-2019" unitRef="U-without_movement_after_without_currency_movement_against_since_with_cost_per_unit_Raiffeisen_Switzerland_B_V__value_USD_19_953400479616306___USD____date_2018_7_2___date_2018_7_13__" decimals="INF">2,085.00</basic:InvestmentIncomeUnrealizedWithoutCurrencyMovement>
-     <basic:InvestmentIncomeUnrealizedWithoutCurrencyMovement contextRef="D-2019" unitRef="U-without_movement_after_without_currency_movement_against_since_with_cost_per_unit_Raiffeisen_Switzerland_B_V__value_USD_19_953400479616306___USD____date_2018_7_12___date_2018_7_12__" decimals="INF">-2,085.00</basic:InvestmentIncomeUnrealizedWithoutCurrencyMovement>
-     <basic:InvestmentIncomeUnrealizedWithoutCurrencyMovement contextRef="D-2019" unitRef="U-without_movement_after_without_currency_movement_against_since_with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_0_9982880000000001___USD____date_2018_7_1___date_2018_7_13__" decimals="INF">140,000.00</basic:InvestmentIncomeUnrealizedWithoutCurrencyMovement>
-     <basic:InvestmentIncomeUnrealizedWithoutCurrencyMovement contextRef="D-2019" unitRef="U-without_movement_after_without_currency_movement_against_since_with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_13_976032___USD____date_2018_7_2___date_2018_7_13__" decimals="INF">10,000.00</basic:InvestmentIncomeUnrealizedWithoutCurrencyMovement>
+     <basic:InvestmentIncomeUnrealizedWithoutCurrencyMovement contextRef="D-2019" unitRef="U-without_movement_after_without_currency_movement_against_since_with_cost_per_unit_Raiffeisen_Switzerland_B_V__value_USD_1040071_rdiv_52125___USD____date_2018_7_2___date_2018_7_13__" decimals="INF">2,085.00</basic:InvestmentIncomeUnrealizedWithoutCurrencyMovement>
+     <basic:InvestmentIncomeUnrealizedWithoutCurrencyMovement contextRef="D-2019" unitRef="U-without_movement_after_without_currency_movement_against_since_with_cost_per_unit_Raiffeisen_Switzerland_B_V__value_USD_1040071_rdiv_52125___USD____date_2018_7_12___date_2018_7_12__" decimals="INF">-2,085.00</basic:InvestmentIncomeUnrealizedWithoutCurrencyMovement>
+     <basic:InvestmentIncomeUnrealizedWithoutCurrencyMovement contextRef="D-2019" unitRef="U-without_movement_after_without_currency_movement_against_since_with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_62393_rdiv_62500___USD____date_2018_7_1___date_2018_7_13__" decimals="INF">140,000.00</basic:InvestmentIncomeUnrealizedWithoutCurrencyMovement>
+     <basic:InvestmentIncomeUnrealizedWithoutCurrencyMovement contextRef="D-2019" unitRef="U-without_movement_after_without_currency_movement_against_since_with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_436751_rdiv_31250___USD____date_2018_7_2___date_2018_7_13__" decimals="INF">10,000.00</basic:InvestmentIncomeUnrealizedWithoutCurrencyMovement>
 
 -->
 
@@ -1243,9 +2173,8 @@ done.
  <basic:Trial_Balance contextRef="I-2019" unitRef="U-CHF" decimals="INF">-32,705.05</basic:Trial_Balance>
  <basic:Trial_Balance contextRef="I-2019" unitRef="U-USD" decimals="INF">-63,886.52</basic:Trial_Balance>
  <basic:Trial_Balance contextRef="I-2019" unitRef="U-without_movement_after_SG_Issuer_SA_USD_1_date_2018_7_13__" decimals="INF">145,000.00</basic:Trial_Balance>
- <basic:Trial_Balance contextRef="I-2019" unitRef="U-without_movement_after_USD_date_2018_7_13__" decimals="INF">-0.00</basic:Trial_Balance>
- <basic:Trial_Balance contextRef="I-2019" unitRef="U-without_movement_after_with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_0_9982880000000001___date_2018_7_13__" decimals="INF">-140,000.00</basic:Trial_Balance>
- <basic:Trial_Balance contextRef="I-2019" unitRef="U-without_movement_after_with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_13_976032___date_2018_7_13__" decimals="INF">-5,000.00</basic:Trial_Balance>
+ <basic:Trial_Balance contextRef="I-2019" unitRef="U-without_movement_after_with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_62393_rdiv_62500___date_2018_7_13__" decimals="INF">-140,000.00</basic:Trial_Balance>
+ <basic:Trial_Balance contextRef="I-2019" unitRef="U-without_movement_after_with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_436751_rdiv_31250___date_2018_7_13__" decimals="INF">-5,000.00</basic:Trial_Balance>
  <basic:Trial_Balance contextRef="I-2019" unitRef="U-without_currency_movement_against_since_CHF_CHF____date_2018_7_10__" decimals="INF">-1,000.00</basic:Trial_Balance>
  <basic:Trial_Balance contextRef="I-2019" unitRef="U-without_currency_movement_against_since_CHF_CHF____date_2018_8_16__" decimals="INF">-1,573.85</basic:Trial_Balance>
  <basic:Trial_Balance contextRef="I-2019" unitRef="U-without_currency_movement_against_since_CHF_CHF____date_2018_10_1__" decimals="INF">-80,876.10</basic:Trial_Balance>

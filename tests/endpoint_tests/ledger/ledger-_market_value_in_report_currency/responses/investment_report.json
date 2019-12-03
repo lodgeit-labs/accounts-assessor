@@ -196,7 +196,7 @@
       "gains": {
 	"rea": {},
 	"unr": {
-	  "forex":"value('AUD',180820 rdiv 337701)",
+	  "forex":"value('AUD',0.5354440762686519)",
 	  "market_converted":"value('AUD',-111.99944407626865)",
 	  "market_foreign":"value('USD',-85.1940029789666)"
 	}
@@ -205,19 +205,19 @@
       "on_hand_at_cost": {
 	"count":10,
 	"total_converted_at_balance":"value('AUD',135.0804)",
-	"total_converted_at_purchase":"value('AUD',131.464)",
-	"total_foreign":"value('USD',100.0)",
+	"total_converted_at_purchase":"value('AUD',16433 rdiv 125)",
+	"total_foreign":"value('USD',100)",
 	"total_forex_gain":"value('AUD',3.6163999999999987)",
-	"unit_cost_foreign":"value('USD',10.0)"
+	"unit_cost_foreign":"value('USD',10)"
       },
       "opening": {},
       "purchase": {
 	"conversion":"exchange_rate(date(2017,7,10),'USD','AUD',1.31464)",
 	"date":"date(2017,7,10)",
-	"total_cost_converted":"value('AUD',131.464)",
-	"total_cost_foreign":"value('USD',100.0)",
-	"unit_cost_converted":"value('AUD',13.1464)",
-	"unit_cost_foreign":"value('USD',10.0)"
+	"total_cost_converted":"value('AUD',16433 rdiv 125)",
+	"total_cost_foreign":"value('USD',100)",
+	"unit_cost_converted":"value('AUD',16433 rdiv 1250)",
+	"unit_cost_foreign":"value('USD',10)"
       },
       "sale": {},
       "unit":"BHP"
@@ -232,7 +232,7 @@
 	"realized_total": [],
 	"total": ["value('AUD',-111.464)" ],
 	"unr": {
-	  "forex": ["value('AUD',180820 rdiv 337701)" ],
+	  "forex": ["value('AUD',0.5354440762686519)" ],
 	  "market_converted": ["value('AUD',-111.99944407626865)" ],
 	  "market_foreign": ["value('USD',-85.1940029789666)" ]
 	},
@@ -240,7 +240,7 @@
       },
       "on_hand_at_cost": {
 	"total_converted_at_balance": ["value('AUD',135.0804)" ],
-	"total_converted_at_purchase": ["value('AUD',131.464)" ],
+	"total_converted_at_purchase": ["value('AUD',16433 rdiv 125)" ],
 	"total_forex_gain": ["value('AUD',3.6163999999999987)" ]
       },
       "opening": {"total_cost_converted": [], "total_cost_foreign": []}

@@ -200,9 +200,9 @@
       "purchase": {
 	"conversion":"exchange_rate(date(2016,1,1),bananas,oranges,2.0)",
 	"date":"date(2016,1,1)",
-	"total_cost_converted":"value(oranges,1000.0)",
+	"total_cost_converted":"value(oranges,1000)",
 	"total_cost_foreign":"value(bananas,500)",
-	"unit_cost_converted":"value(oranges,1000.0)",
+	"unit_cost_converted":"value(oranges,1000)",
 	"unit_cost_foreign":"value(bananas,500)"
       },
       "sale": {
