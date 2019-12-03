@@ -150,12 +150,9 @@ process_livestock2((S_Transactions, Transactions_In), Livestock, Transactions_Ou
 	/* born, loss, rations */
 	preprocess_headcount_changes(Livestock, Headcount_Change_Transactions),
 	append(Transactions1, Headcount_Change_Transactions, Transactions2),
-	
+
 	/* avg cost relies on Opening_And_Purchases_And_Increase */
 	infer_average_cost(Livestock, S_Transactions),
-	doc(Livestock, livestock:average_cost, exchange_rate(_,_,_,XXX)),
-	term_string(XXX, XXXX, [attributes(write)]),
-	format(user_error, 'XXXX~wXXXX~n', [XXXX]),
 
 	/* rations value is derived from avg cost */
 	preprocess_rations(Livestock, Rations_Transactions),

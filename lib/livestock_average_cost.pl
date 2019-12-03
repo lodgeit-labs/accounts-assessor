@@ -63,10 +63,8 @@ livestock_count(Livestock, Transactions_By_Account, End_Date, Count) :-
 	doc(Livestock, livestock:name, Type),
 	count_account(Type, Count_Account),
 	doc:request_has_property(l:accounts, Accounts),
-gtrace,
 	ledger_report:balance_by_account([], Accounts, Transactions_By_Account, [], _, Count_Account, End_Date, Count_Vector, _),
 	pacioli:vec_add(Count_Vector, Opening_Count_Vec, Closing_Vec),
-	gtrace,
 	pacioli:value_debit_vec(Count, Closing_Vec).
 
 

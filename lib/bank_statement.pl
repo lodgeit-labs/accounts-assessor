@@ -233,7 +233,7 @@ make_sell(Static_Data, Trading_Account, Pricing_Method, _Bank_Account_Currency, 
 	Exchanged_Account, Transaction_Date, Description,
 	Outstanding_In, Outstanding_Out, [Ts1, Ts2, Ts3]
 ) :-
-	Goods_Vector = [coord(Goods_Unit,_,Goods_Positive)],
+	pacioli:credit_coord(Goods_Unit,Goods_Positive,Goods_Vector),
 	dict_vars(Static_Data, [Accounts]),
 	account_by_role(Accounts, Exchanged_Account/Goods_Unit, Exchanged_Account2),
 	bank_debit_to_unit_price(Vector_Ours, Goods_Positive, Sale_Unit_Price),
@@ -319,18 +319,17 @@ record_expense_or_earning_or_equity_or_loan(Static_Data, Action_Verb, Vector_Our
 
 purchased_goods_coord_with_cost(Goods_Coord, Cost_Coord, Goods_Coord_With_Cost) :-
 	unit_cost_value(Cost_Coord, Goods_Coord, Unit_Cost),
-	Goods_Coord = coord(Goods_Unit, Goods_Count, _),
+	Goods_Coord = coord(Goods_Unit, Goods_Count),
 	Goods_Coord_With_Cost = coord(
 		with_cost_per_unit(Goods_Unit, Unit_Cost),
-		Goods_Count, 
-		0
+		Goods_Count
 	).
 
 unit_cost_value(Cost_Coord, Goods_Coord, Unit_Cost) :-
-	Goods_Coord = coord(_, Goods_Count, Zero1),
-	assertion(Zero1 =:= 0),
-	Cost_Coord = coord(Currency, Zero2, Price),
-	assertion(Zero2 =:= 0),
+	Goods_Coord = coord(_, Goods_Count),
+	assertion(Goods_Count > 0),
+	credit_coord(Currency, Price, Cost_Coord),
+	assertion(Price >= 0),
 	Unit_Cost_Amount is Price / Goods_Count,
 	Unit_Cost = value(Currency, Unit_Cost_Amount).
 
@@ -346,7 +345,7 @@ sold_goods_vector_with_cost(Static_Data, Goods_Cost_Value, [Goods_Coord_With_Cos
 			Unit = with_cost_per_unit(Goods_Unit, Unit_Cost_Value)
 		)
 	),
-	Goods_Coord_With_Cost = coord(Unit, 0, Goods_Count).
+	credit_coord(Unit, Goods_Count, Goods_Coord_With_Cost).
 
 /*
 	Vector  - the amount by which the assets account is changed
@@ -401,7 +400,7 @@ make_currency_movement_transactions(Static_Data, Bank_Account, Date, Vector, Des
 	)
 	.
 
-vector_without_movement_after([coord(Unit1,D,C)], Start_Date, [coord(Unit2,D,C)]) :-
+vector_without_movement_after([coord(Unit1,D)], Start_Date, [coord(Unit2,D)]) :-
 	Unit2 = without_movement_after(Unit1, Start_Date).
 	
 make_difference_transaction(Account, Date, Description, What, Against, Transaction) :-
@@ -412,7 +411,7 @@ make_difference_transaction(Account, Date, Description, What, Against, Transacti
 	transaction_type(Transaction, tracking).
 	
 
-without_movement(Report_Currency, Since, [coord(Unit, D, C)], [coord(Unit2, D, C)]) :-
+without_movement(Report_Currency, Since, [coord(Unit, D)], [coord(Unit2, D)]) :-
 	Unit2 = without_currency_movement_against_since(
 		Unit, 
 		Unit, 
@@ -517,11 +516,12 @@ extract_s_transaction2(Tx_Dom, Account_Currency, Account, Start_Date, ST) :-
 		)
 	),
 	parse_date(Date_Atom, Date),
-	Coord = coord(Account_Currency, Bank_Debit, Bank_Credit),
+	Dr is Bank_Debit - Bank_Credit,
+	Coord = coord(Account_Currency, Dr),
 	ST = s_transaction(Date, Desc, [Coord], Account, Exchanged),
-	extract_exchanged_value(Tx_Dom, Account_Currency, Bank_Debit, Bank_Credit, Exchanged).
+	extract_exchanged_value(Tx_Dom, Account_Currency, Dr, Exchanged).
 
-extract_exchanged_value(Tx_Dom, _Account_Currency, Bank_Debit, Bank_Credit, Exchanged) :-
+extract_exchanged_value(Tx_Dom, _Account_Currency, Bank_Dr, Exchanged) :-
    % if unit type and count is specified, unifies Exchanged with a one-item vector with a coord with those values
    % otherwise unifies Exchanged with bases(..) to trigger unit conversion later
    (
@@ -532,14 +532,14 @@ extract_exchanged_value(Tx_Dom, _Account_Currency, Bank_Debit, Bank_Credit, Exch
 			atom_number(Unit_Count_Atom, Unit_Count),
 			Count_Absolute is abs(Unit_Count),
 			(
-				Bank_Debit > 0
+				Bank_Dr > 0
 			->
-				(
-					assertion(Bank_Credit =:= 0),
-					Exchanged = vector([coord(Unit_Type, Count_Absolute, 0)])
-				)
+					Exchanged = vector([coord(Unit_Type, Count_Absolute)])
 			;
-					Exchanged = vector([coord(Unit_Type, 0, Count_Absolute)])
+				(
+					Count_Credit is -Count_Absolute,
+					Exchanged = vector([coord(Unit_Type, Count_Credit)])
+				)
 			),
 			!
 		 )
@@ -603,7 +603,8 @@ get_relevant_exchange_rates2([Report_Currency], Exchange_Rates, Transactions, Ex
 			member(T, Transactions),
 			transaction_vector(T, Vector),
 			transaction_day(T,Date),
-			member(coord(Currency, _,_), Vector)
+			pacioli:vec_units(Vector, Vector_Units),
+			member(Currency, Vector_Units)
 		),
 		Currencies_Unsorted
 	),
@@ -626,7 +627,7 @@ get_relevant_exchange_rates2([Report_Currency], Date, Exchange_Rates, Transactio
 		(
 			member(T, Transactions),
 			transaction_vector(T, Vector),
-			member(coord(Currency, _,_), Vector)
+			member(coord(Currency, _), Vector)
 		),
 		Currencies_Unsorted
 	),
@@ -696,19 +697,13 @@ pretty_transactions_string2(Seen_Units0, [Transaction|Transactions], String) :-
 
 pretty_vector_string(Seen_Units, Seen_Units, [], '').
 pretty_vector_string(Seen_Units0, Seen_Units_Out, [Coord|Rest], Vector_Str) :-
-	Coord = coord(Unit, Dr, Cr),
+	Coord = coord(Unit, Dr),
 	(
-		Cr =:= 0
+		Dr >= 0
 	->
 		Side = 'DR'
 	;
-		(
-			Dr =:= 0
-		->
-			Side = 'CR'
-		;
-			Side = 'DR+CR'
-		)
+		Side = 'CR'
 	),
 	(
 		member((Shorthand = Unit), Seen_Units0)

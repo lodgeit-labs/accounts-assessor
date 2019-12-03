@@ -106,17 +106,17 @@ format_balance(Format, Indent_Level, Report_Currency_List, Context, Name, Normal
 	;
 		Report_Currency = 'AUD' % just for displaying zero balance
 	),
-	format_balance(Format, Indent_Level, _, Context, Name, Normal_Side, [coord(Report_Currency, 0, 0)], Used_Units_In, Used_Units_Out, Lines_In, Lines_Out).
+	format_balance(Format, Indent_Level, _, Context, Name, Normal_Side, [coord(Report_Currency, 0)], Used_Units_In, Used_Units_Out, Lines_In, Lines_Out).
    
 format_balance(Format, Indent_Level, Report_Currency_List, Context, Name, Normal_Side, Coord, Units_In, Units_Out, Lines_In, Lines_Out) :-
-	[coord(Unit, Debit, Credit)] = Coord,
+	[coord(Unit, Debit)] = Coord,
 	sane_unit_id(Units_In, Units_Out, Unit, Unit_Xml_Id),
 	(
 		Normal_Side = credit
 	->
-		Balance is (Credit - Debit)
+		Balance is -Debit
 	;
-		Balance is (Debit - Credit)
+		Balance is Debit
 	),
 	utils:get_indentation(Indent_Level, Indentation),
 	%filter_out_chars_from_atom(is_underscore, Name, Name2),

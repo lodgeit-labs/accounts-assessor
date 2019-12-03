@@ -136,7 +136,7 @@ yield_traded_units(S_Transactions, Unit) :-
 	member(S_Transaction, S_Transactions),
 	s_transaction_exchanged(S_Transaction, E),
 	(
-		E = vector([coord(Unit,_,_)])
+		E = vector([coord(Unit,_)])
 	;
 		E = bases(Unit)
 	).

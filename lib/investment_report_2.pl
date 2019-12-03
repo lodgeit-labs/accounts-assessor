@@ -271,12 +271,12 @@ investment_report_2_unrealized(Static_Data, Investment, Row) :-
 		Cost_Or_Market = cost
 	->
 		vec_change_bases(Exchange_Rates, End_Date, [Investment_Currency], 
-			[coord(with_cost_per_unit(Unit, Opening_Unit_Cost_Converted), 1, 0)],
+			[coord(with_cost_per_unit(Unit, Opening_Unit_Cost_Converted), 1)],
 			End_Unit_Price_Coord
 		)
 	;
 		vec_change_bases(Exchange_Rates, End_Date, [Investment_Currency], 
-			[coord(Unit, 1, 0)],
+			[coord(Unit, 1)],
 			End_Unit_Price_Coord
 		)		
 	),
@@ -398,12 +398,13 @@ ir2_forex_gain(Exchange_Rates, Opening_Date, End_Price, End_Date, Investment_Cur
 			vec_add([coord(End_Unit_Price_Unit, End_Unit_Price_Amount, 0)], 
 			*/
 			exchange_rate_throw(Exchange_Rates, End_Date, Market_Price_Unit, Report_Currency_Unit, _),
+			credit_coord(Market_Price_Unit, End_Unit_Price_Amount, Coord_X1),
 			vec_change_bases(Exchange_Rates, End_Date, Report_Currency, 
 				[
 					% unit price in investment currency
-					coord(End_Unit_Price_Unit, End_Unit_Price_Amount, 0),
+					coord(End_Unit_Price_Unit, End_Unit_Price_Amount),
 					% unit price in investment currency with old exchange rate
-					coord(Market_Price_Unit, 0, End_Unit_Price_Amount)
+					Coord_X1
 				],
 				% forex gain, in report currency, on one investment unit between start and end dates
 				Forex_Gain_Vec

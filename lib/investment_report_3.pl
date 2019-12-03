@@ -1,6 +1,10 @@
 
 
+/*
 
+this file is just notes on how to express investment formulas better, unfinished
+
+*/
 
 
 gains_formulas(X.unrealized),
