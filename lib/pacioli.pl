@@ -29,6 +29,7 @@
 	    vector_of_coords_to_vector_of_values/4,
 		split_vector_by_percent/4]).
 
+:- asserta(user:file_search_path(library, '../prolog_xbrl_public/xbrl/prolog')).
 :- use_module(library(xbrl/utils), [
 			semigroup_foldl/3,
 			floats_close_enough/2,
@@ -205,8 +206,9 @@ unify_numbers(A,B) :-
 
 number_coord(Unit, Number, coord(Unit, Number)).
 credit_coord(Unit, Credit, coord(Unit, Number)) :- {Credit = -Number}.
+
 dr_cr_coord(Unit, Number, Zero, coord(Unit, Number)) :- {Number >= 0, Zero = 0}.
-dr_cr_coord(Unit, Zero, Number, coord(Unit, Number)) :- {Number < 0, Zero = 0}.
+dr_cr_coord(Unit, Zero, Credit, coord(Unit, Number)) :- {Number < 0, Zero = 0, Credit = -Number}.
 
 
 /*value_debit(value(Unit, Amount), coord(Unit, Amount, Zero)) :- unify_numbers(Zero, 0).

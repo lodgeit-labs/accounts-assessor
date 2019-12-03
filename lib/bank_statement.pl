@@ -293,6 +293,7 @@ affect_bank_account(Static_Data, S_Transaction, Description0, [Ts0, Ts3]) :-
 
 /* Make an inverse exchanged transaction to the exchanged account.*/
 record_expense_or_earning_or_equity_or_loan(Static_Data, Action_Verb, Vector_Ours, Exchanged_Account, Date, Description, [T0,T1]) :-
+gtrace,
 	Report_Currency = Static_Data.report_currency,
 	Exchange_Rates = Static_Data.exchange_rates,
 	vec_inverse(Vector_Ours, Vector_Ours2),
