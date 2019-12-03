@@ -9,7 +9,7 @@
 */
 %:- dynamic happens/2.
 
-% Define constraint in days, max 10000 days
+% Define constraint in days, max 100000 days
 time(T):- T #>= -1, T #=<100000.
 
 initiated(F,T):- happens(E,T), initiates(E,F,T), time(T).
@@ -58,12 +58,12 @@ depreciationInInterval(Asset,Asset_cost,Purchase_date,T1,T2,Begin_value,End_valu
     New_initial_depreciation_value is (Initial_depreciation_value + Depreciation_value),
     depreciationInInterval(_,_,_,T2,T2,_,_,_,_,_,RestOfLife,New_initial_depreciation_value,Final_depreciation_value).
 
-
 /*
 Note: ‘Days held’ is the number of days you held the asset in the income year, 
 (the income year is a full financial year beginning on 1 July and ending on 30 June in Australia)
 in which you used it or had it installed ready for use for any purpose. Days held can be 366 for a leap year.*/
 depreciation_value(Method, Asset_cost, Asset_base_value, Days_held, Depreciation_rate, Depreciation_value) :- 
+    Days_held < 367,
 	(
 	Method == diminishing_value
     -> Depreciation_value is Asset_base_value * (Days_held / 365) * Depreciation_rate

@@ -17,15 +17,16 @@ depreciation_between_invest_in_date_and_other_date(
 		Rates,
 		Depreciation_year, 						% 1,2,3...
 		Effective_life_years,
+		Initial_depreciation_value,
 		Total_depreciation_value
-	) :-
+	):-
 	day_diff(date(From_year, From_Month, From_day), To_date, Days_difference),
 	check_day_difference_validity(Days_difference),	
 	begin_accounting_date(Begin_accounting_date),
 	day_diff(Begin_accounting_date, date(From_year, From_Month, 1), T1),
 	% Get days From date until end of the current income year, <=365
 	(
-		From_Month < 7  
+		From_Month < 7
 		-> 
 			day_diff(date(From_year, From_Month, From_day), date(From_year, 7, 1), Days_held),
 			Next_from_year is From_year
@@ -34,21 +35,19 @@ depreciation_between_invest_in_date_and_other_date(
 			Next_from_year is From_year + 1
 	),
 	(
-		Days_difference =< Days_held
+		Days_difference < Days_held
 			-> 
-			(
-			Days_held is Days_difference,
 			T2 is T1 + Days_difference,
 			depreciationInInterval(Account,Invest_in_value,Purchase_date,T1,T2,Initial_value,_,Method,
-				Depreciation_year,Effective_life_years,_,0,Total_depreciation_value)
-			)
+				Depreciation_year,Effective_life_years,_,0,Depreciation_value),
+			Total_depreciation_value is Initial_depreciation_value + Depreciation_value
 	;
-		(	
 			T2 is T1 + 365,
 			depreciationInInterval(Account,Invest_in_value,Purchase_date,T1,T2,Initial_value,_,Method,
 				Depreciation_year,Effective_life_years,_,0,Depreciation_value),
 			Next_depreciation_year is Depreciation_year + 1,
 			Next_initial_value is Initial_value - Depreciation_value,
+			Next_depreciation_value is (Initial_depreciation_value + Depreciation_value),
 			depreciation_between_invest_in_date_and_other_date(
 				Invest_in_value, 
 				Next_initial_value, 
@@ -60,14 +59,13 @@ depreciation_between_invest_in_date_and_other_date(
 				Rates, 
 				Next_depreciation_year, 
 				Effective_life_years, 
-				Next_depreciation_value
-			),
-			Total_depreciation_value is Depreciation_value + Next_depreciation_value
-		)
+				Next_depreciation_value,
+				Total_depreciation_value
+			)
 	).
 
-start:-depreciation_between_invest_in_date_and_other_date(76768,76768,diminishing_value,date(2017,1,1),date(2017,1,1),date(2019,8,2),
-	corolla,_,1,5,Result).
+%start:-depreciationInInterval(corolla,76768,date(2019,7,1),0,32,76768,_,diminishing_value,1,5,_,0,Depreciation_value).
+start:-depreciation_between_invest_in_date_and_other_date(76768,76768,diminishing_value,date(2017,1,1),date(2017,1,1),date(2017,7,2),corolla,_,1,5,0,Result).
 
 % List of available pools
 pool(general_pool).
@@ -98,6 +96,7 @@ written_down_value(Transaction, Written_down_date, Method, Rates, Effective_life
 		Rates,
 		1,/* this is in the sense of first year of ownership*/
 		Effective_life_years, 
+		0,
 		Total_depreciation_value
 	),
 	Written_down_value is Cost - Total_depreciation_value.
