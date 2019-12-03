@@ -96,7 +96,6 @@ s_transaction_is_livestock_buy_or_sell(S_Transaction, Date, Livestock_Type, Live
 	livestock_data_by_vector_unit(_, V).
 
 preprocess_livestock_buy_or_sell(Static_Data, S_Transaction, [Bank_Txs, Livestock_Count_Transaction, Pl_Transaction]) :-
-	%gtrace,
 	s_transaction_is_livestock_buy_or_sell(S_Transaction, Day, Livestock_Type, Livestock_Coord, Money_Coord),
 	(   pacioli:is_debit(Money_Coord)
 	->  Description = 'livestock sale'
@@ -124,7 +123,7 @@ process_livestock(Info, Livestock_Transactions) :-
 			livestock_data(L),
 			(	process_livestock2(Info, L, Txs)
 			->	true
-			;	(gtrace,utils:throw_string('process_livestock2 failed'))
+			;	(/*gtrace,*/utils:throw_string('process_livestock2 failed'))
 			)
 		),
 		Txs_List

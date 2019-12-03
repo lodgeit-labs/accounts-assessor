@@ -104,6 +104,9 @@
 	  <xs:element minOccurs="0" maxOccurs="1" name="unitsOpening" type="xs:integer"/>
       <xs:element minOccurs="0" maxOccurs="1" name="openingValue" type="xs:decimal"/>
 
+	  <xs:element minOccurs="0" maxOccurs="1" name="unitsClosing" type="xs:integer"/>
+      <xs:element minOccurs="0" maxOccurs="1" name="closingValue" type="xs:decimal"/>
+
 	  <xs:element minOccurs="0" maxOccurs="1" name="unitsBorn" type="xs:integer"/>
 	  <xs:element minOccurs="0" maxOccurs="1" name="bornValue" type="xs:decimal"/>
 	  
@@ -114,10 +117,10 @@
 	  <xs:element minOccurs="0" maxOccurs="1" name="deceasedValue" type="xs:decimal"/>
 	  
 	  <xs:element minOccurs="0" maxOccurs="1" name="unitsSales" type="xs:integer"/>
-	  <xs:element minOccurs="0" maxOccurs="1" name="salesValue" type="xs:decimal"/>
+	  <xs:element minOccurs="0" maxOccurs="1" name="saleValue" type="xs:decimal"/>
 
 	  <xs:element minOccurs="0" maxOccurs="1" name="unitsPurchases" type="xs:integer"/>
-	  <xs:element minOccurs="0" maxOccurs="1" name="purchasesValue" type="xs:decimal"/>
+	  <xs:element minOccurs="0" maxOccurs="1" name="purchaseValue" type="xs:decimal"/>
     </xs:all>
   </xs:complexType>
   <xs:complexType name="LivestockEvent">
