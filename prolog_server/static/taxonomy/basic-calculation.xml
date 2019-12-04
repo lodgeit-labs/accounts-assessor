@@ -4,7 +4,7 @@ Taxonomy Calculation Links linkbase based on XBRL standard Version 2.1.
 Created by UBmatrix Taxonomy Designer 3.0.2.2347 (2007-12-17 12:39).  
 Contact www.ubmatrix.com
 Copyright (c) 2002-2019 UBmatrix inc., All Rights Reserved
-Produced on 2019-08-09 09:56:41
+Produced on 2019-12-04 12:58:57
 -->
 <linkbase xmlns="http://www.xbrl.org/2003/linkbase" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xlink="http://www.w3.org/1999/xlink" xsi:schemaLocation=" http://www.xbrl.org/2003/linkbase http://www.xbrl.org/2003/xbrl-linkbase-2003-12-31.xsd">
   <roleRef xlink:type="simple" xlink:href="basic.xsd#BalanceSheet" roleURI="http://www.xbrlsite.com/basic/role/BalanceSheet" />
@@ -15,20 +15,14 @@ Produced on 2019-08-09 09:56:41
     <loc xlink:type="locator" xlink:href="basic.xsd#basic_Equity" xlink:label="basic_Equity" />
     <loc xlink:type="locator" xlink:href="basic.xsd#basic_RetainedEarnings" xlink:label="basic_RetainedEarnings" />
     <calculationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/summation-item" xlink:from="basic_Equity" xlink:to="basic_RetainedEarnings" order="1" weight="1" use="optional" />
-	<!--
-    <loc xlink:type="locator" xlink:href="basic.xsd#basic_CurrentEarningsLosses" xlink:label="basic_CurrentEarningsLosses" />
-    <calculationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/summation-item" xlink:from="basic_RetainedEarnings" xlink:to="basic_CurrentEarningsLosses" order="1" weight="1" use="optional" />
-	-->
     <loc xlink:type="locator" xlink:href="basic.xsd#basic_CurrentEarnings" xlink:label="basic_CurrentEarnings" />
     <calculationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/summation-item" xlink:from="basic_RetainedEarnings" xlink:to="basic_CurrentEarnings" order="1" weight="1" use="optional" />
-	<!--
-    <loc xlink:type="locator" xlink:href="basic.xsd#basic_HistoricalEarningsLosses" xlink:label="basic_HistoricalEarningsLosses" />
-    <calculationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/summation-item" xlink:from="basic_RetainedEarnings" xlink:to="basic_HistoricalEarningsLosses" order="2" weight="1" use="optional" />
-	-->
     <loc xlink:type="locator" xlink:href="basic.xsd#basic_HistoricalEarnings" xlink:label="basic_HistoricalEarnings" />
     <calculationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/summation-item" xlink:from="basic_RetainedEarnings" xlink:to="basic_HistoricalEarnings" order="2" weight="1" use="optional" />
-    <loc xlink:type="locator" xlink:href="basic.xsd#basic_ShareCapital" xlink:label="basic_ShareCapital" />
-    <calculationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/summation-item" xlink:from="basic_Equity" xlink:to="basic_ShareCapital" order="2" weight="1" use="optional" />
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_InvestmentsByOwners" xlink:label="basic_InvestmentsByOwners" />
+    <calculationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/summation-item" xlink:from="basic_Equity" xlink:to="basic_InvestmentsByOwners" order="2" weight="1" use="optional" />
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_DistributionToOwners" xlink:label="basic_DistributionToOwners" />
+    <calculationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/summation-item" xlink:from="basic_Equity" xlink:to="basic_DistributionToOwners" order="3" weight="-1" use="optional" />
     <loc xlink:type="locator" xlink:href="basic.xsd#basic_NetAssets" xlink:label="basic_NetAssets" />
     <loc xlink:type="locator" xlink:href="basic.xsd#basic_Assets" xlink:label="basic_Assets" />
     <calculationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/summation-item" xlink:from="basic_NetAssets" xlink:to="basic_Assets" order="1" weight="1" use="optional" />
@@ -38,45 +32,57 @@ Produced on 2019-08-09 09:56:41
     <calculationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/summation-item" xlink:from="basic_CurrentAssets" xlink:to="basic_CashAndCashEquivalents" order="1" weight="1" use="optional" />
     <loc xlink:type="locator" xlink:href="basic.xsd#basic_Banks" xlink:label="basic_Banks" />
     <calculationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/summation-item" xlink:from="basic_CashAndCashEquivalents" xlink:to="basic_Banks" order="1" weight="1" use="optional" />
-    <loc xlink:type="locator" xlink:href="basic.xsd#basic_NoncurrentAssets" xlink:label="basic_NoncurrentAssets" />
-    <calculationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/summation-item" xlink:from="basic_Assets" xlink:to="basic_NoncurrentAssets" order="2" weight="1" use="optional" />
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_Inventories" xlink:label="basic_Inventories" />
+    <calculationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/summation-item" xlink:from="basic_CurrentAssets" xlink:to="basic_Inventories" order="2" weight="1" use="optional" />
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_NonCurrentAssets" xlink:label="basic_NonCurrentAssets" />
+    <calculationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/summation-item" xlink:from="basic_Assets" xlink:to="basic_NonCurrentAssets" order="2" weight="1" use="optional" />
     <loc xlink:type="locator" xlink:href="basic.xsd#basic_FinancialInvestments" xlink:label="basic_FinancialInvestments" />
-    <calculationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/summation-item" xlink:from="basic_NoncurrentAssets" xlink:to="basic_FinancialInvestments" order="1" weight="1" use="optional" />
-    <loc xlink:type="locator" xlink:href="basic.xsd#basic_Shares" xlink:label="basic_Shares" />
-    <calculationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/summation-item" xlink:from="basic_FinancialInvestments" xlink:to="basic_Shares" order="1" weight="1" use="optional" />
-    <loc xlink:type="locator" xlink:href="basic.xsd#basic_Unit_Investment" xlink:label="basic_Unit_Investment" />
-    <calculationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/summation-item" xlink:from="basic_FinancialInvestments" xlink:to="basic_Unit_Investment" order="2" weight="1" use="optional" />
-    <loc xlink:type="locator" xlink:href="basic.xsd#basic_Bonds" xlink:label="basic_Bonds" />
-    <calculationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/summation-item" xlink:from="basic_FinancialInvestments" xlink:to="basic_Bonds" order="3" weight="1" use="optional" />
+    <calculationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/summation-item" xlink:from="basic_NonCurrentAssets" xlink:to="basic_FinancialInvestments" order="1" weight="1" use="optional" />
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_FixedAssets" xlink:label="basic_FixedAssets" />
+    <calculationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/summation-item" xlink:from="basic_NonCurrentAssets" xlink:to="basic_FixedAssets" order="2" weight="1" use="optional" />
     <loc xlink:type="locator" xlink:href="basic.xsd#basic_Liabilities" xlink:label="basic_Liabilities" />
     <calculationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/summation-item" xlink:from="basic_NetAssets" xlink:to="basic_Liabilities" order="2" weight="-1" use="optional" />
-    <loc xlink:type="locator" xlink:href="basic.xsd#basic_NoncurrentLiabilities" xlink:label="basic_NoncurrentLiabilities" />
-    <calculationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/summation-item" xlink:from="basic_Liabilities" xlink:to="basic_NoncurrentLiabilities" order="1" weight="1" use="optional" />
-    <loc xlink:type="locator" xlink:href="basic.xsd#basic_NoncurrentLoans" xlink:label="basic_NoncurrentLoans" />
-    <calculationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/summation-item" xlink:from="basic_NoncurrentLiabilities" xlink:to="basic_NoncurrentLoans" order="1" weight="1" use="optional" />
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_NonCurrentLiabilities" xlink:label="basic_NonCurrentLiabilities" />
+    <calculationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/summation-item" xlink:from="basic_Liabilities" xlink:to="basic_NonCurrentLiabilities" order="1" weight="1" use="optional" />
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_NonCurrentLoans" xlink:label="basic_NonCurrentLoans" />
+    <calculationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/summation-item" xlink:from="basic_NonCurrentLiabilities" xlink:to="basic_NonCurrentLoans" order="1" weight="1" use="optional" />
   </calculationLink>
   <calculationLink xlink:type="extended" xlink:role="http://www.xbrlsite.com/basic/role/IncomeStatement">
-    <loc xlink:type="locator" xlink:href="basic.xsd#basic_NetIncomeLoss" xlink:label="basic_NetIncomeLoss" />
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_ComprehensiveIncome" xlink:label="basic_ComprehensiveIncome" />
     <loc xlink:type="locator" xlink:href="basic.xsd#basic_Revenue" xlink:label="basic_Revenue" />
-    <calculationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/summation-item" xlink:from="basic_NetIncomeLoss" xlink:to="basic_Revenue" order="1" weight="1" use="optional" />
+    <calculationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/summation-item" xlink:from="basic_ComprehensiveIncome" xlink:to="basic_Revenue" order="1" weight="1" use="optional" />
     <loc xlink:type="locator" xlink:href="basic.xsd#basic_InvestmentIncome" xlink:label="basic_InvestmentIncome" />
     <calculationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/summation-item" xlink:from="basic_Revenue" xlink:to="basic_InvestmentIncome" order="1" weight="1" use="optional" />
     <loc xlink:type="locator" xlink:href="basic.xsd#basic_InterestEarned" xlink:label="basic_InterestEarned" />
     <calculationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/summation-item" xlink:from="basic_InvestmentIncome" xlink:to="basic_InterestEarned" order="1" weight="1" use="optional" />
     <loc xlink:type="locator" xlink:href="basic.xsd#basic_DividendsEarned" xlink:label="basic_DividendsEarned" />
     <calculationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/summation-item" xlink:from="basic_InvestmentIncome" xlink:to="basic_DividendsEarned" order="2" weight="1" use="optional" />
-    <loc xlink:type="locator" xlink:href="basic.xsd#basic_CapitalGain" xlink:label="basic_CapitalGain" />
-    <calculationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/summation-item" xlink:from="basic_InvestmentIncome" xlink:to="basic_CapitalGain" order="3" weight="1" use="optional" />
-    <loc xlink:type="locator" xlink:href="basic.xsd#basic_ForexGain" xlink:label="basic_ForexGain" />
-    <calculationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/summation-item" xlink:from="basic_InvestmentIncome" xlink:to="basic_ForexGain" order="4" weight="1" use="optional" />
     <loc xlink:type="locator" xlink:href="basic.xsd#basic_Expenses" xlink:label="basic_Expenses" />
-    <calculationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/summation-item" xlink:from="basic_NetIncomeLoss" xlink:to="basic_Expenses" order="2" weight="-1" use="optional" />
-    <loc xlink:type="locator" xlink:href="basic.xsd#basic_ForexLoss" xlink:label="basic_ForexLoss" />
-    <calculationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/summation-item" xlink:from="basic_Expenses" xlink:to="basic_ForexLoss" order="1" weight="1" use="optional" />
+    <calculationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/summation-item" xlink:from="basic_ComprehensiveIncome" xlink:to="basic_Expenses" order="2" weight="-1" use="optional" />
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_CostGoodsSold" xlink:label="basic_CostGoodsSold" />
+    <calculationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/summation-item" xlink:from="basic_Expenses" xlink:to="basic_CostGoodsSold" order="1" weight="1" use="optional" />
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_IndirectCosts" xlink:label="basic_IndirectCosts" />
+    <calculationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/summation-item" xlink:from="basic_Expenses" xlink:to="basic_IndirectCosts" order="2" weight="1" use="optional" />
     <loc xlink:type="locator" xlink:href="basic.xsd#basic_BankCharges" xlink:label="basic_BankCharges" />
-    <calculationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/summation-item" xlink:from="basic_Expenses" xlink:to="basic_BankCharges" order="2" weight="1" use="optional" />
-    <loc xlink:type="locator" xlink:href="basic.xsd#basic_CurrencyMovement" xlink:label="basic_CurrencyMovement" />
-    <calculationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/summation-item" xlink:from="basic_Revenue" xlink:to="basic_CurrencyMovement" order="2" weight="1" use="optional" />
+    <calculationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/summation-item" xlink:from="basic_IndirectCosts" xlink:to="basic_BankCharges" order="1" weight="1" use="optional" />
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_InterestExpenses" xlink:label="basic_InterestExpenses" />
+    <calculationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/summation-item" xlink:from="basic_IndirectCosts" xlink:to="basic_InterestExpenses" order="2" weight="1" use="optional" />
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_Gains" xlink:label="basic_Gains" />
+    <calculationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/summation-item" xlink:from="basic_ComprehensiveIncome" xlink:to="basic_Gains" order="3" weight="1" use="optional" />
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_RealisedGainsOnDisposalInvestments" xlink:label="basic_RealisedGainsOnDisposalInvestments" />
+    <calculationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/summation-item" xlink:from="basic_Gains" xlink:to="basic_RealisedGainsOnDisposalInvestments" order="1" weight="1" use="optional" />
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_UnrealisedGainsOnInvestments" xlink:label="basic_UnrealisedGainsOnInvestments" />
+    <calculationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/summation-item" xlink:from="basic_Gains" xlink:to="basic_UnrealisedGainsOnInvestments" order="2" weight="1" use="optional" />
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_UnrealisedForexGainsOnInvestments" xlink:label="basic_UnrealisedForexGainsOnInvestments" />
+    <calculationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/summation-item" xlink:from="basic_Gains" xlink:to="basic_UnrealisedForexGainsOnInvestments" order="3" weight="1" use="optional" />
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_Losses" xlink:label="basic_Losses" />
+    <calculationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/summation-item" xlink:from="basic_ComprehensiveIncome" xlink:to="basic_Losses" order="4" weight="1" use="optional" />
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_RealisedLossesOnDisposalInvestments" xlink:label="basic_RealisedLossesOnDisposalInvestments" />
+    <calculationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/summation-item" xlink:from="basic_Losses" xlink:to="basic_RealisedLossesOnDisposalInvestments" order="1" weight="1" use="optional" />
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_UnrealisedLossesOnInvestments" xlink:label="basic_UnrealisedLossesOnInvestments" />
+    <calculationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/summation-item" xlink:from="basic_Losses" xlink:to="basic_UnrealisedLossesOnInvestments" order="2" weight="1" use="optional" />
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_UnrealisedForexLossesOnInvestments" xlink:label="basic_UnrealisedForexLossesOnInvestments" />
+    <calculationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/summation-item" xlink:from="basic_Losses" xlink:to="basic_UnrealisedForexLossesOnInvestments" order="3" weight="1" use="optional" />
   </calculationLink>
   <calculationLink xlink:type="extended" xlink:role="http://www.xbrlsite.com/basic/role/CashFlowStatement">
     <loc xlink:type="locator" xlink:href="basic.xsd#basic_NetCashFlow" xlink:label="basic_NetCashFlow" />
