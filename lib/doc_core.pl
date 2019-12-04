@@ -26,7 +26,7 @@ doc_add(S,P,O) :-
 
 :- rdf_meta doc(r,r,r).
 /*
-must have single match
+must have at most one match
 */
 doc(S,P,O) :-
 	b_getval(default_graph, G),
@@ -54,7 +54,7 @@ rol_single_match(T,SpogA) :-
 	findall(x,rol_member(T,SpogA),Matches),
 	length(Matches, Length),
 	(	Length > 1
-	->	throw(multiple_matches)
+	->	gtrace,throw(multiple_matches)
 	;	rol_member(T,SpogA)).
 
 
@@ -103,7 +103,7 @@ test(3) :-
 	rol_add(T,a),rol_add(T,b).
 /*
 test(4, throws(multiple_matches)) :-
-	rol_add(T,a),rol_add(T,b),doc(T,_X).
+	rol_add(T,a),rol_add(T,b),doc:doc(T,_X).
 */
 test(5, all(x=[x])) :-
 	rol_add(T,a),rol_add(T,b),rol_member(T,a).

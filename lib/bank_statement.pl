@@ -167,9 +167,9 @@ preprocess_s_transaction(Static_Data, S_Transaction, Transactions, Outstanding_B
 	s_transaction_vector(S_Transaction, Vector_Ours),
 	s_transaction_day(S_Transaction, Transaction_Date),
 	Pricing_Method = lifo,
-	doc(Action_Verb, l:has_id, Action_Verb_Id),
-	(doc(Action_Verb, l:has_counteraccount, Exchanged_Account)->true;throw_string('action verb does not specify exchange account')),
-	(doc(Action_Verb, l:has_trading_account, Trading_Account)->true;true),
+	doc:doc(Action_Verb, l:has_id, Action_Verb_Id),
+	(doc:doc(Action_Verb, l:has_counteraccount, Exchanged_Account)->true;throw_string('action verb does not specify exchange account')),
+	(doc:doc(Action_Verb, l:has_trading_account, Trading_Account)->true;true),
 	Description = Action_Verb_Id,
 	affect_bank_account(Static_Data, S_Transaction, Description, Ts1),
 	pacioli:vector_unit(Vector_Ours, Bank_Account_Currency),
@@ -299,7 +299,7 @@ record_expense_or_earning_or_equity_or_loan(Static_Data, Action_Verb, Vector_Our
 	vec_change_bases(Exchange_Rates, Date, Report_Currency, Vector_Ours2, Vector_Converted),
 	(
 		(
-			doc(Action_Verb, l:has_gst_rate, Gst_Rate^^_),
+			doc:doc(Action_Verb, l:has_gst_rate, Gst_Rate^^_),
 			Gst_Rate =\= 0
 		)
 	->
@@ -308,9 +308,9 @@ record_expense_or_earning_or_equity_or_loan(Static_Data, Action_Verb, Vector_Our
 				/*we sold stuff with tax included and received money, gotta pay GST*/
 				is_debit(Vector_Ours)
 			->
-				doc(Action_Verb, l:has_gst_payable_account, Gst_Acc)
+				doc:doc(Action_Verb, l:has_gst_payable_account, Gst_Acc)
 			;
-				doc(Action_Verb, l:has_gst_receivable_account, Gst_Acc)
+				doc:doc(Action_Verb, l:has_gst_receivable_account, Gst_Acc)
 			),
 			pacioli:split_vector_by_percent(Vector_Converted, Gst_Rate, Gst_Vector, Vector_Converted_Remainder),
 			make_transaction(Date, Description, Gst_Acc, Gst_Vector, T0)

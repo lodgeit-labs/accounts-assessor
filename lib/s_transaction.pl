@@ -60,7 +60,7 @@ s_transactions_up_to(End_Date, S_Transactions_In, S_Transactions_Out) :-
 s_transaction_to_dict(St, D) :-
 	St = s_transaction(Day, uri(Verb), Vector, Account, Exchanged),
 	(	/* here's an example of the shortcoming of ignoring the rdf prefix issue, fixme */
-		doc(Verb, l:has_id, Verb_Label)
+		doc:doc(Verb, l:has_id, Verb_Label)
 	->	true
 	;	Verb_Label = Verb),
 	D = _{
@@ -135,7 +135,7 @@ s_transaction_action_verb(S_Transaction, Action_Verb) :-
 	Type_Id \= uri(_),
 	(	(
 			action_verbs:action_verb(Action_Verb),
-			doc(Action_Verb, l:has_id, Type_Id)
+			doc:doc(Action_Verb, l:has_id, Type_Id)
 		)
 	->	true
 	;	(gtrace,utils:throw_string(['unknown action verb:',Type_Id]))).

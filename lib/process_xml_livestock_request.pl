@@ -13,7 +13,7 @@
 :- use_module('xml', [
 	validate_xml/3
 ]).
-
+:- use_module('doc', []).
 
 :- ['livestock_calculator'].
 
@@ -22,80 +22,72 @@ process_xml_livestock_request(File_Name, DOM, Reports) :-
 	findall(Livestock, xpath(DOM, //reports/livestockaccount/livestocks/livestock, Livestock), Livestocks),
 	Livestocks \= [],
 
-	Reports = _{
-		files: File_Infos,
-		errors: [Schema_Errors, Alerts],
-		warnings: []
-	},
-
 	absolute_tmp_path(File_Name, Instance_File),
 	absolute_file_name(my_schemas('bases/Reports.xsd'), Schema_File, []),
 	validate_xml(Instance_File, Schema_File, Schema_Errors),
-	(
-		Schema_Errors = []
-	->
-		(
-
+	(	Schema_Errors = []
+	->	(
 			writeln('<response>'),
 			writeln('<livestocks>'),
 			maplist(process, Livestocks, Alerts, File_Infos),
+			Reports = _{
+				files: File_Infos,
+				errors: [Schema_Errors, Alerts],
+				warnings: []
+			},
 			writeln('</livestocks>'),
 			writeln('</response>'),
 			nl, nl
 		)
+	;	Reports = _{
+			files: [],
+			errors: [Schema_Errors],
+			warnings: []
+		}
 	).
 	
 process(DOM, [], Report_File_Info) :-
+	livestock_extract:extract_livestock_data(DOM, T),
 	writeln('<livestock>'),
-	inner_xml(DOM, //name, [Name]),
-	inner_xml(DOM, //currency, [Currency]),
-	write_tag('name', Name),
-	write_tag('currency', Currency),
 
-	Inputs = 
-	[
-		'unitsBorn',						Natural_increase_count,
-		'naturalIncreaseValuePerUnit',		Natural_increase_value_per_head,
-		'unitsSales',						Sales_count,
-		% todo maybe rename to salesValue
-		'saleValue', 						Sales_value,
-		'unitsRations', 					Killed_for_rations_count,
-		'unitsOpening', 					Stock_on_hand_at_beginning_of_year_count,
-		'openingValue',				 		Stock_on_hand_at_beginning_of_year_value,
-		'unitsClosing', 					(Stock_on_hand_at_end_of_year_count_input, _),
-		'unitsPurchases',		 			Purchases_count,
-		% todo maybe rename to purchasesValue
-		'purchaseValue',					Purchases_value,
-		'unitsDeceased',					Losses_count
-	],
+	doc:doc(T, livestock:name, Name),
+	doc:doc(T, livestock:currency, Currency),
+	doc:doc(T, livestock:natural_increase_value_per_unit, exchange_rate(xxx, Name, Currency, NaturalIncreaseValuePerUnit)),
+	doc:doc(T, livestock:opening_cost,   value(Currency, Opening_Cost  )),
+	doc:doc(T, livestock:opening_count,  value(Name,    Opening_Count )),
+	doc:doc(T, livestock:purchase_cost,  value(Currency, Purchase_Cost )),
+	doc:doc(T, livestock:purchase_count, value(Name,    Purchase_Count)),
+	%doc:doc(T, livestock:rations_value,  value(Currency, Rations_Value )),
+	doc:doc(T, livestock:rations_count,  value(Name,    Rations_Count )),
+	doc:doc(T, livestock:sale_cost,      value(Currency, Sale_Cost     )),
+	doc:doc(T, livestock:sale_count,     value(Name,    Sale_Count    )),
+	%doc:doc(T, livestock:closing_value,  value(Currency, Closing_Value )),
+	doc:doc(T, livestock:closing_count,  value(Name,    Closing_Count )),
+	doc:doc(T, livestock:losses_count,   value(Name,    Losses_Count  )),
+	doc:doc(T, livestock:born_count,     value(Name,    Born_Count    )),
+	doc:doc(T, livestock:average_cost,   exchange_rate(xxx, Name, Currency, _)),
 
-	numeric_fields(DOM, Inputs),
 
-	compute_livestock_by_simple_calculation(Natural_increase_count,Natural_increase_value_per_head,Sales_count,Sales_value,Killed_for_rations_count,Stock_on_hand_at_beginning_of_year_count,Stock_on_hand_at_beginning_of_year_value,Stock_on_hand_at_end_of_year_count_input,Purchases_count,Purchases_value,Losses_count,Killed_for_rations_value,Stock_on_hand_at_end_of_year_value,Closing_and_killed_and_sales_minus_losses_count,Closing_and_killed_and_sales_value,Opening_and_purchases_and_increase_count,Opening_and_purchases_value,Natural_Increase_value,Average_cost,Revenue,Livestock_COGS,Gross_Profit_on_Livestock_Trading, Explanation),
+	compute_livestock_by_simple_calculation(Born_Count,NaturalIncreaseValuePerUnit,Sale_Count,Sale_Cost,Rations_Count,Opening_Count,Opening_Cost,Closing_Count,Purchase_Count,Purchase_Cost,Losses_Count,Killed_for_rations_value,Stock_on_hand_at_end_of_year_value,Closing_and_killed_and_sales_minus_losses_count,Closing_and_killed_and_sales_value,Opening_and_purchases_and_increase_count,Opening_and_purchases_value,Natural_Increase_value,Average_cost,Revenue,Livestock_COGS,Gross_Profit_on_Livestock_Trading, Explanation),
 	
 	findall(Line, (member(L, Explanation), atomic_list_concat(L, Line)),  Explanation_Lines),
 	atomic_list_concat(Explanation_Lines, '\n', Explanation_Str),
 	
-	% simplify the Inputs array, where there is a pair (Var, Default), leave just Var
-	findall(
-		Item,
-		(
-			member(X, Inputs),
-			(
-				X = (Item, _Default)
-				;
-				(
-					atomic(X),
-					Item = X
-				)
-			)
-		),
-		Inputs_Without_Defaults
-	),
-	
-	utils:unzip(Inputs_Without_Defaults, Input_Tags, Input_Vars),
-	maplist(write_tag, Input_Tags, Input_Vars),
-
+	write_tag('name', Name),
+	write_tag('currency', Currency),
+	write_tag('unitsBorn',Born_Count),
+	write_tag('naturalIncreaseValuePerUnit',NaturalIncreaseValuePerUnit),
+	write_tag('unitsSales',Sale_Count),
+	write_tag('saleValue',Sale_Cost),
+	write_tag('unitsRations',Rations_Count),
+	write_tag('unitsOpening',Opening_Count),
+	write_tag('openingValue',Opening_Cost),
+	write_tag('unitsClosing',Closing_Count),
+	write_tag('unitsPurchases',Purchase_Count),
+	write_tag('purchaseValue',Purchase_Cost),
+	write_tag('unitsDeceased',Losses_Count),
+	%write_tag('rationsValue',Rations_Value),
+	%write_tag('closingValue',Closing_Value),
     write_tag('Killed_for_rations_value',	Killed_for_rations_value),
     write_tag('Stock_on_hand_at_end_of_year_value',					Stock_on_hand_at_end_of_year_value),
     write_tag('Closing_and_killed_and_sales_minus_losses_count',	Closing_and_killed_and_sales_minus_losses_count),

@@ -23,9 +23,7 @@
 	parse_date/2
 ]).
 :- use_module(library(semweb/rdf11)).
-:- use_module('doc', [
-	doc/3
-]).
+:- use_module('doc', []).
 :- use_module('ledger_report', [
 	balance_by_account/9
 ]).
@@ -45,7 +43,7 @@
 :- rdet(preprocess_livestock_buy_or_sell/3).
 
 livestock_data(Uri) :-
-	doc(Uri, rdf:a, l:livestock_data).
+	doc:doc(Uri, rdf:a, l:livestock_data).
 
 livestock_data_by_vector_unit(Livestock, Exchanged) :-
 	pacioli:vector_unit(Exchanged, Unit),
@@ -53,7 +51,7 @@ livestock_data_by_vector_unit(Livestock, Exchanged) :-
 		L,
 		(
 			livestock_data(L),
-			doc(L, livestock:name, Unit/*?*/)
+			doc:doc(L, livestock:name, Unit/*?*/)
 		),
 		Known_Livestock_Datas
 	),
@@ -63,7 +61,7 @@ livestock_data_by_vector_unit(Livestock, Exchanged) :-
 	;   true),
 	(	Known_Livestock_Datas_Length = 0
 	->	(
-			findall(U,(livestock_data(L),doc(L, livestock:name, U)),Units),
+			findall(U,(livestock_data(L),doc:doc(L, livestock:name, U)),Units),
 			format(user_error, 'WARNING:looking for livestock unit ~q, known units: ~q', [Unit, Units])
 		)
 	;	true),

@@ -48,7 +48,7 @@
 :- use_module('crosschecks_report').
 :- use_module('invoices').
 :- use_module('xbrl_output', [create_instance/10]).
-:- use_module('doc', [doc/3, doc_add/3, doc_new_theory/1, doc_new_uri/1]).
+:- use_module('doc', []).
 :- use_module(library(xpath)).
 :- use_module(library(rdet)).
 :- use_module(library(xsd/validate)).
@@ -81,18 +81,7 @@ process_xml_ledger_request(File_Name, Dom, Reports) :-
 	).
 
 
-
-
-	
 process_xml_ledger_request2(Dom, Reports_Out) :-
-
-	/*
-	i'm storing some data in the 'doc' rdf-like database, only as an experiment for now.
-	livestock data exclusively, other data in parallel with passing the around in variables
-	*/
-	doc_core:doc_clear,
-	doc_new_uri(R),
-	doc_add(R, rdf:a, l:request),
 	/*
 		first let's extract data from the request
 	*/
@@ -104,10 +93,11 @@ process_xml_ledger_request2(Dom, Reports_Out) :-
 	accounts_extract:extract_account_hierarchy_from_request_dom(Dom, Accounts0),
 	inner_xml(Dom, //reports/balanceSheetRequest/startDate, [Start_Date_Atom]),
 	parse_date(Start_Date_Atom, Start_Date),
-	doc_add(R, l:start_date, Start_Date),
+	doc:doc(R, rdf:a, l:request),
+	doc:doc_add(R, l:start_date, Start_Date),
 	inner_xml(Dom, //reports/balanceSheetRequest/endDate, [End_Date_Atom]),
 	parse_date(End_Date_Atom, End_Date),
-	doc_add(R, l:end_date, End_Date),
+	doc:doc_add(R, l:end_date, End_Date),
 	
 	extract_exchange_rates(Dom, Start_Date, End_Date, Default_Currency, Exchange_Rates),
 	livestock_extract:extract(Dom),

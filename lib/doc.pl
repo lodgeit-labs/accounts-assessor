@@ -1,4 +1,4 @@
-:- module(_, [doc/3, docm/3, doc_add/3, doc_new_theory/1, doc_new_uri/1]).
+:- module(_, [doc/3, docm/3, doc_add/3]).
 :- use_module(doc_core, [doc/3, docm/3, doc_add/3]).
 :- use_module('files', []).
 :- use_module(library(semweb/rdf11)).
@@ -18,11 +18,11 @@ doc_new_uri(Uri) :-
 	files:my_request_tmp_dir(D),
 	gensym(bn, Uid),
 	atomics_to_string([D, '/rdf#', Uid], Uri),
-	assertion(\+doc(Uri,_,_)),
-	assertion(\+doc(_,_,Uri)).
+	assertion(\+doc:doc(Uri,_,_)),
+	assertion(\+doc:doc(_,_,Uri)).
 
 :- rdf_meta request_has_property(r,r).
 
 request_has_property(P, O) :-
-	doc(R, rdf:a, l:request),
-	doc(R, P, O).
+	doc:doc(R, rdf:a, l:request),
+	doc:doc(R, P, O).

@@ -146,7 +146,7 @@ trading_account_ids(Ids) :-
 		A,
 		(
 			action_verbs:action_verb(Action_Verb),
-			doc(Action_Verb, l:has_trading_account, A)
+			doc:doc(Action_Verb, l:has_trading_account, A)
 		),
 		Ids0
 	),

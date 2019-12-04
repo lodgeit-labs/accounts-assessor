@@ -31,7 +31,7 @@
 
 :- use_module(library(xbrl/utils), [inner_xml/3, trim_atom/2,pretty_term_string/2, throw_string/1, is_url/1]).
 :- use_module('files', [server_public_url/1, absolute_tmp_path/2, write_tmp_json_file/2]).
-:- use_module('doc', [doc/3, doc_add/3, doc_new_theory/1, doc_new_uri/1]).
+:- use_module('doc', []).
 
 :- use_module(library(http/http_client)).
 :- use_module(library(record)).
@@ -116,8 +116,8 @@ account_by_role(Accounts, Role, Account_Id) :-
 	).
 
 account_by_role(Role, Account_Id) :-
-	doc(T, rdf:a, l:request),
-	doc(T, l:accounts, Accounts),
+	doc:doc(T, rdf:a, l:request),
+	doc:doc(T, l:accounts, Accounts),
 	account_by_role(Accounts, Role, Account_Id).
 
 

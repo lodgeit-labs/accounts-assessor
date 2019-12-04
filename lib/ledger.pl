@@ -38,7 +38,7 @@
 :- use_module('exchange', [
 		vec_change_bases/5
 ]).
-:- use_module('doc', [doc/3, doc_add/3]).
+:- use_module('doc', []).
 
 :- use_module(library(rdet)).
 
@@ -111,8 +111,8 @@ process_ledger(
 	%check_accounts(Accounts)
 	maplist(accounts:check_account_parent(Accounts), Accounts), 
 	accounts:write_accounts_json_report(Accounts),
-	doc(T, rdf:a, l:request),
-	doc_add(T, l:accounts, Accounts),
+	doc:doc(T, rdf:a, l:request),
+	doc:doc_add(T, l:accounts, Accounts),
 
 	dict_from_vars(Static_Data0, [Accounts, Report_Currency, Start_Date, End_Date, Exchange_Rates, Cost_Or_Market]),
 	s_transaction:prepreprocess(Static_Data0, S_Transactions, Prepreprocessed_S_Transactions),
