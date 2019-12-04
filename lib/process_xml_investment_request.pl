@@ -1,4 +1,7 @@
-/* simple investment calculator
+/*
+finishme:do coord/3 => coord/2 refactoring
+
+simple investment calculator
 see doc/investment and dropbox Develop/videos/ledger
 */
 

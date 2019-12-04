@@ -1,7 +1,7 @@
 :- module(_, []).
 
 :- use_module('files', []).
-
+:- use_module(library(http/http_dispatch), [http_safe_file/2]).
 :- use_module(library(xpath)).
 
 /*
@@ -46,14 +46,19 @@ extract_account_hierarchy_from_accountHierarchy_element(E, Accounts) :-
 			atom(Atom)
 		)
 	->	(
-			utils:trim_atom(Atom, Url),
+			utils:trim_atom(Atom, Trimmed),
+			(	utils:is_url(Trimmed)
+			->	Url_Or_Path = Trimmed
+			;	(	http_safe_file(Trimmed, []),
+					absolute_file_name(my_static(Trimmed), Url_Or_Path, [ access(read) ])
+				)),
 			(
 				(
-					utils:xml_from_path_or_url(Url, AccountHierarchy_Elements),
+					utils:xml_from_path_or_url(Url_Or_Path, AccountHierarchy_Elements),
 					xpath(AccountHierarchy_Elements, //accountHierarchy, _)
 				)
 				->	true
-				;	arelle(taxonomy, Url, AccountHierarchy_Elements)
+				;	arelle(taxonomy, Url_Or_Path, AccountHierarchy_Elements)
 			)
 		)
 	;
