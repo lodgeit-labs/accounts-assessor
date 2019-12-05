@@ -7,12 +7,6 @@
 
 :- module(prolog_server, [run_simple_server/0, run_daemon/0]).
 
-% -------------------------------------------------------------------
-% Style checking
-% -------------------------------------------------------------------
-
-:- style_check([-discontiguous, +singleton]).
-
 %--------------------------------------------------------------------
 % Modules
 %--------------------------------------------------------------------
@@ -31,8 +25,8 @@
 :- use_module(library(http/http_error)). 
 
 :- use_module('files', [bump_tmp_directory_id/0, absolute_tmp_path/2]).
-:- use_module('chat/residency').
-:- use_module('chat/sbe').
+:- use_module('residency').
+:- use_module('sbe').
 :- ensure_loaded('process_data').
 
 

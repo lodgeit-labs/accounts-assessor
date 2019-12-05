@@ -1,16 +1,17 @@
 :- module(ledger, [
-		find_s_transactions_in_period/4,
-		process_ledger/20
+		find_s_transactions_in_period/4
 	]).
 
 :- use_module('system_accounts', [
 		traded_units/2,
 		generate_system_accounts/3]).
-:- use_module('accounts').
-:- use_module('statements', [
+:- use_module('bank_statement', [
+		preprocess_s_transactions/6
+]).
+:- use_module('s_transaction', [
 		s_transaction_day/2,
-		preprocess_s_transactions/6,
-		s_transactions_up_to/3]).
+		s_transactions_up_to/3
+]).
 :- use_module('days', [
 		format_date/2, 
 		parse_date/2, 
@@ -18,13 +19,11 @@
 		add_days/3,
 		date_between/3
 ]).
-:- use_module('utils', [
+:- use_module(library(xbrl/utils), [
 		pretty_term_string/2,
 		dict_json_text/2
 ]).
-:- use_module('livestock', [
-		livestock_counts/6
-]). 
+:- use_module('livestock', []).
 :- use_module('transactions', [
 		check_transaction_account/2,
 		transactions_by_account/2
@@ -39,10 +38,11 @@
 :- use_module('exchange', [
 		vec_change_bases/5
 ]).
+:- use_module('doc', []).
 
 :- use_module(library(rdet)).
 
-:- rdet(generate_gl_data/6).
+:- rdet(generate_gl_data/5).
 :- rdet(make_gl_entry/4).
 :- rdet(transaction_with_converted_vector/4).
 
@@ -59,20 +59,15 @@ find_s_transactions_in_period(S_Transactions, Opening_Date, Closing_Date, Out) :
 
 process_ledger(
 	Cost_Or_Market, 
-	Livestock_Doms, 
-	S_Transactions0, 
-	Processed_S_Transactions,
-	Start_Date, 
+	S_Transactions0,
+	Start_Date,
 	End_Date, 
 	Exchange_Rates0, 
-	Report_Currency, 
-	Livestock_Types, 
-	Livestock_Opening_Costs_And_Counts, 
-	Accounts_In, 
+	Report_Currency,
+	Accounts_In,
 	Accounts, 
 	Transactions_With_Livestock,
 	Transactions_By_Account,
-	Transaction_Transformation_Debug,
 	Outstanding_Out,
 	Processed_Until,
 	Warnings,
@@ -104,7 +99,7 @@ process_ledger(
 		Exchange_Rates0 = Exchange_Rates
 	),
 	
-	generate_system_accounts((S_Transactions, Livestock_Types), Accounts_In, Generated_Accounts_Nested),
+	generate_system_accounts(S_Transactions, Accounts_In, Generated_Accounts_Nested),
 	flatten(Generated_Accounts_Nested, Generated_Accounts),
 	pretty_term_string(Generated_Accounts, Message3b),
 	atomic_list_concat([
@@ -116,33 +111,18 @@ process_ledger(
 	%check_accounts(Accounts)
 	maplist(accounts:check_account_parent(Accounts), Accounts), 
 	accounts:write_accounts_json_report(Accounts),
-	
+	doc:doc(T, rdf:a, l:request),
+	doc:doc_add(T, l:accounts, Accounts),
+
 	dict_from_vars(Static_Data0, [Accounts, Report_Currency, Start_Date, End_Date, Exchange_Rates, Cost_Or_Market]),
-	
-	preprocess_s_transactions(Static_Data0, S_Transactions, Processed_S_Transactions, Transactions0, Outstanding_Out, Transaction_Transformation_Debug),
-	
-	(
-		S_Transactions = Processed_S_Transactions
-	-> 
-		(
-			Processed_Until = End_Date,
-			Last_Good_Day = End_Date
-		)
-	;
-		(
-			last(Processed_S_Transactions, Last_Processed_S_Transaction),
-			s_transaction_day(Last_Processed_S_Transaction, Date),
-			% todo we could/should do: Processed_Until = with_note(Date, 'until error'),
-			Processed_Until = Date,
-			add_days(Date, -1, Last_Good_Day)
-		)
-	),
+	s_transaction:prepreprocess(Static_Data0, S_Transactions, Prepreprocessed_S_Transactions),
+	preprocess_until_error(Static_Data0, Prepreprocessed_S_Transactions, Processed_S_Transactions, Transactions0, Outstanding_Out, Transaction_Transformation_Debug, End_Date, Processed_Until),
 	flatten(Transactions0, Transactions1),
-	
-	livestock:process_livestock(Livestock_Doms, Livestock_Types, Processed_S_Transactions, Transactions1, Livestock_Opening_Costs_And_Counts, Start_Date, Last_Good_Day, Exchange_Rates, Accounts, Report_Currency, Transactions_With_Livestock, Livestock_Events, Average_Costs, Average_Costs_Explanations, Livestock_Counts),
+
+	livestock:process_livestock((Processed_S_Transactions, Transactions1), Livestock_Transactions),
+	flatten([Transactions1,	Livestock_Transactions], Transactions_With_Livestock),
 
 	/*
-	
 	this is probably the right place to plug in hirepurchase and depreciation,
 	take Transactions_With_Livestock and produce an updated list.
 	notes:
@@ -152,29 +132,25 @@ process_ledger(
 	to be explained:
 		how to get balance on account
 		how to generate and return json+html reports
-		
 	*/
 
 	maplist(check_transaction_account(Accounts), Transactions_With_Livestock),
 
 	atomic_list_concat(Transaction_Transformation_Debug, Message10),
 	(
-		Livestock_Doms = []
+		once(livestock:livestock_data(_))
 	->
 		Livestock_Debug = ''
 	;
 		(
-			pretty_term_string(Livestock_Events, Message0b),
 			pretty_term_string(Transactions_With_Livestock, Message1),
-			pretty_term_string(Livestock_Counts, Message12),
+			/*pretty_term_string(Livestock_Counts, Message12),
 			pretty_term_string(Average_Costs, Message5),
-			pretty_term_string(Average_Costs_Explanations, Message5b),
+			pretty_term_string(Average_Costs_Explanations, Message5b),*/
 
 			atomic_list_concat([
-				'Livestock Events:\n', Message0b,'\n\n',
-				'Livestock Counts:\n', Message12,'\n\n',
-				'Average_Costs:\n', Message5,'\n\n',
-				'Average_Costs_Explanations:\n', Message5b,'\n\n',
+/*				'Average_Costs:\n', Message5,'\n\n',
+				'Average_Costs_Explanations:\n', Message5b,'\n\n',*/
 				'Transactions_With_Livestock:\n', Message1,'\n\n'
 			], Livestock_Debug)
 		)
@@ -194,10 +170,7 @@ process_ledger(
 		Processed_S_Transactions, 
 		/* list of lists */
 		Transactions0, 
-		/* flat list */
-		Transactions1, 
-		/* flat list also with livestock transactions */
-		Transactions_With_Livestock, 
+		Livestock_Transactions,
 		/* output */
 		Gl),
 	transactions_by_account(Static_Data2, Transactions_By_Account),
@@ -223,18 +196,32 @@ process_ledger(
 	writeq(Errors),
 	writeln(' -->').
 
-generate_gl_data(Sd, Processed_S_Transactions, Transactions0, Transactions1, Transactions_With_Livestock, Report_Dict) :-
-	
-	/* extract Livestock_Transactions from Transactions_With_Livestock */
-	append(Transactions1, Livestock_Transactions, Transactions_With_Livestock),
-	
-	/* Outputs list is lists of generated transactions */
-	append(Transactions0, [Livestock_Transactions], Outputs),
-	
-	/* Sources list is all the s_transactions + livestock adjustment transactions */
-	append(Processed_S_Transactions, ['livestock'], Sources),
+preprocess_until_error(Static_Data0, Prepreprocessed_S_Transactions, Preprocessed_S_Transactions, Transactions0, Outstanding_Out, Transaction_Transformation_Debug, Report_End_Date, Processed_Until) :-
+	preprocess_s_transactions(Static_Data0, Prepreprocessed_S_Transactions, Preprocessed_S_Transactions, Transactions0, Outstanding_Out, Transaction_Transformation_Debug),
+	%gtrace,
+	(
+		Preprocessed_S_Transactions = Prepreprocessed_S_Transactions
+	->
+		(
+			Processed_Until = Report_End_Date/*,
+			Last_Good_Day = Report_End_Date*/
+		)
+	;
+		(
+			last(Preprocessed_S_Transactions, Last_Processed_S_Transaction),
+			s_transaction_day(Last_Processed_S_Transaction, Date),
+			% todo we could/should do: Processed_Until = with_note(Date, 'until error'),
+			Processed_Until = Date/*,
+			add_days(Date, -1, Last_Good_Day)*/
+		)
+	).
 
-	maplist(make_gl_entry(Sd), Sources, Outputs, Report_Dict).
+generate_gl_data(Sd, Processed_S_Transactions, Transactions0, Livestock_Transactions, Report_Dict) :-
+	/* Outputs list is lists of generated transactions */
+	append(Transactions0, [Livestock_Transactions], Processing_Results),
+	/* Sources list is all the s_transactions + livestock */
+	append(Processed_S_Transactions, ['livestock'], Sources),
+	maplist(make_gl_entry(Sd), Sources, Processing_Results, Report_Dict).
 
 make_gl_entry(Sd, Source, Transactions, Entry) :-
 	Entry = _{source: S, transactions: T},
@@ -244,7 +231,7 @@ make_gl_entry(Sd, Source, Transactions, Entry) :-
 		S = Source
 	; 
 		(
-			statements:s_transaction_to_dict(Source, S0),
+			bank_statement:s_transaction_to_dict(Source, S0),
 			/* currently this is converted at transaction date */
 			s_transaction_with_transacted_amount(Sd, S0, S)
 		)

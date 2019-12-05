@@ -53,6 +53,9 @@
 
 
 	<accountHierarchy>taxonomy/basic.xsd</accountHierarchy>
+	<accountHierarchy>livestock_account_hierarchy.xml</accountHierarchy>
+	
+	
 	<actionTaxonomy>
       <action>
         <id>Transfers</id>

@@ -22,6 +22,8 @@
     <period>1 July, 2014 to 30 June, 2015</period>
     <startDate>2014-07-01</startDate>
     <endDate>2015-06-30</endDate>
+    
+    
     <livestocks>
       <livestock>
         <name>Sheep</name>
@@ -32,10 +34,10 @@
         <purchaseValue>0</purchaseValue>
         <unitsOpening>27</unitsOpening>
         <unitsBorn>62</unitsBorn>
-        <unitsPurchases>0</unitsPurchases>
         <unitsSales>0</unitsSales>
+        <unitsPurchases>0</unitsPurchases>
         <unitsRations>0</unitsRations>
-        <unitsDeceased>1</unitsDeceased>    
+        <unitsDeceased>1</unitsDeceased>
         <unitsClosing>88</unitsClosing>
       </livestock>
     </livestocks>

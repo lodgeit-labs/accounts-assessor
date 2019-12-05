@@ -1,0 +1,3 @@
+[submodule "prolog_xbrl_public"]
+	path = prolog_xbrl_public
+	url = git@github.com:koo5/lodgeit_data.git

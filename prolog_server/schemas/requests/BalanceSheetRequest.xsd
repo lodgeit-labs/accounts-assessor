@@ -2,6 +2,7 @@
 <xs:schema elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
   <xs:include schemaLocation="../bases/Schema.xsd" />
   <xs:include schemaLocation="../bases/ActionTaxonomy.xsd" />
+  <xs:include schemaLocation="../bases/LivestockAccountAnimalData.xsd" />
   <xs:element name="balanceSheetRequest" nillable="true" type="BalanceSheetRequest" />
   <xs:complexType name="BalanceSheetRequest">
     <xs:complexContent mixed="false">
@@ -14,7 +15,7 @@
           <xs:element minOccurs="0" maxOccurs="1" name="unitTypes" type="UnitTypes" />
           <xs:element minOccurs="0" maxOccurs="unbounded" name="accountHierarchy" type="Accounts" />
           <xs:element minOccurs="0" maxOccurs="1" name="actionTaxonomy" type="ActionTaxonomy" />
-          <xs:element minOccurs="0" maxOccurs="unbounded" name="livestockData" type="LivestockData" />
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="livestockData" type="LivestockAccountAnimalData" />
           <xs:element minOccurs="0" maxOccurs="1" name="costOrMarket" type="CostOrMarket" />
           <xs:element minOccurs="0" maxOccurs="1" name="bankStatement" type="BankStatementBS" />
           <xs:element name="invoicesPayable" minOccurs="0" maxOccurs="1">
@@ -93,31 +94,6 @@
       <xs:element minOccurs="0" maxOccurs="1" name="credit" type="xs:decimal" />
       <xs:element minOccurs="0" maxOccurs="1" name="unit" type="xs:integer" />
       <xs:element minOccurs="0" maxOccurs="1" name="unitType" type="xs:string" />
-    </xs:sequence>
-  </xs:complexType>
-  <xs:complexType name="LivestockData">
-    <xs:sequence>
-      <xs:element minOccurs="1" maxOccurs="1" name="type" type="xs:string"/>
-      <xs:element minOccurs="1" maxOccurs="1" name="naturalIncreaseValuePerUnit" type="xs:decimal"/>
-      <xs:element minOccurs="1" maxOccurs="1" name="openingCount" type="xs:integer"/>
-      <xs:element minOccurs="1" maxOccurs="1" name="openingCost" type="xs:decimal"/>
-      <xs:element minOccurs="1" maxOccurs="1" name="events">
-        <xs:complexType>
-          <xs:choice minOccurs="0" maxOccurs="unbounded">
-            <xs:element name="naturalIncrease" type="LivestockEvent"/>
-            <xs:element name="loss" type="LivestockEvent"/>
-            <xs:element name="rations" type="LivestockEvent"/>
-            <xs:element name="sale" type="LivestockEvent"/>
-            <xs:element name="purchase" type="LivestockEvent"/>
-          </xs:choice>
-        </xs:complexType>
-      </xs:element>
-    </xs:sequence>
-  </xs:complexType>
-  <xs:complexType name="LivestockEvent">
-    <xs:sequence>
-      <xs:element minOccurs="0" maxOccurs="1" name="date" type="xs:date"/>
-      <xs:element minOccurs="1" maxOccurs="1" name="count" type="xs:integer"/>
     </xs:sequence>
   </xs:complexType>
   <xs:complexType name="Accounts" mixed="true">

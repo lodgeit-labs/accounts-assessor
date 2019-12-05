@@ -16,8 +16,6 @@
 		vec_units/2,
 		number_coord/3,
 		number_vec/3,
-		make_debit/2,
-		make_credit/2,
 		value_multiply/3,
 		value_divide/3,
 		value_subtract/3,
@@ -31,7 +29,8 @@
 	    vector_of_coords_to_vector_of_values/4,
 		split_vector_by_percent/4]).
 
-:- use_module('utils', [
+:- asserta(user:file_search_path(library, '../prolog_xbrl_public/xbrl/prolog')).
+:- use_module(library(xbrl/utils), [
 			semigroup_foldl/3,
 			floats_close_enough/2,
 			sort_into_dict/3,
@@ -44,7 +43,7 @@
 :- use_module(library(record)).
 :- use_module(library(http/json)).
 
-:- record coord(unit, debit, credit).
+:- record coord(unit, debit).
 :- record value(unit, amount).
 
 
@@ -67,9 +66,8 @@ vec_identity([]).
 vec_inverse(As, Bs) :-
 	maplist(coord_inverse, As, Bs).
 
-coord_inverse(coord(Unit, A_Debit,  A_Credit), coord(Unit, A_Credit, A_Debit)).
-coord_inverse(value(Unit, Value), value(Unit, Value_Inverted)) :-
-	Value_Inverted is - Value.
+coord_inverse(coord(Unit, A_Debit), coord(Unit, A_Credit)) :- {A_Credit = -A_Debit}.
+coord_inverse(value(Unit, Value), value(Unit, Value_Inverted)) :- {Value_Inverted = -Value}.
 
 % Each coordinate of a vector can be replaced by other coordinates that equivalent for the
 % purposes of the computations carried out in this program. This predicate reduces the
@@ -96,12 +94,9 @@ vec_reduce3(A, B) :-
 vec_reduce3(A, A) :-
 	A = value(_,_).
 
-coord_reduced(coord(Unit, A_Debit, A_Credit), coord(Unit, B_Debit, B_Credit)) :-
-	Common_value is min(A_Debit, A_Credit),
-	B_Debit is A_Debit - Common_value,
-	B_Credit is A_Credit - Common_value.
+coord_reduced(coord(Unit, A_Debit), coord(Unit, A_Debit)).
 	
-coord_or_value_unit(coord(Unit,_,_), Unit).
+coord_or_value_unit(coord(Unit,_), Unit).
 coord_or_value_unit(value(Unit,_), Unit).
 
 vec_units(Vec, Units) :-
@@ -121,10 +116,6 @@ vec_filtered_by_unit(Vec, Unit, Filtered) :-
 		member(Coord, Vec)
 	),
 	Filtered).
-
-vec_unit_value(Vec, Unit, Coord) :-
-	vec_filtered_by_unit(Vec, Unit, Filtered),
-	semigroup_foldl(coord_merge, Filtered, Coord).
 
 % Adds the two given vectors together.
 
@@ -167,29 +158,34 @@ is_zero(Coord) :-
 	
 is_zero(Value) :-
 	is_zero_value(Value).
-/*	
-is_zero_coord(coord(_, Zero1, Zero2)) :-
-	{Zero1 =:= 0,
-	Zero2 =:= 0}.
 
-	non-cplq version for speed..
-*/
-is_zero_coord(coord(_, Zero1, Zero2)) :-
-	(Zero1 = 0 -> true ; Zero1 = 0.0),
-	(Zero2 = 0 -> true ; Zero2 = 0.0).
+is_zero([X]) :-
+	is_zero(X).
+
+/*	
+is_zero_coord(coord(_, Zero1)) :-
+	{Zero1 =:= 0}.
+	non-cplq version for speed..*/
+is_zero_coord(coord(_, Zero1)) :-
+	Zero1 = 0 -> true ; Zero1 = 0.0.
 
 is_zero_value(value(_, Zero)) :-
-	is_zero_coord(coord(_, Zero, 0)).
+	is_zero_coord(coord(_, Zero)).
 
-is_debit(coord(_, _, Zero)) :-
-	{Zero =:= 0}.
+is_debit(coord(_, X)) :-
+	X > 0.
 
-is_debit([coord(_, _, Zero)]) :-
-	{Zero =:= 0}.
+is_debit([Coord]) :-
+	is_debit(Coord).
 
-unify_coords_or_values(coord(U, D1, C1), coord(U, D2, C2)) :-
-	unify_numbers(D1, D2),
-	unify_numbers(C1, C2).
+is_credit(coord(_, X)) :-
+	X < 0.
+
+is_credit([Coord]) :-
+	is_credit(Coord).
+
+unify_coords_or_values(coord(U, D1), coord(U, D2)) :-
+	unify_numbers(D1, D2).
 
 unify_coords_or_values(value(U, V1), value(U, V2)) :-
 	unify_numbers(V1, V2).
@@ -203,23 +199,19 @@ unify_numbers(A,B) :-
 		A =:= B
 	).
 
-	
-make_debit(value(Unit, Amount), coord(Unit, Amount, 0)).
-make_debit(coord(Unit, Dr, Zero), coord(Unit, Dr, 0)) :- Zero =:= 0.
-make_debit(coord(Unit, Zero, Cr), coord(Unit, Cr, 0)) :- Zero =:= 0.
 
-make_credit(value(Unit, Amount), coord(Unit, 0, Amount)).
-make_credit(coord(Unit, Dr, Zero), coord(Unit, 0, Dr)) :- Zero =:= 0.
-make_credit(coord(Unit, Zero, Cr), coord(Unit, 0, Cr)) :- Zero =:= 0.
+number_coord(Unit, Number, coord(Unit, Number)).
+credit_coord(Unit, Credit, coord(Unit, Number)) :- {Credit = -Number}.
 
-number_coord(Unit, Number, coord(Unit, Debit, Credit)) :-
-	{Number =:= Debit - Credit}.
+dr_cr_coord(Unit, Number, Zero, coord(Unit, Number)) :- {Number >= 0, Zero = 0}.
+dr_cr_coord(Unit, Zero, Credit, coord(Unit, Number)) :- {Number < 0, Zero = 0, Credit = -Number}.
 
-coord_normal_side_value(coord(Unit, D, C), debit, value(Unit, V)) :-
-	{V =:= D - C}.
 
-coord_normal_side_value(coord(Unit, D, C), credit, value(Unit, V)) :-
-	{V =:= C - D}.
+/*value_debit(value(Unit, Amount), coord(Unit, Amount, Zero)) :- unify_numbers(Zero, 0).
+value_credit(value(Unit, Amount), coord(Unit, Zero, Amount)) :- unify_numbers(Zero, 0).*/
+
+coord_normal_side_value(coord(Unit, D), debit, value(Unit, D)).
+coord_normal_side_value(coord(Unit, D), credit, value(Unit, V)) :- {V = -D}.
 
 number_vec(_, Zero, []) :-
 	unify_numbers(Zero, 0).
@@ -227,7 +219,10 @@ number_vec(_, Zero, []) :-
 number_vec(Unit, Number, [Coord]) :-
 	number_coord(Unit, Number, Coord).
 
-	
+credit_vec(Unit, Credit, [Coord]) :-
+	credit_coord(Unit, Credit, Coord).
+
+
 credit_isomorphism(Coord, C) :- 
 	number_coord(_, D, Coord),
 	C is -D.
@@ -242,9 +237,8 @@ coord_or_value_of_same_unit(A, B) :-
 	value_unit(A, A_Unit),
 	value_unit(B, A_Unit).
 
-coord_merge(coord(Unit, D1, C1), coord(Unit, D2, C2), coord(Unit, D3, C3)) :-
-	D3 is D2 + D1,
-	C3 is C2 + C1.
+coord_merge(coord(Unit, D1), coord(Unit, D2), coord(Unit, D3)) :-
+	D3 is D2 + D1.
 	
 coord_merge(value(Unit, D1), value(Unit, D2), value(Unit, D3)) :-
 	D3 is D2 + D1.
@@ -261,6 +255,9 @@ value_multiply(value(Unit, Amount1), Multiplier, value(Unit, Amount2)) :-
 value_divide(value(Unit, Amount1), Divisor, value(Unit, Amount2)) :-
 	Amount2 is Amount1 / Divisor.
 
+value_divide2(value(U1, A1), value(U2, A2), exchange_rate(xxx, U2, U1, Rate)) :-
+	{A1 / A2 = Rate}.
+
 value_subtract(value(Unit1, Amount1), value(Unit2, Amount2), value(Unit2, Amount3)) :-
 	assertion(Unit1 == Unit2),
 	Amount3 is Amount1 - Amount2.
@@ -269,9 +266,8 @@ vecs_are_almost_equal(A, B) :-
 	vec_sub(A, B, C),
 	maplist(coord_is_almost_zero, C).
 
-coord_is_almost_zero(coord(_, D, C)) :-
-	floats_close_enough(D, 0),
-	floats_close_enough(C, 0).
+coord_is_almost_zero(coord(_, D)) :-
+	floats_close_enough(D, 0).
 
 coord_is_almost_zero(value(_, V)) :-
 	floats_close_enough(V, 0).
@@ -286,12 +282,19 @@ split_vector_by_percent(V0, Rate, V1, V2) :-
 	maplist(split_coord_by_percent(Rate), V0, V1, V2).
 
 split_coord_by_percent(Rate, H0, H1, H2) :-
-	H0 = coord(U, D0, C0),
+	H0 = coord(U, D0),
 	D1 is D0 * Rate / 100,
-	C1 is C0 * Rate / 100,
 	D2 is D0 - D1,
-	C2 is C0 - C1,
-	H1 = coord(U, D1, C1),
-	H2 = coord(U, D2, C2).
+	H1 = coord(U, D1),
+	H2 = coord(U, D2).
 
-	
+vector_unit([coord(U, _)], U).
+
+
+value_debit_vec(Value, [Coord]) :-
+	coord_normal_side_value(Coord, debit, Value).
+
+value_credit_vec(Value, [Coord]) :-
+	coord_normal_side_value(Coord, credit, Value).
+
+

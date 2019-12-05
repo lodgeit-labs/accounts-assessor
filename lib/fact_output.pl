@@ -1,9 +1,10 @@
 :- module(_, []).
 
 :- use_module('accounts').
-:- use_module('utils').
+:- use_module(library(xbrl/utils)).
 
 :- use_module(library(rdet)).
+:- use_module(library(xbrl/structured_xml)).
 
 :- rdet(format_balance/11).
 :- rdet(format_balances/11).
@@ -105,18 +106,22 @@ format_balance(Format, Indent_Level, Report_Currency_List, Context, Name, Normal
 	;
 		Report_Currency = 'AUD' % just for displaying zero balance
 	),
-	format_balance(Format, Indent_Level, _, Context, Name, Normal_Side, [coord(Report_Currency, 0, 0)], Used_Units_In, Used_Units_Out, Lines_In, Lines_Out).
+	format_balance(Format, Indent_Level, _, Context, Name, Normal_Side, [coord(Report_Currency, 0)], Used_Units_In, Used_Units_Out, Lines_In, Lines_Out).
    
 format_balance(Format, Indent_Level, Report_Currency_List, Context, Name, Normal_Side, Coord, Units_In, Units_Out, Lines_In, Lines_Out) :-
-	[coord(Unit, Debit, Credit)] = Coord,
+	[coord(Unit, Debit)] = Coord,
 	sane_unit_id(Units_In, Units_Out, Unit, Unit_Xml_Id),
 	(
 		Normal_Side = credit
 	->
-		Balance is (Credit - Debit)
+		Balance0 is -Debit
 	;
-		Balance is (Debit - Credit)
+		Balance0 is Debit
 	),
+	(
+		Balance0 =:= 0
+	->	Balance = 0
+	;	Balance = Balance0),
 	utils:get_indentation(Indent_Level, Indentation),
 	%filter_out_chars_from_atom(is_underscore, Name, Name2),
 	Name2 = Name,
@@ -144,6 +149,6 @@ sane_unit_id(Units_In, Units_Out, Unit, Id) :-
 	!.
 
 sane_unit_id(Units_In, Units_Out, Unit, Id) :-
-	utils:sane_xml_element_id_from_term(Unit, Id),
+	structured_xml:sane_xml_element_id_from_term(Unit, Id),
 	append(Units_In, [unit_id(Unit, Id)], Units_Out).
 

@@ -16,15 +16,14 @@
 % - no bases to use, leave as it is
 exchange_amount(_, _, [], Amount, Amount) :- !.
 
-exchange_amount(Exchange_Rates, Day, [Bases_Hd | _], coord(Unit, Debit, Credit), Amount_Exchanged) :-
+exchange_amount(Exchange_Rates, Day, [Bases_Hd | _], coord(Unit, Debit), Amount_Exchanged) :-
 	exchange_rate(Exchange_Rates, Day, Unit, Bases_Hd, Exchange_Rate),
 	Debit_Exchanged is Debit * Exchange_Rate,
-	Credit_Exchanged is Credit * Exchange_Rate,
-	Amount_Exchanged = coord(Bases_Hd, Debit_Exchanged, Credit_Exchanged),
+	Amount_Exchanged = coord(Bases_Hd, Debit_Exchanged),
 	!.
 
-exchange_amount(Exchange_Rates, Day, [_ | Bases_Tl], coord(Unit, Debit, Credit), Amount_Exchanged) :-
-	exchange_amount(Exchange_Rates, Day, Bases_Tl, coord(Unit, Debit, Credit), Amount_Exchanged).
+exchange_amount(Exchange_Rates, Day, [_ | Bases_Tl], Coord, Amount_Exchanged) :-
+	exchange_amount(Exchange_Rates, Day, Bases_Tl, Coord, Amount_Exchanged).
 
 
 % Using the exchange rates from the day Day, change the bases of the given vector into
