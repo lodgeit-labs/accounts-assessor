@@ -140,22 +140,32 @@ check_returned(_, _, request_xml-_, _) :- !.
 
 check_returned(Endpoint_Type, Testcase, Key-Report, Errors) :-
 	tmp_uri_to_path(Report.url, Returned_Report_Path),
-	tmp_uri_to_saved_response_path(Testcase, Report.url, Saved_Path),
-	(	\+exists_file(Saved_Path)
+	tmp_uri_to_saved_response_path(Testcase, Report.url, Saved_Report_Path),
+	(	\+exists_file(Saved_Report_Path)
 	->	(
 			get_flag(add_missing_response_files, true)
-			->	copy_report_to_saved(Returned_Report_Path, Saved_Path)
+			->	copy_report_to_saved(Returned_Report_Path, Saved_Report_Path)
 			;	(
-					format(string(Msg), 'file contained in response is not found in saved files: cp ~w ~w ?', [Returned_Report_Path, Saved_Path]),
+					format(string(Msg), 'file contained in response is not found in saved files.', []),
+					offer_cp(Returned_Report_Path, Saved_Report_Path),
 					Errors = [Msg]
 				)
 		)
-	;	check_saved_report0(Endpoint_Type, Key, Returned_Report_Path, Saved_Path, Errors)
+	;	check_saved_report0(Endpoint_Type, Key, Returned_Report_Path, Saved_Report_Path, Errors)
 	).
 
-check_saved_report0(Endpoint_Type, Key, Returned_Report_Path, Saved_Path, Errors) :-
+offer_cp(Src, Dst) :-
+	atomics_to_string(['cp ', Src, ' ', Dst], Cmd),
+	atomics_to_string(['http://localhost:8000/shell/?cmd=',Cmd], Url),
+	print_clickable_link(Url, Cmd).
+
+print_clickable_link(Url, Title) :-
+	atomics_to_string(["printf '\e]8;;", Url,"\e\\   ", Title, "   \e]8;;\e\\\n'"],  S), utils:shell2(S).
+
+
+check_saved_report0(Endpoint_Type, Key, Returned_Report_Path, Saved_Report_Path, Errors) :-
 	file_type_by_extension(Returned_Report_Path, File_Type),
-	check_saved_report1(Endpoint_Type, Returned_Report_Path, Saved_Path, Key, File_Type, Errors),
+	check_saved_report1(Endpoint_Type, Returned_Report_Path, Saved_Report_Path, Key, File_Type, Errors),
 	(current_prolog_flag(grouped_assertions,true)
 	->	true
 	;	assertion(Errors = [])),
@@ -163,7 +173,7 @@ check_saved_report0(Endpoint_Type, Key, Returned_Report_Path, Saved_Path, Errors
 	->	true
 	;	(
 			(	get_flag(overwrite_response_files, true)
-			->	copy_report_to_saved(Returned_Report_Path, Saved_Path)
+			->	copy_report_to_saved(Returned_Report_Path, Saved_Report_Path)
 			;	(	current_prolog_flag(move_on_after_first_error,true)
 				->	throw(testcase_error(Errors))
 				;	true)
@@ -223,7 +233,7 @@ test_response(_, Returned_Report_Path, Saved_Report_Path, _Key, json, Errors) :-
 					Errors = ['JSONs differ'],
 					writeln(Response_String),
 					format(user_error, '~n^^that was deepdiff ~w ~w~n', [Saved_Report_Path, Returned_Report_Path]),
-					format(user_error, 'cp ~w ~w~n', [Returned_Report_Path, Saved_Report_Path])
+					offer_cp(Returned_Report_Path, Saved_Report_Path)
 				)
 			)
 		),
@@ -253,7 +263,7 @@ diff2(Saved_Report_Path, Returned_Report_Path, Are_Same, Options) :-
 	->	Are_Same = true
 	;	(
 			format(user_error, '~n^^that was ~w~n', [Cmdline]),
-			format(user_error, 'cp ~w ~w~n', [Returned_Report_Path, Saved_Report_Path]),
+			offer_cp(Returned_Report_Path, Saved_Report_Path),
 			Are_Same = false % this must be the last statement
 		)
 	).

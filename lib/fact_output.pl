@@ -131,17 +131,53 @@ format_balance(Format, Indent_Level, Report_Currency_List, Context, Name, Normal
 		format(string(Line), '~w<basic:~w contextRef="~w" unitRef="U-~w" decimals="INF">~2:f</basic:~w>\n', [Indentation, Name2, Context, Unit_Xml_Id, Balance, Name2])
 	;
 		(
+			%gtrace,
+			round_term(Unit, Rounded_Unit),
 			(
 				Report_Currency_List = [Unit]
 			->
 				Printed_Unit = ''
 			;
-				Printed_Unit = Unit
+				Printed_Unit = Rounded_Unit
 			),
 			format(string(Line), '~2:f~w\n', [Balance, Printed_Unit])
 		)
 	),
 	append(Lines_In, [Line], Lines_Out).
+
+round_term(X, Y) :-
+	maplist(round_term, X, Y),!.
+
+round_term(value(U,V), value(U2,V2)) :- !,
+	round_term(U, U2),
+	utils:round_to_significant_digit(V,V2).
+
+round_term(coord(U,V), coord(U2,V2)) :- !,
+	round_term(value(U,V), value(U2,V2)).
+
+round_term(X, Y) :-
+	X =.. [Functor|Args],!,
+	maplist(round_term, Args, Args2),
+	Y =.. [Functor|Args2].
+
+%round_term(X, X).
+
+/*
+round_term(X, Y) :-
+	maplist(round_term, X, Y),!.
+
+round_term(X, Y) :-
+	(number(X);rational(X)),!,
+	utils:float_comparison_significant_digits(D),
+	utils:round(X, D, Y).
+
+round_term(X, Y) :-
+	X =.. [Functor|Args],!,
+	maplist(round_term, Args, Args2),
+	Y =.. [Functor|Args2].
+*/
+%round_term(X, X).
+
 
 sane_unit_id(Units_In, Units_Out, Unit, Id) :-
 	member(unit_id(Unit, Id), Units_In),
