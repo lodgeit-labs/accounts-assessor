@@ -46,7 +46,6 @@ hardcoded plunit test rules, one for each endpoint, so we can use things like "t
 
 test(ledger, 
 	[forall(testcases('endpoint_tests/ledger',Testcase))]) :-
-	gtrace,
 	run_endpoint_test(ledger, Testcase).
 
 test(loan, 
@@ -156,7 +155,7 @@ check_returned(Endpoint_Type, Testcase, Key-Report, Errors) :-
 	).
 
 offer_cp(Src, Dst) :-
-	atomics_to_string(['cp ', Src, ' ', Dst], Cmd),
+	atomics_to_string(['/bin/cp "', Src, '" "', Dst, '"'], Cmd),
 	atomics_to_string(['http://localhost:8000/shell/?cmd=',Cmd], Url),
 	utils:print_clickable_link(Url, Cmd).
 
@@ -202,6 +201,7 @@ test_response(Endpoint_Type, Returned_Report_Path, Saved_Response_Path, Key, xml
 		(
 			Errors = [Error],
 			nl,nl,
+			/* todo replace xmldiff, it doesnt return status and the diff seem useless */
 			diff2(Saved_Response_Path, Returned_Report_Path, _, [cmd(['../python/venv/bin/python3','../python/src/structural_xmldiff.py'])]),
 			nl,nl
 		)

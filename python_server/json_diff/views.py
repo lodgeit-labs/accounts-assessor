@@ -14,13 +14,17 @@ def index(request):
 	)
 	
 	for k,v in d.items():
-		for k2,v2 in v.items():
-			if "old_value" in v2:
-				if "old_type" in v2:
-					del v2["old_type"]
-				if "new_type" in v2:
-					del v2["new_type"]
-							
+		if isinstance(v, dict):
+			for k2,v2 in v.items():
+				if "old_value" in v2:
+					if "old_type" in v2:
+						del v2["old_type"]
+					if "new_type" in v2:
+						del v2["new_type"]
+					v2["<"] = v2["old_value"]
+					del v2["old_value"]
+					v2[">"] = v2["new_value"]
+					del v2["new_value"]
 	
 	return JsonResponse({'diff':d}, json_dumps_params={'default':str,'indent':4})
 

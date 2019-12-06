@@ -52,7 +52,7 @@ mime:mime_extension('xsd', 'application/xml').
 
 run_simple_server :-
    Port_Number = 8080,
-   Python_Port_Number is Port_Number + 20,
+   %Python_Port_Number is Port_Number + 20,
    %utils:shell2(['cd ../python_server;./run.sh --noreload ', Python_Port_Number, ';&'],0),
    http_server(http_dispatch, [port(Port_Number)]).
 
