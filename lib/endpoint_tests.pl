@@ -147,6 +147,7 @@ check_returned(Endpoint_Type, Testcase, Key-Report, Errors) :-
 			->	copy_report_to_saved(Returned_Report_Path, Saved_Report_Path)
 			;	(
 					format(string(Msg), 'file contained in response is not found in saved files.', []),
+					writeln(Msg),
 					offer_cp(Returned_Report_Path, Saved_Report_Path),
 					Errors = [Msg]
 				)
@@ -157,10 +158,7 @@ check_returned(Endpoint_Type, Testcase, Key-Report, Errors) :-
 offer_cp(Src, Dst) :-
 	atomics_to_string(['cp ', Src, ' ', Dst], Cmd),
 	atomics_to_string(['http://localhost:8000/shell/?cmd=',Cmd], Url),
-	print_clickable_link(Url, Cmd).
-
-print_clickable_link(Url, Title) :-
-	atomics_to_string(["printf '\e]8;;", Url,"\e\\   ", Title, "   \e]8;;\e\\\n'"],  S), utils:shell2(S).
+	utils:print_clickable_link(Url, Cmd).
 
 
 check_saved_report0(Endpoint_Type, Key, Returned_Report_Path, Saved_Report_Path, Errors) :-
@@ -232,7 +230,7 @@ test_response(_, Returned_Report_Path, Saved_Report_Path, _Key, json, Errors) :-
 			;	(
 					Errors = ['JSONs differ'],
 					writeln(Response_String),
-					format(user_error, '~n^^that was deepdiff ~w ~w~n', [Saved_Report_Path, Returned_Report_Path]),
+					format(/*user_error, */'~n^^that was deepdiff ~w ~w~n', [Saved_Report_Path, Returned_Report_Path]),
 					offer_cp(Returned_Report_Path, Saved_Report_Path)
 				)
 			)
@@ -262,7 +260,7 @@ diff2(Saved_Report_Path, Returned_Report_Path, Are_Same, Options) :-
 	(	Exit_Status = 0
 	->	Are_Same = true
 	;	(
-			format(user_error, '~n^^that was ~w~n', [Cmdline]),
+			format(/*user_error, */'~n^^that was ~w~n', [Cmdline]),
 			offer_cp(Returned_Report_Path, Saved_Report_Path),
 			Are_Same = false % this must be the last statement
 		)

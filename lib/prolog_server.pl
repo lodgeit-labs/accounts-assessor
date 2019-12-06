@@ -44,7 +44,7 @@ mime:mime_extension('xsd', 'application/xml').
 :- http_handler('/favicon.ico', http_reply_file(my_static('favicon.ico'), []), []).
 % TODO : - http_handler(root(tmp), http_reply_from_files('./tmp', []), [prefix]).
 :- http_handler(root(.), http_reply_from_files('.', []), [prefix]).
-:- http_handler(root(run/Test), tests(Test), [methods([get])]).
+/*fixme*/:- http_handler(root(run/Test), tests(Test), [methods([get])]).
 
 % -------------------------------------------------------------------
 % run_simple_server/0
@@ -52,8 +52,8 @@ mime:mime_extension('xsd', 'application/xml').
 
 run_simple_server :-
    Port_Number = 8080,
-   %atomic_list_concat(['http://localhost:', Port_Number], Server_Url),
-   %set_server_public_url(Server_Url),
+   Python_Port_Number is Port_Number + 20,
+   %utils:shell2(['cd ../python_server;./run.sh --noreload ', Python_Port_Number, ';&'],0),
    http_server(http_dispatch, [port(Port_Number)]).
 
 % -------------------------------------------------------------------
@@ -61,7 +61,6 @@ run_simple_server :-
 % -------------------------------------------------------------------
 
 run_daemon :-
-   /*TODO maybe set server public url here if we want to run requests manually from daemon's repl */
    use_module(library(http/http_unix_daemon)),
    http_daemon.
    
