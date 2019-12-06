@@ -205,19 +205,15 @@ other_reports(Static_Data, Static_Data_Historical, Outstanding, Balance_Sheet, P
 	crosschecks_report:report(Static_Data, Structured_Reports, Crosschecks_Report_Files_Info, Crosschecks_Report_Json),
 	Structured_Reports2 = Structured_Reports.put(crosschecks, Crosschecks_Report_Json),
 
-	append([
+	Json_Request_Results = _{
+		files:[
 		   	Gl_Viewer_Page_Info,
 			Bs_Report_Page_Info,
 			Pl_Report_Page_Info,
 			Pl_Html_Historical_Info,
-			Gl_Report_File_Info
-		],
-		Investment_Report_Info.files,
-		Files
-	),
-
-	Json_Request_Results = _{
-		files:[Files, Crosschecks_Report_Files_Info],
+			Gl_Report_File_Info,
+			Investment_Report_Info.files,
+			Crosschecks_Report_Files_Info],
 		errors:[Investment_Report_Info.alerts, Crosschecks_Report_Json.errors],
 		warnings:[],
 		structured: Structured_Reports2

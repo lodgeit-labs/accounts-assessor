@@ -94,8 +94,8 @@ absolute_whatever(Path_Specifier, Absolute) :-
 generate_unique_tmp_directory_base :-
    get_time(Current_Time),
    atomic_list_concat([Current_Time, '.'], Base),
-   asserta(session_tmp_directory_base(Base)),
-   bump_tmp_directory_id.
+   asserta(session_tmp_directory_base(Base))/*,
+   bump_tmp_directory_id*/.
 
    
 server_public_url(Url) :-

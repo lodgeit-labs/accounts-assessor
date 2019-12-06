@@ -20,6 +20,9 @@ Run the tests:
 Run a single xml request:
 `../lib/cli_process_request_xml.py  --problem_lines_whitelist problem_lines_whitelist -c true ../lib/debug1.pl tests/endpoint_tests/ledger/ledger-livestock-0/request.xml`
 
+Run a single testcase:
+`swipl -s ../lib/endpoint_tests.pl -g "set_prolog_flag(grouped_assertions,true),setup,run_endpoint_test(ledger, 'endpoint_tests/ledger/ledger-livestock-5')."`
+
 Run the server:
 `swipl -s ../lib/run_simple_server.pl`
 

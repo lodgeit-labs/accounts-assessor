@@ -13,11 +13,15 @@
 
 
 html_tokenlist_string(Tokenlist, String) :-
-	new_memory_file(X),
-	open_memory_file(X, write, Mem_Stream),
-	print_html(Mem_Stream, Tokenlist),
-	close(Mem_Stream),
-	memory_file_to_string(X, String).
+	setup_call_cleanup(
+		new_memory_file(X),
+		(
+			open_memory_file(X, write, Mem_Stream),
+			print_html(Mem_Stream, Tokenlist),
+			close(Mem_Stream),
+			memory_file_to_string(X, String)
+		),
+		free_memory_file(X)).
 
 /*TODO rename*/
 report_item(File_Name, Text, Url) :-

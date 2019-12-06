@@ -220,6 +220,7 @@ number_vec(Unit, Number, [Coord]) :-
 	number_coord(Unit, Number, Coord).
 
 credit_vec(Unit, Credit, [Coord]) :-
+	assertion(var(Unit);atom(Unit)),
 	credit_coord(Unit, Credit, Coord).
 
 

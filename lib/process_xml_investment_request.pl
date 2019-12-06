@@ -1,6 +1,4 @@
 /*
-finishme:do coord/3 => coord/2 refactoring
-
 simple investment calculator
 see doc/investment and dropbox Develop/videos/ledger
 */
@@ -132,20 +130,22 @@ process_realized(Dom, Global_Report_Date_Atom, Result) :-
 			exchange_rate(Sale_Date, Unit_Unique, Currency_Unique, SDPC_Unit_Price)
 	],
 	accounts_extract:extract_account_hierarchy_from_request_dom([], Accounts0),
+	pacioli:credit_vec(Currency_Unique, PDPC_Total_Cost, PDPC_Total_Cost_Credit_Vec),
+	pacioli:credit_vec(Unit_Unique, Count, Count_Credit_Vec),
 	S_Transactions = [
 		s_transaction(
 			Purchase_Date, 
 			'Invest_In', 
-			[coord(Currency_Unique, 0, PDPC_Total_Cost)], 
+			PDPC_Total_Cost_Credit_Vec,
 			'Bank', 
-			vector([coord(Unit_Unique, Count, 0)])
+			vector([coord(Unit_Unique, Count)])
 		),
 		s_transaction(
 			Sale_Date, 
 			'Dispose_Of', 
-			[coord(Currency_Unique, SDPC_Total_Value, 0)], 
+			[coord(Currency_Unique, SDPC_Total_Value)],
 			'Bank', 
-			vector([coord(Unit_Unique, 0, Count)])
+			vector(Count_Credit_Vec)
 		)
 	], 
 
@@ -281,13 +281,14 @@ process_unrealized(Dom, Global_Report_Date, Result) :-
 			exchange_rate(Purchase_Date, Unit_Unique, Currency_Unique, PDPC_Unit_Cost),
 			exchange_rate(Report_Date, Unit_Unique, Currency_Unique, RDPC_Unit_Value)
 	],
+	pacioli:credit_vec(Currency_Unique, PDPC_Total_Cost, PDPC_Total_Cost_Credit_Vec),
 	S_Transactions = [
 		s_transaction(
 			Purchase_Date, 
 			'Invest_In', 
-			[coord(Currency_Unique, 0, PDPC_Total_Cost)], 
+			PDPC_Total_Cost_Credit_Vec,
 			'Bank', 
-			vector([coord(Unit_Unique, Count, 0)])
+			vector([coord(Unit_Unique, Count)])
 		)
 	],	
 

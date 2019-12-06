@@ -7,7 +7,7 @@ this runs the requests in tests/endpoint_tests and compares the responses agains
 Note that the http server is spawned in this process. This should change in future.
 */
 
-:- module(endpoint_tests, []).
+:- module(endpoint_tests, [setup/0,run_endpoint_test/2]).
 
 %--------------------------------------------------------------------
 % Modules
@@ -33,8 +33,10 @@ prolog:message(testcase_error(Msg)) -->
 	['test failed: ~w; ', [Msg] ].
 
 
+setup :- debug,prolog_server:run_simple_server.
+
 /* we run all the tests against the http server that we start in this process. This makes things a bit confusing. But the plan is to move to a python (or aws) gateway */
-:- begin_tests(endpoints, [setup((debug,prolog_server:run_simple_server))]).
+:- begin_tests(endpoints, [setup(setup)]).
 
 test(start) :- nl.
 
@@ -44,6 +46,7 @@ hardcoded plunit test rules, one for each endpoint, so we can use things like "t
 
 test(ledger, 
 	[forall(testcases('endpoint_tests/ledger',Testcase))]) :-
+	gtrace,
 	run_endpoint_test(ledger, Testcase).
 
 test(loan, 
@@ -104,10 +107,14 @@ run_endpoint_test2(Endpoint_Type, Testcase) :-
 	query_endpoint(Request_XML_File_Path, Response_JSON),
 	dict_pairs(Response_JSON.reports, _, Reports),
 	maplist(check_returned(Endpoint_Type, Testcase), Reports, Errors),
-	findall(_,
-		(member(M, Errors),
-		assertion(M = [])),
-		_).
+	(	current_prolog_flag(grouped_assertions,true)
+	->	(
+			exclude(var, Errors, Errors2),
+			flatten(Errors2, Errors3),
+			assertion(Errors3 = [])
+		)
+	;	true).
+
 	%					throw(testcase_error(Msg))
 	%			format("Errors: ~w~n", [Error_List_Flat]),
 	/*todo: all_saved_files(Testcase, Saved_Files),
@@ -149,6 +156,9 @@ check_returned(Endpoint_Type, Testcase, Key-Report, Errors) :-
 check_saved_report0(Endpoint_Type, Key, Returned_Report_Path, Saved_Path, Errors) :-
 	file_type_by_extension(Returned_Report_Path, File_Type),
 	check_saved_report1(Endpoint_Type, Returned_Report_Path, Saved_Path, Key, File_Type, Errors),
+	(current_prolog_flag(grouped_assertions,true)
+	->	true
+	;	assertion(Errors = [])),
 	(	Errors = []
 	->	true
 	;	(
@@ -189,11 +199,11 @@ test_response(Endpoint_Type, Returned_Report_Path, Saved_Response_Path, Key, xml
 		)
 	).
 
-test_response(_, Returned_Report_Path, Saved_Response_Path, _Key, json, Errors) :-
+test_response(_, Returned_Report_Path, Saved_Report_Path, _Key, json, Errors) :-
 	utils:float_comparison_significant_digits(D),
 	atomics_to_string([
 		'http://localhost:8000/json_diff/',
-		'?a=',Saved_Response_Path,
+		'?a=',Saved_Report_Path,
 		'&b=',Returned_Report_Path,
 		'&options={"significant_digits":',D,'}'
 		], Request_URI),
@@ -211,7 +221,9 @@ test_response(_, Returned_Report_Path, Saved_Response_Path, _Key, json, Errors) 
 			->	Errors = []
 			;	(
 					Errors = ['JSONs differ'],
-					writeln(Response_String)
+					writeln(Response_String),
+					format(user_error, '~n^^that was deepdiff ~w ~w~n', [Saved_Report_Path, Returned_Report_Path]),
+					format(user_error, 'cp ~w ~w~n', [Returned_Report_Path, Saved_Report_Path])
 				)
 			)
 		),
@@ -234,13 +246,14 @@ rq(Request_URI, Response_Stream) :- http_open:http_open(Request_URI, Response_St
 diff(Saved_Response_Path, Returned_Report_Path, Are_Same) :-
 	diff2(Saved_Response_Path, Returned_Report_Path, Are_Same, [cmd(diff)]).
 
-diff2(Saved_Response_Path, Returned_Report_Path, Are_Same, Options) :-
+diff2(Saved_Report_Path, Returned_Report_Path, Are_Same, Options) :-
 	memberchk(cmd(Executable), Options),
-	utils:shell3([Executable, Saved_Response_Path, Returned_Report_Path], [exit_status(Exit_Status), command(Cmdline)]),
+	utils:shell3([Executable, Saved_Report_Path, Returned_Report_Path], [exit_status(Exit_Status), command(Cmdline)]),
 	(	Exit_Status = 0
 	->	Are_Same = true
 	;	(
 			format(user_error, '~n^^that was ~w~n', [Cmdline]),
+			format(user_error, 'cp ~w ~w~n', [Returned_Report_Path, Saved_Report_Path]),
 			Are_Same = false % this must be the last statement
 		)
 	).
