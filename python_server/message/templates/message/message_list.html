@@ -1,0 +1,28 @@
+<h1>Messages</h1>
+
+<table border="1">
+<thead>
+    <tr>
+    <th>Created</th>
+    <th>Contents</th>
+    <th>Status</th>
+    <th>View</th>
+    <th>Edit</th>
+    <th>Delete</th>
+    </tr>
+</thead>
+<tbody>
+    {% for message in object_list %}
+    <tr>
+    <td>{{ message.created }}</td>
+    <td>{{ message.contents }}</td>
+    <td>{{ message.status }}</td>
+    <td><a href="{% url "message_view" message.id %}">view</a></td>
+    <td><a href="{% url "message_edit" message.id %}">edit</a></td>
+    <td><a href="{% url "message_delete" message.id %}">delete</a></td>
+    </tr>
+    {% endfor %}
+</tbody>
+</table>
+
+<a href="{% url "message_new" %}">New</a>

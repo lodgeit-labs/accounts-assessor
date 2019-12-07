@@ -18,6 +18,7 @@ from django.urls import path, include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('message/', include('message.urls')),
     path('xml_xsd_validator/', include('xml_xsd_validator.urls')),
     path('json_diff/', include('json_diff.urls')),
     path('shell/', include('shell.urls')),
