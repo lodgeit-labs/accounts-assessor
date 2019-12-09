@@ -1,3 +1,23 @@
+/*
+
+this will probably become a playground for the initial attempt at eq solving with full proofs/explanations
+
+information could probably be collected somewhere as a property of the request theory,
+either as a list or as a graph?
+
+for the user, let's say given a table of livestock calculator output, it starts with a value of a cell
+that value can be annotated with the doc property url
+
+
+
+
+
+
+
+
+*/
+
+
 
 
 

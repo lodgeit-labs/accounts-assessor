@@ -1,14 +1,57 @@
 from django.http import JsonResponse
-import deepdiff,json
+import deepdiff, json
+import xml
+from defusedxml import minidom
+
+
+
+
+
+def load(fn):
+	if fn.lower().endswith('.xml'):
+		p = minidom.parse(fn)
+		return xml_to_js(p)
+	else:
+		return json.load(open(fn,'r'))
+
+def has_elements(x):
+	for y in x:
+		if isinstance(y, xml.dom.minidom.Element):
+			return True
+
+def xml_to_js(p):
+	r = []
+	h = has_elements(p.childNodes)
+	for n in p.childNodes:
+		if isinstance(n, xml.dom.minidom.Comment):
+			pass
+		elif isinstance(n, xml.dom.minidom.Element):
+			r.append({"a":n.nodeName, "children":xml_to_js(n), "attributes":xml_to_js_attrs(n)})
+		elif isinstance(n, xml.dom.minidom.Text):
+			if not h:
+				try:
+					v = float(n.data)
+				except ValueError:
+					v = n.data
+				r.append(v)
+	return r
+
+def xml_to_js_attrs(a):
+	r = []
+	if a.attributes:
+		for k,v in a.attributes.items():
+			r.append({'k':k,'v':v})
+	return r
 
 def index(request):
 	""" fixme: limit these to some directories / hosts """
 	
 	params = request.GET
-	
-	d = deepdiff.DeepDiff(
-		json.load(open(params['a'],'r')),
-		json.load(open(params['b'],'r')),
+	a = load(params['a'])
+	b = load(params['b'])
+
+	d = deepdiff.DeepDiff(a,b,
+		#ignore_order=True,report_repetition=False,
 		**json.loads(params['options']),
 		ignore_numeric_type_changes=True
 	)

@@ -179,19 +179,19 @@ check_saved_report0(Endpoint_Type, Key, Returned_Report_Path, Saved_Report_Path,
 	).
 	
 
-check_saved_report1(Endpoint_Type, Returned_Report_Path, Saved_Response_Path, Key, File_Type, Errors) :-
-	debug(endpoint_tests, '~n## ~q: ~n', [check_saved_report1(Endpoint_Type, Returned_Report_Path, Saved_Response_Path, Key, File_Type, Errors)]),
-	test_response(Endpoint_Type, Returned_Report_Path, Saved_Response_Path, Key, File_Type, Errors0),
+check_saved_report1(Endpoint_Type, Returned_Report_Path, Saved_Report_Path, Key, File_Type, Errors) :-
+	debug(endpoint_tests, '~n## ~q: ~n', [check_saved_report1(Endpoint_Type, Returned_Report_Path, Saved_Report_Path, Key, File_Type, Errors)]),
+	test_response(Endpoint_Type, Returned_Report_Path, Saved_Report_Path, Key, File_Type, Errors0),
 	findall(Key:Error, member(Error,Errors0), Errors).
 
 
-test_response(Endpoint_Type, Returned_Report_Path, Saved_Response_Path, Key, xml, Errors) :-
+test_response(Endpoint_Type, Returned_Report_Path, Saved_Report_Path, Key, xml, Errors) :-
 	!,
 	load_structure(Returned_Report_Path, Response_DOM, [dialect(xml),space(sgml)]),
 	check_output_schema(Endpoint_Type, Key, Returned_Report_Path),
 	% todo: xbrl validation on ledger response XBRL
 	%check_output_taxonomy(Endpoint_Type, Response_XML_Path),
-	load_xml(Saved_Response_Path, Saved_Response_DOM, [space(sgml)]),
+	load_xml(Saved_Report_Path, Saved_Response_DOM, [space(sgml)]),
 	compare_xml_dom(Response_DOM, Saved_Response_DOM, Error),
 	(
 		var(Error)
@@ -201,8 +201,18 @@ test_response(Endpoint_Type, Returned_Report_Path, Saved_Response_Path, Key, xml
 		(
 			Errors = [Error],
 			nl,nl,
-			/* todo replace xmldiff, it doesnt return status and the diff seem useless */
-			diff2(Saved_Response_Path, Returned_Report_Path, _, [cmd(['../python/venv/bin/python3','../python/src/structural_xmldiff.py'])]),
+			/* todo replace xmldiff, it doesnt return status and the diff seem useless
+			we are focusing on just diffing our particular variety of xmls, that is:
+				any text is irrelevant unless it has no sibling nodes
+				comments should be disregarded
+			and disregarding the philosophical problem that without following an xsd, it's impossible to tell if some text is supposed to be a number (and should thus be compared a float error tolerance
+			best bet: take one of the parsers wrapped by defusedxml, possibly pre-process the output into maybe dicts,
+			with irrelevant text cleaned out, and pass to deepdiff
+			With htmls, this wont work, so possibly jusst deepdiff without the pre-cleanup, or just textual diff
+			Anyway, it maybe makes more sense to focus on having a json of each report, with just the semantially significant bits, and focus on checking those, possibly ignoring the lesser formats entirely
+			*/
+			diff2(Saved_Report_Path, Returned_Report_Path, _, [cmd(['../python/venv/bin/python3','../python/src/structural_xmldiff.py'])]),
+			format(/*user_error, */'~n^^that was deepdiff ~w ~w~n', [Saved_Report_Path, Returned_Report_Path]),
 			nl,nl
 		)
 	).
@@ -242,8 +252,8 @@ test_response(_, Returned_Report_Path, Saved_Report_Path, _Key, json, Errors) :-
 		)
 	).
 
-test_response(_, Returned_Report_Path, Saved_Response_Path, _, _, Error) :-
-	(	diff(Saved_Response_Path, Returned_Report_Path, true)
+test_response(_, Returned_Report_Path, Saved_Report_Path, _, _, Error) :-
+	(	diff(Saved_Report_Path, Returned_Report_Path, true)
 	->	Error = []
 	;	Error = ['files differ']).
 
@@ -251,8 +261,8 @@ test_response(_, Returned_Report_Path, Saved_Response_Path, _, _, Error) :-
 rq(Request_URI, Response_Stream) :- http_open:http_open(Request_URI, Response_Stream, [request_header('Accept'='application/json')]).
 
 
-diff(Saved_Response_Path, Returned_Report_Path, Are_Same) :-
-	diff2(Saved_Response_Path, Returned_Report_Path, Are_Same, [cmd(diff)]).
+diff(Saved_Report_Path, Returned_Report_Path, Are_Same) :-
+	diff2(Saved_Report_Path, Returned_Report_Path, Are_Same, [cmd(diff)]).
 
 diff2(Saved_Report_Path, Returned_Report_Path, Are_Same, Options) :-
 	memberchk(cmd(Executable), Options),
