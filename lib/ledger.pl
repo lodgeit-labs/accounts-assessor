@@ -241,9 +241,9 @@ make_gl_entry(Sd, Source, Transactions, Entry) :-
 	
 s_transaction_with_transacted_amount(Sd, D1, D2) :-
 	D2 = D1.put([
-		report_currency_transacted_amount_converted_at_transaction_date=Vector_ConvertedA,report_currency_transacted_amount_converted_at_balance_date=Vector_ConvertedB]),
-	vec_change_bases(Sd.exchange_rates, D1.date, Sd.report_currency, D1.vector, Vector_ConvertedA),
-	vec_change_bases(Sd.exchange_rates, Sd.end_date, Sd.report_currency, D1.vector, Vector_ConvertedB).
+		report_currency_transacted_amount_converted_at_transaction_date=ConvertedA,report_currency_transacted_amount_converted_at_balance_date=ConvertedB]),
+	vec_change_bases(Sd.exchange_rates, D1.date, Sd.report_currency, D1.vector, [ConvertedA]),
+	vec_change_bases(Sd.exchange_rates, Sd.end_date, Sd.report_currency, D1.vector, [ConvertedB]).
 
 transaction_with_converted_vector(Sd, Transaction, Transaction_Converted) :-
 	Transaction_Converted = Transaction.put([

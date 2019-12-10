@@ -213,6 +213,7 @@ test_response(Endpoint_Type, Returned_Report_Path, Saved_Report_Path, Key, xml, 
 			*/
 			diff2(Saved_Report_Path, Returned_Report_Path, _, [cmd(['../python/venv/bin/python3','../python/src/structural_xmldiff.py'])]),
 			format(/*user_error, */'~n^^that was deepdiff ~w ~w~n', [Saved_Report_Path, Returned_Report_Path]),
+			offer_cp(Returned_Report_Path, Saved_Report_Path),
 			nl,nl
 		)
 	).

@@ -118,9 +118,10 @@ format_balance(Format, Indent_Level, Report_Currency_List, Context, Name, Normal
 	;
 		Balance0 is Debit
 	),
+	utils:round(Balance0, 2, Balance1),
 	(
-		Balance0 =:= 0
-	->	Balance = 0
+		Balance1 =:= 0
+	->	Balance = 0 % get rid of negative zero
 	;	Balance = Balance0),
 	utils:get_indentation(Indent_Level, Indentation),
 	%filter_out_chars_from_atom(is_underscore, Name, Name2),
@@ -152,6 +153,7 @@ sane_unit_id(Units_In, Units_Out, Unit, Id) :-
 	!.
 
 sane_unit_id(Units_In, Units_Out, Unit, Id) :-
-	structured_xml:sane_xml_element_id_from_term(Unit, Id),
-	append(Units_In, [unit_id(Unit, Id)], Units_Out).
+	utils:round_term(Unit, Unit2),
+	structured_xml:sane_xml_element_id_from_term(Unit2, Id),
+	append(Units_In, [unit_id(Unit2, Id)], Units_Out).
 
