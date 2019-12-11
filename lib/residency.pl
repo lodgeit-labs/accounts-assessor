@@ -4,7 +4,6 @@
 :- use_module('prompt', [prompt/3]).
 :- use_module('chat').
 
-
 residency_request(Request) :-
 	http_read_json_dict(Request, Data),
 	residency_step(Data, Reply),	

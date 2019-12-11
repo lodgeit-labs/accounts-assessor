@@ -18,6 +18,7 @@ sbe_request(Request) :-
 	reply_json(Reply),
 	true.
 
+%:- tspy(sbe_request/1).
 sbe_step(In, Out) :-
 	preprocess(In, History, CurrentQuestionId, HistoryTuples),
 	sbe_next_state(HistoryTuples, CurrentQuestionId, NextQuestionId, NextPrompt),

@@ -39,8 +39,8 @@ mime:mime_extension('xsd', 'application/xml').
 :- http_handler(root(.),      upload_form, []).
 :- http_handler(root(upload), upload,      []).
 :- http_handler(root(upload_and_get_json_reports_list), upload_and_get_json_reports_list,      []).
-:- http_handler(root(chat/sbe), sbe_request, [methods([post])]).
-:- http_handler(root(chat/residency), residency_request, [methods([post])]).
+:- http_handler(root(sbe), sbe_request, [methods([post])]).
+:- http_handler(root(residency), residency_request, [methods([post])]).
 :- http_handler('/favicon.ico', http_reply_file(my_static('favicon.ico'), []), []).
 % TODO : - http_handler(root(tmp), http_reply_from_files('./tmp', []), [prefix]).
 :- http_handler(root(.), http_reply_from_files('.', []), [prefix]).
