@@ -26,14 +26,14 @@ reduce_unrealized_gains(Static_Data, Description, Trading_Account_Id, Transactio
 
 unrealized_gains_increase_txs(Static_Data, Description, Trading_Account_Id, Purchase_Currency, Cost_Vector, Goods, Transaction_Day, Txs, Historical_Txs, Current_Txs) :-
 	dict_vars(Static_Data, [Accounts, Report_Currency, Start_Date]),
-	Goods = [coord(Goods_Unit, Goods_Debit, Goods_Credit)],
+	Goods = [coord(Goods_Unit, Goods_Debit)],
 	unit_bare(Goods_Unit, Goods_Unit_Bare),
 	gains_accounts(
 		Accounts, Trading_Account_Id, unrealized, Goods_Unit_Bare, 
 		Unrealized_Gains_Currency_Movement, Unrealized_Gains_Excluding_Forex),
 	Goods_Without_Currency_Movement = [coord(
 		without_currency_movement_against_since(Goods_Unit, Purchase_Currency, Report_Currency, Transaction_Day), 
-		Goods_Debit, Goods_Credit)
+		Goods_Debit)
 	],
 	(
 		Transaction_Day @>= Start_Date
@@ -48,7 +48,7 @@ unrealized_gains_increase_txs(Static_Data, Description, Trading_Account_Id, Purc
 			/*historical:*/
 			Goods_Historical = [coord(
 				without_movement_after(Goods_Unit, Start_Date), 
-				Goods_Debit, Goods_Credit)
+				Goods_Debit)
 			],
 			Historical_Without_Currency_Movement = [coord(
 				without_movement_after(
@@ -57,7 +57,7 @@ unrealized_gains_increase_txs(Static_Data, Description, Trading_Account_Id, Purc
 					), 
 					Start_Date
 				),
-				Goods_Debit, Goods_Credit)
+				Goods_Debit)
 			],
 			dr_cr_table_to_txs([
 				% Account                             DR                                              CR
@@ -69,11 +69,11 @@ unrealized_gains_increase_txs(Static_Data, Description, Trading_Account_Id, Purc
 			/* goods value as it was at the start date */
 			Opening_Goods_Value = [coord(
 				without_movement_after(Goods_Unit, Start_Date), 
-				Goods_Debit, Goods_Credit)
+				Goods_Debit)
 			],
 			Current_Without_Currency_Movement = [coord(
 				without_currency_movement_against_since(Goods_Unit, Purchase_Currency, Report_Currency, Start_Date), 
-				Goods_Debit, Goods_Credit)
+				Goods_Debit)
 			],
 			dr_cr_table_to_txs([
 				% Account                                DR                                   CR
@@ -109,10 +109,9 @@ unrealized_gains_reduction_txs(Static_Data, Description, Transaction_Day, Tradin
 	
 	Goods = value(Goods_Unit, Goods_Count),
 	Goods_Debit = Goods_Count, 
-	Goods_Credit = 0,
 	Goods_Historical = [coord(
 		without_movement_after(Goods_Unit, Start_Date), 
-		Goods_Debit, Goods_Credit)
+		Goods_Debit)
 	],
 	vec_inverse(Goods_Historical, Goods_Historical_Reduction),
 	(
@@ -135,7 +134,7 @@ unrealized_gains_reduction_txs(Static_Data, Description, Transaction_Day, Tradin
 			),
 			Goods_Without_Currency_Movement = [coord(
 				without_currency_movement_against_since(Goods_Unit, Purchase_Currency, Report_Currency, Purchase_Date_Clipped), 
-				Goods_Count, 0)
+				Goods_Count)
 			],
 			dr_cr_table_to_txs([
 				% Account                                 DR                                         CR
@@ -153,7 +152,7 @@ unrealized_gains_reduction_txs(Static_Data, Description, Transaction_Day, Tradin
 					), 
 					Transaction_Day
 				),
-				Goods_Debit, Goods_Credit)
+				Goods_Debit)
 			],
 				
 			dr_cr_table_to_txs([
@@ -164,11 +163,11 @@ unrealized_gains_reduction_txs(Static_Data, Description, Transaction_Day, Tradin
 			),
 			Opening_Goods_Value = [coord(
 				without_movement_after(Goods_Unit, Start_Date), 
-				Goods_Debit, Goods_Credit)
+				Goods_Debit)
 			],
 			Current_Without_Currency_Movement = [coord(
 				without_currency_movement_against_since(Goods_Unit, Purchase_Currency, Report_Currency, Start_Date), 
-				Goods_Debit, Goods_Credit)
+				Goods_Debit)
 			],
 			dr_cr_table_to_txs([
 				% Account                             DR                                           CR
@@ -189,10 +188,10 @@ increase_realized_gains(Static_Data, Description, Trading_Account_Id, Sale_Vecto
 	number_coord(_, Goods_Integer, Goods_Coord),
 	Goods_Positive is -Goods_Integer,
 
-	Sale_Vector = [coord(Sale_Currency, Sale_Currency_Amount, _)],
+	Sale_Vector = [coord(Sale_Currency, Sale_Currency_Amount)],
 	Sale_Currency_Unit_Price is Sale_Currency_Amount / Goods_Positive,
 	
-	[coord(Converted_Currency, Converted_Debit, _)] = Converted_Vector,
+	[coord(Converted_Currency, Converted_Debit)] = Converted_Vector,
 	Sale_Unit_Price_Amount is Converted_Debit / Goods_Positive,
 	
 	maplist(
@@ -263,6 +262,15 @@ realized_gains_txs(Static_Data, Description, Transaction_Day, Sale_Currency, Sal
 			)
 		)
 	).
+
+make_debit(value(Unit, Amount), coord(Unit, Amount)).
+make_debit(coord(Unit, Dr), coord(Unit, Dr)) :- Dr >= 0.
+make_debit(coord(Unit, DrA), coord(Unit, DrB)) :- DrA < 0, DrB is -DrA.
+
+make_credit(value(Unit, Amount), coord(Unit, Amount2)) :- Amount2 is -Amount.
+make_credit(coord(Unit, DrA), coord(Unit, DrB)) :- DrA > 0, DrB is -DrA.
+make_credit(coord(Unit, Dr), coord(Unit, Dr)) :- Dr =< 0.
+
 /*
  Order_Hint - irrelevant for functionality, ordering coords for easy reading
  Txs - output

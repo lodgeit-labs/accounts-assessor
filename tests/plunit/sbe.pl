@@ -1,4 +1,4 @@
-:- ['../../lib/chat/sbe'].
+:- ['../../lib/sbe'].
 
 :- begin_tests(sbe).
 test(0) :-

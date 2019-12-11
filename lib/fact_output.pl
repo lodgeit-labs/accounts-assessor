@@ -1,9 +1,10 @@
 :- module(_, []).
 
 :- use_module('accounts').
-:- use_module('utils').
+:- use_module(library(xbrl/utils)).
 
 :- use_module(library(rdet)).
+:- use_module(library(xbrl/structured_xml)).
 
 :- rdet(format_balance/11).
 :- rdet(format_balances/11).
@@ -105,18 +106,23 @@ format_balance(Format, Indent_Level, Report_Currency_List, Context, Name, Normal
 	;
 		Report_Currency = 'AUD' % just for displaying zero balance
 	),
-	format_balance(Format, Indent_Level, _, Context, Name, Normal_Side, [coord(Report_Currency, 0, 0)], Used_Units_In, Used_Units_Out, Lines_In, Lines_Out).
+	format_balance(Format, Indent_Level, _, Context, Name, Normal_Side, [coord(Report_Currency, 0)], Used_Units_In, Used_Units_Out, Lines_In, Lines_Out).
    
 format_balance(Format, Indent_Level, Report_Currency_List, Context, Name, Normal_Side, Coord, Units_In, Units_Out, Lines_In, Lines_Out) :-
-	[coord(Unit, Debit, Credit)] = Coord,
+	[coord(Unit, Debit)] = Coord,
 	sane_unit_id(Units_In, Units_Out, Unit, Unit_Xml_Id),
 	(
 		Normal_Side = credit
 	->
-		Balance is (Credit - Debit)
+		Balance0 is -Debit
 	;
-		Balance is (Debit - Credit)
+		Balance0 is Debit
 	),
+	utils:round(Balance0, 2, Balance1),
+	(
+		Balance1 =:= 0
+	->	Balance = 0 % get rid of negative zero
+	;	Balance = Balance0),
 	utils:get_indentation(Indent_Level, Indentation),
 	%filter_out_chars_from_atom(is_underscore, Name, Name2),
 	Name2 = Name,
@@ -126,17 +132,20 @@ format_balance(Format, Indent_Level, Report_Currency_List, Context, Name, Normal
 		format(string(Line), '~w<basic:~w contextRef="~w" unitRef="U-~w" decimals="INF">~2:f</basic:~w>\n', [Indentation, Name2, Context, Unit_Xml_Id, Balance, Name2])
 	;
 		(
+			%gtrace,
+			utils:round_term(Unit, Rounded_Unit),
 			(
 				Report_Currency_List = [Unit]
 			->
 				Printed_Unit = ''
 			;
-				Printed_Unit = Unit
+				Printed_Unit = Rounded_Unit
 			),
 			format(string(Line), '~2:f~w\n', [Balance, Printed_Unit])
 		)
 	),
 	append(Lines_In, [Line], Lines_Out).
+
 
 sane_unit_id(Units_In, Units_Out, Unit, Id) :-
 	member(unit_id(Unit, Id), Units_In),
@@ -144,6 +153,7 @@ sane_unit_id(Units_In, Units_Out, Unit, Id) :-
 	!.
 
 sane_unit_id(Units_In, Units_Out, Unit, Id) :-
-	utils:sane_xml_element_id_from_term(Unit, Id),
-	append(Units_In, [unit_id(Unit, Id)], Units_Out).
+	utils:round_term(Unit, Unit2),
+	structured_xml:sane_xml_element_id_from_term(Unit2, Id),
+	append(Units_In, [unit_id(Unit2, Id)], Units_Out).
 

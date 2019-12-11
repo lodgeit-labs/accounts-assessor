@@ -1,6 +1,6 @@
 :- module(_, []).
 :- use_module('report_page').
-:- use_module('utils').
+:- use_module(library(xbrl/utils)).
 :- use_module('pacioli').
 :- use_module('accounts').
 :- use_module('ledger_report').
@@ -9,13 +9,16 @@
 :- rdet(report/4).
 :- rdet(crosschecks_report/4).
 
-report(Sd, Reports, File_Info, Json) :-
+report(Sd, Reports, [/*Json_File_Info, */Html_File_Info], Json) :-
 	crosschecks_report(Sd.put(reports,Reports), Json),
 	findall(
 		p([p([Check]), p([Evaluation]), p([Status])]),
 		member([Check, Evaluation, Status], Json.results),
 		Html),
-	report_page:report_page('crosschecks', Html, 'crosschecks.html', 'crosschecks_html', File_Info).
+	/*dict_json_text(Json, Json_Text),
+	report_item('crosschecks.json', Json_Text, Json_Url),
+	report_entry('crosschecks.json', Json_Url, crosschecks_json, Json_File_Info),*/
+	report_page:report_page('crosschecks', Html, 'crosschecks.html', 'crosschecks_html', Html_File_Info).
 
 crosschecks_report(Sd, Json) :-
 	Crosschecks = [
@@ -79,8 +82,8 @@ evaluate_equality(Sd, E, [Check, Evaluation, Status], Error) :-
 	),
 	term_string(A, A_Str),
 	term_string(B, B_Str),
-	term_string(A2, A2_Str),
-	term_string(B2, B2_Str),
+	dict_json_text(A2, A2_Str),
+	dict_json_text(B2, B2_Str),
 	format(
 	       string(Check),
 	       '~w ~w ~w',

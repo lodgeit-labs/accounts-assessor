@@ -1,7 +1,7 @@
 :- ['../../lib/exchange_rates'].
 :- ['../../lib/exchange'].
 :- ['../../lib/days'].
-:- use_module('../../lib/utils',	[floats_close_enough/2]).
+:- use_module(library(xbrl/utils),	[floats_close_enough/2]).
 
 :- begin_tests(exchange_rates).
 

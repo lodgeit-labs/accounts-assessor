@@ -1,11 +1,11 @@
-:- ['../../lib/statements'].
+:- ['../../lib/bank_statement'].
 
 /* fixme, needs updating */
 
-:- begin_tests(statements).
+:- begin_tests(bank_statement).
 
 test(0) :-
-	write("Are we now testing the statements subprogram?").
+	write("Are we now testing the bank_statement subprogram?").
 
 test(1) :-
 	write("Are transactions where only the exchanged amount units are known and that uses a trading account preprocessed correctly?"),
@@ -133,5 +133,5 @@ test(3) :-
 	sort_s_transactions(In, Out).
 
 	
-:- end_tests(statements).
+:- end_tests(bank_statement).
 

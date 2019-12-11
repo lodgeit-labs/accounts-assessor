@@ -2,7 +2,7 @@
 :- module('tables', []).
 
 :- use_module('days').
-:- use_module('utils').
+:- use_module(library(xbrl/utils)).
 :- use_module('pacioli').
 
 :- use_module(library(rdet)).

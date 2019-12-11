@@ -10,6 +10,19 @@ schemas = {}
 # = xmlschema.XMLSchema('/home/sfi/t-rex/lodgeit2/lodgeit/prolog_server/schemas/bases/Reports.xsd')
 
 
+
+def parse_schema(xsd):
+	return xmlschema.XMLSchema(xsd)
+
+def get_schema(xsd):
+	if xsd in schemas:
+		schema = schemas[xsd]
+	else:
+		schema = parse_schema(xsd)
+		schemas[xsd] = schema
+	return schema
+
+
 def index(request):
 	#print(request.GET)
 	params = request.GET
@@ -17,12 +30,9 @@ def index(request):
 	""" fixme: limit these to some directories / hosts """
 	xml = params['xml']
 	xsd = params['xsd']
-
-	if xsd in schemas:
-		schema = schemas[xsd]
-	else:
-		schema = xmlschema.XMLSchema(xsd)
-		schemas[xsd] = schema
+	
+	schema = get_schema(xsd)
+	
 	response = {}
 	try:
 		schema.validate(xml)

@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+
+
+<!-- reports:  {
+  "alerts": [],
+  "reports": [
+    {
+      "id":"response_xml",
+      "key":"xml response",
+      "val": {
+	"url":"http://koom-KVM:8080/tmp/1576038514.6677952.79/response.xml"
+      }
+    },
+    {
+      "id":"request_xml",
+      "key":"request_xml",
+      "val": {
+	"url":"http://koom-KVM:8080/tmp/1576038514.6677952.79/request.xml"
+      }
+    },
+    {
+      "id":"all",
+      "key":"all files",
+      "val": {"url":"http://koom-KVM:8080/tmp/1576038514.6677952.79/"}
+    }
+  ]
+} --><?xml version="1.0" encoding="UTF-8"?>
+
+<reports>
+  <is_car_response>Yes</is_car_response>
+</reports>

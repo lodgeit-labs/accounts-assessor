@@ -27,7 +27,7 @@
 :- use_module(accounts, [account_id/2, account_in_set/3, account_exists/2]).
 :- use_module(days, [absolute_day/2, gregorian_date/2]).
 :- use_module(pacioli, [vec_add/3, vec_reduce/2]).
-:- use_module(utils, [sort_into_dict/3]).
+:- use_module(library(xbrl/utils), [sort_into_dict/3]).
 :- use_module(library(record)).
 :- use_module(library(rdet)).
 

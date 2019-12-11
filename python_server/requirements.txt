@@ -3,5 +3,6 @@ untangle
 sympy
 xmlschema==1.0.14
 django
-git+https://github.com/Arelle/Arelle
-#-e https://github.com/Arelle/Arelle
+deepdiff
+defusedxml
+ipython

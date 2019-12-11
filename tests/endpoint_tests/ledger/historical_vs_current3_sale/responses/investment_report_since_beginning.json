@@ -189,9 +189,9 @@
       "currency":"CHF",
       "gains": {
 	"rea": {
-	  "forex":"value('AUD',200)",
-	  "market_converted":"value('AUD',0.0)",
-	  "market_foreign":"value('CHF',0)"
+	  "forex": {"amount":200.0, "unit":"AUD"},
+	  "market_converted": {"amount":0.0, "unit":"AUD"},
+	  "market_foreign": {"amount":0.0, "unit":"CHF"}
 	},
 	"unr": {}
       },
@@ -200,18 +200,18 @@
       "purchase": {
 	"conversion":"exchange_rate(date(2015,1,1),'CHF','AUD',2.0)",
 	"date":"date(2015,1,1)",
-	"total_cost_converted":"value('AUD',200.0)",
-	"total_cost_foreign":"value('CHF',100)",
-	"unit_cost_converted":"value('AUD',20.0)",
-	"unit_cost_foreign":"value('CHF',10)"
+	"total_cost_converted": {"amount":200.0, "unit":"AUD"},
+	"total_cost_foreign": {"amount":100.0, "unit":"CHF"},
+	"unit_cost_converted": {"amount":20.0, "unit":"AUD"},
+	"unit_cost_foreign": {"amount":10.0, "unit":"CHF"}
       },
       "sale": {
 	"conversion":"exchange_rate(date(2018,5,1),'CHF','AUD',4.0)",
 	"date":"date(2018,5,1)",
-	"total_cost_converted":"value('AUD',400.0)",
-	"total_cost_foreign":"value('CHF',100)",
-	"unit_cost_converted":"value('AUD',40.0)",
-	"unit_cost_foreign":"value('CHF',10)"
+	"total_cost_converted": {"amount":400.0, "unit":"AUD"},
+	"total_cost_foreign": {"amount":100.0, "unit":"CHF"},
+	"unit_cost_converted": {"amount":40.0, "unit":"AUD"},
+	"unit_cost_foreign": {"amount":10.0, "unit":"CHF"}
       },
       "unit":"Leonteq_N"
     },
@@ -219,12 +219,12 @@
       "closing": {"total_cost_converted": [], "total_cost_foreign": []},
       "gains": {
 	"rea": {
-	  "forex": ["value('AUD',200)" ],
-	  "market_converted": ["value('AUD',0.0)" ],
-	  "market_foreign": ["value('CHF',0)" ]
+	  "forex": [ {"amount":200.0, "unit":"AUD"} ],
+	  "market_converted": [ {"amount":0.0, "unit":"AUD"} ],
+	  "market_foreign": [ {"amount":0.0, "unit":"CHF"} ]
 	},
-	"realized_total": ["value('AUD',200.0)" ],
-	"total": ["value('AUD',200.0)" ],
+	"realized_total": [ {"amount":200.0, "unit":"AUD"} ],
+	"total": [ {"amount":200.0, "unit":"AUD"} ],
 	"unr": {"forex": [], "market_converted": [], "market_foreign": []},
 	"unrealized_total": []
       },

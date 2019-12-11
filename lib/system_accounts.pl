@@ -3,7 +3,7 @@
 		generate_system_accounts/3, 
 		trading_account_ids/1,
 		bank_accounts/2]).
-
+:- use_module('action_verbs', []).
 :- use_module('accounts', [
 		account_term_by_role/3, 
 		account_exists/2,
@@ -11,27 +11,25 @@
 		account_id/2, 
 		account_parent/2,
 		account_detail_level/2]).
-:- use_module('livestock', [
-		make_livestock_accounts/2]).
-:- use_module('statements', [
+:- use_module('livestock', []).
+:- use_module('s_transaction', [
 		s_transaction_account_id/2,
 		s_transaction_vector/2,
 		s_transaction_exchanged/2]).
-:- use_module('utils', [
+:- use_module(library(xbrl/utils), [
 		replace_nonalphanum_chars_with_underscore/2,
 		capitalize_atom/2]).
 
-:- use_module('rdf_stuff', []).
-:- use_module(library(semweb/rdf11)).
+:- use_module('doc', [doc/3]).
 
 /*	
 Take the output of find_or_add_required_accounts and filter out existing accounts by role. 
 Change id's to unique if needed.
 We could present this as a proposal to the user to add these accounts. But here we will do it immediately.
 */
-generate_system_accounts(Info, Accounts_In, Accounts_Out) :-
+generate_system_accounts(S_Transactions, Accounts_In, Accounts_Out) :-
 	writeln('<!--generate system accounts...-->'),
-	find_or_add_required_accounts(Info, Accounts_In, Accounts_With_Generated_Accounts),
+	find_or_add_required_accounts(S_Transactions, Accounts_In, Accounts_With_Generated_Accounts),
 	findall(
 		Account,
 		(
@@ -46,7 +44,7 @@ generate_system_accounts(Info, Accounts_In, Accounts_Out) :-
 .
 
 	
-find_or_add_required_accounts((S_Transactions, Livestock_Types), Accounts_In, Accounts_Out) :-
+find_or_add_required_accounts(S_Transactions, Accounts_In, Accounts_Out) :-
 /*fixme, accounts should be added one by one and id uniqueness checked against all the previously added accounts each time */
 	Missing_Stuff = [
 		/* needs to go into taxonomy */
@@ -69,7 +67,7 @@ find_or_add_required_accounts((S_Transactions, Livestock_Types), Accounts_In, Ac
 	make_bank_accounts(Accounts_In, S_Transactions, Bank_Accounts),
 	flatten([Accounts_In, Bank_Accounts], Accounts2),
 	make_currency_movement_accounts(Accounts2, Bank_Accounts, Currency_Movement_Accounts),
-	maplist(make_livestock_accounts, Livestock_Types, Livestock_Accounts),
+	livestock:make_livestock_accounts(Livestock_Accounts),
 	ensure_gains_accounts_exist(Accounts2, S_Transactions, Gains_Accounts),
 	financial_investments(Accounts_In, S_Transactions, Financial_Investments_Accounts),
 	flatten([Missing_Stuff, Bank_Accounts, Currency_Movement_Accounts, Livestock_Accounts, Gains_Accounts, Financial_Investments_Accounts], Accounts_Out).
@@ -138,7 +136,7 @@ yield_traded_units(S_Transactions, Unit) :-
 	member(S_Transaction, S_Transactions),
 	s_transaction_exchanged(S_Transaction, E),
 	(
-		E = vector([coord(Unit,_,_)])
+		E = vector([coord(Unit,_)])
 	;
 		E = bases(Unit)
 	).
@@ -147,10 +145,8 @@ trading_account_ids(Ids) :-
 	findall(
 		A,
 		(
-			rdf_stuff:my_rdf_graph(Dir),
-			rdf(X, rdf:type, l:action_verb,Dir),
-			rdf(X, l:has_trading_account, A,Dir)
-
+			action_verbs:action_verb(Action_Verb),
+			doc:doc(Action_Verb, l:has_trading_account, A)
 		),
 		Ids0
 	),

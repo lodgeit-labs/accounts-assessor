@@ -8,7 +8,7 @@
 
 
 :- use_module(days, [day_diff/3]).
-:- use_module(utils, [throw_string/1]).
+:- use_module(library(xbrl/utils), [throw_string/1]).
 
 
 % Calculates depreciation on a daily basis between the invest in date and any other date

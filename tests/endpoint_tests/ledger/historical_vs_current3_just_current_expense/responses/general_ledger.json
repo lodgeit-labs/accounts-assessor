@@ -4,9 +4,9 @@
       "account":"CHF_Bank",
       "date":"date(2018,1,1)",
       "exchanged":"vector([])",
-      "report_currency_transacted_amount_converted_at_balance_date":600.0,
-      "report_currency_transacted_amount_converted_at_transaction_date":400.0,
-      "vector": [ {"credit":100, "debit":0, "unit":"CHF"} ],
+      "report_currency_transacted_amount_converted_at_balance_date": [ {"credit":600.0, "debit":0.0, "unit":"AUD"} ],
+      "report_currency_transacted_amount_converted_at_transaction_date": [ {"credit":400.0, "debit":0.0, "unit":"AUD"} ],
+      "vector": [ {"credit":100.0, "debit":0.0, "unit":"CHF"} ],
       "verb":"Bank_Charges"
     },
     "transactions": [
@@ -15,7 +15,7 @@
 	"date":"date(2018,1,1)",
 	"description":"Bank_Charges - outgoing money",
 	"type":"instant",
-	"vector": [ {"credit":100, "debit":0, "unit":"CHF"} ],
+	"vector": [ {"credit":100.0, "debit":0.0, "unit":"CHF"} ],
 	"vector_converted_at_balance_date": [ {"credit":600.0, "debit":0.0, "unit":"AUD"} ],
 	"vector_converted_at_transaction_date": [ {"credit":400.0, "debit":0.0, "unit":"AUD"} ]
       },
@@ -25,10 +25,10 @@
 	"description":"Bank_Charges - outgoing money - currency movement adjustment - only current period",
 	"type":"tracking",
 	"vector": [
-	   {"credit":0, "debit":100, "unit":"CHF"},
+	   {"credit":0.0, "debit":100.0, "unit":"CHF"},
 	   {
-  "credit":100,
-  "debit":0,
+  "credit":100.0,
+  "debit":0.0,
   "unit":"without_currency_movement_against_since('CHF','CHF',['AUD'],date(2018,1,1))"
 }
 	],
@@ -51,9 +51,9 @@
       "account":"CHF_Bank",
       "date":"date(2018,5,1)",
       "exchanged":"vector([])",
-      "report_currency_transacted_amount_converted_at_balance_date":600.0,
-      "report_currency_transacted_amount_converted_at_transaction_date":400.0,
-      "vector": [ {"credit":0, "debit":100, "unit":"CHF"} ],
+      "report_currency_transacted_amount_converted_at_balance_date": [ {"credit":0.0, "debit":600.0, "unit":"AUD"} ],
+      "report_currency_transacted_amount_converted_at_transaction_date": [ {"credit":0.0, "debit":400.0, "unit":"AUD"} ],
+      "vector": [ {"credit":0.0, "debit":100.0, "unit":"CHF"} ],
       "verb":"Income"
     },
     "transactions": [
@@ -62,7 +62,7 @@
 	"date":"date(2018,5,1)",
 	"description":"Income - incoming money",
 	"type":"instant",
-	"vector": [ {"credit":0, "debit":100, "unit":"CHF"} ],
+	"vector": [ {"credit":0.0, "debit":100.0, "unit":"CHF"} ],
 	"vector_converted_at_balance_date": [ {"credit":0.0, "debit":600.0, "unit":"AUD"} ],
 	"vector_converted_at_transaction_date": [ {"credit":0.0, "debit":400.0, "unit":"AUD"} ]
       },
@@ -72,10 +72,10 @@
 	"description":"Income - incoming money - currency movement adjustment - only current period",
 	"type":"tracking",
 	"vector": [
-	   {"credit":100, "debit":0, "unit":"CHF"},
+	   {"credit":100.0, "debit":0.0, "unit":"CHF"},
 	   {
-  "credit":0,
-  "debit":100,
+  "credit":0.0,
+  "debit":100.0,
   "unit":"without_currency_movement_against_since('CHF','CHF',['AUD'],date(2018,5,1))"
 }
 	],

@@ -17,8 +17,9 @@
 	day_diff/3
 ]).
 
-:- use_module(utils, [throw_string/1]).
-	
+:- use_module(library(xbrl/utils), [throw_string/1]).
+:- use_module('doc', []).
+
 % -------------------------------------------------------------------
 % The purpose of the following program is to define modular dates, a generalization of
 % Gregorian dates where the day and month can take on any integral value. They allow you
@@ -155,10 +156,22 @@ date_between(
 	Closing_Date, 
 	Date
 ) :-
+	/* todo check that all uses of this pred intend to cut off the end date */
 	absolute_day(Opening_Date, Opening_Day),
 	absolute_day(Closing_Date, Closing_Day),
 	absolute_day(Date, Day),
 	Opening_Day =< Day, Day < Closing_Day.
+
+date_within(
+	/*inputs*/
+	Opening_Date,
+	Closing_Date,
+	Date
+) :-
+	absolute_day(Opening_Date, Opening_Day),
+	absolute_day(Closing_Date, Closing_Day),
+	absolute_day(Date, Day),
+	Opening_Day =< Day, Day =< Closing_Day.
 
 
 % Finds the difference of 2 dates in day format
@@ -193,3 +206,8 @@ add_days(Date, Absolute_Days, Date2) :-
 	absolute_day(Date, Day),
 	Day2 is Day + Absolute_Days,
 	gregorian_date(Day2, Date2).
+
+date_in_request_period(Date) :-
+	doc:request_has_property(l:start_date, Start_Date),
+	doc:request_has_property(l:end_date, End_Date),
+	date_within(Start_Date, End_Date, Date).

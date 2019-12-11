@@ -7,12 +7,6 @@
 
 :- module(prolog_server, [run_simple_server/0, run_daemon/0]).
 
-% -------------------------------------------------------------------
-% Style checking
-% -------------------------------------------------------------------
-
-:- style_check([-discontiguous, +singleton]).
-
 %--------------------------------------------------------------------
 % Modules
 %--------------------------------------------------------------------
@@ -31,8 +25,8 @@
 :- use_module(library(http/http_error)). 
 
 :- use_module('files', [bump_tmp_directory_id/0, absolute_tmp_path/2]).
-:- use_module('chat/residency').
-:- use_module('chat/sbe').
+:- use_module('residency').
+:- use_module('sbe').
 :- ensure_loaded('process_data').
 
 
@@ -45,12 +39,12 @@ mime:mime_extension('xsd', 'application/xml').
 :- http_handler(root(.),      upload_form, []).
 :- http_handler(root(upload), upload,      []).
 :- http_handler(root(upload_and_get_json_reports_list), upload_and_get_json_reports_list,      []).
-:- http_handler(root(chat/sbe), sbe_request, [methods([post])]).
-:- http_handler(root(chat/residency), residency_request, [methods([post])]).
+:- http_handler(root(sbe), sbe_request, [methods([post])]).
+:- http_handler(root(residency), residency_request, [methods([post])]).
 :- http_handler('/favicon.ico', http_reply_file(my_static('favicon.ico'), []), []).
 % TODO : - http_handler(root(tmp), http_reply_from_files('./tmp', []), [prefix]).
 :- http_handler(root(.), http_reply_from_files('.', []), [prefix]).
-:- http_handler(root(run/Test), tests(Test), [methods([get])]).
+/*fixme*/:- http_handler(root(run/Test), tests(Test), [methods([get])]).
 
 % -------------------------------------------------------------------
 % run_simple_server/0
@@ -58,8 +52,8 @@ mime:mime_extension('xsd', 'application/xml').
 
 run_simple_server :-
    Port_Number = 8080,
-   %atomic_list_concat(['http://localhost:', Port_Number], Server_Url),
-   %set_server_public_url(Server_Url),
+   %Python_Port_Number is Port_Number + 20,
+   %utils:shell2(['cd ../python_server;./run.sh --noreload ', Python_Port_Number, ';&'],0),
    http_server(http_dispatch, [port(Port_Number)]).
 
 % -------------------------------------------------------------------
@@ -67,7 +61,6 @@ run_simple_server :-
 % -------------------------------------------------------------------
 
 run_daemon :-
-   /*TODO maybe set server public url here if we want to run requests manually from daemon's repl */
    use_module(library(http/http_unix_daemon)),
    http_daemon.
    

@@ -189,9 +189,9 @@
       "currency":"bananas",
       "gains": {
 	"rea": {
-	  "forex":"value(oranges,0)",
-	  "market_converted":"value(oranges,1000.0)",
-	  "market_foreign":"value(bananas,500)"
+	  "forex": {"amount":0.0, "unit":"oranges"},
+	  "market_converted": {"amount":1000.0, "unit":"oranges"},
+	  "market_foreign": {"amount":500.0, "unit":"bananas"}
 	},
 	"unr": {}
       },
@@ -200,18 +200,18 @@
       "purchase": {
 	"conversion":"exchange_rate(date(2016,1,1),bananas,oranges,2.0)",
 	"date":"date(2016,1,1)",
-	"total_cost_converted":"value(oranges,1000.0)",
-	"total_cost_foreign":"value(bananas,500)",
-	"unit_cost_converted":"value(oranges,1000.0)",
-	"unit_cost_foreign":"value(bananas,500)"
+	"total_cost_converted": {"amount":1000.0, "unit":"oranges"},
+	"total_cost_foreign": {"amount":500.0, "unit":"bananas"},
+	"unit_cost_converted": {"amount":1000.0, "unit":"oranges"},
+	"unit_cost_foreign": {"amount":500.0, "unit":"bananas"}
       },
       "sale": {
 	"conversion":"exchange_rate(date(2017,1,1),bananas,oranges,2.0)",
 	"date":"date(2017,1,1)",
-	"total_cost_converted":"value(oranges,2000.0)",
-	"total_cost_foreign":"value(bananas,1000)",
-	"unit_cost_converted":"value(oranges,2000.0)",
-	"unit_cost_foreign":"value(bananas,1000)"
+	"total_cost_converted": {"amount":2000.0, "unit":"oranges"},
+	"total_cost_foreign": {"amount":1000.0, "unit":"bananas"},
+	"unit_cost_converted": {"amount":2000.0, "unit":"oranges"},
+	"unit_cost_foreign": {"amount":1000.0, "unit":"bananas"}
       },
       "unit":"GOOG"
     },
@@ -219,12 +219,12 @@
       "closing": {"total_cost_converted": [], "total_cost_foreign": []},
       "gains": {
 	"rea": {
-	  "forex": ["value(oranges,0)" ],
-	  "market_converted": ["value(oranges,1000.0)" ],
-	  "market_foreign": ["value(bananas,500)" ]
+	  "forex": [ {"amount":0.0, "unit":"oranges"} ],
+	  "market_converted": [ {"amount":1000.0, "unit":"oranges"} ],
+	  "market_foreign": [ {"amount":500.0, "unit":"bananas"} ]
 	},
-	"realized_total": ["value(oranges,1000.0)" ],
-	"total": ["value(oranges,1000.0)" ],
+	"realized_total": [ {"amount":1000.0, "unit":"oranges"} ],
+	"total": [ {"amount":1000.0, "unit":"oranges"} ],
 	"unr": {"forex": [], "market_converted": [], "market_foreign": []},
 	"unrealized_total": []
       },

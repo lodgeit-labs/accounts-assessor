@@ -11,8 +11,8 @@
 		write_tmp_json_file/2
 		]).
 
-:- use_module('rdf_stuff').
-:- use_module('utils').
+:- asserta(user:file_search_path(library, '../prolog_xbrl_public/xbrl/prolog')).
+:- use_module(library(xbrl/utils)).
 
 :- use_module(library(http/http_dispatch), [http_safe_file/2]).
 
@@ -68,7 +68,6 @@ bump_tmp_directory_id :-
 	gensym(Base, Dir),
 	retractall(my_request_tmp_dir(_)),
 	asserta(my_request_tmp_dir(Dir)),
-	rdf_stuff:init_request_graph(Dir),
 	absolute_tmp_path('', Path),
 	make_directory(Path),
 	absolute_whatever(my_tmp('last'), Last),
@@ -95,8 +94,8 @@ absolute_whatever(Path_Specifier, Absolute) :-
 generate_unique_tmp_directory_base :-
    get_time(Current_Time),
    atomic_list_concat([Current_Time, '.'], Base),
-   asserta(session_tmp_directory_base(Base)),
-   bump_tmp_directory_id.
+   asserta(session_tmp_directory_base(Base))/*,
+   bump_tmp_directory_id*/.
 
    
 server_public_url(Url) :-

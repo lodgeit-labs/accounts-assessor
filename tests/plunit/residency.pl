@@ -1,4 +1,4 @@
-:- ['../../lib/chat/residency'].
+:- ['../../lib/residency'].
 
 :- begin_tests(residency).
 

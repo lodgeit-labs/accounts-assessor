@@ -1,7 +1,7 @@
 :- module(_, []).
 
 :- use_module('ledger_report').
-:- use_module('utils').
+:- use_module(library(xbrl/utils)).
 :- use_module('days').
 :- use_module('files').
 :- use_module('report_page').

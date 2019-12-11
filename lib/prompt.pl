@@ -13,7 +13,6 @@
 % -------------------------------------------------------------------
 
 prompt(Prompt, Bool, ScriptedAnswer) :-
-dict_get(1,2,3),
 
 	string_concat(Prompt, " (y/Y/n/N): ", Formatted_Prompt),
 	write(Formatted_Prompt),
