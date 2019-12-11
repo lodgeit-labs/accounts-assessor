@@ -8,11 +8,11 @@ Fetch submodules:
 
 Install SWIPL 8.1.14
 
-Install SWIPL dependencies:
-* ```swipl -g "pack_install(tap), pack_install(regex), pack_install(xsd), pack_install('https://github.com/rla/rdet.git')."```
-
 How to run it:
 * Change directory to prolog_server/
+
+Install SWIPL dependencies:
+* ```./init.sh```
 
 Run the tests:
 `swipl -s ../tests/run_tests.pl -g halt`
