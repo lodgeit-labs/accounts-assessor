@@ -208,9 +208,22 @@ test_response(Endpoint_Type, Returned_Report_Path, Saved_Report_Path, Key, xml, 
 		Errors = []
 	;
 		(
-			Errors = [Error],
-			nl,nl,
-			/* todo replace xmldiff, it doesnt return status and the diff seem useless
+			Errors = [Error|Errors2],
+			diff_service(Saved_Report_Path, Returned_Report_Path, Errors2)
+		)
+	).
+
+test_response(_, Returned_Report_Path, Saved_Report_Path, _Key, json, Errors) :-
+	diff_service(Saved_Report_Path, Returned_Report_Path, Errors).
+
+
+test_response(_, Returned_Report_Path, Saved_Report_Path, _, _, Error) :-
+	(	diff(Saved_Report_Path, Returned_Report_Path, true)
+	->	Error = []
+	;	Error = ['files differ']).
+
+
+/* todo replace xmldiff, it doesnt return status and the diff seem useless
 			we are focusing on just diffing our particular variety of xmls, that is:
 				any text is irrelevant unless it has no sibling nodes
 				comments should be disregarded
@@ -219,15 +232,14 @@ test_response(Endpoint_Type, Returned_Report_Path, Saved_Report_Path, Key, xml, 
 			with irrelevant text cleaned out, and pass to deepdiff
 			With htmls, this wont work, so possibly jusst deepdiff without the pre-cleanup, or just textual diff
 			Anyway, it maybe makes more sense to focus on having a json of each report, with just the semantially significant bits, and focus on checking those, possibly ignoring the lesser formats entirely
-			*/
-			diff2(Saved_Report_Path, Returned_Report_Path, _, [cmd(['../python/venv/bin/python3','../python/src/structural_xmldiff.py'])]),
+*/
+
+/*			diff2(Saved_Report_Path, Returned_Report_Path, _, [cmd(['../python/venv/bin/python3','../python/src/structural_xmldiff.py'])]),
 			format(/*user_error, */'~n^^that was deepdiff ~w ~w~n', [Saved_Report_Path, Returned_Report_Path]),
 			offer_cp(Returned_Report_Path, Saved_Report_Path),
-			nl,nl
-		)
-	).
+*/
 
-test_response(_, Returned_Report_Path, Saved_Report_Path, _Key, json, Errors) :-
+diff_service(Saved_Report_Path, Returned_Report_Path, Errors) :-
 	utils:float_comparison_significant_digits(D),
 	atomics_to_string([
 		'http://localhost:8000/json_diff/',
@@ -243,14 +255,18 @@ test_response(_, Returned_Report_Path, Saved_Report_Path, _Key, json, Errors) :-
 					read_string(Response_Stream, _, Response_String),
 					close(Response_Stream)
 				),
-				utils:string_to_json(Response_String, _{diff:Diff})
+				utils:string_to_json(Response_String, _{diff:Diff,msg:Msg})
 			),
 			(	Diff = _{}
 			->	Errors = []
 			;	(
-					Errors = ['JSONs differ'],
-					writeln(Response_String),
-					format(/*user_error, */'~n^^that was deepdiff ~w ~w~n', [Saved_Report_Path, Returned_Report_Path]),
+					Errors = ['files differ'],
+					nl,nl,
+					(	Msg \= ""
+					->	writeln(Msg)
+					;	writeln(Response_String)),
+					nl,nl,
+					format(/*user_error, */'~n^^that was diff_service ~w ~w~n', [Saved_Report_Path, Returned_Report_Path]),
 					offer_cp(Returned_Report_Path, Saved_Report_Path)
 				)
 			)
@@ -261,12 +277,6 @@ test_response(_, Returned_Report_Path, Saved_Report_Path, _Key, json, Errors) :-
 			Errors = [E_Str]
 		)
 	).
-
-test_response(_, Returned_Report_Path, Saved_Report_Path, _, _, Error) :-
-	(	diff(Saved_Report_Path, Returned_Report_Path, true)
-	->	Error = []
-	;	Error = ['files differ']).
-
 
 rq(Request_URI, Response_Stream) :- http_open:http_open(Request_URI, Response_Stream, [request_header('Accept'='application/json')]).
 

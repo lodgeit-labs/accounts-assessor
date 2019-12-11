@@ -2,8 +2,8 @@ from django.http import JsonResponse
 import deepdiff, json
 import xml
 from defusedxml import minidom
-import subprocess
-
+import subprocess, shlex
+import tempfile, os
 
 
 
@@ -53,39 +53,59 @@ def cleanup(p):
 	text with element siblings is removed,
 	comments are removed
 	"""
-	assert(isinstance(p, xml.dom.minidom.Element))
+	assert(isinstance(p, (xml.dom.minidom.Element, xml.dom.minidom.Document)))
 	h = has_elements(p.childNodes)
 	for ch in p.childNodes[:]:
+		#print(type(ch))
 		if isinstance(ch, xml.dom.minidom.Comment):
 			p.childNodes.remove(ch)
-		elif h and isinstance(n, xml.dom.minidom.Text):
-			p.childNodes.remove(ch)
+		elif isinstance(ch, xml.dom.minidom.Text):
+			if h:
+				p.childNodes.remove(ch)
 		else:
 			cleanup(ch)
 
-def xmldiff(a,b):
-	p1 = Popen(['../python/venv/bin/xmldiff', a,b], stdout=PIPE, stderr=subprocess.STDOUT)
-	p2 = Popen(shlex.split("""grep -v -F '[update-text-after, /' | grep -v -F '[insert-comment, /' | grep -v -F '/comment()['"""), stdin=p1.stdout, stdout=PIPE)
+tempdir = tempfile.mkdtemp(prefix='xmldiff')
+
+def tmpfw(tempdir):
+	fd,fn = tempfile.mkstemp(prefix='xmldiff', dir=tempdir, text=True)
+	return os.fdopen(fd,'w'), fn
+
+def tmpfw_and_write_xml(tempdir, a_dom):
+	f,fn = tmpfw(tempdir)
+	a_dom.writexml(f,newl='\n')
+	f.close()
+	return fn
+
+def xmldiff(a_dom,b_dom):
+	a = tmpfw_and_write_xml(tempdir, a_dom)
+	b = tmpfw_and_write_xml(tempdir, b_dom)
+
+	p1 = subprocess.Popen(['diff', '--color=always', a, b], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True)
+	#p1 = Popen(['../python/venv/bin/xmldiff', '-F', '1', a, b], stdout=PIPE, stderr=subprocess.STDOUT)
+	#p2 = Popen(shlex.split("""grep -v -F '[update-text-after, /' | grep -v -F '[insert-comment, /' | grep -v -F '/comment()['"""), stdin=p1.stdout, stdout=PIPE)
+	p2 = subprocess.Popen(shlex.split("""cat"""), stdin=p1.stdout, stdout=subprocess.PIPE, universal_newlines=True)
 	p1.stdout.close()  # Allow p1 to receive a SIGPIPE if p2 exits before p1.
-	return p2.communicate()
+	return p2.communicate()[0]
 
 
 
 def index(request):
 	""" fixme: limit these to some directories / hosts """
-	
 	params = request.GET
-	a_fn = params['a']
-	b_fn = params['b']
+	return JsonResponse(do_diff(params['a'], params['b'], json.loads(params['options'])), json_dumps_params={'default':str,'indent':4})
+
+def do_diff(a_fn, b_fn, options={}):
 	a = load(a_fn)
 	b = load(b_fn)
 
 	if a_fn.lower().endswith('.xml'):
-		d = xmldiff(a,b)
+		msg = xmldiff(a,b)
+		d = 'yes'
 	else:
 		d = deepdiff.DeepDiff(a,b,
 			#ignore_order=True,report_repetition=False,
-			**json.loads(params['options']),
+			**options,
 			ignore_numeric_type_changes=True
 		)
 		for k,v in d.items():
@@ -100,15 +120,9 @@ def index(request):
 						del v2["old_value"]
 						v2[">"] = v2["new_value"]
 						del v2["new_value"]
-	
-	return JsonResponse({'diff':d}, json_dumps_params={'default':str,'indent':4})
+		msg = ''
+	return {'diff':d, 'msg':msg}
 
 
 
-
-
-
-
-
-
-
+#import IPython; IPython.embed()
