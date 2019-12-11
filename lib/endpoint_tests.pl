@@ -15,8 +15,9 @@ Note that the http server is spawned in this process. This should change in futu
 
 :- use_module(library(debug), [assertion/1]).
 :- use_module(library(http/http_client)).
-:- use_module(library(http/json)).
 :- use_module(library(http/http_open)).
+:- use_module(library(http/http_json)).
+:- use_module(library(http/json)).
 :- use_module(library(xpath)).
 :- use_module(library(readutil)).
 :- use_module('files').
@@ -46,7 +47,13 @@ hardcoded plunit test rules, one for each endpoint, so we can use things like "t
 
 
 
-test(ledger, 
+test(sbe, []) :-
+	http_post('http://localhost:8080/sbe', json(_{current_state:[]}), _, [content_type('application/json')]).
+
+test(residency, []) :-
+	http_post('http://localhost:8080/residency', json(_{current_state:[]}), _, [content_type('application/json')]).
+
+test(ledger,
 	[forall(testcases('endpoint_tests/ledger',Testcase))]) :-
 	run_endpoint_test(ledger, Testcase).
 

@@ -4,8 +4,8 @@
       "account":"NationalAustraliaBank",
       "date":"date(2018,2,1)",
       "exchanged":"vector([])",
-      "report_currency_transacted_amount_converted_at_balance_date": {"credit":0.0, "debit":20000.0, "unit":"AUD"},
-      "report_currency_transacted_amount_converted_at_transaction_date": {"credit":0.0, "debit":20000.0, "unit":"AUD"},
+      "report_currency_transacted_amount_converted_at_balance_date": [ {"credit":0.0, "debit":20000.0, "unit":"AUD"} ],
+      "report_currency_transacted_amount_converted_at_transaction_date": [ {"credit":0.0, "debit":20000.0, "unit":"AUD"} ],
       "vector": [ {"credit":0.0, "debit":20000.0, "unit":"AUD"} ],
       "verb":"Introduce_Capital"
     },
@@ -35,8 +35,8 @@
       "account":"NationalAustraliaBank",
       "date":"date(2018,3,2)",
       "exchanged":"vector([coord('Cow',10)])",
-      "report_currency_transacted_amount_converted_at_balance_date": {"credit":7000.0, "debit":0.0, "unit":"AUD"},
-      "report_currency_transacted_amount_converted_at_transaction_date": {"credit":7000.0, "debit":0.0, "unit":"AUD"},
+      "report_currency_transacted_amount_converted_at_balance_date": [ {"credit":7000.0, "debit":0.0, "unit":"AUD"} ],
+      "report_currency_transacted_amount_converted_at_transaction_date": [ {"credit":7000.0, "debit":0.0, "unit":"AUD"} ],
       "vector": [ {"credit":7000.0, "debit":0.0, "unit":"AUD"} ],
       "verb":"l:livestock_purchase"
     },
@@ -75,8 +75,8 @@
       "account":"NationalAustraliaBank",
       "date":"date(2018,3,2)",
       "exchanged":"vector([coord('Cow',-6)])",
-      "report_currency_transacted_amount_converted_at_balance_date": {"credit":0.0, "debit":7663.0, "unit":"AUD"},
-      "report_currency_transacted_amount_converted_at_transaction_date": {"credit":0.0, "debit":7663.0, "unit":"AUD"},
+      "report_currency_transacted_amount_converted_at_balance_date": [ {"credit":0.0, "debit":7663.0, "unit":"AUD"} ],
+      "report_currency_transacted_amount_converted_at_transaction_date": [ {"credit":0.0, "debit":7663.0, "unit":"AUD"} ],
       "vector": [ {"credit":0.0, "debit":7663.0, "unit":"AUD"} ],
       "verb":"l:livestock_sale"
     },

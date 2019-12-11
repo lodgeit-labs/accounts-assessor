@@ -29,6 +29,12 @@
 % depending on whether the term is of the form bases(...) or vector(...).
 
 sort_s_transactions(In, Out) :-
+	/*maybe todo:
+	even smarter sorting.
+	First, all revenue, that is, no exchanged, debit vector
+	next, exchanged debit
+	then the rest?
+	*/
 	/*
 	If a buy and a sale of same thing happens on the same day, we want to process the buy first.
 	We first sort by our debit on the bank account. Transactions with zero of our debit are not sales.
