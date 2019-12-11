@@ -299,7 +299,8 @@ record_expense_or_earning_or_equity_or_loan(Static_Data, Action_Verb, Vector_Our
 	vec_change_bases(Exchange_Rates, Date, Report_Currency, Vector_Ours2, Vector_Converted),
 	(
 		(
-			doc:doc(Action_Verb, l:has_gst_rate, Gst_Rate^^_),
+			%doc:doc(Action_Verb, l:has_gst_rate, Gst_Rate^^_),
+			doc:doc(Action_Verb, l:has_gst_rate, Gst_Rate),
 			Gst_Rate =\= 0
 		)
 	->

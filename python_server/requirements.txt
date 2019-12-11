@@ -4,3 +4,4 @@ sympy
 xmlschema==1.0.14
 django
 deepdiff
+ipython
