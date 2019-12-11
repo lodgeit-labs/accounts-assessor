@@ -36,7 +36,7 @@ ok</p></p>
 account_balance(reports/pl/current,'InvestmentIncomeUnrealized'/withoutCurrencyMovement) = report_value(reports/ir/current/totals/gains/unr/market_converted)</p>
 
 <p>
-[value('AUD',-65732 rdiv 625)] = [value('AUD',-105.1712)]</p>
+[ {"amount":-105.1712, "unit":"AUD"} ] = [ {"amount":-105.1712, "unit":"AUD"} ]</p>
 
 <p>
 ok</p></p>
@@ -47,7 +47,7 @@ ok</p></p>
 account_balance(reports/pl/current,'InvestmentIncomeUnrealized'/onlyCurrencyMovement) = report_value(reports/ir/current/totals/gains/unr/forex)</p>
 
 <p>
-[value('AUD',59948526532 rdiv 82884258561)] = [value('AUD',21105660150 rdiv 29180483561)]</p>
+[ {"amount":0.72328, "unit":"AUD"} ] = [ {"amount":0.72328, "unit":"AUD"} ]</p>
 
 <p>
 ok</p></p>
@@ -58,7 +58,7 @@ ok</p></p>
 account_balance(reports/pl/current,'Accounts'/'InvestmentIncome') = report_value(reports/ir/current/totals/gains/total)</p>
 
 <p>
-[value('AUD',-1305599 rdiv 12500)] = [value('AUD',-104.44792)]</p>
+[ {"amount":-104.44792, "unit":"AUD"} ] = [ {"amount":-104.44792, "unit":"AUD"} ]</p>
 
 <p>
 ok</p></p>
@@ -69,7 +69,7 @@ ok</p></p>
 account_balance(reports/pl/current,'InvestmentIncome'/unrealized) = report_value(reports/ir/current/totals/gains/unrealized_total)</p>
 
 <p>
-[value('AUD',-1305599 rdiv 12500)] = [value('AUD',-104.44792)]</p>
+[ {"amount":-104.44792, "unit":"AUD"} ] = [ {"amount":-104.44792, "unit":"AUD"} ]</p>
 
 <p>
 ok</p></p>
@@ -91,7 +91,7 @@ ok</p></p>
 account_balance(reports/bs/current,'Accounts'/'FinancialInvestments') = report_value(reports/ir/current/totals/closing/total_cost_converted)</p>
 
 <p>
-[value('AUD',337701 rdiv 12500)] = [value('AUD',27.01608)]</p>
+[ {"amount":27.01608, "unit":"AUD"} ] = [ {"amount":27.01608, "unit":"AUD"} ]</p>
 
 <p>
 ok</p></p>
@@ -113,7 +113,7 @@ ok</p></p>
 account_balance(reports/bs/current,'Accounts'/'NetAssets') = account_balance(reports/bs/current,'Accounts'/'Equity')</p>
 
 <p>
-[value('AUD',3714711 rdiv 25000)] = [value('AUD',3714711 rdiv 25000)]</p>
+[ {"amount":148.58844, "unit":"AUD"} ] = [ {"amount":148.58844, "unit":"AUD"} ]</p>
 
 <p>
 ok</p></p>

@@ -36,7 +36,7 @@ ok</p></p>
 account_balance(reports/pl/current,'InvestmentIncomeUnrealized'/withoutCurrencyMovement) = report_value(reports/ir/current/totals/gains/unr/market_converted)</p>
 
 <p>
-[value('AUD',40)] = [value('AUD',40.0)]</p>
+[ {"amount":40.0, "unit":"AUD"} ] = [ {"amount":40.0, "unit":"AUD"} ]</p>
 
 <p>
 ok</p></p>
@@ -47,7 +47,7 @@ ok</p></p>
 account_balance(reports/pl/current,'InvestmentIncomeUnrealized'/onlyCurrencyMovement) = report_value(reports/ir/current/totals/gains/unr/forex)</p>
 
 <p>
-[value('AUD',240)] = [value('AUD',240)]</p>
+[ {"amount":240.0, "unit":"AUD"} ] = [ {"amount":240.0, "unit":"AUD"} ]</p>
 
 <p>
 ok</p></p>
@@ -58,7 +58,7 @@ ok</p></p>
 account_balance(reports/pl/current,'Accounts'/'InvestmentIncome') = report_value(reports/ir/current/totals/gains/total)</p>
 
 <p>
-[value('AUD',280)] = [value('AUD',280.0)]</p>
+[ {"amount":280.0, "unit":"AUD"} ] = [ {"amount":280.0, "unit":"AUD"} ]</p>
 
 <p>
 ok</p></p>
@@ -69,7 +69,7 @@ ok</p></p>
 account_balance(reports/pl/current,'InvestmentIncome'/unrealized) = report_value(reports/ir/current/totals/gains/unrealized_total)</p>
 
 <p>
-[value('AUD',280)] = [value('AUD',280.0)]</p>
+[ {"amount":280.0, "unit":"AUD"} ] = [ {"amount":280.0, "unit":"AUD"} ]</p>
 
 <p>
 ok</p></p>
@@ -91,7 +91,7 @@ ok</p></p>
 account_balance(reports/bs/current,'Accounts'/'FinancialInvestments') = report_value(reports/ir/current/totals/closing/total_cost_converted)</p>
 
 <p>
-[value('AUD',720)] = [value('AUD',720.0)]</p>
+[ {"amount":720.0, "unit":"AUD"} ] = [ {"amount":720.0, "unit":"AUD"} ]</p>
 
 <p>
 ok</p></p>
@@ -102,7 +102,7 @@ ok</p></p>
 account_balance(reports/bs/current,'Accounts'/'HistoricalEarnings') = account_balance(reports/pl/historical,'Accounts'/'NetIncomeLoss')</p>
 
 <p>
-[value('AUD',40)] = [value('AUD',40)]</p>
+[ {"amount":40.0, "unit":"AUD"} ] = [ {"amount":40.0, "unit":"AUD"} ]</p>
 
 <p>
 ok</p></p>
@@ -113,7 +113,7 @@ ok</p></p>
 account_balance(reports/bs/current,'Accounts'/'NetAssets') = account_balance(reports/bs/current,'Accounts'/'Equity')</p>
 
 <p>
-[value('AUD',120)] = [value('AUD',120)]</p>
+[ {"amount":120.0, "unit":"AUD"} ] = [ {"amount":120.0, "unit":"AUD"} ]</p>
 
 <p>
 ok</p></p>

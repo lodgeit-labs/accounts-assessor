@@ -189,9 +189,9 @@
       "currency":"CHF",
       "gains": {
 	"rea": {
-	  "forex":"value('AUD',-3710325 rdiv 58352)",
-	  "market_converted":"value('AUD',0.0)",
-	  "market_foreign":"value('CHF',0)"
+	  "forex": {"amount":-63.585224, "unit":"AUD"},
+	  "market_converted": {"amount":0.0, "unit":"AUD"},
+	  "market_foreign": {"amount":0.0, "unit":"CHF"}
 	},
 	"unr": {}
       },
@@ -200,18 +200,18 @@
       "purchase": {
 	"conversion":"exchange_rate(date(2015,1,1),'CHF','AUD',2.0)",
 	"date":"date(2015,1,1)",
-	"total_cost_converted":"value('AUD',200.0)",
-	"total_cost_foreign":"value('CHF',100)",
-	"unit_cost_converted":"value('AUD',20.0)",
-	"unit_cost_foreign":"value('CHF',10)"
+	"total_cost_converted": {"amount":200.0, "unit":"AUD"},
+	"total_cost_foreign": {"amount":100.0, "unit":"CHF"},
+	"unit_cost_converted": {"amount":20.0, "unit":"AUD"},
+	"unit_cost_foreign": {"amount":10.0, "unit":"CHF"}
       },
       "sale": {
 	"conversion":"exchange_rate(date(2015,5,1),'CHF','AUD',1.3641477584315875)",
 	"date":"date(2015,5,1)",
-	"total_cost_converted":"value('AUD',136.41477584315876)",
-	"total_cost_foreign":"value('CHF',100)",
-	"unit_cost_converted":"value('AUD',13.641477584315876)",
-	"unit_cost_foreign":"value('CHF',10)"
+	"total_cost_converted": {"amount":136.414776, "unit":"AUD"},
+	"total_cost_foreign": {"amount":100.0, "unit":"CHF"},
+	"unit_cost_converted": {"amount":13.641478, "unit":"AUD"},
+	"unit_cost_foreign": {"amount":10.0, "unit":"CHF"}
       },
       "unit":"Leonteq_N"
     },
@@ -219,12 +219,12 @@
       "closing": {"total_cost_converted": [], "total_cost_foreign": []},
       "gains": {
 	"rea": {
-	  "forex": ["value('AUD',-3710325 rdiv 58352)" ],
-	  "market_converted": ["value('AUD',0.0)" ],
-	  "market_foreign": ["value('CHF',0)" ]
+	  "forex": [ {"amount":-63.585224, "unit":"AUD"} ],
+	  "market_converted": [ {"amount":0.0, "unit":"AUD"} ],
+	  "market_foreign": [ {"amount":0.0, "unit":"CHF"} ]
 	},
-	"realized_total": ["value('AUD',-63.585224156841235)" ],
-	"total": ["value('AUD',-63.585224156841235)" ],
+	"realized_total": [ {"amount":-63.585224, "unit":"AUD"} ],
+	"total": [ {"amount":-63.585224, "unit":"AUD"} ],
 	"unr": {"forex": [], "market_converted": [], "market_foreign": []},
 	"unrealized_total": []
       },
