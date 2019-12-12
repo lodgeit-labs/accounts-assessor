@@ -1,0 +1,22 @@
+inputs:
+	total income
+	total deductions
+
+taxable income = total income - total deductions
+
+ignored income = sum:
+	the income that the foreign income tax was paid on
+	any other income or gains from a non-Australian source
+
+ignored deductions = sum:
+	debt deductions attributable to your overseas permanent establishment
+	deductions (other than debt deductions) that are reasonably related to ignored income
+	an amount of the foreign loss component of one or more tax losses deducted in the income year.
+
+theoretic income = sum:
+	total income - ignored income
+	total deductions - ignored deductions
+
+theoretic tax = income tax calculated on theoretic income
+
+offset limit = max($1000, income tax - theoretic tax)

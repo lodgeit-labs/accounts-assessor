@@ -21,20 +21,20 @@
 
 
 /* used from command line */
+/*
 process_data_cmdline(Path) :-
 	bump_tmp_directory_id,
 	files:exclude_file_location_from_filename(Path, Request_Fn),
 	absolute_tmp_path(Request_Fn, Tmp_Request_File_Path),
 	copy_file(Path, Tmp_Request_File_Path),
-	process_data(Path, Path, []).
+	process_request_files(Path, Path, []).
+*/
 
 /* used from http server */
-process_data(_, Path, Options) :-
-	files:exclude_file_location_from_filename(Path, Request_File_Name),
+process_data(Options, Parts) :-
 	maybe_supress_generating_unique_taxonomy_urls(Options),
-	get_requested_output_type(Options, Requested_Output_Type),
-	load_structure(Path, Request_Dom, [dialect(xmlns), space(remove), keep_prefix(true)]),
-	process_with_theory(Request_File_Name, Request_Dom, Reports, Output_File_Title, Output_Xml_String),
+
+	process_with_theory(Parts, Request_File_Name, Reports, Output_File_Title, Output_Xml_String),
 
 	response_file_name(Request_File_Name, Output_File_Name),
 	absolute_tmp_path(Output_File_Name, Output_File_Path),
@@ -75,6 +75,7 @@ process_data(_, Path, Options) :-
 	with_output_to(string(Response_Json_String), json_write(current_output, Json_Out)),
 	write_file(Json_Response_File_Path, Response_Json_String),
 	make_zip,
+	get_requested_output_type(Options, Requested_Output_Type),
 	(
 		Requested_Output_Type = xml
 	->
@@ -89,7 +90,27 @@ process_data(_, Path, Options) :-
 		)
 	).
 
-process_with_theory(Request_File_Name, Request_Dom, Reports, Output_File_Title, Output_Xml_String) :-
+icase_endswith(String, End) :-
+	string_lower(String, String2),
+	sub_string(String2, _,_,0,End).
+
+process_with_theory(Parts, Request_File_Name, Reports, Output_File_Title, Output_Xml_String) :-
+	member(file=file(_, Xml_Tmp_File_Path), Parts),
+	files:exclude_file_location_from_filename(Xml_Tmp_File_Path, Request_File_Name),
+	icase_endswith(Xml_Tmp_File_Path, ".xml"),
+	load_structure(Xml_Tmp_File_Path, Request_Dom, [dialect(xmlns), space(remove), keep_prefix(true)]),
+	(
+		(
+			gtrace,
+			member(file2=file(_, Rdf_Tmp_File_Path), Parts),
+			icase_endswith(Rdf_Tmp_File_Path, ".rdf.xml")
+		)
+	->
+		
+	;
+		gtrace,writeq(xx)
+	),
+
 	/*
 	i'm storing some data in the 'doc' rdf-like database, only as an experiment for now.
 	livestock and action verbs exclusively, some other data in parallel with passing them around in variables
