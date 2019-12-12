@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+<request>
+	<solve>
+		<document type="HirePurchaseArrangement">
+			<contractNumber>ACAP426204.1.0</contractNumber>
+			<cashPrice>5953.20</cashPrice>
+			<beginDate>2015-01-16</beginDate>
+			<paymentType>arrears</paymentType>
+			<interestRate>13.00</interestRate>
+			<numberOfInstallments>36</numberOfInstallments>
+			<totalInterest></totalInterest>
+			<totalPayments></totalPayments>
+		</document>
+		<document type="HirePurchaseSummary">
+			<contractNumber>ACAP426204.1.0</contractNumber>
+			<date>2015-01-16</date>
+			<currentLiabilities></currentLiabilities>
+			<currentUnexpiredInterest></currentUnexpiredInterest>
+			<noncurrentLiabilities></noncurrentLiabilities>
+			<noncurrentUnexpiredInterest></noncurrentUnexpiredInterest>
+		</document>
+		<document type="HirePurchaseSummary">
+			<contractNumber>ACAP426204.1.0</contractNumber>
+			<date>2015-01-16</date>
+			<repaymentBalance></repaymentBalance>
+			<unexpiredInterest></unexpiredInterest>
+		</document>
+		<document type="HirePurchaseSummary">
+			<contractNumber>ACAP426204.1.0</contractNumber>
+			<date>2015-01-16</date>
+			<liabilityBalance></liabilityBalance>
+		</document>
+		<document type="HirePurchaseDetails">
+			<contractNumber>ACAP426204.1.0</contractNumber>
+			<amount/>
+			<interestRate/>
+			<beginDate/>
+			<period/>
+			<interest/>
+			<totalPayments/>
+			<totalInterest/>
+			<installments/>
+		</document>
+	</solve>
+</request>
