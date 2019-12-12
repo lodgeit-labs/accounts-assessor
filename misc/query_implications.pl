@@ -32,11 +32,19 @@ solve2([Goal | Rest]) :-
 
 
 query(concept_data(C, S, P, O)) :-
+	
 	(
+		% basically because of this part
+		% 2nd version is trying to implement it like Installment next Next_Installment,
+		% but this matches with the first/second installment so it doesn't continue generating
+		% the rest of the solutions
 		found_data(C, S, P, O)
+	/*
 	->
 		true
+	*/
 	;
+	
 		(
 			query2(concept_data(C, S, P, O), Head),
 			findall(
@@ -48,7 +56,10 @@ query(concept_data(C, S, P, O)) :-
 				_
 			)
 		)
-	).
+	
+	)
+	.
+	
 
 query2(concept_data(C, S, P, O), Head) :-
 	(
@@ -89,7 +100,7 @@ implication(Head, Body) :- biimplication(Head, Body).
 implication(Head, Body) :- biimplication(Body, Head).
 
 % installments implementation 1
-implication(
+implication( % so this here is one-way or bi? one-way
 	[
 		concept_data(C, HP, installment, Installment),
 		concept_data(C, Installment, installmentNumber, Installment_Number)
@@ -103,7 +114,9 @@ implication(
 ).
 
 
+
 % installments implementation 2
+% this second implementation doesn't work yet w/ the current query system
 implication(
 	[
 		concept_data(C, HP, firstInstallment, Installment),
@@ -130,9 +143,11 @@ implication(
 		concept_data(C, HP, numberOfInstallments, N),
 		N > 1,
 		concept_data(C, Prev_Installment, arrangement, HP),
-		\+concept_data(C, Prev_Installment, next, _),
+		% hm, this would only work the first time it's generating these bnodes
+		%\+concept_data(C, Prev_Installment, next, _),
 		concept_data(C, Prev_Installment, installmentNumber, X),
 		X < N,
+		fresh_bnode(Installment),
 		(SX is X + 1)
 	]
 ).
@@ -150,8 +165,21 @@ implication(
 	]
 ).
 
+% implementation 3; with lists
+implication(
+	[
+		concept_data(C, HP, installmentsList, Installments)
+	],
+	[
+		
+	]
+).
 
 
+% we dont write prolog rules directly but store the rules like this so it doesn't infloop on this mutual recursion?
+% well we don't have to store the rules like this it's just the representation i was testing with
+% could be stored as regular prolog rules 
+% a(S,X) :- b(S,X).
 implication(
 	[
 		concept_data(C, S, a, X)		
@@ -161,6 +189,7 @@ implication(
 	]
 ).
 
+% b(S,X) :- a(S,X).
 implication(
 	[
 		concept_data(C, S, b, X)
@@ -170,6 +199,7 @@ implication(
 	]
 ).
 
+% bi-implication basically short-hand for the above
 biimplication(
 	[
 		concept_data(C, S, c, X)
@@ -188,6 +218,9 @@ range_inclusive(Start, Stop, Step, Value) :-
 	Next_Start is Start + Step,
 	Next_Start =< Stop,
 	range_inclusive(Next_Start, Stop, Step, Value).
+
+
+
 
 % conflict
 %	* no solution
