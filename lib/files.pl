@@ -153,7 +153,7 @@ save_file(In, file(User_File_Path, Tmp_File_Path), Options) :-
 	% (for Internet Explorer/Microsoft Edge)
 	tmp_file_path_from_url(User_File_Path, Tmp_File_Path),
 	setup_call_cleanup(open(Tmp_File_Path, write, Out), copy_stream_data(In, Out), close(Out)).
-
+%:- tspy(save_file/3).
 tmp_file_path_from_url(FileName, Path) :-
 	exclude_file_location_from_filename(FileName, FileName2),
 	http_safe_file(FileName2, []),
