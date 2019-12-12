@@ -1,6 +1,8 @@
 :- use_module(library(xpath)).
 :- use_module(library(archive)).
 :- use_module(library(sgml)).
+:- use_module(library(semweb/turtle)).
+:- use_module(library(semweb/rdf_db)).
 
 :- use_module(process_xml_loan_request).
 :- use_module(process_xml_ledger_request).
@@ -101,23 +103,34 @@ process_with_theory(Parts, Request_File_Name, Reports, Output_File_Title, Output
 	load_structure(Xml_Tmp_File_Path, Request_Dom, [dialect(xmlns), space(remove), keep_prefix(true)]),
 	(
 		(
-			gtrace,
-			member(file2=file(_, Rdf_Tmp_File_Path), Parts),
-			icase_endswith(Rdf_Tmp_File_Path, ".rdf.xml")
+			member(file2=file(_, Rdf_Tmp_File_Path), Parts)
+			%icase_endswith(Rdf_Tmp_File_Path, ".rdf.xml")
+
 		)
 	->
-		
+		rdf_load(Rdf_Tmp_File_Path)
 	;
-		gtrace,writeq(xx)
+		true
 	),
-
 	/*
 	i'm storing some data in the 'doc' rdf-like database, only as an experiment for now.
-	livestock and action verbs exclusively, some other data in parallel with passing them around in variables
+	livestock and action verbs exclusively, some other data in parallel with passing them around in variables..
 	*/
 	doc_core:doc_clear,
 	doc:doc_new_uri(R),
 	doc:doc_add(R, rdf:a, l:request),
+
+
+	findall(_,(
+		rdf(X,Y,Z),
+		((
+			doc:doc_add(X,Y,Z),
+			writeq((X,Y,Z))
+		)
+		->	true
+		;	throw(xxx))),_),
+
+
 	process_with_output(Request_File_Name, Request_Dom, Reports, Output_File_Title, Output_Xml_String).
 	/*
 	no cleanup for the doc database needed
