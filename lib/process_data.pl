@@ -25,7 +25,8 @@
 process_data_cmdline(Path) :-
 	(
 		(	exists_directory(Path),
-			files:directory_real_files(Path, File_Paths))
+			files:directory_real_files(Path, File_Paths)),
+			(File_Paths = [] -> throw('no files found') ; true)
 	->	true
 	;	File_Paths = [Path]),
 	bump_tmp_directory_id,
