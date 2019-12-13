@@ -167,12 +167,12 @@ exclude_file_location_from_filename(Name_In, Name_Out) :-
    atomic_list_concat(Name3, Name_Out).
 
 
-directory_files_full_paths(Directory_Path,File_Paths) :-
-	directory_files(Directory_Path,Files0),
+directory_entries_full_paths(Directory_Path,File_Paths) :-
+	files:directory_entries(Directory_Path,Files0),
 	maplist({Directory_Path}/[File_Name, File_Path]>>atomic_list_concat([Directory_Path, File_Name], '/', File_Path), Files0, File_Paths).
 
 directory_real_files(Directory_Path, File_Paths) :-
-	directory_files_full_paths(Directory_Path, Files0),
+	directory_entries_full_paths(Directory_Path, Files0),
 	include(exists_file, Files0, File_Paths).
 
 copy_request_files_to_tmp(Paths, Names) :-
@@ -183,7 +183,9 @@ copy_request_file_to_tmp(Path, Name) :-
 	absolute_tmp_path(Name, Tmp_Request_File_Path),
 	copy_file(Path, Tmp_Request_File_Path).
 
-
+/* swipl directory_files is not directory files */
+directory_entries(Directory_Path, Entries) :-
+	directory_files(Directory_Path, Entries).
 
    
 :- initialization(generate_unique_tmp_directory_base).

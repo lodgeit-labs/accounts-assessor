@@ -21,12 +21,29 @@
 :- use_module(library(xbrl/utils)).
 :- use_module('doc', []).
 
+/* takes either a xml request file, or a directory expected to contain a xml request file and optionally an n3 file */
+process_data_cmdline(Path) :-
+	(
+		(	exists_directory(Path),
+			files:directory_real_files(Path, File_Paths))
+	->	true
+	;	File_Paths = [Path]),
+	bump_tmp_directory_id,
+	files:copy_request_files_to_tmp(File_Paths, _),
+	process_data([], File_Paths).
 
-/* used from http server */
-process_data(Options, Parts) :-
+process_data_http(Options, Parts) :-
+	member(_=file(_, F1), Parts),
+	once(member(F1, File_Paths)),
+	(	member(file2=file(_, F2), Parts)
+	->	once(member(F2, File_Paths))
+	;	true),
+	once(append(File_Paths, [], File_Paths)),
+	process_data(Options, File_Paths).
+
+process_data(Options, File_Paths) :-
 	maybe_supress_generating_unique_taxonomy_urls(Options),
-
-	process_with_theory(Parts, Request_File_Name, Reports, Output_File_Title, Output_Xml_String),
+	process_mulitifile_request(File_Paths, (Request_File_Name, Reports, Output_File_Title, Output_Xml_String)),
 
 	response_file_name(Request_File_Name, Output_File_Name),
 	absolute_tmp_path(Output_File_Name, Output_File_Path),
@@ -82,28 +99,7 @@ process_data(Options, Parts) :-
 		)
 	).
 
-process_data_cmdline(Path) :-
-	gtrace,
-	(
-		(	exists_directory(Path),
-			files:directory_real_files(Path, File_Paths))
-	->	true
-	;	File_Paths = [Path]),
-	bump_tmp_directory_id,
-	files:copy_request_files_to_tmp(File_Paths, _),
-	process_mulitifile_request2(File_Paths, Results),
-	writeq(Results).
-
-process_mulitifile_request(Parts, Info) :-
-	gtrace,
-	member(file=file(_, F1), Parts),
-	once(member(F1, File_Paths)),
-	(	member(file2=file(_, F2), Parts)
-	->	once(member(F2, File_Paths))
-	;	true),
-	process_mulitifile_request2(File_Paths, Info).
-
-process_mulitifile_request2(File_Paths, (Request_File_Name, Reports, Output_File_Title, Output_Xml_String)) :-
+process_mulitifile_request(File_Paths, (Request_File_Name, Reports, Output_File_Title, Output_Xml_String)) :-
 	member(Xml_Tmp_File_Path, File_Paths),
 	files:exclude_file_location_from_filename(Xml_Tmp_File_Path, Request_File_Name),
 	utils:icase_endswith(Xml_Tmp_File_Path, ".xml"),

@@ -81,7 +81,9 @@ reply_html_page(
 				],
 				table([],
 				[
-					tr([td(input([type(file), name(file)]))]),
+					tr([td(['file:']), td(input([type(file), name(file)]))]),
+					tr([td(['file:']), td(input([type(file), name(file)]))]),
+
 					tr([td(['taxonomy URLs:']), td(
 						select(name=relativeurls, [
 							option([selected='true',value=0],[absolute]), 
@@ -181,5 +183,5 @@ process_request(Request, Options0, Parts) :-
 		format('Content-type: application/json~n~n')
 	),
 
-	process_data(Options2, Parts).
+	process_data_http(Options2, Parts).
 
