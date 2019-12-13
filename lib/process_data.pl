@@ -22,16 +22,6 @@
 :- use_module('doc', []).
 
 
-/* used from command line */
-/*
-process_data_cmdline(Path) :-
-	bump_tmp_directory_id,
-	files:exclude_file_location_from_filename(Path, Request_Fn),
-	absolute_tmp_path(Request_Fn, Tmp_Request_File_Path),
-	copy_file(Path, Tmp_Request_File_Path),
-	process_request_files(Path, Path, []).
-*/
-
 /* used from http server */
 process_data(Options, Parts) :-
 	maybe_supress_generating_unique_taxonomy_urls(Options),
@@ -92,49 +82,41 @@ process_data(Options, Parts) :-
 		)
 	).
 
-icase_endswith(String, End) :-
-	string_lower(String, String2),
-	sub_string(String2, _,_,0,End).
-
-process_with_theory(Parts, Request_File_Name, Reports, Output_File_Title, Output_Xml_String) :-
-	member(file=file(_, Xml_Tmp_File_Path), Parts),
-	files:exclude_file_location_from_filename(Xml_Tmp_File_Path, Request_File_Name),
-	icase_endswith(Xml_Tmp_File_Path, ".xml"),
-	load_structure(Xml_Tmp_File_Path, Request_Dom, [dialect(xmlns), space(remove), keep_prefix(true)]),
+process_data_cmdline(Path) :-
+	gtrace,
 	(
-		(
-			member(file2=file(_, Rdf_Tmp_File_Path), Parts)
-			%icase_endswith(Rdf_Tmp_File_Path, ".rdf.xml")
+		(	exists_directory(Path),
+			files:directory_real_files(Path, File_Paths))
+	->	true
+	;	File_Paths = [Path]),
+	bump_tmp_directory_id,
+	files:copy_request_files_to_tmp(File_Paths, _),
+	process_mulitifile_request2(File_Paths, Results),
+	writeq(Results).
 
+process_mulitifile_request(Parts, Info) :-
+	gtrace,
+	member(file=file(_, F1), Parts),
+	once(member(F1, File_Paths)),
+	(	member(file2=file(_, F2), Parts)
+	->	once(member(F2, File_Paths))
+	;	true),
+	process_mulitifile_request2(File_Paths, Info).
+
+process_mulitifile_request2(File_Paths, (Request_File_Name, Reports, Output_File_Title, Output_Xml_String)) :-
+	member(Xml_Tmp_File_Path, File_Paths),
+	files:exclude_file_location_from_filename(Xml_Tmp_File_Path, Request_File_Name),
+	utils:icase_endswith(Xml_Tmp_File_Path, ".xml"),
+	load_structure(Xml_Tmp_File_Path, Request_Dom, [dialect(xmlns), space(remove), keep_prefix(true)]),
+	(	(
+			member(Rdf_Tmp_File_Path, File_Paths),
+			utils:icase_endswith(Rdf_Tmp_File_Path, "n3")
 		)
-	->
-		rdf_load(Rdf_Tmp_File_Path)
-	;
-		true
-	),
-	/*
-	i'm storing some data in the 'doc' rdf-like database, only as an experiment for now.
-	livestock and action verbs exclusively, some other data in parallel with passing them around in variables..
-	*/
-	doc_core:doc_clear,
-	doc:doc_new_uri(R),
-	doc:doc_add(R, rdf:a, l:request),
-
-
-	findall(_,(
-		rdf(X,Y,Z),
-		((
-			doc:doc_add(X,Y,Z),
-			writeq((X,Y,Z))
-		)
-		->	true
-		;	throw(xxx))),_),
-
-
+	->	rdf_load(Rdf_Tmp_File_Path)
+	;	true),
+	init_doc,
+	rdf_to_doc,
 	process_with_output(Request_File_Name, Request_Dom, Reports, Output_File_Title, Output_Xml_String).
-	/*
-	no cleanup for the doc database needed
-	*/
 
 process_with_output(Request_File_Name, Request_Dom, Reports, Output_File_Title, Output_Xml_String) :-
 	with_output_to(
@@ -147,6 +129,25 @@ process_with_output(Request_File_Name, Request_Dom, Reports, Output_File_Title, 
 				throw(Error)
 			)
 		)
+	).
+
+
+init_doc :-
+	/*	i'm storing some data in the 'doc' rdf-like database, only as an experiment for now.
+	livestock and action verbs exclusively, some other data in parallel with passing them around in variables..	*/
+	doc_core:doc_clear,
+	doc:doc_new_uri(R),
+	doc:doc_add(R, rdf:a, l:request).
+
+rdf_to_doc :-
+	findall(_,(
+		rdf(X,Y,Z),
+		((
+			doc:doc_add(X,Y,Z),
+			writeq((X,Y,Z))
+		)
+		->	true
+		;	throw(xxx))),_
 	).
 
 
@@ -174,8 +175,6 @@ process_xml_request(File_Name, Dom, (Report_Files, Response_Title)) :-
 	).
 
 
-
-
 make_zip :-
 	files:my_request_tmp_dir(Tmp_Dir),
 	atomic_list_concat([Tmp_Dir, '.zip'], Zip_Fn),
@@ -183,6 +182,7 @@ make_zip :-
 	archive_create(Zip_In_Tmp, [Tmp_Dir], [format(zip), directory('tmp')]),
 	atomic_list_concat(['mv ', Zip_In_Tmp, ' tmp/', Tmp_Dir], Cmd),
 	shell(Cmd, _).
+
 
 /* for formatting numbers */
 :- locale_create(Locale, "en_AU.utf8", []), set_locale(Locale).
