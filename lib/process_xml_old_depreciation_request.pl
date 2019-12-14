@@ -8,12 +8,12 @@
 % Modules
 %--------------------------------------------------------------------
 
-:- module(process_xml_depreciation_request, []).
+:- module(_, []).
 
 :- use_module(library(xpath)).
 :- use_module(library(xbrl/utils), [inner_xml/3, write_tag/2, fields/2, throw_string/1]).
 :- use_module('days', [parse_date/2]).
-:- use_module('depreciation_computation', [
+:- use_module('depreciation_computation_old', [
 		written_down_value/5, 
 		depreciation_between_two_dates/6]).
 :- use_module('files', [
@@ -27,7 +27,7 @@
 % process_xml_depreciation_request/2
 % -------------------------------------------------------------------
 
-process_xml_depreciation_request(File_Name, DOM, Reports) :-
+process_xml_old_depreciation_request(File_Name, DOM, Reports) :-
 	(
 		xpath(DOM, //depreciation_request_written_down_value, _)
 	->

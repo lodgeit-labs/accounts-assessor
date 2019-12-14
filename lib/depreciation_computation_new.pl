@@ -14,7 +14,6 @@ depreciation_between_invest_in_date_and_other_date(
 		date(From_year, From_Month, From_day),
 		To_date,								% date for which depreciation should be computed
 		Account,								% Asset or pool (pool is an asset in the account taxonomy)
-		Rates,
 		Depreciation_year, 						% 1,2,3...
 		Effective_life_years,
 		Initial_depreciation_value,
@@ -56,7 +55,7 @@ depreciation_between_invest_in_date_and_other_date(
 				date(Next_from_year, 7, 1), 
 				To_date, 
 				Account,
-				Rates, 
+
 				Next_depreciation_year, 
 				Effective_life_years, 
 				Next_depreciation_value,
@@ -73,15 +72,16 @@ pool(software_pool).
 pool(low_value_pool).
 
 % Calculates depreciation between any two dates on a daily basis equal or posterior to the invest in date
-depreciation_between_two_dates(Transaction, From_date, To_date, Method, Rates, Effective_life_years, Depreciation_value):-
+depreciation_between_two_dates(Transaction, From_date, To_date, Method, Effective_life_years, Depreciation_value):-
 	day_diff(From_date, To_date, Days_difference),
 	check_day_difference_validity(Days_difference),
-	written_down_value(Transaction, To_date, Method, Rates, Effective_life_years, To_date_written_down_value),
-	written_down_value(Transaction, From_date, Method, Rates,Effective_life_years, From_date_written_down_value),
+	written_down_value(Transaction, To_date, Method, Effective_life_years, To_date_written_down_value),
+	written_down_value(Transaction, From_date, Method, Effective_life_years, From_date_written_down_value),
 	Depreciation_value is From_date_written_down_value - To_date_written_down_value.
 
+
 % Calculates written down value at a certain date equal or posterior to the invest in date using a daily basis
-written_down_value(Transaction, Written_down_date, Method, Rates, Effective_life_years, Written_down_value):-
+written_down_value(Transaction, Written_down_date, Method, Effective_life_years, Written_down_value):-
 	transaction_cost(Transaction, Cost),
 	transaction_date(Transaction, Purchase_date),
 	transaction_account(Transaction, Account),
@@ -93,7 +93,6 @@ written_down_value(Transaction, Written_down_date, Method, Rates, Effective_life
 		Purchase_date, 
 		Written_down_date, 
 		Account, 
-		Rates,
 		1,/* this is in the sense of first year of ownership*/
 		Effective_life_years, 
 		0,
@@ -127,5 +126,32 @@ transaction_account(transaction(_, _, Account_Id, _), Account_Id).
 transaction_vector(transaction(_, _, _, Vector), Vector).
 % Extract the cost of the buy from transaction data
 transaction_cost(transaction(_, _, _, t_term(Cost, _)), Cost).
+
+
+asset_rate(Q, Asset_Type_Label, R) :-
+	doc(Q, l:contains, R),
+	doc(R, rdf:a, l:depreciation_rate),
+	doc(R, l:asset_type_label, Asset_Type_Label),
+	!.
+
+asset_rate(Q, Asset_Type_Label, R) :-
+	asset_type_hierarchy_ancestor(Asset_Type_Label, Ancestor_Label),
+	doc(R, rdf:a, l:depreciation_rate),
+	doc(R, l:asset_type_label, Ancestor_Label),
+	!.
+
+
+asset_type_hierarchy_ancestor(Label, Ancestor_Label) :-
+	doc(I, rdf:a, l:depreciation_asset_type_hierarchy_item),
+	doc(I, l:child_label, Label),
+	doc(I, l:parent_label, Ancestor_Label).
+
+asset_type_hierarchy_ancestor(Label, Ancestor_Label) :-
+	doc(I, rdf:a, l:depreciation_asset_type_hierarchy_item),
+	doc(I, l:child_label, Label),
+	doc(I, l:parent_label, Parent_Label),
+	asset_type_hierarchy_ancestor(Parent_Label, Ancestor_Label).
+
+
 
 

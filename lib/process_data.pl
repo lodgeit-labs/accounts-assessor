@@ -9,7 +9,7 @@
 :- use_module(process_xml_livestock_request).
 :- use_module(process_xml_investment_request).
 :- use_module(process_xml_car_request).
-:- use_module(process_xml_depreciation_request).
+:- use_module(process_xml_old_depreciation_request).
 
 :- use_module('files', [
 		bump_tmp_directory_id/0,
@@ -113,13 +113,13 @@ process_mulitifile_request(File_Paths, (Request_File_Name, Reports, Output_File_
 			member(Rdf_Tmp_File_Path, File_Paths),
 			utils:icase_endswith(Rdf_Tmp_File_Path, "n3")
 		)
-	->	(	rdf_load(Rdf_Tmp_File_Path),
+	->	(	rdf_load(Rdf_Tmp_File_Path, [graph(G)]),
 			(var(Request_File_Name) -> files:exclude_file_location_from_filename(Rdf_Tmp_File_Path, Request_File_Name) ; true)
 		)
 	;	true),
 
 	init_doc,
-	rdf_to_doc,
+	rdf_to_doc(G),
 	process_with_output(Request_File_Name, Request_Dom, Reports, Output_File_Title, Output_Xml_String).
 
 process_with_output(Request_File_Name, Request_Dom, Reports, Output_File_Title, Output_Xml_String) :-
@@ -154,7 +154,7 @@ process_xml_request(File_Name, Dom, (Report_Files, Response_Title)) :-
 	(process_xml_ledger_request:process_xml_ledger_request(File_Name, Dom, Report_Files) -> Response_Title = 'xbrl instance';
 	(process_xml_livestock_request:process_xml_livestock_request(File_Name, Dom, Report_Files);
 	(process_xml_investment_request:process_xml_investment_request(File_Name, Dom, Report_Files);
-	(process_xml_depreciation_request:process_xml_depreciation_request(File_Name, Dom, Report_Files))))))),
+	(process_xml_old_depreciation_request:process_xml_old_depreciation_request(File_Name, Dom, Report_Files))))))),
 	(
 		var(Response_Title)
 	->
@@ -171,12 +171,12 @@ init_doc :-
 	doc:doc_new_uri(R),
 	doc:doc_add(R, rdf:a, l:request).
 
-rdf_to_doc :-
+rdf_to_doc(G) :-
 	findall(_,(
-		rdf(X,Y,Z),
+		rdf(X,Y,Z,G),
 		((
-			doc:doc_add(X,Y,Z),
-			writeq((X,Y,Z))
+			doc:doc_add(X,Y,Z)%,
+			%writeq((X,Y,Z))
 		)
 		->	true
 		;	throw(xxx))),_
