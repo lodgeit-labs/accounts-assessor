@@ -144,7 +144,7 @@ s_transaction_action_verb(S_Transaction, Action_Verb) :-
 			doc:doc(Action_Verb, l:has_id, Type_Id)
 		)
 	->	true
-	;	(gtrace,utils:throw_string(['unknown action verb:',Type_Id]))).
+	;	(/*gtrace,*/utils:throw_string(['unknown action verb:',Type_Id]))).
 
 
 % yield all transactions from all accounts one by one.

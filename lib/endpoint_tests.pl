@@ -41,11 +41,13 @@ setup :- debug,prolog_server:run_simple_server.
 
 test(start) :- nl.
 
+test(testcase, []) :-
+	current_prolog_flag(testcase, (Endpoint_Type, Testcase)),
+	run_endpoint_test(Endpoint_Type, Testcase).
+
 /*
 hardcoded plunit test rules, one for each endpoint, so we can use things like "throws"
 */
-
-
 
 test(sbe, []) :-
 	http_post('http://localhost:8080/sbe', json(_{current_state:[]}), _, [content_type('application/json')]).
@@ -111,8 +113,7 @@ run_endpoint_test(Endpoint_Type, Testcase) :-
 
 run_endpoint_test2(Endpoint_Type, Testcase) :-
 	reset_gensym(iri), % because we use gensym in investment reports and it will keep incrementing throughout the test-cases, causing fresh responses to not match saved responses.
-	testcase_request_xml_file_path(Testcase, Request_XML_File_Path),
-	query_endpoint(Request_XML_File_Path, Response_JSON),
+	query_endpoint(Testcase, Response_JSON),
 	dict_pairs(Response_JSON.reports, _, Reports),
 	maplist(check_returned(Endpoint_Type, Testcase), Reports, Errors),
 	(	current_prolog_flag(grouped_assertions,true)
@@ -323,15 +324,17 @@ check_value_difference(Value1, Value2) :-
 	atom_number(Value2, NValue2),
 	utils:floats_close_enough(NValue1, NValue2).
 
-query_endpoint(RequestFile0, Response_JSON) :-
-	debug(endpoint_tests, '~n## Testing Request File: ~w', [RequestFile0]),
-	absolute_file_name(my_tests(
-		RequestFile0),
-		RequestFile,
-		[ access(read) ]
-	),
+query_endpoint(Testcase, Response_JSON) :-
+	debug(endpoint_tests, '~n## Testing Request: ~w', [Testcase]),
+
+	absolute_file_name(my_tests(Testcase),Testcase_Directory_Path, [ access(read), file_type(directory) ]),
+	files:directory_real_files(Testcase_Directory_Path, File_Paths),
+	findall(
+		file=file(RequestFile),
+		member(RequestFile, File_Paths),
+		File_Form_Entries),
 	catch(
-		http_post('http://localhost:8080/upload?requested_output_format=json_reports_list', form_data([file=file(RequestFile)]), Response_String, [content_type('multipart/form-data')]),
+		http_post('http://localhost:8080/upload?requested_output_format=json_reports_list', form_data(File_Form_Entries), Response_String, [content_type('multipart/form-data')]),
 		error(existence_error(_,_),_),
 		throw(testcase_error(400))
 	),
@@ -363,7 +366,7 @@ otherwise, recurse over subdirectories
 
 find_test_cases_in(Current_Directory, Test_Case) :-
 	absolute_file_name(my_tests(Current_Directory), Current_Directory_Absolute, [file_type(directory)]),
-	directory_files(Current_Directory_Absolute, Entries),
+	files:directory_entries(Current_Directory_Absolute, Entries),
 	(
 		member('request.xml',Entries)
 	->
@@ -402,9 +405,6 @@ tmp_uri_to_saved_response_path(Testcase, URI, Path) :-
 	atomic_list_concat([Testcase, 'responses', X], "/", Relative_Path),
 	files:absolute_whatever(my_tests(Relative_Path), Path).
 
-
-testcase_request_xml_file_path(Testcase, Request_XML_File_Path) :-
-	atomic_list_concat([Testcase, "request.xml"], "/", Request_XML_File_Path).
 
 
 check_output_schema(Endpoint_Type, Key, Response_XML_Path) :-

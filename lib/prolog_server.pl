@@ -81,7 +81,9 @@ reply_html_page(
 				],
 				table([],
 				[
-					tr([td(input([type(file), name(file)]))]),
+					tr([td(['file:']), td(input([type(file), name(file)]))]),
+					tr([td(['file:']), td(input([type(file), name(file)]))]),
+
 					tr([td(['taxonomy URLs:']), td(
 						select(name=relativeurls, [
 							option([selected='true',value=0],[absolute]), 
@@ -104,10 +106,9 @@ upload(Request) :-
 	multipart_post_request(Request), !,
 	bump_tmp_directory_id, /*assert a unique thread-local my_tmp for each request*/
 	http_read_data(Request, Parts, [ on_filename(files:save_file) ]),
-	memberchk(file=file(User_File_Path, Tmp_File_Path), Parts),
 	Options = Parts,
 	catch(
-		process_request(User_File_Path, Tmp_File_Path, Request, Options),
+		process_request(Request, Options, Parts),
 		string(E),
 		throw(http_reply(bad_request(string(E))))
 		/* TODO (optionally only if the request content type is xml), return the errror as xml. the status code still should be bad request, but it's not required. 
@@ -127,12 +128,13 @@ upload(_, _) :-
 /*
  run a testcase directly, without uploading
 */
+/*fixme
 tests(Url, Request) :-
 	bump_tmp_directory_id,
 	absolute_file_name(my_tests(Url), Test_File_Path, [ access(read), file_errors(fail) ]),
 	copy_test_file_into_tmp(Test_File_Path, Url),
 	process_request(Url, Test_File_Path, Request, []).
-
+*/
 copy_test_file_into_tmp(/*+*/Path, /*+*/Url) :-
 	tmp_file_path_from_url(Url, Tmp_Request_File_Path),
 	copy_file(Path, Tmp_Request_File_Path).
@@ -160,7 +162,7 @@ prolog:message(bad_file_upload) -->
 prolog:message(string(S)) --> [ S ].
 
 
-process_request(Usr_File_Path, Tmp_File_Path, Request, Options0) :-
+process_request(Request, Options0, Parts) :-
 	(
 		member(search(GET_Options), Request)
 	->
@@ -181,5 +183,5 @@ process_request(Usr_File_Path, Tmp_File_Path, Request, Options0) :-
 		format('Content-type: application/json~n~n')
 	),
 
-	process_data(Usr_File_Path, Tmp_File_Path, Options2).
+	process_data_http(Options2, Parts).
 

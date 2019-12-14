@@ -54,7 +54,7 @@ rol_single_match(T,SpogA) :-
 	findall(x,rol_member(T,SpogA),Matches),
 	length(Matches, Length),
 	(	Length > 1
-	->	gtrace,throw(multiple_matches)
+	->	/*gtrace,*/throw(multiple_matches)
 	;	rol_member(T,SpogA)).
 
 
