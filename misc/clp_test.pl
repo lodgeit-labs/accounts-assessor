@@ -106,7 +106,7 @@ parse_children([Child | Rest], [Parsed_Child | Parsed_Rest]) :-
 	parse_constraint(Child, Parsed_Child),
 	parse_children(Rest, Parsed_Rest).
 
-parse_constraint(Constraint, Parsed_Constraint) :-
+query_subjects(Constraint, Parsed_Constraint) :-
 	Constraint =.. [Node | Children],
 	(
 		Node = '..'
@@ -123,10 +123,36 @@ parse_constraint(Constraint, Parsed_Constraint) :-
 		)
 	).
 	
+to_clp(A + B, X + Y) :-
+	to_clp(A, X),
+	to_clp(B, Y).
+
+to_clp(A + B, X + Y) :-
+	doc(A, a, value),
+	doc(B, a, value),
+	doc(A, unit, U),
+	doc(B, unit, U2),
+	(U = U2 -> true ; throw(unit_mismatch)),
+	doc(A, amount, X),
+	doc(B, amount, Y).
+/*
+to_clp(A, A) :-
+	is_number(A).
+*/
+to_clp(A = B, X = Y) :-
+	to_clp(A, X),
+	to_clp(B, Y).
+
 
 #(Constraint) :-
-	parse_constraint(Constraint, Parsed_Constraint),
-	{ Parsed_Constraint }.
+	/* this is gonna have to recurse on the tree and either post an actual clp constraint, or just call a pred that does,
+for example value_add etc*/
+	query_subjects(Constraint, Constraint2),
+	to_clp(Constraint2, Clp),
+	{Clp},
+	constraint_add(Constraint2)
+	
+.
 
 test2/*(
 	HP_Begin_Date,				% currently integer-valued; lacking date/time dimensional stuff
