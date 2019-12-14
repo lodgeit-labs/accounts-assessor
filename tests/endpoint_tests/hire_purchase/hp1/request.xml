@@ -1,6 +1,14 @@
 <?xml version="1.0"?>
 <request>
 	<solve>
+
+<!-- each document tag has optional child elements, if a cell is left empty, write an empty tag, 
+if the cell has a "-", omit the tag?
+
+
+
+<!-- https://github.com/LodgeiT/labs-accounts-assessor/blob/hp/doc/hire_purchase/NextPieceofLogic.pdf -->
+
 		<document type="HirePurchaseArrangement">
 			<contractNumber>ACAP426204.1.0</contractNumber>
 			<cashPrice>5953.20</cashPrice>
@@ -11,6 +19,9 @@
 			<totalInterest></totalInterest>
 			<totalPayments></totalPayments>
 		</document>
+
+<!-- HirePurchaseSummary is a "snapshot" of a current situation of the contract at an arbitrary date -->
+
 		<document type="HirePurchaseSummary">
 			<contractNumber>ACAP426204.1.0</contractNumber>
 			<date>2015-01-16</date>
@@ -19,6 +30,9 @@
 			<noncurrentLiabilities></noncurrentLiabilities>
 			<noncurrentUnexpiredInterest></noncurrentUnexpiredInterest>
 		</document>
+
+<!- https://github.com/LodgeiT/labs-accounts-assessor/blob/hp/doc/hire_purchase/HirePurchaseSummary_LodgeiT.pdf - two lines for each contract -->
+
 		<document type="HirePurchaseSummary">
 			<contractNumber>ACAP426204.1.0</contractNumber>
 			<date>2015-01-16</date>
@@ -30,6 +44,10 @@
 			<date>2015-01-16</date>
 			<liabilityBalance></liabilityBalance>
 		</document>
+
+<!-- this is like "what, according to the contract, was supposed to transpire so far?
+https://github.com/LodgeiT/labs-accounts-assessor/blob/hp/doc/hire_purchase/HirePurchaseDetailedLodgeiT.pdf
+
 		<document type="HirePurchaseDetails">
 			<contractNumber>ACAP426204.1.0</contractNumber>
 			<amount/>

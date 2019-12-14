@@ -54,7 +54,7 @@ rol_single_match(T,SpogA) :-
 	findall(x,rol_member(T,SpogA),Matches),
 	length(Matches, Length),
 	(	Length > 1
-	->	gtrace,throw(multiple_matches)
+	->	/*gtrace,*/throw(multiple_matches)
 	;	rol_member(T,SpogA)).
 
 
@@ -68,6 +68,12 @@ rol_add(T,Spog) :-
 		rol_member(T,Spog)
 	->	throw(added_quad_matches_existing_quad)
 	;	memberchk(Spog,T).
+
+
+rol_add_quiet(T, Spog) :-
+		rol_member(T,Spog)
+	->	true
+	; 	memberchk(Spog,T).
 
 /* nondet */
 rol_member(T,SpogA) :-
