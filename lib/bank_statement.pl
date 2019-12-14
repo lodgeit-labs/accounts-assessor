@@ -120,7 +120,7 @@ preprocess_s_transactions2(Static_Data, [S_Transaction|S_Transactions], Processe
 preprocess(Static_Data, S_Transaction, S_Transaction_String, Outstanding_In, Outstanding_Mid, Debug_Head, Transactions_Out_Tail, Debug_So_Far, Debug_So_Far2, Processed_S_Transactions, Processed_S_Transactions_Tail, Report_Currency, Exchange_Rates, Start_Date, End_Date, Transactions_Out) :-
 	(	preprocess_s_transaction(Static_Data, S_Transaction, Transactions0, Outstanding_In, Outstanding_Mid)
 	->	true
-	;	gtrace),
+	;	throw(gtrace)),
 	cleanup(Transactions0, Transactions_Result, S_Transaction_String, Debug_Head),
 	Transactions_Out = [Transactions_Result|Transactions_Out_Tail],
 	append(Debug_So_Far, [Debug_Head], Debug_So_Far2),

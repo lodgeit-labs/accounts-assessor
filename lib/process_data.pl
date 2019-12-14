@@ -1,6 +1,8 @@
 :- use_module(library(xpath)).
 :- use_module(library(archive)).
 :- use_module(library(sgml)).
+:- use_module(library(semweb/turtle)).
+:- use_module(library(semweb/rdf_db)).
 
 :- use_module(process_xml_loan_request).
 :- use_module(process_xml_ledger_request).
@@ -19,22 +21,30 @@
 :- use_module(library(xbrl/utils)).
 :- use_module('doc', []).
 
-
-/* used from command line */
+/* takes either a xml request file, or a directory expected to contain a xml request file and optionally an n3 file */
 process_data_cmdline(Path) :-
+	(
+		(	exists_directory(Path),
+			files:directory_real_files(Path, File_Paths)),
+			(File_Paths = [] -> throw('no files found') ; true)
+	->	true
+	;	File_Paths = [Path]),
 	bump_tmp_directory_id,
-	files:exclude_file_location_from_filename(Path, Request_Fn),
-	absolute_tmp_path(Request_Fn, Tmp_Request_File_Path),
-	copy_file(Path, Tmp_Request_File_Path),
-	process_data(Path, Path, []).
+	files:copy_request_files_to_tmp(File_Paths, _),
+	process_data([], File_Paths).
 
-/* used from http server */
-process_data(_, Path, Options) :-
-	files:exclude_file_location_from_filename(Path, Request_File_Name),
+process_data_http(Options, Parts) :-
+	member(_=file(_, F1), Parts),
+	once(member(F1, File_Paths)),
+	(	member(file2=file(_, F2), Parts)
+	->	once(member(F2, File_Paths))
+	;	true),
+	once(append(File_Paths, [], File_Paths)),
+	process_data(Options, File_Paths).
+
+process_data(Options, File_Paths) :-
 	maybe_supress_generating_unique_taxonomy_urls(Options),
-	get_requested_output_type(Options, Requested_Output_Type),
-	load_structure(Path, Request_Dom, [dialect(xmlns), space(remove), keep_prefix(true)]),
-	process_with_theory(Request_File_Name, Request_Dom, Reports, Output_File_Title, Output_Xml_String),
+	process_mulitifile_request(File_Paths, (Request_File_Name, Reports, Output_File_Title, Output_Xml_String)),
 
 	response_file_name(Request_File_Name, Output_File_Name),
 	absolute_tmp_path(Output_File_Name, Output_File_Path),
@@ -75,6 +85,7 @@ process_data(_, Path, Options) :-
 	with_output_to(string(Response_Json_String), json_write(current_output, Json_Out)),
 	write_file(Json_Response_File_Path, Response_Json_String),
 	make_zip,
+	get_requested_output_type(Options, Requested_Output_Type),
 	(
 		Requested_Output_Type = xml
 	->
@@ -89,18 +100,20 @@ process_data(_, Path, Options) :-
 		)
 	).
 
-process_with_theory(Request_File_Name, Request_Dom, Reports, Output_File_Title, Output_Xml_String) :-
-	/*
-	i'm storing some data in the 'doc' rdf-like database, only as an experiment for now.
-	livestock and action verbs exclusively, some other data in parallel with passing them around in variables
-	*/
-	doc_core:doc_clear,
-	doc:doc_new_uri(R),
-	doc:doc_add(R, rdf:a, l:request),
+process_mulitifile_request(File_Paths, (Request_File_Name, Reports, Output_File_Title, Output_Xml_String)) :-
+	member(Xml_Tmp_File_Path, File_Paths),
+	files:exclude_file_location_from_filename(Xml_Tmp_File_Path, Request_File_Name),
+	utils:icase_endswith(Xml_Tmp_File_Path, ".xml"),
+	load_structure(Xml_Tmp_File_Path, Request_Dom, [dialect(xmlns), space(remove), keep_prefix(true)]),
+	(	(
+			member(Rdf_Tmp_File_Path, File_Paths),
+			utils:icase_endswith(Rdf_Tmp_File_Path, "n3")
+		)
+	->	rdf_load(Rdf_Tmp_File_Path)
+	;	true),
+	init_doc,
+	rdf_to_doc,
 	process_with_output(Request_File_Name, Request_Dom, Reports, Output_File_Title, Output_Xml_String).
-	/*
-	no cleanup for the doc database needed
-	*/
 
 process_with_output(Request_File_Name, Request_Dom, Reports, Output_File_Title, Output_Xml_String) :-
 	with_output_to(
@@ -113,6 +126,25 @@ process_with_output(Request_File_Name, Request_Dom, Reports, Output_File_Title, 
 				throw(Error)
 			)
 		)
+	).
+
+
+init_doc :-
+	/*	i'm storing some data in the 'doc' rdf-like database, only as an experiment for now.
+	livestock and action verbs exclusively, some other data in parallel with passing them around in variables..	*/
+	doc_core:doc_clear,
+	doc:doc_new_uri(R),
+	doc:doc_add(R, rdf:a, l:request).
+
+rdf_to_doc :-
+	findall(_,(
+		rdf(X,Y,Z),
+		((
+			doc:doc_add(X,Y,Z),
+			writeq((X,Y,Z))
+		)
+		->	true
+		;	throw(xxx))),_
 	).
 
 
@@ -140,8 +172,6 @@ process_xml_request(File_Name, Dom, (Report_Files, Response_Title)) :-
 	).
 
 
-
-
 make_zip :-
 	files:my_request_tmp_dir(Tmp_Dir),
 	atomic_list_concat([Tmp_Dir, '.zip'], Zip_Fn),
@@ -149,6 +179,7 @@ make_zip :-
 	archive_create(Zip_In_Tmp, [Tmp_Dir], [format(zip), directory('tmp')]),
 	atomic_list_concat(['mv ', Zip_In_Tmp, ' tmp/', Tmp_Dir], Cmd),
 	shell(Cmd, _).
+
 
 /* for formatting numbers */
 :- locale_create(Locale, "en_AU.utf8", []), set_locale(Locale).
