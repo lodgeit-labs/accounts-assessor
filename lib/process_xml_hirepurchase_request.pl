@@ -9,13 +9,7 @@ process_xml_hirepurchase_request(_FileNameIn, DOM, _Reports) :-
 	solve(Documents, Result_Documents),
 	xml_write(element(response,[],Result_Documents), []).
 
-fresh_bnode(Bnode) :-
-	gensym(bn, Bnode).
-
 template(hp_arrangement, hp_arrangement_template(contractNumber, cashPrice, beginDay, interestRate, installments)).
-
-
-
 
 extract_by_template(Document, Document_Type, Data) :-
 	template(Document_Type, Document_Template),
@@ -169,109 +163,6 @@ solve_field(Document_Node, element(Field, Attrs, []), element(Field, Attrs, [Val
 	resolve(Document_Node, Field, Value).
 */
 
-/*
-
-document_concept('HirePurchaseArrangement', hp_arrangement).
-document_concept('HirePurchaseSummary', hp_arrangement).
-
-
-
-% given concept type, find associated concept instances
-% given concept instance, find associated concept type
-% given concept type, find associated document types
-% given document type, find associated concept types
-% given concept instance, find associated document instances
-% given document instance, find associated concept instances
-% given document type, find associated document instances
-% given document instance, find associated document type
-
-% concept_type     -- 1:N -- concept_instance
-% document_type    -- 1:N -- document_instance
-% concept_type     -- N:N -- document_type
-% concept_instance -- N:N -- document_instance
-
-% XML -> doc_data assertions
-% doc_data assertions -> concept_data
-% concept_data -> resolve
-
-resolve(Object, Field, Value) :-
-	doc_data(Object, Field, Value).
-
-
-% transferring fields between HirePurchaseArrangement and HirePurchaseSummary
-% should instead transfer fields between each document and the concept that document represents, and then
-% as a second stage, transfer fields from the concept to each document representing it.
-resolve(Document, Field, Value) :-
-	doc_data(Document, 'a', 'HirePurchaseSummary'),
-	doc_data(Document, contractNumber, ContractNumber),
-	doc_data(HP_Arrangement, 'a', 'HirePurchaseArrangement'),
-	doc_data(HP_Arrangement, contractNumber, ContractNumber),
-	doc_data(HP_Arrangement, Field, Value).
-
-% resolve input documents into concept
-% resolve concept fields into full concept
-% resolve full concept into result document
-
-
-resolve(HP_Arrangement, contractNumber, Value) :-
-	resolve(HP_Arrangement, 'a', hp_arrangement),
-	doc_data(HP_Arrangement, contractNumber, Value).
-
-resolve(HP_Arrangement, cashPrice, Value) :-
-	resolve(HP_Arrangement, a, hp_arrangement),
-	doc_data(HP_Arrangement, cashPrice, Value).
-
-resolve(HP_Arrangement, beginDate, Value) :-
-	resolve(HP_Arrangement, a, hp_arrangement),
-	doc_data(HP_Arrangement, beginDate, Value).
-
-resolve(HP_Arrangement, paymentType, Value) :-
-	resolve(HP_Arrangement, a, hp_arrangement),
-	doc_data(HP_Arrangement, paymentType, Value).
-*/
-
-
-query(concept_data(C, S, P, O)) :-
-	(
-		found_data(C, S, P, O)
-	->
-		true
-	;
-		query2(concept_data(C, S, P, O))
-	).
-
-query2(concept_data(C, S, P, O)) :-
-	implication(Head, Body),
-	member(concept_data(C, S, P, O), Head),
-	findall(
-		_,
-		(
-			member(Goal, Body),
-			call(Goal)
-		),
-		_
-	).
-	
-/*
-
-Derive installments from HP arrangement
-Derive necessary duration from HP arrangement
-Derive total amount paid from HP arrangement
-Derive missing interest rate, when given information on any single installment
-Find interest rate that would cause HP arrangement to have a particular duration
-Balloon payments
-Payment types
-Generate corrections:
-* Correct duplicate payment
-* Correct incorrect account payment
-* Correct incorrect amount payment
-* Correct missing payment
-Report inconsistencies:
-* ...
-
-
-*/
-
 % fields should probably be Typed..
 field(hp_arrangement, contractNumber).
 field(hp_arrangement, cashPrice).
@@ -297,19 +188,6 @@ field_association('HirePurchaseArrangement', totalInterest, hp_arrangement, tota
 field_association('HirePurchaseArrangement', totalPayments, hp_arrangement, totalPayments).
 
 
-
-resolver(_, Field, standard_resolver(Field)).
-resolver(hp_arrangement, installment, hp_arrangement_installment).
-resolver(hp_arrangement, totalInterest, hp_arrangement_total_interest).
-resolver(hp_arrangement, totalPayment, hp_arrangement_total_payment).
-
-standard_resolver(Field, Concept_Node, Value) :-
-	concept_data(Concept_Node, 'a', Concept_Type),
-	field_association(_, Document_Field, Concept_Type, Field),
-	doc_data(Document_Node, conceptNode, Concept_Node),
-	doc_data(Document_Node, Document_Field, Value).
-
-	
 	
 /*
 % the following hp fields are parameterized by a given date;
@@ -320,6 +198,7 @@ standard_resolver(Field, Concept_Node, Value) :-
 
 field(hp_arrangement_at_date, Field) :-
 	field(hp_arrangement, Field).
+
 field(hp_arrangement_at_date, date).
 field(hp_arrangement_at_date, currentPeriod).
 field(hp_arrangement_at_date, payments).
@@ -334,35 +213,6 @@ field(hp_arrangement_at_date, repaymentBalance).
 field(hp_arrangement_at_date, unexpiredInterest).
 field(hp_arrangement_at_date, liabilityBalance).
 */
-
-hp_arrangement_installment(HP_Arrangement, Record) :-
-	concept_data(HP_Arrangement, 'a', hp_arrangement),
-	concept_data(HP_Arrangement, numberOfInstallments, Number_Of_Installments),
-	% get installment node somehow...
-	Current_Record_Number = 0,
-	hp_arr_cash_price(Arrangement, Current_Closing_Balance),
-	hp_arr_interest_rate(Arrangement, Interest_Rate),
-	hp_arr_begin_day(Arrangement, Current_Inst_Day),
-	hp_rec_aux(Current_Record_Number, Current_Closing_Balance, Interest_Rate, Current_Inst_Day, Installments_Hd, Next_Record),
-	(Record = Next_Record; hp_rec_record(Next_Record, Installments_Tl, Record)).
-	
-
-hp_arrangement_total_payment_from(HP_Arrangement, From_Day, Total_Payment) :-
-	concept_data(HP_Arrangement, 'a', hp_arrangement),
-	findall(
-		Installment_Amount,
-		(
-			concept_data(HP_Arrangement, installment, hp_record(_,_,_,_,Installment_Amount,_,_,Closing_Day)),
-			From_Day =< Closing_Day
-		),
-		Installment_Amounts
-	),
-	sum_list(Installment_Amounts, Total_Payment).	
-
-hp_arrangement_total_payment(HP_Arrangement, Total_Payment) :-
-	concept_data(HP_Arrangement, 'a', hp_arrangement),
-	concept_data(HP_Arrangement, beginDay, Begin_Day),
-	hp_arrangement_total_payment_from(HP_Arrangement, Begin_Day, Total_Payment).
 
 example(element(request, _, [element(solve, _, [
 	element(document, [type='HirePurchaseArrangement'], [

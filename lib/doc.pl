@@ -16,10 +16,9 @@ doc_new_theory(T) :-
 
 doc_new_uri(Uri) :-
 	files:my_request_tmp_dir(D),
-	format("my_request_tmp_dir: ~w~n", [D]),
 	gensym(bn, Uid),
-	atomics_to_string([D, '/rdf#', Uid], Uri),
-	format("URI: ~w~n", [Uri])/*,
+	atomics_to_string([D, '/rdf#', Uid], Uri)
+	/*,
 	% this is maybe too strong because it can bind with variable nodes
 	assertion(\+doc:doc(Uri,_,_)),
 	assertion(\+doc:doc(_,_,Uri))

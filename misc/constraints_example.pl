@@ -1,0 +1,12 @@
+	doc_add(foo, num, X),
+	doc_add(foo, slope, M),
+	doc_add(foo, yint, B),
+	doc_add(bar, val, Y),
+	doc(foo, yint, 0),
+	format("B: ~w~n", [B]),
+	constraint(bar..val = 4),
+	constraint(foo..slope = 2),
+	constraint(foo..yint = 0),
+	constraint(bar..val = (foo..slope)*(foo..num) + (foo..yint)),
+	format("~w = ~w * ~w + ~w~n", [Y, M, X, B]),
+
