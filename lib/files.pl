@@ -149,6 +149,11 @@ replace_request_with_response(Atom, Response) :-
 
 %:- public save_file/3.
 
+save_file(_, ignored_empty_file_entry, Options) :-
+	option(filename(User_File_Path), Options),
+	User_File_Path = '',
+	!.
+
 save_file(In, file(User_File_Path, Tmp_File_Path), Options) :-
 	option(filename(User_File_Path), Options),
 	% (for Internet Explorer/Microsoft Edge)

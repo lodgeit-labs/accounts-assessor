@@ -101,16 +101,23 @@ process_data(Options, File_Paths) :-
 	).
 
 process_mulitifile_request(File_Paths, (Request_File_Name, Reports, Output_File_Title, Output_Xml_String)) :-
-	member(Xml_Tmp_File_Path, File_Paths),
-	files:exclude_file_location_from_filename(Xml_Tmp_File_Path, Request_File_Name),
-	utils:icase_endswith(Xml_Tmp_File_Path, ".xml"),
-	load_structure(Xml_Tmp_File_Path, Request_Dom, [dialect(xmlns), space(remove), keep_prefix(true)]),
+	(
+		(
+			member(Xml_Tmp_File_Path, File_Paths),
+			files:exclude_file_location_from_filename(Xml_Tmp_File_Path, Request_File_Name),
+			utils:icase_endswith(Xml_Tmp_File_Path, ".xml")
+		)
+	->	load_structure(Xml_Tmp_File_Path, Request_Dom, [dialect(xmlns), space(remove), keep_prefix(true)])
+	;	true,
 	(	(
 			member(Rdf_Tmp_File_Path, File_Paths),
 			utils:icase_endswith(Rdf_Tmp_File_Path, "n3")
 		)
-	->	rdf_load(Rdf_Tmp_File_Path)
+	->	(	rdf_load(Rdf_Tmp_File_Path),
+			(var(Request_File_Name) -> files:exclude_file_location_from_filename(Rdf_Tmp_File_Path, Request_File_Name) ; true)
+		)
 	;	true),
+
 	init_doc,
 	rdf_to_doc,
 	process_with_output(Request_File_Name, Request_Dom, Reports, Output_File_Title, Output_Xml_String).
@@ -119,7 +126,9 @@ process_with_output(Request_File_Name, Request_Dom, Reports, Output_File_Title, 
 	with_output_to(
 		string(Output_Xml_String),
 		catch_maybe_with_backtrace(
-			prolog_server:process_xml_request(Request_File_Name, Request_Dom, (Reports, Output_File_Title)),
+			(	var(Request_Doc)
+			->	process_rdf_request(Reports)
+			;	process_xml_request(Request_File_Name, Request_Dom, (Reports, Output_File_Title))),
 			Error,
 			(
 				print_message(error, Error),
@@ -128,25 +137,8 @@ process_with_output(Request_File_Name, Request_Dom, Reports, Output_File_Title, 
 		)
 	).
 
-
-init_doc :-
-	/*	i'm storing some data in the 'doc' rdf-like database, only as an experiment for now.
-	livestock and action verbs exclusively, some other data in parallel with passing them around in variables..	*/
-	doc_core:doc_clear,
-	doc:doc_new_uri(R),
-	doc:doc_add(R, rdf:a, l:request).
-
-rdf_to_doc :-
-	findall(_,(
-		rdf(X,Y,Z),
-		((
-			doc:doc_add(X,Y,Z),
-			writeq((X,Y,Z))
-		)
-		->	true
-		;	throw(xxx))),_
-	).
-
+process_rdf_request(Reports) :-
+	process_rdf_depreciation_new_request:process_rdf_depreciation_new_request(Reports).
 
 /* */
 process_xml_request(File_Name, Dom, (Report_Files, Response_Title)) :-
@@ -171,6 +163,24 @@ process_xml_request(File_Name, Dom, (Report_Files, Response_Title)) :-
 		true
 	).
 
+
+init_doc :-
+	/*	i'm storing some data in the 'doc' rdf-like database, only as an experiment for now.
+	livestock and action verbs exclusively, some other data in parallel with passing them around in variables..	*/
+	doc_core:doc_clear,
+	doc:doc_new_uri(R),
+	doc:doc_add(R, rdf:a, l:request).
+
+rdf_to_doc :-
+	findall(_,(
+		rdf(X,Y,Z),
+		((
+			doc:doc_add(X,Y,Z),
+			writeq((X,Y,Z))
+		)
+		->	true
+		;	throw(xxx))),_
+	).
 
 make_zip :-
 	files:my_request_tmp_dir(Tmp_Dir),
