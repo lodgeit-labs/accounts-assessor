@@ -1,3 +1,5 @@
+:- module(clp_nonlinear, [solve/2]).
+
 :- use_module(library(clpq)).
 :- use_module(library(clpfd)).
 
