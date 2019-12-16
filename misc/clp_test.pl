@@ -205,8 +205,32 @@ test2/*(
 	% want the rest of the fields to be implicitly asserted by the fact that it's an hp_installment	
 
 	% relate first installment to the list
-	assert_object(hp_installment, Installment_1),
+	assert_object(hp_installment, Installment_1), % i assert Installment_1 as an instance of hp_installment here basically
+	% assert in the sense that a bnode will be generated for it and graph triples for each field
+
 	doc(Installment_1, arrangement, HP),
+/*
+	at any case, seems like we could later split this into the static/general data and the runtime-specific part:
+	hp installment first_installment,
+	first_installment 
+		installment_number 1;
+		opening_date 
+
+	and then just say Installment_1 instanceOf first_installment, instanceOf installment?
+	ah i guess you mean automatically assert the fields based on the assertion of the instanceOf?
+	i was thinking about that but i decided it falls under the general thing of existentials
+	i.e. there would be some rule stating that the presence of the instanceOf triple asserts the existence
+	& usually uniqueness of the field triples
+	and ideally i'd like that to be expressed essentially in the form of "graph constraints"
+	
+	on a second thought, if the same info is available from an actual request output, maybe there's no point?
+*/
+
+/*
+	related to graph constraints, i'm also thinking about maybe just making triples syntax available in the
+	constraints somehow? 
+*/
+
 	#(Installment_1..installment_number = 1),
 	#(Installment_1..opening_date = HP..begin_date + (HP..payment_type * HP..repayment_period)),
 	#(Installment_1..opening_balance = HP..cash_price),
