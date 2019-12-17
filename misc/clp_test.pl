@@ -189,6 +189,12 @@ test2/*(
 	doc_clear,
 	bump_tmp_directory_id,
 
+	doc_add(First, num, 1),
+	doc_add(First, field, _),
+	doc_add(Last, num, _),
+	doc_add(Last, field, "foo"),
+	fail,
+
 	% add hp arrangement information
 	assert_object(hp_arrangement,HP),
 
@@ -243,7 +249,7 @@ test2/*(
 	gen_hp_installments(HP, Installment_1, Installments_Rest),
 
 	% relate last installment to the list
-	last(HP_Installments, Installment_N),
+	last(Installments, Installment_N),
 	#(Installment_N..closing_date = HP..end_date),
 	#(Installment_N..installment_number = HP..number_of_installments),
 	#(Installment_N..closing_balance = HP..final_balance),
@@ -499,7 +505,7 @@ repayment_formula(HP) :-
 	N = HP..number_of_transactions,
 	F = HP..final_balance,
 	% not sure if there's a simpler/better way to write this formula?
-	#( A = ((P * ((1 + R * T)^N) - F) * R * T)/((1 + R * T)^N - 1) }.
+	#( A = ((P * ((1 + R * T)^N) - F) * R * T)/((1 + R * T)^N - 1) ).
 
 % now needs to handle all the installments...
 %  * even when it isn't given Number_Of_Installments or a complete list of installments

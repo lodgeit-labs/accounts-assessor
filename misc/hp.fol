@@ -1,0 +1,120 @@
+%
+% Time-period constraints
+%
+
+
+	Period a time_period
+<=>
+	Period start Start,
+	Start a time,
+	Period end End,
+	End a time,
+	Period duration Duration,
+	Duration a duration,
+
+	#(
+		End = Start + Duration
+	).
+
+
+
+
+%
+% Hire-purchase arrangement constraints
+%
+
+
+	HP a hp_arrangement
+<=>
+	HP arrangement_period Period,
+	Period a time_period,
+	HP report_period Report_Period,
+	Report_Period a time_period,
+	HP contract_number Contract_Number,
+	HP cash_price Cash_Price, 
+	HP repayment_period Repayment_Period,
+	HP repayment_amount Repayment_Amount,
+	Repayment_Period a duration,
+	HP interest_period Interest_Period,
+	Interest_Period a duration,
+	HP interest_rate Interest_Rate,
+	HP number_of_installments Number_Of_Installments,
+	HP payment_type Payment_Type, 		% advance or arrears
+	HP installments Installments,
+	HP balloons Balloons,				% set of installments greater than the repayment amount
+	HP submarines Submarines			% set of installments less than the repayment amount
+	HP total_payments Total_Payments,
+	HP total_interest Total_Interest,
+	HP liability_balance Liability_Balance,
+	HP repayment_balance Repayment_Balance,
+	HP unexpired_interest Unexpired_Interest,
+	HP current_liability Current_Liability,
+	HP noncurrent_liability Noncurrent_Liability,
+	HP current_unexpired_interest Current_Unexpired_Interest,
+	HP noncurrent_unexpired_interest Noncurrent_Unexpired_Interest,
+	HP final_balance Final_Balance,
+	Installments first First_Installment,
+	First_Installment installment_number 1,
+	First_Installment opening_balance Cash_Price,
+	Installments last Last_Installment,
+	Last_Installment installment_number Number_of_Installments,
+	Last_Installment closing_balance Final_Balance,
+	Last_Installment total_payments Total_Payments,
+	Last_Installment total_interest Total_Interest,
+
+	#(
+		Total_Payments = Cash_Price + Total_Interest - Final_Balance,
+		Liability_Balance = Repayment_Balance + Unexpired_Interest,
+		Repayment_Balance = Current_Liability + Noncurrent_Liability,
+		Unexpired_Interest = Current_Unexpired_Interest + Noncurrent_Unexpired_Interest,
+		Current_Liability = ..., % lots of different aggregates so need to figure out how to express these as cleanly/generically as possible
+		Noncurrent_Liability = ...,
+		Current_Unexpired_Interest = ...,
+		Noncurrent_Unexpired_Interest = ...,
+		Repayment_Amount = repayment_formula(Cash_Price, Interest_Rate, (Repayment_Period/Interest_Period), Number_Of_Installments)
+	)
+}
+
+
+
+
+%
+% Hire-purchase installments constraints
+%
+
+	Installment a hp_installment
+<=>
+	HP a hp_arrangement,
+	Installment in HP.Installments,
+	Installment period Period,
+	Period a time_period,
+	(forall X, Installment period X -> Period = X),
+
+	Installment opening_balance Opening_Balance,
+	(forall X, Installment opening_balance X -> Opening_Balance = X),
+
+	Installment closing_balance Closing_Balance,
+	(forall X, Installment closing_balance X -> Closing_Balance = X),
+
+	Installment installment_type Installment_Type,
+	(forall X, Installment installment_type X -> Installment_Type = Installment_Type),
+
+	Installment installment_amount Installment_Amount,
+	(forall X, Installment installment_amount X -> Installment_Amount = X),
+
+	Installment interest_amount Interest_Amount,
+	(forall X, Installment interest_amount X -> Interest_Amount = X),
+
+	#(
+		Is_Regular in 0..1,
+		Is_Balloon = 1 - Is_Regular,
+		Closing_Balance = Opening_Balance + Interest_Amount - Installment_Amount,
+		Installment_Amount = Is_Regular * HP.repayment_amount + Is_Balloon * Balloon_Amount,
+		Balloon_Amount =\= HP.repayment_amount,
+	),
+
+	% constraints relating prev/next?.
+
+	Installment a hp_installment
+=>
+	

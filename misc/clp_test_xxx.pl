@@ -65,12 +65,12 @@ test_installments([
 	i(1, 100),
 	i(1, 100),
 	i(1, 100),
-	i(1, 700),
+	i(0, 700),
 
 	i(1, 100),
 	i(1, 100),
 	i(1, 100),
-	i(1, 700),
+	i(0, 700),
 
 	i(1, 100),
 	i(1, 100),
@@ -80,20 +80,20 @@ test_installments([
 	i(1, 100),
 	i(1, 100),
 	i(1, 100),
-	i(1, 700)]).
+	i(0, 700)]).
 
 
-xx(Running_Balance, [i(ISR,Installment_Amount)|Installments]) :- 
+xx(Running_Balance, [I|Installments]) :- 
+	I = i(ISR,Installment_Amount),
 	ISR in 0..1,
 	ISB #= 1-ISR,
-	writeq('well hello'),
+	freeze(ISR, (writeq(I),nl)),
 	{Installment_Amount = HP_Repayment_Amount * ISR + Balloon_Amount * ISB},
 	{Balloon_Amount > HP_Repayment_Amount},
 	{HP_Repayment_Amount = 100},
 	{Running_Balance - Installment_Amount = New_Running_Balance},
-
 	xx(New_Running_Balance, Installments).
-xx(_, []).
+xx(0, []).
 
 
 
