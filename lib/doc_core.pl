@@ -1,4 +1,4 @@
-:- module(_,[doc_clear/0,doc_add/3, doc/3, docm/3]).
+:- module(_,[doc_clear/0,doc_add/3, doc/3, docm/3, has/3]).
 :- use_module(library(semweb/rdf11)).
 :- use_module(library(debug)).
 
@@ -43,6 +43,32 @@ docm(S,P,O) :-
 	b_getval(the_theory,X),
 	debug(doc, 'docm:~q~n', [(S,P,O,G)]),
 	rol_member(X,(S,P,O,G)).
+/*
+member
+*/
+
+exists(I) :-
+	docm(I, exists, now);
+	once((gensym(bn, I),doc_add(I, exists, now))).
+
+
+has(S,P,O) :-
+	(	doc(S,P,O2)
+	->	O = O2
+	;	doc_add(S,P,O)).
+
+/*
+?- make,doc_clear, doc_core:exists(First), has(First, num, 1), has(First, field, F1), doc_core:exists(Last), has(Last, num, N2), call_with_depth_limit(has(Last, field, "foo"), 15, Depth).
+First = Last, Last = bn11,
+F1 = "foo",
+N2 = 1,
+Depth = 14 ;
+First = bn11,
+Last = bn12,
+Depth = 16.
+
+?-
+*/
 
 
 /*
@@ -68,6 +94,12 @@ rol_add(T,Spog) :-
 		rol_member(T,Spog)
 	->	throw(added_quad_matches_existing_quad)
 	;	memberchk(Spog,T).
+
+
+rol_add_quiet(T, Spog) :-
+		rol_member(T,Spog)
+	->	true
+	; 	memberchk(Spog,T).
 
 /* nondet */
 rol_member(T,SpogA) :-

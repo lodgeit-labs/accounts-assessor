@@ -1,4 +1,4 @@
-:- module(_, [doc/3, docm/3, doc_add/3]).
+:- module(_, [doc/3, docm/3, doc_add/3, doc_new_uri/1]).
 :- use_module(doc_core, [doc/3, docm/3, doc_add/3]).
 :- use_module('files', []).
 :- use_module(library(semweb/rdf11)).
@@ -17,9 +17,12 @@ doc_new_theory(T) :-
 doc_new_uri(Uri) :-
 	files:my_request_tmp_dir(D),
 	gensym(bn, Uid),
-	atomics_to_string([D, '/rdf#', Uid], Uri),
+	atomics_to_string([D, '/rdf#', Uid], Uri)
+	/*,
+	% this is maybe too strong because it can bind with variable nodes
 	assertion(\+doc:doc(Uri,_,_)),
-	assertion(\+doc:doc(_,_,Uri)).
+	assertion(\+doc:doc(_,_,Uri))
+	*/.
 
 :- rdf_meta request_has_property(r,r).
 
