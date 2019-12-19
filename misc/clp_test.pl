@@ -154,49 +154,24 @@ for example value_add etc*/
 	
 .
 
-test2/*(
-	HP_Begin_Date,				% currently integer-valued; lacking date/time dimensional stuff
-	HP_Payment_Type,			% 0 = advance; 1 = arrears
-	HP_Cash_Price,
-	HP_Duration,
-	HP_Repayment_Period,		
-	HP_Repayment_Amount,
-	HP_Interest_Period,
-	HP_Interest_Rate,
-	HP_RDF_Installments,
-	HP_Number_Of_Installments,
-	HP_End_Date,
-	HP_Total_Interest,
-	HP_Total_Payments,
-	Report_Period_Start_Date,
-	Report_Period_End_Date,
-	Report_Period_Duration,
-	_HP_Account,					% chart of accounts to be provided as separate document
-	_Transactions,				% transactions ledger to be provided as separate document
-	%Matches,
-	HP_Liability_Balance,
-	HP_Repayment_Balance,
-	HP_Unexpired_Interest,
-	HP_Current_Unexpired_Interest,
-	HP_Noncurrent_Unexpired_Interest,
-	HP_Current_Liability,
-	HP_Noncurrent_Liability,
-	HP_Final_Balance
-)*/ :-
+
+test1(HP) :-
+	% we get some input, how do we relate that to the hp?
+	% really just want to add it into the doc so that we can start using it everywhere, so this entails
+	% separating things out in the doc
+	% that's where the doc/concept distinction came in
+	% we can drop the ontology alignment step now because now a doc is just a tentative concept
+	% so we can pose each individual triple in its own separate universe, and then start combining universes
+
+	
+
+hp(HP) :-
 	% constraints about the periods involved in the arrangement
 	% should maybe do something with member/2 i.e. unify and if fail then assert
 	% just some doc setup
 	doc_clear,
 	bump_tmp_directory_id,
 
-	doc_add(First, num, 1),
-	doc_add(First, field, _),
-	doc_add(Last, num, _),
-	doc_add(Last, field, "foo"),
-	fail,
-
-	% add hp arrangement information
-	assert_object(hp_arrangement,HP),
 
 	% add context information
 	assert_object(time_period, Report_Period),
@@ -206,37 +181,14 @@ test2/*(
 	#(Report_Period..end_date = Report_Period..end_date + Report_Period..duration),
 
 
-	% generate the installments list structure
-	% this part is tricky because we're asserting graph structure and list structure as part of the constraints.
-	% want the rest of the fields to be implicitly asserted by the fact that it's an hp_installment	
+	% add hp arrangement information
+	assert_object(hp_arrangement,HP),
 
 	% relate first installment to the list
-	assert_object(hp_installment, Installment_1), % i assert Installment_1 as an instance of hp_installment here basically
-	% assert in the sense that a bnode will be generated for it and graph triples for each field
+	assert_object(hp_installment, Installment_1),
 
+	% note the nonhomogeneous method of posing constraints
 	doc(Installment_1, arrangement, HP),
-/*
-	at any case, seems like we could later split this into the static/general data and the runtime-specific part:
-	hp installment first_installment,
-	first_installment 
-		installment_number 1;
-		opening_date 
-
-	and then just say Installment_1 instanceOf first_installment, instanceOf installment?
-	ah i guess you mean automatically assert the fields based on the assertion of the instanceOf?
-	i was thinking about that but i decided it falls under the general thing of existentials
-	i.e. there would be some rule stating that the presence of the instanceOf triple asserts the existence
-	& usually uniqueness of the field triples
-	and ideally i'd like that to be expressed essentially in the form of "graph constraints"
-	
-	on a second thought, if the same info is available from an actual request output, maybe there's no point?
-*/
-
-/*
-	related to graph constraints, i'm also thinking about maybe just making triples syntax available in the
-	constraints somehow? 
-*/
-
 	#(Installment_1..installment_number = 1),
 	#(Installment_1..opening_date = HP..begin_date + (HP..payment_type * HP..repayment_period)),
 	#(Installment_1..opening_balance = HP..cash_price),
@@ -247,9 +199,9 @@ test2/*(
 	% generate the actual list / graph structure	
 	Installments = [Installment_1 | Installments_Rest],
 	gen_hp_installments(HP, Installment_1, Installments_Rest),
+	last(Installments, Installment_N),
 
 	% relate last installment to the list
-	last(Installments, Installment_N),
 	#(Installment_N..closing_date = HP..end_date),
 	#(Installment_N..installment_number = HP..number_of_installments),
 	#(Installment_N..closing_balance = HP..final_balance),
@@ -260,13 +212,6 @@ test2/*(
 
 
 	% (HP-)global constraints
-	%{ HP_Cash_Price = Opening_Balance },
-	%{ Opening_Date = HP_Begin_Date + (HP_Payment_Type * HP_Repayment_Period)}, 
-	%{ HP_Total_Payments = HP_Cash_Price + HP_Total_Interest - HP_Final_Balance},
-	%{ HP_Liability_Balance = HP_Repayment_Balance + HP_Unexpired_Interest},
-	%{ HP_Repayment_Balance = HP_Current_Liability + HP_Noncurrent_Liability},
-	%{ HP_Unexpired_Interest = HP_Current_Unexpired_Interest + HP_Noncurrent_Unexpired_Interest},
-
 	#(HP..total_payments = HP..cash_price + HP..total_interest - HP..final_balance),
 	#(HP..liability_balance = HP..repayment_balance + HP..unexpired_interest),
 	#(HP..repayment_balance = HP..current_liability + HP..noncurrent_liability),
@@ -274,16 +219,6 @@ test2/*(
 
 	% needs help in order to infer a repayment amount needed to pay off an arrangement in a given number of installments
 	repayment_formula(HP),
-	/*
-	repayment_formula(
-		HP_Repayment_Amount,
-		HP_Cash_Price,
-		HP_Interest_Rate,
-		HP_Period,
-		HP_Number_Of_Installments,
-		HP_Final_Balance
-	), 
-	*/
 	% context-dependent aggregate constraints
 	% better way to write these constraints?
 	% probably at least needs a higher-level way of talking about "current" vs. "noncurrent"
@@ -507,12 +442,29 @@ repayment_formula(HP) :-
 	% not sure if there's a simpler/better way to write this formula?
 	#( A = ((P * ((1 + R * T)^N) - F) * R * T)/((1 + R * T)^N - 1) ).
 
+
+
+/*
+	% relate first installment to the list
+	assert_object(hp_installment, Installment_1),
+	% assert in the sense that a bnode will be generated for it and graph triples for each field
+
+	at any case, seems like we could later split this into the static/general data and the runtime-specific part:
+	hp installment first_installment,
+	first_installment 
+		installment_number 1;
+		opening_date 
+
+	and then just say Installment_1 instanceOf hp_installment?
+	on a second thought, if the same info is available from an actual request output, maybe there's no point?
+*/
+
+
 % now needs to handle all the installments...
 %  * even when it isn't given Number_Of_Installments or a complete list of installments
 % relate Number_Of_Installments to the count of the installments
 % insert & detect balloon payments; infer data even in the presence of balloon installments
 % corrections
-% dealing with non-zero final balance
 % if-then-else with CLP when the conditions might be variable ?
 % handling units with CLP?
 % handling date/time stuff with CLP?
