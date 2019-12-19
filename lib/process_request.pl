@@ -90,25 +90,16 @@ process_request(Options, File_Paths) :-
 		alerts:Alerts3,
 		reports:Files3
 	},
+
 	with_output_to(string(Response_Xml_String), print_xml_report(Json_Out, Output_Xml_String)),
 	write_file(Output_File_Path, Response_Xml_String),
 	with_output_to(string(Response_Json_String), utils:json_write(current_output, Json_Out)),
 	write_file(Json_Response_File_Path, Response_Json_String),
 	files:make_zip,
 	get_requested_output_type(Options, Requested_Output_Type),
-	(
-		Requested_Output_Type = xml
-	->
-		(
-			writeln(Response_Xml_String),
-			debug(process_request, 'returning xml', [])
-		)
-	;
-		(
-			writeln(Response_Json_String),
-			debug(process_request, 'returning json', [])
-		)
-	).
+	(	Requested_Output_Type = xml
+	->	writeln(Response_Xml_String)
+	;	writeln(Response_Json_String)).
 
 process_mulitifile_request(File_Paths, (Request_File_Name, Reports, Output_File_Title, Output_Xml_String)) :-
 	(
@@ -123,7 +114,7 @@ process_mulitifile_request(File_Paths, (Request_File_Name, Reports, Output_File_
 			member(Rdf_Tmp_File_Path, File_Paths),
 			utils:icase_endswith(Rdf_Tmp_File_Path, "n3")
 		)
-	->	(	rdf_load(Rdf_Tmp_File_Path, [graph(G), anon_prefix(bn)]), (findall(_, (rdf(S,P,O),writeq((S,P,O)),nl),_)),
+	->	(	rdf_load(Rdf_Tmp_File_Path, [graph(G), anon_prefix(bn)]), (findall(_, (rdf(S,P,O),writeq(('raw_rdf:',S,P,O)),nl),_)),
 			(var(Request_File_Name) -> files:exclude_file_location_from_filename(Rdf_Tmp_File_Path, Request_File_Name) ; true)
 		)
 	;	true),
@@ -211,7 +202,6 @@ response_file_name(Request_File_Name, Response_File_Name) :-
 reports(Reports) :-
 	doc:to_rdf(Rdf_Graph),
 	files:report_file_path('response.n3', _Report_Url, Report_File_Path),
-	gtrace,
 	rdf_save(Report_File_Path, [graph(Rdf_Graph), sorted(true)]),
 	Reports = _{files:[Report_File_Path], alerts:[]}.
 

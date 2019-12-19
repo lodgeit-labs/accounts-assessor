@@ -6,6 +6,5 @@
 
 
 process :-
-gtrace,
 	doc(Q, rdf:type, l:hp_calculator_query),
 	writeq(Q).
