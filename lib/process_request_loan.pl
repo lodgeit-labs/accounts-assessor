@@ -1,15 +1,4 @@
-% ===================================================================
-% Project:   LodgeiT
-% Module:    process_xml_loan_request.pl
-% Author:    Abdus Salam and Rolf Schwitter
-% Date:      2019-06-21
-% ===================================================================
-
-%--------------------------------------------------------------------
-% Modules
-%--------------------------------------------------------------------
-
-:- module(process_xml_loan_request, []).
+:- module(_, []).
 
 % use "XSD" library to validate XML
 :- use_module(library(xsd)).
@@ -26,7 +15,7 @@
 % process_xml_loan_request/2: loan-request.xml
 % -------------------------------------------------------------------
 
-process_xml_loan_request(FileNameIn, DOM, Reports) :-
+process(FileNameIn, DOM, Reports) :-
    (
       FileNameIn  = 'loan-request.xml'
       ->

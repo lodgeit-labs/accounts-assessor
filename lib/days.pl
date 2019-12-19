@@ -16,7 +16,7 @@
 	parse_date_into_absolute_days/2,
 	day_diff/3
 ]).
-
+:- asserta(user:file_search_path(library, '../prolog_xbrl_public/xbrl/prolog')).
 :- use_module(library(xbrl/utils), [throw_string/1]).
 :- use_module('doc', []).
 

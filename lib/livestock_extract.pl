@@ -29,7 +29,7 @@ extract_livestock_data(Livestock_Dom, B) :-
 		'purchaseValue' ,(Purchase_Cost,_),
 		'unitsPurchases',(Purchase_Count,_)
 	]),
-	doc:doc_add(B, rdf:a, l:livestock_data),
+	doc:doc_add(B, rdf:type, l:livestock_data),
 	doc:doc_add(B, livestock:name, Name),
 	doc:doc_add(B, livestock:currency, Currency),
 	doc:doc_add(B, livestock:natural_increase_value_per_unit, exchange_rate(xxx, Name, Currency, NaturalIncreaseValuePerUnit)),

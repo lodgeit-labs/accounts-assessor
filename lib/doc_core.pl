@@ -7,7 +7,15 @@
 a quad-store implemented with an open list stored in a global thread-local variable
 */
 
-%:- debug(doc).
+:- debug(doc).
+
+dump :-
+	findall(_,
+		(
+			docm(S,P,O),
+			debug(doc, 'dump:~q~n', [(S,P,O)])
+		),
+	_).
 
 doc_clear :-
 	b_setval(the_theory,_X),
@@ -17,6 +25,9 @@ doc_set_default_graph(G) :-
 	b_setval(default_graph, G).
 
 :- rdf_meta doc_add(r,r,r).
+
+doc_add((S,P,O)) :-
+	doc_add(S,P,O).
 
 doc_add(S,P,O) :-
 	b_getval(default_graph, G),
@@ -31,7 +42,7 @@ must have at most one match
 doc(S,P,O) :-
 	b_getval(default_graph, G),
 	b_getval(the_theory,X),
-	debug(doc, 'doc:~q~n', [(S,P,O,G)]),
+	debug(doc, 'doc?:~q~n', [(S,P,O,G)]),
 	rol_single_match(X,(S,P,O,G)).
 
 :- rdf_meta docm(r,r,r).
@@ -80,7 +91,7 @@ rol_single_match(T,SpogA) :-
 	findall(x,rol_member(T,SpogA),Matches),
 	length(Matches, Length),
 	(	Length > 1
-	->	/*gtrace,*/throw(multiple_matches)
+	->	/*gtrace,*/throw('multiple_matches, use docm')
 	;	rol_member(T,SpogA)).
 
 

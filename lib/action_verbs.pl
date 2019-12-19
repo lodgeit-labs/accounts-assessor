@@ -39,7 +39,7 @@ add_action_verb_from_xml(In) :-
 	]),
 	atom_number(Gst_Rate_Atom, Gst_Rate),
 	doc:doc_new_uri(Uri),
-	doc:doc_add(Uri, rdf:a, l:action_verb),
+	doc:doc_add(Uri, rdf:type, l:action_verb),
 	doc:doc_add(Uri, l:has_id, Id),
 	(nonvar(Description) -> doc:doc_add(Uri, l:has_description, Description) ; true),
 	(nonvar(Exchange_Account) -> doc:doc_add(Uri, l:has_counteraccount, Exchange_Account) ; true),
@@ -49,10 +49,10 @@ add_action_verb_from_xml(In) :-
 	(nonvar(Gst_Payable) -> doc:doc_add(Uri, l:has_gst_payable_account, Gst_Payable) ; true).
 
 add_builtin_action_verbs :-
-	doc:doc_add(l:livestock_sale, rdf:a, l:action_verb),
+	doc:doc_add(l:livestock_sale, rdf:type, l:action_verb),
 	doc:doc_add(l:livestock_sale, l:has_id, 'Livestock_Sale'),
-	doc:doc_add(l:livestock_purchase, rdf:a, l:action_verb),
+	doc:doc_add(l:livestock_purchase, rdf:type, l:action_verb),
 	doc:doc_add(l:livestock_purchase, l:has_id, 'Livestock_Purchase').
 
 action_verb(Action_Verb) :-
-	doc:docm(Action_Verb, rdf:a, l:action_verb).
+	doc:docm(Action_Verb, rdf:type, l:action_verb).

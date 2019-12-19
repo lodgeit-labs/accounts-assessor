@@ -22,6 +22,10 @@
 :- dynamic user:my_request_tmp_dir/1, [thread(local)].
 :- thread_local asserted_server_public_url/1.
 
+
+:- initialization(generate_unique_tmp_directory_base).
+
+
 request_tmp_dir(Dir) :-
 	my_request_tmp_dir(Dir).
 
@@ -192,6 +196,12 @@ copy_request_file_to_tmp(Path, Name) :-
 directory_entries(Directory_Path, Entries) :-
 	directory_files(Directory_Path, Entries).
 
-   
-:- initialization(generate_unique_tmp_directory_base).
+
+make_zip :-
+	files:my_request_tmp_dir(Tmp_Dir),
+	atomic_list_concat([Tmp_Dir, '.zip'], Zip_Fn),
+	atomic_list_concat(['tmp/', Zip_Fn], Zip_In_Tmp),
+	archive_create(Zip_In_Tmp, [Tmp_Dir], [format(zip), directory('tmp')]),
+	atomic_list_concat(['mv ', Zip_In_Tmp, ' tmp/', Tmp_Dir], Cmd),
+	shell(Cmd, _).
 

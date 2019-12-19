@@ -1,14 +1,4 @@
-% ===================================================================
-% Project:   LodgeiT
-% Module:    process_xml_ledger_request.pl  
-% Author:    Jindrich
-% Date:      2019-06-02
-% ===================================================================
-
-% -------------------------------------------------------------------
-% Modules
-% -------------------------------------------------------------------
-:- module(process_xml_ledger_request, [process_xml_ledger_request/3]).
+:- module(_, []).
 
 :- use_module('days', [
 		add_days/3, 
@@ -59,10 +49,9 @@
 :- rdet(process_xml_ledger_request2/2).
 
 
-process_xml_ledger_request(File_Name, Dom, Reports) :-
-
+process(File_Name, Dom, Reports) :-
 	/* does it look like a ledger request? */
-	% ideally should be able to omit this and have this check be done as part of the schema validation, but currently that's problematic because process_data.pl is using this to check whether to use this endpoint. 
+	% ideally should be able to omit this and have this check be done as part of the schema validation, but currently  process_request.pl is using this to check whether to use this endpoint.
 	inner_xml(Dom, //reports/balanceSheetRequest, _),
 
 	absolute_tmp_path(File_Name, Instance_File),
@@ -93,7 +82,7 @@ process_xml_ledger_request2(Dom, Reports_Out) :-
 	accounts_extract:extract_account_hierarchy_from_request_dom(Dom, Accounts0),
 	inner_xml(Dom, //reports/balanceSheetRequest/startDate, [Start_Date_Atom]),
 	parse_date(Start_Date_Atom, Start_Date),
-	doc:doc(R, rdf:a, l:request),
+	doc:doc(R, rdf:type, l:request),
 	doc:doc_add(R, l:start_date, Start_Date),
 	inner_xml(Dom, //reports/balanceSheetRequest/endDate, [End_Date_Atom]),
 	parse_date(End_Date_Atom, End_Date),

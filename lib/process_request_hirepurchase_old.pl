@@ -1,10 +1,12 @@
+:- module(_,[]).
+
 :- use_module(library(xpath)).
 
 :- dynamic doc_data/3.
 :- dynamic concept_data/3.
 :- dynamic doc_concept/2.
 
-process_xml_hirepurchase_request(_FileNameIn, DOM, _Reports) :-
+process(_FileNameIn, DOM, _Reports) :-
 	xpath(DOM, //request/solve, element(_,_,Documents)),
 	solve(Documents, Result_Documents),
 	xml_write(element(response,[],Result_Documents), []).

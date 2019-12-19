@@ -1,13 +1,3 @@
-% ===================================================================
-% Project:   LodgeiT
-% Module:    process_xml_depreciation_request.pl
-% Date:      2019-08-07
-% ===================================================================
-
-%--------------------------------------------------------------------
-% Modules
-%--------------------------------------------------------------------
-
 :- module(_, []).
 
 :- use_module(library(xpath)).
@@ -27,14 +17,10 @@
 % process_xml_depreciation_request/2
 % -------------------------------------------------------------------
 
-process_xml_old_depreciation_request(File_Name, DOM, Reports) :-
-	(
-		xpath(DOM, //depreciation_request_written_down_value, _)
-	->
-		process_written_down_value(File_Name, DOM, Reports)
-	;
-		process_depreciation_between_two_dates(File_Name, DOM, Reports)
-	).
+process(File_Name, DOM, Reports) :-
+	(	xpath(DOM, //depreciation_request_written_down_value, _)
+	->	process_written_down_value(File_Name, DOM, Reports)
+	;	process_depreciation_between_two_dates(File_Name, DOM, Reports)).
 
 
 process_written_down_value(File_Name, DOM, Reports) :-

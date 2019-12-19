@@ -1,6 +1,7 @@
-% standalone livestock calculator
-
-:- module(process_xml_livestock_request, []).
+:- module(_, []).
+/*
+standalone livestock calculator
+*/
 :- use_module(library(xpath)).
 :- use_module(library(xbrl/utils), [
 	inner_xml/3, write_tag/2, fields/2, numeric_fields/2, 
@@ -17,7 +18,7 @@
 
 :- ['livestock_calculator'].
 
-process_xml_livestock_request(File_Name, DOM, Reports) :-
+process(File_Name, DOM, Reports) :-
 
 	findall(Livestock, xpath(DOM, //reports/livestockaccount/livestocks/livestock, Livestock), Livestocks),
 	Livestocks \= [],

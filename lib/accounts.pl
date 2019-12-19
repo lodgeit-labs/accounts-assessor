@@ -116,7 +116,7 @@ account_by_role(Accounts, Role, Account_Id) :-
 	).
 
 account_by_role(Role, Account_Id) :-
-	doc:doc(T, rdf:a, l:request),
+	doc:doc(T, rdf:type, l:request),
 	doc:doc(T, l:accounts, Accounts),
 	account_by_role(Accounts, Role, Account_Id).
 

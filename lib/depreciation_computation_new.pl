@@ -1,6 +1,10 @@
+:- module(_,[]).
+
 :- use_module(days, [day_diff/3]).
-:- use_module(utils, [throw_string/1]).
+:- asserta(user:file_search_path(library, '../prolog_xbrl_public/xbrl/prolog')).
+:- use_module(library(xbrl/utils)).
 :- use_module(event_calculus, [depreciationInInterval/13]).
+:- use_module('doc', [doc/3]).
 
 begin_accounting_date(date(1990,1,1)).
 
@@ -64,7 +68,7 @@ depreciation_between_invest_in_date_and_other_date(
 	).
 
 %start:-depreciationInInterval(corolla,76768,date(2019,7,1),0,32,76768,_,diminishing_value,1,5,_,0,Depreciation_value).
-start:-depreciation_between_invest_in_date_and_other_date(76768,76768,diminishing_value,date(2017,1,1),date(2017,1,1),date(2017,7,2),corolla,_,1,5,0,Result).
+/*start:-depreciation_between_invest_in_date_and_other_date(76768,76768,diminishing_value,date(2017,1,1),date(2017,1,1),date(2017,7,2),corolla,_,1,5,0,_Result).*/
 
 % List of available pools
 pool(general_pool).
@@ -130,24 +134,24 @@ transaction_cost(transaction(_, _, _, t_term(Cost, _)), Cost).
 
 asset_rate(Q, Asset_Type_Label, R) :-
 	doc(Q, l:contains, R),
-	doc(R, rdf:a, l:depreciation_rate),
+	doc(R, rdf:type, l:depreciation_rate),
 	doc(R, l:asset_type_label, Asset_Type_Label),
 	!.
 
-asset_rate(Q, Asset_Type_Label, R) :-
+asset_rate(_Q, Asset_Type_Label, R) :-
 	asset_type_hierarchy_ancestor(Asset_Type_Label, Ancestor_Label),
-	doc(R, rdf:a, l:depreciation_rate),
+	doc(R, rdf:type, l:depreciation_rate),
 	doc(R, l:asset_type_label, Ancestor_Label),
 	!.
 
 
 asset_type_hierarchy_ancestor(Label, Ancestor_Label) :-
-	doc(I, rdf:a, l:depreciation_asset_type_hierarchy_item),
+	doc(I, rdf:type, l:depreciation_asset_type_hierarchy_item),
 	doc(I, l:child_label, Label),
 	doc(I, l:parent_label, Ancestor_Label).
 
 asset_type_hierarchy_ancestor(Label, Ancestor_Label) :-
-	doc(I, rdf:a, l:depreciation_asset_type_hierarchy_item),
+	doc(I, rdf:type, l:depreciation_asset_type_hierarchy_item),
 	doc(I, l:child_label, Label),
 	doc(I, l:parent_label, Parent_Label),
 	asset_type_hierarchy_ancestor(Parent_Label, Ancestor_Label).

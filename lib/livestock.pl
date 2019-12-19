@@ -43,7 +43,7 @@
 :- rdet(preprocess_livestock_buy_or_sell/3).
 
 livestock_data(Uri) :-
-	doc:doc(Uri, rdf:a, l:livestock_data).
+	doc:doc(Uri, rdf:type, l:livestock_data).
 
 livestock_data_by_vector_unit(Livestock, Exchanged) :-
 	pacioli:vector_unit(Exchanged, Unit),

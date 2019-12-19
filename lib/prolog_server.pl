@@ -11,8 +11,9 @@
 % Modules
 %--------------------------------------------------------------------
 :- use_module(library(xpath)).
-:- use_module(library(http/http_host)).
+:- use_module(library(option)).
 :- use_module(library(http/json)).
+:- use_module(library(http/http_host)).
 :- use_module(library(http/mimetype), []).
 :- use_module(library(http/thread_httpd)).
 :- use_module(library(http/http_dispatch)).
@@ -20,15 +21,13 @@
 :- use_module(library(http/http_multipart_plugin)).
 :- use_module(library(http/http_client)).
 :- use_module(library(http/html_write)).
-:- use_module(library(option)).
 :- use_module(library(http/http_files)).
 :- use_module(library(http/http_error)). 
 
-:- use_module('files', [bump_tmp_directory_id/0, absolute_tmp_path/2]).
-:- use_module('residency').
-:- use_module('sbe').
-:- ensure_loaded('process_data').
-
+:- use_module('files', []).
+:- use_module('residency', []).
+:- use_module('sbe', []).
+:- use_module('process_request', []).
 
 mime:mime_extension('xsd', 'application/xml').
 
@@ -183,5 +182,5 @@ process_request(Request, Options0, Parts) :-
 		format('Content-type: application/json~n~n')
 	),
 
-	process_data_http(Options2, Parts).
+	process_request_http(Options2, Parts).
 

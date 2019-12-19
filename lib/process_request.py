@@ -5,5 +5,6 @@ argv = sys.argv
 
 FILEPATH = argv[-1]
 args = argv[1:-1]
- 
-subprocess.run(shlex.split("swipl -s ../lib/dev_runner.pl --problem_lines_whitelist problem_lines_whitelist  -- ../lib/debug1.pl") + args + ["prolog_server:process_data_cmdline('" + FILEPATH + "')"])
+cmd = shlex.split("swipl -s ../lib/dev_runner.pl --problem_lines_whitelist problem_lines_whitelist -s ../lib/debug1.pl") + args + ["-g process_request:process_request_cmdline('" + FILEPATH + "')"]
+print(' '.join(cmd))
+subprocess.run(cmd)

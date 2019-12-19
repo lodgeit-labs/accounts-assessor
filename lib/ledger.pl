@@ -111,7 +111,7 @@ process_ledger(
 	%check_accounts(Accounts)
 	maplist(accounts:check_account_parent(Accounts), Accounts), 
 	accounts:write_accounts_json_report(Accounts),
-	doc:doc(T, rdf:a, l:request),
+	doc:doc(T, rdf:type, l:request),
 	doc:doc_add(T, l:accounts, Accounts),
 
 	dict_from_vars(Static_Data0, [Accounts, Report_Currency, Start_Date, End_Date, Exchange_Rates, Cost_Or_Market]),

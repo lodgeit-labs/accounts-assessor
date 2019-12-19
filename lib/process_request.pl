@@ -1,15 +1,19 @@
+:- module(_,[]).
+
 :- use_module(library(xpath)).
 :- use_module(library(archive)).
 :- use_module(library(sgml)).
 :- use_module(library(semweb/turtle)).
 :- use_module(library(semweb/rdf_db)).
 
-:- use_module(process_xml_loan_request).
-:- use_module(process_xml_ledger_request).
-:- use_module(process_xml_livestock_request).
-:- use_module(process_xml_investment_request).
-:- use_module(process_xml_car_request).
-:- use_module(process_xml_old_depreciation_request).
+:- use_module(process_request_loan, []).
+:- use_module(process_request_ledger, []).
+:- use_module(process_request_livestock, []).
+:- use_module(process_request_investment, []).
+:- use_module(process_request_car, []).
+:- use_module(process_request_depreciation_old, []).
+:- use_module(process_request_hirepurchase_new, []).
+:- use_module(process_request_depreciation_new, []).
 
 :- use_module('files', [
 		bump_tmp_directory_id/0,
@@ -18,11 +22,17 @@
 		write_file/2,
 		tmp_file_url/2
 ]).
-:- use_module(library(xbrl/utils)).
+:- use_module(library(xbrl/utils), []).
 :- use_module('doc', []).
 
-/* takes either a xml request file, or a directory expected to contain a xml request file and optionally an n3 file */
-process_data_cmdline(Path) :-
+/* for formatting numbers */
+:- locale_create(Locale, "en_AU.utf8", []), set_locale(Locale).
+
+/* fixme, assert the actual port in prolog_server and get that here? maybe also move this there, since we are not loading this file from the commandline anymore i think? */
+:- initialization(set_server_public_url('http://localhost:8080')).
+
+/* takes either a xml request file, or a directory expected to contain a xml request file, an n3 file, or both */
+process_request_cmdline(Path) :-
 	(
 		(	exists_directory(Path),
 			files:directory_real_files(Path, File_Paths)),
@@ -31,24 +41,24 @@ process_data_cmdline(Path) :-
 	;	File_Paths = [Path]),
 	bump_tmp_directory_id,
 	files:copy_request_files_to_tmp(File_Paths, _),
-	process_data([], File_Paths).
+	process_request([], File_Paths).
 
-process_data_http(Options, Parts) :-
+process_request_http(Options, Parts) :-
 	member(_=file(_, F1), Parts),
 	once(member(F1, File_Paths)),
 	(	member(file2=file(_, F2), Parts)
 	->	once(member(F2, File_Paths))
 	;	true),
 	once(append(File_Paths, [], File_Paths)),
-	process_data(Options, File_Paths).
+	process_request(Options, File_Paths).
 
-process_data(Options, File_Paths) :-
+process_request(Options, File_Paths) :-
 	maybe_supress_generating_unique_taxonomy_urls(Options),
 	process_mulitifile_request(File_Paths, (Request_File_Name, Reports, Output_File_Title, Output_Xml_String)),
 
 	response_file_name(Request_File_Name, Output_File_Name),
-	absolute_tmp_path(Output_File_Name, Output_File_Path),
-	absolute_tmp_path('response.json', Json_Response_File_Path),
+	files:absolute_tmp_path(Output_File_Name, Output_File_Path),
+	files:absolute_tmp_path('response.json', Json_Response_File_Path),
 
 	tmp_file_url(Output_File_Name, Output_File_Url),
 	tmp_file_url(Request_File_Name, Request_File_Url),
@@ -82,21 +92,21 @@ process_data(Options, File_Paths) :-
 	},
 	with_output_to(string(Response_Xml_String), print_xml_report(Json_Out, Output_Xml_String)),
 	write_file(Output_File_Path, Response_Xml_String),
-	with_output_to(string(Response_Json_String), json_write(current_output, Json_Out)),
+	with_output_to(string(Response_Json_String), utils:json_write(current_output, Json_Out)),
 	write_file(Json_Response_File_Path, Response_Json_String),
-	make_zip,
+	files:make_zip,
 	get_requested_output_type(Options, Requested_Output_Type),
 	(
 		Requested_Output_Type = xml
 	->
 		(
 			writeln(Response_Xml_String),
-			debug(process_data, 'returning xml', [])
+			debug(process_request, 'returning xml', [])
 		)
 	;
 		(
 			writeln(Response_Json_String),
-			debug(process_data, 'returning json', [])
+			debug(process_request, 'returning json', [])
 		)
 	).
 
@@ -108,95 +118,57 @@ process_mulitifile_request(File_Paths, (Request_File_Name, Reports, Output_File_
 			utils:icase_endswith(Xml_Tmp_File_Path, ".xml")
 		)
 	->	load_structure(Xml_Tmp_File_Path, Request_Dom, [dialect(xmlns), space(remove), keep_prefix(true)])
-	;	true,
+	;	true),
 	(	(
 			member(Rdf_Tmp_File_Path, File_Paths),
 			utils:icase_endswith(Rdf_Tmp_File_Path, "n3")
 		)
-	->	(	rdf_load(Rdf_Tmp_File_Path, [graph(G)]),
+	->	(	rdf_load(Rdf_Tmp_File_Path, [graph(G), anon_prefix(bn)]), (findall(_, (rdf(S,P,O),writeq((S,P,O)),nl),_)),
 			(var(Request_File_Name) -> files:exclude_file_location_from_filename(Rdf_Tmp_File_Path, Request_File_Name) ; true)
 		)
 	;	true),
-
-	init_doc,
-	rdf_to_doc(G),
-	process_with_output(Request_File_Name, Request_Dom, Reports, Output_File_Title, Output_Xml_String).
+	doc:init,
+	doc:from_rdf(G),
+	(	process_request:process_rdf_request(Reports)
+	;
+		process_with_output(Request_File_Name, Request_Dom, Reports, Output_File_Title, Output_Xml_String)
+	).
 
 process_with_output(Request_File_Name, Request_Dom, Reports, Output_File_Title, Output_Xml_String) :-
 	with_output_to(
 		string(Output_Xml_String),
-		catch_maybe_with_backtrace(
-			(	var(Request_Doc)
-			->	process_rdf_request(Reports)
-			;	process_xml_request(Request_File_Name, Request_Dom, (Reports, Output_File_Title))),
+		(
+		utils:catch_maybe_with_backtrace(
+			process_request:process_xml_request(Request_File_Name, Request_Dom, (Reports, Output_File_Title)),
 			Error,
 			(
 				print_message(error, Error),
 				throw(Error)
 			)
 		)
+		)
 	).
 
 process_rdf_request(Reports) :-
-	process_rdf_depreciation_new_request:process_rdf_depreciation_new_request(Reports).
+	%doc_core:dump,
+	(	process_request_hirepurchase_new:process;
+		process_request_depreciation_new:process),
+	reports(Reports).
 
-/* */
 process_xml_request(File_Name, Dom, (Report_Files, Response_Title)) :-
-	(
-		xpath(Dom, //reports, _)
-	->
-		true
-	;
-		throw_string('<reports> tag not found')
-	),
-	(process_xml_car_request:process_xml_car_request(File_Name, Dom, Report_Files);
-	(process_xml_loan_request:process_xml_loan_request(File_Name, Dom, Report_Files);
-	(process_xml_ledger_request:process_xml_ledger_request(File_Name, Dom, Report_Files) -> Response_Title = 'xbrl instance';
-	(process_xml_livestock_request:process_xml_livestock_request(File_Name, Dom, Report_Files);
-	(process_xml_investment_request:process_xml_investment_request(File_Name, Dom, Report_Files);
-	(process_xml_old_depreciation_request:process_xml_old_depreciation_request(File_Name, Dom, Report_Files))))))),
-	(
-		var(Response_Title)
-	->
-		Response_Title = 'xml response'
-	;
-		true
-	).
-
-
-init_doc :-
-	/*	i'm storing some data in the 'doc' rdf-like database, only as an experiment for now.
-	livestock and action verbs exclusively, some other data in parallel with passing them around in variables..	*/
-	doc_core:doc_clear,
-	doc:doc_new_uri(R),
-	doc:doc_add(R, rdf:a, l:request).
-
-rdf_to_doc(G) :-
-	findall(_,(
-		rdf(X,Y,Z,G),
-		((
-			doc:doc_add(X,Y,Z)%,
-			%writeq((X,Y,Z))
-		)
-		->	true
-		;	throw(xxx))),_
-	).
-
-make_zip :-
-	files:my_request_tmp_dir(Tmp_Dir),
-	atomic_list_concat([Tmp_Dir, '.zip'], Zip_Fn),
-	atomic_list_concat(['tmp/', Zip_Fn], Zip_In_Tmp),
-	archive_create(Zip_In_Tmp, [Tmp_Dir], [format(zip), directory('tmp')]),
-	atomic_list_concat(['mv ', Zip_In_Tmp, ' tmp/', Tmp_Dir], Cmd),
-	shell(Cmd, _).
-
-
-/* for formatting numbers */
-:- locale_create(Locale, "en_AU.utf8", []), set_locale(Locale).
-
-
-/* fixme, assert the actual port in prolog_server and get that here? maybe also move this there, since we are not loading this file from the commandline anymore i think? */
-:- initialization(set_server_public_url('http://localhost:8080')).
+	(	xpath(Dom, //reports, _)
+	->	true
+	;	throw_string('<reports> tag not found')),
+	(process_request_car:process(File_Name, Dom, Report_Files);
+	(process_request_loan:process(File_Name, Dom, Report_Files);
+	(process_request_ledger:process(File_Name, Dom, Report_Files) -> Response_Title = 'xbrl instance';
+	(process_request_livestock:process(File_Name, Dom, Report_Files);
+	(process_request_investment:process(File_Name, Dom, Report_Files);
+	(process_request_depreciation_old:process(File_Name, Dom, Report_Files)
+	)))))),
+	(	var(Response_Title)
+	->	Response_Title = 'xml response'
+	;	true).
 
 get_requested_output_type(Options2, Output) :-
 	Known_Output_Types = [json_reports_list, xml],
@@ -218,25 +190,28 @@ get_requested_output_type(Options2, Output) :-
 		Output = json_reports_list
 	).
 
+print_xml_report(Json_Out, Output_Xml_String) :-
+	writeln('<?xml version="1.0"?>'), nl, nl,
+	format('<!-- reports: '),
+	utils:json_write(current_output, Json_Out),
+	format(' -->'),
+	write(Output_Xml_String).
+
 /* http uri parameter -> prolog flag */
 maybe_supress_generating_unique_taxonomy_urls(Options2) :-
-	(
-		member(relativeurls='1', Options2)
-	->
-		set_flag(prepare_unique_taxonomy_url, false)
-	;
-		true
-	).
+	(	member(relativeurls='1', Options2)
+	->	set_flag(prepare_unique_taxonomy_url, false)
+	;	true).
 
 response_file_name(Request_File_Name, Response_File_Name) :-
 	(	replace_request_with_response(Request_File_Name, Response_File_Name)
 	->	true
 	;	atomic_list_concat(['response-',Request_File_Name], Response_File_Name)).
 
+reports(Reports) :-
+	doc:to_rdf(Rdf_Graph),
+	files:report_file_path('response.n3', _Report_Url, Report_File_Path),
+	gtrace,
+	rdf_save(Report_File_Path, [graph(Rdf_Graph), sorted(true)]),
+	Reports = _{files:[Report_File_Path], alerts:[]}.
 
-print_xml_report(Json_Out, Output_Xml_String) :-
-	writeln('<?xml version="1.0"?>'), nl, nl,
-	format('<!-- reports: '),
-	json_write(current_output, Json_Out),
-	format(' -->'),
-	write(Output_Xml_String).

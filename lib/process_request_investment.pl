@@ -1,11 +1,8 @@
+:- module(_, []).
 /*
 simple investment calculator
 see doc/investment and dropbox Develop/videos/ledger
 */
-
-:- module(process_xml_investment_request, []).
-		
-		
 :- use_module(library(xpath)).
 :- use_module(library(record)).
 :- use_module(library(lists)).
@@ -392,7 +389,7 @@ account_vector(Info, Account, Vector) :-
 	Info = (Exchange_Rates, Accounts, Transactions, Report_Date, Currency), 
     balance_by_account(Exchange_Rates, Accounts, Transactions, [Currency], Report_Date, Account, Report_Date, Vector, _).
 
-process_xml_investment_request(File_Name, DOM, Report_Files) :-
+process(File_Name, DOM, Report_Files) :-
 	xpath(DOM, //reports/investmentRequest/investments, _),
 
 	Report_Files = _{
@@ -448,7 +445,7 @@ process_investments(DOM, Report_Date, Result) :-
 	% if different, fail processing (throw error)
 	xpath(DOM, //reports/investmentRequest/investments/(*), Investment),
 	(
-		process(Investment, Report_Date, Result)
+		process2(Investment, Report_Date, Result)
 	->	true
 	;
 	(
@@ -457,11 +454,11 @@ process_investments(DOM, Report_Date, Result) :-
 	)
 	).
 	
-process(Investment, Report_Date, Result) :-
+process2(Investment, Report_Date, Result) :-
 	xpath(Investment, //realized_investment, _),
 	process_realized(Investment, Report_Date, Result).
 
-process(Investment, Report_Date, Result) :-
+process2(Investment, Report_Date, Result) :-
 	xpath(Investment, //unrealized_investment, _),
 	process_unrealized(Investment, Report_Date, Result).
 

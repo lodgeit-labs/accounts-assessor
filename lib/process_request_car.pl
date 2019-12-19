@@ -1,15 +1,4 @@
-% ===================================================================
-% Project:   LodgeiT
-% File:      process_xml_car_request.pl
-% Author:    
-% Date:      2019-08-01
-% ===================================================================
-
-% -------------------------------------------------------------------
-% Modules
-% -------------------------------------------------------------------
-
-:- module(process_xml_car_request, []).
+:- module(_, []).
 
 :- use_module(library(xpath)).
 :- use_module(library(http/json)).
@@ -61,7 +50,7 @@ process_ner_api_results(Response_JSON,Result_XML) :-
 	),
 	Result_XML = element(reports,[],[element(is_car_response,[],[Result])]).
 
-process_xml_car_request(File_Name, DOM, Reports) :-
+process(File_Name, DOM, Reports) :-
 	xpath(DOM, //reports/car_request, element(_,_,[Request_Text])),
 
 
