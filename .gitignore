@@ -351,3 +351,6 @@ xbrl/account_hierarchy/venv/
 prolog_server/log
 venv/
 *.ods#
+
+arrr.xml
+err
