@@ -3,8 +3,7 @@
 	]).
 
 :- use_module('system_accounts', [
-		traded_units/2,
-		generate_system_accounts/3]).
+		traded_units/2]).
 :- use_module('bank_statement', [
 		preprocess_s_transactions/6
 ]).
@@ -70,46 +69,22 @@ process_ledger(
 	Transactions_By_Account,
 	Outstanding_Out,
 	Processed_Until,
-	Warnings,
-	Errors,
 	Gl
 ) :-
 
-	gather_ledger_warnings(S_Transactions0, Start_Date, End_Date, Warnings0),
-	writeln('<!-- '),
-	writeq(Warnings0),
-	writeln(' -->'),
-
 	s_transactions_up_to(End_Date, S_Transactions0, S_Transactions),
-	pretty_term_string(Exchange_Rates0, Message1b),
 	pretty_term_string(Accounts_In, Message3),
-	atomic_list_concat([
-	'\n<!--',
-	'Exchange rates extracted:\n', Message1b,'\n\n',
-	'Accounts extracted:\n',Message3,'\n\n',
-	'-->\n\n'], Debug_Message0),
-	writeln(Debug_Message0),
+	doc:add_comment_stringize('Exchange rates extracted', Message1b),
+	doc:add_comment_stringize('Accounts extracted',Accounts_In),
 
-	/*TODO: if there are no unit values, force Cost_Or_Market = cost?*/
-	(
-		Cost_Or_Market = cost
-	->
-		filter_out_market_values(S_Transactions, Exchange_Rates0, Exchange_Rates)
-	;
-		Exchange_Rates0 = Exchange_Rates
-	),
+	(	Cost_Or_Market = cost
+	->	filter_out_market_values(S_Transactions, Exchange_Rates0, Exchange_Rates)
+	;	Exchange_Rates0 = Exchange_Rates),
 	
-	generate_system_accounts(S_Transactions, Accounts_In, Generated_Accounts_Nested),
-	flatten(Generated_Accounts_Nested, Generated_Accounts),
-	pretty_term_string(Generated_Accounts, Message3b),
-	atomic_list_concat([
-	'\n<!--',
-	'Generated accounts:\n', Message3b,'\n\n',
-	'-->\n\n'], Debug_Message10),
-	writeln(Debug_Message10),
+	system_accounts:generate_system_accounts(S_Transactions, Accounts_In, Generated_Accounts),
+	doc:add_comment_stringize('Accounts generated', Generated_Accounts),
 	flatten([Accounts_In, Generated_Accounts], Accounts),
-	%check_accounts(Accounts)
-	maplist(accounts:check_account_parent(Accounts), Accounts), 
+	maplist(accounts:check_account_parent(Accounts), Accounts),
 	accounts:write_accounts_json_report(Accounts),
 	doc:doc(T, rdf:type, l:request),
 	doc:doc_add(T, l:accounts, Accounts),
@@ -136,34 +111,6 @@ process_ledger(
 
 	maplist(check_transaction_account(Accounts), Transactions_With_Livestock),
 
-	atomic_list_concat(Transaction_Transformation_Debug, Message10),
-	(
-		once(livestock:livestock_data(_))
-	->
-		Livestock_Debug = ''
-	;
-		(
-			pretty_term_string(Transactions_With_Livestock, Message1),
-			/*pretty_term_string(Livestock_Counts, Message12),
-			pretty_term_string(Average_Costs, Message5),
-			pretty_term_string(Average_Costs_Explanations, Message5b),*/
-
-			atomic_list_concat([
-/*				'Average_Costs:\n', Message5,'\n\n',
-				'Average_Costs_Explanations:\n', Message5b,'\n\n',*/
-				'Transactions_With_Livestock:\n', Message1,'\n\n'
-			], Livestock_Debug)
-		)
-	),
-	atomic_list_concat([
-			'\n<!--',
-			Livestock_Debug,
-			'Transaction_Transformation_Debug:\n', Message10,'\n\n',
-			'-->\n\n'
-		], Debug_Message),
-	writeln(Debug_Message),
-
-
 	Static_Data2 = Static_Data0.put(end_date, Processed_Until).put(transactions, Transactions_With_Livestock),
 	generate_gl_data(
 		Static_Data2, 
@@ -184,17 +131,11 @@ process_ledger(
 	->
 		Warnings1 = []
 	;
-		(
-			term_string(trial_balance(Trial_Balance_Section), Tb_Str),
-			Warnings1 = ['SYSTEM_WARNING':Tb_Str]
-		)
+		(	term_string(trial_balance(Trial_Balance_Section), Tb_Str),
+			doc:add_alert('SYSTEM_WARNING', Tb_Str))
 	),
-	gather_ledger_errors(Transaction_Transformation_Debug, Errors),
-	flatten([Warnings0, Warnings1], Warnings),
-	writeln('<!-- '),
-	writeq(Warnings),
-	writeq(Errors),
-	writeln(' -->').
+	gather_ledger_errors(Transaction_Transformation_Debug).
+
 
 preprocess_until_error(Static_Data0, Prepreprocessed_S_Transactions, Preprocessed_S_Transactions, Transactions0, Outstanding_Out, Transaction_Transformation_Debug, Report_End_Date, Processed_Until) :-
 	preprocess_s_transactions(Static_Data0, Prepreprocessed_S_Transactions, Preprocessed_S_Transactions, Transactions0, Outstanding_Out, Transaction_Transformation_Debug),
@@ -267,16 +208,9 @@ gather_ledger_warnings(S_Transactions, Start_Date, End_Date, Warnings) :-
 	).
 	
 gather_ledger_errors(Debug, Errors) :-
-	(
-		(
-			last(Debug, Last),
-			Last \== 'done.'
-		)
-	->
-		Errors = ['ERROR':Last]		
-	;
-		Errors = []
-	).
+	(	(last(Debug, Last),	Last \== 'done.')
+	->	doc:add_alert('ERROR', Last)
+	;	Errors = []).
 
 filter_out_market_values(S_Transactions, Exchange_Rates0, Exchange_Rates) :-
 	traded_units(S_Transactions, Units),

@@ -15,12 +15,7 @@
 % process_xml_loan_request/2: loan-request.xml
 % -------------------------------------------------------------------
 
-process(FileNameIn, DOM, Reports) :-
-   (
-      FileNameIn  = 'loan-request.xml'
-      ->
-      FileNameOut = 'loan-response.xml' ; true
-   ),
+process(FileNameIn, DOM) :-
    xpath(DOM, //reports/loanDetails/loanAgreement/field(@name='Income year of loan creation', @value=CreationIncomeYear), _E1),
    xpath(DOM, //reports/loanDetails/loanAgreement/field(@name='Full term of loan in years', @value=Term), _E2),
    xpath(DOM, //reports/loanDetails/loanAgreement/field(@name='Principal amount of loan', @value=PrincipalAmount), _E3),
@@ -33,12 +28,6 @@ process(FileNameIn, DOM, Reports) :-
    ;
      OpeningBalance = -1
    ),   
-
-   Reports = _{
-		files: [],
-		errors: Schema_Errors,
-		warnings: []
-   },
 
    absolute_tmp_path(FileNameIn, Instance_File),
    absolute_file_name(my_schemas('bases/Reports.xsd'), Schema_File, []),
@@ -57,7 +46,7 @@ process(FileNameIn, DOM, Reports) :-
 			display_xml_loan_response(FileNameOut, NIncomeYear, Summary)
 		)
 	;
-		true
+		maplist(doc:add_alert(error), Schema_Errors)
 	).
 
    
@@ -68,8 +57,6 @@ process(FileNameIn, DOM, Reports) :-
 display_xml_loan_response(FileNameOut, IncomeYear, 
                     loan_summary(_Number, OpeningBalance, InterestRate, MinYearlyRepayment, TotalRepayment,
 			         RepaymentShortfall, TotalInterest, TotalPrincipal, ClosingBalance)) :-
-   FileNameOut = 'loan-response.xml',   
-
    % populate loan response xml
    atomic_list_concat([
    '<LoanSummary xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="loan_response.xsd">\n',
@@ -105,16 +92,10 @@ display_xml_loan_response(FileNameOut, IncomeYear,
    % if the xml response is valid then reply the response, otherwise reply an error message
    (
      xsd_validate(TempFileLoanResponseXSD, TempFileLoanResponseXML)
-     ->
-     writeln(LoanResponseXML)     
+   ->
+     doc:add_result_file_by_path(TempFileLoanResponseXML)
    ;
-     atomic_list_concat([
-     '<LoanSummary xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="loan_response.xsd">\n',
-     '<ErrorMessage>Validation failed for xml loan response.</ErrorMessage>',
-     '</LoanSummary>\n'],
-     ErrorMessage
-     ),
-     writeln(ErrorMessage)
+     doc:add_alert(error, "Validation failed for xml loan response.")
    ).
    
 

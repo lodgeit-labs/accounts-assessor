@@ -50,9 +50,8 @@ process_ner_api_results(Response_JSON,Result_XML) :-
 	),
 	Result_XML = element(reports,[],[element(is_car_response,[],[Result])]).
 
-process(File_Name, DOM, Reports) :-
+process(File_Name, DOM) :-
 	xpath(DOM, //reports/car_request, element(_,_,[Request_Text])),
-
 
 	Reports = _{
 		files: [],
@@ -69,8 +68,8 @@ process(File_Name, DOM, Reports) :-
 		(
 			cached_ner_data(Request_Text,Response_JSON),
 			process_ner_api_results(Response_JSON,Result_XML),
-			xml_write(Result_XML,[])
+			doc:add_xml_result(Result_XML)
 		)
 	;
-		true
+		maplist(doc:add_alert(error), Schema_Errors)
 	).

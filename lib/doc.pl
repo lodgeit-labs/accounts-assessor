@@ -24,13 +24,6 @@ doc_new_uri(Uri) :-
 	assertion(\+doc:doc(_,_,Uri))
 	*/.
 
-:- rdf_meta request_has_property(r,r).
-
-request_has_property(P, O) :-
-	doc:doc(R, rdf:type, l:request),
-	doc:doc(R, P, O).
-
-
 init :-
 	/*	i'm storing some data in the 'doc' rdf-like database, only as an experiment for now.
 	livestock and action verbs exclusively, some other data in parallel with passing them around in variables..	*/
@@ -81,4 +74,65 @@ to_rdf(Rdf_Graph) :-
 			debug(doc, 'to_rdf:~q~n', [(X2,Y2,Z2)]),
 			rdf_assert(X2,Y2,Z2,Rdf_Graph)
 		),_).
+
+
+:- rdf_meta request_has_property(r,r).
+
+request_has_property(P, O) :-
+	request(R),
+	doc:doc(R, P, O).
+
+:- rdf_meta request_add_property(r,r).
+
+request_add_property(P, O) :-
+	request(R),
+	doc:add(R, P, O).
+
+request(R) :-
+	doc(R, rdf:type, l:request).
+
+add_alert(Type, Msg) :-
+	request(R),
+	doc_new_uri(Uri),
+	doc_add(R, l:alert, Uri),
+	doc_add(Uri, l:type, l:Type),
+	doc_add(Uri, l:message, Msg).
+
+add_xml_result(Result_XML) :-
+	add_xml_report('result', 'result', Result_XML).
+
+add_xml_report(Key, Title, XML) :-
+	atomics_to_string([Key, '.xml'], Fn),
+	report_file_path(Fn, Url, Path)
+	setup_call_cleanup(
+		open(Path, write, Stream),
+		xml_write(Stream, XML,[]),
+		close(Stream)),
+	add_report_file(Key, Title, Url).
+
+add_report_file(Key, Title, Url) :-
+	request(R),
+	doc_new_uri(Uri),
+	doc_add(R, l:report, Uri),
+	doc_add(Uri, l:key, Key),
+	doc_add(Uri, l:title, Title),
+	doc_add(Uri, l:url, Url).
+
+add_result_file_by_filename(Name) :-
+	report_file_path(Name, Url, _),
+	add_report_file('result', 'result', Url).
+
+add_result_file_by_path(Path) :-
+	tmp_file_path_to_url(Path, Url),
+	add_report_file('result', 'result', Url)
+
+add_comment_stringize(Title, Term) :-
+	pretty_term_string(Term, String),
+	add_comment_string(Title, String).
+
+add_comment_string(Title, String) :-
+	doc_new_uri(Uri),
+	doc_add(Uri, title, Title, comments),
+	doc_add(Uri, body, String, comments).
+
 

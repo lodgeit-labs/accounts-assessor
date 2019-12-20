@@ -28,7 +28,6 @@ Change id's to unique if needed.
 We could present this as a proposal to the user to add these accounts. But here we will do it immediately.
 */
 generate_system_accounts(S_Transactions, Accounts_In, Accounts_Out) :-
-	writeln('<!--generate system accounts...-->'),
 	find_or_add_required_accounts(S_Transactions, Accounts_In, Accounts_With_Generated_Accounts),
 	findall(
 		Account,
@@ -38,10 +37,9 @@ generate_system_accounts(S_Transactions, Accounts_In, Accounts_Out) :-
 			account_id(Possibly_Already_Existing_Account, Account_Id),
 			\+member(Possibly_Already_Existing_Account, Accounts_In)
 		),
-		Accounts_Out
+		Accounts_Out_Nested
 	),
-	writeln('<!--...generated system accounts-->')
-.
+	flatten(Accounts_Out_Nested, Accounts_Out).
 
 	
 find_or_add_required_accounts(S_Transactions, Accounts_In, Accounts_Out) :-

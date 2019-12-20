@@ -43,6 +43,29 @@ set_search_path(Alias, Path_From_This_Source_File) :-
 :- set_search_path(my_cache, '/../cache').
 :- set_search_path(my_tmp, '/../prolog_server/tmp').
 
+
+
+
+/*
+  create a new unique directory under my_tmp and assert my_request_tmp_dir
+*/
+bump_tmp_directory_id :-
+	session_tmp_directory_base(Base),
+	gensym(Base, Dir),
+	retractall(my_request_tmp_dir(_)),
+	asserta(my_request_tmp_dir(Dir)),
+	absolute_tmp_path('', Path),
+	make_directory(Path),
+	absolute_whatever(my_tmp('last'), Last),
+	atomic_list_concat(['rm -f ', Last], Rm_Cmd),
+	shell(Rm_Cmd, _),
+	atomic_list_concat(['ln -s ', Path, ' ', Last], Cmd),
+	shell(Cmd, 0)
+	%,	atomic_list_concat(['ln -s . ', Path, '/this_directory'], Cmd2),
+	%	shell(Cmd2, 0)
+	.
+
+
 /*
   to be used instead of absolute_file_name for request-specific tmp files
 */
@@ -65,24 +88,21 @@ tmp_file_url(File_Name, Url) :-
 	server_public_url(Server),
 	my_tmp_file_path(File_Name, File_Path_Relative_To_Tmp),
 	atomic_list_concat([Server, '/tmp/', File_Path_Relative_To_Tmp], Url).
-/*
-  create a new unique directory under my_tmp and assert my_request_tmp_dir
-*/
-bump_tmp_directory_id :-
-	session_tmp_directory_base(Base),
-	gensym(Base, Dir),
-	retractall(my_request_tmp_dir(_)),
-	asserta(my_request_tmp_dir(Dir)),
-	absolute_tmp_path('', Path),
-	make_directory(Path),
-	absolute_whatever(my_tmp('last'), Last),
-	atomic_list_concat(['rm -f ', Last], Rm_Cmd),
-	shell(Rm_Cmd, _),
-	atomic_list_concat(['ln -s ', Path, ' ', Last], Cmd),
-	shell(Cmd, 0)
-	%,	atomic_list_concat(['ln -s . ', Path, '/this_directory'], Cmd2),
-	%	shell(Cmd2, 0)
-	.
+
+tmp_file_path_from_url(FileName, Path) :-
+	exclude_file_location_from_filename(FileName, FileName2),
+	http_safe_file(FileName2, []),
+	absolute_tmp_path(FileName2, Path).
+
+tmp_file_path_to_url(Path, Url) :-
+	exclude_file_location_from_filename(Path, Fn),
+	report_file_path(Fn, Url, _).
+
+exclude_file_location_from_filename(Name_In, Name_Out) :-
+   atom_chars(Name_In, Name1),
+   utils:remove_before('\\', Name1, Name2),
+   utils:remove_before('/', Name2, Name3),
+   atomic_list_concat(Name3, Name_Out).
 
 absolute_whatever(Path_Specifier, Absolute) :-
 	/*absolute_file_name will not fail if the file doesnt exist, but will fail if it is a directory. whacky.*/
@@ -164,16 +184,6 @@ save_file(In, file(User_File_Path, Tmp_File_Path), Options) :-
 	tmp_file_path_from_url(User_File_Path, Tmp_File_Path),
 	setup_call_cleanup(open(Tmp_File_Path, write, Out), copy_stream_data(In, Out), close(Out)).
 
-tmp_file_path_from_url(FileName, Path) :-
-	exclude_file_location_from_filename(FileName, FileName2),
-	http_safe_file(FileName2, []),
-	absolute_tmp_path(FileName2, Path).
-
-exclude_file_location_from_filename(Name_In, Name_Out) :-
-   atom_chars(Name_In, Name1),
-   utils:remove_before('\\', Name1, Name2),
-   utils:remove_before('/', Name2, Name3),
-   atomic_list_concat(Name3, Name_Out).
 
 
 directory_entries_full_paths(Directory_Path,File_Paths) :-

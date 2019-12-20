@@ -70,8 +70,8 @@ process_request(Options, File_Paths) :-
 
 	flatten([
 		Files,
-		_{key:Output_File_Title, val:_{url:Output_File_Url}, id:response_xml},
-		_{key:request_xml, val:_{url:Request_File_Url}, id:request_xml},
+		_{key:Output_File_Title, val:_{url:Output_File_Url}, id:response},
+		_{key:request, val:_{url:Request_File_Url}, id:request},
 		_{key:'all files', val:_{url:Tmp_Dir_Url}, id:all}
 	], Files3),
 
@@ -120,7 +120,7 @@ process_mulitifile_request(File_Paths, (Request_File_Name, Reports, Output_File_
 	;	true),
 	doc:init,
 	doc:from_rdf(G),
-	(	process_request:process_rdf_request(Reports)
+	(	process_request:process_rdf_request(Reports, Output_File_Title)
 	;
 		process_with_output(Request_File_Name, Request_Dom, Reports, Output_File_Title, Output_Xml_String)
 	).
@@ -130,7 +130,7 @@ process_with_output(Request_File_Name, Request_Dom, Reports, Output_File_Title, 
 		string(Output_Xml_String),
 		(
 		utils:catch_maybe_with_backtrace(
-			process_request:process_xml_request(Request_File_Name, Request_Dom, (Reports, Output_File_Title)),
+			process_request:process_xml_request(Request_File_Name, Request_Dom, (Reports, Xml_Response_Title)),
 			Error,
 			(
 				print_message(error, Error),
@@ -140,26 +140,24 @@ process_with_output(Request_File_Name, Request_Dom, Reports, Output_File_Title, 
 		)
 	).
 
-process_rdf_request(Reports) :-
+process_rdf_request(Reports, Output_File_Title) :-
 	%doc_core:dump,
 	(	process_request_hirepurchase_new:process;
 		process_request_depreciation_new:process),
-	reports(Reports).
+	reports(Reports, Output_File_Title).
 
-process_xml_request(File_Name, Dom, (Report_Files, Response_Title)) :-
+process_xml_request(File_Name, Dom, Json_Response, Stdouted_Response_Xml_Title) :-
 	(	xpath(Dom, //reports, _)
 	->	true
 	;	throw_string('<reports> tag not found')),
-	(process_request_car:process(File_Name, Dom, Report_Files);
-	(process_request_loan:process(File_Name, Dom, Report_Files);
-	(process_request_ledger:process(File_Name, Dom, Report_Files) -> Response_Title = 'xbrl instance';
-	(process_request_livestock:process(File_Name, Dom, Report_Files);
-	(process_request_investment:process(File_Name, Dom, Report_Files);
-	(process_request_depreciation_old:process(File_Name, Dom, Report_Files)
-	)))))),
-	(	var(Response_Title)
-	->	Response_Title = 'xml response'
-	;	true).
+	(process_request_car:process(File_Name, Dom);
+	(process_request_loan:process(File_Name, Dom);
+	(process_request_ledger:process(File_Name, Dom);
+	%(process_request_livestock:process(File_Name, Dom);
+	%(process_request_investment:process(File_Name, Dom);
+	%(process_request_depreciation_old:process(File_Name, Dom)
+	))))).
+
 
 get_requested_output_type(Options2, Output) :-
 	Known_Output_Types = [json_reports_list, xml],
@@ -199,9 +197,10 @@ response_file_name(Request_File_Name, Response_File_Name) :-
 	->	true
 	;	atomic_list_concat(['response-',Request_File_Name], Response_File_Name)).
 
-reports(Reports) :-
+reports(Reports, Output_File_Title) :-
+	Output_File_Title = 'response.n3',
 	doc:to_rdf(Rdf_Graph),
-	files:report_file_path('response.n3', _Report_Url, Report_File_Path),
+	files:report_file_path(Output_File_Title, _Report_Url, Report_File_Path),
 	rdf_save(Report_File_Path, [graph(Rdf_Graph), sorted(true)]),
 	Reports = _{files:[Report_File_Path], alerts:[]}.
 
