@@ -54,102 +54,78 @@ process_request_http(Options, Parts) :-
 
 process_request(Options, File_Paths) :-
 	maybe_supress_generating_unique_taxonomy_urls(Options),
-	process_mulitifile_request(File_Paths, (Request_File_Name, Reports, Output_File_Title, Output_Xml_String)),
-
-	response_file_name(Request_File_Name, Output_File_Name),
-	files:absolute_tmp_path(Output_File_Name, Output_File_Path),
-	files:absolute_tmp_path('response.json', Json_Response_File_Path),
-
-	tmp_file_url(Output_File_Name, Output_File_Url),
-	tmp_file_url(Request_File_Name, Request_File_Url),
-	(get_dict(files, Reports, Files) -> true; Files  = []),
-	(get_dict(errors, Reports, Errors) -> true; Errors  = []),
-	(get_dict(warnings, Reports, Warnings) -> true; Warnings  = []),
-
+	process_mulitifile_request(File_Paths, Request_File_Name),
 	files:report_file_path('', Tmp_Dir_Url, _),
-
-	flatten([
-		Files,
-		_{key:Output_File_Title, val:_{url:Output_File_Url}, id:response},
-		_{key:request, val:_{url:Request_File_Url}, id:request},
-		_{key:'all files', val:_{url:Tmp_Dir_Url}, id:all}
-	], Files3),
-
-	flatten([Errors, Warnings], Alerts2),
+	report_entry('all files', Tmp_Dir_Url, 'all').
+	findall(
+		_{key:Title, val:_{url:Url}, id:Id},
+		doc:get_report_file(Id, Title, Url)
+		Files3),
 	findall(
 		Alert,
 		(
-			member(KV, Alerts2),
-			((Key:Val) = KV -> true ; throw('internal error 1')),
+			doc:get_alert(Key,Val),
 			atomic_list_concat([Key,':',Val], Alert)
 		),
 		Alerts3
 	),
-
 	Json_Out = _{
 		alerts:Alerts3,
 		reports:Files3
 	},
 
-	with_output_to(string(Response_Xml_String), print_xml_report(Json_Out, Output_Xml_String)),
-	write_file(Output_File_Path, Response_Xml_String),
-	with_output_to(string(Response_Json_String), utils:json_write(current_output, Json_Out)),
+	files:absolute_tmp_path('response.json', Json_Response_File_Path),
+	dict_json_text(Json_Out, Response_Json_String),
 	write_file(Json_Response_File_Path, Response_Json_String),
+
 	files:make_zip,
+
 	get_requested_output_type(Options, Requested_Output_Type),
 	(	Requested_Output_Type = xml
-	->	writeln(Response_Xml_String)
+	->	(
+			tmp_file_path_from_url(Json_Out.reports.response_xml, Xml_Path),
+			print_file(Xml_Path)
+		)
 	;	writeln(Response_Json_String)).
 
-process_mulitifile_request(File_Paths, (Request_File_Name, Reports, Output_File_Title, Output_Xml_String)) :-
-	(
-		(
-			member(Xml_Tmp_File_Path, File_Paths),
-			files:exclude_file_location_from_filename(Xml_Tmp_File_Path, Request_File_Name),
-			utils:icase_endswith(Xml_Tmp_File_Path, ".xml")
-		)
-	->	load_structure(Xml_Tmp_File_Path, Request_Dom, [dialect(xmlns), space(remove), keep_prefix(true)])
+xml_request(File_Paths, Xml_Tmp_File_Path) :-
+	member(Xml_Tmp_File_Path, File_Paths),
+	files:exclude_file_location_from_filename(Xml_Tmp_File_Path, Request_File_Name),
+	utils:icase_endswith(Xml_Tmp_File_Path, ".xml"),
+	tmp_file_path_to_url(Xml_Tmp_File_Path, Url),
+	report_entry('request_xml', Url, 'request_xml').
+
+rdf_request_file(File_Paths, Rdf_Tmp_File_Path) :-
+	member(Rdf_Tmp_File_Path, File_Paths),
+	utils:icase_endswith(Rdf_Tmp_File_Path, "n3"),
+	tmp_file_path_to_url(Rdf_Tmp_File_Path, Url),
+	report_entry('request_n3', Url, 'request_n3').
+
+process_mulitifile_request(File_Paths, Request_File_Name) :-
+	(	xml_request(File_Paths, Xml_Tmp_File_Path)
+	->	load_structure(Xml_Tmp_File_Path, Dom, [dialect(xmlns), space(remove), keep_prefix(true)])
 	;	true),
-	(	(
-			member(Rdf_Tmp_File_Path, File_Paths),
-			utils:icase_endswith(Rdf_Tmp_File_Path, "n3")
-		)
-	->	(	rdf_load(Rdf_Tmp_File_Path, [graph(G), anon_prefix(bn)]), (findall(_, (rdf(S,P,O),writeq(('raw_rdf:',S,P,O)),nl),_)),
-			(var(Request_File_Name) -> files:exclude_file_location_from_filename(Rdf_Tmp_File_Path, Request_File_Name) ; true)
-		)
+	(	rdf_request_file(File_Paths, Rdf_Tmp_File_Path)
+	->	load_request_rdf(Rdf_Tmp_File_Path)
 	;	true),
 	doc:init,
 	doc:from_rdf(G),
-	(	process_request:process_rdf_request(Reports, Output_File_Title)
-	;
-		process_with_output(Request_File_Name, Request_Dom, Reports, Output_File_Title, Output_Xml_String)
-	).
+	(	process_request:process_rdf_request
+	;	(
+			xpath(Dom, //reports, _)
+			->	process_xml_request(Xml_Tmp_File_Path, Dom)
+			;	throw_string('<reports> tag not found'))).
 
-process_with_output(Request_File_Name, Request_Dom, Reports, Output_File_Title, Output_Xml_String) :-
-	with_output_to(
-		string(Output_Xml_String),
-		(
-		utils:catch_maybe_with_backtrace(
-			process_request:process_xml_request(Request_File_Name, Request_Dom, (Reports, Xml_Response_Title)),
-			Error,
-			(
-				print_message(error, Error),
-				throw(Error)
-			)
-		)
-		)
-	).
 
-process_rdf_request(Reports, Output_File_Title) :-
-	%doc_core:dump,
+load_request_rdf(Rdf_Tmp_File_Path) :-
+	rdf_load(Rdf_Tmp_File_Path, [graph(G), anon_prefix(bn)]),
+	findall(_, (rdf(S,P,O),writeq(('raw_rdf:',S,P,O)),nl),_).
+
+process_rdf_request :-
 	(	process_request_hirepurchase_new:process;
-		process_request_depreciation_new:process),
-	reports(Reports, Output_File_Title).
+		process_request_depreciation_new:process).
 
-process_xml_request(File_Name, Dom, Json_Response, Stdouted_Response_Xml_Title) :-
-	(	xpath(Dom, //reports, _)
-	->	true
-	;	throw_string('<reports> tag not found')),
+process_xml_request(File_Name, Dom) :-
 	(process_request_car:process(File_Name, Dom);
 	(process_request_loan:process(File_Name, Dom);
 	(process_request_ledger:process(File_Name, Dom);
@@ -204,3 +180,20 @@ reports(Reports, Output_File_Title) :-
 	rdf_save(Report_File_Path, [graph(Rdf_Graph), sorted(true)]),
 	Reports = _{files:[Report_File_Path], alerts:[]}.
 
+
+
+
+
+
+
+/*
+process_with_output(Request_File_Name, Request_Dom) :-
+	utils:catch_maybe_with_backtrace(
+		process_request:process_xml_request(Request_File_Name, Request_Dom, (Reports, Xml_Response_Title)),
+		Error,
+		(
+			print_message(error, Error),
+			throw(Error)
+		)
+	).
+*/

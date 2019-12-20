@@ -21,7 +21,7 @@
 :- rdet(pl_report/4).
 
 
-pl_page(Static_Data, ProftAndLoss2, Filename_Suffix, File_Info) :-
+pl_page(Static_Data, ProftAndLoss2, Filename_Suffix) :-
 	dict_vars(Static_Data, [Accounts, Start_Date, End_Date, Report_Currency]),
 	format_date(Start_Date, Start_Date_Atom),
 	format_date(End_Date, End_Date_Atom),
@@ -32,10 +32,9 @@ pl_page(Static_Data, ProftAndLoss2, Filename_Suffix, File_Info) :-
 	flatten([Header, Report_Table_Data], Tbl),
 	atomic_list_concat(['profit_and_loss', Filename_Suffix, '.html'], Filename),
 	atomic_list_concat(['profit_and_loss', Filename_Suffix, '_html'], Id),
-	report_page_with_table(Title_Text, Tbl, Filename, Id, File_Info).
-	%report_page_with_table(Title_Text, Tbl, Filename, File_Info).
+	report_page_with_table(Title_Text, Tbl, Filename, Id).
 		
-bs_page(Static_Data, Balance_Sheet, File_Info) :-
+bs_page(Static_Data, Balance_Sheet) :-
 	dict_vars(Static_Data, [Accounts, Start_Date, End_Date, Report_Currency]),
 	format_date(Start_Date, Start_Date_Atom),
 	format_date(End_Date, End_Date_Atom),
@@ -44,5 +43,5 @@ bs_page(Static_Data, Balance_Sheet, File_Info) :-
 	fact_output:pesseract_style_table_rows(Accounts, Report_Currency, Balance_Sheet, Report_Table_Data),
 	Header = tr([th('Account'), th(['Balance', Report_Currency_Atom])]),
 	flatten([Header, Report_Table_Data], Tbl),
-	report_page_with_table(Title_Text, Tbl, 'balance_sheet.html', 'balance_sheet_html', File_Info).
-	%report_page_with_table(Title_Text, Tbl, 'balance_sheet.html', File_Info).
+	report_page_with_table(Title_Text, Tbl, 'balance_sheet.html', 'balance_sheet_html').
+

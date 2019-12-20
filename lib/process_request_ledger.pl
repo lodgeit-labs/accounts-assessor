@@ -46,7 +46,7 @@
 :- use_module(library(xbrl/structured_xml)).
 
 
-:- rdet(process_xml_ledger_request2/2).
+:- rdet(process/2).
 
 
 process(File_Name, Dom) :-
@@ -57,12 +57,9 @@ process(File_Name, Dom) :-
 	absolute_tmp_path(File_Name, Instance_File),
 	absolute_file_name(my_schemas('bases/Reports.xsd'), Schema_File, []),
 	validate_xml(Instance_File, Schema_File, Schema_Errors),
-	(
-		Schema_Errors = []
-	->
-		process_xml_ledger_request2(Dom)
-	;
-		maplist(doc:add_alert(error), Schema_Errors)
+	(	Schema_Errors = []
+	->	process_xml_ledger_request2(Dom)
+	;	maplist(doc:add_alert(error), Schema_Errors)
 	).
 
 
@@ -122,9 +119,7 @@ create_reports(Static_Data) :-
 	taxonomy_url_base,
 	create_instance(Xbrl, Static_Data, Static_Data.start_date, Static_Data.end_date, Static_Data.accounts, Static_Data.report_currency, Balance_Sheet, ProfitAndLoss, ProfitAndLoss2_Historical, Trial_Balance),
 	other_reports(Static_Data, Static_Data_Historical, Static_Data.outstanding, Balance_Sheet, ProfitAndLoss, Balance_Sheet2_Historical, ProfitAndLoss2_Historical, Trial_Balance),
-
-	doc:alerts_to_json(Alerts),
-	doc:structured_xml_report([comment(Alerts), Xbrl, comment(Alerts)], 'xbrl_instance.xml').
+	doc:add_xml_report(xbrl_instance, xbrl_instance, [Xbrl]).
 
 balance_entries(Static_Data, Static_Data_Historical, Entries) :-
 	/* sum up the coords of all transactions for each account and apply unit conversions */

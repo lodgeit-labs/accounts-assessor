@@ -106,17 +106,24 @@ add_xml_report(Key, Title, XML) :-
 	report_file_path(Fn, Url, Path)
 	setup_call_cleanup(
 		open(Path, write, Stream),
-		xml_write(Stream, XML,[]),
+		structured_xml:sane_xml_write(Stream, XML),
 		close(Stream)),
 	add_report_file(Key, Title, Url).
 
-add_report_file(Key, Title, Url) :-
+add_report_file(Id, Title, Url) :-
 	request(R),
 	doc_new_uri(Uri),
 	doc_add(R, l:report, Uri),
-	doc_add(Uri, l:key, Key),
+	doc_add(Uri, l:id, Id),
 	doc_add(Uri, l:title, Title),
 	doc_add(Uri, l:url, Url).
+
+get_report_file(Id, Title, Url) :-
+	request(R),
+	docm(R, l:report, Uri),
+	doc(Uri, l:id, Id),
+	doc(Uri, l:title, Title),
+	doc(Uri, l:url, Url).
 
 add_result_file_by_filename(Name) :-
 	report_file_path(Name, Url, _),

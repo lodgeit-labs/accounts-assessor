@@ -46,7 +46,7 @@ event(Event, Unit_Cost_Foreign, Currency_Conversion, Unit_Cost_Converted, Total_
 	}.
 
 
-investment_report_2(Static_Data, Outstanding_In, Filename_Suffix, Report_Data, [Report_File_Info, JSON_File_Info]) :-
+investment_report_2(Static_Data, Outstanding_In, Filename_Suffix, Report_Data) :-
 	reset_gensym(iri),
 
 	Start_Date = Static_Data.start_date,
@@ -68,14 +68,14 @@ investment_report_2(Static_Data, Outstanding_In, Filename_Suffix, Report_Data, [
 
 	atomic_list_concat(['investment_report', Filename_Suffix, '.html'], Filename),
 	atomic_list_concat(['investment_report', Filename_Suffix, '_html'], HTML_ID),
-	report_page_with_table(Title_Text, Table_Html, Filename, HTML_ID, Report_File_Info),
+	report_page_with_table(Title_Text, Table_Html, Filename, HTML_ID),
 	
 	atomic_list_concat(['investment_report', Filename_Suffix, '.json'], Json_Filename),
 	atomic_list_concat(['investment_report', Filename_Suffix, '_json'], JSON_ID),
 	dict_json_text(Table, Json_Text),
 	report_item(Json_Filename, Json_Text, Json_Url),
 	nonvar(Json_Url),
-	report_entry(Json_Filename, Json_Url, JSON_ID, JSON_File_Info),
+	report_entry(Json_Filename, Json_Url, JSON_ID),
 	
 	Report_Data = _{
 		rows: Rows,

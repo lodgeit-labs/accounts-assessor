@@ -136,16 +136,19 @@ set_server_public_url(Url) :-
 	%format(user_error, 'Server_Public_Url: ~q\n', [Url]),
 	retractall(asserted_server_public_url(_)),
 	assert(asserted_server_public_url(Url)).
-	
 
-% -------------------------------------------------------------------
-% write_file/2
-% -------------------------------------------------------------------
-/*fixme : its not xml-specific*/
+
+print_file(Path) :-
+	setup_call_cleanup(
+		open(Path, write, Out),
+		copy_stream_data(In, user_output),
+		close(Out)).
+
 write_file(Path, Text) :-
-   open(Path, write, Stream),
-   write(Stream, Text),
-   close(Stream).
+	setup_call_cleanup(
+		open(Path, write, Stream),
+		write(Stream, Text),
+		close(Stream)).
 
 write_tmp_file(Name, Text) :-
 	absolute_tmp_path(Name, Path),
