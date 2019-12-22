@@ -184,7 +184,7 @@ symlink_tmp_taxonomy_to_static_taxonomy(Unique_Taxonomy_Dir_Url) :-
 	absolute_tmp_path('/taxonomy', Tmp_Taxonomy),
 	absolute_file_name(my_static('taxonomy/'), Static_Taxonomy, [file_type(directory)]),
 	atomic_list_concat(['ln -s ', Static_Taxonomy, ' ', Tmp_Taxonomy], Cmd),
-	shell(Cmd, 0).
+	shell(Cmd, _).
 
 	
 /*

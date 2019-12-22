@@ -2,14 +2,14 @@
 
 :- record section(context, header, entries, footer).
 
-create_instance(Xbrl, Static_Data, Start_Date, End_Date, Accounts, Report_Currency, Balance_Sheet, ProfitAndLoss, ProfitAndLoss2_Historical, Trial_Balance) :-
+create_instance(Xbrl, Static_Data, Start_Date, End_Date, Accounts, Report_Currency, Balance_Sheet, ProfitAndLoss, _ProfitAndLoss2_Historical, Trial_Balance) :-
 	Fact_Sections = [
 		section(Instant_Context_Id_Base, '\n<!-- balance sheet: -->\n', Balance_Sheet, ''),
 		section(Duration_Context_Id_Base, '\n<!-- profit and loss: -->\n', ProfitAndLoss, ''),
-		section(Duration_Context_Id_Base, '\n<!-- historical profit and loss (fixme wrong context id): \n', ProfitAndLoss2_Historical, '\n-->\n'),
 		section(Instant_Context_Id_Base, '\n<!-- trial balance: -->\n', Trial_Balance, '')
 	],
-	xbrl(Xbrl, [Facts, Dimensional_Facts, Units_Xml, Contexts_Xml]),
+	xbrl(Xbrl, Children),
+	add(Children, [Facts, Dimensional_Facts, Units_Xml, Contexts_Xml]),
 	Entity_Identifier = '<identifier scheme="http://www.example.com">TestData</identifier>',
 	build_base_contexts(Start_Date, End_Date, Entity_Identifier, Instant_Context_Id_Base, Duration_Context_Id_Base, Contexts0),
 	fact_lines(Accounts, Report_Currency, Fact_Sections, Facts),
@@ -26,9 +26,9 @@ create_instance(Xbrl, Static_Data, Start_Date, End_Date, Accounts, Report_Curren
 fact_lines(_, _, [], []).
 
 fact_lines(Accounts, Report_Currency, [Section|Sections], [Lines_H|Lines_T]) :-
-	Lines_H = [Header, Fact_Lines, Footer],
-	section_header(Section, Header),
-	section_footer(Section, Footer),
+	Lines_H = [Fact_Lines],
+	/*section_header(Section, Header),
+	section_footer(Section, Footer),*/
 	section_context(Section, Context),
 	section_entries(Section, Entries),
 	format_report_entries(xbrl, 0, Accounts, 0, Report_Currency,
@@ -76,7 +76,7 @@ print_used_unit(Unit, Element) :-
 	Element = element(
 		'xbrli:unit',
 		['id'=Id_Attr],
-		[element('xbrli:measure', [], Measure)]
+		[element('xbrli:measure', [], [Measure])]
 	).
 
 xbrl(

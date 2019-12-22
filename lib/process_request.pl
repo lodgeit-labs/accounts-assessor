@@ -25,8 +25,8 @@ process_request_cmdline(Path) :-
 		(	exists_directory(Path),
 			directory_real_files(Path, File_Paths)),
 			(File_Paths = [] -> throw('no files found') ; true)
-	->	true
-	;	File_Paths = [Path]),
+	->		true
+	;		File_Paths = [Path]),
 	bump_tmp_directory_id,
 	copy_request_files_to_tmp(File_Paths, _),
 	process_request([], File_Paths).
@@ -56,8 +56,8 @@ process_request(Options, File_Paths) :-
 			get_alert(Key,Val),
 			(
 				(
-					pretty_term_string(Val, val_Str),
-					atomic_list_concat([Key,':',val_Str], Alert)
+					pretty_term_string(Val, Val_Str),
+					atomic_list_concat([Key,':',Val_Str], Alert)
 				)
 				->	true
 				;	throw(xxx)
@@ -83,18 +83,6 @@ process_request(Options, File_Paths) :-
 	;	writeln(Response_Json_String)),
 	make_zip.
 
-xml_request(File_Paths, Xml_Tmp_File_Path) :-
-	member(Xml_Tmp_File_Path, File_Paths),
-	icase_endswith(Xml_Tmp_File_Path, ".xml"),
-	tmp_file_path_to_url(Xml_Tmp_File_Path, Url),
-	report_entry('request_xml', Url, 'request_xml').
-
-rdf_request_file(File_Paths, Rdf_Tmp_File_Path) :-
-	member(Rdf_Tmp_File_Path, File_Paths),
-	icase_endswith(Rdf_Tmp_File_Path, "n3"),
-	tmp_file_path_to_url(Rdf_Tmp_File_Path, Url),
-	report_entry('request_n3', Url, 'request_n3').
-
 process_mulitifile_request(File_Paths) :-
 	(	xml_request(File_Paths, Xml_Tmp_File_Path)
 	->	load_structure(Xml_Tmp_File_Path, Dom, [dialect(xmlns), space(remove), keep_prefix(true)])
@@ -109,6 +97,17 @@ process_mulitifile_request(File_Paths) :-
 			->	process_xml_request(Xml_Tmp_File_Path, Dom)
 			;	throw_string('<reports> tag not found'))).
 
+xml_request(File_Paths, Xml_Tmp_File_Path) :-
+	member(Xml_Tmp_File_Path, File_Paths),
+	icase_endswith(Xml_Tmp_File_Path, ".xml"),
+	tmp_file_path_to_url(Xml_Tmp_File_Path, Url),
+	report_entry('request_xml', Url, 'request_xml').
+
+rdf_request_file(File_Paths, Rdf_Tmp_File_Path) :-
+	member(Rdf_Tmp_File_Path, File_Paths),
+	icase_endswith(Rdf_Tmp_File_Path, "n3"),
+	tmp_file_path_to_url(Rdf_Tmp_File_Path, Url),
+	report_entry('request_n3', Url, 'request_n3').
 
 load_request_rdf(Rdf_Tmp_File_Path, G) :-
 	rdf_create_bnode(G),
@@ -119,7 +118,8 @@ process_rdf_request :-
 	(	process_request_hirepurchase_new;
 		process_request_depreciation_new).
 
-process_xml_request(File_Name, Dom) :-
+process_xml_request(File_Path, Dom) :-
+	exclude_file_location_from_filename(File_Path, File_Name),
 	(process_request_car:process(File_Name, Dom);
 	(process_request_loan(File_Name, Dom);
 	(process_request_ledger(File_Name, Dom)
