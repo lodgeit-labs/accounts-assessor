@@ -1,7 +1,7 @@
 :- module(_, []).
 :- use_module(library(xbrl/utils), []).
 :- use_module(library(xpath)).
-:- use_module('doc', []).
+:- use_module(library(xbrl/doc), []).
 
 extract(Request_Dom) :-
 	findall(Livestock_Dom, xpath(Request_Dom, //reports/balanceSheetRequest/livestockData, Livestock_Dom), Livestock_Doms),

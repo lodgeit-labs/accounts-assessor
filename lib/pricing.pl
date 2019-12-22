@@ -3,7 +3,7 @@
 	find_items_to_sell/8,
 	outstanding_goods_count/2
 ]).
-
+:- use_module('bank_statement',[]).
 :- use_module(library(record)).
 
 /*
@@ -139,8 +139,8 @@ Exchange_Rates are parsed from the request xml.
 */
 
 infer_unit_cost_from_last_buy_or_sell(Unit, [ST|_], Exchange_Rate) :-
-	s_transaction_exchanged(ST, vector([coord(Unit, Goods_D)])),
-	s_transaction_vector(ST, [coord(Currency, Cost_D)]),
+	bank_statement:s_transaction_exchanged(ST, vector([coord(Unit, Goods_D)])),
+	bank_statement:s_transaction_vector(ST, [coord(Currency, Cost_D)]),
 	Rate is -Cost_D / Goods_D,
 	Exchange_Rate = exchange_rate(_,Unit,Currency,Rate),
 	!.

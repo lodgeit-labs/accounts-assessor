@@ -4,18 +4,18 @@
 :- use_module(library(archive)).
 :- use_module(library(sgml)).
 :- use_module(library(semweb/turtle)).
-:- use_module(library(semweb/rdf_db)).
+:- use_module(library(semweb/rdf11)).
 
 :- use_module(process_request_loan, []).
 :- use_module(process_request_ledger, []).
-:- use_module(process_request_livestock, []).
-:- use_module(process_request_investment, []).
+%:- use_module(process_request_livestock, []).
+%:- use_module(process_request_investment, []).
 :- use_module(process_request_car, []).
-:- use_module(process_request_depreciation_old, []).
+%:- use_module(process_request_depreciation_old, []).
 :- use_module(process_request_hirepurchase_new, []).
 :- use_module(process_request_depreciation_new, []).
 
-:- use_module('files', [
+:- use_module(library(xbrl/files), [
 		bump_tmp_directory_id/0,
 		set_server_public_url/1,
 		replace_request_with_response/2,
@@ -23,7 +23,7 @@
 		tmp_file_url/2
 ]).
 :- use_module(library(xbrl/utils), []).
-:- use_module('doc', []).
+:- use_module(library(xbrl/doc), []).
 
 /* for formatting numbers */
 :- locale_create(Locale, "en_AU.utf8", []), set_locale(Locale).
@@ -54,12 +54,12 @@ process_request_http(Options, Parts) :-
 
 process_request(Options, File_Paths) :-
 	maybe_supress_generating_unique_taxonomy_urls(Options),
-	process_mulitifile_request(File_Paths, Request_File_Name),
+	process_mulitifile_request(File_Paths),
 	files:report_file_path('', Tmp_Dir_Url, _),
-	report_entry('all files', Tmp_Dir_Url, 'all').
+	report_page:report_entry('all files', Tmp_Dir_Url, 'all'),
 	findall(
 		_{key:Title, val:_{url:Url}, id:Id},
-		doc:get_report_file(Id, Title, Url)
+		doc:get_report_file(Id, Title, Url),
 		Files3),
 	findall(
 		Alert,
@@ -75,38 +75,36 @@ process_request(Options, File_Paths) :-
 	},
 
 	files:absolute_tmp_path('response.json', Json_Response_File_Path),
-	dict_json_text(Json_Out, Response_Json_String),
+	utils:dict_json_text(Json_Out, Response_Json_String),
 	write_file(Json_Response_File_Path, Response_Json_String),
-
-	files:make_zip,
 
 	get_requested_output_type(Options, Requested_Output_Type),
 	(	Requested_Output_Type = xml
 	->	(
-			tmp_file_path_from_url(Json_Out.reports.response_xml, Xml_Path),
-			print_file(Xml_Path)
+			files:tmp_file_path_from_url(Json_Out.reports.response_xml, Xml_Path),
+			files:print_file(Xml_Path)
 		)
-	;	writeln(Response_Json_String)).
+	;	writeln(Response_Json_String)),
+	files:make_zip.
 
 xml_request(File_Paths, Xml_Tmp_File_Path) :-
 	member(Xml_Tmp_File_Path, File_Paths),
-	files:exclude_file_location_from_filename(Xml_Tmp_File_Path, Request_File_Name),
 	utils:icase_endswith(Xml_Tmp_File_Path, ".xml"),
-	tmp_file_path_to_url(Xml_Tmp_File_Path, Url),
-	report_entry('request_xml', Url, 'request_xml').
+	files:tmp_file_path_to_url(Xml_Tmp_File_Path, Url),
+	report_page:report_entry('request_xml', Url, 'request_xml').
 
 rdf_request_file(File_Paths, Rdf_Tmp_File_Path) :-
 	member(Rdf_Tmp_File_Path, File_Paths),
 	utils:icase_endswith(Rdf_Tmp_File_Path, "n3"),
-	tmp_file_path_to_url(Rdf_Tmp_File_Path, Url),
-	report_entry('request_n3', Url, 'request_n3').
+	files:tmp_file_path_to_url(Rdf_Tmp_File_Path, Url),
+	report_page:report_entry('request_n3', Url, 'request_n3').
 
-process_mulitifile_request(File_Paths, Request_File_Name) :-
+process_mulitifile_request(File_Paths) :-
 	(	xml_request(File_Paths, Xml_Tmp_File_Path)
 	->	load_structure(Xml_Tmp_File_Path, Dom, [dialect(xmlns), space(remove), keep_prefix(true)])
 	;	true),
 	(	rdf_request_file(File_Paths, Rdf_Tmp_File_Path)
-	->	load_request_rdf(Rdf_Tmp_File_Path)
+	->	load_request_rdf(Rdf_Tmp_File_Path, G)
 	;	true),
 	doc:init,
 	doc:from_rdf(G),
@@ -114,10 +112,11 @@ process_mulitifile_request(File_Paths, Request_File_Name) :-
 	;	(
 			xpath(Dom, //reports, _)
 			->	process_xml_request(Xml_Tmp_File_Path, Dom)
-			;	throw_string('<reports> tag not found'))).
+			;	utils:throw_string('<reports> tag not found'))).
 
 
-load_request_rdf(Rdf_Tmp_File_Path) :-
+load_request_rdf(Rdf_Tmp_File_Path, G) :-
+	rdf_create_bnode(G),
 	rdf_load(Rdf_Tmp_File_Path, [graph(G), anon_prefix(bn)]),
 	findall(_, (rdf(S,P,O),writeq(('raw_rdf:',S,P,O)),nl),_).
 
@@ -128,11 +127,11 @@ process_rdf_request :-
 process_xml_request(File_Name, Dom) :-
 	(process_request_car:process(File_Name, Dom);
 	(process_request_loan:process(File_Name, Dom);
-	(process_request_ledger:process(File_Name, Dom);
+	(process_request_ledger:process(File_Name, Dom)
 	%(process_request_livestock:process(File_Name, Dom);
 	%(process_request_investment:process(File_Name, Dom);
 	%(process_request_depreciation_old:process(File_Name, Dom)
-	))))).
+	))).
 
 
 get_requested_output_type(Options2, Output) :-

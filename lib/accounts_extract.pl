@@ -1,6 +1,6 @@
 :- module(_, []).
 
-:- use_module('files', []).
+:- use_module(library(xbrl/files), []).
 :- use_module(library(http/http_dispatch), [http_safe_file/2]).
 :- use_module(library(xpath)).
 

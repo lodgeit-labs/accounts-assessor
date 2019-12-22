@@ -1,16 +1,18 @@
 :- module(_, []).
+:- asserta(user:file_search_path(library, '../prolog_xbrl_public/xbrl/prolog')).
 :- use_module('report_page').
-:- use_module(library(xbrl/utils)).
+:- use_module(library(xbrl/utils), [find_thing_in_tree/4]).
 :- use_module('pacioli').
 :- use_module('accounts').
 :- use_module('ledger_report').
 :- use_module(library(rdet)).
+:- use_module(library(yall)).
 
 :- rdet(report/4).
 :- rdet(crosschecks_report/4).
 
-report(Sd, Reports, [/*Json_File_Info, */Html_File_Info], Json) :-
-	crosschecks_report(Sd.put(reports,Reports), Json),
+report(Sd, Json) :-
+	crosschecks_report(Sd, Json),
 	findall(
 		p([p([Check]), p([Evaluation]), p([Status])]),
 		member([Check, Evaluation, Status], Json.results),
@@ -18,7 +20,7 @@ report(Sd, Reports, [/*Json_File_Info, */Html_File_Info], Json) :-
 	/*dict_json_text(Json, Json_Text),
 	report_item('crosschecks.json', Json_Text, Json_Url),
 	report_entry('crosschecks.json', Json_Url, crosschecks_json, Json_File_Info),*/
-	report_page:report_page('crosschecks', Html, 'crosschecks.html', 'crosschecks_html', Html_File_Info).
+	report_page:report_page('crosschecks', Html, 'crosschecks.html', 'crosschecks_html').
 
 crosschecks_report(Sd, Json) :-
 	Crosschecks = [
@@ -82,8 +84,8 @@ evaluate_equality(Sd, E, [Check, Evaluation, Status], Error) :-
 	),
 	term_string(A, A_Str),
 	term_string(B, B_Str),
-	dict_json_text(A2, A2_Str),
-	dict_json_text(B2, B2_Str),
+	utils:dict_json_text(A2, A2_Str),
+	utils:dict_json_text(B2, B2_Str),
 	format(
 	       string(Check),
 	       '~w ~w ~w',
@@ -95,7 +97,7 @@ evaluate_equality(Sd, E, [Check, Evaluation, Status], Error) :-
 	
 
 crosscheck_compare(A, B) :-
-	vecs_are_almost_equal(A, B).
+	pacioli:vecs_are_almost_equal(A, B).
 	
 
 evaluate(Sd, Term, Value) :-
@@ -108,17 +110,17 @@ evaluate(Sd, Term, Value) :-
 	).
 
 evaluate2(Sd, report_value(Key), Values_List) :-
-	path_get_dict(Key, Sd, Values_List).
+	utils:path_get_dict(Key, Sd, Values_List).
 		
 /* get vector of values in normal side, of an account, as provided by tree of entry(..) terms. Return [] if not found. */
 evaluate2(Sd, account_balance(Report_Id, Role), Values_List) :-
-	path_get_dict(Report_Id, Sd, Report),
+	utils:path_get_dict(Report_Id, Sd, Report),
 	(
 		accounts_report_entry_by_account_role(Sd, Report, Role, Entry)
 	->
 		(
-			entry_balance(Entry, Balance),
-			entry_account_id(Entry, Account_Id),
+			ledger_report:entry_balance(Entry, Balance),
+			ledger_report:entry_account_id(Entry, Account_Id),
 			vector_of_coords_to_vector_of_values(Sd, Account_Id, Balance, Values_List)
 		)
 	;
@@ -130,10 +132,10 @@ accounts_report_entry_by_account_role(Sd, Report, Role, Entry) :-
 	accounts_report_entry_by_account_id(Report, Id, Entry).
 
 accounts_report_entry_by_account_id(Report, Id, Entry) :-
-	utils:find_thing_in_tree(
+	find_thing_in_tree(
 			   Report,
 			   [Entry1]>>(ledger_report:entry_account_id(Entry1, Id)),
-			   [Entry2, Child]>>(ledger_report:entry_child_sheet_entries(Entry2, Children), member(Child, Children)),
+			   [Entry2, Child]>>(entry_child_sheet_entries(Entry2, Children), member(Child, Children)),
 			   Entry).
 	
 	

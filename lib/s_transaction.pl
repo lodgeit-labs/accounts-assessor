@@ -8,8 +8,8 @@
 		s_transactions_up_to/3,
 		s_transaction_to_dict/2
 ]).
-
-:- use_module('doc', [doc/3]).
+:- asserta(user:file_search_path(library, '../prolog_xbrl_public/xbrl/prolog')).
+:- use_module(library(xbrl/doc), [doc/3]).
 :- use_module('days', []).
 :- use_module(library(xbrl/utils), []).
 :- use_module(library(record)).
@@ -131,8 +131,8 @@ infer_exchanged_units_count(Static_Data, S_Transaction, NS_Transaction) :-
 	s_transaction_account_id(S_Transaction, Unexchanged_Account_Id),
 	s_transaction_account_id(NS_Transaction, Unexchanged_Account_Id),
 	% infer the count by money debit/credit and exchange rate
-	vec_change_bases(Exchange_Rates, Transaction_Date, Goods_Bases, Vector_Bank, Vector_Exchanged),
-	vec_inverse(Vector_Exchanged, Vector_Exchanged_Inverted),
+	exchange:vec_change_bases(Exchange_Rates, Transaction_Date, Goods_Bases, Vector_Bank, Vector_Exchanged),
+	pacioli:vec_inverse(Vector_Exchanged, Vector_Exchanged_Inverted),
 	s_transaction_exchanged(NS_Transaction, vector(Vector_Exchanged_Inverted)).
 
 /* used on raw s_transaction during prepreprocessing */

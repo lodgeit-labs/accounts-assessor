@@ -51,7 +51,7 @@
 :- use_module('pricing', [
 		add_bought_items/4, 
 		find_items_to_sell/8]).
-:- use_module('doc', [doc/3]).
+:- use_module(library(xbrl/doc), [doc/3]).
 :- use_module('s_transaction', [
 		s_transaction_day/2,
 		s_transaction_type_id/2,

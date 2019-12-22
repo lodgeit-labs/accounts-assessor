@@ -32,10 +32,10 @@ see doc/investment and dropbox Develop/videos/ledger
 		vec_add/3]).
 :- use_module('transactions', [
 		transactions_by_account/2]).
-:- use_module('xml', [
+:- use_module(library(xbrl/files), [
 		validate_xml/3
 ]).
-:- use_module('files', [
+:- use_module(library(xbrl/files), [
 		absolute_tmp_path/2
 ]).
 :- use_module('action_verbs', []).

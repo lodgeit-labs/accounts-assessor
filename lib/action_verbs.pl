@@ -6,7 +6,7 @@
 :- use_module(library(xpath)).
 
 :- use_module(library(xbrl/utils), []).
-:- use_module('doc', []).
+:- use_module(library(xbrl/doc), []).
 
 extract_action_verbs_from_bs_request(Dom) :-
 	(

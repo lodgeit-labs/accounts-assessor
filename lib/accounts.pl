@@ -1,10 +1,4 @@
-% ===================================================================
-% Project:   LodgeiT
-% Module:    accounts.pl
-% Date:      2019-06-02
-% ===================================================================
-
-:- module(accounts, [
+:- module(_, [
 		/*The public api.*/
 		/*The rest of the codebase should never deal with account terms directly, only handle them by id or role, so i am leaving out the "_id" where possible. 
 		All these predicates take and return id's or roles, and require that Accounts is passed to them as first argument*/
@@ -28,10 +22,10 @@
 		/*you don't need this*/
 		account_term_by_role/3,
 		write_accounts_json_report/1]).
-
+:- asserta(user:file_search_path(library, '../prolog_xbrl_public/xbrl/prolog')).
 :- use_module(library(xbrl/utils), [inner_xml/3, trim_atom/2,pretty_term_string/2, throw_string/1, is_url/1]).
-:- use_module('files', [server_public_url/1, absolute_tmp_path/2, write_tmp_json_file/2]).
-:- use_module('doc', []).
+:- use_module(library(xbrl/files), [server_public_url/1, absolute_tmp_path/2, write_tmp_json_file/2]).
+:- use_module(library(xbrl/doc), []).
 
 :- use_module(library(http/http_client)).
 :- use_module(library(record)).

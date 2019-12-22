@@ -37,7 +37,7 @@
 :- use_module('exchange', [
 		vec_change_bases/5
 ]).
-:- use_module('doc', []).
+:- use_module(library(xbrl/doc), []).
 
 :- use_module(library(rdet)).
 
@@ -73,8 +73,7 @@ process_ledger(
 ) :-
 
 	s_transactions_up_to(End_Date, S_Transactions0, S_Transactions),
-	pretty_term_string(Accounts_In, Message3),
-	doc:add_comment_stringize('Exchange rates extracted', Message1b),
+	doc:add_comment_stringize('Exchange rates extracted', Exchange_Rates0),
 	doc:add_comment_stringize('Accounts extracted',Accounts_In),
 
 	(	Cost_Or_Market = cost
@@ -129,7 +128,7 @@ process_ledger(
 			Report_Currency = []
 		)
 	->
-		Warnings1 = []
+		true
 	;
 		(	term_string(trial_balance(Trial_Balance_Section), Tb_Str),
 			doc:add_alert('SYSTEM_WARNING', Tb_Str))
@@ -206,11 +205,11 @@ gather_ledger_warnings(S_Transactions, Start_Date, End_Date, Warnings) :-
 	;
 		Warnings = []
 	).
-	
-gather_ledger_errors(Debug, Errors) :-
+
+gather_ledger_errors(Debug) :-
 	(	(last(Debug, Last),	Last \== 'done.')
 	->	doc:add_alert('ERROR', Last)
-	;	Errors = []).
+	;	true).
 
 filter_out_market_values(S_Transactions, Exchange_Rates0, Exchange_Rates) :-
 	traded_units(S_Transactions, Units),

@@ -1,9 +1,4 @@
-:- module(xbrl_contexts, [
-		print_contexts/1,
-		context_id_base/3,
-		ensure_context_exists/6,
-		context_arg0_period/2
-]).
+:- module(_, []).
 
 :- use_module(days, [format_date/2]).
 :- use_module(library(record)).
@@ -29,8 +24,6 @@ ensure_context_exists(Short_Id, Value, Context_Info, Contexts_In, Contexts_Out, 
 	update_dimension_value(Scenario_In, Period, Value, Scenario),
 	atomic_list_concat([Id_Base, '-', Short_Id], Suggested_Context_Id),
 	find_or_add_context(Contexts_In, Context, Suggested_Context_Id, Contexts_Out).
-	%context_id(Context, I),
-	%writeln(('so:',I)).
 
 	
 update_dimension_value('', _, _, '').
@@ -58,7 +51,6 @@ update_point(Point_In, Period, Value, Point_Out) :-
 	;
 		Period_Suffix = '_Instant'
 	),
-
 	atomic_list_concat([Dimension_Id_Base, Period_Suffix], Dimension_Id),
 	atomic_list_concat([Element_Id_Base, Period_Suffix], Element_Id).
 
@@ -102,59 +94,53 @@ context_id_base(Period_Type, Year, Base) :-
 	atomic_list_concat([Period_Type, '-', Year], Base).
 
 	
-print_contexts(Contexts) :-
-	maplist(print_context, Contexts).
+print_contexts(Contexts, Xml) :-
+	maplist(print_context, Contexts, Xml).
 
-print_context(Context) :-
-	print_context2(Context).
-	
-print_context2(context(Id, Period, Entity, Scenario)) :-
-	write('<xbrli:context id="'), write(Id), writeln('">'),
-	print_period(Period),
-	print_entity(Entity),
-	print_scenario(Scenario),
-	writeln('</xbrli:context>').
+print_context(
+	context(Id, Period, Entity, Scenario),
+	element('xbrli:context', [id=sane_id(Id)], [Xml1, Xml2, Xml3]))
+:-
+	print_period(Period,Xml1),
+	print_entity(Entity,Xml2),
+	print_scenario(Scenario,Xml3).
 
-print_period((Start, End)) :-
+print_period(
+	(Start, End),
+	element('xbrli:period', [], [
+		element('xbrli:startDate', [], [Start_Str]),
+		element('xbrli:endDate', [], [End_Str])]))
+:-
 	format_date(Start, Start_Str),
 	format_date(End, End_Str),
-	writeln('\t<xbrli:period>'),
-	write('\t\t<xbrli:startDate>'), write(Start_Str),	writeln('</xbrli:startDate>'),
-	write('\t\t<xbrli:endDate>'), write(End_Str),	writeln('</xbrli:endDate>'),
-	writeln('\t</xbrli:period>'),!.
+	!.
 
-print_period(Date) :-
-	format_date(Date, Date_Str),
-	writeln('\t<xbrli:period>'),
-	write('\t\t<xbrli:instant>'), 
-	write(Date_Str),
-	writeln('</xbrli:instant>'),
-	writeln('\t</xbrli:period>').
-	
-print_entity(entity(Identifier, Segment)) :-
-    writeln('\t<xbrli:entity>'),
-    write('\t\t'),
-    writeln(Identifier),
-    print_segment(Segment),
-    writeln('\t</xbrli:entity>').
-    
-print_segment('').
+print_period(
+	Date,
+	element('xbrli:period', [], [
+		element('xbrli:instant', [], [Date_Str])]))
+:-
+	format_date(Date, Date_Str).
 
-print_segment([dimension_value(dimension_reference(Id, Element_Name), Value)]) :-
-	writeln('\t\t<xbrli:segment>'),
-	write('\t\t\t<xbrldi:typedMember dimension="'), write(Id), writeln('">'),
-    write('\t\t\t<'), write(Element_Name), write('>'), write(Value), write('</'), write(Element_Name), writeln('>'), 
-	writeln('\t\t\t</xbrldi:typedMember>'),
-	writeln('\t\t</xbrli:segment>').
+print_entity(
+	entity(Identifier, Segment),
+	element('xbrli:entity', [], [Identifier, Segment_Xml]))
+:-
+    print_segment(Segment, Segment_Xml).
 
-print_scenario('').
+print_segment(X, Y) :-
+	print_segment_or_scenario('xbrli:segment', X, Y).
+print_scenario(X, Y) :-
+	print_segment_or_scenario('xbrli:scenario', X, Y).
 
-print_scenario([dimension_value(dimension_reference(Id, Element_Name), Value)]) :-
-	writeln('\t\t<xbrli:scenario>'),
-	write('\t\t\t<xbrldi:typedMember dimension="'), write(Id), writeln('">'),
-    write('\t\t\t<'), write(Element_Name), write('>'), write(Value), write('</'), write(Element_Name), writeln('>'), 
-	writeln('\t\t\t</xbrldi:typedMember>'),
-	writeln('\t\t</xbrli:scenario>').
+print_segment_or_scenario(_, '', []).
+
+print_segment_or_scenario(
+	Segment_Or_Scenario,
+	[dimension_value(dimension_reference(Id, Element_Name), Value)],
+	element(Segment_Or_Scenario, [], [
+		element('xbrldi:typedMember', [dimension=sane_id(Id)], [
+			element(Element_Name, [], [Value])])])).
 
 /*
 With our Ledger solution, we want to be able to have a consolidated entity where the various entities that make up the consolidated entity have their own aspects - i.e. instead of Geo Area Aspect, have Sub Entity Aspect

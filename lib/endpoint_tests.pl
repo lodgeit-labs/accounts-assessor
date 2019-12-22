@@ -20,12 +20,12 @@ Note that the http server is spawned in this process. This should change in futu
 :- use_module(library(http/json)).
 :- use_module(library(xpath)).
 :- use_module(library(readutil)).
-:- use_module('files').
+:- use_module(library(xbrl/files), []).
 :- use_module('prolog_server', []).
 :- use_module('compare_xml').
 :- asserta(user:file_search_path(library, '../prolog_xbrl_public/xbrl/prolog')).
 :- use_module(library(xbrl/utils), []).
-:- use_module('xml').
+:- use_module(library(xbrl/files)).
 
 :- multifile
 	prolog:message//1.
@@ -416,7 +416,7 @@ check_output_schema(Endpoint_Type, Key, Response_XML_Path) :-
 	->
 		(
 			absolute_file_name(my_schemas(Schema_Relative_Path), Schema_Absolute_Path, []),
-			validate_xml(Response_XML_Path, Schema_Absolute_Path, Schema_Errors),
+			utils:validate_xml(Response_XML_Path, Schema_Absolute_Path, Schema_Errors),
 			(
 				Schema_Errors = []
 			->

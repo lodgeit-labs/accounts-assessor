@@ -23,7 +23,7 @@
 	parse_date/2
 ]).
 :- use_module(library(semweb/rdf11)).
-:- use_module('doc', []).
+:- use_module(library(xbrl/doc), []).
 :- use_module('ledger_report', [
 	balance_by_account/9
 ]).
@@ -35,7 +35,7 @@
 
 :- use_module(library(rdet)).
 
-:- ['livestock_accounts', 'livestock_average_cost', 'livestock_crosscheck', 'livestock_misc', 'livestock_adjustment_transactions', 'livestock_extract'].
+:- ['livestock_accounts', 'livestock_average_cost'/*, 'livestock_crosscheck'*/, 'livestock_misc', 'livestock_adjustment_transactions', 'livestock_extract'].
 
 :- use_module('bank_statement', []).
 

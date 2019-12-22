@@ -20,7 +20,7 @@
 		replace_nonalphanum_chars_with_underscore/2,
 		capitalize_atom/2]).
 
-:- use_module('doc', [doc/3]).
+:- use_module(library(xbrl/doc), [doc/3]).
 
 /*	
 Take the output of find_or_add_required_accounts and filter out existing accounts by role. 

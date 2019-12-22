@@ -18,7 +18,7 @@
 ]).
 :- asserta(user:file_search_path(library, '../prolog_xbrl_public/xbrl/prolog')).
 :- use_module(library(xbrl/utils), [throw_string/1]).
-:- use_module('doc', []).
+:- use_module(library(xbrl/doc), []).
 
 % -------------------------------------------------------------------
 % The purpose of the following program is to define modular dates, a generalization of

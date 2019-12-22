@@ -12,7 +12,7 @@
 		balance/5,
 		trial_balance_between/8, 
 		profitandloss_between/2, 
-		bs_and_pl_entries/8,
+		/*bs_and_pl_entries/6,*/
 		net_activity_by_account/4,
 		entry_balance/2,
 		entry_account_id/2,
@@ -23,7 +23,7 @@
 :- use_module(library(record)).
 
 :- rdet(profitandloss_between/2).
-:- rdet(bs_and_pl_entries/8).
+/*:- rdet(bs_and_pl_entries/6).*/
 :- rdet(maybe_balance_lines/5).
 :- rdet(activity_entry/3).
 :- rdet(trial_balance_between/8).
@@ -294,11 +294,11 @@ activity_entry(Static_Data, Account_Id, Entry) :-
 	Entry = entry(Account_Id, Net_Activity, Child_Sheet_Entries, Transactions_Count).
 
 
-/* balance sheet and profit&loss entries*/
-bs_and_pl_entries(Accounts, Report_Currency, Context, Balance_Sheet_Entries, ProftAndLoss_Entries, Used_Units_Out, Lines2, Lines3) :-
-	fact_output:format_report_entries(xbrl, 0, Accounts, 0, Report_Currency, Context, Balance_Sheet_Entries, [], Used_Units, [], Lines3),
-	fact_output:format_report_entries(xbrl, 0, Accounts, 0, Report_Currency, Context, ProftAndLoss_Entries, Used_Units, Used_Units_Out, [], Lines2).
-
+/* balance sheet and profit&loss entries*//*
+bs_and_pl_entries(Accounts, Report_Currency, Context, Balance_Sheet_Entries, ProftAndLoss_Entries, [Lines2, Lines3]) :-
+	fact_output:format_report_entries(xbrl, 0, Accounts, 0, Report_Currency, Context, Balance_Sheet_Entries, Lines3),
+	fact_output:format_report_entries(xbrl, 0, Accounts, 0, Report_Currency, Context, ProftAndLoss_Entries, Lines2).
+*/
 
 
 

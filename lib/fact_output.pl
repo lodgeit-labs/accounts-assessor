@@ -9,23 +9,17 @@
 :- rdet(format_balance/11).
 :- rdet(format_balances/11).
 :- rdet(pesseract_style_table_rows/4).
-:- rdet(format_report_entries/10).
+:- rdet(format_report_entries/8).
 
 
-format_report_entries(_, _, _, _, _, _, [], Used_Units_In, Used_Units_Out, []) :-
-	(Used_Units_In = Used_Units_Out, Lines_In = Lines_Out -> true ; throw('internal error 2')).
+format_report_entries(_, _, _, _, _, _, [], []).
 
-format_report_entries(Format, Max_Detail_Level, Accounts, Indent_Level, Report_Currency, Context, Entries, Used_Units_In, Used_Units_Out, [Xml0, Xml1, Xml2]) :-
+format_report_entries(Format, Max_Detail_Level, Accounts, Indent_Level, Report_Currency, Context, Entries, [Xml0, Xml1, Xml2]) :-
 	[entry(Name, Balances, Children, Transactions_Count)|Entries_Tail] = Entries,
-	(
-		/* does the account have a detail level and is it greater than Max_Detail_Level? */
+	(	/* does the account have a detail level and is it greater than Max_Detail_Level? */
 		(accounts:account_detail_level(Accounts, Name, Detail_Level), Detail_Level > Max_Detail_Level)
 	->
-		/* nothing to do */
-		(
-			Used_Units_In = Used_Units_Out, 
-			Lines_In = Lines_Out
-		)
+		true /* nothing to do */
 	;
 		(
 			accounts:account_normal_side(Accounts, Name, Normal_Side),
@@ -35,19 +29,17 @@ format_report_entries(Format, Max_Detail_Level, Accounts, Indent_Level, Report_C
 				(Balances = [],(Indent_Level = 0; Transactions_Count \= 0))
 			->
 				/* force-display it */
-				format_balance(Format, Indent_Level, Report_Currency, Context, Name, Normal_Side, [],
-					Used_Units_In, UsedUnitsIntermediate, Xml0)
+				format_balance(Format, Report_Currency, Context, Name, Normal_Side, [], Xml0)
 			;
 				/* if not, let the logic omit it entirely */
-				format_balances(Format, Indent_Level, Report_Currency, Context, Name, Normal_Side, Balances, 
-					Used_Units_In, UsedUnitsIntermediate, Xml0)
+				format_balances(Format, Report_Currency, Context, Name, Normal_Side, Balances, Xml0)
 			),
 
 			Level_New is Indent_Level + 1,
 			/*display child entries*/
-			format_report_entries(Format, Max_Detail_Level, Accounts, Level_New, Report_Currency, Context, Children, UsedUnitsIntermediate, UsedUnitsIntermediate2, Xml1),
+			format_report_entries(Format, Max_Detail_Level, Accounts, Level_New, Report_Currency, Context, Children, Xml1),
 			/*recurse on Entries_Tail*/
-			format_report_entries(Format, Max_Detail_Level, Accounts, Indent_Level, Report_Currency, Context, Entries_Tail, UsedUnitsIntermediate2, Used_Units_Out, Xml2)
+			format_report_entries(Format, Max_Detail_Level, Accounts, Indent_Level, Report_Currency, Context, Entries_Tail, Xml2)
 		)
 	),
 	!.
@@ -83,29 +75,27 @@ maybe_balance_lines(Accounts, Name, Report_Currency, Balances, Balance_Lines) :-
 		Balances = []
 	->
 		/* force-display it */
-		format_balance(html, 0, Report_Currency, '', Name, Normal_Side, Balances,
-			[], _, Balance_Lines)
+		format_balance(html, Report_Currency, '', Name, Normal_Side, Balances, Balance_Lines)
 	;
 		/* if not, let the logic omit it entirely */
-		format_balances(html, 0, Report_Currency, '', Name, Normal_Side, Balances, 
-			[], _, Balance_Lines)
+		format_balances(html, Report_Currency, '', Name, Normal_Side, Balances, Balance_Lines)
 	).
 			
-format_balances(_, _, _, _, _, _, [], Used_Units, Used_Units, []]).
+format_balances(_, _, _, _, _, [], []).
 
-format_balances(Format, Indent_Level, Report_Currency, Context, Name, Normal_Side, [Balance|Balances], Used_Units_In, Used_Units_Out, [XmlH|XmlT]) :-
-	format_balance(Format, Indent_Level, Report_Currency, Context, Name, Normal_Side, [Balance], Used_Units_In, UsedUnitsIntermediate, Lines_In, XmlH),
-	format_balances(Format, Indent_Level, Report_Currency, Context, Name, Normal_Side, Balances, UsedUnitsIntermediate, Used_Units_Out, XmlT).
+format_balances(Format,  Report_Currency, Context, Name, Normal_Side, [Balance|Balances], [XmlH|XmlT]) :-
+	format_balance(Format,  Report_Currency, Context, Name, Normal_Side, [Balance], XmlH),
+	format_balances(Format, Report_Currency, Context, Name, Normal_Side, Balances, XmlT).
 
-format_balance(Format, Indent_Level, Report_Currency_List, Context, Name, Normal_Side, [], Used_Units_In, Used_Units_Out, Xml) :-
+format_balance(Format, Report_Currency_List, Context, Name, Normal_Side, [], Xml) :-
+	% just for displaying zero balance when the balance vector is []), % fixme, change to ''
 	(	[Report_Currency] = Report_Currency_List
 	->	true
-	;	Report_Currency = 'AUD' % just for displaying zero balance),
-	format_balance(Format, Indent_Level, _, Context, Name, Normal_Side, [coord(Report_Currency, 0)], Used_Units_In, Used_Units_Out, Xml).
+	;	Report_Currency = 'AUD'),
+	format_balance(Format, _, Context, Name, Normal_Side, [coord(Report_Currency, 0)], Xml).
    
-format_balance(Format, Indent_Level, Report_Currency_List, Context, Name, Normal_Side, Coord, Units_In, Units_Out, Line) :-
+format_balance(Format, Report_Currency_List, Context, Name, Normal_Side, Coord, Line) :-
 	[coord(Unit, Debit)] = Coord,
-	sane_unit_id(Units_In, Units_Out, Unit, Unit_Xml_Id),
 	(	Normal_Side = credit
 	->	Balance0 is -Debit
 	;	Balance0 is Debit),
@@ -113,22 +103,24 @@ format_balance(Format, Indent_Level, Report_Currency_List, Context, Name, Normal
 	(	Balance1 =:= 0
 	->	Balance = 0 % get rid of negative zero
 	;	Balance = Balance0),
-	%utils:get_indentation(Indent_Level, Indentation),
 	(	Format = xbrl
 	->	(
 			format(string(Amount), '~2:f', [Balance]),
-			Line = element(basic, [
+
+			atomic_list_concat([basic, Name], Fact_Name), % fixme
+			Line = element(Fact_Name,
+			[
 				contextRef=Context,
-				unitRef=sane_id(Unit_Ref),
+				unitRef=sane_id(Unit),
 				decimals="INF"],
-				[Balance])
+				[Amount]),
+			doc:request_assert_property(l:has_used_unit, Unit, xml)
 		)
 	;
 		(
-			utils:round_term(Unit, Rounded_Unit),
 			(	Report_Currency_List = [Unit]
 			->	Printed_Unit = ''
-			;	Printed_Unit = Rounded_Unit),
+			;	utils:round_term(Unit, Printed_Unit)),
 			format(string(Line), '~2:f~w\n', [Balance, Printed_Unit])
 		)
 	).

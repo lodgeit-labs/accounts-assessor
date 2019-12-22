@@ -6,16 +6,13 @@
 :- use_module('depreciation_computation_old', [
 		written_down_value/5, 
 		depreciation_between_two_dates/6]).
-:- use_module('files', [
+:- use_module(library(xbrl/files), [
 		absolute_tmp_path/2
 ]).
-:- use_module('xml', [
+:- use_module(library(xbrl/files), [
 		validate_xml/3
 ]).
 
-% -------------------------------------------------------------------
-% process_xml_depreciation_request/2
-% -------------------------------------------------------------------
 
 process(File_Name, DOM, Reports) :-
 	(	xpath(DOM, //depreciation_request_written_down_value, _)

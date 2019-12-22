@@ -1,15 +1,5 @@
-% ===================================================================
-% Project:   LodgeiT
-% Module:    Prolog Server
-% Author:    Schwitter
-% Date:      2019-06-08
-% ===================================================================
-
-:- module(prolog_server, [run_simple_server/0, run_daemon/0]).
-
-%--------------------------------------------------------------------
-% Modules
-%--------------------------------------------------------------------
+:- module(_, [run_simple_server/0, run_daemon/0]).
+:- asserta(user:file_search_path(library, '../prolog_xbrl_public/xbrl/prolog')).
 :- use_module(library(xpath)).
 :- use_module(library(option)).
 :- use_module(library(http/json)).
@@ -23,8 +13,8 @@
 :- use_module(library(http/html_write)).
 :- use_module(library(http/http_files)).
 :- use_module(library(http/http_error)). 
-
-:- use_module('files', []).
+:- use_module(library(http/http_unix_daemon)).
+:- use_module(library(xbrl/files), []).
 :- use_module('residency', []).
 :- use_module('sbe', []).
 :- use_module('process_request', []).
@@ -60,7 +50,6 @@ run_simple_server :-
 % -------------------------------------------------------------------
 
 run_daemon :-
-   use_module(library(http/http_unix_daemon)),
    http_daemon.
    
 % -------------------------------------------------------------------
@@ -103,7 +92,7 @@ reply_html_page(
 		
 upload(Request) :-
 	multipart_post_request(Request), !,
-	bump_tmp_directory_id, /*assert a unique thread-local my_tmp for each request*/
+	files:bump_tmp_directory_id, /*assert a unique thread-local my_tmp for each request*/
 	http_read_data(Request, Parts, [ on_filename(files:save_file) ]),
 	Options = Parts,
 	catch(
@@ -135,7 +124,7 @@ tests(Url, Request) :-
 	process_request(Url, Test_File_Path, Request, []).
 */
 copy_test_file_into_tmp(/*+*/Path, /*+*/Url) :-
-	tmp_file_path_from_url(Url, Tmp_Request_File_Path),
+	files:tmp_file_path_from_url(Url, Tmp_Request_File_Path),
 	copy_file(Path, Tmp_Request_File_Path).
 
 % -------------------------------------------------------------------
@@ -171,16 +160,10 @@ process_request(Request, Options0, Parts) :-
 	),
 	
 	http_public_host_url(Request, Server_Public_Url),
-	set_server_public_url(Server_Public_Url),
-	get_requested_output_type(Options2, Requested_Output_Type),
-
-	(
-		Requested_Output_Type = xml
-	->
-		format('Content-type: text/xml~n~n')
-	;
-		format('Content-type: application/json~n~n')
-	),
-
-	process_request_http(Options2, Parts).
+	files:set_server_public_url(Server_Public_Url),
+	process_request:get_requested_output_type(Options2, Requested_Output_Type),
+	(	Requested_Output_Type = xml
+	->	format('Content-type: text/xml~n~n')
+	;	format('Content-type: application/json~n~n')),
+	process_request:process_request_http(Options2, Parts).
 

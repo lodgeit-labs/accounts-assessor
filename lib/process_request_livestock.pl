@@ -8,13 +8,13 @@ standalone livestock calculator
 	pretty_term_string/2]).
 :- use_module('report_page').
 :- use_module('tables').
-:- use_module('files', [
+:- use_module(library(xbrl/files), [
 	absolute_tmp_path/2
 ]).
-:- use_module('xml', [
+:- use_module(library(xbrl/files), [
 	validate_xml/3
 ]).
-:- use_module('doc', []).
+:- use_module(library(xbrl/doc), []).
 
 :- ['livestock_calculator'].
 

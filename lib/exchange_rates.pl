@@ -10,7 +10,7 @@
 		is_exchangeable_into_request_bases/4
 ]).
 
-:- use_module('files').
+:- use_module(library(xbrl/files), []).
 :- use_module('days', [
 		gregorian_date/2
 ]).

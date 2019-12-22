@@ -25,11 +25,11 @@
 :- use_module('s_transaction', []).
 :- use_module('ledger', []).
 :- use_module('livestock', []).
-:- use_module('files', [
+:- use_module(library(xbrl/files), [
 		absolute_tmp_path/2,
 		request_tmp_dir/1,
 		server_public_url/1]).
-:- use_module('xml', [
+:- use_module(library(xbrl/files), [
 		validate_xml/3
 ]).
 :- use_module('action_verbs', []).
@@ -37,8 +37,8 @@
 :- use_module('investment_report_2').
 :- use_module('crosschecks_report').
 :- use_module('invoices').
-:- use_module('xbrl_output', [create_instance/10]).
-:- use_module('doc', []).
+:- use_module('xbrl_output', []).
+:- use_module(library(xbrl/doc), []).
 :- use_module(library(xpath)).
 :- use_module(library(rdet)).
 :- use_module(library(xsd/validate)).
@@ -117,7 +117,7 @@ create_reports(Static_Data) :-
 	balance_entries(Static_Data, Static_Data_Historical, Entries),
 	dict_vars(Entries, [Balance_Sheet, ProfitAndLoss, Balance_Sheet2_Historical, ProfitAndLoss2_Historical, Trial_Balance]),
 	taxonomy_url_base,
-	create_instance(Xbrl, Static_Data, Static_Data.start_date, Static_Data.end_date, Static_Data.accounts, Static_Data.report_currency, Balance_Sheet, ProfitAndLoss, ProfitAndLoss2_Historical, Trial_Balance),
+	xbrl_output:create_instance(Xbrl, Static_Data, Static_Data.start_date, Static_Data.end_date, Static_Data.accounts, Static_Data.report_currency, Balance_Sheet, ProfitAndLoss, ProfitAndLoss2_Historical, Trial_Balance),
 	other_reports(Static_Data, Static_Data_Historical, Static_Data.outstanding, Balance_Sheet, ProfitAndLoss, Balance_Sheet2_Historical, ProfitAndLoss2_Historical, Trial_Balance),
 	doc:add_xml_report(xbrl_instance, xbrl_instance, [Xbrl]).
 
@@ -160,7 +160,7 @@ other_reports(Static_Data, Static_Data_Historical, Outstanding, Balance_Sheet, P
 		},
 		tb: Trial_Balance
 	},
-	crosschecks_report:report(Static_Data, Structured_Reports, Crosschecks_Report_Json),
+	crosschecks_report:report(Static_Data.put(reports, Structured_Reports), Crosschecks_Report_Json),
 	make_json_report(Structured_Reports.put(crosschecks, Crosschecks_Report_Json), reports_json).
 
 make_gl_viewer_report :-
@@ -170,19 +170,19 @@ make_gl_viewer_report :-
 	atomic_list_concat(['cp -r ', Viewer_Dir_Absolute, ' ', Tmp_Viewer_Dir_Absolute], Cmd),
 	shell(Cmd),
 	atomic_list_concat([Url, '/gl.html'], Url_With_Slash),
-	report_entry('GL viewer', Url_With_Slash, 'gl_html').
+	report_page:report_entry('GL viewer', Url_With_Slash, 'gl_html').
 	
 make_json_report(Dict, Fn) :-
 	Title = Key, Fn = Key,
 	dict_json_text(Dict, Json_Text),
 	atomic_list_concat([Fn, '.json'], Fn2),
-	report_item(Fn2, Json_Text, Report_File_URL),
-	report_entry(Title, Report_File_URL, Key).
+	report_page:report_item(Fn2, Json_Text, Report_File_URL),
+	report_page:report_entry(Title, Report_File_URL, Key).
 
 
 investment_reports(Static_Data, Outstanding, Ir) :-
 	catch_maybe_with_backtrace(
-		process_xml_ledger_request:investment_reports2(Static_Data, Outstanding, Alerts, Ir),
+		investment_reports2(Static_Data, Outstanding, Ir),
 		Err,
 		(
 			term_string(Err, Err_Str),
@@ -192,7 +192,7 @@ investment_reports(Static_Data, Outstanding, Ir) :-
 		)
 	).
 
-investment_reports2(Static_Data, Outstanding, Alerts, Ir) :-
+investment_reports2(Static_Data, Outstanding, Ir) :-
 	(Static_Data.report_currency = [_] -> true ; throw_string('report currency expected')),
 	/*get_dict(start_date, Static_Data, Report_Start),
 	add_days(Report_Start, -1, Before_Start),*/

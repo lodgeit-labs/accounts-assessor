@@ -4,7 +4,7 @@
 :- asserta(user:file_search_path(library, '../prolog_xbrl_public/xbrl/prolog')).
 :- use_module(library(xbrl/utils)).
 :- use_module(event_calculus, [depreciationInInterval/13]).
-:- use_module('doc', [doc/3]).
+:- use_module(library(xbrl/doc), [doc/3]).
 
 begin_accounting_date(date(1990,1,1)).
 

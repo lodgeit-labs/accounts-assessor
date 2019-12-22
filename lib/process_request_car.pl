@@ -4,10 +4,10 @@
 :- use_module(library(http/json)).
 :- use_module(library(http/http_open)).
 
-:- use_module('files', [
+:- use_module(library(xbrl/files), [
 		absolute_tmp_path/2
 ]).
-:- use_module('xml', [
+:- use_module(library(xbrl/utils), [
 		validate_xml/3
 ]).
 
@@ -52,12 +52,6 @@ process_ner_api_results(Response_JSON,Result_XML) :-
 
 process(File_Name, DOM) :-
 	xpath(DOM, //reports/car_request, element(_,_,[Request_Text])),
-
-	Reports = _{
-		files: [],
-		errors: Schema_Errors,
-		warnings: []
-	},
 
 	absolute_tmp_path(File_Name, Instance_File),
 	absolute_file_name(my_schemas('bases/Reports.xsd'), Schema_File, []),
