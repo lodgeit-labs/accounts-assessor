@@ -1,9 +1,3 @@
-:- module(_, []).
-:- use_module('detail_accounts', []).
-:- use_module('xbrl_contexts', []).
-:- use_module('fact_output', []).
-:- use_module(library(xbrl/structured_xml), []).
-:- use_module(library(record)).
 
 
 :- record section(context, header, entries, footer).
@@ -27,7 +21,7 @@ create_instance(Xbrl, Static_Data, Start_Date, End_Date, Accounts, Report_Curren
 		]), Contexts0, Contexts1, Dimensional_Facts
 	),
 	print_used_units(Units_Xml),
-	xbrl_contexts:print_contexts(Contexts1, Contexts_Xml).
+	print_contexts(Contexts1, Contexts_Xml).
 
 fact_lines(_, _, [], []).
 
@@ -37,7 +31,7 @@ fact_lines(Accounts, Report_Currency, [Section|Sections], [Lines_H|Lines_T]) :-
 	section_footer(Section, Footer),
 	section_context(Section, Context),
 	section_entries(Section, Entries),
-	fact_output:format_report_entries(xbrl, 0, Accounts, 0, Report_Currency, 
+	format_report_entries(xbrl, 0, Accounts, 0, Report_Currency,
 		Context, Entries, Fact_Lines),
 	fact_lines(Accounts, Report_Currency, Sections, Lines_T).
 
@@ -50,33 +44,33 @@ maybe_print_dimensional_facts(Static_Data,Contexts_In, Contexts_Out, Xml) :-
 
 print_dimensional_facts(Static_Data, Results0, Results3, [Xml1, Xml2, Xml3]) :-
  	dict_vars(Static_Data, [Instant_Context_Id_Base, Duration_Context_Id_Base]),
-	detail_accounts:print_banks(Static_Data, Instant_Context_Id_Base, Results0, Results1, Xml1),
-	detail_accounts:print_forex(Static_Data, Duration_Context_Id_Base, Results1, Results2, Xml2),
-	detail_accounts:print_trading(Static_Data, Results2, Results3, Xml3).
+	print_banks(Static_Data, Instant_Context_Id_Base, Results0, Results1, Xml1),
+	print_forex(Static_Data, Duration_Context_Id_Base, Results1, Results2, Xml2),
+	print_trading(Static_Data, Results2, Results3, Xml3).
 
 build_base_contexts(Start_Date, End_Date, Entity_Identifier, Instant_Context_Id_Base, Duration_Context_Id_Base, Base_Contexts) :-
 	Entity = entity(Entity_Identifier, ''),
 	/* build up two basic non-dimensional contexts used for simple xbrl facts */
 	date(Context_Id_Year,_,_) = End_Date,
-	xbrl_contexts:context_id_base('I', Context_Id_Year, Instant_Context_Id_Base),
-	xbrl_contexts:context_id_base('D', Context_Id_Year, Duration_Context_Id_Base),
+	context_id_base('I', Context_Id_Year, Instant_Context_Id_Base),
+	context_id_base('D', Context_Id_Year, Duration_Context_Id_Base),
 	Base_Contexts = [
 		context(Instant_Context_Id_Base, End_Date, Entity, ''),
 		context(Duration_Context_Id_Base, (Start_Date, End_Date), Entity, '')
 	].
 
 print_used_units(Elements) :-
-	doc:request(R),
+	request(R),
 	findall(
 		Element,
 		(
-			doc:docm(R, l:has_used_unit, Unit, xml),
+			docm(R, l:has_used_unit, Unit, xml),
 			(print_used_unit(Unit, Element) -> true ; throw('internal error 3'))
 		),
 		Elements).
 
 print_used_unit(Unit, Element) :-
-	structured_xml:sane_id(Unit, Sane),
+	sane_id(Unit, Sane),
 	format(string(Id_Attr), "U-~w", [Sane]),
 	format(string(Measure), "iso4217:~w", [Sane]),
 	Element = element(
@@ -97,7 +91,7 @@ xbrl(
 		'xsi:schemaLocation'=Schema_Location],
 		Children),Children)
 :-
-	doc:request_has_property(l:taxonomy_url_base, Base),
+	request_has_property(l:taxonomy_url_base, Base),
 	atomics_to_string([Base,'basic.xsd'], Basic),
 	atomics_to_string([Base,'basic-formulas.xml'], Formulas),
 	atomics_to_string([Base,'basic-formulas-cross-checks.xml'], Formulas_Crosschecks),
@@ -110,7 +104,7 @@ xbrl(
 		  'http://www.xbrl.org/2003/xbrl-linkbase-2003-12-31.xsd',
 		   'http://xbrl.org/2006/xbrldi',
 		    'http://www.xbrl.org/2006/xbrldi-2006.xsd'], ' ', Schema_Location),
-	maplist(utils:add(Children), [
+	maplist(add(Children), [
 		element('link:schemaRef', [
 				'xlink:type'="simple",
 				'xlink:href'=Basic,

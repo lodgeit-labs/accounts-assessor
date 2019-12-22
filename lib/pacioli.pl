@@ -1,48 +1,3 @@
-% ===================================================================
-% Project:   LodgeiT
-% Module:    pacioli.pl
-% Date:      2019-06-02
-% ===================================================================
-
-:- module(pacioli, [
-		coord_unit/2,
-		vec_add/3,
-		vec_sum/2,
-		vec_equality/2,
-		vec_identity/1,
-		vec_inverse/2,
-		vec_reduce/2,
-		vec_sub/3,
-		vec_units/2,
-		number_coord/3,
-		number_vec/3,
-		value_multiply/3,
-		value_divide/3,
-		value_subtract/3,
-		value_convert/3,
-		debit_isomorphism/2,
-		vecs_are_almost_equal/2,
-		coord_is_almost_zero/1,
-		is_debit/1,
-	    coord_merge/3,
-	    coord_normal_side_value/3,
-	    vector_of_coords_to_vector_of_values/4,
-		split_vector_by_percent/4]).
-
-:- asserta(user:file_search_path(library, '../prolog_xbrl_public/xbrl/prolog')).
-:- use_module(library(xbrl/utils), [
-			semigroup_foldl/3,
-			floats_close_enough/2,
-			sort_into_dict/3,
-			sort_into_assoc/3
-]).
-
-:- use_module('accounts').
-
-:- use_module(library(clpq)).
-:- use_module(library(record)).
-:- use_module(library(http/json)).
-
 :- record coord(unit, debit).
 :- record value(unit, amount).
 
@@ -124,7 +79,7 @@ vec_add(As, Bs, Cs_Reduced) :-
 	/*paste the two vectors togetner*/
 	append(As, Bs, As_And_Bs),
 
-	sort_into_assoc(pacioli:coord_or_value_unit, As_And_Bs, Sorted),
+	sort_into_assoc(coord_or_value_unit, As_And_Bs, Sorted),
 	assoc_to_values(Sorted, Valueses),
 
 	findall(

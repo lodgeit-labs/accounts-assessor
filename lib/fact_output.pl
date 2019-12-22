@@ -1,10 +1,3 @@
-:- module(_, []).
-
-:- use_module('accounts').
-:- use_module(library(xbrl/utils)).
-
-:- use_module(library(rdet)).
-:- use_module(library(xbrl/structured_xml)).
 
 :- rdet(format_balance/11).
 :- rdet(format_balances/11).
@@ -17,12 +10,12 @@ format_report_entries(_, _, _, _, _, _, [], []).
 format_report_entries(Format, Max_Detail_Level, Accounts, Indent_Level, Report_Currency, Context, Entries, [Xml0, Xml1, Xml2]) :-
 	[entry(Name, Balances, Children, Transactions_Count)|Entries_Tail] = Entries,
 	(	/* does the account have a detail level and is it greater than Max_Detail_Level? */
-		(accounts:account_detail_level(Accounts, Name, Detail_Level), Detail_Level > Max_Detail_Level)
+		(account_detail_level(Accounts, Name, Detail_Level), Detail_Level > Max_Detail_Level)
 	->
 		true /* nothing to do */
 	;
 		(
-			accounts:account_normal_side(Accounts, Name, Normal_Side),
+			account_normal_side(Accounts, Name, Normal_Side),
 			
 			(
 				/* should we display an account with zero transactions? */
@@ -70,7 +63,7 @@ pesseract_style_table_rows(Accounts, Report_Currency, Entries, [Lines|Lines_Tail
 	pesseract_style_table_rows(Accounts, Report_Currency, Entries_Tail, Lines_Tail).
 			
 maybe_balance_lines(Accounts, Name, Report_Currency, Balances, Balance_Lines) :-
-	accounts:account_normal_side(Accounts, Name, Normal_Side),
+	account_normal_side(Accounts, Name, Normal_Side),
 	(
 		Balances = []
 	->
@@ -99,7 +92,7 @@ format_balance(Format, Report_Currency_List, Context, Name, Normal_Side, Coord, 
 	(	Normal_Side = credit
 	->	Balance0 is -Debit
 	;	Balance0 is Debit),
-	utils:round(Balance0, 2, Balance1),
+	round(Balance0, 2, Balance1),
 	(	Balance1 =:= 0
 	->	Balance = 0 % get rid of negative zero
 	;	Balance = Balance0),
@@ -114,13 +107,13 @@ format_balance(Format, Report_Currency_List, Context, Name, Normal_Side, Coord, 
 				unitRef=sane_id(Unit),
 				decimals="INF"],
 				[Amount]),
-			doc:request_assert_property(l:has_used_unit, Unit, xml)
+			request_assert_property(l:has_used_unit, Unit, xml)
 		)
 	;
 		(
 			(	Report_Currency_List = [Unit]
 			->	Printed_Unit = ''
-			;	utils:round_term(Unit, Printed_Unit)),
+			;	round_term(Unit, Printed_Unit)),
 			format(string(Line), '~2:f~w\n', [Balance, Printed_Unit])
 		)
 	).

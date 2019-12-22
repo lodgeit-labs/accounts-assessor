@@ -1,26 +1,3 @@
-:- module(system_accounts, [
-		traded_units/2,
-		generate_system_accounts/3, 
-		trading_account_ids/1,
-		bank_accounts/2]).
-:- use_module('action_verbs', []).
-:- use_module('accounts', [
-		account_term_by_role/3, 
-		account_exists/2,
-		account_role/2, 
-		account_id/2, 
-		account_parent/2,
-		account_detail_level/2]).
-:- use_module('livestock', []).
-:- use_module('s_transaction', [
-		s_transaction_account_id/2,
-		s_transaction_vector/2,
-		s_transaction_exchanged/2]).
-:- use_module(library(xbrl/utils), [
-		replace_nonalphanum_chars_with_underscore/2,
-		capitalize_atom/2]).
-
-:- use_module(library(xbrl/doc), [doc/3]).
 
 /*	
 Take the output of find_or_add_required_accounts and filter out existing accounts by role. 
@@ -65,7 +42,7 @@ find_or_add_required_accounts(S_Transactions, Accounts_In, Accounts_Out) :-
 	make_bank_accounts(Accounts_In, S_Transactions, Bank_Accounts),
 	flatten([Accounts_In, Bank_Accounts], Accounts2),
 	make_currency_movement_accounts(Accounts2, Bank_Accounts, Currency_Movement_Accounts),
-	livestock:make_livestock_accounts(Livestock_Accounts),
+	make_livestock_accounts(Livestock_Accounts),
 	ensure_gains_accounts_exist(Accounts2, S_Transactions, Gains_Accounts),
 	financial_investments(Accounts_In, S_Transactions, Financial_Investments_Accounts),
 	flatten([Missing_Stuff, Bank_Accounts, Currency_Movement_Accounts, Livestock_Accounts, Gains_Accounts, Financial_Investments_Accounts], Accounts_Out).
@@ -143,8 +120,8 @@ trading_account_ids(Ids) :-
 	findall(
 		A,
 		(
-			action_verbs:action_verb(Action_Verb),
-			doc:doc(Action_Verb, l:has_trading_account, A)
+			action_verb(Action_Verb),
+			doc(Action_Verb, l:has_trading_account, A)
 		),
 		Ids0
 	),

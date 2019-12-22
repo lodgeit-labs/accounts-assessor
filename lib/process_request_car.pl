@@ -4,13 +4,6 @@
 :- use_module(library(http/json)).
 :- use_module(library(http/http_open)).
 
-:- use_module(library(xbrl/files), [
-		absolute_tmp_path/2
-]).
-:- use_module(library(xbrl/utils), [
-		validate_xml/3
-]).
-
 :- dynamic(known_ner_response/2).
 
 
@@ -53,17 +46,17 @@ process_ner_api_results(Response_JSON,Result_XML) :-
 process(File_Name, DOM) :-
 	xpath(DOM, //reports/car_request, element(_,_,[Request_Text])),
 
-	absolute_tmp_path(File_Name, Instance_File),
+	lib:absolute_tmp_path(File_Name, Instance_File),
 	absolute_file_name(my_schemas('bases/Reports.xsd'), Schema_File, []),
-	validate_xml(Instance_File, Schema_File, Schema_Errors),
+	lib:validate_xml(Instance_File, Schema_File, Schema_Errors),
 	(
 		Schema_Errors = []
 	->
 		(
 			cached_ner_data(Request_Text,Response_JSON),
 			process_ner_api_results(Response_JSON,Result_XML),
-			doc:add_xml_result(Result_XML)
+			lib:add_xml_result(Result_XML)
 		)
 	;
-		maplist(doc:add_alert(error), Schema_Errors)
+		maplist(lib:add_alert(error), Schema_Errors)
 	).

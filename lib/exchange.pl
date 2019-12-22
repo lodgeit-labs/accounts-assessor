@@ -1,14 +1,3 @@
-% ===================================================================
-% Project:   LodgeiT
-% Module:    exchange.pl
-% Date:      2019-06-02
-% ===================================================================
-
-:- module(exchange, [vec_change_bases/5]).
-
-:- use_module(exchange_rates, [exchange_rate/5]).
-:- use_module(pacioli, [vec_add/3]).
-
 % -------------------------------------------------------------------
 % Exchanges the given coordinate, Amount, into the first unit from Bases for which an
 % exchange on the day Day is possible. If the source unit is not found in Bases, then Amount is left as is.

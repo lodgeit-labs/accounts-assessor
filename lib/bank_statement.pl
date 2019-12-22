@@ -1,74 +1,3 @@
-:- module(_, [
-		preprocess_s_transactions/6,
-		print_relevant_exchange_rates_comment/4,
-		fill_in_missing_units/6
-		]).
-
-:- use_module('pacioli',  [
-		coord_unit/2,
-		vec_inverse/2, 
-		vec_add/3, 
-		vec_sub/3, 
-		number_coord/3,
-		value_multiply/3,
-		value_divide/3,
-		is_debit/1,
-		coord_is_almost_zero/1]).
-:- use_module('exchange', [
-		vec_change_bases/5]).
-:- use_module('exchange_rates', [
-		exchange_rate/5, 
-		is_exchangeable_into_request_bases/4]).
-:- use_module('action_verbs', []).
-:- use_module('livestock', []).
-:- use_module('transactions', [
-		has_empty_vector/1,
-		transaction_day/2,
-		transaction_description/2,
-		transaction_account_id/2,
-		transaction_vector/2,
-		transaction_type/2,
-		make_transaction/5,
-		make_transaction2/5
-		]).
-:- use_module(library(xbrl/utils), [
-		pretty_term_string/2, 
-		inner_xml/3, 
-		write_tag/2, 
-		fields/2, 
-		field_nothrow/2, 
-		numeric_fields/2, 
-		throw_string/1]).
-:- use_module('accounts', [
-		account_by_role/3, 
-		account_in_set/3,
-		account_role_by_id/3,
-		account_exists/2]).
-:- use_module('days', [
-		format_date/2, 
-		parse_date/2,
-		add_days/3]).
-:- use_module('pricing', [
-		add_bought_items/4, 
-		find_items_to_sell/8]).
-:- use_module(library(xbrl/doc), [doc/3]).
-:- use_module('s_transaction', [
-		s_transaction_day/2,
-		s_transaction_type_id/2,
-		s_transaction_vector/2,
-		s_transaction_account_id/2,
-		s_transaction_exchanged/2,
-		sort_s_transactions/2,
-		s_transactions_up_to/3,
-		s_transaction_to_dict/2
-]).
-
-
-:- use_module(library(semweb/rdf11)).
-:- use_module(library(xpath)).
-:- use_module(library(rdet)).
-
-:- [trading].
 
 /*TODO add more rdet declarations here*/
 :- rdet(preprocess_s_transactions/6).
@@ -156,7 +85,7 @@ preprocess_s_transaction(Static_Data, S_Transaction, Transactions, Outstanding, 
 	s_transaction_type_id(S_Transaction, uri(Action_Verb)),
 	(Action_Verb = l:livestock_purchase;Action_Verb = l:livestock_sale),
 	!,
-	livestock:preprocess_livestock_buy_or_sell(Static_Data, S_Transaction, Transactions).
+	preprocess_livestock_buy_or_sell(Static_Data, S_Transaction, Transactions).
 
 preprocess_s_transaction(Static_Data, S_Transaction, Transactions, Outstanding_Before, Outstanding_After) :-
 	Transactions = [Ts1, Ts2, Ts3, Ts4],
@@ -167,12 +96,12 @@ preprocess_s_transaction(Static_Data, S_Transaction, Transactions, Outstanding_B
 	s_transaction_vector(S_Transaction, Vector_Ours),
 	s_transaction_day(S_Transaction, Transaction_Date),
 	Pricing_Method = lifo,
-	doc:doc(Action_Verb, l:has_id, Action_Verb_Id),
-	(doc:doc(Action_Verb, l:has_counteraccount, Exchanged_Account)->true;throw_string('action verb does not specify exchange account')),
-	(doc:doc(Action_Verb, l:has_trading_account, Trading_Account)->true;true),
+	doc(Action_Verb, l:has_id, Action_Verb_Id),
+	(doc(Action_Verb, l:has_counteraccount, Exchanged_Account)->true;throw_string('action verb does not specify exchange account')),
+	(doc(Action_Verb, l:has_trading_account, Trading_Account)->true;true),
 	Description = Action_Verb_Id,
 	affect_bank_account(Static_Data, S_Transaction, Description, Ts1),
-	pacioli:vector_unit(Vector_Ours, Bank_Account_Currency),
+	vector_unit(Vector_Ours, Bank_Account_Currency),
 	vec_change_bases(Exchange_Rates, Transaction_Date, Report_Currency, Vector_Ours, Converted_Vector_Ours),
 	(
 		Counteraccount_Vector = []
@@ -238,7 +167,7 @@ make_sell(Static_Data, Trading_Account, Pricing_Method, _Bank_Account_Currency, 
 	Exchanged_Account, Transaction_Date, Description,
 	Outstanding_In, Outstanding_Out, [Ts1, Ts2, Ts3]
 ) :-
-	pacioli:credit_vec(Goods_Unit,Goods_Positive,Goods_Vector),
+	credit_vec(Goods_Unit,Goods_Positive,Goods_Vector),
 	dict_vars(Static_Data, [Accounts]),
 	account_by_role(Accounts, Exchanged_Account/Goods_Unit, Exchanged_Account2),
 	bank_debit_to_unit_price(Vector_Ours, Goods_Positive, Sale_Unit_Price),
@@ -274,7 +203,7 @@ bank_debit_to_unit_price(Vector_Ours, Goods_Positive, value(Unit, Number2)) :-
 affect_bank_account(Static_Data, S_Transaction, Description0, [Ts0, Ts3]) :-
 	s_transaction_account_id(S_Transaction, Bank_Account_Name),
 	s_transaction_vector(S_Transaction, Vector),
-	pacioli:vector_unit(Vector, Bank_Account_Currency),
+	vector_unit(Vector, Bank_Account_Currency),
 	s_transaction_day(S_Transaction, Transaction_Date),
 	(	is_debit(Vector)
 	->	Description1 = 'incoming money'
@@ -299,8 +228,8 @@ record_expense_or_earning_or_equity_or_loan(Static_Data, Action_Verb, Vector_Our
 	vec_change_bases(Exchange_Rates, Date, Report_Currency, Vector_Ours2, Vector_Converted),
 	(
 		(
-			%doc:doc(Action_Verb, l:has_gst_rate, Gst_Rate^^_),
-			doc:doc(Action_Verb, l:has_gst_rate, Gst_Rate),
+			%doc(Action_Verb, l:has_gst_rate, Gst_Rate^^_),
+			doc(Action_Verb, l:has_gst_rate, Gst_Rate),
 			Gst_Rate =\= 0
 		)
 	->
@@ -309,11 +238,11 @@ record_expense_or_earning_or_equity_or_loan(Static_Data, Action_Verb, Vector_Our
 				/*we sold stuff with tax included and received money, gotta pay GST*/
 				is_debit(Vector_Ours)
 			->
-				doc:doc(Action_Verb, l:has_gst_payable_account, Gst_Acc)
+				doc(Action_Verb, l:has_gst_payable_account, Gst_Acc)
 			;
-				doc:doc(Action_Verb, l:has_gst_receivable_account, Gst_Acc)
+				doc(Action_Verb, l:has_gst_receivable_account, Gst_Acc)
 			),
-			pacioli:split_vector_by_percent(Vector_Converted, Gst_Rate, Gst_Vector, Vector_Converted_Remainder),
+			split_vector_by_percent(Vector_Converted, Gst_Rate, Gst_Vector, Vector_Converted_Remainder),
 			make_transaction(Date, Description, Gst_Acc, Gst_Vector, T0)
 		)
 	;
@@ -334,7 +263,7 @@ purchased_goods_coord_with_cost(Goods_Coord, Cost_Coord, Goods_Coord_With_Cost) 
 unit_cost_value(Cost_Coord, Goods_Coord, Unit_Cost) :-
 	Goods_Coord = coord(_, Goods_Count),
 	assertion(Goods_Count > 0),
-	pacioli:credit_coord(Currency, Price, Cost_Coord),
+	credit_coord(Currency, Price, Cost_Coord),
 	assertion(Price >= 0),
 	Unit_Cost_Amount is Price / Goods_Count,
 	Unit_Cost = value(Currency, Unit_Cost_Amount).
@@ -351,7 +280,7 @@ sold_goods_vector_with_cost(Static_Data, Goods_Cost_Value, [Goods_Coord_With_Cos
 			Unit = with_cost_per_unit(Goods_Unit, Unit_Cost_Value)
 		)
 	),
-	pacioli:credit_coord(Unit, Goods_Count, Goods_Coord_With_Cost).
+	credit_coord(Unit, Goods_Count, Goods_Coord_With_Cost).
 
 /*
 	Vector  - the amount by which the assets account is changed
@@ -521,7 +450,7 @@ get_relevant_exchange_rates2([Report_Currency], Exchange_Rates, Transactions, Ex
 			member(T, Transactions),
 			transaction_vector(T, Vector),
 			transaction_day(T,Date),
-			pacioli:vec_units(Vector, Vector_Units),
+			vec_units(Vector, Vector_Units),
 			member(Currency, Vector_Units)
 		),
 		Currencies_Unsorted
@@ -577,7 +506,7 @@ fill_in_missing_units(S_Transactions0, Report_End_Date, [Report_Currency], Used_
 				;
 				Unit = Unit2
 			),
-			pricing:infer_unit_cost_from_last_buy_or_sell(Unit2, S_Transactions, Rate),
+			infer_unit_cost_from_last_buy_or_sell(Unit2, S_Transactions, Rate),
 			Rate = exchange_rate(Report_End_Date, _, _, _)
 		),
 		Inferred_Rates

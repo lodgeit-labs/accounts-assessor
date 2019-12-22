@@ -126,9 +126,9 @@ process_realized(Dom, Global_Report_Date_Atom, Result) :-
 			exchange_rate(Purchase_Date, Unit_Unique, Currency_Unique, PDPC_Unit_Cost),
 			exchange_rate(Sale_Date, Unit_Unique, Currency_Unique, SDPC_Unit_Price)
 	],
-	accounts_extract:extract_account_hierarchy_from_request_dom([], Accounts0),
-	pacioli:credit_vec(Currency_Unique, PDPC_Total_Cost, PDPC_Total_Cost_Credit_Vec),
-	pacioli:credit_vec(Unit_Unique, Count, Count_Credit_Vec),
+	extract_account_hierarchy_from_request_dom([], Accounts0),
+	credit_vec(Currency_Unique, PDPC_Total_Cost, PDPC_Total_Cost_Credit_Vec),
+	credit_vec(Unit_Unique, Count, Count_Credit_Vec),
 	S_Transactions = [
 		s_transaction(
 			Purchase_Date, 
@@ -146,7 +146,7 @@ process_realized(Dom, Global_Report_Date_Atom, Result) :-
 		)
 	], 
 
-	action_verbs:add_action_verbs_from_default_action_taxonomy,
+	add_action_verbs_from_default_action_taxonomy,
 
 	process_ledger(
 		S_Transactions,	
@@ -194,13 +194,13 @@ process_realized(Dom, Global_Report_Date_Atom, Result) :-
 
 	
 	profitandloss_between(Static_Data, ProftAndLoss),
-	fact_output:format_report_entries(xbrl, 0, Accounts, 0, [report_currency], Sale_Date, ProftAndLoss, [], _, [], ProftAndLoss_Lines),
+	format_report_entries(xbrl, 0, Accounts, 0, [report_currency], Sale_Date, ProftAndLoss, [], _, [], ProftAndLoss_Lines),
 	writeln('<!--'),
 	writeln(ProftAndLoss_Lines),
 	writeln('-->'),
 
 	balance_sheet_at(Static_Data, Balance_Sheet),
-	fact_output:format_report_entries(xbrl, 0, Accounts, 0, [report_currency], Sale_Date, Balance_Sheet, [], _, [], Balance_Sheet_Lines),
+	format_report_entries(xbrl, 0, Accounts, 0, [report_currency], Sale_Date, Balance_Sheet, [], _, [], Balance_Sheet_Lines),
 	writeln('<!--'),
 	writeln(Balance_Sheet_Lines),
 	writeln('-->'),
@@ -278,7 +278,7 @@ process_unrealized(Dom, Global_Report_Date, Result) :-
 			exchange_rate(Purchase_Date, Unit_Unique, Currency_Unique, PDPC_Unit_Cost),
 			exchange_rate(Report_Date, Unit_Unique, Currency_Unique, RDPC_Unit_Value)
 	],
-	pacioli:credit_vec(Currency_Unique, PDPC_Total_Cost, PDPC_Total_Cost_Credit_Vec),
+	credit_vec(Currency_Unique, PDPC_Total_Cost, PDPC_Total_Cost_Credit_Vec),
 	S_Transactions = [
 		s_transaction(
 			Purchase_Date, 
@@ -289,8 +289,8 @@ process_unrealized(Dom, Global_Report_Date, Result) :-
 		)
 	],	
 
-	accounts_extract:extract_account_hierarchy_from_request_dom([], Accounts0),
-	action_verbs:add_action_verbs_from_default_action_taxonomy,
+	extract_account_hierarchy_from_request_dom([], Accounts0),
+	add_action_verbs_from_default_action_taxonomy,
 
 	process_ledger(
 		S_Transactions,
@@ -328,12 +328,12 @@ process_unrealized(Dom, Global_Report_Date, Result) :-
 	),
 
 	profitandloss_between(Static_Data, ProftAndLoss),
-	fact_output:format_report_entries(xbrl, 0, Accounts, 0, [report_currency], Report_Date, ProftAndLoss, [], _, [], ProftAndLoss_Lines),
+	format_report_entries(xbrl, 0, Accounts, 0, [report_currency], Report_Date, ProftAndLoss, [], _, [], ProftAndLoss_Lines),
 	writeln('<!--'),
 	writeln(ProftAndLoss_Lines),
 	writeln('-->'),
 	balance_sheet_at(Static_Data, Balance_Sheet),
-	fact_output:format_report_entries(xbrl, 0, Accounts, 0, [report_currency], Report_Date, Balance_Sheet, [], _, [], Balance_Sheet_Lines),
+	format_report_entries(xbrl, 0, Accounts, 0, [report_currency], Report_Date, Balance_Sheet, [], _, [], Balance_Sheet_Lines),
 	writeln('<!--'),
 	writeln(Balance_Sheet_Lines),
 	writeln('-->'),
@@ -545,8 +545,8 @@ crosscheck_totals(Results, Report_Date) :-
 		SDRC_Value_Total,
 		_Unrealized_PDRC_Cost_Total
 	),
-	accounts_extract:extract_account_hierarchy_from_request_dom([], Accounts0),
-	action_verbs:add_action_verbs_from_default_action_taxonomy,
+	extract_account_hierarchy_from_request_dom([], Accounts0),
+	add_action_verbs_from_default_action_taxonomy,
 	process_ledger(
 		S_Transactions,
 		date(2000,1,1), 
@@ -638,13 +638,13 @@ crosscheck_totals(Results, Report_Date) :-
 
 	%profitandloss_between(Exchange_Rates, Accounts, Transactions, [report_currency], Report_Date, date(2000,1,1), Report_Date, ProftAndLoss),
 	profitandloss_between(Static_Data, ProfitAndLoss),
-	fact_output:format_report_entries(xbrl, 0, Accounts, 0, [report_currency], Report_Date, ProfitAndLoss, [], _, [], ProfitAndLoss_Lines),
+	format_report_entries(xbrl, 0, Accounts, 0, [report_currency], Report_Date, ProfitAndLoss, [], _, [], ProfitAndLoss_Lines),
 	writeln('<!--'),
 	writeln(ProfitAndLoss_Lines),
 	writeln('-->'),
 	%balance_sheet_at(Exchange_Rates, Accounts, Transactions, [report_currency], Report_Date, date(2000,1,1), Report_Date, Balance_Sheet),
 	balance_sheet_at(Static_Data, Balance_Sheet),	
-	fact_output:format_report_entries(xbrl, 0, Accounts, 0, [report_currency], Report_Date, Balance_Sheet, [], _, [], Balance_Sheet_Lines),
+	format_report_entries(xbrl, 0, Accounts, 0, [report_currency], Report_Date, Balance_Sheet, [], _, [], Balance_Sheet_Lines),
 	writeln('<!--'),
 	writeln(Balance_Sheet_Lines),
 	writeln('-->').
@@ -691,7 +691,7 @@ process_ledger(
 	Accounts, 
 	Transactions
 ) :-
-	ledger:process_ledger(
+	process_ledger(
 		market,
 		S_Transactions,
 		Purchase_Date,

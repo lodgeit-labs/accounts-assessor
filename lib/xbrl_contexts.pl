@@ -1,8 +1,3 @@
-:- module(_, []).
-
-:- use_module(days, [format_date/2]).
-:- use_module(library(record)).
-
 /*
 some record types to streamline output of xbrl contexts. No relation to the stuff in xbrl/
 */

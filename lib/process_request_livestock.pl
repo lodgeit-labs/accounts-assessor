@@ -32,7 +32,7 @@ process(File_Name, DOM, Reports) :-
 			writeln('<livestocks>'),
 			maplist(process, Livestocks, Alerts, File_Infos),
 			Reports = _{
-				files: File_Infos,
+				 File_Infos,
 				errors: [Schema_Errors, Alerts],
 				warnings: []
 			},
@@ -41,32 +41,32 @@ process(File_Name, DOM, Reports) :-
 			nl, nl
 		)
 	;	Reports = _{
-			files: [],
+			 [],
 			errors: [Schema_Errors],
 			warnings: []
 		}
 	).
 	
 process(DOM, [], Report_File_Info) :-
-	livestock_extract:extract_livestock_data(DOM, T),
+	extract_livestock_data(DOM, T),
 	writeln('<livestock>'),
 
-	doc:doc(T, livestock:name, Name),
-	doc:doc(T, livestock:currency, Currency),
-	doc:doc(T, livestock:natural_increase_value_per_unit, exchange_rate(xxx, Name, Currency, NaturalIncreaseValuePerUnit)),
-	doc:doc(T, livestock:opening_cost,   value(Currency, Opening_Cost  )),
-	doc:doc(T, livestock:opening_count,  value(Name,    Opening_Count )),
-	doc:doc(T, livestock:purchase_cost,  value(Currency, Purchase_Cost )),
-	doc:doc(T, livestock:purchase_count, value(Name,    Purchase_Count)),
-	%doc:doc(T, livestock:rations_value,  value(Currency, Rations_Value )),
-	doc:doc(T, livestock:rations_count,  value(Name,    Rations_Count )),
-	doc:doc(T, livestock:sale_cost,      value(Currency, Sale_Cost     )),
-	doc:doc(T, livestock:sale_count,     value(Name,    Sale_Count    )),
-	%doc:doc(T, livestock:closing_value,  value(Currency, Closing_Value )),
-	doc:doc(T, livestock:closing_count,  value(Name,    Closing_Count )),
-	doc:doc(T, livestock:losses_count,   value(Name,    Losses_Count  )),
-	doc:doc(T, livestock:born_count,     value(Name,    Born_Count    )),
-	doc:doc(T, livestock:average_cost,   exchange_rate(xxx, Name, Currency, _)),
+	doc(T, livestock:name, Name),
+	doc(T, livestock:currency, Currency),
+	doc(T, livestock:natural_increase_value_per_unit, exchange_rate(xxx, Name, Currency, NaturalIncreaseValuePerUnit)),
+	doc(T, livestock:opening_cost,   value(Currency, Opening_Cost  )),
+	doc(T, livestock:opening_count,  value(Name,    Opening_Count )),
+	doc(T, livestock:purchase_cost,  value(Currency, Purchase_Cost )),
+	doc(T, livestock:purchase_count, value(Name,    Purchase_Count)),
+	%doc(T, livestock:rations_value,  value(Currency, Rations_Value )),
+	doc(T, livestock:rations_count,  value(Name,    Rations_Count )),
+	doc(T, livestock:sale_cost,      value(Currency, Sale_Cost     )),
+	doc(T, livestock:sale_count,     value(Name,    Sale_Count    )),
+	%doc(T, livestock:closing_value,  value(Currency, Closing_Value )),
+	doc(T, livestock:closing_count,  value(Name,    Closing_Count )),
+	doc(T, livestock:losses_count,   value(Name,    Losses_Count  )),
+	doc(T, livestock:born_count,     value(Name,    Born_Count    )),
+	doc(T, livestock:average_cost,   exchange_rate(xxx, Name, Currency, _)),
 
 
 	compute_livestock_by_simple_calculation(Born_Count,NaturalIncreaseValuePerUnit,Sale_Count,Sale_Cost,Rations_Count,Opening_Count,Opening_Cost,Closing_Count,Purchase_Count,Purchase_Cost,Losses_Count,Killed_for_rations_value,Stock_on_hand_at_end_of_year_value,Closing_and_killed_and_sales_minus_losses_count,Closing_and_killed_and_sales_value,Opening_and_purchases_and_increase_count,Opening_and_purchases_value,Natural_Increase_value,Average_cost,Revenue,Livestock_COGS,Gross_Profit_on_Livestock_Trading, Explanation),
@@ -119,17 +119,17 @@ process(DOM, [], Report_File_Info) :-
 		gross_profit: value(Currency, Gross_Profit_on_Livestock_Trading)
 	},
 
-	tables:format_row(Columns, Row0, Formatted_Row),
-	tables:row_to_html(Columns, Formatted_Row, Row_Html),
+	format_row(Columns, Row0, Formatted_Row),
+	row_to_html(Columns, Formatted_Row, Row_Html),
 
 	findall(tr(td([colspan="5"],R)), member(R, Explanation), Explanations),
-	tables:header_html(Columns, Html_Header),
+	header_html(Columns, Html_Header),
 	flatten([Html_Header, Row_Html, Explanations], Table_Contents_Html),
 	
-	utils:replace_nonalphanum_chars_with_underscore(Name, Fn_Suffix),
+	replace_nonalphanum_chars_with_underscore(Name, Fn_Suffix),
 	atomic_list_concat(['livestock_report_', Fn_Suffix, '.html'], Fn),
 	atomic_list_concat(['livestock_report_', Fn_Suffix, '_html'], Id),
-	report_page:report_page_with_table(Name, Table_Contents_Html, Fn, Id, Report_File_Info).
+	report_page_with_table(Name, Table_Contents_Html, Fn, Id, Report_File_Info).
 
 /*
 Optimally we should preload the Excel sheet with test data that when pressed, provides a controlled natural language response describing the set of processes the data underwent as a result of the computational rules along with a solution to the problem.

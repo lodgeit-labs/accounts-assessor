@@ -1,9 +1,4 @@
-:- module(_, []).
-
-:- use_module(library(xbrl/files), []).
-
 :- use_module(library(http/html_write)).
-:- use_module(library(rdet)).
 
 :- rdet(report_page/4).
 :- rdet(report_page_with_table/4).
@@ -25,8 +20,8 @@ html_tokenlist_string(Tokenlist, String) :-
 
 /*TODO rename*/
 report_item(File_Name, Text, Url) :-
-	files:report_file_path(File_Name, Url, File_Path),
-	files:write_file(File_Path, Text).
+	report_file_path(File_Name, Url, File_Path),
+	write_file(File_Path, Text).
 
 report_section(File_Name, Html_Tokenlist, Url) :-
 	html_tokenlist_string(Html_Tokenlist, Html_String),
@@ -49,6 +44,6 @@ report_page(Title_Text, Body_Tags, File_Name, Id) :-
 	report_entry(Title_Text, Url, Id).
 	
 report_entry(Title_Text, Url, Id) :-
-	doc:add_report_file(Id, Title_Text, Url).
+	add_report_file(Id, Title_Text, Url).
 
 

@@ -1,14 +1,4 @@
 
-:- module(event_calculus, [depreciationInInterval/13]).
-
-:- use_module(library(clpfd)).
-/*
-:- use_module(depreciation_computation, [
-    depreciation_rate/6,
-    depreciation_value/6]).
-*/
-%:- dynamic happens/2.
-
 % Define constraint in days, max 100000 days
 time(T):- T #>= -1, T #=<100000.
 

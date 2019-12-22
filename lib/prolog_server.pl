@@ -1,5 +1,4 @@
 :- module(_, [run_simple_server/0, run_daemon/0]).
-:- asserta(user:file_search_path(library, '../prolog_xbrl_public/xbrl/prolog')).
 :- use_module(library(xpath)).
 :- use_module(library(option)).
 :- use_module(library(http/json)).
@@ -14,10 +13,9 @@
 :- use_module(library(http/http_files)).
 :- use_module(library(http/http_error)). 
 :- use_module(library(http/http_unix_daemon)).
-:- use_module(library(xbrl/files), []).
 :- use_module('residency', []).
 :- use_module('sbe', []).
-:- use_module('process_request', []).
+:- use_module('lib', []).
 
 mime:mime_extension('xsd', 'application/xml').
 
@@ -42,7 +40,7 @@ mime:mime_extension('xsd', 'application/xml').
 run_simple_server :-
    Port_Number = 8080,
    %Python_Port_Number is Port_Number + 20,
-   %utils:shell2(['cd ../python_server;./run.sh --noreload ', Python_Port_Number, ';&'],0),
+   %shell2(['cd ../python_server;./run.sh --noreload ', Python_Port_Number, ';&'],0),
    http_server(http_dispatch, [port(Port_Number)]).
 
 % -------------------------------------------------------------------
@@ -92,8 +90,8 @@ reply_html_page(
 		
 upload(Request) :-
 	multipart_post_request(Request), !,
-	files:bump_tmp_directory_id, /*assert a unique thread-local my_tmp for each request*/
-	http_read_data(Request, Parts, [ on_filename(files:save_file) ]),
+	lib:bump_tmp_directory_id, /*assert a unique thread-local my_tmp for each request*/
+	http_read_data(Request, Parts, [ on_filename(save_file) ]),
 	Options = Parts,
 	catch(
 		process_request(Request, Options, Parts),
@@ -124,7 +122,7 @@ tests(Url, Request) :-
 	process_request(Url, Test_File_Path, Request, []).
 */
 copy_test_file_into_tmp(/*+*/Path, /*+*/Url) :-
-	files:tmp_file_path_from_url(Url, Tmp_Request_File_Path),
+	lib:tmp_file_path_from_url(Url, Tmp_Request_File_Path),
 	copy_file(Path, Tmp_Request_File_Path).
 
 % -------------------------------------------------------------------
@@ -151,19 +149,14 @@ prolog:message(string(S)) --> [ S ].
 
 
 process_request(Request, Options0, Parts) :-
-	(
-		member(search(GET_Options), Request)
-	->
-		append(Options0, GET_Options, Options2)
-	;
-		Options2 = Options0
-	),
-	
+	(	member(search(GET_Options), Request)
+	->	append(Options0, GET_Options, Options2)
+	;	Options2 = Options0),
 	http_public_host_url(Request, Server_Public_Url),
-	files:set_server_public_url(Server_Public_Url),
-	process_request:get_requested_output_type(Options2, Requested_Output_Type),
+	lib:set_server_public_url(Server_Public_Url),
+	lib:get_requested_output_type(Options2, Requested_Output_Type),
 	(	Requested_Output_Type = xml
 	->	format('Content-type: text/xml~n~n')
 	;	format('Content-type: application/json~n~n')),
-	process_request:process_request_http(Options2, Parts).
+	lib:process_request_http(Options2, Parts).
 

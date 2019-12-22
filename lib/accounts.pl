@@ -1,36 +1,7 @@
-:- module(_, [
-		/*The public api.*/
-		/*The rest of the codebase should never deal with account terms directly, only handle them by id or role, so i am leaving out the "_id" where possible. 
-		All these predicates take and return id's or roles, and require that Accounts is passed to them as first argument*/
-		account_in_set/3, 
-		account_by_role/3, 
-		account_by_role_nothrow/3, 
-		account_child_parent/3,
-		account_exists/2,
-		account_role_by_id/3,
-		account_detail_level/3,
-		account_normal_side/3,
-		sub_accounts_upto_level/4,
-		child_accounts/3,
-		check_account_parent/2,
-		/*The private api.*/
-		/*accessors of account term fields*/
-		account_id/2,
-		account_role/2,
-		account_parent/2, 
-		account_detail_level/2,
-		/*you don't need this*/
-		account_term_by_role/3,
-		write_accounts_json_report/1]).
-:- asserta(user:file_search_path(library, '../prolog_xbrl_public/xbrl/prolog')).
-:- use_module(library(xbrl/utils), [inner_xml/3, trim_atom/2,pretty_term_string/2, throw_string/1, is_url/1]).
-:- use_module(library(xbrl/files), [server_public_url/1, absolute_tmp_path/2, write_tmp_json_file/2]).
-:- use_module(library(xbrl/doc), []).
-
 :- use_module(library(http/http_client)).
 :- use_module(library(record)).
-:- use_module(library(http/http_dispatch), [http_safe_file/2]).
-:- use_module(library(http/http_open), [http_open/3]).
+:- use_module(library(http/http_dispatch)).
+:- use_module(library(http/http_open)).
 
 :- record account(id, parent, role, detail_level).
 
@@ -103,15 +74,15 @@ account_by_role(Accounts, Role, Account_Id) :-
 		(
 			pretty_term_string(Accounts, Accounts_Str),
 			term_string(Role, Role_Str),
-			format(atom(Err), 'accounts: ~w \naccount not found in hierarchy: ~w\n', [Accounts_Str,  Role_Str]),
+			format(atom(Err), 'accounts : ~w \naccount not found in hierarchy: ~w\n', [Accounts_Str,  Role_Str]),
 			format(user_error, Err, []),
 			throw_string(Err)
 		)
 	).
 
 account_by_role(Role, Account_Id) :-
-	doc:doc(T, rdf:type, l:request),
-	doc:doc(T, l:accounts, Accounts),
+	doc(T, rdf:type, l:request),
+	doc(T, l:accounts, Accounts),
 	account_by_role(Accounts, Role, Account_Id).
 
 

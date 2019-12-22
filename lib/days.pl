@@ -1,25 +1,3 @@
-% ===================================================================
-% Project:   LodgeiT
-% Module:    days.pl
-% Date:      2019-06-02
-% ===================================================================
-
-:- module(days, [
-	absolute_day/2,
-	date_add/3,
-	format_date/2,
-	parse_date/2,
-	gregorian_date/2,
-	add_days/3,
-	date_between/3,
-	day_between/3,
-	parse_date_into_absolute_days/2,
-	day_diff/3
-]).
-:- asserta(user:file_search_path(library, '../prolog_xbrl_public/xbrl/prolog')).
-:- use_module(library(xbrl/utils), [throw_string/1]).
-:- use_module(library(xbrl/doc), []).
-
 % -------------------------------------------------------------------
 % The purpose of the following program is to define modular dates, a generalization of
 % Gregorian dates where the day and month can take on any integral value. They allow you
@@ -208,6 +186,6 @@ add_days(Date, Absolute_Days, Date2) :-
 	gregorian_date(Day2, Date2).
 
 date_in_request_period(Date) :-
-	doc:request_has_property(l:start_date, Start_Date),
-	doc:request_has_property(l:end_date, End_Date),
+	request_has_property(l:start_date, Start_Date),
+	request_has_property(l:end_date, End_Date),
 	date_within(Start_Date, End_Date, Date).

@@ -76,7 +76,7 @@ do_livestock_crosscheck(Events, Natural_Increase_Costs, S_Transactions, Transact
 	we should figure out how to only do these checks maybe during testing, on some pre-defined files
 	*/
 
-	utils:compile_with_variable_names_preserved(_ = [
+	compile_with_variable_names_preserved(_ = [
 		Revenue_Coord_Ledger, Revenue_Coord,
 		Cogs_Coord_Ledger, Cogs_Coord,
 		Earnings_Coord_Ledger, Earnings_Coord

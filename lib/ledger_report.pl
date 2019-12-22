@@ -1,76 +1,3 @@
-% ===================================================================
-% Project:   LodgeiT
-% Module:    ledger.pl
-% Date:      2019-06-02
-% ===================================================================
-
-:- module(ledger_report, [
-		accounts_report/2,
-		balance_sheet_at/2,
-		balance_by_account/9, 
-		balance_until_day/9,
-		balance/5,
-		trial_balance_between/8, 
-		profitandloss_between/2, 
-		/*bs_and_pl_entries/6,*/
-		net_activity_by_account/4,
-		entry_balance/2,
-		entry_account_id/2,
-		entry_child_sheet_entries/2
-]).
-
-:- use_module(library(rdet)).
-:- use_module(library(record)).
-
-:- rdet(profitandloss_between/2).
-/*:- rdet(bs_and_pl_entries/6).*/
-:- rdet(maybe_balance_lines/5).
-:- rdet(activity_entry/3).
-:- rdet(trial_balance_between/8).
-:- rdet(balance_sheet_entry/8).
-:- rdet(balance_until_day/9).	
-%:- rdet(balance_by_account/9).
-:- rdet(net_activity_by_account/4).	
-
-:- use_module('accounts', [
-		account_child_parent/3,
-		account_in_set/3,
-		account_by_role/3,
-		account_role_by_id/3,
-		account_exists/2,
-		account_detail_level/3,
-		account_normal_side/3,
-		account_parent/2
-]).
-:- use_module('pacioli', [
-		vec_add/3, 
-		vec_sum/2,
-		vec_inverse/2, 
-		vec_reduce/2, 
-		vec_sub/3
-]).
-:- use_module('exchange', [
-		vec_change_bases/5
-]).
-:- use_module('transactions', [
-		transaction_account_in_set/3,
-		transaction_in_period/3,
-		transaction_before/2,
-		transaction_type/2,
-		transaction_vectors_total/2,
-		transactions_before_day_on_account_and_subaccounts/5,
-		make_transaction/5,
-		transactions_in_account_set/4
-]).
-:- use_module('days', [
-		add_days/3
-]).
-:- use_module(library(xbrl/utils), [
-		get_indentation/2,
-		filter_out_chars_from_atom/3,
-		pretty_term_string/2
-]).
-:- use_module('fact_output').
 
 :- record entry(account_id, balance, child_sheet_entries, transactions_count).
 
@@ -296,8 +223,8 @@ activity_entry(Static_Data, Account_Id, Entry) :-
 
 /* balance sheet and profit&loss entries*//*
 bs_and_pl_entries(Accounts, Report_Currency, Context, Balance_Sheet_Entries, ProftAndLoss_Entries, [Lines2, Lines3]) :-
-	fact_output:format_report_entries(xbrl, 0, Accounts, 0, Report_Currency, Context, Balance_Sheet_Entries, Lines3),
-	fact_output:format_report_entries(xbrl, 0, Accounts, 0, Report_Currency, Context, ProftAndLoss_Entries, Lines2).
+	format_report_entries(xbrl, 0, Accounts, 0, Report_Currency, Context, Balance_Sheet_Entries, Lines3),
+	format_report_entries(xbrl, 0, Accounts, 0, Report_Currency, Context, ProftAndLoss_Entries, Lines2).
 */
 
 

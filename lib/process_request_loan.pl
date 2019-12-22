@@ -1,15 +1,6 @@
-:- module(_, []).
-:- asserta(user:file_search_path(library, '../prolog_xbrl_public/xbrl/prolog')).
-% use "XSD" library to validate XML
 :- use_module(library(xsd)).
-:- use_module(library(xpath)).
 
-:- use_module(library(xbrl/files), []).
-:- use_module(library(xbrl/utils), []).
-:- use_module('loans', [loan_agr_summary/2]).
-:- use_module('days',  [absolute_day/2, parse_date/2, parse_date_into_absolute_days/2]).
-
-process(FileNameIn, DOM) :-
+process_request_loan(FileNameIn, DOM) :-
    xpath(DOM, //reports/loanDetails/loanAgreement/field(@name='Income year of loan creation', @value=CreationIncomeYear), _E1),
    xpath(DOM, //reports/loanDetails/loanAgreement/field(@name='Full term of loan in years', @value=Term), _E2),
    xpath(DOM, //reports/loanDetails/loanAgreement/field(@name='Principal amount of loan', @value=PrincipalAmount), _E3),
@@ -23,9 +14,9 @@ process(FileNameIn, DOM) :-
      OpeningBalance = -1
    ),   
 
-   files:absolute_tmp_path(FileNameIn, Instance_File),
+   absolute_tmp_path(FileNameIn, Instance_File),
    absolute_file_name(my_schemas('bases/Reports.xsd'), Schema_File, []),
-   utils:validate_xml(Instance_File, Schema_File, Schema_Errors),
+   validate_xml(Instance_File, Schema_File, Schema_Errors),
    (
 		Schema_Errors = []
 	->
@@ -40,7 +31,7 @@ process(FileNameIn, DOM) :-
 			display_xml_loan_response(NIncomeYear, Summary)
 		)
 	;
-		maplist(doc:add_alert(error), Schema_Errors)
+		maplist(add_alert(error), Schema_Errors)
 	).
 
    
@@ -67,7 +58,7 @@ display_xml_loan_response(IncomeYear,
    LoanResponseXML
    ),
 
-   files:absolute_tmp_path('loan_response.xml', TempFileLoanResponseXML),
+   absolute_tmp_path('loan_response.xml', TempFileLoanResponseXML),
    % create a temporary loan xml file to validate the response against the schema
    open(TempFileLoanResponseXML, write, XMLStream),
    write(XMLStream, LoanResponseXML),
@@ -76,7 +67,7 @@ display_xml_loan_response(IncomeYear,
    % read the schema file
    absolute_file_name(my_schemas('responses/LoanResponse.xsd'), FileLoanResponseXSD, []),
    read_file_to_string(FileLoanResponseXSD, LoanResponseXSD, []),   
-   files:absolute_tmp_path('LoanResponse.xsd', TempFileLoanResponseXSD),
+   absolute_tmp_path('LoanResponse.xsd', TempFileLoanResponseXSD),
    % create a temporary loan xsd file to validate the response against the schema
    % a bug in XSD library requires that we create a new schema file for each validation
    open(TempFileLoanResponseXSD, write, XSDStream),
@@ -87,9 +78,9 @@ display_xml_loan_response(IncomeYear,
    (
      xsd_validate(TempFileLoanResponseXSD, TempFileLoanResponseXML)
    ->
-     doc:add_result_file_by_path(TempFileLoanResponseXML)
+     add_result_file_by_path(TempFileLoanResponseXML)
    ;
-     doc:add_alert(error, "Validation failed for xml loan response.")
+     add_alert(error, "Validation failed for xml loan response.")
    ).
    
 

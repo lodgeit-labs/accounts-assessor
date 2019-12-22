@@ -1,8 +1,5 @@
 #!/usr/bin/env swipl
 
-:- asserta(user:file_search_path(library, '../prolog_xbrl_public/xbrl/prolog')).
-:- use_module(library(xbrl/utils)).
-
 :- multifile user:message_hook/3.
 user:message_hook(initialization_error(_,X,_),Kind,_) :- print_message(Kind,X),halt(1).
 user:message_hook(string(S),_,_) :- format(user_error,'ERROR: ~w~n', [S]).

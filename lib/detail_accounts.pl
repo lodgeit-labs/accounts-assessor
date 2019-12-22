@@ -1,10 +1,3 @@
-:- module(_, []).
-:- use_module('system_accounts', []).
-:- use_module('accounts', []).
-:- use_module(library(xbrl/utils), []).
-:- use_module('xbrl_contexts', []).
-:- use_module('ledger_report', []).
-:- use_module('fact_output').
 
 
 /* given information about a xbrl dimension, print each account as a point in that dimension. 
@@ -34,20 +27,20 @@ print_detail_account(Static_Data, Context_Info, Fact_Name, Account_In,
 			Dimension_Value = Short_Id
 		)
 	),
-	accounts:account_role_by_id(Accounts, Account, (_/Short_Id)),
-	xbrl_contexts:ensure_context_exists(Short_Id, Dimension_Value, Context_Info, Contexts_In, Contexts_Out, Context_Id),
-	(	xbrl_contexts:context_arg0_period(Context_Info, (_,_))
-	->	ledger_report:net_activity_by_account(Static_Data, Account, Balance, Transactions_Count)
-	;	ledger_report:balance_by_account(Exchange_Rates, Accounts, Transactions_By_Account, Report_Currency, End_Date, Account, End_Date, Balance, Transactions_Count)
+	account_role_by_id(Accounts, Account, (_/Short_Id)),
+	ensure_context_exists(Short_Id, Dimension_Value, Context_Info, Contexts_In, Contexts_Out, Context_Id),
+	(	context_arg0_period(Context_Info, (_,_))
+	->	net_activity_by_account(Static_Data, Account, Balance, Transactions_Count)
+	;	balance_by_account(Exchange_Rates, Accounts, Transactions_By_Account, Report_Currency, End_Date, Account, End_Date, Balance, Transactions_Count)
 	),
-	fact_output:format_report_entries(
+	format_report_entries(
 		xbrl, 0, Accounts, 1, Report_Currency, Context_Id,
 		[entry(Fact_Name, Balance, [], Transactions_Count)],
 		Xml).
 
 print_banks(Static_Data, Context_Id_Base, In, Out, Xml) :-
 	dict_vars(Static_Data, [End_Date, Accounts, Entity_Identifier]),
-	system_accounts:bank_accounts(Accounts, Bank_Accounts),
+	bank_accounts(Accounts, Bank_Accounts),
 	Context_Info = context_arg0(
 		Context_Id_Base, 
 		End_Date, 
@@ -67,7 +60,7 @@ print_banks(Static_Data, Context_Id_Base, In, Out, Xml) :-
 
 print_forex(Static_Data, Context_Id_Base, In, Out, Xml) :-
 	dict_vars(Static_Data, [Start_Date, End_Date, Entity_Identifier, Accounts]),
-    findall(Account, accounts:account_by_role_nothrow(Accounts, ('CurrencyMovement'/_), Account), Movement_Accounts),
+    findall(Account, account_by_role_nothrow(Accounts, ('CurrencyMovement'/_), Account), Movement_Accounts),
 	Context_Info = context_arg0(
 		Context_Id_Base, 
 		(Start_Date, End_Date), 
@@ -101,9 +94,9 @@ print_trading2(Static_Data, [(Sub_Account,Unit_Accounts)|Tail], In, Out, [XmlH|X
 print_trading2(_,[],Results,Results,[]).
 	
 trading_sub_account(Sd, (Movement_Account, Unit_Accounts)) :-
-	system_accounts:trading_account_ids(Trading_Accounts),
+	trading_account_ids(Trading_Accounts),
 	member(Trading_Account, Trading_Accounts),
-	accounts:account_by_role_nothrow(Sd.accounts, (Trading_Account/_), Gains_Account),
-	accounts:account_by_role_nothrow(Sd.accounts, (Gains_Account/_), Movement_Account),
-	accounts:child_accounts(Sd.accounts, Movement_Account, Unit_Accounts).
+	account_by_role_nothrow(Sd.accounts, (Trading_Account/_), Gains_Account),
+	account_by_role_nothrow(Sd.accounts, (Gains_Account/_), Movement_Account),
+	child_accounts(Sd.accounts, Movement_Account, Unit_Accounts).
 	

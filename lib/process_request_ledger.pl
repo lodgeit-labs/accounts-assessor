@@ -1,55 +1,9 @@
-:- module(_, []).
-
-:- use_module('days', [
-		add_days/3, 
-		parse_date/2]).
-:- use_module(library(xbrl/utils), [
-		inner_xml/3, 
-		inner_xml_throw/3,
-		fields/2,
-		pretty_term_string/2, 
-		throw_string/1,
-		catch_maybe_with_backtrace/3,
-		dict_json_text/2]).
-:- use_module('ledger_report', [
-		trial_balance_between/8, 
-		profitandloss_between/2, 
-		balance_sheet_at/2]).
-:- use_module('ledger_html_reports').
-:- use_module('report_page').
-:- use_module('bank_statement', [
-		print_relevant_exchange_rates_comment/4,
-
-		fill_in_missing_units/6
-]).
-:- use_module('s_transaction', []).
-:- use_module('ledger', []).
-:- use_module('livestock', []).
-:- use_module(library(xbrl/files), [
-		absolute_tmp_path/2,
-		request_tmp_dir/1,
-		server_public_url/1]).
-:- use_module(library(xbrl/files), [
-		validate_xml/3
-]).
-:- use_module('action_verbs', []).
-:- use_module('accounts_extract', []).
-:- use_module('investment_report_2').
-:- use_module('crosschecks_report').
-:- use_module('invoices').
-:- use_module('xbrl_output', []).
-:- use_module(library(xbrl/doc), []).
-:- use_module(library(xpath)).
-:- use_module(library(rdet)).
-:- use_module(library(xsd/validate)).
-:- use_module(library(sgml)).
-:- use_module(library(xbrl/structured_xml)).
 
 
 :- rdet(process/2).
 
 
-process(File_Name, Dom) :-
+process_request_ledger(File_Name, Dom) :-
 	/* does it look like a ledger request? */
 	% ideally should be able to omit this and have this check be done as part of the schema validation, but currently  process_request.pl is using this to check whether to use this endpoint.
 	inner_xml(Dom, //reports/balanceSheetRequest, _),
@@ -59,7 +13,7 @@ process(File_Name, Dom) :-
 	validate_xml(Instance_File, Schema_File, Schema_Errors),
 	(	Schema_Errors = []
 	->	process_xml_ledger_request2(Dom)
-	;	maplist(doc:add_alert(error), Schema_Errors)
+	;	maplist(add_alert(error), Schema_Errors)
 	).
 
 
@@ -71,23 +25,23 @@ process_xml_ledger_request2(Dom) :-
 	extract_cost_or_market(Dom, Cost_Or_Market),
 	extract_default_currency(Dom, Default_Currency),
 	extract_report_currency(Dom, Report_Currency),
-	action_verbs:extract_action_verbs_from_bs_request(Dom),
-	accounts_extract:extract_account_hierarchy_from_request_dom(Dom, Accounts0),
+	extract_action_verbs_from_bs_request(Dom),
+	extract_account_hierarchy_from_request_dom(Dom, Accounts0),
 	inner_xml(Dom, //reports/balanceSheetRequest/startDate, [Start_Date_Atom]),
 	parse_date(Start_Date_Atom, Start_Date),
-	doc:doc(R, rdf:type, l:request),
-	doc:doc_add(R, l:start_date, Start_Date),
+	doc(R, rdf:type, l:request),
+	doc_add(R, l:start_date, Start_Date),
 	inner_xml(Dom, //reports/balanceSheetRequest/endDate, [End_Date_Atom]),
 	parse_date(End_Date_Atom, End_Date),
-	doc:doc_add(R, l:end_date, End_Date),
+	doc_add(R, l:end_date, End_Date),
 	
 	extract_exchange_rates(Dom, Start_Date, End_Date, Default_Currency, Exchange_Rates),
-	livestock_extract:extract(Dom),
-    s_transaction:extract_s_transactions(Dom, Start_Date_Atom, S_Transactions),
+	extract(Dom),
+    extract_s_transactions(Dom, Start_Date_Atom, S_Transactions),
 	/* 
 		generate transactions (ledger entries) from s_transactions
 	*/
-	ledger:process_ledger(
+	process_ledger(
 		Cost_Or_Market,
 		S_Transactions,
 		Start_Date,
@@ -103,7 +57,7 @@ process_xml_ledger_request2(Dom) :-
 		Gl),
 	/*print_relevant_exchange_rates_comment(Report_Currency, End_Date, Exchange_Rates, Transactions),*/
 	/*writeln("<!-- exchange rates 2:"),writeln(Exchange_Rates),writeln("-->"),*/
-	invoices:process_invoices_payable(Dom),
+	process_invoices_payable(Dom),
 	dict_from_vars(Static_Data0,
 		[Cost_Or_Market, Output_Dimensional_Facts, Start_Date, Exchange_Rates, Accounts, Transactions, Report_Currency, Gl, Transactions_By_Account, Outstanding]),
 	Static_Data1 = Static_Data0.put([
@@ -117,9 +71,9 @@ create_reports(Static_Data) :-
 	balance_entries(Static_Data, Static_Data_Historical, Entries),
 	dict_vars(Entries, [Balance_Sheet, ProfitAndLoss, Balance_Sheet2_Historical, ProfitAndLoss2_Historical, Trial_Balance]),
 	taxonomy_url_base,
-	xbrl_output:create_instance(Xbrl, Static_Data, Static_Data.start_date, Static_Data.end_date, Static_Data.accounts, Static_Data.report_currency, Balance_Sheet, ProfitAndLoss, ProfitAndLoss2_Historical, Trial_Balance),
+	create_instance(Xbrl, Static_Data, Static_Data.start_date, Static_Data.end_date, Static_Data.accounts, Static_Data.report_currency, Balance_Sheet, ProfitAndLoss, ProfitAndLoss2_Historical, Trial_Balance),
 	other_reports(Static_Data, Static_Data_Historical, Static_Data.outstanding, Balance_Sheet, ProfitAndLoss, Balance_Sheet2_Historical, ProfitAndLoss2_Historical, Trial_Balance),
-	doc:add_xml_report(xbrl_instance, xbrl_instance, [Xbrl]).
+	add_xml_report(xbrl_instance, xbrl_instance, [Xbrl]).
 
 balance_entries(Static_Data, Static_Data_Historical, Entries) :-
 	/* sum up the coords of all transactions for each account and apply unit conversions */
@@ -142,9 +96,9 @@ static_data_historical(Static_Data, Static_Data_Historical) :-
 
 other_reports(Static_Data, Static_Data_Historical, Outstanding, Balance_Sheet, ProfitAndLoss, Balance_Sheet2_Historical, ProfitAndLoss2_Historical, Trial_Balance) :-
 	investment_reports(Static_Data, Outstanding, Investment_Report_Info),
-	ledger_html_reports:bs_page(Static_Data, Balance_Sheet),
-	ledger_html_reports:pl_page(Static_Data, ProfitAndLoss, ''),
-	ledger_html_reports:pl_page(Static_Data_Historical, ProfitAndLoss2_Historical, '_historical'),
+	bs_page(Static_Data, Balance_Sheet),
+	pl_page(Static_Data, ProfitAndLoss, ''),
+	pl_page(Static_Data_Historical, ProfitAndLoss2_Historical, '_historical'),
 	make_json_report(Static_Data.gl, general_ledger_json),
 	make_gl_viewer_report,
 
@@ -160,24 +114,24 @@ other_reports(Static_Data, Static_Data_Historical, Outstanding, Balance_Sheet, P
 		},
 		tb: Trial_Balance
 	},
-	crosschecks_report:report(Static_Data.put(reports, Structured_Reports), Crosschecks_Report_Json),
+	report(Static_Data.put(reports, Structured_Reports), Crosschecks_Report_Json),
 	make_json_report(Structured_Reports.put(crosschecks, Crosschecks_Report_Json), reports_json).
 
 make_gl_viewer_report :-
 	Viewer_Dir = 'general_ledger_viewer',
 	absolute_file_name(my_static(Viewer_Dir), Viewer_Dir_Absolute, [file_type(directory)]),
-	files:report_file_path(Viewer_Dir, Url, Tmp_Viewer_Dir_Absolute),
+	report_file_path(Viewer_Dir, Url, Tmp_Viewer_Dir_Absolute),
 	atomic_list_concat(['cp -r ', Viewer_Dir_Absolute, ' ', Tmp_Viewer_Dir_Absolute], Cmd),
 	shell(Cmd),
 	atomic_list_concat([Url, '/gl.html'], Url_With_Slash),
-	report_page:report_entry('GL viewer', Url_With_Slash, 'gl_html').
+	report_entry('GL viewer', Url_With_Slash, 'gl_html').
 	
 make_json_report(Dict, Fn) :-
 	Title = Key, Fn = Key,
 	dict_json_text(Dict, Json_Text),
 	atomic_list_concat([Fn, '.json'], Fn2),
-	report_page:report_item(Fn2, Json_Text, Report_File_URL),
-	report_page:report_entry(Title, Report_File_URL, Key).
+	report_item(Fn2, Json_Text, Report_File_URL),
+	report_entry(Title, Report_File_URL, Key).
 
 
 investment_reports(Static_Data, Outstanding, Ir) :-
@@ -187,7 +141,7 @@ investment_reports(Static_Data, Outstanding, Ir) :-
 		(
 			term_string(Err, Err_Str),
 			format(string(Msg), 'investment reports fail: ~w', [Err_Str]),
-			doc:add_alert('SYSTEM_WARNING', Msg),
+			add_alert('SYSTEM_WARNING', Msg),
 			Ir =  _{}
 		)
 	).
@@ -198,13 +152,13 @@ investment_reports2(Static_Data, Outstanding, Ir) :-
 	add_days(Report_Start, -1, Before_Start),*/
 
 	% report period	
-	investment_report_2:investment_report_2(Static_Data, Outstanding, '', Json1),
+	investment_report_2(Static_Data, Outstanding, '', Json1),
 
 	/* TODO: we cant do all_time without market values, use last known? */
-	investment_report_2:investment_report_2(Static_Data.put(start_date, date(1,1,1)), Outstanding, '_since_beginning', Json2),
+	investment_report_2(Static_Data.put(start_date, date(1,1,1)), Outstanding, '_since_beginning', Json2),
 	
 	% historical
-	%investment_report_2:investment_report_2(Static_Data.put(start_date, date(1,1,1)).put(end_date, Before_Start), Outstanding, '_historical', Json3, Files3),
+	%investment_report_2(Static_Data.put(start_date, date(1,1,1)).put(end_date, Before_Start), Outstanding, '_historical', Json3, Files3),
 	Ir =  _{
 	%	 historical: Json3,
 		 current: Json1,
@@ -221,7 +175,7 @@ taxonomy_url_base :-
 	(	get_flag(prepare_unique_taxonomy_url, true)
 	->	Taxonomy_Dir_Url = Unique_Taxonomy_Dir_Url
 	;	Taxonomy_Dir_Url = 'taxonomy/'),
-	doc:request_add_property(l:taxonomy_url_base, Taxonomy_Dir_Url).
+	request_add_property(l:taxonomy_url_base, Taxonomy_Dir_Url).
 
 symlink_tmp_taxonomy_to_static_taxonomy(Unique_Taxonomy_Dir_Url) :-
 	request_tmp_dir(Tmp_Dir),

@@ -5,10 +5,6 @@
 % Date:      2019-06-02
 % ===================================================================
 
-:- module(loans, [loan_agr_summary/2, loan_agr_min_yearly_repayment/3, loan_agr_total_interest/3, loan_agr_total_repayment/3, loan_agr_total_principal/3]).
-
-:- use_module(days, [absolute_day/2, date_add/3, day_between/3,	gregorian_date/2]).
-
 % -------------------------------------------------------------------
 % The purpose of the following program is to derive information about a given loan
 % agreement. That is, this program will tell you what the closing balance of the loan

@@ -1,36 +1,3 @@
-% ===================================================================
-% Project:   LodgeiT
-% Module:    transactions.pl
-% Date:      2019-06-02
-% ===================================================================
-
-:- module(transactions, [
-			has_empty_vector/1,
-			transaction_account_in_set/3,
-		  	 transaction_in_period/3,
-			transaction_before/2,
-		 	 transaction_vectors_total/2,
-			 transactions_before_day_on_account_and_subaccounts/5,
-			 transaction_day/2,
-			 transaction_description/2,
-			 transaction_account_id/2,
-			 transaction_vector/2,
-			 transaction_type/2,
-			transactions_by_account/2,
-			 check_transaction_account/2,
-	 		make_transaction/5,
-	 		make_transaction2/5,
-	 		transactions_in_account_set/4,
-			transaction_to_dict/2
-]).
-
-:- use_module(accounts, [account_id/2, account_in_set/3, account_exists/2]).
-:- use_module(days, [absolute_day/2, gregorian_date/2]).
-:- use_module(pacioli, [vec_add/3, vec_reduce/2]).
-:- use_module(library(xbrl/utils), [sort_into_dict/3]).
-:- use_module(library(record)).
-:- use_module(library(rdet)).
-
 :- rdet(transactions_by_account/2).
 %:- rdet(transaction_to_dict/2).
 
@@ -123,7 +90,7 @@ transactions_by_account(Static_Data, Transactions_By_Account) :-
 	),
 
 	assertion(nonvar(Transactions)),
-	sort_into_dict(transactions:transaction_account_id, Transactions, Dict),	
+	sort_into_dict(transaction_account_id, Transactions, Dict),
 
 	/*this should be somewhere in ledger code*/
 	transactions_before_day_on_account_and_subaccounts(Accounts, Dict, 'NetIncomeLoss', Start_Date, Historical_Earnings_Transactions),

@@ -1,12 +1,4 @@
 
-:- module('tables', []).
-
-:- use_module('days').
-:- use_module(library(xbrl/utils)).
-:- use_module('pacioli').
-
-:- use_module(library(rdet)).
-
 /*
 do cuts caused by the rdet ifs still cut into the findalling?
 :- rdet(formatted_row_kvs/3).

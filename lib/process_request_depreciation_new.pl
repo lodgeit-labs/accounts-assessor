@@ -1,13 +1,6 @@
-:- module(_, []).
-
-:- use_module(library(xbrl/utils)).
-:- use_module(library(xbrl/doc), [doc/3, doc_add/3]).
-:- use_module('depreciation_computation_new', []).
 
 
-
-
-process :-
+process_request_depreciation_new :-
 	doc(Q, rdf:type, l:depreciation_query),
 	doc(Q, l:scenario_label, Scenario_Label),
 	doc(Q, l:start_date, Query_Start_Date),
