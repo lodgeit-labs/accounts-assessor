@@ -1,20 +1,14 @@
 :- ['../../lib/depreciation_computation'].
-
+:- ['../../lib/event_calculus'].
+%:- use_module(event_calculus, [depreciationAsset/12,asset/4]).
 
 :- begin_tests(depreciation).
 
-test(written_down_1, all(Final_value = [80.0])) :-
-	% Depreciation rates for motor vehicles depending on the year: 1, 2... after investing. _ signifies all years.
-	Rates = [
-		depreciation_rate(motor_vehicles, _, 0.2)
-		%,depreciation_rate(motor_vehicles, 0, 0.27)
-	],
-	written_down_value(
-			transaction(date(19, 7, 1), buy_car, motor_vehicles, t_term(100, 0)), 
-			date(20,7, 1),
-			_,
-			Rates,
-			Final_value).
+test(depreciation_value_1, all(Depreciation_value = [109.58904109589042])) :-
+	% Prime cost
+	% Depreciation_value is Asset_cost * (Days_held / 365) * Depreciation_rate
+	depreciation_value(prime_cost, 1000, 800, 200, 0.2, Depreciation_value).
+
 
 test(written_down_2, all(Final_value = [80.0])) :-
 	Rates = [
