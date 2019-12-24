@@ -1,4 +1,4 @@
-:- module(_, [run_simple_server/0, run_daemon/0]).
+:- module(_, [run_simple_server/0]).
 :- use_module(library(xpath)).
 :- use_module(library(option)).
 :- use_module(library(http/json)).
@@ -28,8 +28,6 @@ mime:mime_extension('xsd', 'application/xml').
 :- http_handler(root(upload_and_get_json_reports_list), upload_and_get_json_reports_list,      []).
 :- http_handler(root(sbe), sbe_request, [methods([post])]).
 :- http_handler(root(residency), residency_request, [methods([post])]).
-:- http_handler('/favicon.ico', http_reply_file(my_static('favicon.ico'), []), []).
-% TODO : - http_handler(root(tmp), http_reply_from_files('./tmp', []), [prefix]).
 :- http_handler(root(.), http_reply_from_files('.', []), [prefix]).
 /*fixme*/:- http_handler(root(run/Test), tests(Test), [methods([get])]).
 
@@ -46,10 +44,10 @@ run_simple_server :-
 % -------------------------------------------------------------------
 % run_daemon/0
 % -------------------------------------------------------------------
-
+/*
 run_daemon :-
    http_daemon.
-   
+  */
 % -------------------------------------------------------------------
 % upload_form/1
 % -------------------------------------------------------------------
@@ -91,7 +89,7 @@ reply_html_page(
 upload(Request) :-
 	multipart_post_request(Request), !,
 	lib:bump_tmp_directory_id, /*assert a unique thread-local my_tmp for each request*/
-	http_read_data(Request, Parts, [ on_filename(save_file) ]),
+	http_read_data(Request, Parts, [ on_filename(/*lib:?*/http_post_save_file) ]),
 	Options = Parts,
 	catch(
 		process_request(Request, Options, Parts),
@@ -121,10 +119,11 @@ tests(Url, Request) :-
 	copy_test_file_into_tmp(Test_File_Path, Url),
 	process_request(Url, Test_File_Path, Request, []).
 */
-copy_test_file_into_tmp(/*+*/Path, /*+*/Url) :-
-	lib:tmp_file_path_from_url(Url, Tmp_Request_File_Path),
+/*
+copy_test_file_into_tmp(Path, Url) :-
+	lib:tmp_file_path_from_something(Url, Tmp_Request_File_Path),
 	copy_file(Path, Tmp_Request_File_Path).
-
+*/
 % -------------------------------------------------------------------
 % multipart_post_request/1
 % -------------------------------------------------------------------

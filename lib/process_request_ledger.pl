@@ -178,7 +178,7 @@ taxonomy_url_base :-
 	request_add_property(l:taxonomy_url_base, Taxonomy_Dir_Url).
 
 symlink_tmp_taxonomy_to_static_taxonomy(Unique_Taxonomy_Dir_Url) :-
-	request_tmp_dir(Tmp_Dir),
+	my_request_tmp_dir(Tmp_Dir),
 	server_public_url(Server_Public_Url),
 	atomic_list_concat([Server_Public_Url, '/tmp/', Tmp_Dir, '/taxonomy/'], Unique_Taxonomy_Dir_Url),
 	absolute_tmp_path('/taxonomy', Tmp_Taxonomy),

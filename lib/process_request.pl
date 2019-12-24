@@ -20,24 +20,20 @@
 :- initialization(set_server_public_url('http://localhost:8080')).
 
 /* takes either a xml request file, or a directory expected to contain a xml request file, an n3 file, or both */
-process_request_cmdline(Path) :-
-	(
-		(	exists_directory(Path),
-			directory_real_files(Path, File_Paths)),
-			(File_Paths = [] -> throw('no files found') ; true)
-	->		true
-	;		File_Paths = [Path]),
+process_request_cmdline(Path_Value) :-
+	Path = loc(absolute_path, Path_Value),
+	(	exists_directory(Path_Value)
+	->	/* invoked with a directory */
+		directory_real_files(Path, File_Paths)
+	;	/* invoked with a file */
+		File_Paths = [loc(absolute_path,Path)]),
+	(File_Paths = [] -> throw('no files found') ; true),
 	bump_tmp_directory_id,
 	copy_request_files_to_tmp(File_Paths, _),
 	process_request([], File_Paths).
 
 process_request_http(Options, Parts) :-
-	member(_=file(_, F1), Parts),
-	once(member(F1, File_Paths)),
-	(	member(file2=file(_, F2), Parts)
-	->	once(member(F2, File_Paths))
-	;	true),
-	once(append(File_Paths, [], File_Paths)),
+	findall(F1,	member(_=file(F1), Parts), File_Paths),
 	process_request(Options, File_Paths).
 
 process_request(Options, File_Paths) :-
@@ -77,39 +73,44 @@ process_request(Options, File_Paths) :-
 	get_requested_output_type(Options, Requested_Output_Type),
 	(	Requested_Output_Type = xml
 	->	(
-			tmp_file_path_from_url(Json_Out.reports.response_xml, Xml_Path),
+			tmp_file_path_from_something(Json_Out.reports.response_xml, Xml_Path),
 			print_file(Xml_Path)
 		)
 	;	writeln(Response_Json_String)),
 	make_zip.
 
 process_mulitifile_request(File_Paths) :-
-	(	xml_request(File_Paths, Xml_Tmp_File_Path)
+	(	accept_request_file(File_Paths, Xml_Tmp_File_Path, xml)
 	->	load_structure(Xml_Tmp_File_Path, Dom, [dialect(xmlns), space(remove), keep_prefix(true)])
 	;	true),
-	(	rdf_request_file(File_Paths, Rdf_Tmp_File_Path)
-	->	load_request_rdf(Rdf_Tmp_File_Path, G)
+	(	accept_request_file(File_Paths, Rdf_Tmp_File_Path, n3)
+	->	(
+			load_request_rdf(Rdf_Tmp_File_Path, G),
+			doc_from_rdf(G)
+		)
 	;	true),
-	doc_from_rdf(G),
 	(	process_rdf_request
 	;	(
 			xpath(Dom, //reports, _)
 			->	process_xml_request(Xml_Tmp_File_Path, Dom)
 			;	throw_string('<reports> tag not found'))).
 
-xml_request(File_Paths, Xml_Tmp_File_Path) :-
-	member(Xml_Tmp_File_Path, File_Paths),
-	icase_endswith(Xml_Tmp_File_Path, ".xml"),
-	tmp_file_path_to_url(Xml_Tmp_File_Path, Url),
-	report_entry('request_xml', Url, 'request_xml').
+accept_request_file(File_Paths, Path, Type) :-
+	member(Path, File_Paths),
+	tmp_file_path_to_url(Path, Url),
+	(
+		loc_icase_endswith(Path, ".xml")
+	->	(
+			report_entry('request_xml', Url, 'request_xml'),
+			Type = xml
+		)
+	;	loc_icase_endswith(Path, "n3")
+	->	(
+			report_entry('request_n3', Url, 'request_n3'),
+			type = n3
+		)).
 
-rdf_request_file(File_Paths, Rdf_Tmp_File_Path) :-
-	member(Rdf_Tmp_File_Path, File_Paths),
-	icase_endswith(Rdf_Tmp_File_Path, "n3"),
-	tmp_file_path_to_url(Rdf_Tmp_File_Path, Url),
-	report_entry('request_n3', Url, 'request_n3').
-
-load_request_rdf(Rdf_Tmp_File_Path, G) :-
+load_request_rdf(loc(absolute_path, Rdf_Tmp_File_Path), G) :-
 	rdf_create_bnode(G),
 	rdf_load(Rdf_Tmp_File_Path, [graph(G), anon_prefix(bn)]),
 	findall(_, (rdf(S,P,O),writeq(('raw_rdf:',S,P,O)),nl),_).
