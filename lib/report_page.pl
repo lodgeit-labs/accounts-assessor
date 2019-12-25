@@ -47,3 +47,10 @@ report_entry(Title_Text, Url, Id) :-
 	add_report_file(Id, Title_Text, Url).
 
 
+make_json_report(Dict, Fn) :-
+	Title = Key, Fn = Key,
+	dict_json_text(Dict, Json_Text),
+	atomic_list_concat([Fn, '.json'], Fn2_Value),
+	Fn2 = loc(file_name, Fn2_Value),
+	report_item(Fn2, Json_Text, Report_File_URL),
+	report_entry(Title, Report_File_URL, Key).

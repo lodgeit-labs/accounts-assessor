@@ -1,7 +1,7 @@
 :- rdet(report/4).
 :- rdet(crosschecks_report/4).
 
-report(Sd, Json) :-
+crosschecks_report0(Sd, Json) :-
 	crosschecks_report(Sd, Json),
 	findall(
 		p([p([Check]), p([Evaluation]), p([Status])]),
@@ -10,7 +10,7 @@ report(Sd, Json) :-
 	/*dict_json_text(Json, Json_Text),
 	report_item('crosschecks.json', Json_Text, Json_Url),
 	report_entry('crosschecks.json', Json_Url, crosschecks_json, Json_File_Info),*/
-	report_page('crosschecks', Html, 'crosschecks.html', 'crosschecks_html').
+	report_page('crosschecks', Html, loc(file_name,'crosschecks.html'), 'crosschecks_html').
 
 crosschecks_report(Sd, Json) :-
 	Crosschecks = [

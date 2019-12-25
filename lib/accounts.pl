@@ -156,7 +156,7 @@ check_account_parent(Accounts, Account) :-
 
 write_accounts_json_report(Accounts) :-	
 	maplist(account_to_dict, Accounts, Dicts),
-	write_tmp_json_file('accounts.json', Dicts).
+	write_tmp_json_file(loc(file_name,'accounts.json'), Dicts).
 
 account_to_dict(Account, Dict) :-
 	Dict = _{

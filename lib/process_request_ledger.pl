@@ -3,14 +3,12 @@
 :- rdet(process/2).
 
 
-process_request_ledger(File_Name, Dom) :-
+process_request_ledger(File_Path, Dom) :-
 	/* does it look like a ledger request? */
 	% ideally should be able to omit this and have this check be done as part of the schema validation, but currently  process_request.pl is using this to check whether to use this endpoint.
 	inner_xml(Dom, //reports/balanceSheetRequest, _),
-
-	absolute_tmp_path(File_Name, Instance_File),
-	absolute_file_name(my_schemas('bases/Reports.xsd'), Schema_File, []),
-	validate_xml(Instance_File, Schema_File, Schema_Errors),
+	resolve_specifier(loc(specifier, my_schemas('bases/Reports.xsd')), Schema_File),
+	validate_xml(File_Path, Schema_File, Schema_Errors),
 	(	Schema_Errors = []
 	->	process_xml_ledger_request2(Dom)
 	;	maplist(add_alert(error), Schema_Errors)
@@ -114,25 +112,17 @@ other_reports(Static_Data, Static_Data_Historical, Outstanding, Balance_Sheet, P
 		},
 		tb: Trial_Balance
 	},
-	report(Static_Data.put(reports, Structured_Reports), Crosschecks_Report_Json),
+	crosschecks_report0(Static_Data.put(reports, Structured_Reports), Crosschecks_Report_Json),
 	make_json_report(Structured_Reports.put(crosschecks, Crosschecks_Report_Json), reports_json).
 
 make_gl_viewer_report :-
 	Viewer_Dir = 'general_ledger_viewer',
-	absolute_file_name(my_static(Viewer_Dir), Viewer_Dir_Absolute, [file_type(directory)]),
-	report_file_path(Viewer_Dir, Url, Tmp_Viewer_Dir_Absolute),
-	atomic_list_concat(['cp -r ', Viewer_Dir_Absolute, ' ', Tmp_Viewer_Dir_Absolute], Cmd),
+	absolute_file_name(my_static(Viewer_Dir), Src, [file_type(directory)]),
+	report_file_path(loc(file_name, Viewer_Dir), loc(absolute_url, Dir_Url), loc(absolute_path, Dst)),
+	atomic_list_concat(['cp -r ', Src, ' ', Dst], Cmd),
 	shell(Cmd),
-	atomic_list_concat([Url, '/gl.html'], Url_With_Slash),
-	report_entry('GL viewer', Url_With_Slash, 'gl_html').
-	
-make_json_report(Dict, Fn) :-
-	Title = Key, Fn = Key,
-	dict_json_text(Dict, Json_Text),
-	atomic_list_concat([Fn, '.json'], Fn2),
-	report_item(Fn2, Json_Text, Report_File_URL),
-	report_entry(Title, Report_File_URL, Key).
-
+	atomic_list_concat([Dir_Url, '/gl.html'], Full_Url),
+	report_entry('GL viewer', loc(absolute_url, Full_Url), 'gl_html').
 
 investment_reports(Static_Data, Outstanding, Ir) :-
 	catch_maybe_with_backtrace(
@@ -178,11 +168,11 @@ taxonomy_url_base :-
 	request_add_property(l:taxonomy_url_base, Taxonomy_Dir_Url).
 
 symlink_tmp_taxonomy_to_static_taxonomy(Unique_Taxonomy_Dir_Url) :-
-	my_request_tmp_dir(Tmp_Dir),
+	my_request_tmp_dir(loc(tmp_directory_name,Tmp_Dir)),
 	server_public_url(Server_Public_Url),
 	atomic_list_concat([Server_Public_Url, '/tmp/', Tmp_Dir, '/taxonomy/'], Unique_Taxonomy_Dir_Url),
-	absolute_tmp_path('/taxonomy', Tmp_Taxonomy),
-	absolute_file_name(my_static('taxonomy/'), Static_Taxonomy, [file_type(directory)]),
+	absolute_tmp_path(loc(file_name, 'taxonomy'), loc(absolute_path, Tmp_Taxonomy)),
+	resolve_specifier(loc(specifier, my_static('taxonomy')), loc(absolute_path,Static_Taxonomy)),
 	atomic_list_concat(['ln -s ', Static_Taxonomy, ' ', Tmp_Taxonomy], Cmd),
 	shell(Cmd, _).
 

@@ -20,13 +20,14 @@
 :- initialization(set_server_public_url('http://localhost:8080')).
 
 /* takes either a xml request file, or a directory expected to contain a xml request file, an n3 file, or both */
-process_request_cmdline(Path_Value) :-
+process_request_cmdline(Path_Value0) :-
+	resolve_specifier(loc(specifier, Path_Value0), Path),
 	Path = loc(absolute_path, Path_Value),
 	(	exists_directory(Path_Value)
 	->	/* invoked with a directory */
 		directory_real_files(Path, File_Paths)
 	;	/* invoked with a file */
-		File_Paths = [loc(absolute_path,Path)]),
+		File_Paths = [Path]),
 	(File_Paths = [] -> throw('no files found') ; true),
 	bump_tmp_directory_id,
 	copy_request_files_to_tmp(File_Paths, _),
@@ -39,12 +40,12 @@ process_request_http(Options, Parts) :-
 process_request(Options, File_Paths) :-
 	doc_init,
 	maybe_supress_generating_unique_taxonomy_urls(Options),
-	process_mulitifile_request(File_Paths),
-	report_file_path('', Tmp_Dir_Url, _),
+	process_multifile_request(File_Paths),
+	report_file_path(loc(file_name, ''), Tmp_Dir_Url, _),
 	report_entry('all files', Tmp_Dir_Url, 'all'),
 	findall(
 		_{key:Title, val:_{url:Url}, id:Id},
-		get_report_file(Id, Title, Url),
+		get_report_file(Id, Title, loc(absolute_url,Url)),
 		Files3),
 	findall(
 		Alert,
@@ -65,8 +66,8 @@ process_request(Options, File_Paths) :-
 		alerts:Alerts3,
 		reports:Files3
 	},
-
-	absolute_tmp_path('response.json', Json_Response_File_Path),
+	gtrace,
+	absolute_tmp_path(loc(file_name,'response.json'), Json_Response_File_Path),
 	dict_json_text(Json_Out, Response_Json_String),
 	write_file(Json_Response_File_Path, Response_Json_String),
 
@@ -79,9 +80,9 @@ process_request(Options, File_Paths) :-
 	;	writeln(Response_Json_String)),
 	make_zip.
 
-process_mulitifile_request(File_Paths) :-
+process_multifile_request(File_Paths) :-
 	(	accept_request_file(File_Paths, Xml_Tmp_File_Path, xml)
-	->	load_structure(Xml_Tmp_File_Path, Dom, [dialect(xmlns), space(remove), keep_prefix(true)])
+	->	load_request_xml(Xml_Tmp_File_Path, Dom)
 	;	true),
 	(	accept_request_file(File_Paths, Rdf_Tmp_File_Path, n3)
 	->	(
@@ -107,8 +108,11 @@ accept_request_file(File_Paths, Path, Type) :-
 	;	loc_icase_endswith(Path, "n3")
 	->	(
 			report_entry('request_n3', Url, 'request_n3'),
-			type = n3
+			Type = n3
 		)).
+
+load_request_xml(loc(absolute_path,Xml_Tmp_File_Path), Dom) :-
+	load_structure(Xml_Tmp_File_Path, Dom, [dialect(xmlns), space(remove), keep_prefix(true)]).
 
 load_request_rdf(loc(absolute_path, Rdf_Tmp_File_Path), G) :-
 	rdf_create_bnode(G),
@@ -120,10 +124,9 @@ process_rdf_request :-
 		process_request_depreciation_new).
 
 process_xml_request(File_Path, Dom) :-
-	exclude_file_location_from_filename(File_Path, File_Name),
-	(process_request_car:process(File_Name, Dom);
-	(process_request_loan(File_Name, Dom);
-	(process_request_ledger(File_Name, Dom)
+	(process_request_car:process(File_Path, Dom);
+	(process_request_loan(File_Path, Dom);
+	(process_request_ledger(File_Path, Dom)
 	%(process_request_livestock:process(File_Name, Dom);
 	%(process_request_investment:process(File_Name, Dom);
 	%(process_request_depreciation_old:process(File_Name, Dom)

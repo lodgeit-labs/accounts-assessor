@@ -55,12 +55,12 @@ investment_report_2(Static_Data, Outstanding_In, Filename_Suffix, Report_Data) :
 
 	atomic_list_concat(['investment_report', Filename_Suffix, '.html'], Filename),
 	atomic_list_concat(['investment_report', Filename_Suffix, '_html'], HTML_ID),
-	report_page_with_table(Title_Text, Table_Html, Filename, HTML_ID),
+	report_page_with_table(Title_Text, Table_Html, loc(file_name, Filename), HTML_ID),
 	
 	atomic_list_concat(['investment_report', Filename_Suffix, '.json'], Json_Filename),
 	atomic_list_concat(['investment_report', Filename_Suffix, '_json'], JSON_ID),
 	dict_json_text(Table, Json_Text),
-	report_item(Json_Filename, Json_Text, Json_Url),
+	report_item(loc(file_name,Json_Filename), Json_Text, Json_Url),
 	nonvar(Json_Url),
 	report_entry(Json_Filename, Json_Url, JSON_ID),
 	
