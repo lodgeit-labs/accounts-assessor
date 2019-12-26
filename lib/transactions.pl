@@ -1,5 +1,5 @@
-:- rdet(transactions_by_account/2).
-%:- rdet(transaction_to_dict/2).
+%:- rdet(transactions_by_account/2).
+%%:- rdet(transaction_to_dict/2).
 
 
 

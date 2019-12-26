@@ -1,9 +1,9 @@
-:- rdet(optional_converted_value/3).
-:- rdet(format_conversion/3).
-:- rdet(optional_currency_conversion/5).
-:- rdet(format_money_precise/3).
-:- rdet(format_money/3).
-:- rdet(format_money2/4).
+%:- rdet(optional_converted_value/3).
+%:- rdet(format_conversion/3).
+%:- rdet(optional_currency_conversion/5).
+%:- rdet(format_money_precise/3).
+%:- rdet(format_money/3).
+%:- rdet(format_money2/4).
 
 
 pl_page(Static_Data, ProftAndLoss2, Filename_Suffix) :-

@@ -1,7 +1,7 @@
 
-:- rdet(generate_gl_data/5).
-:- rdet(make_gl_entry/4).
-:- rdet(transaction_with_converted_vector/4).
+%:- rdet(generate_gl_data/5).
+%:- rdet(make_gl_entry/4).
+%:- rdet(transaction_with_converted_vector/4).
 
 find_s_transactions_in_period(S_Transactions, Opening_Date, Closing_Date, Out) :-
 	findall(

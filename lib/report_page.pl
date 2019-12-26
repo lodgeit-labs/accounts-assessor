@@ -1,10 +1,10 @@
 :- use_module(library(http/html_write)).
 
-:- rdet(report_page/4).
-:- rdet(report_page_with_table/4).
-:- rdet(report_section/3).
-:- rdet(html_tokenlist_string/2).
-:- rdet(report_file_path/3).
+%:- rdet(report_page/4).
+%:- rdet(report_page_with_table/4).
+%:- rdet(report_section/3).
+%:- rdet(html_tokenlist_string/2).
+%:- rdet(report_file_path/3).
 
 
 html_tokenlist_string(Tokenlist, String) :-

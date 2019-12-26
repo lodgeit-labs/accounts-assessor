@@ -1,7 +1,7 @@
 
 /*TODO add more rdet declarations here*/
-:- rdet(preprocess_s_transactions/6).
-:- rdet(preprocess_s_transactions2/8).
+%:- rdet(preprocess_s_transactions/6).
+%:- rdet(preprocess_s_transactions2/8).
 
 
 

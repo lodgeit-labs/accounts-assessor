@@ -1,0 +1,2 @@
+:- debug.
+:- [run_daemon].

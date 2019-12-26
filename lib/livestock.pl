@@ -1,5 +1,5 @@
 
-:- rdet(preprocess_livestock_buy_or_sell/3).
+%:- rdet(preprocess_livestock_buy_or_sell/3).
 
 livestock_data(Uri) :-
 	doc(Uri, rdf:type, l:livestock_data).

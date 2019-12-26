@@ -1,6 +1,6 @@
 
 
-:- rdet(process/2).
+%:- rdet(process/2).
 
 
 process_request_ledger(File_Path, Dom) :-

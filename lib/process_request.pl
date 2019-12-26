@@ -19,19 +19,39 @@
 /* fixme, assert the actual port in prolog_server and get that here? maybe also move this there, since we are not loading this file from the commandline anymore i think? */
 :- initialization(set_server_public_url('http://localhost:8080')).
 
+process_request_rpc_cmdline :-
+	json_read_dict(user_input, Dict),
+	process_request_rpc(Dict).
+
+process_request_rpc(Dict) :-
+	findall(
+		loc(absolute_path, P),
+		member(P, Dict.request_files),
+		Request_Files),
+	(	Request_Files = [Dir]
+	->	resolve_directory(Dir, Request_Files2)
+	;	Request_Files2 = Request_Files),
+	% todo options
+	set_unique_tmp_directory_name(loc(tmp_directory_name, Dict.tmp_directory_name)),
+	set_server_public_url(Dict.server_url),
+	process_request([], Request_Files2).
+
 /* takes either a xml request file, or a directory expected to contain a xml request file, an n3 file, or both */
 process_request_cmdline(Path_Value0) :-
 	resolve_specifier(loc(specifier, Path_Value0), Path),
+	bump_tmp_directory_id,
+	resolve_directory(Path, File_Paths),
+	copy_request_files_to_tmp(File_Paths, _),
+	process_request([], File_Paths).
+
+resolve_directory(Path, File_Paths) :-
 	Path = loc(absolute_path, Path_Value),
 	(	exists_directory(Path_Value)
 	->	/* invoked with a directory */
 		directory_real_files(Path, File_Paths)
 	;	/* invoked with a file */
 		File_Paths = [Path]),
-	(File_Paths = [] -> throw('no files found') ; true),
-	bump_tmp_directory_id,
-	copy_request_files_to_tmp(File_Paths, _),
-	process_request([], File_Paths).
+	(File_Paths = [] -> throw('no files found') ; true).
 
 process_request_http(Options, Parts) :-
 	findall(F1,	member(_=file(F1), Parts), File_Paths),

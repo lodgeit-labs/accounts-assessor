@@ -1,5 +1,5 @@
 
-:- rdet(s_transaction_to_dict/2).
+%:- rdet(s_transaction_to_dict/2).
 
 :- record s_transaction(day, type_id, vector, account_id, exchanged).
 % bank statement transaction record, these are in the input xml

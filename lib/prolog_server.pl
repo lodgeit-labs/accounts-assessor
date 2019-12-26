@@ -1,4 +1,5 @@
 :- module(_, [run_simple_server/0, run_daemon/0]).
+:- use_module(library(debug)).
 :- use_module(library(xpath)).
 :- use_module(library(option)).
 :- use_module(library(http/json)).
@@ -11,7 +12,8 @@
 :- use_module(library(http/http_client)).
 :- use_module(library(http/html_write)).
 :- use_module(library(http/http_files)).
-:- use_module(library(http/http_error)). 
+:- use_module(library(http/http_error)).
+:- use_module(library(http/http_unix_daemon)).
 :- use_module('residency', []).
 :- use_module('sbe', []).
 :- use_module('lib', []).
@@ -45,7 +47,7 @@ run_simple_server :-
 % -------------------------------------------------------------------
 
 run_daemon :-
-	use_module(library(http/http_unix_daemon)),
+	%use_module(library(http/http_unix_daemon)),
 	http_daemon.
 
 % -------------------------------------------------------------------
@@ -88,13 +90,11 @@ upload_form(_Request) :-
 
 
 upload(Request) :-
-   throw(http_reply(bad_request(bad_file_upload))),
-
-halt,
-	debug(process_data, upload),
+	debug(process_data, upload, []),!,
 	multipart_post_request(Request), !,
 	lib:bump_tmp_directory_id, /*assert a unique thread-local my_tmp for each request*/
 	http_read_data(Request, Parts, [ on_filename(lib:http_post_save_file) ]),
+
 	Options = Parts,
 	catch(
 		process_request(Request, Options, Parts),
@@ -103,12 +103,13 @@ halt,
 		/* TODO (optionally only if the request content type is xml), return the errror as xml. the status code still should be bad request, but it's not required. 
 		are we able to throw a bad_request and have the server produce a xml error page? if not, we'll need to 
 		%writeln('<xml errror blablabla>'), but this means endpoints cannot write anything to the output stream until 
-		everything's done. The option of generating the responses in a structured way has a lot of open questions (streaming..), so probably just redirecting endpoint's output to a file will be best choice now.
-		*/
+		everything's done. The option of generating the responses in a structured way has a lot of open questions (streaming..), so probably just redirecting endpoint's output to a file will be best choice now.*/
 	).
 
-:- guitracer.		
-:- tspy(upload/1).
+/*
+:- guitracer.*/
+%:- tspy(upload/1).
+%:- tspy(lib:http_post_save_file).
 
 
 upload(_, _) :-

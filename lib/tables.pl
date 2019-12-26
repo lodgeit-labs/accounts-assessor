@@ -1,14 +1,14 @@
 
 /*
 do cuts caused by the rdet ifs still cut into the findalling?
-:- rdet(formatted_row_kvs/3).
-:- rdet(group_columns/2).
-:- rdet(format_column/3).
+%:- rdet(formatted_row_kvs/3).
+%:- rdet(group_columns/2).
+%:- rdet(format_column/3).
 */
-:- rdet(table_totals/3).
-:- rdet(table_html/2).
-:- rdet(format_row/3).
-:- rdet(row_to_html/3).
+%:- rdet(table_totals/3).
+%:- rdet(table_html/2).
+%:- rdet(format_row/3).
+%:- rdet(row_to_html/3).
 
 /*
   <internal representation of ... whatever> to <html something>

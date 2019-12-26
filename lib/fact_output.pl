@@ -1,8 +1,8 @@
 
-:- rdet(format_balance/11).
-:- rdet(format_balances/11).
-:- rdet(pesseract_style_table_rows/4).
-:- rdet(format_report_entries/8).
+%:- rdet(format_balance/11).
+%:- rdet(format_balances/11).
+%:- rdet(pesseract_style_table_rows/4).
+%:- rdet(format_report_entries/8).
 
 
 format_report_entries(_, _, _, _, _, _, [], []).

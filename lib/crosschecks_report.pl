@@ -1,5 +1,5 @@
-:- rdet(report/4).
-:- rdet(crosschecks_report/4).
+%:- rdet(report/4).
+%:- rdet(crosschecks_report/4).
 
 crosschecks_report0(Sd, Json) :-
 	crosschecks_report(Sd, Json),
