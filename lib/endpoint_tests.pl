@@ -1,7 +1,3 @@
-% ===================================================================
-% Project:   LodgeiT
-% Date:      2019-07-09
-% ===================================================================
 /*
 this runs the requests in tests/endpoint_tests and compares the responses against saved files.
 Note that the http server is spawned in this process. This should change in future.
@@ -20,12 +16,7 @@ Note that the http server is spawned in this process. This should change in futu
 :- use_module(library(http/json)).
 :- use_module(library(xpath)).
 :- use_module(library(readutil)).
-:- use_module(library(xbrl/files), []).
-:- use_module('prolog_server', []).
-:- use_module('compare_xml').
-:- asserta(user:file_search_path(library, '../prolog_xbrl_public/xbrl/prolog')).
-:- use_module(library(xbrl/utils), []).
-:- use_module(library(xbrl/files)).
+:- use_module('lib', []).
 
 :- multifile
 	prolog:message//1.

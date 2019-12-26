@@ -66,7 +66,6 @@ process_request(Options, File_Paths) :-
 		alerts:Alerts3,
 		reports:Files3
 	},
-	gtrace,
 	absolute_tmp_path(loc(file_name,'response.json'), Json_Response_File_Path),
 	dict_json_text(Json_Out, Response_Json_String),
 	write_file(Json_Response_File_Path, Response_Json_String),
@@ -121,7 +120,17 @@ load_request_rdf(loc(absolute_path, Rdf_Tmp_File_Path), G) :-
 
 process_rdf_request :-
 	(	process_request_hirepurchase_new;
-		process_request_depreciation_new).
+		process_request_depreciation_new),
+	!,
+	make_rdf_report.
+
+make_rdf_report :-
+	Title = 'response.n3',
+	doc_to_rdf(Rdf_Graph),
+	report_file_path(loc(file_name, Title), Url, loc(absolute_path,Path)),
+	add_report_file(Title, Title, Url),
+	rdf_save(Path, [graph(Rdf_Graph), sorted(true)]).
+
 
 process_xml_request(File_Path, Dom) :-
 	(process_request_car:process(File_Path, Dom);
@@ -170,18 +179,6 @@ response_file_name(Request_File_Name, Response_File_Name) :-
 	(	replace_request_with_response(Request_File_Name, Response_File_Name)
 	->	true
 	;	atomic_list_concat(['response-',Request_File_Name], Response_File_Name)).
-
-reports(Reports, Output_File_Title) :-
-	Output_File_Title = 'response.n3',
-	doc_to_rdf(Rdf_Graph),
-	report_file_path(Output_File_Title, _Report_Url, Report_File_Path),
-	rdf_save(Report_File_Path, [graph(Rdf_Graph), sorted(true)]),
-	Reports = _{files:[Report_File_Path], alerts:[]}.
-
-
-
-
-
 
 
 /*

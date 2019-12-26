@@ -1,4 +1,4 @@
-:- module(_, [run_simple_server/0]).
+:- module(_, [run_simple_server/0, run_daemon/0]).
 :- use_module(library(xpath)).
 :- use_module(library(option)).
 :- use_module(library(http/json)).
@@ -12,7 +12,6 @@
 :- use_module(library(http/html_write)).
 :- use_module(library(http/http_files)).
 :- use_module(library(http/http_error)). 
-:- use_module(library(http/http_unix_daemon)).
 :- use_module('residency', []).
 :- use_module('sbe', []).
 :- use_module('lib', []).
@@ -25,7 +24,7 @@ mime:mime_extension('xsd', 'application/xml').
 
 :- http_handler(root(.),      upload_form, []).
 :- http_handler(root(upload), upload,      []).
-:- http_handler(root(upload_and_get_json_reports_list), upload_and_get_json_reports_list,      []).
+%:- http_handler(root(upload_and_get_json_reports_list), upload_and_get_json_reports_list,      []).
 :- http_handler(root(sbe), sbe_request, [methods([post])]).
 :- http_handler(root(residency), residency_request, [methods([post])]).
 :- http_handler(root(.), http_reply_from_files('.', []), [prefix]).
@@ -44,16 +43,17 @@ run_simple_server :-
 % -------------------------------------------------------------------
 % run_daemon/0
 % -------------------------------------------------------------------
-/*
+
 run_daemon :-
-   http_daemon.
-  */
+	use_module(library(http/http_unix_daemon)),
+	http_daemon.
+
 % -------------------------------------------------------------------
 % upload_form/1
 % -------------------------------------------------------------------
 
 upload_form(_Request) :-
-reply_html_page(
+	reply_html_page(
 			title('LodgeiT Demo'),
 		[ 
 			h1('LodgeiT Demo'),
@@ -85,11 +85,16 @@ reply_html_page(
 			p(['Upload your request xml file here. You can also browse ', a([href="http://dev-node.uksouth.cloudapp.azure.com:7778/tests/endpoint_tests/"], 'available example request files'),' and ', a([href="http://dev-node.uksouth.cloudapp.azure.com:7778/run/endpoint_tests/depreciation/depreciation-request-depreciation-between-dates-all-years.xml"], 'run them directly like this')]),
 			p(['a new directory is generated for each request: ', a([href="http://dev-node.uksouth.cloudapp.azure.com:7778/tmp/"], 'tmp/'), ', where you should be able to find the uploaded request file and generated report files.'])
 		]).
-		
+
+
 upload(Request) :-
+   throw(http_reply(bad_request(bad_file_upload))),
+
+halt,
+	debug(process_data, upload),
 	multipart_post_request(Request), !,
 	lib:bump_tmp_directory_id, /*assert a unique thread-local my_tmp for each request*/
-	http_read_data(Request, Parts, [ on_filename(/*lib:?*/http_post_save_file) ]),
+	http_read_data(Request, Parts, [ on_filename(lib:http_post_save_file) ]),
 	Options = Parts,
 	catch(
 		process_request(Request, Options, Parts),
@@ -101,10 +106,10 @@ upload(Request) :-
 		everything's done. The option of generating the responses in a structured way has a lot of open questions (streaming..), so probably just redirecting endpoint's output to a file will be best choice now.
 		*/
 	).
-/*
+
 :- guitracer.		
 :- tspy(upload/1).
-*/
+
 
 upload(_, _) :-
    throw(http_reply(bad_request(bad_file_upload))).
