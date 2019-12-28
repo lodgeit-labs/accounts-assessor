@@ -9,7 +9,8 @@
     depreciation_between_start_date_and_other_date/11,
     depreciation_pool_from_start/4,
     written_down_value/5,
-    depreciation_between_two_dates/5]).
+    depreciation_between_two_dates/5,
+    profit_and_loss/5]).
 
 :- begin_tests(depreciation).
 
@@ -340,6 +341,30 @@ test(depreciation_between_two_dates_1):-
     depreciation_between_two_dates(Asset_id, From_date, To_date, Method, Depreciation_value),
     Correct_depreciation_value is 977.3206045515285 - 543.5232751921387,
     assertion(Correct_depreciation_value == Depreciation_value).
+
+test(profit_and_loss_1):-
+    Asset_id = car123,
+    asset(Asset_id,Asset_cost,Start_date,_),
+    Termination_date = date(2019,7,7),
+    Termination_value = 500,
+    profit_and_loss(Asset_id, Termination_value, Termination_date, _, Profit_and_loss),
+    depreciation_between_start_date_and_other_date(Asset_cost,diminishing_value,Start_date,
+        Termination_date,Asset_id,_,1,false,_,0,Total_depreciation_value),
+    Correct_profit_and_loss is Termination_value - (Asset_cost - Total_depreciation_value),
+    assertion(Correct_profit_and_loss == Profit_and_loss).
+
+test(profit_and_loss_2, fail):-
+    % It should fail since the asset was placed in a general pool that implies a diminishing value method
+    Method = prime_cost,
+    Asset_id = car123,
+    asset(Asset_id,Asset_cost,Start_date,_),
+    Termination_date = date(2019,7,7),
+    Termination_value = 500,
+    profit_and_loss(Asset_id, Termination_value, Termination_date, Method, Profit_and_loss),
+    depreciation_between_start_date_and_other_date(Asset_cost,Method,Start_date,
+        Termination_date,Asset_id,_,1,false,_,0,Total_depreciation_value),
+    Correct_profit_and_loss is Termination_value - (Asset_cost - Total_depreciation_value),
+    assertion(Correct_profit_and_loss == Profit_and_loss).
 
 :- end_tests(depreciation).
 :- run_tests.

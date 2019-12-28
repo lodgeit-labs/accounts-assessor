@@ -107,15 +107,8 @@ Small businesses can allocate depreciating assets that cost more than the instan
  30% in other income years on a diminishing value basis, irrespective of the effective life of the asset.
  */
 depreciation_rate(general_pool,diminishing_value,1,_,_,0.15).
-depreciation_rate(general_pool,diminishing_value,2,_,_,0.3).
-depreciation_rate(general_pool,diminishing_value,3,_,_,0.3).
-depreciation_rate(general_pool,diminishing_value,4,_,_,0.3).
-depreciation_rate(general_pool,diminishing_value,5,_,_,0.3).
-depreciation_rate(general_pool,diminishing_value,6,_,_,0.3).
-depreciation_rate(general_pool,diminishing_value,7,_,_,0.3).
-depreciation_rate(general_pool,diminishing_value,8,_,_,0.3).
-depreciation_rate(general_pool,diminishing_value,9,_,_,0.3).
-depreciation_rate(general_pool,diminishing_value,10,_,_,0.3).
+depreciation_rate(general_pool,diminishing_value,Year,_,_,0.3):- Year #> 1.
+
 % Depreciation rate for Software Pool
 depreciation_rate(software_pool,_, 1, _, _,0).
 depreciation_rate(software_pool,_, 2, Start_date,_,Rate):- (Start_date @>= date(2015,7,1) -> Rate is 0.3; Rate is 0.4).
@@ -132,7 +125,7 @@ TODO:If asset is transfered to low value pool, then it can't leave the pool afte
 Only low value or low cost assets can be allocated to a Low Value Pool
 */
 depreciation_rate(low_value_pool,_,1,_,_,0.1875).
-depreciation_rate(low_value_pool,_,_,_,_,0.375).
+depreciation_rate(low_value_pool,_,Year,_,_,0.375):- Year > 1.
 % For debugging
 %start:-depreciationInInterval(car123,1000,date(2017,8,1),0,20,800,_,diminishing_value,1,5,Result,0,Total_depreciation).
 
@@ -144,12 +137,12 @@ fluent(in_pool(Asset_id,Pool)):- pool(Pool),asset(Asset_id,_,_,_).
 fluent(not_in_pool(Asset_id)):- asset(Asset_id,_,_,_).
 
 event(transfer_asset_to_pool(Asset_id, Pool)):- pool(Pool),asset(Asset_id,_,_,_).
-event(remove_asset_from_pool(Asset_id, Pool)):- pool(Pool),asset(Asset_id,_,_,_).
+event(asset_disposal(Asset_id)):-asset(Asset_id,_,_,_).
 
 initiates(transfer_asset_to_pool(Asset_id, Pool), in_pool(Asset_id, Pool),T):- time(T),asset(Asset_id,_,_,_),pool(Pool).
-initiates(remove_asset_from_pool(Asset_id, Pool), not_in_pool(Asset_id),T):- time(T),asset(Asset_id,_,_,_),pool(Pool).
+initiates(asset_disposal(Asset_id), not_in_pool(Asset_id),T):- time(T),asset(Asset_id,_,_,_).
 
-terminates(remove_asset_from_pool(Asset_id, Pool), in_pool(Asset_id, Pool),T):- time(T),asset(Asset_id,_,_,_),pool(Pool).
+terminates(asset_disposal(Asset_id), in_pool(Asset_id, Pool),T):- time(T),asset(Asset_id,_,_,_),pool(Pool).
 terminates(transfer_asset_to_pool(Asset_id, Pool), not_in_pool(Asset_id),T):- time(T),asset(Asset_id,_,_,_),pool(Pool).
 
 % Every asset begins not in any pool
@@ -174,13 +167,13 @@ happens(transfer_asset_to_pool(car456,general_pool),9343).
 % Remove car123 from general pool in date(2021,6,1) by disposal
 % days_from_begin_accounting(date(2021,6,1),Days).
 % Days = 11474
-happens(remove_asset_from_pool(car123,general_pool),11474).
+happens(asset_disposal(car123),11474).
 % Remove car456 from general pool in date(2020,7,31) by disposal
 % days_from_begin_accounting(date(2020,7,31),Days).
 % Days = 11169
-happens(remove_asset_from_pool(car456,general_pool),11169).
+happens(asset_disposal(car456),11169).
 
-start:- 
+start:-
     Asset_id = car123,
     T1 = 9982,
     T2 = 10043,

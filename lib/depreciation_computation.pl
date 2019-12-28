@@ -3,7 +3,8 @@
 	depreciation_between_start_date_and_other_date/11,
 	depreciation_pool_from_start/4,
 	written_down_value/5,
-	depreciation_between_two_dates/5]).
+	depreciation_between_two_dates/5,
+	profit_and_loss/5]).
 
 :- use_module(days, [day_diff/3]).
 :- use_module(utils, [throw_string/1]).
@@ -83,14 +84,14 @@ depreciation_pool_from_start(Pool,To_date,Method,Total_depreciation):-
 	findall(Depreciation_value,(
 		%asset(car123,1000,date(2017,5,1),5).
 		asset(Asset_id,Cost,Start_date,_),
-		depreciation_between_start_date_and_other_date(Cost,Method,Start_date,To_date,Asset_id,Life,1,true,Pool,0,Depreciation_value)),
+		depreciation_between_start_date_and_other_date(Cost,Method,Start_date,To_date,Asset_id,_,1,true,Pool,0,Depreciation_value)),
 		Depreciation_values_lst),
 	sum_list(Depreciation_values_lst,Total_depreciation). 
 
 %start:-depreciationInInterval(corolla,76768,date(2019,7,1),0,32,76768,_,diminishing_value,1,5,_,0,Depreciation_value).
 %start:- depreciation_between_start_date_and_other_date(1000,diminishing_value,date(2017,1,1),date(2019,10,2),car123,_,1,false,_,0,Result).
 start:- depreciation_between_start_date_and_other_date(1000,diminishing_value,date(2017,5,1),date(2019,10,2),car123,Life,1,false,_,0,Total_depreciation_value),
-writeln(Life).
+	writeln(Life).
 
 % Calculates depreciation between any two dates on a daily basis equal or posterior to the invest in date
 depreciation_between_two_dates(Asset_id, From_date, To_date, Method, Depreciation_value):-
@@ -117,6 +118,10 @@ written_down_value(Asset_id, Written_down_date, Method, Life, Written_down_value
 		Total_depreciation_value
 	),
 	Written_down_value is Asset_cost - Total_depreciation_value.
+
+profit_and_loss(Asset_id, Asset_price, Written_down_date, Method, ProfitAndLoss):-
+	written_down_value(Asset_id, Written_down_date,Method,_,Written_down_value),
+	ProfitAndLoss is Asset_price - Written_down_value.
 
 % if days difference is less than zero, it means that the requested date 
 % in the input value is earlier than the invest in date.
