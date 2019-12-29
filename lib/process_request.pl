@@ -64,8 +64,16 @@ process_request(Options, File_Paths) :-
 	report_file_path(loc(file_name, ''), Tmp_Dir_Url, _),
 	report_entry('all files', Tmp_Dir_Url, 'all'),
 	findall(
-		_{key:Title, val:_{url:Url}, id:Id},
-		get_report_file(Id, Title, loc(absolute_url,Url)),
+		Json,
+		(
+			get_report_file(Id, Title, loc(absolute_url,Url)),
+			(	Title == 'response.n3'
+			->	(
+					Json = _{key:Title, val:_{url:Url}, id:Id, contents:Contents},
+					tmp_file_path_from_something(loc(_,Url), loc(absolute_path,P)),
+					read_file_to_string(P, Contents, [])
+				)
+			;	Json = _{key:Title, val:_{url:Url}, id:Id})),
 		Files3),
 	findall(
 		Alert,
@@ -135,7 +143,7 @@ load_request_xml(loc(absolute_path,Xml_Tmp_File_Path), Dom) :-
 
 load_request_rdf(loc(absolute_path, Rdf_Tmp_File_Path), G) :-
 	rdf_create_bnode(G),
-	rdf_load(Rdf_Tmp_File_Path, [graph(G), anon_prefix(bn)]),
+	rdf_load(Rdf_Tmp_File_Path, [graph(G), anon_prefix(bn), on_error(error)]),
 	findall(_, (rdf(S,P,O),writeq(('raw_rdf:',S,P,O)),nl),_).
 
 process_rdf_request :-
@@ -149,7 +157,8 @@ make_rdf_report :-
 	doc_to_rdf(Rdf_Graph),
 	report_file_path(loc(file_name, Title), Url, loc(absolute_path,Path)),
 	add_report_file(Title, Title, Url),
-	rdf_save(Path, [graph(Rdf_Graph), sorted(true)]).
+	Url = loc(absolute_url, Url_Value),
+	rdf_save_turtle(Path, [graph(Rdf_Graph), sorted(true), base(Url_Value)]).
 
 
 process_xml_request(File_Path, Dom) :-
