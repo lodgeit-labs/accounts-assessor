@@ -158,7 +158,7 @@ make_rdf_report :-
 	report_file_path(loc(file_name, Title), Url, loc(absolute_path,Path)),
 	add_report_file(Title, Title, Url),
 	Url = loc(absolute_url, Url_Value),
-	rdf_save_turtle(Path, [graph(Rdf_Graph), sorted(true), base(Url_Value)]).
+	rdf_save_turtle(Path, [graph(Rdf_Graph), sorted(true), base(Url_Value), canonize_numbers(true), abbreviate_literals(false)]).
 
 
 process_xml_request(File_Path, Dom) :-
