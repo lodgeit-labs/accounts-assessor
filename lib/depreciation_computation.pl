@@ -84,6 +84,8 @@ depreciation_pool_from_start(Pool,To_date,Method,Total_depreciation):-
 	findall(Depreciation_value,(
 		%asset(car123,1000,date(2017,5,1),5).
 		asset(Asset_id,Cost,Start_date,_),
+		day_diff(Start_date,To_date,Days_diff),
+		Days_diff>0,
 		depreciation_between_start_date_and_other_date(Cost,Method,Start_date,To_date,Asset_id,_,1,true,Pool,0,Depreciation_value)),
 		Depreciation_values_lst),
 	sum_list(Depreciation_values_lst,Total_depreciation). 

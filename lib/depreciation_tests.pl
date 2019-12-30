@@ -329,7 +329,13 @@ test(depreciation_pool_1):-
 
 test(depreciation_pool_2):-
     depreciation_pool_from_start(low_value_pool,date(2019,2,2),diminishing_value,Total_depreciation),
-    % From above the pool should add the depreciation values of each asset for the same period
+    % Not any asset was placed in the low value pool 
+    Correct_total_depreciation is 0,
+    assertion(Total_depreciation == Correct_total_depreciation).
+
+test(depreciation_pool_3):-
+    depreciation_pool_from_start(general_pool,date(2013,2,2),diminishing_value,Total_depreciation),
+    % Not any asset was in the pool before this date so it should be zero
     Correct_total_depreciation is 0,
     assertion(Total_depreciation == Correct_total_depreciation).
 
