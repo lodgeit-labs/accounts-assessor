@@ -133,7 +133,7 @@ check_day_difference_validity(Days_difference) :-
 	->
 		true
 	;
-		throw_string('Request date is earlier than the invest in date.')
+		false, throw_string('Request date is earlier than the invest in date.')
 	).
 
 % Predicates for asserting that the fields of given transactions have particular values

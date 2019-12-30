@@ -321,15 +321,23 @@ test(written_down_value_asset_4):-
     written_down_value(Asset_id, Written_down_date, Method, _, Written_down_value),
     assertion(Written_down_value == 977.3206045515285).
 
+test(written_down_value_asset_5, fail):-
+    %It should fail because at this date car456 wasnt purchased yet
+    Asset_id = car456,
+    Written_down_date = date(2014,6,1),
+    Method = diminishing_value,
+    written_down_value(Asset_id, Written_down_date, Method, _, Written_down_value),
+    assertion(Written_down_value == 977.3206045515285).
+
 test(depreciation_pool_1):-
     depreciation_pool_from_start(general_pool,date(2019,2,2),diminishing_value,Total_depreciation),
-    % From above the pool should add the depreciation values of each asset for the same period
+    % From above, the pool should add the depreciation values of each asset for the same period while in pool
     Correct_total_depreciation is 430.8947462923214 + 1411.6143525408916,
     assertion(Total_depreciation == Correct_total_depreciation).
 
 test(depreciation_pool_2):-
     depreciation_pool_from_start(low_value_pool,date(2019,2,2),diminishing_value,Total_depreciation),
-    % Not any asset was placed in the low value pool 
+    % Not any asset was placed in the low value pool so it should be zero
     Correct_total_depreciation is 0,
     assertion(Total_depreciation == Correct_total_depreciation).
 
@@ -360,7 +368,7 @@ test(profit_and_loss_1):-
     assertion(Correct_profit_and_loss == Profit_and_loss).
 
 test(profit_and_loss_2, fail):-
-    % It should fail since the asset was placed in a general pool that implies a diminishing value method
+    % It should fail since the asset was placed in a general pool that forces a diminishing value method
     Method = prime_cost,
     Asset_id = car123,
     asset(Asset_id,Asset_cost,Start_date,_),

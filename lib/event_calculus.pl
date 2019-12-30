@@ -148,7 +148,7 @@ terminates(transfer_asset_to_pool(Asset_id, Pool), not_in_pool(Asset_id),T):- ti
 % Every asset begins not in any pool
 initially(not_in_pool(_)).
 % Example usage
-%asset(Asset_id,Asset_cost,Start_date,Effective_life_years)
+% asset(Asset_id,Asset_cost,Start_date,Effective_life_years)
 asset(car123,1000,date(2017,5,1),5).
 asset(car456,2000,date(2015,3,16),8).
 
