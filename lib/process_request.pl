@@ -140,12 +140,6 @@ load_request_rdf(loc(absolute_path, Rdf_Tmp_File_Path), G) :-
 	rdf_load(Rdf_Tmp_File_Path, [graph(G), anon_prefix(bn), on_error(error)]),
 	findall(_, (rdf(S,P,O),writeq(('raw_rdf:',S,P,O)),nl),_).
 
-process_rdf_request :-
-	(	process_request_hirepurchase_new;
-		process_request_depreciation_new),
-	!,
-	make_rdf_report.
-
 make_rdf_report :-
 	Title = 'response.n3',
 	doc_to_rdf(Rdf_Graph),
@@ -154,6 +148,11 @@ make_rdf_report :-
 	Url = loc(absolute_url, Url_Value),
 	rdf_save_turtle(Path, [graph(Rdf_Graph), sorted(true), base(Url_Value), canonize_numbers(true), abbreviate_literals(false)]).
 
+process_rdf_request :-
+	(	process_request_hirepurchase_new;
+		process_request_depreciation_new),
+	!,
+	make_rdf_report.
 
 process_xml_request(File_Path, Dom) :-
 	(process_request_car(File_Path, Dom);
