@@ -1,160 +1,130 @@
 
-:- module(depreciation_computation, [
-		written_down_value/5, 
-		depreciation_between_two_dates/6, 
-		transaction_account/2, 
-		transaction_cost/2, 
-		transaction_date/2]).
-
+:- module(depreciation_computation,[
+	depreciation_between_start_date_and_other_date/11,
+	depreciation_pool_from_start/4,
+	written_down_value/5,
+	depreciation_between_two_dates/5,
+	profit_and_loss/5]).
 
 :- use_module(days, [day_diff/3]).
 :- use_module(library(xbrl/utils), [throw_string/1]).
+:- use_module(utils, [throw_string/1]).
+:- use_module(event_calculus, [depreciationAsset/12,asset/4]).
+:- use_module(library(lists)).
 
+begin_accounting_date(date(1990,1,1)).
 
 % Calculates depreciation on a daily basis between the invest in date and any other date
-% recurses for every year, because depreciation rates may be different
-depreciation_between_invest_in_date_and_other_date(
-	Invest_in_value, 						% value at time of investment
-	Initial_value, 							% value at start of year
-	Method, 
-	date(From_year, From_Month, From_day),	% date of investment
-	To_date,								% date for which depreciation should be computed
-	Account,
-	Rates,
-	Depreciation_year, 						% it doesn't seem that we're actually making use of this.
-	By_day_factor, 							% 1/(days per depreciation period)
-	Total_depreciation_value
-) :-
-	/*format(user_error, depreciation_between_invest_in_date_and_other_date,[]),*/
+% recurses for every income year, because depreciation rates may be different
+depreciation_between_start_date_and_other_date(
+		Initial_value, 							% value at start of year / Asset Base Value
+		Method, 								% Diminishing Value / Prime Cost
+		date(From_year, From_Month, From_day),
+		To_date,								% date for which depreciation should be computed
+		Asset_id,								% Asset
+		[Life|RestOfLife],
+		Depreciation_year, 						% 1,2,3...
+		While_in_pool,
+		What_pool,
+		Initial_depreciation_value,
+		Total_depreciation_value
+	) :-
 	day_diff(date(From_year, From_Month, From_day), To_date, Days_difference),
 	check_day_difference_validity(Days_difference),	
-	
-	% throw exception 
-	% if we do not have depreciation rate for the specific year we are looking for or
-	% if there is no depreciation rate with unbound variable for depreciation year
-	copy_term(Rates, Rates_Copy),
-	(	
-	member(depreciation_rate(Account, Depreciation_year, Depreciation_rate), Rates_Copy)
-	->
-		true
-	;
-		throw_string('Expected depreciation rate not found.')		
-	),
-		
-	/*format(user_error, "ok..\n", []),*/
-
-	% amount of depreciation in the first depreciation period.
-	Depreciation_fixed_value = Invest_in_value * Depreciation_rate,
+	begin_accounting_date(Begin_accounting_date),
+	day_diff(Begin_accounting_date, date(From_year, From_Month, 1), T1),
+	% Get days From date until end of the current income year, <=365
 	(
-			% if we're hard-coding the assumption that the depreciation period is 1 year
-			% then we can hard-code the "by day factor" as 1/365 and don't need to pass it around.
-			% but we should perhaps instead generalize to handle arbitrary periods.
-			Days_difference =< 365 
-	-> 		depreciation_by_method(
-				Method, 
-				Initial_value, 
-				Depreciation_rate, 
-				Depreciation_fixed_value, 
-				By_day_factor,
-				Days_difference, 
+		From_Month < 7
+		->
+			day_diff(date(From_year, From_Month, From_day), date(From_year, 7, 1), Days_held),
+			Next_from_year is From_year
+			;
+			day_diff(date(From_year, From_Month, From_day), date(From_year + 1, 7, 1), Days_held),
+			Next_from_year is From_year + 1
+	),
+	(
+		Days_difference =< Days_held
+			->
+			T2 is T1 + Days_difference,
+			%depreciationAsset(Asset_id,T1,T2,Begin_value,End_value,Method,Year_from_start,Life,While_in_pool,What_pool,
+			%Initial_depreciation_value,Final_depreciation_value).
+			depreciationAsset(Asset_id,T1,T2,Initial_value,_,Method,Depreciation_year,Life,While_in_pool,What_pool,0,Depreciation_value),
+			Total_depreciation_value is Initial_depreciation_value + Depreciation_value
+	;
+			T2 is T1 + Days_held,
+			depreciationAsset(Asset_id,T1,T2,Initial_value,_,Method,Depreciation_year,Life,While_in_pool,What_pool,0,Depreciation_value),
+			Next_depreciation_year is Depreciation_year + 1,
+			Next_initial_value is Initial_value - Depreciation_value,
+			Next_depreciation_value is (Initial_depreciation_value + Depreciation_value),
+			depreciation_between_start_date_and_other_date(
+				Next_initial_value, 
+				Method,
+				date(Next_from_year, 7, 1), 
+				To_date, 
+				Asset_id,
+				RestOfLife, 
+				Next_depreciation_year, 
+				While_in_pool,
+				What_pool,
+				Next_depreciation_value,
 				Total_depreciation_value
 			)
-	;
-		(
-			depreciation_by_method(
-				Method, 
-				Initial_value, 
-				Depreciation_rate, 
-				Depreciation_fixed_value, 
-				By_day_factor, 
-				365, 
-				Depreciation_value
-			),
-			Next_depreciation_year is Depreciation_year + 1,
-			Next_from_year is From_year + 1,
-			Next_initial_value is Initial_value - Depreciation_value,
-			depreciation_between_invest_in_date_and_other_date(
-				Invest_in_value, 
-				Next_initial_value, 
-				Method, 
-				date(Next_from_year, From_Month, From_day), 
-				To_date, 
-				Account,
-				Rates, 
-				Next_depreciation_year, 
-				By_day_factor, 
-				Next_depreciation_value
-			),
-			Total_depreciation_value is  Depreciation_value + Next_depreciation_value
-		)
 	).
 
+%findall((Asset,Depreciation_value),depreciation_between_start_date_and_other_date(1000,prime_cost,date(2017,7,1),date(2021,6,30),Asset,_,1,false,_,0,Depreciation_value),Output).
+%findall(Depreciation_value,depreciation_between_start_date_and_other_date(1000,prime_cost,date(2017,1,1),date(2018,2,2),_,_,1,false,Pool,0,Depreciation_value),Depreciation_values_lst)
+
+%start(Total_depreciation):-findall(Depreciation_value,depreciation_between_start_date_and_other_date(1000,prime_cost,date(2017,7,1),date(2021,6,30),Asset,_,1,false,_,0,Depreciation_value),Output),
+%	sum_list(Output,Total_depreciation).
+
+%This can only be calculated in depreciation_computation because it needs begins values when using diminishing_value, and that depends always on previous years
+depreciation_pool_from_start(Pool,To_date,Method,Total_depreciation):-
+	%get begin value of all assets that are inside the pool any duration between T1 and T2, in T1
+	% for each asset calculate depreciation while in the specified pool between T1 and T2
+	findall(Depreciation_value,(
+		%asset(car123,1000,date(2017,5,1),5).
+		asset(Asset_id,Cost,Start_date,_),
+		day_diff(Start_date,To_date,Days_diff),
+		Days_diff>0,
+		depreciation_between_start_date_and_other_date(Cost,Method,Start_date,To_date,Asset_id,_,1,true,Pool,0,Depreciation_value)),
+		Depreciation_values_lst),
+	sum_list(Depreciation_values_lst,Total_depreciation). 
+
+%start:-depreciationInInterval(corolla,76768,date(2019,7,1),0,32,76768,_,diminishing_value,1,5,_,0,Depreciation_value).
+%start:- depreciation_between_start_date_and_other_date(1000,diminishing_value,date(2017,1,1),date(2019,10,2),car123,_,1,false,_,0,Result).
+start:- depreciation_between_start_date_and_other_date(1000,diminishing_value,date(2017,5,1),date(2019,10,2),car123,Life,1,false,_,0,Total_depreciation_value),
+	writeln(Life).
+
 % Calculates depreciation between any two dates on a daily basis equal or posterior to the invest in date
-depreciation_between_two_dates(Transaction, From_date, To_date, Method, Rates, Depreciation_value):-
+depreciation_between_two_dates(Asset_id, From_date, To_date, Method, Depreciation_value):-
 	day_diff(From_date, To_date, Days_difference),
 	check_day_difference_validity(Days_difference),
-	written_down_value(Transaction, To_date, Method, Rates, To_date_written_down_value),
-	written_down_value(Transaction, From_date, Method, Rates, From_date_written_down_value),
+	written_down_value(Asset_id, To_date, Method, _, To_date_written_down_value),
+	written_down_value(Asset_id, From_date, Method, _, From_date_written_down_value),
 	Depreciation_value is From_date_written_down_value - To_date_written_down_value.
 
 % Calculates written down value at a certain date equal or posterior to the invest in date using a daily basis
-written_down_value(Transaction, Written_down_date, Method, Rates, Written_down_value):-
-	transaction_cost(Transaction, Cost),
-	transaction_date(Transaction, Invest_in_date),
-	transaction_account(Transaction, Account),
-	depreciation_between_invest_in_date_and_other_date(
-		Cost, 
-		Cost, 
-		Method, 
-		Invest_in_date, 
+written_down_value(Asset_id, Written_down_date, Method, Life, Written_down_value):-
+	asset(Asset_id,Asset_cost,Start_date,_),
+	depreciation_between_start_date_and_other_date(
+		Asset_cost,
+		Method,
+		Start_date, 
 		Written_down_date, 
-		Account, 
-		Rates,
-		1,/* i guess this is in the sense of first year of ownership*/
-		1/365, 
+		Asset_id,
+		Life,
+		1,/* this is in the sense of first year of ownership*/
+		false, 
+		_,
+		0,
 		Total_depreciation_value
 	),
-	Written_down_value is Cost - Total_depreciation_value.
+	Written_down_value is Asset_cost - Total_depreciation_value.
 
-
-/* There are 2 methods used for depreciation. a. Diminishing Value. What I believe you implemented. i.e. Rate 20% per period, 
-Cost 100, then at end of period 1, Written Down Value is 100-20. For Period 2, 20%*80, For Period 3 20%*64 ... of course, 
-written down value never gets to zero.
-
-And there is Prime Cost Method. 20% of Cost each period. i.e. 100-20=80. 80-20=60, 60-20=40..... to zero.
-
-And there is another concept to consider. If the asset (say a car) is depreciated to some value at some point in time, 
-say $20. And the car is sold for $40, then there is a gain of $20. But if it is sold for $10, then there is a loss of $10. */
-
-
-depreciation_by_method(
-	Method, 					% depreciation method: (diminishing value | prime cost)
-	Initial_value, 				% value at end of previous depreciation period
-	Depreciation_rate, 			% rate per depreciation-period
-	Depreciation_fixed_value, 	% Original investment value * depreciation rate
-	By_day_factor, 				% 1/(days per depreciation-period)
-	Days, 						% number of days elapsed
-	Depreciation_value			% value at end of current fractional depreciation period
-):-
-	/*format(user_error, "ok..\n", []),*/
-
-	% Factor is the fraction of a depreciation period represented by Days
-	Factor is By_day_factor * Days, 
-	(
-		% this is more like applying diminishing value method for integer number of depreciation periods
-		% but applying prime cost method for fractions of a depreciation period
-		% actual formula would be:
-		% Depreciation_value is Initial_value - (Initial_value * (1 - Depreciation_rate)^Factor)
-		% or:
-		% Depreciation_value is Initial_value * (1 - (1 - Depreciation_rate)^Factor)
-		Method == diminishing_value 
-	-> 	Depreciation_value is Factor * Initial_value * Depreciation_rate
-	;
-		% if computed depreciation value is > initial value, then actual depreciation value = initial value.
-		% assuming the asset can't depreciate by more than it's worth.
-		Depreciation_value is Factor * Depreciation_fixed_value
-	).
-	
+profit_and_loss(Asset_id, Asset_price, Written_down_date, Method, ProfitAndLoss):-
+	written_down_value(Asset_id, Written_down_date,Method,_,Written_down_value),
+	ProfitAndLoss is Asset_price - Written_down_value.
 
 % if days difference is less than zero, it means that the requested date 
 % in the input value is earlier than the invest in date.
@@ -164,13 +134,8 @@ check_day_difference_validity(Days_difference) :-
 	->
 		true
 	;
-		throw_string('Request date is earlier than the invest in date.')
+		false, throw_string('Request date is earlier than the invest in date.')
 	).
-
-
-/*
-standalone calc should probably take transaction terms as input, but it can pretty much just return the calculated values
-*/
 
 % Predicates for asserting that the fields of given transactions have particular values
 % duplicated from transactions.pl with the difference that transaction_date is used instead of transaction_day
@@ -187,5 +152,3 @@ transaction_account(transaction(_, _, Account_Id, _), Account_Id).
 transaction_vector(transaction(_, _, _, Vector), Vector).
 % Extract the cost of the buy from transaction data
 transaction_cost(transaction(_, _, _, t_term(Cost, _)), Cost).
-
-
