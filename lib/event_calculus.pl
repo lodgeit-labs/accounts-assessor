@@ -8,7 +8,8 @@
     ]).
 
 :- use_module(library(clpfd)).
-:- use_module(days, [day_diff/3]).
+:- use_module(lib, []).
+
 /*
 :- use_module(depreciation_computation, [
     depreciation_rate/6,
@@ -154,7 +155,7 @@ asset(car456,2000,date(2015,3,16),8).
 
 days_from_begin_accounting(Date,Days):-
     begin_accounting_date(Begin_accounting_date), 
-    day_diff(Begin_accounting_date,Date,Days).
+    lib:day_diff(Begin_accounting_date,Date,Days).
 
 % Transfer car123 to general pool in date(2017,6,1)
 % days_from_begin_accounting(date(2017,6,1),Days).
@@ -172,7 +173,7 @@ happens(asset_disposal(car123),11474).
 % days_from_begin_accounting(date(2020,7,31),Days).
 % Days = 11169
 happens(asset_disposal(car456),11169).
-
+/*
 start:-
     Asset_id = car123,
     T1 = 9982,
@@ -180,10 +181,10 @@ start:-
     Begin_value = 1000,
     Method = diminishing_value,
     Year_of_depreciation = 1,
-    depreciationAsset(Asset_id,T1,T2,Begin_value,End_value,Method,Year_of_depreciation,
-        Life,false,_,0,Final_depreciation_value),
+    depreciationAsset(Asset_id,T1,T2,Begin_value,_End_value,Method,Year_of_depreciation,
+        Life,false,_,0,_Final_depreciation_value),
     write(Life).
-
+*/
 %start:-depreciationAsset(car456,0,9,1000,End_value,prime_cost,1,Life,false,_,0,Final_depreciation_value).
 %asset(Asset_id,Asset_cost,Start_date,Effective_life_years).
 %asset(Asset_id,Asset_cost,Start_date,Effective_life_years).

@@ -1,4 +1,5 @@
 :- use_module(depreciation_computation, []).
+:- use_module(library(fnotation)).
 
 process_request_depreciation_new :-
 	docm(l:request, l:has, Queries_List),
@@ -11,13 +12,40 @@ process_depreciation_query(Query) :-
 	process_depreciation_query2(Type, Query).
 
 process_depreciation_query2(
-	'https://lodgeit.net.au/#depreciation_query_type_depreciation_pool_from_start', Q) :-
-	doc_value(Q, l::depreciation_query_pool, Pool),
-	doc_value(Q, l::depreciation_query_to_date, To_Date),
-	doc_value(Q, l::depreciation_query_method, Method),
+	'https://lodgeit.net.au/#depreciation_pool_from_start', Q) :-
+	doc_value(Q, l:depreciation_query_pool, Pool),
+	doc_value(Q, l:depreciation_query_to_date, To_Date),
+	doc_value(Q, l:depreciation_query_method, Method),
 	doc_add_value(Q, l:depreciation_query_total_depreciation, Total_Depreciation),
-	depreciation_computation:depreciation_pool_from_start(Pool,To_Date,Method,Total_Depreciation),
-	gtrace.
+	depreciation_computation:depreciation_pool_from_start(Pool,To_Date,Method,Total_Depreciation)/*,
+	gtrace*/.
+
+process_depreciation_query2(
+	'https://lodgeit.net.au/#depreciation_between_two_dates', Q) :-
+	doc_value(Q, l:depreciation_query_asset_id, Asset_id),
+	doc_value(Q, l:depreciation_query_from_date, From_date),
+	doc_value(Q, l:depreciation_query_to_date, To_date),
+	doc_value(Q, l:depreciation_query_method, Method),
+	doc_add_value(Q, l:depreciation_query_depreciation_value, Depreciation_value),
+	depreciation_between_two_dates(Asset_id, From_date, To_date, Method, Depreciation_value).
+
+process_depreciation_query2(
+	'https://lodgeit.net.au/#depreciation_written_down_value', Q) :-
+	doc_value(Q, l:depreciation_query_asset_id, Asset_id),
+	doc_value(Q, l:depreciation_query_written_down_date, Written_down_date),
+	doc_value(Q, l:depreciation_query_method, Method),
+	doc_add_value(Q, l:depreciation_query_written_down_value, Written_down_value),
+	written_down_value(Asset_id, Written_down_date, Method, _, Written_down_value).
+
+process_depreciation_query2(
+	'https://lodgeit.net.au/#depreciation_profit_and_loss', Q) :-
+	doc_value(Q, l:depreciation_query_asset_id, Asset_id),
+	doc_value(Q, l:depreciation_query_termination_value, Termination_value),
+	doc_value(Q, l:depreciation_query_termination_date, Termination_date),
+	doc_add_value(Q, l:depreciation_query_profit_and_loss, ProfitAndLoss),
+	profit_and_loss(Asset_id, Termination_value, Termination_date, _, ProfitAndLoss).
+
+
 
 
 

@@ -6,10 +6,9 @@
 	depreciation_between_two_dates/5,
 	profit_and_loss/5]).
 
-:- use_module(days, [day_diff/3]).
-:- use_module(utils, [throw_string/1]).
 :- use_module(event_calculus, [depreciationAsset/12,asset/4]).
 :- use_module(library(lists)).
+:- use_module(lib, []).
 
 begin_accounting_date(date(1990,1,1)).
 
@@ -28,18 +27,18 @@ depreciation_between_start_date_and_other_date(
 		Initial_depreciation_value,
 		Total_depreciation_value
 	) :-
-	day_diff(date(From_year, From_Month, From_day), To_date, Days_difference),
+	lib:day_diff(date(From_year, From_Month, From_day), To_date, Days_difference),
 	check_day_difference_validity(Days_difference),	
 	begin_accounting_date(Begin_accounting_date),
-	day_diff(Begin_accounting_date, date(From_year, From_Month, 1), T1),
+	lib:day_diff(Begin_accounting_date, date(From_year, From_Month, 1), T1),
 	% Get days From date until end of the current income year, <=365
 	(
 		From_Month < 7
 		->
-			day_diff(date(From_year, From_Month, From_day), date(From_year, 7, 1), Days_held),
+			lib:day_diff(date(From_year, From_Month, From_day), date(From_year, 7, 1), Days_held),
 			Next_from_year is From_year
 			;
-			day_diff(date(From_year, From_Month, From_day), date(From_year + 1, 7, 1), Days_held),
+			lib:day_diff(date(From_year, From_Month, From_day), date(From_year + 1, 7, 1), Days_held),
 			Next_from_year is From_year + 1
 	),
 	(
@@ -84,7 +83,7 @@ depreciation_pool_from_start(Pool,To_date,Method,Total_depreciation):-
 	findall(Depreciation_value,(
 		%asset(car123,1000,date(2017,5,1),5).
 		asset(Asset_id,Cost,Start_date,_),
-		day_diff(Start_date,To_date,Days_diff),
+		lib:day_diff(Start_date,To_date,Days_diff),
 		Days_diff>0,
 		depreciation_between_start_date_and_other_date(Cost,Method,Start_date,To_date,Asset_id,_,1,true,Pool,0,Depreciation_value)),
 		Depreciation_values_lst),
@@ -92,12 +91,14 @@ depreciation_pool_from_start(Pool,To_date,Method,Total_depreciation):-
 
 %start:-depreciationInInterval(corolla,76768,date(2019,7,1),0,32,76768,_,diminishing_value,1,5,_,0,Depreciation_value).
 %start:- depreciation_between_start_date_and_other_date(1000,diminishing_value,date(2017,1,1),date(2019,10,2),car123,_,1,false,_,0,Result).
-start:- depreciation_between_start_date_and_other_date(1000,diminishing_value,date(2017,5,1),date(2019,10,2),car123,Life,1,false,_,0,Total_depreciation_value),
+/*
+start:- depreciation_between_start_date_and_other_date(1000,diminishing_value,date(2017,5,1),date(2019,10,2),car123,Life,1,false,_,0,_Total_depreciation_value),
 	writeln(Life).
+*/
 
 % Calculates depreciation between any two dates on a daily basis equal or posterior to the invest in date
 depreciation_between_two_dates(Asset_id, From_date, To_date, Method, Depreciation_value):-
-	day_diff(From_date, To_date, Days_difference),
+	lib:day_diff(From_date, To_date, Days_difference),
 	check_day_difference_validity(Days_difference),
 	written_down_value(Asset_id, To_date, Method, _, To_date_written_down_value),
 	written_down_value(Asset_id, From_date, Method, _, From_date_written_down_value),
@@ -133,7 +134,7 @@ check_day_difference_validity(Days_difference) :-
 	->
 		true
 	;
-		false, throw_string('Request date is earlier than the invest in date.')
+		false, lib:throw_string('Request date is earlier than the invest in date.')
 	).
 
 % Predicates for asserting that the fields of given transactions have particular values
