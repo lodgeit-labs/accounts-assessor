@@ -1,4 +1,4 @@
-
+:- use_module(depreciation_computation, []).
 
 process_request_depreciation_new :-
 	docm(l:request, l:has, Queries_List),
@@ -11,9 +11,12 @@ process_depreciation_query(Query) :-
 	process_depreciation_query2(Type, Query).
 
 process_depreciation_query2(
-	'https://lodgeit.net.au/#depreciation_query_type_depreciation_pool_from_start', Query) :-
-	depreciation_pool_from_start(Pool,To_date,Method,Total_depreciation)
-
+	'https://lodgeit.net.au/#depreciation_query_type_depreciation_pool_from_start', Q) :-
+	doc_value(Q, l::depreciation_query_pool, Pool),
+	doc_value(Q, l::depreciation_query_to_date, To_Date),
+	doc_value(Q, l::depreciation_query_method, Method),
+	doc_add_value(Q, l:depreciation_query_total_depreciation, Total_Depreciation),
+	depreciation_computation:depreciation_pool_from_start(Pool,To_Date,Method,Total_Depreciation),
 	gtrace.
 
 
