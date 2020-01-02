@@ -1,4 +1,3 @@
-:- use_module(library(xsd)).
 
 process_request_loan(FileNameIn, DOM) :-
    xpath(DOM, //reports/loanDetails/loanAgreement/field(@name='Income year of loan creation', @value=CreationIncomeYear), _E1),

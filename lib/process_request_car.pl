@@ -1,8 +1,3 @@
-:- module(_, []).
-
-:- use_module(library(xpath)).
-:- use_module(library(http/json)).
-:- use_module(library(http/http_open)).
 
 :- dynamic(known_ner_response/2).
 
@@ -43,20 +38,20 @@ process_ner_api_results(Response_JSON,Result_XML) :-
 	),
 	Result_XML = element(reports,[],[element(is_car_response,[],[Result])]).
 
-process(File_Name, DOM) :-
+process_request_car(File_Name, DOM) :-
 	xpath(DOM, //reports/car_request, element(_,_,[Request_Text])),
 
-	lib:absolute_tmp_path(File_Name, Instance_File),
+	absolute_tmp_path(File_Name, Instance_File),
 	absolute_file_name(my_schemas('bases/Reports.xsd'), Schema_File, []),
-	lib:validate_xml(Instance_File, Schema_File, Schema_Errors),
+	validate_xml(Instance_File, Schema_File, Schema_Errors),
 	(
 		Schema_Errors = []
 	->
 		(
 			cached_ner_data(Request_Text,Response_JSON),
 			process_ner_api_results(Response_JSON,Result_XML),
-			lib:add_xml_result(Result_XML)
+			add_xml_result(Result_XML)
 		)
 	;
-		maplist(lib:add_alert(error), Schema_Errors)
+		maplist(add_alert(error), Schema_Errors)
 	).

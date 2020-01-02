@@ -1,5 +1,3 @@
-
-
 :- use_module(library(archive)).
 :- use_module(library(sgml)).
 :- use_module(library(semweb/turtle)).
@@ -8,7 +6,7 @@
 :- [process_request_ledger].
 %:- use_module(process_request_livestock, []).
 %:- use_module(process_request_investment, []).
-:- use_module(process_request_car, []).
+:- [process_request_car].
 :- [process_request_hirepurchase_new].
 :- [process_request_depreciation_new].
 
@@ -17,13 +15,9 @@
 :- locale_create(Locale, "en_AU.utf8", []), set_locale(Locale).
 
 /* fixme, assert the actual port in prolog_server and get that here? maybe also move this there, since we are not loading this file from the commandline anymore i think? */
-:- initialization(set_server_public_url('http://localhost:8080')).
+%:- initialization(set_server_public_url('http://localhost:7778')).
 
-process_request_rpc_cmdline :-
-	json_read_dict(user_input, Dict),
-	process_request_rpc(Dict).
-
-process_request_rpc(Dict) :-
+process_request_rpc_calculator(Dict) :-
 	findall(
 		loc(absolute_path, P),
 		member(P, Dict.request_files),
@@ -162,7 +156,7 @@ make_rdf_report :-
 
 
 process_xml_request(File_Path, Dom) :-
-	(process_request_car:process(File_Path, Dom);
+	(process_request_car(File_Path, Dom);
 	(process_request_loan(File_Path, Dom);
 	(process_request_ledger(File_Path, Dom)
 	%(process_request_livestock:process(File_Name, Dom);

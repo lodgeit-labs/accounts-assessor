@@ -68,13 +68,16 @@ def run(request_files):
 	call_rpc(server_url = server_url, tmp_directory_name=tmp_directory_name, request_files_in_tmp=files2)
 
 def call_rpc(server_url, tmp_directory_name, request_files_in_tmp):
-	cmd = shlex.split("swipl -s ../lib/dev_runner.pl --problem_lines_whitelist ../misc/problem_lines_whitelist -s ../lib/debug1.pl") + [] + ["-g lib:process_request_rpc_cmdline"]
+	cmd = shlex.split("swipl -s ../lib/dev_runner.pl --problem_lines_whitelist ../misc/problem_lines_whitelist -s ../lib/debug_rpc.pl") + [] + ["-g lib:process_request_rpc_cmdline"]
 	print(' '.join(cmd))
 
 	input = json.dumps({
-		"server_url":server_url,
-		"tmp_directory_name":tmp_directory_name,
-		"request_files":request_files_in_tmp})
+		"method":"calculator",
+		"params":{
+			"server_url":server_url,
+			"tmp_directory_name":tmp_directory_name,
+			"request_files":request_files_in_tmp}
+	})
 	print(input)
 
 	p = subprocess.Popen(cmd, universal_newlines=True, stdin=subprocess.PIPE)
