@@ -6,9 +6,9 @@
 	depreciation_between_two_dates/5,
 	profit_and_loss/5]).
 
+:- use_module(lib, []).
 :- use_module(event_calculus, [depreciationAsset/12,asset/4]).
 :- use_module(library(lists)).
-:- use_module(lib, []).
 
 begin_accounting_date(date(1990,1,1)).
 

@@ -4,8 +4,10 @@
         depreciation_value/6,
         depreciation_rate/6,
         asset/4,
+        assert_asset/4,
         happens/2
     ]).
+
 
 :- use_module(library(clpfd)).
 :- use_module(lib, []).
@@ -15,7 +17,15 @@
     depreciation_rate/6,
     depreciation_value/6]).
 */
-%:- dynamic happens/2.
+
+:- dynamic (asset/4).
+:- dynamic happens/2.
+
+assert_asset(Asset_id,Asset_cost,Start_date,Effective_life_years) :-
+	assertz(asset(Asset_id,Asset_cost,Start_date,Effective_life_years)).
+
+assert_event(Event, Days) :-
+	assertz(happens(Event, Days)).
 
 begin_accounting_date(date(1990,1,1)).
 % Define constraint in days, max 100000 days

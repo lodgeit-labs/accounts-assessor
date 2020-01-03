@@ -51,7 +51,8 @@ def files_in_dir(dir):
 
 @click.command()
 @click.argument('request_files', nargs=-1)
-def run(request_files):
+@click.option('-dro', '--dev_runner_options', type=str)
+def run(request_files, dev_runner_options):
 	server_url = 'http://localhost:8080'
 	request_files = [os.path.abspath(f) for f in request_files]
 	tmp_directory_name, tmp_directory_absolute_path = create_tmp()
@@ -65,10 +66,10 @@ def run(request_files):
 		tmp_fn = os.path.abspath('/'.join([tmp_directory_absolute_path, ntpath.basename(f)]))
 		shutil.copyfile(f,tmp_fn)
 		files2.append(tmp_fn)
-	call_rpc(server_url = server_url, tmp_directory_name=tmp_directory_name, request_files_in_tmp=files2)
+	call_rpc(server_url = server_url, tmp_directory_name=tmp_directory_name, request_files_in_tmp=files2, dev_runner_options=dev_runner_options)
 
-def call_rpc(server_url, tmp_directory_name, request_files_in_tmp):
-	cmd = shlex.split("swipl -s ../lib/dev_runner.pl --problem_lines_whitelist ../misc/problem_lines_whitelist -s ../lib/debug_rpc.pl") + [] + ["-g lib:process_request_rpc_cmdline"]
+def call_rpc(server_url, tmp_directory_name, request_files_in_tmp, dev_runner_options=''):
+	cmd = shlex.split("swipl -s ../lib/dev_runner.pl --problem_lines_whitelist ../misc/problem_lines_whitelist -s ../lib/debug_rpc.pl " + dev_runner_options) + ["-g lib:process_request_rpc_cmdline"]
 	print(' '.join(cmd))
 
 	input = json.dumps({

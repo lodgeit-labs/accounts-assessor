@@ -1,4 +1,7 @@
-:- module(_,[]).
+:- module(_,[
+	/*doc_value/3,
+	doc_add_value/3*/
+]).
 
 :- use_module(library(xsd)).
 :- use_module(library(xpath)).
