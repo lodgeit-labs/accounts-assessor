@@ -25,7 +25,7 @@ SECRET_KEY = 'r17qkhe563e1vo^moi&i&0qhm3!^ptugmv6m5gmp(^092v@)6i'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['192.168.122.187']
+ALLOWED_HOSTS = ['192.168.122.187', 'dev-node.uksouth.cloudapp.azure.com', 'localhost']
 
 
 # Application definition
