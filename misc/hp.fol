@@ -1,20 +1,54 @@
 %
+% Classes and fields
+%
+	C a class,
+	X a C,
+	C field F,
+	F name N,
+	F optional false
+=>
+	X N V.
+
+
+
+	C a class,
+	X a C,
+	C field F,
+	F name N,
+	F type T,
+	X N V
+=>
+	V a T.
+
+
+
+	C a class,
+	X a C,
+	C field F,
+	F name N,
+	F unique true
+	X N V1,
+	X N V2
+=>
+	V1 = V2.
+
+
+
+
+%
 % Time-period constraints
 %
+	
+
+time_period a class;
+			field 	[name start; optional false; type time; unique true], 
+					[name end; optional false; type time; unique true],
+					[name duration; optional false; type duration; unique true].
 
 
 	Period a time_period
-<=>
-	Period start Start,
-	Start a time,
-	Period end End,
-	End a time,
-	Period duration Duration,
-	Duration a duration,
-
-	#(
-		End = Start + Duration
-	).
+=>
+	Period.end = Period.start + Period.duration
 
 
 
@@ -86,24 +120,6 @@
 <=>
 	HP a hp_arrangement,
 	Installment in HP.Installments,
-	Installment period Period,
-	Period a time_period,
-	(forall X, Installment period X -> Period = X),
-
-	Installment opening_balance Opening_Balance,
-	(forall X, Installment opening_balance X -> Opening_Balance = X),
-
-	Installment closing_balance Closing_Balance,
-	(forall X, Installment closing_balance X -> Closing_Balance = X),
-
-	Installment installment_type Installment_Type,
-	(forall X, Installment installment_type X -> Installment_Type = Installment_Type),
-
-	Installment installment_amount Installment_Amount,
-	(forall X, Installment installment_amount X -> Installment_Amount = X),
-
-	Installment interest_amount Interest_Amount,
-	(forall X, Installment interest_amount X -> Interest_Amount = X),
 
 	#(
 		Is_Regular in 0..1,
@@ -115,6 +131,105 @@
 
 	% constraints relating prev/next?.
 
-	Installment a hp_installment
+
+	HP a hp_arrangement,
+	HP number_of_installments N,
+	HP installments 
 =>
+	% uniqueness of list elements
+	(
+		Installment number N1,
+		Installment number N2
+	=>
+		N1 = N2
+	),
+
+	% bounds on list indexes and length
+	(
+		1 =< I,
+		I =< N,
+	<=>
+		Installment in HP.installments
+		Installment number Installment_Number
+	),
+
+	% relation between previous and next items in list
+	(
+		Next_Number = Prev_Number + 1,
+		1 =< Prev_Number,
+		Next_Number =< N
+	<=>	
+
+		Prev in HP.installments,
+		Next in HP.installments,
+		Prev next Next,
+		Next prev Prev,
+		Prev number Prev_Number,
+		Next number Next_Number
+	)
+
+	
+
+
+
+
+	L a list,
+	L length N
+<=>
+
+	% last element
+	(
+		L first X
+	<=>
+		X number 1
+	),
+
+
+	% first element 
+	(
+		L last X
+	<=>
+		X number N
+	),
+
+
+	% entries have values
+	(
+		X in L
+	=>
+		X val _
+	),
+
+	% uniqueness of entries
+	(
+		X in L,
+		X number I_1,
+		X number I_2
+	=>
+		I_1 = I_2
+	),
+
+
+
+	% list bounds
+	(
+		1 =< I,
+		I =< N
+	<=>
+		X in L,
+		X number I
+	),
+
+	
+	% relation between previous and next elements
+	(
+		I_N = I_P + 1
+	<=>
+		Prev in L,
+		Next in L,
+		Prev next Next,
+		Next prev Prev,
+		Prev number I_P,
+		Next number I_N
+	).
 	
