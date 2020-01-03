@@ -1,29 +1,4 @@
-% ===================================================================
-% Project:   LodgeiT
-% Module:    exchange_rates.pl
-% Date:      2019-06-02
-% ===================================================================
-
-:- module(exchange_rates, [
-		exchange_rate/5, 
-		exchange_rate_throw/5, 
-		is_exchangeable_into_request_bases/4
-]).
-
-:- use_module('files').
-:- use_module('days', [
-		gregorian_date/2
-]).
-:- use_module(library(xbrl/utils), [
-		pretty_term_string/2, 
-		throw_string/1,
-		floats_close_enough/2
-]).
-:- use_module(library(http/http_open)).
-:- use_module(library(http/json)).
 :- use_module(library(persistency)).
-:- use_module(library(record)).
-:- use_module(library(clpq)).
 
 :- record exchange_rate(day, src_currency, dest_currency, rate).
 % The day to which the exchange rate applies
@@ -33,9 +8,9 @@
 
 :- dynamic exchange_rates/2.
 :- persistent(persistently_cached_exchange_rates(day: any, rates:list)).
-:- initialization(init).
+:- initialization(init_exchange_rates).
 
-init :-
+init_exchange_rates :-
 	absolute_file_name(my_cache('persistently_cached_exchange_rates.pl'), File, []),
 	db_attach(File, []).
 

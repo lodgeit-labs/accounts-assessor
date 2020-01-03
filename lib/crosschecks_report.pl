@@ -1,16 +1,8 @@
-:- module(_, []).
-:- use_module('report_page').
-:- use_module(library(xbrl/utils)).
-:- use_module('pacioli').
-:- use_module('accounts').
-:- use_module('ledger_report').
-:- use_module(library(rdet)).
+%:- rdet(report/4).
+%:- rdet(crosschecks_report/4).
 
-:- rdet(report/4).
-:- rdet(crosschecks_report/4).
-
-report(Sd, Reports, [/*Json_File_Info, */Html_File_Info], Json) :-
-	crosschecks_report(Sd.put(reports,Reports), Json),
+crosschecks_report0(Sd, Json) :-
+	crosschecks_report(Sd, Json),
 	findall(
 		p([p([Check]), p([Evaluation]), p([Status])]),
 		member([Check, Evaluation, Status], Json.results),
@@ -18,7 +10,7 @@ report(Sd, Reports, [/*Json_File_Info, */Html_File_Info], Json) :-
 	/*dict_json_text(Json, Json_Text),
 	report_item('crosschecks.json', Json_Text, Json_Url),
 	report_entry('crosschecks.json', Json_Url, crosschecks_json, Json_File_Info),*/
-	report_page:report_page('crosschecks', Html, 'crosschecks.html', 'crosschecks_html', Html_File_Info).
+	report_page('crosschecks', Html, loc(file_name,'crosschecks.html'), 'crosschecks_html').
 
 crosschecks_report(Sd, Json) :-
 	Crosschecks = [
@@ -130,10 +122,10 @@ accounts_report_entry_by_account_role(Sd, Report, Role, Entry) :-
 	accounts_report_entry_by_account_id(Report, Id, Entry).
 
 accounts_report_entry_by_account_id(Report, Id, Entry) :-
-	utils:find_thing_in_tree(
+	find_thing_in_tree(
 			   Report,
-			   [Entry1]>>(ledger_report:entry_account_id(Entry1, Id)),
-			   [Entry2, Child]>>(ledger_report:entry_child_sheet_entries(Entry2, Children), member(Child, Children)),
+			   ([Entry1]>>(entry_account_id(Entry1, Id))),
+			   ([Entry2, Child]>>(entry_child_sheet_entries(Entry2, Children), member(Child, Children))),
 			   Entry).
 	
 	

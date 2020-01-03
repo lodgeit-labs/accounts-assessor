@@ -1,19 +1,4 @@
-% ===================================================================
-% Project:   LodgeiT
-% Date:      2019-07-09
-% ===================================================================
-
-:- module(compare_xml, [run/2, compare_xml_dom/2, compare_xml_dom/3]).
-
-%--------------------------------------------------------------------
-% Modules
-%--------------------------------------------------------------------
-
-:- asserta(user:file_search_path(library, '../prolog_xbrl_public/xbrl/prolog')).
-:- use_module(library(xbrl/utils), []).
-:- use_module(library(xpath)).
-
-
+/*
 % compare_xml_files
 run(RPath1, RPath2) :-
 	writeln("run"),
@@ -40,7 +25,7 @@ run(RPath1, RPath2) :-
 		writeln(Error)
 	).
 
-
+*/
 compare_atoms(A,B,Error,Path, Item) :-
 	(
 		atom_number(A,A_Num),
@@ -49,7 +34,7 @@ compare_atoms(A,B,Error,Path, Item) :-
 		float(B_Num),
 		!,
 		(
-			utils:floats_close_enough(A_Num, B_Num)
+			floats_close_enough(A_Num, B_Num)
 		;
 			atomic_list_concat([A_Num, " != ", B_Num, " at ", Path, "[", Item, "]"], Error)
 		)

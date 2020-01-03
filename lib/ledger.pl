@@ -1,50 +1,7 @@
-:- module(ledger, [
-		find_s_transactions_in_period/4
-	]).
 
-:- use_module('system_accounts', [
-		traded_units/2,
-		generate_system_accounts/3]).
-:- use_module('bank_statement', [
-		preprocess_s_transactions/6
-]).
-:- use_module('s_transaction', [
-		s_transaction_day/2,
-		s_transactions_up_to/3
-]).
-:- use_module('days', [
-		format_date/2, 
-		parse_date/2, 
-		gregorian_date/2, 
-		add_days/3,
-		date_between/3
-]).
-:- use_module(library(xbrl/utils), [
-		pretty_term_string/2,
-		dict_json_text/2
-]).
-:- use_module('livestock', []).
-:- use_module('transactions', [
-		check_transaction_account/2,
-		transactions_by_account/2
-]).
-:- use_module('ledger_report', [
-		trial_balance_between/8
-]).
-:- use_module('pacioli', [
-		coord_is_almost_zero/1,
-		number_vec/3
-]).
-:- use_module('exchange', [
-		vec_change_bases/5
-]).
-:- use_module('doc', []).
-
-:- use_module(library(rdet)).
-
-:- rdet(generate_gl_data/5).
-:- rdet(make_gl_entry/4).
-:- rdet(transaction_with_converted_vector/4).
+%:- rdet(generate_gl_data/5).
+%:- rdet(make_gl_entry/4).
+%:- rdet(transaction_with_converted_vector/4).
 
 find_s_transactions_in_period(S_Transactions, Opening_Date, Closing_Date, Out) :-
 	findall(
@@ -70,56 +27,31 @@ process_ledger(
 	Transactions_By_Account,
 	Outstanding_Out,
 	Processed_Until,
-	Warnings,
-	Errors,
 	Gl
 ) :-
 
-	gather_ledger_warnings(S_Transactions0, Start_Date, End_Date, Warnings0),
-	writeln('<!-- '),
-	writeq(Warnings0),
-	writeln(' -->'),
-
 	s_transactions_up_to(End_Date, S_Transactions0, S_Transactions),
-	pretty_term_string(Exchange_Rates0, Message1b),
-	pretty_term_string(Accounts_In, Message3),
-	atomic_list_concat([
-	'\n<!--',
-	'Exchange rates extracted:\n', Message1b,'\n\n',
-	'Accounts extracted:\n',Message3,'\n\n',
-	'-->\n\n'], Debug_Message0),
-	writeln(Debug_Message0),
+	add_comment_stringize('Exchange rates extracted', Exchange_Rates0),
+	add_comment_stringize('Accounts extracted',Accounts_In),
 
-	/*TODO: if there are no unit values, force Cost_Or_Market = cost?*/
-	(
-		Cost_Or_Market = cost
-	->
-		filter_out_market_values(S_Transactions, Exchange_Rates0, Exchange_Rates)
-	;
-		Exchange_Rates0 = Exchange_Rates
-	),
+	(	Cost_Or_Market = cost
+	->	filter_out_market_values(S_Transactions, Exchange_Rates0, Exchange_Rates)
+	;	Exchange_Rates0 = Exchange_Rates),
 	
-	generate_system_accounts(S_Transactions, Accounts_In, Generated_Accounts_Nested),
-	flatten(Generated_Accounts_Nested, Generated_Accounts),
-	pretty_term_string(Generated_Accounts, Message3b),
-	atomic_list_concat([
-	'\n<!--',
-	'Generated accounts:\n', Message3b,'\n\n',
-	'-->\n\n'], Debug_Message10),
-	writeln(Debug_Message10),
+	generate_system_accounts(S_Transactions, Accounts_In, Generated_Accounts),
+	add_comment_stringize('Accounts generated', Generated_Accounts),
 	flatten([Accounts_In, Generated_Accounts], Accounts),
-	%check_accounts(Accounts)
-	maplist(accounts:check_account_parent(Accounts), Accounts), 
-	accounts:write_accounts_json_report(Accounts),
-	doc:doc(T, rdf:type, l:request),
-	doc:doc_add(T, l:accounts, Accounts),
+	maplist(check_account_parent(Accounts), Accounts),
+	write_accounts_json_report(Accounts),
+	doc(T, rdf:type, l:request),
+	doc_add(T, l:accounts, Accounts),
 
 	dict_from_vars(Static_Data0, [Accounts, Report_Currency, Start_Date, End_Date, Exchange_Rates, Cost_Or_Market]),
-	s_transaction:prepreprocess(Static_Data0, S_Transactions, Prepreprocessed_S_Transactions),
+	prepreprocess(Static_Data0, S_Transactions, Prepreprocessed_S_Transactions),
 	preprocess_until_error(Static_Data0, Prepreprocessed_S_Transactions, Processed_S_Transactions, Transactions0, Outstanding_Out, Transaction_Transformation_Debug, End_Date, Processed_Until),
 	flatten(Transactions0, Transactions1),
 
-	livestock:process_livestock((Processed_S_Transactions, Transactions1), Livestock_Transactions),
+	process_livestock((Processed_S_Transactions, Transactions1), Livestock_Transactions),
 	flatten([Transactions1,	Livestock_Transactions], Transactions_With_Livestock),
 
 	/*
@@ -128,41 +60,13 @@ process_ledger(
 	notes:
 	transaction term now carries date() instead of absolute days count.
 	transactions are produced with transactions:make_transaction.
-	account id is obtained like this: accounts:account_by_role(Accounts, ('Accounts'/'Assets'), Assets_AID).
+	account id is obtained like this: account_by_role(Accounts, ('Accounts'/'Assets'), Assets_AID).
 	to be explained:
 		how to get balance on account
 		how to generate and return json+html reports
 	*/
 
 	maplist(check_transaction_account(Accounts), Transactions_With_Livestock),
-
-	atomic_list_concat(Transaction_Transformation_Debug, Message10),
-	(
-		once(livestock:livestock_data(_))
-	->
-		Livestock_Debug = ''
-	;
-		(
-			pretty_term_string(Transactions_With_Livestock, Message1),
-			/*pretty_term_string(Livestock_Counts, Message12),
-			pretty_term_string(Average_Costs, Message5),
-			pretty_term_string(Average_Costs_Explanations, Message5b),*/
-
-			atomic_list_concat([
-/*				'Average_Costs:\n', Message5,'\n\n',
-				'Average_Costs_Explanations:\n', Message5b,'\n\n',*/
-				'Transactions_With_Livestock:\n', Message1,'\n\n'
-			], Livestock_Debug)
-		)
-	),
-	atomic_list_concat([
-			'\n<!--',
-			Livestock_Debug,
-			'Transaction_Transformation_Debug:\n', Message10,'\n\n',
-			'-->\n\n'
-		], Debug_Message),
-	writeln(Debug_Message),
-
 
 	Static_Data2 = Static_Data0.put(end_date, Processed_Until).put(transactions, Transactions_With_Livestock),
 	generate_gl_data(
@@ -182,19 +86,13 @@ process_ledger(
 			Report_Currency = []
 		)
 	->
-		Warnings1 = []
+		true
 	;
-		(
-			term_string(trial_balance(Trial_Balance_Section), Tb_Str),
-			Warnings1 = ['SYSTEM_WARNING':Tb_Str]
-		)
+		(	term_string(trial_balance(Trial_Balance_Section), Tb_Str),
+			add_alert('SYSTEM_WARNING', Tb_Str))
 	),
-	gather_ledger_errors(Transaction_Transformation_Debug, Errors),
-	flatten([Warnings0, Warnings1], Warnings),
-	writeln('<!-- '),
-	writeq(Warnings),
-	writeq(Errors),
-	writeln(' -->').
+	gather_ledger_errors(Transaction_Transformation_Debug).
+
 
 preprocess_until_error(Static_Data0, Prepreprocessed_S_Transactions, Preprocessed_S_Transactions, Transactions0, Outstanding_Out, Transaction_Transformation_Debug, Report_End_Date, Processed_Until) :-
 	preprocess_s_transactions(Static_Data0, Prepreprocessed_S_Transactions, Preprocessed_S_Transactions, Transactions0, Outstanding_Out, Transaction_Transformation_Debug),
@@ -231,12 +129,12 @@ make_gl_entry(Sd, Source, Transactions, Entry) :-
 		S = Source
 	; 
 		(
-			bank_statement:s_transaction_to_dict(Source, S0),
+			s_transaction_to_dict(Source, S0),
 			/* currently this is converted at transaction date */
 			s_transaction_with_transacted_amount(Sd, S0, S)
 		)
 	),
-	maplist(transactions:transaction_to_dict, Transactions, T0),
+	maplist(transaction_to_dict, Transactions, T0),
 	maplist(transaction_with_converted_vector(Sd), T0, T).
 	
 s_transaction_with_transacted_amount(Sd, D1, D2) :-
@@ -265,18 +163,11 @@ gather_ledger_warnings(S_Transactions, Start_Date, End_Date, Warnings) :-
 	;
 		Warnings = []
 	).
-	
-gather_ledger_errors(Debug, Errors) :-
-	(
-		(
-			last(Debug, Last),
-			Last \== 'done.'
-		)
-	->
-		Errors = ['ERROR':Last]		
-	;
-		Errors = []
-	).
+
+gather_ledger_errors(Debug) :-
+	(	(last(Debug, Last),	Last \== 'done.')
+	->	add_alert('ERROR', Last)
+	;	true).
 
 filter_out_market_values(S_Transactions, Exchange_Rates0, Exchange_Rates) :-
 	traded_units(S_Transactions, Units),

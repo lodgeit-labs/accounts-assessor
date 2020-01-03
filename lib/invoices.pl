@@ -1,7 +1,3 @@
-:- module(_, []).
-
-:- use_module(library(debug)).
-:- use_module(library(xpath)).
 
 :- debug(d).
 

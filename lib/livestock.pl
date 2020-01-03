@@ -1,87 +1,46 @@
-% see also doc/ledger-livestock
-/*TODO:beginning and ending dates in livestockData are missing/ignored*/
 
-:- module(livestock, []).
-:- use_module(library(xbrl/utils), [
-	user:goal_expansion/2,
-	pretty_term_string/2,
-	maplist6/6,
-	throw_string/1
-]).
-:- use_module('pacioli', [
-	vec_add/3,
-	vec_inverse/2,
-	vec_reduce/2,
-	vec_sub/3,
-	number_coord/3
-]).
-:- use_module('accounts', [
-	account_in_set/3,
-	account_by_role/3
-]).
-:- use_module('days', [
-	parse_date/2
-]).
-:- use_module(library(semweb/rdf11)).
-:- use_module('doc', []).
-:- use_module('ledger_report', [
-	balance_by_account/9
-]).
-:- use_module('transactions', [
-	make_transaction/5,
-	transactions_by_account/2
-]).
-:- use_module('s_transaction', []).
-
-:- use_module(library(rdet)).
-
-:- ['livestock_accounts', 'livestock_average_cost', 'livestock_crosscheck', 'livestock_misc', 'livestock_adjustment_transactions', 'livestock_extract'].
-
-:- use_module('bank_statement', []).
-
-
-:- rdet(preprocess_livestock_buy_or_sell/3).
+%:- rdet(preprocess_livestock_buy_or_sell/3).
 
 livestock_data(Uri) :-
-	doc:doc(Uri, rdf:type, l:livestock_data).
+	doc(Uri, rdf:type, l:livestock_data).
 
 livestock_data_by_vector_unit(Livestock, Exchanged) :-
-	pacioli:vector_unit(Exchanged, Unit),
+	vector_unit(Exchanged, Unit),
 	findall(
 		L,
 		(
 			livestock_data(L),
-			doc:doc(L, livestock:name, Unit/*?*/)
+			doc(L, livestock:name, Unit/*?*/)
 		),
 		Known_Livestock_Datas
 	),
 	length(Known_Livestock_Datas, Known_Livestock_Datas_Length),
 	(   Known_Livestock_Datas_Length > 1
-	->  utils:throw_string(multiple_livestock_types_match)
+	->  throw_string(multiple_livestock_types_match)
 	;   true),
 	(	Known_Livestock_Datas_Length = 0
 	->	(
-			findall(U,(livestock_data(L),doc:doc(L, livestock:name, U)),Units),
+			findall(U,(livestock_data(L),doc(L, livestock:name, U)),Units),
 			format(user_error, 'WARNING:looking for livestock unit ~q, known units: ~q', [Unit, Units])
 		)
 	;	true),
 	[Livestock] = Known_Livestock_Datas.
 
 infer_livestock_action_verb(S_Transaction, NS_Transaction) :-
-	s_transaction:s_transaction_type_id(S_Transaction, ''),
-	s_transaction:s_transaction_type_id(NS_Transaction, uri(Action_Verb)),
+	s_transaction_type_id(S_Transaction, ''),
+	s_transaction_type_id(NS_Transaction, uri(Action_Verb)),
 	/* just copy these over */
-	s_transaction:s_transaction_exchanged(S_Transaction, vector(Exchanged)),
-	s_transaction:s_transaction_exchanged(NS_Transaction, vector(Exchanged)),
-	s_transaction:s_transaction_day(S_Transaction, Transaction_Date),
-	s_transaction:s_transaction_day(NS_Transaction, Transaction_Date),
-	s_transaction:s_transaction_vector(S_Transaction, Vector),
-	s_transaction:s_transaction_vector(NS_Transaction, Vector),
-	s_transaction:s_transaction_account_id(S_Transaction, Unexchanged_Account_Id),
-	s_transaction:s_transaction_account_id(NS_Transaction, Unexchanged_Account_Id),
+	s_transaction_exchanged(S_Transaction, vector(Exchanged)),
+	s_transaction_exchanged(NS_Transaction, vector(Exchanged)),
+	s_transaction_day(S_Transaction, Transaction_Date),
+	s_transaction_day(NS_Transaction, Transaction_Date),
+	s_transaction_vector(S_Transaction, Vector),
+	s_transaction_vector(NS_Transaction, Vector),
+	s_transaction_account_id(S_Transaction, Unexchanged_Account_Id),
+	s_transaction_account_id(NS_Transaction, Unexchanged_Account_Id),
 	/* if.. */
 	livestock_data_by_vector_unit(_,Exchanged),
-	(	pacioli:is_debit(Vector)
+	(	is_debit(Vector)
 	->	Action_Verb = l:livestock_sale
 	;	Action_Verb = l:livestock_purchase).
 
@@ -90,19 +49,19 @@ s_transaction_is_livestock_buy_or_sell(S_Transaction, Date, Livestock_Type, Live
 	(Action_Verb = l:livestock_purchase;Action_Verb = l:livestock_sale),
 	!,
 	V = [Livestock_Coord],
-	pacioli:coord_unit(Livestock_Coord, Livestock_Type),
+	coord_unit(Livestock_Coord, Livestock_Type),
 	livestock_data_by_vector_unit(_, V).
 
 preprocess_livestock_buy_or_sell(Static_Data, S_Transaction, [Bank_Txs, Livestock_Count_Transaction, Pl_Transaction]) :-
 	s_transaction_is_livestock_buy_or_sell(S_Transaction, Day, Livestock_Type, Livestock_Coord, Money_Coord),
-	(   pacioli:is_debit(Money_Coord)
+	(   is_debit(Money_Coord)
 	->  Description = 'livestock sale'
 	;   Description = 'livestock purchase'),
 	count_account(Livestock_Type, Count_Account),
 	make_transaction(Day, Description, Count_Account, [Livestock_Coord], Livestock_Count_Transaction),
-	bank_statement:affect_bank_account(Static_Data, S_Transaction, Description, Bank_Txs),
-	pacioli:vec_inverse([Money_Coord], Pl_Vector),
-	(   pacioli:is_credit(Money_Coord)
+	affect_bank_account(Static_Data, S_Transaction, Description, Bank_Txs),
+	vec_inverse([Money_Coord], Pl_Vector),
+	(   is_credit(Money_Coord)
 	->	(
 			cogs_account(Livestock_Type, Cogs_Account),
 			make_transaction(Day, Description, Cogs_Account, Pl_Vector, Pl_Transaction)
@@ -121,7 +80,7 @@ process_livestock(Info, Livestock_Transactions) :-
 			livestock_data(L),
 			(	process_livestock2(Info, L, Txs)
 			->	true
-			;	(/*gtrace,*/utils:throw_string('process_livestock2 failed'))
+			;	(/*gtrace,*/throw_string('process_livestock2 failed'))
 			)
 		),
 		Txs_List
@@ -132,8 +91,8 @@ process_livestock2((S_Transactions, Transactions_In), Livestock, Transactions_Ou
 	/*
 	todo send livestock dates from excel and check them here
 	*/
-	doc:request_has_property(l:start_date, Start_Date),
-	doc:request_has_property(l:end_date, End_Date),
+	request_has_property(l:start_date, Start_Date),
+	request_has_property(l:end_date, End_Date),
 
 	/*
 	preprocess_livestock_buy_or_sell happens first, as part of preprocess_s_transaction.
@@ -159,7 +118,7 @@ process_livestock2((S_Transactions, Transactions_In), Livestock, Transactions_Ou
 	dict_from_vars(Static_Data0, [Start_Date, End_Date]),
 	append(Transactions_In, Transactions3, Transactions_Total),
 
-	doc:request_has_property(l:accounts, Accounts),
+	request_has_property(l:accounts, Accounts),
 	Static_Data1 = Static_Data0.put(transactions,Transactions_Total).put(accounts,Accounts),
 	transactions_by_account(Static_Data1, Transactions_By_Account),
 

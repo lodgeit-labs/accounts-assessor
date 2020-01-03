@@ -1,7 +1,3 @@
-% ===================================================================
-% Project:   LodgeiT
-% Date:      2019-07-09
-% ===================================================================
 /*
 this runs the requests in tests/endpoint_tests and compares the responses against saved files.
 Note that the http server is spawned in this process. This should change in future.
@@ -20,12 +16,7 @@ Note that the http server is spawned in this process. This should change in futu
 :- use_module(library(http/json)).
 :- use_module(library(xpath)).
 :- use_module(library(readutil)).
-:- use_module('files').
-:- use_module('prolog_server', []).
-:- use_module('compare_xml').
-:- asserta(user:file_search_path(library, '../prolog_xbrl_public/xbrl/prolog')).
-:- use_module(library(xbrl/utils), []).
-:- use_module('xml').
+:- use_module('lib', []).
 
 :- multifile
 	prolog:message//1.
@@ -167,7 +158,7 @@ check_returned(Endpoint_Type, Testcase, Key-Report, Errors) :-
 offer_cp(Src, Dst) :-
 	atomics_to_string(['/bin/cp "', Src, '" "', Dst, '"'], Cmd),
 	atomics_to_string(['http://localhost:8000/shell/?cmd=',Cmd], Url),
-	utils:print_clickable_link(Url, Cmd).
+	print_clickable_link(Url, Cmd).
 
 
 check_saved_report0(Endpoint_Type, Key, Returned_Report_Path, Saved_Report_Path, Errors) :-
@@ -241,7 +232,7 @@ test_response(_, Returned_Report_Path, Saved_Report_Path, _, _, Error) :-
 */
 
 diff_service(Saved_Report_Path, Returned_Report_Path, Errors) :-
-	utils:float_comparison_significant_digits(D),
+	float_comparison_significant_digits(D),
 	atomics_to_string([
 		'http://localhost:8000/json_diff/',
 		'?a=',Saved_Report_Path,
@@ -256,7 +247,7 @@ diff_service(Saved_Report_Path, Returned_Report_Path, Errors) :-
 					read_string(Response_Stream, _, Response_String),
 					close(Response_Stream)
 				),
-				utils:string_to_json(Response_String, _{diff:Diff,msg:Msg})
+				string_to_json(Response_String, _{diff:Diff,msg:Msg})
 			),
 			(	Diff = _{}
 			->	Errors = []
@@ -287,7 +278,7 @@ diff(Saved_Report_Path, Returned_Report_Path, Are_Same) :-
 
 diff2(Saved_Report_Path, Returned_Report_Path, Are_Same, Options) :-
 	memberchk(cmd(Executable), Options),
-	utils:shell3([Executable, Saved_Report_Path, Returned_Report_Path], [exit_status(Exit_Status), command(Cmdline)]),
+	shell3([Executable, Saved_Report_Path, Returned_Report_Path], [exit_status(Exit_Status), command(Cmdline)]),
 	(	Exit_Status = 0
 	->	Are_Same = true
 	;	(
@@ -322,13 +313,13 @@ print_alerts(Response_JSON, Alert_Types) :-
 check_value_difference(Value1, Value2) :-
 	atom_number(Value1, NValue1),
 	atom_number(Value2, NValue2),
-	utils:floats_close_enough(NValue1, NValue2).
+	floats_close_enough(NValue1, NValue2).
 
 query_endpoint(Testcase, Response_JSON) :-
 	debug(endpoint_tests, '~n## Testing Request: ~w', [Testcase]),
 
 	absolute_file_name(my_tests(Testcase),Testcase_Directory_Path, [ access(read), file_type(directory) ]),
-	files:directory_real_files(Testcase_Directory_Path, File_Paths),
+	directory_real_files(Testcase_Directory_Path, File_Paths),
 	findall(
 		file=file(RequestFile),
 		member(RequestFile, File_Paths),
@@ -366,7 +357,7 @@ otherwise, recurse over subdirectories
 
 find_test_cases_in(Current_Directory, Test_Case) :-
 	absolute_file_name(my_tests(Current_Directory), Current_Directory_Absolute, [file_type(directory)]),
-	files:directory_entries(Current_Directory_Absolute, Entries),
+	directory_entries(Current_Directory_Absolute, Entries),
 	(
 		member('request.xml',Entries)
 	->
@@ -394,7 +385,7 @@ tmp_uri_to_path(URI, Path) :-
 	atom_string(Path0, Path0_String),
 	split_string(Path0_String,"/","",[_|[_|Path_Components]]),
 	atomic_list_concat(Path_Components,"/",Relative_Path),
-	files:absolute_whatever(my_tmp(Relative_Path), Path).
+	absolute_whatever(my_tmp(Relative_Path), Path).
 
 
 tmp_uri_to_saved_response_path(Testcase, URI, Path) :-
@@ -403,7 +394,7 @@ tmp_uri_to_saved_response_path(Testcase, URI, Path) :-
 	split_string(Path0_String, "/", "", Path_Components),
 	last(Path_Components, X), % get last item in list
 	atomic_list_concat([Testcase, 'responses', X], "/", Relative_Path),
-	files:absolute_whatever(my_tests(Relative_Path), Path).
+	absolute_whatever(my_tests(Relative_Path), Path).
 
 
 

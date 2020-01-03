@@ -1,26 +1,13 @@
-:- module(investment_report_2, [investment_report_2/5]).
 
-:- use_module('tables').
-:- use_module(library(xbrl/utils)).
-:- use_module('days').
-:- use_module('pricing').
-:- use_module('report_page').
-:- use_module('pacioli').
-:- use_module('exchange').
-:- use_module('exchange_rates').
-
-:- use_module(library(record)).
-:- use_module(library(rdet)).
-
-:- rdet(investment_report_2_unrealized/3).
-:- rdet(investment_report_2_sale_lines/4).
-:- rdet(investment_report_2_sales/3).
-:- rdet(investment_report_2/4).
-:- rdet(ir2_forex_gain/8).
-:- rdet(ir2_market_gain/10).
-:- rdet(clip_investments/4).
-:- rdet(filter_investment_sales/3).
-:- rdet(clip_investment/3).
+%:- rdet(investment_report_2_unrealized/3).
+%:- rdet(investment_report_2_sale_lines/4).
+%:- rdet(investment_report_2_sales/3).
+%:- rdet(investment_report_2/4).
+%:- rdet(ir2_forex_gain/8).
+%:- rdet(ir2_market_gain/10).
+%:- rdet(clip_investments/4).
+%:- rdet(filter_investment_sales/3).
+%:- rdet(clip_investment/3).
 	
 
 :- record ir_item(type, info, outstanding_count, sales, clipped).
@@ -46,7 +33,7 @@ event(Event, Unit_Cost_Foreign, Currency_Conversion, Unit_Cost_Converted, Total_
 	}.
 
 
-investment_report_2(Static_Data, Outstanding_In, Filename_Suffix, Report_Data, [Report_File_Info, JSON_File_Info]) :-
+investment_report_2(Static_Data, Outstanding_In, Filename_Suffix, Report_Data) :-
 	reset_gensym(iri),
 
 	Start_Date = Static_Data.start_date,
@@ -64,18 +51,18 @@ investment_report_2(Static_Data, Outstanding_In, Filename_Suffix, Report_Data, [
 	flatten([Rows, Totals], Rows2),
 
 	Table = _{title: Title_Text, rows: Rows2, columns: Columns},
-	tables:table_html(Table, Table_Html),
+	table_html(Table, Table_Html),
 
 	atomic_list_concat(['investment_report', Filename_Suffix, '.html'], Filename),
 	atomic_list_concat(['investment_report', Filename_Suffix, '_html'], HTML_ID),
-	report_page_with_table(Title_Text, Table_Html, Filename, HTML_ID, Report_File_Info),
+	report_page_with_table(Title_Text, Table_Html, loc(file_name, Filename), HTML_ID),
 	
 	atomic_list_concat(['investment_report', Filename_Suffix, '.json'], Json_Filename),
 	atomic_list_concat(['investment_report', Filename_Suffix, '_json'], JSON_ID),
 	dict_json_text(Table, Json_Text),
-	report_item(Json_Filename, Json_Text, Json_Url),
+	report_item(loc(file_name,Json_Filename), Json_Text, Json_Url),
 	nonvar(Json_Url),
-	report_entry(Json_Filename, Json_Url, JSON_ID, JSON_File_Info),
+	report_entry(Json_Filename, Json_Url, JSON_ID),
 	
 	Report_Data = _{
 		rows: Rows,
@@ -84,7 +71,7 @@ investment_report_2(Static_Data, Outstanding_In, Filename_Suffix, Report_Data, [
 
 totals(Rows, Totals) :-
 	/*these are computed automatically*/
- 	tables:table_totals(Rows,
+ 	table_totals(Rows,
 	[
 		gains/rea/market_foreign, gains/rea/market_converted, gains/rea/forex,
 		gains/unr/market_foreign, gains/unr/market_converted, gains/unr/forex,
@@ -398,7 +385,7 @@ ir2_forex_gain(Exchange_Rates, Opening_Date, End_Price, End_Date, Investment_Cur
 			vec_add([coord(End_Unit_Price_Unit, End_Unit_Price_Amount, 0)], 
 			*/
 			exchange_rate_throw(Exchange_Rates, End_Date, Market_Price_Unit, Report_Currency_Unit, _),
-			pacioli:credit_coord(Market_Price_Unit, End_Unit_Price_Amount, Coord_X1),
+			credit_coord(Market_Price_Unit, End_Unit_Price_Amount, Coord_X1),
 			vec_change_bases(Exchange_Rates, End_Date, Report_Currency, 
 				[
 					% unit price in investment currency
@@ -409,7 +396,7 @@ ir2_forex_gain(Exchange_Rates, Opening_Date, End_Price, End_Date, Investment_Cur
 				% forex gain, in report currency, on one investment unit between start and end dates
 				Forex_Gain_Vec
 			),
-			pacioli:number_vec(Report_Currency_Unit, Forex_Gain_Amount, Forex_Gain_Vec),
+			number_vec(Report_Currency_Unit, Forex_Gain_Amount, Forex_Gain_Vec),
 			Forex_Gain_Amount_Total is Forex_Gain_Amount * Count,
 			Gain = value(Report_Currency_Unit, Forex_Gain_Amount_Total)
 		)

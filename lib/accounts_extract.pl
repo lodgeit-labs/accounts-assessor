@@ -1,8 +1,3 @@
-:- module(_, []).
-
-:- use_module('files', []).
-:- use_module(library(http/http_dispatch), [http_safe_file/2]).
-:- use_module(library(xpath)).
 
 /*
 	would be even more simplified if we differentiated between <accounts> and <taxonomy> tags
@@ -46,15 +41,15 @@ extract_account_hierarchy_from_accountHierarchy_element(E, Accounts) :-
 			atom(Atom)
 		)
 	->	(
-			utils:trim_atom(Atom, Trimmed),
-			(	utils:is_url(Trimmed)
+			trim_atom(Atom, Trimmed),
+			(	is_url(Trimmed)
 			->	Url_Or_Path = Trimmed
 			;	(	http_safe_file(Trimmed, []),
 					absolute_file_name(my_static(Trimmed), Url_Or_Path, [ access(read) ])
 				)),
 			(
 				(
-					utils:xml_from_path_or_url(Url_Or_Path, AccountHierarchy_Elements),
+					xml_from_path_or_url(Url_Or_Path, AccountHierarchy_Elements),
 					xpath(AccountHierarchy_Elements, //accountHierarchy, _)
 				)
 				->	true
@@ -72,8 +67,8 @@ arelle(taxonomy, Taxonomy_URL, AccountHierarchy_Elements) :-
 		process_create('../python/venv/bin/python3',['../python/src/account_hierarchy.py',Taxonomy_URL],[stdout(pipe(Out))]),
 		(
 			load_structure(Out, AccountHierarchy_Elements, [dialect(xml),space(remove)]),
-			files:absolute_tmp_path('account_hierarchy_from_taxonomy.xml', FN),
-			utils:xml_write_file(FN, AccountHierarchy_Elements, [])
+			absolute_tmp_path('account_hierarchy_from_taxonomy.xml', FN),
+			xml_write_file(FN, AccountHierarchy_Elements, [])
 		),
 		close(Out)
 	).

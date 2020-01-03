@@ -107,7 +107,7 @@ compute_livestock_by_simple_calculation(
 	->
 		true
 	;
-		gtrace,utils:throw_string(["closing count mismatch, should be:", Stock_on_hand_at_end_of_year_count_Out])
+		gtrace,throw_string(["closing count mismatch, should be:", Stock_on_hand_at_end_of_year_count_Out])
 	),
 	Explanation = [
 		(['Gross_Profit_on_Livestock_Trading = ', Gross_Profit_on_Livestock_Trading_Formula_String]),

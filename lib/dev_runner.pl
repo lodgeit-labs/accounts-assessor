@@ -1,8 +1,5 @@
 #!/usr/bin/env swipl
 
-:- asserta(user:file_search_path(library, '../prolog_xbrl_public/xbrl/prolog')).
-:- use_module(library(xbrl/utils)).
-
 :- multifile user:message_hook/3.
 user:message_hook(initialization_error(_,X,_),Kind,_) :- print_message(Kind,X),halt(1).
 user:message_hook(string(S),_,_) :- format(user_error,'ERROR: ~w~n', [S]).
@@ -79,7 +76,7 @@ x :-
 	;	Optimization = '-O'),
 	atomic_list_concat(['swipl ', Optimization, ' -s ', Script], Load_Cmd),
 	maybe_clean_terminal,
-	shell2([Load_Cmd, ' -g "halt."  2>&1  |  tee err']),
+	shell2([Load_Cmd, ' -g "make,halt."  2>&1  |  tee err | head -n 150']),
 	maybe_halt_on_err,
 	memberchk(goal(Goal), Opts),
 	(	nonvar(Goal)
