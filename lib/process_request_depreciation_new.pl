@@ -115,3 +115,32 @@ process_depreciation_query2(
 		_
 	).*/
 
+
+/*
+
+asset_rate(Q, Asset_Type_Label, R) :-
+	doc(Q, l:contains, R),
+	doc(R, rdf:type, l:depreciation_rate),
+	doc(R, l:asset_type_label, Asset_Type_Label),
+	!.
+
+asset_rate(_Q, Asset_Type_Label, R) :-
+	asset_type_hierarchy_ancestor(Asset_Type_Label, Ancestor_Label),
+	doc(R, rdf:type, l:depreciation_rate),
+	doc(R, l:asset_type_label, Ancestor_Label),
+	!.
+
+
+asset_type_hierarchy_ancestor(Label, Ancestor_Label) :-
+	doc(I, rdf:type, l:depreciation_asset_type_hierarchy_item),
+	doc(I, l:child_label, Label),
+	doc(I, l:parent_label, Ancestor_Label).
+
+asset_type_hierarchy_ancestor(Label, Ancestor_Label) :-
+	doc(I, rdf:type, l:depreciation_asset_type_hierarchy_item),
+	doc(I, l:child_label, Label),
+	doc(I, l:parent_label, Parent_Label),
+	asset_type_hierarchy_ancestor(Parent_Label, Ancestor_Label).
+
+
+*/
