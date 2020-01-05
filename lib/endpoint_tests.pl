@@ -460,8 +460,8 @@ fetch_report_file_from_url(Url, Path) :-
 	fetch_file_from_url(Url, Path).
 
 fetch_file_from_url(loc(absolute_url,Url), loc(absolute_path, Path)) :-
-	/* todo: how to do shell commands safely in swipl? just call the python service?:) */
-	shell2(['curl "', Url, '" > "', Path, '"'], 0).
+	/* todo: how to escape shell commands in swipl? just call the python service?:) */
+	shell2(['curl ', Url, ' > ', Path, ''], 0).
 
 /*
 check_output_taxonomy(Type, Response_XML_Path) :-
