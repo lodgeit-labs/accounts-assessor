@@ -1,7 +1,4 @@
-:- module(_,[
-	/*doc_value/3,
-	doc_add_value/3*/
-]).
+:- module(_,[]).
 
 :- use_module(library(xsd)).
 :- use_module(library(xpath)).
@@ -12,6 +9,10 @@
 :- use_module(library(http/http_open)).
 :- use_module(library(http/http_client)).
 :- use_module(library(http/http_dispatch)).
+
+:- use_module(library(fnotation)).
+:- fnotation_ops($>,<$).
+:- op(900,fx,<$).
 
 :- [search_paths].
 

@@ -1,5 +1,5 @@
 :- use_module(depreciation_computation, []).
-:- use_module(library(fnotation)).
+%:- use_module(library(fnotation)).
 
 process_request_depreciation_new :-
 	maplist(process_depreciation_asset, $> doc_list_items($> doc(l:request, l:depreciation_assets))),
@@ -37,7 +37,7 @@ process_depreciation_query2(
 			l:depreciation_query_pool),
 		$>absolute_day($> doc_value(Q,
 			l:depreciation_query_to_date)),
-		$>atom_string($<, $>doc_value(Q,
+		$>atom_string(<$, $>doc_value(Q,
 			l:depreciation_query_method)),
 		$>doc_add_value(Q,
 			l:depreciation_query_total_depreciation)
@@ -49,7 +49,7 @@ process_depreciation_query2(
 		$>doc_value(Q, l:depreciation_query_asset_id),
 		$>doc_value(Q, l:depreciation_query_from_date),
 		$>doc_value(Q, l:depreciation_query_to_date),
-		$>atom_string($<, $>doc_value(Q, l:depreciation_query_method)),
+		$>atom_string(<$, $>doc_value(Q, l:depreciation_query_method)),
 		$>doc_add_value(Q, l:depreciation_query_depreciation_value)
 	).
 
@@ -58,7 +58,7 @@ process_depreciation_query2(
 	depreciation_computation:written_down_value(
 		$>doc_value(Q, l:depreciation_query_asset_id),
 		$>doc_value(Q, l:depreciation_query_written_down_date),
-		$>atom_string($<, $>doc_value(Q, l:depreciation_query_method)),
+		$>atom_string(<$, $>doc_value(Q, l:depreciation_query_method)),
 		_,
 		$>doc_add_value(Q, l:depreciation_query_written_down_value)
 	).

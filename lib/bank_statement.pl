@@ -391,7 +391,7 @@ check_trial_balance(Exchange_Rates, Report_Currency, Date, Transactions) :-
 		->
 			true
 		;
-			format('<!-- SYSTEM_WARNING: trial balance is ~w at ~w -->\n', [Total, Date])
+			add_alert('SYSTEM_WARNING', $>format(string(<$), 'trial balance is ~w at ~w -->\n', [Total, Date]))
 		)
 	).
 

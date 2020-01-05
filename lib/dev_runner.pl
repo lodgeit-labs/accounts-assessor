@@ -52,7 +52,7 @@ maybe_clean_terminal :-
 		true
 	).
 
-x :- 
+x :-
 	Spec = [
 		[opt(viewer), type(atom), shortflags([v]), longflags([viewer])]
 		,[opt(debug), type(boolean), default(true), shortflags([d]), longflags([debug])]
@@ -70,12 +70,13 @@ x :-
 	memberchk(debug(Debug), Opts),
 	memberchk(viewer(Viewer), Opts),
 	memberchk(script(Script), Opts),
-	(nonvar(Script)->true;throw(string('-s needed'))),
+	(nonvar(Script)->true;throw(string('--script needed'))),
 	(	Debug = true
 	->	Optimization = ''
 	;	Optimization = '-O'),
 	atomic_list_concat(['swipl ', Optimization, ' -s ', Script], Load_Cmd),
 	maybe_clean_terminal,
+	/* make forces compilation of dcg's or something */
 	shell2([Load_Cmd, ' -g "make,halt."  2>&1  |  tee err | head -n 150']),
 	maybe_halt_on_err,
 	memberchk(goal(Goal), Opts),
@@ -83,9 +84,9 @@ x :-
 	->	(
 			format(user_error, 'ok...\n', []),
 			(	nonvar(Viewer)
-			->	Redirection = ' 1> arrr.xml | tee err'
+			->	Redirection = ' 2>&1  1> arrr.xml | tee err'
 			;	Redirection = ''),
-			shell2([Load_Cmd, ' -g "', Goal, ', halt."  2>&1 ', Redirection]),
+			shell2([Load_Cmd, ' -g "', Goal, ', halt." ', Redirection]),
 			(	nonvar(Viewer)
 			->	(maybe_halt_on_err, shell2([Viewer, ' arrr.xml']))
 			;	true),

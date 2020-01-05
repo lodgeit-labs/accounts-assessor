@@ -1,0 +1,6 @@
+endpoint runner not importing the server, server must be running standalone.
+finished refactoring filesystem locators in endpoint_tests.
+========
+	reset_gensym(iri), % because we use gensym in investment reports and it will keep incrementing
+	throughout the test-cases, causing fresh responses to not match saved responses.
+

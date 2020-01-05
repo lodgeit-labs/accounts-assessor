@@ -28,6 +28,7 @@ process_request_rpc_calculator(Dict) :-
 	% todo options
 	set_unique_tmp_directory_name(loc(tmp_directory_name, Dict.tmp_directory_name)),
 	set_server_public_url(Dict.server_url),
+	(Request_Files2 = [] -> throw('no files.') ; true),
 	process_request([], Request_Files2).
 
 /* takes either a xml request file, or a directory expected to contain a xml request file, an n3 file, or both */
@@ -138,7 +139,7 @@ load_request_xml(loc(absolute_path,Xml_Tmp_File_Path), Dom) :-
 load_request_rdf(loc(absolute_path, Rdf_Tmp_File_Path), G) :-
 	rdf_create_bnode(G),
 	rdf_load(Rdf_Tmp_File_Path, [graph(G), anon_prefix(bn), on_error(error)]),
-	findall(_, (rdf(S,P,O),writeq(('raw_rdf:',S,P,O)),nl),_).
+	findall(_, (rdf(S,P,O),format(user_error, 'raw_rdf:~q~n',(S,P,O))),_).
 
 make_rdf_report :-
 	Title = 'response.n3',

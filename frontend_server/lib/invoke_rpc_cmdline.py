@@ -66,23 +66,33 @@ def run(request_files, dev_runner_options):
 		tmp_fn = os.path.abspath('/'.join([tmp_directory_absolute_path, ntpath.basename(f)]))
 		shutil.copyfile(f,tmp_fn)
 		files2.append(tmp_fn)
-	call_rpc(server_url = server_url, tmp_directory_name=tmp_directory_name, request_files_in_tmp=files2, dev_runner_options=dev_runner_options)
+	msg = {
+		"method": "calculator",
+		"params": {
+			"server_url": server_url,
+			"tmp_directory_name": tmp_directory_name,
+			"request_files": files2}
+	}
+	call_rpc(msg=msg, dev_runner_options=dev_runner_options)
 
-def call_rpc(server_url, tmp_directory_name, request_files_in_tmp, dev_runner_options=''):
+def call_rpc(msg, dev_runner_options=''):
 	cmd = shlex.split("swipl -s ../lib/dev_runner.pl --problem_lines_whitelist ../misc/problem_lines_whitelist -s ../lib/debug_rpc.pl " + dev_runner_options) + ["-g lib:process_request_rpc_cmdline"]
 	print(' '.join(cmd))
-
-	input = json.dumps({
-		"method":"calculator",
-		"params":{
-			"server_url":server_url,
-			"tmp_directory_name":tmp_directory_name,
-			"request_files":request_files_in_tmp}
-	})
+	input = json.dumps(msg)
 	print(input)
-
-	p = subprocess.Popen(cmd, universal_newlines=True, stdin=subprocess.PIPE)
+	p = subprocess.Popen(cmd, universal_newlines=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 	(stdout_data, stderr_data) = p.communicate(input = input)
+	print("result from prolog:")
+	print(stdout_data)
+	print("end of result from prolog.")
+	try:
+		return json.loads(stdout_data)
+	except json.decoder.JSONDecodeError as e:
+		print(repr(e))
+		raise e
+		#raise(Exception(repr(e)))
+		#import IPython; IPython.embed()
+
 
 def create_tmp_directory_name():
 	return str(server_started_time) + '.' + str(client_request_id.inc())

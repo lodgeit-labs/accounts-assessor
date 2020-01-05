@@ -254,3 +254,12 @@ value_credit_vec(Value, [Coord]) :-
 	coord_normal_side_value(Coord, credit, Value).
 
 
+:- multifile term_dict/2.
+term_dict(
+	Coord,
+	coord{unit:U2, debit:D2, credit:C2}
+) :-
+	dr_cr_coord(U0, D0, C0, Coord),
+	round_term(U0,U2),
+	round_to_significant_digit(D0,D2),
+	round_to_significant_digit(C0,C2).

@@ -2,7 +2,7 @@ import json, ntpath, os
 
 from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import render
-from django.http import HttpResponseRedirect, JsonResponse
+from django.http import HttpResponseRedirect, JsonResponse, HttpResponse
 from django.shortcuts import redirect
 from django.http.request import QueryDict
 
@@ -33,24 +33,41 @@ def upload(request):
 		if form.is_valid():
 			tmp_directory_name, tmp_directory_path = invoke_rpc_cmdline.create_tmp()
 			request_files_in_tmp = []
-			if 'file1' in form.files:
-				request_files_in_tmp.append(handle_uploaded_file(tmp_directory_path, form.files['file1']))
-			if 'file2' in form.files:
-				request_files_in_tmp.append(handle_uploaded_file(tmp_directory_path, form.files['file2']))
-			invoke_rpc_cmdline.call_rpc(server_url, tmp_directory_name, request_files_in_tmp)
+			for fn,f in form.files.items():
+				request_files_in_tmp.append(handle_uploaded_file(tmp_directory_path, f))
+			msg = {
+					"method": "calculator",
+					"params": {
+						"server_url": server_url,
+						"tmp_directory_name": tmp_directory_name,
+						"request_files": request_files_in_tmp}
+			}
+			try:
+				invoke_rpc_cmdline.call_rpc(msg)
+			except json.decoder.JSONDecodeError as e:
+				return HttpResponse(status=500)
 			return HttpResponseRedirect('/tmp/'+tmp_directory_name+'/response.json')
 	else:
 		form = ClientRequestForm()
 	return render(request, 'upload.html', {'form': form})
 
 
-#    path('/sbe', views.sbe, name='sbe'),
+#    the chat endpoints
 
 def sbe(request):
-	raise NotImplementedError()
-
-#    path('/residency', views.residency, name='residency'),
+	return json_call({
+		"method": "sbe",
+		"params": json.loads(request.body)
+	})
 
 def residency(request):
-	raise NotImplementedError()
+	return json_call({
+		"method": "residency",
+		"params": json.loads(request.body)
+	})
 
+def json_call(msg):
+	try:
+		return JsonResponse(invoke_rpc_cmdline.call_rpc(msg))
+	except json.decoder.JSONDecodeError as e:
+		return HttpResponse(status=500)
