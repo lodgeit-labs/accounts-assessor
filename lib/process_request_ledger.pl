@@ -79,6 +79,7 @@ balance_entries(Static_Data, Static_Data_Historical, Entries) :-
 	balance_sheet_at(Static_Data, Balance_Sheet),
 	profitandloss_between(Static_Data, ProfitAndLoss),
 	balance_sheet_at(Static_Data_Historical, Balance_Sheet2_Historical),
+	%gtrace,
 	profitandloss_between(Static_Data_Historical, ProfitAndLoss2_Historical),
 	assertion(ground((Balance_Sheet, ProfitAndLoss, ProfitAndLoss2_Historical, Trial_Balance))),
 	dict_from_vars(Entries, [Balance_Sheet, ProfitAndLoss, Balance_Sheet2_Historical, ProfitAndLoss2_Historical, Trial_Balance]).

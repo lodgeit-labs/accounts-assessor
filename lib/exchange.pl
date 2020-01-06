@@ -20,7 +20,7 @@ exchange_amount(Exchange_Rates, Day, [_ | Bases_Tl], Coord, Amount_Exchanged) :-
 % combine them. If a coordinate cannot be exchanged into a unit from Bases, then it is
 % put into the result as is.
 
-vec_change_bases(_, _, _, [], []).
+/*vec_change_bases(_, _, _, [], []).*/
 
 vec_change_bases(Exchange_Rates, Day, Bases, As, Bs) :-
 	assertion(flatten(Bases, Bases)),

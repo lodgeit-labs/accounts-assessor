@@ -47,9 +47,9 @@ account_child_parent(Accounts, Child_Id, Parent_Id) :-
 	;
 	(
 		nonvar(Parent_Id),
-		member(Child, Accounts),
 		account_id(Child, Child_Id),
-		account_parent(Child, Parent_Id)
+		account_parent(Child, Parent_Id),
+		member(Child, Accounts)
 	).
 
 account_direct_children(Accounts, Parent, Children) :-

@@ -234,10 +234,11 @@ test_response(Endpoint_Type, Returned_Report_Path, Saved_Report_Path, Key, xml, 
 	).
 
 test_response(_, Returned_Report_Path, Saved_Report_Path, _Key, json, Errors) :-
+	!,
 	diff_service(Saved_Report_Path, Returned_Report_Path, Errors).
 
-
 test_response(_, Returned_Report_Path, Saved_Report_Path, _, _, Error) :-
+	!,
 	(	diff(Saved_Report_Path, Returned_Report_Path, true)
 	->	Error = []
 	;	Error = ['files differ']).
