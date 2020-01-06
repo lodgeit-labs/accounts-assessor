@@ -174,7 +174,8 @@ check_returned(Endpoint_Type, Testcase, Key-Report, Errors) :-
 			get_flag(add_missing_response_files, true)
 			->	copy_report_to_saved(Returned_Report_Path, Saved_Report_Path)
 			;	(
-					format(string(Msg), 'file contained in response is not found in saved files.', []),
+					exclude_file_location_from_filename(Url, loc(file_name,Fn)),
+					format(string(Msg), 'file contained in response is not found in saved files: ~w.', [Fn]),
 					writeln(Msg),
 					offer_cp(Returned_Report_Path, Saved_Report_Path),
 					Errors = [Msg]
@@ -362,7 +363,8 @@ query_endpoint(Testcase, Response_JSON) :-
 	Response_JSON = _{
 		alerts:Response_JSON_Raw.alerts,
 		reports:Reports_Dict
-	}.
+	},
+	format('result dir: ~w~n', [Reports_Dict.all.url]).
 
 
 testcases(Top_Level, Testcase) :-
@@ -460,8 +462,8 @@ fetch_report_file_from_url(Url, Path) :-
 	fetch_file_from_url(Url, Path).
 
 fetch_file_from_url(loc(absolute_url,Url), loc(absolute_path, Path)) :-
-	/* todo: how to escape shell commands in swipl? just call the python service?:) */
-	shell2(['curl ', Url, ' > ', Path, ''], 0).
+	/* todo: how to escape shell commands in swipl? just call the python service? the data will be safely serialized into json and POST'ed */
+	services_server_shell_cmd(['curl', Url, '-o', Path]).
 
 /*
 check_output_taxonomy(Type, Response_XML_Path) :-
@@ -497,3 +499,12 @@ check_output_taxonomy(Type, Response_XML_Path) :-
 	%print_alerts(Response_JSON, ['SYSTEM_WARNING']),
 
 %	http_get(Response_URL, Response_XML, []),
+
+json_post(Url, Payload) :-
+	http_post(Url, json(Payload), json(Response), [content_type('application/json')]),
+	(	Response.status == ok
+	->	true
+	;	throw(Response)).
+
+services_server_shell_cmd(Cmd) :-
+	json_post($>format(string(<$), '~w/shell/rpc/', [$>services_server(<$)]), _{cmd:Cmd,quiet_success:true}).

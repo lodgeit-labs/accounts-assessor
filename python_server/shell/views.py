@@ -1,5 +1,5 @@
 import subprocess, shlex, json
-#from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import redirect
 from message.models import Message
 from django.http.request import QueryDict
@@ -10,13 +10,16 @@ def index(request):
 	params.update(request.POST)
 	params.update(request.GET)
 	cmd = params['cmd']
-	p=subprocess.Popen(shlex.split(cmd),stdout=subprocess.PIPE,stderr=subprocess.STDOUT,universal_newlines=True)#text=True)
+	cmd = shlex.split(cmd)
+	p=subprocess.Popen(cmd,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,universal_newlines=True)#text=True)
 	#output = '\n'.join(p.communicate())
 	output = str(p.communicate())
 	if p.returncode == 0:
 		status = 'ok'
 	else:
 		status = 'error'
+	if params.get('quiet_success') == True and status == 'ok':
+		return JsonResponse({'status':'ok'})
 	m = Message(
 		status=status,
 		contents=json.dumps({
@@ -26,3 +29,14 @@ def index(request):
 	m.save()
 	return redirect('/message/view/%s'%m.id)
 	#json_dumps_params={'default':str,'indent':4})
+
+
+def rpc(request):
+	cmd = json.loads(request.body)['cmd']
+	p=subprocess.Popen(cmd,stdout=subprocess.PIPE,stderr=subprocess.PIPE,universal_newlines=True)#text=True)
+	(stdout,stderr) = p.communicate()
+	if p.returncode == 0:
+		status = 'ok'
+	else:
+		status = 'error'
+	return JsonResponse({'status':status,'stdout':stdout,'stderr':stderr})

@@ -16,14 +16,17 @@ Fetch submodules:
 Install SWIPL 8.1.14
 * http://www.swi-prolog.org/Download.html
 
-How to run it:
-* Change directory to server_root/
-
 Install SWIPL dependencies:
-* ```../lib/init.sh```
+* ```lib/init.sh```
+
+How to run it:
+* run the internal services server:
+** `cd python_server; ./run.sh`
+* run the frontend server:
+** `cd frontend_servery; ./run.sh  0.0.0.0:8080`
 
 Run the tests:
-`swipl -s ../tests/run_tests.pl -g halt`
+`cd server_root; reset;echo -e "\e[3J";   swipl -s ../lib/dev_runner.pl   --problem_lines_whitelist=../misc/problem_lines_whitelist  --script ../lib/endpoint_tests.pl  -g "set_flag(overwrite_response_files, false), set_flag(add_missing_response_files, false), set_prolog_flag(grouped_assertions,true), run_tests"`
 
 Run a single xml request:
 `../lib/cli_process_request_xml.py  --problem_lines_whitelist problem_lines_whitelist -c true ../lib/debug1.pl tests/endpoint_tests/ledger/ledger-livestock-0/request.xml`

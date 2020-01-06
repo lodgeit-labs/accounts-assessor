@@ -81,7 +81,6 @@ def call_rpc(msg, dev_runner_options=''):
 	input = json.dumps(msg)
 	print(input)
 	p = subprocess.Popen(cmd, universal_newlines=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
-	#stderr=subprocess.PIPE
 	(stdout_data, stderr_data) = p.communicate(input = input)
 	print("result from prolog:")
 	print(stdout_data)
