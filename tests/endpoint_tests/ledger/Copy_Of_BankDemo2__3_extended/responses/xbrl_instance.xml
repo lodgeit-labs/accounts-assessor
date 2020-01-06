@@ -115,7 +115,7 @@
       </xbrli:segment>
     </xbrli:entity>
   </xbrli:context>
-  <xbrli:context id="D-2019-Raiffeisen_Switzerland_B_V_">
+  <xbrli:context id="D-2019-Raiffeisen_Switzerland_B.V.">
     <xbrli:period>
       <xbrli:startDate>2018-07-13</xbrli:startDate>
       <xbrli:endDate>2019-06-30</xbrli:endDate>
@@ -124,7 +124,7 @@
       <identifier scheme="http://www.example.com">TestData</identifier>
       <xbrli:segment>
 	<xbrldi:typedMember dimension="basic:Dimension_Investments_Duration">
-	  <basic:Investment_Duration>Raiffeisen Switzerland_B.V.</basic:Investment_Duration>
+	  <basic:Investment_Duration>Raiffeisen_Switzerland_B.V.</basic:Investment_Duration>
 	</xbrldi:typedMember>
       </xbrli:segment>
     </xbrli:entity>
@@ -138,7 +138,7 @@
       <identifier scheme="http://www.example.com">TestData</identifier>
       <xbrli:segment>
 	<xbrldi:typedMember dimension="basic:Dimension_Investments_Duration">
-	  <basic:Investment_Duration>SG Issuer_SA_USD_1</basic:Investment_Duration>
+	  <basic:Investment_Duration>SG_Issuer_SA_USD_1</basic:Investment_Duration>
 	</xbrldi:typedMember>
       </xbrli:segment>
     </xbrli:entity>
@@ -152,7 +152,7 @@
       unitRef="U-AUD"
       decimals="INF">3,730.32</basic:InvestmentIncomeRealizedOnlyCurrencyMovement>
   <basic:InvestmentIncomeRealizedOnlyCurrencyMovement
-      contextRef="D-2019-SG Issuer_SA_USD_1"
+      contextRef="D-2019-SG_Issuer_SA_USD_1"
       unitRef="U-AUD"
       decimals="INF">10,553.68</basic:InvestmentIncomeRealizedOnlyCurrencyMovement>
   <basic:InvestmentIncomeRealizedWithoutCurrencyMovement
@@ -160,7 +160,7 @@
       unitRef="U-AUD"
       decimals="INF">242,057.59</basic:InvestmentIncomeRealizedWithoutCurrencyMovement>
   <basic:InvestmentIncomeRealizedWithoutCurrencyMovement
-      contextRef="D-2019-SG Issuer_SA_USD_1"
+      contextRef="D-2019-SG_Issuer_SA_USD_1"
       unitRef="U-AUD"
       decimals="INF">-5,604,689.93</basic:InvestmentIncomeRealizedWithoutCurrencyMovement>
   <basic:InvestmentIncomeUnrealizedOnlyCurrencyMovement
@@ -168,11 +168,11 @@
       unitRef="U-AUD"
       decimals="INF">0.00</basic:InvestmentIncomeUnrealizedOnlyCurrencyMovement>
   <basic:InvestmentIncomeUnrealizedOnlyCurrencyMovement
-      contextRef="D-2019-Raiffeisen Switzerland_B.V."
+      contextRef="D-2019-Raiffeisen_Switzerland_B.V."
       unitRef="U-AUD"
       decimals="INF">0.00</basic:InvestmentIncomeUnrealizedOnlyCurrencyMovement>
   <basic:InvestmentIncomeUnrealizedOnlyCurrencyMovement
-      contextRef="D-2019-SG Issuer_SA_USD_1"
+      contextRef="D-2019-SG_Issuer_SA_USD_1"
       unitRef="U-AUD"
       decimals="INF">10,805.70</basic:InvestmentIncomeUnrealizedOnlyCurrencyMovement>
   <basic:InvestmentIncomeUnrealizedWithoutCurrencyMovement
@@ -180,11 +180,11 @@
       unitRef="U-AUD"
       decimals="INF">-54,512.31</basic:InvestmentIncomeUnrealizedWithoutCurrencyMovement>
   <basic:InvestmentIncomeUnrealizedWithoutCurrencyMovement
-      contextRef="D-2019-Raiffeisen Switzerland_B.V."
+      contextRef="D-2019-Raiffeisen_Switzerland_B.V."
       unitRef="U-AUD"
       decimals="INF">0.00</basic:InvestmentIncomeUnrealizedWithoutCurrencyMovement>
   <basic:InvestmentIncomeUnrealizedWithoutCurrencyMovement
-      contextRef="D-2019-SG Issuer_SA_USD_1"
+      contextRef="D-2019-SG_Issuer_SA_USD_1"
       unitRef="U-AUD"
       decimals="INF">-10,805.70</basic:InvestmentIncomeUnrealizedWithoutCurrencyMovement>
   <basic:NetAssets contextRef="I-2019" unitRef="U-AUD" decimals="INF">338,504.24</basic:NetAssets>
