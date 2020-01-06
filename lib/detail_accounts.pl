@@ -27,7 +27,9 @@ print_detail_account(Static_Data, Context_Info, Fact_Name, Account_In,
 			Dimension_Value = Short_Id
 		)
 	),
-	account_role_by_id(Accounts, Account, (_/Short_Id)),
+	account_role_by_id(Accounts, Account, (_/Short_Id0)),
+	sane_id(Short_Id0, Short_Id), % todo this sanitization is probably unnecessary
+	% <basic:Investment_Duration>Short_Id</basic:Investment_Duration>
 	ensure_context_exists(Short_Id, Dimension_Value, Context_Info, Contexts_In, Contexts_Out, Context_Id),
 	(	context_arg0_period(Context_Info, (_,_))
 	->	net_activity_by_account(Static_Data, Account, Balance, Transactions_Count)

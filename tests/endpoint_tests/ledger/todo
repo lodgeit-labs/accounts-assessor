@@ -1,8 +1,91 @@
 xml_write does add_missing_namespaces. 
 When i finish checking current round of modifications against saved response files, i'll rewrite the response files with the output with this predicate un-commented.
 
+
 reports_json.json is a new file, add it to saved files.
+
 
 unit declarations are missing, that were used only in the "historical", commented-out section of the xbrl output
 
+
 allow period in element ids 
+
+
+
+failing because of a bug in calling arelle:
+	['endpoint_tests/ledger/ledger--with-schemaref']): testcase_error(http_code_400)
+	['endpoint_tests/ledger/historical_vs_current1']): testcase_error(http_code_400)
+move arelle into python_server.
+   
+
+ERROR: /home/koom/lodgeit2/master2/lib/endpoint_tests.pl:68:
+        test loan (forall bindings = ['endpoint_tests/loan/loan-3']): testcase_error(http_code_400)
+
+ERROR: /home/koom/lodgeit2/master2/lib/endpoint_tests.pl:68:
+        test loan (forall bindings = ['endpoint_tests/loan/loan-2']): testcase_error(http_code_400)
+
+ERROR: /home/koom/lodgeit2/master2/lib/endpoint_tests.pl:68:
+        test loan (forall bindings = ['endpoint_tests/loan/loan']): testcase_error(http_code_400)
+
+ERROR: /home/koom/lodgeit2/master2/lib/endpoint_tests.pl:68:
+        test loan (forall bindings = ['endpoint_tests/loan/loan-6']): testcase_error(http_code_400)
+
+ERROR: /home/koom/lodgeit2/master2/lib/endpoint_tests.pl:68:
+        test loan (forall bindings = ['endpoint_tests/loan/loan-4']): testcase_error(http_code_400)
+
+ERROR: /home/koom/lodgeit2/master2/lib/endpoint_tests.pl:68:
+        test loan (forall bindings = ['endpoint_tests/loan/loan-1']): testcase_error(http_code_400)
+
+ERROR: /home/koom/lodgeit2/master2/lib/endpoint_tests.pl:68:
+        test loan (forall bindings = ['endpoint_tests/loan/loan-5']): testcase_error(http_code_400)
+
+ERROR: /home/koom/lodgeit2/master2/lib/endpoint_tests.pl:72:
+        test livestock (forall bindings = ['endpoint_tests/livestock/standalone_livestock_2d']): testcase_error(http_code_400)
+
+ERROR: /home/koom/lodgeit2/master2/lib/endpoint_tests.pl:72:
+        test livestock (forall bindings = ['endpoint_tests/livestock/standalone_livestock_2b']): testcase_error(http_code_400)
+
+ERROR: /home/koom/lodgeit2/master2/lib/endpoint_tests.pl:72:
+        test livestock (forall bindings = ['endpoint_tests/livestock/standalone_livestock_2a']): testcase_error(http_code_400)
+
+ERROR: /home/koom/lodgeit2/master2/lib/endpoint_tests.pl:72:
+        test livestock (forall bindings = ['endpoint_tests/livestock/standalone_livestock_1a']): testcase_error(http_code_400)
+
+ERROR: /home/koom/lodgeit2/master2/lib/endpoint_tests.pl:72:
+        test livestock (forall bindings = ['endpoint_tests/livestock/standalone_livestock_2']): testcase_error(http_code_400)
+
+ERROR: /home/koom/lodgeit2/master2/lib/endpoint_tests.pl:72:
+        test livestock (forall bindings = ['endpoint_tests/livestock/standalone_livestock_5']): testcase_error(http_code_400)
+
+ERROR: /home/koom/lodgeit2/master2/lib/endpoint_tests.pl:72:
+        test livestock (forall bindings = ['endpoint_tests/livestock/standalone_livestock_2c']): testcase_error(http_code_400)
+
+ERROR: /home/koom/lodgeit2/master2/lib/endpoint_tests.pl:72:
+        test livestock (forall bindings = ['endpoint_tests/livestock/standalone_livestock_0']): testcase_error(http_code_400)
+
+ERROR: /home/koom/lodgeit2/master2/lib/endpoint_tests.pl:76:
+        test investment (forall bindings = ['endpoint_tests/investment/investment-unrealized-1']): testcase_error(http_code_400)
+
+ERROR: /home/koom/lodgeit2/master2/lib/endpoint_tests.pl:76:
+        test investment (forall bindings = ['endpoint_tests/investment/investment-totals-1']): testcase_error(http_code_400)
+
+ERROR: /home/koom/lodgeit2/master2/lib/endpoint_tests.pl:76:
+        test investment (forall bindings = ['endpoint_tests/investment/investment-totals-0']): testcase_error(http_code_400)
+
+ERROR: /home/koom/lodgeit2/master2/lib/endpoint_tests.pl:76:
+        test investment (forall bindings = ['endpoint_tests/investment/investment-combined-1']): testcase_error(http_code_400)
+
+ERROR: /home/koom/lodgeit2/master2/lib/endpoint_tests.pl:76:
+        test investment (forall bindings = ['endpoint_tests/investment/investment-realized-1']): testcase_error(http_code_400)
+        
+        
+    
+        
+        
+        
+does set_prolog_flag set_flag?
+set_flag must be atom
+
+
+
+
