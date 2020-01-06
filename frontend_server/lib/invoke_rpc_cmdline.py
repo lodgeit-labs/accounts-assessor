@@ -43,7 +43,10 @@ client_request_id = AtomicInteger()
 
 def git(Suffix = ""):
 	here = os.path.dirname(__file__)
-	return os.path.join(here, '../../', Suffix)
+	print(here)
+	r = os.path.normpath(os.path.join(here, '../../', Suffix))
+	print(r)
+	return r
 
 
 
@@ -89,7 +92,10 @@ def call_rpc(msg, dev_runner_options=''):
 	input = json.dumps(msg)
 	print(input)
 	if os.path.expanduser('~') == '/var/www':
-		os.environ.putenv('SWI_HOME_DIR', git('/../.local/share/swi-prolog/'))
+		#os.environ.putenv('SWI_HOME_DIR', git('../.local/share/swi-prolog/'))
+		os.environ.putenv('SWI_HOME_DIR', '/home/apache/swi-prolog')
+	p = subprocess.Popen(['bash', '-c', 'export'], universal_newlines=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+	p.communicate()
 	p = subprocess.Popen(cmd, universal_newlines=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
 	(stdout_data, stderr_data) = p.communicate(input = input)
 	print("result from prolog:")
