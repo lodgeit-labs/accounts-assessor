@@ -41,6 +41,13 @@ client_request_id = AtomicInteger()
 
 
 
+def git(Suffix = ""):
+	here = os.path.dirname(__file__)
+	return os.path.join(here, '../../', Suffix)
+
+
+
+
 def files_in_dir(dir):
 	result = []
 	for filename in os.listdir(dir):
@@ -76,10 +83,13 @@ def run(request_files, dev_runner_options):
 	call_rpc(msg=msg, dev_runner_options=dev_runner_options)
 
 def call_rpc(msg, dev_runner_options=''):
-	cmd = shlex.split("swipl -s ../lib/dev_runner.pl --problem_lines_whitelist ../misc/problem_lines_whitelist -s ../lib/debug_rpc.pl " + dev_runner_options) + ["-g lib:process_request_rpc_cmdline"]
+	os.chdir(git("server_root"))
+	cmd = shlex.split("swipl -s " + git("lib/dev_runner.pl") + " --problem_lines_whitelist " + git("misc/problem_lines_whitelist") + " -s " + git("lib/debug_rpc.pl") + dev_runner_options) + ["-g lib:process_request_rpc_cmdline"]
 	print(' '.join(cmd))
 	input = json.dumps(msg)
 	print(input)
+	if os.path.expanduser('~') == '/var/www':
+		os.environ.putenv('SWI_HOME_DIR', git('/../.local/share/swi-prolog/'))
 	p = subprocess.Popen(cmd, universal_newlines=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
 	(stdout_data, stderr_data) = p.communicate(input = input)
 	print("result from prolog:")
@@ -97,9 +107,11 @@ def call_rpc(msg, dev_runner_options=''):
 def create_tmp_directory_name():
 	return str(server_started_time) + '.' + str(client_request_id.inc())
 
-def get_tmp_directory_absolute_path(name):
-	return os.path.abspath('../server_root/tmp/' + name)
 
+
+def get_tmp_directory_absolute_path(name):
+	return os.path.join(git('server_root/tmp'), name)
+	
 def create_tmp():
 	name = create_tmp_directory_name()
 	path = get_tmp_directory_absolute_path(name)
