@@ -1,0 +1,99 @@
+<actionTaxonomy>
+      <action>
+        <id>Transfers</id>
+        <exchangeAccount>ClearingAccount</exchangeAccount>
+      </action>
+
+      <action>
+        <id>Invest_In</id>
+        <description>Shares</description>
+        <exchangeAccount>FinancialInvestments</exchangeAccount>
+        <tradingAccount>InvestmentIncome</tradingAccount>
+      </action>
+
+      <action>
+        <id>Dispose_Of</id>
+        <description>Shares</description>
+        <exchangeAccount>FinancialInvestments</exchangeAccount>
+        <tradingAccount>InvestmentIncome</tradingAccount>
+      </action>
+
+      <action>
+        <id>Bank_Charges</id>
+        <exchangeAccount>BankCharges</exchangeAccount>
+      </action>
+
+      <action>
+        <id>Expenses</id>
+        <exchangeAccount>OtherExpenses</exchangeAccount>
+      </action>
+
+      <action>
+        <id>Gain</id>
+        <exchangeAccount>OtherGain</exchangeAccount>
+      </action>
+
+      <action>
+        <id>Loss</id>
+        <description>No Description</description>
+        <exchangeAccount>ShareCapital</exchangeAccount>
+      </action>
+
+      <action>
+        <id>Income</id>
+        <exchangeAccount>Income</exchangeAccount>
+      </action>
+
+      <action>
+        <id>Interest_Income</id>
+        <exchangeAccount>InterestIncome</exchangeAccount>
+      </action>
+
+      <action>
+        <id>Interest_Expenses</id>
+        <exchangeAccount>InterestExpenses</exchangeAccount>
+      </action>
+
+      <action>
+        <id>Borrow</id>
+        <description></description>
+        <exchangeAccount>NoncurrentLoans</exchangeAccount>
+      </action>
+
+      <action>
+        <id>Introduce_Capital</id>
+        <description>Unit_Investment</description>
+        <exchangeAccount>ShareCapital</exchangeAccount>
+      </action>
+
+      <action>
+        <id>Pay_Bank</id>
+        <description>No Description</description>
+        <exchangeAccount>BankCharges</exchangeAccount>
+      </action>
+
+      <action>
+        <id>Accountancy_Fees</id>
+        <description>No Description</description>
+        <exchangeAccount>AccountancyFees</exchangeAccount>
+      </action>
+
+      <action>
+        <id>Purchase_Method_C</id>
+        <description>No Description</description>
+        <exchangeAccount>Purchases</exchangeAccount>
+        <gstRatePercent>10</gstRatePercent>
+        <gstReceivableAccount>GstReceivable</gstReceivableAccount>
+      </action>
+
+      <action>
+        <id>Sale_Method_C</id>
+        <description>No Description</description>
+        <exchangeAccount>Income</exchangeAccount>
+        <gstRatePercent>10</gstRatePercent>
+        <gstPayableAccount>GstPayable</gstPayableAccount>
+      </action>
+
+
+
+</actionTaxonomy>

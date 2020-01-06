@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<xs:schema elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+ 
+	<xs:complexType name="DepreciationRequest">
+		<xs:sequence>
+			<xs:element minOccurs="0" maxOccurs="1" name="types" type="DepreciationTypesHierarchy"/>
+			<xs:element minOccurs="0" maxOccurs="1" name="rates" type="DepreciationRates"/>
+			<xs:element minOccurs="0" maxOccurs="1" name="type" type="xs:string"/>
+			<xs:element minOccurs="0" maxOccurs="1" name="cost" type="CostData"/>
+			<xs:element minOccurs="0" maxOccurs="1" name="invest_in_date" type="xs:date"/>
+			<xs:element minOccurs="0" maxOccurs="1" name="request_date" type="xs:date"/>
+			<xs:element minOccurs="0" maxOccurs="1" name="method" type="xs:string"/>				
+		</xs:sequence>
+	</xs:complexType>
+	
+	<xs:complexType name="DepreciationTypesHierarchy">
+		<xs:sequence>
+			<xs:element minOccurs="0" maxOccurs="unbounded" name="type" type="DepreciationTypeData"/>
+		</xs:sequence>
+	</xs:complexType>		
+	
+	<xs:complexType name="DepreciationTypeData">
+		<xs:sequence>
+			<xs:element minOccurs="0" maxOccurs="1" name="name" type="xs:string"/>
+			<xs:element minOccurs="0" maxOccurs="1" name="parent" type="xs:string"/>
+		</xs:sequence>
+	</xs:complexType>		
+	
+	<xs:complexType name="DepreciationRates">
+		<xs:sequence>
+			<xs:element minOccurs="0" maxOccurs="unbounded" name="depreciation_rate" type="DepreciationRateData"/>
+		</xs:sequence>
+	</xs:complexType>	
+	
+	<xs:complexType name="DepreciationRateData">
+		<xs:sequence>
+			<xs:element minOccurs="0" maxOccurs="1" name="asset" type="xs:string"/>
+			<xs:element minOccurs="0" maxOccurs="1" name="year" type="xs:integer"/>
+			<xs:element minOccurs="0" maxOccurs="1" name="value" type="xs:decimal"/>
+		</xs:sequence>
+	</xs:complexType>	
+	
+	<xs:complexType name="CostData">
+		<xs:sequence>
+			<xs:element minOccurs="0" maxOccurs="1" name="unit" type="xs:string"/>
+			<xs:element minOccurs="0" maxOccurs="1" name="value" type="xs:decimal"/>				
+		</xs:sequence>
+	</xs:complexType>
+	
+</xs:schema>

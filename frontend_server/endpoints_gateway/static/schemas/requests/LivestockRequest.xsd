@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+	<xs:include schemaLocation="../bases/LivestockAccountAnimalData.xsd" />
+	<xs:complexType name="LivestockAccount">
+		<xs:complexContent mixed="false">
+			<xs:extension base="ReportBase">
+				<xs:sequence>
+					<xs:element minOccurs="0" maxOccurs="1" name="livestocks" type="LivestockAccountAnimals"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="LivestockAccountAnimals">
+		<xs:sequence>
+			<xs:element minOccurs="0" maxOccurs="unbounded" name="livestock" type="LivestockAccountAnimalData"/>
+		</xs:sequence>
+	</xs:complexType>
+</xs:schema>

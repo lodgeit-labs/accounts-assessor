@@ -22,7 +22,7 @@ this runs the requests in tests/endpoint_tests and compares the responses agains
 
 
 :- set_prolog_flag(services_server, 'http://localhost:8000').
-:- set_prolog_flag(endpoints_server, 'http://localhost:8080').
+:- set_prolog_flag(endpoints_server, 'http://localhost:7778').
 
 
 
@@ -59,17 +59,17 @@ test(sbe, []) :-
 	http_post($>format(string(<$), '~w/sbe', [$>endpoints_server(<$)]), json(_{current_state:[]}), _, [content_type('application/json')]).
 
 test(residency, []) :-
-	http_post('http://localhost:8080/residency', json(_{current_state:[]}), _, [content_type('application/json')]).
+	http_post($>format(string(<$), '~w/residency', [$>endpoints_server(<$)]), json(_{current_state:[]}), _, [content_type('application/json')]).
 
 test(ledger,
 	[forall(testcases('endpoint_tests/ledger',Testcase))]) :-
 	run_endpoint_test(ledger, Testcase).
 
-test(loan, 
+test(loan,
 	[forall(testcases('endpoint_tests/loan',Testcase))]) :-
 	run_endpoint_test(loan, Testcase).
 
-test(livestock, 
+test(livestock,
 	[forall(testcases('endpoint_tests/livestock',Testcase))]) :-
 	run_endpoint_test(livestock, Testcase).
 
@@ -265,7 +265,8 @@ diff_service(Saved_Report_Path, Returned_Report_Path, Errors) :-
 	Saved_Report_Path = loc(absolute_path,Saved_Report_Path_Value),
 	float_comparison_significant_digits(D),
 	atomics_to_string([
-		'http://localhost:8000/json_diff/',
+		$>services_server(<$),
+		'/json_diff/',
 		'?a=',Saved_Report_Path_Value,
 		'&b=',Returned_Report_Path_Value,
 		'&options={"significant_digits":',D,'}'
@@ -347,8 +348,9 @@ query_endpoint(Testcase, Response_JSON) :-
 		file=file(RequestFile),
 		member(loc(absolute_path,RequestFile), File_Paths),
 		File_Form_Entries),
+	atomic_list_concat([$>endpoints_server(<$),'/upload'], Endpoint_Url),
 	catch(
-		http_post('http://localhost:8080/upload?requested_output_format=json_reports_list', form_data(File_Form_Entries), Response_String, [content_type('multipart/form-data')]),
+		http_post(Endpoint_Url, form_data(File_Form_Entries), Response_String, [content_type('multipart/form-data')]),
 		error(existence_error(_,_),_),
 		throw(testcase_error(http_code_400))
 	),

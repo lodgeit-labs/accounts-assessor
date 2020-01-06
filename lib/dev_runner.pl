@@ -25,10 +25,11 @@ maybe_halt_on_err :-
 	;	true).
 
 halt_on_problems :-
+	get_flag(err_file, Err_File),
 	opts(Opts),
 	(	(memberchk(problem_lines_whitelist(Whitelist_File), Opts), nonvar(Whitelist_File))
-	->	Err_Grep = ['grep -E -i "Warn|err" err | grep -q -v -x -F -f ', Whitelist_File]
-	;	Err_Grep = 'grep -q -E -i "Warn|err" err'
+	->	Err_Grep = ['grep -E -i "Warn|err" ', Err_File, ' | grep -q -v -x -F -f ', Whitelist_File]
+	;	Err_Grep = ['grep -q -E -i "Warn|err" ', Err_File]
 	),
 	(	shell2(Err_Grep, 0)
 	 ->	(
@@ -53,6 +54,11 @@ maybe_clean_terminal :-
 	).
 
 x :-
+
+	tmp_file_stream(text, Err_File, Stream),
+	set_flag(err_file, Err_File),
+	close(Stream),
+
 	Spec = [
 		[opt(viewer), type(atom), shortflags([v]), longflags([viewer])]
 		,[opt(debug), type(boolean), default(true), shortflags([d]), longflags([debug])]
@@ -77,14 +83,14 @@ x :-
 	atomic_list_concat(['swipl ', Optimization, ' -s ', Script], Load_Cmd),
 	maybe_clean_terminal,
 	/* make forces compilation of dcg's or something */
-	shell2([Load_Cmd, ' -g "make,halt."  2>&1  |  tee err | head -n 150']),
+	shell2([Load_Cmd, ' -g "make,halt."  2>&1  |  tee ', Err_File, ' | head -n 150']),
 	maybe_halt_on_err,
 	memberchk(goal(Goal), Opts),
 	(	nonvar(Goal)
 	->	(
 			format(user_error, 'ok...\n', []),
 			(	nonvar(Viewer)
-			->	Redirection = ' 2>&1  1> arrr.xml | tee err'
+			->	Redirection = [' 2>&1  1> arrr.xml | tee ', Err_File]
 			;	Redirection = ''),
 			shell2([Load_Cmd, ' -g "', Goal, ', halt." ', Redirection]),
 			(	nonvar(Viewer)

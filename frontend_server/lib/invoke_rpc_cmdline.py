@@ -43,9 +43,9 @@ client_request_id = AtomicInteger()
 
 def git(Suffix = ""):
 	here = os.path.dirname(__file__)
-	print(here)
+	#print(here)
 	r = os.path.normpath(os.path.join(here, '../../', Suffix))
-	print(r)
+	#print(r)
 	return r
 
 
@@ -94,7 +94,7 @@ def call_rpc(msg, dev_runner_options=''):
 	if os.path.expanduser('~') == '/var/www':
 		#os.environ.putenv('SWI_HOME_DIR', git('../.local/share/swi-prolog/'))
 		os.environ.putenv('SWI_HOME_DIR', '/home/apache/swi-prolog')
-	p = subprocess.Popen(['bash', '-c', 'export'], universal_newlines=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+	p = subprocess.Popen(['bash', '-c', 'export'], universal_newlines=True)
 	p.communicate()
 	p = subprocess.Popen(cmd, universal_newlines=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
 	(stdout_data, stderr_data) = p.communicate(input = input)
@@ -122,8 +122,8 @@ def create_tmp():
 	name = create_tmp_directory_name()
 	path = get_tmp_directory_absolute_path(name)
 	os.mkdir(path)
-	subprocess.call(['rm', get_tmp_directory_absolute_path('last')])
-	subprocess.call(['ln', '-s', get_tmp_directory_absolute_path(name), get_tmp_directory_absolute_path('last')])
+	subprocess.call(['/bin/rm', get_tmp_directory_absolute_path('last')])
+	subprocess.call(['/bin/ln', '-s', get_tmp_directory_absolute_path(name), get_tmp_directory_absolute_path('last')])
 	return name,path
 
 

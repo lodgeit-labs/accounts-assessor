@@ -1,0 +1,117 @@
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="response" nillable="true" type="InvestmentResponse" />
+  <xs:complexType name="InvestmentResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="Report_Date" type="xs:date"/>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element name="unrealized_investment" type="UnrealizedInvestment"/>
+        <xs:element name="realized_investment" type="RealizedInvestment"/>
+      </xs:choice>
+      <xs:element minOccurs="1" maxOccurs="1" name="Realized_Market_Gain_Total" type="xs:float"/>
+      <xs:element minOccurs="1" maxOccurs="1" name="Realized_Currency_Gain_Total" type="xs:float"/>
+      <xs:element minOccurs="1" maxOccurs="1" name="Realized_Gain_Total" type="xs:float"/>
+      <xs:element minOccurs="1" maxOccurs="1" name="Unrealized_Market_Gain_Total" type="xs:float"/>
+      <xs:element minOccurs="1" maxOccurs="1" name="Unrealized_Currency_Gain_Total" type="xs:float"/>
+      <xs:element minOccurs="1" maxOccurs="1" name="Unrealized_Gain_Total" type="xs:float"/>
+      <xs:element minOccurs="1" maxOccurs="1" name="Gain_Total" type="xs:float"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="InvestmentBase">
+    <xs:sequence>
+      <xs:element minOccurs="1" maxOccurs="1" name="Name" type="xs:string"/>
+      <xs:element minOccurs="1" maxOccurs="1" name="Count" type="xs:integer"/>
+      <xs:element minOccurs="1" maxOccurs="1" name="Currency" type="xs:string"/>
+      <xs:element minOccurs="1" maxOccurs="1" name="Purchase_Date" type="xs:date"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="UnrealizedInvestment">
+    <xs:complexContent mixed="false">
+      <xs:extension base="InvestmentBase">
+        <xs:sequence>
+          <xs:element minOccurs="1" maxOccurs="1" name="Report_Date" type="xs:date"/>
+
+          <xs:element minOccurs="1" maxOccurs="1" name="PDPC_Total_Cost" type="xs:decimal"/>
+          <xs:element minOccurs="1" maxOccurs="1" name="PDPC_Total_Cost_Formula" type="xs:string"/>
+          <xs:element minOccurs="1" maxOccurs="1" name="PDPC_Total_Cost_Computation" type="xs:string"/>
+
+          <xs:element minOccurs="1" maxOccurs="1" name="PDRC_Total_Cost" type="xs:decimal"/>
+          <xs:element minOccurs="1" maxOccurs="1" name="PDRC_Total_Cost_Formula" type="xs:string"/>
+          <xs:element minOccurs="1" maxOccurs="1" name="PDRC_Total_Cost_Computation" type="xs:string"/>
+
+          <xs:element minOccurs="1" maxOccurs="1" name="RDPC_Total_Value" type="xs:decimal"/>
+          <xs:element minOccurs="1" maxOccurs="1" name="RDPC_Total_Value_Formula" type="xs:string"/>
+          <xs:element minOccurs="1" maxOccurs="1" name="RDPC_Total_Value_Computation" type="xs:string"/>
+
+          <xs:element minOccurs="1" maxOccurs="1" name="RDPC_Unrealized_Gain" type="xs:decimal"/>
+          <xs:element minOccurs="1" maxOccurs="1" name="RDPC_Unrealized_Gain_Formula" type="xs:string"/>
+          <xs:element minOccurs="1" maxOccurs="1" name="RDPC_Unrealized_Gain_Computation" type="xs:string"/>
+
+          <xs:element minOccurs="1" maxOccurs="1" name="RDRC_Old_Rate_Total_Value" type="xs:decimal"/>
+          <xs:element minOccurs="1" maxOccurs="1" name="RDRC_Old_Rate_Total_Value_Formula" type="xs:string"/>
+          <xs:element minOccurs="1" maxOccurs="1" name="RDRC_Old_Rate_Total_Value_Computation" type="xs:string"/>
+
+          <xs:element minOccurs="1" maxOccurs="1" name="RDRC_New_Rate_Total_Value" type="xs:decimal"/>
+          <xs:element minOccurs="1" maxOccurs="1" name="RDRC_New_Rate_Total_Value_Formula" type="xs:string"/>
+          <xs:element minOccurs="1" maxOccurs="1" name="RDRC_New_Rate_Total_Value_Computation" type="xs:string"/>
+
+          <xs:element minOccurs="1" maxOccurs="1" name="RDRC_Unrealized_Total_Gain" type="xs:decimal"/>
+          <xs:element minOccurs="1" maxOccurs="1" name="RDRC_Unrealized_Total_Gain_Formula" type="xs:string"/>
+          <xs:element minOccurs="1" maxOccurs="1" name="RDRC_Unrealized_Total_Gain_Computation" type="xs:string"/>
+
+          <xs:element minOccurs="1" maxOccurs="1" name="RDRC_Unrealized_Market_Gain" type="xs:decimal"/>
+          <xs:element minOccurs="1" maxOccurs="1" name="RDRC_Unrealized_Market_Gain_Formula" type="xs:string"/>
+          <xs:element minOccurs="1" maxOccurs="1" name="RDRC_Unrealized_Market_Gain_Computation" type="xs:string"/>
+
+          <xs:element minOccurs="1" maxOccurs="1" name="RDRC_Unrealized_Currency_Gain" type="xs:decimal"/>
+          <xs:element minOccurs="1" maxOccurs="1" name="RDRC_Unrealized_Currency_Gain_Formula" type="xs:string"/>
+          <xs:element minOccurs="1" maxOccurs="1" name="RDRC_Unrealized_Currency_Gain_Computation" type="xs:string"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="RealizedInvestment">
+    <xs:complexContent mixed="false">
+      <xs:extension base="InvestmentBase">
+        <xs:sequence>
+          <xs:element minOccurs="1" maxOccurs="1" name="Sale_Date" type="xs:date"/>
+
+          <xs:element minOccurs="1" maxOccurs="1" name="PDPC_Total_Cost" type="xs:decimal"/>
+          <xs:element minOccurs="1" maxOccurs="1" name="PDPC_Total_Cost_Formula" type="xs:string"/>
+          <xs:element minOccurs="1" maxOccurs="1" name="PDPC_Total_Cost_Computation" type="xs:string"/>
+
+          <xs:element minOccurs="1" maxOccurs="1" name="PDRC_Total_Cost" type="xs:decimal"/>
+          <xs:element minOccurs="1" maxOccurs="1" name="PDRC_Total_Cost_Formula" type="xs:string"/>
+          <xs:element minOccurs="1" maxOccurs="1" name="PDRC_Total_Cost_Computation" type="xs:string"/>
+
+          <xs:element minOccurs="1" maxOccurs="1" name="SDPC_Total_Value" type="xs:decimal"/>
+          <xs:element minOccurs="1" maxOccurs="1" name="SDPC_Total_Value_Formula" type="xs:string"/>
+          <xs:element minOccurs="1" maxOccurs="1" name="SDPC_Total_Value_Computation" type="xs:string"/>
+
+          <xs:element minOccurs="1" maxOccurs="1" name="SDPC_Realized_Gain" type="xs:decimal"/>
+          <xs:element minOccurs="1" maxOccurs="1" name="SDPC_Realized_Gain_Formula" type="xs:string"/>
+          <xs:element minOccurs="1" maxOccurs="1" name="SDPC_Realized_Gain_Computation" type="xs:string"/>
+
+          <xs:element minOccurs="1" maxOccurs="1" name="SDRC_Old_Rate_Total_Value" type="xs:decimal"/>
+          <xs:element minOccurs="1" maxOccurs="1" name="SDRC_Old_Rate_Total_Value_Formula" type="xs:string"/>
+          <xs:element minOccurs="1" maxOccurs="1" name="SDRC_Old_Rate_Total_Value_Computation" type="xs:string"/>
+
+          <xs:element minOccurs="1" maxOccurs="1" name="SDRC_New_Rate_Total_Value" type="xs:decimal"/>
+          <xs:element minOccurs="1" maxOccurs="1" name="SDRC_New_Rate_Total_Value_Formula" type="xs:string"/>
+          <xs:element minOccurs="1" maxOccurs="1" name="SDRC_New_Rate_Total_Value_Computation" type="xs:string"/>
+
+          <xs:element minOccurs="1" maxOccurs="1" name="RC_Realized_Total_Gain" type="xs:decimal"/>
+          <xs:element minOccurs="1" maxOccurs="1" name="RC_Realized_Total_Gain_Formula" type="xs:string"/>
+          <xs:element minOccurs="1" maxOccurs="1" name="RC_Realized_Total_Gain_Computation" type="xs:string"/>
+
+          <xs:element minOccurs="1" maxOccurs="1" name="RC_Realized_Market_Gain" type="xs:decimal"/>
+          <xs:element minOccurs="1" maxOccurs="1" name="RC_Realized_Market_Gain_Formula" type="xs:string"/>
+          <xs:element minOccurs="1" maxOccurs="1" name="RC_Realized_Market_Gain_Computation" type="xs:string"/>
+
+          <xs:element minOccurs="1" maxOccurs="1" name="RC_Realized_Currency_Gain" type="xs:decimal"/>
+          <xs:element minOccurs="1" maxOccurs="1" name="RC_Realized_Currency_Gain_Formula" type="xs:string"/>
+          <xs:element minOccurs="1" maxOccurs="1" name="RC_Realized_Currency_Gain_Computation" type="xs:string"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+</xs:schema>

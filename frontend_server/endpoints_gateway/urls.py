@@ -8,5 +8,7 @@ urlpatterns = ([
     path('upload', views.upload, name='upload'),
     path('sbe', views.sbe, name='sbe'),
     path('residency', views.residency, name='residency')] +
-    static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT, show_indexes=True))
+    static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT, show_indexes=True) +
+    static(settings.STATIC_URL, document_root=settings.STATIC_ROOT, show_indexes=True)
+)
 
