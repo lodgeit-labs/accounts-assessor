@@ -1,0 +1,1178 @@
+[
+  {
+    "source": {
+      "account":"USD_Bank",
+      "date":"date(2018,7,1)",
+      "exchanged":"vector([coord('SG Issuer_SA_USD_1',140000)])",
+      "report_currency_transacted_amount_converted_at_balance_date": [ {"credit":199004.300367, "debit":0.0, "unit":"AUD"} ],
+      "report_currency_transacted_amount_converted_at_transaction_date": [ {"credit":179619.963264, "debit":0.0, "unit":"AUD"} ],
+      "vector": [ {"credit":139760.32, "debit":0.0, "unit":"USD"} ],
+      "verb":"Invest_In"
+    },
+    "transactions": [
+      {
+	"account":"BanksUSD_Bank",
+	"date":"date(2018,7,1)",
+	"description":"Invest_In - outgoing money",
+	"type":"instant",
+	"vector": [ {"credit":139760.32, "debit":0.0, "unit":"USD"} ],
+	"vector_converted_at_balance_date": [ {"credit":199004.300367, "debit":0.0, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": [ {"credit":179619.963264, "debit":0.0, "unit":"AUD"} ]
+      },
+      {
+	"account":"CurrencyMovementUSD_Bank",
+	"date":"date(2018,7,1)",
+	"description":"Invest_In - outgoing money - currency movement adjustment - historical part",
+	"type":"tracking",
+	"vector": [
+	   {
+  "credit":0.0,
+  "debit":139760.32,
+  "unit":"without_movement_after('USD',date(2018,7,2))"
+},
+	   {
+  "credit":139760.32,
+  "debit":0.0,
+  "unit":"without_currency_movement_against_since('USD','USD',['AUD'],date(2018,7,1))"
+}
+	],
+	"vector_converted_at_balance_date": [ {"credit":0.0, "debit":9453.388045, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": []
+      },
+      {
+	"account":"CurrencyMovementUSD_Bank",
+	"date":"date(2018,7,2)",
+	"description":"Invest_In - outgoing money - currency movement adjustment - current part",
+	"type":"tracking",
+	"vector": [
+	   {"credit":0.0, "debit":139760.32, "unit":"USD"},
+	   {
+  "credit":139760.32,
+  "debit":0.0,
+  "unit":"without_movement_after('USD',date(2018,7,2))"
+}
+	],
+	"vector_converted_at_balance_date": [ {"credit":0.0, "debit":9930.949058, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": []
+      },
+      {
+	"account":"FinancialInvestmentsSG_Issuer_SA_USD_1",
+	"date":"date(2018,7,1)",
+	"description":"Invest_In",
+	"type":"instant",
+	"vector": [ {"credit":0.0, "debit":140000.0, "unit":"SG Issuer_SA_USD_1"} ],
+	"vector_converted_at_balance_date": [ {"credit":0.0, "debit":5600000.0, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": [ {"credit":0.0, "debit":5600000.0, "unit":"AUD"} ]
+      },
+      {
+	"account":"InvestmentIncomeUnrealizedOnlyCurrencyMovementSG_Issuer_SA_USD_1",
+	"date":"date(2018,7,2)",
+	"description":"comment:?, comment2:Invest_In - current part",
+	"type":"?",
+	"vector": [
+	   {"credit":140000.0, "debit":0.0, "unit":"SG Issuer_SA_USD_1"},
+	   {
+  "credit":0.0,
+  "debit":140000.0,
+  "unit":"without_currency_movement_against_since('SG Issuer_SA_USD_1','USD',['AUD'],date(2018,7,2))"
+}
+	],
+	"vector_converted_at_balance_date": [ {"credit":279457.854044, "debit":0.0, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": []
+      },
+      {
+	"account":"InvestmentIncomeUnrealizedWithoutCurrencyMovementSG_Issuer_SA_USD_1",
+	"date":"date(2018,7,2)",
+	"description":"comment:?, comment2:Invest_In - current part",
+	"type":"?",
+	"vector": [
+	   {
+  "credit":140000.0,
+  "debit":0.0,
+  "unit":"without_currency_movement_against_since('SG Issuer_SA_USD_1','USD',['AUD'],date(2018,7,2))"
+},
+	   {
+  "credit":0.0,
+  "debit":140000.0,
+  "unit":"without_movement_after('SG Issuer_SA_USD_1',date(2018,7,2))"
+}
+	],
+	"vector_converted_at_balance_date": [ {"credit":0.0, "debit":279457.854044, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": []
+      },
+      {
+	"account":"InvestmentIncomeUnrealizedOnlyCurrencyMovementSG_Issuer_SA_USD_1",
+	"date":"date(2018,7,1)",
+	"description":"comment:?, comment2:Invest_In - historical part",
+	"type":"?",
+	"vector": [
+	   {
+  "credit":140000.0,
+  "debit":0.0,
+  "unit":"without_movement_after('SG Issuer_SA_USD_1',date(2018,7,2))"
+},
+	   {
+  "credit":0.0,
+  "debit":140000.0,
+  "unit":"without_movement_after(without_currency_movement_against_since('SG Issuer_SA_USD_1','USD',['AUD'],date(2018,7,1)),date(2018,7,2))"
+}
+	],
+	"vector_converted_at_balance_date": [ {"credit":279991.72112, "debit":0.0, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": []
+      },
+      {
+	"account":"InvestmentIncomeUnrealizedWithoutCurrencyMovementSG_Issuer_SA_USD_1",
+	"date":"date(2018,7,1)",
+	"description":"comment:?, comment2:Invest_In - historical part",
+	"type":"?",
+	"vector": [
+	   {
+  "credit":140000.0,
+  "debit":0.0,
+  "unit":"without_movement_after(without_currency_movement_against_since('SG Issuer_SA_USD_1','USD',['AUD'],date(2018,7,1)),date(2018,7,2))"
+},
+	   {"credit":0.0, "debit":179619.963264, "unit":"AUD"}
+	],
+	"vector_converted_at_balance_date": [ {"credit":5140388.315616, "debit":0.0, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": [ {"credit":5420380.036736, "debit":0.0, "unit":"AUD"} ]
+      }
+    ]
+  },
+  {
+    "source": {
+      "account":"USD_Bank",
+      "date":"date(2018,7,2)",
+      "exchanged":"vector([coord('SG Issuer_SA_USD_1',10000)])",
+      "report_currency_transacted_amount_converted_at_balance_date": [ {"credit":199004.300367, "debit":0.0, "unit":"AUD"} ],
+      "report_currency_transacted_amount_converted_at_transaction_date": [ {"credit":189073.351309, "debit":0.0, "unit":"AUD"} ],
+      "vector": [ {"credit":139760.32, "debit":0.0, "unit":"USD"} ],
+      "verb":"Invest_In"
+    },
+    "transactions": [
+      {
+	"account":"BanksUSD_Bank",
+	"date":"date(2018,7,2)",
+	"description":"Invest_In - outgoing money",
+	"type":"instant",
+	"vector": [ {"credit":139760.32, "debit":0.0, "unit":"USD"} ],
+	"vector_converted_at_balance_date": [ {"credit":199004.300367, "debit":0.0, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": [ {"credit":189073.351309, "debit":0.0, "unit":"AUD"} ]
+      },
+      {
+	"account":"CurrencyMovementUSD_Bank",
+	"date":"date(2018,7,2)",
+	"description":"Invest_In - outgoing money - currency movement adjustment - only current period",
+	"type":"tracking",
+	"vector": [
+	   {"credit":0.0, "debit":139760.32, "unit":"USD"},
+	   {
+  "credit":139760.32,
+  "debit":0.0,
+  "unit":"without_currency_movement_against_since('USD','USD',['AUD'],date(2018,7,2))"
+}
+	],
+	"vector_converted_at_balance_date": [ {"credit":0.0, "debit":9930.949058, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": []
+      },
+      {
+	"account":"FinancialInvestmentsSG_Issuer_SA_USD_1",
+	"date":"date(2018,7,2)",
+	"description":"Invest_In",
+	"type":"instant",
+	"vector": [ {"credit":0.0, "debit":10000.0, "unit":"SG Issuer_SA_USD_1"} ],
+	"vector_converted_at_balance_date": [ {"credit":0.0, "debit":400000.0, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": [ {"credit":0.0, "debit":400000.0, "unit":"AUD"} ]
+      },
+      {
+	"account":"InvestmentIncomeUnrealizedOnlyCurrencyMovementSG_Issuer_SA_USD_1",
+	"date":"date(2018,7,2)",
+	"description":"comment:?, comment2:Invest_In - single period",
+	"type":"?",
+	"vector": [
+	   {"credit":10000.0, "debit":0.0, "unit":"SG Issuer_SA_USD_1"},
+	   {
+  "credit":0.0,
+  "debit":10000.0,
+  "unit":"without_currency_movement_against_since('SG Issuer_SA_USD_1','USD',['AUD'],date(2018,7,2))"
+}
+	],
+	"vector_converted_at_balance_date": [ {"credit":19961.275289, "debit":0.0, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": []
+      },
+      {
+	"account":"InvestmentIncomeUnrealizedWithoutCurrencyMovementSG_Issuer_SA_USD_1",
+	"date":"date(2018,7,2)",
+	"description":"comment:?, comment2:Invest_In - single period",
+	"type":"?",
+	"vector": [
+	   {
+  "credit":10000.0,
+  "debit":0.0,
+  "unit":"without_currency_movement_against_since('SG Issuer_SA_USD_1','USD',['AUD'],date(2018,7,2))"
+},
+	   {"credit":0.0, "debit":189073.351309, "unit":"AUD"}
+	],
+	"vector_converted_at_balance_date": [ {"credit":190965.373402, "debit":0.0, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": [ {"credit":210926.648691, "debit":0.0, "unit":"AUD"} ]
+      }
+    ]
+  },
+  {
+    "source": {
+      "account":"USD_Bank",
+      "date":"date(2018,7,2)",
+      "exchanged":"vector([coord('Raiffeisen Switzerland_B.V.',2085)])",
+      "report_currency_transacted_amount_converted_at_balance_date": [ {"credit":59238.159067, "debit":0.0, "unit":"AUD"} ],
+      "report_currency_transacted_amount_converted_at_transaction_date": [ {"credit":56281.986066, "debit":0.0, "unit":"AUD"} ],
+      "vector": [ {"credit":41602.84, "debit":0.0, "unit":"USD"} ],
+      "verb":"Invest_In"
+    },
+    "transactions": [
+      {
+	"account":"BanksUSD_Bank",
+	"date":"date(2018,7,2)",
+	"description":"Invest_In - outgoing money",
+	"type":"instant",
+	"vector": [ {"credit":41602.84, "debit":0.0, "unit":"USD"} ],
+	"vector_converted_at_balance_date": [ {"credit":59238.159067, "debit":0.0, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": [ {"credit":56281.986066, "debit":0.0, "unit":"AUD"} ]
+      },
+      {
+	"account":"CurrencyMovementUSD_Bank",
+	"date":"date(2018,7,2)",
+	"description":"Invest_In - outgoing money - currency movement adjustment - only current period",
+	"type":"tracking",
+	"vector": [
+	   {"credit":0.0, "debit":41602.84, "unit":"USD"},
+	   {
+  "credit":41602.84,
+  "debit":0.0,
+  "unit":"without_currency_movement_against_since('USD','USD',['AUD'],date(2018,7,2))"
+}
+	],
+	"vector_converted_at_balance_date": [ {"credit":0.0, "debit":2956.173002, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": []
+      },
+      {
+	"account":"FinancialInvestmentsRaiffeisen_Switzerland_B_V_",
+	"date":"date(2018,7,2)",
+	"description":"Invest_In",
+	"type":"instant",
+	"vector": [ {"credit":0.0, "debit":2085.0, "unit":"Raiffeisen Switzerland_B.V."} ],
+	"vector_converted_at_balance_date": [ {"credit":0.0, "debit":14699.25, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": [ {"credit":0.0, "debit":14699.25, "unit":"AUD"} ]
+      },
+      {
+	"account":"InvestmentIncomeUnrealizedOnlyCurrencyMovementRaiffeisen_Switzerland_B_V_",
+	"date":"date(2018,7,2)",
+	"description":"comment:?, comment2:Invest_In - single period",
+	"type":"?",
+	"vector": [
+	   {"credit":2085.0, "debit":0.0, "unit":"Raiffeisen Switzerland_B.V."},
+	   {
+  "credit":0.0,
+  "debit":2085.0,
+  "unit":"without_currency_movement_against_since('Raiffeisen Switzerland_B.V.','USD',['AUD'],date(2018,7,2))"
+}
+	],
+	"vector_converted_at_balance_date": [ {"credit":733.539439, "debit":0.0, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": []
+      },
+      {
+	"account":"InvestmentIncomeUnrealizedWithoutCurrencyMovementRaiffeisen_Switzerland_B_V_",
+	"date":"date(2018,7,2)",
+	"description":"comment:?, comment2:Invest_In - single period",
+	"type":"?",
+	"vector": [
+	   {
+  "credit":2085.0,
+  "debit":0.0,
+  "unit":"without_currency_movement_against_since('Raiffeisen Switzerland_B.V.','USD',['AUD'],date(2018,7,2))"
+},
+	   {"credit":0.0, "debit":56281.986066, "unit":"AUD"}
+	],
+	"vector_converted_at_balance_date": [ {"credit":0.0, "debit":42316.275505, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": [ {"credit":0.0, "debit":41582.736066, "unit":"AUD"} ]
+      }
+    ]
+  },
+  {
+    "source": {
+      "account":"CHF_Bank",
+      "date":"date(2018,7,10)",
+      "exchanged":"vector([])",
+      "report_currency_transacted_amount_converted_at_balance_date": [ {"credit":1453.488574, "debit":0.0, "unit":"AUD"} ],
+      "report_currency_transacted_amount_converted_at_transaction_date": [ {"credit":1362.583, "debit":0.0, "unit":"AUD"} ],
+      "vector": [ {"credit":1000.0, "debit":0.0, "unit":"CHF"} ],
+      "verb":"Accountancy_Fees"
+    },
+    "transactions": [
+      {
+	"account":"BanksCHF_Bank",
+	"date":"date(2018,7,10)",
+	"description":"Accountancy_Fees - outgoing money",
+	"type":"instant",
+	"vector": [ {"credit":1000.0, "debit":0.0, "unit":"CHF"} ],
+	"vector_converted_at_balance_date": [ {"credit":1453.488574, "debit":0.0, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": [ {"credit":1362.583, "debit":0.0, "unit":"AUD"} ]
+      },
+      {
+	"account":"CurrencyMovementCHF_Bank",
+	"date":"date(2018,7,10)",
+	"description":"Accountancy_Fees - outgoing money - currency movement adjustment - only current period",
+	"type":"tracking",
+	"vector": [
+	   {"credit":0.0, "debit":1000.0, "unit":"CHF"},
+	   {
+  "credit":1000.0,
+  "debit":0.0,
+  "unit":"without_currency_movement_against_since('CHF','CHF',['AUD'],date(2018,7,10))"
+}
+	],
+	"vector_converted_at_balance_date": [ {"credit":0.0, "debit":90.905574, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": []
+      },
+      {
+	"account":"AccountingFees",
+	"date":"date(2018,7,10)",
+	"description":"Accountancy_Fees",
+	"type":"instant",
+	"vector": [ {"credit":0.0, "debit":1362.583, "unit":"AUD"} ],
+	"vector_converted_at_balance_date": [ {"credit":0.0, "debit":1362.583, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": [ {"credit":0.0, "debit":1362.583, "unit":"AUD"} ]
+      }
+    ]
+  },
+  {
+    "source": {
+      "account":"USD_Bank",
+      "date":"date(2018,7,12)",
+      "exchanged":"vector([coord('Raiffeisen Switzerland_B.V.',-2085)])",
+      "report_currency_transacted_amount_converted_at_balance_date": [ {"credit":0.0, "debit":128150.73, "unit":"AUD"} ],
+      "report_currency_transacted_amount_converted_at_transaction_date": [ {"credit":0.0, "debit":122488.11, "unit":"AUD"} ],
+      "vector": [ {"credit":0.0, "debit":90000.0, "unit":"USD"} ],
+      "verb":"Dispose_Off"
+    },
+    "transactions": [
+      {
+	"account":"BanksUSD_Bank",
+	"date":"date(2018,7,12)",
+	"description":"Dispose_Off - incoming money",
+	"type":"instant",
+	"vector": [ {"credit":0.0, "debit":90000.0, "unit":"USD"} ],
+	"vector_converted_at_balance_date": [ {"credit":0.0, "debit":128150.73, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": [ {"credit":0.0, "debit":122488.11, "unit":"AUD"} ]
+      },
+      {
+	"account":"CurrencyMovementUSD_Bank",
+	"date":"date(2018,7,12)",
+	"description":"Dispose_Off - incoming money - currency movement adjustment - only current period",
+	"type":"tracking",
+	"vector": [
+	   {"credit":90000.0, "debit":0.0, "unit":"USD"},
+	   {
+  "credit":0.0,
+  "debit":90000.0,
+  "unit":"without_currency_movement_against_since('USD','USD',['AUD'],date(2018,7,12))"
+}
+	],
+	"vector_converted_at_balance_date": [ {"credit":5662.62, "debit":0.0, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": []
+      },
+      {
+	"account":"FinancialInvestmentsRaiffeisen_Switzerland_B_V_",
+	"date":"date(2018,7,12)",
+	"description":"Dispose_Off",
+	"type":"instant",
+	"vector": [ {"credit":2085.0, "debit":0.0, "unit":"Raiffeisen Switzerland_B.V."} ],
+	"vector_converted_at_balance_date": [ {"credit":14699.25, "debit":0.0, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": [ {"credit":14699.25, "debit":0.0, "unit":"AUD"} ]
+      },
+      {
+	"account":"InvestmentIncomeUnrealizedOnlyCurrencyMovementRaiffeisen_Switzerland_B_V_",
+	"date":"date(2018,7,12)",
+	"description":"comment:?, comment2:Dispose_Off - single period",
+	"type":"?",
+	"vector": [
+	   {"credit":0.0, "debit":2085.0, "unit":"Raiffeisen Switzerland_B.V."},
+	   {
+  "credit":2085.0,
+  "debit":0.0,
+  "unit":"without_currency_movement_against_since('Raiffeisen Switzerland_B.V.','USD',['AUD'],date(2018,7,2))"
+}
+	],
+	"vector_converted_at_balance_date": [ {"credit":0.0, "debit":733.539439, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": [ {"credit":0.0, "debit":87.905247, "unit":"AUD"} ]
+      },
+      {
+	"account":"InvestmentIncomeUnrealizedWithoutCurrencyMovementRaiffeisen_Switzerland_B_V_",
+	"date":"date(2018,7,12)",
+	"description":"comment:?, comment2:Dispose_Off - single period",
+	"type":"?",
+	"vector": [
+	   {
+  "credit":0.0,
+  "debit":2085.0,
+  "unit":"without_currency_movement_against_since('Raiffeisen Switzerland_B.V.','USD',['AUD'],date(2018,7,2))"
+},
+	   {"credit":56281.986066, "debit":0.0, "unit":"AUD"}
+	],
+	"vector_converted_at_balance_date": [ {"credit":42316.275505, "debit":0.0, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": [ {"credit":41670.641313, "debit":0.0, "unit":"AUD"} ]
+      },
+      {
+	"account":"InvestmentIncomeRealizedOnlyCurrencyMovementRaiffeisen_Switzerland_B_V_",
+	"date":"date(2018,7,12)",
+	"description":"comment:?, comment2:Dispose_Off",
+	"type":"?",
+	"vector": [
+	   {"credit":122488.11, "debit":0.0, "unit":"AUD"},
+	   {
+  "credit":0.0,
+  "debit":90000.0,
+  "unit":"without_currency_movement_against_since('USD','USD',['AUD'],date(2018,7,2))"
+}
+	],
+	"vector_converted_at_balance_date": [ {"credit":732.51, "debit":0.0, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": [ {"credit":732.51, "debit":0.0, "unit":"AUD"} ]
+      },
+      {
+	"account":"InvestmentIncomeRealizedWithoutCurrencyMovementRaiffeisen_Switzerland_B_V_",
+	"date":"date(2018,7,12)",
+	"description":"comment:?, comment2:Dispose_Off",
+	"type":"?",
+	"vector": [
+	   {
+  "credit":90000.0,
+  "debit":0.0,
+  "unit":"without_currency_movement_against_since('USD','USD',['AUD'],date(2018,7,2))"
+},
+	   {"credit":0.0, "debit":56281.986066, "unit":"AUD"}
+	],
+	"vector_converted_at_balance_date": [ {"credit":65473.613934, "debit":0.0, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": [ {"credit":65473.613934, "debit":0.0, "unit":"AUD"} ]
+      }
+    ]
+  },
+  {
+    "source": {
+      "account":"USD_Bank",
+      "date":"date(2018,8,13)",
+      "exchanged":"vector([])",
+      "report_currency_transacted_amount_converted_at_balance_date": [ {"credit":28.47794, "debit":0.0, "unit":"AUD"} ],
+      "report_currency_transacted_amount_converted_at_transaction_date": [ {"credit":27.16654, "debit":0.0, "unit":"AUD"} ],
+      "vector": [ {"credit":20.0, "debit":0.0, "unit":"USD"} ],
+      "verb":"Bank_Charges"
+    },
+    "transactions": [
+      {
+	"account":"BanksUSD_Bank",
+	"date":"date(2018,8,13)",
+	"description":"Bank_Charges - outgoing money",
+	"type":"instant",
+	"vector": [ {"credit":20.0, "debit":0.0, "unit":"USD"} ],
+	"vector_converted_at_balance_date": [ {"credit":28.47794, "debit":0.0, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": [ {"credit":27.16654, "debit":0.0, "unit":"AUD"} ]
+      },
+      {
+	"account":"CurrencyMovementUSD_Bank",
+	"date":"date(2018,8,13)",
+	"description":"Bank_Charges - outgoing money - currency movement adjustment - only current period",
+	"type":"tracking",
+	"vector": [
+	   {"credit":0.0, "debit":20.0, "unit":"USD"},
+	   {
+  "credit":20.0,
+  "debit":0.0,
+  "unit":"without_currency_movement_against_since('USD','USD',['AUD'],date(2018,8,13))"
+}
+	],
+	"vector_converted_at_balance_date": [ {"credit":0.0, "debit":1.3114, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": []
+      },
+      {
+	"account":"BankCharges",
+	"date":"date(2018,8,13)",
+	"description":"Bank_Charges",
+	"type":"instant",
+	"vector": [ {"credit":0.0, "debit":27.16654, "unit":"AUD"} ],
+	"vector_converted_at_balance_date": [ {"credit":0.0, "debit":27.16654, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": [ {"credit":0.0, "debit":27.16654, "unit":"AUD"} ]
+      }
+    ]
+  },
+  {
+    "source": {
+      "account":"CHF_Bank",
+      "date":"date(2018,8,16)",
+      "exchanged":"vector([])",
+      "report_currency_transacted_amount_converted_at_balance_date": [ {"credit":2287.572992, "debit":0.0, "unit":"AUD"} ],
+      "report_currency_transacted_amount_converted_at_transaction_date": [ {"credit":2119.047379, "debit":0.0, "unit":"AUD"} ],
+      "vector": [ {"credit":1573.85, "debit":0.0, "unit":"CHF"} ],
+      "verb":"Bank_Charges"
+    },
+    "transactions": [
+      {
+	"account":"BanksCHF_Bank",
+	"date":"date(2018,8,16)",
+	"description":"Bank_Charges - outgoing money",
+	"type":"instant",
+	"vector": [ {"credit":1573.85, "debit":0.0, "unit":"CHF"} ],
+	"vector_converted_at_balance_date": [ {"credit":2287.572992, "debit":0.0, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": [ {"credit":2119.047379, "debit":0.0, "unit":"AUD"} ]
+      },
+      {
+	"account":"CurrencyMovementCHF_Bank",
+	"date":"date(2018,8,16)",
+	"description":"Bank_Charges - outgoing money - currency movement adjustment - only current period",
+	"type":"tracking",
+	"vector": [
+	   {"credit":0.0, "debit":1573.85, "unit":"CHF"},
+	   {
+  "credit":1573.85,
+  "debit":0.0,
+  "unit":"without_currency_movement_against_since('CHF','CHF',['AUD'],date(2018,8,16))"
+}
+	],
+	"vector_converted_at_balance_date": [ {"credit":0.0, "debit":168.525613, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": []
+      },
+      {
+	"account":"BankCharges",
+	"date":"date(2018,8,16)",
+	"description":"Bank_Charges",
+	"type":"instant",
+	"vector": [ {"credit":0.0, "debit":2119.047379, "unit":"AUD"} ],
+	"vector_converted_at_balance_date": [ {"credit":0.0, "debit":2119.047379, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": [ {"credit":0.0, "debit":2119.047379, "unit":"AUD"} ]
+      }
+    ]
+  },
+  {
+    "source": {
+      "account":"USD_Bank",
+      "date":"date(2018,9,1)",
+      "exchanged":"vector([])",
+      "report_currency_transacted_amount_converted_at_balance_date": [ {"credit":0.0, "debit":42.71691, "unit":"AUD"} ],
+      "report_currency_transacted_amount_converted_at_transaction_date": [ {"credit":0.0, "debit":40.89696, "unit":"AUD"} ],
+      "vector": [ {"credit":0.0, "debit":30.0, "unit":"USD"} ],
+      "verb":"Interest_Income"
+    },
+    "transactions": [
+      {
+	"account":"BanksUSD_Bank",
+	"date":"date(2018,9,1)",
+	"description":"Interest_Income - incoming money",
+	"type":"instant",
+	"vector": [ {"credit":0.0, "debit":30.0, "unit":"USD"} ],
+	"vector_converted_at_balance_date": [ {"credit":0.0, "debit":42.71691, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": [ {"credit":0.0, "debit":40.89696, "unit":"AUD"} ]
+      },
+      {
+	"account":"CurrencyMovementUSD_Bank",
+	"date":"date(2018,9,1)",
+	"description":"Interest_Income - incoming money - currency movement adjustment - only current period",
+	"type":"tracking",
+	"vector": [
+	   {"credit":30.0, "debit":0.0, "unit":"USD"},
+	   {
+  "credit":0.0,
+  "debit":30.0,
+  "unit":"without_currency_movement_against_since('USD','USD',['AUD'],date(2018,9,1))"
+}
+	],
+	"vector_converted_at_balance_date": [ {"credit":1.81995, "debit":0.0, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": []
+      },
+      {
+	"account":"InterestEarned",
+	"date":"date(2018,9,1)",
+	"description":"Interest_Income",
+	"type":"instant",
+	"vector": [ {"credit":40.89696, "debit":0.0, "unit":"AUD"} ],
+	"vector_converted_at_balance_date": [ {"credit":40.89696, "debit":0.0, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": [ {"credit":40.89696, "debit":0.0, "unit":"AUD"} ]
+      }
+    ]
+  },
+  {
+    "source": {
+      "account":"CHF_Bank",
+      "date":"date(2018,10,1)",
+      "exchanged":"vector([coord('Leonteq_N',30000)])",
+      "report_currency_transacted_amount_converted_at_balance_date": [ {"credit":117552.48725, "debit":0.0, "unit":"AUD"} ],
+      "report_currency_transacted_amount_converted_at_transaction_date": [ {"credit":109024.622224, "debit":0.0, "unit":"AUD"} ],
+      "vector": [ {"credit":80876.1, "debit":0.0, "unit":"CHF"} ],
+      "verb":"Invest_In"
+    },
+    "transactions": [
+      {
+	"account":"BanksCHF_Bank",
+	"date":"date(2018,10,1)",
+	"description":"Invest_In - outgoing money",
+	"type":"instant",
+	"vector": [ {"credit":80876.1, "debit":0.0, "unit":"CHF"} ],
+	"vector_converted_at_balance_date": [ {"credit":117552.48725, "debit":0.0, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": [ {"credit":109024.622224, "debit":0.0, "unit":"AUD"} ]
+      },
+      {
+	"account":"CurrencyMovementCHF_Bank",
+	"date":"date(2018,10,1)",
+	"description":"Invest_In - outgoing money - currency movement adjustment - only current period",
+	"type":"tracking",
+	"vector": [
+	   {"credit":0.0, "debit":80876.1, "unit":"CHF"},
+	   {
+  "credit":80876.1,
+  "debit":0.0,
+  "unit":"without_currency_movement_against_since('CHF','CHF',['AUD'],date(2018,10,1))"
+}
+	],
+	"vector_converted_at_balance_date": [ {"credit":0.0, "debit":8527.865025, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": []
+      },
+      {
+	"account":"FinancialInvestmentsLeonteq_N",
+	"date":"date(2018,10,1)",
+	"description":"Invest_In",
+	"type":"instant",
+	"vector": [ {"credit":0.0, "debit":30000.0, "unit":"Leonteq_N"} ],
+	"vector_converted_at_balance_date": [],
+	"vector_converted_at_transaction_date": [ {"credit":0.0, "debit":30000.0, "unit":"Leonteq_N"} ]
+      },
+      {
+	"account":"InvestmentIncomeUnrealizedOnlyCurrencyMovementLeonteq_N",
+	"date":"date(2018,10,1)",
+	"description":"comment:?, comment2:Invest_In - single period",
+	"type":"?",
+	"vector": [
+	   {"credit":30000.0, "debit":0.0, "unit":"Leonteq_N"},
+	   {
+  "credit":0.0,
+  "debit":30000.0,
+  "unit":"without_currency_movement_against_since('Leonteq_N','CHF',['AUD'],date(2018,10,1))"
+}
+	],
+	"vector_converted_at_balance_date": [],
+	"vector_converted_at_transaction_date": [
+	   {"credit":30000.0, "debit":0.0, "unit":"Leonteq_N"},
+	   {
+  "credit":0.0,
+  "debit":30000.0,
+  "unit":"without_currency_movement_against_since('Leonteq_N','CHF',['AUD'],date(2018,10,1))"
+}
+	]
+      },
+      {
+	"account":"InvestmentIncomeUnrealizedWithoutCurrencyMovementLeonteq_N",
+	"date":"date(2018,10,1)",
+	"description":"comment:?, comment2:Invest_In - single period",
+	"type":"?",
+	"vector": [
+	   {
+  "credit":30000.0,
+  "debit":0.0,
+  "unit":"without_currency_movement_against_since('Leonteq_N','CHF',['AUD'],date(2018,10,1))"
+},
+	   {"credit":0.0, "debit":109024.622224, "unit":"AUD"}
+	],
+	"vector_converted_at_balance_date": [ {"credit":0.0, "debit":109024.622224, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": [
+	   {"credit":0.0, "debit":109024.622224, "unit":"AUD"},
+	   {
+  "credit":30000.0,
+  "debit":0.0,
+  "unit":"without_currency_movement_against_since('Leonteq_N','CHF',['AUD'],date(2018,10,1))"
+}
+	]
+      }
+    ]
+  },
+  {
+    "source": {
+      "account":"CHF_Bank",
+      "date":"date(2018,10,15)",
+      "exchanged":"vector([])",
+      "report_currency_transacted_amount_converted_at_balance_date": [ {"credit":152616.300257, "debit":0.0, "unit":"AUD"} ],
+      "report_currency_transacted_amount_converted_at_transaction_date": [ {"credit":141861.09, "debit":0.0, "unit":"AUD"} ],
+      "vector": [ {"credit":105000.0, "debit":0.0, "unit":"CHF"} ],
+      "verb":"Transfers"
+    },
+    "transactions": [
+      {
+	"account":"BanksCHF_Bank",
+	"date":"date(2018,10,15)",
+	"description":"Transfers - outgoing money",
+	"type":"instant",
+	"vector": [ {"credit":105000.0, "debit":0.0, "unit":"CHF"} ],
+	"vector_converted_at_balance_date": [ {"credit":152616.300257, "debit":0.0, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": [ {"credit":141861.09, "debit":0.0, "unit":"AUD"} ]
+      },
+      {
+	"account":"CurrencyMovementCHF_Bank",
+	"date":"date(2018,10,15)",
+	"description":"Transfers - outgoing money - currency movement adjustment - only current period",
+	"type":"tracking",
+	"vector": [
+	   {"credit":0.0, "debit":105000.0, "unit":"CHF"},
+	   {
+  "credit":105000.0,
+  "debit":0.0,
+  "unit":"without_currency_movement_against_since('CHF','CHF',['AUD'],date(2018,10,15))"
+}
+	],
+	"vector_converted_at_balance_date": [ {"credit":0.0, "debit":10755.210257, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": []
+      },
+      {
+	"account":"ClearingAccount",
+	"date":"date(2018,10,15)",
+	"description":"Transfers",
+	"type":"instant",
+	"vector": [ {"credit":0.0, "debit":141861.09, "unit":"AUD"} ],
+	"vector_converted_at_balance_date": [ {"credit":0.0, "debit":141861.09, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": [ {"credit":0.0, "debit":141861.09, "unit":"AUD"} ]
+      }
+    ]
+  },
+  {
+    "source": {
+      "account":"USD_Bank",
+      "date":"date(2018,10,15)",
+      "exchanged":"vector([])",
+      "report_currency_transacted_amount_converted_at_balance_date": [ {"credit":0.0, "debit":213584.55, "unit":"AUD"} ],
+      "report_currency_transacted_amount_converted_at_transaction_date": [ {"credit":0.0, "debit":203832.0, "unit":"AUD"} ],
+      "vector": [ {"credit":0.0, "debit":150000.0, "unit":"USD"} ],
+      "verb":"Transfers"
+    },
+    "transactions": [
+      {
+	"account":"BanksUSD_Bank",
+	"date":"date(2018,10,15)",
+	"description":"Transfers - incoming money",
+	"type":"instant",
+	"vector": [ {"credit":0.0, "debit":150000.0, "unit":"USD"} ],
+	"vector_converted_at_balance_date": [ {"credit":0.0, "debit":213584.55, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": [ {"credit":0.0, "debit":203832.0, "unit":"AUD"} ]
+      },
+      {
+	"account":"CurrencyMovementUSD_Bank",
+	"date":"date(2018,10,15)",
+	"description":"Transfers - incoming money - currency movement adjustment - only current period",
+	"type":"tracking",
+	"vector": [
+	   {"credit":150000.0, "debit":0.0, "unit":"USD"},
+	   {
+  "credit":0.0,
+  "debit":150000.0,
+  "unit":"without_currency_movement_against_since('USD','USD',['AUD'],date(2018,10,15))"
+}
+	],
+	"vector_converted_at_balance_date": [ {"credit":9752.55, "debit":0.0, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": []
+      },
+      {
+	"account":"ClearingAccount",
+	"date":"date(2018,10,15)",
+	"description":"Transfers",
+	"type":"instant",
+	"vector": [ {"credit":203832.0, "debit":0.0, "unit":"AUD"} ],
+	"vector_converted_at_balance_date": [ {"credit":203832.0, "debit":0.0, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": [ {"credit":203832.0, "debit":0.0, "unit":"AUD"} ]
+      }
+    ]
+  },
+  {
+    "source": {
+      "account":"CHF_Bank",
+      "date":"date(2018,12,30)",
+      "exchanged":"vector([])",
+      "report_currency_transacted_amount_converted_at_balance_date": [ {"credit":0.0, "debit":1678.779303, "unit":"AUD"} ],
+      "report_currency_transacted_amount_converted_at_transaction_date": [ {"credit":0.0, "debit":1576.576155, "unit":"AUD"} ],
+      "vector": [ {"credit":0.0, "debit":1155.0, "unit":"CHF"} ],
+      "verb":"Interest_Income"
+    },
+    "transactions": [
+      {
+	"account":"BanksCHF_Bank",
+	"date":"date(2018,12,30)",
+	"description":"Interest_Income - incoming money",
+	"type":"instant",
+	"vector": [ {"credit":0.0, "debit":1155.0, "unit":"CHF"} ],
+	"vector_converted_at_balance_date": [ {"credit":0.0, "debit":1678.779303, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": [ {"credit":0.0, "debit":1576.576155, "unit":"AUD"} ]
+      },
+      {
+	"account":"CurrencyMovementCHF_Bank",
+	"date":"date(2018,12,30)",
+	"description":"Interest_Income - incoming money - currency movement adjustment - only current period",
+	"type":"tracking",
+	"vector": [
+	   {"credit":1155.0, "debit":0.0, "unit":"CHF"},
+	   {
+  "credit":0.0,
+  "debit":1155.0,
+  "unit":"without_currency_movement_against_since('CHF','CHF',['AUD'],date(2018,12,30))"
+}
+	],
+	"vector_converted_at_balance_date": [ {"credit":102.203148, "debit":0.0, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": []
+      },
+      {
+	"account":"InterestEarned",
+	"date":"date(2018,12,30)",
+	"description":"Interest_Income",
+	"type":"instant",
+	"vector": [ {"credit":1576.576155, "debit":0.0, "unit":"AUD"} ],
+	"vector_converted_at_balance_date": [ {"credit":1576.576155, "debit":0.0, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": [ {"credit":1576.576155, "debit":0.0, "unit":"AUD"} ]
+      }
+    ]
+  },
+  {
+    "source": {
+      "account":"USD_Bank",
+      "date":"date(2018,12,30)",
+      "exchanged":"vector([coord('SG Issuer_SA_USD_1',-145000)])",
+      "report_currency_transacted_amount_converted_at_balance_date": [ {"credit":0.0, "debit":206465.065, "unit":"AUD"} ],
+      "report_currency_transacted_amount_converted_at_transaction_date": [ {"credit":0.0, "debit":205863.75, "unit":"AUD"} ],
+      "vector": [ {"credit":0.0, "debit":145000.0, "unit":"USD"} ],
+      "verb":"Dispose_Off"
+    },
+    "transactions": [
+      {
+	"account":"BanksUSD_Bank",
+	"date":"date(2018,12,30)",
+	"description":"Dispose_Off - incoming money",
+	"type":"instant",
+	"vector": [ {"credit":0.0, "debit":145000.0, "unit":"USD"} ],
+	"vector_converted_at_balance_date": [ {"credit":0.0, "debit":206465.065, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": [ {"credit":0.0, "debit":205863.75, "unit":"AUD"} ]
+      },
+      {
+	"account":"CurrencyMovementUSD_Bank",
+	"date":"date(2018,12,30)",
+	"description":"Dispose_Off - incoming money - currency movement adjustment - only current period",
+	"type":"tracking",
+	"vector": [
+	   {"credit":145000.0, "debit":0.0, "unit":"USD"},
+	   {
+  "credit":0.0,
+  "debit":145000.0,
+  "unit":"without_currency_movement_against_since('USD','USD',['AUD'],date(2018,12,30))"
+}
+	],
+	"vector_converted_at_balance_date": [ {"credit":601.315, "debit":0.0, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": []
+      },
+      {
+	"account":"FinancialInvestmentsSG_Issuer_SA_USD_1",
+	"date":"date(2018,12,30)",
+	"description":"Dispose_Off",
+	"type":"instant",
+	"vector": [ {"credit":140000.0, "debit":0.0, "unit":"SG Issuer_SA_USD_1"} ],
+	"vector_converted_at_balance_date": [ {"credit":5600000.0, "debit":0.0, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": [ {"credit":140000.0, "debit":0.0, "unit":"SG Issuer_SA_USD_1"} ]
+      },
+      {
+	"account":"FinancialInvestmentsSG_Issuer_SA_USD_1",
+	"date":"date(2018,12,30)",
+	"description":"Dispose_Off",
+	"type":"instant",
+	"vector": [ {"credit":5000.0, "debit":0.0, "unit":"SG Issuer_SA_USD_1"} ],
+	"vector_converted_at_balance_date": [ {"credit":200000.0, "debit":0.0, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": [ {"credit":5000.0, "debit":0.0, "unit":"SG Issuer_SA_USD_1"} ]
+      },
+      {
+	"account":"InvestmentIncomeUnrealizedOnlyCurrencyMovementSG_Issuer_SA_USD_1",
+	"date":"date(2018,12,30)",
+	"description":"comment:?, comment2:Dispose_Off - single period",
+	"type":"?",
+	"vector": [
+	   {"credit":0.0, "debit":140000.0, "unit":"SG Issuer_SA_USD_1"},
+	   {
+  "credit":140000.0,
+  "debit":0.0,
+  "unit":"without_currency_movement_against_since('SG Issuer_SA_USD_1','USD',['AUD'],date(2018,7,2))"
+}
+	],
+	"vector_converted_at_balance_date": [ {"credit":0.0, "debit":279457.854044, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": [
+	   {"credit":0.0, "debit":140000.0, "unit":"SG Issuer_SA_USD_1"},
+	   {
+  "credit":140000.0,
+  "debit":0.0,
+  "unit":"without_currency_movement_against_since('SG Issuer_SA_USD_1','USD',['AUD'],date(2018,7,2))"
+}
+	]
+      },
+      {
+	"account":"InvestmentIncomeUnrealizedWithoutCurrencyMovementSG_Issuer_SA_USD_1",
+	"date":"date(2018,12,30)",
+	"description":"comment:?, comment2:Dispose_Off - single period",
+	"type":"?",
+	"vector": [
+	   {
+  "credit":0.0,
+  "debit":140000.0,
+  "unit":"without_currency_movement_against_since('SG Issuer_SA_USD_1','USD',['AUD'],date(2018,7,2))"
+},
+	   {
+  "credit":140000.0,
+  "debit":0.0,
+  "unit":"without_movement_after('SG Issuer_SA_USD_1',date(2018,7,2))"
+}
+	],
+	"vector_converted_at_balance_date": [ {"credit":279457.854044, "debit":0.0, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": [
+	   {"credit":5600000.0, "debit":0.0, "unit":"AUD"},
+	   {
+  "credit":0.0,
+  "debit":140000.0,
+  "unit":"without_currency_movement_against_since('SG Issuer_SA_USD_1','USD',['AUD'],date(2018,7,2))"
+}
+	]
+      },
+      {
+	"account":"InvestmentIncomeUnrealizedOnlyCurrencyMovementSG_Issuer_SA_USD_1",
+	"date":"date(2018,12,30)",
+	"description":"comment:?, comment2:Dispose_Off - single period",
+	"type":"?",
+	"vector": [
+	   {"credit":0.0, "debit":5000.0, "unit":"SG Issuer_SA_USD_1"},
+	   {
+  "credit":5000.0,
+  "debit":0.0,
+  "unit":"without_currency_movement_against_since('SG Issuer_SA_USD_1','USD',['AUD'],date(2018,7,2))"
+}
+	],
+	"vector_converted_at_balance_date": [ {"credit":0.0, "debit":9980.637644, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": [
+	   {"credit":0.0, "debit":5000.0, "unit":"SG Issuer_SA_USD_1"},
+	   {
+  "credit":5000.0,
+  "debit":0.0,
+  "unit":"without_currency_movement_against_since('SG Issuer_SA_USD_1','USD',['AUD'],date(2018,7,2))"
+}
+	]
+      },
+      {
+	"account":"InvestmentIncomeUnrealizedWithoutCurrencyMovementSG_Issuer_SA_USD_1",
+	"date":"date(2018,12,30)",
+	"description":"comment:?, comment2:Dispose_Off - single period",
+	"type":"?",
+	"vector": [
+	   {
+  "credit":0.0,
+  "debit":5000.0,
+  "unit":"without_currency_movement_against_since('SG Issuer_SA_USD_1','USD',['AUD'],date(2018,7,2))"
+},
+	   {"credit":94536.675654, "debit":0.0, "unit":"AUD"}
+	],
+	"vector_converted_at_balance_date": [ {"credit":0.0, "debit":95482.686701, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": [
+	   {"credit":94536.675654, "debit":0.0, "unit":"AUD"},
+	   {
+  "credit":0.0,
+  "debit":5000.0,
+  "unit":"without_currency_movement_against_since('SG Issuer_SA_USD_1','USD',['AUD'],date(2018,7,2))"
+}
+	]
+      },
+      {
+	"account":"InvestmentIncomeRealizedOnlyCurrencyMovementSG_Issuer_SA_USD_1",
+	"date":"date(2018,12,30)",
+	"description":"comment:?, comment2:Dispose_Off",
+	"type":"?",
+	"vector": [
+	   {"credit":198765.0, "debit":0.0, "unit":"AUD"},
+	   {
+  "credit":0.0,
+  "debit":140000.0,
+  "unit":"without_currency_movement_against_since('USD','USD',['AUD'],date(2018,7,2))"
+}
+	],
+	"vector_converted_at_balance_date": [ {"credit":9367.4, "debit":0.0, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": [ {"credit":9367.4, "debit":0.0, "unit":"AUD"} ]
+      },
+      {
+	"account":"InvestmentIncomeRealizedWithoutCurrencyMovementSG_Issuer_SA_USD_1",
+	"date":"date(2018,12,30)",
+	"description":"comment:?, comment2:Dispose_Off",
+	"type":"?",
+	"vector": [
+	   {
+  "credit":140000.0,
+  "debit":0.0,
+  "unit":"without_currency_movement_against_since('USD','USD',['AUD'],date(2018,7,2))"
+},
+	   {
+  "credit":0.0,
+  "debit":140000.0,
+  "unit":"without_movement_after('SG Issuer_SA_USD_1',date(2018,7,2))"
+}
+	],
+	"vector_converted_at_balance_date": [ {"credit":0.0, "debit":5410602.4, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": [ {"credit":0.0, "debit":5410602.4, "unit":"AUD"} ]
+      },
+      {
+	"account":"InvestmentIncomeRealizedOnlyCurrencyMovementSG_Issuer_SA_USD_1",
+	"date":"date(2018,12,30)",
+	"description":"comment:?, comment2:Dispose_Off",
+	"type":"?",
+	"vector": [
+	   {"credit":7098.75, "debit":0.0, "unit":"AUD"},
+	   {
+  "credit":0.0,
+  "debit":5000.0,
+  "unit":"without_currency_movement_against_since('USD','USD',['AUD'],date(2018,7,2))"
+}
+	],
+	"vector_converted_at_balance_date": [ {"credit":334.55, "debit":0.0, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": [ {"credit":334.55, "debit":0.0, "unit":"AUD"} ]
+      },
+      {
+	"account":"InvestmentIncomeRealizedWithoutCurrencyMovementSG_Issuer_SA_USD_1",
+	"date":"date(2018,12,30)",
+	"description":"comment:?, comment2:Dispose_Off",
+	"type":"?",
+	"vector": [
+	   {
+  "credit":5000.0,
+  "debit":0.0,
+  "unit":"without_currency_movement_against_since('USD','USD',['AUD'],date(2018,7,2))"
+},
+	   {"credit":0.0, "debit":94536.675654, "unit":"AUD"}
+	],
+	"vector_converted_at_balance_date": [ {"credit":0.0, "debit":87772.475654, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": [ {"credit":0.0, "debit":87772.475654, "unit":"AUD"} ]
+      }
+    ]
+  },
+  {
+    "source": {
+      "account":"CHF_Bank",
+      "date":"date(2018,12,30)",
+      "exchanged":"vector([coord('Leonteq_N',-30000)])",
+      "report_currency_transacted_amount_converted_at_balance_date": [ {"credit":0.0, "debit":319767.486253, "unit":"AUD"} ],
+      "report_currency_transacted_amount_converted_at_transaction_date": [ {"credit":0.0, "debit":300300.22, "unit":"AUD"} ],
+      "vector": [ {"credit":0.0, "debit":220000.0, "unit":"CHF"} ],
+      "verb":"Dispose_Off"
+    },
+    "transactions": [
+      {
+	"account":"BanksCHF_Bank",
+	"date":"date(2018,12,30)",
+	"description":"Dispose_Off - incoming money",
+	"type":"instant",
+	"vector": [ {"credit":0.0, "debit":220000.0, "unit":"CHF"} ],
+	"vector_converted_at_balance_date": [ {"credit":0.0, "debit":319767.486253, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": [ {"credit":0.0, "debit":300300.22, "unit":"AUD"} ]
+      },
+      {
+	"account":"CurrencyMovementCHF_Bank",
+	"date":"date(2018,12,30)",
+	"description":"Dispose_Off - incoming money - currency movement adjustment - only current period",
+	"type":"tracking",
+	"vector": [
+	   {"credit":220000.0, "debit":0.0, "unit":"CHF"},
+	   {
+  "credit":0.0,
+  "debit":220000.0,
+  "unit":"without_currency_movement_against_since('CHF','CHF',['AUD'],date(2018,12,30))"
+}
+	],
+	"vector_converted_at_balance_date": [ {"credit":19467.266253, "debit":0.0, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": []
+      },
+      {
+	"account":"FinancialInvestmentsLeonteq_N",
+	"date":"date(2018,12,30)",
+	"description":"Dispose_Off",
+	"type":"instant",
+	"vector": [ {"credit":30000.0, "debit":0.0, "unit":"Leonteq_N"} ],
+	"vector_converted_at_balance_date": [ {"credit":0.0, "debit":0.0, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": [ {"credit":30000.0, "debit":0.0, "unit":"Leonteq_N"} ]
+      },
+      {
+	"account":"InvestmentIncomeUnrealizedOnlyCurrencyMovementLeonteq_N",
+	"date":"date(2018,12,30)",
+	"description":"comment:?, comment2:Dispose_Off - single period",
+	"type":"?",
+	"vector": [
+	   {"credit":0.0, "debit":30000.0, "unit":"Leonteq_N"},
+	   {
+  "credit":30000.0,
+  "debit":0.0,
+  "unit":"without_currency_movement_against_since('Leonteq_N','CHF',['AUD'],date(2018,10,1))"
+}
+	],
+	"vector_converted_at_balance_date": [],
+	"vector_converted_at_transaction_date": [
+	   {"credit":0.0, "debit":30000.0, "unit":"Leonteq_N"},
+	   {
+  "credit":30000.0,
+  "debit":0.0,
+  "unit":"without_currency_movement_against_since('Leonteq_N','CHF',['AUD'],date(2018,10,1))"
+}
+	]
+      },
+      {
+	"account":"InvestmentIncomeUnrealizedWithoutCurrencyMovementLeonteq_N",
+	"date":"date(2018,12,30)",
+	"description":"comment:?, comment2:Dispose_Off - single period",
+	"type":"?",
+	"vector": [
+	   {
+  "credit":0.0,
+  "debit":30000.0,
+  "unit":"without_currency_movement_against_since('Leonteq_N','CHF',['AUD'],date(2018,10,1))"
+},
+	   {"credit":109024.622224, "debit":0.0, "unit":"AUD"}
+	],
+	"vector_converted_at_balance_date": [ {"credit":109024.622224, "debit":0.0, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": [
+	   {"credit":109024.622224, "debit":0.0, "unit":"AUD"},
+	   {
+  "credit":0.0,
+  "debit":30000.0,
+  "unit":"without_currency_movement_against_since('Leonteq_N','CHF',['AUD'],date(2018,10,1))"
+}
+	]
+      },
+      {
+	"account":"InvestmentIncomeRealizedOnlyCurrencyMovementLeonteq_N",
+	"date":"date(2018,12,30)",
+	"description":"comment:?, comment2:Dispose_Off",
+	"type":"?",
+	"vector": [
+	   {"credit":300300.22, "debit":0.0, "unit":"AUD"},
+	   {
+  "credit":0.0,
+  "debit":220000.0,
+  "unit":"without_currency_movement_against_since('CHF','CHF',['AUD'],date(2018,10,1))"
+}
+	],
+	"vector_converted_at_balance_date": [ {"credit":3730.32, "debit":0.0, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": [ {"credit":3730.32, "debit":0.0, "unit":"AUD"} ]
+      },
+      {
+	"account":"InvestmentIncomeRealizedWithoutCurrencyMovementLeonteq_N",
+	"date":"date(2018,12,30)",
+	"description":"comment:?, comment2:Dispose_Off",
+	"type":"?",
+	"vector": [
+	   {
+  "credit":220000.0,
+  "debit":0.0,
+  "unit":"without_currency_movement_against_since('CHF','CHF',['AUD'],date(2018,10,1))"
+},
+	   {"credit":0.0, "debit":109024.622224, "unit":"AUD"}
+	],
+	"vector_converted_at_balance_date": [ {"credit":187545.277775, "debit":0.0, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": [ {"credit":187545.277775, "debit":0.0, "unit":"AUD"} ]
+      }
+    ]
+  },
+  {"source":"livestock", "transactions": []}
+]

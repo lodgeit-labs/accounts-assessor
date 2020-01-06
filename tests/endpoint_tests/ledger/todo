@@ -1,0 +1,8 @@
+xml_write does add_missing_namespaces. 
+When i finish checking current round of modifications against saved response files, i'll rewrite the response files with the output with this predicate un-commented.
+
+reports_json.json is a new file, add it to saved files.
+
+unit declarations are missing, that were used only in the "historical", commented-out section of the xbrl output
+
+allow period in element ids 
