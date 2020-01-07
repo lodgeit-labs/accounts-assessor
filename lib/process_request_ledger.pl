@@ -1,44 +1,21 @@
-
-
-%:- rdet(process/2).
-
-
 process_request_ledger(File_Path, Dom) :-
-	/* does it look like a ledger request? */
-	% ideally should be able to omit this and have this check be done as part of the schema validation, but currently  process_request.pl is using this to check whether to use this endpoint.
 	inner_xml(Dom, //reports/balanceSheetRequest, _),
-	resolve_specifier(loc(specifier, my_schemas('bases/Reports.xsd')), Schema_File),
-	validate_xml(File_Path, Schema_File, Schema_Errors),
-	(	Schema_Errors = []
-	->	process_xml_ledger_request2(Dom)
-	;	maplist(add_alert(error), Schema_Errors)
-	).
+	validate_xml2(File_Path, 'bases/Reports.xsd'),
 
-
-process_xml_ledger_request2(Dom) :-
-	/*
-		first let's extract data from the request
-	*/
+	extract_start_and_end_date(Dom, Start_Date, End_Date, Start_Date_Atom),
 	extract_output_dimensional_facts(Dom, Output_Dimensional_Facts),
 	extract_cost_or_market(Dom, Cost_Or_Market),
 	extract_default_currency(Dom, Default_Currency),
 	extract_report_currency(Dom, Report_Currency),
 	extract_action_verbs_from_bs_request(Dom),
 	extract_account_hierarchy_from_request_dom(Dom, Accounts0),
-	inner_xml(Dom, //reports/balanceSheetRequest/startDate, [Start_Date_Atom]),
-	parse_date(Start_Date_Atom, Start_Date),
-	doc(R, rdf:type, l:request),
-	doc_add(R, l:start_date, Start_Date),
-	inner_xml(Dom, //reports/balanceSheetRequest/endDate, [End_Date_Atom]),
-	parse_date(End_Date_Atom, End_Date),
-	doc_add(R, l:end_date, End_Date),
-	
+	extract_livestock_data_from_ledger_request(Dom),
+	/* Start_Date, End_Date to substitute of "opening", "closing" */
 	extract_exchange_rates(Dom, Start_Date, End_Date, Default_Currency, Exchange_Rates),
-	extract(Dom),
+	/* Start_Date_Atom in case of missing Date */
     extract_s_transactions(Dom, Start_Date_Atom, S_Transactions),
-	/* 
-		generate transactions (ledger entries) from s_transactions
-	*/
+	extract_invoices_payable(Dom),
+
 	process_ledger(
 		Cost_Or_Market,
 		S_Transactions,
@@ -53,15 +30,15 @@ process_xml_ledger_request2(Dom) :-
 		Outstanding,
 		Processed_Until_Date,
 		Gl),
-	/*print_relevant_exchange_rates_comment(Report_Currency, End_Date, Exchange_Rates, Transactions),*/
-	/*writeln("<!-- exchange rates 2:"),writeln(Exchange_Rates),writeln("-->"),*/
-	process_invoices_payable(Dom),
+
+	/* if some s_transaction failed to process, there should be an alert created by now. Now we just compile a report up until that transaction. It would be cleaner to do this by calling process_ledger a second time */
 	dict_from_vars(Static_Data0,
 		[Cost_Or_Market, Output_Dimensional_Facts, Start_Date, Exchange_Rates, Accounts, Transactions, Report_Currency, Gl, Transactions_By_Account, Outstanding]),
 	Static_Data1 = Static_Data0.put([
 		end_date=Processed_Until_Date
 		,exchange_date=Processed_Until_Date
 	]),
+
 	create_reports(Static_Data1).
 
 create_reports(Static_Data) :-
@@ -192,7 +169,7 @@ extract_report_currency(Dom, Report_Currency) :-
 
    
 extract_exchange_rates(Dom, Start_Date, End_Date, Default_Currency, Exchange_Rates_Out) :-
-/*If an investment was held prior to the from date then it MUST have an opening market value if the reports are expressed in.market rather than cost.You can't mix market value and cost in one set of reports. One or the other.2:27 AMi see. Have you thought about how to let the user specify the method?Andrew, 2:31 AMMarket or Cost. M or C. Sorry. Never mentioned it to you.2:44 AMyou mentioned the different approaches, but i ended up assuming that this would be best selected by specifying or not specifying the unitValues. I see there is a field for it already in the excel templateAndrew, 2:47 AMCost value per unit will always be there if there are units of anything i.e. sheep for livestock trading or shares for InvestmentsAndrew, 3:04 AMBut I suppose if you do not find any market values then assume cost basis.*/
+	/*If an investment was held prior to the from date then it MUST have an opening market value if the reports are expressed in.market rather than cost.You can't mix market value and cost in one set of reports. One or the other.2:27 AMi see. Have you thought about how to let the user specify the method?Andrew, 2:31 AMMarket or Cost. M or C. Sorry. Never mentioned it to you.2:44 AMyou mentioned the different approaches, but i ended up assuming that this would be best selected by specifying or not specifying the unitValues. I see there is a field for it already in the excel templateAndrew, 2:47 AMCost value per unit will always be there if there are units of anything i.e. sheep for livestock trading or shares for InvestmentsAndrew, 3:04 AMBut I suppose if you do not find any market values then assume cost basis.*/
    findall(Unit_Value_Dom, xpath(Dom, //reports/balanceSheetRequest/unitValues/unitValue, Unit_Value_Dom), Unit_Value_Doms),
    maplist(extract_exchange_rate(Start_Date, End_Date, Default_Currency), Unit_Value_Doms, Exchange_Rates),
    include(ground, Exchange_Rates, Exchange_Rates_Out).
@@ -294,7 +271,14 @@ extract_output_dimensional_facts(Dom, Output_Dimensional_Facts) :-
 		Output_Dimensional_Facts = on
 	).
 	
-
+extract_start_and_end_date(Dom, Start_Date, End_Date, Start_Date_Atom) :-
+	inner_xml(Dom, //reports/balanceSheetRequest/startDate, [Start_Date_Atom]),
+	parse_date(Start_Date_Atom, Start_Date),
+	doc(R, rdf:type, l:request),
+	doc_add(R, l:start_date, Start_Date),
+	inner_xml(Dom, //reports/balanceSheetRequest/endDate, [End_Date_Atom]),
+	parse_date(End_Date_Atom, End_Date),
+	doc_add(R, l:end_date, End_Date).
 
 	
 %:- tspy(process_xml_ledger_request2/2).

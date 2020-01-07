@@ -2,16 +2,6 @@ xml_write does add_missing_namespaces.
 When i finish checking current round of modifications against saved response files, i'll rewrite the response files with the output with this predicate un-commented.
 
 
-reports_json.json is a new file, add it to saved files.
-
-
-unit declarations are missing, that were used only in the "historical", commented-out section of the xbrl output
-
-
-allow period in element ids 
-
-
-
 failing because of a bug in calling arelle:
 	['endpoint_tests/ledger/ledger--with-schemaref']): testcase_error(http_code_400)
 	['endpoint_tests/ledger/historical_vs_current1']): testcase_error(http_code_400)
@@ -82,10 +72,3 @@ ERROR: /home/koom/lodgeit2/master2/lib/endpoint_tests.pl:76:
     
         
         
-        
-does set_prolog_flag set_flag?
-set_flag must be atom
-
-
-
-

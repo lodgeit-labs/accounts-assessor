@@ -127,6 +127,7 @@ run_endpoint_test2(Endpoint_Type, Testcase) :-
 	maplist(check_saved(Testcase, Reports), Saved_Files),*/
 
 /*
+todo:
 check_saved(Testcase, Reports, Saved_File) :-
 	reports_corresponding_to_saved(Testcase, Reports, Saved_File, Reports_Corresponding_To_Saved_File),
 	(	Reports_Corresponding_To_Saved_File = [_]
@@ -139,8 +140,6 @@ check_saved(Testcase, Reports, Saved_File) :-
 		;	throw('this is weird')
 		)
 	).
-*/
-/*
 reports_corresponding_to_saved(Testcase, Reports, Saved_File, Reports_Corresponding_To_Saved_File) :-
 	findall(
 		Report,

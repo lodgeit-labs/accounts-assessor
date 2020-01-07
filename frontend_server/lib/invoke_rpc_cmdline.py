@@ -94,8 +94,8 @@ def call_rpc(msg, dev_runner_options=''):
 	if os.path.expanduser('~') == '/var/www':
 		#os.environ.putenv('SWI_HOME_DIR', git('../.local/share/swi-prolog/'))
 		os.environ.putenv('SWI_HOME_DIR', '/home/apache/swi-prolog')
-	p = subprocess.Popen(['bash', '-c', 'export'], universal_newlines=True)
-	p.communicate()
+	#p = subprocess.Popen(['bash', '-c', 'export'], universal_newlines=True)
+	#p.communicate()
 	p = subprocess.Popen(cmd, universal_newlines=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
 	(stdout_data, stderr_data) = p.communicate(input = input)
 	print("result from prolog:")

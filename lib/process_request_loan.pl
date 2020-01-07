@@ -1,5 +1,5 @@
 
-process_request_loan(FileNameIn, DOM) :-
+process_request_loan(Request_File, DOM) :-
    xpath(DOM, //reports/loanDetails/loanAgreement/field(@name='Income year of loan creation', @value=CreationIncomeYear), _E1),
    xpath(DOM, //reports/loanDetails/loanAgreement/field(@name='Full term of loan in years', @value=Term), _E2),
    xpath(DOM, //reports/loanDetails/loanAgreement/field(@name='Principal amount of loan', @value=PrincipalAmount), _E3),
@@ -13,9 +13,8 @@ process_request_loan(FileNameIn, DOM) :-
      OpeningBalance = -1
    ),   
 
-   absolute_tmp_path(FileNameIn, Instance_File),
-   absolute_file_name(my_schemas('bases/Reports.xsd'), Schema_File, []),
-   validate_xml(Instance_File, Schema_File, Schema_Errors),
+   resolve_specifier(loc(specifier, my_schemas('bases/Reports.xsd')), Schema_File),
+   validate_xml(Request_File, Schema_File, Schema_Errors),
    (
 		Schema_Errors = []
 	->
@@ -57,25 +56,19 @@ display_xml_loan_response(IncomeYear,
    LoanResponseXML
    ),
 
-   absolute_tmp_path('loan_response.xml', TempFileLoanResponseXML),
+   Response_Fn = loc(file_name, 'response.xml'),
+   absolute_tmp_path(Response_Fn, TempFileLoanResponseXML),
+   TempFileLoanResponseXML = loc(absolute_path, TempFileLoanResponseXML_Value),
    % create a temporary loan xml file to validate the response against the schema
-   open(TempFileLoanResponseXML, write, XMLStream),
+   open(TempFileLoanResponseXML_Value, write, XMLStream),
    write(XMLStream, LoanResponseXML),
    close(XMLStream),
 
    % read the schema file
-   absolute_file_name(my_schemas('responses/LoanResponse.xsd'), FileLoanResponseXSD, []),
-   read_file_to_string(FileLoanResponseXSD, LoanResponseXSD, []),   
-   absolute_tmp_path('LoanResponse.xsd', TempFileLoanResponseXSD),
-   % create a temporary loan xsd file to validate the response against the schema
-   % a bug in XSD library requires that we create a new schema file for each validation
-   open(TempFileLoanResponseXSD, write, XSDStream),
-   write(XSDStream, LoanResponseXSD),
-   close(XSDStream),
-   
+   resolve_specifier(loc(specifier, my_schemas('responses/LoanResponse.xsd')), LoanResponseXSD),
    % if the xml response is valid then reply the response, otherwise reply an error message
    (
-     xsd_validate(TempFileLoanResponseXSD, TempFileLoanResponseXML)
+     validate_xml(TempFileLoanResponseXML, LoanResponseXSD, [])
    ->
      add_result_file_by_path(TempFileLoanResponseXML)
    ;

@@ -4,7 +4,7 @@
 /*
 this is just a first shot at parsing the UBL invoice schema
 */
-process_invoices_payable(Request_Dom) :-
+extract_invoices_payable(Request_Dom) :-
 	%gtrace,
 	%Cac='urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2',
 	Inv2 = 'urn:oasis:names:specification:ubl:schema:xsd:Invoice-2'

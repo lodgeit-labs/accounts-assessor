@@ -174,7 +174,7 @@ extract_s_transaction2(Tx_Dom, Account_Currency, Account, Start_Date, ST) :-
 		;
 		(
 			Date_Atom=Start_Date,
-			writeln("date missing, assuming beginning of request period")
+			writeln("date missing, assuming beginning of request period") % todo dunno if this is needed
 		)
 	),
 	parse_date(Date_Atom, Date),

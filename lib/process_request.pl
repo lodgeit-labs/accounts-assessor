@@ -4,7 +4,7 @@
 
 :- [process_request_loan].
 :- [process_request_ledger].
-%:- use_module(process_request_livestock, []).
+:- [process_request_livestock].
 %:- use_module(process_request_investment, []).
 :- [process_request_car].
 :- [process_request_hirepurchase_new].
@@ -165,11 +165,11 @@ process_rdf_request :-
 process_xml_request(File_Path, Dom) :-
 	(process_request_car(File_Path, Dom);
 	(process_request_loan(File_Path, Dom);
-	(process_request_ledger(File_Path, Dom)
-	%(process_request_livestock:process(File_Name, Dom);
-	%(process_request_investment:process(File_Name, Dom);
-	%(process_request_depreciation_old:process(File_Name, Dom)
-	))).
+	(process_request_ledger(File_Path, Dom);
+	(process_request_livestock(File_Path, Dom);
+	%(process_request_investment:process(File_Path, Dom);
+	false
+	)))).
 
 
 get_requested_output_type(Options2, Output) :-

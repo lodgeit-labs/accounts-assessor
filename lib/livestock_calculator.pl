@@ -1,26 +1,3 @@
-/*
-
-this will probably become a playground for the initial attempt at eq solving with full proofs/explanations
-
-information could probably be collected somewhere as a property of the request theory,
-either as a list or as a graph?
-
-for the user, let's say given a table of livestock calculator output, it starts with a value of a cell
-that value can be annotated with the doc property url
-
-
-
-
-
-
-
-
-*/
-
-
-
-
-
 compute_livestock_by_simple_calculation(
 	Natural_increase_count_In,
 	Natural_increase_value_per_head_In,
@@ -107,7 +84,7 @@ compute_livestock_by_simple_calculation(
 	->
 		true
 	;
-		gtrace,throw_string(["closing count mismatch, should be:", Stock_on_hand_at_end_of_year_count_Out])
+		throw_string(["closing count mismatch, should be:", Stock_on_hand_at_end_of_year_count_Out])
 	),
 	Explanation = [
 		(['Gross_Profit_on_Livestock_Trading = ', Gross_Profit_on_Livestock_Trading_Formula_String]),
@@ -115,7 +92,4 @@ compute_livestock_by_simple_calculation(
 		(['Average_cost = ', Average_cost_Formula_String]),
 		(['Average_cost = ', Average_cost_Formula_String2])
 	].
-
-
-
 
