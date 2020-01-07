@@ -63,6 +63,8 @@ def files_in_dir(dir):
 @click.argument('request_files', nargs=-1)
 @click.option('-dro', '--dev_runner_options', type=str)
 def run(request_files, dev_runner_options):
+	if dev_runner_options == None:
+		dev_runner_options = ''
 	server_url = 'http://localhost:8080'
 	request_files = [os.path.abspath(f) for f in request_files]
 	tmp_directory_name, tmp_directory_absolute_path = create_tmp()
