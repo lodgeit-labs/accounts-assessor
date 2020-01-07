@@ -110,12 +110,12 @@ ok</p></p>
 <p>
 
 <p>
-account_balance(reports/bs/current,'Accounts'/'NetAssets') = account_balance(reports/bs/current,'Accounts'/'Equity')</p>
+account_balance(reports/bs/current,'Accounts'/'NetAssets') ≠ account_balance(reports/bs/current,'Accounts'/'Equity')</p>
 
 <p>
-[value('USD',-15146143097 rdiv 309991980)] = [value('USD',-5099356903 rdiv 104367147)]</p>
+[ {"amount":757.198, "unit":"USD"} ] ≠ [ {"amount":804.128098, "unit":"USD"} ]</p>
 
 <p>
-ok</p></p>
+error</p></p>
 </body>
 </html>
