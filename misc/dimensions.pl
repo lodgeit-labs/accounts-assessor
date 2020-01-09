@@ -13,28 +13,31 @@ Operations:
 
 /*
 Dimension
+ dimensions are distinguished from units/quantities with those dimensions
  the system of dimensions should form a commutative group under * and /
  basically any given compound dimension is like a signed multi-set, ex..
- {m^2/(kg*s^2)) ~ 
- 
+
+ dimensions for velocity would be: L/T
+ dimensions for energy would be: (M*L^2)/(T^2) ~ 
+
  {
-	m : 2,
-	kg: -1,
-	s: -2
+	L : 2, % length
+	M: 1, % mass
+	T: -2  % time
  }
 
  RDF representation:
  d a dimension
- d mass 2.
- d kg -1.
- d s -2.
+ d length 2.
+ d mass -1.
+ d time -2.
 
  Can't use a fixed set of dimensions, so we can't use a representation like
  ex...
  1 = _{
-   m: 0,
-   kg: 0,
-   s: 0
+   length: 0,
+   mass: 0,
+   time: 0
  }
 
  probably need 1 = {}, with dimensions arbitrarily extensible, and if any dimensions
@@ -97,6 +100,9 @@ dim_equal_helper([Dim-Exp | Rest], D2) :-
 	get_dict(Dim, D2, Exp),
 	dim_equal_helper(Rest, D2).
 
+
+
+
 /*
 Quantity
  a system of quantities over a given system of units and dimensions is a vector space whose basis is those
@@ -106,10 +112,13 @@ Quantity
  
 */
 
-base_dimension(inch,length).
-base_dimension(foot,length).
-base_dimension(second,time).
-base_dimension(minute,time).
+% units for length
+base_dimension(inch, length).
+base_dimension(foot, length).
+
+% units for time
+base_dimension(second, time).
+base_dimension(minute, time).
 base_dimension(hour, time).
 base_dimension(day, time).
 base_dimension(week, time).
@@ -136,6 +145,8 @@ base_ratio(week, day, 7).
 base_ratio(month, week, 4).
 base_ratio(year, month, 12).
 
+% calculate a conversion factor/ratio between any two units of the same dimension though i guess
+% there's no assertion anywhere forcing same dimension here
 ratio(X, X, 1) :- !.
 ratio(X, Y, Ratio) :- base_ratio(X, Y, Ratio), !.
 ratio(X, Y, Ratio) :- base_ratio(Y, X, Inv_Ratio), Ratio is 1/Inv_Ratio, !.
@@ -265,6 +276,8 @@ Basis
 
 */
 
+
+/* I don't actually use either plurals or multipliers yet but we should consider how to incorporate them */
 /*
 Naming
 * plurals
@@ -317,16 +330,31 @@ X = 15.
 
 
 */
+
+dim_solve_formulas(Formulas, Tolerance, Errors) :-
+	dim_solve_prepare_formulas(Formulas, Inputs),
+	dim_solve_bind_inputs(Inputs, Tolerance, Errors).
+
+dim_solve_prepare_formulas(Formulas, Inputs) :-
+	dim_solve_prepare_formulas_helper(Formulas, _{}, _, [], Inputs).
+
+dim_solve_prepare_formulas_helper([], _, _, Inputs, Inputs).
+dim_solve_prepare_formulas_helper([Formula | Formulas], Current_Basis, Basis, Current_Inputs, Inputs) :-
+	dim_solve_helper(Formula, Current_Basis, Next_Basis, Current_Inputs, Next_Inputs),
+	dim_solve_prepare_formulas_helper(Formulas, Next_Basis, Basis, Next_Inputs, Inputs). 
+
+/*
 dim_solve(Formula, Tolerance, Errors) :-
 	dim_solve_helper(Formula, _{}, Tolerance, Errors).
+*/
 
 % needs to add constraints on the dimensions; could do that with proper existentials
 % could maybe do that with clp(fd)
-dim_solve_helper(A = B, Current_Basis, Tolerance, Errors) :-
-	dim_solve_formula(A, Current_Basis, Basis_A, A_Reduced, [], A_Inputs),
-	dim_solve_formula(B, Basis_A, _, B_Reduced, A_Inputs, Inputs),
-	{A_Reduced = B_Reduced},
-	dim_solve_bind_inputs(Inputs, Tolerance, Errors).
+dim_solve_helper(A = B, Current_Basis, Next_Basis, Current_Inputs, Next_Inputs) :-
+	dim_solve_formula(A, Current_Basis, Basis_A, A_Reduced, Current_Inputs, A_Inputs),
+	dim_solve_formula(B, Basis_A, Next_Basis, B_Reduced, A_Inputs, Next_Inputs),
+	{A_Reduced = B_Reduced}.
+	%dim_solve_bind_inputs(Inputs, Tolerance, Errors).
 
 /*
 * basic tolerance: bind the values into the constraints one at a time. if any fail, backtrack
@@ -366,10 +394,15 @@ dim_solve_formula(A / B, Current_Basis, New_Basis, A_Reduced / B_Reduced, Curren
 
 
 dim_solve_formula((V, U), Current_Basis, New_Basis, V_Reduced, Current_Inputs, Next_Inputs) :-
+	% if V is a constant, replace it with a fresh variable and collect an association between this constant
+	% the new variable and add it to the current list of associations
 	(	var(V) 
 	-> 	(New_V = V, New_Inputs = [])
 	; 	(New_V = X, New_Inputs = [V:X])),
 	append(Current_Inputs, New_Inputs, Next_Inputs),
+
+	% find all dimensions not currently represented by any unit in the current basis and add them
+	% to the current basis
 	dict_keys(U, Units),
 	findall(
 		Dim-Unit,
@@ -382,7 +415,248 @@ dim_solve_formula((V, U), Current_Basis, New_Basis, V_Reduced, Current_Inputs, N
 	),
 	dict_pairs(New_Units, _, New_Units_List),
 	New_Basis = Current_Basis.put(New_Units),
+
+	% normalize this quantity against the new basis
 	quantity_normalize(New_Basis, (New_V, U), (V_Reduced, _)).
+
+
+
+
+/*
+Chase
+*/
+chase(KB, New_Facts, Max_Depth) :-
+	collect_facts_and_rules(KB, Facts, Rules),
+	write('kb facts:'), print_term(Facts, []),
+	chase_rules(Facts, Rules, New_Facts, 1, Max_Depth),
+	format("Chase finished: ~w~n", [New_Facts]).
+
+chase_rules(Facts, Rules, New_Facts, Depth, Max_Depth) :-
+	format("Chase round: ~w~n", [Depth]),
+	chase2_round(Facts, Rules, Next_Facts),
+	%fail,
+	(
+		(
+		 % chase should stop when there's not enough information to determine that the new set of facts is not
+		 % equivalent to the previous set of facts
+		 \+(sets_equal('==',Facts, Next_Facts)),
+		 Depth < Max_Depth
+		)
+	-> 	(
+		 Next_Depth is Depth + 1,
+		 chase_rules(Next_Facts, Rules, New_Facts, Next_Depth, Max_Depth)
+		)
+	;	(
+		 New_Facts = Facts
+		)
+	).
+
+chase_round(Facts, [], Facts).
+chase_round(Facts, [Rule | Rules], New_Facts) :-
+	format("Applying rule: ~w~n", [Rule]),
+	/*chase_rule(Facts, Rule, [], Heads_Nested),
+	
+	% findall seemed to clobber existentials and constraints were getting lost somehow
+	because all that findall preserved from the inner query was Head, which didnt contain the clp-ed variable
+	yea i thought each Head in the findall should be binding to those clp-ed variables though
+*/
+	findall(
+		Head,
+		(
+			chase_rule(Facts, Rule, Head),
+			format("chase_rule(_, ~w, ~q)~n", [Rule, Head]),
+			write_term(Head, []), nl, nl
+		),
+		Heads_Nested
+	),
+	
+	format("Heads_Nested = ~w~n", [Heads_Nested]),
+	flatten(Heads_Nested, Heads),
+	format("Heads = ~w~n", [Heads]),
+	findall(
+		Fact,
+		(
+			member(Fact, Heads),
+			Fact = fact(_,_,_)
+		),
+		Head_Facts
+	),
+	format("Head_Facts = ~w~n", [Head_Facts]),
+	findall(
+		Constraint,
+		(
+			member(Constraint, Heads),
+			Constraint \= fact(_,_,_)
+		),
+		Head_Constraints
+	),
+	format("Head facts: ~w~n", [Head_Facts]),
+	format("Head constraints: ~w~n", [Head_Constraints]),
+	append(Facts, Head_Facts, Next_Facts_List),
+	chase_apply_constraints(Head_Constraints),
+	format("Next facts list: ~w~n", [Next_Facts_List]),
+	write_term(Next_Facts_List, []),nl,
+	to_set('==', Next_Facts_List, Next_Facts),
+	format("Next facts set: ~w~n", [Next_Facts]),
+	write_term(Next_Facts,[]),nl,
+	chase_round(Next_Facts, Rules, New_Facts).
+
+chase2_round(Facts, [], Facts).
+chase2_round(Facts, [Rule | Rules], New_Facts) :-
+	format("Applying rule: ~w~n", [Rule]),
+	chase2_rule(Facts, Rule, Heads),
+	format("Heads = ~w~n", [Heads]),
+
+	chase2_head_facts(Heads, Head_Facts),
+	format("Head_Facts = ~w~n", [Head_Facts]),
+	chase2_head_constraints(Heads, Head_Constraints),
+	format("Head constraints: ~w~n", [Head_Constraints]),
+
+	append(Facts, Head_Facts, Next_Facts_List),
+	chase2_apply_constraints(Head_Constraints),
+	format("Next facts list: ~w~n", [Next_Facts_List]),
+	write_term(Next_Facts_List, []),nl,
+
+	to_set('==', Next_Facts_List, Next_Facts),
+	format("Next facts set: ~w~n", [Next_Facts]),
+	write_term(Next_Facts,[]),nl,
+	chase2_round(Next_Facts, Rules, New_Facts).
+
+chase2_head_facts([], []).
+chase2_head_facts([Head|Heads], [Head|Head_Facts]) :- Head = fact(_,_,_), chase2_head_facts(Heads, Head_Facts).
+chase2_head_facts([Head|Heads], Facts) :- Head \= fact(_,_,_), chase2_head_facts(Heads, Facts).
+
+chase2_head_constraints([], []).
+chase2_head_constraints([Head|Heads], [Head|Head_Constraints]) :- Head \= fact(_,_,_), chase2_head_constraints(Heads, Head_Constraints).
+chase2_head_constraints([Head|Heads], Constraints) :- Head = fact(_,_,_), chase2_head_constraints(Heads, Constraints).
+
+chase2_apply_constraints([]).
+chase2_apply_constraints([C|Cs]) :-
+	format("applying constraint: ~w~n", [C]),
+	{C},
+	chase2_apply_constraints(Cs).
+
+chase_apply_constraints([]).
+chase_apply_constraints([Constraint | Rest]) :- 
+	format("applying constraint: ~w~n", [Constraint]),
+	{Constraint},
+	chase_apply_constraints(Rest).
+
+chase_rule(Facts, Rule, /*Current_Heads, */Head) :-
+	%copy_term(Rule, (Head :- Body)),
+	Rule = (Head :- Body),
+	chase_rule_fires(Facts, Body).
+
+chase2_rule(Facts, Rule, Heads) :-
+	Rule = (Heads :- Body),
+	chase_rule_fires(Facts, Body).
+
+% well actually currently they're not clp'd since i was seeing if i could just do that
+% after the findall, 
+chase_rule_fires(_, []).
+chase_rule_fires(Facts, [Item | Rest_Body]) :-
+	chase_item_fires(Facts, Item),
+	chase_rule_fires(Facts, Rest_Body)/*,
+	chase_assert_head(...)*/.
+
+% this actually doesn't work as intended, part of what needs to be fixed still
+% back-tracking on ';' screws it up
+chase_item_fires(
+/* for each fact found so far */
+[Fact | Facts], 
+/*body item*/
+Item) :-
+	match(Item, Fact) ; % well, we still want to get all possible matches ah ok 
+	chase_item_fires(Facts, Item).
+
+chase_assert_head(_, [], []).
+chase_assert_head(Facts, [Fact | Rest], New_Facts) :-
+	chase_assert_fact(Facts, Fact, Generated_Facts),
+	append(Facts, Generated_Facts, Next_Facts),
+	chase_assert_head(Next_Facts, Rest, Next_New_Facts),
+	append(Generated_Facts, Next_New_Facts, New_Facts).
+
+% when i originally wrote this i was anticipating match to be more complicated than unification
+% but i'm not sure it needs to be if we're not using constraints in bodies
+match(Fact, Fact).
+
+chase_assert_fact(Facts, fact(S, P, O), [fact(S, P, O)]) :- !, \+in_set('==', Facts, fact(S,P,O)).
+chase_assert_fact(_, fact(_, _, _), []) :- !.
+chase_assert_fact(_, Constraint, [Constraint]) :-
+	format("asserting constraint: ~w~n", [Constraint]),
+	{ Constraint }.
+
+collect_facts_and_rules(KB, Facts, Rules) :-
+	findall(
+		fact(S,P,O),
+		member(fact(S,P,O), KB),
+		Facts
+	),
+	findall(
+		(Head :- Body),
+		member((Head :- Body), KB),
+		Rules
+	).
+
+chase_test1([
+	fact(hp1, a, hp_arrangement),
+	fact(hp1, cash_price, 50), % these would collapse to just fact(hp1, cash_price, 50)
+	fact(hp1, cash_price, _), % if this was fact(hp1, cash_price, 100) we'd get inconsistency error
+
+	% this looks like a functional dependency but it's actually a relation attribute declaration
+	% an hp_arrangement has a cash_price and only one cash_price does this enforce "only one"?
+	([fact(HP, cash_price, _)] :- [fact(HP, a, hp_arrangement)]),
+	% processing this rule should enforce "only one" yea
+	% any duplicates would be unified and collapsed into a single triple, when possible, otherwise
+	% throw inconsistency error when {X = Y} can't be satisfied due to two different cash_price's
+	([(X = Y)] :- [fact(HP, a, hp_arrangement), fact(HP, cash_price, X), fact(HP, cash_price, Y)]),
+
+	([fact(HP, interest_rate, _)] :- [fact(HP, a, hp_arrangement)]),
+	([fact(HP, begin_date, _)] :- [fact(HP, a, hp_arrangement)]),
+	([fact(HP, end_date, _)] :- [fact(HP, a, hp_arrangement)]),
+	([fact(HP, report_start_date, _)] :- [fact(HP, a, hp_arrangement)]),
+	([fact(HP, report_end_date, _)] :- [fact(HP, a, hp_arrangement)]),
+	([fact(HP, repayment_amount, _)] :- [fact(HP, a, hp_arrangement)]),
+	([fact(HP, payment_type, _)] :- [fact(HP, a, hp_arrangement)])
+]).
+
+chase_test2([
+	fact(a, b1, 5),
+	fact(a, b2, What),
+	([fact(a, b3, Zhat), (Zhat = What + That)] :- [fact(a, b1, That), fact(a, b2, What)])
+]).
+
+sets_equal(R, S1, S2) :-
+	subset(R, S1, S2),
+	subset(R, S2, S1).
+
+subset(R, S1, S2) :-
+	\+((
+		member(X,S1),
+		\+((
+			member(Y,S2),
+			call(R, X, Y)
+		))
+	)).
+
+in_set(R, S, X) :-
+	member(Y, S),
+	call(R, X, Y),
+	!.
+
+to_set(R, L, S) :-
+	to_set_helper(R, L, [], S).
+
+to_set_helper(_, [], S, S).
+to_set_helper(R, [X | Xs], S_Acc, S) :-
+	\+in_set(R, S_Acc, X) ->
+	to_set_helper(R, Xs, [X | S_Acc], S) ;
+	to_set_helper(R, Xs, S_Acc, S).
+/*
+=/2
+==/2
+*/
+
 
 /*
 Date-time handling
