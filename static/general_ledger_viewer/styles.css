@@ -20,3 +20,12 @@ tr.source td {/*
    bgcolor: "red";*/
    background-color: #CCCFC0;
 }
+
+td.source {
+   background-color: #CCCFC0;
+}
+
+table {
+  border-collapse:separate;
+  border-spacing:10px 10px;
+}​​​​​​​​​​​​​

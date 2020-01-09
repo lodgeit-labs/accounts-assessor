@@ -313,5 +313,6 @@ create_opening_balances2(Bank_Account, Tx) :-
 	doc(Bank_Account, l:name, Bank_Account_Name),
 	doc_value(Bank_Account, l:opening_balance, Opening_Balance),
 	request_has_property(l:start_date, Start_Date),
+	%add_days(Start_Date0, -1, Start_Date),
 	Tx = s_transaction(Start_Date, 'Historical_Earnings_Lump', [Opening_Balance], Bank_Account_Name, vector([])).
 

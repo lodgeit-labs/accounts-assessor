@@ -7,6 +7,8 @@
 	<script type="text/javascript" src="jquery-3.3.1.js"></script>
 	<script src="lodash.js"></script>
 
+	<script src="https://unpkg.com/vue-truncate-collapsed"></script>
+
 	<link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -49,13 +51,14 @@
 				<table>
 					<thead>
 						<tr>
+							<th>item</th>
 							<th>account</th>
 							<th>date</th>
 							<th>description</th>
 							<th>vector</th>
-							<th>exchanged</th>
 							<th>vector_converted_at_transaction_date</th>
 							<th>vector_converted_at_balance_date</th>
+							<th>exchanged</th>
 						</tr>
 					</thead>
 					<transformation :id="item.id" :source="item.source" :transactions="item.transactions"  v-for="item in items" :key="item.id"></transformation>
@@ -68,16 +71,19 @@
 		props: ['id', 'source', 'transactions'],
 		template: `
 			<tbody class="transformation"  v-if='visible_transactions.length > 0'>
-				<tr class="source">
+				<tr>
 					<td v-if='typeof source == "string"'>
-						source: {{ source }}
+						{{ source }}
 					</td>
 					<template v-else>
-						<td>source: {{ source.account }}</td>
-						<td> {{ source.date }}</td>
-						<td> {{ source.verb }}</td>
-						<td> <vector :data="source.vector"></vector> </td>
-						<td> {{ source.exchanged }}</td>
+						<td>bank</td>
+						<td class="source"> {{ source.account }}</td>
+						<td class="source"> {{ source.date }}</td>
+						<td class="source"> {{ source.verb }}</td>
+						<td class="source"> <vector :data="source.vector"></vector> </td>
+						<td class="source"></td>
+						<td class="source"></td>
+						<td class="source"> {{ source.exchanged }}</td>
 					</template>
 				</tr>
 				<transaction :data="item" v-for="item in transactions" :key="item.id"  v-if="$root.accounts_filter_index[item.account].checked"></transaction>
@@ -96,17 +102,41 @@
 		props: ['data'],
 		template: `
 			<tr class="transaction">
-				<td>{{ data.account }}</td>
+				<td>GL</td>
+				<td><truncate clamp="..." :length="60" less="⇦" :text="data.account"></truncate></td>
 				<td>{{ data.date }}</td>
 				<td>{{ data.description }}</td>
 				<td> <vector :data="data.vector"></vector> </td>
-				<td></td>
 				<td> <vector :data="data.vector_converted_at_transaction_date"></vector> </td>
 				<td> <vector :data="data.vector_converted_at_balance_date"></vector> </td>
 			</tr>
 		`
 	});
-	
+
+	function coord_string(data)
+	{
+		var r;
+		if (data.debit != 0) r += "DR" + data.debit;
+		if (data.credit != 0) r += "CR" + data.credit;
+		if (data.debit == 0 && data.credit == 0) r += "0";
+		r += data.unit;
+		return r
+	}
+
+	Vue.component('vector', {
+		props: ['data'],
+		methods: {xxx : function(data) {
+			if (data.length == 0)
+				return "0"
+			else
+				return data.map((x) => {return coord_string(x)}).join(", ");
+		}},
+		template: `
+			<span>{{ xxx(data) }} </span>
+		`
+	});
+
+/*
 	Vue.component('vector', {
 		props: ['data'],
 		template: `
@@ -136,6 +166,7 @@
 			</span>
 		`
 	});
+*/
 
 	function change_checked(item, checked)
 	{
