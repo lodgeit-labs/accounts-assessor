@@ -1,9 +1,0 @@
-xml_write does add_missing_namespaces. 
-When i finish checking current round of modifications against saved response files, i'll rewrite the response files with the output with this predicate un-commented.
-
-
-failing because of a bug in calling arelle:
-	['endpoint_tests/ledger/ledger--with-schemaref']): testcase_error(http_code_400)
-	['endpoint_tests/ledger/historical_vs_current1']): testcase_error(http_code_400)
-move arelle into python_server.
-   
