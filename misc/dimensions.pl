@@ -425,16 +425,18 @@ dim_solve_formula((V, U), Current_Basis, New_Basis, V_Reduced, Current_Inputs, N
 /*
 Chase
 */
-chase(KB, New_Facts, Max_Depth) :-
-	collect_facts_and_rules(KB, Facts, Rules),
-	write('kb facts:'), print_term(Facts, []),
-	chase_rules(Facts, Rules, New_Facts, 1, Max_Depth),
-	format("Chase finished: ~w~n", [New_Facts]).
+chase(KB, Results, Max_Depth) :-
+	make_kb(KB, Facts, Rules, Vars),
+	format("kb facts: ~w~n", [Facts]),
+	format("kb vars: ~w~n",[Vars]),
+	chase_rules(Facts, Rules, Vars, New_Facts, New_Vars, 1, Max_Depth),
+	copy_list_with_subs(New_Facts, New_Vars, _{}, Results, _),
+	format("Chase finished: ~w~n", [Results]).
 
-chase_rules(Facts, Rules, New_Facts, Depth, Max_Depth) :-
+chase_rules(Facts, Rules, Vars, New_Facts, New_Vars, Depth, Max_Depth) :-
 	format("Chase round: ~w~n", [Depth]),
-	chase2_round(Facts, Rules, Next_Facts),
-	%fail,
+	chase_round(Facts, Vars, Next_Vars, Rules, Next_Facts),
+	format("Done chase round: ~w~n", [Next_Facts]),
 	(
 		(
 		 % chase should stop when there's not enough information to determine that the new set of facts is not
@@ -443,98 +445,49 @@ chase_rules(Facts, Rules, New_Facts, Depth, Max_Depth) :-
 		 Depth < Max_Depth
 		)
 	-> 	(
+		 format("Success branch...~n", []),
 		 Next_Depth is Depth + 1,
-		 chase_rules(Next_Facts, Rules, New_Facts, Next_Depth, Max_Depth)
+		 chase_rules(Next_Facts, Rules, Next_Vars, New_Facts, New_Vars, Next_Depth, Max_Depth)
 		)
 	;	(
-		 New_Facts = Facts
+		 format("Fail branch...~n", []),
+		 New_Facts = Next_Facts,
+		 New_Vars = Next_Vars
 		)
 	).
 
-chase_round(Facts, [], Facts).
-chase_round(Facts, [Rule | Rules], New_Facts) :-
+
+chase_round(Facts, Vars, Vars, [], Facts).
+chase_round(Facts, Vars, New_Vars, [Rule | Rules], New_Facts) :-
 	format("Applying rule: ~w~n", [Rule]),
-	/*chase_rule(Facts, Rule, [], Heads_Nested),
-	
-	% findall seemed to clobber existentials and constraints were getting lost somehow
-	because all that findall preserved from the inner query was Head, which didnt contain the clp-ed variable
-	yea i thought each Head in the findall should be binding to those clp-ed variables though
-*/
-	findall(
-		Head,
-		(
-			chase_rule(Facts, Rule, Head),
-			format("chase_rule(_, ~w, ~q)~n", [Rule, Head]),
-			write_term(Head, []), nl, nl
-		),
-		Heads_Nested
-	),
-	
+	chase_rule(Facts, Vars, Next_Vars1, Rule, Heads_Nested),
 	format("Heads_Nested = ~w~n", [Heads_Nested]),
+	format("Next_Vars1 = ~w~n", [Next_Vars1]),
 	flatten(Heads_Nested, Heads),
-	format("Heads = ~w~n", [Heads]),
-	findall(
-		Fact,
-		(
-			member(Fact, Heads),
-			Fact = fact(_,_,_)
-		),
-		Head_Facts
-	),
-	format("Head_Facts = ~w~n", [Head_Facts]),
-	findall(
-		Constraint,
-		(
-			member(Constraint, Heads),
-			Constraint \= fact(_,_,_)
-		),
-		Head_Constraints
-	),
+	chase_head_facts(Heads, Head_Facts),
+	chase_head_constraints(Heads, Head_Constraints),
 	format("Head facts: ~w~n", [Head_Facts]),
 	format("Head constraints: ~w~n", [Head_Constraints]),
 	append(Facts, Head_Facts, Next_Facts_List),
-	chase_apply_constraints(Head_Constraints),
-	format("Next facts list: ~w~n", [Next_Facts_List]),
-	write_term(Next_Facts_List, []),nl,
-	to_set('==', Next_Facts_List, Next_Facts),
+	copy_list_with_subs(Next_Facts_List, Next_Vars1, Next_Vars1, Next_Facts_List2, _),
+	format("Next facts list (before constraints): ~w~n", [Next_Facts_List2]),
+	copy_list_with_subs(Head_Constraints, Next_Vars1, Next_Vars1, Head_Constraints_Vars, _),
+	format("Head constraints with vars: ~w~n", [Head_Constraints_Vars]),
+	chase_apply_constraints(Head_Constraints_Vars),
+	format("Next facts list (after constraints): ~w~n", [Next_Facts_List2]),
+	to_set('==', Next_Facts_List2, Next_Facts),
 	format("Next facts set: ~w~n", [Next_Facts]),
-	write_term(Next_Facts,[]),nl,
-	chase_round(Next_Facts, Rules, New_Facts).
-
-chase2_round(Facts, [], Facts).
-chase2_round(Facts, [Rule | Rules], New_Facts) :-
-	format("Applying rule: ~w~n", [Rule]),
-	chase2_rule(Facts, Rule, Heads),
-	format("Heads = ~w~n", [Heads]),
-
-	chase2_head_facts(Heads, Head_Facts),
-	format("Head_Facts = ~w~n", [Head_Facts]),
-	chase2_head_constraints(Heads, Head_Constraints),
-	format("Head constraints: ~w~n", [Head_Constraints]),
-
-	append(Facts, Head_Facts, Next_Facts_List),
-	chase2_apply_constraints(Head_Constraints),
-	format("Next facts list: ~w~n", [Next_Facts_List]),
-	write_term(Next_Facts_List, []),nl,
-
-	to_set('==', Next_Facts_List, Next_Facts),
+	make_list(Next_Facts, _{}, Next_Facts2, Next_Vars2),
 	format("Next facts set: ~w~n", [Next_Facts]),
-	write_term(Next_Facts,[]),nl,
-	chase2_round(Next_Facts, Rules, New_Facts).
+	chase_round(Next_Facts2, Next_Vars2, New_Vars, Rules, New_Facts).
 
-chase2_head_facts([], []).
-chase2_head_facts([Head|Heads], [Head|Head_Facts]) :- Head = fact(_,_,_), chase2_head_facts(Heads, Head_Facts).
-chase2_head_facts([Head|Heads], Facts) :- Head \= fact(_,_,_), chase2_head_facts(Heads, Facts).
+chase_head_facts([], []).
+chase_head_facts([Head|Heads], [Head|Head_Facts]) :- Head = fact(_,_,_), chase_head_facts(Heads, Head_Facts).
+chase_head_facts([Head|Heads], Facts) :- Head \= fact(_,_,_), chase_head_facts(Heads, Facts).
 
-chase2_head_constraints([], []).
-chase2_head_constraints([Head|Heads], [Head|Head_Constraints]) :- Head \= fact(_,_,_), chase2_head_constraints(Heads, Head_Constraints).
-chase2_head_constraints([Head|Heads], Constraints) :- Head = fact(_,_,_), chase2_head_constraints(Heads, Constraints).
-
-chase2_apply_constraints([]).
-chase2_apply_constraints([C|Cs]) :-
-	format("applying constraint: ~w~n", [C]),
-	{C},
-	chase2_apply_constraints(Cs).
+chase_head_constraints([], []).
+chase_head_constraints([Head|Heads], [Head|Head_Constraints]) :- Head \= fact(_,_,_), chase_head_constraints(Heads, Head_Constraints).
+chase_head_constraints([Head|Heads], Constraints) :- Head = fact(_,_,_), chase_head_constraints(Heads, Constraints).
 
 chase_apply_constraints([]).
 chase_apply_constraints([Constraint | Rest]) :- 
@@ -542,61 +495,157 @@ chase_apply_constraints([Constraint | Rest]) :-
 	{Constraint},
 	chase_apply_constraints(Rest).
 
-chase_rule(Facts, Rule, /*Current_Heads, */Head) :-
-	%copy_term(Rule, (Head :- Body)),
-	Rule = (Head :- Body),
-	chase_rule_fires(Facts, Body).
+% match the rule against the fact-set treating distinct variables in the fact-set as distinct fresh constants
+% when asserting the head constraints, treat any variables bound from the fact-set as actual variables
+chase_rule(Facts, Vars, New_Vars, Rule, Heads) :-
+	Rule = (_ :- Body),
+	chase_rule_helper2(Facts, Vars, New_Vars, Rule, Body, Facts, _{}, [], Heads).
 
-chase2_rule(Facts, Rule, Heads) :-
-	Rule = (Heads :- Body),
-	chase_rule_fires(Facts, Body).
+% if we match all the body items, succeed
+chase_rule_helper2(_, Vars, New_Vars, Rule, [], _, Current_Subs, Current_Heads, [New_Head | Current_Heads]) :-
+	format("rule: ~w~nsubs: ~w~n",[Rule, Current_Subs]),
+	Rule = (Head :- _),
+	%existential vars will be fresh; universal vars will be bound with the same bindings as found in the body
+	copy_list_with_subs(Head, Vars, Current_Subs, Head1, _),
+	make_list(Head1, Vars, New_Head, New_Vars).
 
-% well actually currently they're not clp'd since i was seeing if i could just do that
-% after the findall, 
-chase_rule_fires(_, []).
-chase_rule_fires(Facts, [Item | Rest_Body]) :-
-	chase_item_fires(Facts, Item),
-	chase_rule_fires(Facts, Rest_Body)/*,
-	chase_assert_head(...)*/.
-
-% this actually doesn't work as intended, part of what needs to be fixed still
-% back-tracking on ';' screws it up
-chase_item_fires(
-/* for each fact found so far */
-[Fact | Facts], 
-/*body item*/
-Item) :-
-	match(Item, Fact) ; % well, we still want to get all possible matches ah ok 
-	chase_item_fires(Facts, Item).
-
-chase_assert_head(_, [], []).
-chase_assert_head(Facts, [Fact | Rest], New_Facts) :-
-	chase_assert_fact(Facts, Fact, Generated_Facts),
-	append(Facts, Generated_Facts, Next_Facts),
-	chase_assert_head(Next_Facts, Rest, Next_New_Facts),
-	append(Generated_Facts, Next_New_Facts, New_Facts).
-
-% when i originally wrote this i was anticipating match to be more complicated than unification
-% but i'm not sure it needs to be if we're not using constraints in bodies
-match(Fact, Fact).
-
-chase_assert_fact(Facts, fact(S, P, O), [fact(S, P, O)]) :- !, \+in_set('==', Facts, fact(S,P,O)).
-chase_assert_fact(_, fact(_, _, _), []) :- !.
-chase_assert_fact(_, Constraint, [Constraint]) :-
-	format("asserting constraint: ~w~n", [Constraint]),
-	{ Constraint }.
-
-collect_facts_and_rules(KB, Facts, Rules) :-
-	findall(
-		fact(S,P,O),
-		member(fact(S,P,O), KB),
-		Facts
+% if we exhaust all facts for a body item then we're done with this branch
+chase_rule_helper2(_, Vars, Vars, _, _, [], _, Current_Heads, Current_Heads).
+chase_rule_helper2(Facts, Vars, New_Vars, Rule, [Body_Item|Rest], [Fact | Rest_Facts], Current_Subs, Current_Heads, New_Heads) :-
+	format("rule: ~w~nbody item: ~w~nfact: ~w~n",[Rule, Body_Item, Fact]),
+	% all bnodes representing vars will be substituted with actual vars
+	% if those vars appeared in previous body items, then an association between the bnode and var/value should be
+	% in Current_Subs, and we use that for the substitution
+	% otherwise, we substitute with a fresh variable and append an association between the bnode and the fresh var into Current_Subs
+	% to get New_Subs
+	copy_with_subs(Body_Item, Vars, Current_Subs, BI_Copy, New_Subs),
+	format("body item with vars: ~w~n", [BI_Copy]),
+	(	BI_Copy = Fact
+	-> 	(
+			% body item match, recurse over rest of body
+			%append(Current_Matches, [Fact], Next_Matches),
+			chase_rule_helper2(Facts, Vars, Next_Vars, Rule, Rest, Facts, New_Subs, Current_Heads, Next_Heads)
+		)
+	; 	(
+			% no match, no updates
+			Next_Heads = Current_Heads,
+			Next_Vars = Vars
+		)
 	),
+	% recurse over rest of facts, repeating the same body item
+	chase_rule_helper2(Facts, Next_Vars, New_Vars, Rule, [Body_Item|Rest], Rest_Facts, Current_Subs, Next_Heads, New_Heads).
+
+
+
+
+% VARS -> BNODES
+% separate facts from rules and collect;
+% replace vars with bnodes (respecting scope) and collect associations
+% apply local scoping to rules during replacement
+make_kb(KB, Facts, Rules, Vars) :-
+	% give fresh vars to every rule to simulate local scoping
 	findall(
-		(Head :- Body),
-		member((Head :- Body), KB),
-		Rules
-	).
+		Scoped_Rule,
+		(
+			member(Rule, KB),
+			(	Rule = (_ :- _)
+			->	copy_term(Rule, Scoped_Rule)
+			;	Scoped_Rule = Rule
+			)
+		),
+		Scoped_KB
+	),
+
+	make_kb_helper(Scoped_KB, Facts, Rules, _{}, Vars).
+
+make_kb_helper([], [], [], Vars, Vars) :-
+	format("Make kb done.~n",[]).
+
+make_kb_helper([fact(S,P,O) | KB], [New_Fact | New_Facts], New_Rules, Vars, New_Vars) :-
+	format("Make fact: ~w~n", [fact(S,P,O)]),
+	make_fact(fact(S,P,O), Vars, New_Fact, Next_Vars),
+	make_kb_helper(KB, New_Facts, New_Rules, Next_Vars, New_Vars).
+
+make_kb_helper([(Head :- Body) | KB], New_Facts, [New_Rule | New_Rules], Vars, New_Vars) :-
+	format("Make rule: ~w~n", [(Head :- Body)]),
+	make_rule((Head :- Body), Vars, New_Rule, Next_Vars),
+	format("Made rule: ~w~n", [New_Rule]),
+	make_kb_helper(KB, New_Facts, New_Rules, Next_Vars, New_Vars).
+	
+make_rule(Rule, Subs, New_Rule, New_Subs) :-
+	Rule = (Head :- Body),
+	make_list(Head, Subs, New_Head, Next_Subs),
+	make_list(Body, Next_Subs, New_Body, New_Subs),
+	New_Rule = (New_Head :- New_Body).
+
+make_list([], Subs, [], Subs).
+make_list([fact(S,P,O) | Facts], Subs, [New_Fact | New_Facts], New_Subs) :-
+	!,
+	make_fact(fact(S,P,O), Subs, New_Fact, Next_Subs),
+	make_list(Facts, Next_Subs, New_Facts, New_Subs).
+make_list([Constraint | Facts], Subs, [New_Constraint | New_Facts], New_Subs) :-
+	Constraint =.. [F | Args],
+	make_args(Args, Subs, New_Args, Next_Subs),
+	New_Constraint =.. [F | New_Args],
+	make_list(Facts, Next_Subs, New_Facts, New_Subs). 
+
+make_fact(Fact, Subs, New_Fact, New_Subs) :-
+	Fact =.. [fact | Args],
+	make_args(Args, Subs, New_Args, New_Subs),
+	New_Fact =.. [fact | New_Args].
+make_args([], Subs, [], Subs).
+make_args([Arg | Args], Subs, [Arg | New_Args], New_Subs) :-
+	nonvar(Arg),
+	make_args(Args, Subs, New_Args, New_Subs).
+make_args([Arg | Args], Subs, [New_Arg | New_Args], New_Subs) :-
+	var(Arg),
+	gensym("bn",New_Arg),
+	dict_pairs(Subs, _, Subs_Pairs),
+	append(Subs_Pairs, [New_Arg-_], Next_Subs_Pairs),
+	dict_pairs(Next_Subs, _, Next_Subs_Pairs),
+	Arg = New_Arg,
+	make_args(Args, Next_Subs, New_Args, New_Subs).
+
+
+
+
+
+% BNODES -> VARS
+copy_list_with_subs([], _, Subs, [], Subs).
+copy_list_with_subs([Fact | Facts], Vars, Subs, [New_Fact | New_Facts], New_Subs) :-
+	copy_with_subs(Fact, Vars, Subs, New_Fact, Next_Subs),
+	copy_list_with_subs(Facts, Vars, Next_Subs, New_Facts, New_Subs).
+
+copy_with_subs(Fact, Vars, Subs, New_Fact, New_Subs) :-
+	Fact =.. [F | Args],
+	copy_args_with_subs(Args, Vars, Subs, New_Args, New_Subs),
+	New_Fact =.. [F | New_Args].
+
+copy_args_with_subs([], _, Subs, [], Subs).
+copy_args_with_subs([Arg | Args], Vars, Subs, [New_Arg | New_Args], New_Subs) :-
+	copy_arg_with_subs(Arg, Vars, Subs, New_Arg, Next_Subs),
+	copy_args_with_subs(Args, Vars, Next_Subs, New_Args, New_Subs).
+
+copy_arg_with_subs(Arg, Vars, Subs, New_Arg, New_Subs) :-
+		get_dict(Arg, Vars, _) 
+	-> 	(
+			get_dict(Arg, Subs, New_Arg)
+		->	New_Subs = Subs
+		;
+			(
+			dict_pairs(Subs, _, Pairs),
+			append(Pairs, [Arg-New_Arg], New_Pairs),
+			dict_pairs(New_Subs, _, New_Pairs)
+			%New_Subs = Subs.put(_{Arg:New_Arg})
+			)
+		)
+	;	(
+			New_Arg = Arg,
+			New_Subs = Subs
+		).
+
+
+
 
 chase_test1([
 	fact(hp1, a, hp_arrangement),
@@ -625,6 +674,26 @@ chase_test2([
 	fact(a, b2, What),
 	([fact(a, b3, Zhat), (Zhat = What + That)] :- [fact(a, b1, That), fact(a, b2, What)])
 ]).
+
+chase_test3([
+	fact(a, b1, 5),
+	fact(a, b2, _),
+	([(X = Y)] :- [fact(A, b1, X), fact(A, b2, Y)])
+]).
+
+chase_test4([
+	fact(a, b1, 5),
+	fact(a, b1, _),
+	([(X = Y)] :- [fact(A, b1, X), fact(A, b1, Y)])
+]).
+
+chase_test5([
+	fact(X, b1, 5),
+	fact(a, b1, 5),
+	fact(a, b1, _),
+	([(X = Y)] :- [fact(A, b1, X), fact(A, b1, Y)])
+]).
+
 
 sets_equal(R, S1, S2) :-
 	subset(R, S1, S2),
