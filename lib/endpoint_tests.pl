@@ -20,8 +20,6 @@ this runs the requests in tests/endpoint_tests and compares the responses agains
 
 
 
-
-:- set_prolog_flag(services_server, 'http://localhost:8768').
 :- set_prolog_flag(endpoints_server, 'http://localhost:7778').
 
 
