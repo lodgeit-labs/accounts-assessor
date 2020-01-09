@@ -81,8 +81,8 @@
 						<td class="source"> {{ source.date }}</td>
 						<td class="source"> {{ source.verb }}</td>
 						<td class="source"> <vector :data="source.vector"></vector> </td>
-						<td class="source"></td>
-						<td class="source"></td>
+						<td class="source"> <vector :data="source.report_currency_transacted_amount_converted_at_transaction_date"></vector> </td>
+						<td class="source"> <vector :data="source.report_currency_transacted_amount_converted_at_balance_date"></vector> </td>
 						<td class="source"> {{ source.exchanged }}</td>
 					</template>
 				</tr>
@@ -115,11 +115,11 @@
 
 	function coord_string(data)
 	{
-		var r;
-		if (data.debit != 0) r += "DR" + data.debit;
-		if (data.credit != 0) r += "CR" + data.credit;
+		var r = "";
+		if (data.debit != 0) r += "DR " + data.debit;
+		if (data.credit != 0) r += "CR " + data.credit;
 		if (data.debit == 0 && data.credit == 0) r += "0";
-		r += data.unit;
+		r += " " + data.unit;
 		return r
 	}
 
@@ -132,7 +132,7 @@
 				return data.map((x) => {return coord_string(x)}).join(", ");
 		}},
 		template: `
-			<span>{{ xxx(data) }} </span>
+			<truncate clamp="..." :length="60" less="🠐" :text="xxx(data)"></truncate>
 		`
 	});
 
