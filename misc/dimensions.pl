@@ -501,8 +501,6 @@ chase_apply_constraints([Constraint | Rest]) :-
 % match the rule against the fact-set treating distinct variables in the fact-set as distinct fresh constants
 % when asserting the head constraints, treat any variables bound from the fact-set as actual variables
 chase_rule(Facts, Rule, Heads) :-
-	%format("Applying rule: ~w~n", [Rule]),
-	%format("Current facts: ~w~n", [Facts]),
 	Rule = (_ :- Body),
 	chase_rule_helper2(Facts, Rule, Body, Facts, [], [], Heads).
 
@@ -631,35 +629,27 @@ copy_facts_with_subs2([Fact | Facts], Subs, [New_Fact | New_Facts], New_Subs) :-
 copy_facts_with_subs2([Constraint | Facts], Subs, New_Facts, New_Subs) :-
 	Constraint \= fact(_,_,_),
 	copy_fact_with_subs2(Constraint, Subs, New_Constraint, Next_Subs),
-	%format("Applying constraint: ~w~n", [New_Constraint]),
 	New_Constraint = (LHS = RHS),
+	var(LHS), var(RHS),
+	LHS = RHS,
+	copy_facts_with_subs2(Facts, Next_Subs, New_Facts, New_Subs).
+
+copy_facts_with_subs2([Constraint | Facts], Subs, New_Facts, New_Subs) :-
+	Constraint \= fact(_,_,_),
+	copy_fact_with_subs2(Constraint, Subs, New_Constraint, Next_Subs),
+	New_Constraint = (LHS = RHS),
+	\+((var(LHS), var(RHS))),
 	{LHS_Fresh = LHS},
-	format("LHS: ~w/~w", [LHS_Fresh, LHS]),
 	{RHS_Fresh = RHS},
-	format("RHS: ~w/~w", [RHS_Fresh, RHS]),
 	LHS_Fresh = RHS_Fresh,
 	copy_facts_with_subs2(Facts, Next_Subs, New_Facts, New_Subs).
 
 copy_facts_with_subs2([Constraint | Facts], Subs, New_Facts, New_Subs) :-
 	Constraint \= fact(_,_,_),
 	copy_fact_with_subs2(Constraint, Subs, New_Constraint, Next_Subs),
-	%format("Applying constraint: ~w~n", [New_Constraint]),
 	New_Constraint \= (_ = _),
 	{New_Constraint},
 	copy_facts_with_subs2(Facts, Next_Subs, New_Facts, New_Subs).
-/*
-	) ; (
-		{ New_Constraint },
-		copy_facts_with_subs2(Facts, Next_Subs, New_Facts, New_Subs)
-	).
-*/
-	/*
-	{New_Constraint},
-	format("Constraint after applied: ~w~n", [New_Constraint]),
-	{New_Constraint},
-	format("Constraint after applied again: ~w~n", [New_Constraint]),
-	*/
-	% copy_facts_with_subs2(Facts, Next_Subs, New_Facts, New_Subs).
 
 copy_fact_with_subs2(Fact, Subs, New_Fact, New_Subs) :-
 	Fact =.. [F | Args],
@@ -668,8 +658,15 @@ copy_fact_with_subs2(Fact, Subs, New_Fact, New_Subs) :-
 
 copy_args_with_subs2([], Subs, [], Subs).
 copy_args_with_subs2([Arg | Args], Subs, [New_Arg | New_Args], New_Subs) :-
-	copy_arg_with_subs2(Arg, Subs, New_Arg, Next_Subs),
-	copy_args_with_subs2(Args, Next_Subs, New_Args, New_Subs).
+	(
+		var(Arg)
+	) -> (
+		copy_arg_with_subs2(Arg, Subs, New_Arg, Next_Subs),
+		copy_args_with_subs2(Args, Next_Subs, New_Args, New_Subs)
+	) ; (
+		copy_fact_with_subs2(Arg, Subs, New_Arg, Next_Subs),
+		copy_args_with_subs2(Args, Next_Subs, New_Args, New_Subs)
+	).
 
 copy_arg_with_subs2(Arg, Subs, Arg, Subs) :- nonvar(Arg).
 copy_arg_with_subs2(Arg, Subs, New_Arg, Subs) :- var(Arg), get_sub(Arg, Subs, New_Arg).
