@@ -122,3 +122,7 @@ STATIC_ROOT = os.path.abspath('../static/') + '/'
 STATIC_URL = '/static/'
 MEDIA_ROOT = os.path.abspath('../server_root/tmp')
 MEDIA_URL = '/tmp/'
+
+BBB = "ccc"
+AAA = "CCCCC"
+

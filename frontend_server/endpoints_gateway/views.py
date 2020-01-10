@@ -1,5 +1,6 @@
 import json, ntpath, os
 
+from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import render
 from django.http import HttpResponseRedirect, JsonResponse, HttpResponse
@@ -27,6 +28,7 @@ def upload(request):
 	params.update(request.POST)
 	params.update(request.GET)
 	server_url = request._current_scheme_host
+	prolog_flags = """set_prolog_flag(service_server, '""" + settings.MY_SERVICES_SERVER_URL + """')"""
 
 	if request.method == 'POST':
 		form = ClientRequestForm(request.POST, request.FILES)
@@ -43,7 +45,7 @@ def upload(request):
 						"request_files": request_files_in_tmp}
 			}
 			try:
-				invoke_rpc_cmdline.call_rpc(msg)
+				invoke_rpc_cmdline.call_rpc(msg, prolog_flags=prolog_flags)
 			except json.decoder.JSONDecodeError as e:
 				return HttpResponse(status=500)
 			return HttpResponseRedirect('/tmp/'+tmp_directory_name+'/response.json')
@@ -51,6 +53,8 @@ def upload(request):
 		form = ClientRequestForm()
 	return render(request, 'upload.html', {'form': form})
 
+def test(request):
+	return {"a":AAA}
 
 #    the chat endpoints
 
