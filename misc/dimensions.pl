@@ -634,7 +634,9 @@ copy_facts_with_subs2([Constraint | Facts], Subs, New_Facts, New_Subs) :-
 	%format("Applying constraint: ~w~n", [New_Constraint]),
 	New_Constraint = (LHS = RHS),
 	{LHS_Fresh = LHS},
+	format("LHS: ~w/~w", [LHS_Fresh, LHS]),
 	{RHS_Fresh = RHS},
+	format("RHS: ~w/~w", [RHS_Fresh, RHS]),
 	LHS_Fresh = RHS_Fresh,
 	copy_facts_with_subs2(Facts, Next_Subs, New_Facts, New_Subs).
 
