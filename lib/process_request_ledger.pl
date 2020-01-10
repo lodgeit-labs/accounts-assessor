@@ -1,4 +1,5 @@
 process_request_ledger(File_Path, Dom) :-
+%gtrace,
 	inner_xml(Dom, //reports/balanceSheetRequest, _),
 	validate_xml2(File_Path, 'bases/Reports.xsd'),
 
@@ -13,8 +14,12 @@ process_request_ledger(File_Path, Dom) :-
 	/* Start_Date, End_Date to substitute of "opening", "closing" */
 	extract_exchange_rates(Dom, Start_Date, End_Date, Default_Currency, Exchange_Rates),
 	/* Start_Date_Atom in case of missing Date */
-    extract_s_transactions(Dom, Start_Date_Atom, S_Transactions),
+	extract_bank_accounts(Dom),
+    extract_s_transactions(Dom, Start_Date_Atom, S_Transactions0),
 	extract_invoices_payable(Dom),
+
+    create_opening_balances(Bank_Lump_Txs),
+    append(Bank_Lump_Txs, S_Transactions0, S_Transactions),
 
 	process_ledger(
 		Cost_Or_Market,
@@ -282,3 +287,32 @@ extract_start_and_end_date(Dom, Start_Date, End_Date, Start_Date_Atom) :-
 
 	
 %:- tspy(process_xml_ledger_request2/2).
+
+extract_bank_accounts(Dom) :-
+	findall(Account, xpath(Dom, //reports/balanceSheetRequest/bankStatement/accountDetails, Account), Accounts),
+	maplist(extract_bank_account, Accounts).
+
+extract_bank_account(Account) :-
+	fields(Account, [
+		accountName, Account_Name,
+		currency, Account_Currency]),
+	numeric_fields(Account, [
+		openingBalance, (Opening_Balance_Number, 0)]),
+	Opening_Balance = coord(Account_Currency, Opening_Balance_Number),
+	doc_new_uri(Uri),
+	request_add_property(l:bank_account, Uri),
+	doc_add(Uri, l:name, Account_Name),
+	doc_add_value(Uri, l:opening_balance, Opening_Balance).
+
+create_opening_balances(Txs) :-
+	request(R),
+	findall(Bank_Account_Name, docm(R, l:bank_account, Bank_Account_Name), Bank_Accounts),
+	maplist(create_opening_balances2, Bank_Accounts, Txs).
+
+create_opening_balances2(Bank_Account, Tx) :-
+	doc(Bank_Account, l:name, Bank_Account_Name),
+	doc_value(Bank_Account, l:opening_balance, Opening_Balance),
+	request_has_property(l:start_date, Start_Date),
+	%add_days(Start_Date0, -1, Start_Date),
+	Tx = s_transaction(Start_Date, 'Historical_Earnings_Lump', [Opening_Balance], Bank_Account_Name, vector([])).
+

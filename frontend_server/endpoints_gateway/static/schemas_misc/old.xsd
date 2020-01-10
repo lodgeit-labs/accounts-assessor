@@ -1,6 +1,0 @@
-  <xs:complexType name="LivestockEvent">
-    <xs:sequence>
-      <xs:element minOccurs="0" maxOccurs="1" name="date" type="xs:date"/>
-      <xs:element minOccurs="1" maxOccurs="1" name="count" type="xs:integer"/>
-    </xs:sequence>
-  </xs:complexType>

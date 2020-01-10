@@ -7,6 +7,8 @@
 	<script type="text/javascript" src="jquery-3.3.1.js"></script>
 	<script src="lodash.js"></script>
 
+	<script src="https://unpkg.com/vue-truncate-collapsed"></script>
+
 	<link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -46,13 +48,21 @@
 		props: ['items'],
 		template: `
 			<div class="transformations"> transformations:
-				<ul>
-					<div v-for="item in items" :key="item.id">
-						<li>
-							<transformation :id="item.id" :source="item.source" :transactions="item.transactions"></transformation>
-						</li>
-					</div>
-				</ul>
+				<table>
+					<thead>
+						<tr>
+							<th>item</th>
+							<th>account</th>
+							<th>date</th>
+							<th>description</th>
+							<th>vector</th>
+							<th>vector_converted_at_transaction_date</th>
+							<th>vector_converted_at_balance_date</th>
+							<th>exchanged</th>
+						</tr>
+					</thead>
+					<transformation :id="item.id" :source="item.source" :transactions="item.transactions"  v-for="item in items" :key="item.id"></transformation>
+				</table>
 			</div>
 		`
 	});
@@ -60,25 +70,24 @@
 	Vue.component('transformation', {
 		props: ['id', 'source', 'transactions'],
 		template: `
-			<div class="transformation">
-				<div v-if='visible_transactions.length > 0'>
-					source:
-					<span v-if='typeof source == "string"'>
+			<tbody class="transformation"  v-if='visible_transactions.length > 0'>
+				<tr>
+					<td v-if='typeof source == "string"'>
 						{{ source }}
-					</span>
-					<span v-else>
-						{{ source }}
-					</span>
-					:
-					<ul>
-						<li v-for="item in transactions" :key="item.id">
-								<span v-if="$root.accounts_filter_index[item.account].checked">
-									GL: <transaction :data="item"></transaction>
-								</span>
-						</li>
-					</ul>
-				</div>
-			</div>
+					</td>
+					<template v-else>
+						<td>bank</td>
+						<td class="source"> {{ source.account }}</td>
+						<td class="source"> {{ source.date }}</td>
+						<td class="source"> {{ source.verb }}</td>
+						<td class="source"> <vector :data="source.vector"></vector> </td>
+						<td class="source"> <vector :data="source.report_currency_transacted_amount_converted_at_transaction_date"></vector> </td>
+						<td class="source"> <vector :data="source.report_currency_transacted_amount_converted_at_balance_date"></vector> </td>
+						<td class="source"> {{ source.exchanged }}</td>
+					</template>
+				</tr>
+				<transaction :data="item" v-for="item in transactions" :key="item.id"  v-if="$root.accounts_filter_index[item.account].checked"></transaction>
+			</tbody>
 		`,
 		methods: {xxx : function() { console.log(this); }},
 		computed: {
@@ -92,11 +101,73 @@
 	Vue.component('transaction', {
 		props: ['data'],
 		template: `
-			<div class="transaction"> {{ data }}
-			</div>
+			<tr class="transaction">
+				<td>GL</td>
+				<td><truncate clamp="..." :length="60" less="⇦" :text="data.account"></truncate></td>
+				<td>{{ data.date }}</td>
+				<td>{{ data.description }}</td>
+				<td> <vector :data="data.vector"></vector> </td>
+				<td> <vector :data="data.vector_converted_at_transaction_date"></vector> </td>
+				<td> <vector :data="data.vector_converted_at_balance_date"></vector> </td>
+			</tr>
 		`
 	});
-	
+
+	function coord_string(data)
+	{
+		var r = "";
+		if (data.debit != 0) r += "DR " + data.debit;
+		if (data.credit != 0) r += "CR " + data.credit;
+		if (data.debit == 0 && data.credit == 0) r += "0";
+		r += " " + data.unit;
+		return r
+	}
+
+	Vue.component('vector', {
+		props: ['data'],
+		methods: {xxx : function(data) {
+			if (data.length == 0)
+				return "0"
+			else
+				return data.map((x) => {return coord_string(x)}).join(", ");
+		}},
+		template: `
+			<truncate clamp="..." :length="60" less="🠐" :text="xxx(data)"></truncate>
+		`
+	});
+
+/*
+	Vue.component('vector', {
+		props: ['data'],
+		template: `
+			<span>
+				<span v-for="(item,index) in data" :key="index">
+					<coord :data="item"></coord>
+					<span v-if="index+1 < data.length">, </span>
+				</span>
+			</span>
+		`
+	});
+
+	Vue.component('coord', {
+		props: ['data'],
+		template: `
+			<span>
+				<span v-if='data.debit != 0' class="debit">
+					DR {{ data.debit }}
+				</span>
+				<span v-if='data.credit != 0' class="credit">
+					CR {{ data.credit }}
+				</span>
+				<span v-if='data.credit == 0 && data.debit == 0'>
+					0
+				</span>
+				{{ data.unit }}
+			</span>
+		`
+	});
+*/
+
 	function change_checked(item, checked)
 	{
 		item.checked = checked;
@@ -115,7 +186,7 @@
 	*/
 	    Promise.all([
 		load_data("accounts").then(process_loaded_accounts_data),
-		load_data("general_ledger")
+		load_data("general_ledger_json")
 	    ]).then(results => process_loaded_general_ledger_data(results[1]));
 	};
 
