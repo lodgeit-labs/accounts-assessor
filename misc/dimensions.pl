@@ -440,7 +440,7 @@ chase_rules(Facts, Rules, New_Facts, Depth, N, Max_Depth) :-
 	copy_term(Facts, Original_Facts),
 	chase_round(Facts, Rules, Next_Facts),
 	format("Done chase round: ~w~n", [Next_Facts]),
-	format("Original facts: ~w~n", [Original_Facts]),
+	%format("Original facts: ~w~n", [Original_Facts]),
 	% because vars in the fact-set have been bound, they compare == to the values they've
 	% been bound to, so we can't tell using just == that the new fact set is different from
 	% the original. in order for this method of comparison to work we have to preserve the
@@ -455,12 +455,12 @@ chase_rules(Facts, Rules, New_Facts, Depth, N, Max_Depth) :-
 		 Depth < Max_Depth
 		)
 	-> 	(
-		 format("Success branch...~n", []),
+		 %format("Success branch...~n", []),
 		 Next_Depth is Depth + 1,
 		 chase_rules(Next_Facts, Rules, New_Facts, Next_Depth, N, Max_Depth)
 		)
 	;	(
-		 format("Fail branch...~n", []),
+		 %format("Fail branch...~n", []),
 		 New_Facts = Next_Facts,
 		 N = Depth
 		)
@@ -501,19 +501,17 @@ chase_apply_constraints([Constraint | Rest]) :-
 % match the rule against the fact-set treating distinct variables in the fact-set as distinct fresh constants
 % when asserting the head constraints, treat any variables bound from the fact-set as actual variables
 chase_rule(Facts, Rule, Heads) :-
-	format("Applying rule: ~w~n", [Rule]),
-	format("Current facts: ~w~n", [Facts]),
+	%format("Applying rule: ~w~n", [Rule]),
+	%format("Current facts: ~w~n", [Facts]),
 	Rule = (_ :- Body),
-	chase_rule_helper2(Facts, Rule, Body, Facts, [], [], Heads),
-	nl.
+	chase_rule_helper2(Facts, Rule, Body, Facts, [], [], Heads).
 
 % if we match all the body items, succeed
 chase_rule_helper2(_, Rule, [], _, Current_Subs, Current_Heads, [New_Head | Current_Heads]) :-
 	Rule = (Head :- _),
 
 	%existential vars will be fresh; universal vars will be bound with the same bindings as found in the body
-	copy_facts_with_subs2(Head, Current_Subs, New_Head, _),
-	format("RESULT: ~w~n", [New_Head]).
+	copy_facts_with_subs2(Head, Current_Subs, New_Head, _).
 
 
 % if we exhaust all facts for a body item then we're done with this branch
@@ -629,15 +627,35 @@ copy_facts_with_subs2([Fact | Facts], Subs, [New_Fact | New_Facts], New_Subs) :-
 	Fact = fact(_,_,_),
 	copy_fact_with_subs2(Fact, Subs, New_Fact, Next_Subs),
 	copy_facts_with_subs2(Facts, Next_Subs, New_Facts, New_Subs).
+
 copy_facts_with_subs2([Constraint | Facts], Subs, New_Facts, New_Subs) :-
 	Constraint \= fact(_,_,_),
 	copy_fact_with_subs2(Constraint, Subs, New_Constraint, Next_Subs),
-	format("Applying constraint: ~w~n", [New_Constraint]),
+	%format("Applying constraint: ~w~n", [New_Constraint]),
+	New_Constraint = (LHS = RHS),
+	LHS = RHS,
+	copy_facts_with_subs2(Facts, Next_Subs, New_Facts, New_Subs).
+
+copy_facts_with_subs2([Constraint | Facts], Subs, New_Facts, New_Subs) :-
+	Constraint \= fact(_,_,_),
+	copy_fact_with_subs2(Constraint, Subs, New_Constraint, Next_Subs),
+	%format("Applying constraint: ~w~n", [New_Constraint]),
+	New_Constraint \= (_ = _),
+	{New_Constraint},
+	copy_facts_with_subs2(Facts, Next_Subs, New_Facts, New_Subs).
+/*
+	) ; (
+		{ New_Constraint },
+		copy_facts_with_subs2(Facts, Next_Subs, New_Facts, New_Subs)
+	).
+*/
+	/*
 	{New_Constraint},
 	format("Constraint after applied: ~w~n", [New_Constraint]),
 	{New_Constraint},
 	format("Constraint after applied again: ~w~n", [New_Constraint]),
-	copy_facts_with_subs2(Facts, Next_Subs, New_Facts, New_Subs).
+	*/
+	% copy_facts_with_subs2(Facts, Next_Subs, New_Facts, New_Subs).
 
 copy_fact_with_subs2(Fact, Subs, New_Fact, New_Subs) :-
 	Fact =.. [F | Args],
@@ -740,8 +758,8 @@ chase_test8([
 	([(X = Y)] :- [fact(HP, a, hp_arrangement), fact(HP, cash_price, X), fact(HP, cash_price, Y)]),
 
 	([fact(HP, interest_rate, _)] :- [fact(HP, a, hp_arrangement)]),
-	([(X = Y)] :- [fact(HP, a, hp_arrangement), fact(HP, interest_rate, X), fact(HP, interest_rate, Y)])
-	/*,
+	([(X = Y)] :- [fact(HP, a, hp_arrangement), fact(HP, interest_rate, X), fact(HP, interest_rate, Y)]),
+
 	([fact(HP, begin_date, _)] :- [fact(HP, a, hp_arrangement)]),
 	([(X = Y)] :- [fact(HP, a, hp_arrangement), fact(HP, begin_date, X), fact(HP, begin_date, Y)]),
 
@@ -759,7 +777,13 @@ chase_test8([
 
 	([fact(HP, payment_type, _)] :- [fact(HP, a, hp_arrangement)]),
 	([(X = Y)] :- [fact(HP, a, hp_arrangement), fact(HP, payment_type, X), fact(HP, payment_type, Y)])
-	*/
+]).
+
+chase_test9([
+	fact(hp1, a, hp_arrangement),
+	fact(hp1, cash_price, _),
+	([fact(HP, cash_price, _)] :- [fact(HP, a, hp_arrangement)]),
+	([X = Y] :- [fact(HP, a, hp_arrangement), fact(HP, cash_price, X), fact(HP, cash_price, Y)])
 ]).
 
 
