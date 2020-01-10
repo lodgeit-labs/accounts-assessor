@@ -4,6 +4,11 @@
 :- use_module('lib', []).
 
 process_request_rpc_cmdline :-
+	catch_with_backtrace(process_request_rpc_cmdline2, E, (
+		writeq(E),
+		throw(E))).
+
+process_request_rpc_cmdline2 :-
 	json_read_dict(user_input, Dict),
 	(	Dict.method == "calculator"
 	->	lib:process_request_rpc_calculator(Dict.params)

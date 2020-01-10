@@ -28,7 +28,7 @@ def upload(request):
 	params.update(request.POST)
 	params.update(request.GET)
 	server_url = request._current_scheme_host
-	prolog_flags = """set_prolog_flag(service_server, '""" + settings.MY_SERVICES_SERVER_URL + """')"""
+	prolog_flags = """set_prolog_flag(services_server,'""" + settings.MY_SERVICES_SERVER_URL + """')"""
 
 	if request.method == 'POST':
 		form = ClientRequestForm(request.POST, request.FILES)

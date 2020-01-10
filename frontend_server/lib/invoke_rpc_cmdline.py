@@ -85,11 +85,14 @@ def run(request_files, dev_runner_options):
 			"tmp_directory_name": tmp_directory_name,
 			"request_files": files2}
 	}
-	call_rpc(msg=msg, dev_runner_options=dev_runner_options)
+	call_rpc(msg=msg, dev_runner_options=shlex.split(dev_runner_options))
 
-def call_rpc(msg, dev_runner_options='', prolog_flags='true'):
+def call_rpc(msg, dev_runner_options=[], prolog_flags='true'):
 	os.chdir(git("server_root"))
-	cmd = shlex.split("swipl -s " + git("lib/dev_runner.pl") + " --problem_lines_whitelist " + git("misc/problem_lines_whitelist") + " -s " + git("lib/debug_rpc.pl") + dev_runner_options) + ['-g' + shlex.split(prolog_flags + ',lib:process_request_rpc_cmdline')]
+	cmd0 = ['swipl', '-s', git("lib/dev_runner.pl"),'--problem_lines_whitelist',git("misc/problem_lines_whitelist"),"-s", git("lib/debug_rpc.pl")]
+	cmd1 = dev_runner_options
+	cmd2 = ['-g', prolog_flags + ',lib:process_request_rpc_cmdline']
+	cmd = cmd0 + cmd1 + cmd2
 	print(' '.join(cmd))
 	input = json.dumps(msg)
 	print(input)
