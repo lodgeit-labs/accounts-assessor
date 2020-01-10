@@ -786,6 +786,13 @@ chase_test9([
 	([X = Y] :- [fact(HP, a, hp_arrangement), fact(HP, cash_price, X), fact(HP, cash_price, Y)])
 ]).
 
+chase_test10([
+	fact(hp1, a, hp_arrangement),
+	fact(hp1, cash_price, 50),
+	fact(hp1, cash_price2, _),
+	([X = (Y + 5)] :- [fact(HP, a, hp_arrangement), fact(HP, cash_price, X), fact(HP, cash_price2, Y)])
+	
+]).
 
 sets_equal(R, S1, S2) :-
 	subset(R, S1, S2),
