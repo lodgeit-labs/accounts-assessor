@@ -17,7 +17,7 @@
 
 :- [search_paths].
 
-:- ['../prolog_xbrl_public/xbrl/prolog/xbrl/utils.pl'].
+:- ['../public_lib/xbrl/prolog/xbrl/utils.pl'].
 
 :- [accounts_extract].
 :- [accounts].

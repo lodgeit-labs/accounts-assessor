@@ -15,7 +15,7 @@ this runs the requests in tests/endpoint_tests and compares the responses agains
 :- use_module(library(xpath)).
 :- use_module(library(readutil)).
 %:- use_module('lib', []).
-:- ['../prolog_xbrl_public/xbrl/prolog/xbrl/utils.pl'].
+:- ['../public_lib/xbrl/prolog/xbrl/utils.pl'].
 :- ['../lib/search_paths.pl'].
 
 
