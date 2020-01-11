@@ -56,6 +56,7 @@
 							<th>date</th>
 							<th>description</th>
 							<th>vector</th>
+							<th>leaf_account_running_balance</th>
 							<th>vector_converted_at_transaction_date</th>
 							<th>vector_converted_at_balance_date</th>
 							<th>exchanged</th>
@@ -81,6 +82,7 @@
 						<td class="source"> {{ source.date }}</td>
 						<td class="source"> {{ source.verb }}</td>
 						<td class="source"> <vector :data="source.vector"></vector> </td>
+						<td></td>
 						<td class="source"> <vector :data="source.report_currency_transacted_amount_converted_at_transaction_date"></vector> </td>
 						<td class="source"> <vector :data="source.report_currency_transacted_amount_converted_at_balance_date"></vector> </td>
 						<td class="source"> {{ source.exchanged }}</td>
@@ -107,6 +109,7 @@
 				<td>{{ data.date }}</td>
 				<td>{{ data.description }}</td>
 				<td> <vector :data="data.vector"></vector> </td>
+				<td> <vector :data="data.running_balance"></vector> </td>
 				<td> <vector :data="data.vector_converted_at_transaction_date"></vector> </td>
 				<td> <vector :data="data.vector_converted_at_balance_date"></vector> </td>
 			</tr>
@@ -205,11 +208,16 @@
     /* the id's should probably be coming from the prolog side, but in prolog there's little use for them, so...*/
 	    let transformation_id = 0;
 		let transaction_id = 0;
-				
+
+		/*balances = {};*/
+
 		data.forEach(item => {
 					item.id = transformation_id++;
 					item.transactions.forEach(tr => {
 						tr.id = transaction_id++
+/*						if (!tr.x.hasOwnProperty(account))
+							balances[account] =*/
+
 					});
 		});
 		vm.transformations = data;

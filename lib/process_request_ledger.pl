@@ -102,7 +102,8 @@ make_gl_viewer_report :-
 	Viewer_Dir = 'general_ledger_viewer',
 	absolute_file_name(my_static(Viewer_Dir), Src, [file_type(directory)]),
 	report_file_path(loc(file_name, Viewer_Dir), loc(absolute_url, Dir_Url), loc(absolute_path, Dst)),
-	atomic_list_concat(['cp -r ', Src, ' ', Dst], Cmd),
+	atomic_list_concat(['ln -s ', Src, ' ', Dst], Cmd),
+	%atomic_list_concat(['cp -r ', Src, ' ', Dst], Cmd),
 	shell(Cmd),
 	atomic_list_concat([Dir_Url, '/gl.html'], Full_Url),
 	report_entry('GL viewer', loc(absolute_url, Full_Url), 'gl_html').
