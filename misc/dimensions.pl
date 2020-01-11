@@ -874,6 +874,8 @@ fact(I, prev, P) :-
 
 chase_test12([
 	fact(my_list, a, list),
+
+	% "list_in" w/ direct values for subject doesn't support the notion of multiple distinct occurrences
 	fact(_, list_in, my_list), % the list is non-empty
 
 	% if the list is non-empty then it has a first and a last
@@ -886,11 +888,15 @@ triple syntax:
 	% L is_list_for_position P
 	% N is_index_of_position P
 */
+
+	% "list_index"; if we use direct values, X list_index 1 doesn't tell us what list that X is in
 	([fact(First, list_in, L), fact(First, list_index, 1)] :- [fact(L, a, list), fact(L, first, First)]),
 
 	([fact(Last, list_in, L), fact(Last, list_index, N)] :- [fact(L, a, list), fact(L, length, N)]), % if N != 0 but.. 
 
-	([fact(L, length, N)] :- [fact(L, a, list), fact(L, last, Last), fact(Last, list_index, N)])
+	([fact(L, length, N)] :- [fact(L, a, list), fact(L, last, Last), fact(Last, list_index, N)]),
+
+	([X = Y] :- [fact(L, a, list), fact(X, list_in, L), fact(
 /*last_item
 first_item
 rest list
