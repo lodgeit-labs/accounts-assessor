@@ -440,7 +440,7 @@ chase_rules(Facts, Rules, New_Facts, Depth, N, Max_Depth) :-
 	copy_term(Facts, Original_Facts),
 	chase_round(Facts, Rules, Next_Facts),
 	format("Done chase round: ~w~n", [Next_Facts]),
-	format("Original facts: ~w~n", [Original_Facts]),
+	%format("Original facts: ~w~n", [Original_Facts]),
 	% because vars in the fact-set have been bound, they compare == to the values they've
 	% been bound to, so we can't tell using just == that the new fact set is different from
 	% the original. in order for this method of comparison to work we have to preserve the
@@ -455,12 +455,12 @@ chase_rules(Facts, Rules, New_Facts, Depth, N, Max_Depth) :-
 		 Depth < Max_Depth
 		)
 	-> 	(
-		 format("Success branch...~n", []),
+		 %format("Success branch...~n", []),
 		 Next_Depth is Depth + 1,
 		 chase_rules(Next_Facts, Rules, New_Facts, Next_Depth, N, Max_Depth)
 		)
 	;	(
-		 format("Fail branch...~n", []),
+		 %format("Fail branch...~n", []),
 		 New_Facts = Next_Facts,
 		 N = Depth
 		)
@@ -501,23 +501,21 @@ chase_apply_constraints([Constraint | Rest]) :-
 % match the rule against the fact-set treating distinct variables in the fact-set as distinct fresh constants
 % when asserting the head constraints, treat any variables bound from the fact-set as actual variables
 chase_rule(Facts, Rule, Heads) :-
-	format("Applying rule: ~w~n", [Rule]),
-	format("Current facts: ~w~n", [Facts]),
 	Rule = (_ :- Body),
-	chase_rule_helper2(Facts, Rule, Body, Facts, [], [], Heads),
-	nl.
+	chase_rule_helper2(Facts, Rule, Body, Facts, [], [], Heads).
 
 % if we match all the body items, succeed
 chase_rule_helper2(_, Rule, [], _, Current_Subs, Current_Heads, [New_Head | Current_Heads]) :-
 	Rule = (Head :- _),
 
 	%existential vars will be fresh; universal vars will be bound with the same bindings as found in the body
-	copy_facts_with_subs2(Head, Current_Subs, New_Head, _),
-	format("RESULT: ~w~n", [New_Head]).
+	copy_facts_with_subs2(Head, Current_Subs, New_Head, _).
 
 
-% if we exhaust all facts for a body item then we're done with this branch
+% we've tried one body item against all the facts
 chase_rule_helper2(_, _, _, [], _, Current_Heads, Current_Heads).
+
+% still more facts, still more body items
 chase_rule_helper2(Facts, Rule, [Body_Item|Rest], [Fact | Rest_Facts], Current_Subs, Current_Heads, New_Heads) :-
 	%format("rule: ~w~nbody item: ~w~nfact: ~w~nsubs: ~w~n",[Rule, Body_Item, Fact, Current_Subs]),
 	%copy_with_subs(Body_Item, Vars, Current_Subs, BI_Copy, New_Subs),
@@ -541,8 +539,10 @@ chase_rule_helper2(Facts, Rule, [Body_Item|Rest], [Fact | Rest_Facts], Current_S
 
 
 
-
-
+/*
+matching between bodies and fact-set
+* body variables
+*/
 
 match_fact(BI, Fact, Subs, New_Subs) :-
 	BI =.. BI_Terms,
@@ -591,6 +591,8 @@ fact_set_subset([A | As], Bs, Current_Subs) :-
 	fact_in(A, Bs, Current_Subs, New_Subs),
 	fact_set_subset(As, Bs, New_Subs).
 
+% _==_
+% X = Y, X == Y; true...
 
 fact_in(A, [B | Bs], Current_Subs, New_Subs) :-
 	fact_match(A, B, Current_Subs, New_Subs) ;
@@ -606,15 +608,23 @@ fact_match_args([A_Arg | A_Args], [B_Arg | B_Args], Current_Subs, New_Subs) :-
 	fact_match_arg(A_Arg, B_Arg, Current_Subs, Next_Subs),
 	fact_match_args(A_Args, B_Args, Next_Subs, New_Subs).
 
+/*
+A = arg from body item
+B = arg from fact
+*/
 fact_match_arg(A, B, Current_Subs, New_Subs) :-
 	var(A),
 	(
+		% find existing substitution
 		get_sub(A, Current_Subs, Sub)
 	) -> (
+		% not substituted to this? fail
 		B == Sub,
 		New_Subs = Current_Subs
 	) ; (
+		% cant bind a non-var? A
 		var(B),
+		% create new substitution
 		New_Subs = [A:B | Current_Subs]
 	).
 
@@ -629,14 +639,34 @@ copy_facts_with_subs2([Fact | Facts], Subs, [New_Fact | New_Facts], New_Subs) :-
 	Fact = fact(_,_,_),
 	copy_fact_with_subs2(Fact, Subs, New_Fact, Next_Subs),
 	copy_facts_with_subs2(Facts, Next_Subs, New_Facts, New_Subs).
+
 copy_facts_with_subs2([Constraint | Facts], Subs, New_Facts, New_Subs) :-
 	Constraint \= fact(_,_,_),
 	copy_fact_with_subs2(Constraint, Subs, New_Constraint, Next_Subs),
-	format("Applying constraint: ~w~n", [New_Constraint]),
+	%pattern match against substituted head fact
+	New_Constraint = (LHS = RHS),
+	var(LHS), var(RHS),
+	% collapse two existentials
+	LHS = RHS, % if we put this in {}/1 then it won't unify LHS and RHS
+	copy_facts_with_subs2(Facts, Next_Subs, New_Facts, New_Subs).
+
+copy_facts_with_subs2([Constraint | Facts], Subs, New_Facts, New_Sub) :-
+	Constraint \= fact(_,_,_),
+	copy_fact_with_subs2(Constraint, Subs, New_Constraint, Next_Subs),
+	New_Constraint = (LHS = RHS),
+	\+((var(LHS), var(RHS))), % LHS = (Y + 5) or 50 = RHS or 50 = 50 
+	{LHS = RHS},
+	/*HS_Fresh = LHS},
+	{RHS_Fresh = RHS},
+	LHS_Fresh = RHS_Fresh, % 50 = (Y + 5) *NOT* equivalent to {50 = Y +5}, despite what the docs say
+	*/
+	copy_facts_with_subs2(Facts, Next_Subs, New_Facts, New_Subs).
+
+copy_facts_with_subs2([Constraint | Facts], Subs, New_Facts, New_Subs) :-
+	Constraint \= fact(_,_,_),
+	copy_fact_with_subs2(Constraint, Subs, New_Constraint, Next_Subs),
+	New_Constraint \= (_ = _),
 	{New_Constraint},
-	format("Constraint after applied: ~w~n", [New_Constraint]),
-	{New_Constraint},
-	format("Constraint after applied again: ~w~n", [New_Constraint]),
 	copy_facts_with_subs2(Facts, Next_Subs, New_Facts, New_Subs).
 
 copy_fact_with_subs2(Fact, Subs, New_Fact, New_Subs) :-
@@ -646,8 +676,15 @@ copy_fact_with_subs2(Fact, Subs, New_Fact, New_Subs) :-
 
 copy_args_with_subs2([], Subs, [], Subs).
 copy_args_with_subs2([Arg | Args], Subs, [New_Arg | New_Args], New_Subs) :-
-	copy_arg_with_subs2(Arg, Subs, New_Arg, Next_Subs),
-	copy_args_with_subs2(Args, Next_Subs, New_Args, New_Subs).
+	(
+		var(Arg)
+	) -> (
+		copy_arg_with_subs2(Arg, Subs, New_Arg, Next_Subs),
+		copy_args_with_subs2(Args, Next_Subs, New_Args, New_Subs)
+	) ; (
+		copy_fact_with_subs2(Arg, Subs, New_Arg, Next_Subs),
+		copy_args_with_subs2(Args, Next_Subs, New_Args, New_Subs)
+	).
 
 copy_arg_with_subs2(Arg, Subs, Arg, Subs) :- nonvar(Arg).
 copy_arg_with_subs2(Arg, Subs, New_Arg, Subs) :- var(Arg), get_sub(Arg, Subs, New_Arg).
@@ -677,6 +714,7 @@ chase_test1([
 	% throw inconsistency error when {X = Y} can't be satisfied due to two different cash_price's
 	([(X = Y)] :- [fact(HP, a, hp_arrangement), fact(HP, cash_price, X), fact(HP, cash_price, Y)]),
 
+%	([fact(HP, something, _)] :- []),
 	([fact(HP, interest_rate, _)] :- [fact(HP, a, hp_arrangement)]),
 	([fact(HP, begin_date, _)] :- [fact(HP, a, hp_arrangement)]),
 	([fact(HP, end_date, _)] :- [fact(HP, a, hp_arrangement)]),
@@ -739,9 +777,10 @@ chase_test8([
 	% throw inconsistency error when {X = Y} can't be satisfied due to two different cash_price's
 	([(X = Y)] :- [fact(HP, a, hp_arrangement), fact(HP, cash_price, X), fact(HP, cash_price, Y)]),
 
+	% 
 	([fact(HP, interest_rate, _)] :- [fact(HP, a, hp_arrangement)]),
-	([(X = Y)] :- [fact(HP, a, hp_arrangement), fact(HP, interest_rate, X), fact(HP, interest_rate, Y)])
-	/*,
+	([(X = Y)] :- [fact(HP, a, hp_arrangement), fact(HP, interest_rate, X), fact(HP, interest_rate, Y)]),
+
 	([fact(HP, begin_date, _)] :- [fact(HP, a, hp_arrangement)]),
 	([(X = Y)] :- [fact(HP, a, hp_arrangement), fact(HP, begin_date, X), fact(HP, begin_date, Y)]),
 
@@ -759,8 +798,114 @@ chase_test8([
 
 	([fact(HP, payment_type, _)] :- [fact(HP, a, hp_arrangement)]),
 	([(X = Y)] :- [fact(HP, a, hp_arrangement), fact(HP, payment_type, X), fact(HP, payment_type, Y)])
-	*/
 ]).
+
+chase_test9([
+	fact(hp1, a, hp_arrangement),
+	fact(hp1, cash_price, _),
+	([fact(HP, cash_price, _)] :- [fact(HP, a, hp_arrangement)]),
+	([X = Y] :- [fact(HP, a, hp_arrangement), fact(HP, cash_price, X), fact(HP, cash_price, Y)])
+]).
+
+chase_test10([
+	fact(hp1, a, hp_arrangement),
+	fact(hp1, cash_price, 50),
+	fact(hp1, cash_price2, _),
+	([X = (Y + 5)] :- [fact(HP, a, hp_arrangement), fact(HP, cash_price, X), fact(HP, cash_price2, Y)])
+	
+]).
+
+chase_test11([
+	fact(hp1, a, hp_arrangement),
+
+	([fact(HP, cash_price, _)] :- [fact(HP, a, hp_arrangement)]),
+	([(X = Y)] :- [fact(HP, a, hp_arrangement), fact(HP, cash_price, X), fact(HP, cash_price, Y)]),
+
+	([fact(HP, interest_rate, _)] :- [fact(HP, a, hp_arrangement)]),
+	([(X = Y)] :- [fact(HP, a, hp_arrangement), fact(HP, interest_rate, X), fact(HP, interest_rate, Y)]),
+
+	([fact(HP, begin_date, _)] :- [fact(HP, a, hp_arrangement)]),
+	([(X = Y)] :- [fact(HP, a, hp_arrangement), fact(HP, begin_date, X), fact(HP, begin_date, Y)]),
+
+	([fact(HP, end_date, _)] :- [fact(HP, a, hp_arrangement)]),
+	([(X = Y)] :- [fact(HP, a, hp_arrangement), fact(HP, end_date, X), fact(HP, end_date, Y)]),
+
+	([fact(HP, report_start_date, _)] :- [fact(HP, a, hp_arrangement)]),
+	([(X = Y)] :- [fact(HP, a, hp_arrangement), fact(HP, report_start_date, X), fact(HP, report_start_date, Y)]),
+
+	([fact(HP, report_end_date, _)] :- [fact(HP, a, hp_arrangement)]),
+	([(X = Y)] :- [fact(HP, a, hp_arrangement), fact(HP, report_end_date, X), fact(HP, report_end_date, Y)]),
+
+	([fact(HP, repayment_amount, _)] :- [fact(HP, a, hp_arrangement)]),
+	([(X = Y)] :- [fact(HP, a, hp_arrangement), fact(HP, repayment_amount, X), fact(HP, repayment_amount, Y)]),
+
+	([fact(HP, payment_type, _)] :- [fact(HP, a, hp_arrangement)]),
+	([(X = Y)] :- [fact(HP, a, hp_arrangement), fact(HP, payment_type, X), fact(HP, payment_type, Y)]),
+
+	([fact(HP, number_of_installments, _)] :- [fact(HP, a, hp_arrangement)]),
+	([(X = Y)] :- [fact(HP, a, hp_arrangement), fact(HP, number_of_installments, X), fact(HP, number_of_installments, Y)]),
+
+	([fact(HP, installments, Installments), fact(Installments, a, list)] :- [fact(HP, a, hp_arrangement)]),
+	([(X = Y)] :- [fact(HP, a, hp_arrangement), fact(HP, installments, X), fact(HP, installments, Y)])
+
+]).
+
+/*
+something is a  list
+that list has length N
+something is in the list
+the list has a first (if it's non-empty)
+the list has a last (if it's non-empty)
+
+% i don't necessarily know how to implement "we *know* its not the last element" (or w/e) 
+nonvar(a) && nonvar(b) && a \== b
+
+for any list item, if it's not the last, there's a next;
+	if it's not the first, there's a previous
+
+fact(I, prev, P) :- 
+	I list_in L,
+	I list_index \= 1
+
+	L first PP
+	I \= PP,
+	
+*/
+
+chase_test12([
+	fact(my_list, a, list),
+
+	% "list_in" w/ direct values for subject doesn't support the notion of multiple distinct occurrences
+	fact(_, list_in, my_list), % the list is non-empty
+
+	% if the list is non-empty then it has a first and a last
+	([fact(L, first, First)] :- [fact(L, a, list), fact(_, list_in, L)]),
+	([fact(L, last, Last)] :- [fact(L, a, list), fact(_, list_in, L)]),
+/*
+n-ary syntax: position(I,L,N)
+triple syntax:
+	% I is_item_in_position P
+	% L is_list_for_position P
+	% N is_index_of_position P
+*/
+
+	% "list_index"; if we use direct values, X list_index 1 doesn't tell us what list that X is in
+	([fact(First, list_in, L), fact(First, list_index, 1)] :- [fact(L, a, list), fact(L, first, First)]),
+
+	([fact(Last, list_in, L), fact(Last, list_index, N)] :- [fact(L, a, list), fact(L, length, N)]), % if N != 0 but.. 
+
+	([fact(L, length, N)] :- [fact(L, a, list), fact(L, last, Last), fact(Last, list_index, N)]),
+
+	([X = Y] :- [fact(L, a, list), fact(X, list_in, L), fact(
+/*last_item
+first_item
+rest list
+next item
+prev item
+
+*/
+]).
+
 
 
 sets_equal(R, S1, S2) :-
