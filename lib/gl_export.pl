@@ -19,17 +19,19 @@ make_gl_entry(Sd, Source, Transactions, Entry) :-
 
 s_transaction_with_transacted_amount(Sd, D1, D2) :-
 	D2 = D1.put([
-		report_currency_transacted_amount_converted_at_transaction_date=ConvertedA,report_currency_transacted_amount_converted_at_balance_date=ConvertedB]),
+		report_currency_transacted_amount_converted_at_transaction_date=RoundedA,report_currency_transacted_amount_converted_at_balance_date=RoundedB]),
 	vec_change_bases(Sd.exchange_rates, D1.date, Sd.report_currency, D1.vector, ConvertedA),
-	vec_change_bases(Sd.exchange_rates, Sd.end_date, Sd.report_currency, D1.vector, ConvertedB).
+	vec_change_bases(Sd.exchange_rates, Sd.end_date, Sd.report_currency, D1.vector, ConvertedB),
+	round_term(2, ConvertedA, RoundedA),
+	round_term(2, ConvertedB, RoundedB).
 
 transaction_with_converted_vector(Sd, Transaction, Transaction_Converted) :-
 	Transaction_Converted = Transaction.put([
-		vector_converted_at_transaction_date=Vector_ConvertedA,
-		vector_converted_at_balance_date=Vector_ConvertedB
+		vector_converted_at_transaction_date=Vector_RoundedA,
+		vector_converted_at_balance_date=Vector_RoundedB
 	]),
-	vec_change_bases(Sd.exchange_rates, Transaction.date, Sd.report_currency, Transaction.vector, Vector_ConvertedA),
-	vec_change_bases(Sd.exchange_rates, Sd.end_date, Sd.report_currency, Transaction.vector, Vector_ConvertedB).
+	round_term(2, $>vec_change_bases(Sd.exchange_rates, Transaction.date, Sd.report_currency, Transaction.vector), Vector_RoundedA),
+	round_term(2, $>vec_change_bases(Sd.exchange_rates, Sd.end_date, Sd.report_currency, Transaction.vector), Vector_RoundedB).
 
 trial_balance_ok(Trial_Balance_Section) :-
 	Trial_Balance_Section = entry(_, Balance, [], _),
