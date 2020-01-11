@@ -94,6 +94,8 @@ transactions_by_account(Static_Data, Transactions_By_Account) :-
 
 	/*this should be somewhere in ledger code*/
 	transactions_before_day_on_account_and_subaccounts(Accounts, Dict, 'NetIncomeLoss', Start_Date, Historical_Earnings_Transactions),
+
+	/* ugh */
 	Dict2 = Dict.put('HistoricalEarnings', Historical_Earnings_Transactions),
 
 	transactions_in_period_on_account_and_subaccounts(Accounts, Dict, 'NetIncomeLoss', Start_Date, End_Date, Current_Earnings_Transactions),

@@ -32,7 +32,9 @@
 		<Equity>
 			<ShareCapital/>
 			<RetainedEarnings>
-				<HistoricalEarnings/>
+				<HistoricalEarnings>
+					<BankOpeningBalances>
+				</HistoricalEarnings>
 				<CurrentEarnings/>
 			</RetainedEarnings>
 			<CapitalIntroduced/>

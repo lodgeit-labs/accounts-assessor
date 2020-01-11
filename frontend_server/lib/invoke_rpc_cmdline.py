@@ -33,22 +33,8 @@ class AtomicInteger():
 			return self._value
 
 
-
-
 server_started_time = time.time()
 client_request_id = AtomicInteger()
-
-
-
-
-def git(Suffix = ""):
-	here = os.path.dirname(__file__)
-	#print(here)
-	r = os.path.normpath(os.path.join(here, '../../', Suffix))
-	#print(r)
-	return r
-
-
 
 
 def files_in_dir(dir):
@@ -62,17 +48,17 @@ def files_in_dir(dir):
 @click.command()
 @click.argument('request_files', nargs=-1)
 @click.option('-dro', '--dev_runner_options', type=str)
-def run(request_files, dev_runner_options):
+@click.option('-prolog_flags', '--prolog_flags', type=str)
+def run(request_files, dev_runner_options, prolog_flags):
 	if dev_runner_options == None:
 		dev_runner_options = ''
 	server_url = 'http://localhost:8080'
-	request_files = [os.path.abspath(f) for f in request_files]
+	request_files2 = [os.path.abspath(os.path.expanduser(f)) for f in request_files]
 	tmp_directory_name, tmp_directory_absolute_path = create_tmp()
-	files = request_files
-	if len(request_files) == 1:
-		f = request_files[0]
-		if not os.path.isfile(f):
-			files = files_in_dir(f)
+	if len(request_files2) == 1 and os.path.isdir(request_files2[0]):
+		files = files_in_dir(f)
+	else:
+		files = request_files2
 	files2 = []
 	for f in files:
 		tmp_fn = os.path.abspath('/'.join([tmp_directory_absolute_path, ntpath.basename(f)]))
@@ -85,7 +71,7 @@ def run(request_files, dev_runner_options):
 			"tmp_directory_name": tmp_directory_name,
 			"request_files": files2}
 	}
-	call_rpc(msg=msg, dev_runner_options=shlex.split(dev_runner_options))
+	call_rpc(msg=msg, dev_runner_options=shlex.split(dev_runner_options), prolog_flags=prolog_flags)
 
 def call_rpc(msg, dev_runner_options=[], prolog_flags='true'):
 	os.chdir(git("server_root"))
@@ -115,17 +101,23 @@ def call_rpc(msg, dev_runner_options=[], prolog_flags='true'):
 		#import IPython; IPython.embed()
 
 
+
+def git(Suffix = ""):
+	here = os.path.dirname(__file__)
+	#print(here)
+	r = os.path.normpath(os.path.join(here, '../../', Suffix))
+	#print(r)
+	return r
+
 def create_tmp_directory_name():
 	return str(server_started_time) + '.' + str(client_request_id.inc())
 
-
-
 def get_tmp_directory_absolute_path(name):
-	return os.path.join(git('server_root/tmp'), name)
+	return os.path.abspath(os.path.join(git('server_root/tmp'), name))
 	
 def create_tmp():
 	name = create_tmp_directory_name()
-	path = get_tmp_directory_absolute_path(name)
+	path = os.path.normpath(get_tmp_directory_absolute_path(name))
 	os.mkdir(path)
 	subprocess.call(['/bin/rm', get_tmp_directory_absolute_path('last')])
 	subprocess.call(['/bin/ln', '-s', get_tmp_directory_absolute_path(name), get_tmp_directory_absolute_path('last')])
