@@ -169,6 +169,10 @@ value_credit(value(Unit, Amount), coord(Unit, Zero, Amount)) :- unify_numbers(Ze
 
 coord_normal_side_value(coord(Unit, D), debit, value(Unit, D)).
 coord_normal_side_value(coord(Unit, D), credit, value(Unit, V)) :- {V = -D}.
+% refactor me
+coord_normal_side_value2(debit, coord(Unit, D), value(Unit, D)).
+coord_normal_side_value2(credit, coord(Unit, D), value(Unit, V)) :- {V = -D}.
+
 
 number_vec(_, Zero, []) :-
 	unify_numbers(Zero, 0).

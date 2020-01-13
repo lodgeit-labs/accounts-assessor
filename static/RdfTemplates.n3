@@ -297,14 +297,20 @@
 				[	:default_currency [:value "AUD"];
 					:items [:value (
 						[
-							:date [:value "2020-10-10T00:00:00.000000"^^xsd:dateTime];
+							:date [:value "2019-10-10T00:00:00.000000"^^xsd:dateTime];
 							:account [:value "Assets"];
-							:debit 500
+							:debit [:value "USD 500"]
 						]
 						[
-							:date [:value "2020-10-10T00:00:00.000000"^^xsd:dateTime];
+							:date [:value "2019-10-10T00:00:00.000000"^^xsd:dateTime];
 							:account [:value "Revenue"];
-							:credit 500
+							:credit [:value "600"]
+						]
+						[
+							:date [:value "2019-10-10T00:00:00.000000"^^xsd:dateTime];
+							:account [:value "CurrencyMovement"];
+							:debit [:value "600 AUD"];
+							:credit [:value "500 USD"]
 						]
 					)]
 				]
@@ -329,6 +335,7 @@
 	:fields (
 		[:property :date; :type xsd:dateTime]
 		[:property :account; :type xsd:string]
-		[:property :debit; :type xsd:decimal]
-		[:property :credit; :type xsd:decimal]
+		[:property :description; :type xsd:string]
+		[:property :debit; :type xsd:string]
+		[:property :credit; :type xsd:string]
 	).

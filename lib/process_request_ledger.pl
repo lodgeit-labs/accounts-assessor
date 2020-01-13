@@ -329,12 +329,16 @@ extract_initial_gl(Txs) :-
 extract_initial_gl_tx(Default_Currency, Item, Tx) :-
 	doc_value(Item, l:date, Date),
 	doc_value(Item, l:account, Account_String),
+	(	doc_value(Item, l:description, Description)
+	->	true
+	;	Description = 'initial_GL'),
 	atom_string(Account, Account_String),
-	(	doc_value(Item, l:debit, Debit_Number)
-	->	true;
-		Debit_Number = 0),
-	(	doc_value(Item, l:credit, Credit_Number0)
-	->	Credit_Number is -Credit_Number0;
-		Credit_Number = 0),
-	make_transaction(Date, 'opening balance entry', Account, [coord(Default_Currency, Debit_Number), coord(Default_Currency, Credit_Number)], Tx).
+	(	doc_value(Item, l:debit, Debit_String)
+	->	vector_string(Default_Currency, debit, Debit_String, Debit_Vector)
+	;	Debit_Vector = []),
+	(	doc_value(Item, l:credit, Credit_String)
+	->	vector_string(Default_Currency, credit, Credit_String, Credit_Vector)
+	;	Credit_Vector = []),
+	append(Debit_Vector, Credit_Vector, Vector),
+	make_transaction(Date, Description, Account, Vector, Tx).
 

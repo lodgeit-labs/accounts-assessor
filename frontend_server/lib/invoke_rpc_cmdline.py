@@ -56,7 +56,7 @@ def run(request_files, dev_runner_options, prolog_flags):
 	request_files2 = [os.path.abspath(os.path.expanduser(f)) for f in request_files]
 	tmp_directory_name, tmp_directory_absolute_path = create_tmp()
 	if len(request_files2) == 1 and os.path.isdir(request_files2[0]):
-		files = files_in_dir(f)
+		files = files_in_dir(request_files2[0])
 	else:
 		files = request_files2
 	files2 = []
