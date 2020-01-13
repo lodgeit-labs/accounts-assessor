@@ -28,6 +28,7 @@ def upload(request):
 	params.update(request.POST)
 	params.update(request.GET)
 	server_url = request._current_scheme_host
+	#import IPython; IPython.embed()
 	prolog_flags = """set_prolog_flag(services_server,'""" + settings.MY_SERVICES_SERVER_URL + """')"""
 
 	if request.method == 'POST':

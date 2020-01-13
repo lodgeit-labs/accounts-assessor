@@ -33,13 +33,13 @@
 			<ShareCapital/>
 			<RetainedEarnings>
 				<HistoricalEarnings>
-					<BankOpeningBalances>
+					<BankOpeningBalances/>
 				</HistoricalEarnings>
 				<CurrentEarnings/>
 			</RetainedEarnings>
 			<CapitalIntroduced/>
 			<Drawings/>
-			<BankOpeningBalanceClearingAccount>
+			<BankOpeningBalanceClearingAccount/> <!-- not used i think -->
 		</Equity>
 		<NetIncomeLoss>
 			<Revenue>
