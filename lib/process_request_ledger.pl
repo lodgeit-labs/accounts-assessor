@@ -17,12 +17,13 @@ process_request_ledger(File_Path, Dom) :-
 	extract_bank_accounts(Dom),
     extract_s_transactions(Dom, Start_Date_Atom, S_Transactions0),
 	extract_invoices_payable(Dom),
-
-    create_opening_balances(Bank_Lump_Txs),
-    append(Bank_Lump_Txs, S_Transactions0, S_Transactions),
+	extract_initial_gl(Initial_Txs),
+    extract_bank_opening_balances(Bank_Lump_STs),
+    append(Bank_Lump_STs, S_Transactions0, S_Transactions),
 
 	process_ledger(
 		Cost_Or_Market,
+		Initial_Txs,
 		S_Transactions,
 		Start_Date,
 		End_Date,
@@ -305,15 +306,35 @@ extract_bank_account(Account) :-
 	doc_add(Uri, l:name, Account_Name),
 	doc_add_value(Uri, l:opening_balance, Opening_Balance).
 
-create_opening_balances(Txs) :-
+extract_bank_opening_balances(Txs) :-
 	request(R),
 	findall(Bank_Account_Name, docm(R, l:bank_account, Bank_Account_Name), Bank_Accounts),
-	maplist(create_opening_balances2, Bank_Accounts, Txs).
+	maplist(extract_bank_opening_balances2, Bank_Accounts, Txs).
 
-create_opening_balances2(Bank_Account, Tx) :-
+extract_bank_opening_balances2(Bank_Account, Tx) :-
 	doc(Bank_Account, l:name, Bank_Account_Name),
 	doc_value(Bank_Account, l:opening_balance, Opening_Balance),
 	request_has_property(l:start_date, Start_Date),
 	%add_days(Start_Date0, -1, Start_Date),
 	Tx = s_transaction(Start_Date, 'Historical_Earnings_Lump', [Opening_Balance], Bank_Account_Name, vector([])).
+
+extract_initial_gl(Txs) :-
+	doc(l:request, l:gl, Gl),
+	doc_value(Gl, l:default_currency, Default_Currency0),
+	atom_string(Default_Currency, Default_Currency0),
+	doc_value(Gl, l:items, List),
+	doc_list_items(List, Items),
+	maplist(extract_initial_gl_tx(Default_Currency), Items, Txs).
+
+extract_initial_gl_tx(Default_Currency, Item, Tx) :-
+	doc_value(Item, l:date, Date),
+	doc_value(Item, l:account, Account_String),
+	atom_string(Account, Account_String),
+	(	doc_value(Item, l:debit, Debit_Number)
+	->	true;
+		Debit_Number = 0),
+	(	doc_value(Item, l:credit, Credit_Number0)
+	->	Credit_Number is -Credit_Number0;
+		Credit_Number = 0),
+	make_transaction(Date, 'opening balance entry', Account, [coord(Default_Currency, Debit_Number), coord(Default_Currency, Credit_Number)], Tx).
 

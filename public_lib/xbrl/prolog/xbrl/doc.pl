@@ -294,9 +294,15 @@ doc_add_value(S, P, V) :-
 	doc_add(S, P, Uri),
 	doc_add(Uri, l:value, V).
 
-
-
-
+/*
+user:goal_expansion(
+	vague_props(X, variable_names(Names))
+, X) :-
+	term_variables(X, Vars),
+	maplist(my_variable_naming, Vars, Names).
+vague_doc(S,
+	compile_with_variable_names_preserved(X, variable_names(Names))),
+*/
 
 
 

@@ -21,12 +21,14 @@ generate_system_accounts(S_Transactions, Accounts_In, Accounts_Out) :-
 	
 find_or_add_required_accounts(S_Transactions, Accounts_In, Accounts_Out) :-
 /*fixme, accounts should be added one by one and id uniqueness checked against all the previously added accounts each time */
+
 	Missing_Stuff = [
 		/* needs to go into taxonomy */
 		account('CurrencyMovement', 			'Revenue', 					'Accounts'/'CurrencyMovement', 0),
 		account('ClearingAccount', 				'Equity', 				'Accounts'/'ClearingAccount', 0),
 
 		/* we can happily generate these for now and they can be added to / matched up with the taxonomy when needed */
+		account('accountHierarchy', 			'', '', 0),
 		account('Inventory', 					'accountHierarchy', 		'accountHierarchy'/'Inventory', 0),
 		account('LivestockCount', 				'Inventory', 				'Inventory'/'LivestockCount', 0),
 		account('AssetsLivestockAtCost', 		'NoncurrentAssets', 				'Accounts'/'AssetsLivestockAtCost', 0),

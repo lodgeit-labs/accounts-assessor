@@ -95,11 +95,8 @@ def call_rpc(msg, dev_runner_options=[], prolog_flags='true'):
 	try:
 		return json.loads(stdout_data)
 	except json.decoder.JSONDecodeError as e:
-		print(repr(e))
-		raise e
-		#raise(Exception(repr(e)))
-		#import IPython; IPython.embed()
-
+		print(e)
+		return {'status':'error'}
 
 
 def git(Suffix = ""):

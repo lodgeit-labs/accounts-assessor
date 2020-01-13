@@ -1,5 +1,6 @@
 #! /bin/sh
-test -f venv; then
+if [ -d venv ]
+then
 	exit 0
 fi
 python3 -m venv venv

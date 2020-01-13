@@ -139,18 +139,23 @@ check that each account has a parent. Together with checking that each generated
 this should ensure that the account balances we are getting with the new taxonomy is correct*/
 check_account_parent(Accounts, Account) :-
 	account_id(Account, Id),
-	account_parent(Account, Parent),
-	(
-		Parent == 'accountHierarchy'
-	->
-		true
-	;
-		(
-			account_exists(Accounts, Parent)
-		->
-			true
-		;
-			throw_string(['account "', Id, '" parent "', Parent, '" missing.'])
+	(	Id == 'accountHierarchy'
+	->	true
+	;	(
+			account_parent(Account, Parent),
+			(
+				Parent == 'accountHierarchy'
+			->
+				true
+			;
+				(
+					account_exists(Accounts, Parent)
+				->
+					true
+				;
+					throw_string(['account "', Id, '" parent "', Parent, '" missing.'])
+				)
+			)
 		)
 	).
 

@@ -2,7 +2,8 @@ gl_export(Sd, Processed_S_Transactions, Transactions0, Livestock_Transactions, R
 	/* Outputs list is lists of generated transactions, one list for each s_transaction */
 	append(Transactions0, [Livestock_Transactions], Results),
 	/* Sources list is all the s_transactions + livestock */
-	append(Processed_S_Transactions, ['livestock'], Sources),
+	append(['initial_GL'], Processed_S_Transactions, Sources0),
+	append(Sources0, ['livestock'], Sources),
 	running_balance_initialization,
 	maplist(make_gl_entry(Sd), Sources, Results, Report_Dict0),
 	round_term(2, Report_Dict0, Report_Dict).
