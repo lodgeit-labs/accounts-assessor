@@ -55,5 +55,6 @@
 :- [tables].
 :- [trading].
 :- [transactions].
+:- [vector_string].
 :- [xbrl_contexts].
 :- [xbrl_output].

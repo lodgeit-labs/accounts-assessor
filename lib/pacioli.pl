@@ -117,12 +117,14 @@ is_zero(Value) :-
 is_zero([X]) :-
 	is_zero(X).
 
-/*	
-is_zero_coord(coord(_, Zero1)) :-
-	{Zero1 =:= 0}.
-	non-cplq version for speed..*/
-is_zero_coord(coord(_, Zero1)) :-
-	Zero1 = 0 -> true ; Zero1 = 0.0.
+is_zero_number(Z) :-
+	var(Z), Z = 0.
+
+is_zero_number(Z) :-
+	atomic(Z),
+	Z =:= 0.
+
+is_zero_coord(coord(_, Zero1)) :- is_zero_number(Zero1).
 
 is_zero_value(value(_, Zero)) :-
 	is_zero_coord(coord(_, Zero)).
@@ -167,6 +169,10 @@ value_credit(value(Unit, Amount), coord(Unit, Zero, Amount)) :- unify_numbers(Ze
 
 coord_normal_side_value(coord(Unit, D), debit, value(Unit, D)).
 coord_normal_side_value(coord(Unit, D), credit, value(Unit, V)) :- {V = -D}.
+% refactor me
+coord_normal_side_value2(debit, coord(Unit, D), value(Unit, D)).
+coord_normal_side_value2(credit, coord(Unit, D), value(Unit, V)) :- {V = -D}.
+
 
 number_vec(_, Zero, []) :-
 	unify_numbers(Zero, 0).
@@ -249,6 +255,9 @@ vector_unit([coord(U, _)], U).
 
 value_debit_vec(Value, [Coord]) :-
 	coord_normal_side_value(Coord, debit, Value).
+
+value_debit_vec(value(_,Z), []) :-
+	is_zero_number(Z).
 
 value_credit_vec(Value, [Coord]) :-
 	coord_normal_side_value(Coord, credit, Value).

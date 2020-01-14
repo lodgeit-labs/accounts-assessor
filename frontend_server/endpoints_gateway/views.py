@@ -27,7 +27,9 @@ def upload(request):
 	params = QueryDict(mutable=True)
 	params.update(request.POST)
 	params.update(request.GET)
+	requested_output_format = params.get('requested_output_format', 'json_reports_list')
 	server_url = request._current_scheme_host
+	#import IPython; IPython.embed()
 	prolog_flags = """set_prolog_flag(services_server,'""" + settings.MY_SERVICES_SERVER_URL + """')"""
 
 	if request.method == 'POST':
@@ -48,7 +50,10 @@ def upload(request):
 				invoke_rpc_cmdline.call_rpc(msg, prolog_flags=prolog_flags)
 			except json.decoder.JSONDecodeError as e:
 				return HttpResponse(status=500)
-			return HttpResponseRedirect('/tmp/'+tmp_directory_name+'/response.json')
+			if requested_output_format == 'xml':
+				return HttpResponseRedirect('/tmp/' + tmp_directory_name + '/response.xml')
+			else:
+				return HttpResponseRedirect('/tmp/'+tmp_directory_name+'/response.json')
 	else:
 		form = ClientRequestForm()
 	return render(request, 'upload.html', {'form': form})

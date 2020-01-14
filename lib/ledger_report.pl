@@ -156,6 +156,7 @@ balance_sheet_entry(Static_Data, Account_Id, Entry) :-
 	balance_sheet_entry2(Static_Data_Simplified, Account_Id, Entry).
 
 :- table balance_sheet_entry2/3.
+
 balance_sheet_entry2(Static_Data, Account_Id, Entry) :-
 	% find all direct children sheet entries
 	findall(

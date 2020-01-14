@@ -1,0 +1,341 @@
+﻿@base <https://lodgeit.net.au/#>.
+@prefix ns1: <https://lodgeit.net.au/#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#>.
+
+:hirepurchase_calculator_sheets
+	# are multiple instances allowed in one workbook?
+	:is_multi true;
+	:sheets (
+		[
+			:name_prefix "HP";
+			:root :hp_calculator_query;
+			:example_doc
+			[
+				:begin_date [a :value; :value "2019-10-10T00:00:00.0"^^xsd:dateTime];
+				:hp_contract [
+					a :hp_contract;
+					:contract_number [a :value; :value "xxxx"];
+					:currency [a :value; :value "AUD"];
+					:cash_price [a :value; :value "321321.27"];
+					:interest_rate [a :value; :value "5"];
+					:number_of_installments [a :value; :value 30];
+					:hp_contract_has_payment_type [a :value; :value :hp_contract_payment_type_advance];
+					:hp_installments [:value rdf:nil]
+				]
+			]
+		]
+	).
+
+
+	
+:hp_calculator_query
+	#rdf:type :section; 
+	:position [:col "A"; :row "1"];
+	:title "Standalone Calculator Query Parameters";
+	:cardinality :single;
+	:class :hp_calculator_query;
+	:fields (
+		[:property :begin_date; :type xsd:dateTime; :comment "ignored for Investment Calculator"]
+		[:property :end_date; :type xsd:dateTime; :comment "ignored for Investment Calculator"]
+		[:property :hp_contract; :template :hp_contract]
+	).
+
+
+:hp_contract
+	#rdf:type :section;
+	:position [:col "A"; :row "5"];
+	:title "Hirepurchase Contract";
+	:cardinality :single;	
+	:class :hp_contract;
+	:fields (
+		[:property :contract_number]
+		[:property :currency]
+		[:property :cash_price; :type xsd:decimal]
+		[:property :interest_rate; :type xsd:decimal]
+		[:property :interest_period; :note "dunno what type here"]
+		[:property :repayment_period; :note "dunno what type here"]
+		[:property :number_of_installments; :type xsd:integer]
+		[:property :repayment_amount; :type xsd:decimal]
+		[:property :total_payments; :type xsd:integer]
+		[:property :total_interest; :type xsd:decimal]
+		[:property :repayment_balance; :type xsd:decimal]
+		[:property :hp_contract_has_payment_type; :type :uri]
+		[:property :hp_installments; :template :hp_installments]
+	).
+
+:hp_contract_has_payment_type rdfs:range :hp_contract_payment_type.
+
+:hp_contract_payment_type_advance 
+	a :hp_contract_payment_type;
+	rdfs:label "advance".
+
+:hp_installments
+	#a :section;
+	:position [:col "E"; :row "20"];
+	:title "Installments";
+	:cardinality :multi;
+	:class :hp_installment;
+	:fields (
+		[:property :installment_number; :type xsd:integer]
+		[:property :opening_date; :type xsd:dateTime;]
+		[:property :opening_balance; :type xsd:decimal]
+		[:property :interest_amount; :type xsd:decimal]
+		[:property :installment_amount; :type xsd:decimal]
+		[:property :closing_date; :type xsd:dateTime;]
+		[:property :closing_balance; :type xsd:decimal]
+		[:property :total_repayments_through_period; :type xsd:decimal]
+		[:property :total_interest_payments_through_period; :type xsd:decimal]
+	).
+
+
+
+
+
+
+:depreciation_calculator_sheets
+	:is_multi false;
+	:sheets 
+	(
+		[
+			:name_prefix "depreciation_queries";
+			:root :depreciation_queries;
+			:example_doc :depreciation_example_queries
+		]
+		[
+			:name_prefix "depreciation_events";
+			:root :depreciation_events;
+			:example_doc :depreciation_example_events
+		]
+		[
+			:name_prefix "depreciation_assets";
+			:root :depreciation_assets;
+			:example_doc :depreciation_example_assets
+		]
+	).
+
+:depreciation_example_queries :value (
+	[ a ns1:depreciation_query ;
+		ns1:depreciation_query_has_type [ a ns1:value ;
+				ns1:value ns1:depreciation_pool_from_start ] ;
+		ns1:depreciation_query_method [ a ns1:value ;
+				ns1:value "diminishing_value"^^xsd:string ] ;
+		ns1:depreciation_query_pool [ a ns1:value ;
+				ns1:value "general_pool"^^xsd:string ] ;
+		ns1:depreciation_query_to_date [ a ns1:value ;
+				ns1:value "2019-02-02T00:00:00"^^xsd:dateTime ] ] 
+	[ a ns1:depreciation_query ;
+		ns1:depreciation_query_asset_id [ a ns1:value ;
+				ns1:value "car456"^^xsd:string ] ;
+		ns1:depreciation_query_from_date [ a ns1:value ;
+				ns1:value "2017-06-01T00:00:00"^^xsd:dateTime ] ;
+		ns1:depreciation_query_has_type [ a ns1:value ;
+				ns1:value ns1:depreciation_between_two_dates ] ;
+		ns1:depreciation_query_method [ a ns1:value ;
+				ns1:value "diminishing_value"^^xsd:string ] ;
+		ns1:depreciation_query_to_date [ a ns1:value ;
+				ns1:value "2019-02-02T00:00:00"^^xsd:dateTime ] ]
+	[ a ns1:depreciation_query ;
+		ns1:depreciation_query_asset_id [ a ns1:value ;
+				ns1:value "car123"^^xsd:string ] ;
+		ns1:depreciation_query_has_type [ a ns1:value ;
+				ns1:value ns1:written_down_value ] ;
+		ns1:depreciation_query_method [ a ns1:value ;
+				ns1:value "diminishing_value"^^xsd:string ] ;
+		ns1:depreciation_query_written_down_date [ a ns1:value ;
+				ns1:value "2017-06-01T00:00:00"^^xsd:dateTime ] ]
+	[ a ns1:depreciation_query ;
+		ns1:depreciation_query_asset_id [ a ns1:value ;
+				ns1:value "car123"^^xsd:string ] ;
+		ns1:depreciation_query_has_type [ a ns1:value ;
+				ns1:value ns1:profit_and_loss ] ;
+		ns1:depreciation_query_method [ a ns1:value ;
+				ns1:value "diminishing_value"^^xsd:string ] ;
+		ns1:depreciation_query_termination_date [ a ns1:value ;
+				ns1:value "2019-07-07T00:00:00"^^xsd:dateTime ] ;
+		ns1:depreciation_query_termination_value [ a ns1:value ;
+				ns1:value 500 ] ]
+).
+									
+
+:depreciation_example_events :value (
+	[ a ns1:depreciation_event ;
+	ns1:depreciation_event_asset [ a ns1:value ;
+			ns1:value "car123"^^xsd:string ] ;
+	ns1:depreciation_event_date [ a ns1:value ;
+			ns1:value "2017-06-01T00:00:00"^^xsd:dateTime ] ;
+	ns1:depreciation_event_has_type [ a ns1:value ;
+			ns1:value ns1:transfer_asset_to_pool ] ;
+	ns1:depreciation_event_pool [ a ns1:value ;
+			ns1:value "general_pool"^^xsd:string ] ]
+	[ a ns1:depreciation_event ;
+	ns1:depreciation_event_asset [ a ns1:value ;
+			ns1:value "car456"^^xsd:string ] ;
+	ns1:depreciation_event_date [ a ns1:value ;
+			ns1:value "2017-08-01T00:00:00"^^xsd:dateTime ] ;
+	ns1:depreciation_event_has_type [ a ns1:value ;
+			ns1:value ns1:transfer_asset_to_pool ] ;
+	ns1:depreciation_event_pool [ a ns1:value ;
+			ns1:value "general_pool"^^xsd:string ] ]
+	[ a ns1:depreciation_event ;
+	ns1:depreciation_event_asset [ a ns1:value ;
+			ns1:value "car123"^^xsd:string ] ;
+	ns1:depreciation_event_date [ a ns1:value ;
+			ns1:value "2021-06-01T00:00:00"^^xsd:dateTime ] ;
+	ns1:depreciation_event_has_type [ a ns1:value ;
+			ns1:value ns1:asset_disposal ] ]
+	[ a ns1:depreciation_event ;
+	ns1:depreciation_event_asset [ a ns1:value ;
+			ns1:value "car456"^^xsd:string ] ;
+	ns1:depreciation_event_date [ a ns1:value ;
+			ns1:value "2020-07-31T00:00:00"^^xsd:dateTime ] ;
+	ns1:depreciation_event_has_type [ a ns1:value ;
+			ns1:value ns1:asset_disposal ] ]
+).
+
+:depreciation_example_assets :value (
+	[ a ns1:depreciation_asset ;
+	ns1:cost [ a ns1:value ;
+			ns1:value 1000 ] ;
+	ns1:effective_life_years [ a ns1:value ;
+			ns1:value 5 ] ;
+	ns1:id [ a ns1:value ;
+			ns1:value "car123"^^xsd:string ] ;
+	ns1:start_date [ a ns1:value ;
+			ns1:value "2017-05-01T00:00:00"^^xsd:dateTime ] ]
+	[ a ns1:depreciation_asset ;
+	ns1:cost [ a ns1:value ;
+			ns1:value 2000 ] ;
+	ns1:effective_life_years [ a ns1:value ;
+			ns1:value 8 ] ;
+	ns1:id [ a ns1:value ;
+			ns1:value "car456"^^xsd:string ] ;
+	ns1:start_date [ a ns1:value ;
+			ns1:value "2015-03-16T00:00:00"^^xsd:dateTime ] ]
+).
+									
+
+:depreciation_query_has_type rdfs:range :depreciation_query_type.
+
+:depreciation_pool_from_start 
+	a :depreciation_query_type.
+:depreciation_between_two_dates 
+	a :depreciation_query_type.
+:written_down_value 
+	a :depreciation_query_type.
+:profit_and_loss 
+	a :depreciation_query_type.
+
+
+:depreciation_event_has_type rdfs:range :depreciation_event_type.
+
+:transfer_asset_to_pool 
+	a :depreciation_event_type.
+:asset_disposal 
+	a :depreciation_event_type.
+
+
+
+:depreciation_queries
+	:title "depreciation_queries";	
+	:position [:col "A"; :row "1"];
+	:cardinality :multi;
+	:class :depreciation_query;
+	:fields (
+		[:property :depreciation_query_has_type; :type :uri]
+		[:property :depreciation_query_asset_id]
+		[:property :depreciation_query_pool]
+		[:property :depreciation_query_from_date; :type xsd:dateTime]
+		[:property :depreciation_query_to_date; :type xsd:dateTime]
+		[:property :depreciation_query_written_down_date; :type xsd:dateTime]
+		[:property :depreciation_query_method]
+		[:property :depreciation_query_termination_value; :type xsd:decimal]
+		[:property :depreciation_query_termination_date; :type xsd:dateTime]
+		[:property :depreciation_query_total_depreciation; :type xsd:decimal]
+		[:property :depreciation_query_depreciation_value; :type xsd:decimal]
+		[:property :depreciation_query_written_down_value; :type xsd:decimal]
+		[:property :depreciation_query_profit_and_loss; :type xsd:decimal]
+	).
+	
+	
+	
+:depreciation_events
+	:title "depreciation_events";
+	:position [:col "A"; :row "1"];
+	:cardinality :multi;
+	:class :depreciation_event;
+	:fields (
+		[:property :depreciation_event_has_type; :type :uri]
+		[:property :depreciation_event_asset]
+		[:property :depreciation_event_pool]
+		[:property :depreciation_event_date; :type xsd:dateTime]
+	).
+
+
+:depreciation_assets
+	:title "depreciation_assets";
+	:position [:col "A"; :row "1"];
+	:cardinality :multi;	
+	:class :depreciation_asset;
+	:fields (
+		[:property :id]
+		[:property :start_date; :type xsd:dateTime]
+		[:property :cost; :type xsd:decimal]
+		[:property :effective_life_years; :type xsd:integer]
+	).
+
+
+:gl_sheet
+	# are multiple instances allowed in one workbook?
+	:is_multi false;
+	:sheets (
+		[
+			:name_prefix "GL_input";
+			:root :gl;
+			:example_doc
+				[	:default_currency [:value "AUD"];
+					:items [:value (
+						[
+							:date [:value "2019-10-10T00:00:00.000000"^^xsd:dateTime];
+							:account [:value "Assets"];
+							:debit [:value "USD 500"]
+						]
+						[
+							:date [:value "2019-10-10T00:00:00.000000"^^xsd:dateTime];
+							:account [:value "Revenue"];
+							:credit [:value "600"]
+						]
+						[
+							:date [:value "2019-10-10T00:00:00.000000"^^xsd:dateTime];
+							:account [:value "CurrencyMovement"];
+							:debit [:value "600 AUD"];
+							:credit [:value "500 USD"]
+						]
+					)]
+				]
+		]
+	).
+	
+:gl
+	:position [:col "A"; :row "1"];
+	:title "GL input";
+	:cardinality :single;
+	:class :gl;
+	:fields (
+		[:property :default_currency; :type xsd:string]
+		[:property :items; :template :gl_entries_template]
+	).
+
+:gl_entries_template
+	:position [:col "A"; :row "4"];
+	:title "entries";
+	:cardinality :multi;
+	:class :gl_entry;
+	:fields (
+		[:property :date; :type xsd:dateTime]
+		[:property :account; :type xsd:string]
+		[:property :description; :type xsd:string]
+		[:property :debit; :type xsd:string]
+		[:property :credit; :type xsd:string]
+	).

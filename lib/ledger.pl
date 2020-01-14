@@ -15,7 +15,8 @@ find_s_transactions_in_period(S_Transactions, Opening_Date, Closing_Date, Out) :
 	).
 
 process_ledger(
-	Cost_Or_Market, 
+	Cost_Or_Market,
+	Initial_Txs,
 	S_Transactions0,
 	Start_Date,
 	End_Date, 
@@ -48,7 +49,8 @@ process_ledger(
 
 	dict_from_vars(Static_Data0, [Accounts, Report_Currency, Start_Date, End_Date, Exchange_Rates, Cost_Or_Market]),
 	prepreprocess(Static_Data0, S_Transactions, Prepreprocessed_S_Transactions),
-	preprocess_until_error(Static_Data0, Prepreprocessed_S_Transactions, Processed_S_Transactions, Transactions0, Outstanding_Out, Transaction_Transformation_Debug, End_Date, Processed_Until),
+	preprocess_until_error(Static_Data0, Prepreprocessed_S_Transactions, Processed_S_Transactions, Transactions_From_Bst, Outstanding_Out, Transaction_Transformation_Debug, End_Date, Processed_Until),
+	append([Initial_Txs], Transactions_From_Bst, Transactions0),
 	flatten(Transactions0, Transactions1),
 
 	process_livestock((Processed_S_Transactions, Transactions1), Livestock_Transactions),
@@ -73,7 +75,7 @@ process_ledger(
 		Static_Data2, 
 		Processed_S_Transactions, 
 		/* list of lists */
-		Transactions0, 
+		Transactions0,
 		Livestock_Transactions,
 		/* output */
 		Gl),

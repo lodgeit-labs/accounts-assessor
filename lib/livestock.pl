@@ -80,8 +80,7 @@ process_livestock(Info, Livestock_Transactions) :-
 			livestock_data(L),
 			(	process_livestock2(Info, L, Txs)
 			->	true
-			;	(/*gtrace,*/throw_string('process_livestock2 failed'))
-			)
+			;	(gtrace/*,throw_string('process_livestock2 failed')*/))
 		),
 		Txs_List
 	),
