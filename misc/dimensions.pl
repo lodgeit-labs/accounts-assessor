@@ -1,4 +1,8 @@
 :- use_module(library(clpq)).
+
+:-  op(  1,  fx,   [ * ]).
+
+'*'(_).
 /*
 Operations:
  +, -
@@ -421,6 +425,14 @@ dim_solve_formula((V, U), Current_Basis, New_Basis, V_Reduced, Current_Inputs, N
 
 
 
+debug(X, N) :-
+	((
+		N =< 0
+	) -> ( 
+		call(X)
+	) ; (
+		true
+	)).
 
 /*
 Chase
@@ -474,6 +486,7 @@ chase_rules(Facts, Rules, New_Facts, Depth, N, Max_Depth) :-
 chase_round(Facts, [], Facts).
 chase_round(Facts, [Rule | Rules], New_Facts) :-
 	chase_rule(Facts, Rule, Heads_Nested),
+
 	flatten(Heads_Nested, Heads),
 	%chase_head_facts(Heads, Head_Facts),
 	%chase_head_constraints(Heads, Head_Constraints),
@@ -497,65 +510,73 @@ chase_head_constraints([Head|Heads], Constraints) :- Head = fact(_,_,_), chase_h
 
 chase_apply_constraints([]).
 chase_apply_constraints([Constraint | Rest]) :- 
-	format("Applying constraint: ~w~n", [Constraint]),
 	{Constraint},
-	format("Constraint after applied: ~w~n", [Constraint]),
 	chase_apply_constraints(Rest).
 
 % match the rule against the fact-set treating distinct variables in the fact-set as distinct fresh constants
 % when asserting the head constraints, treat any variables bound from the fact-set as actual variables
 chase_rule(Facts, Rule, Heads) :-
+	debug((
+		format("chase_rule: ~w~n", [Rule])
+	), 1),
 	Rule = (_ :- Body),
 	chase_rule_helper2(Facts, Rule, Body, Facts, [], [], Heads).
 
 % if we match all the body items, succeed
 chase_rule_helper2(_, Rule, [], _, Current_Subs, Current_Heads, [New_Head | Current_Heads]) :-
+	debug((
+		format("chase_rule_helper2: done~n", [])
+	), 2),
 	Rule = (Head :- _),
-
 	%existential vars will be fresh; universal vars will be bound with the same bindings as found in the body
-	copy_facts_with_subs2(Head, Current_Subs, New_Head, _).
+	copy_facts_with_subs2(Head, Current_Subs, New_Head, _),
+	debug((
+		format("after copy facts...~n", [])
+	),4).
 
 
 % we've tried one body item against all the facts
-chase_rule_helper2(_, _, _, [], _, Current_Heads, Current_Heads) :-
-	format("chase_rule_helper2: done", []).
+chase_rule_helper2(_, _, [Body_Item | _], [], _, Current_Heads, Current_Heads) :-
+	debug((
+		format("chase_rule_helper2: body item = ~w ; no more facts~n", [Body_Item])
+	), 3).
 
 % still more facts, still more body items
 chase_rule_helper2(Facts, Rule, [Body_Item|Rest], [Fact | Rest_Facts], Current_Subs, Current_Heads, New_Heads) :-
-	%format("rule: ~w~nbody item: ~w~nfact: ~w~nsubs: ~w~n",[Rule, Body_Item, Fact, Current_Subs]),
-	%copy_with_subs(Body_Item, Vars, Current_Subs, BI_Copy, New_Subs),
-	%format("body item (with vars): ~w~n", [BI_Copy]),
 	Body_Item = fact(_,_,_),
-	!,
-	format("chase_rule_helper2: ~w~n", [Body_Item]), 
-	(	
-		(
-			match_fact(Body_Item, Fact, Current_Subs, New_Subs)
-		)
-	-> 	(
-			% body item match, recurse over rest of body
-			%append(Current_Matches, [Fact], Next_Matches),
-			chase_rule_helper2(Facts, Rule, Rest, Facts, New_Subs, Current_Heads, Next_Heads)
-		)
-	; 	(
-			% no match, no updates
-			Next_Heads = Current_Heads
-		)
-	),
+	debug((
+		format("chase_rule_helper2 (fact) : body item = ~w ; fact = ~w~n", [Body_Item, Fact])
+	), 2),
+	((
+		match_fact(Body_Item, Fact, Current_Subs, New_Subs)
+	) -> (
+		% body item match, recurse over rest of body
+		debug((
+			format("match: ~w~n", [Rest])
+		), 3),
+		chase_rule_helper2(Facts, Rule, Rest, Facts, New_Subs, Current_Heads, Next_Heads)
+	) ; (
+		% no match, no updates
+		debug((
+			format("no match~n", [])
+		), 3),
+		Next_Heads = Current_Heads
+	)),
+	debug((
+		format("...~n", [])
+	), 3),
 	% recurse over rest of facts, repeating the same body item
 	chase_rule_helper2(Facts, Rule, [Body_Item|Rest], Rest_Facts, Current_Subs, Next_Heads, New_Heads).
 
-
 chase_rule_helper2(Facts, Rule, [Body_Item|Rest], _, Current_Subs, Current_Heads, New_Heads) :-
-	format("chase_rule_helper2: ~w~n", [Body_Item]),
 	Body_Item \= fact(_,_,_),
-	(
+	((
 		check_body_constraint(Body_Item, Current_Subs, New_Subs)
 	) -> (
 		chase_rule_helper2(Facts, Rule, Rest, Facts, New_Subs, Current_Heads, New_Heads)
 	) ; (
 		New_Heads = Current_Heads
-	).
+	)).
 
 /*
 matching between bodies and fact-set
@@ -578,32 +599,33 @@ match_arg(BI_Arg, Fact_Arg, Subs, Subs) :-
 
 match_arg(BI_Arg, Fact_Arg, Current_Subs, New_Subs) :-
 	var(BI_Arg),
-	(	get_sub(BI_Arg, Current_Subs, Sub)
-	-> 	(
-			Sub == Fact_Arg,
-			New_Subs = Current_Subs
-		)
-	;	(
-			New_Subs = [BI_Arg:Fact_Arg | Current_Subs]
-		)
-	).
+	((
+		get_sub(BI_Arg, Current_Subs, Sub)
+	) -> (
+		Sub == Fact_Arg,
+		New_Subs = Current_Subs
+	) ;	(
+		New_Subs = [BI_Arg:Fact_Arg | Current_Subs]
+	)).
 
 get_sub(X, [(Y:S) | Subs], Sub) :-
-	(
+	((
 		X == Y
 	) -> (
 		Sub = S
 	) ; (
 		get_sub(X, Subs, Sub)
-	).
+	)).
 
 % we know we don't have to apply any new subs because we only
 % succeed if the constraint is a ground term, but we need to be checking
 % for ground and applying the constraints after substituting w/ the
 % current subs
 check_body_constraint(Constraint, Subs, Subs) :-
+	debug((
+		format("Check body constraint: ~w~n", [Constraint])
+	), 3),
 	copy_fact_with_subs2(Constraint, Subs, New_Constraint, _),
-	format("~w~n", [New_Constraint]),
 	ground(New_Constraint),
 	{New_Constraint}.
 
@@ -642,7 +664,7 @@ B = arg from fact
 */
 fact_match_arg(A, B, Current_Subs, New_Subs) :-
 	var(A),
-	(
+	((
 		% find existing substitution
 		get_sub(A, Current_Subs, Sub)
 	) -> (
@@ -654,7 +676,7 @@ fact_match_arg(A, B, Current_Subs, New_Subs) :-
 		var(B),
 		% create new substitution
 		New_Subs = [A:B | Current_Subs]
-	).
+	)).
 
 fact_match_arg(A, B, Subs, Subs) :-
 	nonvar(A),
@@ -662,15 +684,26 @@ fact_match_arg(A, B, Subs, Subs) :-
 
 
 
-copy_facts_with_subs2([], Subs, [], Subs).
+copy_facts_with_subs2([], Subs, [], Subs) :-
+	debug((
+		format("copy_facts_with_subs2: done~n",[])
+	), 5).
+
 copy_facts_with_subs2([Fact | Facts], Subs, [New_Fact | New_Facts], New_Subs) :-
 	Fact = fact(_,_,_),
+	debug((
+		format("copy_facts_with_subs2: [~w | ~w ]~n",[Fact,Facts])
+	),5),
+
 	copy_fact_with_subs2(Fact, Subs, New_Fact, Next_Subs),
 	copy_facts_with_subs2(Facts, Next_Subs, New_Facts, New_Subs).
 
 % my next problem is making these equality/constraint assertions robust against when you feed an atom through it
 copy_facts_with_subs2([Constraint | Facts], Subs, New_Facts, New_Subs) :-
 	Constraint = (_ = _),
+	debug((
+		format("copy_facts_with_subs2: [~w | ~w]~n",[Constraint, Facts])
+	), 5),
 	copy_fact_with_subs2(Constraint, Subs, New_Constraint, Next_Subs),
 	New_Constraint = (LHS = RHS),
 	LHS = RHS,
@@ -679,18 +712,33 @@ copy_facts_with_subs2([Constraint | Facts], Subs, New_Facts, New_Subs) :-
 copy_facts_with_subs2([Constraint | Facts], Subs, New_Facts, New_Subs) :-
 	Constraint \= fact(_,_,_),
 	Constraint \= (_ = _),
+	debug((
+		format("copy_facts_with_subs2: [~w | ~w]~n",[Constraint, Facts])
+	), 5),
 	copy_fact_with_subs2(Constraint, Subs, New_Constraint, Next_Subs),
-	{New_Constraint},
+	((
+		{New_Constraint}
+	) -> (
+		true
+	) ; (
+		format("Inconsistency error: ~w~n", [New_Constraint])
+	)),
 	copy_facts_with_subs2(Facts, Next_Subs, New_Facts, New_Subs).
 
 copy_fact_with_subs2(Fact, Subs, New_Fact, New_Subs) :-
+	debug((
+		format("copy_fact_with_subs2: ~w~n", [Fact])
+	), 6),
 	Fact =.. [F | Args],
 	copy_args_with_subs2(Args, Subs, New_Args, New_Subs),
-	New_Fact =.. [F | New_Args].
+	New_Fact =.. [F | New_Args],
+	debug((
+		format("copy_fact_with_subs2 (done): ~w~n", [New_Fact])
+	), 6).
 
 copy_args_with_subs2([], Subs, [], Subs).
 copy_args_with_subs2([Arg | Args], Subs, [New_Arg | New_Args], New_Subs) :-
-	(
+	((
 		var(Arg)
 	) -> (
 		copy_arg_with_subs2(Arg, Subs, New_Arg, Next_Subs),
@@ -698,7 +746,7 @@ copy_args_with_subs2([Arg | Args], Subs, [New_Arg | New_Args], New_Subs) :-
 	) ; (
 		copy_fact_with_subs2(Arg, Subs, New_Arg, Next_Subs),
 		copy_args_with_subs2(Args, Next_Subs, New_Args, New_Subs)
-	).
+	)).
 
 copy_arg_with_subs2(Arg, Subs, Arg, Subs) :- nonvar(Arg).
 copy_arg_with_subs2(Arg, Subs, New_Arg, Subs) :- var(Arg), get_sub(Arg, Subs, New_Arg).
@@ -1038,7 +1086,7 @@ list_theory([
 	% every list item has an index
 	([fact(Item, list_index, _)] :- [fact(L, a, list), fact(Item, list_in, L)]),
 	% a list item can only have one index
-	([I1 = I2] :- [fact(L, a, list), fact(X, list_in, L), fact(X, list_index, I1), fact(X, list_index, I2)]),
+	([I1 =:= I2] :- [fact(L, a, list), fact(X, list_in, L), fact(X, list_index, I1), fact(X, list_index, I2)]),
 	% there can only be one list item at any given index
 	([X1 = X2] :- [fact(L, a, list), fact(X1, list_in, L), fact(X1, list_index, I), fact(X2, list_in, L), fact(X2, list_index, I)]),
 
@@ -1064,7 +1112,7 @@ list_theory([
 	% every list has a length; a list can only have one length; if there's a last element, then the length of the
 	% list is the index (starting from 1) of the last element
 	([fact(L, length, N)] :- [fact(L, a, list)]),
-	([L1 = L2] :- [fact(L, a, list), fact(L, length, L1), fact(L, length, L2)]),
+	([L1 =:= L2] :- [fact(L, a, list), fact(L, length, L1), fact(L, length, L2)]),
 
 	([fact(L, length, N)] :- [fact(L, a, list), fact(L, last, Last), fact(Last, list_index, N)]),
 
@@ -1076,8 +1124,8 @@ list_theory([
 	([fact(L, a, list), fact(X, list_in, L), fact(Y, list_in, L)] :- [fact(X, next, Y)]),
 	
 
-	([fact(Y, list_index, N), (N = (M + 1))] :- [fact(L, a, list), fact(X, list_in, L), fact(X, next, Y), fact(X, list_index, M)]),
-	([fact(X, list_index, M), (N = (M + 1))] :- [fact(L, a, list), fact(Y, list_in, L), fact(Y, prev, X), fact(Y, list_index, N)])
+	([fact(Y, list_index, N), (N =:= (M + 1))] :- [fact(L, a, list), fact(X, list_in, L), fact(X, next, Y), fact(X, list_index, M)]),
+	([fact(X, list_index, M), (N =:= (M + 1))] :- [fact(L, a, list), fact(Y, list_in, L), fact(Y, prev, X), fact(Y, list_index, N)])
 
 	% if a list item is not the first element (equivalently if it's index is greater than 1), then there's a previous element
 	% if a list item is not the last element (equivalently if its index is less than the lenght of the list), then there's a next element
@@ -1087,6 +1135,12 @@ list_theory([
 relation_theory([
 	([fact(O, A, _)] :- [fact(R, a, relation), fact(O, a, R), fact(R, attribute, A)]),
 	([(X = Y)] :- [fact(O, a, R), fact(R, attribute, A), fact(O, A, X), fact(O, A, Y)])
+]).
+
+nat_theory([
+	fact(0, a, nat),
+	([fact(X, suc, SX), fact(SX, a, nat)] :- [fact(X, a, nat)]),
+	([Y = Z] :- [fact(X, a, nat), fact(X, suc, Y), fact(X, suc, Z)])
 ]).
 
 /*
@@ -1202,6 +1256,7 @@ relation_test1([
 
 	([(Interest_Rate =:= Installment_Rate)] :- [fact(HP, a, hp_arrangement), fact(Installment, hp_arrangement, HP), fact(HP, interest_rate, Interest_Rate), fact(Installment, interest_rate, Installment_Rate)]),
 
+	([fact(Installment, next, Next), fact(Next, a, hp_installment), fact(Next, hp_arrangement, HP), fact(Next, payment_type, regular)] :- [fact(HP, a, hp_arrangement), fact(HP, repayment_amount, R), fact(Installment, a, hp_installment), fact(Installment, hp_arrangement, HP), fact(Installment, closing_balance, C), (C >= R)]),
 
 
 	fact(hp1, a, hp_arrangement),
@@ -1215,8 +1270,7 @@ relation_test1([
 	fact(in1, a, hp_installment),
 	fact(in1, hp_arrangement, hp1),
 	fact(in1, opening_balance, 100),
-	fact(in1, payment_type, regular),
-	fact(Installment, next, _)
+	fact(in1, payment_type, regular)
 ]).
 
 body_constraints_test1([
