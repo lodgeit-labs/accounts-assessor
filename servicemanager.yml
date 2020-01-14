@@ -5,7 +5,7 @@ config8:
    services:   
       - name: internal_services
         exec: ./run.sh
-        args: "88"
+        args: "80"
         dir: ./internal_services
 #      - name: frontend_server
 #        exec: ./run.sh
