@@ -59,7 +59,8 @@ fetch_exchange_rates(Date, Exchange_Rates) :-
 	findall(
 		Currency_Lowercase = Rate,
 		(
-			member(Currency_Uppercase = Rate, Exchange_Rates_Uppercase),
+			member(Currency_Uppercase = Rate0, Exchange_Rates_Uppercase),
+			Rate is rationalize(Rate0),
 			upcase_atom(Currency_Uppercase, Currency_Lowercase)
 		),
 		Exchange_Rates
@@ -88,7 +89,7 @@ special_exchange_rate(Table, Day, Src_Currency, Report_Currency, Rate) :-
 	exchange_rate2(Table, Day, 
 		Purchase_Currency, Report_Currency, New_Rate),
 	exchange_rate2(Table, Day, Goods_Unit, Report_Currency, Current),
-	Rate = Current / New_Rate * Old_Rate.
+	{Rate = Current / New_Rate * Old_Rate}.
 
 /* obtain the Report_Currency value using the with_cost_per_unit data */
 special_exchange_rate(_Table, _Day, Src_Currency, Report_Currency, Rate) :-
@@ -103,7 +104,7 @@ extracted_exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate) 
 extracted_exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate) :-
   member(exchange_rate(Day, Dest_Currency, Src_Currency, Inverted_Exchange_Rate), Table),
   Inverted_Exchange_Rate =\= 0,
-  Exchange_Rate = 1 / Inverted_Exchange_Rate.
+  {Exchange_Rate = 1 / Inverted_Exchange_Rate}.
 
 % Obtains the exchange rate from Src_Currency to Dest_Currency on the day Day using the
 % exchange_rates predicate. Given the fetched table, this predicate works in any direction between any two currencies
@@ -150,7 +151,7 @@ chained_exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate, Le
 	Int_Currency \= Src_Currency,
 	New_Length is Length - 1,
 	chained_exchange_rate(Table, Day, Int_Currency, Dest_Currency, Tail_Exchange_Rate, New_Length),
-	Exchange_Rate = Head_Exchange_Rate * Tail_Exchange_Rate.
+	{Exchange_Rate = Head_Exchange_Rate * Tail_Exchange_Rate}.
 
 /* cant take historical eachange rate and chain it with a nonhistorical one*/
 without_movement_after(Table, Exchange_Date, Src, Dst, Rate) :-
@@ -202,7 +203,7 @@ force_rates_into_float(Day, Src_Currency, Best_Rates, Exchange_Rates_Full) :-
 		(
 			member((Dest_Currency,Exchange_Rate_Raw), Best_Rates),
 			% force everything into float
-			Exchange_Rate is 0.0 + Exchange_Rate_Raw
+			Exchange_Rate is rationalize(Exchange_Rate_Raw)
 		),
 		Exchange_Rates_Full
 	).

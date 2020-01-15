@@ -276,11 +276,11 @@ investment_report_2_unrealized(Static_Data, Investment, Row) :-
 	optional_currency_conversion(Exchange_Rates, End_Date, Investment_Currency, Report_Currency, Closing_Currency_Conversion),
 	exchange_rate_throw(Exchange_Rates, End_Date, Unit, Investment_Currency, Closing_Unit_Price_Foreign_Amount),
 	Closing_Unit_Price_Foreign = value(Investment_Currency, Closing_Unit_Price_Foreign_Amount),
-	Investment_Currency_Current_Market_Value_Amount is Count * Closing_Unit_Price_Foreign_Amount,
+	{Investment_Currency_Current_Market_Value_Amount = Count * Closing_Unit_Price_Foreign_Amount},
 	Investment_Currency_Current_Market_Value = value(Investment_Currency, Investment_Currency_Current_Market_Value_Amount),
 	[Report_Currency_Unit] = Report_Currency,
 	exchange_rate_throw(Exchange_Rates, End_Date, Unit, Report_Currency_Unit, Closing_Unit_Price_Converted_Amount),
-	Current_Market_Value_Amount is Count * Closing_Unit_Price_Converted_Amount,
+	{Current_Market_Value_Amount = Count * Closing_Unit_Price_Converted_Amount},
 	Current_Market_Value = value(Report_Currency_Unit, Current_Market_Value_Amount),
 
 	optional_converted_value(Closing_Unit_Price_Foreign, Closing_Currency_Conversion, Closing_Unit_Price_Converted),
@@ -397,7 +397,7 @@ ir2_forex_gain(Exchange_Rates, Opening_Date, End_Price, End_Date, Investment_Cur
 				Forex_Gain_Vec
 			),
 			number_vec(Report_Currency_Unit, Forex_Gain_Amount, Forex_Gain_Vec),
-			Forex_Gain_Amount_Total is Forex_Gain_Amount * Count,
+			{Forex_Gain_Amount_Total = Forex_Gain_Amount * Count},
 			Gain = value(Report_Currency_Unit, Forex_Gain_Amount_Total)
 		)
 	;
@@ -410,7 +410,7 @@ ir2_market_gain(Exchange_Rates, Opening_Date, End_Date, Investment_Currency, Rep
 	Market_Price_Without_Movement_Unit = without_currency_movement_against_since(
 		Investment_Currency, Investment_Currency, Report_Currency, Opening_Date),
 	exchange_rate_throw(Exchange_Rates, End_Date, Market_Price_Without_Movement_Unit, Report_Currency_Unit, End_Market_Price_Rate),
-	End_Market_Price_Amount_Converted is End_Unit_Price_Amount * End_Market_Price_Rate,
+	{End_Market_Price_Amount_Converted = End_Unit_Price_Amount * End_Market_Price_Rate},
 	End_Market_Unit_Price_Converted = value(Report_Currency_Unit, End_Market_Price_Amount_Converted),
 
 	value_multiply(End_Market_Unit_Price_Converted, Count, End_Total_Price_Converted),

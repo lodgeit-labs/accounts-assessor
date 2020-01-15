@@ -4,6 +4,32 @@ process_request_ledger(File_Path, Dom) :-
 	validate_xml2(File_Path, 'bases/Reports.xsd'),
 
 	extract_start_and_end_date(Dom, Start_Date, End_Date, Start_Date_Atom),
+    extract_s_transactions(Dom, Start_Date_Atom, S_Transactions0),
+	%process_request_ledger2((Dom, Start_Date, End_Date), S_Transactions0, _).
+	process_request_ledger_debug((Dom, Start_Date, End_Date), S_Transactions0).
+
+process_request_ledger_debug(Data, S_Transactions0) :-
+	findall(
+		Count,
+		ggg(Data, S_Transactions0, Count),
+		Counts),
+	writeq(Counts).
+
+ggg(Data, S_Transactions0, Count) :-
+	between(0, $>length(S_Transactions0), Count),
+	take(S_Transactions0, Count, STs),
+	format(user_error, '~q: ~q ~n ~n', [Count, $>last(STs)]),
+	once(process_request_ledger2(Data, STs, Structured_Reports)),
+	length(Structured_Reports.crosschecks.errors, L),
+	(	L < 2
+	->	true
+	;	(gtrace,format(user_error, '~q: ~q ~n', [Count, Structured_Reports.crosschecks.errors]))).
+
+
+take(Src, N, L) :-
+   when(ground(N+Src), findall(E, (nth1(I,Src,E), I =< N), L)).
+
+process_request_ledger2((Dom, Start_Date, End_Date), S_Transactions0, Structured_Reports) :-
 	extract_output_dimensional_facts(Dom, Output_Dimensional_Facts),
 	extract_cost_or_market(Dom, Cost_Or_Market),
 	extract_default_currency(Dom, Default_Currency),
@@ -15,7 +41,6 @@ process_request_ledger(File_Path, Dom) :-
 	extract_exchange_rates(Dom, Start_Date, End_Date, Default_Currency, Exchange_Rates),
 	/* Start_Date_Atom in case of missing Date */
 	extract_bank_accounts(Dom),
-    extract_s_transactions(Dom, Start_Date_Atom, S_Transactions0),
 	extract_invoices_payable(Dom),
 	extract_initial_gl(Initial_Txs),
     extract_bank_opening_balances(Bank_Lump_STs),
@@ -45,15 +70,15 @@ process_request_ledger(File_Path, Dom) :-
 		,exchange_date=Processed_Until_Date
 	]),
 
-	create_reports(Static_Data1).
+	create_reports(Static_Data1, Structured_Reports).
 
-create_reports(Static_Data) :-
+create_reports(Static_Data, Structured_Reports) :-
 	static_data_historical(Static_Data, Static_Data_Historical),
 	balance_entries(Static_Data, Static_Data_Historical, Entries),
 	dict_vars(Entries, [Balance_Sheet, ProfitAndLoss, Balance_Sheet2_Historical, ProfitAndLoss2_Historical, Trial_Balance]),
 	taxonomy_url_base,
 	create_instance(Xbrl, Static_Data, Static_Data.start_date, Static_Data.end_date, Static_Data.accounts, Static_Data.report_currency, Balance_Sheet, ProfitAndLoss, ProfitAndLoss2_Historical, Trial_Balance),
-	other_reports(Static_Data, Static_Data_Historical, Static_Data.outstanding, Balance_Sheet, ProfitAndLoss, Balance_Sheet2_Historical, ProfitAndLoss2_Historical, Trial_Balance),
+	other_reports(Static_Data, Static_Data_Historical, Static_Data.outstanding, Balance_Sheet, ProfitAndLoss, Balance_Sheet2_Historical, ProfitAndLoss2_Historical, Trial_Balance, Structured_Reports),
 	add_xml_report(xbrl_instance, xbrl_instance, [Xbrl]).
 
 balance_entries(Static_Data, Static_Data_Historical, Entries) :-
@@ -76,7 +101,7 @@ static_data_historical(Static_Data, Static_Data_Historical) :-
 		exchange_date, Static_Data.start_date).
 
 
-other_reports(Static_Data, Static_Data_Historical, Outstanding, Balance_Sheet, ProfitAndLoss, Balance_Sheet2_Historical, ProfitAndLoss2_Historical, Trial_Balance) :-
+other_reports(Static_Data, Static_Data_Historical, Outstanding, Balance_Sheet, ProfitAndLoss, Balance_Sheet2_Historical, ProfitAndLoss2_Historical, Trial_Balance, Structured_Reports) :-
 	investment_reports(Static_Data, Outstanding, Investment_Report_Info),
 	bs_page(Static_Data, Balance_Sheet),
 	pl_page(Static_Data, ProfitAndLoss, ''),
@@ -84,7 +109,7 @@ other_reports(Static_Data, Static_Data_Historical, Outstanding, Balance_Sheet, P
 	make_json_report(Static_Data.gl, general_ledger_json),
 	make_gl_viewer_report,
 
-	Structured_Reports = _{
+	Structured_Reports0 = _{
 		pl: _{
 			current: ProfitAndLoss,
 			historical: ProfitAndLoss2_Historical
@@ -96,8 +121,9 @@ other_reports(Static_Data, Static_Data_Historical, Outstanding, Balance_Sheet, P
 		},
 		tb: Trial_Balance
 	},
-	crosschecks_report0(Static_Data.put(reports, Structured_Reports), Crosschecks_Report_Json),
-	make_json_report(Structured_Reports.put(crosschecks, Crosschecks_Report_Json), reports_json).
+	crosschecks_report0(Static_Data.put(reports, Structured_Reports0), Crosschecks_Report_Json),
+	Structured_Reports = Structured_Reports0.put(crosschecks, Crosschecks_Report_Json),
+	make_json_report(Structured_Reports, reports_json).
 
 make_gl_viewer_report :-
 	Viewer_Dir = 'general_ledger_viewer',
@@ -105,6 +131,7 @@ make_gl_viewer_report :-
 	report_file_path(loc(file_name, Viewer_Dir), loc(absolute_url, Dir_Url), loc(absolute_path, Dst)),
 	atomic_list_concat(['ln -s ', Src, ' ', Dst], Cmd),
 	%atomic_list_concat(['cp -r ', Src, ' ', Dst], Cmd),
+	gtrace,
 	shell(Cmd),
 	atomic_list_concat([Dir_Url, '/gl.html'], Full_Url),
 	report_entry('GL viewer', loc(absolute_url, Full_Url), 'gl_html').

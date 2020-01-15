@@ -168,10 +168,12 @@ dr_cr_coord(Unit, Zero, Credit, coord(Unit, Number)) :- {Number < 0, Zero = 0, C
 value_credit(value(Unit, Amount), coord(Unit, Zero, Amount)) :- unify_numbers(Zero, 0).*/
 
 coord_normal_side_value(coord(Unit, D), debit, value(Unit, D)).
-coord_normal_side_value(coord(Unit, D), credit, value(Unit, V)) :- {V = -D}.
+coord_normal_side_value(coord(Unit, D), credit, value(Unit, V)) :-
+	{V = -D}.
 % refactor me
 coord_normal_side_value2(debit, coord(Unit, D), value(Unit, D)).
-coord_normal_side_value2(credit, coord(Unit, D), value(Unit, V)) :- {V = -D}.
+coord_normal_side_value2(credit, coord(Unit, D), value(Unit, V)) :-
+	{V = -D}.
 
 
 number_vec(_, Zero, []) :-
@@ -187,7 +189,7 @@ credit_vec(Unit, Credit, [Coord]) :-
 
 credit_isomorphism(Coord, C) :- 
 	number_coord(_, D, Coord),
-	C is -D.
+	{C = -D}.
 
 debit_isomorphism(Coord, C) :- 
 	number_coord(_, C, Coord).
@@ -200,29 +202,29 @@ coord_or_value_of_same_unit(A, B) :-
 	value_unit(B, A_Unit).
 
 coord_merge(coord(Unit, D1), coord(Unit, D2), coord(Unit, D3)) :-
-	D3 is D2 + D1.
+	{D3 = D2 + D1}.
 	
 coord_merge(value(Unit, D1), value(Unit, D2), value(Unit, D3)) :-
-	D3 is D2 + D1.
+	{D3 = D2 + D1}.
 
 value_convert(value(Unit, Amount1), exchange_rate(_,Src,Dst,Rate), value(Unit2, Amount2)) :-
 	assertion(Unit = Src),
 	assertion(Unit2 = Dst),
 	Unit2 = Dst,
-	Amount2 is Amount1 * Rate.
+	{Amount2 = Amount1 * Rate}.
 	
 value_multiply(value(Unit, Amount1), Multiplier, value(Unit, Amount2)) :-
-	Amount2 is Amount1 * Multiplier.
+	{Amount2 = Amount1 * Multiplier}.
 
 value_divide(value(Unit, Amount1), Divisor, value(Unit, Amount2)) :-
-	Amount2 is Amount1 / Divisor.
+	{Amount2 = Amount1 / Divisor}.
 
 value_divide2(value(U1, A1), value(U2, A2), exchange_rate(xxx, U2, U1, Rate)) :-
 	{A1 / A2 = Rate}.
 
 value_subtract(value(Unit1, Amount1), value(Unit2, Amount2), value(Unit2, Amount3)) :-
 	assertion(Unit1 == Unit2),
-	Amount3 is Amount1 - Amount2.
+	{Amount3 = Amount1 - Amount2}.
 	
 vecs_are_almost_equal(A, B) :-
 	vec_sub(A, B, C),
@@ -245,8 +247,8 @@ split_vector_by_percent(V0, Rate, V1, V2) :-
 
 split_coord_by_percent(Rate, H0, H1, H2) :-
 	H0 = coord(U, D0),
-	D1 is D0 * Rate / 100,
-	D2 is D0 - D1,
+	{D1 = D0 * Rate / 100},
+	{D2 = D0 - D1},
 	H1 = coord(U, D1),
 	H2 = coord(U, D2).
 

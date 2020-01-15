@@ -178,7 +178,7 @@ extract_s_transaction2(Tx_Dom, Account_Currency, Account, Start_Date, ST) :-
 		)
 	),
 	parse_date(Date_Atom, Date),
-	Dr is Bank_Debit - Bank_Credit,
+	Dr is rationalize(Bank_Debit - Bank_Credit),
 	Coord = coord(Account_Currency, Dr),
 	ST = s_transaction(Date, Desc, [Coord], Account, Exchanged),
 	extract_exchanged_value(Tx_Dom, Account_Currency, Dr, Exchanged).
@@ -192,7 +192,7 @@ extract_exchanged_value(Tx_Dom, _Account_Currency, Bank_Dr, Exchanged) :-
 		 (
 			field_nothrow(Tx_Dom, [unit, Unit_Count_Atom]),
 			atom_number(Unit_Count_Atom, Unit_Count),
-			Count_Absolute is abs(Unit_Count),
+			Count_Absolute is rationalize(abs(Unit_Count)),
 			(
 				Bank_Dr > 0
 			->

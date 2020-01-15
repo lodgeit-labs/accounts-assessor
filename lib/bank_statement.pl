@@ -189,7 +189,7 @@ make_sell(Static_Data, Trading_Account, Pricing_Method, _Bank_Account_Currency, 
 bank_debit_to_unit_price(Vector_Ours, Goods_Positive, value(Unit, Number2)) :-
 	Vector_Ours = [Coord],
 	number_coord(Unit, Number, Coord),
-	Number2 is Number / Goods_Positive.
+	{Number2 = Number / Goods_Positive}.
 
 	
 /*	
@@ -265,7 +265,7 @@ unit_cost_value(Cost_Coord, Goods_Coord, Unit_Cost) :-
 	assertion(Goods_Count > 0),
 	credit_coord(Currency, Price, Cost_Coord),
 	assertion(Price >= 0),
-	Unit_Cost_Amount is Price / Goods_Count,
+	{Unit_Cost_Amount = Price / Goods_Count},
 	Unit_Cost = value(Currency, Unit_Cost_Amount).
 
 sold_goods_vector_with_cost(Static_Data, Goods_Cost_Value, [Goods_Coord_With_Cost]) :-

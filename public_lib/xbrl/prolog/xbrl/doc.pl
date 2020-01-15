@@ -8,7 +8,7 @@
 a quad-store implemented with an open list stored in a global thread-local variable
 */
 
-:- debug(doc).
+%:- debug(doc).
 
 dump :-
 	findall(_,

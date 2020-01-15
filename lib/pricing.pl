@@ -67,7 +67,7 @@ find_items_to_sell2(
 	/*this 'outstanding' entry contains more items than are requested, good*/
 	Outstanding_Count >= Sale_Count,
 	Outstanding_Remaining_Count is Outstanding_Count - Sale_Count,
-	Total_Cost is Sale_Count * Outstanding_Unit_Cost,
+	{Total_Cost = Sale_Count * Outstanding_Unit_Cost},
 	Goods = [goods(ST_Currency, Type, Sale_Count, value(Currency, Total_Cost), Date)],
 	Outstanding_Remaining = outstanding(
 		ST_Currency, Type, Outstanding_Remaining_Count, 
@@ -96,9 +96,9 @@ find_items_to_sell2(
 ) :-
 	Outstanding_Count < Sale_Count,
 	record_sale(Investment_Id, Investments_In, Sale_Date, Sale_Price, Outstanding_Count, Investments_Mid),
-	Remaining_Count is Sale_Count - Outstanding_Count,
+	{Remaining_Count = Sale_Count - Outstanding_Count},
 	find_items_to_sell2(Type, Remaining_Count, Sale_Date, Sale_Price, Outstanding_Tail, Investments_Mid, Outstanding_Out, Investments_Out, Remaining_Goods),
-	Partial_Cost_Int is Outstanding_Count * Outstanding_Unit_Cost,
+	{Partial_Cost_Int = Outstanding_Count * Outstanding_Unit_Cost},
 	Partial_Goods = [
 		goods(
 			ST_Currency, Type, Outstanding_Count,
@@ -133,7 +133,7 @@ Exchange_Rates are parsed from the request xml.
 infer_unit_cost_from_last_buy_or_sell(Unit, [ST|_], Exchange_Rate) :-
 	s_transaction_exchanged(ST, vector([coord(Unit, Goods_D)])),
 	s_transaction_vector(ST, [coord(Currency, Cost_D)]),
-	Rate is -Cost_D / Goods_D,
+	{Rate = -Cost_D / Goods_D},
 	Exchange_Rate = exchange_rate(_,Unit,Currency,Rate),
 	!.
 
