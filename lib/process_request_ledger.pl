@@ -106,7 +106,7 @@ make_gl_viewer_report :-
 	atomic_list_concat(['ln -s ', Src, ' ', Dst], Cmd),
 	%atomic_list_concat(['cp -r ', Src, ' ', Dst], Cmd),
 	shell(Cmd),
-	atomic_list_concat([Dir_Url, '/gl.html'], Full_Url),
+	atomic_list_concat([Dir_Url, '/link.html'], Full_Url),
 	report_entry('GL viewer', loc(absolute_url, Full_Url), 'gl_html').
 
 investment_reports(Static_Data, Outstanding, Ir) :-
