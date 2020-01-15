@@ -39,7 +39,6 @@
 			</RetainedEarnings>
 			<CapitalIntroduced/>
 			<Drawings/>
-			<BankOpeningBalanceClearingAccount/> <!-- not used i think -->
 		</Equity>
 		<NetIncomeLoss>
 			<Revenue>
