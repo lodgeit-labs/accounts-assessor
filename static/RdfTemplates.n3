@@ -1,45 +1,57 @@
-﻿@base <https://lodgeit.net.au/#>.
-@prefix ns1: <https://lodgeit.net.au/#> .
+@prefix : <https://rdf.lodgeit.net.au/rdf.lodgeit.net.au.v1.n3#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#>.
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
-@prefix xsd: <http://www.w3.org/2001/XMLSchema#>.
 
-:hirepurchase_calculator_sheets
-	# are multiple instances allowed in one workbook?
-	:is_multi true;
-	:sheets (
+:this rdfs:comment """
+unfinished work on introducing namespacing. This should help with ordering the output of rdf_cleanup2.py and similar reasonably, and in keeping identifiers short
+
+excel: generic excel schema-directed ui stuff
+calcs: the schemas
+hp: hirepurchase
+
+
+
+excel:is_multi rdfs:comment "are multiple instances allowed in one workbook?"
+
+calcs:hp_calculator_sheets
+	excel:is_multi true;
+	excel:sheets (
 		[
-			:name_prefix "HP";
-			:root :hp_calculator_query;
-			:example_doc
+			excel:name_prefix "HP";
+			excel:root hp:hp_calculator_query;
+			hp:example_doc
 			[
-				:begin_date [a :value; :value "2019-10-10T00:00:00.0"^^xsd:dateTime];
-				:hp_contract [
-					a :hp_contract;
-					:contract_number [a :value; :value "xxxx"];
-					:currency [a :value; :value "AUD"];
-					:cash_price [a :value; :value "321321.27"];
-					:interest_rate [a :value; :value "5"];
-					:number_of_installments [a :value; :value 30];
-					:hp_contract_has_payment_type [a :value; :value :hp_contract_payment_type_advance];
-					:hp_installments [:value rdf:nil]
+				hp:begin_date [rdf:value "2019-10-10T00:00:00.0"^^xsd:dateTime];
+				hp::hp_contract [
+					a hp:hp_contract;
+					hp::contract_number [rdf:value "xxxx"];
+					hp:currency [ rdf:value "AUD"];
+					hp:cash_price [ rdf:value "321321.27"];
+					hp:interest_rate [ rdf:value "5"];
+					hp:number_of_installments [ rdf:value 30];
+					hp:hp_contract_has_payment_type [ rdf:value hp:hp_contract_payment_type_advance];
+					hp:hp_installments [rdf:value rdf:nil]
 				]
 			]
 		]
 	).
-
-
 	
-:hp_calculator_query
-	#rdf:type :section; 
-	:position [:col "A"; :row "1"];
-	:title "Standalone Calculator Query Parameters";
-	:cardinality :single;
-	:class :hp_calculator_query;
-	:fields (
-		[:property :begin_date; :type xsd:dateTime; :comment "ignored for Investment Calculator"]
-		[:property :end_date; :type xsd:dateTime; :comment "ignored for Investment Calculator"]
-		[:property :hp_contract; :template :hp_contract]
+calcs:hp_calculator_query
+	excel:position [excel:col "A"; excel:row "1"];
+	excel:title "Standalone Calculator Query Parameters";
+	excel:cardinality excel:single;
+	excel:class hp:hp_calculator_query;
+	excel:fields (
+		[	excel:property hp:begin_date; 
+			excel:type xsd:dateTime; 
+			excel:comment "ignored for Investment Calculator"]
+		[	excel:property hp:end_date; 
+			excel:type xsd:dateTime; 
+			excel:comment "ignored for Investment Calculator"]
+		[
+			excel:property hp:hp_contract; 
+			excel:template calcs:hp_contract]
 	).
 
 
@@ -115,104 +127,104 @@
 		]
 	).
 
-:depreciation_example_queries :value (
-	[ a ns1:depreciation_query ;
-		ns1:depreciation_query_has_type [ a ns1:value ;
-				ns1:value ns1:depreciation_pool_from_start ] ;
-		ns1:depreciation_query_method [ a ns1:value ;
-				ns1:value "diminishing_value"^^xsd:string ] ;
-		ns1:depreciation_query_pool [ a ns1:value ;
-				ns1:value "general_pool"^^xsd:string ] ;
-		ns1:depreciation_query_to_date [ a ns1:value ;
-				ns1:value "2019-02-02T00:00:00"^^xsd:dateTime ] ] 
-	[ a ns1:depreciation_query ;
-		ns1:depreciation_query_asset_id [ a ns1:value ;
-				ns1:value "car456"^^xsd:string ] ;
-		ns1:depreciation_query_from_date [ a ns1:value ;
-				ns1:value "2017-06-01T00:00:00"^^xsd:dateTime ] ;
-		ns1:depreciation_query_has_type [ a ns1:value ;
-				ns1:value ns1:depreciation_between_two_dates ] ;
-		ns1:depreciation_query_method [ a ns1:value ;
-				ns1:value "diminishing_value"^^xsd:string ] ;
-		ns1:depreciation_query_to_date [ a ns1:value ;
-				ns1:value "2019-02-02T00:00:00"^^xsd:dateTime ] ]
-	[ a ns1:depreciation_query ;
-		ns1:depreciation_query_asset_id [ a ns1:value ;
-				ns1:value "car123"^^xsd:string ] ;
-		ns1:depreciation_query_has_type [ a ns1:value ;
-				ns1:value ns1:written_down_value ] ;
-		ns1:depreciation_query_method [ a ns1:value ;
-				ns1:value "diminishing_value"^^xsd:string ] ;
-		ns1:depreciation_query_written_down_date [ a ns1:value ;
-				ns1:value "2017-06-01T00:00:00"^^xsd:dateTime ] ]
-	[ a ns1:depreciation_query ;
-		ns1:depreciation_query_asset_id [ a ns1:value ;
-				ns1:value "car123"^^xsd:string ] ;
-		ns1:depreciation_query_has_type [ a ns1:value ;
-				ns1:value ns1:profit_and_loss ] ;
-		ns1:depreciation_query_method [ a ns1:value ;
-				ns1:value "diminishing_value"^^xsd:string ] ;
-		ns1:depreciation_query_termination_date [ a ns1:value ;
-				ns1:value "2019-07-07T00:00:00"^^xsd:dateTime ] ;
-		ns1:depreciation_query_termination_value [ a ns1:value ;
-				ns1:value 500 ] ]
+:depreciation_example_queries rdf:value (
+	[ a :depreciation_query ;
+		:depreciation_query_has_type [ a rdf:value ;
+				rdf:value :depreciation_pool_from_start ] ;
+		:depreciation_query_method [ a rdf:value ;
+				rdf:value "diminishing_value"^^xsd:string ] ;
+		:depreciation_query_pool [ a rdf:value ;
+				rdf:value "general_pool"^^xsd:string ] ;
+		:depreciation_query_to_date [ a rdf:value ;
+				rdf:value "2019-02-02T00:00:00"^^xsd:dateTime ] ] 
+	[ a :depreciation_query ;
+		:depreciation_query_asset_id [ a rdf:value ;
+				rdf:value "car456"^^xsd:string ] ;
+		:depreciation_query_from_date [ a rdf:value ;
+				rdf:value "2017-06-01T00:00:00"^^xsd:dateTime ] ;
+		:depreciation_query_has_type [ a rdf:value ;
+				rdf:value :depreciation_between_two_dates ] ;
+		:depreciation_query_method [ a rdf:value ;
+				rdf:value "diminishing_value"^^xsd:string ] ;
+		:depreciation_query_to_date [ a rdf:value ;
+				rdf:value "2019-02-02T00:00:00"^^xsd:dateTime ] ]
+	[ a :depreciation_query ;
+		:depreciation_query_asset_id [ a rdf:value ;
+				rdf:value "car123"^^xsd:string ] ;
+		:depreciation_query_has_type [ a rdf:value ;
+				rdf:value :written_down_value ] ;
+		:depreciation_query_method [ a rdf:value ;
+				rdf:value "diminishing_value"^^xsd:string ] ;
+		:depreciation_query_written_down_date [ a rdf:value ;
+				rdf:value "2017-06-01T00:00:00"^^xsd:dateTime ] ]
+	[ a :depreciation_query ;
+		:depreciation_query_asset_id [ a rdf:value ;
+				rdf:value "car123"^^xsd:string ] ;
+		:depreciation_query_has_type [ a rdf:value ;
+				rdf:value :profit_and_loss ] ;
+		:depreciation_query_method [ a rdf:value ;
+				rdf:value "diminishing_value"^^xsd:string ] ;
+		:depreciation_query_termination_date [ a rdf:value ;
+				rdf:value "2019-07-07T00:00:00"^^xsd:dateTime ] ;
+		:depreciation_query_termination_value [ a rdf:value ;
+				rdf:value 500 ] ]
 ).
 									
 
-:depreciation_example_events :value (
-	[ a ns1:depreciation_event ;
-	ns1:depreciation_event_asset [ a ns1:value ;
-			ns1:value "car123"^^xsd:string ] ;
-	ns1:depreciation_event_date [ a ns1:value ;
-			ns1:value "2017-06-01T00:00:00"^^xsd:dateTime ] ;
-	ns1:depreciation_event_has_type [ a ns1:value ;
-			ns1:value ns1:transfer_asset_to_pool ] ;
-	ns1:depreciation_event_pool [ a ns1:value ;
-			ns1:value "general_pool"^^xsd:string ] ]
-	[ a ns1:depreciation_event ;
-	ns1:depreciation_event_asset [ a ns1:value ;
-			ns1:value "car456"^^xsd:string ] ;
-	ns1:depreciation_event_date [ a ns1:value ;
-			ns1:value "2017-08-01T00:00:00"^^xsd:dateTime ] ;
-	ns1:depreciation_event_has_type [ a ns1:value ;
-			ns1:value ns1:transfer_asset_to_pool ] ;
-	ns1:depreciation_event_pool [ a ns1:value ;
-			ns1:value "general_pool"^^xsd:string ] ]
-	[ a ns1:depreciation_event ;
-	ns1:depreciation_event_asset [ a ns1:value ;
-			ns1:value "car123"^^xsd:string ] ;
-	ns1:depreciation_event_date [ a ns1:value ;
-			ns1:value "2021-06-01T00:00:00"^^xsd:dateTime ] ;
-	ns1:depreciation_event_has_type [ a ns1:value ;
-			ns1:value ns1:asset_disposal ] ]
-	[ a ns1:depreciation_event ;
-	ns1:depreciation_event_asset [ a ns1:value ;
-			ns1:value "car456"^^xsd:string ] ;
-	ns1:depreciation_event_date [ a ns1:value ;
-			ns1:value "2020-07-31T00:00:00"^^xsd:dateTime ] ;
-	ns1:depreciation_event_has_type [ a ns1:value ;
-			ns1:value ns1:asset_disposal ] ]
+:depreciation_example_events rdf:value (
+	[ a :depreciation_event ;
+	:depreciation_event_asset [ a rdf:value ;
+			rdf:value "car123"^^xsd:string ] ;
+	:depreciation_event_date [ a rdf:value ;
+			rdf:value "2017-06-01T00:00:00"^^xsd:dateTime ] ;
+	:depreciation_event_has_type [ a rdf:value ;
+			rdf:value :transfer_asset_to_pool ] ;
+	:depreciation_event_pool [ a rdf:value ;
+			rdf:value "general_pool"^^xsd:string ] ]
+	[ a :depreciation_event ;
+	:depreciation_event_asset [ a rdf:value ;
+			rdf:value "car456"^^xsd:string ] ;
+	:depreciation_event_date [ a rdf:value ;
+			rdf:value "2017-08-01T00:00:00"^^xsd:dateTime ] ;
+	:depreciation_event_has_type [ a rdf:value ;
+			rdf:value :transfer_asset_to_pool ] ;
+	:depreciation_event_pool [ a rdf:value ;
+			rdf:value "general_pool"^^xsd:string ] ]
+	[ a :depreciation_event ;
+	:depreciation_event_asset [ a rdf:value ;
+			rdf:value "car123"^^xsd:string ] ;
+	:depreciation_event_date [ a rdf:value ;
+			rdf:value "2021-06-01T00:00:00"^^xsd:dateTime ] ;
+	:depreciation_event_has_type [ a rdf:value ;
+			rdf:value :asset_disposal ] ]
+	[ a :depreciation_event ;
+	:depreciation_event_asset [ a rdf:value ;
+			rdf:value "car456"^^xsd:string ] ;
+	:depreciation_event_date [ a rdf:value ;
+			rdf:value "2020-07-31T00:00:00"^^xsd:dateTime ] ;
+	:depreciation_event_has_type [ a rdf:value ;
+			rdf:value :asset_disposal ] ]
 ).
 
-:depreciation_example_assets :value (
-	[ a ns1:depreciation_asset ;
-	ns1:cost [ a ns1:value ;
-			ns1:value 1000 ] ;
-	ns1:effective_life_years [ a ns1:value ;
-			ns1:value 5 ] ;
-	ns1:id [ a ns1:value ;
-			ns1:value "car123"^^xsd:string ] ;
-	ns1:start_date [ a ns1:value ;
-			ns1:value "2017-05-01T00:00:00"^^xsd:dateTime ] ]
-	[ a ns1:depreciation_asset ;
-	ns1:cost [ a ns1:value ;
-			ns1:value 2000 ] ;
-	ns1:effective_life_years [ a ns1:value ;
-			ns1:value 8 ] ;
-	ns1:id [ a ns1:value ;
-			ns1:value "car456"^^xsd:string ] ;
-	ns1:start_date [ a ns1:value ;
-			ns1:value "2015-03-16T00:00:00"^^xsd:dateTime ] ]
+:depreciation_example_assets rdf:value (
+	[ a :depreciation_asset ;
+	:cost [ a rdf:value ;
+			rdf:value 1000 ] ;
+	:effective_life_years [ a rdf:value ;
+			rdf:value 5 ] ;
+	:id [ a rdf:value ;
+			rdf:value "car123"^^xsd:string ] ;
+	:start_date [ a rdf:value ;
+			rdf:value "2017-05-01T00:00:00"^^xsd:dateTime ] ]
+	[ a :depreciation_asset ;
+	:cost [ a rdf:value ;
+			rdf:value 2000 ] ;
+	:effective_life_years [ a rdf:value ;
+			rdf:value 8 ] ;
+	:id [ a rdf:value ;
+			rdf:value "car456"^^xsd:string ] ;
+	:start_date [ a rdf:value ;
+			rdf:value "2015-03-16T00:00:00"^^xsd:dateTime ] ]
 ).
 									
 
@@ -294,23 +306,23 @@
 			:name_prefix "GL_input";
 			:root :gl;
 			:example_doc
-				[	:default_currency [:value "AUD"];
-					:items [:value (
+				[	:default_currency [rdf:value "AUD"];
+					:items [rdf:value (
 						[
-							:date [:value "2019-10-10T00:00:00.000000"^^xsd:dateTime];
-							:account [:value "Assets"];
-							:debit [:value "USD 500"]
+							:date [rdf:value "2019-10-10T00:00:00.000000"^^xsd:dateTime];
+							:account [rdf:value "Assets"];
+							:debit [rdf:value "USD 500"]
 						]
 						[
-							:date [:value "2019-10-10T00:00:00.000000"^^xsd:dateTime];
-							:account [:value "Revenue"];
-							:credit [:value "600"]
+							:date [rdf:value "2019-10-10T00:00:00.000000"^^xsd:dateTime];
+							:account [rdf:value "Revenue"];
+							:credit [rdf:value "600"]
 						]
 						[
-							:date [:value "2019-10-10T00:00:00.000000"^^xsd:dateTime];
-							:account [:value "CurrencyMovement"];
-							:debit [:value "600 AUD"];
-							:credit [:value "500 USD"]
+							:date [rdf:value "2019-10-10T00:00:00.000000"^^xsd:dateTime];
+							:account [rdf:value "CurrencyMovement"];
+							:debit [rdf:value "600 AUD"];
+							:credit [rdf:value "500 USD"]
 						]
 					)]
 				]
