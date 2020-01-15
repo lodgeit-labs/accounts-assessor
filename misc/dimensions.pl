@@ -1,4 +1,8 @@
 :- use_module(library(clpq)).
+
+:-  op(  1,  fx,   [ * ]).
+
+'*'(_).
 /*
 Operations:
  +, -
@@ -421,6 +425,14 @@ dim_solve_formula((V, U), Current_Basis, New_Basis, V_Reduced, Current_Inputs, N
 
 
 
+debug(X, N) :-
+	((
+		N =< 0
+	) -> ( 
+		call(X)
+	) ; (
+		true
+	)).
 
 /*
 Chase
@@ -430,16 +442,14 @@ chase(KB, Results, Max_Depth) :-
 	%format("kb facts: ~w~n", [Facts]),
 	%format("kb vars: ~w~n",[Vars]),
 	make_collect_facts_rules(KB, Facts, Rules),
-	chase_rules(Facts, Rules, Results, 1, N, Max_Depth),
-	format("~nChase finished after ~w rounds:~n", [N]),
-	print_facts(Results), nl.
+	print_facts(Facts), nl,
+	chase_rules(Facts, Rules, Results, 1, _, Max_Depth).
 
 chase_rules(Facts, Rules, New_Facts, Depth, N, Max_Depth) :-
 	format("~nChase round: ~w~n", [Depth]),
-	format("Facts: ~w~n", [Facts]),
+	%format("Facts: ~w~n", [Facts]),
 	copy_term(Facts, Original_Facts),
 	chase_round(Facts, Rules, Next_Facts),
-	format("Done chase round: ~w~n", [Next_Facts]),
 	%format("Original facts: ~w~n", [Original_Facts]),
 	% because vars in the fact-set have been bound, they compare == to the values they've
 	% been bound to, so we can't tell using just == that the new fact set is different from
@@ -449,18 +459,24 @@ chase_rules(Facts, Rules, New_Facts, Depth, N, Max_Depth) :-
 	% whenever there's been a change to the fact-set.
 	(
 		(
+
 		 % chase should stop when there's not enough information to determine that the new set of facts is not
 		 % equivalent to the previous set of facts
 		 \+(fact_sets_equal(Original_Facts, Next_Facts)),
 		 Depth < Max_Depth
 		)
 	-> 	(
-		 %format("Success branch...~n", []),
+		 format("Done chase round:~n", []),
+		 print_facts(Next_Facts),nl,
+
 		 Next_Depth is Depth + 1,
 		 chase_rules(Next_Facts, Rules, New_Facts, Next_Depth, N, Max_Depth)
 		)
 	;	(
-		 %format("Fail branch...~n", []),
+		 format("~nChase finished after ~w rounds:~n", [Depth]),
+		 print_facts(Next_Facts), nl,
+
+
 		 New_Facts = Next_Facts,
 		 N = Depth
 		)
@@ -470,6 +486,7 @@ chase_rules(Facts, Rules, New_Facts, Depth, N, Max_Depth) :-
 chase_round(Facts, [], Facts).
 chase_round(Facts, [Rule | Rules], New_Facts) :-
 	chase_rule(Facts, Rule, Heads_Nested),
+
 	flatten(Heads_Nested, Heads),
 	%chase_head_facts(Heads, Head_Facts),
 	%chase_head_constraints(Heads, Head_Constraints),
@@ -493,51 +510,73 @@ chase_head_constraints([Head|Heads], Constraints) :- Head = fact(_,_,_), chase_h
 
 chase_apply_constraints([]).
 chase_apply_constraints([Constraint | Rest]) :- 
-	format("Applying constraint: ~w~n", [Constraint]),
 	{Constraint},
-	format("Constraint after applied: ~w~n", [Constraint]),
 	chase_apply_constraints(Rest).
 
 % match the rule against the fact-set treating distinct variables in the fact-set as distinct fresh constants
 % when asserting the head constraints, treat any variables bound from the fact-set as actual variables
 chase_rule(Facts, Rule, Heads) :-
+	debug((
+		format("chase_rule: ~w~n", [Rule])
+	), 1),
 	Rule = (_ :- Body),
 	chase_rule_helper2(Facts, Rule, Body, Facts, [], [], Heads).
 
 % if we match all the body items, succeed
 chase_rule_helper2(_, Rule, [], _, Current_Subs, Current_Heads, [New_Head | Current_Heads]) :-
+	debug((
+		format("chase_rule_helper2: done~n", [])
+	), 2),
 	Rule = (Head :- _),
-
 	%existential vars will be fresh; universal vars will be bound with the same bindings as found in the body
-	copy_facts_with_subs2(Head, Current_Subs, New_Head, _).
+	copy_facts_with_subs2(Head, Current_Subs, New_Head, _),
+	debug((
+		format("after copy facts...~n", [])
+	),4).
 
 
 % we've tried one body item against all the facts
-chase_rule_helper2(_, _, _, [], _, Current_Heads, Current_Heads).
+chase_rule_helper2(_, _, [Body_Item | _], [], _, Current_Heads, Current_Heads) :-
+	debug((
+		format("chase_rule_helper2: body item = ~w ; no more facts~n", [Body_Item])
+	), 3).
 
 % still more facts, still more body items
 chase_rule_helper2(Facts, Rule, [Body_Item|Rest], [Fact | Rest_Facts], Current_Subs, Current_Heads, New_Heads) :-
-	%format("rule: ~w~nbody item: ~w~nfact: ~w~nsubs: ~w~n",[Rule, Body_Item, Fact, Current_Subs]),
-	%copy_with_subs(Body_Item, Vars, Current_Subs, BI_Copy, New_Subs),
-	%format("body item (with vars): ~w~n", [BI_Copy]),
-	(	
-		(
-			match_fact(Body_Item, Fact, Current_Subs, New_Subs)
-		)
-	-> 	(
-			% body item match, recurse over rest of body
-			%append(Current_Matches, [Fact], Next_Matches),
-			chase_rule_helper2(Facts, Rule, Rest, Facts, New_Subs, Current_Heads, Next_Heads)
-		)
-	; 	(
-			% no match, no updates
-			Next_Heads = Current_Heads
-		)
-	),
+	Body_Item = fact(_,_,_),
+	debug((
+		format("chase_rule_helper2 (fact) : body item = ~w ; fact = ~w~n", [Body_Item, Fact])
+	), 2),
+	((
+		match_fact(Body_Item, Fact, Current_Subs, New_Subs)
+	) -> (
+		% body item match, recurse over rest of body
+		debug((
+			format("match: ~w~n", [Rest])
+		), 3),
+		chase_rule_helper2(Facts, Rule, Rest, Facts, New_Subs, Current_Heads, Next_Heads)
+	) ; (
+		% no match, no updates
+		debug((
+			format("no match~n", [])
+		), 3),
+		Next_Heads = Current_Heads
+	)),
+	debug((
+		format("...~n", [])
+	), 3),
 	% recurse over rest of facts, repeating the same body item
 	chase_rule_helper2(Facts, Rule, [Body_Item|Rest], Rest_Facts, Current_Subs, Next_Heads, New_Heads).
 
-
+chase_rule_helper2(Facts, Rule, [Body_Item|Rest], _, Current_Subs, Current_Heads, New_Heads) :-
+	Body_Item \= fact(_,_,_),
+	((
+		check_body_constraint(Body_Item, Current_Subs, New_Subs)
+	) -> (
+		chase_rule_helper2(Facts, Rule, Rest, Facts, New_Subs, Current_Heads, New_Heads)
+	) ; (
+		New_Heads = Current_Heads
+	)).
 
 /*
 matching between bodies and fact-set
@@ -560,24 +599,35 @@ match_arg(BI_Arg, Fact_Arg, Subs, Subs) :-
 
 match_arg(BI_Arg, Fact_Arg, Current_Subs, New_Subs) :-
 	var(BI_Arg),
-	(	get_sub(BI_Arg, Current_Subs, Sub)
-	-> 	(
-			Sub == Fact_Arg,
-			New_Subs = Current_Subs
-		)
-	;	(
-			New_Subs = [BI_Arg:Fact_Arg | Current_Subs]
-		)
-	).
+	((
+		get_sub(BI_Arg, Current_Subs, Sub)
+	) -> (
+		Sub == Fact_Arg,
+		New_Subs = Current_Subs
+	) ;	(
+		New_Subs = [BI_Arg:Fact_Arg | Current_Subs]
+	)).
 
 get_sub(X, [(Y:S) | Subs], Sub) :-
-	(
+	((
 		X == Y
 	) -> (
 		Sub = S
 	) ; (
 		get_sub(X, Subs, Sub)
-	).
+	)).
+
+% we know we don't have to apply any new subs because we only
+% succeed if the constraint is a ground term, but we need to be checking
+% for ground and applying the constraints after substituting w/ the
+% current subs
+check_body_constraint(Constraint, Subs, Subs) :-
+	debug((
+		format("Check body constraint: ~w~n", [Constraint])
+	), 3),
+	copy_fact_with_subs2(Constraint, Subs, New_Constraint, _),
+	ground(New_Constraint),
+	{New_Constraint}.
 
 
 
@@ -614,7 +664,7 @@ B = arg from fact
 */
 fact_match_arg(A, B, Current_Subs, New_Subs) :-
 	var(A),
-	(
+	((
 		% find existing substitution
 		get_sub(A, Current_Subs, Sub)
 	) -> (
@@ -626,7 +676,7 @@ fact_match_arg(A, B, Current_Subs, New_Subs) :-
 		var(B),
 		% create new substitution
 		New_Subs = [A:B | Current_Subs]
-	).
+	)).
 
 fact_match_arg(A, B, Subs, Subs) :-
 	nonvar(A),
@@ -634,49 +684,61 @@ fact_match_arg(A, B, Subs, Subs) :-
 
 
 
-copy_facts_with_subs2([], Subs, [], Subs).
+copy_facts_with_subs2([], Subs, [], Subs) :-
+	debug((
+		format("copy_facts_with_subs2: done~n",[])
+	), 5).
+
 copy_facts_with_subs2([Fact | Facts], Subs, [New_Fact | New_Facts], New_Subs) :-
 	Fact = fact(_,_,_),
+	debug((
+		format("copy_facts_with_subs2: [~w | ~w ]~n",[Fact,Facts])
+	),5),
+
 	copy_fact_with_subs2(Fact, Subs, New_Fact, Next_Subs),
 	copy_facts_with_subs2(Facts, Next_Subs, New_Facts, New_Subs).
 
+% my next problem is making these equality/constraint assertions robust against when you feed an atom through it
 copy_facts_with_subs2([Constraint | Facts], Subs, New_Facts, New_Subs) :-
-	Constraint \= fact(_,_,_),
-	copy_fact_with_subs2(Constraint, Subs, New_Constraint, Next_Subs),
-	%pattern match against substituted head fact
-	New_Constraint = (LHS = RHS),
-	var(LHS), var(RHS),
-	% collapse two existentials
-	LHS = RHS, % if we put this in {}/1 then it won't unify LHS and RHS
-	copy_facts_with_subs2(Facts, Next_Subs, New_Facts, New_Subs).
-
-copy_facts_with_subs2([Constraint | Facts], Subs, New_Facts, New_Sub) :-
-	Constraint \= fact(_,_,_),
+	Constraint = (_ = _),
+	debug((
+		format("copy_facts_with_subs2: [~w | ~w]~n",[Constraint, Facts])
+	), 5),
 	copy_fact_with_subs2(Constraint, Subs, New_Constraint, Next_Subs),
 	New_Constraint = (LHS = RHS),
-	\+((var(LHS), var(RHS))), % LHS = (Y + 5) or 50 = RHS or 50 = 50 
-	{LHS = RHS},
-	/*HS_Fresh = LHS},
-	{RHS_Fresh = RHS},
-	LHS_Fresh = RHS_Fresh, % 50 = (Y + 5) *NOT* equivalent to {50 = Y +5}, despite what the docs say
-	*/
+	LHS = RHS,
 	copy_facts_with_subs2(Facts, Next_Subs, New_Facts, New_Subs).
 
 copy_facts_with_subs2([Constraint | Facts], Subs, New_Facts, New_Subs) :-
 	Constraint \= fact(_,_,_),
+	Constraint \= (_ = _),
+	debug((
+		format("copy_facts_with_subs2: [~w | ~w]~n",[Constraint, Facts])
+	), 5),
 	copy_fact_with_subs2(Constraint, Subs, New_Constraint, Next_Subs),
-	New_Constraint \= (_ = _),
-	{New_Constraint},
+	((
+		{New_Constraint}
+	) -> (
+		true
+	) ; (
+		format("Inconsistency error: ~w~n", [New_Constraint])
+	)),
 	copy_facts_with_subs2(Facts, Next_Subs, New_Facts, New_Subs).
 
 copy_fact_with_subs2(Fact, Subs, New_Fact, New_Subs) :-
+	debug((
+		format("copy_fact_with_subs2: ~w~n", [Fact])
+	), 6),
 	Fact =.. [F | Args],
 	copy_args_with_subs2(Args, Subs, New_Args, New_Subs),
-	New_Fact =.. [F | New_Args].
+	New_Fact =.. [F | New_Args],
+	debug((
+		format("copy_fact_with_subs2 (done): ~w~n", [New_Fact])
+	), 6).
 
 copy_args_with_subs2([], Subs, [], Subs).
 copy_args_with_subs2([Arg | Args], Subs, [New_Arg | New_Args], New_Subs) :-
-	(
+	((
 		var(Arg)
 	) -> (
 		copy_arg_with_subs2(Arg, Subs, New_Arg, Next_Subs),
@@ -684,7 +746,7 @@ copy_args_with_subs2([Arg | Args], Subs, [New_Arg | New_Args], New_Subs) :-
 	) ; (
 		copy_fact_with_subs2(Arg, Subs, New_Arg, Next_Subs),
 		copy_args_with_subs2(Args, Next_Subs, New_Args, New_Subs)
-	).
+	)).
 
 copy_arg_with_subs2(Arg, Subs, Arg, Subs) :- nonvar(Arg).
 copy_arg_with_subs2(Arg, Subs, New_Arg, Subs) :- var(Arg), get_sub(Arg, Subs, New_Arg).
@@ -818,6 +880,7 @@ chase_test10([
 chase_test11([
 	fact(hp1, a, hp_arrangement),
 
+	% generalize this object/relation declaration
 	([fact(HP, cash_price, _)] :- [fact(HP, a, hp_arrangement)]),
 	([(X = Y)] :- [fact(HP, a, hp_arrangement), fact(HP, cash_price, X), fact(HP, cash_price, Y)]),
 
@@ -851,14 +914,17 @@ chase_test11([
 ]).
 
 /*
-something is a  list
-that list has length N
-something is in the list
-the list has a first (if it's non-empty)
-the list has a last (if it's non-empty)
+% something is a  list
+% that list has length N
+% something is in the list
+% the list has a first (if it's non-empty)
+% the list has a last (if it's non-empty)
 
 % i don't necessarily know how to implement "we *know* its not the last element" (or w/e) 
 nonvar(a) && nonvar(b) && a \== b
+wouldnt list bnodes normally be vars?
+this is an older comment
+
 
 for any list item, if it's not the last, there's a next;
 	if it's not the first, there's a previous
@@ -869,42 +935,352 @@ fact(I, prev, P) :-
 
 	L first PP
 	I \= PP,
-	
+
+
+5 + 10 = 15.1
+5 USD + 10 USD = 15.1 USD
+5 days * (10 USD / day) = 50 USD
+
 */
 
-chase_test12([
-	fact(my_list, a, list),
+/*
 
-	% "list_in" w/ direct values for subject doesn't support the notion of multiple distinct occurrences
-	fact(_, list_in, my_list), % the list is non-empty
+	Item,	value, V 
+	&		list_in L
+	&		index I
+<= 
+	Item a list_item
+|
+
+X list_in L <=> L a list, X a list_item.
+% this doesn't work cause X a list_item doesn't indicate that X is a list_item *of* L
+% it might indicate that it's in *some* list, but we don't know that that list is L
+
+
+% this is logically sound: if we know X is a list item then we know it's in *Some* list,
+%  we just don't know which list.
+% but suggests that "list_item" as a type doesn't have much
+% utility, or at least, I haven't yet encountered a case where we want to say that X
+% is a list item without any indication of which list it's in so having just "list_in"
+% seems sufficient
+X list_in L. L a list <=> X a list_item.
+
+% this might even work:
+X list_in L <=> X a list_item
+X list_in L => L a list
+X list_in L. L element_type T => X a T
+
+
+===
+
+
+nil a list
+
+L a list, L first F, L rest R <= R a list
+
+% so the representation i used ended up being almost the same as this
+% lists in RDF representation = list-cells/positions in my representation
+%  value = first
+%  next  = rest
+
+% list-cells/positions in my representation have two extra attributes:
+%  list_index
+%  prev
+
+% can uniquely have next in RDF representation but it allows (perhaps even expects?) multiple prev's
+
+well multiple nexts or prevs are fine/expected during reasoning at least, i'd say
+well there's a semantic difference between "there's multiple possibilities cause we don't know which *one* it is yet" and
+"there can actually be multiple distinct ones simultaneously"
+okay, lists with multiple beginnings are prefectly valid for all purposes i think. if we end up with multiple tails, 
+that's not a valid rdf list or whatever but yea..
+
+% my representation has an extra node to represent the whole list
+whats the extra node?
+
+% in RDF representation we say that "value list_in list_cell"
+% bn0a first a.
+% bn0a rest bn1.
+% bn0b first b.
+% bn0b rest bn1.
+% bn1 first x    % what should be the previous element of bn1?
+
+% bn1 rest bn2
+% bn2 first y
+% bn2 rest nil.
+% we say that x and y list_in bn1
+
+% in my representation list_in actually applies to the list cells and relates them to the extra list bnode
+% there should still be an equivalent of RDF's list_in ofc
+
+% RDF list-cells don't uniquely have a position (as measured from the start of the list; they do have a position
+% as measured from the end of the list; this is a consequence of the fact that "rest" is unique but there is no
+% unique "prev", and because list-cells are lists, this means a list-cell isn't uniquely in any particular list)
+
+well i've been wondering if we want to actually allow for multiple "pos" objects, relating a cell to some head cell and an index.
+also, in pyco, if i wanted to express an integer distance between two cells, 
+i could "simply" say <uniquely identified head> rest ?x, ?x rest ?y, ?y rest ........... <this cell>
+so, idk, maybe we want to express some equivalence between these two encodings..
+well the above only works when you already know the distance and it's not a variable that you're still solving for
+but generally i'd agree if we end up actually using a different representation (of any two things, generally) we'd want some stuff to 
+translate or rather allow to just use either one interchangeably or even mixed in the same kb (if the translation is direct enough, like it is
+in this case)
+i guess i was just wondering if these two representations are equvalent, and i guess thats kinda answered now..
+except, i still dont have a grasp on shy..
+can we do that:
+?H rest ?X. ?X rest ?This <= ?This is_two_cells_after ?H
+ * sure you could do that w/ this rule
+ * i'll think about whether you could do it currently in terms of constraints on the position integers
+
+
+?H = ?C <= ?P a pos, ?p index 0, ?p has_head ?H, ?p has_cell ?C.
+
+?P a pos, ?p index ?I2, {?I2 = I1 + 1} , ?p has_head ?H, ?p has_cell ?This
+
+ah, no there's probably no way to currently correctly generate all the elements in between just from the
+integers due to not being able to use constraints in rule-bodies, or at least, i haven't figured out a
+way around that yet really except in some special cases, not sure if this is one
+
+the way you would write this probably in current rule-set would be
+bn1 a diff
+bn1 in1 ?H
+bn1 in2 ?This
+bn1 out1 ?N
+
+{Out = In1 - In2} <= {D a diff. D in1 In1. D in2 In2. D out1 Out}
+{X next Y. Y prev X} 	<= {L a list. X list_in L. X list_index In1. Y list_in L. Y list_index In2. D a diff. D in1 In1. D in2 In2. D out1 1}
+{X = Y} 				<= {L a list. X list_in L. X list_index In1. Y list_in L. Y list_index In2. D a diff. D in1 In1. D in2 In2. D out1 0}
+{Y next X. X prev Y} 	<= {L a list. X list_in L. X list_index In1. Y list_in L. Y list_index In2. D a diff. D in1 In1. D in2 In2. D out1 -1}
+
+
+% i don't have an equivalent of rdf:nil in my representation
+% in my representation the end of a list is the cell who's position (measured from the start of the list, ofc) is the length of the list
+
+===
+
+% this starts to get closer to the representation i came up w/ i.e. there's a distinction between cells/positions and the
+% lists that they occur in
+
+% this is probably only true if L is non-empty
+L has_position P, P a position <= L a list
+L has_position P
+
+P a position => L has_index I, L has_list L, 
+
+P a position, L a list <=> P is_relative_to L
+% this says that all positions are relative to all lists
+*/
+
+
+list_theory([
+	% every list item has a value, and only one value
+	([fact(Item, value, _)] :- [fact(L, a, list), fact(Item, list_in, L)]),
+	([V1 = V2] :- [fact(L, a, list), fact(X, list_in, L), fact(X, value, V1), fact(X, value, V2)]),
+
+	% every list item belongs to only one list
+	([L1 = L2] :- [fact(X, list_in, L1), fact(X, list_in, L2)]),
+
+	% could also assert that the value has to be of a particular type
+	([fact(V, a, T)] :- [fact(L, a, list), fact(X, list_in, L), fact(X, value, V), fact(L, element_type, T)]),
+
+	% every list item has an index
+	([fact(Item, list_index, _)] :- [fact(L, a, list), fact(Item, list_in, L)]),
+	% a list item can only have one index
+	([I1 =:= I2] :- [fact(L, a, list), fact(X, list_in, L), fact(X, list_index, I1), fact(X, list_index, I2)]),
+	% there can only be one list item at any given index
+	([X1 = X2] :- [fact(L, a, list), fact(X1, list_in, L), fact(X1, list_index, I), fact(X2, list_in, L), fact(X2, list_index, I)]),
+
+	% could also assert that the index is greater than or equal to 1, and less than or equal to the length of the list
+	% but i'm not sure whether these constraints actually give us anything or if they're just redundant (assuming other
+	% axioms that do give us a full theory of lists)
+	([I >= 1] :- [fact(L, a, list), fact(X, list_in, L), fact(X, list_index, I)]),
+	([I =< N] :- [fact(L, a, list), fact(X, list_in, L), fact(X, list_index, I), fact(L, length, N)]),
 
 	% if the list is non-empty then it has a first and a last
-	([fact(L, first, First)] :- [fact(L, a, list), fact(_, list_in, L)]),
-	([fact(L, last, Last)] :- [fact(L, a, list), fact(_, list_in, L)]),
-/*
-n-ary syntax: position(I,L,N)
-triple syntax:
-	% I is_item_in_position P
-	% L is_list_for_position P
-	% N is_index_of_position P
-*/
+	% a list can only have one first and one last
+	([fact(L, first, _)] :- [fact(L, a, list), fact(_, list_in, L)]),
+	([X = Y] :- [fact(L, a, list), fact(L, first, X), fact(L, first, Y)]),
 
-	% "list_index"; if we use direct values, X list_index 1 doesn't tell us what list that X is in
+	([fact(L, last, _)] :- [fact(L, a, list), fact(_, list_in, L)]),
+	([X = Y] :- [fact(L, a, list), fact(L, last, X), fact(L, last, Y)]),
+
+	% if the list has first and last elements, then they're in the list
+	% the index of the first element is 1, the index of the last element is the length of the list
 	([fact(First, list_in, L), fact(First, list_index, 1)] :- [fact(L, a, list), fact(L, first, First)]),
+	([fact(Last, list_in, L), fact(Last, list_index, N)] :- [fact(L, a, list), fact(L, last, Last), fact(L, length, N)]), % if N != 0 but.. 
 
-	([fact(Last, list_in, L), fact(Last, list_index, N)] :- [fact(L, a, list), fact(L, length, N)]), % if N != 0 but.. 
+	% every list has a length; a list can only have one length; if there's a last element, then the length of the
+	% list is the index (starting from 1) of the last element
+	([fact(L, length, N)] :- [fact(L, a, list)]),
+	([L1 =:= L2] :- [fact(L, a, list), fact(L, length, L1), fact(L, length, L2)]),
 
 	([fact(L, length, N)] :- [fact(L, a, list), fact(L, last, Last), fact(Last, list_index, N)]),
 
-	([X = Y] :- [fact(L, a, list), fact(X, list_in, L), fact(
-/*last_item
-first_item
-rest list
-next item
-prev item
+	% relationship between previous and next
+	([fact(Y, prev, X)] :- [fact(X, next, Y)]),
+	([fact(X, next, Y)] :- [fact(Y, prev, X)]),
+	([X1 = X2] :- [fact(Y, prev, X1), fact(Y, prev, X2)]),
+	([Y1 = Y2] :- [fact(X, next, Y1), fact(X, next, Y2)]),
+	([fact(L, a, list), fact(X, list_in, L), fact(Y, list_in, L)] :- [fact(X, next, Y)]),
+	
 
-*/
+	([fact(Y, list_index, N), (N =:= (M + 1))] :- [fact(L, a, list), fact(X, list_in, L), fact(X, next, Y), fact(X, list_index, M)]),
+	([fact(X, list_index, M), (N =:= (M + 1))] :- [fact(L, a, list), fact(Y, list_in, L), fact(Y, prev, X), fact(Y, list_index, N)])
+
+	% if a list item is not the first element (equivalently if it's index is greater than 1), then there's a previous element
+	% if a list item is not the last element (equivalently if its index is less than the lenght of the list), then there's a next element
+	% for every index greater than 1 and less than the length of the list, there is a list item at that index
 ]).
+
+relation_theory([
+	([fact(O, A, _)] :- [fact(R, a, relation), fact(O, a, R), fact(R, attribute, A)]),
+	([(X = Y)] :- [fact(O, a, R), fact(R, attribute, A), fact(O, A, X), fact(O, A, Y)])
+]).
+
+nat_theory([
+	fact(0, a, nat),
+	([fact(X, suc, SX), fact(SX, a, nat)] :- [fact(X, a, nat)]),
+	([Y = Z] :- [fact(X, a, nat), fact(X, suc, Y), fact(X, suc, Z)])
+]).
+
+/*
+hp_base_theory([
+	% using list theory
+	([fact(HP, cash_price, _)] :- [fact(HP, a, hp_arrangement)]),
+	([(X = Y)] :- [fact(HP, a, hp_arrangement), fact(HP, cash_price, X), fact(HP, cash_price, Y)]),
+
+	([fact(HP, interest_rate, _)] :- [fact(HP, a, hp_arrangement)]),
+	([(X = Y)] :- [fact(HP, a, hp_arrangement), fact(HP, interest_rate, X), fact(HP, interest_rate, Y)]),
+
+	([fact(HP, begin_date, _)] :- [fact(HP, a, hp_arrangement)]),
+	([(X = Y)] :- [fact(HP, a, hp_arrangement), fact(HP, begin_date, X), fact(HP, begin_date, Y)]),
+
+	([fact(HP, end_date, _)] :- [fact(HP, a, hp_arrangement)]),
+	([(X = Y)] :- [fact(HP, a, hp_arrangement), fact(HP, end_date, X), fact(HP, end_date, Y)]),
+
+	([fact(HP, report_start_date, _)] :- [fact(HP, a, hp_arrangement)]),
+	([(X = Y)] :- [fact(HP, a, hp_arrangement), fact(HP, report_start_date, X), fact(HP, report_start_date, Y)]),
+
+	([fact(HP, report_end_date, _)] :- [fact(HP, a, hp_arrangement)]),
+	([(X = Y)] :- [fact(HP, a, hp_arrangement), fact(HP, report_end_date, X), fact(HP, report_end_date, Y)]),
+
+	([fact(HP, repayment_amount, _)] :- [fact(HP, a, hp_arrangement)]),
+	([(X = Y)] :- [fact(HP, a, hp_arrangement), fact(HP, repayment_amount, X), fact(HP, repayment_amount, Y)]),
+
+	([fact(HP, payment_type, _)] :- [fact(HP, a, hp_arrangement)]),
+	([(X = Y)] :- [fact(HP, a, hp_arrangement), fact(HP, payment_type, X), fact(HP, payment_type, Y)]),
+
+	([fact(HP, number_of_installments, _)] :- [fact(HP, a, hp_arrangement)]),
+	([(X = Y)] :- [fact(HP, a, hp_arrangement), fact(HP, number_of_installments, X), fact(HP, number_of_installments, Y)]),
+
+	([fact(HP, installments, Installments), fact(Installments, a, list), fact(Installments, element_type, hp_installment)] :- [fact(HP, a, hp_arrangement)]),
+	([(X = Y)] :- [fact(HP, a, hp_arrangement), fact(HP, installments, X), fact(HP, installments, Y)]),
+	
+	([fact(HP, remainder, _)] :- [fact(HP, a, hp_arrangement)]),
+	([(X = Y)] :- [fact(HP, a, hp_arrangement), fact(HP, remainder, X), fact(HP, remainder, Y)]),
+
+	
+	([fact(Installment, opening_balance, _)] :- [fact(Installment, a, hp_installment)]),
+	([(X = Y)] :- [fact(Installment, a, hp_installment), fact(Installment, opening_balance, X), fact(Installment, opening_balance, Y)]),
+
+	([fact(Installment, closing_balance, _)] :- [fact(Installment, a, hp_installment)]),
+
+	([fact(Installment, 
+	
+
+	([fact(First_Installment, opening_balance, Cash_Price)] :- [fact(HP, a, hp_arrangement), fact(HP, installments, Installments), fact(Installments, first, First_Installment), fact(HP, cash_price, Cash_Price)]),
+	([fact(HP, cash_price, Cash_Price)] :- [fact(HP, a, hp_arrangement), fact(HP, installments, Installments), fact(Installments, first, First_Installment), fact(First_Installment, opening_balance, Cash_Price)]),
+
+	([fact(HP, remainder, Remainder)] :- [fact(HP, a, hp_arrangement), fact(HP, installments, Installments), fact(Installments, last, Last_Installment), fact(Last_Installment, closing_balance, Remainder)]),
+	([fact(Last_Installment, closing_balance, Remainder)] :- [fact(HP, a, hp_arrangement), fact(HP, installments, Installments), fact(Installments, last, Last_Installment), fact(Last_Installment, closing_balance, Remainder)]),
+	(
+	
+]).
+*/
+
+
+
+list_test1([
+	fact(my_list, a, list),
+
+	% "list_in" w/ direct values for subject doesn't support the notion of multiple distinct occurrences
+	fact(A, list_in, my_list), % the list is non-empty
+	fact(B, list_in, my_list),
+	fact(A, next, B),
+	fact(my_list, first, A),
+	fact(my_list, last, B)
+]).
+
+relation_test1([
+	fact(hp_arrangement, a, relation),
+
+	% attributes should have types
+	fact(hp_arrangement, attribute, cash_price),
+	fact(hp_arrangement, attribute, begin_date),
+	fact(hp_arrangement, attribute, end_date),
+	fact(hp_arrangement, attribute, interest_rate),
+	fact(hp_arrangement, attribute, repayment_amount),
+	fact(hp_arrangement, attribute, repayment_period),
+	fact(hp_arrangement, attribute, number_of_installments),
+	fact(hp_arrangement, attribute, installments),
+	fact(hp_arrangement, attribute, total_payments),
+	fact(hp_arrangement, attribute, total_interest),
+
+	fact(hp_installment, a, relation),
+	fact(hp_installment, attribute, hp_arrangement),
+	fact(hp_installment, attribute, opening_date),
+	fact(hp_installment, attribute, opening_balance),
+	fact(hp_installment, attribute, payment_type),
+	fact(hp_installment, attribute, payment_amount),
+	fact(hp_installment, attribute, interest_amount),
+	fact(hp_installment, attribute, interest_rate),
+	fact(hp_installment, attribute, closing_date),
+	fact(hp_installment, attribute, closing_balance),
+
+	([fact(Installments, a, list), fact(Installments, element_type, hp_installment)] :- [fact(HP, a, hp_arrangement), fact(HP, installments, Installments)]),
+	([fact(Installment, hp_arrangement, HP)] :- [fact(HP, a, hp_arrangement), fact(HP, installments, Installments), fact(Index, list_in, Installments), fact(Index, value, Installment)]),
+
+
+	([(Payment_Amount =:= Repayment_Amount)] :- [fact(I, a, hp_installment), fact(I, hp_arrangement, HP), fact(HP, repayment_amount, Repayment_Amount), fact(I, payment_amount, Payment_Amount), fact(I, payment_type, regular)]),
+	([fact(I, payment_type, regular)] :- [fact(I, a, hp_installment), fact(I, hp_arrangement, HP), fact(HP, repayment_amount, Repayment_Amount), fact(I, payment_amount, Repayment_Amount), fact(I, payment_type, regular)]),
+
+	([(Interest_Amount =:= Opening_Balance * Interest_Rate)] :- [fact(I, a, hp_installment), fact(I, interest_rate, Interest_Rate), fact(I, interest_amount, Interest_Amount), fact(I, opening_balance, Opening_Balance)]),
+
+	([(Closing_Balance =:= Opening_Balance + Interest_Amount - Payment_Amount)] :- [fact(I, a, hp_installment), fact(I, closing_balance, Closing_Balance), fact(I, opening_balance, Opening_Balance), fact(I, interest_amount, Interest_Amount), fact(I, payment_amount, Payment_Amount)]),
+
+
+	% continuity principle that facilitate transfer of balances between successive closing & opening balances
+	([(Closing_Prev =:= Opening_Next)] :- [fact(Prev, a, hp_installment), fact(Prev, next, Next), fact(Prev, closing_balance, Closing_Prev), fact(Next, opening_balance, Opening_Next)]),
+
+	([(Opening_Next =:= Closing_Prev + 1)] :- [fact(Prev, a, hp_installment), fact(Prev, next, Next), fact(Prev, closing_date, Closing_Prev), fact(Next, opening_date, Opening_Next)]),
+
+	([(Interest_Rate =:= Installment_Rate)] :- [fact(HP, a, hp_arrangement), fact(Installment, hp_arrangement, HP), fact(HP, interest_rate, Interest_Rate), fact(Installment, interest_rate, Installment_Rate)]),
+
+	([fact(Installment, next, Next), fact(Next, a, hp_installment), fact(Next, hp_arrangement, HP), fact(Next, payment_type, regular)] :- [fact(HP, a, hp_arrangement), fact(HP, repayment_amount, R), fact(Installment, a, hp_installment), fact(Installment, hp_arrangement, HP), fact(Installment, closing_balance, C), (C >= R)]),
+
+
+	fact(hp1, a, hp_arrangement),
+	fact(hp1, cash_price, 500),
+	fact(hp1, repayment_amount, 50),
+	fact(hp1, installments, Installments),
+	fact(hp1, interest_rate, 0.13),
+
+	fact(Installment, list_in, Installments),
+	fact(Installment, value, in1),
+	fact(in1, a, hp_installment),
+	fact(in1, hp_arrangement, hp1),
+	fact(in1, opening_balance, 100),
+	fact(in1, payment_type, regular)
+]).
+
+body_constraints_test1([
+	fact(a, b, 50),
+	([(Z =:= X - 25), fact(a, b, Z)] :- [fact(a, b, X), (X >= 25)])
+]).
+
+/*
+Continuous curve theory
+*/
 
 
 
@@ -940,6 +1316,17 @@ print_facts([]).
 print_facts([fact(S, P, O) | Facts]) :-
 	format("~w ~w ~w~n", [S, P, O]),
 	print_facts(Facts).
+
+
+
+print_rules(Rules) :-
+	nl,
+	foreach(member(R, Rules), (
+		writeq(R),
+		nl)),
+	nl.
+
+
 /*
 =/2
 ==/2
