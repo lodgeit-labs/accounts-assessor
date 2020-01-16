@@ -1,3 +1,5 @@
+% not used, seems like there's little point keeping this up to date while we develop the new framework
+
 do_livestock_crosscheck(Events, Natural_Increase_Costs, S_Transactions, Transactions, Opening_Costs_And_Counts, _From_Day, To_Day, Exchange_Rates, Accounts, Report_Currency, Average_Costs, Type) :-
 	% gather up the inputs
 	natural_increase_count(Type, Events, Natural_Increase_Count),
