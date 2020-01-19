@@ -20,31 +20,21 @@ preprocess_s_transactions2(Static_Data, [S_Transaction|S_Transactions], Processe
 	catch(
 		(
 			check_that_s_transaction_account_exists(S_Transaction, Accounts),
-			catch(
-				preprocess(Static_Data, S_Transaction, S_Transaction_String, Outstanding_In, Outstanding_Mid, Debug_Head, Transactions_Out_Tail, Debug_So_Far, Debug_So_Far2, Processed_S_Transactions, Processed_S_Transactions_Tail, Report_Currency, Exchange_Rates, Start_Date, End_Date, Transactions_Out),
-				not_enough_goods_to_sell,
-				(
-					atomic_list_concat([not_enough_goods_to_sell, ' when processing ', S_Transaction_String], Debug_Head),
-					Outstanding_In = Outstanding_Out,
-					Transactions_Out = [],
-					Debug_Tail = [],
-					Processed_S_Transactions = []
-				)
-			)
+			preprocess(Static_Data, S_Transaction, S_Transaction_String, Outstanding_In, Outstanding_Mid, Debug_Head, Transactions_Out_Tail, Debug_So_Far, Debug_So_Far2, Processed_S_Transactions, Processed_S_Transactions_Tail, Report_Currency, Exchange_Rates, Start_Date, End_Date, Transactions_Out)
 		),
 		E,
 		(
-			term_string(E, E_Str),
-			throw_string([E_Str, ' when processing ', S_Transaction_String]) /*hmm shouldn't throw string here*/
+			format(string(Debug_Head), '~q when processing ~q', [E, S_Transaction_String]),
+			Outstanding_In = Outstanding_Out,
+			Transactions_Out = [],
+			Debug_Tail = [],
+			Processed_S_Transactions = [],
+			add_alert('error', Debug_Head)
 		)
 	),
-	(
-		var(Debug_Tail) /* debug tail is left free if processing this transaction succeeded ... */
-	->
-		preprocess_s_transactions2(Static_Data, S_Transactions, Processed_S_Transactions_Tail, Transactions_Out_Tail,  Outstanding_Mid, Outstanding_Out, Debug_Tail, Debug_So_Far2)
-	;
-		true
-	).
+	(	var(Debug_Tail) /* debug tail is left free if processing this transaction succeeded ... */
+	->	preprocess_s_transactions2(Static_Data, S_Transactions, Processed_S_Transactions_Tail, Transactions_Out_Tail,  Outstanding_Mid, Outstanding_Out, Debug_Tail, Debug_So_Far2)
+	;	true).
 
 preprocess(Static_Data, S_Transaction, S_Transaction_String, Outstanding_In, Outstanding_Mid, Debug_Head, Transactions_Out_Tail, Debug_So_Far, Debug_So_Far2, Processed_S_Transactions, Processed_S_Transactions_Tail, Report_Currency, Exchange_Rates, Start_Date, End_Date, Transactions_Out) :-
 	(	preprocess_s_transaction(Static_Data, S_Transaction, Transactions0, Outstanding_In, Outstanding_Mid)
@@ -107,7 +97,9 @@ preprocess_s_transaction(Static_Data, S_Transaction, Transactions, Outstanding_B
 		Counteraccount_Vector = []
 	->
 		(
-			assertion(Counteraccount_Vector = []),
+			(	var(Trading_Account)
+			->	throw_string('trading account but no exchanged unit')
+			;	true),
 			record_expense_or_earning_or_equity_or_loan(Static_Data, Action_Verb, Vector_Ours, Exchanged_Account, Transaction_Date, Description, Ts4),
 			Outstanding_After = Outstanding_Before
 		)

@@ -107,6 +107,7 @@ columns(Columns) :-
 	],
 
 	Market_Event_Details = [
+	/*fixme, not cost but value */
 		column{id:unit_cost_foreign, title:"Unit Market Value Foreign", options:_{}},
 		column{id:conversion, title:"Conversion", options:_{}},
 		column{id:unit_cost_converted, title:"Unit Market Value Converted", options:_{}},
@@ -127,8 +128,10 @@ columns(Columns) :-
 /*group{id:on_hand_at_cost, title:"On Hand At Cost Per Unit", members:On_Hand_At_Cost_Per_Unit_Details},
 column{id:count, title:"Count", options:_{}},
 group{id:on_hand_at_cost, title:"On Hand At Cost Total", members:On_Hand_At_Cost_Total_Details},*/
-	Events = [ 
+	Events = [
+		/*trade?*/
 		group{id:purchase, title:"Purchase", members:Sale_Event_Details},
+		/*checkpoint?*/
 		group{id:opening, title:"Opening", members:Market_Event_Details},
 		group{id:sale, title:"Sale", members:Sale_Event_Details},
 		group{id:closing, title:"Closing", members:Market_Event_Details},

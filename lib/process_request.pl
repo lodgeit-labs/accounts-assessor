@@ -100,7 +100,7 @@ process_request(Options, File_Paths) :-
 			print_file(Xml_Path)
 		)
 	;	writeln(Response_Json_String)),
-	make_zip.
+	(make_zip->true;true).
 
 process_multifile_request(File_Paths) :-
 	(	accept_request_file(File_Paths, Xml_Tmp_File_Path, xml)

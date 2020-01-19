@@ -16,12 +16,13 @@ process_request_ledger_debug(Data, S_Transactions0) :-
 	writeq(Counts).
 
 ggg(Data, S_Transactions0, Count) :-
+	Count = 41,
 	between(0, $>length(S_Transactions0), Count),
 	take(S_Transactions0, Count, STs),
 	format(user_error, '~q: ~q ~n ~n', [Count, $>last(STs)]),
 	once(process_request_ledger2(Data, STs, Structured_Reports)),
 	length(Structured_Reports.crosschecks.errors, L),
-	(	L < 2
+	(	L \= 2
 	->	true
 	;	(gtrace,format(user_error, '~q: ~q ~n', [Count, Structured_Reports.crosschecks.errors]))).
 
@@ -129,10 +130,9 @@ make_gl_viewer_report :-
 	Viewer_Dir = 'general_ledger_viewer',
 	absolute_file_name(my_static(Viewer_Dir), Src, [file_type(directory)]),
 	report_file_path(loc(file_name, Viewer_Dir), loc(absolute_url, Dir_Url), loc(absolute_path, Dst)),
-	atomic_list_concat(['ln -s ', Src, ' ', Dst], Cmd),
+	atomic_list_concat(['ln -s -n -f ', Src, ' ', Dst], Cmd),
 	%atomic_list_concat(['cp -r ', Src, ' ', Dst], Cmd),
-	gtrace,
-	shell(Cmd),
+	shell(Cmd, _),
 	atomic_list_concat([Dir_Url, '/link.html'], Full_Url),
 	report_entry('GL viewer', loc(absolute_url, Full_Url), 'gl_html').
 
@@ -185,7 +185,7 @@ symlink_tmp_taxonomy_to_static_taxonomy(Unique_Taxonomy_Dir_Url) :-
 	atomic_list_concat([Server_Public_Url, '/tmp/', Tmp_Dir, '/taxonomy/'], Unique_Taxonomy_Dir_Url),
 	absolute_tmp_path(loc(file_name, 'taxonomy'), loc(absolute_path, Tmp_Taxonomy)),
 	resolve_specifier(loc(specifier, my_static('taxonomy')), loc(absolute_path,Static_Taxonomy)),
-	atomic_list_concat(['ln -s ', Static_Taxonomy, ' ', Tmp_Taxonomy], Cmd),
+	atomic_list_concat(['ln -s -n -f ', Static_Taxonomy, ' ', Tmp_Taxonomy], Cmd),
 	shell(Cmd, _).
 
 	

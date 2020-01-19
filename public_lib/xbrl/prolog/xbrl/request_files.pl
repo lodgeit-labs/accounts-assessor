@@ -65,11 +65,12 @@ http_post_save_file(Stream, file(loc(absolute_path, Tmp_File_Path)), Options) :-
 	setup_call_cleanup(open(Tmp_File_Path, write, Out), copy_stream_data(Stream, Out), close(Out)).
 */
 make_zip :-
+	resolve_specifier(loc(specifier, my_tmp('')), loc(absolute_path, Tmp)),
 	my_request_tmp_dir(loc(tmp_directory_name,Tmp_Dir)),
 	resolve_specifier(loc(specifier, my_tmp(Tmp_Dir)), loc(absolute_path, Tmp_Dir_Path)),
 	atomic_list_concat([Tmp_Dir_Path, '.zip'], Zip_Fn),
 	atomic_list_concat([Tmp_Dir_Path, '/'], Tmp_Dir_With_Slash),
-	archive_create(Zip_Fn, [Tmp_Dir_With_Slash], [format(zip)/*, directory('tmp')*/]),
+	archive_create(Zip_Fn, [Tmp_Dir_With_Slash], [format(zip), directory(Tmp)]),
 	atomic_list_concat(['mv ', Zip_Fn, ' ', Tmp_Dir_With_Slash], Cmd),
 	shell(Cmd, _).
 
