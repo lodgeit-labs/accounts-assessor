@@ -1,6 +1,7 @@
 :- use_module(library(clpq)).
 
 :-  op(  1,  fx,   [ * ]).
+:- dynamic debug_level/1.
 
 '*'(_).
 /*
@@ -424,32 +425,68 @@ dim_solve_formula((V, U), Current_Basis, New_Basis, V_Reduced, Current_Inputs, N
 	quantity_normalize(New_Basis, (New_V, U), (V_Reduced, _)).
 
 
+debug_level(0).
+
 
 debug(X, N) :-
 	((
-		N =< 0
+		debug_level(M),
+		N =< M
 	) -> ( 
 		call(X)
 	) ; (
 		true
 	)).
 
+set_debug(N) :-
+	retract(debug_level(_)),
+	assertz(debug_level(N)).
+
+/*
+Debugging:
+* State
+	* doc
+	* rules
+	* constraints
+	* execution path:
+		round = 3
+		rule = {X p Z} <= {X a Y. Y p Z}
+		body item = Y p Z (or 2)
+		fact = 
+* Execution trace
+* Breakpoints
+* Steps
+* Timing
+* Fine-grained selective debugging output
+
+Optimization
+* Triple indexing
+
+Input format
+
+*/
+
+
 /*
 Chase
 */
 chase(KB, Results, Max_Depth) :-
-	%make_kb(KB, Facts, Rules, Rule_Vars, Vars),
-	%format("kb facts: ~w~n", [Facts]),
-	%format("kb vars: ~w~n",[Vars]),
-	make_collect_facts_rules(KB, Facts, Rules),
-	print_facts(Facts), nl,
-	chase_rules(Facts, Rules, Results, 1, _, Max_Depth).
+	% make_kb(KB, Rules) % facts will go into doc, any constraints in the facts will be applied
+	% separate tuple-generating constraints from arithmetic constraints
+	% apply all tuple-generating constraints first, then apply arithmetic constraints, so the arithmetic
+	%   constraints can apply to the results of the tuple-generating constraints
+	make_kb(KB, New_KB, Max_Depth),
+	format("KB: ~n", []),
+	print_kb(New_KB),
+	chase_kb(New_KB, Results),
+	print_facts(Results.facts).
 
-chase_rules(Facts, Rules, New_Facts, Depth, N, Max_Depth) :-
-	format("~nChase round: ~w~n", [Depth]),
+
+chase_kb(KB, New_KB) :-
+	format("~nChase round: ~w~n", [KB.depth]),
 	%format("Facts: ~w~n", [Facts]),
-	copy_term(Facts, Original_Facts),
-	chase_round(Facts, Rules, Next_Facts),
+	copy_term(KB.facts, Original_Facts),
+	chase_round(KB, Next_KB),
 	%format("Original facts: ~w~n", [Original_Facts]),
 	% because vars in the fact-set have been bound, they compare == to the values they've
 	% been bound to, so we can't tell using just == that the new fact set is different from
@@ -462,43 +499,43 @@ chase_rules(Facts, Rules, New_Facts, Depth, N, Max_Depth) :-
 
 		 % chase should stop when there's not enough information to determine that the new set of facts is not
 		 % equivalent to the previous set of facts
-		 \+(fact_sets_equal(Original_Facts, Next_Facts)),
-		 Depth < Max_Depth
+		 \+(fact_sets_equal(Original_Facts, Next_KB.facts)),
+		 KB.depth < KB.max_depth
 		)
 	-> 	(
 		 format("Done chase round:~n", []),
-		 print_facts(Next_Facts),nl,
-
-		 Next_Depth is Depth + 1,
-		 chase_rules(Next_Facts, Rules, New_Facts, Next_Depth, N, Max_Depth)
+		 Next_Depth is KB.depth + 1,
+		 Next_KB2 = Next_KB.put(_{depth:Next_Depth}),
+		 chase_kb(Next_KB2, New_KB)
 		)
 	;	(
-		 format("~nChase finished after ~w rounds:~n", [Depth]),
-		 print_facts(Next_Facts), nl,
-
-
-		 New_Facts = Next_Facts,
-		 N = Depth
+		 format("~nChase finished after ~w rounds:~n", [KB.depth]),
+		 New_KB = Next_KB
 		)
 	).
 
 
-chase_round(Facts, [], Facts).
-chase_round(Facts, [Rule | Rules], New_Facts) :-
-	chase_rule(Facts, Rule, Heads_Nested),
-
+chase_round(KB, New_KB) :-
+	format("Chase round: ~w~n", [KB.depth]),
+	
+	maplist(chase_rule(KB),KB.fact_rules,Heads_Nested),
 	flatten(Heads_Nested, Heads),
-	%chase_head_facts(Heads, Head_Facts),
-	%chase_head_constraints(Heads, Head_Constraints),
-	append(Facts, Heads, Next_Facts_List),
-	%format("Next facts list (before constraints): ~w~n", [Next_Facts_List]),
-	%chase_apply_constraints(Head_Constraints),
-	%format("Next facts list (after constraints): ~w~n", [Next_Facts_List]),
-
+	format("Heads: ~w~n~n", [Heads]),
+	append(KB.facts, Heads, Next_Facts_List),
 	to_set('==', Next_Facts_List, Next_Facts),
-	%format("Next facts: ~w~n", [Next_Facts]),
+	Next_KB = KB.put(_{facts:Next_Facts}),
+	format("Next_KB: ~w~n~n", [Next_KB]),
 
-	chase_round(Next_Facts, Rules, New_Facts).
+	maplist(chase_rule(Next_KB),KB.constraint_rules,Constraints_Nested),
+	format("Constraints_Nested: ~w~n", [Constraints_Nested]),
+	flatten(Constraints_Nested, Constraints),
+	append(KB.constraints, Constraints, Next_Constraints_List),
+	New_KB0 = Next_KB.put(_{constraints:Next_Constraints_List}),
+	to_set('==', New_KB0.facts, New_Facts_Set),
+	New_KB = New_KB0.put(_{facts:New_Facts_Set}),
+
+	* format("New KB: ~w~n", [New_KB]).
+
 
 chase_head_facts([], []).
 chase_head_facts([Head|Heads], [Head|Head_Facts]) :- Head = fact(_,_,_), chase_head_facts(Heads, Head_Facts).
@@ -515,56 +552,31 @@ chase_apply_constraints([Constraint | Rest]) :-
 
 % match the rule against the fact-set treating distinct variables in the fact-set as distinct fresh constants
 % when asserting the head constraints, treat any variables bound from the fact-set as actual variables
-chase_rule(Facts, Rule, Heads) :-
-	debug((
-		format("chase_rule: ~w~n", [Rule])
-	), 1),
+chase_rule(KB, Rule, Heads) :-
 	Rule = (_ :- Body),
-	chase_rule_helper2(Facts, Rule, Body, Facts, [], [], Heads).
+	chase_rule_helper2(KB.facts, Rule, Body, KB.facts, [], [], Heads).
 
 % if we match all the body items, succeed
 chase_rule_helper2(_, Rule, [], _, Current_Subs, Current_Heads, [New_Head | Current_Heads]) :-
-	debug((
-		format("chase_rule_helper2: done~n", [])
-	), 2),
 	Rule = (Head :- _),
 	%existential vars will be fresh; universal vars will be bound with the same bindings as found in the body
-	copy_facts_with_subs2(Head, Current_Subs, New_Head, _),
-	debug((
-		format("after copy facts...~n", [])
-	),4).
-
+	copy_facts_with_subs2(Head, Current_Subs, New_Head, _).
 
 % we've tried one body item against all the facts
-chase_rule_helper2(_, _, [Body_Item | _], [], _, Current_Heads, Current_Heads) :-
-	debug((
-		format("chase_rule_helper2: body item = ~w ; no more facts~n", [Body_Item])
-	), 3).
+chase_rule_helper2(_, _, [Body_Item | _], [], _, Current_Heads, Current_Heads).
 
 % still more facts, still more body items
 chase_rule_helper2(Facts, Rule, [Body_Item|Rest], [Fact | Rest_Facts], Current_Subs, Current_Heads, New_Heads) :-
 	Body_Item = fact(_,_,_),
-	debug((
-		format("chase_rule_helper2 (fact) : body item = ~w ; fact = ~w~n", [Body_Item, Fact])
-	), 2),
 	((
 		match_fact(Body_Item, Fact, Current_Subs, New_Subs)
 	) -> (
 		% body item match, recurse over rest of body
-		debug((
-			format("match: ~w~n", [Rest])
-		), 3),
 		chase_rule_helper2(Facts, Rule, Rest, Facts, New_Subs, Current_Heads, Next_Heads)
 	) ; (
 		% no match, no updates
-		debug((
-			format("no match~n", [])
-		), 3),
 		Next_Heads = Current_Heads
 	)),
-	debug((
-		format("...~n", [])
-	), 3),
 	% recurse over rest of facts, repeating the same body item
 	chase_rule_helper2(Facts, Rule, [Body_Item|Rest], Rest_Facts, Current_Subs, Next_Heads, New_Heads).
 
@@ -621,6 +633,8 @@ get_sub(X, [(Y:S) | Subs], Sub) :-
 % succeed if the constraint is a ground term, but we need to be checking
 % for ground and applying the constraints after substituting w/ the
 % current subs
+% since the constraint is a ground term we know that applying it won't have
+% any effect
 check_body_constraint(Constraint, Subs, Subs) :-
 	debug((
 		format("Check body constraint: ~w~n", [Constraint])
@@ -628,7 +642,51 @@ check_body_constraint(Constraint, Subs, Subs) :-
 	copy_fact_with_subs2(Constraint, Subs, New_Constraint, _),
 	ground(New_Constraint),
 	{New_Constraint}.
+	% to extend to constraints with variables, use:
+	% \+({~New_Constraint}).
+	% where ~ is the negation of New_Constraint, i.e. if the constraint is X < Y, use \+({X >= Y})
+	% but note that this will only work on sets of constraints for which clpq is actually complete
+	% in the sense of: if it's semantically true that a constraint X is false, then {X} will necessarily
+	%  fail (as opposed to succeeding with variables because it can't determine that X is unsatisfiable)
+	%  if we attempt to use this with sets of constraints for which clpq is not complete, then
+	%  the reasoning would become unsound, i.e. we may derive something which is actually semantically false
+	%  which would be bad
 
+/*
+ \+(({~B}, ground(B)))
+
+ current constraint: X < 5
+ rule body constraint: X >= 10
+ X >= 10 is satisfied if X < 10 is unsatisfiable
+ X < 10 is satisfiable if {X < 10} succeeds, assuming CLPQ is complete relative to any other constraints that X is involved in
+so X < 10 is unsatisfiable if \+({X < 10}) succeeds
+
+ \+(({X < 10}, ground(X < 10)))
+
+
+ succeeds, consistent, bound      -> fails; correct
+ succeeds, consistent, unbound    -> succeeds; incorrect and leads to inconsistency
+ succeeds, inconsistent, unbound  -> succeeds; correct
+ fails, inconsistent;             -> succeeds; correct
+
+ \+(({~B}, \+ground(B)))
+ succeeds, consistent, bound	  -> succeeds; incorrect and leads to inconsistency
+ succeeds, consistent, unbound	  -> fails; correct
+ succeeds, inconsistent, unbound  -> fails; incorrect but fine
+ fails, inconsistent;			  -> succeeds; correct
+
+ \+(({~B}, and_we_know_there_are_solutions_to({~B}))
+ ground(~B) implements "and_we_know_there_are_solutions_to({~B})", with false negatives
+ i.e. if ground(~B) succeeds, we know there are solutions to ~B; the \+ will then fail correctly
+if ground(~B) fails, there might still be solutions to ~B; the \+ will then succeed, leading to incorrect behavior
+
+we need the opposite, i.e. we have \+(({~B}, P)) where P is an approximation of "and_we_know_there_are_solutions_to({~B})", but
+with at worst, false positives
+
+
+
+
+*/
 
 
 fact_sets_equal(A, B) :-
@@ -699,7 +757,7 @@ copy_facts_with_subs2([Fact | Facts], Subs, [New_Fact | New_Facts], New_Subs) :-
 	copy_facts_with_subs2(Facts, Next_Subs, New_Facts, New_Subs).
 
 % my next problem is making these equality/constraint assertions robust against when you feed an atom through it
-copy_facts_with_subs2([Constraint | Facts], Subs, New_Facts, New_Subs) :-
+copy_facts_with_subs2([Constraint | Facts], Subs, [New_Constraint | New_Facts], New_Subs) :-
 	Constraint = (_ = _),
 	debug((
 		format("copy_facts_with_subs2: [~w | ~w]~n",[Constraint, Facts])
@@ -709,7 +767,7 @@ copy_facts_with_subs2([Constraint | Facts], Subs, New_Facts, New_Subs) :-
 	LHS = RHS,
 	copy_facts_with_subs2(Facts, Next_Subs, New_Facts, New_Subs).
 
-copy_facts_with_subs2([Constraint | Facts], Subs, New_Facts, New_Subs) :-
+copy_facts_with_subs2([Constraint | Facts], Subs, [New_Constraint | New_Facts], New_Subs) :-
 	Constraint \= fact(_,_,_),
 	Constraint \= (_ = _),
 	debug((
@@ -721,7 +779,8 @@ copy_facts_with_subs2([Constraint | Facts], Subs, New_Facts, New_Subs) :-
 	) -> (
 		true
 	) ; (
-		format("Inconsistency error: ~w~n", [New_Constraint])
+		format("Inconsistency error: ~w~n", [New_Constraint]),
+		fail
 	)),
 	copy_facts_with_subs2(Facts, Next_Subs, New_Facts, New_Subs).
 
@@ -762,6 +821,70 @@ make_collect_facts_rules([(Head :- Body) | KB], Facts, [Rule | Rules]) :-
 	copy_term((Head :- Body), Rule),
 	make_collect_facts_rules(KB, Facts, Rules).
 
+% make_kb(Input_KB, Facts, Constraints, Fact_Generating_Rules, Constraint_Generating_Rules)
+make_kb(Input, KB, Max_Depth) :-
+	findall(
+		Fact,
+		(
+			member(Fact, Input),
+			Fact = fact(_,_,_)
+		),
+		Facts
+	),
+	findall(
+		Constraint,
+		(
+			member(Constraint, Input),
+			Constraint \= fact(_,_,_),
+			Constraint \= (_ :- _)
+		),
+		Constraints
+	),
+	findall(
+		Fact_Rule,
+		(
+			member(Fact_Rule0, Input),
+			Fact_Rule0 = (_ :- _),
+			get_fact_rule(Fact_Rule0, Fact_Rule) 
+		),
+		Fact_Rules
+	),
+	findall(
+		Constraint_Rule,
+		(
+			member(Constraint_Rule0, Input),
+			Constraint_Rule0 = (_ :- _),
+			get_constraint_rule(Constraint_Rule0, Constraint_Rule)
+		),
+		Constraint_Rules
+	),
+	KB = kb{
+		facts: Facts,
+		constraints: Constraints,
+		fact_rules: Fact_Rules,
+		constraint_rules: Constraint_Rules,
+		depth: 1,
+		max_depth: Max_Depth
+	}.
+
+get_fact_rule(Head :- Body, [New_Head] :- Body) :-
+	member(New_Head, Head),
+	New_Head = fact(_,_,_).
+
+get_constraint_rule(Head :- Body, [New_Head] :- Body) :-
+	member(New_Head, Head),
+	New_Head \= fact(_,_,_).
+
+print_kb(KB) :-
+	format("Facts: ~n", []),
+	print_facts(KB.facts),
+	nl,
+	format("Constraints: ~n", []),
+	print_constraints(KB.constraints),
+	nl,
+	format("Rules: ~n", []),
+	print_rules(KB.fact_rules),
+	print_rules(KB.constraint_rules).
 
 chase_test1([
 	fact(hp1, a, hp_arrangement),
@@ -1244,7 +1367,7 @@ relation_test1([
 	([(Payment_Amount =:= Repayment_Amount)] :- [fact(I, a, hp_installment), fact(I, hp_arrangement, HP), fact(HP, repayment_amount, Repayment_Amount), fact(I, payment_amount, Payment_Amount), fact(I, payment_type, regular)]),
 	([fact(I, payment_type, regular)] :- [fact(I, a, hp_installment), fact(I, hp_arrangement, HP), fact(HP, repayment_amount, Repayment_Amount), fact(I, payment_amount, Repayment_Amount), fact(I, payment_type, regular)]),
 
-	([(Interest_Amount =:= Opening_Balance * Interest_Rate)] :- [fact(I, a, hp_installment), fact(I, interest_rate, Interest_Rate), fact(I, interest_amount, Interest_Amount), fact(I, opening_balance, Opening_Balance)]),
+	([((Interest_Amount / Interest_Rate) =:= Opening_Balance)] :- [fact(I, a, hp_installment), fact(I, interest_rate, Interest_Rate), fact(I, interest_amount, Interest_Amount), fact(I, opening_balance, Opening_Balance)]),
 
 	([(Closing_Balance =:= Opening_Balance + Interest_Amount - Payment_Amount)] :- [fact(I, a, hp_installment), fact(I, closing_balance, Closing_Balance), fact(I, opening_balance, Opening_Balance), fact(I, interest_amount, Interest_Amount), fact(I, payment_amount, Payment_Amount)]),
 
@@ -1317,14 +1440,23 @@ print_facts([fact(S, P, O) | Facts]) :-
 	format("~w ~w ~w~n", [S, P, O]),
 	print_facts(Facts).
 
+print_constraints([]) :- nl.
+print_constraints([Constraint | Constraints]) :-
+	((
+		\+((Constraint = (X = Y), X == Y)),
+		\+((Constraint = (X =:= Y), X == Y))
+	) -> (
+		format("~w~n", [Constraint])
+	) ; (
+		true
+	)),
+	print_constraints(Constraints).
 
 
 print_rules(Rules) :-
-	nl,
 	foreach(member(R, Rules), (
 		writeq(R),
-		nl)),
-	nl.
+		nl)).
 
 
 /*
