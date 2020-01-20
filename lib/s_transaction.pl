@@ -229,3 +229,58 @@ invert_s_transaction_vector(T0, T1) :-
 	vec_inverse(Vector, Vector_Inverted).
 
 
+
+handle_additional_files(S_Transactions) :-
+	maplist(handle_additional_file, $> doc_list_items($> doc_value(l:request, ic:additional_files)), S_Transactions0),
+	flatten(S_Transactions0, S_Transactions).
+
+handle_additional_file(Bn) :-
+	(	extract_german_bank_csv0(Bn, S_Transactions)
+	->	true
+	;	throw_string(['unrecognized file (', Bn, ')'])).
+
+extract_german_bank_csv0(Bn, , S_Transactions) :-
+	extract_german_bank_csv1(loc(absolute_url, $> doc_value(Bn, ic:uri)), S_Transactions).
+
+extract_german_bank_csv1(File, , S_Transactions) :-
+	/* File is either loc(file_name, xxx)
+	- coming from file upload form
+
+	or loc(absolute_url, xxx)
+	- coming from files sheet
+	 */
+	grab_file(File, Stream),
+	csv_read_stream(Stream, Rows, [separator(0`;)]),
+	/*skip the header*/
+	Header = `Buchung;Valuta;Text;Betrag;;Ursprung\n`,
+	(	read_line_to_codes(Stream, Header)
+	->	true
+	;	throw_string([File, ': expected header not found: ', Header]),
+	Account = Fn,
+	maplist(german_bank_csv_row(Account, Currency), Rows, S_Transactions).
+
+
+german_bank_csv_row(Account, Currency, Row, S_Transaction) :-
+
+	Date,
+	Side,
+	phrase(german_bank_money, Money_Atom, Money_Number),
+	(	Side == 'H'
+	->	Money_Amount is Money_Number
+	;	Money_Amount is -Money_Number),
+	Vector = [coord(Currency, Money_Amount)],
+	(	phrase(gbtd(Verb), Description)
+	->	true
+	;	add_alert(['failed to parse description: ', Description])),
+	S_Transaction = s_transaction(Date, Verb, Vector, Account, Exchanged).
+
+
+
+/* german bank transaction description */
+gbtd('Expenses') --> ['Verfall Terming. '],
+
+
+
+
+
+/* todo alerts html */

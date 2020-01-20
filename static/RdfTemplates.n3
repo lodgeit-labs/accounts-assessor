@@ -1,8 +1,7 @@
-#@prefix : <https://rdf.lodgeit.net.au/rdf.lodgeit.net.au.v1.n3#> .
-#@prefix : <https://rdf.lodgeit.net.au/v1#> .
+@prefix : <https://rdf.lodgeit.net.au/v1#> .
 
 
-
+@prefix l: <https://rdf.lodgeit.net.au/v1/request#> .
 @prefix excel: <https://rdf.lodgeit.net.au/v1/excel#> .
 
 @prefix depr: <https://rdf.lodgeit.net.au/v1/calcs/depr#> .
@@ -57,21 +56,21 @@ hp_ui:hp_calculator_sheets
 			]
 		]
 	).
-	
+
 hp_ui:hp_calculator_query
 	excel:position [excel:col "A"; excel:row "1"];
 	excel:title "Standalone Calculator Query Parameters";
 	excel:cardinality excel:single;
 	excel:class hp:hp_calculator_query;
 	excel:fields (
-		[	excel:property hp:begin_date; 
-			excel:type xsd:dateTime; 
+		[	excel:property hp:begin_date;
+			excel:type xsd:dateTime;
 			excel:comment "ignored for Investment Calculator"]
-		[	excel:property hp:end_date; 
-			excel:type xsd:dateTime; 
+		[	excel:property hp:end_date;
+			excel:type xsd:dateTime;
 			excel:comment "ignored for Investment Calculator"]
 		[
-			excel:property hp:hp_contract; 
+			excel:property hp:hp_contract;
 			excel:template hp_ui:hp_contract]
 	).
 
@@ -79,7 +78,7 @@ hp_ui:hp_calculator_query
 hp_ui:hp_contract
 	excel:position [excel:col "A"; excel:row "5"];
 	excel:title "Hirepurchase Contract";
-	excel:cardinality excel:single;	
+	excel:cardinality excel:single;
 	excel:class hp:hp_contract;
 	excel:fields (
 		[excel:property hp:contract_number]
@@ -173,7 +172,7 @@ depr_ui:depreciation_example_queries rdf:value (
 		depr:depreciation_query_pool [ a rdf:value ;
 				rdf:value "general_pool"^^xsd:string ] ;
 		depr:depreciation_query_to_date [ a rdf:value ;
-				rdf:value "2019-02-02T00:00:00"^^xsd:dateTime ] ] 
+				rdf:value "2019-02-02T00:00:00"^^xsd:dateTime ] ]
 	[ a depr:depreciation_query ;
 		depr:depreciation_query_asset_id [ a rdf:value ;
 				rdf:value "car456"^^xsd:string ] ;
@@ -206,7 +205,7 @@ depr_ui:depreciation_example_queries rdf:value (
 		depr:depreciation_query_termination_value [ a rdf:value ;
 				rdf:value 500 ] ]
 ).
-									
+
 
 depr_ui:depreciation_example_events rdf:value (
 	[ a depr:depreciation_event ;
@@ -263,7 +262,7 @@ depr_ui:depreciation_example_assets rdf:value (
 	depr:start_date [ a rdf:value ;
 			rdf:value "2015-03-16T00:00:00"^^xsd:dateTime ] ]
 ).
-									
+
 
 depr:depreciation_query_has_type rdfs:range depr:depreciation_query_type.
 
@@ -302,9 +301,9 @@ depr_ui:depreciation_queries
 		[excel:property depr:depreciation_query_written_down_value; excel:type xsd:decimal]
 		[excel:property depr:depreciation_query_profit_and_loss; excel:type xsd:decimal]
 	).
-	
-	
-	
+
+
+
 depr_ui:depreciation_events
 	excel:title "depreciation_events";
 	excel:position [excel:col "A"; excel:row "1"];
@@ -365,7 +364,7 @@ ic_ui:investment_calculator_sheets
 			excel:optional true;
 			excel:example_doc
 				[
-					ic:items [rdf:value ()]
+					rdf:value ()
 				]
 		]
 		[
@@ -377,7 +376,7 @@ ic_ui:investment_calculator_sheets
 				]
 		]
 	).
-	
+
 ic_ui:gl
 	excel:position [excel:col "A"; excel:row "1"];
 	excel:title "GL input";
@@ -402,15 +401,6 @@ ic_ui:gl_entries_template
 	).
 
 ic_ui:account_taxonomies
-	excel:cardinality excel:single;
-	excel:class ic:account_taxonomies;
-	excel:fields (
-		[excel:property ic:items; excel:template ic_ui:account_taxonomies_items_template]
-	).
-
-ic_ui:account_taxonomies_items_template
-	excel:position [excel:col "A"; excel:row "4"];
-	excel:title "URLs";
 	excel:cardinality excel:multi;
 	excel:class ic:account_taxonomy;
 	excel:fields (
