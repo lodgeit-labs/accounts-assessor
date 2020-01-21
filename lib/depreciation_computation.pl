@@ -2,6 +2,7 @@
 :- module(depreciation_computation,[
 	depreciation_between_start_date_and_other_date/11,
 	depreciation_pool_from_start/4,
+	depreciation_pool_between_two_dates/5,
 	written_down_value/5,
 	depreciation_between_two_dates/5,
 	profit_and_loss/5]).
@@ -89,6 +90,11 @@ depreciation_pool_from_start(Pool,To_date,Method,Total_depreciation):-
 		depreciation_between_start_date_and_other_date(Cost,Method,Start_date,To_date,Asset_id,_,1,true,Pool,0,Depreciation_value)),
 		Depreciation_values_lst),
 	sum_list(Depreciation_values_lst,Total_depreciation). 
+
+depreciation_pool_between_two_dates(Pool,From_date, To_date, Method, Total_depreciation):-
+	depreciation_pool_from_start(Pool,From_date,Method,Before_depreciation),
+	depreciation_pool_from_start(Pool,To_date,Method,All_depreciation),
+	Total_depreciation is All_depreciation - Before_depreciation.
 
 %start:-depreciationInInterval(corolla,76768,date(2019,7,1),0,32,76768,_,diminishing_value,1,5,_,0,Depreciation_value).
 %start:- depreciation_between_start_date_and_other_date(1000,diminishing_value,date(2017,1,1),date(2019,10,2),car123,_,1,false,_,0,Result).
