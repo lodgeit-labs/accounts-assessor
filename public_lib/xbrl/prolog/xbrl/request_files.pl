@@ -182,3 +182,4 @@ add_result_file_by_filename(Name) :-
 add_result_file_by_path(Path) :-
 	tmp_file_path_to_url(Path, Url),
 	add_report_file('result', 'result', Url).
+

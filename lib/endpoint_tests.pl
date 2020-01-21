@@ -26,9 +26,6 @@ this runs the requests in tests/endpoint_tests and compares the responses agains
 
 endpoints_server(S) :-
 	current_prolog_flag(endpoints_server, S).
-services_server(S) :-
-	current_prolog_flag(services_server, S).
-
 
 :- multifile
 	prolog:message//1.
@@ -461,9 +458,6 @@ fetch_report_file_from_url(Url, Path) :-
 	absolute_tmp_path($>exclude_file_location_from_filename(Url), Path),
 	fetch_file_from_url(Url, Path).
 
-fetch_file_from_url(loc(absolute_url,Url), loc(absolute_path, Path)) :-
-	/* todo: how to escape shell commands in swipl? just call the python service? the data will be safely serialized into json and POST'ed */
-	services_server_shell_cmd(['curl', Url, '-o', Path]).
 
 /*
 check_output_taxonomy(Type, Response_XML_Path) :-
@@ -500,11 +494,3 @@ check_output_taxonomy(Type, Response_XML_Path) :-
 
 %	http_get(Response_URL, Response_XML, []),
 
-json_post(Url, Payload) :-
-	http_post(Url, json(Payload), json(Response), [content_type('application/json')]),
-	(	Response.status == ok
-	->	true
-	;	throw(Response)).
-
-services_server_shell_cmd(Cmd) :-
-	json_post($>format(string(<$), '~w/shell/rpc/', [$>services_server(<$)]), _{cmd:Cmd,quiet_success:true}).

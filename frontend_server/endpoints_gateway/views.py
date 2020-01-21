@@ -33,14 +33,17 @@ def upload(request):
 	prolog_flags = """set_prolog_flag(services_server,'""" + settings.MY_SERVICES_SERVER_URL + """')"""
 
 	if request.method == 'POST':
+		print(request.FILES)
 		form = ClientRequestForm(request.POST, request.FILES)
 		if form.is_valid():
 			tmp_directory_name, tmp_directory_path = invoke_rpc_cmdline.create_tmp()
 			request_files_in_tmp = []
-			for fn,f in form.files.items():
-				request_files_in_tmp.append(handle_uploaded_file(tmp_directory_path, f))
-			msg = {
-					"method": "calculator",
+			for field in request.FILES.keys():
+				for f in request.FILES.getlist(field):
+					print (f)
+					request_files_in_tmp.append(handle_uploaded_file(tmp_directory_path, f))
+
+			msg = {	"method": "calculator",
 					"params": {
 						"server_url": server_url,
 						"tmp_directory_name": tmp_directory_name,

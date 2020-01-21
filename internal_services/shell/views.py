@@ -32,8 +32,10 @@ def index(request):
 
 
 def rpc(request):
-	cmd = json.loads(request.body)['cmd']
-	p=subprocess.Popen(cmd,stdout=subprocess.PIPE,stderr=subprocess.PIPE,universal_newlines=True)#text=True)
+	cmd = [shlex.quote(x) for x in json.loads(request.body)['cmd']]
+	print(cmd)
+	p = subprocess.Popen(cmd, universal_newlines=True)  # text=True)
+	#p=subprocess.Popen(cmd,stdout=subprocess.PIPE,stderr=subprocess.PIPE,universal_newlines=True)#text=True)
 	(stdout,stderr) = p.communicate()
 	if p.returncode == 0:
 		status = 'ok'

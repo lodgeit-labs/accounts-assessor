@@ -60,3 +60,4 @@ ensure_directory_exists(loc(absolute_path, Path_Value)) :-
 
 directory_file_path_loc(loc(absolute_path,D), loc(file_name,F), loc(absolute_path,P)) :-
 	directory_file_path(D, F, P).
+

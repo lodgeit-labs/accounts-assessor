@@ -1,6 +1,26 @@
 
-:- rdf_register_prefix(l, 'https://lodgeit.net.au/#').
-:- rdf_register_prefix(livestock, 'https://lodgeit.net.au/livestock#').
+:- rdf_register_prefix(l,
+'https://rdf.lodgeit.net.au/v1/request#').
+:- rdf_register_prefix(livestock,
+'https://rdf.lodgeit.net.au/v1/livestock#').
+:- rdf_register_prefix(excel,
+'https://rdf.lodgeit.net.au/v1/excel#').
+:- rdf_register_prefix(depr,
+'https://rdf.lodgeit.net.au/v1/calcs/depr#').
+:- rdf_register_prefix(ic,
+'https://rdf.lodgeit.net.au/v1/calcs/ic#').
+:- rdf_register_prefix(hp,
+'https://rdf.lodgeit.net.au/v1/calcs/hp#').
+:- rdf_register_prefix(depr_ui,
+'https://rdf.lodgeit.net.au/v1/calcs/depr/ui#').
+:- rdf_register_prefix(ic_ui,
+'https://rdf.lodgeit.net.au/v1/calcs/ic/ui#').
+:- rdf_register_prefix(hp_ui,
+'https://rdf.lodgeit.net.au/v1/calcs/hp/ui#').
+
+/*@prefix depr_ui: <https://rdf.lodgeit.net.au/v1/calcs/depr/ui#> .
+@prefix ic_ui: <https://rdf.lodgeit.net.au/v1/calcs/ic/ui#> .
+@prefix hp_ui: <https://rdf.lodgeit.net.au/v1/calcs/hp/ui#> .*/
 
 
 
@@ -181,6 +201,7 @@ doc_init :-
 	livestock and action verbs exclusively, some other data in parallel with passing them around in variables..	*/
 	doc_clear,
 	doc_new_uri(R),
+	/* fixme: we create a bnode of type l:request for storing and processing stuff, and excel sends an actual l:request. not sure what we want to do here. Im hesitant to turn the two objects into one. Possibly this should be l:processing or something. */
 	doc_add(R, rdf:type, l:request).
 
 doc_from_rdf(Rdf_Graph) :-
@@ -285,14 +306,14 @@ doc_list_items(L, Items) :-
 
 doc_value(S, P, V) :-
 	doc(S, P, O),
-	doc(O, l:value, V).
+	doc(O, rdf:value, V).
 
 :- rdf_meta doc_add_value(r,r,r).
 
 doc_add_value(S, P, V) :-
 	doc_new_uri(Uri),
 	doc_add(S, P, Uri),
-	doc_add(Uri, l:value, V).
+	doc_add(Uri, rdf:value, V).
 
 /*
 user:goal_expansion(

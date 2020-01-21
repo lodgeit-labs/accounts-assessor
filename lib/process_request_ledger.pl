@@ -2,11 +2,16 @@ process_request_ledger(File_Path, Dom) :-
 %gtrace,
 	inner_xml(Dom, //reports/balanceSheetRequest, _),
 	validate_xml2(File_Path, 'bases/Reports.xsd'),
-
 	extract_start_and_end_date(Dom, Start_Date, End_Date, Start_Date_Atom),
-    extract_s_transactions(Dom, Start_Date_Atom, S_Transactions0),
-	%process_request_ledger2((Dom, Start_Date, End_Date), S_Transactions0, _).
-	process_request_ledger_debug((Dom, Start_Date, End_Date), S_Transactions0).
+
+	%gtrace,
+	extract_bank_opening_balances(Bank_Lump_STs),
+	handle_additional_files(S_Transactions0),
+	extract_s_transactions(Dom, Start_Date_Atom, S_Transactions1),
+	flatten([Bank_Lump_STs, S_Transactions0, S_Transactions1], S_Transactions),
+
+	process_request_ledger2((Dom, Start_Date, End_Date), S_Transactions, _).
+	%process_request_ledger_debug((Dom, Start_Date, End_Date), S_Transactions).
 
 process_request_ledger_debug(Data, S_Transactions0) :-
 	findall(
@@ -30,22 +35,20 @@ ggg(Data, S_Transactions0, Count) :-
 take(Src, N, L) :-
    when(ground(N+Src), findall(E, (nth1(I,Src,E), I =< N), L)).
 
-process_request_ledger2((Dom, Start_Date, End_Date), S_Transactions0, Structured_Reports) :-
+process_request_ledger2((Dom, Start_Date, End_Date), S_Transactions, Structured_Reports) :-
 	extract_output_dimensional_facts(Dom, Output_Dimensional_Facts),
 	extract_cost_or_market(Dom, Cost_Or_Market),
-	extract_default_currency(Dom, Default_Currency),
 	extract_report_currency(Dom, Report_Currency),
 	extract_action_verbs_from_bs_request(Dom),
 	extract_account_hierarchy_from_request_dom(Dom, Accounts0),
 	extract_livestock_data_from_ledger_request(Dom),
 	/* Start_Date, End_Date to substitute of "opening", "closing" */
+	extract_default_currency(Dom, Default_Currency),
 	extract_exchange_rates(Dom, Start_Date, End_Date, Default_Currency, Exchange_Rates),
 	/* Start_Date_Atom in case of missing Date */
 	extract_bank_accounts(Dom),
 	extract_invoices_payable(Dom),
 	extract_initial_gl(Initial_Txs),
-    extract_bank_opening_balances(Bank_Lump_STs),
-    append(Bank_Lump_STs, S_Transactions0, S_Transactions),
 
 	process_ledger(
 		Cost_Or_Market,

@@ -30,6 +30,7 @@
 :- [exchange].
 :- [exchange_rates].
 :- [fact_output].
+:- [fetch_file].
 :- [gl_export].
 :- [investment_report_2].
 :- [invoices].

@@ -231,37 +231,47 @@ invert_s_transaction_vector(T0, T1) :-
 
 
 handle_additional_files(S_Transactions) :-
-	maplist(handle_additional_file, $> doc_list_items($> doc_value(l:request, ic:additional_files)), S_Transactions0),
+	maplist(handle_additional_file, $> doc_list_items($> doc_value(l:request, ic_ui:additional_files)), S_Transactions0),
 	flatten(S_Transactions0, S_Transactions).
 
-handle_additional_file(Bn) :-
+handle_additional_file(Bn, S_Transactions) :-
 	(	extract_german_bank_csv0(Bn, S_Transactions)
 	->	true
 	;	throw_string(['unrecognized file (', Bn, ')'])).
 
-extract_german_bank_csv0(Bn, , S_Transactions) :-
-	extract_german_bank_csv1(loc(absolute_url, $> doc_value(Bn, ic:uri)), S_Transactions).
+:- use_module(library(uri)).
 
-extract_german_bank_csv1(File, , S_Transactions) :-
-	/* File is either loc(file_name, xxx)
-	- coming from file upload form
+extract_german_bank_csv0(Bn, S_Transactions) :-
+	doc_value(Bn, ic:url, Url),
+	exclude_file_location_from_filename(loc(_,Url), Fn),
+	absolute_tmp_path(Fn, Tmp_File_Path),
+	fetch_file_from_url(loc(absolute_url, Url), Tmp_File_Path),
+	extract_german_bank_csv1(Tmp_File_Path, S_Transactions).
 
-	or loc(absolute_url, xxx)
-	- coming from files sheet
-	 */
-	grab_file(File, Stream),
-	csv_read_stream(Stream, Rows, [separator(0`;)]),
+extract_german_bank_csv1(File_Path, S_Transactions) :-
+	loc(absolute_path, File_Path_Value) = File_Path,
+	exclude_file_location_from_filename(File_Path, Fn),
+	Fn = loc(file_name, Fn_Value0),
+	uri_encoded(path, Fn_Value1, Fn_Value0),
+	open(File_Path_Value, read, Stream),
 	/*skip the header*/
-	Header = `Buchung;Valuta;Text;Betrag;;Ursprung\n`,
-	(	read_line_to_codes(Stream, Header)
+	Header = `Buchung;Valuta;Text;Betrag;;Ursprung`,
+	read_line_to_codes(Stream, Header_In),
+	(	Header_In = Header
 	->	true
-	;	throw_string([File, ': expected header not found: ', Header]),
-	Account = Fn,
+	;	throw_string([Fn_Value1, ': expected header not found: ', Header])),
+	csv_read_stream(Stream, Rows, [separator(0';)]),
+	Account = Fn_Value1,
+	string_codes(Fn_Value1, Fn_Value2),
+	phrase(gb_currency_from_fn(Currency0), Fn_Value2),
+	atom_codes(Currency, Currency0),
 	maplist(german_bank_csv_row(Account, Currency), Rows, S_Transactions).
 
-
 german_bank_csv_row(Account, Currency, Row, S_Transaction) :-
-
+	Row = row(Date, _, Desc, Money_Atom, Side, _),
+	writeq((german_bank_csv_row(Account, Currency, Row, S_Transaction),
+	 row(Date, _, Desc, Money_Atom, Side, _))),	gtrace,
+	/*,
 	Date,
 	Side,
 	phrase(german_bank_money, Money_Atom, Money_Number),
@@ -273,14 +283,15 @@ german_bank_csv_row(Account, Currency, Row, S_Transaction) :-
 	->	true
 	;	add_alert(['failed to parse description: ', Description])),
 	S_Transaction = s_transaction(Date, Verb, Vector, Account, Exchanged).
-
-
+	*/
+	true.
 
 /* german bank transaction description */
-gbtd('Expenses') --> ['Verfall Terming. '],
+:- use_module(library(dcg/basics)).
 
+gbtd('Expenses') --> [`Verfall Terming. `].
 
-
+gb_currency_from_fn(Currency) --> integer(_), white, string_without(" ", Currency), remainder(_).
 
 
 /* todo alerts html */
