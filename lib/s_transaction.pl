@@ -270,10 +270,7 @@ extract_german_bank_csv1(File_Path, S_Transactions) :-
 german_bank_csv_row(Account, Currency, Row, S_Transaction) :-
 	Row = row(Date, _, Desc, Money_Atom, Side, _),
 	writeq((german_bank_csv_row(Account, Currency, Row, S_Transaction),
-	 row(Date, _, Desc, Money_Atom, Side, _))),	gtrace,
-	/*,
-	Date,
-	Side,
+	row(Date, _, Desc, Money_Atom, Side, _))),	gtrace,
 	phrase(german_bank_money, Money_Atom, Money_Number),
 	(	Side == 'H'
 	->	Money_Amount is Money_Number
@@ -293,5 +290,6 @@ gbtd('Expenses') --> [`Verfall Terming. `].
 
 gb_currency_from_fn(Currency) --> integer(_), white, string_without(" ", Currency), remainder(_).
 
+gb_money, Money_Atom, Money_Number),
 
 /* todo alerts html */

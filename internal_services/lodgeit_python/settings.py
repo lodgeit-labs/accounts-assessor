@@ -35,9 +35,10 @@ INSTALLED_APPS = [
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
-    'django.contrib.messages',
+    #'django.contrib.messages',
     'django.contrib.staticfiles',
-    'message'
+    'message',
+    'modernrpc'
 ]
 
 MIDDLEWARE = [
@@ -119,3 +120,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
 STATIC_URL = '/static/'
+
+MODERNRPC_METHODS_MODULES = ['lodgeit_python.rpc']
+MODERNRPC_JSON_DECODER = 'lodgeit_python.rpc.MyJSONDecoder'
+MODERNRPC_JSON_ENCODER = 'lodgeit_python.rpc.MyDjangoJSONEncoder'

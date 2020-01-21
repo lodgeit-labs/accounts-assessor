@@ -6,3 +6,4 @@ django
 deepdiff
 defusedxml
 ipython
+django-modern-rpc
