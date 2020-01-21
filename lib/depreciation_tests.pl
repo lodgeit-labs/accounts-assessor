@@ -8,6 +8,7 @@
 :- use_module(depreciation_computation,[
     depreciation_between_start_date_and_other_date/11,
     depreciation_pool_from_start/4,
+    depreciation_pool_between_two_dates/5,
     written_down_value/5,
     depreciation_between_two_dates/5,
     profit_and_loss/5]).
@@ -329,22 +330,33 @@ test(written_down_value_asset_5, fail):-
     written_down_value(Asset_id, Written_down_date, Method, _, Written_down_value),
     assertion(Written_down_value == 977.3206045515285).
 
-test(depreciation_pool_1):-
+test(depreciation_pool_from_start_1):-
     depreciation_pool_from_start(general_pool,date(2019,2,2),diminishing_value,Total_depreciation),
     % From above, the pool should add the depreciation values of each asset for the same period while in pool
     Correct_total_depreciation is 430.8947462923214 + 1411.6143525408916,
     assertion(Total_depreciation == Correct_total_depreciation).
 
-test(depreciation_pool_2):-
+test(depreciation_pool_from_start_2):-
     depreciation_pool_from_start(low_value_pool,date(2019,2,2),diminishing_value,Total_depreciation),
     % Not any asset was placed in the low value pool so it should be zero
     Correct_total_depreciation is 0,
     assertion(Total_depreciation == Correct_total_depreciation).
 
-test(depreciation_pool_3):-
+test(depreciation_pool_from_start_3):-
     depreciation_pool_from_start(general_pool,date(2013,2,2),diminishing_value,Total_depreciation),
     % Not any asset was in the pool before this date so it should be zero
     Correct_total_depreciation is 0,
+    assertion(Total_depreciation == Correct_total_depreciation).
+
+test(depreciation_pool_from_start_5):-
+    depreciation_pool_from_start(general_pool,date(2020,2,2),diminishing_value,Total_depreciation),
+    % From above, the pool should add the depreciation values of each asset for the same period while in pool
+    Correct_total_depreciation is 2189.7563691832493,
+    assertion(Total_depreciation == Correct_total_depreciation).
+
+test(depreciation_pool_between_two_dates_1):-
+    depreciation_pool_between_two_dates(general_pool,date(2019,2,2),date(2020,2,2),diminishing_value,Total_depreciation),
+    Correct_total_depreciation is 2189.7563691832493 - (430.8947462923214 + 1411.6143525408916),
     assertion(Total_depreciation == Correct_total_depreciation).
 
 test(depreciation_between_two_dates_1):-
