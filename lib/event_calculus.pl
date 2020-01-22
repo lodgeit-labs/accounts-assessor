@@ -8,7 +8,7 @@
     ]).
 
 :- use_module(library(clpfd)).
-:- use_module(days, [day_diff/3]).
+:- use_module(days, [day_diff/3,add_days/3]).
 /*
 :- use_module(depreciation_computation, [
     depreciation_rate/6,
@@ -17,6 +17,8 @@
 %:- dynamic happens/2.
 
 begin_accounting_date(date(1990,1,1)).
+begin_income_year(date(_,7,1)).
+
 % Define constraint in days, max 100000 days
 time(T):- T #>= -1, T #=< 100000.
 
@@ -139,7 +141,14 @@ fluent(not_in_pool(Asset_id)):- asset(Asset_id,_,_,_).
 event(transfer_asset_to_pool(Asset_id, Pool)):- pool(Pool),asset(Asset_id,_,_,_).
 event(asset_disposal(Asset_id)):-asset(Asset_id,_,_,_).
 
-initiates(transfer_asset_to_pool(Asset_id, Pool), in_pool(Asset_id, Pool),T):- time(T),asset(Asset_id,_,_,_),pool(Pool).
+% an Asset can only be transferred in the beginning of an income year
+initiates(transfer_asset_to_pool(Asset_id, Pool), in_pool(Asset_id, Pool),T):- 
+    time(T),
+    begin_accounting_date(Begin_accounting_date),
+    add_days(Begin_accounting_date,T,Date),
+    begin_income_year(Date),
+    asset(Asset_id,_,_,_),
+    pool(Pool).
 initiates(asset_disposal(Asset_id), not_in_pool(Asset_id),T):- time(T),asset(Asset_id,_,_,_).
 
 terminates(asset_disposal(Asset_id), in_pool(Asset_id, Pool),T):- time(T),asset(Asset_id,_,_,_),pool(Pool).
@@ -156,14 +165,14 @@ days_from_begin_accounting(Date,Days):-
     begin_accounting_date(Begin_accounting_date), 
     day_diff(Begin_accounting_date,Date,Days).
 
-% Transfer car123 to general pool in date(2017,6,1)
-% days_from_begin_accounting(date(2017,6,1),Days).
-% Days = 10013
-happens(transfer_asset_to_pool(car123,general_pool),10013).
-% Transfer car456 to general pool in date(2015,8,1)
-% days_from_begin_accounting(date(2015,8,1),Days).
-% Days = 9343
-happens(transfer_asset_to_pool(car456,general_pool),9343).
+% Transfer car123 to general pool in date(2017,7,1)
+% days_from_begin_accounting(date(2017,7,1),Days).
+% Days = 10043
+happens(transfer_asset_to_pool(car123,general_pool),10043).
+% Transfer car456 to general pool in date(2015,7,1)
+% days_from_begin_accounting(date(2015,7,1),Days).
+% Days = 9312
+happens(transfer_asset_to_pool(car456,general_pool),9312).
 % Remove car123 from general pool in date(2021,6,1) by disposal
 % days_from_begin_accounting(date(2021,6,1),Days).
 % Days = 11474
