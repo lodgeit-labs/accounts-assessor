@@ -187,14 +187,19 @@ doc_new_theory(T) :-
 	doc_add(T, rdf:type, l:theory).
 
 doc_new_uri(Uri) :-
+	doc_new_uri(Uri, '').
+
+doc_new_uri(Uri, Postfix) :-
 	%tmp_file_url(loc(file_name, 'response.n3'), D),
-	gensym('#bnx', Uri)/*,
+	gensym('#bnx', Uri0),
+	atomic_list_concat([Uri0, '_', Postfix], Uri).
+	/*,
 	atomic_list_concat([D, '#', Uid], Uri)*/
 	/*,
 	% this is maybe too strong because it can bind with variable nodes
 	assertion(\+doc(Uri,_,_)),
 	assertion(\+doc(_,_,Uri))
-	*/.
+	*/
 
 doc_init :-
 	/*	i'm storing some data in the 'doc' rdf-like database, only as an experiment for now.

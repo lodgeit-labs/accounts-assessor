@@ -45,7 +45,7 @@ infer_livestock_action_verb(S_Transaction, NS_Transaction) :-
 	;	Action_Verb = l:livestock_purchase).
 
 s_transaction_is_livestock_buy_or_sell(S_Transaction, Date, Livestock_Type, Livestock_Coord, Money_Coord) :-
-	S_Transaction = s_transaction(Date, uri(Action_Verb), [Money_Coord], _, vector(V)),
+	S_Transaction = s_transaction(Date, uri(Action_Verb), [Money_Coord], _, vector(V), _),
 	(Action_Verb = l:livestock_purchase;Action_Verb = l:livestock_sale),
 	!,
 	V = [Livestock_Coord],

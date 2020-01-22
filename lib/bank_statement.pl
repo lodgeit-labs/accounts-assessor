@@ -29,7 +29,7 @@ preprocess_s_transactions2(Static_Data, [S_Transaction|S_Transactions], Processe
 			Transactions_Out = [],
 			Debug_Tail = [],
 			Processed_S_Transactions = [],
-			add_alert('error', Debug_Head),gtrace
+			add_alert('error', Debug_Head)
 		)
 	),
 	(	var(Debug_Tail) /* debug tail is left free if processing this transaction succeeded ... */
@@ -97,7 +97,7 @@ preprocess_s_transaction(Static_Data, S_Transaction, Transactions, Outstanding_B
 		Counteraccount_Vector = []
 	->
 		(
-			(	var(Trading_Account)
+			(	nonvar(Trading_Account)
 			->	throw_string(['trading account but no exchanged unit', S_Transaction])
 			;	true),
 			record_expense_or_earning_or_equity_or_loan(Static_Data, Action_Verb, Vector_Ours, Exchanged_Account, Transaction_Date, Description, Ts4),
@@ -107,13 +107,26 @@ preprocess_s_transaction(Static_Data, S_Transaction, Transactions, Outstanding_B
 		(
 			is_debit(Counteraccount_Vector)
 		->
-			make_buy(
+			(
+				(	is_credit(Vector_Ours)
+				->	true
+				;	throw_string('debit Counteraccount_Vector but debit money Vector')),
+				make_buy(
 				Static_Data, Trading_Account, Pricing_Method, Bank_Account_Currency, Counteraccount_Vector,
 				Converted_Vector_Ours, Vector_Ours, Exchanged_Account, Transaction_Date, Description, Outstanding_Before, Outstanding_After, Ts2)
+
+			)
 		;
-			make_sell(
+			(
+				(	is_debit(Vector_Ours)
+				->	true
+				;	throw_string('credit Counteraccount_Vector but credit money Vector')),
+
+				make_sell(
 				Static_Data, Trading_Account, Pricing_Method, Bank_Account_Currency, Counteraccount_Vector, Vector_Ours,
 				Converted_Vector_Ours,	Exchanged_Account, Transaction_Date, Description,	Outstanding_Before, Outstanding_After, Ts3)
+
+			)
 		)
 	).
 

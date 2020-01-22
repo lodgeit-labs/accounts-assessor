@@ -54,7 +54,9 @@
 							<th>item</th>
 							<th>account</th>
 							<th>date</th>
-							<th>description</th>
+							<th>description0</th>
+							<th>description1</th>
+							<th>description2</th>
 							<th>vector</th>
 							<th>leaf_account_running_balance_since_beginning_of_time</th>
 							<th>vector_converted_at_transaction_date</th>
@@ -79,6 +81,8 @@
 						<td class="source"> {{ source.account }}</td>
 						<td class="source"> {{ source.date }}</td>
 						<td class="source"> {{ source.verb }}</td>
+						<td class="source"> {{ source.misc.desc1 || ""}}</td>
+						<td class="source"> {{ source.misc.desc2 || ""}}</td>
 						<td class="source"> <vector :data="source.vector"></vector> </td>
 						<td></td>
 						<td class="source"> <vector :data="source.report_currency_transacted_amount_converted_at_transaction_date"></vector> </td>
@@ -110,6 +114,8 @@
 				<td><truncate clamp="..." :length="60" less="⇦" :text="data.account"></truncate></td>
 				<td>{{ data.date }}</td>
 				<td>{{ data.description }}</td>
+				<td></td>
+				<td></td>
 				<td> <vector :data="data.vector"></vector> </td>
 				<td> <vector :data="data.running_balance"></vector> </td>
 				<td> <vector :data="data.vector_converted_at_transaction_date"></vector> </td>
@@ -207,7 +213,7 @@
 	function process_loaded_general_ledger_data(data)
 	{
 
-    /* the id's should probably be coming from the prolog side, but in prolog there's little use for them, so...*/
+        /* the id's should probably be coming from the prolog side, but in prolog there's little use for them, so...*/
 	    let transformation_id = 0;
 		let transaction_id = 0;
 

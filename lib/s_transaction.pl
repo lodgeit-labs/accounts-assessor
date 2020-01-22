@@ -2,7 +2,7 @@
 
 %:- rdet(s_transaction_to_dict/2).
 
-:- record s_transaction(day, type_id, vector, account_id, exchanged).
+:- record s_transaction(day, type_id, vector, account_id, exchanged, misc).
 % bank statement transaction record, these are in the input xml
 % - The absolute day that the transaction happenned
 % - The type identifier/action tag of the transaction
@@ -47,7 +47,7 @@ s_transactions_up_to(End_Date, S_Transactions_In, S_Transactions_Out) :-
 	).
 
 s_transaction_to_dict(St, D) :-
-	St = s_transaction(Day, uri(Verb), Vector, Account, Exchanged),
+	St = s_transaction(Day, uri(Verb), Vector, Account, Exchanged, Misc),
 	(	/* here's an example of the shortcoming of ignoring the rdf prefix issue, fixme */
 		doc(Verb, l:has_id, Verb_Label)
 	->	true
@@ -57,7 +57,8 @@ s_transaction_to_dict(St, D) :-
 		verb: Verb_Label,
 		vector: Vector,
 		account: Account,
-		exchanged: Exchanged}.
+		exchanged: Exchanged,
+		misc: Misc}.
 
 prepreprocess(Static_Data, In, Out) :-
 	/*
@@ -92,6 +93,8 @@ prepreprocess_s_transaction(Static_Data, S_Transaction, Out) :-
 	s_transaction_vector(NS_Transaction, Vector),
 	s_transaction_account_id(S_Transaction, Unexchanged_Account_Id),
 	s_transaction_account_id(NS_Transaction, Unexchanged_Account_Id),
+	s_transaction_misc(S_Transaction, Misc),
+	s_transaction_misc(NS_Transaction, Misc),
 	prepreprocess_s_transaction(Static_Data, NS_Transaction, Out).
 
 prepreprocess_s_transaction(_, T, T) :-
@@ -181,7 +184,7 @@ extract_s_transaction2(Tx_Dom, Account_Currency, Account, Start_Date, ST) :-
 	parse_date(Date_Atom, Date),
 	Dr is rationalize(Bank_Debit - Bank_Credit),
 	Coord = coord(Account_Currency, Dr),
-	ST = s_transaction(Date, Desc, [Coord], Account, Exchanged),
+	ST = s_transaction(Date, Desc, [Coord], Account, Exchanged, _{}),
 	extract_exchanged_value(Tx_Dom, Account_Currency, Dr, Exchanged).
 
 extract_exchanged_value(Tx_Dom, _Account_Currency, Bank_Dr, Exchanged) :-
@@ -220,13 +223,12 @@ extract_exchanged_value(Tx_Dom, _Account_Currency, Bank_Dr, Exchanged) :-
 
 extract_s_transactions(Dom, Start_Date_Atom, S_Transactions) :-
 	findall(S_Transaction, extract_s_transaction(Dom, Start_Date_Atom, S_Transaction), S_Transactions0),
-	maplist(invert_s_transaction_vector, S_Transactions0, S_Transactions0b),
-	sort_s_transactions(S_Transactions0b, S_Transactions).
+	maplist(invert_s_transaction_vector, S_Transactions0, S_Transactions).
 
 
 invert_s_transaction_vector(T0, T1) :-
-	T0 = s_transaction(Date, Type_id, Vector, Account_id, Exchanged),
-	T1 = s_transaction(Date, Type_id, Vector_Inverted, Account_id, Exchanged),
+	T0 = s_transaction(Date, Type_id, Vector, Account_id, Exchanged, Misc),
+	T1 = s_transaction(Date, Type_id, Vector_Inverted, Account_id, Exchanged, Misc),
 	vec_inverse(Vector, Vector_Inverted).
 
 
@@ -270,7 +272,7 @@ extract_german_bank_csv1(File_Path, S_Transactions) :-
 	maplist(german_bank_csv_row(Account, Currency), Rows, S_Transactions).
 
 german_bank_csv_row(Account, Currency, Row, S_Transaction) :-
-	Row = row(Date0, _, Description, Money_Atom, Side, _),
+	Row = row(Date0, _, Description, Money_Atom, Side, Description_Column2),
 	%gtrace,
 	string_codes(Date0, Date1),
 	phrase(gb_date(Date), Date1),
@@ -284,12 +286,20 @@ german_bank_csv_row(Account, Currency, Row, S_Transaction) :-
 	->	true
 	;	(
 			add_alert('error', ['failed to parse description: ', Description]),
-			gtrace,
+			%gtrace,
 			Exchanged = vector([]),
 			Verb = '?'
 		)
 	),
-	S_Transaction = s_transaction(Date, Verb, Vector, Account, Exchanged).
+	(	Side == 'S'
+	->	Exchanged2 = Exchanged
+	;	(
+			vector(E) = Exchanged,
+			vec_inverse(E, E2),
+			Exchanged2 = vector(E2)
+		)
+	),
+	S_Transaction = s_transaction(Date, Verb, Vector, Account, Exchanged2, _{desc1:Description,desc2:Description_Column2}).
 
 german_bank_money(Money_Atom0, Money_Number) :-
 	filter_out_chars_from_atom(([X]>>(X == '\'')), Money_Atom0, Money_Atom1),
@@ -298,16 +308,15 @@ german_bank_money(Money_Atom0, Money_Number) :-
 	Money_Number is rational(Money_Number0).
 
 /* german bank transaction description */
-gbtd('Zinsen') -->     "Zinsen ", remainder(_).
-% futures?
-gbtd('Verfall_Terming') -->   "Verfall Terming. ", remainder(_).
-gbtd('Inkasso') -->     "Inkasso ", remainder(_).
-gbtd('Belastung') -->   "Belastung ", remainder(_).
-gbtd('Barauszahlung') -->   "Barauszahlung".
-gbtd('Devisen_Spot') -->  "Devisen Spot", remainder(_).
+gbtd('Zinsen') -->                 "Zinsen ", remainder(_).
+gbtd('Verfall_Terming') -->        "Verfall Terming. ", remainder(_). % futures?
+gbtd('Inkasso') -->                "Inkasso ", remainder(_).
+gbtd('Belastung') -->              "Belastung ", remainder(_).
+gbtd('Barauszahlung') -->          "Barauszahlung".
+gbtd('Devisen_Spot') -->           "Devisen Spot", remainder(_).
 gbtd('Vergutung_Cornercard') -->   "Vergütung Cornercard".
-gbtd('Ruckzahlung') -->     "Rückzahlung", remainder(_).
-gbtd('All-in-Fee') -->   "All-in-Fee".
+gbtd('Ruckzahlung') -->            "Rückzahlung", remainder(_).
+gbtd('All-in-Fee') -->             "All-in-Fee".
 
 gbtd2(desc('Zeichnung',vector([coord(Unit, Count)]))) --> "Zeichnung ", gb_number(Count), " ", remainder(Codes), {atom_codes(Unit, Codes)}.
 gbtd2(desc('Kauf',     vector([coord(Unit, Count)]))) --> "Kauf ",      gb_number(Count), " ", remainder(Codes), {atom_codes(Unit, Codes)}.

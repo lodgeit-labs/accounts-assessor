@@ -7,7 +7,8 @@ process_request_ledger(File_Path, Dom) :-
 	extract_bank_opening_balances(Bank_Lump_STs),
 	handle_additional_files(S_Transactions0),
 	extract_s_transactions(Dom, Start_Date_Atom, S_Transactions1),
-	flatten([Bank_Lump_STs, S_Transactions0, S_Transactions1], S_Transactions),
+	flatten([Bank_Lump_STs, S_Transactions0, S_Transactions1], S_Transactions2),
+	sort_s_transactions(S_Transactions2, S_Transactions),
 
 	process_request_ledger2((Dom, Start_Date, End_Date), S_Transactions, _).
 	%process_request_ledger_debug((Dom, Start_Date, End_Date), S_Transactions).
@@ -345,7 +346,7 @@ extract_bank_opening_balances2(Bank_Account, Tx) :-
 	doc_value(Bank_Account, l:opening_balance, Opening_Balance),
 	request_has_property(l:start_date, Start_Date),
 	%add_days(Start_Date0, -1, Start_Date),
-	Tx = s_transaction(Start_Date, 'Historical_Earnings_Lump', [Opening_Balance], Bank_Account_Name, vector([])).
+	Tx = s_transaction(Start_Date, 'Historical_Earnings_Lump', [Opening_Balance], Bank_Account_Name, vector([]), _{desc1:'Historical_Earnings_Lump'}).
 
 extract_initial_gl(Txs) :-
 	(	doc(l:request, l:gl_ui, Gl)
