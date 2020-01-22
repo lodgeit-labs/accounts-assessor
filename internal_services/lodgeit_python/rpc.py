@@ -1,3 +1,4 @@
+from json import JSONDecoder
 from modernrpc.core import rpc_method
 import fractions
 from django.core.serializers.json import DjangoJSONEncoder

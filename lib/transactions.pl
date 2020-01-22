@@ -114,7 +114,8 @@ check_transaction_account(Accounts, Transaction) :-
 		;
 		(
 			term_string(Id, Str),
-			atomic_list_concat(["an account referenced by a generated transaction does not exist, please add it to account taxonomy: ", Str], Err_Msg),
+			term_string(Transaction, Tx_Str),
+			atomic_list_concat(["an account referenced by a generated transaction does not exist, please add it to account taxonomy: ", Str, ", transaction:", Tx_Str], Err_Msg),
 			throw(string(Err_Msg))
 		)
 	).

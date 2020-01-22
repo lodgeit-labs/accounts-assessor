@@ -4,7 +4,8 @@
 */
 throw_string(List_Or_Atom) :-
 	flatten([List_Or_Atom], List),
-	atomic_list_concat(List, String),
+	maplist(term_string, List, List2),
+	atomic_list_concat(List2, String),
 	throw(string(String)).
 
 

@@ -4,7 +4,6 @@ process_request_ledger(File_Path, Dom) :-
 	validate_xml2(File_Path, 'bases/Reports.xsd'),
 	extract_start_and_end_date(Dom, Start_Date, End_Date, Start_Date_Atom),
 
-	%gtrace,
 	extract_bank_opening_balances(Bank_Lump_STs),
 	handle_additional_files(S_Transactions0),
 	extract_s_transactions(Dom, Start_Date_Atom, S_Transactions1),
@@ -349,12 +348,15 @@ extract_bank_opening_balances2(Bank_Account, Tx) :-
 	Tx = s_transaction(Start_Date, 'Historical_Earnings_Lump', [Opening_Balance], Bank_Account_Name, vector([])).
 
 extract_initial_gl(Txs) :-
-	doc(l:request, l:gl, Gl),
-	doc_value(Gl, l:default_currency, Default_Currency0),
-	atom_string(Default_Currency, Default_Currency0),
-	doc_value(Gl, l:items, List),
-	doc_list_items(List, Items),
-	maplist(extract_initial_gl_tx(Default_Currency), Items, Txs).
+	(	doc(l:request, l:gl_ui, Gl)
+	->	(
+			doc_value(Gl, l:default_currency, Default_Currency0),
+			atom_string(Default_Currency, Default_Currency0),
+			doc_value(Gl, l:items, List),
+			doc_list_items(List, Items),
+			maplist(extract_initial_gl_tx(Default_Currency), Items, Txs)
+		)
+	;	Txs = []).
 
 extract_initial_gl_tx(Default_Currency, Item, Tx) :-
 	doc_value(Item, l:date, Date),

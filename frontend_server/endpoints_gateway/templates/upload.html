@@ -12,7 +12,9 @@
             <p>{{ form.file1.label_tag }} {{ form.file1.help_text }}</p>
             <p>{{ form.file1.errors }} {{ form.file1 }}</p>
 
-            <p><input type="submit" value="Upload"/></p>
+            Only store files, don't process: <input type="checkbox" name="only_store" value="only_store">
+            <p>
+            <input type="submit" value="Upload"/></p>
         </form>
     </body>
 

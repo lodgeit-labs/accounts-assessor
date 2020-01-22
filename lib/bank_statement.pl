@@ -29,7 +29,7 @@ preprocess_s_transactions2(Static_Data, [S_Transaction|S_Transactions], Processe
 			Transactions_Out = [],
 			Debug_Tail = [],
 			Processed_S_Transactions = [],
-			add_alert('error', Debug_Head)
+			add_alert('error', Debug_Head),gtrace
 		)
 	),
 	(	var(Debug_Tail) /* debug tail is left free if processing this transaction succeeded ... */
@@ -98,7 +98,7 @@ preprocess_s_transaction(Static_Data, S_Transaction, Transactions, Outstanding_B
 	->
 		(
 			(	var(Trading_Account)
-			->	throw_string('trading account but no exchanged unit')
+			->	throw_string(['trading account but no exchanged unit', S_Transaction])
 			;	true),
 			record_expense_or_earning_or_equity_or_loan(Static_Data, Action_Verb, Vector_Ours, Exchanged_Account, Transaction_Date, Description, Ts4),
 			Outstanding_After = Outstanding_Before

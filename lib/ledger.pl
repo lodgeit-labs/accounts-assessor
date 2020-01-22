@@ -108,11 +108,16 @@ preprocess_until_error(Static_Data0, Prepreprocessed_S_Transactions, Preprocesse
 		)
 	;
 		(
-			last(Preprocessed_S_Transactions, Last_Processed_S_Transaction),
-			s_transaction_day(Last_Processed_S_Transaction, Date),
-			% todo we could/should do: Processed_Until = with_note(Date, 'until error'),
-			Processed_Until = Date/*,
-			add_days(Date, -1, Last_Good_Day)*/
+			(	last(Preprocessed_S_Transactions, Last_Processed_S_Transaction)
+			->	(
+					s_transaction_day(Last_Processed_S_Transaction, Date),
+					% todo we could/should do: Processed_Until = with_note(Date, 'until error'),
+					Processed_Until = Date/*,
+					add_days(Date, -1, Last_Good_Day)*/
+				)
+			;
+				Processed_Until = date(1,1,1)
+			)
 		)
 	).
 
