@@ -93,12 +93,12 @@ test(depreciation_rate_general_pool_fail, fail) :-
     assertion(Rate == 0.15).
 
 /*
-% Transfer car123 to general pool in date(2017,6,1)
-% days_from_begin_accounting(date(2017,6,1),Days).
+% Transfer car123 to general pool in date(2017,7,1)
+% days_from_begin_accounting(date(2017,7,1),Days).
 % Days = 10013
 happens(transfer_asset_to_pool(car123,general_pool),10013).
-% Transfer car456 to general pool in date(2015,8,1)
-% days_from_begin_accounting(date(2015,8,1),Days).
+% Transfer car456 to general pool in date(2015,7,1)
+% days_from_begin_accounting(date(2015,7,1),Days).
 % Days = 9343
 happens(transfer_asset_to_pool(car456,general_pool),9343).
 % Remove car123 from general pool in date(2021,6,1) by disposal
@@ -110,6 +110,7 @@ happens(remove_asset_from_pool(car123,general_pool),11474).
 % Days = 11169
 happens(remove_asset_from_pool(car456,general_pool),11169).
 */
+
 test(depreciationAsset_all_life_1):-
     Asset_id = car123,
     T1 = 10000,
@@ -119,9 +120,9 @@ test(depreciationAsset_all_life_1):-
     Year_of_depreciation = 1,
     depreciationAsset(Asset_id,T1,T2,Begin_value,End_value,Method,Year_of_depreciation,
         Life,false,_,0,Final_depreciation_value),
-    assertion(Life == [[1000,not_in_pool(car123),10000,10014,904.131431788328,15.34246575342466,0.4],
-        [984.6575342465753,in_pool(car123,general_pool),10014,10213,904.131431788328,80.52610245824732,0.15]]),
-    assertion(Final_depreciation_value=:=95.86856821167198),
+    assertion(Life == [[1000,not_in_pool(car123),10000,10044,885.6776881215987,48.21917808219178,0.4],
+        [951.7808219178082,in_pool(car123,general_pool),10044,10213,885.6776881215987,66.10313379620942,0.15]]),
+    assertion(Final_depreciation_value=:=114.3223118784012),
     Correct_end_value is Begin_value - Final_depreciation_value,
     assertion(round(Correct_end_value) =:= round(End_value)).
 
@@ -134,24 +135,24 @@ test(depreciationAsset_all_life_2):-
     Year_of_depreciation = 1,
     depreciationAsset(Asset_id,T1,T2,Begin_value,End_value,Method,Year_of_depreciation,Life,
         false,_,0,Final_depreciation_value),
-    assertion(Life==[[1000,not_in_pool(car456),9300,9344,914.7367235879152,22.602739726027398,0.1875],
-        [977.3972602739726,in_pool(car456,general_pool),9344,9500,914.7367235879152,62.66053668605742,0.15]]),
-    assertion(Final_depreciation_value=:=85.26327641208482),
+    assertion(Life==[[1000,not_in_pool(car456),9300,9313,916.9858087821355,6.678082191780821,0.1875],
+        [993.3219178082192,in_pool(car456,general_pool),9313,9500,916.9858087821355,76.33610902608369,0.15]]),
+    assertion(Final_depreciation_value=:=83.01419121786451),
     Correct_end_value is Begin_value - Final_depreciation_value,
     assertion(round(Correct_end_value) =:= round(End_value)).
 
 test(depreciationAsset_all_life_3):-
     Asset_id = car123,
     T1 = 9982,
-    T2 = 10042,
+    T2 = 10050,
     Begin_value = 1000,
     Method = diminishing_value,
     Year_of_depreciation = 1,
     depreciationAsset(Asset_id,T1,T2,Begin_value,End_value,Method,Year_of_depreciation,
         Life,false,_,0,Final_depreciation_value),
-    assertion(Life == [[1000,not_in_pool(car123),9982,10014,953.828185400638,35.06849315068493,0.4],
-        [964.931506849315,in_pool(car123,general_pool),10014,10042,953.828185400638,11.103321448677049,0.15]]),
-    assertion(Final_depreciation_value=:=46.17181459936198),
+    assertion(Life == [[1000,not_in_pool(car123),9982,10044,929.7565772189904,67.94520547945206,0.4],
+        [932.054794520548,in_pool(car123,general_pool),10044,10050,929.7565772189904,2.298217301557515,0.15]]),
+    assertion(Final_depreciation_value=:=70.24342278100957),
     Correct_end_value is Begin_value - Final_depreciation_value,
     assertion(round(Correct_end_value) =:= round(End_value)).
 
@@ -164,9 +165,9 @@ test(depreciationAsset_only_in_pool_1):-
     Year_of_depreciation = 1,
     depreciationAsset(Asset_id,T1,T2,Begin_value,_,Method,Year_of_depreciation,Life,true,
         general_pool,0,Final_depreciation_value),
-    assertion(Life ==  [[1000,not_in_pool(car123),10000,10014,904.131431788328,15.34246575342466,0.4],
-        [984.6575342465753,in_pool(car123,general_pool),10014,10213,904.131431788328,80.52610245824732,0.15]]),
-    assertion(Final_depreciation_value=:=80.52610245824732).
+    assertion(Life ==  [[1000,not_in_pool(car123),10000,10044,885.6776881215987,48.21917808219178,0.4],
+        [951.7808219178082,in_pool(car123,general_pool),10044,10213,885.6776881215987,66.10313379620942,0.15]]),
+    assertion(Final_depreciation_value=:=66.10313379620942).
 
 test(depreciationAsset_only_in_pool_2):-
     Asset_id = car456,
@@ -177,9 +178,9 @@ test(depreciationAsset_only_in_pool_2):-
     Year_of_depreciation = 1,
     depreciationAsset(Asset_id,T1,T2,Begin_value,_,Method,Year_of_depreciation,Life,true,
         general_pool,0,Final_depreciation_value),
-    assertion(Life==[[1000,not_in_pool(car456),9300,9344,914.7367235879152,22.602739726027398,0.1875],
-        [977.3972602739726,in_pool(car456,general_pool),9344,9500,914.7367235879152,62.66053668605742,0.15]]),
-    assertion(Final_depreciation_value=:=62.66053668605742).
+    assertion(Life==[[1000,not_in_pool(car456),9300,9313,916.9858087821355,6.678082191780821,0.1875],
+        [993.3219178082192,in_pool(car456,general_pool),9313,9500,916.9858087821355,76.33610902608369,0.15]]),
+    assertion(Final_depreciation_value=:=76.33610902608369).
 
 test(depreciation_between_start_date_and_other_date_all_life):-
     /* Parameters of predicate
@@ -216,7 +217,7 @@ test(depreciation_between_start_date_and_other_date_all_life):-
     */
     depreciation_between_start_date_and_other_date(1000,diminishing_value,date(2017,5,1),
         date(2019,10,2),car123,_,1,false,_,0,Total_depreciation_value),
-    assertion(round(Total_depreciation_value) =:= round(568.529083377)).
+    assertion(round(Total_depreciation_value) =:= round(577.6746187406319)).
 
 test(depreciation_between_start_date_and_other_date_while_in_pool_1):-
     /* Parameters of predicate
@@ -233,7 +234,7 @@ test(depreciation_between_start_date_and_other_date_while_in_pool_1):-
     Total_depreciation_value*/
     depreciation_between_start_date_and_other_date(1000,diminishing_value,date(2017,6,1),
         date(2019,10,2),car123,_,1,true,general_pool,0,Total_depreciation_value),
-    assertion(Total_depreciation_value == 552.8422309727339).
+    assertion(Total_depreciation_value == 546.7114669107006).
 
 test(depreciation_between_start_date_and_other_date_while_in_pool_2):-
     /* Parameters of predicate
@@ -250,7 +251,7 @@ test(depreciation_between_start_date_and_other_date_while_in_pool_2):-
     Total_depreciation_value*/
     depreciation_between_start_date_and_other_date(2000,diminishing_value,date(2015,3,16),
         date(2019,10,2),car456,_,1,true,general_pool,0,Total_depreciation_value),
-    assertion(Total_depreciation_value == 1537.5037933680019).
+    assertion(Total_depreciation_value == 1556.4080604522424).
 
 
 test(depreciation_between_start_date_and_other_date_while_in_pool_3):-
@@ -270,7 +271,7 @@ test(depreciation_between_start_date_and_other_date_while_in_pool_3):-
     asset(Asset_id,Cost,Start_date,_),
     depreciation_between_start_date_and_other_date(Cost,diminishing_value,Start_date,
         date(2019,2,2),Asset_id,_,1,true,general_pool,0,Total_depreciation_value),
-    assertion(Total_depreciation_value == 430.8947462923214).
+    assertion(Total_depreciation_value == 423.32831447468874).
 
 test(depreciation_between_start_date_and_other_date_while_in_pool_4):-
     /* Parameters of predicate
@@ -289,7 +290,7 @@ test(depreciation_between_start_date_and_other_date_while_in_pool_4):-
     asset(Asset_id,Cost,Start_date,_),
     depreciation_between_start_date_and_other_date(Cost,diminishing_value,Start_date,
         date(2019,2,2),Asset_id,_,1,true,general_pool,0,Total_depreciation_value),
-    assertion(Total_depreciation_value == 1411.6143525408916).
+    assertion(Total_depreciation_value == 1435.6642782886095).
 
 test(written_down_value_asset_1):-
     Asset_id = car123,
@@ -306,7 +307,7 @@ test(written_down_value_asset_2):-
     Written_down_date = date(2019,2,2),
     Method = diminishing_value,
     written_down_value(Asset_id, Written_down_date, Method, _, Written_down_value),
-    assertion(Written_down_value == 543.5232751921387).
+    assertion(Written_down_value == 532.9252925877597).
 
 test(written_down_value_asset_3):-
     Asset_id = car123,
@@ -320,7 +321,7 @@ test(written_down_value_asset_4):-
     Written_down_date = date(2017,6,1),
     Method = diminishing_value,
     written_down_value(Asset_id, Written_down_date, Method, _, Written_down_value),
-    assertion(Written_down_value == 977.3206045515285).
+    assertion(Written_down_value == 958.2641496788701).
 
 test(written_down_value_asset_5, fail):-
     %It should fail because at this date car456 wasnt purchased yet
@@ -333,7 +334,7 @@ test(written_down_value_asset_5, fail):-
 test(depreciation_pool_from_start_1):-
     depreciation_pool_from_start(general_pool,date(2019,2,2),diminishing_value,Total_depreciation),
     % From above, the pool should add the depreciation values of each asset for the same period while in pool
-    Correct_total_depreciation is 430.8947462923214 + 1411.6143525408916,
+    Correct_total_depreciation is 1858.9925927632983,
     assertion(Total_depreciation == Correct_total_depreciation).
 
 test(depreciation_pool_from_start_2):-
@@ -351,12 +352,12 @@ test(depreciation_pool_from_start_3):-
 test(depreciation_pool_from_start_5):-
     depreciation_pool_from_start(general_pool,date(2020,2,2),diminishing_value,Total_depreciation),
     % From above, the pool should add the depreciation values of each asset for the same period while in pool
-    Correct_total_depreciation is 2189.7563691832493,
+    Correct_total_depreciation is 2201.2948149343088,
     assertion(Total_depreciation == Correct_total_depreciation).
 
 test(depreciation_pool_between_two_dates_1):-
     depreciation_pool_between_two_dates(general_pool,date(2019,2,2),date(2020,2,2),diminishing_value,Total_depreciation),
-    Correct_total_depreciation is 2189.7563691832493 - (430.8947462923214 + 1411.6143525408916),
+    Correct_total_depreciation is 342.3022221710105,
     assertion(Total_depreciation == Correct_total_depreciation).
 
 test(depreciation_between_two_dates_1):-
@@ -365,7 +366,7 @@ test(depreciation_between_two_dates_1):-
     To_date = date(2019,2,2),
     Method = diminishing_value,
     depreciation_between_two_dates(Asset_id, From_date, To_date, Method, Depreciation_value),
-    Correct_depreciation_value is 977.3206045515285 - 543.5232751921387,
+    Correct_depreciation_value is 425.3388570911104,
     assertion(Correct_depreciation_value == Depreciation_value).
 
 test(profit_and_loss_1):-
