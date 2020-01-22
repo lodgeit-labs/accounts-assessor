@@ -1,8 +1,39 @@
+/*
+
+	coord and value
+
+*/
+
 :- record coord(unit, debit).
+/* coord represents a debit or a credit in a ledger. Negative debit is a credit. */
+
 :- record value(unit, amount).
+/* value is used where the credit/debit distinction doesn't make sense or would be confusing. Just a number with a unit. */
+
+/*
+
+	going between value and coord
+
+*/
+
+/*value_debit(value(Unit, Amount), coord(Unit, Amount, Zero)) :- unify_numbers(Zero, 0).
+value_credit(value(Unit, Amount), coord(Unit, Zero, Amount)) :- unify_numbers(Zero, 0).*/
+
+coord_normal_side_value(coord(Unit, D), debit, value(Unit, D)).
+coord_normal_side_value(coord(Unit, D), credit, value(Unit, V)) :-
+	{V = -D}.
+% refactor me
+coord_normal_side_value2(debit, coord(Unit, D), value(Unit, D)).
+coord_normal_side_value2(credit, coord(Unit, D), value(Unit, V)) :-
+	{V = -D}.
 
 
+/*
+	manipulating value and coord
+*/
 
+coord_inverse(coord(Unit, A_Debit), coord(Unit, A_Credit)) :- {A_Credit = -A_Debit}.
+coord_inverse(value(Unit, Value), value(Unit, Value_Inverted)) :- {Value_Inverted = -Value}.
 
 	
 % -------------------------------------------------------------------
@@ -21,36 +52,18 @@ vec_identity([]).
 vec_inverse(As, Bs) :-
 	maplist(coord_inverse, As, Bs).
 
-coord_inverse(coord(Unit, A_Debit), coord(Unit, A_Credit)) :- {A_Credit = -A_Debit}.
-coord_inverse(value(Unit, Value), value(Unit, Value_Inverted)) :- {Value_Inverted = -Value}.
 
-% Each coordinate of a vector can be replaced by other coordinates that equivalent for the
-% purposes of the computations carried out in this program. This predicate reduces the
-% coordinates of a vector into a canonical form.
-%  - returns vector with same coordinates, just minimized by substracting a common value from
-%    debit and credit, so that one of them becomes 0, for example 150,50 -> 100,0.
-% if both debit and credit is 0, the coord is removed.
+/*
+	reducing a coord to normal form is a no-op now that coords are represented with a single number.
 
-/* fixme: rename to vec_reduce_coords, because this reduces individual coords to normal form, but not against each other.
-define vec_reduce(X) as vec_add(X, [])? */
-
-vec_reduce(As, Bs) :-
-	vec_reduce2(As, Result_Raw),
-	exclude(is_zero_coord, Result_Raw, Result_Nonzeroes), 
+	this reduces individual coords to normal form, but not against each other.
+*/
+vec_reduce_coords(As, Bs) :-
+	exclude(is_zero_coord, As, Result_Nonzeroes),
 	maplist(unify_coords_or_values, Bs, Result_Nonzeroes),
-	!/*is the cut needed?*/.
+	! /*todo: is the cut needed?*/
+	.
 
-vec_reduce2(As, Bs) :-
-	maplist(vec_reduce3, As, Bs).
-
-vec_reduce3(A, B) :-
-	coord_reduced(A, B).
-
-vec_reduce3(A, A) :-
-	A = value(_,_).
-
-coord_reduced(coord(Unit, A_Debit), coord(Unit, A_Debit)).
-	
 coord_or_value_unit(coord(Unit,_), Unit).
 coord_or_value_unit(value(Unit,_), Unit).
 
@@ -72,7 +85,12 @@ vec_filtered_by_unit(Vec, Unit, Filtered) :-
 	),
 	Filtered).
 
-% Adds the two given vectors together.
+
+vec_reduce(X, Y) :-
+	vec_add(X, [], Y).
+
+
+% Adds the two given vectors together and reduces coords or values in a vector to a minimal (normal) form.
 
 vec_add(As, Bs, Cs_Reduced) :-
 	assertion((flatten(As, As), flatten(Bs, Bs))),
@@ -90,7 +108,7 @@ vec_add(As, Bs, Cs_Reduced) :-
 		),
 		Cs_Flat
 	),
-	vec_reduce(Cs_Flat, Cs_Reduced).
+	vec_reduce_coords(Cs_Flat, Cs_Reduced).
 
 vec_sum(Vectors, Sum) :-
 	foldl(vec_add, Vectors, [], Sum).
@@ -106,6 +124,7 @@ vec_sub(As, Bs, Cs) :-
 
 vec_equality(As, Bs) :-
 	vec_sub(As, Bs, Cs),
+	assertion(Cs = []),
 	forall(member(C, Cs), is_zero(C)).
 
 is_zero(Coord) :-
@@ -116,13 +135,6 @@ is_zero(Value) :-
 
 is_zero([X]) :-
 	is_zero(X).
-
-is_zero_number(Z) :-
-	var(Z), Z = 0.
-
-is_zero_number(Z) :-
-	atomic(Z),
-	Z =:= 0.
 
 is_zero_coord(coord(_, Zero1)) :- is_zero_number(Zero1).
 
@@ -148,32 +160,23 @@ unify_coords_or_values(value(U, V1), value(U, V2)) :-
 	unify_numbers(V1, V2).
 
 unify_numbers(A,B) :-
-	(
-		A = B
-	->
-		true
-	;
-		A =:= B
-	).
+	(	A = B
+	->	true
+	;	/* allow for integer vs float */
+		A =:= B).
 
+/* todo unify_numbers(Z, 0)?*/
+is_zero_number(Z) :-
+	var(Z), Z = 0.
+is_zero_number(Z) :-
+	atomic(Z),
+	Z =:= 0.
 
 number_coord(Unit, Number, coord(Unit, Number)).
 credit_coord(Unit, Credit, coord(Unit, Number)) :- {Credit = -Number}.
 
 dr_cr_coord(Unit, Number, Zero, coord(Unit, Number)) :- {Number >= 0, Zero = 0}.
 dr_cr_coord(Unit, Zero, Credit, coord(Unit, Number)) :- {Number < 0, Zero = 0, Credit = -Number}.
-
-
-/*value_debit(value(Unit, Amount), coord(Unit, Amount, Zero)) :- unify_numbers(Zero, 0).
-value_credit(value(Unit, Amount), coord(Unit, Zero, Amount)) :- unify_numbers(Zero, 0).*/
-
-coord_normal_side_value(coord(Unit, D), debit, value(Unit, D)).
-coord_normal_side_value(coord(Unit, D), credit, value(Unit, V)) :-
-	{V = -D}.
-% refactor me
-coord_normal_side_value2(debit, coord(Unit, D), value(Unit, D)).
-coord_normal_side_value2(credit, coord(Unit, D), value(Unit, V)) :-
-	{V = -D}.
 
 
 number_vec(_, Zero, []) :-

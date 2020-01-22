@@ -66,7 +66,7 @@ account_own_transactions_sum(Exchange_Rates, Exchange_Date, Report_Currency, Acc
 	length(Filtered_Transactions, Transactions_Count),
 	transaction_vectors_total(Filtered_Transactions, Totals),
 	vec_change_bases(Exchange_Rates, Exchange_Date, Report_Currency, Totals, Sum)
-	,format(user_error, 'account_own_transactions_sum: ~q :~n~q ~n ~q ~n', [Account, Sum, Filtered_Transactions])
+	%,format(user_error, 'account_own_transactions_sum: ~q :~n~q ~n ~q ~n', [Account, Sum, Filtered_Transactions])
 	.
 	
 
@@ -183,7 +183,7 @@ balance_sheet_entry2(Static_Data, Account_Id, Entry) :-
 	account_own_transactions_sum(Static_Data.exchange_rates, Static_Data.exchange_date, Static_Data.report_currency, Account_Id, Static_Data.end_date, Static_Data.transactions_by_account, Own_Sum, Own_Transactions_Count),
 	
 	vec_sum([Own_Sum | Child_Balances], Balance),
-	format(user_error, 'balance_sheet_entry2: ~q :~n~q~n', [Account_Id, Balance]),
+	%format(user_error, 'balance_sheet_entry2: ~q :~n~q~n', [Account_Id, Balance]),
 	sum_list(Child_Counts, Children_Transaction_Count),
 	Transactions_Count is Children_Transaction_Count + Own_Transactions_Count,
 	Entry = entry(Account_Id, Balance, Child_Sheet_Entries, Transactions_Count).

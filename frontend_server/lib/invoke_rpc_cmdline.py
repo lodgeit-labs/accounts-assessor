@@ -47,12 +47,13 @@ def files_in_dir(dir):
 
 @click.command()
 @click.argument('request_files', nargs=-1)
-@click.option('-dro', '--dev_runner_options', type=str)
-@click.option('-prolog_flags', '--prolog_flags', type=str)
-def run(request_files, dev_runner_options, prolog_flags):
+@click.option('-d', '--dev_runner_options', type=str)
+@click.option('-p', '--prolog_flags', type=str)
+@click.option('-s', '--server_url', type=str, default='http://localhost:7778')
+
+def run(request_files, dev_runner_options, prolog_flags, server_url):
 	if dev_runner_options == None:
 		dev_runner_options = ''
-	server_url = 'http://localhost:8080'
 	request_files2 = [os.path.abspath(os.path.expanduser(f)) for f in request_files]
 	tmp_directory_name, tmp_directory_absolute_path = create_tmp()
 	if len(request_files2) == 1 and os.path.isdir(request_files2[0]):

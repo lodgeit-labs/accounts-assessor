@@ -1,4 +1,3 @@
-:- module(_,[]).
 
 :- use_module(library(xsd)).
 :- use_module(library(xpath)).

@@ -114,9 +114,12 @@ collect_alerts(Alerts3) :-
 	).
 
 make_alerts_report(Alerts) :-
-	make_json_report(Alerts, alerts),
+	make_json_report(Alerts, alerts_json),
 	maplist(alert_html, Alerts, Alerts_Html),
-	report_page(alerts, [alerts, ':', br([]), Alerts_Html], loc(file_name,'alerts.html'), alerts).
+	(	Alerts_Html = []
+	->	Alerts_Html2 = ['no alerts']
+	;	Alerts_Html2 = Alerts_Html),
+	report_page(alerts, [alerts, ':', br([]), Alerts_Html2], loc(file_name,'alerts.html'), alerts_html).
 
 alert_html(Alert, [Alert, br([]), br([])]).
 

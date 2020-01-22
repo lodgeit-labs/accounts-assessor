@@ -22,8 +22,15 @@ round_to_significant_digit(X,Y) :-
 	float_comparison_significant_digits(D),
 	round(X, D, Y).
 
-round(X,D,Y2) :- Z is X * 10^D, round(Z, ZA), Y is ZA / 10^D, Y2 is float(Y).
+round(X,D,Y2) :-
+	(float(X);rational(X)),
+	Z is X * 10^D,
+	round(Z, ZA),
+	Y is ZA / 10^D,
+	Y2 is float(Y).
 
+round(X,_,X) :-
+	integer(X).
 
 
 
@@ -51,3 +58,6 @@ round_term(Digits, X, Y) :-
 	X =.. [Functor|Args],!,
 	maplist(round_term(Digits), Args, Args2),
 	Y =.. [Functor|Args2].
+
+
+

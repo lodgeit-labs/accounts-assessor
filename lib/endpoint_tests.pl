@@ -2,7 +2,7 @@
 this runs the requests in tests/endpoint_tests and compares the responses against saved files.
 */
 
-:- module(endpoint_tests, [run_endpoint_test/2]).
+%:- module(endpoint_tests, [run_endpoint_test/2]).
 
 :- use_module(library(fnotation)).
 :- fnotation_ops($>,<$).
@@ -14,9 +14,9 @@ this runs the requests in tests/endpoint_tests and compares the responses agains
 :- use_module(library(http/json)).
 :- use_module(library(xpath)).
 :- use_module(library(readutil)).
-%:- use_module('lib', []).
-:- ['../public_lib/xbrl/prolog/xbrl/utils.pl'].
-:- ['../lib/search_paths.pl'].
+:- ['lib'].
+%:- ['../public_lib/xbrl/prolog/xbrl/utils.pl'].
+%:- ['../lib/search_paths.pl'].
 
 
 
@@ -339,7 +339,7 @@ query_endpoint(Testcase, Response_JSON) :-
 	resolve_specifier(loc(specifier,(my_tests(Testcase))),Testcase_Directory_Path),
 	directory_real_files(Testcase_Directory_Path, File_Paths),
 	findall(
-		file=file(RequestFile),
+		file1=file(RequestFile),
 		member(loc(absolute_path,RequestFile), File_Paths),
 		File_Form_Entries),
 	atomic_list_concat([$>endpoints_server(<$),'/upload'], Endpoint_Url),

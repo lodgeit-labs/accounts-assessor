@@ -234,8 +234,12 @@ invert_s_transaction_vector(T0, T1) :-
 
 
 handle_additional_files(S_Transactions) :-
-	maplist(handle_additional_file, $> doc_list_items($> doc_value(l:request, ic_ui:additional_files)), S_Transactions0),
-	flatten(S_Transactions0, S_Transactions).
+	(	doc_value(l:request, ic_ui:additional_files, Files)
+	->	(
+			maplist(handle_additional_file, $> doc_list_items(Files), S_Transactions0),
+			flatten(S_Transactions0, S_Transactions)
+		)
+	;	S_Transactions = []).
 
 handle_additional_file(Bn, S_Transactions) :-
 	(	extract_german_bank_csv0(Bn, S_Transactions)

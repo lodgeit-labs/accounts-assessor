@@ -1,7 +1,7 @@
 :- use_module(library(http/json)).
 :- use_module('residency', []).
 :- use_module('sbe', []).
-:- use_module('lib', []).
+:- ['lib'].
 
 process_request_rpc_cmdline :-
 	catch_with_backtrace(process_request_rpc_cmdline2, E, (
@@ -11,7 +11,7 @@ process_request_rpc_cmdline :-
 process_request_rpc_cmdline2 :-
 	json_read_dict(user_input, Dict),
 	(	Dict.method == "calculator"
-	->	lib:process_request_rpc_calculator(Dict.params)
+	->	process_request_rpc_calculator(Dict.params)
 	;	(
 		(Dict.method == "sbe"
 		->	(

@@ -1,0 +1,5 @@
+lib:
+round_term
+	doc 
+		""used to go mainly from rational numbers to floats rounded to some amount of digits
+		recurses on complex terms"""
