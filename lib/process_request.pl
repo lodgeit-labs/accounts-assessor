@@ -58,33 +58,27 @@ process_request(Options, File_Paths) :-
 	process_multifile_request(File_Paths),
 	report_file_path(loc(file_name, ''), Tmp_Dir_Url, _),
 	report_entry('all files', Tmp_Dir_Url, 'all'),
+	%gtrace,
+	collect_alerts(Alerts3),
+	make_alerts_report(Alerts3),
 	findall(
 		Json,
 		(
 			get_report_file(Id, Title, loc(absolute_url,Url)),
+
+			% inline response.n3 into the result json
 			(	Title == 'response.n3'
 			->	(
-					Json = _{key:Title, val:_{url:Url}, id:Id, contents:Contents},
 					tmp_file_path_from_something(loc(_,Url), loc(absolute_path,P)),
-					read_file_to_string(P, Contents, [])
+					read_file_to_string(P, Contents, []),
+					Json = _{key:Title, val:_{url:Url}, id:Id, contents:Contents}
 				)
-			;	Json = _{key:Title, val:_{url:Url}, id:Id})),
-		Files3),
-	findall(
-		Alert,
-		(
-			get_alert(Key,Val),
-			(
-				(
-					pretty_term_string(Val, Val_Str),
-					atomic_list_concat([Key,':',Val_Str], Alert)
-				)
-				->	true
-				;	throw(xxx)
-			)
+
+			% just url's for all the rest
+			;	Json = _{key:Title, val:_{url:Url}, id:Id})
+
 		),
-		Alerts3
-	),
+		Files3),
 	Json_Out = _{
 		alerts:Alerts3,
 		reports:Files3
@@ -101,6 +95,31 @@ process_request(Options, File_Paths) :-
 		)
 	;	writeln(Response_Json_String)),
 	(make_zip->true;true).
+
+collect_alerts(Alerts3) :-
+	findall(
+		Alert,
+		(
+			get_alert(Key,Val),
+			(
+				(
+					pretty_term_string(Val, Val_Str),
+					atomic_list_concat([Key,':',Val_Str], Alert)
+				)
+				->	true
+				;	throw(xxx)
+			)
+		),
+		Alerts3
+	).
+
+make_alerts_report(Alerts) :-
+	make_json_report(Alerts, alerts),
+	maplist(alert_html, Alerts, Alerts_Html),
+	report_page(alerts, [alerts, ':', br([]), Alerts_Html], loc(file_name,'alerts.html'), alerts).
+
+alert_html(Alert, [Alert, br([]), br([])]).
+
 
 process_multifile_request(File_Paths) :-
 	(	accept_request_file(File_Paths, Xml_Tmp_File_Path, xml)
