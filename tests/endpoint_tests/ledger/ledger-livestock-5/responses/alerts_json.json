@@ -1,0 +1,6 @@
+[
+  "SYSTEM_WARNING:\"trial balance is [coord(Cow,10)] at date(2018,3,2) -->\\n\"",
+  "SYSTEM_WARNING:\"trial balance is [coord(Cow,10)] at date(2018,6,30) -->\\n\"",
+  "SYSTEM_WARNING:\"trial balance is [coord(Cow,-6)] at date(2018,3,2) -->\\n\"",
+  "SYSTEM_WARNING:\"trial balance is [coord(Cow,-6)] at date(2018,6,30) -->\\n\""
+]
