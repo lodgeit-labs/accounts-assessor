@@ -2,10 +2,10 @@
 %:- use_module(library(fnotation)).
 
 process_request_depreciation_new :-
-
-	maplist(process_depreciation_asset, $> doc_list_items($> doc_value(l:request, depr:depreciation_assets))),
-	maplist(process_depreciation_event, $> doc_list_items($> doc_value(l:request, depr:depreciation_events))),
-	maplist(process_depreciation_query, $> doc_list_items($> doc_value(l:request, depr:depreciation_queries))).
+%gtrace,
+	maplist(process_depreciation_asset, $> doc_list_items($> doc_value(l:request, depr_ui:depreciation_assets))),
+	maplist(process_depreciation_event, $> doc_list_items($> doc_value(l:request, depr_ui:depreciation_events))),
+	maplist(process_depreciation_query, $> doc_list_items($> doc_value(l:request, depr_ui:depreciation_queries))).
 
 process_depreciation_asset(I) :-
 	event_calculus:assert_asset(
@@ -32,7 +32,7 @@ process_depreciation_query(Query) :-
 	process_depreciation_query2(Type, Query).
 
 process_depreciation_query2(
-	'https://lodgeit.net.au/#depreciation_pool_from_start', Q) :-
+	'https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_pool_from_start', Q) :-
 	depreciation_computation:depreciation_pool_from_start(
 		$>doc_value(Q,
 			depr:depreciation_query_pool),
@@ -45,7 +45,7 @@ process_depreciation_query2(
 	).
 
 process_depreciation_query2(
-	'https://lodgeit.net.au/#depreciation_between_two_dates', Q) :-
+	'https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_between_two_dates', Q) :-
 	depreciation_computation:depreciation_between_two_dates(
 		$>doc_value(Q, depr:depreciation_query_asset_id),
 		$>doc_value(Q, depr:depreciation_query_from_date),
@@ -55,7 +55,7 @@ process_depreciation_query2(
 	).
 
 process_depreciation_query2(
-	'https://lodgeit.net.au/#written_down_value', Q) :-
+	'https://rdf.lodgeit.net.au/v1/calcs/depr#written_down_value', Q) :-
 	depreciation_computation:written_down_value(
 		$>doc_value(Q, depr:depreciation_query_asset_id),
 		$>doc_value(Q, depr:depreciation_query_written_down_date),
@@ -65,7 +65,7 @@ process_depreciation_query2(
 	).
 
 process_depreciation_query2(
-	'https://lodgeit.net.au/#profit_and_loss', Q) :-
+	'https://rdf.lodgeit.net.au/v1/calcs/depr#profit_and_loss', Q) :-
 	depreciation_computation:profit_and_loss(
 		$>doc_value(Q, depr:depreciation_query_asset_id),
 		$>doc_value(Q, depr:depreciation_query_termination_value),
