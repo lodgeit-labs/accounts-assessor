@@ -56,45 +56,47 @@ process_request(Options, File_Paths) :-
 	doc_init,
 	maybe_supress_generating_unique_taxonomy_urls(Options),
 	process_multifile_request(File_Paths),
-	report_file_path(loc(file_name, ''), Tmp_Dir_Url, _),
-	report_entry('all files', Tmp_Dir_Url, 'all'),
-	%gtrace,
+	process_request2.
+
+process_request2 :-
+	'make "all files" report entry',
 	collect_alerts(Alerts3),
 	make_alerts_report(Alerts3),
-	findall(
-		Json,
-		(
-			get_report_file(Id, Title, loc(absolute_url,Url)),
+	json_report_entries(Files3),
 
-			% inline response.n3 into the result json
-			(	Title == 'response.n3'
-			->	(
-					tmp_file_path_from_something(loc(_,Url), loc(absolute_path,P)),
-					read_file_to_string(P, Contents, []),
-					Json = _{key:Title, val:_{url:Url}, id:Id, contents:Contents}
-				)
-
-			% just url's for all the rest
-			;	Json = _{key:Title, val:_{url:Url}, id:Id})
-
-		),
-		Files3),
-	Json_Out = _{
-		alerts:Alerts3,
-		reports:Files3
-	},
+	Json_Out = _{alerts:Alerts3, reports:Files3},
 	absolute_tmp_path(loc(file_name,'response.json'), Json_Response_File_Path),
 	dict_json_text(Json_Out, Response_Json_String),
 	write_file(Json_Response_File_Path, Response_Json_String),
+	writeln(Response_Json_String),
 
-	get_requested_output_type(Options, Requested_Output_Type),
-	(	Requested_Output_Type = xml
-	->	(
-			tmp_file_path_from_something(Json_Out.reports.response_xml, Xml_Path),
-			print_file(Xml_Path)
-		)
-	;	writeln(Response_Json_String)),
 	(make_zip->true;true).
+
+'make "all files" report entry' :-
+	report_file_path(loc(file_name, ''), Tmp_Dir_Url, _),
+	report_entry('all files', Tmp_Dir_Url, 'all').
+
+json_report_entries(Files3) :-
+	findall(
+		Json,
+		(
+			get_report_file(Key, Title, loc(absolute_url,Url)),
+			(format_json_report_entry(Key, Title, Url, Json) -> true ; throw(error))
+		),
+		Files3
+	).
+
+format_json_report_entry(Key, Title, Url, Json) :-
+	Json0 = _{key:Key, title:Title, val:_{url:Url}},
+	(	Key == 'response.n3'     %_{name:'response', format:'n3'}
+	->	(
+			% inline response.n3 into the result json
+			tmp_file_path_from_something(loc(_,Url), loc(absolute_path,P)),
+			read_file_to_string(P, Contents, []),
+			Json = Json0.put(contents,Contents)
+		)
+	% just url's for all the rest
+	;	Json = Json0).
 
 collect_alerts(Alerts3) :-
 	findall(

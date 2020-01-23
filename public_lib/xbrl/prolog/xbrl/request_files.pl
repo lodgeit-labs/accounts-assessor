@@ -158,20 +158,20 @@ add_xml_report(Key, Title, XML) :-
 		sane_xml_write(Stream, XML),
 		close(Stream)
 	),
-	add_report_file(Key, Title, Url).
+	add_report_file(Key, Title, Url). % (_{name:Name,format:'xml'}
 
-add_report_file(Id, Title, Url) :-
+add_report_file(Key, Title, Url) :-
 	request(R),
 	doc_new_uri(Uri),
 	doc_add(R, l:report, Uri, files),
-	doc_add(Uri, l:id, Id, files),
+	doc_add(Uri, l:key, Key, files),
 	doc_add(Uri, l:title, Title, files),
 	doc_add(Uri, l:url, Url, files).
 
-get_report_file(Id, Title, Url) :-
+get_report_file(Key, Title, Url) :-
 	request(R),
 	docm(R, l:report, Uri, files),
-	doc(Uri, l:id, Id, files),
+	doc(Uri, l:key, Key, files),
 	doc(Uri, l:title, Title, files),
 	doc(Uri, l:url, Url, files).
 

@@ -108,7 +108,7 @@ preprocess_s_transaction(Static_Data, S_Transaction, Transactions, Outstanding_B
 			is_debit(Counteraccount_Vector)
 		->
 			(
-				(	is_credit(Vector_Ours)
+				(	\+is_debit(Vector_Ours)
 				->	true
 				;	throw_string('debit Counteraccount_Vector but debit money Vector')),
 				make_buy(
@@ -118,7 +118,7 @@ preprocess_s_transaction(Static_Data, S_Transaction, Transactions, Outstanding_B
 			)
 		;
 			(
-				(	is_debit(Vector_Ours)
+				(	\+is_credit(Vector_Ours)
 				->	true
 				;	throw_string('credit Counteraccount_Vector but credit money Vector')),
 

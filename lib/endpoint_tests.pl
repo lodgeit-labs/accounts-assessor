@@ -1,8 +1,8 @@
 /*
-this runs the requests in tests/endpoint_tests and compares the responses against saved files.
+this tries the requests in tests/endpoint_tests against a running server and compares the responses against saved files.
 */
 
-%:- module(endpoint_tests, [run_endpoint_test/2]).
+%:- module(endpoint_tests, [run_testcase/2]).
 
 :- use_module(library(fnotation)).
 :- fnotation_ops($>,<$).
@@ -22,10 +22,10 @@ this runs the requests in tests/endpoint_tests and compares the responses agains
 
 :- set_prolog_flag(endpoints_server, 'http://localhost:7778').
 
-
-
 endpoints_server(S) :-
 	current_prolog_flag(endpoints_server, S).
+
+
 
 :- multifile
 	prolog:message//1.
@@ -41,7 +41,7 @@ test(start) :- nl.
 
 test(testcase, []) :-
 	(	current_prolog_flag(testcase, (Endpoint_Type, Testcase))
-	->	run_endpoint_test(Endpoint_Type, Testcase)
+	->	run_testcase(Endpoint_Type, Testcase)
 	;	true).
 
 /*
@@ -58,32 +58,32 @@ test(residency, []) :-
 
 test(ledger,
 	[forall(testcases('endpoint_tests/ledger',Testcase))]) :-
-	run_endpoint_test(ledger, Testcase).
+	run_testcase(ledger, Testcase).
 
 test(loan,
 	[forall(testcases('endpoint_tests/loan',Testcase))]) :-
-	run_endpoint_test(loan, Testcase).
+	run_testcase(loan, Testcase).
 
 test(livestock,
 	[forall(testcases('endpoint_tests/livestock',Testcase))]) :-
-	run_endpoint_test(livestock, Testcase).
+	run_testcase(livestock, Testcase).
 
 test(investment, 
 	[forall(testcases('endpoint_tests/investment', Testcase))]) :-
-	run_endpoint_test(investment, Testcase).
+	run_testcase(investment, Testcase).
 
 test(car, 
 	[forall(testcases('endpoint_tests/car',Testcase)), fixme('NER API server is down.')]) :-
-	run_endpoint_test(car, Testcase).
+	run_testcase(car, Testcase).
 
 test(depreciation, 
 	[forall(testcases('endpoint_tests/depreciation',Testcase))]) :-
-	run_endpoint_test(depreciation, Testcase).
+	run_testcase(depreciation, Testcase).
 
 test(depreciation_invalid, 
 	/* todo: the endpoint shouldnt die with a bad_request, it should return json with alerts, and we should simply check against a saved one */
 	[forall(testcases('endpoint_tests/depreciation_invalid',Testcase)), throws(testcase_error(http_code_400))]) :-
-	run_endpoint_test(depreciation_invalid, Testcase).
+	run_testcase(depreciation_invalid, Testcase).
 
 :- end_tests(endpoints).
 
@@ -107,26 +107,37 @@ output_file(ledger, 'general_ledger_json', json).
 output_file(ledger, 'investment_report_json', json).
 output_file(ledger, 'investment_report_since_beginning_json', json).
 
+report_with_key_is_depended_upon_by_report_with_key(Source_Id, Result_Id) :-
+	Source_Id = _{name: Name, format: json},
+	Result_Id = _{name: Name, format: html}.
 
-run_endpoint_test(Endpoint_Type, Testcase) :-
-	debug(endpoint_tests, '(run_endpoint_test(~w, ~w)', [Endpoint_Type, Testcase]),
+run_testcase(Endpoint_Type, Testcase) :-
+	debug(endpoint_tests, '(run_testcase(~w, ~w)', [Endpoint_Type, Testcase]),
+	/* make a fresh directory to save report files to */
 	bump_tmp_directory_id,
-	run_endpoint_test2(Endpoint_Type, Testcase).
+	run_testcase2(Endpoint_Type, Testcase).
 
-run_endpoint_test2(Endpoint_Type, Testcase) :-
+run_testcase2(Endpoint_Type, Testcase) :-
  	query_endpoint(Testcase, Response_JSON),
-	dict_pairs(Response_JSON.reports, _, Reports),
-	maplist(check_returned(Endpoint_Type, Testcase), Reports, Errors),
+ 	dict_pairs(Response_JSON.reports, _, Reports),
+ 	%order_reports_by_dependencies(Reports, Reports2)
+	maplist(
+		check_report(Endpoint_Type, Testcase),
+		Reports,
+		Errors),
 	maybe_report_all_testcase_errors(Errors).
 	/*todo: all_saved_files(Testcase, Saved_Files),
 	maplist(check_saved(Testcase, Reports), Saved_Files),*/
+
+/*order_reports_by_dependencies(Reports, Reports2) :-
+	report_with_id_is_depended_upon_by_report_with_id(Source_Id, Result_Id)*/
 
 /*
 todo:
 check_saved(Testcase, Reports, Saved_File) :-
 	reports_corresponding_to_saved(Testcase, Reports, Saved_File, Reports_Corresponding_To_Saved_File),
 	(	Reports_Corresponding_To_Saved_File = [_]
-	->	true % handled by check_returned
+	->	true % handled by check_report
 	;	(	Reports_Corresponding_To_Saved_File = []
 		->	(	
 				format('missing corresponding report file, saved file: ~w', [Saved_File]),
@@ -155,10 +166,11 @@ maybe_report_all_testcase_errors(Errors) :-
 		)
 	;	true).
 
-check_returned(_, _, all-_, _) :- !. /* the report with the key "all" is a link to the directory with the report files */
-check_returned(_, _, request_xml-_, _) :- !.
+/* ignore these keys: */
+check_report(_, _, all-_, _) :- !. /* a link to the containing directory */
+check_report(_, _, request_xml-_, _) :- !.
 
-check_returned(Endpoint_Type, Testcase, Key-Report, Errors) :-
+check_report(Endpoint_Type, Testcase, Key-Report, Errors) :-
 	Url = loc(absolute_url,Report.url),
 	fetch_report_file_from_url(Url, Returned_Report_Path),
 	tmp_uri_to_saved_response_path(Testcase, Url, Saved_Report_Path),
@@ -175,12 +187,12 @@ check_returned(Endpoint_Type, Testcase, Key-Report, Errors) :-
 					Errors = [Msg]
 				)
 		)
-	;	check_saved_report0(Endpoint_Type, Key, Returned_Report_Path, Saved_Report_Path, Errors)
+	;	check_report2(Endpoint_Type, Key, Returned_Report_Path, Saved_Report_Path, Errors)
 	).
 
-check_saved_report0(Endpoint_Type, Key, Returned_Report_Path, Saved_Report_Path, Errors) :-
+check_report2(Endpoint_Type, Key, Returned_Report_Path, Saved_Report_Path, Errors) :-
 	file_type_by_extension(Returned_Report_Path, File_Type),
-	check_saved_report1(Endpoint_Type, Returned_Report_Path, Saved_Report_Path, Key, File_Type, Errors),
+	check_report3(Endpoint_Type, Returned_Report_Path, Saved_Report_Path, Key, File_Type, Errors),
 	maybe_report_report_errors(Errors, Returned_Report_Path, Saved_Report_Path).
 
 maybe_report_report_errors(Errors, Returned_Report_Path, Saved_Report_Path) :-
@@ -200,13 +212,21 @@ maybe_report_report_errors(Errors, Returned_Report_Path, Saved_Report_Path) :-
 	).
 	
 
-check_saved_report1(Endpoint_Type, Returned_Report_Path, Saved_Report_Path, Key, File_Type, Errors) :-
-	debug(endpoint_tests, '~n## ~q: ~n', [check_saved_report1(Endpoint_Type, Returned_Report_Path, Saved_Report_Path, Key, File_Type, Errors)]),
-	test_response(Endpoint_Type, Returned_Report_Path, Saved_Report_Path, Key, File_Type, Errors0),
-	findall(Key:Error, member(Error,Errors0), Errors).
+check_report3(Endpoint_Type, Returned_Report_Path, Saved_Report_Path, Key, File_Type, Errors) :-
+	debug(endpoint_tests, '~n## ~q: ~n', [check_report3(Endpoint_Type, Returned_Report_Path, Saved_Report_Path, Key, File_Type, Errors)]),
+	(
+		(	current_prolog_flag(ignore_response_keys, Ignored),
+			member(Key, Ignored)
+		)
+	->	true
+	;	(
+			check_report4(Endpoint_Type, Returned_Report_Path, Saved_Report_Path, Key, File_Type, Errors0),
+			findall(Key:Error, member(Error,Errors0), Errors)
+		)
+	).
 
 
-test_response(Endpoint_Type, Returned_Report_Path, Saved_Report_Path, Key, xml, Errors) :-
+check_report4(Endpoint_Type, Returned_Report_Path, Saved_Report_Path, Key, xml, Errors) :-
 	!,
 	Returned_Report_Path = loc(absolute_path,Returned_Report_Path_Value),
 	Saved_Report_Path = loc(absolute_path,Saved_Report_Path_Value),
@@ -227,11 +247,11 @@ test_response(Endpoint_Type, Returned_Report_Path, Saved_Report_Path, Key, xml, 
 		)
 	).
 
-test_response(_, Returned_Report_Path, Saved_Report_Path, _Key, json, Errors) :-
+check_report4(_, Returned_Report_Path, Saved_Report_Path, _Key, json, Errors) :-
 	!,
 	diff_service(Saved_Report_Path, Returned_Report_Path, Errors).
 
-test_response(_, Returned_Report_Path, Saved_Report_Path, _, _, Error) :-
+check_report4(_, Returned_Report_Path, Saved_Report_Path, _, _, Error) :-
 	!,
 	(	diff(Saved_Report_Path, Returned_Report_Path, true)
 	->	Error = []
@@ -352,8 +372,8 @@ query_endpoint(Testcase, Response_JSON) :-
 	If this option is present and Code unifies with the HTTP status code, do not translate errors (4xx, 5xx) into an exception. Instead, http_open/3 behaves as if 2xx (success) is returned, providing the application to read the error document from the returned stream.? I guess it's fine as it is now*/
 	atom_json_dict(Response_String, Response_JSON_Raw,[value_string_as(atom)]),
 	findall(
-		ID-_{title:Title,url:URL},
-		member(_{id:ID,key:Title,val:_{url:URL}}, Response_JSON_Raw.reports),
+		Key-_{title:Title,url:URL},
+		member(_{key:Key,title:Title,val:_{url:URL}}, Response_JSON_Raw.reports),
 		Reports
 	),
 	dict_pairs(Reports_Dict,_,Reports),

@@ -4,8 +4,26 @@
 crosschecks_report0(Sd, Json) :-
 	crosschecks_report(Sd, Json),
 	findall(
-		p([p([Check]), p([Evaluation]), p([Status])]),
-		member([Check, Evaluation, Status], Json.results),
+		p([p([Check_Str]), ':', br([]), p([Evaluation_Str]), ':', br([]), p([Status])]),
+		(
+			member(Result, Json.results),
+			(
+				Result = _{check:Check, evaluation:Evaluation, status:Status},
+				/*
+					term_string(A, A_Str),
+					term_string(B, B_Str),
+					dict_json_text(A2, A2_Str),
+					dict_json_text(B2, B2_Str),
+				*/
+				format(
+					   string(Check_Str),
+					   '~q ~w ~q',
+					   [Check.a, Check.op, Check.b]),
+				format(
+					   string(Evaluation_Str),
+					   '~q ~w ~q',
+					   [Evaluation.a, Evaluation.op, Evaluation.b])
+			) -> true; throw_string('collecting crosschecks failed')),
 		Html),
 	/*dict_json_text(Json, Json_Text),
 	report_item('crosschecks.json', Json_Text, Json_Url),
@@ -14,7 +32,6 @@ crosschecks_report0(Sd, Json) :-
 
 crosschecks_report(Sd, Json) :-
 	Crosschecks = [
-	
 		equality(
 			account_balance(reports/pl/current, 'InvestmentIncomeRealized'/withoutCurrencyMovement), 
 			report_value(reports/ir/current/totals/gains/rea/market_converted)),
@@ -27,9 +44,6 @@ crosschecks_report(Sd, Json) :-
 		equality(
 			account_balance(reports/pl/current, 'InvestmentIncomeUnrealized'/onlyCurrencyMovement), 
 			report_value(reports/ir/current/totals/gains/unr/forex)),
-	
-	
-	
 		equality(
 			account_balance(reports/pl/current, 'Accounts'/'InvestmentIncome'), 
 			report_value(reports/ir/current/totals/gains/total)),
@@ -39,12 +53,15 @@ crosschecks_report(Sd, Json) :-
 		equality(
 			account_balance(reports/pl/current, 'InvestmentIncome'/'realized'), 
 			report_value(reports/ir/current/totals/gains/realized_total)),
-		       
-       equality(account_balance(reports/bs/current, 'Accounts'/'FinancialInvestments'), report_value(reports/ir/current/totals/closing/total_cost_converted)),
-
-       equality(account_balance(reports/bs/current, 'Accounts'/'HistoricalEarnings'), account_balance(reports/pl/historical, 'Accounts'/'NetIncomeLoss')),
-		       
-		equality(account_balance(reports/bs/current, 'Accounts'/'NetAssets'), account_balance(reports/bs/current, 'Accounts'/'Equity'))
+		equality(
+			account_balance(reports/bs/current, 'Accounts'/'FinancialInvestments'),
+			report_value(reports/ir/current/totals/closing/total_cost_converted)),
+		equality(
+			account_balance(reports/bs/current, 'Accounts'/'HistoricalEarnings'),
+			account_balance(reports/pl/historical, 'Accounts'/'NetIncomeLoss')),
+		equality(
+			account_balance(reports/bs/current, 'Accounts'/'NetAssets'),
+			account_balance(reports/bs/current, 'Accounts'/'Equity'))
 	],
 	maplist(evaluate_equality(Sd), Crosschecks, Results, Errors),
 	exclude(var, Errors, Errors2),
@@ -53,8 +70,7 @@ crosschecks_report(Sd, Json) :-
 		 errors: Errors2
 	}.
 
-evaluate_equality(Sd, E, [Check, Evaluation, Status], Error) :-
-	E = equality(A, B),
+evaluate_equality(Sd, equality(A, B), _{check:Check, evaluation:Evaluation, status:Status}, Error) :-
 	evaluate(Sd, A, A2),
 	evaluate(Sd, B, B2),
 	(
@@ -72,18 +88,8 @@ evaluate_equality(Sd, E, [Check, Evaluation, Status], Error) :-
 	  Error = ('crosscheck':Check)
 	 )
 	),
-	term_string(A, A_Str),
-	term_string(B, B_Str),
-	dict_json_text(A2, A2_Str),
-	dict_json_text(B2, B2_Str),
-	format(
-	       string(Check),
-	       '~w ~w ~w',
-	       [A_Str, Equality_Str, B_Str]),
-	format(
-	       string(Evaluation),
-	       '~w ~w ~w',
-	       [A2_Str, Equality_Str, B2_Str]).
+	Check = _{op: Equality_Str, a:A, b:B},
+	Evaluation = _{op: Equality_Str, a:A2, b:B2}.
 	
 
 crosscheck_compare(A, B) :-
@@ -96,7 +102,7 @@ evaluate(Sd, Term, Value) :-
 	->
 	 true
 	;
-	 Value = evaluation_failed(Term)
+	 Value = evaluation_failed(Term, $>gensym(failure))
 	).
 
 evaluate2(Sd, report_value(Key), Values_List) :-

@@ -198,7 +198,7 @@ extract_exchanged_value(Tx_Dom, _Account_Currency, Bank_Dr, Exchanged) :-
 			atom_number(Unit_Count_Atom, Unit_Count),
 			Count_Absolute is rationalize(abs(Unit_Count)),
 			(
-				Bank_Dr > 0
+				Bank_Dr >= 0
 			->
 					Exchanged = vector([coord(Unit_Type, Count_Absolute)])
 			;

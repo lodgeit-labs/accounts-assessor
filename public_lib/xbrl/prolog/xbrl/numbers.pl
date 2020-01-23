@@ -22,15 +22,16 @@ round_to_significant_digit(X,Y) :-
 	float_comparison_significant_digits(D),
 	round(X, D, Y).
 
+round(X,_,X) :-
+	integer(X).
+
 round(X,D,Y2) :-
+	\+integer(X),
 	(float(X);rational(X)),
 	Z is X * 10^D,
 	round(Z, ZA),
 	Y is ZA / 10^D,
 	Y2 is float(Y).
-
-round(X,_,X) :-
-	integer(X).
 
 
 
