@@ -185,7 +185,12 @@
   "rows": [
     {
       "closing": {
-	"conversion":"exchange_rate(date(2018,1,1),bananas,oranges,4)",
+	"conversion": {
+  "date": {"day":1, "month":1, "year":2018},
+  "dst":"oranges",
+  "rate":4,
+  "src":"bananas"
+},
 	"total_cost_converted": {"amount":4000, "unit":"oranges"},
 	"total_cost_foreign": {"amount":1000, "unit":"bananas"},
 	"unit_cost_converted": {"amount":4000, "unit":"oranges"},
@@ -212,8 +217,13 @@
       },
       "opening": {},
       "purchase": {
-	"conversion":"exchange_rate(date(2017,1,1),bananas,oranges,4)",
-	"date":"date(2017,1,1)",
+	"conversion": {
+  "date": {"day":1, "month":1, "year":2017},
+  "dst":"oranges",
+  "rate":4,
+  "src":"bananas"
+},
+	"date": {"day":1, "month":1, "year":2017},
 	"total_cost_converted": {"amount":2000, "unit":"oranges"},
 	"total_cost_foreign": {"amount":500, "unit":"bananas"},
 	"unit_cost_converted": {"amount":2000, "unit":"oranges"},

@@ -3,7 +3,7 @@
   {
     "source": {
       "account":"WellsFargo",
-      "date":"date(2017,7,1)",
+      "date": {"day":1, "month":7, "year":2017},
       "exchanged":"vector([])",
       "misc": {},
       "report_currency_transacted_amount_converted_at_balance_date": [ {"credit":0, "debit":200, "unit":"AUD"} ],
@@ -14,7 +14,7 @@
     "transactions": [
       {
 	"account":"BanksWellsFargo",
-	"date":"date(2017,7,1)",
+	"date": {"day":1, "month":7, "year":2017},
 	"description":"Introduce_Capital - incoming money",
 	"running_balance": [ {"credit":0, "debit":200, "unit":"AUD"} ],
 	"type":"instant",
@@ -24,7 +24,7 @@
       },
       {
 	"account":"ShareCapital",
-	"date":"date(2017,7,1)",
+	"date": {"day":1, "month":7, "year":2017},
 	"description":"Introduce_Capital",
 	"running_balance": [ {"credit":200, "debit":0, "unit":"AUD"} ],
 	"type":"instant",
@@ -37,7 +37,7 @@
   {
     "source": {
       "account":"WellsFargo",
-      "date":"date(2017,7,10)",
+      "date": {"day":10, "month":7, "year":2017},
       "exchanged":"vector([])",
       "misc": {},
       "report_currency_transacted_amount_converted_at_balance_date": [ {"credit":200, "debit":0, "unit":"AUD"} ],
@@ -48,7 +48,7 @@
     "transactions": [
       {
 	"account":"BanksWellsFargo",
-	"date":"date(2017,7,10)",
+	"date": {"day":10, "month":7, "year":2017},
 	"description":"Purchase_Method_C - outgoing money",
 	"running_balance": [],
 	"type":"instant",
@@ -58,7 +58,7 @@
       },
       {
 	"account":"GstReceivable",
-	"date":"date(2017,7,10)",
+	"date": {"day":10, "month":7, "year":2017},
 	"description":"Purchase_Method_C",
 	"running_balance": [ {"credit":0, "debit":20, "unit":"AUD"} ],
 	"type":"instant",
@@ -68,7 +68,7 @@
       },
       {
 	"account":"Purchases",
-	"date":"date(2017,7,10)",
+	"date": {"day":10, "month":7, "year":2017},
 	"description":"Purchase_Method_C",
 	"running_balance": [ {"credit":0, "debit":180, "unit":"AUD"} ],
 	"type":"instant",
@@ -81,7 +81,7 @@
   {
     "source": {
       "account":"WellsFargo",
-      "date":"date(2018,6,28)",
+      "date": {"day":28, "month":6, "year":2018},
       "exchanged":"vector([])",
       "misc": {},
       "report_currency_transacted_amount_converted_at_balance_date": [ {"credit":0, "debit":400, "unit":"AUD"} ],
@@ -92,7 +92,7 @@
     "transactions": [
       {
 	"account":"BanksWellsFargo",
-	"date":"date(2018,6,28)",
+	"date": {"day":28, "month":6, "year":2018},
 	"description":"Sale_Method_C - incoming money",
 	"running_balance": [ {"credit":0, "debit":400, "unit":"AUD"} ],
 	"type":"instant",
@@ -102,7 +102,7 @@
       },
       {
 	"account":"GstPayable",
-	"date":"date(2018,6,28)",
+	"date": {"day":28, "month":6, "year":2018},
 	"description":"Sale_Method_C",
 	"running_balance": [ {"credit":40, "debit":0, "unit":"AUD"} ],
 	"type":"instant",
@@ -112,7 +112,7 @@
       },
       {
 	"account":"Income",
-	"date":"date(2018,6,28)",
+	"date": {"day":28, "month":6, "year":2018},
 	"description":"Sale_Method_C",
 	"running_balance": [ {"credit":360, "debit":0, "unit":"AUD"} ],
 	"type":"instant",

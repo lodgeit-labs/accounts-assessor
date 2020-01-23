@@ -389,17 +389,6 @@
     ]
   },
   "crosschecks": {
-    "errors": [
-      "crosscheck:_379012{a:account_balance(reports/pl/current,'InvestmentIncomeRealized'/withoutCurrencyMovement),b:report_value(reports/ir/current/totals/gains/rea/market_converted),op: ≠}",
-      "crosscheck:_380078{a:account_balance(reports/pl/current,'InvestmentIncomeRealized'/onlyCurrencyMovement),b:report_value(reports/ir/current/totals/gains/rea/forex),op: ≠}",
-      "crosscheck:_381144{a:account_balance(reports/pl/current,'InvestmentIncomeUnrealized'/withoutCurrencyMovement),b:report_value(reports/ir/current/totals/gains/unr/market_converted),op: ≠}",
-      "crosscheck:_382210{a:account_balance(reports/pl/current,'InvestmentIncomeUnrealized'/onlyCurrencyMovement),b:report_value(reports/ir/current/totals/gains/unr/forex),op: ≠}",
-      "crosscheck:_383044{a:account_balance(reports/pl/current,'Accounts'/'InvestmentIncome'),b:report_value(reports/ir/current/totals/gains/total),op: ≠}",
-      "crosscheck:_383994{a:account_balance(reports/pl/current,'InvestmentIncome'/unrealized),b:report_value(reports/ir/current/totals/gains/unrealized_total),op: ≠}",
-      "crosscheck:_384752{a:account_balance(reports/pl/current,'InvestmentIncome'/realized),b:report_value(reports/ir/current/totals/gains/realized_total),op: ≠}",
-      "crosscheck:_385330{a:account_balance(reports/bs/current,'Accounts'/'FinancialInvestments'),b:report_value(reports/ir/current/totals/closing/total_cost_converted),op: ≠}",
-      "crosscheck:_387200{a:account_balance(reports/bs/current,'Accounts'/'NetAssets'),b:account_balance(reports/bs/current,'Accounts'/'Equity'),op: ≠}"
-    ],
     "results": [
       {
 	"check": {
@@ -415,7 +404,7 @@
   "unit":"without_currency_movement_against_since('USD','USD',[],date(2017,7,1))"
 }
 	  ],
-	  "b":"evaluation_failed(report_value(reports/ir/current/totals/gains/rea/market_converted),failure2)",
+	  "b":"evaluation_failed(report_value(reports/ir/current/totals/gains/rea/market_converted),evaluation_failure2)",
 	  "op":"≠"
 	},
 	"status":"error"
@@ -434,7 +423,7 @@
   "unit":"without_currency_movement_against_since('USD','USD',[],date(2017,7,1))"
 }
 	  ],
-	  "b":"evaluation_failed(report_value(reports/ir/current/totals/gains/rea/forex),failure4)",
+	  "b":"evaluation_failed(report_value(reports/ir/current/totals/gains/rea/forex),evaluation_failure4)",
 	  "op":"≠"
 	},
 	"status":"error"
@@ -453,7 +442,7 @@
   "unit":"without_currency_movement_against_since('SG_Issuer_SA','USD',[],date(2017,7,1))"
 }
 	  ],
-	  "b":"evaluation_failed(report_value(reports/ir/current/totals/gains/unr/market_converted),failure6)",
+	  "b":"evaluation_failed(report_value(reports/ir/current/totals/gains/unr/market_converted),evaluation_failure6)",
 	  "op":"≠"
 	},
 	"status":"error"
@@ -472,7 +461,7 @@
   "unit":"without_currency_movement_against_since('SG_Issuer_SA','USD',[],date(2017,7,1))"
 }
 	  ],
-	  "b":"evaluation_failed(report_value(reports/ir/current/totals/gains/unr/forex),failure8)",
+	  "b":"evaluation_failed(report_value(reports/ir/current/totals/gains/unr/forex),evaluation_failure8)",
 	  "op":"≠"
 	},
 	"status":"error"
@@ -485,7 +474,7 @@
 	},
 	"evaluation": {
 	  "a": [ {"amount":5, "unit":"SG_Issuer_SA"},  {"amount":100, "unit":"USD"} ],
-	  "b":"evaluation_failed(report_value(reports/ir/current/totals/gains/total),failure10)",
+	  "b":"evaluation_failed(report_value(reports/ir/current/totals/gains/total),evaluation_failure10)",
 	  "op":"≠"
 	},
 	"status":"error"
@@ -498,7 +487,7 @@
 	},
 	"evaluation": {
 	  "a": [ {"amount":5, "unit":"SG_Issuer_SA"},  {"amount":-50, "unit":"USD"} ],
-	  "b":"evaluation_failed(report_value(reports/ir/current/totals/gains/unrealized_total),failure12)",
+	  "b":"evaluation_failed(report_value(reports/ir/current/totals/gains/unrealized_total),evaluation_failure12)",
 	  "op":"≠"
 	},
 	"status":"error"
@@ -511,7 +500,7 @@
 	},
 	"evaluation": {
 	  "a": [ {"amount":150, "unit":"USD"} ],
-	  "b":"evaluation_failed(report_value(reports/ir/current/totals/gains/realized_total),failure14)",
+	  "b":"evaluation_failed(report_value(reports/ir/current/totals/gains/realized_total),evaluation_failure14)",
 	  "op":"≠"
 	},
 	"status":"error"
@@ -524,7 +513,7 @@
 	},
 	"evaluation": {
 	  "a": [ {"amount":5, "unit":"SG_Issuer_SA"} ],
-	  "b":"evaluation_failed(report_value(reports/ir/current/totals/closing/total_cost_converted),failure16)",
+	  "b":"evaluation_failed(report_value(reports/ir/current/totals/closing/total_cost_converted),evaluation_failure16)",
 	  "op":"≠"
 	},
 	"status":"error"

@@ -1,3 +1,11 @@
 [
-  "SYSTEM_WARNING:\"investment reports fail: string('\\\"no exchange rate found: Day:date(2018,6,30), Src_Currency:SG_Issuer_SA, Dest_Currency:USD\\n\\\"''''')\""
+  "SYSTEM_WARNING:\"investment reports fail: '\\\"no exchange rate found: Day:date(2018,6,30), Src_Currency:SG_Issuer_SA, Dest_Currency:USD\\n\\\"'''''\"",
+  "crosscheck failed:\"[value('USD',150)] ≠ evaluation_failed(report_value(reports/ir/current/totals/gains/rea/market_converted),evaluation_failure2)\"",
+  "crosscheck failed:\"[] ≠ evaluation_failed(report_value(reports/ir/current/totals/gains/rea/forex),evaluation_failure4)\"",
+  "crosscheck failed:\"[value('USD',-50),value(without_currency_movement_against_since('SG_Issuer_SA','USD',['USD'],date(2017,7,1)),5)] ≠ evaluation_failed(report_value(reports/ir/current/totals/gains/unr/market_converted),evaluation_failure6)\"",
+  "crosscheck failed:\"[value('SG_Issuer_SA',5),value(without_currency_movement_against_since('SG_Issuer_SA','USD',['USD'],date(2017,7,1)),-5)] ≠ evaluation_failed(report_value(reports/ir/current/totals/gains/unr/forex),evaluation_failure8)\"",
+  "crosscheck failed:\"[value('SG_Issuer_SA',5),value('USD',100)] ≠ evaluation_failed(report_value(reports/ir/current/totals/gains/total),evaluation_failure10)\"",
+  "crosscheck failed:\"[value('SG_Issuer_SA',5),value('USD',-50)] ≠ evaluation_failed(report_value(reports/ir/current/totals/gains/unrealized_total),evaluation_failure12)\"",
+  "crosscheck failed:\"[value('USD',150)] ≠ evaluation_failed(report_value(reports/ir/current/totals/gains/realized_total),evaluation_failure14)\"",
+  "crosscheck failed:\"[value('SG_Issuer_SA',5)] ≠ evaluation_failed(report_value(reports/ir/current/totals/closing/total_cost_converted),evaluation_failure16)\""
 ]

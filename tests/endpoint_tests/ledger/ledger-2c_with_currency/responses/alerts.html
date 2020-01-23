@@ -7,7 +7,37 @@
 
 </head>
 <body>
-alerts:<br>
-<[|] SYSTEM_WARNING:"investment reports fail: string('\"exchange rate missing\"')" br="" br=""></[|]>
+
+<h3>alerts:</h3>
+
+<div>
+<div>SYSTEM_WARNING:"investment reports fail: '\"exchange rate missing\"'"<br>
+<br>
+</div>
+<div>crosscheck failed:"[value('AUD',23800 rdiv 69)] ≠ evaluation_failed(report_value(reports/ir/current/totals/gains/rea/market_converted),evaluation_failure2)"<br>
+<br>
+</div>
+<div>crosscheck failed:"[value('AUD',-2000 rdiv 483)] ≠ evaluation_failed(report_value(reports/ir/current/totals/gains/rea/forex),evaluation_failure4)"<br>
+<br>
+</div>
+<div>crosscheck failed:"[value('AUD',-174482 rdiv 625),value(without_currency_movement_against_since('SG_Issuer_SA','AUD',['AUD'],date(2017,7,1)),10)] ≠ evaluation_failed(report_value(reports/ir/current/totals/gains/unr/market_converted),evaluation_failure6)"<br>
+<br>
+</div>
+<div>crosscheck failed:"[value('AUD',-183 rdiv 625),value('SG_Issuer_SA',10),value(without_currency_movement_against_since('SG_Issuer_SA','AUD',['AUD'],date(2017,7,1)),-10)] ≠ evaluation_failed(report_value(reports/ir/current/totals/gains/unr/forex),evaluation_failure8)"<br>
+<br>
+</div>
+<div>crosscheck failed:"[value('AUD',3702361 rdiv 60375),value('SG_Issuer_SA',10)] ≠ evaluation_failed(report_value(reports/ir/current/totals/gains/total),evaluation_failure10)"<br>
+<br>
+</div>
+<div>crosscheck failed:"[value('AUD',-34933 rdiv 125),value('SG_Issuer_SA',10)] ≠ evaluation_failed(report_value(reports/ir/current/totals/gains/unrealized_total),evaluation_failure12)"<br>
+<br>
+</div>
+<div>crosscheck failed:"[value('AUD',164600 rdiv 483)] ≠ evaluation_failed(report_value(reports/ir/current/totals/gains/realized_total),evaluation_failure14)"<br>
+<br>
+</div>
+<div>crosscheck failed:"[value('AUD',102),value('SG_Issuer_SA',10)] ≠ evaluation_failed(report_value(reports/ir/current/totals/closing/total_cost_converted),evaluation_failure16)"<br>
+<br>
+</div>
+</div>
 </body>
 </html>

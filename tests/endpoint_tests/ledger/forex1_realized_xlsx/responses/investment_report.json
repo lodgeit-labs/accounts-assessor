@@ -189,8 +189,8 @@
       "currency":"USD",
       "gains": {
 	"rea": {
-	  "forex": {"amount":-4.140787, "unit":"AUD"},
-	  "market_converted": {"amount":144.927536, "unit":"AUD"},
+	  "forex": {"amount":-4.1408, "unit":"AUD"},
+	  "market_converted": {"amount":144.9275, "unit":"AUD"},
 	  "market_foreign": {"amount":100, "unit":"USD"}
 	},
 	"unr": {}
@@ -198,19 +198,19 @@
       "id":"iri1",
       "opening": {},
       "purchase": {
-	"conversion":"exchange_rate(date(2017,7,1),'USD','AUD',100 rdiv 69)",
-	"date":"date(2017,7,1)",
-	"total_cost_converted": {"amount":144.927536, "unit":"AUD"},
+	"conversion": {"date": {"day":1, "month":7, "year":2017}, "dst":"AUD", "rate":1.4493, "src":"USD"},
+	"date": {"day":1, "month":7, "year":2017},
+	"total_cost_converted": {"amount":144.9275, "unit":"AUD"},
 	"total_cost_foreign": {"amount":100, "unit":"USD"},
-	"unit_cost_converted": {"amount":14.492754, "unit":"AUD"},
+	"unit_cost_converted": {"amount":14.4928, "unit":"AUD"},
 	"unit_cost_foreign": {"amount":10, "unit":"USD"}
       },
       "sale": {
-	"conversion":"exchange_rate(date(2018,6,30),'USD','AUD',10 rdiv 7)",
-	"date":"date(2018,6,30)",
-	"total_cost_converted": {"amount":285.714286, "unit":"AUD"},
+	"conversion": {"date": {"day":30, "month":6, "year":2018}, "dst":"AUD", "rate":1.4286, "src":"USD"},
+	"date": {"day":30, "month":6, "year":2018},
+	"total_cost_converted": {"amount":285.7143, "unit":"AUD"},
 	"total_cost_foreign": {"amount":200, "unit":"USD"},
-	"unit_cost_converted": {"amount":28.571429, "unit":"AUD"},
+	"unit_cost_converted": {"amount":28.5714, "unit":"AUD"},
 	"unit_cost_foreign": {"amount":20, "unit":"USD"}
       },
       "unit":"SG_Issuer_SA"
@@ -219,12 +219,12 @@
       "closing": {"total_cost_converted": [], "total_cost_foreign": []},
       "gains": {
 	"rea": {
-	  "forex": [ {"amount":-4.140787, "unit":"AUD"} ],
-	  "market_converted": [ {"amount":144.927536, "unit":"AUD"} ],
+	  "forex": [ {"amount":-4.1408, "unit":"AUD"} ],
+	  "market_converted": [ {"amount":144.9275, "unit":"AUD"} ],
 	  "market_foreign": [ {"amount":100, "unit":"USD"} ]
 	},
-	"realized_total": [ {"amount":140.786749, "unit":"AUD"} ],
-	"total": [ {"amount":140.786749, "unit":"AUD"} ],
+	"realized_total": [ {"amount":140.7867, "unit":"AUD"} ],
+	"total": [ {"amount":140.7867, "unit":"AUD"} ],
 	"unr": {"forex": [], "market_converted": [], "market_foreign": []},
 	"unrealized_total": []
       },

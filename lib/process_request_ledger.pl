@@ -1,24 +1,17 @@
 process_request_ledger(File_Path, Dom) :-
-%gtrace,
 	inner_xml(Dom, //reports/balanceSheetRequest, _),
 	validate_xml2(File_Path, 'bases/Reports.xsd'),
 	extract_start_and_end_date(Dom, Start_Date, End_Date, Start_Date_Atom),
-
 	extract_bank_opening_balances(Bank_Lump_STs),
 	handle_additional_files(S_Transactions0),
 	extract_s_transactions(Dom, Start_Date_Atom, S_Transactions1),
 	flatten([Bank_Lump_STs, S_Transactions0, S_Transactions1], S_Transactions2),
 	sort_s_transactions(S_Transactions2, S_Transactions),
-
 	process_request_ledger2((Dom, Start_Date, End_Date), S_Transactions, _).
 	%process_request_ledger_debug((Dom, Start_Date, End_Date), S_Transactions).
 
 process_request_ledger_debug(Data, S_Transactions0) :-
-	findall(
-		Count,
-		ggg(Data, S_Transactions0, Count),
-		Counts),
-	writeq(Counts).
+	findall(Count, ggg(Data, S_Transactions0, Count), Counts), writeq(Counts).
 
 ggg(Data, S_Transactions0, Count) :-
 	Count = 41,
@@ -30,10 +23,6 @@ ggg(Data, S_Transactions0, Count) :-
 	(	L \= 2
 	->	true
 	;	(gtrace,format(user_error, '~q: ~q ~n', [Count, Structured_Reports.crosschecks.errors]))).
-
-
-take(Src, N, L) :-
-   when(ground(N+Src), findall(E, (nth1(I,Src,E), I =< N), L)).
 
 process_request_ledger2((Dom, Start_Date, End_Date), S_Transactions, Structured_Reports) :-
 	extract_output_dimensional_facts(Dom, Output_Dimensional_Facts),
@@ -140,9 +129,11 @@ make_gl_viewer_report :-
 	report_entry('GL viewer', loc(absolute_url, Full_Url), 'gl_html').
 
 investment_reports(Static_Data, Outstanding, Ir) :-
+	/* todo a catch like this should probably be around every major report-generation part of the codebase */
+
 	catch_maybe_with_backtrace(
 		investment_reports2(Static_Data, Outstanding, Ir),
-		Err,
+		string(Err),
 		(
 			term_string(Err, Err_Str),
 			format(string(Msg), 'investment reports fail: ~w', [Err_Str]),
@@ -207,8 +198,18 @@ extract_report_currency(Dom, Report_Currency) :-
    
 extract_exchange_rates(Dom, Start_Date, End_Date, Default_Currency, Exchange_Rates_Out) :-
 	/*If an investment was held prior to the from date then it MUST have an opening market value if the reports are expressed in.market rather than cost.You can't mix market value and cost in one set of reports. One or the other.2:27 AMi see. Have you thought about how to let the user specify the method?Andrew, 2:31 AMMarket or Cost. M or C. Sorry. Never mentioned it to you.2:44 AMyou mentioned the different approaches, but i ended up assuming that this would be best selected by specifying or not specifying the unitValues. I see there is a field for it already in the excel templateAndrew, 2:47 AMCost value per unit will always be there if there are units of anything i.e. sheep for livestock trading or shares for InvestmentsAndrew, 3:04 AMBut I suppose if you do not find any market values then assume cost basis.*/
-   findall(Unit_Value_Dom, xpath(Dom, //reports/balanceSheetRequest/unitValues/unitValue, Unit_Value_Dom), Unit_Value_Doms),
-   maplist(extract_exchange_rate(Start_Date, End_Date, Default_Currency), Unit_Value_Doms, Exchange_Rates),
+	findall(Unit_Value_Dom, xpath(Dom, //reports/balanceSheetRequest/unitValues/unitValue, Unit_Value_Dom), Unit_Value_Doms),
+	maplist(extract_exchange_rate(Start_Date, End_Date, Default_Currency), Unit_Value_Doms, Exchange_Rates),
+	maplist(missing_dst_currency_is_default_currency(Start_Date, End_Date, Default_Currency), Unit_Value_Doms, Exchange_Rates),
+
+	(	var(Dest_Currency)
+	->	(	[Dest_Currency] = Optional_Default_Currency
+		->	true
+		;	throw_string(['unitValueCurrency missing and no defaultCurrency specified']))
+	;	true),
+
+
+
    include(ground, Exchange_Rates, Exchange_Rates_Out).
    
 extract_exchange_rate(Start_Date, End_Date, Optional_Default_Currency, Unit_Value, Exchange_Rate) :-
@@ -248,35 +249,13 @@ extract_exchange_rate(Start_Date, End_Date, Optional_Default_Currency, Unit_Valu
 		Src_Currency = Src_Currency0
 	),
 	
-	(
-		var(Dest_Currency)
-	->
-		(
-			Optional_Default_Currency = []
-		->
-			throw_string(['unitValueCurrency missing and no defaultCurrency specified'])
-		;
-			[Dest_Currency] = Optional_Default_Currency
-		)
-	;
-		true
-	),
 	(var(Date_Atom) -> Date_Atom = closing ; true),
-	(
-		Date_Atom = opening
-	->
-		Date = Start_Date
-	;
-		(
-			(
-				Date_Atom = closing
-			->
-				Date = End_Date
-			;
-				parse_date(Date_Atom, Date)
-			)
-		)
-	).
+
+	(	Date_Atom = opening
+	->	Date = Start_Date
+	;	(	(	Date_Atom = closing
+			->	Date = End_Date
+			;	parse_date(Date_Atom, Date)))).
 
 extract_cost_or_market(Dom, Cost_Or_Market) :-
 	(

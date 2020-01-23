@@ -293,7 +293,7 @@ diff_service(Saved_Report_Path, Returned_Report_Path, Errors) :-
 					read_string(Response_Stream, _, Response_String),
 					close(Response_Stream)
 				),
-				string_to_json(Response_String, _{diff:Diff,msg:Msg})
+				string_to_json_dict(Response_String, _{diff:Diff,msg:Msg})
 			),
 			(	Diff = _{}
 			->	Errors = []

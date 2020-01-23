@@ -893,17 +893,6 @@
     ]
   },
   "crosschecks": {
-    "errors": [
-      "crosscheck:_1346282{a:account_balance(reports/pl/current,'InvestmentIncomeRealized'/withoutCurrencyMovement),b:report_value(reports/ir/current/totals/gains/rea/market_converted),op: ≠}",
-      "crosscheck:_1347752{a:account_balance(reports/pl/current,'InvestmentIncomeRealized'/onlyCurrencyMovement),b:report_value(reports/ir/current/totals/gains/rea/forex),op: ≠}",
-      "crosscheck:_1348818{a:account_balance(reports/pl/current,'InvestmentIncomeUnrealized'/withoutCurrencyMovement),b:report_value(reports/ir/current/totals/gains/unr/market_converted),op: ≠}",
-      "crosscheck:_1349884{a:account_balance(reports/pl/current,'InvestmentIncomeUnrealized'/onlyCurrencyMovement),b:report_value(reports/ir/current/totals/gains/unr/forex),op: ≠}",
-      "crosscheck:_1351288{a:account_balance(reports/pl/current,'Accounts'/'InvestmentIncome'),b:report_value(reports/ir/current/totals/gains/total),op: ≠}",
-      "crosscheck:_1352238{a:account_balance(reports/pl/current,'InvestmentIncome'/unrealized),b:report_value(reports/ir/current/totals/gains/unrealized_total),op: ≠}",
-      "crosscheck:_1353404{a:account_balance(reports/pl/current,'InvestmentIncome'/realized),b:report_value(reports/ir/current/totals/gains/realized_total),op: ≠}",
-      "crosscheck:_1353982{a:account_balance(reports/bs/current,'Accounts'/'FinancialInvestments'),b:report_value(reports/ir/current/totals/closing/total_cost_converted),op: ≠}",
-      "crosscheck:_1366716{a:account_balance(reports/bs/current,'Accounts'/'NetAssets'),b:account_balance(reports/bs/current,'Accounts'/'Equity'),op: ≠}"
-    ],
     "results": [
       {
 	"check": {
@@ -927,7 +916,7 @@
   "unit":"without_currency_movement_against_since('USD','USD',[],date(2018,7,13))"
 }
 	  ],
-	  "b":"evaluation_failed(report_value(reports/ir/current/totals/gains/rea/market_converted),failure2)",
+	  "b":"evaluation_failed(report_value(reports/ir/current/totals/gains/rea/market_converted),evaluation_failure2)",
 	  "op":"≠"
 	},
 	"status":"error"
@@ -951,7 +940,7 @@
   "unit":"without_currency_movement_against_since('USD','USD',[],date(2018,7,13))"
 }
 	  ],
-	  "b":"evaluation_failed(report_value(reports/ir/current/totals/gains/rea/forex),failure4)",
+	  "b":"evaluation_failed(report_value(reports/ir/current/totals/gains/rea/forex),evaluation_failure4)",
 	  "op":"≠"
 	},
 	"status":"error"
@@ -973,7 +962,7 @@
   "unit":"without_currency_movement_against_since(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',13.976)),'USD',[],date(2018,7,13))"
 }
 	  ],
-	  "b":"evaluation_failed(report_value(reports/ir/current/totals/gains/unr/market_converted),failure6)",
+	  "b":"evaluation_failed(report_value(reports/ir/current/totals/gains/unr/market_converted),evaluation_failure6)",
 	  "op":"≠"
 	},
 	"status":"error"
@@ -995,7 +984,7 @@
   "unit":"without_currency_movement_against_since(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',13.976)),'USD',[],date(2018,7,13))"
 }
 	  ],
-	  "b":"evaluation_failed(report_value(reports/ir/current/totals/gains/unr/forex),failure8)",
+	  "b":"evaluation_failed(report_value(reports/ir/current/totals/gains/unr/forex),evaluation_failure8)",
 	  "op":"≠"
 	},
 	"status":"error"
@@ -1023,7 +1012,7 @@
   "unit":"without_movement_after(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',13.976)),date(2018,7,13))"
 }
 	  ],
-	  "b":"evaluation_failed(report_value(reports/ir/current/totals/gains/total),failure10)",
+	  "b":"evaluation_failed(report_value(reports/ir/current/totals/gains/total),evaluation_failure10)",
 	  "op":"≠"
 	},
 	"status":"error"
@@ -1045,7 +1034,7 @@
   "unit":"without_movement_after(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',13.976)),date(2018,7,13))"
 }
 	  ],
-	  "b":"evaluation_failed(report_value(reports/ir/current/totals/gains/unrealized_total),failure12)",
+	  "b":"evaluation_failed(report_value(reports/ir/current/totals/gains/unrealized_total),evaluation_failure12)",
 	  "op":"≠"
 	},
 	"status":"error"
@@ -1065,7 +1054,7 @@
   "unit":"without_movement_after('SG Issuer_SA_USD_1',date(2018,7,13))"
 }
 	  ],
-	  "b":"evaluation_failed(report_value(reports/ir/current/totals/gains/realized_total),failure14)",
+	  "b":"evaluation_failed(report_value(reports/ir/current/totals/gains/realized_total),evaluation_failure14)",
 	  "op":"≠"
 	},
 	"status":"error"
@@ -1083,7 +1072,7 @@
   "unit":"with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',13.976))"
 }
 	  ],
-	  "b":"evaluation_failed(report_value(reports/ir/current/totals/closing/total_cost_converted),failure16)",
+	  "b":"evaluation_failed(report_value(reports/ir/current/totals/closing/total_cost_converted),evaluation_failure16)",
 	  "op":"≠"
 	},
 	"status":"error"

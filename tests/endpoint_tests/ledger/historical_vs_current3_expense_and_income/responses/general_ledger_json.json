@@ -3,7 +3,7 @@
   {
     "source": {
       "account":"CHF_Bank",
-      "date":"date(2015,1,1)",
+      "date": {"day":1, "month":1, "year":2015},
       "exchanged":"vector([])",
       "misc": {},
       "report_currency_transacted_amount_converted_at_balance_date": [ {"credit":600, "debit":0, "unit":"AUD"} ],
@@ -14,7 +14,7 @@
     "transactions": [
       {
 	"account":"BanksCHF_Bank",
-	"date":"date(2015,1,1)",
+	"date": {"day":1, "month":1, "year":2015},
 	"description":"Bank_Charges - outgoing money",
 	"running_balance": [ {"credit":100, "debit":0, "unit":"CHF"} ],
 	"type":"instant",
@@ -24,7 +24,7 @@
       },
       {
 	"account":"CurrencyMovementCHF_Bank",
-	"date":"date(2015,1,1)",
+	"date": {"day":1, "month":1, "year":2015},
 	"description":"Bank_Charges - outgoing money - currency movement adjustment - historical part",
 	"running_balance": [
 	   {
@@ -56,7 +56,7 @@
       },
       {
 	"account":"CurrencyMovementCHF_Bank",
-	"date":"date(2018,1,1)",
+	"date": {"day":1, "month":1, "year":2018},
 	"description":"Bank_Charges - outgoing money - currency movement adjustment - current part",
 	"running_balance": [
 	   {"credit":0, "debit":100, "unit":"CHF"},
@@ -80,7 +80,7 @@
       },
       {
 	"account":"BankCharges",
-	"date":"date(2015,1,1)",
+	"date": {"day":1, "month":1, "year":2015},
 	"description":"Bank_Charges",
 	"running_balance": [ {"credit":0, "debit":200, "unit":"AUD"} ],
 	"type":"instant",
@@ -93,7 +93,7 @@
   {
     "source": {
       "account":"CHF_Bank",
-      "date":"date(2018,5,1)",
+      "date": {"day":1, "month":5, "year":2018},
       "exchanged":"vector([])",
       "misc": {},
       "report_currency_transacted_amount_converted_at_balance_date": [ {"credit":0, "debit":600, "unit":"AUD"} ],
@@ -104,7 +104,7 @@
     "transactions": [
       {
 	"account":"BanksCHF_Bank",
-	"date":"date(2018,5,1)",
+	"date": {"day":1, "month":5, "year":2018},
 	"description":"Income - incoming money",
 	"running_balance": [],
 	"type":"instant",
@@ -114,7 +114,7 @@
       },
       {
 	"account":"CurrencyMovementCHF_Bank",
-	"date":"date(2018,5,1)",
+	"date": {"day":1, "month":5, "year":2018},
 	"description":"Income - incoming money - currency movement adjustment - only current period",
 	"running_balance": [
 	   {
@@ -142,7 +142,7 @@
       },
       {
 	"account":"Income",
-	"date":"date(2018,5,1)",
+	"date": {"day":1, "month":5, "year":2018},
 	"description":"Income",
 	"running_balance": [ {"credit":400, "debit":0, "unit":"AUD"} ],
 	"type":"instant",

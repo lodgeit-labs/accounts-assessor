@@ -350,7 +350,6 @@
     ]
   },
   "crosschecks": {
-    "errors": [],
     "results": [
       {
 	"check": {
@@ -449,7 +448,7 @@
       "rows": [
 	{
 	  "closing": {
-	    "conversion": {"day":"date(2019,6,30)", "dst":"CHF", "rate":1, "src":"CHF"},
+	    "conversion": {"date": {"day":30, "month":6, "year":2019}, "dst":"CHF", "rate":1, "src":"CHF"},
 	    "total_cost_converted": {"amount":20, "unit":"CHF"},
 	    "total_cost_foreign": {"amount":20, "unit":"CHF"},
 	    "unit_cost_converted": {"amount":20, "unit":"CHF"},
@@ -475,7 +474,7 @@
 	    "unit_cost_foreign": {"amount":10, "unit":"CHF"}
 	  },
 	  "opening": {
-	    "conversion": {"day":"date(2018,11,1)", "dst":"CHF", "rate":1, "src":"CHF"},
+	    "conversion": {"date": {"day":1, "month":11, "year":2018}, "dst":"CHF", "rate":1, "src":"CHF"},
 	    "total_cost_converted": {"amount":15, "unit":"CHF"},
 	    "total_cost_foreign": {"amount":15, "unit":"CHF"},
 	    "unit_cost_converted": {"amount":15, "unit":"CHF"},
@@ -517,7 +516,7 @@
       "rows": [
 	{
 	  "closing": {
-	    "conversion": {"day":"date(2019,6,30)", "dst":"CHF", "rate":1, "src":"CHF"},
+	    "conversion": {"date": {"day":30, "month":6, "year":2019}, "dst":"CHF", "rate":1, "src":"CHF"},
 	    "total_cost_converted": {"amount":20, "unit":"CHF"},
 	    "total_cost_foreign": {"amount":20, "unit":"CHF"},
 	    "unit_cost_converted": {"amount":20, "unit":"CHF"},
@@ -544,8 +543,8 @@
 	  },
 	  "opening": {},
 	  "purchase": {
-	    "conversion": {"day":"date(2018,10,1)", "dst":"CHF", "rate":1, "src":"CHF"},
-	    "date":"date(2018,10,1)",
+	    "conversion": {"date": {"day":1, "month":10, "year":2018}, "dst":"CHF", "rate":1, "src":"CHF"},
+	    "date": {"day":1, "month":10, "year":2018},
 	    "total_cost_converted": {"amount":10, "unit":"CHF"},
 	    "total_cost_foreign": {"amount":10, "unit":"CHF"},
 	    "unit_cost_converted": {"amount":10, "unit":"CHF"},

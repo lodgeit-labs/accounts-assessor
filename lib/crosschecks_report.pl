@@ -3,32 +3,24 @@
 
 crosschecks_report0(Sd, Json) :-
 	crosschecks_report(Sd, Json),
-	findall(
-		p([p([Check_Str]), ':', br([]), p([Evaluation_Str]), ':', br([]), p([Status])]),
-		(
-			member(Result, Json.results),
-			(
-				Result = _{check:Check, evaluation:Evaluation, status:Status},
-				/*
-					term_string(A, A_Str),
-					term_string(B, B_Str),
-					dict_json_text(A2, A2_Str),
-					dict_json_text(B2, B2_Str),
-				*/
-				format(
-					   string(Check_Str),
-					   '~q ~w ~q',
-					   [Check.a, Check.op, Check.b]),
-				format(
-					   string(Evaluation_Str),
-					   '~q ~w ~q',
-					   [Evaluation.a, Evaluation.op, Evaluation.b])
-			) -> true; throw_string('collecting crosschecks failed')),
-		Html),
-	/*dict_json_text(Json, Json_Text),
-	report_item('crosschecks.json', Json_Text, Json_Url),
-	report_entry('crosschecks.json', Json_Url, crosschecks_json, Json_File_Info),*/
+	maplist(crosscheck_output, Json.results, Html),
 	report_page('crosschecks', Html, loc(file_name,'crosschecks.html'), 'crosschecks_html').
+
+crosscheck_output(Result, Html) :-
+	Html = p([span([Status]), ':', br([]), span([Check_Str]), ':', br([]), span([Evaluation_Str])]),
+	Result = _{check:Check, evaluation:Evaluation, status:Status},
+	format(
+		   string(Check_Str),
+		   '~q ~w ~q',
+		   [Check.a, Check.op, Check.b]),
+	format(
+		   string(Evaluation_Str),
+		   '~q ~w ~q',
+		   [Evaluation.a, Evaluation.op, Evaluation.b]),
+	(	Status == 'ok'
+	->	true
+	;	add_alert('crosscheck failed', Evaluation_Str)).
+
 
 crosschecks_report(Sd, Json) :-
 	Crosschecks = [
@@ -63,14 +55,12 @@ crosschecks_report(Sd, Json) :-
 			account_balance(reports/bs/current, 'Accounts'/'NetAssets'),
 			account_balance(reports/bs/current, 'Accounts'/'Equity'))
 	],
-	maplist(evaluate_equality(Sd), Crosschecks, Results, Errors),
-	exclude(var, Errors, Errors2),
+	maplist(evaluate_equality(Sd), Crosschecks, Results),
 	Json = _{
-		 results: Results,
-		 errors: Errors2
+		 results: Results
 	}.
 
-evaluate_equality(Sd, equality(A, B), _{check:Check, evaluation:Evaluation, status:Status}, Error) :-
+evaluate_equality(Sd, equality(A, B), _{check:Check, evaluation:Evaluation, status:Status}) :-
 	evaluate(Sd, A, A2),
 	evaluate(Sd, B, B2),
 	(
@@ -78,18 +68,16 @@ evaluate_equality(Sd, equality(A, B), _{check:Check, evaluation:Evaluation, stat
 	->
 	 (
 	  Equality_Str = '=',
-	  Status = 'ok',
-	  Error = _
+	  Status = 'ok'
 	 )
 	;
 	 (
 	  Equality_Str = '≠',
-	  Status = 'error',
-	  Error = ('crosscheck':Check)
+	  Status = 'error'
 	 )
 	),
-	Check = _{op: Equality_Str, a:A, b:B},
-	Evaluation = _{op: Equality_Str, a:A2, b:B2}.
+	Check = check{op: Equality_Str, a:A, b:B},
+	Evaluation = evaluation{op: Equality_Str, a:A2, b:B2}.
 	
 
 crosscheck_compare(A, B) :-
@@ -102,7 +90,7 @@ evaluate(Sd, Term, Value) :-
 	->
 	 true
 	;
-	 Value = evaluation_failed(Term, $>gensym(failure))
+	 Value = evaluation_failed(Term, $>gensym(evaluation_failure))
 	).
 
 evaluate2(Sd, report_value(Key), Values_List) :-

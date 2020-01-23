@@ -19,6 +19,7 @@
 :- [exceptions].
 :- [files].
 :- [higher_order].
+:- [json].
 :- [magic_formula].
 :- [numbers].
 :- [request_files].

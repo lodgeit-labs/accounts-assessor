@@ -186,7 +186,7 @@
     {
       "closing": {
 	"conversion": {
-  "day":"date(2016,12,31)",
+  "date": {"day":31, "month":12, "year":2016},
   "dst":"oranges",
   "rate":2,
   "src":"bananas"
@@ -217,8 +217,13 @@
       },
       "opening": {},
       "purchase": {
-	"conversion": {"day":"date(2016,1,1)", "dst":"oranges", "rate":2, "src":"bananas"},
-	"date":"date(2016,1,1)",
+	"conversion": {
+  "date": {"day":1, "month":1, "year":2016},
+  "dst":"oranges",
+  "rate":2,
+  "src":"bananas"
+},
+	"date": {"day":1, "month":1, "year":2016},
 	"total_cost_converted": {"amount":1000, "unit":"oranges"},
 	"total_cost_foreign": {"amount":500, "unit":"bananas"},
 	"unit_cost_converted": {"amount":1000, "unit":"oranges"},

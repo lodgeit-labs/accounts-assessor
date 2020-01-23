@@ -5,7 +5,7 @@
     "transactions": [
       {
 	"account":"AssetsLivestockAtCost",
-	"date":"date(2018,6,30)",
+	"date": {"day":30, "month":6, "year":2018},
 	"description":"livestock opening inventory",
 	"running_balance": [ {"credit":0, "debit":1234, "unit":"AUD"} ],
 	"type":"instant",
@@ -15,7 +15,7 @@
       },
       {
 	"account":"CapitalIntroduced",
-	"date":"date(2018,6,30)",
+	"date": {"day":30, "month":6, "year":2018},
 	"description":"livestock opening inventory",
 	"running_balance": [ {"credit":1234, "debit":0, "unit":"AUD"} ],
 	"type":"instant",
@@ -25,7 +25,7 @@
       },
       {
 	"account":"SheepCount",
-	"date":"date(2018,6,30)",
+	"date": {"day":30, "month":6, "year":2018},
 	"description":"livestock born",
 	"running_balance": [ {"credit":0, "debit":62, "unit":"Sheep"} ],
 	"type":"instant",
@@ -35,7 +35,7 @@
       },
       {
 	"account":"SheepCount",
-	"date":"date(2018,6,30)",
+	"date": {"day":30, "month":6, "year":2018},
 	"description":"livestock loss",
 	"running_balance": [ {"credit":0, "debit":61, "unit":"Sheep"} ],
 	"type":"instant",
@@ -45,7 +45,7 @@
       },
       {
 	"account":"SheepCount",
-	"date":"date(2018,6,30)",
+	"date": {"day":30, "month":6, "year":2018},
 	"description":"livestock rations",
 	"running_balance": [ {"credit":0, "debit":61, "unit":"Sheep"} ],
 	"type":"instant",
@@ -55,7 +55,7 @@
       },
       {
 	"account":"Drawings",
-	"date":"date(2018,6,30)",
+	"date": {"day":30, "month":6, "year":2018},
 	"description":"rations",
 	"running_balance": [],
 	"type":"instant",
@@ -65,7 +65,7 @@
       },
       {
 	"account":"SheepCogsRations",
-	"date":"date(2018,6,30)",
+	"date": {"day":30, "month":6, "year":2018},
 	"description":"rations",
 	"running_balance": [],
 	"type":"instant",
@@ -75,7 +75,7 @@
       },
       {
 	"account":"SheepCogs",
-	"date":"date(2018,6,30)",
+	"date": {"day":30, "month":6, "year":2018},
 	"description":"livestock closing inventory adjustment",
 	"running_balance": [ {"credit":1212.2, "debit":0, "unit":"AUD"} ],
 	"type":"instant",
@@ -85,7 +85,7 @@
       },
       {
 	"account":"AssetsLivestockAtAverageCost",
-	"date":"date(2018,6,30)",
+	"date": {"day":30, "month":6, "year":2018},
 	"description":"livestock closing inventory adjustment",
 	"running_balance": [ {"credit":0, "debit":1212.2, "unit":"AUD"} ],
 	"type":"instant",

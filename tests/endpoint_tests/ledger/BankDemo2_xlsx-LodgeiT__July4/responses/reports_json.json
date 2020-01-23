@@ -379,7 +379,6 @@
     ]
   },
   "crosschecks": {
-    "errors": [],
     "results": [
       {
 	"check": {
@@ -511,16 +510,16 @@
 	  "id":"iri2",
 	  "opening": {},
 	  "purchase": {
-	    "conversion": {"day":"date(2018,10,1)", "dst":"AUD", "rate":1.348, "src":"CHF"},
-	    "date":"date(2018,10,1)",
+	    "conversion": {"date": {"day":1, "month":10, "year":2018}, "dst":"AUD", "rate":1.348, "src":"CHF"},
+	    "date": {"day":1, "month":10, "year":2018},
 	    "total_cost_converted": {"amount":109024.6222, "unit":"AUD"},
 	    "total_cost_foreign": {"amount":80876.1, "unit":"CHF"},
 	    "unit_cost_converted": {"amount":3.6342, "unit":"AUD"},
 	    "unit_cost_foreign": {"amount":2.6959, "unit":"CHF"}
 	  },
 	  "sale": {
-	    "conversion": {"day":"date(2018,12,30)", "dst":"AUD", "rate":1.365, "src":"CHF"},
-	    "date":"date(2018,12,30)",
+	    "conversion": {"date": {"day":30, "month":12, "year":2018}, "dst":"AUD", "rate":1.365, "src":"CHF"},
+	    "date": {"day":30, "month":12, "year":2018},
 	    "total_cost_converted": {"amount":300300.22, "unit":"AUD"},
 	    "total_cost_foreign": {"amount":220000, "unit":"CHF"},
 	    "unit_cost_converted": {"amount":10.01, "unit":"AUD"},
@@ -543,16 +542,16 @@
 	  "id":"iri1",
 	  "opening": {},
 	  "purchase": {
-	    "conversion": {"day":"date(2018,7,2)", "dst":"AUD", "rate":1.3528, "src":"USD"},
-	    "date":"date(2018,7,2)",
+	    "conversion": {"date": {"day":2, "month":7, "year":2018}, "dst":"AUD", "rate":1.3528, "src":"USD"},
+	    "date": {"day":2, "month":7, "year":2018},
 	    "total_cost_converted": {"amount":56281.9861, "unit":"AUD"},
 	    "total_cost_foreign": {"amount":41602.84, "unit":"USD"},
 	    "unit_cost_converted": {"amount":26.9938, "unit":"AUD"},
 	    "unit_cost_foreign": {"amount":19.9534, "unit":"USD"}
 	  },
 	  "sale": {
-	    "conversion": {"day":"date(2018,7,12)", "dst":"AUD", "rate":1.361, "src":"USD"},
-	    "date":"date(2018,7,12)",
+	    "conversion": {"date": {"day":12, "month":7, "year":2018}, "dst":"AUD", "rate":1.361, "src":"USD"},
+	    "date": {"day":12, "month":7, "year":2018},
 	    "total_cost_converted": {"amount":124012.4065, "unit":"AUD"},
 	    "total_cost_foreign": {"amount":91120, "unit":"USD"},
 	    "unit_cost_converted": {"amount":59.4784, "unit":"AUD"},
@@ -599,16 +598,16 @@
 	  "id":"iri2",
 	  "opening": {},
 	  "purchase": {
-	    "conversion": {"day":"date(2018,10,1)", "dst":"AUD", "rate":1.348, "src":"CHF"},
-	    "date":"date(2018,10,1)",
+	    "conversion": {"date": {"day":1, "month":10, "year":2018}, "dst":"AUD", "rate":1.348, "src":"CHF"},
+	    "date": {"day":1, "month":10, "year":2018},
 	    "total_cost_converted": {"amount":109024.6222, "unit":"AUD"},
 	    "total_cost_foreign": {"amount":80876.1, "unit":"CHF"},
 	    "unit_cost_converted": {"amount":3.6342, "unit":"AUD"},
 	    "unit_cost_foreign": {"amount":2.6959, "unit":"CHF"}
 	  },
 	  "sale": {
-	    "conversion": {"day":"date(2018,12,30)", "dst":"AUD", "rate":1.365, "src":"CHF"},
-	    "date":"date(2018,12,30)",
+	    "conversion": {"date": {"day":30, "month":12, "year":2018}, "dst":"AUD", "rate":1.365, "src":"CHF"},
+	    "date": {"day":30, "month":12, "year":2018},
 	    "total_cost_converted": {"amount":300300.22, "unit":"AUD"},
 	    "total_cost_foreign": {"amount":220000, "unit":"CHF"},
 	    "unit_cost_converted": {"amount":10.01, "unit":"AUD"},
@@ -631,16 +630,16 @@
 	  "id":"iri1",
 	  "opening": {},
 	  "purchase": {
-	    "conversion": {"day":"date(2018,7,2)", "dst":"AUD", "rate":1.3528, "src":"USD"},
-	    "date":"date(2018,7,2)",
+	    "conversion": {"date": {"day":2, "month":7, "year":2018}, "dst":"AUD", "rate":1.3528, "src":"USD"},
+	    "date": {"day":2, "month":7, "year":2018},
 	    "total_cost_converted": {"amount":56281.9861, "unit":"AUD"},
 	    "total_cost_foreign": {"amount":41602.84, "unit":"USD"},
 	    "unit_cost_converted": {"amount":26.9938, "unit":"AUD"},
 	    "unit_cost_foreign": {"amount":19.9534, "unit":"USD"}
 	  },
 	  "sale": {
-	    "conversion": {"day":"date(2018,7,12)", "dst":"AUD", "rate":1.361, "src":"USD"},
-	    "date":"date(2018,7,12)",
+	    "conversion": {"date": {"day":12, "month":7, "year":2018}, "dst":"AUD", "rate":1.361, "src":"USD"},
+	    "date": {"day":12, "month":7, "year":2018},
 	    "total_cost_converted": {"amount":124012.4065, "unit":"AUD"},
 	    "total_cost_foreign": {"amount":91120, "unit":"USD"},
 	    "unit_cost_converted": {"amount":59.4784, "unit":"AUD"},

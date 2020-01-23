@@ -3,7 +3,7 @@
   {
     "source": {
       "account":"WellsFargo",
-      "date":"date(2017,7,10)",
+      "date": {"day":10, "month":7, "year":2017},
       "exchanged":"vector([coord('BHP',10)])",
       "misc": {},
       "report_currency_transacted_amount_converted_at_balance_date": [ {"credit":135.08, "debit":0, "unit":"AUD"} ],
@@ -14,7 +14,7 @@
     "transactions": [
       {
 	"account":"BanksWellsFargo",
-	"date":"date(2017,7,10)",
+	"date": {"day":10, "month":7, "year":2017},
 	"description":"Invest_In - outgoing money",
 	"running_balance": [ {"credit":100, "debit":0, "unit":"USD"} ],
 	"type":"instant",
@@ -24,7 +24,7 @@
       },
       {
 	"account":"CurrencyMovementWellsFargo",
-	"date":"date(2017,7,10)",
+	"date": {"day":10, "month":7, "year":2017},
 	"description":"Invest_In - outgoing money - currency movement adjustment - only current period",
 	"running_balance": [
 	   {"credit":0, "debit":100, "unit":"USD"},
@@ -48,7 +48,7 @@
       },
       {
 	"account":"FinancialInvestmentsBHP",
-	"date":"date(2017,7,10)",
+	"date": {"day":10, "month":7, "year":2017},
 	"description":"Invest_In",
 	"running_balance": [ {"credit":0, "debit":10, "unit":"BHP"} ],
 	"type":"instant",
@@ -58,7 +58,7 @@
       },
       {
 	"account":"InvestmentIncomeUnrealizedOnlyCurrencyMovementBHP",
-	"date":"date(2017,7,10)",
+	"date": {"day":10, "month":7, "year":2017},
 	"description":"comment:, comment2:Invest_In - single period",
 	"running_balance": [
 	   {"credit":10, "debit":0, "unit":"BHP"},
@@ -89,7 +89,7 @@
       },
       {
 	"account":"InvestmentIncomeUnrealizedWithoutCurrencyMovementBHP",
-	"date":"date(2017,7,10)",
+	"date": {"day":10, "month":7, "year":2017},
 	"description":"comment:, comment2:Invest_In - single period",
 	"running_balance": [
 	   {"credit":0, "debit":131.46, "unit":"AUD"},

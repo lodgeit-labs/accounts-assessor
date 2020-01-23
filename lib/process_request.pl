@@ -121,9 +121,9 @@ make_alerts_report(Alerts) :-
 	(	Alerts_Html = []
 	->	Alerts_Html2 = ['no alerts']
 	;	Alerts_Html2 = Alerts_Html),
-	report_page(alerts, [alerts, ':', br([]), Alerts_Html2], loc(file_name,'alerts.html'), alerts_html).
+	report_page(alerts, [h3([alerts, ':']), div(Alerts_Html2)], loc(file_name,'alerts.html'), alerts_html).
 
-alert_html(Alert, [Alert, br([]), br([])]).
+alert_html(Alert, div([Alert, br([]), br([])])).
 
 
 process_multifile_request(File_Paths) :-

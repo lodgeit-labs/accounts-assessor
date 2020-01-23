@@ -185,10 +185,10 @@
   "rows": [
     {
       "closing": {
-	"conversion":"exchange_rate(date(2018,6,30),'USD','AUD',337701 rdiv 250000)",
-	"total_cost_converted": {"amount":27.01608, "unit":"AUD"},
+	"conversion": {"date": {"day":30, "month":6, "year":2018}, "dst":"AUD", "rate":1.3508, "src":"USD"},
+	"total_cost_converted": {"amount":27.0161, "unit":"AUD"},
 	"total_cost_foreign": {"amount":20, "unit":"USD"},
-	"unit_cost_converted": {"amount":2.701608, "unit":"AUD"},
+	"unit_cost_converted": {"amount":2.7016, "unit":"AUD"},
 	"unit_cost_foreign": {"amount":2, "unit":"USD"}
       },
       "count":10,
@@ -196,7 +196,7 @@
       "gains": {
 	"rea": {},
 	"unr": {
-	  "forex": {"amount":0.72328, "unit":"AUD"},
+	  "forex": {"amount":0.7233, "unit":"AUD"},
 	  "market_converted": {"amount":-105.1712, "unit":"AUD"},
 	  "market_foreign": {"amount":-80, "unit":"USD"}
 	}
@@ -212,8 +212,8 @@
       },
       "opening": {},
       "purchase": {
-	"conversion":"exchange_rate(date(2017,7,10),'USD','AUD',16433 rdiv 12500)",
-	"date":"date(2017,7,10)",
+	"conversion": {"date": {"day":10, "month":7, "year":2017}, "dst":"AUD", "rate":1.3146, "src":"USD"},
+	"date": {"day":10, "month":7, "year":2017},
 	"total_cost_converted": {"amount":131.464, "unit":"AUD"},
 	"total_cost_foreign": {"amount":100, "unit":"USD"},
 	"unit_cost_converted": {"amount":13.1464, "unit":"AUD"},
@@ -224,19 +224,19 @@
     },
     {
       "closing": {
-	"total_cost_converted": [ {"amount":27.01608, "unit":"AUD"} ],
+	"total_cost_converted": [ {"amount":27.0161, "unit":"AUD"} ],
 	"total_cost_foreign": [ {"amount":20, "unit":"USD"} ]
       },
       "gains": {
 	"rea": {"forex": [], "market_converted": [], "market_foreign": []},
 	"realized_total": [],
-	"total": [ {"amount":-104.44792, "unit":"AUD"} ],
+	"total": [ {"amount":-104.4479, "unit":"AUD"} ],
 	"unr": {
-	  "forex": [ {"amount":0.72328, "unit":"AUD"} ],
+	  "forex": [ {"amount":0.7233, "unit":"AUD"} ],
 	  "market_converted": [ {"amount":-105.1712, "unit":"AUD"} ],
 	  "market_foreign": [ {"amount":-80, "unit":"USD"} ]
 	},
-	"unrealized_total": [ {"amount":-104.44792, "unit":"AUD"} ]
+	"unrealized_total": [ {"amount":-104.4479, "unit":"AUD"} ]
       },
       "on_hand_at_cost": {
 	"total_converted_at_balance": [ {"amount":135.0804, "unit":"AUD"} ],

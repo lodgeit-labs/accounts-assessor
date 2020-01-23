@@ -348,7 +348,6 @@
     ]
   },
   "crosschecks": {
-    "errors": [],
     "results": [
       {
 	"check": {
@@ -496,16 +495,16 @@
 	  "id":"iri1",
 	  "opening": {},
 	  "purchase": {
-	    "conversion": {"day":"date(2017,7,1)", "dst":"AUD", "rate":1.4493, "src":"USD"},
-	    "date":"date(2017,7,1)",
+	    "conversion": {"date": {"day":1, "month":7, "year":2017}, "dst":"AUD", "rate":1.4493, "src":"USD"},
+	    "date": {"day":1, "month":7, "year":2017},
 	    "total_cost_converted": {"amount":72.4638, "unit":"AUD"},
 	    "total_cost_foreign": {"amount":50, "unit":"USD"},
 	    "unit_cost_converted": {"amount":14.4928, "unit":"AUD"},
 	    "unit_cost_foreign": {"amount":10, "unit":"USD"}
 	  },
 	  "sale": {
-	    "conversion": {"day":"date(2018,6,30)", "dst":"AUD", "rate":1.4286, "src":"USD"},
-	    "date":"date(2018,6,30)",
+	    "conversion": {"date": {"day":30, "month":6, "year":2018}, "dst":"AUD", "rate":1.4286, "src":"USD"},
+	    "date": {"day":30, "month":6, "year":2018},
 	    "total_cost_converted": {"amount":285.7143, "unit":"AUD"},
 	    "total_cost_foreign": {"amount":200, "unit":"USD"},
 	    "unit_cost_converted": {"amount":57.1429, "unit":"AUD"},
@@ -515,7 +514,7 @@
 	},
 	{
 	  "closing": {
-	    "conversion": {"day":"date(2018,6,30)", "dst":"AUD", "rate":1.4286, "src":"USD"},
+	    "conversion": {"date": {"day":30, "month":6, "year":2018}, "dst":"AUD", "rate":1.4286, "src":"USD"},
 	    "total_cost_converted": {"amount":285.7143, "unit":"AUD"},
 	    "total_cost_foreign": {"amount":200, "unit":"USD"},
 	    "unit_cost_converted": {"amount":57.1429, "unit":"AUD"},
@@ -542,8 +541,8 @@
 	  },
 	  "opening": {},
 	  "purchase": {
-	    "conversion": {"day":"date(2017,7,1)", "dst":"AUD", "rate":1.4493, "src":"USD"},
-	    "date":"date(2017,7,1)",
+	    "conversion": {"date": {"day":1, "month":7, "year":2017}, "dst":"AUD", "rate":1.4493, "src":"USD"},
+	    "date": {"day":1, "month":7, "year":2017},
 	    "total_cost_converted": {"amount":72.4638, "unit":"AUD"},
 	    "total_cost_foreign": {"amount":50, "unit":"USD"},
 	    "unit_cost_converted": {"amount":14.4928, "unit":"AUD"},
@@ -598,16 +597,16 @@
 	  "id":"iri1",
 	  "opening": {},
 	  "purchase": {
-	    "conversion": {"day":"date(2017,7,1)", "dst":"AUD", "rate":1.4493, "src":"USD"},
-	    "date":"date(2017,7,1)",
+	    "conversion": {"date": {"day":1, "month":7, "year":2017}, "dst":"AUD", "rate":1.4493, "src":"USD"},
+	    "date": {"day":1, "month":7, "year":2017},
 	    "total_cost_converted": {"amount":72.4638, "unit":"AUD"},
 	    "total_cost_foreign": {"amount":50, "unit":"USD"},
 	    "unit_cost_converted": {"amount":14.4928, "unit":"AUD"},
 	    "unit_cost_foreign": {"amount":10, "unit":"USD"}
 	  },
 	  "sale": {
-	    "conversion": {"day":"date(2018,6,30)", "dst":"AUD", "rate":1.4286, "src":"USD"},
-	    "date":"date(2018,6,30)",
+	    "conversion": {"date": {"day":30, "month":6, "year":2018}, "dst":"AUD", "rate":1.4286, "src":"USD"},
+	    "date": {"day":30, "month":6, "year":2018},
 	    "total_cost_converted": {"amount":285.7143, "unit":"AUD"},
 	    "total_cost_foreign": {"amount":200, "unit":"USD"},
 	    "unit_cost_converted": {"amount":57.1429, "unit":"AUD"},
@@ -617,7 +616,7 @@
 	},
 	{
 	  "closing": {
-	    "conversion": {"day":"date(2018,6,30)", "dst":"AUD", "rate":1.4286, "src":"USD"},
+	    "conversion": {"date": {"day":30, "month":6, "year":2018}, "dst":"AUD", "rate":1.4286, "src":"USD"},
 	    "total_cost_converted": {"amount":285.7143, "unit":"AUD"},
 	    "total_cost_foreign": {"amount":200, "unit":"USD"},
 	    "unit_cost_converted": {"amount":57.1429, "unit":"AUD"},
@@ -644,8 +643,8 @@
 	  },
 	  "opening": {},
 	  "purchase": {
-	    "conversion": {"day":"date(2017,7,1)", "dst":"AUD", "rate":1.4493, "src":"USD"},
-	    "date":"date(2017,7,1)",
+	    "conversion": {"date": {"day":1, "month":7, "year":2017}, "dst":"AUD", "rate":1.4493, "src":"USD"},
+	    "date": {"day":1, "month":7, "year":2017},
 	    "total_cost_converted": {"amount":72.4638, "unit":"AUD"},
 	    "total_cost_foreign": {"amount":50, "unit":"USD"},
 	    "unit_cost_converted": {"amount":14.4928, "unit":"AUD"},

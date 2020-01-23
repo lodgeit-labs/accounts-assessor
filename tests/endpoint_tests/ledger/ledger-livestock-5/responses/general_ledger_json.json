@@ -3,7 +3,7 @@
   {
     "source": {
       "account":"NationalAustraliaBank",
-      "date":"date(2018,2,1)",
+      "date": {"day":1, "month":2, "year":2018},
       "exchanged":"vector([])",
       "misc": {},
       "report_currency_transacted_amount_converted_at_balance_date": [ {"credit":0, "debit":20000, "unit":"AUD"} ],
@@ -14,7 +14,7 @@
     "transactions": [
       {
 	"account":"BanksNationalAustraliaBank",
-	"date":"date(2018,2,1)",
+	"date": {"day":1, "month":2, "year":2018},
 	"description":"Introduce_Capital - incoming money",
 	"running_balance": [ {"credit":0, "debit":20000, "unit":"AUD"} ],
 	"type":"instant",
@@ -24,7 +24,7 @@
       },
       {
 	"account":"ShareCapital",
-	"date":"date(2018,2,1)",
+	"date": {"day":1, "month":2, "year":2018},
 	"description":"Introduce_Capital",
 	"running_balance": [ {"credit":20000, "debit":0, "unit":"AUD"} ],
 	"type":"instant",
@@ -37,7 +37,7 @@
   {
     "source": {
       "account":"NationalAustraliaBank",
-      "date":"date(2018,3,2)",
+      "date": {"day":2, "month":3, "year":2018},
       "exchanged":"vector([coord('Cow',10)])",
       "misc": [],
       "report_currency_transacted_amount_converted_at_balance_date": [ {"credit":7000, "debit":0, "unit":"AUD"} ],
@@ -48,7 +48,7 @@
     "transactions": [
       {
 	"account":"BanksNationalAustraliaBank",
-	"date":"date(2018,3,2)",
+	"date": {"day":2, "month":3, "year":2018},
 	"description":"livestock purchase - outgoing money",
 	"running_balance": [ {"credit":0, "debit":13000, "unit":"AUD"} ],
 	"type":"instant",
@@ -58,7 +58,7 @@
       },
       {
 	"account":"CowCount",
-	"date":"date(2018,3,2)",
+	"date": {"day":2, "month":3, "year":2018},
 	"description":"livestock purchase",
 	"running_balance": [ {"credit":0, "debit":10, "unit":"Cow"} ],
 	"type":"instant",
@@ -68,7 +68,7 @@
       },
       {
 	"account":"CowCogs",
-	"date":"date(2018,3,2)",
+	"date": {"day":2, "month":3, "year":2018},
 	"description":"livestock purchase",
 	"running_balance": [ {"credit":0, "debit":7000, "unit":"AUD"} ],
 	"type":"instant",
@@ -81,7 +81,7 @@
   {
     "source": {
       "account":"NationalAustraliaBank",
-      "date":"date(2018,3,2)",
+      "date": {"day":2, "month":3, "year":2018},
       "exchanged":"vector([coord('Cow',-6)])",
       "misc": [],
       "report_currency_transacted_amount_converted_at_balance_date": [ {"credit":0, "debit":7663, "unit":"AUD"} ],
@@ -92,7 +92,7 @@
     "transactions": [
       {
 	"account":"BanksNationalAustraliaBank",
-	"date":"date(2018,3,2)",
+	"date": {"day":2, "month":3, "year":2018},
 	"description":"livestock sale - incoming money",
 	"running_balance": [ {"credit":0, "debit":20663, "unit":"AUD"} ],
 	"type":"instant",
@@ -102,7 +102,7 @@
       },
       {
 	"account":"CowCount",
-	"date":"date(2018,3,2)",
+	"date": {"day":2, "month":3, "year":2018},
 	"description":"livestock sale",
 	"running_balance": [ {"credit":0, "debit":4, "unit":"Cow"} ],
 	"type":"instant",
@@ -112,7 +112,7 @@
       },
       {
 	"account":"CowSales",
-	"date":"date(2018,3,2)",
+	"date": {"day":2, "month":3, "year":2018},
 	"description":"livestock sale",
 	"running_balance": [ {"credit":7663, "debit":0, "unit":"AUD"} ],
 	"type":"instant",
@@ -127,7 +127,7 @@
     "transactions": [
       {
 	"account":"AssetsLivestockAtCost",
-	"date":"date(2018,6,30)",
+	"date": {"day":30, "month":6, "year":2018},
 	"description":"livestock opening inventory",
 	"running_balance": [ {"credit":0, "debit":4000, "unit":"AUD"} ],
 	"type":"instant",
@@ -137,7 +137,7 @@
       },
       {
 	"account":"CapitalIntroduced",
-	"date":"date(2018,6,30)",
+	"date": {"day":30, "month":6, "year":2018},
 	"description":"livestock opening inventory",
 	"running_balance": [ {"credit":4000, "debit":0, "unit":"AUD"} ],
 	"type":"instant",
@@ -147,7 +147,7 @@
       },
       {
 	"account":"CowCount",
-	"date":"date(2018,6,30)",
+	"date": {"day":30, "month":6, "year":2018},
 	"description":"livestock born",
 	"running_balance": [ {"credit":0, "debit":14, "unit":"Cow"} ],
 	"type":"instant",
@@ -157,7 +157,7 @@
       },
       {
 	"account":"CowCount",
-	"date":"date(2018,6,30)",
+	"date": {"day":30, "month":6, "year":2018},
 	"description":"livestock loss",
 	"running_balance": [ {"credit":0, "debit":9, "unit":"Cow"} ],
 	"type":"instant",
@@ -167,7 +167,7 @@
       },
       {
 	"account":"CowCount",
-	"date":"date(2018,6,30)",
+	"date": {"day":30, "month":6, "year":2018},
 	"description":"livestock rations",
 	"running_balance": [ {"credit":0, "debit":4, "unit":"Cow"} ],
 	"type":"instant",
@@ -177,7 +177,7 @@
       },
       {
 	"account":"Drawings",
-	"date":"date(2018,6,30)",
+	"date": {"day":30, "month":6, "year":2018},
 	"description":"rations",
 	"running_balance": [ {"credit":0, "debit":1244.44, "unit":"AUD"} ],
 	"type":"instant",
@@ -187,7 +187,7 @@
       },
       {
 	"account":"CowCogsRations",
-	"date":"date(2018,6,30)",
+	"date": {"day":30, "month":6, "year":2018},
 	"description":"rations",
 	"running_balance": [ {"credit":1244.44, "debit":0, "unit":"AUD"} ],
 	"type":"instant",
@@ -197,7 +197,7 @@
       },
       {
 	"account":"CowCogs",
-	"date":"date(2018,6,30)",
+	"date": {"day":30, "month":6, "year":2018},
 	"description":"livestock closing inventory adjustment",
 	"running_balance": [ {"credit":0, "debit":3782.22, "unit":"AUD"} ],
 	"type":"instant",
@@ -207,7 +207,7 @@
       },
       {
 	"account":"AssetsLivestockAtAverageCost",
-	"date":"date(2018,6,30)",
+	"date": {"day":30, "month":6, "year":2018},
 	"description":"livestock closing inventory adjustment",
 	"running_balance": [ {"credit":0, "debit":3217.78, "unit":"AUD"} ],
 	"type":"instant",

@@ -348,7 +348,6 @@
     ]
   },
   "crosschecks": {
-    "errors": [],
     "results": [
       {
 	"check": {
@@ -471,7 +470,7 @@
       "rows": [
 	{
 	  "closing": {
-	    "conversion": {"day":"date(2018,1,1)", "dst":"AUD", "rate":1.2822, "src":"USD"},
+	    "conversion": {"date": {"day":1, "month":1, "year":2018}, "dst":"AUD", "rate":1.2822, "src":"USD"},
 	    "total_cost_converted": {"amount":1282.205, "unit":"AUD"},
 	    "total_cost_foreign": {"amount":1000, "unit":"USD"},
 	    "unit_cost_converted": {"amount":1282.205, "unit":"AUD"},
@@ -498,8 +497,8 @@
 	  },
 	  "opening": {},
 	  "purchase": {
-	    "conversion": {"day":"date(2016,1,1)", "dst":"AUD", "rate":1.3739, "src":"USD"},
-	    "date":"date(2016,1,1)",
+	    "conversion": {"date": {"day":1, "month":1, "year":2016}, "dst":"AUD", "rate":1.3739, "src":"USD"},
+	    "date": {"day":1, "month":1, "year":2016},
 	    "total_cost_converted": {"amount":686.965, "unit":"AUD"},
 	    "total_cost_foreign": {"amount":500, "unit":"USD"},
 	    "unit_cost_converted": {"amount":686.965, "unit":"AUD"},
@@ -537,7 +536,7 @@
       "rows": [
 	{
 	  "closing": {
-	    "conversion": {"day":"date(2018,1,1)", "dst":"AUD", "rate":1.2822, "src":"USD"},
+	    "conversion": {"date": {"day":1, "month":1, "year":2018}, "dst":"AUD", "rate":1.2822, "src":"USD"},
 	    "total_cost_converted": {"amount":1282.205, "unit":"AUD"},
 	    "total_cost_foreign": {"amount":1000, "unit":"USD"},
 	    "unit_cost_converted": {"amount":1282.205, "unit":"AUD"},
@@ -564,8 +563,8 @@
 	  },
 	  "opening": {},
 	  "purchase": {
-	    "conversion": {"day":"date(2016,1,1)", "dst":"AUD", "rate":1.3739, "src":"USD"},
-	    "date":"date(2016,1,1)",
+	    "conversion": {"date": {"day":1, "month":1, "year":2016}, "dst":"AUD", "rate":1.3739, "src":"USD"},
+	    "date": {"day":1, "month":1, "year":2016},
 	    "total_cost_converted": {"amount":686.965, "unit":"AUD"},
 	    "total_cost_foreign": {"amount":500, "unit":"USD"},
 	    "unit_cost_converted": {"amount":686.965, "unit":"AUD"},

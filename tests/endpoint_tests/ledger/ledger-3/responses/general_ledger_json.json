@@ -3,7 +3,7 @@
   {
     "source": {
       "account":"WellsFargo",
-      "date":"date(2017,7,1)",
+      "date": {"day":1, "month":7, "year":2017},
       "exchanged":"vector([])",
       "misc": {},
       "report_currency_transacted_amount_converted_at_balance_date": [ {"credit":0, "debit":270.16, "unit":"AUD"} ],
@@ -14,7 +14,7 @@
     "transactions": [
       {
 	"account":"BanksWellsFargo",
-	"date":"date(2017,7,1)",
+	"date": {"day":1, "month":7, "year":2017},
 	"description":"Introduce_Capital - incoming money",
 	"running_balance": [ {"credit":0, "debit":200, "unit":"USD"} ],
 	"type":"instant",
@@ -24,7 +24,7 @@
       },
       {
 	"account":"CurrencyMovementWellsFargo",
-	"date":"date(2017,7,1)",
+	"date": {"day":1, "month":7, "year":2017},
 	"description":"Introduce_Capital - incoming money - currency movement adjustment - only current period",
 	"running_balance": [
 	   {"credit":200, "debit":0, "unit":"USD"},
@@ -48,7 +48,7 @@
       },
       {
 	"account":"ShareCapital",
-	"date":"date(2017,7,1)",
+	"date": {"day":1, "month":7, "year":2017},
 	"description":"Introduce_Capital",
 	"running_balance": [ {"credit":260.11, "debit":0, "unit":"AUD"} ],
 	"type":"instant",
@@ -61,7 +61,7 @@
   {
     "source": {
       "account":"WellsFargo",
-      "date":"date(2017,7,10)",
+      "date": {"day":10, "month":7, "year":2017},
       "exchanged":"vector([coord('TLS',10)])",
       "misc": {},
       "report_currency_transacted_amount_converted_at_balance_date": [ {"credit":135.08, "debit":0, "unit":"AUD"} ],
@@ -72,7 +72,7 @@
     "transactions": [
       {
 	"account":"BanksWellsFargo",
-	"date":"date(2017,7,10)",
+	"date": {"day":10, "month":7, "year":2017},
 	"description":"Invest_In - outgoing money",
 	"running_balance": [ {"credit":0, "debit":100, "unit":"USD"} ],
 	"type":"instant",
@@ -82,7 +82,7 @@
       },
       {
 	"account":"CurrencyMovementWellsFargo",
-	"date":"date(2017,7,10)",
+	"date": {"day":10, "month":7, "year":2017},
 	"description":"Invest_In - outgoing money - currency movement adjustment - only current period",
 	"running_balance": [
 	   {"credit":100, "debit":0, "unit":"USD"},
@@ -111,7 +111,7 @@
       },
       {
 	"account":"FinancialInvestmentsTLS",
-	"date":"date(2017,7,10)",
+	"date": {"day":10, "month":7, "year":2017},
 	"description":"Invest_In",
 	"running_balance": [ {"credit":0, "debit":10, "unit":"TLS"} ],
 	"type":"instant",
@@ -121,7 +121,7 @@
       },
       {
 	"account":"InvestmentIncomeUnrealizedOnlyCurrencyMovementTLS",
-	"date":"date(2017,7,10)",
+	"date": {"day":10, "month":7, "year":2017},
 	"description":"comment:, comment2:Invest_In - single period",
 	"running_balance": [
 	   {"credit":10, "debit":0, "unit":"TLS"},
@@ -152,7 +152,7 @@
       },
       {
 	"account":"InvestmentIncomeUnrealizedWithoutCurrencyMovementTLS",
-	"date":"date(2017,7,10)",
+	"date": {"day":10, "month":7, "year":2017},
 	"description":"comment:, comment2:Invest_In - single period",
 	"running_balance": [
 	   {"credit":0, "debit":131.46, "unit":"AUD"},
@@ -186,7 +186,7 @@
   {
     "source": {
       "account":"NationalAustraliaBank",
-      "date":"date(2017,8,1)",
+      "date": {"day":1, "month":8, "year":2017},
       "exchanged":"vector([])",
       "misc": {},
       "report_currency_transacted_amount_converted_at_balance_date": [ {"credit":0, "debit":100, "unit":"AUD"} ],
@@ -197,7 +197,7 @@
     "transactions": [
       {
 	"account":"BanksNationalAustraliaBank",
-	"date":"date(2017,8,1)",
+	"date": {"day":1, "month":8, "year":2017},
 	"description":"Borrow - incoming money",
 	"running_balance": [ {"credit":0, "debit":100, "unit":"AUD"} ],
 	"type":"instant",
@@ -207,7 +207,7 @@
       },
       {
 	"account":"NoncurrentLoans",
-	"date":"date(2017,8,1)",
+	"date": {"day":1, "month":8, "year":2017},
 	"description":"Borrow",
 	"running_balance": [ {"credit":100, "debit":0, "unit":"AUD"} ],
 	"type":"instant",
@@ -220,7 +220,7 @@
   {
     "source": {
       "account":"WellsFargo",
-      "date":"date(2018,1,10)",
+      "date": {"day":10, "month":1, "year":2018},
       "exchanged":"vector([coord('TLS',10)])",
       "misc": {},
       "report_currency_transacted_amount_converted_at_balance_date": [ {"credit":67.54, "debit":0, "unit":"AUD"} ],
@@ -231,7 +231,7 @@
     "transactions": [
       {
 	"account":"BanksWellsFargo",
-	"date":"date(2018,1,10)",
+	"date": {"day":10, "month":1, "year":2018},
 	"description":"Invest_In - outgoing money",
 	"running_balance": [ {"credit":0, "debit":50, "unit":"USD"} ],
 	"type":"instant",
@@ -241,7 +241,7 @@
       },
       {
 	"account":"CurrencyMovementWellsFargo",
-	"date":"date(2018,1,10)",
+	"date": {"day":10, "month":1, "year":2018},
 	"description":"Invest_In - outgoing money - currency movement adjustment - only current period",
 	"running_balance": [
 	   {"credit":50, "debit":0, "unit":"USD"},
@@ -275,7 +275,7 @@
       },
       {
 	"account":"FinancialInvestmentsTLS",
-	"date":"date(2018,1,10)",
+	"date": {"day":10, "month":1, "year":2018},
 	"description":"Invest_In",
 	"running_balance": [ {"credit":0, "debit":20, "unit":"TLS"} ],
 	"type":"instant",
@@ -285,7 +285,7 @@
       },
       {
 	"account":"InvestmentIncomeUnrealizedOnlyCurrencyMovementTLS",
-	"date":"date(2018,1,10)",
+	"date": {"day":10, "month":1, "year":2018},
 	"description":"comment:, comment2:Invest_In - single period",
 	"running_balance": [
 	   {"credit":20, "debit":0, "unit":"TLS"},
@@ -321,7 +321,7 @@
       },
       {
 	"account":"InvestmentIncomeUnrealizedWithoutCurrencyMovementTLS",
-	"date":"date(2018,1,10)",
+	"date": {"day":10, "month":1, "year":2018},
 	"description":"comment:, comment2:Invest_In - single period",
 	"running_balance": [
 	   {"credit":0, "debit":195.18, "unit":"AUD"},
@@ -360,7 +360,7 @@
   {
     "source": {
       "account":"WellsFargo",
-      "date":"date(2018,1,10)",
+      "date": {"day":10, "month":1, "year":2018},
       "exchanged":"vector([coord('TLS',-1)])",
       "misc": {},
       "report_currency_transacted_amount_converted_at_balance_date": [ {"credit":0, "debit":14.86, "unit":"AUD"} ],
@@ -371,7 +371,7 @@
     "transactions": [
       {
 	"account":"BanksWellsFargo",
-	"date":"date(2018,1,10)",
+	"date": {"day":10, "month":1, "year":2018},
 	"description":"Dispose_Of - incoming money",
 	"running_balance": [ {"credit":0, "debit":61, "unit":"USD"} ],
 	"type":"instant",
@@ -381,7 +381,7 @@
       },
       {
 	"account":"CurrencyMovementWellsFargo",
-	"date":"date(2018,1,10)",
+	"date": {"day":10, "month":1, "year":2018},
 	"description":"Dispose_Of - incoming money - currency movement adjustment - only current period",
 	"running_balance": [
 	   {"credit":61, "debit":0, "unit":"USD"},
@@ -415,7 +415,7 @@
       },
       {
 	"account":"FinancialInvestmentsTLS",
-	"date":"date(2018,1,10)",
+	"date": {"day":10, "month":1, "year":2018},
 	"description":"Dispose_Of",
 	"running_balance": [ {"credit":0, "debit":19, "unit":"TLS"} ],
 	"type":"instant",
@@ -425,7 +425,7 @@
       },
       {
 	"account":"InvestmentIncomeUnrealizedOnlyCurrencyMovementTLS",
-	"date":"date(2018,1,10)",
+	"date": {"day":10, "month":1, "year":2018},
 	"description":"comment:, comment2:Dispose_Of - single period",
 	"running_balance": [
 	   {"credit":19, "debit":0, "unit":"TLS"},
@@ -461,7 +461,7 @@
       },
       {
 	"account":"InvestmentIncomeUnrealizedWithoutCurrencyMovementTLS",
-	"date":"date(2018,1,10)",
+	"date": {"day":10, "month":1, "year":2018},
 	"description":"comment:, comment2:Dispose_Of - single period",
 	"running_balance": [
 	   {"credit":0, "debit":182.04, "unit":"AUD"},
@@ -497,7 +497,7 @@
       },
       {
 	"account":"InvestmentIncomeRealizedOnlyCurrencyMovementTLS",
-	"date":"date(2018,1,10)",
+	"date": {"day":10, "month":1, "year":2018},
 	"description":"comment:, comment2:Dispose_Of",
 	"running_balance": [
 	   {"credit":14.02, "debit":0, "unit":"AUD"},
@@ -521,7 +521,7 @@
       },
       {
 	"account":"InvestmentIncomeRealizedWithoutCurrencyMovementTLS",
-	"date":"date(2018,1,10)",
+	"date": {"day":10, "month":1, "year":2018},
 	"description":"comment:, comment2:Dispose_Of",
 	"running_balance": [
 	   {"credit":0, "debit":13.15, "unit":"AUD"},

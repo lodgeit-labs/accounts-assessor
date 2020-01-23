@@ -77,7 +77,6 @@ unzip([X,Y|T], [X|XT], [Y|YT]) :-
 	unzip(T, XT, YT).
 
 
-
 remove_before(Slash, Name_In, Name_Out) :-
    once((
    memberchk(Slash, Name_In)
@@ -90,10 +89,12 @@ remove_before(Slash, Name_In, Name_Out) :-
     ).
 
 
-
-
 add(Open_List, Item) :-
 	once((
 		member(M, Open_List),
 		var(M),
 		Item = M)).
+
+take(Src, N, L) :-
+   when(ground(N+Src), findall(E, (nth1(I,Src,E), I =< N), L)).
+

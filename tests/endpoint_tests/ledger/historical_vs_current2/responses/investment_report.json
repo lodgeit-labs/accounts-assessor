@@ -185,7 +185,7 @@
   "rows": [
     {
       "closing": {
-	"conversion":"exchange_rate(date(2018,12,30),'CHF','CHF',1)",
+	"conversion": {"date": {"day":30, "month":12, "year":2018}, "dst":"CHF", "rate":1, "src":"CHF"},
 	"total_cost_converted": {"amount":200, "unit":"CHF"},
 	"total_cost_foreign": {"amount":200, "unit":"CHF"},
 	"unit_cost_converted": {"amount":20, "unit":"CHF"},
@@ -211,7 +211,7 @@
 	"unit_cost_foreign": {"amount":10, "unit":"CHF"}
       },
       "opening": {
-	"conversion":"exchange_rate(date(2018,1,1),'CHF','CHF',1)",
+	"conversion": {"date": {"day":1, "month":1, "year":2018}, "dst":"CHF", "rate":1, "src":"CHF"},
 	"total_cost_converted": {"amount":150, "unit":"CHF"},
 	"total_cost_foreign": {"amount":150, "unit":"CHF"},
 	"unit_cost_converted": {"amount":15, "unit":"CHF"},

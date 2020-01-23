@@ -3,7 +3,7 @@
   {
     "source": {
       "account":"NationalAustraliaBank",
-      "date":"date(2018,3,2)",
+      "date": {"day":2, "month":3, "year":2018},
       "exchanged":"vector([coord('Sheep',3)])",
       "misc": [],
       "report_currency_transacted_amount_converted_at_balance_date": [ {"credit":1800, "debit":0, "unit":"AUD"} ],
@@ -14,7 +14,7 @@
     "transactions": [
       {
 	"account":"BanksNationalAustraliaBank",
-	"date":"date(2018,3,2)",
+	"date": {"day":2, "month":3, "year":2018},
 	"description":"livestock purchase - outgoing money",
 	"running_balance": [ {"credit":1800, "debit":0, "unit":"AUD"} ],
 	"type":"instant",
@@ -24,7 +24,7 @@
       },
       {
 	"account":"SheepCount",
-	"date":"date(2018,3,2)",
+	"date": {"day":2, "month":3, "year":2018},
 	"description":"livestock purchase",
 	"running_balance": [ {"credit":0, "debit":3, "unit":"Sheep"} ],
 	"type":"instant",
@@ -34,7 +34,7 @@
       },
       {
 	"account":"SheepCogs",
-	"date":"date(2018,3,2)",
+	"date": {"day":2, "month":3, "year":2018},
 	"description":"livestock purchase",
 	"running_balance": [ {"credit":0, "debit":1800, "unit":"AUD"} ],
 	"type":"instant",
@@ -47,7 +47,7 @@
   {
     "source": {
       "account":"NationalAustraliaBank",
-      "date":"date(2018,3,2)",
+      "date": {"day":2, "month":3, "year":2018},
       "exchanged":"vector([coord('Sheep',-30)])",
       "misc": [],
       "report_currency_transacted_amount_converted_at_balance_date": [ {"credit":0, "debit":500, "unit":"AUD"} ],
@@ -58,7 +58,7 @@
     "transactions": [
       {
 	"account":"BanksNationalAustraliaBank",
-	"date":"date(2018,3,2)",
+	"date": {"day":2, "month":3, "year":2018},
 	"description":"livestock sale - incoming money",
 	"running_balance": [ {"credit":1300, "debit":0, "unit":"AUD"} ],
 	"type":"instant",
@@ -68,7 +68,7 @@
       },
       {
 	"account":"SheepCount",
-	"date":"date(2018,3,2)",
+	"date": {"day":2, "month":3, "year":2018},
 	"description":"livestock sale",
 	"running_balance": [ {"credit":27, "debit":0, "unit":"Sheep"} ],
 	"type":"instant",
@@ -78,7 +78,7 @@
       },
       {
 	"account":"SheepSales",
-	"date":"date(2018,3,2)",
+	"date": {"day":2, "month":3, "year":2018},
 	"description":"livestock sale",
 	"running_balance": [ {"credit":500, "debit":0, "unit":"AUD"} ],
 	"type":"instant",
@@ -93,7 +93,7 @@
     "transactions": [
       {
 	"account":"AssetsLivestockAtCost",
-	"date":"date(2018,6,30)",
+	"date": {"day":30, "month":6, "year":2018},
 	"description":"livestock opening inventory",
 	"running_balance": [ {"credit":0, "debit":1234, "unit":"AUD"} ],
 	"type":"instant",
@@ -103,7 +103,7 @@
       },
       {
 	"account":"CapitalIntroduced",
-	"date":"date(2018,6,30)",
+	"date": {"day":30, "month":6, "year":2018},
 	"description":"livestock opening inventory",
 	"running_balance": [ {"credit":1234, "debit":0, "unit":"AUD"} ],
 	"type":"instant",
@@ -113,7 +113,7 @@
       },
       {
 	"account":"SheepCount",
-	"date":"date(2018,6,30)",
+	"date": {"day":30, "month":6, "year":2018},
 	"description":"livestock born",
 	"running_balance": [ {"credit":0, "debit":35, "unit":"Sheep"} ],
 	"type":"instant",
@@ -123,7 +123,7 @@
       },
       {
 	"account":"SheepCount",
-	"date":"date(2018,6,30)",
+	"date": {"day":30, "month":6, "year":2018},
 	"description":"livestock loss",
 	"running_balance": [ {"credit":0, "debit":34, "unit":"Sheep"} ],
 	"type":"instant",
@@ -133,7 +133,7 @@
       },
       {
 	"account":"SheepCount",
-	"date":"date(2018,6,30)",
+	"date": {"day":30, "month":6, "year":2018},
 	"description":"livestock rations",
 	"running_balance": [ {"credit":0, "debit":23, "unit":"Sheep"} ],
 	"type":"instant",
@@ -143,7 +143,7 @@
       },
       {
 	"account":"Drawings",
-	"date":"date(2018,6,30)",
+	"date": {"day":30, "month":6, "year":2018},
 	"description":"rations",
 	"running_balance": [ {"credit":0, "debit":511.02, "unit":"AUD"} ],
 	"type":"instant",
@@ -153,7 +153,7 @@
       },
       {
 	"account":"SheepCogsRations",
-	"date":"date(2018,6,30)",
+	"date": {"day":30, "month":6, "year":2018},
 	"description":"rations",
 	"running_balance": [ {"credit":511.02, "debit":0, "unit":"AUD"} ],
 	"type":"instant",
@@ -163,7 +163,7 @@
       },
       {
 	"account":"SheepCogs",
-	"date":"date(2018,6,30)",
+	"date": {"day":30, "month":6, "year":2018},
 	"description":"livestock closing inventory adjustment",
 	"running_balance": [ {"credit":0, "debit":711.17, "unit":"AUD"} ],
 	"type":"instant",
@@ -173,7 +173,7 @@
       },
       {
 	"account":"AssetsLivestockAtAverageCost",
-	"date":"date(2018,6,30)",
+	"date": {"day":30, "month":6, "year":2018},
 	"description":"livestock closing inventory adjustment",
 	"running_balance": [ {"credit":0, "debit":1088.83, "unit":"AUD"} ],
 	"type":"instant",
