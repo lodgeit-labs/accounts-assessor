@@ -143,8 +143,9 @@ make_buy(Static_Data, Trading_Account, Pricing_Method, Bank_Account_Currency, Go
 	[Goods_Coord] = Goods_Vector,
 	coord_vec(Coord_Ours_Converted, Converted_Vector_Ours),
 	/* in case of an empty vector, the unit was lost, so fill it back in */
-	Static_Data.report_currency = [Report_Currency],
-	Coord_Ours_Converted = coord(Report_Currency, _),
+	(	Static_Data.report_currency = [Report_Currency]
+	->	Coord_Ours_Converted = coord(Report_Currency, _)
+	;	Coord_Ours_Converted = coord(Bank_Account_Currency, _)),
 	unit_cost_value(Coord_Ours, Goods_Coord, Unit_Cost_Foreign),
 	unit_cost_value(Coord_Ours_Converted, Goods_Coord, Unit_Cost_Converted),
 	number_coord(Goods_Unit, Goods_Count, Goods_Coord),
