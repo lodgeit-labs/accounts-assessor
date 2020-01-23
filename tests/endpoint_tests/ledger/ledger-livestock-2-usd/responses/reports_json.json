@@ -11,59 +11,103 @@
   },
   "crosschecks": {
     "errors": [
-      "crosscheck:\"account_balance(reports/bs/current,'Accounts'/'NetAssets') ≠ account_balance(reports/bs/current,'Accounts'/'Equity')\""
+      "crosscheck:_136846{a:account_balance(reports/bs/current,'Accounts'/'NetAssets'),b:account_balance(reports/bs/current,'Accounts'/'Equity'),op: ≠}"
     ],
     "results": [
-      [
-	"account_balance(reports/pl/current,'InvestmentIncomeRealized'/withoutCurrencyMovement) = report_value(reports/ir/current/totals/gains/rea/market_converted)",
-	"[] = []",
-	"ok"
-      ],
-      [
-	"account_balance(reports/pl/current,'InvestmentIncomeRealized'/onlyCurrencyMovement) = report_value(reports/ir/current/totals/gains/rea/forex)",
-	"[] = []",
-	"ok"
-      ],
-      [
-	"account_balance(reports/pl/current,'InvestmentIncomeUnrealized'/withoutCurrencyMovement) = report_value(reports/ir/current/totals/gains/unr/market_converted)",
-	"[] = []",
-	"ok"
-      ],
-      [
-	"account_balance(reports/pl/current,'InvestmentIncomeUnrealized'/onlyCurrencyMovement) = report_value(reports/ir/current/totals/gains/unr/forex)",
-	"[] = []",
-	"ok"
-      ],
-      [
-	"account_balance(reports/pl/current,'Accounts'/'InvestmentIncome') = report_value(reports/ir/current/totals/gains/total)",
-	"[] = []",
-	"ok"
-      ],
-      [
-	"account_balance(reports/pl/current,'InvestmentIncome'/unrealized) = report_value(reports/ir/current/totals/gains/unrealized_total)",
-	"[] = []",
-	"ok"
-      ],
-      [
-	"account_balance(reports/pl/current,'InvestmentIncome'/realized) = report_value(reports/ir/current/totals/gains/realized_total)",
-	"[] = []",
-	"ok"
-      ],
-      [
-	"account_balance(reports/bs/current,'Accounts'/'FinancialInvestments') = report_value(reports/ir/current/totals/closing/total_cost_converted)",
-	"[] = []",
-	"ok"
-      ],
-      [
-	"account_balance(reports/bs/current,'Accounts'/'HistoricalEarnings') = account_balance(reports/pl/historical,'Accounts'/'NetIncomeLoss')",
-	"[] = []",
-	"ok"
-      ],
-      [
-	"account_balance(reports/bs/current,'Accounts'/'NetAssets') ≠ account_balance(reports/bs/current,'Accounts'/'Equity')",
-	"[ {\"amount\":757.198, \"unit\":\"USD\"} ] ≠ [ {\"amount\":804.128098, \"unit\":\"USD\"} ]",
-	"error"
-      ]
+      {
+	"check": {
+	  "a":"account_balance(reports/pl/current,'InvestmentIncomeRealized'/withoutCurrencyMovement)",
+	  "b":"report_value(reports/ir/current/totals/gains/rea/market_converted)",
+	  "op":"="
+	},
+	"evaluation": {"a": [], "b": [], "op":"="},
+	"status":"ok"
+      },
+      {
+	"check": {
+	  "a":"account_balance(reports/pl/current,'InvestmentIncomeRealized'/onlyCurrencyMovement)",
+	  "b":"report_value(reports/ir/current/totals/gains/rea/forex)",
+	  "op":"="
+	},
+	"evaluation": {"a": [], "b": [], "op":"="},
+	"status":"ok"
+      },
+      {
+	"check": {
+	  "a":"account_balance(reports/pl/current,'InvestmentIncomeUnrealized'/withoutCurrencyMovement)",
+	  "b":"report_value(reports/ir/current/totals/gains/unr/market_converted)",
+	  "op":"="
+	},
+	"evaluation": {"a": [], "b": [], "op":"="},
+	"status":"ok"
+      },
+      {
+	"check": {
+	  "a":"account_balance(reports/pl/current,'InvestmentIncomeUnrealized'/onlyCurrencyMovement)",
+	  "b":"report_value(reports/ir/current/totals/gains/unr/forex)",
+	  "op":"="
+	},
+	"evaluation": {"a": [], "b": [], "op":"="},
+	"status":"ok"
+      },
+      {
+	"check": {
+	  "a":"account_balance(reports/pl/current,'Accounts'/'InvestmentIncome')",
+	  "b":"report_value(reports/ir/current/totals/gains/total)",
+	  "op":"="
+	},
+	"evaluation": {"a": [], "b": [], "op":"="},
+	"status":"ok"
+      },
+      {
+	"check": {
+	  "a":"account_balance(reports/pl/current,'InvestmentIncome'/unrealized)",
+	  "b":"report_value(reports/ir/current/totals/gains/unrealized_total)",
+	  "op":"="
+	},
+	"evaluation": {"a": [], "b": [], "op":"="},
+	"status":"ok"
+      },
+      {
+	"check": {
+	  "a":"account_balance(reports/pl/current,'InvestmentIncome'/realized)",
+	  "b":"report_value(reports/ir/current/totals/gains/realized_total)",
+	  "op":"="
+	},
+	"evaluation": {"a": [], "b": [], "op":"="},
+	"status":"ok"
+      },
+      {
+	"check": {
+	  "a":"account_balance(reports/bs/current,'Accounts'/'FinancialInvestments')",
+	  "b":"report_value(reports/ir/current/totals/closing/total_cost_converted)",
+	  "op":"="
+	},
+	"evaluation": {"a": [], "b": [], "op":"="},
+	"status":"ok"
+      },
+      {
+	"check": {
+	  "a":"account_balance(reports/bs/current,'Accounts'/'HistoricalEarnings')",
+	  "b":"account_balance(reports/pl/historical,'Accounts'/'NetIncomeLoss')",
+	  "op":"="
+	},
+	"evaluation": {"a": [], "b": [], "op":"="},
+	"status":"ok"
+      },
+      {
+	"check": {
+	  "a":"account_balance(reports/bs/current,'Accounts'/'NetAssets')",
+	  "b":"account_balance(reports/bs/current,'Accounts'/'Equity')",
+	  "op":"≠"
+	},
+	"evaluation": {
+	  "a": [ {"amount":757.198, "unit":"USD"} ],
+	  "b": [ {"amount":804.128098, "unit":"USD"} ],
+	  "op":"≠"
+	},
+	"status":"error"
+      }
     ]
   },
   "ir": {

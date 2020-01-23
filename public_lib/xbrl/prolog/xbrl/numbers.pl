@@ -7,9 +7,9 @@
 /* we should probably be rounding to 6 digits and comparing to 0.1**5? */
 /* output htmls should be given more structure and compared like xmls */
 
-float_comparison_significant_digits(6).
+float_comparison_significant_digits(4).
 
-float_comparison_max_difference(0.000001).
+float_comparison_max_difference(0.0001).
 /*todo float_comparison_max_difference(X) :-
 	float_comparison_significant_digits(D),
 	X is 0.1**D, % is this represented correctly?*/

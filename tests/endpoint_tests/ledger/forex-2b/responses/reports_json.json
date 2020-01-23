@@ -1,67 +1,123 @@
 {
   "bs": {
     "current": [
-      "entry('NetAssets',[],[entry('Assets',[],[entry('CurrentAssets',[coord(oranges,-4000.0)],[entry('AssetsLivestock',[],[entry('AssetsLivestockAtAverageCost',[],[],0),entry('AssetsLivestockAtCost',[],[],0)],0),entry('CashAndCashEquivalents',[coord(oranges,-4000.0)],[entry('Banks',[coord(oranges,-4000.0)],[entry('BanksNationalAustraliaBank',[coord(oranges,-4000.0)],[],1)],1)],1)],1),entry('NoncurrentAssets',[coord(oranges,4000.0)],[entry('FinancialInvestments',[coord(oranges,4000.0)],[entry('FinancialInvestmentsGOOG',[coord(oranges,4000.0)],[],1)],1)],1)],2),entry('Liabilities',[],[entry('CurrentLiabilities',[],[entry('CurrentLoans',[],[],0),entry('Gst',[],[entry('GstPayable',[],[],0),entry('GstReceivable',[],[],0)],0)],0),entry('NoncurrentLiabilities',[],[entry('NoncurrentLoans',[],[],0)],0)],0)],2)",
-      "entry('Equity',[],[entry('CapitalIntroduced',[],[],0),entry('Drawings',[],[],0),entry('RetainedEarnings',[],[entry('CurrentEarnings',[],[],3),entry('HistoricalEarnings',[],[],0)],3),entry('ShareCapital',[],[],0)],3)"
+      "entry('NetAssets',[],[entry('Assets',[],[entry('CurrentAssets',[coord(oranges,-4000)],[entry('AssetsLivestock',[],[entry('AssetsLivestockAtAverageCost',[],[],0),entry('AssetsLivestockAtCost',[],[],0)],0),entry('CashAndCashEquivalents',[coord(oranges,-4000)],[entry('Banks',[coord(oranges,-4000)],[entry('BanksNationalAustraliaBank',[coord(oranges,-4000)],[],1)],1)],1)],1),entry('NoncurrentAssets',[coord(oranges,4000)],[entry('FinancialInvestments',[coord(oranges,4000)],[entry('FinancialInvestmentsGOOG',[coord(oranges,4000)],[],1)],1)],1)],2),entry('Liabilities',[],[entry('CurrentLiabilities',[],[entry('CurrentLoans',[],[],0),entry('Gst',[],[entry('GstPayable',[],[],0),entry('GstReceivable',[],[],0)],0)],0),entry('NoncurrentLiabilities',[],[entry('NoncurrentLoans',[],[],0)],0)],0)],2)",
+      "entry('Equity',[],[entry('CapitalIntroduced',[],[],0),entry('Drawings',[],[],0),entry('RetainedEarnings',[],[entry('CurrentEarnings',[],[],3),entry('HistoricalEarnings',[],[entry('BankOpeningBalances',[],[],0)],0)],3),entry('ShareCapital',[],[],0)],3)"
     ],
     "historical": [
-      "entry('NetAssets',[],[entry('Assets',[],[entry('CurrentAssets',[coord(oranges,-2000.0)],[entry('AssetsLivestock',[],[entry('AssetsLivestockAtAverageCost',[],[],0),entry('AssetsLivestockAtCost',[],[],0)],0),entry('CashAndCashEquivalents',[coord(oranges,-2000.0)],[entry('Banks',[coord(oranges,-2000.0)],[entry('BanksNationalAustraliaBank',[coord(oranges,-2000.0)],[],1)],1)],1)],1),entry('NoncurrentAssets',[coord(oranges,2000.0)],[entry('FinancialInvestments',[coord(oranges,2000.0)],[entry('FinancialInvestmentsGOOG',[coord(oranges,2000.0)],[],1)],1)],1)],2),entry('Liabilities',[],[entry('CurrentLiabilities',[],[entry('CurrentLoans',[],[],0),entry('Gst',[],[entry('GstPayable',[],[],0),entry('GstReceivable',[],[],0)],0)],0),entry('NoncurrentLiabilities',[],[entry('NoncurrentLoans',[],[],0)],0)],0)],2)",
-      "entry('Equity',[],[entry('CapitalIntroduced',[],[],0),entry('Drawings',[],[],0),entry('RetainedEarnings',[],[entry('CurrentEarnings',[],[],3),entry('HistoricalEarnings',[],[],0)],3),entry('ShareCapital',[],[],0)],3)"
+      "entry('NetAssets',[],[entry('Assets',[],[entry('CurrentAssets',[coord(oranges,-2000)],[entry('AssetsLivestock',[],[entry('AssetsLivestockAtAverageCost',[],[],0),entry('AssetsLivestockAtCost',[],[],0)],0),entry('CashAndCashEquivalents',[coord(oranges,-2000)],[entry('Banks',[coord(oranges,-2000)],[entry('BanksNationalAustraliaBank',[coord(oranges,-2000)],[],1)],1)],1)],1),entry('NoncurrentAssets',[coord(oranges,2000)],[entry('FinancialInvestments',[coord(oranges,2000)],[entry('FinancialInvestmentsGOOG',[coord(oranges,2000)],[],1)],1)],1)],2),entry('Liabilities',[],[entry('CurrentLiabilities',[],[entry('CurrentLoans',[],[],0),entry('Gst',[],[entry('GstPayable',[],[],0),entry('GstReceivable',[],[],0)],0)],0),entry('NoncurrentLiabilities',[],[entry('NoncurrentLoans',[],[],0)],0)],0)],2)",
+      "entry('Equity',[],[entry('CapitalIntroduced',[],[],0),entry('Drawings',[],[],0),entry('RetainedEarnings',[],[entry('CurrentEarnings',[],[],3),entry('HistoricalEarnings',[],[entry('BankOpeningBalances',[],[],0)],0)],3),entry('ShareCapital',[],[],0)],3)"
     ]
   },
   "crosschecks": {
     "errors": [],
     "results": [
-      [
-	"account_balance(reports/pl/current,'InvestmentIncomeRealized'/withoutCurrencyMovement) = report_value(reports/ir/current/totals/gains/rea/market_converted)",
-	"[] = []",
-	"ok"
-      ],
-      [
-	"account_balance(reports/pl/current,'InvestmentIncomeRealized'/onlyCurrencyMovement) = report_value(reports/ir/current/totals/gains/rea/forex)",
-	"[] = []",
-	"ok"
-      ],
-      [
-	"account_balance(reports/pl/current,'InvestmentIncomeUnrealized'/withoutCurrencyMovement) = report_value(reports/ir/current/totals/gains/unr/market_converted)",
-	"[] = [ {\"amount\":0.0, \"unit\":\"oranges\"} ]",
-	"ok"
-      ],
-      [
-	"account_balance(reports/pl/current,'InvestmentIncomeUnrealized'/onlyCurrencyMovement) = report_value(reports/ir/current/totals/gains/unr/forex)",
-	"[ {\"amount\":2000.0, \"unit\":\"oranges\"} ] = [ {\"amount\":2000.0, \"unit\":\"oranges\"} ]",
-	"ok"
-      ],
-      [
-	"account_balance(reports/pl/current,'Accounts'/'InvestmentIncome') = report_value(reports/ir/current/totals/gains/total)",
-	"[ {\"amount\":2000.0, \"unit\":\"oranges\"} ] = [ {\"amount\":2000.0, \"unit\":\"oranges\"} ]",
-	"ok"
-      ],
-      [
-	"account_balance(reports/pl/current,'InvestmentIncome'/unrealized) = report_value(reports/ir/current/totals/gains/unrealized_total)",
-	"[ {\"amount\":2000.0, \"unit\":\"oranges\"} ] = [ {\"amount\":2000.0, \"unit\":\"oranges\"} ]",
-	"ok"
-      ],
-      [
-	"account_balance(reports/pl/current,'InvestmentIncome'/realized) = report_value(reports/ir/current/totals/gains/realized_total)",
-	"[] = []",
-	"ok"
-      ],
-      [
-	"account_balance(reports/bs/current,'Accounts'/'FinancialInvestments') = report_value(reports/ir/current/totals/closing/total_cost_converted)",
-	"[ {\"amount\":4000.0, \"unit\":\"oranges\"} ] = [ {\"amount\":4000.0, \"unit\":\"oranges\"} ]",
-	"ok"
-      ],
-      [
-	"account_balance(reports/bs/current,'Accounts'/'HistoricalEarnings') = account_balance(reports/pl/historical,'Accounts'/'NetIncomeLoss')",
-	"[] = []",
-	"ok"
-      ],
-      [
-	"account_balance(reports/bs/current,'Accounts'/'NetAssets') = account_balance(reports/bs/current,'Accounts'/'Equity')",
-	"[] = []",
-	"ok"
-      ]
+      {
+	"check": {
+	  "a":"account_balance(reports/pl/current,'InvestmentIncomeRealized'/withoutCurrencyMovement)",
+	  "b":"report_value(reports/ir/current/totals/gains/rea/market_converted)",
+	  "op":"="
+	},
+	"evaluation": {"a": [], "b": [], "op":"="},
+	"status":"ok"
+      },
+      {
+	"check": {
+	  "a":"account_balance(reports/pl/current,'InvestmentIncomeRealized'/onlyCurrencyMovement)",
+	  "b":"report_value(reports/ir/current/totals/gains/rea/forex)",
+	  "op":"="
+	},
+	"evaluation": {"a": [], "b": [], "op":"="},
+	"status":"ok"
+      },
+      {
+	"check": {
+	  "a":"account_balance(reports/pl/current,'InvestmentIncomeUnrealized'/withoutCurrencyMovement)",
+	  "b":"report_value(reports/ir/current/totals/gains/unr/market_converted)",
+	  "op":"="
+	},
+	"evaluation": {"a": [], "b": [ {"amount":0, "unit":"oranges"} ], "op":"="},
+	"status":"ok"
+      },
+      {
+	"check": {
+	  "a":"account_balance(reports/pl/current,'InvestmentIncomeUnrealized'/onlyCurrencyMovement)",
+	  "b":"report_value(reports/ir/current/totals/gains/unr/forex)",
+	  "op":"="
+	},
+	"evaluation": {
+	  "a": [ {"amount":2000, "unit":"oranges"} ],
+	  "b": [ {"amount":2000, "unit":"oranges"} ],
+	  "op":"="
+	},
+	"status":"ok"
+      },
+      {
+	"check": {
+	  "a":"account_balance(reports/pl/current,'Accounts'/'InvestmentIncome')",
+	  "b":"report_value(reports/ir/current/totals/gains/total)",
+	  "op":"="
+	},
+	"evaluation": {
+	  "a": [ {"amount":2000, "unit":"oranges"} ],
+	  "b": [ {"amount":2000, "unit":"oranges"} ],
+	  "op":"="
+	},
+	"status":"ok"
+      },
+      {
+	"check": {
+	  "a":"account_balance(reports/pl/current,'InvestmentIncome'/unrealized)",
+	  "b":"report_value(reports/ir/current/totals/gains/unrealized_total)",
+	  "op":"="
+	},
+	"evaluation": {
+	  "a": [ {"amount":2000, "unit":"oranges"} ],
+	  "b": [ {"amount":2000, "unit":"oranges"} ],
+	  "op":"="
+	},
+	"status":"ok"
+      },
+      {
+	"check": {
+	  "a":"account_balance(reports/pl/current,'InvestmentIncome'/realized)",
+	  "b":"report_value(reports/ir/current/totals/gains/realized_total)",
+	  "op":"="
+	},
+	"evaluation": {"a": [], "b": [], "op":"="},
+	"status":"ok"
+      },
+      {
+	"check": {
+	  "a":"account_balance(reports/bs/current,'Accounts'/'FinancialInvestments')",
+	  "b":"report_value(reports/ir/current/totals/closing/total_cost_converted)",
+	  "op":"="
+	},
+	"evaluation": {
+	  "a": [ {"amount":4000, "unit":"oranges"} ],
+	  "b": [ {"amount":4000, "unit":"oranges"} ],
+	  "op":"="
+	},
+	"status":"ok"
+      },
+      {
+	"check": {
+	  "a":"account_balance(reports/bs/current,'Accounts'/'HistoricalEarnings')",
+	  "b":"account_balance(reports/pl/historical,'Accounts'/'NetIncomeLoss')",
+	  "op":"="
+	},
+	"evaluation": {"a": [], "b": [], "op":"="},
+	"status":"ok"
+      },
+      {
+	"check": {
+	  "a":"account_balance(reports/bs/current,'Accounts'/'NetAssets')",
+	  "b":"account_balance(reports/bs/current,'Accounts'/'Equity')",
+	  "op":"="
+	},
+	"evaluation": {"a": [], "b": [], "op":"="},
+	"status":"ok"
+      }
     ]
   },
   "ir": {
@@ -69,39 +125,39 @@
       "rows": [
 	{
 	  "closing": {
-	    "conversion":"exchange_rate(date(2018,1,1),bananas,oranges,4.0)",
-	    "total_cost_converted": {"amount":4000.0, "unit":"oranges"},
-	    "total_cost_foreign": {"amount":1000.0, "unit":"bananas"},
-	    "unit_cost_converted": {"amount":4000.0, "unit":"oranges"},
-	    "unit_cost_foreign": {"amount":1000.0, "unit":"bananas"}
+	    "conversion":"exchange_rate(date(2018,1,1),bananas,oranges,4)",
+	    "total_cost_converted": {"amount":4000, "unit":"oranges"},
+	    "total_cost_foreign": {"amount":1000, "unit":"bananas"},
+	    "unit_cost_converted": {"amount":4000, "unit":"oranges"},
+	    "unit_cost_foreign": {"amount":1000, "unit":"bananas"}
 	  },
 	  "count":1,
 	  "currency":"bananas",
 	  "gains": {
 	    "rea": {},
 	    "unr": {
-	      "forex": {"amount":2000.0, "unit":"oranges"},
-	      "market_converted": {"amount":0.0, "unit":"oranges"},
-	      "market_foreign": {"amount":0.0, "unit":"bananas"}
+	      "forex": {"amount":2000, "unit":"oranges"},
+	      "market_converted": {"amount":0, "unit":"oranges"},
+	      "market_foreign": {"amount":0, "unit":"bananas"}
 	    }
 	  },
 	  "id":"iri1",
 	  "on_hand_at_cost": {
 	    "count":1,
-	    "total_converted_at_balance": {"amount":4000.0, "unit":"oranges"},
-	    "total_converted_at_purchase": {"amount":2000.0, "unit":"oranges"},
-	    "total_foreign": {"amount":1000.0, "unit":"bananas"},
-	    "total_forex_gain": {"amount":2000.0, "unit":"oranges"},
-	    "unit_cost_foreign": {"amount":1000.0, "unit":"bananas"}
+	    "total_converted_at_balance": {"amount":4000, "unit":"oranges"},
+	    "total_converted_at_purchase": {"amount":2000, "unit":"oranges"},
+	    "total_foreign": {"amount":1000, "unit":"bananas"},
+	    "total_forex_gain": {"amount":2000, "unit":"oranges"},
+	    "unit_cost_foreign": {"amount":1000, "unit":"bananas"}
 	  },
 	  "opening": {},
 	  "purchase": {
-	    "conversion":"exchange_rate(date(2017,1,1),bananas,oranges,2.0)",
+	    "conversion":"exchange_rate(date(2017,1,1),bananas,oranges,2)",
 	    "date":"date(2017,1,1)",
-	    "total_cost_converted": {"amount":2000.0, "unit":"oranges"},
-	    "total_cost_foreign": {"amount":1000.0, "unit":"bananas"},
-	    "unit_cost_converted": {"amount":2000.0, "unit":"oranges"},
-	    "unit_cost_foreign": {"amount":1000.0, "unit":"bananas"}
+	    "total_cost_converted": {"amount":2000, "unit":"oranges"},
+	    "total_cost_foreign": {"amount":1000, "unit":"bananas"},
+	    "unit_cost_converted": {"amount":2000, "unit":"oranges"},
+	    "unit_cost_foreign": {"amount":1000, "unit":"bananas"}
 	  },
 	  "sale": {},
 	  "unit":"GOOG"
@@ -109,24 +165,24 @@
       ],
       "totals": {
 	"closing": {
-	  "total_cost_converted": [ {"amount":4000.0, "unit":"oranges"} ],
-	  "total_cost_foreign": [ {"amount":1000.0, "unit":"bananas"} ]
+	  "total_cost_converted": [ {"amount":4000, "unit":"oranges"} ],
+	  "total_cost_foreign": [ {"amount":1000, "unit":"bananas"} ]
 	},
 	"gains": {
 	  "rea": {"forex": [], "market_converted": [], "market_foreign": []},
 	  "realized_total": [],
-	  "total": [ {"amount":2000.0, "unit":"oranges"} ],
+	  "total": [ {"amount":2000, "unit":"oranges"} ],
 	  "unr": {
-	    "forex": [ {"amount":2000.0, "unit":"oranges"} ],
-	    "market_converted": [ {"amount":0.0, "unit":"oranges"} ],
-	    "market_foreign": [ {"amount":0.0, "unit":"bananas"} ]
+	    "forex": [ {"amount":2000, "unit":"oranges"} ],
+	    "market_converted": [ {"amount":0, "unit":"oranges"} ],
+	    "market_foreign": [ {"amount":0, "unit":"bananas"} ]
 	  },
-	  "unrealized_total": [ {"amount":2000.0, "unit":"oranges"} ]
+	  "unrealized_total": [ {"amount":2000, "unit":"oranges"} ]
 	},
 	"on_hand_at_cost": {
-	  "total_converted_at_balance": [ {"amount":4000.0, "unit":"oranges"} ],
-	  "total_converted_at_purchase": [ {"amount":2000.0, "unit":"oranges"} ],
-	  "total_forex_gain": [ {"amount":2000.0, "unit":"oranges"} ]
+	  "total_converted_at_balance": [ {"amount":4000, "unit":"oranges"} ],
+	  "total_converted_at_purchase": [ {"amount":2000, "unit":"oranges"} ],
+	  "total_forex_gain": [ {"amount":2000, "unit":"oranges"} ]
 	},
 	"opening": {"total_cost_converted": [], "total_cost_foreign": []}
       }
@@ -135,39 +191,39 @@
       "rows": [
 	{
 	  "closing": {
-	    "conversion":"exchange_rate(date(2018,1,1),bananas,oranges,4.0)",
-	    "total_cost_converted": {"amount":4000.0, "unit":"oranges"},
-	    "total_cost_foreign": {"amount":1000.0, "unit":"bananas"},
-	    "unit_cost_converted": {"amount":4000.0, "unit":"oranges"},
-	    "unit_cost_foreign": {"amount":1000.0, "unit":"bananas"}
+	    "conversion":"exchange_rate(date(2018,1,1),bananas,oranges,4)",
+	    "total_cost_converted": {"amount":4000, "unit":"oranges"},
+	    "total_cost_foreign": {"amount":1000, "unit":"bananas"},
+	    "unit_cost_converted": {"amount":4000, "unit":"oranges"},
+	    "unit_cost_foreign": {"amount":1000, "unit":"bananas"}
 	  },
 	  "count":1,
 	  "currency":"bananas",
 	  "gains": {
 	    "rea": {},
 	    "unr": {
-	      "forex": {"amount":2000.0, "unit":"oranges"},
-	      "market_converted": {"amount":0.0, "unit":"oranges"},
-	      "market_foreign": {"amount":0.0, "unit":"bananas"}
+	      "forex": {"amount":2000, "unit":"oranges"},
+	      "market_converted": {"amount":0, "unit":"oranges"},
+	      "market_foreign": {"amount":0, "unit":"bananas"}
 	    }
 	  },
 	  "id":"iri1",
 	  "on_hand_at_cost": {
 	    "count":1,
-	    "total_converted_at_balance": {"amount":4000.0, "unit":"oranges"},
-	    "total_converted_at_purchase": {"amount":2000.0, "unit":"oranges"},
-	    "total_foreign": {"amount":1000.0, "unit":"bananas"},
-	    "total_forex_gain": {"amount":2000.0, "unit":"oranges"},
-	    "unit_cost_foreign": {"amount":1000.0, "unit":"bananas"}
+	    "total_converted_at_balance": {"amount":4000, "unit":"oranges"},
+	    "total_converted_at_purchase": {"amount":2000, "unit":"oranges"},
+	    "total_foreign": {"amount":1000, "unit":"bananas"},
+	    "total_forex_gain": {"amount":2000, "unit":"oranges"},
+	    "unit_cost_foreign": {"amount":1000, "unit":"bananas"}
 	  },
 	  "opening": {},
 	  "purchase": {
-	    "conversion":"exchange_rate(date(2017,1,1),bananas,oranges,2.0)",
+	    "conversion":"exchange_rate(date(2017,1,1),bananas,oranges,2)",
 	    "date":"date(2017,1,1)",
-	    "total_cost_converted": {"amount":2000.0, "unit":"oranges"},
-	    "total_cost_foreign": {"amount":1000.0, "unit":"bananas"},
-	    "unit_cost_converted": {"amount":2000.0, "unit":"oranges"},
-	    "unit_cost_foreign": {"amount":1000.0, "unit":"bananas"}
+	    "total_cost_converted": {"amount":2000, "unit":"oranges"},
+	    "total_cost_foreign": {"amount":1000, "unit":"bananas"},
+	    "unit_cost_converted": {"amount":2000, "unit":"oranges"},
+	    "unit_cost_foreign": {"amount":1000, "unit":"bananas"}
 	  },
 	  "sale": {},
 	  "unit":"GOOG"
@@ -175,24 +231,24 @@
       ],
       "totals": {
 	"closing": {
-	  "total_cost_converted": [ {"amount":4000.0, "unit":"oranges"} ],
-	  "total_cost_foreign": [ {"amount":1000.0, "unit":"bananas"} ]
+	  "total_cost_converted": [ {"amount":4000, "unit":"oranges"} ],
+	  "total_cost_foreign": [ {"amount":1000, "unit":"bananas"} ]
 	},
 	"gains": {
 	  "rea": {"forex": [], "market_converted": [], "market_foreign": []},
 	  "realized_total": [],
-	  "total": [ {"amount":2000.0, "unit":"oranges"} ],
+	  "total": [ {"amount":2000, "unit":"oranges"} ],
 	  "unr": {
-	    "forex": [ {"amount":2000.0, "unit":"oranges"} ],
-	    "market_converted": [ {"amount":0.0, "unit":"oranges"} ],
-	    "market_foreign": [ {"amount":0.0, "unit":"bananas"} ]
+	    "forex": [ {"amount":2000, "unit":"oranges"} ],
+	    "market_converted": [ {"amount":0, "unit":"oranges"} ],
+	    "market_foreign": [ {"amount":0, "unit":"bananas"} ]
 	  },
-	  "unrealized_total": [ {"amount":2000.0, "unit":"oranges"} ]
+	  "unrealized_total": [ {"amount":2000, "unit":"oranges"} ]
 	},
 	"on_hand_at_cost": {
-	  "total_converted_at_balance": [ {"amount":4000.0, "unit":"oranges"} ],
-	  "total_converted_at_purchase": [ {"amount":2000.0, "unit":"oranges"} ],
-	  "total_forex_gain": [ {"amount":2000.0, "unit":"oranges"} ]
+	  "total_converted_at_balance": [ {"amount":4000, "unit":"oranges"} ],
+	  "total_converted_at_purchase": [ {"amount":2000, "unit":"oranges"} ],
+	  "total_forex_gain": [ {"amount":2000, "unit":"oranges"} ]
 	},
 	"opening": {"total_cost_converted": [], "total_cost_foreign": []}
       }
@@ -200,7 +256,7 @@
   },
   "pl": {
     "current": [
-      "entry('NetIncomeLoss',[],[entry('Expenses',[],[entry('AccountingFees',[],[],0),entry('BankCharges',[],[],0),entry('CostOfGoodsLivestock',[],[],0),entry('ForexLoss',[],[],0),entry('InterestExpenses',[],[],0),entry('LivestockAdjustment',[],[],0),entry('OtherExpenses',[],[],0),entry('Purchases',[],[],0)],0),entry('Revenue',[],[entry('ClearingAccount',[],[],0),entry('CurrencyMovement',[coord(oranges,2000.0)],[entry('CurrencyMovementNationalAustraliaBank',[coord(oranges,2000.0)],[],1)],1),entry('Income',[],[],0),entry('InvestmentIncome',[coord(oranges,-2000.0)],[entry('InvestmentIncomeRealized',[],[entry('InvestmentIncomeRealizedOnlyCurrencyMovement',[],[entry('InvestmentIncomeRealizedOnlyCurrencyMovementGOOG',[],[],0)],0),entry('InvestmentIncomeRealizedWithoutCurrencyMovement',[],[entry('InvestmentIncomeRealizedWithoutCurrencyMovementGOOG',[],[],0)],0)],0),entry('InvestmentIncomeUnrealized',[coord(oranges,-2000.0)],[entry('InvestmentIncomeUnrealizedOnlyCurrencyMovement',[coord(oranges,-2000.0)],[entry('InvestmentIncomeUnrealizedOnlyCurrencyMovementGOOG',[coord(oranges,-2000.0)],[],1)],1),entry('InvestmentIncomeUnrealizedWithoutCurrencyMovement',[],[entry('InvestmentIncomeUnrealizedWithoutCurrencyMovementGOOG',[],[],1)],1)],2)],2),entry('OtherGain',[],[],0),entry('OtherIncome',[],[entry('EarningsFinancialInvestments',[],[],0),entry('ExchangeGain',[],[],0),entry('InterestEarned',[],[],0),entry('InterestIncome',[],[],0)],0),entry('RationsRevenue',[],[],0),entry('SalesOfLivestock',[],[],0)],3)],3)"
+      "entry('NetIncomeLoss',[],[entry('Expenses',[],[entry('AccountingFees',[],[],0),entry('BankCharges',[],[],0),entry('CostOfGoodsLivestock',[],[],0),entry('ForexLoss',[],[],0),entry('InterestExpenses',[],[],0),entry('LivestockAdjustment',[],[],0),entry('OtherExpenses',[],[],0),entry('Purchases',[],[],0)],0),entry('Revenue',[],[entry('ClearingAccount',[],[],0),entry('CurrencyMovement',[coord(oranges,2000)],[entry('CurrencyMovementNationalAustraliaBank',[coord(oranges,2000)],[],1)],1),entry('Income',[],[],0),entry('InvestmentIncome',[coord(oranges,-2000)],[entry('InvestmentIncomeRealized',[],[entry('InvestmentIncomeRealizedOnlyCurrencyMovement',[],[entry('InvestmentIncomeRealizedOnlyCurrencyMovementGOOG',[],[],0)],0),entry('InvestmentIncomeRealizedWithoutCurrencyMovement',[],[entry('InvestmentIncomeRealizedWithoutCurrencyMovementGOOG',[],[],0)],0)],0),entry('InvestmentIncomeUnrealized',[coord(oranges,-2000)],[entry('InvestmentIncomeUnrealizedOnlyCurrencyMovement',[coord(oranges,-2000)],[entry('InvestmentIncomeUnrealizedOnlyCurrencyMovementGOOG',[coord(oranges,-2000)],[],1)],1),entry('InvestmentIncomeUnrealizedWithoutCurrencyMovement',[],[entry('InvestmentIncomeUnrealizedWithoutCurrencyMovementGOOG',[],[],1)],1)],2)],2),entry('OtherGain',[],[],0),entry('OtherIncome',[],[entry('EarningsFinancialInvestments',[],[],0),entry('ExchangeGain',[],[],0),entry('InterestEarned',[],[],0),entry('InterestIncome',[],[],0)],0),entry('RationsRevenue',[],[],0),entry('SalesOfLivestock',[],[],0)],3)],3)"
     ],
     "historical": [
       "entry('NetIncomeLoss',[],[entry('Expenses',[],[entry('AccountingFees',[],[],0),entry('BankCharges',[],[],0),entry('CostOfGoodsLivestock',[],[],0),entry('ForexLoss',[],[],0),entry('InterestExpenses',[],[],0),entry('LivestockAdjustment',[],[],0),entry('OtherExpenses',[],[],0),entry('Purchases',[],[],0)],0),entry('Revenue',[],[entry('ClearingAccount',[],[],0),entry('CurrencyMovement',[],[entry('CurrencyMovementNationalAustraliaBank',[],[],1)],1),entry('Income',[],[],0),entry('InvestmentIncome',[],[entry('InvestmentIncomeRealized',[],[entry('InvestmentIncomeRealizedOnlyCurrencyMovement',[],[entry('InvestmentIncomeRealizedOnlyCurrencyMovementGOOG',[],[],0)],0),entry('InvestmentIncomeRealizedWithoutCurrencyMovement',[],[entry('InvestmentIncomeRealizedWithoutCurrencyMovementGOOG',[],[],0)],0)],0),entry('InvestmentIncomeUnrealized',[],[entry('InvestmentIncomeUnrealizedOnlyCurrencyMovement',[],[entry('InvestmentIncomeUnrealizedOnlyCurrencyMovementGOOG',[],[],1)],1),entry('InvestmentIncomeUnrealizedWithoutCurrencyMovement',[],[entry('InvestmentIncomeUnrealizedWithoutCurrencyMovementGOOG',[],[],1)],1)],2)],2),entry('OtherGain',[],[],0),entry('OtherIncome',[],[entry('EarningsFinancialInvestments',[],[],0),entry('ExchangeGain',[],[],0),entry('InterestEarned',[],[],0),entry('InterestIncome',[],[],0)],0),entry('RationsRevenue',[],[],0),entry('SalesOfLivestock',[],[],0)],3)],3)"

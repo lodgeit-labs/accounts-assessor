@@ -185,63 +185,63 @@
   "rows": [
     {
       "closing": {
-	"conversion":"exchange_rate(date(2018,1,1),bananas,oranges,4.0)",
-	"total_cost_converted": {"amount":4000.0, "unit":"oranges"},
-	"total_cost_foreign": {"amount":1000.0, "unit":"bananas"},
-	"unit_cost_converted": {"amount":4000.0, "unit":"oranges"},
-	"unit_cost_foreign": {"amount":1000.0, "unit":"bananas"}
+	"conversion":"exchange_rate(date(2018,1,1),bananas,oranges,4)",
+	"total_cost_converted": {"amount":4000, "unit":"oranges"},
+	"total_cost_foreign": {"amount":1000, "unit":"bananas"},
+	"unit_cost_converted": {"amount":4000, "unit":"oranges"},
+	"unit_cost_foreign": {"amount":1000, "unit":"bananas"}
       },
       "count":1,
       "currency":"bananas",
       "gains": {
 	"rea": {},
 	"unr": {
-	  "forex": {"amount":0.0, "unit":"oranges"},
-	  "market_converted": {"amount":2000.0, "unit":"oranges"},
-	  "market_foreign": {"amount":500.0, "unit":"bananas"}
+	  "forex": {"amount":0, "unit":"oranges"},
+	  "market_converted": {"amount":2000, "unit":"oranges"},
+	  "market_foreign": {"amount":500, "unit":"bananas"}
 	}
       },
       "id":"iri1",
       "on_hand_at_cost": {
 	"count":1,
-	"total_converted_at_balance": {"amount":2000.0, "unit":"oranges"},
-	"total_converted_at_purchase": {"amount":2000.0, "unit":"oranges"},
-	"total_foreign": {"amount":500.0, "unit":"bananas"},
-	"total_forex_gain": {"amount":0.0, "unit":"oranges"},
-	"unit_cost_foreign": {"amount":500.0, "unit":"bananas"}
+	"total_converted_at_balance": {"amount":2000, "unit":"oranges"},
+	"total_converted_at_purchase": {"amount":2000, "unit":"oranges"},
+	"total_foreign": {"amount":500, "unit":"bananas"},
+	"total_forex_gain": {"amount":0, "unit":"oranges"},
+	"unit_cost_foreign": {"amount":500, "unit":"bananas"}
       },
       "opening": {},
       "purchase": {
-	"conversion":"exchange_rate(date(2017,1,1),bananas,oranges,4.0)",
+	"conversion":"exchange_rate(date(2017,1,1),bananas,oranges,4)",
 	"date":"date(2017,1,1)",
-	"total_cost_converted": {"amount":2000.0, "unit":"oranges"},
-	"total_cost_foreign": {"amount":500.0, "unit":"bananas"},
-	"unit_cost_converted": {"amount":2000.0, "unit":"oranges"},
-	"unit_cost_foreign": {"amount":500.0, "unit":"bananas"}
+	"total_cost_converted": {"amount":2000, "unit":"oranges"},
+	"total_cost_foreign": {"amount":500, "unit":"bananas"},
+	"unit_cost_converted": {"amount":2000, "unit":"oranges"},
+	"unit_cost_foreign": {"amount":500, "unit":"bananas"}
       },
       "sale": {},
       "unit":"GOOG"
     },
     {
       "closing": {
-	"total_cost_converted": [ {"amount":4000.0, "unit":"oranges"} ],
-	"total_cost_foreign": [ {"amount":1000.0, "unit":"bananas"} ]
+	"total_cost_converted": [ {"amount":4000, "unit":"oranges"} ],
+	"total_cost_foreign": [ {"amount":1000, "unit":"bananas"} ]
       },
       "gains": {
 	"rea": {"forex": [], "market_converted": [], "market_foreign": []},
 	"realized_total": [],
-	"total": [ {"amount":2000.0, "unit":"oranges"} ],
+	"total": [ {"amount":2000, "unit":"oranges"} ],
 	"unr": {
-	  "forex": [ {"amount":0.0, "unit":"oranges"} ],
-	  "market_converted": [ {"amount":2000.0, "unit":"oranges"} ],
-	  "market_foreign": [ {"amount":500.0, "unit":"bananas"} ]
+	  "forex": [ {"amount":0, "unit":"oranges"} ],
+	  "market_converted": [ {"amount":2000, "unit":"oranges"} ],
+	  "market_foreign": [ {"amount":500, "unit":"bananas"} ]
 	},
-	"unrealized_total": [ {"amount":2000.0, "unit":"oranges"} ]
+	"unrealized_total": [ {"amount":2000, "unit":"oranges"} ]
       },
       "on_hand_at_cost": {
-	"total_converted_at_balance": [ {"amount":2000.0, "unit":"oranges"} ],
-	"total_converted_at_purchase": [ {"amount":2000.0, "unit":"oranges"} ],
-	"total_forex_gain": [ {"amount":0.0, "unit":"oranges"} ]
+	"total_converted_at_balance": [ {"amount":2000, "unit":"oranges"} ],
+	"total_converted_at_purchase": [ {"amount":2000, "unit":"oranges"} ],
+	"total_forex_gain": [ {"amount":0, "unit":"oranges"} ]
       },
       "opening": {"total_cost_converted": [], "total_cost_foreign": []}
     }

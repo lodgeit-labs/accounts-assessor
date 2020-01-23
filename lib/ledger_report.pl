@@ -1,6 +1,17 @@
 
 :- record entry(account_id, balance, child_sheet_entries, transactions_count).
 
+:- multifile term_dict/2.
+term_dict(
+	entry(Account, Balance, Child_sheet_entries, Transactions_count),
+	entry{account:Account2, balance:Balance2, child_sheet_entries:Child_sheet_entries2, transactions_count:Transactions_count2}
+) :-
+	round_term(Account,Account2),
+	round_term(Balance,Balance2),
+	round_term(Child_sheet_entries,Child_sheet_entries2),
+	round_term(Transactions_count,Transactions_count2).
+
+
 % -------------------------------------------------------------------
 % The purpose of the following program is to derive the summary information of a ledger.
 % That is, with the knowledge of all the transactions in a ledger, the following program

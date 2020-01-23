@@ -1,67 +1,107 @@
 {
   "bs": {
     "current": [
-      "entry('NetAssets',[],[entry('Assets',[],[entry('CurrentAssets',[coord('AUD',-600.0)],[entry('AssetsLivestock',[],[entry('AssetsLivestockAtAverageCost',[],[],0),entry('AssetsLivestockAtCost',[],[],0)],0),entry('CashAndCashEquivalents',[coord('AUD',-600.0)],[entry('Banks',[coord('AUD',-600.0)],[entry('BanksCHF_Bank',[coord('AUD',-600.0)],[],1)],1)],1)],1),entry('NoncurrentAssets',[coord('AUD',600.0)],[entry('FinancialInvestments',[coord('AUD',600.0)],[entry('FinancialInvestmentsLeonteq_N',[coord('AUD',600.0)],[],1)],1)],1)],2),entry('Liabilities',[],[entry('CurrentLiabilities',[],[entry('CurrentLoans',[],[],0),entry('Gst',[],[entry('GstPayable',[],[],0),entry('GstReceivable',[],[],0)],0)],0),entry('NoncurrentLiabilities',[],[entry('NoncurrentLoans',[],[],0)],0)],0)],2)",
-      "entry('Equity',[],[entry('CapitalIntroduced',[],[],0),entry('Drawings',[],[],0),entry('RetainedEarnings',[],[entry('CurrentEarnings',[],[],3),entry('HistoricalEarnings',[],[],3)],6),entry('ShareCapital',[],[],0)],6)"
+      "entry('NetAssets',[],[entry('Assets',[],[entry('CurrentAssets',[coord('AUD',-600)],[entry('AssetsLivestock',[],[entry('AssetsLivestockAtAverageCost',[],[],0),entry('AssetsLivestockAtCost',[],[],0)],0),entry('CashAndCashEquivalents',[coord('AUD',-600)],[entry('Banks',[coord('AUD',-600)],[entry('BanksCHF_Bank',[coord('AUD',-600)],[],1)],1)],1)],1),entry('NoncurrentAssets',[coord('AUD',600)],[entry('FinancialInvestments',[coord('AUD',600)],[entry('FinancialInvestmentsLeonteq_N',[coord('AUD',600)],[],1)],1)],1)],2),entry('Liabilities',[],[entry('CurrentLiabilities',[],[entry('CurrentLoans',[],[],0),entry('Gst',[],[entry('GstPayable',[],[],0),entry('GstReceivable',[],[],0)],0)],0),entry('NoncurrentLiabilities',[],[entry('NoncurrentLoans',[],[],0)],0)],0)],2)",
+      "entry('Equity',[],[entry('CapitalIntroduced',[],[],0),entry('Drawings',[],[],0),entry('RetainedEarnings',[],[entry('CurrentEarnings',[],[],3),entry('HistoricalEarnings',[],[entry('BankOpeningBalances',[],[],0)],3)],6),entry('ShareCapital',[],[],0)],6)"
     ],
     "historical": [
-      "entry('NetAssets',[],[entry('Assets',[],[entry('CurrentAssets',[coord('AUD',-400.0)],[entry('AssetsLivestock',[],[entry('AssetsLivestockAtAverageCost',[],[],0),entry('AssetsLivestockAtCost',[],[],0)],0),entry('CashAndCashEquivalents',[coord('AUD',-400.0)],[entry('Banks',[coord('AUD',-400.0)],[entry('BanksCHF_Bank',[coord('AUD',-400.0)],[],1)],1)],1)],1),entry('NoncurrentAssets',[coord('AUD',400.0)],[entry('FinancialInvestments',[coord('AUD',400.0)],[entry('FinancialInvestmentsLeonteq_N',[coord('AUD',400.0)],[],1)],1)],1)],2),entry('Liabilities',[],[entry('CurrentLiabilities',[],[entry('CurrentLoans',[],[],0),entry('Gst',[],[entry('GstPayable',[],[],0),entry('GstReceivable',[],[],0)],0)],0),entry('NoncurrentLiabilities',[],[entry('NoncurrentLoans',[],[],0)],0)],0)],2)",
-      "entry('Equity',[],[entry('CapitalIntroduced',[],[],0),entry('Drawings',[],[],0),entry('RetainedEarnings',[],[entry('CurrentEarnings',[],[],0),entry('HistoricalEarnings',[],[],3)],3),entry('ShareCapital',[],[],0)],3)"
+      "entry('NetAssets',[],[entry('Assets',[],[entry('CurrentAssets',[coord('AUD',-400)],[entry('AssetsLivestock',[],[entry('AssetsLivestockAtAverageCost',[],[],0),entry('AssetsLivestockAtCost',[],[],0)],0),entry('CashAndCashEquivalents',[coord('AUD',-400)],[entry('Banks',[coord('AUD',-400)],[entry('BanksCHF_Bank',[coord('AUD',-400)],[],1)],1)],1)],1),entry('NoncurrentAssets',[coord('AUD',400)],[entry('FinancialInvestments',[coord('AUD',400)],[entry('FinancialInvestmentsLeonteq_N',[coord('AUD',400)],[],1)],1)],1)],2),entry('Liabilities',[],[entry('CurrentLiabilities',[],[entry('CurrentLoans',[],[],0),entry('Gst',[],[entry('GstPayable',[],[],0),entry('GstReceivable',[],[],0)],0)],0),entry('NoncurrentLiabilities',[],[entry('NoncurrentLoans',[],[],0)],0)],0)],2)",
+      "entry('Equity',[],[entry('CapitalIntroduced',[],[],0),entry('Drawings',[],[],0),entry('RetainedEarnings',[],[entry('CurrentEarnings',[],[],0),entry('HistoricalEarnings',[],[entry('BankOpeningBalances',[],[],0)],3)],3),entry('ShareCapital',[],[],0)],3)"
     ]
   },
   "crosschecks": {
     "errors": [],
     "results": [
-      [
-	"account_balance(reports/pl/current,'InvestmentIncomeRealized'/withoutCurrencyMovement) = report_value(reports/ir/current/totals/gains/rea/market_converted)",
-	"[] = []",
-	"ok"
-      ],
-      [
-	"account_balance(reports/pl/current,'InvestmentIncomeRealized'/onlyCurrencyMovement) = report_value(reports/ir/current/totals/gains/rea/forex)",
-	"[] = []",
-	"ok"
-      ],
-      [
-	"account_balance(reports/pl/current,'InvestmentIncomeUnrealized'/withoutCurrencyMovement) = report_value(reports/ir/current/totals/gains/unr/market_converted)",
-	"[] = [ {\"amount\":0.0, \"unit\":\"AUD\"} ]",
-	"ok"
-      ],
-      [
-	"account_balance(reports/pl/current,'InvestmentIncomeUnrealized'/onlyCurrencyMovement) = report_value(reports/ir/current/totals/gains/unr/forex)",
-	"[ {\"amount\":200.0, \"unit\":\"AUD\"} ] = [ {\"amount\":200.0, \"unit\":\"AUD\"} ]",
-	"ok"
-      ],
-      [
-	"account_balance(reports/pl/current,'Accounts'/'InvestmentIncome') = report_value(reports/ir/current/totals/gains/total)",
-	"[ {\"amount\":200.0, \"unit\":\"AUD\"} ] = [ {\"amount\":200.0, \"unit\":\"AUD\"} ]",
-	"ok"
-      ],
-      [
-	"account_balance(reports/pl/current,'InvestmentIncome'/unrealized) = report_value(reports/ir/current/totals/gains/unrealized_total)",
-	"[ {\"amount\":200.0, \"unit\":\"AUD\"} ] = [ {\"amount\":200.0, \"unit\":\"AUD\"} ]",
-	"ok"
-      ],
-      [
-	"account_balance(reports/pl/current,'InvestmentIncome'/realized) = report_value(reports/ir/current/totals/gains/realized_total)",
-	"[] = []",
-	"ok"
-      ],
-      [
-	"account_balance(reports/bs/current,'Accounts'/'FinancialInvestments') = report_value(reports/ir/current/totals/closing/total_cost_converted)",
-	"[ {\"amount\":600.0, \"unit\":\"AUD\"} ] = [ {\"amount\":600.0, \"unit\":\"AUD\"} ]",
-	"ok"
-      ],
-      [
-	"account_balance(reports/bs/current,'Accounts'/'HistoricalEarnings') = account_balance(reports/pl/historical,'Accounts'/'NetIncomeLoss')",
-	"[] = []",
-	"ok"
-      ],
-      [
-	"account_balance(reports/bs/current,'Accounts'/'NetAssets') = account_balance(reports/bs/current,'Accounts'/'Equity')",
-	"[] = []",
-	"ok"
-      ]
+      {
+	"check": {
+	  "a":"account_balance(reports/pl/current,'InvestmentIncomeRealized'/withoutCurrencyMovement)",
+	  "b":"report_value(reports/ir/current/totals/gains/rea/market_converted)",
+	  "op":"="
+	},
+	"evaluation": {"a": [], "b": [], "op":"="},
+	"status":"ok"
+      },
+      {
+	"check": {
+	  "a":"account_balance(reports/pl/current,'InvestmentIncomeRealized'/onlyCurrencyMovement)",
+	  "b":"report_value(reports/ir/current/totals/gains/rea/forex)",
+	  "op":"="
+	},
+	"evaluation": {"a": [], "b": [], "op":"="},
+	"status":"ok"
+      },
+      {
+	"check": {
+	  "a":"account_balance(reports/pl/current,'InvestmentIncomeUnrealized'/withoutCurrencyMovement)",
+	  "b":"report_value(reports/ir/current/totals/gains/unr/market_converted)",
+	  "op":"="
+	},
+	"evaluation": {"a": [], "b": [ {"amount":0, "unit":"AUD"} ], "op":"="},
+	"status":"ok"
+      },
+      {
+	"check": {
+	  "a":"account_balance(reports/pl/current,'InvestmentIncomeUnrealized'/onlyCurrencyMovement)",
+	  "b":"report_value(reports/ir/current/totals/gains/unr/forex)",
+	  "op":"="
+	},
+	"evaluation": {"a": [ {"amount":200, "unit":"AUD"} ], "b": [ {"amount":200, "unit":"AUD"} ], "op":"="},
+	"status":"ok"
+      },
+      {
+	"check": {
+	  "a":"account_balance(reports/pl/current,'Accounts'/'InvestmentIncome')",
+	  "b":"report_value(reports/ir/current/totals/gains/total)",
+	  "op":"="
+	},
+	"evaluation": {"a": [ {"amount":200, "unit":"AUD"} ], "b": [ {"amount":200, "unit":"AUD"} ], "op":"="},
+	"status":"ok"
+      },
+      {
+	"check": {
+	  "a":"account_balance(reports/pl/current,'InvestmentIncome'/unrealized)",
+	  "b":"report_value(reports/ir/current/totals/gains/unrealized_total)",
+	  "op":"="
+	},
+	"evaluation": {"a": [ {"amount":200, "unit":"AUD"} ], "b": [ {"amount":200, "unit":"AUD"} ], "op":"="},
+	"status":"ok"
+      },
+      {
+	"check": {
+	  "a":"account_balance(reports/pl/current,'InvestmentIncome'/realized)",
+	  "b":"report_value(reports/ir/current/totals/gains/realized_total)",
+	  "op":"="
+	},
+	"evaluation": {"a": [], "b": [], "op":"="},
+	"status":"ok"
+      },
+      {
+	"check": {
+	  "a":"account_balance(reports/bs/current,'Accounts'/'FinancialInvestments')",
+	  "b":"report_value(reports/ir/current/totals/closing/total_cost_converted)",
+	  "op":"="
+	},
+	"evaluation": {"a": [ {"amount":600, "unit":"AUD"} ], "b": [ {"amount":600, "unit":"AUD"} ], "op":"="},
+	"status":"ok"
+      },
+      {
+	"check": {
+	  "a":"account_balance(reports/bs/current,'Accounts'/'HistoricalEarnings')",
+	  "b":"account_balance(reports/pl/historical,'Accounts'/'NetIncomeLoss')",
+	  "op":"="
+	},
+	"evaluation": {"a": [], "b": [], "op":"="},
+	"status":"ok"
+      },
+      {
+	"check": {
+	  "a":"account_balance(reports/bs/current,'Accounts'/'NetAssets')",
+	  "b":"account_balance(reports/bs/current,'Accounts'/'Equity')",
+	  "op":"="
+	},
+	"evaluation": {"a": [], "b": [], "op":"="},
+	"status":"ok"
+      }
     ]
   },
   "ir": {
@@ -69,37 +109,37 @@
       "rows": [
 	{
 	  "closing": {
-	    "conversion":"exchange_rate(date(2018,12,30),'CHF','AUD',6.0)",
-	    "total_cost_converted": {"amount":600.0, "unit":"AUD"},
-	    "total_cost_foreign": {"amount":100.0, "unit":"CHF"},
-	    "unit_cost_converted": {"amount":60.0, "unit":"AUD"},
-	    "unit_cost_foreign": {"amount":10.0, "unit":"CHF"}
+	    "conversion":"exchange_rate(date(2018,12,30),'CHF','AUD',6)",
+	    "total_cost_converted": {"amount":600, "unit":"AUD"},
+	    "total_cost_foreign": {"amount":100, "unit":"CHF"},
+	    "unit_cost_converted": {"amount":60, "unit":"AUD"},
+	    "unit_cost_foreign": {"amount":10, "unit":"CHF"}
 	  },
 	  "count":10,
 	  "currency":"CHF",
 	  "gains": {
 	    "rea": {},
 	    "unr": {
-	      "forex": {"amount":200.0, "unit":"AUD"},
-	      "market_converted": {"amount":0.0, "unit":"AUD"},
-	      "market_foreign": {"amount":0.0, "unit":"CHF"}
+	      "forex": {"amount":200, "unit":"AUD"},
+	      "market_converted": {"amount":0, "unit":"AUD"},
+	      "market_foreign": {"amount":0, "unit":"CHF"}
 	    }
 	  },
 	  "id":"iri1",
 	  "on_hand_at_cost": {
 	    "count":10,
-	    "total_converted_at_balance": {"amount":600.0, "unit":"AUD"},
-	    "total_converted_at_purchase": {"amount":200.0, "unit":"AUD"},
-	    "total_foreign": {"amount":100.0, "unit":"CHF"},
-	    "total_forex_gain": {"amount":400.0, "unit":"AUD"},
-	    "unit_cost_foreign": {"amount":10.0, "unit":"CHF"}
+	    "total_converted_at_balance": {"amount":600, "unit":"AUD"},
+	    "total_converted_at_purchase": {"amount":200, "unit":"AUD"},
+	    "total_foreign": {"amount":100, "unit":"CHF"},
+	    "total_forex_gain": {"amount":400, "unit":"AUD"},
+	    "unit_cost_foreign": {"amount":10, "unit":"CHF"}
 	  },
 	  "opening": {
-	    "conversion":"exchange_rate(date(2018,1,1),'CHF','AUD',4.0)",
-	    "total_cost_converted": {"amount":400.0, "unit":"AUD"},
-	    "total_cost_foreign": {"amount":100.0, "unit":"CHF"},
-	    "unit_cost_converted": {"amount":40.0, "unit":"AUD"},
-	    "unit_cost_foreign": {"amount":10.0, "unit":"CHF"}
+	    "conversion":"exchange_rate(date(2018,1,1),'CHF','AUD',4)",
+	    "total_cost_converted": {"amount":400, "unit":"AUD"},
+	    "total_cost_foreign": {"amount":100, "unit":"CHF"},
+	    "unit_cost_converted": {"amount":40, "unit":"AUD"},
+	    "unit_cost_foreign": {"amount":10, "unit":"CHF"}
 	  },
 	  "purchase": {},
 	  "sale": {},
@@ -108,28 +148,28 @@
       ],
       "totals": {
 	"closing": {
-	  "total_cost_converted": [ {"amount":600.0, "unit":"AUD"} ],
-	  "total_cost_foreign": [ {"amount":100.0, "unit":"CHF"} ]
+	  "total_cost_converted": [ {"amount":600, "unit":"AUD"} ],
+	  "total_cost_foreign": [ {"amount":100, "unit":"CHF"} ]
 	},
 	"gains": {
 	  "rea": {"forex": [], "market_converted": [], "market_foreign": []},
 	  "realized_total": [],
-	  "total": [ {"amount":200.0, "unit":"AUD"} ],
+	  "total": [ {"amount":200, "unit":"AUD"} ],
 	  "unr": {
-	    "forex": [ {"amount":200.0, "unit":"AUD"} ],
-	    "market_converted": [ {"amount":0.0, "unit":"AUD"} ],
-	    "market_foreign": [ {"amount":0.0, "unit":"CHF"} ]
+	    "forex": [ {"amount":200, "unit":"AUD"} ],
+	    "market_converted": [ {"amount":0, "unit":"AUD"} ],
+	    "market_foreign": [ {"amount":0, "unit":"CHF"} ]
 	  },
-	  "unrealized_total": [ {"amount":200.0, "unit":"AUD"} ]
+	  "unrealized_total": [ {"amount":200, "unit":"AUD"} ]
 	},
 	"on_hand_at_cost": {
-	  "total_converted_at_balance": [ {"amount":600.0, "unit":"AUD"} ],
-	  "total_converted_at_purchase": [ {"amount":200.0, "unit":"AUD"} ],
-	  "total_forex_gain": [ {"amount":400.0, "unit":"AUD"} ]
+	  "total_converted_at_balance": [ {"amount":600, "unit":"AUD"} ],
+	  "total_converted_at_purchase": [ {"amount":200, "unit":"AUD"} ],
+	  "total_forex_gain": [ {"amount":400, "unit":"AUD"} ]
 	},
 	"opening": {
-	  "total_cost_converted": [ {"amount":400.0, "unit":"AUD"} ],
-	  "total_cost_foreign": [ {"amount":100.0, "unit":"CHF"} ]
+	  "total_cost_converted": [ {"amount":400, "unit":"AUD"} ],
+	  "total_cost_foreign": [ {"amount":100, "unit":"CHF"} ]
 	}
       }
     },
@@ -137,39 +177,39 @@
       "rows": [
 	{
 	  "closing": {
-	    "conversion":"exchange_rate(date(2018,12,30),'CHF','AUD',6.0)",
-	    "total_cost_converted": {"amount":600.0, "unit":"AUD"},
-	    "total_cost_foreign": {"amount":100.0, "unit":"CHF"},
-	    "unit_cost_converted": {"amount":60.0, "unit":"AUD"},
-	    "unit_cost_foreign": {"amount":10.0, "unit":"CHF"}
+	    "conversion":"exchange_rate(date(2018,12,30),'CHF','AUD',6)",
+	    "total_cost_converted": {"amount":600, "unit":"AUD"},
+	    "total_cost_foreign": {"amount":100, "unit":"CHF"},
+	    "unit_cost_converted": {"amount":60, "unit":"AUD"},
+	    "unit_cost_foreign": {"amount":10, "unit":"CHF"}
 	  },
 	  "count":10,
 	  "currency":"CHF",
 	  "gains": {
 	    "rea": {},
 	    "unr": {
-	      "forex": {"amount":400.0, "unit":"AUD"},
-	      "market_converted": {"amount":0.0, "unit":"AUD"},
-	      "market_foreign": {"amount":0.0, "unit":"CHF"}
+	      "forex": {"amount":400, "unit":"AUD"},
+	      "market_converted": {"amount":0, "unit":"AUD"},
+	      "market_foreign": {"amount":0, "unit":"CHF"}
 	    }
 	  },
 	  "id":"iri1",
 	  "on_hand_at_cost": {
 	    "count":10,
-	    "total_converted_at_balance": {"amount":600.0, "unit":"AUD"},
-	    "total_converted_at_purchase": {"amount":200.0, "unit":"AUD"},
-	    "total_foreign": {"amount":100.0, "unit":"CHF"},
-	    "total_forex_gain": {"amount":400.0, "unit":"AUD"},
-	    "unit_cost_foreign": {"amount":10.0, "unit":"CHF"}
+	    "total_converted_at_balance": {"amount":600, "unit":"AUD"},
+	    "total_converted_at_purchase": {"amount":200, "unit":"AUD"},
+	    "total_foreign": {"amount":100, "unit":"CHF"},
+	    "total_forex_gain": {"amount":400, "unit":"AUD"},
+	    "unit_cost_foreign": {"amount":10, "unit":"CHF"}
 	  },
 	  "opening": {},
 	  "purchase": {
-	    "conversion":"exchange_rate(date(2015,1,1),'CHF','AUD',2.0)",
+	    "conversion":"exchange_rate(date(2015,1,1),'CHF','AUD',2)",
 	    "date":"date(2015,1,1)",
-	    "total_cost_converted": {"amount":200.0, "unit":"AUD"},
-	    "total_cost_foreign": {"amount":100.0, "unit":"CHF"},
-	    "unit_cost_converted": {"amount":20.0, "unit":"AUD"},
-	    "unit_cost_foreign": {"amount":10.0, "unit":"CHF"}
+	    "total_cost_converted": {"amount":200, "unit":"AUD"},
+	    "total_cost_foreign": {"amount":100, "unit":"CHF"},
+	    "unit_cost_converted": {"amount":20, "unit":"AUD"},
+	    "unit_cost_foreign": {"amount":10, "unit":"CHF"}
 	  },
 	  "sale": {},
 	  "unit":"Leonteq_N"
@@ -177,24 +217,24 @@
       ],
       "totals": {
 	"closing": {
-	  "total_cost_converted": [ {"amount":600.0, "unit":"AUD"} ],
-	  "total_cost_foreign": [ {"amount":100.0, "unit":"CHF"} ]
+	  "total_cost_converted": [ {"amount":600, "unit":"AUD"} ],
+	  "total_cost_foreign": [ {"amount":100, "unit":"CHF"} ]
 	},
 	"gains": {
 	  "rea": {"forex": [], "market_converted": [], "market_foreign": []},
 	  "realized_total": [],
-	  "total": [ {"amount":400.0, "unit":"AUD"} ],
+	  "total": [ {"amount":400, "unit":"AUD"} ],
 	  "unr": {
-	    "forex": [ {"amount":400.0, "unit":"AUD"} ],
-	    "market_converted": [ {"amount":0.0, "unit":"AUD"} ],
-	    "market_foreign": [ {"amount":0.0, "unit":"CHF"} ]
+	    "forex": [ {"amount":400, "unit":"AUD"} ],
+	    "market_converted": [ {"amount":0, "unit":"AUD"} ],
+	    "market_foreign": [ {"amount":0, "unit":"CHF"} ]
 	  },
-	  "unrealized_total": [ {"amount":400.0, "unit":"AUD"} ]
+	  "unrealized_total": [ {"amount":400, "unit":"AUD"} ]
 	},
 	"on_hand_at_cost": {
-	  "total_converted_at_balance": [ {"amount":600.0, "unit":"AUD"} ],
-	  "total_converted_at_purchase": [ {"amount":200.0, "unit":"AUD"} ],
-	  "total_forex_gain": [ {"amount":400.0, "unit":"AUD"} ]
+	  "total_converted_at_balance": [ {"amount":600, "unit":"AUD"} ],
+	  "total_converted_at_purchase": [ {"amount":200, "unit":"AUD"} ],
+	  "total_forex_gain": [ {"amount":400, "unit":"AUD"} ]
 	},
 	"opening": {"total_cost_converted": [], "total_cost_foreign": []}
       }
@@ -202,10 +242,10 @@
   },
   "pl": {
     "current": [
-      "entry('NetIncomeLoss',[],[entry('Expenses',[],[entry('AccountingFees',[],[],0),entry('BankCharges',[],[],0),entry('CostOfGoodsLivestock',[],[],0),entry('ForexLoss',[],[],0),entry('InterestExpenses',[],[],0),entry('LivestockAdjustment',[],[],0),entry('OtherExpenses',[],[],0),entry('Purchases',[],[],0)],0),entry('Revenue',[],[entry('ClearingAccount',[],[],0),entry('CurrencyMovement',[coord('AUD',200.0)],[entry('CurrencyMovementCHF_Bank',[coord('AUD',200.0)],[],1)],1),entry('Income',[],[],0),entry('InvestmentIncome',[coord('AUD',-200.0)],[entry('InvestmentIncomeRealized',[],[entry('InvestmentIncomeRealizedOnlyCurrencyMovement',[],[entry('InvestmentIncomeRealizedOnlyCurrencyMovementLeonteq_N',[],[],0)],0),entry('InvestmentIncomeRealizedWithoutCurrencyMovement',[],[entry('InvestmentIncomeRealizedWithoutCurrencyMovementLeonteq_N',[],[],0)],0)],0),entry('InvestmentIncomeUnrealized',[coord('AUD',-200.0)],[entry('InvestmentIncomeUnrealizedOnlyCurrencyMovement',[coord('AUD',-200.0)],[entry('InvestmentIncomeUnrealizedOnlyCurrencyMovementLeonteq_N',[coord('AUD',-200.0)],[],1)],1),entry('InvestmentIncomeUnrealizedWithoutCurrencyMovement',[],[entry('InvestmentIncomeUnrealizedWithoutCurrencyMovementLeonteq_N',[],[],1)],1)],2)],2),entry('OtherGain',[],[],0),entry('OtherIncome',[],[entry('EarningsFinancialInvestments',[],[],0),entry('ExchangeGain',[],[],0),entry('InterestEarned',[],[],0),entry('InterestIncome',[],[],0)],0),entry('RationsRevenue',[],[],0),entry('SalesOfLivestock',[],[],0)],3)],3)"
+      "entry('NetIncomeLoss',[],[entry('Expenses',[],[entry('AccountingFees',[],[],0),entry('BankCharges',[],[],0),entry('CostOfGoodsLivestock',[],[],0),entry('ForexLoss',[],[],0),entry('InterestExpenses',[],[],0),entry('LivestockAdjustment',[],[],0),entry('OtherExpenses',[],[],0),entry('Purchases',[],[],0)],0),entry('Revenue',[],[entry('ClearingAccount',[],[],0),entry('CurrencyMovement',[coord('AUD',200)],[entry('CurrencyMovementCHF_Bank',[coord('AUD',200)],[],1)],1),entry('Income',[],[],0),entry('InvestmentIncome',[coord('AUD',-200)],[entry('InvestmentIncomeRealized',[],[entry('InvestmentIncomeRealizedOnlyCurrencyMovement',[],[entry('InvestmentIncomeRealizedOnlyCurrencyMovementLeonteq_N',[],[],0)],0),entry('InvestmentIncomeRealizedWithoutCurrencyMovement',[],[entry('InvestmentIncomeRealizedWithoutCurrencyMovementLeonteq_N',[],[],0)],0)],0),entry('InvestmentIncomeUnrealized',[coord('AUD',-200)],[entry('InvestmentIncomeUnrealizedOnlyCurrencyMovement',[coord('AUD',-200)],[entry('InvestmentIncomeUnrealizedOnlyCurrencyMovementLeonteq_N',[coord('AUD',-200)],[],1)],1),entry('InvestmentIncomeUnrealizedWithoutCurrencyMovement',[],[entry('InvestmentIncomeUnrealizedWithoutCurrencyMovementLeonteq_N',[],[],1)],1)],2)],2),entry('OtherGain',[],[],0),entry('OtherIncome',[],[entry('EarningsFinancialInvestments',[],[],0),entry('ExchangeGain',[],[],0),entry('InterestEarned',[],[],0),entry('InterestIncome',[],[],0)],0),entry('RationsRevenue',[],[],0),entry('SalesOfLivestock',[],[],0)],3)],3)"
     ],
     "historical": [
-      "entry('NetIncomeLoss',[],[entry('Expenses',[],[entry('AccountingFees',[],[],0),entry('BankCharges',[],[],0),entry('CostOfGoodsLivestock',[],[],0),entry('ForexLoss',[],[],0),entry('InterestExpenses',[],[],0),entry('LivestockAdjustment',[],[],0),entry('OtherExpenses',[],[],0),entry('Purchases',[],[],0)],0),entry('Revenue',[],[entry('ClearingAccount',[],[],0),entry('CurrencyMovement',[coord('AUD',200.0)],[entry('CurrencyMovementCHF_Bank',[coord('AUD',200.0)],[],1)],1),entry('Income',[],[],0),entry('InvestmentIncome',[coord('AUD',-200.0)],[entry('InvestmentIncomeRealized',[],[entry('InvestmentIncomeRealizedOnlyCurrencyMovement',[],[entry('InvestmentIncomeRealizedOnlyCurrencyMovementLeonteq_N',[],[],0)],0),entry('InvestmentIncomeRealizedWithoutCurrencyMovement',[],[entry('InvestmentIncomeRealizedWithoutCurrencyMovementLeonteq_N',[],[],0)],0)],0),entry('InvestmentIncomeUnrealized',[coord('AUD',-200.0)],[entry('InvestmentIncomeUnrealizedOnlyCurrencyMovement',[coord('AUD',-200.0)],[entry('InvestmentIncomeUnrealizedOnlyCurrencyMovementLeonteq_N',[coord('AUD',-200.0)],[],1)],1),entry('InvestmentIncomeUnrealizedWithoutCurrencyMovement',[],[entry('InvestmentIncomeUnrealizedWithoutCurrencyMovementLeonteq_N',[],[],1)],1)],2)],2),entry('OtherGain',[],[],0),entry('OtherIncome',[],[entry('EarningsFinancialInvestments',[],[],0),entry('ExchangeGain',[],[],0),entry('InterestEarned',[],[],0),entry('InterestIncome',[],[],0)],0),entry('RationsRevenue',[],[],0),entry('SalesOfLivestock',[],[],0)],3)],3)"
+      "entry('NetIncomeLoss',[],[entry('Expenses',[],[entry('AccountingFees',[],[],0),entry('BankCharges',[],[],0),entry('CostOfGoodsLivestock',[],[],0),entry('ForexLoss',[],[],0),entry('InterestExpenses',[],[],0),entry('LivestockAdjustment',[],[],0),entry('OtherExpenses',[],[],0),entry('Purchases',[],[],0)],0),entry('Revenue',[],[entry('ClearingAccount',[],[],0),entry('CurrencyMovement',[coord('AUD',200)],[entry('CurrencyMovementCHF_Bank',[coord('AUD',200)],[],1)],1),entry('Income',[],[],0),entry('InvestmentIncome',[coord('AUD',-200)],[entry('InvestmentIncomeRealized',[],[entry('InvestmentIncomeRealizedOnlyCurrencyMovement',[],[entry('InvestmentIncomeRealizedOnlyCurrencyMovementLeonteq_N',[],[],0)],0),entry('InvestmentIncomeRealizedWithoutCurrencyMovement',[],[entry('InvestmentIncomeRealizedWithoutCurrencyMovementLeonteq_N',[],[],0)],0)],0),entry('InvestmentIncomeUnrealized',[coord('AUD',-200)],[entry('InvestmentIncomeUnrealizedOnlyCurrencyMovement',[coord('AUD',-200)],[entry('InvestmentIncomeUnrealizedOnlyCurrencyMovementLeonteq_N',[coord('AUD',-200)],[],1)],1),entry('InvestmentIncomeUnrealizedWithoutCurrencyMovement',[],[entry('InvestmentIncomeUnrealizedWithoutCurrencyMovementLeonteq_N',[],[],1)],1)],2)],2),entry('OtherGain',[],[],0),entry('OtherIncome',[],[entry('EarningsFinancialInvestments',[],[],0),entry('ExchangeGain',[],[],0),entry('InterestEarned',[],[],0),entry('InterestIncome',[],[],0)],0),entry('RationsRevenue',[],[],0),entry('SalesOfLivestock',[],[],0)],3)],3)"
     ]
   },
   "tb": ["entry('Trial_Balance',[],[],8)" ]

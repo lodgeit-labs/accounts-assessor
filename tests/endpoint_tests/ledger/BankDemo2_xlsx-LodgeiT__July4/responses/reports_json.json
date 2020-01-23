@@ -1,67 +1,496 @@
 {
   "bs": {
     "current": [
-      "entry('NetAssets',[coord('AUD',1634557.0969044156)],[entry('Assets',[coord('AUD',1634557.0969044156)],[entry('CurrentAssets',[coord('AUD',1634557.0969044156)],[entry('AssetsLivestock',[],[entry('AssetsLivestockAtAverageCost',[],[],0),entry('AssetsLivestockAtCost',[],[],0)],0),entry('CashAndCashEquivalents',[coord('AUD',1634557.0969044156)],[entry('Banks',[coord('AUD',1634557.0969044156)],[entry('BanksCHF_Bank',[coord('AUD',1692186.2523618957)],[],7),entry('BanksUSD_Bank',[coord('AUD',-57629.155457479996)],[],6)],13)],13)],13),entry('NoncurrentAssets',[],[entry('FinancialInvestments',[],[entry('FinancialInvestmentsLeonteq_N',[],[],2),entry('FinancialInvestmentsRaiffeisen_Switzerland_B_V_',[],[],2)],4)],4)],17),entry('Liabilities',[],[entry('CurrentLiabilities',[],[entry('CurrentLoans',[],[],0),entry('Gst',[],[entry('GstPayable',[],[],0),entry('GstReceivable',[],[],0)],0)],0),entry('NoncurrentLiabilities',[],[entry('NoncurrentLoans',[],[],0)],0)],0)],17)",
-      "entry('Equity',[coord('AUD',-1634557.0969044156)],[entry('CapitalIntroduced',[],[],0),entry('Drawings',[],[],0),entry('RetainedEarnings',[coord('AUD',-376890.5987431669)],[entry('CurrentEarnings',[coord('AUD',-376890.5987431669)],[],31),entry('HistoricalEarnings',[],[],0)],31),entry('ShareCapital',[coord('AUD',-1257666.4981612486)],[],1)],32)"
+       {
+  "account":"NetAssets",
+  "balance": [ {"credit":0, "debit":1634557.0969, "unit":"AUD"} ],
+  "child_sheet_entries": [
+     {
+  "account":"Assets",
+  "balance": [ {"credit":0, "debit":1634557.0969, "unit":"AUD"} ],
+  "child_sheet_entries": [
+     {
+  "account":"CurrentAssets",
+  "balance": [ {"credit":0, "debit":1634557.0969, "unit":"AUD"} ],
+  "child_sheet_entries": [
+     {
+  "account":"AssetsLivestock",
+  "balance": [],
+  "child_sheet_entries": [
+     {
+  "account":"AssetsLivestockAtAverageCost",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"AssetsLivestockAtCost",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+}
+  ],
+  "transactions_count":0
+},
+     {
+  "account":"CashAndCashEquivalents",
+  "balance": [ {"credit":0, "debit":1634557.0969, "unit":"AUD"} ],
+  "child_sheet_entries": [
+     {
+  "account":"Banks",
+  "balance": [ {"credit":0, "debit":1634557.0969, "unit":"AUD"} ],
+  "child_sheet_entries": [
+     {
+  "account":"BanksCHF_Bank",
+  "balance": [ {"credit":0, "debit":1692186.2524, "unit":"AUD"} ],
+  "child_sheet_entries": [],
+  "transactions_count":7
+},
+     {
+  "account":"BanksUSD_Bank",
+  "balance": [ {"credit":57629.1555, "debit":0, "unit":"AUD"} ],
+  "child_sheet_entries": [],
+  "transactions_count":6
+}
+  ],
+  "transactions_count":13
+}
+  ],
+  "transactions_count":13
+}
+  ],
+  "transactions_count":13
+},
+     {
+  "account":"NoncurrentAssets",
+  "balance": [],
+  "child_sheet_entries": [
+     {
+  "account":"FinancialInvestments",
+  "balance": [],
+  "child_sheet_entries": [
+     {
+  "account":"FinancialInvestmentsLeonteq_N",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":2
+},
+     {
+  "account":"FinancialInvestmentsRaiffeisen_Switzerland_B_V_",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":2
+}
+  ],
+  "transactions_count":4
+}
+  ],
+  "transactions_count":4
+}
+  ],
+  "transactions_count":17
+},
+     {
+  "account":"Liabilities",
+  "balance": [],
+  "child_sheet_entries": [
+     {
+  "account":"CurrentLiabilities",
+  "balance": [],
+  "child_sheet_entries": [
+     {
+  "account":"CurrentLoans",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"Gst",
+  "balance": [],
+  "child_sheet_entries": [ {
+  "account":"GstPayable",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},  {
+  "account":"GstReceivable",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+} ],
+  "transactions_count":0
+}
+  ],
+  "transactions_count":0
+},
+     {
+  "account":"NoncurrentLiabilities",
+  "balance": [],
+  "child_sheet_entries": [ {
+  "account":"NoncurrentLoans",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+} ],
+  "transactions_count":0
+}
+  ],
+  "transactions_count":0
+}
+  ],
+  "transactions_count":17
+},
+       {
+  "account":"Equity",
+  "balance": [ {"credit":1634557.0969, "debit":0, "unit":"AUD"} ],
+  "child_sheet_entries": [
+     {
+  "account":"CapitalIntroduced",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"Drawings",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"RetainedEarnings",
+  "balance": [ {"credit":376890.5987, "debit":0, "unit":"AUD"} ],
+  "child_sheet_entries": [
+     {
+  "account":"CurrentEarnings",
+  "balance": [ {"credit":376890.5987, "debit":0, "unit":"AUD"} ],
+  "child_sheet_entries": [],
+  "transactions_count":31
+},
+     {
+  "account":"HistoricalEarnings",
+  "balance": [],
+  "child_sheet_entries": [ {
+  "account":"BankOpeningBalances",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+} ],
+  "transactions_count":0
+}
+  ],
+  "transactions_count":31
+},
+     {
+  "account":"ShareCapital",
+  "balance": [ {"credit":1257666.4982, "debit":0, "unit":"AUD"} ],
+  "child_sheet_entries": [],
+  "transactions_count":1
+}
+  ],
+  "transactions_count":32
+}
     ],
     "historical": [
-      "entry('NetAssets',[],[entry('Assets',[],[entry('CurrentAssets',[],[entry('AssetsLivestock',[],[entry('AssetsLivestockAtAverageCost',[],[],0),entry('AssetsLivestockAtCost',[],[],0)],0),entry('CashAndCashEquivalents',[],[entry('Banks',[],[entry('BanksCHF_Bank',[],[],0),entry('BanksUSD_Bank',[],[],0)],0)],0)],0),entry('NoncurrentAssets',[],[entry('FinancialInvestments',[],[entry('FinancialInvestmentsLeonteq_N',[],[],0),entry('FinancialInvestmentsRaiffeisen_Switzerland_B_V_',[],[],0)],0)],0)],0),entry('Liabilities',[],[entry('CurrentLiabilities',[],[entry('CurrentLoans',[],[],0),entry('Gst',[],[entry('GstPayable',[],[],0),entry('GstReceivable',[],[],0)],0)],0),entry('NoncurrentLiabilities',[],[entry('NoncurrentLoans',[],[],0)],0)],0)],0)",
-      "entry('Equity',[],[entry('CapitalIntroduced',[],[],0),entry('Drawings',[],[],0),entry('RetainedEarnings',[],[entry('CurrentEarnings',[],[],0),entry('HistoricalEarnings',[],[],0)],0),entry('ShareCapital',[],[],0)],0)"
+       {
+  "account":"NetAssets",
+  "balance": [],
+  "child_sheet_entries": [
+     {
+  "account":"Assets",
+  "balance": [],
+  "child_sheet_entries": [
+     {
+  "account":"CurrentAssets",
+  "balance": [],
+  "child_sheet_entries": [
+     {
+  "account":"AssetsLivestock",
+  "balance": [],
+  "child_sheet_entries": [
+     {
+  "account":"AssetsLivestockAtAverageCost",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"AssetsLivestockAtCost",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+}
+  ],
+  "transactions_count":0
+},
+     {
+  "account":"CashAndCashEquivalents",
+  "balance": [],
+  "child_sheet_entries": [
+     {
+  "account":"Banks",
+  "balance": [],
+  "child_sheet_entries": [ {
+  "account":"BanksCHF_Bank",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},  {
+  "account":"BanksUSD_Bank",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+} ],
+  "transactions_count":0
+}
+  ],
+  "transactions_count":0
+}
+  ],
+  "transactions_count":0
+},
+     {
+  "account":"NoncurrentAssets",
+  "balance": [],
+  "child_sheet_entries": [
+     {
+  "account":"FinancialInvestments",
+  "balance": [],
+  "child_sheet_entries": [
+     {
+  "account":"FinancialInvestmentsLeonteq_N",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"FinancialInvestmentsRaiffeisen_Switzerland_B_V_",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+}
+  ],
+  "transactions_count":0
+}
+  ],
+  "transactions_count":0
+}
+  ],
+  "transactions_count":0
+},
+     {
+  "account":"Liabilities",
+  "balance": [],
+  "child_sheet_entries": [
+     {
+  "account":"CurrentLiabilities",
+  "balance": [],
+  "child_sheet_entries": [
+     {
+  "account":"CurrentLoans",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"Gst",
+  "balance": [],
+  "child_sheet_entries": [ {
+  "account":"GstPayable",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},  {
+  "account":"GstReceivable",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+} ],
+  "transactions_count":0
+}
+  ],
+  "transactions_count":0
+},
+     {
+  "account":"NoncurrentLiabilities",
+  "balance": [],
+  "child_sheet_entries": [ {
+  "account":"NoncurrentLoans",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+} ],
+  "transactions_count":0
+}
+  ],
+  "transactions_count":0
+}
+  ],
+  "transactions_count":0
+},
+       {
+  "account":"Equity",
+  "balance": [],
+  "child_sheet_entries": [
+     {
+  "account":"CapitalIntroduced",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"Drawings",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"RetainedEarnings",
+  "balance": [],
+  "child_sheet_entries": [
+     {
+  "account":"CurrentEarnings",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"HistoricalEarnings",
+  "balance": [],
+  "child_sheet_entries": [ {
+  "account":"BankOpeningBalances",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+} ],
+  "transactions_count":0
+}
+  ],
+  "transactions_count":0
+},
+     {
+  "account":"ShareCapital",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+}
+  ],
+  "transactions_count":0
+}
     ]
   },
   "crosschecks": {
     "errors": [],
     "results": [
-      [
-	"account_balance(reports/pl/current,'InvestmentIncomeRealized'/withoutCurrencyMovement) = report_value(reports/ir/current/totals/gains/rea/market_converted)",
-	"[ {\"amount\":254534.07251, \"unit\":\"AUD\"} ] = [ {\"amount\":254534.07251, \"unit\":\"AUD\"} ]",
-	"ok"
-      ],
-      [
-	"account_balance(reports/pl/current,'InvestmentIncomeRealized'/onlyCurrencyMovement) = report_value(reports/ir/current/totals/gains/rea/forex)",
-	"[ {\"amount\":4471.94568, \"unit\":\"AUD\"} ] = [ {\"amount\":4471.94568, \"unit\":\"AUD\"} ]",
-	"ok"
-      ],
-      [
-	"account_balance(reports/pl/current,'InvestmentIncomeUnrealized'/withoutCurrencyMovement) = report_value(reports/ir/current/totals/gains/unr/market_converted)",
-	"[ {\"amount\":0.0, \"unit\":\"AUD\"} ] = []",
-	"ok"
-      ],
-      [
-	"account_balance(reports/pl/current,'InvestmentIncomeUnrealized'/onlyCurrencyMovement) = report_value(reports/ir/current/totals/gains/unr/forex)",
-	"[] = []",
-	"ok"
-      ],
-      [
-	"account_balance(reports/pl/current,'Accounts'/'InvestmentIncome') = report_value(reports/ir/current/totals/gains/total)",
-	"[ {\"amount\":259006.01819, \"unit\":\"AUD\"} ] = [ {\"amount\":259006.01819, \"unit\":\"AUD\"} ]",
-	"ok"
-      ],
-      [
-	"account_balance(reports/pl/current,'InvestmentIncome'/unrealized) = report_value(reports/ir/current/totals/gains/unrealized_total)",
-	"[ {\"amount\":0.0, \"unit\":\"AUD\"} ] = []",
-	"ok"
-      ],
-      [
-	"account_balance(reports/pl/current,'InvestmentIncome'/realized) = report_value(reports/ir/current/totals/gains/realized_total)",
-	"[ {\"amount\":259006.01819, \"unit\":\"AUD\"} ] = [ {\"amount\":259006.01819, \"unit\":\"AUD\"} ]",
-	"ok"
-      ],
-      [
-	"account_balance(reports/bs/current,'Accounts'/'FinancialInvestments') = report_value(reports/ir/current/totals/closing/total_cost_converted)",
-	"[] = []",
-	"ok"
-      ],
-      [
-	"account_balance(reports/bs/current,'Accounts'/'HistoricalEarnings') = account_balance(reports/pl/historical,'Accounts'/'NetIncomeLoss')",
-	"[] = []",
-	"ok"
-      ],
-      [
-	"account_balance(reports/bs/current,'Accounts'/'NetAssets') = account_balance(reports/bs/current,'Accounts'/'Equity')",
-	"[ {\"amount\":1634557.096904, \"unit\":\"AUD\"} ] = [ {\"amount\":1634557.096904, \"unit\":\"AUD\"} ]",
-	"ok"
-      ]
+      {
+	"check": {
+	  "a":"account_balance(reports/pl/current,'InvestmentIncomeRealized'/withoutCurrencyMovement)",
+	  "b":"report_value(reports/ir/current/totals/gains/rea/market_converted)",
+	  "op":"="
+	},
+	"evaluation": {
+	  "a": [ {"amount":254534.0725, "unit":"AUD"} ],
+	  "b": [ {"amount":254534.0725, "unit":"AUD"} ],
+	  "op":"="
+	},
+	"status":"ok"
+      },
+      {
+	"check": {
+	  "a":"account_balance(reports/pl/current,'InvestmentIncomeRealized'/onlyCurrencyMovement)",
+	  "b":"report_value(reports/ir/current/totals/gains/rea/forex)",
+	  "op":"="
+	},
+	"evaluation": {
+	  "a": [ {"amount":4471.9457, "unit":"AUD"} ],
+	  "b": [ {"amount":4471.9457, "unit":"AUD"} ],
+	  "op":"="
+	},
+	"status":"ok"
+      },
+      {
+	"check": {
+	  "a":"account_balance(reports/pl/current,'InvestmentIncomeUnrealized'/withoutCurrencyMovement)",
+	  "b":"report_value(reports/ir/current/totals/gains/unr/market_converted)",
+	  "op":"="
+	},
+	"evaluation": {"a": [], "b": [], "op":"="},
+	"status":"ok"
+      },
+      {
+	"check": {
+	  "a":"account_balance(reports/pl/current,'InvestmentIncomeUnrealized'/onlyCurrencyMovement)",
+	  "b":"report_value(reports/ir/current/totals/gains/unr/forex)",
+	  "op":"="
+	},
+	"evaluation": {"a": [], "b": [], "op":"="},
+	"status":"ok"
+      },
+      {
+	"check": {
+	  "a":"account_balance(reports/pl/current,'Accounts'/'InvestmentIncome')",
+	  "b":"report_value(reports/ir/current/totals/gains/total)",
+	  "op":"="
+	},
+	"evaluation": {
+	  "a": [ {"amount":259006.0182, "unit":"AUD"} ],
+	  "b": [ {"amount":259006.0182, "unit":"AUD"} ],
+	  "op":"="
+	},
+	"status":"ok"
+      },
+      {
+	"check": {
+	  "a":"account_balance(reports/pl/current,'InvestmentIncome'/unrealized)",
+	  "b":"report_value(reports/ir/current/totals/gains/unrealized_total)",
+	  "op":"="
+	},
+	"evaluation": {"a": [], "b": [], "op":"="},
+	"status":"ok"
+      },
+      {
+	"check": {
+	  "a":"account_balance(reports/pl/current,'InvestmentIncome'/realized)",
+	  "b":"report_value(reports/ir/current/totals/gains/realized_total)",
+	  "op":"="
+	},
+	"evaluation": {
+	  "a": [ {"amount":259006.0182, "unit":"AUD"} ],
+	  "b": [ {"amount":259006.0182, "unit":"AUD"} ],
+	  "op":"="
+	},
+	"status":"ok"
+      },
+      {
+	"check": {
+	  "a":"account_balance(reports/bs/current,'Accounts'/'FinancialInvestments')",
+	  "b":"report_value(reports/ir/current/totals/closing/total_cost_converted)",
+	  "op":"="
+	},
+	"evaluation": {"a": [], "b": [], "op":"="},
+	"status":"ok"
+      },
+      {
+	"check": {
+	  "a":"account_balance(reports/bs/current,'Accounts'/'HistoricalEarnings')",
+	  "b":"account_balance(reports/pl/historical,'Accounts'/'NetIncomeLoss')",
+	  "op":"="
+	},
+	"evaluation": {"a": [], "b": [], "op":"="},
+	"status":"ok"
+      },
+      {
+	"check": {
+	  "a":"account_balance(reports/bs/current,'Accounts'/'NetAssets')",
+	  "b":"account_balance(reports/bs/current,'Accounts'/'Equity')",
+	  "op":"="
+	},
+	"evaluation": {
+	  "a": [ {"amount":1634557.0969, "unit":"AUD"} ],
+	  "b": [ {"amount":1634557.0969, "unit":"AUD"} ],
+	  "op":"="
+	},
+	"status":"ok"
+      }
     ]
   },
   "ir": {
@@ -74,7 +503,7 @@
 	  "gains": {
 	    "rea": {
 	      "forex": {"amount":3730.32, "unit":"AUD"},
-	      "market_converted": {"amount":187545.277776, "unit":"AUD"},
+	      "market_converted": {"amount":187545.2778, "unit":"AUD"},
 	      "market_foreign": {"amount":139123.9, "unit":"CHF"}
 	    },
 	    "unr": {}
@@ -82,20 +511,20 @@
 	  "id":"iri2",
 	  "opening": {},
 	  "purchase": {
-	    "conversion":"exchange_rate(date(2018,10,1),'CHF','AUD',1.348045)",
+	    "conversion": {"day":"date(2018,10,1)", "dst":"AUD", "rate":1.348, "src":"CHF"},
 	    "date":"date(2018,10,1)",
-	    "total_cost_converted": {"amount":109024.622224, "unit":"AUD"},
+	    "total_cost_converted": {"amount":109024.6222, "unit":"AUD"},
 	    "total_cost_foreign": {"amount":80876.1, "unit":"CHF"},
-	    "unit_cost_converted": {"amount":3.634154, "unit":"AUD"},
-	    "unit_cost_foreign": {"amount":2.69587, "unit":"CHF"}
+	    "unit_cost_converted": {"amount":3.6342, "unit":"AUD"},
+	    "unit_cost_foreign": {"amount":2.6959, "unit":"CHF"}
 	  },
 	  "sale": {
-	    "conversion":"exchange_rate(date(2018,12,30),'CHF','AUD',1.365001)",
+	    "conversion": {"day":"date(2018,12,30)", "dst":"AUD", "rate":1.365, "src":"CHF"},
 	    "date":"date(2018,12,30)",
 	    "total_cost_converted": {"amount":300300.22, "unit":"AUD"},
-	    "total_cost_foreign": {"amount":220000.0, "unit":"CHF"},
-	    "unit_cost_converted": {"amount":10.010007, "unit":"AUD"},
-	    "unit_cost_foreign": {"amount":7.333333, "unit":"CHF"}
+	    "total_cost_foreign": {"amount":220000, "unit":"CHF"},
+	    "unit_cost_converted": {"amount":10.01, "unit":"AUD"},
+	    "unit_cost_foreign": {"amount":7.3333, "unit":"CHF"}
 	  },
 	  "unit":"Leonteq_N"
 	},
@@ -105,8 +534,8 @@
 	  "currency":"USD",
 	  "gains": {
 	    "rea": {
-	      "forex": {"amount":741.62568, "unit":"AUD"},
-	      "market_converted": {"amount":66988.794734, "unit":"AUD"},
+	      "forex": {"amount":741.6257, "unit":"AUD"},
+	      "market_converted": {"amount":66988.7947, "unit":"AUD"},
 	      "market_foreign": {"amount":49517.16, "unit":"USD"}
 	    },
 	    "unr": {}
@@ -114,20 +543,20 @@
 	  "id":"iri1",
 	  "opening": {},
 	  "purchase": {
-	    "conversion":"exchange_rate(date(2018,7,2),'USD','AUD',1.35284)",
+	    "conversion": {"day":"date(2018,7,2)", "dst":"AUD", "rate":1.3528, "src":"USD"},
 	    "date":"date(2018,7,2)",
-	    "total_cost_converted": {"amount":56281.986066, "unit":"AUD"},
+	    "total_cost_converted": {"amount":56281.9861, "unit":"AUD"},
 	    "total_cost_foreign": {"amount":41602.84, "unit":"USD"},
-	    "unit_cost_converted": {"amount":26.993758, "unit":"AUD"},
+	    "unit_cost_converted": {"amount":26.9938, "unit":"AUD"},
 	    "unit_cost_foreign": {"amount":19.9534, "unit":"USD"}
 	  },
 	  "sale": {
-	    "conversion":"exchange_rate(date(2018,7,12),'USD','AUD',1.360979)",
+	    "conversion": {"day":"date(2018,7,12)", "dst":"AUD", "rate":1.361, "src":"USD"},
 	    "date":"date(2018,7,12)",
-	    "total_cost_converted": {"amount":124012.40648, "unit":"AUD"},
-	    "total_cost_foreign": {"amount":91120.0, "unit":"USD"},
-	    "unit_cost_converted": {"amount":59.478372, "unit":"AUD"},
-	    "unit_cost_foreign": {"amount":43.702638, "unit":"USD"}
+	    "total_cost_converted": {"amount":124012.4065, "unit":"AUD"},
+	    "total_cost_foreign": {"amount":91120, "unit":"USD"},
+	    "unit_cost_converted": {"amount":59.4784, "unit":"AUD"},
+	    "unit_cost_foreign": {"amount":43.7026, "unit":"USD"}
 	  },
 	  "unit":"Raiffeisen Switzerland_B.V."
 	}
@@ -136,12 +565,12 @@
 	"closing": {"total_cost_converted": [], "total_cost_foreign": []},
 	"gains": {
 	  "rea": {
-	    "forex": [ {"amount":4471.94568, "unit":"AUD"} ],
-	    "market_converted": [ {"amount":254534.07251, "unit":"AUD"} ],
+	    "forex": [ {"amount":4471.9457, "unit":"AUD"} ],
+	    "market_converted": [ {"amount":254534.0725, "unit":"AUD"} ],
 	    "market_foreign": [ {"amount":139123.9, "unit":"CHF"},  {"amount":49517.16, "unit":"USD"} ]
 	  },
-	  "realized_total": [ {"amount":259006.01819, "unit":"AUD"} ],
-	  "total": [ {"amount":259006.01819, "unit":"AUD"} ],
+	  "realized_total": [ {"amount":259006.0182, "unit":"AUD"} ],
+	  "total": [ {"amount":259006.0182, "unit":"AUD"} ],
 	  "unr": {"forex": [], "market_converted": [], "market_foreign": []},
 	  "unrealized_total": []
 	},
@@ -162,7 +591,7 @@
 	  "gains": {
 	    "rea": {
 	      "forex": {"amount":3730.32, "unit":"AUD"},
-	      "market_converted": {"amount":187545.277776, "unit":"AUD"},
+	      "market_converted": {"amount":187545.2778, "unit":"AUD"},
 	      "market_foreign": {"amount":139123.9, "unit":"CHF"}
 	    },
 	    "unr": {}
@@ -170,20 +599,20 @@
 	  "id":"iri2",
 	  "opening": {},
 	  "purchase": {
-	    "conversion":"exchange_rate(date(2018,10,1),'CHF','AUD',1.348045)",
+	    "conversion": {"day":"date(2018,10,1)", "dst":"AUD", "rate":1.348, "src":"CHF"},
 	    "date":"date(2018,10,1)",
-	    "total_cost_converted": {"amount":109024.622224, "unit":"AUD"},
+	    "total_cost_converted": {"amount":109024.6222, "unit":"AUD"},
 	    "total_cost_foreign": {"amount":80876.1, "unit":"CHF"},
-	    "unit_cost_converted": {"amount":3.634154, "unit":"AUD"},
-	    "unit_cost_foreign": {"amount":2.69587, "unit":"CHF"}
+	    "unit_cost_converted": {"amount":3.6342, "unit":"AUD"},
+	    "unit_cost_foreign": {"amount":2.6959, "unit":"CHF"}
 	  },
 	  "sale": {
-	    "conversion":"exchange_rate(date(2018,12,30),'CHF','AUD',1.365001)",
+	    "conversion": {"day":"date(2018,12,30)", "dst":"AUD", "rate":1.365, "src":"CHF"},
 	    "date":"date(2018,12,30)",
 	    "total_cost_converted": {"amount":300300.22, "unit":"AUD"},
-	    "total_cost_foreign": {"amount":220000.0, "unit":"CHF"},
-	    "unit_cost_converted": {"amount":10.010007, "unit":"AUD"},
-	    "unit_cost_foreign": {"amount":7.333333, "unit":"CHF"}
+	    "total_cost_foreign": {"amount":220000, "unit":"CHF"},
+	    "unit_cost_converted": {"amount":10.01, "unit":"AUD"},
+	    "unit_cost_foreign": {"amount":7.3333, "unit":"CHF"}
 	  },
 	  "unit":"Leonteq_N"
 	},
@@ -193,8 +622,8 @@
 	  "currency":"USD",
 	  "gains": {
 	    "rea": {
-	      "forex": {"amount":741.62568, "unit":"AUD"},
-	      "market_converted": {"amount":66988.794734, "unit":"AUD"},
+	      "forex": {"amount":741.6257, "unit":"AUD"},
+	      "market_converted": {"amount":66988.7947, "unit":"AUD"},
 	      "market_foreign": {"amount":49517.16, "unit":"USD"}
 	    },
 	    "unr": {}
@@ -202,20 +631,20 @@
 	  "id":"iri1",
 	  "opening": {},
 	  "purchase": {
-	    "conversion":"exchange_rate(date(2018,7,2),'USD','AUD',1.35284)",
+	    "conversion": {"day":"date(2018,7,2)", "dst":"AUD", "rate":1.3528, "src":"USD"},
 	    "date":"date(2018,7,2)",
-	    "total_cost_converted": {"amount":56281.986066, "unit":"AUD"},
+	    "total_cost_converted": {"amount":56281.9861, "unit":"AUD"},
 	    "total_cost_foreign": {"amount":41602.84, "unit":"USD"},
-	    "unit_cost_converted": {"amount":26.993758, "unit":"AUD"},
+	    "unit_cost_converted": {"amount":26.9938, "unit":"AUD"},
 	    "unit_cost_foreign": {"amount":19.9534, "unit":"USD"}
 	  },
 	  "sale": {
-	    "conversion":"exchange_rate(date(2018,7,12),'USD','AUD',1.360979)",
+	    "conversion": {"day":"date(2018,7,12)", "dst":"AUD", "rate":1.361, "src":"USD"},
 	    "date":"date(2018,7,12)",
-	    "total_cost_converted": {"amount":124012.40648, "unit":"AUD"},
-	    "total_cost_foreign": {"amount":91120.0, "unit":"USD"},
-	    "unit_cost_converted": {"amount":59.478372, "unit":"AUD"},
-	    "unit_cost_foreign": {"amount":43.702638, "unit":"USD"}
+	    "total_cost_converted": {"amount":124012.4065, "unit":"AUD"},
+	    "total_cost_foreign": {"amount":91120, "unit":"USD"},
+	    "unit_cost_converted": {"amount":59.4784, "unit":"AUD"},
+	    "unit_cost_foreign": {"amount":43.7026, "unit":"USD"}
 	  },
 	  "unit":"Raiffeisen Switzerland_B.V."
 	}
@@ -224,12 +653,12 @@
 	"closing": {"total_cost_converted": [], "total_cost_foreign": []},
 	"gains": {
 	  "rea": {
-	    "forex": [ {"amount":4471.94568, "unit":"AUD"} ],
-	    "market_converted": [ {"amount":254534.07251, "unit":"AUD"} ],
+	    "forex": [ {"amount":4471.9457, "unit":"AUD"} ],
+	    "market_converted": [ {"amount":254534.0725, "unit":"AUD"} ],
 	    "market_foreign": [ {"amount":139123.9, "unit":"CHF"},  {"amount":49517.16, "unit":"USD"} ]
 	  },
-	  "realized_total": [ {"amount":259006.01819, "unit":"AUD"} ],
-	  "total": [ {"amount":259006.01819, "unit":"AUD"} ],
+	  "realized_total": [ {"amount":259006.0182, "unit":"AUD"} ],
+	  "total": [ {"amount":259006.0182, "unit":"AUD"} ],
 	  "unr": {"forex": [], "market_converted": [], "market_foreign": []},
 	  "unrealized_total": []
 	},
@@ -244,11 +673,506 @@
   },
   "pl": {
     "current": [
-      "entry('NetIncomeLoss',[coord('AUD',-376890.5987431669)],[entry('Expenses',[coord('AUD',3508.7969185)],[entry('AccountingFees',[coord('AUD',1362.583)],[],1),entry('BankCharges',[coord('AUD',2146.2139185)],[],2),entry('CostOfGoodsLivestock',[],[],0),entry('ForexLoss',[],[],0),entry('InterestExpenses',[],[],0),entry('LivestockAdjustment',[],[],0),entry('OtherExpenses',[],[],0),entry('Purchases',[],[],0)],3),entry('Revenue',[coord('AUD',-380399.3956616671)],[entry('ClearingAccount',[],[],0),entry('CurrencyMovement',[coord('AUD',-100214.01435676697)],[entry('CurrencyMovementCHF_Bank',[coord('AUD',-103288.12064864708)],[],7),entry('CurrencyMovementUSD_Bank',[coord('AUD',3074.1062918799726)],[],5)],12),entry('Income',[],[],0),entry('InvestmentIncome',[coord('AUD',-259006.01818989997)],[entry('InvestmentIncomeRealized',[coord('AUD',-259006.01818990003)],[entry('InvestmentIncomeRealizedOnlyCurrencyMovement',[coord('AUD',-4471.945680000004)],[entry('InvestmentIncomeRealizedOnlyCurrencyMovementLeonteq_N',[coord('AUD',-3730.320000000007)],[],1),entry('InvestmentIncomeRealizedOnlyCurrencyMovementRaiffeisen_Switzerland_B_V_',[coord('AUD',-741.6256799999828)],[],1)],2),entry('InvestmentIncomeRealizedWithoutCurrencyMovement',[coord('AUD',-254534.07250990003)],[entry('InvestmentIncomeRealizedWithoutCurrencyMovementLeonteq_N',[coord('AUD',-187545.2777755)],[],1),entry('InvestmentIncomeRealizedWithoutCurrencyMovementRaiffeisen_Switzerland_B_V_',[coord('AUD',-66988.79473440003)],[],1)],2)],4),entry('InvestmentIncomeUnrealized',[coord('AUD',1.4551915228366852e-11)],[entry('InvestmentIncomeUnrealizedOnlyCurrencyMovement',[],[entry('InvestmentIncomeUnrealizedOnlyCurrencyMovementLeonteq_N',[],[],2),entry('InvestmentIncomeUnrealizedOnlyCurrencyMovementRaiffeisen_Switzerland_B_V_',[],[],2)],4),entry('InvestmentIncomeUnrealizedWithoutCurrencyMovement',[coord('AUD',1.4551915228366852e-11)],[entry('InvestmentIncomeUnrealizedWithoutCurrencyMovementLeonteq_N',[coord('AUD',1.4551915228366852e-11)],[],2),entry('InvestmentIncomeUnrealizedWithoutCurrencyMovementRaiffeisen_Switzerland_B_V_',[coord('AUD',7.275957614183426e-12)],[],2)],4)],8)],12),entry('OtherGain',[],[],0),entry('OtherIncome',[coord('AUD',-21179.363114999986)],[entry('EarningsFinancialInvestments',[],[],0),entry('ExchangeGain',[coord('AUD',-19561.889999999985)],[],2),entry('InterestEarned',[coord('AUD',-1617.473115)],[],2),entry('InterestIncome',[],[],0)],4),entry('RationsRevenue',[],[],0),entry('SalesOfLivestock',[],[],0)],28)],31)"
+       {
+  "account":"NetIncomeLoss",
+  "balance": [ {"credit":376890.5987, "debit":0, "unit":"AUD"} ],
+  "child_sheet_entries": [
+     {
+  "account":"Expenses",
+  "balance": [ {"credit":0, "debit":3508.7969, "unit":"AUD"} ],
+  "child_sheet_entries": [
+     {
+  "account":"AccountingFees",
+  "balance": [ {"credit":0, "debit":1362.583, "unit":"AUD"} ],
+  "child_sheet_entries": [],
+  "transactions_count":1
+},
+     {
+  "account":"BankCharges",
+  "balance": [ {"credit":0, "debit":2146.2139, "unit":"AUD"} ],
+  "child_sheet_entries": [],
+  "transactions_count":2
+},
+     {
+  "account":"CostOfGoodsLivestock",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"ForexLoss",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"InterestExpenses",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"LivestockAdjustment",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"OtherExpenses",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"Purchases",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+}
+  ],
+  "transactions_count":3
+},
+     {
+  "account":"Revenue",
+  "balance": [ {"credit":380399.3957, "debit":0, "unit":"AUD"} ],
+  "child_sheet_entries": [
+     {
+  "account":"ClearingAccount",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"CurrencyMovement",
+  "balance": [ {"credit":100214.0144, "debit":0, "unit":"AUD"} ],
+  "child_sheet_entries": [
+     {
+  "account":"CurrencyMovementCHF_Bank",
+  "balance": [ {"credit":103288.1206, "debit":0, "unit":"AUD"} ],
+  "child_sheet_entries": [],
+  "transactions_count":7
+},
+     {
+  "account":"CurrencyMovementUSD_Bank",
+  "balance": [ {"credit":0, "debit":3074.1063, "unit":"AUD"} ],
+  "child_sheet_entries": [],
+  "transactions_count":5
+}
+  ],
+  "transactions_count":12
+},
+     {
+  "account":"Income",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"InvestmentIncome",
+  "balance": [ {"credit":259006.0182, "debit":0, "unit":"AUD"} ],
+  "child_sheet_entries": [
+     {
+  "account":"InvestmentIncomeRealized",
+  "balance": [ {"credit":259006.0182, "debit":0, "unit":"AUD"} ],
+  "child_sheet_entries": [
+     {
+  "account":"InvestmentIncomeRealizedOnlyCurrencyMovement",
+  "balance": [ {"credit":4471.9457, "debit":0, "unit":"AUD"} ],
+  "child_sheet_entries": [
+     {
+  "account":"InvestmentIncomeRealizedOnlyCurrencyMovementLeonteq_N",
+  "balance": [ {"credit":3730.32, "debit":0, "unit":"AUD"} ],
+  "child_sheet_entries": [],
+  "transactions_count":1
+},
+     {
+  "account":"InvestmentIncomeRealizedOnlyCurrencyMovementRaiffeisen_Switzerland_B_V_",
+  "balance": [ {"credit":741.6257, "debit":0, "unit":"AUD"} ],
+  "child_sheet_entries": [],
+  "transactions_count":1
+}
+  ],
+  "transactions_count":2
+},
+     {
+  "account":"InvestmentIncomeRealizedWithoutCurrencyMovement",
+  "balance": [ {"credit":254534.0725, "debit":0, "unit":"AUD"} ],
+  "child_sheet_entries": [
+     {
+  "account":"InvestmentIncomeRealizedWithoutCurrencyMovementLeonteq_N",
+  "balance": [ {"credit":187545.2778, "debit":0, "unit":"AUD"} ],
+  "child_sheet_entries": [],
+  "transactions_count":1
+},
+     {
+  "account":"InvestmentIncomeRealizedWithoutCurrencyMovementRaiffeisen_Switzerland_B_V_",
+  "balance": [ {"credit":66988.7947, "debit":0, "unit":"AUD"} ],
+  "child_sheet_entries": [],
+  "transactions_count":1
+}
+  ],
+  "transactions_count":2
+}
+  ],
+  "transactions_count":4
+},
+     {
+  "account":"InvestmentIncomeUnrealized",
+  "balance": [],
+  "child_sheet_entries": [
+     {
+  "account":"InvestmentIncomeUnrealizedOnlyCurrencyMovement",
+  "balance": [],
+  "child_sheet_entries": [
+     {
+  "account":"InvestmentIncomeUnrealizedOnlyCurrencyMovementLeonteq_N",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":2
+},
+     {
+  "account":"InvestmentIncomeUnrealizedOnlyCurrencyMovementRaiffeisen_Switzerland_B_V_",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":2
+}
+  ],
+  "transactions_count":4
+},
+     {
+  "account":"InvestmentIncomeUnrealizedWithoutCurrencyMovement",
+  "balance": [],
+  "child_sheet_entries": [
+     {
+  "account":"InvestmentIncomeUnrealizedWithoutCurrencyMovementLeonteq_N",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":2
+},
+     {
+  "account":"InvestmentIncomeUnrealizedWithoutCurrencyMovementRaiffeisen_Switzerland_B_V_",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":2
+}
+  ],
+  "transactions_count":4
+}
+  ],
+  "transactions_count":8
+}
+  ],
+  "transactions_count":12
+},
+     {
+  "account":"OtherGain",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"OtherIncome",
+  "balance": [ {"credit":21179.3631, "debit":0, "unit":"AUD"} ],
+  "child_sheet_entries": [
+     {
+  "account":"EarningsFinancialInvestments",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"ExchangeGain",
+  "balance": [ {"credit":19561.89, "debit":0, "unit":"AUD"} ],
+  "child_sheet_entries": [],
+  "transactions_count":2
+},
+     {
+  "account":"InterestEarned",
+  "balance": [ {"credit":1617.4731, "debit":0, "unit":"AUD"} ],
+  "child_sheet_entries": [],
+  "transactions_count":2
+},
+     {
+  "account":"InterestIncome",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+}
+  ],
+  "transactions_count":4
+},
+     {
+  "account":"RationsRevenue",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"SalesOfLivestock",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+}
+  ],
+  "transactions_count":28
+}
+  ],
+  "transactions_count":31
+}
     ],
     "historical": [
-      "entry('NetIncomeLoss',[],[entry('Expenses',[],[entry('AccountingFees',[],[],0),entry('BankCharges',[],[],0),entry('CostOfGoodsLivestock',[],[],0),entry('ForexLoss',[],[],0),entry('InterestExpenses',[],[],0),entry('LivestockAdjustment',[],[],0),entry('OtherExpenses',[],[],0),entry('Purchases',[],[],0)],0),entry('Revenue',[],[entry('ClearingAccount',[],[],0),entry('CurrencyMovement',[],[entry('CurrencyMovementCHF_Bank',[],[],0),entry('CurrencyMovementUSD_Bank',[],[],0)],0),entry('Income',[],[],0),entry('InvestmentIncome',[],[entry('InvestmentIncomeRealized',[],[entry('InvestmentIncomeRealizedOnlyCurrencyMovement',[],[entry('InvestmentIncomeRealizedOnlyCurrencyMovementLeonteq_N',[],[],0),entry('InvestmentIncomeRealizedOnlyCurrencyMovementRaiffeisen_Switzerland_B_V_',[],[],0)],0),entry('InvestmentIncomeRealizedWithoutCurrencyMovement',[],[entry('InvestmentIncomeRealizedWithoutCurrencyMovementLeonteq_N',[],[],0),entry('InvestmentIncomeRealizedWithoutCurrencyMovementRaiffeisen_Switzerland_B_V_',[],[],0)],0)],0),entry('InvestmentIncomeUnrealized',[],[entry('InvestmentIncomeUnrealizedOnlyCurrencyMovement',[],[entry('InvestmentIncomeUnrealizedOnlyCurrencyMovementLeonteq_N',[],[],0),entry('InvestmentIncomeUnrealizedOnlyCurrencyMovementRaiffeisen_Switzerland_B_V_',[],[],0)],0),entry('InvestmentIncomeUnrealizedWithoutCurrencyMovement',[],[entry('InvestmentIncomeUnrealizedWithoutCurrencyMovementLeonteq_N',[],[],0),entry('InvestmentIncomeUnrealizedWithoutCurrencyMovementRaiffeisen_Switzerland_B_V_',[],[],0)],0)],0)],0),entry('OtherGain',[],[],0),entry('OtherIncome',[],[entry('EarningsFinancialInvestments',[],[],0),entry('ExchangeGain',[],[],0),entry('InterestEarned',[],[],0),entry('InterestIncome',[],[],0)],0),entry('RationsRevenue',[],[],0),entry('SalesOfLivestock',[],[],0)],0)],0)"
+       {
+  "account":"NetIncomeLoss",
+  "balance": [],
+  "child_sheet_entries": [
+     {
+  "account":"Expenses",
+  "balance": [],
+  "child_sheet_entries": [
+     {
+  "account":"AccountingFees",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"BankCharges",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"CostOfGoodsLivestock",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"ForexLoss",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"InterestExpenses",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"LivestockAdjustment",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"OtherExpenses",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"Purchases",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+}
+  ],
+  "transactions_count":0
+},
+     {
+  "account":"Revenue",
+  "balance": [],
+  "child_sheet_entries": [
+     {
+  "account":"ClearingAccount",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"CurrencyMovement",
+  "balance": [],
+  "child_sheet_entries": [
+     {
+  "account":"CurrencyMovementCHF_Bank",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"CurrencyMovementUSD_Bank",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+}
+  ],
+  "transactions_count":0
+},
+     {
+  "account":"Income",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"InvestmentIncome",
+  "balance": [],
+  "child_sheet_entries": [
+     {
+  "account":"InvestmentIncomeRealized",
+  "balance": [],
+  "child_sheet_entries": [
+     {
+  "account":"InvestmentIncomeRealizedOnlyCurrencyMovement",
+  "balance": [],
+  "child_sheet_entries": [
+     {
+  "account":"InvestmentIncomeRealizedOnlyCurrencyMovementLeonteq_N",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"InvestmentIncomeRealizedOnlyCurrencyMovementRaiffeisen_Switzerland_B_V_",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+}
+  ],
+  "transactions_count":0
+},
+     {
+  "account":"InvestmentIncomeRealizedWithoutCurrencyMovement",
+  "balance": [],
+  "child_sheet_entries": [
+     {
+  "account":"InvestmentIncomeRealizedWithoutCurrencyMovementLeonteq_N",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"InvestmentIncomeRealizedWithoutCurrencyMovementRaiffeisen_Switzerland_B_V_",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+}
+  ],
+  "transactions_count":0
+}
+  ],
+  "transactions_count":0
+},
+     {
+  "account":"InvestmentIncomeUnrealized",
+  "balance": [],
+  "child_sheet_entries": [
+     {
+  "account":"InvestmentIncomeUnrealizedOnlyCurrencyMovement",
+  "balance": [],
+  "child_sheet_entries": [
+     {
+  "account":"InvestmentIncomeUnrealizedOnlyCurrencyMovementLeonteq_N",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"InvestmentIncomeUnrealizedOnlyCurrencyMovementRaiffeisen_Switzerland_B_V_",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+}
+  ],
+  "transactions_count":0
+},
+     {
+  "account":"InvestmentIncomeUnrealizedWithoutCurrencyMovement",
+  "balance": [],
+  "child_sheet_entries": [
+     {
+  "account":"InvestmentIncomeUnrealizedWithoutCurrencyMovementLeonteq_N",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"InvestmentIncomeUnrealizedWithoutCurrencyMovementRaiffeisen_Switzerland_B_V_",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+}
+  ],
+  "transactions_count":0
+}
+  ],
+  "transactions_count":0
+}
+  ],
+  "transactions_count":0
+},
+     {
+  "account":"OtherGain",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"OtherIncome",
+  "balance": [],
+  "child_sheet_entries": [
+     {
+  "account":"EarningsFinancialInvestments",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"ExchangeGain",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"InterestEarned",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"InterestIncome",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+}
+  ],
+  "transactions_count":0
+},
+     {
+  "account":"RationsRevenue",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"SalesOfLivestock",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+}
+  ],
+  "transactions_count":0
+}
+  ],
+  "transactions_count":0
+}
     ]
   },
-  "tb": ["entry('Trial_Balance',[],[],49)" ]
+  "tb": [ {
+  "account":"Trial_Balance",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":49
+} ]
 }

@@ -284,3 +284,14 @@ is_exchangeable_into_request_bases(Table, Day, Src_Currency, Bases) :-
 	member(Dest_Currency, Bases),
 	exchange_rate(Table, Day, Src_Currency, Dest_Currency, _Exchange_Rate).
 
+
+
+
+:- multifile term_dict/2.
+term_dict(
+	exchange_rate(Day, Src, Dst, Rate),
+	exchange_rate{day:Day, src:Src2, dst:Dst2, rate:Rate2}
+) :-
+	round_term(Src,Src2),
+	round_term(Dst,Dst2),
+	round_term(Rate,Rate2).

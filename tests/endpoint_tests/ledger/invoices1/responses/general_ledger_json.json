@@ -1,1 +1,4 @@
-[ {"source":"livestock", "transactions": []} ]
+[
+  {"source":"initial_GL", "transactions": []},
+  {"source":"livestock", "transactions": []}
+]

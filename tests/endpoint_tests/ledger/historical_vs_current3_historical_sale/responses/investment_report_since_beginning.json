@@ -190,28 +190,28 @@
       "gains": {
 	"rea": {
 	  "forex": {"amount":-63.585224, "unit":"AUD"},
-	  "market_converted": {"amount":0.0, "unit":"AUD"},
-	  "market_foreign": {"amount":0.0, "unit":"CHF"}
+	  "market_converted": {"amount":0, "unit":"AUD"},
+	  "market_foreign": {"amount":0, "unit":"CHF"}
 	},
 	"unr": {}
       },
       "id":"iri1",
       "opening": {},
       "purchase": {
-	"conversion":"exchange_rate(date(2015,1,1),'CHF','AUD',2.0)",
+	"conversion":"exchange_rate(date(2015,1,1),'CHF','AUD',2)",
 	"date":"date(2015,1,1)",
-	"total_cost_converted": {"amount":200.0, "unit":"AUD"},
-	"total_cost_foreign": {"amount":100.0, "unit":"CHF"},
-	"unit_cost_converted": {"amount":20.0, "unit":"AUD"},
-	"unit_cost_foreign": {"amount":10.0, "unit":"CHF"}
+	"total_cost_converted": {"amount":200, "unit":"AUD"},
+	"total_cost_foreign": {"amount":100, "unit":"CHF"},
+	"unit_cost_converted": {"amount":20, "unit":"AUD"},
+	"unit_cost_foreign": {"amount":10, "unit":"CHF"}
       },
       "sale": {
-	"conversion":"exchange_rate(date(2015,5,1),'CHF','AUD',1.3641477584315875)",
+	"conversion":"exchange_rate(date(2015,5,1),'CHF','AUD',318403 rdiv 233408)",
 	"date":"date(2015,5,1)",
 	"total_cost_converted": {"amount":136.414776, "unit":"AUD"},
-	"total_cost_foreign": {"amount":100.0, "unit":"CHF"},
+	"total_cost_foreign": {"amount":100, "unit":"CHF"},
 	"unit_cost_converted": {"amount":13.641478, "unit":"AUD"},
-	"unit_cost_foreign": {"amount":10.0, "unit":"CHF"}
+	"unit_cost_foreign": {"amount":10, "unit":"CHF"}
       },
       "unit":"Leonteq_N"
     },
@@ -220,8 +220,8 @@
       "gains": {
 	"rea": {
 	  "forex": [ {"amount":-63.585224, "unit":"AUD"} ],
-	  "market_converted": [ {"amount":0.0, "unit":"AUD"} ],
-	  "market_foreign": [ {"amount":0.0, "unit":"CHF"} ]
+	  "market_converted": [ {"amount":0, "unit":"AUD"} ],
+	  "market_foreign": [ {"amount":0, "unit":"CHF"} ]
 	},
 	"realized_total": [ {"amount":-63.585224, "unit":"AUD"} ],
 	"total": [ {"amount":-63.585224, "unit":"AUD"} ],

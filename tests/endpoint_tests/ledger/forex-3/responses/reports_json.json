@@ -1,67 +1,469 @@
 {
   "bs": {
     "current": [
-      "entry('NetAssets',[coord(oranges,2000.0)],[entry('Assets',[coord(oranges,2000.0)],[entry('CurrentAssets',[coord(oranges,-2000.0)],[entry('AssetsLivestock',[],[entry('AssetsLivestockAtAverageCost',[],[],0),entry('AssetsLivestockAtCost',[],[],0)],0),entry('CashAndCashEquivalents',[coord(oranges,-2000.0)],[entry('Banks',[coord(oranges,-2000.0)],[entry('BanksNationalAustraliaBank',[coord(oranges,-2000.0)],[],1)],1)],1)],1),entry('NoncurrentAssets',[coord(oranges,4000.0)],[entry('FinancialInvestments',[coord(oranges,4000.0)],[entry('FinancialInvestmentsGOOG',[coord(oranges,4000.0)],[],1)],1)],1)],2),entry('Liabilities',[],[entry('CurrentLiabilities',[],[entry('CurrentLoans',[],[],0),entry('Gst',[],[entry('GstPayable',[],[],0),entry('GstReceivable',[],[],0)],0)],0),entry('NoncurrentLiabilities',[],[entry('NoncurrentLoans',[],[],0)],0)],0)],2)",
-      "entry('Equity',[coord(oranges,-2000.0)],[entry('CapitalIntroduced',[],[],0),entry('Drawings',[],[],0),entry('RetainedEarnings',[coord(oranges,-2000.0)],[entry('CurrentEarnings',[coord(oranges,-2000.0)],[],3),entry('HistoricalEarnings',[],[],0)],3),entry('ShareCapital',[],[],0)],3)"
+       {
+  "account":"NetAssets",
+  "balance": [ {"credit":0, "debit":2000, "unit":"oranges"} ],
+  "child_sheet_entries": [
+     {
+  "account":"Assets",
+  "balance": [ {"credit":0, "debit":2000, "unit":"oranges"} ],
+  "child_sheet_entries": [
+     {
+  "account":"CurrentAssets",
+  "balance": [ {"credit":2000, "debit":0, "unit":"oranges"} ],
+  "child_sheet_entries": [
+     {
+  "account":"AssetsLivestock",
+  "balance": [],
+  "child_sheet_entries": [
+     {
+  "account":"AssetsLivestockAtAverageCost",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"AssetsLivestockAtCost",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+}
+  ],
+  "transactions_count":0
+},
+     {
+  "account":"CashAndCashEquivalents",
+  "balance": [ {"credit":2000, "debit":0, "unit":"oranges"} ],
+  "child_sheet_entries": [
+     {
+  "account":"Banks",
+  "balance": [ {"credit":2000, "debit":0, "unit":"oranges"} ],
+  "child_sheet_entries": [ {
+  "account":"BanksNationalAustraliaBank",
+  "balance": [ {"credit":2000, "debit":0, "unit":"oranges"} ],
+  "child_sheet_entries": [],
+  "transactions_count":1
+} ],
+  "transactions_count":1
+}
+  ],
+  "transactions_count":1
+}
+  ],
+  "transactions_count":1
+},
+     {
+  "account":"NoncurrentAssets",
+  "balance": [ {"credit":0, "debit":4000, "unit":"oranges"} ],
+  "child_sheet_entries": [
+     {
+  "account":"FinancialInvestments",
+  "balance": [ {"credit":0, "debit":4000, "unit":"oranges"} ],
+  "child_sheet_entries": [ {
+  "account":"FinancialInvestmentsGOOG",
+  "balance": [ {"credit":0, "debit":4000, "unit":"oranges"} ],
+  "child_sheet_entries": [],
+  "transactions_count":1
+} ],
+  "transactions_count":1
+}
+  ],
+  "transactions_count":1
+}
+  ],
+  "transactions_count":2
+},
+     {
+  "account":"Liabilities",
+  "balance": [],
+  "child_sheet_entries": [
+     {
+  "account":"CurrentLiabilities",
+  "balance": [],
+  "child_sheet_entries": [
+     {
+  "account":"CurrentLoans",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"Gst",
+  "balance": [],
+  "child_sheet_entries": [ {
+  "account":"GstPayable",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},  {
+  "account":"GstReceivable",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+} ],
+  "transactions_count":0
+}
+  ],
+  "transactions_count":0
+},
+     {
+  "account":"NoncurrentLiabilities",
+  "balance": [],
+  "child_sheet_entries": [ {
+  "account":"NoncurrentLoans",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+} ],
+  "transactions_count":0
+}
+  ],
+  "transactions_count":0
+}
+  ],
+  "transactions_count":2
+},
+       {
+  "account":"Equity",
+  "balance": [ {"credit":2000, "debit":0, "unit":"oranges"} ],
+  "child_sheet_entries": [
+     {
+  "account":"CapitalIntroduced",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"Drawings",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"RetainedEarnings",
+  "balance": [ {"credit":2000, "debit":0, "unit":"oranges"} ],
+  "child_sheet_entries": [
+     {
+  "account":"CurrentEarnings",
+  "balance": [ {"credit":2000, "debit":0, "unit":"oranges"} ],
+  "child_sheet_entries": [],
+  "transactions_count":3
+},
+     {
+  "account":"HistoricalEarnings",
+  "balance": [],
+  "child_sheet_entries": [ {
+  "account":"BankOpeningBalances",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+} ],
+  "transactions_count":0
+}
+  ],
+  "transactions_count":3
+},
+     {
+  "account":"ShareCapital",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+}
+  ],
+  "transactions_count":3
+}
     ],
     "historical": [
-      "entry('NetAssets',[],[entry('Assets',[],[entry('CurrentAssets',[],[entry('AssetsLivestock',[],[entry('AssetsLivestockAtAverageCost',[],[],0),entry('AssetsLivestockAtCost',[],[],0)],0),entry('CashAndCashEquivalents',[],[entry('Banks',[],[entry('BanksNationalAustraliaBank',[],[],0)],0)],0)],0),entry('NoncurrentAssets',[],[entry('FinancialInvestments',[],[entry('FinancialInvestmentsGOOG',[],[],0)],0)],0)],0),entry('Liabilities',[],[entry('CurrentLiabilities',[],[entry('CurrentLoans',[],[],0),entry('Gst',[],[entry('GstPayable',[],[],0),entry('GstReceivable',[],[],0)],0)],0),entry('NoncurrentLiabilities',[],[entry('NoncurrentLoans',[],[],0)],0)],0)],0)",
-      "entry('Equity',[],[entry('CapitalIntroduced',[],[],0),entry('Drawings',[],[],0),entry('RetainedEarnings',[],[entry('CurrentEarnings',[],[],0),entry('HistoricalEarnings',[],[],0)],0),entry('ShareCapital',[],[],0)],0)"
+       {
+  "account":"NetAssets",
+  "balance": [],
+  "child_sheet_entries": [
+     {
+  "account":"Assets",
+  "balance": [],
+  "child_sheet_entries": [
+     {
+  "account":"CurrentAssets",
+  "balance": [],
+  "child_sheet_entries": [
+     {
+  "account":"AssetsLivestock",
+  "balance": [],
+  "child_sheet_entries": [
+     {
+  "account":"AssetsLivestockAtAverageCost",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"AssetsLivestockAtCost",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+}
+  ],
+  "transactions_count":0
+},
+     {
+  "account":"CashAndCashEquivalents",
+  "balance": [],
+  "child_sheet_entries": [ {
+  "account":"Banks",
+  "balance": [],
+  "child_sheet_entries": [ {
+  "account":"BanksNationalAustraliaBank",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+} ],
+  "transactions_count":0
+} ],
+  "transactions_count":0
+}
+  ],
+  "transactions_count":0
+},
+     {
+  "account":"NoncurrentAssets",
+  "balance": [],
+  "child_sheet_entries": [
+     {
+  "account":"FinancialInvestments",
+  "balance": [],
+  "child_sheet_entries": [ {
+  "account":"FinancialInvestmentsGOOG",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+} ],
+  "transactions_count":0
+}
+  ],
+  "transactions_count":0
+}
+  ],
+  "transactions_count":0
+},
+     {
+  "account":"Liabilities",
+  "balance": [],
+  "child_sheet_entries": [
+     {
+  "account":"CurrentLiabilities",
+  "balance": [],
+  "child_sheet_entries": [
+     {
+  "account":"CurrentLoans",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"Gst",
+  "balance": [],
+  "child_sheet_entries": [ {
+  "account":"GstPayable",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},  {
+  "account":"GstReceivable",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+} ],
+  "transactions_count":0
+}
+  ],
+  "transactions_count":0
+},
+     {
+  "account":"NoncurrentLiabilities",
+  "balance": [],
+  "child_sheet_entries": [ {
+  "account":"NoncurrentLoans",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+} ],
+  "transactions_count":0
+}
+  ],
+  "transactions_count":0
+}
+  ],
+  "transactions_count":0
+},
+       {
+  "account":"Equity",
+  "balance": [],
+  "child_sheet_entries": [
+     {
+  "account":"CapitalIntroduced",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"Drawings",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"RetainedEarnings",
+  "balance": [],
+  "child_sheet_entries": [
+     {
+  "account":"CurrentEarnings",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"HistoricalEarnings",
+  "balance": [],
+  "child_sheet_entries": [ {
+  "account":"BankOpeningBalances",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+} ],
+  "transactions_count":0
+}
+  ],
+  "transactions_count":0
+},
+     {
+  "account":"ShareCapital",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+}
+  ],
+  "transactions_count":0
+}
     ]
   },
   "crosschecks": {
     "errors": [],
     "results": [
-      [
-	"account_balance(reports/pl/current,'InvestmentIncomeRealized'/withoutCurrencyMovement) = report_value(reports/ir/current/totals/gains/rea/market_converted)",
-	"[] = []",
-	"ok"
-      ],
-      [
-	"account_balance(reports/pl/current,'InvestmentIncomeRealized'/onlyCurrencyMovement) = report_value(reports/ir/current/totals/gains/rea/forex)",
-	"[] = []",
-	"ok"
-      ],
-      [
-	"account_balance(reports/pl/current,'InvestmentIncomeUnrealized'/withoutCurrencyMovement) = report_value(reports/ir/current/totals/gains/unr/market_converted)",
-	"[ {\"amount\":1000.0, \"unit\":\"oranges\"} ] = [ {\"amount\":1000.0, \"unit\":\"oranges\"} ]",
-	"ok"
-      ],
-      [
-	"account_balance(reports/pl/current,'InvestmentIncomeUnrealized'/onlyCurrencyMovement) = report_value(reports/ir/current/totals/gains/unr/forex)",
-	"[ {\"amount\":2000.0, \"unit\":\"oranges\"} ] = [ {\"amount\":2000.0, \"unit\":\"oranges\"} ]",
-	"ok"
-      ],
-      [
-	"account_balance(reports/pl/current,'Accounts'/'InvestmentIncome') = report_value(reports/ir/current/totals/gains/total)",
-	"[ {\"amount\":3000.0, \"unit\":\"oranges\"} ] = [ {\"amount\":3000.0, \"unit\":\"oranges\"} ]",
-	"ok"
-      ],
-      [
-	"account_balance(reports/pl/current,'InvestmentIncome'/unrealized) = report_value(reports/ir/current/totals/gains/unrealized_total)",
-	"[ {\"amount\":3000.0, \"unit\":\"oranges\"} ] = [ {\"amount\":3000.0, \"unit\":\"oranges\"} ]",
-	"ok"
-      ],
-      [
-	"account_balance(reports/pl/current,'InvestmentIncome'/realized) = report_value(reports/ir/current/totals/gains/realized_total)",
-	"[] = []",
-	"ok"
-      ],
-      [
-	"account_balance(reports/bs/current,'Accounts'/'FinancialInvestments') = report_value(reports/ir/current/totals/closing/total_cost_converted)",
-	"[ {\"amount\":4000.0, \"unit\":\"oranges\"} ] = [ {\"amount\":4000.0, \"unit\":\"oranges\"} ]",
-	"ok"
-      ],
-      [
-	"account_balance(reports/bs/current,'Accounts'/'HistoricalEarnings') = account_balance(reports/pl/historical,'Accounts'/'NetIncomeLoss')",
-	"[] = []",
-	"ok"
-      ],
-      [
-	"account_balance(reports/bs/current,'Accounts'/'NetAssets') = account_balance(reports/bs/current,'Accounts'/'Equity')",
-	"[ {\"amount\":2000.0, \"unit\":\"oranges\"} ] = [ {\"amount\":2000.0, \"unit\":\"oranges\"} ]",
-	"ok"
-      ]
+      {
+	"check": {
+	  "a":"account_balance(reports/pl/current,'InvestmentIncomeRealized'/withoutCurrencyMovement)",
+	  "b":"report_value(reports/ir/current/totals/gains/rea/market_converted)",
+	  "op":"="
+	},
+	"evaluation": {"a": [], "b": [], "op":"="},
+	"status":"ok"
+      },
+      {
+	"check": {
+	  "a":"account_balance(reports/pl/current,'InvestmentIncomeRealized'/onlyCurrencyMovement)",
+	  "b":"report_value(reports/ir/current/totals/gains/rea/forex)",
+	  "op":"="
+	},
+	"evaluation": {"a": [], "b": [], "op":"="},
+	"status":"ok"
+      },
+      {
+	"check": {
+	  "a":"account_balance(reports/pl/current,'InvestmentIncomeUnrealized'/withoutCurrencyMovement)",
+	  "b":"report_value(reports/ir/current/totals/gains/unr/market_converted)",
+	  "op":"="
+	},
+	"evaluation": {
+	  "a": [ {"amount":1000, "unit":"oranges"} ],
+	  "b": [ {"amount":1000, "unit":"oranges"} ],
+	  "op":"="
+	},
+	"status":"ok"
+      },
+      {
+	"check": {
+	  "a":"account_balance(reports/pl/current,'InvestmentIncomeUnrealized'/onlyCurrencyMovement)",
+	  "b":"report_value(reports/ir/current/totals/gains/unr/forex)",
+	  "op":"="
+	},
+	"evaluation": {
+	  "a": [ {"amount":2000, "unit":"oranges"} ],
+	  "b": [ {"amount":2000, "unit":"oranges"} ],
+	  "op":"="
+	},
+	"status":"ok"
+      },
+      {
+	"check": {
+	  "a":"account_balance(reports/pl/current,'Accounts'/'InvestmentIncome')",
+	  "b":"report_value(reports/ir/current/totals/gains/total)",
+	  "op":"="
+	},
+	"evaluation": {
+	  "a": [ {"amount":3000, "unit":"oranges"} ],
+	  "b": [ {"amount":3000, "unit":"oranges"} ],
+	  "op":"="
+	},
+	"status":"ok"
+      },
+      {
+	"check": {
+	  "a":"account_balance(reports/pl/current,'InvestmentIncome'/unrealized)",
+	  "b":"report_value(reports/ir/current/totals/gains/unrealized_total)",
+	  "op":"="
+	},
+	"evaluation": {
+	  "a": [ {"amount":3000, "unit":"oranges"} ],
+	  "b": [ {"amount":3000, "unit":"oranges"} ],
+	  "op":"="
+	},
+	"status":"ok"
+      },
+      {
+	"check": {
+	  "a":"account_balance(reports/pl/current,'InvestmentIncome'/realized)",
+	  "b":"report_value(reports/ir/current/totals/gains/realized_total)",
+	  "op":"="
+	},
+	"evaluation": {"a": [], "b": [], "op":"="},
+	"status":"ok"
+      },
+      {
+	"check": {
+	  "a":"account_balance(reports/bs/current,'Accounts'/'FinancialInvestments')",
+	  "b":"report_value(reports/ir/current/totals/closing/total_cost_converted)",
+	  "op":"="
+	},
+	"evaluation": {
+	  "a": [ {"amount":4000, "unit":"oranges"} ],
+	  "b": [ {"amount":4000, "unit":"oranges"} ],
+	  "op":"="
+	},
+	"status":"ok"
+      },
+      {
+	"check": {
+	  "a":"account_balance(reports/bs/current,'Accounts'/'HistoricalEarnings')",
+	  "b":"account_balance(reports/pl/historical,'Accounts'/'NetIncomeLoss')",
+	  "op":"="
+	},
+	"evaluation": {"a": [], "b": [], "op":"="},
+	"status":"ok"
+      },
+      {
+	"check": {
+	  "a":"account_balance(reports/bs/current,'Accounts'/'NetAssets')",
+	  "b":"account_balance(reports/bs/current,'Accounts'/'Equity')",
+	  "op":"="
+	},
+	"evaluation": {
+	  "a": [ {"amount":2000, "unit":"oranges"} ],
+	  "b": [ {"amount":2000, "unit":"oranges"} ],
+	  "op":"="
+	},
+	"status":"ok"
+      }
     ]
   },
   "ir": {
@@ -69,39 +471,39 @@
       "rows": [
 	{
 	  "closing": {
-	    "conversion":"exchange_rate(date(2018,1,1),bananas,oranges,4.0)",
-	    "total_cost_converted": {"amount":4000.0, "unit":"oranges"},
-	    "total_cost_foreign": {"amount":1000.0, "unit":"bananas"},
-	    "unit_cost_converted": {"amount":4000.0, "unit":"oranges"},
-	    "unit_cost_foreign": {"amount":1000.0, "unit":"bananas"}
+	    "conversion": {"day":"date(2018,1,1)", "dst":"oranges", "rate":4, "src":"bananas"},
+	    "total_cost_converted": {"amount":4000, "unit":"oranges"},
+	    "total_cost_foreign": {"amount":1000, "unit":"bananas"},
+	    "unit_cost_converted": {"amount":4000, "unit":"oranges"},
+	    "unit_cost_foreign": {"amount":1000, "unit":"bananas"}
 	  },
 	  "count":1,
 	  "currency":"bananas",
 	  "gains": {
 	    "rea": {},
 	    "unr": {
-	      "forex": {"amount":2000.0, "unit":"oranges"},
-	      "market_converted": {"amount":1000.0, "unit":"oranges"},
-	      "market_foreign": {"amount":500.0, "unit":"bananas"}
+	      "forex": {"amount":2000, "unit":"oranges"},
+	      "market_converted": {"amount":1000, "unit":"oranges"},
+	      "market_foreign": {"amount":500, "unit":"bananas"}
 	    }
 	  },
 	  "id":"iri1",
 	  "on_hand_at_cost": {
 	    "count":1,
-	    "total_converted_at_balance": {"amount":2000.0, "unit":"oranges"},
-	    "total_converted_at_purchase": {"amount":1000.0, "unit":"oranges"},
-	    "total_foreign": {"amount":500.0, "unit":"bananas"},
-	    "total_forex_gain": {"amount":1000.0, "unit":"oranges"},
-	    "unit_cost_foreign": {"amount":500.0, "unit":"bananas"}
+	    "total_converted_at_balance": {"amount":2000, "unit":"oranges"},
+	    "total_converted_at_purchase": {"amount":1000, "unit":"oranges"},
+	    "total_foreign": {"amount":500, "unit":"bananas"},
+	    "total_forex_gain": {"amount":1000, "unit":"oranges"},
+	    "unit_cost_foreign": {"amount":500, "unit":"bananas"}
 	  },
 	  "opening": {},
 	  "purchase": {
-	    "conversion":"exchange_rate(date(2016,1,1),bananas,oranges,2.0)",
+	    "conversion": {"day":"date(2016,1,1)", "dst":"oranges", "rate":2, "src":"bananas"},
 	    "date":"date(2016,1,1)",
-	    "total_cost_converted": {"amount":1000.0, "unit":"oranges"},
-	    "total_cost_foreign": {"amount":500.0, "unit":"bananas"},
-	    "unit_cost_converted": {"amount":1000.0, "unit":"oranges"},
-	    "unit_cost_foreign": {"amount":500.0, "unit":"bananas"}
+	    "total_cost_converted": {"amount":1000, "unit":"oranges"},
+	    "total_cost_foreign": {"amount":500, "unit":"bananas"},
+	    "unit_cost_converted": {"amount":1000, "unit":"oranges"},
+	    "unit_cost_foreign": {"amount":500, "unit":"bananas"}
 	  },
 	  "sale": {},
 	  "unit":"GOOG"
@@ -109,24 +511,24 @@
       ],
       "totals": {
 	"closing": {
-	  "total_cost_converted": [ {"amount":4000.0, "unit":"oranges"} ],
-	  "total_cost_foreign": [ {"amount":1000.0, "unit":"bananas"} ]
+	  "total_cost_converted": [ {"amount":4000, "unit":"oranges"} ],
+	  "total_cost_foreign": [ {"amount":1000, "unit":"bananas"} ]
 	},
 	"gains": {
 	  "rea": {"forex": [], "market_converted": [], "market_foreign": []},
 	  "realized_total": [],
-	  "total": [ {"amount":3000.0, "unit":"oranges"} ],
+	  "total": [ {"amount":3000, "unit":"oranges"} ],
 	  "unr": {
-	    "forex": [ {"amount":2000.0, "unit":"oranges"} ],
-	    "market_converted": [ {"amount":1000.0, "unit":"oranges"} ],
-	    "market_foreign": [ {"amount":500.0, "unit":"bananas"} ]
+	    "forex": [ {"amount":2000, "unit":"oranges"} ],
+	    "market_converted": [ {"amount":1000, "unit":"oranges"} ],
+	    "market_foreign": [ {"amount":500, "unit":"bananas"} ]
 	  },
-	  "unrealized_total": [ {"amount":3000.0, "unit":"oranges"} ]
+	  "unrealized_total": [ {"amount":3000, "unit":"oranges"} ]
 	},
 	"on_hand_at_cost": {
-	  "total_converted_at_balance": [ {"amount":2000.0, "unit":"oranges"} ],
-	  "total_converted_at_purchase": [ {"amount":1000.0, "unit":"oranges"} ],
-	  "total_forex_gain": [ {"amount":1000.0, "unit":"oranges"} ]
+	  "total_converted_at_balance": [ {"amount":2000, "unit":"oranges"} ],
+	  "total_converted_at_purchase": [ {"amount":1000, "unit":"oranges"} ],
+	  "total_forex_gain": [ {"amount":1000, "unit":"oranges"} ]
 	},
 	"opening": {"total_cost_converted": [], "total_cost_foreign": []}
       }
@@ -135,39 +537,39 @@
       "rows": [
 	{
 	  "closing": {
-	    "conversion":"exchange_rate(date(2018,1,1),bananas,oranges,4.0)",
-	    "total_cost_converted": {"amount":4000.0, "unit":"oranges"},
-	    "total_cost_foreign": {"amount":1000.0, "unit":"bananas"},
-	    "unit_cost_converted": {"amount":4000.0, "unit":"oranges"},
-	    "unit_cost_foreign": {"amount":1000.0, "unit":"bananas"}
+	    "conversion": {"day":"date(2018,1,1)", "dst":"oranges", "rate":4, "src":"bananas"},
+	    "total_cost_converted": {"amount":4000, "unit":"oranges"},
+	    "total_cost_foreign": {"amount":1000, "unit":"bananas"},
+	    "unit_cost_converted": {"amount":4000, "unit":"oranges"},
+	    "unit_cost_foreign": {"amount":1000, "unit":"bananas"}
 	  },
 	  "count":1,
 	  "currency":"bananas",
 	  "gains": {
 	    "rea": {},
 	    "unr": {
-	      "forex": {"amount":2000.0, "unit":"oranges"},
-	      "market_converted": {"amount":1000.0, "unit":"oranges"},
-	      "market_foreign": {"amount":500.0, "unit":"bananas"}
+	      "forex": {"amount":2000, "unit":"oranges"},
+	      "market_converted": {"amount":1000, "unit":"oranges"},
+	      "market_foreign": {"amount":500, "unit":"bananas"}
 	    }
 	  },
 	  "id":"iri1",
 	  "on_hand_at_cost": {
 	    "count":1,
-	    "total_converted_at_balance": {"amount":2000.0, "unit":"oranges"},
-	    "total_converted_at_purchase": {"amount":1000.0, "unit":"oranges"},
-	    "total_foreign": {"amount":500.0, "unit":"bananas"},
-	    "total_forex_gain": {"amount":1000.0, "unit":"oranges"},
-	    "unit_cost_foreign": {"amount":500.0, "unit":"bananas"}
+	    "total_converted_at_balance": {"amount":2000, "unit":"oranges"},
+	    "total_converted_at_purchase": {"amount":1000, "unit":"oranges"},
+	    "total_foreign": {"amount":500, "unit":"bananas"},
+	    "total_forex_gain": {"amount":1000, "unit":"oranges"},
+	    "unit_cost_foreign": {"amount":500, "unit":"bananas"}
 	  },
 	  "opening": {},
 	  "purchase": {
-	    "conversion":"exchange_rate(date(2016,1,1),bananas,oranges,2.0)",
+	    "conversion": {"day":"date(2016,1,1)", "dst":"oranges", "rate":2, "src":"bananas"},
 	    "date":"date(2016,1,1)",
-	    "total_cost_converted": {"amount":1000.0, "unit":"oranges"},
-	    "total_cost_foreign": {"amount":500.0, "unit":"bananas"},
-	    "unit_cost_converted": {"amount":1000.0, "unit":"oranges"},
-	    "unit_cost_foreign": {"amount":500.0, "unit":"bananas"}
+	    "total_cost_converted": {"amount":1000, "unit":"oranges"},
+	    "total_cost_foreign": {"amount":500, "unit":"bananas"},
+	    "unit_cost_converted": {"amount":1000, "unit":"oranges"},
+	    "unit_cost_foreign": {"amount":500, "unit":"bananas"}
 	  },
 	  "sale": {},
 	  "unit":"GOOG"
@@ -175,24 +577,24 @@
       ],
       "totals": {
 	"closing": {
-	  "total_cost_converted": [ {"amount":4000.0, "unit":"oranges"} ],
-	  "total_cost_foreign": [ {"amount":1000.0, "unit":"bananas"} ]
+	  "total_cost_converted": [ {"amount":4000, "unit":"oranges"} ],
+	  "total_cost_foreign": [ {"amount":1000, "unit":"bananas"} ]
 	},
 	"gains": {
 	  "rea": {"forex": [], "market_converted": [], "market_foreign": []},
 	  "realized_total": [],
-	  "total": [ {"amount":3000.0, "unit":"oranges"} ],
+	  "total": [ {"amount":3000, "unit":"oranges"} ],
 	  "unr": {
-	    "forex": [ {"amount":2000.0, "unit":"oranges"} ],
-	    "market_converted": [ {"amount":1000.0, "unit":"oranges"} ],
-	    "market_foreign": [ {"amount":500.0, "unit":"bananas"} ]
+	    "forex": [ {"amount":2000, "unit":"oranges"} ],
+	    "market_converted": [ {"amount":1000, "unit":"oranges"} ],
+	    "market_foreign": [ {"amount":500, "unit":"bananas"} ]
 	  },
-	  "unrealized_total": [ {"amount":3000.0, "unit":"oranges"} ]
+	  "unrealized_total": [ {"amount":3000, "unit":"oranges"} ]
 	},
 	"on_hand_at_cost": {
-	  "total_converted_at_balance": [ {"amount":2000.0, "unit":"oranges"} ],
-	  "total_converted_at_purchase": [ {"amount":1000.0, "unit":"oranges"} ],
-	  "total_forex_gain": [ {"amount":1000.0, "unit":"oranges"} ]
+	  "total_converted_at_balance": [ {"amount":2000, "unit":"oranges"} ],
+	  "total_converted_at_purchase": [ {"amount":1000, "unit":"oranges"} ],
+	  "total_forex_gain": [ {"amount":1000, "unit":"oranges"} ]
 	},
 	"opening": {"total_cost_converted": [], "total_cost_foreign": []}
       }
@@ -200,11 +602,434 @@
   },
   "pl": {
     "current": [
-      "entry('NetIncomeLoss',[coord(oranges,-2000.0)],[entry('Expenses',[],[entry('AccountingFees',[],[],0),entry('BankCharges',[],[],0),entry('CostOfGoodsLivestock',[],[],0),entry('ForexLoss',[],[],0),entry('InterestExpenses',[],[],0),entry('LivestockAdjustment',[],[],0),entry('OtherExpenses',[],[],0),entry('Purchases',[],[],0)],0),entry('Revenue',[coord(oranges,-2000.0)],[entry('ClearingAccount',[],[],0),entry('CurrencyMovement',[coord(oranges,1000.0)],[entry('CurrencyMovementNationalAustraliaBank',[coord(oranges,1000.0)],[],1)],1),entry('Income',[],[],0),entry('InvestmentIncome',[coord(oranges,-3000.0)],[entry('InvestmentIncomeRealized',[],[entry('InvestmentIncomeRealizedOnlyCurrencyMovement',[],[entry('InvestmentIncomeRealizedOnlyCurrencyMovementGOOG',[],[],0)],0),entry('InvestmentIncomeRealizedWithoutCurrencyMovement',[],[entry('InvestmentIncomeRealizedWithoutCurrencyMovementGOOG',[],[],0)],0)],0),entry('InvestmentIncomeUnrealized',[coord(oranges,-3000.0)],[entry('InvestmentIncomeUnrealizedOnlyCurrencyMovement',[coord(oranges,-2000.0)],[entry('InvestmentIncomeUnrealizedOnlyCurrencyMovementGOOG',[coord(oranges,-2000.0)],[],1)],1),entry('InvestmentIncomeUnrealizedWithoutCurrencyMovement',[coord(oranges,-1000.0)],[entry('InvestmentIncomeUnrealizedWithoutCurrencyMovementGOOG',[coord(oranges,-1000.0)],[],1)],1)],2)],2),entry('OtherGain',[],[],0),entry('OtherIncome',[],[entry('EarningsFinancialInvestments',[],[],0),entry('ExchangeGain',[],[],0),entry('InterestEarned',[],[],0),entry('InterestIncome',[],[],0)],0),entry('RationsRevenue',[],[],0),entry('SalesOfLivestock',[],[],0)],3)],3)"
+       {
+  "account":"NetIncomeLoss",
+  "balance": [ {"credit":2000, "debit":0, "unit":"oranges"} ],
+  "child_sheet_entries": [
+     {
+  "account":"Expenses",
+  "balance": [],
+  "child_sheet_entries": [
+     {
+  "account":"AccountingFees",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"BankCharges",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"CostOfGoodsLivestock",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"ForexLoss",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"InterestExpenses",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"LivestockAdjustment",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"OtherExpenses",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"Purchases",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+}
+  ],
+  "transactions_count":0
+},
+     {
+  "account":"Revenue",
+  "balance": [ {"credit":2000, "debit":0, "unit":"oranges"} ],
+  "child_sheet_entries": [
+     {
+  "account":"ClearingAccount",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"CurrencyMovement",
+  "balance": [ {"credit":0, "debit":1000, "unit":"oranges"} ],
+  "child_sheet_entries": [
+     {
+  "account":"CurrencyMovementNationalAustraliaBank",
+  "balance": [ {"credit":0, "debit":1000, "unit":"oranges"} ],
+  "child_sheet_entries": [],
+  "transactions_count":1
+}
+  ],
+  "transactions_count":1
+},
+     {
+  "account":"Income",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"InvestmentIncome",
+  "balance": [ {"credit":3000, "debit":0, "unit":"oranges"} ],
+  "child_sheet_entries": [
+     {
+  "account":"InvestmentIncomeRealized",
+  "balance": [],
+  "child_sheet_entries": [
+     {
+  "account":"InvestmentIncomeRealizedOnlyCurrencyMovement",
+  "balance": [],
+  "child_sheet_entries": [ {
+  "account":"InvestmentIncomeRealizedOnlyCurrencyMovementGOOG",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+} ],
+  "transactions_count":0
+},
+     {
+  "account":"InvestmentIncomeRealizedWithoutCurrencyMovement",
+  "balance": [],
+  "child_sheet_entries": [ {
+  "account":"InvestmentIncomeRealizedWithoutCurrencyMovementGOOG",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+} ],
+  "transactions_count":0
+}
+  ],
+  "transactions_count":0
+},
+     {
+  "account":"InvestmentIncomeUnrealized",
+  "balance": [ {"credit":3000, "debit":0, "unit":"oranges"} ],
+  "child_sheet_entries": [
+     {
+  "account":"InvestmentIncomeUnrealizedOnlyCurrencyMovement",
+  "balance": [ {"credit":2000, "debit":0, "unit":"oranges"} ],
+  "child_sheet_entries": [
+     {
+  "account":"InvestmentIncomeUnrealizedOnlyCurrencyMovementGOOG",
+  "balance": [ {"credit":2000, "debit":0, "unit":"oranges"} ],
+  "child_sheet_entries": [],
+  "transactions_count":1
+}
+  ],
+  "transactions_count":1
+},
+     {
+  "account":"InvestmentIncomeUnrealizedWithoutCurrencyMovement",
+  "balance": [ {"credit":1000, "debit":0, "unit":"oranges"} ],
+  "child_sheet_entries": [
+     {
+  "account":"InvestmentIncomeUnrealizedWithoutCurrencyMovementGOOG",
+  "balance": [ {"credit":1000, "debit":0, "unit":"oranges"} ],
+  "child_sheet_entries": [],
+  "transactions_count":1
+}
+  ],
+  "transactions_count":1
+}
+  ],
+  "transactions_count":2
+}
+  ],
+  "transactions_count":2
+},
+     {
+  "account":"OtherGain",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"OtherIncome",
+  "balance": [],
+  "child_sheet_entries": [
+     {
+  "account":"EarningsFinancialInvestments",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"ExchangeGain",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"InterestEarned",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"InterestIncome",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+}
+  ],
+  "transactions_count":0
+},
+     {
+  "account":"RationsRevenue",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"SalesOfLivestock",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+}
+  ],
+  "transactions_count":3
+}
+  ],
+  "transactions_count":3
+}
     ],
     "historical": [
-      "entry('NetIncomeLoss',[],[entry('Expenses',[],[entry('AccountingFees',[],[],0),entry('BankCharges',[],[],0),entry('CostOfGoodsLivestock',[],[],0),entry('ForexLoss',[],[],0),entry('InterestExpenses',[],[],0),entry('LivestockAdjustment',[],[],0),entry('OtherExpenses',[],[],0),entry('Purchases',[],[],0)],0),entry('Revenue',[],[entry('ClearingAccount',[],[],0),entry('CurrencyMovement',[],[entry('CurrencyMovementNationalAustraliaBank',[],[],0)],0),entry('Income',[],[],0),entry('InvestmentIncome',[],[entry('InvestmentIncomeRealized',[],[entry('InvestmentIncomeRealizedOnlyCurrencyMovement',[],[entry('InvestmentIncomeRealizedOnlyCurrencyMovementGOOG',[],[],0)],0),entry('InvestmentIncomeRealizedWithoutCurrencyMovement',[],[entry('InvestmentIncomeRealizedWithoutCurrencyMovementGOOG',[],[],0)],0)],0),entry('InvestmentIncomeUnrealized',[],[entry('InvestmentIncomeUnrealizedOnlyCurrencyMovement',[],[entry('InvestmentIncomeUnrealizedOnlyCurrencyMovementGOOG',[],[],0)],0),entry('InvestmentIncomeUnrealizedWithoutCurrencyMovement',[],[entry('InvestmentIncomeUnrealizedWithoutCurrencyMovementGOOG',[],[],0)],0)],0)],0),entry('OtherGain',[],[],0),entry('OtherIncome',[],[entry('EarningsFinancialInvestments',[],[],0),entry('ExchangeGain',[],[],0),entry('InterestEarned',[],[],0),entry('InterestIncome',[],[],0)],0),entry('RationsRevenue',[],[],0),entry('SalesOfLivestock',[],[],0)],0)],0)"
+       {
+  "account":"NetIncomeLoss",
+  "balance": [],
+  "child_sheet_entries": [
+     {
+  "account":"Expenses",
+  "balance": [],
+  "child_sheet_entries": [
+     {
+  "account":"AccountingFees",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"BankCharges",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"CostOfGoodsLivestock",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"ForexLoss",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"InterestExpenses",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"LivestockAdjustment",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"OtherExpenses",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"Purchases",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+}
+  ],
+  "transactions_count":0
+},
+     {
+  "account":"Revenue",
+  "balance": [],
+  "child_sheet_entries": [
+     {
+  "account":"ClearingAccount",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"CurrencyMovement",
+  "balance": [],
+  "child_sheet_entries": [ {
+  "account":"CurrencyMovementNationalAustraliaBank",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+} ],
+  "transactions_count":0
+},
+     {
+  "account":"Income",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"InvestmentIncome",
+  "balance": [],
+  "child_sheet_entries": [
+     {
+  "account":"InvestmentIncomeRealized",
+  "balance": [],
+  "child_sheet_entries": [
+     {
+  "account":"InvestmentIncomeRealizedOnlyCurrencyMovement",
+  "balance": [],
+  "child_sheet_entries": [ {
+  "account":"InvestmentIncomeRealizedOnlyCurrencyMovementGOOG",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+} ],
+  "transactions_count":0
+},
+     {
+  "account":"InvestmentIncomeRealizedWithoutCurrencyMovement",
+  "balance": [],
+  "child_sheet_entries": [ {
+  "account":"InvestmentIncomeRealizedWithoutCurrencyMovementGOOG",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+} ],
+  "transactions_count":0
+}
+  ],
+  "transactions_count":0
+},
+     {
+  "account":"InvestmentIncomeUnrealized",
+  "balance": [],
+  "child_sheet_entries": [
+     {
+  "account":"InvestmentIncomeUnrealizedOnlyCurrencyMovement",
+  "balance": [],
+  "child_sheet_entries": [ {
+  "account":"InvestmentIncomeUnrealizedOnlyCurrencyMovementGOOG",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+} ],
+  "transactions_count":0
+},
+     {
+  "account":"InvestmentIncomeUnrealizedWithoutCurrencyMovement",
+  "balance": [],
+  "child_sheet_entries": [
+     {
+  "account":"InvestmentIncomeUnrealizedWithoutCurrencyMovementGOOG",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+}
+  ],
+  "transactions_count":0
+}
+  ],
+  "transactions_count":0
+}
+  ],
+  "transactions_count":0
+},
+     {
+  "account":"OtherGain",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"OtherIncome",
+  "balance": [],
+  "child_sheet_entries": [
+     {
+  "account":"EarningsFinancialInvestments",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"ExchangeGain",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"InterestEarned",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"InterestIncome",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+}
+  ],
+  "transactions_count":0
+},
+     {
+  "account":"RationsRevenue",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"SalesOfLivestock",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+}
+  ],
+  "transactions_count":0
+}
+  ],
+  "transactions_count":0
+}
     ]
   },
-  "tb": ["entry('Trial_Balance',[],[],5)" ]
+  "tb": [ {
+  "account":"Trial_Balance",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":5
+} ]
 }
