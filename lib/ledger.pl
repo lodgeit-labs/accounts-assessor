@@ -98,7 +98,6 @@ process_ledger(
 
 preprocess_until_error(Static_Data0, Prepreprocessed_S_Transactions, Preprocessed_S_Transactions, Transactions0, Outstanding_Out, Transaction_Transformation_Debug, Report_End_Date, Processed_Until) :-
 	preprocess_s_transactions(Static_Data0, Prepreprocessed_S_Transactions, Preprocessed_S_Transactions, Transactions0, Outstanding_Out, Transaction_Transformation_Debug),
-	%gtrace,
 	(
 		Preprocessed_S_Transactions = Prepreprocessed_S_Transactions
 	->

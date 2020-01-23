@@ -178,6 +178,8 @@ credit_coord(Unit, Credit, coord(Unit, Number)) :- {Credit = -Number}.
 dr_cr_coord(Unit, Number, Zero, coord(Unit, Number)) :- {Number >= 0, Zero = 0}.
 dr_cr_coord(Unit, Zero, Credit, coord(Unit, Number)) :- {Number < 0, Zero = 0, Credit = -Number}.
 
+coord_vec(coord(U,A), [coord(U,A)]).
+coord_vec(coord(_U,0), []).
 
 number_vec(_, Zero, []) :-
 	unify_numbers(Zero, 0).
