@@ -49,7 +49,7 @@ process_ledger(
 
 	dict_from_vars(Static_Data0, [Accounts, Report_Currency, Start_Date, End_Date, Exchange_Rates, Cost_Or_Market]),
 	prepreprocess(Static_Data0, S_Transactions, Prepreprocessed_S_Transactions),
-	preprocess_until_error(Static_Data0, Prepreprocessed_S_Transactions, Processed_S_Transactions, Transactions_From_Bst, Outstanding_Out, Transaction_Transformation_Debug, End_Date, Processed_Until),
+	preprocess_until_error(Static_Data0, Prepreprocessed_S_Transactions, Processed_S_Transactions, Transactions_From_Bst, Outstanding_Out, _Transaction_Transformation_Debug, End_Date, Processed_Until),
 	append([Initial_Txs], Transactions_From_Bst, Transactions0),
 	flatten(Transactions0, Transactions1),
 
@@ -92,8 +92,7 @@ process_ledger(
 	;
 		(	term_string(trial_balance(Trial_Balance_Section), Tb_Str),
 			add_alert('SYSTEM_WARNING', Tb_Str))
-	),
-	gather_ledger_errors(Transaction_Transformation_Debug).
+	).
 
 
 preprocess_until_error(Static_Data0, Prepreprocessed_S_Transactions, Preprocessed_S_Transactions, Transactions0, Outstanding_Out, Transaction_Transformation_Debug, Report_End_Date, Processed_Until) :-
