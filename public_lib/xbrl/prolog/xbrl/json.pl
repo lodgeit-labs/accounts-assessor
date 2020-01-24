@@ -60,6 +60,7 @@ term_dict(
 
 term_dict(
 	date(Y,M,D),
-	date{day:D, month:M, year:Y}
-).
+	Str
+	%date{day:D, month:M, year:Y}
+) :- format_date(date(Y,M,D), Str).
 

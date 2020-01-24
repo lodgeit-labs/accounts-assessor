@@ -9,113 +9,53 @@
 <body>
 
 <p>
+<span>ok</span>:<br>
+<span>account_balance(reports/pl/current,'InvestmentIncomeRealized'/withoutCurrencyMovement) = report_value(reports/ir/current/totals/gains/rea/market_converted)</span>:<br>
+<span>[] = []</span></p>
 
 <p>
-account_balance(reports/pl/current,'InvestmentIncomeRealized'/withoutCurrencyMovement) = report_value(reports/ir/current/totals/gains/rea/market_converted)</p>
+<span>ok</span>:<br>
+<span>account_balance(reports/pl/current,'InvestmentIncomeRealized'/onlyCurrencyMovement) = report_value(reports/ir/current/totals/gains/rea/forex)</span>:<br>
+<span>[] = []</span></p>
 
 <p>
-[] = []</p>
+<span>ok</span>:<br>
+<span>account_balance(reports/pl/current,'InvestmentIncomeUnrealized'/withoutCurrencyMovement) = report_value(reports/ir/current/totals/gains/unr/market_converted)</span>:<br>
+<span>[value('AUD',-4727790533 rdiv 42212625)] = [value('AUD',-4727790533 rdiv 42212625)]</span></p>
 
 <p>
-ok</p></p>
+<span>ok</span>:<br>
+<span>account_balance(reports/pl/current,'InvestmentIncomeUnrealized'/onlyCurrencyMovement) = report_value(reports/ir/current/totals/gains/unr/forex)</span>:<br>
+<span>[value('AUD',180820 rdiv 337701)] = [value('AUD',180820 rdiv 337701)]</span></p>
 
 <p>
+<span>ok</span>:<br>
+<span>account_balance(reports/pl/current,'Accounts'/'InvestmentIncome') = report_value(reports/ir/current/totals/gains/total)</span>:<br>
+<span>[value('AUD',-13933 rdiv 125)] = [value('AUD',-13933 rdiv 125)]</span></p>
 
 <p>
-account_balance(reports/pl/current,'InvestmentIncomeRealized'/onlyCurrencyMovement) = report_value(reports/ir/current/totals/gains/rea/forex)</p>
+<span>ok</span>:<br>
+<span>account_balance(reports/pl/current,'InvestmentIncome'/unrealized) = report_value(reports/ir/current/totals/gains/unrealized_total)</span>:<br>
+<span>[value('AUD',-13933 rdiv 125)] = [value('AUD',-13933 rdiv 125)]</span></p>
 
 <p>
-[] = []</p>
+<span>ok</span>:<br>
+<span>account_balance(reports/pl/current,'InvestmentIncome'/realized) = report_value(reports/ir/current/totals/gains/realized_total)</span>:<br>
+<span>[] = []</span></p>
 
 <p>
-ok</p></p>
+<span>ok</span>:<br>
+<span>account_balance(reports/bs/current,'Accounts'/'FinancialInvestments') = report_value(reports/ir/current/totals/closing/total_cost_converted)</span>:<br>
+<span>[value('AUD',20)] = [value('AUD',20)]</span></p>
 
 <p>
+<span>ok</span>:<br>
+<span>account_balance(reports/bs/current,'Accounts'/'HistoricalEarnings') = account_balance(reports/pl/historical,'Accounts'/'NetIncomeLoss')</span>:<br>
+<span>[] = []</span></p>
 
 <p>
-account_balance(reports/pl/current,'InvestmentIncomeUnrealized'/withoutCurrencyMovement) = report_value(reports/ir/current/totals/gains/unr/market_converted)</p>
-
-<p>
-[ {"amount":-111.999444, "unit":"AUD"} ] = [ {"amount":-111.999444, "unit":"AUD"} ]</p>
-
-<p>
-ok</p></p>
-
-<p>
-
-<p>
-account_balance(reports/pl/current,'InvestmentIncomeUnrealized'/onlyCurrencyMovement) = report_value(reports/ir/current/totals/gains/unr/forex)</p>
-
-<p>
-[ {"amount":0.535444, "unit":"AUD"} ] = [ {"amount":0.535444, "unit":"AUD"} ]</p>
-
-<p>
-ok</p></p>
-
-<p>
-
-<p>
-account_balance(reports/pl/current,'Accounts'/'InvestmentIncome') = report_value(reports/ir/current/totals/gains/total)</p>
-
-<p>
-[ {"amount":-111.464, "unit":"AUD"} ] = [ {"amount":-111.464, "unit":"AUD"} ]</p>
-
-<p>
-ok</p></p>
-
-<p>
-
-<p>
-account_balance(reports/pl/current,'InvestmentIncome'/unrealized) = report_value(reports/ir/current/totals/gains/unrealized_total)</p>
-
-<p>
-[ {"amount":-111.464, "unit":"AUD"} ] = [ {"amount":-111.464, "unit":"AUD"} ]</p>
-
-<p>
-ok</p></p>
-
-<p>
-
-<p>
-account_balance(reports/pl/current,'InvestmentIncome'/realized) = report_value(reports/ir/current/totals/gains/realized_total)</p>
-
-<p>
-[] = []</p>
-
-<p>
-ok</p></p>
-
-<p>
-
-<p>
-account_balance(reports/bs/current,'Accounts'/'FinancialInvestments') = report_value(reports/ir/current/totals/closing/total_cost_converted)</p>
-
-<p>
-[ {"amount":20.0, "unit":"AUD"} ] = [ {"amount":20.0, "unit":"AUD"} ]</p>
-
-<p>
-ok</p></p>
-
-<p>
-
-<p>
-account_balance(reports/bs/current,'Accounts'/'HistoricalEarnings') = account_balance(reports/pl/historical,'Accounts'/'NetIncomeLoss')</p>
-
-<p>
-[] = []</p>
-
-<p>
-ok</p></p>
-
-<p>
-
-<p>
-account_balance(reports/bs/current,'Accounts'/'NetAssets') = account_balance(reports/bs/current,'Accounts'/'Equity')</p>
-
-<p>
-[ {"amount":-115.0804, "unit":"AUD"} ] = [ {"amount":-115.0804, "unit":"AUD"} ]</p>
-
-<p>
-ok</p></p>
+<span>ok</span>:<br>
+<span>account_balance(reports/bs/current,'Accounts'/'NetAssets') = account_balance(reports/bs/current,'Accounts'/'Equity')</span>:<br>
+<span>[value('AUD',-287701 rdiv 2500)] = [value('AUD',-287701 rdiv 2500)]</span></p>
 </body>
 </html>

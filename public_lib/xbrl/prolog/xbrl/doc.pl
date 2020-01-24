@@ -276,11 +276,12 @@ request(R) :-
 	doc(R, rdf:type, l:request).
 
 add_alert(Type, Msg) :-
+	(atomic(Msg) -> Msg2 = Msg ; term_string(Msg, Msg2)),
 	request(R),
 	doc_new_uri(Uri),
 	doc_add(R, l:alert, Uri),
 	doc_add(Uri, l:type, Type),
-	doc_add(Uri, l:message, Msg).
+	doc_add(Uri, l:message, Msg2).
 
 get_alert(Type, Msg) :-
 	request(R),

@@ -6,6 +6,15 @@
 % The destination currency of this exchange rate
 % The actual rate of this exchange rate
 
+% ________
+%< lookup >
+% --------
+%        \   ^__^
+%         \  (oo)\_______
+%            (__)\       )\/\
+%                ||----w |
+%                ||     ||
+
 :- dynamic exchange_rates/2.
 :- persistent(persistently_cached_exchange_rates(day: any, rates:list)).
 :- initialization(init_exchange_rates).
@@ -285,5 +294,96 @@ is_exchangeable_into_request_bases(Table, Day, Src_Currency, Bases) :-
 	exchange_rate(Table, Day, Src_Currency, Dest_Currency, _Exchange_Rate).
 
 
+% ____________
+%< extraction >
+% ------------
+%        \   ^__^
+%         \  (==)\_______
+%            (__)\       )\/\
+%                ||----w |
+%                ||     ||
 
 
+extract_exchange_rates(Dom, Start_Date, End_Date, Default_Currency, Exchange_Rates) :-
+	/*If an investment was held prior to the from date then it MUST have an opening market value if the reports are expressed in.market rather than cost.You can't mix market value and cost in one set of reports. One or the other.2:27 AMi see. Have you thought about how to let the user specify the method?Andrew, 2:31 AMMarket or Cost. M or C. Sorry. Never mentioned it to you.2:44 AMyou mentioned the different approaches, but i ended up assuming that this would be best selected by specifying or not specifying the unitValues. I see there is a field for it already in the excel templateAndrew, 2:47 AMCost value per unit will always be there if there are units of anything i.e. sheep for livestock trading or shares for InvestmentsAndrew, 3:04 AMBut I suppose if you do not find any market values then assume cost basis.*/
+	findall(Unit_Value_Dom, xpath(Dom, //reports/balanceSheetRequest/unitValues/unitValue, Unit_Value_Dom), Unit_Value_Doms),
+	maplist(extract_exchange_rate(Start_Date, End_Date), Unit_Value_Doms, Exchange_Rates),
+	maplist(missing_dst_currency_is_default_currency(Default_Currency), Exchange_Rates),
+	%maplist(missing_dst_currency_is_investment_currency(S_Transactions, Default_Currency), Exchange_Rates),
+	maplist(dst_currency_must_be_specified, Exchange_Rates),
+	maplist(assert_ground, Exchange_Rates).
+
+missing_dst_currency_is_default_currency(_, Exchange_Rate) :-
+	exchange_rate_dest_currency(Exchange_Rate, Dst),
+	nonvar(Dst).
+
+missing_dst_currency_is_default_currency(Default_Currency, Exchange_Rate) :-
+	exchange_rate_dest_currency(Exchange_Rate, Dst),
+	var(Dst),
+	([Dst] = Default_Currency -> true ; true).
+
+dst_currency_must_be_specified(Exchange_Rate) :-
+	exchange_rate_dest_currency(Exchange_Rate, Dst),
+	(	var(Dst)
+	->	throw_string(['unitValueCurrency missing'])
+	;	true).
+
+assert_ground(X) :-
+	assertion(ground(X)).
+
+extract_exchange_rate(Start_Date, End_Date, Unit_Value, Exchange_Rate) :-
+	Exchange_Rate = exchange_rate(Date, Src_Currency, Dest_Currency, Rate),
+	fields(Unit_Value, [
+		unitType, Src_Currency0,
+		unitValueCurrency, (Dest_Currency, _),
+		unitValue, (Rate_Atom, _),
+		unitValueDate, (Date_Atom, _)]
+	),
+	(
+		var(Rate_Atom)
+	->
+		format(user_error, 'unitValue missing, ignoring\n', [])
+		/*Rate will stay unbound and the whole term will be filtered out in the caller*/
+	;
+		atom_number(Rate_Atom, Rate)
+	),
+
+	(
+		var(Date_Atom)
+	->
+		(
+			once(string_concat('closing | ', Src_Currency, Src_Currency0))
+		->
+			Date_Atom = 'closing'
+		;
+			(
+				once(string_concat('opening | ', Src_Currency, Src_Currency0))
+			->
+				Date_Atom = 'opening'
+			;
+				Src_Currency = Src_Currency0
+			)
+		)
+	;
+		Src_Currency = Src_Currency0
+	),
+
+	(var(Date_Atom) -> Date_Atom = closing ; true),
+
+	(	Date_Atom = opening
+	->	Date = Start_Date
+	;	(	(	Date_Atom = closing
+			->	Date = End_Date
+			;	parse_date(Date_Atom, Date)))).
+
+
+/*
+	x a exchange_rate, x src S, x dom y, x rate R <= y a exchange_rate_dom, y src S
+
+	x dom y, y dst D => x dst_candidate C, C value D, C priority 100
+	pid default_currency D => x dst_candidate C, C value D, C priority 99
+	x a s_transaction, x exchanged U, y src U, x bank_currency BC => y dst_candidate C, C value BC, C priority 98
+
+	x dst D <= x sorted_dst_candidates L, L first X, X length 1, X first dst_candidate, dst_candidate value D
+	pid has problem <= x sorted_dst_candidates L, L first X, X length > 1
+*/

@@ -54,7 +54,10 @@ process_request_http(Options, Parts) :-
 
 process_request(Options, File_Paths) :-
 	doc_init,
-	maybe_supress_generating_unique_taxonomy_urls(Options),
+	catch_with_backtrace(
+		maybe_supress_generating_unique_taxonomy_urls(Options),
+		E,
+		add_alert('FAIL', E)),
 	process_multifile_request(File_Paths),
 	process_request2.
 
