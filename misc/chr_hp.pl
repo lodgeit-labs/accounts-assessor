@@ -1,5 +1,6 @@
 :- use_module(library(chr)).
 :- use_module(library(clpq)).
+:- use_module(library(clpfd)).
 
 :- chr_constraint fact/3, rule/0, start/1, clpq/1, clpq/0, countdown/1, next/1.
 
@@ -52,6 +53,19 @@ find_fact2(S, P, O, Subs) :-
 	unify2_facts(fact(S, P, O), fact(S1, P1, O1), Subs, _).
 
 
+leap_year(Year) :-
+	(
+		0 #= Year mod 400
+	->	true
+	;	(
+			0 #= Year mod 4,
+			0 #\= Year mod 100
+		)
+	).
+
+month_lengths([31,28,31,30,31,30,31,31,30,31,30,31]).
+month_length(Year, 2, 29) :- leap_year(Year), !.
+month_length(_, Month, Length) :- month_lengths(Lengths), nth1(Month, Lengths, Length).
 
 
 % LIST THEORY
@@ -113,17 +127,38 @@ rule, fact(L, a, list), fact(Cell, list_in, L), fact(Cell, list_index, I), fact(
 
 
 
+% DATE & TIME THEORY
+% month intervals have a unique year
+rule, fact(Interval, a, month_interval) ==> \+find_fact2(Interval1, year, _, [Interval1:Interval]) | fact(Interval, year, _).
+rule, fact(Interval, a, month_interval), fact(Interval, year, X) \ fact(Interval, year, Y) <=> X = Y.
+
+rule, fact(Interval, a, month_interval) ==> \+find_fact2(Interval1, month, _, [Interval1:Interval]) | fact(Interval, month, _).
+rule, fact(Interval, a, month_interval), fact(Interval, month, X) \ fact(Interval, month, Y) <=> X = Y.
+rule, fact(Interval, a, month_interval), fact(Interval, month, Month) ==> Month in 1..12.
+
+rule, fact(Date, a, date) ==> \+find_fact2(Date1, year, _, [Date1:Date]) | fact(Date, year, _).
+rule, fact(Date, a, date), fact(Date, year, X) \ fact(Date, year, Y) <=> X = Y.
+
+rule, fact(Date, a, date) ==> \+find_fact2(Date1, month, _, [Date1:Date]) | fact(Date, month, _).
+rule, fact(Date, a, date), fact(Date, month, X) \ fact(Date, month, Y) <=> X = Y.
+rule, fact(Date, a, date), fact(Date, month, Month) ==> Month in 1..12.
+
+rule, fact(Date, a, date) ==> \+find_fact2(Date1, day, _, [Date1:Date]) | fact(Date, day, _).
+rule, fact(Date, a, date), fact(Date, day, X) \ fact(Date, day, Y) <=> X = Y.
 
 
 % HP ARRANGEMENTS & HP INSTALLMENTS THEORY
 
+
 % hp arrangements have a unique begin date
 rule, fact(HP, a, hp_arrangement) ==> \+find_fact2(HP1, begin_date, _, [HP1:HP]) | fact(HP, begin_date, _).
 rule, fact(HP, a, hp_arrangement), fact(HP, begin_date, X) \ fact(HP, begin_date, Y) <=> X = Y.
+rule, fact(HP, a, hp_arrangement), fact(HP, begin_date, Begin_Date) ==> \+find_fact2(Begin_Date1, a, date, [Begin_Date1:Begin_Date]) | fact(Begin_Date, a, date).
 
 % hp arrangements have a unique end date
 rule, fact(HP, a, hp_arrangement) ==> \+find_fact2(HP1, end_date, _, [HP1:HP]) | fact(HP, end_date, _).
 rule, fact(HP, a, hp_arrangement), fact(HP, end_date, X) \ fact(HP, end_date, Y) <=> X = Y.
+rule, fact(HP, a, hp_arrangement), fact(HP, end_date, End_Date) ==> \+find_fact2(End_Date1, a, date, [End_Date1:End_Date]) | fact(End_Date, a, date).
 
 % hp arrangements have a unique cash price
 rule, fact(HP, a, hp_arrangement) ==> \+find_fact2(HP1, cash_price, _, [HP1:HP]) | fact(HP, cash_price, _).
@@ -152,9 +187,15 @@ rule, fact(HP, a, hp_arrangement), fact(HP, installments, Installments) ==> \+fi
 rule, fact(HP, a, hp_arrangement), fact(HP, installments, Installments) ==> \+find_fact(Installments, element_type, hp_installment) | fact(Installments, element_type, hp_installment).
 
 
+% installments have a unique installment period
+rule, fact(Installment, a, hp_installment) ==> \+find_fact2(Installment1, installment_period, _, [Installment1:Installment]) | fact(Installment, installment_period, _).
+rule, fact(Installment, a, hp_installment), fact(Installment, installment_period, X) \ fact(Installment, installment_period, Y) <=> X = Y.
+rule, fact(Installment, a, hp_installment), fact(Installment, installment_period, Installment_Period) ==> \+find_fact2(Installment_Period1, a, month_interval, [Installment_Period1:Installment_Period]) | fact(Installment_Period, a, month_interval).
+
 % installments have a unique opening date
 rule, fact(Installment, a, hp_installment) ==> \+find_fact2(Installment1, opening_date, _, [Installment1:Installment]) | fact(Installment, opening_date, _).
 rule, fact(Installment, a, hp_installment), fact(Installment, opening_date, X) \ fact(Installment, opening_date, Y) <=> X = Y.
+rule, fact(Installment, a, hp_installment), fact(Installment, opening_date, Opening_Date) ==> \+find_fact2(Opening_Date1, a, date, [Opening_Date1:Opening_Date]) | fact(Opening_Date, a, date).
 
 % installments have a unique opening balance
 rule, fact(Installment, a, hp_installment) ==> \+find_fact2(Installment1, opening_balance, _, [Installment1:Installment]) | fact(Installment, opening_balance, _).
@@ -175,6 +216,7 @@ rule, fact(Installment, a, hp_installment), fact(Installment, interest_amount, X
 % installments have a unique closing date
 rule, fact(Installment, a, hp_installment) ==> \+find_fact2(Installment1, closing_date, _, [Installment1:Installment]) | fact(Installment, closing_date, _).
 rule, fact(Installment, a, hp_installment), fact(Installment, closing_date, X) \ fact(Installment, closing_date, Y) <=> X = Y.
+rule, fact(Installment, a, hp_installment), fact(Installment, closing_date, Closing_Date) ==> \+find_fact2(Closing_Date1, a, date, [Closing_Date1:Closing_Date]) | fact(Closing_Date, a, date).
 
 % installments have a unique closing balance
 rule, fact(Installment, a, hp_installment) ==> \+find_fact2(Installment1, closing_balance, _, [Installment1:Installment]) | fact(Installment, closing_balance, _).
@@ -211,6 +253,22 @@ rule, fact(HP, a, hp_arrangement), fact(HP, repayment_amount, Repayment_Amount),
 % 
 rule, fact(HP, a, hp_arrangement), fact(HP, cash_price, Cash_Price), fact(HP, installments, Installments), fact(Installment_Cell, list_in, Installments), fact(Installment_Cell, value, Installment), fact(Installment, opening_balance, Opening_Balance) ==> nonvar(Cash_Price), nonvar(Opening_Balance), Opening_Balance < Cash_Price, \+find_fact2(Installment_Cell1, prev, _, [Installment_Cell1:Installment_Cell]) | fact(Installment_Cell, prev, _). 
 
+/*
+% begin date of hp arrangement is the opening date of the first installment
+rule, fact(HP, a, hp_arrangement), fact(HP, begin_date, Begin_Date), fact(HP, installments, Installments), fact(Installments, first, First_Cell), fact(First_Cell, value, First_Installment), fact(First_Installment, installment_period, Installment_Period), fact(Begin_Date, year, Begin_Year), fact(Begin_Date, month, Begin_Month), fact(Installment_Period, year, Installment_Year), fact(Installment_Period, month, Installment_Month) ==> Begin_Year = Installment_Year, Begin_Month = Installment_Month.
+
+rule, fact(HP, a, hp_arrangement), fact(HP, installments, Installments), fact(Installment_Cell, list_in, Installments), fact(Installment_Cell, next, Next_Installment_Cell), fact(Installment_Cell, value, Installment), fact(Installment, installment_period, Installment_Period), fact(Installment_Period, year, Installment_Year), fact(Installment_Period, month, Installment_Month), fact(Next_Installment_Cell, value, Next_Installment), fact(Next_Installment, installment_period, Next_Installment_Period), fact(Next_Installment_Period, year, Next_Installment_Year), fact(Next_Installment_Period, month, Next_Installment_Month) ==> 
+*/
+rule, fact(HP, a, hp_arrangement), fact(HP, begin_date, Begin_Date), fact(Begin_Date, year, Begin_Year), fact(Begin_Date, month, Begin_Month), fact(HP, installments, Installments), fact(Installment_Cell, list_in, Installments), fact(Installment_Cell, list_index, Installment_Number), fact(Installment_Cell, value, Installment), fact(Installment, installment_period, Installment_Period), fact(Installment_Period, year, Installment_Year), fact(Installment_Period, month, Installment_Month) ==> clpq(N #= (Installment_Number - 1)), clpq(V #= (Begin_Month + N)), clpq(Installment_Year #= Begin_Year +((V - 1) // 12)), clpq(Installment_Month #= (((V - 1) rem 12) + 1)).
+
+rule, fact(Installment, a, hp_installment), fact(Installment, installment_period, Installment_Period), fact(Installment_Period, year, Installment_Year), fact(Installment_Period, month, Installment_Month), fact(Installment, opening_date, Opening_Date), fact(Opening_Date, year, Opening_Year), fact(Opening_Date, month, Opening_Month), fact(Opening_Date, day, Opening_Day) ==> Opening_Year = Installment_Year, Opening_Month = Installment_Month, Opening_Day = 1.
+
+rule, fact(Installment, a, hp_installment), fact(Installment, installment_period, Installment_Period), fact(Installment_Period, year, Installment_Year), fact(Installment_Period, month, Installment_Month), fact(Installment, closing_date, Closing_Date), fact(Closing_Date, year, Closing_Year), fact(Closing_Date, month, Closing_Month) ==> Closing_Year = Installment_Year, Closing_Month = Installment_Month.
+
+rule, fact(Installment, a, hp_installment), fact(Installment, installment_period, Installment_Period), fact(Installment_Period, year, Installment_Year), fact(Installment_Period, month, Installment_Month), fact(Installment, closing_date, Closing_Date), fact(Closing_Date, day, Closing_Day) ==> nonvar(Installment_Year), nonvar(Installment_Month) | month_length(Installment_Year, Installment_Month, Closing_Day).
+
+% end date of hp arrangement is the closing date of the last installment
+%rule, fact(HP, a, hp_arrangement), fact(HP, end_date, End_Date), fact(HP, installments, Installments), fact(Installments, last, Last_Cell), fact(Last_Cell, value, Last_Installment), fact(Last_Installment, closing_date, Closing_Date) ==> End_Date = Closing_Date.
 
 
 rule, fact(S, P, O) \ fact(S, P, O) <=> (P == closing_balance -> format("deduplicate: ~w ~w ~w~n", [S, P, O]) ; true).
@@ -225,10 +283,15 @@ clpq, countdown(0) <=>
 		(
 			'$enumerate_constraints'(fact(S,P,O)),
 			\+((
-				P \== closing_balance,
-				P \== opening_balance,
+				P \== closing_date,
+				P \== opening_date,
 				P \== list_index,
-				P \== value
+				P \== value,
+				P \== installment_period,
+				P \== year,
+				P \== month,
+				P \== day,
+				( P \== a ; O \== date)
 			)),
 			((ground(O), O = (_ rdiv _))
 			-> O2 is float(O)
