@@ -472,7 +472,7 @@
       "rows": [
 	{
 	  "closing": {
-	    "conversion": {"date": {"day":30, "month":6, "year":2019}, "dst":"AUD", "rate":1.4239, "src":"USD"},
+	    "conversion": {"date":"2019-06-30", "dst":"AUD", "rate":1.4239, "src":"USD"},
 	    "total_cost_converted": {"amount":5600000, "unit":"AUD"},
 	    "total_cost_foreign": {"amount":3932868.7398, "unit":"USD"},
 	    "unit_cost_converted": {"amount":40, "unit":"AUD"},
@@ -498,7 +498,7 @@
 	    "unit_cost_foreign": {"amount":0.9983, "unit":"USD"}
 	  },
 	  "opening": {
-	    "conversion": {"date": {"day":13, "month":7, "year":2018}, "dst":"AUD", "rate":1.347, "src":"USD"},
+	    "conversion": {"date":"2018-07-13", "dst":"AUD", "rate":1.347, "src":"USD"},
 	    "total_cost_converted": {"amount":5600000, "unit":"AUD"},
 	    "total_cost_foreign": {"amount":4157491.7258, "unit":"USD"},
 	    "unit_cost_converted": {"amount":40, "unit":"AUD"},
@@ -540,7 +540,7 @@
       "rows": [
 	{
 	  "closing": {
-	    "conversion": {"date": {"day":30, "month":6, "year":2019}, "dst":"AUD", "rate":1.4239, "src":"USD"},
+	    "conversion": {"date":"2019-06-30", "dst":"AUD", "rate":1.4239, "src":"USD"},
 	    "total_cost_converted": {"amount":5600000, "unit":"AUD"},
 	    "total_cost_foreign": {"amount":3932868.7398, "unit":"USD"},
 	    "unit_cost_converted": {"amount":40, "unit":"AUD"},
@@ -567,8 +567,8 @@
 	  },
 	  "opening": {},
 	  "purchase": {
-	    "conversion": {"date": {"day":1, "month":7, "year":2018}, "dst":"AUD", "rate":1.2852, "src":"USD"},
-	    "date": {"day":1, "month":7, "year":2018},
+	    "conversion": {"date":"2018-07-01", "dst":"AUD", "rate":1.2852, "src":"USD"},
+	    "date":"2018-07-01",
 	    "total_cost_converted": {"amount":179619.9633, "unit":"AUD"},
 	    "total_cost_foreign": {"amount":139760.32, "unit":"USD"},
 	    "unit_cost_converted": {"amount":1.283, "unit":"AUD"},

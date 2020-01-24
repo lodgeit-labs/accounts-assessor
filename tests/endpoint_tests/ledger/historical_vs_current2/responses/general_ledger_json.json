@@ -3,7 +3,7 @@
   {
     "source": {
       "account":"CHF_Bank",
-      "date": {"day":1, "month":1, "year":2015},
+      "date":"2015-01-01",
       "exchanged":"vector([coord('Leonteq_N',10)])",
       "misc": {},
       "report_currency_transacted_amount_converted_at_balance_date": [ {"credit":100, "debit":0, "unit":"CHF"} ],
@@ -14,7 +14,7 @@
     "transactions": [
       {
 	"account":"BanksCHF_Bank",
-	"date": {"day":1, "month":1, "year":2015},
+	"date":"2015-01-01",
 	"description":"Invest_In - outgoing money",
 	"running_balance": [ {"credit":100, "debit":0, "unit":"CHF"} ],
 	"type":"instant",
@@ -24,7 +24,7 @@
       },
       {
 	"account":"FinancialInvestmentsLeonteq_N",
-	"date": {"day":1, "month":1, "year":2015},
+	"date":"2015-01-01",
 	"description":"Invest_In",
 	"running_balance": [ {"credit":0, "debit":10, "unit":"Leonteq_N"} ],
 	"type":"instant",
@@ -34,7 +34,7 @@
       },
       {
 	"account":"InvestmentIncomeUnrealizedOnlyCurrencyMovementLeonteq_N",
-	"date": {"day":1, "month":1, "year":2018},
+	"date":"2018-01-01",
 	"description":"comment:, comment2:Invest_In - current part",
 	"running_balance": [
 	   {"credit":10, "debit":0, "unit":"Leonteq_N"},
@@ -58,7 +58,7 @@
       },
       {
 	"account":"InvestmentIncomeUnrealizedWithoutCurrencyMovementLeonteq_N",
-	"date": {"day":1, "month":1, "year":2018},
+	"date":"2018-01-01",
 	"description":"comment:, comment2:Invest_In - current part",
 	"running_balance": [
 	   {
@@ -90,7 +90,7 @@
       },
       {
 	"account":"InvestmentIncomeUnrealizedOnlyCurrencyMovementLeonteq_N",
-	"date": {"day":1, "month":1, "year":2015},
+	"date":"2015-01-01",
 	"description":"comment:, comment2:Invest_In - historical part",
 	"running_balance": [
 	   {"credit":10, "debit":0, "unit":"Leonteq_N"},
@@ -139,7 +139,7 @@
       },
       {
 	"account":"InvestmentIncomeUnrealizedWithoutCurrencyMovementLeonteq_N",
-	"date": {"day":1, "month":1, "year":2015},
+	"date":"2015-01-01",
 	"description":"comment:, comment2:Invest_In - historical part",
 	"running_balance": [
 	   {"credit":0, "debit":100, "unit":"CHF"},

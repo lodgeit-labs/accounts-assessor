@@ -3,7 +3,7 @@
   {
     "source": {
       "account":"NationalAustraliaBank",
-      "date": {"day":1, "month":7, "year":2017},
+      "date":"2017-07-01",
       "exchanged":"vector([])",
       "misc": {},
       "report_currency_transacted_amount_converted_at_balance_date": [ {"credit":0, "debit":200, "unit":"AUD"} ],
@@ -14,7 +14,7 @@
     "transactions": [
       {
 	"account":"BanksNationalAustraliaBank",
-	"date": {"day":1, "month":7, "year":2017},
+	"date":"2017-07-01",
 	"description":"Introduce_Capital - incoming money",
 	"running_balance": [ {"credit":0, "debit":200, "unit":"AUD"} ],
 	"type":"instant",
@@ -24,7 +24,7 @@
       },
       {
 	"account":"ShareCapital",
-	"date": {"day":1, "month":7, "year":2017},
+	"date":"2017-07-01",
 	"description":"Introduce_Capital",
 	"running_balance": [ {"credit":200, "debit":0, "unit":"AUD"} ],
 	"type":"instant",

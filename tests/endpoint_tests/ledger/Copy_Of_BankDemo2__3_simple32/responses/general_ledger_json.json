@@ -3,7 +3,7 @@
   {
     "source": {
       "account":"USD_Bank",
-      "date": {"day":2, "month":7, "year":2018},
+      "date":"2018-07-02",
       "exchanged":"vector([coord('SG Issuer_SA_USD_1',10000)])",
       "misc": {},
       "report_currency_transacted_amount_converted_at_balance_date": [ {"credit":14238.97, "debit":0, "unit":"AUD"} ],
@@ -14,7 +14,7 @@
     "transactions": [
       {
 	"account":"BanksUSD_Bank",
-	"date": {"day":2, "month":7, "year":2018},
+	"date":"2018-07-02",
 	"description":"Invest_In - outgoing money",
 	"running_balance": [ {"credit":10000, "debit":0, "unit":"USD"} ],
 	"type":"instant",
@@ -24,7 +24,7 @@
       },
       {
 	"account":"CurrencyMovementUSD_Bank",
-	"date": {"day":2, "month":7, "year":2018},
+	"date":"2018-07-02",
 	"description":"Invest_In - outgoing money - currency movement adjustment - historical part",
 	"running_balance": [
 	   {
@@ -56,7 +56,7 @@
       },
       {
 	"account":"CurrencyMovementUSD_Bank",
-	"date": {"day":13, "month":7, "year":2018},
+	"date":"2018-07-13",
 	"description":"Invest_In - outgoing money - currency movement adjustment - current part",
 	"running_balance": [
 	   {"credit":0, "debit":10000, "unit":"USD"},
@@ -80,7 +80,7 @@
       },
       {
 	"account":"FinancialInvestmentsSG_Issuer_SA_USD_1",
-	"date": {"day":2, "month":7, "year":2018},
+	"date":"2018-07-02",
 	"description":"Invest_In",
 	"running_balance": [ {"credit":0, "debit":10000, "unit":"SG Issuer_SA_USD_1"} ],
 	"type":"instant",
@@ -90,7 +90,7 @@
       },
       {
 	"account":"InvestmentIncomeUnrealizedOnlyCurrencyMovementSG_Issuer_SA_USD_1",
-	"date": {"day":13, "month":7, "year":2018},
+	"date":"2018-07-13",
 	"description":"comment:, comment2:Invest_In - current part",
 	"running_balance": [
 	   {"credit":10000, "debit":0, "unit":"SG Issuer_SA_USD_1"},
@@ -114,7 +114,7 @@
       },
       {
 	"account":"InvestmentIncomeUnrealizedWithoutCurrencyMovementSG_Issuer_SA_USD_1",
-	"date": {"day":13, "month":7, "year":2018},
+	"date":"2018-07-13",
 	"description":"comment:, comment2:Invest_In - current part",
 	"running_balance": [
 	   {
@@ -146,7 +146,7 @@
       },
       {
 	"account":"InvestmentIncomeUnrealizedOnlyCurrencyMovementSG_Issuer_SA_USD_1",
-	"date": {"day":2, "month":7, "year":2018},
+	"date":"2018-07-02",
 	"description":"comment:, comment2:Invest_In - historical part",
 	"running_balance": [
 	   {"credit":10000, "debit":0, "unit":"SG Issuer_SA_USD_1"},
@@ -184,7 +184,7 @@
       },
       {
 	"account":"InvestmentIncomeUnrealizedWithoutCurrencyMovementSG_Issuer_SA_USD_1",
-	"date": {"day":2, "month":7, "year":2018},
+	"date":"2018-07-02",
 	"description":"comment:, comment2:Invest_In - historical part",
 	"running_balance": [
 	   {"credit":0, "debit":13528.4, "unit":"AUD"},
@@ -221,7 +221,7 @@
   {
     "source": {
       "account":"USD_Bank",
-      "date": {"day":30, "month":12, "year":2018},
+      "date":"2018-12-30",
       "exchanged":"vector([coord('SG Issuer_SA_USD_1',-5000)])",
       "misc": {},
       "report_currency_transacted_amount_converted_at_balance_date": [ {"credit":0, "debit":7119.49, "unit":"AUD"} ],
@@ -232,7 +232,7 @@
     "transactions": [
       {
 	"account":"BanksUSD_Bank",
-	"date": {"day":30, "month":12, "year":2018},
+	"date":"2018-12-30",
 	"description":"Dispose_Of - incoming money",
 	"running_balance": [ {"credit":5000, "debit":0, "unit":"USD"} ],
 	"type":"instant",
@@ -242,7 +242,7 @@
       },
       {
 	"account":"CurrencyMovementUSD_Bank",
-	"date": {"day":30, "month":12, "year":2018},
+	"date":"2018-12-30",
 	"description":"Dispose_Of - incoming money - currency movement adjustment - only current period",
 	"running_balance": [
 	   {"credit":0, "debit":5000, "unit":"USD"},
@@ -271,7 +271,7 @@
       },
       {
 	"account":"FinancialInvestmentsSG_Issuer_SA_USD_1",
-	"date": {"day":30, "month":12, "year":2018},
+	"date":"2018-12-30",
 	"description":"Dispose_Of",
 	"running_balance": [ {"credit":0, "debit":5000, "unit":"SG Issuer_SA_USD_1"} ],
 	"type":"instant",
@@ -281,7 +281,7 @@
       },
       {
 	"account":"InvestmentIncomeUnrealizedOnlyCurrencyMovementSG_Issuer_SA_USD_1",
-	"date": {"day":30, "month":12, "year":2018},
+	"date":"2018-12-30",
 	"description":"comment:, comment2:Dispose_Of - single period",
 	"running_balance": [
 	   {"credit":5000, "debit":0, "unit":"SG Issuer_SA_USD_1"},
@@ -322,7 +322,7 @@
       },
       {
 	"account":"InvestmentIncomeUnrealizedWithoutCurrencyMovementSG_Issuer_SA_USD_1",
-	"date": {"day":30, "month":12, "year":2018},
+	"date":"2018-12-30",
 	"description":"comment:, comment2:Dispose_Of - single period",
 	"running_balance": [
 	   {"credit":0, "debit":13528.4, "unit":"AUD"},
@@ -367,7 +367,7 @@
       },
       {
 	"account":"InvestmentIncomeRealizedOnlyCurrencyMovementSG_Issuer_SA_USD_1",
-	"date": {"day":30, "month":12, "year":2018},
+	"date":"2018-12-30",
 	"description":"comment:, comment2:Dispose_Of",
 	"running_balance": [
 	   {"credit":7098.75, "debit":0, "unit":"AUD"},
@@ -391,7 +391,7 @@
       },
       {
 	"account":"InvestmentIncomeRealizedWithoutCurrencyMovementSG_Issuer_SA_USD_1",
-	"date": {"day":30, "month":12, "year":2018},
+	"date":"2018-12-30",
 	"description":"comment:, comment2:Dispose_Of",
 	"running_balance": [
 	   {

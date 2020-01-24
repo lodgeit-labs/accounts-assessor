@@ -458,7 +458,7 @@
 	  },
 	  "id":"iri1",
 	  "opening": {
-	    "conversion": {"date": {"day":1, "month":1, "year":2018}, "dst":"AUD", "rate":4, "src":"CHF"},
+	    "conversion": {"date":"2018-01-01", "dst":"AUD", "rate":4, "src":"CHF"},
 	    "total_cost_converted": {"amount":400, "unit":"AUD"},
 	    "total_cost_foreign": {"amount":100, "unit":"CHF"},
 	    "unit_cost_converted": {"amount":40, "unit":"AUD"},
@@ -466,8 +466,8 @@
 	  },
 	  "purchase": {},
 	  "sale": {
-	    "conversion": {"date": {"day":1, "month":5, "year":2018}, "dst":"AUD", "rate":4, "src":"CHF"},
-	    "date": {"day":1, "month":5, "year":2018},
+	    "conversion": {"date":"2018-05-01", "dst":"AUD", "rate":4, "src":"CHF"},
+	    "date":"2018-05-01",
 	    "total_cost_converted": {"amount":400, "unit":"AUD"},
 	    "total_cost_foreign": {"amount":100, "unit":"CHF"},
 	    "unit_cost_converted": {"amount":40, "unit":"AUD"},
@@ -517,16 +517,16 @@
 	  "id":"iri1",
 	  "opening": {},
 	  "purchase": {
-	    "conversion": {"date": {"day":1, "month":1, "year":2015}, "dst":"AUD", "rate":2, "src":"CHF"},
-	    "date": {"day":1, "month":1, "year":2015},
+	    "conversion": {"date":"2015-01-01", "dst":"AUD", "rate":2, "src":"CHF"},
+	    "date":"2015-01-01",
 	    "total_cost_converted": {"amount":200, "unit":"AUD"},
 	    "total_cost_foreign": {"amount":100, "unit":"CHF"},
 	    "unit_cost_converted": {"amount":20, "unit":"AUD"},
 	    "unit_cost_foreign": {"amount":10, "unit":"CHF"}
 	  },
 	  "sale": {
-	    "conversion": {"date": {"day":1, "month":5, "year":2018}, "dst":"AUD", "rate":4, "src":"CHF"},
-	    "date": {"day":1, "month":5, "year":2018},
+	    "conversion": {"date":"2018-05-01", "dst":"AUD", "rate":4, "src":"CHF"},
+	    "date":"2018-05-01",
 	    "total_cost_converted": {"amount":400, "unit":"AUD"},
 	    "total_cost_foreign": {"amount":100, "unit":"CHF"},
 	    "unit_cost_converted": {"amount":40, "unit":"AUD"},

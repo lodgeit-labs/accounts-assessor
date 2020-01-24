@@ -471,7 +471,7 @@
 	{
 	  "closing": {
 	    "conversion": {
-  "date": {"day":1, "month":1, "year":2018},
+  "date":"2018-01-01",
   "dst":"oranges",
   "rate":4,
   "src":"bananas"
@@ -503,12 +503,12 @@
 	  "opening": {},
 	  "purchase": {
 	    "conversion": {
-  "date": {"day":1, "month":1, "year":2016},
+  "date":"2016-01-01",
   "dst":"oranges",
   "rate":2,
   "src":"bananas"
 },
-	    "date": {"day":1, "month":1, "year":2016},
+	    "date":"2016-01-01",
 	    "total_cost_converted": {"amount":1000, "unit":"oranges"},
 	    "total_cost_foreign": {"amount":500, "unit":"bananas"},
 	    "unit_cost_converted": {"amount":1000, "unit":"oranges"},
@@ -547,7 +547,7 @@
 	{
 	  "closing": {
 	    "conversion": {
-  "date": {"day":1, "month":1, "year":2018},
+  "date":"2018-01-01",
   "dst":"oranges",
   "rate":4,
   "src":"bananas"
@@ -579,12 +579,12 @@
 	  "opening": {},
 	  "purchase": {
 	    "conversion": {
-  "date": {"day":1, "month":1, "year":2016},
+  "date":"2016-01-01",
   "dst":"oranges",
   "rate":2,
   "src":"bananas"
 },
-	    "date": {"day":1, "month":1, "year":2016},
+	    "date":"2016-01-01",
 	    "total_cost_converted": {"amount":1000, "unit":"oranges"},
 	    "total_cost_foreign": {"amount":500, "unit":"bananas"},
 	    "unit_cost_converted": {"amount":1000, "unit":"oranges"},

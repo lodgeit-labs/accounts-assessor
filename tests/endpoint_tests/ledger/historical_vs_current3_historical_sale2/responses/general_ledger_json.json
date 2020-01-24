@@ -3,7 +3,7 @@
   {
     "source": {
       "account":"CHF_Bank",
-      "date": {"day":1, "month":1, "year":2015},
+      "date":"2015-01-01",
       "exchanged":"vector([coord('Leonteq_N',10)])",
       "misc": {},
       "report_currency_transacted_amount_converted_at_balance_date": [ {"credit":600, "debit":0, "unit":"AUD"} ],
@@ -14,7 +14,7 @@
     "transactions": [
       {
 	"account":"BanksCHF_Bank",
-	"date": {"day":1, "month":1, "year":2015},
+	"date":"2015-01-01",
 	"description":"Invest_In - outgoing money",
 	"running_balance": [ {"credit":100, "debit":0, "unit":"CHF"} ],
 	"type":"instant",
@@ -24,7 +24,7 @@
       },
       {
 	"account":"CurrencyMovementCHF_Bank",
-	"date": {"day":1, "month":1, "year":2015},
+	"date":"2015-01-01",
 	"description":"Invest_In - outgoing money - currency movement adjustment - historical part",
 	"running_balance": [
 	   {
@@ -56,7 +56,7 @@
       },
       {
 	"account":"CurrencyMovementCHF_Bank",
-	"date": {"day":1, "month":1, "year":2018},
+	"date":"2018-01-01",
 	"description":"Invest_In - outgoing money - currency movement adjustment - current part",
 	"running_balance": [
 	   {"credit":0, "debit":100, "unit":"CHF"},
@@ -80,7 +80,7 @@
       },
       {
 	"account":"FinancialInvestmentsLeonteq_N",
-	"date": {"day":1, "month":1, "year":2015},
+	"date":"2015-01-01",
 	"description":"Invest_In",
 	"running_balance": [ {"credit":0, "debit":10, "unit":"Leonteq_N"} ],
 	"type":"instant",
@@ -90,7 +90,7 @@
       },
       {
 	"account":"InvestmentIncomeUnrealizedOnlyCurrencyMovementLeonteq_N",
-	"date": {"day":1, "month":1, "year":2018},
+	"date":"2018-01-01",
 	"description":"comment:, comment2:Invest_In - current part",
 	"running_balance": [
 	   {"credit":10, "debit":0, "unit":"Leonteq_N"},
@@ -114,7 +114,7 @@
       },
       {
 	"account":"InvestmentIncomeUnrealizedWithoutCurrencyMovementLeonteq_N",
-	"date": {"day":1, "month":1, "year":2018},
+	"date":"2018-01-01",
 	"description":"comment:, comment2:Invest_In - current part",
 	"running_balance": [
 	   {
@@ -146,7 +146,7 @@
       },
       {
 	"account":"InvestmentIncomeUnrealizedOnlyCurrencyMovementLeonteq_N",
-	"date": {"day":1, "month":1, "year":2015},
+	"date":"2015-01-01",
 	"description":"comment:, comment2:Invest_In - historical part",
 	"running_balance": [
 	   {"credit":10, "debit":0, "unit":"Leonteq_N"},
@@ -195,7 +195,7 @@
       },
       {
 	"account":"InvestmentIncomeUnrealizedWithoutCurrencyMovementLeonteq_N",
-	"date": {"day":1, "month":1, "year":2015},
+	"date":"2015-01-01",
 	"description":"comment:, comment2:Invest_In - historical part",
 	"running_balance": [
 	   {"credit":0, "debit":200, "unit":"AUD"},
@@ -239,7 +239,7 @@
   {
     "source": {
       "account":"CHF_Bank",
-      "date": {"day":1, "month":5, "year":2015},
+      "date":"2015-05-01",
       "exchanged":"vector([coord('Leonteq_N',-10)])",
       "misc": {},
       "report_currency_transacted_amount_converted_at_balance_date": [ {"credit":0, "debit":1200, "unit":"AUD"} ],
@@ -250,7 +250,7 @@
     "transactions": [
       {
 	"account":"BanksCHF_Bank",
-	"date": {"day":1, "month":5, "year":2015},
+	"date":"2015-05-01",
 	"description":"Dispose_Of - incoming money",
 	"running_balance": [ {"credit":0, "debit":100, "unit":"CHF"} ],
 	"type":"instant",
@@ -260,7 +260,7 @@
       },
       {
 	"account":"CurrencyMovementCHF_Bank",
-	"date": {"day":1, "month":5, "year":2015},
+	"date":"2015-05-01",
 	"description":"Dispose_Of - incoming money - currency movement adjustment - historical part",
 	"running_balance": [
 	   {"credit":0, "debit":100, "unit":"CHF"},
@@ -298,7 +298,7 @@
       },
       {
 	"account":"CurrencyMovementCHF_Bank",
-	"date": {"day":1, "month":1, "year":2018},
+	"date":"2018-01-01",
 	"description":"Dispose_Of - incoming money - currency movement adjustment - current part",
 	"running_balance": [
 	   {"credit":100, "debit":0, "unit":"CHF"},
@@ -327,7 +327,7 @@
       },
       {
 	"account":"FinancialInvestmentsLeonteq_N",
-	"date": {"day":1, "month":5, "year":2015},
+	"date":"2015-05-01",
 	"description":"Dispose_Of",
 	"running_balance": [],
 	"type":"instant",
@@ -337,7 +337,7 @@
       },
       {
 	"account":"InvestmentIncomeUnrealizedOnlyCurrencyMovementLeonteq_N",
-	"date": {"day":1, "month":1, "year":2018},
+	"date":"2018-01-01",
 	"description":"comment:, comment2:Dispose_Of - current part",
 	"running_balance": [
 	   {
@@ -365,7 +365,7 @@
       },
       {
 	"account":"InvestmentIncomeUnrealizedWithoutCurrencyMovementLeonteq_N",
-	"date": {"day":1, "month":1, "year":2018},
+	"date":"2018-01-01",
 	"description":"comment:, comment2:Dispose_Of - current part",
 	"running_balance": [
 	   {"credit":0, "debit":200, "unit":"AUD"},
@@ -393,7 +393,7 @@
       },
       {
 	"account":"InvestmentIncomeUnrealizedOnlyCurrencyMovementLeonteq_N",
-	"date": {"day":31, "month":12, "year":2017},
+	"date":"2017-12-31",
 	"description":"comment:, comment2:Dispose_Of - historical part",
 	"running_balance": [
 	   {
@@ -432,7 +432,7 @@
       },
       {
 	"account":"InvestmentIncomeUnrealizedWithoutCurrencyMovementLeonteq_N",
-	"date": {"day":31, "month":12, "year":2017},
+	"date":"2017-12-31",
 	"description":"comment:, comment2:Dispose_Of - historical part",
 	"running_balance": [
 	   {
@@ -460,7 +460,7 @@
       },
       {
 	"account":"InvestmentIncomeRealizedOnlyCurrencyMovementLeonteq_N",
-	"date": {"day":1, "month":5, "year":2015},
+	"date":"2015-05-01",
 	"description":"comment:, comment2:Dispose_Of",
 	"running_balance": [
 	   {"credit":400, "debit":0, "unit":"AUD"},
@@ -484,7 +484,7 @@
       },
       {
 	"account":"InvestmentIncomeRealizedWithoutCurrencyMovementLeonteq_N",
-	"date": {"day":1, "month":5, "year":2015},
+	"date":"2015-05-01",
 	"description":"comment:, comment2:Dispose_Of",
 	"running_balance": [
 	   {"credit":0, "debit":200, "unit":"AUD"},

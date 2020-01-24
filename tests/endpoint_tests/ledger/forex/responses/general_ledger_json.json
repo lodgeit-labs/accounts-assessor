@@ -3,7 +3,7 @@
   {
     "source": {
       "account":"NationalAustraliaBank",
-      "date": {"day":1, "month":1, "year":2016},
+      "date":"2016-01-01",
       "exchanged":"vector([coord('GOOG',1)])",
       "misc": {},
       "report_currency_transacted_amount_converted_at_balance_date": [ {"credit":641.1, "debit":0, "unit":"AUD"} ],
@@ -14,7 +14,7 @@
     "transactions": [
       {
 	"account":"BanksNationalAustraliaBank",
-	"date": {"day":1, "month":1, "year":2016},
+	"date":"2016-01-01",
 	"description":"Invest_In - outgoing money",
 	"running_balance": [ {"credit":500, "debit":0, "unit":"USD"} ],
 	"type":"instant",
@@ -24,7 +24,7 @@
       },
       {
 	"account":"CurrencyMovementNationalAustraliaBank",
-	"date": {"day":1, "month":1, "year":2016},
+	"date":"2016-01-01",
 	"description":"Invest_In - outgoing money - currency movement adjustment - only current period",
 	"running_balance": [
 	   {"credit":0, "debit":500, "unit":"USD"},
@@ -48,7 +48,7 @@
       },
       {
 	"account":"FinancialInvestmentsGOOG",
-	"date": {"day":1, "month":1, "year":2016},
+	"date":"2016-01-01",
 	"description":"Invest_In",
 	"running_balance": [ {"credit":0, "debit":1, "unit":"GOOG"} ],
 	"type":"instant",
@@ -58,7 +58,7 @@
       },
       {
 	"account":"InvestmentIncomeUnrealizedOnlyCurrencyMovementGOOG",
-	"date": {"day":1, "month":1, "year":2016},
+	"date":"2016-01-01",
 	"description":"comment:, comment2:Invest_In - single period",
 	"running_balance": [
 	   {"credit":1, "debit":0, "unit":"GOOG"},
@@ -82,7 +82,7 @@
       },
       {
 	"account":"InvestmentIncomeUnrealizedWithoutCurrencyMovementGOOG",
-	"date": {"day":1, "month":1, "year":2016},
+	"date":"2016-01-01",
 	"description":"comment:, comment2:Invest_In - single period",
 	"running_balance": [
 	   {"credit":0, "debit":686.97, "unit":"AUD"},

@@ -3,7 +3,7 @@
   {
     "source": {
       "account":"CHF_Bank",
-      "date": {"day":1, "month":1, "year":2018},
+      "date":"2018-01-01",
       "exchanged":"vector([])",
       "misc": {},
       "report_currency_transacted_amount_converted_at_balance_date": [ {"credit":600, "debit":0, "unit":"AUD"} ],
@@ -14,7 +14,7 @@
     "transactions": [
       {
 	"account":"BanksCHF_Bank",
-	"date": {"day":1, "month":1, "year":2018},
+	"date":"2018-01-01",
 	"description":"Bank_Charges - outgoing money",
 	"running_balance": [ {"credit":100, "debit":0, "unit":"CHF"} ],
 	"type":"instant",
@@ -24,7 +24,7 @@
       },
       {
 	"account":"CurrencyMovementCHF_Bank",
-	"date": {"day":1, "month":1, "year":2018},
+	"date":"2018-01-01",
 	"description":"Bank_Charges - outgoing money - currency movement adjustment - only current period",
 	"running_balance": [
 	   {"credit":0, "debit":100, "unit":"CHF"},
@@ -48,7 +48,7 @@
       },
       {
 	"account":"BankCharges",
-	"date": {"day":1, "month":1, "year":2018},
+	"date":"2018-01-01",
 	"description":"Bank_Charges",
 	"running_balance": [ {"credit":0, "debit":400, "unit":"AUD"} ],
 	"type":"instant",
@@ -61,7 +61,7 @@
   {
     "source": {
       "account":"CHF_Bank",
-      "date": {"day":1, "month":5, "year":2018},
+      "date":"2018-05-01",
       "exchanged":"vector([])",
       "misc": {},
       "report_currency_transacted_amount_converted_at_balance_date": [ {"credit":0, "debit":600, "unit":"AUD"} ],
@@ -72,7 +72,7 @@
     "transactions": [
       {
 	"account":"BanksCHF_Bank",
-	"date": {"day":1, "month":5, "year":2018},
+	"date":"2018-05-01",
 	"description":"Income - incoming money",
 	"running_balance": [],
 	"type":"instant",
@@ -82,7 +82,7 @@
       },
       {
 	"account":"CurrencyMovementCHF_Bank",
-	"date": {"day":1, "month":5, "year":2018},
+	"date":"2018-05-01",
 	"description":"Income - incoming money - currency movement adjustment - only current period",
 	"running_balance": [
 	   {
@@ -110,7 +110,7 @@
       },
       {
 	"account":"Income",
-	"date": {"day":1, "month":5, "year":2018},
+	"date":"2018-05-01",
 	"description":"Income",
 	"running_balance": [ {"credit":400, "debit":0, "unit":"AUD"} ],
 	"type":"instant",

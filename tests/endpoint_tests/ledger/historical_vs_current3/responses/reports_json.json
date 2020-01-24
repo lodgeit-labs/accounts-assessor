@@ -448,7 +448,7 @@
       "rows": [
 	{
 	  "closing": {
-	    "conversion": {"date": {"day":30, "month":12, "year":2018}, "dst":"AUD", "rate":6, "src":"CHF"},
+	    "conversion": {"date":"2018-12-30", "dst":"AUD", "rate":6, "src":"CHF"},
 	    "total_cost_converted": {"amount":600, "unit":"AUD"},
 	    "total_cost_foreign": {"amount":100, "unit":"CHF"},
 	    "unit_cost_converted": {"amount":60, "unit":"AUD"},
@@ -474,7 +474,7 @@
 	    "unit_cost_foreign": {"amount":10, "unit":"CHF"}
 	  },
 	  "opening": {
-	    "conversion": {"date": {"day":1, "month":1, "year":2018}, "dst":"AUD", "rate":4, "src":"CHF"},
+	    "conversion": {"date":"2018-01-01", "dst":"AUD", "rate":4, "src":"CHF"},
 	    "total_cost_converted": {"amount":400, "unit":"AUD"},
 	    "total_cost_foreign": {"amount":100, "unit":"CHF"},
 	    "unit_cost_converted": {"amount":40, "unit":"AUD"},
@@ -516,7 +516,7 @@
       "rows": [
 	{
 	  "closing": {
-	    "conversion": {"date": {"day":30, "month":12, "year":2018}, "dst":"AUD", "rate":6, "src":"CHF"},
+	    "conversion": {"date":"2018-12-30", "dst":"AUD", "rate":6, "src":"CHF"},
 	    "total_cost_converted": {"amount":600, "unit":"AUD"},
 	    "total_cost_foreign": {"amount":100, "unit":"CHF"},
 	    "unit_cost_converted": {"amount":60, "unit":"AUD"},
@@ -543,8 +543,8 @@
 	  },
 	  "opening": {},
 	  "purchase": {
-	    "conversion": {"date": {"day":1, "month":1, "year":2015}, "dst":"AUD", "rate":2, "src":"CHF"},
-	    "date": {"day":1, "month":1, "year":2015},
+	    "conversion": {"date":"2015-01-01", "dst":"AUD", "rate":2, "src":"CHF"},
+	    "date":"2015-01-01",
 	    "total_cost_converted": {"amount":200, "unit":"AUD"},
 	    "total_cost_foreign": {"amount":100, "unit":"CHF"},
 	    "unit_cost_converted": {"amount":20, "unit":"AUD"},

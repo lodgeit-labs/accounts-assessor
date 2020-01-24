@@ -3,7 +3,7 @@
   {
     "source": {
       "account":"CAD_Bank",
-      "date": {"day":1, "month":1, "year":2000},
+      "date":"2000-01-01",
       "exchanged":"vector([])",
       "misc": {},
       "report_currency_transacted_amount_converted_at_balance_date": [ {"credit":0, "debit":200, "unit":"CAD"} ],
@@ -14,7 +14,7 @@
     "transactions": [
       {
 	"account":"BanksCAD_Bank",
-	"date": {"day":1, "month":1, "year":2000},
+	"date":"2000-01-01",
 	"description":"Introduce_Capital - incoming money",
 	"running_balance": [ {"credit":0, "debit":200, "unit":"CAD"} ],
 	"type":"instant",
@@ -24,7 +24,7 @@
       },
       {
 	"account":"ShareCapital",
-	"date": {"day":1, "month":1, "year":2000},
+	"date":"2000-01-01",
 	"description":"Introduce_Capital",
 	"running_balance": [ {"credit":200, "debit":0, "unit":"CAD"} ],
 	"type":"instant",
@@ -37,7 +37,7 @@
   {
     "source": {
       "account":"CAD_Bank",
-      "date": {"day":2, "month":1, "year":2000},
+      "date":"2000-01-02",
       "exchanged":"vector([])",
       "misc": {},
       "report_currency_transacted_amount_converted_at_balance_date": [ {"credit":120, "debit":0, "unit":"CAD"} ],
@@ -48,7 +48,7 @@
     "transactions": [
       {
 	"account":"BanksCAD_Bank",
-	"date": {"day":2, "month":1, "year":2000},
+	"date":"2000-01-02",
 	"description":"Exchange - outgoing money",
 	"running_balance": [ {"credit":0, "debit":80, "unit":"CAD"} ],
 	"type":"instant",
@@ -58,7 +58,7 @@
       },
       {
 	"account":"ClearingAccount",
-	"date": {"day":2, "month":1, "year":2000},
+	"date":"2000-01-02",
 	"description":"Exchange",
 	"running_balance": [ {"credit":0, "debit":120, "unit":"CAD"} ],
 	"type":"instant",
@@ -71,7 +71,7 @@
   {
     "source": {
       "account":"USD_Bank",
-      "date": {"day":2, "month":1, "year":2000},
+      "date":"2000-01-02",
       "exchanged":"vector([])",
       "misc": {},
       "report_currency_transacted_amount_converted_at_balance_date": [ {"credit":0, "debit":100000, "unit":"CAD"} ],
@@ -82,7 +82,7 @@
     "transactions": [
       {
 	"account":"BanksUSD_Bank",
-	"date": {"day":2, "month":1, "year":2000},
+	"date":"2000-01-02",
 	"description":"Exchange - incoming money",
 	"running_balance": [ {"credit":0, "debit":100, "unit":"USD"} ],
 	"type":"instant",
@@ -92,7 +92,7 @@
       },
       {
 	"account":"CurrencyMovementUSD_Bank",
-	"date": {"day":2, "month":1, "year":2000},
+	"date":"2000-01-02",
 	"description":"Exchange - incoming money - currency movement adjustment - historical part",
 	"running_balance": [
 	   {
@@ -124,7 +124,7 @@
       },
       {
 	"account":"CurrencyMovementUSD_Bank",
-	"date": {"day":3, "month":1, "year":2000},
+	"date":"2000-01-03",
 	"description":"Exchange - incoming money - currency movement adjustment - current part",
 	"running_balance": [
 	   {"credit":100, "debit":0, "unit":"USD"},
@@ -148,7 +148,7 @@
       },
       {
 	"account":"ClearingAccount",
-	"date": {"day":2, "month":1, "year":2000},
+	"date":"2000-01-02",
 	"description":"Exchange",
 	"running_balance": [],
 	"type":"instant",
@@ -161,7 +161,7 @@
   {
     "source": {
       "account":"USD_Bank",
-      "date": {"day":3, "month":1, "year":2000},
+      "date":"2000-01-03",
       "exchanged":"vector([])",
       "misc": {},
       "report_currency_transacted_amount_converted_at_balance_date": [ {"credit":40000, "debit":0, "unit":"CAD"} ],
@@ -172,7 +172,7 @@
     "transactions": [
       {
 	"account":"BanksUSD_Bank",
-	"date": {"day":3, "month":1, "year":2000},
+	"date":"2000-01-03",
 	"description":"Buy_Food - outgoing money",
 	"running_balance": [ {"credit":0, "debit":60, "unit":"USD"} ],
 	"type":"instant",
@@ -182,7 +182,7 @@
       },
       {
 	"account":"CurrencyMovementUSD_Bank",
-	"date": {"day":3, "month":1, "year":2000},
+	"date":"2000-01-03",
 	"description":"Buy_Food - outgoing money - currency movement adjustment - only current period",
 	"running_balance": [
 	   {"credit":60, "debit":0, "unit":"USD"},
@@ -211,7 +211,7 @@
       },
       {
 	"account":"FoodExpenses",
-	"date": {"day":3, "month":1, "year":2000},
+	"date":"2000-01-03",
 	"description":"Buy_Food",
 	"running_balance": [ {"credit":0, "debit":52, "unit":"CAD"} ],
 	"type":"instant",
@@ -224,7 +224,7 @@
   {
     "source": {
       "account":"USD_Bank",
-      "date": {"day":5, "month":1, "year":2000},
+      "date":"2000-01-05",
       "exchanged":"vector([])",
       "misc": {},
       "report_currency_transacted_amount_converted_at_balance_date": [ {"credit":60000, "debit":0, "unit":"CAD"} ],
@@ -235,7 +235,7 @@
     "transactions": [
       {
 	"account":"BanksUSD_Bank",
-	"date": {"day":5, "month":1, "year":2000},
+	"date":"2000-01-05",
 	"description":"Exchange - outgoing money",
 	"running_balance": [],
 	"type":"instant",
@@ -245,7 +245,7 @@
       },
       {
 	"account":"CurrencyMovementUSD_Bank",
-	"date": {"day":5, "month":1, "year":2000},
+	"date":"2000-01-05",
 	"description":"Exchange - outgoing money - currency movement adjustment - only current period",
 	"running_balance": [
 	   {
@@ -278,7 +278,7 @@
       },
       {
 	"account":"ClearingAccount",
-	"date": {"day":5, "month":1, "year":2000},
+	"date":"2000-01-05",
 	"description":"Exchange",
 	"running_balance": [ {"credit":0, "debit":75, "unit":"CAD"} ],
 	"type":"instant",
@@ -291,7 +291,7 @@
   {
     "source": {
       "account":"CAD_Bank",
-      "date": {"day":5, "month":1, "year":2000},
+      "date":"2000-01-05",
       "exchanged":"vector([])",
       "misc": {},
       "report_currency_transacted_amount_converted_at_balance_date": [ {"credit":0, "debit":75, "unit":"CAD"} ],
@@ -302,7 +302,7 @@
     "transactions": [
       {
 	"account":"BanksCAD_Bank",
-	"date": {"day":5, "month":1, "year":2000},
+	"date":"2000-01-05",
 	"description":"Exchange - incoming money",
 	"running_balance": [ {"credit":0, "debit":155, "unit":"CAD"} ],
 	"type":"instant",
@@ -312,7 +312,7 @@
       },
       {
 	"account":"ClearingAccount",
-	"date": {"day":5, "month":1, "year":2000},
+	"date":"2000-01-05",
 	"description":"Exchange",
 	"running_balance": [],
 	"type":"instant",
@@ -325,7 +325,7 @@
   {
     "source": {
       "account":"CAD_Bank",
-      "date": {"day":7, "month":1, "year":2000},
+      "date":"2000-01-07",
       "exchanged":"vector([])",
       "misc": {},
       "report_currency_transacted_amount_converted_at_balance_date": [ {"credit":20, "debit":0, "unit":"CAD"} ],
@@ -336,7 +336,7 @@
     "transactions": [
       {
 	"account":"BanksCAD_Bank",
-	"date": {"day":7, "month":1, "year":2000},
+	"date":"2000-01-07",
 	"description":"Buy_Food - outgoing money",
 	"running_balance": [ {"credit":0, "debit":135, "unit":"CAD"} ],
 	"type":"instant",
@@ -346,7 +346,7 @@
       },
       {
 	"account":"FoodExpenses",
-	"date": {"day":7, "month":1, "year":2000},
+	"date":"2000-01-07",
 	"description":"Buy_Food",
 	"running_balance": [ {"credit":0, "debit":72, "unit":"CAD"} ],
 	"type":"instant",
