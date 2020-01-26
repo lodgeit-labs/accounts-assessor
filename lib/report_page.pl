@@ -1,11 +1,24 @@
 :- use_module(library(http/html_write)).
 
-%:- rdet(report_page/4).
-%:- rdet(report_page_with_table/4).
-%:- rdet(report_section/3).
-%:- rdet(html_tokenlist_string/2).
-%:- rdet(report_file_path/3).
+/* write file and return Url */
+write_report_file(File_Name, Text, Url) :-
+	report_file_path(File_Name, Url, File_Path),
+	write_file(File_Path, Text).
 
+make_json_report(Dict, Fn) :-
+	catch_maybe_with_backtrace(
+		make_json_report2(Dict, Fn),
+		E,
+		add_alert('error', E)
+	).
+
+make_json_report2(Dict, Fn) :-
+	Title = Key, Fn = Key,
+	atomic_list_concat([Fn, '.json'], Fn2_Value),
+	Fn2 = loc(file_name, Fn2_Value),
+	dict_json_text(Dict, Json_Text),
+	write_report_file(Fn2, Json_Text, Report_File_URL),
+	add_report_file(Key, Title, Report_File_URL).
 
 html_tokenlist_string(Tokenlist, String) :-
 	setup_call_cleanup(
@@ -18,39 +31,33 @@ html_tokenlist_string(Tokenlist, String) :-
 		),
 		free_memory_file(X)).
 
-/*TODO rename*/
-report_item(File_Name, Text, Url) :-
-	report_file_path(File_Name, Url, File_Path),
-	write_file(File_Path, Text).
-
-report_section(File_Name, Html_Tokenlist, Url) :-
-	html_tokenlist_string(Html_Tokenlist, Html_String),
-	report_item(File_Name, Html_String, Url).
-
-report_page_with_table(Title_Text, Tbl, File_Name, Id) :-
-	report_page(Title_Text, [Title_Text, ':', br([]), table([border="1"], Tbl)], File_Name, Id).
-	
-report_page(Title_Text, Body_Tags, File_Name, Id) :-
-	Page = page(
+page_with_body(Title_Text, Body_Tags, Html) :-
+	Html = page(
 		title([Title_Text]),
 		link([
 			type('text/css'),
 			rel('stylesheet'),
 			href('../../static/report_stylesheet.css')
 		]),
-		Body_Tags),
-	phrase(Page, Page_Tokenlist),
-	report_section(File_Name, Page_Tokenlist, Url),
-	report_entry(Title_Text, Url, Id).
-	
-report_entry(Title_Text, Url, Id) :-
-	add_report_file(Id, Title_Text, Url).
+		Body_Tags).
 
+error_page_html(Msg, Html) :-
+	term_string(Msg, Msg2),
+	page_with_body('error', [Msg2], Html).
 
-make_json_report(Dict, Fn) :-
-	Title = Key, Fn = Key,
-	dict_json_text(Dict, Json_Text),
-	atomic_list_concat([Fn, '.json'], Fn2_Value),
-	Fn2 = loc(file_name, Fn2_Value),
-	report_item(Fn2, Json_Text, Report_File_URL),
-	report_entry(Title, Report_File_URL, Key).
+page_with_table_html(Title, Tbl, Html) :-
+	page_with_body(Title, [Title, ':', br([]), table([border="1"], Tbl)], Html).
+
+add_report_page_with_body(Title, Body_Html, File_Name, Key) :-
+	page_with_body(Title, Body_Html, Page_Html),
+	add_report_page(Title, Page_Html, File_Name, Key).
+
+add_report_page(Title, Page_Html, File_Name, Key) :-
+	phrase(Page_Html, Tokenlist),
+	html_tokenlist_string(Tokenlist, String),
+	write_report_file(File_Name, String, Url),
+	add_report_file(Key, Title, Url).
+
+add_report_page_with_table(Title, Tbl, File_Name, Key) :-
+	page_with_table_html(Title, Tbl, Html),
+	add_report_page(Title, Html, File_Name, Key).

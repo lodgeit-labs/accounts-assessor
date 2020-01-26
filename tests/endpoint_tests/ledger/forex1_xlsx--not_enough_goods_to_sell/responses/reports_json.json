@@ -3,15 +3,15 @@
     "current": [
        {
   "account":"NetAssets",
-  "balance": [ {"credit":0, "debit":289.8551, "unit":"AUD"} ],
+  "balance": [ {"credit":0, "debit":714.2857, "unit":"AUD"} ],
   "child_sheet_entries": [
      {
   "account":"Assets",
-  "balance": [ {"credit":0, "debit":289.8551, "unit":"AUD"} ],
+  "balance": [ {"credit":0, "debit":714.2857, "unit":"AUD"} ],
   "child_sheet_entries": [
      {
   "account":"CurrentAssets",
-  "balance": [ {"credit":0, "debit":144.9275, "unit":"AUD"} ],
+  "balance": [ {"credit":0, "debit":142.8571, "unit":"AUD"} ],
   "child_sheet_entries": [
      {
   "account":"AssetsLivestock",
@@ -34,14 +34,14 @@
 },
      {
   "account":"CashAndCashEquivalents",
-  "balance": [ {"credit":0, "debit":144.9275, "unit":"AUD"} ],
+  "balance": [ {"credit":0, "debit":142.8571, "unit":"AUD"} ],
   "child_sheet_entries": [
      {
   "account":"Banks",
-  "balance": [ {"credit":0, "debit":144.9275, "unit":"AUD"} ],
+  "balance": [ {"credit":0, "debit":142.8571, "unit":"AUD"} ],
   "child_sheet_entries": [ {
   "account":"BanksWellsFargo",
-  "balance": [ {"credit":0, "debit":144.9275, "unit":"AUD"} ],
+  "balance": [ {"credit":0, "debit":142.8571, "unit":"AUD"} ],
   "child_sheet_entries": [],
   "transactions_count":2
 } ],
@@ -55,14 +55,14 @@
 },
      {
   "account":"NoncurrentAssets",
-  "balance": [ {"credit":0, "debit":144.9275, "unit":"AUD"} ],
+  "balance": [ {"credit":0, "debit":571.4286, "unit":"AUD"} ],
   "child_sheet_entries": [
      {
   "account":"FinancialInvestments",
-  "balance": [ {"credit":0, "debit":144.9275, "unit":"AUD"} ],
+  "balance": [ {"credit":0, "debit":571.4286, "unit":"AUD"} ],
   "child_sheet_entries": [ {
   "account":"FinancialInvestmentsSG_Issuer_SA",
-  "balance": [ {"credit":0, "debit":144.9275, "unit":"AUD"} ],
+  "balance": [ {"credit":0, "debit":571.4286, "unit":"AUD"} ],
   "child_sheet_entries": [],
   "transactions_count":1
 } ],
@@ -126,7 +126,7 @@
 },
        {
   "account":"Equity",
-  "balance": [ {"credit":289.8551, "debit":0, "unit":"AUD"} ],
+  "balance": [ {"credit":714.2857, "debit":0, "unit":"AUD"} ],
   "child_sheet_entries": [
      {
   "account":"CapitalIntroduced",
@@ -142,11 +142,11 @@
 },
      {
   "account":"RetainedEarnings",
-  "balance": [],
+  "balance": [ {"credit":424.4306, "debit":0, "unit":"AUD"} ],
   "child_sheet_entries": [
      {
   "account":"CurrentEarnings",
-  "balance": [],
+  "balance": [ {"credit":424.4306, "debit":0, "unit":"AUD"} ],
   "child_sheet_entries": [],
   "transactions_count":4
 },
@@ -373,7 +373,11 @@
 	  "b":"report_value(reports/ir/current/totals/gains/unr/market_converted)",
 	  "op":"="
 	},
-	"evaluation": {"a": [], "b": [ {"amount":0, "unit":"AUD"} ], "op":"="},
+	"evaluation": {
+	  "a": [ {"amount":434.7826, "unit":"AUD"} ],
+	  "b": [ {"amount":434.7826, "unit":"AUD"} ],
+	  "op":"="
+	},
 	"status":"ok"
       },
       {
@@ -382,7 +386,11 @@
 	  "b":"report_value(reports/ir/current/totals/gains/unr/forex)",
 	  "op":"="
 	},
-	"evaluation": {"a": [], "b": [ {"amount":0, "unit":"AUD"} ], "op":"="},
+	"evaluation": {
+	  "a": [ {"amount":-8.2816, "unit":"AUD"} ],
+	  "b": [ {"amount":-8.2816, "unit":"AUD"} ],
+	  "op":"="
+	},
 	"status":"ok"
       },
       {
@@ -391,7 +399,11 @@
 	  "b":"report_value(reports/ir/current/totals/gains/total)",
 	  "op":"="
 	},
-	"evaluation": {"a": [], "b": [ {"amount":0, "unit":"AUD"} ], "op":"="},
+	"evaluation": {
+	  "a": [ {"amount":426.501, "unit":"AUD"} ],
+	  "b": [ {"amount":426.501, "unit":"AUD"} ],
+	  "op":"="
+	},
 	"status":"ok"
       },
       {
@@ -400,7 +412,11 @@
 	  "b":"report_value(reports/ir/current/totals/gains/unrealized_total)",
 	  "op":"="
 	},
-	"evaluation": {"a": [], "b": [ {"amount":0, "unit":"AUD"} ], "op":"="},
+	"evaluation": {
+	  "a": [ {"amount":426.501, "unit":"AUD"} ],
+	  "b": [ {"amount":426.501, "unit":"AUD"} ],
+	  "op":"="
+	},
 	"status":"ok"
       },
       {
@@ -419,8 +435,8 @@
 	  "op":"="
 	},
 	"evaluation": {
-	  "a": [ {"amount":144.9275, "unit":"AUD"} ],
-	  "b": [ {"amount":144.9275, "unit":"AUD"} ],
+	  "a": [ {"amount":571.4286, "unit":"AUD"} ],
+	  "b": [ {"amount":571.4286, "unit":"AUD"} ],
 	  "op":"="
 	},
 	"status":"ok"
@@ -441,8 +457,8 @@
 	  "op":"="
 	},
 	"evaluation": {
-	  "a": [ {"amount":289.8551, "unit":"AUD"} ],
-	  "b": [ {"amount":289.8551, "unit":"AUD"} ],
+	  "a": [ {"amount":714.2857, "unit":"AUD"} ],
+	  "b": [ {"amount":714.2857, "unit":"AUD"} ],
 	  "op":"="
 	},
 	"status":"ok"
@@ -454,29 +470,29 @@
       "rows": [
 	{
 	  "closing": {
-	    "conversion": {"date":"2017-07-01", "dst":"AUD", "rate":1.4493, "src":"USD"},
-	    "total_cost_converted": {"amount":144.9275, "unit":"AUD"},
-	    "total_cost_foreign": {"amount":100, "unit":"USD"},
-	    "unit_cost_converted": {"amount":14.4928, "unit":"AUD"},
-	    "unit_cost_foreign": {"amount":10, "unit":"USD"}
+	    "conversion": {"date":"2018-06-30", "dst":"AUD", "rate":1.4286, "src":"USD"},
+	    "total_cost_converted": {"amount":571.4286, "unit":"AUD"},
+	    "total_cost_foreign": {"amount":400, "unit":"USD"},
+	    "unit_cost_converted": {"amount":57.1429, "unit":"AUD"},
+	    "unit_cost_foreign": {"amount":40, "unit":"USD"}
 	  },
 	  "count":10,
 	  "currency":"USD",
 	  "gains": {
 	    "rea": {},
 	    "unr": {
-	      "forex": {"amount":0, "unit":"AUD"},
-	      "market_converted": {"amount":0, "unit":"AUD"},
-	      "market_foreign": {"amount":0, "unit":"USD"}
+	      "forex": {"amount":-8.2816, "unit":"AUD"},
+	      "market_converted": {"amount":434.7826, "unit":"AUD"},
+	      "market_foreign": {"amount":300, "unit":"USD"}
 	    }
 	  },
 	  "id":"iri1",
 	  "on_hand_at_cost": {
 	    "count":10,
-	    "total_converted_at_balance": {"amount":144.9275, "unit":"AUD"},
+	    "total_converted_at_balance": {"amount":142.8571, "unit":"AUD"},
 	    "total_converted_at_purchase": {"amount":144.9275, "unit":"AUD"},
 	    "total_foreign": {"amount":100, "unit":"USD"},
-	    "total_forex_gain": {"amount":0, "unit":"AUD"},
+	    "total_forex_gain": {"amount":-2.0704, "unit":"AUD"},
 	    "unit_cost_foreign": {"amount":10, "unit":"USD"}
 	  },
 	  "opening": {},
@@ -494,24 +510,24 @@
       ],
       "totals": {
 	"closing": {
-	  "total_cost_converted": [ {"amount":144.9275, "unit":"AUD"} ],
-	  "total_cost_foreign": [ {"amount":100, "unit":"USD"} ]
+	  "total_cost_converted": [ {"amount":571.4286, "unit":"AUD"} ],
+	  "total_cost_foreign": [ {"amount":400, "unit":"USD"} ]
 	},
 	"gains": {
 	  "rea": {"forex": [], "market_converted": [], "market_foreign": []},
 	  "realized_total": [],
-	  "total": [ {"amount":0, "unit":"AUD"} ],
+	  "total": [ {"amount":426.501, "unit":"AUD"} ],
 	  "unr": {
-	    "forex": [ {"amount":0, "unit":"AUD"} ],
-	    "market_converted": [ {"amount":0, "unit":"AUD"} ],
-	    "market_foreign": [ {"amount":0, "unit":"USD"} ]
+	    "forex": [ {"amount":-8.2816, "unit":"AUD"} ],
+	    "market_converted": [ {"amount":434.7826, "unit":"AUD"} ],
+	    "market_foreign": [ {"amount":300, "unit":"USD"} ]
 	  },
-	  "unrealized_total": [ {"amount":0, "unit":"AUD"} ]
+	  "unrealized_total": [ {"amount":426.501, "unit":"AUD"} ]
 	},
 	"on_hand_at_cost": {
-	  "total_converted_at_balance": [ {"amount":144.9275, "unit":"AUD"} ],
+	  "total_converted_at_balance": [ {"amount":142.8571, "unit":"AUD"} ],
 	  "total_converted_at_purchase": [ {"amount":144.9275, "unit":"AUD"} ],
-	  "total_forex_gain": [ {"amount":0, "unit":"AUD"} ]
+	  "total_forex_gain": [ {"amount":-2.0704, "unit":"AUD"} ]
 	},
 	"opening": {"total_cost_converted": [], "total_cost_foreign": []}
       }
@@ -520,29 +536,29 @@
       "rows": [
 	{
 	  "closing": {
-	    "conversion": {"date":"2017-07-01", "dst":"AUD", "rate":1.4493, "src":"USD"},
-	    "total_cost_converted": {"amount":144.9275, "unit":"AUD"},
-	    "total_cost_foreign": {"amount":100, "unit":"USD"},
-	    "unit_cost_converted": {"amount":14.4928, "unit":"AUD"},
-	    "unit_cost_foreign": {"amount":10, "unit":"USD"}
+	    "conversion": {"date":"2018-06-30", "dst":"AUD", "rate":1.4286, "src":"USD"},
+	    "total_cost_converted": {"amount":571.4286, "unit":"AUD"},
+	    "total_cost_foreign": {"amount":400, "unit":"USD"},
+	    "unit_cost_converted": {"amount":57.1429, "unit":"AUD"},
+	    "unit_cost_foreign": {"amount":40, "unit":"USD"}
 	  },
 	  "count":10,
 	  "currency":"USD",
 	  "gains": {
 	    "rea": {},
 	    "unr": {
-	      "forex": {"amount":0, "unit":"AUD"},
-	      "market_converted": {"amount":0, "unit":"AUD"},
-	      "market_foreign": {"amount":0, "unit":"USD"}
+	      "forex": {"amount":-8.2816, "unit":"AUD"},
+	      "market_converted": {"amount":434.7826, "unit":"AUD"},
+	      "market_foreign": {"amount":300, "unit":"USD"}
 	    }
 	  },
 	  "id":"iri1",
 	  "on_hand_at_cost": {
 	    "count":10,
-	    "total_converted_at_balance": {"amount":144.9275, "unit":"AUD"},
+	    "total_converted_at_balance": {"amount":142.8571, "unit":"AUD"},
 	    "total_converted_at_purchase": {"amount":144.9275, "unit":"AUD"},
 	    "total_foreign": {"amount":100, "unit":"USD"},
-	    "total_forex_gain": {"amount":0, "unit":"AUD"},
+	    "total_forex_gain": {"amount":-2.0704, "unit":"AUD"},
 	    "unit_cost_foreign": {"amount":10, "unit":"USD"}
 	  },
 	  "opening": {},
@@ -560,24 +576,24 @@
       ],
       "totals": {
 	"closing": {
-	  "total_cost_converted": [ {"amount":144.9275, "unit":"AUD"} ],
-	  "total_cost_foreign": [ {"amount":100, "unit":"USD"} ]
+	  "total_cost_converted": [ {"amount":571.4286, "unit":"AUD"} ],
+	  "total_cost_foreign": [ {"amount":400, "unit":"USD"} ]
 	},
 	"gains": {
 	  "rea": {"forex": [], "market_converted": [], "market_foreign": []},
 	  "realized_total": [],
-	  "total": [ {"amount":0, "unit":"AUD"} ],
+	  "total": [ {"amount":426.501, "unit":"AUD"} ],
 	  "unr": {
-	    "forex": [ {"amount":0, "unit":"AUD"} ],
-	    "market_converted": [ {"amount":0, "unit":"AUD"} ],
-	    "market_foreign": [ {"amount":0, "unit":"USD"} ]
+	    "forex": [ {"amount":-8.2816, "unit":"AUD"} ],
+	    "market_converted": [ {"amount":434.7826, "unit":"AUD"} ],
+	    "market_foreign": [ {"amount":300, "unit":"USD"} ]
 	  },
-	  "unrealized_total": [ {"amount":0, "unit":"AUD"} ]
+	  "unrealized_total": [ {"amount":426.501, "unit":"AUD"} ]
 	},
 	"on_hand_at_cost": {
-	  "total_converted_at_balance": [ {"amount":144.9275, "unit":"AUD"} ],
+	  "total_converted_at_balance": [ {"amount":142.8571, "unit":"AUD"} ],
 	  "total_converted_at_purchase": [ {"amount":144.9275, "unit":"AUD"} ],
-	  "total_forex_gain": [ {"amount":0, "unit":"AUD"} ]
+	  "total_forex_gain": [ {"amount":-2.0704, "unit":"AUD"} ]
 	},
 	"opening": {"total_cost_converted": [], "total_cost_foreign": []}
       }
@@ -587,7 +603,7 @@
     "current": [
        {
   "account":"NetIncomeLoss",
-  "balance": [],
+  "balance": [ {"credit":424.4306, "debit":0, "unit":"AUD"} ],
   "child_sheet_entries": [
      {
   "account":"Expenses",
@@ -646,7 +662,7 @@
 },
      {
   "account":"Revenue",
-  "balance": [],
+  "balance": [ {"credit":424.4306, "debit":0, "unit":"AUD"} ],
   "child_sheet_entries": [
      {
   "account":"ClearingAccount",
@@ -656,10 +672,10 @@
 },
      {
   "account":"CurrencyMovement",
-  "balance": [],
+  "balance": [ {"credit":0, "debit":2.0704, "unit":"AUD"} ],
   "child_sheet_entries": [ {
   "account":"CurrencyMovementWellsFargo",
-  "balance": [],
+  "balance": [ {"credit":0, "debit":2.0704, "unit":"AUD"} ],
   "child_sheet_entries": [],
   "transactions_count":2
 } ],
@@ -673,7 +689,7 @@
 },
      {
   "account":"InvestmentIncome",
-  "balance": [],
+  "balance": [ {"credit":426.501, "debit":0, "unit":"AUD"} ],
   "child_sheet_entries": [
      {
   "account":"InvestmentIncomeRealized",
@@ -710,15 +726,15 @@
 },
      {
   "account":"InvestmentIncomeUnrealized",
-  "balance": [],
+  "balance": [ {"credit":426.501, "debit":0, "unit":"AUD"} ],
   "child_sheet_entries": [
      {
   "account":"InvestmentIncomeUnrealizedOnlyCurrencyMovement",
-  "balance": [],
+  "balance": [ {"credit":0, "debit":8.2816, "unit":"AUD"} ],
   "child_sheet_entries": [
      {
   "account":"InvestmentIncomeUnrealizedOnlyCurrencyMovementSG_Issuer_SA",
-  "balance": [],
+  "balance": [ {"credit":0, "debit":8.2816, "unit":"AUD"} ],
   "child_sheet_entries": [],
   "transactions_count":1
 }
@@ -727,11 +743,11 @@
 },
      {
   "account":"InvestmentIncomeUnrealizedWithoutCurrencyMovement",
-  "balance": [],
+  "balance": [ {"credit":434.7826, "debit":0, "unit":"AUD"} ],
   "child_sheet_entries": [
      {
   "account":"InvestmentIncomeUnrealizedWithoutCurrencyMovementSG_Issuer_SA",
-  "balance": [],
+  "balance": [ {"credit":434.7826, "debit":0, "unit":"AUD"} ],
   "child_sheet_entries": [],
   "transactions_count":1
 }

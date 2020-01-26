@@ -1,20 +1,14 @@
 
-/*TODO add more rdet declarations here*/
-%:- rdet(preprocess_s_transactions/6).
-%:- rdet(preprocess_s_transactions2/8).
 
-
-
-
-preprocess_s_transactions(Static_Data, S_Transactions, Processed_S_Transactions, Transactions_Out, Outstanding_Out, Debug_Info) :-
-	preprocess_s_transactions2(Static_Data, S_Transactions, Processed_S_Transactions, Transactions_Out, ([],[]), Outstanding_Out, Debug_Info, []).
+preprocess_s_transactions(Static_Data, S_Transactions, Processed_S_Transactions, Transactions_Out, Outstanding_Out) :-
+	preprocess_s_transactions2(Static_Data, S_Transactions, Processed_S_Transactions, Transactions_Out, ([],[]), Outstanding_Out, []).
 
 /*
 	call preprocess_s_transaction on each item of the S_Transactions list and do some error checking and cleaning up
 */
-preprocess_s_transactions2(_, [], [], [], Outstanding, Outstanding, ['done.'], _).
+preprocess_s_transactions2(_, [], [], [], Outstanding, Outstanding, _).
 
-preprocess_s_transactions2(Static_Data, [S_Transaction|S_Transactions], Processed_S_Transactions, Transactions_Out, Outstanding_In, Outstanding_Out, [Debug_Head|Debug_Tail], Debug_So_Far) :-
+preprocess_s_transactions2(Static_Data, [S_Transaction|S_Transactions], Processed_S_Transactions, Transactions_Out, Outstanding_In, Outstanding_Out, Debug_So_Far) :-
 	dict_vars(Static_Data, [Accounts, Report_Currency, Start_Date, End_Date, Exchange_Rates]),
 	pretty_term_string(S_Transaction, S_Transaction_String),
 	catch(
@@ -24,7 +18,9 @@ preprocess_s_transactions2(Static_Data, [S_Transaction|S_Transactions], Processe
 		),
 		E,
 		(
-			format(string(Debug_Head), '~q when processing ~q', [E, S_Transaction_String]),
+			pretty_string(S_Transaction, Pretty_S_Transaction_String),
+			format(string(Debug_Head), '~q~nwhen processing ~w', [E, Pretty_S_Transaction_String]),
+			format(user_error, '~w~n',[Debug_Head]),
 			Outstanding_In = Outstanding_Out,
 			Transactions_Out = [],
 			Debug_Tail = [],
@@ -33,13 +29,13 @@ preprocess_s_transactions2(Static_Data, [S_Transaction|S_Transactions], Processe
 		)
 	),
 	(	var(Debug_Tail) /* debug tail is left free if processing this transaction succeeded ... */
-	->	preprocess_s_transactions2(Static_Data, S_Transactions, Processed_S_Transactions_Tail, Transactions_Out_Tail,  Outstanding_Mid, Outstanding_Out, Debug_Tail, Debug_So_Far2)
+	->	preprocess_s_transactions2(Static_Data, S_Transactions, Processed_S_Transactions_Tail, Transactions_Out_Tail,  Outstanding_Mid, Outstanding_Out, Debug_So_Far2)
 	;	true).
 
 preprocess(Static_Data, S_Transaction, S_Transaction_String, Outstanding_In, Outstanding_Mid, Debug_Head, Transactions_Out_Tail, Debug_So_Far, Debug_So_Far2, Processed_S_Transactions, Processed_S_Transactions_Tail, Report_Currency, Exchange_Rates, Start_Date, End_Date, Transactions_Out) :-
 	(	preprocess_s_transaction(Static_Data, S_Transaction, Transactions0, Outstanding_In, Outstanding_Mid)
 	->	true
-	;	(/*gtrace,*/throw_string(error))),
+	;	(/*gtrace,*/throw_string(unknown_error))),
 	cleanup(Transactions0, Transactions_Result, S_Transaction_String, Debug_Head),
 	Transactions_Out = [Transactions_Result|Transactions_Out_Tail],
 	append(Debug_So_Far, [Debug_Head], Debug_So_Far2),
@@ -58,31 +54,32 @@ cleanup(Transactions0, Transactions_Result, S_Transaction_String, Debug_Head) :-
 check_trial_balance0_at_date_of_last_transaction_in_list(Transactions_Result, Report_Currency, Exchange_Rates, Start_Date, End_Date, Debug_So_Far, Debug_Head) :-
 	Transactions_Result = [T|_],
 	transaction_day(T, Transaction_Date),
-	(
-		Report_Currency = []
-	->
-		true
-	;
-		check_trial_balance0(Exchange_Rates, Report_Currency, Transaction_Date, Transactions_Result, Start_Date, End_Date, Debug_So_Far, Debug_Head)
-	).
+	(	Report_Currency = []
+	->	true
+	;	check_trial_balance0(Exchange_Rates, Report_Currency, Transaction_Date, Transactions_Result, Start_Date, End_Date, Debug_So_Far, Debug_Head)).
 
 
 % ----------
 % This predicate takes a list of statement transaction terms and decomposes it into a list of plain transaction terms.
 % ----------	
 
+livestock_verbs([l:livestock_purchase, l:livestock_sale]).
+
 preprocess_s_transaction(Static_Data, S_Transaction, Transactions, Outstanding, Outstanding) :-
 	s_transaction_type_id(S_Transaction, uri(Action_Verb)),
-	(Action_Verb = l:livestock_purchase;Action_Verb = l:livestock_sale),
-	!,
+	member(Action_Verb, $>livestock_verbs),
+
 	preprocess_livestock_buy_or_sell(Static_Data, S_Transaction, Transactions).
 
 preprocess_s_transaction(Static_Data, S_Transaction, Transactions, Outstanding_Before, Outstanding_After) :-
+	s_transaction_type_id(S_Transaction, uri(Action_Verb)),
+	maplist(dif(Action_Verb), $>livestock_verbs),
+
 	Transactions = [Ts1, Ts2, Ts3, Ts4],
 	dict_vars(Static_Data, [Report_Currency, Exchange_Rates]),
 	s_transaction_exchanged(S_Transaction, vector(Counteraccount_Vector)),
 	%s_transaction_account_id(S_Transaction, Bank_Account_Name),
-	s_transaction_type_id(S_Transaction, uri(Action_Verb)),
+
 	s_transaction_vector(S_Transaction, Vector_Ours),
 	s_transaction_day(S_Transaction, Transaction_Date),
 	Pricing_Method = lifo,
@@ -400,7 +397,7 @@ check_trial_balance(Exchange_Rates, Report_Currency, Date, Transactions) :-
 		->
 			true
 		;
-			add_alert('SYSTEM_WARNING', $>format(string(<$), 'trial balance is ~w at ~w -->\n', [Total, Date]))
+			add_alert('SYSTEM_WARNING', $>format(string(<$), 'trial balance at ~w is ~w\n', [Date, Total]))
 		)
 	).
 

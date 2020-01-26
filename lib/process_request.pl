@@ -54,11 +54,11 @@ process_request_http(Options, Parts) :-
 
 process_request(Options, File_Paths) :-
 	doc_init,
+	maybe_supress_generating_unique_taxonomy_urls(Options),
 	catch_with_backtrace(
-		maybe_supress_generating_unique_taxonomy_urls(Options),
+		(process_multifile_request(File_Paths) -> true ; throw(failure)),
 		E,
-		add_alert('FAIL', E)),
-	process_multifile_request(File_Paths),
+		add_alert('unknown_error', E)),
 	process_request2.
 
 process_request2 :-
@@ -77,7 +77,7 @@ process_request2 :-
 
 'make "all files" report entry' :-
 	report_file_path(loc(file_name, ''), Tmp_Dir_Url, _),
-	report_entry('all files', Tmp_Dir_Url, 'all').
+	add_report_file('all', 'all files', Tmp_Dir_Url).
 
 json_report_entries(Files3) :-
 	findall(
@@ -105,11 +105,12 @@ collect_alerts(Alerts3) :-
 	findall(
 		Alert,
 		(
-			get_alert(Key,Val),
+			get_alert(Key,Msg0),
 			(
 				(
-					pretty_term_string(Val, Val_Str),
-					atomic_list_concat([Key,':',Val_Str], Alert)
+					(Msg0 = string(Msg) -> true ; Msg0 = Msg),
+					(atomic(Msg) -> Msg2 = Msg ; term_string(Msg, Msg2)),
+					atomic_list_concat([Key,': ',Msg2], Alert)
 				)
 				->	true
 				;	throw(xxx)
@@ -124,7 +125,7 @@ make_alerts_report(Alerts) :-
 	(	Alerts_Html = []
 	->	Alerts_Html2 = ['no alerts']
 	;	Alerts_Html2 = Alerts_Html),
-	report_page(alerts, [h3([alerts, ':']), div(Alerts_Html2)], loc(file_name,'alerts.html'), alerts_html).
+	add_report_page_with_body(alerts, [h3([alerts, ':']), div(Alerts_Html2)], loc(file_name,'alerts.html'), alerts_html).
 
 alert_html(Alert, div([Alert, br([]), br([])])).
 
@@ -151,12 +152,12 @@ accept_request_file(File_Paths, Path, Type) :-
 	(
 		loc_icase_endswith(Path, ".xml")
 	->	(
-			report_entry('request_xml', Url, 'request_xml'),
+			add_report_file('request_xml', 'request_xml', Url),
 			Type = xml
 		)
 	;	loc_icase_endswith(Path, "n3")
 	->	(
-			report_entry('request_n3', Url, 'request_n3'),
+			add_report_file('request_n3', 'request_n3', Url),
 			Type = n3
 		)).
 

@@ -95,5 +95,5 @@ Optimally we should preload the Excel sheet with test data that when pressed, pr
 	replace_nonalphanum_chars_with_underscore(Name, Fn_Suffix),
 	atomic_list_concat(['livestock_report_', Fn_Suffix, '.html'], Fn),
 	atomic_list_concat(['livestock_report_', Fn_Suffix, '_html'], Id),
-	report_page_with_table(Name, Table_Contents_Html, loc(file_name,Fn), Id, Report_File_Info)
+	add_report_page_with_table(Name, Table_Contents_Html, loc(file_name,Fn), Id, Report_File_Info)
 */

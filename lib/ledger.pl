@@ -49,7 +49,14 @@ process_ledger(
 
 	dict_from_vars(Static_Data0, [Accounts, Report_Currency, Start_Date, End_Date, Exchange_Rates, Cost_Or_Market]),
 	prepreprocess(Static_Data0, S_Transactions, Prepreprocessed_S_Transactions),
-	preprocess_until_error(Static_Data0, Prepreprocessed_S_Transactions, Processed_S_Transactions, Transactions_From_Bst, Outstanding_Out, _Transaction_Transformation_Debug, End_Date, Processed_Until),
+	preprocess_until_error(Static_Data0, Prepreprocessed_S_Transactions, Processed_S_Transactions, Transactions_From_Bst, Outstanding_Out, End_Date, Processed_Until),
+
+	/* since it's not possibly to determine order of transactions that transpiled on one day, when we fail to process a transaction, we go back all the way to the end of the previous day, and try to run a report up to that day
+	*/
+	(	End_Date \= Processed_Until
+	->	add_alert('warning', ['trying with earlier report end date: ', Processed_Until])
+	;	true),
+
 	append([Initial_Txs], Transactions_From_Bst, Transactions0),
 	flatten(Transactions0, Transactions1),
 
@@ -95,29 +102,9 @@ process_ledger(
 	).
 
 
-preprocess_until_error(Static_Data0, Prepreprocessed_S_Transactions, Preprocessed_S_Transactions, Transactions0, Outstanding_Out, Transaction_Transformation_Debug, Report_End_Date, Processed_Until) :-
-	preprocess_s_transactions(Static_Data0, Prepreprocessed_S_Transactions, Preprocessed_S_Transactions, Transactions0, Outstanding_Out, Transaction_Transformation_Debug),
-	(
-		Preprocessed_S_Transactions = Prepreprocessed_S_Transactions
-	->
-		(
-			Processed_Until = Report_End_Date/*,
-			Last_Good_Day = Report_End_Date*/
-		)
-	;
-		(
-			(	last(Preprocessed_S_Transactions, Last_Processed_S_Transaction)
-			->	(
-					s_transaction_day(Last_Processed_S_Transaction, Date),
-					% todo we could/should do: Processed_Until = with_note(Date, 'until error'),
-					Processed_Until = Date/*,
-					add_days(Date, -1, Last_Good_Day)*/
-				)
-			;
-				Processed_Until = date(1,1,1)
-			)
-		)
-	).
+preprocess_until_error(Static_Data0, Prepreprocessed_S_Transactions, Preprocessed_S_Transactions, Transactions0, Outstanding_Out, Report_End_Date, Processed_Until) :-
+	preprocess_s_transactions(Static_Data0, Prepreprocessed_S_Transactions, Preprocessed_S_Transactions, Transactions0, Outstanding_Out),
+	Processed_Until = Report_End_Date.
 
 gather_ledger_warnings(S_Transactions, Start_Date, End_Date, Warnings) :-
 	(

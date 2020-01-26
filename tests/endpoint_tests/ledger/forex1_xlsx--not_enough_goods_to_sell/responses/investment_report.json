@@ -185,29 +185,29 @@
   "rows": [
     {
       "closing": {
-	"conversion": {"date":"2017-07-01", "dst":"AUD", "rate":1.4493, "src":"USD"},
-	"total_cost_converted": {"amount":144.9275, "unit":"AUD"},
-	"total_cost_foreign": {"amount":100, "unit":"USD"},
-	"unit_cost_converted": {"amount":14.4928, "unit":"AUD"},
-	"unit_cost_foreign": {"amount":10, "unit":"USD"}
+	"conversion": {"date":"2018-06-30", "dst":"AUD", "rate":1.4286, "src":"USD"},
+	"total_cost_converted": {"amount":571.4286, "unit":"AUD"},
+	"total_cost_foreign": {"amount":400, "unit":"USD"},
+	"unit_cost_converted": {"amount":57.1429, "unit":"AUD"},
+	"unit_cost_foreign": {"amount":40, "unit":"USD"}
       },
       "count":10,
       "currency":"USD",
       "gains": {
 	"rea": {},
 	"unr": {
-	  "forex": {"amount":0, "unit":"AUD"},
-	  "market_converted": {"amount":0, "unit":"AUD"},
-	  "market_foreign": {"amount":0, "unit":"USD"}
+	  "forex": {"amount":-8.2816, "unit":"AUD"},
+	  "market_converted": {"amount":434.7826, "unit":"AUD"},
+	  "market_foreign": {"amount":300, "unit":"USD"}
 	}
       },
       "id":"iri1",
       "on_hand_at_cost": {
 	"count":10,
-	"total_converted_at_balance": {"amount":144.9275, "unit":"AUD"},
+	"total_converted_at_balance": {"amount":142.8571, "unit":"AUD"},
 	"total_converted_at_purchase": {"amount":144.9275, "unit":"AUD"},
 	"total_foreign": {"amount":100, "unit":"USD"},
-	"total_forex_gain": {"amount":0, "unit":"AUD"},
+	"total_forex_gain": {"amount":-2.0704, "unit":"AUD"},
 	"unit_cost_foreign": {"amount":10, "unit":"USD"}
       },
       "opening": {},
@@ -224,27 +224,27 @@
     },
     {
       "closing": {
-	"total_cost_converted": [ {"amount":144.9275, "unit":"AUD"} ],
-	"total_cost_foreign": [ {"amount":100, "unit":"USD"} ]
+	"total_cost_converted": [ {"amount":571.4286, "unit":"AUD"} ],
+	"total_cost_foreign": [ {"amount":400, "unit":"USD"} ]
       },
       "gains": {
 	"rea": {"forex": [], "market_converted": [], "market_foreign": []},
 	"realized_total": [],
-	"total": [ {"amount":0, "unit":"AUD"} ],
+	"total": [ {"amount":426.501, "unit":"AUD"} ],
 	"unr": {
-	  "forex": [ {"amount":0, "unit":"AUD"} ],
-	  "market_converted": [ {"amount":0, "unit":"AUD"} ],
-	  "market_foreign": [ {"amount":0, "unit":"USD"} ]
+	  "forex": [ {"amount":-8.2816, "unit":"AUD"} ],
+	  "market_converted": [ {"amount":434.7826, "unit":"AUD"} ],
+	  "market_foreign": [ {"amount":300, "unit":"USD"} ]
 	},
-	"unrealized_total": [ {"amount":0, "unit":"AUD"} ]
+	"unrealized_total": [ {"amount":426.501, "unit":"AUD"} ]
       },
       "on_hand_at_cost": {
-	"total_converted_at_balance": [ {"amount":144.9275, "unit":"AUD"} ],
+	"total_converted_at_balance": [ {"amount":142.8571, "unit":"AUD"} ],
 	"total_converted_at_purchase": [ {"amount":144.9275, "unit":"AUD"} ],
-	"total_forex_gain": [ {"amount":0, "unit":"AUD"} ]
+	"total_forex_gain": [ {"amount":-2.0704, "unit":"AUD"} ]
       },
       "opening": {"total_cost_converted": [], "total_cost_foreign": []}
     }
   ],
-  "title":"investment report from 2017-07-01 to 2017-07-01 (AUD)"
+  "title":"investment report from 2017-07-01 to 2018-06-30 (AUD)"
 }

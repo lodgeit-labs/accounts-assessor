@@ -95,7 +95,7 @@ static_data_historical(Static_Data, Static_Data_Historical) :-
 
 
 other_reports(Static_Data, Static_Data_Historical, Outstanding, Balance_Sheet, ProfitAndLoss, Balance_Sheet2_Historical, ProfitAndLoss2_Historical, Trial_Balance, Structured_Reports) :-
-	investment_reports(Static_Data, Outstanding, Investment_Report_Info),
+	investment_reports(Static_Data.put(outstanding, Outstanding), Investment_Report_Info),
 	bs_page(Static_Data, Balance_Sheet),
 	pl_page(Static_Data, ProfitAndLoss, ''),
 	pl_page(Static_Data_Historical, ProfitAndLoss2_Historical, '_historical'),
@@ -126,40 +126,28 @@ make_gl_viewer_report :-
 	%atomic_list_concat(['cp -r ', Src, ' ', Dst], Cmd),
 	shell(Cmd, _),
 	atomic_list_concat([Dir_Url, '/link.html'], Full_Url),
-	report_entry('GL viewer', loc(absolute_url, Full_Url), 'gl_html').
+	add_report_file('gl_html', 'GL viewer', loc(absolute_url, Full_Url)).
 
-investment_reports(Static_Data, Outstanding, Ir) :-
-	/* todo a catch like this should probably be around every major report-generation part of the codebase */
-
-	catch_maybe_with_backtrace(
-		investment_reports2(Static_Data, Outstanding, Ir),
-		string(Err),
+investment_reports(Static_Data, Ir) :-
+	Data =
+	[
+		(current,'',Static_Data),
+		(since_beginning,'_since_beginning',Static_Data.put(start_date, date(1,1,1)))
+	],
+	maplist(
 		(
-			term_string(Err, Err_Str),
-			format(string(Msg), 'investment reports fail: ~w', [Err_Str]),
-			add_alert('SYSTEM_WARNING', Msg),
-			Ir =  _{}
-		)
-	).
+			[
+				(Structured_Report_Key, Suffix, Sd),
+				(Structured_Report_Key-Semantic_Json)
+			]
+			>>
+				investment_report_2_0(Sd, Suffix, Semantic_Json)
+		),
+		Data,
+		Structured_Json_Pairs
+	),
+	dict_pairs(Ir, _, Structured_Json_Pairs).
 
-investment_reports2(Static_Data, Outstanding, Ir) :-
-	(Static_Data.report_currency = [_] -> true ; throw_string('report currency expected')),
-	/*get_dict(start_date, Static_Data, Report_Start),
-	add_days(Report_Start, -1, Before_Start),*/
-
-	% report period	
-	investment_report_2(Static_Data, Outstanding, '', Json1),
-
-	/* TODO: we cant do all_time without market values, use last known? */
-	investment_report_2(Static_Data.put(start_date, date(1,1,1)), Outstanding, '_since_beginning', Json2),
-	
-	% historical
-	%investment_report_2(Static_Data.put(start_date, date(1,1,1)).put(end_date, Before_Start), Outstanding, '_historical', Json3, Files3),
-	Ir =  _{
-	%	 historical: Json3,
-		 current: Json1,
-		 since_beginning: Json2
-		}.
 /*
 To ensure that each response references the shared taxonomy via a unique url,
 a flag can be used when running the server, for example like this:

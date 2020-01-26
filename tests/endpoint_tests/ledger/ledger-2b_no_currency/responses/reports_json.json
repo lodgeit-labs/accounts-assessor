@@ -553,7 +553,7 @@
       }
     ]
   },
-  "ir": {},
+  "ir": {"current": {}, "since_beginning": {}},
   "pl": {
     "current": [
        {

@@ -5,7 +5,7 @@ basically i'm flipping the kr paradigm upside-down, for the purpose of just fric
 
 
 'is a namespace'(xbrl)
-'has description'(xbrl, "our interal ontology leveraging the xbrl formalism, + extensions, but without an actual formal mapping to any xbrl standard yet")
+'has description'(xbrl, "our internal ontology leveraging the xbrl formalism, + extensions, but without an actual formal mapping to any xbrl standard yet")
 
 
 is_subclass_of(account,xbrl:fact)

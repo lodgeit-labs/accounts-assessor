@@ -64,3 +64,6 @@ term_dict(
 	%date{day:D, month:M, year:Y}
 ) :- format_date(date(Y,M,D), Str).
 
+/*
+with_cost_per_unit(...,rounded_cost)(rdiv cost))
+*/

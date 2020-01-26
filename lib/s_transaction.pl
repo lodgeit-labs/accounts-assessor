@@ -1,7 +1,5 @@
 :- use_module(library(dcg/basics)).
 
-%:- rdet(s_transaction_to_dict/2).
-
 :- record s_transaction(day, type_id, vector, account_id, exchanged, misc).
 % bank statement transaction record, these are in the input xml
 % - The absolute day that the transaction happenned
@@ -10,6 +8,13 @@
 % - The account that the transaction modifies without using exchange rate conversions
 % - Either the units or the amount to which the transaction amount will be converted to
 % depending on whether the term is of the form bases(...) or vector(...).
+
+
+pretty_string(S_Transaction, String) :-
+	S_Transaction = s_transaction(Date, uri(Action_Verb), Money, Account, Exchanged, Misc),
+	doc(Action_Verb, l:has_id, Action_Verb_Name),
+	format(string(String), 's_transaction:~n  date:~q~n  verb:~w~n  vector: ~q~n  account: ~q~n  exchanged: ~q~n  misc: ~q', [Date, Action_Verb_Name, Money, Account, Exchanged, Misc]).
+
 
 sort_s_transactions(In, Out) :-
 	/*maybe todo:

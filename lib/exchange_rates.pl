@@ -387,3 +387,4 @@ extract_exchange_rate(Start_Date, End_Date, Unit_Value, Exchange_Rate) :-
 	x dst D <= x sorted_dst_candidates L, L first X, X length 1, X first dst_candidate, dst_candidate value D
 	pid has problem <= x sorted_dst_candidates L, L first X, X length > 1
 */
+
