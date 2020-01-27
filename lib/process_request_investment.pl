@@ -135,14 +135,16 @@ process_realized(Dom, Global_Report_Date_Atom, Result) :-
 			'Invest_In', 
 			PDPC_Total_Cost_Credit_Vec,
 			'Bank', 
-			vector([coord(Unit_Unique, Count)])
+			vector([coord(Unit_Unique, Count)]),
+			_{}
 		),
 		s_transaction(
 			Sale_Date, 
 			'Dispose_Of', 
 			[coord(Currency_Unique, SDPC_Total_Value)],
 			'Bank', 
-			vector(Count_Credit_Vec)
+			vector(Count_Credit_Vec),
+			_{}
 		)
 	], 
 
@@ -285,7 +287,8 @@ process_unrealized(Dom, Global_Report_Date, Result) :-
 			'Invest_In', 
 			PDPC_Total_Cost_Credit_Vec,
 			'Bank', 
-			vector([coord(Unit_Unique, Count)])
+			vector([coord(Unit_Unique, Count)]),
+			_{}
 		)
 	],	
 

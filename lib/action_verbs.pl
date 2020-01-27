@@ -30,7 +30,7 @@ add_action_verb_from_xml(In) :-
 		gstPayableAccount, (Gst_Payable, _)
 	]),
 	atom_number(Gst_Rate_Atom, Gst_Rate),
-	doc_new_uri(Uri),
+	doc_new_uri(Uri, Id),
 	doc_add(Uri, rdf:type, l:action_verb),
 	doc_add(Uri, l:has_id, Id),
 	(nonvar(Description) -> doc_add(Uri, l:has_description, Description) ; true),

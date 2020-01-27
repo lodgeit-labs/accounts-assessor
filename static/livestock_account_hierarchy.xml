@@ -1,0 +1,19 @@
+a sketch of how we might integrate taxonomies, if that will be necessary. 
+
+<?xml version="1.0" ?>
+<accountsDocument>
+	<AssetsLivestock parent="Accounts/CurrentAssets">
+		<AssetsLivestockAtCost/>
+		<AssetsLivestockAtAverageCost/>
+	</AssetsLivestock>
+	<SalesOfLivestock parent="Accounts/Revenue"/>
+	<CostOfGoodsLivestock parent="Accounts/Expenses"/>
+</accountsDocument>
+
+also to be considered, relevant generated accounts:
+	account('LivestockCount', 				'Inventory', 				'Inventory'/'LivestockCount', 0),
+for each unit:
+	Cogs  = account(Cogs_Name, /*Expenses/ */'CostOfGoodsLivestock', '', 0),
+	Sales = account(Sales_Name, /*Revenue/ */'SalesOfLivestock', '', 0),
+	Count = account(Count_Name, 'LivestockCount', '', 0),
+	CogsRations = account(CogsRations_Name, Cogs_Name, '', 0).

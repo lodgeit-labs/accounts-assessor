@@ -1,5 +1,5 @@
 
 process_request_hirepurchase_new :-
-fail,
-	doc(Q, rdf:type, l:hp_calculator_query),
+	fail,
+	doc(Q, rdf:type, hp:hp_calculator_query),
 	writeq(Q).

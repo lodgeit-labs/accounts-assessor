@@ -100,11 +100,12 @@ format_balance(Format, Report_Currency_List, Context, Name, Normal_Side, Coord, 
 	->	(
 			format(string(Amount), '~2:f', [Balance]),
 
-			atomic_list_concat([basic, Name], Fact_Name), % fixme
+			atomic_list_concat(['basic:', Name], Fact_Name), % fixme
+			sane_unit_id(Unit, Sane_Unit_Id),
 			Line = element(Fact_Name,
 			[
 				contextRef=Context,
-				unitRef=sane_id(Unit),
+				unitRef=Sane_Unit_Id,
 				decimals="INF"],
 				[Amount]),
 			request_assert_property(l:has_used_unit, Unit, xml)
@@ -118,3 +119,5 @@ format_balance(Format, Report_Currency_List, Context, Name, Normal_Side, Coord, 
 		)
 	).
 
+sane_unit_id(Unit, Id) :-
+	sane_id(Unit, 'U-', Id).

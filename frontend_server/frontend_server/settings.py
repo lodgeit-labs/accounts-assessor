@@ -25,7 +25,7 @@ SECRET_KEY = 'r17qkhe563e1vo^moi&i&0qhm3!^ptugmv6m5gmp(^092v@)6i'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['192.168.122.187']
+ALLOWED_HOSTS = ['192.168.122.187', 'dev-node.uksouth.cloudapp.azure.com', 'localhost']
 
 
 # Application definition
@@ -36,7 +36,7 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
-    'django.contrib.staticfiles',
+#    'django.contrib.staticfiles',
     'endpoints_gateway',
 ]
 
@@ -44,7 +44,7 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
+    #'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -118,6 +118,34 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
+STATIC_ROOT = os.path.abspath('../static/') + '/'
 STATIC_URL = '/static/'
 MEDIA_ROOT = os.path.abspath('../server_root/tmp')
 MEDIA_URL = '/tmp/'
+
+BBB = "ccc"
+AAA = "CCCCC"
+
+MY_SERVICES_SERVER_URL=os.environ.get('MY_SERVICES_SERVER_URL')
+
+"""
+# https://stackoverflow.com/questions/8563394/django-how-to-pass-individual-setting-to-manage-py
+# Process --set command line option
+import sys
+# This module can be imported several times,
+args = list(filter(lambda arg: arg[:6] == '--set=', sys.argv[1:]))
+if len(args) > 0:
+    expr = args[0][6:]
+    # Remove the option from argument list, because the actual command
+    # knows nothing about it.
+    sys.argv.remove(args[0])
+    import json
+    #import IPython; IPython.embed()
+    from django.conf import settings
+    kv = json.loads(expr)
+    for k,v in kv.items():
+        settings.__dict__[k]=v
+     
+
+
+"""

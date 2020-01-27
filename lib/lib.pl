@@ -1,11 +1,8 @@
-:- module(_,[
-	/*doc_value/3,
-	doc_add_value/3*/
-]).
 
 :- use_module(library(xsd)).
 :- use_module(library(xpath)).
 :- use_module(library(record)).
+:- use_module(library(yall)).
 :- use_module(library(rdet)).
 :- use_module(library(clpq)).
 :- use_module(library(clpfd)).
@@ -13,9 +10,13 @@
 :- use_module(library(http/http_client)).
 :- use_module(library(http/http_dispatch)).
 
+:- use_module(library(fnotation)).
+:- fnotation_ops($>,<$).
+:- op(900,fx,<$).
+
 :- [search_paths].
 
-:- ['../prolog_xbrl_public/xbrl/prolog/xbrl/utils.pl'].
+:- ['../public_lib/xbrl/prolog/xbrl/utils.pl'].
 
 :- [accounts_extract].
 :- [accounts].
@@ -28,6 +29,8 @@
 :- [exchange].
 :- [exchange_rates].
 :- [fact_output].
+:- [fetch_file].
+:- [gl_export].
 :- [investment_report_2].
 :- [invoices].
 :- [ledger_html_reports].
@@ -52,5 +55,6 @@
 :- [tables].
 :- [trading].
 :- [transactions].
+:- [vector_string].
 :- [xbrl_contexts].
 :- [xbrl_output].

@@ -1,0 +1,31 @@
+body {
+    overflow-y: scroll;
+    white-space:nowrap;
+}
+ul{
+    border: 1px;
+    border-color: "gray";
+    border-style: none none none inset;
+    border-radius: 2em;
+}
+
+ul {
+  list-style-type: none;
+}
+
+tr.source td {/*
+   border: 1px;
+   border-radius: 2em;
+   border-color: "gray";
+   bgcolor: "red";*/
+   background-color: #CCCFC0;
+}
+
+td.source {
+   background-color: #CCCFC0;
+}
+
+table {
+  border-collapse:separate;
+  border-spacing:10px 10px;
+}​​​​​​​​​​​​​

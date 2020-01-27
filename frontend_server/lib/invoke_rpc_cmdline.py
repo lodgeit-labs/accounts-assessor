@@ -33,12 +33,8 @@ class AtomicInteger():
 			return self._value
 
 
-
-
 server_started_time = time.time()
 client_request_id = AtomicInteger()
-
-
 
 
 def files_in_dir(dir):
@@ -51,51 +47,78 @@ def files_in_dir(dir):
 
 @click.command()
 @click.argument('request_files', nargs=-1)
-@click.option('-dro', '--dev_runner_options', type=str)
-def run(request_files, dev_runner_options):
-	server_url = 'http://localhost:8080'
-	request_files = [os.path.abspath(f) for f in request_files]
+@click.option('-d', '--dev_runner_options', type=str)
+@click.option('-p', '--prolog_flags', type=str)
+@click.option('-s', '--server_url', type=str, default='http://localhost:7778')
+
+def run(request_files, dev_runner_options, prolog_flags, server_url):
+	if dev_runner_options == None:
+		dev_runner_options = ''
+	request_files2 = [os.path.abspath(os.path.expanduser(f)) for f in request_files]
 	tmp_directory_name, tmp_directory_absolute_path = create_tmp()
-	files = request_files
-	if len(request_files) == 1:
-		f = request_files[0]
-		if not os.path.isfile(f):
-			files = files_in_dir(f)
+	if len(request_files2) == 1 and os.path.isdir(request_files2[0]):
+		files = files_in_dir(request_files2[0])
+	else:
+		files = request_files2
 	files2 = []
 	for f in files:
 		tmp_fn = os.path.abspath('/'.join([tmp_directory_absolute_path, ntpath.basename(f)]))
 		shutil.copyfile(f,tmp_fn)
 		files2.append(tmp_fn)
-	call_rpc(server_url = server_url, tmp_directory_name=tmp_directory_name, request_files_in_tmp=files2, dev_runner_options=dev_runner_options)
+	msg = {
+		"method": "calculator",
+		"params": {
+			"server_url": server_url,
+			"tmp_directory_name": tmp_directory_name,
+			"request_files": files2}
+	}
+	call_rpc(msg=msg, dev_runner_options=shlex.split(dev_runner_options), prolog_flags=prolog_flags)
 
-def call_rpc(server_url, tmp_directory_name, request_files_in_tmp, dev_runner_options=''):
-	cmd = shlex.split("swipl -s ../lib/dev_runner.pl --problem_lines_whitelist ../misc/problem_lines_whitelist -s ../lib/debug_rpc.pl " + dev_runner_options) + ["-g lib:process_request_rpc_cmdline"]
+def call_rpc(msg, dev_runner_options=[], prolog_flags='true'):
+	os.chdir(git("server_root"))
+	cmd0 = ['swipl', '-s', git("lib/dev_runner.pl"),'--problem_lines_whitelist',git("misc/problem_lines_whitelist"),"-s", git("lib/debug_rpc.pl")]
+	cmd1 = dev_runner_options
+	cmd2 = ['-g', prolog_flags + ',lib:process_request_rpc_cmdline']
+	cmd = cmd0 + cmd1 + cmd2
 	print(' '.join(cmd))
-
-	input = json.dumps({
-		"method":"calculator",
-		"params":{
-			"server_url":server_url,
-			"tmp_directory_name":tmp_directory_name,
-			"request_files":request_files_in_tmp}
-	})
+	input = json.dumps(msg)
 	print(input)
-
-	p = subprocess.Popen(cmd, universal_newlines=True, stdin=subprocess.PIPE)
+	if os.path.expanduser('~') == '/var/www':
+		#os.environ.putenv('SWI_HOME_DIR', git('../.local/share/swi-prolog/'))
+		os.environ.putenv('SWI_HOME_DIR', '/home/apache/swi-prolog')
+	#p = subprocess.Popen(['bash', '-c', 'export'], universal_newlines=True)
+	#p.communicate()
+	p = subprocess.Popen(cmd, universal_newlines=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
 	(stdout_data, stderr_data) = p.communicate(input = input)
+	print("result from prolog:")
+	print(stdout_data)
+	print("end of result from prolog.")
+	try:
+		return json.loads(stdout_data)
+	except json.decoder.JSONDecodeError as e:
+		print(e)
+		return {'status':'error'}
+
+
+def git(Suffix = ""):
+	here = os.path.dirname(__file__)
+	#print(here)
+	r = os.path.normpath(os.path.join(here, '../../', Suffix))
+	#print(r)
+	return r
 
 def create_tmp_directory_name():
 	return str(server_started_time) + '.' + str(client_request_id.inc())
 
 def get_tmp_directory_absolute_path(name):
-	return os.path.abspath('../server_root/tmp/' + name)
-
+	return os.path.abspath(os.path.join(git('server_root/tmp'), name))
+	
 def create_tmp():
 	name = create_tmp_directory_name()
-	path = get_tmp_directory_absolute_path(name)
+	path = os.path.normpath(get_tmp_directory_absolute_path(name))
 	os.mkdir(path)
-	subprocess.call(['rm', get_tmp_directory_absolute_path('last')])
-	subprocess.call(['ln', '-s', get_tmp_directory_absolute_path(name), get_tmp_directory_absolute_path('last')])
+	subprocess.call(['/bin/rm', get_tmp_directory_absolute_path('last')])
+	subprocess.call(['/bin/ln', '-s', get_tmp_directory_absolute_path(name), get_tmp_directory_absolute_path('last')])
 	return name,path
 
 

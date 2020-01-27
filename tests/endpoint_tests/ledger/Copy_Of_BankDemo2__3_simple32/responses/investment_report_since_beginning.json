@@ -190,47 +190,47 @@
       "gains": {
 	"rea": {
 	  "forex": {"amount":334.55, "unit":"AUD"},
-	  "market_converted": {"amount":0.0, "unit":"AUD"},
-	  "market_foreign": {"amount":0.0, "unit":"USD"}
+	  "market_converted": {"amount":0, "unit":"AUD"},
+	  "market_foreign": {"amount":0, "unit":"USD"}
 	},
 	"unr": {}
       },
       "id":"iri1",
       "opening": {},
       "purchase": {
-	"conversion":"exchange_rate(date(2018,7,2),'USD','AUD',1.35284)",
-	"date":"date(2018,7,2)",
+	"conversion": {"date":"2018-07-02", "dst":"AUD", "rate":1.3528, "src":"USD"},
+	"date":"2018-07-02",
 	"total_cost_converted": {"amount":6764.2, "unit":"AUD"},
-	"total_cost_foreign": {"amount":5000.0, "unit":"USD"},
-	"unit_cost_converted": {"amount":1.35284, "unit":"AUD"},
-	"unit_cost_foreign": {"amount":1.0, "unit":"USD"}
+	"total_cost_foreign": {"amount":5000, "unit":"USD"},
+	"unit_cost_converted": {"amount":1.3528, "unit":"AUD"},
+	"unit_cost_foreign": {"amount":1, "unit":"USD"}
       },
       "sale": {
-	"conversion":"exchange_rate(date(2018,12,30),'USD','AUD',1.41975)",
-	"date":"date(2018,12,30)",
+	"conversion": {"date":"2018-12-30", "dst":"AUD", "rate":1.4198, "src":"USD"},
+	"date":"2018-12-30",
 	"total_cost_converted": {"amount":7098.75, "unit":"AUD"},
-	"total_cost_foreign": {"amount":5000.0, "unit":"USD"},
-	"unit_cost_converted": {"amount":1.41975, "unit":"AUD"},
-	"unit_cost_foreign": {"amount":1.0, "unit":"USD"}
+	"total_cost_foreign": {"amount":5000, "unit":"USD"},
+	"unit_cost_converted": {"amount":1.4198, "unit":"AUD"},
+	"unit_cost_foreign": {"amount":1, "unit":"USD"}
       },
       "unit":"SG Issuer_SA_USD_1"
     },
     {
       "closing": {
-	"conversion":"exchange_rate(date(2019,6,30),'USD','AUD',1.423897)",
-	"total_cost_converted": {"amount":200000.0, "unit":"AUD"},
-	"total_cost_foreign": {"amount":140459.59785, "unit":"USD"},
-	"unit_cost_converted": {"amount":40.0, "unit":"AUD"},
-	"unit_cost_foreign": {"amount":28.09192, "unit":"USD"}
+	"conversion": {"date":"2019-06-30", "dst":"AUD", "rate":1.4239, "src":"USD"},
+	"total_cost_converted": {"amount":200000, "unit":"AUD"},
+	"total_cost_foreign": {"amount":140459.5979, "unit":"USD"},
+	"unit_cost_converted": {"amount":40, "unit":"AUD"},
+	"unit_cost_foreign": {"amount":28.0919, "unit":"USD"}
       },
       "count":5000,
       "currency":"USD",
       "gains": {
 	"rea": {},
 	"unr": {
-	  "forex": {"amount":9980.637644, "unit":"AUD"},
-	  "market_converted": {"amount":183255.162356, "unit":"AUD"},
-	  "market_foreign": {"amount":135459.59785, "unit":"USD"}
+	  "forex": {"amount":9980.6376, "unit":"AUD"},
+	  "market_converted": {"amount":183255.1624, "unit":"AUD"},
+	  "market_foreign": {"amount":135459.5979, "unit":"USD"}
 	}
       },
       "id":"iri2",
@@ -238,39 +238,39 @@
 	"count":5000,
 	"total_converted_at_balance": {"amount":7119.485, "unit":"AUD"},
 	"total_converted_at_purchase": {"amount":6764.2, "unit":"AUD"},
-	"total_foreign": {"amount":5000.0, "unit":"USD"},
+	"total_foreign": {"amount":5000, "unit":"USD"},
 	"total_forex_gain": {"amount":355.285, "unit":"AUD"},
-	"unit_cost_foreign": {"amount":1.0, "unit":"USD"}
+	"unit_cost_foreign": {"amount":1, "unit":"USD"}
       },
       "opening": {},
       "purchase": {
-	"conversion":"exchange_rate(date(2018,7,2),'USD','AUD',1.35284)",
-	"date":"date(2018,7,2)",
+	"conversion": {"date":"2018-07-02", "dst":"AUD", "rate":1.3528, "src":"USD"},
+	"date":"2018-07-02",
 	"total_cost_converted": {"amount":6764.2, "unit":"AUD"},
-	"total_cost_foreign": {"amount":5000.0, "unit":"USD"},
-	"unit_cost_converted": {"amount":1.35284, "unit":"AUD"},
-	"unit_cost_foreign": {"amount":1.0, "unit":"USD"}
+	"total_cost_foreign": {"amount":5000, "unit":"USD"},
+	"unit_cost_converted": {"amount":1.3528, "unit":"AUD"},
+	"unit_cost_foreign": {"amount":1, "unit":"USD"}
       },
       "sale": {},
       "unit":"SG Issuer_SA_USD_1"
     },
     {
       "closing": {
-	"total_cost_converted": [ {"amount":200000.0, "unit":"AUD"} ],
-	"total_cost_foreign": [ {"amount":140459.59785, "unit":"USD"} ]
+	"total_cost_converted": [ {"amount":200000, "unit":"AUD"} ],
+	"total_cost_foreign": [ {"amount":140459.5979, "unit":"USD"} ]
       },
       "gains": {
 	"rea": {
 	  "forex": [ {"amount":334.55, "unit":"AUD"} ],
-	  "market_converted": [ {"amount":0.0, "unit":"AUD"} ],
-	  "market_foreign": [ {"amount":0.0, "unit":"USD"} ]
+	  "market_converted": [ {"amount":0, "unit":"AUD"} ],
+	  "market_foreign": [ {"amount":0, "unit":"USD"} ]
 	},
 	"realized_total": [ {"amount":334.55, "unit":"AUD"} ],
 	"total": [ {"amount":193570.35, "unit":"AUD"} ],
 	"unr": {
-	  "forex": [ {"amount":9980.637644, "unit":"AUD"} ],
-	  "market_converted": [ {"amount":183255.162356, "unit":"AUD"} ],
-	  "market_foreign": [ {"amount":135459.59785, "unit":"USD"} ]
+	  "forex": [ {"amount":9980.6376, "unit":"AUD"} ],
+	  "market_converted": [ {"amount":183255.1624, "unit":"AUD"} ],
+	  "market_foreign": [ {"amount":135459.5979, "unit":"USD"} ]
 	},
 	"unrealized_total": [ {"amount":193235.8, "unit":"AUD"} ]
       },

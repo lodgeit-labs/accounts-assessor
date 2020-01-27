@@ -1,0 +1,511 @@
+[
+  {"source":"initial_GL", "transactions": []},
+  {
+    "source": {
+      "account":"CHF_Bank",
+      "date":"2015-01-01",
+      "exchanged":"vector([coord('Leonteq_N',10)])",
+      "misc": {},
+      "report_currency_transacted_amount_converted_at_balance_date": [ {"credit":600, "debit":0, "unit":"AUD"} ],
+      "report_currency_transacted_amount_converted_at_transaction_date": [ {"credit":200, "debit":0, "unit":"AUD"} ],
+      "vector": [ {"credit":100, "debit":0, "unit":"CHF"} ],
+      "verb":"Invest_In"
+    },
+    "transactions": [
+      {
+	"account":"BanksCHF_Bank",
+	"date":"2015-01-01",
+	"description":"Invest_In - outgoing money",
+	"running_balance": [ {"credit":100, "debit":0, "unit":"CHF"} ],
+	"type":"instant",
+	"vector": [ {"credit":100, "debit":0, "unit":"CHF"} ],
+	"vector_converted_at_balance_date": [ {"credit":600, "debit":0, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": [ {"credit":200, "debit":0, "unit":"AUD"} ]
+      },
+      {
+	"account":"CurrencyMovementCHF_Bank",
+	"date":"2015-01-01",
+	"description":"Invest_In - outgoing money - currency movement adjustment - historical part",
+	"running_balance": [
+	   {
+  "credit":0,
+  "debit":100,
+  "unit":"without_movement_after('CHF',date(2018,1,1))"
+},
+	   {
+  "credit":100,
+  "debit":0,
+  "unit":"without_currency_movement_against_since('CHF','CHF',['AUD'],date(2015,1,1))"
+}
+	],
+	"type":"tracking",
+	"vector": [
+	   {
+  "credit":0,
+  "debit":100,
+  "unit":"without_movement_after('CHF',date(2018,1,1))"
+},
+	   {
+  "credit":100,
+  "debit":0,
+  "unit":"without_currency_movement_against_since('CHF','CHF',['AUD'],date(2015,1,1))"
+}
+	],
+	"vector_converted_at_balance_date": [ {"credit":0, "debit":200, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": []
+      },
+      {
+	"account":"CurrencyMovementCHF_Bank",
+	"date":"2018-01-01",
+	"description":"Invest_In - outgoing money - currency movement adjustment - current part",
+	"running_balance": [
+	   {"credit":0, "debit":100, "unit":"CHF"},
+	   {
+  "credit":100,
+  "debit":0,
+  "unit":"without_currency_movement_against_since('CHF','CHF',['AUD'],date(2015,1,1))"
+}
+	],
+	"type":"tracking",
+	"vector": [
+	   {"credit":0, "debit":100, "unit":"CHF"},
+	   {
+  "credit":100,
+  "debit":0,
+  "unit":"without_movement_after('CHF',date(2018,1,1))"
+}
+	],
+	"vector_converted_at_balance_date": [ {"credit":0, "debit":200, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": []
+      },
+      {
+	"account":"FinancialInvestmentsLeonteq_N",
+	"date":"2015-01-01",
+	"description":"Invest_In",
+	"running_balance": [ {"credit":0, "debit":10, "unit":"Leonteq_N"} ],
+	"type":"instant",
+	"vector": [ {"credit":0, "debit":10, "unit":"Leonteq_N"} ],
+	"vector_converted_at_balance_date": [ {"credit":0, "debit":600, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": [ {"credit":0, "debit":10, "unit":"Leonteq_N"} ]
+      },
+      {
+	"account":"InvestmentIncomeUnrealizedOnlyCurrencyMovementLeonteq_N",
+	"date":"2018-01-01",
+	"description":"comment:, comment2:Invest_In - current part",
+	"running_balance": [
+	   {"credit":10, "debit":0, "unit":"Leonteq_N"},
+	   {
+  "credit":0,
+  "debit":10,
+  "unit":"without_currency_movement_against_since('Leonteq_N','CHF',['AUD'],date(2018,1,1))"
+}
+	],
+	"type":"?",
+	"vector": [
+	   {"credit":10, "debit":0, "unit":"Leonteq_N"},
+	   {
+  "credit":0,
+  "debit":10,
+  "unit":"without_currency_movement_against_since('Leonteq_N','CHF',['AUD'],date(2018,1,1))"
+}
+	],
+	"vector_converted_at_balance_date": [ {"credit":200, "debit":0, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": []
+      },
+      {
+	"account":"InvestmentIncomeUnrealizedWithoutCurrencyMovementLeonteq_N",
+	"date":"2018-01-01",
+	"description":"comment:, comment2:Invest_In - current part",
+	"running_balance": [
+	   {
+  "credit":0,
+  "debit":10,
+  "unit":"without_movement_after('Leonteq_N',date(2018,1,1))"
+},
+	   {
+  "credit":10,
+  "debit":0,
+  "unit":"without_currency_movement_against_since('Leonteq_N','CHF',['AUD'],date(2018,1,1))"
+}
+	],
+	"type":"?",
+	"vector": [
+	   {
+  "credit":10,
+  "debit":0,
+  "unit":"without_currency_movement_against_since('Leonteq_N','CHF',['AUD'],date(2018,1,1))"
+},
+	   {
+  "credit":0,
+  "debit":10,
+  "unit":"without_movement_after('Leonteq_N',date(2018,1,1))"
+}
+	],
+	"vector_converted_at_balance_date": [],
+	"vector_converted_at_transaction_date": []
+      },
+      {
+	"account":"InvestmentIncomeUnrealizedOnlyCurrencyMovementLeonteq_N",
+	"date":"2015-01-01",
+	"description":"comment:, comment2:Invest_In - historical part",
+	"running_balance": [
+	   {"credit":10, "debit":0, "unit":"Leonteq_N"},
+	   {
+  "credit":10,
+  "debit":0,
+  "unit":"without_movement_after('Leonteq_N',date(2018,1,1))"
+},
+	   {
+  "credit":0,
+  "debit":10,
+  "unit":"without_movement_after(without_currency_movement_against_since('Leonteq_N','CHF',['AUD'],date(2015,1,1)),date(2018,1,1))"
+},
+	   {
+  "credit":0,
+  "debit":10,
+  "unit":"without_currency_movement_against_since('Leonteq_N','CHF',['AUD'],date(2018,1,1))"
+}
+	],
+	"type":"?",
+	"vector": [
+	   {
+  "credit":10,
+  "debit":0,
+  "unit":"without_movement_after('Leonteq_N',date(2018,1,1))"
+},
+	   {
+  "credit":0,
+  "debit":10,
+  "unit":"without_movement_after(without_currency_movement_against_since('Leonteq_N','CHF',['AUD'],date(2015,1,1)),date(2018,1,1))"
+}
+	],
+	"vector_converted_at_balance_date": [ {"credit":200, "debit":0, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": [
+	   {
+  "credit":10,
+  "debit":0,
+  "unit":"without_movement_after('Leonteq_N',date(2018,1,1))"
+},
+	   {
+  "credit":0,
+  "debit":10,
+  "unit":"without_movement_after(without_currency_movement_against_since('Leonteq_N','CHF',['AUD'],date(2015,1,1)),date(2018,1,1))"
+}
+	]
+      },
+      {
+	"account":"InvestmentIncomeUnrealizedWithoutCurrencyMovementLeonteq_N",
+	"date":"2015-01-01",
+	"description":"comment:, comment2:Invest_In - historical part",
+	"running_balance": [
+	   {"credit":0, "debit":200, "unit":"AUD"},
+	   {
+  "credit":0,
+  "debit":10,
+  "unit":"without_movement_after('Leonteq_N',date(2018,1,1))"
+},
+	   {
+  "credit":10,
+  "debit":0,
+  "unit":"without_movement_after(without_currency_movement_against_since('Leonteq_N','CHF',['AUD'],date(2015,1,1)),date(2018,1,1))"
+},
+	   {
+  "credit":10,
+  "debit":0,
+  "unit":"without_currency_movement_against_since('Leonteq_N','CHF',['AUD'],date(2018,1,1))"
+}
+	],
+	"type":"?",
+	"vector": [
+	   {
+  "credit":10,
+  "debit":0,
+  "unit":"without_movement_after(without_currency_movement_against_since('Leonteq_N','CHF',['AUD'],date(2015,1,1)),date(2018,1,1))"
+},
+	   {"credit":0, "debit":200, "unit":"AUD"}
+	],
+	"vector_converted_at_balance_date": [],
+	"vector_converted_at_transaction_date": [
+	   {"credit":0, "debit":200, "unit":"AUD"},
+	   {
+  "credit":10,
+  "debit":0,
+  "unit":"without_movement_after(without_currency_movement_against_since('Leonteq_N','CHF',['AUD'],date(2015,1,1)),date(2018,1,1))"
+}
+	]
+      }
+    ]
+  },
+  {
+    "source": {
+      "account":"CHF_Bank",
+      "date":"2015-05-01",
+      "exchanged":"vector([coord('Leonteq_N',-10)])",
+      "misc": {},
+      "report_currency_transacted_amount_converted_at_balance_date": [ {"credit":0, "debit":600, "unit":"AUD"} ],
+      "report_currency_transacted_amount_converted_at_transaction_date": [ {"credit":0, "debit":136.41, "unit":"AUD"} ],
+      "vector": [ {"credit":0, "debit":100, "unit":"CHF"} ],
+      "verb":"Dispose_Of"
+    },
+    "transactions": [
+      {
+	"account":"BanksCHF_Bank",
+	"date":"2015-05-01",
+	"description":"Dispose_Of - incoming money",
+	"running_balance": [],
+	"type":"instant",
+	"vector": [ {"credit":0, "debit":100, "unit":"CHF"} ],
+	"vector_converted_at_balance_date": [ {"credit":0, "debit":600, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": [ {"credit":0, "debit":136.41, "unit":"AUD"} ]
+      },
+      {
+	"account":"CurrencyMovementCHF_Bank",
+	"date":"2015-05-01",
+	"description":"Dispose_Of - incoming money - currency movement adjustment - historical part",
+	"running_balance": [
+	   {"credit":0, "debit":100, "unit":"CHF"},
+	   {
+  "credit":100,
+  "debit":0,
+  "unit":"without_movement_after('CHF',date(2018,1,1))"
+},
+	   {
+  "credit":100,
+  "debit":0,
+  "unit":"without_currency_movement_against_since('CHF','CHF',['AUD'],date(2015,1,1))"
+},
+	   {
+  "credit":0,
+  "debit":100,
+  "unit":"without_currency_movement_against_since('CHF','CHF',['AUD'],date(2015,5,1))"
+}
+	],
+	"type":"tracking",
+	"vector": [
+	   {
+  "credit":100,
+  "debit":0,
+  "unit":"without_movement_after('CHF',date(2018,1,1))"
+},
+	   {
+  "credit":0,
+  "debit":100,
+  "unit":"without_currency_movement_against_since('CHF','CHF',['AUD'],date(2015,5,1))"
+}
+	],
+	"vector_converted_at_balance_date": [ {"credit":263.59, "debit":0, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": []
+      },
+      {
+	"account":"CurrencyMovementCHF_Bank",
+	"date":"2018-01-01",
+	"description":"Dispose_Of - incoming money - currency movement adjustment - current part",
+	"running_balance": [
+	   {
+  "credit":100,
+  "debit":0,
+  "unit":"without_currency_movement_against_since('CHF','CHF',['AUD'],date(2015,1,1))"
+},
+	   {
+  "credit":0,
+  "debit":100,
+  "unit":"without_currency_movement_against_since('CHF','CHF',['AUD'],date(2015,5,1))"
+}
+	],
+	"type":"tracking",
+	"vector": [
+	   {"credit":100, "debit":0, "unit":"CHF"},
+	   {
+  "credit":0,
+  "debit":100,
+  "unit":"without_movement_after('CHF',date(2018,1,1))"
+}
+	],
+	"vector_converted_at_balance_date": [ {"credit":200, "debit":0, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": []
+      },
+      {
+	"account":"FinancialInvestmentsLeonteq_N",
+	"date":"2015-05-01",
+	"description":"Dispose_Of",
+	"running_balance": [],
+	"type":"instant",
+	"vector": [ {"credit":10, "debit":0, "unit":"Leonteq_N"} ],
+	"vector_converted_at_balance_date": [ {"credit":600, "debit":0, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": [ {"credit":136.41, "debit":0, "unit":"AUD"} ]
+      },
+      {
+	"account":"InvestmentIncomeUnrealizedOnlyCurrencyMovementLeonteq_N",
+	"date":"2018-01-01",
+	"description":"comment:, comment2:Dispose_Of - current part",
+	"running_balance": [
+	   {
+  "credit":10,
+  "debit":0,
+  "unit":"without_movement_after('Leonteq_N',date(2018,1,1))"
+},
+	   {
+  "credit":0,
+  "debit":10,
+  "unit":"without_movement_after(without_currency_movement_against_since('Leonteq_N','CHF',['AUD'],date(2015,1,1)),date(2018,1,1))"
+}
+	],
+	"type":"?",
+	"vector": [
+	   {"credit":0, "debit":10, "unit":"Leonteq_N"},
+	   {
+  "credit":10,
+  "debit":0,
+  "unit":"without_currency_movement_against_since('Leonteq_N','CHF',['AUD'],date(2018,1,1))"
+}
+	],
+	"vector_converted_at_balance_date": [ {"credit":0, "debit":200, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": []
+      },
+      {
+	"account":"InvestmentIncomeUnrealizedWithoutCurrencyMovementLeonteq_N",
+	"date":"2018-01-01",
+	"description":"comment:, comment2:Dispose_Of - current part",
+	"running_balance": [
+	   {"credit":0, "debit":200, "unit":"AUD"},
+	   {
+  "credit":10,
+  "debit":0,
+  "unit":"without_movement_after(without_currency_movement_against_since('Leonteq_N','CHF',['AUD'],date(2015,1,1)),date(2018,1,1))"
+}
+	],
+	"type":"?",
+	"vector": [
+	   {
+  "credit":0,
+  "debit":10,
+  "unit":"without_currency_movement_against_since('Leonteq_N','CHF',['AUD'],date(2018,1,1))"
+},
+	   {
+  "credit":10,
+  "debit":0,
+  "unit":"without_movement_after('Leonteq_N',date(2018,1,1))"
+}
+	],
+	"vector_converted_at_balance_date": [],
+	"vector_converted_at_transaction_date": []
+      },
+      {
+	"account":"InvestmentIncomeUnrealizedOnlyCurrencyMovementLeonteq_N",
+	"date":"2017-12-31",
+	"description":"comment:, comment2:Dispose_Of - historical part",
+	"running_balance": [
+	   {
+  "credit":0,
+  "debit":10,
+  "unit":"without_movement_after(without_currency_movement_against_since('Leonteq_N','CHF',['AUD'],date(2015,1,1)),date(2018,1,1))"
+},
+	   {
+  "credit":10,
+  "debit":0,
+  "unit":"without_movement_after(without_currency_movement_against_since('Leonteq_N','CHF',['AUD'],date(2015,5,1)),date(2015,5,1))"
+}
+	],
+	"type":"?",
+	"vector": [
+	   {
+  "credit":0,
+  "debit":10,
+  "unit":"without_movement_after('Leonteq_N',date(2018,1,1))"
+},
+	   {
+  "credit":10,
+  "debit":0,
+  "unit":"without_movement_after(without_currency_movement_against_since('Leonteq_N','CHF',['AUD'],date(2015,5,1)),date(2015,5,1))"
+}
+	],
+	"vector_converted_at_balance_date": [ {"credit":0, "debit":263.59, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": [
+	   {"credit":136.41, "debit":0, "unit":"AUD"},
+	   {
+  "credit":0,
+  "debit":10,
+  "unit":"without_movement_after('Leonteq_N',date(2018,1,1))"
+}
+	]
+      },
+      {
+	"account":"InvestmentIncomeUnrealizedWithoutCurrencyMovementLeonteq_N",
+	"date":"2017-12-31",
+	"description":"comment:, comment2:Dispose_Of - historical part",
+	"running_balance": [
+	   {
+  "credit":10,
+  "debit":0,
+  "unit":"without_movement_after(without_currency_movement_against_since('Leonteq_N','CHF',['AUD'],date(2015,1,1)),date(2018,1,1))"
+},
+	   {
+  "credit":0,
+  "debit":10,
+  "unit":"without_movement_after(without_currency_movement_against_since('Leonteq_N','CHF',['AUD'],date(2015,5,1)),date(2015,5,1))"
+}
+	],
+	"type":"?",
+	"vector": [
+	   {
+  "credit":0,
+  "debit":10,
+  "unit":"without_movement_after(without_currency_movement_against_since('Leonteq_N','CHF',['AUD'],date(2015,5,1)),date(2015,5,1))"
+},
+	   {"credit":200, "debit":0, "unit":"AUD"}
+	],
+	"vector_converted_at_balance_date": [ {"credit":63.59, "debit":0, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": [ {"credit":63.59, "debit":0, "unit":"AUD"} ]
+      },
+      {
+	"account":"InvestmentIncomeRealizedOnlyCurrencyMovementLeonteq_N",
+	"date":"2015-05-01",
+	"description":"comment:, comment2:Dispose_Of",
+	"running_balance": [
+	   {"credit":136.41, "debit":0, "unit":"AUD"},
+	   {
+  "credit":0,
+  "debit":100,
+  "unit":"without_currency_movement_against_since('CHF','CHF',['AUD'],date(2015,1,1))"
+}
+	],
+	"type":"?",
+	"vector": [
+	   {"credit":136.41, "debit":0, "unit":"AUD"},
+	   {
+  "credit":0,
+  "debit":100,
+  "unit":"without_currency_movement_against_since('CHF','CHF',['AUD'],date(2015,1,1))"
+}
+	],
+	"vector_converted_at_balance_date": [ {"credit":0, "debit":63.59, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": [ {"credit":0, "debit":63.59, "unit":"AUD"} ]
+      },
+      {
+	"account":"InvestmentIncomeRealizedWithoutCurrencyMovementLeonteq_N",
+	"date":"2015-05-01",
+	"description":"comment:, comment2:Dispose_Of",
+	"running_balance": [
+	   {"credit":0, "debit":200, "unit":"AUD"},
+	   {
+  "credit":100,
+  "debit":0,
+  "unit":"without_currency_movement_against_since('CHF','CHF',['AUD'],date(2015,1,1))"
+}
+	],
+	"type":"?",
+	"vector": [
+	   {
+  "credit":100,
+  "debit":0,
+  "unit":"without_currency_movement_against_since('CHF','CHF',['AUD'],date(2015,1,1))"
+},
+	   {"credit":0, "debit":200, "unit":"AUD"}
+	],
+	"vector_converted_at_balance_date": [],
+	"vector_converted_at_transaction_date": []
+      }
+    ]
+  },
+  {"source":"livestock", "transactions": []}
+]

@@ -1,14 +1,12 @@
 /*
-this runs the requests in tests/endpoint_tests and compares the responses against saved files.
-Note that the http server is spawned in this process. This should change in future.
+this tries the requests in tests/endpoint_tests against a running server and compares the responses against saved files.
 */
 
-:- module(endpoint_tests, [setup/0,run_endpoint_test/2]).
+%:- module(endpoint_tests, [run_testcase/2]).
 
-%--------------------------------------------------------------------
-% Modules
-%--------------------------------------------------------------------
-
+:- use_module(library(fnotation)).
+:- fnotation_ops($>,<$).
+:- op(900,fx,<$).
 :- use_module(library(debug), [assertion/1]).
 :- use_module(library(http/http_client)).
 :- use_module(library(http/http_open)).
@@ -16,64 +14,76 @@ Note that the http server is spawned in this process. This should change in futu
 :- use_module(library(http/json)).
 :- use_module(library(xpath)).
 :- use_module(library(readutil)).
-:- use_module('lib', []).
+:- ['lib'].
+%:- ['../public_lib/xbrl/prolog/xbrl/utils.pl'].
+%:- ['../lib/search_paths.pl'].
+
+
+
+:- set_prolog_flag(endpoints_server, 'http://localhost:7778').
+
+endpoints_server(S) :-
+	current_prolog_flag(endpoints_server, S).
+
+
 
 :- multifile
 	prolog:message//1.
 
-prolog:message(testcase_error(Msg)) -->
-	['test failed: ~w; ', [Msg] ].
+prolog:message(testcase_error(Msg)) -->	['test failed: ', Msg].
 
 
-setup :- debug,prolog_server:run_simple_server.
+:- debug.
 
-/* we run all the tests against the http server that we start in this process. This makes things a bit confusing. But the plan is to move to a python (or aws) gateway */
-:- begin_tests(endpoints, [setup(setup)]).
+:- begin_tests(endpoints).
 
 test(start) :- nl.
 
 test(testcase, []) :-
-	current_prolog_flag(testcase, (Endpoint_Type, Testcase)),
-	run_endpoint_test(Endpoint_Type, Testcase).
+	(	current_prolog_flag(testcase, (Endpoint_Type, Testcase))
+	->	run_testcase(Endpoint_Type, Testcase)
+	;	true).
 
 /*
-hardcoded plunit test rules, one for each endpoint, so we can use things like "throws"
+hardcoded plunit test rules, one for each endpoint, so we can use things like "throws" and test individual endpoints separately
 */
 
+/* chat endpoints. just checking that these two respond, they have more tests in tests/plunit/ */
+
 test(sbe, []) :-
-	http_post('http://localhost:8080/sbe', json(_{current_state:[]}), _, [content_type('application/json')]).
+	http_post($>format(string(<$), '~w/sbe', [$>endpoints_server(<$)]), json(_{current_state:[]}), _, [content_type('application/json')]).
 
 test(residency, []) :-
-	http_post('http://localhost:8080/residency', json(_{current_state:[]}), _, [content_type('application/json')]).
+	http_post($>format(string(<$), '~w/residency', [$>endpoints_server(<$)]), json(_{current_state:[]}), _, [content_type('application/json')]).
 
 test(ledger,
 	[forall(testcases('endpoint_tests/ledger',Testcase))]) :-
-	run_endpoint_test(ledger, Testcase).
+	run_testcase(ledger, Testcase).
 
-test(loan, 
+test(loan,
 	[forall(testcases('endpoint_tests/loan',Testcase))]) :-
-	run_endpoint_test(loan, Testcase).
+	run_testcase(loan, Testcase).
 
-test(livestock, 
+test(livestock,
 	[forall(testcases('endpoint_tests/livestock',Testcase))]) :-
-	run_endpoint_test(livestock, Testcase).
+	run_testcase(livestock, Testcase).
 
 test(investment, 
 	[forall(testcases('endpoint_tests/investment', Testcase))]) :-
-	run_endpoint_test(investment, Testcase).
+	run_testcase(investment, Testcase).
 
 test(car, 
 	[forall(testcases('endpoint_tests/car',Testcase)), fixme('NER API server is down.')]) :-
-	run_endpoint_test(car, Testcase).
+	run_testcase(car, Testcase).
 
 test(depreciation, 
 	[forall(testcases('endpoint_tests/depreciation',Testcase))]) :-
-	run_endpoint_test(depreciation, Testcase).
+	run_testcase(depreciation, Testcase).
 
 test(depreciation_invalid, 
 	/* todo: the endpoint shouldnt die with a bad_request, it should return json with alerts, and we should simply check against a saved one */
-	[forall(testcases('endpoint_tests/depreciation_invalid',Testcase)), throws(testcase_error(400))]) :-
-	run_endpoint_test(depreciation_invalid, Testcase).
+	[forall(testcases('endpoint_tests/depreciation_invalid',Testcase)), throws(testcase_error(http_code_400))]) :-
+	run_testcase(depreciation_invalid, Testcase).
 
 :- end_tests(endpoints).
 
@@ -97,35 +107,37 @@ output_file(ledger, 'general_ledger_json', json).
 output_file(ledger, 'investment_report_json', json).
 output_file(ledger, 'investment_report_since_beginning_json', json).
 
+report_with_key_is_depended_upon_by_report_with_key(Source_Id, Result_Id) :-
+	Source_Id = _{name: Name, format: json},
+	Result_Id = _{name: Name, format: html}.
 
-run_endpoint_test(Endpoint_Type, Testcase) :-
-	debug(endpoint_tests, '(run_endpoint_test(~w, ~w)', [Endpoint_Type, Testcase]),
-	run_endpoint_test2(Endpoint_Type, Testcase).
+run_testcase(Endpoint_Type, Testcase) :-
+	debug(endpoint_tests, '(run_testcase(~w, ~w)', [Endpoint_Type, Testcase]),
+	/* make a fresh directory to save report files to */
+	bump_tmp_directory_id,
+	run_testcase2(Endpoint_Type, Testcase).
 
-run_endpoint_test2(Endpoint_Type, Testcase) :-
-	reset_gensym(iri), % because we use gensym in investment reports and it will keep incrementing throughout the test-cases, causing fresh responses to not match saved responses.
-	query_endpoint(Testcase, Response_JSON),
-	dict_pairs(Response_JSON.reports, _, Reports),
-	maplist(check_returned(Endpoint_Type, Testcase), Reports, Errors),
-	(	current_prolog_flag(grouped_assertions,true)
-	->	(
-			exclude(var, Errors, Errors2),
-			flatten(Errors2, Errors3),
-			assertion(Errors3 = [])
-		)
-	;	true).
-
-	%					throw(testcase_error(Msg))
-	%			format("Errors: ~w~n", [Error_List_Flat]),
+run_testcase2(Endpoint_Type, Testcase) :-
+ 	query_endpoint(Testcase, Response_JSON),
+ 	dict_pairs(Response_JSON.reports, _, Reports),
+ 	%order_reports_by_dependencies(Reports, Reports2)
+	maplist(
+		check_report(Endpoint_Type, Testcase),
+		Reports,
+		Errors),
+	maybe_report_all_testcase_errors(Errors).
 	/*todo: all_saved_files(Testcase, Saved_Files),
 	maplist(check_saved(Testcase, Reports), Saved_Files),*/
-	
+
+/*order_reports_by_dependencies(Reports, Reports2) :-
+	report_with_id_is_depended_upon_by_report_with_id(Source_Id, Result_Id)*/
 
 /*
+todo:
 check_saved(Testcase, Reports, Saved_File) :-
 	reports_corresponding_to_saved(Testcase, Reports, Saved_File, Reports_Corresponding_To_Saved_File),
 	(	Reports_Corresponding_To_Saved_File = [_]
-	->	true % handled by check_returned
+	->	true % handled by check_report
 	;	(	Reports_Corresponding_To_Saved_File = []
 		->	(	
 				format('missing corresponding report file, saved file: ~w', [Saved_File]),
@@ -134,36 +146,56 @@ check_saved(Testcase, Reports, Saved_File) :-
 		;	throw('this is weird')
 		)
 	).
+reports_corresponding_to_saved(Testcase, Reports, Saved_File, Reports_Corresponding_To_Saved_File) :-
+	findall(
+		Report,
+		(
+			member(Report, Reports),
+			tmp_uri_to_saved_response_path(Testcase, Report.url, Saved_File)
+		),
+		Reports_Corresponding_To_Saved_File
+	).
 */
-check_returned(_, _, all-_, _) :- !. /* the report with the key "all" is a link to the directory with the report files */
-check_returned(_, _, request_xml-_, _) :- !.
 
-check_returned(Endpoint_Type, Testcase, Key-Report, Errors) :-
-	tmp_uri_to_path(Report.url, Returned_Report_Path),
-	tmp_uri_to_saved_response_path(Testcase, Report.url, Saved_Report_Path),
-	(	\+exists_file(Saved_Report_Path)
+maybe_report_all_testcase_errors(Errors) :-
+	(	current_prolog_flag(grouped_assertions,true)
+	->	(
+			exclude(var, Errors, Errors2),
+			flatten(Errors2, Errors3),
+			assertion(Errors3 = [])
+		)
+	;	true).
+
+/* ignore these keys: */
+check_report(_, _, all-_, _) :- !. /* a link to the containing directory */
+check_report(_, _, request_xml-_, _) :- !.
+
+check_report(Endpoint_Type, Testcase, Key-Report, Errors) :-
+	Url = loc(absolute_url,Report.url),
+	fetch_report_file_from_url(Url, Returned_Report_Path),
+	tmp_uri_to_saved_response_path(Testcase, Url, Saved_Report_Path),
+	Saved_Report_Path = loc(absolute_path, Saved_Report_Path_Value),
+	(	\+exists_file(Saved_Report_Path_Value)
 	->	(
 			get_flag(add_missing_response_files, true)
 			->	copy_report_to_saved(Returned_Report_Path, Saved_Report_Path)
 			;	(
-					format(string(Msg), 'file contained in response is not found in saved files.', []),
+					exclude_file_location_from_filename(Url, loc(file_name,Fn)),
+					format(string(Msg), 'file contained in response is not found in saved files: ~w.', [Fn]),
 					writeln(Msg),
 					offer_cp(Returned_Report_Path, Saved_Report_Path),
 					Errors = [Msg]
 				)
 		)
-	;	check_saved_report0(Endpoint_Type, Key, Returned_Report_Path, Saved_Report_Path, Errors)
+	;	check_report2(Endpoint_Type, Key, Returned_Report_Path, Saved_Report_Path, Errors)
 	).
 
-offer_cp(Src, Dst) :-
-	atomics_to_string(['/bin/cp "', Src, '" "', Dst, '"'], Cmd),
-	atomics_to_string(['http://localhost:8000/shell/?cmd=',Cmd], Url),
-	print_clickable_link(Url, Cmd).
-
-
-check_saved_report0(Endpoint_Type, Key, Returned_Report_Path, Saved_Report_Path, Errors) :-
+check_report2(Endpoint_Type, Key, Returned_Report_Path, Saved_Report_Path, Errors) :-
 	file_type_by_extension(Returned_Report_Path, File_Type),
-	check_saved_report1(Endpoint_Type, Returned_Report_Path, Saved_Report_Path, Key, File_Type, Errors),
+	check_report3(Endpoint_Type, Returned_Report_Path, Saved_Report_Path, Key, File_Type, Errors),
+	maybe_report_report_errors(Errors, Returned_Report_Path, Saved_Report_Path).
+
+maybe_report_report_errors(Errors, Returned_Report_Path, Saved_Report_Path) :-
 	(current_prolog_flag(grouped_assertions,true)
 	->	true
 	;	assertion(Errors = [])),
@@ -180,19 +212,29 @@ check_saved_report0(Endpoint_Type, Key, Returned_Report_Path, Saved_Report_Path,
 	).
 	
 
-check_saved_report1(Endpoint_Type, Returned_Report_Path, Saved_Report_Path, Key, File_Type, Errors) :-
-	debug(endpoint_tests, '~n## ~q: ~n', [check_saved_report1(Endpoint_Type, Returned_Report_Path, Saved_Report_Path, Key, File_Type, Errors)]),
-	test_response(Endpoint_Type, Returned_Report_Path, Saved_Report_Path, Key, File_Type, Errors0),
-	findall(Key:Error, member(Error,Errors0), Errors).
+check_report3(Endpoint_Type, Returned_Report_Path, Saved_Report_Path, Key, File_Type, Errors) :-
+	debug(endpoint_tests, '~n## ~q: ~n', [check_report3(Endpoint_Type, Returned_Report_Path, Saved_Report_Path, Key, File_Type, Errors)]),
+	(
+		(	current_prolog_flag(ignore_response_keys, Ignored),
+			member(Key, Ignored)
+		)
+	->	true
+	;	(
+			check_report4(Endpoint_Type, Returned_Report_Path, Saved_Report_Path, Key, File_Type, Errors0),
+			findall(Key:Error, member(Error,Errors0), Errors)
+		)
+	).
 
 
-test_response(Endpoint_Type, Returned_Report_Path, Saved_Report_Path, Key, xml, Errors) :-
+check_report4(Endpoint_Type, Returned_Report_Path, Saved_Report_Path, Key, xml, Errors) :-
 	!,
-	load_structure(Returned_Report_Path, Response_DOM, [dialect(xml),space(sgml)]),
+	Returned_Report_Path = loc(absolute_path,Returned_Report_Path_Value),
+	Saved_Report_Path = loc(absolute_path,Saved_Report_Path_Value),
+	load_structure(Returned_Report_Path_Value, Response_DOM, [dialect(xml),space(sgml)]),
 	check_output_schema(Endpoint_Type, Key, Returned_Report_Path),
 	% todo: xbrl validation on ledger response XBRL
 	%check_output_taxonomy(Endpoint_Type, Response_XML_Path),
-	load_xml(Saved_Report_Path, Saved_Response_DOM, [space(sgml)]),
+	load_xml(Saved_Report_Path_Value, Saved_Response_DOM, [space(sgml)]),
 	compare_xml_dom(Response_DOM, Saved_Response_DOM, Error),
 	(
 		var(Error)
@@ -205,11 +247,12 @@ test_response(Endpoint_Type, Returned_Report_Path, Saved_Report_Path, Key, xml, 
 		)
 	).
 
-test_response(_, Returned_Report_Path, Saved_Report_Path, _Key, json, Errors) :-
+check_report4(_, Returned_Report_Path, Saved_Report_Path, _Key, json, Errors) :-
+	!,
 	diff_service(Saved_Report_Path, Returned_Report_Path, Errors).
 
-
-test_response(_, Returned_Report_Path, Saved_Report_Path, _, _, Error) :-
+check_report4(_, Returned_Report_Path, Saved_Report_Path, _, _, Error) :-
+	!,
 	(	diff(Saved_Report_Path, Returned_Report_Path, true)
 	->	Error = []
 	;	Error = ['files differ']).
@@ -232,11 +275,14 @@ test_response(_, Returned_Report_Path, Saved_Report_Path, _, _, Error) :-
 */
 
 diff_service(Saved_Report_Path, Returned_Report_Path, Errors) :-
+	Returned_Report_Path = loc(absolute_path,Returned_Report_Path_Value),
+	Saved_Report_Path = loc(absolute_path,Saved_Report_Path_Value),
 	float_comparison_significant_digits(D),
 	atomics_to_string([
-		'http://localhost:8000/json_diff/',
-		'?a=',Saved_Report_Path,
-		'&b=',Returned_Report_Path,
+		$>services_server(<$),
+		'/json_diff/',
+		'?a=',Saved_Report_Path_Value,
+		'&b=',Returned_Report_Path_Value,
 		'&options={"significant_digits":',D,'}'
 		], Request_URI),
 	catch(
@@ -247,7 +293,7 @@ diff_service(Saved_Report_Path, Returned_Report_Path, Errors) :-
 					read_string(Response_Stream, _, Response_String),
 					close(Response_Stream)
 				),
-				string_to_json(Response_String, _{diff:Diff,msg:Msg})
+				string_to_json_dict(Response_String, _{diff:Diff,msg:Msg})
 			),
 			(	Diff = _{}
 			->	Errors = []
@@ -258,7 +304,7 @@ diff_service(Saved_Report_Path, Returned_Report_Path, Errors) :-
 					->	writeln(Msg)
 					;	writeln(Response_String)),
 					nl,nl,
-					format(/*user_error, */'~n^^that was diff_service ~w ~w~n', [Saved_Report_Path, Returned_Report_Path]),
+					format(/*user_error, */'~n^^that was diff_service ~w ~w~n', [Saved_Report_Path_Value, Returned_Report_Path_Value]),
 					offer_cp(Returned_Report_Path, Saved_Report_Path)
 				)
 			)
@@ -277,27 +323,20 @@ diff(Saved_Report_Path, Returned_Report_Path, Are_Same) :-
 	diff2(Saved_Report_Path, Returned_Report_Path, Are_Same, [cmd(diff)]).
 
 diff2(Saved_Report_Path, Returned_Report_Path, Are_Same, Options) :-
+	Returned_Report_Path = loc(absolute_path,Returned_Report_Path_Value),
+	Saved_Report_Path = loc(absolute_path,Saved_Report_Path_Value),
 	memberchk(cmd(Executable), Options),
-	shell3([Executable, Saved_Report_Path, Returned_Report_Path], [exit_status(Exit_Status), command(Cmdline)]),
+	shell3([Executable, Saved_Report_Path_Value, Returned_Report_Path_Value], [exit_status(Exit_Status), command(Cmdline)]),
 	(	Exit_Status = 0
 	->	Are_Same = true
 	;	(
 			format(/*user_error, */'~n^^that was ~w~n', [Cmdline]),
 			offer_cp(Returned_Report_Path, Saved_Report_Path),
-			Are_Same = false % this must be the last statement
+			Are_Same = false % this must be the last statement here
 		)
 	).
+	% bash line shortener?:
 	%awk -v len=40 '{ if (length($0) > len) print substr($0, 1, len-3) "..."; else print; }'
-
-reports_corresponding_to_saved(Testcase, Reports, Saved_File, Reports_Corresponding_To_Saved_File) :-
-	findall(
-		Report,
-		(
-			member(Report, Reports),
-			tmp_uri_to_saved_response_path(Testcase, Report.url, Saved_File)
-		),
-		Reports_Corresponding_To_Saved_File
-	).
 
 print_alerts(Response_JSON, Alert_Types) :-
 	findall(
@@ -317,33 +356,32 @@ check_value_difference(Value1, Value2) :-
 
 query_endpoint(Testcase, Response_JSON) :-
 	debug(endpoint_tests, '~n## Testing Request: ~w', [Testcase]),
-
-	absolute_file_name(my_tests(Testcase),Testcase_Directory_Path, [ access(read), file_type(directory) ]),
+	resolve_specifier(loc(specifier,(my_tests(Testcase))),Testcase_Directory_Path),
 	directory_real_files(Testcase_Directory_Path, File_Paths),
 	findall(
-		file=file(RequestFile),
-		member(RequestFile, File_Paths),
+		file1=file(RequestFile),
+		member(loc(absolute_path,RequestFile), File_Paths),
 		File_Form_Entries),
+	atomic_list_concat([$>endpoints_server(<$),'/upload'], Endpoint_Url),
 	catch(
-		http_post('http://localhost:8080/upload?requested_output_format=json_reports_list', form_data(File_Form_Entries), Response_String, [content_type('multipart/form-data')]),
+		http_post(Endpoint_Url, form_data(File_Form_Entries), Response_String, [content_type('multipart/form-data')]),
 		error(existence_error(_,_),_),
-		throw(testcase_error(400))
+		throw(testcase_error(http_code_400))
 	),
-	%http_post('http://localhost:8080/upload?requested_output_format=xml', form_data([file=file(RequestFile)]), ReplyXML, [content_type('multipart/form-data')]),
-	/*todo: status_code(-Code)
-If this option is present and Code unifies with the HTTP status code, do not translate errors (4xx, 5xx) into an exception. Instead, http_open/3 behaves as if 2xx (success) is returned, providing the application to read the error document from the returned stream.
-*/
+	/*todo?: status_code(-Code)
+	If this option is present and Code unifies with the HTTP status code, do not translate errors (4xx, 5xx) into an exception. Instead, http_open/3 behaves as if 2xx (success) is returned, providing the application to read the error document from the returned stream.? I guess it's fine as it is now*/
 	atom_json_dict(Response_String, Response_JSON_Raw,[value_string_as(atom)]),
 	findall(
-		ID-_{title:Title,url:URL},
-		member(_{id:ID,key:Title,val:_{url:URL}}, Response_JSON_Raw.reports),
+		Key-_{title:Title,url:URL},
+		member(_{key:Key,title:Title,val:_{url:URL}}, Response_JSON_Raw.reports),
 		Reports
 	),
 	dict_pairs(Reports_Dict,_,Reports),
 	Response_JSON = _{
 		alerts:Response_JSON_Raw.alerts,
 		reports:Reports_Dict
-	}.
+	},
+	format('result dir: ~w~n', [Reports_Dict.all.url]).
 
 
 testcases(Top_Level, Testcase) :-
@@ -356,45 +394,44 @@ otherwise, recurse over subdirectories
 */
 
 find_test_cases_in(Current_Directory, Test_Case) :-
-	absolute_file_name(my_tests(Current_Directory), Current_Directory_Absolute, [file_type(directory)]),
-	directory_entries(Current_Directory_Absolute, Entries),
-	(
-		member('request.xml',Entries)
-	->
-		Test_Case = Current_Directory
-	;
+	Current_Directory_Absolute = loc(absolute_path, Current_Directory_Absolute_Value),
+	resolve_specifier(loc(specifier,(my_tests(Current_Directory))), Current_Directory_Absolute),
+	exists_directory(Current_Directory_Absolute_Value),
+	directory_entries(Current_Directory_Absolute_Value, Entries),
+	(	(member('request.xml',Entries)->true;member('request.n3',Entries))
+	->	Test_Case = Current_Directory
+	;	find_test_cases_in_recurse(Current_Directory, Entries, Test_Case)).
+
+find_test_cases_in_recurse(Current_Directory, Entries, Test_Case) :-
+	member(Subdirectory, Entries),
+	\+member(Subdirectory, ['.','..']),
+	atomic_list_concat([Current_Directory, Subdirectory], '/', Subdirectory_Relative_Path),
+	catch(
 		(
-			member(Subdirectory, Entries),
-			\+member(Subdirectory, ['.','..']),
-			atomic_list_concat([Current_Directory, Subdirectory], '/', Subdirectory_Relative_Path),	
-			catch(
-				(
-					absolute_file_name(my_tests(Subdirectory_Relative_Path), Subdirectory_Absolute_Path, [file_type(directory)]),
-					exists_directory(Subdirectory_Absolute_Path),
-					find_test_cases_in(Subdirectory_Relative_Path, Test_Case)
-				),
-				_,
-				fail
-			)	
-		) 
+			absolute_file_name(my_tests(Subdirectory_Relative_Path), Subdirectory_Absolute_Path, [file_type(directory)]),
+			exists_directory(Subdirectory_Absolute_Path),
+			find_test_cases_in(Subdirectory_Relative_Path, Test_Case)
+		),
+		_,
+		fail
 	).
 
 
-tmp_uri_to_path(URI, Path) :-
+/*tmp_uri_to_path(loc(absolute_url,URI), Path) :-
 	uri_components(URI, uri_components(_,_,Path0,_,_)),
 	atom_string(Path0, Path0_String),
 	split_string(Path0_String,"/","",[_|[_|Path_Components]]),
 	atomic_list_concat(Path_Components,"/",Relative_Path),
-	absolute_whatever(my_tmp(Relative_Path), Path).
+	absolute_whatever(loc(specifier,my_tmp(Relative_Path)), Path).
+*/
 
-
-tmp_uri_to_saved_response_path(Testcase, URI, Path) :-
+tmp_uri_to_saved_response_path(Testcase, loc(absolute_url, URI), Path) :-
 	uri_components(URI, uri_components(_,_,Path0,_,_)),
 	atom_string(Path0, Path0_String),
 	split_string(Path0_String, "/", "", Path_Components),
 	last(Path_Components, X), % get last item in list
 	atomic_list_concat([Testcase, 'responses', X], "/", Relative_Path),
-	absolute_whatever(my_tests(Relative_Path), Path).
+	resolve_specifier(loc(specifier,my_tests(Relative_Path)), Path).
 
 
 
@@ -421,16 +458,26 @@ check_output_schema(Endpoint_Type, Key, Response_XML_Path) :-
 	).
 
 copy_report_to_saved(R, S) :-
-	directory_file_path(D, _, S),
-	make_directory_path(D),
-	copy_file(R,S).
+	directory_file_path_loc(D, _, S),
+	ensure_directory_exists(D),
+	copy_file_loc(R,S).
 
-file_type_by_extension(Returned_Report_Path, File_Type) :-
+file_type_by_extension(loc(_, Returned_Report_Path), File_Type) :-
 	string_lower(Returned_Report_Path, P),
 	split_string(P, ".", ".", List),
 	last(List, Last),
 	atom_string(File_Type, Last),
 	!.
+
+offer_cp(loc(absolute_path,Src), loc(absolute_path,Dst)) :-
+	atomics_to_string(['/bin/cp "', Src, '" "', Dst, '"'], Cmd),
+	atomics_to_string([$>services_server(<$),'/shell/?cmd=',Cmd], Url),
+	print_clickable_link(Url, Cmd).
+
+fetch_report_file_from_url(Url, Path) :-
+	absolute_tmp_path($>exclude_file_location_from_filename(Url), Path),
+	fetch_file_from_url(Url, Path).
+
 
 /*
 check_output_taxonomy(Type, Response_XML_Path) :-
@@ -466,3 +513,4 @@ check_output_taxonomy(Type, Response_XML_Path) :-
 	%print_alerts(Response_JSON, ['SYSTEM_WARNING']),
 
 %	http_get(Response_URL, Response_XML, []),
+

@@ -1,0 +1,124 @@
+[
+  {"source":"initial_GL", "transactions": []},
+  {
+    "source": {
+      "account":"WellsFargo",
+      "date":"2017-07-10",
+      "exchanged":"vector([coord('BHP',10)])",
+      "misc": {},
+      "report_currency_transacted_amount_converted_at_balance_date": [ {"credit":135.08, "debit":0, "unit":"AUD"} ],
+      "report_currency_transacted_amount_converted_at_transaction_date": [ {"credit":131.46, "debit":0, "unit":"AUD"} ],
+      "vector": [ {"credit":100, "debit":0, "unit":"USD"} ],
+      "verb":"Invest_In"
+    },
+    "transactions": [
+      {
+	"account":"BanksWellsFargo",
+	"date":"2017-07-10",
+	"description":"Invest_In - outgoing money",
+	"running_balance": [ {"credit":100, "debit":0, "unit":"USD"} ],
+	"type":"instant",
+	"vector": [ {"credit":100, "debit":0, "unit":"USD"} ],
+	"vector_converted_at_balance_date": [ {"credit":135.08, "debit":0, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": [ {"credit":131.46, "debit":0, "unit":"AUD"} ]
+      },
+      {
+	"account":"CurrencyMovementWellsFargo",
+	"date":"2017-07-10",
+	"description":"Invest_In - outgoing money - currency movement adjustment - only current period",
+	"running_balance": [
+	   {"credit":0, "debit":100, "unit":"USD"},
+	   {
+  "credit":100,
+  "debit":0,
+  "unit":"without_currency_movement_against_since('USD','USD',['AUD'],date(2017,7,10))"
+}
+	],
+	"type":"tracking",
+	"vector": [
+	   {"credit":0, "debit":100, "unit":"USD"},
+	   {
+  "credit":100,
+  "debit":0,
+  "unit":"without_currency_movement_against_since('USD','USD',['AUD'],date(2017,7,10))"
+}
+	],
+	"vector_converted_at_balance_date": [ {"credit":0, "debit":3.62, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": []
+      },
+      {
+	"account":"FinancialInvestmentsBHP",
+	"date":"2017-07-10",
+	"description":"Invest_In",
+	"running_balance": [ {"credit":0, "debit":10, "unit":"BHP"} ],
+	"type":"instant",
+	"vector": [ {"credit":0, "debit":10, "unit":"BHP"} ],
+	"vector_converted_at_balance_date": [ {"credit":0, "debit":20, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": [ {"credit":0, "debit":10, "unit":"BHP"} ]
+      },
+      {
+	"account":"InvestmentIncomeUnrealizedOnlyCurrencyMovementBHP",
+	"date":"2017-07-10",
+	"description":"comment:, comment2:Invest_In - single period",
+	"running_balance": [
+	   {"credit":10, "debit":0, "unit":"BHP"},
+	   {
+  "credit":0,
+  "debit":10,
+  "unit":"without_currency_movement_against_since('BHP','USD',['AUD'],date(2017,7,10))"
+}
+	],
+	"type":"?",
+	"vector": [
+	   {"credit":10, "debit":0, "unit":"BHP"},
+	   {
+  "credit":0,
+  "debit":10,
+  "unit":"without_currency_movement_against_since('BHP','USD',['AUD'],date(2017,7,10))"
+}
+	],
+	"vector_converted_at_balance_date": [ {"credit":0.54, "debit":0, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": [
+	   {"credit":10, "debit":0, "unit":"BHP"},
+	   {
+  "credit":0,
+  "debit":10,
+  "unit":"without_currency_movement_against_since('BHP','USD',['AUD'],date(2017,7,10))"
+}
+	]
+      },
+      {
+	"account":"InvestmentIncomeUnrealizedWithoutCurrencyMovementBHP",
+	"date":"2017-07-10",
+	"description":"comment:, comment2:Invest_In - single period",
+	"running_balance": [
+	   {"credit":0, "debit":131.46, "unit":"AUD"},
+	   {
+  "credit":10,
+  "debit":0,
+  "unit":"without_currency_movement_against_since('BHP','USD',['AUD'],date(2017,7,10))"
+}
+	],
+	"type":"?",
+	"vector": [
+	   {
+  "credit":10,
+  "debit":0,
+  "unit":"without_currency_movement_against_since('BHP','USD',['AUD'],date(2017,7,10))"
+},
+	   {"credit":0, "debit":131.46, "unit":"AUD"}
+	],
+	"vector_converted_at_balance_date": [ {"credit":0, "debit":112.0, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": [
+	   {"credit":0, "debit":131.46, "unit":"AUD"},
+	   {
+  "credit":10,
+  "debit":0,
+  "unit":"without_currency_movement_against_since('BHP','USD',['AUD'],date(2017,7,10))"
+}
+	]
+      }
+    ]
+  },
+  {"source":"livestock", "transactions": []}
+]

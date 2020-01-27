@@ -639,7 +639,7 @@ hp_arr_record_wrong_amount_transaction_correction(Arrangement, HP_Account, HP_Su
 	transaction_vector(Transaction, Transaction_Vector),
 	hp_rec_installment_amount(Record, Installment_Amount),
 	vec_sub(coord(Installment_Amount, 0), Transaction_Vector, Remaining_Vector),
-	vec_reduce(Remaining_Vector, Remaining_Vector_Reduced),
+	vec_reduce_coords(Remaining_Vector, Remaining_Vector_Reduced),
 	vec_inverse(Remaining_Vector_Reduced, Remaining_Vector_Reduced_Inverted),
 	member(
 		Transaction_Correction,

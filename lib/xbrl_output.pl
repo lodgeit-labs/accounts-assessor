@@ -9,8 +9,8 @@ create_instance(Xbrl, Static_Data, Start_Date, End_Date, Accounts, Report_Curren
 		section(Instant_Context_Id_Base, '\n<!-- trial balance: -->\n', Trial_Balance, '')
 	],
 	xbrl(Xbrl, Children),
-	add(Children, [Facts, Dimensional_Facts, Units_Xml, Contexts_Xml]),
-	Entity_Identifier = '<identifier scheme="http://www.example.com">TestData</identifier>',
+	add(Children, [Units_Xml, Contexts_Xml, Dimensional_Facts,Facts]),
+	Entity_Identifier = element(identifier, [scheme="http://www.example.com"],['TestData']),
 	build_base_contexts(Start_Date, End_Date, Entity_Identifier, Instant_Context_Id_Base, Duration_Context_Id_Base, Contexts0),
 	fact_lines(Accounts, Report_Currency, Fact_Sections, Facts),
 	maybe_print_dimensional_facts(
@@ -70,8 +70,8 @@ print_used_units(Elements) :-
 		Elements).
 
 print_used_unit(Unit, Element) :-
+	sane_unit_id(Unit, Id_Attr),
 	sane_id(Unit, Sane),
-	format(string(Id_Attr), "U-~w", [Sane]),
 	format(string(Measure), "iso4217:~w", [Sane]),
 	Element = element(
 		'xbrli:unit',

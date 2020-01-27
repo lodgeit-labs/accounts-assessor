@@ -33,38 +33,47 @@ event(Event, Unit_Cost_Foreign, Currency_Conversion, Unit_Cost_Converted, Total_
 	}.
 
 
-investment_report_2(Static_Data, Outstanding_In, Filename_Suffix, Report_Data) :-
+investment_report_2_0(Static_Data, Filename_Suffix, Semantic_Json) :-
+	format_date(Static_Data.start_date, Start_Date_Atom),
+	format_date(Static_Data.end_date, End_Date_Atom),
+	report_currency_atom(Static_Data.report_currency, Report_Currency_Atom),
+	atomic_list_concat(['investment report from ', Start_Date_Atom, ' to ', End_Date_Atom, ' ',Report_Currency_Atom], Title_Text),
+	atomic_list_concat(['investment_report', Filename_Suffix, '.html'], Filename),
+	atomic_list_concat(['investment_report', Filename_Suffix, '_html'], Key),
+	atomic_list_concat(['investment_report', Filename_Suffix], Json_Filename),
+
+	catch_maybe_with_backtrace(
+		(
+			(Static_Data.report_currency = [_] -> true ; throw_string('investment report: report currency expected')),
+			(	investment_report_2(Static_Data, Semantic_Json, Table_Json, Html, Title_Text)
+			->	true
+			;	throw(fail)),
+			make_json_report(Table_Json, Json_Filename)
+		),
+		E,
+		(
+			term_string(E, Msg),
+			error_page_html(Msg, Html),
+			assert_alert('error', E),
+			Semantic_Json = _{}
+		)
+	),
+	add_report_page(Title_Text, Html, loc(file_name,Filename), Key).
+
+
+investment_report_2(Static_Data, Semantic_Json, Table_Json, Html, Title_Text) :-
 	reset_gensym(iri),
 
-	Start_Date = Static_Data.start_date,
-	End_Date = Static_Data.end_date,
-	Report_Currency = Static_Data.report_currency,
-	
-	format_date(Start_Date, Start_Date_Atom),
-	format_date(End_Date, End_Date_Atom),
-	report_currency_atom(Report_Currency, Report_Currency_Atom),
-	atomic_list_concat(['investment report from ', Start_Date_Atom, ' to ', End_Date_Atom, ' ', Report_Currency_Atom], Title_Text),
-
 	columns(Columns),
-	rows(Static_Data, Outstanding_In, Rows),
+	rows(Static_Data, Static_Data.outstanding, Rows),
 	totals(Rows, Totals),
 	flatten([Rows, Totals], Rows2),
 
-	Table = _{title: Title_Text, rows: Rows2, columns: Columns},
-	table_html(Table, Table_Html),
+	Table_Json = _{title: Title_Text, rows: Rows2, columns: Columns},
+	table_html(Table_Json, Table_Html),
+	page_with_table_html(Title_Text, Table_Html, Html),
 
-	atomic_list_concat(['investment_report', Filename_Suffix, '.html'], Filename),
-	atomic_list_concat(['investment_report', Filename_Suffix, '_html'], HTML_ID),
-	report_page_with_table(Title_Text, Table_Html, loc(file_name, Filename), HTML_ID),
-	
-	atomic_list_concat(['investment_report', Filename_Suffix, '.json'], Json_Filename),
-	atomic_list_concat(['investment_report', Filename_Suffix, '_json'], JSON_ID),
-	dict_json_text(Table, Json_Text),
-	report_item(loc(file_name,Json_Filename), Json_Text, Json_Url),
-	nonvar(Json_Url),
-	report_entry(Json_Filename, Json_Url, JSON_ID),
-	
-	Report_Data = _{
+	Semantic_Json = _{
 		rows: Rows,
 		totals: Totals
 	}.
@@ -107,6 +116,7 @@ columns(Columns) :-
 	],
 
 	Market_Event_Details = [
+	/*fixme, not cost but value */
 		column{id:unit_cost_foreign, title:"Unit Market Value Foreign", options:_{}},
 		column{id:conversion, title:"Conversion", options:_{}},
 		column{id:unit_cost_converted, title:"Unit Market Value Converted", options:_{}},
@@ -127,8 +137,10 @@ columns(Columns) :-
 /*group{id:on_hand_at_cost, title:"On Hand At Cost Per Unit", members:On_Hand_At_Cost_Per_Unit_Details},
 column{id:count, title:"Count", options:_{}},
 group{id:on_hand_at_cost, title:"On Hand At Cost Total", members:On_Hand_At_Cost_Total_Details},*/
-	Events = [ 
+	Events = [
+		/*trade?*/
 		group{id:purchase, title:"Purchase", members:Sale_Event_Details},
+		/*checkpoint?*/
 		group{id:opening, title:"Opening", members:Market_Event_Details},
 		group{id:sale, title:"Sale", members:Sale_Event_Details},
 		group{id:closing, title:"Closing", members:Market_Event_Details},
@@ -276,11 +288,11 @@ investment_report_2_unrealized(Static_Data, Investment, Row) :-
 	optional_currency_conversion(Exchange_Rates, End_Date, Investment_Currency, Report_Currency, Closing_Currency_Conversion),
 	exchange_rate_throw(Exchange_Rates, End_Date, Unit, Investment_Currency, Closing_Unit_Price_Foreign_Amount),
 	Closing_Unit_Price_Foreign = value(Investment_Currency, Closing_Unit_Price_Foreign_Amount),
-	Investment_Currency_Current_Market_Value_Amount is Count * Closing_Unit_Price_Foreign_Amount,
+	{Investment_Currency_Current_Market_Value_Amount = Count * Closing_Unit_Price_Foreign_Amount},
 	Investment_Currency_Current_Market_Value = value(Investment_Currency, Investment_Currency_Current_Market_Value_Amount),
 	[Report_Currency_Unit] = Report_Currency,
 	exchange_rate_throw(Exchange_Rates, End_Date, Unit, Report_Currency_Unit, Closing_Unit_Price_Converted_Amount),
-	Current_Market_Value_Amount is Count * Closing_Unit_Price_Converted_Amount,
+	{Current_Market_Value_Amount = Count * Closing_Unit_Price_Converted_Amount},
 	Current_Market_Value = value(Report_Currency_Unit, Current_Market_Value_Amount),
 
 	optional_converted_value(Closing_Unit_Price_Foreign, Closing_Currency_Conversion, Closing_Unit_Price_Converted),
@@ -397,7 +409,7 @@ ir2_forex_gain(Exchange_Rates, Opening_Date, End_Price, End_Date, Investment_Cur
 				Forex_Gain_Vec
 			),
 			number_vec(Report_Currency_Unit, Forex_Gain_Amount, Forex_Gain_Vec),
-			Forex_Gain_Amount_Total is Forex_Gain_Amount * Count,
+			{Forex_Gain_Amount_Total = Forex_Gain_Amount * Count},
 			Gain = value(Report_Currency_Unit, Forex_Gain_Amount_Total)
 		)
 	;
@@ -410,7 +422,7 @@ ir2_market_gain(Exchange_Rates, Opening_Date, End_Date, Investment_Currency, Rep
 	Market_Price_Without_Movement_Unit = without_currency_movement_against_since(
 		Investment_Currency, Investment_Currency, Report_Currency, Opening_Date),
 	exchange_rate_throw(Exchange_Rates, End_Date, Market_Price_Without_Movement_Unit, Report_Currency_Unit, End_Market_Price_Rate),
-	End_Market_Price_Amount_Converted is End_Unit_Price_Amount * End_Market_Price_Rate,
+	{End_Market_Price_Amount_Converted = End_Unit_Price_Amount * End_Market_Price_Rate},
 	End_Market_Unit_Price_Converted = value(Report_Currency_Unit, End_Market_Price_Amount_Converted),
 
 	value_multiply(End_Market_Unit_Price_Converted, Count, End_Total_Price_Converted),

@@ -1,0 +1,2573 @@
+{
+  "bs": {
+    "current": [
+       {
+  "account":"NetAssets",
+  "balance": [
+     {"credit":0, "debit":32705.05, "unit":"CHF"},
+     {"credit":0, "debit":63886.52, "unit":"USD"},
+     {
+  "credit":0,
+  "debit":5000,
+  "unit":"with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',13.976))"
+}
+  ],
+  "child_sheet_entries": [
+     {
+  "account":"Assets",
+  "balance": [
+     {"credit":0, "debit":32705.05, "unit":"CHF"},
+     {"credit":0, "debit":63886.52, "unit":"USD"},
+     {
+  "credit":0,
+  "debit":5000,
+  "unit":"with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',13.976))"
+}
+  ],
+  "child_sheet_entries": [
+     {
+  "account":"CurrentAssets",
+  "balance": [ {"credit":0, "debit":32705.05, "unit":"CHF"},  {"credit":0, "debit":63886.52, "unit":"USD"} ],
+  "child_sheet_entries": [
+     {
+  "account":"AssetsLivestock",
+  "balance": [],
+  "child_sheet_entries": [
+     {
+  "account":"AssetsLivestockAtAverageCost",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"AssetsLivestockAtCost",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+}
+  ],
+  "transactions_count":0
+},
+     {
+  "account":"CashAndCashEquivalents",
+  "balance": [ {"credit":0, "debit":32705.05, "unit":"CHF"},  {"credit":0, "debit":63886.52, "unit":"USD"} ],
+  "child_sheet_entries": [
+     {
+  "account":"Banks",
+  "balance": [ {"credit":0, "debit":32705.05, "unit":"CHF"},  {"credit":0, "debit":63886.52, "unit":"USD"} ],
+  "child_sheet_entries": [
+     {
+  "account":"BanksCHF_Bank",
+  "balance": [ {"credit":0, "debit":32705.05, "unit":"CHF"} ],
+  "child_sheet_entries": [],
+  "transactions_count":6
+},
+     {
+  "account":"BanksUSD_Bank",
+  "balance": [ {"credit":0, "debit":63886.52, "unit":"USD"} ],
+  "child_sheet_entries": [],
+  "transactions_count":8
+}
+  ],
+  "transactions_count":14
+}
+  ],
+  "transactions_count":14
+}
+  ],
+  "transactions_count":14
+},
+     {
+  "account":"NoncurrentAssets",
+  "balance": [
+     {
+  "credit":0,
+  "debit":5000,
+  "unit":"with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',13.976))"
+}
+  ],
+  "child_sheet_entries": [
+     {
+  "account":"FinancialInvestments",
+  "balance": [
+     {
+  "credit":0,
+  "debit":5000,
+  "unit":"with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',13.976))"
+}
+  ],
+  "child_sheet_entries": [
+     {
+  "account":"FinancialInvestmentsLeonteq_N",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":2
+},
+     {
+  "account":"FinancialInvestmentsRaiffeisen_Switzerland_B_V_",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":2
+},
+     {
+  "account":"FinancialInvestmentsSG_Issuer_SA_USD_1",
+  "balance": [
+     {
+  "credit":0,
+  "debit":5000,
+  "unit":"with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',13.976))"
+}
+  ],
+  "child_sheet_entries": [],
+  "transactions_count":4
+}
+  ],
+  "transactions_count":8
+}
+  ],
+  "transactions_count":8
+}
+  ],
+  "transactions_count":22
+},
+     {
+  "account":"Liabilities",
+  "balance": [],
+  "child_sheet_entries": [
+     {
+  "account":"CurrentLiabilities",
+  "balance": [],
+  "child_sheet_entries": [
+     {
+  "account":"CurrentLoans",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"Gst",
+  "balance": [],
+  "child_sheet_entries": [ {
+  "account":"GstPayable",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},  {
+  "account":"GstReceivable",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+} ],
+  "transactions_count":0
+}
+  ],
+  "transactions_count":0
+},
+     {
+  "account":"NoncurrentLiabilities",
+  "balance": [],
+  "child_sheet_entries": [ {
+  "account":"NoncurrentLoans",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+} ],
+  "transactions_count":0
+}
+  ],
+  "transactions_count":0
+}
+  ],
+  "transactions_count":22
+},
+       {
+  "account":"Equity",
+  "balance": [
+     {"credit":65410.1, "debit":0, "unit":"CHF"},
+     {"credit":127773.04, "debit":0, "unit":"USD"},
+     {
+  "credit":5000,
+  "debit":0,
+  "unit":"with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',13.976))"
+},
+     {
+  "credit":0,
+  "debit":145000,
+  "unit":"without_movement_after('SG Issuer_SA_USD_1',date(2018,7,13))"
+},
+     {
+  "credit":140000,
+  "debit":0,
+  "unit":"without_movement_after(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',0.9983)),date(2018,7,13))"
+},
+     {
+  "credit":5000,
+  "debit":0,
+  "unit":"without_movement_after(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',13.976)),date(2018,7,13))"
+},
+     {
+  "credit":1000,
+  "debit":0,
+  "unit":"without_currency_movement_against_since('CHF','CHF',[],date(2018,7,10))"
+},
+     {
+  "credit":1573.85,
+  "debit":0,
+  "unit":"without_currency_movement_against_since('CHF','CHF',[],date(2018,8,16))"
+},
+     {
+  "credit":80876.1,
+  "debit":0,
+  "unit":"without_currency_movement_against_since('CHF','CHF',[],date(2018,10,1))"
+},
+     {
+  "credit":105000,
+  "debit":0,
+  "unit":"without_currency_movement_against_since('CHF','CHF',[],date(2018,10,15))"
+},
+     {
+  "credit":0,
+  "debit":221155,
+  "unit":"without_currency_movement_against_since('CHF','CHF',[],date(2018,12,30))"
+},
+     {
+  "credit":139760.32,
+  "debit":0,
+  "unit":"without_currency_movement_against_since('USD','USD',[],date(2018,7,1))"
+},
+     {
+  "credit":181363.16,
+  "debit":0,
+  "unit":"without_currency_movement_against_since('USD','USD',[],date(2018,7,2))"
+},
+     {
+  "credit":0,
+  "debit":90000,
+  "unit":"without_currency_movement_against_since('USD','USD',[],date(2018,7,12))"
+},
+     {
+  "credit":20,
+  "debit":0,
+  "unit":"without_currency_movement_against_since('USD','USD',[],date(2018,8,13))"
+},
+     {
+  "credit":0,
+  "debit":30,
+  "unit":"without_currency_movement_against_since('USD','USD',[],date(2018,9,1))"
+},
+     {
+  "credit":0,
+  "debit":150000,
+  "unit":"without_currency_movement_against_since('USD','USD',[],date(2018,10,15))"
+},
+     {
+  "credit":0,
+  "debit":145000,
+  "unit":"without_currency_movement_against_since('USD','USD',[],date(2018,12,30))"
+}
+  ],
+  "child_sheet_entries": [
+     {
+  "account":"CapitalIntroduced",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"Drawings",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"RetainedEarnings",
+  "balance": [
+     {"credit":65410.1, "debit":0, "unit":"CHF"},
+     {"credit":127773.04, "debit":0, "unit":"USD"},
+     {
+  "credit":5000,
+  "debit":0,
+  "unit":"with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',13.976))"
+},
+     {
+  "credit":0,
+  "debit":145000,
+  "unit":"without_movement_after('SG Issuer_SA_USD_1',date(2018,7,13))"
+},
+     {
+  "credit":140000,
+  "debit":0,
+  "unit":"without_movement_after(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',0.9983)),date(2018,7,13))"
+},
+     {
+  "credit":5000,
+  "debit":0,
+  "unit":"without_movement_after(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',13.976)),date(2018,7,13))"
+},
+     {
+  "credit":1000,
+  "debit":0,
+  "unit":"without_currency_movement_against_since('CHF','CHF',[],date(2018,7,10))"
+},
+     {
+  "credit":1573.85,
+  "debit":0,
+  "unit":"without_currency_movement_against_since('CHF','CHF',[],date(2018,8,16))"
+},
+     {
+  "credit":80876.1,
+  "debit":0,
+  "unit":"without_currency_movement_against_since('CHF','CHF',[],date(2018,10,1))"
+},
+     {
+  "credit":105000,
+  "debit":0,
+  "unit":"without_currency_movement_against_since('CHF','CHF',[],date(2018,10,15))"
+},
+     {
+  "credit":0,
+  "debit":221155,
+  "unit":"without_currency_movement_against_since('CHF','CHF',[],date(2018,12,30))"
+},
+     {
+  "credit":139760.32,
+  "debit":0,
+  "unit":"without_currency_movement_against_since('USD','USD',[],date(2018,7,1))"
+},
+     {
+  "credit":181363.16,
+  "debit":0,
+  "unit":"without_currency_movement_against_since('USD','USD',[],date(2018,7,2))"
+},
+     {
+  "credit":0,
+  "debit":90000,
+  "unit":"without_currency_movement_against_since('USD','USD',[],date(2018,7,12))"
+},
+     {
+  "credit":20,
+  "debit":0,
+  "unit":"without_currency_movement_against_since('USD','USD',[],date(2018,8,13))"
+},
+     {
+  "credit":0,
+  "debit":30,
+  "unit":"without_currency_movement_against_since('USD','USD',[],date(2018,9,1))"
+},
+     {
+  "credit":0,
+  "debit":150000,
+  "unit":"without_currency_movement_against_since('USD','USD',[],date(2018,10,15))"
+},
+     {
+  "credit":0,
+  "debit":145000,
+  "unit":"without_currency_movement_against_since('USD','USD',[],date(2018,12,30))"
+}
+  ],
+  "child_sheet_entries": [
+     {
+  "account":"CurrentEarnings",
+  "balance": [
+     {"credit":66410.1, "debit":0, "unit":"CHF"},
+     {"credit":358896.52, "debit":0, "unit":"USD"},
+     {
+  "credit":5000,
+  "debit":0,
+  "unit":"with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',13.976))"
+},
+     {
+  "credit":1000,
+  "debit":0,
+  "unit":"without_movement_after('CHF',date(2018,7,13))"
+},
+     {
+  "credit":0,
+  "debit":145000,
+  "unit":"without_movement_after('SG Issuer_SA_USD_1',date(2018,7,13))"
+},
+     {
+  "credit":231123.48,
+  "debit":0,
+  "unit":"without_movement_after('USD',date(2018,7,13))"
+},
+     {
+  "credit":0,
+  "debit":5000,
+  "unit":"without_movement_after(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',13.976)),date(2018,7,13))"
+},
+     {
+  "credit":1573.85,
+  "debit":0,
+  "unit":"without_currency_movement_against_since('CHF','CHF',[],date(2018,8,16))"
+},
+     {
+  "credit":80876.1,
+  "debit":0,
+  "unit":"without_currency_movement_against_since('CHF','CHF',[],date(2018,10,1))"
+},
+     {
+  "credit":105000,
+  "debit":0,
+  "unit":"without_currency_movement_against_since('CHF','CHF',[],date(2018,10,15))"
+},
+     {
+  "credit":0,
+  "debit":221155,
+  "unit":"without_currency_movement_against_since('CHF','CHF',[],date(2018,12,30))"
+},
+     {
+  "credit":20,
+  "debit":0,
+  "unit":"without_currency_movement_against_since('USD','USD',[],date(2018,8,13))"
+},
+     {
+  "credit":0,
+  "debit":30,
+  "unit":"without_currency_movement_against_since('USD','USD',[],date(2018,9,1))"
+},
+     {
+  "credit":0,
+  "debit":150000,
+  "unit":"without_currency_movement_against_since('USD','USD',[],date(2018,10,15))"
+},
+     {
+  "credit":0,
+  "debit":145000,
+  "unit":"without_currency_movement_against_since('USD','USD',[],date(2018,12,30))"
+}
+  ],
+  "child_sheet_entries": [],
+  "transactions_count":42
+},
+     {
+  "account":"HistoricalEarnings",
+  "balance": [
+     {"credit":0, "debit":1000, "unit":"CHF"},
+     {"credit":0, "debit":231123.48, "unit":"USD"},
+     {
+  "credit":0,
+  "debit":1000,
+  "unit":"without_movement_after('CHF',date(2018,7,13))"
+},
+     {
+  "credit":0,
+  "debit":231123.48,
+  "unit":"without_movement_after('USD',date(2018,7,13))"
+},
+     {
+  "credit":140000,
+  "debit":0,
+  "unit":"without_movement_after(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',0.9983)),date(2018,7,13))"
+},
+     {
+  "credit":10000,
+  "debit":0,
+  "unit":"without_movement_after(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',13.976)),date(2018,7,13))"
+},
+     {
+  "credit":1000,
+  "debit":0,
+  "unit":"without_currency_movement_against_since('CHF','CHF',[],date(2018,7,10))"
+},
+     {
+  "credit":139760.32,
+  "debit":0,
+  "unit":"without_currency_movement_against_since('USD','USD',[],date(2018,7,1))"
+},
+     {
+  "credit":181363.16,
+  "debit":0,
+  "unit":"without_currency_movement_against_since('USD','USD',[],date(2018,7,2))"
+},
+     {
+  "credit":0,
+  "debit":90000,
+  "unit":"without_currency_movement_against_since('USD','USD',[],date(2018,7,12))"
+}
+  ],
+  "child_sheet_entries": [ {
+  "account":"BankOpeningBalances",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+} ],
+  "transactions_count":16
+}
+  ],
+  "transactions_count":58
+},
+     {
+  "account":"ShareCapital",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+}
+  ],
+  "transactions_count":58
+}
+    ],
+    "historical": [
+       {
+  "account":"NetAssets",
+  "balance": [
+     {"credit":1000, "debit":0, "unit":"CHF"},
+     {"credit":231123.48, "debit":0, "unit":"USD"},
+     {
+  "credit":0,
+  "debit":140000,
+  "unit":"with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',0.9983))"
+},
+     {
+  "credit":0,
+  "debit":10000,
+  "unit":"with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',13.976))"
+}
+  ],
+  "child_sheet_entries": [
+     {
+  "account":"Assets",
+  "balance": [
+     {"credit":1000, "debit":0, "unit":"CHF"},
+     {"credit":231123.48, "debit":0, "unit":"USD"},
+     {
+  "credit":0,
+  "debit":140000,
+  "unit":"with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',0.9983))"
+},
+     {
+  "credit":0,
+  "debit":10000,
+  "unit":"with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',13.976))"
+}
+  ],
+  "child_sheet_entries": [
+     {
+  "account":"CurrentAssets",
+  "balance": [ {"credit":1000, "debit":0, "unit":"CHF"},  {"credit":231123.48, "debit":0, "unit":"USD"} ],
+  "child_sheet_entries": [
+     {
+  "account":"AssetsLivestock",
+  "balance": [],
+  "child_sheet_entries": [
+     {
+  "account":"AssetsLivestockAtAverageCost",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"AssetsLivestockAtCost",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+}
+  ],
+  "transactions_count":0
+},
+     {
+  "account":"CashAndCashEquivalents",
+  "balance": [ {"credit":1000, "debit":0, "unit":"CHF"},  {"credit":231123.48, "debit":0, "unit":"USD"} ],
+  "child_sheet_entries": [
+     {
+  "account":"Banks",
+  "balance": [ {"credit":1000, "debit":0, "unit":"CHF"},  {"credit":231123.48, "debit":0, "unit":"USD"} ],
+  "child_sheet_entries": [
+     {
+  "account":"BanksCHF_Bank",
+  "balance": [ {"credit":1000, "debit":0, "unit":"CHF"} ],
+  "child_sheet_entries": [],
+  "transactions_count":1
+},
+     {
+  "account":"BanksUSD_Bank",
+  "balance": [ {"credit":231123.48, "debit":0, "unit":"USD"} ],
+  "child_sheet_entries": [],
+  "transactions_count":4
+}
+  ],
+  "transactions_count":5
+}
+  ],
+  "transactions_count":5
+}
+  ],
+  "transactions_count":5
+},
+     {
+  "account":"NoncurrentAssets",
+  "balance": [
+     {
+  "credit":0,
+  "debit":140000,
+  "unit":"with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',0.9983))"
+},
+     {
+  "credit":0,
+  "debit":10000,
+  "unit":"with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',13.976))"
+}
+  ],
+  "child_sheet_entries": [
+     {
+  "account":"FinancialInvestments",
+  "balance": [
+     {
+  "credit":0,
+  "debit":140000,
+  "unit":"with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',0.9983))"
+},
+     {
+  "credit":0,
+  "debit":10000,
+  "unit":"with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',13.976))"
+}
+  ],
+  "child_sheet_entries": [
+     {
+  "account":"FinancialInvestmentsLeonteq_N",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"FinancialInvestmentsRaiffeisen_Switzerland_B_V_",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":2
+},
+     {
+  "account":"FinancialInvestmentsSG_Issuer_SA_USD_1",
+  "balance": [
+     {
+  "credit":0,
+  "debit":140000,
+  "unit":"with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',0.9983))"
+},
+     {
+  "credit":0,
+  "debit":10000,
+  "unit":"with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',13.976))"
+}
+  ],
+  "child_sheet_entries": [],
+  "transactions_count":2
+}
+  ],
+  "transactions_count":4
+}
+  ],
+  "transactions_count":4
+}
+  ],
+  "transactions_count":9
+},
+     {
+  "account":"Liabilities",
+  "balance": [],
+  "child_sheet_entries": [
+     {
+  "account":"CurrentLiabilities",
+  "balance": [],
+  "child_sheet_entries": [
+     {
+  "account":"CurrentLoans",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"Gst",
+  "balance": [],
+  "child_sheet_entries": [ {
+  "account":"GstPayable",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},  {
+  "account":"GstReceivable",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+} ],
+  "transactions_count":0
+}
+  ],
+  "transactions_count":0
+},
+     {
+  "account":"NoncurrentLiabilities",
+  "balance": [],
+  "child_sheet_entries": [ {
+  "account":"NoncurrentLoans",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+} ],
+  "transactions_count":0
+}
+  ],
+  "transactions_count":0
+}
+  ],
+  "transactions_count":9
+},
+       {
+  "account":"Equity",
+  "balance": [
+     {"credit":0, "debit":1000, "unit":"CHF"},
+     {"credit":0, "debit":231123.48, "unit":"USD"},
+     {
+  "credit":0,
+  "debit":1000,
+  "unit":"without_movement_after('CHF',date(2018,7,13))"
+},
+     {
+  "credit":0,
+  "debit":231123.48,
+  "unit":"without_movement_after('USD',date(2018,7,13))"
+},
+     {
+  "credit":140000,
+  "debit":0,
+  "unit":"without_movement_after(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',0.9983)),date(2018,7,13))"
+},
+     {
+  "credit":10000,
+  "debit":0,
+  "unit":"without_movement_after(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',13.976)),date(2018,7,13))"
+},
+     {
+  "credit":1000,
+  "debit":0,
+  "unit":"without_currency_movement_against_since('CHF','CHF',[],date(2018,7,10))"
+},
+     {
+  "credit":139760.32,
+  "debit":0,
+  "unit":"without_currency_movement_against_since('USD','USD',[],date(2018,7,1))"
+},
+     {
+  "credit":181363.16,
+  "debit":0,
+  "unit":"without_currency_movement_against_since('USD','USD',[],date(2018,7,2))"
+},
+     {
+  "credit":0,
+  "debit":90000,
+  "unit":"without_currency_movement_against_since('USD','USD',[],date(2018,7,12))"
+}
+  ],
+  "child_sheet_entries": [
+     {
+  "account":"CapitalIntroduced",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"Drawings",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"RetainedEarnings",
+  "balance": [
+     {"credit":0, "debit":1000, "unit":"CHF"},
+     {"credit":0, "debit":231123.48, "unit":"USD"},
+     {
+  "credit":0,
+  "debit":1000,
+  "unit":"without_movement_after('CHF',date(2018,7,13))"
+},
+     {
+  "credit":0,
+  "debit":231123.48,
+  "unit":"without_movement_after('USD',date(2018,7,13))"
+},
+     {
+  "credit":140000,
+  "debit":0,
+  "unit":"without_movement_after(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',0.9983)),date(2018,7,13))"
+},
+     {
+  "credit":10000,
+  "debit":0,
+  "unit":"without_movement_after(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',13.976)),date(2018,7,13))"
+},
+     {
+  "credit":1000,
+  "debit":0,
+  "unit":"without_currency_movement_against_since('CHF','CHF',[],date(2018,7,10))"
+},
+     {
+  "credit":139760.32,
+  "debit":0,
+  "unit":"without_currency_movement_against_since('USD','USD',[],date(2018,7,1))"
+},
+     {
+  "credit":181363.16,
+  "debit":0,
+  "unit":"without_currency_movement_against_since('USD','USD',[],date(2018,7,2))"
+},
+     {
+  "credit":0,
+  "debit":90000,
+  "unit":"without_currency_movement_against_since('USD','USD',[],date(2018,7,12))"
+}
+  ],
+  "child_sheet_entries": [
+     {
+  "account":"CurrentEarnings",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"HistoricalEarnings",
+  "balance": [
+     {"credit":0, "debit":1000, "unit":"CHF"},
+     {"credit":0, "debit":231123.48, "unit":"USD"},
+     {
+  "credit":0,
+  "debit":1000,
+  "unit":"without_movement_after('CHF',date(2018,7,13))"
+},
+     {
+  "credit":0,
+  "debit":231123.48,
+  "unit":"without_movement_after('USD',date(2018,7,13))"
+},
+     {
+  "credit":140000,
+  "debit":0,
+  "unit":"without_movement_after(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',0.9983)),date(2018,7,13))"
+},
+     {
+  "credit":10000,
+  "debit":0,
+  "unit":"without_movement_after(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',13.976)),date(2018,7,13))"
+},
+     {
+  "credit":1000,
+  "debit":0,
+  "unit":"without_currency_movement_against_since('CHF','CHF',[],date(2018,7,10))"
+},
+     {
+  "credit":139760.32,
+  "debit":0,
+  "unit":"without_currency_movement_against_since('USD','USD',[],date(2018,7,1))"
+},
+     {
+  "credit":181363.16,
+  "debit":0,
+  "unit":"without_currency_movement_against_since('USD','USD',[],date(2018,7,2))"
+},
+     {
+  "credit":0,
+  "debit":90000,
+  "unit":"without_currency_movement_against_since('USD','USD',[],date(2018,7,12))"
+}
+  ],
+  "child_sheet_entries": [ {
+  "account":"BankOpeningBalances",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+} ],
+  "transactions_count":16
+}
+  ],
+  "transactions_count":16
+},
+     {
+  "account":"ShareCapital",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+}
+  ],
+  "transactions_count":16
+}
+    ]
+  },
+  "crosschecks": {
+    "results": [
+      {
+	"check": {
+	  "a":"account_balance(reports/pl/current,'InvestmentIncomeRealized'/withoutCurrencyMovement)",
+	  "b":"report_value(reports/ir/current/totals/gains/rea/market_converted)",
+	  "op":"≠"
+	},
+	"evaluation": {
+	  "a": [
+	     {"amount":-80876.1, "unit":"CHF"},
+	     {
+  "amount":-145000,
+  "unit":"without_movement_after('SG Issuer_SA_USD_1',date(2018,7,13))"
+},
+	     {
+  "amount":220000,
+  "unit":"without_currency_movement_against_since('CHF','CHF',[],date(2018,10,1))"
+},
+	     {
+  "amount":145000,
+  "unit":"without_currency_movement_against_since('USD','USD',[],date(2018,7,13))"
+}
+	  ],
+	  "b":"evaluation_failed(report_value(reports/ir/current/totals/gains/rea/market_converted),evaluation_failure2)",
+	  "op":"≠"
+	},
+	"status":"error"
+      },
+      {
+	"check": {
+	  "a":"account_balance(reports/pl/current,'InvestmentIncomeRealized'/onlyCurrencyMovement)",
+	  "b":"report_value(reports/ir/current/totals/gains/rea/forex)",
+	  "op":"≠"
+	},
+	"evaluation": {
+	  "a": [
+	     {"amount":220000, "unit":"CHF"},
+	     {"amount":145000, "unit":"USD"},
+	     {
+  "amount":-220000,
+  "unit":"without_currency_movement_against_since('CHF','CHF',[],date(2018,10,1))"
+},
+	     {
+  "amount":-145000,
+  "unit":"without_currency_movement_against_since('USD','USD',[],date(2018,7,13))"
+}
+	  ],
+	  "b":"evaluation_failed(report_value(reports/ir/current/totals/gains/rea/forex),evaluation_failure4)",
+	  "op":"≠"
+	},
+	"status":"error"
+      },
+      {
+	"check": {
+	  "a":"account_balance(reports/pl/current,'InvestmentIncomeUnrealized'/withoutCurrencyMovement)",
+	  "b":"report_value(reports/ir/current/totals/gains/unr/market_converted)",
+	  "op":"≠"
+	},
+	"evaluation": {
+	  "a": [
+	     {
+  "amount":-5000,
+  "unit":"without_movement_after(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',13.976)),date(2018,7,13))"
+},
+	     {
+  "amount":5000,
+  "unit":"without_currency_movement_against_since(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',13.976)),'USD',[],date(2018,7,13))"
+}
+	  ],
+	  "b":"evaluation_failed(report_value(reports/ir/current/totals/gains/unr/market_converted),evaluation_failure6)",
+	  "op":"≠"
+	},
+	"status":"error"
+      },
+      {
+	"check": {
+	  "a":"account_balance(reports/pl/current,'InvestmentIncomeUnrealized'/onlyCurrencyMovement)",
+	  "b":"report_value(reports/ir/current/totals/gains/unr/forex)",
+	  "op":"≠"
+	},
+	"evaluation": {
+	  "a": [
+	     {
+  "amount":5000,
+  "unit":"with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',13.976))"
+},
+	     {
+  "amount":-5000,
+  "unit":"without_currency_movement_against_since(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',13.976)),'USD',[],date(2018,7,13))"
+}
+	  ],
+	  "b":"evaluation_failed(report_value(reports/ir/current/totals/gains/unr/forex),evaluation_failure8)",
+	  "op":"≠"
+	},
+	"status":"error"
+      },
+      {
+	"check": {
+	  "a":"account_balance(reports/pl/current,'Accounts'/'InvestmentIncome')",
+	  "b":"report_value(reports/ir/current/totals/gains/total)",
+	  "op":"≠"
+	},
+	"evaluation": {
+	  "a": [
+	     {"amount":139123.9, "unit":"CHF"},
+	     {"amount":145000, "unit":"USD"},
+	     {
+  "amount":5000,
+  "unit":"with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',13.976))"
+},
+	     {
+  "amount":-145000,
+  "unit":"without_movement_after('SG Issuer_SA_USD_1',date(2018,7,13))"
+},
+	     {
+  "amount":-5000,
+  "unit":"without_movement_after(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',13.976)),date(2018,7,13))"
+}
+	  ],
+	  "b":"evaluation_failed(report_value(reports/ir/current/totals/gains/total),evaluation_failure10)",
+	  "op":"≠"
+	},
+	"status":"error"
+      },
+      {
+	"check": {
+	  "a":"account_balance(reports/pl/current,'InvestmentIncome'/unrealized)",
+	  "b":"report_value(reports/ir/current/totals/gains/unrealized_total)",
+	  "op":"≠"
+	},
+	"evaluation": {
+	  "a": [
+	     {
+  "amount":5000,
+  "unit":"with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',13.976))"
+},
+	     {
+  "amount":-5000,
+  "unit":"without_movement_after(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',13.976)),date(2018,7,13))"
+}
+	  ],
+	  "b":"evaluation_failed(report_value(reports/ir/current/totals/gains/unrealized_total),evaluation_failure12)",
+	  "op":"≠"
+	},
+	"status":"error"
+      },
+      {
+	"check": {
+	  "a":"account_balance(reports/pl/current,'InvestmentIncome'/realized)",
+	  "b":"report_value(reports/ir/current/totals/gains/realized_total)",
+	  "op":"≠"
+	},
+	"evaluation": {
+	  "a": [
+	     {"amount":139123.9, "unit":"CHF"},
+	     {"amount":145000, "unit":"USD"},
+	     {
+  "amount":-145000,
+  "unit":"without_movement_after('SG Issuer_SA_USD_1',date(2018,7,13))"
+}
+	  ],
+	  "b":"evaluation_failed(report_value(reports/ir/current/totals/gains/realized_total),evaluation_failure14)",
+	  "op":"≠"
+	},
+	"status":"error"
+      },
+      {
+	"check": {
+	  "a":"account_balance(reports/bs/current,'Accounts'/'FinancialInvestments')",
+	  "b":"report_value(reports/ir/current/totals/closing/total_cost_converted)",
+	  "op":"≠"
+	},
+	"evaluation": {
+	  "a": [
+	     {
+  "amount":5000,
+  "unit":"with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',13.976))"
+}
+	  ],
+	  "b":"evaluation_failed(report_value(reports/ir/current/totals/closing/total_cost_converted),evaluation_failure16)",
+	  "op":"≠"
+	},
+	"status":"error"
+      },
+      {
+	"check": {
+	  "a":"account_balance(reports/bs/current,'Accounts'/'HistoricalEarnings')",
+	  "b":"account_balance(reports/pl/historical,'Accounts'/'NetIncomeLoss')",
+	  "op":"="
+	},
+	"evaluation": {
+	  "a": [
+	     {"amount":-1000, "unit":"CHF"},
+	     {"amount":-231123.48, "unit":"USD"},
+	     {"amount":-1000, "unit":"without_movement_after('CHF',date(2018,7,13))"},
+	     {
+  "amount":-231123.48,
+  "unit":"without_movement_after('USD',date(2018,7,13))"
+},
+	     {
+  "amount":140000,
+  "unit":"without_movement_after(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',0.9983)),date(2018,7,13))"
+},
+	     {
+  "amount":10000,
+  "unit":"without_movement_after(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',13.976)),date(2018,7,13))"
+},
+	     {
+  "amount":1000,
+  "unit":"without_currency_movement_against_since('CHF','CHF',[],date(2018,7,10))"
+},
+	     {
+  "amount":139760.32,
+  "unit":"without_currency_movement_against_since('USD','USD',[],date(2018,7,1))"
+},
+	     {
+  "amount":181363.16,
+  "unit":"without_currency_movement_against_since('USD','USD',[],date(2018,7,2))"
+},
+	     {
+  "amount":-90000,
+  "unit":"without_currency_movement_against_since('USD','USD',[],date(2018,7,12))"
+}
+	  ],
+	  "b": [
+	     {"amount":-1000, "unit":"CHF"},
+	     {"amount":-231123.48, "unit":"USD"},
+	     {"amount":-1000, "unit":"without_movement_after('CHF',date(2018,7,13))"},
+	     {
+  "amount":-231123.48,
+  "unit":"without_movement_after('USD',date(2018,7,13))"
+},
+	     {
+  "amount":140000,
+  "unit":"without_movement_after(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',0.9983)),date(2018,7,13))"
+},
+	     {
+  "amount":10000,
+  "unit":"without_movement_after(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',13.976)),date(2018,7,13))"
+},
+	     {
+  "amount":1000,
+  "unit":"without_currency_movement_against_since('CHF','CHF',[],date(2018,7,10))"
+},
+	     {
+  "amount":139760.32,
+  "unit":"without_currency_movement_against_since('USD','USD',[],date(2018,7,1))"
+},
+	     {
+  "amount":181363.16,
+  "unit":"without_currency_movement_against_since('USD','USD',[],date(2018,7,2))"
+},
+	     {
+  "amount":-90000,
+  "unit":"without_currency_movement_against_since('USD','USD',[],date(2018,7,12))"
+}
+	  ],
+	  "op":"="
+	},
+	"status":"ok"
+      },
+      {
+	"check": {
+	  "a":"account_balance(reports/bs/current,'Accounts'/'NetAssets')",
+	  "b":"account_balance(reports/bs/current,'Accounts'/'Equity')",
+	  "op":"≠"
+	},
+	"evaluation": {
+	  "a": [
+	     {"amount":32705.05, "unit":"CHF"},
+	     {"amount":63886.52, "unit":"USD"},
+	     {
+  "amount":5000,
+  "unit":"with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',13.976))"
+}
+	  ],
+	  "b": [
+	     {"amount":65410.1, "unit":"CHF"},
+	     {"amount":127773.04, "unit":"USD"},
+	     {
+  "amount":5000,
+  "unit":"with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',13.976))"
+},
+	     {
+  "amount":-145000,
+  "unit":"without_movement_after('SG Issuer_SA_USD_1',date(2018,7,13))"
+},
+	     {
+  "amount":140000,
+  "unit":"without_movement_after(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',0.9983)),date(2018,7,13))"
+},
+	     {
+  "amount":5000,
+  "unit":"without_movement_after(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',13.976)),date(2018,7,13))"
+},
+	     {
+  "amount":1000,
+  "unit":"without_currency_movement_against_since('CHF','CHF',[],date(2018,7,10))"
+},
+	     {
+  "amount":1573.85,
+  "unit":"without_currency_movement_against_since('CHF','CHF',[],date(2018,8,16))"
+},
+	     {
+  "amount":80876.1,
+  "unit":"without_currency_movement_against_since('CHF','CHF',[],date(2018,10,1))"
+},
+	     {
+  "amount":105000,
+  "unit":"without_currency_movement_against_since('CHF','CHF',[],date(2018,10,15))"
+},
+	     {
+  "amount":-221155,
+  "unit":"without_currency_movement_against_since('CHF','CHF',[],date(2018,12,30))"
+},
+	     {
+  "amount":139760.32,
+  "unit":"without_currency_movement_against_since('USD','USD',[],date(2018,7,1))"
+},
+	     {
+  "amount":181363.16,
+  "unit":"without_currency_movement_against_since('USD','USD',[],date(2018,7,2))"
+},
+	     {
+  "amount":-90000,
+  "unit":"without_currency_movement_against_since('USD','USD',[],date(2018,7,12))"
+},
+	     {
+  "amount":20,
+  "unit":"without_currency_movement_against_since('USD','USD',[],date(2018,8,13))"
+},
+	     {
+  "amount":-30,
+  "unit":"without_currency_movement_against_since('USD','USD',[],date(2018,9,1))"
+},
+	     {
+  "amount":-150000,
+  "unit":"without_currency_movement_against_since('USD','USD',[],date(2018,10,15))"
+},
+	     {
+  "amount":-145000,
+  "unit":"without_currency_movement_against_since('USD','USD',[],date(2018,12,30))"
+}
+	  ],
+	  "op":"≠"
+	},
+	"status":"error"
+      }
+    ]
+  },
+  "ir": {"current": {}, "since_beginning": {}},
+  "pl": {
+    "current": [
+       {
+  "account":"NetIncomeLoss",
+  "balance": [
+     {"credit":66410.1, "debit":0, "unit":"CHF"},
+     {"credit":358896.52, "debit":0, "unit":"USD"},
+     {
+  "credit":5000,
+  "debit":0,
+  "unit":"with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',13.976))"
+},
+     {
+  "credit":1000,
+  "debit":0,
+  "unit":"without_movement_after('CHF',date(2018,7,13))"
+},
+     {
+  "credit":0,
+  "debit":145000,
+  "unit":"without_movement_after('SG Issuer_SA_USD_1',date(2018,7,13))"
+},
+     {
+  "credit":231123.48,
+  "debit":0,
+  "unit":"without_movement_after('USD',date(2018,7,13))"
+},
+     {
+  "credit":0,
+  "debit":5000,
+  "unit":"without_movement_after(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',13.976)),date(2018,7,13))"
+},
+     {
+  "credit":1573.85,
+  "debit":0,
+  "unit":"without_currency_movement_against_since('CHF','CHF',[],date(2018,8,16))"
+},
+     {
+  "credit":80876.1,
+  "debit":0,
+  "unit":"without_currency_movement_against_since('CHF','CHF',[],date(2018,10,1))"
+},
+     {
+  "credit":105000,
+  "debit":0,
+  "unit":"without_currency_movement_against_since('CHF','CHF',[],date(2018,10,15))"
+},
+     {
+  "credit":0,
+  "debit":221155,
+  "unit":"without_currency_movement_against_since('CHF','CHF',[],date(2018,12,30))"
+},
+     {
+  "credit":20,
+  "debit":0,
+  "unit":"without_currency_movement_against_since('USD','USD',[],date(2018,8,13))"
+},
+     {
+  "credit":0,
+  "debit":30,
+  "unit":"without_currency_movement_against_since('USD','USD',[],date(2018,9,1))"
+},
+     {
+  "credit":0,
+  "debit":150000,
+  "unit":"without_currency_movement_against_since('USD','USD',[],date(2018,10,15))"
+},
+     {
+  "credit":0,
+  "debit":145000,
+  "unit":"without_currency_movement_against_since('USD','USD',[],date(2018,12,30))"
+}
+  ],
+  "child_sheet_entries": [
+     {
+  "account":"Expenses",
+  "balance": [ {"credit":0, "debit":1573.85, "unit":"CHF"},  {"credit":0, "debit":20, "unit":"USD"} ],
+  "child_sheet_entries": [
+     {
+  "account":"AccountingFees",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"BankCharges",
+  "balance": [ {"credit":0, "debit":1573.85, "unit":"CHF"},  {"credit":0, "debit":20, "unit":"USD"} ],
+  "child_sheet_entries": [],
+  "transactions_count":2
+},
+     {
+  "account":"CostOfGoodsLivestock",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"ForexLoss",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"InterestExpenses",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"LivestockAdjustment",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"OtherExpenses",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"Purchases",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+}
+  ],
+  "transactions_count":2
+},
+     {
+  "account":"Revenue",
+  "balance": [
+     {"credit":67983.95, "debit":0, "unit":"CHF"},
+     {"credit":358916.52, "debit":0, "unit":"USD"},
+     {
+  "credit":5000,
+  "debit":0,
+  "unit":"with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',13.976))"
+},
+     {
+  "credit":1000,
+  "debit":0,
+  "unit":"without_movement_after('CHF',date(2018,7,13))"
+},
+     {
+  "credit":0,
+  "debit":145000,
+  "unit":"without_movement_after('SG Issuer_SA_USD_1',date(2018,7,13))"
+},
+     {
+  "credit":231123.48,
+  "debit":0,
+  "unit":"without_movement_after('USD',date(2018,7,13))"
+},
+     {
+  "credit":0,
+  "debit":5000,
+  "unit":"without_movement_after(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',13.976)),date(2018,7,13))"
+},
+     {
+  "credit":1573.85,
+  "debit":0,
+  "unit":"without_currency_movement_against_since('CHF','CHF',[],date(2018,8,16))"
+},
+     {
+  "credit":80876.1,
+  "debit":0,
+  "unit":"without_currency_movement_against_since('CHF','CHF',[],date(2018,10,1))"
+},
+     {
+  "credit":105000,
+  "debit":0,
+  "unit":"without_currency_movement_against_since('CHF','CHF',[],date(2018,10,15))"
+},
+     {
+  "credit":0,
+  "debit":221155,
+  "unit":"without_currency_movement_against_since('CHF','CHF',[],date(2018,12,30))"
+},
+     {
+  "credit":20,
+  "debit":0,
+  "unit":"without_currency_movement_against_since('USD','USD',[],date(2018,8,13))"
+},
+     {
+  "credit":0,
+  "debit":30,
+  "unit":"without_currency_movement_against_since('USD','USD',[],date(2018,9,1))"
+},
+     {
+  "credit":0,
+  "debit":150000,
+  "unit":"without_currency_movement_against_since('USD','USD',[],date(2018,10,15))"
+},
+     {
+  "credit":0,
+  "debit":145000,
+  "unit":"without_currency_movement_against_since('USD','USD',[],date(2018,12,30))"
+}
+  ],
+  "child_sheet_entries": [
+     {
+  "account":"ClearingAccount",
+  "balance": [ {"credit":0, "debit":105000, "unit":"CHF"},  {"credit":150000, "debit":0, "unit":"USD"} ],
+  "child_sheet_entries": [],
+  "transactions_count":2
+},
+     {
+  "account":"CurrencyMovement",
+  "balance": [
+     {"credit":32705.05, "debit":0, "unit":"CHF"},
+     {"credit":63886.52, "debit":0, "unit":"USD"},
+     {
+  "credit":1000,
+  "debit":0,
+  "unit":"without_movement_after('CHF',date(2018,7,13))"
+},
+     {
+  "credit":231123.48,
+  "debit":0,
+  "unit":"without_movement_after('USD',date(2018,7,13))"
+},
+     {
+  "credit":1573.85,
+  "debit":0,
+  "unit":"without_currency_movement_against_since('CHF','CHF',[],date(2018,8,16))"
+},
+     {
+  "credit":80876.1,
+  "debit":0,
+  "unit":"without_currency_movement_against_since('CHF','CHF',[],date(2018,10,1))"
+},
+     {
+  "credit":105000,
+  "debit":0,
+  "unit":"without_currency_movement_against_since('CHF','CHF',[],date(2018,10,15))"
+},
+     {
+  "credit":0,
+  "debit":221155,
+  "unit":"without_currency_movement_against_since('CHF','CHF',[],date(2018,12,30))"
+},
+     {
+  "credit":20,
+  "debit":0,
+  "unit":"without_currency_movement_against_since('USD','USD',[],date(2018,8,13))"
+},
+     {
+  "credit":0,
+  "debit":30,
+  "unit":"without_currency_movement_against_since('USD','USD',[],date(2018,9,1))"
+},
+     {
+  "credit":0,
+  "debit":150000,
+  "unit":"without_currency_movement_against_since('USD','USD',[],date(2018,10,15))"
+},
+     {
+  "credit":0,
+  "debit":145000,
+  "unit":"without_currency_movement_against_since('USD','USD',[],date(2018,12,30))"
+}
+  ],
+  "child_sheet_entries": [
+     {
+  "account":"CurrencyMovementCHF_Bank",
+  "balance": [
+     {"credit":32705.05, "debit":0, "unit":"CHF"},
+     {
+  "credit":1000,
+  "debit":0,
+  "unit":"without_movement_after('CHF',date(2018,7,13))"
+},
+     {
+  "credit":1573.85,
+  "debit":0,
+  "unit":"without_currency_movement_against_since('CHF','CHF',[],date(2018,8,16))"
+},
+     {
+  "credit":80876.1,
+  "debit":0,
+  "unit":"without_currency_movement_against_since('CHF','CHF',[],date(2018,10,1))"
+},
+     {
+  "credit":105000,
+  "debit":0,
+  "unit":"without_currency_movement_against_since('CHF','CHF',[],date(2018,10,15))"
+},
+     {
+  "credit":0,
+  "debit":221155,
+  "unit":"without_currency_movement_against_since('CHF','CHF',[],date(2018,12,30))"
+}
+  ],
+  "child_sheet_entries": [],
+  "transactions_count":6
+},
+     {
+  "account":"CurrencyMovementUSD_Bank",
+  "balance": [
+     {"credit":63886.52, "debit":0, "unit":"USD"},
+     {
+  "credit":231123.48,
+  "debit":0,
+  "unit":"without_movement_after('USD',date(2018,7,13))"
+},
+     {
+  "credit":20,
+  "debit":0,
+  "unit":"without_currency_movement_against_since('USD','USD',[],date(2018,8,13))"
+},
+     {
+  "credit":0,
+  "debit":30,
+  "unit":"without_currency_movement_against_since('USD','USD',[],date(2018,9,1))"
+},
+     {
+  "credit":0,
+  "debit":150000,
+  "unit":"without_currency_movement_against_since('USD','USD',[],date(2018,10,15))"
+},
+     {
+  "credit":0,
+  "debit":145000,
+  "unit":"without_currency_movement_against_since('USD','USD',[],date(2018,12,30))"
+}
+  ],
+  "child_sheet_entries": [],
+  "transactions_count":8
+}
+  ],
+  "transactions_count":14
+},
+     {
+  "account":"Income",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"InvestmentIncome",
+  "balance": [
+     {"credit":139123.9, "debit":0, "unit":"CHF"},
+     {"credit":145000, "debit":0, "unit":"USD"},
+     {
+  "credit":5000,
+  "debit":0,
+  "unit":"with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',13.976))"
+},
+     {
+  "credit":0,
+  "debit":145000,
+  "unit":"without_movement_after('SG Issuer_SA_USD_1',date(2018,7,13))"
+},
+     {
+  "credit":0,
+  "debit":5000,
+  "unit":"without_movement_after(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',13.976)),date(2018,7,13))"
+}
+  ],
+  "child_sheet_entries": [
+     {
+  "account":"InvestmentIncomeRealized",
+  "balance": [
+     {"credit":139123.9, "debit":0, "unit":"CHF"},
+     {"credit":145000, "debit":0, "unit":"USD"},
+     {
+  "credit":0,
+  "debit":145000,
+  "unit":"without_movement_after('SG Issuer_SA_USD_1',date(2018,7,13))"
+}
+  ],
+  "child_sheet_entries": [
+     {
+  "account":"InvestmentIncomeRealizedOnlyCurrencyMovement",
+  "balance": [
+     {"credit":220000, "debit":0, "unit":"CHF"},
+     {"credit":145000, "debit":0, "unit":"USD"},
+     {
+  "credit":0,
+  "debit":220000,
+  "unit":"without_currency_movement_against_since('CHF','CHF',[],date(2018,10,1))"
+},
+     {
+  "credit":0,
+  "debit":145000,
+  "unit":"without_currency_movement_against_since('USD','USD',[],date(2018,7,13))"
+}
+  ],
+  "child_sheet_entries": [
+     {
+  "account":"InvestmentIncomeRealizedOnlyCurrencyMovementLeonteq_N",
+  "balance": [
+     {"credit":220000, "debit":0, "unit":"CHF"},
+     {
+  "credit":0,
+  "debit":220000,
+  "unit":"without_currency_movement_against_since('CHF','CHF',[],date(2018,10,1))"
+}
+  ],
+  "child_sheet_entries": [],
+  "transactions_count":1
+},
+     {
+  "account":"InvestmentIncomeRealizedOnlyCurrencyMovementRaiffeisen_Switzerland_B_V_",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"InvestmentIncomeRealizedOnlyCurrencyMovementSG_Issuer_SA_USD_1",
+  "balance": [
+     {"credit":145000, "debit":0, "unit":"USD"},
+     {
+  "credit":0,
+  "debit":145000,
+  "unit":"without_currency_movement_against_since('USD','USD',[],date(2018,7,13))"
+}
+  ],
+  "child_sheet_entries": [],
+  "transactions_count":2
+}
+  ],
+  "transactions_count":3
+},
+     {
+  "account":"InvestmentIncomeRealizedWithoutCurrencyMovement",
+  "balance": [
+     {"credit":0, "debit":80876.1, "unit":"CHF"},
+     {
+  "credit":0,
+  "debit":145000,
+  "unit":"without_movement_after('SG Issuer_SA_USD_1',date(2018,7,13))"
+},
+     {
+  "credit":220000,
+  "debit":0,
+  "unit":"without_currency_movement_against_since('CHF','CHF',[],date(2018,10,1))"
+},
+     {
+  "credit":145000,
+  "debit":0,
+  "unit":"without_currency_movement_against_since('USD','USD',[],date(2018,7,13))"
+}
+  ],
+  "child_sheet_entries": [
+     {
+  "account":"InvestmentIncomeRealizedWithoutCurrencyMovementLeonteq_N",
+  "balance": [
+     {"credit":0, "debit":80876.1, "unit":"CHF"},
+     {
+  "credit":220000,
+  "debit":0,
+  "unit":"without_currency_movement_against_since('CHF','CHF',[],date(2018,10,1))"
+}
+  ],
+  "child_sheet_entries": [],
+  "transactions_count":1
+},
+     {
+  "account":"InvestmentIncomeRealizedWithoutCurrencyMovementRaiffeisen_Switzerland_B_V_",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"InvestmentIncomeRealizedWithoutCurrencyMovementSG_Issuer_SA_USD_1",
+  "balance": [
+     {
+  "credit":0,
+  "debit":145000,
+  "unit":"without_movement_after('SG Issuer_SA_USD_1',date(2018,7,13))"
+},
+     {
+  "credit":145000,
+  "debit":0,
+  "unit":"without_currency_movement_against_since('USD','USD',[],date(2018,7,13))"
+}
+  ],
+  "child_sheet_entries": [],
+  "transactions_count":2
+}
+  ],
+  "transactions_count":3
+}
+  ],
+  "transactions_count":6
+},
+     {
+  "account":"InvestmentIncomeUnrealized",
+  "balance": [
+     {
+  "credit":5000,
+  "debit":0,
+  "unit":"with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',13.976))"
+},
+     {
+  "credit":0,
+  "debit":5000,
+  "unit":"without_movement_after(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',13.976)),date(2018,7,13))"
+}
+  ],
+  "child_sheet_entries": [
+     {
+  "account":"InvestmentIncomeUnrealizedOnlyCurrencyMovement",
+  "balance": [
+     {
+  "credit":5000,
+  "debit":0,
+  "unit":"with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',13.976))"
+},
+     {
+  "credit":0,
+  "debit":5000,
+  "unit":"without_currency_movement_against_since(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',13.976)),'USD',[],date(2018,7,13))"
+}
+  ],
+  "child_sheet_entries": [
+     {
+  "account":"InvestmentIncomeUnrealizedOnlyCurrencyMovementLeonteq_N",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":2
+},
+     {
+  "account":"InvestmentIncomeUnrealizedOnlyCurrencyMovementRaiffeisen_Switzerland_B_V_",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":2
+},
+     {
+  "account":"InvestmentIncomeUnrealizedOnlyCurrencyMovementSG_Issuer_SA_USD_1",
+  "balance": [
+     {
+  "credit":5000,
+  "debit":0,
+  "unit":"with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',13.976))"
+},
+     {
+  "credit":0,
+  "debit":5000,
+  "unit":"without_currency_movement_against_since(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',13.976)),'USD',[],date(2018,7,13))"
+}
+  ],
+  "child_sheet_entries": [],
+  "transactions_count":4
+}
+  ],
+  "transactions_count":8
+},
+     {
+  "account":"InvestmentIncomeUnrealizedWithoutCurrencyMovement",
+  "balance": [
+     {
+  "credit":0,
+  "debit":5000,
+  "unit":"without_movement_after(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',13.976)),date(2018,7,13))"
+},
+     {
+  "credit":5000,
+  "debit":0,
+  "unit":"without_currency_movement_against_since(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',13.976)),'USD',[],date(2018,7,13))"
+}
+  ],
+  "child_sheet_entries": [
+     {
+  "account":"InvestmentIncomeUnrealizedWithoutCurrencyMovementLeonteq_N",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":2
+},
+     {
+  "account":"InvestmentIncomeUnrealizedWithoutCurrencyMovementRaiffeisen_Switzerland_B_V_",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":2
+},
+     {
+  "account":"InvestmentIncomeUnrealizedWithoutCurrencyMovementSG_Issuer_SA_USD_1",
+  "balance": [
+     {
+  "credit":0,
+  "debit":5000,
+  "unit":"without_movement_after(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',13.976)),date(2018,7,13))"
+},
+     {
+  "credit":5000,
+  "debit":0,
+  "unit":"without_currency_movement_against_since(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',13.976)),'USD',[],date(2018,7,13))"
+}
+  ],
+  "child_sheet_entries": [],
+  "transactions_count":4
+}
+  ],
+  "transactions_count":8
+}
+  ],
+  "transactions_count":16
+}
+  ],
+  "transactions_count":22
+},
+     {
+  "account":"OtherGain",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"OtherIncome",
+  "balance": [ {"credit":1155, "debit":0, "unit":"CHF"},  {"credit":30, "debit":0, "unit":"USD"} ],
+  "child_sheet_entries": [
+     {
+  "account":"EarningsFinancialInvestments",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"ExchangeGain",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"InterestEarned",
+  "balance": [ {"credit":1155, "debit":0, "unit":"CHF"},  {"credit":30, "debit":0, "unit":"USD"} ],
+  "child_sheet_entries": [],
+  "transactions_count":2
+},
+     {
+  "account":"InterestIncome",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+}
+  ],
+  "transactions_count":2
+},
+     {
+  "account":"RationsRevenue",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"SalesOfLivestock",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+}
+  ],
+  "transactions_count":40
+}
+  ],
+  "transactions_count":42
+}
+    ],
+    "historical": [
+       {
+  "account":"NetIncomeLoss",
+  "balance": [
+     {"credit":0, "debit":1000, "unit":"CHF"},
+     {"credit":0, "debit":231123.48, "unit":"USD"},
+     {
+  "credit":0,
+  "debit":1000,
+  "unit":"without_movement_after('CHF',date(2018,7,13))"
+},
+     {
+  "credit":0,
+  "debit":231123.48,
+  "unit":"without_movement_after('USD',date(2018,7,13))"
+},
+     {
+  "credit":140000,
+  "debit":0,
+  "unit":"without_movement_after(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',0.9983)),date(2018,7,13))"
+},
+     {
+  "credit":10000,
+  "debit":0,
+  "unit":"without_movement_after(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',13.976)),date(2018,7,13))"
+},
+     {
+  "credit":1000,
+  "debit":0,
+  "unit":"without_currency_movement_against_since('CHF','CHF',[],date(2018,7,10))"
+},
+     {
+  "credit":139760.32,
+  "debit":0,
+  "unit":"without_currency_movement_against_since('USD','USD',[],date(2018,7,1))"
+},
+     {
+  "credit":181363.16,
+  "debit":0,
+  "unit":"without_currency_movement_against_since('USD','USD',[],date(2018,7,2))"
+},
+     {
+  "credit":0,
+  "debit":90000,
+  "unit":"without_currency_movement_against_since('USD','USD',[],date(2018,7,12))"
+}
+  ],
+  "child_sheet_entries": [
+     {
+  "account":"Expenses",
+  "balance": [ {"credit":0, "debit":1000, "unit":"CHF"} ],
+  "child_sheet_entries": [
+     {
+  "account":"AccountingFees",
+  "balance": [ {"credit":0, "debit":1000, "unit":"CHF"} ],
+  "child_sheet_entries": [],
+  "transactions_count":1
+},
+     {
+  "account":"BankCharges",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"CostOfGoodsLivestock",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"ForexLoss",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"InterestExpenses",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"LivestockAdjustment",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"OtherExpenses",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"Purchases",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+}
+  ],
+  "transactions_count":1
+},
+     {
+  "account":"Revenue",
+  "balance": [
+     {"credit":0, "debit":231123.48, "unit":"USD"},
+     {
+  "credit":0,
+  "debit":1000,
+  "unit":"without_movement_after('CHF',date(2018,7,13))"
+},
+     {
+  "credit":0,
+  "debit":231123.48,
+  "unit":"without_movement_after('USD',date(2018,7,13))"
+},
+     {
+  "credit":140000,
+  "debit":0,
+  "unit":"without_movement_after(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',0.9983)),date(2018,7,13))"
+},
+     {
+  "credit":10000,
+  "debit":0,
+  "unit":"without_movement_after(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',13.976)),date(2018,7,13))"
+},
+     {
+  "credit":1000,
+  "debit":0,
+  "unit":"without_currency_movement_against_since('CHF','CHF',[],date(2018,7,10))"
+},
+     {
+  "credit":139760.32,
+  "debit":0,
+  "unit":"without_currency_movement_against_since('USD','USD',[],date(2018,7,1))"
+},
+     {
+  "credit":181363.16,
+  "debit":0,
+  "unit":"without_currency_movement_against_since('USD','USD',[],date(2018,7,2))"
+},
+     {
+  "credit":0,
+  "debit":90000,
+  "unit":"without_currency_movement_against_since('USD','USD',[],date(2018,7,12))"
+}
+  ],
+  "child_sheet_entries": [
+     {
+  "account":"ClearingAccount",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"CurrencyMovement",
+  "balance": [
+     {
+  "credit":0,
+  "debit":1000,
+  "unit":"without_movement_after('CHF',date(2018,7,13))"
+},
+     {
+  "credit":0,
+  "debit":231123.48,
+  "unit":"without_movement_after('USD',date(2018,7,13))"
+},
+     {
+  "credit":1000,
+  "debit":0,
+  "unit":"without_currency_movement_against_since('CHF','CHF',[],date(2018,7,10))"
+},
+     {
+  "credit":139760.32,
+  "debit":0,
+  "unit":"without_currency_movement_against_since('USD','USD',[],date(2018,7,1))"
+},
+     {
+  "credit":181363.16,
+  "debit":0,
+  "unit":"without_currency_movement_against_since('USD','USD',[],date(2018,7,2))"
+},
+     {
+  "credit":0,
+  "debit":90000,
+  "unit":"without_currency_movement_against_since('USD','USD',[],date(2018,7,12))"
+}
+  ],
+  "child_sheet_entries": [
+     {
+  "account":"CurrencyMovementCHF_Bank",
+  "balance": [
+     {
+  "credit":0,
+  "debit":1000,
+  "unit":"without_movement_after('CHF',date(2018,7,13))"
+},
+     {
+  "credit":1000,
+  "debit":0,
+  "unit":"without_currency_movement_against_since('CHF','CHF',[],date(2018,7,10))"
+}
+  ],
+  "child_sheet_entries": [],
+  "transactions_count":1
+},
+     {
+  "account":"CurrencyMovementUSD_Bank",
+  "balance": [
+     {
+  "credit":0,
+  "debit":231123.48,
+  "unit":"without_movement_after('USD',date(2018,7,13))"
+},
+     {
+  "credit":139760.32,
+  "debit":0,
+  "unit":"without_currency_movement_against_since('USD','USD',[],date(2018,7,1))"
+},
+     {
+  "credit":181363.16,
+  "debit":0,
+  "unit":"without_currency_movement_against_since('USD','USD',[],date(2018,7,2))"
+},
+     {
+  "credit":0,
+  "debit":90000,
+  "unit":"without_currency_movement_against_since('USD','USD',[],date(2018,7,12))"
+}
+  ],
+  "child_sheet_entries": [],
+  "transactions_count":4
+}
+  ],
+  "transactions_count":5
+},
+     {
+  "account":"Income",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"InvestmentIncome",
+  "balance": [
+     {"credit":0, "debit":231123.48, "unit":"USD"},
+     {
+  "credit":140000,
+  "debit":0,
+  "unit":"without_movement_after(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',0.9983)),date(2018,7,13))"
+},
+     {
+  "credit":10000,
+  "debit":0,
+  "unit":"without_movement_after(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',13.976)),date(2018,7,13))"
+}
+  ],
+  "child_sheet_entries": [
+     {
+  "account":"InvestmentIncomeRealized",
+  "balance": [ {"credit":48397.16, "debit":0, "unit":"USD"} ],
+  "child_sheet_entries": [
+     {
+  "account":"InvestmentIncomeRealizedOnlyCurrencyMovement",
+  "balance": [
+     {"credit":90000, "debit":0, "unit":"USD"},
+     {
+  "credit":0,
+  "debit":90000,
+  "unit":"without_currency_movement_against_since('USD','USD',[],date(2018,7,2))"
+}
+  ],
+  "child_sheet_entries": [
+     {
+  "account":"InvestmentIncomeRealizedOnlyCurrencyMovementLeonteq_N",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"InvestmentIncomeRealizedOnlyCurrencyMovementRaiffeisen_Switzerland_B_V_",
+  "balance": [
+     {"credit":90000, "debit":0, "unit":"USD"},
+     {
+  "credit":0,
+  "debit":90000,
+  "unit":"without_currency_movement_against_since('USD','USD',[],date(2018,7,2))"
+}
+  ],
+  "child_sheet_entries": [],
+  "transactions_count":1
+},
+     {
+  "account":"InvestmentIncomeRealizedOnlyCurrencyMovementSG_Issuer_SA_USD_1",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+}
+  ],
+  "transactions_count":1
+},
+     {
+  "account":"InvestmentIncomeRealizedWithoutCurrencyMovement",
+  "balance": [
+     {"credit":0, "debit":41602.84, "unit":"USD"},
+     {
+  "credit":90000,
+  "debit":0,
+  "unit":"without_currency_movement_against_since('USD','USD',[],date(2018,7,2))"
+}
+  ],
+  "child_sheet_entries": [
+     {
+  "account":"InvestmentIncomeRealizedWithoutCurrencyMovementLeonteq_N",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"InvestmentIncomeRealizedWithoutCurrencyMovementRaiffeisen_Switzerland_B_V_",
+  "balance": [
+     {"credit":0, "debit":41602.84, "unit":"USD"},
+     {
+  "credit":90000,
+  "debit":0,
+  "unit":"without_currency_movement_against_since('USD','USD',[],date(2018,7,2))"
+}
+  ],
+  "child_sheet_entries": [],
+  "transactions_count":1
+},
+     {
+  "account":"InvestmentIncomeRealizedWithoutCurrencyMovementSG_Issuer_SA_USD_1",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+}
+  ],
+  "transactions_count":1
+}
+  ],
+  "transactions_count":2
+},
+     {
+  "account":"InvestmentIncomeUnrealized",
+  "balance": [
+     {"credit":0, "debit":279520.64, "unit":"USD"},
+     {
+  "credit":140000,
+  "debit":0,
+  "unit":"without_movement_after(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',0.9983)),date(2018,7,13))"
+},
+     {
+  "credit":10000,
+  "debit":0,
+  "unit":"without_movement_after(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',13.976)),date(2018,7,13))"
+}
+  ],
+  "child_sheet_entries": [
+     {
+  "account":"InvestmentIncomeUnrealizedOnlyCurrencyMovement",
+  "balance": [
+     {
+  "credit":140000,
+  "debit":0,
+  "unit":"without_movement_after(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',0.9983)),date(2018,7,13))"
+},
+     {
+  "credit":10000,
+  "debit":0,
+  "unit":"without_movement_after(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',13.976)),date(2018,7,13))"
+},
+     {
+  "credit":0,
+  "debit":2085,
+  "unit":"without_movement_after(without_currency_movement_against_since(with_cost_per_unit('Raiffeisen Switzerland_B.V.',value('USD',19.9534)),'USD',[],date(2018,7,2)),date(2018,7,13))"
+},
+     {
+  "credit":2085,
+  "debit":0,
+  "unit":"without_movement_after(without_currency_movement_against_since(with_cost_per_unit('Raiffeisen Switzerland_B.V.',value('USD',19.9534)),'USD',[],date(2018,7,12)),date(2018,7,12))"
+},
+     {
+  "credit":0,
+  "debit":140000,
+  "unit":"without_movement_after(without_currency_movement_against_since(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',0.9983)),'USD',[],date(2018,7,1)),date(2018,7,13))"
+},
+     {
+  "credit":0,
+  "debit":10000,
+  "unit":"without_movement_after(without_currency_movement_against_since(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',13.976)),'USD',[],date(2018,7,2)),date(2018,7,13))"
+}
+  ],
+  "child_sheet_entries": [
+     {
+  "account":"InvestmentIncomeUnrealizedOnlyCurrencyMovementLeonteq_N",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"InvestmentIncomeUnrealizedOnlyCurrencyMovementRaiffeisen_Switzerland_B_V_",
+  "balance": [
+     {
+  "credit":0,
+  "debit":2085,
+  "unit":"without_movement_after(without_currency_movement_against_since(with_cost_per_unit('Raiffeisen Switzerland_B.V.',value('USD',19.9534)),'USD',[],date(2018,7,2)),date(2018,7,13))"
+},
+     {
+  "credit":2085,
+  "debit":0,
+  "unit":"without_movement_after(without_currency_movement_against_since(with_cost_per_unit('Raiffeisen Switzerland_B.V.',value('USD',19.9534)),'USD',[],date(2018,7,12)),date(2018,7,12))"
+}
+  ],
+  "child_sheet_entries": [],
+  "transactions_count":2
+},
+     {
+  "account":"InvestmentIncomeUnrealizedOnlyCurrencyMovementSG_Issuer_SA_USD_1",
+  "balance": [
+     {
+  "credit":140000,
+  "debit":0,
+  "unit":"without_movement_after(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',0.9983)),date(2018,7,13))"
+},
+     {
+  "credit":10000,
+  "debit":0,
+  "unit":"without_movement_after(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',13.976)),date(2018,7,13))"
+},
+     {
+  "credit":0,
+  "debit":140000,
+  "unit":"without_movement_after(without_currency_movement_against_since(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',0.9983)),'USD',[],date(2018,7,1)),date(2018,7,13))"
+},
+     {
+  "credit":0,
+  "debit":10000,
+  "unit":"without_movement_after(without_currency_movement_against_since(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',13.976)),'USD',[],date(2018,7,2)),date(2018,7,13))"
+}
+  ],
+  "child_sheet_entries": [],
+  "transactions_count":2
+}
+  ],
+  "transactions_count":4
+},
+     {
+  "account":"InvestmentIncomeUnrealizedWithoutCurrencyMovement",
+  "balance": [
+     {"credit":0, "debit":279520.64, "unit":"USD"},
+     {
+  "credit":2085,
+  "debit":0,
+  "unit":"without_movement_after(without_currency_movement_against_since(with_cost_per_unit('Raiffeisen Switzerland_B.V.',value('USD',19.9534)),'USD',[],date(2018,7,2)),date(2018,7,13))"
+},
+     {
+  "credit":0,
+  "debit":2085,
+  "unit":"without_movement_after(without_currency_movement_against_since(with_cost_per_unit('Raiffeisen Switzerland_B.V.',value('USD',19.9534)),'USD',[],date(2018,7,12)),date(2018,7,12))"
+},
+     {
+  "credit":140000,
+  "debit":0,
+  "unit":"without_movement_after(without_currency_movement_against_since(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',0.9983)),'USD',[],date(2018,7,1)),date(2018,7,13))"
+},
+     {
+  "credit":10000,
+  "debit":0,
+  "unit":"without_movement_after(without_currency_movement_against_since(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',13.976)),'USD',[],date(2018,7,2)),date(2018,7,13))"
+}
+  ],
+  "child_sheet_entries": [
+     {
+  "account":"InvestmentIncomeUnrealizedWithoutCurrencyMovementLeonteq_N",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"InvestmentIncomeUnrealizedWithoutCurrencyMovementRaiffeisen_Switzerland_B_V_",
+  "balance": [
+     {
+  "credit":2085,
+  "debit":0,
+  "unit":"without_movement_after(without_currency_movement_against_since(with_cost_per_unit('Raiffeisen Switzerland_B.V.',value('USD',19.9534)),'USD',[],date(2018,7,2)),date(2018,7,13))"
+},
+     {
+  "credit":0,
+  "debit":2085,
+  "unit":"without_movement_after(without_currency_movement_against_since(with_cost_per_unit('Raiffeisen Switzerland_B.V.',value('USD',19.9534)),'USD',[],date(2018,7,12)),date(2018,7,12))"
+}
+  ],
+  "child_sheet_entries": [],
+  "transactions_count":2
+},
+     {
+  "account":"InvestmentIncomeUnrealizedWithoutCurrencyMovementSG_Issuer_SA_USD_1",
+  "balance": [
+     {"credit":0, "debit":279520.64, "unit":"USD"},
+     {
+  "credit":140000,
+  "debit":0,
+  "unit":"without_movement_after(without_currency_movement_against_since(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',0.9983)),'USD',[],date(2018,7,1)),date(2018,7,13))"
+},
+     {
+  "credit":10000,
+  "debit":0,
+  "unit":"without_movement_after(without_currency_movement_against_since(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',13.976)),'USD',[],date(2018,7,2)),date(2018,7,13))"
+}
+  ],
+  "child_sheet_entries": [],
+  "transactions_count":2
+}
+  ],
+  "transactions_count":4
+}
+  ],
+  "transactions_count":8
+}
+  ],
+  "transactions_count":10
+},
+     {
+  "account":"OtherGain",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"OtherIncome",
+  "balance": [],
+  "child_sheet_entries": [
+     {
+  "account":"EarningsFinancialInvestments",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"ExchangeGain",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"InterestEarned",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"InterestIncome",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+}
+  ],
+  "transactions_count":0
+},
+     {
+  "account":"RationsRevenue",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"SalesOfLivestock",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+}
+  ],
+  "transactions_count":15
+}
+  ],
+  "transactions_count":16
+}
+    ]
+  },
+  "tb": [
+     {
+  "account":"Trial_Balance",
+  "balance": [
+     {"credit":32705.05, "debit":0, "unit":"CHF"},
+     {"credit":63886.52, "debit":0, "unit":"USD"},
+     {
+  "credit":0,
+  "debit":145000,
+  "unit":"without_movement_after('SG Issuer_SA_USD_1',date(2018,7,13))"
+},
+     {
+  "credit":140000,
+  "debit":0,
+  "unit":"without_movement_after(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',0.9983)),date(2018,7,13))"
+},
+     {
+  "credit":5000,
+  "debit":0,
+  "unit":"without_movement_after(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',13.976)),date(2018,7,13))"
+},
+     {
+  "credit":1000,
+  "debit":0,
+  "unit":"without_currency_movement_against_since('CHF','CHF',[],date(2018,7,10))"
+},
+     {
+  "credit":1573.85,
+  "debit":0,
+  "unit":"without_currency_movement_against_since('CHF','CHF',[],date(2018,8,16))"
+},
+     {
+  "credit":80876.1,
+  "debit":0,
+  "unit":"without_currency_movement_against_since('CHF','CHF',[],date(2018,10,1))"
+},
+     {
+  "credit":105000,
+  "debit":0,
+  "unit":"without_currency_movement_against_since('CHF','CHF',[],date(2018,10,15))"
+},
+     {
+  "credit":0,
+  "debit":221155,
+  "unit":"without_currency_movement_against_since('CHF','CHF',[],date(2018,12,30))"
+},
+     {
+  "credit":139760.32,
+  "debit":0,
+  "unit":"without_currency_movement_against_since('USD','USD',[],date(2018,7,1))"
+},
+     {
+  "credit":181363.16,
+  "debit":0,
+  "unit":"without_currency_movement_against_since('USD','USD',[],date(2018,7,2))"
+},
+     {
+  "credit":0,
+  "debit":90000,
+  "unit":"without_currency_movement_against_since('USD','USD',[],date(2018,7,12))"
+},
+     {
+  "credit":20,
+  "debit":0,
+  "unit":"without_currency_movement_against_since('USD','USD',[],date(2018,8,13))"
+},
+     {
+  "credit":0,
+  "debit":30,
+  "unit":"without_currency_movement_against_since('USD','USD',[],date(2018,9,1))"
+},
+     {
+  "credit":0,
+  "debit":150000,
+  "unit":"without_currency_movement_against_since('USD','USD',[],date(2018,10,15))"
+},
+     {
+  "credit":0,
+  "debit":145000,
+  "unit":"without_currency_movement_against_since('USD','USD',[],date(2018,12,30))"
+}
+  ],
+  "child_sheet_entries": [],
+  "transactions_count":80
+}
+  ]
+}

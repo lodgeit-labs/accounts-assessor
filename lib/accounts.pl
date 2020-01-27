@@ -47,9 +47,9 @@ account_child_parent(Accounts, Child_Id, Parent_Id) :-
 	;
 	(
 		nonvar(Parent_Id),
-		member(Child, Accounts),
 		account_id(Child, Child_Id),
-		account_parent(Child, Parent_Id)
+		account_parent(Child, Parent_Id),
+		member(Child, Accounts)
 	).
 
 account_direct_children(Accounts, Parent, Children) :-
@@ -139,18 +139,23 @@ check that each account has a parent. Together with checking that each generated
 this should ensure that the account balances we are getting with the new taxonomy is correct*/
 check_account_parent(Accounts, Account) :-
 	account_id(Account, Id),
-	account_parent(Account, Parent),
-	(
-		Parent == 'accountHierarchy'
-	->
-		true
-	;
-		(
-			account_exists(Accounts, Parent)
-		->
-			true
-		;
-			throw_string(['account "', Id, '" parent "', Parent, '" missing.'])
+	(	Id == 'accountHierarchy'
+	->	true
+	;	(
+			account_parent(Account, Parent),
+			(
+				Parent == 'accountHierarchy'
+			->
+				true
+			;
+				(
+					account_exists(Accounts, Parent)
+				->
+					true
+				;
+					throw_string(['account "', Id, '" parent "', Parent, '" missing.'])
+				)
+			)
 		)
 	).
 

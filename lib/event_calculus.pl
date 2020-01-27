@@ -10,7 +10,7 @@
 
 
 :- use_module(library(clpfd)).
-:- use_module(lib, []).
+
 
 /*
 :- use_module(depreciation_computation, [
@@ -165,7 +165,7 @@ asset(car456,2000,date(2015,3,16),8).
 
 days_from_begin_accounting(Date,Days):-
     begin_accounting_date(Begin_accounting_date), 
-    lib:day_diff(Begin_accounting_date,Date,Days).
+    day_diff(Begin_accounting_date,Date,Days).
 
 % Transfer car123 to general pool in date(2017,6,1)
 % days_from_begin_accounting(date(2017,6,1),Days).

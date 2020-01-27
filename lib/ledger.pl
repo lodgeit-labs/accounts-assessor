@@ -15,7 +15,8 @@ find_s_transactions_in_period(S_Transactions, Opening_Date, Closing_Date, Out) :
 	).
 
 process_ledger(
-	Cost_Or_Market, 
+	Cost_Or_Market,
+	Initial_Txs,
 	S_Transactions0,
 	Start_Date,
 	End_Date, 
@@ -48,7 +49,15 @@ process_ledger(
 
 	dict_from_vars(Static_Data0, [Accounts, Report_Currency, Start_Date, End_Date, Exchange_Rates, Cost_Or_Market]),
 	prepreprocess(Static_Data0, S_Transactions, Prepreprocessed_S_Transactions),
-	preprocess_until_error(Static_Data0, Prepreprocessed_S_Transactions, Processed_S_Transactions, Transactions0, Outstanding_Out, Transaction_Transformation_Debug, End_Date, Processed_Until),
+	preprocess_until_error(Static_Data0, Prepreprocessed_S_Transactions, Processed_S_Transactions, Transactions_From_Bst, Outstanding_Out, End_Date, Processed_Until),
+
+	/* since it's not possibly to determine order of transactions that transpiled on one day, when we fail to process a transaction, we go back all the way to the end of the previous day, and try to run a report up to that day
+	*/
+	(	End_Date \= Processed_Until
+	->	add_alert('warning', ['trying with earlier report end date: ', Processed_Until])
+	;	true),
+
+	append([Initial_Txs], Transactions_From_Bst, Transactions0),
 	flatten(Transactions0, Transactions1),
 
 	process_livestock((Processed_S_Transactions, Transactions1), Livestock_Transactions),
@@ -69,11 +78,11 @@ process_ledger(
 	maplist(check_transaction_account(Accounts), Transactions_With_Livestock),
 
 	Static_Data2 = Static_Data0.put(end_date, Processed_Until).put(transactions, Transactions_With_Livestock),
-	generate_gl_data(
+	gl_export(
 		Static_Data2, 
 		Processed_S_Transactions, 
 		/* list of lists */
-		Transactions0, 
+		Transactions0,
 		Livestock_Transactions,
 		/* output */
 		Gl),
@@ -90,71 +99,13 @@ process_ledger(
 	;
 		(	term_string(trial_balance(Trial_Balance_Section), Tb_Str),
 			add_alert('SYSTEM_WARNING', Tb_Str))
-	),
-	gather_ledger_errors(Transaction_Transformation_Debug).
-
-
-preprocess_until_error(Static_Data0, Prepreprocessed_S_Transactions, Preprocessed_S_Transactions, Transactions0, Outstanding_Out, Transaction_Transformation_Debug, Report_End_Date, Processed_Until) :-
-	preprocess_s_transactions(Static_Data0, Prepreprocessed_S_Transactions, Preprocessed_S_Transactions, Transactions0, Outstanding_Out, Transaction_Transformation_Debug),
-	%gtrace,
-	(
-		Preprocessed_S_Transactions = Prepreprocessed_S_Transactions
-	->
-		(
-			Processed_Until = Report_End_Date/*,
-			Last_Good_Day = Report_End_Date*/
-		)
-	;
-		(
-			last(Preprocessed_S_Transactions, Last_Processed_S_Transaction),
-			s_transaction_day(Last_Processed_S_Transaction, Date),
-			% todo we could/should do: Processed_Until = with_note(Date, 'until error'),
-			Processed_Until = Date/*,
-			add_days(Date, -1, Last_Good_Day)*/
-		)
 	).
 
-generate_gl_data(Sd, Processed_S_Transactions, Transactions0, Livestock_Transactions, Report_Dict) :-
-	/* Outputs list is lists of generated transactions */
-	append(Transactions0, [Livestock_Transactions], Processing_Results),
-	/* Sources list is all the s_transactions + livestock */
-	append(Processed_S_Transactions, ['livestock'], Sources),
-	maplist(make_gl_entry(Sd), Sources, Processing_Results, Report_Dict).
 
-make_gl_entry(Sd, Source, Transactions, Entry) :-
-	Entry = _{source: S, transactions: T},
-	(
-		atom(Source)
-	-> 
-		S = Source
-	; 
-		(
-			s_transaction_to_dict(Source, S0),
-			/* currently this is converted at transaction date */
-			s_transaction_with_transacted_amount(Sd, S0, S)
-		)
-	),
-	maplist(transaction_to_dict, Transactions, T0),
-	maplist(transaction_with_converted_vector(Sd), T0, T).
-	
-s_transaction_with_transacted_amount(Sd, D1, D2) :-
-	D2 = D1.put([
-		report_currency_transacted_amount_converted_at_transaction_date=ConvertedA,report_currency_transacted_amount_converted_at_balance_date=ConvertedB]),
-	vec_change_bases(Sd.exchange_rates, D1.date, Sd.report_currency, D1.vector, ConvertedA),
-	vec_change_bases(Sd.exchange_rates, Sd.end_date, Sd.report_currency, D1.vector, ConvertedB).
+preprocess_until_error(Static_Data0, Prepreprocessed_S_Transactions, Preprocessed_S_Transactions, Transactions0, Outstanding_Out, Report_End_Date, Processed_Until) :-
+	preprocess_s_transactions(Static_Data0, Prepreprocessed_S_Transactions, Preprocessed_S_Transactions, Transactions0, Outstanding_Out),
+	Processed_Until = Report_End_Date.
 
-transaction_with_converted_vector(Sd, Transaction, Transaction_Converted) :-
-	Transaction_Converted = Transaction.put([
-		vector_converted_at_transaction_date=Vector_ConvertedA,
-		vector_converted_at_balance_date=Vector_ConvertedB
-	]),
-	vec_change_bases(Sd.exchange_rates, Transaction.date, Sd.report_currency, Transaction.vector, Vector_ConvertedA),
-	vec_change_bases(Sd.exchange_rates, Sd.end_date, Sd.report_currency, Transaction.vector, Vector_ConvertedB).
-		
-trial_balance_ok(Trial_Balance_Section) :-
-	Trial_Balance_Section = entry(_, Balance, [], _),
-	maplist(coord_is_almost_zero, Balance).
-	
 gather_ledger_warnings(S_Transactions, Start_Date, End_Date, Warnings) :-
 	(
 		find_s_transactions_in_period(S_Transactions, Start_Date, End_Date, [])

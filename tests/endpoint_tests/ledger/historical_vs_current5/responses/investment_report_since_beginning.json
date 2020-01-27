@@ -185,63 +185,63 @@
   "rows": [
     {
       "closing": {
-	"conversion":"exchange_rate(date(2018,12,30),'CHF','AUD',6.0)",
-	"total_cost_converted": {"amount":720.0, "unit":"AUD"},
-	"total_cost_foreign": {"amount":120.0, "unit":"CHF"},
-	"unit_cost_converted": {"amount":72.0, "unit":"AUD"},
-	"unit_cost_foreign": {"amount":12.0, "unit":"CHF"}
+	"conversion": {"date":"2018-12-30", "dst":"AUD", "rate":6, "src":"CHF"},
+	"total_cost_converted": {"amount":720, "unit":"AUD"},
+	"total_cost_foreign": {"amount":120, "unit":"CHF"},
+	"unit_cost_converted": {"amount":72, "unit":"AUD"},
+	"unit_cost_foreign": {"amount":12, "unit":"CHF"}
       },
       "count":10,
       "currency":"CHF",
       "gains": {
 	"rea": {},
 	"unr": {
-	  "forex": {"amount":480.0, "unit":"AUD"},
-	  "market_converted": {"amount":40.0, "unit":"AUD"},
-	  "market_foreign": {"amount":20.0, "unit":"CHF"}
+	  "forex": {"amount":480, "unit":"AUD"},
+	  "market_converted": {"amount":40, "unit":"AUD"},
+	  "market_foreign": {"amount":20, "unit":"CHF"}
 	}
       },
       "id":"iri1",
       "on_hand_at_cost": {
 	"count":10,
-	"total_converted_at_balance": {"amount":600.0, "unit":"AUD"},
-	"total_converted_at_purchase": {"amount":200.0, "unit":"AUD"},
-	"total_foreign": {"amount":100.0, "unit":"CHF"},
-	"total_forex_gain": {"amount":400.0, "unit":"AUD"},
-	"unit_cost_foreign": {"amount":10.0, "unit":"CHF"}
+	"total_converted_at_balance": {"amount":600, "unit":"AUD"},
+	"total_converted_at_purchase": {"amount":200, "unit":"AUD"},
+	"total_foreign": {"amount":100, "unit":"CHF"},
+	"total_forex_gain": {"amount":400, "unit":"AUD"},
+	"unit_cost_foreign": {"amount":10, "unit":"CHF"}
       },
       "opening": {},
       "purchase": {
-	"conversion":"exchange_rate(date(2015,1,1),'CHF','AUD',2.0)",
-	"date":"date(2015,1,1)",
-	"total_cost_converted": {"amount":200.0, "unit":"AUD"},
-	"total_cost_foreign": {"amount":100.0, "unit":"CHF"},
-	"unit_cost_converted": {"amount":20.0, "unit":"AUD"},
-	"unit_cost_foreign": {"amount":10.0, "unit":"CHF"}
+	"conversion": {"date":"2015-01-01", "dst":"AUD", "rate":2, "src":"CHF"},
+	"date":"2015-01-01",
+	"total_cost_converted": {"amount":200, "unit":"AUD"},
+	"total_cost_foreign": {"amount":100, "unit":"CHF"},
+	"unit_cost_converted": {"amount":20, "unit":"AUD"},
+	"unit_cost_foreign": {"amount":10, "unit":"CHF"}
       },
       "sale": {},
       "unit":"Leonteq_N"
     },
     {
       "closing": {
-	"total_cost_converted": [ {"amount":720.0, "unit":"AUD"} ],
-	"total_cost_foreign": [ {"amount":120.0, "unit":"CHF"} ]
+	"total_cost_converted": [ {"amount":720, "unit":"AUD"} ],
+	"total_cost_foreign": [ {"amount":120, "unit":"CHF"} ]
       },
       "gains": {
 	"rea": {"forex": [], "market_converted": [], "market_foreign": []},
 	"realized_total": [],
-	"total": [ {"amount":520.0, "unit":"AUD"} ],
+	"total": [ {"amount":520, "unit":"AUD"} ],
 	"unr": {
-	  "forex": [ {"amount":480.0, "unit":"AUD"} ],
-	  "market_converted": [ {"amount":40.0, "unit":"AUD"} ],
-	  "market_foreign": [ {"amount":20.0, "unit":"CHF"} ]
+	  "forex": [ {"amount":480, "unit":"AUD"} ],
+	  "market_converted": [ {"amount":40, "unit":"AUD"} ],
+	  "market_foreign": [ {"amount":20, "unit":"CHF"} ]
 	},
-	"unrealized_total": [ {"amount":520.0, "unit":"AUD"} ]
+	"unrealized_total": [ {"amount":520, "unit":"AUD"} ]
       },
       "on_hand_at_cost": {
-	"total_converted_at_balance": [ {"amount":600.0, "unit":"AUD"} ],
-	"total_converted_at_purchase": [ {"amount":200.0, "unit":"AUD"} ],
-	"total_forex_gain": [ {"amount":400.0, "unit":"AUD"} ]
+	"total_converted_at_balance": [ {"amount":600, "unit":"AUD"} ],
+	"total_converted_at_purchase": [ {"amount":200, "unit":"AUD"} ],
+	"total_forex_gain": [ {"amount":400, "unit":"AUD"} ]
       },
       "opening": {"total_cost_converted": [], "total_cost_foreign": []}
     }

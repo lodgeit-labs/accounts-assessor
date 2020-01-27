@@ -1,0 +1,156 @@
+[
+  {"source":"initial_GL", "transactions": []},
+  {
+    "source": {
+      "account":"CHF_Bank",
+      "date":"2015-01-01",
+      "exchanged":"vector([])",
+      "misc": {},
+      "report_currency_transacted_amount_converted_at_balance_date": [ {"credit":600, "debit":0, "unit":"AUD"} ],
+      "report_currency_transacted_amount_converted_at_transaction_date": [ {"credit":200, "debit":0, "unit":"AUD"} ],
+      "vector": [ {"credit":100, "debit":0, "unit":"CHF"} ],
+      "verb":"Bank_Charges"
+    },
+    "transactions": [
+      {
+	"account":"BanksCHF_Bank",
+	"date":"2015-01-01",
+	"description":"Bank_Charges - outgoing money",
+	"running_balance": [ {"credit":100, "debit":0, "unit":"CHF"} ],
+	"type":"instant",
+	"vector": [ {"credit":100, "debit":0, "unit":"CHF"} ],
+	"vector_converted_at_balance_date": [ {"credit":600, "debit":0, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": [ {"credit":200, "debit":0, "unit":"AUD"} ]
+      },
+      {
+	"account":"CurrencyMovementCHF_Bank",
+	"date":"2015-01-01",
+	"description":"Bank_Charges - outgoing money - currency movement adjustment - historical part",
+	"running_balance": [
+	   {
+  "credit":0,
+  "debit":100,
+  "unit":"without_movement_after('CHF',date(2018,1,1))"
+},
+	   {
+  "credit":100,
+  "debit":0,
+  "unit":"without_currency_movement_against_since('CHF','CHF',['AUD'],date(2015,1,1))"
+}
+	],
+	"type":"tracking",
+	"vector": [
+	   {
+  "credit":0,
+  "debit":100,
+  "unit":"without_movement_after('CHF',date(2018,1,1))"
+},
+	   {
+  "credit":100,
+  "debit":0,
+  "unit":"without_currency_movement_against_since('CHF','CHF',['AUD'],date(2015,1,1))"
+}
+	],
+	"vector_converted_at_balance_date": [ {"credit":0, "debit":200, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": []
+      },
+      {
+	"account":"CurrencyMovementCHF_Bank",
+	"date":"2018-01-01",
+	"description":"Bank_Charges - outgoing money - currency movement adjustment - current part",
+	"running_balance": [
+	   {"credit":0, "debit":100, "unit":"CHF"},
+	   {
+  "credit":100,
+  "debit":0,
+  "unit":"without_currency_movement_against_since('CHF','CHF',['AUD'],date(2015,1,1))"
+}
+	],
+	"type":"tracking",
+	"vector": [
+	   {"credit":0, "debit":100, "unit":"CHF"},
+	   {
+  "credit":100,
+  "debit":0,
+  "unit":"without_movement_after('CHF',date(2018,1,1))"
+}
+	],
+	"vector_converted_at_balance_date": [ {"credit":0, "debit":200, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": []
+      },
+      {
+	"account":"BankCharges",
+	"date":"2015-01-01",
+	"description":"Bank_Charges",
+	"running_balance": [ {"credit":0, "debit":200, "unit":"AUD"} ],
+	"type":"instant",
+	"vector": [ {"credit":0, "debit":200, "unit":"AUD"} ],
+	"vector_converted_at_balance_date": [ {"credit":0, "debit":200, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": [ {"credit":0, "debit":200, "unit":"AUD"} ]
+      }
+    ]
+  },
+  {
+    "source": {
+      "account":"CHF_Bank",
+      "date":"2018-05-01",
+      "exchanged":"vector([])",
+      "misc": {},
+      "report_currency_transacted_amount_converted_at_balance_date": [ {"credit":0, "debit":600, "unit":"AUD"} ],
+      "report_currency_transacted_amount_converted_at_transaction_date": [ {"credit":0, "debit":400, "unit":"AUD"} ],
+      "vector": [ {"credit":0, "debit":100, "unit":"CHF"} ],
+      "verb":"Income"
+    },
+    "transactions": [
+      {
+	"account":"BanksCHF_Bank",
+	"date":"2018-05-01",
+	"description":"Income - incoming money",
+	"running_balance": [],
+	"type":"instant",
+	"vector": [ {"credit":0, "debit":100, "unit":"CHF"} ],
+	"vector_converted_at_balance_date": [ {"credit":0, "debit":600, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": [ {"credit":0, "debit":400, "unit":"AUD"} ]
+      },
+      {
+	"account":"CurrencyMovementCHF_Bank",
+	"date":"2018-05-01",
+	"description":"Income - incoming money - currency movement adjustment - only current period",
+	"running_balance": [
+	   {
+  "credit":100,
+  "debit":0,
+  "unit":"without_currency_movement_against_since('CHF','CHF',['AUD'],date(2015,1,1))"
+},
+	   {
+  "credit":0,
+  "debit":100,
+  "unit":"without_currency_movement_against_since('CHF','CHF',['AUD'],date(2018,5,1))"
+}
+	],
+	"type":"tracking",
+	"vector": [
+	   {"credit":100, "debit":0, "unit":"CHF"},
+	   {
+  "credit":0,
+  "debit":100,
+  "unit":"without_currency_movement_against_since('CHF','CHF',['AUD'],date(2018,5,1))"
+}
+	],
+	"vector_converted_at_balance_date": [ {"credit":200, "debit":0, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": []
+      },
+      {
+	"account":"Income",
+	"date":"2018-05-01",
+	"description":"Income",
+	"running_balance": [ {"credit":400, "debit":0, "unit":"AUD"} ],
+	"type":"instant",
+	"vector": [ {"credit":400, "debit":0, "unit":"AUD"} ],
+	"vector_converted_at_balance_date": [ {"credit":400, "debit":0, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": [ {"credit":400, "debit":0, "unit":"AUD"} ]
+      }
+    ]
+  },
+  {"source":"livestock", "transactions": []}
+]

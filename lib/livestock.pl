@@ -1,5 +1,4 @@
 
-%:- rdet(preprocess_livestock_buy_or_sell/3).
 
 livestock_data(Uri) :-
 	doc(Uri, rdf:type, l:livestock_data).
@@ -45,7 +44,7 @@ infer_livestock_action_verb(S_Transaction, NS_Transaction) :-
 	;	Action_Verb = l:livestock_purchase).
 
 s_transaction_is_livestock_buy_or_sell(S_Transaction, Date, Livestock_Type, Livestock_Coord, Money_Coord) :-
-	S_Transaction = s_transaction(Date, uri(Action_Verb), [Money_Coord], _, vector(V)),
+	S_Transaction = s_transaction(Date, uri(Action_Verb), [Money_Coord], _, vector(V), _),
 	(Action_Verb = l:livestock_purchase;Action_Verb = l:livestock_sale),
 	!,
 	V = [Livestock_Coord],
@@ -80,8 +79,7 @@ process_livestock(Info, Livestock_Transactions) :-
 			livestock_data(L),
 			(	process_livestock2(Info, L, Txs)
 			->	true
-			;	(/*gtrace,*/throw_string('process_livestock2 failed'))
-			)
+			;	(gtrace/*,throw_string('process_livestock2 failed')*/))
 		),
 		Txs_List
 	),

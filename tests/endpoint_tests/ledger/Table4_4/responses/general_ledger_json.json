@@ -1,0 +1,328 @@
+[
+  {"source":"initial_GL", "transactions": []},
+  {
+    "source": {
+      "account":"CAD_Bank",
+      "date":"2000-01-01",
+      "exchanged":"vector([])",
+      "misc": {},
+      "report_currency_transacted_amount_converted_at_balance_date": [ {"credit":0, "debit":200, "unit":"CAD"} ],
+      "report_currency_transacted_amount_converted_at_transaction_date": [ {"credit":0, "debit":200, "unit":"CAD"} ],
+      "vector": [ {"credit":0, "debit":200, "unit":"CAD"} ],
+      "verb":"Introduce_Capital"
+    },
+    "transactions": [
+      {
+	"account":"BanksCAD_Bank",
+	"date":"2000-01-01",
+	"description":"Introduce_Capital - incoming money",
+	"running_balance": [ {"credit":0, "debit":200, "unit":"CAD"} ],
+	"type":"instant",
+	"vector": [ {"credit":0, "debit":200, "unit":"CAD"} ],
+	"vector_converted_at_balance_date": [ {"credit":0, "debit":200, "unit":"CAD"} ],
+	"vector_converted_at_transaction_date": [ {"credit":0, "debit":200, "unit":"CAD"} ]
+      },
+      {
+	"account":"ShareCapital",
+	"date":"2000-01-01",
+	"description":"Introduce_Capital",
+	"running_balance": [ {"credit":200, "debit":0, "unit":"CAD"} ],
+	"type":"instant",
+	"vector": [ {"credit":200, "debit":0, "unit":"CAD"} ],
+	"vector_converted_at_balance_date": [ {"credit":200, "debit":0, "unit":"CAD"} ],
+	"vector_converted_at_transaction_date": [ {"credit":200, "debit":0, "unit":"CAD"} ]
+      }
+    ]
+  },
+  {
+    "source": {
+      "account":"CAD_Bank",
+      "date":"2000-01-02",
+      "exchanged":"vector([])",
+      "misc": {},
+      "report_currency_transacted_amount_converted_at_balance_date": [ {"credit":120, "debit":0, "unit":"CAD"} ],
+      "report_currency_transacted_amount_converted_at_transaction_date": [ {"credit":120, "debit":0, "unit":"CAD"} ],
+      "vector": [ {"credit":120, "debit":0, "unit":"CAD"} ],
+      "verb":"Exchange"
+    },
+    "transactions": [
+      {
+	"account":"BanksCAD_Bank",
+	"date":"2000-01-02",
+	"description":"Exchange - outgoing money",
+	"running_balance": [ {"credit":0, "debit":80, "unit":"CAD"} ],
+	"type":"instant",
+	"vector": [ {"credit":120, "debit":0, "unit":"CAD"} ],
+	"vector_converted_at_balance_date": [ {"credit":120, "debit":0, "unit":"CAD"} ],
+	"vector_converted_at_transaction_date": [ {"credit":120, "debit":0, "unit":"CAD"} ]
+      },
+      {
+	"account":"ClearingAccount",
+	"date":"2000-01-02",
+	"description":"Exchange",
+	"running_balance": [ {"credit":0, "debit":120, "unit":"CAD"} ],
+	"type":"instant",
+	"vector": [ {"credit":0, "debit":120, "unit":"CAD"} ],
+	"vector_converted_at_balance_date": [ {"credit":0, "debit":120, "unit":"CAD"} ],
+	"vector_converted_at_transaction_date": [ {"credit":0, "debit":120, "unit":"CAD"} ]
+      }
+    ]
+  },
+  {
+    "source": {
+      "account":"USD_Bank",
+      "date":"2000-01-02",
+      "exchanged":"vector([])",
+      "misc": {},
+      "report_currency_transacted_amount_converted_at_balance_date": [ {"credit":0, "debit":100000, "unit":"CAD"} ],
+      "report_currency_transacted_amount_converted_at_transaction_date": [ {"credit":0, "debit":120, "unit":"CAD"} ],
+      "vector": [ {"credit":0, "debit":100, "unit":"USD"} ],
+      "verb":"Exchange"
+    },
+    "transactions": [
+      {
+	"account":"BanksUSD_Bank",
+	"date":"2000-01-02",
+	"description":"Exchange - incoming money",
+	"running_balance": [ {"credit":0, "debit":100, "unit":"USD"} ],
+	"type":"instant",
+	"vector": [ {"credit":0, "debit":100, "unit":"USD"} ],
+	"vector_converted_at_balance_date": [ {"credit":0, "debit":100000, "unit":"CAD"} ],
+	"vector_converted_at_transaction_date": [ {"credit":0, "debit":120, "unit":"CAD"} ]
+      },
+      {
+	"account":"CurrencyMovementUSD_Bank",
+	"date":"2000-01-02",
+	"description":"Exchange - incoming money - currency movement adjustment - only current period",
+	"running_balance": [
+	   {"credit":100, "debit":0, "unit":"USD"},
+	   {
+  "credit":0,
+  "debit":100,
+  "unit":"without_currency_movement_against_since('USD','USD',['CAD'],date(2000,1,2))"
+}
+	],
+	"type":"tracking",
+	"vector": [
+	   {"credit":100, "debit":0, "unit":"USD"},
+	   {
+  "credit":0,
+  "debit":100,
+  "unit":"without_currency_movement_against_since('USD','USD',['CAD'],date(2000,1,2))"
+}
+	],
+	"vector_converted_at_balance_date": [ {"credit":99880, "debit":0, "unit":"CAD"} ],
+	"vector_converted_at_transaction_date": []
+      },
+      {
+	"account":"ClearingAccount",
+	"date":"2000-01-02",
+	"description":"Exchange",
+	"running_balance": [],
+	"type":"instant",
+	"vector": [ {"credit":120, "debit":0, "unit":"CAD"} ],
+	"vector_converted_at_balance_date": [ {"credit":120, "debit":0, "unit":"CAD"} ],
+	"vector_converted_at_transaction_date": [ {"credit":120, "debit":0, "unit":"CAD"} ]
+      }
+    ]
+  },
+  {
+    "source": {
+      "account":"USD_Bank",
+      "date":"2000-01-03",
+      "exchanged":"vector([])",
+      "misc": {},
+      "report_currency_transacted_amount_converted_at_balance_date": [ {"credit":40000, "debit":0, "unit":"CAD"} ],
+      "report_currency_transacted_amount_converted_at_transaction_date": [ {"credit":52, "debit":0, "unit":"CAD"} ],
+      "vector": [ {"credit":40, "debit":0, "unit":"USD"} ],
+      "verb":"Buy_Food"
+    },
+    "transactions": [
+      {
+	"account":"BanksUSD_Bank",
+	"date":"2000-01-03",
+	"description":"Buy_Food - outgoing money",
+	"running_balance": [ {"credit":0, "debit":60, "unit":"USD"} ],
+	"type":"instant",
+	"vector": [ {"credit":40, "debit":0, "unit":"USD"} ],
+	"vector_converted_at_balance_date": [ {"credit":40000, "debit":0, "unit":"CAD"} ],
+	"vector_converted_at_transaction_date": [ {"credit":52, "debit":0, "unit":"CAD"} ]
+      },
+      {
+	"account":"CurrencyMovementUSD_Bank",
+	"date":"2000-01-03",
+	"description":"Buy_Food - outgoing money - currency movement adjustment - only current period",
+	"running_balance": [
+	   {"credit":60, "debit":0, "unit":"USD"},
+	   {
+  "credit":0,
+  "debit":100,
+  "unit":"without_currency_movement_against_since('USD','USD',['CAD'],date(2000,1,2))"
+},
+	   {
+  "credit":40,
+  "debit":0,
+  "unit":"without_currency_movement_against_since('USD','USD',['CAD'],date(2000,1,3))"
+}
+	],
+	"type":"tracking",
+	"vector": [
+	   {"credit":0, "debit":40, "unit":"USD"},
+	   {
+  "credit":40,
+  "debit":0,
+  "unit":"without_currency_movement_against_since('USD','USD',['CAD'],date(2000,1,3))"
+}
+	],
+	"vector_converted_at_balance_date": [ {"credit":0, "debit":39948, "unit":"CAD"} ],
+	"vector_converted_at_transaction_date": []
+      },
+      {
+	"account":"FoodExpenses",
+	"date":"2000-01-03",
+	"description":"Buy_Food",
+	"running_balance": [ {"credit":0, "debit":52, "unit":"CAD"} ],
+	"type":"instant",
+	"vector": [ {"credit":0, "debit":52, "unit":"CAD"} ],
+	"vector_converted_at_balance_date": [ {"credit":0, "debit":52, "unit":"CAD"} ],
+	"vector_converted_at_transaction_date": [ {"credit":0, "debit":52, "unit":"CAD"} ]
+      }
+    ]
+  },
+  {
+    "source": {
+      "account":"USD_Bank",
+      "date":"2000-01-05",
+      "exchanged":"vector([])",
+      "misc": {},
+      "report_currency_transacted_amount_converted_at_balance_date": [ {"credit":60000, "debit":0, "unit":"CAD"} ],
+      "report_currency_transacted_amount_converted_at_transaction_date": [ {"credit":75, "debit":0, "unit":"CAD"} ],
+      "vector": [ {"credit":60, "debit":0, "unit":"USD"} ],
+      "verb":"Exchange"
+    },
+    "transactions": [
+      {
+	"account":"BanksUSD_Bank",
+	"date":"2000-01-05",
+	"description":"Exchange - outgoing money",
+	"running_balance": [],
+	"type":"instant",
+	"vector": [ {"credit":60, "debit":0, "unit":"USD"} ],
+	"vector_converted_at_balance_date": [ {"credit":60000, "debit":0, "unit":"CAD"} ],
+	"vector_converted_at_transaction_date": [ {"credit":75, "debit":0, "unit":"CAD"} ]
+      },
+      {
+	"account":"CurrencyMovementUSD_Bank",
+	"date":"2000-01-05",
+	"description":"Exchange - outgoing money - currency movement adjustment - only current period",
+	"running_balance": [
+	   {
+  "credit":0,
+  "debit":100,
+  "unit":"without_currency_movement_against_since('USD','USD',['CAD'],date(2000,1,2))"
+},
+	   {
+  "credit":40,
+  "debit":0,
+  "unit":"without_currency_movement_against_since('USD','USD',['CAD'],date(2000,1,3))"
+},
+	   {
+  "credit":60,
+  "debit":0,
+  "unit":"without_currency_movement_against_since('USD','USD',['CAD'],date(2000,1,5))"
+}
+	],
+	"type":"tracking",
+	"vector": [
+	   {"credit":0, "debit":60, "unit":"USD"},
+	   {
+  "credit":60,
+  "debit":0,
+  "unit":"without_currency_movement_against_since('USD','USD',['CAD'],date(2000,1,5))"
+}
+	],
+	"vector_converted_at_balance_date": [ {"credit":0, "debit":59925, "unit":"CAD"} ],
+	"vector_converted_at_transaction_date": []
+      },
+      {
+	"account":"ClearingAccount",
+	"date":"2000-01-05",
+	"description":"Exchange",
+	"running_balance": [ {"credit":0, "debit":75, "unit":"CAD"} ],
+	"type":"instant",
+	"vector": [ {"credit":0, "debit":75, "unit":"CAD"} ],
+	"vector_converted_at_balance_date": [ {"credit":0, "debit":75, "unit":"CAD"} ],
+	"vector_converted_at_transaction_date": [ {"credit":0, "debit":75, "unit":"CAD"} ]
+      }
+    ]
+  },
+  {
+    "source": {
+      "account":"CAD_Bank",
+      "date":"2000-01-05",
+      "exchanged":"vector([])",
+      "misc": {},
+      "report_currency_transacted_amount_converted_at_balance_date": [ {"credit":0, "debit":75, "unit":"CAD"} ],
+      "report_currency_transacted_amount_converted_at_transaction_date": [ {"credit":0, "debit":75, "unit":"CAD"} ],
+      "vector": [ {"credit":0, "debit":75, "unit":"CAD"} ],
+      "verb":"Exchange"
+    },
+    "transactions": [
+      {
+	"account":"BanksCAD_Bank",
+	"date":"2000-01-05",
+	"description":"Exchange - incoming money",
+	"running_balance": [ {"credit":0, "debit":155, "unit":"CAD"} ],
+	"type":"instant",
+	"vector": [ {"credit":0, "debit":75, "unit":"CAD"} ],
+	"vector_converted_at_balance_date": [ {"credit":0, "debit":75, "unit":"CAD"} ],
+	"vector_converted_at_transaction_date": [ {"credit":0, "debit":75, "unit":"CAD"} ]
+      },
+      {
+	"account":"ClearingAccount",
+	"date":"2000-01-05",
+	"description":"Exchange",
+	"running_balance": [],
+	"type":"instant",
+	"vector": [ {"credit":75, "debit":0, "unit":"CAD"} ],
+	"vector_converted_at_balance_date": [ {"credit":75, "debit":0, "unit":"CAD"} ],
+	"vector_converted_at_transaction_date": [ {"credit":75, "debit":0, "unit":"CAD"} ]
+      }
+    ]
+  },
+  {
+    "source": {
+      "account":"CAD_Bank",
+      "date":"2000-01-07",
+      "exchanged":"vector([])",
+      "misc": {},
+      "report_currency_transacted_amount_converted_at_balance_date": [ {"credit":20, "debit":0, "unit":"CAD"} ],
+      "report_currency_transacted_amount_converted_at_transaction_date": [ {"credit":20, "debit":0, "unit":"CAD"} ],
+      "vector": [ {"credit":20, "debit":0, "unit":"CAD"} ],
+      "verb":"Buy_Food"
+    },
+    "transactions": [
+      {
+	"account":"BanksCAD_Bank",
+	"date":"2000-01-07",
+	"description":"Buy_Food - outgoing money",
+	"running_balance": [ {"credit":0, "debit":135, "unit":"CAD"} ],
+	"type":"instant",
+	"vector": [ {"credit":20, "debit":0, "unit":"CAD"} ],
+	"vector_converted_at_balance_date": [ {"credit":20, "debit":0, "unit":"CAD"} ],
+	"vector_converted_at_transaction_date": [ {"credit":20, "debit":0, "unit":"CAD"} ]
+      },
+      {
+	"account":"FoodExpenses",
+	"date":"2000-01-07",
+	"description":"Buy_Food",
+	"running_balance": [ {"credit":0, "debit":72, "unit":"CAD"} ],
+	"type":"instant",
+	"vector": [ {"credit":0, "debit":20, "unit":"CAD"} ],
+	"vector_converted_at_balance_date": [ {"credit":0, "debit":20, "unit":"CAD"} ],
+	"vector_converted_at_transaction_date": [ {"credit":0, "debit":20, "unit":"CAD"} ]
+      }
+    ]
+  },
+  {"source":"livestock", "transactions": []}
+]

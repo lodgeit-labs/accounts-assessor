@@ -1,0 +1,22 @@
+lib:round_term
+	doc 
+		""used to go mainly from rational numbers to floats rounded to some amount of digits
+		recurses on complex terms"""
+		
+
+% pid: processing id
+
+pid:response l:gl_viewer_json j <== 
+	pid:response l:gl_viewer_rounded_data d
+*      
+.
+
+
+pid:response l:gl_viewer_rounded_data r <== 
+	pid:response l:gl_viewer__data d
+	
+	.
+
+
+s a source
+s 

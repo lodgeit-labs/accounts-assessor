@@ -1,0 +1,37 @@
+
+first domain cell.
+
+rest domain 
+;    range list.
+
+nil a list.
+
+X P Y, P domain D => X a D
+...
+
+
+
+
+
+
+X a cell => 
+	X first F
+	; rest R
+	; a list
+
+X a cell => 	
+	D a distance
+	; length 0
+	; item1 X
+	; item2 X  
+
+X rest R =>
+	R prev X.
+
+
+X rest R =>
+	D a distance
+	; length 1
+	; item1 X
+	; item2 R  
+	

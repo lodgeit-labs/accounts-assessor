@@ -4,7 +4,7 @@
 
 :- [process_request_loan].
 :- [process_request_ledger].
-%:- use_module(process_request_livestock, []).
+:- [process_request_livestock].
 %:- use_module(process_request_investment, []).
 :- [process_request_car].
 :- [process_request_hirepurchase_new].
@@ -28,6 +28,7 @@ process_request_rpc_calculator(Dict) :-
 	% todo options
 	set_unique_tmp_directory_name(loc(tmp_directory_name, Dict.tmp_directory_name)),
 	set_server_public_url(Dict.server_url),
+	(Request_Files2 = [] -> throw('no files.') ; true),
 	process_request([], Request_Files2).
 
 /* takes either a xml request file, or a directory expected to contain a xml request file, an n3 file, or both */
@@ -54,52 +55,80 @@ process_request_http(Options, Parts) :-
 process_request(Options, File_Paths) :-
 	doc_init,
 	maybe_supress_generating_unique_taxonomy_urls(Options),
-	process_multifile_request(File_Paths),
+	catch_with_backtrace(
+		(process_multifile_request(File_Paths) -> true ; throw(failure)),
+		E,
+		add_alert('unknown_error', E)),
+	process_request2.
+
+process_request2 :-
+	'make "all files" report entry',
+	collect_alerts(Alerts3),
+	make_alerts_report(Alerts3),
+	json_report_entries(Files3),
+
+	Json_Out = _{alerts:Alerts3, reports:Files3},
+	absolute_tmp_path(loc(file_name,'response.json'), Json_Response_File_Path),
+	dict_json_text(Json_Out, Response_Json_String),
+	write_file(Json_Response_File_Path, Response_Json_String),
+	writeln(Response_Json_String),
+
+	(make_zip->true;true).
+
+'make "all files" report entry' :-
 	report_file_path(loc(file_name, ''), Tmp_Dir_Url, _),
-	report_entry('all files', Tmp_Dir_Url, 'all'),
+	add_report_file('all', 'all files', Tmp_Dir_Url).
+
+json_report_entries(Files3) :-
 	findall(
 		Json,
 		(
-			get_report_file(Id, Title, loc(absolute_url,Url)),
-			(	Title == 'response.n3'
-			->	(
-					Json = _{key:Title, val:_{url:Url}, id:Id, contents:Contents},
-					tmp_file_path_from_something(loc(_,Url), loc(absolute_path,P)),
-					read_file_to_string(P, Contents, [])
-				)
-			;	Json = _{key:Title, val:_{url:Url}, id:Id})),
-		Files3),
+			get_report_file(Key, Title, loc(absolute_url,Url)),
+			(format_json_report_entry(Key, Title, Url, Json) -> true ; throw(error))
+		),
+		Files3
+	).
+
+format_json_report_entry(Key, Title, Url, Json) :-
+	Json0 = _{key:Key, title:Title, val:_{url:Url}},
+	(	Key == 'response.n3'     %_{name:'response', format:'n3'}
+	->	(
+			% inline response.n3 into the result json
+			tmp_file_path_from_something(loc(_,Url), loc(absolute_path,P)),
+			read_file_to_string(P, Contents, []),
+			Json = Json0.put(contents,Contents)
+		)
+	% just url's for all the rest
+	;	Json = Json0).
+
+collect_alerts(Alerts3) :-
 	findall(
 		Alert,
 		(
-			get_alert(Key,Val),
+			get_alert(Key,Msg0),
 			(
 				(
-					pretty_term_string(Val, Val_Str),
-					atomic_list_concat([Key,':',Val_Str], Alert)
+					(Msg0 = string(Msg) -> true ; Msg0 = Msg),
+					(atomic(Msg) -> Msg2 = Msg ; term_string(Msg, Msg2)),
+					atomic_list_concat([Key,': ',Msg2], Alert)
 				)
 				->	true
 				;	throw(xxx)
 			)
 		),
 		Alerts3
-	),
-	Json_Out = _{
-		alerts:Alerts3,
-		reports:Files3
-	},
-	absolute_tmp_path(loc(file_name,'response.json'), Json_Response_File_Path),
-	dict_json_text(Json_Out, Response_Json_String),
-	write_file(Json_Response_File_Path, Response_Json_String),
+	).
 
-	get_requested_output_type(Options, Requested_Output_Type),
-	(	Requested_Output_Type = xml
-	->	(
-			tmp_file_path_from_something(Json_Out.reports.response_xml, Xml_Path),
-			print_file(Xml_Path)
-		)
-	;	writeln(Response_Json_String)),
-	make_zip.
+make_alerts_report(Alerts) :-
+	make_json_report(Alerts, alerts_json),
+	maplist(alert_html, Alerts, Alerts_Html),
+	(	Alerts_Html = []
+	->	Alerts_Html2 = ['no alerts']
+	;	Alerts_Html2 = Alerts_Html),
+	add_report_page_with_body(alerts, [h3([alerts, ':']), div(Alerts_Html2)], loc(file_name,'alerts.html'), alerts_html).
+
+alert_html(Alert, div([Alert, br([]), br([])])).
+
 
 process_multifile_request(File_Paths) :-
 	(	accept_request_file(File_Paths, Xml_Tmp_File_Path, xml)
@@ -123,12 +152,12 @@ accept_request_file(File_Paths, Path, Type) :-
 	(
 		loc_icase_endswith(Path, ".xml")
 	->	(
-			report_entry('request_xml', Url, 'request_xml'),
+			add_report_file('request_xml', 'request_xml', Url),
 			Type = xml
 		)
 	;	loc_icase_endswith(Path, "n3")
 	->	(
-			report_entry('request_n3', Url, 'request_n3'),
+			add_report_file('request_n3', 'request_n3', Url),
 			Type = n3
 		)).
 
@@ -138,7 +167,8 @@ load_request_xml(loc(absolute_path,Xml_Tmp_File_Path), Dom) :-
 load_request_rdf(loc(absolute_path, Rdf_Tmp_File_Path), G) :-
 	rdf_create_bnode(G),
 	rdf_load(Rdf_Tmp_File_Path, [graph(G), anon_prefix(bn), on_error(error)]),
-	findall(_, (rdf(S,P,O),writeq(('raw_rdf:',S,P,O)),nl),_).
+	%findall(_, (rdf(S,P,O),format(user_error, 'raw_rdf:~q~n',(S,P,O))),_),
+	true.
 
 make_rdf_report :-
 	Title = 'response.n3',
@@ -164,11 +194,11 @@ process_rdf_request :-
 process_xml_request(File_Path, Dom) :-
 	(process_request_car(File_Path, Dom);
 	(process_request_loan(File_Path, Dom);
-	(process_request_ledger(File_Path, Dom)
-	%(process_request_livestock:process(File_Name, Dom);
-	%(process_request_investment:process(File_Name, Dom);
-	%(process_request_depreciation_old:process(File_Name, Dom)
-	))).
+	(process_request_ledger(File_Path, Dom);
+	(process_request_livestock(File_Path, Dom);
+	%(process_request_investment:process(File_Path, Dom);
+	false
+	)))).
 
 
 get_requested_output_type(Options2, Output) :-

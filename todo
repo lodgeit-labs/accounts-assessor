@@ -1,0 +1,17 @@
+livestock standalone needs frontend server support for requesting xml result
+
+
+
+failing because of a bug in calling arelle:
+        ['endpoint_tests/ledger/ledger--with-schemaref']): testcase_error(http_code_400)
+        ['endpoint_tests/ledger/historical_vs_current1']): testcase_error(http_code_400)
+move arelle into python_server.
+   
+
+
+	reset_gensym(iri), % because we use gensym in investment reports and it will keep incrementing
+	throughout the test-cases, causing fresh responses to not match saved responses.
+
+
+
+

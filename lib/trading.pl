@@ -186,13 +186,13 @@ increase_realized_gains(Static_Data, Description, Trading_Account_Id, Sale_Vecto
 
 	[Goods_Coord] = Goods_Vector,
 	number_coord(_, Goods_Integer, Goods_Coord),
-	Goods_Positive is -Goods_Integer,
+	{Goods_Positive = -Goods_Integer},
 
 	Sale_Vector = [coord(Sale_Currency, Sale_Currency_Amount)],
-	Sale_Currency_Unit_Price is Sale_Currency_Amount / Goods_Positive,
+	{Sale_Currency_Unit_Price = Sale_Currency_Amount / Goods_Positive},
 	
 	[coord(Converted_Currency, Converted_Debit)] = Converted_Vector,
-	Sale_Unit_Price_Amount is Converted_Debit / Goods_Positive,
+	{Sale_Unit_Price_Amount = Converted_Debit / Goods_Positive},
 	
 	maplist(
 		realized_gains_txs(
@@ -213,7 +213,7 @@ realized_gains_txs(Static_Data, Description, Transaction_Day, Sale_Currency, Sal
 	Static_Data.report_currency = Report_Currency,
 	Static_Data.start_date = Start_Date,
 	goods(_ST_Currency, Goods_Unit, Goods_Count, Converted_Cost, Purchase_Date) = Purchase_Info,
-	Sale_Currency_Amount is Sale_Currency_Unit_Price * Goods_Count,
+	{Sale_Currency_Amount = Sale_Currency_Unit_Price * Goods_Count},
 	value_multiply(Sale_Unit_Price_Converted, Goods_Count, Sale),
 	gains_accounts(
 		Accounts, Trading_Account_Id, realized, Goods_Unit, 
@@ -265,10 +265,10 @@ realized_gains_txs(Static_Data, Description, Transaction_Day, Sale_Currency, Sal
 
 make_debit(value(Unit, Amount), coord(Unit, Amount)).
 make_debit(coord(Unit, Dr), coord(Unit, Dr)) :- Dr >= 0.
-make_debit(coord(Unit, DrA), coord(Unit, DrB)) :- DrA < 0, DrB is -DrA.
+make_debit(coord(Unit, DrA), coord(Unit, DrB)) :- DrA < 0, {DrB = -DrA}.
 
-make_credit(value(Unit, Amount), coord(Unit, Amount2)) :- Amount2 is -Amount.
-make_credit(coord(Unit, DrA), coord(Unit, DrB)) :- DrA > 0, DrB is -DrA.
+make_credit(value(Unit, Amount), coord(Unit, Amount2)) :- {Amount2 = -Amount}.
+make_credit(coord(Unit, DrA), coord(Unit, DrB)) :- DrA > 0, {DrB = -DrA}.
 make_credit(coord(Unit, Dr), coord(Unit, Dr)) :- Dr =< 0.
 
 /*
@@ -307,8 +307,8 @@ tx_to_transaction(Day, Tx, Transaction) :-
 	Tx = tx{comment: Comment, comment2: Comment2, account: Account, vector: Vector},
 	nonvar(Account),
 	ground(Vector),
-	(var(Comment) -> Comment = '?'; true),
-	(var(Comment2) -> Comment2 = '?'; true),
+	(var(Comment) -> Comment = ''; true),
+	(var(Comment2) -> Comment2 = ''; true),
 	flatten(['comment:', Comment, ', comment2:', Comment2], Description0),
 	atomic_list_concat(Description0, Description),
 	transaction_day(Transaction, Day),

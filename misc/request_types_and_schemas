@@ -1,0 +1,23 @@
+
+	/* does it look like a ledger request? */
+	% ideally should be able to omit this and have this check be done as part of the schema validation, but currently  process_request.pl is using this to check whether to use this endpoint.
+	/* not sure i agree, yes we could detect request type by checking it against the different known request type schemas, but in practice, what should the program do if none matches? We don't want it to report back how the actual request differs for each known schema, so we'd rely on a set of markers/heuristics to try to narrow that reporting down to the likely intended type, ie, presence of //reports/balanceSheetRequest here.
+
+	(
+		conforms_to_schema(Dom, S),
+		schema_type(S, T),
+		process_request_as_type(Dom, T)
+	)
+	;
+	(
+		looks_like(Dom, T),
+		schema_type(S, T),
+		report_schema_violations(Dom, S)
+	)
+	;
+	(
+		find_schema_with_minimum_violations(Dom, S, Violations),
+		report_violations(Violations)
+	)
+*/
+

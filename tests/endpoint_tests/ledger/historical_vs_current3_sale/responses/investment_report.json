@@ -189,28 +189,28 @@
       "currency":"CHF",
       "gains": {
 	"rea": {
-	  "forex": {"amount":0.0, "unit":"AUD"},
-	  "market_converted": {"amount":0.0, "unit":"AUD"},
-	  "market_foreign": {"amount":0.0, "unit":"CHF"}
+	  "forex": {"amount":0, "unit":"AUD"},
+	  "market_converted": {"amount":0, "unit":"AUD"},
+	  "market_foreign": {"amount":0, "unit":"CHF"}
 	},
 	"unr": {}
       },
       "id":"iri1",
       "opening": {
-	"conversion":"exchange_rate(date(2018,1,1),'CHF','AUD',4.0)",
-	"total_cost_converted": {"amount":400.0, "unit":"AUD"},
-	"total_cost_foreign": {"amount":100.0, "unit":"CHF"},
-	"unit_cost_converted": {"amount":40.0, "unit":"AUD"},
-	"unit_cost_foreign": {"amount":10.0, "unit":"CHF"}
+	"conversion": {"date":"2018-01-01", "dst":"AUD", "rate":4, "src":"CHF"},
+	"total_cost_converted": {"amount":400, "unit":"AUD"},
+	"total_cost_foreign": {"amount":100, "unit":"CHF"},
+	"unit_cost_converted": {"amount":40, "unit":"AUD"},
+	"unit_cost_foreign": {"amount":10, "unit":"CHF"}
       },
       "purchase": {},
       "sale": {
-	"conversion":"exchange_rate(date(2018,5,1),'CHF','AUD',4.0)",
-	"date":"date(2018,5,1)",
-	"total_cost_converted": {"amount":400.0, "unit":"AUD"},
-	"total_cost_foreign": {"amount":100.0, "unit":"CHF"},
-	"unit_cost_converted": {"amount":40.0, "unit":"AUD"},
-	"unit_cost_foreign": {"amount":10.0, "unit":"CHF"}
+	"conversion": {"date":"2018-05-01", "dst":"AUD", "rate":4, "src":"CHF"},
+	"date":"2018-05-01",
+	"total_cost_converted": {"amount":400, "unit":"AUD"},
+	"total_cost_foreign": {"amount":100, "unit":"CHF"},
+	"unit_cost_converted": {"amount":40, "unit":"AUD"},
+	"unit_cost_foreign": {"amount":10, "unit":"CHF"}
       },
       "unit":"Leonteq_N"
     },
@@ -218,12 +218,12 @@
       "closing": {"total_cost_converted": [], "total_cost_foreign": []},
       "gains": {
 	"rea": {
-	  "forex": [ {"amount":0.0, "unit":"AUD"} ],
-	  "market_converted": [ {"amount":0.0, "unit":"AUD"} ],
-	  "market_foreign": [ {"amount":0.0, "unit":"CHF"} ]
+	  "forex": [ {"amount":0, "unit":"AUD"} ],
+	  "market_converted": [ {"amount":0, "unit":"AUD"} ],
+	  "market_foreign": [ {"amount":0, "unit":"CHF"} ]
 	},
-	"realized_total": [ {"amount":0.0, "unit":"AUD"} ],
-	"total": [ {"amount":0.0, "unit":"AUD"} ],
+	"realized_total": [ {"amount":0, "unit":"AUD"} ],
+	"total": [ {"amount":0, "unit":"AUD"} ],
 	"unr": {"forex": [], "market_converted": [], "market_foreign": []},
 	"unrealized_total": []
       },
@@ -233,8 +233,8 @@
 	"total_forex_gain": []
       },
       "opening": {
-	"total_cost_converted": [ {"amount":400.0, "unit":"AUD"} ],
-	"total_cost_foreign": [ {"amount":100.0, "unit":"CHF"} ]
+	"total_cost_converted": [ {"amount":400, "unit":"AUD"} ],
+	"total_cost_foreign": [ {"amount":100, "unit":"CHF"} ]
       }
     }
   ],
