@@ -307,17 +307,10 @@ is_exchangeable_into_request_bases(Table, Day, Src_Currency, Bases) :-
 %:- add_docs(l:exchange_rates, rdfs:comment, "lib:extract_exchange_rates initially populates this graph with exchange rates extracted from request xml. Exchange rates obtained from web api's are added later, as needed.").
 
 extract_exchange_rates(Dom, Start_Date, End_Date) :-
-	ground((Start_Date, End_Date)),
+	foreach(
+		doc(pid:unitValues pid:unitValue
 
 
-
-
-/*
-	inner_xml_throw(Dom, //reports/balanceSheetRequest/defaultCurrency/unitType, Optional_Default_Currency),
-	(	Optional_Default_Currency = [Default_Currency]
-	->	doc_add_value(pid, default_currency, Default_Currency
-	;	true).
-	findall(Unit_Value_Dom, xpath(Dom, //reports/balanceSheetRequest/unitValues/unitValue, Unit_Value_Dom), Unit_Value_Doms),
 	maplist(extract_exchange_rate0(Default_Currency, Start_Date, End_Date), Unit_Value_Doms),
 	%maplist(missing_dst_currency_is_investments_currency(S_Transactions, Default_Currency), Exchange_Rates),
 	maplist(dst_currency_must_be_specified, Exchange_Rates),
