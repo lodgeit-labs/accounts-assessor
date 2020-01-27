@@ -304,23 +304,51 @@ is_exchangeable_into_request_bases(Table, Day, Src_Currency, Bases) :-
 %                ||     ||
 
 
-extract_exchange_rates(Dom, Start_Date, End_Date, Default_Currency, Exchange_Rates) :-
-	/*If an investment was held prior to the from date then it MUST have an opening market value if the reports are expressed in.market rather than cost.You can't mix market value and cost in one set of reports. One or the other.2:27 AMi see. Have you thought about how to let the user specify the method?Andrew, 2:31 AMMarket or Cost. M or C. Sorry. Never mentioned it to you.2:44 AMyou mentioned the different approaches, but i ended up assuming that this would be best selected by specifying or not specifying the unitValues. I see there is a field for it already in the excel templateAndrew, 2:47 AMCost value per unit will always be there if there are units of anything i.e. sheep for livestock trading or shares for InvestmentsAndrew, 3:04 AMBut I suppose if you do not find any market values then assume cost basis.*/
+%:- add_docs(l:exchange_rates, rdfs:comment, "lib:extract_exchange_rates initially populates this graph with exchange rates extracted from request xml. Exchange rates obtained from web api's are added later, as needed.").
+
+extract_exchange_rates(Dom, Start_Date, End_Date) :-
+	ground((Start_Date, End_Date)),
+
+
+
+
+/*
+	inner_xml_throw(Dom, //reports/balanceSheetRequest/defaultCurrency/unitType, Optional_Default_Currency),
+	(	Optional_Default_Currency = [Default_Currency]
+	->	doc_add_value(pid, default_currency, Default_Currency
+	;	true).
 	findall(Unit_Value_Dom, xpath(Dom, //reports/balanceSheetRequest/unitValues/unitValue, Unit_Value_Dom), Unit_Value_Doms),
-	maplist(extract_exchange_rate(Start_Date, End_Date), Unit_Value_Doms, Exchange_Rates),
-	maplist(missing_dst_currency_is_default_currency(Default_Currency), Exchange_Rates),
-	%maplist(missing_dst_currency_is_investment_currency(S_Transactions, Default_Currency), Exchange_Rates),
+	maplist(extract_exchange_rate0(Default_Currency, Start_Date, End_Date), Unit_Value_Doms),
+	%maplist(missing_dst_currency_is_investments_currency(S_Transactions, Default_Currency), Exchange_Rates),
 	maplist(dst_currency_must_be_specified, Exchange_Rates),
 	maplist(assert_ground, Exchange_Rates).
 
+extract_exchange_rate0(Default_Currency, Start_Date, End_Date, Dom) :-
+	extract_exchange_rate(Start_Date, End_Date, Dom, exchange_rate(Date, Src, Dst, Rate)),
+	doc_new_uri(Exchange_Rate),
+	doc_add_value(Exchange_Rate, l:date, Date),
+	doc_add_value(Exchange_Rate, l:src, Src),
+	(nonvar(Dst) -> doc_add_value(Exchange_Rate, l:dst, Dst) ; true),
+	doc_add_value(Exchange_Rate, l:rate, Rate),
+	missing_dst_currency_is_default_currency(Default_Currency, Uri),
+
 missing_dst_currency_is_default_currency(_, Exchange_Rate) :-
-	exchange_rate_dest_currency(Exchange_Rate, Dst),
-	nonvar(Dst).
+	doc(Exchange_Rate, l:dst, _).
 
 missing_dst_currency_is_default_currency(Default_Currency, Exchange_Rate) :-
-	exchange_rate_dest_currency(Exchange_Rate, Dst),
-	var(Dst),
-	([Dst] = Default_Currency -> true ; true).
+	\+doc(Exchange_Rate, l:dst, _),
+	(
+
+	[Dst] = Default_Currency
+	->	(
+			doc_new_uri(G),
+			doc_add_value(Exchange_Rate, l:dst, Dst, G),
+			doc_add(G,
+
+
+
+		)
+	;	true).
 
 dst_currency_must_be_specified(Exchange_Rate) :-
 	exchange_rate_dest_currency(Exchange_Rate, Dst),
@@ -331,52 +359,23 @@ dst_currency_must_be_specified(Exchange_Rate) :-
 assert_ground(X) :-
 	assertion(ground(X)).
 
-extract_exchange_rate(Start_Date, End_Date, Unit_Value, Exchange_Rate) :-
-	Exchange_Rate = exchange_rate(Date, Src_Currency, Dest_Currency, Rate),
-	fields(Unit_Value, [
-		unitType, Src_Currency0,
-		unitValueCurrency, (Dest_Currency, _),
-		unitValue, (Rate_Atom, _),
-		unitValueDate, (Date_Atom, _)]
-	),
-	(
-		var(Rate_Atom)
-	->
-		format(user_error, 'unitValue missing, ignoring\n', [])
-		/*Rate will stay unbound and the whole term will be filtered out in the caller*/
-	;
-		atom_number(Rate_Atom, Rate)
-	),
-
-	(
-		var(Date_Atom)
-	->
-		(
-			once(string_concat('closing | ', Src_Currency, Src_Currency0))
-		->
-			Date_Atom = 'closing'
-		;
-			(
-				once(string_concat('opening | ', Src_Currency, Src_Currency0))
-			->
-				Date_Atom = 'opening'
-			;
-				Src_Currency = Src_Currency0
-			)
-		)
-	;
-		Src_Currency = Src_Currency0
-	),
-
+extract_exchange_rate(Start_Date, End_Date, Dom, Exchange_Rate) :-
+	Exchange_Rate = exchange_rate(Date, Src, Dst, Rate),
+	fields(Dom, [
+		unitType, Src,
+		unitValueCurrency, (Dst, _),
+		unitValue, Rate_Atom,
+		unitValueDate, (Date_Atom, _)]),
+	atom_number(Rate_Atom, Rate),
 	(var(Date_Atom) -> Date_Atom = closing ; true),
-
 	(	Date_Atom = opening
 	->	Date = Start_Date
-	;	(	(	Date_Atom = closing
-			->	Date = End_Date
-			;	parse_date(Date_Atom, Date)))).
+	;	(	Date_Atom = closing
+		->	Date = End_Date
+		;	parse_date(Date_Atom, Date))).
 
 
+*/
 /*
 	x a exchange_rate, x src S, x dom y, x rate R <= y a exchange_rate_dom, y src S
 

@@ -142,9 +142,9 @@ process_multifile_request(File_Paths) :-
 	;	true),
 	(	process_rdf_request
 	;	(
-			xpath(Dom, //reports, _)
+			((ground(Dom), xpath(Dom, //reports, _))
 			->	process_xml_request(Xml_Tmp_File_Path, Dom)
-			;	throw_string('<reports> tag not found'))).
+			;	throw_string('<reports> tag not found')))).
 
 accept_request_file(File_Paths, Path, Type) :-
 	member(Path, File_Paths),
@@ -192,6 +192,7 @@ process_rdf_request :-
 	make_rdf_report.
 
 process_xml_request(File_Path, Dom) :-
+	request_xml_to_doc(Dom),
 	(process_request_car(File_Path, Dom);
 	(process_request_loan(File_Path, Dom);
 	(process_request_ledger(File_Path, Dom);

@@ -1,4 +1,5 @@
-
+:- rdf_register_prefix(code,
+'https://rdf.lodgeit.net.au/v1/code#').
 :- rdf_register_prefix(l,
 'https://rdf.lodgeit.net.au/v1/request#').
 :- rdf_register_prefix(livestock,
@@ -38,6 +39,17 @@ dump :-
 		),
 	_).
 
+doc_init :-
+	doc_clear,
+	rdf_register_prefix(pid, ':'),
+	doc_add(pid, rdf:type, l:request),
+	doc_add(pid, rdfs:comment, "processing id - the root node for all data pertaining to processing current request. Also looked up by being the only object of type l:request, but i'd outphase that.").
+
+init_doc_trail :-
+	absolute_tmp_path(loc(file_name, 'doc_trail.txt'), loc(absolute_path, Trail_File_Path)),
+	open(Trail_File_Path, write, Trail_Stream, [buffer(line)]),
+	b_setval(doc_trail, Trail_Stream).
+
 doc_clear :-
 	b_setval(the_theory,_X),
 	doc_set_default_graph(default).
@@ -48,22 +60,26 @@ doc_set_default_graph(G) :-
 doc_add((S,P,O)) :-
 	doc_add(S,P,O).
 
-:- rdf_meta doc_add(r,r,r,r).
-
-doc_add(S,P,O,G) :-
-	debug(doc, 'add:~q~n', [(S,P,O)]),
-	b_getval(the_theory,X),
-	rol_add(X,(S,P,O,G)).
-
 :- rdf_meta doc_add(r,r,r).
 
 doc_add(S,P,O) :-
 	b_getval(default_graph, G),
 	doc_add(S,P,O,G).
 
+:- rdf_meta doc_add(r,r,r,r).
+
+doc_add(S,P,O,G) :-
+	debug(doc, 'add:~q~n', [(S,P,O)]),
+	b_getval(the_theory,X),
+	/* hook dump_doc2 to unification of every variable (recurse for complex terms) */
+
+
+	rol_add((S,P,O,G), X),
+	dump_doc2.
+
 doc_assert(S,P,O,G) :-
 	b_getval(the_theory,X),
-	rol_assert(X, (S,P,O,G)).
+	rol_assert((S,P,O,G), X).
 
 :- rdf_meta doc(r,r,r).
 /*
@@ -80,7 +96,7 @@ must have at most one match
 doc(S,P,O,G) :-
 	b_getval(the_theory,X),
 	debug(doc, 'doc?:~q~n', [(S,P,O,G)]),
-	rol_single_match(X,(S,P,O,G)).
+	rol_single_match((S,P,O,G), X).
 
 :- rdf_meta docm(r,r,r).
 /*
@@ -94,7 +110,7 @@ docm(S,P,O) :-
 docm(S,P,O,G) :-
 	b_getval(the_theory,X),
 	debug(doc, 'docm:~q~n', [(S,P,O,G)]),
-	rol_member(X,(S,P,O,G)).
+	rol_member((S,P,O,G), X).
 /*
 member
 */
@@ -123,68 +139,13 @@ Depth = 16.
 */
 
 
-/*
-a thin layer above ROL
-*/
-
-rol_single_match(T,SpogA) :-
-	/* only allow one match */
-	findall(x,rol_member(T,SpogA),Matches),
-	length(Matches, Length),
-	(	Length > 1
-	->	(
-			format(string(Msg), 'multiple_matches, use docm: ~q', [SpogA]),
-			%gtrace,
-			throw_string(Msg)
-		)
-	;	rol_member(T,SpogA)).
 
 
-/*
-Reasonably Open List.
-T is an open list. Unifying with the tail variable is only possible through rol_add.
-*/
-
-rol_add(T,Spog) :-
-	/* ensure Spog is added as a last element of T, while memberchk would otherwise possibly just unify an existing member with it */
-		rol_member(T,Spog)
-	->	throw(added_quad_matches_existing_quad)
-	;	memberchk(Spog,T).
-
-rol_assert(T,Spog) :-
-	rol_member(T,Spog)
-	->	true
-	;	memberchk(Spog,T).
-
-
-rol_add_quiet(T, Spog) :-
-		rol_member(T,Spog)
-	->	true
-	; 	memberchk(Spog,T).
-
-/* nondet */
-rol_member(T,SpogA) :-
-	/* avoid unifying SpogA with the open tail of T */
-	member(SpogB, T),
-	(
-		var(SpogB)
-	->	(!,fail)
-	;	SpogA = SpogB).
-
-	/*match(SpogA, SpogB)).
-match((S1,P1,O1,G1),(S2,P2,O2,G2))
-	(	S1 = S2
-	->	true
-	;	rdf_equal(?Resource1, ?Resource2)
-*/
+/*:- comment(code:doc, "livestock and action verbs are in doc exclusively, some other data in parallel with passing them around in variables..").*/
 
 /*
 helper predicates
 */
-
-doc_new_theory(T) :-
-	doc_new_uri(T),
-	doc_add(T, rdf:type, l:theory).
 
 doc_new_uri(Uri) :-
 	doc_new_uri(Uri, '').
@@ -201,13 +162,69 @@ doc_new_uri(Uri, Postfix) :-
 	assertion(\+doc(_,_,Uri))
 	*/
 
-doc_init :-
-	/*	i'm storing some data in the 'doc' rdf-like database, only as an experiment for now.
-	livestock and action verbs exclusively, some other data in parallel with passing them around in variables..	*/
-	doc_clear,
-	doc_new_uri(R),
-	/* fixme: we create a bnode of type l:request for storing and processing stuff, and excel sends an actual l:request. not sure what we want to do here. Im hesitant to turn the two objects into one. Possibly this should be l:processing or something. */
-	doc_add(R, rdf:type, l:request).
+
+
+/*
+a thin layer above ROL
+*/
+
+rol_single_match(SpogA, T) :-
+	/* only allow one match */
+	findall(x,rol_member(SpogA, T),Matches),
+	length(Matches, Length),
+	(	Length > 1
+	->	(
+			format(string(Msg), 'multiple_matches, use docm: ~q', [SpogA]),
+			%gtrace,
+			throw_string(Msg)
+		)
+	;	rol_member(SpogA, T)).
+
+
+/*
+Reasonably Open List.
+T is an open list. Unifying with the tail variable is only possible through rol_add.
+*/
+
+rol_add(Spog, T) :-
+	/* ensure Spog is added as a last element of T, while memberchk would otherwise possibly just unify an existing member with it */
+		rol_member(Spog, T)
+	->	throw(added_quad_matches_existing_quad)
+	;	memberchk(Spog,T).
+
+rol_assert(Spog, T) :-
+	rol_member(Spog, T)
+	->	true
+	;	memberchk(Spog,T).
+
+
+rol_add_quiet(Spog, T) :-
+		rol_member(Spog, T)
+	->	true
+	; 	memberchk(Spog,T).
+
+/* nondet */
+rol_member(SpogA, T) :-
+	/* avoid unifying SpogA with the open tail of T */
+	member(SpogB, T),
+	(
+		var(SpogB)
+	->	(!,fail)
+	;	SpogA = SpogB).
+
+	/*match(SpogA, SpogB)).
+match((S1,P1,O1,G1),(S2,P2,O2,G2))
+	(	S1 = S2
+	->	true
+	;	rdf_equal(?Resource1, ?Resource2)
+*/
+
+
+/*
+░█▀▀░█▀▄░█▀█░█▄█░░░█░▀█▀░█▀█░░░█▀▄░█▀▄░█▀▀
+░█▀▀░█▀▄░█░█░█░█░▄▀░░░█░░█░█░░░█▀▄░█░█░█▀▀
+░▀░░░▀░▀░▀▀▀░▀░▀░▀░░░░▀░░▀▀▀░░░▀░▀░▀▀░░▀░░
+*/
 
 doc_from_rdf(Rdf_Graph) :-
 	findall((X,Y,Z),
@@ -240,6 +257,8 @@ node_rdf_vs_doc(
 		->	Float is float(Rat)
 		;	Rat is rationalize(Float)),!.
 
+/* todo vars */
+
 node_rdf_vs_doc(Atom, Atom)/* :- gtrace, writeq(Atom)*/.
 
 
@@ -252,6 +271,55 @@ doc_to_rdf(Rdf_Graph) :-
 			debug(doc, 'to_rdf:~q~n', [(X2,Y2,Z2)]),
 			rdf_assert(X2,Y2,Z2,Rdf_Graph)
 		),_).
+
+/*:- comment(lib:doc_to_rdf_all_graphs, "if necessary, modify to not wipe out whole rdf database and to check that G doesn't already exist */
+
+doc_to_rdf_all_graphs :-
+	rdf_retractall(_,_,_,_),
+	foreach(
+		docm(X,Y,Z,G),
+		(
+			triple_rdf_vs_doc((X2,Y2,Z2),(X,Y,Z)),
+			rdf_assert(X2,Y2,Z2,G)
+		)
+	).
+
+save_doc(/*-*/Fn, /*+*/Url) :-
+	report_file_path(loc(file_name, Fn), Url, loc(absolute_path,Path)),
+	Url = loc(absolute_url, Url_Value),
+	doc_to_rdf_all_graphs,
+	/* we'll possibly want different options for debugging dumps and for result output for excel */
+	rdf_save_turtle(Path, [sorted(true), base(Url_Value), canonize_numbers(true), abbreviate_literals(false), prefixes([rdf,rdfs,xsd,l,livestock])]),
+	rdf_retractall(_,_,_,Rdf_Graph).
+
+dump_doc2 :-
+	(	doc_dumping_enabled
+	->	save_doc('doc.n3', _)
+	;	true).
+
+
+/*
+we could control this with a thread select'ing some unix socket
+*/
+doc_dumping_enabled :-
+	current_prolog_flag(doc_dumping_enabled, true).
+
+
+
+/*
+░░▄▀░█▀▀░█▀█░█▀█░█░█░█▀▀░█▀█░▀█▀░█▀▀░█▀█░█▀▀░█▀▀░▀▄░
+░▀▄░░█░░░█░█░█░█░▀▄▀░█▀▀░█░█░░█░░█▀▀░█░█░█░░░█▀▀░░▄▀
+░░░▀░▀▀▀░▀▀▀░▀░▀░░▀░░▀▀▀░▀░▀░▀▀▀░▀▀▀░▀░▀░▀▀▀░▀▀▀░▀░░
+        \   ^__^
+         \  (oo)\_______
+            (__)\       )\/\
+                ||----w |
+                ||     ||
+*/
+
+doc_new_theory(T) :-
+	doc_new_uri(T),
+	doc_add(T, rdf:type, l:theory).
 
 
 :- rdf_meta request_has_property(r,r).
@@ -328,6 +396,7 @@ doc_add_value(S, P, V) :-
 	doc_add(S, P, Uri),
 	doc_add(Uri, rdf:value, V).
 
+
 /*
 user:goal_expansion(
 	vague_props(X, variable_names(Names))
@@ -337,16 +406,6 @@ user:goal_expansion(
 vague_doc(S,
 	compile_with_variable_names_preserved(X, variable_names(Names))),
 */
-
-
-
-
-
-
-
-
-
-
 
 
 /*
@@ -368,4 +427,58 @@ pondering a syntax for triples..
 	  	l:coord $>coord_inverse(<$, Opening_Balance),
 		l:ledger_account_name $>account_by_role('Accounts'/'Equity')];
 	*/
+
+
+/*
+ ┏╸╻ ╻┏┳┓╻     ╺┳╸┏━┓   ╺┳┓┏━┓┏━╸╺┓
+╺┫ ┏╋┛┃┃┃┃      ┃ ┃ ┃    ┃┃┃ ┃┃   ┣╸
+ ┗╸╹ ╹╹ ╹┗━╸╺━╸ ╹ ┗━┛╺━╸╺┻┛┗━┛┗━╸╺┛
+        \   ^__^
+         \  (oo)\_______
+            (__)\       )\/\
+                ||----w |
+                ||     ||
+*/
+
+
+/*
+represent xml in doc.
+*/
+
+request_xml_to_doc(Dom) :-
+	xml_to_doc(request_xml, [
+		balanceSheetRequest,
+		unitValues
+	], pid:request_xml, Dom).
+
+xml_to_doc(Prefix, Uris, Root, Dom) :-
+	b_setval(xml_to_doc_uris, Uris),
+	b_setval(xml_to_doc_uris_prefix, Prefix),
+	b_setval(xml_to_doc_uris_used, _),
+	xml_to_doc(Root, Dom).
+
+xml_to_doc(Root, Dom) :-
+	maplist(xml_to_doc(Root), Dom).
+
+xml_to_doc(Root, X) :-
+	atomic(X),
+	doc_add(Root, rdf:value, X).
+
+xml_to_doc(Root, element(Name, _Atts, Children)) :-
+	b_getval(xml_to_doc_uris, Uris),
+	b_getval(xml_to_doc_uris_used, Used),
+	b_getval(xml_to_doc_uris_prefix, Prefix),
+
+	(	member(Name, Uris)
+	->	(	rol_member(Name, Used)
+		->	throw_string('tag with name supposed to be docified as an uri already appeared')
+		;	(
+				Uri = Prefix:Name,
+				rol_add(Name, Used)
+			)
+		)
+	;	doc_new_uri(Uri)),
+
+	doc_add(Root, Name, Uri),
+	xml_to_doc(Uri, Children).
 

@@ -32,8 +32,7 @@ process_request_ledger2((Dom, Start_Date, End_Date), S_Transactions, Structured_
 	extract_account_hierarchy_from_request_dom(Dom, Accounts0),
 	extract_livestock_data_from_ledger_request(Dom),
 	/* Start_Date, End_Date to substitute of "opening", "closing" */
-	extract_default_currency(Dom, Default_Currency),
-	extract_exchange_rates(Dom, Start_Date, End_Date, Default_Currency, Exchange_Rates),
+	extract_exchange_rates(Dom, Start_Date, End_Date),
 	/* Start_Date_Atom in case of missing Date */
 	extract_bank_accounts(Dom),
 	extract_invoices_payable(Dom),
@@ -177,28 +176,24 @@ symlink_tmp_taxonomy_to_static_taxonomy(Unique_Taxonomy_Dir_Url) :-
 	
 */	
    
-extract_default_currency(Dom, Default_Currency) :-
-	inner_xml_throw(Dom, //reports/balanceSheetRequest/defaultCurrency/unitType, Default_Currency).
 
 extract_report_currency(Dom, Report_Currency) :-
 	inner_xml_throw(Dom, //reports/balanceSheetRequest/reportCurrency/unitType, Report_Currency).
 
 
 extract_cost_or_market(Dom, Cost_Or_Market) :-
-	(
-		inner_xml(Dom, //reports/balanceSheetRequest/costOrMarket, [Cost_Or_Market])
-	->
-		(
+	/*If an investment was held prior to the from date then it MUST have an opening market value if the reports are expressed in market rather than cost.You can't mix market value and cost in one set of reports. One or the other.
+	Market or Cost. M or C.
+	Cost value per unit will always be there if there are units of anything i.e. sheep for livestock trading or shares for Investments. But I suppose if you do not find any market values then assume cost basis.*/
+	(	inner_xml(Dom, //reports/balanceSheetRequest/costOrMarket, [Cost_Or_Market])
+	->	(
 			member(Cost_Or_Market, [cost, market])
-		->
-			true
-		;
-			throw_string('//reports/balanceSheetRequest/costOrMarket tag\'s content must be "cost" or "market"')
+		->	true
+		;	throw_string('//reports/balanceSheetRequest/costOrMarket tag\'s content must be "cost" or "market"')
 		)
-	;
-		Cost_Or_Market = market
-	).
-	
+	;	Cost_Or_Market = market).
+
+
 extract_output_dimensional_facts(Dom, Output_Dimensional_Facts) :-
 	(
 		inner_xml(Dom, //reports/balanceSheetRequest/outputDimensionalFacts, [Output_Dimensional_Facts])
