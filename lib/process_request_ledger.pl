@@ -252,30 +252,30 @@ extract_bank_opening_balances2(Bank_Account, Tx) :-
 	doc_value(Bank_Account, l:opening_balance, Opening_Balance),
 	request_has_property(l:start_date, Start_Date),
 	%add_days(Start_Date0, -1, Start_Date),
-	Tx = s_transaction(Start_Date, 'Historical_Earnings_Lump', [Opening_Balance], Bank_Account_Name, vector([]), _{desc1:'Historical_Earnings_Lump'}).
+	Tx = s_transaction(Start_Date, 'Historical_Earnings_Lump', [Opening_Balance], Bank_Account_Name, vector([]), _{desc2:'Historical_Earnings_Lump'}).
 
 extract_initial_gl(Txs) :-
-	(	doc(l:request, l:gl_ui, Gl)
+	(	doc(l:request, ic_ui:gl, Gl)
 	->	(
-			doc_value(Gl, l:default_currency, Default_Currency0),
+			doc_value(Gl, ic:default_currency, Default_Currency0),
 			atom_string(Default_Currency, Default_Currency0),
-			doc_value(Gl, l:items, List),
+			doc_value(Gl, ic:items, List),
 			doc_list_items(List, Items),
 			maplist(extract_initial_gl_tx(Default_Currency), Items, Txs)
 		)
 	;	Txs = []).
 
 extract_initial_gl_tx(Default_Currency, Item, Tx) :-
-	doc_value(Item, l:date, Date),
-	doc_value(Item, l:account, Account_String),
-	(	doc_value(Item, l:description, Description)
+	doc_value(Item, ic:date, Date),
+	doc_value(Item, ic:account, Account_String),
+	(	doc_value(Item, ic:description, Description)
 	->	true
 	;	Description = 'initial_GL'),
 	atom_string(Account, Account_String),
-	(	doc_value(Item, l:debit, Debit_String)
+	(	doc_value(Item, ic:debit, Debit_String)
 	->	vector_string(Default_Currency, debit, Debit_String, Debit_Vector)
 	;	Debit_Vector = []),
-	(	doc_value(Item, l:credit, Credit_String)
+	(	doc_value(Item, ic:credit, Credit_String)
 	->	vector_string(Default_Currency, credit, Credit_String, Credit_Vector)
 	;	Credit_Vector = []),
 	append(Debit_Vector, Credit_Vector, Vector),
