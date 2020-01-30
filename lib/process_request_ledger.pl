@@ -252,7 +252,7 @@ extract_bank_opening_balances2(Bank_Account, Tx) :-
 	doc_value(Bank_Account, l:opening_balance, Opening_Balance),
 	request_has_property(l:start_date, Start_Date),
 	%add_days(Start_Date0, -1, Start_Date),
-	Tx = s_transaction(Start_Date, 'Historical_Earnings_Lump', [Opening_Balance], Bank_Account_Name, vector([]), _{desc2:'Historical_Earnings_Lump'}).
+	Tx = s_transaction(Start_Date, 'Historical_Earnings_Lump', [Opening_Balance], Bank_Account_Name, vector([]), misc{desc2:'Historical_Earnings_Lump'}).
 
 extract_initial_gl(Txs) :-
 	(	doc(l:request, ic_ui:gl, Gl)
@@ -268,6 +268,7 @@ extract_initial_gl(Txs) :-
 extract_initial_gl_tx(Default_Currency, Item, Tx) :-
 	doc_value(Item, ic:date, Date),
 	doc_value(Item, ic:account, Account_String),
+	/*fixme, support multiple description fields in transaction */
 	(	doc_value(Item, ic:description, Description)
 	->	true
 	;	Description = 'initial_GL'),

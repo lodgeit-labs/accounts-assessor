@@ -190,7 +190,7 @@ extract_s_transaction2(Tx_Dom, Account_Currency, Account, Start_Date, ST) :-
 	parse_date(Date_Atom, Date),
 	Dr is rationalize(Bank_Debit - Bank_Credit),
 	Coord = coord(Account_Currency, Dr),
-	ST = s_transaction(Date, Desc1, [Coord], Account, Exchanged, _{desc2:Desc2}),
+	ST = s_transaction(Date, Desc1, [Coord], Account, Exchanged, misc{desc2:Desc2}),
 	extract_exchanged_value(Tx_Dom, Account_Currency, Dr, Exchanged).
 
 extract_exchanged_value(Tx_Dom, _Account_Currency, Bank_Dr, Exchanged) :-
@@ -309,7 +309,7 @@ german_bank_csv_row(Account, Currency, Row, S_Transaction) :-
 			Exchanged2 = vector(E2)
 		)
 	),
-	S_Transaction = s_transaction(Date, Verb, Vector, Account, Exchanged2, _{desc2:Description,desc3:Description_Column2}).
+	S_Transaction = s_transaction(Date, Verb, Vector, Account, Exchanged2, misc{desc2:Description,desc3:Description_Column2}).
 
 german_bank_money(Money_Atom0, Money_Number) :-
 	filter_out_chars_from_atom(([X]>>(X == '\'')), Money_Atom0, Money_Atom1),

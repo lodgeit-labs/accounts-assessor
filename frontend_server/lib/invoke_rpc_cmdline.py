@@ -76,7 +76,8 @@ def run(request_files, dev_runner_options, prolog_flags, server_url):
 
 def call_rpc(msg, dev_runner_options=[], prolog_flags='true'):
 	os.chdir(git("server_root"))
-	cmd0 = ['swipl', '-s', git("lib/dev_runner.pl"),'--problem_lines_whitelist',git("misc/problem_lines_whitelist"),"-s", git("lib/debug_rpc.pl")]
+	swipl = ['swipl']# + shlex.split('-G100g -T20g -L2g')
+	cmd0 = swipl + ['-s', git("lib/dev_runner.pl"),'--problem_lines_whitelist',git("misc/problem_lines_whitelist"),"-s", git("lib/debug_rpc.pl")]
 	cmd1 = dev_runner_options
 	cmd2 = ['-g', prolog_flags + ',lib:process_request_rpc_cmdline']
 	cmd = cmd0 + cmd1 + cmd2
