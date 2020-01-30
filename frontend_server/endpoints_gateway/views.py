@@ -35,7 +35,11 @@ def upload(request):
 
 	requested_output_format = params.get('requested_output_format', 'json_reports_list')
 	server_url = request._current_scheme_host
-	prolog_flags = """set_prolog_flag(services_server,'""" + settings.MY_SERVICES_SERVER_URL + """')"""
+	MY_SERVICES_SERVER_URL = settings.MY_SERVICES_SERVER_URL
+	if MY_SERVICES_SERVER_URL == None:
+		# fixme, idk how to pass settings or env vars from mod_wsgi
+		MY_SERVICES_SERVER_URL ="http://localhost:17768"
+	prolog_flags = """set_prolog_flag(services_server,'""" + MY_SERVICES_SERVER_URL + """')"""
 
 	if request.method == 'POST':
 		#print(request.FILES)
