@@ -1,0 +1,1656 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db1">
+    <rdf:first rdf:nodeID="ub1bL31C3"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db1">
+    <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db10">
+    <rdf:first rdf:nodeID="ub1bL83C3"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db10">
+    <rdf:rest rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db11"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db11">
+    <rdf:first rdf:nodeID="ub1bL85C3"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db11">
+    <rdf:rest rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db12"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db12">
+    <rdf:first rdf:nodeID="ub1bL87C3"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db12">
+    <rdf:rest rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db13"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db13">
+    <rdf:first rdf:nodeID="ub1bL89C3"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db13">
+    <rdf:rest rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db14"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db14">
+    <rdf:first rdf:nodeID="ub1bL91C3"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db14">
+    <rdf:rest rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db15"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db15">
+    <rdf:first rdf:nodeID="ub1bL93C3"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db15">
+    <rdf:rest rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db16"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db16">
+    <rdf:first rdf:nodeID="ub1bL95C3"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db16">
+    <rdf:rest rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db17"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db17">
+    <rdf:first rdf:nodeID="ub1bL97C3"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db17">
+    <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db18">
+    <rdf:first rdf:nodeID="ub1bL113C3"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db18">
+    <rdf:rest rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db19"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db19">
+    <rdf:first rdf:nodeID="ub1bL115C3"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db19">
+    <rdf:rest rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db20"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db2">
+    <rdf:first rdf:nodeID="ub1bL57C3"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db2">
+    <rdf:rest rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db3"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db20">
+    <rdf:first rdf:nodeID="ub1bL117C3"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db20">
+    <rdf:rest rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db21"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db21">
+    <rdf:first rdf:nodeID="ub1bL119C3"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db21">
+    <rdf:rest rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db22"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db22">
+    <rdf:first rdf:nodeID="ub1bL121C3"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db22">
+    <rdf:rest rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db23"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db23">
+    <rdf:first rdf:nodeID="ub1bL123C3"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db23">
+    <rdf:rest rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db24"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db24">
+    <rdf:first rdf:nodeID="ub1bL125C3"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db24">
+    <rdf:rest rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db25"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db25">
+    <rdf:first rdf:nodeID="ub1bL127C3"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db25">
+    <rdf:rest rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db26"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db26">
+    <rdf:first rdf:nodeID="ub1bL129C3"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db26">
+    <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db27">
+    <rdf:first rdf:nodeID="ub1bL140C3"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db27">
+    <rdf:rest rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db28"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db28">
+    <rdf:first rdf:nodeID="ub1bL145C3"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db28">
+    <rdf:rest rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db29"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db29">
+    <rdf:first rdf:nodeID="ub1bL150C3"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db29">
+    <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db3">
+    <rdf:first rdf:nodeID="ub1bL60C3"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db3">
+    <rdf:rest rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db4"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db30">
+    <rdf:first rdf:nodeID="ub1bL158C2"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db30">
+    <rdf:rest rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db31"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db31">
+    <rdf:first rdf:nodeID="ub1bL167C2"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db31">
+    <rdf:rest rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db32"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db32">
+    <rdf:first rdf:nodeID="ub1bL178C2"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db32">
+    <rdf:rest rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db33"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db33">
+    <rdf:first rdf:nodeID="ub1bL187C2"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db33">
+    <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db34">
+    <rdf:first rdf:nodeID="ub1bL202C2"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db34">
+    <rdf:rest rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db35"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db35">
+    <rdf:first rdf:nodeID="ub1bL211C2"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db35">
+    <rdf:rest rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db36"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db36">
+    <rdf:first rdf:nodeID="ub1bL220C2"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db36">
+    <rdf:rest rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db37"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db37">
+    <rdf:first rdf:nodeID="ub1bL227C2"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db37">
+    <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db38">
+    <rdf:first rdf:nodeID="ub1bL237C2"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db38">
+    <rdf:rest rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db39"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db39">
+    <rdf:first rdf:nodeID="ub1bL246C2"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db39">
+    <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db4">
+    <rdf:first rdf:nodeID="ub1bL63C3"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db4">
+    <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db40">
+    <rdf:first rdf:nodeID="ub1bL281C3"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db40">
+    <rdf:rest rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db41"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db41">
+    <rdf:first rdf:nodeID="ub1bL282C3"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db41">
+    <rdf:rest rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db42"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db42">
+    <rdf:first rdf:nodeID="ub1bL283C3"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db42">
+    <rdf:rest rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db43"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db43">
+    <rdf:first rdf:nodeID="ub1bL284C3"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db43">
+    <rdf:rest rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db44"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db44">
+    <rdf:first rdf:nodeID="ub1bL285C3"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db44">
+    <rdf:rest rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db45"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db45">
+    <rdf:first rdf:nodeID="ub1bL286C3"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db45">
+    <rdf:rest rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db46"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db46">
+    <rdf:first rdf:nodeID="ub1bL287C3"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db46">
+    <rdf:rest rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db47"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db47">
+    <rdf:first rdf:nodeID="ub1bL288C3"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db47">
+    <rdf:rest rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db48"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db48">
+    <rdf:first rdf:nodeID="ub1bL289C3"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db48">
+    <rdf:rest rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db49"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db49">
+    <rdf:first rdf:nodeID="ub1bL290C3"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db49">
+    <rdf:rest rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db50"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db5">
+    <rdf:first rdf:nodeID="ub1bL75C3"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db5">
+    <rdf:rest rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db6"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db50">
+    <rdf:first rdf:nodeID="ub1bL291C3"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db50">
+    <rdf:rest rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db51"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db51">
+    <rdf:first rdf:nodeID="ub1bL292C3"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db51">
+    <rdf:rest rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db52"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db52">
+    <rdf:first rdf:nodeID="ub1bL293C3"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db52">
+    <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db53">
+    <rdf:first rdf:nodeID="ub1bL304C3"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db53">
+    <rdf:rest rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db54"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db54">
+    <rdf:first rdf:nodeID="ub1bL305C3"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db54">
+    <rdf:rest rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db55"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db55">
+    <rdf:first rdf:nodeID="ub1bL306C3"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db55">
+    <rdf:rest rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db56"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db56">
+    <rdf:first rdf:nodeID="ub1bL307C3"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db56">
+    <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db57">
+    <rdf:first rdf:nodeID="ub1bL317C3"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db57">
+    <rdf:rest rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db58"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db58">
+    <rdf:first rdf:nodeID="ub1bL318C3"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db58">
+    <rdf:rest rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db59"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db59">
+    <rdf:first rdf:nodeID="ub1bL319C3"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db59">
+    <rdf:rest rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db60"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db6">
+    <rdf:first rdf:nodeID="ub1bL76C3"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db6">
+    <rdf:rest rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db7"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db60">
+    <rdf:first rdf:nodeID="ub1bL320C3"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db60">
+    <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db61">
+    <rdf:first rdf:nodeID="ub1bL334C7"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db61">
+    <rdf:rest rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db62"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db62">
+    <rdf:first rdf:nodeID="ub1bL339C7"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db62">
+    <rdf:rest rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db63"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db63">
+    <rdf:first rdf:nodeID="ub1bL344C7"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db63">
+    <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db64">
+    <rdf:first rdf:nodeID="ub1bL327C3"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db64">
+    <rdf:rest rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db65"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db65">
+    <rdf:first rdf:nodeID="ub1bL353C3"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db65">
+    <rdf:rest rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db66"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db66">
+    <rdf:first rdf:nodeID="ub1bL361C3"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db66">
+    <rdf:rest rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db67"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db67">
+    <rdf:first rdf:nodeID="ub1bL369C3"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db67">
+    <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db68">
+    <rdf:first rdf:nodeID="ub1bL385C3"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db68">
+    <rdf:rest rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db69"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db69">
+    <rdf:first rdf:nodeID="ub1bL386C3"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db69">
+    <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db7">
+    <rdf:first rdf:nodeID="ub1bL77C3"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db7">
+    <rdf:rest rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db8"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db70">
+    <rdf:first rdf:nodeID="ub1bL395C3"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db70">
+    <rdf:rest rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db71"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db71">
+    <rdf:first rdf:nodeID="ub1bL396C3"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db71">
+    <rdf:rest rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db72"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db72">
+    <rdf:first rdf:nodeID="ub1bL397C3"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db72">
+    <rdf:rest rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db73"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db73">
+    <rdf:first rdf:nodeID="ub1bL398C3"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db73">
+    <rdf:rest rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db74"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db74">
+    <rdf:first rdf:nodeID="ub1bL399C3"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db74">
+    <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db75">
+    <rdf:first rdf:nodeID="ub1bL406C3"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db75">
+    <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db76">
+    <rdf:first rdf:nodeID="ub1bL413C3"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db76">
+    <rdf:rest rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db77"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db77">
+    <rdf:first rdf:nodeID="ub1bL414C3"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db77">
+    <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db78">
+    <rdf:first rdf:nodeID="ub1bL421C3"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db78">
+    <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db8">
+    <rdf:first rdf:nodeID="ub1bL79C3"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db8">
+    <rdf:rest rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db9"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db9">
+    <rdf:first rdf:nodeID="ub1bL81C3"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db9">
+    <rdf:rest rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db10"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL108C17">
+    <ns0:col xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#">E</ns0:col>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL108C17">
+    <ns0:row xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#">20</ns0:row>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL113C3">
+    <ns0:property xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="https://rdf.lodgeit.net.au/v1/calcs/hp#installment_number"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL113C3">
+    <ns0:type xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="http://www.w3.org/2001/XMLSchema#integer"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL115C3">
+    <ns0:property xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="https://rdf.lodgeit.net.au/v1/calcs/hp#opening_date"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL115C3">
+    <ns0:type xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="http://www.w3.org/2001/XMLSchema#dateTime"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL117C3">
+    <ns0:property xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="https://rdf.lodgeit.net.au/v1/calcs/hp#opening_balance"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL117C3">
+    <ns0:type xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="http://www.w3.org/2001/XMLSchema#decimal"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL119C3">
+    <ns0:property xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="https://rdf.lodgeit.net.au/v1/calcs/hp#interest_amount"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL119C3">
+    <ns0:type xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="http://www.w3.org/2001/XMLSchema#decimal"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL121C3">
+    <ns0:property xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="https://rdf.lodgeit.net.au/v1/calcs/hp#installment_amount"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL121C3">
+    <ns0:type xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="http://www.w3.org/2001/XMLSchema#decimal"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL123C3">
+    <ns0:property xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="https://rdf.lodgeit.net.au/v1/calcs/hp#closing_date"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL123C3">
+    <ns0:type xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="http://www.w3.org/2001/XMLSchema#dateTime"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL125C3">
+    <ns0:property xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="https://rdf.lodgeit.net.au/v1/calcs/hp#closing_balance"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL125C3">
+    <ns0:type xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="http://www.w3.org/2001/XMLSchema#decimal"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL127C3">
+    <ns0:property xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="https://rdf.lodgeit.net.au/v1/calcs/hp#total_repayments_through_period"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL127C3">
+    <ns0:type xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="http://www.w3.org/2001/XMLSchema#decimal"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL129C3">
+    <ns0:property xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="https://rdf.lodgeit.net.au/v1/calcs/hp#total_interest_payments_through_period"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL129C3">
+    <ns0:type xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="http://www.w3.org/2001/XMLSchema#decimal"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL140C3">
+    <ns0:name_prefix xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#">depreciation_queries</ns0:name_prefix>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL140C3">
+    <ns0:root xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="https://rdf.lodgeit.net.au/v1/calcs/depr/ui#depreciation_queries"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL140C3">
+    <ns0:example_doc xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="https://rdf.lodgeit.net.au/v1/calcs/depr/ui#depreciation_example_queries"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL145C3">
+    <ns0:name_prefix xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#">depreciation_events</ns0:name_prefix>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL145C3">
+    <ns0:root xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="https://rdf.lodgeit.net.au/v1/calcs/depr/ui#depreciation_events"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL145C3">
+    <ns0:example_doc xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="https://rdf.lodgeit.net.au/v1/calcs/depr/ui#depreciation_example_events"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL150C3">
+    <ns0:name_prefix xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#">depreciation_assets</ns0:name_prefix>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL150C3">
+    <ns0:root xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="https://rdf.lodgeit.net.au/v1/calcs/depr/ui#depreciation_assets"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL150C3">
+    <ns0:example_doc xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="https://rdf.lodgeit.net.au/v1/calcs/depr/ui#depreciation_example_assets"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL158C2">
+    <rdf:type rdf:resource="https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_query"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL158C2">
+    <ns0:depreciation_query_has_type xmlns:ns0="https://rdf.lodgeit.net.au/v1/calcs/depr#" rdf:nodeID="ub1bL159C36"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL158C2">
+    <ns0:depreciation_query_method xmlns:ns0="https://rdf.lodgeit.net.au/v1/calcs/depr#" rdf:nodeID="ub1bL161C34"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL158C2">
+    <ns0:depreciation_query_pool xmlns:ns0="https://rdf.lodgeit.net.au/v1/calcs/depr#" rdf:nodeID="ub1bL163C32"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL158C2">
+    <ns0:depreciation_query_to_date xmlns:ns0="https://rdf.lodgeit.net.au/v1/calcs/depr#" rdf:nodeID="ub1bL165C35"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL159C36">
+    <rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#value"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL159C36">
+    <rdf:value rdf:resource="https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_pool_from_start"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL161C34">
+    <rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#value"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL161C34">
+    <rdf:value rdf:datatype="http://www.w3.org/2001/XMLSchema#string">diminishing_value</rdf:value>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL163C32">
+    <rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#value"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL163C32">
+    <rdf:value rdf:datatype="http://www.w3.org/2001/XMLSchema#string">general_pool</rdf:value>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL165C35">
+    <rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#value"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL165C35">
+    <rdf:value rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2019-02-02T00:00:00</rdf:value>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL167C2">
+    <rdf:type rdf:resource="https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_query"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL167C2">
+    <ns0:depreciation_query_asset_id xmlns:ns0="https://rdf.lodgeit.net.au/v1/calcs/depr#" rdf:nodeID="ub1bL168C36"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL167C2">
+    <ns0:depreciation_query_from_date xmlns:ns0="https://rdf.lodgeit.net.au/v1/calcs/depr#" rdf:nodeID="ub1bL170C37"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL167C2">
+    <ns0:depreciation_query_has_type xmlns:ns0="https://rdf.lodgeit.net.au/v1/calcs/depr#" rdf:nodeID="ub1bL172C36"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL167C2">
+    <ns0:depreciation_query_method xmlns:ns0="https://rdf.lodgeit.net.au/v1/calcs/depr#" rdf:nodeID="ub1bL174C34"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL167C2">
+    <ns0:depreciation_query_to_date xmlns:ns0="https://rdf.lodgeit.net.au/v1/calcs/depr#" rdf:nodeID="ub1bL176C35"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL168C36">
+    <rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#value"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL168C36">
+    <rdf:value rdf:datatype="http://www.w3.org/2001/XMLSchema#string">car456</rdf:value>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL170C37">
+    <rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#value"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL170C37">
+    <rdf:value rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2017-06-01T00:00:00</rdf:value>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL172C36">
+    <rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#value"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL172C36">
+    <rdf:value rdf:resource="https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_between_two_dates"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL174C34">
+    <rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#value"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL174C34">
+    <rdf:value rdf:datatype="http://www.w3.org/2001/XMLSchema#string">diminishing_value</rdf:value>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL176C35">
+    <rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#value"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL176C35">
+    <rdf:value rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2019-02-02T00:00:00</rdf:value>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL178C2">
+    <rdf:type rdf:resource="https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_query"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL178C2">
+    <ns0:depreciation_query_asset_id xmlns:ns0="https://rdf.lodgeit.net.au/v1/calcs/depr#" rdf:nodeID="ub1bL179C36"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL178C2">
+    <ns0:depreciation_query_has_type xmlns:ns0="https://rdf.lodgeit.net.au/v1/calcs/depr#" rdf:nodeID="ub1bL181C36"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL178C2">
+    <ns0:depreciation_query_method xmlns:ns0="https://rdf.lodgeit.net.au/v1/calcs/depr#" rdf:nodeID="ub1bL183C34"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL178C2">
+    <ns0:depreciation_query_written_down_date xmlns:ns0="https://rdf.lodgeit.net.au/v1/calcs/depr#" rdf:nodeID="ub1bL185C45"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL179C36">
+    <rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#value"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL179C36">
+    <rdf:value rdf:datatype="http://www.w3.org/2001/XMLSchema#string">car123</rdf:value>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL181C36">
+    <rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#value"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL181C36">
+    <rdf:value rdf:resource="https://rdf.lodgeit.net.au/v1/calcs/depr#written_down_value"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL183C34">
+    <rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#value"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL183C34">
+    <rdf:value rdf:datatype="http://www.w3.org/2001/XMLSchema#string">diminishing_value</rdf:value>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL185C45">
+    <rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#value"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL185C45">
+    <rdf:value rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2017-06-01T00:00:00</rdf:value>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL187C2">
+    <rdf:type rdf:resource="https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_query"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL187C2">
+    <ns0:depreciation_query_asset_id xmlns:ns0="https://rdf.lodgeit.net.au/v1/calcs/depr#" rdf:nodeID="ub1bL188C36"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL187C2">
+    <ns0:depreciation_query_has_type xmlns:ns0="https://rdf.lodgeit.net.au/v1/calcs/depr#" rdf:nodeID="ub1bL190C36"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL187C2">
+    <ns0:depreciation_query_method xmlns:ns0="https://rdf.lodgeit.net.au/v1/calcs/depr#" rdf:nodeID="ub1bL192C34"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL187C2">
+    <ns0:depreciation_query_termination_date xmlns:ns0="https://rdf.lodgeit.net.au/v1/calcs/depr#" rdf:nodeID="ub1bL194C44"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL187C2">
+    <ns0:depreciation_query_termination_value xmlns:ns0="https://rdf.lodgeit.net.au/v1/calcs/depr#" rdf:nodeID="ub1bL196C45"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL188C36">
+    <rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#value"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL188C36">
+    <rdf:value rdf:datatype="http://www.w3.org/2001/XMLSchema#string">car123</rdf:value>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL190C36">
+    <rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#value"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL190C36">
+    <rdf:value rdf:resource="https://rdf.lodgeit.net.au/v1/calcs/depr#profit_and_loss"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL192C34">
+    <rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#value"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL192C34">
+    <rdf:value rdf:datatype="http://www.w3.org/2001/XMLSchema#string">diminishing_value</rdf:value>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL194C44">
+    <rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#value"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL194C44">
+    <rdf:value rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2019-07-07T00:00:00</rdf:value>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL196C45">
+    <rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#value"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL196C45">
+    <rdf:value rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">500</rdf:value>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL202C2">
+    <rdf:type rdf:resource="https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_event"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL202C2">
+    <ns0:depreciation_event_asset xmlns:ns0="https://rdf.lodgeit.net.au/v1/calcs/depr#" rdf:nodeID="ub1bL203C32"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL202C2">
+    <ns0:depreciation_event_date xmlns:ns0="https://rdf.lodgeit.net.au/v1/calcs/depr#" rdf:nodeID="ub1bL205C31"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL202C2">
+    <ns0:depreciation_event_has_type xmlns:ns0="https://rdf.lodgeit.net.au/v1/calcs/depr#" rdf:nodeID="ub1bL207C35"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL202C2">
+    <ns0:depreciation_event_pool xmlns:ns0="https://rdf.lodgeit.net.au/v1/calcs/depr#" rdf:nodeID="ub1bL209C31"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL203C32">
+    <rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#value"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL203C32">
+    <rdf:value rdf:datatype="http://www.w3.org/2001/XMLSchema#string">car123</rdf:value>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL205C31">
+    <rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#value"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL205C31">
+    <rdf:value rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2017-06-01T00:00:00</rdf:value>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL207C35">
+    <rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#value"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL207C35">
+    <rdf:value rdf:resource="https://rdf.lodgeit.net.au/v1/calcs/depr#transfer_asset_to_pool"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL209C31">
+    <rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#value"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL209C31">
+    <rdf:value rdf:datatype="http://www.w3.org/2001/XMLSchema#string">general_pool</rdf:value>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL211C2">
+    <rdf:type rdf:resource="https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_event"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL211C2">
+    <ns0:depreciation_event_asset xmlns:ns0="https://rdf.lodgeit.net.au/v1/calcs/depr#" rdf:nodeID="ub1bL212C32"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL211C2">
+    <ns0:depreciation_event_date xmlns:ns0="https://rdf.lodgeit.net.au/v1/calcs/depr#" rdf:nodeID="ub1bL214C31"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL211C2">
+    <ns0:depreciation_event_has_type xmlns:ns0="https://rdf.lodgeit.net.au/v1/calcs/depr#" rdf:nodeID="ub1bL216C35"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL211C2">
+    <ns0:depreciation_event_pool xmlns:ns0="https://rdf.lodgeit.net.au/v1/calcs/depr#" rdf:nodeID="ub1bL218C31"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL212C32">
+    <rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#value"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL212C32">
+    <rdf:value rdf:datatype="http://www.w3.org/2001/XMLSchema#string">car456</rdf:value>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL214C31">
+    <rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#value"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL214C31">
+    <rdf:value rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2017-08-01T00:00:00</rdf:value>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL216C35">
+    <rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#value"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL216C35">
+    <rdf:value rdf:resource="https://rdf.lodgeit.net.au/v1/calcs/depr#transfer_asset_to_pool"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL218C31">
+    <rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#value"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL218C31">
+    <rdf:value rdf:datatype="http://www.w3.org/2001/XMLSchema#string">general_pool</rdf:value>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL220C2">
+    <rdf:type rdf:resource="https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_event"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL220C2">
+    <ns0:depreciation_event_asset xmlns:ns0="https://rdf.lodgeit.net.au/v1/calcs/depr#" rdf:nodeID="ub1bL221C32"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL220C2">
+    <ns0:depreciation_event_date xmlns:ns0="https://rdf.lodgeit.net.au/v1/calcs/depr#" rdf:nodeID="ub1bL223C31"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL220C2">
+    <ns0:depreciation_event_has_type xmlns:ns0="https://rdf.lodgeit.net.au/v1/calcs/depr#" rdf:nodeID="ub1bL225C35"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL221C32">
+    <rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#value"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL221C32">
+    <rdf:value rdf:datatype="http://www.w3.org/2001/XMLSchema#string">car123</rdf:value>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL223C31">
+    <rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#value"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL223C31">
+    <rdf:value rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2021-06-01T00:00:00</rdf:value>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL225C35">
+    <rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#value"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL225C35">
+    <rdf:value rdf:resource="https://rdf.lodgeit.net.au/v1/calcs/depr#asset_disposal"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL227C2">
+    <rdf:type rdf:resource="https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_event"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL227C2">
+    <ns0:depreciation_event_asset xmlns:ns0="https://rdf.lodgeit.net.au/v1/calcs/depr#" rdf:nodeID="ub1bL228C32"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL227C2">
+    <ns0:depreciation_event_date xmlns:ns0="https://rdf.lodgeit.net.au/v1/calcs/depr#" rdf:nodeID="ub1bL230C31"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL227C2">
+    <ns0:depreciation_event_has_type xmlns:ns0="https://rdf.lodgeit.net.au/v1/calcs/depr#" rdf:nodeID="ub1bL232C35"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL228C32">
+    <rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#value"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL228C32">
+    <rdf:value rdf:datatype="http://www.w3.org/2001/XMLSchema#string">car456</rdf:value>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL230C31">
+    <rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#value"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL230C31">
+    <rdf:value rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2020-07-31T00:00:00</rdf:value>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL232C35">
+    <rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#value"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL232C35">
+    <rdf:value rdf:resource="https://rdf.lodgeit.net.au/v1/calcs/depr#asset_disposal"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL237C2">
+    <rdf:type rdf:resource="https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_asset"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL237C2">
+    <ns0:cost xmlns:ns0="https://rdf.lodgeit.net.au/v1/calcs/depr#" rdf:nodeID="ub1bL238C12"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL237C2">
+    <ns0:effective_life_years xmlns:ns0="https://rdf.lodgeit.net.au/v1/calcs/depr#" rdf:nodeID="ub1bL240C28"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL237C2">
+    <ns0:id xmlns:ns0="https://rdf.lodgeit.net.au/v1/calcs/depr#" rdf:nodeID="ub1bL242C10"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL237C2">
+    <ns0:start_date xmlns:ns0="https://rdf.lodgeit.net.au/v1/calcs/depr#" rdf:nodeID="ub1bL244C18"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL238C12">
+    <rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#value"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL238C12">
+    <rdf:value rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">1000</rdf:value>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL240C28">
+    <rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#value"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL240C28">
+    <rdf:value rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">5</rdf:value>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL242C10">
+    <rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#value"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL242C10">
+    <rdf:value rdf:datatype="http://www.w3.org/2001/XMLSchema#string">car123</rdf:value>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL244C18">
+    <rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#value"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL244C18">
+    <rdf:value rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2017-05-01T00:00:00</rdf:value>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL246C2">
+    <rdf:type rdf:resource="https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_asset"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL246C2">
+    <ns0:cost xmlns:ns0="https://rdf.lodgeit.net.au/v1/calcs/depr#" rdf:nodeID="ub1bL247C12"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL246C2">
+    <ns0:effective_life_years xmlns:ns0="https://rdf.lodgeit.net.au/v1/calcs/depr#" rdf:nodeID="ub1bL249C28"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL246C2">
+    <ns0:id xmlns:ns0="https://rdf.lodgeit.net.au/v1/calcs/depr#" rdf:nodeID="ub1bL251C10"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL246C2">
+    <ns0:start_date xmlns:ns0="https://rdf.lodgeit.net.au/v1/calcs/depr#" rdf:nodeID="ub1bL253C18"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL247C12">
+    <rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#value"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL247C12">
+    <rdf:value rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">2000</rdf:value>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL249C28">
+    <rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#value"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL249C28">
+    <rdf:value rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">8</rdf:value>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL251C10">
+    <rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#value"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL251C10">
+    <rdf:value rdf:datatype="http://www.w3.org/2001/XMLSchema#string">car456</rdf:value>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL253C18">
+    <rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#value"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL253C18">
+    <rdf:value rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2015-03-16T00:00:00</rdf:value>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL277C17">
+    <ns0:col xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#">A</ns0:col>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL277C17">
+    <ns0:row xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#">1</ns0:row>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL281C3">
+    <ns0:property xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_query_has_type"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL281C3">
+    <ns0:type xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="https://rdf.lodgeit.net.au/v1/excel#uri"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL282C3">
+    <ns0:property xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_query_asset_id"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL283C3">
+    <ns0:property xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_query_pool"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL284C3">
+    <ns0:property xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_query_from_date"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL284C3">
+    <ns0:type xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="http://www.w3.org/2001/XMLSchema#dateTime"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL285C3">
+    <ns0:property xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_query_to_date"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL285C3">
+    <ns0:type xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="http://www.w3.org/2001/XMLSchema#dateTime"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL286C3">
+    <ns0:property xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_query_written_down_date"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL286C3">
+    <ns0:type xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="http://www.w3.org/2001/XMLSchema#dateTime"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL287C3">
+    <ns0:property xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_query_method"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL288C3">
+    <ns0:property xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_query_termination_value"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL288C3">
+    <ns0:type xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="http://www.w3.org/2001/XMLSchema#decimal"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL289C3">
+    <ns0:property xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_query_termination_date"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL289C3">
+    <ns0:type xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="http://www.w3.org/2001/XMLSchema#dateTime"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL290C3">
+    <ns0:property xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_query_total_depreciation"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL290C3">
+    <ns0:type xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="http://www.w3.org/2001/XMLSchema#decimal"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL291C3">
+    <ns0:property xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_query_depreciation_value"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL291C3">
+    <ns0:type xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="http://www.w3.org/2001/XMLSchema#decimal"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL292C3">
+    <ns0:property xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_query_written_down_value"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL292C3">
+    <ns0:type xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="http://www.w3.org/2001/XMLSchema#decimal"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL293C3">
+    <ns0:property xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_query_profit_and_loss"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL293C3">
+    <ns0:type xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="http://www.w3.org/2001/XMLSchema#decimal"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL300C17">
+    <ns0:col xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#">A</ns0:col>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL300C17">
+    <ns0:row xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#">1</ns0:row>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL304C3">
+    <ns0:property xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_event_has_type"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL304C3">
+    <ns0:type xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="https://rdf.lodgeit.net.au/v1/excel#uri"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL305C3">
+    <ns0:property xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_event_asset"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL306C3">
+    <ns0:property xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_event_pool"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL307C3">
+    <ns0:property xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_event_date"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL307C3">
+    <ns0:type xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="http://www.w3.org/2001/XMLSchema#dateTime"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL313C17">
+    <ns0:col xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#">A</ns0:col>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL313C17">
+    <ns0:row xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#">1</ns0:row>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL317C3">
+    <ns0:property xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="https://rdf.lodgeit.net.au/v1/calcs/depr#id"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL318C3">
+    <ns0:property xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="https://rdf.lodgeit.net.au/v1/calcs/depr#start_date"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL318C3">
+    <ns0:type xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="http://www.w3.org/2001/XMLSchema#dateTime"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL319C3">
+    <ns0:property xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="https://rdf.lodgeit.net.au/v1/calcs/depr#cost"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL319C3">
+    <ns0:type xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="http://www.w3.org/2001/XMLSchema#decimal"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL31C3">
+    <ns0:name_prefix xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#">HP</ns0:name_prefix>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL31C3">
+    <ns0:root xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="https://rdf.lodgeit.net.au/v1/calcs/hp/ui#hp_calculator_query"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL31C3">
+    <ns0:example_doc xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:nodeID="ub1bL35C4"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL320C3">
+    <ns0:property xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="https://rdf.lodgeit.net.au/v1/calcs/depr#effective_life_years"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL320C3">
+    <ns0:type xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="http://www.w3.org/2001/XMLSchema#integer"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL327C3">
+    <ns0:name_prefix xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#">GL_input</ns0:name_prefix>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL327C3">
+    <ns0:root xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="https://rdf.lodgeit.net.au/v1/calcs/ic/ui#gl"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL327C3">
+    <ns0:optional xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</ns0:optional>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL327C3">
+    <ns0:example_doc xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:nodeID="ub1bL332C5"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL332C27">
+    <rdf:value>AUD</rdf:value>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL332C5">
+    <ns0:default_currency xmlns:ns0="https://rdf.lodgeit.net.au/v1/calcs/ic#" rdf:nodeID="ub1bL332C27"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL332C5">
+    <ns0:items xmlns:ns0="https://rdf.lodgeit.net.au/v1/calcs/ic#" rdf:nodeID="ub1bL333C15"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL333C15">
+    <rdf:value rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db61"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL334C7">
+    <ns0:date xmlns:ns0="https://rdf.lodgeit.net.au/v1/calcs/ic#" rdf:nodeID="ub1bL335C16"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL334C7">
+    <ns0:account xmlns:ns0="https://rdf.lodgeit.net.au/v1/calcs/ic#" rdf:nodeID="ub1bL336C19"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL334C7">
+    <ns0:debit xmlns:ns0="https://rdf.lodgeit.net.au/v1/calcs/ic#" rdf:nodeID="ub1bL337C17"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL335C16">
+    <rdf:value rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2019-10-10T00:00:00</rdf:value>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL336C19">
+    <rdf:value>Assets</rdf:value>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL337C17">
+    <rdf:value>USD 500</rdf:value>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL339C7">
+    <ns0:date xmlns:ns0="https://rdf.lodgeit.net.au/v1/calcs/ic#" rdf:nodeID="ub1bL340C16"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL339C7">
+    <ns0:account xmlns:ns0="https://rdf.lodgeit.net.au/v1/calcs/ic#" rdf:nodeID="ub1bL341C19"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL339C7">
+    <ns0:credit xmlns:ns0="https://rdf.lodgeit.net.au/v1/calcs/ic#" rdf:nodeID="ub1bL342C18"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL340C16">
+    <rdf:value rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2019-10-10T00:00:00</rdf:value>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL341C19">
+    <rdf:value>Revenue</rdf:value>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL342C18">
+    <rdf:value>600</rdf:value>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL344C7">
+    <ns0:date xmlns:ns0="https://rdf.lodgeit.net.au/v1/calcs/ic#" rdf:nodeID="ub1bL345C16"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL344C7">
+    <ns0:account xmlns:ns0="https://rdf.lodgeit.net.au/v1/calcs/ic#" rdf:nodeID="ub1bL346C19"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL344C7">
+    <ns0:debit xmlns:ns0="https://rdf.lodgeit.net.au/v1/calcs/ic#" rdf:nodeID="ub1bL347C17"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL344C7">
+    <ns0:credit xmlns:ns0="https://rdf.lodgeit.net.au/v1/calcs/ic#" rdf:nodeID="ub1bL348C18"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL345C16">
+    <rdf:value rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2019-10-10T00:00:00</rdf:value>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL346C19">
+    <rdf:value>CurrencyMovement</rdf:value>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL347C17">
+    <rdf:value>600 AUD</rdf:value>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL348C18">
+    <rdf:value>500 USD</rdf:value>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL353C3">
+    <ns0:root xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="https://rdf.lodgeit.net.au/v1/calcs/ic/ui#account_taxonomies"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL353C3">
+    <ns0:optional xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</ns0:optional>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL353C3">
+    <ns0:example_doc xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:nodeID="ub1bL357C5"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL357C5">
+    <rdf:value rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL35C4">
+    <ns0:begin_date xmlns:ns0="https://rdf.lodgeit.net.au/v1/calcs/hp#" rdf:nodeID="ub1bL36C19"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL35C4">
+    <ns0:hp_contract xmlns:ns0="https://rdf.lodgeit.net.au/v1/calcs/hp#" rdf:nodeID="ub1bL37C20"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL361C3">
+    <ns0:root xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="https://rdf.lodgeit.net.au/v1/calcs/ic/ui#account_roles"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL361C3">
+    <ns0:optional xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</ns0:optional>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL361C3">
+    <ns0:example_doc xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:nodeID="ub1bL365C5"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL365C5">
+    <rdf:value rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL369C3">
+    <ns0:root xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="https://rdf.lodgeit.net.au/v1/calcs/ic/ui#additional_files"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL369C3">
+    <ns0:optional xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</ns0:optional>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL369C3">
+    <ns0:example_doc xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:nodeID="ub1bL373C5"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL36C19">
+    <rdf:value rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2019-10-10T00:00:00</rdf:value>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL373C5">
+    <rdf:value rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL37C20">
+    <rdf:type rdf:resource="https://rdf.lodgeit.net.au/v1/calcs/hp#hp_contract"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL37C20">
+    <ns0:contract_number xmlns:ns0="https://rdf.lodgeit.net.au/v1/calcs/hp#" rdf:nodeID="ub1bL39C25"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL37C20">
+    <ns0:currency xmlns:ns0="https://rdf.lodgeit.net.au/v1/calcs/hp#" rdf:nodeID="ub1bL40C18"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL37C20">
+    <ns0:cash_price xmlns:ns0="https://rdf.lodgeit.net.au/v1/calcs/hp#" rdf:nodeID="ub1bL41C20"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL37C20">
+    <ns0:interest_rate xmlns:ns0="https://rdf.lodgeit.net.au/v1/calcs/hp#" rdf:nodeID="ub1bL42C23"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL37C20">
+    <ns0:number_of_installments xmlns:ns0="https://rdf.lodgeit.net.au/v1/calcs/hp#" rdf:nodeID="ub1bL43C32"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL37C20">
+    <ns0:hp_contract_has_payment_type xmlns:ns0="https://rdf.lodgeit.net.au/v1/calcs/hp#" rdf:nodeID="ub1bL44C38"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL37C20">
+    <ns0:hp_installments xmlns:ns0="https://rdf.lodgeit.net.au/v1/calcs/hp#" rdf:nodeID="ub1bL45C25"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL380C17">
+    <ns0:col xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#">A</ns0:col>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL380C17">
+    <ns0:row xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#">1</ns0:row>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL385C3">
+    <ns0:property xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="https://rdf.lodgeit.net.au/v1/calcs/ic#default_currency"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL385C3">
+    <ns0:type xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL386C3">
+    <ns0:property xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="https://rdf.lodgeit.net.au/v1/calcs/ic#items"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL386C3">
+    <ns0:template xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="https://rdf.lodgeit.net.au/v1/calcs/ic/ui#gl_entries_template"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL390C17">
+    <ns0:col xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#">A</ns0:col>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL390C17">
+    <ns0:row xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#">4</ns0:row>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL395C3">
+    <ns0:property xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="https://rdf.lodgeit.net.au/v1/calcs/ic#date"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL395C3">
+    <ns0:type xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="http://www.w3.org/2001/XMLSchema#dateTime"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL396C3">
+    <ns0:property xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="https://rdf.lodgeit.net.au/v1/calcs/ic#account"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL396C3">
+    <ns0:type xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL397C3">
+    <ns0:property xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="https://rdf.lodgeit.net.au/v1/calcs/ic#description"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL397C3">
+    <ns0:type xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL398C3">
+    <ns0:property xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="https://rdf.lodgeit.net.au/v1/calcs/ic#debit"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL398C3">
+    <ns0:type xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL399C3">
+    <ns0:property xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="https://rdf.lodgeit.net.au/v1/calcs/ic#credit"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL399C3">
+    <ns0:type xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL39C25">
+    <rdf:value>xxxx</rdf:value>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL406C3">
+    <ns0:property xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="https://rdf.lodgeit.net.au/v1/calcs/ic#url"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL406C3">
+    <ns0:type xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL40C18">
+    <rdf:value>AUD</rdf:value>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL413C3">
+    <ns0:property xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="https://rdf.lodgeit.net.au/v1/calcs/ic#id"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL414C3">
+    <ns0:property xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="https://rdf.lodgeit.net.au/v1/calcs/ic#role"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL41C20">
+    <rdf:value>321321.27</rdf:value>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL421C3">
+    <ns0:property xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="https://rdf.lodgeit.net.au/v1/calcs/ic#url"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL42C23">
+    <rdf:value>5</rdf:value>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL43C32">
+    <rdf:value rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">30</rdf:value>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL44C38">
+    <rdf:value rdf:resource="https://rdf.lodgeit.net.au/v1/calcs/hp#hp_contract_payment_type_advance"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL45C25">
+    <rdf:value rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL52C17">
+    <ns0:col xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#">A</ns0:col>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL52C17">
+    <ns0:row xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#">1</ns0:row>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL57C3">
+    <ns0:property xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="https://rdf.lodgeit.net.au/v1/calcs/hp#begin_date"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL57C3">
+    <ns0:type xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="http://www.w3.org/2001/XMLSchema#dateTime"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL57C3">
+    <ns0:comment xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#">ignored for Investment Calculator</ns0:comment>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL60C3">
+    <ns0:property xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="https://rdf.lodgeit.net.au/v1/calcs/hp#end_date"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL60C3">
+    <ns0:type xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="http://www.w3.org/2001/XMLSchema#dateTime"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL60C3">
+    <ns0:comment xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#">ignored for Investment Calculator</ns0:comment>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL63C3">
+    <ns0:property xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="https://rdf.lodgeit.net.au/v1/calcs/hp#hp_contract"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL63C3">
+    <ns0:template xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="https://rdf.lodgeit.net.au/v1/calcs/hp/ui#hp_contract"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL70C17">
+    <ns0:col xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#">A</ns0:col>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL70C17">
+    <ns0:row xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#">5</ns0:row>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL75C3">
+    <ns0:property xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="https://rdf.lodgeit.net.au/v1/calcs/hp#contract_number"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL76C3">
+    <ns0:property xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="https://rdf.lodgeit.net.au/v1/calcs/hp#currency"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL77C3">
+    <ns0:property xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="https://rdf.lodgeit.net.au/v1/calcs/hp#cash_price"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL77C3">
+    <ns0:type xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="http://www.w3.org/2001/XMLSchema#decimal"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL79C3">
+    <ns0:property xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="https://rdf.lodgeit.net.au/v1/calcs/hp#interest_rate"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL79C3">
+    <ns0:type xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="http://www.w3.org/2001/XMLSchema#decimal"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL81C3">
+    <ns0:property xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="https://rdf.lodgeit.net.au/v1/calcs/hp#interest_period"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL81C3">
+    <ns0:note xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#">dunno what type here</ns0:note>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL83C3">
+    <ns0:property xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="https://rdf.lodgeit.net.au/v1/calcs/hp#repayment_period"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL83C3">
+    <ns0:note xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#">dunno what type here</ns0:note>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL85C3">
+    <ns0:property xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="https://rdf.lodgeit.net.au/v1/calcs/hp#number_of_installments"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL85C3">
+    <ns0:type xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="http://www.w3.org/2001/XMLSchema#integer"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL87C3">
+    <ns0:property xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="https://rdf.lodgeit.net.au/v1/calcs/hp#repayment_amount"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL87C3">
+    <ns0:type xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="http://www.w3.org/2001/XMLSchema#decimal"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL89C3">
+    <ns0:property xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="https://rdf.lodgeit.net.au/v1/calcs/hp#total_payments"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL89C3">
+    <ns0:type xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="http://www.w3.org/2001/XMLSchema#integer"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL91C3">
+    <ns0:property xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="https://rdf.lodgeit.net.au/v1/calcs/hp#total_interest"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL91C3">
+    <ns0:type xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="http://www.w3.org/2001/XMLSchema#decimal"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL93C3">
+    <ns0:property xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="https://rdf.lodgeit.net.au/v1/calcs/hp#repayment_balance"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL93C3">
+    <ns0:type xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="http://www.w3.org/2001/XMLSchema#decimal"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL95C3">
+    <ns0:property xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="https://rdf.lodgeit.net.au/v1/calcs/hp#hp_contract_has_payment_type"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL95C3">
+    <ns0:type xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="https://rdf.lodgeit.net.au/v1/excel#uri"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL97C3">
+    <ns0:property xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="https://rdf.lodgeit.net.au/v1/calcs/hp#hp_installments"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub1bL97C3">
+    <ns0:template xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="https://rdf.lodgeit.net.au/v1/calcs/hp/ui#hp_installments"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://rdf.lodgeit.net.au/v1/calcs/depr#">
+    <ns0:comment xmlns:ns0="http://www.w3.org/2000/01/rdf-schema#">depreciation</ns0:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://rdf.lodgeit.net.au/v1/calcs/depr#asset_disposal">
+    <rdf:type rdf:resource="https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_event_type"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_between_two_dates">
+    <rdf:type rdf:resource="https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_query_type"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_event_has_type">
+    <ns0:range xmlns:ns0="http://www.w3.org/2000/01/rdf-schema#" rdf:resource="https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_event_type"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_pool_from_start">
+    <rdf:type rdf:resource="https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_query_type"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_query_has_type">
+    <ns0:range xmlns:ns0="http://www.w3.org/2000/01/rdf-schema#" rdf:resource="https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_query_type"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://rdf.lodgeit.net.au/v1/calcs/depr#profit_and_loss">
+    <rdf:type rdf:resource="https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_query_type"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://rdf.lodgeit.net.au/v1/calcs/depr#transfer_asset_to_pool">
+    <rdf:type rdf:resource="https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_event_type"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://rdf.lodgeit.net.au/v1/calcs/depr#written_down_value">
+    <rdf:type rdf:resource="https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_query_type"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://rdf.lodgeit.net.au/v1/calcs/depr/ui#depreciation_assets">
+    <ns0:title xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#">depreciation_assets</ns0:title>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://rdf.lodgeit.net.au/v1/calcs/depr/ui#depreciation_assets">
+    <ns0:position xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:nodeID="ub1bL313C17"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://rdf.lodgeit.net.au/v1/calcs/depr/ui#depreciation_assets">
+    <ns0:cardinality xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="https://rdf.lodgeit.net.au/v1/excel#multi"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://rdf.lodgeit.net.au/v1/calcs/depr/ui#depreciation_assets">
+    <ns0:class xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_asset"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://rdf.lodgeit.net.au/v1/calcs/depr/ui#depreciation_assets">
+    <ns0:fields xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db57"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://rdf.lodgeit.net.au/v1/calcs/depr/ui#depreciation_calculator_sheets">
+    <ns0:is_multi xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">false</ns0:is_multi>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://rdf.lodgeit.net.au/v1/calcs/depr/ui#depreciation_calculator_sheets">
+    <ns0:sheets xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db27"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://rdf.lodgeit.net.au/v1/calcs/depr/ui#depreciation_events">
+    <ns0:title xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#">depreciation_events</ns0:title>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://rdf.lodgeit.net.au/v1/calcs/depr/ui#depreciation_events">
+    <ns0:position xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:nodeID="ub1bL300C17"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://rdf.lodgeit.net.au/v1/calcs/depr/ui#depreciation_events">
+    <ns0:cardinality xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="https://rdf.lodgeit.net.au/v1/excel#multi"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://rdf.lodgeit.net.au/v1/calcs/depr/ui#depreciation_events">
+    <ns0:class xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_event"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://rdf.lodgeit.net.au/v1/calcs/depr/ui#depreciation_events">
+    <ns0:fields xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db53"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://rdf.lodgeit.net.au/v1/calcs/depr/ui#depreciation_example_assets">
+    <rdf:value rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db38"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://rdf.lodgeit.net.au/v1/calcs/depr/ui#depreciation_example_events">
+    <rdf:value rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db34"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://rdf.lodgeit.net.au/v1/calcs/depr/ui#depreciation_example_queries">
+    <rdf:value rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db30"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://rdf.lodgeit.net.au/v1/calcs/depr/ui#depreciation_queries">
+    <ns0:title xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#">depreciation_queries</ns0:title>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://rdf.lodgeit.net.au/v1/calcs/depr/ui#depreciation_queries">
+    <ns0:position xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:nodeID="ub1bL277C17"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://rdf.lodgeit.net.au/v1/calcs/depr/ui#depreciation_queries">
+    <ns0:cardinality xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="https://rdf.lodgeit.net.au/v1/excel#multi"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://rdf.lodgeit.net.au/v1/calcs/depr/ui#depreciation_queries">
+    <ns0:class xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_query"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://rdf.lodgeit.net.au/v1/calcs/depr/ui#depreciation_queries">
+    <ns0:fields xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db40"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://rdf.lodgeit.net.au/v1/calcs/hp#">
+    <ns0:comment xmlns:ns0="http://www.w3.org/2000/01/rdf-schema#">hirepurchase</ns0:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://rdf.lodgeit.net.au/v1/calcs/hp#hp_contract_has_payment_type">
+    <ns0:range xmlns:ns0="http://www.w3.org/2000/01/rdf-schema#" rdf:resource="https://rdf.lodgeit.net.au/v1/calcs/hp#hp_contract_payment_type"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://rdf.lodgeit.net.au/v1/calcs/hp#hp_contract_payment_type_advance">
+    <rdf:type rdf:resource="https://rdf.lodgeit.net.au/v1/calcs/hp#hp_contract_payment_type"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://rdf.lodgeit.net.au/v1/calcs/hp#hp_contract_payment_type_advance">
+    <ns0:label xmlns:ns0="http://www.w3.org/2000/01/rdf-schema#">advance</ns0:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://rdf.lodgeit.net.au/v1/calcs/hp/ui#hirepurchase_calculator_sheets">
+    <ns0:is_multi xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</ns0:is_multi>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://rdf.lodgeit.net.au/v1/calcs/hp/ui#hirepurchase_calculator_sheets">
+    <ns0:sheets xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db1"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://rdf.lodgeit.net.au/v1/calcs/hp/ui#hp_calculator_query">
+    <ns0:position xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:nodeID="ub1bL52C17"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://rdf.lodgeit.net.au/v1/calcs/hp/ui#hp_calculator_query">
+    <ns0:title xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#">Standalone Calculator Query Parameters</ns0:title>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://rdf.lodgeit.net.au/v1/calcs/hp/ui#hp_calculator_query">
+    <ns0:cardinality xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="https://rdf.lodgeit.net.au/v1/excel#single"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://rdf.lodgeit.net.au/v1/calcs/hp/ui#hp_calculator_query">
+    <ns0:class xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="https://rdf.lodgeit.net.au/v1/calcs/hp#hp_calculator_query"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://rdf.lodgeit.net.au/v1/calcs/hp/ui#hp_calculator_query">
+    <ns0:fields xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db2"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://rdf.lodgeit.net.au/v1/calcs/hp/ui#hp_contract">
+    <ns0:position xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:nodeID="ub1bL70C17"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://rdf.lodgeit.net.au/v1/calcs/hp/ui#hp_contract">
+    <ns0:title xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#">Hirepurchase Contract</ns0:title>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://rdf.lodgeit.net.au/v1/calcs/hp/ui#hp_contract">
+    <ns0:cardinality xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="https://rdf.lodgeit.net.au/v1/excel#single"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://rdf.lodgeit.net.au/v1/calcs/hp/ui#hp_contract">
+    <ns0:class xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="https://rdf.lodgeit.net.au/v1/calcs/hp#hp_contract"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://rdf.lodgeit.net.au/v1/calcs/hp/ui#hp_contract">
+    <ns0:fields xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db5"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://rdf.lodgeit.net.au/v1/calcs/hp/ui#hp_installments">
+    <ns0:position xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:nodeID="ub1bL108C17"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://rdf.lodgeit.net.au/v1/calcs/hp/ui#hp_installments">
+    <ns0:title xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#">Installments</ns0:title>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://rdf.lodgeit.net.au/v1/calcs/hp/ui#hp_installments">
+    <ns0:cardinality xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="https://rdf.lodgeit.net.au/v1/excel#multi"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://rdf.lodgeit.net.au/v1/calcs/hp/ui#hp_installments">
+    <ns0:class xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="https://rdf.lodgeit.net.au/v1/calcs/hp#hp_installment"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://rdf.lodgeit.net.au/v1/calcs/hp/ui#hp_installments">
+    <ns0:fields xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db18"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://rdf.lodgeit.net.au/v1/calcs/ic#">
+    <ns0:comment xmlns:ns0="http://www.w3.org/2000/01/rdf-schema#">investment calculator</ns0:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://rdf.lodgeit.net.au/v1/calcs/ic/ui#account_roles">
+    <ns0:cardinality xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="https://rdf.lodgeit.net.au/v1/excel#multi"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://rdf.lodgeit.net.au/v1/calcs/ic/ui#account_roles">
+    <ns0:class xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="https://rdf.lodgeit.net.au/v1/calcs/ic#account_role"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://rdf.lodgeit.net.au/v1/calcs/ic/ui#account_roles">
+    <ns0:fields xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db76"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://rdf.lodgeit.net.au/v1/calcs/ic/ui#account_taxonomies">
+    <ns0:cardinality xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="https://rdf.lodgeit.net.au/v1/excel#multi"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://rdf.lodgeit.net.au/v1/calcs/ic/ui#account_taxonomies">
+    <ns0:class xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="https://rdf.lodgeit.net.au/v1/calcs/ic#account_taxonomy"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://rdf.lodgeit.net.au/v1/calcs/ic/ui#account_taxonomies">
+    <ns0:fields xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db75"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://rdf.lodgeit.net.au/v1/calcs/ic/ui#additional_files">
+    <ns0:cardinality xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="https://rdf.lodgeit.net.au/v1/excel#multi"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://rdf.lodgeit.net.au/v1/calcs/ic/ui#additional_files">
+    <ns0:class xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="https://rdf.lodgeit.net.au/v1/calcs/ic#additional_file"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://rdf.lodgeit.net.au/v1/calcs/ic/ui#additional_files">
+    <ns0:fields xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db78"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://rdf.lodgeit.net.au/v1/calcs/ic/ui#gl">
+    <ns0:position xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:nodeID="ub1bL380C17"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://rdf.lodgeit.net.au/v1/calcs/ic/ui#gl">
+    <ns0:title xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#">GL input</ns0:title>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://rdf.lodgeit.net.au/v1/calcs/ic/ui#gl">
+    <ns0:cardinality xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="https://rdf.lodgeit.net.au/v1/excel#single"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://rdf.lodgeit.net.au/v1/calcs/ic/ui#gl">
+    <ns0:class xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="https://rdf.lodgeit.net.au/v1/calcs/ic#gl"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://rdf.lodgeit.net.au/v1/calcs/ic/ui#gl">
+    <ns0:fields xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db68"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://rdf.lodgeit.net.au/v1/calcs/ic/ui#gl_entries_template">
+    <ns0:position xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:nodeID="ub1bL390C17"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://rdf.lodgeit.net.au/v1/calcs/ic/ui#gl_entries_template">
+    <ns0:title xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#">entries</ns0:title>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://rdf.lodgeit.net.au/v1/calcs/ic/ui#gl_entries_template">
+    <ns0:cardinality xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="https://rdf.lodgeit.net.au/v1/excel#multi"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://rdf.lodgeit.net.au/v1/calcs/ic/ui#gl_entries_template">
+    <ns0:class xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:resource="https://rdf.lodgeit.net.au/v1/calcs/ic#gl_entry"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://rdf.lodgeit.net.au/v1/calcs/ic/ui#gl_entries_template">
+    <ns0:fields xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db70"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://rdf.lodgeit.net.au/v1/calcs/ic/ui#investment_calculator_sheets">
+    <ns0:is_multi xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">false</ns0:is_multi>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://rdf.lodgeit.net.au/v1/calcs/ic/ui#investment_calculator_sheets">
+    <ns0:sheets xmlns:ns0="https://rdf.lodgeit.net.au/v1/excel#" rdf:nodeID="f14699bc37d104f2ba689d16e7c16ef1db64"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://rdf.lodgeit.net.au/v1/excel#">
+    <ns0:comment xmlns:ns0="http://www.w3.org/2000/01/rdf-schema#">excel schema-directed ui</ns0:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://rdf.lodgeit.net.au/v1/excel#is_multi">
+    <ns0:comment xmlns:ns0="http://www.w3.org/2000/01/rdf-schema#">are multiple instances of this sheet allowed in one workbook?</ns0:comment>
+  </rdf:Description>
+</rdf:RDF>
