@@ -172,8 +172,8 @@ extract_s_transaction2(Tx_Dom, Account_Currency, Account, Start_Date, ST) :-
 		debit, (Bank_Debit, 0),
 		credit, (Bank_Credit, 0)]),
 	fields(Tx_Dom, [
-		transdesc, (Desc1, '')
-		desc2, (Desc2, '')
+		transdesc, (Desc1, ''),
+		transdesc2, (Desc2, '')
 	]),
 	(
 		(

@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>General Ledger Viewer documentation</title>
+</head>
+<body>
+<h1>General Ledger Viewer documentation</h1>
+<h2>currency movement transactions</h2>
+<h4>introduction</h4>
+By default, currency movement is accounted for in a declarative way. This is in contrast to the use of adjustment
+transactions. Our GL balances at any point in time. In-depth explanation of the principle is in <a
+        href="https://www.mathstat.dal.ca/~selinger/accounting/tutorial.html#4">Tutorial on multiple currency
+    accounting</a>.
+<h4>principle</h4>
+<p>
+In short: bank account is in some currency, for example USD. Report currency is for example AUD. If bank account is
+    debited 100 USD on "date(2019,9,9)", a corresponding equity/p&l account is credited, for example, 120 AUD, according
+    to the conversion rate valid at the transaction date. The GL always balances because the drift in USD/AUD rate is
+    accounted for on the CurrencyMovement account, for example CurrencyMovementHelvetische_BankUSD. The entry created on
+    this account would be literally CR 120 USD, DR 100 AUD, but things are a little more complicated, and the actual
+    entry looks like this:
+<pre>CR 100 USD, DR 100 without_currency_movement_against_since('USD','USD',['AUD'],date(2019,9,9))</pre>
+. This whole
+<pre>without_currency_movement_against_since('USD','USD',['AUD'],date(2019,9,9))</pre>
+is understood as "USD, disregarding movement of USD against AUD since date(2019,9,9)". The program does the appropriate
+conversion to AUD when generating reports. Todo: review if the use of this abstract unit is necessary here, i think we
+can simplify. </p><p>
+    todo: explain split into historical and current entry, for historical transactions.
+</p>
+</body>
+</html>
