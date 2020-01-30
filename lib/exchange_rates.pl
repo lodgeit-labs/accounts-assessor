@@ -309,7 +309,13 @@ is_exchangeable_into_request_bases(Table, Day, Src_Currency, Bases) :-
 extract_exchange_rates(Dom, Start_Date, End_Date) :-
 	foreach(
 		doc(pid:unitValues pid:unitValue
+	no unitValues -> warning
 
+	report details
+	M/C, sstart, end
+
+	directives
+	silence	no_unitValues
 
 	maplist(extract_exchange_rate0(Default_Currency, Start_Date, End_Date), Unit_Value_Doms),
 	%maplist(missing_dst_currency_is_investments_currency(S_Transactions, Default_Currency), Exchange_Rates),

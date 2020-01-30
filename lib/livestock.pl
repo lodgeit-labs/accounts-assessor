@@ -43,21 +43,37 @@ infer_livestock_action_verb(S_Transaction, NS_Transaction) :-
 	->	Action_Verb = l:livestock_sale
 	;	Action_Verb = l:livestock_purchase).
 
-s_transaction_is_livestock_buy_or_sell(S_Transaction, Date, Livestock_Type, Livestock_Coord, Money_Coord) :-
-	S_Transaction = s_transaction(Date, uri(Action_Verb), [Money_Coord], _, vector(V), _),
-	(Action_Verb = l:livestock_purchase;Action_Verb = l:livestock_sale),
-	!,
-	V = [Livestock_Coord],
-	coord_unit(Livestock_Coord, Livestock_Type),
-	livestock_data_by_vector_unit(_, V).
 
-preprocess_livestock_buy_or_sell(Static_Data, S_Transaction, [Bank_Txs, Livestock_Count_Transaction, Pl_Transaction]) :-
-	s_transaction_is_livestock_buy_or_sell(S_Transaction, Day, Livestock_Type, Livestock_Coord, Money_Coord),
-	(   is_debit(Money_Coord)
-	->  Description = 'livestock sale'
-	;   Description = 'livestock purchase'),
+
+
+
+
+relate_livestock_s_transaction_description_to_direction(S_Transaction) :-
+	(is_sale, /* new property of action verb */
+	Description = 'livestock sale')
+	;
+	(is_purchase,
+	Description = 'livestock sale').
+
+st_id_eq_t_id(Bst, Glt) :-
+	d(Bst, bst_tx:id, Id1),
+	d(Glt, glt_tx:id, Id2),
+	e(Id1, Id2).
+
+preprocess_livestock_buy_or_sell(Bst, [Bank_Txs, Livestock_Count_Transaction, Pl_Transaction]) :-
+	relate_livestock_s_transaction_description_to_direction,
+
+	e(Bst.day, Livestock_Count_Transaction.day),
+
+
+
 	count_account(Livestock_Type, Count_Account),
 	make_transaction(Day, Description, Count_Account, [Livestock_Coord], Livestock_Count_Transaction),
+
+
+
+
+
 	affect_bank_account(Static_Data, S_Transaction, Description, Bank_Txs),
 	vec_inverse([Money_Coord], Pl_Vector),
 	(   is_credit(Money_Coord)

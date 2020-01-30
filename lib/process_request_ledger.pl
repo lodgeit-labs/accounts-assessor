@@ -250,6 +250,7 @@ extract_bank_opening_balances2(Bank_Account, Tx) :-
 	Tx = s_transaction(Start_Date, 'Historical_Earnings_Lump', [Opening_Balance], Bank_Account_Name, vector([]), _{desc1:'Historical_Earnings_Lump'}).
 
 extract_initial_gl(Txs) :-
+gtrace,
 	(	doc(l:request, l:gl_ui, Gl)
 	->	(
 			doc_value(Gl, l:default_currency, Default_Currency0),

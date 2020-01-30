@@ -1,68 +1,4 @@
 
-
-preprocess_s_transactions(Static_Data, S_Transactions, Processed_S_Transactions, Transactions_Out, Outstanding_Out) :-
-	preprocess_s_transactions2(Static_Data, S_Transactions, Processed_S_Transactions, Transactions_Out, ([],[]), Outstanding_Out, []).
-
-/*
-	call preprocess_s_transaction on each item of the S_Transactions list and do some error checking and cleaning up
-*/
-preprocess_s_transactions2(_, [], [], [], Outstanding, Outstanding, _).
-
-preprocess_s_transactions2(Static_Data, [S_Transaction|S_Transactions], Processed_S_Transactions, Transactions_Out, Outstanding_In, Outstanding_Out, Debug_So_Far) :-
-	dict_vars(Static_Data, [Accounts, Report_Currency, Start_Date, End_Date, Exchange_Rates]),
-	pretty_term_string(S_Transaction, S_Transaction_String),
-	catch(
-		(
-			check_that_s_transaction_account_exists(S_Transaction, Accounts),
-			preprocess(Static_Data, S_Transaction, S_Transaction_String, Outstanding_In, Outstanding_Mid, Debug_Head, Transactions_Out_Tail, Debug_So_Far, Debug_So_Far2, Processed_S_Transactions, Processed_S_Transactions_Tail, Report_Currency, Exchange_Rates, Start_Date, End_Date, Transactions_Out)
-		),
-		E,
-		(
-			pretty_string(S_Transaction, Pretty_S_Transaction_String),
-			format(string(Debug_Head), '~q~nwhen processing ~w', [E, Pretty_S_Transaction_String]),
-			format(user_error, '~w~n',[Debug_Head]),
-			Outstanding_In = Outstanding_Out,
-			Transactions_Out = [],
-			Debug_Tail = [],
-			Processed_S_Transactions = [],
-			add_alert('error', Debug_Head)
-		)
-	),
-	(	var(Debug_Tail) /* debug tail is left free if processing this transaction succeeded ... */
-	->	preprocess_s_transactions2(Static_Data, S_Transactions, Processed_S_Transactions_Tail, Transactions_Out_Tail,  Outstanding_Mid, Outstanding_Out, Debug_So_Far2)
-	;	true).
-
-preprocess(Static_Data, S_Transaction, S_Transaction_String, Outstanding_In, Outstanding_Mid, Debug_Head, Transactions_Out_Tail, Debug_So_Far, Debug_So_Far2, Processed_S_Transactions, Processed_S_Transactions_Tail, Report_Currency, Exchange_Rates, Start_Date, End_Date, Transactions_Out) :-
-	(	preprocess_s_transaction(Static_Data, S_Transaction, Transactions0, Outstanding_In, Outstanding_Mid)
-	->	true
-	;	(/*gtrace,*/throw_string(unknown_error))),
-	cleanup(Transactions0, Transactions_Result, S_Transaction_String, Debug_Head),
-	Transactions_Out = [Transactions_Result|Transactions_Out_Tail],
-	append(Debug_So_Far, [Debug_Head], Debug_So_Far2),
-	Processed_S_Transactions = [S_Transaction|Processed_S_Transactions_Tail],
-	check_trial_balance0_at_date_of_last_transaction_in_list(Transactions_Result, Report_Currency, Exchange_Rates, Start_Date, End_Date, Debug_So_Far, Debug_Head).
-
-cleanup(Transactions0, Transactions_Result, S_Transaction_String, Debug_Head) :-
-	% filter out unbound vars from the resulting Transactions list, as some rules do not always produce all possible transactions
-	flatten(Transactions0, Transactions1),
-	exclude(var, Transactions1, Transactions2),
-	exclude(has_empty_vector, Transactions2, Transactions_Result),
-	pretty_transactions_string(Transactions_Result, Transactions_String),
-	atomic_list_concat([S_Transaction_String, '==>\n', Transactions_String, '\n====\n'], Debug_Head).
-
-
-check_trial_balance0_at_date_of_last_transaction_in_list(Transactions_Result, Report_Currency, Exchange_Rates, Start_Date, End_Date, Debug_So_Far, Debug_Head) :-
-	Transactions_Result = [T|_],
-	transaction_day(T, Transaction_Date),
-	(	Report_Currency = []
-	->	true
-	;	check_trial_balance0(Exchange_Rates, Report_Currency, Transaction_Date, Transactions_Result, Start_Date, End_Date, Debug_So_Far, Debug_Head)).
-
-
-% ----------
-% This predicate takes a list of statement transaction terms and decomposes it into a list of plain transaction terms.
-% ----------	
-
 livestock_verbs([l:livestock_purchase, l:livestock_sale]).
 
 preprocess_s_transaction(Static_Data, S_Transaction, Transactions, Outstanding, Outstanding) :-
@@ -206,19 +142,33 @@ bank_debit_to_unit_price(Vector_Ours, Goods_Positive, value(Unit, Number2)) :-
 	this "currency trading account" is not to be confused with a shares trading account.
 */
 
-affect_bank_account(Static_Data, S_Transaction, Description0, [Ts0, Ts3]) :-
-	s_transaction_account_id(S_Transaction, Bank_Account_Name),
-	s_transaction_vector(S_Transaction, Vector),
+
+member(Bst, Bsts),
+{
+	member(...
+	...
+}
+
+
+
+
+affect_bank_account_gl_account(Static_Data, Bst, Description0, [Ts0, Ts3]) :-
+	d(Bst, account, Bank_Account_Name),
+	account_by_role(('Banks'/Bank_Account_Name), Gl_Bank_Account_Id),
+
+	e(Bst.day, Tx0.day),
+	e(Bst.day, Tx1.day),
+
+	d(Bst, vector, Vector),
 	vector_unit(Vector, Bank_Account_Currency),
-	s_transaction_day(S_Transaction, Transaction_Date),
+
 	(	is_debit(Vector)
 	->	Description1 = 'incoming money'
 	;	Description1 = 'outgoing money'
 	),
 	[Description0, ' - ', Description1] = Description,
 	dict_vars(Static_Data, [Accounts, Report_Currency]),
-	Bank_Account_Role = ('Banks'/Bank_Account_Name),
-	account_by_role(Accounts, Bank_Account_Role, Bank_Account_Id),
+	,
 	make_transaction(Transaction_Date, Description, Bank_Account_Id, Vector, Ts0),
 	/* Make a difference transaction to the currency trading account. See https://www.mathstat.dal.ca/~selinger/accounting/tutorial.html . This will track the gain/loss generated by the movement of exchange rate between our asset in foreign currency and our equity/revenue in reporting currency. */
 	(	[Bank_Account_Currency] = Report_Currency
