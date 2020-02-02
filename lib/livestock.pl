@@ -49,11 +49,13 @@ infer_livestock_action_verb(S_Transaction, NS_Transaction) :-
 
 
 relate_livestock_s_transaction_description_to_direction(S_Transaction) :-
-	(is_sale, /* new property of action verb */
+	d(S_Transaction, bst_tx:action_verb, V),
+	/* new property of action verb */
+	(d(V, is_sale, true),
 	Description = 'livestock sale')
 	;
-	(is_purchase,
-	Description = 'livestock sale').
+	(d(V, is_purchase, true),
+	Description = 'livestock purchase').
 
 st_id_eq_t_id(Bst, Glt) :-
 	d(Bst, bst_tx:id, Id1),
@@ -62,16 +64,11 @@ st_id_eq_t_id(Bst, Glt) :-
 
 preprocess_livestock_buy_or_sell(Bst, [Bank_Txs, Livestock_Count_Transaction, Pl_Transaction]) :-
 	relate_livestock_s_transaction_description_to_direction,
-
 	e(Bst.day, Livestock_Count_Transaction.day),
-
 
 
 	count_account(Livestock_Type, Count_Account),
 	make_transaction(Day, Description, Count_Account, [Livestock_Coord], Livestock_Count_Transaction),
-
-
-
 
 
 	affect_bank_account(Static_Data, S_Transaction, Description, Bank_Txs),
