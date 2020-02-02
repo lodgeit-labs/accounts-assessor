@@ -1,6 +1,7 @@
 #! /bin/sh
 if [ -d venv ]
 then
+	echo "./venv exists, exiting"
 	exit 0
 fi
 python3.8 -m venv venv

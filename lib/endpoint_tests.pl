@@ -15,15 +15,16 @@ this tries the requests in tests/endpoint_tests against a running server and com
 :- use_module(library(xpath)).
 :- use_module(library(readutil)).
 :- ['lib'].
-%:- ['../public_lib/xbrl/prolog/xbrl/utils.pl'].
-%:- ['../lib/search_paths.pl'].
 
-
-
-:- set_prolog_flag(endpoints_server, 'http://localhost:7778').
 
 endpoints_server(S) :-
-	current_prolog_flag(endpoints_server, S).
+	(	current_prolog_flag(endpoints_server, S)
+	->	true;
+	S = 'http://localhost:7778').
+
+
+
+:- debug.
 
 
 
@@ -32,8 +33,6 @@ endpoints_server(S) :-
 
 prolog:message(testcase_error(Msg)) -->	['test failed: ', Msg].
 
-
-:- debug.
 
 :- begin_tests(endpoints).
 
@@ -316,7 +315,9 @@ diff_service(Saved_Report_Path, Returned_Report_Path, Errors) :-
 		)
 	).
 
-rq(Request_URI, Response_Stream) :- http_open:http_open(Request_URI, Response_Stream, [request_header('Accept'='application/json')]).
+rq(Request_URI, Response_Stream) :-
+	debug(endpoint_tests, 'GET url:~q', Request_URI),
+	http_open:http_open(Request_URI, Response_Stream, [request_header('Accept'='application/json')]).
 
 
 diff(Saved_Report_Path, Returned_Report_Path, Are_Same) :-
@@ -363,6 +364,7 @@ query_endpoint(Testcase, Response_JSON) :-
 		member(loc(absolute_path,RequestFile), File_Paths),
 		File_Form_Entries),
 	atomic_list_concat([$>endpoints_server(<$),'/upload'], Endpoint_Url),
+	debug(endpoint_tests, 'POST url:~q', Endpoint_Url),
 	catch(
 		http_post(Endpoint_Url, form_data(File_Form_Entries), Response_String, [content_type('multipart/form-data')]),
 		error(existence_error(_,_),_),
@@ -381,7 +383,7 @@ query_endpoint(Testcase, Response_JSON) :-
 		alerts:Response_JSON_Raw.alerts,
 		reports:Reports_Dict
 	},
-	format('result dir: ~w~n', [Reports_Dict.all.url]).
+	format('results uri: ~w~n', [Reports_Dict.all.url]).
 
 
 testcases(Top_Level, Testcase) :-
@@ -476,6 +478,7 @@ offer_cp(loc(absolute_path,Src), loc(absolute_path,Dst)) :-
 
 fetch_report_file_from_url(Url, Path) :-
 	absolute_tmp_path($>exclude_file_location_from_filename(Url), Path),
+	debug(endpoint_tests, 'GET url:~q', Url),
 	fetch_file_from_url(Url, Path).
 
 
