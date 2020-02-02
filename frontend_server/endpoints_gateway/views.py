@@ -1,4 +1,4 @@
-import json, ntpath, os
+import json, ntpath, os, sys
 
 from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
@@ -10,10 +10,13 @@ from django.http.request import QueryDict
 from endpoints_gateway.forms import ClientRequestForm
 
 
-import sys
-sys.path.append('../../prolog_wrapper')
-sys.path.append('/home/demo/7768/prolog_wrapper')
-import services
+sys.path.append('../prolog_wrapper')
+#sys.path.append('/home/demo/7768/prolog_wrapper')
+
+if 'USE_CELERY' in os.environ:
+	import services
+else:
+	import invoke_rpc_cmdline as services
 
 
 from os import listdir

@@ -21,3 +21,6 @@ demo7768:
         args: "17768"
         dir: ./internal_services
         #frontend_server is through mod_wsgi, internal services port is defaulted in endpoints_gateway/views.py 
+      - name: celery_worker
+        exec: celery
+        args: -E -A c worker --loglevel=debug
