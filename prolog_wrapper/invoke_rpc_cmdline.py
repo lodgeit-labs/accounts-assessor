@@ -33,7 +33,7 @@ class AtomicInteger():
 			return self._value
 
 
-server_started_time = time.time()
+server_started_time = time.time() # in theory, this could collide, fixme
 client_request_id = AtomicInteger()
 
 
@@ -72,46 +72,94 @@ def run(request_files, dev_runner_options, prolog_flags, server_url):
 			"tmp_directory_name": tmp_directory_name,
 			"request_files": files2}
 	}
-	call_rpc(msg=msg, dev_runner_options=shlex.split(dev_runner_options), prolog_flags=prolog_flags)
+	call_prolog(msg=msg, dev_runner_options=shlex.split(dev_runner_options), prolog_flags=prolog_flags)
 
-def call_rpc(msg, dev_runner_options=[], prolog_flags='true'):
+
+def call_prolog(msg, dev_runner_options=[], prolog_flags='true', make_new_tmp_dir=False):
+
+	if make_new_tmp_dir:
+		msg['params']['tmp_directory_name'],_ = create_tmp()
+
+
+
+
+	# working directory. Should not matter for the prolog app, since everything in the prolog app uses (or should use) lib/search_paths.pl,
+	# and dev_runner uses tmp_file_stream.
+	
 	os.chdir(git("server_root"))
-	swipl = ['swipl']# + shlex.split('-G100g -T20g -L2g')
+
+
+
+		
+	# SWI_HOME_DIR is the (system) directory where swipl has put it's stuff during installation
+	# not sure why this needs to be set, since swipl should find it based on argv, but that's not happening, see notes
+	
+	#if os.path.expanduser('~') == '/var/www':
+	os.environ.putenv('SWI_HOME_DIR', '/usr/lib/swi-prolog')
+	
+
+
+
+
+	# an unresolved problem under mod_wsgi is finding swipl libraries (as would be installed by user in their home dir with pack_install).
+	# see https://www.swi-prolog.org/pldoc/doc_for?object=file_search_path/2
+	path_flags = []# '-g', "assertz(file_search_path(library, '/home/demo/.local/share/swi-prolog/pack/'))"]
+
+
+
+
+
+	# construct the command line
+
+	swipl = ['swipl'] + path_flags
 	cmd0 = swipl + ['-s', git("lib/dev_runner.pl"),'--problem_lines_whitelist',git("misc/problem_lines_whitelist"),"-s", git("lib/debug_rpc.pl")]
 	cmd1 = dev_runner_options
 	cmd2 = ['-g', prolog_flags + ',lib:process_request_rpc_cmdline']
 	cmd = cmd0 + cmd1 + cmd2
 	print(' '.join(cmd))
+	
+	
+	
 	input = json.dumps(msg)
 	print(input)
-	if os.path.expanduser('~') == '/var/www':
-		#os.environ.putenv('SWI_HOME_DIR', git('../.local/share/swi-prolog/'))
-		os.environ.putenv('SWI_HOME_DIR', '/home/apache/swi-prolog')
+	
+
+
+
+	
+	
+	# if you want to see env:
 	#p = subprocess.Popen(['bash', '-c', 'export'], universal_newlines=True)
 	#p.communicate()
+	
+	
+	
 	p = subprocess.Popen(cmd, universal_newlines=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
 	(stdout_data, stderr_data) = p.communicate(input = input)
 	print("result from prolog:")
 	print(stdout_data)
 	print("end of result from prolog.")
 	try:
-		return json.loads(stdout_data)
+		return msg['params']['tmp_directory_name'], json.loads(stdout_data)
 	except json.decoder.JSONDecodeError as e:
 		print(e)
 		return {'status':'error'}
 
 
 def git(Suffix = ""):
+	""" get git repo root path """
 	here = os.path.dirname(__file__)
 	#print(here)
-	r = os.path.normpath(os.path.join(here, '../../', Suffix))
+	r = os.path.normpath(os.path.join(here, '../', Suffix))
 	#print(r)
 	return r
 
 def create_tmp_directory_name():
+	""" create a unique name """
 	return str(server_started_time) + '.' + str(client_request_id.inc())
 
 def get_tmp_directory_absolute_path(name):
+	""" append the unique name to tmp/ path """
 	return os.path.abspath(os.path.join(git('server_root/tmp'), name))
 	
 def create_tmp():

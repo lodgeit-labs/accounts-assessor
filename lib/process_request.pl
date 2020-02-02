@@ -26,6 +26,7 @@ process_request_rpc_calculator(Dict) :-
 	->	resolve_directory(Dir, Request_Files2)
 	;	Request_Files2 = Request_Files),
 	% todo options
+	%writeq(Dict.tmp_directory_name),nl,
 	set_unique_tmp_directory_name(loc(tmp_directory_name, Dict.tmp_directory_name)),
 	set_server_public_url(Dict.server_url),
 	(Request_Files2 = [] -> throw('no files.') ; true),

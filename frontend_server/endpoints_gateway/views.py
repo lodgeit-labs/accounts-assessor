@@ -9,7 +9,13 @@ from django.http.request import QueryDict
 
 from endpoints_gateway.forms import ClientRequestForm
 
-from lib import invoke_rpc_cmdline
+
+import sys
+sys.path.append('../../prolog_wrapper')
+sys.path.append('/home/demo/7768/prolog_wrapper')
+import services
+
+
 from os import listdir
 from os.path import isfile, join
 import urllib.parse
@@ -45,7 +51,7 @@ def upload(request):
 		#print(request.FILES)
 		form = ClientRequestForm(request.POST, request.FILES)
 		if form.is_valid():
-			tmp_directory_name, tmp_directory_path = invoke_rpc_cmdline.create_tmp()
+			tmp_directory_name, tmp_directory_path = services.create_tmp()
 			request_files_in_tmp = []
 			for field in request.FILES.keys():
 				for f in request.FILES.getlist(field):
@@ -63,13 +69,13 @@ def upload(request):
 						"request_files": request_files_in_tmp}
 			}
 			try:
-				invoke_rpc_cmdline.call_rpc(msg, prolog_flags=prolog_flags)
+				new_tmp_directory_name,_result_json = services.call_prolog(msg, prolog_flags=prolog_flags,make_new_tmp_dir=True)
 			except json.decoder.JSONDecodeError as e:
 				return HttpResponse(status=500)
 			if requested_output_format == 'xml':
-				return HttpResponseRedirect('/tmp/' + tmp_directory_name + '/response.xml')
+				return HttpResponseRedirect('/tmp/' + new_tmp_directory_name + '/response.xml')
 			else:
-				return HttpResponseRedirect('/tmp/'+tmp_directory_name+'/response.json')
+				return HttpResponseRedirect('/tmp/'+ new_tmp_directory_name+'/response.json')
 	else:
 		form = ClientRequestForm()
 	return render(request, 'upload.html', {'form': form})
@@ -93,7 +99,7 @@ def residency(request):
 
 def json_call(msg):
 	try:
-		return JsonResponse(invoke_rpc_cmdline.call_rpc(msg))
+		return JsonResponse(services.call_prolog(msg))[1]
 	except json.decoder.JSONDecodeError as e:
 		return HttpResponse(status=500)
 
