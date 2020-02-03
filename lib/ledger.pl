@@ -120,7 +120,18 @@ gather_ledger_errors(Debug) :-
 	->	add_alert('ERROR', Last)
 	;	true).
 
+
+
+filter_out_market_values(_S_Transactions, _Exchange_Rates0, []).
+
+
+/*
 filter_out_market_values(S_Transactions, Exchange_Rates0, Exchange_Rates) :-
+
+	fixme, this should also take into account initial_GL and whichever other transaction input channenl,
+	and since we haven't seen any use of users specifying currency exchange rates with the Unit_Values sheet,
+	i think it's safe-ish to just ignore all input exchange rates for now
+
 	traded_units(S_Transactions, Units),
 	findall(
 		R,
@@ -131,7 +142,7 @@ filter_out_market_values(S_Transactions, Exchange_Rates0, Exchange_Rates) :-
 			\+member(Dst, Units)
 		),
 		Exchange_Rates
-	).
+	).*/
 			
 	
 	

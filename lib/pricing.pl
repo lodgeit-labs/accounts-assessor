@@ -68,9 +68,9 @@ find_items_to_sell2(
 	Outstanding_Count >= Sale_Count,
 	Outstanding_Remaining_Count is Outstanding_Count - Sale_Count,
 	{Total_Cost = Sale_Count * Outstanding_Unit_Cost},
-	Goods = [goods(ST_Currency, Type, Sale_Count, value(Currency, Total_Cost), Date)],
+	Goods = [goods(Unit_Cost_Foreign, Type, Sale_Count, value(Currency, Total_Cost), Date)],
 	Outstanding_Remaining = outstanding(
-		ST_Currency, Type, Outstanding_Remaining_Count, 
+		ST_Currency, Type, Outstanding_Remaining_Count,
 		Unit_Cost, Unit_Cost_Foreign,
 		Date
 	),
@@ -84,7 +84,7 @@ find_items_to_sell2(
 		(
 			outstanding(
 				ST_Currency, Type, Outstanding_Count, 
-				value(Outstanding_Currency, Outstanding_Unit_Cost), _,
+				value(Outstanding_Currency, Outstanding_Unit_Cost), Unit_Cost_Foreign,
 				Date
 			),
 			Investment_Id
@@ -94,14 +94,14 @@ find_items_to_sell2(
 	/* output */
 	Outstanding_Out, Investments_Out, Goods
 ) :-
-	Outstanding_Count < Sale_Count,
+	{Outstanding_Count < Sale_Count},
 	record_sale(Investment_Id, Investments_In, Sale_Date, Sale_Price, Outstanding_Count, Investments_Mid),
 	{Remaining_Count = Sale_Count - Outstanding_Count},
 	find_items_to_sell2(Type, Remaining_Count, Sale_Date, Sale_Price, Outstanding_Tail, Investments_Mid, Outstanding_Out, Investments_Out, Remaining_Goods),
 	{Partial_Cost_Int = Outstanding_Count * Outstanding_Unit_Cost},
 	Partial_Goods = [
 		goods(
-			ST_Currency, Type, Outstanding_Count,
+			Unit_Cost_Foreign, Type, Outstanding_Count,
 			value(Outstanding_Currency, Partial_Cost_Int), 
 			Date
 		)
