@@ -1,4 +1,3 @@
-
 :- rdf_register_prefix(l,
 'https://rdf.lodgeit.net.au/v1/request#').
 :- rdf_register_prefix(livestock,
