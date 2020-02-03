@@ -10,8 +10,10 @@ from django.http.request import QueryDict
 from endpoints_gateway.forms import ClientRequestForm
 
 
+# for the case when running standalone
 sys.path.append('../prolog_wrapper')
-#sys.path.append('/home/demo/7768/prolog_wrapper')
+# for running under mod_wsgi
+sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../../prolog_wrapper')))
 
 if 'USE_CELERY' in os.environ:
 	import services

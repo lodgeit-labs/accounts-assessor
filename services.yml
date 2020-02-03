@@ -20,7 +20,12 @@ demo7768:
         exec: ./run.sh
         args: "17768"
         dir: ./internal_services
+        
         #frontend_server is through mod_wsgi, internal services port is defaulted in endpoints_gateway/views.py 
-      - name: celery_worker
-        exec: celery
-        args: -E -A c worker --loglevel=debug
+        # mod_wsgi is compiled with ./configure --with-python=/home/demo/7768/venv/bin/python3 and wired up from /etc/apache2/sites-enabled/..
+
+#fixme      - name: celery_worker
+#        exec: ../venv/bin/celery
+#        args: -E -A c worker --loglevel=debug
+#        dir: ./server_root
+        
