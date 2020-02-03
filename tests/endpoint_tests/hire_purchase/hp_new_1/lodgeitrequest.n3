@@ -627,7 +627,7 @@ ic_ui:gl_entries_template
 ic_ui:investment_calculator_sheets
     excel:is_multi false ;
     excel:sheets (
-         [
+         [		% this seems like it would only be used for an example right
                 excel:example_doc [
                         ic:default_currency [
                                 rdf:value "AUD"
@@ -701,14 +701,115 @@ ic_ui:investment_calculator_sheets
 excel:is_multi
     rdfs:comment "are multiple instances allowed in one workbook?" .
 
+
+
 l:request
     hp_ui:hp_calculator_query [
+
+/* err it either uses the rdf:type or idk, lemme check, it just finds all/any of these objects based on something
+	ok so really hypothetically i could just add all the triples found by CHR to the doc (as long as they don't contain vars)
+	and the excel plugin would already have enough to figure out what to display from that? yea
+
+	ic, alright i didn't realize how much was being handled client-side here
+
+        public void DisplayResponse(StreamReader data, bool inPlace)
+        {
+            LoadRdf(data);
+            foreach (var triple in _g.GetTriplesWithPredicate(u("excel:has_sheet_name")))
+            {
+                var doc = triple.Subject;
+                string sheet_name = triple.Object.AsValuedNode().AsString();
+                if (inPlace)
+                    _sheet = SheetByName(sheet_name);
+                else
+                    _sheet = NewUniqueNamedWorksheet(sheet_name);
+                var template = GetObject(doc, "excel:template");
+                WriteData(template, doc);
+                _sheet.Columns.AutoFit();
+            }
+        }
+
+HP especially has two menu items in the plugin, "in-place" and not-in-place (where to display results)
+err both HP and depr more or less do
+
+wrt rdf:value, does doc_to_rdf / vice-versa convert that to "regular values" or no
+yeah no
+the plugin generates / resolves that 
+
+ok ill have to resolve that server-side also before passing the triples to chr
+
+well it kinda has two functions now, the second is that a list is wrapped in an object, so that i can attach properties to the object, ie, a sheet can have root template with a list, so sheet_name and template have to be attached somewhere, and if i attach them directly to the list, then it screws up pretty printing n3 etc, iow it's just unexpected to have additional relations on a rdf list
+but the main reason is that it's a nicety to the prolog side, since we need to have literals etc wrapped in a bnode to be able to do formula explaining etc, so, our reasoning should be expressed abstractly over those bnodes, to be able to do output for the explainer
+or that was the idea, idk how the chr stuff is set up wrt handling that
+the chr could hypothetically handle it but the (list + hp) rules aren't currently structured that way, not sure if they
+should be; seems like that stuff for the explainer should be implicit semantics of the rules rather than something you
+explicitly have to write
+yeah exactly
+iow, you should write eq(hp.begin_date, hp.first_installement.date)
+
+alright that works, i'll have to think about how we could get this . syntax into chr 
+well, i mean, not a special syntax that resolves values, just that the rules shouldnt ever mention the rdf:value thing at all
+ah, yea; so i just need to make a small thing to do the translation from the chr version to the doc version w/ rdf:value
+later maybe we'd rewrite the chr side to actually work internally over the rdf:value representation but probably don't want to do that now
+ok well it was one of the things i was looking forward to here, but whatever works
+i mean, it should be "resolved" in the place where youre actually applying the clpq constraint, for example
+and the explainer output should be generated there as well
+idk how it'd work out for unification in general, but i'd imagine it would just fine
+
+also, probably "explainer output" should just mean annotating triples by sticking them in one-triple graphs and attaching properties to those graphs
+
+so, if we're asserting/adding hp_contract number_of_installments 5,
+it's coming from a constraint eq(hp_contract.number_of_installments, hp_contract.last_installment.index)
+nvm
+well, idk, in this case, if we're producing a new literal, i guess the properties should be attached to the value object
+
+hp_contract number_of_installments [rdf:value 5;origin [a formula; contents "eq(hp_contract.number_of_installments, hp_contract.last_installment.index)"; 
+
+or [a equality; op1 <the actual bnode that is hp_contract.number_of_installments>; op2 <the actual bnode that is hp_contract.last_installment.index>]
+
+attaching them to the value object would probably be the easiest way, especially w/ chr as it is now, but i think that has
+some limitations and we probably would want to be able to annotate whole triples
+
+i suppose the explainer ui/page should allow following along some abstract-ish proof tree (of the search or rule firings or something) and along the constraints network, but i dont have a clear picture
+
+i can try to work that out in some other parts of the codebase first, on some simple backchaining logic, and then we can see how it applies to chr, i already kinda started on this but was more concerned with other aspects
+
+yea should definitely just generate a proof tree, probably wouldn't be too difficult to wrap each chr rule-head in something that will assert some representation of the rule-firing into the doc, and the links between each rule-firing (i.e. what body items were matched) will make the tree
+but i'd maybe want to hold off on this until we've handled optimization enough to make it reasonable to actually use the solver and also made a special syntax for the rules 
+ok
+just wouldn't want to devote much more effort into expanding what the current chr solver can do if it might end up going to waste if we run into trouble w/ those two things and need to do a more major rewrite of the solver core
+yeah and i'll be happier to work this out on a reasoning algo i fully understand and also to extend the doc system to actually allow it as i envision it first
+
+but yea sounds about right, rules generate triples, and to annotate a triple you need a graph, so those proofs will go into graphs,
+while constraints will get attached into the values
+i would treat constraints as also being in the graph, i.e. an equation like X + Y = Z can be interpreted as an 3-ary relation +(X,Y,Z)
+
+so the way i think of it now is, it's fine to use graphs for purposes of (vaguely) organizing stuff, for example, i could choose to store l:request and the template data in different graphs, just so that it's simpler to process/edit/visualize.
+But beyond that, i'd reserve use of (non-default) graphs for situations when you need to say something about a triple, ie about a relation, as opposed to about an object.
+Ie there is some semantics that we assign to the default graph, roughly something like "this is the world according to these documents and our rules", 
+well, err, the distinction i'm trying to make is between graphs used to lump together triples of common purpose, and graphs in the sense of unique identifiers of individual triples, ie, a triple gets it's own graph so we can talk about it, and that graph is semantically included in the parent graph with something like <graph> includes <graph>. And in that sense, the fact that "hp_contract end_date _:bn1" deserves a triple-id so we can link a proof to it, while the fact that _:bn1 participates in some constraints can/should be stated in the default graph
+
+
+
+
+
+
+
+
+
+
+
+
+*/
+
             a hp:hp_calculator_query ;
+
             hp:begin_date [
                     rdf:value "2019-10-10T00:00:00"^^xsd:dateTime
              ] ;
             hp:hp_contract [
                     a hp:hp_contract ;
+
                     hp:cash_price [
                             rdf:value 321321.27
                      ] ;
@@ -731,9 +832,15 @@ l:request
                     hp:number_of_installments [
                             rdf:value 30
                      ] ;
+
                     excel:template hp_ui:hp_contract
              ] ;
+
             excel:has_sheet_name "HP" ;
             excel:template hp_ui:hp_calculator_query
-     ] .
 
+			/*the data you get in the request have everything they need to be displayable
+ie sheet name and template, so the plugin displays from basically a filled-out version of this object?
+yeah i think
+*/
+     ] .

@@ -58,3 +58,5 @@
 :- [vector_string].
 :- [xbrl_contexts].
 :- [xbrl_output].
+
+:- ['../misc/chr_hp'].

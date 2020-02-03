@@ -78,21 +78,6 @@ process_depreciation_query2(
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 	/*,
 	doc(Q, rdf:type, l:depreciation_query),
 	doc(Q, l:scenario_label, Scenario_Label),
