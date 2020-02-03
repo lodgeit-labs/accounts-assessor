@@ -63,7 +63,7 @@ find_fact4(S,P,O, Subs) :-
 	P = P1,
 	O = O1.
 
-leap_year(Year) :-
+clpfd_leap_year(Year) :-
 	(
 		0 #= Year mod 400
 	->	true
@@ -74,7 +74,7 @@ leap_year(Year) :-
 	).
 
 month_lengths([31,28,31,30,31,30,31,31,30,31,30,31]).
-month_length(Year, 2, 29) :- leap_year(Year), !.
+month_length(Year, 2, 29) :- clpfd_leap_year(Year), !.
 month_length(_, Month, Length) :- month_lengths(Lengths), nth1(Month, Lengths, Length).
 
 
@@ -375,7 +375,7 @@ get_chr_facts(Found_Facts, Current_Facts, Lists, New_Facts, New_Lists) :-
 	),
 	%format("Found fact: ~w ~w ~w~n", [S,P,O]),
 	get_chr_facts([fact(S,P,O) | Found_Facts], Next_Facts, Next_Lists, New_Facts, New_Lists).
-
+/*
 print_facts :-
 	get_chr_facts([], Facts),
 	print_facts_helper(Facts).
@@ -384,7 +384,7 @@ print_facts_helper([]) :- nl.
 print_facts_helper([fact(S,P,O)| Facts]) :-
 	format("~w ~w ~w~n", [S, P, O]),
 	print_facts_helper(Facts).
-
+*/
 
 
 % convert a chr list to a regular prolog list

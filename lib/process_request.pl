@@ -141,7 +141,7 @@ process_multifile_request(File_Paths) :-
 	(	accept_request_file(File_Paths, Rdf_Tmp_File_Path, n3)
 	->	(
 			load_request_rdf(Rdf_Tmp_File_Path, G),
-			doc_from_rdf(G),
+			doc_from_rdf(G)
 			%doc_input_to_chr_constraints
 		)
 	;	true),
