@@ -33,7 +33,10 @@ process_request_ledger2((Dom, Start_Date, End_Date), S_Transactions, Structured_
 	extract_livestock_data_from_ledger_request(Dom),
 	/* Start_Date, End_Date to substitute of "opening", "closing" */
 	extract_default_currency(Dom, Default_Currency),
-	extract_exchange_rates(Dom, Start_Date, End_Date, Default_Currency, Exchange_Rates),
+	extract_exchange_rates(Dom, Start_Date, End_Date, Default_Currency, Exchange_Rates0),
+	(	Cost_Or_Market = cost
+	->	filter_out_market_values(S_Transactions, Exchange_Rates0, Exchange_Rates)
+	;	Exchange_Rates0 = Exchange_Rates),
 	/* Start_Date_Atom in case of missing Date */
 	extract_bank_accounts(Dom),
 	extract_invoices_payable(Dom),

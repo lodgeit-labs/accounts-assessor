@@ -83,7 +83,7 @@ find_items_to_sell2(
 	[
 		(
 			outstanding(
-				ST_Currency, Type, Outstanding_Count, 
+				_ST_Currency, Type, Outstanding_Count,
 				value(Outstanding_Currency, Outstanding_Unit_Cost), Unit_Cost_Foreign,
 				Date
 			),

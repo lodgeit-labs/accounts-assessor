@@ -95,14 +95,9 @@ unrealized_gains_increase_txs(
 		)
 	).
 
-add_unit_cost_information(Static_Data, Cost, Goods_Count, Goods_Unit_Name, Goods_Unit) :-
+add_unit_cost_information(Static_Data, Goods_Unit_Name, Unit_Cost, Goods_Unit) :-
 	(	Static_Data.cost_or_market = cost
-	->	(
-			value(Cost_Currency, Cost_Amount) = Cost,
-			{Unit_Cost_Amount = Cost_Amount / Goods_Count},
-			Unit_Cost = value(Cost_Currency, Unit_Cost_Amount),
-			Goods_Unit = with_cost_per_unit(Goods_Unit_Name, Unit_Cost)
-		)
+	->	Goods_Unit = with_cost_per_unit(Goods_Unit_Name, Unit_Cost)
 	;	Goods_Unit = Goods_Unit_Name).
 
 
@@ -111,13 +106,14 @@ unrealized_gains_reduction_txs(Static_Data, Description, Transaction_Day, Tradin
 	Static_Data.accounts = Accounts,
 	Static_Data.report_currency = Report_Currency,
 	Static_Data.start_date = Start_Date,
-	goods(Purchase_Currency, Goods_Unit_Name, Goods_Count, Cost, Purchase_Date) = Purchase_Info,
+	goods(Unit_Cost_Foreign, Goods_Unit_Name, Goods_Count, Cost, Purchase_Date) = Purchase_Info,
+	value(Purchase_Currency,_) = Unit_Cost_Foreign,
 
 	gains_accounts(
 		Accounts, Trading_Account_Id, unrealized, Goods_Unit_Name, 
 		Unrealized_Gains_Currency_Movement, Unrealized_Gains_Excluding_Forex),
 
-	add_unit_cost_information(Static_Data, Cost, Goods_Count, Goods_Unit_Name, Goods_Unit),
+	add_unit_cost_information(Static_Data, Goods_Unit_Name, Unit_Cost_Foreign, Goods_Unit),
 
 	Goods = value(Goods_Unit, Goods_Count),
 	Goods_Debit = Goods_Count, 
@@ -224,8 +220,8 @@ realized_gains_txs(Static_Data, Description, Transaction_Day, Sale_Currency, Sal
 	Static_Data.accounts = Accounts,
 	Static_Data.report_currency = Report_Currency,
 	Static_Data.start_date = Start_Date,
-	goods(_ST_Currency, Goods_Unit_Name, Goods_Count, Converted_Cost, Purchase_Date) = Purchase_Info,
-	add_unit_cost_information(Static_Data, _Cost, Goods_Count, Goods_Unit_Name, Goods_Unit),
+	goods(Unit_Cost_Foreign, Goods_Unit_Name, Goods_Count, Converted_Cost, Purchase_Date) = Purchase_Info,
+	add_unit_cost_information(Static_Data, Goods_Unit_Name, Unit_Cost_Foreign, Goods_Unit),
 
 
 
@@ -233,7 +229,7 @@ realized_gains_txs(Static_Data, Description, Transaction_Day, Sale_Currency, Sal
 	{Sale_Currency_Amount = Sale_Currency_Unit_Price * Goods_Count},
 	value_multiply(Sale_Unit_Price_Converted, Goods_Count, Sale),
 	gains_accounts(
-		Accounts, Trading_Account_Id, realized, Goods_Unit, 
+		Accounts, Trading_Account_Id, realized, Goods_Unit_Name,
 		Realized_Gains_Currency_Movement, Realized_Gains_Excluding_Forex),
 	
 	/*what would be the Report_Currency value we'd get for this sale currency amount if purchase/sale currency didn't move against Report_Currency since the day of the purchase? This only makes sense for shares or similar where the price you sell it for is gonna be a result of healthy public trading or somesuch.*/

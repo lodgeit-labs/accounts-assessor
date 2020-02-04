@@ -20,7 +20,7 @@ process_ledger(
 	S_Transactions0,
 	Start_Date,
 	End_Date, 
-	Exchange_Rates0, 
+	Exchange_Rates,
 	Report_Currency,
 	Accounts_In,
 	Accounts, 
@@ -32,13 +32,8 @@ process_ledger(
 ) :-
 
 	s_transactions_up_to(End_Date, S_Transactions0, S_Transactions),
-	add_comment_stringize('Exchange rates extracted', Exchange_Rates0),
+	add_comment_stringize('Exchange rates extracted', Exchange_Rates),
 	add_comment_stringize('Accounts extracted',Accounts_In),
-
-	(	Cost_Or_Market = cost
-	->	filter_out_market_values(S_Transactions, Exchange_Rates0, Exchange_Rates)
-	;	Exchange_Rates0 = Exchange_Rates),
-	
 	generate_system_accounts(S_Transactions, Accounts_In, Generated_Accounts),
 	add_comment_stringize('Accounts generated', Generated_Accounts),
 	flatten([Accounts_In, Generated_Accounts], Accounts),

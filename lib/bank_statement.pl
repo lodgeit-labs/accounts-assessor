@@ -183,7 +183,7 @@ make_sell(Static_Data, Trading_Account, Pricing_Method, _Bank_Account_Currency, 
 	dict_vars(Static_Data, [Accounts]),
 	account_by_role(Accounts, Exchanged_Account/Goods_Unit, Exchanged_Account2),
 	bank_debit_to_unit_price(Vector_Ours, Goods_Positive, Sale_Unit_Price),
-	gtrace,
+
 	((find_items_to_sell(Pricing_Method, Goods_Unit, Goods_Positive, Transaction_Date, Sale_Unit_Price, Outstanding_In, Outstanding_Out, Goods_Cost_Values),!)
 		;(throw(not_enough_goods_to_sell))),
 	maplist(sold_goods_vector_with_cost(Static_Data), Goods_Cost_Values, Goods_With_Cost_Vectors),
@@ -194,6 +194,7 @@ make_sell(Static_Data, Trading_Account, Pricing_Method, _Bank_Account_Currency, 
 	(nonvar(Trading_Account) -> 
 		(						
 			reduce_unrealized_gains(Static_Data, Description, Trading_Account, Transaction_Date, Goods_Cost_Values, Ts2),
+
 			increase_realized_gains(Static_Data, Description, Trading_Account, Vector_Ours, Converted_Vector_Ours, Goods_Vector, Transaction_Date, Goods_Cost_Values, Ts3)
 		)
 	; true
@@ -278,19 +279,17 @@ unit_cost_value(Cost_Coord, Goods_Coord, Unit_Cost) :-
 	assertion(Goods_Count > 0),
 	credit_coord(Currency, Price, Cost_Coord),
 	assertion(Price >= 0),
+	
 	{Unit_Cost_Amount = Price / Goods_Count},
 	Unit_Cost = value(Currency, Unit_Cost_Amount).
 
 sold_goods_vector_with_cost(Static_Data, Goods_Cost_Value, [Goods_Coord_With_Cost]) :-
-	Goods_Cost_Value = goods(_, Goods_Unit, Goods_Count, Total_Cost_Value, _),
-	(
-		Static_Data.cost_or_market = market
-	->
-		Unit = Goods_Unit
-	;
-		(
-			value_divide(Total_Cost_Value, Goods_Count, Unit_Cost_Value),
-			Unit = with_cost_per_unit(Goods_Unit, Unit_Cost_Value)
+	Goods_Cost_Value = goods(Unit_Cost_Foreign, Goods_Unit, Goods_Count, _Total_Cost_Value, _),
+	(	Static_Data.cost_or_market = market
+	->	Unit = Goods_Unit
+	;	(
+			%value_divide(Foreign_Cost, Goods_Count, Unit_Cost_Value),
+			Unit = with_cost_per_unit(Goods_Unit, Unit_Cost_Foreign)
 		)
 	),
 	credit_coord(Unit, Goods_Count, Goods_Coord_With_Cost).

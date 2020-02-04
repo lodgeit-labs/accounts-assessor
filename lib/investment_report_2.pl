@@ -259,18 +259,21 @@ investment_report_2_unrealized(Static_Data, Investment, Row) :-
 	Investment = ir_item(unr, Info, Count, [], Clipped),
 	Info = info2(Investment_Currency, Unit, Opening_Unit_Cost_Converted, Opening_Unit_Cost_Foreign, Opening_Date, Original_Purchase_Info),
 
+
 	/*
 	TODO: with at-cost reporting, the goods unit will be a with_cost_per_unit, and there will be no exchange rate in the table.
 	maybe Opening_Unit_Cost_Converted, Opening_Unit_Cost_Foreign should already be stripped of and taken from  with_cost_per_unit?
 	*/
 	
 	exchange_rate_throw(Exchange_Rates, End_Date, Unit, Investment_Currency, _),
-	
+
+	value_debit_vec(Opening_Unit_Cost_Foreign, Opening_Unit_Cost_Foreign_Debit),
+
 	(
 		Cost_Or_Market = cost
 	->
 		vec_change_bases(Exchange_Rates, End_Date, [Investment_Currency], 
-			[coord(with_cost_per_unit(Unit, Opening_Unit_Cost_Converted), 1)],
+			Opening_Unit_Cost_Foreign_Debit,
 			End_Unit_Price_Coord
 		)
 	;
@@ -286,6 +289,7 @@ investment_report_2_unrealized(Static_Data, Investment, Row) :-
 	ir2_market_gain(Exchange_Rates, Opening_Date, End_Date, Investment_Currency, Report_Currency, Count, Opening_Unit_Cost_Converted, End_Unit_Price_Unit, End_Unit_Price_Amount, Market_Gain),
 	optional_currency_conversion(Exchange_Rates, Opening_Date, Investment_Currency, Report_Currency, Opening_Currency_Conversion),
 	optional_currency_conversion(Exchange_Rates, End_Date, Investment_Currency, Report_Currency, Closing_Currency_Conversion),
+	gtrace,
 	exchange_rate_throw(Exchange_Rates, End_Date, Unit, Investment_Currency, Closing_Unit_Price_Foreign_Amount),
 	Closing_Unit_Price_Foreign = value(Investment_Currency, Closing_Unit_Price_Foreign_Amount),
 	{Investment_Currency_Current_Market_Value_Amount = Count * Closing_Unit_Price_Foreign_Amount},
