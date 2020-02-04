@@ -32,18 +32,6 @@
     <xbrli:measure>iso4217:with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_13.976__</xbrli:measure>
   </xbrli:unit>
   <xbrli:unit
-      id="U-without_movement_after_SG_Issuer_SA_USD_1_date_2018_7_13__">
-    <xbrli:measure>iso4217:without_movement_after_SG_Issuer_SA_USD_1_date_2018_7_13__</xbrli:measure>
-  </xbrli:unit>
-  <xbrli:unit
-      id="U-without_movement_after_with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_0.9983___date_2018_7_13__">
-    <xbrli:measure>iso4217:without_movement_after_with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_0.9983___date_2018_7_13__</xbrli:measure>
-  </xbrli:unit>
-  <xbrli:unit
-      id="U-without_movement_after_with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_13.976___date_2018_7_13__">
-    <xbrli:measure>iso4217:without_movement_after_with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_13.976___date_2018_7_13__</xbrli:measure>
-  </xbrli:unit>
-  <xbrli:unit
       id="U-without_currency_movement_against_since_CHF_CHF____date_2018_7_10__">
     <xbrli:measure>iso4217:without_currency_movement_against_since_CHF_CHF____date_2018_7_10__</xbrli:measure>
   </xbrli:unit>
@@ -96,6 +84,14 @@
   </xbrli:unit>
   <xbrli:unit id="U-without_movement_after_USD_date_2018_7_13__">
     <xbrli:measure>iso4217:without_movement_after_USD_date_2018_7_13__</xbrli:measure>
+  </xbrli:unit>
+  <xbrli:unit
+      id="U-without_movement_after_with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_0.9983___date_2018_7_13__">
+    <xbrli:measure>iso4217:without_movement_after_with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_0.9983___date_2018_7_13__</xbrli:measure>
+  </xbrli:unit>
+  <xbrli:unit
+      id="U-without_movement_after_with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_13.976___date_2018_7_13__">
+    <xbrli:measure>iso4217:without_movement_after_with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_13.976___date_2018_7_13__</xbrli:measure>
   </xbrli:unit>
   <xbrli:unit
       id="U-without_currency_movement_against_since_USD_USD____date_2018_7_13__">
@@ -297,8 +293,12 @@
       decimals="INF">220,000.00</basic:InvestmentIncomeRealizedWithoutCurrencyMovement>
   <basic:InvestmentIncomeRealizedWithoutCurrencyMovement
       contextRef="D-2019-SG_Issuer_SA_USD_1"
-      unitRef="U-without_movement_after_SG_Issuer_SA_USD_1_date_2018_7_13__"
-      decimals="INF">-145,000.00</basic:InvestmentIncomeRealizedWithoutCurrencyMovement>
+      unitRef="U-without_movement_after_with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_0.9983___date_2018_7_13__"
+      decimals="INF">-140,000.00</basic:InvestmentIncomeRealizedWithoutCurrencyMovement>
+  <basic:InvestmentIncomeRealizedWithoutCurrencyMovement
+      contextRef="D-2019-SG_Issuer_SA_USD_1"
+      unitRef="U-without_movement_after_with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_13.976___date_2018_7_13__"
+      decimals="INF">-5,000.00</basic:InvestmentIncomeRealizedWithoutCurrencyMovement>
   <basic:InvestmentIncomeRealizedWithoutCurrencyMovement
       contextRef="D-2019-SG_Issuer_SA_USD_1"
       unitRef="U-without_currency_movement_against_since_USD_USD____date_2018_7_13__"
@@ -369,18 +369,6 @@
       decimals="INF">5,000.00</basic:Equity>
   <basic:Equity
       contextRef="I-2019"
-      unitRef="U-without_movement_after_SG_Issuer_SA_USD_1_date_2018_7_13__"
-      decimals="INF">-145,000.00</basic:Equity>
-  <basic:Equity
-      contextRef="I-2019"
-      unitRef="U-without_movement_after_with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_0.9983___date_2018_7_13__"
-      decimals="INF">140,000.00</basic:Equity>
-  <basic:Equity
-      contextRef="I-2019"
-      unitRef="U-without_movement_after_with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_13.976___date_2018_7_13__"
-      decimals="INF">5,000.00</basic:Equity>
-  <basic:Equity
-      contextRef="I-2019"
       unitRef="U-without_currency_movement_against_since_CHF_CHF____date_2018_7_10__"
       decimals="INF">1,000.00</basic:Equity>
   <basic:Equity
@@ -432,18 +420,6 @@
   <basic:RetainedEarnings
       contextRef="I-2019"
       unitRef="U-with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_13.976__"
-      decimals="INF">5,000.00</basic:RetainedEarnings>
-  <basic:RetainedEarnings
-      contextRef="I-2019"
-      unitRef="U-without_movement_after_SG_Issuer_SA_USD_1_date_2018_7_13__"
-      decimals="INF">-145,000.00</basic:RetainedEarnings>
-  <basic:RetainedEarnings
-      contextRef="I-2019"
-      unitRef="U-without_movement_after_with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_0.9983___date_2018_7_13__"
-      decimals="INF">140,000.00</basic:RetainedEarnings>
-  <basic:RetainedEarnings
-      contextRef="I-2019"
-      unitRef="U-without_movement_after_with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_13.976___date_2018_7_13__"
       decimals="INF">5,000.00</basic:RetainedEarnings>
   <basic:RetainedEarnings
       contextRef="I-2019"
@@ -505,16 +481,16 @@
       decimals="INF">1,000.00</basic:CurrentEarnings>
   <basic:CurrentEarnings
       contextRef="I-2019"
-      unitRef="U-without_movement_after_SG_Issuer_SA_USD_1_date_2018_7_13__"
-      decimals="INF">-145,000.00</basic:CurrentEarnings>
-  <basic:CurrentEarnings
-      contextRef="I-2019"
       unitRef="U-without_movement_after_USD_date_2018_7_13__"
       decimals="INF">231,123.48</basic:CurrentEarnings>
   <basic:CurrentEarnings
       contextRef="I-2019"
+      unitRef="U-without_movement_after_with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_0.9983___date_2018_7_13__"
+      decimals="INF">-140,000.00</basic:CurrentEarnings>
+  <basic:CurrentEarnings
+      contextRef="I-2019"
       unitRef="U-without_movement_after_with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_13.976___date_2018_7_13__"
-      decimals="INF">-5,000.00</basic:CurrentEarnings>
+      decimals="INF">-10,000.00</basic:CurrentEarnings>
   <basic:CurrentEarnings
       contextRef="I-2019"
       unitRef="U-without_currency_movement_against_since_CHF_CHF____date_2018_8_16__"
@@ -593,16 +569,16 @@
       decimals="INF">1,000.00</basic:NetIncomeLoss>
   <basic:NetIncomeLoss
       contextRef="D-2019"
-      unitRef="U-without_movement_after_SG_Issuer_SA_USD_1_date_2018_7_13__"
-      decimals="INF">-145,000.00</basic:NetIncomeLoss>
-  <basic:NetIncomeLoss
-      contextRef="D-2019"
       unitRef="U-without_movement_after_USD_date_2018_7_13__"
       decimals="INF">231,123.48</basic:NetIncomeLoss>
   <basic:NetIncomeLoss
       contextRef="D-2019"
+      unitRef="U-without_movement_after_with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_0.9983___date_2018_7_13__"
+      decimals="INF">-140,000.00</basic:NetIncomeLoss>
+  <basic:NetIncomeLoss
+      contextRef="D-2019"
       unitRef="U-without_movement_after_with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_13.976___date_2018_7_13__"
-      decimals="INF">-5,000.00</basic:NetIncomeLoss>
+      decimals="INF">-10,000.00</basic:NetIncomeLoss>
   <basic:NetIncomeLoss
       contextRef="D-2019"
       unitRef="U-without_currency_movement_against_since_CHF_CHF____date_2018_8_16__"
@@ -651,16 +627,16 @@
       decimals="INF">1,000.00</basic:Revenue>
   <basic:Revenue
       contextRef="D-2019"
-      unitRef="U-without_movement_after_SG_Issuer_SA_USD_1_date_2018_7_13__"
-      decimals="INF">-145,000.00</basic:Revenue>
-  <basic:Revenue
-      contextRef="D-2019"
       unitRef="U-without_movement_after_USD_date_2018_7_13__"
       decimals="INF">231,123.48</basic:Revenue>
   <basic:Revenue
       contextRef="D-2019"
+      unitRef="U-without_movement_after_with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_0.9983___date_2018_7_13__"
+      decimals="INF">-140,000.00</basic:Revenue>
+  <basic:Revenue
+      contextRef="D-2019"
       unitRef="U-without_movement_after_with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_13.976___date_2018_7_13__"
-      decimals="INF">-5,000.00</basic:Revenue>
+      decimals="INF">-10,000.00</basic:Revenue>
   <basic:Revenue
       contextRef="D-2019"
       unitRef="U-without_currency_movement_against_since_CHF_CHF____date_2018_8_16__"
@@ -787,18 +763,22 @@
       decimals="INF">5,000.00</basic:InvestmentIncome>
   <basic:InvestmentIncome
       contextRef="D-2019"
-      unitRef="U-without_movement_after_SG_Issuer_SA_USD_1_date_2018_7_13__"
-      decimals="INF">-145,000.00</basic:InvestmentIncome>
+      unitRef="U-without_movement_after_with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_0.9983___date_2018_7_13__"
+      decimals="INF">-140,000.00</basic:InvestmentIncome>
   <basic:InvestmentIncome
       contextRef="D-2019"
       unitRef="U-without_movement_after_with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_13.976___date_2018_7_13__"
-      decimals="INF">-5,000.00</basic:InvestmentIncome>
+      decimals="INF">-10,000.00</basic:InvestmentIncome>
   <basic:InvestmentIncomeRealized contextRef="D-2019" unitRef="U-CHF" decimals="INF">139,123.90</basic:InvestmentIncomeRealized>
   <basic:InvestmentIncomeRealized contextRef="D-2019" unitRef="U-USD" decimals="INF">145,000.00</basic:InvestmentIncomeRealized>
   <basic:InvestmentIncomeRealized
       contextRef="D-2019"
-      unitRef="U-without_movement_after_SG_Issuer_SA_USD_1_date_2018_7_13__"
-      decimals="INF">-145,000.00</basic:InvestmentIncomeRealized>
+      unitRef="U-without_movement_after_with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_0.9983___date_2018_7_13__"
+      decimals="INF">-140,000.00</basic:InvestmentIncomeRealized>
+  <basic:InvestmentIncomeRealized
+      contextRef="D-2019"
+      unitRef="U-without_movement_after_with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_13.976___date_2018_7_13__"
+      decimals="INF">-5,000.00</basic:InvestmentIncomeRealized>
   <basic:InvestmentIncomeRealizedOnlyCurrencyMovement contextRef="D-2019" unitRef="U-CHF" decimals="INF">220,000.00</basic:InvestmentIncomeRealizedOnlyCurrencyMovement>
   <basic:InvestmentIncomeRealizedOnlyCurrencyMovement contextRef="D-2019" unitRef="U-USD" decimals="INF">145,000.00</basic:InvestmentIncomeRealizedOnlyCurrencyMovement>
   <basic:InvestmentIncomeRealizedOnlyCurrencyMovement
@@ -812,8 +792,12 @@
   <basic:InvestmentIncomeRealizedWithoutCurrencyMovement contextRef="D-2019" unitRef="U-CHF" decimals="INF">-80,876.10</basic:InvestmentIncomeRealizedWithoutCurrencyMovement>
   <basic:InvestmentIncomeRealizedWithoutCurrencyMovement
       contextRef="D-2019"
-      unitRef="U-without_movement_after_SG_Issuer_SA_USD_1_date_2018_7_13__"
-      decimals="INF">-145,000.00</basic:InvestmentIncomeRealizedWithoutCurrencyMovement>
+      unitRef="U-without_movement_after_with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_0.9983___date_2018_7_13__"
+      decimals="INF">-140,000.00</basic:InvestmentIncomeRealizedWithoutCurrencyMovement>
+  <basic:InvestmentIncomeRealizedWithoutCurrencyMovement
+      contextRef="D-2019"
+      unitRef="U-without_movement_after_with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_13.976___date_2018_7_13__"
+      decimals="INF">-5,000.00</basic:InvestmentIncomeRealizedWithoutCurrencyMovement>
   <basic:InvestmentIncomeRealizedWithoutCurrencyMovement
       contextRef="D-2019"
       unitRef="U-without_currency_movement_against_since_CHF_CHF____date_2018_10_1__"
@@ -852,18 +836,6 @@
   <basic:InterestEarned contextRef="D-2019" unitRef="U-USD" decimals="INF">30.00</basic:InterestEarned>
   <basic:Trial_Balance contextRef="I-2019" unitRef="U-CHF" decimals="INF">-32,705.05</basic:Trial_Balance>
   <basic:Trial_Balance contextRef="I-2019" unitRef="U-USD" decimals="INF">-63,886.52</basic:Trial_Balance>
-  <basic:Trial_Balance
-      contextRef="I-2019"
-      unitRef="U-without_movement_after_SG_Issuer_SA_USD_1_date_2018_7_13__"
-      decimals="INF">145,000.00</basic:Trial_Balance>
-  <basic:Trial_Balance
-      contextRef="I-2019"
-      unitRef="U-without_movement_after_with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_0.9983___date_2018_7_13__"
-      decimals="INF">-140,000.00</basic:Trial_Balance>
-  <basic:Trial_Balance
-      contextRef="I-2019"
-      unitRef="U-without_movement_after_with_cost_per_unit_SG_Issuer_SA_USD_1_value_USD_13.976___date_2018_7_13__"
-      decimals="INF">-5,000.00</basic:Trial_Balance>
   <basic:Trial_Balance
       contextRef="I-2019"
       unitRef="U-without_currency_movement_against_since_CHF_CHF____date_2018_7_10__"

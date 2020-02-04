@@ -1,4 +1,4 @@
 
 :- [rpc_server].
 
-% :- debug.
+:- debug.

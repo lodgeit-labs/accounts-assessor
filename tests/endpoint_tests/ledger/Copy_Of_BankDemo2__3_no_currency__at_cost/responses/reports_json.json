@@ -191,21 +191,6 @@
   "unit":"with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',13.976))"
 },
      {
-  "credit":0,
-  "debit":145000,
-  "unit":"without_movement_after('SG Issuer_SA_USD_1',date(2018,7,13))"
-},
-     {
-  "credit":140000,
-  "debit":0,
-  "unit":"without_movement_after(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',0.9983)),date(2018,7,13))"
-},
-     {
-  "credit":5000,
-  "debit":0,
-  "unit":"without_movement_after(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',13.976)),date(2018,7,13))"
-},
-     {
   "credit":1000,
   "debit":0,
   "unit":"without_currency_movement_against_since('CHF','CHF',[],date(2018,7,10))"
@@ -290,21 +275,6 @@
   "unit":"with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',13.976))"
 },
      {
-  "credit":0,
-  "debit":145000,
-  "unit":"without_movement_after('SG Issuer_SA_USD_1',date(2018,7,13))"
-},
-     {
-  "credit":140000,
-  "debit":0,
-  "unit":"without_movement_after(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',0.9983)),date(2018,7,13))"
-},
-     {
-  "credit":5000,
-  "debit":0,
-  "unit":"without_movement_after(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',13.976)),date(2018,7,13))"
-},
-     {
   "credit":1000,
   "debit":0,
   "unit":"without_currency_movement_against_since('CHF','CHF',[],date(2018,7,10))"
@@ -382,18 +352,18 @@
   "unit":"without_movement_after('CHF',date(2018,7,13))"
 },
      {
-  "credit":0,
-  "debit":145000,
-  "unit":"without_movement_after('SG Issuer_SA_USD_1',date(2018,7,13))"
-},
-     {
   "credit":231123.48,
   "debit":0,
   "unit":"without_movement_after('USD',date(2018,7,13))"
 },
      {
   "credit":0,
-  "debit":5000,
+  "debit":140000,
+  "unit":"without_movement_after(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',0.9983)),date(2018,7,13))"
+},
+     {
+  "credit":0,
+  "debit":10000,
   "unit":"without_movement_after(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',13.976)),date(2018,7,13))"
 },
      {
@@ -904,8 +874,12 @@
 	  "a": [
 	     {"amount":-80876.1, "unit":"CHF"},
 	     {
-  "amount":-145000,
-  "unit":"without_movement_after('SG Issuer_SA_USD_1',date(2018,7,13))"
+  "amount":-140000,
+  "unit":"without_movement_after(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',0.9983)),date(2018,7,13))"
+},
+	     {
+  "amount":-5000,
+  "unit":"without_movement_after(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',13.976)),date(2018,7,13))"
 },
 	     {
   "amount":220000,
@@ -1004,11 +978,11 @@
   "unit":"with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',13.976))"
 },
 	     {
-  "amount":-145000,
-  "unit":"without_movement_after('SG Issuer_SA_USD_1',date(2018,7,13))"
+  "amount":-140000,
+  "unit":"without_movement_after(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',0.9983)),date(2018,7,13))"
 },
 	     {
-  "amount":-5000,
+  "amount":-10000,
   "unit":"without_movement_after(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',13.976)),date(2018,7,13))"
 }
 	  ],
@@ -1050,8 +1024,12 @@
 	     {"amount":139123.9, "unit":"CHF"},
 	     {"amount":145000, "unit":"USD"},
 	     {
-  "amount":-145000,
-  "unit":"without_movement_after('SG Issuer_SA_USD_1',date(2018,7,13))"
+  "amount":-140000,
+  "unit":"without_movement_after(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',0.9983)),date(2018,7,13))"
+},
+	     {
+  "amount":-5000,
+  "unit":"without_movement_after(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',13.976)),date(2018,7,13))"
 }
 	  ],
 	  "b":"evaluation_failed(report_value(reports/ir/current/totals/gains/realized_total),evaluation_failure14)",
@@ -1177,18 +1155,6 @@
   "unit":"with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',13.976))"
 },
 	     {
-  "amount":-145000,
-  "unit":"without_movement_after('SG Issuer_SA_USD_1',date(2018,7,13))"
-},
-	     {
-  "amount":140000,
-  "unit":"without_movement_after(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',0.9983)),date(2018,7,13))"
-},
-	     {
-  "amount":5000,
-  "unit":"without_movement_after(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',13.976)),date(2018,7,13))"
-},
-	     {
   "amount":1000,
   "unit":"without_currency_movement_against_since('CHF','CHF',[],date(2018,7,10))"
 },
@@ -1262,18 +1228,18 @@
   "unit":"without_movement_after('CHF',date(2018,7,13))"
 },
      {
-  "credit":0,
-  "debit":145000,
-  "unit":"without_movement_after('SG Issuer_SA_USD_1',date(2018,7,13))"
-},
-     {
   "credit":231123.48,
   "debit":0,
   "unit":"without_movement_after('USD',date(2018,7,13))"
 },
      {
   "credit":0,
-  "debit":5000,
+  "debit":140000,
+  "unit":"without_movement_after(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',0.9983)),date(2018,7,13))"
+},
+     {
+  "credit":0,
+  "debit":10000,
   "unit":"without_movement_after(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',13.976)),date(2018,7,13))"
 },
      {
@@ -1389,18 +1355,18 @@
   "unit":"without_movement_after('CHF',date(2018,7,13))"
 },
      {
-  "credit":0,
-  "debit":145000,
-  "unit":"without_movement_after('SG Issuer_SA_USD_1',date(2018,7,13))"
-},
-     {
   "credit":231123.48,
   "debit":0,
   "unit":"without_movement_after('USD',date(2018,7,13))"
 },
      {
   "credit":0,
-  "debit":5000,
+  "debit":140000,
+  "unit":"without_movement_after(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',0.9983)),date(2018,7,13))"
+},
+     {
+  "credit":0,
+  "debit":10000,
   "unit":"without_movement_after(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',13.976)),date(2018,7,13))"
 },
      {
@@ -1595,12 +1561,12 @@
 },
      {
   "credit":0,
-  "debit":145000,
-  "unit":"without_movement_after('SG Issuer_SA_USD_1',date(2018,7,13))"
+  "debit":140000,
+  "unit":"without_movement_after(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',0.9983)),date(2018,7,13))"
 },
      {
   "credit":0,
-  "debit":5000,
+  "debit":10000,
   "unit":"without_movement_after(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',13.976)),date(2018,7,13))"
 }
   ],
@@ -1612,8 +1578,13 @@
      {"credit":145000, "debit":0, "unit":"USD"},
      {
   "credit":0,
-  "debit":145000,
-  "unit":"without_movement_after('SG Issuer_SA_USD_1',date(2018,7,13))"
+  "debit":140000,
+  "unit":"without_movement_after(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',0.9983)),date(2018,7,13))"
+},
+     {
+  "credit":0,
+  "debit":5000,
+  "unit":"without_movement_after(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',13.976)),date(2018,7,13))"
 }
   ],
   "child_sheet_entries": [
@@ -1675,8 +1646,13 @@
      {"credit":0, "debit":80876.1, "unit":"CHF"},
      {
   "credit":0,
-  "debit":145000,
-  "unit":"without_movement_after('SG Issuer_SA_USD_1',date(2018,7,13))"
+  "debit":140000,
+  "unit":"without_movement_after(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',0.9983)),date(2018,7,13))"
+},
+     {
+  "credit":0,
+  "debit":5000,
+  "unit":"without_movement_after(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',13.976)),date(2018,7,13))"
 },
      {
   "credit":220000,
@@ -1714,8 +1690,13 @@
   "balance": [
      {
   "credit":0,
-  "debit":145000,
-  "unit":"without_movement_after('SG Issuer_SA_USD_1',date(2018,7,13))"
+  "debit":140000,
+  "unit":"without_movement_after(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',0.9983)),date(2018,7,13))"
+},
+     {
+  "credit":0,
+  "debit":5000,
+  "unit":"without_movement_after(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',13.976)),date(2018,7,13))"
 },
      {
   "credit":145000,
@@ -2490,21 +2471,6 @@
   "balance": [
      {"credit":32705.05, "debit":0, "unit":"CHF"},
      {"credit":63886.52, "debit":0, "unit":"USD"},
-     {
-  "credit":0,
-  "debit":145000,
-  "unit":"without_movement_after('SG Issuer_SA_USD_1',date(2018,7,13))"
-},
-     {
-  "credit":140000,
-  "debit":0,
-  "unit":"without_movement_after(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',0.9983)),date(2018,7,13))"
-},
-     {
-  "credit":5000,
-  "debit":0,
-  "unit":"without_movement_after(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',13.976)),date(2018,7,13))"
-},
      {
   "credit":1000,
   "debit":0,

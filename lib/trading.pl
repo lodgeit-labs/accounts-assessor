@@ -24,13 +24,25 @@ reduce_unrealized_gains(Static_Data, Description, Trading_Account_Id, Transactio
 	(nonvar(Current_Txs) -> txs_to_transactions(Start_Date, Current_Txs, Ts1) ; true),
 	(nonvar(Historical_Txs) -> txs_to_transactions(Before_Start, Historical_Txs, Ts2) ; true).	
 
-unrealized_gains_increase_txs(Static_Data, Description, Trading_Account_Id, Purchase_Currency, Cost_Vector, Goods, Transaction_Day, Txs, Historical_Txs, Current_Txs) :-
+unrealized_gains_increase_txs(
+	Static_Data,
+	Description,
+	Trading_Account_Id,
+	Purchase_Currency,
+	Cost_Vector,
+	Goods,
+	Transaction_Day,
+	Txs,
+	Historical_Txs,
+	Current_Txs
+) :-
 	dict_vars(Static_Data, [Accounts, Report_Currency, Start_Date]),
 	Goods = [coord(Goods_Unit, Goods_Debit)],
-	unit_bare(Goods_Unit, Goods_Unit_Bare),
+
 	gains_accounts(
-		Accounts, Trading_Account_Id, unrealized, Goods_Unit_Bare, 
+		Accounts, Trading_Account_Id, unrealized, $>unit_bare(Goods_Unit),
 		Unrealized_Gains_Currency_Movement, Unrealized_Gains_Excluding_Forex),
+
 	Goods_Without_Currency_Movement = [coord(
 		without_currency_movement_against_since(Goods_Unit, Purchase_Currency, Report_Currency, Transaction_Day), 
 		Goods_Debit)
@@ -82,31 +94,27 @@ unrealized_gains_increase_txs(Static_Data, Description, Trading_Account_Id, Purc
 			], Current_Txs, [Description, ' - current part'], cr)
 		)
 	).
-	
+
+add_unit_cost_information(Static_Data, Goods_Unit_Name, Unit_Cost, Goods_Unit) :-
+	(	Static_Data.cost_or_market = cost
+	->	Goods_Unit = with_cost_per_unit(Goods_Unit_Name, Unit_Cost)
+	;	Goods_Unit = Goods_Unit_Name).
+
+
 /* the transactions produced should be an inverse of the increase ones, we should abstract it out */
 unrealized_gains_reduction_txs(Static_Data, Description, Transaction_Day, Trading_Account_Id, Purchase_Info, Txs, Historical_Txs, Current_Txs) :-
 	Static_Data.accounts = Accounts,
 	Static_Data.report_currency = Report_Currency,
 	Static_Data.start_date = Start_Date,
-	goods(Purchase_Currency, Goods_Unit_Name, Goods_Count, Cost, Purchase_Date) = Purchase_Info,
+	goods(Unit_Cost_Foreign, Goods_Unit_Name, Goods_Count, Cost, Purchase_Date) = Purchase_Info,
+	value(Purchase_Currency,_) = Unit_Cost_Foreign,
 
 	gains_accounts(
 		Accounts, Trading_Account_Id, unrealized, Goods_Unit_Name, 
 		Unrealized_Gains_Currency_Movement, Unrealized_Gains_Excluding_Forex),
 
-	(
-		Static_Data.cost_or_market = cost
-	->
-		(
-			Cost = value(Cost_Currency, Cost_Amount),
-			Unit_Cost_Amount is Cost_Amount / Goods_Count,
-			Unit_Cost = value(Cost_Currency, Unit_Cost_Amount),
-			Goods_Unit = with_cost_per_unit(Goods_Unit_Name, Unit_Cost)
-		)
-	;
-		Goods_Unit = Goods_Unit_Name
-	),
-	
+	add_unit_cost_information(Static_Data, Goods_Unit_Name, Unit_Cost_Foreign, Goods_Unit),
+
 	Goods = value(Goods_Unit, Goods_Count),
 	Goods_Debit = Goods_Count, 
 	Goods_Historical = [coord(
@@ -212,11 +220,16 @@ realized_gains_txs(Static_Data, Description, Transaction_Day, Sale_Currency, Sal
 	Static_Data.accounts = Accounts,
 	Static_Data.report_currency = Report_Currency,
 	Static_Data.start_date = Start_Date,
-	goods(_ST_Currency, Goods_Unit, Goods_Count, Converted_Cost, Purchase_Date) = Purchase_Info,
+	goods(Unit_Cost_Foreign, Goods_Unit_Name, Goods_Count, Converted_Cost, Purchase_Date) = Purchase_Info,
+	add_unit_cost_information(Static_Data, Goods_Unit_Name, Unit_Cost_Foreign, Goods_Unit),
+
+
+
+
 	{Sale_Currency_Amount = Sale_Currency_Unit_Price * Goods_Count},
 	value_multiply(Sale_Unit_Price_Converted, Goods_Count, Sale),
 	gains_accounts(
-		Accounts, Trading_Account_Id, realized, Goods_Unit, 
+		Accounts, Trading_Account_Id, realized, Goods_Unit_Name,
 		Realized_Gains_Currency_Movement, Realized_Gains_Excluding_Forex),
 	
 	/*what would be the Report_Currency value we'd get for this sale currency amount if purchase/sale currency didn't move against Report_Currency since the day of the purchase? This only makes sense for shares or similar where the price you sell it for is gonna be a result of healthy public trading or somesuch.*/
@@ -356,6 +369,6 @@ we bought the shares with some currency. we can think of gains as having two par
 		}],
 */
 
-unit_bare(with_cost_per_unit(Unit, _), Unit).
+unit_bare(with_cost_per_unit(Unit, _), Unit) :- !.
 unit_bare(Unit, Unit).
 	

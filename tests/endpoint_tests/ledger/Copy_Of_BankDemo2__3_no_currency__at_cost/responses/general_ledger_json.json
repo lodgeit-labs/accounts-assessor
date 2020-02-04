@@ -2979,7 +2979,7 @@
 	   {
   "credit":0,
   "debit":140000,
-  "unit":"without_movement_after('SG Issuer_SA_USD_1',date(2018,7,13))"
+  "unit":"without_movement_after(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',1.0)),date(2018,7,13))"
 },
 	   {
   "credit":140000,
@@ -2997,14 +2997,14 @@
 	   {
   "credit":0,
   "debit":140000,
-  "unit":"without_movement_after('SG Issuer_SA_USD_1',date(2018,7,13))"
+  "unit":"without_movement_after(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',1.0)),date(2018,7,13))"
 }
 	],
 	"vector_converted_at_balance_date": [
 	   {
   "credit":0,
   "debit":140000,
-  "unit":"without_movement_after('SG Issuer_SA_USD_1',date(2018,7,13))"
+  "unit":"without_movement_after(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',1.0)),date(2018,7,13))"
 },
 	   {
   "credit":140000,
@@ -3016,7 +3016,7 @@
 	   {
   "credit":0,
   "debit":140000,
-  "unit":"without_movement_after('SG Issuer_SA_USD_1',date(2018,7,13))"
+  "unit":"without_movement_after(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',1.0)),date(2018,7,13))"
 },
 	   {
   "credit":140000,
@@ -3070,8 +3070,13 @@
 	"running_balance": [
 	   {
   "credit":0,
-  "debit":145000,
-  "unit":"without_movement_after('SG Issuer_SA_USD_1',date(2018,7,13))"
+  "debit":140000,
+  "unit":"without_movement_after(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',1.0)),date(2018,7,13))"
+},
+	   {
+  "credit":0,
+  "debit":5000,
+  "unit":"without_movement_after(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',13.98)),date(2018,7,13))"
 },
 	   {
   "credit":145000,
@@ -3089,14 +3094,14 @@
 	   {
   "credit":0,
   "debit":5000,
-  "unit":"without_movement_after('SG Issuer_SA_USD_1',date(2018,7,13))"
+  "unit":"without_movement_after(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',13.98)),date(2018,7,13))"
 }
 	],
 	"vector_converted_at_balance_date": [
 	   {
   "credit":0,
   "debit":5000,
-  "unit":"without_movement_after('SG Issuer_SA_USD_1',date(2018,7,13))"
+  "unit":"without_movement_after(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',13.98)),date(2018,7,13))"
 },
 	   {
   "credit":5000,
@@ -3108,7 +3113,7 @@
 	   {
   "credit":0,
   "debit":5000,
-  "unit":"without_movement_after('SG Issuer_SA_USD_1',date(2018,7,13))"
+  "unit":"without_movement_after(with_cost_per_unit('SG Issuer_SA_USD_1',value('USD',13.98)),date(2018,7,13))"
 },
 	   {
   "credit":5000,
