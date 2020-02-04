@@ -12,13 +12,15 @@
 
 	
 transaction_to_dict(T, D) :-
+	% breaks if transaction record signature changes
 	T = transaction(Day, Description, Account, Vector, Type),
 	D = _{
 		date: Day,
 		description: Description,
 		account: Account,
 		vector: Vector,
-		type: Type}.
+		type: Type
+	}.
 
 
 transaction_account_in_set(Accounts, Transaction, Root_Account_Id) :-

@@ -191,7 +191,10 @@ extract_s_transaction2(Tx_Dom, Account_Currency, Account, Start_Date, ST) :-
 	Dr is rationalize(Bank_Debit - Bank_Credit),
 	Coord = coord(Account_Currency, Dr),
 	ST = s_transaction(Date, Desc1, [Coord], Account, Exchanged, misc{desc2:Desc2}),
-	extract_exchanged_value(Tx_Dom, Account_Currency, Dr, Exchanged).
+	extract_exchanged_value(Tx_Dom, Account_Currency, Dr, Exchanged),
+	doc_new_uri(ST_URI),
+	doc_add(ST_URI, a, s_transaction),
+	doc_add(ST_URI, s_transaction:type_id, Desc1).
 
 extract_exchanged_value(Tx_Dom, _Account_Currency, Bank_Dr, Exchanged) :-
    % if unit type and count is specified, unifies Exchanged with a one-item vector with a coord with those values

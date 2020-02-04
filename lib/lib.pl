@@ -22,6 +22,7 @@
 :- [accounts].
 :- [action_verbs].
 :- [bank_statement].
+:- [cashflow].
 :- [crosschecks_report].
 :- [days].
 :- [detail_accounts].

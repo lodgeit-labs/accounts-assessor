@@ -72,6 +72,15 @@ account_own_transactions_sum(Exchange_Rates, Exchange_Date, Report_Currency, Acc
 	
 
 :- table balance/5.
+/*
+balance(
+	Static_Data,			% Static Data
+	Account_Id,				% atom:Account ID
+	Date,					% date(Year, Month, Day)
+	Balance,				% List record:coord
+	Transactions_Count		% Nat
+).
+*/
 % TODO: do "Transactions_Count" elsewhere
 % TODO: get rid of the add_days(...) and use generic period selector(s)
 balance(Static_Data, Account_Id, Date, Balance, Transactions_Count) :-
