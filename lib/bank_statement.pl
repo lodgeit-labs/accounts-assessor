@@ -152,18 +152,17 @@ make_buy(Static_Data, Trading_Account, Pricing_Method, Bank_Account_Currency, Go
 	number_coord(Goods_Unit, Goods_Count, Goods_Coord),
 	dict_vars(Static_Data, [Accounts, Cost_Or_Market]),
 	account_by_role(Accounts, Exchanged_Account/Goods_Unit, Exchanged_Account2),
-	(
-		Cost_Or_Market = cost
-	->
-		(
+
+	(	Cost_Or_Market = cost
+	->	(
 			purchased_goods_coord_with_cost(Goods_Coord, Coord_Ours, Goods_Coord_With_Cost),
 			Goods_Vector2 = [Goods_Coord_With_Cost]
 		)
-	;
-		Goods_Vector2 = Goods_Vector
-	),
+	;	Goods_Vector2 = Goods_Vector),
 
 	make_transaction(Transaction_Date, Description, Exchanged_Account2, Goods_Vector2, Ts1),
+
+	%[coord(Goods_Unit_Maybe_With_Cost,_)] = Goods_Vector2,
 
 	add_bought_items(
 		Pricing_Method, 
@@ -279,7 +278,7 @@ unit_cost_value(Cost_Coord, Goods_Coord, Unit_Cost) :-
 	assertion(Goods_Count > 0),
 	credit_coord(Currency, Price, Cost_Coord),
 	assertion(Price >= 0),
-	
+
 	{Unit_Cost_Amount = Price / Goods_Count},
 	Unit_Cost = value(Currency, Unit_Cost_Amount).
 
