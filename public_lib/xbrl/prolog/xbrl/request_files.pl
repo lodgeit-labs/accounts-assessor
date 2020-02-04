@@ -9,8 +9,11 @@
 */
 generate_unique_tmp_directory_prefix :-
    get_time(Current_Time),
+   format("generate_unique_tmp_directory_prefix:get_time(~w)~n", [Current_Time]),
    atomic_list_concat([Current_Time, '.'], Base),
-   asserta(session_tmp_directory_base(tmp_directory_name_prefix(Base))).
+   format("generate_unique_tmp_directory_prefix:atomic_list_concat(~w, ~w)~n", [[Current_Time, '.'], Base]),
+   asserta(session_tmp_directory_base(tmp_directory_name_prefix(Base))),
+   format("generate_unique_tmp_directory_prefix:asserta(session_tmp_directory_base(tmp_directory_name_prefix(~w)))~n",[Base]).
 
 /*
   create a new unique directory under my_tmp
@@ -105,7 +108,9 @@ write_tmp_json_file(Name, Json) :-
 /* my_tmp_file_url? */
 report_file_path(loc(file_name, FN), loc(absolute_url,Url), Path) :-
 	my_request_tmp_dir(loc(tmp_directory_name, Tmp_Dir_Value)),
+	format("report_file_path:my_request_tmp_dir(loc(tmp_directory_name, ~w))~n", [Tmp_Dir_Value]),
 	server_public_url(Server_Public_Url),
+	format("report_file_path:server_public_url(~w)~n",[Server_Public_Url]),
 	atomic_list_concat([Server_Public_Url, '/tmp/', Tmp_Dir_Value, '/', FN], Url),
 	absolute_tmp_path(loc(file_name, FN), Path).
 
@@ -141,7 +146,9 @@ tmp_file_path_from_something(FileName, Path) :-
 
 tmp_file_path_to_url(Path, Url) :-
 	exclude_file_location_from_filename(Path, Fn),
-	report_file_path(Fn, Url, _).
+	format("tmp_file_path_to_url:exclude_file_location_from_filename(~w, ~w)~n", [Path,Fn]),
+	report_file_path(Fn, Url, _),
+	format("tmp_file_path_to_url:report_file_path(~w, ~w, ~w)~n", [Fn, Url, _]).
 
 loc_icase_endswith(loc(_, Fn), Suffix) :-
 	icase_endswith(Fn, Suffix).

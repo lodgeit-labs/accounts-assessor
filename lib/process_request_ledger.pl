@@ -68,10 +68,10 @@ process_request_ledger2((Dom, Start_Date, End_Date), S_Transactions, Structured_
 create_reports(Static_Data, Structured_Reports) :-
 	static_data_historical(Static_Data, Static_Data_Historical),
 	balance_entries(Static_Data, Static_Data_Historical, Entries),
-	dict_vars(Entries, [Balance_Sheet, ProfitAndLoss, Balance_Sheet2_Historical, ProfitAndLoss2_Historical, Trial_Balance]),
+	dict_vars(Entries, [Balance_Sheet, ProfitAndLoss, Balance_Sheet2_Historical, ProfitAndLoss2_Historical, Trial_Balance, Cf]),
 	taxonomy_url_base,
 	create_instance(Xbrl, Static_Data, Static_Data.start_date, Static_Data.end_date, Static_Data.accounts, Static_Data.report_currency, Balance_Sheet, ProfitAndLoss, ProfitAndLoss2_Historical, Trial_Balance),
-	other_reports(Static_Data, Static_Data_Historical, Static_Data.outstanding, Balance_Sheet, ProfitAndLoss, Balance_Sheet2_Historical, ProfitAndLoss2_Historical, Trial_Balance, Structured_Reports),
+	other_reports(Static_Data, Static_Data_Historical, Static_Data.outstanding, Balance_Sheet, ProfitAndLoss, Balance_Sheet2_Historical, ProfitAndLoss2_Historical, Trial_Balance, Cf, Structured_Reports),
 	add_xml_report(xbrl_instance, xbrl_instance, [Xbrl]).
 
 balance_entries(Static_Data, Static_Data_Historical, Entries) :-
@@ -80,10 +80,10 @@ balance_entries(Static_Data, Static_Data_Historical, Entries) :-
 	balance_sheet_at(Static_Data, Balance_Sheet),
 	profitandloss_between(Static_Data, ProfitAndLoss),
 	balance_sheet_at(Static_Data_Historical, Balance_Sheet2_Historical),
-	%gtrace,
+	cashflow(Static_Data, Cf),
 	profitandloss_between(Static_Data_Historical, ProfitAndLoss2_Historical),
 	assertion(ground((Balance_Sheet, ProfitAndLoss, ProfitAndLoss2_Historical, Trial_Balance))),
-	dict_from_vars(Entries, [Balance_Sheet, ProfitAndLoss, Balance_Sheet2_Historical, ProfitAndLoss2_Historical, Trial_Balance]).
+	dict_from_vars(Entries, [Balance_Sheet, ProfitAndLoss, Balance_Sheet2_Historical, ProfitAndLoss2_Historical, Trial_Balance, Cf]).
 
 
 static_data_historical(Static_Data, Static_Data_Historical) :-
@@ -94,11 +94,12 @@ static_data_historical(Static_Data, Static_Data_Historical) :-
 		exchange_date, Static_Data.start_date).
 
 
-other_reports(Static_Data, Static_Data_Historical, Outstanding, Balance_Sheet, ProfitAndLoss, Balance_Sheet2_Historical, ProfitAndLoss2_Historical, Trial_Balance, Structured_Reports) :-
+other_reports(Static_Data, Static_Data_Historical, Outstanding, Balance_Sheet, ProfitAndLoss, Balance_Sheet2_Historical, ProfitAndLoss2_Historical, Trial_Balance, Cf, Structured_Reports) :-
 	investment_reports(Static_Data.put(outstanding, Outstanding), Investment_Report_Info),
 	bs_page(Static_Data, Balance_Sheet),
 	pl_page(Static_Data, ProfitAndLoss, ''),
 	pl_page(Static_Data_Historical, ProfitAndLoss2_Historical, '_historical'),
+	cf_page(Static_Data, Cf),
 	make_json_report(Static_Data.gl, general_ledger_json),
 	make_gl_viewer_report,
 
@@ -112,7 +113,8 @@ other_reports(Static_Data, Static_Data_Historical, Outstanding, Balance_Sheet, P
 			current: Balance_Sheet,
 			historical: Balance_Sheet2_Historical
 		},
-		tb: Trial_Balance
+		tb: Trial_Balance,
+		cf: Cashflow
 	},
 	crosschecks_report0(Static_Data.put(reports, Structured_Reports0), Crosschecks_Report_Json),
 	Structured_Reports = Structured_Reports0.put(crosschecks, Crosschecks_Report_Json),
