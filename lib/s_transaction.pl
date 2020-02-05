@@ -1,6 +1,6 @@
 :- use_module(library(dcg/basics)).
 
-:- record s_transaction(day, type_id, vector, account_id, exchanged, misc).
+:- record s_transaction(uri, day, type_id, vector, account_id, exchanged, misc).
 % bank statement transaction record, these are in the input xml
 % - The absolute day that the transaction happenned
 % - The type identifier/action tag of the transaction
@@ -11,7 +11,7 @@
 
 
 pretty_string(S_Transaction, String) :-
-	S_Transaction = s_transaction(Date, uri(Action_Verb), Money, Account, Exchanged, Misc),
+	S_Transaction = s_transaction(_Uri, Date, uri(Action_Verb), Money, Account, Exchanged, Misc),
 	doc(Action_Verb, l:has_id, Action_Verb_Name),
 	format(string(String), 's_transaction:~n  date:~q~n  verb:~w~n  vector: ~q~n  account: ~q~n  exchanged: ~q~n  misc: ~q', [Date, Action_Verb_Name, Money, Account, Exchanged, Misc]).
 
@@ -52,7 +52,7 @@ s_transactions_up_to(End_Date, S_Transactions_In, S_Transactions_Out) :-
 	).
 
 s_transaction_to_dict(St, D) :-
-	St = s_transaction(Day, uri(Verb), Vector, Account, Exchanged, Misc),
+	St = s_transaction(/*todo*/_Uri, Day, uri(Verb), Vector, Account, Exchanged, Misc),
 	(	/* here's an example of the shortcoming of ignoring the rdf prefix issue, fixme */
 		doc(Verb, l:has_id, Verb_Label)
 	->	true
@@ -190,11 +190,9 @@ extract_s_transaction2(Tx_Dom, Account_Currency, Account, Start_Date, ST) :-
 	parse_date(Date_Atom, Date),
 	Dr is rationalize(Bank_Debit - Bank_Credit),
 	Coord = coord(Account_Currency, Dr),
-	ST = s_transaction(Date, Desc1, [Coord], Account, Exchanged, misc{desc2:Desc2}),
-	extract_exchanged_value(Tx_Dom, Account_Currency, Dr, Exchanged),
-	doc_new_uri(ST_URI),
-	doc_add(ST_URI, a, s_transaction),
-	doc_add(ST_URI, s_transaction:type_id, Desc1).
+	ST = s_transaction(_, Date, Desc1, [Coord], Account, Exchanged, misc{desc2:Desc2}),
+	add_s_transaction(ST),
+	extract_exchanged_value(Tx_Dom, Account_Currency, Dr, Exchanged).
 
 extract_exchanged_value(Tx_Dom, _Account_Currency, Bank_Dr, Exchanged) :-
    % if unit type and count is specified, unifies Exchanged with a one-item vector with a coord with those values
@@ -236,8 +234,8 @@ extract_s_transactions(Dom, Start_Date_Atom, S_Transactions) :-
 
 
 invert_s_transaction_vector(T0, T1) :-
-	T0 = s_transaction(Date, Type_id, Vector, Account_id, Exchanged, Misc),
-	T1 = s_transaction(Date, Type_id, Vector_Inverted, Account_id, Exchanged, Misc),
+	s_transaction_vector(T0, Vector),
+	set_vector_of_s_transaction(Vector_Inverted, T0, T1),
 	vec_inverse(Vector, Vector_Inverted).
 
 
@@ -312,7 +310,9 @@ german_bank_csv_row(Account, Currency, Row, S_Transaction) :-
 			Exchanged2 = vector(E2)
 		)
 	),
-	S_Transaction = s_transaction(Date, Verb, Vector, Account, Exchanged2, misc{desc2:Description,desc3:Description_Column2}).
+	S_Transaction = s_transaction(_, Date, Verb, Vector, Account, Exchanged2, misc{desc2:Description,desc3:Description_Column2}),
+	add_s_transaction(S_Transaction)
+	.
 
 german_bank_money(Money_Atom0, Money_Number) :-
 	filter_out_chars_from_atom(([X]>>(X == '\'')), Money_Atom0, Money_Atom1),
@@ -353,4 +353,7 @@ gb_date(date(Y, M, D)) --> integer(D), ".", integer(M), ".", integer(Y).
 
 
 
-/* todo alerts html */
+add_s_transaction(St) :-
+	s_transaction_uri(St, Uri),
+	doc_new_uri(Uri),
+	doc_add(Uri, rdf:type, l:s_transaction).

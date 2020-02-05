@@ -67,8 +67,8 @@ livestock_verbs([l:livestock_purchase, l:livestock_sale]).
 
 preprocess_s_transaction(Static_Data, S_Transaction, Transactions, Outstanding, Outstanding) :-
 	s_transaction_type_id(S_Transaction, uri(Action_Verb)),
-	member(Action_Verb, $>livestock_verbs),
-
+	member(V, $>livestock_verbs),
+	rdf_global_id(V, Action_Verb),
 	preprocess_livestock_buy_or_sell(Static_Data, S_Transaction, Transactions).
 
 preprocess_s_transaction(Static_Data, S_Transaction, Transactions, Outstanding_Before, Outstanding_After) :-
@@ -407,7 +407,7 @@ check_trial_balance(Exchange_Rates, Report_Currency, Date, Transactions) :-
 	).
 
 	
-% throw an error if the s_transaction's account is not found in the hierarchy
+% throw an error if the account is not found in the hierarchy
 check_that_s_transaction_account_exists(S_Transaction, Accounts) :-
 	s_transaction_account_id(S_Transaction, Account_Name),
 	account_by_role(Accounts, ('Banks'/Account_Name), _).

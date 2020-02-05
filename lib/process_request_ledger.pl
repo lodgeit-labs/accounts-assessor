@@ -296,8 +296,15 @@ extract_bank_opening_balances2(Bank_Account, Tx) :-
 	doc(Bank_Account, l:name, Bank_Account_Name),
 	doc_value(Bank_Account, l:opening_balance, Opening_Balance),
 	request_has_property(l:start_date, Start_Date),
-	%add_days(Start_Date0, -1, Start_Date),
-	Tx = s_transaction(Start_Date, 'Historical_Earnings_Lump', [Opening_Balance], Bank_Account_Name, vector([]), misc{desc2:'Historical_Earnings_Lump'}).
+	make_s_transaction(Tx, [
+		day(Start_Date),
+		type_id('Historical_Earnings_Lump'),
+		vector([Opening_Balance]),
+		account_id(Bank_Account_Name),
+		exchanged(vector([])),
+		misc(misc{desc2:'Historical_Earnings_Lump'})
+	]),
+	add_s_transaction(Tx).
 
 extract_initial_gl(Txs) :-
 	(	doc(l:request, ic_ui:gl, Gl)

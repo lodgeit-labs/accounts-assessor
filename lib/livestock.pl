@@ -40,12 +40,16 @@ infer_livestock_action_verb(S_Transaction, NS_Transaction) :-
 	/* if.. */
 	livestock_data_by_vector_unit(_,Exchanged),
 	(	is_debit(Vector)
-	->	Action_Verb = l:livestock_sale
-	;	Action_Verb = l:livestock_purchase).
+	->	rdf_global_id(l:livestock_sale,Action_Verb)
+	;	rdf_global_id(l:livestock_purchase,Action_Verb)).
 
 s_transaction_is_livestock_buy_or_sell(S_Transaction, Date, Livestock_Type, Livestock_Coord, Money_Coord) :-
-	S_Transaction = s_transaction(Date, uri(Action_Verb), [Money_Coord], _, vector(V), _),
-	(Action_Verb = l:livestock_purchase;Action_Verb = l:livestock_sale),
+	s_transaction_date(S_Transaction, Date),
+	s_transaction_type_id(S_Transaction, uri(Action_Verb)),
+	s_transaction_vector(S_Transaction, [Money_Coord]),
+	s_transaction_exchanged(S_Transaction, vector(V),
+
+	(rdf_global_id(l:livestock_purchase,Action_Verb);rdf_global_id(l:livestock_sale,Action_Verb)),
 	!,
 	V = [Livestock_Coord],
 	coord_unit(Livestock_Coord, Livestock_Type),

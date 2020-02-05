@@ -156,10 +156,13 @@ gl_tx_vs_cashflow_category(
 
 */
 
+transaction_reason(T, Reason) :-
+	doc($>transaction_uri(T), l:reason, Reason).
+
 gl_tx_vs_cashflow_category(T, Cat) :-
 	transaction_reason(T, Reason),
 	(
-		doc(Reason, a, s_transaction),
+		doc(Reason, rdf:type, s_transaction)
 	->
 		doc(Reason, s_transaction:type_id, uri(Verb_URI)),
 		doc(Verb_URI, l:has_id, Verb),
