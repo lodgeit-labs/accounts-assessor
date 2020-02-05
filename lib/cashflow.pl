@@ -1,23 +1,19 @@
 :- record cf_item0(account, category, own_transactions).
 
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Helper predicates
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-
-
 /*
 sum_by_pred(
 	P,			% pred(Item, Numeric)
-	Input,		% List Item
+	Input,		% List<Item>
 	Sum			% Numeric = sum {X | Item in Input, P(Item,X)}
 ).
 */
 sum_by_pred(P, Input, Sum) :-
 	convlist(P, Input, Intermediate),
 	sumlist(Intermediate, Sum).
-
 
 /*
 vec_sum_by_pred(
@@ -37,7 +33,6 @@ sort_into_dict_on_success/3(
 	Output		% Dict Item = {Key:[Value | Value in Input, P(Value,Key)] | Value in Input, P(Value, Key)}
   
 ).
-
 */
 /* like sort_into_dict, but keep going if the predicate fails */
 sort_into_dict_on_success(P, Input, Output) :-
@@ -56,7 +51,7 @@ sort_into_dict_on_success/4(
 sort_into_dict_on_success(_, [], Output, Output).
 sort_into_dict_on_success(P, [I|Is], D, Output) :-
 	(
-		% should probably be wrapped in try/catch since sometimes it fails by error
+		% should probably be wrapped in try/catch since sometimes it fails by error % mm i'd let that propagate
 		call(P,I,Key)
 	->
 		New_Value = [Key-[I | D.Key]],
@@ -76,7 +71,7 @@ sort_into_dict_on_success(P, [I|Is], D, Output) :-
 
 /* probably it should be "categorization" and subsume account? */
 
-/* well the high-level idea is that different methods of presentation will be required, ie first by account secondary by category, and also the other way around, so, i'd first create a table where each item is a set of categories + corresponding transactions, and then possibly sum+present that in different ways */
+/* the high-level idea is that different methods of presentation will be required, ie first by account secondary by category, and also the other way around, so, i'd first create a table where each item is a set of categories + corresponding transactions, and then possibly sum+present that in different ways */
 
 
 /*
@@ -85,7 +80,6 @@ type Cashflow Category = (
 	PlusMinus		% atom:{'+','-'}
 )
 */
-
 
 
 /*
@@ -98,9 +92,6 @@ cashflow_category(
 cashflow_category(Verb, Category) :-
 	cashflow_category_helper(Verbs, Category),
 	member(Verb, Verbs). % can cut outside if we don't want more than one
-
-
-
 
 /*
 cashflow_category_helper(
@@ -144,10 +135,6 @@ cashflow_category_helper(['Dispose_of'], ('Operating activities', '+')).
 cashflow_category_helper(['Bank_Charges','Accountancy_Fees'], ('Operating activities', '-')).
 
 
-
-
-
-
 /*
 gl_tx_vs_cashflow_category(
 	Transaction,	% record:transaction,
@@ -156,20 +143,17 @@ gl_tx_vs_cashflow_category(
 
 */
 
-transaction_reason(T, Reason) :-
-	doc($>transaction_uri(T), l:reason, Reason).
-
 gl_tx_vs_cashflow_category(T, Cat) :-
-	transaction_reason(T, Reason),
+	doc(T, transactions:origin, Origin),
 	(
-		doc(Reason, rdf:type, s_transaction)
+		doc(Origin, rdf:type, s_transaction)
 	->
-		doc(Reason, s_transaction:type_id, uri(Verb_URI)),
+		doc(Origin, s_transactions:type_id, uri(Verb_URI)),
 		doc(Verb_URI, l:has_id, Verb),
 		cashflow_category(Verb, Cat)
 	).
 
-	
+
 
 /*
 cf_items0(
@@ -179,11 +163,22 @@ cf_items0(
 ).
 
 */
-cf_items0(Sd, Root, Cf_Items) :-
-	findall(Cf_Item, cashflow_item0(Sd, Root, Cf_Item), Cf_Items).
+/*cf_items0(Sd, Root, Cf_Items) :-
+	findall(Cf_Item, cashflow_item0(Sd, Root, Cf_Item), Cf_Items).*/
 
 
+tag_gl_transactions_with_cf_data(Ts) :-
+	maplist(tag_gl_transaction_with_cf_data, Ts).
 
+tag_gl_transaction_with_cf_data(T) :-
+	(	gl_tx_vs_cashflow_category(T, (Cat, PlusMinus))
+	->	(
+			doc_add(T, l:cf_category, Cat),
+			doc_add(T, l:cf_plusminus, PlusMinus)
+		)
+	;	true).
+
+*/
 
 /*
 cashflow_item0(
@@ -195,86 +190,69 @@ cashflow_item0(
 Yield transactions by account + cashflow category
 */
 
-cashflow_item0(Sd, Account, Item) :-
-	transactions_in_period_on_account(Sd.accounts, Sd.transactions, Account, Sd.start_Date, Sd.end_Date, Filtered_Transactions),
-	sort_into_dict_on_success(gl_tx_vs_cashflow_category, Filtered_Transactions, By_Category),
-	dict_pairs(By_Category, _, By_Category2),
-	(
-		member((Category-Transactions), By_Category2),
-		/* yield one cf_item for each category on this account */
-		Item = cf_item0(Account, Category, Transactions)
-	).
-	/*
-	;
-		Item = currency movement entry?.
-	*/
+make_cf_instant_txs(Sd) :-
+	account_by_role(Sd.accounts, ('Accounts'/'CashAndCashEquivalents'), Root),
+	transactions_in_period_on_account_and_subaccounts(Sd.accounts, Sd.transactions, Root, Sd.start_date, Sd.end_date, Filtered_Transactions),
+	maplist(cf_instant_tx, Filtered_Transactions).
+
+make_cf_instant_tx(T) :-
+	(doc(T, l:cf_category, Cat)->true;Cat = 'unknown'),
+	(doc(T, l:cf_plusminus, PlusMinus)->true;PlusMinus = '?')
+	doc_new_uri(U),
+	doc_add(U, rdf:type, l:cf_instant_tx),
+	doc_add(U, l:account, $>transaction_account_id(T)),
+	doc_add(U, l:category, Cat),
+	doc_add(U, l:plusminus, PlusMinus),
+	doc_add(U, l:transaction, T).
 
 
-/*
+cf_instant_tx(Account, Cat, PlusMinus, T) :-
+	doc(U, rdf:type, l:cf_instant_tx),
+	doc_add(U, l:category, Cat),
+	doc_add(U, l:plusminus, PlusMinus),
+	doc(U, l:transaction, T).
 
-by now we should have:
-	Items0 = [
-		cf_item0('BanksCHF_Bank', ('Investing activities', '-'), [
-			{
-				/* transaction term, not dict, but like this: */
-				"account":"BanksCHF_Bank",
-				"date":"date(2018.0,10.0,1.0)",
-				"description":"Invest_In - outgoing money",
-				"vector": [ {"credit":10.0, "debit":0.0, "unit":"CHF"} ],
-			},
-			...
-			]),
-		cf_item0('BanksCHF_Bank', ('Investing activities', '+'), [......
-*/
-
+cf_instant_txs(Account, Cat, PlusMinus, Txs) :-
+	findall(T, cf_instant_tx(Account, Cat, PlusMinus, T), Txs).
 
 /*
-now we can walk accounts from Root again, on leaf accounts do for each category and each corresponding '+'/'-':
+now we can walk accounts from Root, on leaf accounts do for each category and each corresponding '+'/'-':
 	create 'entry' term like for balance sheet, converting each tx vector at tx date,
 */
 /*
 cf_entries(
 	Static_Data,		% Static Data
-	CF_Items,			% List Cashflow Item
 	Account,			% atom:Account ID
 	CF_Entry			% entry
 ).
 */
-cf_entries(Sd, Account, CF_Items, entry(Account, Balance, Child_Entries, _)) :-
-	account_child_parent(Sd.accounts, _, Account),
-	findall(
-		Child_Entry,
-		(
-			account_child_parent(Sd.accounts, Child, Account),
-			cf_entries(Sd, Child, CF_Items, Child_Entry)
-		),
-		Child_Entries
-	),
-	sum_by_pred(entry_balance, Child_Entries, Balance).
 
-cf_entries(Sd, Account, CF_Items, Entry) :-
-	\+account_child_parent(Sd.accounts, _, Account),
-	cf_entry_by_categories(CF_Items, Account, Entry).
+cf_scheme_0_root_entry(Sd, Entry) :-
+	cf_scheme_0_entries_helper_for_accounts(Sd, $>account_by_role(Sd.accounts, ('Accounts'/'CashAndCashEquivalents')), Entry).
 
-
+cf_scheme_0_entry_for_account(Sd, Account, Entry) :-
+	account_children(Sd, Account, Children),
+	dif(Children, []),
+	Entry = entry0(Account, [], $>maplist(cf_scheme_0_entry_for_account, Children)).
 
 /*
-cf_entry_by_categories(
-	CF_Items,		% List record:cf_item0
+cf_scheme_0_entry_for_account(
 	Account,		% atom:Account ID
-	Entry			% record:entry
+	Entry			% record:entry0
 ).
 */
-cf_entry_by_categories(CF_Items, Account, Entry) :-
+
+cf_scheme_0_entry_for_account(Sd, Account, Entry) :-
+	account_children(Sd, Account, []),
 	findall(
 		CF_Item,
 		(
-			member(CF_Item, CF_Items),
-			CF_Item = cf_item0(Account, _, _)
+			cf_instant_txs(Account, Cat, PlusMinus, Txs),
+			CF_Item = cf_item0(Account, Cat, PlusMinus, Txs)
 		),
 		Account_Items
 	),
-	sort_into_dict_on_success([CF_Item, Category]>>(CF_Item = cf_item0(_,(Category,_),_)), Account_Items, Account_Items_By_Category),
+	sort_into_dict_on_success([CF_Item, Category]>>(CF_Item = cf_item0(_,Category,_,_)), Account_Items, Account_Items_By_Category),
 	dict_pairs(Account_Items_By_Category, _, Account_Items_By_Category_Pairs),
 	findall(
 		Category_Entry,
@@ -282,11 +260,15 @@ cf_entry_by_categories(CF_Items, Account, Entry) :-
 			member(Category-CF_Items, Account_Items_By_Category_Pairs),
 			cf_entry_by_category(Category, CF_Items, Category_Entry)
 		),
-		Category_Entries
+		Category_Entries0
 	),
-	sum_by_pred(entry_balance, Category_Entries, Balance),
-	Entry = entry(Account, Balance, Category_Entries, _).
+	cf_scheme_0_bank_account_currency_movement_entry(Sd, Account, Currency_Movement_Entry),
+	Entry = entry0(Account, [], $>append(Category_Entries0, [Currency_Movement_Entry])).
 
+cf_scheme_0_bank_account_currency_movement_entry(Sd, Account, Currency_Movement_Entry) :-
+	bank_account_currency_movement_account(Sd.accounts, Account, Currency_Movement_Account),
+	net_activity_by_account(Sd, Account, Vec, _),
+	Currency_Movement_Entry = entry0('Currency movement', Vec, []).
 
 /*
 cf_entry_by_category(
@@ -296,25 +278,53 @@ cf_entry_by_category(
 ).
 */
 cf_entry_by_category(Category, CF_Items, Category_Entry) :-
-	sort_into_dict_on_success([CF_Item, Plus_Minus]>>(CF_Item = cf_item0(_,(_,Plus_Minus),_)), CF_Items, Transactions_By_PlusMinus),
+	sort_into_dict_on_success([CF_Item, Plus_Minus]>>(CF_Item = cf_item0(_,_,Plus_Minus,_)), CF_Items, Cf_Items_By_PlusMinus),
+	dict_pairs(Cf_Items_By_PlusMinus, _, Pairs),
+	maplist(cf_scheme0_plusminus_entry, Pairs, Child_Entries),
+	Category_Entry = entry0(Category, [], Child_Entries).
 
-	cf_item0(_,(_,_),Plus_Transactions) = Transactions_By_PlusMinus.'+',
-	transaction_vectors_total(Plus_Transactions, Plus_Balance),
-	% 
-	Plus_Entry = entry('+', Plus_Balance, [], _),
+cf_scheme0_plusminus_entry((Pm-Item), Entry) :-
+	[cf_item0(_,_,_,Transactions)] = Item,
+	maplist(cf_instant_tx_vector_conversion, Transactions, Converted_Vecs),
+	Entry = entry(Pm, Converted_Vecs, []).
 
-	cf_item0(_,(_,_),Minus_Transactions) = Transactions_By_PlusMinus.'-',
-	transaction_vectors_total(Minus_Transactions, Minus_Balance),
-	Minus_Entry = entry('-', Minus_Balance, [], _),
 
-	PlusMinus_Entries = [Plus_Entry, Minus_Entry],
-	sum_by_pred(entry_balance, PlusMinus_Entries, Balance),	
-	Category_Entry = entry(Category, Balance, PlusMinus_Entries, _).
+
+
+entry0_to_entry1(Entry0, Entry1) :-
+	Entry0 = entry0(Title, Own_Vecs, []),
+	vec_sum_with_proof(Own_Vecs,Sum_Vec).
+entry0_to_entry1(Entry0, Entry1) :-
+	Entry0 = entry0(Title, [], Children),
+	Children \= [],
+	maplist(entry0_to_entry1
+	vec_sum_with_proof(Own_Vecs,Sum_Vec).
+
+
 
 /*
-finally, we can walk either by account and categorizations or by categorizations and account, and
-	create entry, or
-	create entry with child account cf sums
+	Vec: [a rdf:value]
+	Sum: [a rdf:value]
+*/
+vec_sum_with_proof(Vec, Sum) :-
+	maplist([Uri, Lit]>>(doc(Uri, rdf:value, Lit)), Vec, Vec_Lits),
+	vec_sum(Vec_Lits, Sum_Lit),
+	doc_new_(rdf:value, Sum),
+	doc_add(Sum, rdf:value, Sum_Lit),
+	doc_add(Sum, l:source, Vec).
+
+
+cf_instant_tx_vector_conversion(Sd, Tx, Vec) :-
+	/*very crude metadata for now*/
+	doc_new_(rdf:value, Uri),
+	doc_add(Uri, rdf:value, Vec),
+	Source = vec_change_bases(Sd.exchange_rates, $>transaction_day(Tx), Sd.report_currency, $>transaction_vector(Tx), Vec),
+	doc_add(Uri, l:source, Source),
+	call(Source).
+
+
+/*
+finally, we can generically walk the entry tree with own vectors, and create sums
 */
 
 

@@ -188,6 +188,10 @@ doc_new_theory(T) :-
 doc_new_uri(Uri) :-
 	doc_new_uri(Uri, '').
 
+doc_new_(Type, Uri) :-
+	doc_new_uri(Uri),
+	doc_add(Uri, rdf:type, Type).
+
 doc_new_uri(Uri, Postfix) :-
 	%tmp_file_url(loc(file_name, 'response.n3'), D),
 	gensym('#bnx', Uri0),
@@ -368,3 +372,7 @@ pondering a syntax for triples..
 		l:ledger_account_name $>account_by_role('Accounts'/'Equity')];
 	*/
 
+
+
+dg :-
+	dump,gtrace.

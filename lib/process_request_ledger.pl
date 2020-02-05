@@ -2,11 +2,13 @@ process_request_ledger(File_Path, Dom) :-
 	inner_xml(Dom, //reports/balanceSheetRequest, _),
 	validate_xml2(File_Path, 'bases/Reports.xsd'),
 	extract_start_and_end_date(Dom, Start_Date, End_Date, Start_Date_Atom),
+
 	extract_bank_opening_balances(Bank_Lump_STs),
 	handle_additional_files(S_Transactions0),
 	extract_s_transactions(Dom, Start_Date_Atom, S_Transactions1),
 	flatten([Bank_Lump_STs, S_Transactions0, S_Transactions1], S_Transactions2),
 	sort_s_transactions(S_Transactions2, S_Transactions),
+
 	process_request_ledger2((Dom, Start_Date, End_Date), S_Transactions, _).
 	%process_request_ledger_debug((Dom, Start_Date, End_Date), S_Transactions).
 
@@ -296,15 +298,15 @@ extract_bank_opening_balances2(Bank_Account, Tx) :-
 	doc(Bank_Account, l:name, Bank_Account_Name),
 	doc_value(Bank_Account, l:opening_balance, Opening_Balance),
 	request_has_property(l:start_date, Start_Date),
-	make_s_transaction(Tx, [
-		day(Start_Date),
-		type_id('Historical_Earnings_Lump'),
-		vector([Opening_Balance]),
-		account_id(Bank_Account_Name),
-		exchanged(vector([])),
-		misc(misc{desc2:'Historical_Earnings_Lump'})
-	]),
-	add_s_transaction(Tx).
+	doc_add_s_transaction(
+		(Start_Date),
+		('Historical_Earnings_Lump'),
+		([Opening_Balance]),
+		(Bank_Account_Name),
+		(vector([])),
+		(misc{desc2:'Historical_Earnings_Lump'}),
+		transactions,
+		Tx).
 
 extract_initial_gl(Txs) :-
 	(	doc(l:request, ic_ui:gl, Gl)
@@ -332,5 +334,5 @@ extract_initial_gl_tx(Default_Currency, Item, Tx) :-
 	->	vector_string(Default_Currency, credit, Credit_String, Credit_Vector)
 	;	Credit_Vector = []),
 	append(Debit_Vector, Credit_Vector, Vector),
-	make_transaction(Date, Description, Account, Vector, Tx).
+	doc_add_transaction(Date, Description, Account, Vector, Tx).
 

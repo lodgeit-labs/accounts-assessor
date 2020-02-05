@@ -173,4 +173,6 @@ account_to_dict(Account, Dict) :-
 	Account = account(Id, Parent, Role, Detail_Level).
 
 	
-	
+
+account_children(Sd, Account, Children) :-
+	findall(Ch, account_child_parent(Sd.accounts, Ch, Account), Children).

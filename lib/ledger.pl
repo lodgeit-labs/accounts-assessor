@@ -62,15 +62,19 @@ process_ledger(
 	this is probably the right place to plug in hirepurchase and depreciation,
 	take Transactions_With_Livestock and produce an updated list.
 	notes:
-	transaction term now carries date() instead of absolute days count.
+	transaction term now carries date() instead of absolute days count. (probably to be reverted)
 	transactions are produced with transactions:make_transaction.
 	account id is obtained like this: account_by_role(Accounts, ('Accounts'/'Assets'), Assets_AID).
 	to be explained:
 		how to get balance on account
-		how to generate and return json+html reports
+		how to generate json+html reports
 	*/
 
 	maplist(check_transaction_account(Accounts), Transactions_With_Livestock),
+
+	s_transactions_to_doc(Processed_S_Transactions),
+	transactions_to_doc,
+
 
 	Static_Data2 = Static_Data0.put(end_date, Processed_Until).put(transactions, Transactions_With_Livestock),
 	gl_export(
@@ -96,10 +100,6 @@ process_ledger(
 			add_alert('SYSTEM_WARNING', Tb_Str))
 	).
 
-
-preprocess_until_error(Static_Data0, Prepreprocessed_S_Transactions, Preprocessed_S_Transactions, Transactions0, Outstanding_Out, Report_End_Date, Processed_Until) :-
-	preprocess_s_transactions(Static_Data0, Prepreprocessed_S_Transactions, Preprocessed_S_Transactions, Transactions0, Outstanding_Out),
-	Processed_Until = Report_End_Date.
 
 gather_ledger_warnings(S_Transactions, Start_Date, End_Date, Warnings) :-
 	(

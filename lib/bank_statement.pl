@@ -1,4 +1,6 @@
-
+preprocess_until_error(Static_Data0, Prepreprocessed_S_Transactions, Preprocessed_S_Transactions, Transactions0, Outstanding_Out, Report_End_Date, Processed_Until) :-
+	preprocess_s_transactions(Static_Data0, Prepreprocessed_S_Transactions, Preprocessed_S_Transactions, Transactions0, Outstanding_Out),
+	Processed_Until = Report_End_Date.
 
 preprocess_s_transactions(Static_Data, S_Transactions, Processed_S_Transactions, Transactions_Out, Outstanding_Out) :-
 	preprocess_s_transactions2(Static_Data, S_Transactions, Processed_S_Transactions, Transactions_Out, ([],[]), Outstanding_Out, []).
@@ -47,7 +49,8 @@ cleanup(Transactions0, Transactions_Result, S_Transaction_String, Debug_Head) :-
 	flatten(Transactions0, Transactions1),
 	exclude(var, Transactions1, Transactions2),
 	exclude(has_empty_vector, Transactions2, Transactions_Result),
-	pretty_transactions_string(Transactions_Result, Transactions_String),
+	%pretty_transactions_string(Transactions_Result, Transactions_String),
+	Transactions_String = 'todo',
 	atomic_list_concat([S_Transaction_String, '==>\n', Transactions_String, '\n====\n'], Debug_Head).
 
 
@@ -73,13 +76,11 @@ preprocess_s_transaction(Static_Data, S_Transaction, Transactions, Outstanding, 
 
 preprocess_s_transaction(Static_Data, S_Transaction, Transactions, Outstanding_Before, Outstanding_After) :-
 	s_transaction_type_id(S_Transaction, uri(Action_Verb)),
-	maplist(dif(Action_Verb), $>livestock_verbs),
+	gtrace,maplist(dif(Action_Verb), $>rdf_global_id($>livestock_verbs,<$)),
 
 	Transactions = [Ts1, Ts2, Ts3, Ts4],
 	dict_vars(Static_Data, [Report_Currency, Exchange_Rates]),
 	s_transaction_exchanged(S_Transaction, vector(Counteraccount_Vector)),
-	%s_transaction_account_id(S_Transaction, Bank_Account_Name),
-
 	s_transaction_vector(S_Transaction, Vector_Ours),
 	s_transaction_day(S_Transaction, Transaction_Date),
 	Pricing_Method = lifo,

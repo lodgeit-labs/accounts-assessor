@@ -1,19 +1,49 @@
-%:- rdet(transactions_by_account/2).
-%%:- rdet(transaction_to_dict/2).
-
-
-
-:- record transaction(day, description, account_id, vector, type).
+%:- record transaction(day, description, account_id, vector, type).
 % - The absolute day that the transaction happenned
 % - A description of the transaction
 % - The account that the transaction modifies
 % - The amounts by which the account is being debited and credited
 % - instant or tracking
 
+transaction_day(T, X) :-
+	doc(T, transactions:day, X, transactions).
+transaction_description(T, X) :-
+	doc(T, transactions:description, X, transactions).
+transaction_account_id(T, X) :-
+	doc(T, transactions:account_id, X, transactions).
+transaction_vector(T, X) :-
+	doc(T, transactions:vector, X, transactions).
+transaction_type(T, X) :-
+	doc(T, transactions:type, X, transactions).
+
+/*
+transaction_field(T, F, X) :-
+	doc(T, $>rdf_global_term(transactions:F), V),
+	doc(V, rdf:value, X).
+*/
+
+make_transaction2(Date, Description, Account, Vector, Type, Uri) :-
+	flatten([Description], Description_Flat),
+	atomic_list_concat(Description_Flat, Description_Str),
+
+	doc_new_uri(Uri),
+	doc_add(Uri, rdf:type, l:transaction),
+	doc_add(Uri, transactions:day, Date),
+	doc_add(Uri, transactions:description, Description),
+	doc_add(Uri, transactions:account, Account),
+	doc_add(Uri, transactions:vector, Vector),
+	doc_add(Uri, transactions:type, Type).
+
+make_transaction(Date, Description, Account, Vector, Transaction) :-
+	make_transaction2(Date, Description, Account, Vector, instant, Transaction).
+
 	
 transaction_to_dict(T, D) :-
-	% breaks if transaction record signature changes
-	T = transaction(Day, Description, Account, Vector, Type),
+	transaction_day(T, Day),
+	transaction_description(T, Description),
+	transaction_account_id(T, Account),
+	transaction_vector(T, Vector),
+	transaction_type(T, Type),
 	D = _{
 		date: Day,
 		description: Description,
@@ -125,45 +155,3 @@ check_transaction_account(Accounts, Transaction) :-
 has_empty_vector(T) :-
 	transaction_vector(T, []).
 
-	
-make_transaction2(Date, Description, Account, Vector, Transaction) :-
-	flatten([Description], Description_Flat),
-	atomic_list_concat(Description_Flat, Description_Str),
-	transaction_day(Transaction, Date),
-	transaction_description(Transaction, Description_Str),
-	transaction_account_id(Transaction, Account),
-	transaction_vector(Transaction, Vector).
-
-make_transaction(Date, Description, Account, Vector, Transaction) :-
-	make_transaction2(Date, Description, Account, Vector, Transaction),
-	transaction_type(Transaction, instant).
-
-	
-	
-	/*
-	Dict = defaultdict(list)
-
-	for Transaction in Transactions:
-		Dict[Transaction.account].append(Transaction)
-	*/
-	/*
-	findall(
-		Key_Value,
-		(
-			member(Account,Accounts),
-			account_id(Account, Account_Id),
-			findall(
-				Transaction,
-				(
-					member(Transaction,Transactions),
-					transaction_account_id(Transaction,Account_Id)
-				),
-				Account_Transactions
-			),
-			Key_Value = Account_Id:Account_Transactions
-		),
-		Pairs
-	),
-
-	dict_create(Dict,account_txs,Pairs),
-	*/

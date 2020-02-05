@@ -27,21 +27,14 @@ livestock_data_by_vector_unit(Livestock, Exchanged) :-
 
 infer_livestock_action_verb(S_Transaction, NS_Transaction) :-
 	s_transaction_type_id(S_Transaction, ''),
-	s_transaction_type_id(NS_Transaction, uri(Action_Verb)),
-	/* just copy these over */
 	s_transaction_exchanged(S_Transaction, vector(Exchanged)),
-	s_transaction_exchanged(NS_Transaction, vector(Exchanged)),
-	s_transaction_day(S_Transaction, Transaction_Date),
-	s_transaction_day(NS_Transaction, Transaction_Date),
-	s_transaction_vector(S_Transaction, Vector),
-	s_transaction_vector(NS_Transaction, Vector),
-	s_transaction_account_id(S_Transaction, Unexchanged_Account_Id),
-	s_transaction_account_id(NS_Transaction, Unexchanged_Account_Id),
 	/* if.. */
 	livestock_data_by_vector_unit(_,Exchanged),
+	s_transaction_vector(S_Transaction, Vector),
 	(	is_debit(Vector)
 	->	rdf_global_id(l:livestock_sale,Action_Verb)
-	;	rdf_global_id(l:livestock_purchase,Action_Verb)).
+	;	rdf_global_id(l:livestock_purchase,Action_Verb)),
+	doc_set_s_transaction_type_id(S_Transaction, uri(Action_Verb), NS_Transaction).
 
 s_transaction_is_livestock_buy_or_sell(S_Transaction, Date, Livestock_Type, Livestock_Coord, Money_Coord) :-
 	s_transaction_date(S_Transaction, Date),

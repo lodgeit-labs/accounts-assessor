@@ -1,19 +1,58 @@
 :- use_module(library(dcg/basics)).
 
-:- record s_transaction(uri, day, type_id, vector, account_id, exchanged, misc).
+%:- record s_transaction(day, type_id, vector, account_id, exchanged, misc).
 % bank statement transaction record, these are in the input xml
 % - The absolute day that the transaction happenned
 % - The type identifier/action tag of the transaction
 % - The amounts that are being moved in this transaction
 % - The account that the transaction modifies without using exchange rate conversions
-% - Either the units or the amount to which the transaction amount will be converted to
-% depending on whether the term is of the form bases(...) or vector(...).
+% - Either the units or the amount to which the transaction amount will be converted to, depending on whether the term is of the form bases(...) or vector(...).
+
+make_s_transaction(Uri) :-
+	doc_new_uri(Uri),
+	doc_add(Uri, rdf:type, l:s_transaction),
+	doc_add(Uri, s_transactions:type_id, Type_Id),
+	doc_add(Uri, s_transactions:vector, Vector),
+	doc_add(Uri, s_transactions:account_id, Account_Id),
+	doc_add(Uri, s_transactions:exchanged, Exchanged),
+	doc_add(Uri, s_transactions:misc, Misc).
+
+s_transaction_day(T, D) :-
+	doc(T, s_transactions:day, D, transactions).
+s_transaction_type_id(T, X) :-
+	doc(T, s_transactions:type_id, X, transactions).
+s_transaction_vector(T, X) :-
+	doc(T, s_transactions:vector, X, transactions).
+s_transaction_account_id(T, X) :-
+	doc(T, s_transactions:account_id, X, transactions).
+s_transaction_exchanged(T, X) :-
+	doc(T, s_transactions:exchanged, X, transactions).
+s_transaction_misc(T, X) :-
+	doc(T, s_transactions:misc, X, transactions).
 
 
-pretty_string(S_Transaction, String) :-
-	S_Transaction = s_transaction(_Uri, Date, uri(Action_Verb), Money, Account, Exchanged, Misc),
+
+pretty_string(T, String) :-
+	doc(S_Transaction, rdf:type l:s_transaction),
+	s_transaction_day(T, Date),
+	s_transaction_type_id(T, uri(Action_Verb)),
+	s_transaction_vector(T, Money),
+	s_transaction_account(T, Account)
+	s_transaction_exchanged(T, Exchanged),
+	s_transaction_misc(T, Misc),
 	doc(Action_Verb, l:has_id, Action_Verb_Name),
 	format(string(String), 's_transaction:~n  date:~q~n  verb:~w~n  vector: ~q~n  account: ~q~n  exchanged: ~q~n  misc: ~q', [Date, Action_Verb_Name, Money, Account, Exchanged, Misc]).
+
+
+compare_s_transaction_vector_debit(Order, T1, T2) :-
+	doc(T1, s_transactions:vector, [coord(_, Debit1)]),
+	doc(T2, s_transactions:vector, [coord(_, Debit2)]),
+	compare(Order, Debit1, Debit2).
+
+compare_s_transaction_day(Order, T1, T2) :-
+	s_transaction_day(T1, Day1),
+	s_transaction_day(T2, Day2),
+	compare(Order, Day1, Day2).
 
 
 sort_s_transactions(In, Out) :-
@@ -23,22 +62,11 @@ sort_s_transactions(In, Out) :-
 	next, exchanged debit
 	then the rest?
 	*/
-	/*
-	If a buy and a sale of same thing happens on the same day, we want to process the buy first.
-	We first sort by our debit on the bank account. Transactions with zero of our debit are not sales.
-	*/
-	sort(
-	/*
-	this is a path inside the structure of the elements of the sorted array (inside the s_transactions):
-	3th sub-term is the transaction vector from our perspective
-	1st (and hopefully only) item of the vector is a coord,
-	2rd item of the coord is our bank account debit.
-	*/
-	[3,1,2], @=<,  In, Mid),
-	/*
-	now we can sort by date ascending, and the order of transactions with same date, as sorted above, will be preserved
-	*/
-	sort(1, @=<,  Mid, Out).
+	/* If a buy and a sale of same thing happens on the same day, we want to process the buy first.
+	We first sort by our debit on the bank account. Transactions with zero of our debit are not sales. */
+	predsort(compare_s_transaction_vector_debit, In, Mid),
+	/*	now we can sort by date ascending, and the ordering of transactions with same date, as sorted above, will be preserved	*/
+	predsort(compare_s_transaction_day, Mid, Out).
 
 s_transactions_up_to(End_Date, S_Transactions_In, S_Transactions_Out) :-
 	findall(
@@ -51,8 +79,14 @@ s_transactions_up_to(End_Date, S_Transactions_In, S_Transactions_Out) :-
 		S_Transactions_Out
 	).
 
-s_transaction_to_dict(St, D) :-
-	St = s_transaction(/*todo*/_Uri, Day, uri(Verb), Vector, Account, Exchanged, Misc),
+s_transaction_to_dict(T, D) :-
+	doc(S_Transaction, rdf:type l:s_transaction),
+	s_transaction_day(T, Date),
+	s_transaction_type_id(T, uri(Action_Verb)),
+	s_transaction_vector(T, Money),
+	s_transaction_account(T, Account)
+	s_transaction_exchanged(T, Exchanged),
+	s_transaction_misc(T, Misc),
 	(	/* here's an example of the shortcoming of ignoring the rdf prefix issue, fixme */
 		doc(Verb, l:has_id, Verb_Label)
 	->	true
@@ -88,24 +122,13 @@ prepreprocess_s_transaction(Static_Data, In, Out) :-
 prepreprocess_s_transaction(Static_Data, S_Transaction, Out) :-
 	s_transaction_action_verb(S_Transaction, Action_Verb),
 	!,
-	s_transaction_type_id(NS_Transaction, uri(Action_Verb)),
-	/* just copy these over */
-	s_transaction_exchanged(S_Transaction, Exchanged),
-	s_transaction_exchanged(NS_Transaction, Exchanged),
-	s_transaction_day(S_Transaction, Transaction_Date),
-	s_transaction_day(NS_Transaction, Transaction_Date),
-	s_transaction_vector(S_Transaction, Vector),
-	s_transaction_vector(NS_Transaction, Vector),
-	s_transaction_account_id(S_Transaction, Unexchanged_Account_Id),
-	s_transaction_account_id(NS_Transaction, Unexchanged_Account_Id),
-	s_transaction_misc(S_Transaction, Misc),
-	s_transaction_misc(NS_Transaction, Misc),
+	set_s_transaction_type_id(S_Transaction, uri(Action_Verb), NS_Transaction),
 	prepreprocess_s_transaction(Static_Data, NS_Transaction, Out).
 
 prepreprocess_s_transaction(_, T, T) :-
 	(	s_transaction_type_id(T, uri(_))
 	->	true
-	;	throw_string(unrecognized_bank_statement_transaction)).
+	;	throw_string(unrecognized_bank_statement_transaction_format)).
 
 
 % This Prolog rule handles the case when only the exchanged units are known (for example GOOG)  and
@@ -114,17 +137,13 @@ infer_exchanged_units_count(Static_Data, S_Transaction, NS_Transaction) :-
 	dict_vars(Static_Data, [Exchange_Rates]),
 	s_transaction_exchanged(S_Transaction, bases(Goods_Bases)),
 	s_transaction_day(S_Transaction, Transaction_Date),
-	s_transaction_day(NS_Transaction, Transaction_Date),
 	s_transaction_type_id(S_Transaction, Type_Id),
-	s_transaction_type_id(NS_Transaction, Type_Id),
-	s_transaction_vector(S_Transaction, Vector_Bank),
-	s_transaction_vector(NS_Transaction, Vector_Bank),
+	s_transaction_vector(S_Transaction, Vector),
 	s_transaction_account_id(S_Transaction, Unexchanged_Account_Id),
-	s_transaction_account_id(NS_Transaction, Unexchanged_Account_Id),
 	% infer the count by money debit/credit and exchange rate
-	vec_change_bases(Exchange_Rates, Transaction_Date, Goods_Bases, Vector_Bank, Vector_Exchanged),
+	vec_change_bases(Exchange_Rates, Transaction_Date, Goods_Bases, Vector, Vector_Exchanged),
 	vec_inverse(Vector_Exchanged, Vector_Exchanged_Inverted),
-	s_transaction_exchanged(NS_Transaction, vector(Vector_Exchanged_Inverted)).
+	doc_add_s_transaction(Transaction_Date, Type_Id, Vector, Unexchanged_Account_Id, vector(Vector_Exchanged_Inverted), transactions, NS_Transaction).
 
 /* used on raw s_transaction during prepreprocessing */
 s_transaction_action_verb(S_Transaction, Action_Verb) :-
@@ -135,12 +154,12 @@ s_transaction_action_verb(S_Transaction, Action_Verb) :-
 			doc(Action_Verb, l:has_id, Type_Id)
 		)
 	->	true
-	;	(/*gtrace,*/throw_string(['unknown action verb:',Type_Id])/*we should catch this higher and generate an alert and break processing*/)).
+	;	(/*gtrace,*/throw_string(['action verb not found by id:',Type_Id]))).
 
 
 % yield all transactions from all accounts one by one.
 % these are s_transactions, the raw transactions from bank statements. Later each s_transaction will be preprocessed
-% into multiple transaction(..) terms.
+% into multiple transaction terms.
 % fixme dont fail silently
 extract_s_transaction(Dom, Start_Date, Transaction) :-
 	xpath(Dom, //reports/balanceSheetRequest/bankStatement/accountDetails, Account),
@@ -190,8 +209,8 @@ extract_s_transaction2(Tx_Dom, Account_Currency, Account, Start_Date, ST) :-
 	parse_date(Date_Atom, Date),
 	Dr is rationalize(Bank_Debit - Bank_Credit),
 	Coord = coord(Account_Currency, Dr),
-	ST = s_transaction(_, Date, Desc1, [Coord], Account, Exchanged, misc{desc2:Desc2}),
-	add_s_transaction(ST),
+	doc_add_s_transaction(Date, Desc1, [Coord], Account, Exchanged, misc{desc2:Desc2}, transactions, ST),
+	doc_add(ST, l:source, l:bank_statement_xml),
 	extract_exchanged_value(Tx_Dom, Account_Currency, Dr, Exchanged).
 
 extract_exchanged_value(Tx_Dom, _Account_Currency, Bank_Dr, Exchanged) :-
@@ -234,9 +253,9 @@ extract_s_transactions(Dom, Start_Date_Atom, S_Transactions) :-
 
 
 invert_s_transaction_vector(T0, T1) :-
-	s_transaction_vector(T0, Vector),
-	set_vector_of_s_transaction(Vector_Inverted, T0, T1),
-	vec_inverse(Vector, Vector_Inverted).
+	doc(T0, s_transactions:vector, Vector),
+	vec_inverse(Vector, Vector_Inverted),
+	doc_set_s_transaction_field(T0, (s_transactions:vector)(Vector_Inverted), transactions, T1).
 
 
 
@@ -251,7 +270,7 @@ handle_additional_files(S_Transactions) :-
 handle_additional_file(Bn, S_Transactions) :-
 	(	extract_german_bank_csv0(Bn, S_Transactions)
 	->	true
-	;	throw_string(['unrecognized file (', Bn, ')'])).
+	;	throw_string(['unrecognized file format (', Bn, ')'])).
 
 :- use_module(library(uri)).
 
@@ -310,9 +329,7 @@ german_bank_csv_row(Account, Currency, Row, S_Transaction) :-
 			Exchanged2 = vector(E2)
 		)
 	),
-	S_Transaction = s_transaction(_, Date, Verb, Vector, Account, Exchanged2, misc{desc2:Description,desc3:Description_Column2}),
-	add_s_transaction(S_Transaction)
-	.
+	doc_add_s_transaction(Date, Verb, Vector, Account, Exchanged2, misc{desc2:Description,desc3:Description_Column2}, transactions, S_Transaction).
 
 german_bank_money(Money_Atom0, Money_Number) :-
 	filter_out_chars_from_atom(([X]>>(X == '\'')), Money_Atom0, Money_Atom1),
@@ -351,9 +368,3 @@ gb_currency_from_fn(Currency) --> integer(_), white, string_without(" ", Currenc
 
 gb_date(date(Y, M, D)) --> integer(D), ".", integer(M), ".", integer(Y).
 
-
-
-add_s_transaction(St) :-
-	s_transaction_uri(St, Uri),
-	doc_new_uri(Uri),
-	doc_add(Uri, rdf:type, l:s_transaction).
