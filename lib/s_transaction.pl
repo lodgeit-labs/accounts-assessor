@@ -1,14 +1,14 @@
 :- use_module(library(dcg/basics)).
 
-%:- record s_transaction(day, type_id, vector, account_id, exchanged, misc).
 % bank statement transaction record, these are in the input xml
+s_transaction_fields([day, type_id, vector, account_id, exchanged, misc]).
 % - The absolute day that the transaction happenned
 % - The type identifier/action tag of the transaction
 % - The amounts that are being moved in this transaction
 % - The account that the transaction modifies without using exchange rate conversions
 % - Either the units or the amount to which the transaction amount will be converted to, depending on whether the term is of the form bases(...) or vector(...).
 
-make_s_transaction(Uri) :-
+doc_add_s_transaction(Type_Id, Vector, Account_Id, Exchanged, Misc, Uri) :-
 	doc_new_uri(Uri),
 	doc_add(Uri, rdf:type, l:s_transaction),
 	doc_add(Uri, s_transactions:type_id, Type_Id),
@@ -30,14 +30,24 @@ s_transaction_exchanged(T, X) :-
 s_transaction_misc(T, X) :-
 	doc(T, s_transactions:misc, X, transactions).
 
+doc_set_s_transaction_vector(T0, X, T1) :-
+	doc_set_property(T0, $>s_transaction_fields, $>rdf_global_id(s_transactions:vector), X, T1).
+
+doc_set_s_transaction_type_id(T0, X, T1) :-
+	doc_set_property(T0, $>s_transaction_fields, $>rdf_global_id(s_transactions:type_id), X, T1).
+
+/* add a new object with P newly set to V */
+doc_set_property(S1, Fields, P, V, S2) :-
+	todo,
+	writeq(doc_set_property(S1, Fields, P, V, S2)).
 
 
 pretty_string(T, String) :-
-	doc(S_Transaction, rdf:type l:s_transaction),
+	doc(T, rdf:type, l:s_transaction),
 	s_transaction_day(T, Date),
 	s_transaction_type_id(T, uri(Action_Verb)),
 	s_transaction_vector(T, Money),
-	s_transaction_account(T, Account)
+	s_transaction_account(T, Account),
 	s_transaction_exchanged(T, Exchanged),
 	s_transaction_misc(T, Misc),
 	doc(Action_Verb, l:has_id, Action_Verb_Name),
@@ -80,17 +90,17 @@ s_transactions_up_to(End_Date, S_Transactions_In, S_Transactions_Out) :-
 	).
 
 s_transaction_to_dict(T, D) :-
-	doc(S_Transaction, rdf:type l:s_transaction),
-	s_transaction_day(T, Date),
+	doc(T, rdf:type, l:s_transaction),
+	s_transaction_day(T, Day),
 	s_transaction_type_id(T, uri(Action_Verb)),
-	s_transaction_vector(T, Money),
-	s_transaction_account(T, Account)
+	s_transaction_vector(T, Vector),
+	s_transaction_account(T, Account),
 	s_transaction_exchanged(T, Exchanged),
 	s_transaction_misc(T, Misc),
 	(	/* here's an example of the shortcoming of ignoring the rdf prefix issue, fixme */
-		doc(Verb, l:has_id, Verb_Label)
+		doc(Action_Verb, l:has_id, Verb_Label)
 	->	true
-	;	Verb_Label = Verb),
+	;	Verb_Label = Action_Verb),
 	D = _{
 		date: Day,
 		verb: Verb_Label,
@@ -143,7 +153,7 @@ infer_exchanged_units_count(Static_Data, S_Transaction, NS_Transaction) :-
 	% infer the count by money debit/credit and exchange rate
 	vec_change_bases(Exchange_Rates, Transaction_Date, Goods_Bases, Vector, Vector_Exchanged),
 	vec_inverse(Vector_Exchanged, Vector_Exchanged_Inverted),
-	doc_add_s_transaction(Transaction_Date, Type_Id, Vector, Unexchanged_Account_Id, vector(Vector_Exchanged_Inverted), transactions, NS_Transaction).
+	doc_add_s_transaction(Transaction_Date, Type_Id, Vector, Unexchanged_Account_Id, vector(Vector_Exchanged_Inverted), NS_Transaction).
 
 /* used on raw s_transaction during prepreprocessing */
 s_transaction_action_verb(S_Transaction, Action_Verb) :-
@@ -209,7 +219,7 @@ extract_s_transaction2(Tx_Dom, Account_Currency, Account, Start_Date, ST) :-
 	parse_date(Date_Atom, Date),
 	Dr is rationalize(Bank_Debit - Bank_Credit),
 	Coord = coord(Account_Currency, Dr),
-	doc_add_s_transaction(Date, Desc1, [Coord], Account, Exchanged, misc{desc2:Desc2}, transactions, ST),
+	doc_add_s_transaction(Date, Desc1, [Coord], Account, Exchanged, misc{desc2:Desc2}, ST),
 	doc_add(ST, l:source, l:bank_statement_xml),
 	extract_exchanged_value(Tx_Dom, Account_Currency, Dr, Exchanged).
 
@@ -255,7 +265,7 @@ extract_s_transactions(Dom, Start_Date_Atom, S_Transactions) :-
 invert_s_transaction_vector(T0, T1) :-
 	doc(T0, s_transactions:vector, Vector),
 	vec_inverse(Vector, Vector_Inverted),
-	doc_set_s_transaction_field(T0, (s_transactions:vector)(Vector_Inverted), transactions, T1).
+	doc_set_s_transaction_vector(T0, Vector_Inverted, transactions, T1).
 
 
 
@@ -329,7 +339,7 @@ german_bank_csv_row(Account, Currency, Row, S_Transaction) :-
 			Exchanged2 = vector(E2)
 		)
 	),
-	doc_add_s_transaction(Date, Verb, Vector, Account, Exchanged2, misc{desc2:Description,desc3:Description_Column2}, transactions, S_Transaction).
+	doc_add_s_transaction(Date, Verb, Vector, Account, Exchanged2, misc{desc2:Description,desc3:Description_Column2}, S_Transaction).
 
 german_bank_money(Money_Atom0, Money_Number) :-
 	filter_out_chars_from_atom(([X]>>(X == '\'')), Money_Atom0, Money_Atom1),

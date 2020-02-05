@@ -203,7 +203,7 @@ Yield transactions by account + cashflow category
 make_cf_instant_txs(Sd) :-
 	account_by_role(Sd.accounts, ('Accounts'/'CashAndCashEquivalents'), Root),
 	transactions_in_period_on_account_and_subaccounts(Sd.accounts, Sd.transactions, Root, Sd.start_date, Sd.end_date, Filtered_Transactions),
-	maplist(cf_instant_tx, Filtered_Transactions).
+	maplist(make_cf_instant_tx, Filtered_Transactions).
 
 make_cf_instant_tx(T) :-
 	(doc(T, l:cf_category, Cat)->true;Cat = 'unknown'),
@@ -297,9 +297,9 @@ cf_entry_by_category(Category, CF_Items, Category_Entry) :-
 	maplist(cf_scheme0_plusminus_entry, Pairs, Child_Entries),
 	Category_Entry = entry0(Category, [], Child_Entries).
 
-cf_scheme0_plusminus_entry((Pm-Item), Entry) :-
+cf_scheme0_plusminus_entry(Sd, (Pm-Item), Entry) :-
 	[cf_item0(_,_,_,Transactions)] = Item,
-	maplist(cf_instant_tx_vector_conversion, Transactions, Converted_Vecs),
+	maplist(cf_instant_tx_vector_conversion(Sd), Transactions, Converted_Vecs),
 	vec_sum_with_proof(Converted_Vecs, Sum),
 	Entry = entry(Pm, Sum, []).
 

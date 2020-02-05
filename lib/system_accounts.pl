@@ -101,8 +101,7 @@ make_currency_movement_account(Accounts_In, Bank_Account, Currency_Movement_Acco
 bank_account_currency_movement_account(Accounts, Bank_Account, Currency_Movement_Account) :-
 	account_role_by_id(Accounts, Bank_Account, (_/Bank_Child_Role)),
 	account_by_role(Accounts, ('Accounts'/'CurrencyMovement'), Cm_Id),
-	account_by_role(Accounts, (Cm_Id/Bank_Child_Role), Currency_Movement_Account),
-
+	account_by_role(Accounts, (Cm_Id/Bank_Child_Role), Currency_Movement_Account).
 	
 /*
 return all units that appear in s_transactions with an action type that specifies a trading account

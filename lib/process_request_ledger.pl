@@ -305,7 +305,6 @@ extract_bank_opening_balances2(Bank_Account, Tx) :-
 		(Bank_Account_Name),
 		(vector([])),
 		(misc{desc2:'Historical_Earnings_Lump'}),
-		transactions,
 		Tx).
 
 extract_initial_gl(Txs) :-
