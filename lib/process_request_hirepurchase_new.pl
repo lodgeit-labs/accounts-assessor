@@ -94,11 +94,11 @@ add_doc_facts([fact(S,P,O) | Facts]) :-
 
 
 process_request_hirepurchase_new :-
-	format(user_error, "process_request_hirepurchase_new~n", []),
+	debug(requests, "process_request_hirepurchase_new~n", []),
 	doc(l:request, hp_ui:hp_calculator_query, _),
-	format(user_error, "found hp_ui:hp_calculator_query~n", []),
+	debug(requests, "found hp_ui:hp_calculator_query~n", []),
 	doc_to_chr_constraints,
-	format(user_error, "doc_to_chr_constraints success~n",[]),
+	debug(requests, "doc_to_chr_constraints success~n",[]),
 	(
 		chase_kb(20)
 	->

@@ -33,8 +33,8 @@ make_transaction2(Date, Description, Account, Vector, Type, Uri) :-
 	doc_add(Uri, transactions:vector, Vector),
 	doc_add(Uri, transactions:type, Type).
 
-make_transaction(Date, Description, Account, Vector, Transaction) :-
-	make_transaction2(Date, Description, Account, Vector, instant, Transaction).
+make_transaction(Date, Description, Account, Vector, Uri) :-
+	make_transaction2(Date, Description, Account, Vector, instant, Uri).
 
 	
 transaction_to_dict(T, D) :-

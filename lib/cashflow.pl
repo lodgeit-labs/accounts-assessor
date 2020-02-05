@@ -239,12 +239,12 @@ cf_entries(
 */
 
 cf_scheme_0_root_entry(Sd, Entry) :-
-	cf_scheme_0_entries_helper_for_accounts(Sd, $>account_by_role(Sd.accounts, ('Accounts'/'CashAndCashEquivalents')), Entry).
+	cf_scheme_0_entry_for_account(Sd, $>account_by_role(Sd.accounts, ('Accounts'/'CashAndCashEquivalents')), Entry).
 
 cf_scheme_0_entry_for_account(Sd, Account, Entry) :-
 	account_children(Sd, Account, Children),
 	dif(Children, []),
-	Entry = entry0(Account, [], $>maplist(cf_scheme_0_entry_for_account, Children)).
+	Entry = entry0(Account, [], $>maplist(cf_scheme_0_entry_for_account(Sd), Children)).
 
 /*
 cf_scheme_0_entry_for_account(
@@ -269,7 +269,7 @@ cf_scheme_0_entry_for_account(Sd, Account, Entry) :-
 		Category_Entry,
 		(
 			member(Category-CF_Items, Account_Items_By_Category_Pairs),
-			cf_entry_by_category(Category, CF_Items, Category_Entry)
+			cf_entry_by_category(Sd, Category, CF_Items, Category_Entry)
 		),
 		Category_Entries0
 	),
@@ -291,10 +291,10 @@ cf_entry_by_category(
 	Category_Entry			% record:entry
 ).
 */
-cf_entry_by_category(Category, CF_Items, Category_Entry) :-
+cf_entry_by_category(Sd, Category, CF_Items, Category_Entry) :-
 	sort_into_dict_on_success([CF_Item, Plus_Minus]>>(CF_Item = cf_item0(_,_,Plus_Minus,_)), CF_Items, Cf_Items_By_PlusMinus),
 	dict_pairs(Cf_Items_By_PlusMinus, _, Pairs),
-	maplist(cf_scheme0_plusminus_entry, Pairs, Child_Entries),
+	maplist(cf_scheme0_plusminus_entry(Sd), Pairs, Child_Entries),
 	Category_Entry = entry0(Category, [], Child_Entries).
 
 cf_scheme0_plusminus_entry(Sd, (Pm-Item), Entry) :-

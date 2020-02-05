@@ -72,10 +72,6 @@ process_ledger(
 
 	maplist(check_transaction_account(Accounts), Transactions_With_Livestock),
 
-	s_transactions_to_doc(Processed_S_Transactions),
-	transactions_to_doc,
-
-
 	Static_Data2 = Static_Data0.put(end_date, Processed_Until).put(transactions, Transactions_With_Livestock),
 	gl_export(
 		Static_Data2, 

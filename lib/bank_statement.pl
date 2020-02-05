@@ -354,7 +354,7 @@ make_difference_transaction(Account, Date, Description, What, Against, Transacti
 	vec_sub(What, Against, Diff),
 	/* when an asset account goes up, it rises in debit, and the revenue has to rise in credit to add up to 0 */
 	vec_inverse(Diff, Diff_Revenue),
-	make_transaction2(Date, Description, Account, Diff_Revenue, Transaction),
+	make_transaction2(Date, Description, Account, Diff_Revenue, tracking, Transaction),
 	transaction_type(Transaction, tracking).
 	
 

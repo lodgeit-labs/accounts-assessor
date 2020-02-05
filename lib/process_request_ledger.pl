@@ -333,5 +333,5 @@ extract_initial_gl_tx(Default_Currency, Item, Tx) :-
 	->	vector_string(Default_Currency, credit, Credit_String, Credit_Vector)
 	;	Credit_Vector = []),
 	append(Debit_Vector, Credit_Vector, Vector),
-	doc_add_transaction(Date, Description, Account, Vector, Tx).
+	make_transaction(Date, Description, Account, Vector, Tx).
 

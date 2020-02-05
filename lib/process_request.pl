@@ -139,15 +139,15 @@ alert_html(Alert, div([Alert, br([]), br([])])).
 
 
 process_multifile_request(File_Paths) :-
-	format("process_multifile_request(~w)~n", [File_Paths]),
+	debug(tmp_files, "process_multifile_request(~w)~n", [File_Paths]),
 	(	accept_request_file(File_Paths, Xml_Tmp_File_Path, xml)
 	->	load_request_xml(Xml_Tmp_File_Path, Dom)
 	;	true),
 	(	accept_request_file(File_Paths, Rdf_Tmp_File_Path, n3)
 	->	(
-			format("accept_request_file(~w, ~w, n3)~n", [File_Paths, Rdf_Tmp_File_Path]),
+			debug(tmp_files, "done accept_request_file(~w, ~w, n3)~n", [File_Paths, Rdf_Tmp_File_Path]),
 			load_request_rdf(Rdf_Tmp_File_Path, G),
-			format("RDF graph: ~w~n", [G]),
+			debug(tmp_files, "RDF graph: ~w~n", [G]),
 			doc_from_rdf(G)
 			%doc_input_to_chr_constraints
 		)
@@ -159,11 +159,11 @@ process_multifile_request(File_Paths) :-
 			;	throw_string('<reports> tag not found'))).
 
 accept_request_file(File_Paths, Path, Type) :-
-	format("accept_request_file(~w, ~w, ~w)~n", [File_Paths, Path, Type]),
+	debug(tmp_files, "accept_request_file(~w, ~w, ~w)~n", [File_Paths, Path, Type]),
 	member(Path, File_Paths),
-	format("member(~w, ~w)~n", [Path, File_Paths]),
+	debug(tmp_files, "member(~w, ~w)~n", [Path, File_Paths]),
 	tmp_file_path_to_url(Path, Url),
-	format("tmp_file_path_to_url(~w, ~w)~n", [Path, Url]),
+	debug(tmp_files, "tmp_file_path_to_url(~w, ~w)~n", [Path, Url]),
 	(
 		loc_icase_endswith(Path, ".xml")
 	->	(
@@ -197,7 +197,7 @@ make_rdf_report :-
 
 
 process_rdf_request :-
-	format("process_rdf_request~n", []),
+	debug(requests, "process_rdf_request~n", []),
 	(	process_request_hirepurchase_new;
 		process_request_depreciation_new),
 	make_rdf_report.

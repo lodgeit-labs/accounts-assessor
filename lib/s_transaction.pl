@@ -8,9 +8,10 @@ s_transaction_fields([day, type_id, vector, account_id, exchanged, misc]).
 % - The account that the transaction modifies without using exchange rate conversions
 % - Either the units or the amount to which the transaction amount will be converted to, depending on whether the term is of the form bases(...) or vector(...).
 
-doc_add_s_transaction(Type_Id, Vector, Account_Id, Exchanged, Misc, Uri) :-
+doc_add_s_transaction(Day, Type_Id, Vector, Account_Id, Exchanged, Misc, Uri) :-
 	doc_new_uri(Uri),
 	doc_add(Uri, rdf:type, l:s_transaction),
+	doc_add(Uri, s_transactions:day, Day),
 	doc_add(Uri, s_transactions:type_id, Type_Id),
 	doc_add(Uri, s_transactions:vector, Vector),
 	doc_add(Uri, s_transactions:account_id, Account_Id),
@@ -31,15 +32,25 @@ s_transaction_misc(T, X) :-
 	doc(T, s_transactions:misc, X, transactions).
 
 doc_set_s_transaction_vector(T0, X, T1) :-
-	doc_set_property(T0, $>s_transaction_fields, $>rdf_global_id(s_transactions:vector), X, T1).
+	doc_set_property(s_transactions, T0, $>s_transaction_fields, $>rdf_global_id(s_transactions:vector), X, T1).
 
 doc_set_s_transaction_type_id(T0, X, T1) :-
-	doc_set_property(T0, $>s_transaction_fields, $>rdf_global_id(s_transactions:type_id), X, T1).
+	doc_set_property(s_transactions, T0, $>s_transaction_fields, $>rdf_global_id(s_transactions:type_id), X, T1).
 
-/* add a new object with P newly set to V */
-doc_set_property(S1, Fields, P, V, S2) :-
-	todo,
-	writeq(doc_set_property(S1, Fields, P, V, S2)).
+/* add a new object with P newly set to V, referencing the rest of Fields */
+doc_set_property(Prefix, S1, Fields, P, V, S2) :-
+	doc_new_uri(S2),
+	(	doc(S1, rdf:type, Type)
+	->	doc_add(S2, rdf:type, Type)),
+	maplist(doc_set_property_helper(Prefix,S1,S2,P,V), Fields).
+
+doc_set_property_helper(Prefix,S1,S2,P,V,Field) :-
+	rdf_global_id(Prefix:P, Prop_Uri),
+	rdf_global_id(Prefix:Field, Field_Uri),
+	(	Prop_Uri == Field_Uri
+	->	V2 = V
+	;	doc(S1, Field_Uri, V2)),
+	doc_add(S2, Field_Uri, V2).
 
 
 pretty_string(T, String) :-
@@ -47,7 +58,7 @@ pretty_string(T, String) :-
 	s_transaction_day(T, Date),
 	s_transaction_type_id(T, uri(Action_Verb)),
 	s_transaction_vector(T, Money),
-	s_transaction_account(T, Account),
+	s_transaction_account_id(T, Account),
 	s_transaction_exchanged(T, Exchanged),
 	s_transaction_misc(T, Misc),
 	doc(Action_Verb, l:has_id, Action_Verb_Name),
@@ -94,7 +105,7 @@ s_transaction_to_dict(T, D) :-
 	s_transaction_day(T, Day),
 	s_transaction_type_id(T, uri(Action_Verb)),
 	s_transaction_vector(T, Vector),
-	s_transaction_account(T, Account),
+	s_transaction_account_id(T, Account),
 	s_transaction_exchanged(T, Exchanged),
 	s_transaction_misc(T, Misc),
 	(	/* here's an example of the shortcoming of ignoring the rdf prefix issue, fixme */
@@ -132,7 +143,7 @@ prepreprocess_s_transaction(Static_Data, In, Out) :-
 prepreprocess_s_transaction(Static_Data, S_Transaction, Out) :-
 	s_transaction_action_verb(S_Transaction, Action_Verb),
 	!,
-	set_s_transaction_type_id(S_Transaction, uri(Action_Verb), NS_Transaction),
+	doc_set_s_transaction_type_id(S_Transaction, uri(Action_Verb), NS_Transaction),
 	prepreprocess_s_transaction(Static_Data, NS_Transaction, Out).
 
 prepreprocess_s_transaction(_, T, T) :-
@@ -150,10 +161,11 @@ infer_exchanged_units_count(Static_Data, S_Transaction, NS_Transaction) :-
 	s_transaction_type_id(S_Transaction, Type_Id),
 	s_transaction_vector(S_Transaction, Vector),
 	s_transaction_account_id(S_Transaction, Unexchanged_Account_Id),
+	s_transaction_misc(S_Transaction, Misc),
 	% infer the count by money debit/credit and exchange rate
 	vec_change_bases(Exchange_Rates, Transaction_Date, Goods_Bases, Vector, Vector_Exchanged),
 	vec_inverse(Vector_Exchanged, Vector_Exchanged_Inverted),
-	doc_add_s_transaction(Transaction_Date, Type_Id, Vector, Unexchanged_Account_Id, vector(Vector_Exchanged_Inverted), NS_Transaction).
+	doc_add_s_transaction(Transaction_Date, Type_Id, Vector, Unexchanged_Account_Id, vector(Vector_Exchanged_Inverted), Misc, NS_Transaction).
 
 /* used on raw s_transaction during prepreprocessing */
 s_transaction_action_verb(S_Transaction, Action_Verb) :-
@@ -265,7 +277,7 @@ extract_s_transactions(Dom, Start_Date_Atom, S_Transactions) :-
 invert_s_transaction_vector(T0, T1) :-
 	doc(T0, s_transactions:vector, Vector),
 	vec_inverse(Vector, Vector_Inverted),
-	doc_set_s_transaction_vector(T0, Vector_Inverted, transactions, T1).
+	doc_set_s_transaction_vector(T0, Vector_Inverted, T1).
 
 
 
