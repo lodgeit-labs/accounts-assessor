@@ -5,6 +5,17 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 /*
+	Vec: [a rdf:value]
+	Sum: [a rdf:value]
+*/
+vec_sum_with_proof(Vec, Sum) :-
+	maplist([Uri, Lit]>>(doc(Uri, rdf:value, Lit)), Vec, Vec_Lits),
+	vec_sum(Vec_Lits, Sum_Lit),
+	doc_new_(rdf:value, Sum),
+	doc_add(Sum, rdf:value, Sum_Lit),
+	doc_add(Sum, l:source, Vec).
+
+/*
 sum_by_pred(
 	P,			% pred(Item, Numeric)
 	Input,		% List<Item>
@@ -25,6 +36,7 @@ vec_sum_by_pred(
 vec_sum_by_pred(P, Input, Sum) :-
 	convlist(P, Input, Intermediate),
 	vec_sum(Intermediate, Sum).
+
 
 /*
 sort_into_dict_on_success/3(
@@ -268,7 +280,10 @@ cf_scheme_0_entry_for_account(Sd, Account, Entry) :-
 cf_scheme_0_bank_account_currency_movement_entry(Sd, Account, Currency_Movement_Entry) :-
 	bank_account_currency_movement_account(Sd.accounts, Account, Currency_Movement_Account),
 	net_activity_by_account(Sd, Account, Vec, _),
-	Currency_Movement_Entry = entry0('Currency movement', Vec, []).
+	doc_new_(rdf:value, Vec_Uri),
+	doc_add(Vec_Uri, rdf:value, Vec),
+	doc_add(Vec_Uri, l:source, net_activity_by_account(Sd, Account, Vec, _)),
+	Currency_Movement_Entry = entry0('Currency movement', Vec_Uri, []).
 
 /*
 cf_entry_by_category(
@@ -286,33 +301,8 @@ cf_entry_by_category(Category, CF_Items, Category_Entry) :-
 cf_scheme0_plusminus_entry((Pm-Item), Entry) :-
 	[cf_item0(_,_,_,Transactions)] = Item,
 	maplist(cf_instant_tx_vector_conversion, Transactions, Converted_Vecs),
-	Entry = entry(Pm, Converted_Vecs, []).
-
-
-
-
-entry0_to_entry1(Entry0, Entry1) :-
-	Entry0 = entry0(Title, Own_Vecs, []),
-	vec_sum_with_proof(Own_Vecs,Sum_Vec).
-entry0_to_entry1(Entry0, Entry1) :-
-	Entry0 = entry0(Title, [], Children),
-	Children \= [],
-	maplist(entry0_to_entry1
-	vec_sum_with_proof(Own_Vecs,Sum_Vec).
-
-
-
-/*
-	Vec: [a rdf:value]
-	Sum: [a rdf:value]
-*/
-vec_sum_with_proof(Vec, Sum) :-
-	maplist([Uri, Lit]>>(doc(Uri, rdf:value, Lit)), Vec, Vec_Lits),
-	vec_sum(Vec_Lits, Sum_Lit),
-	doc_new_(rdf:value, Sum),
-	doc_add(Sum, rdf:value, Sum_Lit),
-	doc_add(Sum, l:source, Vec).
-
+	vec_sum_with_proof(Converted_Vecs, Sum),
+	Entry = entry(Pm, Sum, []).
 
 cf_instant_tx_vector_conversion(Sd, Tx, Vec) :-
 	/*very crude metadata for now*/
@@ -323,26 +313,34 @@ cf_instant_tx_vector_conversion(Sd, Tx, Vec) :-
 	call(Source).
 
 
-/*
-finally, we can generically walk the entry tree with own vectors, and create sums
-*/
 
+
+/*
+walk the entry0 tree with own vectors, and create entry terms. entry_balance is an uri, i think let's modify pesseract_style_table_rows to handle that case and make use of it by showing a href with the value's uri
+*/
+entry0_to_entry(Entry0, Entry1) :-
+	Entry0 = entry0(Title, Own_Vec, []),
+	Entry1 = entry(Title, Own_Vec, [], _).
+entry0_to_entry(Entry0, Entry1) :-
+	Entry0 = entry0(Title, [], Children0),
+	Children0 \= [],
+	maplist(entry0_to_entry, Children0, Children1),
+	maplist(entry_balance, Children1, Vecs),
+	vec_sum_with_proof(Vecs,Sum),
+	Entry1 = entry(Title, Sum, Children1, _).
 
 
 cashflow(
 	Sd,				% Static Data
 	Entries			% List entry
 ) :-
-
 	account_by_role(Sd.accounts, ('Accounts'/'CashAndCashEquivalents'), Root),
-	cf_items0(Sd, Root, CF_Items),
-	cf_entries(Sd, Root, CF_Items, Sub_Entries), /* with lists of transactions, maybe also with own_total's, since it will know to convert normal transactions and currencymovement differently */
-	%sum_entries(E1, E2),/* just simple addition of own_totals, and leave transactions in for json explorer */
-
-	balance(Sd, Root, Sd.start_date, Start_Balance, _),
-	balance(Sd, Root, Sd.end_date, End_Balance, _),
+	cf_scheme_0_root_entry(Sd, Entry0),
+	entry0_to_entry(Entry0, Entry),
+	balance(Sd, Root, Sd.start_date, Start_Balance, C1),
+	balance(Sd, Root, Sd.end_date, End_Balance, C2),
 	Entries = [
-		entry($>format(string(<$), 'CashAndCashEquivalents on ~s', [Sd.start_Date]), Start_Balance, [], _),
+		entry($>format(string(<$), 'CashAndCashEquivalents on ~s', [Sd.start_Date]), Start_Balance, [], C1),
 		Sub_Entries,
-		entry($>format(string(<$), 'CashAndCashEquivalents on ~s', [Sd.end_Date]), End_Balance, [], _)
+		entry($>format(string(<$), 'CashAndCashEquivalents on ~s', [Sd.end_Date]), End_Balance, [], C2)
 	].
