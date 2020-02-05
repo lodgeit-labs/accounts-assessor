@@ -218,8 +218,9 @@ make_cf_instant_tx(T) :-
 
 cf_instant_tx(Account, Cat, PlusMinus, T) :-
 	doc(U, rdf:type, l:cf_instant_tx),
-	doc_add(U, l:category, Cat),
-	doc_add(U, l:plusminus, PlusMinus),
+	doc(U, l:account, Account),
+	doc(U, l:category, Cat),
+	doc(U, l:plusminus, PlusMinus),
 	doc(U, l:transaction, T).
 
 cf_instant_txs(Account, Cat, PlusMinus, Txs) :-
@@ -277,7 +278,7 @@ cf_scheme_0_entry_for_account(Sd, Account, Entry) :-
 
 cf_scheme_0_bank_account_currency_movement_entry(Sd, Account, Currency_Movement_Entry) :-
 	bank_account_currency_movement_account(Sd.accounts, Account, Currency_Movement_Account),
-	net_activity_by_account(Sd, Account, Vec, _),
+	net_activity_by_account(Sd, Currency_Movement_Account, Vec, _),
 	doc_new_(rdf:value, Vec_Uri),
 	doc_add(Vec_Uri, rdf:value, Vec),
 	doc_add(Vec_Uri, l:source, net_activity_by_account(Sd, Account, Vec, _)),
@@ -337,6 +338,6 @@ cashflow(
 	balance(Sd, Root, Sd.end_date, End_Balance, C2),
 	Entries = [
 		entry($>format(string(<$), 'CashAndCashEquivalents on ~s', [Sd.start_Date]), Start_Balance, [], C1),
-		Sub_Entries,
+		Entry,
 		entry($>format(string(<$), 'CashAndCashEquivalents on ~s', [Sd.end_Date]), End_Balance, [], C2)
 	].
