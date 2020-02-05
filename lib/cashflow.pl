@@ -190,8 +190,6 @@ tag_gl_transaction_with_cf_data(T) :-
 		)
 	;	true).
 
-*/
-
 /*
 cashflow_item0(
 	Static_Data,		% Dict:Static Data
@@ -209,7 +207,7 @@ make_cf_instant_txs(Sd) :-
 
 make_cf_instant_tx(T) :-
 	(doc(T, l:cf_category, Cat)->true;Cat = 'unknown'),
-	(doc(T, l:cf_plusminus, PlusMinus)->true;PlusMinus = '?')
+	(doc(T, l:cf_plusminus, PlusMinus)->true;PlusMinus = '?'),
 	doc_new_uri(U),
 	doc_add(U, rdf:type, l:cf_instant_tx),
 	doc_add(U, l:account, $>transaction_account_id(T)),
@@ -311,8 +309,6 @@ cf_instant_tx_vector_conversion(Sd, Tx, Vec) :-
 	Source = vec_change_bases(Sd.exchange_rates, $>transaction_day(Tx), Sd.report_currency, $>transaction_vector(Tx), Vec),
 	doc_add(Uri, l:source, Source),
 	call(Source).
-
-
 
 
 /*

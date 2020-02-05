@@ -9,11 +9,12 @@
 */
 generate_unique_tmp_directory_prefix :-
    get_time(Current_Time),
-   format("generate_unique_tmp_directory_prefix:get_time(~w)~n", [Current_Time]),
+   %format("generate_unique_tmp_directory_prefix:get_time(~w)~n", [Current_Time]),
    atomic_list_concat([Current_Time, '.'], Base),
-   format("generate_unique_tmp_directory_prefix:atomic_list_concat(~w, ~w)~n", [[Current_Time, '.'], Base]),
+   %format("generate_unique_tmp_directory_prefix:atomic_list_concat(~w, ~w)~n", [[Current_Time, '.'], Base]),
    asserta(session_tmp_directory_base(tmp_directory_name_prefix(Base))),
-   format("generate_unique_tmp_directory_prefix:asserta(session_tmp_directory_base(tmp_directory_name_prefix(~w)))~n",[Base]).
+   %format("generate_unique_tmp_directory_prefix:asserta(session_tmp_directory_base(tmp_directory_name_prefix(~w)))~n",[Base]).
+   true.
 
 /*
   create a new unique directory under my_tmp

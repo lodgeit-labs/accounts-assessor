@@ -16,6 +16,10 @@
 'https://rdf.lodgeit.net.au/v1/calcs/ic/ui#').
 :- rdf_register_prefix(hp_ui,
 'https://rdf.lodgeit.net.au/v1/calcs/hp/ui#').
+:- rdf_register_prefix(transactions,
+'https://rdf.lodgeit.net.au/v1/transactions#').
+:- rdf_register_prefix(s_transactions,
+'https://rdf.lodgeit.net.au/v1/s_transactions#').
 
 /*@prefix depr_ui: <https://rdf.lodgeit.net.au/v1/calcs/depr/ui#> .
 @prefix ic_ui: <https://rdf.lodgeit.net.au/v1/calcs/ic/ui#> .
