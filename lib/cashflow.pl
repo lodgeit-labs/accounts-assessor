@@ -157,6 +157,7 @@ gl_tx_vs_cashflow_category(
 */
 
 gl_tx_vs_cashflow_category(T, Cat) :-
+gtrace,
 	doc(T, transactions:origin, Origin, transactions),
 	(
 		doc(Origin, rdf:type, s_transaction, transactions)
