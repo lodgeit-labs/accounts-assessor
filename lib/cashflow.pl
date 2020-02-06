@@ -157,10 +157,9 @@ gl_tx_vs_cashflow_category(
 */
 
 gl_tx_vs_cashflow_category(T, Cat) :-
-gtrace,
 	doc(T, transactions:origin, Origin, transactions),
 	(
-		doc(Origin, rdf:type, s_transaction, transactions)
+		doc(Origin, rdf:type, l:s_transaction, transactions)
 	->
 		doc(Origin, s_transactions:type_id, uri(Verb_URI), transactions),
 		doc(Verb_URI, l:has_id, Verb),
