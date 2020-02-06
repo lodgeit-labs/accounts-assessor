@@ -325,7 +325,7 @@ cf_scheme_0_bank_account_currency_movement_entry(Sd, Account, Currency_Movement_
 	net_activity_by_account(Sd, Currency_Movement_Account, Vec, _),
 	doc_new_(rdf:value, Vec_Uri),
 	doc_add(Vec_Uri, rdf:value, Vec),
-	doc_add(Vec_Uri, l:source, net_activity_by_account(Sd, Account, Vec, _)),
+	doc_add(Vec_Uri, l:source, net_activity_by_account(Account, Vec, _)),
 	Currency_Movement_Entry = entry0('Currency movement', Vec_Uri, []).
 
 /*
@@ -342,7 +342,7 @@ cf_entry_by_category(Sd, Category, CF_Items, Category_Entry) :-
 	maplist(cf_scheme0_plusminus_entry(Sd), Pairs, Child_Entries),
 	Category_Entry = entry0(Category, [], Child_Entries).
 
-cf_scheme0_plusminus_entry(Sd, (Cat_Uri, Tx_List), Entry) :-
+cf_scheme0_plusminus_entry(Sd, (Cat_Uri - Tx_List), Entry) :-
 	maplist(cf_instant_tx_vector_conversion(Sd), Tx_List, Converted_Vecs),
 	vec_sum_with_proof(Converted_Vecs, Sum),
 	Entry = entry($>doc(Cat_Uri, l:plusminus, <$, cf_stuff), Sum, []).
