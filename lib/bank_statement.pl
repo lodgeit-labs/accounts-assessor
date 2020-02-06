@@ -76,8 +76,7 @@ preprocess_s_transaction(Static_Data, S_Transaction, Transactions, Outstanding, 
 
 preprocess_s_transaction(Static_Data, S_Transaction, Transactions, Outstanding_Before, Outstanding_After) :-
 	s_transaction_type_id(S_Transaction, uri(Action_Verb)),
-	gtrace,maplist(dif(Action_Verb), $>rdf_global_id($>livestock_verbs,<$)),
-
+	maplist(dif(Action_Verb), $>rdf_global_id($>livestock_verbs,<$)),
 	Transactions = [Ts1, Ts2, Ts3, Ts4],
 	dict_vars(Static_Data, [Report_Currency, Exchange_Rates]),
 	s_transaction_exchanged(S_Transaction, vector(Counteraccount_Vector)),
@@ -215,7 +214,7 @@ bank_debit_to_unit_price(Vector_Ours, Goods_Positive, value(Unit, Number2)) :-
 */
 
 affect_bank_account(Static_Data, S_Transaction, Description0, [Ts0, Ts3]) :-
-	s_transaction_account_id(S_Transaction, Bank_Account_Name),
+	s_transaction_account(S_Transaction, Bank_Account_Name),
 	s_transaction_vector(S_Transaction, Vector),
 	vector_unit(Vector, Bank_Account_Currency),
 	s_transaction_day(S_Transaction, Transaction_Date),
@@ -410,7 +409,7 @@ check_trial_balance(Exchange_Rates, Report_Currency, Date, Transactions) :-
 	
 % throw an error if the account is not found in the hierarchy
 check_that_s_transaction_account_exists(S_Transaction, Accounts) :-
-	s_transaction_account_id(S_Transaction, Account_Name),
+	s_transaction_account(S_Transaction, Account_Name),
 	account_by_role(Accounts, ('Banks'/Account_Name), _).
 
 
@@ -450,7 +449,7 @@ pretty_transactions_string2(Seen_Units0, [Transaction|Transactions], String) :-
 	transaction_day(Transaction, Date),
 	term_string(Date, Date_Str),
 	transaction_description(Transaction, Description),
-	transaction_account_id(Transaction, Account),
+	transaction_account(Transaction, Account),
 	transaction_vector(Transaction, Vector),
 	pretty_vector_string(Seen_Units0, Seen_Units1, Vector, Vector_Str),
 	atomic_list_concat([

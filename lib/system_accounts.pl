@@ -55,7 +55,7 @@ bank_account_names(S_Transactions, Names) :-
 		Bank_Account_Name,
 		(
 			member(T, S_Transactions),
-			s_transaction_account_id(T, Bank_Account_Name)
+			s_transaction_account(T, Bank_Account_Name)
 		),
 		Names0
 	),

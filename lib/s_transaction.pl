@@ -1,7 +1,7 @@
 :- use_module(library(dcg/basics)).
 
 % bank statement transaction record, these are in the input xml
-s_transaction_fields([day, type_id, vector, account_id, exchanged, misc]).
+s_transaction_fields([day, type_id, vector, account, exchanged, misc]).
 % - The absolute day that the transaction happenned
 % - The type identifier/action tag of the transaction
 % - The amounts that are being moved in this transaction
@@ -10,13 +10,13 @@ s_transaction_fields([day, type_id, vector, account_id, exchanged, misc]).
 
 doc_add_s_transaction(Day, Type_Id, Vector, Account_Id, Exchanged, Misc, Uri) :-
 	doc_new_uri(Uri),
-	doc_add(Uri, rdf:type, l:s_transaction),
-	doc_add(Uri, s_transactions:day, Day),
-	doc_add(Uri, s_transactions:type_id, Type_Id),
-	doc_add(Uri, s_transactions:vector, Vector),
-	doc_add(Uri, s_transactions:account_id, Account_Id),
-	doc_add(Uri, s_transactions:exchanged, Exchanged),
-	doc_add(Uri, s_transactions:misc, Misc).
+	doc_add(Uri, rdf:type, l:s_transaction, transactions),
+	doc_add(Uri, s_transactions:day, Day, transactions),
+	doc_add(Uri, s_transactions:type_id, Type_Id, transactions),
+	doc_add(Uri, s_transactions:vector, Vector, transactions),
+	doc_add(Uri, s_transactions:account, Account_Id, transactions),
+	doc_add(Uri, s_transactions:exchanged, Exchanged, transactions),
+	doc_add(Uri, s_transactions:misc, Misc, transactions).
 
 s_transaction_day(T, D) :-
 	doc(T, s_transactions:day, D, transactions).
@@ -24,33 +24,33 @@ s_transaction_type_id(T, X) :-
 	doc(T, s_transactions:type_id, X, transactions).
 s_transaction_vector(T, X) :-
 	doc(T, s_transactions:vector, X, transactions).
-s_transaction_account_id(T, X) :-
-	doc(T, s_transactions:account_id, X, transactions).
+s_transaction_account(T, X) :-
+	doc(T, s_transactions:account, X, transactions).
 s_transaction_exchanged(T, X) :-
 	doc(T, s_transactions:exchanged, X, transactions).
 s_transaction_misc(T, X) :-
 	doc(T, s_transactions:misc, X, transactions).
 
 doc_set_s_transaction_vector(T0, X, T1) :-
-	doc_set_property(s_transactions, T0, $>s_transaction_fields, $>rdf_global_id(s_transactions:vector), X, T1).
+	doc_set_property(s_transactions, T0, $>s_transaction_fields, vector, X, transactions, T1).
 
 doc_set_s_transaction_type_id(T0, X, T1) :-
-	doc_set_property(s_transactions, T0, $>s_transaction_fields, $>rdf_global_id(s_transactions:type_id), X, T1).
+	doc_set_property(s_transactions, T0, $>s_transaction_fields, type_id, X, transactions, T1).
 
 /* add a new object with P newly set to V, referencing the rest of Fields */
-doc_set_property(Prefix, S1, Fields, P, V, S2) :-
+doc_set_property(Prefix, S1, Fields, P, V, G, S2) :-
 	doc_new_uri(S2),
-	(	doc(S1, rdf:type, Type)
-	->	doc_add(S2, rdf:type, Type)),
-	maplist(doc_set_property_helper(Prefix,S1,S2,P,V), Fields).
+	(	doc(S1, rdf:type, Type, G)
+	->	doc_add(S2, rdf:type, Type, G)),
+	maplist(doc_set_property_helper(Prefix,S1,S2,P,V,G), Fields).
 
-doc_set_property_helper(Prefix,S1,S2,P,V,Field) :-
+doc_set_property_helper(Prefix,S1,S2,P,V,G,Field) :-
 	rdf_global_id(Prefix:P, Prop_Uri),
 	rdf_global_id(Prefix:Field, Field_Uri),
 	(	Prop_Uri == Field_Uri
 	->	V2 = V
-	;	doc(S1, Field_Uri, V2)),
-	doc_add(S2, Field_Uri, V2).
+	;	doc(S1, Field_Uri, V2, G)),
+	doc_add(S2, Field_Uri, V2, G).
 
 
 pretty_string(T, String) :-
@@ -58,7 +58,7 @@ pretty_string(T, String) :-
 	s_transaction_day(T, Date),
 	s_transaction_type_id(T, uri(Action_Verb)),
 	s_transaction_vector(T, Money),
-	s_transaction_account_id(T, Account),
+	s_transaction_account(T, Account),
 	s_transaction_exchanged(T, Exchanged),
 	s_transaction_misc(T, Misc),
 	doc(Action_Verb, l:has_id, Action_Verb_Name),
@@ -66,8 +66,8 @@ pretty_string(T, String) :-
 
 
 compare_s_transaction_vector_debit(Order, T1, T2) :-
-	doc(T1, s_transactions:vector, [coord(_, Debit1)]),
-	doc(T2, s_transactions:vector, [coord(_, Debit2)]),
+	s_transaction_vector(T1, [coord(_, Debit1)]),
+	s_transaction_vector(T2, [coord(_, Debit2)]),
 	compare(Order, Debit1, Debit2).
 
 compare_s_transaction_day(Order, T1, T2) :-
@@ -105,7 +105,7 @@ s_transaction_to_dict(T, D) :-
 	s_transaction_day(T, Day),
 	s_transaction_type_id(T, uri(Action_Verb)),
 	s_transaction_vector(T, Vector),
-	s_transaction_account_id(T, Account),
+	s_transaction_account(T, Account),
 	s_transaction_exchanged(T, Exchanged),
 	s_transaction_misc(T, Misc),
 	(	/* here's an example of the shortcoming of ignoring the rdf prefix issue, fixme */
@@ -160,7 +160,7 @@ infer_exchanged_units_count(Static_Data, S_Transaction, NS_Transaction) :-
 	s_transaction_day(S_Transaction, Transaction_Date),
 	s_transaction_type_id(S_Transaction, Type_Id),
 	s_transaction_vector(S_Transaction, Vector),
-	s_transaction_account_id(S_Transaction, Unexchanged_Account_Id),
+	s_transaction_account(S_Transaction, Unexchanged_Account_Id),
 	s_transaction_misc(S_Transaction, Misc),
 	% infer the count by money debit/credit and exchange rate
 	vec_change_bases(Exchange_Rates, Transaction_Date, Goods_Bases, Vector, Vector_Exchanged),
@@ -182,9 +182,7 @@ s_transaction_action_verb(S_Transaction, Action_Verb) :-
 % yield all transactions from all accounts one by one.
 % these are s_transactions, the raw transactions from bank statements. Later each s_transaction will be preprocessed
 % into multiple transaction terms.
-% fixme dont fail silently
-extract_s_transaction(Dom, Start_Date, Transaction) :-
-	xpath(Dom, //reports/balanceSheetRequest/bankStatement/accountDetails, Account),
+extract_s_transactions_from_accountDetails_dom(Account, S_Transactions) :-
 	catch(
 		fields(Account, [
 			accountName, Account_Name,
@@ -195,10 +193,15 @@ extract_s_transaction(Dom, Start_Date, Transaction) :-
 				pretty_term_string(E, E_Str),
 				throw(http_reply(bad_request(string(E_Str)))))
 			)
-	,
-	xpath(Account, transactions/transaction, Tx_Dom),
+	,extract_s_transactions_from_accountDetails_dom2(Account_Currency, Account_Name, Account, S_Transactions).
+
+extract_s_transactions_from_accountDetails_dom2(Account_Currency, Account_Name, Account, S_Transactions) :-
+	findall(Tx_Dom, xpath(Account, transactions/transaction, Tx_Dom), Tx_Doms),
+	maplist(extract_s_transaction(Account_Currency, Account_Name), Tx_Doms, S_Transactions).
+
+extract_s_transaction(Account_Currency, Account_Name, Tx_Dom, S_Transaction) :-
 	catch(
-		extract_s_transaction2(Tx_Dom, Account_Currency, Account_Name, Start_Date, Transaction),
+		extract_s_transaction2(Tx_Dom, Account_Currency, Account_Name, S_Transaction),
 		Error,
 		(
 			term_string(Error, Str1),
@@ -208,7 +211,7 @@ extract_s_transaction(Dom, Start_Date, Transaction) :-
 		)),
 	true.
 
-extract_s_transaction2(Tx_Dom, Account_Currency, Account, Start_Date, ST) :-
+extract_s_transaction2(Tx_Dom, Account_Currency, Account, ST) :-
 	numeric_fields(Tx_Dom, [
 		debit, (Bank_Debit, 0),
 		credit, (Bank_Credit, 0)]),
@@ -216,18 +219,7 @@ extract_s_transaction2(Tx_Dom, Account_Currency, Account, Start_Date, ST) :-
 		transdesc, (Desc1, ''),
 		transdesc2, (Desc2, '')
 	]),
-	(
-		(
-			xpath(Tx_Dom, transdate, element(_,_,[Date_Atom]))
-			,
-			!
-		)
-		;
-		(
-			Date_Atom=Start_Date,
-			writeln("date missing, assuming beginning of request period") % todo dunno if this is needed
-		)
-	),
+	xpath(Tx_Dom, transdate, element(_,_,[Date_Atom])),
 	parse_date(Date_Atom, Date),
 	Dr is rationalize(Bank_Debit - Bank_Credit),
 	Coord = coord(Account_Currency, Dr),
@@ -269,13 +261,15 @@ extract_exchanged_value(Tx_Dom, _Account_Currency, Bank_Dr, Exchanged) :-
 	  Exchanged = vector([])
    ).
 
-extract_s_transactions(Dom, Start_Date_Atom, S_Transactions) :-
-	findall(S_Transaction, extract_s_transaction(Dom, Start_Date_Atom, S_Transaction), S_Transactions0),
-	maplist(invert_s_transaction_vector, S_Transactions0, S_Transactions).
+extract_s_transactions(Dom, _Start_Date_Atom, S_Transactions) :-
+	findall(A, xpath(Dom, //reports/balanceSheetRequest/bankStatement/accountDetails, A), As),
+	maplist(extract_s_transactions_from_accountDetails_dom, As, S_Transactions0),
+	flatten(S_Transactions0, S_Transactions1),
+	maplist(invert_s_transaction_vector, S_Transactions1, S_Transactions).
 
 
 invert_s_transaction_vector(T0, T1) :-
-	doc(T0, s_transactions:vector, Vector),
+	s_transaction_vector(T0, Vector),
 	vec_inverse(Vector, Vector_Inverted),
 	doc_set_s_transaction_vector(T0, Vector_Inverted, T1).
 

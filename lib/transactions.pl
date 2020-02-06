@@ -9,8 +9,8 @@ transaction_day(T, X) :-
 	doc(T, transactions:day, X, transactions).
 transaction_description(T, X) :-
 	doc(T, transactions:description, X, transactions).
-transaction_account_id(T, X) :-
-	doc(T, transactions:account_id, X, transactions).
+transaction_account(T, X) :-
+	doc(T, transactions:account, X, transactions).
 transaction_vector(T, X) :-
 	doc(T, transactions:vector, X, transactions).
 transaction_type(T, X) :-
@@ -26,12 +26,12 @@ make_transaction2(Date, Description, Account, Vector, Type, Uri) :-
 	flatten([Description], Description_Flat),
 	atomic_list_concat(Description_Flat, Description_Str),
 	doc_new_uri(Uri),
-	doc_add(Uri, rdf:type, l:transaction),
-	doc_add(Uri, transactions:day, Date),
-	doc_add(Uri, transactions:description, Description_Str),
-	doc_add(Uri, transactions:account, Account),
-	doc_add(Uri, transactions:vector, Vector),
-	doc_add(Uri, transactions:type, Type).
+	doc_add(Uri, rdf:type, l:transaction, transactions),
+	doc_add(Uri, transactions:day, Date, transactions),
+	doc_add(Uri, transactions:description, Description_Str, transactions),
+	doc_add(Uri, transactions:account, Account, transactions),
+	doc_add(Uri, transactions:vector, Vector, transactions),
+	doc_add(Uri, transactions:type, Type, transactions).
 
 make_transaction(Date, Description, Account, Vector, Uri) :-
 	make_transaction2(Date, Description, Account, Vector, instant, Uri).
@@ -40,7 +40,7 @@ make_transaction(Date, Description, Account, Vector, Uri) :-
 transaction_to_dict(T, D) :-
 	transaction_day(T, Day),
 	transaction_description(T, Description),
-	transaction_account_id(T, Account),
+	transaction_account(T, Account),
 	transaction_vector(T, Vector),
 	transaction_type(T, Type),
 	D = _{
@@ -53,7 +53,7 @@ transaction_to_dict(T, D) :-
 
 
 transaction_account_in_set(Accounts, Transaction, Root_Account_Id) :-
-	transaction_account_id(Transaction, Transaction_Account_Id),
+	transaction_account(Transaction, Transaction_Account_Id),
 	account_in_set(Accounts, Transaction_Account_Id, Root_Account_Id).
 
 % equivalent concept to the "activity" in "net activity"
@@ -121,7 +121,7 @@ transactions_by_account(Static_Data, Transactions_By_Account) :-
 	),
 
 	assertion(nonvar(Transactions)),
-	sort_into_dict(transaction_account_id, Transactions, Dict),
+	sort_into_dict(transaction_account, Transactions, Dict),
 
 	/*this should be somewhere in ledger code*/
 	transactions_before_day_on_account_and_subaccounts(Accounts, Dict, 'NetIncomeLoss', Start_Date, Historical_Earnings_Transactions),
@@ -134,7 +134,7 @@ transactions_by_account(Static_Data, Transactions_By_Account) :-
 
 
 check_transaction_account(Accounts, Transaction) :-
-	transaction_account_id(Transaction, Id),
+	transaction_account(Transaction, Id),
 	(
 		(
 			nonvar(Id),

@@ -324,11 +324,7 @@ tx_to_transaction(Day, Tx, Transaction) :-
 	(var(Comment2) -> Comment2 = ''; true),
 	flatten(['comment:', Comment, ', comment2:', Comment2], Description0),
 	atomic_list_concat(Description0, Description),
-	transaction_day(Transaction, Day),
-	transaction_description(Transaction, Description),
-	transaction_account_id(Transaction, Account),
-	transaction_vector(Transaction, Vector_Flattened),
-	transaction_type(Transaction, '?'),
+	make_transaction2(Day, Description, Account, Vector_Flattened, '?', Transaction),
 	flatten(Vector, Vector_Flattened).
 	
 /*

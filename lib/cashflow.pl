@@ -1,4 +1,4 @@
-:- record cf_item0(account, category, own_transactions).
+%:- record cf_item0(account, category, pm, own_transactions).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Helper predicates
@@ -210,7 +210,7 @@ make_cf_instant_tx(T) :-
 	(doc(T, l:cf_plusminus, PlusMinus)->true;PlusMinus = '?'),
 	doc_new_uri(U),
 	doc_add(U, rdf:type, l:cf_instant_tx),
-	doc_add(U, l:account, $>transaction_account_id(T)),
+	doc_add(U, l:account, $>transaction_account(T)),
 	doc_add(U, l:category, Cat),
 	doc_add(U, l:plusminus, PlusMinus),
 	doc_add(U, l:transaction, T).
@@ -223,8 +223,19 @@ cf_instant_tx(Account, Cat, PlusMinus, T) :-
 	doc(U, l:plusminus, PlusMinus),
 	doc(U, l:transaction, T).
 
-cf_instant_txs(Account, Cat, PlusMinus, Txs) :-
-	findall(T, cf_instant_tx(Account, Cat, PlusMinus, T), Txs).
+/*
+	Account_Items: list<cf_item0(_,_,_,_)>
+*/
+cf_instant_txs_by_categorization(Account_Items) :-
+	findall((Account, Cat, PlusMinus), T), cf_instant_tx(Account, Cat, PlusMinus, T), Txs),
+	sort_into_dict([(Categorization,Transaction),Categorization]>>true, Txs, Dict),
+	/* Dict: dict<(Account, Cat, PlusMinus),cf_instant_tx(Account, Cat, PlusMinus, T)> */
+	dict_pairs(Dict, _, Pairs),
+	maplist([Categorization-Cf_instant_txs]>>findall(Transactions, 
+
+
+
+
 
 /*
 now we can walk accounts from Root, on leaf accounts do for each category and each corresponding '+'/'-':

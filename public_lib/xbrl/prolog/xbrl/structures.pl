@@ -1,5 +1,5 @@
 /*
-	given a list of terms, for example, of transactions, and a Selector_Predicate, for example transaction_account_id,
+	given a list of terms, for example, of transactions, and a Selector_Predicate, for example transaction_account,
 	produce a dict with keys returned by the selector, and values lists of terms
 */
 sort_into_dict(Selector_Predicate, Ts, D) :-
