@@ -173,10 +173,7 @@ cf_items0(
 	Root,		% atom:Account ID
 	Cf_Items	% List record:cf_item0
 ).
-
 */
-/*cf_items0(Sd, Root, Cf_Items) :-
-	findall(Cf_Item, cashflow_item0(Sd, Root, Cf_Item), Cf_Items).*/
 
 
 tag_gl_transactions_with_cf_data(Ts) :-
@@ -216,6 +213,7 @@ make_cf_instant_tx(T) :-
 	doc_add(U, l:transaction, T).
 
 
+/* yields each relevant transaction, with categorization */
 cf_instant_tx(Account, Cat, PlusMinus, T) :-
 	doc(U, rdf:type, l:cf_instant_tx),
 	doc(U, l:account, Account),
@@ -223,16 +221,24 @@ cf_instant_tx(Account, Cat, PlusMinus, T) :-
 	doc(U, l:plusminus, PlusMinus),
 	doc(U, l:transaction, T).
 
+
 /*
 	Account_Items: list<cf_item0(_,_,_,_)>
 */
-cf_instant_txs_by_categorization(Account_Items) :-
-	findall((Account, Cat, PlusMinus), T), cf_instant_tx(Account, Cat, PlusMinus, T), Txs),
-	sort_into_dict([(Categorization,Transaction),Categorization]>>true, Txs, Dict),
-	/* Dict: dict<(Account, Cat, PlusMinus),cf_instant_tx(Account, Cat, PlusMinus, T)> */
-	dict_pairs(Dict, _, Pairs),
-	maplist([Categorization-Cf_instant_txs]>>findall(Transactions, 
+cf_item_0s(Account_Items) :-
+	/* collect all relevant transactions with categorization tuple */
+	findall(((Account, Cat, PlusMinus), T), cf_instant_tx(Account, Cat, PlusMinus, T), Txs),
 
+	/* sort by categorization */
+	sort_into_dict([(Categorization,Transaction),Categorization]>>true, Txs, Dict),
+
+	/* Dict: dict<(Account, Cat, PlusMinus), list<cf_instant_tx(Account, Cat, PlusMinus, T)>> */
+	dict_pairs(Dict, _, Pairs),
+
+	/* collect individual 'l:transaction's into a list, creating cf_item0 */
+	maplist([(Acc,Cat,Pm)-Cf_instant_txs, cf_item0(Acc,Cat,Pm,Txs)]>>
+		findall(Transaction, member(cf_instant_tx(_,_,_,Transaction), Cf_instant_txs), Txs),
+		Pairs, Account_Items).
 
 
 
@@ -266,11 +272,12 @@ cf_scheme_0_entry_for_account(
 
 cf_scheme_0_entry_for_account(Sd, Account, Entry) :-
 	account_children(Sd, Account, []),
+	cf_item_0s(Item0s),
 	findall(
 		CF_Item,
 		(
-			cf_instant_txs(Account, Cat, PlusMinus, Txs),
-			CF_Item = cf_item0(Account, Cat, PlusMinus, Txs)
+			member(Item0, Item0s),
+			Item0 = cf_item0(Account,_,_,_)
 		),
 		Account_Items
 	),
@@ -348,7 +355,7 @@ cashflow(
 	balance(Sd, Root, Sd.start_date, Start_Balance, C1),
 	balance(Sd, Root, Sd.end_date, End_Balance, C2),
 	Entries = [
-		entry($>format(string(<$), 'CashAndCashEquivalents on ~s', [Sd.start_Date]), Start_Balance, [], C1),
+		entry($>format(string(<$), 'CashAndCashEquivalents on ~s', [Sd.start_date]), Start_Balance, [], C1),
 		Entry,
-		entry($>format(string(<$), 'CashAndCashEquivalents on ~s', [Sd.end_Date]), End_Balance, [], C2)
+		entry($>format(string(<$), 'CashAndCashEquivalents on ~s', [Sd.end_date]), End_Balance, [], C2)
 	].
