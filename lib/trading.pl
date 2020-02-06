@@ -8,21 +8,21 @@
 	this may seem error prone, but any issues are yet to be found, and it clarifies the logic.
 */
 			
-increase_unrealized_gains(Static_Data, Description, Trading_Account_Id, Purchase_Currency, Converted_Cost_Vector, Goods_With_Unit_Cost_Vector, Transaction_Day, [Ts0, Ts1, Ts2]) :-
+increase_unrealized_gains(Static_Data, St, Description, Trading_Account_Id, Purchase_Currency, Converted_Cost_Vector, Goods_With_Unit_Cost_Vector, Transaction_Day, [Ts0, Ts1, Ts2]) :-
 	unrealized_gains_increase_txs(Static_Data, Description, Trading_Account_Id, Purchase_Currency, Converted_Cost_Vector, Goods_With_Unit_Cost_Vector, Transaction_Day, Txs0, Historical_Txs, Current_Txs),
 	Start_Date = Static_Data.start_date,
 	%add_days(Start_Date, -1, Before_Start),
-	(nonvar(Txs0) -> txs_to_transactions(Transaction_Day, Txs0, Ts0) ; true),
-	(nonvar(Current_Txs) -> txs_to_transactions(Start_Date, Current_Txs, Ts1) ; true),
-	(nonvar(Historical_Txs) -> txs_to_transactions(Transaction_Day, Historical_Txs, Ts2) ; true).	
+	(nonvar(Txs0) -> txs_to_transactions(St, Transaction_Day, Txs0, Ts0) ; true),
+	(nonvar(Current_Txs) -> txs_to_transactions(St, Start_Date, Current_Txs, Ts1) ; true),
+	(nonvar(Historical_Txs) -> txs_to_transactions(St, Transaction_Day, Historical_Txs, Ts2) ; true).
 
-reduce_unrealized_gains(Static_Data, Description, Trading_Account_Id, Transaction_Day, Goods_Cost_Values, [Ts0, Ts1, Ts2]) :-
+reduce_unrealized_gains(Static_Data, St, Description, Trading_Account_Id, Transaction_Day, Goods_Cost_Values, [Ts0, Ts1, Ts2]) :-
 	maplist(unrealized_gains_reduction_txs(Static_Data, Description, Transaction_Day, Trading_Account_Id), Goods_Cost_Values, Txs0, Historical_Txs, Current_Txs),
 	Start_Date = Static_Data.start_date,
 	add_days(Start_Date, -1, Before_Start),
-	(nonvar(Txs0) -> txs_to_transactions(Transaction_Day, Txs0, Ts0) ; true),
-	(nonvar(Current_Txs) -> txs_to_transactions(Start_Date, Current_Txs, Ts1) ; true),
-	(nonvar(Historical_Txs) -> txs_to_transactions(Before_Start, Historical_Txs, Ts2) ; true).	
+	(nonvar(Txs0) -> txs_to_transactions(St, Transaction_Day, Txs0, Ts0) ; true),
+	(nonvar(Current_Txs) -> txs_to_transactions(St, Start_Date, Current_Txs, Ts1) ; true),
+	(nonvar(Historical_Txs) -> txs_to_transactions(St, Before_Start, Historical_Txs, Ts2) ; true).
 
 unrealized_gains_increase_txs(
 	Static_Data,
@@ -190,7 +190,7 @@ unrealized_gains_reduction_txs(Static_Data, Description, Transaction_Day, Tradin
 */
 
 
-increase_realized_gains(Static_Data, Description, Trading_Account_Id, Sale_Vector, Converted_Vector, Goods_Vector, Transaction_Day, Goods_Cost_Values, Ts2) :-
+increase_realized_gains(Static_Data, St, Description, Trading_Account_Id, Sale_Vector, Converted_Vector, Goods_Vector, Transaction_Day, Goods_Cost_Values, Ts2) :-
 
 	[Goods_Coord] = Goods_Vector,
 	number_coord(_, Goods_Integer, Goods_Coord),
@@ -214,7 +214,7 @@ increase_realized_gains(Static_Data, Description, Trading_Account_Id, Sale_Vecto
 		), 
 		Goods_Cost_Values, Txs2
 	),
-	txs_to_transactions(Transaction_Day, Txs2, Ts2).
+	txs_to_transactions(St, Transaction_Day, Txs2, Ts2).
 
 realized_gains_txs(Static_Data, Description, Transaction_Day, Sale_Currency, Sale_Currency_Unit_Price, Trading_Account_Id, Sale_Unit_Price_Converted, Purchase_Info, Txs) :-
 	Static_Data.accounts = Accounts,
@@ -311,12 +311,12 @@ dr_cr_table_line_to_tx(Description, Order_Hint, Line, Tx) :-
 		vector: Vector
 	}.
 
-txs_to_transactions(Transaction_Day, Txs, Ts) :-
+txs_to_transactions(St, Transaction_Day, Txs, Ts) :-
 	flatten([Txs], Txs2),
 	exclude(var, Txs2, Txs3),
-	maplist(tx_to_transaction(Transaction_Day), Txs3, Ts).
+	maplist(tx_to_transaction(St, Transaction_Day), Txs3, Ts).
 
-tx_to_transaction(Day, Tx, Transaction) :-
+tx_to_transaction(St, Day, Tx, Transaction) :-
 	Tx = tx{comment: Comment, comment2: Comment2, account: Account, vector: Vector},
 	nonvar(Account),
 	ground(Vector),
@@ -324,7 +324,7 @@ tx_to_transaction(Day, Tx, Transaction) :-
 	(var(Comment2) -> Comment2 = ''; true),
 	flatten(['comment:', Comment, ', comment2:', Comment2], Description0),
 	atomic_list_concat(Description0, Description),
-	make_transaction2(Day, Description, Account, Vector_Flattened, '?', Transaction),
+	make_transaction2(St, Day, Description, Account, Vector_Flattened, '?', Transaction),
 	flatten(Vector, Vector_Flattened).
 	
 /*

@@ -101,7 +101,7 @@ s_transactions_up_to(End_Date, S_Transactions_In, S_Transactions_Out) :-
 	).
 
 s_transaction_to_dict(T, D) :-
-	doc(T, rdf:type, l:s_transaction),
+	doc(T, rdf:type, l:s_transaction, transactions),
 	s_transaction_day(T, Day),
 	s_transaction_type_id(T, uri(Action_Verb)),
 	s_transaction_vector(T, Vector),

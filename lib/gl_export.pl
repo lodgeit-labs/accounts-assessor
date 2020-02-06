@@ -10,13 +10,9 @@ gl_export(Sd, Processed_S_Transactions, Transactions0, Livestock_Transactions, R
 
 make_gl_entry(Sd, Source, Transactions, Entry) :-
 	Entry = _{source: S, transactions: T},
-	(	atom(Source)
-	->	S = Source
-	; 	(
-			s_transaction_to_dict(Source, S0),
-			s_transaction_with_transacted_amount(Sd, S0, S)
-		)
-	),
+	(	s_transaction_to_dict(Source, S0)
+	->	s_transaction_with_transacted_amount(Sd, S0, S)
+	; 	S = Source),
 	maplist(transaction_to_dict, Transactions, T0),
 	maplist(transaction_with_converted_vector(Sd), T0, T1),
 	maplist(running_balance_tx_enrichment, T1, T2),

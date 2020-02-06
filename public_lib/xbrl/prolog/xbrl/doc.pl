@@ -192,6 +192,8 @@ doc_new_theory(T) :-
 doc_new_uri(Uri) :-
 	doc_new_uri(Uri, '').
 
+:- rdf_meta doc_new_(r,-).
+
 doc_new_(Type, Uri) :-
 	doc_new_uri(Uri),
 	doc_add(Uri, rdf:type, Type).

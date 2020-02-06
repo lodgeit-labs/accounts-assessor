@@ -22,7 +22,7 @@ transaction_field(T, F, X) :-
 	doc(V, rdf:value, X).
 */
 
-make_transaction2(Date, Description, Account, Vector, Type, Uri) :-
+make_transaction2(Origin, Date, Description, Account, Vector, Type, Uri) :-
 	flatten([Description], Description_Flat),
 	atomic_list_concat(Description_Flat, Description_Str),
 	doc_new_uri(Uri),
@@ -31,10 +31,11 @@ make_transaction2(Date, Description, Account, Vector, Type, Uri) :-
 	doc_add(Uri, transactions:description, Description_Str, transactions),
 	doc_add(Uri, transactions:account, Account, transactions),
 	doc_add(Uri, transactions:vector, Vector, transactions),
-	doc_add(Uri, transactions:type, Type, transactions).
+	doc_add(Uri, transactions:type, Type, transactions),
+	doc_add(Uri, transactions:origin, Origin, transactions).
 
-make_transaction(Date, Description, Account, Vector, Uri) :-
-	make_transaction2(Date, Description, Account, Vector, instant, Uri).
+make_transaction(Origin, Date, Description, Account, Vector, Uri) :-
+	make_transaction2(Origin, Date, Description, Account, Vector, instant, Uri).
 
 	
 transaction_to_dict(T, D) :-
