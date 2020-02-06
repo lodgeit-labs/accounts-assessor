@@ -380,3 +380,7 @@ pondering a syntax for triples..
 
 dg :-
 	dump,gtrace.
+
+
+gu(Prefixed, Full) :-
+	rdf_global_id(Prefixed, Full).

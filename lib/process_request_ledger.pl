@@ -104,7 +104,7 @@ balance_entries(
 	profitandloss_between(Static_Data, ProfitAndLoss),
 
 	balance_sheet_at(Static_Data_Historical, Balance_Sheet2_Historical),
-
+gtrace,
 	cashflow(Static_Data, Cf),
 
 	profitandloss_between(Static_Data_Historical, ProfitAndLoss2_Historical),

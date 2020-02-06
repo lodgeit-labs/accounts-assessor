@@ -142,9 +142,14 @@ format_balances(
 */
 format_balances(_, _, _, _, _, [], []).
 
-format_balances(Format,  Report_Currency, Context, Name, Normal_Side, [Balance|Balances], [XmlH|XmlT]) :-
+format_balances(Format, Report_Currency, Context, Name, Normal_Side, [Balance|Balances], [XmlH|XmlT]) :-
 	format_balance(Format,  Report_Currency, Context, Name, Normal_Side, [Balance], XmlH),
 	format_balances(Format, Report_Currency, Context, Name, Normal_Side, Balances, XmlT).
+
+format_balances(Format, Report_Currency, Context, Name, Normal_Side, Balances_Uri, Xml) :-
+	atom(Balances_Uri),
+	doc(Balances_Uri, rdf:value, Balances),
+	format_balances(Format, Report_Currency, Context, Name, Normal_Side, Balances, Xml).
 
 
 /*
