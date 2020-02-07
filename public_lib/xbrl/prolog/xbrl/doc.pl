@@ -81,9 +81,13 @@ doc(S,P,O) :-
 must have at most one match
 */
 doc(S,P,O,G) :-
+	rdf_global_id(S, S2),
+	rdf_global_id(P, P2),
+	rdf_global_id(O, O2),
+	rdf_global_id(G, G2),
 	b_getval(the_theory,X),
-	debug(doc, 'doc?:~q~n', [(S,P,O,G)]),
-	rol_single_match(X,(S,P,O,G)).
+	debug(doc, 'doc?:~q~n', [(S2,P2,O2,G2)]),
+	rol_single_match(X,(S2,P2,O2,G2)).
 
 :- rdf_meta docm(r,r,r).
 /*
@@ -95,9 +99,13 @@ docm(S,P,O) :-
 
 :- rdf_meta docm(r,r,r,r).
 docm(S,P,O,G) :-
+	rdf_global_id(S, S2),
+	rdf_global_id(P, P2),
+	rdf_global_id(O, O2),
+	rdf_global_id(G, G2),
 	b_getval(the_theory,X),
-	debug(doc, 'docm:~q~n', [(S,P,O,G)]),
-	rol_member(X,(S,P,O,G)).
+	debug(doc, 'docm:~q~n', [(S2,P2,O2,G2)]),
+	rol_member(X,(S2,P2,O2,G2)).
 /*
 member
 */

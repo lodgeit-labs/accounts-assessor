@@ -149,7 +149,12 @@ format_balances(Format, Report_Currency, Context, Name, Normal_Side, [Balance|Ba
 format_balances(Format, Report_Currency, Context, Name, Normal_Side, Balances_Uri, Xml) :-
 	atom(Balances_Uri),
 	doc(Balances_Uri, rdf:value, Balances),
-	format_balances(Format, Report_Currency, Context, Name, Normal_Side, Balances, Xml).
+	format_balances(Format, Report_Currency, Context, Name, Normal_Side, Balances, Text),
+	Xml = span(
+		$>append(
+			Text,
+			[a(href=Balances_Uri, [small('⍰')])])).
+
 
 
 /*

@@ -22,6 +22,45 @@ sort_into_dict(Selector_Predicate, [T|Ts], D, D_Out) :-
 
 sort_into_dict(_, [], D, D).
 
+
+
+/*
+sort_into_dict_on_success/3(
+	P,			% pred(Item,Key)
+	Input,		% List Item
+	Output		% Dict Item = {Key:[Value | Value in Input, P(Value,Key)] | Value in Input, P(Value, Key)}
+
+).
+*/
+/* like sort_into_dict, but keep going if the predicate fails */
+sort_into_dict_on_success(P, Input, Output) :-
+	sort_into_dict_on_success(P, Input, _{}, Output).
+
+
+/*
+sort_into_dict_on_success/4(
+	P,			% pred(Item,Key)
+	Input,		% List Item
+	Current,	% Dict Item (accumulator)
+	Output		% Dict Item
+).
+
+*/
+sort_into_dict_on_success(_, [], Output, Output).
+sort_into_dict_on_success(P, [I|Is], D, Output) :-
+	(
+		% should probably be wrapped in try/catch since sometimes it fails by error % mm i'd let that propagate
+		call(P,I,Key)
+	->
+		New_Value = [Key-[I | D.Key]],
+		dict_pairs(New_Key_Value, _, New_Value),
+		Next_D = D.put(New_Key_Value)
+	;	Next_D = D
+	),
+	sort_into_dict_on_success(P, Is, Next_D, Output).
+
+
+
 sort_into_assoc(Selector_Predicate, Ts, D) :-
 	empty_assoc(A),
 	sort_into_assoc(Selector_Predicate, Ts, A, D).

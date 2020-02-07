@@ -65,29 +65,26 @@ pretty_string(T, String) :-
 	format(string(String), 's_transaction:~n  date:~q~n  verb:~w~n  vector: ~q~n  account: ~q~n  exchanged: ~q~n  misc: ~q', [Date, Action_Verb_Name, Money, Account, Exchanged, Misc]).
 
 
-compare_s_transaction_vector_debit(Order, T1, T2) :-
-	s_transaction_vector(T1, [coord(_, Debit1)]),
-	s_transaction_vector(T2, [coord(_, Debit2)]),
-	compare(Order, Debit1, Debit2).
-
-compare_s_transaction_day(Order, T1, T2) :-
+compare_s_transactions(Order, T1, T2) :-
 	s_transaction_day(T1, Day1),
 	s_transaction_day(T2, Day2),
-	compare(Order, Day1, Day2).
+	compare(Order0, Day1, Day2),
+	(	Order0 \= '='
+	->	Order = Order0
+	;	(
+	/* If a buy and a sale of same thing happens on the same day, we want to process the buy first. */
+	s_transaction_vector(T1, [coord(_, Debit1)]),
+	s_transaction_vector(T2, [coord(_, Debit2)]),
+	compare(Order1, Debit1, Debit2),
+	(	Order1 \= '='
+	->	Order = Order1
+	;
+	compare(Order, T1, T2)))).
 
 
 sort_s_transactions(In, Out) :-
-	/*maybe todo:
-	even smarter sorting.
-	First, all revenue, that is, no exchanged, debit vector
-	next, exchanged debit
-	then the rest?
-	*/
-	/* If a buy and a sale of same thing happens on the same day, we want to process the buy first.
-	We first sort by our debit on the bank account. Transactions with zero of our debit are not sales. */
-	predsort(compare_s_transaction_vector_debit, In, Mid),
-	/*	now we can sort by date ascending, and the ordering of transactions with same date, as sorted above, will be preserved	*/
-	predsort(compare_s_transaction_day, Mid, Out).
+	predsort(compare_s_transactions, In, Out).
+
 
 s_transactions_up_to(End_Date, S_Transactions_In, S_Transactions_Out) :-
 	findall(
