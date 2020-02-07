@@ -317,18 +317,28 @@ node_rdf_vs_doc(
 node_rdf_vs_doc(
 	Float ^^ 'http://www.w3.org/2001/XMLSchema#decimal',
 	Rat) :-
-		freeze(Float, float(Float)),
-		freeze(Rat, rational(Rat)),
+		/*freeze(Float, float(Float)),
+		freeze(Rat, rational(Rat)),*/
+		(
+			(var(Float),rational(Rat))
+		;
+			(var(Rat), float(Float))
+		),
 		(	nonvar(Rat)
 		->	Float is float(Rat)
 		;	Rat is rationalize(Float)),!.
 
-/* todo vars */
+node_rdf_vs_doc(Atom, Atom) :- !.
 
-node_rdf_vs_doc(Atom, Atom)/* :- gtrace, writeq(Atom)*/.
+node_rdf_vs_doc(String, Term) :-
+	compound(Term), term_string(Term, String),
+	!.
 
 triple_rdf_vs_doc((S,P,O), (S,P,O2)) :-
 	node_rdf_vs_doc(O,O2).
+
+/* todo vars */
+
 
 
 doc_to_rdf(Rdf_Graph) :-
@@ -336,25 +346,36 @@ doc_to_rdf(Rdf_Graph) :-
 	findall(_,
 		(
 			docm(X,Y,Z),
+			debug(doc, 'to_rdf:~q~n', [(X,Y,Z)]),
 			triple_rdf_vs_doc((X2,Y2,Z2),(X,Y,Z)),
-			debug(doc, 'to_rdf:~q~n', [(X2,Y2,Z2)]),
-			rdf_assert(X2,Y2,Z2,Rdf_Graph)
+			(rdf_assert(X2,Y2,Z2,Rdf_Graph) -> true ; gtrace)
 		),_).
 
 /*:- comment(lib:doc_to_rdf_all_graphs, "if necessary, modify to not wipe out whole rdf database and to check that G doesn't already exist */
 
+
+add_to_rdf((X,Y,Z,G)) :-
+	(
+		triple_rdf_vs_doc((X2,Y2,Z2),(X,Y,Z)),
+		debug(doc, 'to_rdf:~q~n', [(X2,Y2,Z2,G)]),
+		catch(rdf_assert(X2,Y2,Z2,G),E,format(user_error,'~q~n',[E]))
+	)
+	->	true
+	;	throw((X,Y,Z,G)).
+
+
 doc_to_rdf_all_graphs :-
 	rdf_retractall(_,_,_,_),
-	foreach(
-		docm(X,Y,Z,G),
-		(
-			triple_rdf_vs_doc((X2,Y2,Z2),(X,Y,Z)),
-			rdf_assert(X2,Y2,Z2,G)
-		)
+	findall(_,(
+			docm(X,Y,Z,G),
+			add_to_rdf((X,Y,Z,G))
+		),_
 	).
 
 save_doc(/*-*/Fn, /*+*/Url) :-
-	report_file_path(loc(file_name, Fn), Url, loc(absolute_path,Path)),
+	(	report_file_path(loc(file_name, Fn), Url, loc(absolute_path,Path))
+	->	true
+	;	Path = Fn),
 	Url = loc(absolute_url, Url_Value),
 	doc_to_rdf_all_graphs,
 	/* we'll possibly want different options for debugging dumps and for result output for excel */
@@ -362,17 +383,6 @@ save_doc(/*-*/Fn, /*+*/Url) :-
 	rdf_retractall(_,_,_,/*fixme*/_Rdf_Graph).
 
 
-dump_doc2 :-
-	(	doc_dumping_enabled
-	->	save_doc('doc.n3', _)
-	;	true).
-
-
-/*
-we could control this with a thread select'ing some unix socket
-*/
-doc_dumping_enabled :-
-	current_prolog_flag(doc_dumping_enabled, true).
 
 
 
@@ -559,3 +569,41 @@ xml_to_doc(Root, element(Name, _Atts, Children)) :-
 	doc_add(Root, Name, Uri),
 	xml_to_doc(Uri, Children).
 
+
+
+
+
+
+
+
+/*
+
+╺┳┓┏━╸┏┓ ╻ ╻┏━╸┏━╸┓┏┓╻┏━╸
+ ┃┃┣╸ ┣┻┓┃ ┃┃╺┏┃╺┓┃┃┗┫┃╺┓
+╺┻┛┗━╸┗━┛┗━┛┗━┛┗━┛╹╹ ╹┗━┛
+
+
+*/
+
+omg :-
+    open(fo, read, Fo),
+    read_term(Fo, X,[]),
+    open(X,write,Out_Stream),
+    writeq(Out_Stream, bananana),
+    close(Out_Stream),
+    thread_signal(main, doc_dump),
+    omg.
+
+:- thread_create(omg, _).
+
+doc_dump :-gtrace,
+	once(save_doc('doc.n3', _)).
+
+
+
+/*
+we could control this with a thread select'ing some unix socket
+*/
+/*doc_dumping_enabled :-
+	current_prolog_flag(doc_dumping_enabled, true).
+*/
