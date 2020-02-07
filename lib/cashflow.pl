@@ -37,8 +37,8 @@ cashflow_category(
 ).
 */
 
-cashflow_category(Verb, Category) :-
-	cashflow_category_helper(Verbs, Category),
+cashflow_category(Category, Verb) :-
+	cashflow_category_helper(Category,Verbs),
 	member(Verb, Verbs). % can cut outside if we don't want more than one
 
 /*
@@ -50,38 +50,42 @@ cashflow_category_helper(
 
 % later: derive this from input data
 
-cashflow_category_helper(
+cashflow_category_helper(('Investing activities', '+'),
 	[
-		'Dispose_Of',
+		'Dispose_Of','Dispose_Off',
 		'Interest_Income'
-	], 
-	('Investing activities', '+')
+	]
 ).
 
 cashflow_category_helper(
+	('Investing activities', '-'),
 	[
 		'Invest_In'
-	], 
-	('Investing activities', '-')
+	]
 ).
 
 cashflow_category_helper(
+	('Financing activities', '+'),
 	[
 		'Borrow',
 		'Introduce_Capital'
-	], 
-	('Financing activities', '+')
+	]
 ).
 
 cashflow_category_helper(
+	('Financing activities', '-'),
 	[
 		'Dividends'
-	],
-	('Financing activities', '-')
+	]
 ).
 
-%cashflow_category_helper(['Dispose_Of'], ('Operating activities', '+')).
-cashflow_category_helper(['Bank_Charges','Accountancy_Fees'], ('Operating activities', '-')).
+cashflow_category_helper(
+	('Operating activities', '-'),
+	[
+		'Bank_Charges',
+		'Accountancy_Fees'
+	]
+).
 
 
 /*
@@ -92,13 +96,14 @@ gl_tx_vs_cashflow_category(
 */
 
 gl_tx_vs_cashflow_category(T, Cat) :-
+%gtrace,
 	doc(T, transactions:origin, Origin, transactions),
 	(
 		doc(Origin, rdf:type, l:s_transaction, transactions)
 	->
 		doc(Origin, s_transactions:type_id, uri(Verb_URI), transactions),
 		doc(Verb_URI, l:has_id, Verb),
-		cashflow_category(Verb, Cat)
+		cashflow_category((Cat,_Dir), Verb)
 	).
 
 
@@ -113,11 +118,16 @@ cf_items0(
 
 
 tag_gl_transaction_with_cf_data(T) :-
-	(	gl_tx_vs_cashflow_category(T, (Cat, PlusMinus0))
-	->	PlusMinus = _{'-':decreases,'+':increases}.get(PlusMinus0)
+	transaction_vector(T, V),
+	(	is_debit(V)
+	->	PlusMinus0 = '+'
+	;	PlusMinus0 = '-'),
+	PlusMinus = _{'-':decreases,'+':increases}.get(PlusMinus0),
+	(	gl_tx_vs_cashflow_category(T, (Cat/*, PlusMinus0*/))
+	->	true
 	;	(
-			Cat = 'no category',
-			PlusMinus = 'unknown direction'
+			Cat = 'no category'
+			%PlusMinus = 'unknown direction'
 		)
 	),
 	doc_add(T, l:cf_category, Cat, cf_stuff),
@@ -216,7 +226,14 @@ cf_scheme0_plusminus_entry(Sd, (PlusMinus-CF_Items), Entry) :-
 
 cf_instant_tx_entry0(Sd, ct(_,Tx), Entry) :-
 	cf_instant_tx_vector_conversion(Sd, Tx, Vec),
-	Entry = entry0([a(href(Tx), [Tx])], Vec, []).
+	Entry = entry0([
+		$>term_string($>transaction_day(Tx)),
+		$>term_string($>transaction_description(Tx)),
+		$>link(Tx)
+	], Vec, []).
+
+link(Uri, Link) :-
+	Link = a(href=Uri, [small('⍰')]).
 
 cf_instant_tx_vector_conversion(Sd, Tx, Uri) :-
 	/*very crude metadata for now*/
