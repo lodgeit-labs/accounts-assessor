@@ -169,6 +169,13 @@ maybe_report_all_testcase_errors(Errors) :-
 check_report(_, _, all-_, _) :- !. /* a link to the containing directory */
 check_report(_, _, request_xml-_, _) :- !.
 
+
+
+check_report(_, _, Key-_, []) :-
+	current_prolog_flag(ignore_response_keys, Ignored),
+	member(Key, Ignored),
+	!.
+
 check_report(Endpoint_Type, Testcase, Key-Report, Errors) :-
 	Url = loc(absolute_url,Report.url),
 	fetch_report_file_from_url(Url, Returned_Report_Path),
@@ -213,16 +220,8 @@ maybe_report_report_errors(Errors, Returned_Report_Path, Saved_Report_Path) :-
 
 check_report3(Endpoint_Type, Returned_Report_Path, Saved_Report_Path, Key, File_Type, Errors) :-
 	debug(endpoint_tests, '~n## ~q: ~n', [check_report3(Endpoint_Type, Returned_Report_Path, Saved_Report_Path, Key, File_Type, Errors)]),
-	(
-		(	current_prolog_flag(ignore_response_keys, Ignored),
-			member(Key, Ignored)
-		)
-	->	true
-	;	(
-			check_report4(Endpoint_Type, Returned_Report_Path, Saved_Report_Path, Key, File_Type, Errors0),
-			findall(Key:Error, member(Error,Errors0), Errors)
-		)
-	).
+	check_report4(Endpoint_Type, Returned_Report_Path, Saved_Report_Path, Key, File_Type, Errors0),
+	findall(Key:Error, member(Error,Errors0), Errors).
 
 
 check_report4(Endpoint_Type, Returned_Report_Path, Saved_Report_Path, Key, xml, Errors) :-

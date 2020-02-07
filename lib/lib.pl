@@ -10,10 +10,6 @@
 :- use_module(library(http/http_client)).
 :- use_module(library(http/http_dispatch)).
 
-:- use_module(library(fnotation)).
-:- fnotation_ops($>,<$).
-:- op(900,fx,<$).
-
 :- [search_paths].
 
 :- ['../public_lib/xbrl/prolog/xbrl/utils.pl'].

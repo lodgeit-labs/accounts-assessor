@@ -42,7 +42,7 @@ process_request_ledger2((Dom, Start_Date, End_Date), S_Transactions, Structured_
 	extract_bank_accounts(Dom),
 	extract_invoices_payable(Dom),
 	extract_initial_gl(Initial_Txs),
-gtrace,
+
 	process_ledger(
 		Cost_Or_Market,
 		Initial_Txs,
