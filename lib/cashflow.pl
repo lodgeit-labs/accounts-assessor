@@ -113,8 +113,8 @@ cf_items0(
 
 
 tag_gl_transaction_with_cf_data(T) :-
-	(	gl_tx_vs_cashflow_category(T, (Cat, PlusMinus))
-	->	true
+	(	gl_tx_vs_cashflow_category(T, (Cat, PlusMinus0))
+	->	PlusMinus = _{'-':decreases,'+':increases}.get(PlusMinus0)
 	;	(
 			Cat = 'no category',
 			PlusMinus = 'unknown direction'
@@ -251,8 +251,10 @@ cashflow(
 	maplist(tag_gl_transaction_with_cf_data, Filtered_Transactions),
 	cf_scheme_0_root_entry(Sd, Entry0),
 	entry0_to_entry(Entry0, Entry),
-	balance(Sd, Root, Sd.start_date, Start_Balance, C1),
-	balance(Sd, Root, Sd.end_date, End_Balance, C2),
+/*	balance(Sd, Root, Sd.start_date, Start_Balance, C1),
+	balance(Sd, Root, Sd.end_date, End_Balance, C2),*/
+	balance_by_account(Sd.exchange_rates, Sd.accounts, Sd.transactions_by_account, Sd.report_currency, Sd.start_date, Root, Sd.start_date, Start_Balance, C1),
+	balance_by_account(Sd.exchange_rates, Sd.accounts, Sd.transactions_by_account, Sd.report_currency, Sd.end_date, Root, Sd.end_date, End_Balance, C2),
 	Entries = [
 		entry($>format(string(<$), 'CashAndCashEquivalents at ~q', [Sd.start_date]), Start_Balance, [], C1),
 		Entry,

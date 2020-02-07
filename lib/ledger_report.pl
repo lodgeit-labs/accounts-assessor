@@ -83,6 +83,8 @@ balance(
 */
 % TODO: do "Transactions_Count" elsewhere
 % TODO: get rid of the add_days(...) and use generic period selector(s)
+
+/*fixme/finishme: uses exchange_date from static_data!*/
 balance(Static_Data, Account_Id, Date, Balance, Transactions_Count) :-
 	dict_vars(Static_Data, 
 		[Exchange_Date, Exchange_Rates, Accounts, Transactions_By_Account, Report_Currency]

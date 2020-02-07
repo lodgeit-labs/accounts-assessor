@@ -117,7 +117,7 @@ doc_add(S,P,O,G) :-
 	doc_trace0(doc_add(S,P,O,G)),
 	debug(doc, 'add:~q~n', [(S,P,O)]),
 	b_getval(the_theory,T),
-	rol_add((S,P,O,G),T).
+	rol_add(spog(S,P,O,G),T).
 
 doc_add(S,P,O,G) :-
 	doc_trace0(clean_pop(doc_add(S,P,O,G))),
@@ -127,7 +127,7 @@ doc_add(S,P,O,G) :-
 doc_assert(S,P,O,G) :-
 	doc_trace0(doc_assert(S,P,O,G)),
 	b_getval(the_theory,X),
-	rol_assert((S,P,O,G),X).
+	rol_assert(spog(S,P,O,G),X).
 
 doc_assert(S,P,O,G) :-
 	doc_trace0(clean_pop(doc_assert(S,P,O,G))),
@@ -159,7 +159,7 @@ doc(S,P,O,G) :-
 	rdf_global_id(G, G2),
 	b_getval(the_theory,X),
 	debug(doc, 'doc?:~q~n', [(S2,P2,O2,G2)]),
-	rol_single_match(X,(S2,P2,O2,G2)).
+	rol_single_match(X,spog(S2,P2,O2,G2)).
 
 /*
 can have multiple matches
@@ -175,7 +175,7 @@ docm(S,P,O,G) :-
 	rdf_global_id(G, G2),
 	b_getval(the_theory,X),
 	debug(doc, 'docm:~q~n', [(S2,P2,O2,G2)]),
-	rol_member((S2,P2,O2,G2), X).
+	rol_member(spog(S2,P2,O2,G2), X).
 /*
 member
 */
@@ -227,10 +227,15 @@ Depth = 16.
 	T is an open list. Unifying with the tail variable is only possible through rol_add.
 */
 
+/*
+ ensure Spog is added as a last element of T, while memberchk would otherwise possibly just unify an existing member with it
+*/
 rol_add(Spog,T) :-
-	/* ensure Spog is added as a last element of T, while memberchk would otherwise possibly just unify an existing member with it */
-		rol_member(Spog,T)
-	->	throw(added_quad_matches_existing_quad)
+	(
+		current_prolog_flag(debug, true),
+		rol_member(Spog,T),
+		throw(added_quad_matches_existing_quad)
+	)
 	;	memberchk(Spog,T).
 
 rol_assert(Spog,T) :-
@@ -248,10 +253,9 @@ rol_add_quiet(Spog,T) :-
 rol_member(SpogA,T) :-
 	/* avoid unifying SpogA with the open tail of T */
 	member(SpogB, T),
-	(
-		var(SpogB)
-	->	(!,fail)
-	;	SpogA = SpogB).
+	(	nonvar(SpogB)
+	->	SpogA = SpogB
+	;	(!,fail)).
 
 	/*match(SpogA, SpogB)).
 match((S1,P1,O1,G1),(S2,P2,O2,G2))
@@ -261,16 +265,25 @@ match((S1,P1,O1,G1),(S2,P2,O2,G2))
 	*/
 
 rol_single_match(T,SpogA) :-
-	/* only allow one match */
-	findall(x,rol_member(SpogA,T),Matches),
-	length(Matches, Length),
-	(	Length > 1
-	->	(
-			format(string(Msg), 'multiple_matches, use docm: ~q', [SpogA]),
-			%gtrace,
-			throw_string(Msg)
+	(	current_prolog_flag(doc_checks, true)
+	->	copy_term(SpogA,SpogA_Copy)
+	;	true),
+	rol_member(SpogA,T),
+	(	current_prolog_flag(doc_checks, true)
+	->
+		(
+			/* only allow one match */
+			findall(x,rol_member(SpogA_Copy,T),Matches),
+			length(Matches, Length),
+			(	Length > 1
+			->	(
+					format(string(Msg), 'multiple_matches, use docm: ~q', [SpogA_Copy]),
+					%gtrace,
+					throw_string(Msg)
+				)
+			;	true)
 		)
-	;	rol_member(SpogA,T)).
+	;	true).
 
 
 
