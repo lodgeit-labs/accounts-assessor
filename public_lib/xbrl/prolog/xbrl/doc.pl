@@ -232,7 +232,7 @@ Depth = 16.
 */
 rol_add(Spog,T) :-
 	(
-		current_prolog_flag(debug, true),
+		current_prolog_flag(doc_checks, true),
 		rol_member(Spog,T),
 		throw(added_quad_matches_existing_quad)
 	)

@@ -44,6 +44,7 @@ process_ledger(
 
 	dict_from_vars(Static_Data0, [Accounts, Report_Currency, Start_Date, End_Date, Exchange_Rates, Cost_Or_Market]),
 	prepreprocess(Static_Data0, S_Transactions, Prepreprocessed_S_Transactions),
+%gtrace,
 	preprocess_until_error(Static_Data0, Prepreprocessed_S_Transactions, Processed_S_Transactions, Transactions_From_Bst, Outstanding_Out, End_Date, Processed_Until),
 
 	/* since it's not possibly to determine order of transactions that transpiled on one day, when we fail to process a transaction, we go back all the way to the end of the previous day, and try to run a report up to that day

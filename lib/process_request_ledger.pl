@@ -15,8 +15,8 @@ process_request_ledger_debug(Data, S_Transactions0) :-
 	findall(Count, ggg(Data, S_Transactions0, Count), Counts), writeq(Counts).
 
 ggg(Data, S_Transactions0, Count) :-
-	Count = 41,
-	between(0, $>length(S_Transactions0), Count),
+	%Count = 41,
+	between(100, $>length(S_Transactions0), Count),
 	take(S_Transactions0, Count, STs),
 	format(user_error, '~q: ~q ~n ~n', [Count, $>last(STs)]),
 	once(process_request_ledger2(Data, STs, Structured_Reports)),

@@ -54,7 +54,7 @@ doc_set_property_helper(Prefix,S1,S2,P,V,G,Field) :-
 
 
 pretty_string(T, String) :-
-	doc(T, rdf:type, l:s_transaction),
+	doc(T, rdf:type, l:s_transaction, transactions),
 	s_transaction_day(T, Date),
 	s_transaction_type_id(T, uri(Action_Verb)),
 	s_transaction_vector(T, Money),
