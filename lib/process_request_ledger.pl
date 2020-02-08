@@ -237,6 +237,13 @@ extract_report_currency(Dom, Report_Currency) :-
 	;	inner_xml_throw(Dom, //reports/balanceSheetRequest/reportCurrency/unitType, Report_Currency)).
 
 
+/*
+*If an investment was held prior to the from date then it MUST have an opening market value if the reports are expressed in market rather than cost.You can't mix market valu
+e and cost in one set of reports. One or the other.
++       Market or Cost. M or C.
++       Cost value per unit will always be there if there are units of anything i.e. sheep for livestock trading or shares for Investments. But I suppose if you do not find any marke
+t values then assume cost basis.*/
+
 extract_cost_or_market(Dom, Cost_Or_Market) :-
 	(	doc(l:request, ic_ui:report_details, D)
 	->	(

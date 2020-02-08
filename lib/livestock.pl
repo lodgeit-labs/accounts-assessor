@@ -1,4 +1,25 @@
-
+/*
++
++
++relate_livestock_s_transaction_description_to_direction(S_Transaction) :-
++       d(S_Transaction, bst_tx:action_verb, V),
++       /* new property of action verb */
++       (d(V, is_sale, true),
++       Description = 'livestock sale')
++       ;
++       (d(V, is_purchase, true),
++       Description = 'livestock purchase').
++
++st_id_eq_t_id(Bst, Glt) :-
++       d(Bst, bst_tx:id, Id1),
++       d(Glt, glt_tx:id, Id2),
++       e(Id1, Id2).
++
++preprocess_livestock_buy_or_sell(Bst, [Bank_Txs, Livestock_Count_Transaction, Pl_Transaction]) :-
++       relate_livestock_s_transaction_description_to_direction,
++       e(Bst.day, Livestock_Count_Transaction.day),
++
+*/
 
 s_transaction_is_livestock_buy_or_sell(S_Transaction, Day, Livestock_Type, Livestock_Coord, Money_Coord) :-
 	s_transaction_day(S_Transaction, Day),

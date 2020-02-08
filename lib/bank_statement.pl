@@ -507,3 +507,24 @@ check_trial_balance0(Exchange_Rates, Report_Currency, Transaction_Date, Transact
 		)
 	).
 
+
+
+
+/*
++member(Bst, Bsts),
++{
++       member(...
++       ...
++}
++
++
++
++
++affect_bank_account_gl_account(Static_Data, Bst, Description0, [Ts0, Ts3]) :-
++       d(Bst, account, Bank_Account_Name),
++       account_by_role(('Banks'/Bank_Account_Name), Gl_Bank_Account_Id),
++
++       e(Bst.day, Tx0.day),
++       e(Bst.day, Tx1.day),
++
+*/

@@ -1,9 +1,9 @@
-# Accounts Assessor
+@prefix : <https://rdf.lodgeit.net.au/meta#> .
 
-This repository hosts a program that derives, validates, and corrects the financial information that it is given. The program uses redundancy to carry out its validations and corrections. By this it is meant that knowledge of parts of a company's financial data imposes certain constraints on the company's other financial data. If the program is given a company's ledger, then it knows what the balance sheet should look like. If the program is given a company's balance sheet, then it has a rough idea of what the ledger should look like.
-
-## documentation
-most endpoints should have some documentation in doc/. Introductions to individual concepts can be found in videos on dropbox.
+:aa
+	rdf:label "Accounts Assessor";
+	rdf:comment "This repository hosts a program that derives, validates, and corrects the financial information that it is given. The program uses redundancy to carry out its validations and corrections. By this it is meant that knowledge of parts of a company's financial data imposes certain constraints on the company's other financial data. If the program is given a company's ledger, then it knows what the balance sheet should look like. If the program is given a company's balance sheet, then it has a rough idea of what the ledger should look like.";
+	documentation """
 
 videos:
 https://www.dropbox.com/sh/prgubjzoo9zpkhp/AACd6YmoWxf9IUi5CriihKlLa?dl=0
@@ -15,6 +15,7 @@ https://github.com/LodgeiT/labs-accounts-assessor/wiki/
 doc/:
 https://github.com/LodgeiT/labs-accounts-assessor/tree/master/doc
 
+""".
 
 ## Getting Started
 Fetch submodules:
@@ -99,3 +100,8 @@ accepts a tests/endpoint_tests/loan/loan-request.xml and generates a tests/endpo
 ###ledger endpoint:
 accepts a tests/endpoint_tests/ledger/ledger-request.xml and generates a tests/endpoint_tests/ledger/ledger-response.xml 
 Ledger endpoint is currently the most complex one, spanning most of the files in lib/.
++<https://rdf.lodgeit.net.au/v1/excel#> rdfs:comment "excel schema-directed ui".
++<https://rdf.lodgeit.net.au/v1/calcs/hp#> rdfs:comment "hirepurchase".
++<https://rdf.lodgeit.net.au/v1/calcs/depr#> rdfs:comment "depreciation".
++<https://rdf.lodgeit.net.au/v1/calcs/ic#> rdfs:comment "investment calculator".
+ 

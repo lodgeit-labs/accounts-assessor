@@ -35,7 +35,7 @@
 
 %:- debug(doc).
 
-
+% https://www.swi-prolog.org/pldoc/man?predicate=rdf_meta/1
 :- rdf_meta doc_add(r,r,r).
 :- rdf_meta doc_add(r,r,r,r).
 :- rdf_meta doc_assert(r,r,r,r).
