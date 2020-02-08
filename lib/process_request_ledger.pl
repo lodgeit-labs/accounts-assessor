@@ -1,11 +1,11 @@
 process_request_ledger(File_Path, Dom) :-
 	inner_xml(Dom, //reports/balanceSheetRequest, _),
 	validate_xml2(File_Path, 'bases/Reports.xsd'),
-	extract_start_and_end_date(Dom, Start_Date, End_Date, Start_Date_Atom),
-
+	extract_start_and_end_date(Dom, Start_Date, End_Date),
+	extract_bank_accounts(Dom),
 	extract_bank_opening_balances(Bank_Lump_STs),
 	handle_additional_files(S_Transactions0),
-	extract_s_transactions(Dom, Start_Date_Atom, S_Transactions1),
+	extract_s_transactions(Dom, S_Transactions1),
 	flatten([Bank_Lump_STs, S_Transactions0, S_Transactions1], S_Transactions2),
 	sort_s_transactions(S_Transactions2, S_Transactions),
 	process_request_ledger2((Dom, Start_Date, End_Date), S_Transactions, _).
@@ -27,19 +27,20 @@ ggg(Data, S_Transactions0, Count) :-
 
 process_request_ledger2((Dom, Start_Date, End_Date), S_Transactions, Structured_Reports) :-
 	extract_output_dimensional_facts(Dom, Output_Dimensional_Facts),
+
 	extract_cost_or_market(Dom, Cost_Or_Market),
 	extract_report_currency(Dom, Report_Currency),
+
 	extract_action_verbs_from_bs_request(Dom),
 	extract_account_hierarchy_from_request_dom(Dom, Accounts0),
 	extract_livestock_data_from_ledger_request(Dom),
 	/* Start_Date, End_Date to substitute of "opening", "closing" */
-	extract_default_currency(Dom, Default_Currency),
-	extract_exchange_rates(Dom, Start_Date, End_Date, Default_Currency, Exchange_Rates0),
+	extract_exchange_rates(Dom, Start_Date, End_Date, Report_Currency, Exchange_Rates0),
 	(	Cost_Or_Market = cost
 	->	filter_out_market_values(S_Transactions, Exchange_Rates0, Exchange_Rates)
 	;	Exchange_Rates0 = Exchange_Rates),
 	/* Start_Date_Atom in case of missing Date */
-	extract_bank_accounts(Dom),
+
 	extract_invoices_payable(Dom),
 	extract_initial_gl(Initial_Txs),
 
@@ -227,10 +228,24 @@ extract_default_currency(Dom, Default_Currency) :-
 	inner_xml_throw(Dom, //reports/balanceSheetRequest/defaultCurrency/unitType, Default_Currency).
 
 extract_report_currency(Dom, Report_Currency) :-
-	inner_xml_throw(Dom, //reports/balanceSheetRequest/reportCurrency/unitType, Report_Currency).
+	(	doc(l:request, ic_ui:report_details, D)
+	->	(
+			doc_value(D, ic:currency, C),
+			atom_string(Ca, C),
+			Report_Currency = [Ca]
+		)
+	;	inner_xml_throw(Dom, //reports/balanceSheetRequest/reportCurrency/unitType, Report_Currency)).
 
 
 extract_cost_or_market(Dom, Cost_Or_Market) :-
+	(	doc(l:request, ic_ui:report_details, D)
+	->	(
+			doc_value(D, ic:cost_or_market, C),
+			(	rdf_equal(C, ic:cost)
+			->	Cost_Or_Market = cost
+			;	Cost_Or_Market = market)
+		)
+	;
 	(
 		inner_xml(Dom, //reports/balanceSheetRequest/costOrMarket, [Cost_Or_Market])
 	->
@@ -243,6 +258,7 @@ extract_cost_or_market(Dom, Cost_Or_Market) :-
 		)
 	;
 		Cost_Or_Market = market
+	)
 	).
 	
 extract_output_dimensional_facts(Dom, Output_Dimensional_Facts) :-
@@ -260,13 +276,21 @@ extract_output_dimensional_facts(Dom, Output_Dimensional_Facts) :-
 		Output_Dimensional_Facts = on
 	).
 	
-extract_start_and_end_date(Dom, Start_Date, End_Date, Start_Date_Atom) :-
-	inner_xml(Dom, //reports/balanceSheetRequest/startDate, [Start_Date_Atom]),
-	parse_date(Start_Date_Atom, Start_Date),
+extract_start_and_end_date(Dom, Start_Date, End_Date) :-
+	(	doc(l:request, ic_ui:report_details, D)
+	->	(
+			doc_value(D, ic:from, Start_Date),
+			doc_value(D, ic:to, End_Date)
+		)
+	;
+	(
+		inner_xml(Dom, //reports/balanceSheetRequest/startDate, [Start_Date_Atom]),
+		parse_date(Start_Date_Atom, Start_Date),
+		inner_xml(Dom, //reports/balanceSheetRequest/endDate, [End_Date_Atom]),
+		parse_date(End_Date_Atom, End_Date)
+	)),
 	doc(R, rdf:type, l:request),
 	doc_add(R, l:start_date, Start_Date),
-	inner_xml(Dom, //reports/balanceSheetRequest/endDate, [End_Date_Atom]),
-	parse_date(End_Date_Atom, End_Date),
 	doc_add(R, l:end_date, End_Date).
 
 	
@@ -290,7 +314,7 @@ extract_bank_account(Account) :-
 
 extract_bank_opening_balances(Txs) :-
 	request(R),
-	findall(Bank_Account_Name, docm(R, l:bank_account, Bank_Account_Name), Bank_Accounts),
+	findall(Bank_Account, docm(R, l:bank_account, Bank_Account), Bank_Accounts),
 	maplist(extract_bank_opening_balances2, Bank_Accounts, Txs).
 
 extract_bank_opening_balances2(Bank_Account, Tx) :-

@@ -50,7 +50,7 @@ find_or_add_required_accounts(S_Transactions, Accounts_In, Accounts_Out) :-
 	flatten([Missing_Stuff, Bank_Accounts, Currency_Movement_Accounts, Livestock_Accounts, Gains_Accounts, Financial_Investments_Accounts], Accounts_Out).
 
 /* all bank account names required by all S_Transactions */ 
-bank_account_names(S_Transactions, Names) :-
+/*bank_account_names(S_Transactions, Names) :-
 	findall(
 		Bank_Account_Name,
 		(
@@ -60,7 +60,7 @@ bank_account_names(S_Transactions, Names) :-
 		Names0
 	),
 	sort(Names0, Names).
-
+*/
 ensure_bank_account_exists(Accounts_In, Name, Account) :-
 	ensure_account_exists(Accounts_In, 'Banks', 1, ('Banks'/Name), Account).
 
@@ -81,8 +81,8 @@ given all s_transactions, produce all bank accounts we need to add.
 bank accounts have role Accounts/(Name)
 we will only eventually add this account if an account with same role doesn't already exist
 */
-make_bank_accounts(Accounts_In, S_Transactions, New_Accounts) :-
-	bank_account_names(S_Transactions, Bank_Account_Names),
+make_bank_accounts(Accounts_In, _S_Transactions, New_Accounts) :-
+	bank_account_names(Bank_Account_Names),
 	maplist(
 		ensure_bank_account_exists(Accounts_In),
 		Bank_Account_Names, 
@@ -238,3 +238,17 @@ free_id(Accounts, Id, Free_Id) :-
 	;
 		Free_Id = Id.
 
+
+bank_account(Account) :-
+	request_has_property(l:bank_account, Account).
+
+bank_accounts(Accounts) :-
+	findall(Account, bank_account(Account), Accounts).
+
+bank_account_name(Name) :-
+	bank_account(Account),
+	doc(Account, l:name, Name).
+
+bank_account_names(Names) :-
+	findall(Name, bank_account_name(Name), Names0),
+	sort(Names0, Names).

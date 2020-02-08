@@ -320,7 +320,7 @@ node_rdf_vs_doc(
 		/*freeze(Float, float(Float)),
 		freeze(Rat, rational(Rat)),*/
 		(
-			(var(Float),rational(Rat))
+			(var(Float),rational(Rat)) /* swipl does something totally insane here with the loc term */
 		;
 			(var(Rat), float(Float))
 		),
@@ -351,9 +351,6 @@ doc_to_rdf(Rdf_Graph) :-
 			(rdf_assert(X2,Y2,Z2,Rdf_Graph) -> true ; gtrace)
 		),_).
 
-/*:- comment(lib:doc_to_rdf_all_graphs, "if necessary, modify to not wipe out whole rdf database and to check that G doesn't already exist */
-
-
 add_to_rdf((X,Y,Z,G)) :-
 	(
 		triple_rdf_vs_doc((X2,Y2,Z2),(X,Y,Z)),
@@ -363,6 +360,8 @@ add_to_rdf((X,Y,Z,G)) :-
 	->	true
 	;	throw((X,Y,Z,G)).
 
+
+/*:- comment(lib:doc_to_rdf_all_graphs, "if necessary, modify to not wipe out whole rdf database and to check that G doesn't already exist */
 
 doc_to_rdf_all_graphs :-
 	rdf_retractall(_,_,_,_),

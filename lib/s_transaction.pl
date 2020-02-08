@@ -258,7 +258,7 @@ extract_exchanged_value(Tx_Dom, _Account_Currency, Bank_Dr, Exchanged) :-
 	  Exchanged = vector([])
    ).
 
-extract_s_transactions(Dom, _Start_Date_Atom, S_Transactions) :-
+extract_s_transactions(Dom, S_Transactions) :-
 	findall(A, xpath(Dom, //reports/balanceSheetRequest/bankStatement/accountDetails, A), As),
 	maplist(extract_s_transactions_from_accountDetails_dom, As, S_Transactions0),
 	flatten(S_Transactions0, S_Transactions1),
