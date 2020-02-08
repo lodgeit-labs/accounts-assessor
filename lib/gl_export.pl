@@ -6,7 +6,16 @@ gl_export(Sd, Processed_S_Transactions, Transactions0, Livestock_Transactions, R
 	append(Sources0, ['livestock'], Sources),
 	running_balance_initialization,
 	maplist(make_gl_entry(Sd), Sources, Results, Report_Dict0),
-	round_term(2, Report_Dict0, Report_Dict).
+
+
+this could be useful if we parse the prolog code and collect o's in one place so that they're all visible when gtracing, and we visualize the process
+	o(gl_export_rounding(final), round_term(2, Report_Dict0, Report_Dict)).
+could be just:
+	o(gl_export_rounding(final))). if its a unique operation on the global store
+
+
+
+
 
 make_gl_entry(Sd, Source, Transactions, Entry) :-
 	Entry = _{source: S, transactions: T},
