@@ -97,7 +97,8 @@ dump :-
 
 doc_clear :-
 	doc_trace0(doc_clear),
-	b_setval(the_theory,_X),
+	b_setval(the_theory,_{}),
+	b_setval(the_theory_nonatoms,_),
 	doc_set_default_graph(default).
 
 doc_set_default_graph(G) :-
@@ -113,21 +114,72 @@ doc_add(S,P,O) :-
 	doc_add(S,P,O,G).
 
 
+atom_or_idk(X,X2) :-
+	(	atom(X)
+	->	X2 = X
+	;	X2 = idk).
+
+get_or_default(T, X, XXX) :-
+	(	XXX = T.get(X)
+	->	true
+	;	XXX = _{}).
+
 doc_add(S,P,O,G) :-
 	doc_trace0(doc_add(S,P,O,G)),
-	debug(doc, 'add:~q~n', [(S,P,O)]),
-	b_getval(the_theory,T),
-	rol_add(spog(S,P,O,G),T).
+	debug(doc, 'add:~q~n', [(S,P,O,G)]),
+	add_atoms(S,P,O,G).
 
 doc_add(S,P,O,G) :-
 	doc_trace0(clean_pop(doc_add(S,P,O,G))),
 	fail.
 
+/*todo b_getval(the_theory_nongrounds,TTT),*/
+
+/*
+assumption: only O's are allowed to be non-atoms
+*/
+add_atoms(S2,P2,O2,G2) :-
+	ground(spog(S2,P2,O2,G2)),
+	% get the_theory global
+	b_getval(the_theory,Ss),
+	%, ie a dict from subjects to pred-dicts
+	% does it contain the subject?
+
+	(	Ps = Ss.get(S2)
+	%	the it's a dict from preds to graphs
+	->	true
+	;	(
+			Ps = _{},
+			b_setval(the_theory, Ss.put(S2, Ps))
+		)
+	),
+
+	(	Gs = Ps.get(P2)
+	->	true
+	;	(
+			Gs = _{},
+			b_set_dict(P2, Ss, Ps.put(P2, Gs))
+		)
+	),
+
+	(	Os = Gs.get(G2)
+	->	true
+	;	b_set_dict(G2, Ps, Gs.put(G2, _Os))),
+
+	rol_add(O2, Os).
+
+
+
+dddd(spog(S,P,O,G), X) :-
+	member(O, X.get(S).get(P).get(G)).
+
+
 
 doc_assert(S,P,O,G) :-
-	doc_trace0(doc_assert(S,P,O,G)),
+	doc_add(S,P,O,G).
+/*	doc_trace0(doc_assert(S,P,O,G)),
 	b_getval(the_theory,X),
-	rol_assert(spog(S,P,O,G),X).
+	rol_assert(spog(S,P,O,G),X).*/
 
 doc_assert(S,P,O,G) :-
 	doc_trace0(clean_pop(doc_assert(S,P,O,G))),
@@ -159,7 +211,7 @@ doc(S,P,O,G) :-
 	rdf_global_id(G, G2),
 	b_getval(the_theory,X),
 	debug(doc, 'doc?:~q~n', [(S2,P2,O2,G2)]),
-	rol_single_match(X,spog(S2,P2,O2,G2)).
+	dddd(spog(S2,P2,O2,G2), X).
 
 /*
 can have multiple matches
@@ -175,7 +227,7 @@ docm(S,P,O,G) :-
 	rdf_global_id(G, G2),
 	b_getval(the_theory,X),
 	debug(doc, 'docm:~q~n', [(S2,P2,O2,G2)]),
-	rol_member(spog(S2,P2,O2,G2), X).
+	dddd(spog(S2,P2,O2,G2), X).
 /*
 member
 */

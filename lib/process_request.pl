@@ -156,7 +156,7 @@ process_multifile_request(File_Paths) :-
 	;	(
 			((ground(Dom), xpath(Dom, //reports, _))
 			->	process_xml_request(Xml_Tmp_File_Path, Dom)
-			;	throw_string('<reports> tag not found'))).
+			;	throw_string('<reports> tag not found')))).
 
 accept_request_file(File_Paths, Path, Type) :-
 	debug(tmp_files, "accept_request_file(~w, ~w, ~w)~n", [File_Paths, Path, Type]),
