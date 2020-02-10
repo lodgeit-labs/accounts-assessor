@@ -98,7 +98,7 @@ dump :-
 doc_clear :-
 	doc_trace0(doc_clear),
 	b_setval(the_theory,_{}),
-	b_setval(the_theory_nonatoms,_),
+	b_setval(the_theory_nonground,_),
 	doc_set_default_graph(default).
 
 doc_set_default_graph(G) :-
@@ -127,7 +127,7 @@ get_or_default(T, X, XXX) :-
 doc_add(S,P,O,G) :-
 	doc_trace0(doc_add(S,P,O,G)),
 	debug(doc, 'add:~q~n', [(S,P,O,G)]),
-	add_atoms(S,P,O,G).
+	addd(S,P,O,G).
 
 doc_add(S,P,O,G) :-
 	doc_trace0(clean_pop(doc_add(S,P,O,G))),
@@ -138,7 +138,7 @@ doc_add(S,P,O,G) :-
 /*
 assumption: only O's are allowed to be non-atoms
 */
-add_atoms(S2,P2,O2,G2) :-
+addd(S2,P2,O2,G2) :-
 	ground(spog(S2,P2,O2,G2)),
 	% get the_theory global
 	b_getval(the_theory,Ss),
@@ -147,32 +147,43 @@ add_atoms(S2,P2,O2,G2) :-
 
 	(	Ps = Ss.get(S2)
 	%	the it's a dict from preds to graphs
-	->	true
+	->	Ss2 = Ss
 	;	(
 			Ps = _{},
-			b_setval(the_theory, Ss.put(S2, Ps))
+			Ss2 = Ss.put(S2, Ps),
+			b_setval(the_theory, Ss2)
 		)
 	),
 
 	(	Gs = Ps.get(P2)
-	->	true
+	->	Ps2 = Ps
 	;	(
 			Gs = _{},
-			b_set_dict(P2, Ss, Ps.put(P2, Gs))
+			Ps2 = Ps.put(P2, Gs),
+			b_set_dict(S2, Ss2, Ps2)
 		)
 	),
 
 	(	Os = Gs.get(G2)
 	->	true
-	;	b_set_dict(G2, Ps, Gs.put(G2, _Os))),
-
+	;	(
+			Os = _New_Rol,
+			Gs2 = Gs.put(G2, Os),
+			b_set_dict(P2, Ps2, Gs2))),
 	rol_add(O2, Os).
 
+addd(S,P,O,G) :-
+	X = spog(S,P,O,G),
+	\+ground(X),
+	rol_add(X, $>b_getval(the_theory_nonground)).
+
+dddd(Spog, X) :-
+	Spog = spog(S2,P2,O2,G2),
+	rol_member(O2, X.get(S2).get(P2).get(G2)).
 
 
-dddd(spog(S,P,O,G), X) :-
-	member(O, X.get(S).get(P).get(G)).
-
+dddd(Spog, _X) :-
+	rol_member(Spog, $>b_getval(the_theory_nonground)).
 
 
 doc_assert(S,P,O,G) :-
