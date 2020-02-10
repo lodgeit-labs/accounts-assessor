@@ -143,6 +143,7 @@ process_multifile_request(File_Paths) :-
 	(	accept_request_file(File_Paths, Xml_Tmp_File_Path, xml)
 	->	load_request_xml(Xml_Tmp_File_Path, Dom)
 	;	true),
+
 	(	accept_request_file(File_Paths, Rdf_Tmp_File_Path, n3)
 	->	(
 			debug(tmp_files, "done accept_request_file(~w, ~w, n3)~n", [File_Paths, Rdf_Tmp_File_Path]),
@@ -156,7 +157,9 @@ process_multifile_request(File_Paths) :-
 	;	(
 			((ground(Dom), xpath(Dom, //reports, _))
 			->	process_xml_request(Xml_Tmp_File_Path, Dom)
-			;	throw_string('<reports> tag not found'))).
+			;	throw_string('<reports> tag not found'))
+		)
+	).
 
 accept_request_file(File_Paths, Path, Type) :-
 	debug(tmp_files, "accept_request_file(~w, ~w, ~w)~n", [File_Paths, Path, Type]),
