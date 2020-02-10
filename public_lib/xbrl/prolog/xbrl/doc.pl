@@ -97,7 +97,8 @@ dump :-
 
 doc_clear :-
 	doc_trace0(doc_clear),
-	b_setval(the_theory,_X),
+	b_setval(the_theory,_{}),
+	b_setval(the_theory_nonground,_),
 	doc_set_default_graph(default).
 
 doc_set_default_graph(G) :-
@@ -113,21 +114,83 @@ doc_add(S,P,O) :-
 	doc_add(S,P,O,G).
 
 
+atom_or_idk(X,X2) :-
+	(	atom(X)
+	->	X2 = X
+	;	X2 = idk).
+
+get_or_default(T, X, XXX) :-
+	(	XXX = T.get(X)
+	->	true
+	;	XXX = _{}).
+
 doc_add(S,P,O,G) :-
 	doc_trace0(doc_add(S,P,O,G)),
-	debug(doc, 'add:~q~n', [(S,P,O)]),
-	b_getval(the_theory,T),
-	rol_add(spog(S,P,O,G),T).
+	debug(doc, 'add:~q~n', [(S,P,O,G)]),
+	addd(S,P,O,G).
 
 doc_add(S,P,O,G) :-
 	doc_trace0(clean_pop(doc_add(S,P,O,G))),
 	fail.
 
+/*todo b_getval(the_theory_nongrounds,TTT),*/
+
+/*
+assumption: only O's are allowed to be non-atoms
+*/
+addd(S2,P2,O2,G2) :-
+	ground(spog(S2,P2,O2,G2)),
+	% get the_theory global
+	b_getval(the_theory,Ss),
+	%, ie a dict from subjects to pred-dicts
+	% does it contain the subject?
+
+	(	Ps = Ss.get(S2)
+	%	the it's a dict from preds to graphs
+	->	Ss2 = Ss
+	;	(
+			Ps = _{},
+			Ss2 = Ss.put(S2, Ps),
+			b_setval(the_theory, Ss2)
+		)
+	),
+
+	(	Gs = Ps.get(P2)
+	->	Ps2 = Ps
+	;	(
+			Gs = _{},
+			Ps2 = Ps.put(P2, Gs),
+			b_set_dict(S2, Ss2, Ps2)
+		)
+	),
+
+	(	Os = Gs.get(G2)
+	->	true
+	;	(
+			Os = _New_Rol,
+			Gs2 = Gs.put(G2, Os),
+			b_set_dict(P2, Ps2, Gs2))),
+	rol_add(O2, Os).
+
+addd(S,P,O,G) :-
+	X = spog(S,P,O,G),
+	\+ground(X),
+	rol_add(X, $>b_getval(the_theory_nonground)).
+
+dddd(Spog, X) :-
+	Spog = spog(S2,P2,O2,G2),
+	rol_member(O2, X.get(S2).get(P2).get(G2)).
+
+
+dddd(Spog, _X) :-
+	rol_member(Spog, $>b_getval(the_theory_nonground)).
+
 
 doc_assert(S,P,O,G) :-
-	doc_trace0(doc_assert(S,P,O,G)),
+	doc_add(S,P,O,G).
+/*	doc_trace0(doc_assert(S,P,O,G)),
 	b_getval(the_theory,X),
-	rol_assert(spog(S,P,O,G),X).
+	rol_assert(spog(S,P,O,G),X).*/
 
 doc_assert(S,P,O,G) :-
 	doc_trace0(clean_pop(doc_assert(S,P,O,G))),
@@ -159,7 +222,7 @@ doc(S,P,O,G) :-
 	rdf_global_id(G, G2),
 	b_getval(the_theory,X),
 	debug(doc, 'doc?:~q~n', [(S2,P2,O2,G2)]),
-	rol_single_match(X,spog(S2,P2,O2,G2)).
+	dddd(spog(S2,P2,O2,G2), X).
 
 /*
 can have multiple matches
@@ -175,7 +238,7 @@ docm(S,P,O,G) :-
 	rdf_global_id(G, G2),
 	b_getval(the_theory,X),
 	debug(doc, 'docm:~q~n', [(S2,P2,O2,G2)]),
-	rol_member(spog(S2,P2,O2,G2), X).
+	dddd(spog(S2,P2,O2,G2), X).
 /*
 member
 */

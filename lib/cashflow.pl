@@ -50,37 +50,23 @@ cashflow_category_helper(
 
 % later: derive this from input data
 
-cashflow_category_helper(('Investing activities', '+'),
+cashflow_category_helper('Investing activities',
 	[
 		'Dispose_Of','Dispose_Off',
-		'Interest_Income'
+		'Interest_Income',
+		'Invest_In', 'Interest_Expenses', 'Drawings', 'Transfers'
 	]
 ).
 
-cashflow_category_helper(
-	('Investing activities', '-'),
-	[
-		'Invest_In'
-	]
-).
-
-cashflow_category_helper(
-	('Financing activities', '+'),
+cashflow_category_helper('Financing activities',
 	[
 		'Borrow',
-		'Introduce_Capital'
-	]
-).
-
-cashflow_category_helper(
-	('Financing activities', '-'),
-	[
+		'Introduce_Capital',
 		'Dividends'
 	]
 ).
 
-cashflow_category_helper(
-	('Operating activities', '-'),
+cashflow_category_helper('Operating activities',
 	[
 		'Bank_Charges',
 		'Accountancy_Fees'
@@ -103,7 +89,7 @@ gl_tx_vs_cashflow_category(T, Cat) :-
 	->
 		doc(Origin, s_transactions:type_id, uri(Verb_URI), transactions),
 		doc(Verb_URI, l:has_id, Verb),
-		cashflow_category((Cat,_Dir), Verb)
+		cashflow_category(Cat, Verb)
 	).
 
 
@@ -195,6 +181,7 @@ cf_scheme_0_entry_for_account(Sd, Account, Entry) :-
 	sort_into_dict({LCategory}/[ct(Cat_Uri,_), Category]>>doc(Cat_Uri, LCategory, Category, cf_stuff), Account_Items, Account_Items_By_Category),
 	dict_pairs(Account_Items_By_Category, _, Account_Items_By_Category_Pairs),
 	maplist(cf_entry_by_category(Sd), Account_Items_By_Category_Pairs, Category_Entries0),
+	% fixme the leaf account isnt a bank account when there are no bank accounts
 	cf_scheme_0_bank_account_currency_movement_entry(Sd, Account, Currency_Movement_Entry),
 	Entry = entry0(Account, [], $>append(Category_Entries0, [Currency_Movement_Entry])).
 
@@ -226,9 +213,20 @@ cf_scheme0_plusminus_entry(Sd, (PlusMinus-CF_Items), Entry) :-
 
 cf_instant_tx_entry0(Sd, ct(_,Tx), Entry) :-
 	cf_instant_tx_vector_conversion(Sd, Tx, Vec),
+	(
+		(
+				doc(Tx, transactions:origin, Origin, transactions),
+				s_transaction_exchanged(Origin, Exchanged),
+				Exchanged \= vector([]),
+				term_string(Exchanged, Exchanged_Display_String)
+		)
+	->	Exchanged_Display = div(align=right,[Exchanged_Display_String])
+	;	Exchanged_Display = ''),
+
 	Entry = entry0([
 		$>term_string($>transaction_day(Tx)),
 		$>term_string($>transaction_description(Tx)),
+		Exchanged_Display,
 		$>link(Tx)
 	], Vec, []).
 
