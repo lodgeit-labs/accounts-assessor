@@ -182,8 +182,13 @@ cf_scheme_0_entry_for_account(Sd, Account, Entry) :-
 	dict_pairs(Account_Items_By_Category, _, Account_Items_By_Category_Pairs),
 	maplist(cf_entry_by_category(Sd), Account_Items_By_Category_Pairs, Category_Entries0),
 	% fixme the leaf account isnt a bank account when there are no bank accounts
-	cf_scheme_0_bank_account_currency_movement_entry(Sd, Account, Currency_Movement_Entry),
-	Entry = entry0(Account, [], $>append(Category_Entries0, [Currency_Movement_Entry])).
+	(	bank_account_currency_movement_account(Sd.accounts, Account, _Currency_Movement_Account)
+	->	(
+			cf_scheme_0_bank_account_currency_movement_entry(Sd, Account, Currency_Movement_Entry),
+			List_With_Currency_Movement_Entry = [Currency_Movement_Entry]
+		)
+	;	List_With_Currency_Movement_Entry = []),
+	Entry = entry0(Account, [], $>append(Category_Entries0, List_With_Currency_Movement_Entry)).
 
 cf_scheme_0_bank_account_currency_movement_entry(Sd, Account, Currency_Movement_Entry) :-
 	bank_account_currency_movement_account(Sd.accounts, Account, Currency_Movement_Account),

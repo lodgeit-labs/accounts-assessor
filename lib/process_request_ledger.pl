@@ -317,7 +317,9 @@ extract_bank_account(Account) :-
 	doc_new_uri(Uri),
 	request_add_property(l:bank_account, Uri),
 	doc_add(Uri, l:name, Account_Name),
-	doc_add_value(Uri, l:opening_balance, Opening_Balance).
+	(	Opening_Balance_Number \= 0
+	->	doc_add_value(Uri, l:opening_balance, Opening_Balance)
+	;	true).
 
 extract_bank_opening_balances(Txs) :-
 	request(R),
@@ -328,14 +330,18 @@ extract_bank_opening_balances2(Bank_Account, Tx) :-
 	doc(Bank_Account, l:name, Bank_Account_Name),
 	doc_value(Bank_Account, l:opening_balance, Opening_Balance),
 	request_has_property(l:start_date, Start_Date),
+	add_days(Start_Date, -1, Opening_Date),
 	doc_add_s_transaction(
-		Start_Date,
-		'Historical_Earnings_Lump',
+		Opening_Date,
+		'Bank_Opening_Balance',
 		[Opening_Balance],
 		Bank_Account_Name,
 		vector([]),
-		misc{desc2:'Historical_Earnings_Lump'},
+		misc{desc2:'Bank_Opening_Balance'},
 		Tx).
+
+extract_bank_opening_balances2(Bank_Account, _Tx) :-
+	\+doc_value(Bank_Account, l:opening_balance, _Opening_Balance).
 
 extract_initial_gl(Txs) :-
 	(	doc(l:request, ic_ui:gl, Gl)

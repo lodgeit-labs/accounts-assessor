@@ -110,9 +110,16 @@ def call_prolog(msg, dev_runner_options=[], prolog_flags='true', make_new_tmp_di
 	
 
 	# construct the command line
-#, '-O'
-	swipl = ['swipl'] + path_flags
-	cmd0 = swipl + ['-s', git("lib/dev_runner.pl"),'--problem_lines_whitelist',git("misc/problem_lines_whitelist"),"-s", git("lib/debug_rpc.pl")]
+	debug = True
+	if debug:
+		debug_args = ['-O']
+		entry_file = 'lib/debug_rpc_server.pl'
+	else:
+		debug_args = []
+		entry_file = "lib/rpc_server.pl"
+
+	swipl = ['swipl'] + debug_args + path_flags
+	cmd0 = swipl + ['-s', git("lib/dev_runner.pl"),'--problem_lines_whitelist',git("misc/problem_lines_whitelist"),"-s", git(entry_file)]
 	cmd1 = dev_runner_options
 	cmd2 = ['-g', prolog_flags + ',lib:process_request_rpc_cmdline']
 	cmd = cmd0 + cmd1 + cmd2

@@ -127,8 +127,12 @@ transactions_by_account(Static_Data, Transactions_By_Account) :-
 	/*this should be somewhere in ledger code*/
 	transactions_before_day_on_account_and_subaccounts(Accounts, Dict, 'NetIncomeLoss', Start_Date, Historical_Earnings_Transactions),
 
+	transactions_before_day_on_account_and_subaccounts(Accounts, Dict, 'HistoricalEarnings', Start_Date, Historical_Earnings_Transactions2),
+
+	append(Historical_Earnings_Transactions, Historical_Earnings_Transactions2, Historical_Earnings_Transactions_All),
+
 	/* ugh, we shouldnt overwrite it */
-	Dict2 = Dict.put('HistoricalEarnings', Historical_Earnings_Transactions),
+	Dict2 = Dict.put('HistoricalEarnings', Historical_Earnings_Transactions_All),
 
 	transactions_in_period_on_account_and_subaccounts(Accounts, Dict, 'NetIncomeLoss', Start_Date, End_Date, Current_Earnings_Transactions),
 	Transactions_By_Account = Dict2.put('CurrentEarnings', Current_Earnings_Transactions).
