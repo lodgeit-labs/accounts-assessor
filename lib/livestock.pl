@@ -92,17 +92,9 @@ preprocess_livestock_buy_or_sell(Static_Data, S_Transaction, [Bank_Txs, Livestoc
 	).
 
 process_livestock(Info, Livestock_Transactions) :-
-	findall(
-		Txs,
-		(
-			livestock_data(L),
-			(	process_livestock2(Info, L, Txs)
-			->	true
-			;	(gtrace/*,throw_string('process_livestock2 failed')*/))
-		),
-		Txs_List
-	),
-	flatten(Txs_List, Livestock_Transactions).
+	findall(L, livestock_data(L), Ls),
+	maplist(process_livestock2(Info), Ls, Txs),
+	flatten(Txs, Livestock_Transactions).
 
 process_livestock2((S_Transactions, Transactions_In), Livestock, Transactions_Out) :-
 	/*

@@ -80,7 +80,10 @@ def run(debug_loading, debug, request_files, dev_runner_options, prolog_flags, s
 def call_prolog(msg, dev_runner_options=[], prolog_flags='true', make_new_tmp_dir=False, debug_loading=None, debug=None):
 
 	if make_new_tmp_dir:
-		msg['params']['tmp_directory_name'],_ = create_tmp()
+		msg['params']['tmp_directory_name'],tmp_path = create_tmp()
+		with open(os.path.join(tmp_path, 'info.txt'), 'w') as info:
+			info.write(str(msg))
+			info.write('\n')
 
 
 
