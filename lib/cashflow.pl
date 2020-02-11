@@ -273,7 +273,7 @@ cashflow(
 	entry0_to_entry(Entry0, Entry),
 /*	balance(Sd, Root, Sd.start_date, Start_Balance, C1),
 	balance(Sd, Root, Sd.end_date, End_Balance, C2),*/
-	balance_by_account(Sd.exchange_rates, Sd.accounts, Sd.transactions_by_account, Sd.report_currency, Sd.start_date, Root, Sd.start_date, Start_Balance, C1),
+	balance_until_day(Sd.exchange_rates, Sd.accounts, Sd.transactions_by_account, Sd.report_currency, Sd.start_date, Root, Sd.start_date, Start_Balance, C1),
 	balance_by_account(Sd.exchange_rates, Sd.accounts, Sd.transactions_by_account, Sd.report_currency, Sd.end_date, Root, Sd.end_date, End_Balance, C2),
 	Entries = [
 		entry($>format(string(<$), 'CashAndCashEquivalents at ~q', [Sd.start_date]), Start_Balance, [], C1),
