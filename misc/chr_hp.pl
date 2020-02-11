@@ -2,14 +2,16 @@
 :- use_module(library(clpq)).
 :- use_module(library(clpfd)).
 
-:- chr_constraint fact/3, rule/0, start/1, clpq/1, clpq/0, countdown/1, next/1.
+:- chr_constraint fact/3, rule/0, start/2, clpq/1, clpq/0, countdown/2, next/1.
 
 
 % same as =/2 in terms of what arguments it succeeds with but doesn't actually unify
+% should be equivalent to unifiable/2
 unify_check(X,_) :- var(X), !.
 unify_check(_,Y) :- var(Y), !.
 unify_check(X,Y) :- X == Y.
 
+% should basically be subsumes_term, with subs
 % unify with subs, but treating variables on RHS as constants
 unify2(X,Y,Subs,New_Subs) :- var(X), \+((member(K:_, Subs), X == K)), New_Subs = [X:Y | Subs].
 unify2(X,Y,Subs,Subs) :- var(X), member(K:V, Subs), X == K, !, Y == V.
@@ -26,6 +28,7 @@ unify2_facts(Query_Fact, Store_Fact, Subs, New_Subs) :-
 	unify2_args(Query_Args, Store_Args, Subs, New_Subs).
 
 % same as unify2 but actually binds the LHS instead of using subs
+% should be equivalent to subsumes_term, maybe w/ some variation on scope of the binding
 unify3(X,Y) :- var(X), X = Y.
 unify3(X,Y) :- nonvar(X), X == Y.
 
@@ -285,9 +288,9 @@ rule, fact(S, P, O) \ fact(S, P, O) <=> (P == closing_balance -> format("dedupli
 
 rule <=> clpq.
 clpq \ clpq(Constraint) <=> call(Constraint).
-clpq, countdown(N) <=> N > 0 | M is N - 1, format("~ncountdown ~w~n~n", [M]), countdown(M), rule.
-clpq, countdown(0) <=>
-	format("Done: facts = [~n", []),
+clpq, countdown(N, Done) <=> N > 0 | M is N - 1, format(user_error, "~ncountdown ~w~n~n", [M]), countdown(M, Done), rule.
+clpq, countdown(0, Done) <=>
+	format(user_error, "Done: facts = [~n", []),
 	findall(
 		_,
 		(
@@ -309,18 +312,18 @@ clpq, countdown(0) <=>
 			; O2 = O
 			),
 			*/
-			format("fact(~w,~w,~w)~n", [S,P,O])
+			format(user_error, "fact(~w,~w,~w)~n", [S,P,O])
 		),
 		_
 	),
-	format("]~n~n",[]), %fail,
+	format(user_error, "]~n~n",[]), %fail,
+	Done = done,
 	true.
 %next(0) <=> true.
 %next(M) <=> nl, countdown(M), rule.
 
-start(N) <=> N > 0 | countdown(N), rule.
-start(0) <=> true.
-
+start(N, Done) <=> N > 0 | countdown(N, Done), rule.
+start(0, Done) <=> Done = done.
 
 % General pattern here:
 % we have flexible objects that need to be translated back into standard data formats.
