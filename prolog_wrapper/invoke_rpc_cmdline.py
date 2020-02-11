@@ -50,8 +50,10 @@ def files_in_dir(dir):
 @click.option('-d', '--dev_runner_options', type=str)
 @click.option('-p', '--prolog_flags', type=str)
 @click.option('-s', '--server_url', type=str, default='http://localhost:7778')
+@click.option('-dbgl', '--debug_loading', type=bool, default=False)
+@click.option('-dbg', '--debug', type=bool, default=False)
 
-def run(request_files, dev_runner_options, prolog_flags, server_url):
+def run(debug_loading, debug, request_files, dev_runner_options, prolog_flags, server_url):
 	if dev_runner_options == None:
 		dev_runner_options = ''
 	request_files2 = [os.path.abspath(os.path.expanduser(f)) for f in request_files]
@@ -72,10 +74,10 @@ def run(request_files, dev_runner_options, prolog_flags, server_url):
 			"tmp_directory_name": tmp_directory_name,
 			"request_files": files2}
 	}
-	call_prolog(msg=msg, dev_runner_options=shlex.split(dev_runner_options), prolog_flags=prolog_flags)
+	call_prolog(msg=msg, dev_runner_options=shlex.split(dev_runner_options), prolog_flags=prolog_flags, debug_loading=debug_loading, debug=debug)
 
 
-def call_prolog(msg, dev_runner_options=[], prolog_flags='true', make_new_tmp_dir=False):
+def call_prolog(msg, dev_runner_options=[], prolog_flags='true', make_new_tmp_dir=False, debug_loading=None, debug=None):
 
 	if make_new_tmp_dir:
 		msg['params']['tmp_directory_name'],_ = create_tmp()
@@ -107,21 +109,31 @@ def call_prolog(msg, dev_runner_options=[], prolog_flags='true', make_new_tmp_di
 
 
 
+
+	#todo, probably take it from env
+	#if debug_loading == None:
+	#if debug == None:
+
 	
 
 	# construct the command line
-	debug = True
+	if debug_loading:
+		entry_file = 'lib/debug_loading_rpc_server.pl'
+	else:
+		entry_file = "lib/rpc_server.pl"
+
 	if debug:
 		debug_args = ['-O']
-		entry_file = 'lib/debug_rpc_server.pl'
+		debug_goal = 'debug,'
 	else:
 		debug_args = []
-		entry_file = "lib/rpc_server.pl"
+		debug_goal = ''
+
 
 	swipl = ['swipl'] + debug_args + path_flags
 	cmd0 = swipl + ['-s', git("lib/dev_runner.pl"),'--problem_lines_whitelist',git("misc/problem_lines_whitelist"),"-s", git(entry_file)]
 	cmd1 = dev_runner_options
-	cmd2 = ['-g', prolog_flags + ',lib:process_request_rpc_cmdline']
+	cmd2 = ['-g', debug_goal + prolog_flags + ',lib:process_request_rpc_cmdline']
 	cmd = cmd0 + cmd1 + cmd2
 	print(' '.join(cmd))
 	
