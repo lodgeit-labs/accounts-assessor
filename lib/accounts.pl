@@ -74,7 +74,6 @@ account_by_role(Accounts, Role, Account_Id) :-
 		(
 			pretty_term_string(Accounts, Accounts_Str),
 			term_string(Role, Role_Str),
-			gtrace,
 			format(atom(Err), 'account not found in hierarchy: ~w\n known accounts : ~w \n', [Role_Str, Accounts_Str]),
 			format(user_error, Err, []),
 			throw_string(Err)

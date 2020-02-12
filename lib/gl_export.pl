@@ -62,5 +62,5 @@ running_balance_tx_enrichment(Tx, Tx_New) :-
 
 
 trial_balance_ok(Trial_Balance_Section) :-
-	Trial_Balance_Section = entry(_, Balance, [], _),
+	Trial_Balance_Section = entry(_, Balance, [], _, _),
 	maplist(coord_is_almost_zero, Balance).

@@ -172,7 +172,7 @@ cf_scheme_0_entry_for_account(Sd, Account, Entry) :-
 	dif(Children, []),
 	account_children(Sd, Account, Children),
 	/* collect entries of child accounts */
-	Entry = entry0(Account, [], $>maplist(cf_scheme_0_entry_for_account(Sd), Children)).
+	Entry = entry0(Account, [], $>maplist(cf_scheme_0_entry_for_account(Sd), Children), []).
 
 cf_scheme_0_entry_for_account(Sd, Account, Entry) :-
 	account_children(Sd, Account, []),
@@ -188,7 +188,7 @@ cf_scheme_0_entry_for_account(Sd, Account, Entry) :-
 			List_With_Currency_Movement_Entry = [Currency_Movement_Entry]
 		)
 	;	List_With_Currency_Movement_Entry = []),
-	Entry = entry0(Account, [], $>append(Category_Entries0, List_With_Currency_Movement_Entry)).
+	Entry = entry0(Account, [], $>append(Category_Entries0, List_With_Currency_Movement_Entry),[]).
 
 cf_scheme_0_bank_account_currency_movement_entry(Sd, Account, Currency_Movement_Entry) :-
 	bank_account_currency_movement_account(Sd.accounts, Account, Currency_Movement_Account),
@@ -197,7 +197,7 @@ cf_scheme_0_bank_account_currency_movement_entry(Sd, Account, Currency_Movement_
 	doc_new_(rdf:value, Vec_Uri),
 	doc_add(Vec_Uri, rdf:value, Vec),
 	doc_add(Vec_Uri, l:source, net_activity_by_account(Account, Vec, _)),
-	Currency_Movement_Entry = entry0('Currency movement', Vec_Uri, []).
+	Currency_Movement_Entry = entry0('Currency movement', Vec_Uri, [],[]).
 /*
 cf_entry_by_category(
 	Category,				% atom:Category ID
@@ -210,11 +210,11 @@ cf_entry_by_category(Sd, Category-CF_Items, Category_Entry) :-
 	dict_pairs(Cf_Items_By_PlusMinus, _, Pairs),
 
 	maplist(cf_scheme0_plusminus_entry(Sd), Pairs, Child_Entries),
-	Category_Entry = entry0(Category, [], Child_Entries).
+	Category_Entry = entry0(Category, [], Child_Entries,[]).
 
 cf_scheme0_plusminus_entry(Sd, (PlusMinus-CF_Items), Entry) :-
 	maplist(cf_instant_tx_entry0(Sd), CF_Items, Tx_Entries),
-	Entry = entry0(PlusMinus, [], Tx_Entries).
+	Entry = entry0(PlusMinus, [], Tx_Entries,[]).
 
 cf_instant_tx_entry0(Sd, ct(_,Tx), Entry) :-
 	cf_instant_tx_vector_conversion(Sd, Tx, Vec),
@@ -228,12 +228,32 @@ cf_instant_tx_entry0(Sd, ct(_,Tx), Entry) :-
 	->	Exchanged_Display = div(align=right,[Exchanged_Display_String])
 	;	Exchanged_Display = ''),
 
+	(
+		(
+			doc(Tx, transactions:origin, Origin, transactions),
+			s_transaction_misc(Origin, Misc_Dict),
+			Misc1 = Misc_Dict.get(desc2)
+		)
+	->	true
+	;	Misc1 = ''),
+
+	(
+		(
+			doc(Tx, transactions:origin, Origin, transactions),
+			s_transaction_misc(Origin, Misc_Dict),
+			Misc2 = Misc_Dict.get(desc3)
+		)
+	->	true
+	;	Misc2 = ''),
 	Entry = entry0([
 		$>term_string($>transaction_day(Tx)),
 		$>term_string($>transaction_description(Tx)),
-		Exchanged_Display,
 		$>link(Tx)
-	], Vec, []).
+	], Vec, [], [
+		Exchanged_Display,
+		Misc1,
+		Misc2
+	]).
 
 link(Uri, Link) :-
 	Link = a(href=Uri, [small('⍰')]).
@@ -251,15 +271,15 @@ cf_instant_tx_vector_conversion(Sd, Tx, Uri) :-
 	walk the entry0 tree with own vectors, and create entry terms.
 */
 entry0_to_entry(Entry0, Entry1) :-
-	Entry0 = entry0(Title, Own_Vec, []),
-	Entry1 = entry(Title, Own_Vec, [], 123456789).
+	Entry0 = entry0(Title, Own_Vec, [], Misc),
+	Entry1 = entry(Title, Own_Vec, [], 123456789, Misc).
 entry0_to_entry(Entry0, Entry1) :-
-	Entry0 = entry0(Title, [], Children0),
+	Entry0 = entry0(Title, [], Children0, Misc),
 	Children0 \= [],
 	maplist(entry0_to_entry, Children0, Children1),
 	maplist(entry_balance, Children1, Vecs),
 	vec_sum_with_proof(Vecs,Sum),
-	Entry1 = entry(Title, Sum, Children1, 123456789).
+	Entry1 = entry(Title, Sum, Children1, 123456789, Misc).
 
 
 cashflow(
@@ -276,7 +296,7 @@ cashflow(
 	balance_until_day(Sd.exchange_rates, Sd.accounts, Sd.transactions_by_account, Sd.report_currency, Sd.start_date, Root, Sd.start_date, Start_Balance, C1),
 	balance_by_account(Sd.exchange_rates, Sd.accounts, Sd.transactions_by_account, Sd.report_currency, Sd.end_date, Root, Sd.end_date, End_Balance, C2),
 	Entries = [
-		entry($>format(string(<$), 'CashAndCashEquivalents at ~q', [Sd.start_date]), Start_Balance, [], C1),
+		entry($>format(string(<$), 'CashAndCashEquivalents at ~q', [Sd.start_date]), Start_Balance, [], C1, []),
 		Entry,
-		entry($>format(string(<$), 'CashAndCashEquivalents at ~q', [Sd.end_date]), End_Balance, [], C2)
+		entry($>format(string(<$), 'CashAndCashEquivalents at ~q', [Sd.end_date]), End_Balance, [], C2, [])
 	].

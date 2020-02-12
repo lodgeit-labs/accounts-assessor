@@ -1,5 +1,5 @@
 
-:- record entry(account_id, balance, child_sheet_entries, transactions_count).
+:- record entry(account_id, balance, child_sheet_entries, transactions_count, misc).
 
 
 % -------------------------------------------------------------------
@@ -184,12 +184,12 @@ balance_sheet_entry2(Static_Data, Account_Id, Entry) :-
 	% find balance for this account including subaccounts (sum all transactions from beginning of time)
 	findall(
 		Child_Balance,
-		member(entry(_,Child_Balance,_,_),Child_Sheet_Entries),
+		member(entry(_,Child_Balance,_,_,_),Child_Sheet_Entries),
 		Child_Balances
 	),
 	findall(
 		Child_Count,
-		member(entry(_,_,_,Child_Count),Child_Sheet_Entries),
+		member(entry(_,_,_,Child_Count,_),Child_Sheet_Entries),
 		Child_Counts
 	       ),
 	account_own_transactions_sum(Static_Data.exchange_rates, Static_Data.exchange_date, Static_Data.report_currency, Account_Id, Static_Data.end_date, Static_Data.transactions_by_account, Own_Sum, Own_Transactions_Count),
@@ -198,11 +198,11 @@ balance_sheet_entry2(Static_Data, Account_Id, Entry) :-
 	%format(user_error, 'balance_sheet_entry2: ~q :~n~q~n', [Account_Id, Balance]),
 	sum_list(Child_Counts, Children_Transaction_Count),
 	Transactions_Count is Children_Transaction_Count + Own_Transactions_Count,
-	Entry = entry(Account_Id, Balance, Child_Sheet_Entries, Transactions_Count).
+	Entry = entry(Account_Id, Balance, Child_Sheet_Entries, Transactions_Count, []).
 
 accounts_report(Static_Data, Accounts_Report) :-
 	balance_sheet_entry(Static_Data, 'Accounts', Entry),
-	Entry = entry(_,_,Accounts_Report,_).
+	Entry = entry(_,_,Accounts_Report,_,[]).
 
 balance_sheet_at(Static_Data, [Net_Assets_Entry, Equity_Entry]) :-
 	balance_sheet_entry(Static_Data, 'NetAssets', Net_Assets_Entry),
@@ -216,7 +216,7 @@ trial_balance_between(Exchange_Rates, Accounts, Transactions_By_Account, Report_
 	Transactions_Count is Net_Assets_Count + Equity_Count,
 
 	% too bad there isnt a trial balance concept in the taxonomy yet, but not a problem
-	Trial_Balance_Section = entry('Trial_Balance', Trial_Balance, [], Transactions_Count).
+	Trial_Balance_Section = entry('Trial_Balance', Trial_Balance, [], Transactions_Count,[]).
 
 profitandloss_between(Static_Data, [ProftAndLoss]) :-
 	activity_entry(Static_Data, 'NetIncomeLoss', ProftAndLoss).
@@ -234,7 +234,7 @@ activity_entry(Static_Data, Account_Id, Entry) :-
 		Child_Sheet_Entries
 	),
 	net_activity_by_account(Static_Data, Account_Id, Net_Activity, Transactions_Count),
-	Entry = entry(Account_Id, Net_Activity, Child_Sheet_Entries, Transactions_Count).
+	Entry = entry(Account_Id, Net_Activity, Child_Sheet_Entries, Transactions_Count,[]).
 
 
 /* balance sheet and profit&loss entries*//*

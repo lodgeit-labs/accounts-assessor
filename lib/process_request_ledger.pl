@@ -224,9 +224,6 @@ symlink_tmp_taxonomy_to_static_taxonomy(Unique_Taxonomy_Dir_Url) :-
 	
 */	
    
-extract_default_currency(Dom, Default_Currency) :-
-	inner_xml_throw(Dom, //reports/balanceSheetRequest/defaultCurrency/unitType, Default_Currency).
-
 extract_report_currency(Dom, Report_Currency) :-
 	(	doc(l:request, ic_ui:report_details, D)
 	->	(
@@ -324,21 +321,25 @@ extract_bank_account(Account) :-
 extract_bank_opening_balances(Txs) :-
 	request(R),
 	findall(Bank_Account, docm(R, l:bank_account, Bank_Account), Bank_Accounts),
-	maplist(extract_bank_opening_balances2, Bank_Accounts, Txs).
+	maplist(extract_bank_opening_balances2, Bank_Accounts, Txs0),
+	exclude(var, Txs0, Txs).
 
 extract_bank_opening_balances2(Bank_Account, Tx) :-
-	doc(Bank_Account, l:name, Bank_Account_Name),
-	doc_value(Bank_Account, l:opening_balance, Opening_Balance),
-	request_has_property(l:start_date, Start_Date),
-	add_days(Start_Date, -1, Opening_Date),
-	doc_add_s_transaction(
-		Opening_Date,
-		'Bank_Opening_Balance',
-		[Opening_Balance],
-		Bank_Account_Name,
-		vector([]),
-		misc{desc2:'Bank_Opening_Balance'},
-		Tx).
+	(	doc_value(Bank_Account, l:opening_balance, Opening_Balance)
+	->	(
+			request_has_property(l:start_date, Start_Date),
+			add_days(Start_Date, -1, Opening_Date),
+			doc(Bank_Account, l:name, Bank_Account_Name),
+			doc_add_s_transaction(
+				Opening_Date,
+				'Bank_Opening_Balance',
+				[Opening_Balance],
+				Bank_Account_Name,
+				vector([]),
+				misc{desc2:'Bank_Opening_Balance'},
+				Tx)
+		)
+	).
 
 extract_bank_opening_balances2(Bank_Account, _Tx) :-
 	\+doc_value(Bank_Account, l:opening_balance, _Opening_Balance).

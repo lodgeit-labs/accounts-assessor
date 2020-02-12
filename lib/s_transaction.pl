@@ -66,6 +66,7 @@ pretty_string(T, String) :-
 
 
 compare_s_transactions(Order, T1, T2) :-
+	ground(T1), ground(T2),
 	s_transaction_day(T1, Day1),
 	s_transaction_day(T2, Day2),
 	compare(Order0, Day1, Day2),

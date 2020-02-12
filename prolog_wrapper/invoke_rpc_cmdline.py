@@ -126,10 +126,10 @@ def call_prolog(msg, dev_runner_options=[], prolog_flags='true', make_new_tmp_di
 		entry_file = "lib/rpc_server.pl"
 
 	if debug:
-		debug_args = ['-O']
+		debug_args = []
 		debug_goal = 'debug,'
 	else:
-		debug_args = []
+		debug_args = ['-O']
 		debug_goal = ''
 
 

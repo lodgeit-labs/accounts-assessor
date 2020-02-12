@@ -139,7 +139,7 @@ doc_add(S,P,O,G) :-
 assumption: only O's are allowed to be non-atoms
 */
 addd(S2,P2,O2,G2) :-
-	ground(spog(S2,P2,O2,G2)),
+	ground(spog(S2,P2,O2,G2)),atom(S2),atom(P2),atom(G2),
 	% get the_theory global
 	b_getval(the_theory,Ss),
 	%, ie a dict from subjects to pred-dicts
@@ -172,19 +172,20 @@ addd(S2,P2,O2,G2) :-
 			b_set_dict(P2, Ps2, Gs2))),
 	rol_add(O2, Os).
 
-addd(S,P,O,G) :-
-	X = spog(S,P,O,G),
-	\+ground(X),
+addd(S2,P2,O2,G2) :-
+	\+((ground(spog(S2,P2,O2,G2)),atom(S2),atom(P2),atom(G2))),
+	X = spog(S2,P2,O2,G2),
 	rol_add(X, $>b_getval(the_theory_nonground)).
 
 dddd(Spog, X) :-
 	Spog = spog(S2,P2,O2,G2),
+	(atom(S2);var(S2)),
+	(atom(P2);var(P2)),
+	(atom(G2);var(G2)),
 	rol_member(O2, X.get(S2).get(P2).get(G2)).
-
 
 dddd(Spog, _X) :-
 	rol_member(Spog, $>b_getval(the_theory_nonground)).
-
 
 doc_assert(S,P,O,G) :-
 	doc_add(S,P,O,G).
@@ -358,16 +359,12 @@ rol_single_match(T,SpogA) :-
 ░▀░░░▀░▀░▀▀▀░▀░▀░▀░░░░▀░░▀▀▀░░░▀░▀░▀▀░░▀░░
 */
 
-doc_from_rdf(Rdf_Graph) :-
-	findall((X,Y,Z),
-		rdf(X,Y,Z,Rdf_Graph),
-		Triples),
-	maplist(triple_rdf_vs_doc, Triples, Triples2),
-	maplist(doc_add, Triples2).
-
 node_rdf_vs_doc(
-	date_time(Y,M,D,0,0,0.0) ^^ 'http://www.w3.org/2001/XMLSchema#dateTime',
-	date(Y,M,D)) :- !.
+	date_time(Y,M,D,Z0,Z1,Z2) ^^ 'http://www.w3.org/2001/XMLSchema#dateTime',
+	date(Y,M,D)) :-
+		is_zero_number(Z0),
+		is_zero_number(Z1),
+		is_zero_number(Z2).
 
 node_rdf_vs_doc(
 	String ^^ 'http://www.w3.org/2001/XMLSchema#string',
@@ -378,12 +375,20 @@ node_rdf_vs_doc(
 	Int) :- integer(Int),!.
 
 node_rdf_vs_doc(
+	X ^^ 'http://www.w3.org/2001/XMLSchema#boolean',
+X) :-
+	(X == true
+	;
+	X == false),
+	!.
+
+node_rdf_vs_doc(
 	Float ^^ 'http://www.w3.org/2001/XMLSchema#decimal',
 	Rat) :-
 		/*freeze(Float, float(Float)),
 		freeze(Rat, rational(Rat)),*/
 		(
-			(var(Float),rational(Rat)) /* swipl does something totally insane here with the loc term */
+			(var(Float),rational(Rat)) /* gtrace is totally buffled by this place, but the gist is that for anything else than a rational Rat, this correctly fails and goes on to the next case */
 		;
 			(var(Rat), float(Float))
 		),
@@ -391,14 +396,24 @@ node_rdf_vs_doc(
 		->	Float is float(Rat)
 		;	Rat is rationalize(Float)),!.
 
-node_rdf_vs_doc(Atom, Atom) :- !.
+node_rdf_vs_doc(Atom, Atom) :- atom(Atom),!.
 
 node_rdf_vs_doc(String, Term) :-
-	compound(Term), term_string(Term, String),
+	var(String),
+	/*compound(Term), */term_string(Term, String),
 	!.
 
 triple_rdf_vs_doc((S,P,O), (S,P,O2)) :-
-	node_rdf_vs_doc(O,O2).
+	catch(
+		(	node_rdf_vs_doc(O,O2)
+		->	true
+		;	throw('conversion from rdf to doc failed')),
+		E,
+		(
+			format(user_error, '~q', [E]),
+			gtrace
+		)
+	).
 
 /* todo vars */
 
@@ -444,6 +459,12 @@ save_doc(/*-*/Fn, /*+*/Url) :-
 	rdf_save_turtle(Path, [sorted(true), base(Url_Value), canonize_numbers(true), abbreviate_literals(false), prefixes([rdf,rdfs,xsd,l,livestock])]),
 	rdf_retractall(_,_,_,/*fixme*/_Rdf_Graph).
 
+doc_from_rdf(Rdf_Graph) :-
+	findall((X,Y,Z),
+		rdf(X,Y,Z,Rdf_Graph),
+		Triples),
+	maplist(triple_rdf_vs_doc, Triples, Triples2),
+	maplist(doc_add, Triples2).
 
 
 
@@ -567,10 +588,6 @@ pondering a syntax for triples..
 		l:ledger_account_name $>account_by_role('Accounts'/'Equity')];
 	*/
 
-dg :-
-	dump,gtrace.
-
-
 gu(Prefixed, Full) :-
 	rdf_global_id(Prefixed, Full).
 
@@ -658,8 +675,12 @@ omg :-
 
 :- thread_create(omg, _).
 
-doc_dump :-gtrace,
+doc_dump :-
 	once(save_doc('doc.n3', _)).
+
+dg :-
+	doc_dump,gtrace.
+
 
 
 
