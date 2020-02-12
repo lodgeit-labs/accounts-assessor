@@ -74,7 +74,7 @@ account_by_role(Accounts, Role, Account_Id) :-
 		(
 			pretty_term_string(Accounts, Accounts_Str),
 			term_string(Role, Role_Str),
-			format(atom(Err), 'accounts : ~w \naccount not found in hierarchy: ~w\n', [Accounts_Str,  Role_Str]),
+			format(atom(Err), 'account not found in hierarchy: ~w\n known accounts : ~w \n', [Role_Str, Accounts_Str]),
 			format(user_error, Err, []),
 			throw_string(Err)
 		)
@@ -173,4 +173,6 @@ account_to_dict(Account, Dict) :-
 	Account = account(Id, Parent, Role, Detail_Level).
 
 	
-	
+
+account_children(Sd, Account, Children) :-
+	findall(Ch, account_child_parent(Sd.accounts, Ch, Account), Children).

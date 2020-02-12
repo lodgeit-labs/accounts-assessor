@@ -10,10 +10,6 @@
 :- use_module(library(http/http_client)).
 :- use_module(library(http/http_dispatch)).
 
-:- use_module(library(fnotation)).
-:- fnotation_ops($>,<$).
-:- op(900,fx,<$).
-
 :- [search_paths].
 
 :- ['../public_lib/xbrl/prolog/xbrl/utils.pl'].
@@ -22,6 +18,7 @@
 :- [accounts].
 :- [action_verbs].
 :- [bank_statement].
+:- [cashflow].
 :- [crosschecks_report].
 :- [days].
 :- [detail_accounts].
@@ -58,3 +55,5 @@
 :- [vector_string].
 :- [xbrl_contexts].
 :- [xbrl_output].
+
+:- ['../misc/chr_hp'].

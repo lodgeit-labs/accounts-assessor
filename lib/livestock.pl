@@ -1,4 +1,36 @@
+/*
++
++
++relate_livestock_s_transaction_description_to_direction(S_Transaction) :-
++       d(S_Transaction, bst_tx:action_verb, V),
++       /* new property of action verb */
++       (d(V, is_sale, true),
++       Description = 'livestock sale')
++       ;
++       (d(V, is_purchase, true),
++       Description = 'livestock purchase').
++
++st_id_eq_t_id(Bst, Glt) :-
++       d(Bst, bst_tx:id, Id1),
++       d(Glt, glt_tx:id, Id2),
++       e(Id1, Id2).
++
++preprocess_livestock_buy_or_sell(Bst, [Bank_Txs, Livestock_Count_Transaction, Pl_Transaction]) :-
++       relate_livestock_s_transaction_description_to_direction,
++       e(Bst.day, Livestock_Count_Transaction.day),
++
+*/
 
+s_transaction_is_livestock_buy_or_sell(S_Transaction, Day, Livestock_Type, Livestock_Coord, Money_Coord) :-
+	s_transaction_day(S_Transaction, Day),
+	s_transaction_type_id(S_Transaction, uri(Action_Verb)),
+	s_transaction_vector(S_Transaction, [Money_Coord]),
+	s_transaction_exchanged(S_Transaction, vector(Vec)),
+	(rdf_global_id(l:livestock_purchase,Action_Verb);rdf_global_id(l:livestock_sale,Action_Verb)),
+	!,
+	Vec = [Livestock_Coord],
+	coord_unit(Livestock_Coord, Livestock_Type),
+	livestock_data_by_vector_unit(_, Vec).
 
 livestock_data(Uri) :-
 	doc(Uri, rdf:type, l:livestock_data).
@@ -27,29 +59,16 @@ livestock_data_by_vector_unit(Livestock, Exchanged) :-
 
 infer_livestock_action_verb(S_Transaction, NS_Transaction) :-
 	s_transaction_type_id(S_Transaction, ''),
-	s_transaction_type_id(NS_Transaction, uri(Action_Verb)),
-	/* just copy these over */
 	s_transaction_exchanged(S_Transaction, vector(Exchanged)),
-	s_transaction_exchanged(NS_Transaction, vector(Exchanged)),
-	s_transaction_day(S_Transaction, Transaction_Date),
-	s_transaction_day(NS_Transaction, Transaction_Date),
-	s_transaction_vector(S_Transaction, Vector),
-	s_transaction_vector(NS_Transaction, Vector),
-	s_transaction_account_id(S_Transaction, Unexchanged_Account_Id),
-	s_transaction_account_id(NS_Transaction, Unexchanged_Account_Id),
 	/* if.. */
 	livestock_data_by_vector_unit(_,Exchanged),
+	s_transaction_vector(S_Transaction, Vector),
 	(	is_debit(Vector)
-	->	Action_Verb = l:livestock_sale
-	;	Action_Verb = l:livestock_purchase).
+	->	rdf_global_id(l:livestock_sale,Action_Verb)
+	;	rdf_global_id(l:livestock_purchase,Action_Verb)),
+	doc_set_s_transaction_type_id(S_Transaction, uri(Action_Verb), NS_Transaction).
 
-s_transaction_is_livestock_buy_or_sell(S_Transaction, Date, Livestock_Type, Livestock_Coord, Money_Coord) :-
-	S_Transaction = s_transaction(Date, uri(Action_Verb), [Money_Coord], _, vector(V), _),
-	(Action_Verb = l:livestock_purchase;Action_Verb = l:livestock_sale),
-	!,
-	V = [Livestock_Coord],
-	coord_unit(Livestock_Coord, Livestock_Type),
-	livestock_data_by_vector_unit(_, V).
+
 
 preprocess_livestock_buy_or_sell(Static_Data, S_Transaction, [Bank_Txs, Livestock_Count_Transaction, Pl_Transaction]) :-
 	s_transaction_is_livestock_buy_or_sell(S_Transaction, Day, Livestock_Type, Livestock_Coord, Money_Coord),
@@ -57,33 +76,25 @@ preprocess_livestock_buy_or_sell(Static_Data, S_Transaction, [Bank_Txs, Livestoc
 	->  Description = 'livestock sale'
 	;   Description = 'livestock purchase'),
 	count_account(Livestock_Type, Count_Account),
-	make_transaction(Day, Description, Count_Account, [Livestock_Coord], Livestock_Count_Transaction),
+	make_transaction(S_Transaction, Day, Description, Count_Account, [Livestock_Coord], Livestock_Count_Transaction),
 	affect_bank_account(Static_Data, S_Transaction, Description, Bank_Txs),
 	vec_inverse([Money_Coord], Pl_Vector),
 	(   is_credit(Money_Coord)
 	->	(
 			cogs_account(Livestock_Type, Cogs_Account),
-			make_transaction(Day, Description, Cogs_Account, Pl_Vector, Pl_Transaction)
+			make_transaction(S_Transaction, Day, Description, Cogs_Account, Pl_Vector, Pl_Transaction)
 		)
 	;
 		(
 			sales_account(Livestock_Type, Sales_Account),
-			make_transaction(Day, Description, Sales_Account, Pl_Vector, Pl_Transaction)
+			make_transaction(S_Transaction, Day, Description, Sales_Account, Pl_Vector, Pl_Transaction)
 		)
 	).
 
 process_livestock(Info, Livestock_Transactions) :-
-	findall(
-		Txs,
-		(
-			livestock_data(L),
-			(	process_livestock2(Info, L, Txs)
-			->	true
-			;	(gtrace/*,throw_string('process_livestock2 failed')*/))
-		),
-		Txs_List
-	),
-	flatten(Txs_List, Livestock_Transactions).
+	findall(L, livestock_data(L), Ls),
+	maplist(process_livestock2(Info), Ls, Txs),
+	flatten(Txs, Livestock_Transactions).
 
 process_livestock2((S_Transactions, Transactions_In), Livestock, Transactions_Out) :-
 	/*

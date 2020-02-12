@@ -1,3 +1,10 @@
+/*+
++this could be useful if we parse the prolog code and collect o's in one place so that they're all visible when gtracing, and we visualize the process
++       o(gl_export_rounding(final), round_term(2, Report_Dict0, Report_Dict)).
++could be just:
++       o(gl_export_rounding(final))). if its a unique operation on the global store
++*/
+
 gl_export(Sd, Processed_S_Transactions, Transactions0, Livestock_Transactions, Report_Dict) :-
 	/* Outputs list is lists of generated transactions, one list for each s_transaction */
 	append(Transactions0, [Livestock_Transactions], Results),
@@ -10,13 +17,9 @@ gl_export(Sd, Processed_S_Transactions, Transactions0, Livestock_Transactions, R
 
 make_gl_entry(Sd, Source, Transactions, Entry) :-
 	Entry = _{source: S, transactions: T},
-	(	atom(Source)
-	->	S = Source
-	; 	(
-			s_transaction_to_dict(Source, S0),
-			s_transaction_with_transacted_amount(Sd, S0, S)
-		)
-	),
+	(	s_transaction_to_dict(Source, S0)
+	->	s_transaction_with_transacted_amount(Sd, S0, S)
+	; 	S = Source),
 	maplist(transaction_to_dict, Transactions, T0),
 	maplist(transaction_with_converted_vector(Sd), T0, T1),
 	maplist(running_balance_tx_enrichment, T1, T2),
@@ -59,5 +62,5 @@ running_balance_tx_enrichment(Tx, Tx_New) :-
 
 
 trial_balance_ok(Trial_Balance_Section) :-
-	Trial_Balance_Section = entry(_, Balance, [], _),
+	Trial_Balance_Section = entry(_, Balance, [], _, _),
 	maplist(coord_is_almost_zero, Balance).

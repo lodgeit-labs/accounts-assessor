@@ -5,7 +5,7 @@
       "account":"WellsFargo",
       "date":"2017-07-10",
       "exchanged":"vector([coord('BHP',10)])",
-      "misc": {},
+      "misc": {"desc2":""},
       "report_currency_transacted_amount_converted_at_balance_date": [ {"credit":135.08, "debit":0, "unit":"AUD"} ],
       "report_currency_transacted_amount_converted_at_transaction_date": [ {"credit":131.46, "debit":0, "unit":"AUD"} ],
       "vector": [ {"credit":100, "debit":0, "unit":"USD"} ],

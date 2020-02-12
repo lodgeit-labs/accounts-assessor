@@ -129,25 +129,12 @@ process_realized(Dom, Global_Report_Date_Atom, Result) :-
 	extract_account_hierarchy_from_request_dom([], Accounts0),
 	credit_vec(Currency_Unique, PDPC_Total_Cost, PDPC_Total_Cost_Credit_Vec),
 	credit_vec(Unit_Unique, Count, Count_Credit_Vec),
-	S_Transactions = [
-		s_transaction(
-			Purchase_Date, 
-			'Invest_In', 
-			PDPC_Total_Cost_Credit_Vec,
-			'Bank', 
-			vector([coord(Unit_Unique, Count)]),
-			_{}
-		),
-		s_transaction(
-			Sale_Date, 
-			'Dispose_Of', 
-			[coord(Currency_Unique, SDPC_Total_Value)],
-			'Bank', 
-			vector(Count_Credit_Vec),
-			_{}
-		)
-	], 
 
+	doc_add_s_transaction(Purchase_Date, 'Invest_In', PDPC_Total_Cost_Credit_Vec, 'Bank', vector([coord(Unit_Unique, Count)]), misc{}, St1),
+
+	doc_add_s_transaction(Sale_Date, 'Dispose_Of', [coord(Currency_Unique, SDPC_Total_Value)], 'Bank', vector(Count_Credit_Vec), misc{}, St2),
+
+	S_Transactions = [St1, St2],
 	add_action_verbs_from_default_action_taxonomy,
 
 	process_ledger(
@@ -281,16 +268,9 @@ process_unrealized(Dom, Global_Report_Date, Result) :-
 			exchange_rate(Report_Date, Unit_Unique, Currency_Unique, RDPC_Unit_Value)
 	],
 	credit_vec(Currency_Unique, PDPC_Total_Cost, PDPC_Total_Cost_Credit_Vec),
-	S_Transactions = [
-		s_transaction(
-			Purchase_Date, 
-			'Invest_In', 
-			PDPC_Total_Cost_Credit_Vec,
-			'Bank', 
-			vector([coord(Unit_Unique, Count)]),
-			_{}
-		)
-	],	
+
+	doc_add_s_transaction(Purchase_Date, 'Invest_In', PDPC_Total_Cost_Credit_Vec, 'Bank', vector([coord(Unit_Unique, Count)]), misc{}, St1),
+	S_Transactions = [St1],
 
 	extract_account_hierarchy_from_request_dom([], Accounts0),
 	add_action_verbs_from_default_action_taxonomy,

@@ -12,12 +12,20 @@ demo7778:
         args: -c "env MY_SERVICES_SERVER_URL=\"http://localhost:17778\" ./run.sh 0.0.0.0:7778"
         dir: ./frontend_server
 
-demox:
+demo7768:
    defaults:
       type: exec
    services:   
-      - name: frontend_server
-        exec: bash
-        args: -c "echo -e \"xxx\n\nyyy\";sleep 1"
-        dir: ./frontend_server
+      - name: internal_services
+        exec: ./run.sh
+        args: "17768"
+        dir: ./internal_services
+        
+        #frontend_server is through mod_wsgi, internal services port is defaulted in endpoints_gateway/views.py 
+        # mod_wsgi is compiled with ./configure --with-python=/home/demo/7768/venv/bin/python3 and wired up from /etc/apache2/sites-enabled/..
 
+#fixme      - name: celery_worker
+#        exec: ../venv/bin/celery
+#        args: -E -A c worker --loglevel=debug
+#        dir: ./server_root
+        

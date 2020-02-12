@@ -1,0 +1,169 @@
+Cash & Cash equivalents account
+Bank accounts
+
+Operating activities
+Investing activities
+Financing activities
+
+Maybe don't need to explicitly have +/- since will have CR/DR on the transactions already
+
+
+Investing activities =
+	+ Interest Income 
+	+ Dispose of
+
+	- Invest in
+		* financial instruments
+		* land
+		* equipment
+		* buildings
+	- Interest Expenses ?
+
+Operating activities: collecting from customers
+	- Expenses
+		* paying suppliers
+		* accountancy fees
+		* bank charges
+		* salaries
+		* depreciation
+		* amortization
+		* taxes
+		* transfer fees ?
+		* Purchase_Method_C?
+		* accounts payable?
+	+ Product sales income
+		* Sale_Method_C?
+		* accounts receivable?
+	* transfers?
+
+Financing activities:
+	+ Introduce capital
+	+ Borrow
+	- Dividends
+	- Repayment on debt principal
+
+
+
+Bank charges: Operating activities? Financing activities?
+Transfers: ?
+Gain: Investing activities?
+Loss: Investing activites?
+Income: ?
+
+Will eventually need a custom breakdown of transaction categories, as the categorizations are not well-defined and only the arithmetic is well-defined *once* a categorization is chosen. This should tie back into the user's selection of an accounting equation.
+* 	cf. ex.. cashflow statement description on wikipedia places interest payments on loans under operating activities but notes that
+	IAS 7 categorizes it under financing activities; neither interpretation is unreasonable, and similar arguments could be made for any
+	expenses/fees associated w/ financing (borrowing, holding money in bank)
+*	similarly if you hold investments like treasuries or other bonds, or stocks, are broker fees investment expenses and thus investment activities or are they operating costs as part of normal business operations?
+*	only the standards can say
+
+
+* select Transactions where account=<Account> role-category=<Role_Category>
+
+
+
+
+
+
+
+
+
+<actionTaxonomy>
+      <action>
+        <id>Transfers</id>
+        <exchangeAccount>ClearingAccount</exchangeAccount>
+      </action>
+
+      <action>
+        <id>Invest_In</id>
+        <description>Shares</description>
+        <exchangeAccount>FinancialInvestments</exchangeAccount>
+        <tradingAccount>InvestmentIncome</tradingAccount>
+      </action>
+
+      <action>
+        <id>Dispose_Of</id>
+        <description>Shares</description>
+        <exchangeAccount>FinancialInvestments</exchangeAccount>
+        <tradingAccount>InvestmentIncome</tradingAccount>
+      </action>
+
+      <action>
+        <id>Bank_Charges</id>
+        <exchangeAccount>BankCharges</exchangeAccount>
+      </action>
+
+      <action>
+        <id>Expenses</id>
+        <exchangeAccount>OtherExpenses</exchangeAccount>
+      </action>
+
+      <action>
+        <id>Gain</id>
+        <exchangeAccount>OtherGain</exchangeAccount>
+      </action>
+
+      <action>
+        <id>Loss</id>
+        <description>No Description</description>
+        <exchangeAccount>ShareCapital</exchangeAccount>
+      </action>
+
+      <action>
+        <id>Income</id>
+        <exchangeAccount>Income</exchangeAccount>
+      </action>
+
+      <action>
+        <id>Interest_Income</id>
+        <exchangeAccount>InterestIncome</exchangeAccount>
+      </action>
+
+      <action>
+        <id>Interest_Expenses</id>
+        <exchangeAccount>InterestExpenses</exchangeAccount>
+      </action>
+
+      <action>
+        <id>Borrow</id>
+        <description></description>
+        <exchangeAccount>NoncurrentLoans</exchangeAccount>
+      </action>
+
+      <action>
+        <id>Introduce_Capital</id>
+        <description>Unit_Investment</description>
+        <exchangeAccount>ShareCapital</exchangeAccount>
+      </action>
+
+      <action>
+        <id>Pay_Bank</id>
+        <description>No Description</description>
+        <exchangeAccount>BankCharges</exchangeAccount>
+      </action>
+
+      <action>
+        <id>Accountancy_Fees</id>
+        <description>No Description</description>
+        <exchangeAccount>AccountancyFees</exchangeAccount>
+      </action>
+
+      <action>
+        <id>Purchase_Method_C</id>
+        <description>No Description</description>
+        <exchangeAccount>Purchases</exchangeAccount>
+        <gstRatePercent>10</gstRatePercent>
+        <gstReceivableAccount>GstReceivable</gstReceivableAccount>
+      </action>
+
+      <action>
+        <id>Sale_Method_C</id>
+        <description>No Description</description>
+        <exchangeAccount>Income</exchangeAccount>
+        <gstRatePercent>10</gstRatePercent>
+        <gstPayableAccount>GstPayable</gstPayableAccount>
+      </action>
+
+
+
+</actionTaxonomy>

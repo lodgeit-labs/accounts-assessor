@@ -42,7 +42,7 @@ term_dict(
 	round_term(C0,C2).
 
 term_dict(
-	entry(Account, Balance, Child_sheet_entries, Transactions_count),
+	entry(Account, Balance, Child_sheet_entries, Transactions_count,_),
 	entry{account:Account2, balance:Balance2, child_sheet_entries:Child_sheet_entries2, transactions_count:Transactions_count2}
 ) :-
 	round_term(Account,Account2),

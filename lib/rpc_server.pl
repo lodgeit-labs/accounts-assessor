@@ -3,11 +3,14 @@
 :- use_module('sbe', []).
 :- ['lib'].
 
+
+:-set_prolog_flag(stack_limit, 10 000 000 000).
+
+
 process_request_rpc_cmdline :-
 	json_read_dict(user_input, Dict),
 	catch_with_backtrace(
 		(
-			%gtrace,
 			process_request_rpc_cmdline2(Dict)
 		),
 		E,

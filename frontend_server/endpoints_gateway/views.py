@@ -1,4 +1,4 @@
-import json, ntpath, os
+import json, ntpath, os, sys
 
 from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
@@ -9,7 +9,18 @@ from django.http.request import QueryDict
 
 from endpoints_gateway.forms import ClientRequestForm
 
-from lib import invoke_rpc_cmdline
+
+# for the case when running standalone
+sys.path.append('../prolog_wrapper')
+# for running under mod_wsgi
+sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../../prolog_wrapper')))
+
+if 'USE_CELERY' in os.environ:
+	import services
+else:
+	import invoke_rpc_cmdline as services
+
+
 from os import listdir
 from os.path import isfile, join
 import urllib.parse
@@ -35,13 +46,17 @@ def upload(request):
 
 	requested_output_format = params.get('requested_output_format', 'json_reports_list')
 	server_url = request._current_scheme_host
-	prolog_flags = """set_prolog_flag(services_server,'""" + settings.MY_SERVICES_SERVER_URL + """')"""
+	MY_SERVICES_SERVER_URL = settings.MY_SERVICES_SERVER_URL
+	if MY_SERVICES_SERVER_URL == None:
+		# fixme, idk how to pass settings or env vars from mod_wsgi
+		MY_SERVICES_SERVER_URL ="http://localhost:17768"
+	prolog_flags = """set_prolog_flag(services_server,'""" + MY_SERVICES_SERVER_URL + """')"""
 
 	if request.method == 'POST':
 		#print(request.FILES)
 		form = ClientRequestForm(request.POST, request.FILES)
 		if form.is_valid():
-			tmp_directory_name, tmp_directory_path = invoke_rpc_cmdline.create_tmp()
+			tmp_directory_name, tmp_directory_path = services.create_tmp()
 			request_files_in_tmp = []
 			for field in request.FILES.keys():
 				for f in request.FILES.getlist(field):
@@ -59,13 +74,13 @@ def upload(request):
 						"request_files": request_files_in_tmp}
 			}
 			try:
-				invoke_rpc_cmdline.call_rpc(msg, prolog_flags=prolog_flags)
+				new_tmp_directory_name,_result_json = services.call_prolog(msg, prolog_flags=prolog_flags,make_new_tmp_dir=True)
 			except json.decoder.JSONDecodeError as e:
 				return HttpResponse(status=500)
 			if requested_output_format == 'xml':
-				return HttpResponseRedirect('/tmp/' + tmp_directory_name + '/response.xml')
+				return HttpResponseRedirect('/tmp/' + new_tmp_directory_name + '/response.xml')
 			else:
-				return HttpResponseRedirect('/tmp/'+tmp_directory_name+'/response.json')
+				return HttpResponseRedirect('/tmp/'+ new_tmp_directory_name+'/response.json')
 	else:
 		form = ClientRequestForm()
 	return render(request, 'upload.html', {'form': form})
@@ -89,7 +104,7 @@ def residency(request):
 
 def json_call(msg):
 	try:
-		return JsonResponse(invoke_rpc_cmdline.call_rpc(msg))
+		return JsonResponse(services.call_prolog(msg))[1]
 	except json.decoder.JSONDecodeError as e:
 		return HttpResponse(status=500)
 

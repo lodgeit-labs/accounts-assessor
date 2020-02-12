@@ -37,7 +37,7 @@ print_detail_account(Static_Data, Context_Info, Fact_Name, Account_In,
 	),
 	format_report_entries(
 		xbrl, 0, Accounts, 1, Report_Currency, Context_Id,
-		[entry(Fact_Name, Balance, [], Transactions_Count)],
+		[entry(Fact_Name, Balance, [], Transactions_Count, _)],
 		Xml).
 
 print_banks(Static_Data, Context_Id_Base, In, Out, Xml) :-

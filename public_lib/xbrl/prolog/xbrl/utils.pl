@@ -9,6 +9,10 @@
 :- use_module(library(semweb/rdf11),except(['{}'/1])).
 :- use_module(library(debug)).
 
+:- use_module(library(fnotation)).
+:- fnotation_ops($>,<$).
+:- op(900,fx,<$).
+
 :- multifile user:goal_expansion/2.
 :- dynamic user:goal_expansion/2.
 

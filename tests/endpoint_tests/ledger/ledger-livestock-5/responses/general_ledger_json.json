@@ -5,7 +5,7 @@
       "account":"NationalAustraliaBank",
       "date":"2018-02-01",
       "exchanged":"vector([])",
-      "misc": {},
+      "misc": {"desc2":""},
       "report_currency_transacted_amount_converted_at_balance_date": [ {"credit":0, "debit":20000, "unit":"AUD"} ],
       "report_currency_transacted_amount_converted_at_transaction_date": [ {"credit":0, "debit":20000, "unit":"AUD"} ],
       "vector": [ {"credit":0, "debit":20000, "unit":"AUD"} ],

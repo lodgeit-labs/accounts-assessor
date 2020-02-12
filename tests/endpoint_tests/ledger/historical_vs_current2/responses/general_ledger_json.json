@@ -5,7 +5,7 @@
       "account":"CHF_Bank",
       "date":"2015-01-01",
       "exchanged":"vector([coord('Leonteq_N',10)])",
-      "misc": {},
+      "misc": {"desc2":""},
       "report_currency_transacted_amount_converted_at_balance_date": [ {"credit":100, "debit":0, "unit":"CHF"} ],
       "report_currency_transacted_amount_converted_at_transaction_date": [ {"credit":100, "debit":0, "unit":"CHF"} ],
       "vector": [ {"credit":100, "debit":0, "unit":"CHF"} ],
