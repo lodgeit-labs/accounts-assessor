@@ -199,6 +199,12 @@ rule, fact(HP, a, hp_arrangement), fact(HP, installments, X) \ fact(HP, installm
 rule, fact(HP, a, hp_arrangement), fact(HP, installments, Installments) ==> \+find_fact(Installments, a, list) | fact(Installments, a, list).
 rule, fact(HP, a, hp_arrangement), fact(HP, installments, Installments) ==> \+find_fact(Installments, element_type, hp_installment) | fact(Installments, element_type, hp_installment).
 
+% hp arrangements have a unique final balance
+rule, fact(HP, a, hp_arrangement) ==> \+find_fact2(HP1, final_balance, _, [HP1:HP]) | fact(HP, final_balance, _).
+rule, fact(HP, a, hp_arrangement), fact(HP, final_balance, X) \ fact(HP, final_balance, Y) <=> X = Y.
+
+
+
 
 % installments have a unique installment period
 rule, fact(Installment, a, hp_installment) ==> \+find_fact2(Installment1, installment_period, _, [Installment1:Installment]) | fact(Installment, installment_period, _).
@@ -283,6 +289,30 @@ rule, fact(Installment, a, hp_installment), fact(Installment, installment_period
 % end date of hp arrangement is the closing date of the last installment
 %rule, fact(HP, a, hp_arrangement), fact(HP, end_date, End_Date), fact(HP, installments, Installments), fact(Installments, last, Last_Cell), fact(Last_Cell, value, Last_Installment), fact(Last_Installment, closing_date, Closing_Date) ==> End_Date = Closing_Date.
 
+/*
+Formula for calculating installment closing balance directly from:
+* Cash price				P		
+* Repayment amount     		R		(per installment)
+* Interest rate	       		r   	(per installment period)
+* Installment index    		i
+
+P_i = P_0 * (1 + r)^i - R*((1 + r)^i - 1)/r
+
+reference: https://financeformulas.net/Remaining_Balance_Formula.html
+*/
+rule, fact(HP, a, hp_arrangement), fact(HP, installments, Installments), fact(Installment_Cell, list_in, Installments), fact(Installment_Cell, list_index, I), fact(Installment_Cell, value, Installment), fact(HP, cash_price, P0), fact(HP, interest_rate, IR), fact(HP, repayment_amount, R), fact(Installment, closing_balance, PI) ==> clpq({PI = P0*(1 + IR)^I - R*((1 + IR)^I - 1)/IR}).
+
+/*
+Formula for calculating repayment amount directly from:
+* Cash price				P
+* Interest rate				r		(per installment period)
+* Number of installments	N
+* Final balance				P_N
+
+R = (P_0 * (1 + r)^N - P_N) * (r / ((1 + r)^N - 1))
+*/
+rule, fact(HP, a, hp_arrangement), fact(HP, cash_price, P0), fact(HP, interest_rate, IR), fact(HP, final_balance, PN), fact(HP, number_of_installments, N), fact(HP, repayment_amount, R) ==> clpq({R = (P0 * (1 + IR)^N - PN)*(IR/((1 + IR)^N - 1))}).
+
 
 rule, fact(S, P, O) \ fact(S, P, O) <=> (P == closing_balance -> format("deduplicate: ~w ~w ~w~n", [S, P, O]) ; true).
 
@@ -290,33 +320,8 @@ rule <=> clpq.
 clpq \ clpq(Constraint) <=> call(Constraint).
 clpq, countdown(N, Done) <=> N > 0 | M is N - 1, format(user_error, "~ncountdown ~w~n~n", [M]), countdown(M, Done), rule.
 clpq, countdown(0, Done) <=>
-	format(user_error, "Done: facts = [~n", []),
-	findall(
-		_,
-		(
-			'$enumerate_constraints'(fact(S,P,O)),
-			/*
-			\+((
-				P \== closing_date,
-				P \== opening_date,
-				P \== list_index,
-				P \== value,
-				P \== installment_period,
-				P \== year,
-				P \== month,
-				P \== day,
-				( P \== a ; O \== date)
-			)),
-			((ground(O), O = (_ rdiv _))
-			-> O2 is float(O)
-			; O2 = O
-			),
-			*/
-			format(user_error, "fact(~w,~w,~w)~n", [S,P,O])
-		),
-		_
-	),
-	format(user_error, "]~n~n",[]), %fail,
+	format(user_error, "Done chase:~n", []),
+	dump_chr,
 	Done = done,
 	true.
 %next(0) <=> true.
