@@ -153,7 +153,7 @@ format_balances(Format, Report_Currency, Context, Name, Normal_Side, Balances_Ur
 	Xml = span(
 		$>append(
 			Text,
-			[a(href=Balances_Uri, [small('⍰')])])).
+			[$>link(Balances_Uri)])).
 
 
 

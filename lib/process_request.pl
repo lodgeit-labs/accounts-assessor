@@ -73,6 +73,8 @@ process_request2 :-
 	'make "all files" report entry',
 	collect_alerts(Alerts3),
 	make_alerts_report(Alerts3),
+	make_doc_dump_report,
+	'save doc into triplestore'
 	json_report_entries(Files3),
 
 	Json_Out = _{alerts:Alerts3, reports:Files3},
@@ -86,6 +88,15 @@ process_request2 :-
 'make "all files" report entry' :-
 	report_file_path(loc(file_name, ''), Tmp_Dir_Url, _),
 	add_report_file('all', 'all files', Tmp_Dir_Url).
+
+
+make_doc_dump_report :-
+	Fn = 'doc.n3',
+	save_doc(Fn, Url),
+	add_report_file(Fn, Fn, Url).
+
+'save doc into triplestore' :-
+
 
 json_report_entries(Files3) :-
 	findall(
@@ -136,7 +147,6 @@ make_alerts_report(Alerts) :-
 	add_report_page_with_body(alerts, [h3([alerts, ':']), div(Alerts_Html2)], loc(file_name,'alerts.html'), alerts_html).
 
 alert_html(Alert, div([Alert, br([]), br([])])).
-
 
 process_multifile_request(File_Paths) :-
 	debug(tmp_files, "process_multifile_request(~w)~n", [File_Paths]),
