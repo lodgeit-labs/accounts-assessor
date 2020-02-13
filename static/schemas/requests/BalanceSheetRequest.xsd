@@ -89,12 +89,12 @@
   <xs:complexType name="BSTransaction">
     <xs:sequence>
       <xs:element minOccurs="0" maxOccurs="1" name="transdesc" type="xs:string" />
-      <xs:element minOccurs="0" maxOccurs="1" name="transdesc2" type="xs:string" />
       <xs:element minOccurs="0" maxOccurs="1" name="transdate" type="xs:date" />
       <xs:element minOccurs="0" maxOccurs="1" name="debit" type="xs:decimal" />
       <xs:element minOccurs="0" maxOccurs="1" name="credit" type="xs:decimal" />
       <xs:element minOccurs="0" maxOccurs="1" name="unit" type="xs:integer" />
       <xs:element minOccurs="0" maxOccurs="1" name="unitType" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="transdesc2" type="xs:string" />
     </xs:sequence>
   </xs:complexType>
   <xs:complexType name="Accounts" mixed="true">
