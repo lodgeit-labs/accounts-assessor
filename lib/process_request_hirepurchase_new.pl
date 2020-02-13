@@ -1,21 +1,19 @@
 chase_kb(N/*, Done*/) :-
 	format(user_error, "Starting chase(~w)~n", [N]),
-	findall(
-		Fact,
-		'$enumerate_constraints'(Fact),
-		Facts
-	),
-	format("Facts: ~w~n", [Facts]),
 	start(N, _).
 	
 
 doc_get_attribute(S, P, O) :- (doc_value(S, P, O) -> true ; true).
 
 hp_doc_to_chr_basic :-
-	format(user_error,"hp_doc_to_chr_basic:~n",[]),
+	debug(hp_doc_to_chr_basic),
+
+	debug(hp_doc_to_chr_basic, "retrieving doc facts:...~n", []),
 	docm(l:request,hp_ui:hp_calculator_query,HP_Calculator_Query),
 	docm(HP_Calculator_Query,rdf:type,hp:hp_calculator_query),
 	doc_get_attribute(HP_Calculator_Query,hp:begin_date, HP_Begin_Date),
+	debug(hp_doc_to_chr_basic, "retrieved doc date: ~w~n", [HP_Begin_Date]),
+
 	docm(HP_Calculator_Query,hp:hp_contract, HP_Contract),
 	docm(HP_Contract, rdf:type, hp:hp_contract),
 	doc_get_attribute(HP_Contract, hp:cash_price, HP_Cash_Price),
@@ -26,14 +24,17 @@ hp_doc_to_chr_basic :-
 	doc_get_attribute(HP_Contract, hp:interest_rate, HP_Interest_Rate),
 	doc_get_attribute(HP_Contract, hp:number_of_installments, HP_Number_of_Installments),
 	doc_get_attribute(HP_Contract, hp:repayment_amount, HP_Repayment_Amount),
+	doc_get_attribute(HP_Contract, hp:final_balance, HP_Final_Balance),
 	hp_installments_to_chr_basic(HP_Installments, CHR_HP_Installments, Installments_Facts),
 
 
-
+	debug(hp_doc_to_chr_basic, "inserting chr facts:...~n", []),
 	fact(CHR_HP_Contract, a, hp_arrangement),
 
 	fact(CHR_HP_Contract, begin_date, CHR_HP_Begin_Date),
+	debug(hp_doc_to_chr_basic, "doc_date_to_chr_facts(~w, ~w),~n", [CHR_HP_Begin_Date, HP_Begin_Date]),
 	doc_date_to_chr_facts(CHR_HP_Begin_Date, HP_Begin_Date),
+	debug(hp_doc_to_chr_basic, "done inserting chr date facts:...~n", []),
 
 	fact(CHR_HP_Contract, cash_price, HP_Cash_Price),
 
@@ -52,11 +53,16 @@ hp_doc_to_chr_basic :-
 
 	fact(CHR_HP_Contract, repayment_amount, HP_Repayment_Amount),
 
+	fact(CHR_HP_Contract, final_balance, HP_Final_Balance),
+
+	debug(hp_doc_to_chr_basic, "done inserting chr facts:...~n", []),
+
 	dump_chr.
 
+% what to do in case of variable HP_Installments?
 hp_installments_to_chr_basic(rdf:nil, _, []) :- !.
-hp_installments_to_chr_basic(HP_Installments, _, []) :-
-	\+doc(HP_Installments, rdf:first, _).
+hp_installments_to_chr_basic(HP_Installments, _, []) :- var(HP_Installments), !.
+hp_installments_to_chr_basic(HP_Installments, _, []) :- \+doc(HP_Installments, rdf:first, _).
 hp_installments_to_chr_basic(HP_Installments, CHR_HP_Installments, [fact(CHR_HP_Installments, first, HP_Installments) | Installment_Facts]) :-
 	doc(HP_Installments, rdf:first, _),
 	hp_installments_to_chr_basic_helper(HP_Installments, Installment_Facts).
@@ -75,11 +81,8 @@ hp_installments_to_chr_basic_helper(Current_Item, Facts) :-
 	;	Rest_Facts = []
 	).
 
-doc_date_to_chr_facts(_CHR_Date, Doc_Date) :-
-	format(user_error, "doc date: ~w~n", [Doc_Date]),
-	Doc_Date = Date_Part^^Type_Part,
-	format(user_error, "date part: ~w~n", [Date_Part]),
-	format(user_error, "type part: ~w~n", [Type_Part]),
+doc_date_to_chr_facts(CHR_Date, Doc_Date) :-
+	Doc_Date = Date_Part^^_,
 	(
 		Date_Part = date_time(Year, Month, Day, Hour, Minute, Second)
 	->	fact(CHR_Date, year, Year),
@@ -91,7 +94,20 @@ doc_date_to_chr_facts(_CHR_Date, Doc_Date) :-
 	;	% unknown date format, don't translate.
 		true
 	).
+doc_date_to_chr_facts(CHR_Date, Doc_Date) :-
+	Doc_Date = date(Year, Month, Day),
+	fact(CHR_Date, year, Year),
+	fact(CHR_Date, month, Month),
+	fact(CHR_Date, day, Day).
 
+doc_date_to_chr_facts(CHR_Date, Doc_Date) :-
+	Doc_Date = date_time(Year, Month, Day, Hour, Minute, Second),
+	fact(CHR_Date, year, Year),
+	fact(CHR_Date, month, Month),
+	fact(CHR_Date, day, Day),
+	fact(CHR_Date, hour, Hour),
+	fact(CHR_Date, minute, Minute),
+	fact(CHR_Date, second, Second).
 
 dump_chr :-
 	format(user_error,"dump_chr:~n",[]),
@@ -99,13 +115,24 @@ dump_chr :-
 		_,
 		(
 			'$enumerate_constraints'(fact(S,P,O)),
-			format(user_error,"~w ~w ~w~n", [S,P,O])
+			maplist(rat_to_float, [S,P,O], [S1,P1,O1]),
+			format(user_error,"~w ~w ~w~n", [S1,P1,O1])
 		),
 		_
 	),
 	nl.
 
+rat_to_float(R, R) :- \+rational(R).
+rat_to_float(R, R) :- rational(R), integer(R).
+rat_to_float(R, F) :- rational(R), \+integer(R), F is float(R).
+
+
 hp_doc_from_chr_basic :-
+	debug(hp_doc_from_chr_basic),
+	debug(hp_chr_installments_to_doc_basic),
+	debug(chr_date_to_doc_facts),
+	debug(chr_get_attribute),
+	debug(hp_doc_from_chr_basic, "hp_doc_from_chr_basic: retrieving chr facts...~n", []),
 	find_fact3(CHR_HP_Contract1, a, hp_arrangement, [], Subs0),
 	get_sub(CHR_HP_Contract1, Subs0, HP_Contract),
 
@@ -136,7 +163,11 @@ hp_doc_from_chr_basic :-
 	find_fact3(CHR_HP_Contract1, repayment_amount, HP_Repayment_Amount1, Subs8, Subs9),
 	get_sub(HP_Repayment_Amount1, Subs9, HP_Repayment_Amount),
 
-	doc_add_safe(l:request,hp_ui:hp_calculator_query,HP_Calculator_Query),
+	find_fact3(CHR_HP_Contract1, final_balance, HP_Final_Balance1, Subs9, Subs10),
+	get_sub(HP_Final_Balance1, Subs10, HP_Final_Balance),
+
+	debug(hp_doc_from_chr_basic, "hp_doc_from_chr_facts: adding doc facts...~n", []),
+	doc_add_safe(l:response,hp_ui:hp_calculator_query,HP_Calculator_Query),
 	doc_add_safe(HP_Calculator_Query,rdf:type,hp:hp_calculator_query),
 	doc_add_safe(HP_Calculator_Query,hp:begin_date, HP_Begin_Date),
 	chr_date_to_doc_facts(CHR_HP_Begin_Date, HP_Begin_Date),
@@ -149,18 +180,28 @@ hp_doc_from_chr_basic :-
 	doc_add_value_safe(HP_Contract, hp:interest_rate, HP_Interest_Rate),
 	doc_add_value_safe(HP_Contract, hp:number_of_installments, HP_Number_of_Installments),
 	doc_add_value_safe(HP_Contract, hp:repayment_amount, HP_Repayment_Amount),
+	doc_add_value_safe(HP_Contract, hp:final_balance, HP_Final_Balance),
 
+	debug(hp_doc_from_chr_basic, "hp_doc_from_chr_basic: added everything but installments...~n", []),
 	doc_add_value_safe(HP_Contract, hp:hp_installments, HP_Installments),
-	hp_chr_installments_to_doc_basic(CHR_HP_Installments, HP_Installments).
+	find_fact3(CHR_HP_Installments1, first, X, [CHR_HP_Installments1:CHR_HP_Installments], Subs_Test),
+	get_sub(X, Subs_Test, X_Value),
+	X_Value = HP_Installments,
+	debug(hp_doc_from_chr_basic, "hp_doc_from_chr_basic: installments: ~w first ~w~n", [CHR_HP_Installments, X_Value]),
+	debug(hp_doc_from_chr_basic, "calling:hp_chr_installments_to_doc_basic(~w, ~w)~n", [CHR_HP_Installments, HP_Installments]),
+	hp_chr_installments_to_doc_basic(CHR_HP_Installments, HP_Installments),
+	debug(hp_doc_from_chr_basic, "hp_doc_from_chr_facts: done adding doc facts...~n", []).
 
 chr_date_to_doc_facts(CHR_Date, Doc_Date) :-
+	debug(chr_date_to_doc_facts, "chr_date_to_doc_facts(~w,~w)~n", [CHR_Date, Doc_Date]),
 	chr_get_attribute(CHR_Date, year, Year),
 	chr_get_attribute(CHR_Date, month, Month),
 	chr_get_attribute(CHR_Date, day, Day),
 	chr_get_attribute(CHR_Date, hour, Hour),
 	chr_get_attribute(CHR_Date, minute, Minute),
 	chr_get_attribute(CHR_Date, second, Second),
-	doc_add_safe(Doc_Date, rdf:value, date_time(Year, Month, Day, Hour, Minute, Second)^^'http://www.w3.org/2001/XMLSchema#dateTime').
+	maplist(chr_var_to_doc_bnode, [Year, Month, Day, Hour, Minute, Second], [Year1, Month1, Day1, Hour1, Minute1, Second1]),
+	doc_add_safe(Doc_Date, rdf:value, date_time(Year1, Month1, Day1, Hour1, Minute1, Second1)^^'http://www.w3.org/2001/XMLSchema#dateTime').
 
 doc_add_safe(S1,P1,O1) :-
 	maplist(chr_term_to_doc_term, [S1,P1,O1], [S2,P2,O2]),
@@ -199,26 +240,93 @@ chr_var_to_doc_bnode(Term, Term) :- nonvar(Term).
 chr_var_to_doc_bnode(Var, Bnode) :- var(Var), doc_new_uri(Bnode), Var = Bnode.
 
 hp_chr_installments_to_doc_basic(CHR_HP_Installments, _) :-
-	\+find_fact2(CHR_HP_Installments1, first, _, [CHR_HP_Installments1:CHR_HP_Installments]), !.
+	debug(hp_chr_installments_to_doc_basic, "hp_chr_installments_to_doc_basic: case 1...~n", []),
+	\+find_fact2(CHR_HP_Installments1, first, _, [CHR_HP_Installments1:CHR_HP_Installments]),
+	debug(hp_chr_installments_to_doc_basic, "hp_chr_installments_to_doc_basic: case 1 success~n", []),
+	!.
 
 hp_chr_installments_to_doc_basic(CHR_HP_Installments, HP_Installments) :-
+	debug(hp_chr_installments_to_doc_basic, "hp_chr_installments_to_doc_basic: case 2...~n", []),
 	find_fact2(CHR_HP_Installments1, first, HP_Installments, [CHR_HP_Installments1:CHR_HP_Installments]),
+	debug(hp_chr_installments_to_doc_basic, "hp_chr_installments_to_doc_basic: case 2 success~n", []),
 	hp_chr_installments_to_doc_basic_helper(HP_Installments).
 
 hp_chr_installments_to_doc_basic_helper(Current_Item) :-
 	(
-		find_fact2(Current_Item1, value, Value, [Current_Item1:Current_Item])
-	->	doc_add(Current_Item, rdf:first, Value)
+		find_fact3(Current_Item1, value, Value, [Current_Item1:Current_Item], Subs)
+	->	get_sub(Value, Subs, Installment),
+		doc_add_safe(Current_Item, rdf:first, Installment),
+		hp_chr_installment_to_doc_basic(Installment)
 	;	true
 	),
 	(
-		find_fact2(Current_Item1, next, Next_Item, [Current_Item1:Current_Item])
-	->	doc_add(Current_Item, rdf:rest, Next_Item),
+		find_fact3(Current_Item1, next, Next_Item, [Current_Item1:Current_Item], Subs2)
+	->	
+		get_sub(Next_Item, Subs2, Next_Item_Actual),
+		doc_add_safe(Current_Item, rdf:rest, Next_Item_Actual),
 		hp_chr_installments_to_doc_basic_helper(Next_Item)
 	;	true
 	).
 
-chr_get_attribute(S,P,O) :- (fact(S,P,O) -> true ; true).
+hp_chr_installment_to_doc_basic(Installment) :-
+	debug(hp_chr_installment_to_doc_basic),
+	debug(hp_chr_installment_to_doc_basic, "hp_chr_installment_to_doc_basic: retrieve chr facts...~n", []),
+	find_fact3(Installment1, opening_date, Opening_Date1, [Installment1:Installment], Subs1),
+	get_sub(Opening_Date1, Subs1, Opening_Date),
+
+	find_fact3(Installment1, opening_balance, Opening_Balance1, [Installment1:Installment], Subs2),
+	get_sub(Opening_Balance1, Subs2, Opening_Balance),
+
+	find_fact3(Installment1, closing_date, Closing_Date1, [Installment1:Installment], Subs3),
+	get_sub(Closing_Date1, Subs3, Closing_Date),
+	
+	find_fact3(Installment1, closing_balance, Closing_Balance1, [Installment1:Installment], Subs4),
+	get_sub(Closing_Balance1, Subs4, Closing_Balance),
+
+	find_fact3(Installment1, payment_amount, Payment_Amount1, [Installment1:Installment], Subs5),
+	get_sub(Payment_Amount1, Subs5, Payment_Amount),
+
+	find_fact3(Installment1, interest_rate, Interest_Rate1, [Installment1:Installment], Subs6),
+	get_sub(Interest_Rate1, Subs6, Interest_Rate),
+
+	find_fact3(Installment1, interest_amount, Interest_Amount1, [Installment1:Installment], Subs7),
+	get_sub(Interest_Amount1, Subs7, Interest_Amount),
+
+
+	debug(hp_chr_installment_to_doc_basic, "hp_chr_installment_to_doc_basic: put doc facts...~n", []),
+
+	debug(hp_chr_installment_to_doc_basic, "hp_chr_installment_to_doc_basic: opening date...~n", []),
+	doc_add_safe(Installment, hp_installment:opening_date, Opening_Date2),
+	
+	debug(hp_chr_installment_to_doc_basic, "hp_chr_installment_to_doc_basic: opening date... chr_date_to_doc_facts(~w, ~w)~n", [Opening_Date, Opening_Date2]),
+	chr_date_to_doc_facts(Opening_Date, Opening_Date2),
+
+	debug(hp_chr_installment_to_doc_basic, "hp_chr_installment_to_doc_basic: opening balance...~n", []),
+	doc_add_value_safe(Installment, hp_installment:opening_balance, Opening_Balance),
+
+	debug(hp_chr_installment_to_doc_basic, "hp_chr_installment_to_doc_basic: closing date...~n", []),
+	doc_add_safe(Installment, hp_installment:closing_date, Closing_Date2),
+	chr_date_to_doc_facts(Closing_Date, Closing_Date2),
+
+	debug(hp_chr_installment_to_doc_basic, "hp_chr_installment_to_doc_basic: closing balance...~n", []),
+	doc_add_value_safe(Installment, hp_installment:closing_balance, Closing_Balance),
+	doc_add_value_safe(Installment, hp_installment:payment_amount, Payment_Amount),
+	doc_add_value_safe(Installment, hp_installment:interest_rate, Interest_Rate),
+	doc_add_value_safe(Installment, hp_installment:interest_amount, Interest_Amount),
+
+	debug(hp_chr_installment_to_doc_basic, "hp_chr_installment_to_doc_basic: done...~n", []).
+
+
+chr_get_attribute(S,P,O) :-
+	debug(chr_get_attribute, "chr_get_attribute(~w,~w,~w)~n", [S,P,O]),
+	(
+		find_fact3(S1,P,O,[S1:S], Subs)
+	->	debug(chr_get_attribute, "chr_get_attribute: found attribute, subs=~w~n", [Subs]),
+		get_sub(O, Subs, O_Value),
+		O = O_Value
+	; 	debug(chr_get_attribute, "chr_get_attribute: no attribute...~n", []),
+		true
+	).
 
 dump_doc(Label) :-
 	format(user_error, "dump_doc: ~w~n", [Label]),
@@ -226,7 +334,8 @@ dump_doc(Label) :-
 		_,
 		(
 			docm(S,P,O),
-			format(user_error, "~w ~w ~w~n", [S,P,O])
+			maplist(rat_to_float, [S,P,O], [S1,P1,O1]),
+			format(user_error, "~w ~w ~w~n", [S1,P1,O1])
 		),
 		_
 	),
@@ -246,9 +355,10 @@ doc_prefix(excel, 'https://rdf.lodgeit.net.au/v1/excel#').
 doc_prefix(depr, 'https://rdf.lodgeit.net.au/v1/calcs/depr#').
 doc_prefix(ic, 'https://rdf.lodgeit.net.au/v1/calcs/ic#').
 doc_prefix(hp, 'https://rdf.lodgeit.net.au/v1/calcs/hp#').
+doc_prefix(hp_ui, 'https://rdf.lodgeit.net.au/v1/calcs/hp/ui#').
+doc_prefix(hp_installment, 'https://rdf.lodgeit.net.au/v1/calcs/hp/installment#').
 doc_prefix(depr_ui, 'https://rdf.lodgeit.net.au/v1/calcs/depr/ui#').
 doc_prefix(ic_ui, 'https://rdf.lodgeit.net.au/v1/calcs/ic/ui#').
-doc_prefix(hp_ui, 'https://rdf.lodgeit.net.au/v1/calcs/hp/ui#').
 doc_prefix(transactions, 'https://rdf.lodgeit.net.au/v1/transactions#').
 doc_prefix(s_transactions, 'https://rdf.lodgeit.net.au/v1/s_transactions#').
 doc_prefix(rdf, 'http://www.w3.org/1999/02/22-rdf-syntax-ns#').
@@ -261,7 +371,12 @@ doc_prefix(xsd, 'http://www.w3.org/2001/XMLSchema#').
 
 process_request_hirepurchase_new :-
 	%dump_doc("Before"),
+	debug(hp_main),
+	debug(hp_main, "hp_doc_to_chr_basic,~n", []),
 	hp_doc_to_chr_basic,
+	debug(hp_main, "chase_kb(20),~n", []),
 	chase_kb(20),
+	debug(hp_main, "hp_doc_from_chr_basic,~n", []),
 	hp_doc_from_chr_basic,
+	debug(hp_main, "dump_doc(\"After\").~n", []),
 	dump_doc("After").
