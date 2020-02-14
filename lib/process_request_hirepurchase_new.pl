@@ -128,10 +128,10 @@ rat_to_float(R, F) :- rational(R), \+integer(R), F is float(R).
 
 
 hp_doc_from_chr_basic :-
-	debug(hp_doc_from_chr_basic),
-	debug(hp_chr_installments_to_doc_basic),
-	debug(chr_date_to_doc_facts),
-	debug(chr_get_attribute),
+	%debug(hp_doc_from_chr_basic),
+	%debug(hp_chr_installments_to_doc_basic),
+	%debug(chr_date_to_doc_facts),
+	%debug(chr_get_attribute),
 	debug(hp_doc_from_chr_basic, "hp_doc_from_chr_basic: retrieving chr facts...~n", []),
 	find_fact3(CHR_HP_Contract1, a, hp_arrangement, [], Subs0),
 	get_sub(CHR_HP_Contract1, Subs0, HP_Contract),
@@ -269,7 +269,7 @@ hp_chr_installments_to_doc_basic_helper(Current_Item) :-
 	).
 
 hp_chr_installment_to_doc_basic(Installment) :-
-	debug(hp_chr_installment_to_doc_basic),
+	%debug(hp_chr_installment_to_doc_basic),
 	debug(hp_chr_installment_to_doc_basic, "hp_chr_installment_to_doc_basic: retrieve chr facts...~n", []),
 	find_fact3(Installment1, opening_date, Opening_Date1, [Installment1:Installment], Subs1),
 	get_sub(Opening_Date1, Subs1, Opening_Date),
@@ -367,7 +367,105 @@ doc_prefix(xml, 'http://www.w3.org/XML/1998/namespace#').
 doc_prefix(xsd, 'http://www.w3.org/2001/XMLSchema#').
 
 
+print_chr_hp_facts :-
+	format(user_error, "~n~n", []),
+	findall(
+		_,
+		(
+			'$enumerate_constraints'(fact(HP, a, hp_arrangement)),
+			print_chr_hp_facts(HP)
+		),
+		_
+	),
+	format(user_error, "~n", []).
 
+print_chr_hp_facts(HP) :-
+	format(user_error, "Printing HP facts for: ~w~n", [HP]),
+
+	chr_get_attribute(HP, begin_date, Begin_Date),
+	chr_date_to_term(Begin_Date, Begin_Date_Term),
+	format(user_error, "Begin date: ~w~n", [Begin_Date_Term]),
+
+	chr_get_attribute(HP, end_date, End_Date),
+	chr_date_to_term(End_Date, End_Date_Term),
+	format(user_error, "End date: ~w~n", [End_Date_Term]),
+
+	chr_get_attribute(HP, cash_price, Cash_Price),
+	rat_to_float(Cash_Price, Cash_Price_Float),
+	format(user_error, "Cash price: ~w~n", [Cash_Price_Float]),
+
+	chr_get_attribute(HP, interest_rate, Interest_Rate),
+	rat_to_float(Interest_Rate, Interest_Rate_Float),
+	format(user_error, "Interest rate: ~w~n", [Interest_Rate_Float]),
+
+	chr_get_attribute(HP, repayment_amount, Repayment_Amount),
+	rat_to_float(Repayment_Amount, Repayment_Amount_Float),
+	format(user_error, "Repayment amount: ~w~n", [Repayment_Amount_Float]),
+
+	chr_get_attribute(HP, final_balance, Final_Balance),
+	rat_to_float(Final_Balance, Final_Balance_Float),
+	format(user_error, "Final balance: ~w~n", [Final_Balance_Float]),
+
+	chr_get_attribute(HP, number_of_installments, Number_Of_Installments),
+	format(user_error, "Number of installments: ~w~n", [Number_Of_Installments]),
+
+
+	chr_get_attribute(HP, installments, Installments),
+	print_chr_installments(Installments),
+
+	format(user_error, "~n", []).
+
+print_chr_installments(Installments) :-
+	find_fact3(Installments1, first, First_Installment_Cell1, [Installments1:Installments], Subs),
+	get_sub(First_Installment_Cell1, Subs, First_Installment_Cell),
+	print_chr_installments_helper(First_Installment_Cell, 1).
+
+print_chr_installments_helper(Cell, N) :-
+	format(user_error, "~n", []),
+	format(user_error, "Installment ~w: ~w~n", [N, Cell]),
+
+
+	find_fact3(Cell1, value, Installment1, [Cell1:Cell], Subs),
+	get_sub(Installment1, Subs, Installment),
+
+	print_chr_installment(Installment),
+	(
+		find_fact3(Cell1, next, Next_Cell1, [Cell1:Cell], Subs2)
+	->	get_sub(Next_Cell1, Subs2, Next_Cell),
+		M is N + 1,
+		print_chr_installments_helper(Next_Cell, M)
+	;	true
+	).
+
+print_chr_installment(Installment) :-
+	chr_get_attribute(Installment, opening_date, Opening_Date),
+	chr_date_to_term(Opening_Date, Opening_Date_Term),
+	format(user_error, "Opening_Date: ~w~n", [Opening_Date_Term]),
+
+	chr_get_attribute(Installment, opening_balance, Opening_Balance),
+	rat_to_float(Opening_Balance, Opening_Balance_Float),
+	format(user_error, "Opening balance: ~w~n", [Opening_Balance_Float]),
+
+	chr_get_attribute(Installment, interest_amount, Interest_Amount),
+	rat_to_float(Interest_Amount, Interest_Amount_Float),
+	format(user_error, "Interest amount: ~w~n", [Interest_Amount_Float]),
+
+	chr_get_attribute(Installment, payment_amount, Payment_Amount),
+	rat_to_float(Payment_Amount, Payment_Amount_Float),
+	format(user_error, "Payment amount: ~w~n", [Payment_Amount_Float]),
+
+	chr_get_attribute(Installment, closing_date, Closing_Date),
+	chr_date_to_term(Closing_Date, Closing_Date_Term),
+	format(user_error, "Closing date: ~w~n", [Closing_Date_Term]),
+
+	chr_get_attribute(Installment, closing_balance, Closing_Balance),
+	rat_to_float(Closing_Balance, Closing_Balance_Float),
+	format(user_error, "Closing balance: ~w~n", [Closing_Balance_Float]).
+
+chr_date_to_term(Date, date(Year, Month, Day)) :-
+	chr_get_attribute(Date, year, Year),
+	chr_get_attribute(Date, month, Month),
+	chr_get_attribute(Date, day, Day).
 
 process_request_hirepurchase_new :-
 	%dump_doc("Before"),
@@ -375,7 +473,8 @@ process_request_hirepurchase_new :-
 	debug(hp_main, "hp_doc_to_chr_basic,~n", []),
 	hp_doc_to_chr_basic,
 	debug(hp_main, "chase_kb(20),~n", []),
-	chase_kb(20),
+	chase_kb(40),
+	print_chr_hp_facts,
 	debug(hp_main, "hp_doc_from_chr_basic,~n", []),
 	hp_doc_from_chr_basic,
 	debug(hp_main, "dump_doc(\"After\").~n", []),
