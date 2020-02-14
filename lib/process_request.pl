@@ -74,7 +74,6 @@ process_request2 :-
 	collect_alerts(Alerts3),
 	make_alerts_report(Alerts3),
 	make_doc_dump_report,
-	'save doc into triplestore'
 	json_report_entries(Files3),
 
 	Json_Out = _{alerts:Alerts3, reports:Files3},
@@ -94,8 +93,6 @@ make_doc_dump_report :-
 	Fn = 'doc.n3',
 	save_doc(Fn, Url),
 	add_report_file(Fn, Fn, Url).
-
-'save doc into triplestore' :-
 
 
 json_report_entries(Files3) :-
