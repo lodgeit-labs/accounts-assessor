@@ -1,59 +1,39 @@
 @prefix : <https://rdf.lodgeit.net.au/meta#> .
 
-:aa
+code:laa
 	rdf:label "Accounts Assessor";
 	rdf:comment "This repository hosts a program that derives, validates, and corrects the financial information that it is given. The program uses redundancy to carry out its validations and corrections. By this it is meant that knowledge of parts of a company's financial data imposes certain constraints on the company's other financial data. If the program is given a company's ledger, then it knows what the balance sheet should look like. If the program is given a company's balance sheet, then it has a rough idea of what the ledger should look like.";
-	documentation """
+	:has <https://www.dropbox.com/sh/prgubjzoo9zpkhp/AACd6YmoWxf9IUi5CriihKlLa?dl=0>;
+	:has <https://www.dropbox.com/sh/o5ck3qm79zwgpc5/AABD9jUcWiNpWMb2fxsmeVfia?dl=0>;
+	:has <https://github.com/LodgeiT/labs-accounts-assessor/wiki/>;
+	:has <https://github.com/LodgeiT/labs-accounts-assessor/tree/master/doc>;
 
-videos:
-https://www.dropbox.com/sh/prgubjzoo9zpkhp/AACd6YmoWxf9IUi5CriihKlLa?dl=0
-https://www.dropbox.com/sh/o5ck3qm79zwgpc5/AABD9jUcWiNpWMb2fxsmeVfia?dl=0
-
-wiki:
-https://github.com/LodgeiT/labs-accounts-assessor/wiki/
-
-doc/:
-https://github.com/LodgeiT/labs-accounts-assessor/tree/master/doc
-
-""".
-
-## Getting Started
-Fetch submodules:
-* `git submodule update --init`
-
-Install SWIPL 8.1.14
-* http://www.swi-prolog.org/Download.html
-
-Install SWIPL dependencies:
-* ```lib/init.sh```
-
-How to run it:
-* run the internal services server:
-** `cd python_server; ./run.sh`
-* run the frontend server:
-** `cd frontend_servery; ./run.sh  0.0.0.0:8080`
-
+	:has_info [
+		:title "Getting Started"
+		:contents """currently tested on swipl 8.1.21 ( http://www.swi-prolog.org/Download.html )""";
+		:contents """currently tested on python 3.8""";
+		:contents [:title "install dependencies"; :contents "./init.sh"];
+		:contents [:title "run it"; :contents """./run.sh"];
+		:contents
+"""
 Run the tests:
 `cd server_root; reset;echo -e "\e[3J";   swipl -s ../lib/dev_runner.pl   --problem_lines_whitelist=../misc/problem_lines_whitelist  --script ../lib/endpoint_tests.pl  -g "set_flag(overwrite_response_files, false), set_flag(add_missing_response_files, false), set_prolog_flag(grouped_assertions,true), run_tests"`
 
 Run one testcase:
 `reset;echo -e "\e[3J";   swipl -s ../lib/dev_runner.pl   --problem_lines_whitelist=../misc/problem_lines_whitelist  --script ../lib/endpoint_tests.pl  -g "/*debug(endpoint_tests),*/ set_flag(overwrite_response_files, false), set_flag(add_missing_response_files, true), set_prolog_flag(grouped_assertions,false), set_prolog_flag(testcase,(ledger,'endpoint_tests/ledger/ledger--with-schemaref')), run_tests(endpoints:testcase)"`
 
-Run a single xml request:
-`../lib/cli_process_request_xml.py  --problem_lines_whitelist problem_lines_whitelist -c true ../lib/debug1.pl tests/endpoint_tests/ledger/ledger-livestock-0/request.xml`
-
 Run a single testcase:
 `swipl -s ../lib/endpoint_tests.pl -g "set_prolog_flag(grouped_assertions,true),setup,run_endpoint_test(ledger, 'endpoint_tests/ledger/ledger-livestock-5')."`
 
-Run the server:
-`swipl -s ../lib/run_simple_server.pl`
+Run a single xml request:
+`../lib/cli_process_request_xml.py  --problem_lines_whitelist problem_lines_whitelist -c true ../lib/debug1.pl tests/endpoint_tests/ledger/ledger-livestock-0/request.xml`
 
-Run the daemon:
-`../lib/update_demo-fast.sh`
-
-Open a web browser at: http://localhost:8080/
+Open a web browser at: http://localhost:7778/
 * upload a request.xml file from tests/endpoint_tests/
 * you should get back a json with links to individual report files
+"""
+
+
 
 ## Directory Structure
 
