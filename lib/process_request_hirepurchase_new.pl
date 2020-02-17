@@ -129,7 +129,7 @@ rat_to_float(R, F) :- rational(R), \+integer(R), F is float(R).
 
 hp_doc_from_chr_basic :-
 	%debug(hp_doc_from_chr_basic),
-	%debug(hp_chr_installments_to_doc_basic),
+	debug(hp_chr_installments_to_doc_basic),
 	%debug(chr_date_to_doc_facts),
 	%debug(chr_get_attribute),
 	debug(hp_doc_from_chr_basic, "hp_doc_from_chr_basic: retrieving chr facts...~n", []),
@@ -252,6 +252,7 @@ hp_chr_installments_to_doc_basic(CHR_HP_Installments, HP_Installments) :-
 	hp_chr_installments_to_doc_basic_helper(HP_Installments).
 
 hp_chr_installments_to_doc_basic_helper(Current_Item) :-
+	format(user_error, "hp_chr_installments_to_doc_basic_helper(~w)~n", [Current_Item]),
 	(
 		find_fact3(Current_Item1, value, Value, [Current_Item1:Current_Item], Subs)
 	->	get_sub(Value, Subs, Installment),
@@ -263,9 +264,10 @@ hp_chr_installments_to_doc_basic_helper(Current_Item) :-
 		find_fact3(Current_Item1, next, Next_Item, [Current_Item1:Current_Item], Subs2)
 	->	
 		get_sub(Next_Item, Subs2, Next_Item_Actual),
+		format(user_error, "~w has next item ~w~n", [Current_Item, Next_Item_Actual]), 
 		doc_add_safe(Current_Item, rdf:rest, Next_Item_Actual),
-		hp_chr_installments_to_doc_basic_helper(Next_Item)
-	;	true
+		hp_chr_installments_to_doc_basic_helper(Next_Item_Actual)
+	;	format(user_error, "~w has no next item.~n", [Current_Item])
 	).
 
 hp_chr_installment_to_doc_basic(Installment) :-
