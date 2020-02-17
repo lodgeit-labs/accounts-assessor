@@ -323,7 +323,19 @@ rule, fact(HP, a, hp_arrangement), fact(HP, cash_price, P0), fact(HP, interest_r
 rule, fact(S, P, O) \ fact(S, P, O) <=> (P == closing_balance -> format("deduplicate: ~w ~w ~w~n", [S, P, O]) ; true).
 
 rule <=> clpq.
-clpq \ clpq(Constraint) <=> (call(Constraint) -> (true, old_clpq(Constraint)) ; (format(user_error, "Error: failed to apply constraint `~w`~n", [Constraint]), constraint_to_float(Constraint, Float_Constraint), format(user_error, "as float: `~w`~n", [Float_Constraint]), print_constraints, fail)).
+
+clpq \ clpq(Constraint) <=> (
+		call(Constraint)
+	->	(true, old_clpq(Constraint))
+	;	(
+			format(user_error, "Error: failed to apply constraint `~w`~n", [Constraint]),
+			constraint_to_float(Constraint, Float_Constraint),
+			format(user_error, "as float: `~w`~n", [Float_Constraint]),
+			print_constraints,
+			fail
+		)
+	).
+
 clpq, countdown(N, Done) <=> N > 0 | M is N - 1, format(user_error, "~ncountdown ~w~n~n", [M]), countdown(M, Done), rule.
 clpq, countdown(0, Done) <=>
 	format(user_error, "Done chase:~n", []),
