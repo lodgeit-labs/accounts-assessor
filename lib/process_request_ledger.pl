@@ -1,15 +1,25 @@
 process_request_ledger(File_Path, Dom) :-
 	inner_xml(Dom, //reports/balanceSheetRequest, _),
 	validate_xml2(File_Path, 'bases/Reports.xsd'),
-	extract_start_and_end_date(Dom, Start_Date, End_Date),
-	extract_bank_accounts(Dom),
-	extract_bank_opening_balances(Bank_Lump_STs),
-	handle_additional_files(S_Transactions0),
-	extract_s_transactions(Dom, S_Transactions1),
-	flatten([Bank_Lump_STs, S_Transactions0, S_Transactions1], S_Transactions2),
-	sort_s_transactions(S_Transactions2, S_Transactions),
-	process_request_ledger2((Dom, Start_Date, End_Date), S_Transactions, _).
-	%process_request_ledger_debug((Dom, Start_Date, End_Date), S_Transactions).
+	extract_s_transactions0(Dom, S_Transactions),
+	process_request_ledger2(Dom, S_Transactions, _, Transactions),
+	%process_request_ledger_debug(Dom, S_Transactions).
+	gl_doc_eq_json(Transactions, Transactions_Json),
+	doc_init,
+	gl_doc_eq_json(Transactions2, Transactions_Json),
+	process_request_ledger2(Dom, S_Transactions2, _, Transactions2),
+	assertion(eq(S_Transactions, S_Transactions2)).
+
+
+gl_json :-
+	maplist(transaction_to_dict, Transactions, T0),
+
+
+/*
+
+	a little debugging facitliy that tries processing s_transactions one by one until it runs into an error
+
+*/
 
 process_request_ledger_debug(Data, S_Transactions0) :-
 	findall(Count, ggg(Data, S_Transactions0, Count), Counts), writeq(Counts).
@@ -19,13 +29,20 @@ ggg(Data, S_Transactions0, Count) :-
 	between(100, $>length(S_Transactions0), Count),
 	take(S_Transactions0, Count, STs),
 	format(user_error, '~q: ~q ~n ~n', [Count, $>last(STs)]),
-	once(process_request_ledger2(Data, STs, Structured_Reports)),
+	once(process_request_ledger2(Data, STs, Structured_Reports, _)),
 	length(Structured_Reports.crosschecks.errors, L),
 	(	L \= 2
 	->	true
 	;	(gtrace,format(user_error, '~q: ~q ~n', [Count, Structured_Reports.crosschecks.errors]))).
 
-process_request_ledger2((Dom, Start_Date, End_Date), S_Transactions, Structured_Reports) :-
+
+
+
+
+
+
+process_request_ledger2(Dom, S_Transactions, Structured_Reports, Transactions) :-
+	extract_start_and_end_date(Dom, Start_Date, End_Date),
 	extract_output_dimensional_facts(Dom, Output_Dimensional_Facts),
 
 	extract_cost_or_market(Dom, Cost_Or_Market),
@@ -34,12 +51,13 @@ process_request_ledger2((Dom, Start_Date, End_Date), S_Transactions, Structured_
 	extract_action_verbs_from_bs_request(Dom),
 	extract_account_hierarchy_from_request_dom(Dom, Accounts0),
 	extract_livestock_data_from_ledger_request(Dom),
+
 	/* Start_Date, End_Date to substitute of "opening", "closing" */
 	extract_exchange_rates(Dom, Start_Date, End_Date, Report_Currency, Exchange_Rates0),
+
 	(	Cost_Or_Market = cost
 	->	filter_out_market_values(S_Transactions, Exchange_Rates0, Exchange_Rates)
 	;	Exchange_Rates0 = Exchange_Rates),
-	/* Start_Date_Atom in case of missing Date */
 
 	extract_invoices_payable(Dom),
 	extract_initial_gl(Initial_Txs),
@@ -318,13 +336,13 @@ extract_bank_account(Account) :-
 	->	doc_add_value(Uri, l:opening_balance, Opening_Balance)
 	;	true).
 
-extract_bank_opening_balances(Txs) :-
+generate_bank_opening_balances_sts(Txs) :-
 	request(R),
 	findall(Bank_Account, docm(R, l:bank_account, Bank_Account), Bank_Accounts),
-	maplist(extract_bank_opening_balances2, Bank_Accounts, Txs0),
+	maplist(generate_bank_opening_balances_sts2, Bank_Accounts, Txs0),
 	exclude(var, Txs0, Txs).
 
-extract_bank_opening_balances2(Bank_Account, Tx) :-
+generate_bank_opening_balances_sts2(Bank_Account, Tx) :-
 	(	doc_value(Bank_Account, l:opening_balance, Opening_Balance)
 	->	(
 			request_has_property(l:start_date, Start_Date),
@@ -372,3 +390,17 @@ extract_initial_gl_tx(Default_Currency, Item, Tx) :-
 	append(Debit_Vector, Credit_Vector, Vector),
 	make_transaction(initial_GL, Date, Description, Account, Vector, Tx).
 
+extract_s_transactions0(Dom, S_Transactions) :-
+	extract_bank_accounts(Dom),
+	generate_bank_opening_balances_sts(Bank_Lump_STs),
+	handle_additional_files(S_Transactions0),
+	extract_s_transactions(Dom, S_Transactions1),
+	flatten([Bank_Lump_STs, S_Transactions0, S_Transactions1], S_Transactions2),
+	sort_s_transactions(S_Transactions2, S_Transactions).
+
+
+/*
+:- comment(Structured_Reports:
+	the idea is that the dicts containing the high-level, semantic information of all reports would be passed all the way up, and we'd have some test runner making use of that / generating a lot of permutations of requests and checking the results computationally, in addition to endpoint_tests checking report files against saved versions.
+Not sure if/when we want to work on that.
+*/
