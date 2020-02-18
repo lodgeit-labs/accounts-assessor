@@ -1,3 +1,44 @@
+/*
+
+todo:
+
+debug
+    This option enables or disables the possibility to debug the CHR code. Possible values are on (default) and off. See section 9.4 for more details on debugging. The default is derived from the Prolog flag generate_debug_info, which is true by default. See -nodebug. If debugging is enabled, optimization must be disabled.
+
+
+
+generate_debug_info(bool, changeable)
+    If true (default) generate code that can be debugged using trace/0, spy/1, etc. Can be set to false using the -nodebug. This flag is scoped within a source file. Many of the libraries have :- set_prolog_flag(generate_debug_info, false) to hide their details from a normal trace.20
+
+swipl --nodebug
+anyway, :- set_prolog_flag(generate_debug_info, false)
+
+
+
+
+    --pldoc[=port]           Start PlDoc server [at port]
+
+    --home=DIR               Use DIR as SWI-Prolog home
+
+    --dump-runtime-variables[=format]
+                        Dump link info in sh(1) format
+
+
+
+editor(atom, changeable)
+    Determines the editor used by edit/1. See section 4.4.1 for details on selecting the editor used.
+
+
+backtrace_goal_depth(integer, changeable)
+    The frame of a backtrace is printed after making a shallow copy of the goal. This flag determines the depth to which the goal term is copied. Default is `3'.
+
+
+xref(bool, changeable)
+    If true, source code is being read for analysis purposes such as cross-referencing. Otherwise (default) it is being read to be compiled. This flag is used at several places by term_expansion/2 and goal_expansion/2 hooks, notably if these hooks use side effects. See also the libraries library(prolog_source) and library(prolog_xref).
+
+    */
+
+
 :- use_module(library(archive)).
 :- use_module(library(sgml)).
 :- use_module(library(semweb/turtle)).
@@ -73,6 +114,7 @@ process_request2 :-
 	'make "all files" report entry',
 	collect_alerts(Alerts3),
 	make_alerts_report(Alerts3),
+	make_doc_dump_report,
 	json_report_entries(Files3),
 
 	Json_Out = _{alerts:Alerts3, reports:Files3},
@@ -86,6 +128,13 @@ process_request2 :-
 'make "all files" report entry' :-
 	report_file_path(loc(file_name, ''), Tmp_Dir_Url, _),
 	add_report_file('all', 'all files', Tmp_Dir_Url).
+
+
+make_doc_dump_report :-
+	Fn = 'doc.n3',
+	save_doc(Fn, Url),
+	add_report_file(Fn, Fn, Url).
+
 
 json_report_entries(Files3) :-
 	findall(
@@ -136,7 +185,6 @@ make_alerts_report(Alerts) :-
 	add_report_page_with_body(alerts, [h3([alerts, ':']), div(Alerts_Html2)], loc(file_name,'alerts.html'), alerts_html).
 
 alert_html(Alert, div([Alert, br([]), br([])])).
-
 
 process_multifile_request(File_Paths) :-
 	debug(tmp_files, "process_multifile_request(~w)~n", [File_Paths]),

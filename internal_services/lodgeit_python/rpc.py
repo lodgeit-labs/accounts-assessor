@@ -1,8 +1,28 @@
-from json import JSONDecoder
 from modernrpc.core import rpc_method
-import fractions
+
+from json import JSONDecoder
 from django.core.serializers.json import DjangoJSONEncoder
-#from django.core.serializers.json import Des
+
+import fractions
+import os
+from franz.openrdf.connect import ag_connect
+
+"""
+
+curl -X POST  -d '{"jsonrpc":"2.0","id":"curltext","method":"agraph_sparql","params":{"sparql":"clear graphs"}}' -H 'content-type:application/json;' http://localhost:17778/rpc/
+
+"""
+
+
+@rpc_method
+def agraph_sparql(sparql):
+	c = ag_connect('a', host='localhost', port='10035', user=os.environ['AGRAPH_USER'],
+				   password=os.environ['AGRAPH_PASS'])
+
+
+
+	return str(c)
+
 
 @rpc_method
 def add(a, b):
@@ -28,21 +48,13 @@ class MyJSONDecoder(JSONDecoder):
 		return dct
 
 	def __init__(s):
-		super().__init__(object_hook=hook)
+		super().__init__(object_hook=MyJSONDecoder.hook)
 
 class MyDjangoJSONEncoder(DjangoJSONEncoder):
 	pass
 
 
 
-
-
-
-
-
-
-
 #def ok(value):
 #	value2 = json.dumps(value)
 #	return JsonResponse({'status': 'ok', 'result': value2})
-

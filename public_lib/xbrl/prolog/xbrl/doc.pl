@@ -459,6 +459,14 @@ save_doc(/*-*/Fn, /*+*/Url) :-
 	rdf_save_turtle(Path, [sorted(true), base(Url_Value), canonize_numbers(true), abbreviate_literals(false), prefixes([rdf,rdfs,xsd,l,livestock])]),
 	rdf_retractall(_,_,_,/*fixme*/_Rdf_Graph).
 
+/*
+'save doc into triplestore' :-
+	Fn = 'doc.nq',
+	save_doc(Fn, Url, nq),
+	rpc(_{agraph_upload
+*/
+
+
 doc_from_rdf(Rdf_Graph) :-
 	findall((X,Y,Z),
 		rdf(X,Y,Z,Rdf_Graph),

@@ -1,3 +1,6 @@
+# todo check out http://docs.celeryproject.org/en/latest/userguide/daemonizing.html#supervisor http://supervisord.org/
+# this config file is for a "service manager" program that isn't available publicly yet
+
 ---
 demo7778:
    defaults:

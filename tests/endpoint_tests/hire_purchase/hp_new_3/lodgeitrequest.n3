@@ -710,7 +710,7 @@ l:request
             hp:hp_contract [
                     a hp:hp_contract ;
                     hp:cash_price [
-                            rdf:value 321321.27
+                            rdf:value 5953.20
                      ] ;
                     hp:contract_number [
                             rdf:value "xxxx"^^xsd:string
@@ -722,13 +722,14 @@ l:request
                             rdf:value hp:hp_contract_payment_type_advance
                      ] ;
                     hp:hp_installments [
+                            rdf:value () ;
                             excel:template hp_ui:hp_installments
                      ] ;
                     hp:interest_rate [
-                            rdf:value 5
+                            rdf:value 0.13
                      ] ;
                     hp:number_of_installments [
-                            rdf:value 30
+                            rdf:value 36
                      ] ;
 					hp:final_balance [
 							rdf:value 5.11

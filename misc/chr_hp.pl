@@ -2,7 +2,7 @@
 :- use_module(library(clpq)).
 :- use_module(library(clpfd)).
 
-:- chr_constraint fact/3, rule/0, start/2, clpq/1, clpq/0, countdown/2, next/1.
+:- chr_constraint fact/3, rule/0, start/2, clpq/1, clpq/0, countdown/2, next/1, old_clpq/1.
 
 
 % same as =/2 in terms of what arguments it succeeds with but doesn't actually unify
@@ -199,6 +199,12 @@ rule, fact(HP, a, hp_arrangement), fact(HP, installments, X) \ fact(HP, installm
 rule, fact(HP, a, hp_arrangement), fact(HP, installments, Installments) ==> \+find_fact(Installments, a, list) | fact(Installments, a, list).
 rule, fact(HP, a, hp_arrangement), fact(HP, installments, Installments) ==> \+find_fact(Installments, element_type, hp_installment) | fact(Installments, element_type, hp_installment).
 
+% hp arrangements have a unique final balance
+rule, fact(HP, a, hp_arrangement) ==> \+find_fact2(HP1, final_balance, _, [HP1:HP]) | fact(HP, final_balance, _).
+rule, fact(HP, a, hp_arrangement), fact(HP, final_balance, X) \ fact(HP, final_balance, Y) <=> X = Y.
+
+
+
 
 % installments have a unique installment period
 rule, fact(Installment, a, hp_installment) ==> \+find_fact2(Installment1, installment_period, _, [Installment1:Installment]) | fact(Installment, installment_period, _).
@@ -252,7 +258,7 @@ rule, fact(HP, a, hp_arrangement), fact(Installment, hp_arrangement, HP), fact(H
 rule, fact(HP, a, hp_arrangement), fact(Installment, hp_arrangement, HP), fact(HP, interest_rate, Interest_Rate), fact(Installment, interest_rate, Installment_Interest_Rate) ==> Interest_Rate = Installment_Interest_Rate.
 
 % interest amount for each installment is the interest rate of the installment times the opening balance of the installment
-rule, fact(Installment, a, hp_installment), fact(Installment, opening_balance, Opening_Balance), fact(Installment, interest_rate, Interest_Rate), fact(Installment, interest_amount, Interest_Amount) ==> clpq({Interest_Amount = Opening_Balance*Interest_Rate}).
+rule, fact(Installment, a, hp_installment), fact(Installment, opening_balance, Opening_Balance), fact(Installment, interest_rate, Interest_Rate), fact(Installment, interest_amount, Interest_Amount) ==> clpq({Interest_Amount = Opening_Balance*(Interest_Rate/12)}).
 
 % closing balance of each installment is opening balance + interest amount - payment amount
 rule, fact(Installment, a, hp_installment), fact(Installment, opening_balance, Opening_Balance), fact(Installment, payment_amount, Payment_Amount), fact(Installment, interest_amount, Interest_Amount), fact(Installment, closing_balance, Closing_Balance) ==> clpq({Closing_Balance = Opening_Balance + Interest_Amount - Payment_Amount}).
@@ -260,63 +266,80 @@ rule, fact(Installment, a, hp_installment), fact(Installment, opening_balance, O
 % opening balance of the next installment is the closing balance of the current installment (by extension, closing balance of the previous installment is opening balance of current installment)
 rule, fact(HP, a, hp_arrangement), fact(HP, installments, Installments), fact(Cell, list_in, Installments), fact(Cell, value, Installment), fact(Installment, closing_balance, Closing_Balance), fact(Cell, next, Next_Cell), fact(Next_Cell, value, Next_Installment), fact(Next_Installment, opening_balance, Opening_Balance) ==> Closing_Balance = Opening_Balance.
 
-% 
+% if closing balance is greater than or equal to repayment amount, there should be another installment after it
 rule, fact(HP, a, hp_arrangement), fact(HP, repayment_amount, Repayment_Amount), fact(HP, installments, Installments), fact(Installment_Cell, list_in, Installments), fact(Installment_Cell, value, Installment), fact(Installment, closing_balance, Closing_Balance) ==> nonvar(Closing_Balance), nonvar(Repayment_Amount), Closing_Balance >= Repayment_Amount, \+find_fact2(Installment_Cell1, next, _, [Installment_Cell1:Installment_Cell]) | fact(Installment_Cell, next, _).
 
-% 
+% if opening_balance is less than the opening_balance, there should be another installment before it
 rule, fact(HP, a, hp_arrangement), fact(HP, cash_price, Cash_Price), fact(HP, installments, Installments), fact(Installment_Cell, list_in, Installments), fact(Installment_Cell, value, Installment), fact(Installment, opening_balance, Opening_Balance) ==> nonvar(Cash_Price), nonvar(Opening_Balance), Opening_Balance < Cash_Price, \+find_fact2(Installment_Cell1, prev, _, [Installment_Cell1:Installment_Cell]) | fact(Installment_Cell, prev, _). 
 
-/*
-% begin date of hp arrangement is the opening date of the first installment
-rule, fact(HP, a, hp_arrangement), fact(HP, begin_date, Begin_Date), fact(HP, installments, Installments), fact(Installments, first, First_Cell), fact(First_Cell, value, First_Installment), fact(First_Installment, installment_period, Installment_Period), fact(Begin_Date, year, Begin_Year), fact(Begin_Date, month, Begin_Month), fact(Installment_Period, year, Installment_Year), fact(Installment_Period, month, Installment_Month) ==> Begin_Year = Installment_Year, Begin_Month = Installment_Month.
-
-rule, fact(HP, a, hp_arrangement), fact(HP, installments, Installments), fact(Installment_Cell, list_in, Installments), fact(Installment_Cell, next, Next_Installment_Cell), fact(Installment_Cell, value, Installment), fact(Installment, installment_period, Installment_Period), fact(Installment_Period, year, Installment_Year), fact(Installment_Period, month, Installment_Month), fact(Next_Installment_Cell, value, Next_Installment), fact(Next_Installment, installment_period, Next_Installment_Period), fact(Next_Installment_Period, year, Next_Installment_Year), fact(Next_Installment_Period, month, Next_Installment_Month) ==> 
-*/
+% get the month and year for a given monthly installment by its index in the installments list
 rule, fact(HP, a, hp_arrangement), fact(HP, begin_date, Begin_Date), fact(Begin_Date, year, Begin_Year), fact(Begin_Date, month, Begin_Month), fact(HP, installments, Installments), fact(Installment_Cell, list_in, Installments), fact(Installment_Cell, list_index, Installment_Number), fact(Installment_Cell, value, Installment), fact(Installment, installment_period, Installment_Period), fact(Installment_Period, year, Installment_Year), fact(Installment_Period, month, Installment_Month) ==> clpq(N #= (Installment_Number - 1)), clpq(V #= (Begin_Month + N)), clpq(Installment_Year #= Begin_Year +((V - 1) // 12)), clpq(Installment_Month #= (((V - 1) rem 12) + 1)).
 
+% assumes opening date is the first day of the installment month, for monthly
 rule, fact(Installment, a, hp_installment), fact(Installment, installment_period, Installment_Period), fact(Installment_Period, year, Installment_Year), fact(Installment_Period, month, Installment_Month), fact(Installment, opening_date, Opening_Date), fact(Opening_Date, year, Opening_Year), fact(Opening_Date, month, Opening_Month), fact(Opening_Date, day, Opening_Day) ==> Opening_Year = Installment_Year, Opening_Month = Installment_Month, Opening_Day = 1.
+
 
 rule, fact(Installment, a, hp_installment), fact(Installment, installment_period, Installment_Period), fact(Installment_Period, year, Installment_Year), fact(Installment_Period, month, Installment_Month), fact(Installment, closing_date, Closing_Date), fact(Closing_Date, year, Closing_Year), fact(Closing_Date, month, Closing_Month) ==> Closing_Year = Installment_Year, Closing_Month = Installment_Month.
 
+% assumes closing date is the last day of the installment month, for monthly
 rule, fact(Installment, a, hp_installment), fact(Installment, installment_period, Installment_Period), fact(Installment_Period, year, Installment_Year), fact(Installment_Period, month, Installment_Month), fact(Installment, closing_date, Closing_Date), fact(Closing_Date, day, Closing_Day) ==> nonvar(Installment_Year), nonvar(Installment_Month) | month_length(Installment_Year, Installment_Month, Closing_Day).
 
 % end date of hp arrangement is the closing date of the last installment
-%rule, fact(HP, a, hp_arrangement), fact(HP, end_date, End_Date), fact(HP, installments, Installments), fact(Installments, last, Last_Cell), fact(Last_Cell, value, Last_Installment), fact(Last_Installment, closing_date, Closing_Date) ==> End_Date = Closing_Date.
+rule, fact(HP, a, hp_arrangement), fact(HP, end_date, End_Date), fact(HP, installments, Installments), fact(Installments, last, Last_Cell), fact(Last_Cell, value, Last_Installment), fact(Last_Installment, closing_date, Closing_Date) ==> End_Date = Closing_Date.
+
+% number of installments of the hp arrangement is the index of the last installment
+rule, fact(HP, a, hp_arrangement), fact(HP, number_of_installments, Number_Of_Installments), fact(HP, installments, Installments), fact(Installments, last, Last_Installment), fact(Last_Installment, list_index, Last_Index) ==> Number_Of_Installments = Last_Index.
+
+% if the index of an installment is the same as the number of installments, then it's the last installment
+rule, fact(HP, a, hp_arrangement), fact(HP, number_of_installments, Number_Of_Installments), fact(HP, installments, Installments), fact(Installment, list_in, Installments), fact(Installment, list_index, Number_Of_Installments) ==> fact(Installments, last, Installment).
+
+/*
+Formula for calculating installment closing balance directly from:
+* Cash price				P		
+* Repayment amount     		R		(per installment)
+* Interest rate	       		r   	(per installment period)
+* Installment index    		i
+
+P_i = P_0 * (1 + r)^i - R*((1 + r)^i - 1)/r
+
+reference: https://financeformulas.net/Remaining_Balance_Formula.html
+*/
+/*
+rule, fact(HP, a, hp_arrangement), fact(HP, installments, Installments), fact(Installment_Cell, list_in, Installments), fact(Installment_Cell, list_index, I), fact(Installment_Cell, value, Installment), fact(HP, cash_price, P0), fact(HP, interest_rate, IR), fact(HP, repayment_amount, R), fact(Installment, closing_balance, PI) ==> clpq({PI = P0*(1 + (IR/12))^I - R*((1 + (IR/12))^I - 1)/(IR/12)}).
+*/
+
+/*
+Formula for calculating repayment amount directly from:
+* Cash price				P
+* Interest rate				r		(per installment period)
+* Number of installments	N
+* Final balance				P_N
+
+R = (P_0 * (1 + r)^N - P_N) * (r / ((1 + r)^N - 1))
+*/
+rule, fact(HP, a, hp_arrangement), fact(HP, cash_price, P0), fact(HP, interest_rate, IR), fact(HP, final_balance, PN), fact(HP, number_of_installments, N), fact(HP, repayment_amount, R) ==> clpq({R = (P0 * (1 + (IR/12))^N - PN)*((IR/12)/((1 + (IR/12))^N - 1))}).
 
 
 rule, fact(S, P, O) \ fact(S, P, O) <=> (P == closing_balance -> format("deduplicate: ~w ~w ~w~n", [S, P, O]) ; true).
 
 rule <=> clpq.
-clpq \ clpq(Constraint) <=> call(Constraint).
+
+clpq \ clpq(Constraint) <=> (
+		call(Constraint)
+	->	(true, old_clpq(Constraint))
+	;	(
+			format(user_error, "Error: failed to apply constraint `~w`~n", [Constraint]),
+			constraint_to_float(Constraint, Float_Constraint),
+			format(user_error, "as float: `~w`~n", [Float_Constraint]),
+			print_constraints,
+			fail
+		)
+	).
+
 clpq, countdown(N, Done) <=> N > 0 | M is N - 1, format(user_error, "~ncountdown ~w~n~n", [M]), countdown(M, Done), rule.
 clpq, countdown(0, Done) <=>
-	format(user_error, "Done: facts = [~n", []),
-	findall(
-		_,
-		(
-			'$enumerate_constraints'(fact(S,P,O)),
-			/*
-			\+((
-				P \== closing_date,
-				P \== opening_date,
-				P \== list_index,
-				P \== value,
-				P \== installment_period,
-				P \== year,
-				P \== month,
-				P \== day,
-				( P \== a ; O \== date)
-			)),
-			((ground(O), O = (_ rdiv _))
-			-> O2 is float(O)
-			; O2 = O
-			),
-			*/
-			format(user_error, "fact(~w,~w,~w)~n", [S,P,O])
-		),
-		_
-	),
-	format(user_error, "]~n~n",[]), %fail,
+	format(user_error, "Done chase:~n", []),
+	dump_chr,
 	Done = done,
 	true.
 %next(0) <=> true.
@@ -328,6 +351,33 @@ start(0, Done) <=> Done = done.
 % General pattern here:
 % we have flexible objects that need to be translated back into standard data formats.
 
+constraint_to_float(Constraint, Float_Constraint) :-
+	(
+		nonvar(Constraint)
+	->
+		Constraint =.. [F | Args],
+		(
+			F = rdiv
+		->	rat_to_float(Constraint, Float_Constraint)
+		;	maplist(constraint_to_float, Args, Float_Args),
+			Float_Constraint =.. [F | Float_Args]
+		)
+	;	Float_Constraint = Constraint
+	).
+
+print_constraints :-
+	findall(
+		_,
+		(
+			'$enumerate_constraints'(CHR),
+			(
+				CHR = clpq(Constraint)
+			;	CHR = old_clpq(Constraint)
+			),
+			format(user_error, "~w~n", [Constraint])
+		),
+		_
+	).
 
 
 % exclude all list definition triples except for occurrences of L a list and Obj Attr L

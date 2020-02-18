@@ -124,7 +124,7 @@ vec_sum_with_proof(Vec, Sum) :-
 	vec_sum(Vec_Lits, Sum_Lit),
 	doc_new_(rdf:value, Sum),
 	doc_add(Sum, rdf:value, Sum_Lit),
-	doc_add(Sum, l:source, Vec).
+	maplist(doc_add(Sum, l:has_part), Vec).
 
 /*
 sum_by_pred(
