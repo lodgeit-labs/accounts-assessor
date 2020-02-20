@@ -128,10 +128,10 @@ rat_to_float(R, F) :- rational(R), \+integer(R), F is float(R).
 
 
 hp_doc_from_chr_basic :-
-	%debug(hp_doc_from_chr_basic),
+	debug(hp_doc_from_chr_basic),
 	debug(hp_chr_installments_to_doc_basic),
-	%debug(chr_date_to_doc_facts),
-	%debug(chr_get_attribute),
+	debug(chr_date_to_doc_facts),
+	debug(chr_get_attribute),
 	debug(hp_doc_from_chr_basic, "hp_doc_from_chr_basic: retrieving chr facts...~n", []),
 	find_fact3(CHR_HP_Contract1, a, hp_arrangement, [], Subs0),
 	get_sub(CHR_HP_Contract1, Subs0, HP_Contract),
@@ -184,12 +184,18 @@ hp_doc_from_chr_basic :-
 
 	debug(hp_doc_from_chr_basic, "hp_doc_from_chr_basic: added everything but installments...~n", []),
 	doc_add_value_safe(HP_Contract, hp:hp_installments, HP_Installments),
-	find_fact3(CHR_HP_Installments1, first, X, [CHR_HP_Installments1:CHR_HP_Installments], Subs_Test),
-	get_sub(X, Subs_Test, X_Value),
-	X_Value = HP_Installments,
-	debug(hp_doc_from_chr_basic, "hp_doc_from_chr_basic: installments: ~w first ~w~n", [CHR_HP_Installments, X_Value]),
-	debug(hp_doc_from_chr_basic, "calling:hp_chr_installments_to_doc_basic(~w, ~w)~n", [CHR_HP_Installments, HP_Installments]),
-	hp_chr_installments_to_doc_basic(CHR_HP_Installments, HP_Installments),
+	debug(hp_doc_from_chr_basic, "finding first installment cell of ~w~n", [CHR_HP_Installments]),
+	(
+		find_fact3(CHR_HP_Installments1, first, X, [CHR_HP_Installments1:CHR_HP_Installments], Subs_Test)
+	->
+		debug(hp_doc_from_chr_basic, "get_sub: ~w, ~w~n", [X, Subs_Test]),
+		get_sub(X, Subs_Test, X_Value),
+		X_Value = HP_Installments,
+		debug(hp_doc_from_chr_basic, "hp_doc_from_chr_basic: installments: ~w first ~w~n", [CHR_HP_Installments, X_Value]),
+		debug(hp_doc_from_chr_basic, "calling:hp_chr_installments_to_doc_basic(~w, ~w)~n", [CHR_HP_Installments, HP_Installments]),
+		hp_chr_installments_to_doc_basic(CHR_HP_Installments, HP_Installments)
+	;	true
+	),
 	debug(hp_doc_from_chr_basic, "hp_doc_from_chr_facts: done adding doc facts...~n", []).
 
 chr_date_to_doc_facts(CHR_Date, Doc_Date) :-
@@ -418,9 +424,12 @@ print_chr_hp_facts(HP) :-
 	format(user_error, "~n", []).
 
 print_chr_installments(Installments) :-
-	find_fact3(Installments1, first, First_Installment_Cell1, [Installments1:Installments], Subs),
-	get_sub(First_Installment_Cell1, Subs, First_Installment_Cell),
-	print_chr_installments_helper(First_Installment_Cell, 1).
+	(
+		find_fact3(Installments1, first, First_Installment_Cell1, [Installments1:Installments], Subs)
+	->	get_sub(First_Installment_Cell1, Subs, First_Installment_Cell),
+		print_chr_installments_helper(First_Installment_Cell, 1)
+	;	format(user_error, "No installments.~n", [])
+	).
 
 print_chr_installments_helper(Cell, N) :-
 	format(user_error, "~n", []),
@@ -475,9 +484,13 @@ process_request_hirepurchase_new :-
 	debug(hp_main, "hp_doc_to_chr_basic,~n", []),
 	hp_doc_to_chr_basic,
 	debug(hp_main, "chase_kb(20),~n", []),
-	chase_kb(40),
+	chase_kb(1),
+	dump_chr.
+
+/*,
 	print_chr_hp_facts,
 	debug(hp_main, "hp_doc_from_chr_basic,~n", []),
 	hp_doc_from_chr_basic,
 	debug(hp_main, "dump_doc(\"After\").~n", []),
 	dump_doc("After").
+*/
