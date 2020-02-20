@@ -35,12 +35,19 @@
      {
   "account":"CashAndCashEquivalents",
   "balance": [],
-  "child_sheet_entries": [ {
+  "child_sheet_entries": [
+     {
   "account":"Banks",
+  "balance": [],
+  "child_sheet_entries": [ {
+  "account":"BanksNationalAustraliaBank",
   "balance": [],
   "child_sheet_entries": [],
   "transactions_count":0
 } ],
+  "transactions_count":0
+}
+  ],
   "transactions_count":0
 }
   ],
@@ -195,12 +202,19 @@
      {
   "account":"CashAndCashEquivalents",
   "balance": [],
-  "child_sheet_entries": [ {
+  "child_sheet_entries": [
+     {
   "account":"Banks",
+  "balance": [],
+  "child_sheet_entries": [ {
+  "account":"BanksNationalAustraliaBank",
   "balance": [],
   "child_sheet_entries": [],
   "transactions_count":0
 } ],
+  "transactions_count":0
+}
+  ],
   "transactions_count":0
 }
   ],
@@ -321,6 +335,45 @@
 }
     ]
   },
+  "cf": [
+     {
+  "account":"CashAndCashEquivalents at date(2015,7,1)",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"CashAndCashEquivalents",
+  "balance":"#bnx37_",
+  "child_sheet_entries": [
+     {
+  "account":"Banks",
+  "balance":"#bnx36_",
+  "child_sheet_entries": [
+     {
+  "account":"BanksNationalAustraliaBank",
+  "balance":"#bnx35_",
+  "child_sheet_entries": [ {
+  "account":"Currency movement",
+  "balance":"#bnx34_",
+  "child_sheet_entries": [],
+  "transactions_count":123456789
+} ],
+  "transactions_count":123456789
+}
+  ],
+  "transactions_count":123456789
+}
+  ],
+  "transactions_count":123456789
+},
+     {
+  "account":"CashAndCashEquivalents at date(2018,6,30)",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+}
+  ],
   "crosschecks": {
     "results": [
       {
@@ -545,7 +598,12 @@
      {
   "account":"CurrencyMovement",
   "balance": [],
+  "child_sheet_entries": [ {
+  "account":"CurrencyMovementNationalAustraliaBank",
+  "balance": [],
   "child_sheet_entries": [],
+  "transactions_count":0
+} ],
   "transactions_count":0
 },
      {
@@ -743,7 +801,12 @@
      {
   "account":"CurrencyMovement",
   "balance": [],
+  "child_sheet_entries": [ {
+  "account":"CurrencyMovementNationalAustraliaBank",
+  "balance": [],
   "child_sheet_entries": [],
+  "transactions_count":0
+} ],
   "transactions_count":0
 },
      {

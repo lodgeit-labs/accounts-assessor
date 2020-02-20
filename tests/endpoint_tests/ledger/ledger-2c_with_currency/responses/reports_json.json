@@ -393,6 +393,298 @@
 }
     ]
   },
+  "cf": [
+     {
+  "account":"CashAndCashEquivalents at date(2017,7,1)",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"CashAndCashEquivalents",
+  "balance":"#bnx160_",
+  "child_sheet_entries": [
+     {
+  "account":"Banks",
+  "balance":"#bnx159_",
+  "child_sheet_entries": [
+     {
+  "account":"BanksNationalAustraliaBank",
+  "balance":"#bnx150_",
+  "child_sheet_entries": [
+     {
+  "account":"Financing activities",
+  "balance":"#bnx144_",
+  "child_sheet_entries": [
+     {
+  "account":"increases",
+  "balance":"#bnx143_",
+  "child_sheet_entries": [
+     {
+  "account": [
+    "date(2017,7,1)",
+    "'Introduce_Capital - incoming money'",
+    "a(href='#bnx82_',[small(⍰)])"
+  ],
+  "balance":"#bnx123_",
+  "child_sheet_entries": [],
+  "transactions_count":123456789
+},
+     {
+  "account": [
+    "date(2017,7,1)",
+    "'Introduce_Capital - incoming money'",
+    "a(href='#bnx84_',[small(⍰)])"
+  ],
+  "balance":"#bnx124_",
+  "child_sheet_entries": [],
+  "transactions_count":123456789
+},
+     {
+  "account": [
+    "date(2017,8,1)",
+    "'Borrow - incoming money'",
+    "a(href='#bnx95_',[small(⍰)])"
+  ],
+  "balance":"#bnx125_",
+  "child_sheet_entries": [],
+  "transactions_count":123456789
+}
+  ],
+  "transactions_count":123456789
+}
+  ],
+  "transactions_count":123456789
+},
+     {
+  "account":"Investing activities",
+  "balance":"#bnx147_",
+  "child_sheet_entries": [
+     {
+  "account":"decreases",
+  "balance":"#bnx145_",
+  "child_sheet_entries": [
+     {
+  "account": [
+    "date(2017,7,1)",
+    "'Invest_In - outgoing money'",
+    "a(href='#bnx72_',[small(⍰)])"
+  ],
+  "balance":"#bnx126_",
+  "child_sheet_entries": [],
+  "transactions_count":123456789
+},
+     {
+  "account": [
+    "date(2017,7,10)",
+    "'Invest_In - outgoing money'",
+    "a(href='#bnx91_',[small(⍰)])"
+  ],
+  "balance":"#bnx127_",
+  "child_sheet_entries": [],
+  "transactions_count":123456789
+},
+     {
+  "account": [
+    "date(2018,8,2)",
+    "'Invest_In - outgoing money'",
+    "a(href='#bnx109_',[small(⍰)])"
+  ],
+  "balance":"#bnx128_",
+  "child_sheet_entries": [],
+  "transactions_count":123456789
+}
+  ],
+  "transactions_count":123456789
+},
+     {
+  "account":"increases",
+  "balance":"#bnx146_",
+  "child_sheet_entries": [
+     {
+  "account": [
+    "date(2018,8,30)",
+    "'Dispose_Of - incoming money'",
+    "a(href='#bnx113_',[small(⍰)])"
+  ],
+  "balance":"#bnx129_",
+  "child_sheet_entries": [],
+  "transactions_count":123456789
+}
+  ],
+  "transactions_count":123456789
+}
+  ],
+  "transactions_count":123456789
+},
+     {
+  "account":"no category",
+  "balance":"#bnx149_",
+  "child_sheet_entries": [
+     {
+  "account":"decreases",
+  "balance":"#bnx148_",
+  "child_sheet_entries": [
+     {
+  "account": [
+    "date(2018,6,28)",
+    "'Pay_Bank - outgoing money'",
+    "a(href='#bnx100_',[small(⍰)])"
+  ],
+  "balance":"#bnx130_",
+  "child_sheet_entries": [],
+  "transactions_count":123456789
+}
+  ],
+  "transactions_count":123456789
+}
+  ],
+  "transactions_count":123456789
+},
+     {
+  "account":"Currency movement",
+  "balance":"#bnx131_",
+  "child_sheet_entries": [],
+  "transactions_count":123456789
+}
+  ],
+  "transactions_count":123456789
+},
+     {
+  "account":"BanksWellsFargo",
+  "balance":"#bnx158_",
+  "child_sheet_entries": [
+     {
+  "account":"Financing activities",
+  "balance":"#bnx152_",
+  "child_sheet_entries": [
+     {
+  "account":"increases",
+  "balance":"#bnx151_",
+  "child_sheet_entries": [
+     {
+  "account": [
+    "date(2017,7,1)",
+    "'Introduce_Capital - incoming money'",
+    "a(href='#bnx76_',[small(⍰)])"
+  ],
+  "balance":"#bnx136_",
+  "child_sheet_entries": [],
+  "transactions_count":123456789
+},
+     {
+  "account": [
+    "date(2017,7,1)",
+    "'Introduce_Capital - incoming money'",
+    "a(href='#bnx79_',[small(⍰)])"
+  ],
+  "balance":"#bnx137_",
+  "child_sheet_entries": [],
+  "transactions_count":123456789
+}
+  ],
+  "transactions_count":123456789
+}
+  ],
+  "transactions_count":123456789
+},
+     {
+  "account":"Investing activities",
+  "balance":"#bnx155_",
+  "child_sheet_entries": [
+     {
+  "account":"decreases",
+  "balance":"#bnx153_",
+  "child_sheet_entries": [
+     {
+  "account": [
+    "date(2017,7,1)",
+    "'Invest_In - outgoing money'",
+    "a(href='#bnx67_',[small(⍰)])"
+  ],
+  "balance":"#bnx138_",
+  "child_sheet_entries": [],
+  "transactions_count":123456789
+},
+     {
+  "account": [
+    "date(2017,7,10)",
+    "'Invest_In - outgoing money'",
+    "a(href='#bnx86_',[small(⍰)])"
+  ],
+  "balance":"#bnx139_",
+  "child_sheet_entries": [],
+  "transactions_count":123456789
+}
+  ],
+  "transactions_count":123456789
+},
+     {
+  "account":"increases",
+  "balance":"#bnx154_",
+  "child_sheet_entries": [
+     {
+  "account": [
+    "date(2018,6,30)",
+    "'Dispose_Of - incoming money'",
+    "a(href='#bnx102_',[small(⍰)])"
+  ],
+  "balance":"#bnx140_",
+  "child_sheet_entries": [],
+  "transactions_count":123456789
+}
+  ],
+  "transactions_count":123456789
+}
+  ],
+  "transactions_count":123456789
+},
+     {
+  "account":"no category",
+  "balance":"#bnx157_",
+  "child_sheet_entries": [
+     {
+  "account":"decreases",
+  "balance":"#bnx156_",
+  "child_sheet_entries": [
+     {
+  "account": [
+    "date(2018,6,28)",
+    "'Pay_Bank - outgoing money'",
+    "a(href='#bnx97_',[small(⍰)])"
+  ],
+  "balance":"#bnx141_",
+  "child_sheet_entries": [],
+  "transactions_count":123456789
+}
+  ],
+  "transactions_count":123456789
+}
+  ],
+  "transactions_count":123456789
+},
+     {
+  "account":"Currency movement",
+  "balance":"#bnx142_",
+  "child_sheet_entries": [],
+  "transactions_count":123456789
+}
+  ],
+  "transactions_count":123456789
+}
+  ],
+  "transactions_count":123456789
+}
+  ],
+  "transactions_count":123456789
+},
+     {
+  "account":"CashAndCashEquivalents at date(2019,6,30)",
+  "balance": [ {"credit":0, "debit":947, "unit":"AUD"} ],
+  "child_sheet_entries": [],
+  "transactions_count":14
+}
+  ],
   "crosschecks": {
     "results": [
       {

@@ -5,11 +5,11 @@
       "account":"NationalAustraliaBank",
       "date":"2018-03-02",
       "exchanged":"vector([coord('Sheep',3)])",
-      "misc": [],
+      "misc": {"desc2":""},
       "report_currency_transacted_amount_converted_at_balance_date": [ {"credit":1800, "debit":0, "unit":"AUD"} ],
       "report_currency_transacted_amount_converted_at_transaction_date": [ {"credit":1800, "debit":0, "unit":"AUD"} ],
       "vector": [ {"credit":1800, "debit":0, "unit":"AUD"} ],
-      "verb":"l:livestock_purchase"
+      "verb":"Livestock_Purchase"
     },
     "transactions": [
       {
@@ -49,11 +49,11 @@
       "account":"NationalAustraliaBank",
       "date":"2018-03-02",
       "exchanged":"vector([coord('Sheep',-30)])",
-      "misc": [],
+      "misc": {"desc2":""},
       "report_currency_transacted_amount_converted_at_balance_date": [ {"credit":0, "debit":500, "unit":"AUD"} ],
       "report_currency_transacted_amount_converted_at_transaction_date": [ {"credit":0, "debit":500, "unit":"AUD"} ],
       "vector": [ {"credit":0, "debit":500, "unit":"AUD"} ],
-      "verb":"l:livestock_sale"
+      "verb":"Livestock_Sale"
     },
     "transactions": [
       {

@@ -1,0 +1,81 @@
+@base              <http://localhost:7778/tmp/1582194185.1406841.306/doc.n3> .
+@prefix       rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix livestock: <https://rdf.lodgeit.net.au/v1/livestock#> .
+@prefix         l: <https://rdf.lodgeit.net.au/v1/request#> .
+@prefix      rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix       xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Named toplevel resources (8)
+
+<#bnx1_>
+	a l:request ;
+	l:report <#bnx2_> ,
+		 <#bnx6_> ,
+		 <#bnx7_> ,
+		 <#bnx8_> ,
+		 <#bnx9_> .
+
+<#bnx2_>
+	l:key <request_xml> ;
+	l:title <request_xml> ;
+	l:url "loc(absolute_url,'http://localhost:7778/tmp/1582194185.1406841.306/request.xml')"^^xsd:string .
+
+<#bnx4_>
+	a l:livestock_data ,
+	  l:theory ;
+	livestock:average_cost "exchange_rate(xxx,'Horses','AUD',_421120)"^^xsd:string ;
+	livestock:born_count "value('Horses',15)"^^xsd:string ;
+	livestock:closing_count "value('Horses',24)"^^xsd:string ;
+	livestock:closing_value "value('AUD',919.8)"^^xsd:string ;
+	livestock:currency <AUD> ;
+	livestock:losses_count "value('Horses',0)"^^xsd:string ;
+	livestock:name <Horses> ;
+	livestock:natural_increase_value_per_unit "exchange_rate(xxx,'Horses','AUD',54)"^^xsd:string ;
+	livestock:opening_cost "value('AUD',1233)"^^xsd:string ;
+	livestock:opening_count "value('Horses',25)"^^xsd:string ;
+	livestock:purchase_cost "value('AUD',0)"^^xsd:string ;
+	livestock:purchase_count "value('Horses',0)"^^xsd:string ;
+	livestock:rations_count "value('Horses',10)"^^xsd:string ;
+	livestock:rations_value "value('AUD',383.25)"^^xsd:string ;
+	livestock:sale_cost "value('AUD',7663)"^^xsd:string ;
+	livestock:sale_count "value('Horses',6)"^^xsd:string .
+
+<#bnx5_>
+	a l:livestock_data ,
+	  l:theory ;
+	livestock:average_cost "exchange_rate(xxx,'Sheep','AUD',_427670)"^^xsd:string ;
+	livestock:born_count "value('Sheep',425)"^^xsd:string ;
+	livestock:closing_count "value('Sheep',1213)"^^xsd:string ;
+	livestock:closing_value "value('AUD',10990)"^^xsd:string ;
+	livestock:currency <AUD> ;
+	livestock:losses_count "value('Sheep',152)"^^xsd:string ;
+	livestock:name <Sheep> ;
+	livestock:natural_increase_value_per_unit "exchange_rate(xxx,'Sheep','AUD',54)"^^xsd:string ;
+	livestock:opening_cost "value('AUD',13974)"^^xsd:string ;
+	livestock:opening_count "value('Sheep',1306)"^^xsd:string ;
+	livestock:purchase_cost "value('AUD',1750)"^^xsd:string ;
+	livestock:purchase_count "value('Sheep',5)"^^xsd:string ;
+	livestock:rations_count "value('Sheep',10)"^^xsd:string ;
+	livestock:rations_value "value('AUD',107)"^^xsd:string ;
+	livestock:sale_cost "value('AUD',16543)"^^xsd:string ;
+	livestock:sale_count "value('Sheep',361)"^^xsd:string .
+
+<#bnx6_>
+	l:key <response> ;
+	l:title <response> ;
+	l:url "loc(absolute_url,'http://localhost:7778/tmp/1582194185.1406841.306/response.xml')"^^xsd:string .
+
+<#bnx7_>
+	l:key <all> ;
+	l:title <all%20files> ;
+	l:url "loc(absolute_url,'http://localhost:7778/tmp/1582194185.1406841.306/')"^^xsd:string .
+
+<#bnx8_>
+	l:key <alerts_json> ;
+	l:title <alerts_json> ;
+	l:url "loc(absolute_url,'http://localhost:7778/tmp/1582194185.1406841.306/alerts_json.json')"^^xsd:string .
+
+<#bnx9_>
+	l:key <alerts_html> ;
+	l:title <alerts> ;
+	l:url "loc(absolute_url,'http://localhost:7778/tmp/1582194185.1406841.306/alerts.html')"^^xsd:string .

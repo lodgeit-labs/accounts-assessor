@@ -1,0 +1,1470 @@
+@base              <http://localhost:7778/tmp/1582194185.1406841.262/doc.n3> .
+@prefix       rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix livestock: <https://rdf.lodgeit.net.au/v1/livestock#> .
+@prefix         l: <https://rdf.lodgeit.net.au/v1/request#> .
+@prefix      rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix       xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Named toplevel resources (203)
+
+<#bnx100_>
+	a l:transaction ;
+	l:cf_category <no%20category> ;
+	l:cf_plusminus <decreases> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#account> <BanksNationalAustraliaBank> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#day> "2018-06-28T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/transactions#description> <Pay_Bank%20-%20outgoing%20money> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#origin> <#bnx63_> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#type> <instant> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#vector> "[coord('AUD',-10)]"^^xsd:string .
+
+<#bnx101_>
+	a l:transaction ;
+	<https://rdf.lodgeit.net.au/v1/transactions#account> <BankCharges> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#day> "2018-06-28T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/transactions#description> <Pay_Bank> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#origin> <#bnx63_> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#type> <instant> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#vector> "[coord('AUD',10)]"^^xsd:string .
+
+<#bnx102_>
+	a l:transaction ;
+	l:cf_category <Investing%20activities> ;
+	l:cf_plusminus <increases> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#account> <BanksWellsFargo> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#day> "2018-06-30T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/transactions#description> <Dispose_Of%20-%20incoming%20money> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#origin> <#bnx64_> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#type> <instant> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#vector> "[coord('USD',200)]"^^xsd:string .
+
+<#bnx103_>
+	a l:transaction ;
+	<https://rdf.lodgeit.net.au/v1/transactions#account> <CurrencyMovementWellsFargo> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#day> "2018-06-30T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/transactions#description> <Dispose_Of%20-%20incoming%20money%20-%20currency%20movement%20adjustment%20-%20only%20current%20period> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#origin> <#bnx64_> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#type> <tracking> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#vector> "[coord('USD',-200),coord(without_currency_movement_against_since('USD','USD',['AUD'],date(2018,6,30)),200)]"^^xsd:string .
+
+<#bnx104_>
+	a l:transaction ;
+	<https://rdf.lodgeit.net.au/v1/transactions#account> <FinancialInvestmentsSG_Issuer_SA> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#day> "2018-06-30T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/transactions#description> <Dispose_Of> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#origin> <#bnx64_> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#type> <instant> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#vector> "[coord('SG_Issuer_SA',-5)]"^^xsd:string .
+
+<#bnx105_>
+	a l:transaction ;
+	<https://rdf.lodgeit.net.au/v1/transactions#account> <InvestmentIncomeUnrealizedOnlyCurrencyMovementSG_Issuer_SA> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#day> "2018-06-30T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/transactions#description> <comment:,%20comment2:Dispose_Of%20-%20single%20period> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#origin> <#bnx64_> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#type> <?> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#vector> "[coord('SG_Issuer_SA',5),coord(without_currency_movement_against_since('SG_Issuer_SA','USD',['AUD'],date(2017,7,1)),-5)]"^^xsd:string .
+
+<#bnx106_>
+	a l:transaction ;
+	<https://rdf.lodgeit.net.au/v1/transactions#account> <InvestmentIncomeUnrealizedWithoutCurrencyMovementSG_Issuer_SA> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#day> "2018-06-30T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/transactions#description> <comment:,%20comment2:Dispose_Of%20-%20single%20period> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#origin> <#bnx64_> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#type> <?> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#vector> "[coord(without_currency_movement_against_since('SG_Issuer_SA','USD',['AUD'],date(2017,7,1)),5),coord('AUD',-5000 rdiv 69)]"^^xsd:string .
+
+<#bnx107_>
+	a l:transaction ;
+	<https://rdf.lodgeit.net.au/v1/transactions#account> <InvestmentIncomeRealizedOnlyCurrencyMovementSG_Issuer_SA> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#day> "2018-06-30T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/transactions#description> <comment:,%20comment2:Dispose_Of> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#origin> <#bnx64_> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#type> <?> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#vector> "[coord('AUD',-2000 rdiv 7),coord(without_currency_movement_against_since('USD','USD',['AUD'],date(2017,7,1)),200)]"^^xsd:string .
+
+<#bnx108_>
+	a l:transaction ;
+	<https://rdf.lodgeit.net.au/v1/transactions#account> <InvestmentIncomeRealizedWithoutCurrencyMovementSG_Issuer_SA> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#day> "2018-06-30T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/transactions#description> <comment:,%20comment2:Dispose_Of> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#origin> <#bnx64_> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#type> <?> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#vector> "[coord(without_currency_movement_against_since('USD','USD',['AUD'],date(2017,7,1)),-200),coord('AUD',5000 rdiv 69)]"^^xsd:string .
+
+<#bnx109_>
+	a l:transaction ;
+	l:cf_category <Investing%20activities> ;
+	l:cf_plusminus <decreases> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#account> <BanksNationalAustraliaBank> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#day> "2018-08-02T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/transactions#description> <Invest_In%20-%20outgoing%20money> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#origin> <#bnx65_> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#type> <instant> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#vector> "[coord('AUD',-50)]"^^xsd:string .
+
+<#bnx10_>
+	a l:s_transaction ;
+	l:source l:bank_statement_xml ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#account> <WellsFargo> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#day> "2017-07-10T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#exchanged> "vector([coord('BHP',10)])"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#misc> "misc{desc2:''}"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#type_id> <Invest_In> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#vector> "[coord('USD',100)]"^^xsd:string .
+
+<#bnx110_>
+	a l:transaction ;
+	<https://rdf.lodgeit.net.au/v1/transactions#account> <FinancialInvestmentsTLS> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#day> "2018-08-02T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/transactions#description> <Invest_In> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#origin> <#bnx65_> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#type> <instant> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#vector> "[coord('TLS',10)]"^^xsd:string .
+
+<#bnx111_>
+	a l:transaction ;
+	<https://rdf.lodgeit.net.au/v1/transactions#account> <InvestmentIncomeUnrealizedOnlyCurrencyMovementTLS> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#day> "2018-08-02T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/transactions#description> <comment:,%20comment2:Invest_In%20-%20single%20period> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#origin> <#bnx65_> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#type> <?> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#vector> "[coord('TLS',-10),coord(without_currency_movement_against_since('TLS','AUD',['AUD'],date(2018,8,2)),10)]"^^xsd:string .
+
+<#bnx112_>
+	a l:transaction ;
+	<https://rdf.lodgeit.net.au/v1/transactions#account> <InvestmentIncomeUnrealizedWithoutCurrencyMovementTLS> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#day> "2018-08-02T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/transactions#description> <comment:,%20comment2:Invest_In%20-%20single%20period> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#origin> <#bnx65_> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#type> <?> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#vector> "[coord(without_currency_movement_against_since('TLS','AUD',['AUD'],date(2018,8,2)),-10),coord('AUD',50)]"^^xsd:string .
+
+<#bnx113_>
+	a l:transaction ;
+	l:cf_category <Investing%20activities> ;
+	l:cf_plusminus <increases> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#account> <BanksNationalAustraliaBank> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#day> "2018-08-30T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/transactions#description> <Dispose_Of%20-%20incoming%20money> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#origin> <#bnx66_> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#type> <instant> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#vector> "[coord('AUD',200)]"^^xsd:string .
+
+<#bnx114_>
+	a l:transaction ;
+	<https://rdf.lodgeit.net.au/v1/transactions#account> <FinancialInvestmentsSG_Issuer_SA> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#day> "2018-08-30T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/transactions#description> <Dispose_Of> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#origin> <#bnx66_> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#type> <instant> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#vector> "[coord('SG_Issuer_SA',-5)]"^^xsd:string .
+
+<#bnx115_>
+	a l:transaction ;
+	<https://rdf.lodgeit.net.au/v1/transactions#account> <InvestmentIncomeUnrealizedOnlyCurrencyMovementSG_Issuer_SA> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#day> "2018-08-30T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/transactions#description> <comment:,%20comment2:Dispose_Of%20-%20single%20period> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#origin> <#bnx66_> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#type> <?> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#vector> "[coord('SG_Issuer_SA',5),coord(without_currency_movement_against_since('SG_Issuer_SA','USD',['AUD'],date(2017,7,1)),-5)]"^^xsd:string .
+
+<#bnx116_>
+	a l:transaction ;
+	<https://rdf.lodgeit.net.au/v1/transactions#account> <InvestmentIncomeUnrealizedWithoutCurrencyMovementSG_Issuer_SA> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#day> "2018-08-30T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/transactions#description> <comment:,%20comment2:Dispose_Of%20-%20single%20period> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#origin> <#bnx66_> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#type> <?> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#vector> "[coord(without_currency_movement_against_since('SG_Issuer_SA','USD',['AUD'],date(2017,7,1)),5),coord('AUD',-5000 rdiv 69)]"^^xsd:string .
+
+<#bnx117_>
+	a l:transaction ;
+	<https://rdf.lodgeit.net.au/v1/transactions#account> <InvestmentIncomeRealizedOnlyCurrencyMovementSG_Issuer_SA> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#day> "2018-08-30T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/transactions#description> <comment:,%20comment2:Dispose_Of> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#origin> <#bnx66_> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#type> <?> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#vector> "[coord('AUD',-200),coord(without_currency_movement_against_since('AUD','AUD',['AUD'],date(2017,7,1)),200)]"^^xsd:string .
+
+<#bnx118_>
+	a l:transaction ;
+	<https://rdf.lodgeit.net.au/v1/transactions#account> <InvestmentIncomeRealizedWithoutCurrencyMovementSG_Issuer_SA> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#day> "2018-08-30T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/transactions#description> <comment:,%20comment2:Dispose_Of> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#origin> <#bnx66_> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#type> <?> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#vector> "[coord(without_currency_movement_against_since('AUD','AUD',['AUD'],date(2017,7,1)),-200),coord('AUD',5000 rdiv 69)]"^^xsd:string .
+
+<#bnx119_>
+	a l:cf_categorization ;
+	l:account <BanksNationalAustraliaBank> ;
+	l:category <Investing%20activities> ;
+	l:plusminus <decreases> .
+
+<#bnx11_>
+	a l:s_transaction ;
+	l:source l:bank_statement_xml ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#account> <WellsFargo> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#day> "2018-06-28T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#exchanged> "vector([])"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#misc> "misc{desc2:''}"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#type_id> <Pay_Bank> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#vector> "[coord('USD',10)]"^^xsd:string .
+
+<#bnx120_>
+	a l:cf_categorization ;
+	l:account <BanksNationalAustraliaBank> ;
+	l:category <Financing%20activities> ;
+	l:plusminus <increases> .
+
+<#bnx121_>
+	a l:cf_categorization ;
+	l:account <BanksNationalAustraliaBank> ;
+	l:category <no%20category> ;
+	l:plusminus <decreases> .
+
+<#bnx122_>
+	a l:cf_categorization ;
+	l:account <BanksNationalAustraliaBank> ;
+	l:category <Investing%20activities> ;
+	l:plusminus <increases> .
+
+<#bnx123_>
+	a rdf:value ;
+	rdf:value "[coord('AUD',200)]"^^xsd:string ;
+	l:source "vec_change_bases([exchange_rate(date(2017,7,10),'BHP','USD',200),exchange_rate(date(2019,6,30),'BHP','USD',2),exchange_rate(date(2019,6,30),'TLS','AUD',5),exchange_rate(date(2017,7,1),'USD','AUD',1.4492753623188408),exchange_rate(date(2018,6,30),'USD','AUD',1.4285714285714286),exchange_rate(date(2019,6,30),'USD','AUD',1.3),exchange_rate(date(2017,7,1),'SG_Issuer_SA','USD',10),exchange_rate(date(2018,6,30),'SG_Issuer_SA','USD',40)],date(2017,7,1),['AUD'],[coord('AUD',200)],[coord('AUD',200)])"^^xsd:string .
+
+<#bnx124_>
+	a rdf:value ;
+	rdf:value "[coord('AUD',200)]"^^xsd:string ;
+	l:source "vec_change_bases([exchange_rate(date(2017,7,10),'BHP','USD',200),exchange_rate(date(2019,6,30),'BHP','USD',2),exchange_rate(date(2019,6,30),'TLS','AUD',5),exchange_rate(date(2017,7,1),'USD','AUD',1.4492753623188408),exchange_rate(date(2018,6,30),'USD','AUD',1.4285714285714286),exchange_rate(date(2019,6,30),'USD','AUD',1.3),exchange_rate(date(2017,7,1),'SG_Issuer_SA','USD',10),exchange_rate(date(2018,6,30),'SG_Issuer_SA','USD',40)],date(2017,7,1),['AUD'],[coord('AUD',200)],[coord('AUD',200)])"^^xsd:string .
+
+<#bnx125_>
+	a rdf:value ;
+	rdf:value "[coord('AUD',100)]"^^xsd:string ;
+	l:source "vec_change_bases([exchange_rate(date(2017,7,10),'BHP','USD',200),exchange_rate(date(2019,6,30),'BHP','USD',2),exchange_rate(date(2019,6,30),'TLS','AUD',5),exchange_rate(date(2017,7,1),'USD','AUD',1.4492753623188408),exchange_rate(date(2018,6,30),'USD','AUD',1.4285714285714286),exchange_rate(date(2019,6,30),'USD','AUD',1.3),exchange_rate(date(2017,7,1),'SG_Issuer_SA','USD',10),exchange_rate(date(2018,6,30),'SG_Issuer_SA','USD',40)],date(2017,8,1),['AUD'],[coord('AUD',100)],[coord('AUD',100)])"^^xsd:string .
+
+<#bnx126_>
+	a rdf:value ;
+	rdf:value "[coord('AUD',-100)]"^^xsd:string ;
+	l:source "vec_change_bases([exchange_rate(date(2017,7,10),'BHP','USD',200),exchange_rate(date(2019,6,30),'BHP','USD',2),exchange_rate(date(2019,6,30),'TLS','AUD',5),exchange_rate(date(2017,7,1),'USD','AUD',1.4492753623188408),exchange_rate(date(2018,6,30),'USD','AUD',1.4285714285714286),exchange_rate(date(2019,6,30),'USD','AUD',1.3),exchange_rate(date(2017,7,1),'SG_Issuer_SA','USD',10),exchange_rate(date(2018,6,30),'SG_Issuer_SA','USD',40)],date(2017,7,1),['AUD'],[coord('AUD',-100)],[coord('AUD',-100)])"^^xsd:string .
+
+<#bnx127_>
+	a rdf:value ;
+	rdf:value "[coord('AUD',-100)]"^^xsd:string ;
+	l:source "vec_change_bases([exchange_rate(date(2017,7,10),'BHP','USD',200),exchange_rate(date(2019,6,30),'BHP','USD',2),exchange_rate(date(2019,6,30),'TLS','AUD',5),exchange_rate(date(2017,7,1),'USD','AUD',1.4492753623188408),exchange_rate(date(2018,6,30),'USD','AUD',1.4285714285714286),exchange_rate(date(2019,6,30),'USD','AUD',1.3),exchange_rate(date(2017,7,1),'SG_Issuer_SA','USD',10),exchange_rate(date(2018,6,30),'SG_Issuer_SA','USD',40)],date(2017,7,10),['AUD'],[coord('AUD',-100)],[coord('AUD',-100)])"^^xsd:string .
+
+<#bnx128_>
+	a rdf:value ;
+	rdf:value "[coord('AUD',-50)]"^^xsd:string ;
+	l:source "vec_change_bases([exchange_rate(date(2017,7,10),'BHP','USD',200),exchange_rate(date(2019,6,30),'BHP','USD',2),exchange_rate(date(2019,6,30),'TLS','AUD',5),exchange_rate(date(2017,7,1),'USD','AUD',1.4492753623188408),exchange_rate(date(2018,6,30),'USD','AUD',1.4285714285714286),exchange_rate(date(2019,6,30),'USD','AUD',1.3),exchange_rate(date(2017,7,1),'SG_Issuer_SA','USD',10),exchange_rate(date(2018,6,30),'SG_Issuer_SA','USD',40)],date(2018,8,2),['AUD'],[coord('AUD',-50)],[coord('AUD',-50)])"^^xsd:string .
+
+<#bnx129_>
+	a rdf:value ;
+	rdf:value "[coord('AUD',200)]"^^xsd:string ;
+	l:source "vec_change_bases([exchange_rate(date(2017,7,10),'BHP','USD',200),exchange_rate(date(2019,6,30),'BHP','USD',2),exchange_rate(date(2019,6,30),'TLS','AUD',5),exchange_rate(date(2017,7,1),'USD','AUD',1.4492753623188408),exchange_rate(date(2018,6,30),'USD','AUD',1.4285714285714286),exchange_rate(date(2019,6,30),'USD','AUD',1.3),exchange_rate(date(2017,7,1),'SG_Issuer_SA','USD',10),exchange_rate(date(2018,6,30),'SG_Issuer_SA','USD',40)],date(2018,8,30),['AUD'],[coord('AUD',200)],[coord('AUD',200)])"^^xsd:string .
+
+<#bnx12_>
+	a l:s_transaction ;
+	l:source l:bank_statement_xml ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#account> <NationalAustraliaBank> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#day> "2017-08-01T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#exchanged> "vector([])"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#misc> "misc{desc2:''}"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#type_id> <Borrow> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#vector> "[coord('AUD',-100)]"^^xsd:string .
+
+<#bnx130_>
+	a rdf:value ;
+	rdf:value "[coord('AUD',-10)]"^^xsd:string ;
+	l:source "vec_change_bases([exchange_rate(date(2017,7,10),'BHP','USD',200),exchange_rate(date(2019,6,30),'BHP','USD',2),exchange_rate(date(2019,6,30),'TLS','AUD',5),exchange_rate(date(2017,7,1),'USD','AUD',1.4492753623188408),exchange_rate(date(2018,6,30),'USD','AUD',1.4285714285714286),exchange_rate(date(2019,6,30),'USD','AUD',1.3),exchange_rate(date(2017,7,1),'SG_Issuer_SA','USD',10),exchange_rate(date(2018,6,30),'SG_Issuer_SA','USD',40)],date(2018,6,28),['AUD'],[coord('AUD',-10)],[coord('AUD',-10)])"^^xsd:string .
+
+<#bnx131_>
+	a rdf:value ;
+	rdf:value "[]"^^xsd:string ;
+	l:source "net_activity_by_account('BanksNationalAustraliaBank',[],_1131780)"^^xsd:string .
+
+<#bnx132_>
+	a l:cf_categorization ;
+	l:account <BanksWellsFargo> ;
+	l:category <Investing%20activities> ;
+	l:plusminus <decreases> .
+
+<#bnx133_>
+	a l:cf_categorization ;
+	l:account <BanksWellsFargo> ;
+	l:category <Financing%20activities> ;
+	l:plusminus <increases> .
+
+<#bnx134_>
+	a l:cf_categorization ;
+	l:account <BanksWellsFargo> ;
+	l:category <no%20category> ;
+	l:plusminus <decreases> .
+
+<#bnx135_>
+	a l:cf_categorization ;
+	l:account <BanksWellsFargo> ;
+	l:category <Investing%20activities> ;
+	l:plusminus <increases> .
+
+<#bnx136_>
+	a rdf:value ;
+	rdf:value "[coord('AUD',20000 rdiv 69)]"^^xsd:string ;
+	l:source "vec_change_bases([exchange_rate(date(2017,7,10),'BHP','USD',200),exchange_rate(date(2019,6,30),'BHP','USD',2),exchange_rate(date(2019,6,30),'TLS','AUD',5),exchange_rate(date(2017,7,1),'USD','AUD',1.4492753623188408),exchange_rate(date(2018,6,30),'USD','AUD',1.4285714285714286),exchange_rate(date(2019,6,30),'USD','AUD',1.3),exchange_rate(date(2017,7,1),'SG_Issuer_SA','USD',10),exchange_rate(date(2018,6,30),'SG_Issuer_SA','USD',40)],date(2017,7,1),['AUD'],[coord('USD',200)],[coord('AUD',20000 rdiv 69)])"^^xsd:string .
+
+<#bnx137_>
+	a rdf:value ;
+	rdf:value "[coord('AUD',20000 rdiv 69)]"^^xsd:string ;
+	l:source "vec_change_bases([exchange_rate(date(2017,7,10),'BHP','USD',200),exchange_rate(date(2019,6,30),'BHP','USD',2),exchange_rate(date(2019,6,30),'TLS','AUD',5),exchange_rate(date(2017,7,1),'USD','AUD',1.4492753623188408),exchange_rate(date(2018,6,30),'USD','AUD',1.4285714285714286),exchange_rate(date(2019,6,30),'USD','AUD',1.3),exchange_rate(date(2017,7,1),'SG_Issuer_SA','USD',10),exchange_rate(date(2018,6,30),'SG_Issuer_SA','USD',40)],date(2017,7,1),['AUD'],[coord('USD',200)],[coord('AUD',20000 rdiv 69)])"^^xsd:string .
+
+<#bnx138_>
+	a rdf:value ;
+	rdf:value "[coord('AUD',-10000 rdiv 69)]"^^xsd:string ;
+	l:source "vec_change_bases([exchange_rate(date(2017,7,10),'BHP','USD',200),exchange_rate(date(2019,6,30),'BHP','USD',2),exchange_rate(date(2019,6,30),'TLS','AUD',5),exchange_rate(date(2017,7,1),'USD','AUD',1.4492753623188408),exchange_rate(date(2018,6,30),'USD','AUD',1.4285714285714286),exchange_rate(date(2019,6,30),'USD','AUD',1.3),exchange_rate(date(2017,7,1),'SG_Issuer_SA','USD',10),exchange_rate(date(2018,6,30),'SG_Issuer_SA','USD',40)],date(2017,7,1),['AUD'],[coord('USD',-100)],[coord('AUD',-10000 rdiv 69)])"^^xsd:string .
+
+<#bnx139_>
+	a rdf:value ;
+	rdf:value "[coord('AUD',-16433 rdiv 125)]"^^xsd:string ;
+	l:source "vec_change_bases([exchange_rate(date(2017,7,10),'BHP','USD',200),exchange_rate(date(2019,6,30),'BHP','USD',2),exchange_rate(date(2019,6,30),'TLS','AUD',5),exchange_rate(date(2017,7,1),'USD','AUD',1.4492753623188408),exchange_rate(date(2018,6,30),'USD','AUD',1.4285714285714286),exchange_rate(date(2019,6,30),'USD','AUD',1.3),exchange_rate(date(2017,7,1),'SG_Issuer_SA','USD',10),exchange_rate(date(2018,6,30),'SG_Issuer_SA','USD',40)],date(2017,7,10),['AUD'],[coord('USD',-100)],[coord('AUD',-16433 rdiv 125)])"^^xsd:string .
+
+<#bnx13_>
+	a l:s_transaction ;
+	l:source l:bank_statement_xml ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#account> <NationalAustraliaBank> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#day> "2018-08-02T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#exchanged> "vector([coord('TLS',10)])"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#misc> "misc{desc2:''}"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#type_id> <Invest_In> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#vector> "[coord('AUD',50)]"^^xsd:string .
+
+<#bnx140_>
+	a rdf:value ;
+	rdf:value "[coord('AUD',2000 rdiv 7)]"^^xsd:string ;
+	l:source "vec_change_bases([exchange_rate(date(2017,7,10),'BHP','USD',200),exchange_rate(date(2019,6,30),'BHP','USD',2),exchange_rate(date(2019,6,30),'TLS','AUD',5),exchange_rate(date(2017,7,1),'USD','AUD',1.4492753623188408),exchange_rate(date(2018,6,30),'USD','AUD',1.4285714285714286),exchange_rate(date(2019,6,30),'USD','AUD',1.3),exchange_rate(date(2017,7,1),'SG_Issuer_SA','USD',10),exchange_rate(date(2018,6,30),'SG_Issuer_SA','USD',40)],date(2018,6,30),['AUD'],[coord('USD',200)],[coord('AUD',2000 rdiv 7)])"^^xsd:string .
+
+<#bnx141_>
+	a rdf:value ;
+	rdf:value "[coord('AUD',-1360971 rdiv 100000)]"^^xsd:string ;
+	l:source "vec_change_bases([exchange_rate(date(2017,7,10),'BHP','USD',200),exchange_rate(date(2019,6,30),'BHP','USD',2),exchange_rate(date(2019,6,30),'TLS','AUD',5),exchange_rate(date(2017,7,1),'USD','AUD',1.4492753623188408),exchange_rate(date(2018,6,30),'USD','AUD',1.4285714285714286),exchange_rate(date(2019,6,30),'USD','AUD',1.3),exchange_rate(date(2017,7,1),'SG_Issuer_SA','USD',10),exchange_rate(date(2018,6,30),'SG_Issuer_SA','USD',40)],date(2018,6,28),['AUD'],[coord('USD',-10)],[coord('AUD',-1360971 rdiv 100000)])"^^xsd:string .
+
+<#bnx142_>
+	a rdf:value ;
+	rdf:value "[coord('AUD',-1101613269 rdiv 16100000)]"^^xsd:string ;
+	l:source "net_activity_by_account('BanksWellsFargo',[coord('AUD',-1101613269 rdiv 16100000)],_1157208)"^^xsd:string .
+
+<#bnx143_>
+	a rdf:value ;
+	rdf:value "[coord('AUD',500)]"^^xsd:string ;
+	l:has_part <#bnx123_> ,
+		   <#bnx124_> ,
+		   <#bnx125_> .
+
+<#bnx144_>
+	a rdf:value ;
+	rdf:value "[coord('AUD',500)]"^^xsd:string ;
+	l:has_part <#bnx143_> .
+
+<#bnx145_>
+	a rdf:value ;
+	rdf:value "[coord('AUD',-250)]"^^xsd:string ;
+	l:has_part <#bnx126_> ,
+		   <#bnx127_> ,
+		   <#bnx128_> .
+
+<#bnx146_>
+	a rdf:value ;
+	rdf:value "[coord('AUD',200)]"^^xsd:string ;
+	l:has_part <#bnx129_> .
+
+<#bnx147_>
+	a rdf:value ;
+	rdf:value "[coord('AUD',-50)]"^^xsd:string ;
+	l:has_part <#bnx145_> ,
+		   <#bnx146_> .
+
+<#bnx148_>
+	a rdf:value ;
+	rdf:value "[coord('AUD',-10)]"^^xsd:string ;
+	l:has_part <#bnx130_> .
+
+<#bnx149_>
+	a rdf:value ;
+	rdf:value "[coord('AUD',-10)]"^^xsd:string ;
+	l:has_part <#bnx148_> .
+
+<#bnx14_>
+	a l:s_transaction ;
+	l:source l:bank_statement_xml ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#account> <NationalAustraliaBank> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#day> "2017-07-01T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#exchanged> "vector([])"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#misc> "misc{desc2:''}"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#type_id> <Introduce_Capital> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#vector> "[coord('AUD',-200)]"^^xsd:string .
+
+<#bnx150_>
+	a rdf:value ;
+	rdf:value "[coord('AUD',440)]"^^xsd:string ;
+	l:has_part <#bnx131_> ,
+		   <#bnx144_> ,
+		   <#bnx147_> ,
+		   <#bnx149_> .
+
+<#bnx151_>
+	a rdf:value ;
+	rdf:value "[coord('AUD',40000 rdiv 69)]"^^xsd:string ;
+	l:has_part <#bnx136_> ,
+		   <#bnx137_> .
+
+<#bnx152_>
+	a rdf:value ;
+	rdf:value "[coord('AUD',40000 rdiv 69)]"^^xsd:string ;
+	l:has_part <#bnx151_> .
+
+<#bnx153_>
+	a rdf:value ;
+	rdf:value "[coord('AUD',-2383877 rdiv 8625)]"^^xsd:string ;
+	l:has_part <#bnx138_> ,
+		   <#bnx139_> .
+
+<#bnx154_>
+	a rdf:value ;
+	rdf:value "[coord('AUD',2000 rdiv 7)]"^^xsd:string ;
+	l:has_part <#bnx140_> .
+
+<#bnx155_>
+	a rdf:value ;
+	rdf:value "[coord('AUD',562861 rdiv 60375)]"^^xsd:string ;
+	l:has_part <#bnx153_> ,
+		   <#bnx154_> .
+
+<#bnx156_>
+	a rdf:value ;
+	rdf:value "[coord('AUD',-1360971 rdiv 100000)]"^^xsd:string ;
+	l:has_part <#bnx141_> .
+
+<#bnx157_>
+	a rdf:value ;
+	rdf:value "[coord('AUD',-1360971 rdiv 100000)]"^^xsd:string ;
+	l:has_part <#bnx156_> .
+
+<#bnx158_>
+	a rdf:value ;
+	rdf:value "[coord('AUD',507)]"^^xsd:string ;
+	l:has_part <#bnx142_> ,
+		   <#bnx152_> ,
+		   <#bnx155_> ,
+		   <#bnx157_> .
+
+<#bnx159_>
+	a rdf:value ;
+	rdf:value "[coord('AUD',947)]"^^xsd:string ;
+	l:has_part <#bnx150_> ,
+		   <#bnx158_> .
+
+<#bnx15_>
+	a l:s_transaction ;
+	l:source l:bank_statement_xml ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#account> <NationalAustraliaBank> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#day> "2017-07-01T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#exchanged> "vector([coord('SG_Issuer_SA',10)])"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#misc> "misc{desc2:''}"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#type_id> <Invest_In> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#vector> "[coord('AUD',100)]"^^xsd:string .
+
+<#bnx160_>
+	a rdf:value ;
+	rdf:value "[coord('AUD',947)]"^^xsd:string ;
+	l:has_part <#bnx159_> .
+
+<#bnx161_>
+	l:message "string('\"exchange rate missing\"')"^^xsd:string ;
+	l:type <error> .
+
+<#bnx162_>
+	l:key <investment_report_html> ;
+	l:title <investment%20report%20from%202017-07-01%20to%202019-06-30%20(AUD)> ;
+	l:url "loc(absolute_url,'http://localhost:7778/tmp/1582194185.1406841.262/investment_report.html')"^^xsd:string .
+
+<#bnx163_>
+	l:message "string('\"exchange rate missing\"')"^^xsd:string ;
+	l:type <error> .
+
+<#bnx164_>
+	l:key <investment_report_since_beginning_html> ;
+	l:title <investment%20report%20from%201-01-01%20to%202019-06-30%20(AUD)> ;
+	l:url "loc(absolute_url,'http://localhost:7778/tmp/1582194185.1406841.262/investment_report_since_beginning.html')"^^xsd:string .
+
+<#bnx165_>
+	l:key <balance_sheet_html> ;
+	l:title <balance%20sheet%20from%202017-07-01%20to%202019-06-30%20(AUD)> ;
+	l:url "loc(absolute_url,'http://localhost:7778/tmp/1582194185.1406841.262/balance_sheet.html')"^^xsd:string .
+
+<#bnx166_>
+	l:key <profit_and_loss_html> ;
+	l:title <profit&loss%20from%202017-07-01%20to%202019-06-30%20(AUD)> ;
+	l:url "loc(absolute_url,'http://localhost:7778/tmp/1582194185.1406841.262/profit_and_loss.html')"^^xsd:string .
+
+<#bnx167_>
+	l:key <profit_and_loss_historical_html> ;
+	l:title <profit&loss%20from%201-01-01%20to%202017-06-30%20(AUD)> ;
+	l:url "loc(absolute_url,'http://localhost:7778/tmp/1582194185.1406841.262/profit_and_loss_historical.html')"^^xsd:string .
+
+<#bnx168_>
+	l:key <cashflow_html> ;
+	l:title <cash%20flow%20from%202017-07-01%20to%202019-06-30%20(AUD)> ;
+	l:url "loc(absolute_url,'http://localhost:7778/tmp/1582194185.1406841.262/cashflow.html')"^^xsd:string .
+
+<#bnx169_>
+	l:key <general_ledger_json> ;
+	l:title <general_ledger_json> ;
+	l:url "loc(absolute_url,'http://localhost:7778/tmp/1582194185.1406841.262/general_ledger_json.json')"^^xsd:string .
+
+<#bnx16_>
+	a l:s_transaction ;
+	l:source l:bank_statement_xml ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#account> <NationalAustraliaBank> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#day> "2018-08-30T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#exchanged> "vector([coord('SG_Issuer_SA',-5)])"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#misc> "misc{desc2:''}"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#type_id> <Dispose_Of> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#vector> "[coord('AUD',-200)]"^^xsd:string .
+
+<#bnx170_>
+	l:key <gl_html> ;
+	l:title <GL%20viewer> ;
+	l:url "loc(absolute_url,'http://localhost:7778/tmp/1582194185.1406841.262/general_ledger_viewer/link.html')"^^xsd:string .
+
+<#bnx171_>
+	l:message "[value('AUD',344.9275)] ≠ evaluation_failed(report_value(reports/ir/current/totals/gains/rea/market_converted),evaluation_failure2)"^^xsd:string ;
+	l:type <crosscheck%20failed> .
+
+<#bnx172_>
+	l:message "[value('AUD',-4.1408)] ≠ evaluation_failed(report_value(reports/ir/current/totals/gains/rea/forex),evaluation_failure4)"^^xsd:string ;
+	l:type <crosscheck%20failed> .
+
+<#bnx173_>
+	l:message "[value('AUD',-279.1712),value(without_currency_movement_against_since('SG_Issuer_SA','AUD',['AUD'],date(2017,7,1)),10)] ≠ evaluation_failed(report_value(reports/ir/current/totals/gains/unr/market_converted),evaluation_failure6)"^^xsd:string ;
+	l:type <crosscheck%20failed> .
+
+<#bnx174_>
+	l:message "[value('AUD',-0.2928),value('SG_Issuer_SA',10),value(without_currency_movement_against_since('SG_Issuer_SA','AUD',['AUD'],date(2017,7,1)),-10)] ≠ evaluation_failed(report_value(reports/ir/current/totals/gains/unr/forex),evaluation_failure8)"^^xsd:string ;
+	l:type <crosscheck%20failed> .
+
+<#bnx175_>
+	l:message "[value('AUD',61.3227),value('SG_Issuer_SA',10)] ≠ evaluation_failed(report_value(reports/ir/current/totals/gains/total),evaluation_failure10)"^^xsd:string ;
+	l:type <crosscheck%20failed> .
+
+<#bnx176_>
+	l:message "[value('AUD',-279.464),value('SG_Issuer_SA',10)] ≠ evaluation_failed(report_value(reports/ir/current/totals/gains/unrealized_total),evaluation_failure12)"^^xsd:string ;
+	l:type <crosscheck%20failed> .
+
+<#bnx177_>
+	l:message "[value('AUD',340.7867)] ≠ evaluation_failed(report_value(reports/ir/current/totals/gains/realized_total),evaluation_failure14)"^^xsd:string ;
+	l:type <crosscheck%20failed> .
+
+<#bnx178_>
+	l:message "[value('AUD',102),value('SG_Issuer_SA',10)] ≠ evaluation_failed(report_value(reports/ir/current/totals/closing/total_cost_converted),evaluation_failure16)"^^xsd:string ;
+	l:type <crosscheck%20failed> .
+
+<#bnx179_>
+	l:key <crosschecks_html> ;
+	l:title <crosschecks> ;
+	l:url "loc(absolute_url,'http://localhost:7778/tmp/1582194185.1406841.262/crosschecks.html')"^^xsd:string .
+
+<#bnx17_>
+	a l:s_transaction ;
+	l:source l:bank_statement_xml ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#account> <NationalAustraliaBank> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#day> "2017-07-01T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#exchanged> "vector([])"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#misc> "misc{desc2:''}"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#type_id> <Introduce_Capital> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#vector> "[coord('AUD',-200)]"^^xsd:string .
+
+<#bnx180_>
+	l:key <reports_json> ;
+	l:title <reports_json> ;
+	l:url "loc(absolute_url,'http://localhost:7778/tmp/1582194185.1406841.262/reports_json.json')"^^xsd:string .
+
+<#bnx181_>
+	l:key <xbrl_instance> ;
+	l:title <xbrl_instance> ;
+	l:url "loc(absolute_url,'http://localhost:7778/tmp/1582194185.1406841.262/xbrl_instance.xml')"^^xsd:string .
+
+<#bnx182_>
+	l:key <all> ;
+	l:title <all%20files> ;
+	l:url "loc(absolute_url,'http://localhost:7778/tmp/1582194185.1406841.262/')"^^xsd:string .
+
+<#bnx183_>
+	l:key <alerts_json> ;
+	l:title <alerts_json> ;
+	l:url "loc(absolute_url,'http://localhost:7778/tmp/1582194185.1406841.262/alerts_json.json')"^^xsd:string .
+
+<#bnx184_>
+	l:key <alerts_html> ;
+	l:title <alerts> ;
+	l:url "loc(absolute_url,'http://localhost:7778/tmp/1582194185.1406841.262/alerts.html')"^^xsd:string .
+
+<#bnx18_>
+	a l:s_transaction ;
+	l:source l:bank_statement_xml ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#account> <NationalAustraliaBank> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#day> "2017-07-10T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#exchanged> "vector([coord('BHP',10)])"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#misc> "misc{desc2:''}"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#type_id> <Invest_In> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#vector> "[coord('AUD',100)]"^^xsd:string .
+
+<#bnx19_>
+	a l:s_transaction ;
+	l:source l:bank_statement_xml ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#account> <NationalAustraliaBank> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#day> "2018-06-28T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#exchanged> "vector([])"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#misc> "misc{desc2:''}"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#type_id> <Pay_Bank> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#vector> "[coord('AUD',10)]"^^xsd:string .
+
+<#bnx1_>
+	a l:request ;
+	l:accounts "[account('AccountingFees','Expenses','Accounts'/'AccountingFees',0),account('Accounts',accountHierarchy,'Accounts'/'Accounts',0),account('Assets','NetAssets','Accounts'/'Assets',0),account('AssetsLivestock','CurrentAssets','Accounts'/'AssetsLivestock',0),account('AssetsLivestockAtAverageCost','AssetsLivestock','Accounts'/'AssetsLivestockAtAverageCost',0),account('AssetsLivestockAtCost','AssetsLivestock','Accounts'/'AssetsLivestockAtCost',0),account('BankCharges','Expenses','Accounts'/'BankCharges',0),account('BankOpeningBalances','HistoricalEarnings','Accounts'/'BankOpeningBalances',0),account('Banks','CashAndCashEquivalents','Accounts'/'Banks',0),account('CapitalIntroduced','Equity','Accounts'/'CapitalIntroduced',0),account('CashAndCashEquivalents','CurrentAssets','Accounts'/'CashAndCashEquivalents',0),account('ClearingAccount','Revenue','Accounts'/'ClearingAccount',0),account('CostOfGoodsLivestock','Expenses','Accounts'/'CostOfGoodsLivestock',0),account('CurrencyMovement','Revenue','Accounts'/'CurrencyMovement',0),account('CurrentAssets','Assets','Accounts'/'CurrentAssets',0),account('CurrentEarnings','RetainedEarnings','Accounts'/'CurrentEarnings',0),account('CurrentLiabilities','Liabilities','Accounts'/'CurrentLiabilities',0),account('CurrentLoans','CurrentLiabilities','Accounts'/'CurrentLoans',0),account('Drawings','Equity','Accounts'/'Drawings',0),account('EarningsFinancialInvestments','OtherIncome','Accounts'/'EarningsFinancialInvestments',0),account('Equity','Accounts','Accounts'/'Equity',0),account('ExchangeGain','OtherIncome','Accounts'/'ExchangeGain',0),account('Expenses','NetIncomeLoss','Accounts'/'Expenses',0),account('FinancialInvestments','NoncurrentAssets','Accounts'/'FinancialInvestments',0),account('ForexLoss','Expenses','Accounts'/'ForexLoss',0),account('Gst','CurrentLiabilities','Accounts'/'Gst',0),account('GstPayable','Gst','Accounts'/'GstPayable',0),account('GstReceivable','Gst','Accounts'/'GstReceivable',0),account('HistoricalEarnings','RetainedEarnings','Accounts'/'HistoricalEarnings',0),account('Income','Revenue','Accounts'/'Income',0),account('InterestEarned','OtherIncome','Accounts'/'InterestEarned',0),account('InterestExpenses','Expenses','Accounts'/'InterestExpenses',0),account('InterestIncome','OtherIncome','Accounts'/'InterestIncome',0),account('InvestmentIncome','Revenue','Accounts'/'InvestmentIncome',0),account('Liabilities','NetAssets','Accounts'/'Liabilities',0),account('LivestockAdjustment','Expenses','Accounts'/'LivestockAdjustment',0),account('NetAssets','Accounts','Accounts'/'NetAssets',0),account('NetIncomeLoss','Accounts','Accounts'/'NetIncomeLoss',0),account('NoncurrentAssets','Assets','Accounts'/'NoncurrentAssets',0),account('NoncurrentLiabilities','Liabilities','Accounts'/'NoncurrentLiabilities',0),account('NoncurrentLoans','NoncurrentLiabilities','Accounts'/'NoncurrentLoans',0),account('OtherExpenses','Expenses','Accounts'/'OtherExpenses',0),account('OtherGain','Revenue','Accounts'/'OtherGain',0),account('OtherIncome','Revenue','Accounts'/'OtherIncome',0),account('Purchases','Expenses','Accounts'/'Purchases',0),account('RationsRevenue','Revenue','Accounts'/'RationsRevenue',0),account('RetainedEarnings','Equity','Accounts'/'RetainedEarnings',0),account('Revenue','NetIncomeLoss','Accounts'/'Revenue',0),account('SalesOfLivestock','Revenue','Accounts'/'SalesOfLivestock',0),account('ShareCapital','Equity','Accounts'/'ShareCapital',0),account(accountHierarchy,'','',0),account('Inventory',accountHierarchy,accountHierarchy/'Inventory',0),account('LivestockCount','Inventory','Inventory'/'LivestockCount',0),account('BanksNationalAustraliaBank','Banks','Banks'/'NationalAustraliaBank',1),account('BanksWellsFargo','Banks','Banks'/'WellsFargo',1),account('CurrencyMovementNationalAustraliaBank','CurrencyMovement','CurrencyMovement'/'NationalAustraliaBank',0),account('CurrencyMovementWellsFargo','CurrencyMovement','CurrencyMovement'/'WellsFargo',0),account('InvestmentIncomeRealized','InvestmentIncome','InvestmentIncome'/realized,0),account('InvestmentIncomeRealizedOnlyCurrencyMovement','InvestmentIncomeRealized','InvestmentIncomeRealized'/onlyCurrencyMovement,0),account('InvestmentIncomeRealizedOnlyCurrencyMovementBHP','InvestmentIncomeRealizedOnlyCurrencyMovement','InvestmentIncomeRealizedOnlyCurrencyMovement'/'BHP',1),account('InvestmentIncomeRealizedOnlyCurrencyMovementSG_Issuer_SA','InvestmentIncomeRealizedOnlyCurrencyMovement','InvestmentIncomeRealizedOnlyCurrencyMovement'/'SG_Issuer_SA',1),account('InvestmentIncomeRealizedOnlyCurrencyMovementTLS','InvestmentIncomeRealizedOnlyCurrencyMovement','InvestmentIncomeRealizedOnlyCurrencyMovement'/'TLS',1),account('InvestmentIncomeRealizedWithoutCurrencyMovement','InvestmentIncomeRealized','InvestmentIncomeRealized'/withoutCurrencyMovement,0),account('InvestmentIncomeRealizedWithoutCurrencyMovementBHP','InvestmentIncomeRealizedWithoutCurrencyMovement','InvestmentIncomeRealizedWithoutCurrencyMovement'/'BHP',1),account('InvestmentIncomeRealizedWithoutCurrencyMovementSG_Issuer_SA','InvestmentIncomeRealizedWithoutCurrencyMovement','InvestmentIncomeRealizedWithoutCurrencyMovement'/'SG_Issuer_SA',1),account('InvestmentIncomeRealizedWithoutCurrencyMovementTLS','InvestmentIncomeRealizedWithoutCurrencyMovement','InvestmentIncomeRealizedWithoutCurrencyMovement'/'TLS',1),account('InvestmentIncomeUnrealized','InvestmentIncome','InvestmentIncome'/unrealized,0),account('InvestmentIncomeUnrealizedOnlyCurrencyMovement','InvestmentIncomeUnrealized','InvestmentIncomeUnrealized'/onlyCurrencyMovement,0),account('InvestmentIncomeUnrealizedOnlyCurrencyMovementBHP','InvestmentIncomeUnrealizedOnlyCurrencyMovement','InvestmentIncomeUnrealizedOnlyCurrencyMovement'/'BHP',1),account('InvestmentIncomeUnrealizedOnlyCurrencyMovementSG_Issuer_SA','InvestmentIncomeUnrealizedOnlyCurrencyMovement','InvestmentIncomeUnrealizedOnlyCurrencyMovement'/'SG_Issuer_SA',1),account('InvestmentIncomeUnrealizedOnlyCurrencyMovementTLS','InvestmentIncomeUnrealizedOnlyCurrencyMovement','InvestmentIncomeUnrealizedOnlyCurrencyMovement'/'TLS',1),account('InvestmentIncomeUnrealizedWithoutCurrencyMovement','InvestmentIncomeUnrealized','InvestmentIncomeUnrealized'/withoutCurrencyMovement,0),account('InvestmentIncomeUnrealizedWithoutCurrencyMovementBHP','InvestmentIncomeUnrealizedWithoutCurrencyMovement','InvestmentIncomeUnrealizedWithoutCurrencyMovement'/'BHP',1),account('InvestmentIncomeUnrealizedWithoutCurrencyMovementSG_Issuer_SA','InvestmentIncomeUnrealizedWithoutCurrencyMovement','InvestmentIncomeUnrealizedWithoutCurrencyMovement'/'SG_Issuer_SA',1),account('InvestmentIncomeUnrealizedWithoutCurrencyMovementTLS','InvestmentIncomeUnrealizedWithoutCurrencyMovement','InvestmentIncomeUnrealizedWithoutCurrencyMovement'/'TLS',1),account('FinancialInvestmentsBHP','FinancialInvestments','FinancialInvestments'/'BHP',1),account('FinancialInvestmentsSG_Issuer_SA','FinancialInvestments','FinancialInvestments'/'SG_Issuer_SA',1),account('FinancialInvestmentsTLS','FinancialInvestments','FinancialInvestments'/'TLS',1)]"^^xsd:string ;
+	l:alert <#bnx161_> ,
+		<#bnx163_> ,
+		<#bnx171_> ,
+		<#bnx172_> ,
+		<#bnx173_> ,
+		<#bnx174_> ,
+		<#bnx175_> ,
+		<#bnx176_> ,
+		<#bnx177_> ,
+		<#bnx178_> ;
+	l:bank_account <#bnx4_> ,
+		       <#bnx5_> ;
+	l:end_date "2019-06-30T00:00:00"^^xsd:dateTime ;
+	l:has_used_unit <AUD> ,
+			<SG_Issuer_SA> ,
+			"without_currency_movement_against_since('SG_Issuer_SA','AUD',['AUD'],date(2017,7,1))"^^xsd:string ;
+	l:report <#bnx162_> ,
+		 <#bnx164_> ,
+		 <#bnx165_> ,
+		 <#bnx166_> ,
+		 <#bnx167_> ,
+		 <#bnx168_> ,
+		 <#bnx169_> ,
+		 <#bnx170_> ,
+		 <#bnx179_> ,
+		 <#bnx180_> ,
+		 <#bnx181_> ,
+		 <#bnx182_> ,
+		 <#bnx183_> ,
+		 <#bnx184_> ,
+		 <#bnx2_> ;
+	l:start_date "2017-07-01T00:00:00"^^xsd:dateTime ;
+	l:taxonomy_url_base <taxonomy/> .
+
+<#bnx20_>
+	a l:s_transaction ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#account> <WellsFargo> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#day> "2017-07-01T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#exchanged> "vector([])"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#misc> "misc{desc2:''}"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#type_id> <Introduce_Capital> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#vector> "[coord('USD',200)]"^^xsd:string .
+
+<#bnx21_>
+	a l:s_transaction ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#account> <WellsFargo> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#day> "2017-07-01T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#exchanged> "vector([coord('SG_Issuer_SA',10)])"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#misc> "misc{desc2:''}"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#type_id> <Invest_In> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#vector> "[coord('USD',-100)]"^^xsd:string .
+
+<#bnx22_>
+	a l:s_transaction ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#account> <WellsFargo> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#day> "2018-06-30T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#exchanged> "vector([coord('SG_Issuer_SA',-5)])"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#misc> "misc{desc2:''}"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#type_id> <Dispose_Of> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#vector> "[coord('USD',200)]"^^xsd:string .
+
+<#bnx23_>
+	a l:s_transaction ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#account> <WellsFargo> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#day> "2017-07-01T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#exchanged> "vector([])"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#misc> "misc{desc2:''}"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#type_id> <Introduce_Capital> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#vector> "[coord('USD',200)]"^^xsd:string .
+
+<#bnx24_>
+	a l:s_transaction ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#account> <WellsFargo> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#day> "2017-07-10T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#exchanged> "vector([coord('BHP',10)])"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#misc> "misc{desc2:''}"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#type_id> <Invest_In> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#vector> "[coord('USD',-100)]"^^xsd:string .
+
+<#bnx25_>
+	a l:s_transaction ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#account> <WellsFargo> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#day> "2018-06-28T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#exchanged> "vector([])"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#misc> "misc{desc2:''}"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#type_id> <Pay_Bank> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#vector> "[coord('USD',-10)]"^^xsd:string .
+
+<#bnx26_>
+	a l:s_transaction ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#account> <NationalAustraliaBank> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#day> "2017-08-01T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#exchanged> "vector([])"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#misc> "misc{desc2:''}"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#type_id> <Borrow> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#vector> "[coord('AUD',100)]"^^xsd:string .
+
+<#bnx27_>
+	a l:s_transaction ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#account> <NationalAustraliaBank> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#day> "2018-08-02T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#exchanged> "vector([coord('TLS',10)])"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#misc> "misc{desc2:''}"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#type_id> <Invest_In> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#vector> "[coord('AUD',-50)]"^^xsd:string .
+
+<#bnx28_>
+	a l:s_transaction ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#account> <NationalAustraliaBank> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#day> "2017-07-01T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#exchanged> "vector([])"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#misc> "misc{desc2:''}"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#type_id> <Introduce_Capital> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#vector> "[coord('AUD',200)]"^^xsd:string .
+
+<#bnx29_>
+	a l:s_transaction ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#account> <NationalAustraliaBank> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#day> "2017-07-01T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#exchanged> "vector([coord('SG_Issuer_SA',10)])"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#misc> "misc{desc2:''}"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#type_id> <Invest_In> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#vector> "[coord('AUD',-100)]"^^xsd:string .
+
+<#bnx2_>
+	l:key <request_xml> ;
+	l:title <request_xml> ;
+	l:url "loc(absolute_url,'http://localhost:7778/tmp/1582194185.1406841.262/request.xml')"^^xsd:string .
+
+<#bnx30_>
+	a l:s_transaction ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#account> <NationalAustraliaBank> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#day> "2018-08-30T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#exchanged> "vector([coord('SG_Issuer_SA',-5)])"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#misc> "misc{desc2:''}"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#type_id> <Dispose_Of> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#vector> "[coord('AUD',200)]"^^xsd:string .
+
+<#bnx31_>
+	a l:s_transaction ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#account> <NationalAustraliaBank> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#day> "2017-07-01T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#exchanged> "vector([])"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#misc> "misc{desc2:''}"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#type_id> <Introduce_Capital> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#vector> "[coord('AUD',200)]"^^xsd:string .
+
+<#bnx32_>
+	a l:s_transaction ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#account> <NationalAustraliaBank> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#day> "2017-07-10T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#exchanged> "vector([coord('BHP',10)])"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#misc> "misc{desc2:''}"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#type_id> <Invest_In> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#vector> "[coord('AUD',-100)]"^^xsd:string .
+
+<#bnx33_>
+	a l:s_transaction ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#account> <NationalAustraliaBank> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#day> "2018-06-28T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#exchanged> "vector([])"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#misc> "misc{desc2:''}"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#type_id> <Pay_Bank> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#vector> "[coord('AUD',-10)]"^^xsd:string .
+
+<#bnx34_Transfers>
+	a l:action_verb ;
+	l:has_counteraccount <ClearingAccount> ;
+	l:has_gst_rate "0"^^xsd:integer ;
+	l:has_id <Transfers> .
+
+<#bnx35_Invest_In>
+	a l:action_verb ;
+	l:has_counteraccount <FinancialInvestments> ;
+	l:has_description <Shares> ;
+	l:has_gst_rate "0"^^xsd:integer ;
+	l:has_id <Invest_In> ;
+	l:has_trading_account <InvestmentIncome> .
+
+<#bnx36_Dispose_Of>
+	a l:action_verb ;
+	l:has_counteraccount <FinancialInvestments> ;
+	l:has_description <Shares> ;
+	l:has_gst_rate "0"^^xsd:integer ;
+	l:has_id <Dispose_Of> ;
+	l:has_trading_account <InvestmentIncome> .
+
+<#bnx37_Bank_Charges>
+	a l:action_verb ;
+	l:has_counteraccount <BankCharges> ;
+	l:has_gst_rate "0"^^xsd:integer ;
+	l:has_id <Bank_Charges> .
+
+<#bnx38_Expenses>
+	a l:action_verb ;
+	l:has_counteraccount <OtherExpenses> ;
+	l:has_gst_rate "0"^^xsd:integer ;
+	l:has_id <Expenses> .
+
+<#bnx39_Gain>
+	a l:action_verb ;
+	l:has_counteraccount <OtherGain> ;
+	l:has_gst_rate "0"^^xsd:integer ;
+	l:has_id <Gain> .
+
+<#bnx40_Loss>
+	a l:action_verb ;
+	l:has_counteraccount <ShareCapital> ;
+	l:has_description <No%20Description> ;
+	l:has_gst_rate "0"^^xsd:integer ;
+	l:has_id <Loss> .
+
+<#bnx41_Income>
+	a l:action_verb ;
+	l:has_counteraccount <Income> ;
+	l:has_gst_rate "0"^^xsd:integer ;
+	l:has_id <Income> .
+
+<#bnx42_Interest_Income>
+	a l:action_verb ;
+	l:has_counteraccount <InterestIncome> ;
+	l:has_gst_rate "0"^^xsd:integer ;
+	l:has_id <Interest_Income> .
+
+<#bnx43_Interest_Expenses>
+	a l:action_verb ;
+	l:has_counteraccount <InterestExpenses> ;
+	l:has_gst_rate "0"^^xsd:integer ;
+	l:has_id <Interest_Expenses> .
+
+<#bnx44_Borrow>
+	a l:action_verb ;
+	l:has_counteraccount <NoncurrentLoans> ;
+	l:has_gst_rate "0"^^xsd:integer ;
+	l:has_id <Borrow> .
+
+<#bnx45_Introduce_Capital>
+	a l:action_verb ;
+	l:has_counteraccount <ShareCapital> ;
+	l:has_description <Unit_Investment> ;
+	l:has_gst_rate "0"^^xsd:integer ;
+	l:has_id <Introduce_Capital> .
+
+<#bnx46_Pay_Bank>
+	a l:action_verb ;
+	l:has_counteraccount <BankCharges> ;
+	l:has_description <No%20Description> ;
+	l:has_gst_rate "0"^^xsd:integer ;
+	l:has_id <Pay_Bank> .
+
+<#bnx47_Accountancy_Fees>
+	a l:action_verb ;
+	l:has_counteraccount <AccountancyFees> ;
+	l:has_description <No%20Description> ;
+	l:has_gst_rate "0"^^xsd:integer ;
+	l:has_id <Accountancy_Fees> .
+
+<#bnx48_Purchase_Method_C>
+	a l:action_verb ;
+	l:has_counteraccount <Purchases> ;
+	l:has_description <No%20Description> ;
+	l:has_gst_rate "10"^^xsd:integer ;
+	l:has_gst_receivable_account <GstReceivable> ;
+	l:has_id <Purchase_Method_C> .
+
+<#bnx49_Sale_Method_C>
+	a l:action_verb ;
+	l:has_counteraccount <Income> ;
+	l:has_description <No%20Description> ;
+	l:has_gst_payable_account <GstPayable> ;
+	l:has_gst_rate "10"^^xsd:integer ;
+	l:has_id <Sale_Method_C> .
+
+<#bnx4_>
+	l:name <WellsFargo> .
+
+<#bnx50_>
+	<body> "[ exchange_rate(date(2017,7,10),'BHP','USD',200),\n  exchange_rate(date(2019,6,30),'BHP','USD',2),\n  exchange_rate(date(2019,6,30),'TLS','AUD',5),\n  exchange_rate(date(2017,7,1),'USD','AUD',1.4492753623188408),\n  exchange_rate(date(2018,6,30),'USD','AUD',1.4285714285714286),\n  exchange_rate(date(2019,6,30),'USD','AUD',1.3),\n  exchange_rate(date(2017,7,1),'SG_Issuer_SA','USD',10),\n  exchange_rate(date(2018,6,30),'SG_Issuer_SA','USD',40)\n]"^^xsd:string ;
+	<title> <Exchange%20rates%20extracted> .
+
+<#bnx51_>
+	<body> "[ account('AccountingFees','Expenses','Accounts'/'AccountingFees',0),\n  account('Accounts',accountHierarchy,'Accounts'/'Accounts',0),\n  account('Assets','NetAssets','Accounts'/'Assets',0),\n  account('AssetsLivestock','CurrentAssets','Accounts'/'AssetsLivestock',0),\n  account('AssetsLivestockAtAverageCost',\n\t  'AssetsLivestock',\n\t  'Accounts' / 'AssetsLivestockAtAverageCost',\n\t  0),\n  account('AssetsLivestockAtCost',\n\t  'AssetsLivestock',\n\t  'Accounts' / 'AssetsLivestockAtCost',\n\t  0),\n  account('BankCharges','Expenses','Accounts'/'BankCharges',0),\n  account('BankOpeningBalances',\n\t  'HistoricalEarnings',\n\t  'Accounts' / 'BankOpeningBalances',\n\t  0),\n  account('Banks','CashAndCashEquivalents','Accounts'/'Banks',0),\n  account('CapitalIntroduced','Equity','Accounts'/'CapitalIntroduced',0),\n  account('CashAndCashEquivalents',\n\t  'CurrentAssets',\n\t  'Accounts' / 'CashAndCashEquivalents',\n\t  0),\n  account('ClearingAccount','Revenue','Accounts'/'ClearingAccount',0),\n  account('CostOfGoodsLivestock',\n\t  'Expenses',\n\t  'Accounts' / 'CostOfGoodsLivestock',\n\t  0),\n  account('CurrencyMovement','Revenue','Accounts'/'CurrencyMovement',0),\n  account('CurrentAssets','Assets','Accounts'/'CurrentAssets',0),\n  account('CurrentEarnings','RetainedEarnings','Accounts'/'CurrentEarnings',0),\n  account('CurrentLiabilities','Liabilities','Accounts'/'CurrentLiabilities',0),\n  account('CurrentLoans','CurrentLiabilities','Accounts'/'CurrentLoans',0),\n  account('Drawings','Equity','Accounts'/'Drawings',0),\n  account('EarningsFinancialInvestments',\n\t  'OtherIncome',\n\t  'Accounts' / 'EarningsFinancialInvestments',\n\t  0),\n  account('Equity','Accounts','Accounts'/'Equity',0),\n  account('ExchangeGain','OtherIncome','Accounts'/'ExchangeGain',0),\n  account('Expenses','NetIncomeLoss','Accounts'/'Expenses',0),\n  account('FinancialInvestments',\n\t  'NoncurrentAssets',\n\t  'Accounts' / 'FinancialInvestments',\n\t  0),\n  account('ForexLoss','Expenses','Accounts'/'ForexLoss',0),\n  account('Gst','CurrentLiabilities','Accounts'/'Gst',0),\n  account('GstPayable','Gst','Accounts'/'GstPayable',0),\n  account('GstReceivable','Gst','Accounts'/'GstReceivable',0),\n  account('HistoricalEarnings',\n\t  'RetainedEarnings',\n\t  'Accounts' / 'HistoricalEarnings',\n\t  0),\n  account('Income','Revenue','Accounts'/'Income',0),\n  account('InterestEarned','OtherIncome','Accounts'/'InterestEarned',0),\n  account('InterestExpenses','Expenses','Accounts'/'InterestExpenses',0),\n  account('InterestIncome','OtherIncome','Accounts'/'InterestIncome',0),\n  account('InvestmentIncome','Revenue','Accounts'/'InvestmentIncome',0),\n  account('Liabilities','NetAssets','Accounts'/'Liabilities',0),\n  account('LivestockAdjustment','Expenses','Accounts'/'LivestockAdjustment',0),\n  account('NetAssets','Accounts','Accounts'/'NetAssets',0),\n  account('NetIncomeLoss','Accounts','Accounts'/'NetIncomeLoss',0),\n  account('NoncurrentAssets','Assets','Accounts'/'NoncurrentAssets',0),\n  account('NoncurrentLiabilities',\n\t  'Liabilities',\n\t  'Accounts' / 'NoncurrentLiabilities',\n\t  0),\n  account('NoncurrentLoans',\n\t  'NoncurrentLiabilities',\n\t  'Accounts' / 'NoncurrentLoans',\n\t  0),\n  account('OtherExpenses','Expenses','Accounts'/'OtherExpenses',0),\n  account('OtherGain','Revenue','Accounts'/'OtherGain',0),\n  account('OtherIncome','Revenue','Accounts'/'OtherIncome',0),\n  account('Purchases','Expenses','Accounts'/'Purchases',0),\n  account('RationsRevenue','Revenue','Accounts'/'RationsRevenue',0),\n  account('RetainedEarnings','Equity','Accounts'/'RetainedEarnings',0),\n  account('Revenue','NetIncomeLoss','Accounts'/'Revenue',0),\n  account('SalesOfLivestock','Revenue','Accounts'/'SalesOfLivestock',0),\n  account('ShareCapital','Equity','Accounts'/'ShareCapital',0)\n]"^^xsd:string ;
+	<title> <Accounts%20extracted> .
+
+<#bnx52_>
+	<body> "[ account(accountHierarchy,'','',0),\n  account('Inventory',accountHierarchy,accountHierarchy/'Inventory',0),\n  account('LivestockCount','Inventory','Inventory'/'LivestockCount',0),\n  account('BanksNationalAustraliaBank',\n\t  'Banks',\n\t  'Banks' / 'NationalAustraliaBank',\n\t  1),\n  account('BanksWellsFargo','Banks','Banks'/'WellsFargo',1),\n  account('CurrencyMovementNationalAustraliaBank',\n\t  'CurrencyMovement',\n\t  'CurrencyMovement' / 'NationalAustraliaBank',\n\t  0),\n  account('CurrencyMovementWellsFargo',\n\t  'CurrencyMovement',\n\t  'CurrencyMovement' / 'WellsFargo',\n\t  0),\n  account('InvestmentIncomeRealized',\n\t  'InvestmentIncome',\n\t  'InvestmentIncome' / realized,\n\t  0),\n  account('InvestmentIncomeRealizedOnlyCurrencyMovement',\n\t  'InvestmentIncomeRealized',\n\t  'InvestmentIncomeRealized' / onlyCurrencyMovement,\n\t  0),\n  account('InvestmentIncomeRealizedOnlyCurrencyMovementBHP',\n\t  'InvestmentIncomeRealizedOnlyCurrencyMovement',\n\t  'InvestmentIncomeRealizedOnlyCurrencyMovement' / 'BHP',\n\t  1),\n  account('InvestmentIncomeRealizedOnlyCurrencyMovementSG_Issuer_SA',\n\t  'InvestmentIncomeRealizedOnlyCurrencyMovement',\n\t  'InvestmentIncomeRealizedOnlyCurrencyMovement' / 'SG_Issuer_SA',\n\t  1),\n  account('InvestmentIncomeRealizedOnlyCurrencyMovementTLS',\n\t  'InvestmentIncomeRealizedOnlyCurrencyMovement',\n\t  'InvestmentIncomeRealizedOnlyCurrencyMovement' / 'TLS',\n\t  1),\n  account('InvestmentIncomeRealizedWithoutCurrencyMovement',\n\t  'InvestmentIncomeRealized',\n\t  'InvestmentIncomeRealized' / withoutCurrencyMovement,\n\t  0),\n  account('InvestmentIncomeRealizedWithoutCurrencyMovementBHP',\n\t  'InvestmentIncomeRealizedWithoutCurrencyMovement',\n\t  'InvestmentIncomeRealizedWithoutCurrencyMovement' / 'BHP',\n\t  1),\n  account('InvestmentIncomeRealizedWithoutCurrencyMovementSG_Issuer_SA',\n\t  'InvestmentIncomeRealizedWithoutCurrencyMovement',\n\t  'InvestmentIncomeRealizedWithoutCurrencyMovement' / 'SG_Issuer_SA',\n\t  1),\n  account('InvestmentIncomeRealizedWithoutCurrencyMovementTLS',\n\t  'InvestmentIncomeRealizedWithoutCurrencyMovement',\n\t  'InvestmentIncomeRealizedWithoutCurrencyMovement' / 'TLS',\n\t  1),\n  account('InvestmentIncomeUnrealized',\n\t  'InvestmentIncome',\n\t  'InvestmentIncome' / unrealized,\n\t  0),\n  account('InvestmentIncomeUnrealizedOnlyCurrencyMovement',\n\t  'InvestmentIncomeUnrealized',\n\t  'InvestmentIncomeUnrealized' / onlyCurrencyMovement,\n\t  0),\n  account('InvestmentIncomeUnrealizedOnlyCurrencyMovementBHP',\n\t  'InvestmentIncomeUnrealizedOnlyCurrencyMovement',\n\t  'InvestmentIncomeUnrealizedOnlyCurrencyMovement' / 'BHP',\n\t  1),\n  account('InvestmentIncomeUnrealizedOnlyCurrencyMovementSG_Issuer_SA',\n\t  'InvestmentIncomeUnrealizedOnlyCurrencyMovement',\n\t  'InvestmentIncomeUnrealizedOnlyCurrencyMovement' / 'SG_Issuer_SA',\n\t  1),\n  account('InvestmentIncomeUnrealizedOnlyCurrencyMovementTLS',\n\t  'InvestmentIncomeUnrealizedOnlyCurrencyMovement',\n\t  'InvestmentIncomeUnrealizedOnlyCurrencyMovement' / 'TLS',\n\t  1),\n  account('InvestmentIncomeUnrealizedWithoutCurrencyMovement',\n\t  'InvestmentIncomeUnrealized',\n\t  'InvestmentIncomeUnrealized' / withoutCurrencyMovement,\n\t  0),\n  account('InvestmentIncomeUnrealizedWithoutCurrencyMovementBHP',\n\t  'InvestmentIncomeUnrealizedWithoutCurrencyMovement',\n\t  'InvestmentIncomeUnrealizedWithoutCurrencyMovement' / 'BHP',\n\t  1),\n  account('InvestmentIncomeUnrealizedWithoutCurrencyMovementSG_Issuer_SA',\n\t  'InvestmentIncomeUnrealizedWithoutCurrencyMovement',\n\t  'InvestmentIncomeUnrealizedWithoutCurrencyMovement' / 'SG_Issuer_SA',\n\t  1),\n  account('InvestmentIncomeUnrealizedWithoutCurrencyMovementTLS',\n\t  'InvestmentIncomeUnrealizedWithoutCurrencyMovement',\n\t  'InvestmentIncomeUnrealizedWithoutCurrencyMovement' / 'TLS',\n\t  1),\n  account('FinancialInvestmentsBHP',\n\t  'FinancialInvestments',\n\t  'FinancialInvestments' / 'BHP',\n\t  1),\n  account('FinancialInvestmentsSG_Issuer_SA',\n\t  'FinancialInvestments',\n\t  'FinancialInvestments' / 'SG_Issuer_SA',\n\t  1),\n  account('FinancialInvestmentsTLS',\n\t  'FinancialInvestments',\n\t  'FinancialInvestments' / 'TLS',\n\t  1)\n]"^^xsd:string ;
+	<title> <Accounts%20generated> .
+
+<#bnx53_>
+	a l:s_transaction ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#account> <WellsFargo> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#day> "2017-07-01T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#exchanged> "vector([coord('SG_Issuer_SA',10)])"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#misc> "misc{desc2:''}"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#type_id> "uri('#bnx35_Invest_In')"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#vector> "[coord('USD',-100)]"^^xsd:string .
+
+<#bnx54_>
+	a l:s_transaction ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#account> <NationalAustraliaBank> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#day> "2017-07-01T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#exchanged> "vector([coord('SG_Issuer_SA',10)])"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#misc> "misc{desc2:''}"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#type_id> "uri('#bnx35_Invest_In')"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#vector> "[coord('AUD',-100)]"^^xsd:string .
+
+<#bnx55_>
+	a l:s_transaction ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#account> <WellsFargo> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#day> "2017-07-01T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#exchanged> "vector([])"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#misc> "misc{desc2:''}"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#type_id> "uri('#bnx45_Introduce_Capital')"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#vector> "[coord('USD',200)]"^^xsd:string .
+
+<#bnx56_>
+	a l:s_transaction ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#account> <WellsFargo> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#day> "2017-07-01T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#exchanged> "vector([])"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#misc> "misc{desc2:''}"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#type_id> "uri('#bnx45_Introduce_Capital')"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#vector> "[coord('USD',200)]"^^xsd:string .
+
+<#bnx57_>
+	a l:s_transaction ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#account> <NationalAustraliaBank> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#day> "2017-07-01T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#exchanged> "vector([])"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#misc> "misc{desc2:''}"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#type_id> "uri('#bnx45_Introduce_Capital')"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#vector> "[coord('AUD',200)]"^^xsd:string .
+
+<#bnx58_>
+	a l:s_transaction ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#account> <NationalAustraliaBank> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#day> "2017-07-01T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#exchanged> "vector([])"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#misc> "misc{desc2:''}"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#type_id> "uri('#bnx45_Introduce_Capital')"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#vector> "[coord('AUD',200)]"^^xsd:string .
+
+<#bnx59_>
+	a l:s_transaction ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#account> <WellsFargo> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#day> "2017-07-10T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#exchanged> "vector([coord('BHP',10)])"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#misc> "misc{desc2:''}"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#type_id> "uri('#bnx35_Invest_In')"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#vector> "[coord('USD',-100)]"^^xsd:string .
+
+<#bnx5_>
+	l:name <NationalAustraliaBank> .
+
+<#bnx60_>
+	a l:s_transaction ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#account> <NationalAustraliaBank> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#day> "2017-07-10T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#exchanged> "vector([coord('BHP',10)])"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#misc> "misc{desc2:''}"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#type_id> "uri('#bnx35_Invest_In')"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#vector> "[coord('AUD',-100)]"^^xsd:string .
+
+<#bnx61_>
+	a l:s_transaction ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#account> <NationalAustraliaBank> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#day> "2017-08-01T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#exchanged> "vector([])"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#misc> "misc{desc2:''}"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#type_id> "uri('#bnx44_Borrow')"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#vector> "[coord('AUD',100)]"^^xsd:string .
+
+<#bnx62_>
+	a l:s_transaction ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#account> <WellsFargo> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#day> "2018-06-28T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#exchanged> "vector([])"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#misc> "misc{desc2:''}"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#type_id> "uri('#bnx46_Pay_Bank')"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#vector> "[coord('USD',-10)]"^^xsd:string .
+
+<#bnx63_>
+	a l:s_transaction ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#account> <NationalAustraliaBank> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#day> "2018-06-28T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#exchanged> "vector([])"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#misc> "misc{desc2:''}"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#type_id> "uri('#bnx46_Pay_Bank')"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#vector> "[coord('AUD',-10)]"^^xsd:string .
+
+<#bnx64_>
+	a l:s_transaction ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#account> <WellsFargo> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#day> "2018-06-30T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#exchanged> "vector([coord('SG_Issuer_SA',-5)])"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#misc> "misc{desc2:''}"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#type_id> "uri('#bnx36_Dispose_Of')"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#vector> "[coord('USD',200)]"^^xsd:string .
+
+<#bnx65_>
+	a l:s_transaction ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#account> <NationalAustraliaBank> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#day> "2018-08-02T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#exchanged> "vector([coord('TLS',10)])"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#misc> "misc{desc2:''}"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#type_id> "uri('#bnx35_Invest_In')"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#vector> "[coord('AUD',-50)]"^^xsd:string .
+
+<#bnx66_>
+	a l:s_transaction ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#account> <NationalAustraliaBank> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#day> "2018-08-30T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#exchanged> "vector([coord('SG_Issuer_SA',-5)])"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#misc> "misc{desc2:''}"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#type_id> "uri('#bnx36_Dispose_Of')"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#vector> "[coord('AUD',200)]"^^xsd:string .
+
+<#bnx67_>
+	a l:transaction ;
+	l:cf_category <Investing%20activities> ;
+	l:cf_plusminus <decreases> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#account> <BanksWellsFargo> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#day> "2017-07-01T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/transactions#description> <Invest_In%20-%20outgoing%20money> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#origin> <#bnx53_> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#type> <instant> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#vector> "[coord('USD',-100)]"^^xsd:string .
+
+<#bnx68_>
+	a l:transaction ;
+	<https://rdf.lodgeit.net.au/v1/transactions#account> <CurrencyMovementWellsFargo> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#day> "2017-07-01T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/transactions#description> <Invest_In%20-%20outgoing%20money%20-%20currency%20movement%20adjustment%20-%20only%20current%20period> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#origin> <#bnx53_> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#type> <tracking> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#vector> "[coord('USD',100),coord(without_currency_movement_against_since('USD','USD',['AUD'],date(2017,7,1)),-100)]"^^xsd:string .
+
+<#bnx69_>
+	a l:transaction ;
+	<https://rdf.lodgeit.net.au/v1/transactions#account> <FinancialInvestmentsSG_Issuer_SA> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#day> "2017-07-01T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/transactions#description> <Invest_In> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#origin> <#bnx53_> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#type> <instant> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#vector> "[coord('SG_Issuer_SA',10)]"^^xsd:string .
+
+<#bnx6_>
+	a l:s_transaction ;
+	l:source l:bank_statement_xml ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#account> <WellsFargo> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#day> "2017-07-01T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#exchanged> "vector([])"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#misc> "misc{desc2:''}"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#type_id> <Introduce_Capital> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#vector> "[coord('USD',-200)]"^^xsd:string .
+
+<#bnx70_>
+	a l:transaction ;
+	<https://rdf.lodgeit.net.au/v1/transactions#account> <InvestmentIncomeUnrealizedOnlyCurrencyMovementSG_Issuer_SA> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#day> "2017-07-01T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/transactions#description> <comment:,%20comment2:Invest_In%20-%20single%20period> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#origin> <#bnx53_> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#type> <?> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#vector> "[coord('SG_Issuer_SA',-10),coord(without_currency_movement_against_since('SG_Issuer_SA','USD',['AUD'],date(2017,7,1)),10)]"^^xsd:string .
+
+<#bnx71_>
+	a l:transaction ;
+	<https://rdf.lodgeit.net.au/v1/transactions#account> <InvestmentIncomeUnrealizedWithoutCurrencyMovementSG_Issuer_SA> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#day> "2017-07-01T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/transactions#description> <comment:,%20comment2:Invest_In%20-%20single%20period> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#origin> <#bnx53_> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#type> <?> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#vector> "[coord(without_currency_movement_against_since('SG_Issuer_SA','USD',['AUD'],date(2017,7,1)),-10),coord('AUD',10000 rdiv 69)]"^^xsd:string .
+
+<#bnx72_>
+	a l:transaction ;
+	l:cf_category <Investing%20activities> ;
+	l:cf_plusminus <decreases> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#account> <BanksNationalAustraliaBank> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#day> "2017-07-01T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/transactions#description> <Invest_In%20-%20outgoing%20money> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#origin> <#bnx54_> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#type> <instant> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#vector> "[coord('AUD',-100)]"^^xsd:string .
+
+<#bnx73_>
+	a l:transaction ;
+	<https://rdf.lodgeit.net.au/v1/transactions#account> <FinancialInvestmentsSG_Issuer_SA> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#day> "2017-07-01T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/transactions#description> <Invest_In> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#origin> <#bnx54_> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#type> <instant> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#vector> "[coord('SG_Issuer_SA',10)]"^^xsd:string .
+
+<#bnx74_>
+	a l:transaction ;
+	<https://rdf.lodgeit.net.au/v1/transactions#account> <InvestmentIncomeUnrealizedOnlyCurrencyMovementSG_Issuer_SA> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#day> "2017-07-01T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/transactions#description> <comment:,%20comment2:Invest_In%20-%20single%20period> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#origin> <#bnx54_> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#type> <?> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#vector> "[coord('SG_Issuer_SA',-10),coord(without_currency_movement_against_since('SG_Issuer_SA','AUD',['AUD'],date(2017,7,1)),10)]"^^xsd:string .
+
+<#bnx75_>
+	a l:transaction ;
+	<https://rdf.lodgeit.net.au/v1/transactions#account> <InvestmentIncomeUnrealizedWithoutCurrencyMovementSG_Issuer_SA> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#day> "2017-07-01T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/transactions#description> <comment:,%20comment2:Invest_In%20-%20single%20period> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#origin> <#bnx54_> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#type> <?> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#vector> "[coord(without_currency_movement_against_since('SG_Issuer_SA','AUD',['AUD'],date(2017,7,1)),-10),coord('AUD',100)]"^^xsd:string .
+
+<#bnx76_>
+	a l:transaction ;
+	l:cf_category <Financing%20activities> ;
+	l:cf_plusminus <increases> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#account> <BanksWellsFargo> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#day> "2017-07-01T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/transactions#description> <Introduce_Capital%20-%20incoming%20money> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#origin> <#bnx55_> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#type> <instant> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#vector> "[coord('USD',200)]"^^xsd:string .
+
+<#bnx77_>
+	a l:transaction ;
+	<https://rdf.lodgeit.net.au/v1/transactions#account> <CurrencyMovementWellsFargo> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#day> "2017-07-01T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/transactions#description> <Introduce_Capital%20-%20incoming%20money%20-%20currency%20movement%20adjustment%20-%20only%20current%20period> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#origin> <#bnx55_> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#type> <tracking> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#vector> "[coord('USD',-200),coord(without_currency_movement_against_since('USD','USD',['AUD'],date(2017,7,1)),200)]"^^xsd:string .
+
+<#bnx78_>
+	a l:transaction ;
+	<https://rdf.lodgeit.net.au/v1/transactions#account> <ShareCapital> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#day> "2017-07-01T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/transactions#description> <Introduce_Capital> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#origin> <#bnx55_> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#type> <instant> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#vector> "[coord('AUD',-20000 rdiv 69)]"^^xsd:string .
+
+<#bnx79_>
+	a l:transaction ;
+	l:cf_category <Financing%20activities> ;
+	l:cf_plusminus <increases> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#account> <BanksWellsFargo> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#day> "2017-07-01T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/transactions#description> <Introduce_Capital%20-%20incoming%20money> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#origin> <#bnx56_> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#type> <instant> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#vector> "[coord('USD',200)]"^^xsd:string .
+
+<#bnx7_>
+	a l:s_transaction ;
+	l:source l:bank_statement_xml ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#account> <WellsFargo> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#day> "2017-07-01T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#exchanged> "vector([coord('SG_Issuer_SA',10)])"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#misc> "misc{desc2:''}"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#type_id> <Invest_In> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#vector> "[coord('USD',100)]"^^xsd:string .
+
+<#bnx80_>
+	a l:transaction ;
+	<https://rdf.lodgeit.net.au/v1/transactions#account> <CurrencyMovementWellsFargo> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#day> "2017-07-01T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/transactions#description> <Introduce_Capital%20-%20incoming%20money%20-%20currency%20movement%20adjustment%20-%20only%20current%20period> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#origin> <#bnx56_> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#type> <tracking> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#vector> "[coord('USD',-200),coord(without_currency_movement_against_since('USD','USD',['AUD'],date(2017,7,1)),200)]"^^xsd:string .
+
+<#bnx81_>
+	a l:transaction ;
+	<https://rdf.lodgeit.net.au/v1/transactions#account> <ShareCapital> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#day> "2017-07-01T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/transactions#description> <Introduce_Capital> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#origin> <#bnx56_> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#type> <instant> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#vector> "[coord('AUD',-20000 rdiv 69)]"^^xsd:string .
+
+<#bnx82_>
+	a l:transaction ;
+	l:cf_category <Financing%20activities> ;
+	l:cf_plusminus <increases> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#account> <BanksNationalAustraliaBank> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#day> "2017-07-01T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/transactions#description> <Introduce_Capital%20-%20incoming%20money> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#origin> <#bnx57_> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#type> <instant> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#vector> "[coord('AUD',200)]"^^xsd:string .
+
+<#bnx83_>
+	a l:transaction ;
+	<https://rdf.lodgeit.net.au/v1/transactions#account> <ShareCapital> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#day> "2017-07-01T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/transactions#description> <Introduce_Capital> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#origin> <#bnx57_> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#type> <instant> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#vector> "[coord('AUD',-200)]"^^xsd:string .
+
+<#bnx84_>
+	a l:transaction ;
+	l:cf_category <Financing%20activities> ;
+	l:cf_plusminus <increases> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#account> <BanksNationalAustraliaBank> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#day> "2017-07-01T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/transactions#description> <Introduce_Capital%20-%20incoming%20money> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#origin> <#bnx58_> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#type> <instant> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#vector> "[coord('AUD',200)]"^^xsd:string .
+
+<#bnx85_>
+	a l:transaction ;
+	<https://rdf.lodgeit.net.au/v1/transactions#account> <ShareCapital> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#day> "2017-07-01T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/transactions#description> <Introduce_Capital> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#origin> <#bnx58_> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#type> <instant> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#vector> "[coord('AUD',-200)]"^^xsd:string .
+
+<#bnx86_>
+	a l:transaction ;
+	l:cf_category <Investing%20activities> ;
+	l:cf_plusminus <decreases> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#account> <BanksWellsFargo> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#day> "2017-07-10T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/transactions#description> <Invest_In%20-%20outgoing%20money> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#origin> <#bnx59_> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#type> <instant> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#vector> "[coord('USD',-100)]"^^xsd:string .
+
+<#bnx87_>
+	a l:transaction ;
+	<https://rdf.lodgeit.net.au/v1/transactions#account> <CurrencyMovementWellsFargo> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#day> "2017-07-10T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/transactions#description> <Invest_In%20-%20outgoing%20money%20-%20currency%20movement%20adjustment%20-%20only%20current%20period> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#origin> <#bnx59_> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#type> <tracking> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#vector> "[coord('USD',100),coord(without_currency_movement_against_since('USD','USD',['AUD'],date(2017,7,10)),-100)]"^^xsd:string .
+
+<#bnx88_>
+	a l:transaction ;
+	<https://rdf.lodgeit.net.au/v1/transactions#account> <FinancialInvestmentsBHP> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#day> "2017-07-10T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/transactions#description> <Invest_In> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#origin> <#bnx59_> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#type> <instant> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#vector> "[coord('BHP',10)]"^^xsd:string .
+
+<#bnx89_>
+	a l:transaction ;
+	<https://rdf.lodgeit.net.au/v1/transactions#account> <InvestmentIncomeUnrealizedOnlyCurrencyMovementBHP> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#day> "2017-07-10T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/transactions#description> <comment:,%20comment2:Invest_In%20-%20single%20period> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#origin> <#bnx59_> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#type> <?> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#vector> "[coord('BHP',-10),coord(without_currency_movement_against_since('BHP','USD',['AUD'],date(2017,7,10)),10)]"^^xsd:string .
+
+<#bnx8_>
+	a l:s_transaction ;
+	l:source l:bank_statement_xml ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#account> <WellsFargo> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#day> "2018-06-30T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#exchanged> "vector([coord('SG_Issuer_SA',-5)])"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#misc> "misc{desc2:''}"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#type_id> <Dispose_Of> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#vector> "[coord('USD',-200)]"^^xsd:string .
+
+<#bnx90_>
+	a l:transaction ;
+	<https://rdf.lodgeit.net.au/v1/transactions#account> <InvestmentIncomeUnrealizedWithoutCurrencyMovementBHP> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#day> "2017-07-10T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/transactions#description> <comment:,%20comment2:Invest_In%20-%20single%20period> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#origin> <#bnx59_> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#type> <?> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#vector> "[coord(without_currency_movement_against_since('BHP','USD',['AUD'],date(2017,7,10)),-10),coord('AUD',16433 rdiv 125)]"^^xsd:string .
+
+<#bnx91_>
+	a l:transaction ;
+	l:cf_category <Investing%20activities> ;
+	l:cf_plusminus <decreases> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#account> <BanksNationalAustraliaBank> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#day> "2017-07-10T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/transactions#description> <Invest_In%20-%20outgoing%20money> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#origin> <#bnx60_> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#type> <instant> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#vector> "[coord('AUD',-100)]"^^xsd:string .
+
+<#bnx92_>
+	a l:transaction ;
+	<https://rdf.lodgeit.net.au/v1/transactions#account> <FinancialInvestmentsBHP> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#day> "2017-07-10T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/transactions#description> <Invest_In> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#origin> <#bnx60_> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#type> <instant> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#vector> "[coord('BHP',10)]"^^xsd:string .
+
+<#bnx93_>
+	a l:transaction ;
+	<https://rdf.lodgeit.net.au/v1/transactions#account> <InvestmentIncomeUnrealizedOnlyCurrencyMovementBHP> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#day> "2017-07-10T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/transactions#description> <comment:,%20comment2:Invest_In%20-%20single%20period> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#origin> <#bnx60_> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#type> <?> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#vector> "[coord('BHP',-10),coord(without_currency_movement_against_since('BHP','AUD',['AUD'],date(2017,7,10)),10)]"^^xsd:string .
+
+<#bnx94_>
+	a l:transaction ;
+	<https://rdf.lodgeit.net.au/v1/transactions#account> <InvestmentIncomeUnrealizedWithoutCurrencyMovementBHP> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#day> "2017-07-10T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/transactions#description> <comment:,%20comment2:Invest_In%20-%20single%20period> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#origin> <#bnx60_> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#type> <?> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#vector> "[coord(without_currency_movement_against_since('BHP','AUD',['AUD'],date(2017,7,10)),-10),coord('AUD',100)]"^^xsd:string .
+
+<#bnx95_>
+	a l:transaction ;
+	l:cf_category <Financing%20activities> ;
+	l:cf_plusminus <increases> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#account> <BanksNationalAustraliaBank> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#day> "2017-08-01T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/transactions#description> <Borrow%20-%20incoming%20money> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#origin> <#bnx61_> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#type> <instant> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#vector> "[coord('AUD',100)]"^^xsd:string .
+
+<#bnx96_>
+	a l:transaction ;
+	<https://rdf.lodgeit.net.au/v1/transactions#account> <NoncurrentLoans> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#day> "2017-08-01T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/transactions#description> <Borrow> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#origin> <#bnx61_> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#type> <instant> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#vector> "[coord('AUD',-100)]"^^xsd:string .
+
+<#bnx97_>
+	a l:transaction ;
+	l:cf_category <no%20category> ;
+	l:cf_plusminus <decreases> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#account> <BanksWellsFargo> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#day> "2018-06-28T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/transactions#description> <Pay_Bank%20-%20outgoing%20money> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#origin> <#bnx62_> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#type> <instant> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#vector> "[coord('USD',-10)]"^^xsd:string .
+
+<#bnx98_>
+	a l:transaction ;
+	<https://rdf.lodgeit.net.au/v1/transactions#account> <CurrencyMovementWellsFargo> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#day> "2018-06-28T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/transactions#description> <Pay_Bank%20-%20outgoing%20money%20-%20currency%20movement%20adjustment%20-%20only%20current%20period> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#origin> <#bnx62_> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#type> <tracking> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#vector> "[coord('USD',10),coord(without_currency_movement_against_since('USD','USD',['AUD'],date(2018,6,28)),-10)]"^^xsd:string .
+
+<#bnx99_>
+	a l:transaction ;
+	<https://rdf.lodgeit.net.au/v1/transactions#account> <BankCharges> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#day> "2018-06-28T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/transactions#description> <Pay_Bank> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#origin> <#bnx62_> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#type> <instant> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#vector> "[coord('AUD',1360971 rdiv 100000)]"^^xsd:string .
+
+<#bnx9_>
+	a l:s_transaction ;
+	l:source l:bank_statement_xml ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#account> <WellsFargo> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#day> "2017-07-01T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#exchanged> "vector([])"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#misc> "misc{desc2:''}"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#type_id> <Introduce_Capital> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#vector> "[coord('USD',-200)]"^^xsd:string .
+
+<AUD>
+	<sane> "'U-',\"U-AUD\""^^xsd:string .
+
+<BHP>
+	<sane> "'',\"BHP\""^^xsd:string .
+
+<D-2019>
+	<sane> "'',\"D-2019\""^^xsd:string .
+
+<D-2019-BHP>
+	<sane> "'',\"D-2019-BHP\""^^xsd:string .
+
+<D-2019-NationalAustraliaBank>
+	<sane> "'',\"D-2019-NationalAustraliaBank\""^^xsd:string .
+
+<D-2019-SG_Issuer_SA>
+	<sane> "'',\"D-2019-SG_Issuer_SA\""^^xsd:string .
+
+<D-2019-TLS>
+	<sane> "'',\"D-2019-TLS\""^^xsd:string .
+
+<D-2019-WellsFargo>
+	<sane> "'',\"D-2019-WellsFargo\""^^xsd:string .
+
+<I-2019>
+	<sane> "'',\"I-2019\""^^xsd:string .
+
+<I-2019-NationalAustraliaBank>
+	<sane> "'',\"I-2019-NationalAustraliaBank\""^^xsd:string .
+
+<I-2019-WellsFargo>
+	<sane> "'',\"I-2019-WellsFargo\""^^xsd:string .
+
+<NationalAustraliaBank>
+	<sane> "'',\"NationalAustraliaBank\""^^xsd:string .
+
+<SG_Issuer_SA>
+	<sane> "'',\"SG_Issuer_SA\""^^xsd:string ,
+	       "'U-',\"U-SG_Issuer_SA\""^^xsd:string .
+
+<TLS>
+	<sane> "'',\"TLS\""^^xsd:string .
+
+<WellsFargo>
+	<sane> "'',\"WellsFargo\""^^xsd:string .
+
+<basic:Dimension_BankAccounts_Duration>
+	<sane> "'',\"basic:Dimension_BankAccounts_Duration\""^^xsd:string .
+
+<basic:Dimension_BankAccounts_Instant>
+	<sane> "'',\"basic:Dimension_BankAccounts_Instant\""^^xsd:string .
+
+<basic:Dimension_Investments_Duration>
+	<sane> "'',\"basic:Dimension_Investments_Duration\""^^xsd:string .
+
+l:livestock_purchase
+	a l:action_verb ;
+	l:has_id <Livestock_Purchase> .
+
+l:livestock_sale
+	a l:action_verb ;
+	l:has_id <Livestock_Sale> .
