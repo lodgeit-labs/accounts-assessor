@@ -87,16 +87,17 @@ sort_s_transactions(In, Out) :-
 	predsort(compare_s_transactions, In, Out).
 
 
-s_transactions_up_to(End_Date, S_Transactions_In, S_Transactions_Out) :-
+s_transactions_up_to(End_Date, S_Transactions_All, S_Transactions_Capped) :-
 	findall(
 		T,
 		(
-			member(T, S_Transactions_In),
+			member(T, S_Transactions_All),
 			s_transaction_day(T, D),
 			D @=< End_Date
 		),
-		S_Transactions_Out
+		S_Transactions_Capped
 	).
+
 
 s_transaction_to_dict(T, D) :-
 	doc(T, rdf:type, l:s_transaction, transactions),

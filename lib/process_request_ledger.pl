@@ -44,21 +44,12 @@ ggg(Data, S_Transactions0, Count) :-
 process_request_ledger2(Dom, S_Transactions, Structured_Reports, Transactions) :-
 	extract_start_and_end_date(Dom, Start_Date, End_Date),
 	extract_output_dimensional_facts(Dom, Output_Dimensional_Facts),
-
 	extract_cost_or_market(Dom, Cost_Or_Market),
 	extract_report_currency(Dom, Report_Currency),
-
 	extract_action_verbs_from_bs_request(Dom),
 	extract_account_hierarchy_from_request_dom(Dom, Accounts0),
 	extract_livestock_data_from_ledger_request(Dom),
-
-	/* Start_Date, End_Date to substitute of "opening", "closing" */
-	extract_exchange_rates(Dom, Start_Date, End_Date, Report_Currency, Exchange_Rates0),
-
-	(	Cost_Or_Market = cost
-	->	filter_out_market_values(S_Transactions, Exchange_Rates0, Exchange_Rates)
-	;	Exchange_Rates0 = Exchange_Rates),
-
+	extract_exchange_rates(Dom, S_Transactions, Start_Date, End_Date, Report_Currency, Exchange_Rates),
 	extract_invoices_payable(Dom),
 	extract_initial_gl(Initial_Txs),
 
@@ -78,12 +69,22 @@ process_request_ledger2(Dom, S_Transactions, Structured_Reports, Transactions) :
 		Processed_Until_Date,
 		Gl),
 
-	/* if some s_transaction failed to process, there should be an alert created by now. Now we just compile a report up until that transaction. It would be cleaner to do this by calling process_ledger a second time */
+	/* if some s_transaction failed to process, there should be an alert created by now. Now we just compile a report up until that transaction. It would maybe be cleaner to do this by calling process_ledger a second time */
 	dict_from_vars(Static_Data0,
-		[Cost_Or_Market, Output_Dimensional_Facts, Start_Date, Exchange_Rates, Accounts, Transactions, Report_Currency, Gl, Transactions_By_Account, Outstanding]),
+		[Cost_Or_Market,
+		Output_Dimensional_Facts,
+		Start_Date,
+		Exchange_Rates,
+		Accounts,
+		Transactions,
+		Report_Currency,
+		Gl,
+		Transactions_By_Account,
+		Outstanding
+	]),
 	Static_Data1 = Static_Data0.put([
-		end_date=Processed_Until_Date
-		,exchange_date=Processed_Until_Date
+		end_date=Processed_Until_Date,
+		exchange_date=Processed_Until_Date
 	]),
 
 	create_reports(Static_Data1, Structured_Reports).
