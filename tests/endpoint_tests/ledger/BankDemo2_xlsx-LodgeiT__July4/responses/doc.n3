@@ -1,0 +1,1329 @@
+@base              <http://localhost:7778/tmp/1582194185.1406841.200/doc.n3> .
+@prefix       rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix livestock: <https://rdf.lodgeit.net.au/v1/livestock#> .
+@prefix         l: <https://rdf.lodgeit.net.au/v1/request#> .
+@prefix      rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix       xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Named toplevel resources (181)
+
+<#bnx100_>
+	a l:transaction ;
+	<https://rdf.lodgeit.net.au/v1/transactions#account> <InterestEarned> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#day> "2018-12-30T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/transactions#description> <Interest_Income> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#origin> <#bnx55_> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#type> <instant> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#vector> "[coord('AUD',-315315231 rdiv 200000)]"^^xsd:string .
+
+<#bnx101_>
+	a l:transaction ;
+	l:cf_category <Investing%20activities> ;
+	l:cf_plusminus <increases> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#account> <BanksCHF_Bank> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#day> "2018-12-30T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/transactions#description> <Dispose_Off%20-%20incoming%20money> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#origin> <#bnx56_> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#type> <instant> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#vector> "[coord('CHF',220000)]"^^xsd:string .
+
+<#bnx102_>
+	a l:transaction ;
+	<https://rdf.lodgeit.net.au/v1/transactions#account> <CurrencyMovementCHF_Bank> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#day> "2018-12-30T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/transactions#description> <Dispose_Off%20-%20incoming%20money%20-%20currency%20movement%20adjustment%20-%20only%20current%20period> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#origin> <#bnx56_> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#type> <tracking> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#vector> "[coord('CHF',-220000),coord(without_currency_movement_against_since('CHF','CHF',['AUD'],date(2018,12,30)),220000)]"^^xsd:string .
+
+<#bnx103_>
+	a l:transaction ;
+	<https://rdf.lodgeit.net.au/v1/transactions#account> <FinancialInvestmentsLeonteq_N> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#day> "2018-12-30T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/transactions#description> <Dispose_Off> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#origin> <#bnx56_> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#type> <instant> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#vector> "[coord('Leonteq_N',-30000)]"^^xsd:string .
+
+<#bnx104_>
+	a l:transaction ;
+	<https://rdf.lodgeit.net.au/v1/transactions#account> <InvestmentIncomeUnrealizedOnlyCurrencyMovementLeonteq_N> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#day> "2018-12-30T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/transactions#description> <comment:,%20comment2:Dispose_Off%20-%20single%20period> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#origin> <#bnx56_> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#type> <?> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#vector> "[coord('Leonteq_N',30000),coord(without_currency_movement_against_since('Leonteq_N','CHF',['AUD'],date(2018,10,1)),-30000)]"^^xsd:string .
+
+<#bnx105_>
+	a l:transaction ;
+	<https://rdf.lodgeit.net.au/v1/transactions#account> <InvestmentIncomeUnrealizedWithoutCurrencyMovementLeonteq_N> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#day> "2018-12-30T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/transactions#description> <comment:,%20comment2:Dispose_Off%20-%20single%20period> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#origin> <#bnx56_> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#type> <?> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#vector> "[coord(without_currency_movement_against_since('Leonteq_N','CHF',['AUD'],date(2018,10,1)),30000),coord('AUD',-218049244449 rdiv 2000000)]"^^xsd:string .
+
+<#bnx106_>
+	a l:transaction ;
+	<https://rdf.lodgeit.net.au/v1/transactions#account> <InvestmentIncomeRealizedOnlyCurrencyMovementLeonteq_N> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#day> "2018-12-30T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/transactions#description> <comment:,%20comment2:Dispose_Off> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#origin> <#bnx56_> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#type> <?> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#vector> "[coord('AUD',-15015011 rdiv 50),coord(without_currency_movement_against_since('CHF','CHF',['AUD'],date(2018,10,1)),220000)]"^^xsd:string .
+
+<#bnx107_>
+	a l:transaction ;
+	<https://rdf.lodgeit.net.au/v1/transactions#account> <InvestmentIncomeRealizedWithoutCurrencyMovementLeonteq_N> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#day> "2018-12-30T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/transactions#description> <comment:,%20comment2:Dispose_Off> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#origin> <#bnx56_> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#type> <?> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#vector> "[coord(without_currency_movement_against_since('CHF','CHF',['AUD'],date(2018,10,1)),-220000),coord('AUD',218049244449 rdiv 2000000)]"^^xsd:string .
+
+<#bnx108_>
+	a l:cf_categorization ;
+	l:account <BanksCHF_Bank> ;
+	l:category <Financing%20activities> ;
+	l:plusminus <increases> .
+
+<#bnx109_>
+	a l:cf_categorization ;
+	l:account <BanksCHF_Bank> ;
+	l:category <Operating%20activities> ;
+	l:plusminus <decreases> .
+
+<#bnx10_>
+	a l:s_transaction ;
+	l:source l:bank_statement_xml ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#account> <USD_Bank> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#day> "2018-09-01T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#exchanged> "vector([])"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#misc> "misc{desc2:''}"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#type_id> <Interest_Income> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#vector> "[coord('USD',-30)]"^^xsd:string .
+
+<#bnx110_>
+	a l:cf_categorization ;
+	l:account <BanksCHF_Bank> ;
+	l:category <Investing%20activities> ;
+	l:plusminus <decreases> .
+
+<#bnx111_>
+	a l:cf_categorization ;
+	l:account <BanksCHF_Bank> ;
+	l:category <Investing%20activities> ;
+	l:plusminus <increases> .
+
+<#bnx112_>
+	a rdf:value ;
+	rdf:value "[coord('AUD',622762492894 rdiv 495173)]"^^xsd:string ;
+	l:source "vec_change_bases([exchange_rate(date(2019,6,30),'SG_Issuer_SA','AUD',0),exchange_rate(date(2019,6,30),'6.3%EFG_International_Finance(Guernsey_Limited)','AUD',0),exchange_rate(date(2019,6,30),'8.04%_Commerzbank_AG','AUD',0),exchange_rate(date(2019,6,30),'15.84%_Commerzbank_AG','AUD',0),exchange_rate(date(2019,6,30),'EFG_International_Finance_(guernsey)_Limited','AUD',0),exchange_rate(date(2019,6,30),'16.85%_Commerzbank_AG','AUD',0),exchange_rate(date(2019,6,30),'SG Issuer_SA_USD_1','AUD',40),exchange_rate(date(2019,6,30),'Leonteq Securities AG USD','AUD',0),exchange_rate(date(2019,6,30),'Leonteq Securities AG, Guernsey Branch','AUD',0),exchange_rate(date(2019,6,30),'Leonteq Securities AG, Zurich','AUD',0),exchange_rate(date(2019,6,30),'Natixis Structured Issuance SA','AUD',0),exchange_rate(date(2019,6,30),'Neue Helvestische Bank AG 3','AUD',0),exchange_rate(date(2019,6,30),'SG Issuer SA USD','AUD',0),exchange_rate(date(2019,6,30),'Neue Helvestische Bank AG 2','AUD',0),exchange_rate(date(2019,6,30),'SG Issuer SA Euro','AUD',0),exchange_rate(date(2019,6,30),'5.1% EFG International Finance (Guernsey)Limited','AUD',0),exchange_rate(date(2019,6,30),'Bodmer Cpaital Group AG','AUD',0),exchange_rate(date(2019,6,30),'Leonteq securities ,AG','AUD',0),exchange_rate(date(2019,6,30),'Neue Helvetische Bank AG','AUD',0),exchange_rate(date(2019,6,30),'4% Schweizer Kredit AG','AUD',0),exchange_rate(date(2019,6,30),'14% GPG Holding AG','AUD',0),exchange_rate(date(2019,6,30),'CT1 Issuer Limited','AUD',0),exchange_rate(date(2019,6,30),'3% CT1 Issuer Limited','AUD',0),exchange_rate(date(2018,7,10),'CHF','AUD',1.362583),exchange_rate(date(2018,8,16),'CHF','AUD',1.34641),exchange_rate(date(2018,10,1),'CHF','AUD',1.348045),exchange_rate(date(2018,10,15),'CHF','AUD',1.351058),exchange_rate(date(2018,12,30),'CHF','AUD',1.365001),exchange_rate(date(2018,7,1),'USD','AUD',1.2852),exchange_rate(date(2018,7,2),'USD','AUD',1.35284),exchange_rate(date(2018,7,12),'USD','AUD',1.360979),exchange_rate(date(2018,8,13),'USD','AUD',1.358327),exchange_rate(date(2018,9,1),'USD','AUD',1.363232),exchange_rate(date(2018,10,15),'USD','AUD',1.35888)],date(2018,7,1),['AUD'],[coord('CHF',92151893 rdiv 100)],[coord('AUD',622762492894 rdiv 495173)])"^^xsd:string .
+
+<#bnx113_>
+	a rdf:value ;
+	rdf:value "[coord('AUD',-218049244449 rdiv 2000000)]"^^xsd:string ;
+	l:source "vec_change_bases([exchange_rate(date(2019,6,30),'SG_Issuer_SA','AUD',0),exchange_rate(date(2019,6,30),'6.3%EFG_International_Finance(Guernsey_Limited)','AUD',0),exchange_rate(date(2019,6,30),'8.04%_Commerzbank_AG','AUD',0),exchange_rate(date(2019,6,30),'15.84%_Commerzbank_AG','AUD',0),exchange_rate(date(2019,6,30),'EFG_International_Finance_(guernsey)_Limited','AUD',0),exchange_rate(date(2019,6,30),'16.85%_Commerzbank_AG','AUD',0),exchange_rate(date(2019,6,30),'SG Issuer_SA_USD_1','AUD',40),exchange_rate(date(2019,6,30),'Leonteq Securities AG USD','AUD',0),exchange_rate(date(2019,6,30),'Leonteq Securities AG, Guernsey Branch','AUD',0),exchange_rate(date(2019,6,30),'Leonteq Securities AG, Zurich','AUD',0),exchange_rate(date(2019,6,30),'Natixis Structured Issuance SA','AUD',0),exchange_rate(date(2019,6,30),'Neue Helvestische Bank AG 3','AUD',0),exchange_rate(date(2019,6,30),'SG Issuer SA USD','AUD',0),exchange_rate(date(2019,6,30),'Neue Helvestische Bank AG 2','AUD',0),exchange_rate(date(2019,6,30),'SG Issuer SA Euro','AUD',0),exchange_rate(date(2019,6,30),'5.1% EFG International Finance (Guernsey)Limited','AUD',0),exchange_rate(date(2019,6,30),'Bodmer Cpaital Group AG','AUD',0),exchange_rate(date(2019,6,30),'Leonteq securities ,AG','AUD',0),exchange_rate(date(2019,6,30),'Neue Helvetische Bank AG','AUD',0),exchange_rate(date(2019,6,30),'4% Schweizer Kredit AG','AUD',0),exchange_rate(date(2019,6,30),'14% GPG Holding AG','AUD',0),exchange_rate(date(2019,6,30),'CT1 Issuer Limited','AUD',0),exchange_rate(date(2019,6,30),'3% CT1 Issuer Limited','AUD',0),exchange_rate(date(2018,7,10),'CHF','AUD',1.362583),exchange_rate(date(2018,8,16),'CHF','AUD',1.34641),exchange_rate(date(2018,10,1),'CHF','AUD',1.348045),exchange_rate(date(2018,10,15),'CHF','AUD',1.351058),exchange_rate(date(2018,12,30),'CHF','AUD',1.365001),exchange_rate(date(2018,7,1),'USD','AUD',1.2852),exchange_rate(date(2018,7,2),'USD','AUD',1.35284),exchange_rate(date(2018,7,12),'USD','AUD',1.360979),exchange_rate(date(2018,8,13),'USD','AUD',1.358327),exchange_rate(date(2018,9,1),'USD','AUD',1.363232),exchange_rate(date(2018,10,15),'USD','AUD',1.35888)],date(2018,10,1),['AUD'],[coord('CHF',-808761 rdiv 10)],[coord('AUD',-218049244449 rdiv 2000000)])"^^xsd:string .
+
+<#bnx114_>
+	a rdf:value ;
+	rdf:value "[coord('AUD',14186109 rdiv 100)]"^^xsd:string ;
+	l:source "vec_change_bases([exchange_rate(date(2019,6,30),'SG_Issuer_SA','AUD',0),exchange_rate(date(2019,6,30),'6.3%EFG_International_Finance(Guernsey_Limited)','AUD',0),exchange_rate(date(2019,6,30),'8.04%_Commerzbank_AG','AUD',0),exchange_rate(date(2019,6,30),'15.84%_Commerzbank_AG','AUD',0),exchange_rate(date(2019,6,30),'EFG_International_Finance_(guernsey)_Limited','AUD',0),exchange_rate(date(2019,6,30),'16.85%_Commerzbank_AG','AUD',0),exchange_rate(date(2019,6,30),'SG Issuer_SA_USD_1','AUD',40),exchange_rate(date(2019,6,30),'Leonteq Securities AG USD','AUD',0),exchange_rate(date(2019,6,30),'Leonteq Securities AG, Guernsey Branch','AUD',0),exchange_rate(date(2019,6,30),'Leonteq Securities AG, Zurich','AUD',0),exchange_rate(date(2019,6,30),'Natixis Structured Issuance SA','AUD',0),exchange_rate(date(2019,6,30),'Neue Helvestische Bank AG 3','AUD',0),exchange_rate(date(2019,6,30),'SG Issuer SA USD','AUD',0),exchange_rate(date(2019,6,30),'Neue Helvestische Bank AG 2','AUD',0),exchange_rate(date(2019,6,30),'SG Issuer SA Euro','AUD',0),exchange_rate(date(2019,6,30),'5.1% EFG International Finance (Guernsey)Limited','AUD',0),exchange_rate(date(2019,6,30),'Bodmer Cpaital Group AG','AUD',0),exchange_rate(date(2019,6,30),'Leonteq securities ,AG','AUD',0),exchange_rate(date(2019,6,30),'Neue Helvetische Bank AG','AUD',0),exchange_rate(date(2019,6,30),'4% Schweizer Kredit AG','AUD',0),exchange_rate(date(2019,6,30),'14% GPG Holding AG','AUD',0),exchange_rate(date(2019,6,30),'CT1 Issuer Limited','AUD',0),exchange_rate(date(2019,6,30),'3% CT1 Issuer Limited','AUD',0),exchange_rate(date(2018,7,10),'CHF','AUD',1.362583),exchange_rate(date(2018,8,16),'CHF','AUD',1.34641),exchange_rate(date(2018,10,1),'CHF','AUD',1.348045),exchange_rate(date(2018,10,15),'CHF','AUD',1.351058),exchange_rate(date(2018,12,30),'CHF','AUD',1.365001),exchange_rate(date(2018,7,1),'USD','AUD',1.2852),exchange_rate(date(2018,7,2),'USD','AUD',1.35284),exchange_rate(date(2018,7,12),'USD','AUD',1.360979),exchange_rate(date(2018,8,13),'USD','AUD',1.358327),exchange_rate(date(2018,9,1),'USD','AUD',1.363232),exchange_rate(date(2018,10,15),'USD','AUD',1.35888)],date(2018,10,15),['AUD'],[coord('CHF',105000)],[coord('AUD',14186109 rdiv 100)])"^^xsd:string .
+
+<#bnx115_>
+	a rdf:value ;
+	rdf:value "[coord('AUD',315315231 rdiv 200000)]"^^xsd:string ;
+	l:source "vec_change_bases([exchange_rate(date(2019,6,30),'SG_Issuer_SA','AUD',0),exchange_rate(date(2019,6,30),'6.3%EFG_International_Finance(Guernsey_Limited)','AUD',0),exchange_rate(date(2019,6,30),'8.04%_Commerzbank_AG','AUD',0),exchange_rate(date(2019,6,30),'15.84%_Commerzbank_AG','AUD',0),exchange_rate(date(2019,6,30),'EFG_International_Finance_(guernsey)_Limited','AUD',0),exchange_rate(date(2019,6,30),'16.85%_Commerzbank_AG','AUD',0),exchange_rate(date(2019,6,30),'SG Issuer_SA_USD_1','AUD',40),exchange_rate(date(2019,6,30),'Leonteq Securities AG USD','AUD',0),exchange_rate(date(2019,6,30),'Leonteq Securities AG, Guernsey Branch','AUD',0),exchange_rate(date(2019,6,30),'Leonteq Securities AG, Zurich','AUD',0),exchange_rate(date(2019,6,30),'Natixis Structured Issuance SA','AUD',0),exchange_rate(date(2019,6,30),'Neue Helvestische Bank AG 3','AUD',0),exchange_rate(date(2019,6,30),'SG Issuer SA USD','AUD',0),exchange_rate(date(2019,6,30),'Neue Helvestische Bank AG 2','AUD',0),exchange_rate(date(2019,6,30),'SG Issuer SA Euro','AUD',0),exchange_rate(date(2019,6,30),'5.1% EFG International Finance (Guernsey)Limited','AUD',0),exchange_rate(date(2019,6,30),'Bodmer Cpaital Group AG','AUD',0),exchange_rate(date(2019,6,30),'Leonteq securities ,AG','AUD',0),exchange_rate(date(2019,6,30),'Neue Helvetische Bank AG','AUD',0),exchange_rate(date(2019,6,30),'4% Schweizer Kredit AG','AUD',0),exchange_rate(date(2019,6,30),'14% GPG Holding AG','AUD',0),exchange_rate(date(2019,6,30),'CT1 Issuer Limited','AUD',0),exchange_rate(date(2019,6,30),'3% CT1 Issuer Limited','AUD',0),exchange_rate(date(2018,7,10),'CHF','AUD',1.362583),exchange_rate(date(2018,8,16),'CHF','AUD',1.34641),exchange_rate(date(2018,10,1),'CHF','AUD',1.348045),exchange_rate(date(2018,10,15),'CHF','AUD',1.351058),exchange_rate(date(2018,12,30),'CHF','AUD',1.365001),exchange_rate(date(2018,7,1),'USD','AUD',1.2852),exchange_rate(date(2018,7,2),'USD','AUD',1.35284),exchange_rate(date(2018,7,12),'USD','AUD',1.360979),exchange_rate(date(2018,8,13),'USD','AUD',1.358327),exchange_rate(date(2018,9,1),'USD','AUD',1.363232),exchange_rate(date(2018,10,15),'USD','AUD',1.35888)],date(2018,12,30),['AUD'],[coord('CHF',1155)],[coord('AUD',315315231 rdiv 200000)])"^^xsd:string .
+
+<#bnx116_>
+	a rdf:value ;
+	rdf:value "[coord('AUD',15015011 rdiv 50)]"^^xsd:string ;
+	l:source "vec_change_bases([exchange_rate(date(2019,6,30),'SG_Issuer_SA','AUD',0),exchange_rate(date(2019,6,30),'6.3%EFG_International_Finance(Guernsey_Limited)','AUD',0),exchange_rate(date(2019,6,30),'8.04%_Commerzbank_AG','AUD',0),exchange_rate(date(2019,6,30),'15.84%_Commerzbank_AG','AUD',0),exchange_rate(date(2019,6,30),'EFG_International_Finance_(guernsey)_Limited','AUD',0),exchange_rate(date(2019,6,30),'16.85%_Commerzbank_AG','AUD',0),exchange_rate(date(2019,6,30),'SG Issuer_SA_USD_1','AUD',40),exchange_rate(date(2019,6,30),'Leonteq Securities AG USD','AUD',0),exchange_rate(date(2019,6,30),'Leonteq Securities AG, Guernsey Branch','AUD',0),exchange_rate(date(2019,6,30),'Leonteq Securities AG, Zurich','AUD',0),exchange_rate(date(2019,6,30),'Natixis Structured Issuance SA','AUD',0),exchange_rate(date(2019,6,30),'Neue Helvestische Bank AG 3','AUD',0),exchange_rate(date(2019,6,30),'SG Issuer SA USD','AUD',0),exchange_rate(date(2019,6,30),'Neue Helvestische Bank AG 2','AUD',0),exchange_rate(date(2019,6,30),'SG Issuer SA Euro','AUD',0),exchange_rate(date(2019,6,30),'5.1% EFG International Finance (Guernsey)Limited','AUD',0),exchange_rate(date(2019,6,30),'Bodmer Cpaital Group AG','AUD',0),exchange_rate(date(2019,6,30),'Leonteq securities ,AG','AUD',0),exchange_rate(date(2019,6,30),'Neue Helvetische Bank AG','AUD',0),exchange_rate(date(2019,6,30),'4% Schweizer Kredit AG','AUD',0),exchange_rate(date(2019,6,30),'14% GPG Holding AG','AUD',0),exchange_rate(date(2019,6,30),'CT1 Issuer Limited','AUD',0),exchange_rate(date(2019,6,30),'3% CT1 Issuer Limited','AUD',0),exchange_rate(date(2018,7,10),'CHF','AUD',1.362583),exchange_rate(date(2018,8,16),'CHF','AUD',1.34641),exchange_rate(date(2018,10,1),'CHF','AUD',1.348045),exchange_rate(date(2018,10,15),'CHF','AUD',1.351058),exchange_rate(date(2018,12,30),'CHF','AUD',1.365001),exchange_rate(date(2018,7,1),'USD','AUD',1.2852),exchange_rate(date(2018,7,2),'USD','AUD',1.35284),exchange_rate(date(2018,7,12),'USD','AUD',1.360979),exchange_rate(date(2018,8,13),'USD','AUD',1.358327),exchange_rate(date(2018,9,1),'USD','AUD',1.363232),exchange_rate(date(2018,10,15),'USD','AUD',1.35888)],date(2018,12,30),['AUD'],[coord('CHF',220000)],[coord('AUD',15015011 rdiv 50)])"^^xsd:string .
+
+<#bnx117_>
+	a rdf:value ;
+	rdf:value "[coord('AUD',-1362583 rdiv 1000)]"^^xsd:string ;
+	l:source "vec_change_bases([exchange_rate(date(2019,6,30),'SG_Issuer_SA','AUD',0),exchange_rate(date(2019,6,30),'6.3%EFG_International_Finance(Guernsey_Limited)','AUD',0),exchange_rate(date(2019,6,30),'8.04%_Commerzbank_AG','AUD',0),exchange_rate(date(2019,6,30),'15.84%_Commerzbank_AG','AUD',0),exchange_rate(date(2019,6,30),'EFG_International_Finance_(guernsey)_Limited','AUD',0),exchange_rate(date(2019,6,30),'16.85%_Commerzbank_AG','AUD',0),exchange_rate(date(2019,6,30),'SG Issuer_SA_USD_1','AUD',40),exchange_rate(date(2019,6,30),'Leonteq Securities AG USD','AUD',0),exchange_rate(date(2019,6,30),'Leonteq Securities AG, Guernsey Branch','AUD',0),exchange_rate(date(2019,6,30),'Leonteq Securities AG, Zurich','AUD',0),exchange_rate(date(2019,6,30),'Natixis Structured Issuance SA','AUD',0),exchange_rate(date(2019,6,30),'Neue Helvestische Bank AG 3','AUD',0),exchange_rate(date(2019,6,30),'SG Issuer SA USD','AUD',0),exchange_rate(date(2019,6,30),'Neue Helvestische Bank AG 2','AUD',0),exchange_rate(date(2019,6,30),'SG Issuer SA Euro','AUD',0),exchange_rate(date(2019,6,30),'5.1% EFG International Finance (Guernsey)Limited','AUD',0),exchange_rate(date(2019,6,30),'Bodmer Cpaital Group AG','AUD',0),exchange_rate(date(2019,6,30),'Leonteq securities ,AG','AUD',0),exchange_rate(date(2019,6,30),'Neue Helvetische Bank AG','AUD',0),exchange_rate(date(2019,6,30),'4% Schweizer Kredit AG','AUD',0),exchange_rate(date(2019,6,30),'14% GPG Holding AG','AUD',0),exchange_rate(date(2019,6,30),'CT1 Issuer Limited','AUD',0),exchange_rate(date(2019,6,30),'3% CT1 Issuer Limited','AUD',0),exchange_rate(date(2018,7,10),'CHF','AUD',1.362583),exchange_rate(date(2018,8,16),'CHF','AUD',1.34641),exchange_rate(date(2018,10,1),'CHF','AUD',1.348045),exchange_rate(date(2018,10,15),'CHF','AUD',1.351058),exchange_rate(date(2018,12,30),'CHF','AUD',1.365001),exchange_rate(date(2018,7,1),'USD','AUD',1.2852),exchange_rate(date(2018,7,2),'USD','AUD',1.35284),exchange_rate(date(2018,7,12),'USD','AUD',1.360979),exchange_rate(date(2018,8,13),'USD','AUD',1.358327),exchange_rate(date(2018,9,1),'USD','AUD',1.363232),exchange_rate(date(2018,10,15),'USD','AUD',1.35888)],date(2018,7,10),['AUD'],[coord('CHF',-1000)],[coord('AUD',-1362583 rdiv 1000)])"^^xsd:string .
+
+<#bnx118_>
+	a rdf:value ;
+	rdf:value "[coord('AUD',-4238094757 rdiv 2000000)]"^^xsd:string ;
+	l:source "vec_change_bases([exchange_rate(date(2019,6,30),'SG_Issuer_SA','AUD',0),exchange_rate(date(2019,6,30),'6.3%EFG_International_Finance(Guernsey_Limited)','AUD',0),exchange_rate(date(2019,6,30),'8.04%_Commerzbank_AG','AUD',0),exchange_rate(date(2019,6,30),'15.84%_Commerzbank_AG','AUD',0),exchange_rate(date(2019,6,30),'EFG_International_Finance_(guernsey)_Limited','AUD',0),exchange_rate(date(2019,6,30),'16.85%_Commerzbank_AG','AUD',0),exchange_rate(date(2019,6,30),'SG Issuer_SA_USD_1','AUD',40),exchange_rate(date(2019,6,30),'Leonteq Securities AG USD','AUD',0),exchange_rate(date(2019,6,30),'Leonteq Securities AG, Guernsey Branch','AUD',0),exchange_rate(date(2019,6,30),'Leonteq Securities AG, Zurich','AUD',0),exchange_rate(date(2019,6,30),'Natixis Structured Issuance SA','AUD',0),exchange_rate(date(2019,6,30),'Neue Helvestische Bank AG 3','AUD',0),exchange_rate(date(2019,6,30),'SG Issuer SA USD','AUD',0),exchange_rate(date(2019,6,30),'Neue Helvestische Bank AG 2','AUD',0),exchange_rate(date(2019,6,30),'SG Issuer SA Euro','AUD',0),exchange_rate(date(2019,6,30),'5.1% EFG International Finance (Guernsey)Limited','AUD',0),exchange_rate(date(2019,6,30),'Bodmer Cpaital Group AG','AUD',0),exchange_rate(date(2019,6,30),'Leonteq securities ,AG','AUD',0),exchange_rate(date(2019,6,30),'Neue Helvetische Bank AG','AUD',0),exchange_rate(date(2019,6,30),'4% Schweizer Kredit AG','AUD',0),exchange_rate(date(2019,6,30),'14% GPG Holding AG','AUD',0),exchange_rate(date(2019,6,30),'CT1 Issuer Limited','AUD',0),exchange_rate(date(2019,6,30),'3% CT1 Issuer Limited','AUD',0),exchange_rate(date(2018,7,10),'CHF','AUD',1.362583),exchange_rate(date(2018,8,16),'CHF','AUD',1.34641),exchange_rate(date(2018,10,1),'CHF','AUD',1.348045),exchange_rate(date(2018,10,15),'CHF','AUD',1.351058),exchange_rate(date(2018,12,30),'CHF','AUD',1.365001),exchange_rate(date(2018,7,1),'USD','AUD',1.2852),exchange_rate(date(2018,7,2),'USD','AUD',1.35284),exchange_rate(date(2018,7,12),'USD','AUD',1.360979),exchange_rate(date(2018,8,13),'USD','AUD',1.358327),exchange_rate(date(2018,9,1),'USD','AUD',1.363232),exchange_rate(date(2018,10,15),'USD','AUD',1.35888)],date(2018,8,16),['AUD'],[coord('CHF',-31477 rdiv 20)],[coord('AUD',-4238094757 rdiv 2000000)])"^^xsd:string .
+
+<#bnx119_>
+	a rdf:value ;
+	rdf:value "[coord('AUD',347945955307210579681 rdiv 3368692867312500)]"^^xsd:string ;
+	l:source "net_activity_by_account('BanksCHF_Bank',[coord('AUD',347945955307210579681 rdiv 3368692867312500)],_1130416)"^^xsd:string .
+
+<#bnx11_>
+	a l:s_transaction ;
+	l:source l:bank_statement_xml ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#account> <USD_Bank> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#day> "2018-10-15T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#exchanged> "vector([])"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#misc> "misc{desc2:''}"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#type_id> <Transfers> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#vector> "[coord('USD',90000)]"^^xsd:string .
+
+<#bnx120_>
+	a l:cf_categorization ;
+	l:account <BanksUSD_Bank> ;
+	l:category <Financing%20activities> ;
+	l:plusminus <decreases> .
+
+<#bnx121_>
+	a l:cf_categorization ;
+	l:account <BanksUSD_Bank> ;
+	l:category <Investing%20activities> ;
+	l:plusminus <decreases> .
+
+<#bnx122_>
+	a l:cf_categorization ;
+	l:account <BanksUSD_Bank> ;
+	l:category <Investing%20activities> ;
+	l:plusminus <increases> .
+
+<#bnx123_>
+	a l:cf_categorization ;
+	l:account <BanksUSD_Bank> ;
+	l:category <Operating%20activities> ;
+	l:plusminus <decreases> .
+
+<#bnx124_>
+	a rdf:value ;
+	rdf:value "[]"^^xsd:string ;
+	l:source "vec_change_bases([exchange_rate(date(2019,6,30),'SG_Issuer_SA','AUD',0),exchange_rate(date(2019,6,30),'6.3%EFG_International_Finance(Guernsey_Limited)','AUD',0),exchange_rate(date(2019,6,30),'8.04%_Commerzbank_AG','AUD',0),exchange_rate(date(2019,6,30),'15.84%_Commerzbank_AG','AUD',0),exchange_rate(date(2019,6,30),'EFG_International_Finance_(guernsey)_Limited','AUD',0),exchange_rate(date(2019,6,30),'16.85%_Commerzbank_AG','AUD',0),exchange_rate(date(2019,6,30),'SG Issuer_SA_USD_1','AUD',40),exchange_rate(date(2019,6,30),'Leonteq Securities AG USD','AUD',0),exchange_rate(date(2019,6,30),'Leonteq Securities AG, Guernsey Branch','AUD',0),exchange_rate(date(2019,6,30),'Leonteq Securities AG, Zurich','AUD',0),exchange_rate(date(2019,6,30),'Natixis Structured Issuance SA','AUD',0),exchange_rate(date(2019,6,30),'Neue Helvestische Bank AG 3','AUD',0),exchange_rate(date(2019,6,30),'SG Issuer SA USD','AUD',0),exchange_rate(date(2019,6,30),'Neue Helvestische Bank AG 2','AUD',0),exchange_rate(date(2019,6,30),'SG Issuer SA Euro','AUD',0),exchange_rate(date(2019,6,30),'5.1% EFG International Finance (Guernsey)Limited','AUD',0),exchange_rate(date(2019,6,30),'Bodmer Cpaital Group AG','AUD',0),exchange_rate(date(2019,6,30),'Leonteq securities ,AG','AUD',0),exchange_rate(date(2019,6,30),'Neue Helvetische Bank AG','AUD',0),exchange_rate(date(2019,6,30),'4% Schweizer Kredit AG','AUD',0),exchange_rate(date(2019,6,30),'14% GPG Holding AG','AUD',0),exchange_rate(date(2019,6,30),'CT1 Issuer Limited','AUD',0),exchange_rate(date(2019,6,30),'3% CT1 Issuer Limited','AUD',0),exchange_rate(date(2018,7,10),'CHF','AUD',1.362583),exchange_rate(date(2018,8,16),'CHF','AUD',1.34641),exchange_rate(date(2018,10,1),'CHF','AUD',1.348045),exchange_rate(date(2018,10,15),'CHF','AUD',1.351058),exchange_rate(date(2018,12,30),'CHF','AUD',1.365001),exchange_rate(date(2018,7,1),'USD','AUD',1.2852),exchange_rate(date(2018,7,2),'USD','AUD',1.35284),exchange_rate(date(2018,7,12),'USD','AUD',1.360979),exchange_rate(date(2018,8,13),'USD','AUD',1.358327),exchange_rate(date(2018,9,1),'USD','AUD',1.363232),exchange_rate(date(2018,10,15),'USD','AUD',1.35888)],date(2018,7,1),['AUD'],[coord('USD',0)],[])"^^xsd:string .
+
+<#bnx125_>
+	a rdf:value ;
+	rdf:value "[coord('AUD',-35176241291 rdiv 625000)]"^^xsd:string ;
+	l:source "vec_change_bases([exchange_rate(date(2019,6,30),'SG_Issuer_SA','AUD',0),exchange_rate(date(2019,6,30),'6.3%EFG_International_Finance(Guernsey_Limited)','AUD',0),exchange_rate(date(2019,6,30),'8.04%_Commerzbank_AG','AUD',0),exchange_rate(date(2019,6,30),'15.84%_Commerzbank_AG','AUD',0),exchange_rate(date(2019,6,30),'EFG_International_Finance_(guernsey)_Limited','AUD',0),exchange_rate(date(2019,6,30),'16.85%_Commerzbank_AG','AUD',0),exchange_rate(date(2019,6,30),'SG Issuer_SA_USD_1','AUD',40),exchange_rate(date(2019,6,30),'Leonteq Securities AG USD','AUD',0),exchange_rate(date(2019,6,30),'Leonteq Securities AG, Guernsey Branch','AUD',0),exchange_rate(date(2019,6,30),'Leonteq Securities AG, Zurich','AUD',0),exchange_rate(date(2019,6,30),'Natixis Structured Issuance SA','AUD',0),exchange_rate(date(2019,6,30),'Neue Helvestische Bank AG 3','AUD',0),exchange_rate(date(2019,6,30),'SG Issuer SA USD','AUD',0),exchange_rate(date(2019,6,30),'Neue Helvestische Bank AG 2','AUD',0),exchange_rate(date(2019,6,30),'SG Issuer SA Euro','AUD',0),exchange_rate(date(2019,6,30),'5.1% EFG International Finance (Guernsey)Limited','AUD',0),exchange_rate(date(2019,6,30),'Bodmer Cpaital Group AG','AUD',0),exchange_rate(date(2019,6,30),'Leonteq securities ,AG','AUD',0),exchange_rate(date(2019,6,30),'Neue Helvetische Bank AG','AUD',0),exchange_rate(date(2019,6,30),'4% Schweizer Kredit AG','AUD',0),exchange_rate(date(2019,6,30),'14% GPG Holding AG','AUD',0),exchange_rate(date(2019,6,30),'CT1 Issuer Limited','AUD',0),exchange_rate(date(2019,6,30),'3% CT1 Issuer Limited','AUD',0),exchange_rate(date(2018,7,10),'CHF','AUD',1.362583),exchange_rate(date(2018,8,16),'CHF','AUD',1.34641),exchange_rate(date(2018,10,1),'CHF','AUD',1.348045),exchange_rate(date(2018,10,15),'CHF','AUD',1.351058),exchange_rate(date(2018,12,30),'CHF','AUD',1.365001),exchange_rate(date(2018,7,1),'USD','AUD',1.2852),exchange_rate(date(2018,7,2),'USD','AUD',1.35284),exchange_rate(date(2018,7,12),'USD','AUD',1.360979),exchange_rate(date(2018,8,13),'USD','AUD',1.358327),exchange_rate(date(2018,9,1),'USD','AUD',1.363232),exchange_rate(date(2018,10,15),'USD','AUD',1.35888)],date(2018,7,2),['AUD'],[coord('USD',-1040071 rdiv 25)],[coord('AUD',-35176241291 rdiv 625000)])"^^xsd:string .
+
+<#bnx126_>
+	a rdf:value ;
+	rdf:value "[coord('AUD',-611496 rdiv 5)]"^^xsd:string ;
+	l:source "vec_change_bases([exchange_rate(date(2019,6,30),'SG_Issuer_SA','AUD',0),exchange_rate(date(2019,6,30),'6.3%EFG_International_Finance(Guernsey_Limited)','AUD',0),exchange_rate(date(2019,6,30),'8.04%_Commerzbank_AG','AUD',0),exchange_rate(date(2019,6,30),'15.84%_Commerzbank_AG','AUD',0),exchange_rate(date(2019,6,30),'EFG_International_Finance_(guernsey)_Limited','AUD',0),exchange_rate(date(2019,6,30),'16.85%_Commerzbank_AG','AUD',0),exchange_rate(date(2019,6,30),'SG Issuer_SA_USD_1','AUD',40),exchange_rate(date(2019,6,30),'Leonteq Securities AG USD','AUD',0),exchange_rate(date(2019,6,30),'Leonteq Securities AG, Guernsey Branch','AUD',0),exchange_rate(date(2019,6,30),'Leonteq Securities AG, Zurich','AUD',0),exchange_rate(date(2019,6,30),'Natixis Structured Issuance SA','AUD',0),exchange_rate(date(2019,6,30),'Neue Helvestische Bank AG 3','AUD',0),exchange_rate(date(2019,6,30),'SG Issuer SA USD','AUD',0),exchange_rate(date(2019,6,30),'Neue Helvestische Bank AG 2','AUD',0),exchange_rate(date(2019,6,30),'SG Issuer SA Euro','AUD',0),exchange_rate(date(2019,6,30),'5.1% EFG International Finance (Guernsey)Limited','AUD',0),exchange_rate(date(2019,6,30),'Bodmer Cpaital Group AG','AUD',0),exchange_rate(date(2019,6,30),'Leonteq securities ,AG','AUD',0),exchange_rate(date(2019,6,30),'Neue Helvetische Bank AG','AUD',0),exchange_rate(date(2019,6,30),'4% Schweizer Kredit AG','AUD',0),exchange_rate(date(2019,6,30),'14% GPG Holding AG','AUD',0),exchange_rate(date(2019,6,30),'CT1 Issuer Limited','AUD',0),exchange_rate(date(2019,6,30),'3% CT1 Issuer Limited','AUD',0),exchange_rate(date(2018,7,10),'CHF','AUD',1.362583),exchange_rate(date(2018,8,16),'CHF','AUD',1.34641),exchange_rate(date(2018,10,1),'CHF','AUD',1.348045),exchange_rate(date(2018,10,15),'CHF','AUD',1.351058),exchange_rate(date(2018,12,30),'CHF','AUD',1.365001),exchange_rate(date(2018,7,1),'USD','AUD',1.2852),exchange_rate(date(2018,7,2),'USD','AUD',1.35284),exchange_rate(date(2018,7,12),'USD','AUD',1.360979),exchange_rate(date(2018,8,13),'USD','AUD',1.358327),exchange_rate(date(2018,9,1),'USD','AUD',1.363232),exchange_rate(date(2018,10,15),'USD','AUD',1.35888)],date(2018,10,15),['AUD'],[coord('USD',-90000)],[coord('AUD',-611496 rdiv 5)])"^^xsd:string .
+
+<#bnx127_>
+	a rdf:value ;
+	rdf:value "[coord('AUD',1550155081 rdiv 12500)]"^^xsd:string ;
+	l:source "vec_change_bases([exchange_rate(date(2019,6,30),'SG_Issuer_SA','AUD',0),exchange_rate(date(2019,6,30),'6.3%EFG_International_Finance(Guernsey_Limited)','AUD',0),exchange_rate(date(2019,6,30),'8.04%_Commerzbank_AG','AUD',0),exchange_rate(date(2019,6,30),'15.84%_Commerzbank_AG','AUD',0),exchange_rate(date(2019,6,30),'EFG_International_Finance_(guernsey)_Limited','AUD',0),exchange_rate(date(2019,6,30),'16.85%_Commerzbank_AG','AUD',0),exchange_rate(date(2019,6,30),'SG Issuer_SA_USD_1','AUD',40),exchange_rate(date(2019,6,30),'Leonteq Securities AG USD','AUD',0),exchange_rate(date(2019,6,30),'Leonteq Securities AG, Guernsey Branch','AUD',0),exchange_rate(date(2019,6,30),'Leonteq Securities AG, Zurich','AUD',0),exchange_rate(date(2019,6,30),'Natixis Structured Issuance SA','AUD',0),exchange_rate(date(2019,6,30),'Neue Helvestische Bank AG 3','AUD',0),exchange_rate(date(2019,6,30),'SG Issuer SA USD','AUD',0),exchange_rate(date(2019,6,30),'Neue Helvestische Bank AG 2','AUD',0),exchange_rate(date(2019,6,30),'SG Issuer SA Euro','AUD',0),exchange_rate(date(2019,6,30),'5.1% EFG International Finance (Guernsey)Limited','AUD',0),exchange_rate(date(2019,6,30),'Bodmer Cpaital Group AG','AUD',0),exchange_rate(date(2019,6,30),'Leonteq securities ,AG','AUD',0),exchange_rate(date(2019,6,30),'Neue Helvetische Bank AG','AUD',0),exchange_rate(date(2019,6,30),'4% Schweizer Kredit AG','AUD',0),exchange_rate(date(2019,6,30),'14% GPG Holding AG','AUD',0),exchange_rate(date(2019,6,30),'CT1 Issuer Limited','AUD',0),exchange_rate(date(2019,6,30),'3% CT1 Issuer Limited','AUD',0),exchange_rate(date(2018,7,10),'CHF','AUD',1.362583),exchange_rate(date(2018,8,16),'CHF','AUD',1.34641),exchange_rate(date(2018,10,1),'CHF','AUD',1.348045),exchange_rate(date(2018,10,15),'CHF','AUD',1.351058),exchange_rate(date(2018,12,30),'CHF','AUD',1.365001),exchange_rate(date(2018,7,1),'USD','AUD',1.2852),exchange_rate(date(2018,7,2),'USD','AUD',1.35284),exchange_rate(date(2018,7,12),'USD','AUD',1.360979),exchange_rate(date(2018,8,13),'USD','AUD',1.358327),exchange_rate(date(2018,9,1),'USD','AUD',1.363232),exchange_rate(date(2018,10,15),'USD','AUD',1.35888)],date(2018,7,12),['AUD'],[coord('USD',91120)],[coord('AUD',1550155081 rdiv 12500)])"^^xsd:string .
+
+<#bnx128_>
+	a rdf:value ;
+	rdf:value "[coord('AUD',127803 rdiv 3125)]"^^xsd:string ;
+	l:source "vec_change_bases([exchange_rate(date(2019,6,30),'SG_Issuer_SA','AUD',0),exchange_rate(date(2019,6,30),'6.3%EFG_International_Finance(Guernsey_Limited)','AUD',0),exchange_rate(date(2019,6,30),'8.04%_Commerzbank_AG','AUD',0),exchange_rate(date(2019,6,30),'15.84%_Commerzbank_AG','AUD',0),exchange_rate(date(2019,6,30),'EFG_International_Finance_(guernsey)_Limited','AUD',0),exchange_rate(date(2019,6,30),'16.85%_Commerzbank_AG','AUD',0),exchange_rate(date(2019,6,30),'SG Issuer_SA_USD_1','AUD',40),exchange_rate(date(2019,6,30),'Leonteq Securities AG USD','AUD',0),exchange_rate(date(2019,6,30),'Leonteq Securities AG, Guernsey Branch','AUD',0),exchange_rate(date(2019,6,30),'Leonteq Securities AG, Zurich','AUD',0),exchange_rate(date(2019,6,30),'Natixis Structured Issuance SA','AUD',0),exchange_rate(date(2019,6,30),'Neue Helvestische Bank AG 3','AUD',0),exchange_rate(date(2019,6,30),'SG Issuer SA USD','AUD',0),exchange_rate(date(2019,6,30),'Neue Helvestische Bank AG 2','AUD',0),exchange_rate(date(2019,6,30),'SG Issuer SA Euro','AUD',0),exchange_rate(date(2019,6,30),'5.1% EFG International Finance (Guernsey)Limited','AUD',0),exchange_rate(date(2019,6,30),'Bodmer Cpaital Group AG','AUD',0),exchange_rate(date(2019,6,30),'Leonteq securities ,AG','AUD',0),exchange_rate(date(2019,6,30),'Neue Helvetische Bank AG','AUD',0),exchange_rate(date(2019,6,30),'4% Schweizer Kredit AG','AUD',0),exchange_rate(date(2019,6,30),'14% GPG Holding AG','AUD',0),exchange_rate(date(2019,6,30),'CT1 Issuer Limited','AUD',0),exchange_rate(date(2019,6,30),'3% CT1 Issuer Limited','AUD',0),exchange_rate(date(2018,7,10),'CHF','AUD',1.362583),exchange_rate(date(2018,8,16),'CHF','AUD',1.34641),exchange_rate(date(2018,10,1),'CHF','AUD',1.348045),exchange_rate(date(2018,10,15),'CHF','AUD',1.351058),exchange_rate(date(2018,12,30),'CHF','AUD',1.365001),exchange_rate(date(2018,7,1),'USD','AUD',1.2852),exchange_rate(date(2018,7,2),'USD','AUD',1.35284),exchange_rate(date(2018,7,12),'USD','AUD',1.360979),exchange_rate(date(2018,8,13),'USD','AUD',1.358327),exchange_rate(date(2018,9,1),'USD','AUD',1.363232),exchange_rate(date(2018,10,15),'USD','AUD',1.35888)],date(2018,9,1),['AUD'],[coord('USD',30)],[coord('AUD',127803 rdiv 3125)])"^^xsd:string .
+
+<#bnx129_>
+	a rdf:value ;
+	rdf:value "[coord('AUD',-1358327 rdiv 50000)]"^^xsd:string ;
+	l:source "vec_change_bases([exchange_rate(date(2019,6,30),'SG_Issuer_SA','AUD',0),exchange_rate(date(2019,6,30),'6.3%EFG_International_Finance(Guernsey_Limited)','AUD',0),exchange_rate(date(2019,6,30),'8.04%_Commerzbank_AG','AUD',0),exchange_rate(date(2019,6,30),'15.84%_Commerzbank_AG','AUD',0),exchange_rate(date(2019,6,30),'EFG_International_Finance_(guernsey)_Limited','AUD',0),exchange_rate(date(2019,6,30),'16.85%_Commerzbank_AG','AUD',0),exchange_rate(date(2019,6,30),'SG Issuer_SA_USD_1','AUD',40),exchange_rate(date(2019,6,30),'Leonteq Securities AG USD','AUD',0),exchange_rate(date(2019,6,30),'Leonteq Securities AG, Guernsey Branch','AUD',0),exchange_rate(date(2019,6,30),'Leonteq Securities AG, Zurich','AUD',0),exchange_rate(date(2019,6,30),'Natixis Structured Issuance SA','AUD',0),exchange_rate(date(2019,6,30),'Neue Helvestische Bank AG 3','AUD',0),exchange_rate(date(2019,6,30),'SG Issuer SA USD','AUD',0),exchange_rate(date(2019,6,30),'Neue Helvestische Bank AG 2','AUD',0),exchange_rate(date(2019,6,30),'SG Issuer SA Euro','AUD',0),exchange_rate(date(2019,6,30),'5.1% EFG International Finance (Guernsey)Limited','AUD',0),exchange_rate(date(2019,6,30),'Bodmer Cpaital Group AG','AUD',0),exchange_rate(date(2019,6,30),'Leonteq securities ,AG','AUD',0),exchange_rate(date(2019,6,30),'Neue Helvetische Bank AG','AUD',0),exchange_rate(date(2019,6,30),'4% Schweizer Kredit AG','AUD',0),exchange_rate(date(2019,6,30),'14% GPG Holding AG','AUD',0),exchange_rate(date(2019,6,30),'CT1 Issuer Limited','AUD',0),exchange_rate(date(2019,6,30),'3% CT1 Issuer Limited','AUD',0),exchange_rate(date(2018,7,10),'CHF','AUD',1.362583),exchange_rate(date(2018,8,16),'CHF','AUD',1.34641),exchange_rate(date(2018,10,1),'CHF','AUD',1.348045),exchange_rate(date(2018,10,15),'CHF','AUD',1.351058),exchange_rate(date(2018,12,30),'CHF','AUD',1.365001),exchange_rate(date(2018,7,1),'USD','AUD',1.2852),exchange_rate(date(2018,7,2),'USD','AUD',1.35284),exchange_rate(date(2018,7,12),'USD','AUD',1.360979),exchange_rate(date(2018,8,13),'USD','AUD',1.358327),exchange_rate(date(2018,9,1),'USD','AUD',1.363232),exchange_rate(date(2018,10,15),'USD','AUD',1.35888)],date(2018,8,13),['AUD'],[coord('USD',-20)],[coord('AUD',-1358327 rdiv 50000)])"^^xsd:string .
+
+<#bnx12_>
+	a l:s_transaction ;
+	l:source l:bank_statement_xml ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#account> <CHF_Bank> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#day> "2018-07-01T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#exchanged> "vector([])"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#misc> "misc{desc2:''}"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#type_id> <Introduce_Capital> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#vector> "[coord('CHF',-92151893 rdiv 100)]"^^xsd:string .
+
+<#bnx130_>
+	a rdf:value ;
+	rdf:value "[coord('AUD',-76852657297 rdiv 25000000)]"^^xsd:string ;
+	l:source "net_activity_by_account('BanksUSD_Bank',[coord('AUD',-76852657297 rdiv 25000000)],_1154448)"^^xsd:string .
+
+<#bnx131_>
+	a rdf:value ;
+	rdf:value "[coord('AUD',622762492894 rdiv 495173)]"^^xsd:string ;
+	l:has_part <#bnx112_> .
+
+<#bnx132_>
+	a rdf:value ;
+	rdf:value "[coord('AUD',622762492894 rdiv 495173)]"^^xsd:string ;
+	l:has_part <#bnx131_> .
+
+<#bnx133_>
+	a rdf:value ;
+	rdf:value "[coord('AUD',-218049244449 rdiv 2000000)]"^^xsd:string ;
+	l:has_part <#bnx113_> .
+
+<#bnx134_>
+	a rdf:value ;
+	rdf:value "[coord('AUD',88747577231 rdiv 200000)]"^^xsd:string ;
+	l:has_part <#bnx114_> ,
+		   <#bnx115_> ,
+		   <#bnx116_> .
+
+<#bnx135_>
+	a rdf:value ;
+	rdf:value "[coord('AUD',669426527861 rdiv 2000000)]"^^xsd:string ;
+	l:has_part <#bnx133_> ,
+		   <#bnx134_> .
+
+<#bnx136_>
+	a rdf:value ;
+	rdf:value "[coord('AUD',-6963260757 rdiv 2000000)]"^^xsd:string ;
+	l:has_part <#bnx117_> ,
+		   <#bnx118_> .
+
+<#bnx137_>
+	a rdf:value ;
+	rdf:value "[coord('AUD',-6963260757 rdiv 2000000)]"^^xsd:string ;
+	l:has_part <#bnx136_> .
+
+<#bnx138_>
+	a rdf:value ;
+	rdf:value "[coord('AUD',9209639069167 rdiv 5442450)]"^^xsd:string ;
+	l:has_part <#bnx119_> ,
+		   <#bnx132_> ,
+		   <#bnx135_> ,
+		   <#bnx137_> .
+
+<#bnx139_>
+	a rdf:value ;
+	rdf:value "[]"^^xsd:string ;
+	l:has_part <#bnx124_> .
+
+<#bnx13_>
+	a l:s_transaction ;
+	l:source l:bank_statement_xml ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#account> <CHF_Bank> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#day> "2018-07-10T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#exchanged> "vector([])"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#misc> "misc{desc2:''}"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#type_id> <Accountancy_Fees> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#vector> "[coord('CHF',1000)]"^^xsd:string .
+
+<#bnx140_>
+	a rdf:value ;
+	rdf:value "[]"^^xsd:string ;
+	l:has_part <#bnx139_> .
+
+<#bnx141_>
+	a rdf:value ;
+	rdf:value "[coord('AUD',-111613241291 rdiv 625000)]"^^xsd:string ;
+	l:has_part <#bnx125_> ,
+		   <#bnx126_> .
+
+<#bnx142_>
+	a rdf:value ;
+	rdf:value "[coord('AUD',1550666293 rdiv 12500)]"^^xsd:string ;
+	l:has_part <#bnx127_> ,
+		   <#bnx128_> .
+
+<#bnx143_>
+	a rdf:value ;
+	rdf:value "[coord('AUD',-34079926641 rdiv 625000)]"^^xsd:string ;
+	l:has_part <#bnx141_> ,
+		   <#bnx142_> .
+
+<#bnx144_>
+	a rdf:value ;
+	rdf:value "[coord('AUD',-1358327 rdiv 50000)]"^^xsd:string ;
+	l:has_part <#bnx129_> .
+
+<#bnx145_>
+	a rdf:value ;
+	rdf:value "[coord('AUD',-1358327 rdiv 50000)]"^^xsd:string ;
+	l:has_part <#bnx144_> .
+
+<#bnx146_>
+	a rdf:value ;
+	rdf:value "[coord('AUD',-1440728886437 rdiv 25000000)]"^^xsd:string ;
+	l:has_part <#bnx130_> ,
+		   <#bnx140_> ,
+		   <#bnx143_> ,
+		   <#bnx145_> .
+
+<#bnx147_>
+	a rdf:value ;
+	rdf:value "[coord('AUD',4447997636023718987 rdiv 2721225000000)]"^^xsd:string ;
+	l:has_part <#bnx138_> ,
+		   <#bnx146_> .
+
+<#bnx148_>
+	a rdf:value ;
+	rdf:value "[coord('AUD',4447997636023718987 rdiv 2721225000000)]"^^xsd:string ;
+	l:has_part <#bnx147_> .
+
+<#bnx149_>
+	l:key <investment_report> ;
+	l:title <investment_report> ;
+	l:url "loc(absolute_url,'http://localhost:7778/tmp/1582194185.1406841.200/investment_report.json')"^^xsd:string .
+
+<#bnx14_>
+	a l:s_transaction ;
+	l:source l:bank_statement_xml ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#account> <CHF_Bank> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#day> "2018-08-16T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#exchanged> "vector([])"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#misc> "misc{desc2:''}"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#type_id> <Bank_Charges> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#vector> "[coord('CHF',31477 rdiv 20)]"^^xsd:string .
+
+<#bnx150_>
+	l:key <investment_report_html> ;
+	l:title <investment%20report%20from%202018-07-01%20to%202019-06-30%20(AUD)> ;
+	l:url "loc(absolute_url,'http://localhost:7778/tmp/1582194185.1406841.200/investment_report.html')"^^xsd:string .
+
+<#bnx151_>
+	l:key <investment_report_since_beginning> ;
+	l:title <investment_report_since_beginning> ;
+	l:url "loc(absolute_url,'http://localhost:7778/tmp/1582194185.1406841.200/investment_report_since_beginning.json')"^^xsd:string .
+
+<#bnx152_>
+	l:key <investment_report_since_beginning_html> ;
+	l:title <investment%20report%20from%201-01-01%20to%202019-06-30%20(AUD)> ;
+	l:url "loc(absolute_url,'http://localhost:7778/tmp/1582194185.1406841.200/investment_report_since_beginning.html')"^^xsd:string .
+
+<#bnx153_>
+	l:key <balance_sheet_html> ;
+	l:title <balance%20sheet%20from%202018-07-01%20to%202019-06-30%20(AUD)> ;
+	l:url "loc(absolute_url,'http://localhost:7778/tmp/1582194185.1406841.200/balance_sheet.html')"^^xsd:string .
+
+<#bnx154_>
+	l:key <profit_and_loss_html> ;
+	l:title <profit&loss%20from%202018-07-01%20to%202019-06-30%20(AUD)> ;
+	l:url "loc(absolute_url,'http://localhost:7778/tmp/1582194185.1406841.200/profit_and_loss.html')"^^xsd:string .
+
+<#bnx155_>
+	l:key <profit_and_loss_historical_html> ;
+	l:title <profit&loss%20from%201-01-01%20to%202018-06-30%20(AUD)> ;
+	l:url "loc(absolute_url,'http://localhost:7778/tmp/1582194185.1406841.200/profit_and_loss_historical.html')"^^xsd:string .
+
+<#bnx156_>
+	l:key <cashflow_html> ;
+	l:title <cash%20flow%20from%202018-07-01%20to%202019-06-30%20(AUD)> ;
+	l:url "loc(absolute_url,'http://localhost:7778/tmp/1582194185.1406841.200/cashflow.html')"^^xsd:string .
+
+<#bnx157_>
+	l:key <general_ledger_json> ;
+	l:title <general_ledger_json> ;
+	l:url "loc(absolute_url,'http://localhost:7778/tmp/1582194185.1406841.200/general_ledger_json.json')"^^xsd:string .
+
+<#bnx158_>
+	l:key <gl_html> ;
+	l:title <GL%20viewer> ;
+	l:url "loc(absolute_url,'http://localhost:7778/tmp/1582194185.1406841.200/general_ledger_viewer/link.html')"^^xsd:string .
+
+<#bnx159_>
+	l:key <crosschecks_html> ;
+	l:title <crosschecks> ;
+	l:url "loc(absolute_url,'http://localhost:7778/tmp/1582194185.1406841.200/crosschecks.html')"^^xsd:string .
+
+<#bnx15_>
+	a l:s_transaction ;
+	l:source l:bank_statement_xml ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#account> <CHF_Bank> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#day> "2018-10-01T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#exchanged> "vector([coord('Leonteq_N',30000)])"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#misc> "misc{desc2:''}"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#type_id> <Invest_In> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#vector> "[coord('CHF',808761 rdiv 10)]"^^xsd:string .
+
+<#bnx160_>
+	l:key <reports_json> ;
+	l:title <reports_json> ;
+	l:url "loc(absolute_url,'http://localhost:7778/tmp/1582194185.1406841.200/reports_json.json')"^^xsd:string .
+
+<#bnx161_>
+	l:key <xbrl_instance> ;
+	l:title <xbrl_instance> ;
+	l:url "loc(absolute_url,'http://localhost:7778/tmp/1582194185.1406841.200/xbrl_instance.xml')"^^xsd:string .
+
+<#bnx162_>
+	l:key <all> ;
+	l:title <all%20files> ;
+	l:url "loc(absolute_url,'http://localhost:7778/tmp/1582194185.1406841.200/')"^^xsd:string .
+
+<#bnx163_>
+	l:key <alerts_json> ;
+	l:title <alerts_json> ;
+	l:url "loc(absolute_url,'http://localhost:7778/tmp/1582194185.1406841.200/alerts_json.json')"^^xsd:string .
+
+<#bnx164_>
+	l:key <alerts_html> ;
+	l:title <alerts> ;
+	l:url "loc(absolute_url,'http://localhost:7778/tmp/1582194185.1406841.200/alerts.html')"^^xsd:string .
+
+<#bnx16_>
+	a l:s_transaction ;
+	l:source l:bank_statement_xml ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#account> <CHF_Bank> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#day> "2018-10-15T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#exchanged> "vector([])"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#misc> "misc{desc2:''}"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#type_id> <Transfers> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#vector> "[coord('CHF',-105000)]"^^xsd:string .
+
+<#bnx17_>
+	a l:s_transaction ;
+	l:source l:bank_statement_xml ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#account> <CHF_Bank> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#day> "2018-12-30T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#exchanged> "vector([])"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#misc> "misc{desc2:''}"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#type_id> <Interest_Income> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#vector> "[coord('CHF',-1155)]"^^xsd:string .
+
+<#bnx18_>
+	a l:s_transaction ;
+	l:source l:bank_statement_xml ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#account> <CHF_Bank> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#day> "2018-12-30T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#exchanged> "vector([coord('Leonteq_N',-30000)])"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#misc> "misc{desc2:''}"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#type_id> <Dispose_Off> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#vector> "[coord('CHF',-220000)]"^^xsd:string .
+
+<#bnx19_>
+	a l:s_transaction ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#account> <USD_Bank> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#day> "2018-07-01T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#exchanged> "vector([])"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#misc> "misc{desc2:''}"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#type_id> <Introduce_Capital> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#vector> "[coord('USD',0)]"^^xsd:string .
+
+<#bnx1_>
+	a l:request ;
+	l:accounts "[account('AccountingFees','Expenses','Accounts'/'AccountingFees',0),account('Accounts',accountHierarchy,'Accounts'/'Accounts',0),account('Assets','NetAssets','Accounts'/'Assets',0),account('AssetsLivestock','CurrentAssets','Accounts'/'AssetsLivestock',0),account('AssetsLivestockAtAverageCost','AssetsLivestock','Accounts'/'AssetsLivestockAtAverageCost',0),account('AssetsLivestockAtCost','AssetsLivestock','Accounts'/'AssetsLivestockAtCost',0),account('BankCharges','Expenses','Accounts'/'BankCharges',0),account('BankOpeningBalances','HistoricalEarnings','Accounts'/'BankOpeningBalances',0),account('Banks','CashAndCashEquivalents','Accounts'/'Banks',0),account('CapitalIntroduced','Equity','Accounts'/'CapitalIntroduced',0),account('CashAndCashEquivalents','CurrentAssets','Accounts'/'CashAndCashEquivalents',0),account('ClearingAccount','Revenue','Accounts'/'ClearingAccount',0),account('CostOfGoodsLivestock','Expenses','Accounts'/'CostOfGoodsLivestock',0),account('CurrencyMovement','Revenue','Accounts'/'CurrencyMovement',0),account('CurrentAssets','Assets','Accounts'/'CurrentAssets',0),account('CurrentEarnings','RetainedEarnings','Accounts'/'CurrentEarnings',0),account('CurrentLiabilities','Liabilities','Accounts'/'CurrentLiabilities',0),account('CurrentLoans','CurrentLiabilities','Accounts'/'CurrentLoans',0),account('Drawings','Equity','Accounts'/'Drawings',0),account('EarningsFinancialInvestments','OtherIncome','Accounts'/'EarningsFinancialInvestments',0),account('Equity','Accounts','Accounts'/'Equity',0),account('ExchangeGain','OtherIncome','Accounts'/'ExchangeGain',0),account('Expenses','NetIncomeLoss','Accounts'/'Expenses',0),account('FinancialInvestments','NoncurrentAssets','Accounts'/'FinancialInvestments',0),account('ForexLoss','Expenses','Accounts'/'ForexLoss',0),account('Gst','CurrentLiabilities','Accounts'/'Gst',0),account('GstPayable','Gst','Accounts'/'GstPayable',0),account('GstReceivable','Gst','Accounts'/'GstReceivable',0),account('HistoricalEarnings','RetainedEarnings','Accounts'/'HistoricalEarnings',0),account('Income','Revenue','Accounts'/'Income',0),account('InterestEarned','OtherIncome','Accounts'/'InterestEarned',0),account('InterestExpenses','Expenses','Accounts'/'InterestExpenses',0),account('InterestIncome','OtherIncome','Accounts'/'InterestIncome',0),account('InvestmentIncome','Revenue','Accounts'/'InvestmentIncome',0),account('Liabilities','NetAssets','Accounts'/'Liabilities',0),account('LivestockAdjustment','Expenses','Accounts'/'LivestockAdjustment',0),account('NetAssets','Accounts','Accounts'/'NetAssets',0),account('NetIncomeLoss','Accounts','Accounts'/'NetIncomeLoss',0),account('NoncurrentAssets','Assets','Accounts'/'NoncurrentAssets',0),account('NoncurrentLiabilities','Liabilities','Accounts'/'NoncurrentLiabilities',0),account('NoncurrentLoans','NoncurrentLiabilities','Accounts'/'NoncurrentLoans',0),account('OtherExpenses','Expenses','Accounts'/'OtherExpenses',0),account('OtherGain','Revenue','Accounts'/'OtherGain',0),account('OtherIncome','Revenue','Accounts'/'OtherIncome',0),account('Purchases','Expenses','Accounts'/'Purchases',0),account('RationsRevenue','Revenue','Accounts'/'RationsRevenue',0),account('RetainedEarnings','Equity','Accounts'/'RetainedEarnings',0),account('Revenue','NetIncomeLoss','Accounts'/'Revenue',0),account('SalesOfLivestock','Revenue','Accounts'/'SalesOfLivestock',0),account('ShareCapital','Equity','Accounts'/'ShareCapital',0),account(accountHierarchy,'','',0),account('Inventory',accountHierarchy,accountHierarchy/'Inventory',0),account('LivestockCount','Inventory','Inventory'/'LivestockCount',0),account('BanksCHF_Bank','Banks','Banks'/'CHF_Bank',1),account('BanksUSD_Bank','Banks','Banks'/'USD_Bank',1),account('CurrencyMovementCHF_Bank','CurrencyMovement','CurrencyMovement'/'CHF_Bank',0),account('CurrencyMovementUSD_Bank','CurrencyMovement','CurrencyMovement'/'USD_Bank',0),account('InvestmentIncomeRealized','InvestmentIncome','InvestmentIncome'/realized,0),account('InvestmentIncomeRealizedOnlyCurrencyMovement','InvestmentIncomeRealized','InvestmentIncomeRealized'/onlyCurrencyMovement,0),account('InvestmentIncomeRealizedOnlyCurrencyMovementLeonteq_N','InvestmentIncomeRealizedOnlyCurrencyMovement','InvestmentIncomeRealizedOnlyCurrencyMovement'/'Leonteq_N',1),account('InvestmentIncomeRealizedOnlyCurrencyMovementRaiffeisen_Switzerland_B_V_','InvestmentIncomeRealizedOnlyCurrencyMovement','InvestmentIncomeRealizedOnlyCurrencyMovement'/'Raiffeisen Switzerland_B.V.',1),account('InvestmentIncomeRealizedWithoutCurrencyMovement','InvestmentIncomeRealized','InvestmentIncomeRealized'/withoutCurrencyMovement,0),account('InvestmentIncomeRealizedWithoutCurrencyMovementLeonteq_N','InvestmentIncomeRealizedWithoutCurrencyMovement','InvestmentIncomeRealizedWithoutCurrencyMovement'/'Leonteq_N',1),account('InvestmentIncomeRealizedWithoutCurrencyMovementRaiffeisen_Switzerland_B_V_','InvestmentIncomeRealizedWithoutCurrencyMovement','InvestmentIncomeRealizedWithoutCurrencyMovement'/'Raiffeisen Switzerland_B.V.',1),account('InvestmentIncomeUnrealized','InvestmentIncome','InvestmentIncome'/unrealized,0),account('InvestmentIncomeUnrealizedOnlyCurrencyMovement','InvestmentIncomeUnrealized','InvestmentIncomeUnrealized'/onlyCurrencyMovement,0),account('InvestmentIncomeUnrealizedOnlyCurrencyMovementLeonteq_N','InvestmentIncomeUnrealizedOnlyCurrencyMovement','InvestmentIncomeUnrealizedOnlyCurrencyMovement'/'Leonteq_N',1),account('InvestmentIncomeUnrealizedOnlyCurrencyMovementRaiffeisen_Switzerland_B_V_','InvestmentIncomeUnrealizedOnlyCurrencyMovement','InvestmentIncomeUnrealizedOnlyCurrencyMovement'/'Raiffeisen Switzerland_B.V.',1),account('InvestmentIncomeUnrealizedWithoutCurrencyMovement','InvestmentIncomeUnrealized','InvestmentIncomeUnrealized'/withoutCurrencyMovement,0),account('InvestmentIncomeUnrealizedWithoutCurrencyMovementLeonteq_N','InvestmentIncomeUnrealizedWithoutCurrencyMovement','InvestmentIncomeUnrealizedWithoutCurrencyMovement'/'Leonteq_N',1),account('InvestmentIncomeUnrealizedWithoutCurrencyMovementRaiffeisen_Switzerland_B_V_','InvestmentIncomeUnrealizedWithoutCurrencyMovement','InvestmentIncomeUnrealizedWithoutCurrencyMovement'/'Raiffeisen Switzerland_B.V.',1),account('FinancialInvestmentsLeonteq_N','FinancialInvestments','FinancialInvestments'/'Leonteq_N',1),account('FinancialInvestmentsRaiffeisen_Switzerland_B_V_','FinancialInvestments','FinancialInvestments'/'Raiffeisen Switzerland_B.V.',1)]"^^xsd:string ;
+	l:bank_account <#bnx4_> ,
+		       <#bnx5_> ;
+	l:end_date "2019-06-30T00:00:00"^^xsd:dateTime ;
+	l:has_used_unit <AUD> ;
+	l:report <#bnx149_> ,
+		 <#bnx150_> ,
+		 <#bnx151_> ,
+		 <#bnx152_> ,
+		 <#bnx153_> ,
+		 <#bnx154_> ,
+		 <#bnx155_> ,
+		 <#bnx156_> ,
+		 <#bnx157_> ,
+		 <#bnx158_> ,
+		 <#bnx159_> ,
+		 <#bnx160_> ,
+		 <#bnx161_> ,
+		 <#bnx162_> ,
+		 <#bnx163_> ,
+		 <#bnx164_> ,
+		 <#bnx2_> ;
+	l:start_date "2018-07-01T00:00:00"^^xsd:dateTime ;
+	l:taxonomy_url_base <taxonomy/> .
+
+<#bnx20_>
+	a l:s_transaction ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#account> <USD_Bank> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#day> "2018-07-02T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#exchanged> "vector([coord('Raiffeisen Switzerland_B.V.',2085)])"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#misc> "misc{desc2:''}"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#type_id> <Invest_In> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#vector> "[coord('USD',-1040071 rdiv 25)]"^^xsd:string .
+
+<#bnx21_>
+	a l:s_transaction ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#account> <USD_Bank> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#day> "2018-07-12T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#exchanged> "vector([coord('Raiffeisen Switzerland_B.V.',-2085)])"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#misc> "misc{desc2:''}"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#type_id> <Dispose_Off> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#vector> "[coord('USD',91120)]"^^xsd:string .
+
+<#bnx22_>
+	a l:s_transaction ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#account> <USD_Bank> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#day> "2018-08-13T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#exchanged> "vector([])"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#misc> "misc{desc2:''}"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#type_id> <Bank_Charges> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#vector> "[coord('USD',-20)]"^^xsd:string .
+
+<#bnx23_>
+	a l:s_transaction ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#account> <USD_Bank> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#day> "2018-09-01T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#exchanged> "vector([])"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#misc> "misc{desc2:''}"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#type_id> <Interest_Income> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#vector> "[coord('USD',30)]"^^xsd:string .
+
+<#bnx24_>
+	a l:s_transaction ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#account> <USD_Bank> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#day> "2018-10-15T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#exchanged> "vector([])"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#misc> "misc{desc2:''}"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#type_id> <Transfers> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#vector> "[coord('USD',-90000)]"^^xsd:string .
+
+<#bnx25_>
+	a l:s_transaction ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#account> <CHF_Bank> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#day> "2018-07-01T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#exchanged> "vector([])"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#misc> "misc{desc2:''}"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#type_id> <Introduce_Capital> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#vector> "[coord('CHF',92151893 rdiv 100)]"^^xsd:string .
+
+<#bnx26_>
+	a l:s_transaction ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#account> <CHF_Bank> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#day> "2018-07-10T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#exchanged> "vector([])"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#misc> "misc{desc2:''}"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#type_id> <Accountancy_Fees> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#vector> "[coord('CHF',-1000)]"^^xsd:string .
+
+<#bnx27_>
+	a l:s_transaction ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#account> <CHF_Bank> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#day> "2018-08-16T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#exchanged> "vector([])"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#misc> "misc{desc2:''}"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#type_id> <Bank_Charges> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#vector> "[coord('CHF',-31477 rdiv 20)]"^^xsd:string .
+
+<#bnx28_>
+	a l:s_transaction ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#account> <CHF_Bank> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#day> "2018-10-01T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#exchanged> "vector([coord('Leonteq_N',30000)])"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#misc> "misc{desc2:''}"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#type_id> <Invest_In> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#vector> "[coord('CHF',-808761 rdiv 10)]"^^xsd:string .
+
+<#bnx29_>
+	a l:s_transaction ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#account> <CHF_Bank> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#day> "2018-10-15T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#exchanged> "vector([])"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#misc> "misc{desc2:''}"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#type_id> <Transfers> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#vector> "[coord('CHF',105000)]"^^xsd:string .
+
+<#bnx2_>
+	l:key <request_xml> ;
+	l:title <request_xml> ;
+	l:url "loc(absolute_url,'http://localhost:7778/tmp/1582194185.1406841.200/request.xml')"^^xsd:string .
+
+<#bnx30_>
+	a l:s_transaction ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#account> <CHF_Bank> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#day> "2018-12-30T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#exchanged> "vector([])"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#misc> "misc{desc2:''}"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#type_id> <Interest_Income> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#vector> "[coord('CHF',1155)]"^^xsd:string .
+
+<#bnx31_>
+	a l:s_transaction ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#account> <CHF_Bank> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#day> "2018-12-30T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#exchanged> "vector([coord('Leonteq_N',-30000)])"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#misc> "misc{desc2:''}"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#type_id> <Dispose_Off> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#vector> "[coord('CHF',220000)]"^^xsd:string .
+
+<#bnx32_Invest_In>
+	a l:action_verb ;
+	l:has_counteraccount <FinancialInvestments> ;
+	l:has_description <Shares> ;
+	l:has_gst_rate "0"^^xsd:integer ;
+	l:has_id <Invest_In> ;
+	l:has_trading_account <InvestmentIncome> .
+
+<#bnx33_Dispose_Off>
+	a l:action_verb ;
+	l:has_counteraccount <FinancialInvestments> ;
+	l:has_description <Shares> ;
+	l:has_gst_rate "0"^^xsd:integer ;
+	l:has_id <Dispose_Off> ;
+	l:has_trading_account <InvestmentIncome> .
+
+<#bnx34_Borrow>
+	a l:action_verb ;
+	l:has_counteraccount <NonCurrentLoans> ;
+	l:has_description <Shares> ;
+	l:has_gst_rate "0"^^xsd:integer ;
+	l:has_id <Borrow> .
+
+<#bnx35_Introduce_Capital>
+	a l:action_verb ;
+	l:has_counteraccount <ShareCapital> ;
+	l:has_gst_rate "0"^^xsd:integer ;
+	l:has_id <Introduce_Capital> .
+
+<#bnx36_Transfers>
+	a l:action_verb ;
+	l:has_counteraccount <ExchangeGain> ;
+	l:has_gst_rate "0"^^xsd:integer ;
+	l:has_id <Transfers> .
+
+<#bnx37_Bank_Charges>
+	a l:action_verb ;
+	l:has_counteraccount <BankCharges> ;
+	l:has_gst_rate "0"^^xsd:integer ;
+	l:has_id <Bank_Charges> .
+
+<#bnx38_Interest_Expenses>
+	a l:action_verb ;
+	l:has_counteraccount <InterestExpenses> ;
+	l:has_gst_rate "0"^^xsd:integer ;
+	l:has_id <Interest_Expenses> .
+
+<#bnx39_Accountancy_Fees>
+	a l:action_verb ;
+	l:has_counteraccount <AccountingFees> ;
+	l:has_gst_rate "0"^^xsd:integer ;
+	l:has_id <Accountancy_Fees> .
+
+<#bnx40_Interest_Income>
+	a l:action_verb ;
+	l:has_counteraccount <InterestEarned> ;
+	l:has_gst_rate "0"^^xsd:integer ;
+	l:has_id <Interest_Income> .
+
+<#bnx41_>
+	<body> "[ exchange_rate(date(2019,6,30),'SG_Issuer_SA','AUD',0),\n  exchange_rate(date(2019,6,30),\n\t\t'6.3%EFG_International_Finance(Guernsey_Limited)',\n\t\t'AUD',\n\t\t0),\n  exchange_rate(date(2019,6,30),'8.04%_Commerzbank_AG','AUD',0),\n  exchange_rate(date(2019,6,30),'15.84%_Commerzbank_AG','AUD',0),\n  exchange_rate(date(2019,6,30),\n\t\t'EFG_International_Finance_(guernsey)_Limited',\n\t\t'AUD',\n\t\t0),\n  exchange_rate(date(2019,6,30),'16.85%_Commerzbank_AG','AUD',0),\n  exchange_rate(date(2019,6,30),'SG Issuer_SA_USD_1','AUD',40),\n  exchange_rate(date(2019,6,30),'Leonteq Securities AG USD','AUD',0),\n  exchange_rate(date(2019,6,30),\n\t\t'Leonteq Securities AG, Guernsey Branch',\n\t\t'AUD',\n\t\t0),\n  exchange_rate(date(2019,6,30),'Leonteq Securities AG, Zurich','AUD',0),\n  exchange_rate(date(2019,6,30),'Natixis Structured Issuance SA','AUD',0),\n  exchange_rate(date(2019,6,30),'Neue Helvestische Bank AG 3','AUD',0),\n  exchange_rate(date(2019,6,30),'SG Issuer SA USD','AUD',0),\n  exchange_rate(date(2019,6,30),'Neue Helvestische Bank AG 2','AUD',0),\n  exchange_rate(date(2019,6,30),'SG Issuer SA Euro','AUD',0),\n  exchange_rate(date(2019,6,30),\n\t\t'5.1% EFG International Finance (Guernsey)Limited',\n\t\t'AUD',\n\t\t0),\n  exchange_rate(date(2019,6,30),'Bodmer Cpaital Group AG','AUD',0),\n  exchange_rate(date(2019,6,30),'Leonteq securities ,AG','AUD',0),\n  exchange_rate(date(2019,6,30),'Neue Helvetische Bank AG','AUD',0),\n  exchange_rate(date(2019,6,30),'4% Schweizer Kredit AG','AUD',0),\n  exchange_rate(date(2019,6,30),'14% GPG Holding AG','AUD',0),\n  exchange_rate(date(2019,6,30),'CT1 Issuer Limited','AUD',0),\n  exchange_rate(date(2019,6,30),'3% CT1 Issuer Limited','AUD',0),\n  exchange_rate(date(2018,7,10),'CHF','AUD',1.362583),\n  exchange_rate(date(2018,8,16),'CHF','AUD',1.34641),\n  exchange_rate(date(2018,10,1),'CHF','AUD',1.348045),\n  exchange_rate(date(2018,10,15),'CHF','AUD',1.351058),\n  exchange_rate(date(2018,12,30),'CHF','AUD',1.365001),\n  exchange_rate(date(2018,7,1),'USD','AUD',1.2852),\n  exchange_rate(date(2018,7,2),'USD','AUD',1.35284),\n  exchange_rate(date(2018,7,12),'USD','AUD',1.360979),\n  exchange_rate(date(2018,8,13),'USD','AUD',1.358327),\n  exchange_rate(date(2018,9,1),'USD','AUD',1.363232),\n  exchange_rate(date(2018,10,15),'USD','AUD',1.35888)\n]"^^xsd:string ;
+	<title> <Exchange%20rates%20extracted> .
+
+<#bnx42_>
+	<body> "[ account('AccountingFees','Expenses','Accounts'/'AccountingFees',0),\n  account('Accounts',accountHierarchy,'Accounts'/'Accounts',0),\n  account('Assets','NetAssets','Accounts'/'Assets',0),\n  account('AssetsLivestock','CurrentAssets','Accounts'/'AssetsLivestock',0),\n  account('AssetsLivestockAtAverageCost',\n\t  'AssetsLivestock',\n\t  'Accounts' / 'AssetsLivestockAtAverageCost',\n\t  0),\n  account('AssetsLivestockAtCost',\n\t  'AssetsLivestock',\n\t  'Accounts' / 'AssetsLivestockAtCost',\n\t  0),\n  account('BankCharges','Expenses','Accounts'/'BankCharges',0),\n  account('BankOpeningBalances',\n\t  'HistoricalEarnings',\n\t  'Accounts' / 'BankOpeningBalances',\n\t  0),\n  account('Banks','CashAndCashEquivalents','Accounts'/'Banks',0),\n  account('CapitalIntroduced','Equity','Accounts'/'CapitalIntroduced',0),\n  account('CashAndCashEquivalents',\n\t  'CurrentAssets',\n\t  'Accounts' / 'CashAndCashEquivalents',\n\t  0),\n  account('ClearingAccount','Revenue','Accounts'/'ClearingAccount',0),\n  account('CostOfGoodsLivestock',\n\t  'Expenses',\n\t  'Accounts' / 'CostOfGoodsLivestock',\n\t  0),\n  account('CurrencyMovement','Revenue','Accounts'/'CurrencyMovement',0),\n  account('CurrentAssets','Assets','Accounts'/'CurrentAssets',0),\n  account('CurrentEarnings','RetainedEarnings','Accounts'/'CurrentEarnings',0),\n  account('CurrentLiabilities','Liabilities','Accounts'/'CurrentLiabilities',0),\n  account('CurrentLoans','CurrentLiabilities','Accounts'/'CurrentLoans',0),\n  account('Drawings','Equity','Accounts'/'Drawings',0),\n  account('EarningsFinancialInvestments',\n\t  'OtherIncome',\n\t  'Accounts' / 'EarningsFinancialInvestments',\n\t  0),\n  account('Equity','Accounts','Accounts'/'Equity',0),\n  account('ExchangeGain','OtherIncome','Accounts'/'ExchangeGain',0),\n  account('Expenses','NetIncomeLoss','Accounts'/'Expenses',0),\n  account('FinancialInvestments',\n\t  'NoncurrentAssets',\n\t  'Accounts' / 'FinancialInvestments',\n\t  0),\n  account('ForexLoss','Expenses','Accounts'/'ForexLoss',0),\n  account('Gst','CurrentLiabilities','Accounts'/'Gst',0),\n  account('GstPayable','Gst','Accounts'/'GstPayable',0),\n  account('GstReceivable','Gst','Accounts'/'GstReceivable',0),\n  account('HistoricalEarnings',\n\t  'RetainedEarnings',\n\t  'Accounts' / 'HistoricalEarnings',\n\t  0),\n  account('Income','Revenue','Accounts'/'Income',0),\n  account('InterestEarned','OtherIncome','Accounts'/'InterestEarned',0),\n  account('InterestExpenses','Expenses','Accounts'/'InterestExpenses',0),\n  account('InterestIncome','OtherIncome','Accounts'/'InterestIncome',0),\n  account('InvestmentIncome','Revenue','Accounts'/'InvestmentIncome',0),\n  account('Liabilities','NetAssets','Accounts'/'Liabilities',0),\n  account('LivestockAdjustment','Expenses','Accounts'/'LivestockAdjustment',0),\n  account('NetAssets','Accounts','Accounts'/'NetAssets',0),\n  account('NetIncomeLoss','Accounts','Accounts'/'NetIncomeLoss',0),\n  account('NoncurrentAssets','Assets','Accounts'/'NoncurrentAssets',0),\n  account('NoncurrentLiabilities',\n\t  'Liabilities',\n\t  'Accounts' / 'NoncurrentLiabilities',\n\t  0),\n  account('NoncurrentLoans',\n\t  'NoncurrentLiabilities',\n\t  'Accounts' / 'NoncurrentLoans',\n\t  0),\n  account('OtherExpenses','Expenses','Accounts'/'OtherExpenses',0),\n  account('OtherGain','Revenue','Accounts'/'OtherGain',0),\n  account('OtherIncome','Revenue','Accounts'/'OtherIncome',0),\n  account('Purchases','Expenses','Accounts'/'Purchases',0),\n  account('RationsRevenue','Revenue','Accounts'/'RationsRevenue',0),\n  account('RetainedEarnings','Equity','Accounts'/'RetainedEarnings',0),\n  account('Revenue','NetIncomeLoss','Accounts'/'Revenue',0),\n  account('SalesOfLivestock','Revenue','Accounts'/'SalesOfLivestock',0),\n  account('ShareCapital','Equity','Accounts'/'ShareCapital',0)\n]"^^xsd:string ;
+	<title> <Accounts%20extracted> .
+
+<#bnx43_>
+	<body> "[ account(accountHierarchy,'','',0),\n  account('Inventory',accountHierarchy,accountHierarchy/'Inventory',0),\n  account('LivestockCount','Inventory','Inventory'/'LivestockCount',0),\n  account('BanksCHF_Bank','Banks','Banks'/'CHF_Bank',1),\n  account('BanksUSD_Bank','Banks','Banks'/'USD_Bank',1),\n  account('CurrencyMovementCHF_Bank',\n\t  'CurrencyMovement',\n\t  'CurrencyMovement' / 'CHF_Bank',\n\t  0),\n  account('CurrencyMovementUSD_Bank',\n\t  'CurrencyMovement',\n\t  'CurrencyMovement' / 'USD_Bank',\n\t  0),\n  account('InvestmentIncomeRealized',\n\t  'InvestmentIncome',\n\t  'InvestmentIncome' / realized,\n\t  0),\n  account('InvestmentIncomeRealizedOnlyCurrencyMovement',\n\t  'InvestmentIncomeRealized',\n\t  'InvestmentIncomeRealized' / onlyCurrencyMovement,\n\t  0),\n  account('InvestmentIncomeRealizedOnlyCurrencyMovementLeonteq_N',\n\t  'InvestmentIncomeRealizedOnlyCurrencyMovement',\n\t  'InvestmentIncomeRealizedOnlyCurrencyMovement' / 'Leonteq_N',\n\t  1),\n  account('InvestmentIncomeRealizedOnlyCurrencyMovementRaiffeisen_Switzerland_B_V_',\n\t  'InvestmentIncomeRealizedOnlyCurrencyMovement',\n\t  'InvestmentIncomeRealizedOnlyCurrencyMovement' / 'Raiffeisen Switzerland_B.V.',\n\t  1),\n  account('InvestmentIncomeRealizedWithoutCurrencyMovement',\n\t  'InvestmentIncomeRealized',\n\t  'InvestmentIncomeRealized' / withoutCurrencyMovement,\n\t  0),\n  account('InvestmentIncomeRealizedWithoutCurrencyMovementLeonteq_N',\n\t  'InvestmentIncomeRealizedWithoutCurrencyMovement',\n\t  'InvestmentIncomeRealizedWithoutCurrencyMovement' / 'Leonteq_N',\n\t  1),\n  account('InvestmentIncomeRealizedWithoutCurrencyMovementRaiffeisen_Switzerland_B_V_',\n\t  'InvestmentIncomeRealizedWithoutCurrencyMovement',\n\t  'InvestmentIncomeRealizedWithoutCurrencyMovement' / 'Raiffeisen Switzerland_B.V.',\n\t  1),\n  account('InvestmentIncomeUnrealized',\n\t  'InvestmentIncome',\n\t  'InvestmentIncome' / unrealized,\n\t  0),\n  account('InvestmentIncomeUnrealizedOnlyCurrencyMovement',\n\t  'InvestmentIncomeUnrealized',\n\t  'InvestmentIncomeUnrealized' / onlyCurrencyMovement,\n\t  0),\n  account('InvestmentIncomeUnrealizedOnlyCurrencyMovementLeonteq_N',\n\t  'InvestmentIncomeUnrealizedOnlyCurrencyMovement',\n\t  'InvestmentIncomeUnrealizedOnlyCurrencyMovement' / 'Leonteq_N',\n\t  1),\n  account('InvestmentIncomeUnrealizedOnlyCurrencyMovementRaiffeisen_Switzerland_B_V_',\n\t  'InvestmentIncomeUnrealizedOnlyCurrencyMovement',\n\t  'InvestmentIncomeUnrealizedOnlyCurrencyMovement' / 'Raiffeisen Switzerland_B.V.',\n\t  1),\n  account('InvestmentIncomeUnrealizedWithoutCurrencyMovement',\n\t  'InvestmentIncomeUnrealized',\n\t  'InvestmentIncomeUnrealized' / withoutCurrencyMovement,\n\t  0),\n  account('InvestmentIncomeUnrealizedWithoutCurrencyMovementLeonteq_N',\n\t  'InvestmentIncomeUnrealizedWithoutCurrencyMovement',\n\t  'InvestmentIncomeUnrealizedWithoutCurrencyMovement' / 'Leonteq_N',\n\t  1),\n  account('InvestmentIncomeUnrealizedWithoutCurrencyMovementRaiffeisen_Switzerland_B_V_',\n\t  'InvestmentIncomeUnrealizedWithoutCurrencyMovement',\n\t  'InvestmentIncomeUnrealizedWithoutCurrencyMovement' / 'Raiffeisen Switzerland_B.V.',\n\t  1),\n  account('FinancialInvestmentsLeonteq_N',\n\t  'FinancialInvestments',\n\t  'FinancialInvestments' / 'Leonteq_N',\n\t  1),\n  account('FinancialInvestmentsRaiffeisen_Switzerland_B_V_',\n\t  'FinancialInvestments',\n\t  'FinancialInvestments' / 'Raiffeisen Switzerland_B.V.',\n\t  1)\n]"^^xsd:string ;
+	<title> <Accounts%20generated> .
+
+<#bnx44_>
+	a l:s_transaction ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#account> <USD_Bank> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#day> "2018-07-01T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#exchanged> "vector([])"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#misc> "misc{desc2:''}"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#type_id> "uri('#bnx35_Introduce_Capital')"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#vector> "[coord('USD',0)]"^^xsd:string .
+
+<#bnx45_>
+	a l:s_transaction ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#account> <CHF_Bank> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#day> "2018-07-01T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#exchanged> "vector([])"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#misc> "misc{desc2:''}"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#type_id> "uri('#bnx35_Introduce_Capital')"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#vector> "[coord('CHF',92151893 rdiv 100)]"^^xsd:string .
+
+<#bnx46_>
+	a l:s_transaction ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#account> <USD_Bank> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#day> "2018-07-02T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#exchanged> "vector([coord('Raiffeisen Switzerland_B.V.',2085)])"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#misc> "misc{desc2:''}"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#type_id> "uri('#bnx32_Invest_In')"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#vector> "[coord('USD',-1040071 rdiv 25)]"^^xsd:string .
+
+<#bnx47_>
+	a l:s_transaction ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#account> <CHF_Bank> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#day> "2018-07-10T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#exchanged> "vector([])"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#misc> "misc{desc2:''}"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#type_id> "uri('#bnx39_Accountancy_Fees')"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#vector> "[coord('CHF',-1000)]"^^xsd:string .
+
+<#bnx48_>
+	a l:s_transaction ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#account> <USD_Bank> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#day> "2018-07-12T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#exchanged> "vector([coord('Raiffeisen Switzerland_B.V.',-2085)])"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#misc> "misc{desc2:''}"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#type_id> "uri('#bnx33_Dispose_Off')"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#vector> "[coord('USD',91120)]"^^xsd:string .
+
+<#bnx49_>
+	a l:s_transaction ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#account> <USD_Bank> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#day> "2018-08-13T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#exchanged> "vector([])"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#misc> "misc{desc2:''}"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#type_id> "uri('#bnx37_Bank_Charges')"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#vector> "[coord('USD',-20)]"^^xsd:string .
+
+<#bnx4_>
+	l:name <USD_Bank> .
+
+<#bnx50_>
+	a l:s_transaction ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#account> <CHF_Bank> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#day> "2018-08-16T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#exchanged> "vector([])"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#misc> "misc{desc2:''}"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#type_id> "uri('#bnx37_Bank_Charges')"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#vector> "[coord('CHF',-31477 rdiv 20)]"^^xsd:string .
+
+<#bnx51_>
+	a l:s_transaction ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#account> <USD_Bank> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#day> "2018-09-01T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#exchanged> "vector([])"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#misc> "misc{desc2:''}"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#type_id> "uri('#bnx40_Interest_Income')"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#vector> "[coord('USD',30)]"^^xsd:string .
+
+<#bnx52_>
+	a l:s_transaction ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#account> <CHF_Bank> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#day> "2018-10-01T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#exchanged> "vector([coord('Leonteq_N',30000)])"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#misc> "misc{desc2:''}"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#type_id> "uri('#bnx32_Invest_In')"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#vector> "[coord('CHF',-808761 rdiv 10)]"^^xsd:string .
+
+<#bnx53_>
+	a l:s_transaction ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#account> <USD_Bank> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#day> "2018-10-15T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#exchanged> "vector([])"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#misc> "misc{desc2:''}"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#type_id> "uri('#bnx36_Transfers')"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#vector> "[coord('USD',-90000)]"^^xsd:string .
+
+<#bnx54_>
+	a l:s_transaction ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#account> <CHF_Bank> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#day> "2018-10-15T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#exchanged> "vector([])"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#misc> "misc{desc2:''}"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#type_id> "uri('#bnx36_Transfers')"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#vector> "[coord('CHF',105000)]"^^xsd:string .
+
+<#bnx55_>
+	a l:s_transaction ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#account> <CHF_Bank> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#day> "2018-12-30T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#exchanged> "vector([])"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#misc> "misc{desc2:''}"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#type_id> "uri('#bnx40_Interest_Income')"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#vector> "[coord('CHF',1155)]"^^xsd:string .
+
+<#bnx56_>
+	a l:s_transaction ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#account> <CHF_Bank> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#day> "2018-12-30T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#exchanged> "vector([coord('Leonteq_N',-30000)])"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#misc> "misc{desc2:''}"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#type_id> "uri('#bnx33_Dispose_Off')"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#vector> "[coord('CHF',220000)]"^^xsd:string .
+
+<#bnx57_>
+	a l:transaction ;
+	l:cf_category <Financing%20activities> ;
+	l:cf_plusminus <decreases> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#account> <BanksUSD_Bank> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#day> "2018-07-01T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/transactions#description> <Introduce_Capital%20-%20outgoing%20money> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#origin> <#bnx44_> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#type> <instant> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#vector> "[coord('USD',0)]"^^xsd:string .
+
+<#bnx58_>
+	a l:transaction ;
+	<https://rdf.lodgeit.net.au/v1/transactions#account> <CurrencyMovementUSD_Bank> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#day> "2018-07-01T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/transactions#description> <Introduce_Capital%20-%20outgoing%20money%20-%20currency%20movement%20adjustment%20-%20only%20current%20period> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#origin> <#bnx44_> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#type> <tracking> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#vector> "[]"^^xsd:string .
+
+<#bnx59_>
+	a l:transaction ;
+	<https://rdf.lodgeit.net.au/v1/transactions#account> <ShareCapital> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#day> "2018-07-01T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/transactions#description> <Introduce_Capital> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#origin> <#bnx44_> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#type> <instant> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#vector> "[]"^^xsd:string .
+
+<#bnx5_>
+	l:name <CHF_Bank> .
+
+<#bnx60_>
+	a l:transaction ;
+	l:cf_category <Financing%20activities> ;
+	l:cf_plusminus <increases> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#account> <BanksCHF_Bank> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#day> "2018-07-01T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/transactions#description> <Introduce_Capital%20-%20incoming%20money> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#origin> <#bnx45_> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#type> <instant> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#vector> "[coord('CHF',92151893 rdiv 100)]"^^xsd:string .
+
+<#bnx61_>
+	a l:transaction ;
+	<https://rdf.lodgeit.net.au/v1/transactions#account> <CurrencyMovementCHF_Bank> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#day> "2018-07-01T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/transactions#description> <Introduce_Capital%20-%20incoming%20money%20-%20currency%20movement%20adjustment%20-%20only%20current%20period> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#origin> <#bnx45_> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#type> <tracking> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#vector> "[coord('CHF',-92151893 rdiv 100),coord(without_currency_movement_against_since('CHF','CHF',['AUD'],date(2018,7,1)),92151893 rdiv 100)]"^^xsd:string .
+
+<#bnx62_>
+	a l:transaction ;
+	<https://rdf.lodgeit.net.au/v1/transactions#account> <ShareCapital> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#day> "2018-07-01T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/transactions#description> <Introduce_Capital> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#origin> <#bnx45_> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#type> <instant> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#vector> "[coord('AUD',-622762492894 rdiv 495173)]"^^xsd:string .
+
+<#bnx63_>
+	a l:transaction ;
+	l:cf_category <Investing%20activities> ;
+	l:cf_plusminus <decreases> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#account> <BanksUSD_Bank> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#day> "2018-07-02T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/transactions#description> <Invest_In%20-%20outgoing%20money> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#origin> <#bnx46_> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#type> <instant> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#vector> "[coord('USD',-1040071 rdiv 25)]"^^xsd:string .
+
+<#bnx64_>
+	a l:transaction ;
+	<https://rdf.lodgeit.net.au/v1/transactions#account> <CurrencyMovementUSD_Bank> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#day> "2018-07-02T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/transactions#description> <Invest_In%20-%20outgoing%20money%20-%20currency%20movement%20adjustment%20-%20only%20current%20period> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#origin> <#bnx46_> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#type> <tracking> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#vector> "[coord('USD',1040071 rdiv 25),coord(without_currency_movement_against_since('USD','USD',['AUD'],date(2018,7,2)),-1040071 rdiv 25)]"^^xsd:string .
+
+<#bnx65_>
+	a l:transaction ;
+	<https://rdf.lodgeit.net.au/v1/transactions#account> <FinancialInvestmentsRaiffeisen_Switzerland_B_V_> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#day> "2018-07-02T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/transactions#description> <Invest_In> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#origin> <#bnx46_> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#type> <instant> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#vector> "[coord('Raiffeisen Switzerland_B.V.',2085)]"^^xsd:string .
+
+<#bnx66_>
+	a l:transaction ;
+	<https://rdf.lodgeit.net.au/v1/transactions#account> <InvestmentIncomeUnrealizedOnlyCurrencyMovementRaiffeisen_Switzerland_B_V_> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#day> "2018-07-02T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/transactions#description> <comment:,%20comment2:Invest_In%20-%20single%20period> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#origin> <#bnx46_> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#type> <?> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#vector> "[coord('Raiffeisen Switzerland_B.V.',-2085),coord(without_currency_movement_against_since('Raiffeisen Switzerland_B.V.','USD',['AUD'],date(2018,7,2)),2085)]"^^xsd:string .
+
+<#bnx67_>
+	a l:transaction ;
+	<https://rdf.lodgeit.net.au/v1/transactions#account> <InvestmentIncomeUnrealizedWithoutCurrencyMovementRaiffeisen_Switzerland_B_V_> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#day> "2018-07-02T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/transactions#description> <comment:,%20comment2:Invest_In%20-%20single%20period> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#origin> <#bnx46_> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#type> <?> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#vector> "[coord(without_currency_movement_against_since('Raiffeisen Switzerland_B.V.','USD',['AUD'],date(2018,7,2)),-2085),coord('AUD',35176241291 rdiv 625000)]"^^xsd:string .
+
+<#bnx68_>
+	a l:transaction ;
+	l:cf_category <Operating%20activities> ;
+	l:cf_plusminus <decreases> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#account> <BanksCHF_Bank> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#day> "2018-07-10T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/transactions#description> <Accountancy_Fees%20-%20outgoing%20money> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#origin> <#bnx47_> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#type> <instant> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#vector> "[coord('CHF',-1000)]"^^xsd:string .
+
+<#bnx69_>
+	a l:transaction ;
+	<https://rdf.lodgeit.net.au/v1/transactions#account> <CurrencyMovementCHF_Bank> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#day> "2018-07-10T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/transactions#description> <Accountancy_Fees%20-%20outgoing%20money%20-%20currency%20movement%20adjustment%20-%20only%20current%20period> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#origin> <#bnx47_> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#type> <tracking> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#vector> "[coord('CHF',1000),coord(without_currency_movement_against_since('CHF','CHF',['AUD'],date(2018,7,10)),-1000)]"^^xsd:string .
+
+<#bnx6_>
+	a l:s_transaction ;
+	l:source l:bank_statement_xml ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#account> <USD_Bank> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#day> "2018-07-01T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#exchanged> "vector([])"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#misc> "misc{desc2:''}"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#type_id> <Introduce_Capital> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#vector> "[coord('USD',0)]"^^xsd:string .
+
+<#bnx70_>
+	a l:transaction ;
+	<https://rdf.lodgeit.net.au/v1/transactions#account> <AccountingFees> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#day> "2018-07-10T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/transactions#description> <Accountancy_Fees> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#origin> <#bnx47_> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#type> <instant> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#vector> "[coord('AUD',1362583 rdiv 1000)]"^^xsd:string .
+
+<#bnx71_>
+	a l:transaction ;
+	l:cf_category <Investing%20activities> ;
+	l:cf_plusminus <increases> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#account> <BanksUSD_Bank> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#day> "2018-07-12T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/transactions#description> <Dispose_Off%20-%20incoming%20money> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#origin> <#bnx48_> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#type> <instant> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#vector> "[coord('USD',91120)]"^^xsd:string .
+
+<#bnx72_>
+	a l:transaction ;
+	<https://rdf.lodgeit.net.au/v1/transactions#account> <CurrencyMovementUSD_Bank> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#day> "2018-07-12T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/transactions#description> <Dispose_Off%20-%20incoming%20money%20-%20currency%20movement%20adjustment%20-%20only%20current%20period> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#origin> <#bnx48_> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#type> <tracking> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#vector> "[coord('USD',-91120),coord(without_currency_movement_against_since('USD','USD',['AUD'],date(2018,7,12)),91120)]"^^xsd:string .
+
+<#bnx73_>
+	a l:transaction ;
+	<https://rdf.lodgeit.net.au/v1/transactions#account> <FinancialInvestmentsRaiffeisen_Switzerland_B_V_> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#day> "2018-07-12T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/transactions#description> <Dispose_Off> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#origin> <#bnx48_> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#type> <instant> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#vector> "[coord('Raiffeisen Switzerland_B.V.',-2085)]"^^xsd:string .
+
+<#bnx74_>
+	a l:transaction ;
+	<https://rdf.lodgeit.net.au/v1/transactions#account> <InvestmentIncomeUnrealizedOnlyCurrencyMovementRaiffeisen_Switzerland_B_V_> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#day> "2018-07-12T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/transactions#description> <comment:,%20comment2:Dispose_Off%20-%20single%20period> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#origin> <#bnx48_> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#type> <?> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#vector> "[coord('Raiffeisen Switzerland_B.V.',2085),coord(without_currency_movement_against_since('Raiffeisen Switzerland_B.V.','USD',['AUD'],date(2018,7,2)),-2085)]"^^xsd:string .
+
+<#bnx75_>
+	a l:transaction ;
+	<https://rdf.lodgeit.net.au/v1/transactions#account> <InvestmentIncomeUnrealizedWithoutCurrencyMovementRaiffeisen_Switzerland_B_V_> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#day> "2018-07-12T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/transactions#description> <comment:,%20comment2:Dispose_Off%20-%20single%20period> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#origin> <#bnx48_> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#type> <?> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#vector> "[coord(without_currency_movement_against_since('Raiffeisen Switzerland_B.V.','USD',['AUD'],date(2018,7,2)),2085),coord('AUD',-35176241291 rdiv 625000)]"^^xsd:string .
+
+<#bnx76_>
+	a l:transaction ;
+	<https://rdf.lodgeit.net.au/v1/transactions#account> <InvestmentIncomeRealizedOnlyCurrencyMovementRaiffeisen_Switzerland_B_V_> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#day> "2018-07-12T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/transactions#description> <comment:,%20comment2:Dispose_Off> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#origin> <#bnx48_> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#type> <?> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#vector> "[coord('AUD',-1550155081 rdiv 12500),coord(without_currency_movement_against_since('USD','USD',['AUD'],date(2018,7,2)),91120)]"^^xsd:string .
+
+<#bnx77_>
+	a l:transaction ;
+	<https://rdf.lodgeit.net.au/v1/transactions#account> <InvestmentIncomeRealizedWithoutCurrencyMovementRaiffeisen_Switzerland_B_V_> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#day> "2018-07-12T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/transactions#description> <comment:,%20comment2:Dispose_Off> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#origin> <#bnx48_> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#type> <?> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#vector> "[coord(without_currency_movement_against_since('USD','USD',['AUD'],date(2018,7,2)),-91120),coord('AUD',35176241291 rdiv 625000)]"^^xsd:string .
+
+<#bnx78_>
+	a l:transaction ;
+	l:cf_category <Operating%20activities> ;
+	l:cf_plusminus <decreases> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#account> <BanksUSD_Bank> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#day> "2018-08-13T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/transactions#description> <Bank_Charges%20-%20outgoing%20money> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#origin> <#bnx49_> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#type> <instant> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#vector> "[coord('USD',-20)]"^^xsd:string .
+
+<#bnx79_>
+	a l:transaction ;
+	<https://rdf.lodgeit.net.au/v1/transactions#account> <CurrencyMovementUSD_Bank> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#day> "2018-08-13T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/transactions#description> <Bank_Charges%20-%20outgoing%20money%20-%20currency%20movement%20adjustment%20-%20only%20current%20period> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#origin> <#bnx49_> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#type> <tracking> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#vector> "[coord('USD',20),coord(without_currency_movement_against_since('USD','USD',['AUD'],date(2018,8,13)),-20)]"^^xsd:string .
+
+<#bnx7_>
+	a l:s_transaction ;
+	l:source l:bank_statement_xml ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#account> <USD_Bank> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#day> "2018-07-02T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#exchanged> "vector([coord('Raiffeisen Switzerland_B.V.',2085)])"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#misc> "misc{desc2:''}"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#type_id> <Invest_In> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#vector> "[coord('USD',1040071 rdiv 25)]"^^xsd:string .
+
+<#bnx80_>
+	a l:transaction ;
+	<https://rdf.lodgeit.net.au/v1/transactions#account> <BankCharges> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#day> "2018-08-13T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/transactions#description> <Bank_Charges> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#origin> <#bnx49_> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#type> <instant> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#vector> "[coord('AUD',1358327 rdiv 50000)]"^^xsd:string .
+
+<#bnx81_>
+	a l:transaction ;
+	l:cf_category <Operating%20activities> ;
+	l:cf_plusminus <decreases> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#account> <BanksCHF_Bank> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#day> "2018-08-16T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/transactions#description> <Bank_Charges%20-%20outgoing%20money> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#origin> <#bnx50_> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#type> <instant> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#vector> "[coord('CHF',-31477 rdiv 20)]"^^xsd:string .
+
+<#bnx82_>
+	a l:transaction ;
+	<https://rdf.lodgeit.net.au/v1/transactions#account> <CurrencyMovementCHF_Bank> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#day> "2018-08-16T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/transactions#description> <Bank_Charges%20-%20outgoing%20money%20-%20currency%20movement%20adjustment%20-%20only%20current%20period> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#origin> <#bnx50_> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#type> <tracking> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#vector> "[coord('CHF',31477 rdiv 20),coord(without_currency_movement_against_since('CHF','CHF',['AUD'],date(2018,8,16)),-31477 rdiv 20)]"^^xsd:string .
+
+<#bnx83_>
+	a l:transaction ;
+	<https://rdf.lodgeit.net.au/v1/transactions#account> <BankCharges> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#day> "2018-08-16T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/transactions#description> <Bank_Charges> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#origin> <#bnx50_> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#type> <instant> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#vector> "[coord('AUD',4238094757 rdiv 2000000)]"^^xsd:string .
+
+<#bnx84_>
+	a l:transaction ;
+	l:cf_category <Investing%20activities> ;
+	l:cf_plusminus <increases> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#account> <BanksUSD_Bank> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#day> "2018-09-01T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/transactions#description> <Interest_Income%20-%20incoming%20money> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#origin> <#bnx51_> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#type> <instant> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#vector> "[coord('USD',30)]"^^xsd:string .
+
+<#bnx85_>
+	a l:transaction ;
+	<https://rdf.lodgeit.net.au/v1/transactions#account> <CurrencyMovementUSD_Bank> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#day> "2018-09-01T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/transactions#description> <Interest_Income%20-%20incoming%20money%20-%20currency%20movement%20adjustment%20-%20only%20current%20period> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#origin> <#bnx51_> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#type> <tracking> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#vector> "[coord('USD',-30),coord(without_currency_movement_against_since('USD','USD',['AUD'],date(2018,9,1)),30)]"^^xsd:string .
+
+<#bnx86_>
+	a l:transaction ;
+	<https://rdf.lodgeit.net.au/v1/transactions#account> <InterestEarned> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#day> "2018-09-01T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/transactions#description> <Interest_Income> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#origin> <#bnx51_> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#type> <instant> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#vector> "[coord('AUD',-127803 rdiv 3125)]"^^xsd:string .
+
+<#bnx87_>
+	a l:transaction ;
+	l:cf_category <Investing%20activities> ;
+	l:cf_plusminus <decreases> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#account> <BanksCHF_Bank> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#day> "2018-10-01T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/transactions#description> <Invest_In%20-%20outgoing%20money> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#origin> <#bnx52_> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#type> <instant> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#vector> "[coord('CHF',-808761 rdiv 10)]"^^xsd:string .
+
+<#bnx88_>
+	a l:transaction ;
+	<https://rdf.lodgeit.net.au/v1/transactions#account> <CurrencyMovementCHF_Bank> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#day> "2018-10-01T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/transactions#description> <Invest_In%20-%20outgoing%20money%20-%20currency%20movement%20adjustment%20-%20only%20current%20period> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#origin> <#bnx52_> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#type> <tracking> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#vector> "[coord('CHF',808761 rdiv 10),coord(without_currency_movement_against_since('CHF','CHF',['AUD'],date(2018,10,1)),-808761 rdiv 10)]"^^xsd:string .
+
+<#bnx89_>
+	a l:transaction ;
+	<https://rdf.lodgeit.net.au/v1/transactions#account> <FinancialInvestmentsLeonteq_N> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#day> "2018-10-01T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/transactions#description> <Invest_In> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#origin> <#bnx52_> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#type> <instant> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#vector> "[coord('Leonteq_N',30000)]"^^xsd:string .
+
+<#bnx8_>
+	a l:s_transaction ;
+	l:source l:bank_statement_xml ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#account> <USD_Bank> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#day> "2018-07-12T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#exchanged> "vector([coord('Raiffeisen Switzerland_B.V.',-2085)])"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#misc> "misc{desc2:''}"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#type_id> <Dispose_Off> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#vector> "[coord('USD',-91120)]"^^xsd:string .
+
+<#bnx90_>
+	a l:transaction ;
+	<https://rdf.lodgeit.net.au/v1/transactions#account> <InvestmentIncomeUnrealizedOnlyCurrencyMovementLeonteq_N> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#day> "2018-10-01T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/transactions#description> <comment:,%20comment2:Invest_In%20-%20single%20period> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#origin> <#bnx52_> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#type> <?> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#vector> "[coord('Leonteq_N',-30000),coord(without_currency_movement_against_since('Leonteq_N','CHF',['AUD'],date(2018,10,1)),30000)]"^^xsd:string .
+
+<#bnx91_>
+	a l:transaction ;
+	<https://rdf.lodgeit.net.au/v1/transactions#account> <InvestmentIncomeUnrealizedWithoutCurrencyMovementLeonteq_N> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#day> "2018-10-01T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/transactions#description> <comment:,%20comment2:Invest_In%20-%20single%20period> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#origin> <#bnx52_> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#type> <?> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#vector> "[coord(without_currency_movement_against_since('Leonteq_N','CHF',['AUD'],date(2018,10,1)),-30000),coord('AUD',218049244449 rdiv 2000000)]"^^xsd:string .
+
+<#bnx92_>
+	a l:transaction ;
+	l:cf_category <Investing%20activities> ;
+	l:cf_plusminus <decreases> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#account> <BanksUSD_Bank> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#day> "2018-10-15T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/transactions#description> <Transfers%20-%20outgoing%20money> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#origin> <#bnx53_> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#type> <instant> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#vector> "[coord('USD',-90000)]"^^xsd:string .
+
+<#bnx93_>
+	a l:transaction ;
+	<https://rdf.lodgeit.net.au/v1/transactions#account> <CurrencyMovementUSD_Bank> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#day> "2018-10-15T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/transactions#description> <Transfers%20-%20outgoing%20money%20-%20currency%20movement%20adjustment%20-%20only%20current%20period> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#origin> <#bnx53_> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#type> <tracking> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#vector> "[coord('USD',90000),coord(without_currency_movement_against_since('USD','USD',['AUD'],date(2018,10,15)),-90000)]"^^xsd:string .
+
+<#bnx94_>
+	a l:transaction ;
+	<https://rdf.lodgeit.net.au/v1/transactions#account> <ExchangeGain> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#day> "2018-10-15T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/transactions#description> <Transfers> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#origin> <#bnx53_> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#type> <instant> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#vector> "[coord('AUD',611496 rdiv 5)]"^^xsd:string .
+
+<#bnx95_>
+	a l:transaction ;
+	l:cf_category <Investing%20activities> ;
+	l:cf_plusminus <increases> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#account> <BanksCHF_Bank> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#day> "2018-10-15T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/transactions#description> <Transfers%20-%20incoming%20money> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#origin> <#bnx54_> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#type> <instant> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#vector> "[coord('CHF',105000)]"^^xsd:string .
+
+<#bnx96_>
+	a l:transaction ;
+	<https://rdf.lodgeit.net.au/v1/transactions#account> <CurrencyMovementCHF_Bank> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#day> "2018-10-15T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/transactions#description> <Transfers%20-%20incoming%20money%20-%20currency%20movement%20adjustment%20-%20only%20current%20period> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#origin> <#bnx54_> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#type> <tracking> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#vector> "[coord('CHF',-105000),coord(without_currency_movement_against_since('CHF','CHF',['AUD'],date(2018,10,15)),105000)]"^^xsd:string .
+
+<#bnx97_>
+	a l:transaction ;
+	<https://rdf.lodgeit.net.au/v1/transactions#account> <ExchangeGain> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#day> "2018-10-15T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/transactions#description> <Transfers> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#origin> <#bnx54_> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#type> <instant> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#vector> "[coord('AUD',-14186109 rdiv 100)]"^^xsd:string .
+
+<#bnx98_>
+	a l:transaction ;
+	l:cf_category <Investing%20activities> ;
+	l:cf_plusminus <increases> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#account> <BanksCHF_Bank> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#day> "2018-12-30T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/transactions#description> <Interest_Income%20-%20incoming%20money> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#origin> <#bnx55_> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#type> <instant> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#vector> "[coord('CHF',1155)]"^^xsd:string .
+
+<#bnx99_>
+	a l:transaction ;
+	<https://rdf.lodgeit.net.au/v1/transactions#account> <CurrencyMovementCHF_Bank> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#day> "2018-12-30T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/transactions#description> <Interest_Income%20-%20incoming%20money%20-%20currency%20movement%20adjustment%20-%20only%20current%20period> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#origin> <#bnx55_> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#type> <tracking> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#vector> "[coord('CHF',-1155),coord(without_currency_movement_against_since('CHF','CHF',['AUD'],date(2018,12,30)),1155)]"^^xsd:string .
+
+<#bnx9_>
+	a l:s_transaction ;
+	l:source l:bank_statement_xml ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#account> <USD_Bank> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#day> "2018-08-13T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#exchanged> "vector([])"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#misc> "misc{desc2:''}"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#type_id> <Bank_Charges> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#vector> "[coord('USD',20)]"^^xsd:string .
+
+<AUD>
+	<sane> "'U-',\"U-AUD\""^^xsd:string .
+
+<CHF_Bank>
+	<sane> "'',\"CHF_Bank\""^^xsd:string .
+
+<D-2019>
+	<sane> "'',\"D-2019\""^^xsd:string .
+
+<D-2019-CHF_Bank>
+	<sane> "'',\"D-2019-CHF_Bank\""^^xsd:string .
+
+<D-2019-Leonteq_N>
+	<sane> "'',\"D-2019-Leonteq_N\""^^xsd:string .
+
+<D-2019-Raiffeisen_Switzerland_B.V.>
+	<sane> "'',\"D-2019-Raiffeisen_Switzerland_B.V.\""^^xsd:string .
+
+<D-2019-USD_Bank>
+	<sane> "'',\"D-2019-USD_Bank\""^^xsd:string .
+
+<I-2019>
+	<sane> "'',\"I-2019\""^^xsd:string .
+
+<I-2019-CHF_Bank>
+	<sane> "'',\"I-2019-CHF_Bank\""^^xsd:string .
+
+<I-2019-USD_Bank>
+	<sane> "'',\"I-2019-USD_Bank\""^^xsd:string .
+
+<Leonteq_N>
+	<sane> "'',\"Leonteq_N\""^^xsd:string .
+
+<Raiffeisen%20Switzerland_B.V.>
+	<sane> "'',\"Raiffeisen_Switzerland_B.V.\""^^xsd:string .
+
+<USD_Bank>
+	<sane> "'',\"USD_Bank\""^^xsd:string .
+
+<basic:Dimension_BankAccounts_Duration>
+	<sane> "'',\"basic:Dimension_BankAccounts_Duration\""^^xsd:string .
+
+<basic:Dimension_BankAccounts_Instant>
+	<sane> "'',\"basic:Dimension_BankAccounts_Instant\""^^xsd:string .
+
+<basic:Dimension_Investments_Duration>
+	<sane> "'',\"basic:Dimension_Investments_Duration\""^^xsd:string .
+
+l:livestock_purchase
+	a l:action_verb ;
+	l:has_id <Livestock_Purchase> .
+
+l:livestock_sale
+	a l:action_verb ;
+	l:has_id <Livestock_Sale> .

@@ -1,0 +1,510 @@
+@base              <http://localhost:7778/tmp/1582194185.1406841.236/doc.n3> .
+@prefix       rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix livestock: <https://rdf.lodgeit.net.au/v1/livestock#> .
+@prefix         l: <https://rdf.lodgeit.net.au/v1/request#> .
+@prefix      rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix       xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Named toplevel resources (80)
+
+<#bnx10_Invest_In>
+	a l:action_verb ;
+	l:has_counteraccount <FinancialInvestments> ;
+	l:has_description <Shares> ;
+	l:has_gst_rate "0"^^xsd:integer ;
+	l:has_id <Invest_In> ;
+	l:has_trading_account <InvestmentIncome> .
+
+<#bnx11_Dispose_Of>
+	a l:action_verb ;
+	l:has_counteraccount <FinancialInvestments> ;
+	l:has_description <Shares> ;
+	l:has_gst_rate "0"^^xsd:integer ;
+	l:has_id <Dispose_Of> ;
+	l:has_trading_account <InvestmentIncome> .
+
+<#bnx12_Bank_Charges>
+	a l:action_verb ;
+	l:has_counteraccount <BankCharges> ;
+	l:has_gst_rate "0"^^xsd:integer ;
+	l:has_id <Bank_Charges> .
+
+<#bnx13_Expenses>
+	a l:action_verb ;
+	l:has_counteraccount <OtherExpenses> ;
+	l:has_gst_rate "0"^^xsd:integer ;
+	l:has_id <Expenses> .
+
+<#bnx14_Gain>
+	a l:action_verb ;
+	l:has_counteraccount <OtherGain> ;
+	l:has_gst_rate "0"^^xsd:integer ;
+	l:has_id <Gain> .
+
+<#bnx15_Loss>
+	a l:action_verb ;
+	l:has_counteraccount <ShareCapital> ;
+	l:has_description <No%20Description> ;
+	l:has_gst_rate "0"^^xsd:integer ;
+	l:has_id <Loss> .
+
+<#bnx16_Income>
+	a l:action_verb ;
+	l:has_counteraccount <Income> ;
+	l:has_gst_rate "0"^^xsd:integer ;
+	l:has_id <Income> .
+
+<#bnx17_Interest_Income>
+	a l:action_verb ;
+	l:has_counteraccount <InterestIncome> ;
+	l:has_gst_rate "0"^^xsd:integer ;
+	l:has_id <Interest_Income> .
+
+<#bnx18_Interest_Expenses>
+	a l:action_verb ;
+	l:has_counteraccount <InterestExpenses> ;
+	l:has_gst_rate "0"^^xsd:integer ;
+	l:has_id <Interest_Expenses> .
+
+<#bnx19_Borrow>
+	a l:action_verb ;
+	l:has_counteraccount <NoncurrentLoans> ;
+	l:has_gst_rate "0"^^xsd:integer ;
+	l:has_id <Borrow> .
+
+<#bnx1_>
+	a l:request ;
+	l:accounts "[account('AccountingFees','Expenses','Accounts'/'AccountingFees',0),account('Accounts',accountHierarchy,'Accounts'/'Accounts',0),account('Assets','NetAssets','Accounts'/'Assets',0),account('AssetsLivestock','CurrentAssets','Accounts'/'AssetsLivestock',0),account('AssetsLivestockAtAverageCost','AssetsLivestock','Accounts'/'AssetsLivestockAtAverageCost',0),account('AssetsLivestockAtCost','AssetsLivestock','Accounts'/'AssetsLivestockAtCost',0),account('BankCharges','Expenses','Accounts'/'BankCharges',0),account('BankOpeningBalances','HistoricalEarnings','Accounts'/'BankOpeningBalances',0),account('Banks','CashAndCashEquivalents','Accounts'/'Banks',0),account('CapitalIntroduced','Equity','Accounts'/'CapitalIntroduced',0),account('CashAndCashEquivalents','CurrentAssets','Accounts'/'CashAndCashEquivalents',0),account('ClearingAccount','Revenue','Accounts'/'ClearingAccount',0),account('CostOfGoodsLivestock','Expenses','Accounts'/'CostOfGoodsLivestock',0),account('CurrencyMovement','Revenue','Accounts'/'CurrencyMovement',0),account('CurrentAssets','Assets','Accounts'/'CurrentAssets',0),account('CurrentEarnings','RetainedEarnings','Accounts'/'CurrentEarnings',0),account('CurrentLiabilities','Liabilities','Accounts'/'CurrentLiabilities',0),account('CurrentLoans','CurrentLiabilities','Accounts'/'CurrentLoans',0),account('Drawings','Equity','Accounts'/'Drawings',0),account('EarningsFinancialInvestments','OtherIncome','Accounts'/'EarningsFinancialInvestments',0),account('Equity','Accounts','Accounts'/'Equity',0),account('ExchangeGain','OtherIncome','Accounts'/'ExchangeGain',0),account('Expenses','NetIncomeLoss','Accounts'/'Expenses',0),account('FinancialInvestments','NoncurrentAssets','Accounts'/'FinancialInvestments',0),account('ForexLoss','Expenses','Accounts'/'ForexLoss',0),account('Gst','CurrentLiabilities','Accounts'/'Gst',0),account('GstPayable','Gst','Accounts'/'GstPayable',0),account('GstReceivable','Gst','Accounts'/'GstReceivable',0),account('HistoricalEarnings','RetainedEarnings','Accounts'/'HistoricalEarnings',0),account('Income','Revenue','Accounts'/'Income',0),account('InterestEarned','OtherIncome','Accounts'/'InterestEarned',0),account('InterestExpenses','Expenses','Accounts'/'InterestExpenses',0),account('InterestIncome','OtherIncome','Accounts'/'InterestIncome',0),account('InvestmentIncome','Revenue','Accounts'/'InvestmentIncome',0),account('Liabilities','NetAssets','Accounts'/'Liabilities',0),account('LivestockAdjustment','Expenses','Accounts'/'LivestockAdjustment',0),account('NetAssets','Accounts','Accounts'/'NetAssets',0),account('NetIncomeLoss','Accounts','Accounts'/'NetIncomeLoss',0),account('NoncurrentAssets','Assets','Accounts'/'NoncurrentAssets',0),account('NoncurrentLiabilities','Liabilities','Accounts'/'NoncurrentLiabilities',0),account('NoncurrentLoans','NoncurrentLiabilities','Accounts'/'NoncurrentLoans',0),account('OtherExpenses','Expenses','Accounts'/'OtherExpenses',0),account('OtherGain','Revenue','Accounts'/'OtherGain',0),account('OtherIncome','Revenue','Accounts'/'OtherIncome',0),account('Purchases','Expenses','Accounts'/'Purchases',0),account('RationsRevenue','Revenue','Accounts'/'RationsRevenue',0),account('RetainedEarnings','Equity','Accounts'/'RetainedEarnings',0),account('Revenue','NetIncomeLoss','Accounts'/'Revenue',0),account('SalesOfLivestock','Revenue','Accounts'/'SalesOfLivestock',0),account('ShareCapital','Equity','Accounts'/'ShareCapital',0),account(accountHierarchy,'','',0),account('Inventory',accountHierarchy,accountHierarchy/'Inventory',0),account('LivestockCount','Inventory','Inventory'/'LivestockCount',0),account('BanksNationalAustraliaBank','Banks','Banks'/'NationalAustraliaBank',1),account('CurrencyMovementNationalAustraliaBank','CurrencyMovement','CurrencyMovement'/'NationalAustraliaBank',0),account('InvestmentIncomeRealized','InvestmentIncome','InvestmentIncome'/realized,0),account('InvestmentIncomeRealizedOnlyCurrencyMovement','InvestmentIncomeRealized','InvestmentIncomeRealized'/onlyCurrencyMovement,0),account('InvestmentIncomeRealizedOnlyCurrencyMovementGOOG','InvestmentIncomeRealizedOnlyCurrencyMovement','InvestmentIncomeRealizedOnlyCurrencyMovement'/'GOOG',1),account('InvestmentIncomeRealizedWithoutCurrencyMovement','InvestmentIncomeRealized','InvestmentIncomeRealized'/withoutCurrencyMovement,0),account('InvestmentIncomeRealizedWithoutCurrencyMovementGOOG','InvestmentIncomeRealizedWithoutCurrencyMovement','InvestmentIncomeRealizedWithoutCurrencyMovement'/'GOOG',1),account('InvestmentIncomeUnrealized','InvestmentIncome','InvestmentIncome'/unrealized,0),account('InvestmentIncomeUnrealizedOnlyCurrencyMovement','InvestmentIncomeUnrealized','InvestmentIncomeUnrealized'/onlyCurrencyMovement,0),account('InvestmentIncomeUnrealizedOnlyCurrencyMovementGOOG','InvestmentIncomeUnrealizedOnlyCurrencyMovement','InvestmentIncomeUnrealizedOnlyCurrencyMovement'/'GOOG',1),account('InvestmentIncomeUnrealizedWithoutCurrencyMovement','InvestmentIncomeUnrealized','InvestmentIncomeUnrealized'/withoutCurrencyMovement,0),account('InvestmentIncomeUnrealizedWithoutCurrencyMovementGOOG','InvestmentIncomeUnrealizedWithoutCurrencyMovement','InvestmentIncomeUnrealizedWithoutCurrencyMovement'/'GOOG',1),account('FinancialInvestmentsGOOG','FinancialInvestments','FinancialInvestments'/'GOOG',1)]"^^xsd:string ;
+	l:bank_account <#bnx4_> ;
+	l:end_date "2018-01-01T00:00:00"^^xsd:dateTime ;
+	l:has_used_unit <oranges> ;
+	l:report <#bnx2_> ,
+		 <#bnx53_> ,
+		 <#bnx54_> ,
+		 <#bnx55_> ,
+		 <#bnx56_> ,
+		 <#bnx57_> ,
+		 <#bnx58_> ,
+		 <#bnx59_> ,
+		 <#bnx60_> ,
+		 <#bnx61_> ,
+		 <#bnx62_> ,
+		 <#bnx63_> ,
+		 <#bnx64_> ,
+		 <#bnx65_> ,
+		 <#bnx66_> ,
+		 <#bnx67_> ,
+		 <#bnx68_> ;
+	l:start_date "2016-01-01T00:00:00"^^xsd:dateTime ;
+	l:taxonomy_url_base <taxonomy/> .
+
+<#bnx20_Introduce_Capital>
+	a l:action_verb ;
+	l:has_counteraccount <ShareCapital> ;
+	l:has_description <Unit_Investment> ;
+	l:has_gst_rate "0"^^xsd:integer ;
+	l:has_id <Introduce_Capital> .
+
+<#bnx21_Pay_Bank>
+	a l:action_verb ;
+	l:has_counteraccount <BankCharges> ;
+	l:has_description <No%20Description> ;
+	l:has_gst_rate "0"^^xsd:integer ;
+	l:has_id <Pay_Bank> .
+
+<#bnx22_Accountancy_Fees>
+	a l:action_verb ;
+	l:has_counteraccount <AccountancyFees> ;
+	l:has_description <No%20Description> ;
+	l:has_gst_rate "0"^^xsd:integer ;
+	l:has_id <Accountancy_Fees> .
+
+<#bnx23_Purchase_Method_C>
+	a l:action_verb ;
+	l:has_counteraccount <Purchases> ;
+	l:has_description <No%20Description> ;
+	l:has_gst_rate "10"^^xsd:integer ;
+	l:has_gst_receivable_account <GstReceivable> ;
+	l:has_id <Purchase_Method_C> .
+
+<#bnx24_Sale_Method_C>
+	a l:action_verb ;
+	l:has_counteraccount <Income> ;
+	l:has_description <No%20Description> ;
+	l:has_gst_payable_account <GstPayable> ;
+	l:has_gst_rate "10"^^xsd:integer ;
+	l:has_id <Sale_Method_C> .
+
+<#bnx25_>
+	<body> "[ exchange_rate(date(2016,1,1),'GOOG',bananas,500),\n  exchange_rate(date(2017,1,1),'GOOG',bananas,1000),\n  exchange_rate(date(2018,1,1),'GOOG',bananas,1000),\n  exchange_rate(date(2016,1,1),bananas,oranges,2),\n  exchange_rate(date(2017,1,1),bananas,oranges,2),\n  exchange_rate(date(2018,1,1),bananas,oranges,4)\n]"^^xsd:string ;
+	<title> <Exchange%20rates%20extracted> .
+
+<#bnx26_>
+	<body> "[ account('AccountingFees','Expenses','Accounts'/'AccountingFees',0),\n  account('Accounts',accountHierarchy,'Accounts'/'Accounts',0),\n  account('Assets','NetAssets','Accounts'/'Assets',0),\n  account('AssetsLivestock','CurrentAssets','Accounts'/'AssetsLivestock',0),\n  account('AssetsLivestockAtAverageCost',\n\t  'AssetsLivestock',\n\t  'Accounts' / 'AssetsLivestockAtAverageCost',\n\t  0),\n  account('AssetsLivestockAtCost',\n\t  'AssetsLivestock',\n\t  'Accounts' / 'AssetsLivestockAtCost',\n\t  0),\n  account('BankCharges','Expenses','Accounts'/'BankCharges',0),\n  account('BankOpeningBalances',\n\t  'HistoricalEarnings',\n\t  'Accounts' / 'BankOpeningBalances',\n\t  0),\n  account('Banks','CashAndCashEquivalents','Accounts'/'Banks',0),\n  account('CapitalIntroduced','Equity','Accounts'/'CapitalIntroduced',0),\n  account('CashAndCashEquivalents',\n\t  'CurrentAssets',\n\t  'Accounts' / 'CashAndCashEquivalents',\n\t  0),\n  account('ClearingAccount','Revenue','Accounts'/'ClearingAccount',0),\n  account('CostOfGoodsLivestock',\n\t  'Expenses',\n\t  'Accounts' / 'CostOfGoodsLivestock',\n\t  0),\n  account('CurrencyMovement','Revenue','Accounts'/'CurrencyMovement',0),\n  account('CurrentAssets','Assets','Accounts'/'CurrentAssets',0),\n  account('CurrentEarnings','RetainedEarnings','Accounts'/'CurrentEarnings',0),\n  account('CurrentLiabilities','Liabilities','Accounts'/'CurrentLiabilities',0),\n  account('CurrentLoans','CurrentLiabilities','Accounts'/'CurrentLoans',0),\n  account('Drawings','Equity','Accounts'/'Drawings',0),\n  account('EarningsFinancialInvestments',\n\t  'OtherIncome',\n\t  'Accounts' / 'EarningsFinancialInvestments',\n\t  0),\n  account('Equity','Accounts','Accounts'/'Equity',0),\n  account('ExchangeGain','OtherIncome','Accounts'/'ExchangeGain',0),\n  account('Expenses','NetIncomeLoss','Accounts'/'Expenses',0),\n  account('FinancialInvestments',\n\t  'NoncurrentAssets',\n\t  'Accounts' / 'FinancialInvestments',\n\t  0),\n  account('ForexLoss','Expenses','Accounts'/'ForexLoss',0),\n  account('Gst','CurrentLiabilities','Accounts'/'Gst',0),\n  account('GstPayable','Gst','Accounts'/'GstPayable',0),\n  account('GstReceivable','Gst','Accounts'/'GstReceivable',0),\n  account('HistoricalEarnings',\n\t  'RetainedEarnings',\n\t  'Accounts' / 'HistoricalEarnings',\n\t  0),\n  account('Income','Revenue','Accounts'/'Income',0),\n  account('InterestEarned','OtherIncome','Accounts'/'InterestEarned',0),\n  account('InterestExpenses','Expenses','Accounts'/'InterestExpenses',0),\n  account('InterestIncome','OtherIncome','Accounts'/'InterestIncome',0),\n  account('InvestmentIncome','Revenue','Accounts'/'InvestmentIncome',0),\n  account('Liabilities','NetAssets','Accounts'/'Liabilities',0),\n  account('LivestockAdjustment','Expenses','Accounts'/'LivestockAdjustment',0),\n  account('NetAssets','Accounts','Accounts'/'NetAssets',0),\n  account('NetIncomeLoss','Accounts','Accounts'/'NetIncomeLoss',0),\n  account('NoncurrentAssets','Assets','Accounts'/'NoncurrentAssets',0),\n  account('NoncurrentLiabilities',\n\t  'Liabilities',\n\t  'Accounts' / 'NoncurrentLiabilities',\n\t  0),\n  account('NoncurrentLoans',\n\t  'NoncurrentLiabilities',\n\t  'Accounts' / 'NoncurrentLoans',\n\t  0),\n  account('OtherExpenses','Expenses','Accounts'/'OtherExpenses',0),\n  account('OtherGain','Revenue','Accounts'/'OtherGain',0),\n  account('OtherIncome','Revenue','Accounts'/'OtherIncome',0),\n  account('Purchases','Expenses','Accounts'/'Purchases',0),\n  account('RationsRevenue','Revenue','Accounts'/'RationsRevenue',0),\n  account('RetainedEarnings','Equity','Accounts'/'RetainedEarnings',0),\n  account('Revenue','NetIncomeLoss','Accounts'/'Revenue',0),\n  account('SalesOfLivestock','Revenue','Accounts'/'SalesOfLivestock',0),\n  account('ShareCapital','Equity','Accounts'/'ShareCapital',0)\n]"^^xsd:string ;
+	<title> <Accounts%20extracted> .
+
+<#bnx27_>
+	<body> "[ account(accountHierarchy,'','',0),\n  account('Inventory',accountHierarchy,accountHierarchy/'Inventory',0),\n  account('LivestockCount','Inventory','Inventory'/'LivestockCount',0),\n  account('BanksNationalAustraliaBank',\n\t  'Banks',\n\t  'Banks' / 'NationalAustraliaBank',\n\t  1),\n  account('CurrencyMovementNationalAustraliaBank',\n\t  'CurrencyMovement',\n\t  'CurrencyMovement' / 'NationalAustraliaBank',\n\t  0),\n  account('InvestmentIncomeRealized',\n\t  'InvestmentIncome',\n\t  'InvestmentIncome' / realized,\n\t  0),\n  account('InvestmentIncomeRealizedOnlyCurrencyMovement',\n\t  'InvestmentIncomeRealized',\n\t  'InvestmentIncomeRealized' / onlyCurrencyMovement,\n\t  0),\n  account('InvestmentIncomeRealizedOnlyCurrencyMovementGOOG',\n\t  'InvestmentIncomeRealizedOnlyCurrencyMovement',\n\t  'InvestmentIncomeRealizedOnlyCurrencyMovement' / 'GOOG',\n\t  1),\n  account('InvestmentIncomeRealizedWithoutCurrencyMovement',\n\t  'InvestmentIncomeRealized',\n\t  'InvestmentIncomeRealized' / withoutCurrencyMovement,\n\t  0),\n  account('InvestmentIncomeRealizedWithoutCurrencyMovementGOOG',\n\t  'InvestmentIncomeRealizedWithoutCurrencyMovement',\n\t  'InvestmentIncomeRealizedWithoutCurrencyMovement' / 'GOOG',\n\t  1),\n  account('InvestmentIncomeUnrealized',\n\t  'InvestmentIncome',\n\t  'InvestmentIncome' / unrealized,\n\t  0),\n  account('InvestmentIncomeUnrealizedOnlyCurrencyMovement',\n\t  'InvestmentIncomeUnrealized',\n\t  'InvestmentIncomeUnrealized' / onlyCurrencyMovement,\n\t  0),\n  account('InvestmentIncomeUnrealizedOnlyCurrencyMovementGOOG',\n\t  'InvestmentIncomeUnrealizedOnlyCurrencyMovement',\n\t  'InvestmentIncomeUnrealizedOnlyCurrencyMovement' / 'GOOG',\n\t  1),\n  account('InvestmentIncomeUnrealizedWithoutCurrencyMovement',\n\t  'InvestmentIncomeUnrealized',\n\t  'InvestmentIncomeUnrealized' / withoutCurrencyMovement,\n\t  0),\n  account('InvestmentIncomeUnrealizedWithoutCurrencyMovementGOOG',\n\t  'InvestmentIncomeUnrealizedWithoutCurrencyMovement',\n\t  'InvestmentIncomeUnrealizedWithoutCurrencyMovement' / 'GOOG',\n\t  1),\n  account('FinancialInvestmentsGOOG',\n\t  'FinancialInvestments',\n\t  'FinancialInvestments' / 'GOOG',\n\t  1)\n]"^^xsd:string ;
+	<title> <Accounts%20generated> .
+
+<#bnx28_>
+	a l:s_transaction ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#account> <NationalAustraliaBank> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#day> "2016-01-01T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#exchanged> "vector([coord('GOOG',1)])"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#misc> "misc{desc2:''}"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#type_id> "uri('#bnx10_Invest_In')"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#vector> "[coord(bananas,-500)]"^^xsd:string .
+
+<#bnx29_>
+	a l:s_transaction ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#account> <NationalAustraliaBank> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#day> "2017-01-01T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#exchanged> "vector([coord('GOOG',-1)])"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#misc> "misc{desc2:''}"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#type_id> "uri('#bnx11_Dispose_Of')"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#vector> "[coord(bananas,1000)]"^^xsd:string .
+
+<#bnx2_>
+	l:key <request_xml> ;
+	l:title <request_xml> ;
+	l:url "loc(absolute_url,'http://localhost:7778/tmp/1582194185.1406841.236/request.xml')"^^xsd:string .
+
+<#bnx30_>
+	a l:transaction ;
+	l:cf_category <Investing%20activities> ;
+	l:cf_plusminus <decreases> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#account> <BanksNationalAustraliaBank> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#day> "2016-01-01T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/transactions#description> <Invest_In%20-%20outgoing%20money> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#origin> <#bnx28_> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#type> <instant> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#vector> "[coord(bananas,-500)]"^^xsd:string .
+
+<#bnx31_>
+	a l:transaction ;
+	<https://rdf.lodgeit.net.au/v1/transactions#account> <CurrencyMovementNationalAustraliaBank> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#day> "2016-01-01T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/transactions#description> <Invest_In%20-%20outgoing%20money%20-%20currency%20movement%20adjustment%20-%20only%20current%20period> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#origin> <#bnx28_> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#type> <tracking> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#vector> "[coord(bananas,500),coord(without_currency_movement_against_since(bananas,bananas,[oranges],date(2016,1,1)),-500)]"^^xsd:string .
+
+<#bnx32_>
+	a l:transaction ;
+	<https://rdf.lodgeit.net.au/v1/transactions#account> <FinancialInvestmentsGOOG> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#day> "2016-01-01T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/transactions#description> <Invest_In> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#origin> <#bnx28_> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#type> <instant> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#vector> "[coord('GOOG',1)]"^^xsd:string .
+
+<#bnx33_>
+	a l:transaction ;
+	<https://rdf.lodgeit.net.au/v1/transactions#account> <InvestmentIncomeUnrealizedOnlyCurrencyMovementGOOG> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#day> "2016-01-01T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/transactions#description> <comment:,%20comment2:Invest_In%20-%20single%20period> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#origin> <#bnx28_> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#type> <?> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#vector> "[coord('GOOG',-1),coord(without_currency_movement_against_since('GOOG',bananas,[oranges],date(2016,1,1)),1)]"^^xsd:string .
+
+<#bnx34_>
+	a l:transaction ;
+	<https://rdf.lodgeit.net.au/v1/transactions#account> <InvestmentIncomeUnrealizedWithoutCurrencyMovementGOOG> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#day> "2016-01-01T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/transactions#description> <comment:,%20comment2:Invest_In%20-%20single%20period> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#origin> <#bnx28_> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#type> <?> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#vector> "[coord(without_currency_movement_against_since('GOOG',bananas,[oranges],date(2016,1,1)),-1),coord(oranges,1000)]"^^xsd:string .
+
+<#bnx35_>
+	a l:transaction ;
+	l:cf_category <Investing%20activities> ;
+	l:cf_plusminus <increases> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#account> <BanksNationalAustraliaBank> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#day> "2017-01-01T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/transactions#description> <Dispose_Of%20-%20incoming%20money> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#origin> <#bnx29_> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#type> <instant> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#vector> "[coord(bananas,1000)]"^^xsd:string .
+
+<#bnx36_>
+	a l:transaction ;
+	<https://rdf.lodgeit.net.au/v1/transactions#account> <CurrencyMovementNationalAustraliaBank> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#day> "2017-01-01T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/transactions#description> <Dispose_Of%20-%20incoming%20money%20-%20currency%20movement%20adjustment%20-%20only%20current%20period> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#origin> <#bnx29_> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#type> <tracking> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#vector> "[coord(bananas,-1000),coord(without_currency_movement_against_since(bananas,bananas,[oranges],date(2017,1,1)),1000)]"^^xsd:string .
+
+<#bnx37_>
+	a l:transaction ;
+	<https://rdf.lodgeit.net.au/v1/transactions#account> <FinancialInvestmentsGOOG> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#day> "2017-01-01T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/transactions#description> <Dispose_Of> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#origin> <#bnx29_> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#type> <instant> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#vector> "[coord('GOOG',-1)]"^^xsd:string .
+
+<#bnx38_>
+	a l:transaction ;
+	<https://rdf.lodgeit.net.au/v1/transactions#account> <InvestmentIncomeUnrealizedOnlyCurrencyMovementGOOG> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#day> "2017-01-01T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/transactions#description> <comment:,%20comment2:Dispose_Of%20-%20single%20period> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#origin> <#bnx29_> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#type> <?> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#vector> "[coord('GOOG',1),coord(without_currency_movement_against_since('GOOG',bananas,[oranges],date(2016,1,1)),-1)]"^^xsd:string .
+
+<#bnx39_>
+	a l:transaction ;
+	<https://rdf.lodgeit.net.au/v1/transactions#account> <InvestmentIncomeUnrealizedWithoutCurrencyMovementGOOG> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#day> "2017-01-01T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/transactions#description> <comment:,%20comment2:Dispose_Of%20-%20single%20period> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#origin> <#bnx29_> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#type> <?> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#vector> "[coord(without_currency_movement_against_since('GOOG',bananas,[oranges],date(2016,1,1)),1),coord(oranges,-1000)]"^^xsd:string .
+
+<#bnx40_>
+	a l:transaction ;
+	<https://rdf.lodgeit.net.au/v1/transactions#account> <InvestmentIncomeRealizedOnlyCurrencyMovementGOOG> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#day> "2017-01-01T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/transactions#description> <comment:,%20comment2:Dispose_Of> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#origin> <#bnx29_> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#type> <?> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#vector> "[coord(oranges,-2000),coord(without_currency_movement_against_since(bananas,bananas,[oranges],date(2016,1,1)),1000)]"^^xsd:string .
+
+<#bnx41_>
+	a l:transaction ;
+	<https://rdf.lodgeit.net.au/v1/transactions#account> <InvestmentIncomeRealizedWithoutCurrencyMovementGOOG> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#day> "2017-01-01T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/transactions#description> <comment:,%20comment2:Dispose_Of> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#origin> <#bnx29_> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#type> <?> ;
+	<https://rdf.lodgeit.net.au/v1/transactions#vector> "[coord(without_currency_movement_against_since(bananas,bananas,[oranges],date(2016,1,1)),-1000),coord(oranges,1000)]"^^xsd:string .
+
+<#bnx42_>
+	a l:cf_categorization ;
+	l:account <BanksNationalAustraliaBank> ;
+	l:category <Investing%20activities> ;
+	l:plusminus <decreases> .
+
+<#bnx43_>
+	a l:cf_categorization ;
+	l:account <BanksNationalAustraliaBank> ;
+	l:category <Investing%20activities> ;
+	l:plusminus <increases> .
+
+<#bnx44_>
+	a rdf:value ;
+	rdf:value "[coord(oranges,-1000)]"^^xsd:string ;
+	l:source "vec_change_bases([exchange_rate(date(2016,1,1),'GOOG',bananas,500),exchange_rate(date(2017,1,1),'GOOG',bananas,1000),exchange_rate(date(2018,1,1),'GOOG',bananas,1000),exchange_rate(date(2016,1,1),bananas,oranges,2),exchange_rate(date(2017,1,1),bananas,oranges,2),exchange_rate(date(2018,1,1),bananas,oranges,4)],date(2016,1,1),[oranges],[coord(bananas,-500)],[coord(oranges,-1000)])"^^xsd:string .
+
+<#bnx45_>
+	a rdf:value ;
+	rdf:value "[coord(oranges,2000)]"^^xsd:string ;
+	l:source "vec_change_bases([exchange_rate(date(2016,1,1),'GOOG',bananas,500),exchange_rate(date(2017,1,1),'GOOG',bananas,1000),exchange_rate(date(2018,1,1),'GOOG',bananas,1000),exchange_rate(date(2016,1,1),bananas,oranges,2),exchange_rate(date(2017,1,1),bananas,oranges,2),exchange_rate(date(2018,1,1),bananas,oranges,4)],date(2017,1,1),[oranges],[coord(bananas,1000)],[coord(oranges,2000)])"^^xsd:string .
+
+<#bnx46_>
+	a rdf:value ;
+	rdf:value "[coord(oranges,1000)]"^^xsd:string ;
+	l:source "net_activity_by_account('BanksNationalAustraliaBank',[coord(oranges,1000)],_603852)"^^xsd:string .
+
+<#bnx47_>
+	a rdf:value ;
+	rdf:value "[coord(oranges,-1000)]"^^xsd:string ;
+	l:has_part <#bnx44_> .
+
+<#bnx48_>
+	a rdf:value ;
+	rdf:value "[coord(oranges,2000)]"^^xsd:string ;
+	l:has_part <#bnx45_> .
+
+<#bnx49_>
+	a rdf:value ;
+	rdf:value "[coord(oranges,1000)]"^^xsd:string ;
+	l:has_part <#bnx47_> ,
+		   <#bnx48_> .
+
+<#bnx4_>
+	l:name <NationalAustraliaBank> .
+
+<#bnx50_>
+	a rdf:value ;
+	rdf:value "[coord(oranges,2000)]"^^xsd:string ;
+	l:has_part <#bnx46_> ,
+		   <#bnx49_> .
+
+<#bnx51_>
+	a rdf:value ;
+	rdf:value "[coord(oranges,2000)]"^^xsd:string ;
+	l:has_part <#bnx50_> .
+
+<#bnx52_>
+	a rdf:value ;
+	rdf:value "[coord(oranges,2000)]"^^xsd:string ;
+	l:has_part <#bnx51_> .
+
+<#bnx53_>
+	l:key <investment_report> ;
+	l:title <investment_report> ;
+	l:url "loc(absolute_url,'http://localhost:7778/tmp/1582194185.1406841.236/investment_report.json')"^^xsd:string .
+
+<#bnx54_>
+	l:key <investment_report_html> ;
+	l:title <investment%20report%20from%202016-01-01%20to%202018-01-01%20(oranges)> ;
+	l:url "loc(absolute_url,'http://localhost:7778/tmp/1582194185.1406841.236/investment_report.html')"^^xsd:string .
+
+<#bnx55_>
+	l:key <investment_report_since_beginning> ;
+	l:title <investment_report_since_beginning> ;
+	l:url "loc(absolute_url,'http://localhost:7778/tmp/1582194185.1406841.236/investment_report_since_beginning.json')"^^xsd:string .
+
+<#bnx56_>
+	l:key <investment_report_since_beginning_html> ;
+	l:title <investment%20report%20from%201-01-01%20to%202018-01-01%20(oranges)> ;
+	l:url "loc(absolute_url,'http://localhost:7778/tmp/1582194185.1406841.236/investment_report_since_beginning.html')"^^xsd:string .
+
+<#bnx57_>
+	l:key <balance_sheet_html> ;
+	l:title <balance%20sheet%20from%202016-01-01%20to%202018-01-01%20(oranges)> ;
+	l:url "loc(absolute_url,'http://localhost:7778/tmp/1582194185.1406841.236/balance_sheet.html')"^^xsd:string .
+
+<#bnx58_>
+	l:key <profit_and_loss_html> ;
+	l:title <profit&loss%20from%202016-01-01%20to%202018-01-01%20(oranges)> ;
+	l:url "loc(absolute_url,'http://localhost:7778/tmp/1582194185.1406841.236/profit_and_loss.html')"^^xsd:string .
+
+<#bnx59_>
+	l:key <profit_and_loss_historical_html> ;
+	l:title <profit&loss%20from%201-01-01%20to%202015-12-31%20(oranges)> ;
+	l:url "loc(absolute_url,'http://localhost:7778/tmp/1582194185.1406841.236/profit_and_loss_historical.html')"^^xsd:string .
+
+<#bnx5_>
+	a l:s_transaction ;
+	l:source l:bank_statement_xml ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#account> <NationalAustraliaBank> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#day> "2016-01-01T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#exchanged> "vector([coord('GOOG',1)])"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#misc> "misc{desc2:''}"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#type_id> <Invest_In> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#vector> "[coord(bananas,500)]"^^xsd:string .
+
+<#bnx60_>
+	l:key <cashflow_html> ;
+	l:title <cash%20flow%20from%202016-01-01%20to%202018-01-01%20(oranges)> ;
+	l:url "loc(absolute_url,'http://localhost:7778/tmp/1582194185.1406841.236/cashflow.html')"^^xsd:string .
+
+<#bnx61_>
+	l:key <general_ledger_json> ;
+	l:title <general_ledger_json> ;
+	l:url "loc(absolute_url,'http://localhost:7778/tmp/1582194185.1406841.236/general_ledger_json.json')"^^xsd:string .
+
+<#bnx62_>
+	l:key <gl_html> ;
+	l:title <GL%20viewer> ;
+	l:url "loc(absolute_url,'http://localhost:7778/tmp/1582194185.1406841.236/general_ledger_viewer/link.html')"^^xsd:string .
+
+<#bnx63_>
+	l:key <crosschecks_html> ;
+	l:title <crosschecks> ;
+	l:url "loc(absolute_url,'http://localhost:7778/tmp/1582194185.1406841.236/crosschecks.html')"^^xsd:string .
+
+<#bnx64_>
+	l:key <reports_json> ;
+	l:title <reports_json> ;
+	l:url "loc(absolute_url,'http://localhost:7778/tmp/1582194185.1406841.236/reports_json.json')"^^xsd:string .
+
+<#bnx65_>
+	l:key <xbrl_instance> ;
+	l:title <xbrl_instance> ;
+	l:url "loc(absolute_url,'http://localhost:7778/tmp/1582194185.1406841.236/xbrl_instance.xml')"^^xsd:string .
+
+<#bnx66_>
+	l:key <all> ;
+	l:title <all%20files> ;
+	l:url "loc(absolute_url,'http://localhost:7778/tmp/1582194185.1406841.236/')"^^xsd:string .
+
+<#bnx67_>
+	l:key <alerts_json> ;
+	l:title <alerts_json> ;
+	l:url "loc(absolute_url,'http://localhost:7778/tmp/1582194185.1406841.236/alerts_json.json')"^^xsd:string .
+
+<#bnx68_>
+	l:key <alerts_html> ;
+	l:title <alerts> ;
+	l:url "loc(absolute_url,'http://localhost:7778/tmp/1582194185.1406841.236/alerts.html')"^^xsd:string .
+
+<#bnx6_>
+	a l:s_transaction ;
+	l:source l:bank_statement_xml ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#account> <NationalAustraliaBank> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#day> "2017-01-01T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#exchanged> "vector([coord('GOOG',-1)])"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#misc> "misc{desc2:''}"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#type_id> <Dispose_Of> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#vector> "[coord(bananas,-1000)]"^^xsd:string .
+
+<#bnx7_>
+	a l:s_transaction ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#account> <NationalAustraliaBank> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#day> "2016-01-01T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#exchanged> "vector([coord('GOOG',1)])"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#misc> "misc{desc2:''}"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#type_id> <Invest_In> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#vector> "[coord(bananas,-500)]"^^xsd:string .
+
+<#bnx8_>
+	a l:s_transaction ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#account> <NationalAustraliaBank> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#day> "2017-01-01T00:00:00"^^xsd:dateTime ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#exchanged> "vector([coord('GOOG',-1)])"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#misc> "misc{desc2:''}"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#type_id> <Dispose_Of> ;
+	<https://rdf.lodgeit.net.au/v1/s_transactions#vector> "[coord(bananas,1000)]"^^xsd:string .
+
+<#bnx9_Transfers>
+	a l:action_verb ;
+	l:has_counteraccount <ClearingAccount> ;
+	l:has_gst_rate "0"^^xsd:integer ;
+	l:has_id <Transfers> .
+
+<D-2018>
+	<sane> "'',\"D-2018\""^^xsd:string .
+
+<D-2018-GOOG>
+	<sane> "'',\"D-2018-GOOG\""^^xsd:string .
+
+<D-2018-NationalAustraliaBank>
+	<sane> "'',\"D-2018-NationalAustraliaBank\""^^xsd:string .
+
+<GOOG>
+	<sane> "'',\"GOOG\""^^xsd:string .
+
+<I-2018>
+	<sane> "'',\"I-2018\""^^xsd:string .
+
+<I-2018-NationalAustraliaBank>
+	<sane> "'',\"I-2018-NationalAustraliaBank\""^^xsd:string .
+
+<NationalAustraliaBank>
+	<sane> "'',\"NationalAustraliaBank\""^^xsd:string .
+
+<basic:Dimension_BankAccounts_Duration>
+	<sane> "'',\"basic:Dimension_BankAccounts_Duration\""^^xsd:string .
+
+<basic:Dimension_BankAccounts_Instant>
+	<sane> "'',\"basic:Dimension_BankAccounts_Instant\""^^xsd:string .
+
+<basic:Dimension_Investments_Duration>
+	<sane> "'',\"basic:Dimension_Investments_Duration\""^^xsd:string .
+
+l:livestock_purchase
+	a l:action_verb ;
+	l:has_id <Livestock_Purchase> .
+
+l:livestock_sale
+	a l:action_verb ;
+	l:has_id <Livestock_Sale> .
+
+<oranges>
+	<sane> "'U-',\"U-oranges\""^^xsd:string .

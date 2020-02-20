@@ -347,6 +347,112 @@
 }
     ]
   },
+  "cf": [
+     {
+  "account":"CashAndCashEquivalents at date(2017,7,1)",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"CashAndCashEquivalents",
+  "balance":"#bnx62_",
+  "child_sheet_entries": [
+     {
+  "account":"Banks",
+  "balance":"#bnx61_",
+  "child_sheet_entries": [
+     {
+  "account":"BanksWellsFargo",
+  "balance":"#bnx60_",
+  "child_sheet_entries": [
+     {
+  "account":"Financing activities",
+  "balance":"#bnx56_",
+  "child_sheet_entries": [
+     {
+  "account":"increases",
+  "balance":"#bnx55_",
+  "child_sheet_entries": [
+     {
+  "account": [
+    "date(2017,7,1)",
+    "'Introduce_Capital - incoming money'",
+    "a(href='#bnx38_',[small(⍰)])"
+  ],
+  "balance":"#bnx51_",
+  "child_sheet_entries": [],
+  "transactions_count":123456789
+}
+  ],
+  "transactions_count":123456789
+}
+  ],
+  "transactions_count":123456789
+},
+     {
+  "account":"Investing activities",
+  "balance":"#bnx59_",
+  "child_sheet_entries": [
+     {
+  "account":"decreases",
+  "balance":"#bnx57_",
+  "child_sheet_entries": [
+     {
+  "account": [
+    "date(2017,7,1)",
+    "'Invest_In - outgoing money'",
+    "a(href='#bnx33_',[small(⍰)])"
+  ],
+  "balance":"#bnx52_",
+  "child_sheet_entries": [],
+  "transactions_count":123456789
+}
+  ],
+  "transactions_count":123456789
+},
+     {
+  "account":"increases",
+  "balance":"#bnx58_",
+  "child_sheet_entries": [
+     {
+  "account": [
+    "date(2018,6,30)",
+    "'Dispose_Of - incoming money'",
+    "a(href='#bnx41_',[small(⍰)])"
+  ],
+  "balance":"#bnx53_",
+  "child_sheet_entries": [],
+  "transactions_count":123456789
+}
+  ],
+  "transactions_count":123456789
+}
+  ],
+  "transactions_count":123456789
+},
+     {
+  "account":"Currency movement",
+  "balance":"#bnx54_",
+  "child_sheet_entries": [],
+  "transactions_count":123456789
+}
+  ],
+  "transactions_count":123456789
+}
+  ],
+  "transactions_count":123456789
+}
+  ],
+  "transactions_count":123456789
+},
+     {
+  "account":"CashAndCashEquivalents at date(2018,6,30)",
+  "balance": [ {"credit":0, "debit":500, "unit":"AUD"} ],
+  "child_sheet_entries": [],
+  "transactions_count":3
+}
+  ],
   "crosschecks": {
     "results": [
       {

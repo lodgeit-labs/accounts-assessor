@@ -1,0 +1,34 @@
+@base              <http://localhost:7778/tmp/1582194185.1406841.246/doc.n3> .
+@prefix       rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix livestock: <https://rdf.lodgeit.net.au/v1/livestock#> .
+@prefix         l: <https://rdf.lodgeit.net.au/v1/request#> .
+@prefix      rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix       xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Named toplevel resources (5)
+
+<#bnx1_>
+	a l:request ;
+	l:alert <#bnx43_> ;
+	l:report <#bnx44_> ,
+		 <#bnx45_> ,
+		 <#bnx46_> .
+
+<#bnx43_>
+	l:message "string('''unitValueCurrency missing''')"^^xsd:string ;
+	l:type <unknown_error> .
+
+<#bnx44_>
+	l:key <all> ;
+	l:title <all%20files> ;
+	l:url "loc(absolute_url,'http://localhost:7778/tmp/1582194185.1406841.246/')"^^xsd:string .
+
+<#bnx45_>
+	l:key <alerts_json> ;
+	l:title <alerts_json> ;
+	l:url "loc(absolute_url,'http://localhost:7778/tmp/1582194185.1406841.246/alerts_json.json')"^^xsd:string .
+
+<#bnx46_>
+	l:key <alerts_html> ;
+	l:title <alerts> ;
+	l:url "loc(absolute_url,'http://localhost:7778/tmp/1582194185.1406841.246/alerts.html')"^^xsd:string .
