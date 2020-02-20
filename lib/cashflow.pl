@@ -166,13 +166,42 @@ cf_scheme_0_entry_for_account(
 ).
 */
 cf_scheme_0_root_entry(Sd, Entry) :-
-	cf_scheme_0_entry_for_account(Sd, $>account_by_role(Sd.accounts, ('Accounts'/'CashAndCashEquivalents')), Entry).
+	cf_scheme_0_entry_for_account0(Sd, $>account_by_role(Sd.accounts, ('Accounts'/'CashAndCashEquivalents')), Entry).
+
+
+balance_until_day2(Sd, Report_Currency, Date, Account, balance(Balance, Tx_Count)) :-
+	balance_until_day(Sd.exchange_rates, Sd.accounts, Sd.transactions_by_account, Report_Currency, Date, Account, Date, Balance, Tx_Count).
+
+balance_by_account2(Sd, Report_Currency, Date, Account, balance(Balance, Tx_Count)) :-
+	balance_by_account(Sd.exchange_rates, Sd.accounts, Sd.transactions_by_account, Report_Currency, Date, Account, Date, Balance, Tx_Count).
+
+
+add_entry_balance_desc(Sd, Entry, Account, Column, Date, Conversion_Target_Currency, Text, Type) :-
+	doc_new_uri(D1),
+	doc_add(Entry, report_entries:misc, D1),
+	doc_add(D1, report_entries:column, Column),
+	balance_until_day2(Sd, Conversion_Target_Currency, Date, Account, balance(B, _)),
+	flatten($>append([Text], [':', B]), Desc_Text),
+	doc_add(D1, report_entries:value, Desc_Text),
+	doc_add(D1, report_entries:misc_type, $>rdf_global_id(Type)).
+
+
+cf_scheme_0_entry_for_account0(Sd, Account, Entry) :-
+	cf_scheme_0_entry_for_account(Sd, Account, Entry),
+
+	add_entry_balance_desc(Sd, Entry, Account, 1, Sd.start_date, [], 'opening balance', header),
+	add_entry_balance_desc(Sd, Entry, Account, 1, Sd.start_date, Sd.report_currency, ['opening balance, converted at ', $>term_string(Sd.start_date)], header),
+
+	add_entry_balance_desc(Sd, Entry, Account, 1, Sd.end_date, [], 'closing balance', footer),
+	add_entry_balance_desc(Sd, Entry, Account, 1, Sd.end_date, Sd.report_currency, ['closing balance, converted at ', $>term_string(Sd.end_date)], footer).
+
 
 cf_scheme_0_entry_for_account(Sd, Account, Entry) :-
 	dif(Children, []),
 	account_children(Sd, Account, Children),
 	/* collect entries of child accounts */
-	Entry = entry0(Account, [], $>maplist(cf_scheme_0_entry_for_account(Sd), Children), []).
+	Entry = $>make_entry(Account, $>maplist(cf_scheme_0_entry_for_account(Sd), Children)).
+
 
 cf_scheme_0_entry_for_account(Sd, Account, Entry) :-
 	account_children(Sd, Account, []),
@@ -181,14 +210,17 @@ cf_scheme_0_entry_for_account(Sd, Account, Entry) :-
 	sort_into_dict({LCategory}/[ct(Cat_Uri,_), Category]>>doc(Cat_Uri, LCategory, Category, cf_stuff), Account_Items, Account_Items_By_Category),
 	dict_pairs(Account_Items_By_Category, _, Account_Items_By_Category_Pairs),
 	maplist(cf_entry_by_category(Sd), Account_Items_By_Category_Pairs, Category_Entries0),
-	% fixme the leaf account isnt a bank account when there are no bank accounts
+
+	% the leaf account isnt a bank account when there are no bank accounts
 	(	bank_account_currency_movement_account(Sd.accounts, Account, _Currency_Movement_Account)
 	->	(
 			cf_scheme_0_bank_account_currency_movement_entry(Sd, Account, Currency_Movement_Entry),
-			List_With_Currency_Movement_Entry = [Currency_Movement_Entry]
+			List_With_Currency_Movement_Entry = [Currency_Movement_Entry],
 		)
-	;	List_With_Currency_Movement_Entry = []),
-	Entry = entry0(Account, [], $>append(Category_Entries0, List_With_Currency_Movement_Entry),[]).
+	;	List_With_Currency_Movement_Entry = []
+	),
+
+	Entry = $>make_entry(Account, $>append(Category_Entries0, List_With_Currency_Movement_Entry), Misc).
 
 cf_scheme_0_bank_account_currency_movement_entry(Sd, Account, Currency_Movement_Entry) :-
 	bank_account_currency_movement_account(Sd.accounts, Account, Currency_Movement_Account),
@@ -197,7 +229,9 @@ cf_scheme_0_bank_account_currency_movement_entry(Sd, Account, Currency_Movement_
 	doc_new_(rdf:value, Vec_Uri),
 	doc_add(Vec_Uri, rdf:value, Vec),
 	doc_add(Vec_Uri, l:source, net_activity_by_account(Account, Vec, _)),
-	Currency_Movement_Entry = entry0('Currency movement', Vec_Uri, [],[]).
+	Currency_Movement_Entry = $>make_entry('Currency movement', []),
+	doc_add(Currency_Movement_Entry, report_entries:own_vec, Vec_Uri).
+
 /*
 cf_entry_by_category(
 	Category,				% atom:Category ID
@@ -210,11 +244,11 @@ cf_entry_by_category(Sd, Category-CF_Items, Category_Entry) :-
 	dict_pairs(Cf_Items_By_PlusMinus, _, Pairs),
 
 	maplist(cf_scheme0_plusminus_entry(Sd), Pairs, Child_Entries),
-	Category_Entry = entry0(Category, [], Child_Entries,[]).
+	Category_Entry = $>make_entry(Category, Child_Entries).
 
 cf_scheme0_plusminus_entry(Sd, (PlusMinus-CF_Items), Entry) :-
 	maplist(cf_instant_tx_entry0(Sd), CF_Items, Tx_Entries),
-	Entry = entry0(PlusMinus, [], Tx_Entries,[]).
+	Entry = make_entry(PlusMinus, Tx_Entries).
 
 cf_instant_tx_entry0(Sd, ct(_,Tx), Entry) :-
 	cf_instant_tx_vector_conversion(Sd, Tx, Vec),
@@ -289,14 +323,7 @@ cashflow(
 	account_by_role(Sd.accounts, ('Accounts'/'CashAndCashEquivalents'), Root),
 	transactions_in_period_on_account_and_subaccounts(Sd.accounts, Sd.transactions_by_account, Root, Sd.start_date, Sd.end_date, Filtered_Transactions),
 	maplist(tag_gl_transaction_with_cf_data, Filtered_Transactions),
-	cf_scheme_0_root_entry(Sd, Entry0),
-	entry0_to_entry(Entry0, Entry),
-/*	balance(Sd, Root, Sd.start_date, Start_Balance, C1),
-	balance(Sd, Root, Sd.end_date, End_Balance, C2),*/
-	balance_until_day(Sd.exchange_rates, Sd.accounts, Sd.transactions_by_account, Sd.report_currency, Sd.start_date, Root, Sd.start_date, Start_Balance, C1),
-	balance_by_account(Sd.exchange_rates, Sd.accounts, Sd.transactions_by_account, Sd.report_currency, Sd.end_date, Root, Sd.end_date, End_Balance, C2),
-	Entries = [
-		entry($>format(string(<$), 'CashAndCashEquivalents at ~q', [Sd.start_date]), Start_Balance, [], C1, []),
-		Entry,
-		entry($>format(string(<$), 'CashAndCashEquivalents at ~q', [Sd.end_date]), End_Balance, [], C2, [])
-	].
+	cf_scheme_0_root_entry(Sd, Entry),
+
+
+	entry_fill_in_totals(Entry).

@@ -555,6 +555,14 @@ doc_list_member(M, L) :-
 doc_list_items(L, Items) :-
 	findall(Item, doc_list_member(Item, L), Items).
 
+doc_add_list([H|T], Uri) :-
+	doc_new_uri(Uri),
+	doc_add(Uri, rdf:first, H),
+	doc_add_list(T, Uri2),
+	doc_add(Uri, rdf:rest, Uri2).
+
+doc_add_list([], rdf:nil).
+
 
 doc_value(S, P, V) :-
 	doc(S, P, O),

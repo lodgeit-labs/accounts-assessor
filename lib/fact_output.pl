@@ -1,8 +1,7 @@
+make_entry(Uri) :-
+	doc_new_uri(Uri),
+	doc_add(Uri, rdf:type, l:report_entry, report_entries).
 
-%:- rdet(format_balance/11).
-%:- rdet(format_balances/11).
-%:- rdet(pesseract_style_table_rows/4).
-%:- rdet(format_report_entries/8).
 
 
 format_report_entries(_, _, _, _, _, _, [], []).
