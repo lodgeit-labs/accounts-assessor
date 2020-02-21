@@ -176,12 +176,11 @@ balance_by_account2(Sd, Report_Currency, Date, Account, balance(Balance, Tx_Coun
 	balance_by_account(Sd.exchange_rates, Sd.accounts, Sd.transactions_by_account, Report_Currency, Date, Account, Date, Balance, Tx_Count).
 
 
-add_entry_balance_desc(Sd, Entry, Account, Column, Date, Conversion_Target_Currency, Text, Type) :-
-	balance_until_day2(Sd, Conversion_Target_Currency, Date, Account, balance(B, _)),
+add_entry_balance_desc(Sd, Entry, B, Column, Text, Type) :-
 	maybe_balance_lines(Sd.accounts, xxx, [], B, Balance_Text),
 	flatten($>append([Text], [':', Balance_Text]), Desc0),
 	atomic_list_concat(Desc0, Desc),
-	add_report_entry_misc(Entry, Column, Desc, Type).
+	add_report_entry_misc(Entry, Column, Desc, Type). /*todo add Tag, Value*/
 
 add_report_entry_misc(Entry, Column, Desc, Type) :-
 	doc_new_uri(D1),
@@ -193,11 +192,16 @@ add_report_entry_misc(Entry, Column, Desc, Type) :-
 cf_scheme_0_entry_for_account0(Sd, Account, Entry) :-
 	cf_scheme_0_entry_for_account(Sd, Account, Entry),
 
-	add_entry_balance_desc(Sd, Entry, Account, 1, Sd.start_date, [], 'opening balance', header),
-	add_entry_balance_desc(Sd, Entry, Account, 1, Sd.start_date, Sd.report_currency, ['opening balance, converted at ', $>term_string(Sd.start_date)], header),
+	/* todo also add a tag like opening_native, so we can crosscheck */
+	balance_until_day2(Sd, [], Sd.start_date, Account, balance(B1, _)),
+	add_entry_balance_desc(Sd, Entry, B1, /*unused*/1, 'opening balance', header),
+	balance_until_day2(Sd, Sd.report_currency, Sd.start_date, Account, balance(B2, _)),
+	add_entry_balance_desc(Sd, Entry, B2, 1, ['opening balance, converted at ', $>term_string(Sd.start_date)], header),
 
-	add_entry_balance_desc(Sd, Entry, Account, 1, Sd.end_date, [], 'closing balance', footer),
-	add_entry_balance_desc(Sd, Entry, Account, 1, Sd.end_date, Sd.report_currency, ['closing balance, converted at ', $>term_string(Sd.end_date)], footer).
+	balance_by_account2(Sd, [], Sd.end_date, Account, balance(B3, _)),
+	add_entry_balance_desc(Sd, Entry, B3, 1, 'closing balance', footer),
+	balance_by_account2(Sd, Sd.report_currency, Sd.end_date, Account, balance(B4, _)),
+	add_entry_balance_desc(Sd, Entry, B4, 1, ['closing balance, converted at ', $>term_string(Sd.end_date)], footer).
 
 
 cf_scheme_0_entry_for_account(Sd, Account, Entry) :-
