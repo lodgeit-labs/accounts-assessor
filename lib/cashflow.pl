@@ -177,14 +177,17 @@ balance_by_account2(Sd, Report_Currency, Date, Account, balance(Balance, Tx_Coun
 
 
 add_entry_balance_desc(Sd, Entry, Account, Column, Date, Conversion_Target_Currency, Text, Type) :-
+	balance_until_day2(Sd, Conversion_Target_Currency, Date, Account, balance(B, _)),
+	maybe_balance_lines(Sd.accounts, xxx, Sd.report_currency, B, Balance_Text),
+	flatten($>append([Text], [':', Balance_Text]), Desc),
+	add_report_entry_misc(Entry, Column, Desc, Type).
+
+add_report_entry_misc(Entry, Column, Desc, Type) :-
 	doc_new_uri(D1),
 	doc_add(Entry, report_entries:misc, D1),
 	doc_add(D1, report_entries:column, Column),
-	balance_until_day2(Sd, Conversion_Target_Currency, Date, Account, balance(B, _)),
-	flatten($>append([Text], [':', B]), Desc_Text),
-	doc_add(D1, report_entries:value, Desc_Text),
-	doc_add(D1, report_entries:misc_type, $>rdf_global_id(Type)).
-
+	doc_add(D1, report_entries:value, Desc),
+	doc_add(D1, report_entries:misc_type, $>rdf_global_id(report_entries:Type)).
 
 cf_scheme_0_entry_for_account0(Sd, Account, Entry) :-
 	cf_scheme_0_entry_for_account(Sd, Account, Entry),
@@ -200,7 +203,7 @@ cf_scheme_0_entry_for_account(Sd, Account, Entry) :-
 	dif(Children, []),
 	account_children(Sd, Account, Children),
 	/* collect entries of child accounts */
-	Entry = $>make_entry(Account, $>maplist(cf_scheme_0_entry_for_account(Sd), Children)).
+	Entry = $>make_report_entry(Account, $>maplist(cf_scheme_0_entry_for_account(Sd),Children)).
 
 
 cf_scheme_0_entry_for_account(Sd, Account, Entry) :-
@@ -215,12 +218,12 @@ cf_scheme_0_entry_for_account(Sd, Account, Entry) :-
 	(	bank_account_currency_movement_account(Sd.accounts, Account, _Currency_Movement_Account)
 	->	(
 			cf_scheme_0_bank_account_currency_movement_entry(Sd, Account, Currency_Movement_Entry),
-			List_With_Currency_Movement_Entry = [Currency_Movement_Entry],
+			List_With_Currency_Movement_Entry = [Currency_Movement_Entry]
 		)
 	;	List_With_Currency_Movement_Entry = []
 	),
 
-	Entry = $>make_entry(Account, $>append(Category_Entries0, List_With_Currency_Movement_Entry), Misc).
+	Entry = $>make_report_entry(Account, $>append(Category_Entries0, List_With_Currency_Movement_Entry), Misc).
 
 cf_scheme_0_bank_account_currency_movement_entry(Sd, Account, Currency_Movement_Entry) :-
 	bank_account_currency_movement_account(Sd.accounts, Account, Currency_Movement_Account),
@@ -229,7 +232,7 @@ cf_scheme_0_bank_account_currency_movement_entry(Sd, Account, Currency_Movement_
 	doc_new_(rdf:value, Vec_Uri),
 	doc_add(Vec_Uri, rdf:value, Vec),
 	doc_add(Vec_Uri, l:source, net_activity_by_account(Account, Vec, _)),
-	Currency_Movement_Entry = $>make_entry('Currency movement', []),
+	Currency_Movement_Entry = $>make_report_entry('Currency movement', []),
 	doc_add(Currency_Movement_Entry, report_entries:own_vec, Vec_Uri).
 
 /*
@@ -244,11 +247,11 @@ cf_entry_by_category(Sd, Category-CF_Items, Category_Entry) :-
 	dict_pairs(Cf_Items_By_PlusMinus, _, Pairs),
 
 	maplist(cf_scheme0_plusminus_entry(Sd), Pairs, Child_Entries),
-	Category_Entry = $>make_entry(Category, Child_Entries).
+	Category_Entry = $>make_report_entry(Category, Child_Entries).
 
 cf_scheme0_plusminus_entry(Sd, (PlusMinus-CF_Items), Entry) :-
 	maplist(cf_instant_tx_entry0(Sd), CF_Items, Tx_Entries),
-	Entry = make_entry(PlusMinus, Tx_Entries).
+	Entry = make_report_entry(PlusMinus, Tx_Entries).
 
 cf_instant_tx_entry0(Sd, ct(_,Tx), Entry) :-
 	cf_instant_tx_vector_conversion(Sd, Tx, Vec),
@@ -279,7 +282,7 @@ cf_instant_tx_entry0(Sd, ct(_,Tx), Entry) :-
 		)
 	->	true
 	;	Misc2 = ''),
-	Entry = $>make_entry([
+	Entry = $>make_report_entry([
 		$>term_string($>transaction_day(Tx)),
 		$>term_string($>transaction_description(Tx)),
 		$>link(Tx)], []),
@@ -288,16 +291,8 @@ cf_instant_tx_entry0(Sd, ct(_,Tx), Entry) :-
 	add_report_entry_misc(Entry, 2, Misc1, single),
 	add_report_entry_misc(Entry, 3, Misc2, single).
 
-add_report_entry_misc(Entry, Column, Desc, Type) :-
-	doc_new_uri(D1),
-	doc_add(Entry, report_entries:misc, D1),
-	doc_add(D1, report_entries:column, Column),
-	doc_add(D1, report_entries:value, Desc),
-	doc_add(D1, report_entries:misc_type, $>rdf_global_id(Type)).
-
-
 link(Uri, Link) :-
-	Link = a(href=Uri, [small('⍰')]).
+	Link = a(href=Uri, [small('⍰')]). % ❓?
 
 cf_instant_tx_vector_conversion(Sd, Tx, Uri) :-
 	/*very crude metadata for now*/
@@ -306,21 +301,6 @@ cf_instant_tx_vector_conversion(Sd, Tx, Uri) :-
 	Source = vec_change_bases(Sd.exchange_rates, $>transaction_day(Tx), Sd.report_currency, $>transaction_vector(Tx), Vec),
 	doc_add(Uri, l:source, Source),
 	call(Source).
-
-
-/*
-	walk the entry0 tree with own vectors, and create entry terms.
-*/
-entry0_to_entry(Entry0, Entry1) :-
-	Entry0 = entry0(Title, Own_Vec, [], Misc),
-	Entry1 = entry(Title, Own_Vec, [], 123456789, Misc).
-entry0_to_entry(Entry0, Entry1) :-
-	Entry0 = entry0(Title, [], Children0, Misc),
-	Children0 \= [],
-	maplist(entry0_to_entry, Children0, Children1),
-	maplist(entry_balance, Children1, Vecs),
-	vec_sum_with_proof(Vecs,Sum),
-	Entry1 = entry(Title, Sum, Children1, 123456789, Misc).
 
 
 report_entry_fill_in_totals(Entry) :-
@@ -334,11 +314,12 @@ report_entry_fill_in_totals(Entry) :-
 
 
 cashflow(
-	Sd,				% Static Data
-	Entries			% List entry
+	Sd,				% + Static Data
+	[Entry]			% - list<entry>
 ) :-
 	account_by_role(Sd.accounts, ('Accounts'/'CashAndCashEquivalents'), Root),
 	transactions_in_period_on_account_and_subaccounts(Sd.accounts, Sd.transactions_by_account, Root, Sd.start_date, Sd.end_date, Filtered_Transactions),
 	maplist(tag_gl_transaction_with_cf_data, Filtered_Transactions),
+	gtrace,
 	cf_scheme_0_root_entry(Sd, Entry),
-	entry_fill_in_totals(Entry).
+	report_entry_fill_in_totals(Entry).

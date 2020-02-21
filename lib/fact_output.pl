@@ -1,9 +1,3 @@
-make_entry(Uri) :-
-	doc_new_uri(Uri),
-	doc_add(Uri, rdf:type, l:report_entry, report_entries).
-
-
-
 format_report_entries(_, _, _, _, _, _, [], []).
 
 format_report_entries(Format, Max_Detail_Level, Accounts, Indent_Level, Report_Currency, Context, Entries, [Xml0, Xml1, Xml2]) :-
@@ -72,29 +66,57 @@ pesseract_style_table_rows(
 	Entries,
 	[Lines|Lines_Tail]
 ) :-
-	[entry(Name, Balances, Children, _, Misc)|Entries_Tail] = Entries,
+	[Entry|Entries_Tail] = Entries,
+	report_entry_name(Entry, Name),
+	report_entry_total_vec(Entry, Balances),
+	report_entry_children(Entry, Children),
+
 	/*render child entries*/
-	pesseract_style_table_rows(Accounts, Report_Currency, Children, Children_Lines),
+	pesseract_style_table_rows(Accounts, Report_Currency, Children, Children_Rows),
 	/*render balance*/
 	maybe_balance_lines(Accounts, Name, Report_Currency, Balances, Balance_Lines),
 	(
-		Children_Lines = []
+		Children_Rows = []
 	->
-		(
-			findall(td(M),member(M, Misc),Misc_Tds),
-			Lines = [tr([td(Name), td(Balance_Lines)|Misc_Tds])]
-			
-		)
+		Lines = [tr([td(Name), td(Balance_Lines) | $>entry_miscs(Entry, report_entries:single)])]
 	;
-		(
-			flatten([tr([td([b(Name)])]), Children_Lines, [tr([td([align="right"],[Name]), td(Balance_Lines)])]], Lines)
-
-		)		
+		flatten(
+			[
+				tr([td([b(Name)]), td([]) | $>entry_miscs(Entry, report_entries:header)]),
+				Children_Rows,
+				tr([
+					td([align="right"],[Name]),
+					td(Balance_Lines)
+					| $>entry_miscs(Entry, report_entries:footer)])
+			],
+			Lines
+		)
 	),
 	/*recurse on Entries_Tail*/
 	pesseract_style_table_rows(Accounts, Report_Currency, Entries_Tail, Lines_Tail).
 
 
+
+entry_miscs(Entry, Type, Tds) :-
+	findall(
+		Desc,
+		(
+			between(1,5,Column),
+			doc(Entry, report_entries:misc, D1),
+			doc(D1, report_entries:column, Column),
+			doc(D1, report_entries:misc_type, $>rdf_global_id(Type)),
+			doc(D1, report_entries:value, Desc)
+		),
+		Descs0),
+	flatten([Descs0], Descs1),
+	%maplist(entry_desc_item_to_text, Descs1, Descs2),
+	findall(td(T), member(T, Descs1), Tds).
+/*
+entry_desc_item_to_text(Desc, Desc) :-
+	atom(Desc).
+
+entry_desc_item_to_text(Desc1, Desc2) :-
+*/
 
 
 /*
@@ -106,7 +128,7 @@ maybe_balance_lines(
 	Balance_Lines		% List ...
 ) 
 */
-			
+			/*not much of a maybe anymore?*/
 maybe_balance_lines(
 	Accounts,
 	Name,
@@ -115,15 +137,10 @@ maybe_balance_lines(
 	Balance_Lines
 ) :-
 	account_normal_side(Accounts, Name, Normal_Side),
-	(
-		Balances = []
-	->
-		/* force-display it */
-		format_balance(html, Report_Currency, '', Name, Normal_Side, Balances, Balance_Lines)
-	;
-		/* if not, let the logic omit it entirely */
-		format_balances(html, Report_Currency, '', Name, Normal_Side, Balances, Balance_Lines)
-	).
+	/* force-display empty balance */
+	(	Balances = []
+	->	format_balance(html, Report_Currency, '', Name, Normal_Side, [], Balance_Lines)
+	;	format_balances(html, Report_Currency, '', Name, Normal_Side, Balances, Balance_Lines)).
 
 
 
