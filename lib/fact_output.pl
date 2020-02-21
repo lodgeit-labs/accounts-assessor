@@ -82,7 +82,7 @@ pesseract_style_table_rows(
 	;
 		flatten(
 			[
-				tr([td([b(Name)]), td([]) | $>entry_miscs(Entry, report_entries:header)]),
+				tr([td([b(Name)]) | $>entry_miscs(Entry, report_entries:header)]),
 				Children_Rows,
 				tr([
 					td([align="right"],[Name]),
@@ -96,27 +96,43 @@ pesseract_style_table_rows(
 	pesseract_style_table_rows(Accounts, Report_Currency, Entries_Tail, Lines_Tail).
 
 
+entry_misc_item_for_column(Entry, Type, Column, Item) :-
+	(
+		doc(Entry, report_entries:misc, D1),
+		doc(D1, report_entries:column, Column),
+		doc(D1, report_entries:misc_type, $>rdf_global_id(Type)),
+		doc(D1, report_entries:value, Item)
+	)
+	->	true
+	;	Item = ''.
 
 entry_miscs(Entry, Type, Tds) :-
+	findall(C, between(1,5,C), Columns),
+	maplist(entry_misc_item_for_column(Entry, Type), Columns, Items),
+	/* now we have five items, but we want to cut off the trailing empty strings */
 	findall(
-		Desc,
+		td([I]),
 		(
-			between(1,5,Column),
-			doc(Entry, report_entries:misc, D1),
-			doc(D1, report_entries:column, Column),
-			doc(D1, report_entries:misc_type, $>rdf_global_id(Type)),
-			doc(D1, report_entries:value, Desc)
+			member(C, Columns),
+			nth1(C, Items, I),
+			(
+				I \= ''
+			;
+				(
+					findall(
+						Tail_Item,
+						(
+							member(C2, Columns),
+							C2 > C,
+							nth1(C2, Items, Tail_Item),
+							Tail_Item \= ''
+						),
+						Nonempty_Tail_Items),
+					Nonempty_Tail_Items \= []
+				)
+			)
 		),
-		Descs0),
-	flatten([Descs0], Descs1),
-	%maplist(entry_desc_item_to_text, Descs1, Descs2),
-	findall(td(T), member(T, Descs1), Tds).
-/*
-entry_desc_item_to_text(Desc, Desc) :-
-	atom(Desc).
-
-entry_desc_item_to_text(Desc1, Desc2) :-
-*/
+		Tds).
 
 
 /*
