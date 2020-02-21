@@ -99,19 +99,12 @@ balance_entries(
 ) :-
 	/* sum up the coords of all transactions for each account and apply unit conversions */
 	trial_balance_between(Static_Data.exchange_rates, Static_Data.accounts, Static_Data.transactions_by_account, Static_Data.report_currency, Static_Data.end_date, Static_Data.start_date, Static_Data.end_date, Trial_Balance),
-
 	balance_sheet_at(Static_Data, Balance_Sheet),
-
 	profitandloss_between(Static_Data, ProfitAndLoss),
-
 	balance_sheet_at(Static_Data_Historical, Balance_Sheet2_Historical),
-
 	cashflow(Static_Data, Cf),
-
 	profitandloss_between(Static_Data_Historical, ProfitAndLoss2_Historical),
-
 	assertion(ground((Balance_Sheet, ProfitAndLoss, ProfitAndLoss2_Historical, Trial_Balance))),
-
 	dict_from_vars(Entries, [Balance_Sheet, ProfitAndLoss, Balance_Sheet2_Historical, ProfitAndLoss2_Historical, Trial_Balance, Cf]).
 
 

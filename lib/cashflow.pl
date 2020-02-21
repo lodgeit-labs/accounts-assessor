@@ -178,8 +178,9 @@ balance_by_account2(Sd, Report_Currency, Date, Account, balance(Balance, Tx_Coun
 
 add_entry_balance_desc(Sd, Entry, Account, Column, Date, Conversion_Target_Currency, Text, Type) :-
 	balance_until_day2(Sd, Conversion_Target_Currency, Date, Account, balance(B, _)),
-	maybe_balance_lines(Sd.accounts, xxx, Sd.report_currency, B, Balance_Text),
-	flatten($>append([Text], [':', Balance_Text]), Desc),
+	maybe_balance_lines(Sd.accounts, xxx, [], B, Balance_Text),
+	flatten($>append([Text], [':', Balance_Text]), Desc0),
+	atomic_list_concat(Desc0, Desc),
 	add_report_entry_misc(Entry, Column, Desc, Type).
 
 add_report_entry_misc(Entry, Column, Desc, Type) :-
@@ -203,7 +204,7 @@ cf_scheme_0_entry_for_account(Sd, Account, Entry) :-
 	dif(Children, []),
 	account_children(Sd, Account, Children),
 	/* collect entries of child accounts */
-	Entry = $>make_report_entry(Account, $>maplist(cf_scheme_0_entry_for_account(Sd),Children)).
+	make_report_entry(Account, $>maplist(cf_scheme_0_entry_for_account0(Sd),Children), Entry).
 
 
 cf_scheme_0_entry_for_account(Sd, Account, Entry) :-
@@ -223,7 +224,7 @@ cf_scheme_0_entry_for_account(Sd, Account, Entry) :-
 	;	List_With_Currency_Movement_Entry = []
 	),
 
-	Entry = $>make_report_entry(Account, $>append(Category_Entries0, List_With_Currency_Movement_Entry), Misc).
+	make_report_entry(Account, $>append(Category_Entries0, List_With_Currency_Movement_Entry), Entry).
 
 cf_scheme_0_bank_account_currency_movement_entry(Sd, Account, Currency_Movement_Entry) :-
 	bank_account_currency_movement_account(Sd.accounts, Account, Currency_Movement_Account),
@@ -232,7 +233,7 @@ cf_scheme_0_bank_account_currency_movement_entry(Sd, Account, Currency_Movement_
 	doc_new_(rdf:value, Vec_Uri),
 	doc_add(Vec_Uri, rdf:value, Vec),
 	doc_add(Vec_Uri, l:source, net_activity_by_account(Account, Vec, _)),
-	Currency_Movement_Entry = $>make_report_entry('Currency movement', []),
+	make_report_entry('Currency movement', [], Currency_Movement_Entry),
 	doc_add(Currency_Movement_Entry, report_entries:own_vec, Vec_Uri).
 
 /*
@@ -247,11 +248,11 @@ cf_entry_by_category(Sd, Category-CF_Items, Category_Entry) :-
 	dict_pairs(Cf_Items_By_PlusMinus, _, Pairs),
 
 	maplist(cf_scheme0_plusminus_entry(Sd), Pairs, Child_Entries),
-	Category_Entry = $>make_report_entry(Category, Child_Entries).
+	make_report_entry(Category, Child_Entries, Category_Entry).
 
 cf_scheme0_plusminus_entry(Sd, (PlusMinus-CF_Items), Entry) :-
 	maplist(cf_instant_tx_entry0(Sd), CF_Items, Tx_Entries),
-	Entry = make_report_entry(PlusMinus, Tx_Entries).
+	make_report_entry(PlusMinus, Tx_Entries, Entry).
 
 cf_instant_tx_entry0(Sd, ct(_,Tx), Entry) :-
 	cf_instant_tx_vector_conversion(Sd, Tx, Vec),
@@ -282,10 +283,10 @@ cf_instant_tx_entry0(Sd, ct(_,Tx), Entry) :-
 		)
 	->	true
 	;	Misc2 = ''),
-	Entry = $>make_report_entry([
+	make_report_entry([
 		$>term_string($>transaction_day(Tx)),
 		$>term_string($>transaction_description(Tx)),
-		$>link(Tx)], []),
+		$>link(Tx)], [], Entry),
 	doc_add(Entry, report_entries:own_vec, Vec),
 	add_report_entry_misc(Entry, 1, Exchanged_Display, single),
 	add_report_entry_misc(Entry, 2, Misc1, single),
@@ -305,10 +306,12 @@ cf_instant_tx_vector_conversion(Sd, Tx, Uri) :-
 
 report_entry_fill_in_totals(Entry) :-
 	report_entry_children(Entry, Children),
-	maplist(entry_fill_in_totals, Children),
+	maplist(report_entry_fill_in_totals, Children),
 	maplist(report_entry_total_vec, Children, Child_Vecs),
-	report_entry_own_vec(Entry, Own_Vec),
-	append([Own_Vec], Child_Vecs, Total_Vecs),
+	(	doc(Entry, report_entries:own_vec, Own_Vec)
+	->	true
+	;	Own_Vec = []),
+	flatten([Own_Vec, Child_Vecs], Total_Vecs),
 	vec_sum_with_proof(Total_Vecs, Total_Vec),
 	doc_add(Entry, report_entries:total_vec, Total_Vec).
 
@@ -320,6 +323,5 @@ cashflow(
 	account_by_role(Sd.accounts, ('Accounts'/'CashAndCashEquivalents'), Root),
 	transactions_in_period_on_account_and_subaccounts(Sd.accounts, Sd.transactions_by_account, Root, Sd.start_date, Sd.end_date, Filtered_Transactions),
 	maplist(tag_gl_transaction_with_cf_data, Filtered_Transactions),
-	gtrace,
 	cf_scheme_0_root_entry(Sd, Entry),
 	report_entry_fill_in_totals(Entry).
