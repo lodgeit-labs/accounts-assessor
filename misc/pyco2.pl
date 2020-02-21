@@ -101,7 +101,7 @@ proof(Query) :-
 
 
 
-:- proof(test_statement0).
+:- proof(test_statement1).
 
 
 
@@ -116,6 +116,19 @@ proof(Query) :-
 
 
 /*
+ep check:
+https://www.swi-prolog.org/pldoc/man?section=compare
+
+
+optimization:
+
+http://irnok.net:3030/help/source/doc/home/prolog/ontology-server/ClioPatria/lib/semweb/rdf_optimise.pl
+
+pyco optimization:
+	https://books.google.cz/books?id=oc7cBwAAQBAJ&pg=PA26&lpg=PA26&dq=prolog++variable+address&source=bl&ots=cDxavU-UaU&sig=ACfU3U0y1RnTKfJI58kykhqltp8fBNkXhA&hl=en&sa=X&ved=2ahUKEwiJ6_OWyuPnAhUx-yoKHZScAU4Q6AEwEHoECAkQAQ#v=onepage&q=prolog%20%20variable%20address&f=false
+
+===
+
 
 ?x a response
 ?request result ?result
@@ -143,6 +156,20 @@ two approaches to optimization:
         ?txs are bound, so call ?sts1 preprocess ?txs first
     ep-yield earlier:
         as soon as we're called with only vars?
+
+
+*/
+
+
+/*
+multiple heads:
+
+[a,b] :- writeq(xxx).
+
+?- clause([X|XX],Y).
+X = a,
+XX = [b],
+Y = writeq(xxx).
 
 
 */
