@@ -279,15 +279,22 @@ cf_instant_tx_entry0(Sd, ct(_,Tx), Entry) :-
 		)
 	->	true
 	;	Misc2 = ''),
-	Entry = entry0([
+	Entry = $>make_entry([
 		$>term_string($>transaction_day(Tx)),
 		$>term_string($>transaction_description(Tx)),
-		$>link(Tx)
-	], Vec, [], [
-		Exchanged_Display,
-		Misc1,
-		Misc2
-	]).
+		$>link(Tx)], []),
+	doc_add(Entry, report_entries:own_vec, Vec),
+	add_report_entry_misc(Entry, 1, Exchanged_Display, single),
+	add_report_entry_misc(Entry, 2, Misc1, single),
+	add_report_entry_misc(Entry, 3, Misc2, single).
+
+add_report_entry_misc(Entry, Column, Desc, Type) :-
+	doc_new_uri(D1),
+	doc_add(Entry, report_entries:misc, D1),
+	doc_add(D1, report_entries:column, Column),
+	doc_add(D1, report_entries:value, Desc),
+	doc_add(D1, report_entries:misc_type, $>rdf_global_id(Type)).
+
 
 link(Uri, Link) :-
 	Link = a(href=Uri, [small('⍰')]).
@@ -316,6 +323,16 @@ entry0_to_entry(Entry0, Entry1) :-
 	Entry1 = entry(Title, Sum, Children1, 123456789, Misc).
 
 
+report_entry_fill_in_totals(Entry) :-
+	report_entry_children(Entry, Children),
+	maplist(entry_fill_in_totals, Children),
+	maplist(report_entry_total_vec, Children, Child_Vecs),
+	report_entry_own_vec(Entry, Own_Vec),
+	append([Own_Vec], Child_Vecs, Total_Vecs),
+	vec_sum_with_proof(Total_Vecs, Total_Vec),
+	doc_add(Entry, report_entries:total_vec, Total_Vec).
+
+
 cashflow(
 	Sd,				% Static Data
 	Entries			% List entry
@@ -324,6 +341,4 @@ cashflow(
 	transactions_in_period_on_account_and_subaccounts(Sd.accounts, Sd.transactions_by_account, Root, Sd.start_date, Sd.end_date, Filtered_Transactions),
 	maplist(tag_gl_transaction_with_cf_data, Filtered_Transactions),
 	cf_scheme_0_root_entry(Sd, Entry),
-
-
 	entry_fill_in_totals(Entry).
