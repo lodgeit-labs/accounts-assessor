@@ -13,7 +13,7 @@ process_request_rpc_cmdline :-
 
 process_request_rpc_cmdline_json_text(String) :-
 	string_to_json_dict(String, Dict),
-	profile(process_request_rpc_cmdline1(Dict)).
+	gtrace,process_request_rpc_cmdline1(Dict).
 
 process_request_rpc_cmdline1(Dict) :-
 	catch_with_backtrace(
