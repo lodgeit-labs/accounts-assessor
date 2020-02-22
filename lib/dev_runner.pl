@@ -14,7 +14,7 @@ shell2(Cmd) :-
 shell2(Cmd_In, Exit_Status) :-
 	flatten([Cmd_In], Cmd_Flat),
 	atomic_list_concat(Cmd_Flat, Cmd),
-	%format(user_error, '~w\n\n', [Cmd]),
+	format(user_error, '~w\n\n', [Cmd]),
 	shell(Cmd, Exit_Status).
 
 maybe_halt_on_err :- 
@@ -92,7 +92,7 @@ x :-
 			(	nonvar(Viewer)
 			->	Redirection = [' 2>&1  1> arrr.xml | tee ', Err_File]
 			;	Redirection = ''),
-			shell2([Load_Cmd, ' -g "', Goal, ', halt." ', Redirection]),
+			shell2([Load_Cmd, ' -g "', Goal, '." ', Redirection]),
 			(	nonvar(Viewer)
 			->	(maybe_halt_on_err, shell2([Viewer, ' arrr.xml']))
 			;	true),

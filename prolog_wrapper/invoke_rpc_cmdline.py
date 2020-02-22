@@ -52,8 +52,9 @@ def files_in_dir(dir):
 @click.option('-s', '--server_url', type=str, default='http://localhost:7778')
 @click.option('-dbgl', '--debug_loading', type=bool, default=False)
 @click.option('-dbg', '--debug', type=bool, default=False)
+@click.option('-hlt', '--halt', type=bool, default=True)
 
-def run(debug_loading, debug, request_files, dev_runner_options, prolog_flags, server_url):
+def run(debug_loading, debug, request_files, dev_runner_options, prolog_flags, server_url, halt):
 	if dev_runner_options == None:
 		dev_runner_options = ''
 	request_files2 = [os.path.abspath(os.path.expanduser(f)) for f in request_files]
@@ -74,10 +75,10 @@ def run(debug_loading, debug, request_files, dev_runner_options, prolog_flags, s
 			"tmp_directory_name": tmp_directory_name,
 			"request_files": files2}
 	}
-	call_prolog(msg=msg, dev_runner_options=shlex.split(dev_runner_options), prolog_flags=prolog_flags, debug_loading=debug_loading, debug=debug)
+	call_prolog(msg=msg, dev_runner_options=shlex.split(dev_runner_options), prolog_flags=prolog_flags, debug_loading=debug_loading, debug=debug, halt=halt)
 
 
-def call_prolog(msg, dev_runner_options=[], prolog_flags='true', make_new_tmp_dir=False, debug_loading=None, debug=None):
+def call_prolog(msg, dev_runner_options=[], prolog_flags='true', make_new_tmp_dir=False, debug_loading=None, debug=None, halt=True):
 
 	if make_new_tmp_dir:
 		msg['params']['tmp_directory_name'],tmp_path = create_tmp()
@@ -126,38 +127,51 @@ def call_prolog(msg, dev_runner_options=[], prolog_flags='true', make_new_tmp_di
 		entry_file = "lib/rpc_server.pl"
 
 	if debug:
-		debug_args = []
+		debug_args = ['-dtrue']
 		debug_goal = 'debug,'
 	else:
-		debug_args = ['-O']
+		debug_args = ['-dfalse']
 		debug_goal = ''
 
+	if halt:
+		halt_goal = ',halt'
+	else:
+		halt_goal = ''
 
-	swipl = ['swipl'] + debug_args + path_flags
-	cmd0 = swipl + ['-s', git("lib/dev_runner.pl"),'--problem_lines_whitelist',git("misc/problem_lines_whitelist"),"-s", git(entry_file)]
+	print_cmd_to_swipl_stdin = False
+
+	input = json.dumps(msg)
+
+	swipl = ['swipl'] + path_flags
+	cmd0 = swipl + ['-s', git("lib/dev_runner.pl"),'--problem_lines_whitelist',git("misc/problem_lines_whitelist")] + debug_args + ["-s", git(entry_file)]
 	cmd1 = dev_runner_options
-	cmd2 = ['-g', debug_goal + prolog_flags + ',lib:process_request_rpc_cmdline']
+
+	if print_cmd_to_swipl_stdin:
+		goal = ',lib:process_request_rpc_cmdline'
+	else:
+		goal = ",lib:process_request_rpc_cmdline_json_text('" + (input).replace('"','\\"') + "')"
+
+	cmd2 = ['-g', debug_goal + prolog_flags + goal+halt_goal]
 	cmd = cmd0 + cmd1 + cmd2
 	print(' '.join(cmd))
-	
-	
-	
-	input = json.dumps(msg)
-	print(input)
-	
-
-
+	print(cmd)
 
 	
+	if not print_cmd_to_swipl_stdin:
+		print(input)
+	
+
 	
 	# if you want to see env:
 	#p = subprocess.Popen(['bash', '-c', 'export'], universal_newlines=True)
 	#p.communicate()
-	
-	
-	
-	p = subprocess.Popen(cmd, universal_newlines=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
-	(stdout_data, stderr_data) = p.communicate(input = input)
+
+	if print_cmd_to_swipl_stdin:
+		p = subprocess.Popen(cmd, universal_newlines=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+		(stdout_data, stderr_data) = p.communicate(input = input)
+	else:
+		p = subprocess.Popen(cmd, universal_newlines=True, stdout=subprocess.PIPE)
+		(stdout_data, stderr_data) = p.communicate()
 	print("result from prolog:")
 	print(stdout_data)
 	print("end of result from prolog.")

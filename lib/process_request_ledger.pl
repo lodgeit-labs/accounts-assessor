@@ -1,3 +1,12 @@
+:- rdet(taxonomy_url_base/0).
+:- rdet(create_instance/10).
+:- rdet(other_reports/10).
+:- rdet(add_xml_report/3).
+:- rdet(create_reports/2).
+
+
+
+
 process_request_ledger(File_Path, Dom) :-
 	inner_xml(Dom, //reports/balanceSheetRequest, _),
 	validate_xml2(File_Path, 'bases/Reports.xsd'),
@@ -72,6 +81,7 @@ process_request_ledger2((Dom, Start_Date, End_Date), S_Transactions, Structured_
 
 
 
+
 create_reports(
 	Static_Data,				% Static Data
 	Structured_Reports			% ...
@@ -87,7 +97,6 @@ create_reports(
 	create_instance(Xbrl, Static_Data, Static_Data.start_date, Static_Data.end_date, Static_Data.accounts, Static_Data.report_currency, Balance_Sheet, ProfitAndLoss, ProfitAndLoss2_Historical, Trial_Balance),
 
 	other_reports(Static_Data, Static_Data_Historical, Static_Data.outstanding, Balance_Sheet, ProfitAndLoss, Balance_Sheet2_Historical, ProfitAndLoss2_Historical, Trial_Balance, Cf, Structured_Reports),
-
 	add_xml_report(xbrl_instance, xbrl_instance, [Xbrl]).
 
 

@@ -194,14 +194,14 @@ cf_scheme_0_entry_for_account0(Sd, Account, Entry) :-
 
 	/* todo also add a tag like opening_native, so we can crosscheck */
 	balance_until_day2(Sd, [], Sd.start_date, Account, balance(B1, _)),
-	add_entry_balance_desc(Sd, Entry, B1, /*unused*/1, 'opening balance', header),
+	add_entry_balance_desc(Sd, Entry, B1, 1, 'opening balance', header),
 	balance_until_day2(Sd, Sd.report_currency, Sd.start_date, Account, balance(B2, _)),
-	add_entry_balance_desc(Sd, Entry, B2, 1, ['opening balance, converted at ', $>term_string(Sd.start_date)], header),
+	add_entry_balance_desc(Sd, Entry, B2, 2, ['opening balance, converted at ', $>term_string(Sd.start_date)], header),
 
 	balance_by_account2(Sd, [], Sd.end_date, Account, balance(B3, _)),
 	add_entry_balance_desc(Sd, Entry, B3, 1, 'closing balance', footer),
 	balance_by_account2(Sd, Sd.report_currency, Sd.end_date, Account, balance(B4, _)),
-	add_entry_balance_desc(Sd, Entry, B4, 1, ['closing balance, converted at ', $>term_string(Sd.end_date)], footer).
+	add_entry_balance_desc(Sd, Entry, B4, 2, ['closing balance, converted at ', $>term_string(Sd.end_date)], footer).
 
 
 cf_scheme_0_entry_for_account(Sd, Account, Entry) :-

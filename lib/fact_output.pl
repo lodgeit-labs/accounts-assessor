@@ -75,65 +75,86 @@ pesseract_style_table_rows(
 	pesseract_style_table_rows(Accounts, Report_Currency, Children, Children_Rows),
 	/*render balance*/
 	maybe_balance_lines(Accounts, Name, Report_Currency, Balances, Balance_Lines),
-	(
-		Children_Rows = []
-	->
-		Lines = [tr([td(Name), td(Balance_Lines) | $>entry_miscs(Entry, report_entries:single)])]
-	;
-		flatten(
-			[
-				tr([td([b(Name)]) | $>entry_miscs(Entry, report_entries:header)]),
-				Children_Rows,
-				tr([
-					td([align="right"],[Name]),
-					td(Balance_Lines)
-					| $>entry_miscs(Entry, report_entries:footer)])
-			],
-			Lines
-		)
-	),
+	(	Children_Rows = []
+	->	entry_row_childless(Name, Balance_Lines, Entry, Lines)
+	;	entry_row_childful(Name, Entry, Children_Rows, Balance_Lines, Lines)),
 	/*recurse on Entries_Tail*/
 	pesseract_style_table_rows(Accounts, Report_Currency, Entries_Tail, Lines_Tail).
 
+entry_row_childless(Name, Balance_Lines, Entry, Lines) :-
+	entry_row(cols{0:Name,1:Balance_Lines}, Entry, report_entries:single, Lines).
+
+entry_row_childful(Name, Entry, Children_Rows, Balance_Lines, Lines) :-
+	Lines =
+	[
+		$>entry_row(cols{0:b([Name])}, Entry, report_entries:header),
+		Children_Rows,
+		$>entry_row(cols{0:td([align="right"],[Name]),1:Balance_Lines}, Entry, report_entries:footer)
+	].
+
+merge_dicts(D1, D2, D3) :-
+	dict_pairs(D1, Tag, P1),
+	dict_pairs(D2, Tag, P2),
+	append(P1, P2, P3),
+	dict_pairs(D3, Tag, P3).
+
+miscs_dict(Entry, Type, Dict) :-
+	findall(
+		Col_Pos-Item,
+		(
+			between(1,5,C),
+			Col_Pos is C + 1,
+			entry_misc_item_for_column(Entry, Type, C, Item)
+		),
+		Pairs),
+	dict_pairs(Dict, cols, Pairs).
 
 entry_misc_item_for_column(Entry, Type, Column, Item) :-
-	(
-		doc(Entry, report_entries:misc, D1),
-		doc(D1, report_entries:column, Column),
-		doc(D1, report_entries:misc_type, $>rdf_global_id(Type)),
-		doc(D1, report_entries:value, Item)
-	)
-	->	true
-	;	Item = ''.
+	doc(Entry, report_entries:misc, D1),
+	doc(D1, report_entries:column, Column),
+	doc(D1, report_entries:misc_type, $>rdf_global_id(Type)),
+	doc(D1, report_entries:value, Item).
 
-entry_miscs(Entry, Type, Tds) :-
-	findall(C, between(1,5,C), Columns),
-	maplist(entry_misc_item_for_column(Entry, Type), Columns, Items),
-	/* now we have five items, but we want to cut off the trailing empty strings */
-	findall(
-		td([I]),
+entry_row(Cols0, Entry, Type, Row) :-
+	%(atom(Entry) -> gtrace ; true),
+	miscs_dict(Entry, Type, Miscs_Dict),
+	merge_dicts(Cols0, Miscs_Dict, Cols),
+	cols_dict_to_row(Cols, Row).
+
+cols_dict_to_row(Cols, tr(Tds)) :-
+	dict_pairs(Cols, _, Pairs),
+	findall(I,cols_dict_to_row_helper(Pairs, I), Tds).
+
+cols_dict_to_row_helper(Pairs, I) :-
+	between(0,6,C),
+	cols_dict_to_row_helper2(C, Pairs, I).
+
+cols_dict_to_row_helper2(C, Pairs, I) :-
+	member(C-Item, Pairs),
+	cols_dict_to_row_helper3(Item, I).
+
+cols_dict_to_row_helper2(C, Pairs, td([])) :-
+	\+member(C-_, Pairs),
+	there_is_item_after(C, Pairs).
+
+cols_dict_to_row_helper3(Item, I) :-
+	(	Item =.. [td|_]
+	->	I = Item
+	;	(
+			I = td(Item2),
+			flatten([Item], Item2)
+		)).
+
+
+
+there_is_item_after(C, Pairs) :-
+	findall(X,
 		(
-			member(C, Columns),
-			nth1(C, Items, I),
-			(
-				I \= ''
-			;
-				(
-					findall(
-						Tail_Item,
-						(
-							member(C2, Columns),
-							C2 > C,
-							nth1(C2, Items, Tail_Item),
-							Tail_Item \= ''
-						),
-						Nonempty_Tail_Items),
-					Nonempty_Tail_Items \= []
-				)
-			)
+			member(C2-X, Pairs),
+			C2 > C
 		),
-		Tds).
-
+		Items),
+	Items \= [].
 
 /*
 maybe_balance_lines(

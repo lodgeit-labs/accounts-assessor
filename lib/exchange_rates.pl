@@ -54,9 +54,8 @@ fetch_exchange_rates(Date, Exchange_Rates) :-
 	format(user_error, '~w ...', [Query_Url]),
 	catch(
 		http_open(Query_Url, Stream, []),
-		% this will happen for dates in not found in their db, like too historical.
+		% this will happen for dates not found in their db, like too historical.
 		% we don't call this predicate for future dates.
-		% note that connection error or similar should still propagate and halt the program.
 		error(existence_error(_,_),_),
 		(
 			assert_rates(Date, []),
