@@ -27,6 +27,7 @@
 :- [exchange_rates].
 :- [fact_output].
 :- [fetch_file].
+:- [german_bank_csv].
 :- [gl_export].
 :- [investment_report_2].
 :- [invoices].

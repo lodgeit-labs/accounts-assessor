@@ -17,7 +17,7 @@ generate_system_accounts(S_Transactions, Accounts_In, Accounts_Out) :-
 		Accounts_Out_Nested
 	),
 	flatten(Accounts_Out_Nested, Accounts_Out),
-	add_comment_stringize('Accounts generated', Generated_Accounts).
+	add_comment_stringize('Accounts generated', Accounts_Out).
 
 	
 find_or_add_required_accounts(S_Transactions, Accounts_In, Accounts_Out) :-

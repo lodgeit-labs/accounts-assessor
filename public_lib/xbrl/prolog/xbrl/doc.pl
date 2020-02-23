@@ -140,8 +140,10 @@ doc_add(S,P,O,G) :-
 /*
 assumption: only O's are allowed to be non-atoms
 */
+
 addd(S2,P2,O2,G2) :-
 	ground(spog(S2,P2,O2,G2)),atom(S2),atom(P2),atom(G2),
+
 	% get the_theory global
 	b_getval(the_theory,Ss),
 	%, ie a dict from subjects to pred-dicts
@@ -186,6 +188,27 @@ dddd(Spog, X) :-
 	(atom(G2);var(G2)),
 	rol_member(O2, X.get(S2).get(P2).get(G2)).
 
+/*
+can_go_into_rdf_db(spog(S2,P2,O2,G2)) :-
+	atom(S2),atom(P2),atom(G2),atomic(O2).
+
+addd(S2,P2,O2,G2) :-
+	can_go_into_rdf_db(spog(S2,P2,O2,G2)),
+	rdf_assert(S2,P2,O2,G2).
+
+addd(S2,P2,O2,G2) :-
+	X = spog(S2,P2,O2,G2),
+	\+can_go_into_rdf_db(X),
+	rol_add(X, $>b_getval(the_theory_nonground)).
+
+dddd(Spog, _X) :-
+	Spog = spog(S2,P2,O2,G2),
+	(atom(S2);var(S2)),
+	(atom(P2);var(P2)),
+	(atom(G2);var(G2)),
+	(atomic(O2);var(O2)),
+	rdf(S2,P2,O2,G2).
+*/
 dddd(Spog, _X) :-
 	rol_member(Spog, $>b_getval(the_theory_nonground)).
 
@@ -443,13 +466,13 @@ add_to_rdf((X,Y,Z,G)) :-
 
 /*:- comment(lib:doc_to_rdf_all_graphs, "if necessary, modify to not wipe out whole rdf database and to check that G doesn't already exist */
 
-doc_to_rdf_all_graphs :-
+doc_to_rdf_all_graphs :- true. /*
 	rdf_retractall(_,_,_,_),
 	findall(_,(
 			docm(X,Y,Z,G),
 			add_to_rdf((X,Y,Z,G))
 		),_
-	).
+	).*/
 
 save_doc(/*-*/Fn, /*+*/Url) :-
 	(	report_file_path(loc(file_name, Fn), Url, loc(absolute_path,Path))

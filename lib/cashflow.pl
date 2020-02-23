@@ -109,13 +109,9 @@ tag_gl_transaction_with_cf_data(T) :-
 	->	PlusMinus0 = '+'
 	;	PlusMinus0 = '-'),
 	PlusMinus = _{'-':decreases,'+':increases}.get(PlusMinus0),
-	(	gl_tx_vs_cashflow_category(T, (Cat/*, PlusMinus0*/))
+	(	gl_tx_vs_cashflow_category(T, (Cat))
 	->	true
-	;	(
-			Cat = 'no category'
-			%PlusMinus = 'unknown direction'
-		)
-	),
+	;	Cat = 'no category'),
 	doc_add(T, l:cf_category, Cat, cf_stuff),
 	doc_add(T, l:cf_plusminus, PlusMinus, cf_stuff).
 
@@ -262,10 +258,10 @@ cf_instant_tx_entry0(Sd, ct(_,Tx), Entry) :-
 	cf_instant_tx_vector_conversion(Sd, Tx, Vec),
 	(
 		(
-				doc(Tx, transactions:origin, Origin, transactions),
-				s_transaction_exchanged(Origin, Exchanged),
-				Exchanged \= vector([]),
-				term_string(Exchanged, Exchanged_Display_String)
+			doc(Tx, transactions:origin, Origin, transactions),
+			s_transaction_exchanged(Origin, Exchanged),
+			Exchanged \= vector([]),
+			term_string(Exchanged, Exchanged_Display_String)
 		)
 	->	Exchanged_Display = div(align=right,[Exchanged_Display_String])
 	;	Exchanged_Display = ''),

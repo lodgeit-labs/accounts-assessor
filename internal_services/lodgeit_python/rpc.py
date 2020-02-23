@@ -34,14 +34,14 @@ def agc():
 
 @rpc_method
 def agraph_sparql(sparql):
-	agc().
+	#agc().
 	return str(c)
 
 @rpc_method
 def agraph_addFile(sparql):
 	#https://franz.com/agraph/support/documentation/current/python/_gen/franz.openrdf.repository.html#franz.openrdf.repository.repositoryconnection.RepositoryConnection.addFile
 # addFile(filePath, base=None, format=None, context=None, serverSide=False, content_encoding=None, attributes=None, json_ld_store_source=None, json_ld_context=None, allow_external_references=None, external_reference_timeout=None)
-	agc().addFile(
+	agc().addFile()
 
 @rpc_method
 def gb_number_to_rational(s):

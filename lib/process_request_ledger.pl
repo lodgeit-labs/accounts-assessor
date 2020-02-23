@@ -11,18 +11,18 @@ process_request_ledger(File_Path, Dom) :-
 	inner_xml(Dom, //reports/balanceSheetRequest, _),
 	validate_xml2(File_Path, 'bases/Reports.xsd'),
 	extract_s_transactions0(Dom, S_Transactions),
-	process_request_ledger2(Dom, S_Transactions, _, Transactions),
-	%process_request_ledger_debug(Dom, S_Transactions).
-	gl_doc_eq_json(Transactions, Transactions_Json),
+	%profile(process_request_ledger2(Dom, S_Transactions, _, _Transactions)).
+	process_request_ledger_debug(Dom, S_Transactions).
+	/*gl_doc_eq_json(Transactions, Transactions_Json),
 	doc_init,
 	gl_doc_eq_json(Transactions2, Transactions_Json),
 	process_request_ledger2(Dom, S_Transactions2, _, Transactions2),
-	assertion(eq(S_Transactions, S_Transactions2)).
+	assertion(eq(S_Transactions, S_Transactions2)).*/
 
-
+/*
 gl_json :-
 	maplist(transaction_to_dict, Transactions, T0),
-
+*/
 
 /*
 
@@ -34,15 +34,15 @@ process_request_ledger_debug(Data, S_Transactions0) :-
 	findall(Count, ggg(Data, S_Transactions0, Count), Counts), writeq(Counts).
 
 ggg(Data, S_Transactions0, Count) :-
-	%Count = 41,
-	between(100, $>length(S_Transactions0), Count),
+	Count = 5,
+	%between(100, $>length(S_Transactions0), Count),
 	take(S_Transactions0, Count, STs),
 	format(user_error, '~q: ~q ~n ~n', [Count, $>last(STs)]),
-	once(process_request_ledger2(Data, STs, Structured_Reports, _)),
-	length(Structured_Reports.crosschecks.errors, L),
+	profile(once(process_request_ledger2(Data, STs, _Structured_Reports, _))).
+	/*length(Structured_Reports.crosschecks.errors, L),
 	(	L \= 2
 	->	true
-	;	(gtrace,format(user_error, '~q: ~q ~n', [Count, Structured_Reports.crosschecks.errors]))).
+	;	(gtrace,format(user_error, '~q: ~q ~n', [Count, Structured_Reports.crosschecks.errors]))).*/
 
 
 
@@ -58,7 +58,7 @@ process_request_ledger2(Dom, S_Transactions, Structured_Reports, Transactions) :
 	extract_action_verbs_from_bs_request(Dom),
 	extract_account_hierarchy_from_request_dom(Dom, Accounts0),
 	extract_livestock_data_from_ledger_request(Dom),
-	extract_exchange_rates(Dom, S_Transactions, Start_Date, End_Date, Report_Currency, Exchange_Rates),
+	extract_exchange_rates(Cost_Or_Market, Dom, S_Transactions, Start_Date, End_Date, Report_Currency, Exchange_Rates),
 	extract_invoices_payable(Dom),
 	extract_initial_gl(Initial_Txs),
 
@@ -96,7 +96,7 @@ process_request_ledger2(Dom, S_Transactions, Structured_Reports, Transactions) :
 		exchange_date=Processed_Until_Date
 	]),
 
-	create_reports(Static_Data1, Structured_Reports).
+	once(create_reports(Static_Data1, Structured_Reports)).
 
 
 
@@ -105,18 +105,20 @@ create_reports(
 	Static_Data,				% Static Data
 	Structured_Reports			% ...
 ) :-
-	static_data_historical(Static_Data, Static_Data_Historical),
+	once(static_data_historical(Static_Data, Static_Data_Historical)),
 
-	balance_entries(Static_Data, Static_Data_Historical, Entries),
+	once(balance_entries(Static_Data, Static_Data_Historical, Entries)),
 
 	dict_vars(Entries, [Balance_Sheet, ProfitAndLoss, Balance_Sheet2_Historical, ProfitAndLoss2_Historical, Trial_Balance, Cf]),
 
 	once(taxonomy_url_base),
+	%gtrace,
+	format(user_error, '.......', []),
 
-	create_instance(Xbrl, Static_Data, Static_Data.start_date, Static_Data.end_date, Static_Data.accounts, Static_Data.report_currency, Balance_Sheet, ProfitAndLoss, ProfitAndLoss2_Historical, Trial_Balance),
+	once(create_instance(Xbrl, Static_Data, Static_Data.start_date, Static_Data.end_date, Static_Data.accounts, Static_Data.report_currency, Balance_Sheet, ProfitAndLoss, ProfitAndLoss2_Historical, Trial_Balance)),
 
-	other_reports(Static_Data, Static_Data_Historical, Static_Data.outstanding, Balance_Sheet, ProfitAndLoss, Balance_Sheet2_Historical, ProfitAndLoss2_Historical, Trial_Balance, Cf, Structured_Reports),
-	add_xml_report(xbrl_instance, xbrl_instance, [Xbrl]).
+	once(other_reports(Static_Data, Static_Data_Historical, Static_Data.outstanding, Balance_Sheet, ProfitAndLoss, Balance_Sheet2_Historical, ProfitAndLoss2_Historical, Trial_Balance, Cf, Structured_Reports)),
+	once(add_xml_report(xbrl_instance, xbrl_instance, [Xbrl])).
 
 
 
@@ -362,7 +364,7 @@ generate_bank_opening_balances_sts2(Bank_Account, Tx) :-
 		)
 	).
 
-extract_bank_opening_balances2(Bank_Account, _Tx) :-
+generate_bank_opening_balances_sts2(Bank_Account, _Tx) :-
 	\+doc_value(Bank_Account, l:opening_balance, _Opening_Balance).
 
 extract_initial_gl(Txs) :-
