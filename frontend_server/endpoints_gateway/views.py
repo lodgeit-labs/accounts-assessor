@@ -43,7 +43,6 @@ def upload(request):
 	params = QueryDict(mutable=True)
 	params.update(request.POST)
 	params.update(request.GET)
-
 	requested_output_format = params.get('requested_output_format', 'json_reports_list')
 	server_url = request._current_scheme_host
 	MY_SERVICES_SERVER_URL = settings.MY_SERVICES_SERVER_URL
@@ -67,17 +66,31 @@ def upload(request):
 				return render(request, 'uploaded_files.html', {
 					'files': [server_url + '/tmp/' + tmp_directory_name + '/' + urllib.parse.quote(f) for f in directory_files(tmp_directory_path)]})
 
+
+			# comment(RDF_EXPLORER_1_BASE, comment, 'base of uris to show to user in generated html')
+			rdf_explorer_1_base = 'http://dev-node.uksouth.cloudapp.azure.com:10035/#/repositories/a/node/'
+			rdf_namespace_base = 'http://dev-node.uksouth.cloudapp.azure.com/rdf/'
+			request_uri = rdf_namespace_base + 'requests/' + tmp_directory_name
+insert with sparql:
+"""
+			request_uri a l:request.
+"""
+
 			msg = {	"method": "calculator",
 					"params": {
 						"server_url": server_url,
 						"tmp_directory_name": tmp_directory_name,
-						"request_files": request_files_in_tmp}
-			}
+						"request_tmp_directory_name": tmp_directory_name,
+						"request_files": request_files_in_tmp,
+						"request_uri": request_uri
 
+						}}
 			try:
 				new_tmp_directory_name,_result_json = services.call_prolog(msg, prolog_flags=prolog_flags,make_new_tmp_dir=True)
 			except json.decoder.JSONDecodeError as e:
 				return HttpResponse(status=500)
+
+
 			if requested_output_format == 'xml':
 				return HttpResponseRedirect('/tmp/' + new_tmp_directory_name + '/response.xml')
 			else:
@@ -87,6 +100,9 @@ def upload(request):
 	return render(request, 'upload.html', {'form': form})
 
 
+@csrf_exempt
+def results(request):
+	pass
 
 #  ┏━╸╻ ╻┏━┓╺┳╸
 #  ┃  ┣━┫┣━┫ ┃
@@ -115,12 +131,4 @@ def json_prolog_rpc_call(msg):
 
 
 
-"""
-		goes
-		into
-		local
-		triplestore
-		somehow:
-
-		we want hassle-free data exchange between microservices, but speed is a big concern, so probably the store should be in the prolog process. But the process may not be running at this point. So here, we maybe stick this data into rdflib, and pass that along, then possibly invoke a series of commands on prolog, the first inserting the data into it, the second executing the query
-"""
+# todo https://www.honeycomb.io/microservices/

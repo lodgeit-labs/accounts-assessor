@@ -805,3 +805,48 @@ dddd(Spog, _X) :-
 	(atomic(O2);var(O2)),
 	rdf(S2,P2,O2,G2).
 */
+
+
+
+
+
+
+
+/*
+
+	permanent storage of doc data / request data in a triplestore:
+
+
+--------
+
+dereferenceable uris.
+RDF_URI_BASE =
+
+
+objects:
+	request
+	processing
+
+
+prolog could need access to the request data
+
+
+
+
+
+
+
+
+
+
+		we want hassle-free data exchange between microservices, but speed is a big concern, so probably the store should be in the prolog process. But the process may not be running at this point. So here, we maybe stick this data into rdflib, and pass that along, then possibly invoke a series of commands on prolog, the first inserting the data into it, the second executing the query
+
+
+
+
+
+
+
+
+
+*/

@@ -232,6 +232,15 @@ load_request_xml(loc(absolute_path,Xml_Tmp_File_Path), Dom) :-
 
 load_request_rdf(loc(absolute_path, Rdf_Tmp_File_Path), G) :-
 	rdf_create_bnode(G),
+
+
+
+	Base_Uri = 
+
+
+
+
+
 	rdf_load(Rdf_Tmp_File_Path, [graph(G), anon_prefix(bn), on_error(error)]),
 	%findall(_, (rdf(S,P,O),format(user_error, 'raw_rdf:~q~n',(S,P,O))),_),
 	true.
