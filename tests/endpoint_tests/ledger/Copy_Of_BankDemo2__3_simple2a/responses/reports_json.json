@@ -353,71 +353,7 @@
 }
     ]
   },
-  "cf": [
-     {
-  "account":"CashAndCashEquivalents at date(2018,7,13)",
-  "balance": [ {"credit":376504.7984, "debit":0, "unit":"AUD"} ],
-  "child_sheet_entries": [],
-  "transactions_count":2
-},
-     {
-  "account":"CashAndCashEquivalents",
-  "balance":"#bnx68_",
-  "child_sheet_entries": [
-     {
-  "account":"Banks",
-  "balance":"#bnx67_",
-  "child_sheet_entries": [
-     {
-  "account":"BanksUSD_Bank",
-  "balance":"#bnx66_",
-  "child_sheet_entries": [
-     {
-  "account":"Investing activities",
-  "balance":"#bnx65_",
-  "child_sheet_entries": [
-     {
-  "account":"increases",
-  "balance":"#bnx64_",
-  "child_sheet_entries": [
-     {
-  "account": [
-    "date(2018,12,30)",
-    "'Dispose_Of - incoming money'",
-    "a(href='#bnx49_',[small(⍰)])"
-  ],
-  "balance":"#bnx62_",
-  "child_sheet_entries": [],
-  "transactions_count":123456789
-}
-  ],
-  "transactions_count":123456789
-}
-  ],
-  "transactions_count":123456789
-},
-     {
-  "account":"Currency movement",
-  "balance":"#bnx63_",
-  "child_sheet_entries": [],
-  "transactions_count":123456789
-}
-  ],
-  "transactions_count":123456789
-}
-  ],
-  "transactions_count":123456789
-}
-  ],
-  "transactions_count":123456789
-},
-     {
-  "account":"CashAndCashEquivalents at date(2019,6,30)",
-  "balance": [ {"credit":191543.5357, "debit":0, "unit":"AUD"} ],
-  "child_sheet_entries": [],
-  "transactions_count":3
-}
-  ],
+  "cf": ["#bnx81_" ],
   "crosschecks": {
     "results": [
       {

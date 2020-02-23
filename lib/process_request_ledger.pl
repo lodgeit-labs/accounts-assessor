@@ -11,8 +11,8 @@ process_request_ledger(File_Path, Dom) :-
 	inner_xml(Dom, //reports/balanceSheetRequest, _),
 	validate_xml2(File_Path, 'bases/Reports.xsd'),
 	extract_s_transactions0(Dom, S_Transactions),
-	%profile(process_request_ledger2(Dom, S_Transactions, _, _Transactions)).
-	process_request_ledger_debug(Dom, S_Transactions).
+	/*profile*/(process_request_ledger2(Dom, S_Transactions, _, _Transactions)).
+	%process_request_ledger_debug(Dom, S_Transactions).
 	/*gl_doc_eq_json(Transactions, Transactions_Json),
 	doc_init,
 	gl_doc_eq_json(Transactions2, Transactions_Json),

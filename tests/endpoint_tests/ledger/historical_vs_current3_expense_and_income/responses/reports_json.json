@@ -333,71 +333,7 @@
 }
     ]
   },
-  "cf": [
-     {
-  "account":"CashAndCashEquivalents at date(2018,1,1)",
-  "balance": [ {"credit":400, "debit":0, "unit":"AUD"} ],
-  "child_sheet_entries": [],
-  "transactions_count":1
-},
-     {
-  "account":"CashAndCashEquivalents",
-  "balance":"#bnx44_",
-  "child_sheet_entries": [
-     {
-  "account":"Banks",
-  "balance":"#bnx43_",
-  "child_sheet_entries": [
-     {
-  "account":"BanksCHF_Bank",
-  "balance":"#bnx42_",
-  "child_sheet_entries": [
-     {
-  "account":"no category",
-  "balance":"#bnx41_",
-  "child_sheet_entries": [
-     {
-  "account":"increases",
-  "balance":"#bnx40_",
-  "child_sheet_entries": [
-     {
-  "account": [
-    "date(2018,5,1)",
-    "'Income - incoming money'",
-    "a(href='#bnx34_',[small(⍰)])"
-  ],
-  "balance":"#bnx38_",
-  "child_sheet_entries": [],
-  "transactions_count":123456789
-}
-  ],
-  "transactions_count":123456789
-}
-  ],
-  "transactions_count":123456789
-},
-     {
-  "account":"Currency movement",
-  "balance":"#bnx39_",
-  "child_sheet_entries": [],
-  "transactions_count":123456789
-}
-  ],
-  "transactions_count":123456789
-}
-  ],
-  "transactions_count":123456789
-}
-  ],
-  "transactions_count":123456789
-},
-     {
-  "account":"CashAndCashEquivalents at date(2018,12,30)",
-  "balance": [],
-  "child_sheet_entries": [],
-  "transactions_count":2
-}
-  ],
+  "cf": ["#bnx57_" ],
   "crosschecks": {
     "results": [
       {
