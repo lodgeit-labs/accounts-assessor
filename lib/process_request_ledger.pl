@@ -34,9 +34,10 @@ process_request_ledger_debug(Data, S_Transactions0) :-
 	findall(Count, ggg(Data, S_Transactions0, Count), Counts), writeq(Counts).
 
 ggg(Data, S_Transactions0, Count) :-
-	Count = 5,
+	Count = 150,
 	%between(100, $>length(S_Transactions0), Count),
 	take(S_Transactions0, Count, STs),
+	format(user_error, 'total s_transactions: ~q~n', [$>length(STs)]),
 	format(user_error, '~q: ~q ~n ~n', [Count, $>last(STs)]),
 	profile(once(process_request_ledger2(Data, STs, _Structured_Reports, _))).
 	/*length(Structured_Reports.crosschecks.errors, L),
@@ -189,14 +190,22 @@ other_reports(
 	make_json_report(Structured_Reports, reports_json).
 
 make_gl_viewer_report :-
+	format(user_error, 'make_gl_viewer_report..~n',[]),
 	Viewer_Dir = 'general_ledger_viewer',
 	absolute_file_name(my_static(Viewer_Dir), Src, [file_type(directory)]),
 	report_file_path(loc(file_name, Viewer_Dir), loc(absolute_url, Dir_Url), loc(absolute_path, Dst)),
+
+	/* symlink or copy, which one is more convenient depends on what we're working on */
 	atomic_list_concat(['ln -s -n -f ', Src, ' ', Dst], Cmd),
 	%atomic_list_concat(['cp -r ', Src, ' ', Dst], Cmd),
+
+	%format(user_error, 'shell..~q ~n',[Cmd]),
 	shell(Cmd, _),
+	%format(user_error, 'shell.~n',[]),
 	atomic_list_concat([Dir_Url, '/link.html'], Full_Url),
-	add_report_file('gl_html', 'GL viewer', loc(absolute_url, Full_Url)).
+	add_report_file('gl_html', 'GL viewer', loc(absolute_url, Full_Url)),
+	%format(user_error, 'make_gl_viewer_report done.~n',[]),
+	true.
 
 investment_reports(Static_Data, Ir) :-
 	Data =
@@ -238,7 +247,9 @@ symlink_tmp_taxonomy_to_static_taxonomy(Unique_Taxonomy_Dir_Url) :-
 	absolute_tmp_path(loc(file_name, 'taxonomy'), loc(absolute_path, Tmp_Taxonomy)),
 	resolve_specifier(loc(specifier, my_static('taxonomy')), loc(absolute_path,Static_Taxonomy)),
 	atomic_list_concat(['ln -s -n -f ', Static_Taxonomy, ' ', Tmp_Taxonomy], Cmd),
-	shell(Cmd, _).
+	format(user_error, 'shell..~q ~n',[Cmd]),
+	shell(Cmd, _),
+	format(user_error, 'shell.~n',[]).
 
 	
 /*

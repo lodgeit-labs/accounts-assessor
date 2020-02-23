@@ -28,6 +28,7 @@ account_detail_level(Accounts, Id, Detail_Level) :-
 	account_detail_level(Account, Detail_Level).
 	
 % Relates an account to an ancestral account or itself
+%:- table account_in_set/3.
 account_in_set(Accounts, Account_Id, Root_Account_Id) :-
     	Account_Id = Root_Account_Id
 	;
@@ -99,7 +100,8 @@ account_role_by_id(Accounts, Id, Role) :-
 	account_role(Account, Role).
 
 
-/* @Bob fixme, we should be getting this info from the taxonomy */
+/* @Bob fixme, we should be getting this info from the taxonomy (?) */
+:- table account_normal_side/3.
 account_normal_side(Account_Hierarchy, Name, credit) :-
 	member(Credit_Side_Account_Id, ['Liabilities', 'Equity', 'Revenue']),
 	once(account_in_set(Account_Hierarchy, Name, Credit_Side_Account_Id)),

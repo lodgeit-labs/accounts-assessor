@@ -222,9 +222,9 @@ extract_s_transaction2(Tx_Dom, Account_Currency, Account, ST) :-
 	parse_date(Date_Atom, Date),
 	Dr is rationalize(Bank_Debit - Bank_Credit),
 	Coord = coord(Account_Currency, Dr),
+	extract_exchanged_value(Tx_Dom, Account_Currency, Dr, Exchanged),
 	doc_add_s_transaction(Date, Desc1, [Coord], Account, Exchanged, misc{desc2:Desc2}, ST),
-	doc_add(ST, l:source, l:bank_statement_xml),
-	extract_exchanged_value(Tx_Dom, Account_Currency, Dr, Exchanged).
+	doc_add(ST, l:source, l:bank_statement_xml).
 
 extract_exchanged_value(Tx_Dom, _Account_Currency, Bank_Dr, Exchanged) :-
    % if unit type and count is specified, unifies Exchanged with a one-item vector with a coord with those values

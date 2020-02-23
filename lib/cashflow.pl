@@ -232,7 +232,7 @@ cf_scheme_0_bank_account_currency_movement_entry(Sd, Account, Currency_Movement_
 	vec_inverse(Vec0, Vec),
 	doc_new_(rdf:value, Vec_Uri),
 	doc_add(Vec_Uri, rdf:value, Vec),
-	doc_add(Vec_Uri, l:source, net_activity_by_account(Account, Vec, _)),
+	doc_add(Vec_Uri, l:source, net_activity_by_account),
 	make_report_entry('Currency movement', [], Currency_Movement_Entry),
 	doc_add(Currency_Movement_Entry, report_entries:own_vec, Vec_Uri).
 
@@ -300,8 +300,8 @@ cf_instant_tx_vector_conversion(Sd, Tx, Uri) :-
 	doc_new_(rdf:value, Uri),
 	doc_add(Uri, rdf:value, Vec),
 	Source = vec_change_bases(Sd.exchange_rates, $>transaction_day(Tx), Sd.report_currency, $>transaction_vector(Tx), Vec),
-	doc_add(Uri, l:source, Source),
-	call(Source).
+	call(Source),
+	doc_add(Uri, l:source, vec_change_bases).
 
 
 report_entry_fill_in_totals(Entry) :-

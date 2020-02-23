@@ -324,8 +324,8 @@ tx_to_transaction(St, Day, Tx, Transaction) :-
 	(var(Comment2) -> Comment2 = ''; true),
 	flatten(['comment:', Comment, ', comment2:', Comment2], Description0),
 	atomic_list_concat(Description0, Description),
-	make_transaction2(St, Day, Description, Account, Vector_Flattened, '?', Transaction),
-	flatten(Vector, Vector_Flattened).
+	flatten(Vector, Vector_Flattened),
+	make_transaction2(St, Day, Description, Account, Vector_Flattened, '?', Transaction).
 	
 /*
 	find accounts to affect
