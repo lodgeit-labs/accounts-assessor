@@ -18,7 +18,7 @@ fetch_file_from_url(loc(absolute_url,Url), loc(absolute_path, Path)) :-
 
 services_server_shell_cmd(Cmd) :-
 	format(string(Url), '~w/shell/rpc/', [$>services_server(<$)]),
-	debug(endpoint_tests, 'POST: ~w', Url),
+	debug(shell, 'POST: ~w', Url),
 	json_post(Url, _{cmd:Cmd,quiet_success:true}).
 
 json_post(Url, Payload) :-

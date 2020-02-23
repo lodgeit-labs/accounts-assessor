@@ -34,11 +34,11 @@ process_request_ledger_debug(Data, S_Transactions0) :-
 	findall(Count, ggg(Data, S_Transactions0, Count), Counts), writeq(Counts).
 
 ggg(Data, S_Transactions0, Count) :-
-	Count = 150,
+	Count = 20000,
 	%between(100, $>length(S_Transactions0), Count),
 	take(S_Transactions0, Count, STs),
-	format(user_error, 'total s_transactions: ~q~n', [$>length(STs)]),
-	format(user_error, '~q: ~q ~n ~n', [Count, $>last(STs)]),
+	format(user_error, 'total s_transactions: ~q~n', [$>length(S_Transactions0)]),
+	format(user_error, '~q: ~q ~n ~n', [$>length(STs), $>last(STs)]),
 	profile(once(process_request_ledger2(Data, STs, _Structured_Reports, _))).
 	/*length(Structured_Reports.crosschecks.errors, L),
 	(	L \= 2
@@ -196,15 +196,15 @@ make_gl_viewer_report :-
 	report_file_path(loc(file_name, Viewer_Dir), loc(absolute_url, Dir_Url), loc(absolute_path, Dst)),
 
 	/* symlink or copy, which one is more convenient depends on what we're working on */
-	atomic_list_concat(['ln -s -n -f ', Src, ' ', Dst], Cmd),
-	%atomic_list_concat(['cp -r ', Src, ' ', Dst], Cmd),
+	Cmd = ['ln', '-s', '-n', '-f', Src, Dst],
+	%Cmd = ['cp', '-r', Src, Dst],
 
 	%format(user_error, 'shell..~q ~n',[Cmd]),
-	shell(Cmd, _),
+	shell4(Cmd, _),
 	%format(user_error, 'shell.~n',[]),
 	atomic_list_concat([Dir_Url, '/link.html'], Full_Url),
 	add_report_file('gl_html', 'GL viewer', loc(absolute_url, Full_Url)),
-	%format(user_error, 'make_gl_viewer_report done.~n',[]),
+	format(user_error, 'make_gl_viewer_report done.~n',[]),
 	true.
 
 investment_reports(Static_Data, Ir) :-
@@ -246,10 +246,10 @@ symlink_tmp_taxonomy_to_static_taxonomy(Unique_Taxonomy_Dir_Url) :-
 	atomic_list_concat([Server_Public_Url, '/tmp/', Tmp_Dir, '/taxonomy/'], Unique_Taxonomy_Dir_Url),
 	absolute_tmp_path(loc(file_name, 'taxonomy'), loc(absolute_path, Tmp_Taxonomy)),
 	resolve_specifier(loc(specifier, my_static('taxonomy')), loc(absolute_path,Static_Taxonomy)),
-	atomic_list_concat(['ln -s -n -f ', Static_Taxonomy, ' ', Tmp_Taxonomy], Cmd),
-	format(user_error, 'shell..~q ~n',[Cmd]),
-	shell(Cmd, _),
-	format(user_error, 'shell.~n',[]).
+	Cmd = ['ln', '-s', '-n', '-f', Static_Taxonomy, Tmp_Taxonomy],
+	%format(user_error, 'shell..~q ~n',[Cmd]),
+	shell4(Cmd, _).
+	%format(user_error, 'shell.~n',[]).
 
 	
 /*
