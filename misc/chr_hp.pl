@@ -11,7 +11,7 @@
 find_fact(S,P,O) :-
 	debug(find_fact, "find_fact(~w,~w,~w):~n", [S,P,O]),
 	'$enumerate_constraints'(fact(S1,P1,O1)),
-	debug(find_fact, "find_fact(~w,~w,~w): trying `fact(~w,~w,~w)`~n", [S,P,O, S1,P1,O1]),
+	debug(find_fact_all, "find_fact(~w,~w,~w): trying `fact(~w,~w,~w)`~n", [S,P,O, S1,P1,O1]),
 	maplist(find_fact_unify, [S,P,O], [S1,P1,O1]),
 	debug(find_fact, "find_fact(~w,~w,~w): Success.~n", [S,P,O]).
 
@@ -63,6 +63,12 @@ chr_fields(hp_arrangement, [
 		required:true
 	},
 	_{
+		key:final_balance,
+		type:rational,
+		unique:true,
+		required:true
+	},
+	_{
 		key:installments,
 		type:list(hp_installment),
 		unique:true,
@@ -72,9 +78,17 @@ chr_fields(hp_arrangement, [
 
 
 chr_fields(hp_installment, [
+	/*
 	_{
 		key:hp_arrangement,
 		type:hp_arrangement,
+		unique:true,
+		required:true
+	},
+	*/
+	_{
+		key:number,
+		type:integer,
 		unique:true,
 		required:true
 	},
@@ -259,43 +273,114 @@ add_attribute(S, P, O) :-
 
 % LIST THEORY
 
-/*
+
 % there is only one cell at any given index
-rule, fact(L, a, list), fact(X, list_in, L), fact(X, list_index, I) \ fact(Y, list_in, L), fact(Y, list_index, I) <=> debug(chr_list, "there is only one cell at any given index.~n", []), X = Y.
+rule,
+	fact(L, a, list),
+	fact(X, list_in, L),
+	fact(X, list_index, I) \
+	fact(Y, list_in, L),
+	fact(Y, list_index, I)
+	<=> 
+	add_constraints([
+		X = Y
+	]).
+
 
 % if non-empty then first exists, is unique, is in the list, and has list index 1
-rule, fact(L, a, list), fact(_, list_in, L) ==> \+find_fact2(L1, first, _, [L1:L]) | debug(chr_list, "if non-empty then first exists.~n", []), fact(L, first, _).
-rule, fact(L, a, list), fact(L, first, First) ==> \+find_fact2(First1, list_in, L1, [First1:First, L1:L]) | debug(chr_list, "first element is in the list.~n", []), fact(First, list_in, L).
-rule, fact(L, a, list), fact(L, first, First) ==> \+find_fact2(First1, list_index, 1, [First1:First]) | debug(chr_list, "first element has list_index 1.~n", []), fact(First, list_index, 1).
+rule,
+	fact(L, a, list),
+	fact(_, list_in, L)
+	==> 
+	add_constraints([
+		fact(L, first, _),
+		fact(L, last, _)
+	]).
+
+% this isn't fully bidirectional: derive first from list-index?
+rule,
+	fact(L, a, list),
+	fact(L, first, First)
+	==>
+	add_constraints([
+		fact(First, list_in, L),
+		fact(First, list_index, 1)
+	]).
+
 
 % if non-empty, and N is the length of the list, then last exists, is unique, is in the list, and has list index N
-rule, fact(L, a, list), fact(_, list_in, L) ==> \+find_fact2(L1, last, _, [L1:L]) | debug(chr_list, "if non-empty then last exists.~n", []), fact(L, last, _).
-rule, fact(L, a, list), fact(L, last, Last) ==> \+find_fact2(Last1, list_in, L1, [Last1:Last, L1:L]) | debug(chr_list, "last element is in the list.~n", []), fact(Last, list_in, L). 
-rule, fact(L, a, list), fact(L, last, Last), fact(L, length, N) ==> \+find_fact2(Last1, list_index, N1, [Last1:Last, N1:N]) | debug(chr_list, "index of last element is the length of the list.~n", []), fact(Last, list_index, N).
+% this isn't fully bidirectional: derive length from list-index of last? derive last from length and list-index?
+rule,
+	fact(L, a, list),
+	fact(L, last, Last),
+	fact(L, length, N)
+	==> 
+	add_constraints([
+		fact(Last, list_in, L),
+		fact(Last, list_index, N)
+	]).
 
 % the list index of any item is between 1 and the length of the list
-rule, fact(L, a, list), fact(X, list_in, L), fact(X, list_index, I), fact(L, length, N) ==> debug(chr_list, "the list index of any item is between 1 and the length of the list.~n", []), clpq({I >= 1}), clpq({I =< N}).
+rule,
+	fact(L, a, list),
+	fact(X, list_in, L),
+	fact(X, list_index, I),
+	fact(L, length, N)
+	==> 
+	add_constraints([
+		I #>= 1,
+		I #=< N
+	]).
 
 % if list has an element type, then every element of that list has that type
-rule, fact(L, a, list), fact(L, element_type, T), fact(Cell, list_in, L), fact(Cell, value, V) ==> \+find_fact2(V1, a, T1, [V1:V, T1:T]) | debug(chr_list, "if list has an element type, then every element of that list has that type.~n", []), fact(V, a, T).
+rule,
+	fact(L, a, list),
+	fact(L, element_type, T),
+	fact(Cell, list_in, L),
+	fact(Cell, value, V)
+	==>
+	add_constraints([
+		fact(V, a, T)
+	]).
 
 % if X is the previous item before Y, then Y is the next item after X, and vice versa.
 % the next and previous items of an element are in the same list as that element 
-rule, fact(L, a, list), fact(Cell, list_in, L), fact(Cell, prev, Prev) ==> \+find_fact(Prev, next, Cell) | debug(chr_list, "if X is the previous item before Y, then Y is the next item after X.~n", []), fact(Prev, next, Cell).
-rule, fact(L, a, list), fact(Cell, list_in, L), fact(Cell, prev, Prev) ==> \+find_fact(Prev, list_in, L) | debug(chr_list, "the previous item of an item is in the same list.~n", []), fact(Prev, list_in, L).
-rule, fact(L, a, list), fact(Cell, list_in, L), fact(Cell, next, Next) ==> \+find_fact(Next, prev, Cell) | debug(chr_list, "if X is the next item after Y, then Y is the previous item before X.~n", []), fact(Next, prev, Cell).
-rule, fact(L, a, list), fact(Cell, list_in, L), fact(Cell, next, Next) ==> \+find_fact(Next, list_in, L) | debug(chr_list, "the next item of an item is in the same list.~n", []), fact(Next, list_in, L).
+rule, 
+	fact(L, a, list),
+	fact(Cell, list_in, L),
+	fact(Cell, prev, Prev)
+	==>
+	add_constraints([
+		fact(Prev, next, Cell),
+		fact(Prev, list_in, L)
+	]).
+rule,
+	fact(L, a, list),
+	fact(Cell, list_in, L),
+	fact(Cell, next, Next)
+	==>
+	add_constraints([
+		fact(Next, prev, Cell),
+		fact(Next, list_in, L)
+	]).
 
 % the next item after the item at list index I has list index I + 1
-rule, fact(L, a, list), fact(Cell, list_in, L), fact(Cell, list_index, I), fact(Cell, next, Next), fact(Next, list_index, J) ==> debug(chr_list, "the next item after the item at list index I has list index I + 1", []), clpq({J = I + 1}).
-*/
+rule,
+	fact(L, a, list),
+	fact(Cell, list_in, L),
+	fact(Cell, list_index, I),
+	fact(Cell, next, Next), fact(Next, list_index, J)
+	==>
+	add_constraints([
+		J #= I + 1
+	]).
 
 
 % OBJECTS/RELATIONS THEORY
 /*
 Required field:
  "required" here doesn't mean the user must explicitly supply the field, it just means that the field will always be created if it hasn't been supplied,
- i.e. it's an existence assertion
+ i.e. it's an existence assertion, the field should probably be "exists" rather than "required"
 */
 /*
 rule,
@@ -338,7 +423,7 @@ rule,
 	debug(chr_object, "CHR: typed field rule: object=~w, type=~w, field=~w, field_type=~w, value=~w~n", [Object, Type, Key, Field_Type, Value]),
 		(
 			Field_Type = list(Element_Type)
-		->	fact(Value, a, list(Element_Type)),
+		->	fact(Value, a, list),
 			fact(Value, element_type, Element_Type)
 		;	fact(Value, a, Field_Type)
 		).
@@ -350,16 +435,18 @@ rule,
 	fact(HP, a, hp_arrangement) \
 	rule
 	<=>
-	assert_constraints([
+	debug(chr_hp_arrangement, "CHR: chr_hp_arrangement(~w):~n", [HP]),
+	add_constraints([
 	/* Note that all of these HP parameters are redundant and just referencing values at the endpoints of the HP installments "curve" */
-	First_Installment 			= HP:installments:first_value,
-	Last_Installment 			= HP:installments:last_value,
+	% this assumes that an installment necessarily exists.
+
+	First_Installment 			= HP:installments:first:value,
+	Last_Installment 			= HP:installments:last:value,
 	HP:cash_price 				= First_Installment:opening_balance,
 	HP:begin_date				= First_Installment:opening_date, /* needs payment type parameter */
 	HP:final_balance 			= Last_Installment:closing_balance,
 	HP:end_date 				= Last_Installment:closing_date,
 	HP:number_of_installments 	= Last_Installment:number,
-
 
 	% special formula: repayment amount
 	% the formula doesn't account for balloons/submarines and other variations
@@ -369,7 +456,9 @@ rule,
 	R = HP:repayment_amount,
 	N = HP:number_of_installments,
 	{R = (P0 * (1 + (IR/12))^N - PN)*((IR/12)/((1 + (IR/12))^N - 1))}
-	]).
+	]),
+	debug(chr_hp_arrangement, "CHR: hp_arrangement(~w): Success.~n", [HP]),
+	rule.
 
 
 /*
@@ -438,7 +527,8 @@ like...
 	Installment:closing_date:month = Month,
 	Installment:closing_date:day = Installment:closing_date:month_length %,
 	%Installment:closing_date:day = Month_Length
-	]).
+	]),
+	rule.
 
 	% special formula: closing balance to calculate the closing balance directly from the hp parameters.
 	% NOTE: approximation errors in input can cause it to calculate a non-integer installment index
@@ -470,6 +560,10 @@ like...
 /*
 % 
 % if the cash price is different from the final balance, there must be an installment
+% this is really an instance of a more general principle:
+% if installment X precedes installment Y, and X.closing_balance \= Y.opening_balance, there must be an installment in between X and Y
+% conversely, if there is no installment between X and Y, then X.closing_balance = Y.opening_balance
+
 rule, fact(HP, a, hp_arrangement), fact(HP, cash_price, Cash_Price), fact(HP, final_balance, Final_Balance), fact(HP, installments, Installments) ==> \+find_fact2(_, list_in, Installments1, [Installments1:Installments]), nonvar(Cash_Price), nonvar(Final_Balance), Cash_Price \== Final_Balance | debug(chr_hp, "if the cash price is different from the final balance, there must be an installment.~n", []), fact(_, list_in, Installments).
 
 % this isn't a logical validity it's just a heuristic meant to generate the list when the parameters are underspecified
@@ -522,14 +616,16 @@ rule, fact(S, P, O) \ fact(S, P, O) <=> true.
 
 
 add_constraints(Constraints) :-
+	debug(add_constraints, "add_constraints(~w):~n", [Constraints]),
 	maplist(add_constraint, Constraints),
-	rule.
+	debug(add_constraints, "add_constraints(~w): Success.~n", [Constraints]).
 
 add_constraint(Constraint) :-
+	debug(add_constraint, "add_constraint(~w):~n", [Constraint]),
 	transform_constraint(Constraint, New_Constraint),
 	debug(add_constraint, "add_constraint(~w): Transformed constraint: in=`~w`, out=`~w`~n", [Constraint, Constraint, New_Constraint]),
 	(
-		Constraint = fact(S, P, O)
+		New_Constraint = fact(S, P, O)
 	->	debug(add_constraint, "add_constraint(~w): Fact constraint...~n", [Constraint]),
 		add_fact(S,P,O),
 		debug(add_constraint, "add_constraint(~w): Added fact...~n", [Constraint]),
@@ -546,11 +642,10 @@ add_constraint(Constraint) :-
 					date_constraints(Date),
 					add_fact(S, dict, Date),
 					debug(add_constraint, "add_constraint(~w): Created attribute dict...~n", [Constraint]),
-					add_fact(S, year, kb_var(Date.year)),
-					debug(add_constraint, "add_constraint(~w): Initialized attribute `year`~n", [Constraint]),
-					add_fact(S, month, kb_var(Date.month)),
-					add_fact(S, day, kb_var(Date.day)),
-					add_fact(S, day_of_week, kb_var(Date.day_of_week)),
+					add_fact(S, year, Date.year),
+					add_fact(S, month, Date.month),
+					add_fact(S, day, Date.day),
+					add_fact(S, day_of_week, Date.day_of_week),
 					debug(add_constraint, "add_constraint(~w): Related dict attributes and triples attributes~n", [Constraint])
 				;	true
 				)
@@ -621,59 +716,70 @@ add_fact(S1,P1,O1) :-
 
 
 transform_constraint('{}'(Constraint), '{}'(New_Constraint)) :-
+	debug(transform_constraint, "transform_constraint#'{}'({~w}, {~w}):~n", [Constraint, New_Constraint]),
 	!,
-	transform_constraint(Constraint, New_Constraint).
+	transform_constraint(Constraint, New_Constraint),
+	debug(transform_constraint, "transform_constraint#'{}'({~w}, {~w}): Success.~n", [Constraint, New_Constraint]).
+
 transform_constraint(fact(S,P,O), fact(S1,P1,O1)) :-
+	debug(transform_constraint, "transform_constraint#fact(~w, ~w):~n", [fact(S,P,O), fact(S1,P1,O1)]),
 	!,
-	maplist([X,Y]>>transform_term(X,Y,_{with_kb_vars:true}), [S,P,O], [S1,P1,O1]).
+	maplist([X,Y]>>transform_term(X,Y,_{with_kb_vars:true}), [S,P,O], [S1,P1,O1]),
+	debug(transform_constraint, "transform_constraint#fact(~w, ~w): Success.~n", [fact(S,P,O), fact(S1,P1,O1)]).
 
 transform_constraint(Constraint, New_Constraint) :-
+	debug(transform_constraint, "transform_constraint#default(~w, ~w):~n", [Constraint, New_Constraint]),
 	(
-		var(Constraint)
-	-> 	format(user_error, "ERROR: variable constraints not currently supported~n", []), fail
-	;	true
+		nonvar(Constraint)
+	-> 	true
+	;	format(user_error, "ERROR: transform_constraint#default(~w, ~w): variable constraints not currently supported~n", []),
+		fail
 	),
-	Constraint =.. [F | Args],
+	Constraint =.. [R | Args],
 	length(Args, N),
 	(
-		nonvar(F) /* can we ever have a var here? hypothetically we could ask something like 5 ? 2*/
+		nonvar(R) /* can we ever have a var here? hypothetically we could ask something like 5 ? 2*/
 	->	true
-	;	format(user_error, "ERROR: variable relations not currently supported, in `~w`~n", [Constraint])
+	;	format(user_error, "ERROR: transform_constraint#default(~w, ~w): variable relations not currently supported, in `~w`~n", [Constraint]),
+		fail
 	),
 	(
-		relation(F, N)
+		relation(R, N)
 	-> 	true
-	; 	format(user_error, "ERROR: no known relation `~w/~w` in `~w`~n", [F, N, Constraint])
+	; 	format(user_error, "ERROR: transform_constraint#default(~w, ~w): no known relation `~w/~w` in `~w`~n", [R, N, Constraint]),
+		fail
 	),
+	debug(transform_constraint, "transform_constraint#default(~w, ~w): Found relation: R = `~w/~w`, Args = `~w`~n", [Constraint, New_Constraint, R, N, Args]),
 	maplist(
 		[X,Y]>>(transform_term(X,Y,_{with_kb_vars:false})),
 		Args,
 		New_Args
 	),
-	New_Constraint =.. [F | New_Args]. % should only fail in the event of programmer / environment error
+	New_Constraint =.. [R | New_Args], % should only fail in the event of programmer / environment error
+	debug(transform_constraint, "transform_constraint#default(~w, ~w): Success.~n", [Constraint, New_Constraint]).
 
 transform_term(kb_var(Term), New_Term, Opts) :- 
 	!,
-	debug(transform_term,"transform_term#kb_var(kb_var(~w),~w,~w):~n", [kb_var(Term), New_Term, Opts]),
+	debug(transform_term,"transform_term#kb_var(~w,~w,~w):~n", [kb_var(Term), New_Term, Opts]),
 	(
 		get_dict(with_kb_vars,Opts,true)
 	->	New_Term = kb_var(Term)
 	;	New_Term = Term
 	),
-	debug(transform_term, "transform_term#kb_var(kb_var(~w),~w,~w): Success.~n", [kb_var(Term), New_Term, Opts]).
+	debug(transform_term, "transform_term#kb_var(~w,~w,~w): Success.~n", [kb_var(Term), New_Term, Opts]).
 
 
-transform_term(Term, Term, _) :- 
-	debug(transform_term, "transform_term#function(~w, ~w, _):~n", [Term, Term]),
+transform_term(Term, Term, Opts) :- 
+	debug(transform_term, "transform_term#atomic(~w, ~w, ~w):~n", [Term, Term, Opts]),
 	Term =.. [Term],
 	(
 		atomic(Term)
 	->	true
-	;	format(user_error, "ERROR: transform_term#atomic(~w, ~w, _): non-atomic atom? `~w`~n", [Term, Term, Term]),
+	;	format(user_error, "ERROR: transform_term#atomic(~w, ~w, ~w): non-atomic atom? `~w`~n", [Term, Term, Opts, Term]),
 		fail
 	),
 	!,
-	debug(transform_term, "transform_term#function(~w, ~w, _): Success.~n", [Term, Term]).
+	debug(transform_term, "transform_term#atomic(~w, ~w, ~w): Success.~n", [Term, Term, Opts]).
 
 transform_term(Object:Attribute, New_Term, Opts) :-
 	!,
@@ -703,7 +809,17 @@ transform_term(Term, New_Term, Opts) :-
 	; 	format(user_error, "ERROR: transform_term#function(~w, ~w, ~w): no known function `~w/~w` in `~w`~n", [Term, New_Term, Opts, F, N, Term]),
 		fail
 	),
-	maplist([X,Y]>>transform_term(X,Y,Opts), Args, New_Args),
+	debug(transform_term, "transform_term#function(~w, ~w, ~w): Valid function application; transforming args:~n", [Term, New_Term, Opts]),
+	maplist(
+		% weird behavior here; if the Opts dict is just used inside the body of the function being mapped, it ends up
+		% getting replaced by a variable.
+		call([Opts, X,Y]>>(
+			debug(transform_term, "Transforming term: ~w, opts=~w~n", [X,Opts]),
+			transform_term(X,Y,Opts)
+		), Opts),
+		Args,
+		New_Args
+	),
 	New_Term =.. [F | New_Args],
 	debug(transform_term, "transform_term#function(~w, ~w, ~w): Success.~n", [Term, New_Term, Opts]).
 
@@ -731,7 +847,7 @@ transform_attribute([Object, Attribute], New_Object) :-
 	;	format(user_error, "ERROR: transform_attribute#2(~w,~w): invalid attribute access: `~w:~w`~n", [[Object, Attribute], New_Object, Object, Attribute]),
 		fail
 	),
-	debug(transform_attribute, "transform_attribute#2(~w,~w):~n", [[Object, Attribute], New_Object]).
+	debug(transform_attribute, "transform_attribute#2(~w,~w): Success ~n", [[Object, Attribute], New_Object]).
 
 
 transform_attribute_helper(Next_Object, Attribute, New_Object) :-
@@ -745,14 +861,27 @@ transform_attribute_helper(Next_Object, Attribute, New_Object) :-
 			(
 				get_dict(Attribute, Dict, X)
 			->	New_Object = kb_var(X)
-			;	format(user_error, "ERROR: transform_attribute_helper(~w,~w,~w): object `~w` has no attribute `~w`~n", [Next_Object, Attribute, New_Object, Next_Object, Attribute]),
+			;	format(user_error, "ERROR: transform_attribute_helper(~w,~w,~w): date object `~w` has no attribute `~w`~n", [Next_Object, Attribute, New_Object, Next_Object, Attribute]),
 				fail
 			)
-		;	format(user_error, "PROGRAMMER ERROR: transform_attribute_helper(~w,~w,~w): date object `~w` has no attribute dict~n", [Next_Object, Attribute, New_Object, Next_Object]),
+		;	format(user_error, "PROGRAMMER ERROR: transform_attribute_helper(~w,~w,~w): date object `~w` has no dict~n", [Next_Object, Attribute, New_Object, Next_Object]),
 			fail
 		)
 	;	debug(transform_attribute_helper, "transform_attribute_helper(~w,~w,~w): other type...~n", [Next_Object, Attribute, New_Object]),
-		find_fact(Next_Object, Attribute, New_Object)
+		(
+			find_fact(Next_Object, Attribute, New_Object)
+		->	true
+		;	format(user_error, "ERROR: transform_attribute_helper(~w,~w,~w): object `~w` has no attribute `~w`~nCurrent KB:~n", [Next_Object, Attribute, New_Object, Next_Object, Attribute]),
+			findall(
+				_,
+				(
+					'$enumerate_constraints'(fact(S,P,O)),
+					format(user_error, "~w ~w ~w~n", [S,P,O])
+				),
+				_
+			),
+			fail
+		)
 	),
 	debug(transform_attribute_helper, "transform_attribute_helper(~w,~w,~w): Success.~n", [Next_Object, Attribute, New_Object]).
 
@@ -785,16 +914,44 @@ relation('>=',2).
 relation('<',2).
 relation('=<',2).
 relation('#=',2).	% equality constrained to integers, should be driven by the types
-relation('@=',2).
+%relation('@=',2).
+relation('in',2).
 
+/*
+Nat * Nat -> Nat
+Integer * Integer -> Integer
+Rational * Rational -> Rational
+Real * Real -> Real
+*/
 function('+',2).
+
+/*
+Nat * Nat -> Nat
+Integer * Integer -> Integer
+Rational * Rational -> Rational
+Real * Real -> Real
+*/
 function('*',2).
+
+/*
+Nat * Nat -> Integer
+Integer * Integer -> Integer
+Rational * Rational -> Rational
+Real * Real -> Real
+*/
 function('-',2).
+
+/*
+Nat * Nat -> Rational
+Integer * Integer -> Rational
+Rational * Rational -> Rational
+Real * Real -> Real
+*/
+function('/',2).
 function('//',2).
 function('mod',2).
 function('^',2).
-function('..',2).
-function('in',2).
+function('..',2).	% X..Y returns {Z | X =< Z =< Y}
 
 
 
