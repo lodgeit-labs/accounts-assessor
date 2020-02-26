@@ -59,7 +59,7 @@ extract_request_details(Dom) :-
 	result(Result),
 	doc_add(Result, l:timestamp, DateTime),
 	request(Request),
-	doc_add(Request, l:client_code, Client_code),
+	doc_add(Request, l:client_code, Client_code).
 
 
 process_request_ledger2(Dom, S_Transactions, Structured_Reports, Transactions) :-

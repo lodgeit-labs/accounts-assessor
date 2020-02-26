@@ -541,6 +541,10 @@ request_assert_property(P, O, G) :-
 request(R) :-
 	doc(R, rdf:type, l:'Request').
 
+request_data(D) :-
+	request(Request),
+	doc(Request, l:has_request_data, D).
+
 result(R) :-
 	doc(R, rdf:type, l:'Result').
 

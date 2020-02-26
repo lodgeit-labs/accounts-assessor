@@ -67,12 +67,6 @@ def upload(request):
 					'files': [server_url + '/tmp/' + tmp_directory_name + '/' + urllib.parse.quote(f) for f in directory_files(tmp_directory_path)]})
 
 
-			# comment(RDF_EXPLORER_1_BASE, comment, 'base of uris to show to user in generated html')
-			rdf_explorer_1_base = 'http://dev-node.uksouth.cloudapp.azure.com:10035/#/repositories/a/node/'
-			rdf_namespace_base = 'http://dev-node.uksouth.cloudapp.azure.com/rdf/'
-			request_uri = rdf_namespace_base + 'requests/' + tmp_directory_name
-
-
 			"""
 			ideally we would insert with sparql:
 			request_uri a l:request.
@@ -86,16 +80,14 @@ def upload(request):
 						"server_url": server_url,
 						"tmp_directory_name": tmp_directory_name,
 						"request_tmp_directory_name": tmp_directory_name,
-						"request_files": request_files_in_tmp,
-						"request_uri": request_uri,
-						"rdf_namespace_base": rdf_namespace_base
+						"request_files": request_files_in_tmp
 						}
 					}
 			try:
 				new_tmp_directory_name,_result_json = services.call_prolog(msg, prolog_flags=prolog_flags,make_new_tmp_dir=True)
 			except json.decoder.JSONDecodeError as e:
 				return HttpResponse(status=500)
-
+			print(f'{_result_json=}')
 
 			if requested_output_format == 'xml':
 				return HttpResponseRedirect('/tmp/' + new_tmp_directory_name + '/response.xml')

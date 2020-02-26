@@ -80,6 +80,17 @@ def run(debug_loading, debug, request_files, dev_runner_options, prolog_flags, s
 
 def call_prolog(msg, dev_runner_options=[], prolog_flags='true', make_new_tmp_dir=False, debug_loading=None, debug=None, halt=True):
 
+
+
+
+	# comment(RDF_EXPLORER_1_BASE, comment, 'base of uris to show to user in generated html')
+	rdf_explorer_1_base = 'http://dev-node.uksouth.cloudapp.azure.com:10035/#/repositories/a/node/'
+	rdf_namespace_base = 'http://dev-node.uksouth.cloudapp.azure.com/rdf/'
+	request_uri = rdf_namespace_base + 'requests/' + msg['params']["tmp_directory_name"]
+
+	msg['params']["request_uri"] = request_uri
+	msg['params']["rdf_namespace_base"] = rdf_namespace_base
+
 	if make_new_tmp_dir:
 		msg['params']['tmp_directory_name'],tmp_path = create_tmp()
 		with open(os.path.join(tmp_path, 'info.txt'), 'w') as info:

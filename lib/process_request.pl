@@ -228,7 +228,7 @@ load_request_rdf(loc(absolute_path, Rdf_Tmp_File_Path), G) :-
 		on_error(error),
 		base_uri(Request_data_uri_base)
 	]),
-	%findall(_, (rdf(S,P,O),format(user_error, 'raw_rdf:~q~n',(S,P,O))),_),
+	findall(_, (rdf(S,P,O),format(user_error, 'raw_rdf:~q~n',(S,P,O))),_),
 	true.
 
 make_rdf_report :-
