@@ -1,4 +1,33 @@
-:- use_module(library(clpfd)).
+% The date theory is special...
+
+
+chr_fields(date, [
+	_{
+		key:year,
+		type:integer,
+		unique:true,
+		required:true
+	},
+	_{
+		key:month,
+		type:integer, /* type should actually be something that actually represents a specific month object, so that we can do like self.month.length */
+		unique:true,
+		required:true
+	},
+	_{
+		key:day,
+		type:integer, 
+		unique:true,
+		required:true
+	},
+	_{
+		key:day_of_week,
+		type:integer,
+		unique:true,
+		required:true
+	}
+]).
+
 
 day_number(1,"Sunday").
 day_number(2,"Monday").

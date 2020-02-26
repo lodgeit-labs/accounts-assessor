@@ -1,6 +1,7 @@
 :- use_module(library(chr)).
 :- use_module(library(clpq)).
 :- use_module(library(clpfd)).
+:- use_module(library(interpolate)).
 
 :- ['./clpfd_datetime.pl'].
 
@@ -261,19 +262,7 @@ initialize_field_attributes(Field_Bnode, [Key-Value | Rest]) :-
 	fact(Field_Bnode, Key, Value),
 	initialize_field_attributes(Field_Bnode, Rest).
 
-/*
-add_attribute(S, P, O) :-
-	(
-		\+find_fact2(S1, P1, _, [S1:S, P1:P])
-	->
-		fact(S,P,O)
-	;	true
-	).
-*/
-
 % LIST THEORY
-
-
 % there is only one cell at any given index
 rule,
 	fact(L, a, list),
@@ -432,10 +421,14 @@ rule,
 % HP ARRANGEMENTS & HP INSTALLMENTS THEORY
 
 % HP ARRANGEMENT GLOBAL CONSTRAINTS
-	fact(HP, a, hp_arrangement) \
+	fact(HP, a, hp_arrangement)
+	\
 	rule
 	<=>
+	\+find_fact(rule1, fired_on, [fact(HP, a, hp_arrangement)])
+	|
 	debug(chr_hp_arrangement, "CHR: chr_hp_arrangement(~w):~n", [HP]),
+	fact(rule1, fired_on, [fact(HP, a, hp_arrangement)]),
 	add_constraints([
 	/* Note that all of these HP parameters are redundant and just referencing values at the endpoints of the HP installments "curve" */
 	% this assumes that an installment necessarily exists.
@@ -460,23 +453,6 @@ rule,
 	debug(chr_hp_arrangement, "CHR: hp_arrangement(~w): Success.~n", [HP]),
 	rule.
 
-
-/*
-like...
-	body items \
-	rule
-	==>
-	head(	% just takes the head term and runs it but applying stuff like . notation or asserting triples that necessarily exist
-			% but haven't been asserted yet, it should really just be the first time it encounters an object it asserts all the
-			% necessarily-existing attributes so that they can be referenced without error. if they don't necessarily exist and
-			% they're referenced without being matched in the body then we'll assume it's an error
-			% ex.. if you reference HP.cash_price that should always be fine because it necessarily exists
-			% but if you reference List_Item.next, and it doesn't exist, then maybe that's an error
-			% we differentiate explicitly in the attribute definitions for each type
-		asserted constraints
-	),
-?
-*/
 
 
 % CONSTRAINTS ABOUT ANY GIVEN INSTALLMENT:
@@ -527,8 +503,7 @@ like...
 	Installment:closing_date:month = Month,
 	Installment:closing_date:day = Installment:closing_date:month_length %,
 	%Installment:closing_date:day = Month_Length
-	]),
-	rule.
+	]).
 
 	% special formula: closing balance to calculate the closing balance directly from the hp parameters.
 	% NOTE: approximation errors in input can cause it to calculate a non-integer installment index
@@ -546,7 +521,8 @@ like...
 % Other constraints are handled by the list theory.
 	fact(HP, a, hp_arrangement),
 	fact(HP, has_installment, Installment),
-	fact(Installment, next, Next_Installment) \
+	fact(Installment, next, Next_Installment)
+	\
 	rule
 	<=>
 	add_constraints([
@@ -616,9 +592,9 @@ rule, fact(S, P, O) \ fact(S, P, O) <=> true.
 
 
 add_constraints(Constraints) :-
-	debug(add_constraints, "add_constraints(~w):~n", [Constraints]),
+	debug(add_constraints, "add_constraints($Constraints):~n", []),
 	maplist(add_constraint, Constraints),
-	debug(add_constraints, "add_constraints(~w): Success.~n", [Constraints]).
+	debug(add_constraints, "add_constraints($Constraints): Success.~n", []).
 
 add_constraint(Constraint) :-
 	debug(add_constraint, "add_constraint(~w):~n", [Constraint]),
