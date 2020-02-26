@@ -166,7 +166,7 @@ add_xml_report(Key, Title, XML) :-
 	add_report_file(Key, Title, Url). % (_{name:Name,format:'xml'}
 
 add_report_file(Key, Title, Url) :-
-	request(R),
+	result(R),
 	doc_new_uri(Uri),
 	doc_add(R, l:report, Uri, files),
 	doc_add(Uri, l:key, Key, files),
@@ -174,7 +174,7 @@ add_report_file(Key, Title, Url) :-
 	doc_add(Uri, l:url, Url, files).
 
 get_report_file(Key, Title, Url) :-
-	request(R),
+	result(R),
 	docm(R, l:report, Uri, files),
 	doc(Uri, l:key, Key, files),
 	doc(Uri, l:title, Title, files),

@@ -71,10 +71,15 @@ def upload(request):
 			rdf_explorer_1_base = 'http://dev-node.uksouth.cloudapp.azure.com:10035/#/repositories/a/node/'
 			rdf_namespace_base = 'http://dev-node.uksouth.cloudapp.azure.com/rdf/'
 			request_uri = rdf_namespace_base + 'requests/' + tmp_directory_name
-insert with sparql:
-"""
+
+
+			"""
+			ideally we would insert with sparql:
 			request_uri a l:request.
-"""
+			+maybe some metadata
+			this way, the stored requests could act as a task queue.
+			but the bare minimum we have to do is pass request_uri to prolog 
+			"""
 
 			msg = {	"method": "calculator",
 					"params": {
@@ -82,9 +87,10 @@ insert with sparql:
 						"tmp_directory_name": tmp_directory_name,
 						"request_tmp_directory_name": tmp_directory_name,
 						"request_files": request_files_in_tmp,
-						"request_uri": request_uri
-
-						}}
+						"request_uri": request_uri,
+						"rdf_namespace_base": rdf_namespace_base
+						}
+					}
 			try:
 				new_tmp_directory_name,_result_json = services.call_prolog(msg, prolog_flags=prolog_flags,make_new_tmp_dir=True)
 			except json.decoder.JSONDecodeError as e:

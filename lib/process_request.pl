@@ -62,6 +62,19 @@ xref(bool, changeable)
 %:- initialization(set_server_public_url('http://localhost:7778')).
 
 process_request_rpc_calculator(Dict) :-
+	doc_init,
+
+	Request_uri = Dict.request_uri,
+	'='(Result_uri, $>atomic_list_concat([Dict.rdf_namespace_base, 'results/', Dict.tmp_directory_name])),
+	'='(Request_data_uri_base, $>atomic_list_concat([Result_uri, '/'])),
+	'='(Request_data_uri, $>atomic_list_concat([Request_data_uri_base, 'request'])),
+
+	doc_add(Request_uri, rdf:type, l:'Request'),
+	doc_add(Request_uri, l:has_result, Result_uri),
+	doc_add(Request_uri, l:has_request_data, Request_data_uri),
+	doc_add(Request_uri, l:has_request_data_uri_base, Request_data_uri_base),
+	doc_add(Result_uri, rdf:type, l:'Result'),
+
 	findall(
 		loc(absolute_path, P),
 		member(P, Dict.request_files),
@@ -69,40 +82,13 @@ process_request_rpc_calculator(Dict) :-
 	(	Request_Files = [Dir]
 	->	resolve_directory(Dir, Request_Files2)
 	;	Request_Files2 = Request_Files),
-	% todo options
-	%writeq(Dict.tmp_directory_name),nl,
+
 	set_unique_tmp_directory_name(loc(tmp_directory_name, Dict.tmp_directory_name)),
 	set_server_public_url(Dict.server_url),
 	(Request_Files2 = [] -> throw('no files.') ; true),
 	process_request([], Request_Files2).
 
-/* takes either a xml request file, or a directory expected to contain a xml request file, an n3 file, or both */
-process_request_cmdline(Path_Value0) :-
-	set_server_public_url('http://localhost:7778'),
-	format(user_error, "Path_Value0: ~w~n", [Path_Value0]),
-	resolve_specifier(loc(specifier, Path_Value0), Path),
-	format(user_error, "Path: ~w~n", [Path]),
-	bump_tmp_directory_id,
-	resolve_directory(Path, File_Paths),
-	format(user_error, "File_Paths: ~w~n", [File_Paths]),
-	copy_request_files_to_tmp(File_Paths, _),
-	process_request([], File_Paths).
-
-resolve_directory(Path, File_Paths) :-
-	Path = loc(absolute_path, Path_Value),
-	(	exists_directory(Path_Value)
-	->	/* invoked with a directory */
-		directory_real_files(Path, File_Paths)
-	;	/* invoked with a file */
-		File_Paths = [Path]),
-	(File_Paths = [] -> throw('no files found') ; true).
-
-process_request_http(Options, Parts) :-
-	findall(F1,	member(_=file(F1), Parts), File_Paths),
-	process_request(Options, File_Paths).
-
 process_request(Options, File_Paths) :-
-	doc_init,
 	maybe_supress_generating_unique_taxonomy_urls(Options),
 	catch_with_backtrace(
 		(process_multifile_request(File_Paths) -> true ; throw(failure)),
@@ -231,17 +217,17 @@ load_request_xml(loc(absolute_path,Xml_Tmp_File_Path), Dom) :-
 	load_structure(Xml_Tmp_File_Path, Dom, [dialect(xmlns), space(remove), keep_prefix(true)]).
 
 load_request_rdf(loc(absolute_path, Rdf_Tmp_File_Path), G) :-
+
+	request(Request),
+	doc(Request, l:has_request_data_uri_base, Request_data_uri_base),
+
 	rdf_create_bnode(G),
-
-
-
-	Base_Uri = 
-
-
-
-
-
-	rdf_load(Rdf_Tmp_File_Path, [graph(G), anon_prefix(bn), on_error(error)]),
+	rdf_load(Rdf_Tmp_File_Path, [
+		graph(G),
+		anon_prefix(bn),
+		on_error(error),
+		base_uri(Request_data_uri_base)
+	]),
 	%findall(_, (rdf(S,P,O),format(user_error, 'raw_rdf:~q~n',(S,P,O))),_),
 	true.
 
@@ -325,4 +311,23 @@ process_with_output(Request_File_Name, Request_Dom) :-
 			throw(Error)
 		)
 	).
+*/
+
+resolve_directory(Path, File_Paths) :-
+	Path = loc(absolute_path, Path_Value),
+	(	exists_directory(Path_Value)
+	->	/* invoked with a directory */
+		directory_real_files(Path, File_Paths)
+	;	/* invoked with a file */
+		File_Paths = [Path]),
+	(File_Paths = [] -> throw('no files found') ; true).
+
+
+
+
+
+
+/*	rdf_register_prefix(pid, ':'),
+	doc_add(pid, rdf:type, l:request),
+	doc_add(pid, rdfs:comment, "processing id - the root node for all data pertaining to processing current request. Also looked up by being the only object of type l:request, but i'd outphase that.").
 */

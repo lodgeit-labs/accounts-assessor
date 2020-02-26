@@ -275,7 +275,8 @@ invert_s_transaction_vector(T0, T1) :-
 
 
 handle_additional_files(S_Transactions) :-
-	(	doc_value(l:request, ic_ui:additional_files, Files)
+	request_data(Request_Data),
+	(	doc_value(Request_Data, ic_ui:additional_files, Files)
 	->	(
 			maplist(handle_additional_file, $> doc_list_items(Files), S_Transactions0),
 			flatten(S_Transactions0, S_Transactions)

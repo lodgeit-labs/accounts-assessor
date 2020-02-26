@@ -55,14 +55,7 @@
 
 doc_init :-
 	doc_init_trace_0,
-	doc_clear,
-	doc_new_uri(R),
-	/* fixme: we create a bnode of type l:request for storing and processing stuff, and excel sends an actual l:request. not sure what we want to do here. Im hesitant to turn the two objects into one. Possibly this should be l:processing or something. */
-	doc_add(R, rdf:type, l:request).
-/*	rdf_register_prefix(pid, ':'),
-	doc_add(pid, rdf:type, l:request),
-	doc_add(pid, rdfs:comment, "processing id - the root node for all data pertaining to processing current request. Also looked up by being the only object of type l:request, but i'd outphase that.").
-*/
+	doc_clear.
 
 doc_init_trace_0 :-
 	Fn = 'doc_trace_0',
@@ -533,23 +526,26 @@ doc_new_theory(T) :-
 
 
 request_has_property(P, O) :-
-	request(R),
+	result(R),
 	doc(R, P, O).
 
 request_add_property(P, O) :-
-	request(R),
+	result(R),
 	doc_add(R, P, O).
 
 
 request_assert_property(P, O, G) :-
-	request(R),
+	result(R),
 	doc_assert(R, P, O, G).
 
 request(R) :-
-	doc(R, rdf:type, l:request).
+	doc(R, rdf:type, l:'Request').
+
+result(R) :-
+	doc(R, rdf:type, l:'Result').
 
 add_alert(Type, Msg) :-
-	request(R),
+	result(R),
 	doc_new_uri(Uri),
 	doc_add(R, l:alert, Uri),
 	doc_add(Uri, l:type, Type),
@@ -557,14 +553,14 @@ add_alert(Type, Msg) :-
 
 assert_alert(Type, Msg) :-
 	/*todo*/
-	request(R),
+	result(R),
 	doc_new_uri(Uri),
 	doc_add(R, l:alert, Uri),
 	doc_add(Uri, l:type, Type),
 	doc_add(Uri, l:message, Msg).
 
 get_alert(Type, Msg) :-
-	request(R),
+	result(R),
 	docm(R, l:alert, Uri),
 	doc(Uri, l:type, Type),
 	doc(Uri, l:message, Msg).

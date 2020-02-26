@@ -24,7 +24,7 @@ process_ledger(
 	flatten([Accounts_In, Generated_Accounts], Accounts),
 	maplist(check_account_parent(Accounts), Accounts),
 	write_accounts_json_report(Accounts),
-	doc(T, rdf:type, l:request),
+	result(T),
 	doc_add(T, l:accounts, Accounts),
 
 

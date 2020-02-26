@@ -157,12 +157,12 @@ def call_prolog(msg, dev_runner_options=[], prolog_flags='true', make_new_tmp_di
 	print(cmd)
 
 	
-	if not print_cmd_to_swipl_stdin:
+	if print_cmd_to_swipl_stdin:
 		print(input)
 	
 
 	
-	# if you want to see env:
+	# if you want to see current env:
 	#p = subprocess.Popen(['bash', '-c', 'export'], universal_newlines=True)
 	#p.communicate()
 

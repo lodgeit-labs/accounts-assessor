@@ -82,7 +82,7 @@ account_by_role(Accounts, Role, Account_Id) :-
 	).
 
 account_by_role(Role, Account_Id) :-
-	doc(T, rdf:type, l:request),
+	result(T),
 	doc(T, l:accounts, Accounts),
 	account_by_role(Accounts, Role, Account_Id).
 

@@ -13,11 +13,16 @@ process_request_ledger(File_Path, Dom) :-
 	extract_s_transactions0(Dom, S_Transactions),
 	/*profile*/(process_request_ledger2(Dom, S_Transactions, _, _Transactions)).
 	%process_request_ledger_debug(Dom, S_Transactions).
-	/*gl_doc_eq_json(Transactions, Transactions_Json),
+
+
+	/*
+	how we could test inference of s_transactions from gl transactions:
+	gl_doc_eq_json(Transactions, Transactions_Json),
 	doc_init,
 	gl_doc_eq_json(Transactions2, Transactions_Json),
 	process_request_ledger2(Dom, S_Transactions2, _, Transactions2),
-	assertion(eq(S_Transactions, S_Transactions2)).*/
+	assertion(eq(S_Transactions, S_Transactions2)).
+	*/
 
 /*
 gl_json :-
@@ -47,11 +52,21 @@ ggg(Data, S_Transactions0, Count) :-
 
 
 
-
-
+extract_request_details(Dom) :-
+	xpath(Dom, //reports/balanceSheetRequest/company/clientcode, Client_code),
+	get_time(TimeStamp),
+	stamp_date_time(TimeStamp, DateTime, 'UTC'),
+	result(Result),
+	doc_add(Result, l:timestamp, DateTime),
+	request(Request),
+	doc_add(Request, l:client_code, Client_code),
 
 
 process_request_ledger2(Dom, S_Transactions, Structured_Reports, Transactions) :-
+	request(Request),
+	doc_add(Request, l:kind, l:ledger_request),
+	doc_add(Request, l:kind, l:ledger_request),
+
 	extract_start_and_end_date(Dom, Start_Date, End_Date),
 	extract_output_dimensional_facts(Dom, Output_Dimensional_Facts),
 	extract_cost_or_market(Dom, Cost_Or_Market),
@@ -259,7 +274,8 @@ symlink_tmp_taxonomy_to_static_taxonomy(Unique_Taxonomy_Dir_Url) :-
 */	
    
 extract_report_currency(Dom, Report_Currency) :-
-	(	doc(l:request, ic_ui:report_details, D)
+	request_data(Request_Data),
+	(	doc(Request_Data, ic_ui:report_details, D)
 	->	(
 			doc_value(D, ic:currency, C),
 			atom_string(Ca, C),
@@ -276,7 +292,8 @@ e and cost in one set of reports. One or the other.
 t values then assume cost basis.*/
 
 extract_cost_or_market(Dom, Cost_Or_Market) :-
-	(	doc(l:request, ic_ui:report_details, D)
+	request_data(Request_Data),
+	(	doc(Request_Data, ic_ui:report_details, D)
 	->	(
 			doc_value(D, ic:cost_or_market, C),
 			(	rdf_equal(C, ic:cost)
@@ -315,7 +332,8 @@ extract_output_dimensional_facts(Dom, Output_Dimensional_Facts) :-
 	).
 	
 extract_start_and_end_date(Dom, Start_Date, End_Date) :-
-	(	doc(l:request, ic_ui:report_details, D)
+	request_data(Request_Data),
+	(	doc(Request_Data, ic_ui:report_details, D)
 	->	(
 			doc_value(D, ic:from, Start_Date),
 			doc_value(D, ic:to, End_Date)
@@ -327,7 +345,7 @@ extract_start_and_end_date(Dom, Start_Date, End_Date) :-
 		inner_xml(Dom, //reports/balanceSheetRequest/endDate, [End_Date_Atom]),
 		parse_date(End_Date_Atom, End_Date)
 	)),
-	doc(R, rdf:type, l:request),
+	result(R),
 	doc_add(R, l:start_date, Start_Date),
 	doc_add(R, l:end_date, End_Date).
 
@@ -353,7 +371,7 @@ extract_bank_account(Account) :-
 	;	true).
 
 generate_bank_opening_balances_sts(Txs) :-
-	request(R),
+	result(R),
 	findall(Bank_Account, docm(R, l:bank_account, Bank_Account), Bank_Accounts),
 	maplist(generate_bank_opening_balances_sts2, Bank_Accounts, Txs0),
 	exclude(var, Txs0, Txs).
@@ -379,7 +397,8 @@ generate_bank_opening_balances_sts2(Bank_Account, _Tx) :-
 	\+doc_value(Bank_Account, l:opening_balance, _Opening_Balance).
 
 extract_initial_gl(Txs) :-
-	(	doc(l:request, ic_ui:gl, Gl)
+	request_data(Request_Data),
+	(	doc(Request_Data, ic_ui:gl, Gl)
 	->	(
 			doc_value(Gl, ic:default_currency, Default_Currency0),
 			atom_string(Default_Currency, Default_Currency0),

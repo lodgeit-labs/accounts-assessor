@@ -2,10 +2,10 @@
 %:- use_module(library(fnotation)).
 
 process_request_depreciation_new :-
-%gtrace,
-	maplist(process_depreciation_asset, $> doc_list_items($> doc_value(l:request, depr_ui:depreciation_assets))),
-	maplist(process_depreciation_event, $> doc_list_items($> doc_value(l:request, depr_ui:depreciation_events))),
-	maplist(process_depreciation_query, $> doc_list_items($> doc_value(l:request, depr_ui:depreciation_queries))).
+	request_data(D),
+	maplist(process_depreciation_asset, $> doc_list_items($> doc_value(D, depr_ui:depreciation_assets))),
+	maplist(process_depreciation_event, $> doc_list_items($> doc_value(D, depr_ui:depreciation_events))),
+	maplist(process_depreciation_query, $> doc_list_items($> doc_value(D, depr_ui:depreciation_queries))).
 
 process_depreciation_asset(I) :-
 	event_calculus:assert_asset(
