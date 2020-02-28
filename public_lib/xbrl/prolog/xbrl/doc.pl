@@ -475,22 +475,33 @@ doc_to_rdf_all_graphs :- true. /*
 		),_
 	).*/
 
-save_doc(/*-*/Fn, /*+*/Url) :-
-	(	report_file_path(loc(file_name, Fn), Url, loc(absolute_path,Path))
-	->	true
-	;	Path = Fn),
+save_doc_turtle :-
+	Fn = 'doc.n3',
+	add_report_file(Fn, Fn, Url),
+	report_file_path(loc(file_name, Fn), Url, loc(absolute_path,Path)),
 	Url = loc(absolute_url, Url_Value),
+	rdf_save_turtle(Path, [sorted(true), base(Url_Value), canonize_numbers(true), abbreviate_literals(false), prefixes([rdf,rdfs,xsd,l,livestock])]).
+
+save_doc_trig :-
+	Fn = 'doc.trig',
+	add_report_file(Fn, Fn, Url),
+	report_file_path(loc(file_name, Fn), Url, loc(absolute_path,Path)),
+	Url = loc(absolute_url, Url_Value),
+	rdf_save_trig(Path, [sorted(true), base(Url_Value), canonize_numbers(true), abbreviate_literals(false), prefixes([rdf,rdfs,xsd,l,livestock])]).
+
+save_doc :-
 	doc_to_rdf_all_graphs,
-	/* we'll possibly want different options for debugging dumps and for result output for excel */
-	rdf_save_turtle(Path, [sorted(true), base(Url_Value), canonize_numbers(true), abbreviate_literals(false), prefixes([rdf,rdfs,xsd,l,livestock])]),
+	save_doc_turtle,
+	save_doc_trig,
 	rdf_retractall(_,_,_,/*fixme*/_Rdf_Graph).
 
-/*
-'save doc into triplestore' :-
-	Fn = 'doc.nq',
-	save_doc(Fn, Url, nq),
-	rpc(_{agraph_upload
-*/
+make_rdf_report :-
+	Title = 'response.n3',
+	doc_to_rdf(Rdf_Graph),
+	report_file_path(loc(file_name, Title), Url, loc(absolute_path,Path)),
+	add_report_file(Title, Title, Url),
+	Url = loc(absolute_url, Url_Value),
+	rdf_save_turtle(Path, [graph(Rdf_Graph), sorted(true), base(Url_Value), canonize_numbers(true), abbreviate_literals(false), prefixes([rdf,rdfs,xsd,l,livestock])]).
 
 
 doc_from_rdf(Rdf_Graph) :-
@@ -725,7 +736,7 @@ omg :-
 :- thread_create(omg, _).
 
 doc_dump :-
-	once(save_doc('doc.n3', _)).
+	once(save_doc).
 
 dg :-
 	doc_dump,gtrace.

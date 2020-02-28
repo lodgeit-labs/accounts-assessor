@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import threading, json, time, click, subprocess, shlex, shutil, ntpath, os
-
+import rdflib
 
 
 class AtomicInteger():
@@ -91,12 +91,11 @@ def call_prolog(msg, dev_runner_options=[], prolog_flags='true', make_new_tmp_di
 	msg['params']["request_uri"] = request_uri
 	msg['params']["rdf_namespace_base"] = rdf_namespace_base
 
-	if make_new_tmp_dir:
+	if True:#make_new_tmp_dir:
 		msg['params']['tmp_directory_name'],tmp_path = create_tmp()
 		with open(os.path.join(tmp_path, 'info.txt'), 'w') as info:
 			info.write(str(msg))
 			info.write('\n')
-
 
 
 
@@ -187,10 +186,25 @@ def call_prolog(msg, dev_runner_options=[], prolog_flags='true', make_new_tmp_di
 	print(stdout_data)
 	print("end of result from prolog.")
 	try:
-		return msg['params']['tmp_directory_name'], json.loads(stdout_data)
+		rrr = json.loads(stdout_data)
+		# trig_fn = report_by_key(response, 'doc.trig')
+		trig_fn = tmp_path + '/doc.trig'
+		g=rdflib.graph.ConjunctiveGraph()
+		g.load(trig_fn,format='trig')
+		for i in g.quads(None):
+			print(i)
+
+		return msg['params']['tmp_directory_name'], rrr
+
 	except json.decoder.JSONDecodeError as e:
 		print(e)
 		return {'status':'error'}
+
+
+def report_by_key(response, key):
+	for i in response['reports']:
+		if i['key'] == key:
+			return i['val']['url']
 
 
 def git(Suffix = ""):

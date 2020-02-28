@@ -117,10 +117,7 @@ process_request2 :-
 
 
 make_doc_dump_report :-
-	Fn = 'doc.n3',
-	save_doc(Fn, Url),
-	add_report_file(Fn, Fn, Url).
-
+	save_doc.
 
 json_report_entries(Files3) :-
 	findall(
@@ -230,17 +227,6 @@ load_request_rdf(loc(absolute_path, Rdf_Tmp_File_Path), G) :-
 	]),
 	findall(_, (rdf(S,P,O),format(user_error, 'raw_rdf:~q~n',(S,P,O))),_),
 	true.
-
-make_rdf_report :-
-	Title = 'response.n3',
-	doc_to_rdf(Rdf_Graph),
-	report_file_path(loc(file_name, Title), Url, loc(absolute_path,Path)),
-	add_report_file(Title, Title, Url),
-	Url = loc(absolute_url, Url_Value),
-	rdf_save_turtle(Path, [graph(Rdf_Graph), sorted(true), base(Url_Value), canonize_numbers(true), abbreviate_literals(false), prefixes([rdf,rdfs,xsd,l,livestock])]).
-
-
-
 
 process_rdf_request :-
 	debug(requests, "process_rdf_request~n", []),

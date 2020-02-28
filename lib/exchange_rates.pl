@@ -122,7 +122,7 @@ fetched_exchange_rate(Day, Src_Currency, Dest_Currency, Exchange_Rate) :-
 	exchange_rates(Day, Exchange_Rates),
 	member(Src_Currency = Src_Exchange_Rate, Exchange_Rates),
 	member(Dest_Currency = Dest_Exchange_Rate, Exchange_Rates),
-	Exchange_Rate = Dest_Exchange_Rate / Src_Exchange_Rate.
+	{Exchange_Rate = Dest_Exchange_Rate / Src_Exchange_Rate}.
 
 /* currency to itself has exchange rate 1 */
 best_nonchained_exchange_rates(_, _, Src_Currency, Src_Currency, [(Src_Currency, 1)]).

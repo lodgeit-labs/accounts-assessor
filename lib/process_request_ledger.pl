@@ -205,7 +205,7 @@ other_reports(
 	make_json_report(Structured_Reports, reports_json).
 
 make_gl_viewer_report :-
-	format(user_error, 'make_gl_viewer_report..~n',[]),
+	%format(user_error, 'make_gl_viewer_report..~n',[]),
 	Viewer_Dir = 'general_ledger_viewer',
 	absolute_file_name(my_static(Viewer_Dir), Src, [file_type(directory)]),
 	report_file_path(loc(file_name, Viewer_Dir), loc(absolute_url, Dir_Url), loc(absolute_path, Dst)),
@@ -219,7 +219,7 @@ make_gl_viewer_report :-
 	%format(user_error, 'shell.~n',[]),
 	atomic_list_concat([Dir_Url, '/link.html'], Full_Url),
 	add_report_file('gl_html', 'GL viewer', loc(absolute_url, Full_Url)),
-	format(user_error, 'make_gl_viewer_report done.~n',[]),
+	%format(user_error, 'make_gl_viewer_report done.~n',[]),
 	true.
 
 investment_reports(Static_Data, Ir) :-
