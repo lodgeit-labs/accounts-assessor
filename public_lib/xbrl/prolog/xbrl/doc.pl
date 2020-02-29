@@ -270,10 +270,6 @@ docm(S,P,O,G) :-
 member
 */
 
-exists(I) :-
-	docm(I, exists, now);
-	once((gensym(bn, I),doc_add(I, exists, now))).
-
 
 has(S,P,O) :-
 	(	doc(S,P,O2)
@@ -284,29 +280,10 @@ doc_new_uri(Uri) :-
 	doc_new_uri(Uri, '').
 
 doc_new_uri(Uri, Postfix) :-
-	%tmp_file_url(loc(file_name, 'response.n3'), D),
+	result(R),
+	doc(R, l:has_result_data_uri_base, Result_data_uri_base),
 	gensym('#bnx', Uri0),
-	atomic_list_concat([Uri0, '_', Postfix], Uri).
-	/*,
-	atomic_list_concat([D, '#', Uid], Uri)*/
-	/*,
-	% this is maybe too strong because it can bind with variable nodes
-	assertion(\+doc(Uri,_,_)),
-	assertion(\+doc(_,_,Uri))
-	*/
-
-
-/*
-?- make,doc_clear, doc_core:exists(First), has(First, num, 1), has(First, field, F1), doc_core:exists(Last), has(Last, num, N2), call_with_depth_limit(has(Last, field, "foo"), 15, Depth).
-First = Last, Last = bn11,
-F1 = "foo",
-N2 = 1,
-Depth = 14 ;
-First = bn11,
-Last = bn12,
-Depth = 16.
-?-
-*/
+	atomic_list_concat([Result_data_uri_base, Uri0, '_', Postfix], Uri).
 
 
 /*

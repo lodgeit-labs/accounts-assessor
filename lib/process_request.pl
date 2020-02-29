@@ -66,14 +66,17 @@ process_request_rpc_calculator(Dict) :-
 
 	Request_uri = Dict.request_uri,
 	'='(Result_uri, $>atomic_list_concat([Dict.rdf_namespace_base, 'results/', Dict.tmp_directory_name])),
-	'='(Request_data_uri_base, $>atomic_list_concat([Result_uri, '/'])),
+	'='(Result_data_uri_base, $>atomic_list_concat([Result_uri, '/'])),
+	'='(Request_data_uri_base, $>atomic_list_concat([Request_uri, '/'])),
 	'='(Request_data_uri, $>atomic_list_concat([Request_data_uri_base, 'request'])),
 
+	maplist(doc_add(Result_uri, l:rdf_explorer_base), Dict.rdf_explorer_bases),
 	doc_add(Request_uri, rdf:type, l:'Request'),
 	doc_add(Request_uri, l:has_result, Result_uri),
 	doc_add(Request_uri, l:has_request_data, Request_data_uri),
 	doc_add(Request_uri, l:has_request_data_uri_base, Request_data_uri_base),
 	doc_add(Result_uri, rdf:type, l:'Result'),
+	doc_add(Result_uri, l:has_result_data_uri_base, Result_data_uri_base),
 
 	findall(
 		loc(absolute_path, P),
