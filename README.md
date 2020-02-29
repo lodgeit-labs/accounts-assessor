@@ -68,6 +68,9 @@ Run a single testcase:
 Run the server:
 `swipl -s ../lib/run_simple_server.pl`
 
+Run the triplestore:
+`/home/sfi/ag/bin/agraph-control --config /home/sfi/ag/lib/agraph.cfg start`
+
 Run the daemon:
 `../lib/update_demo-fast.sh`
 

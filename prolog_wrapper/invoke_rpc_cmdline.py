@@ -2,7 +2,7 @@
 
 import threading, json, time, click, subprocess, shlex, shutil, ntpath, os
 import rdflib
-
+import rdflib.plugins.serializers.nquads
 
 class AtomicInteger():
 	""" https://stackoverflow.com/questions/23547604/python-counter-atomic-increment """
@@ -189,17 +189,33 @@ def call_prolog(msg, dev_runner_options=[], prolog_flags='true', make_new_tmp_di
 	try:
 		rrr = json.loads(stdout_data)
 		# trig_fn = report_by_key(response, 'doc.trig')
-		trig_fn = tmp_path + '/doc.trig'
-		g=rdflib.graph.ConjunctiveGraph()
-		g.load(trig_fn,format='trig')
-		for i in g.quads(None):
-			print(i)
-
+		#trig_fn = tmp_path + '/doc.trig'
+		#g=rdflib.graph.ConjunctiveGraph()
+		#g.load(trig_fn,format='trig')
+		put_triples_into_triplestore(tmp_path)
 		return msg['params']['tmp_directory_name'], rrr
-
 	except json.decoder.JSONDecodeError as e:
 		print(e)
 		return {'status':'error'}
+
+
+def agc():
+	#from franz.openrdf.repository.repository import Repository
+	# from franz.openrdf.sail.allegrographserver import AllegroGraphServer
+	from franz.openrdf.connect import ag_connect
+	return ag_connect('a', host='localhost', port='10036', user=os.environ['AGRAPH_USER'],
+				   password=os.environ['AGRAPH_PASS'])
+
+
+
+def put_triples_into_triplestore(tmp_path):
+	trig_fn = tmp_path + '/doc.trig'
+	nq_fn = tmp_path + '/doc.nq'
+	g=rdflib.graph.ConjunctiveGraph()
+	g.load(trig_fn, format='trig')
+	g.serialize(nq_fn, format='nquads')
+	c = agc()
+	c.addFile(nq_fn)
 
 
 def report_by_key(response, key):
@@ -239,3 +255,43 @@ if __name__ == '__main__':
 
 
 #how to control debugging?
+
+
+
+
+
+
+
+
+
+	#for i in g.quads(None):
+	#		print(i)
+"""sparql_store = SPARQLUpdateStore()
+	sparql_store.open((None,
+	sparql_graph = rdflib.graph.ConjunctiveGraph()
+	for spog in g.quads(None):
+		sparql_graph.
+
+		from rdflib.plugins.stores.sparqlstore import SPARQLUpdateStore
+	s=SPARQLUpdateStore()
+	from SPARQLWrapper import BASIC
+	s.setHTTPAuth(BASIC)
+	s.setCredentials()
+	queryString = "SELECT * WHERE { ?s ?p ?o. }"
+	s.open(('http://localhost:10036/#/repositories/a',)*2)
+	s.query(queryString)
+		"""
+def ag_query():
+	c = agc()
+	from franz.openrdf.query.query import QueryLanguage
+	query_string = "SELECT ?s ?p ?o  WHERE {?s ?p ?o .}"
+	tuple_query = c.prepareTupleQuery(QueryLanguage.SPARQL, query_string)
+	result = tuple_query.evaluate()
+	print(result)
+	with result:
+		for binding_set in result:
+			s = binding_set.getValue("s")
+			p = binding_set.getValue("p")
+			o = binding_set.getValue("o")
+			print("%s %s %s" % (s, p, o))
+
