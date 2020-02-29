@@ -9,6 +9,13 @@
 
 process_request_rpc_cmdline :-
 	json_read_dict(user_input, Dict),
+	process_request_rpc_cmdline1(Dict).
+
+process_request_rpc_cmdline_json_text(String) :-
+	string_to_json_dict(String, Dict),
+	process_request_rpc_cmdline1(Dict).
+
+process_request_rpc_cmdline1(Dict) :-
 	catch_with_backtrace(
 		(
 			process_request_rpc_cmdline2(Dict)

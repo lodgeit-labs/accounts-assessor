@@ -1,12 +1,10 @@
 import json, ntpath, os, sys
-
 from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import render
 from django.http import HttpResponseRedirect, JsonResponse, HttpResponse
 from django.shortcuts import redirect
 from django.http.request import QueryDict
-
 from endpoints_gateway.forms import ClientRequestForm
 
 
@@ -14,6 +12,8 @@ from endpoints_gateway.forms import ClientRequestForm
 sys.path.append('../prolog_wrapper')
 # for running under mod_wsgi
 sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../../prolog_wrapper')))
+
+
 
 if 'USE_CELERY' in os.environ:
 	import services
@@ -73,6 +73,7 @@ def upload(request):
 						"tmp_directory_name": tmp_directory_name,
 						"request_files": request_files_in_tmp}
 			}
+
 			try:
 				new_tmp_directory_name,_result_json = services.call_prolog(msg, prolog_flags=prolog_flags,make_new_tmp_dir=True)
 			except json.decoder.JSONDecodeError as e:
@@ -85,24 +86,25 @@ def upload(request):
 		form = ClientRequestForm()
 	return render(request, 'upload.html', {'form': form})
 
-def test(request):
-	return {"a":AAA}
 
-#    the chat endpoints
+
+#  ┏━╸╻ ╻┏━┓╺┳╸
+#  ┃  ┣━┫┣━┫ ┃
+#  ┗━╸╹ ╹╹ ╹ ╹
 
 def sbe(request):
-	return json_call({
+	return json_prolog_rpc_call({
 		"method": "sbe",
 		"params": json.loads(request.body)
 	})
 
 def residency(request):
-	return json_call({
+	return json_prolog_rpc_call({
 		"method": "residency",
 		"params": json.loads(request.body)
 	})
 
-def json_call(msg):
+def json_prolog_rpc_call(msg):
 	try:
 		return JsonResponse(services.call_prolog(msg))[1]
 	except json.decoder.JSONDecodeError as e:
@@ -110,3 +112,15 @@ def json_call(msg):
 
 
 #import IPython; IPython.embed()
+
+
+
+"""
+		goes
+		into
+		local
+		triplestore
+		somehow:
+
+		we want hassle-free data exchange between microservices, but speed is a big concern, so probably the store should be in the prolog process. But the process may not be running at this point. So here, we maybe stick this data into rdflib, and pass that along, then possibly invoke a series of commands on prolog, the first inserting the data into it, the second executing the query
+"""

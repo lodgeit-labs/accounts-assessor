@@ -349,45 +349,7 @@
 }
     ]
   },
-  "cf": [
-     {
-  "account":"CashAndCashEquivalents at date(2018,1,1)",
-  "balance": [ {"credit":100, "debit":0, "unit":"CHF"} ],
-  "child_sheet_entries": [],
-  "transactions_count":1
-},
-     {
-  "account":"CashAndCashEquivalents",
-  "balance":"#bnx36_",
-  "child_sheet_entries": [
-     {
-  "account":"Banks",
-  "balance":"#bnx35_",
-  "child_sheet_entries": [
-     {
-  "account":"BanksCHF_Bank",
-  "balance":"#bnx34_",
-  "child_sheet_entries": [ {
-  "account":"Currency movement",
-  "balance":"#bnx33_",
-  "child_sheet_entries": [],
-  "transactions_count":123456789
-} ],
-  "transactions_count":123456789
-}
-  ],
-  "transactions_count":123456789
-}
-  ],
-  "transactions_count":123456789
-},
-     {
-  "account":"CashAndCashEquivalents at date(2018,12,30)",
-  "balance": [ {"credit":100, "debit":0, "unit":"CHF"} ],
-  "child_sheet_entries": [],
-  "transactions_count":1
-}
-  ],
+  "cf": ["#bnx45_" ],
   "crosschecks": {
     "results": [
       {

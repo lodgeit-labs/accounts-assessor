@@ -335,71 +335,7 @@
 }
     ]
   },
-  "cf": [
-     {
-  "account":"CashAndCashEquivalents at date(2015,7,1)",
-  "balance": [],
-  "child_sheet_entries": [],
-  "transactions_count":0
-},
-     {
-  "account":"CashAndCashEquivalents",
-  "balance":"#bnx36_",
-  "child_sheet_entries": [
-     {
-  "account":"Banks",
-  "balance":"#bnx35_",
-  "child_sheet_entries": [
-     {
-  "account":"BanksNationalAustraliaBank",
-  "balance":"#bnx34_",
-  "child_sheet_entries": [
-     {
-  "account":"Financing activities",
-  "balance":"#bnx33_",
-  "child_sheet_entries": [
-     {
-  "account":"increases",
-  "balance":"#bnx32_",
-  "child_sheet_entries": [
-     {
-  "account": [
-    "date(2017,7,1)",
-    "'Introduce_Capital - incoming money'",
-    "a(href='#bnx27_',[small(⍰)])"
-  ],
-  "balance":"#bnx30_",
-  "child_sheet_entries": [],
-  "transactions_count":123456789
-}
-  ],
-  "transactions_count":123456789
-}
-  ],
-  "transactions_count":123456789
-},
-     {
-  "account":"Currency movement",
-  "balance":"#bnx31_",
-  "child_sheet_entries": [],
-  "transactions_count":123456789
-}
-  ],
-  "transactions_count":123456789
-}
-  ],
-  "transactions_count":123456789
-}
-  ],
-  "transactions_count":123456789
-},
-     {
-  "account":"CashAndCashEquivalents at date(2018,6,30)",
-  "balance": [ {"credit":0, "debit":200, "unit":"AUD"} ],
-  "child_sheet_entries": [],
-  "transactions_count":1
-}
-  ],
+  "cf": ["#bnx49_" ],
   "crosschecks": {
     "results": [
       {

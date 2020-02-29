@@ -42,10 +42,8 @@ create_tmp_directory(Dir_Name) :-
 
 symlink_last_to_current(loc(absolute_path, Path)) :-
 	resolve_specifier(loc(specifier, my_tmp('last')), loc(_, Last)),
-	atomic_list_concat(['rm -f ', Last], Rm_Cmd),
-	shell(Rm_Cmd, _),
-	atomic_list_concat(['ln -s ', Path, ' ', Last], Ln_Cmd),
-	shell(Ln_Cmd, _).
+	shell4(['rm', '-f', Last], _),
+	shell4(['ln', '-s', Path, Last], _).
 
 /*
   to be used instead of absolute_file_name for request-specific tmp files
@@ -75,8 +73,7 @@ make_zip :-
 	atomic_list_concat([Tmp_Dir_Path, '.zip'], Zip_Fn),
 	atomic_list_concat([Tmp_Dir_Path, '/'], Tmp_Dir_With_Slash),
 	archive_create(Zip_Fn, [Tmp_Dir_With_Slash], [format(zip), directory(Tmp)]),
-	atomic_list_concat(['mv ', Zip_Fn, ' ', Tmp_Dir_With_Slash], Cmd),
-	shell(Cmd, _).
+	shell4(['mv', Zip_Fn, Tmp_Dir_With_Slash], _).
 
 copy_request_files_to_tmp(Paths, Names) :-
 	maplist(copy_request_file_to_tmp, Paths, Names).

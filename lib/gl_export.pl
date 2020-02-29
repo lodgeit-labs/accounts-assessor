@@ -1,9 +1,9 @@
-/*+
-+this could be useful if we parse the prolog code and collect o's in one place so that they're all visible when gtracing, and we visualize the process
-+       o(gl_export_rounding(final), round_term(2, Report_Dict0, Report_Dict)).
-+could be just:
-+       o(gl_export_rounding(final))). if its a unique operation on the global store
-+*/
+/*
+
+	generate json used by general_ledger_viewer
+
+*/
+
 
 gl_export(Sd, Processed_S_Transactions, Transactions0, Livestock_Transactions, Report_Dict) :-
 	/* Outputs list is lists of generated transactions, one list for each s_transaction */
@@ -64,3 +64,16 @@ running_balance_tx_enrichment(Tx, Tx_New) :-
 trial_balance_ok(Trial_Balance_Section) :-
 	Trial_Balance_Section = entry(_, Balance, [], _, _),
 	maplist(coord_is_almost_zero, Balance).
+
+
+
+
+
+
+
+/*+
++this could be useful if we parse the prolog code and collect o's in one place so that they're all visible when gtracing, and we visualize the process
++       o(gl_export_rounding(final), round_term(2, Report_Dict0, Report_Dict)).
++could be just:
++       o(gl_export_rounding(final))). if its a unique operation on the global store
++*/

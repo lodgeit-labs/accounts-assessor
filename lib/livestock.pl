@@ -1,3 +1,7 @@
+
+livestock_verbs([l:livestock_purchase, l:livestock_sale]).
+
+
 /*
 +
 +

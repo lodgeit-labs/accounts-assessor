@@ -134,6 +134,7 @@ add(Open_List, Item) :-
 		var(M),
 		Item = M)).
 
+/* produce L with first min(N,length(Src)) elements from Src, */
 take(Src, N, L) :-
    when(ground(N+Src), findall(E, (nth1(I,Src,E), I =< N), L)).
 

@@ -54,9 +54,8 @@ fetch_exchange_rates(Date, Exchange_Rates) :-
 	format(user_error, '~w ...', [Query_Url]),
 	catch(
 		http_open(Query_Url, Stream, []),
-		% this will happen for dates in not found in their db, like too historical.
+		% this will happen for dates not found in their db, like too historical.
 		% we don't call this predicate for future dates.
-		% note that connection error or similar should still propagate and halt the program.
 		error(existence_error(_,_),_),
 		(
 			assert_rates(Date, []),
@@ -304,14 +303,26 @@ is_exchangeable_into_request_bases(Table, Day, Src_Currency, Bases) :-
 %                ||     ||
 
 
-extract_exchange_rates(Dom, Start_Date, End_Date, Default_Currency, Exchange_Rates) :-
+extract_exchange_rates(
+	Cost_Or_Market,
+	Dom,
+	S_Transactions,
+	/* Start_Date, End_Date to substitute "opening", "closing" */
+	Start_Date, End_Date,
+	Default_Currency,
+	/*out*/ Exchange_Rates2)
+:-
 	/*If an investment was held prior to the from date then it MUST have an opening market value if the reports are expressed in.market rather than cost.You can't mix market value and cost in one set of reports. One or the other.2:27 AMi see. Have you thought about how to let the user specify the method?Andrew, 2:31 AMMarket or Cost. M or C. Sorry. Never mentioned it to you.2:44 AMyou mentioned the different approaches, but i ended up assuming that this would be best selected by specifying or not specifying the unitValues. I see there is a field for it already in the excel templateAndrew, 2:47 AMCost value per unit will always be there if there are units of anything i.e. sheep for livestock trading or shares for InvestmentsAndrew, 3:04 AMBut I suppose if you do not find any market values then assume cost basis.*/
 	findall(Unit_Value_Dom, xpath(Dom, //reports/balanceSheetRequest/unitValues/unitValue, Unit_Value_Dom), Unit_Value_Doms),
 	maplist(extract_exchange_rate(Start_Date, End_Date), Unit_Value_Doms, Exchange_Rates),
 	maplist(missing_dst_currency_is_default_currency(Default_Currency), Exchange_Rates),
 	%maplist(missing_dst_currency_is_investment_currency(S_Transactions, Default_Currency), Exchange_Rates),
 	maplist(dst_currency_must_be_specified, Exchange_Rates),
-	maplist(assert_ground, Exchange_Rates).
+	maplist(assert_ground, Exchange_Rates),
+	(	Cost_Or_Market = cost
+	->	filter_out_market_values(S_Transactions, Exchange_Rates, Exchange_Rates2)
+	;	Exchange_Rates2 = Exchange_Rates).
+
 
 missing_dst_currency_is_default_currency(_, Exchange_Rate) :-
 	exchange_rate_dest_currency(Exchange_Rate, Dst),

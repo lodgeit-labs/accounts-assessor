@@ -22,6 +22,8 @@
 'https://rdf.lodgeit.net.au/v1/transactions#').
 :- rdf_register_prefix(s_transactions,
 'https://rdf.lodgeit.net.au/v1/s_transactions#').
+:- rdf_register_prefix(report_entries,
+'https://rdf.lodgeit.net.au/v1/report_entries#').
 /*
 @prefix depr_ui: <https://rdf.lodgeit.net.au/v1/calcs/depr/ui#> .
 @prefix ic_ui: <https://rdf.lodgeit.net.au/v1/calcs/ic/ui#> .
@@ -98,7 +100,7 @@ dump :-
 doc_clear :-
 	doc_trace0(doc_clear),
 	b_setval(the_theory,_{}),
-	b_setval(the_theory_nonground,_),
+	b_setval(the_theory_nonground,[]),
 	doc_set_default_graph(default).
 
 doc_set_default_graph(G) :-
@@ -138,8 +140,11 @@ doc_add(S,P,O,G) :-
 /*
 assumption: only O's are allowed to be non-atoms
 */
+
 addd(S2,P2,O2,G2) :-
-	ground(spog(S2,P2,O2,G2)),atom(S2),atom(P2),atom(G2),
+%	(\+ground(addd(S2,P2,O2,G2)) -> gtrace ; true),
+	atom(S2),atom(P2),atom(G2),
+
 	% get the_theory global
 	b_getval(the_theory,Ss),
 	%, ie a dict from subjects to pred-dicts
@@ -164,19 +169,46 @@ addd(S2,P2,O2,G2) :-
 		)
 	),
 
+/*
 	(	Os = Gs.get(G2)
-	->	true
+	->	(
+			append(Os, [O2], Os2),
+			Gs2 = Gs.put(G2, Os2),
+			b_set_dict(P2, Ps2, Gs2)
+		)
 	;	(
-			Os = _New_Rol,
-			Gs2 = Gs.put(G2, Os),
-			b_set_dict(P2, Ps2, Gs2))),
-	rol_add(O2, Os).
+			Gs2 = Gs.put(G2, [O2]),
+			b_set_dict(P2, Ps2, Gs2)
+		)
+	).
+*/
+
+	(	Os = Gs.get(G2)
+    ->      true
+	;	(
+            Os = _New_Rol,
+            Gs2 = Gs.put(G2, Os),
+            b_set_dict(P2, Ps2, Gs2))),
+    rol_add(O2, Os).
+
 
 addd(S2,P2,O2,G2) :-
-	\+((ground(spog(S2,P2,O2,G2)),atom(S2),atom(P2),atom(G2))),
 	X = spog(S2,P2,O2,G2),
-	rol_add(X, $>b_getval(the_theory_nonground)).
+	\+((atom(S2),atom(P2),atom(G2))),
+	%format(user_error, 'ng:~q~n', [X]),
+	b_getval(the_theory_nonground, Ng),
+	append(Ng, [X], Ng2),
+	b_setval(the_theory_nonground, Ng2).
+	%rol_add(X, $>).
 
+/*
+dddd(Spog, X) :-
+	Spog = spog(S2,P2,O2,G2),
+	(atom(S2);var(S2)),
+	(atom(P2);var(P2)),
+	(atom(G2);var(G2)),
+	member(O2, X.get(S2).get(P2).get(G2)).
+*/
 dddd(Spog, X) :-
 	Spog = spog(S2,P2,O2,G2),
 	(atom(S2);var(S2)),
@@ -184,8 +216,9 @@ dddd(Spog, X) :-
 	(atom(G2);var(G2)),
 	rol_member(O2, X.get(S2).get(P2).get(G2)).
 
+
 dddd(Spog, _X) :-
-	rol_member(Spog, $>b_getval(the_theory_nonground)).
+	member(Spog, $>b_getval(the_theory_nonground)).
 
 doc_assert(S,P,O,G) :-
 	doc_add(S,P,O,G).
@@ -441,13 +474,13 @@ add_to_rdf((X,Y,Z,G)) :-
 
 /*:- comment(lib:doc_to_rdf_all_graphs, "if necessary, modify to not wipe out whole rdf database and to check that G doesn't already exist */
 
-doc_to_rdf_all_graphs :-
+doc_to_rdf_all_graphs :- true. /*
 	rdf_retractall(_,_,_,_),
 	findall(_,(
 			docm(X,Y,Z,G),
 			add_to_rdf((X,Y,Z,G))
 		),_
-	).
+	).*/
 
 save_doc(/*-*/Fn, /*+*/Url) :-
 	(	report_file_path(loc(file_name, Fn), Url, loc(absolute_path,Path))
@@ -554,6 +587,14 @@ doc_list_member(M, L) :-
 
 doc_list_items(L, Items) :-
 	findall(Item, doc_list_member(Item, L), Items).
+
+doc_add_list([H|T], Uri) :-
+	doc_new_uri(Uri),
+	doc_add(Uri, rdf:first, H),
+	doc_add_list(T, Uri2),
+	doc_add(Uri, rdf:rest, Uri2).
+
+doc_add_list([], rdf:nil).
 
 
 doc_value(S, P, V) :-
@@ -697,4 +738,70 @@ we could control this with a thread select'ing some unix socket
 */
 /*doc_dumping_enabled :-
 	current_prolog_flag(doc_dumping_enabled, true).
+*/
+
+
+
+
+
+/*
+
+diff from rol_ version. This was maybe even faster, and prolly uses a lot less memory?
+
+@@ -169,12 +169,16 @@ addd(S2,P2,O2,G2) :-
+        ),
+
+        (       Os = Gs.get(G2)
+-       ->      true
++       ->      (
++                       append(Os, [O2], Os2),
++                       Gs2 = Gs.put(G2, Os2),
++                       b_set_dict(P2, Ps2, Gs2)
++               )
+        ;       (
+-                       Os = _New_Rol,
+-                       Gs2 = Gs.put(G2, Os),
+-                       b_set_dict(P2, Ps2, Gs2))),
+-       rol_add(O2, Os).
++                       Gs2 = Gs.put(G2, [O2]),
++                       b_set_dict(P2, Ps2, Gs2)
++               )
++       ).
+
+ addd(S2,P2,O2,G2) :-
+        \+((ground(spog(S2,P2,O2,G2)),atom(S2),atom(P2),atom(G2))),
+@@ -186,7 +190,7 @@ dddd(Spog, X) :-
+        (atom(S2);var(S2)),
+        (atom(P2);var(P2)),
+        (atom(G2);var(G2)),
+-       rol_member(O2, X.get(S2).get(P2).get(G2)).
++       member(O2, X.get(S2).get(P2).get(G2)).
+*/
+
+
+
+
+/*
+
+version trying to use swipl rdf db, 4x slower than dicts (and with non-backtracking semantics)
+
+can_go_into_rdf_db(spog(S2,P2,O2,G2)) :-
+	atom(S2),atom(P2),atom(G2),atomic(O2).
+
+addd(S2,P2,O2,G2) :-
+	can_go_into_rdf_db(spog(S2,P2,O2,G2)),
+	rdf_assert(S2,P2,O2,G2).
+
+addd(S2,P2,O2,G2) :-
+	X = spog(S2,P2,O2,G2),
+	\+can_go_into_rdf_db(X),
+	rol_add(X, $>b_getval(the_theory_nonground)).
+
+dddd(Spog, _X) :-
+	Spog = spog(S2,P2,O2,G2),
+	(atom(S2);var(S2)),
+	(atom(P2);var(P2)),
+	(atom(G2);var(G2)),
+	(atomic(O2);var(O2)),
+	rdf(S2,P2,O2,G2).
 */

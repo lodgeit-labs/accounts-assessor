@@ -67,3 +67,8 @@ term_dict(
 /*
 with_cost_per_unit(...,rounded_cost)(rdiv cost))
 */
+
+/*
+also research:
+https://www.swi-prolog.org/pldoc/man?section=termtojson
+*/

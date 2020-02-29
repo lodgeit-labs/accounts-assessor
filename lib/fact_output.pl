@@ -1,10 +1,3 @@
-
-%:- rdet(format_balance/11).
-%:- rdet(format_balances/11).
-%:- rdet(pesseract_style_table_rows/4).
-%:- rdet(format_report_entries/8).
-
-
 format_report_entries(_, _, _, _, _, _, [], []).
 
 format_report_entries(Format, Max_Detail_Level, Accounts, Indent_Level, Report_Currency, Context, Entries, [Xml0, Xml1, Xml2]) :-
@@ -73,30 +66,95 @@ pesseract_style_table_rows(
 	Entries,
 	[Lines|Lines_Tail]
 ) :-
-	[entry(Name, Balances, Children, _, Misc)|Entries_Tail] = Entries,
+	[Entry|Entries_Tail] = Entries,
+	report_entry_name(Entry, Name),
+	report_entry_total_vec(Entry, Balances),
+	report_entry_children(Entry, Children),
+
 	/*render child entries*/
-	pesseract_style_table_rows(Accounts, Report_Currency, Children, Children_Lines),
+	pesseract_style_table_rows(Accounts, Report_Currency, Children, Children_Rows),
 	/*render balance*/
 	maybe_balance_lines(Accounts, Name, Report_Currency, Balances, Balance_Lines),
-	(
-		Children_Lines = []
-	->
-		(
-			findall(td(M),member(M, Misc),Misc_Tds),
-			Lines = [tr([td(Name), td(Balance_Lines)|Misc_Tds])]
-			
-		)
-	;
-		(
-			flatten([tr([td([b(Name)])]), Children_Lines, [tr([td([align="right"],[Name]), td(Balance_Lines)])]], Lines)
-
-		)		
-	),
+	(	Children_Rows = []
+	->	entry_row_childless(Name, Balance_Lines, Entry, Lines)
+	;	entry_row_childful(Name, Entry, Children_Rows, Balance_Lines, Lines)),
 	/*recurse on Entries_Tail*/
 	pesseract_style_table_rows(Accounts, Report_Currency, Entries_Tail, Lines_Tail).
 
+entry_row_childless(Name, Balance_Lines, Entry, Lines) :-
+	entry_row(cols{0:Name,1:Balance_Lines}, Entry, report_entries:single, Lines).
+
+entry_row_childful(Name, Entry, Children_Rows, Balance_Lines, Lines) :-
+	Lines =
+	[
+		$>entry_row(cols{0:b([Name])}, Entry, report_entries:header),
+		Children_Rows,
+		$>entry_row(cols{0:td([align="right"],[Name]),1:Balance_Lines}, Entry, report_entries:footer)
+	].
+
+merge_dicts(D1, D2, D3) :-
+	dict_pairs(D1, Tag, P1),
+	dict_pairs(D2, Tag, P2),
+	append(P1, P2, P3),
+	dict_pairs(D3, Tag, P3).
+
+miscs_dict(Entry, Type, Dict) :-
+	findall(
+		Col_Pos-Item,
+		(
+			between(1,5,C),
+			Col_Pos is C + 1,
+			entry_misc_item_for_column(Entry, Type, C, Item)
+		),
+		Pairs),
+	dict_pairs(Dict, cols, Pairs).
+
+entry_misc_item_for_column(Entry, Type, Column, Item) :-
+	doc(Entry, report_entries:misc, D1),
+	doc(D1, report_entries:column, Column),
+	doc(D1, report_entries:misc_type, $>rdf_global_id(Type)),
+	doc(D1, report_entries:value, Item).
+
+entry_row(Cols0, Entry, Type, Row) :-
+	%(atom(Entry) -> gtrace ; true),
+	miscs_dict(Entry, Type, Miscs_Dict),
+	merge_dicts(Cols0, Miscs_Dict, Cols),
+	cols_dict_to_row(Cols, Row).
+
+cols_dict_to_row(Cols, tr(Tds)) :-
+	dict_pairs(Cols, _, Pairs),
+	findall(I,cols_dict_to_row_helper(Pairs, I), Tds).
+
+cols_dict_to_row_helper(Pairs, I) :-
+	between(0,6,C),
+	cols_dict_to_row_helper2(C, Pairs, I).
+
+cols_dict_to_row_helper2(C, Pairs, I) :-
+	member(C-Item, Pairs),
+	cols_dict_to_row_helper3(Item, I).
+
+cols_dict_to_row_helper2(C, Pairs, td([])) :-
+	\+member(C-_, Pairs),
+	there_is_item_after(C, Pairs).
+
+cols_dict_to_row_helper3(Item, I) :-
+	(	Item =.. [td|_]
+	->	I = Item
+	;	(
+			I = td(Item2),
+			flatten([Item], Item2)
+		)).
 
 
+
+there_is_item_after(C, Pairs) :-
+	findall(X,
+		(
+			member(C2-X, Pairs),
+			C2 > C
+		),
+		Items),
+	Items \= [].
 
 /*
 maybe_balance_lines(
@@ -107,7 +165,7 @@ maybe_balance_lines(
 	Balance_Lines		% List ...
 ) 
 */
-			
+			/*not much of a maybe anymore?*/
 maybe_balance_lines(
 	Accounts,
 	Name,
@@ -116,15 +174,10 @@ maybe_balance_lines(
 	Balance_Lines
 ) :-
 	account_normal_side(Accounts, Name, Normal_Side),
-	(
-		Balances = []
-	->
-		/* force-display it */
-		format_balance(html, Report_Currency, '', Name, Normal_Side, Balances, Balance_Lines)
-	;
-		/* if not, let the logic omit it entirely */
-		format_balances(html, Report_Currency, '', Name, Normal_Side, Balances, Balance_Lines)
-	).
+	/* force-display empty balance */
+	(	Balances = []
+	->	format_balance(html, Report_Currency, '', Name, Normal_Side, [], Balance_Lines)
+	;	format_balances(html, Report_Currency, '', Name, Normal_Side, Balances, Balance_Lines)).
 
 
 
