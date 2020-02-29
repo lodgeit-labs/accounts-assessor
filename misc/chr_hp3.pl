@@ -1,9 +1,10 @@
-:- module(theory_hp_arrangement, []).
+:- multifile chr_fields/2.
 
-:- chr_constraint
-	fact/3,
-	rule/0.
-
+:- ['./solver'].
+:- ['./theory/date'].
+:- ['./theory/object'].
+:- ['./theory/hp_arrangement'].
+:- ['./theory/list'].
 
 chr_fields(hp_arrangement, [
 	_{
@@ -126,12 +127,12 @@ chr_fields(hp_installment, [
 	<=>
 	\+find_fact(rule1, fired_on, [fact(HP, a, hp_arrangement)])
 	|
+	debug(chr_hp_arrangement, "CHR: chr_hp_arrangement(~w):~n", [HP]),
 	fact(rule1, fired_on, [fact(HP, a, hp_arrangement)]),
 	add_constraints([
-
-	% relate HP parameters to first and last installments
-	% Note that all of these HP parameters are redundant and just referencing values at the endpoints of the HP installments "curve"
+	/* Note that all of these HP parameters are redundant and just referencing values at the endpoints of the HP installments "curve" */
 	% this assumes that an installment necessarily exists.
+
 	First_Installment 			= HP:installments:first:value,
 	Last_Installment 			= HP:installments:last:value,
 	HP:cash_price 				= First_Installment:opening_balance,
@@ -142,14 +143,14 @@ chr_fields(hp_installment, [
 
 	% special formula: repayment amount
 	% the formula doesn't account for balloons/submarines and other variations
-	% these are just giving abbreviated variables to use in the special formula:
-	P0 = HP:cash_price,    			% P0 = principal / balance at t = 0
-	PN = HP:final_balance, 			% PN = principal / balance at t = N
+	P0 = HP:cash_price,    		% P0 = principal / balance at t = 0
+	PN = HP:final_balance, 		% PN = principal / balance at t = N
 	IR = HP:interest_rate,
 	R = HP:repayment_amount,
 	N = HP:number_of_installments,
 	{R = (P0 * (1 + (IR/12))^N - PN)*((IR/12)/((1 + (IR/12))^N - 1))}
 	]),
+	debug(chr_hp_arrangement, "CHR: hp_arrangement(~w): Success.~n", [HP]),
 	rule.
 
 
@@ -180,22 +181,21 @@ chr_fields(hp_installment, [
 
 
 	/* calculating installment period from index
-	% note adding: must be same units; //12 is converting units of months to units of years,
+	note adding: must be same units; //12 is converting units of months to units of years,
 	% with approximation given by rounding down, which is done because the remainder is given
 	% as a separate quantity
 
-	 % taking mod in this context requires correction for 0-offset of month-index, ex.. january = 1,
+	 % taking rem in this context requires correction for 0-offset of month-index, ex.. january = 1,
 	(year,month) is effectively a kind of compound unit
 
 	% offset is inverse of error
 	% 
 	*/
 	Offset 	#= (HP:begin_month - 1) + (Installment:number - 1), % month's unit and installment index have +1 0-offset, -1 is 0-error (deviation from 0)
-	Year 	#= HP:begin_date:year + (Offset // 12),				% note adding: must be same units; //12 is converting units of months to units of years,
+	Year 	#= HP:begin_date:year + (Offset // 12),
 	Month	#= ((Offset mod 12) + 1), 							% +1 is return to 0-offset of the month's unit
 
 	% just assuming that the opening date is the 1st of the month and closing date is last of the month
-	% Installment:opening_date = date(Year, Month, 1).	% date{year:Year,month:Month,day:1} ?
 	Installment:opening_date:year = Year,
 	Installment:opening_date:month = Month,
 	Installment:opening_date:day = 1,

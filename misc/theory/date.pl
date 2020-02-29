@@ -1,12 +1,11 @@
 :- module(theory_date, [date_constraints/1]).
-
 :- chr_constraint
 	fact/3,
 	rule/0.
 
-
 % The date theory is special...
 
+:- multifile chr_fields/2.
 
 chr_fields(date, [
 	_{
@@ -17,7 +16,7 @@ chr_fields(date, [
 	},
 	_{
 		key:month,
-		type:integer, /* type should actually be something that actually represents a specific month object, so that we can do like self.month.length */
+		type:integer, % type should actually be something that actually represents a specific month object, so that we can do like self.month.length
 		unique:true,
 		required:true
 	},
@@ -122,14 +121,14 @@ date_constraints(Date) :-
 	Leap_Year #\ (February_Length #= 28),
 
 
-	/*
-	DAY OF THE WEEK:
+	
+	% DAY OF THE WEEK:
+	% 
+	% This is all for calculating Day_Of_Week, pretty much the most complex part but the logic is basically straightforward	
+	% The reference point is Jan 1st, 0 AD (same as 1 BC)
+	% 
+	% This gives us bidirectionality, but it's not declarative!
 
-	This is all for calculating Day_Of_Week, pretty much the most complex part but the logic is basically straightforward	
-	The reference point is Jan 1st, 0 AD (same as 1 BC)
-
-	This gives us bidirectionality, but it's not declarative!
-	*/
 	Year // 400 #= Leap_Cycle_Number,							% which 400-year leap cycle
 	Year mod 400 #= Leap_Cycle_Offset_Years,					% how many years into the 400-year leap cycle
 	Leap_Cycle_Offset_Years // 100 #= Century_Number,			% which century in the 400-year leap cycle
@@ -186,11 +185,10 @@ date_constraints(Date) :-
 
 
 
-	/*
-	package(julian) code
-	just pulled from that codebase so that the constraints can be applied whenever Year is within the appropriate range
-	rather than failing whenever it isn't
-	*/
+	
+	% package(julian) code
+	% just pulled from that codebase so that the constraints can be applied whenever Year is within the appropriate range
+	% rather than failing whenever it isn't
 
 	% these don't happen to need to apply to any particular Year range
 	% Open question: are these equivalent to the rules above?

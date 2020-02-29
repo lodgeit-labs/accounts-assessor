@@ -1,9 +1,7 @@
 :- module(solver, [add_constraints/1, initialize_relations/0]).
-
 :- chr_constraint
 	fact/3,
 	rule/0.
-
 /*
 :- use_module(library(chr)).
 :- use_module(library(clpq)).
@@ -54,6 +52,7 @@ initialize_relations :-
 
 initialize_relation(Relation:Fields) :-
 	fact(Relation, a, relation),
+	fact(Relation, dict, Fields),
 	maplist(initialize_field(Relation), Fields).
 
 initialize_field(Relation, Field) :-
@@ -91,7 +90,7 @@ add_constraint(Constraint) :-
 			(
 				atom(O)
 			->	debug(add_constraint, "add_constraint(~w): Type is an atom...~n", [Constraint]),
-				chr_fields(O, Attributes),
+				find_fact(O, dict, Attributes),
 				debug(add_constraint, "add_constraint(~w): Adding attributes...~n", [Constraint]),
 				maplist(add_attribute(S), Attributes),
 				(
