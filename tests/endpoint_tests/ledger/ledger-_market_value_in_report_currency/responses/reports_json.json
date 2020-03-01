@@ -347,7 +347,9 @@
 }
     ]
   },
-  "cf": ["#bnx52_" ],
+  "cf": [
+    "http://dev-node.uksouth.cloudapp.azure.com/rdf/results/1583069083.90538.362/#bnx51_"
+  ],
   "crosschecks": {
     "results": [
       {

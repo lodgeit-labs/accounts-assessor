@@ -169,6 +169,7 @@ maybe_report_all_testcase_errors(Errors) :-
 check_report(_, _, all-_, _) :- !. /* a link to the containing directory */
 check_report(_, _, request_xml-_, _) :- !.
 check_report(_, _, 'doc.n3'-_, _) :- !.
+check_report(_, _, 'doc.trig'-_, _) :- !.
 
 
 

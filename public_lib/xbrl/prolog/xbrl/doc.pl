@@ -436,7 +436,7 @@ add_to_rdf((X,Y,Z,G)) :-
 	(
 		triple_rdf_vs_doc((X2,Y2,Z2),(X,Y,Z)),
 		debug(doc, 'to_rdf:~q~n', [(X2,Y2,Z2,G)]),
-		catch(rdf_assert(X2,Y2,Z2,G),E,format(user_error,'~q~n',[E]))
+		catch(rdf_assert(X2,Y2,Z2,G),E,format(user_error,'~q~n while saving triple:~n~q~n',[E, (X,Y,Z,G)]))
 	)
 	->	true
 	;	throw((X,Y,Z,G)).

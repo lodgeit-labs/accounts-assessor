@@ -3,172 +3,159 @@
     "current": [
        {
   "account":"NetAssets",
-  "balance": [ {"credit":0, "debit":27880.7778, "unit":"AUD"} ],
+  "balance": [ {"credit":0, "debit":148.5884, "unit":"AUD"} ],
   "child_sheet_entries": [
      {
   "account":"Assets",
-  "balance": [ {"credit":0, "debit":27880.7778, "unit":"AUD"} ],
+  "balance": [ {"credit":0, "debit":248.5884, "unit":"AUD"} ],
   "child_sheet_entries": [
      {
   "account":"CurrentAssets",
-  "balance": [ {"credit":0, "debit":27880.7778, "unit":"AUD"} ],
+  "balance": [ {"credit":0, "debit":221.5724, "unit":"AUD"} ],
   "child_sheet_entries": [
      {
-  "account":"AssetsLivestock",
-  "balance": [ {"credit":0, "debit":7217.7778, "unit":"AUD"} ],
+  "account":"CashAndCashEquivalents",
+  "balance": [ {"credit":0, "debit":221.5724, "unit":"AUD"} ],
   "child_sheet_entries": [
      {
-  "account":"AssetsLivestockAtAverageCost",
-  "balance": [ {"credit":0, "debit":3217.7778, "unit":"AUD"} ],
+  "account":"Banks",
+  "balance": [ {"credit":0, "debit":221.5724, "unit":"AUD"} ],
+  "child_sheet_entries": [
+     {
+  "account":"BanksNationalAustraliaBank",
+  "balance": [ {"credit":0, "debit":100, "unit":"AUD"} ],
   "child_sheet_entries": [],
+  "transactions_count":1
+},
+     {
+  "account":"BanksWellsFargo",
+  "balance": [ {"credit":0, "debit":121.5724, "unit":"AUD"} ],
+  "child_sheet_entries": [],
+  "transactions_count":3
+}
+  ],
+  "transactions_count":4
+}
+  ],
+  "transactions_count":4
+}
+  ],
+  "transactions_count":4
+},
+     {
+  "account":"NoncurrentAssets",
+  "balance": [ {"credit":0, "debit":27.0161, "unit":"AUD"} ],
+  "child_sheet_entries": [
+     {
+  "account":"FinancialInvestments",
+  "balance": [ {"credit":0, "debit":27.0161, "unit":"AUD"} ],
+  "child_sheet_entries": [
+     {
+  "account":"Bonds",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"Shares",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"Unit_Investment",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"FinancialInvestmentsBHP",
+  "balance": [ {"credit":0, "debit":27.0161, "unit":"AUD"} ],
+  "child_sheet_entries": [],
+  "transactions_count":1
+}
+  ],
   "transactions_count":1
 },
      {
   "account":"AssetsLivestockAtCost",
-  "balance": [ {"credit":0, "debit":4000, "unit":"AUD"} ],
+  "balance": [],
   "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"AssetsLivestockAtAverageCost",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+}
+  ],
   "transactions_count":1
-}
-  ],
-  "transactions_count":2
-},
-     {
-  "account":"CashAndCashEquivalents",
-  "balance": [ {"credit":0, "debit":20663, "unit":"AUD"} ],
-  "child_sheet_entries": [
-     {
-  "account":"Banks",
-  "balance": [ {"credit":0, "debit":20663, "unit":"AUD"} ],
-  "child_sheet_entries": [ {
-  "account":"BanksNationalAustraliaBank",
-  "balance": [ {"credit":0, "debit":20663, "unit":"AUD"} ],
-  "child_sheet_entries": [],
-  "transactions_count":3
-} ],
-  "transactions_count":3
-}
-  ],
-  "transactions_count":3
-}
-  ],
-  "transactions_count":5
-},
-     {
-  "account":"NoncurrentAssets",
-  "balance": [],
-  "child_sheet_entries": [
-     {
-  "account":"FinancialInvestments",
-  "balance": [],
-  "child_sheet_entries": [ {
-  "account":"FinancialInvestmentsCow",
-  "balance": [],
-  "child_sheet_entries": [],
-  "transactions_count":0
-} ],
-  "transactions_count":0
-}
-  ],
-  "transactions_count":0
 }
   ],
   "transactions_count":5
 },
      {
   "account":"Liabilities",
-  "balance": [],
+  "balance": [ {"credit":100, "debit":0, "unit":"AUD"} ],
   "child_sheet_entries": [
-     {
-  "account":"CurrentLiabilities",
-  "balance": [],
-  "child_sheet_entries": [
-     {
-  "account":"CurrentLoans",
-  "balance": [],
-  "child_sheet_entries": [],
-  "transactions_count":0
-},
-     {
-  "account":"Gst",
-  "balance": [],
-  "child_sheet_entries": [ {
-  "account":"GstPayable",
-  "balance": [],
-  "child_sheet_entries": [],
-  "transactions_count":0
-},  {
-  "account":"GstReceivable",
-  "balance": [],
-  "child_sheet_entries": [],
-  "transactions_count":0
-} ],
-  "transactions_count":0
-}
-  ],
-  "transactions_count":0
-},
      {
   "account":"NoncurrentLiabilities",
-  "balance": [],
+  "balance": [ {"credit":100, "debit":0, "unit":"AUD"} ],
   "child_sheet_entries": [ {
   "account":"NoncurrentLoans",
-  "balance": [],
+  "balance": [ {"credit":100, "debit":0, "unit":"AUD"} ],
   "child_sheet_entries": [],
-  "transactions_count":0
+  "transactions_count":1
 } ],
-  "transactions_count":0
+  "transactions_count":1
 }
   ],
-  "transactions_count":0
+  "transactions_count":1
 }
   ],
-  "transactions_count":5
+  "transactions_count":6
 },
        {
   "account":"Equity",
-  "balance": [ {"credit":27880.7778, "debit":0, "unit":"AUD"} ],
+  "balance": [ {"credit":148.5884, "debit":0, "unit":"AUD"} ],
   "child_sheet_entries": [
      {
-  "account":"CapitalIntroduced",
-  "balance": [ {"credit":4000, "debit":0, "unit":"AUD"} ],
-  "child_sheet_entries": [],
-  "transactions_count":1
-},
-     {
-  "account":"Drawings",
-  "balance": [ {"credit":0, "debit":1244.4444, "unit":"AUD"} ],
-  "child_sheet_entries": [],
-  "transactions_count":1
-},
-     {
   "account":"RetainedEarnings",
-  "balance": [ {"credit":5125.2222, "debit":0, "unit":"AUD"} ],
+  "balance": [ {"credit":0, "debit":111.5234, "unit":"AUD"} ],
   "child_sheet_entries": [
      {
   "account":"CurrentEarnings",
-  "balance": [ {"credit":5125.2222, "debit":0, "unit":"AUD"} ],
+  "balance": [ {"credit":0, "debit":111.5234, "unit":"AUD"} ],
   "child_sheet_entries": [],
-  "transactions_count":4
+  "transactions_count":6
 },
      {
   "account":"HistoricalEarnings",
   "balance": [],
-  "child_sheet_entries": [ {
-  "account":"BankOpeningBalances",
-  "balance": [],
   "child_sheet_entries": [],
-  "transactions_count":0
-} ],
   "transactions_count":0
 }
   ],
-  "transactions_count":4
+  "transactions_count":6
 },
      {
   "account":"ShareCapital",
-  "balance": [ {"credit":20000, "debit":0, "unit":"AUD"} ],
+  "balance": [ {"credit":260.1118, "debit":0, "unit":"AUD"} ],
   "child_sheet_entries": [],
   "transactions_count":1
+},
+     {
+  "account":"ClearingAccount",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"CapitalIntroduced",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
 }
   ],
   "transactions_count":7
@@ -188,37 +175,26 @@
   "balance": [],
   "child_sheet_entries": [
      {
-  "account":"AssetsLivestock",
-  "balance": [],
-  "child_sheet_entries": [
-     {
-  "account":"AssetsLivestockAtAverageCost",
-  "balance": [],
-  "child_sheet_entries": [],
-  "transactions_count":0
-},
-     {
-  "account":"AssetsLivestockAtCost",
-  "balance": [],
-  "child_sheet_entries": [],
-  "transactions_count":0
-}
-  ],
-  "transactions_count":0
-},
-     {
   "account":"CashAndCashEquivalents",
   "balance": [],
   "child_sheet_entries": [
      {
   "account":"Banks",
   "balance": [],
-  "child_sheet_entries": [ {
+  "child_sheet_entries": [
+     {
   "account":"BanksNationalAustraliaBank",
   "balance": [],
   "child_sheet_entries": [],
   "transactions_count":0
-} ],
+},
+     {
+  "account":"BanksWellsFargo",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+}
+  ],
   "transactions_count":0
 }
   ],
@@ -234,12 +210,44 @@
      {
   "account":"FinancialInvestments",
   "balance": [],
-  "child_sheet_entries": [ {
-  "account":"FinancialInvestmentsCow",
+  "child_sheet_entries": [
+     {
+  "account":"Bonds",
   "balance": [],
   "child_sheet_entries": [],
   "transactions_count":0
-} ],
+},
+     {
+  "account":"Shares",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"Unit_Investment",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"FinancialInvestmentsBHP",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+}
+  ],
+  "transactions_count":0
+},
+     {
+  "account":"AssetsLivestockAtCost",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"AssetsLivestockAtAverageCost",
+  "balance": [],
+  "child_sheet_entries": [],
   "transactions_count":0
 }
   ],
@@ -252,35 +260,6 @@
   "account":"Liabilities",
   "balance": [],
   "child_sheet_entries": [
-     {
-  "account":"CurrentLiabilities",
-  "balance": [],
-  "child_sheet_entries": [
-     {
-  "account":"CurrentLoans",
-  "balance": [],
-  "child_sheet_entries": [],
-  "transactions_count":0
-},
-     {
-  "account":"Gst",
-  "balance": [],
-  "child_sheet_entries": [ {
-  "account":"GstPayable",
-  "balance": [],
-  "child_sheet_entries": [],
-  "transactions_count":0
-},  {
-  "account":"GstReceivable",
-  "balance": [],
-  "child_sheet_entries": [],
-  "transactions_count":0
-} ],
-  "transactions_count":0
-}
-  ],
-  "transactions_count":0
-},
      {
   "account":"NoncurrentLiabilities",
   "balance": [],
@@ -303,18 +282,6 @@
   "balance": [],
   "child_sheet_entries": [
      {
-  "account":"CapitalIntroduced",
-  "balance": [],
-  "child_sheet_entries": [],
-  "transactions_count":0
-},
-     {
-  "account":"Drawings",
-  "balance": [],
-  "child_sheet_entries": [],
-  "transactions_count":0
-},
-     {
   "account":"RetainedEarnings",
   "balance": [],
   "child_sheet_entries": [
@@ -327,12 +294,7 @@
      {
   "account":"HistoricalEarnings",
   "balance": [],
-  "child_sheet_entries": [ {
-  "account":"BankOpeningBalances",
-  "balance": [],
   "child_sheet_entries": [],
-  "transactions_count":0
-} ],
   "transactions_count":0
 }
   ],
@@ -343,6 +305,18 @@
   "balance": [],
   "child_sheet_entries": [],
   "transactions_count":0
+},
+     {
+  "account":"ClearingAccount",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"CapitalIntroduced",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
 }
   ],
   "transactions_count":0
@@ -350,7 +324,7 @@
     ]
   },
   "cf": [
-    "http://dev-node.uksouth.cloudapp.azure.com/rdf/results/1583069083.90538.338/#bnx89_"
+    "http://dev-node.uksouth.cloudapp.azure.com/rdf/results/1583069083.90538.402/#bnx93_"
   ],
   "crosschecks": {
     "results": [
@@ -378,7 +352,11 @@
 	  "b":"report_value(reports/ir/current/totals/gains/unr/market_converted)",
 	  "op":"="
 	},
-	"evaluation": {"a": [], "b": [], "op":"="},
+	"evaluation": {
+	  "a": [ {"amount":-105.1712, "unit":"AUD"} ],
+	  "b": [ {"amount":-105.1712, "unit":"AUD"} ],
+	  "op":"="
+	},
 	"status":"ok"
       },
       {
@@ -387,7 +365,11 @@
 	  "b":"report_value(reports/ir/current/totals/gains/unr/forex)",
 	  "op":"="
 	},
-	"evaluation": {"a": [], "b": [], "op":"="},
+	"evaluation": {
+	  "a": [ {"amount":0.7233, "unit":"AUD"} ],
+	  "b": [ {"amount":0.7233, "unit":"AUD"} ],
+	  "op":"="
+	},
 	"status":"ok"
       },
       {
@@ -396,7 +378,11 @@
 	  "b":"report_value(reports/ir/current/totals/gains/total)",
 	  "op":"="
 	},
-	"evaluation": {"a": [], "b": [], "op":"="},
+	"evaluation": {
+	  "a": [ {"amount":-104.4479, "unit":"AUD"} ],
+	  "b": [ {"amount":-104.4479, "unit":"AUD"} ],
+	  "op":"="
+	},
 	"status":"ok"
       },
       {
@@ -405,7 +391,11 @@
 	  "b":"report_value(reports/ir/current/totals/gains/unrealized_total)",
 	  "op":"="
 	},
-	"evaluation": {"a": [], "b": [], "op":"="},
+	"evaluation": {
+	  "a": [ {"amount":-104.4479, "unit":"AUD"} ],
+	  "b": [ {"amount":-104.4479, "unit":"AUD"} ],
+	  "op":"="
+	},
 	"status":"ok"
       },
       {
@@ -423,7 +413,11 @@
 	  "b":"report_value(reports/ir/current/totals/closing/total_cost_converted)",
 	  "op":"="
 	},
-	"evaluation": {"a": [], "b": [], "op":"="},
+	"evaluation": {
+	  "a": [ {"amount":27.0161, "unit":"AUD"} ],
+	  "b": [ {"amount":27.0161, "unit":"AUD"} ],
+	  "op":"="
+	},
 	"status":"ok"
       },
       {
@@ -442,8 +436,8 @@
 	  "op":"="
 	},
 	"evaluation": {
-	  "a": [ {"amount":27880.7778, "unit":"AUD"} ],
-	  "b": [ {"amount":27880.7778, "unit":"AUD"} ],
+	  "a": [ {"amount":148.5884, "unit":"AUD"} ],
+	  "b": [ {"amount":148.5884, "unit":"AUD"} ],
 	  "op":"="
 	},
 	"status":"ok"
@@ -452,39 +446,133 @@
   },
   "ir": {
     "current": {
-      "rows": [],
+      "rows": [
+	{
+	  "closing": {
+	    "conversion": {"date":"2018-06-30", "dst":"AUD", "rate":1.3508, "src":"USD"},
+	    "total_cost_converted": {"amount":27.0161, "unit":"AUD"},
+	    "total_cost_foreign": {"amount":20, "unit":"USD"},
+	    "unit_cost_converted": {"amount":2.7016, "unit":"AUD"},
+	    "unit_cost_foreign": {"amount":2, "unit":"USD"}
+	  },
+	  "count":10,
+	  "currency":"USD",
+	  "gains": {
+	    "rea": {},
+	    "unr": {
+	      "forex": {"amount":0.7233, "unit":"AUD"},
+	      "market_converted": {"amount":-105.1712, "unit":"AUD"},
+	      "market_foreign": {"amount":-80, "unit":"USD"}
+	    }
+	  },
+	  "id":"iri1",
+	  "on_hand_at_cost": {
+	    "count":10,
+	    "total_converted_at_balance": {"amount":135.0804, "unit":"AUD"},
+	    "total_converted_at_purchase": {"amount":131.464, "unit":"AUD"},
+	    "total_foreign": {"amount":100, "unit":"USD"},
+	    "total_forex_gain": {"amount":3.6164, "unit":"AUD"},
+	    "unit_cost_foreign": {"amount":10, "unit":"USD"}
+	  },
+	  "opening": {},
+	  "purchase": {
+	    "conversion": {"date":"2017-07-10", "dst":"AUD", "rate":1.3146, "src":"USD"},
+	    "date":"2017-07-10",
+	    "total_cost_converted": {"amount":131.464, "unit":"AUD"},
+	    "total_cost_foreign": {"amount":100, "unit":"USD"},
+	    "unit_cost_converted": {"amount":13.1464, "unit":"AUD"},
+	    "unit_cost_foreign": {"amount":10, "unit":"USD"}
+	  },
+	  "sale": {},
+	  "unit":"BHP"
+	}
+      ],
       "totals": {
-	"closing": {"total_cost_converted": [], "total_cost_foreign": []},
+	"closing": {
+	  "total_cost_converted": [ {"amount":27.0161, "unit":"AUD"} ],
+	  "total_cost_foreign": [ {"amount":20, "unit":"USD"} ]
+	},
 	"gains": {
 	  "rea": {"forex": [], "market_converted": [], "market_foreign": []},
 	  "realized_total": [],
-	  "total": [],
-	  "unr": {"forex": [], "market_converted": [], "market_foreign": []},
-	  "unrealized_total": []
+	  "total": [ {"amount":-104.4479, "unit":"AUD"} ],
+	  "unr": {
+	    "forex": [ {"amount":0.7233, "unit":"AUD"} ],
+	    "market_converted": [ {"amount":-105.1712, "unit":"AUD"} ],
+	    "market_foreign": [ {"amount":-80, "unit":"USD"} ]
+	  },
+	  "unrealized_total": [ {"amount":-104.4479, "unit":"AUD"} ]
 	},
 	"on_hand_at_cost": {
-	  "total_converted_at_balance": [],
-	  "total_converted_at_purchase": [],
-	  "total_forex_gain": []
+	  "total_converted_at_balance": [ {"amount":135.0804, "unit":"AUD"} ],
+	  "total_converted_at_purchase": [ {"amount":131.464, "unit":"AUD"} ],
+	  "total_forex_gain": [ {"amount":3.6164, "unit":"AUD"} ]
 	},
 	"opening": {"total_cost_converted": [], "total_cost_foreign": []}
       }
     },
     "since_beginning": {
-      "rows": [],
+      "rows": [
+	{
+	  "closing": {
+	    "conversion": {"date":"2018-06-30", "dst":"AUD", "rate":1.3508, "src":"USD"},
+	    "total_cost_converted": {"amount":27.0161, "unit":"AUD"},
+	    "total_cost_foreign": {"amount":20, "unit":"USD"},
+	    "unit_cost_converted": {"amount":2.7016, "unit":"AUD"},
+	    "unit_cost_foreign": {"amount":2, "unit":"USD"}
+	  },
+	  "count":10,
+	  "currency":"USD",
+	  "gains": {
+	    "rea": {},
+	    "unr": {
+	      "forex": {"amount":0.7233, "unit":"AUD"},
+	      "market_converted": {"amount":-105.1712, "unit":"AUD"},
+	      "market_foreign": {"amount":-80, "unit":"USD"}
+	    }
+	  },
+	  "id":"iri1",
+	  "on_hand_at_cost": {
+	    "count":10,
+	    "total_converted_at_balance": {"amount":135.0804, "unit":"AUD"},
+	    "total_converted_at_purchase": {"amount":131.464, "unit":"AUD"},
+	    "total_foreign": {"amount":100, "unit":"USD"},
+	    "total_forex_gain": {"amount":3.6164, "unit":"AUD"},
+	    "unit_cost_foreign": {"amount":10, "unit":"USD"}
+	  },
+	  "opening": {},
+	  "purchase": {
+	    "conversion": {"date":"2017-07-10", "dst":"AUD", "rate":1.3146, "src":"USD"},
+	    "date":"2017-07-10",
+	    "total_cost_converted": {"amount":131.464, "unit":"AUD"},
+	    "total_cost_foreign": {"amount":100, "unit":"USD"},
+	    "unit_cost_converted": {"amount":13.1464, "unit":"AUD"},
+	    "unit_cost_foreign": {"amount":10, "unit":"USD"}
+	  },
+	  "sale": {},
+	  "unit":"BHP"
+	}
+      ],
       "totals": {
-	"closing": {"total_cost_converted": [], "total_cost_foreign": []},
+	"closing": {
+	  "total_cost_converted": [ {"amount":27.0161, "unit":"AUD"} ],
+	  "total_cost_foreign": [ {"amount":20, "unit":"USD"} ]
+	},
 	"gains": {
 	  "rea": {"forex": [], "market_converted": [], "market_foreign": []},
 	  "realized_total": [],
-	  "total": [],
-	  "unr": {"forex": [], "market_converted": [], "market_foreign": []},
-	  "unrealized_total": []
+	  "total": [ {"amount":-104.4479, "unit":"AUD"} ],
+	  "unr": {
+	    "forex": [ {"amount":0.7233, "unit":"AUD"} ],
+	    "market_converted": [ {"amount":-105.1712, "unit":"AUD"} ],
+	    "market_foreign": [ {"amount":-80, "unit":"USD"} ]
+	  },
+	  "unrealized_total": [ {"amount":-104.4479, "unit":"AUD"} ]
 	},
 	"on_hand_at_cost": {
-	  "total_converted_at_balance": [],
-	  "total_converted_at_purchase": [],
-	  "total_forex_gain": []
+	  "total_converted_at_balance": [ {"amount":135.0804, "unit":"AUD"} ],
+	  "total_converted_at_purchase": [ {"amount":131.464, "unit":"AUD"} ],
+	  "total_forex_gain": [ {"amount":3.6164, "unit":"AUD"} ]
 	},
 	"opening": {"total_cost_converted": [], "total_cost_foreign": []}
       }
@@ -494,41 +582,17 @@
     "current": [
        {
   "account":"NetIncomeLoss",
-  "balance": [ {"credit":5125.2222, "debit":0, "unit":"AUD"} ],
+  "balance": [ {"credit":0, "debit":111.5234, "unit":"AUD"} ],
   "child_sheet_entries": [
      {
   "account":"Expenses",
-  "balance": [ {"credit":0, "debit":2537.7778, "unit":"AUD"} ],
+  "balance": [ {"credit":0, "debit":13.6097, "unit":"AUD"} ],
   "child_sheet_entries": [
-     {
-  "account":"AccountingFees",
-  "balance": [],
-  "child_sheet_entries": [],
-  "transactions_count":0
-},
      {
   "account":"BankCharges",
-  "balance": [],
-  "child_sheet_entries": [],
-  "transactions_count":0
-},
-     {
-  "account":"CostOfGoodsLivestock",
-  "balance": [ {"credit":0, "debit":2537.7778, "unit":"AUD"} ],
-  "child_sheet_entries": [
-     {
-  "account":"CowCogs",
-  "balance": [ {"credit":0, "debit":2537.7778, "unit":"AUD"} ],
-  "child_sheet_entries": [ {
-  "account":"CowCogsRations",
-  "balance": [ {"credit":1244.4444, "debit":0, "unit":"AUD"} ],
+  "balance": [ {"credit":0, "debit":13.6097, "unit":"AUD"} ],
   "child_sheet_entries": [],
   "transactions_count":1
-} ],
-  "transactions_count":3
-}
-  ],
-  "transactions_count":3
 },
      {
   "account":"ForexLoss",
@@ -537,47 +601,10 @@
   "transactions_count":0
 },
      {
-  "account":"InterestExpenses",
-  "balance": [],
-  "child_sheet_entries": [],
-  "transactions_count":0
-},
-     {
-  "account":"LivestockAdjustment",
-  "balance": [],
-  "child_sheet_entries": [],
-  "transactions_count":0
-},
-     {
-  "account":"OtherExpenses",
-  "balance": [],
-  "child_sheet_entries": [],
-  "transactions_count":0
-},
-     {
-  "account":"Purchases",
-  "balance": [],
-  "child_sheet_entries": [],
-  "transactions_count":0
-}
-  ],
-  "transactions_count":3
-},
-     {
-  "account":"Revenue",
-  "balance": [ {"credit":7663, "debit":0, "unit":"AUD"} ],
-  "child_sheet_entries": [
-     {
-  "account":"ClearingAccount",
-  "balance": [],
-  "child_sheet_entries": [],
-  "transactions_count":0
-},
-     {
-  "account":"CurrencyMovement",
+  "account":"yummyFoods",
   "balance": [],
   "child_sheet_entries": [ {
-  "account":"CurrencyMovementNationalAustraliaBank",
+  "account":"mashedPotatoes",
   "balance": [],
   "child_sheet_entries": [],
   "transactions_count":0
@@ -585,15 +612,65 @@
   "transactions_count":0
 },
      {
-  "account":"Income",
+  "account":"AccountingFees",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+}
+  ],
+  "transactions_count":1
+},
+     {
+  "account":"Revenue",
+  "balance": [ {"credit":0, "debit":97.9137, "unit":"AUD"} ],
+  "child_sheet_entries": [
+     {
+  "account":"CurrencyMovement",
+  "balance": [ {"credit":6.5343, "debit":0, "unit":"AUD"} ],
+  "child_sheet_entries": [
+     {
+  "account":"CurrencyMovementNationalAustraliaBank",
   "balance": [],
   "child_sheet_entries": [],
   "transactions_count":0
 },
      {
+  "account":"CurrencyMovementWellsFargo",
+  "balance": [ {"credit":6.5343, "debit":0, "unit":"AUD"} ],
+  "child_sheet_entries": [],
+  "transactions_count":3
+}
+  ],
+  "transactions_count":3
+},
+     {
   "account":"InvestmentIncome",
-  "balance": [],
+  "balance": [ {"credit":0, "debit":104.4479, "unit":"AUD"} ],
   "child_sheet_entries": [
+     {
+  "account":"CapitalGain",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"DividendsEarned",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"ForexGain",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"InterestEarned",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
      {
   "account":"InvestmentIncomeRealized",
   "balance": [],
@@ -602,7 +679,7 @@
   "account":"InvestmentIncomeRealizedOnlyCurrencyMovement",
   "balance": [],
   "child_sheet_entries": [ {
-  "account":"InvestmentIncomeRealizedOnlyCurrencyMovementCow",
+  "account":"InvestmentIncomeRealizedOnlyCurrencyMovementBHP",
   "balance": [],
   "child_sheet_entries": [],
   "transactions_count":0
@@ -614,7 +691,7 @@
   "balance": [],
   "child_sheet_entries": [
      {
-  "account":"InvestmentIncomeRealizedWithoutCurrencyMovementCow",
+  "account":"InvestmentIncomeRealizedWithoutCurrencyMovementBHP",
   "balance": [],
   "child_sheet_entries": [],
   "transactions_count":0
@@ -627,99 +704,51 @@
 },
      {
   "account":"InvestmentIncomeUnrealized",
-  "balance": [],
+  "balance": [ {"credit":0, "debit":104.4479, "unit":"AUD"} ],
   "child_sheet_entries": [
      {
   "account":"InvestmentIncomeUnrealizedOnlyCurrencyMovement",
-  "balance": [],
+  "balance": [ {"credit":0.7233, "debit":0, "unit":"AUD"} ],
   "child_sheet_entries": [
      {
-  "account":"InvestmentIncomeUnrealizedOnlyCurrencyMovementCow",
-  "balance": [],
+  "account":"InvestmentIncomeUnrealizedOnlyCurrencyMovementBHP",
+  "balance": [ {"credit":0.7233, "debit":0, "unit":"AUD"} ],
   "child_sheet_entries": [],
-  "transactions_count":0
+  "transactions_count":1
 }
   ],
-  "transactions_count":0
+  "transactions_count":1
 },
      {
   "account":"InvestmentIncomeUnrealizedWithoutCurrencyMovement",
-  "balance": [],
+  "balance": [ {"credit":0, "debit":105.1712, "unit":"AUD"} ],
   "child_sheet_entries": [
      {
-  "account":"InvestmentIncomeUnrealizedWithoutCurrencyMovementCow",
-  "balance": [],
+  "account":"InvestmentIncomeUnrealizedWithoutCurrencyMovementBHP",
+  "balance": [ {"credit":0, "debit":105.1712, "unit":"AUD"} ],
   "child_sheet_entries": [],
-  "transactions_count":0
+  "transactions_count":1
 }
   ],
-  "transactions_count":0
+  "transactions_count":1
 }
   ],
-  "transactions_count":0
+  "transactions_count":2
 }
   ],
-  "transactions_count":0
-},
-     {
-  "account":"OtherGain",
-  "balance": [],
-  "child_sheet_entries": [],
-  "transactions_count":0
-},
-     {
-  "account":"OtherIncome",
-  "balance": [],
-  "child_sheet_entries": [
-     {
-  "account":"EarningsFinancialInvestments",
-  "balance": [],
-  "child_sheet_entries": [],
-  "transactions_count":0
+  "transactions_count":2
 },
      {
   "account":"ExchangeGain",
   "balance": [],
   "child_sheet_entries": [],
   "transactions_count":0
-},
-     {
-  "account":"InterestEarned",
-  "balance": [],
-  "child_sheet_entries": [],
-  "transactions_count":0
-},
-     {
-  "account":"InterestIncome",
-  "balance": [],
-  "child_sheet_entries": [],
-  "transactions_count":0
 }
   ],
-  "transactions_count":0
-},
-     {
-  "account":"RationsRevenue",
-  "balance": [],
-  "child_sheet_entries": [],
-  "transactions_count":0
-},
-     {
-  "account":"SalesOfLivestock",
-  "balance": [ {"credit":7663, "debit":0, "unit":"AUD"} ],
-  "child_sheet_entries": [ {
-  "account":"CowSales",
-  "balance": [ {"credit":7663, "debit":0, "unit":"AUD"} ],
-  "child_sheet_entries": [],
-  "transactions_count":1
-} ],
-  "transactions_count":1
+  "transactions_count":5
 }
   ],
-  "transactions_count":1
-}
-  ],
-  "transactions_count":4
+  "transactions_count":6
 }
     ],
     "historical": [
@@ -732,31 +761,9 @@
   "balance": [],
   "child_sheet_entries": [
      {
-  "account":"AccountingFees",
-  "balance": [],
-  "child_sheet_entries": [],
-  "transactions_count":0
-},
-     {
   "account":"BankCharges",
   "balance": [],
   "child_sheet_entries": [],
-  "transactions_count":0
-},
-     {
-  "account":"CostOfGoodsLivestock",
-  "balance": [],
-  "child_sheet_entries": [ {
-  "account":"CowCogs",
-  "balance": [],
-  "child_sheet_entries": [ {
-  "account":"CowCogsRations",
-  "balance": [],
-  "child_sheet_entries": [],
-  "transactions_count":0
-} ],
-  "transactions_count":0
-} ],
   "transactions_count":0
 },
      {
@@ -766,25 +773,18 @@
   "transactions_count":0
 },
      {
-  "account":"InterestExpenses",
+  "account":"yummyFoods",
+  "balance": [],
+  "child_sheet_entries": [ {
+  "account":"mashedPotatoes",
   "balance": [],
   "child_sheet_entries": [],
   "transactions_count":0
-},
-     {
-  "account":"LivestockAdjustment",
-  "balance": [],
-  "child_sheet_entries": [],
+} ],
   "transactions_count":0
 },
      {
-  "account":"OtherExpenses",
-  "balance": [],
-  "child_sheet_entries": [],
-  "transactions_count":0
-},
-     {
-  "account":"Purchases",
+  "account":"AccountingFees",
   "balance": [],
   "child_sheet_entries": [],
   "transactions_count":0
@@ -797,32 +797,52 @@
   "balance": [],
   "child_sheet_entries": [
      {
-  "account":"ClearingAccount",
-  "balance": [],
-  "child_sheet_entries": [],
-  "transactions_count":0
-},
-     {
   "account":"CurrencyMovement",
   "balance": [],
-  "child_sheet_entries": [ {
+  "child_sheet_entries": [
+     {
   "account":"CurrencyMovementNationalAustraliaBank",
   "balance": [],
   "child_sheet_entries": [],
   "transactions_count":0
-} ],
-  "transactions_count":0
 },
      {
-  "account":"Income",
+  "account":"CurrencyMovementWellsFargo",
   "balance": [],
   "child_sheet_entries": [],
+  "transactions_count":0
+}
+  ],
   "transactions_count":0
 },
      {
   "account":"InvestmentIncome",
   "balance": [],
   "child_sheet_entries": [
+     {
+  "account":"CapitalGain",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"DividendsEarned",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"ForexGain",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
+     {
+  "account":"InterestEarned",
+  "balance": [],
+  "child_sheet_entries": [],
+  "transactions_count":0
+},
      {
   "account":"InvestmentIncomeRealized",
   "balance": [],
@@ -831,7 +851,7 @@
   "account":"InvestmentIncomeRealizedOnlyCurrencyMovement",
   "balance": [],
   "child_sheet_entries": [ {
-  "account":"InvestmentIncomeRealizedOnlyCurrencyMovementCow",
+  "account":"InvestmentIncomeRealizedOnlyCurrencyMovementBHP",
   "balance": [],
   "child_sheet_entries": [],
   "transactions_count":0
@@ -843,7 +863,7 @@
   "balance": [],
   "child_sheet_entries": [
      {
-  "account":"InvestmentIncomeRealizedWithoutCurrencyMovementCow",
+  "account":"InvestmentIncomeRealizedWithoutCurrencyMovementBHP",
   "balance": [],
   "child_sheet_entries": [],
   "transactions_count":0
@@ -863,7 +883,7 @@
   "balance": [],
   "child_sheet_entries": [
      {
-  "account":"InvestmentIncomeUnrealizedOnlyCurrencyMovementCow",
+  "account":"InvestmentIncomeUnrealizedOnlyCurrencyMovementBHP",
   "balance": [],
   "child_sheet_entries": [],
   "transactions_count":0
@@ -876,7 +896,7 @@
   "balance": [],
   "child_sheet_entries": [
      {
-  "account":"InvestmentIncomeUnrealizedWithoutCurrencyMovementCow",
+  "account":"InvestmentIncomeUnrealizedWithoutCurrencyMovementBHP",
   "balance": [],
   "child_sheet_entries": [],
   "transactions_count":0
@@ -888,60 +908,12 @@
   "transactions_count":0
 }
   ],
-  "transactions_count":0
-},
-     {
-  "account":"OtherGain",
-  "balance": [],
-  "child_sheet_entries": [],
-  "transactions_count":0
-},
-     {
-  "account":"OtherIncome",
-  "balance": [],
-  "child_sheet_entries": [
-     {
-  "account":"EarningsFinancialInvestments",
-  "balance": [],
-  "child_sheet_entries": [],
   "transactions_count":0
 },
      {
   "account":"ExchangeGain",
   "balance": [],
   "child_sheet_entries": [],
-  "transactions_count":0
-},
-     {
-  "account":"InterestEarned",
-  "balance": [],
-  "child_sheet_entries": [],
-  "transactions_count":0
-},
-     {
-  "account":"InterestIncome",
-  "balance": [],
-  "child_sheet_entries": [],
-  "transactions_count":0
-}
-  ],
-  "transactions_count":0
-},
-     {
-  "account":"RationsRevenue",
-  "balance": [],
-  "child_sheet_entries": [],
-  "transactions_count":0
-},
-     {
-  "account":"SalesOfLivestock",
-  "balance": [],
-  "child_sheet_entries": [ {
-  "account":"CowSales",
-  "balance": [],
-  "child_sheet_entries": [],
-  "transactions_count":0
-} ],
   "transactions_count":0
 }
   ],
@@ -956,6 +928,6 @@
   "account":"Trial_Balance",
   "balance": [],
   "child_sheet_entries": [],
-  "transactions_count":12
+  "transactions_count":13
 } ]
 }
