@@ -4,7 +4,7 @@
 	fact/3,
 	rule/0.
 
-
+:- multifile chr_fields/2.
 chr_fields(hp_arrangement, [
 	_{
 		key:begin_date,

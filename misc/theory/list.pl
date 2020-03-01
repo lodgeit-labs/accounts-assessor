@@ -1,9 +1,8 @@
 :- module(theory_list, []).
 
-:- chr_constraint
-	fact/3,
-	rule/0.
+:- chr_constraint fact/3, rule/0.
 
+:- multifile chr_fields/2.
 
 chr_fields(list, [
 	_{

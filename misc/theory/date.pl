@@ -1,4 +1,5 @@
 :- module(theory_date, [date_constraints/1]).
+:- use_module(library(chr)).
 :- chr_constraint
 	fact/3,
 	rule/0.
@@ -83,7 +84,7 @@ date_constraints(Date) :-
 		previous_month_lengths:Previous_Month_Lengths_This_Year
 	},
 	Months = [
-		[1,		31,					'foo'], % why can't "January" be an integer? :)
+		[1,		31,					"January"], % why can't "January" be an integer? :)
 		[2,		February_Length,	"February"],
 		[3,		31, 				"March"],
 		[4,		30, 				"April"],
