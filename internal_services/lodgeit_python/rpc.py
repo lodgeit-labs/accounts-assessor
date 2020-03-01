@@ -7,6 +7,14 @@ import fractions
 import os
 from franz.openrdf.connect import ag_connect
 
+from lib import account_hierarchy
+
+@rpc_method
+def arelle_extract(taxonomy_locator):
+	return account_hierarchy.ArelleController().run(taxonomy_locator)
+
+
+
 """
 
 curl -X POST  -d '{"jsonrpc":"2.0","id":"curltext","method":"agraph_sparql","params":{"sparql":"clear graphs"}}' -H 'content-type:application/json;' http://localhost:17778/rpc/

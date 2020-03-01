@@ -1,6 +1,8 @@
 /*
 Demonstrating how to properly call Python scripts under the virtual environment and deal with their exit status.
 
+note that this does not properly activate the virtualenv, namely, PATH is not changed
+
 Run this from the prolog_server directory.
 */
 

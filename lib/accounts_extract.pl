@@ -61,17 +61,29 @@ extract_account_hierarchy_from_accountHierarchy_element(E, Accounts) :-
 	),
 	extract_account_terms_from_accountHierarchy_elements(AccountHierarchy_Elements, Accounts).
 
-arelle(taxonomy, Taxonomy_URL, AccountHierarchy_Elements) :-
+call_with_string_read_stream(String, Callable) :-
 	setup_call_cleanup(
-		% should be activating the venv here
-		process_create('../python/venv/bin/python3',['../python/src/account_hierarchy.py',Taxonomy_URL],[stdout(pipe(Out))]),
+		new_memory_file(X),
 		(
-			load_structure(Out, AccountHierarchy_Elements, [dialect(xml),space(remove)]),
-			absolute_tmp_path('account_hierarchy_from_taxonomy.xml', FN),
-			xml_write_file(FN, AccountHierarchy_Elements, [])
-		),
-		close(Out)
-	).
+			open_memory_file(X, write, W),
+			write(W, String),
+			close(W),
+			open_memory_file(X, read, R),
+			call(Callable, R),
+			close(R)),
+		free_memory_file(X)).
+
+
+arelle(taxonomy, Taxonomy_URL, AccountHierarchy_Elements) :-
+	internal_services_rpc(
+		cmd{'method':'arelle_extract','params':p{'taxonomy_locator':Taxonomy_URL}},
+		Result),
+	call_with_string_read_stream(Result, load_extracted_account_hierarchy_xml(AccountHierarchy_Elements)).
+
+load_extracted_account_hierarchy_xml(/*-*/AccountHierarchy_Elements, /*+*/Stream) :-
+	load_structure(Stream, AccountHierarchy_Elements, [dialect(xml),space(remove)]),
+	absolute_tmp_path(loc(file_name,'account_hierarchy_from_taxonomy.xml'), FN),
+	xml_write_file(FN, AccountHierarchy_Elements, []).
 
 extract_account_terms_from_accountHierarchy_elements(Accounts_Elements, Accounts) :-
 	maplist(extract_account_terms_from_accountHierarchy_element, Accounts_Elements, Accounts).

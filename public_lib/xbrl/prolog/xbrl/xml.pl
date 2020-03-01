@@ -127,7 +127,7 @@ numeric_fields(_, []).
 
 
 
-xml_write_file(File_Name, Term, Options) :-
+xml_write_file(loc(absolute_path,File_Name), Term, Options) :-
 	setup_call_cleanup(
 		open(File_Name, write, Stream),
 		xml_write(Stream, Term, Options),
