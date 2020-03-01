@@ -444,13 +444,13 @@ add_to_rdf((X,Y,Z,G)) :-
 
 /*:- comment(lib:doc_to_rdf_all_graphs, "if necessary, modify to not wipe out whole rdf database and to check that G doesn't already exist */
 
-doc_to_rdf_all_graphs :- true. /*
+doc_to_rdf_all_graphs :-
 	rdf_retractall(_,_,_,_),
 	findall(_,(
 			docm(X,Y,Z,G),
 			add_to_rdf((X,Y,Z,G))
 		),_
-	).*/
+	).
 
 save_doc_turtle :-
 	Fn = 'doc.n3',
