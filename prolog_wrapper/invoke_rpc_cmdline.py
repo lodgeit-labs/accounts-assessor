@@ -188,10 +188,6 @@ def call_prolog(msg, dev_runner_options=[], prolog_flags='true', make_new_tmp_di
 	print("end of result from prolog.")
 	try:
 		rrr = json.loads(stdout_data)
-		# trig_fn = report_by_key(response, 'doc.trig')
-		#trig_fn = tmp_path + '/doc.trig'
-		#g=rdflib.graph.ConjunctiveGraph()
-		#g.load(trig_fn,format='trig')
 		put_triples_into_triplestore(tmp_path)
 		return msg['params']['tmp_directory_name'], rrr
 	except json.decoder.JSONDecodeError as e:
@@ -203,19 +199,23 @@ def agc():
 	#from franz.openrdf.repository.repository import Repository
 	# from franz.openrdf.sail.allegrographserver import AllegroGraphServer
 	from franz.openrdf.connect import ag_connect
-	return ag_connect('a', host='localhost', port='10036', user=os.environ['AGRAPH_USER'],
-				   password=os.environ['AGRAPH_PASS'])
-
+	user = os.environ.get('AGRAPH_USER')
+	passw = os.environ.get('AGRAPH_PASS')
+	if user != None and passw != None:
+		return ag_connect('a', host='localhost', port='10036', user=user, password=passw)
+	else:
+		print('agraph user and pass not provided, skipping')
 
 
 def put_triples_into_triplestore(tmp_path):
-	trig_fn = tmp_path + '/doc.trig'
+	trig_fn = tmp_path + '/doc.trig'# or: trig_fn = report_by_key(response, 'doc.trig')
 	nq_fn = tmp_path + '/doc.nq'
 	g=rdflib.graph.ConjunctiveGraph()
 	g.load(trig_fn, format='trig')
 	g.serialize(nq_fn, format='nquads')
 	c = agc()
-	c.addFile(nq_fn)
+	if c:
+		c.addFile(nq_fn)
 
 
 def report_by_key(response, key):
