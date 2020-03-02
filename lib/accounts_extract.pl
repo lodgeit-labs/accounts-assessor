@@ -78,12 +78,12 @@ arelle(taxonomy, Taxonomy_URL, AccountHierarchy_Elements) :-
 	internal_services_rpc(
 		cmd{'method':'arelle_extract','params':p{'taxonomy_locator':Taxonomy_URL}},
 		Result),
+	absolute_tmp_path(loc(file_name,'account_hierarchy_from_taxonomy.xml'), Fn),
+	write_file(Fn, Result),
 	call_with_string_read_stream(Result, load_extracted_account_hierarchy_xml(AccountHierarchy_Elements)).
 
 load_extracted_account_hierarchy_xml(/*-*/AccountHierarchy_Elements, /*+*/Stream) :-
-	load_structure(Stream, AccountHierarchy_Elements, [dialect(xml),space(remove)]),
-	absolute_tmp_path(loc(file_name,'account_hierarchy_from_taxonomy.xml'), FN),
-	xml_write_file(FN, AccountHierarchy_Elements, []).
+	load_structure(Stream, AccountHierarchy_Elements, [dialect(xml),space(remove)]).
 
 extract_account_terms_from_accountHierarchy_elements(Accounts_Elements, Accounts) :-
 	maplist(extract_account_terms_from_accountHierarchy_element, Accounts_Elements, Accounts).

@@ -66,6 +66,14 @@
 				<CostOfGoodsLivestock/>
 				<OtherExpenses/>
 			</Expenses>
+<!--
+			<Gains>
+			
+			</Gains>
+			<Losses>
+			
+			</Losses>
+-->
 		</NetIncomeLoss>
 	</Accounts>
 </accountHierarchy>

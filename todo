@@ -1,3 +1,6 @@
+update the triplestore by calling an asynchronous celery worker from interneal services from prolog
+
+
 
 :todo :todo """
 +ic_ui:transaction_input
