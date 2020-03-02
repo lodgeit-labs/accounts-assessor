@@ -241,7 +241,7 @@ trial_balance_between(Exchange_Rates, Accounts, Transactions_By_Account, Report_
 	Trial_Balance_Section = entry('Trial_Balance', Trial_Balance, [], Transactions_Count,[]).
 
 profitandloss_between(Static_Data, [ProftAndLoss]) :-
-	activity_entry(Static_Data, 'NetIncomeLoss', ProftAndLoss).
+	activity_entry(Static_Data, $>account_by_role('Accounts'/'ComprehensiveIncome'), ProftAndLoss).
 
 % Now for trial balance predicates.
 
