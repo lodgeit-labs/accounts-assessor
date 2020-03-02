@@ -9,9 +9,9 @@ from endpoints_gateway.forms import ClientRequestForm
 
 
 # for the case when running standalone
-sys.path.append('../prolog_wrapper')
+sys.path.append('../internal_workers')
 # for running under mod_wsgi
-sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../../prolog_wrapper')))
+sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../../internal_workers')))
 
 
 
