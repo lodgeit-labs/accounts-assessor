@@ -83,7 +83,7 @@ x :-
 	atomic_list_concat(['swipl ', Optimization, ' -s ', Script], Load_Cmd),
 	maybe_clean_terminal,
 	/* make forces compilation of dcg's or something */
-	shell2([Load_Cmd, ' -g "make,halt."  2>&1  |  tee ', Err_File, ' | head -n 150']),
+	shell2([Load_Cmd, ' -g "make,halt."  2>&1  |  tee ', Err_File, ' | head -n 150 1>&2']),
 	maybe_halt_on_err,
 	memberchk(goal(Goal), Opts),
 	(	nonvar(Goal)

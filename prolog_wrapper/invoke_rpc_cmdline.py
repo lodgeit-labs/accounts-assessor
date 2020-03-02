@@ -192,7 +192,7 @@ def call_prolog(msg, dev_runner_options=[], prolog_flags='true', make_new_tmp_di
 		return msg['params']['tmp_directory_name'], rrr
 	except json.decoder.JSONDecodeError as e:
 		print(e)
-		return {'status':'error'}
+		return msg['params']['tmp_directory_name'], {'status':'error'}
 
 
 def agc():

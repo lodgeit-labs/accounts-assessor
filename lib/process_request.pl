@@ -67,7 +67,7 @@ process_request_rpc_calculator(Dict) :-
 	'='(Request_uri, $>atom_string(<$, Dict.request_uri)),
 	'='(Result_uri, $>atomic_list_concat([Dict.rdf_namespace_base, 'results/', Dict.tmp_directory_name])),
 	'='(Result_data_uri_base, $>atomic_list_concat([Result_uri, '/'])),
-	'='(Request_data_uri_base, $>atomic_list_concat([Request_uri, '/'])),
+	'='(Request_data_uri_base, $>atomic_list_concat([Request_uri, '/request_data/'])),
 	'='(Request_data_uri, $>atomic_list_concat([Request_data_uri_base, 'request'])),
 
 	maplist(doc_add(Result_uri, l:rdf_explorer_base), Dict.rdf_explorer_bases),
@@ -183,7 +183,9 @@ process_multifile_request(File_Paths) :-
 			debug(tmp_files, "done accept_request_file(~w, ~w, n3)~n", [File_Paths, Rdf_Tmp_File_Path]),
 			load_request_rdf(Rdf_Tmp_File_Path, G),
 			debug(tmp_files, "RDF graph: ~w~n", [G]),
-			doc_from_rdf(G)
+			request(Request),
+			doc(Request, l:has_request_data_uri_base, Request_data_uri_base),
+			doc_from_rdf(G, 'https://rdf.lodgeit.net.au/v1/excel_request#', Request_data_uri_base)
 			%doc_input_to_chr_constraints
 		)
 	;	true),
@@ -218,15 +220,11 @@ load_request_xml(loc(absolute_path,Xml_Tmp_File_Path), Dom) :-
 
 load_request_rdf(loc(absolute_path, Rdf_Tmp_File_Path), G) :-
 
-	request(Request),
-	doc(Request, l:has_request_data_uri_base, Request_data_uri_base),
-
 	rdf_create_bnode(G),
 	rdf_load(Rdf_Tmp_File_Path, [
 		graph(G),
 		anon_prefix(bn),
-		on_error(error),
-		base_uri(Request_data_uri_base)
+		on_error(error)
 	]),
 	findall(_, (rdf(S,P,O),format(user_error, 'raw_rdf:~q~n',(S,P,O))),_),
 	true.

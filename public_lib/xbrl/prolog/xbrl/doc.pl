@@ -481,15 +481,25 @@ make_rdf_report :-
 	rdf_save_turtle(Path, [graph(Rdf_Graph), sorted(true), base(Url_Value), canonize_numbers(true), abbreviate_literals(false), prefixes([rdf,rdfs,xsd,l,livestock])]).
 
 
-doc_from_rdf(Rdf_Graph) :-
-	findall((X,Y,Z),
-		rdf(X,Y,Z,Rdf_Graph),
+doc_from_rdf(Rdf_Graph, Replaced_prefix, Replacement_prefix) :-
+	findall((X2,Y,Z),
+		(
+			rdf(X,Y,Z,Rdf_Graph),
+			(	atom_prefix(X, Replaced_prefix)
+			->	replace_atom_prefix(X, Replaced_prefix, Replacement_prefix, X2)
+			;	X = X2)
+		),
 		Triples),
 	maplist(triple_rdf_vs_doc, Triples, Triples2),
 	maplist(doc_add, Triples2).
 
 
-
+replace_atom_prefix(X, Replaced_prefix, Replacement_prefix, X2) :-
+	atom_length(Replaced_prefix, L0),
+	atom_length(X, L1),
+	L2 is L1 - L0,
+	sub_atom(X,_,L2,0,S),
+	atomic_list_concat([Replacement_prefix, S], X2).
 
 
 /*
