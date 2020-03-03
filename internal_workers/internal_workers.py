@@ -47,7 +47,7 @@ def generate_yed_file(g0, tmp_path):
 prefixes = [
 	('xml', 'http://www.w3.org/XML/1998/namespace#'),
 	('xsd', 'http://www.w3.org/2001/XMLSchema#'),
-	('l', 'https://rdf.lodgeit.net.au/v1/request#').
+	('l', 'https://rdf.lodgeit.net.au/v1/request#')
 
 
 	]
@@ -68,5 +68,13 @@ def add_node(go, added, x):
 			if x.startswith(uri):
 				kwargs['label'] = shorthand + x[len(uri):]
 				break
+
+		# uEd can display a (clickable?) URL, but that has to be specified like:
+		# <data key="d3" xml:space="preserve"><![CDATA[http://banana.pie]]></data>
+		# if you want to see it, go to yEd, assign the URL property on a node and save the file.
+		# etree doesn't support writing out CDATA.
+		# workarounds:
+		# https://stackoverflow.com/questions/174890/how-to-output-cdata-using-elementtree
+		# best bet: lxml has a compatible api(?)
 
 		go.add_node(x, shape_fill="#DDDDDD", **kwargs)

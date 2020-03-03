@@ -126,7 +126,7 @@ json_report_entries(Files3) :-
 	findall(
 		Json,
 		(
-			get_report_file(Key, Title, loc(absolute_url,Url)),
+			get_report_file(Key, Title, Url),
 			(format_json_report_entry(Key, Title, Url, Json) -> true ; throw(error))
 		),
 		Files3
@@ -134,7 +134,7 @@ json_report_entries(Files3) :-
 
 format_json_report_entry(Key, Title, Url, Json) :-
 	Json0 = _{key:Key, title:Title, val:_{url:Url}},
-	(	Key == 'response.n3'     %_{name:'response', format:'n3'}
+	(	Key == "response.n3"     %_{name:'response', format:'n3'}
 	->	(
 			% inline response.n3 into the result json
 			tmp_file_path_from_something(loc(_,Url), loc(absolute_path,P)),

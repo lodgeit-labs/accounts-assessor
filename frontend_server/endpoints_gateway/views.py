@@ -101,6 +101,21 @@ def upload(request):
 @csrf_exempt
 def results(request):
 	pass
+	"""
+	
+	PREFIX         l: <https://rdf.lodgeit.net.au/v1/request#>
+
+SELECT ?rep WHERE {
+	?req rdf:type l:Request.
+  	?req l:client_code "xx".
+  	?req l:has_result ?res.
+  	?res l:has_report ?rep.
+  	?rep l:key "reports_json".  
+}
+
+	
+	
+	"""
 
 #  ┏━╸╻ ╻┏━┓╺┳╸
 #  ┃  ┣━┫┣━┫ ┃

@@ -52,21 +52,11 @@ ggg(Data, S_Transactions0, Count) :-
 
 
 
-extract_request_details(Dom) :-
-	xpath(Dom, //reports/balanceSheetRequest/company/clientcode, Client_code),
-	get_time(TimeStamp),
-	stamp_date_time(TimeStamp, DateTime, 'UTC'),
-	result(Result),
-	doc_add(Result, l:timestamp, DateTime),
-	request(Request),
-	doc_add(Request, l:client_code, Client_code).
-
-
 process_request_ledger2(Dom, S_Transactions, Structured_Reports, Transactions) :-
 	request(Request),
 	doc_add(Request, l:kind, l:ledger_request),
 	doc_add(Request, l:kind, l:ledger_request),
-
+	extract_request_details(Dom),
 	extract_start_and_end_date(Dom, Start_Date, End_Date),
 	extract_output_dimensional_facts(Dom, Output_Dimensional_Facts),
 	extract_cost_or_market(Dom, Cost_Or_Market),
@@ -432,6 +422,16 @@ extract_s_transactions0(Dom, S_Transactions) :-
 	extract_s_transactions(Dom, S_Transactions1),
 	flatten([Bank_Lump_STs, S_Transactions0, S_Transactions1], S_Transactions2),
 	sort_s_transactions(S_Transactions2, S_Transactions).
+
+extract_request_details(Dom) :-
+	xpath(Dom, //reports/balanceSheetRequest/company/clientcode, element(_, [], [Client_code_atom])),
+	atom_string(Client_code_atom, Client_code),
+	get_time(TimeStamp),
+	stamp_date_time(TimeStamp, DateTime, 'UTC'),
+	result(Result),
+	doc_add(Result, l:timestamp, DateTime),
+	request(Request),
+	doc_add(Request, l:client_code, Client_code).
 
 
 /*
