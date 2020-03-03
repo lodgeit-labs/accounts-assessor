@@ -367,7 +367,11 @@ node_rdf_vs_doc(
 	date(Y,M,D)) :-
 		is_zero_number(Z0),
 		is_zero_number(Z1),
-		is_zero_number(Z2).
+		is_zero_number(Z2),!.
+
+node_rdf_vs_doc(
+	date_time(Y,L,D,H,M,S) ^^ 'http://www.w3.org/2001/XMLSchema#dateTime',
+	date(Y,L,D,H,M,S, 0,'UTC',-)) :- !.
 
 node_rdf_vs_doc(
 	String ^^ 'http://www.w3.org/2001/XMLSchema#string',

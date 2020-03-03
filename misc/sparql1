@@ -1,0 +1,14 @@
+PREFIX         l: <https://rdf.lodgeit.net.au/v1/request#>
+
+SELECT ?ts ?url WHERE {
+	?req rdf:type l:Request.
+  	?req l:client_code "xx".
+  	?req l:has_result ?res.
+  	?res l:timestamp ?ts.
+  	?res l:has_report ?rep.
+  	?rep l:key "reports_json".
+  	?rep l:url ?url.
+}
+
+
+# curl   -H "Accept: application/sparql-results+json"  --data-urlencode "query@sparql1" "http://dev-node.uksouth.cloudapp.azure.com:10036/repositories/a?queryLn=SPARQL"

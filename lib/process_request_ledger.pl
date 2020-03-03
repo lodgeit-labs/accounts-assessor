@@ -424,15 +424,16 @@ extract_s_transactions0(Dom, S_Transactions) :-
 	sort_s_transactions(S_Transactions2, S_Transactions).
 
 extract_request_details(Dom) :-
+	request(Request),
+	result(Result),
+
 	xpath(Dom, //reports/balanceSheetRequest/company/clientcode, element(_, [], [Client_code_atom])),
 	atom_string(Client_code_atom, Client_code),
+	doc_add(Request, l:client_code, Client_code),
+
 	get_time(TimeStamp),
 	stamp_date_time(TimeStamp, DateTime, 'UTC'),
-	result(Result),
-	doc_add(Result, l:timestamp, DateTime),
-	request(Request),
-	doc_add(Request, l:client_code, Client_code).
-
+	doc_add(Result, l:timestamp, DateTime).
 
 /*
 :- comment(Structured_Reports:
