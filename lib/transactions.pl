@@ -25,7 +25,7 @@ transaction_field(T, F, X) :-
 make_transaction2(Origin, Date, Description, Account, Vector, Type, Uri) :-
 	flatten([Description], Description_Flat),
 	atomic_list_concat(Description_Flat, Description_Str),
-	doc_new_uri(Uri),
+	doc_new_uri(Uri, gl_tx),
 	doc_add(Uri, rdf:type, l:transaction, transactions),
 	doc_add(Uri, transactions:day, Date, transactions),
 	doc_add(Uri, transactions:description, Description_Str, transactions),

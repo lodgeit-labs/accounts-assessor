@@ -65,11 +65,11 @@ sane_attr(X,X).
 /* create or find a sanitized id usable in xml, given any term */
 
 sane_id(Id, Prefix, Sane) :-
-	doc(Id, sane, (Prefix,Sane), xml),!.
+	doc(Id, l:sane, (Prefix,Sane), xml),!.
 
 sane_id(Id, Prefix, Sane) :-
 	sane_xml_element_id_from_term(Id, Prefix, Sane),
-	doc_add(Id, sane, (Prefix,Sane), xml),!.
+	doc_add(Id, l:sane, (Prefix,Sane), xml),!.
 
 sane_id(Id, Sane) :-
 	sane_id(Id, '', Sane).

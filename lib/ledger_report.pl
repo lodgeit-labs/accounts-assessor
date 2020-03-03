@@ -4,7 +4,7 @@
 we're in the process of switching this over to doc
 */
 make_report_entry(Name, Children, Uri) :-
-	doc_new_uri(Uri),
+	doc_new_uri(Uri, report_entry),
 	doc_add(Uri, rdf:type, l:report_entry),
 	doc_add(Uri, report_entries:name, Name),
 	doc_add(Uri, report_entries:children, Children).

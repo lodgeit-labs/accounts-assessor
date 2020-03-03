@@ -363,7 +363,7 @@ extract_bank_account(Account) :-
 	numeric_fields(Account, [
 		openingBalance, (Opening_Balance_Number, 0)]),
 	Opening_Balance = coord(Account_Currency, Opening_Balance_Number),
-	doc_new_uri(Uri),
+	doc_new_uri(Uri, bank_account),
 	request_add_property(l:bank_account, Uri),
 	doc_add(Uri, l:name, Account_Name),
 	(	Opening_Balance_Number \= 0

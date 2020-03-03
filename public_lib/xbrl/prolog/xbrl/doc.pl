@@ -548,7 +548,7 @@ result(R) :-
 
 add_alert(Type, Msg) :-
 	result(R),
-	doc_new_uri(Uri),
+	doc_new_uri(Uri, alert),
 	doc_add(R, l:alert, Uri),
 	doc_add(Uri, l:type, Type),
 	doc_add(Uri, l:message, Msg).
@@ -556,7 +556,7 @@ add_alert(Type, Msg) :-
 assert_alert(Type, Msg) :-
 	/*todo*/
 	result(R),
-	doc_new_uri(Uri),
+	doc_new_uri(Uri, alert),
 	doc_add(R, l:alert, Uri),
 	doc_add(Uri, l:type, Type),
 	doc_add(Uri, l:message, Msg).
@@ -572,7 +572,7 @@ add_comment_stringize(Title, Term) :-
 	add_comment_string(Title, String).
 
 add_comment_string(Title, String) :-
-	doc_new_uri(Uri),
+	doc_new_uri(Uri, comment),
 	doc_add(Uri, title, Title, comments),
 	doc_add(Uri, body, String, comments).
 
@@ -587,7 +587,7 @@ doc_list_items(L, Items) :-
 	findall(Item, doc_list_member(Item, L), Items).
 
 doc_add_list([H|T], Uri) :-
-	doc_new_uri(Uri),
+	doc_new_uri(Uri, rdf_list),
 	doc_add(Uri, rdf:first, H),
 	doc_add_list(T, Uri2),
 	doc_add(Uri, rdf:rest, Uri2).
@@ -601,7 +601,7 @@ doc_value(S, P, V) :-
 
 
 doc_add_value(S, P, V) :-
-	doc_new_uri(Uri),
+	doc_new_uri(Uri, value),
 	doc_add(S, P, Uri),
 	doc_add(Uri, rdf:value, V).
 

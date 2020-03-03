@@ -140,7 +140,7 @@ categorization_to_uri(cat(Account, Cat, PlusMinus), U) :-
 		)
 	->	true
 	;	(
-			doc_new_uri(U),
+			doc_new_uri(U, categorization),
 			doc_add(U, rdf:type, l:cf_categorization, cf_stuff),
 			doc_add(U, l:account, Account, cf_stuff),
 			doc_add(U, l:category, Cat, cf_stuff),
@@ -179,7 +179,7 @@ add_entry_balance_desc(Sd, Entry, B, Column, Text, Type) :-
 	add_report_entry_misc(Entry, Column, Desc, Type). /*todo add Tag, Value*/
 
 add_report_entry_misc(Entry, Column, Desc, Type) :-
-	doc_new_uri(D1),
+	doc_new_uri(D1, report_entry_misc_data),
 	doc_add(Entry, report_entries:misc, D1),
 	doc_add(D1, report_entries:column, Column),
 	doc_add(D1, report_entries:value, Desc),
@@ -232,7 +232,7 @@ cf_scheme_0_bank_account_currency_movement_entry(Sd, Account, Currency_Movement_
 	vec_inverse(Vec0, Vec),
 	doc_new_(rdf:value, Vec_Uri),
 	doc_add(Vec_Uri, rdf:value, Vec),
-	doc_add(Vec_Uri, l:source, net_activity_by_account),
+	doc_add(Vec_Uri, l:source, l:net_activity_by_account),
 	make_report_entry('Currency movement', [], Currency_Movement_Entry),
 	doc_add(Currency_Movement_Entry, report_entries:own_vec, Vec_Uri).
 
