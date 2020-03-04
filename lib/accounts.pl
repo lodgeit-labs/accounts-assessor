@@ -102,13 +102,21 @@ account_role_by_id(Accounts, Id, Role) :-
 
 /* @Bob fixme, we should be getting this info from the taxonomy (?) */
 :- table account_normal_side/3.
+
+account_normal_side(Account_Hierarchy, Name, debit) :-
+	member(Credit_Side_Account_Id, [
+		$>account_by_role('Accounts'/'Losses'),
+		$>account_by_role('Accounts'/'Expenses')
+	]),
+	once(account_in_set(Account_Hierarchy, Name, Credit_Side_Account_Id)),
+	!.
+
 account_normal_side(Account_Hierarchy, Name, credit) :-
 	member(Credit_Side_Account_Id, [
+		$>account_by_role('Accounts'/'ComprehensiveIncome'),
 		$>account_by_role('Accounts'/'Liabilities'),
-		$>account_by_role('Accounts'/'Equity'),
-		$>account_by_role('Accounts'/'Revenue'),
-		$>account_by_role('Accounts'/'Gains')
-		]),
+		$>account_by_role('Accounts'/'Equity')
+	]),
 	once(account_in_set(Account_Hierarchy, Name, Credit_Side_Account_Id)),
 	!.
 

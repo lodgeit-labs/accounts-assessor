@@ -42,10 +42,10 @@ Fetch submodules:
 * `git submodule update --init`
 
 Install SWIPL 8.1.14
-* http://www.swi-prolog.org/Download.html
+* see https://github.com/LodgeiT/labs-accounts-assessor/wiki/SWIPL-and-prolog-notes
 
-Install SWIPL dependencies:
-* ```lib/init.sh```
+Install dependencies:
+* ```./init.sh```
 
 How to run it:
 * run the internal services server:
