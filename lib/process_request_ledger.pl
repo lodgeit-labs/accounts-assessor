@@ -427,9 +427,9 @@ extract_request_details(Dom) :-
 	request(Request),
 	result(Result),
 
-	xpath(Dom, //reports/balanceSheetRequest/company/clientcode, element(_, [], [Client_code_atom])),
-	atom_string(Client_code_atom, Client_code),
-	doc_add(Request, l:client_code, Client_code),
+	(	xpath(Dom, //reports/balanceSheetRequest/company/clientcode, element(_, [], [Client_code_atom]))
+	->	doc_add(Request, l:client_code, $>atom_string(Client_code_atom))
+	;	true),
 
 	get_time(TimeStamp),
 	stamp_date_time(TimeStamp, DateTime, 'UTC'),
