@@ -14,3 +14,4 @@ git+https://github.com/Arelle/Arelle
 xmldiff
 agraph-python
 rdflib
+pyyed
