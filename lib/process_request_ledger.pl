@@ -426,7 +426,6 @@ extract_s_transactions0(Dom, S_Transactions) :-
 extract_request_details(Dom) :-
 	request(Request),
 	result(Result),
-	gtrace,
 	(	xpath(Dom, //reports/balanceSheetRequest/company/clientcode, element(_, [], [Client_code_atom]))
 	->	(
 			atom_string(Client_code_atom, Client_code_string),
