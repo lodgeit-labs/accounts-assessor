@@ -222,6 +222,17 @@ balance_sheet_entry2(Static_Data, Account_Id, Entry) :-
 	Transactions_Count is Children_Transaction_Count + Own_Transactions_Count,
 	Entry = entry(Account_Id, Balance, Child_Sheet_Entries, Transactions_Count, []).
 
+	/*
+
+	l:balance_rendering_for_dashdash rdf:comment "rounded to two digits. If balance is an empty vector, this is a numerical 0, otherwise the numerical value in report currency, in normal side. In case of a balance containing different units than just report currency, a string".
+
+	an integer ordering key is added post-hoc
+
+	*/
+
+	*/
+
+
 accounts_report(Static_Data, Accounts_Report) :-
 	balance_sheet_entry(Static_Data, 'Accounts', Entry),
 	Entry = entry(_,_,Accounts_Report,_,[]).

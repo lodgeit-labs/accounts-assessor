@@ -188,11 +188,29 @@ def call_prolog(msg, dev_runner_options=[], prolog_flags='true', make_new_tmp_di
 	print("end of result from prolog.")
 	try:
 		rrr = json.loads(stdout_data)
-		internal_workers.put_doc_dump_into_triplestore.apply_async((tmp_path,))
+		postprocess(rrr,tmp_path)
 		return msg['params']['tmp_directory_name'], rrr
 	except json.decoder.JSONDecodeError as e:
 		print(e)
 		return msg['params']['tmp_directory_name'], {'status':'error'}
+
+
+def postprocess(result_json, tmp_path):
+	internal_workers.put_doc_dump_into_triplestore.apply_async((tmp_path,))
+	create_flat_reports(tmp_path)
+
+def create_flat_reports(tmp_path):
+	reports_json_fn = tmp_path + '/reports_json.json'
+	reports_json_flat_fn = tmp_path + '/reports_json_flat.json'
+	flat = {}
+	with open(reports_json_fn, 'r') as inp:
+		reports_json = json.load(inp)
+	flat['bs'] = create_flat_report(reports_json['bs']['current'])
+	with open(reports_json_flat_fn,'w') as out:
+		json.dump(flat,out)
+
+
+def create_flat_report(r):
 
 
 def report_by_key(response, key):

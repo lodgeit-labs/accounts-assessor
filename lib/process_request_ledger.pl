@@ -194,6 +194,9 @@ other_reports(
 
 	make_json_report(Structured_Reports, reports_json).
 
+normal_side_reports :-
+
+
 make_gl_viewer_report :-
 	%format(user_error, 'make_gl_viewer_report..~n',[]),
 	Viewer_Dir = 'general_ledger_viewer',
