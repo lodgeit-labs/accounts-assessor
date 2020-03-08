@@ -72,3 +72,16 @@ report_currency_atom(Report_Currency_List, Report_Currency_Atom) :-
 icase_endswith(String, End) :-
 	string_lower(String, String2),
 	sub_string(String2, _,_,0,End).
+
+
+call_with_string_read_stream(String, Callable) :-
+	setup_call_cleanup(
+		new_memory_file(X),
+		(
+			open_memory_file(X, write, W),
+			write(W, String),
+			close(W),
+			open_memory_file(X, read, R),
+			call(Callable, R),
+			close(R)),
+		free_memory_file(X)).

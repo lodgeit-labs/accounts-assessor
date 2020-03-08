@@ -100,29 +100,9 @@ gather_ledger_errors(Debug) :-
 
 
 
-filter_out_market_values(_S_Transactions, _Exchange_Rates0, []).
+/* see misc/system_account_generation */
+exchange_rates_without_market_values([]).
 
-
-/*
-filter_out_market_values(S_Transactions, Exchange_Rates0, Exchange_Rates) :-
-
-	fixme, this should also take into account initial_GL and whichever other transaction input channenl,
-	and since we haven't seen any use of users specifying currency exchange rates with the Unit_Values sheet,
-	i think it's safe-ish to just ignore all input exchange rates for now
-
-	traded_units(S_Transactions, Units),
-	findall(
-		R,
-		(
-			member(R, Exchange_Rates0),
-			R = exchange_rate(_, Src, Dst, _),
-			\+member(Src, Units),
-			\+member(Dst, Units)
-		),
-		Exchange_Rates
-	).*/
-			
-	
 	
 
 find_s_transactions_in_period(S_Transactions, Opening_Date, Closing_Date, Out) :-

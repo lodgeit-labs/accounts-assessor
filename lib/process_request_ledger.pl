@@ -34,7 +34,6 @@ gl_json :-
 	a little debugging facitliy that tries processing s_transactions one by one until it runs into an error
 
 */
-
 process_request_ledger_debug(Data, S_Transactions0) :-
 	findall(Count, ggg(Data, S_Transactions0, Count), Counts), writeq(Counts).
 
@@ -49,6 +48,8 @@ ggg(Data, S_Transactions0, Count) :-
 	(	L \= 2
 	->	true
 	;	(gtrace,format(user_error, '~q: ~q ~n', [Count, Structured_Reports.crosschecks.errors]))).*/
+
+
 
 
 
