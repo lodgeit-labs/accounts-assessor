@@ -230,8 +230,6 @@ balance_sheet_entry2(Static_Data, Account_Id, Entry) :-
 
 	*/
 
-	*/
-
 
 accounts_report(Static_Data, Accounts_Report) :-
 	balance_sheet_entry(Static_Data, 'Accounts', Entry),
