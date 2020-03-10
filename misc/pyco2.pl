@@ -1,5 +1,8 @@
 :- use_module(library(clpfd)).
 :- op(900,xfx,<=).
+:- use_module(library(fnotation)).
+:- fnotation_ops($>,<$).
+:- op(900,fx,<$).
 
 
 /*actually this is where we infiloop, through setting up a rule's locals.
@@ -12,8 +15,11 @@ list_to_u([], nil).
 list_to_u([H|T], Cell) :-
 	proof(fr(Cell,H,Cell2)),
 	list_to_u(T, Cell2).
-
-
+/*
+gen_uid(Uid) :-
+	nonvar(Uid);
+	gensym(bn, Uid).
+*/
 pyco0_rule(
 	'list cell helper',
 	[fr(L,F,R)] <=
@@ -27,14 +33,16 @@ pyco0_rule(
 	[first(L,F),rest(L,R)] <=
 	[]) :-
 		Desc = 'list cell exists',
-		L = bn($>gensym(bn), Desc{first:F,rest:R}).
+		L = bn(_, Desc{first:F,rest:R}),
+		register_bn(L).
 
 pyco0_rule(
 	Desc,
 	[s_transaction_day(T,D)] <=
 	[]) :-
 		Desc = 's_transaction exists',
-		T = bn($>gensym(bn), Desc{day:D}).
+		T = bn(_, Desc{day:D}),
+		register_bn(T).
 
 pyco0_rule(
 	'including an item',
@@ -110,7 +118,8 @@ pyco0_rule(
 	[transaction_day(T,D), transaction_source(T,S)] <=
 	[]) :-
 		Desc = 'transaction exists',
-		T = bn($>gensym(bn), Desc{day:D, source:S}).
+		T = bn(_, Desc{day:D, source:S}),
+		register_bn(T).
 
 pyco0_rule(
 	's_transaction produces transaction',
@@ -171,27 +180,43 @@ pyco0_rule(
 	]) :-
 		/*gtrace,*/list_to_u([T1,T2,T5], Ts).
 
-matching_rule(Query, Body_items) :-
+find_rule(Query, Desc, Head_items, Body_items) :-
 	pyco0_rule(Desc, Head_items <= Body_items),
+	\+ \+member(Query, Head_items).
 
+query_term_ep_terms(Query, Query_ep_terms) :-
 	Query =.. [_|Args],
-	maplist(arg_ep_table_term, Args, Query_ep_terms),
+	maplist(arg_ep_table_term, Args, Query_ep_terms).
+/*
+unify_head_item_with_query(Query, Head_items) :-
+	member(I, Head_items),
+	unify(Query, I).
 
+unify(A, B):-
+	A =.. Ax,
+	B =.. Bx,
+	maplist(unify
+	var(
+*/
+
+matching_rule(Query, Body_items) :-
+	find_rule(Query, Desc, Head_items, Body_items),
+	query_term_ep_terms(Query, Query_ep_terms),
+	%unify_head_item_with_query(Query, Head_items),
 	member(Query, Head_items),
+	ep_list_for_rule(Desc, ep_list(Ep_List)),
+	ep_ok(Ep_List, Query_ep_terms),
+	append(Ep_List, [Query_ep_terms], Ep_List_New),
+	b_setval(Desc, ep_list(Ep_List_New)),
+	debug(pyco2, '~q', [ep_list(Desc, Ep_List_New)]).
 
+ep_list_for_rule(Desc, Ep_List0) :-
 	catch(
 		b_getval(Desc, Ep_List0),
 		error(existence_error(variable,Desc),_),
-		Ep_List = ep_list([])
+		Ep_List0 = ep_list([])
 	),
-	assertion(Ep_List0 == ep_list(Ep_List)),
-	Ep_List0 = ep_list(Ep_List),
-
-	ep_ok(Ep_List, Query_ep_terms, Desc),
-
-	append(Ep_List, [Query_ep_terms], Ep_List_New),
-	b_setval(Desc, ep_list(Ep_List_New)).
-
+	assertion(Ep_List0 = ep_list(_)).
 
 ep_ok(Ep_List, Query_ep_terms) :-
 	maplist(ep_ok2, Query_ep_terms, Ep_List).
@@ -210,10 +235,20 @@ ep_ok2(Query_ep_terms, Ep_Entry) :-
 		Differents),
 	(	Differents == []
 	->	(
-			writeln('EP!'),
+			debug(pyco2, 'EP!', []),
 			false
 		)
 	;	true).
+
+
+arg_ep_table_term(A, var) :-
+	var(A).
+arg_ep_table_term(A, const(A)) :-
+	atomic(A).
+arg_ep_table_term(bn(Uid, Bn), bn(Uid_str, Tag)) :-
+	is_dict(Bn, Tag),
+	term_string(Uid, Uid_str).
+
 
 %\arg_is_productively_different(var, var).
 arg_is_productively_different(var, const(_)).
@@ -223,38 +258,44 @@ arg_is_productively_different(const(C0), const(C1)) :- C0 \= C1.
 arg_is_productively_different(const(_), bn(_,_)).
 arg_is_productively_different(bn(_,_), var).
 arg_is_productively_different(bn(_,_), const(_)).
-arg_is_productively_different(bn(Uid0,Tag0), bn(Uid1,Tag1)) :-
-	(	Uid0 > Uid1
+arg_is_productively_different(bn(Uid_old_str,Tag0), bn(Uid_new_str,Tag1)) :-
+	assertion(string(Uid_old_str)),
+	assertion(string(Uid_new_str)),
+	/* for same uids, we fail. */
+	/* for differing types, success */
+	(	Tag0 \= Tag1
 	->	true
-	;	Tag0 \= Tag1).
+	;	came_before(Uid_new_str, Uid_old_str)).
 
 
+came_before(A, B) :-
+	b_getval(bn_log, Bn_log),
+	nth0(Ia, Bn_log, A),
+	nth0(Ib, Bn_log, B),
+	Ia < Ib.
 
-
+register_bn(bn(Uid, _Dict)) :-
+	b_getval(bn_log, Bn_log0),
+	term_string(Uid, Uid_str),
+	append(Bn_log0, [Uid_str], Bn_log1),
+	b_setval(bn_log, Bn_log1),
+	debug(pyco2, 'bn_log:~q', [Bn_log1]).
 
 proof(Query) :-
 	matching_rule(Query, Body_items),
 	/* Query has been unified with head */
-
-
 	maplist(proof, Body_items).
-
-
-arg_ep_table_term(A, var) :-
-	var(A).
-arg_ep_table_term(A, const(A)) :-
-	atomic(A).
-arg_ep_table_term(bn(Uid, Bn), bn(Uid, Tag)) :-
-	is_dict(Bn, Tag).
-
-
-is_arg_productively_different(Old, Now) :-
 
 
 
 proof(Query) :-
 	catch(call(Query),error(existence_error(procedure,E),_),(nonvar(E),/*writeq(E),nl,*/fail)).
 
+
+run(Query) :-
+	b_setval(bn_log, []),
+	debug(pyco2),
+	proof(Query).
 
 
 %:- proof(test_statement1).
