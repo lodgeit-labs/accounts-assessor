@@ -194,39 +194,25 @@ find_rule(Query, Desc, Head_items, Body_items, Prep) :-
 query_term_ep_terms(Query, Query_ep_terms) :-
 	Query =.. [_|Args],
 	maplist(arg_ep_table_term, Args, Query_ep_terms).
-/*
-unify_head_item_with_query(Query, Head_items) :-
-	member(I, Head_items),
-	unify(Query, I).
 
-unify(A, B):-
-	A =.. Ax,
-	B =.. Bx,
-	maplist(unify
-	var(
-*/
 
-matching_rule(Query, Body_items) :-
+matching_rule(Eps0, Query, Body_items, Eps1) :-
 	find_rule(Query, Desc, Head_items, Body_items, Prep),
 	debug(pyco2, '~q', [query(Desc, Query)]),
 	query_term_ep_terms(Query, Query_ep_terms),
-	%unify_head_item_with_query(Query, Head_items),
 	member(Query, Head_items),
-	ep_list_for_rule(Desc, ep_list(Ep_List)),
+	ep_list_for_rule(Eps0, Desc, Ep_List),
 	ep_ok(Ep_List, Query_ep_terms),
 	append(Ep_List, [Query_ep_terms], Ep_List_New),
-	b_setval(Desc, ep_list(Ep_List_New)),
-	debug(pyco2, 'set ~q', [ep_list(Desc, Ep_List_New)]),
+	Eps1 = Eps0.put(Desc, Ep_List_New),
+	%debug(pyco2, 'set ~q', [ep_list(Desc, Ep_List_New)]),
 	debug(pyco2, 'call prep: ~q', [Prep]),
 	call(Prep).
 
-ep_list_for_rule(Desc, X) :-
-	catch(
-		b_getval(Desc, X),
-		error(existence_error(variable,Desc),_),
-		X = ep_list([])
-	),
-	assertion(X = ep_list(_)).
+ep_list_for_rule(Eps0, Desc, X) :-
+	(	get_dict(Desc, Eps0, X)
+	->	true
+	;	X = []).
 
 ep_ok(Ep_List, Query_ep_terms) :-
 	debug(pyco2, '~q?', [ep_ok(Ep_List, Query_ep_terms)]),
@@ -306,7 +292,7 @@ proof(_,Query) :-
 			debug(pyco2, 'prolog goal call:~q', [Query]),
 			call(Query),
 			debug(pyco2, 'prolog goal succeded:~q', [Query])
-		)
+		),
 		error(existence_error(procedure,E),_),(nonvar(E),
 		/*writeq(E),nl,*/fail)
 	).
@@ -390,3 +376,8 @@ Y = writeq(xxx).
 
 
 */
+
+
+ba((N,A)) :-
+	call(N,A).
+
