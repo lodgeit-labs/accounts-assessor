@@ -20,6 +20,10 @@ gen_uid(Uid) :-
 	nonvar(Uid);
 	gensym(bn, Uid).
 */
+
+:- discontiguous pyco0_rule/2.
+:- discontiguous pyco0_rule/3.
+
 pyco0_rule(
 	'list cell helper',
 	[fr(L,F,R)] <=
@@ -108,9 +112,10 @@ pyco0_rule(
 		s_transactions_up_to(End, All, Capped),
 		writeq('Capped:'),writeq(Capped),nl,
 		writeq('All:'),writeq(All),nl
-	]) :-
+	],
+	(
 		/* here, Capped are known beforehand, but s_transactions_up_to will still infiloop */
-		/*gtrace,*/list_to_u([T1,T2,T5], Capped).
+		/*gtrace,*/list_to_u([T1,T2,T5], Capped))).
 
 
 pyco0_rule(
@@ -171,17 +176,19 @@ pyco0_rule(
 		transaction_day(T5, 5),
 		transaction_day(_T10, 10),
 
-
 		preprocess_sts(Sts,Ts),
 		writeq('Sts:'),writeq(Sts),nl,
 
-
 		true
-	]) :-
-		/*gtrace,*/list_to_u([T1,T2,T5], Ts).
+	],
+	(
+		/*gtrace,*/list_to_u([T1,T2,T5], Ts))).
 
-find_rule(Query, Desc, Head_items, Body_items) :-
-	pyco0_rule(Desc, Head_items <= Body_items),
+find_rule(Query, Desc, Head_items, Body_items, Prep) :-
+	(	pyco0_rule(Desc, Head_items <= Body_items, Prep)
+	;	(
+			pyco0_rule(Desc, Head_items <= Body_items),
+			Prep = true)),
 	\+ \+member(Query, Head_items).
 
 query_term_ep_terms(Query, Query_ep_terms) :-
@@ -200,7 +207,8 @@ unify(A, B):-
 */
 
 matching_rule(Query, Body_items) :-
-	find_rule(Query, Desc, Head_items, Body_items),
+	find_rule(Query, Desc, Head_items, Body_items, Prep),
+	debug(pyco2, '~q', [query(Desc, Query)]),
 	query_term_ep_terms(Query, Query_ep_terms),
 	%unify_head_item_with_query(Query, Head_items),
 	member(Query, Head_items),
@@ -208,18 +216,21 @@ matching_rule(Query, Body_items) :-
 	ep_ok(Ep_List, Query_ep_terms),
 	append(Ep_List, [Query_ep_terms], Ep_List_New),
 	b_setval(Desc, ep_list(Ep_List_New)),
-	debug(pyco2, '~q', [ep_list(Desc, Ep_List_New)]).
+	debug(pyco2, 'set ~q', [ep_list(Desc, Ep_List_New)]),
+	debug(pyco2, 'call prep: ~q', [Prep]),
+	call(Prep).
 
-ep_list_for_rule(Desc, Ep_List0) :-
+ep_list_for_rule(Desc, X) :-
 	catch(
-		b_getval(Desc, Ep_List0),
+		b_getval(Desc, X),
 		error(existence_error(variable,Desc),_),
-		Ep_List0 = ep_list([])
+		X = ep_list([])
 	),
-	assertion(Ep_List0 = ep_list(_)).
+	assertion(X = ep_list(_)).
 
 ep_ok(Ep_List, Query_ep_terms) :-
-	maplist(ep_ok2, Query_ep_terms, Ep_List).
+	debug(pyco2, '~q?', [ep_ok(Ep_List, Query_ep_terms)]),
+	maplist(ep_ok2(Query_ep_terms), Ep_List).
 
 ep_ok2(Query_ep_terms, Ep_Entry) :-
 	length(Query_ep_terms, L0),
@@ -270,32 +281,41 @@ arg_is_productively_different(bn(Uid_old_str,Tag0), bn(Uid_new_str,Tag1)) :-
 
 came_before(A, B) :-
 	b_getval(bn_log, Bn_log),
-	nth0(Ia, Bn_log, A),
-	nth0(Ib, Bn_log, B),
+	nth0(Ia, Bn_log, bn(A,_)),
+	nth0(Ib, Bn_log, bn(B,_)),
 	Ia < Ib.
 
-register_bn(bn(Uid, _Dict)) :-
+register_bn(bn(Uid, Dict)) :-
+	is_dict(Dict, Tag),
 	b_getval(bn_log, Bn_log0),
 	term_string(Uid, Uid_str),
-	append(Bn_log0, [Uid_str], Bn_log1),
+	append(Bn_log0, [bn(Uid_str, Tag)], Bn_log1),
 	b_setval(bn_log, Bn_log1),
 	debug(pyco2, 'bn_log:~q', [Bn_log1]).
 
-proof(Query) :-
-	matching_rule(Query, Body_items),
+proof(Eps0,Query) :-
+	matching_rule(Eps0,Query, Body_items,Eps1),
 	/* Query has been unified with head */
-	maplist(proof, Body_items).
+	maplist(proof(Eps1), Body_items).
 
 
 
-proof(Query) :-
-	catch(call(Query),error(existence_error(procedure,E),_),(nonvar(E),/*writeq(E),nl,*/fail)).
+proof(_,Query) :-
+	catch(
+		(
+			debug(pyco2, 'prolog goal call:~q', [Query]),
+			call(Query),
+			debug(pyco2, 'prolog goal succeded:~q', [Query])
+		)
+		error(existence_error(procedure,E),_),(nonvar(E),
+		/*writeq(E),nl,*/fail)
+	).
 
 
 run(Query) :-
 	b_setval(bn_log, []),
 	debug(pyco2),
-	proof(Query).
+	proof(eps{},Query).
 
 
 %:- proof(test_statement1).
