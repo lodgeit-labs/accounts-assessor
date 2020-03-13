@@ -83,17 +83,19 @@ pyco0_rule(
 	'including an item',
 	[s_transactions_up_to(End, All, Capped)] <=
 	[
-		format(user_error, 'include?~n', []),
+		/* these format calls don't work as expected, with body items reordering */
+		%format(user_error, 'include?~n', []),
 		D #=< End,
-		format(user_error, 'include?..~n', []),
+		%format(user_error, 'include?..~n', []),
 		s_transaction_day(T, D),
-		format(user_error, 'include ~q?....~n', [T]),
+		%format(user_error, 'include ~q?....~n', [T]),
 		fr(All, T, Ar),
-		format(user_error, 'include ~q?......~n', [T]),
+		%format(user_error, 'include ~q?......~n', [T]),
 		fr(Capped, T, Cr),
-		format(user_error, 'include ~q?........~n', [T]),
+		%format(user_error, 'include ~q?........~n', [T]),
 		s_transactions_up_to(End, Ar, Cr),
-		format(user_error, 'included ~q~n', [T])
+		%format(user_error, 'included ~q~n', [T])
+		true
 	]).
 
 pyco0_rule(
@@ -161,14 +163,14 @@ pyco0_rule(
 
 pyco0_rule(
 	'test query1b',
-	[test_statement1b] <=
+	[test_statement1b(End, All, Capped)] <=
 	[
 		End = 9,
 		s_transaction_day(T1, 1),
 		s_transaction_day(T2, 2),
 		s_transaction_day(T5, 5),
 		s_transaction_day(_T10, 10),
-		s_transactions_up_to(End, _All, Capped),
+		s_transactions_up_to(End, All, Capped),
 		/*
 		writeq('Capped:'),writeq(Capped),nl,
 		writeq('All:'),writeq(All),nl,
@@ -252,35 +254,34 @@ find_rule(Query, Desc, Head_items, Body_items, Prep) :-
 			Prep = true)),
 	\+ \+member(Query, Head_items).
 
-matching_rule(Eps0, Query, Body_items, Eps1) :-
+matching_rule(Level,Eps0, Query, Body_items, Eps1) :-
 	find_rule(Query, Desc, Head_items, Body_items, Prep),
-	debug(pyco_rule_search, '~q', [query(Desc, Query)]),
+	debug(pyco_proof, '(~q)match~q: ~q (~q)', [$>nb_getval(step) ,Level, $>nicer_term(Query), Desc]),
 	query_term_ep_terms(Query, Query_ep_terms),
 	member(Query, Head_items),
-	ep_list_for_rule(Eps0, Desc, Ep_List),
-	ep_ok(Ep_List, Query_ep_terms),
-	append(Ep_List, [Query_ep_terms], Ep_List_New),
-	Eps1 = Eps0.put(Desc, Ep_List_New),
-	%debug(pyco2, 'set ~q', [ep_list(Desc, Ep_List_New)]),
+	check_and_update_ep(Eps0, Desc, Query_ep_terms, Eps1),
 	debug(pyco_prep, 'call prep: ~q', [Prep]),
-	call(Prep),
-	debug(pyco_proof, 'match: ~q (~q)', [$>nicer_term(Query), Desc])
-	.
+	call(Prep).
 
-proof(Eps0,Query) :-
-	%gtrace,
-	matching_rule(Eps0,Query, Body_items,Eps1),
+proof(Level,Eps0,Query) :-
+	matching_rule(Level,Eps0,Query, Body_items,Eps1),
 	/* Query has been unified with head. */
-	body_proof(Eps1, Body_items).
+	Deeper_level is Level + 1,
 
-proof(_,Query) :- call_native(Query).
+	nb_getval(step, Step),
+	Step_next is Step + 1,
+	nb_setval(step, Step_next),
 
-body_proof(_Eps1, []).
+	body_proof(Deeper_level, Eps1, Body_items).
 
-body_proof(Eps1, Body_items) :-
+proof(Level,_,Query) :- call_native(Level, Query).
+
+body_proof(_, _, []).
+
+body_proof(Level, Eps1, Body_items) :-
 	pick_bi(Body_items, Bi, Body_items_next),
-	proof(Eps1, Bi),
-	body_proof(Eps1, Body_items_next).
+	proof(Level, Eps1, Bi),
+	body_proof(Level, Eps1, Body_items_next).
 
 pick_bi(Body_items, Bi, Body_items_next) :-
 	'pairs of Index-Num_unbound'(Body_items, Pairs),
@@ -292,6 +293,17 @@ pick_bi(Body_items, Bi, Body_items_next) :-
 /* ep stuff */
 
 
+check_and_update_ep(Eps0, Desc, Query_ep_terms, Eps1) :-
+	ep_list_for_rule(Eps0, Desc, Ep_List),
+	ep_ok(Ep_List, Query_ep_terms),
+	append(Ep_List, [Query_ep_terms], Ep_List_New),
+	Eps1 = Eps0.put(Desc, Ep_List_New),
+	debug(pyco_ep, 'ep list of ~q:', [Desc]),
+	maplist(print_debug_ep_list_item, Ep_List_New).
+
+print_debug_ep_list_item(I) :-
+	debug(pyco_ep, '* ~q', [I]).
+
 query_term_ep_terms(Query, Query_ep_terms) :-
 	Query =.. [_|Args],
 	maplist(arg_ep_table_term, Args, Query_ep_terms).
@@ -302,7 +314,8 @@ ep_list_for_rule(Eps0, Desc, X) :-
 	;	X = []).
 
 ep_ok(Ep_List, Query_ep_terms) :-
-	debug(pyco_ep, '~q?', [ep_ok(Ep_List, Query_ep_terms)]),
+	debug(pyco_ep, 'seen:~q', [Ep_List]),
+	debug(pyco_ep, 'now:~q ?', [Query_ep_terms]),
 	maplist(ep_ok2(Query_ep_terms), Ep_List).
 
 ep_ok2(Query_ep_terms, Ep_Entry) :-
@@ -319,7 +332,7 @@ ep_ok2(Query_ep_terms, Ep_Entry) :-
 		Differents),
 	(	Differents == []
 	->	(
-			debug(pyco_ep, 'EP!', []),
+			debug(pyco_proof, 'EP!', []),
 			false
 		)
 	;	true).
@@ -336,7 +349,7 @@ arg_ep_table_term(A, bn(Uid_str, Tag)) :-
 	term_string(Uid, Uid_str).
 
 
-%\arg_is_productively_different(var, var).
+%\+arg_is_productively_different(var, var).
 arg_is_productively_different(var, const(_)).
 arg_is_productively_different(var, bn(_,_)).
 arg_is_productively_different(const(_), var).
@@ -366,20 +379,23 @@ register_bn(bn(Uid, Dict)) :-
 	term_string(Uid, Uid_str),
 	append(Bn_log0, [bn(Uid_str, Tag)], Bn_log1),
 	b_setval(bn_log, Bn_log1),
-	debug(pyco_ep, 'bn_log:~q', [Bn_log1]).
+	debug(pyco_ep, 'bn_log:', []),
+	maplist(debug_print_bn_log_item, Bn_log1).
 
+debug_print_bn_log_item(I) :-
+	debug(pyco_ep, '* ~q', [I]).
 
 
 /* calling prolog */
 
-call_native(Query) :-
+call_native(Level, Query) :-
 	/* this case tries to handle calling native prolog predicates */
 	\+find_rule(Query, _, _, _, _),
 	catch(
 		(
-			debug(pyco_proof, 'prolog goal call:~q', [Query]),
+			debug(pyco_proof, '(~q)prolog~q call:~q', [$>nb_getval(step), Level, Query]),
 			call(Query),
-			debug(pyco_proof, 'prolog goal succeded:~q', [Query])
+			debug(pyco_proof, '(~q)prolog~q call succeded:~q', [$>nb_getval(step), Level, Query])
 		),
 		error(existence_error(procedure,Name/Arity),_),
 		% you'd think this would only catch when the Query term clause doesn't exist, but nope, it actually catches any nested exception. Another swipl bug?
@@ -517,8 +533,21 @@ extract_element_from_list2(_, [], _, _, []).
 
 run(Query) :-
 	b_setval(bn_log, []),
-	proof(eps{dummy:[]},Query).
+	nb_setval(step, 0),
+	proof(Query).
 
 proof(Query) :-
-	proof(eps{dummy:[]},Query).
+	proof(0,eps{dummy:[]},Query).
 
+
+
+
+
+/*
+
+debug(pyco_ep),Q = test_statement1b(End, All, Capped), run(Q), nicer_term(Q, NQ).
+
+
+
+
+*/
