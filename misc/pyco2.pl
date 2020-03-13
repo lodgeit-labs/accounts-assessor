@@ -117,7 +117,7 @@ pyco0_rule(
 		s_transaction_day(T2, 2),
 		s_transaction_day(T5, 5),
 		s_transaction_day(_T10, 10),
-		s_transactions_up_to(End, All, Capped),
+		s_transactions_up_to(End, _All, Capped),
 		/*
 		writeq('Capped:'),writeq(Capped),nl,
 		writeq('All:'),writeq(All),nl,
@@ -125,7 +125,6 @@ pyco0_rule(
 		fr(Capped, T1, C2),
 		fr(C2,T2,C3),
 		fr(C3,T5,nil)
-
 	]).
 
 
@@ -299,17 +298,8 @@ proof(Eps0,Query) :-
 	/* Query has been unified with head. */
 	body_proof(Eps1, Body_items).
 
-
-body_proof(Eps1, Body_items) :-
-
-
-
-
-	maplist(proof(Eps1), Body_items).
-
-
-
 proof(_,Query) :-
+	/* this case tries to handle calling native prolog predicates */
 	catch(
 		(
 			debug(pyco2, 'prolog goal call:~q', [Query]),
@@ -341,7 +331,50 @@ proof(Query) :-
 
 
 
+number_of_unbound_args(Term, Count) :-
+	Term =.. [_|Args],
+	aggregate_all(count,
+	(
+		member(X, Args),
+		var(X)
+	),
+	Count).
 
+'pairs of Index-Num_unbound'(Body_items, Pairs) :-
+	length(Body_items, L0),
+	L is L0 - 1,
+	findall(I-Num_unbound,
+		(
+			between(0,L,I),
+			nth0(I,Body_items,Bi),
+			number_of_unbound_args(Bi, Num_unbound)
+		),
+	Pairs).
+
+
+pick_bi(Body_items, Bi, Body_items_next) :-
+	'pairs of Index-Num_unbound'(Body_items, Pairs),
+	aggregate_all(min(Num_unbound), member(_Index-Num_unbound, Pairs), Min_unbound),
+	once(member(Picked_bi_index-Min_unbound, Pairs)),
+	extract_element_from_list(Body_items, Picked_bi_index, Bi, Body_items_next).
+
+body_proof(Eps1, Body_items) :-
+	pick_bi(Body_items, Bi, Body_items_next),
+	proof(Eps1, Bi),
+	body_proof(Eps1, Body_items_next).
+
+body_proof(_Eps1, []).
+
+extract_element_from_list(List, Index, Element, List_without_element) :-
+	findall(
+		E,
+		(
+			nth0(I,List,E),
+			I \= Index
+		),
+		List_without_element
+	),
+	nth0(Index, List, Element).
 
 
 
