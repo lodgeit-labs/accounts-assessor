@@ -4,22 +4,10 @@
 :- fnotation_ops($>,<$).
 :- op(900,fx,<$).
 
-
-/*actually this is where we infiloop, through setting up a rule's locals.
-so that's a special case, but it would be comparable to infilooping through a builtin.
-we should still be able to fix it with an ep-check.
-
-*/
-
 list_to_u([], nil).
 list_to_u([H|T], Cell) :-
 	proof(fr(Cell,H,Cell2)),
 	list_to_u(T, Cell2).
-/*
-gen_uid(Uid) :-
-	nonvar(Uid);
-	gensym(bn, Uid).
-*/
 
 :- discontiguous pyco0_rule/2.
 :- discontiguous pyco0_rule/3.
@@ -35,28 +23,35 @@ pyco0_rule(
 pyco0_rule(
 	Desc,
 	[first(L,F),rest(L,R)] <=
-	[]) :-
-		Desc = 'list cell exists',
-		L = bn(_, Desc{first:F,rest:R}),
-		register_bn(L).
+	[],
+	(L = bn(_, Desc{first:F,rest:R}),register_bn(L))
+	) :-
+		Desc = 'list cell exists'
+		.
 
 pyco0_rule(
 	Desc,
 	[s_transaction_day(T,D)] <=
-	[]) :-
-		Desc = 's_transaction exists',
-		T = bn(_, Desc{day:D}),
-		register_bn(T).
+	[],
+	(T = bn(_, Desc{day:D}),register_bn(T))
+	) :-
+		Desc = 's_transaction exists'.
 
 pyco0_rule(
 	'including an item',
 	[s_transactions_up_to(End, All, Capped)] <=
 	[
+		format(user_error, 'include?~n', []),
 		D #=< End,
+		format(user_error, 'include?..~n', []),
 		s_transaction_day(T, D),
+		format(user_error, 'include ~q?....~n', [T]),
 		fr(All, T, Ar),
+		format(user_error, 'include ~q?......~n', [T]),
 		fr(Capped, T, Cr),
-		s_transactions_up_to(End, Ar, Cr)
+		format(user_error, 'include ~q?........~n', [T]),
+		s_transactions_up_to(End, Ar, Cr),
+		format(user_error, 'included ~q~n', [T])
 	]).
 
 pyco0_rule(
@@ -84,25 +79,38 @@ pyco0_rule(
 		s_transaction_day(T2, 2),
 		s_transaction_day(T5, 5),
 		s_transaction_day(T10, 10),
+		writeln('sts.'),
 		fr(All,  T1, All1),
 		fr(All1, T2, All2),
 		fr(All2, T5, All3),
 		fr(All3, T10, nil),
+		writeln('all.'),
 		s_transactions_up_to(End, All, Capped),
 		writeq('Capped:'),
-		writeq(Capped),
-		nl
+		writeq(Capped),nl,
+		%gtrace,
+		list_to_u(X, Capped),
+		writeq(X),nl
 	]).
 
 /*
 
-now for the interesting stuff
+now for the interesting stuff, requires reordering
 
 */
 
 pyco0_rule(
-	'test query1',
-	[test_statement1] <=
+	'test query1a',
+	[test_statement1a] <=
+	[
+		s_transactions_up_to(_End, All, Capped),
+		writeq('Capped:'),writeq(Capped),nl,
+		writeq('All:'),writeq(All),nl
+	]).
+
+pyco0_rule(
+	'test query1b',
+	[test_statement1b] <=
 	[
 		End = 9,
 		s_transaction_day(T1, 1),
@@ -110,21 +118,23 @@ pyco0_rule(
 		s_transaction_day(T5, 5),
 		s_transaction_day(_T10, 10),
 		s_transactions_up_to(End, All, Capped),
+		/*
 		writeq('Capped:'),writeq(Capped),nl,
-		writeq('All:'),writeq(All),nl
-	],
-	(
-		/* here, Capped are known beforehand, but s_transactions_up_to will still infiloop */
-		/*gtrace,*/list_to_u([T1,T2,T5], Capped))).
+		writeq('All:'),writeq(All),nl,
+		*/
+		fr(Capped, T1, C2),
+		fr(C2,T2,C3),
+		fr(C3,T5,nil)
+
+	]).
 
 
 pyco0_rule(
 	Desc,
 	[transaction_day(T,D), transaction_source(T,S)] <=
-	[]) :-
-		Desc = 'transaction exists',
-		T = bn(_, Desc{day:D, source:S}),
-		register_bn(T).
+	[],
+	(T = bn(_, Desc{day:D, source:S}),register_bn(T))) :-
+		Desc = 'transaction exists'.
 
 pyco0_rule(
 	's_transaction produces transaction',
@@ -179,10 +189,11 @@ pyco0_rule(
 		preprocess_sts(Sts,Ts),
 		writeq('Sts:'),writeq(Sts),nl,
 
-		true
-	],
-	(
-		/*gtrace,*/list_to_u([T1,T2,T5], Ts))).
+		fr(Ts, T1, Ts2),
+		fr(Ts2, T2, Ts3),
+		fr(Ts3, T5, nil)
+
+	]).
 
 find_rule(Query, Desc, Head_items, Body_items, Prep) :-
 	(	pyco0_rule(Desc, Head_items <= Body_items, Prep)
@@ -207,7 +218,9 @@ matching_rule(Eps0, Query, Body_items, Eps1) :-
 	Eps1 = Eps0.put(Desc, Ep_List_New),
 	%debug(pyco2, 'set ~q', [ep_list(Desc, Ep_List_New)]),
 	debug(pyco2, 'call prep: ~q', [Prep]),
-	call(Prep).
+	call(Prep)
+
+	.
 
 ep_list_for_rule(Eps0, Desc, X) :-
 	(	get_dict(Desc, Eps0, X)
@@ -242,7 +255,9 @@ arg_ep_table_term(A, var) :-
 	var(A).
 arg_ep_table_term(A, const(A)) :-
 	atomic(A).
-arg_ep_table_term(bn(Uid, Bn), bn(Uid_str, Tag)) :-
+arg_ep_table_term(A, bn(Uid_str, Tag)) :-
+	nonvar(A),
+	A = bn(Uid, Bn),
 	is_dict(Bn, Tag),
 	term_string(Uid, Uid_str).
 
@@ -281,7 +296,15 @@ register_bn(bn(Uid, Dict)) :-
 
 proof(Eps0,Query) :-
 	matching_rule(Eps0,Query, Body_items,Eps1),
-	/* Query has been unified with head */
+	/* Query has been unified with head. */
+	body_proof(Eps1, Body_items).
+
+
+body_proof(Eps1, Body_items) :-
+
+
+
+
 	maplist(proof(Eps1), Body_items).
 
 
@@ -293,15 +316,22 @@ proof(_,Query) :-
 			call(Query),
 			debug(pyco2, 'prolog goal succeded:~q', [Query])
 		),
-		error(existence_error(procedure,E),_),(nonvar(E),
-		/*writeq(E),nl,*/fail)
+		error(existence_error(procedure,Name/Arity),_),
+		% you'd think this would only catch when the Query term clause doesn't exist, but nope, it actually catches any nested exception. Another swipl bug?
+		(
+			functor(Query, Name, Arity),
+			%gtrace,
+			fail
+		)
 	).
 
 
 run(Query) :-
 	b_setval(bn_log, []),
-	debug(pyco2),
-	proof(eps{},Query).
+	proof(eps{dummy:[]},Query).
+
+proof(Query) :-
+	proof(eps{dummy:[]},Query).
 
 
 %:- proof(test_statement1).
@@ -377,7 +407,7 @@ Y = writeq(xxx).
 
 */
 
-
+/*
 ba((N,A)) :-
 	call(N,A).
-
+*/
