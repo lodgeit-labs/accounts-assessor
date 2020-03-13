@@ -9,6 +9,48 @@ list_to_u([H|T], Cell) :-
 	proof(fr(Cell,H,Cell2)),
 	list_to_u(T, Cell2).
 
+/* for list bnodes, produce nicer term for printing */
+
+nicer_term(T, Nicer) :-
+%gtrace,
+	T =.. [F|Args],
+	maplist(nicer_arg, Args, Nicer_args),
+	Nicer =.. [F|Nicer_args].
+
+nicer_arg(Bn, Nicer) :-
+	assertion(var(Nicer)),
+	debug(pyco_nicer, 'nicer ~q?', [Bn]),
+	nicer_arg2(Bn, Nicer),
+	debug(pyco_nicer, 'nicer ~q => ~q', [Bn, Nicer]).
+
+nicer_arg2(X, X) :-
+	\+ nicer_bn(X, _).
+
+nicer_arg2(Bn, Nicer) :-
+	nicer_bn(Bn, Nicer).
+
+nicer_bn(Bn, Nicer) :-
+	nonvar(Bn),
+	\+ \+ Bn = bn(_, 'list cell exists'{first:_,rest:_}),
+	collect_items(Bn, Items),
+	maplist(nicer_arg2, Items, Nice_items),
+	Bn = bn(Id, _),
+	'='(Nice_functor, $>atomic_list_concat([
+			list,
+			$>term_string(Id)])),
+	'=..'(Nicer, [Nice_functor|Nice_items]).
+
+
+
+collect_items(Bn, [F|Rest]) :-
+	\+ \+ Bn = bn(_, 'list cell exists'{first:_,rest:_}),
+	Bn = bn(_, 'list cell exists'{first:F,rest:R}),
+	nonvar(R),
+	collect_items(R, Rest).
+
+collect_items(Bn, []) :-
+	Bn == nil.
+
 :- discontiguous pyco0_rule/2.
 :- discontiguous pyco0_rule/3.
 
@@ -17,7 +59,7 @@ pyco0_rule(
 	[fr(L,F,R)] <=
 	[
 		first(L, F),
-		rest(L,R)
+		rest(L, R)
 	]).
 
 pyco0_rule(
@@ -106,6 +148,15 @@ pyco0_rule(
 		s_transactions_up_to(_End, All, Capped),
 		writeq('Capped:'),writeq(Capped),nl,
 		writeq('All:'),writeq(All),nl
+	]).
+
+pyco0_rule(
+	'test query1a2',
+	[test_statement1a2] <=
+	[
+		fr(_Capped, t1, C2),
+		fr(C2,t2,C3),
+		fr(C3,t5,nil)
 	]).
 
 pyco0_rule(
@@ -201,14 +252,9 @@ find_rule(Query, Desc, Head_items, Body_items, Prep) :-
 			Prep = true)),
 	\+ \+member(Query, Head_items).
 
-query_term_ep_terms(Query, Query_ep_terms) :-
-	Query =.. [_|Args],
-	maplist(arg_ep_table_term, Args, Query_ep_terms).
-
-
 matching_rule(Eps0, Query, Body_items, Eps1) :-
 	find_rule(Query, Desc, Head_items, Body_items, Prep),
-	debug(pyco2, '~q', [query(Desc, Query)]),
+	debug(pyco_rule_search, '~q', [query(Desc, Query)]),
 	query_term_ep_terms(Query, Query_ep_terms),
 	member(Query, Head_items),
 	ep_list_for_rule(Eps0, Desc, Ep_List),
@@ -216,10 +262,39 @@ matching_rule(Eps0, Query, Body_items, Eps1) :-
 	append(Ep_List, [Query_ep_terms], Ep_List_New),
 	Eps1 = Eps0.put(Desc, Ep_List_New),
 	%debug(pyco2, 'set ~q', [ep_list(Desc, Ep_List_New)]),
-	debug(pyco2, 'call prep: ~q', [Prep]),
-	call(Prep)
-
+	debug(pyco_prep, 'call prep: ~q', [Prep]),
+	call(Prep),
+	debug(pyco_proof, 'match: ~q (~q)', [$>nicer_term(Query), Desc])
 	.
+
+proof(Eps0,Query) :-
+	%gtrace,
+	matching_rule(Eps0,Query, Body_items,Eps1),
+	/* Query has been unified with head. */
+	body_proof(Eps1, Body_items).
+
+proof(_,Query) :- call_native(Query).
+
+body_proof(_Eps1, []).
+
+body_proof(Eps1, Body_items) :-
+	pick_bi(Body_items, Bi, Body_items_next),
+	proof(Eps1, Bi),
+	body_proof(Eps1, Body_items_next).
+
+pick_bi(Body_items, Bi, Body_items_next) :-
+	'pairs of Index-Num_unbound'(Body_items, Pairs),
+	aggregate_all(min(Num_unbound), member(_Index-Num_unbound, Pairs), Min_unbound),
+	once(member(Picked_bi_index-Min_unbound, Pairs)),
+	extract_element_from_list(Body_items, Picked_bi_index, Bi, Body_items_next).
+
+
+/* ep stuff */
+
+
+query_term_ep_terms(Query, Query_ep_terms) :-
+	Query =.. [_|Args],
+	maplist(arg_ep_table_term, Args, Query_ep_terms).
 
 ep_list_for_rule(Eps0, Desc, X) :-
 	(	get_dict(Desc, Eps0, X)
@@ -227,7 +302,7 @@ ep_list_for_rule(Eps0, Desc, X) :-
 	;	X = []).
 
 ep_ok(Ep_List, Query_ep_terms) :-
-	debug(pyco2, '~q?', [ep_ok(Ep_List, Query_ep_terms)]),
+	debug(pyco_ep, '~q?', [ep_ok(Ep_List, Query_ep_terms)]),
 	maplist(ep_ok2(Query_ep_terms), Ep_List).
 
 ep_ok2(Query_ep_terms, Ep_Entry) :-
@@ -244,7 +319,7 @@ ep_ok2(Query_ep_terms, Ep_Entry) :-
 		Differents),
 	(	Differents == []
 	->	(
-			debug(pyco2, 'EP!', []),
+			debug(pyco_ep, 'EP!', []),
 			false
 		)
 	;	true).
@@ -291,20 +366,20 @@ register_bn(bn(Uid, Dict)) :-
 	term_string(Uid, Uid_str),
 	append(Bn_log0, [bn(Uid_str, Tag)], Bn_log1),
 	b_setval(bn_log, Bn_log1),
-	debug(pyco2, 'bn_log:~q', [Bn_log1]).
+	debug(pyco_ep, 'bn_log:~q', [Bn_log1]).
 
-proof(Eps0,Query) :-
-	matching_rule(Eps0,Query, Body_items,Eps1),
-	/* Query has been unified with head. */
-	body_proof(Eps1, Body_items).
 
-proof(_,Query) :-
+
+/* calling prolog */
+
+call_native(Query) :-
 	/* this case tries to handle calling native prolog predicates */
+	\+find_rule(Query, _, _, _, _),
 	catch(
 		(
-			debug(pyco2, 'prolog goal call:~q', [Query]),
+			debug(pyco_proof, 'prolog goal call:~q', [Query]),
 			call(Query),
-			debug(pyco2, 'prolog goal succeded:~q', [Query])
+			debug(pyco_proof, 'prolog goal succeded:~q', [Query])
 		),
 		error(existence_error(procedure,Name/Arity),_),
 		% you'd think this would only catch when the Query term clause doesn't exist, but nope, it actually catches any nested exception. Another swipl bug?
@@ -314,68 +389,6 @@ proof(_,Query) :-
 			fail
 		)
 	).
-
-
-run(Query) :-
-	b_setval(bn_log, []),
-	proof(eps{dummy:[]},Query).
-
-proof(Query) :-
-	proof(eps{dummy:[]},Query).
-
-
-%:- proof(test_statement1).
-
-
-
-
-
-
-number_of_unbound_args(Term, Count) :-
-	Term =.. [_|Args],
-	aggregate_all(count,
-	(
-		member(X, Args),
-		var(X)
-	),
-	Count).
-
-'pairs of Index-Num_unbound'(Body_items, Pairs) :-
-	length(Body_items, L0),
-	L is L0 - 1,
-	findall(I-Num_unbound,
-		(
-			between(0,L,I),
-			nth0(I,Body_items,Bi),
-			number_of_unbound_args(Bi, Num_unbound)
-		),
-	Pairs).
-
-
-pick_bi(Body_items, Bi, Body_items_next) :-
-	'pairs of Index-Num_unbound'(Body_items, Pairs),
-	aggregate_all(min(Num_unbound), member(_Index-Num_unbound, Pairs), Min_unbound),
-	once(member(Picked_bi_index-Min_unbound, Pairs)),
-	extract_element_from_list(Body_items, Picked_bi_index, Bi, Body_items_next).
-
-body_proof(Eps1, Body_items) :-
-	pick_bi(Body_items, Bi, Body_items_next),
-	proof(Eps1, Bi),
-	body_proof(Eps1, Body_items_next).
-
-body_proof(_Eps1, []).
-
-extract_element_from_list(List, Index, Element, List_without_element) :-
-	findall(
-		E,
-		(
-			nth0(I,List,E),
-			I \= Index
-		),
-		List_without_element
-	),
-	nth0(Index, List, Element).
-
 
 
 
@@ -444,3 +457,68 @@ Y = writeq(xxx).
 ba((N,A)) :-
 	call(N,A).
 */
+
+
+
+
+
+/* body ordering stuff */
+
+number_of_unbound_args(Term, Count) :-
+	Term =.. [_|Args],
+	aggregate_all(count,
+	(
+		member(X, Args),
+		var(X)
+	),
+	Count).
+
+'pairs of Index-Num_unbound'(Body_items, Pairs) :-
+	length(Body_items, L0),
+	L is L0 - 1,
+	findall(I-Num_unbound,
+		(
+			between(0,L,I),
+			nth0(I,Body_items,Bi),
+			number_of_unbound_args(Bi, Num_unbound)
+		),
+	Pairs).
+
+
+
+/*
+	extract_element_from_list with pattern-matching, preserving variable-to-variable bindings
+*/
+
+extract_element_from_list([], _, _, _) :- assertion(false).
+
+extract_element_from_list(List, Index, Element, List_without_element) :-
+	extract_element_from_list2(0, List, Index, Element, List_without_element).
+
+extract_element_from_list2(At_index, [F|R], Index, Element, List_without_element) :-
+	Index == At_index,
+	F = Element,
+	Next_index is At_index + 1,
+	extract_element_from_list2(Next_index, R, Index, Element, List_without_element).
+
+extract_element_from_list2(At_index, [F|R], Index, Element, [F|WT]) :-
+	Index \= At_index,
+	Next_index is At_index + 1,
+	extract_element_from_list2(Next_index, R, Index, Element, WT).
+
+extract_element_from_list2(_, [], _, _, []).
+
+
+
+
+/* run */
+
+
+
+run(Query) :-
+	b_setval(bn_log, []),
+	proof(eps{dummy:[]},Query).
+
+proof(Query) :-
+	proof(eps{dummy:[]},Query).
+
