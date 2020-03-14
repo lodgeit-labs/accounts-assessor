@@ -59,6 +59,10 @@ test(ledger,
 	[forall(testcases('endpoint_tests/ledger',Testcase))]) :-
 	run_testcase(ledger, Testcase).
 
+test('ledger-livestock',
+	[forall(testcases('endpoint_tests/ledger-livestock',Testcase))]) :-
+	run_testcase(ledger, Testcase).
+
 test(loan,
 	[forall(testcases('endpoint_tests/loan',Testcase))]) :-
 	run_testcase(loan, Testcase).

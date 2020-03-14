@@ -203,7 +203,7 @@ check_request_version :-
 	request_data(D),
 	(	doc(D, l:version, "1")
 	->	true
-	throw_string('incompatible client version')).
+	;	throw_string('incompatible client version')).
 
 accept_request_file(File_Paths, Path, Type) :-
 	debug(tmp_files, "accept_request_file(~w, ~w, ~w)~n", [File_Paths, Path, Type]),
