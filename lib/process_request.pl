@@ -185,7 +185,8 @@ process_multifile_request(File_Paths) :-
 			debug(tmp_files, "RDF graph: ~w~n", [G]),
 			request(Request),
 			doc(Request, l:has_request_data_uri_base, Request_data_uri_base),
-			doc_from_rdf(G, 'https://rdf.lodgeit.net.au/v1/excel_request#', Request_data_uri_base)
+			doc_from_rdf(G, 'https://rdf.lodgeit.net.au/v1/excel_request#', Request_data_uri_base),
+			check_request_version
 			%doc_input_to_chr_constraints
 		)
 	;	true),
@@ -196,6 +197,13 @@ process_multifile_request(File_Paths) :-
 			;	throw_string('<reports> tag not found'))
 		)
 	).
+
+check_request_version :-
+	/* only done for requests that include a rdf file */
+	request_data(D),
+	(	doc(D, l:version, "1")
+	->	true
+	throw_string('incompatible client version')).
 
 accept_request_file(File_Paths, Path, Type) :-
 	debug(tmp_files, "accept_request_file(~w, ~w, ~w)~n", [File_Paths, Path, Type]),

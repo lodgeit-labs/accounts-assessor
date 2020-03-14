@@ -32,14 +32,16 @@ nicer_arg2(Bn, Nicer) :-
 nicer_bn(Bn, Nicer) :-
 	nonvar(Bn),
 	\+ \+ Bn = bn(_, 'list cell exists'{first:_,rest:_}),
-	collect_items(Bn, Items),
-	maplist(nicer_arg2, Items, Nice_items),
+	nicer_bn2(Bn, Nice_items),
 	Bn = bn(Id, _),
 	'='(Nice_functor, $>atomic_list_concat([
 			list,
 			$>term_string(Id)])),
 	'=..'(Nicer, [Nice_functor|Nice_items]).
 
+nicer_bn2(Bn, Nice_items) :-
+	collect_items(Bn, Items),
+	maplist(nicer_arg2, Items, Nice_items).
 
 
 collect_items(Bn, [F|Rest]) :-
@@ -295,11 +297,12 @@ pick_bi(Body_items, Bi, Body_items_next) :-
 
 check_and_update_ep(Eps0, Desc, Query_ep_terms, Eps1) :-
 	ep_list_for_rule(Eps0, Desc, Ep_List),
+	debug(pyco_ep, 'seen:', []),
+	maplist(print_debug_ep_list_item, Ep_List),
+	debug(pyco_ep, 'now: ~q', [Query_ep_terms]),
 	ep_ok(Ep_List, Query_ep_terms),
 	append(Ep_List, [Query_ep_terms], Ep_List_New),
-	Eps1 = Eps0.put(Desc, Ep_List_New),
-	debug(pyco_ep, 'ep list of ~q:', [Desc]),
-	maplist(print_debug_ep_list_item, Ep_List_New).
+	Eps1 = Eps0.put(Desc, Ep_List_New).
 
 print_debug_ep_list_item(I) :-
 	debug(pyco_ep, '* ~q', [I]).
@@ -314,8 +317,8 @@ ep_list_for_rule(Eps0, Desc, X) :-
 	;	X = []).
 
 ep_ok(Ep_List, Query_ep_terms) :-
-	debug(pyco_ep, 'seen:~q', [Ep_List]),
-	debug(pyco_ep, 'now:~q ?', [Query_ep_terms]),
+	%debug(pyco_ep, 'seen:~q', [Ep_List]),
+	%debug(pyco_ep, 'now:~q ?', [Query_ep_terms]),
 	maplist(ep_ok2(Query_ep_terms), Ep_List).
 
 ep_ok2(Query_ep_terms, Ep_Entry) :-
@@ -377,7 +380,15 @@ register_bn(bn(Uid, Dict)) :-
 	is_dict(Dict, Tag),
 	b_getval(bn_log, Bn_log0),
 	term_string(Uid, Uid_str),
-	append(Bn_log0, [bn(Uid_str, Tag)], Bn_log1),
+	Entry = bn(Uid_str, Tag),
+	register_bn2(Entry, Bn_log0).
+
+register_bn2(Entry, Bn_log0) :-
+	member(Entry, Bn_log0).
+
+register_bn2(Entry, Bn_log0) :-
+	\+ member(Entry, Bn_log0),
+	append(Bn_log0, [Entry], Bn_log1),
 	b_setval(bn_log, Bn_log1),
 	debug(pyco_ep, 'bn_log:', []),
 	maplist(debug_print_bn_log_item, Bn_log1).
@@ -551,3 +562,58 @@ debug(pyco_ep),Q = test_statement1b(End, All, Capped), run(Q), nicer_term(Q, NQ)
 
 
 */
+
+
+/*
+
+todo visualizations:
+univar pyco outputs for example kbdbgtests_clean_lists_pyco_unify_bnodes_0.n3:
+	describes rule bodies and heads in detail.
+	Terms just simple non-recursive functor + args, but thats a fine start.
+	structure of locals..(memory layout), because pyco traces each bind, expressed by memory adressess. We could probably just not output that and the visualizer would simply not show any binds but still show the proof tree.
+	eventually, a script is ran: converter = subprocess.Popen(["./kbdbg2jsonld/frame_n3.py", pyin.kbdbg_file_name, pyin.rules_jsonld_file_name])
+	converts the n3 to jsonld, for consumption in the browser app.
+	we cant write json-ld from swipl either, so, i'd reuse the script.
+
+	store traces in doc? nah, too much work wrt backtracking
+	but we'll store the rules/static info described above, either in doc or directly in rdf db,
+	then save as something that the jsonld script can load, and spawn it.
+
+	trace0.js format:
+		S() is a call to a function in the browser. This ensures that the js file stays valid syntax even on crash.
+
+*/
+
+test0 :-
+	findnsols(
+		5000000000,
+		_,
+		(
+			debug(pyco_prep),
+			debug(pyco_proof),
+			debug(pyco_ep),
+
+			Q = test_statement1b(9, All, Capped),
+			run(Q),
+			nicer_term(Q, NQ),
+			format(user_error,'~nresult: ~q~n', [NQ]),
+
+			nicer_bn2(All, All_n),
+			nicer_bn2(Capped, Capped_n),
+
+			format(user_error,'~nAll:~n', []),
+			maplist(writeln, All_n),
+
+			format(user_error,'~nCapped:~n', []),
+			maplist(writeln, Capped_n),
+
+			nl,
+			true
+
+		),
+		_
+	),
+	halt.
+
+%print_item(I) :-
+%	format(user_error,'result: ~q~n', [NQ]),
