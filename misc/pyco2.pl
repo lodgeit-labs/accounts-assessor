@@ -4,12 +4,11 @@
 :- fnotation_ops($>,<$).
 :- op(900,fx,<$).
 
-list_to_u([], nil).
-list_to_u([H|T], Cell) :-
-	proof(fr(Cell,H,Cell2)),
-	list_to_u(T, Cell2).
 
-/* for list bnodes, produce nicer term for printing */
+
+/*
+ for list bnodes, produce nicer term for printing
+*/
 
 nicer_term(T, Nicer) :-
 %gtrace,
@@ -43,7 +42,6 @@ nicer_bn2(Bn, Nice_items) :-
 	collect_items(Bn, Items),
 	maplist(nicer_arg2, Items, Nice_items).
 
-
 collect_items(Bn, [F|Rest]) :-
 	\+ \+ Bn = bn(_, 'list cell exists'{first:_,rest:_}),
 	Bn = bn(_, 'list cell exists'{first:F,rest:R}),
@@ -52,6 +50,11 @@ collect_items(Bn, [F|Rest]) :-
 
 collect_items(Bn, []) :-
 	Bn == nil.
+
+
+/*
+ some testing rules
+*/
 
 :- discontiguous pyco0_rule/2.
 :- discontiguous pyco0_rule/3.
@@ -70,8 +73,7 @@ pyco0_rule(
 	[],
 	(L = bn(_, Desc{first:F,rest:R}),register_bn(L))
 	) :-
-		Desc = 'list cell exists'
-		.
+		Desc = 'list cell exists'.
 
 pyco0_rule(
 	Desc,
@@ -80,6 +82,12 @@ pyco0_rule(
 	(T = bn(_, Desc{day:D}),register_bn(T))
 	) :-
 		Desc = 's_transaction exists'.
+
+
+pyco0_rule(
+	'an empty list is a filtered version of an empty list',
+	[s_transactions_up_to(_, nil, nil)] <=
+	[]).
 
 pyco0_rule(
 	'including an item',
@@ -109,13 +117,7 @@ pyco0_rule(
 		fr(All, T, Ar),
 		s_transactions_up_to(End, Ar, Capped)
 	]).
-
-pyco0_rule(
-	'an empty list is a filtered version of an empty list',
-	[s_transactions_up_to(_, nil, nil)] <=
-	[]).
-
-
+/*
 pyco0_rule(
 	'test query0',
 	[test_statement0] <=
@@ -138,12 +140,8 @@ pyco0_rule(
 		list_to_u(X, Capped),
 		writeq(X),nl
 	]).
-
-/*
-
-now for the interesting stuff, requires reordering
-
 */
+
 
 pyco0_rule(
 	'test query1a',
@@ -162,6 +160,12 @@ pyco0_rule(
 		fr(C2,t2,C3),
 		fr(C3,t5,nil)
 	]).
+
+/*
+
+ now for the interesting stuff, requires reordering of body items
+
+*/
 
 pyco0_rule(
 	'test query1b',
@@ -182,6 +186,12 @@ pyco0_rule(
 		fr(C3,T5,nil)
 	]).
 
+
+/*
+
+more test rules, not up-to-date
+
+*/
 
 pyco0_rule(
 	Desc,
@@ -249,6 +259,14 @@ pyco0_rule(
 
 	]).
 
+
+
+/*
+
+ main logic
+
+*/
+
 find_rule(Query, Desc, Head_items, Body_items, Prep) :-
 	(	pyco0_rule(Desc, Head_items <= Body_items, Prep)
 	;	(
@@ -292,7 +310,9 @@ pick_bi(Body_items, Bi, Body_items_next) :-
 	extract_element_from_list(Body_items, Picked_bi_index, Bi, Body_items_next).
 
 
-/* ep stuff */
+/*
+ ep stuff
+*/
 
 
 check_and_update_ep(Eps0, Desc, Query_ep_terms, Eps1) :-
@@ -397,7 +417,9 @@ debug_print_bn_log_item(I) :-
 	debug(pyco_ep, '* ~q', [I]).
 
 
-/* calling prolog */
+/*
+ calling prolog
+*/
 
 call_native(Level, Query) :-
 	/* this case tries to handle calling native prolog predicates */
@@ -419,9 +441,108 @@ call_native(Level, Query) :-
 
 
 
+/*
+ body ordering stuff
+*/
+
+number_of_unbound_args(Term, Count) :-
+	Term =.. [_|Args],
+	aggregate_all(count,
+	(
+		member(X, Args),
+		var(X)
+	),
+	Count).
+
+'pairs of Index-Num_unbound'(Body_items, Pairs) :-
+	length(Body_items, L0),
+	L is L0 - 1,
+	findall(I-Num_unbound,
+		(
+			between(0,L,I),
+			nth0(I,Body_items,Bi),
+			number_of_unbound_args(Bi, Num_unbound)
+		),
+	Pairs).
+
 
 
 /*
+	extract_element_from_list with pattern-matching, preserving variable-to-variable bindings
+*/
+
+extract_element_from_list([], _, _, _) :- assertion(false).
+
+extract_element_from_list(List, Index, Element, List_without_element) :-
+	extract_element_from_list2(0, List, Index, Element, List_without_element).
+
+extract_element_from_list2(At_index, [F|R], Index, Element, List_without_element) :-
+	Index == At_index,
+	F = Element,
+	Next_index is At_index + 1,
+	extract_element_from_list2(Next_index, R, Index, Element, List_without_element).
+
+extract_element_from_list2(At_index, [F|R], Index, Element, [F|WT]) :-
+	Index \= At_index,
+	Next_index is At_index + 1,
+	extract_element_from_list2(Next_index, R, Index, Element, WT).
+
+extract_element_from_list2(_, [], _, _, []).
+
+
+
+
+/*
+top-level interface
+*/
+
+
+
+run(Query) :-
+	b_setval(bn_log, []),
+	nb_setval(step, 0),
+	proof(Query).
+
+proof(Query) :-
+	proof(0,eps{dummy:[]},Query).
+
+
+
+test0 :-
+	findnsols(
+		5000000000,
+		_,
+		(
+			%debug(pyco_prep),
+			%debug(pyco_proof),
+			%debug(pyco_ep),
+
+			Q = test_statement1b(9, All, Capped),
+			run(Q),
+			nicer_term(Q, NQ),
+			format(user_error,'~nresult: ~q~n', [NQ]),
+
+			nicer_bn2(All, All_n),
+			nicer_bn2(Capped, Capped_n),
+
+			format(user_error,'~nAll:~n', []),
+			maplist(writeln, All_n),
+
+			format(user_error,'~nCapped:~n', []),
+			maplist(writeln, Capped_n),
+
+			nl,
+			true
+
+		),
+		_
+	),
+	halt.
+
+
+/*
+random notes
+
 ep check:
 https://www.swi-prolog.org/pldoc/man?section=compare
 
@@ -488,72 +609,6 @@ ba((N,A)) :-
 
 
 
-
-/* body ordering stuff */
-
-number_of_unbound_args(Term, Count) :-
-	Term =.. [_|Args],
-	aggregate_all(count,
-	(
-		member(X, Args),
-		var(X)
-	),
-	Count).
-
-'pairs of Index-Num_unbound'(Body_items, Pairs) :-
-	length(Body_items, L0),
-	L is L0 - 1,
-	findall(I-Num_unbound,
-		(
-			between(0,L,I),
-			nth0(I,Body_items,Bi),
-			number_of_unbound_args(Bi, Num_unbound)
-		),
-	Pairs).
-
-
-
-/*
-	extract_element_from_list with pattern-matching, preserving variable-to-variable bindings
-*/
-
-extract_element_from_list([], _, _, _) :- assertion(false).
-
-extract_element_from_list(List, Index, Element, List_without_element) :-
-	extract_element_from_list2(0, List, Index, Element, List_without_element).
-
-extract_element_from_list2(At_index, [F|R], Index, Element, List_without_element) :-
-	Index == At_index,
-	F = Element,
-	Next_index is At_index + 1,
-	extract_element_from_list2(Next_index, R, Index, Element, List_without_element).
-
-extract_element_from_list2(At_index, [F|R], Index, Element, [F|WT]) :-
-	Index \= At_index,
-	Next_index is At_index + 1,
-	extract_element_from_list2(Next_index, R, Index, Element, WT).
-
-extract_element_from_list2(_, [], _, _, []).
-
-
-
-
-/* run */
-
-
-
-run(Query) :-
-	b_setval(bn_log, []),
-	nb_setval(step, 0),
-	proof(Query).
-
-proof(Query) :-
-	proof(0,eps{dummy:[]},Query).
-
-
-
-
-
 /*
 
 debug(pyco_ep),Q = test_statement1b(End, All, Capped), run(Q), nicer_term(Q, NQ).
@@ -562,6 +617,15 @@ debug(pyco_ep),Q = test_statement1b(End, All, Capped), run(Q), nicer_term(Q, NQ)
 
 
 */
+
+/*
+ignore
+list_to_u([], nil).
+list_to_u([H|T], Cell) :-
+	proof(fr(Cell,H,Cell2)),
+	list_to_u(T, Cell2).
+*/
+
 
 
 /*
@@ -584,36 +648,6 @@ univar pyco outputs for example kbdbgtests_clean_lists_pyco_unify_bnodes_0.n3:
 
 */
 
-test0 :-
-	findnsols(
-		5000000000,
-		_,
-		(
-			debug(pyco_prep),
-			debug(pyco_proof),
-			debug(pyco_ep),
-
-			Q = test_statement1b(9, All, Capped),
-			run(Q),
-			nicer_term(Q, NQ),
-			format(user_error,'~nresult: ~q~n', [NQ]),
-
-			nicer_bn2(All, All_n),
-			nicer_bn2(Capped, Capped_n),
-
-			format(user_error,'~nAll:~n', []),
-			maplist(writeln, All_n),
-
-			format(user_error,'~nCapped:~n', []),
-			maplist(writeln, Capped_n),
-
-			nl,
-			true
-
-		),
-		_
-	),
-	halt.
 
 %print_item(I) :-
 %	format(user_error,'result: ~q~n', [NQ]),

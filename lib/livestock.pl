@@ -127,7 +127,7 @@ process_livestock2((S_Transactions, Transactions_In), Livestock, Transactions_Ou
 	preprocess_rations(Livestock, Rations_Transactions),
 	append(Transactions2, Rations_Transactions, Transactions3),
 
-	/* counts were changed by buys/sells and by rations, losses and borns */
+	/* counts were changed by buys, sells, rations, losses and natural increases */
 	dict_from_vars(Static_Data0, [Start_Date, End_Date]),
 	append(Transactions_In, Transactions3, Transactions_Total),
 
