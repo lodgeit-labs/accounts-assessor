@@ -1,13 +1,4 @@
-:- module(theory_date, [date_constraints/1]).
-:- use_module(library(chr)).
-:- chr_constraint
-	fact/3,
-	rule/0.
-
-% The date theory is special...
-
-:- multifile chr_fields/2.
-
+/*
 chr_fields(date, [
 	_{
 		key:year,
@@ -34,7 +25,7 @@ chr_fields(date, [
 		required:true
 	}
 ]).
-
+*/
 
 day_number(1,"Sunday").
 day_number(2,"Monday").
@@ -83,8 +74,9 @@ date_constraints(Date) :-
 		year_offset_1mo_days:Year_Offset_1Mo_Days,
 		previous_month_lengths:Previous_Month_Lengths_This_Year
 	},
+	% this list somehow causes a problem for library(interpolate)
 	Months = [
-		[1,		31,					"January"], % why can't "January" be an integer? :)
+		[1,		31,					"January"],
 		[2,		February_Length,	"February"],
 		[3,		31, 				"March"],
 		[4,		30, 				"April"],
@@ -103,6 +95,7 @@ date_constraints(Date) :-
 	%maplist([[_,_,X],X]>>(true),Months,Month_Names),
 	%maplist([[_,X],X]>>(true),Days_Of_Week,Days_Of_Week_Names),
 	Month in 1..12,
+
 	Day_Of_Week in 1..7,
 	when(nonvar(Month), month_number(Month_Name, Month)),
 	when(nonvar(Month_Name), month_number(Month_Name, Month)),
@@ -114,10 +107,12 @@ date_constraints(Date) :-
 
 	sum(Month_Lengths, #=, Year_Length),
 
-	February_Length #= 28 + Leap_Year,
+
 	tuples_in([[Month, Month_Length]], Month_Integer_Values) #\ ((Month #=2) #/\ (Month_Length #= February_Length)),
 
 	(Year mod 400 #= 0) #\/ ((Year mod 4 #= 0) #/\ (Year mod 100 #\= 0)) #<==> Leap_Year,
+
+	February_Length #= 28 + Leap_Year,
 	Leap_Year #<==> (February_Length #= 29),
 	Leap_Year #\ (February_Length #= 28),
 
