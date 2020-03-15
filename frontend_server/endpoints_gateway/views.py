@@ -14,9 +14,8 @@ sys.path.append('../internal_workers')
 sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../../internal_workers')))
 
 
-
 if 'USE_CELERY' in os.environ:
-	import services
+	import call_prolog as services
 else:
 	import invoke_rpc_cmdline as services
 

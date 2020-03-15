@@ -235,12 +235,6 @@ if __name__ == '__main__':
 
 
 
-
-
-
-
-
-
 	#for i in g.quads(None):
 	#		print(i)
 """sparql_store = SPARQLUpdateStore()

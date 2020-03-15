@@ -36,6 +36,9 @@ demo7778:
         dir: ./frontend_server
 
 demo7768:
+   defaults:
+      type: exec
+
    services:   
       - name: celery_worker
         dir: ./internal_workers
