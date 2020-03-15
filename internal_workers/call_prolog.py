@@ -1,4 +1,4 @@
-from c import app
+from celery_module import app
 
 from invoke_rpc_cmdline import *
 

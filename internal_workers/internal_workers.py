@@ -1,6 +1,6 @@
-from c import app
+from celery_module import app
 
-import os
+import os, sys
 import rdflib
 import rdflib.plugins.serializers.nquads
 import urllib
@@ -11,7 +11,7 @@ def agc():
 	# from franz.openrdf.sail.allegrographserver import AllegroGraphServer
 	from franz.openrdf.connect import ag_connect
 	user = os.environ.get('AGRAPH_USER')
-	passw = os.environ.get('AGRAPH_PASS')
+	passw = os.environ.get('AGRAPH_PASSWORD')
 	if user != None and passw != None:
 		return ag_connect('a', host='localhost', port='10036', user=user, password=passw)
 	else:
@@ -23,11 +23,15 @@ def put_doc_dump_into_triplestore(tmp_path):
 	trig_fn = tmp_path + '/doc.trig'# or: trig_fn = report_by_key(response, 'doc.trig')
 	nq_fn = tmp_path + '/doc.nq'
 	g=rdflib.graph.ConjunctiveGraph()
+	print("load "+trig_fn + "...", file=sys.stderr)
 	g.load(trig_fn, format='trig')
-	generate_yed_file(g, tmp_path)
+	#generate_yed_file(g, tmp_path)
+	print("write "+nq_fn + "...", file=sys.stderr)
 	g.serialize(nq_fn, format='nquads')
+	print("agc()...", file=sys.stderr)
 	c = agc()
 	if c:
+		print("c.addFile(nq_fn)...", file=sys.stderr)
 		c.addFile(nq_fn)
 
 
@@ -57,6 +61,7 @@ prefixes.sort(key=len)
 def add_node(go, added, x):
 	if x not in added:
 		added.add(x)
+		print("len(added): "+str(len(added)) + "...", file=sys.stderr)
 
 		kwargs = {}
 

@@ -38,6 +38,8 @@ def handle_uploaded_file(tmp_directory_path, f):
 
 #    path('/upload', views.upload, name='upload'),
 
+#@sensitive_variables('user', 'pw', 'cc') # https://simpleisbetterthancomplex.com/tips/2016/11/01/django-tip-19-protecting-sensitive-information.html
+#@sensitive_post_parameters('pass_word', 'credit_card_number')
 @csrf_exempt
 def upload(request):
 	params = QueryDict(mutable=True)
