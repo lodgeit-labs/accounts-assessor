@@ -84,15 +84,13 @@ matching_rule(Level,Eps0, Query, Body_items, Eps1) :-
 	debug(pyco_prep, 'call prep: ~q', [Prep]),
 	call(Prep).
 
-proof(Level,Eps0,Query) :-
+proof(Level,Eps0,Query,Mode) :-
+find_rule(Query, Desc, Head_items, Body_items, Prep),
+
 	matching_rule(Level,Eps0,Query, Body_items,Eps1),
 	/* Query has been unified with head. */
 	Deeper_level is Level + 1,
-
-	nb_getval(step, Step),
-	Step_next is Step + 1,
-	nb_setval(step, Step_next),
-
+	bump_step,
 	body_proof(Deeper_level, Eps1, Body_items).
 
 proof(Level,_,Query) :- call_native(Level, Query).
@@ -111,6 +109,11 @@ pick_bi(Body_items, Bi, Body_items_next) :-
 	extract_element_from_list(Body_items, Picked_bi_index, Bi, Body_items_next).
 
 
+
+body_proof(Level, Eps1, Body_items) :-
+	depth_tree(
+
+
 /*
  ep stuff
 */
@@ -121,7 +124,12 @@ check_and_update_ep(Eps0, Desc, Query_ep_terms, Eps1) :-
 	debug(pyco_ep, 'seen:', []),
 	maplist(print_debug_ep_list_item, Ep_List),
 	debug(pyco_ep, 'now: ~q', [Query_ep_terms]),
-	ep_ok(Ep_List, Query_ep_terms),
+	(	ep_ok(Ep_List, Query_ep_terms)
+	->	Mode = ep_yield
+	->
+
+
+
 	append(Ep_List, [Query_ep_terms], Ep_List_New),
 	Eps1 = Eps0.put(Desc, Ep_List_New).
 
@@ -420,3 +428,10 @@ univar pyco outputs for example kbdbgtests_clean_lists_pyco_unify_bnodes_0.n3:
 
 %print_item(I) :-
 %	format(user_error,'result: ~q~n', [NQ]),
+
+
+bump_step :-
+	nb_getval(step, Step),
+	Step_next is Step + 1,
+	nb_setval(step, Step_next).
+

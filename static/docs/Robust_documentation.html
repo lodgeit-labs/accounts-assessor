@@ -5,8 +5,9 @@
 	<title>General Ledger Viewer documentation</title>
 	<meta name="generator" content="LibreOffice 6.0.7.3 (Linux)"/>
 	<meta name="created" content="00:00:00"/>
-	<meta name="changed" content="2020-03-02T15:26:28.497849028"/>
+	<meta name="changed" content="2020-03-17T14:55:26.084170492"/>
 	<meta name="" content=""/>
+	<meta name="created" content="00:00:00">
 	<meta name="created" content="00:00:00">
 	<style type="text/css">
 		h1 { text-align: center }
@@ -123,8 +124,10 @@ is understood as &quot;USD, disregarding movement of USD against AUD
 since date(2019,9,9)&quot;. The program does the appropriate
 conversion to AUD when generating reports. 
 </p>
-<p>Todo: review if the use of this abstract unit is necessary here, i
-think we can simplify. 
+<pre class="western"><font color="#000000">Another declarative unit is “</font><font color="#000000">without_movement_after(Unit, Date)”. </font></pre><p>
+Todo: the semantics are similar, review if we need both. review if
+the use of this abstract unit is necessary here, i think we can
+simplify. 
 </p>
 <p>todo: explain split into historical and current entry, for
 historical transactions. 

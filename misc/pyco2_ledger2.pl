@@ -55,12 +55,144 @@ a pair Sts - Ts has the relation 'preprocess' if:
 	a pair Sts_rest - Ts3 has the relation 'preprocess'.
 
 ^ the last statement would probably be tried first, with current body-reordering logic
-what we should be doing:
+
+what we should be doing instead:
 	if a body item fails:
 		if there were no eps in its call tree:
 			fail
 		else:
 			put it at the end of the queue
+
+
+
+(?c ?as ?bs) x x :-
+	?c a ?as
+	?c b ?bs
+
+suc(?cr) a suc(?ar)
+
+(?tc nil) a ?x :-
+
+
+
+
+(?sts ?ts) a led
+
+
+
+
+number of new binds
+number of new constraints
+
+whole body is one big term
+
+
+
+
+
+
+
+with peano numbers:
+
+'lists of same length'(A,B) :-
+	list_length(A, L),
+	list_length(B, L).
+
+
+it should be noted that list_length won't necessarily be invoked directly, it could be through a helper pred.
+
+
+list_length(nil, nil).
+list_length(X, L) :-
+	fr(X, _, Rest),
+	L_minus_1 suc L
+	list_length(Rest, L_minus_1)
+
+when invoked with both args unbound, yields:
+nil, nil
+(_), suc(nil)
+and then ep hits. or EP_YIELD's.
+bn{first:_,rest:bn{_,_}}
+
+
+if invoked by user:
+'lists of same length'(?A,?B)
+the answers should be:
+nil nil
+(_) (_)
+ep!
+.
+if invoked by user:
+'lists of same length'(?A,(b b))
+the trace should be:
+	list_length(?A, L),
+		list_length(nil, zero).
+			yield
+	list_length((b b), zero).
+		fail
+	back to:
+	list_length(?A, L),
+		list_length(X, L).
+			ep-yield
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+q 'lists of same chars, of same length'(A,(x x))
+m 'lists of same chars, of same length'(A,B)
+b 'list of same chars, of length'(A, L),
+	char(CH),
+		char(a),
+		this branch eventually fails
+	'list of CH, of length L'(X, a, L).
+	'list of CH, of length L'(nil, CH, zero).
+		this branch eventually fails
+until..
+	char(CH),
+		char(x),
+	'list of CH, of length L'(X, a, L).
+	'list of CH, of length L'(X, a, L).
+		ep
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+list_length(nil, nil).
+list_length(X, L) :-
+	fr(X, _, Rest),
+	L_minus_1 suc L
+	list_length(Rest, L_minus_1)
+
+
+
 
 */
 
