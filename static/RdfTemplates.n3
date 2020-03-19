@@ -448,15 +448,14 @@ ic_ui:action_verbs
 			excel:property av:role;
 			excel:type excel:uri
 		]
-		[excel:property av:exchanged_account]
-		[excel:property av:trading_account]
+		[excel:property av:money_direction]
+		[excel:property av:exchanged_account_id]
+		[excel:property av:trading_account_id]
 		[excel:property av:description] 	 	
-		[excel:property av:GST_Receivable_account]
-		[excel:property av:GST_Payable_account]
+		[excel:property av:GST_Receivable_account_id]
+		[excel:property av:GST_Payable_account_id]
 		[excel:property av:GST_Rate_Percent]
     ).
-
-
 
 av:role rdfs:range av:Action_verb_role.
 
@@ -465,35 +464,26 @@ av:Action_verb_role
 	rdfs:comment "role uri special to the prolog system";
 	av:has_parameter av:counteraccount.
 
-av:Generic_invest_in
-	rdfs:comment "a base class of invest_in action_verbs";
-	rdfs:subClassOf av:Action_verb_role;
-	av:has_parameter av:trading_account.
-	
-av:Generic_dispose_of 
-	rdfs:comment "a base class of dispose_of action_verbs";
+av:Generic_trading_action_verb_role
+	rdfs:comment "a base class of the invest_in and dispose_of action_verbs";
 	rdfs:subClassOf av:Action_verb_role;
 	av:has_parameter av:trading_account.
 
 av:basic a av:Action_verb_role.
-av:invest_in a av:Generic_invest_in.
-av:dispose_of a av:Generic_dispose_of.
-av:smsf_invest_in a av:Generic_invest_in.
-av:smsf_dispose_of a av:Generic_dispose_of.
+av:invest_in a av:Generic_trading_action_verb_role.
+av:dispose_of a av:Generic_trading_action_verb_role.
+av:smsf_invest_in a av:Generic_trading_action_verb_role.
+av:smsf_dispose_of a av:Generic_trading_action_verb_role.
 	
-
-
 
 ic:Action_verb
     a rdfs:Class;
     rdfs:comment "action verb, defined in Action_verbs excel sheet".
 
-ic:exchanged_account rdfs:domain ic:Action_verb.
 
 ic_ui:example_action_verbs rdf:value (
 	[
 		av:id "Invest_In";
-		av:role av:invest_in;
 		av:counteraccount_name "FinancialInvestments";
 		av:trading_account_name "InvestmentIncome"
 	]
@@ -508,8 +498,13 @@ ic_ui:example_action_verbs rdf:value (
 		av:role av:basic;
 		av:counteraccount_name "NonCurrentLoans"
 	]
+	[
+		av:id "Introduce_Capital";
+		av:role av:basic;
+		av:counteraccount_name "ShareCapital"
+	]
 	
-Introduce_Capital	ShareCapital
+	
 Transfers	ClearingAccount
 Bank_Charges	BankCharges
 Interest_Expenses	InterestExpenses
