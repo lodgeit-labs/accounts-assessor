@@ -1,12 +1,12 @@
 @prefix : <https://rdf.lodgeit.net.au/v1#> .
-
-
 @prefix l: <https://rdf.lodgeit.net.au/v1/request#> .
+@prefix av: <https://rdf.lodgeit.net.au/v1/action_verbs#> .
 @prefix excel: <https://rdf.lodgeit.net.au/v1/excel#> .
 
 @prefix depr: <https://rdf.lodgeit.net.au/v1/calcs/depr#> .
 @prefix ic: <https://rdf.lodgeit.net.au/v1/calcs/ic#> .
 @prefix hp: <https://rdf.lodgeit.net.au/v1/calcs/hp#> .
+
 @prefix depr_ui: <https://rdf.lodgeit.net.au/v1/calcs/depr/ui#> .
 @prefix ic_ui: <https://rdf.lodgeit.net.au/v1/calcs/ic/ui#> .
 @prefix hp_ui: <https://rdf.lodgeit.net.au/v1/calcs/hp/ui#> .
@@ -18,11 +18,7 @@
 
 
 
-
-
 :this rdfs:comment """
-unfinished work on introducing namespacing. This should help with ordering the output of rdf_cleanup2.py and similar reasonably, and in keeping identifiers short
-
 prefixes:
 	excel: generic excel schema-directed ui stuff
 
@@ -383,6 +379,11 @@ ic_ui:investment_calculator_sheets
 					rdf:value ()
 				]
 		]
+		[
+			excel:root ic_ui:action_verbs;
+			excel:optional false;
+			excel:example_doc ic_ui:example_action_verbs.
+		]
 ).
 
 ic_ui:gl
@@ -437,3 +438,103 @@ ic_ui:transaction_input
 		[excel:property ic:description2]
 		[excel:property ic:description3]
 	).
+
+ic_ui:action_verbs
+	excel:cardinality excel:multi;
+	excel:class ic:Action_verb;
+	excel:fields (
+		[excel:property av:id]
+		[	
+			excel:property av:role;
+			excel:type excel:uri
+		]
+		[excel:property av:exchanged_account]
+		[excel:property av:trading_account]
+		[excel:property av:description] 	 	
+		[excel:property av:GST_Receivable_account]
+		[excel:property av:GST_Payable_account]
+		[excel:property av:GST_Rate_Percent]
+    ).
+
+
+
+av:role rdfs:range av:Action_verb_role.
+
+av:Action_verb_role 
+	a rdfs:Class;
+	rdfs:comment "role uri special to the prolog system";
+	av:has_parameter av:counteraccount.
+
+av:Generic_invest_in
+	rdfs:comment "a base class of invest_in action_verbs";
+	rdfs:subClassOf av:Action_verb_role;
+	av:has_parameter av:trading_account.
+	
+av:Generic_dispose_of 
+	rdfs:comment "a base class of dispose_of action_verbs";
+	rdfs:subClassOf av:Action_verb_role;
+	av:has_parameter av:trading_account.
+
+av:basic a av:Action_verb_role.
+av:invest_in a av:Generic_invest_in.
+av:dispose_of a av:Generic_dispose_of.
+av:smsf_invest_in a av:Generic_invest_in.
+av:smsf_dispose_of a av:Generic_dispose_of.
+	
+
+
+
+ic:Action_verb
+    a rdfs:Class;
+    rdfs:comment "action verb, defined in Action_verbs excel sheet".
+
+ic:exchanged_account rdfs:domain ic:Action_verb.
+
+ic_ui:example_action_verbs rdf:value (
+	[
+		av:id "Invest_In";
+		av:role av:invest_in;
+		av:counteraccount_name "FinancialInvestments";
+		av:trading_account_name "InvestmentIncome"
+	]
+	[
+		av:id "Dispose_Of";
+		av:role av:dispose_of;
+		av:counteraccount_name "FinancialInvestments";
+		av:trading_account_name "InvestmentIncome"
+	]
+	[
+		av:id "Borrow";
+		av:role av:basic;
+		av:counteraccount_name "NonCurrentLoans"
+	]
+	
+Introduce_Capital	ShareCapital
+Transfers	ClearingAccount
+Bank_Charges	BankCharges
+Interest_Expenses	InterestExpenses
+Accountancy_Fees	AccountingFees
+Interest_Income	InterestEarned
+Drawings	Drawings
+Fixed_Asset_Purchase	FixedAssets
+
+
+
+	[
+		av:id "Purchase_Method_C";
+		av:role av:purchase_method_c;
+		av:counteraccount_name "Purchases";
+		av:GST_Payable_account_name "GSTPayable";
+		av:GST_Rate_Percent "10"
+
+	]
+	[
+		av:id "Sale_Method_C";
+		av:role av:sale_method_c;
+		av:counteraccount_name "Revenue";
+		av:GST_Receivable_account_name "GSTReceivable";
+		av:GST_Rate_Percent "10";
+	]
+).
+				
+

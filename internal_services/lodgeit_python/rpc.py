@@ -77,7 +77,6 @@ class MyDjangoJSONEncoder(DjangoJSONEncoder):
 	pass
 
 
-
 #def ok(value):
 #	value2 = json.dumps(value)
 #	return JsonResponse({'status': 'ok', 'result': value2})

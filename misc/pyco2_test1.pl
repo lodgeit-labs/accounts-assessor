@@ -51,9 +51,11 @@ pyco0_rule(
 	['list of Ch, of length L'(X, Ch, L)]
 	<=
 	[
+		L #> 0,
+		L_next #= L - 1,
+		gtrace,
 		fr(X, F, R),
 		Ch = F,
-		L_next is L - 1,
 		'list of Ch, of length L'(R, Ch, L_next)
 	]).
 
@@ -121,6 +123,7 @@ test2 :-
 			%debug(pyco_proof),
 			%debug(pyco_ep),
 			Q = q2(_,_),
+			gtrace,
 			run(Q),
 			format(user_error,'~nresult: ~q~n', [Q]),
 

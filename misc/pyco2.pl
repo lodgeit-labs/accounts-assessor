@@ -80,21 +80,22 @@ matching_rule(Level, Query, Desc, Body_items, Prep, Query_ep_terms) :-
 	member(Query, Head_items),
 	debug(pyco_proof, '(~q)match~q: ~q (~q)', [$>nb_getval(step) ,Level, $>nicer_term(Query), Desc]).
 
-proof(Level,_,_Ep_yield,Query) :- call_native(Level, Query).
-
 proof(Level,Eps0,Ep_yield,Query) :-
 	matching_rule(Level, Query, Desc, Body_items, Prep, Query_ep_terms),
 	ep_list_for_rule(Eps0, Desc, Ep_List),
 	ep_debug_print_1(Ep_List, Query_ep_terms),
 	(	ep_ok(Ep_List, Query_ep_terms)
-	->	(
-			updated_ep_list(Eps0, Ep_List, Query_ep_terms, Desc, Eps1),
-			call_prep(Prep),
-			Deeper_level is Level + 1,
-			bump_step,
-			body_proof(Deeper_level, Eps1, Body_items)
-		)
+	->	prove_body(Eps0, Ep_List, Query_ep_terms, Desc, Prep, Level, Body_items)
 	;	Ep_yield == ep_yield).
+
+proof(Level,_,_Ep_yield,Query) :- call_native(Level, Query).
+
+prove_body(Eps0, Ep_List, Query_ep_terms, Desc, Prep, Level, Body_items) :-
+	updated_ep_list(Eps0, Ep_List, Query_ep_terms, Desc, Eps1),
+	call_prep(Prep),
+	Deeper_level is Level + 1,
+	bump_step,
+	body_proof(Deeper_level, Eps1, Body_items).
 
 body_proof(Level, _, []) :-
 	debug(pyco_proof, '(~q)yield~q.', [$>nb_getval(step) ,Level]).
