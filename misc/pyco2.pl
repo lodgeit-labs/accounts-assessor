@@ -68,27 +68,27 @@ collect_items(Bn, []) :-
 
 */
 
-find_rule(Level, Query, Desc, Head_items, Body_items, Prep) :-
+rule(Desc, Head_items, Body_items, Prep) :-
 	(	pyco0_rule(Desc, Head_items <= Body_items, Prep)
 	;	(
 			pyco0_rule(Desc, Head_items <= Body_items),
 			Prep = true)).
 
-matching_rule(Query, Desc, Body_items, Prep, Query_ep_terms) :-
+matching_rule(Level, Query, Desc, Body_items, Prep, Query_ep_terms) :-
 	query_term_ep_terms(Query, Query_ep_terms),
-	find_rule(Query, Desc, Head_items, Body_items, Prep),
+	rule(Desc, Head_items, Body_items, Prep),
 	member(Query, Head_items),
 	debug(pyco_proof, '(~q)match~q: ~q (~q)', [$>nb_getval(step) ,Level, $>nicer_term(Query), Desc]).
 
-proof(Level,_,Query) :- call_native(Level, Query).
+proof(Level,_,_Ep_yield,Query) :- call_native(Level, Query).
 
 proof(Level,Eps0,Ep_yield,Query) :-
-	matching_rule(Query, Desc, Body_items, Prep, Query_ep_terms),
+	matching_rule(Level, Query, Desc, Body_items, Prep, Query_ep_terms),
 	ep_list_for_rule(Eps0, Desc, Ep_List),
 	ep_debug_print_1(Ep_List, Query_ep_terms),
 	(	ep_ok(Ep_List, Query_ep_terms)
 	->	(
-			updated_ep_list(Eps0, Ep_List, Query_ep_terms, Desc, Eps1)
+			updated_ep_list(Eps0, Ep_List, Query_ep_terms, Desc, Eps1),
 			call_prep(Prep),
 			Deeper_level is Level + 1,
 			bump_step,
@@ -114,9 +114,9 @@ depth_map(X, v) :-
 
 depth_map(X, Map) :-
 	nonvar(X),
-	X =.. [F|Args],
-	Map =.. nv(Args2),
-	maplist(depth_map, Args, Args2).
+	X =.. [_|Args],
+	maplist(depth_map, Args, Args2),
+	Map =.. [nv|Args2].
 
 
 
@@ -227,7 +227,7 @@ debug_print_bn_log_item(I) :-
 
 call_native(Level, Query) :-
 	/* this case tries to handle calling native prolog predicates */
-	\+find_rule(Level, Query, _, _, _, _),
+	\+matching_rule(Level, Query, _,_,_,_),
 	catch(
 		(
 			debug(pyco_proof, '(~q)prolog~q call:~q', [$>nb_getval(step), Level, Query]),
@@ -308,7 +308,7 @@ run(Query) :-
 	proof(Query).
 
 proof(Query) :-
-	proof(0,eps{dummy:[]},Query).
+	proof(0,eps{},ep_fail,Query).
 
 
 
