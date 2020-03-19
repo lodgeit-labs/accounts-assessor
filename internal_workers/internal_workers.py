@@ -78,3 +78,6 @@ def add_node(go, added, x):
 		# best bet: lxml has a compatible api(?)
 
 		go.add_node(x, shape_fill="#DDDDDD", **kwargs)
+
+	# at any case, at about 1000 nodes, since we're building up the xml dom in memory, this script slows to a crawl. So we need a custom solution.
+	# however, yed itself is not suitable for thousands of nodes: https://yed.yworks.com/support/qa/11879/maximum-number-of-nodes-that-yed-can-handle

@@ -68,68 +68,63 @@ collect_items(Bn, []) :-
 
 */
 
-find_rule(Query, Desc, Head_items, Body_items, Prep) :-
+find_rule(Level, Query, Desc, Head_items, Body_items, Prep) :-
 	(	pyco0_rule(Desc, Head_items <= Body_items, Prep)
 	;	(
 			pyco0_rule(Desc, Head_items <= Body_items),
-			Prep = true)),
-	\+ \+member(Query, Head_items).
+			Prep = true)).
 
-matching_rule(Level,Eps0, Query, Body_items, Eps1) :-
-	find_rule(Query, Desc, Head_items, Body_items, Prep),
-	debug(pyco_proof, '(~q)match~q: ~q (~q)', [$>nb_getval(step) ,Level, $>nicer_term(Query), Desc]),
+matching_rule(Query, Desc, Body_items, Prep, Query_ep_terms) :-
 	query_term_ep_terms(Query, Query_ep_terms),
+	find_rule(Query, Desc, Head_items, Body_items, Prep),
 	member(Query, Head_items),
-	check_and_update_ep(Eps0, Desc, Query_ep_terms, Eps1),
-	debug(pyco_prep, 'call prep: ~q', [Prep]),
-	call(Prep).
-
-proof(Level,Eps0,Query,Mode) :-
-find_rule(Query, Desc, Head_items, Body_items, Prep),
-
-	matching_rule(Level,Eps0,Query, Body_items,Eps1),
-	/* Query has been unified with head. */
-	Deeper_level is Level + 1,
-	bump_step,
-	body_proof(Deeper_level, Eps1, Body_items).
+	debug(pyco_proof, '(~q)match~q: ~q (~q)', [$>nb_getval(step) ,Level, $>nicer_term(Query), Desc]).
 
 proof(Level,_,Query) :- call_native(Level, Query).
 
-body_proof(_, _, []).
+proof(Level,Eps0,Ep_yield,Query) :-
+	matching_rule(Query, Desc, Body_items, Prep, Query_ep_terms),
+	ep_list_for_rule(Eps0, Desc, Ep_List),
+	ep_debug_print_1(Ep_List, Query_ep_terms),
+	(	ep_ok(Ep_List, Query_ep_terms)
+	->	(
+			updated_ep_list(Eps0, Ep_List, Query_ep_terms, Desc, Eps1)
+			call_prep(Prep),
+			Deeper_level is Level + 1,
+			bump_step,
+			body_proof(Deeper_level, Eps1, Body_items)
+		)
+	;	Ep_yield == ep_yield).
+
+body_proof(Level, _, []) :-
+	debug(pyco_proof, '(~q)yield~q.', [$>nb_getval(step) ,Level]).
 
 body_proof(Level, Eps1, Body_items) :-
-	pick_bi(Body_items, Bi, Body_items_next),
-	proof(Level, Eps1, Bi),
-	body_proof(Level, Eps1, Body_items_next).
+	debug(depth_map, 'map for: ~q', [Body_items]),
+	depth_map(Body_items, Map0),
+	debug(depth_map, 'map: ~q', [Map0]),
+	maplist(proof(Level, Eps1, ep_yield), Body_items),
+	depth_map(Body_items, Map1),
+	(	Map0 = Map1
+	->	maplist(proof(Level, Eps1, ep_fail), Body_items)
+	;	body_proof(Level, Eps1, Body_items)).
 
-pick_bi(Body_items, Bi, Body_items_next) :-
-	'pairs of Index-Num_unbound'(Body_items, Pairs),
-	aggregate_all(min(Num_unbound), member(_Index-Num_unbound, Pairs), Min_unbound),
-	once(member(Picked_bi_index-Min_unbound, Pairs)),
-	extract_element_from_list(Body_items, Picked_bi_index, Bi, Body_items_next).
+depth_map(X, v) :-
+	var(X).
 
+depth_map(X, Map) :-
+	nonvar(X),
+	X =.. [F|Args],
+	Map =.. nv(Args2),
+	maplist(depth_map, Args, Args2).
 
-
-body_proof(Level, Eps1, Body_items) :-
-	depth_tree(
 
 
 /*
  ep stuff
 */
 
-
-check_and_update_ep(Eps0, Desc, Query_ep_terms, Eps1) :-
-	ep_list_for_rule(Eps0, Desc, Ep_List),
-	debug(pyco_ep, 'seen:', []),
-	maplist(print_debug_ep_list_item, Ep_List),
-	debug(pyco_ep, 'now: ~q', [Query_ep_terms]),
-	(	ep_ok(Ep_List, Query_ep_terms)
-	->	Mode = ep_yield
-	->
-
-
-
+updated_ep_list(Eps0, Ep_List, Query_ep_terms, Desc, Eps1) :-
 	append(Ep_List, [Query_ep_terms], Ep_List_New),
 	Eps1 = Eps0.put(Desc, Ep_List_New).
 
@@ -232,7 +227,7 @@ debug_print_bn_log_item(I) :-
 
 call_native(Level, Query) :-
 	/* this case tries to handle calling native prolog predicates */
-	\+find_rule(Query, _, _, _, _),
+	\+find_rule(Level, Query, _, _, _, _),
 	catch(
 		(
 			debug(pyco_proof, '(~q)prolog~q call:~q', [$>nb_getval(step), Level, Query]),
@@ -435,3 +430,11 @@ bump_step :-
 	Step_next is Step + 1,
 	nb_setval(step, Step_next).
 
+call_prep(Prep) :-
+	debug(pyco_prep, 'call prep: ~q', [Prep]),
+	call(Prep).
+
+ep_debug_print_1(Ep_List, Query_ep_terms) :-
+	debug(pyco_ep, 'seen:', []),
+	maplist(print_debug_ep_list_item, Ep_List),
+	debug(pyco_ep, 'now: ~q', [Query_ep_terms]).

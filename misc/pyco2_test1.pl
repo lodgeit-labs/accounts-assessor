@@ -50,3 +50,33 @@ pyco0_rule(
 		L_next is L - 1,
 		'list of Ch, of length L'(R, Ch, Lp)
 	]).
+
+char(a).
+char(b).
+
+pyco0_rule(
+	'q1',
+	[q1(L,F,R)] <=
+	[
+		fr(L, F, R)
+	]).
+
+test2 :-
+	findnsols(
+		5000000000,
+		_,
+		(
+			%debug(pyco_prep),
+			%debug(pyco_proof),
+			%debug(pyco_ep),
+
+			Q = q1(L,F,R),
+			run(Q),
+			format(user_error,'~nresult: ~q~n', [Q]),
+
+			nl,
+			true
+		),
+		_
+	),
+	halt.
