@@ -182,8 +182,6 @@ _Guard,
 |
 fact(
 	_Rule_Name,
-	fired_on,
-	[_Body_Keep + _Body_Lose]
 ),
 _Head,
 rule.
