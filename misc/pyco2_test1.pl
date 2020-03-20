@@ -78,7 +78,8 @@ pyco0_rule(
 	'q3',
 	[q3(A,B)] <=
 	[
-		fr(B,_,L1),fr(L1,_,L2),fr(L2,_,nil),'lists of same chars, of same length'(A,B)
+		%fr(B,_,L1),fr(L1,_,L2),fr(L2,_,nil),'lists of same chars, of same length'(A,B)
+		fr(L2,_,nil),fr(L1,_,L2),fr(B,_,L1),'lists of same chars, of same length'(A,B)
 	]).
 
 test0 :-
@@ -149,7 +150,9 @@ test3 :-
 			Q = q3(_,_),
 %			gtrace,
 			run(Q),
-			format(user_error,'~nresult: ~q~n', [Q]),
+			nicer_term(Q, NQ),
+			format(user_error,'~nresult: ~q~n', [NQ]),
+			%format(user_error,'~nresult: ~q~n', [Q]),
 			nl
 		),
 		Sols

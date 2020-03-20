@@ -68,16 +68,28 @@ collect_items(Bn, []) :-
 
 */
 
-rule(Desc, Head_items, Body_items, Prep) :-
-	(	pyco0_rule(Desc, Head_items <= Body_items, Prep)
-	;	(
-			pyco0_rule(Desc, Head_items <= Body_items),
-			Prep = true)).
+run2(Query) :-
+	run2_2(Query),
+	debug(pyco_proof, '~w final...', [$>trace_prefix(r, -1)]),
+	proof(0,eps{},ep_fail,noisy,Query),
+	debug(pyco_proof, '~w result.', [$>trace_prefix(r, -1)]).
 
-matching_rule2(_Level, Query, Desc, Body_items, Prep, Query_ep_terms) :-
-	query_term_ep_terms(Query, Query_ep_terms),
-	rule(Desc, Head_items, Body_items, Prep),
-	member(Query, Head_items).
+run2_2(Query) :-
+	%(Quiet = noisy -> debug(depth_map, 'map for: ~q', [Query]); true),
+	depth_map(Query, Map0),
+	proof(0,eps{},ep_yield,noisy,Query),
+	depth_map(Query, Map1),
+	run2_3(Query, Map0, Map1).
+
+run2_3(_Query, Map0, Map1) :-
+	Map0 = Map1,
+	debug(pyco_proof, '~w stabilized.', [$>trace_prefix(r, -1)]).
+
+run2_3(Query, Map0, Map1) :-
+	Map0 \= Map1,
+	debug(pyco_proof, '~w repeating.', [$>trace_prefix(r, -1)]),
+	run2_2(Query),
+	debug(pyco_proof, '~w ok...', [$>trace_prefix(r, -1)]).
 
 proof(Level,Eps0,Ep_yield, Quiet,Query) :-
 	nb_getval(step, Proof_id),
@@ -127,25 +139,8 @@ body_proof(Proof_id_str, Level, Eps1, Body_items, Quiet) :-
 	(Quiet = noisy -> debug(pyco_proof, '~w disproved.', [$>trace_prefix(Proof_id_str, Level)]); true),
 	false.
 
-body_proof2(Proof_id_str, Level, Eps1, Body_items, Quiet) :-
-	(Quiet = noisy -> debug(depth_map, 'map for: ~q', [Body_items]); true),
-	depth_map(Body_items, Map0),
-	(Quiet = noisy -> debug(depth_map, 'map: ~q', [Map0]); true),
-	maplist(proof(Level, Eps1, ep_yield, Quiet), Body_items),
-	depth_map(Body_items, Map1),
-	body_proof3(Map0, Map1, Proof_id_str, Level, Eps1, Body_items, Quiet).
-
-body_proof3(Map0, Map1, Proof_id_str, Level, Eps1, Body_items, Quiet) :-
-	Map0 = Map1,
-	(Quiet = noisy -> debug(pyco_proof, '~w stabilized.', [$>trace_prefix(Proof_id_str, Level)]); true),
-	maplist(proof(Level, Eps1, ep_fail, Quiet), Body_items),
-	(Quiet = noisy -> debug(pyco_proof, '~w final yield.', [$>trace_prefix(Proof_id_str, Level)]); true).
-
-body_proof3(Map0, Map1, Proof_id_str, Level, Eps1, Body_items, Quiet) :-
-	Map0 \= Map1,
-	(Quiet = noisy -> debug(pyco_proof, '~w repeating.', [$>trace_prefix(Proof_id_str, Level)]); true),
-	body_proof2(Proof_id_str, Level, Eps1, Body_items, Quiet),
-	(Quiet = noisy -> debug(pyco_proof, '~w yield...', [$>trace_prefix(Proof_id_str, Level)]); true).
+body_proof2(_Proof_id_str, Level, Eps1, Body_items, Quiet) :-
+	maplist(proof(Level, Eps1, ep_yield, Quiet), Body_items).
 
 depth_map(X, v) :-
 	var(X).
@@ -302,10 +297,7 @@ top-level interface
 run(Query) :-
 	b_setval(bn_log, []),
 	nb_setval(step, 0),
-	proof(Query).
-
-proof(Query) :-
-	proof(0,eps{},ep_fail,noisy,Query).
+	run2(Query).
 
 
 
@@ -328,3 +320,15 @@ trace_prefix(Proof_id_str, Level, String) :-
 	Level2 is Level + 64,
 	char_code(Level_char, Level2),
 	format(string(String), '~q ~w ~w', [$>nb_getval(step), Level_char, Proof_id_str]).
+
+rule(Desc, Head_items, Body_items, Prep) :-
+	(	pyco0_rule(Desc, Head_items <= Body_items, Prep)
+	;	(
+			pyco0_rule(Desc, Head_items <= Body_items),
+			Prep = true)).
+
+matching_rule2(_Level, Query, Desc, Body_items, Prep, Query_ep_terms) :-
+	query_term_ep_terms(Query, Query_ep_terms),
+	rule(Desc, Head_items, Body_items, Prep),
+	member(Query, Head_items).
+
