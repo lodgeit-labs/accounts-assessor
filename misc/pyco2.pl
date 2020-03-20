@@ -75,30 +75,32 @@ rule(Desc, Head_items, Body_items, Prep) :-
 			Prep = true)).
 
 matching_rule(Level, Query, Desc, Body_items, Prep, Query_ep_terms) :-
+	matching_rule2(Level, Query, Desc, Body_items, Prep, Query_ep_terms),
+	debug(pyco_proof, '~wmatch: ~q (~q)', [$>trace_prefix(Level), $>nicer_term(Query), Desc]).
+
+matching_rule2(_Level, Query, Desc, Body_items, Prep, Query_ep_terms) :-
 	query_term_ep_terms(Query, Query_ep_terms),
 	rule(Desc, Head_items, Body_items, Prep),
-	member(Query, Head_items),
-	debug(pyco_proof, '(~q)match~q: ~q (~q)', [$>nb_getval(step) ,Level, $>nicer_term(Query), Desc]).
+	member(Query, Head_items).
 
 proof(Level,Eps0,Ep_yield,Query) :-
-	matching_rule(Level, Query, Desc, Body_items, Prep, Query_ep_terms),
+	Deeper_level is Level + 1,
+	matching_rule(Deeper_level, Query, Desc, Body_items, Prep, Query_ep_terms),
 	ep_list_for_rule(Eps0, Desc, Ep_List),
 	ep_debug_print_1(Ep_List, Query_ep_terms),
 	(	ep_ok(Ep_List, Query_ep_terms)
-	->	prove_body(Eps0, Ep_List, Query_ep_terms, Desc, Prep, Level, Body_items)
+	->	prove_body(Eps0, Ep_List, Query_ep_terms, Desc, Prep, Deeper_level, Body_items)
 	;	Ep_yield == ep_yield).
 
-proof(Level,_,_Ep_yield,Query) :- call_native(Level, Query).
+proof(Level,_,_,Query) :-
+	Deeper_level is Level + 1,
+	call_native(Deeper_level, Query).
 
 prove_body(Eps0, Ep_List, Query_ep_terms, Desc, Prep, Level, Body_items) :-
 	updated_ep_list(Eps0, Ep_List, Query_ep_terms, Desc, Eps1),
 	call_prep(Prep),
-	Deeper_level is Level + 1,
 	bump_step,
-	body_proof(Deeper_level, Eps1, Body_items).
-
-body_proof(Level, _, []) :-
-	debug(pyco_proof, '(~q)yield~q.', [$>nb_getval(step) ,Level]).
+	body_proof(Level, Eps1, Body_items).
 
 body_proof(Level, Eps1, Body_items) :-
 	debug(depth_map, 'map for: ~q', [Body_items]),
@@ -107,8 +109,17 @@ body_proof(Level, Eps1, Body_items) :-
 	maplist(proof(Level, Eps1, ep_yield), Body_items),
 	depth_map(Body_items, Map1),
 	(	Map0 = Map1
-	->	maplist(proof(Level, Eps1, ep_fail), Body_items)
-	;	body_proof(Level, Eps1, Body_items)).
+	->	(
+			debug(pyco_proof, '~wstabilized.', [$>trace_prefix(Level)]),
+			maplist(proof(Level, Eps1, ep_fail), Body_items),
+			debug(pyco_proof, '~wfinal yield.', [$>trace_prefix(Level)])
+		)
+	;	(
+			debug(pyco_proof, '~wrepeating.', [$>trace_prefix(Level)]),
+			body_proof(Level, Eps1, Body_items),
+			debug(pyco_proof, '~wyield...', [$>trace_prefix(Level)])
+		)
+	).
 
 depth_map(X, v) :-
 	var(X).
@@ -144,7 +155,9 @@ ep_list_for_rule(Eps0, Desc, X) :-
 ep_ok(Ep_List, Query_ep_terms) :-
 	%debug(pyco_ep, 'seen:~q', [Ep_List]),
 	%debug(pyco_ep, 'now:~q ?', [Query_ep_terms]),
-	maplist(ep_ok2(Query_ep_terms), Ep_List).
+	maplist(ep_ok2(Query_ep_terms), Ep_List),
+	debug(pyco_ep, 'ep_ok:~q', [Query_ep_terms])
+	.
 
 ep_ok2(Query_ep_terms, Ep_Entry) :-
 	length(Query_ep_terms, L0),
@@ -228,72 +241,26 @@ debug_print_bn_log_item(I) :-
 
 call_native(Level, Query) :-
 	/* this case tries to handle calling native prolog predicates */
-	\+matching_rule(Level, Query, _,_,_,_),
-	catch(
-		(
-			debug(pyco_proof, '(~q)prolog~q call:~q', [$>nb_getval(step), Level, Query]),
-			call(Query),
-			debug(pyco_proof, '(~q)prolog~q call succeded:~q', [$>nb_getval(step), Level, Query])
-		),
-		error(existence_error(procedure,Name/Arity),_),
-		% you'd think this would only catch when the Query term clause doesn't exist, but nope, it actually catches any nested exception. Another swipl bug?
-		(
-			functor(Query, Name, Arity),
-			%gtrace,
+	\+matching_rule2(Level, Query, _,_,_,_),
+	debug(pyco_proof, '~wprolog call:~q', [$>trace_prefix(Level), Query]),
+	(	call_native2(Query)
+	->	debug(pyco_proof, '~wprolog call succeded:~q', [$>trace_prefix(Level), Query])
+	;	(
+			debug(pyco_proof, '~wprolog call failed:~q', [$>trace_prefix(Level), Query]),
 			fail
 		)
 	).
 
-
-
-/*
- body ordering stuff
-*/
-
-number_of_unbound_args(Term, Count) :-
-	Term =.. [_|Args],
-	aggregate_all(count,
-	(
-		member(X, Args),
-		var(X)
-	),
-	Count).
-
-'pairs of Index-Num_unbound'(Body_items, Pairs) :-
-	length(Body_items, L0),
-	L is L0 - 1,
-	findall(I-Num_unbound,
+call_native2(Query) :-
+	catch(
+		call(Query),
+		error(existence_error(procedure,Name/Arity),_),
+		% you'd think this would only catch when the Query term clause doesn't exist, but nope, it actually catches any nested exception. Another swipl bug?
 		(
-			between(0,L,I),
-			nth0(I,Body_items,Bi),
-			number_of_unbound_args(Bi, Num_unbound)
-		),
-	Pairs).
-
-
-
-/*
-	extract_element_from_list with pattern-matching, preserving variable-to-variable bindings
-*/
-
-extract_element_from_list([], _, _, _) :- assertion(false).
-
-extract_element_from_list(List, Index, Element, List_without_element) :-
-	extract_element_from_list2(0, List, Index, Element, List_without_element).
-
-extract_element_from_list2(At_index, [F|R], Index, Element, List_without_element) :-
-	Index == At_index,
-	F = Element,
-	Next_index is At_index + 1,
-	extract_element_from_list2(Next_index, R, Index, Element, List_without_element).
-
-extract_element_from_list2(At_index, [F|R], Index, Element, [F|WT]) :-
-	Index \= At_index,
-	Next_index is At_index + 1,
-	extract_element_from_list2(Next_index, R, Index, Element, WT).
-
-extract_element_from_list2(_, [], _, _, []).
-
+			functor(Query, Name, Arity),
+			fail
+		)
+	).
 
 
 
@@ -313,118 +280,6 @@ proof(Query) :-
 
 
 
-/*
-random notes
-
-ep check:
-https://www.swi-prolog.org/pldoc/man?section=compare
-
-
-optimization:
-
-http://irnok.net:3030/help/source/doc/home/prolog/ontology-server/ClioPatria/lib/semweb/rdf_optimise.pl
-
-pyco optimization:
-	https://books.google.cz/books?id=oc7cBwAAQBAJ&pg=PA26&lpg=PA26&dq=prolog++variable+address&source=bl&ots=cDxavU-UaU&sig=ACfU3U0y1RnTKfJI58kykhqltp8fBNkXhA&hl=en&sa=X&ved=2ahUKEwiJ6_OWyuPnAhUx-yoKHZScAU4Q6AEwEHoECAkQAQ#v=onepage&q=prolog%20%20variable%20address&f=false
-
-===
-
-
-?x a response
-?request result ?result
-?response result ?result
-
-=====
-
-?sts0 prepreprocess ?sts1
-?sts1 preprocess ?txs
-
-
-
-{?sts0 prepreprocess ?sts1} <=
-{
-    ?sts0 first ?st0
-    ?st0 action_verb "livestock_sell"
-
-    .....
-
-    ?sts0 rest ?stsr
-    ?stsr prepreprocess ?sts1r.
-
-two approaches to optimization:
-    follow the data:
-        ?txs are bound, so call ?sts1 preprocess ?txs first
-    ep-yield earlier:
-        as soon as we're called with only vars?
-
-
-*/
-
-
-/*
-multiple heads:
-
-[a,b] :- writeq(xxx).
-
-?- clause([X|XX],Y).
-X = a,
-XX = [b],
-Y = writeq(xxx).
-
-
-*/
-
-/*
-ba((N,A)) :-
-	call(N,A).
-*/
-
-
-
-
-/*
-
-debug(pyco_ep),Q = test_statement1b(End, All, Capped), run(Q), nicer_term(Q, NQ).
-
-
-
-
-*/
-
-/*
-ignore
-list_to_u([], nil).
-list_to_u([H|T], Cell) :-
-	proof(fr(Cell,H,Cell2)),
-	list_to_u(T, Cell2).
-*/
-
-
-
-/*
-
-todo visualizations:
-univar pyco outputs for example kbdbgtests_clean_lists_pyco_unify_bnodes_0.n3:
-	describes rule bodies and heads in detail.
-	Terms just simple non-recursive functor + args, but thats a fine start.
-	structure of locals..(memory layout), because pyco traces each bind, expressed by memory adressess. We could probably just not output that and the visualizer would simply not show any binds but still show the proof tree.
-	eventually, a script is ran: converter = subprocess.Popen(["./kbdbg2jsonld/frame_n3.py", pyin.kbdbg_file_name, pyin.rules_jsonld_file_name])
-	converts the n3 to jsonld, for consumption in the browser app.
-	we cant write json-ld from swipl either, so, i'd reuse the script.
-
-	store traces in doc? nah, too much work wrt backtracking
-	but we'll store the rules/static info described above, either in doc or directly in rdf db,
-	then save as something that the jsonld script can load, and spawn it.
-
-	trace0.js format:
-		S() is a call to a function in the browser. This ensures that the js file stays valid syntax even on crash.
-
-*/
-
-
-%print_item(I) :-
-%	format(user_error,'result: ~q~n', [NQ]),
-
 
 bump_step :-
 	nb_getval(step, Step),
@@ -439,3 +294,8 @@ ep_debug_print_1(Ep_List, Query_ep_terms) :-
 	debug(pyco_ep, 'seen:', []),
 	maplist(print_debug_ep_list_item, Ep_List),
 	debug(pyco_ep, 'now: ~q', [Query_ep_terms]).
+
+trace_prefix(Level, String) :-
+	Level2 is Level + 64,
+	char_code(Level_char, Level2),
+	format(string(String), '~q ~w ', [$>nb_getval(step), Level_char]).

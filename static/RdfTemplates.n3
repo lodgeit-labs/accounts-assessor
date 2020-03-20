@@ -440,6 +440,7 @@ ic_ui:transaction_input
 	).
 
 ic_ui:action_verbs
+	a excel:Template;
 	excel:cardinality excel:multi;
 	excel:class ic:Action_verb;
 	excel:fields (
@@ -449,7 +450,7 @@ ic_ui:action_verbs
 			excel:type excel:uri
 		]
 		[excel:property av:money_direction]
-		[excel:property av:exchanged_account_id]
+		[excel:property av:counteraccount_id]
 		[excel:property av:trading_account_id]
 		[excel:property av:description]
 		[excel:property av:GST_Receivable_account_id]
@@ -459,6 +460,80 @@ ic_ui:action_verbs
 		[excel:property av:is_livestock_sale; excel:type xsd:boolean]
     ).
 
+ic_ui:example_action_verbs rdf:value (
+	[
+		av:id "Invest_In";
+		av:money_direction av:outgoing;
+		av:counteraccount_id "FinancialInvestments";
+		av:trading_account_id "InvestmentIncome";
+	]
+	[
+		av:id "Dispose_Of";
+		av:money_direction av:incoming;
+		av:counteraccount_id "FinancialInvestments";
+		av:trading_account_id "InvestmentIncome"
+	]
+	[
+		av:id "Borrow";
+		av:money_direction av:incoming;
+		av:counteraccount_id "NonCurrentLoans"
+	]
+	[
+		av:id "Introduce_Capital";
+		av:money_direction av:incoming;
+		av:counteraccount_id "ShareCapital"
+	]
+	[
+		av:id "Transfers";
+		av:counteraccount_id "ClearingAccount"
+	]
+	[
+		av:id "Bank_Charges";
+		av:money_direction av:outgoing;
+		av:counteraccount_id "BankCharges"
+	]
+	[
+		av:id "Interest_Expenses";
+		av:money_direction av:outgoing;
+		av:counteraccount_id "InterestExpenses"
+	]
+	[
+		av:id "Accountancy_Fees";
+		av:money_direction av:outgoing;
+		av:counteraccount_id "AccountingFees"
+	]
+	[
+		av:id "Interest_Income";
+		av:money_direction av:incoming;
+		av:counteraccount_id "InterestEarned"
+	]
+	[
+		av:id "Drawings";
+		av:money_direction av:outgoing;
+		av:counteraccount_id "Drawings"
+	]
+	[
+		av:id "Fixed_Asset_Purchase";
+		av:money_direction av:outgoing;
+		av:counteraccount_id "FixedAssets"
+	]
+	[
+		av:id "Purchase_Method_C";
+		av:counteraccount_id "Purchases";
+		av:GST_Payable_account_id "GSTPayable";
+		av:GST_Rate_Percent "10"
+	]
+	[
+		av:id "Sale_Method_C";
+		av:counteraccount_id "Revenue";
+		av:GST_Receivable_account_id "GSTReceivable";
+		av:GST_Rate_Percent "10";
+	]
+).
+				
+
+
+
 ic:Action_verb
     a rdfs:Class;
     rdfs:comment "action verb, defined in Action_verbs excel sheet".
@@ -466,11 +541,21 @@ ic:Action_verb
     rdfs:comment "each bank statement transaction either has an explicitly stated, or has an inferred Action_verb.".
     rdfs:comment "each bank statement transaction has an implied primary GL account, given by its source, and produces a change on it and directly or indirectly on a counteraccount, in accordance with the principle of double-entry bookkeeping.".
 
-av:exchanged_account_id
-    rdfs:comment "used to look up av:exchanged_account".
+av:counteraccount_id
+    rdfs:comment "used to look up av:counteraccount".
 
-av:exchanged_account
+av:counteraccount
+    rdfs:comment "the GL account where the corresponding and opposite entry goes".
+    
+av:trading_account_id
+    rdfs:comment "used to look up av:trading_account".
+    
+av:trading_account
+    rdfs:comment "the GL account where gains and losses from investments are tracked".
 
+
+   
+    
 av:money_direction
 	rdfs:range av:MoneyDirection;
 	rdfs:comment "constrains the transaction to either debiting(incoming) or crediting(outgoing) the primary GL account".
@@ -478,55 +563,4 @@ av:incoming a av:MoneyDirection.
 av:outgoing a av:MoneyDirection.
 
 
-
-
-ic_ui:example_action_verbs rdf:value (
-	[
-		av:id "Invest_In";
-		av:money_direction av:outgoing;
-		av:counteraccount_name "FinancialInvestments";
-		av:trading_account_name "InvestmentIncome";
-	]
-	[
-		av:id "Dispose_Of";
-		av:money_direction av:incoming;
-		av:counteraccount_name "FinancialInvestments";
-		av:trading_account_name "InvestmentIncome"
-	]
-	[
-		av:id "Borrow";
-		av:money_direction av:incoming;
-		av:counteraccount_name "NonCurrentLoans"
-	]
-	[
-		av:id "Introduce_Capital";
-		av:money_direction av:incoming;
-		av:counteraccount_name "ShareCapital"
-	]
-	
-	
-Transfers	ClearingAccount
-Bank_Charges	BankCharges
-Interest_Expenses	InterestExpenses
-Accountancy_Fees	AccountingFees
-Interest_Income	InterestEarned
-Drawings	Drawings
-Fixed_Asset_Purchase	FixedAssets
-
-
-
-	[
-		av:id "Purchase_Method_C";
-		av:counteraccount_name "Purchases";
-		av:GST_Payable_account_name "GSTPayable";
-		av:GST_Rate_Percent "10"
-	]
-	[
-		av:id "Sale_Method_C";
-		av:counteraccount_name "Revenue";
-		av:GST_Receivable_account_name "GSTReceivable";
-		av:GST_Rate_Percent "10";
-	]
-).
-				
 

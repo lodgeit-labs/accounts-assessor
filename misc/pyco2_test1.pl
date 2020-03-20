@@ -53,7 +53,6 @@ pyco0_rule(
 	[
 		L #> 0,
 		L_next #= L - 1,
-		gtrace,
 		fr(X, F, R),
 		Ch = F,
 		'list of Ch, of length L'(R, Ch, L_next)
@@ -71,14 +70,20 @@ pyco0_rule(
 
 pyco0_rule(
 	'q2',
-	[q2(A,L0)] <=
+	[q2(A,B)] <=
 	[
-		fr(L0,_,L1),fr(L1,_,L2),fr(L2,_,nil),'lists of same chars, of same length'(A,L0)
+		fr(B,_,nil),'lists of same chars, of same length'(A,B)
+	]).
+pyco0_rule(
+	'q3',
+	[q3(A,B)] <=
+	[
+		fr(B,_,L1),fr(L1,_,L2),fr(L2,_,nil),'lists of same chars, of same length'(A,B)
 	]).
 
 test0 :-
 	findnsols(
-		5000000000,
+		10,
 		_,
 		(
 			%debug(pyco_prep),
@@ -86,6 +91,7 @@ test0 :-
 			%debug(pyco_ep),
 
 			Q = q1(_L,_F,_R),
+			%gtrace,
 			run(Q),
 			format(user_error,'~nresult: ~q~n', [Q]),
 
@@ -97,13 +103,13 @@ test0 :-
 
 test1 :-
 	findnsols(
-		5,
+		1,
 		_,
 		(
 			%debug(pyco_prep),
 			%debug(pyco_proof),
 			%debug(pyco_ep),
-			gtrace,
+			%gtrace,
 			Q = 'lists of same chars, of same length'(_A,_B),
 			run(Q),
 			format(user_error,'~nresult: ~q~n', [Q]),
@@ -116,14 +122,32 @@ test1 :-
 
 test2 :-
 	findnsols(
-		5,
+		200,
 		_,
 		(
 			%debug(pyco_prep),
-			%debug(pyco_proof),
-			%debug(pyco_ep),
+			debug(pyco_proof),
+			debug(pyco_ep),
 			Q = q2(_,_),
-			gtrace,
+%			gtrace,
+			run(Q),
+			format(user_error,'~nresult: ~q~n', [Q]),
+
+			nl,
+			true
+		),
+		_
+	).
+test3 :-
+	findnsols(
+		200,
+		_,
+		(
+			%debug(pyco_prep),
+			debug(pyco_proof),
+			%debug(pyco_ep),
+			Q = q3(_,_),
+%			gtrace,
 			run(Q),
 			format(user_error,'~nresult: ~q~n', [Q]),
 
