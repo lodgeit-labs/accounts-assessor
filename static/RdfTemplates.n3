@@ -451,56 +451,56 @@ ic_ui:action_verbs
 		[excel:property av:money_direction]
 		[excel:property av:exchanged_account_id]
 		[excel:property av:trading_account_id]
-		[excel:property av:description] 	 	
+		[excel:property av:description]
 		[excel:property av:GST_Receivable_account_id]
 		[excel:property av:GST_Payable_account_id]
 		[excel:property av:GST_Rate_Percent]
+		[excel:property av:is_livestock_purchase; excel:type xsd:boolean]
+		[excel:property av:is_livestock_sale; excel:type xsd:boolean]
     ).
-
-av:role rdfs:range av:Action_verb_role.
-
-av:Action_verb_role 
-	a rdfs:Class;
-	rdfs:comment "role uri special to the prolog system";
-	av:has_parameter av:counteraccount.
-
-av:Generic_trading_action_verb_role
-	rdfs:comment "a base class of the invest_in and dispose_of action_verbs";
-	rdfs:subClassOf av:Action_verb_role;
-	av:has_parameter av:trading_account.
-
-av:basic a av:Action_verb_role.
-av:invest_in a av:Generic_trading_action_verb_role.
-av:dispose_of a av:Generic_trading_action_verb_role.
-av:smsf_invest_in a av:Generic_trading_action_verb_role.
-av:smsf_dispose_of a av:Generic_trading_action_verb_role.
-	
 
 ic:Action_verb
     a rdfs:Class;
     rdfs:comment "action verb, defined in Action_verbs excel sheet".
+    rdfs:comment "and Action_verb is unique for each request.".
+    rdfs:comment "each bank statement transaction either has an explicitly stated, or has an inferred Action_verb.".
+    rdfs:comment "each bank statement transaction has an implied primary GL account, given by its source, and produces a change on it and directly or indirectly on a counteraccount, in accordance with the principle of double-entry bookkeeping.".
+
+av:exchanged_account_id
+    rdfs:comment "used to look up av:exchanged_account".
+
+av:exchanged_account
+
+av:money_direction
+	rdfs:range av:MoneyDirection;
+	rdfs:comment "constrains the transaction to either debiting(incoming) or crediting(outgoing) the primary GL account".
+av:incoming a av:MoneyDirection.
+av:outgoing a av:MoneyDirection.
+
+
 
 
 ic_ui:example_action_verbs rdf:value (
 	[
 		av:id "Invest_In";
+		av:money_direction av:outgoing;
 		av:counteraccount_name "FinancialInvestments";
-		av:trading_account_name "InvestmentIncome"
+		av:trading_account_name "InvestmentIncome";
 	]
 	[
 		av:id "Dispose_Of";
-		av:role av:dispose_of;
+		av:money_direction av:incoming;
 		av:counteraccount_name "FinancialInvestments";
 		av:trading_account_name "InvestmentIncome"
 	]
 	[
 		av:id "Borrow";
-		av:role av:basic;
+		av:money_direction av:incoming;
 		av:counteraccount_name "NonCurrentLoans"
 	]
 	[
 		av:id "Introduce_Capital";
-		av:role av:basic;
+		av:money_direction av:incoming;
 		av:counteraccount_name "ShareCapital"
 	]
 	
@@ -517,15 +517,12 @@ Fixed_Asset_Purchase	FixedAssets
 
 	[
 		av:id "Purchase_Method_C";
-		av:role av:purchase_method_c;
 		av:counteraccount_name "Purchases";
 		av:GST_Payable_account_name "GSTPayable";
 		av:GST_Rate_Percent "10"
-
 	]
 	[
 		av:id "Sale_Method_C";
-		av:role av:sale_method_c;
 		av:counteraccount_name "Revenue";
 		av:GST_Receivable_account_name "GSTReceivable";
 		av:GST_Rate_Percent "10";
