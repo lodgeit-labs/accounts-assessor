@@ -141,7 +141,7 @@ test2 :-
 test3 :-
 	findnsols(
 		200,
-		_,
+		Q,
 		(
 			%debug(pyco_prep),
 			debug(pyco_proof),
@@ -150,9 +150,9 @@ test3 :-
 %			gtrace,
 			run(Q),
 			format(user_error,'~nresult: ~q~n', [Q]),
-
-			nl,
-			true
+			nl
 		),
-		_
-	).
+		Sols
+	),
+	format(user_error,'~nresults: ~q~n', [Sols])
+	.

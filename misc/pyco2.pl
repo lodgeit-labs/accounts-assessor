@@ -74,52 +74,78 @@ rule(Desc, Head_items, Body_items, Prep) :-
 			pyco0_rule(Desc, Head_items <= Body_items),
 			Prep = true)).
 
-matching_rule(Level, Query, Desc, Body_items, Prep, Query_ep_terms) :-
-	matching_rule2(Level, Query, Desc, Body_items, Prep, Query_ep_terms),
-	debug(pyco_proof, '~wmatch: ~q (~q)', [$>trace_prefix(Level), $>nicer_term(Query), Desc]).
-
 matching_rule2(_Level, Query, Desc, Body_items, Prep, Query_ep_terms) :-
 	query_term_ep_terms(Query, Query_ep_terms),
 	rule(Desc, Head_items, Body_items, Prep),
 	member(Query, Head_items).
 
-proof(Level,Eps0,Ep_yield,Query) :-
+proof(Level,Eps0,Ep_yield, Quiet,Query) :-
+	nb_getval(step, Proof_id),
+	term_string(Proof_id, Proof_id_str),
 	Deeper_level is Level + 1,
-	matching_rule(Deeper_level, Query, Desc, Body_items, Prep, Query_ep_terms),
+	proof2(Proof_id_str,Deeper_level,Eps0,Ep_yield, Quiet,Query).
+
+proof2(Proof_id_str,Level,Eps0,Ep_yield, Quiet,Query) :-
+	matching_rule2(Level, Query, Desc, Body_items, Prep, Query_ep_terms),
+	(Quiet = noisy -> debug(pyco_proof, '~w match: ~q (~q)', [$>trace_prefix(Proof_id_str, Level), $>nicer_term(Query), Desc]); true),
 	ep_list_for_rule(Eps0, Desc, Ep_List),
-	ep_debug_print_1(Ep_List, Query_ep_terms),
-	(	ep_ok(Ep_List, Query_ep_terms)
-	->	prove_body(Eps0, Ep_List, Query_ep_terms, Desc, Prep, Deeper_level, Body_items)
-	;	Ep_yield == ep_yield).
+	(Quiet = noisy -> ep_debug_print_1(Ep_List, Query_ep_terms); true),
+	proof3(Proof_id_str, Eps0, Ep_List, Query_ep_terms, Desc, Prep, Level, Body_items, Ep_yield, Quiet, Query).
 
-proof(Level,_,_,Query) :-
-	Deeper_level is Level + 1,
-	call_native(Deeper_level, Query).
+proof2(Proof_id_str,Level,_,_,Quiet,Query) :-
+	call_native(Proof_id_str,Level, Quiet, Query).
 
-prove_body(Eps0, Ep_List, Query_ep_terms, Desc, Prep, Level, Body_items) :-
+proof3(Proof_id_str, Eps0, Ep_List, Query_ep_terms, Desc, Prep, Level, Body_items, _Ep_yield, Quiet, _Query) :-
+	ep_ok(Ep_List, Query_ep_terms, Quiet),
+	prove_body(Proof_id_str, Eps0, Ep_List, Query_ep_terms, Desc, Prep, Level, Body_items, Quiet).
+
+proof3(Proof_id_str, _Eps0, Ep_List, Query_ep_terms, Desc, _Prep, Level, _Body_items, Ep_yield, Quiet, Query) :-
+	\+ep_ok(Ep_List, Query_ep_terms, Quiet),
+	proof4(Proof_id_str, Desc, Level, Ep_yield, Quiet, Query).
+
+proof4(Proof_id_str, Desc, Level, Ep_yield, Quiet, Query) :-
+	Ep_yield == ep_yield,
+	(Quiet = noisy -> debug(pyco_proof, '~w ep_yield: ~q (~q)', [$>trace_prefix(Proof_id_str, Level), $>nicer_term(Query), Desc]); true).
+
+proof4(Proof_id_str, Desc, Level, Ep_yield, Quiet, Query) :-
+	Ep_yield == ep_fail,
+	(Quiet = noisy -> debug(pyco_proof, '~w ep fail: ~q (~q)', [$>trace_prefix(Proof_id_str, Level), $>nicer_term(Query), Desc]); true),
+	fail.
+
+prove_body(Proof_id_str, Eps0, Ep_List, Query_ep_terms, Desc, Prep, Level, Body_items, Quiet) :-
 	updated_ep_list(Eps0, Ep_List, Query_ep_terms, Desc, Eps1),
 	call_prep(Prep),
 	bump_step,
-	body_proof(Level, Eps1, Body_items).
+	body_proof(Proof_id_str, Level, Eps1, Body_items, Quiet).
 
-body_proof(Level, Eps1, Body_items) :-
-	debug(depth_map, 'map for: ~q', [Body_items]),
+body_proof(Proof_id_str, Level, Eps1, Body_items, Quiet) :-
+	body_proof2(Proof_id_str, Level, Eps1, Body_items, Quiet).
+
+body_proof(Proof_id_str, Level, Eps1, Body_items, Quiet) :-
+	(Quiet = noisy -> debug(pyco_proof, '~w disproving..', [$>trace_prefix(Proof_id_str, Level)]); true),
+	\+body_proof2(Proof_id_str, Level, Eps1, Body_items, quiet),
+	(Quiet = noisy -> debug(pyco_proof, '~w disproved.', [$>trace_prefix(Proof_id_str, Level)]); true),
+	false.
+
+body_proof2(Proof_id_str, Level, Eps1, Body_items, Quiet) :-
+	(Quiet = noisy -> debug(depth_map, 'map for: ~q', [Body_items]); true),
 	depth_map(Body_items, Map0),
-	debug(depth_map, 'map: ~q', [Map0]),
-	maplist(proof(Level, Eps1, ep_yield), Body_items),
+	(Quiet = noisy -> debug(depth_map, 'map: ~q', [Map0]); true),
+	maplist(proof(Level, Eps1, ep_yield, Quiet), Body_items),
 	depth_map(Body_items, Map1),
-	(	Map0 = Map1
-	->	(
-			debug(pyco_proof, '~wstabilized.', [$>trace_prefix(Level)]),
-			maplist(proof(Level, Eps1, ep_fail), Body_items),
-			debug(pyco_proof, '~wfinal yield.', [$>trace_prefix(Level)])
-		)
-	;	(
-			debug(pyco_proof, '~wrepeating.', [$>trace_prefix(Level)]),
-			body_proof(Level, Eps1, Body_items),
-			debug(pyco_proof, '~wyield...', [$>trace_prefix(Level)])
-		)
-	).
+	body_proof3(Map0, Map1, Proof_id_str, Level, Eps1, Body_items, Quiet).
+
+body_proof3(Map0, Map1, Proof_id_str, Level, Eps1, Body_items, Quiet) :-
+	Map0 = Map1,
+	(Quiet = noisy -> debug(pyco_proof, '~w stabilized.', [$>trace_prefix(Proof_id_str, Level)]); true),
+	maplist(proof(Level, Eps1, ep_fail, Quiet), Body_items),
+	(Quiet = noisy -> debug(pyco_proof, '~w final yield.', [$>trace_prefix(Proof_id_str, Level)]); true).
+
+body_proof3(Map0, Map1, Proof_id_str, Level, Eps1, Body_items, Quiet) :-
+	Map0 \= Map1,
+	(Quiet = noisy -> debug(pyco_proof, '~w repeating.', [$>trace_prefix(Proof_id_str, Level)]); true),
+	body_proof2(Proof_id_str, Level, Eps1, Body_items, Quiet),
+	(Quiet = noisy -> debug(pyco_proof, '~w yield...', [$>trace_prefix(Proof_id_str, Level)]); true).
 
 depth_map(X, v) :-
 	var(X).
@@ -152,14 +178,14 @@ ep_list_for_rule(Eps0, Desc, X) :-
 	->	true
 	;	X = []).
 
-ep_ok(Ep_List, Query_ep_terms) :-
+ep_ok(Ep_List, Query_ep_terms, Quiet) :-
 	%debug(pyco_ep, 'seen:~q', [Ep_List]),
 	%debug(pyco_ep, 'now:~q ?', [Query_ep_terms]),
-	maplist(ep_ok2(Query_ep_terms), Ep_List),
-	debug(pyco_ep, 'ep_ok:~q', [Query_ep_terms])
+	maplist(ep_ok2(Query_ep_terms, Quiet), Ep_List),
+	(Quiet = noisy -> debug(pyco_ep, 'ep_ok:~q', [Query_ep_terms]);true)
 	.
 
-ep_ok2(Query_ep_terms, Ep_Entry) :-
+ep_ok2(Query_ep_terms, Quiet, Ep_Entry) :-
 	length(Query_ep_terms, L0),
 	length(Ep_Entry, L1),
 	assertion(L0 == L1),
@@ -173,7 +199,7 @@ ep_ok2(Query_ep_terms, Ep_Entry) :-
 		Differents),
 	(	Differents == []
 	->	(
-			debug(pyco_proof, 'EP!', []),
+			(Quiet = noisy -> debug(pyco_proof, 'EP!', []);true),
 			false
 		)
 	;	true).
@@ -239,19 +265,22 @@ debug_print_bn_log_item(I) :-
  calling prolog
 */
 
-call_native(Level, Query) :-
+call_native(Proof_id_str, Level, Quiet, Query) :-
 	/* this case tries to handle calling native prolog predicates */
 	\+matching_rule2(Level, Query, _,_,_,_),
-	debug(pyco_proof, '~wprolog call:~q', [$>trace_prefix(Level), Query]),
-	(	call_native2(Query)
-	->	debug(pyco_proof, '~wprolog call succeded:~q', [$>trace_prefix(Level), Query])
-	;	(
-			debug(pyco_proof, '~wprolog call failed:~q', [$>trace_prefix(Level), Query]),
-			fail
-		)
-	).
+	(Quiet = noisy -> debug(pyco_proof, '~w prolog call:~q', [$>trace_prefix(Proof_id_str, Level), Query]); true),
+	call_native2(Proof_id_str, Level, Quiet, Query).
 
-call_native2(Query) :-
+call_native2(Proof_id_str, Level, Quiet, Query) :-
+	call_native3(Query),
+	(Quiet = noisy -> debug(pyco_proof, '~w prolog call succeded:~q', [$>trace_prefix(Proof_id_str, Level), Query]); true).
+
+call_native2(Proof_id_str, Level, Quiet, Query) :-
+	\+call_native3(Query),
+	(Quiet = noisy -> debug(pyco_proof, '~w prolog call failed:~q', [$>trace_prefix(Proof_id_str, Level), Query]); true),
+	fail.
+
+call_native3(Query) :-
 	catch(
 		call(Query),
 		error(existence_error(procedure,Name/Arity),_),
@@ -276,7 +305,7 @@ run(Query) :-
 	proof(Query).
 
 proof(Query) :-
-	proof(0,eps{},ep_fail,Query).
+	proof(0,eps{},ep_fail,noisy,Query).
 
 
 
@@ -295,7 +324,7 @@ ep_debug_print_1(Ep_List, Query_ep_terms) :-
 	maplist(print_debug_ep_list_item, Ep_List),
 	debug(pyco_ep, 'now: ~q', [Query_ep_terms]).
 
-trace_prefix(Level, String) :-
+trace_prefix(Proof_id_str, Level, String) :-
 	Level2 is Level + 64,
 	char_code(Level_char, Level2),
-	format(string(String), '~q ~w ', [$>nb_getval(step), Level_char]).
+	format(string(String), '~q ~w ~w', [$>nb_getval(step), Level_char, Proof_id_str]).
