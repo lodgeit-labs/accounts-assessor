@@ -122,7 +122,7 @@ body_proof(Proof_id_str, Level, Eps1, Body_items, Quiet) :-
 	body_proof2(Proof_id_str, Level, Eps1, Body_items, Quiet).
 
 body_proof(Proof_id_str, Level, Eps1, Body_items, Quiet) :-
-	(Quiet = noisy -> debug(pyco_proof, '~w disproving..', [$>trace_prefix(Proof_id_str, Level)]); true),
+	%(Quiet = noisy -> debug(pyco_proof, '~w disproving..', [$>trace_prefix(Proof_id_str, Level)]); true),
 	\+body_proof2(Proof_id_str, Level, Eps1, Body_items, quiet),
 	(Quiet = noisy -> debug(pyco_proof, '~w disproved.', [$>trace_prefix(Proof_id_str, Level)]); true),
 	false.
