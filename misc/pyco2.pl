@@ -75,35 +75,35 @@ collect_items2(R, ['|_']) :-
 
 */
 
-run2(Query) :-
-	run2_2(Query),
+run2(Eps/*nope, */, Query) :-
+	run2_2(Eps, Query),
 	debug(pyco_proof, '~w final...', [$>trace_prefix(r, -1)]),
-	proof(0,eps{},ep_fail,quiet,Query),gtrace,
+	proof(0,Eps,ep_fail,quiet,Query),
 	debug(pyco_proof, '~w result.', [$>trace_prefix(r, -1)]).
 
-run2_2(Query) :-
+run2_2(Eps, Query) :-
 
 	debug(pyco_proof, 'map0 for: ~q', [Query]),
 	depth_map(Query, Map0), /*nope, this should include bodies,the whole tree*/
 	debug(pyco_proof, 'map0 : ~q', [Map0]),
 
-	proof(0,eps{},ep_yield,noisy,Query),
+	proof(0,Eps,ep_yield,noisy,Query),
 
 	debug(pyco_proof, 'map1 for: ~q', [Query]),
 	depth_map(Query, Map1),
 	debug(pyco_proof, 'map1 : ~q', [Map1]),
 
-	run2_3(Query, Map0, Map1).
+	run2_3(Eps, Query, Map0, Map1).
 
-run2_3(_Query, Map0, Map1) :-
-	Map0 = Map1,
-	debug(pyco_proof, '~w stabilized.', [$>trace_prefix(r, -1)]).
-
-run2_3(Query, Map0, Map1) :-
+run2_3(Eps, Query, Map0, Map1) :-
 	Map0 \= Map1,
 	debug(pyco_proof, '~w repeating.', [$>trace_prefix(r, -1)]),
-	run2_2(Query),
+	run2_2(Eps, Query),
 	debug(pyco_proof, '~w ok...', [$>trace_prefix(r, -1)]).
+
+run2_3(_,_,Map0, Map1) :-
+	Map0 = Map1,
+	debug(pyco_proof, '~w stabilized.', [$>trace_prefix(r, -1)]).
 
 proof(Level,Eps0,Ep_yield, Quiet,Query) :-
 	nb_getval(step, Proof_id),
@@ -295,7 +295,8 @@ call_native(Proof_id_str, Level, Quiet, Query) :-
 
 call_native2(Proof_id_str, Level, Quiet, Query) :-
 	call_native3(Query),
-	(Quiet = noisy -> debug(pyco_proof, '~w prolog call succeeded:~q', [$>trace_prefix(Proof_id_str, Level), Query]); true).
+	(Quiet = noisy -> debug(pyco_proof, '~w prolog call succeeded:~q', [$>trace_prefix(Proof_id_str, Level), Query]); true),
+	true.
 
 call_native2(Proof_id_str, Level, Quiet, Query) :-
 	\+call_native3(Query),
@@ -303,14 +304,12 @@ call_native2(Proof_id_str, Level, Quiet, Query) :-
 	fail.
 
 call_native3(Query) :-
+	% you'd think this would only catch when the Query term clause doesn't exist, but nope, it actually catches any nested exception. Another swipl bug?
+	functor(Query, Name, Arity),
 	catch(
 		call(Query),
 		error(existence_error(procedure,Name/Arity),_),
-		% you'd think this would only catch when the Query term clause doesn't exist, but nope, it actually catches any nested exception. Another swipl bug?
-		(
-			functor(Query, Name, Arity),
-			fail
-		)
+		fail
 	).
 
 
@@ -324,7 +323,7 @@ top-level interface
 run(Query) :-
 	b_setval(bn_log, []),
 	nb_setval(step, 0),
-	run2(Query).
+	run2(eps{},Query).
 
 
 

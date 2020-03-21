@@ -104,7 +104,7 @@ test0 :-
 
 test1 :-
 	findnsols(
-		1,
+		1000,
 		_,
 		(
 			%debug(pyco_prep),
@@ -113,7 +113,8 @@ test1 :-
 			%gtrace,
 			Q = 'lists of same chars, of same length'(_A,_B),
 			run(Q),
-			format(user_error,'~nresult: ~q~n', [Q]),
+			nicer_term(Q, NQ),
+			format(user_error,'~nresult: ~q~n', [NQ]),
 
 			nl,
 			true
