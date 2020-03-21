@@ -242,9 +242,13 @@ arg_is_productively_different(Proof_id_str, bn(Uid_old_str,Tag0), bn(Uid_new_str
 
 came_before(A, B) :-
 	b_getval(bn_log, Bn_log),
-	nth0(Ia, Bn_log, A),
+
+	assertion(nth0(Ib, Bn_log, B)),
 	nth0(Ib, Bn_log, B),
-	Ia < Ib.
+
+	(	nth0(Ia, Bn_log, A)
+	->	Ia < Ib
+	;	true).
 
 register_bn(bn(Uid, Dict)) :-
 	is_dict(Dict, Tag),
