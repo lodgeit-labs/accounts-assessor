@@ -78,14 +78,21 @@ collect_items2(R, ['|_']) :-
 run2(Query) :-
 	run2_2(Query),
 	debug(pyco_proof, '~w final...', [$>trace_prefix(r, -1)]),
-	proof(0,eps{},ep_fail,noisy,Query),
+	proof(0,eps{},ep_fail,quiet,Query),gtrace,
 	debug(pyco_proof, '~w result.', [$>trace_prefix(r, -1)]).
 
 run2_2(Query) :-
-	%(Quiet = noisy -> debug(depth_map, 'map for: ~q', [Query]); true),
+
+	debug(pyco_proof, 'map0 for: ~q', [Query]),
 	depth_map(Query, Map0), /*nope, this should include bodies,the whole tree*/
+	debug(pyco_proof, 'map0 : ~q', [Map0]),
+
 	proof(0,eps{},ep_yield,noisy,Query),
+
+	debug(pyco_proof, 'map1 for: ~q', [Query]),
 	depth_map(Query, Map1),
+	debug(pyco_proof, 'map1 : ~q', [Map1]),
+
 	run2_3(Query, Map0, Map1).
 
 run2_3(_Query, Map0, Map1) :-
@@ -125,7 +132,8 @@ proof3(Proof_id_str, _Eps0, Ep_List, Query_ep_terms, Desc, _Prep, Level, _Body_i
 
 proof4(Proof_id_str, Desc, Level, Ep_yield, Quiet, Query) :-
 	Ep_yield == ep_yield,
-	(Quiet = noisy -> debug(pyco_proof, '~w ep_yield: ~q (~q)', [$>trace_prefix(Proof_id_str, Level), $>nicer_term(Query), Desc]); true).
+	(Quiet = noisy -> debug(pyco_proof, '~w ep_yield: ~q (~q)', [$>trace_prefix(Proof_id_str, Level), $>nicer_term(Query), Desc]); true),
+	true.
 
 proof4(Proof_id_str, Desc, Level, Ep_yield, Quiet, Query) :-
 	Ep_yield == ep_fail,
@@ -287,7 +295,7 @@ call_native(Proof_id_str, Level, Quiet, Query) :-
 
 call_native2(Proof_id_str, Level, Quiet, Query) :-
 	call_native3(Query),
-	(Quiet = noisy -> debug(pyco_proof, '~w prolog call succeded:~q', [$>trace_prefix(Proof_id_str, Level), Query]); true).
+	(Quiet = noisy -> debug(pyco_proof, '~w prolog call succeeded:~q', [$>trace_prefix(Proof_id_str, Level), Query]); true).
 
 call_native2(Proof_id_str, Level, Quiet, Query) :-
 	\+call_native3(Query),
