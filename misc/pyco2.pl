@@ -5,114 +5,37 @@
 :- op(900,fx,<$).
 
 
-
-/*
- for list bnodes, produce nicer term for printing
-*/
-
-nicer_term(T, Nicer) :-
-%gtrace,
-	T =.. [F|Args],
-	maplist(nicer_arg, Args, Nicer_args),
-	Nicer =.. [F|Nicer_args].
-
-nicer_arg(Bn, Nicer) :-
-	assertion(var(Nicer)),
-	debug(pyco_nicer, 'nicer ~q?', [Bn]),
-	nicer_arg2(Bn, Nicer),
-	debug(pyco_nicer, 'nicer ~q => ~q', [Bn, Nicer]).
-
-nicer_arg2(X, X) :-
-	\+ nicer_bn(X, _).
-
-nicer_arg2(Bn, Nicer) :-
-	nicer_bn(Bn, Nicer).
-
-nicer_bn(Bn, Nicer) :-
-	nonvar(Bn),
-	\+ \+ Bn = bn(_, 'list cell exists'{first:_,rest:_}),
-	nicer_bn2(Bn, Nice_items),
-	Bn = bn(Id, _),
-	'='(Nice_functor, $>atomic_list_concat([
-			list,
-			$>term_string(Id)])),
-	'=..'(Nicer, [Nice_functor|Nice_items]).
-
-nicer_bn2(Bn, Nice_items) :-
-	collect_items(Bn, Items),
-	maplist(nicer_arg2, Items, Nice_items).
-
-collect_items(Bn, []) :-
-	Bn == nil.
-
-collect_items(Bn, [F|Rest]) :-
-	nonvar(Bn),
-	\+ \+ Bn = bn(_, 'list cell exists'{first:_,rest:_}),/*?*/
-	Bn = bn(_, 'list cell exists'{first:F,rest:R}),
-	collect_items2(R, Rest).
-
-collect_items2(R, Rest) :-
-	nonvar(R),
-	collect_items(R, Rest).
-
-collect_items2(R, ['|_']) :-
-	var(R).
-
-
-/*
- some testing rules
-*/
-
 :- discontiguous pyco0_rule/2.
 :- discontiguous pyco0_rule/3.
 :- multifile pyco0_rule/2.
 :- multifile pyco0_rule/3.
 
 
-/*
+run(Query) :-
+	b_setval(bn_log, []),
+	nb_setval(step, 0),
+	proof(0,eps{},ep_yield,noisy,Query),
+	proof(0,eps{},ep_fail,quiet,Query).
 
- main logic
-
-*/
-
-run2(Eps/*nope, */, Query) :-
-	run2_2(Eps, Query),
-	debug(pyco_proof, '~w final...', [$>trace_prefix(r, -1)]),
-	proof(0,Eps,ep_fail,quiet,Query),
-	debug(pyco_proof, '~w result.', [$>trace_prefix(r, -1)]).
-
-run2_2(Eps, Query) :-
-
-	debug(pyco_proof, 'map0 for: ~q', [Query]),
-	depth_map(Query, Map0), /*nope, this should include bodies,the whole tree*/
-	debug(pyco_proof, 'map0 : ~q', [Map0]),
-
-	proof(0,Eps,ep_yield,noisy,Query),
-
-	debug(pyco_proof, 'map1 for: ~q', [Query]),
-	depth_map(Query, Map1),
-	debug(pyco_proof, 'map1 : ~q', [Map1]),
-
-	run2_3(Eps, Query, Map0, Map1).
-
-run2_3(Eps, Query, Map0, Map1) :-
-	Map0 \= Map1,
-	debug(pyco_proof, '~w repeating.', [$>trace_prefix(r, -1)]),
-	run2_2(Eps, Query),
-	debug(pyco_proof, '~w ok...', [$>trace_prefix(r, -1)]).
-
-run2_3(_,_,Map0, Map1) :-
-	Map0 = Map1,
-	debug(pyco_proof, '~w stabilized.', [$>trace_prefix(r, -1)]).
-
-proof(Level,Eps0,Ep_yield, Quiet,Query) :-
+proof(
+	Path,
+	/* depth, incremented on each 'proof' recursion */
+	Level,
+	/* current ep list */
+	Eps0,
+	/* ep_yield or ep_fail */
+	Ep_yield,
+	/* silence debugging */
+	Quiet,
+	/* */
+	Query) :-
+	register_frame(Path),
 	nb_getval(step, Proof_id),
 	term_string(Proof_id, Proof_id_str),
-	register_frame(Proof_id_str),
 	Deeper_level is Level + 1,
-	proof2(Proof_id_str,Deeper_level,Eps0,Ep_yield, Quiet,Query).
+	proof2(Path,Proof_id_str,Deeper_level,Eps0,Ep_yield,Quiet,Query).
 
-proof2(Proof_id_str,Level,Eps0,Ep_yield, Quiet,Query) :-
+proof2(Path,Proof_id_str,Level,Eps0,Ep_yield, Quiet,Query) :-
 	matching_rule2(Level, Query, Desc, Body_items, Prep, Query_ep_terms),
 	(Quiet = noisy -> debug(pyco_proof, '~w match: ~q (~q)', [$>trace_prefix(Proof_id_str, Level), $>nicer_term(Query), Desc]); true),
 	ep_list_for_rule(Eps0, Desc, Ep_List),
@@ -155,8 +78,17 @@ body_proof(Proof_id_str, Ep_yield, Level, Eps1, Body_items, Quiet) :-
 	(Quiet = noisy -> debug(pyco_proof, '~w disproved.', [$>trace_prefix(Proof_id_str, Level)]); true),
 	false.
 
-body_proof2(_Proof_id_str, Ep_yield, Level, Eps1, Body_items, Quiet) :-
-	maplist(proof(Level, Eps1, Ep_yield, Quiet), Body_items).
+body_proof2(Proof_id, Ep_yield, Level, Eps1, Body_items, Quiet) :-
+	body_proof3(Proof_id, 0, Ep_yield, Level, Eps1, Body_items, Quiet),
+	body_proof3(Proof_id, 0, Ep_yield, Level, Eps1, Body_items, Quiet).
+
+body_proof3(_Proof_id_str, _Ep_yield, _Level, _Eps1, [], _Quiet).
+
+body_proof3(Proof_id, Bi_idx, Ep_yield, Level, Eps1, [Body_item|Body_items], Quiet) :-
+	append(Proof_id, [Bi_idx], Bi_Proof_id),
+	proof(Bi_Proof_id, Level, Eps1, Ep_yield, Quiet, Body_item),
+	Bi_idx_next is Bi_idx + 1,
+	body_proof3(Proof_id, Bi_idx_next, Ep_yield, Level, Eps1, Body_items, Quiet).
 
 depth_map(X, v) :-
 	var(X).
@@ -312,22 +244,6 @@ call_native3(Query) :-
 		fail
 	).
 
-
-
-/*
-top-level interface
-*/
-
-
-
-run(Query) :-
-	b_setval(bn_log, []),
-	nb_setval(step, 0),
-	run2(eps{},Query).
-
-
-
-
 bump_step :-
 	nb_getval(step, Step),
 	Step_next is Step + 1,
@@ -358,3 +274,56 @@ matching_rule2(_Level, Query, Desc, Body_items, Prep, Query_ep_terms) :-
 	rule(Desc, Head_items, Body_items, Prep),
 	member(Query, Head_items).
 
+
+
+/*
+ for list bnodes, produce nicer term for printing
+*/
+
+nicer_term(T, Nicer) :-
+%gtrace,
+	T =.. [F|Args],
+	maplist(nicer_arg, Args, Nicer_args),
+	Nicer =.. [F|Nicer_args].
+
+nicer_arg(Bn, Nicer) :-
+	assertion(var(Nicer)),
+	debug(pyco_nicer, 'nicer ~q?', [Bn]),
+	nicer_arg2(Bn, Nicer),
+	debug(pyco_nicer, 'nicer ~q => ~q', [Bn, Nicer]).
+
+nicer_arg2(X, X) :-
+	\+ nicer_bn(X, _).
+
+nicer_arg2(Bn, Nicer) :-
+	nicer_bn(Bn, Nicer).
+
+nicer_bn(Bn, Nicer) :-
+	nonvar(Bn),
+	\+ \+ Bn = bn(_, 'list cell exists'{first:_,rest:_}),
+	nicer_bn2(Bn, Nice_items),
+	Bn = bn(Id, _),
+	'='(Nice_functor, $>atomic_list_concat([
+			list,
+			$>term_string(Id)])),
+	'=..'(Nicer, [Nice_functor|Nice_items]).
+
+nicer_bn2(Bn, Nice_items) :-
+	collect_items(Bn, Items),
+	maplist(nicer_arg2, Items, Nice_items).
+
+collect_items(Bn, []) :-
+	Bn == nil.
+
+collect_items(Bn, [F|Rest]) :-
+	nonvar(Bn),
+	\+ \+ Bn = bn(_, 'list cell exists'{first:_,rest:_}),/*?*/
+	Bn = bn(_, 'list cell exists'{first:F,rest:R}),
+	collect_items2(R, Rest).
+
+collect_items2(R, Rest) :-
+	nonvar(R),
+	collect_items(R, Rest).
+
+collect_items2(R, ['|_']) :-
+	var(R).
