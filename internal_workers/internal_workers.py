@@ -10,8 +10,8 @@ def agc():
 	#from franz.openrdf.repository.repository import Repository
 	# from franz.openrdf.sail.allegrographserver import AllegroGraphServer
 	from franz.openrdf.connect import ag_connect
-	user = os.environ.get('AGRAPH_USER')
-	passw = os.environ.get('AGRAPH_PASSWORD')
+	user = app.conf.AGRAPH_SECRET_USER
+	passw = app.conf.AGRAPH_SECRET_PASSWORD
 	if user != None and passw != None:
 		return ag_connect('a', host='localhost', port='10036', user=user, password=passw)
 	else:
