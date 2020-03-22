@@ -189,7 +189,6 @@ process_multifile_request(File_Paths) :-
 			%doc_input_to_chr_constraints
 		)
 	;	true),
-	gtrace,
 	(	process_rdf_request
 	;	(
 			((ground(Dom), xpath(Dom, //reports, _))
