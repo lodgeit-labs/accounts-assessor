@@ -14,8 +14,8 @@ app.conf.task_default_queue = os.environ['CELERY_QUEUE_NAME']
 
 with open(os.path.normpath(os.path.join(os.path.dirname(__file__), '../../secrets2.json')), 'r') as s2:
 	secrets = json.load(s2)
-	app.conf.AGRAPH_SECRET_USER = secrets['AGRAPH_SECRET_USER']
-	app.conf.AGRAPH_SECRET_PASSWORD = secrets['AGRAPH_SECRET_PASSWORD']
+	app.conf.AGRAPH_SECRET_USER = secrets.get('AGRAPH_SECRET_USER')
+	app.conf.AGRAPH_SECRET_PASSWORD = secrets.get('AGRAPH_SECRET_PASSWORD')
 	del secrets
 
 if __name__ == '__main__':

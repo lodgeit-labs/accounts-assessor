@@ -159,6 +159,7 @@ loan_agr_record_aux(Agreement, Record, Current_Balance, Current_Day, Repayments_
 % Relates a loan agreement to one of its records
 
 loan_agr_record(Agreement, Record) :-
+	%gtrace,
 	loan_agr_computation_opening_balance(Agreement, false),
 	loan_agr_principal_amount(Agreement, Principal_Amount),
 	loan_agr_repayments(Agreement, Repayments_A),
