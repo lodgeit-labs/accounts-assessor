@@ -30,22 +30,18 @@
 		<period>1 July, 2016 to 30 June, 2023</period>
 		<startDate>2016-07-01</startDate>
 		<endDate>2023-06-30</endDate>
-		<!-- There must be exactly one loanAgreement in element in a loandetails element. -->
 		<loanAgreement>
-			<!-- There must be exactly one of each of the following fields in a loanAgreement. -->
 			<field name="Income year of loan creation" value="2016" />
 			<field name="Full term of loan in years" value="4" />
-			<field name="Principal amount of loan" value="75000" />
-			<field name="Lodgment day of private company" value="2017-05-15" />
+			<field name="Principal amount of loan" value="10000" />
+			<!-- this shouldn't be required, it's irrelevant in this case -->
+			
+			<field name="Lodgment day of private company" value="2017-06-30" />
 			<field name="Income year of computation" value="2018" />
-			<!-- There can be at most one of the following field in a loanAgreement. -->
-			<field name="Opening balance of computation" value="10000" />
+
 		</loanAgreement>
-		<!-- There must be exactly one repayments element in a loandetails element. -->
 		<repayments>
-			<!-- Zero or more repayment elements are fine here. Each repayment must have a date
-				in the form YYYY-MM-DD and have a numerical quantity representing the repayment
-				for the value. -->
+			<repayment date="2016-07-01" value="3000" />
 			<repayment date="2017-07-01" value="3000" />
 		</repayments>
 	</loanDetails>

@@ -26,6 +26,7 @@
 % Source: https://www.ato.gov.au/rates/division-7a---benchmark-interest-rate/
 % -------------------------------------------------------------------
 
+benchmark_interest_rate(Day, 5.37) :- day_between(date(2019,7,1), date(2020,7,1), Day).
 benchmark_interest_rate(Day, 5.20) :- day_between(date(2018,7,1), date(2019,7,1), Day).
 benchmark_interest_rate(Day, 5.30) :- day_between(date(2017,7,1), date(2018,7,1), Day).
 benchmark_interest_rate(Day, 5.40) :- day_between(date(2016,7,1), date(2017,7,1), Day).
@@ -79,7 +80,7 @@ loan_agr_repayments(loan_agreement(_, _, _, _, _, _, _, Repayments), Repayments)
 
 % Predicates for asserting the fields of a loan record
 
-% Records are indexed in chronological order
+% Records are indexed in chronological order, starting with 1
 loan_rec_number(loan_record(Record_Number, _, _, _, _, _, _, _), Record_Number).
 % The balance of the payment at the beginning of the given period
 loan_rec_opening_balance(loan_record(_, Opening_Balance, _, _, _, _, _, _), Opening_Balance).
@@ -132,7 +133,11 @@ loan_rec_aux(Repayments_Hd, Current_Rep_Amount, Current_Record_Number, Current_D
 	loan_rec_number(Next_Record, Next_Record_Number),
 	loan_rec_opening_day(Next_Record, Current_Day), loan_rec_closing_day(Next_Record, Next_Day),
 	Interest_Period is Next_Day - Current_Day,
-	Interest_Amount is Current_Balance * Interest_Rate * Interest_Period / (100 * 365),
+	gregorian_date(Next_Day, date(Next_Day_Year,_,_)),
+	(	leap_year(Next_Day_Year)
+	->	Year_Days = 366
+	;	Year_Days = 365),
+	Interest_Amount is Current_Balance * (Interest_Rate/100) * Interest_Period / Year_Days,
 	loan_rec_opening_balance(Next_Record, Current_Balance),
 	loan_rec_interest_rate(Next_Record, Interest_Rate),
 	loan_rec_interest_amount(Next_Record, Interest_Amount),
@@ -159,14 +164,16 @@ loan_agr_record_aux(Agreement, Record, Current_Balance, Current_Day, Repayments_
 % Relates a loan agreement to one of its records
 
 loan_agr_record(Agreement, Record) :-
-	%gtrace,
 	loan_agr_computation_opening_balance(Agreement, false),
 	loan_agr_principal_amount(Agreement, Principal_Amount),
 	loan_agr_repayments(Agreement, Repayments_A),
+
+	/* it seems that lodgement date should be ignored, for interest computation. but not for computation of minimum yearly repayment... */
+	loan_agr_begin_day(Agreement, Begin_Day),
 	loan_agr_lodgement_day(Agreement, Lodgement_Day),
 	loan_reps_before_lodgement(Lodgement_Day, 0, Repayments_A, Repayment_Before_Lodgement, Repayments_B),
+
 	Current_Balance is Principal_Amount - Repayment_Before_Lodgement,
-	loan_agr_begin_day(Agreement, Begin_Day),
 	loan_agr_record_aux(Agreement, Record, Current_Balance, Begin_Day, Repayments_B).
 
 % Relates a loan agreement to one of its records starting from the given balance at the given day
@@ -177,8 +184,12 @@ loan_agr_record(Agreement, Record) :-
 	Computation_Opening_Balance \= false,
 	loan_agr_year_days(Agreement, Computation_Year, Computation_Day, _),
 	loan_agr_repayments(Agreement, Repayments_A),
+
+    /* see above */
+	loan_agr_begin_day(Agreement, _Begin_Day),
     loan_agr_lodgement_day(Agreement, Lodgement_Day),
 	loan_reps_before_lodgement(Lodgement_Day, 0, Repayments_A, _, Repayments_B),
+
 	loan_agr_record_aux(Agreement, Record, Computation_Opening_Balance, Computation_Day, Repayments_B).
 
 % Relates a loan record to one that follows it, in the case that it is not a year-end record
@@ -367,6 +378,30 @@ loan_agr_repayment_shortfall(Agreement, Year_Num, Shortfall) :-
 % A predicate for generating the summary records of a given loan agreement.
 
 loan_agr_summary(Agreement, Summary) :-
+
+	% debug printout
+	findall(_,
+		(
+			loan_agr_record(Agreement, Record),
+
+			loan_rec_number(Record, Record_Number),
+
+			loan_rec_opening_day(Record, O),
+			loan_rec_closing_day(Record, C),
+			gregorian_date(O, Od),
+			gregorian_date(C, Cd),
+			loan_rec_opening_balance(Record, Opening_Balance),
+			loan_rec_closing_balance(Record, Closing_Balance),
+
+			loan_rec_interest_rate(Record, Interest_Rate),
+			loan_rec_interest_amount(Record, Interest_Amount),
+			loan_rec_repayment_amount(Record, Repayment_Amount),
+
+			format(user_error, '~q: ~q - ~q (~q - ~q):~n', [Record_Number, Od, Cd, O, C]),
+			format(user_error, ': ob: ~q  cb: ~q  ir: ~q  i: ~q  rep: ~q~n', [Opening_Balance, Closing_Balance, Interest_Rate, Interest_Amount, Repayment_Amount])
+		),_),
+
+
 	loan_agr_computation_year(Agreement, Summary_Number),
 	loan_sum_number(Summary, Summary_Number),
 	loan_agr_year_days(Agreement, Summary_Number, Year_Start_Day, _),
