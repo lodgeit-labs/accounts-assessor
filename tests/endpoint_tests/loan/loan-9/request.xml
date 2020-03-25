@@ -1,10 +1,8 @@
 <?xml version="1.0"?>
 <!-- The following document is a representation of the following information: 
 
-	The first income year begins on	date(2014, 7, 1). 
 	- "During the 2014 income year a private company made loans of $50,000 and $25,000 to a shareholder."
-	- presumably, this is the "first income year" after the income year in which the loan was made.
-	The private companys lodgement day is date(2015, 5, 15). 
+	The first income year (after the income year in which the loan was made) begins on date(2014, 7, 1). 
 	A payment of $20,000 is made on date(2014, 8, 31). 
 	A payment of $8,000 is made on date(2015, 5, 30). 
 	The principal amount of the loan is $75,000. 
@@ -47,9 +45,7 @@
 		<period>1 July, 2016 to 30 June, 2023</period>
 		<startDate>2016-07-01</startDate>
 		<endDate>2023-06-30</endDate>
-		<!-- There must be exactly one loanAgreement in element in a loandetails element. -->
 		<loanAgreement>
-			<!-- There must be exactly one of each of the following fields in a loanAgreement. -->
 			<field name="Income year of loan creation" value="2014" />
 			<field name="Full term of loan in years" value="7" />
 			<field name="Principal amount of loan" value="75000" />
@@ -57,16 +53,67 @@
 			<field name="Income year of computation" value="2016" />
 			<field name="Opening balance of computation" value="50429.64" />
 		</loanAgreement>
-		<!-- There must be exactly one repayments element in a loandetails element. -->
 		<repayments>
-			<!-- Zero or more repayment elements are fine here. Each repayment must have a date
-				in the form YYYY-MM-DD and have a numerical quantity representing the repayment
-				for the value. -->
-			<!-- 
+			<!-- these will be ignored:
 			<repayment date="2014-08-31" value="20000" />
 			<repayment date="2015-05-30" value="8000" /> 
 			-->
 			<repayment date="2016-01-01" value="11111" />
 		</repayments>
+
+<!-- 
+
+Minimum yearly repayment met.
+
+Minimum yearly repayment
+
+$10,079.00
+
+Benchmark interest rate
+
+5.45%
+
+Opening balance:
+
+Date: 30/06/2015
+
+Balance: $50,429.64
+
+Days: 184
+
+Interest: $1,381.72
+
+Payments
+
+Date: 01/01/2016
+
+Amount: $11,111.00
+
+Balance: $39,318.64
+
+Days: 182
+
+Interest: $1,065.58
+
+Total repayments
+
+$11,111.00
+
+Total interest
+
+$2,447.30
+
+Total principal
+
+$8,663.70
+
+Closing balance
+
+Date: 30/06/2016
+
+Balance: $41,765.94
+		
+-->
+		
 	</loanDetails>
 </reports>

@@ -2,7 +2,7 @@
 <IncomeYear>2017</IncomeYear>
 <OpeningBalance>10000</OpeningBalance>
 <InterestRate>5.4</InterestRate>
-<MinYearlyRepayment>2846.3680280724748</MinYearlyRepayment>
+<MinYearlyRepayment>0.0</MinYearlyRepayment>
 <TotalRepayment>10000</TotalRepayment>
 <RepaymentShortfall>0</RepaymentShortfall>
 <TotalInterest>328.29041095890415</TotalInterest>

@@ -23,83 +23,78 @@
 		<startDate>2016-07-01</startDate>
 		<endDate>2023-06-30</endDate>
 		<loanAgreement>
-			<field name="Income year of loan creation" value="2016" />
-			<field name="Full term of loan in years" value="4" />
+			<field name="Income year of loan creation" value="2014" />
+			<field name="Full term of loan in years" value="7" />
 			<field name="Principal amount of loan" value="75000" />
-			<field name="Lodgment day of private company" value="2017-05-15" />
-			<field name="Income year of computation" value="2018" />
-			<field name="Opening balance of computation" value="10000" />
+			<field name="Lodgment day of private company" value="2015-05-15" />
+			<field name="Income year of computation" value="2015" />
 		</loanAgreement>
 		<repayments>
-			<repayment date="2017-07-01" value="3000" />
-			<repayment date="2018-06-30" value="6000" />
+			<repayment date="2014-08-31" value="20000" />
+			<repayment date="2015-05-30" value="8000" />
 		</repayments>
-		<!-- this testcase has a missing repayment for 2016-2017.
-		but it also has opening balance set, (for 2017-2018), so we don't care about anything before that. Not sure how we should handle it if opening balance wasn't provided.
-		-->
-		<!-- 
 
-
+<!--
 Minimum yearly repayment met.
 
 Minimum yearly repayment
 
-$3,693.00
+$9,835.00
 
 Benchmark interest rate
 
-5.3%
+5.95%
 
 Opening balance:
 
-Date: 30/06/2017
+Date: 30/06/2014
 
-Balance: $10,000.00
+Balance: $75,000.00
 
-Days: 0
+Days: 61
 
-Interest: $0
+Interest: $745.79
 
 Payments
 
-Date: 01/07/2017
+Date: 31/08/2014
 
-Amount: $3,000.00
+Amount: $20,000.00
 
-Balance: $7,000.00
+Balance: $55,000.00
 
-Days: 364
+Days: 272
 
-Interest: $369.98
+Interest: $2,438.68
 
-Date: 30/06/2018
+Date: 30/05/2015
 
-Amount: $6,000.00
+Amount: $8,000.00
 
-Balance: $1,000.00
+Balance: $47,000.00
 
-Days: 1
+Days: 32
 
-Interest: $0.15
+Interest: $245.17
 
 Total repayments
 
-$9,000.00
+$28,000.00
 
 Total interest
 
-$370.13
+$3,429.64
 
 Total principal
 
-$8,629.87
+$24,570.36
 
 Closing balance
 
-Date: 30/06/2018
+Date: 30/06/2015
 
-Balance: $1,370.13		
-
-		-->
+Balance: $50,429.64
+		-->		
+		
 	</loanDetails>
 </reports>
