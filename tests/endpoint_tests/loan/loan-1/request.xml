@@ -46,8 +46,6 @@
 			<field name="Principal amount of loan" value="75000" />
 			<field name="Lodgment day of private company" value="2015-05-15" />
 			<field name="Income year of computation" value="2015" />
-			<!-- this is optional, 55000 is computed, if not specified. -->
-			<field name="Opening balance of computation" value="55000" />
 		</loanAgreement>
 		<!-- There must be exactly one repayments element in a loandetails element. -->
 		<repayments>

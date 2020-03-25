@@ -53,8 +53,8 @@ benchmark_interest_rate(Day, 6.7) :- day_between(date(1998,7,1), date(1999,7,1),
 
 % The date the repayment is to be paid
 loan_rep_day(loan_repayment(Day, _), Day).
-% The amount that constitutes the repayment. An amount of zero is used to indicate a new
-% income year.
+% The amount that constitutes the repayment. A loan_rep with an amount of zero is used to indicate a new
+% income year (?).
 loan_rep_amount(loan_repayment(_, Amount), Amount).
 
 % Predicates for asserting the fields of a loan agreement
@@ -98,9 +98,11 @@ loan_rec_opening_day(loan_record(_, _, _, _, _, _, Opening_Day, _), Opening_Day)
 loan_rec_closing_day(loan_record(_, _, _, _, _, _, _, Closing_Day), Closing_Day).
 
 % Predicates for asserting the fields of a loan summary
-
 % Loan summaries are indexed in chornological order starting from year 0, the first income
-% year after the loan agreement is made
+% year after the income year in which the loan agreement is made (money is lended).
+% loan summary looks like a checkpoint describing what happened during one income year,
+% but only one such term is used in this program - for returning results.
+
 loan_sum_number(loan_summary(Summary_Number, _, _, _, _, _, _, _, _), Summary_Number).
 % The opening balance of the given income year
 loan_sum_opening_balance(loan_summary(_, Opening_Balance, _, _, _, _, _, _, _), Opening_Balance).
@@ -164,13 +166,18 @@ loan_agr_record_aux(Agreement, Record, Current_Balance, Current_Day, Repayments_
 % Relates a loan agreement to one of its records
 
 loan_agr_record(Agreement, Record) :-
+	loan_agr_record2(Agreement, interest, Record).
+
+loan_agr_record2(Agreement, Purpose, Record) :-
 	loan_agr_computation_opening_balance(Agreement, false),
 	loan_agr_principal_amount(Agreement, Principal_Amount),
 	loan_agr_repayments(Agreement, Repayments_A),
 
 	/* it seems that lodgement date should be ignored, for interest computation. but not for computation of minimum yearly repayment... */
 	loan_agr_begin_day(Agreement, Begin_Day),
-	loan_agr_lodgement_day(Agreement, Lodgement_Day),
+	(	Purpose = interest
+	->	Lodgement_Day = Begin_Day
+	;	loan_agr_lodgement_day(Agreement, Lodgement_Day)),
 	loan_reps_before_lodgement(Lodgement_Day, 0, Repayments_A, Repayment_Before_Lodgement, Repayments_B),
 
 	Current_Balance is Principal_Amount - Repayment_Before_Lodgement,
@@ -178,16 +185,17 @@ loan_agr_record(Agreement, Record) :-
 
 % Relates a loan agreement to one of its records starting from the given balance at the given day
 
-loan_agr_record(Agreement, Record) :-
-	loan_agr_computation_year(Agreement, Computation_Year),
+loan_agr_record2(Agreement, Purpose, Record) :-
 	loan_agr_computation_opening_balance(Agreement, Computation_Opening_Balance),
 	Computation_Opening_Balance \= false,
+	loan_agr_computation_year(Agreement, Computation_Year),
 	loan_agr_year_days(Agreement, Computation_Year, Computation_Day, _),
 	loan_agr_repayments(Agreement, Repayments_A),
 
-    /* see above */
-	loan_agr_begin_day(Agreement, _Begin_Day),
-    loan_agr_lodgement_day(Agreement, Lodgement_Day),
+	loan_agr_begin_day(Agreement, Begin_Day),
+	(	Purpose = interest
+	->	Lodgement_Day = Begin_Day
+	;	loan_agr_lodgement_day(Agreement, Lodgement_Day)),
 	loan_reps_before_lodgement(Lodgement_Day, 0, Repayments_A, _, Repayments_B),
 
 	loan_agr_record_aux(Agreement, Record, Computation_Opening_Balance, Computation_Day, Repayments_B).
@@ -295,9 +303,9 @@ loan_agr_year_days(Agreement, Year_Num, Year_Start_Day, Year_End_Day) :-
 % The following predicates assert the opening and closing balances respectively of the
 % given income year with respect to the given loan agreement.
 
-loan_agr_year_opening_balance(Agreement, Year_Num, Opening_Balance) :-
+loan_agr_year_opening_balance(Agreement, Year_Num, Purpose, Opening_Balance) :-
 	loan_agr_year_days(Agreement, Year_Num, Year_Start_Day, _),
-	loan_agr_record(Agreement, Year_Record),
+	loan_agr_record2(Agreement, Purpose, Year_Record),
 	loan_rec_repayment_amount(Year_Record, 0),
 	loan_rec_closing_day(Year_Record, Year_Start_Day),
 	loan_rec_closing_balance(Year_Record, Opening_Balance).
@@ -315,7 +323,7 @@ loan_agr_year_closing_balance(Agreement, Year_Num, Closing_Balance) :-
 
 loan_agr_min_yearly_repayment(Agreement, Current_Year_Num, Min_Yearly_Rep) :-
 	loan_agr_year_days(Agreement, Current_Year_Num, Year_Begin_Day, _),
-	loan_agr_year_opening_balance(Agreement, Current_Year_Num, Balance),
+	loan_agr_year_opening_balance(Agreement, Current_Year_Num, min_repayment, Balance),
 	loan_agr_term(Agreement, Term),
 	Remaining_Term is Term - Current_Year_Num,
 	benchmark_interest_rate(Year_Begin_Day, Benchmark_Interest_Rate),
@@ -401,24 +409,30 @@ loan_agr_summary(Agreement, Summary) :-
 			format(user_error, ': ob: ~q  cb: ~q  ir: ~q  i: ~q  rep: ~q~n', [Opening_Balance, Closing_Balance, Interest_Rate, Interest_Amount, Repayment_Amount])
 		),_),
 
+	/* deconestruct the input term */
 
 	loan_agr_computation_year(Agreement, Summary_Number),
-	loan_sum_number(Summary, Summary_Number),
+
+	/* computations */
+
 	loan_agr_year_days(Agreement, Summary_Number, Year_Start_Day, _),
 	benchmark_interest_rate(Year_Start_Day, Interest_Rate),
-	loan_sum_interest_rate(Summary, Interest_Rate),
-	loan_agr_year_opening_balance(Agreement, Summary_Number, Opening_Balance),
-	loan_sum_opening_balance(Summary, Opening_Balance),
+	loan_agr_year_opening_balance(Agreement, Summary_Number, interest, Opening_Balance),
 	loan_agr_year_closing_balance(Agreement, Summary_Number, Closing_Balance),
-	loan_sum_closing_balance(Summary, Closing_Balance),
 	loan_agr_min_yearly_repayment(Agreement, Summary_Number, Min_Yearly_Repayment),
-	loan_sum_min_yearly_repayment(Summary, Min_Yearly_Repayment),
 	loan_agr_total_repayment(Agreement, Summary_Number, Total_Repayment),
-	loan_sum_total_repayment(Summary, Total_Repayment),
 	loan_agr_total_interest(Agreement, Summary_Number, Total_Interest),
-	loan_sum_total_interest(Summary, Total_Interest),
 	loan_agr_total_principal(Agreement, Summary_Number, Total_Principal),
-	loan_sum_total_principal(Summary, Total_Principal),
 	loan_agr_repayment_shortfall(Agreement, Summary_Number, Repayment_Shortfall),
+
+	/* assert the fields of the final and only loan summary(result) */
+	loan_sum_number(Summary, Summary_Number),
+	loan_sum_interest_rate(Summary, Interest_Rate),
+	loan_sum_opening_balance(Summary, Opening_Balance),
+	loan_sum_closing_balance(Summary, Closing_Balance),
+	loan_sum_min_yearly_repayment(Summary, Min_Yearly_Repayment),
+	loan_sum_total_repayment(Summary, Total_Repayment),
+	loan_sum_total_interest(Summary, Total_Interest),
+	loan_sum_total_principal(Summary, Total_Principal),
 	loan_sum_repayment_shortfall(Summary, Repayment_Shortfall).
 
