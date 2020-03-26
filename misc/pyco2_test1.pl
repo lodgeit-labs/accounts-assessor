@@ -127,9 +127,9 @@ test2 :-
 		200,
 		_,
 		(
-			%debug(pyco_prep),
+			debug(pyco_prep),
 			debug(pyco_proof),
-			debug(pyco_ep),
+			%debug(pyco_ep),
 			Q = q2(_,_),
 %			gtrace,
 			run(Q),

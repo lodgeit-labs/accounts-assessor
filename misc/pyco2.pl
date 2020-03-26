@@ -98,7 +98,7 @@ proof_ep_fail(_Path, Proof_id_str, Desc, Level, Ep_yield, Quiet, Query, fail) :-
 	fail.
 
 prove_body(Path, Proof_id_str, Ep_yield, Eps0, Ep_List, Query_ep_terms, Desc, Prep, Level, Body_items, Quiet, Proof) :-
-	updated_ep_list(Eps0, Ep_List, Proof_id_str, Query_ep_terms, Desc, Eps1),
+	updated_ep_list(Eps0, Ep_List, Path, Query_ep_terms, Desc, Eps1),
 	call_prep(Prep, Path),
 	bump_step,
 	body_proof(Path, Proof_id_str, Ep_yield, Level, Eps1, Body_items, Quiet, Proof).
@@ -143,8 +143,8 @@ depth_map(X, Map) :-
  ep stuff
 */
 
-updated_ep_list(Eps0, Ep_List, Proof_id_str, Query_ep_terms, Desc, Eps1) :-
-	append(Ep_List, [Proof_id_str-Query_ep_terms], Ep_List_New),
+updated_ep_list(Eps0, Ep_List, Path, Query_ep_terms, Desc, Eps1) :-
+	append(Ep_List, [Path-Query_ep_terms], Ep_List_New),
 	Eps1 = Eps0.put(Desc, Ep_List_New).
 
 print_debug_ep_list_item(I) :-
@@ -166,7 +166,7 @@ ep_ok(Ep_List, Query_ep_terms, Quiet) :-
 	(Quiet = noisy -> debug(pyco_ep, 'ep_ok:~q', [Query_ep_terms]);true)
 	.
 
-ep_ok2(Query_ep_terms, Quiet, Proof_id_str-Ep_Entry) :-
+ep_ok2(Query_ep_terms, Quiet, Path-Ep_Entry) :-
 	length(Query_ep_terms, L0),
 	length(Ep_Entry, L1),
 	assertion(L0 == L1),
@@ -175,7 +175,7 @@ ep_ok2(Query_ep_terms, Quiet, Proof_id_str-Ep_Entry) :-
 			between(1, L0, I),
 			nth1(I, Ep_Entry, Old_arg),
 			nth1(I, Query_ep_terms, New_arg),
-			arg_is_productively_different(Proof_id_str, Old_arg, New_arg)
+			arg_is_productively_different(Path, Old_arg, New_arg)
 		),
 		Differents),
 	(	Differents == []
@@ -205,7 +205,7 @@ arg_is_productively_different(_, const(C0), const(C1)) :- C0 \= C1.
 arg_is_productively_different(_, const(_), bn(_,_)).
 arg_is_productively_different(_, bn(_,_), var).
 arg_is_productively_different(_, bn(_,_), const(_)).
-arg_is_productively_different(Proof_id_str, bn(Uid_old_str,Tag0), bn(Uid_new_str,Tag1)) :-
+arg_is_productively_different(Path, bn(Uid_old_str,Tag0), bn(Uid_new_str,Tag1)) :-
 	assertion(string(Uid_old_str)),
 	assertion(string(Uid_new_str)),
 	/* for same uids, we fail. */
@@ -214,13 +214,13 @@ arg_is_productively_different(Proof_id_str, bn(Uid_old_str,Tag0), bn(Uid_new_str
 	->	true
 	;	(
 			Uid_old_str \= Uid_new_str,
-			came_before(bn(Uid_new_str,_), fr(Proof_id_str))
+			came_before(bn(Uid_new_str,_), fr(Path))
 		)).
 
 
 came_before(A, B) :-
 	b_getval(bn_log, Bn_log),
-
+	%debug(pyco_proof, 'came_before:~q', [nth0(Ib, Bn_log, B)]),
 	assertion(nth0(Ib, Bn_log, B)),
 	nth0(Ib, Bn_log, B),
 
@@ -231,14 +231,18 @@ came_before(A, B) :-
 
 
 mkbn(Bn, Dict, _Path) :-
+	%gtrace,
+(
 	/* avoid creating new bnode if we are already called with one. this eases tracking them for ep check purposes */
-	nonvar(Bn)
+(	nonvar(Bn),
+	Bn = bn(_, Dict)
+)
 ;
 (
 	var(Bn),
 	Bn = bn(_, Dict),
 	register_bn(Bn)
-).
+)).
 
 register_bn(bn(Uid, Dict)) :-
 	is_dict(Dict, Tag),
