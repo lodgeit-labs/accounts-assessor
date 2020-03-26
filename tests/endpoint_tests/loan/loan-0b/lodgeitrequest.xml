@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<reports xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://localhost:8080/taxonomy/basic.xsd">
+  <loanDetails>
+    <generator>
+      <date>2020-03-26T18:59:03.1938355Z</date>
+      <source>LodgeiT Smart Utility</source>
+      <author>
+        <firstname/>
+        <lastname/>
+        <company/>
+      </author>
+    </generator>
+    <company>
+      <abn/>
+      <tfn/>
+      <clientcode>rrr</clientcode>
+      <anzsic/>
+      <notes/>
+      <directors/>
+    </company>
+    <startDate>2015-07-01</startDate>
+    <endDate>2022-06-30</endDate>
+    <loanAgreement>
+      <field name="Income year of loan creation" value="2014"/>
+      <field name="Full term of loan in years" value="7"/>
+      <field name="Lodgment day of private company" value="2015-05-15"/>
+      <field name="Income year of computation" value="2015"/>
+      <field name="Opening balance of computation" value="212121.00"/>
+    </loanAgreement>
+    <repayments>
+      <repayment date="2014-08-31" value="20000.00"/>
+      <repayment date="2015-05-30" value="8000.00"/>
+    </repayments>
+  </loanDetails>
+</reports>
