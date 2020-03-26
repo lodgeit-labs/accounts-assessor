@@ -1,3 +1,6 @@
+loan-0:
+from excel template.
+
 loan-3:
 there is a missing repayment, but opening balance is set. 
 
