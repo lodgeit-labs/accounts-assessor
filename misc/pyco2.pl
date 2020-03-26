@@ -11,13 +11,41 @@
 :- multifile pyco0_rule/3.
 
 
+
+
 run(Query) :-
 	b_setval(bn_log, []),
 	nb_setval(step, 0),
-	proof(0,eps{},ep_yield,noisy,Query),
-	proof(0,eps{},ep_fail,quiet,Query).
+	run2(Query).
+
+run2(Query) :-
+	% repeat top-level query until depth_map of Proof stops changing.
+	run2_2(Query, Proof),
+	debug(pyco_proof, '~w final...', [$>trace_prefix(r, -1)]),
+	/* filter out proofs that didn't ground. In these cases, we only got here due to ep_yield'ing.	*/
+	proof([],0,eps{},ep_fail,quiet,Query,Proof),
+	debug(pyco_proof, '~w result.', [$>trace_prefix(r, -1)]).
+
+run2_2(Query, Proof) :-
+	debug(pyco_map, 'map0 for: ~q', [Proof]),
+	depth_map(Proof, Map0),
+	debug(pyco_map, 'map0 : ~q', [Map0]),
+	proof([],0,eps{},ep_yield,noisy,Query,Proof),
+	debug(pyco_map, 'map1 for: ~q', [Proof]),
+	depth_map(Proof, Map1),
+	debug(pyco_map, 'map1 : ~q', [Map1]),
+	((	Map0 \= Map1,
+		debug(pyco_proof, '~w repeating.', [$>trace_prefix(r, -1)]),
+		run2_2(Query, Proof),
+		debug(pyco_proof, '~w ok...', [$>trace_prefix(r, -1)])
+	)
+	;
+	(	Map0 = Map1,
+		debug(pyco_proof, '~w stabilized.', [$>trace_prefix(r, -1)])
+	)).
 
 proof(
+	/* a unique path in the proof tree */
 	Path,
 	/* depth, incremented on each 'proof' recursion */
 	Level,
@@ -28,67 +56,77 @@ proof(
 	/* silence debugging */
 	Quiet,
 	/* */
-	Query) :-
-	register_frame(Path),
+	Query,
+	/* a tree of body items*/
+	Proof
+) :-
 	nb_getval(step, Proof_id),
 	term_string(Proof_id, Proof_id_str),
 	Deeper_level is Level + 1,
-	proof2(Path,Proof_id_str,Deeper_level,Eps0,Ep_yield,Quiet,Query).
+	proof2(Path, Proof_id_str,Deeper_level,Eps0,Ep_yield,Quiet,Query,Proof).
 
-proof2(Path,Proof_id_str,Level,Eps0,Ep_yield, Quiet,Query) :-
-	matching_rule2(Level, Query, Desc, Body_items, Prep, Query_ep_terms),
+proof2(Path0, Proof_id_str,Level,Eps0,Ep_yield, Quiet,Query,Proof) :-
+	matching_rule2(Level, Query, Desc, Body_items, Prep, Query_ep_terms, Head_item_idx),
 	(Quiet = noisy -> debug(pyco_proof, '~w match: ~q (~q)', [$>trace_prefix(Proof_id_str, Level), $>nicer_term(Query), Desc]); true),
+
+	append(Path0, [ri(Desc, Head_item_idx)], Path),
+	register_frame(Path),
+
 	ep_list_for_rule(Eps0, Desc, Ep_List),
 	(Quiet = noisy -> ep_debug_print_1(Ep_List, Query_ep_terms); true),
-	proof3(Proof_id_str, Eps0, Ep_List, Query_ep_terms, Desc, Prep, Level, Body_items, Ep_yield, Quiet, Query).
+	proof3(Path, Proof_id_str, Eps0, Ep_List, Query_ep_terms, Desc, Prep, Level, Body_items, Ep_yield, Quiet, Query, Proof).
 
-proof2(Proof_id_str,Level,_,_,Quiet,Query) :-
+proof2(_Path, Proof_id_str,Level,_,_,Quiet,Query, call) :-
 	call_native(Proof_id_str,Level, Quiet, Query).
 
-proof3(Proof_id_str, Eps0, Ep_List, Query_ep_terms, Desc, Prep, Level, Body_items, Ep_yield, Quiet, _Query) :-
+proof3(Path, Proof_id_str, Eps0, Ep_List, Query_ep_terms, Desc, Prep, Level, Body_items, Ep_yield, Quiet, _Query, Proof) :-
 	ep_ok(Ep_List, Query_ep_terms, Quiet),
-	prove_body(Proof_id_str, Ep_yield, Eps0, Ep_List, Query_ep_terms, Desc, Prep, Level, Body_items, Quiet).
+	prove_body(Path, Proof_id_str, Ep_yield, Eps0, Ep_List, Query_ep_terms, Desc, Prep, Level, Body_items, Quiet, Proof).
 
-proof3(Proof_id_str, _Eps0, Ep_List, Query_ep_terms, Desc, _Prep, Level, _Body_items, Ep_yield, Quiet, Query) :-
+proof3(Path, Proof_id_str, _Eps0, Ep_List, Query_ep_terms, Desc, _Prep, Level, _Body_items, Ep_yield, Quiet, Query, Proof) :-
 	\+ep_ok(Ep_List, Query_ep_terms, Quiet),
-	proof4(Proof_id_str, Desc, Level, Ep_yield, Quiet, Query).
+	proof_ep_fail(Path, Proof_id_str, Desc, Level, Ep_yield, Quiet, Query, Proof).
 
-proof4(Proof_id_str, Desc, Level, Ep_yield, Quiet, Query) :-
+proof_ep_fail(_Path, Proof_id_str, Desc, Level, Ep_yield, Quiet, Query, _Unbound_Proof) :-
 	Ep_yield == ep_yield,
 	(Quiet = noisy -> debug(pyco_proof, '~w ep_yield: ~q (~q)', [$>trace_prefix(Proof_id_str, Level), $>nicer_term(Query), Desc]); true),
 	true.
 
-proof4(Proof_id_str, Desc, Level, Ep_yield, Quiet, Query) :-
+proof_ep_fail(_Path, Proof_id_str, Desc, Level, Ep_yield, Quiet, Query, fail) :-
 	Ep_yield == ep_fail,
 	(Quiet = noisy -> debug(pyco_proof, '~w ep fail: ~q (~q)', [$>trace_prefix(Proof_id_str, Level), $>nicer_term(Query), Desc]); true),
 	fail.
 
-prove_body(Proof_id_str, Ep_yield, Eps0, Ep_List, Query_ep_terms, Desc, Prep, Level, Body_items, Quiet) :-
+prove_body(Path, Proof_id_str, Ep_yield, Eps0, Ep_List, Query_ep_terms, Desc, Prep, Level, Body_items, Quiet, Proof) :-
 	updated_ep_list(Eps0, Ep_List, Proof_id_str, Query_ep_terms, Desc, Eps1),
-	call_prep(Prep),
+	call_prep(Prep, Path),
 	bump_step,
-	body_proof(Proof_id_str, Ep_yield, Level, Eps1, Body_items, Quiet).
+	body_proof(Path, Proof_id_str, Ep_yield, Level, Eps1, Body_items, Quiet, Proof).
 
-body_proof(Proof_id_str, Ep_yield, Level, Eps1, Body_items, Quiet) :-
-	body_proof2(Proof_id_str, Ep_yield, Level, Eps1, Body_items, Quiet).
+body_proof(Path, Proof_id_str, Ep_yield, Level, Eps1, Body_items, Quiet, Proof) :-
+	body_proof2(Path, Proof_id_str, Ep_yield, Level, Eps1, Body_items, Quiet, Proof).
 
-body_proof(Proof_id_str, Ep_yield, Level, Eps1, Body_items, Quiet) :-
+/* this case only serves for debugging */
+body_proof(Path, Proof_id_str, Ep_yield, Level, Eps1, Body_items, Quiet, Proof) :-
 	%(Quiet = noisy -> debug(pyco_proof, '~w disproving..', [$>trace_prefix(Proof_id_str, Level)]); true),
-	\+body_proof2(Proof_id_str, Ep_yield, Level, Eps1, Body_items, quiet),
+	\+body_proof2(Path, Proof_id_str, Ep_yield, Level, Eps1, Body_items, quiet, Proof),
 	(Quiet = noisy -> debug(pyco_proof, '~w disproved.', [$>trace_prefix(Proof_id_str, Level)]); true),
 	false.
 
-body_proof2(Proof_id, Ep_yield, Level, Eps1, Body_items, Quiet) :-
-	body_proof3(Proof_id, 0, Ep_yield, Level, Eps1, Body_items, Quiet),
-	body_proof3(Proof_id, 0, Ep_yield, Level, Eps1, Body_items, Quiet).
+body_proof2(Path, Proof_id, Ep_yield, Level, Eps1, Body_items, Quiet, Proof) :-
+	/* this repetition might be one way to solve the ep problem, but it leads to many duplicate results */
+	%body_proof3(Path, Proof_id, 0, Ep_yield, Level, Eps1, Body_items, Quiet, Proof),
+	body_proof3(Path, Proof_id, 0, Ep_yield, Level, Eps1, Body_items, Quiet, Proof).
 
-body_proof3(_Proof_id_str, _Ep_yield, _Level, _Eps1, [], _Quiet).
+/* base case */
+body_proof3(_Path, _Proof_id_str, _, _Ep_yield, _Level, _Eps1, [], _Quiet, []).
 
-body_proof3(Proof_id, Bi_idx, Ep_yield, Level, Eps1, [Body_item|Body_items], Quiet) :-
-	append(Proof_id, [Bi_idx], Bi_Proof_id),
-	proof(Bi_Proof_id, Level, Eps1, Ep_yield, Quiet, Body_item),
+body_proof3(Path, Proof_id_str, Bi_idx, Ep_yield, Level, Eps1, [Body_item|Body_items], Quiet, [ProofH|ProofT]) :-
+	ProofH = Body_item-Proof,
+	append(Path, [bi(Bi_idx)], Bi_Path),
+	proof(Bi_Path, Level, Eps1, Ep_yield, Quiet, Body_item, Proof),
 	Bi_idx_next is Bi_idx + 1,
-	body_proof3(Proof_id, Bi_idx_next, Ep_yield, Level, Eps1, Body_items, Quiet).
+	body_proof3(Path, Proof_id_str, Bi_idx_next, Ep_yield, Level, Eps1, Body_items, Quiet, ProofT).
 
 depth_map(X, v) :-
 	var(X).
@@ -190,6 +228,18 @@ came_before(A, B) :-
 	->	Ia < Ib
 	;	true).
 
+
+
+mkbn(Bn, Dict, _Path) :-
+	/* avoid creating new bnode if we are already called with one. this eases tracking them for ep check purposes */
+	nonvar(Bn)
+;
+(
+	var(Bn),
+	Bn = bn(_, Dict),
+	register_bn(Bn)
+).
+
 register_bn(bn(Uid, Dict)) :-
 	is_dict(Dict, Tag),
 	term_string(Uid, Uid_str),
@@ -221,7 +271,7 @@ debug_print_bn_log_item(I) :-
 
 call_native(Proof_id_str, Level, Quiet, Query) :-
 	/* this case tries to handle calling native prolog predicates */
-	\+matching_rule2(Level, Query, _,_,_,_),
+	\+matching_rule2(Level, Query, _,_,_,_,_),
 	(Quiet = noisy -> debug(pyco_proof, '~w prolog call:~q', [$>trace_prefix(Proof_id_str, Level), Query]); true),
 	call_native2(Proof_id_str, Level, Quiet, Query).
 
@@ -249,9 +299,12 @@ bump_step :-
 	Step_next is Step + 1,
 	nb_setval(step, Step_next).
 
-call_prep(Prep) :-
+call_prep(true, _Path).
+
+call_prep(Prep, Path) :-
+	Prep \= true,
 	debug(pyco_prep, 'call prep: ~q', [Prep]),
-	call(Prep).
+	call(Prep, Path).
 
 ep_debug_print_1(Ep_List, Query_ep_terms) :-
 	debug(pyco_ep, 'seen:', []),
@@ -269,10 +322,11 @@ rule(Desc, Head_items, Body_items, Prep) :-
 			pyco0_rule(Desc, Head_items <= Body_items),
 			Prep = true)).
 
-matching_rule2(_Level, Query, Desc, Body_items, Prep, Query_ep_terms) :-
+matching_rule2(_Level, Query, Desc, Body_items, Prep, Query_ep_terms, Head_item_idx) :-
 	query_term_ep_terms(Query, Query_ep_terms),
 	rule(Desc, Head_items, Body_items, Prep),
-	member(Query, Head_items).
+	nth0(Head_item_idx, Head_items, Query).
+	%member(Query, Head_items).
 
 
 
@@ -281,6 +335,11 @@ matching_rule2(_Level, Query, Desc, Body_items, Prep, Query_ep_terms) :-
 */
 
 nicer_term(T, Nicer) :-
+	(	nicer_term2(T, Nicer)
+	->	true
+	;	throw(err)).
+
+nicer_term2(T, Nicer) :-
 %gtrace,
 	T =.. [F|Args],
 	maplist(nicer_arg, Args, Nicer_args),

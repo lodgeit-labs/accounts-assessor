@@ -14,7 +14,7 @@ pyco0_rule(
 	Desc,
 	[first(L,F),rest(L,R)] <=
 	[],
-	(L = bn(_, Desc{first:F,rest:R}),register_bn(L))
+	mkbn(L, Desc{first:F,rest:R})
 	) :-
 		Desc = 'list cell exists'.
 
@@ -88,7 +88,7 @@ test0 :-
 		_,
 		(
 			%debug(pyco_prep),
-			%debug(pyco_proof),
+			debug(pyco_proof),
 			%debug(pyco_ep),
 
 			Q = q1(_L,_F,_R),
@@ -108,7 +108,7 @@ test1 :-
 		_,
 		(
 			%debug(pyco_prep),
-			%debug(pyco_proof),
+			debug(pyco_proof),
 			%debug(pyco_ep),
 			%gtrace,
 			Q = 'lists of same chars, of same length'(_A,_B),

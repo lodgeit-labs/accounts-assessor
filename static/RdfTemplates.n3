@@ -16,6 +16,14 @@
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
 
 
+@prefix kb: <https://rdf.lodgeit.net.au/v1/kb#> .
+
+
+kb:Asset a rdfs:Class.
+
+
+
+
 
 
 :this rdfs:comment """
