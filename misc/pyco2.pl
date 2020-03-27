@@ -20,13 +20,12 @@ run(Query) :-
 
 run2(Query) :-
 	% repeat top-level query until depth_map of Proof stops changing.
-	run2_2(Query, Proof),
-	debug(pyco_proof, '~w final...', [$>trace_prefix(r, -1)]),
+	run2_repeat(Query, Proof),
+	debug(pyco_run, '~w final...', [$>trace_prefix(r, -1)]),
 	/* filter out proofs that didn't ground. In these cases, we only got here due to ep_yield'ing.	*/
-	proof([],0,eps{},ep_fail,quiet,Query,Proof),
-	debug(pyco_proof, '~w result.', [$>trace_prefix(r, -1)]).
+	run2_final(Query, Proof).
 
-run2_2(Query, Proof) :-
+run2_repeat(Query, Proof) :-
 	debug(pyco_map, 'map0 for: ~q', [Proof]),
 	depth_map(Proof, Map0),
 	debug(pyco_map, 'map0 : ~q', [Map0]),
@@ -35,14 +34,24 @@ run2_2(Query, Proof) :-
 	depth_map(Proof, Map1),
 	debug(pyco_map, 'map1 : ~q', [Map1]),
 	((	Map0 \= Map1,
-		debug(pyco_proof, '~w repeating.', [$>trace_prefix(r, -1)]),
-		run2_2(Query, Proof),
-		debug(pyco_proof, '~w ok...', [$>trace_prefix(r, -1)])
+		debug(pyco_run, '~w repeating.', [$>trace_prefix(r, -1)]),
+		run2_repeat(Query, Proof),
+		debug(pyco_run, '~w ok...', [$>trace_prefix(r, -1)])
 	)
 	;
 	(	Map0 = Map1,
-		debug(pyco_proof, '~w stabilized.', [$>trace_prefix(r, -1)])
+		debug(pyco_run, '~w stabilized.', [$>trace_prefix(r, -1)])
 	)).
+
+run2_final(Query, Proof) :-
+	proof([],0,eps{},ep_fail,noisy,Query,Proof),
+	debug(pyco_run, '~w result.', [$>trace_prefix(r, -1)]),
+	true.
+
+run2_final(Query, Proof) :-
+	\+proof([],0,eps{},ep_fail,quiet,Query,Proof),
+	debug(pyco_run, '~w failed.', [$>trace_prefix(r, -1)]),
+	fail.
 
 proof(
 	/* a unique path in the proof tree */
@@ -92,9 +101,9 @@ proof_ep_fail(_Path, Proof_id_str, Desc, Level, Ep_yield, Quiet, Query, _Unbound
 	(Quiet = noisy -> debug(pyco_proof, '~w ep_yield: ~q (~q)', [$>trace_prefix(Proof_id_str, Level), $>nicer_term(Query), Desc]); true),
 	true.
 
-proof_ep_fail(_Path, Proof_id_str, Desc, Level, Ep_yield, Quiet, Query, fail) :-
+proof_ep_fail(_Path, Proof_id_str, Desc, Level, Ep_yield, Quiet, Query, _Unbound_Proof) :-
 	Ep_yield == ep_fail,
-	(Quiet = noisy -> debug(pyco_proof, '~w ep fail: ~q (~q)', [$>trace_prefix(Proof_id_str, Level), $>nicer_term(Query), Desc]); true),
+	(Quiet = noisy -> debug(pyco_proof, '~w ep_fail: ~q (~q)', [$>trace_prefix(Proof_id_str, Level), $>nicer_term(Query), Desc]); true),
 	fail.
 
 prove_body(Path, Proof_id_str, Ep_yield, Eps0, Ep_List, Query_ep_terms, Desc, Prep, Level, Body_items, Quiet, Proof) :-
