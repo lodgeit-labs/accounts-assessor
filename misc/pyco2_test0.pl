@@ -174,7 +174,7 @@ now for more interesting stuff
 
 pyco0_rule(
 	'test query2',
-	[test_statement2(End, Ts, All, Capped)] <=
+	[test_statement2(End, Ts, Capped, All)] <=
 	[
 		s_transactions_up_to(End, All, Capped),
 		transaction_day(T1, 1),
@@ -189,8 +189,39 @@ pyco0_rule(
 		fr(Ts2, T2, Ts3),
 		fr(Ts3, T5, nil),
 
-		print_1(Ts,Capped,All)
+		%print_1(Ts,Capped,All)
 		%format('***~nTs: ~q ~n~nCapped: ~q ~n~nAll: ~q ~n ***~n', [Ts,All,Capped])
+
+		true
+
+	]).
+
+pyco0_rule(
+	'test_statement3',
+	[test_statement3(End, Ts, Capped, All)] <=
+	[
+		s_transactions_up_to(End, All, Capped),
+		transaction_day(T1, 1),
+		transaction_day(T2, 2),
+		transaction_day(T5, 5),
+		transaction_day(_T10, 10),
+
+		preprocess_sts(Capped,Ts),
+		%writeq('Sts:'),writeq(Sts),nl,
+
+		fr(Ts, T1, Ts2),
+		fr(Ts2, T2, Ts3),
+		fr(Ts3, T5, nil),
+
+		%print_1(Ts,Capped,All)
+		%format('***~nTs: ~q ~n~nCapped: ~q ~n~nAll: ~q ~n ***~n', [Ts,All,Capped])
+
+		fr(All, _, As2),
+		fr(As2, _, As3),
+		fr(As3, _, nil),
+
+
+		true
 
 	]).
 
@@ -291,14 +322,16 @@ test2 :-
 		_,
 		(
 			%debug(pyco_prep),
-			%debug(pyco_proof),
+			debug(pyco_proof),
 			%debug(pyco_ep),
 			debug(pyco_run),
 
-			Q = test_statement2(9, Ts, All, Capped),
+			Q = test_statement3(9, Ts, Capped, All),
 			run(Q),
-			nicer_term(Q, NQ),
-			format(user_error,'~nresult: ~q~n', [NQ]),
+			%nicer_term(Q, NQ),
+			%format(user_error,'~nresult: ~q~n', [NQ]),
+
+			print_1(Ts,Capped,All),
 
 			%nicer_bn2(Ts, Ts_n),
 			%nicer_bn2(All, All_n),

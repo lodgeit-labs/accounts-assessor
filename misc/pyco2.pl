@@ -214,32 +214,34 @@ arg_is_productively_different(_, const(C0), const(C1)) :- C0 \= C1.
 arg_is_productively_different(_, const(_), bn(_,_)).
 arg_is_productively_different(_, bn(_,_), var).
 arg_is_productively_different(_, bn(_,_), const(_)).
-arg_is_productively_different(Path, bn(Uid_old_str,Tag0), bn(Uid_new_str,Tag1)) :-
+arg_is_productively_different(Path_where_old_bnode_was_seen, bn(Uid_old_str,Tag0), bn(Uid_new_str,Tag1)) :-
 	assertion(string(Uid_old_str)),
 	assertion(string(Uid_new_str)),
-	/* for same uids, we fail. */
-	/* for differing types, success */
+	/* differing types, success */
 	(	Tag0 \= Tag1
 	->	true
 	;	(
+			/* same uids, fail. */
 			Uid_old_str \= Uid_new_str,
-			came_before(bn(Uid_new_str,_), fr(Path))
+			\+was_created_under(Uid_new_str, Path_where_old_bnode_was_seen)
+			%came_before(bn(Uid_new_str,_), fr(Path))
 		)).
 
+was_created_under(Uid_new_str, Path_where_old_bnode_was_seen) :-
+	b_getval(bn_log, Bn_log),
+	member(bn(Uid_new_str, _, Path_where_new_bnode_was_created), Bn_log),
+	prefix(Path_where_old_bnode_was_seen, Path_where_new_bnode_was_created).
 
 came_before(A, B) :-
 	b_getval(bn_log, Bn_log),
 	%debug(pyco_proof, 'came_before:~q', [nth0(Ib, Bn_log, B)]),
 	assertion(nth0(Ib, Bn_log, B)),
 	nth0(Ib, Bn_log, B),
-
 	(	nth0(Ia, Bn_log, A)
 	->	Ia < Ib
 	;	true).
 
-
-
-mkbn(Bn, Dict, _Path) :-
+mkbn(Bn, Dict, Path) :-
 	%gtrace,
 (
 	/* avoid creating new bnode if we are already called with one. this eases tracking them for ep check purposes */
@@ -250,13 +252,13 @@ mkbn(Bn, Dict, _Path) :-
 (
 	var(Bn),
 	Bn = bn(_, Dict),
-	register_bn(Bn)
+	register_bn(Bn, Path)
 )).
 
-register_bn(bn(Uid, Dict)) :-
+register_bn(bn(Uid, Dict), Path) :-
 	is_dict(Dict, Tag),
 	term_string(Uid, Uid_str),
-	Entry = bn(Uid_str, Tag),
+	Entry = bn(Uid_str, Tag, Path),
 	register_bn2(Entry).
 
 register_frame(F) :-
