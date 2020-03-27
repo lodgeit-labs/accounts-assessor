@@ -11,19 +11,18 @@ pyco0_rule(
 
 pyco0_rule(
 	Desc,
-	[first(L,F),rest(L,R)] <=
+	[first(Bn,F),rest(Bn,R)] <=
 	[],
-	(L = bn(_, Desc{first:F,rest:R}),register_bn(L))
+	mkbn(Bn, Desc{first:F,rest:R})
 	) :-
 		Desc = 'list cell exists'.
 
 pyco0_rule(
 	Desc,
-	[s_transaction_day(T,D)] <=
+	[s_transaction_day(Bn,D)] <=
 	[],
-	(T = bn(_, Desc{day:D}),register_bn(T))
-	) :-
-		Desc = 's_transaction exists'.
+	mkbn(Bn, Desc{day:D})
+	) :- Desc = 's_transaction exists'.
 
 
 pyco0_rule(
@@ -90,8 +89,8 @@ pyco0_rule(
 	[test_statement1a] <=
 	[
 		s_transactions_up_to(_End, All, Capped),
-		writeq('Capped:'),writeq(Capped),nl,
-		writeq('All:'),writeq(All),nl
+		nl, nl, writeq('rrrCapped:'),writeq(Capped),nl,
+		writeq('rrrAll:'),writeq(All),nl, nl
 	]).
 
 pyco0_rule(
@@ -131,9 +130,9 @@ pyco0_rule(
 
 pyco0_rule(
 	Desc,
-	[transaction_day(T,D), transaction_source(T,S)] <=
+	[transaction_day(Bn,D), transaction_source(Bn,S)] <=
 	[],
-	(T = bn(_, Desc{day:D, source:S}),register_bn(T))) :-
+	mkbn(Bn, Desc{day:D, source:S})) :-
 		Desc = 'transaction exists'.
 
 pyco0_rule(
@@ -168,8 +167,8 @@ now for more interesting stuff
 		pyco would (i think) produce a [first _; rest [first _; rest _]] and ep-yield.
 		ep-yield is a yield, ie, a success, but variables remain unbound. If they (any?) are bound when the query is finished, the result is discarded.
 		after this, it would backtrack and produce [first _; rest nil], and all the other computations would be ran again. (At least that's the case for one ordering of list rules).
-		1) can we ep-yield immediately on first non-ground invoccation?
-		2) can we floow the data and do the other computations first?
+		1) can we ep-yield immediately on first non-ground invocation?
+		2) can we follow the data and do the other computations first?
 
 */
 
@@ -195,19 +194,56 @@ pyco0_rule(
 	]).
 
 
+test1a :-
+	findnsols(
+		5000000000,
+		_,
+		(
+			%debug(pyco_prep),
+			debug(pyco_proof),
+			%debug(pyco_ep),
+
+			Q = test_statement1a,
+			run(Q),
+			nicer_term(Q, NQ),
+			format(user_error,'~nresult: ~q~n', [NQ]),
+
+			%nicer_arg(All, AllN),
+			%format(user_error,'~nAllN: ~q~n', [AllN]),
+
+%			nicer_bn2(All, All_n),
+%			nicer_bn2(Capped, Capped_n),
+%
+%			format(user_error,'~nAll:~n', []),
+%			maplist(writeln, All_n),
+%
+%			format(user_error,'~nCapped:~n', []),
+%			maplist(writeln, Capped_n),
+
+			nl,
+			true
+
+		),
+		_
+	),
+	halt.
+
 test1b :-
 	findnsols(
 		5000000000,
 		_,
 		(
 			%debug(pyco_prep),
-			%debug(pyco_proof),
+			debug(pyco_proof),
 			%debug(pyco_ep),
 
 			Q = test_statement1b(9, All, Capped),
 			run(Q),
-			nicer_term(Q, NQ),
-			format(user_error,'~nresult: ~q~n', [NQ]),
+			%nicer_term(Q, NQ),
+			%format(user_error,'~nresult: ~q~n', [NQ]),
+
+			%nicer_arg(All, AllN),
+			%format(user_error,'~nAllN: ~q~n', [AllN]),
 
 			nicer_bn2(All, All_n),
 			nicer_bn2(Capped, Capped_n),
@@ -233,7 +269,7 @@ test2 :-
 		_,
 		(
 			%debug(pyco_prep),
-			%debug(pyco_proof),
+			debug(pyco_proof),
 			%debug(pyco_ep),
 
 			Q = test_statement2(9, Ts, All, Capped),
@@ -241,18 +277,18 @@ test2 :-
 			nicer_term(Q, NQ),
 			format(user_error,'~nresult: ~q~n', [NQ]),
 
-			nicer_bn2(Ts, Ts_n),
-			nicer_bn2(All, All_n),
-			nicer_bn2(Capped, Capped_n),
+			%nicer_bn2(Ts, Ts_n),
+			%nicer_bn2(All, All_n),
+			%nicer_bn2(Capped, Capped_n),
 
-			format(user_error,'~nTs:~n', []),
-			maplist(writeln, Ts_n),
+			%format(user_error,'~nTs:~n', []),
+			%maplist(writeln, Ts_n),
 
-			format(user_error,'~nCapped:~n', []),
-			maplist(writeln, Capped_n),
+			%format(user_error,'~nCapped:~n', []),
+			%maplist(writeln, Capped_n),
 
-			format(user_error,'~nAll:~n', []),
-			maplist(writeln, All_n),
+			%format(user_error,'~nAll:~n', []),
+			%maplist(writeln, All_n),
 
 			nl,
 			true
