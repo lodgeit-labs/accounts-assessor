@@ -227,6 +227,7 @@ pyco0_rule(
 
 print_1(Ts,Capped,All) :-
 	(
+	format(user_error,'~nresult:~n', []),
 	nicer_bn2(Ts, Ts_n),
 	nicer_bn2(Capped, Capped_n),
 	nicer_bn2(All, All_n),
@@ -323,7 +324,7 @@ test2 :-
 		(
 			%debug(pyco_prep),
 			debug(pyco_proof),
-			%debug(pyco_ep),
+			debug(pyco_ep),
 			debug(pyco_run),
 
 			Q = test_statement3(9, Ts, Capped, All),

@@ -79,7 +79,7 @@ proof2(Path0, Proof_id_str,Level,Eps0,Ep_yield, Quiet,Query,Proof) :-
 	(Quiet = noisy -> debug(pyco_proof, '~w match: ~q (~q)', [$>trace_prefix(Proof_id_str, Level), $>nicer_term(Query), Desc]); true),
 
 	append(Path0, [ri(Desc, Head_item_idx)], Path),
-	register_frame(Path),
+	register_frame(Proof_id_str),
 
 	ep_list_for_rule(Eps0, Desc, Ep_List),
 	(Quiet = noisy -> ep_debug_print_1(Ep_List, Query_ep_terms); true),
@@ -107,7 +107,7 @@ proof_ep_fail(_Path, Proof_id_str, Desc, Level, Ep_yield, Quiet, Query, _Unbound
 	fail.
 
 prove_body(Path, Proof_id_str, Ep_yield, Eps0, Ep_List, Query_ep_terms, Desc, Prep, Level, Body_items, Quiet, Proof) :-
-	updated_ep_list(Eps0, Ep_List, Path, Query_ep_terms, Desc, Eps1),
+	updated_ep_list(Eps0, Ep_List, Proof_id_str, Path, Query_ep_terms, Desc, Eps1),
 	call_prep(Prep, Path),
 	bump_step,
 	body_proof(Path, Proof_id_str, Ep_yield, Level, Eps1, Body_items, Quiet, Proof).
@@ -152,8 +152,8 @@ depth_map(X, Map) :-
  ep stuff
 */
 
-updated_ep_list(Eps0, Ep_List, Path, Query_ep_terms, Desc, Eps1) :-
-	append(Ep_List, [Path-Query_ep_terms], Ep_List_New),
+updated_ep_list(Eps0, Ep_List, Proof_id_str, Path, Query_ep_terms, Desc, Eps1) :-
+	append(Ep_List, [ep(Proof_id_str, Path, Query_ep_terms)], Ep_List_New),
 	Eps1 = Eps0.put(Desc, Ep_List_New).
 
 print_debug_ep_list_item(I) :-
@@ -175,7 +175,7 @@ ep_ok(Ep_List, Query_ep_terms, Quiet) :-
 	(Quiet = noisy -> debug(pyco_ep, 'ep_ok:~q', [Query_ep_terms]);true)
 	.
 
-ep_ok2(Query_ep_terms, Quiet, Path-Ep_Entry) :-
+ep_ok2(Query_ep_terms, Quiet, ep(Proof_id_str,Path,Ep_Entry)) :-
 	length(Query_ep_terms, L0),
 	length(Ep_Entry, L1),
 	assertion(L0 == L1),
@@ -184,7 +184,7 @@ ep_ok2(Query_ep_terms, Quiet, Path-Ep_Entry) :-
 			between(1, L0, I),
 			nth1(I, Ep_Entry, Old_arg),
 			nth1(I, Query_ep_terms, New_arg),
-			arg_is_productively_different(Path, Old_arg, New_arg)
+			arg_is_productively_different(Quiet,Proof_id_str,Path, Old_arg, New_arg)
 		),
 		Differents),
 	(	Differents == []
@@ -206,15 +206,15 @@ arg_ep_table_term(A, bn(Uid_str, Tag)) :-
 	term_string(Uid, Uid_str).
 
 
-%\+arg_is_productively_different(_, var, var).
-arg_is_productively_different(_, var, const(_)).
-arg_is_productively_different(_, var, bn(_,_)).
-arg_is_productively_different(_, const(_), var).
-arg_is_productively_different(_, const(C0), const(C1)) :- C0 \= C1.
-arg_is_productively_different(_, const(_), bn(_,_)).
-arg_is_productively_different(_, bn(_,_), var).
-arg_is_productively_different(_, bn(_,_), const(_)).
-arg_is_productively_different(Path_where_old_bnode_was_seen, bn(Uid_old_str,Tag0), bn(Uid_new_str,Tag1)) :-
+%\+arg_is_productively_different(_,_, var, var).
+arg_is_productively_different(_,_,_, var, const(_)).
+arg_is_productively_different(_,_,_, var, bn(_,_)).
+arg_is_productively_different(_,_,_, const(_), var).
+arg_is_productively_different(_,_,_, const(C0), const(C1)) :- C0 \= C1.
+arg_is_productively_different(_,_,_, const(_), bn(_,_)).
+arg_is_productively_different(_,_,_, bn(_,_), var).
+arg_is_productively_different(_,_,_, bn(_,_), const(_)).
+arg_is_productively_different(Quiet,Proof_id_str,Path_where_old_bnode_was_seen, bn(Uid_old_str,Tag0), bn(Uid_new_str,Tag1)) :-
 	assertion(string(Uid_old_str)),
 	assertion(string(Uid_new_str)),
 	/* differing types, success */
@@ -223,14 +223,19 @@ arg_is_productively_different(Path_where_old_bnode_was_seen, bn(Uid_old_str,Tag0
 	;	(
 			/* same uids, fail. */
 			Uid_old_str \= Uid_new_str,
-			\+was_created_under(Uid_new_str, Path_where_old_bnode_was_seen)
-			%came_before(bn(Uid_new_str,_), fr(Path))
+			(	(\+was_created_under(Quiet,Uid_new_str, Path_where_old_bnode_was_seen))
+			->	true
+			;	came_before(bn(Uid_new_str,_,_), fr(Proof_id_str)))
 		)).
 
-was_created_under(Uid_new_str, Path_where_old_bnode_was_seen) :-
+was_created_under(Quiet,Uid_new_str, Path_where_old_bnode_was_seen) :-
 	b_getval(bn_log, Bn_log),
 	member(bn(Uid_new_str, _, Path_where_new_bnode_was_created), Bn_log),
-	prefix(Path_where_old_bnode_was_seen, Path_where_new_bnode_was_created).
+	prefix(Path_where_old_bnode_was_seen, Path_where_new_bnode_was_created),
+	(Quiet = noisy -> debug(pyco_ep, 'old:~q', [Path_where_old_bnode_was_seen]);true),
+	(Quiet = noisy -> debug(pyco_ep, 'new:~q', [Path_where_new_bnode_was_created]);true),
+	true
+	.
 
 came_before(A, B) :-
 	b_getval(bn_log, Bn_log),
@@ -273,11 +278,11 @@ register_bn2(Entry) :-
 	\+ member(Entry, Bn_log0),
 	append(Bn_log0, [Entry], Bn_log1),
 	b_setval(bn_log, Bn_log1),
-	debug(pyco_ep, 'bn_log:', []),
+	debug(pyco_bn_log, 'bn_log:', []),
 	maplist(debug_print_bn_log_item, Bn_log1).
 
 debug_print_bn_log_item(I) :-
-	debug(pyco_ep, '* ~q', [I]).
+	debug(pyco_bn_log, '* ~q', [I]).
 
 
 /*
