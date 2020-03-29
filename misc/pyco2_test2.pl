@@ -227,6 +227,20 @@ pyco0_rule(
 		preprocess(Sts, Ts)
 	]).
 
+pyco0_rule(
+	'q1',
+	[
+		q1(Sts, Ts)
+	] <=
+	[
+		verb_counteraccount(Verb0, expenses),
+		s_transaction(St0,Verb0,0,bank1,v,e),
+		s_transaction(St1,Verb0,1,bank2,vv,ee),
+		fr(Sts, St0, Sts1),
+		fr(Sts1, St1, nil),
+		preprocess(Sts, Ts)
+	]).
+
 
 test_q0 :-
 	findnsols(
@@ -250,6 +264,48 @@ test_q0 :-
 	),
 	halt.
 
+
+test(Q) :-
+	findnsols(
+		5000000000,
+		_,
+		(
+			%debug(pyco_prep),
+			debug(pyco_proof),
+			%debug(pyco_ep),
+			debug(pyco_run),
+
+			run(Q),
+			print_1(Q),
+			nicer_term(Q, NQ),
+			format(user_error,'~nresult: ~q~n', [NQ]),
+			nl,
+			nl,
+			true
+		),
+		_
+	),
+	halt.
+
+
+
+
+print_1(Q) :-
+	Q =.. [_,Sts,Ts],
+	(
+	format(user_error,'~nresult:~n', []),
+	nicer_bn2(Sts, Sts_n),
+	nicer_bn2(Ts, Ts_n),
+	format(user_error,'~nSts:~n', []),
+	maplist(writeln, Sts_n),
+	format(user_error,'~nTs:~n', []),
+	maplist(writeln, Ts_n),
+	nl,nl,
+	nl,nl,nl,nl,nl,nl,nl,nl,nl,nl,nl,nl,nl,nl,nl,nl,nl,nl,nl,nl,nl,nl,nl,nl,
+	true
+	)
+	->	true
+	;	throw(xxx).
 
 
 
