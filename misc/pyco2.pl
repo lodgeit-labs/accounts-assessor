@@ -406,3 +406,18 @@ collect_items2(R, Rest) :-
 
 collect_items2(R, ['|_']) :-
 	var(R).
+
+/*
+or...
+	if a body item fails:
+		if there were no eps in its call tree:
+			fail
+		else:
+			put it at the end of the queue
+number of new binds
+number of new constraints
+bnode semantics:
+	there exists
+uri semantics:
+	there exists AND is distinct from everything else
+*/
