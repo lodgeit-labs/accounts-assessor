@@ -1,54 +1,6 @@
 :- [pyco2].
 
 
-
-/*
-
-
-s_transaction pipeline:
-	flip vectors (on parse)
-	sort by day and vector
-	s_transactions_up_to
-	prepreprocess from s_transactions to s_transactions(2?):
-		find action verbs
-		infer_livestock_action_verb
-		infer_exchanged_units_count
-	"preprocess" s_transaction2s to transactions
-
-here we'll just do:
-	s_transactions_up_to
-	s_transaction2s to transactions
-
-
-going from s_transactions to transactions and back:
-
-	in pseudocode:
-
-	uid(Uid) :-
-			var(Uid)
-		->	gensym(Uid)
-		;	true
-
-	preprocess([St|Sts], Ts) :-
-		s_transaction(St, St_Uid, ...),
-
-		% if going from sts to ts, the st is probably an uri,
-		% but if going from ts to sts, it's gonna be a bnode
-		% in both cases, they're uniquely identified by their position in the list, but they could still unify, so, we need to assign a unique id extralogically
-
-		uid(St_Uid),
-
-		transaction(T1, T1_Uid, St, St_Uid, ...),
-		member(T1, Ts),
-		uid(T1_Uid),
-
-		% (same for T2, etc)
-
-		dif(T1_Uid, T2_Uid), etc
-*/
-
-
-
 pyco0_rule(
 	'list cell helper',
 	[fr(L,F,R)] <=
@@ -65,6 +17,37 @@ pyco0_rule(
 	) :-
 		Desc = 'list cell exists'.
 
+pyco0_rule(
+	member0,
+	[
+		member(Item, List)
+	]
+	<=
+	[
+		fr(List, Item, _Rest)
+	]).
+
+
+pyco0_rule(
+	vec_inverse,
+	[
+		vec_inverse(V, Vi)
+	]
+	<=
+	[
+		Vi = vi
+	]).
+
+pyco0_rule(
+	member1,
+	[
+		member(Item, List)
+	]
+	<=
+	[
+		fr(List, _, Rest),
+		member(Item, Rest)
+	]).
 
 pyco0_rule(
 	slice0,
@@ -89,7 +72,7 @@ pyco0_rule(
 	]).
 
 pyco0_rule(
-	'slice out a list',
+	'slice out a list0',
 	[
 		slice_out_a_list(Whole, nil, Whole)
 	]
@@ -98,7 +81,7 @@ pyco0_rule(
 	]).
 
 pyco0_rule(
-	'slice out a list',
+	'slice out a list1',
 	[
 		slice_out_a_list(Whole, Items_sliced_out, Rest)
 	]
@@ -115,26 +98,43 @@ pyco0_rule(
 % transactions are picked out from anywhere in the list.
 pyco0_rule(
 	'(nil, nil) has the relation "preprocess"',
-	['preprocess'(nil,nil)]
+	[preprocess(_,nil,nil)]
  	<=
 	[]).
 
 pyco0_rule(
 	'preprocess',
-	['preprocess'(S_transactions, Transactions)]
+	[preprocess(Verbs, S_transactions, Transactions)]
 	<=
 	[
-		produces(St, Ts),
+		member(Verb, Verbs),
+		produces(Verb, St, Ts),
 		slice_out_a_list(Transactions, Ts, Transactions_rest),
 		fr(S_transactions, St, S_transactions_tail),
-		'preprocess'(S_transactions_tail, Transactions_rest)
+		preprocess(Verbs, S_transactions_tail, Transactions_rest)
 	]).
 
 pyco0_rule(
 	'produces 1',
-	[produces(St, Ts)]
+	[produces(Verb, St, Ts)]
 	<=
 	[
+		verb_type(Verb, basic),
+		verb_counteraccount(Verb, Counteraccount),
+		s_transaction(St,Verb,D,Primary_account,V,nil),
+		transaction(T0,D,St,Primary_account,V),
+		vec_inverse(V, Vi),
+		transaction(T1,D,St,Counteraccount,Vi),
+		fr(Ts,T0,Ts2),
+		fr(Ts2,T1,nil)
+	]).
+
+pyco0_rule(
+	'produces 2',
+	[produces(Verb, St, Ts)]
+	<=
+	[
+		verb_type(Verb, exchange),
 		verb_counteraccount(Verb, Counteraccount),
 		s_transaction(St,Verb,D,Primary_account,V,E),
 		transaction(T0,D,St,Primary_account,V),
@@ -147,16 +147,22 @@ pyco0_rule(
 pyco0_rule(
 	Desc,
 	[
+		verb(Bn, Name, Type, Counteraccount),
+		verb_name(Bn, Name),
+		verb_type(Bn, Type),
 		verb_counteraccount(Bn, Counteraccount)
 	]
 	<= [],
 	mkbn(Bn, Desc{
+		name:Name,
+		type:Type,
 		counteraccount:Counteraccount
 	})) :- Desc = 'verb exists'.
 
 pyco0_rule(
 	Desc,
 	[
+		transaction(T,D,S,A,V),
 		transaction_day(T,D),
 		transaction_source(T,S),
 		transaction_account(T,A),
@@ -172,20 +178,9 @@ pyco0_rule(
 		Desc = 'transaction exists'.
 
 pyco0_rule(
-	'transaction fields',
-	[
-		transaction(T,D,S,A,V)
-	] <=
-	[
-		transaction_day(T,D),
-		transaction_source(T,S),
-		transaction_account(T,A),
-		transaction_vector(T,V)
-	]).
-
-pyco0_rule(
 	Desc,
 	[
+		s_transaction(T,Verb,D,A,V,E),
 		s_transaction_verb(T,Verb),
 		s_transaction_day(T,D),
 		s_transaction_account(T,A),
@@ -202,43 +197,80 @@ pyco0_rule(
 	})) :-
 		Desc = 's_transaction exists'.
 
-pyco0_rule(
-	's_transaction fields',
-	[
-		s_transaction(T,Verb,D,A,V,E)
-	] <=
-	[
-		s_transaction_verb(T,Verb),
-		s_transaction_day(T,D),
-		s_transaction_account(T,A),
-		s_transaction_vector(T,V),
-		s_transaction_exchanged(T,E)
-	]).
 
+/* basic expansion of an s_transacton into two transactions */
 pyco0_rule(
 	'q0',
 	[
 		q0(Sts, Ts)
 	] <=
 	[
+		verb_type(Verb0, basic),
 		verb_counteraccount(Verb0, expenses),
+		fr(Verbs, Verb0, nil),
 		s_transaction(St0,Verb0,0,bank1,v,e),
 		fr(Sts, St0, nil),
-		preprocess(Sts, Ts)
+		preprocess(Verbs, Sts, Ts)
 	]).
 
+/* ...two s_transactions */
 pyco0_rule(
 	'q1',
 	[
 		q1(Sts, Ts)
 	] <=
 	[
-		verb_counteraccount(Verb0, expenses),
+		default_verbs(Verbs, Verb0, _),
 		s_transaction(St0,Verb0,0,bank1,v,e),
 		s_transaction(St1,Verb0,1,bank2,vv,ee),
 		fr(Sts, St0, Sts1),
 		fr(Sts1, St1, nil),
-		preprocess(Sts, Ts)
+		preprocess(Verbs, Sts, Ts)
+	]).
+
+pyco0_rule(
+	'default verbs',
+	[
+		default_verbs(Verbs, Verb0, Verb1)
+	] <=
+	[
+		verb(Verb0, invest_in, exchange, investments),
+		verb(Verb1, expense, basic, expenses),
+		fr(Verbs, Verb0, Verbs2),
+		fr(Verbs2, Verb1, nil)
+	]).
+
+
+pyco0_rule(
+	'q2',
+	[
+		q2(Sts, Ts)
+	] <=
+	[
+		transaction(T0,0,_,bank0,v),
+		transaction(T1,0,_,expenses,vi),
+		fr(Ts, T0, Ts1),
+		fr(Ts1, T1, nil),
+		preprocess(Verbs,Sts,Ts),
+		default_verbs(Verbs, _, _)
+	]).
+
+pyco0_rule(
+	'q3',
+	[
+		q3(Sts, Ts)
+	] <=
+	[
+		transaction(T0,0,_,bank0,v),
+		transaction(T1,0,_,expenses,vi),
+		transaction(T2,0,_,bank0,v),
+		transaction(T3,0,_,investments,goog),
+		fr(Ts, T0, Ts1),
+		fr(Ts1, T1, Ts2),
+		fr(Ts2, T2, Ts3),
+		fr(Ts3, T3, nil),
+		preprocess(Verbs,Sts,Ts),
+		default_verbs(Verbs, _, _)
 	]).
 
 
@@ -309,3 +341,72 @@ print_1(Q) :-
 
 
 
+
+
+
+
+/*
+
+
+s_transaction pipeline:
+	flip vectors (on parse)
+	sort by day and vector
+	s_transactions_up_to
+	prepreprocess from s_transactions to s_transactions(2?):
+		find action verbs
+		infer_livestock_action_verb
+		infer_exchanged_units_count
+	"preprocess" s_transaction2s to transactions
+
+here we'll just do:
+	s_transactions_up_to
+	s_transaction2s to transactions
+
+
+going from s_transactions to transactions and back:
+
+	in pseudocode:
+
+	uid(Uid) :-
+			var(Uid)
+		->	gensym(Uid)
+		;	true
+
+	preprocess([St|Sts], Ts) :-
+		s_transaction(St, St_Uid, ...),
+
+		% if going from sts to ts, the st is probably an uri,
+		% but if going from ts to sts, it's gonna be a bnode
+		% in both cases, they're uniquely identified by their position in the list, but they could still unify, so, we need to assign a unique id extralogically
+
+		uid(St_Uid),
+
+		transaction(T1, T1_Uid, St, St_Uid, ...),
+		member(T1, Ts),
+		uid(T1_Uid),
+
+		% (same for T2, etc)
+
+		dif(T1_Uid, T2_Uid), etc
+*/
+
+
+
+/*
+make_list([], nil).
+
+make_list([H|T], Pyco_list) :-
+	mkbn(Pyco_list, make_list{first:H,rest:R}, missing->Path),
+	make_list(T, R).
+*/
+/*
+pyco0_rule(
+	'make_list0',
+	[make_list([], nil)] <=
+	[]).
+
+pyco0_rule(
+	'make_list1',
+	[make_list(not atomic->[], nil)] <=
+	[]).
+*/
