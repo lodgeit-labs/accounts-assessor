@@ -1,3 +1,20 @@
+tbd.
+
+:- [pyco2].
+
+
+pyco0_rule(
+	'standalone livestock calculation',
+	[] <=
+	[
+	]).
+
+
+requestdata(D)...
+
+
+
+/*
 
 livestock_doc_calculator :-
 	findall(L, doc(L, rdf:type, l:livestock_data), Ls),
@@ -111,3 +128,4 @@ expand_uris(X, Y) :-
 
 
 
+*/
