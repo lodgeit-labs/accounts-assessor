@@ -9,6 +9,12 @@ This version is implemented in (swi)prolog, so we can experiment with integratin
 Integration with the "doc" system is tbd, as are many other things.
 
 
+# running it
+
+```
+reset;echo -e "\e[3J";   swipl -O -s pyco2_test2.pl -g "test(q3(_,_)),halt" 2>&1 | tee x  
+cat x | grep "result:"
+```
 
 # random notes
 
