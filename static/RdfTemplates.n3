@@ -1,5 +1,4 @@
-@prefix : <https://rdf.lodgeit.net.au/v1#> .
-
+@prefix : <https://rdf.lodgeit.net.au/v1/excel_request#> .
 
 @prefix l: <https://rdf.lodgeit.net.au/v1/request#> .
 @prefix excel: <https://rdf.lodgeit.net.au/v1/excel#> .
@@ -7,6 +6,7 @@
 @prefix depr: <https://rdf.lodgeit.net.au/v1/calcs/depr#> .
 @prefix ic: <https://rdf.lodgeit.net.au/v1/calcs/ic#> .
 @prefix hp: <https://rdf.lodgeit.net.au/v1/calcs/hp#> .
+
 @prefix depr_ui: <https://rdf.lodgeit.net.au/v1/calcs/depr/ui#> .
 @prefix ic_ui: <https://rdf.lodgeit.net.au/v1/calcs/ic/ui#> .
 @prefix hp_ui: <https://rdf.lodgeit.net.au/v1/calcs/hp/ui#> .
@@ -15,31 +15,19 @@
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
 
-
-
-
-
-
-:this rdfs:comment """
-unfinished work on introducing namespacing. This should help with ordering the output of rdf_cleanup2.py and similar reasonably, and in keeping identifiers short
-
-prefixes:
-	excel: generic excel schema-directed ui stuff
-
-	hp: hirepurchase
-	depr: depreciation
-	ic: investment calculator
-""".
-
+excel:this rdfs:comment """excel: generic excel schema-directed ui stuff""".
+hp:this rdfs:comment """hirepurchase""".
+depr:this rdfs:comment """depreciation""".
+ic:this rdfs:comment """investment calculator""".
 
 excel:is_multi rdfs:comment "are multiple instances allowed in one workbook?".
 
-hp_ui:hp_calculator_sheets
+hp_ui:hirepurchase_calculator_sheets
 	excel:is_multi true;
 	excel:sheets (
 		[
 			excel:name_prefix "HP";
-			excel:root hp:hp_calculator_query;
+			excel:root hp_ui:hp_calculator_query;
 			excel:example_doc
 			[
 				hp:begin_date [rdf:value "2019-10-10T00:00:00.0"^^xsd:dateTime];
@@ -56,21 +44,21 @@ hp_ui:hp_calculator_sheets
 			]
 		]
 	).
-
+	
 hp_ui:hp_calculator_query
 	excel:position [excel:col "A"; excel:row "1"];
 	excel:title "Standalone Calculator Query Parameters";
 	excel:cardinality excel:single;
 	excel:class hp:hp_calculator_query;
 	excel:fields (
-		[	excel:property hp:begin_date;
-			excel:type xsd:dateTime;
+		[	excel:property hp:begin_date; 
+			excel:type xsd:dateTime; 
 			excel:comment "ignored for Investment Calculator"]
-		[	excel:property hp:end_date;
-			excel:type xsd:dateTime;
+		[	excel:property hp:end_date; 
+			excel:type xsd:dateTime; 
 			excel:comment "ignored for Investment Calculator"]
 		[
-			excel:property hp:hp_contract;
+			excel:property hp:hp_contract; 
 			excel:template hp_ui:hp_contract]
 	).
 
@@ -78,7 +66,7 @@ hp_ui:hp_calculator_query
 hp_ui:hp_contract
 	excel:position [excel:col "A"; excel:row "5"];
 	excel:title "Hirepurchase Contract";
-	excel:cardinality excel:single;
+	excel:cardinality excel:single;	
 	excel:class hp:hp_contract;
 	excel:fields (
 		[excel:property hp:contract_number]
@@ -149,17 +137,17 @@ depr_ui:depreciation_calculator_sheets
 		[
 			excel:name_prefix "depreciation_queries";
 			excel:root depr_ui:depreciation_queries;
-			excel:example_doc depr:depreciation_example_queries
+			excel:example_doc depr_ui:depreciation_example_queries
 		]
 		[
 			excel:name_prefix "depreciation_events";
 			excel:root depr_ui:depreciation_events;
-			excel:example_doc depr:depreciation_example_events
+			excel:example_doc depr_ui:depreciation_example_events
 		]
 		[
 			excel:name_prefix "depreciation_assets";
 			excel:root depr_ui:depreciation_assets;
-			excel:example_doc depr:depreciation_example_assets
+			excel:example_doc depr_ui:depreciation_example_assets
 		]
 	).
 
@@ -172,7 +160,7 @@ depr_ui:depreciation_example_queries rdf:value (
 		depr:depreciation_query_pool [ a rdf:value ;
 				rdf:value "general_pool"^^xsd:string ] ;
 		depr:depreciation_query_to_date [ a rdf:value ;
-				rdf:value "2019-02-02T00:00:00"^^xsd:dateTime ] ]
+				rdf:value "2019-02-02T00:00:00"^^xsd:dateTime ] ] 
 	[ a depr:depreciation_query ;
 		depr:depreciation_query_asset_id [ a rdf:value ;
 				rdf:value "car456"^^xsd:string ] ;
@@ -205,7 +193,7 @@ depr_ui:depreciation_example_queries rdf:value (
 		depr:depreciation_query_termination_value [ a rdf:value ;
 				rdf:value 500 ] ]
 ).
-
+									
 
 depr_ui:depreciation_example_events rdf:value (
 	[ a depr:depreciation_event ;
@@ -262,7 +250,7 @@ depr_ui:depreciation_example_assets rdf:value (
 	depr:start_date [ a rdf:value ;
 			rdf:value "2015-03-16T00:00:00"^^xsd:dateTime ] ]
 ).
-
+									
 
 depr:depreciation_query_has_type rdfs:range depr:depreciation_query_type.
 
@@ -301,9 +289,9 @@ depr_ui:depreciation_queries
 		[excel:property depr:depreciation_query_written_down_value; excel:type xsd:decimal]
 		[excel:property depr:depreciation_query_profit_and_loss; excel:type xsd:decimal]
 	).
-
-
-
+	
+	
+	
 depr_ui:depreciation_events
 	excel:title "depreciation_events";
 	excel:position [excel:col "A"; excel:row "1"];
@@ -340,22 +328,22 @@ ic_ui:investment_calculator_sheets
 			excel:example_doc
 				[	ic:default_currency [rdf:value "AUD"];
 					ic:items [rdf:value (
-						[
-							ic:date [rdf:value "2019-10-10T00:00:00.000000"^^xsd:dateTime];
-							ic:account [rdf:value "Assets"];
-							ic:debit [rdf:value "USD 500"]
-						]
-						[
-							ic:date [rdf:value "2019-10-10T00:00:00.000000"^^xsd:dateTime];
-							ic:account [rdf:value "Revenue"];
-							ic:credit [rdf:value "600"]
-						]
-						[
-							ic:date [rdf:value "2019-10-10T00:00:00.000000"^^xsd:dateTime];
-							ic:account [rdf:value "CurrencyMovement"];
-							ic:debit [rdf:value "600 AUD"];
-							ic:credit [rdf:value "500 USD"]
-						]
+						#[
+						#	ic:date [rdf:value "2019-10-10T00:00:00.000000"^^xsd:dateTime];
+						#	ic:account [rdf:value "Assets"];
+						#	ic:debit [rdf:value "USD 500"]
+						#]
+						#[
+						#	ic:date [rdf:value "2019-10-10T00:00:00.000000"^^xsd:dateTime];
+						#	ic:account [rdf:value "Revenue"];
+						#	ic:credit [rdf:value "600"]
+						#]
+						#[
+						#	ic:date [rdf:value "2019-10-10T00:00:00.000000"^^xsd:dateTime];
+						#	ic:account [rdf:value "CurrencyMovement"];
+						#	ic:debit [rdf:value "600 AUD"];
+						#	ic:credit [rdf:value "500 USD"]
+						#]
 					)]
 				]
 		]
@@ -376,15 +364,26 @@ ic_ui:investment_calculator_sheets
 				]
 		]
 		[
-			excel:root ic_ui:transaction_input;
+			excel:root ic_ui:additional_files;
 			excel:optional true;
 			excel:example_doc
 				[
 					rdf:value ()
 				]
 		]
-).
-
+		[
+			excel:root ic_ui:report_details;
+			excel:optional false;
+			excel:example_doc
+				[
+					ic:currency [rdf:value "AUD"];
+					ic:from [rdf:value "2019-07-01T00:00:00.0"^^xsd:dateTime];
+					ic:to [rdf:value "2020-01-01T00:00:00.0"^^xsd:dateTime];
+					ic:cost_or_market [rdf:value ic:cost]
+				]
+		]
+	).
+	
 ic_ui:gl
 	excel:position [excel:col "A"; excel:row "1"];
 	excel:title "GL input";
@@ -423,17 +422,30 @@ ic_ui:account_roles
 		[excel:property ic:role]
 	).
 
-ic_ui:transaction_input
+ic_ui:additional_files
 	excel:cardinality excel:multi;
-	excel:class ic:transaction;
+	excel:class ic:additional_file;
 	excel:fields (
-		[excel:property ic:date]
-		[excel:property ic:primary_account]
-		[excel:property ic:action_verb]
-		[excel:property ic:debit]
-		[excel:property ic:credit]
-		[excel:property ic:currency]
-		[excel:property ic:description1]
-		[excel:property ic:description2]
-		[excel:property ic:description3]
+		[excel:property ic:url]
 	).
+
+ic_ui:report_details
+	excel:cardinality excel:single;
+	excel:class ic:report_details;
+	excel:fields (
+		[excel:property ic:from; excel:type xsd:dateTime]
+		[excel:property ic:to; excel:type xsd:dateTime]
+		[excel:property ic:currency; excel:type xsd:string]
+		[excel:property ic:cost_or_market; excel:type excel:uri]
+	).
+
+ic:cost_or_market rdfs:range ic:cost_or_market_type.
+ic:cost a ic:cost_or_market_type.
+ic:market a ic:cost_or_market_type.
+
+
+
+
+
+
+
