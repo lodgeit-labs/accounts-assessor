@@ -1,5 +1,7 @@
 
 :- module(event_calculus, [
+		begin_income_year/1,
+		days_from_begin_accounting/2,
         depreciationAsset/12,
         depreciation_value/6,
         depreciation_rate/6,
@@ -72,9 +74,10 @@ depreciationAsset(
     (T2 - T1) < 367,
     asset(Asset_id,Asset_cost,Start_date,Effective_life_years),
     holdsAtAsset(Asset_id,H,T1),
-    (H = in_pool(Asset_id,Pool))->
+    ((H = in_pool(Asset_id,Pool))->
         depreciation_rate(Pool, Method, Year_from_start, Start_date, Effective_life_years, Rate); 
-        depreciation_rate(Asset_id, Method, Year_from_start, Start_date, Effective_life_years, Rate)),
+        depreciation_rate(Asset_id, Method, Year_from_start, Start_date, Effective_life_years, Rate)
+    ),
     terminatedAfter(H,T1,T),
     New_T1 is T + 1,
     Days_held is New_T1-T1,
@@ -202,19 +205,19 @@ days_from_begin_accounting(Date,Days):-
 % Transfer car123 to general pool in date(2017,7,1)
 % days_from_begin_accounting(date(2017,7,1),Days).
 % Days = 10043
-happens(transfer_asset_to_pool(car123,general_pool),10043).
+%happens(transfer_asset_to_pool(car123,general_pool),10043).
 % Transfer car456 to general pool in date(2015,7,1)
 % days_from_begin_accounting(date(2015,7,1),Days).
 % Days = 9312
-happens(transfer_asset_to_pool(car456,general_pool),9312).
+%happens(transfer_asset_to_pool(car456,general_pool),9312).
 % Remove car123 from general pool in date(2021,6,1) by disposal
 % days_from_begin_accounting(date(2021,6,1),Days).
 % Days = 11474
-happens(asset_disposal(car123),11474).
+%happens(asset_disposal(car123),11474).
 % Remove car456 from general pool in date(2020,7,31) by disposal
 % days_from_begin_accounting(date(2020,7,31),Days).
 % Days = 11169
-happens(asset_disposal(car456),11169).
+%happens(asset_disposal(car456),11169).
 /*
 start:-
     Asset_id = car123,

@@ -32,49 +32,65 @@ depreciation_between_start_date_and_other_date(
 		What_pool,
 		Initial_depreciation_value,
 		Total_depreciation_value
-	) :-
-	day_diff(date(From_year, From_Month, From_day), To_date, Days_difference),
-	check_day_difference_validity(Days_difference),	
+) :-
+	day_diff(date(From_year, From_Month, From_day), To_date, Request_period),
+	check_day_difference_validity(Request_period),
 	begin_accounting_date(Begin_accounting_date),
 	day_diff(Begin_accounting_date, date(From_year, From_Month, 1), T1),
-	% Get days From date until end of the current income year, <=365
-	(
+
+	(	/* compute Days_held since asset purchase or recursion, until end of income year */
 		From_Month < 7
-		->
-			day_diff(date(From_year, From_Month, From_day), date(From_year, 7, 1), Days_held),
-			Next_from_year is From_year
-			;
-			day_diff(date(From_year, From_Month, From_day), date(From_year + 1, 7, 1), Days_held),
-			Next_from_year is From_year + 1
-	),
-	(
-		Days_difference =< Days_held
-			->
-			T2 is T1 + Days_difference,
-			%depreciationAsset(Asset_id,T1,T2,Begin_value,End_value,Method,Year_from_start,Life,While_in_pool,What_pool,
-			%Initial_depreciation_value,Final_depreciation_value).
-			depreciationAsset(Asset_id,T1,T2,Initial_value,_,Method,Depreciation_year,Life,While_in_pool,What_pool,0,Depreciation_value),
-			Total_depreciation_value is Initial_depreciation_value + Depreciation_value
+	->
+		day_diff(date(From_year, From_Month, From_day), date(From_year, 7, 1), Days_held),
+		Next_from_year is From_year
 	;
-			T2 is T1 + Days_held,
-			depreciationAsset(Asset_id,T1,T2,Initial_value,_,Method,Depreciation_year,Life,While_in_pool,What_pool,0,Depreciation_value),
-			Next_depreciation_year is Depreciation_year + 1,
-			Next_initial_value is Initial_value - Depreciation_value,
-			Next_depreciation_value is (Initial_depreciation_value + Depreciation_value),
-			depreciation_between_start_date_and_other_date(
-				Next_initial_value, 
-				Method,
-				date(Next_from_year, 7, 1), 
-				To_date, 
-				Asset_id,
-				RestOfLife, 
-				Next_depreciation_year, 
-				While_in_pool,
-				What_pool,
-				Next_depreciation_value,
-				Total_depreciation_value
-			)
-	).
+		day_diff(date(From_year, From_Month, From_day), date(From_year + 1, 7, 1), Days_held),
+		Next_from_year is From_year + 1
+	),
+
+	(	/* done or recurse? */
+		Request_period =< Days_held
+	->	T2 is T1 + Request_period
+	;	T2 is T1 + Days_held),
+
+	%depreciationAsset(Asset_id,T1,T2,Begin_value,End_value,Method,Year_from_start,Life,While_in_pool,What_pool,Initial_depreciation_value,Final_depreciation_value).
+	%gtrace,
+	depreciationAsset(Asset_id,T1,T2,Initial_value,_,Method,Depreciation_year,Life,While_in_pool,What_pool,0,Depreciation_value),
+
+	(	/* done or recurse? */
+		Request_period =< Days_held
+	->	Total_depreciation_value is Initial_depreciation_value + Depreciation_value
+	;	Next_depreciation_year is Depreciation_year + 1,
+		Next_initial_value is Initial_value - Depreciation_value,
+		Next_depreciation_value is (Initial_depreciation_value + Depreciation_value),
+		depreciation_between_start_date_and_other_date(
+			Next_initial_value,
+			Method,
+			date(Next_from_year, 7, 1),
+			To_date,
+			Asset_id,
+			RestOfLife,
+			Next_depreciation_year,
+			While_in_pool,
+			What_pool,
+			Next_depreciation_value,
+			Total_depreciation_value
+		)
+	),
+
+	format(user_error, '~q~n', [depreciation_between_start_date_and_other_date(
+		Initial_value, 							% value at start of year / Asset Base Value
+		Method, 								% Diminishing Value / Prime Cost
+		date(From_year, From_Month, From_day),
+		To_date,								% date for which depreciation should be computed
+		Asset_id,								% Asset
+		[Life|RestOfLife],
+		Depreciation_year, 						% 1,2,3...
+		While_in_pool,
+		What_pool,
+		Initial_depreciation_value,
+		Total_depreciation_value
+	)]).
 
 %findall((Asset,Depreciation_value),depreciation_between_start_date_and_other_date(1000,prime_cost,date(2017,7,1),date(2021,6,30),Asset,_,1,false,_,0,Depreciation_value),Output).
 %findall(Depreciation_value,depreciation_between_start_date_and_other_date(1000,prime_cost,date(2017,1,1),date(2018,2,2),_,_,1,false,Pool,0,Depreciation_value),Depreciation_values_lst)
@@ -86,14 +102,19 @@ depreciation_between_start_date_and_other_date(
 depreciation_pool_from_start(Pool,To_date,Method,Total_depreciation):-
 	%get begin value of all assets that are inside the pool any duration between T1 and T2, in T1
 	% for each asset calculate depreciation while in the specified pool between T1 and T2
-	findall(Depreciation_value,(
-		%asset(car123,1000,date(2017,5,1),5).
-		asset(Asset_id,Cost,Start_date,_),
-		day_diff(Start_date,To_date,Days_diff),
-		Days_diff>0,
-		depreciation_between_start_date_and_other_date(Cost,Method,Start_date,To_date,Asset_id,_,1,true,Pool,0,Depreciation_value)),
-		Depreciation_values_lst),
+	findall(
+		Depreciation_value,
+		depreciation_pool_from_start2(To_date,Method,Pool,Depreciation_value),
+		Depreciation_values_lst
+	),
 	sum_list(Depreciation_values_lst,Total_depreciation). 
+
+depreciation_pool_from_start2(To_date,Method,Pool,Depreciation_value) :-
+	%asset(car123,1000,date(2017,5,1),5).
+	asset(Asset_id,Cost,Start_date,_),
+	day_diff(Start_date,To_date,Days_diff),
+	Days_diff>0,
+	depreciation_between_start_date_and_other_date(Cost,Method,Start_date,To_date,Asset_id,_,1,true,Pool,0,Depreciation_value).
 
 depreciation_pool_between_two_dates(Pool,From_date, To_date, Method, Total_depreciation):-
 	depreciation_pool_from_start(Pool,From_date,Method,Before_depreciation),
@@ -109,6 +130,7 @@ start:- depreciation_between_start_date_and_other_date(1000,diminishing_value,da
 
 % Calculates depreciation between any two dates on a daily basis equal or posterior to the invest in date
 depreciation_between_two_dates(Asset_id, From_date, To_date, Method, Depreciation_value):-
+%gtrace,
 	day_diff(From_date, To_date, Days_difference),
 	check_day_difference_validity(Days_difference),
 	written_down_value(Asset_id, To_date, Method, _, To_date_written_down_value),
@@ -145,7 +167,7 @@ check_day_difference_validity(Days_difference) :-
 	->
 		true
 	;
-		false, throw_string('Request date is earlier than the invest in date.')
+		/*false, is failing ever desired? */throw_string('Request date is earlier than the invest in date.')
 	).
 
 % Predicates for asserting that the fields of given transactions have particular values
