@@ -156,7 +156,7 @@ depr_ui:depreciation_example_queries rdf:value (
 		depr:depreciation_query_has_type [ a rdf:value ;
 				rdf:value depr:depreciation_pool_from_start ] ;
 		depr:depreciation_query_method [ a rdf:value ;
-				rdf:value "diminishing_value"^^xsd:string ] ;
+				rdf:value depr:diminishing_value ] ;
 		depr:depreciation_query_pool [ a rdf:value ;
 				rdf:value "general_pool"^^xsd:string ] ;
 		depr:depreciation_query_to_date [ a rdf:value ;
@@ -169,7 +169,7 @@ depr_ui:depreciation_example_queries rdf:value (
 		depr:depreciation_query_has_type [ a rdf:value ;
 				rdf:value depr:depreciation_between_two_dates ] ;
 		depr:depreciation_query_method [ a rdf:value ;
-				rdf:value "diminishing_value"^^xsd:string ] ;
+				rdf:value depr:diminishing_value ] ;
 		depr:depreciation_query_to_date [ a rdf:value ;
 				rdf:value "2019-02-02T00:00:00"^^xsd:dateTime ] ]
 	[ a depr:depreciation_query ;
@@ -178,7 +178,7 @@ depr_ui:depreciation_example_queries rdf:value (
 		depr:depreciation_query_has_type [ a rdf:value ;
 				rdf:value depr:written_down_value ] ;
 		depr:depreciation_query_method [ a rdf:value ;
-				rdf:value "diminishing_value"^^xsd:string ] ;
+				rdf:value depr:diminishing_value ] ;
 		depr:depreciation_query_written_down_date [ a rdf:value ;
 				rdf:value "2017-06-01T00:00:00"^^xsd:dateTime ] ]
 	[ a depr:depreciation_query ;
@@ -187,7 +187,7 @@ depr_ui:depreciation_example_queries rdf:value (
 		depr:depreciation_query_has_type [ a rdf:value ;
 				rdf:value depr:profit_and_loss ] ;
 		depr:depreciation_query_method [ a rdf:value ;
-				rdf:value "diminishing_value"^^xsd:string ] ;
+				rdf:value depr:diminishing_value ] ;
 		depr:depreciation_query_termination_date [ a rdf:value ;
 				rdf:value "2019-07-07T00:00:00"^^xsd:dateTime ] ;
 		depr:depreciation_query_termination_value [ a rdf:value ;
@@ -253,7 +253,6 @@ depr_ui:depreciation_example_assets rdf:value (
 									
 
 depr:depreciation_query_has_type rdfs:range depr:depreciation_query_type.
-
 depr:depreciation_pool_from_start				a depr:depreciation_query_type.
 depr:depreciation_between_two_dates				a depr:depreciation_query_type.
 depr:written_down_value							a depr:depreciation_query_type.
@@ -261,11 +260,14 @@ depr:profit_and_loss							a depr:depreciation_query_type.
 
 
 depr:depreciation_event_has_type rdfs:range depr:depreciation_event_type.
+depr:transfer_asset_to_pool	a depr:depreciation_event_type.
+depr:asset_disposal	a depr:depreciation_event_type.
 
-depr:transfer_asset_to_pool
-	a depr:depreciation_event_type.
-depr:asset_disposal
-	a depr:depreciation_event_type.
+
+depr:depreciation_query_method rdfs:range depr:depreciation_query_method_type.
+depr:diminishing_value a depr:depreciation_query_method_type.
+depr:prime_cost a depr:depreciation_query_method_type.
+
 
 
 
@@ -281,7 +283,7 @@ depr_ui:depreciation_queries
 		[excel:property depr:depreciation_query_from_date; excel:type xsd:dateTime]
 		[excel:property depr:depreciation_query_to_date; excel:type xsd:dateTime]
 		[excel:property depr:depreciation_query_written_down_date; excel:type xsd:dateTime]
-		[excel:property depr:depreciation_query_method]
+		[excel:property depr:depreciation_query_method; excel:type excel:uri]
 		[excel:property depr:depreciation_query_termination_value; excel:type xsd:decimal]
 		[excel:property depr:depreciation_query_termination_date; excel:type xsd:dateTime]
 		[excel:property depr:depreciation_query_total_depreciation; excel:type xsd:decimal]

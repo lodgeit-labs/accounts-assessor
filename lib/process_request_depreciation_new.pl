@@ -31,6 +31,12 @@ process_depreciation_query(Query) :-
 	doc_value(Query, depr:depreciation_query_has_type, Type),
 	process_depreciation_query2(Type, Query).
 
+depreciation_query_method(Q, Method_atom) :-
+	doc_value(Q, depr:depreciation_query_method), Uri),
+	(	rdf_equal(depr:diminishing_value, Uri)
+	->	Method_atom = diminishing_value
+	;	Method_atom = prime_cost).
+
 process_depreciation_query2(
 	'https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_pool_from_start', Q) :-
 	depreciation_computation:depreciation_pool_from_start(
@@ -38,8 +44,7 @@ process_depreciation_query2(
 			depr:depreciation_query_pool),
 		$>absolute_day($> doc_value(Q,
 			depr:depreciation_query_to_date)),
-		$>atom_string(<$, $>doc_value(Q,
-			depr:depreciation_query_method)),
+		$>depreciation_query_method(Q),
 		$>doc_add_value(Q,
 			depr:depreciation_query_total_depreciation)
 	).
@@ -50,7 +55,7 @@ process_depreciation_query2(
 		$>doc_value(Q, depr:depreciation_query_asset_id),
 		$>doc_value(Q, depr:depreciation_query_from_date),
 		$>doc_value(Q, depr:depreciation_query_to_date),
-		$>atom_string(<$, $>doc_value(Q, depr:depreciation_query_method)),
+		$>depreciation_query_method(Q),
 		$>doc_add_value(Q, depr:depreciation_query_depreciation_value)
 	).
 
@@ -59,7 +64,7 @@ process_depreciation_query2(
 	depreciation_computation:written_down_value(
 		$>doc_value(Q, depr:depreciation_query_asset_id),
 		$>doc_value(Q, depr:depreciation_query_written_down_date),
-		$>atom_string(<$, $>doc_value(Q, depr:depreciation_query_method)),
+		depreciation_query_method(Q),
 		_,
 		$>doc_add_value(Q, depr:depreciation_query_written_down_value)
 	).
@@ -78,7 +83,7 @@ process_depreciation_query2(
 
 
 
-	/*,
+/*,
 	doc(Q, rdf:type, l:depreciation_query),
 	doc(Q, l:scenario_label, Scenario_Label),
 	doc(Q, l:start_date, Query_Start_Date),

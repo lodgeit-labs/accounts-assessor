@@ -1,3 +1,9 @@
+/*
+ATO: Days held can be 366 for a leap year. (for both prime_cost and diminishing_value)
+	https://www.ato.gov.au/business/depreciation-and-capital-expenses-and-allowances/general-depreciation-rules---capital-allowances/prime-cost-(straight-line)-and-diminishing-value-methods
+
+
+*/
 
 :- module(depreciation_computation,[
 	depreciation_between_start_date_and_other_date/11,
