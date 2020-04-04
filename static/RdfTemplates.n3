@@ -17,12 +17,22 @@
 
 
 
+ic_ui:action_verb
+	a rdfs:Class;
+	rdfs:comment "action verb entry in Action_verbs excel sheet".
+	
+ic:action_verb
+	a rdfs:Class;
+	rdfs:comment "action verb".
 
+ic:exchanged_account rdfs:domain ic:action_verb.
+
+
+
+l:statement_transaction_types/
 
 
 :this rdfs:comment """
-unfinished work on introducing namespacing. This should help with ordering the output of rdf_cleanup2.py and similar reasonably, and in keeping identifiers short
-
 prefixes:
 	excel: generic excel schema-directed ui stuff
 
