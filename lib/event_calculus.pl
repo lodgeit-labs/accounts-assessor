@@ -132,7 +132,7 @@ depreciation_rate(Asset, prime_cost,_,_,Effective_life_years, Rate) :-
 
 depreciation_rate(Asset, diminishing_value,_,Start_date,Effective_life_years, Rate) :-
 	not(pool(Asset)),
-    (	Start_date @< date(2016,5,10)
+    (	Start_date @< date(2006,5,10)
     	% If you started to hold the asset before 10 May 2006, the formula for the diminishing value method is:
 		% Base value × (days held ÷ 365) × (150% ÷ asset’s effective life)
      -> Rate is 1.5 / Effective_life_years

@@ -130,6 +130,8 @@ start:- depreciation_between_start_date_and_other_date(1000,diminishing_value,da
 
 % Calculates depreciation between any two dates on a daily basis equal or posterior to the invest in date
 depreciation_between_two_dates(Asset_id, From_date, To_date, Method, Depreciation_value):-
+	/* whats going on when an asset spent a part of time in a pool? i'm getting bigger depreciation than without spending that time on one asset and smaller on another*/
+
 %gtrace,
 	day_diff(From_date, To_date, Days_difference),
 	check_day_difference_validity(Days_difference),
@@ -167,7 +169,7 @@ check_day_difference_validity(Days_difference) :-
 	->
 		true
 	;
-		/*false, is failing ever desired? */throw_string('Request date is earlier than the invest in date.')
+		false,/* todo,is failing ever desired? */throw_string('Request date is earlier than the invest in date.')
 	).
 
 % Predicates for asserting that the fields of given transactions have particular values
