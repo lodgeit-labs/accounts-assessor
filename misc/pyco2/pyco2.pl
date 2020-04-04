@@ -421,3 +421,24 @@ bnode semantics:
 uri semantics:
 	there exists AND is distinct from everything else
 */
+
+
+/*
+probably it would be more correct/support more forms of rules, if bnodes could bind to uris. Prolog isnt making it easy to support this, but we could try: bnode would be just a variable with a unification hook
+there'd be a global table keeping track of what bnode is unified to what and carrying the dict (and bnode type is the dict tag). So, exactly our current bn() term, but kindof "in the cloud". 
+
+the goal would be semantics like this:
+before reasoning, assert some facts: livestock_report has_opening_value 5; etc.
+then query:
+livestock_request 
+	has_opening_value OV,
+	has_profit P.
+
+mkbn :- 
+	...
+
+how would this work with lists?
+currently, they are implemented by a rule that produces an existential for a list cell, with a first and a rest, and all code depends on the fact that the existential doesn't bind to nil. A fix might be to simply add dif(Bn, nil) in the body of the rule, but what other behavior would be affected?
+
+
+*/
