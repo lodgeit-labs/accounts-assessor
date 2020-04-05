@@ -67,7 +67,9 @@ depreciationAsset(
 
 depreciationAsset(
 	Asset_id,T1,T2,Begin_value,End_value,Method,Year_from_start,
-    [[Begin_value,H,T1,New_T1,End_value,Depreciation_value,Rate]|RestOfLife],
+    [
+    	[Begin_value,H,T1,New_T1,End_value,Depreciation_value,Rate]
+    	|RestOfLife],
     While_in_pool,What_pool,Initial_depreciation_value,Final_depreciation_value
 ):-
     T1 < T2,
@@ -83,9 +85,9 @@ depreciationAsset(
     Days_held is New_T1-T1,
     depreciation_value(Method, Asset_cost, Begin_value, Days_held, Rate, Depreciation_value),
     New_end_value is (Begin_value - Depreciation_value),
-    ((While_in_pool, H == in_pool(Asset_id,What_pool); not(While_in_pool))
-    -> New_initial_depreciation_value is (Initial_depreciation_value + Depreciation_value);
-        New_initial_depreciation_value is Initial_depreciation_value),
+    (	(While_in_pool, H == in_pool(Asset_id,What_pool); not(While_in_pool))
+    ->	New_initial_depreciation_value is (Initial_depreciation_value + Depreciation_value)
+    ;	New_initial_depreciation_value is Initial_depreciation_value),
     depreciationAsset(Asset_id,New_T1,T2,New_end_value,End_value,Method,Year_from_start,
         RestOfLife,While_in_pool,What_pool,New_initial_depreciation_value,Final_depreciation_value).
 
