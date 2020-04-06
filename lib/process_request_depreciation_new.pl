@@ -49,6 +49,7 @@ depreciation_query_method(Q, Method_atom) :-
 
 process_depreciation_query2(
 	'https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_pool_from_start', Q) :-
+	format(user_error, '~nquery:~n', []),
 	depreciation_computation:depreciation_pool_from_start(
 		$>atom_string(<$, $>doc_value(Q,
 			depr:depreciation_query_pool)),
@@ -60,6 +61,7 @@ process_depreciation_query2(
 
 process_depreciation_query2(
 	'https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_between_two_dates', Q) :-
+	format(user_error, '~nquery:~n', []),
 	depreciation_computation:depreciation_between_two_dates(
 		$>doc_value(Q, depr:depreciation_query_asset_id),
 		$>doc_value(Q, depr:depreciation_query_from_date),
@@ -70,6 +72,7 @@ process_depreciation_query2(
 
 process_depreciation_query2(
 	'https://rdf.lodgeit.net.au/v1/calcs/depr#written_down_value', Q) :-
+	format(user_error, '~nquery:~n', []),
 	depreciation_computation:written_down_value(
 		$>doc_value(Q, depr:depreciation_query_asset_id),
 		$>doc_value(Q, depr:depreciation_query_written_down_date),
@@ -80,6 +83,7 @@ process_depreciation_query2(
 
 process_depreciation_query2(
 	'https://rdf.lodgeit.net.au/v1/calcs/depr#profit_and_loss', Q) :-
+	format(user_error, '~nquery:~n', []),
 	depreciation_computation:profit_and_loss(
 		$>doc_value(Q, depr:depreciation_query_asset_id),
 		$>doc_value(Q, depr:depreciation_query_termination_value),

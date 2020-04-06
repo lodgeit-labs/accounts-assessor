@@ -33,6 +33,7 @@ depreciation_between_start_date_and_other_date(
 		Initial_depreciation_value,
 		Total_depreciation_value
 ) :-
+	gtrace,
 	day_diff(date(From_year, From_Month, From_day), To_date, Request_period),
 	check_day_difference_validity(Request_period),
 	begin_accounting_date(Begin_accounting_date),
@@ -78,7 +79,7 @@ depreciation_between_start_date_and_other_date(
 		)
 	),
 
-	format(user_error, '~q~n', [depreciation_between_start_date_and_other_date(
+	format(user_error, '~n~q~n', [depreciation_between_start_date_and_other_date(
 		Initial_value, 							% value at start of year / Asset Base Value
 		Method, 								% Diminishing Value / Prime Cost
 		date(From_year, From_Month, From_day),
@@ -100,6 +101,9 @@ depreciation_between_start_date_and_other_date(
 
 %This can only be calculated in depreciation_computation because it needs begins values when using diminishing_value, and that depends always on previous years
 depreciation_pool_from_start(Pool,To_date,Method,Total_depreciation):-
+
+	format(user_error, '~n~q~n', [depreciation_pool_from_start(Pool,To_date,Method,Total_depreciation)]),
+
 	%get begin value of all assets that are inside the pool any duration between T1 and T2, in T1
 	% for each asset calculate depreciation while in the specified pool between T1 and T2
 	findall(
@@ -110,10 +114,12 @@ depreciation_pool_from_start(Pool,To_date,Method,Total_depreciation):-
 	sum_list(Depreciation_values_lst,Total_depreciation). 
 
 depreciation_pool_from_start2(To_date,Method,Pool,Depreciation_value) :-
+gtrace,
 	%asset(car123,1000,date(2017,5,1),5).
 	asset(Asset_id,Cost,Start_date,_),
 	day_diff(Start_date,To_date,Days_diff),
 	Days_diff>0,
+	/* for every asset purchased before To_date */
 	depreciation_between_start_date_and_other_date(Cost,Method,Start_date,To_date,Asset_id,_,1,true,Pool,0,Depreciation_value).
 
 depreciation_pool_between_two_dates(Pool,From_date, To_date, Method, Total_depreciation):-
@@ -130,9 +136,9 @@ start:- depreciation_between_start_date_and_other_date(1000,diminishing_value,da
 
 % Calculates depreciation between any two dates on a daily basis equal or posterior to the invest in date
 depreciation_between_two_dates(Asset_id, From_date, To_date, Method, Depreciation_value):-
-	/* whats going on when an asset spent a part of time in a pool? i'm getting bigger depreciation than without spending that time on one asset and smaller on another*/
 
-%gtrace,
+	format(user_error, '~n~q~n', [depreciation_between_two_dates(Asset_id, From_date, To_date, Method, Depreciation_value)]),
+
 	day_diff(From_date, To_date, Days_difference),
 	check_day_difference_validity(Days_difference),
 	written_down_value(Asset_id, To_date, Method, _, To_date_written_down_value),
@@ -141,6 +147,9 @@ depreciation_between_two_dates(Asset_id, From_date, To_date, Method, Depreciatio
 
 % Calculates written down value at a certain date equal or posterior to the invest in date using a daily basis
 written_down_value(Asset_id, Written_down_date, Method, Life, Written_down_value):-
+
+	format(user_error, '~n~q~n', [written_down_value(Asset_id, Written_down_date, Method, Life, Written_down_value)]),
+
 	asset(Asset_id,Asset_cost,Start_date,_),
 	depreciation_between_start_date_and_other_date(
 		Asset_cost,
@@ -158,6 +167,8 @@ written_down_value(Asset_id, Written_down_date, Method, Life, Written_down_value
 	Written_down_value is Asset_cost - Total_depreciation_value.
 
 profit_and_loss(Asset_id, Asset_price, Written_down_date, Method, ProfitAndLoss):-
+	format(user_error, '~n~q~n', [profit_and_loss(Asset_id, Asset_price, Written_down_date, Method, ProfitAndLoss)]),
+
 	written_down_value(Asset_id, Written_down_date,Method,_,Written_down_value),
 	ProfitAndLoss is Asset_price - Written_down_value.
 
