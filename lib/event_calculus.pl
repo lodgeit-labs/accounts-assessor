@@ -50,6 +50,9 @@ holdsAt(F,T):- initiatedBefore(F,T1,T), \+ terminatedBetween(F,T1,T), time(T), t
 holdsAtAsset(Asset_id,in_pool(Asset_id,Pool),T):- holdsAt(in_pool(Asset_id,Pool),T).
 holdsAtAsset(Asset_id,not_in_pool(Asset_id),T):- holdsAt(not_in_pool(Asset_id),T).
 
+
+/* this should be called maybe depreciation_within_income_year */
+
 % if the start date is also the end date, final values = initial values
 depreciationAsset(
 	_Asset_id,
@@ -65,21 +68,22 @@ depreciationAsset(
 	Final_depreciation_value,
 	Final_depreciation_value).
 
+/* this is for the case when the income year is split by an event, ie, removal from pool or adding to pool */
 depreciationAsset(
 	Asset_id,T1,T2,Begin_value,End_value,Method,Year_from_start,
     [
     	[Begin_value,H,T1,New_T1,End_value,Depreciation_value,Rate]
-    	|RestOfLife],
+    	|RestOfLife
+    ],
     While_in_pool,What_pool,Initial_depreciation_value,Final_depreciation_value
 ):-
     T1 < T2,
     (T2 - T1) < 367,
     asset(Asset_id,Asset_cost,Start_date,Effective_life_years),
     holdsAtAsset(Asset_id,H,T1),
-    ((H = in_pool(Asset_id,Pool))->
-        depreciation_rate(Pool, Method, Year_from_start, Start_date, Effective_life_years, Rate); 
-        depreciation_rate(Asset_id, Method, Year_from_start, Start_date, Effective_life_years, Rate)
-    ),
+    (	(H = in_pool(Asset_id,Pool))
+    ->	depreciation_rate(Pool,     Method, Year_from_start, Start_date, Effective_life_years, Rate)
+    ;	depreciation_rate(Asset_id, Method, Year_from_start, Start_date, Effective_life_years, Rate)),
     terminatedAfter(H,T1,T),
     New_T1 is T + 1,
     Days_held is New_T1-T1,
@@ -88,19 +92,26 @@ depreciationAsset(
     (	(While_in_pool, H == in_pool(Asset_id,What_pool); not(While_in_pool))
     ->	New_initial_depreciation_value is (Initial_depreciation_value + Depreciation_value)
     ;	New_initial_depreciation_value is Initial_depreciation_value),
+	/* recurse for next sub-period of income year */
     depreciationAsset(Asset_id,New_T1,T2,New_end_value,End_value,Method,Year_from_start,
         RestOfLife,While_in_pool,What_pool,New_initial_depreciation_value,Final_depreciation_value).
 
 %reduce end value even if not in specified pool, so that when in pool the begin value is correct
-depreciationAsset(Asset_id,T1,T2,Begin_value,End_value,Method,Year_from_start,
-    [[Begin_value,H,T1,T2,End_value,Depreciation_value,Rate]|RestOfLife],While_in_pool,What_pool,Initial_depreciation_value,Final_depreciation_value):- 
+depreciationAsset(
+	Asset_id,T1,T2,Begin_value,End_value,Method,Year_from_start,
+    [
+    	[Begin_value,H,T1,T2,End_value,Depreciation_value,Rate]
+    	|RestOfLife
+    ],
+    While_in_pool,What_pool,Initial_depreciation_value,Final_depreciation_value
+):-
     T1 < T2,
     (T2 - T1) < 367,
     asset(Asset_id,Asset_cost,Start_date,Effective_life_years),
     holdsAtAsset(Asset_id,H,T1),
-    (holdsAtAsset(Asset_id,in_pool(Asset_id,Pool),T1)->
-        depreciation_rate(Pool, Method, Year_from_start, Start_date, Effective_life_years, Rate); 
-        depreciation_rate(Asset_id, Method, Year_from_start, Start_date, Effective_life_years, Rate)),
+    (	(H = in_pool(Asset_id,Pool))
+    ->	depreciation_rate(Pool,     Method, Year_from_start, Start_date, Effective_life_years, Rate)
+    ;	depreciation_rate(Asset_id, Method, Year_from_start, Start_date, Effective_life_years, Rate)),
     not(terminatedBetween(H,T1,T2)),
     Days_held is T2-T1,
     depreciation_value(Method, Asset_cost, Begin_value, Days_held, Rate, Depreciation_value),
@@ -108,6 +119,7 @@ depreciationAsset(Asset_id,T1,T2,Begin_value,End_value,Method,Year_from_start,
     ((While_in_pool, H == in_pool(Asset_id,What_pool); not(While_in_pool))
     -> New_initial_depreciation_value is (Initial_depreciation_value + Depreciation_value);
         New_initial_depreciation_value is Initial_depreciation_value),
+    /* this is not a recursion, invoke the base case, just copy values */
     depreciationAsset(Asset_id,T2,T2,New_end_value,End_value,_,_,RestOfLife,While_in_pool,What_pool,New_initial_depreciation_value,Final_depreciation_value).
 
 /*
