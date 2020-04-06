@@ -97,9 +97,9 @@ Produced on 2019-08-09 09:56:41
     <loc xlink:type="locator" xlink:href="basic.xsd#basic_CurrentAssets" xlink:label="basic_CurrentAssets" />
     <labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="basic_CurrentAssets" xlink:to="basic_CurrentAssets_lbl" />
     <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/label" xlink:label="basic_CurrentAssets_lbl" xml:lang="en">Current Assets</label>
-    <loc xlink:type="locator" xlink:href="basic.xsd#basic_CurrentEarningsLosses" xlink:label="basic_CurrentEarningsLosses" />
-    <labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="basic_CurrentEarningsLosses" xlink:to="basic_CurrentEarningsLosses_lbl" />
-    <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/label" xlink:label="basic_CurrentEarningsLosses_lbl" xml:lang="en">Current Earnings (Losses)</label>
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_CurrentEarnings" xlink:label="basic_CurrentEarnings" />
+    <labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="basic_CurrentEarnings" xlink:to="basic_CurrentEarnings_lbl" />
+    <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/label" xlink:label="basic_CurrentEarnings_lbl" xml:lang="en">Current Earnings (Losses)</label>
     <loc xlink:type="locator" xlink:href="basic.xsd#basic_DepreciationAndAmortization2" xlink:label="basic_DepreciationAndAmortization2" />
     <labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="basic_DepreciationAndAmortization2" xlink:to="basic_DepreciationAndAmortization2_lbl" />
     <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/label" xlink:label="basic_DepreciationAndAmortization2_lbl" xml:lang="en">Depreciation and Amortization 2</label>
@@ -139,9 +139,9 @@ Produced on 2019-08-09 09:56:41
     <loc xlink:type="locator" xlink:href="basic.xsd#basic_ForexLoss" xlink:label="basic_ForexLoss" />
     <labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="basic_ForexLoss" xlink:to="basic_ForexLoss_lbl" />
     <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/label" xlink:label="basic_ForexLoss_lbl" xml:lang="en">Forex Loss</label>
-    <loc xlink:type="locator" xlink:href="basic.xsd#basic_HistoricalEarningsLosses" xlink:label="basic_HistoricalEarningsLosses" />
-    <labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="basic_HistoricalEarningsLosses" xlink:to="basic_HistoricalEarningsLosses_lbl" />
-    <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/label" xlink:label="basic_HistoricalEarningsLosses_lbl" xml:lang="en">Historical Earnings (Losses)</label>
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_HistoricalEarnings" xlink:label="basic_HistoricalEarnings" />
+    <labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="basic_HistoricalEarnings" xlink:to="basic_HistoricalEarnings_lbl" />
+    <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/label" xlink:label="basic_HistoricalEarnings_lbl" xml:lang="en">Historical Earnings (Losses)</label>
     <loc xlink:type="locator" xlink:href="basic.xsd#basic_InterestEarned" xlink:label="basic_InterestEarned" />
     <labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="basic_InterestEarned" xlink:to="basic_InterestEarned_lbl" />
     <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/label" xlink:label="basic_InterestEarned_lbl" xml:lang="en">Interest Earned</label>
@@ -245,12 +245,12 @@ Produced on 2019-08-09 09:56:41
     <loc xlink:type="locator" xlink:href="basic.xsd#basic_NetCashFlow" xlink:label="basic_NetCashFlow" />
     <labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="basic_NetCashFlow" xlink:to="basic_NetCashFlow_lbl" />
     <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/label" xlink:label="basic_NetCashFlow_lbl" xml:lang="en">Net Cash Flow</label>
-    <loc xlink:type="locator" xlink:href="basic.xsd#basic_NetIncomeLossRollUp" xlink:label="basic_NetIncomeLossRollUp" />
-    <labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="basic_NetIncomeLossRollUp" xlink:to="basic_NetIncomeLossRollUp_lbl" />
-    <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/label" xlink:label="basic_NetIncomeLossRollUp_lbl" xml:lang="en">Net Income (Loss) [Roll Up]</label>
-    <loc xlink:type="locator" xlink:href="basic.xsd#basic_NetIncomeLoss" xlink:label="basic_NetIncomeLoss" />
-    <labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="basic_NetIncomeLoss" xlink:to="basic_NetIncomeLoss_lbl" />
-    <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/label" xlink:label="basic_NetIncomeLoss_lbl" xml:lang="en">Net Income (Loss)</label>
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_ComprehensiveIncomeRollUp" xlink:label="basic_ComprehensiveIncomeRollUp" />
+    <labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="basic_ComprehensiveIncomeRollUp" xlink:to="basic_ComprehensiveIncomeRollUp_lbl" />
+    <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/label" xlink:label="basic_ComprehensiveIncomeRollUp_lbl" xml:lang="en">Net Income (Loss) [Roll Up]</label>
+    <loc xlink:type="locator" xlink:href="basic.xsd#basic_ComprehensiveIncome" xlink:label="basic_ComprehensiveIncome" />
+    <labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="basic_ComprehensiveIncome" xlink:to="basic_ComprehensiveIncome_lbl" />
+    <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/label" xlink:label="basic_ComprehensiveIncome_lbl" xml:lang="en">Net Income (Loss)</label>
     <loc xlink:type="locator" xlink:href="basic.xsd#basic_NoncurrentAssetsRollUp" xlink:label="basic_NoncurrentAssetsRollUp" />
     <labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="basic_NoncurrentAssetsRollUp" xlink:to="basic_NoncurrentAssetsRollUp_lbl" />
     <label xlink:type="resource" xlink:role="http://www.xbrl.org/2003/role/label" xlink:label="basic_NoncurrentAssetsRollUp_lbl" xml:lang="en">Noncurrent Assets [Roll Up]</label>
