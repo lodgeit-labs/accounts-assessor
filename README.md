@@ -25,30 +25,33 @@ Install SWIPL 8.1.14
 * see https://github.com/LodgeiT/labs-accounts-assessor/wiki/SWIPL-and-prolog-notes
 
 Install dependencies:
-1) install RabbitMQ as specified here: http://docs.celeryproject.org/en/latest/getting-started/first-steps-with-celery.html#celerytut-broker
-2) ```./init.sh```
+* install RabbitMQ as specified here: http://docs.celeryproject.org/en/latest/getting-started/first-steps-with-celery.html#celerytut-broker
+* install python3 and python3-pip
+* ```./init.sh```
 
-Install dependencies for servicemanager:
+set up virtualenv for servicemanager:
 * ```cd servicemanager; ./init_local_venv.sh```
 
 Run all services:
 ```./servicemanager/run_in_local_venv.sh -a -g demo7788```
 
-optional, run the triplestore:
+optional, run the triplestore (this is a command line from demo server):
 `/home/sfi/ag/bin/agraph-control --config /home/sfi/ag/lib/agraph.cfg start`
 
 Open a web browser at: http://localhost:7788/
-* upload a request.xml file from tests/endpoint_tests/
+* upload a request file from tests/endpoint_tests/
 * you should get back a json with links to individual report files
 
 Run the tests:
 `cd server_root; reset;echo -e "\e[3J";   swipl -s ../lib/dev_runner.pl   --problem_lines_whitelist=../misc/problem_lines_whitelist  --script ../lib/endpoint_tests.pl  -g "set_flag(overwrite_response_files, false), set_flag(add_missing_response_files, false), set_prolog_flag(grouped_assertions,true), run_tests"`
 
 Run one testcase:
-`reset;echo -e "\e[3J";   swipl -s ../lib/dev_runner.pl   --problem_lines_whitelist=../misc/problem_lines_whitelist  --script ../lib/endpoint_tests.pl  -g "/*debug(endpoint_tests),*/ set_flag(overwrite_response_files, false), set_flag(add_missing_response_files, true), set_prolog_flag(grouped_assertions,false), set_prolog_flag(testcase,(ledger,'endpoint_tests/ledger/ledger--with-schemaref')), run_tests(endpoints:testcase)"`
+`cd server_root; reset;echo -e "\e[3J";   swipl -s ../lib/dev_runner.pl   --problem_lines_whitelist=../misc/problem_lines_whitelist  --script ../lib/endpoint_tests.pl  -g "set_flag(overwrite_response_files, false), set_flag(add_missing_response_files, false), set_prolog_flag(grouped_assertions,false), set_prolog_flag(testcase,(ledger,'endpoint_tests/ledger/ledger-2')), run_tests(endpoints:testcase)"`
 
-Run a single request:
-`env CELERY_QUEUE_NAME=q7788 ../internal_workers/invoke_rpc_cmdline.py --debug true --halt true --prolog_flags "set_prolog_flag(services_server,'http://localhost:17788')" endpoint_tests/ledger/Copy_Of_BankDemo2`
+Run a single request from command line:
+1) `cd server_root`
+2) `. ../venv/bin/activate`
+3) `env CELERY_QUEUE_NAME=q7788 ../internal_workers/invoke_rpc_cmdline.py --debug true --halt true --prolog_flags "set_prolog_flag(services_server,'http://localhost:17788')" endpoint_tests/ledger/Copy_Of_BankDemo2`
 
 
 ## Directory Structure
