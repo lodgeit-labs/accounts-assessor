@@ -1,0 +1,6 @@
+simplejson
+zmq
+zope.interface
+Twisted
+uuid
+PyYAML

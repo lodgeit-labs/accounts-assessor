@@ -40,18 +40,22 @@ https://github.com/LodgeiT/labs-accounts-assessor/tree/master/doc
 ## Getting Started
 Fetch submodules:
 * `git submodule update --init`
+(currently there are no submodules)
 
 Install SWIPL 8.1.14
 * see https://github.com/LodgeiT/labs-accounts-assessor/wiki/SWIPL-and-prolog-notes
 
 Install dependencies:
-* ```./init.sh```
+1) install RabbitMQ as specified here: http://docs.celeryproject.org/en/latest/getting-started/first-steps-with-celery.html#celerytut-broker
+2) ```./init.sh```
 
-How to run it:
-* run the internal services server:
-** `cd python_server; ./run.sh`
-* run the frontend server:
-** `cd frontend_servery; ./run.sh  0.0.0.0:8080`
+Install dependencies for servicemanager:
+* ```cd servicemanager; ./init_local_venv.sh```
+
+Run all services:
+```
+./servicemanager/run_in_local_venv.sh -a -g demo7788
+```
 
 Run the tests:
 `cd server_root; reset;echo -e "\e[3J";   swipl -s ../lib/dev_runner.pl   --problem_lines_whitelist=../misc/problem_lines_whitelist  --script ../lib/endpoint_tests.pl  -g "set_flag(overwrite_response_files, false), set_flag(add_missing_response_files, false), set_prolog_flag(grouped_assertions,true), run_tests"`
