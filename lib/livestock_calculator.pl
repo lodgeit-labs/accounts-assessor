@@ -94,3 +94,7 @@ compute_livestock_by_simple_calculation(
 		(['Average_cost = ', Average_cost_Formula_String2])
 	].
 
+/*
+see also
+https://help.lodgeit.net.au/support/solutions/articles/60000615425-instructions-for-using-livestock-calculator
+*/
