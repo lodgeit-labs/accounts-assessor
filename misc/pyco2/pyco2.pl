@@ -440,5 +440,19 @@ mkbn :-
 how would this work with lists?
 currently, they are implemented by a rule that produces an existential for a list cell, with a first and a rest, and all code depends on the fact that the existential doesn't bind to nil. A fix might be to simply add dif(Bn, nil) in the body of the rule, but what other behavior would be affected?
 
+*/
+
+/*
+todo? https://www.swi-prolog.org/pldoc/man?section=WFS
+
+*/
+
+
+/*
+todo graphical debugging
+https://kahina-sld.github.io/trac/wiki/TreeView.html
+https://sicstus.sics.se/sicstus/docs/latest4/html/sicstus.html/Procedure-Box.html#Procedure-Box
+
+
 
 */
