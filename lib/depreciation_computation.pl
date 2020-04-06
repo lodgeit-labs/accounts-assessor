@@ -69,7 +69,9 @@ depreciation_between_start_date_and_other_date(
 	T2_absolute is Begin_accounting_days + T2,
 	gregorian_date(T2_absolute, T2_debug_date),
 
-	depreciationAsset(Asset_id,T1,T2,Initial_value,_End_value,Method,Depreciation_year,Life,While_in_pool,What_pool,/*Initial_depreciation_value*/0,Depreciation_value),
+	depreciationAsset(Asset_id,T1,T2,Initial_value,End_value,Method,Depreciation_year,Life,While_in_pool,What_pool,/*Initial_depreciation_value*/0,Depreciation_value),
+
+	format(user_error, '~n~q~n', [depreciationAsset(Asset_id,T1,T2,Initial_value,End_value,Method,Depreciation_year,Life,While_in_pool,What_pool,/*Initial_depreciation_value*/0,Depreciation_value)]),
 
 	(	/* done or recurse? */
 		Request_period =< Days_held
@@ -135,7 +137,7 @@ depreciation_pool_from_start2(To_date,Method,Pool,Depreciation_value) :-
 	day_diff(Asset_Start_date,To_date,Days_diff),
 	Days_diff>0,
 	/* for every asset purchased before To_date */
-	gtrace,
+	%gtrace,
 	depreciation_between_start_date_and_other_date(
 		/*Initial_value*/Cost,
 		Method,
