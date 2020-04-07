@@ -1,5 +1,5 @@
-
 /*
+	% NOTE: we have to load an entire taxonomy file just to determine that it's not a simple XML hierarchy
 	would be even more simplified if we differentiated between <accounts> and <taxonomy> tags
 	so that we're not trying to dispatch by inferring the file contents
 
@@ -22,12 +22,11 @@ extract account tree specified in request xml
 the accountHierarchy tag can appear multiple times, all the results will be added together.
 */
 extract_account_hierarchy_from_request_dom(Request_DOM, Account_Hierarchy) :-
-	findall(DOM, xpath(Request_DOM, //reports/balanceSheetRequest/accountHierarchy, DOM), DOMs),
-	(	DOMs = []
-	->	extract_account_hierarchy_from_accountHierarchy_element(element(accountHierarchy, [], ['default_account_hierarchy.xml']), Account_Hierarchy0)
-	;	extract_account_hierarchy_from_accountHierarchy_elements(DOMs, Account_Hierarchy0)),
-	flatten(Account_Hierarchy0, Account_Hierarchy1),
-	sort(Account_Hierarchy1, Account_Hierarchy).
+	make_account2(root, 0, root/root, _),
+	findall(E, xpath(Request_DOM, //reports/balanceSheetRequest/accountHierarchy, E), Es),
+	(	Es = []
+	->	extract_account_hierarchy_from_accountHierarchy_element(element(accountHierarchy, [], ['default_account_hierarchy.xml']))
+	;	extract_account_hierarchy_from_accountHierarchy_elements(Es)).
 
 extract_account_hierarchy_from_accountHierarchy_elements(DOMs, Account_Hierarchy) :-
 	maplist(extract_account_hierarchy_from_accountHierarchy_element, DOMs, Accounts),
@@ -40,39 +39,25 @@ extract_account_hierarchy_from_accountHierarchy_element(E, Accounts) :-
 			Children = [Atom],
 			atom(Atom)
 		)
-	->	(
-			trim_atom(Atom, Trimmed),
-			(	is_url(Trimmed)
-			->	Url_Or_Path = Trimmed
-			;	(	http_safe_file(Trimmed, []),
-					absolute_file_name(my_static(Trimmed), Url_Or_Path, [ access(read) ])
-				)),
-			(
-				(
-					xml_from_path_or_url(Url_Or_Path, AccountHierarchy_Elements),
-					xpath(AccountHierarchy_Elements, //accountHierarchy, _)
-				)
-				->	true
-				;	arelle(taxonomy, Url_Or_Path, AccountHierarchy_Elements)
-			)
-		)
-	;
-		AccountHierarchy_Elements = Children
-	),
+	->	extract_accountHierarchy_elements_from_referenced_file($>trim_atom(Atom), AccountHierarchy_Elements),
+	;	AccountHierarchy_Elements = Children),
 	extract_account_terms_from_accountHierarchy_elements(AccountHierarchy_Elements, Accounts).
 
-call_with_string_read_stream(String, Callable) :-
-	setup_call_cleanup(
-		new_memory_file(X),
+extract_accountHierarchy_elements_from_referenced_file(Trimmed, AccountHierarchy_Elements),
+	(	is_url(Trimmed)
+	->	Url_Or_Path = Trimmed
+	;	(	http_safe_file(Trimmed, []),
+			absolute_file_name(my_static(Trimmed), Url_Or_Path, [ access(read) ])
+		)
+	),
+	(
 		(
-			open_memory_file(X, write, W),
-			write(W, String),
-			close(W),
-			open_memory_file(X, read, R),
-			call(Callable, R),
-			close(R)),
-		free_memory_file(X)).
-
+			xml_from_path_or_url(Url_Or_Path, AccountHierarchy_Elements),
+			xpath(AccountHierarchy_Elements, //accountHierarchy, _)
+		)
+		->	true
+		;	arelle(taxonomy, Url_Or_Path, AccountHierarchy_Elements)
+	).
 
 arelle(taxonomy, Taxonomy_URL, AccountHierarchy_Elements) :-
 	internal_services_rpc(
@@ -88,31 +73,40 @@ load_extracted_account_hierarchy_xml(/*-*/AccountHierarchy_Elements, /*+*/Stream
 extract_account_terms_from_accountHierarchy_elements(Accounts_Elements, Accounts) :-
 	maplist(extract_account_terms_from_accountHierarchy_element, Accounts_Elements, Accounts).
 
-% Load Account Hierarchy terms given root account element
-extract_account_terms_from_accountHierarchy_element(Account_Element, Account_Hierarchy) :-
-	findall(Link, yield_links(Account_Element, Link), Account_Hierarchy).
+% extract accounts given accountHierarchy element
+extract_account_terms_from_accountHierarchy_element(element(_,_,Children)) :-
+	maplist(extract_account2, no_parent_element, Children).
 
-% extracts and yields all accounts one by one
-yield_links(element(Parent_Name,_,Children), Link) :-
-	member(Child, Children),
-	Child = element(Child_Name,_,_),
-	(
+extract_account_from_toplevel_element(E) :-
+	E = element(Id,Attrs,_),
+	memberchk((parent_role_parent = Parent_role_parent), Attrs),
+	memberchk((parent_role_child = Parent_role_child), Attrs),
+	account_by_role(Parent_role_parent/Parent_role_child, Parent),
+
+
+	optionally_extract_normal_side(Url, Attrs)
+
+
+extract_account2(Parent_Element, Child) :-
+	Parent_Element = no_parent_element,
+	Child = element(Id,Attrs,_),
+	memberchk((,Attrs),
+	gtrace,
+	make_account(Id, $>account_by_role(root/root), Detail_Level, Role, Uri),
+
+
 		(
 			/* TODO: extract role, if specified */
 			Role = ('Accounts' / Child_Name),
 			Link = account(Child_Name, Parent_Name, Role, 0)
-		)
-		;
+		).
+
+yield_links(element(_,_,Children), Link) :-
 		(
 			% recurse on the child
 			yield_links(Child, Link)
 		)
-	).
+	.
 
 
-/*server_public_url(Server_Url),
-atomic_list_concat([Server_Url, '/taxonomy/basic.xsd'],Taxonomy_URL),
-format(user_error, 'loading default taxonomy from ~w\n', [Taxonomy_URL]),
-extract_account_hierarchy_from_taxonomy(Taxonomy_URL,Dom)*/
 
-% NOTE: we have to load an entire taxonomy file just to determine that it's not a simple XML hierarchy

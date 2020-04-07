@@ -22,7 +22,19 @@
 kb:Asset a rdfs:Class.
 
 
+ic_ui:action_verb
+	a rdfs:Class;
+	rdfs:comment "action verb entry in Action_verbs excel sheet".
+	
+ic:action_verb
+	a rdfs:Class;
+	rdfs:comment "action verb".
 
+ic:exchanged_account rdfs:domain ic:action_verb.
+
+
+
+l:statement_transaction_types/
 
 
 

@@ -34,7 +34,6 @@ gl_json :-
 	a little debugging facitliy that tries processing s_transactions one by one until it runs into an error
 
 */
-
 process_request_ledger_debug(Data, S_Transactions0) :-
 	findall(Count, ggg(Data, S_Transactions0, Count), Counts), writeq(Counts).
 
@@ -50,6 +49,18 @@ ggg(Data, S_Transactions0, Count) :-
 	->	true
 	;	(gtrace,format(user_error, '~q: ~q ~n', [Count, Structured_Reports.crosschecks.errors]))).*/
 
+
+
+
+
+extract_request_details(Dom) :-
+	xpath(Dom, //reports/balanceSheetRequest/company/clientcode, Client_code),
+	get_time(TimeStamp),
+	stamp_date_time(TimeStamp, DateTime, 'UTC'),
+	result(Result),
+	doc_add(Result, l:timestamp, DateTime),
+	request(Request),
+	doc_add(Request, l:client_code, Client_code).
 
 
 process_request_ledger2(Dom, S_Transactions, Structured_Reports, Transactions) :-
