@@ -1,0 +1,15 @@
+[a sheet;
+name "depreciation_query", # if omitted, default to class label
+class depreciation_query]
+
+depreciation_query a rdf(?):class;
+property start_date,
+property end_date,
+property scenario]
+
+[a sheet;
+class depreciation_rates]
+
+depreciation_rates a list_of<depreciation_rate>.
+
+

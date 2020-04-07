@@ -5,7 +5,7 @@
       "account":"NationalAustraliaBank",
       "date":"2016-01-01",
       "exchanged":"vector([coord('GOOG',1)])",
-      "misc": {"desc2":""},
+      "misc": {},
       "report_currency_transacted_amount_converted_at_balance_date": [ {"credit":641.1, "debit":0, "unit":"AUD"} ],
       "report_currency_transacted_amount_converted_at_transaction_date": [ {"credit":686.97, "debit":0, "unit":"AUD"} ],
       "vector": [ {"credit":500, "debit":0, "unit":"USD"} ],

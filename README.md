@@ -1,20 +1,13 @@
+
+
+
+
+
+
+
 # Accounts Assessor
 
 This repository hosts a program that derives, validates, and corrects the financial information that it is given. The program uses redundancy to carry out its validations and corrections. By this it is meant that knowledge of parts of a company's financial data imposes certain constraints on the company's other financial data. If the program is given a company's ledger, then it knows what the balance sheet should look like. If the program is given a company's balance sheet, then it has a rough idea of what the ledger should look like.
-
-## documentation
-most endpoints should have some documentation in doc/. Introductions to individual concepts can be found in videos on dropbox.
-
-videos:
-https://www.dropbox.com/sh/prgubjzoo9zpkhp/AACd6YmoWxf9IUi5CriihKlLa?dl=0
-https://www.dropbox.com/sh/o5ck3qm79zwgpc5/AABD9jUcWiNpWMb2fxsmeVfia?dl=0
-
-wiki:
-https://github.com/LodgeiT/labs-accounts-assessor/wiki/
-
-doc/:
-https://github.com/LodgeiT/labs-accounts-assessor/tree/master/doc
-
 
 ## Getting Started
 Fetch submodules:
@@ -88,7 +81,8 @@ json-based endpoints:
 
 
 
-## endpoints (needs updating)
+## endpoints
+most endpoints should have some documentation in doc/. Introductions to individual concepts can be found on dropbox.
 
 ##xml endpoints
 a request POST-ed to the /upload url is first handled in prolog_server, where the payload xml request file is saved into tmp/. A filename is handed to process_data, which loads it and let's each endpoint try to handle it. The endpoint that is successful will eventually write it's output directly to stdout, which is redirected by the http server.

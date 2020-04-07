@@ -2,7 +2,6 @@
 :- use_module(library(sgml)).
 :- use_module(library(semweb/turtle)).
 
-
 :- [process_request_loan].
 :- [process_request_ledger].
 :- [process_request_livestock].
@@ -14,8 +13,6 @@
 
 /* for formatting numbers */
 :- locale_create(Locale, "en_AU.utf8", []), set_locale(Locale).
-
-:- dynamic subst/2.
 
 /* fixme, assert the actual port in prolog_server and get that here? maybe also move this there, since we are not loading this file from the commandline anymore i think? */
 %:- initialization(set_server_public_url('http://localhost:7778')).
@@ -29,7 +26,6 @@ process_request_rpc_calculator(Dict) :-
 	->	resolve_directory(Dir, Request_Files2)
 	;	Request_Files2 = Request_Files),
 	% todo options
-	%writeq(Dict.tmp_directory_name),nl,
 	set_unique_tmp_directory_name(loc(tmp_directory_name, Dict.tmp_directory_name)),
 	set_server_public_url(Dict.server_url),
 	(Request_Files2 = [] -> throw('no files.') ; true),
@@ -37,13 +33,9 @@ process_request_rpc_calculator(Dict) :-
 
 /* takes either a xml request file, or a directory expected to contain a xml request file, an n3 file, or both */
 process_request_cmdline(Path_Value0) :-
-	set_server_public_url('http://localhost:7778'),
-	format(user_error, "Path_Value0: ~w~n", [Path_Value0]),
 	resolve_specifier(loc(specifier, Path_Value0), Path),
-	format(user_error, "Path: ~w~n", [Path]),
 	bump_tmp_directory_id,
 	resolve_directory(Path, File_Paths),
-	format(user_error, "File_Paths: ~w~n", [File_Paths]),
 	copy_request_files_to_tmp(File_Paths, _),
 	process_request([], File_Paths).
 
@@ -139,34 +131,24 @@ alert_html(Alert, div([Alert, br([]), br([])])).
 
 
 process_multifile_request(File_Paths) :-
-	debug(tmp_files, "process_multifile_request(~w)~n", [File_Paths]),
 	(	accept_request_file(File_Paths, Xml_Tmp_File_Path, xml)
 	->	load_request_xml(Xml_Tmp_File_Path, Dom)
 	;	true),
-
 	(	accept_request_file(File_Paths, Rdf_Tmp_File_Path, n3)
 	->	(
-			debug(tmp_files, "done accept_request_file(~w, ~w, n3)~n", [File_Paths, Rdf_Tmp_File_Path]),
 			load_request_rdf(Rdf_Tmp_File_Path, G),
-			debug(tmp_files, "RDF graph: ~w~n", [G]),
 			doc_from_rdf(G)
-			%doc_input_to_chr_constraints
 		)
 	;	true),
 	(	process_rdf_request
 	;	(
-			((ground(Dom), xpath(Dom, //reports, _))
+			xpath(Dom, //reports, _)
 			->	process_xml_request(Xml_Tmp_File_Path, Dom)
-			;	throw_string('<reports> tag not found'))
-		)
-	).
+			;	throw_string('<reports> tag not found'))).
 
 accept_request_file(File_Paths, Path, Type) :-
-	debug(tmp_files, "accept_request_file(~w, ~w, ~w)~n", [File_Paths, Path, Type]),
 	member(Path, File_Paths),
-	debug(tmp_files, "member(~w, ~w)~n", [Path, File_Paths]),
 	tmp_file_path_to_url(Path, Url),
-	debug(tmp_files, "tmp_file_path_to_url(~w, ~w)~n", [Path, Url]),
 	(
 		loc_icase_endswith(Path, ".xml")
 	->	(
@@ -196,20 +178,20 @@ make_rdf_report :-
 	Url = loc(absolute_url, Url_Value),
 	rdf_save_turtle(Path, [graph(Rdf_Graph), sorted(true), base(Url_Value), canonize_numbers(true), abbreviate_literals(false), prefixes([rdf,rdfs,xsd,l,livestock])]).
 
+/*
 
 
+
+
+*/
 
 process_rdf_request :-
-	debug(requests, "process_rdf_request~n", []),
 	(	process_request_hirepurchase_new;
 		process_request_depreciation_new),
+	!,
 	make_rdf_report.
 
-
-
-
 process_xml_request(File_Path, Dom) :-
-/*+   request_xml_to_doc(Dom),*/
 	(process_request_car(File_Path, Dom);
 	(process_request_loan(File_Path, Dom);
 	(process_request_ledger(File_Path, Dom);

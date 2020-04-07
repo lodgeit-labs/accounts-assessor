@@ -34,8 +34,7 @@ purchases_cost_and_count(Livestock, S_Transactions, Cost, Count) :-
 		T,
 		(
 			member(T, S_Transactions),
-			s_transaction_type_id(T, uri(V)),
-			rdf_global_id(l:livestock_purchase,V)
+			s_transaction_type_id(T, uri(l:livestock_purchase))
 		),
 		Ts),
 	doc(Livestock, livestock:name, Type),

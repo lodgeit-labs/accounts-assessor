@@ -167,7 +167,6 @@ group{id:on_hand_at_cost, title:"On Hand At Cost Total", members:On_Hand_At_Cost
 
 
 rows(Static_Data, Outstanding_In, Rows) :-
-
 	clip_investments(Static_Data, Outstanding_In, Realized_Investments, Unrealized_Investments),
 
 	maplist(investment_report_2_sales(Static_Data), Realized_Investments, Sale_Lines),
@@ -256,38 +255,43 @@ investment_report_2_unrealized(Static_Data, Investment, Row) :-
 	End_Date = Static_Data.end_date,
 	Exchange_Rates = Static_Data.exchange_rates,
 	Report_Currency = Static_Data.report_currency,
-	[Report_Currency_Unit] = Report_Currency,
-
+	Cost_Or_Market = Static_Data.cost_or_market,
 	Investment = ir_item(unr, Info, Count, [], Clipped),
-	Info = info2(Investment_Currency, Unit_Name, Opening_Unit_Cost_Converted, Opening_Unit_Cost_Foreign, Opening_Date, Original_Purchase_Info),
+	Info = info2(Investment_Currency, Unit, Opening_Unit_Cost_Converted, Opening_Unit_Cost_Foreign, Opening_Date, Original_Purchase_Info),
 
-	(	Static_Data.cost_or_market == cost
-	->	Unit = with_cost_per_unit(Unit_Name, Opening_Unit_Cost_Foreign)
-	;	Unit = Unit_Name),
-
+	/*
+	TODO: with at-cost reporting, the goods unit will be a with_cost_per_unit, and there will be no exchange rate in the table.
+	maybe Opening_Unit_Cost_Converted, Opening_Unit_Cost_Foreign should already be stripped of and taken from  with_cost_per_unit?
+	*/
+	
 	exchange_rate_throw(Exchange_Rates, End_Date, Unit, Investment_Currency, _),
-	vec_change_bases(Exchange_Rates, End_Date, [Investment_Currency],
-		[coord(Unit, 1)],
-		End_Unit_Price_Coord
+	
+	(
+		Cost_Or_Market = cost
+	->
+		vec_change_bases(Exchange_Rates, End_Date, [Investment_Currency], 
+			[coord(with_cost_per_unit(Unit, Opening_Unit_Cost_Converted), 1)],
+			End_Unit_Price_Coord
+		)
+	;
+		vec_change_bases(Exchange_Rates, End_Date, [Investment_Currency], 
+			[coord(Unit, 1)],
+			End_Unit_Price_Coord
+		)		
 	),
-
-	exchange_rate_throw(Exchange_Rates, End_Date, Unit, Report_Currency_Unit, Closing_Unit_Price_Converted_Amount),
-
 	End_Unit_Price_Unit = Investment_Currency,
 	number_vec(End_Unit_Price_Unit, End_Unit_Price_Amount, End_Unit_Price_Coord),
-
+	
 	ir2_forex_gain(Exchange_Rates, Opening_Date, value(End_Unit_Price_Unit, End_Unit_Price_Amount), End_Date, Investment_Currency, Report_Currency, Count, Forex_Gain),
 	ir2_market_gain(Exchange_Rates, Opening_Date, End_Date, Investment_Currency, Report_Currency, Count, Opening_Unit_Cost_Converted, End_Unit_Price_Unit, End_Unit_Price_Amount, Market_Gain),
 	optional_currency_conversion(Exchange_Rates, Opening_Date, Investment_Currency, Report_Currency, Opening_Currency_Conversion),
 	optional_currency_conversion(Exchange_Rates, End_Date, Investment_Currency, Report_Currency, Closing_Currency_Conversion),
-
-	Closing_Unit_Price_Foreign_Amount = End_Unit_Price_Amount,
-
+	exchange_rate_throw(Exchange_Rates, End_Date, Unit, Investment_Currency, Closing_Unit_Price_Foreign_Amount),
 	Closing_Unit_Price_Foreign = value(Investment_Currency, Closing_Unit_Price_Foreign_Amount),
 	{Investment_Currency_Current_Market_Value_Amount = Count * Closing_Unit_Price_Foreign_Amount},
 	Investment_Currency_Current_Market_Value = value(Investment_Currency, Investment_Currency_Current_Market_Value_Amount),
 	[Report_Currency_Unit] = Report_Currency,
-
+	exchange_rate_throw(Exchange_Rates, End_Date, Unit, Report_Currency_Unit, Closing_Unit_Price_Converted_Amount),
 	{Current_Market_Value_Amount = Count * Closing_Unit_Price_Converted_Amount},
 	Current_Market_Value = value(Report_Currency_Unit, Current_Market_Value_Amount),
 
@@ -321,7 +325,7 @@ investment_report_2_unrealized(Static_Data, Investment, Row) :-
 
 	Row = _{
 		id: Id,
-		unit: Unit_Name,
+		unit: Unit,
 		count: Count,
 		currency: Investment_Currency,
 		opening: Opening,
@@ -437,7 +441,7 @@ clip_investments(Static_Data, (Outstanding_In, Investments_In), Realized_Investm
 				Count =\= 0,
 				nth0(Investment_Id, Investments_In, investment(Info1, _Sales)),
 				
-				/*just re-pack outstanding() into info(), omitting Goods_Count */
+				/*just re-pack outstanding() into info(), omitting third arg */
 				Info1 = outstanding(Investment_Currency, Unit, _, Purchase_Unit_Cost_Converted, Purchase_Unit_Cost_Foreign, Purchase_Date),
 				Info2 = info(Investment_Currency, Unit, Purchase_Unit_Cost_Converted, Purchase_Unit_Cost_Foreign, Purchase_Date),
 				
@@ -460,7 +464,9 @@ clip_investments(Static_Data, (Outstanding_In, Investments_In), Realized_Investm
 
 	maplist(clip_investment(Static_Data), Investments3, Investments4),
 	findall(I, (member(I, Investments4), ir_item_type(I,unr)), Unrealized_Investments),
-	findall(I, (member(I, Investments4), ir_item_type(I,rea)), Realized_Investments).
+	findall(I, (member(I, Investments4), ir_item_type(I,rea)), Realized_Investments)
+	%,print_term(clip_investments(Outstanding_In, Investments_In, Realized_Investments, Unrealized_Investments),[])
+	.
 
 /*filter out investments sold before report period start. */
 filter_investment_sales(Static_Data, I1, I2) :-
@@ -484,6 +490,7 @@ clip_investment(Static_Data, I1, I2) :-
 	Start_Date = Static_Data.start_date,
 	Exchange_Rates = Static_Data.exchange_rates,
 	Report_Currency = Static_Data.report_currency,
+	%dict_vars(Static_Data, [Start_Date, Exchange_Rates, Report_Currency]),
 	[Report_Currency_Unit] = Report_Currency,
 	I1 = (Tag, Info1, Outstanding_Count, Sales),
 	I2 = ir_item(Tag, Info2, Outstanding_Count, Sales, Clipped),
@@ -506,17 +513,10 @@ clip_investment(Static_Data, I1, I2) :-
 			the simplest case is when the price in purchase currency at report start date is specified by user.
 		*/
 			Opening_Date = Start_Date,
-
-			(	Static_Data.cost_or_market == cost
-			->	Unit2 = with_cost_per_unit(Unit, Purchase_Unit_Cost_Foreign)
-			;	Unit2 = Unit),
-
-			exchange_rate_throw(Exchange_Rates, Opening_Date, Unit2, Investment_Currency, Before_Opening_Exchange_Rate_Foreign),
+			exchange_rate_throw(Exchange_Rates, Opening_Date, Unit, Investment_Currency, Before_Opening_Exchange_Rate_Foreign),
 			Opening_Unit_Cost_Foreign = value(Investment_Currency, Before_Opening_Exchange_Rate_Foreign),
-
-			exchange_rate_throw(Exchange_Rates, Opening_Date, Unit2, Report_Currency_Unit, Before_Opening_Exchange_Rate_Converted),
+			exchange_rate_throw(Exchange_Rates, Opening_Date, Unit, Report_Currency_Unit, Before_Opening_Exchange_Rate_Converted),			
 			Opening_Unit_Cost_Converted = value(Report_Currency_Unit, Before_Opening_Exchange_Rate_Converted),
-
 			Clipped = clipped
 		)
 	).

@@ -35,8 +35,6 @@ round(X,D,Y2) :-
 
 
 
-round_term(X, unbound) :-
-	var(X).
 
 round_term(X, Y) :-
 	float_comparison_significant_digits(D),

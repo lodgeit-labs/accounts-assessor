@@ -1,4 +1,0 @@
-:- debug.
-
-:- [rpc_server].
-

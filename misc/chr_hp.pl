@@ -2,16 +2,14 @@
 :- use_module(library(clpq)).
 :- use_module(library(clpfd)).
 
-:- chr_constraint fact/3, rule/0, start/2, clpq/1, clpq/0, countdown/2, next/1.
+:- chr_constraint fact/3, rule/0, start/1, clpq/1, clpq/0, countdown/1, next/1.
 
 
 % same as =/2 in terms of what arguments it succeeds with but doesn't actually unify
-% should be equivalent to unifiable/2
 unify_check(X,_) :- var(X), !.
 unify_check(_,Y) :- var(Y), !.
 unify_check(X,Y) :- X == Y.
 
-% should basically be subsumes_term, with subs
 % unify with subs, but treating variables on RHS as constants
 unify2(X,Y,Subs,New_Subs) :- var(X), \+((member(K:_, Subs), X == K)), New_Subs = [X:Y | Subs].
 unify2(X,Y,Subs,Subs) :- var(X), member(K:V, Subs), X == K, !, Y == V.
@@ -28,7 +26,6 @@ unify2_facts(Query_Fact, Store_Fact, Subs, New_Subs) :-
 	unify2_args(Query_Args, Store_Args, Subs, New_Subs).
 
 % same as unify2 but actually binds the LHS instead of using subs
-% should be equivalent to subsumes_term, maybe w/ some variation on scope of the binding
 unify3(X,Y) :- var(X), X = Y.
 unify3(X,Y) :- nonvar(X), X == Y.
 
@@ -55,18 +52,8 @@ find_fact2(S, P, O, Subs) :-
 	'$enumerate_constraints'(fact(S1, P1, O1)),
 	unify2_facts(fact(S, P, O), fact(S1, P1, O1), Subs, _).
 
-find_fact3(S, P, O, Subs, New_Subs) :-
-	'$enumerate_constraints'(fact(S1,P1,O1)),
-	unify2_facts(fact(S,P,O), fact(S1,P1,O1), Subs, New_Subs).
 
-find_fact4(S,P,O, Subs) :-
-	'$enumerate_constraints'(fact(S1,P1,O1)),
-	unify2_facts(fact(S,P,O), fact(S1,P1,O1), Subs, _),
-	S = S1,
-	P = P1,
-	O = O1.
-
-clpfd_leap_year(Year) :-
+leap_year(Year) :-
 	(
 		0 #= Year mod 400
 	->	true
@@ -77,7 +64,7 @@ clpfd_leap_year(Year) :-
 	).
 
 month_lengths([31,28,31,30,31,30,31,31,30,31,30,31]).
-month_length(Year, 2, 29) :- clpfd_leap_year(Year), !.
+month_length(Year, 2, 29) :- leap_year(Year), !.
 month_length(_, Month, Length) :- month_lengths(Lengths), nth1(Month, Lengths, Length).
 
 
@@ -288,14 +275,13 @@ rule, fact(S, P, O) \ fact(S, P, O) <=> (P == closing_balance -> format("dedupli
 
 rule <=> clpq.
 clpq \ clpq(Constraint) <=> call(Constraint).
-clpq, countdown(N, Done) <=> N > 0 | M is N - 1, format(user_error, "~ncountdown ~w~n~n", [M]), countdown(M, Done), rule.
-clpq, countdown(0, Done) <=>
-	format(user_error, "Done: facts = [~n", []),
+clpq, countdown(N) <=> N > 0 | M is N - 1, format("~ncountdown ~w~n~n", [M]), countdown(M), rule.
+clpq, countdown(0) <=>
+	format("Done: facts = [~n", []),
 	findall(
 		_,
 		(
 			'$enumerate_constraints'(fact(S,P,O)),
-			/*
 			\+((
 				P \== closing_date,
 				P \== opening_date,
@@ -311,210 +297,32 @@ clpq, countdown(0, Done) <=>
 			-> O2 is float(O)
 			; O2 = O
 			),
-			*/
-			format(user_error, "fact(~w,~w,~w)~n", [S,P,O])
+			format("fact(~w,~w,~w)~n", [S,P,O2])
 		),
 		_
 	),
-	format(user_error, "]~n~n",[]), %fail,
-	Done = done,
+	format("]~n~n",[]), fail,
 	true.
 %next(0) <=> true.
 %next(M) <=> nl, countdown(M), rule.
 
-start(N, Done) <=> N > 0 | countdown(N, Done), rule.
-start(0, Done) <=> Done = done.
+start(N) <=> N > 0 | countdown(N), rule.
+start(0) <=> true.
 
-% General pattern here:
-% we have flexible objects that need to be translated back into standard data formats.
-
-
-
-% exclude all list definition triples except for occurrences of L a list and Obj Attr L
-% on finding a list (i.e. L a list), perform chr_list_to_rdf_list
-% exclude any other triples if they include variables
-% 
-% translate all vars to bnodes, maintaining subs
-%
-
-
-% currently loses variable identities; actually only loses variable identities when printing for some reason and the
-% identities are still maintained in the New_Facts output... ?
-get_chr_facts(Found_Facts, Current_Facts, Current_Lists, Current_Facts, Current_Lists) :-
-	% every chr fact is in the list; done.
-	\+((
-		'$enumerate_constraints'(fact(S,P,O)),
-		\+((
-			member(fact(S1,P1,O1), Found_Facts),
-			S == S1,
-			P == P1,
-			O == O1
-		))
-	)).
-get_chr_facts(Found_Facts, Current_Facts, Lists, New_Facts, New_Lists) :-
-	% if there is a CHR fact
-	'$enumerate_constraints'(fact(S,P,O)),
-	%format("Fact: ~w ~w ~w~n", [S, P, O]),
-	% and no identical fact in the already-found facts
-	\+((
-		member(fact(S1,P1,O1), Found_Facts),
-		S == S1,
-		P == P1,
-		O == O1
-	)),
-	% then cut, add it to the already-found facts, and continue
-	!,
-
-	% exclude these triples
-	(
-		\+member(P, [first, last, length, element_type, list_in, list_index, value, next, prev])
-	->	Next_Facts = [fact(S,P,O) | Current_Facts]
-	;	Next_Facts = Current_Facts
-	),
-	(
-		fact(S,P,O) = fact(S, a, list)
-	-> 	Next_Lists = [S | Lists]
-	;	Next_Lists = Lists
-	),
-	%format("Found fact: ~w ~w ~w~n", [S,P,O]),
-	get_chr_facts([fact(S,P,O) | Found_Facts], Next_Facts, Next_Lists, New_Facts, New_Lists).
 /*
-print_facts :-
-	get_chr_facts([], Facts),
-	print_facts_helper(Facts).
+  ?- fact(List, a, list), fact(X, list_in, List), fact(List, length, 1), start(2).
+  fact(X, value, _),
+  fact(List, last, X),
+  fact(List, first, X),
+  fact(X, list_index, 1),
+  fact(List, length, 1),
+  fact(X, list_in, List),
+  fact(List, a, list).
 
-print_facts_helper([]) :- nl.
-print_facts_helper([fact(S,P,O)| Facts]) :-
-	format("~w ~w ~w~n", [S, P, O]),
-	print_facts_helper(Facts).
 */
 
-
-% convert a chr list to a regular prolog list
-chr_list_to_prolog_list(L, List) :-
-	find_fact4(L1, a, list, [L1:L]), !,
-	find_fact4(L1, first, First_Item, [L1:L]), !,
-	chr_list_to_prolog_list_helper(L, First_Item, List).
-
-chr_list_to_prolog_list_helper(L, Item, [fact(Item, value, Value) | Rest]) :-
-	find_fact4(Item1, value, Value, [Item1:Item]),
-	(
-		find_fact4(L1, last, Item1, [L1:L, Item1:Item])
-	->	Rest = []
-	;	(
-			find_fact4(Item1, next, Next_Item, [Item1:Item])
-		->	% could infloop if the list is cyclic, but current rules should rule out that possibility
-			chr_list_to_prolog_list_helper(L, Next_Item, Rest)
-		;	true
-		)
-	).
-
-chr_list_to_rdf_list(CHR_List, RDF_List, RDF_List_Triples, Subs) :-
-	chr_list_to_prolog_list(CHR_List, Prolog_List),
-	(
-		Prolog_List = []
-	->	RDF_List = rdf:nil,
-		RDF_List_Triples = [],
-		Subs = []
-	;	gensym(bn, RDF_List),
-		prolog_list_to_rdf_list(Prolog_List, RDF_List, RDF_List_Triples, Subs)
-	).
-
-prolog_list_to_rdf_list([], rdf:nil, [], []).
-prolog_list_to_rdf_list([fact(Cell, value, X)], URI, [fact(URI, rdf:first, X), fact(URI, rdf:rest, rdf:nil)], [Cell:URI]).
-prolog_list_to_rdf_list([fact(Cell, value, X), fact(Next_Cell, value, Y) | Xs], URI, [fact(URI, rdf:first, X), fact(URI, rdf:rest, Next_URI) | Rest_Triples], [Cell:URI | Rest_Subs]) :-
-	gensym(bn, Next_URI),
-	(
-		nonvar(Xs)
-	->	prolog_list_to_rdf_list([fact(Next_Cell, value, Y) | Xs], Next_URI, Rest_Triples, Rest_Subs)
-	;	Rest_Triples = [fact(Next_URI, rdf:first, Y)], Rest_Subs = [Next_Cell:Next_URI]
-	).
-
-
-get_chr_list_triples([], [], []).
-get_chr_list_triples([L | Ls], [L_Triples | Ls_Triples], [[L:L_Bnode | Subs] | Rest_Subs]) :-
-	chr_list_to_rdf_list(L, L_Bnode, L_Triples, Subs),
-	get_chr_list_triples(Ls, Ls_Triples, Rest_Subs).
-
-chr_filter_vars([], _, []).
-chr_filter_vars([Fact | Facts], Subs, New_Facts) :-
-	apply_subs_to_fact(Subs, Fact, New_Fact),
-	(
-		ground(New_Fact)
-	-> 	New_Facts = [New_Fact | Rest_Facts]
-	;	New_Facts = Rest_Facts
-	),
-	chr_filter_vars(Facts, Subs, Rest_Facts).
-
-map_args(P, Term, New_Term) :-
-	Term =.. [F | Args],
-	maplist(P, Args, New_Args),
-	New_Term =.. [F | New_Args].
-
-mapflat(P, List, New_List) :-
-	maplist(P, List, New_List_Nested),
-	flatten(New_List_Nested, New_List).
-
-apply_subs_to_facts(_, [], []).
-apply_subs_to_facts(Subs, [Fact | Facts], [New_Fact | New_Facts]) :-
-	apply_subs_to_fact(Subs, Fact, New_Fact),
-	apply_subs_to_facts(Subs, Facts, New_Facts).
-
-apply_subs_to_fact(Subs, Fact, New_Fact) :-
-	Fact =.. [fact | Args],
-	apply_subs_to_args(Subs, Args, New_Args),
-	New_Fact =.. [fact | New_Args].
-
-apply_subs_to_args(_, [], []).
-apply_subs_to_args(Subs, [Arg | Args], [New_Arg | New_Args]) :-
-	apply_subs_to_arg(Subs, Arg, New_Arg),
-	apply_subs_to_args(Subs, Args, New_Args).
-
-apply_subs_to_arg([], Arg, Arg).
-apply_subs_to_arg([K:V | Rest_Subs], Arg, New_Arg) :-
-	(	Arg == K
-	->	New_Arg = V
-	;	apply_subs_to_arg(Rest_Subs, Arg, New_Arg)
-	). 
-
-extract_chr_facts(Output_With_RDF_Values) :-
-	get_chr_facts([], [], [], Facts, Lists),
-	get_chr_list_triples(Lists, List_Triples, Subs),
-	flatten(List_Triples, List_Triples_Flat),
-	flatten(Subs, Subs_Flat),
-	apply_subs_to_facts(Subs_Flat, List_Triples_Flat, List_Triples_Sub),
-	chr_filter_vars(Facts, Subs_Flat, New_Facts),
-	append(New_Facts, List_Triples_Sub, Output),
-	make_rdf_values(Output, Output_With_RDF_Values).
-
-% replace attributes with rdf:values
-make_rdf_values(Facts, New_Facts) :-
-	get_objects(Facts, Objects),
-	make_object_attributes(Facts, Objects, New_Facts).
-	
-	% replace attributes with rdf:values
-get_objects([], []).
-get_objects([fact(S, P, O) | Facts], Objects) :-
-	(
-		P = a,
-		O \= list
-	->	Objects = [S | Rest_Objects]
-	;	Objects = Rest_Objects
-	),
-	get_objects(Facts, Rest_Objects).
-
-make_object_attributes([], _, []).
-make_object_attributes([fact(S,P,O) | Facts], Objects, New_Facts) :-
-	(
-		member(S,Objects),
-		P \= a
-	-> 	gensym(bn,URI),
-		New_Facts = [fact(S,P,URI),fact(URI,rdf:value,O) | Rest_Facts]
-	;	New_Facts = [fact(S,P,O) | Rest_Facts]
-	),
-	make_object_attributes(Facts, Objects, Rest_Facts).
-
-print_facts2([]) :- nl.
-print_facts2([fact(S,P,O) | Rest]) :-
-	format("~w ~w ~w~n", [S,P,O]),
-	print_facts2(Rest).
+/*
+ 27,406
+ 14,629
+ 13,953
+*/

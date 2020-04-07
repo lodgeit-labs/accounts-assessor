@@ -375,15 +375,7 @@ ic_ui:investment_calculator_sheets
 					rdf:value ()
 				]
 		]
-		[
-			excel:root ic_ui:transaction_input;
-			excel:optional true;
-			excel:example_doc
-				[
-					rdf:value ()
-				]
-		]
-).
+	).
 
 ic_ui:gl
 	excel:position [excel:col "A"; excel:row "1"];
@@ -421,19 +413,4 @@ ic_ui:account_roles
 	excel:fields (
 		[excel:property ic:id]
 		[excel:property ic:role]
-	).
-
-ic_ui:transaction_input
-	excel:cardinality excel:multi;
-	excel:class ic:transaction;
-	excel:fields (
-		[excel:property ic:date]
-		[excel:property ic:primary_account]
-		[excel:property ic:action_verb]
-		[excel:property ic:debit]
-		[excel:property ic:credit]
-		[excel:property ic:currency]
-		[excel:property ic:description1]
-		[excel:property ic:description2]
-		[excel:property ic:description3]
 	).

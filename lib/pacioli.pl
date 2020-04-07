@@ -113,42 +113,6 @@ vec_add(As, Bs, Cs_Reduced) :-
 vec_sum(Vectors, Sum) :-
 	foldl(vec_add, Vectors, [], Sum).
 
-
-/*
-	Vec: [a rdf:value]
-	Sum: [a rdf:value]
-*/
-vec_sum_with_proof(Vec, Sum) :-
-	gu(rdf:value, RdfV),
-	maplist({RdfV}/[Uri, Lit]>>(doc(Uri, RdfV, Lit)), Vec, Vec_Lits),
-	vec_sum(Vec_Lits, Sum_Lit),
-	doc_new_(rdf:value, Sum),
-	doc_add(Sum, rdf:value, Sum_Lit),
-	doc_add(Sum, l:source, Vec).
-
-/*
-sum_by_pred(
-	P,			% pred(Item, Numeric)
-	Input,		% List<Item>
-	Sum			% Numeric = sum {X | Item in Input, P(Item,X)}
-).
-*/
-sum_by_pred(P, Input, Sum) :-
-	convlist(P, Input, Intermediate),
-	sumlist(Intermediate, Sum).
-
-/*
-vec_sum_by_pred(
-	P,			% pred(Item, List record:coord)
-	Input,		% List Item
-	Sum			% List record:coord = vec_sum {X | Item in Input, P(Item, X)}
-).
-*/
-vec_sum_by_pred(P, Input, Sum) :-
-	convlist(P, Input, Intermediate),
-	vec_sum(Intermediate, Sum).
-
-
 % Subtracts the vector Bs from As by inverting Bs and adding it to As.
 
 vec_sub(As, Bs, Cs) :-

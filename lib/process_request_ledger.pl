@@ -1,11 +1,10 @@
 process_request_ledger(File_Path, Dom) :-
 	inner_xml(Dom, //reports/balanceSheetRequest, _),
 	validate_xml2(File_Path, 'bases/Reports.xsd'),
-	extract_start_and_end_date(Dom, Start_Date, End_Date),
-	extract_bank_accounts(Dom),
+	extract_start_and_end_date(Dom, Start_Date, End_Date, Start_Date_Atom),
 	extract_bank_opening_balances(Bank_Lump_STs),
 	handle_additional_files(S_Transactions0),
-	extract_s_transactions(Dom, S_Transactions1),
+	extract_s_transactions(Dom, Start_Date_Atom, S_Transactions1),
 	flatten([Bank_Lump_STs, S_Transactions0, S_Transactions1], S_Transactions2),
 	sort_s_transactions(S_Transactions2, S_Transactions),
 	process_request_ledger2((Dom, Start_Date, End_Date), S_Transactions, _).
@@ -15,8 +14,8 @@ process_request_ledger_debug(Data, S_Transactions0) :-
 	findall(Count, ggg(Data, S_Transactions0, Count), Counts), writeq(Counts).
 
 ggg(Data, S_Transactions0, Count) :-
-	%Count = 41,
-	between(100, $>length(S_Transactions0), Count),
+	Count = 41,
+	between(0, $>length(S_Transactions0), Count),
 	take(S_Transactions0, Count, STs),
 	format(user_error, '~q: ~q ~n ~n', [Count, $>last(STs)]),
 	once(process_request_ledger2(Data, STs, Structured_Reports)),
@@ -27,20 +26,16 @@ ggg(Data, S_Transactions0, Count) :-
 
 process_request_ledger2((Dom, Start_Date, End_Date), S_Transactions, Structured_Reports) :-
 	extract_output_dimensional_facts(Dom, Output_Dimensional_Facts),
-
 	extract_cost_or_market(Dom, Cost_Or_Market),
 	extract_report_currency(Dom, Report_Currency),
-
 	extract_action_verbs_from_bs_request(Dom),
 	extract_account_hierarchy_from_request_dom(Dom, Accounts0),
 	extract_livestock_data_from_ledger_request(Dom),
 	/* Start_Date, End_Date to substitute of "opening", "closing" */
-	extract_exchange_rates(Dom, Start_Date, End_Date, Report_Currency, Exchange_Rates0),
-	(	Cost_Or_Market = cost
-	->	filter_out_market_values(S_Transactions, Exchange_Rates0, Exchange_Rates)
-	;	Exchange_Rates0 = Exchange_Rates),
+	extract_default_currency(Dom, Default_Currency),
+	extract_exchange_rates(Dom, Start_Date, End_Date, Default_Currency, Exchange_Rates),
 	/* Start_Date_Atom in case of missing Date */
-
+	extract_bank_accounts(Dom),
 	extract_invoices_payable(Dom),
 	extract_initial_gl(Initial_Txs),
 
@@ -70,49 +65,25 @@ process_request_ledger2((Dom, Start_Date, End_Date), S_Transactions, Structured_
 
 	create_reports(Static_Data1, Structured_Reports).
 
-
-
-create_reports(
-	Static_Data,				% Static Data
-	Structured_Reports			% ...
-) :-
+create_reports(Static_Data, Structured_Reports) :-
 	static_data_historical(Static_Data, Static_Data_Historical),
-
 	balance_entries(Static_Data, Static_Data_Historical, Entries),
-
-	dict_vars(Entries, [Balance_Sheet, ProfitAndLoss, Balance_Sheet2_Historical, ProfitAndLoss2_Historical, Trial_Balance, Cf]),
-
+	dict_vars(Entries, [Balance_Sheet, ProfitAndLoss, Balance_Sheet2_Historical, ProfitAndLoss2_Historical, Trial_Balance]),
 	taxonomy_url_base,
-
 	create_instance(Xbrl, Static_Data, Static_Data.start_date, Static_Data.end_date, Static_Data.accounts, Static_Data.report_currency, Balance_Sheet, ProfitAndLoss, ProfitAndLoss2_Historical, Trial_Balance),
-
-	other_reports(Static_Data, Static_Data_Historical, Static_Data.outstanding, Balance_Sheet, ProfitAndLoss, Balance_Sheet2_Historical, ProfitAndLoss2_Historical, Trial_Balance, Cf, Structured_Reports),
-
+	other_reports(Static_Data, Static_Data_Historical, Static_Data.outstanding, Balance_Sheet, ProfitAndLoss, Balance_Sheet2_Historical, ProfitAndLoss2_Historical, Trial_Balance, Structured_Reports),
 	add_xml_report(xbrl_instance, xbrl_instance, [Xbrl]).
 
-
-
-balance_entries(
-	Static_Data,				% Static Data
-	Static_Data_Historical,		% Static Data
-	Entries						% Dict Entry
-) :-
+balance_entries(Static_Data, Static_Data_Historical, Entries) :-
 	/* sum up the coords of all transactions for each account and apply unit conversions */
 	trial_balance_between(Static_Data.exchange_rates, Static_Data.accounts, Static_Data.transactions_by_account, Static_Data.report_currency, Static_Data.end_date, Static_Data.start_date, Static_Data.end_date, Trial_Balance),
-
 	balance_sheet_at(Static_Data, Balance_Sheet),
-
 	profitandloss_between(Static_Data, ProfitAndLoss),
-
 	balance_sheet_at(Static_Data_Historical, Balance_Sheet2_Historical),
-
-	cashflow(Static_Data, Cf),
-
+	%gtrace,
 	profitandloss_between(Static_Data_Historical, ProfitAndLoss2_Historical),
-
 	assertion(ground((Balance_Sheet, ProfitAndLoss, ProfitAndLoss2_Historical, Trial_Balance))),
-
-	dict_from_vars(Entries, [Balance_Sheet, ProfitAndLoss, Balance_Sheet2_Historical, ProfitAndLoss2_Historical, Trial_Balance, Cf]).
+	dict_from_vars(Entries, [Balance_Sheet, ProfitAndLoss, Balance_Sheet2_Historical, ProfitAndLoss2_Historical, Trial_Balance]).
 
 
 static_data_historical(Static_Data, Static_Data_Historical) :-
@@ -123,26 +94,12 @@ static_data_historical(Static_Data, Static_Data_Historical) :-
 		exchange_date, Static_Data.start_date).
 
 
-other_reports(
-	Static_Data,
-	Static_Data_Historical,
-	Outstanding,
-	Balance_Sheet,
-	ProfitAndLoss,
-	Balance_Sheet2_Historical,
-	ProfitAndLoss2_Historical,
-	Trial_Balance,
-	Cf,
-	Structured_Reports				% Dict <Report Abbr : _>
-) :-
-
+other_reports(Static_Data, Static_Data_Historical, Outstanding, Balance_Sheet, ProfitAndLoss, Balance_Sheet2_Historical, ProfitAndLoss2_Historical, Trial_Balance, Structured_Reports) :-
 	investment_reports(Static_Data.put(outstanding, Outstanding), Investment_Report_Info),
 	bs_page(Static_Data, Balance_Sheet),
 	pl_page(Static_Data, ProfitAndLoss, ''),
 	pl_page(Static_Data_Historical, ProfitAndLoss2_Historical, '_historical'),
-	cf_page(Static_Data, Cf),
 	make_json_report(Static_Data.gl, general_ledger_json),
-
 	make_gl_viewer_report,
 
 	Structured_Reports0 = _{
@@ -155,14 +112,10 @@ other_reports(
 			current: Balance_Sheet,
 			historical: Balance_Sheet2_Historical
 		},
-		tb: Trial_Balance,
-		cf: Cf
+		tb: Trial_Balance
 	},
-
 	crosschecks_report0(Static_Data.put(reports, Structured_Reports0), Crosschecks_Report_Json),
-
 	Structured_Reports = Structured_Reports0.put(crosschecks, Crosschecks_Report_Json),
-
 	make_json_report(Structured_Reports, reports_json).
 
 make_gl_viewer_report :-
@@ -224,32 +177,14 @@ symlink_tmp_taxonomy_to_static_taxonomy(Unique_Taxonomy_Dir_Url) :-
 	
 */	
    
+extract_default_currency(Dom, Default_Currency) :-
+	inner_xml_throw(Dom, //reports/balanceSheetRequest/defaultCurrency/unitType, Default_Currency).
+
 extract_report_currency(Dom, Report_Currency) :-
-	(	doc(l:request, ic_ui:report_details, D)
-	->	(
-			doc_value(D, ic:currency, C),
-			atom_string(Ca, C),
-			Report_Currency = [Ca]
-		)
-	;	inner_xml_throw(Dom, //reports/balanceSheetRequest/reportCurrency/unitType, Report_Currency)).
+	inner_xml_throw(Dom, //reports/balanceSheetRequest/reportCurrency/unitType, Report_Currency).
 
-
-/*
-*If an investment was held prior to the from date then it MUST have an opening market value if the reports are expressed in market rather than cost.You can't mix market valu
-e and cost in one set of reports. One or the other.
-+       Market or Cost. M or C.
-+       Cost value per unit will always be there if there are units of anything i.e. sheep for livestock trading or shares for Investments. But I suppose if you do not find any marke
-t values then assume cost basis.*/
 
 extract_cost_or_market(Dom, Cost_Or_Market) :-
-	(	doc(l:request, ic_ui:report_details, D)
-	->	(
-			doc_value(D, ic:cost_or_market, C),
-			(	rdf_equal(C, ic:cost)
-			->	Cost_Or_Market = cost
-			;	Cost_Or_Market = market)
-		)
-	;
 	(
 		inner_xml(Dom, //reports/balanceSheetRequest/costOrMarket, [Cost_Or_Market])
 	->
@@ -262,7 +197,6 @@ extract_cost_or_market(Dom, Cost_Or_Market) :-
 		)
 	;
 		Cost_Or_Market = market
-	)
 	).
 	
 extract_output_dimensional_facts(Dom, Output_Dimensional_Facts) :-
@@ -280,21 +214,13 @@ extract_output_dimensional_facts(Dom, Output_Dimensional_Facts) :-
 		Output_Dimensional_Facts = on
 	).
 	
-extract_start_and_end_date(Dom, Start_Date, End_Date) :-
-	(	doc(l:request, ic_ui:report_details, D)
-	->	(
-			doc_value(D, ic:from, Start_Date),
-			doc_value(D, ic:to, End_Date)
-		)
-	;
-	(
-		inner_xml(Dom, //reports/balanceSheetRequest/startDate, [Start_Date_Atom]),
-		parse_date(Start_Date_Atom, Start_Date),
-		inner_xml(Dom, //reports/balanceSheetRequest/endDate, [End_Date_Atom]),
-		parse_date(End_Date_Atom, End_Date)
-	)),
+extract_start_and_end_date(Dom, Start_Date, End_Date, Start_Date_Atom) :-
+	inner_xml(Dom, //reports/balanceSheetRequest/startDate, [Start_Date_Atom]),
+	parse_date(Start_Date_Atom, Start_Date),
 	doc(R, rdf:type, l:request),
 	doc_add(R, l:start_date, Start_Date),
+	inner_xml(Dom, //reports/balanceSheetRequest/endDate, [End_Date_Atom]),
+	parse_date(End_Date_Atom, End_Date),
 	doc_add(R, l:end_date, End_Date).
 
 	
@@ -314,35 +240,19 @@ extract_bank_account(Account) :-
 	doc_new_uri(Uri),
 	request_add_property(l:bank_account, Uri),
 	doc_add(Uri, l:name, Account_Name),
-	(	Opening_Balance_Number \= 0
-	->	doc_add_value(Uri, l:opening_balance, Opening_Balance)
-	;	true).
+	doc_add_value(Uri, l:opening_balance, Opening_Balance).
 
 extract_bank_opening_balances(Txs) :-
 	request(R),
-	findall(Bank_Account, docm(R, l:bank_account, Bank_Account), Bank_Accounts),
-	maplist(extract_bank_opening_balances2, Bank_Accounts, Txs0),
-	exclude(var, Txs0, Txs).
+	findall(Bank_Account_Name, docm(R, l:bank_account, Bank_Account_Name), Bank_Accounts),
+	maplist(extract_bank_opening_balances2, Bank_Accounts, Txs).
 
 extract_bank_opening_balances2(Bank_Account, Tx) :-
-	(	doc_value(Bank_Account, l:opening_balance, Opening_Balance)
-	->	(
-			request_has_property(l:start_date, Start_Date),
-			add_days(Start_Date, -1, Opening_Date),
-			doc(Bank_Account, l:name, Bank_Account_Name),
-			doc_add_s_transaction(
-				Opening_Date,
-				'Bank_Opening_Balance',
-				[Opening_Balance],
-				Bank_Account_Name,
-				vector([]),
-				misc{desc2:'Bank_Opening_Balance'},
-				Tx)
-		)
-	).
-
-extract_bank_opening_balances2(Bank_Account, _Tx) :-
-	\+doc_value(Bank_Account, l:opening_balance, _Opening_Balance).
+	doc(Bank_Account, l:name, Bank_Account_Name),
+	doc_value(Bank_Account, l:opening_balance, Opening_Balance),
+	request_has_property(l:start_date, Start_Date),
+	%add_days(Start_Date0, -1, Start_Date),
+	Tx = s_transaction(Start_Date, 'Historical_Earnings_Lump', [Opening_Balance], Bank_Account_Name, vector([]), _{desc2:'Historical_Earnings_Lump'}).
 
 extract_initial_gl(Txs) :-
 	(	doc(l:request, ic_ui:gl, Gl)
@@ -358,7 +268,6 @@ extract_initial_gl(Txs) :-
 extract_initial_gl_tx(Default_Currency, Item, Tx) :-
 	doc_value(Item, ic:date, Date),
 	doc_value(Item, ic:account, Account_String),
-	/*fixme, support multiple description fields in transaction */
 	(	doc_value(Item, ic:description, Description)
 	->	true
 	;	Description = 'initial_GL'),
@@ -370,5 +279,5 @@ extract_initial_gl_tx(Default_Currency, Item, Tx) :-
 	->	vector_string(Default_Currency, credit, Credit_String, Credit_Vector)
 	;	Credit_Vector = []),
 	append(Debit_Vector, Credit_Vector, Vector),
-	make_transaction(initial_GL, Date, Description, Account, Vector, Tx).
+	make_transaction(Date, Description, Account, Vector, Tx).
 

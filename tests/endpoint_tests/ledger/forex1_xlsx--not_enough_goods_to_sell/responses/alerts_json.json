@@ -1,3 +1,3 @@
 [
-  "error: not_enough_goods_to_sell\nwhen processing s_transaction:\n  date:date(2018,6,30)\n  verb:Dispose_Of\n  vector: [coord('USD',200)]\n  account: 'WellsFargo'\n  exchanged: vector([coord('SG_Issuer_SA',-500)])\n  misc: misc{desc2:''}"
+  "error: not_enough_goods_to_sell\nwhen processing s_transaction:\n  date:date(2018,6,30)\n  verb:Dispose_Of\n  vector: [coord('USD',200)]\n  account: 'WellsFargo'\n  exchanged: vector([coord('SG_Issuer_SA',-500)])\n  misc: _32952{}"
 ]

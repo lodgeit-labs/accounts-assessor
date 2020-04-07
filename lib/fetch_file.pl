@@ -13,13 +13,10 @@ fetch_file_from_url(loc(absolute_url,Url), loc(absolute_path, Path)) :-
 	/*uri_components(Url, Components),
 	gtrace,
 	writeq(Components),nl,*/
-	/* fixme https://stackoverflow.com/questions/34301697/curl-from-shell-path-with-spaces */
 	services_server_shell_cmd(['curl', Url, '-o', Path]).
 
 services_server_shell_cmd(Cmd) :-
-	format(string(Url), '~w/shell/rpc/', [$>services_server(<$)]),
-	debug(endpoint_tests, 'POST: ~w', Url),
-	json_post(Url, _{cmd:Cmd,quiet_success:true}).
+	json_post($>format(string(<$), '~w/shell/rpc/', [$>services_server(<$)]), _{cmd:Cmd,quiet_success:true}).
 
 json_post(Url, Payload) :-
 	http_post(Url, json(Payload), json(Response), [content_type('application/json')]),

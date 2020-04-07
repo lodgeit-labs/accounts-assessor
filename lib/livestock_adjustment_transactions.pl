@@ -9,8 +9,8 @@ opening_inventory_transactions(Livestock, [T1, T2]) :-
 	account_by_role('Accounts'/'AssetsLivestockAtCost', A0),
 	account_by_role('Accounts'/'CapitalIntroduced', A1),
 	request_has_property(l:end_date, End_Date),
-	make_transaction(livestock, End_Date, 'livestock opening inventory', A0, Opening_Vector, T1),
-	make_transaction(livestock, End_Date, 'livestock opening inventory', A1, Opening_Vector_Credit, T2).
+	make_transaction(End_Date, 'livestock opening inventory', A0, Opening_Vector, T1),
+	make_transaction(End_Date, 'livestock opening inventory', A1, Opening_Vector_Credit, T2).
 
 preprocess_headcount_changes(Livestock, [Tx0, Tx1, Tx2]) :-
 	request_has_property(l:end_date, Date),
@@ -19,13 +19,13 @@ preprocess_headcount_changes(Livestock, [Tx0, Tx1, Tx2]) :-
 	doc(Livestock, livestock:born_count, B),
 	value_debit_vec(B, B_V),
 	request_has_property(l:end_date, Date),
-	make_transaction(livestock, Date, 'livestock born', Count_Account, B_V, Tx0),
+	make_transaction(Date, 'livestock born', Count_Account, B_V, Tx0),
 	doc(Livestock, livestock:losses_count, L),
 	value_credit_vec(L, L_V),
-	make_transaction(livestock, Date, 'livestock loss', Count_Account, L_V, Tx1),
+	make_transaction(Date, 'livestock loss', Count_Account, L_V, Tx1),
 	doc(Livestock, livestock:rations_count, R),
 	value_credit_vec(R, R_V),
-	make_transaction(livestock, Date, 'livestock rations', Count_Account, R_V, Tx2).
+	make_transaction(Date, 'livestock rations', Count_Account, R_V, Tx2).
 
 % the average cost value has to be computed first
 preprocess_rations(Livestock, [T1, T2]) :-
@@ -39,9 +39,9 @@ preprocess_rations(Livestock, [T1, T2]) :-
 	doc(Livestock, livestock:name, Type),
 	cogs_rations_account(Type, Cogs_Rations_Account),
 	% DR OWNERS_EQUITY -->DRAWINGS. I.E. THE OWNER TAKES SOMETHING OF VALUE.
-	make_transaction(livestock, Date, 'rations', Drawings, Dr, T1),
+	make_transaction(Date, 'rations', Drawings, Dr, T1),
 	%	CR COST_OF_GOODS. I.E. DECREASES COST.
-	make_transaction(livestock, Date, 'rations', Cogs_Rations_Account, Cr, T2).
+	make_transaction(Date, 'rations', Cogs_Rations_Account, Cr, T2).
 
 
 closing_inventory_transactions(Livestock, Transactions_By_Account, [T1, T2]) :-
@@ -57,8 +57,8 @@ closing_inventory_transactions(Livestock, Transactions_By_Account, [T1, T2]) :-
 
 	format(string(Description), 'livestock closing inventory adjustment', []),
 
-	make_transaction(livestock, Date, Description, Cogs_Account, [Adjustment_Credit], T1),
-	make_transaction(livestock, Date, Description, AssetsLivestockAtAverageCost, [Adjustment_Debit], T2).
+	make_transaction(Date, Description, Cogs_Account, [Adjustment_Credit], T1),
+	make_transaction(Date, Description, AssetsLivestockAtAverageCost, [Adjustment_Debit], T2).
 
 
 /* todo what would this look like in logtalk, if these were methods on the Livestock object? */
