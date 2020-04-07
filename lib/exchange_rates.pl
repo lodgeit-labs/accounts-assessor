@@ -54,9 +54,8 @@ fetch_exchange_rates(Date, Exchange_Rates) :-
 	format(user_error, '~w ...', [Query_Url]),
 	catch(
 		http_open(Query_Url, Stream, []),
-		% this will happen for dates in not found in their db, like too historical.
+		% this will happen for dates not found in their db, like too historical.
 		% we don't call this predicate for future dates.
-		% note that connection error or similar should still propagate and halt the program.
 		error(existence_error(_,_),_),
 		(
 			assert_rates(Date, []),
@@ -123,7 +122,7 @@ fetched_exchange_rate(Day, Src_Currency, Dest_Currency, Exchange_Rate) :-
 	exchange_rates(Day, Exchange_Rates),
 	member(Src_Currency = Src_Exchange_Rate, Exchange_Rates),
 	member(Dest_Currency = Dest_Exchange_Rate, Exchange_Rates),
-	Exchange_Rate = Dest_Exchange_Rate / Src_Exchange_Rate.
+	{Exchange_Rate = Dest_Exchange_Rate / Src_Exchange_Rate}.
 
 /* currency to itself has exchange rate 1 */
 best_nonchained_exchange_rates(_, _, Src_Currency, Src_Currency, [(Src_Currency, 1)]).
@@ -304,14 +303,26 @@ is_exchangeable_into_request_bases(Table, Day, Src_Currency, Bases) :-
 %                ||     ||
 
 
-extract_exchange_rates(Dom, Start_Date, End_Date, Default_Currency, Exchange_Rates) :-
+extract_exchange_rates(
+	Cost_Or_Market,
+	Dom,
+	S_Transactions,
+	/* Start_Date, End_Date to substitute "opening", "closing" */
+	Start_Date, End_Date,
+	Default_Currency,
+	/*out*/ Exchange_Rates2)
+:-
 	/*If an investment was held prior to the from date then it MUST have an opening market value if the reports are expressed in.market rather than cost.You can't mix market value and cost in one set of reports. One or the other.2:27 AMi see. Have you thought about how to let the user specify the method?Andrew, 2:31 AMMarket or Cost. M or C. Sorry. Never mentioned it to you.2:44 AMyou mentioned the different approaches, but i ended up assuming that this would be best selected by specifying or not specifying the unitValues. I see there is a field for it already in the excel templateAndrew, 2:47 AMCost value per unit will always be there if there are units of anything i.e. sheep for livestock trading or shares for InvestmentsAndrew, 3:04 AMBut I suppose if you do not find any market values then assume cost basis.*/
 	findall(Unit_Value_Dom, xpath(Dom, //reports/balanceSheetRequest/unitValues/unitValue, Unit_Value_Dom), Unit_Value_Doms),
 	maplist(extract_exchange_rate(Start_Date, End_Date), Unit_Value_Doms, Exchange_Rates),
 	maplist(missing_dst_currency_is_default_currency(Default_Currency), Exchange_Rates),
 	%maplist(missing_dst_currency_is_investment_currency(S_Transactions, Default_Currency), Exchange_Rates),
 	maplist(dst_currency_must_be_specified, Exchange_Rates),
-	maplist(assert_ground, Exchange_Rates).
+	maplist(assert_ground, Exchange_Rates),
+	(	Cost_Or_Market = cost
+	->	filter_out_market_values(S_Transactions, Exchange_Rates, Exchange_Rates2)
+	;	Exchange_Rates2 = Exchange_Rates).
+
 
 missing_dst_currency_is_default_currency(_, Exchange_Rate) :-
 	exchange_rate_dest_currency(Exchange_Rate, Dst),
@@ -388,3 +399,61 @@ extract_exchange_rate(Start_Date, End_Date, Unit_Value, Exchange_Rate) :-
 	pid has problem <= x sorted_dst_candidates L, L first X, X length > 1
 */
 
+
+
+
+
+
+
+
+
+/*
++%:- add_docs(l:exchange_rates, rdfs:comment, "lib:extract_exchange_rates initially populates this graph with exchange rates extracted from request xml. Exchange rates obtained from web api's are added later, as n
+eeded.").
++
++extract_exchange_rates(Dom, Start_Date, End_Date) :-
++       foreach(
++               doc(pid:unitValues pid:unitValue
++       no unitValues -> warning
++
++       report details
++       M/C, sstart, end
++
++       directives
++       silence no_unitValues
++
++       maplist(extract_exchange_rate0(Default_Currency, Start_Date, End_Date), Unit_Value_Doms),
++       %maplist(missing_dst_currency_is_investments_currency(S_Transactions, Default_Currency), Exchange_Rates),
+        maplist(dst_currency_must_be_specified, Exchange_Rates),
+        maplist(assert_ground, Exchange_Rates).
+
++extract_exchange_rate0(Default_Currency, Start_Date, End_Date, Dom) :-
++       extract_exchange_rate(Start_Date, End_Date, Dom, exchange_rate(Date, Src, Dst, Rate)),
++       doc_new_uri(Exchange_Rate),
++       doc_add_value(Exchange_Rate, l:date, Date),
++       doc_add_value(Exchange_Rate, l:src, Src),
++       (nonvar(Dst) -> doc_add_value(Exchange_Rate, l:dst, Dst) ; true),
++       doc_add_value(Exchange_Rate, l:rate, Rate),
++       missing_dst_currency_is_default_currency(Default_Currency, Uri),
++
+ missing_dst_currency_is_default_currency(_, Exchange_Rate) :-
+-       exchange_rate_dest_currency(Exchange_Rate, Dst),
+-       nonvar(Dst).
++       doc(Exchange_Rate, l:dst, _).
+
+ missing_dst_currency_is_default_currency(Default_Currency, Exchange_Rate) :-
+-       exchange_rate_dest_currency(Exchange_Rate, Dst),
+-       var(Dst),
+-       ([Dst] = Default_Currency -> true ; true).
++       \+doc(Exchange_Rate, l:dst, _),
++       (
++
++       [Dst] = Default_Currency
++       ->      (
++                       doc_new_uri(G),
++                       doc_add_value(Exchange_Rate, l:dst, Dst, G),
++                       doc_add(G,
++
++
++
+*/

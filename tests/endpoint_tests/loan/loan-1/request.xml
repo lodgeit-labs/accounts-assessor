@@ -1,8 +1,16 @@
 <?xml version="1.0"?>
-<!-- The following document is a representation of the following information: The first income year begins on
-	date(2014, 7, 1). The private companys lodgement day is date(2015, 5, 15). A payment of $20,000 is made
-	on date(2014, 8, 31). A payment of $8,000 is made on date(2015, 5, 30). The principal amount of the loan
-	is $75,000. The loan has a term of 7 years. This information is the same as that given in examples 6, 7,
+<!-- The following document is a representation of the following information: 
+
+	The first income year begins on	date(2014, 7, 1). 
+	- "During the 2014 income year a private company made loans of $50,000 and $25,000 to a shareholder."
+	- presumably, this is the "first income year" after the income year in which the loan was made.
+	The private companys lodgement day is date(2015, 5, 15). 
+	A payment of $20,000 is made on date(2014, 8, 31). 
+	A payment of $8,000 is made on date(2015, 5, 30). 
+	The principal amount of the loan is $75,000. 
+	The loan has a term of 7 years. 
+	
+	This information is the same as that given in examples 6, 7,
 	8, and 9 on https://www.ato.gov.au/ at the page Home > Business > Private company benefits -
 	Division 7A dividends > In detail > Loans by private companies. -->
 
@@ -38,8 +46,6 @@
 			<field name="Principal amount of loan" value="75000" />
 			<field name="Lodgment day of private company" value="2015-05-15" />
 			<field name="Income year of computation" value="2015" />
-			<!-- There can be at most one of the following field in a loanAgreement. -->
-			<field name="Opening balance of computation" value="55000" />
 		</loanAgreement>
 		<!-- There must be exactly one repayments element in a loandetails element. -->
 		<repayments>
@@ -49,5 +55,69 @@
 			<repayment date="2014-08-31" value="20000" />
 			<repayment date="2015-05-30" value="8000" />
 		</repayments>
+		
+<!-- 
+	
+Minimum yearly repayment
+
+$9,835.00
+
+Benchmark interest rate
+
+5.95%
+
+Opening balance:
+
+Date: 30/06/2014
+
+Balance: $75,000.00
+
+Days: 61
+
+Interest: $745.79
+
+Payments
+
+Date: 31/08/2014
+
+Amount: $20,000.00
+
+Balance: $55,000.00
+
+Days: 272
+
+Interest: $2,438.68
+
+Date: 30/05/2015
+
+Amount: $8,000.00
+
+Balance: $47,000.00
+
+Days: 32
+
+Interest: $245.17
+
+Total repayments
+
+$28,000.00
+
+Total interest
+
+$3,429.64
+
+Total principal
+
+$24,570.36
+
+Closing balance
+
+Date: 30/06/2015
+
+Balance: $50,429.64
+
+		-->
+
+		
 	</loanDetails>
 </reports>

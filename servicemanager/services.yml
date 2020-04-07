@@ -1,0 +1,17 @@
+---
+all:
+   defaults: # Default sekce
+      package: mydaemons # <nazev balicku python>
+      type: python_module # typ sluzby < python_module | exec > 
+      python_interpreter: python3 # cesta k python interpreteru < python interpreter > e.g. python3
+      dir:  # Nastavit pracovni adresar < working directory > 
+   services:   
+      - name: service1
+        type: exec
+        exec: /usr/bin/env
+        args: bash -c "cat" 
+        dir: /
+        
+      - name: service2
+        exec: shlex
+#        args: /etc/passwd

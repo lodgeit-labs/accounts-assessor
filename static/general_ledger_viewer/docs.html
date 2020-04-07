@@ -1,32 +1,157 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <title>General Ledger Viewer documentation</title>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+	<title>General Ledger Viewer documentation</title>
+	<meta name="generator" content="LibreOffice 6.0.7.3 (Linux)"/>
+	<meta name="created" content="00:00:00"/>
+	<meta name="changed" content="2020-03-02T14:54:35.264941899"/>
+	<meta name="" content=""/>
+	<style type="text/css">
+		h1 { text-align: center }
+		h1.western { font-family: "Liberation Sans", sans-serif; font-size: 28pt; font-weight: normal }
+		h4.cjk { font-family: "Noto Sans CJK SC" }
+		h4.ctl { font-family: "Lohit Devanagari" }
+		pre.cjk { font-family: "DejaVu Sans Mono", monospace }
+	</style>
 </head>
-<body>
-<h1>General Ledger Viewer documentation</h1>
-<h2>currency movement transactions</h2>
-<h4>introduction</h4>
-By default, currency movement is accounted for in a declarative way. This is in contrast to the use of adjustment
-transactions. Our GL balances at any point in time. In-depth explanation of the principle is in <a
-        href="https://www.mathstat.dal.ca/~selinger/accounting/tutorial.html#4">Tutorial on multiple currency
-    accounting</a>.
-<h4>principle</h4>
-<p>
-In short: bank account is in some currency, for example USD. Report currency is for example AUD. If bank account is
-    debited 100 USD on "date(2019,9,9)", a corresponding equity/p&l account is credited, for example, 120 AUD, according
-    to the conversion rate valid at the transaction date. The GL always balances because the drift in USD/AUD rate is
-    accounted for on the CurrencyMovement account, for example CurrencyMovementHelvetische_BankUSD. The entry created on
-    this account would be literally CR 120 USD, DR 100 AUD, but things are a little more complicated, and the actual
-    entry looks like this:
-<pre>CR 100 USD, DR 100 without_currency_movement_against_since('USD','USD',['AUD'],date(2019,9,9))</pre>
-. This whole
-<pre>without_currency_movement_against_since('USD','USD',['AUD'],date(2019,9,9))</pre>
-is understood as "USD, disregarding movement of USD against AUD since date(2019,9,9)". The program does the appropriate
-conversion to AUD when generating reports. Todo: review if the use of this abstract unit is necessary here, i think we
-can simplify. </p><p>
-    todo: explain split into historical and current entry, for historical transactions.
+<body lang="en-US" dir="ltr">
+<h1 class="western">Accounts</h1>
+<p><br/>
+<br/>
+
+</p>
+<p>Investment calculator needs to know what <a href="http://dbpedia.org/page/General_ledger">General_ledger</a>
+(GL) accounts it should consider when processing a request. For each
+account, it needs to know: 
+</p>
+<ul>
+	<li/>
+<p>ID</p>
+	<li/>
+<p>parent-child relationship with other GL accounts</p>
+</ul>
+<p>ID is an arbitrary string that’s unique within the GL hierarchy.</p>
+<p>In comparison to full XBRL support, we do not enable computing of
+arbitrary facts by arbitrary formulas. We have a hard-coded set of
+reports that display a hard-coded set of facts. 
+</p>
+<p>(wip, <a href="https://github.com/LodgeiT/labs-accounts-assessor/issues/174">#174</a>),
+</p>
+<p><br/>
+<br/>
+
+</p>
+<h1 class="western">opening balances</h1>
+<p><br/>
+<br/>
+
+</p>
+<p>general ledger method</p>
+<ul>
+	<li/>
+<p>not implemented:</p>
+</ul>
+<p><img src="../docs/files/picturemessage_pa5mqqi0.pwd.png" name="Image1" align="left" width="750" height="257">
+  <br clear="left"/>
+</img>
+<br/>
+<br/>
+
+</p>
+<ul>
+	<li/>
+<p>implemented: 
+	</p>
+</ul>
+<p>		`&lt;v1.n3#ic_ui:GL_input&gt;`</p>
+<p><br/>
+<br/>
+
+</p>
+<p><br/>
+<br/>
+
+</p>
+<p><br/>
+<br/>
+
+</p>
+<p><br/>
+<br/>
+
+</p>
+<p>higher level methods</p>
+<p><br/>
+<br/>
+
+</p>
+<p>	bank opening balance row in excel</p>
+<p><br/>
+<br/>
+
+</p>
+<p>		translation to GL can be in one of two ways:</p>
+<p><br/>
+<br/>
+
+</p>
+<p>			posted into HistoricalEarnings account at opening date</p>
+<p>				creates correct balance sheet, but creates inconsistency when
+analyzing individual bank accounts (cashflow), because bank account
+is debited at opening date</p>
+<p>				currently implemented by 'Historical_Earnings_Lump' action
+verb</p>
+<p>	</p>
+<p>			posted into CurrentEarnings account before opening date</p>
+<p><br/>
+<br/>
+
+</p>
+<p><br/>
+<br/>
+
+</p>
+<p><br/>
+<br/>
+
+</p>
+<h1 class="western" style="font-weight: normal"><font size="6" style="font-size: 28pt">C</font><font size="6" style="font-size: 28pt">urrency
+movement transactions</font></h1>
+<h4 class="western">introduction</h4>
+<p>By default, currency movement is accounted for in a declarative
+way. This is in contrast to the use of adjustment transactions. Our
+GL balances at any point in time. In-depth explanation of the
+principle is in <a href="https://www.mathstat.dal.ca/~selinger/accounting/tutorial.html#4">Tutorial
+on multiple currency accounting</a>. 
+</p>
+<h4 class="western">principle</h4>
+<p>In short: bank account is in some currency, for example USD.
+Report currency is for example AUD. If bank account is debited 100
+USD on &quot;date(2019,9,9)&quot;, a corresponding equity/p&amp;l
+account is credited, for example, 120 AUD, according to the
+conversion rate valid at the transaction date. The GL always balances
+because the drift in USD/AUD rate is accounted for on the
+CurrencyMovement account, for example
+CurrencyMovementHelvetische_BankUSD. The entry created on this
+account would be literally CR 120 USD, DR 100 AUD, but things are a
+little more complicated, and the actual entry looks like this: 
+</p>
+<pre class="western" style="margin-bottom: 0.2in">CR 100 USD, DR 100 without_currency_movement_against_since('USD','USD',['AUD'],date(2019,9,9))</pre><p>
+. This whole 
+</p>
+<pre class="western" style="margin-bottom: 0.2in">without_currency_movement_against_since('USD','USD',['AUD'],date(2019,9,9))</pre><p>
+is understood as &quot;USD, disregarding movement of USD against AUD
+since date(2019,9,9)&quot;. The program does the appropriate
+conversion to AUD when generating reports. Todo: review if the use of
+this abstract unit is necessary here, i think we can simplify. 
+</p>
+<p>todo: explain split into historical and current entry, for
+historical transactions. 
+</p>
+<p><br/>
+<br/>
+
 </p>
 </body>
 </html>

@@ -60,7 +60,7 @@ build_base_contexts(Start_Date, End_Date, Entity_Identifier, Instant_Context_Id_
 	].
 
 print_used_units(Elements) :-
-	request(R),
+	result(R),
 	findall(
 		Element,
 		(

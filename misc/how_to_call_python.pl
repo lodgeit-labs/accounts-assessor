@@ -1,7 +1,10 @@
 /*
 Demonstrating how to properly call Python scripts under the virtual environment and deal with their exit status.
-
 Run this from the prolog_server directory.
+
+note that this does not properly activate the virtualenv, namely, PATH is not changed
+note that I/O in swipl is tedious in general, we've already ran into bugs with shell/2, not sure about process_create,
+but it is advisable to stick to using rpc calls to internal_services instead.
 */
 
 :-

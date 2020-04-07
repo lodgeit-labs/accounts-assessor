@@ -1,5 +1,7 @@
 
 :- module(event_calculus, [
+		begin_income_year/1,
+		days_from_begin_accounting/2,
         depreciationAsset/12,
         depreciation_value/6,
         depreciation_rate/6,
@@ -48,38 +50,68 @@ holdsAt(F,T):- initiatedBefore(F,T1,T), \+ terminatedBetween(F,T1,T), time(T), t
 holdsAtAsset(Asset_id,in_pool(Asset_id,Pool),T):- holdsAt(in_pool(Asset_id,Pool),T).
 holdsAtAsset(Asset_id,not_in_pool(Asset_id),T):- holdsAt(not_in_pool(Asset_id),T).
 
-depreciationAsset(_,T2,T2,End_value,End_value,_,_,[],_,_,Final_depreciation_value,Final_depreciation_value).
 
-depreciationAsset(Asset_id,T1,T2,Begin_value,End_value,Method,Year_from_start,
-    [[Begin_value,H,T1,New_T1,End_value,Depreciation_value,Rate]|RestOfLife],While_in_pool,What_pool,Initial_depreciation_value,Final_depreciation_value):- 
+/* this should be called maybe depreciation_within_income_year */
+
+% if the start date is also the end date, final values = initial values
+depreciationAsset(
+	_Asset_id,
+	T2,
+	T2,
+	End_value,
+	End_value,
+	_Method,
+	_Year_from_start,
+	[], % Life
+	_While_in_pool,
+	_What_pool,
+	Final_depreciation_value,
+	Final_depreciation_value).
+
+/* this is for the case when the income year is split by an event, ie, removal from pool or adding to pool */
+depreciationAsset(
+	Asset_id,T1,T2,Begin_value,End_value,Method,Year_from_start,
+    [
+    	[Begin_value,H,T1,New_T1,End_value,Depreciation_value,Rate]
+    	|RestOfLife
+    ],
+    While_in_pool,What_pool,Initial_depreciation_value,Final_depreciation_value
+):-
     T1 < T2,
     (T2 - T1) < 367,
     asset(Asset_id,Asset_cost,Start_date,Effective_life_years),
     holdsAtAsset(Asset_id,H,T1),
-    (holdsAtAsset(Asset_id,in_pool(Asset_id,Pool),T1)->
-        depreciation_rate(Pool, Method, Year_from_start, Start_date, Effective_life_years, Rate); 
-        depreciation_rate(Asset_id, Method, Year_from_start, Start_date, Effective_life_years, Rate)),
+    (	(H = in_pool(Asset_id,Pool))
+    ->	depreciation_rate(Pool,     Method, Year_from_start, Start_date, Effective_life_years, Rate)
+    ;	depreciation_rate(Asset_id, Method, Year_from_start, Start_date, Effective_life_years, Rate)),
     terminatedAfter(H,T1,T),
     New_T1 is T + 1,
     Days_held is New_T1-T1,
     depreciation_value(Method, Asset_cost, Begin_value, Days_held, Rate, Depreciation_value),
     New_end_value is (Begin_value - Depreciation_value),
-    ((While_in_pool, H == in_pool(Asset_id,What_pool); not(While_in_pool))
-    -> New_initial_depreciation_value is (Initial_depreciation_value + Depreciation_value);
-        New_initial_depreciation_value is Initial_depreciation_value),
+    (	(While_in_pool, H == in_pool(Asset_id,What_pool); not(While_in_pool))
+    ->	New_initial_depreciation_value is (Initial_depreciation_value + Depreciation_value)
+    ;	New_initial_depreciation_value is Initial_depreciation_value),
+	/* recurse for next sub-period of income year */
     depreciationAsset(Asset_id,New_T1,T2,New_end_value,End_value,Method,Year_from_start,
         RestOfLife,While_in_pool,What_pool,New_initial_depreciation_value,Final_depreciation_value).
 
 %reduce end value even if not in specified pool, so that when in pool the begin value is correct
-depreciationAsset(Asset_id,T1,T2,Begin_value,End_value,Method,Year_from_start,
-    [[Begin_value,H,T1,T2,End_value,Depreciation_value,Rate]|RestOfLife],While_in_pool,What_pool,Initial_depreciation_value,Final_depreciation_value):- 
+depreciationAsset(
+	Asset_id,T1,T2,Begin_value,End_value,Method,Year_from_start,
+    [
+    	[Begin_value,H,T1,T2,End_value,Depreciation_value,Rate]
+    	|RestOfLife
+    ],
+    While_in_pool,What_pool,Initial_depreciation_value,Final_depreciation_value
+):-
     T1 < T2,
     (T2 - T1) < 367,
     asset(Asset_id,Asset_cost,Start_date,Effective_life_years),
     holdsAtAsset(Asset_id,H,T1),
-    (holdsAtAsset(Asset_id,in_pool(Asset_id,Pool),T1)->
-        depreciation_rate(Pool, Method, Year_from_start, Start_date, Effective_life_years, Rate); 
-        depreciation_rate(Asset_id, Method, Year_from_start, Start_date, Effective_life_years, Rate)),
+    (	(H = in_pool(Asset_id,Pool))
+    ->	depreciation_rate(Pool,     Method, Year_from_start, Start_date, Effective_life_years, Rate)
+    ;	depreciation_rate(Asset_id, Method, Year_from_start, Start_date, Effective_life_years, Rate)),
     not(terminatedBetween(H,T1,T2)),
     Days_held is T2-T1,
     depreciation_value(Method, Asset_cost, Begin_value, Days_held, Rate, Depreciation_value),
@@ -87,6 +119,7 @@ depreciationAsset(Asset_id,T1,T2,Begin_value,End_value,Method,Year_from_start,
     ((While_in_pool, H == in_pool(Asset_id,What_pool); not(While_in_pool))
     -> New_initial_depreciation_value is (Initial_depreciation_value + Depreciation_value);
         New_initial_depreciation_value is Initial_depreciation_value),
+    /* this is not a recursion, invoke the base case, just copy values */
     depreciationAsset(Asset_id,T2,T2,New_end_value,End_value,_,_,RestOfLife,While_in_pool,What_pool,New_initial_depreciation_value,Final_depreciation_value).
 
 /*
@@ -105,14 +138,20 @@ depreciation_value(Method, Asset_cost, Asset_base_value, Days_held, Depreciation
 % depreciation_rate(Asset/Pool, Method, Year_from_Start, Start_date, Effective_life_years, Rate).
 % If depreciation rate is not given, the generic calculation, for an individual Asset, is:
 %The income year is a full financial year beginning on 1 July and ending 30 June in Australia
+
 depreciation_rate(Asset, prime_cost,_,_,Effective_life_years, Rate) :-
 	not(pool(Asset)),
 	Rate is 1 / Effective_life_years.
-% If you started to hold the asset before 10 May 2006, the formula for the diminishing value method is:
-% Base value × (days held ÷ 365) × (150% ÷ asset’s effective life)
+
+
 depreciation_rate(Asset, diminishing_value,_,Start_date,Effective_life_years, Rate) :-
 	not(pool(Asset)),
-    (Start_date @< date(2016,5,10) -> Rate is 1.5 / Effective_life_years; Rate is 2 / Effective_life_years).
+    (	Start_date @< date(2006,5,10)
+    	% If you started to hold the asset before 10 May 2006, the formula for the diminishing value method is:
+		% Base value × (days held ÷ 365) × (150% ÷ asset’s effective life)
+     -> Rate is 1.5 / Effective_life_years
+     	% otherwise:
+     ;	Rate is 2 / Effective_life_years).
 % Depreciation for Assets in Pools
 % Depreciation rate for General Pool
 /*
@@ -170,8 +209,8 @@ terminates(transfer_asset_to_pool(Asset_id, Pool), not_in_pool(Asset_id),T):- ti
 initially(not_in_pool(_)).
 % Example usage
 % asset(Asset_id,Asset_cost,Start_date,Effective_life_years)
-asset(car123,1000,date(2017,5,1),5).
-asset(car456,2000,date(2015,3,16),8).
+/*asset(car123,1000,date(2017,5,1),5).
+asset(car456,2000,date(2015,3,16),8).*/
 
 days_from_begin_accounting(Date,Days):-
     begin_accounting_date(Begin_accounting_date), 
@@ -180,19 +219,19 @@ days_from_begin_accounting(Date,Days):-
 % Transfer car123 to general pool in date(2017,7,1)
 % days_from_begin_accounting(date(2017,7,1),Days).
 % Days = 10043
-happens(transfer_asset_to_pool(car123,general_pool),10043).
+%happens(transfer_asset_to_pool(car123,general_pool),10043).
 % Transfer car456 to general pool in date(2015,7,1)
 % days_from_begin_accounting(date(2015,7,1),Days).
 % Days = 9312
-happens(transfer_asset_to_pool(car456,general_pool),9312).
+%happens(transfer_asset_to_pool(car456,general_pool),9312).
 % Remove car123 from general pool in date(2021,6,1) by disposal
 % days_from_begin_accounting(date(2021,6,1),Days).
 % Days = 11474
-happens(asset_disposal(car123),11474).
+%happens(asset_disposal(car123),11474).
 % Remove car456 from general pool in date(2020,7,31) by disposal
 % days_from_begin_accounting(date(2020,7,31),Days).
 % Days = 11169
-happens(asset_disposal(car456),11169).
+%happens(asset_disposal(car456),11169).
 /*
 start:-
     Asset_id = car123,

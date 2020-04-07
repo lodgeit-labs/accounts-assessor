@@ -365,6 +365,9 @@
 }
     ]
   },
+  "cf": [
+    "http://dev-node.uksouth.cloudapp.azure.com/rdf/results/1583069083.90538.442/#bnx102_"
+  ],
   "crosschecks": {
     "results": [
       {
@@ -735,12 +738,14 @@
      {
   "account":"InvestmentIncomeRealizedWithoutCurrencyMovement",
   "balance": [],
-  "child_sheet_entries": [ {
+  "child_sheet_entries": [
+     {
   "account":"InvestmentIncomeRealizedWithoutCurrencyMovementBHP",
   "balance": [],
   "child_sheet_entries": [],
   "transactions_count":0
-} ],
+}
+  ],
   "transactions_count":0
 }
   ],
@@ -955,12 +960,14 @@
      {
   "account":"InvestmentIncomeRealizedWithoutCurrencyMovement",
   "balance": [],
-  "child_sheet_entries": [ {
+  "child_sheet_entries": [
+     {
   "account":"InvestmentIncomeRealizedWithoutCurrencyMovementBHP",
   "balance": [],
   "child_sheet_entries": [],
   "transactions_count":0
-} ],
+}
+  ],
   "transactions_count":0
 }
   ],
@@ -973,12 +980,14 @@
      {
   "account":"InvestmentIncomeUnrealizedOnlyCurrencyMovement",
   "balance": [],
-  "child_sheet_entries": [ {
+  "child_sheet_entries": [
+     {
   "account":"InvestmentIncomeUnrealizedOnlyCurrencyMovementBHP",
   "balance": [],
   "child_sheet_entries": [],
   "transactions_count":0
-} ],
+}
+  ],
   "transactions_count":0
 },
      {

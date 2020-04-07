@@ -35,12 +35,19 @@
      {
   "account":"CashAndCashEquivalents",
   "balance": [],
-  "child_sheet_entries": [ {
+  "child_sheet_entries": [
+     {
   "account":"Banks",
+  "balance": [],
+  "child_sheet_entries": [ {
+  "account":"BanksNationalAustraliaBank",
   "balance": [],
   "child_sheet_entries": [],
   "transactions_count":0
 } ],
+  "transactions_count":0
+}
+  ],
   "transactions_count":0
 }
   ],
@@ -195,12 +202,19 @@
      {
   "account":"CashAndCashEquivalents",
   "balance": [],
-  "child_sheet_entries": [ {
+  "child_sheet_entries": [
+     {
   "account":"Banks",
+  "balance": [],
+  "child_sheet_entries": [ {
+  "account":"BanksNationalAustraliaBank",
   "balance": [],
   "child_sheet_entries": [],
   "transactions_count":0
 } ],
+  "transactions_count":0
+}
+  ],
   "transactions_count":0
 }
   ],
@@ -321,6 +335,9 @@
 }
     ]
   },
+  "cf": [
+    "http://dev-node.uksouth.cloudapp.azure.com/rdf/results/1583069083.90538.428/#bnx45_"
+  ],
   "crosschecks": {
     "results": [
       {
@@ -545,7 +562,12 @@
      {
   "account":"CurrencyMovement",
   "balance": [],
+  "child_sheet_entries": [ {
+  "account":"CurrencyMovementNationalAustraliaBank",
+  "balance": [],
   "child_sheet_entries": [],
+  "transactions_count":0
+} ],
   "transactions_count":0
 },
      {
@@ -743,7 +765,12 @@
      {
   "account":"CurrencyMovement",
   "balance": [],
+  "child_sheet_entries": [ {
+  "account":"CurrencyMovementNationalAustraliaBank",
+  "balance": [],
   "child_sheet_entries": [],
+  "transactions_count":0
+} ],
   "transactions_count":0
 },
      {

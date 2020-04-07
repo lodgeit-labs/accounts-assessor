@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link type="text/css" rel="stylesheet" href="../../static/report_stylesheet.css">
+
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+
+</head>
+<body>
+
+<p>
+<span>ok</span>:<br>
+<span>account_balance(reports/pl/current,'InvestmentIncomeRealized'/withoutCurrencyMovement) = report_value(reports/ir/current/totals/gains/rea/market_converted)</span>:<br>
+<span>[value('AUD',165490.6638)] = [value('AUD',165490.6638)]</span></p>
+
+<p>
+<span>ok</span>:<br>
+<span>account_balance(reports/pl/current,'InvestmentIncomeRealized'/onlyCurrencyMovement) = report_value(reports/ir/current/totals/gains/rea/forex)</span>:<br>
+<span>[value('AUD',18615.8121)] = [value('AUD',18615.8121)]</span></p>
+
+<p>
+<span>ok</span>:<br>
+<span>account_balance(reports/pl/current,'InvestmentIncomeUnrealized'/withoutCurrencyMovement) = report_value(reports/ir/current/totals/gains/unr/market_converted)</span>:<br>
+<span>[] = [value('AUD',0)]</span></p>
+
+<p>
+<span>ok</span>:<br>
+<span>account_balance(reports/pl/current,'InvestmentIncomeUnrealized'/onlyCurrencyMovement) = report_value(reports/ir/current/totals/gains/unr/forex)</span>:<br>
+<span>[value('AUD',7274.8811)] = [value('AUD',7274.8811)]</span></p>
+
+<p>
+<span>ok</span>:<br>
+<span>account_balance(reports/pl/current,'Accounts'/'InvestmentIncome') = report_value(reports/ir/current/totals/gains/total)</span>:<br>
+<span>[value('AUD',191381.357)] = [value('AUD',191381.357)]</span></p>
+
+<p>
+<span>ok</span>:<br>
+<span>account_balance(reports/pl/current,'InvestmentIncome'/unrealized) = report_value(reports/ir/current/totals/gains/unrealized_total)</span>:<br>
+<span>[value('AUD',7274.8811)] = [value('AUD',7274.8811)]</span></p>
+
+<p>
+<span>ok</span>:<br>
+<span>account_balance(reports/pl/current,'InvestmentIncome'/realized) = report_value(reports/ir/current/totals/gains/realized_total)</span>:<br>
+<span>[value('AUD',184106.476)] = [value('AUD',184106.476)]</span></p>
+
+<p>
+<span>ok</span>:<br>
+<span>account_balance(reports/bs/current,'Accounts'/'FinancialInvestments') = report_value(reports/ir/current/totals/closing/total_cost_converted)</span>:<br>
+<span>[value('AUD',158278.3938)] = [value('AUD',158278.3938)]</span></p>
+
+<p>
+<span>ok</span>:<br>
+<span>account_balance(reports/bs/current,'Accounts'/'HistoricalEarnings') = account_balance(reports/pl/historical,'Accounts'/'NetIncomeLoss')</span>:<br>
+<span>[value('AUD',63844.5818)] = [value('AUD',63844.5818)]</span></p>
+
+<p>
+<span>ok</span>:<br>
+<span>account_balance(reports/bs/current,'Accounts'/'NetAssets') = account_balance(reports/bs/current,'Accounts'/'Equity')</span>:<br>
+<span>[value('AUD',296782.6345)] = [value('AUD',296782.6345)]</span></p>
+</body>
+</html>

@@ -209,7 +209,8 @@
      {
   "account":"CashAndCashEquivalents",
   "balance": [],
-  "child_sheet_entries": [ {
+  "child_sheet_entries": [
+     {
   "account":"Banks",
   "balance": [],
   "child_sheet_entries": [ {
@@ -219,7 +220,8 @@
   "transactions_count":0
 } ],
   "transactions_count":0
-} ],
+}
+  ],
   "transactions_count":0
 }
   ],
@@ -347,6 +349,9 @@
 }
     ]
   },
+  "cf": [
+    "http://dev-node.uksouth.cloudapp.azure.com/rdf/results/1583069083.90538.420/#bnx79_"
+  ],
   "crosschecks": {
     "results": [
       {
@@ -598,12 +603,14 @@
      {
   "account":"InvestmentIncomeRealizedOnlyCurrencyMovement",
   "balance": [],
-  "child_sheet_entries": [ {
+  "child_sheet_entries": [
+     {
   "account":"InvestmentIncomeRealizedOnlyCurrencyMovementSheep",
   "balance": [],
   "child_sheet_entries": [],
   "transactions_count":0
-} ],
+}
+  ],
   "transactions_count":0
 },
      {
@@ -629,12 +636,14 @@
      {
   "account":"InvestmentIncomeUnrealizedOnlyCurrencyMovement",
   "balance": [],
-  "child_sheet_entries": [ {
+  "child_sheet_entries": [
+     {
   "account":"InvestmentIncomeUnrealizedOnlyCurrencyMovementSheep",
   "balance": [],
   "child_sheet_entries": [],
   "transactions_count":0
-} ],
+}
+  ],
   "transactions_count":0
 },
      {
@@ -825,12 +834,14 @@
      {
   "account":"InvestmentIncomeRealizedOnlyCurrencyMovement",
   "balance": [],
-  "child_sheet_entries": [ {
+  "child_sheet_entries": [
+     {
   "account":"InvestmentIncomeRealizedOnlyCurrencyMovementSheep",
   "balance": [],
   "child_sheet_entries": [],
   "transactions_count":0
-} ],
+}
+  ],
   "transactions_count":0
 },
      {
@@ -856,12 +867,14 @@
      {
   "account":"InvestmentIncomeUnrealizedOnlyCurrencyMovement",
   "balance": [],
-  "child_sheet_entries": [ {
+  "child_sheet_entries": [
+     {
   "account":"InvestmentIncomeUnrealizedOnlyCurrencyMovementSheep",
   "balance": [],
   "child_sheet_entries": [],
   "transactions_count":0
-} ],
+}
+  ],
   "transactions_count":0
 },
      {

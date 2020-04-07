@@ -1,1 +1,3 @@
-["unknown_error: failure" ]
+[
+  "unknown_error: _452878{error:_452894{code: -32603,message:\"Internal error: 'Logger' object has no attribute 'messageCodeFilter'\"},id:\"curltext\",jsonrpc:\"2.0\"}"
+]

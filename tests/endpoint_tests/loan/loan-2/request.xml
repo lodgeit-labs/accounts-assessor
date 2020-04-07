@@ -30,23 +30,144 @@
 		<period>1 July, 2016 to 30 June, 2023</period>
 		<startDate>2016-07-01</startDate>
 		<endDate>2023-06-30</endDate>
-		<!-- There must be exactly one loanAgreement in element in a loandetails element. -->
 		<loanAgreement>
-			<!-- There must be exactly one of each of the following fields in a loanAgreement. -->
 			<field name="Income year of loan creation" value="2016" />
 			<field name="Full term of loan in years" value="4" />
-			<field name="Principal amount of loan" value="75000" />
-			<field name="Lodgment day of private company" value="2017-05-15" />
+			<field name="Principal amount of loan" value="10000" />
+			<!-- this shouldn't be required, it's irrelevant in this case -->
+			
+			<field name="Lodgment day of private company" value="2017-06-30" />
 			<field name="Income year of computation" value="2018" />
-			<!-- There can be at most one of the following field in a loanAgreement. -->
-			<field name="Opening balance of computation" value="10000" />
+
 		</loanAgreement>
-		<!-- There must be exactly one repayments element in a loandetails element. -->
 		<repayments>
-			<!-- Zero or more repayment elements are fine here. Each repayment must have a date
-				in the form YYYY-MM-DD and have a numerical quantity representing the repayment
-				for the value. -->
+			<repayment date="2016-07-01" value="3000" />
 			<repayment date="2017-07-01" value="3000" />
 		</repayments>
+		
+		<!--
+		
+		confirming this one with ATO has to be done in two steps, one for each income year.
+		
+		first, 2016-2017, with just the first repayment:
+		
+		The amount of the loan not repaid at the end of income year 2016-17 is $7,378.00.
+
+
+The amalgamated loan will not be taken to be a dividend because the total repayments made are equal to or greater than the minimum yearly repayment required for income year 2016-17.
+
+Interest received by the private company must be included in the income tax return for 2016-17.
+
+Minimum yearly repayment
+
+$1,992.00
+
+Benchmark interest rate
+
+5.4%
+
+Opening balance:
+
+Date: 30/06/2016
+
+Balance: $10,000.00
+
+Days: 0
+
+Interest: $0
+
+Payments
+
+Date: 01/07/2016
+
+Amount: $3,000.00
+
+Balance: $7,000.00
+
+Days: 365
+
+Interest: $378.00
+
+Total repayments
+
+$3,000.00
+
+Total interest
+
+$378.00
+
+Total principal
+
+$2,622.00
+
+Closing balance
+
+Date: 30/06/2017
+
+Balance: $7,378.00
+		
+		
+		then, for income year 2017-2018, with " Amount of the amalgamated loan not repaid by the end of the 2016-17 income year" set to those $7,378.00:
+		
+		Minimum yearly repayment met.
+
+The amount of the loan not repaid at the end of income year 2017-18 is $4,610.03.
+
+
+The amalgamated loan will not be taken to be a dividend because the total repayments made are equal to or greater than the minimum yearly repayment required for income year 2017-18.
+
+Interest received by the private company must be included in the income tax return for 2017-18.
+
+Minimum yearly repayment
+
+$2,725.00
+
+Benchmark interest rate
+
+5.3%
+
+Opening balance:
+
+Date: 30/06/2017
+
+Balance: $7,378.00
+
+Days: 0
+
+Interest: $0
+
+Payments
+
+Date: 01/07/2017
+
+Amount: $3,000.00
+
+Balance: $4,378.00
+
+Days: 365
+
+Interest: $232.03
+
+Total repayments
+
+$3,000.00
+
+Total interest
+
+$232.03
+
+Total principal
+
+$2,767.97
+
+Closing balance
+
+Date: 30/06/2018
+
+Balance: $4,610.03
+		
+		
+		-->
+		
 	</loanDetails>
 </reports>

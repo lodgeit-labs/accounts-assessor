@@ -14,7 +14,7 @@ def load(fn):
 		return p
 		#return xml_to_js(p)
 	else:
-		return json.load(open(fn,'r'))
+		return json.load(open(fn,'br'))
 
 def has_elements(x):
 	for y in x:

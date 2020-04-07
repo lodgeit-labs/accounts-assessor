@@ -1,26 +1,10 @@
-
-%:- rdet(generate_gl_data/5).
-%:- rdet(make_gl_entry/4).
-%:- rdet(transaction_with_converted_vector/4).
-
-find_s_transactions_in_period(S_Transactions, Opening_Date, Closing_Date, Out) :-
-	findall(
-		S_Transaction,
-		(
-			member(S_Transaction, S_Transactions),
-			s_transaction_day(S_Transaction, Date),
-			date_between(Opening_Date, Closing_Date, Date)
-		),
-		Out
-	).
-
 process_ledger(
 	Cost_Or_Market,
 	Initial_Txs,
 	S_Transactions0,
 	Start_Date,
 	End_Date, 
-	Exchange_Rates0, 
+	Exchange_Rates,
 	Report_Currency,
 	Accounts_In,
 	Accounts, 
@@ -32,23 +16,21 @@ process_ledger(
 ) :-
 
 	s_transactions_up_to(End_Date, S_Transactions0, S_Transactions),
-	add_comment_stringize('Exchange rates extracted', Exchange_Rates0),
+	add_comment_stringize('Exchange rates extracted', Exchange_Rates),
 	add_comment_stringize('Accounts extracted',Accounts_In),
 
-	(	Cost_Or_Market = cost
-	->	filter_out_market_values(S_Transactions, Exchange_Rates0, Exchange_Rates)
-	;	Exchange_Rates0 = Exchange_Rates),
-	
+
 	generate_system_accounts(S_Transactions, Accounts_In, Generated_Accounts),
-	add_comment_stringize('Accounts generated', Generated_Accounts),
 	flatten([Accounts_In, Generated_Accounts], Accounts),
 	maplist(check_account_parent(Accounts), Accounts),
 	write_accounts_json_report(Accounts),
-	doc(T, rdf:type, l:request),
+	result(T),
 	doc_add(T, l:accounts, Accounts),
+
 
 	dict_from_vars(Static_Data0, [Accounts, Report_Currency, Start_Date, End_Date, Exchange_Rates, Cost_Or_Market]),
 	prepreprocess(Static_Data0, S_Transactions, Prepreprocessed_S_Transactions),
+
 	preprocess_until_error(Static_Data0, Prepreprocessed_S_Transactions, Processed_S_Transactions, Transactions_From_Bst, Outstanding_Out, End_Date, Processed_Until),
 
 	/* since it's not possibly to determine order of transactions that transpiled on one day, when we fail to process a transaction, we go back all the way to the end of the previous day, and try to run a report up to that day
@@ -67,12 +49,12 @@ process_ledger(
 	this is probably the right place to plug in hirepurchase and depreciation,
 	take Transactions_With_Livestock and produce an updated list.
 	notes:
-	transaction term now carries date() instead of absolute days count.
+	transaction term now carries date() instead of absolute days count. (probably to be reverted)
 	transactions are produced with transactions:make_transaction.
 	account id is obtained like this: account_by_role(Accounts, ('Accounts'/'Assets'), Assets_AID).
 	to be explained:
 		how to get balance on account
-		how to generate and return json+html reports
+		how to generate json+html reports
 	*/
 
 	maplist(check_transaction_account(Accounts), Transactions_With_Livestock),
@@ -102,10 +84,6 @@ process_ledger(
 	).
 
 
-preprocess_until_error(Static_Data0, Prepreprocessed_S_Transactions, Preprocessed_S_Transactions, Transactions0, Outstanding_Out, Report_End_Date, Processed_Until) :-
-	preprocess_s_transactions(Static_Data0, Prepreprocessed_S_Transactions, Preprocessed_S_Transactions, Transactions0, Outstanding_Out),
-	Processed_Until = Report_End_Date.
-
 gather_ledger_warnings(S_Transactions, Start_Date, End_Date, Warnings) :-
 	(
 		find_s_transactions_in_period(S_Transactions, Start_Date, End_Date, [])
@@ -120,7 +98,18 @@ gather_ledger_errors(Debug) :-
 	->	add_alert('ERROR', Last)
 	;	true).
 
+
+
+filter_out_market_values(_S_Transactions, _Exchange_Rates0, []).
+
+
+/*
 filter_out_market_values(S_Transactions, Exchange_Rates0, Exchange_Rates) :-
+
+	fixme, this should also take into account initial_GL and whichever other transaction input channenl,
+	and since we haven't seen any use of users specifying currency exchange rates with the Unit_Values sheet,
+	i think it's safe-ish to just ignore all input exchange rates for now
+
 	traded_units(S_Transactions, Units),
 	findall(
 		R,
@@ -131,8 +120,18 @@ filter_out_market_values(S_Transactions, Exchange_Rates0, Exchange_Rates) :-
 			\+member(Dst, Units)
 		),
 		Exchange_Rates
-	).
+	).*/
 			
 	
 	
-	
+
+find_s_transactions_in_period(S_Transactions, Opening_Date, Closing_Date, Out) :-
+	findall(
+		S_Transaction,
+		(
+			member(S_Transaction, S_Transactions),
+			s_transaction_day(S_Transaction, Date),
+			date_between(Opening_Date, Closing_Date, Date)
+		),
+		Out
+	).

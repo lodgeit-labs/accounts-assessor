@@ -60,12 +60,14 @@
      {
   "account":"FinancialInvestments",
   "balance": [ {"credit":0, "debit":285.7143, "unit":"AUD"} ],
-  "child_sheet_entries": [ {
+  "child_sheet_entries": [
+     {
   "account":"FinancialInvestmentsSG_Issuer_SA",
   "balance": [ {"credit":0, "debit":285.7143, "unit":"AUD"} ],
   "child_sheet_entries": [],
   "transactions_count":2
-} ],
+}
+  ],
   "transactions_count":2
 }
   ],
@@ -347,6 +349,9 @@
 }
     ]
   },
+  "cf": [
+    "http://dev-node.uksouth.cloudapp.azure.com/rdf/results/1583069083.90538.384/#bnx82_"
+  ],
   "crosschecks": {
     "results": [
       {

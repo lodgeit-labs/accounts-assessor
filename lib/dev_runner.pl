@@ -14,7 +14,7 @@ shell2(Cmd) :-
 shell2(Cmd_In, Exit_Status) :-
 	flatten([Cmd_In], Cmd_Flat),
 	atomic_list_concat(Cmd_Flat, Cmd),
-	%format(user_error, '~w\n\n', [Cmd]),
+	format(user_error, '~w\n\n', [Cmd]),
 	shell(Cmd, Exit_Status).
 
 maybe_halt_on_err :- 
@@ -83,7 +83,7 @@ x :-
 	atomic_list_concat(['swipl ', Optimization, ' -s ', Script], Load_Cmd),
 	maybe_clean_terminal,
 	/* make forces compilation of dcg's or something */
-	shell2([Load_Cmd, ' -g "make,halt."  2>&1  |  tee ', Err_File, ' | head -n 150']),
+	shell2([Load_Cmd, ' -g "make,halt."  2>&1  |  tee ', Err_File, ' | head -n 150 1>&2']),
 	maybe_halt_on_err,
 	memberchk(goal(Goal), Opts),
 	(	nonvar(Goal)
@@ -92,7 +92,7 @@ x :-
 			(	nonvar(Viewer)
 			->	Redirection = [' 2>&1  1> arrr.xml | tee ', Err_File]
 			;	Redirection = ''),
-			shell2([Load_Cmd, ' -g "', Goal, ', halt." ', Redirection]),
+			shell2([Load_Cmd, ' -g "', Goal, '." ', Redirection]),
 			(	nonvar(Viewer)
 			->	(maybe_halt_on_err, shell2([Viewer, ' arrr.xml']))
 			;	true),

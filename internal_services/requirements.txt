@@ -1,9 +1,0 @@
-wheel
-untangle
-sympy
-xmlschema==1.0.14
-django
-deepdiff
-defusedxml
-ipython
-django-modern-rpc

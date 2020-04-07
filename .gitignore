@@ -359,4 +359,9 @@ server_root/tmp/*
 server_root/arrr.xml
 server_root/err
 server_root/x
+server_root/doc_trace_0
+
 run
+
+.~lock.*
+SM-test.log

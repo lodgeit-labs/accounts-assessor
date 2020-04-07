@@ -50,7 +50,7 @@ crosschecks_report(Sd, Json) :-
 			report_value(reports/ir/current/totals/closing/total_cost_converted)),
 		equality(
 			account_balance(reports/bs/current, 'Accounts'/'HistoricalEarnings'),
-			account_balance(reports/pl/historical, 'Accounts'/'NetIncomeLoss')),
+			account_balance(reports/pl/historical, 'Accounts'/'ComprehensiveIncome')),
 		equality(
 			account_balance(reports/bs/current, 'Accounts'/'NetAssets'),
 			account_balance(reports/bs/current, 'Accounts'/'Equity'))

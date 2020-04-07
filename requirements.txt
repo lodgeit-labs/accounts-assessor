@@ -1,0 +1,17 @@
+wheel
+ipython
+click
+untangle
+sympy
+xmlschema==1.0.14
+deepdiff
+defusedxml
+django
+django-modern-rpc
+celery
+git+https://github.com/Arelle/Arelle
+#-e https://github.com/Arelle/Arelle
+xmldiff
+agraph-python
+rdflib
+pyyed

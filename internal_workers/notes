@@ -1,0 +1,27 @@
+koom@koom-KVM ~> cat xx.py 
+#!/usr/bin/env python2
+import sys
+print(sys.argv)
+
+===
+
+In [3]: subprocess.call(['/home/koom/xx.py'])                                                                                  
+['/home/koom/xx.py']
+Out[3]: 0
+
+In [5]: subprocess.call(['swipl', '-g', 'current_prolog_flag(argv, Argv),writeq(Argv),nl'])                                    
+[]
+?- ^D
+% halt
+Out[5]: 0
+
+In [6]: subprocess.call(['swipl', '-g', 'current_prolog_flag(os_argv, Argv),writeq(Argv),nl'])                                 
+[swipl,'-g','current_prolog_flag(os_argv, Argv),writeq(Argv),nl']
+?- ^D
+% halt
+Out[6]: 0
+
+In [7]: import sys                                                                                                             
+
+In [8]: sys.argv                                                                                                               
+Out[8]: ['/usr/bin/ipython3']

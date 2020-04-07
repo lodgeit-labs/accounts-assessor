@@ -1,51 +1,58 @@
-
-
-
-
-
-
-
 # Accounts Assessor
 
 This repository hosts a program that derives, validates, and corrects the financial information that it is given. The program uses redundancy to carry out its validations and corrections. By this it is meant that knowledge of parts of a company's financial data imposes certain constraints on the company's other financial data. If the program is given a company's ledger, then it knows what the balance sheet should look like. If the program is given a company's balance sheet, then it has a rough idea of what the ledger should look like.
 
+## documentation
+most endpoints should have some documentation in doc/. Introductions to individual concepts can be found in videos on dropbox.
+
+videos:
+https://www.dropbox.com/sh/prgubjzoo9zpkhp/AACd6YmoWxf9IUi5CriihKlLa?dl=0
+https://www.dropbox.com/sh/o5ck3qm79zwgpc5/AABD9jUcWiNpWMb2fxsmeVfia?dl=0
+
+wiki:
+https://github.com/LodgeiT/labs-accounts-assessor/wiki/
+
+doc/:
+https://github.com/LodgeiT/labs-accounts-assessor/tree/master/doc
+
+
 ## Getting Started
 Fetch submodules:
 * `git submodule update --init`
+(currently there are no submodules)
 
 Install SWIPL 8.1.14
-* http://www.swi-prolog.org/Download.html
+* see https://github.com/LodgeiT/labs-accounts-assessor/wiki/SWIPL-and-prolog-notes
 
-Install SWIPL dependencies:
-* ```lib/init.sh```
+Install dependencies:
+* install RabbitMQ as specified here: http://docs.celeryproject.org/en/latest/getting-started/first-steps-with-celery.html#celerytut-broker
+* install python3 and python3-pip
+* ```./init.sh```
 
-How to run it:
-* run the internal services server:
-** `cd python_server; ./run.sh`
-* run the frontend server:
-** `cd frontend_servery; ./run.sh  0.0.0.0:8080`
+set up virtualenv for servicemanager:
+* ```cd servicemanager; ./init_local_venv.sh```
+
+Run all services:
+```./servicemanager/run_in_local_venv.sh -a -g demo7788```
+
+optional, run the triplestore (this is a command line from demo server):
+`/home/sfi/ag/bin/agraph-control --config /home/sfi/ag/lib/agraph.cfg start`
+
+Open a web browser at: http://localhost:7788/
+* upload a request file from tests/endpoint_tests/
+* you should get back a json with links to individual report files
 
 Run the tests:
 `cd server_root; reset;echo -e "\e[3J";   swipl -s ../lib/dev_runner.pl   --problem_lines_whitelist=../misc/problem_lines_whitelist  --script ../lib/endpoint_tests.pl  -g "set_flag(overwrite_response_files, false), set_flag(add_missing_response_files, false), set_prolog_flag(grouped_assertions,true), run_tests"`
 
 Run one testcase:
-`reset;echo -e "\e[3J";   swipl -s ../lib/dev_runner.pl   --problem_lines_whitelist=../misc/problem_lines_whitelist  --script ../lib/endpoint_tests.pl  -g "/*debug(endpoint_tests),*/ set_flag(overwrite_response_files, false), set_flag(add_missing_response_files, true), set_prolog_flag(grouped_assertions,false), set_prolog_flag(testcase,(ledger,'endpoint_tests/ledger/ledger--with-schemaref')), run_tests(endpoints:testcase)"`
+`cd server_root; reset;echo -e "\e[3J";   swipl -s ../lib/dev_runner.pl   --problem_lines_whitelist=../misc/problem_lines_whitelist  --script ../lib/endpoint_tests.pl  -g "set_flag(overwrite_response_files, false), set_flag(add_missing_response_files, false), set_prolog_flag(grouped_assertions,false), set_prolog_flag(testcase,(ledger,'endpoint_tests/ledger/ledger-2')), run_tests(endpoints:testcase)"`
 
-Run a single xml request:
-`../lib/cli_process_request_xml.py  --problem_lines_whitelist problem_lines_whitelist -c true ../lib/debug1.pl tests/endpoint_tests/ledger/ledger-livestock-0/request.xml`
+Run a single request from command line:
+1) `cd server_root`
+2) `. ../venv/bin/activate`
+3) `env CELERY_QUEUE_NAME=q7788 ../internal_workers/invoke_rpc_cmdline.py --debug true --halt true --prolog_flags "set_prolog_flag(services_server,'http://localhost:17788')" endpoint_tests/ledger/Copy_Of_BankDemo2`
 
-Run a single testcase:
-`swipl -s ../lib/endpoint_tests.pl -g "set_prolog_flag(grouped_assertions,true),setup,run_endpoint_test(ledger, 'endpoint_tests/ledger/ledger-livestock-5')."`
-
-Run the server:
-`swipl -s ../lib/run_simple_server.pl`
-
-Run the daemon:
-`../lib/update_demo-fast.sh`
-
-Open a web browser at: http://localhost:8080/
-* upload a request.xml file from tests/endpoint_tests/
-* you should get back a json with links to individual report files
 
 ## Directory Structure
 
@@ -81,8 +88,7 @@ json-based endpoints:
 
 
 
-## endpoints
-most endpoints should have some documentation in doc/. Introductions to individual concepts can be found on dropbox.
+## endpoints (needs updating)
 
 ##xml endpoints
 a request POST-ed to the /upload url is first handled in prolog_server, where the payload xml request file is saved into tmp/. A filename is handed to process_data, which loads it and let's each endpoint try to handle it. The endpoint that is successful will eventually write it's output directly to stdout, which is redirected by the http server.

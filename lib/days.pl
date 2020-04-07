@@ -95,7 +95,9 @@ month_day(Year, Year_Day, Month, Month_Day) :-
 % Internal representation for dates is absolute day count since 1st January 0001
 % -------------------------------------------------------------------
 
-absolute_day(date(Year, Month, Day), Abs_Day) :-
+absolute_day(Date, Abs_Day) :-
+	((
+	Date = date(Year, Month, Day),
 	Month_A is (Year - 1) * 12 + (Month - 1),
 	Num_400Y is Month_A div (400 * 12),
 	Num_100Y is Month_A div (100 * 12),
@@ -103,7 +105,8 @@ absolute_day(date(Year, Month, Day), Abs_Day) :-
 	Num_1Y is Month_A div (1 * 12),
 	Years_Day is (Num_1Y * 365) + (Num_4Y * 1) - (Num_100Y * 1) + (Num_400Y * 1),
 	Month_B is 1 + (Month_A mod 12),
-	year_day(date(Num_1Y + 1, Month_B, Day), Year_Day),
+	year_day(date(Num_1Y + 1, Month_B, Day), Year_Day)
+	)->true;throw_string('internal error')),
 	Abs_Day is Years_Day + Year_Day.
 
 gregorian_date(Abs_Day, date(Year, Month, Day)) :-

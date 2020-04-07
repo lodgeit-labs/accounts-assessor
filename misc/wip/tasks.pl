@@ -49,7 +49,7 @@ index 8a52d1d..3ef161f 100644
  		reports: Reports2
  	}.
  
--/* todo this should be done in output_results */
+-% todo this should be done in output_results
 -make_gl_viewer_report(Info) :-
 -	%gtrace,
 +make_gl_viewer_report(result{clickable: Info}) :-

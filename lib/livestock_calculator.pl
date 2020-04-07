@@ -28,6 +28,7 @@ compute_livestock_by_simple_calculation(
 		Natural_Increase_value = Natural_increase_count * Natural_increase_value_per_head,
 		Opening_and_purchases_and_increase_count = Stock_on_hand_at_beginning_of_year_count + Purchases_count + Natural_increase_count,
 		Opening_and_purchases_value = Stock_on_hand_at_beginning_of_year_value + Purchases_value,
+		/* fixme, Opening_and_purchases_and_increase_count should be allowed to be 0 */
 		Average_cost_Formula = (Opening_and_purchases_value + Natural_Increase_value) /  Opening_and_purchases_and_increase_count,
 		Stock_on_hand_at_end_of_year_value = Average_cost * Stock_on_hand_at_end_of_year_count,
 		Killed_for_rations_value = Killed_for_rations_count * Average_cost,
@@ -93,3 +94,7 @@ compute_livestock_by_simple_calculation(
 		(['Average_cost = ', Average_cost_Formula_String2])
 	].
 
+/*
+see also
+https://help.lodgeit.net.au/support/solutions/articles/60000615425-instructions-for-using-livestock-calculator
+*/

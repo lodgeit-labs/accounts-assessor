@@ -40,11 +40,9 @@
 			<CapitalIntroduced/>
 			<Drawings/>
 		</Equity>
-		<NetIncomeLoss>
+		<ComprehensiveIncome>
 			<Revenue>
-				<ClearingAccount/>
 				<Income/>
-				<InvestmentIncome/>
 				<OtherIncome>
 					<InterestIncome/>
 					<InterestEarned/>
@@ -53,7 +51,6 @@
 				</OtherIncome>
 				<SalesOfLivestock/>
 				<RationsRevenue/>
-				<OtherGain/>
 				<CurrencyMovement/>
 			</Revenue>
 			<Expenses>
@@ -66,6 +63,16 @@
 				<CostOfGoodsLivestock/>
 				<OtherExpenses/>
 			</Expenses>
-		</NetIncomeLoss>
+
+			<Gains>
+				<InvestmentIncome/>
+				<OtherGain/>
+				<ClearingAccount/>
+			</Gains>
+			<Losses>
+			
+			</Losses>
+
+		</ComprehensiveIncome>
 	</Accounts>
 </accountHierarchy>

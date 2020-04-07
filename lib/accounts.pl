@@ -28,6 +28,7 @@ account_detail_level(Accounts, Id, Detail_Level) :-
 	account_detail_level(Account, Detail_Level).
 	
 % Relates an account to an ancestral account or itself
+%:- table account_in_set/3.
 account_in_set(Accounts, Account_Id, Root_Account_Id) :-
     	Account_Id = Root_Account_Id
 	;
@@ -74,14 +75,14 @@ account_by_role(Accounts, Role, Account_Id) :-
 		(
 			pretty_term_string(Accounts, Accounts_Str),
 			term_string(Role, Role_Str),
-			format(atom(Err), 'accounts : ~w \naccount not found in hierarchy: ~w\n', [Accounts_Str,  Role_Str]),
+			format(atom(Err), 'account not found in hierarchy: ~w\n known accounts : ~w \n', [Role_Str, Accounts_Str]),
 			format(user_error, Err, []),
 			throw_string(Err)
 		)
 	).
 
 account_by_role(Role, Account_Id) :-
-	doc(T, rdf:type, l:request),
+	result(T),
 	doc(T, l:accounts, Accounts),
 	account_by_role(Accounts, Role, Account_Id).
 
@@ -99,19 +100,26 @@ account_role_by_id(Accounts, Id, Role) :-
 	account_role(Account, Role).
 
 
-/* @Bob fixme, we should be getting this info from the taxonomy */
-account_normal_side(Account_Hierarchy, Name, credit) :-
-	member(Credit_Side_Account_Id, ['Liabilities', 'Equity', 'Revenue']),
-	once(account_in_set(Account_Hierarchy, Name, Credit_Side_Account_Id)),
-	!.
+/* @Bob fixme, we should be getting this info from the taxonomy (?) */
+:- table account_normal_side/3.
+
 account_normal_side(Account_Hierarchy, Name, debit) :-
-	member(Credit_Side_Account_Id, ['Expenses']),
+	member(Credit_Side_Account_Id, [
+		$>account_by_role('Accounts'/'Losses'),
+		$>account_by_role('Accounts'/'Expenses')
+	]),
 	once(account_in_set(Account_Hierarchy, Name, Credit_Side_Account_Id)),
 	!.
+
 account_normal_side(Account_Hierarchy, Name, credit) :-
-	member(Credit_Side_Account_Id, ['Earnings', 'NetIncomeLoss']),
+	member(Credit_Side_Account_Id, [
+		$>account_by_role('Accounts'/'ComprehensiveIncome'),
+		$>account_by_role('Accounts'/'Liabilities'),
+		$>account_by_role('Accounts'/'Equity')
+	]),
 	once(account_in_set(Account_Hierarchy, Name, Credit_Side_Account_Id)),
 	!.
+
 account_normal_side(_, _, debit).
 
 
@@ -173,4 +181,6 @@ account_to_dict(Account, Dict) :-
 	Account = account(Id, Parent, Role, Detail_Level).
 
 	
-	
+
+account_children(Sd, Account, Children) :-
+	findall(Ch, account_child_parent(Sd.accounts, Ch, Account), Children).

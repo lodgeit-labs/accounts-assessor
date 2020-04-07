@@ -2,7 +2,7 @@
 process_request_loan(Request_File, DOM) :-
    xpath(DOM, //reports/loanDetails/loanAgreement/field(@name='Income year of loan creation', @value=CreationIncomeYear), _E1),
    xpath(DOM, //reports/loanDetails/loanAgreement/field(@name='Full term of loan in years', @value=Term), _E2),
-   xpath(DOM, //reports/loanDetails/loanAgreement/field(@name='Principal amount of loan', @value=PrincipalAmount), _E3),
+   (xpath(DOM, //reports/loanDetails/loanAgreement/field(@name='Principal amount of loan', @value=PrincipalAmount), _E3)->true;true),
    xpath(DOM, //reports/loanDetails/loanAgreement/field(@name='Lodgment day of private company', @value=LodgementDate), _E4),
    xpath(DOM, //reports/loanDetails/loanAgreement/field(@name='Income year of computation', @value=ComputationYear), _E5),   
    (
@@ -22,10 +22,27 @@ process_request_loan(Request_File, DOM) :-
 			% need to handle empty repayments/repayment, needs to be tested
 			findall(loan_repayment(Date, Value), xpath(DOM, //reports/loanDetails/repayments/repayment(@date=Date, @value=Value), _E7), LoanRepayments),
 			atom_number(ComputationYear, NIncomeYear),
-			convert_xpath_results(CreationIncomeYear,  Term,  PrincipalAmount,  LodgementDate,  ComputationYear,  OpeningBalance,  LoanRepayments,
-						 NCreationIncomeYear, NTerm, NPrincipalAmount, NLodgementDate, NComputationYear, NOpeningBalance, NLoanRepayments),   
-			loan_agr_summary(loan_agreement(0, NPrincipalAmount, NLodgementDate, NCreationIncomeYear, NTerm, 
-						   NComputationYear, NOpeningBalance, NLoanRepayments), Summary),
+			convert_xpath_results(
+				CreationIncomeYear,  Term,  PrincipalAmount,  LodgementDate,  ComputationYear,  OpeningBalance,  LoanRepayments,
+				NCreationIncomeYear, NTerm, NPrincipalAmount, NLodgementDate, NComputationYear, NOpeningBalance, NLoanRepayments),
+			loan_agr_summary(loan_agreement(
+				% loan_agr_contract_number:
+				0,
+				% loan_agr_principal_amount:
+				NPrincipalAmount,
+				% loan_agr_lodgement_day:
+				NLodgementDate,
+				% loan_agr_begin_day:
+				NCreationIncomeYear,
+				% loan_agr_term (length in years):
+				NTerm,
+				% loan_agr_computation_year
+				NComputationYear,
+				NOpeningBalance,
+				% loan_agr_repayments (list):
+				NLoanRepayments),
+				% output:
+				Summary),
 			display_xml_loan_response(NIncomeYear, Summary)
 		)
 	;
@@ -89,7 +106,9 @@ convert_xpath_results(CreationIncomeYear,  Term,  PrincipalAmount,  LodgementDat
    generate_absolute_days(CreationIncomeYear, LodgementDate, LoanRepayments, NCreationIncomeYear, NLodgementDate, NLoanRepayments),
    compute_opening_balance(OpeningBalance, NOpeningBalance),
    calculate_computation_year(ComputationYear, CreationIncomeYear, NComputationYear),
-   atom_number(PrincipalAmount, NPrincipalAmount),
+   (	nonvar(PrincipalAmount)
+   ->	atom_number(PrincipalAmount, NPrincipalAmount)
+   ;	NPrincipalAmount = -1),
    atom_number(Term, NTerm).
 
 generate_absolute_days(CreationIncomeYear, LodgementDate, LoanRepayments, NCreationIncomeYear, NLodgementDay, NLoanRepayments) :-

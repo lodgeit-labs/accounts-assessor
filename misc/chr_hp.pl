@@ -2,14 +2,16 @@
 :- use_module(library(clpq)).
 :- use_module(library(clpfd)).
 
-:- chr_constraint fact/3, rule/0, start/1, clpq/1, clpq/0, countdown/1, next/1.
+:- chr_constraint fact/3, rule/0, start/2, clpq/1, clpq/0, countdown/2, next/1, old_clpq/1.
 
 
 % same as =/2 in terms of what arguments it succeeds with but doesn't actually unify
+% should be equivalent to unifiable/2
 unify_check(X,_) :- var(X), !.
 unify_check(_,Y) :- var(Y), !.
 unify_check(X,Y) :- X == Y.
 
+% should basically be subsumes_term, with subs
 % unify with subs, but treating variables on RHS as constants
 unify2(X,Y,Subs,New_Subs) :- var(X), \+((member(K:_, Subs), X == K)), New_Subs = [X:Y | Subs].
 unify2(X,Y,Subs,Subs) :- var(X), member(K:V, Subs), X == K, !, Y == V.
@@ -26,6 +28,7 @@ unify2_facts(Query_Fact, Store_Fact, Subs, New_Subs) :-
 	unify2_args(Query_Args, Store_Args, Subs, New_Subs).
 
 % same as unify2 but actually binds the LHS instead of using subs
+% should be equivalent to subsumes_term, maybe w/ some variation on scope of the binding
 unify3(X,Y) :- var(X), X = Y.
 unify3(X,Y) :- nonvar(X), X == Y.
 
@@ -52,8 +55,18 @@ find_fact2(S, P, O, Subs) :-
 	'$enumerate_constraints'(fact(S1, P1, O1)),
 	unify2_facts(fact(S, P, O), fact(S1, P1, O1), Subs, _).
 
+find_fact3(S, P, O, Subs, New_Subs) :-
+	'$enumerate_constraints'(fact(S1,P1,O1)),
+	unify2_facts(fact(S,P,O), fact(S1,P1,O1), Subs, New_Subs).
 
-leap_year(Year) :-
+find_fact4(S,P,O, Subs) :-
+	'$enumerate_constraints'(fact(S1,P1,O1)),
+	unify2_facts(fact(S,P,O), fact(S1,P1,O1), Subs, _),
+	S = S1,
+	P = P1,
+	O = O1.
+
+clpfd_leap_year(Year) :-
 	(
 		0 #= Year mod 400
 	->	true
@@ -64,7 +77,7 @@ leap_year(Year) :-
 	).
 
 month_lengths([31,28,31,30,31,30,31,31,30,31,30,31]).
-month_length(Year, 2, 29) :- leap_year(Year), !.
+month_length(Year, 2, 29) :- clpfd_leap_year(Year), !.
 month_length(_, Month, Length) :- month_lengths(Lengths), nth1(Month, Lengths, Length).
 
 
@@ -186,6 +199,12 @@ rule, fact(HP, a, hp_arrangement), fact(HP, installments, X) \ fact(HP, installm
 rule, fact(HP, a, hp_arrangement), fact(HP, installments, Installments) ==> \+find_fact(Installments, a, list) | fact(Installments, a, list).
 rule, fact(HP, a, hp_arrangement), fact(HP, installments, Installments) ==> \+find_fact(Installments, element_type, hp_installment) | fact(Installments, element_type, hp_installment).
 
+% hp arrangements have a unique final balance
+rule, fact(HP, a, hp_arrangement) ==> \+find_fact2(HP1, final_balance, _, [HP1:HP]) | fact(HP, final_balance, _).
+rule, fact(HP, a, hp_arrangement), fact(HP, final_balance, X) \ fact(HP, final_balance, Y) <=> X = Y.
+
+
+
 
 % installments have a unique installment period
 rule, fact(Installment, a, hp_installment) ==> \+find_fact2(Installment1, installment_period, _, [Installment1:Installment]) | fact(Installment, installment_period, _).
@@ -239,7 +258,7 @@ rule, fact(HP, a, hp_arrangement), fact(Installment, hp_arrangement, HP), fact(H
 rule, fact(HP, a, hp_arrangement), fact(Installment, hp_arrangement, HP), fact(HP, interest_rate, Interest_Rate), fact(Installment, interest_rate, Installment_Interest_Rate) ==> Interest_Rate = Installment_Interest_Rate.
 
 % interest amount for each installment is the interest rate of the installment times the opening balance of the installment
-rule, fact(Installment, a, hp_installment), fact(Installment, opening_balance, Opening_Balance), fact(Installment, interest_rate, Interest_Rate), fact(Installment, interest_amount, Interest_Amount) ==> clpq({Interest_Amount = Opening_Balance*Interest_Rate}).
+rule, fact(Installment, a, hp_installment), fact(Installment, opening_balance, Opening_Balance), fact(Installment, interest_rate, Interest_Rate), fact(Installment, interest_amount, Interest_Amount) ==> clpq({Interest_Amount = Opening_Balance*(Interest_Rate/12)}).
 
 % closing balance of each installment is opening balance + interest amount - payment amount
 rule, fact(Installment, a, hp_installment), fact(Installment, opening_balance, Opening_Balance), fact(Installment, payment_amount, Payment_Amount), fact(Installment, interest_amount, Interest_Amount), fact(Installment, closing_balance, Closing_Balance) ==> clpq({Closing_Balance = Opening_Balance + Interest_Amount - Payment_Amount}).
@@ -247,82 +266,305 @@ rule, fact(Installment, a, hp_installment), fact(Installment, opening_balance, O
 % opening balance of the next installment is the closing balance of the current installment (by extension, closing balance of the previous installment is opening balance of current installment)
 rule, fact(HP, a, hp_arrangement), fact(HP, installments, Installments), fact(Cell, list_in, Installments), fact(Cell, value, Installment), fact(Installment, closing_balance, Closing_Balance), fact(Cell, next, Next_Cell), fact(Next_Cell, value, Next_Installment), fact(Next_Installment, opening_balance, Opening_Balance) ==> Closing_Balance = Opening_Balance.
 
-% 
+% if closing balance is greater than or equal to repayment amount, there should be another installment after it
 rule, fact(HP, a, hp_arrangement), fact(HP, repayment_amount, Repayment_Amount), fact(HP, installments, Installments), fact(Installment_Cell, list_in, Installments), fact(Installment_Cell, value, Installment), fact(Installment, closing_balance, Closing_Balance) ==> nonvar(Closing_Balance), nonvar(Repayment_Amount), Closing_Balance >= Repayment_Amount, \+find_fact2(Installment_Cell1, next, _, [Installment_Cell1:Installment_Cell]) | fact(Installment_Cell, next, _).
 
-% 
+% if opening_balance is less than the opening_balance, there should be another installment before it
 rule, fact(HP, a, hp_arrangement), fact(HP, cash_price, Cash_Price), fact(HP, installments, Installments), fact(Installment_Cell, list_in, Installments), fact(Installment_Cell, value, Installment), fact(Installment, opening_balance, Opening_Balance) ==> nonvar(Cash_Price), nonvar(Opening_Balance), Opening_Balance < Cash_Price, \+find_fact2(Installment_Cell1, prev, _, [Installment_Cell1:Installment_Cell]) | fact(Installment_Cell, prev, _). 
 
-/*
-% begin date of hp arrangement is the opening date of the first installment
-rule, fact(HP, a, hp_arrangement), fact(HP, begin_date, Begin_Date), fact(HP, installments, Installments), fact(Installments, first, First_Cell), fact(First_Cell, value, First_Installment), fact(First_Installment, installment_period, Installment_Period), fact(Begin_Date, year, Begin_Year), fact(Begin_Date, month, Begin_Month), fact(Installment_Period, year, Installment_Year), fact(Installment_Period, month, Installment_Month) ==> Begin_Year = Installment_Year, Begin_Month = Installment_Month.
-
-rule, fact(HP, a, hp_arrangement), fact(HP, installments, Installments), fact(Installment_Cell, list_in, Installments), fact(Installment_Cell, next, Next_Installment_Cell), fact(Installment_Cell, value, Installment), fact(Installment, installment_period, Installment_Period), fact(Installment_Period, year, Installment_Year), fact(Installment_Period, month, Installment_Month), fact(Next_Installment_Cell, value, Next_Installment), fact(Next_Installment, installment_period, Next_Installment_Period), fact(Next_Installment_Period, year, Next_Installment_Year), fact(Next_Installment_Period, month, Next_Installment_Month) ==> 
-*/
+% get the month and year for a given monthly installment by its index in the installments list
 rule, fact(HP, a, hp_arrangement), fact(HP, begin_date, Begin_Date), fact(Begin_Date, year, Begin_Year), fact(Begin_Date, month, Begin_Month), fact(HP, installments, Installments), fact(Installment_Cell, list_in, Installments), fact(Installment_Cell, list_index, Installment_Number), fact(Installment_Cell, value, Installment), fact(Installment, installment_period, Installment_Period), fact(Installment_Period, year, Installment_Year), fact(Installment_Period, month, Installment_Month) ==> clpq(N #= (Installment_Number - 1)), clpq(V #= (Begin_Month + N)), clpq(Installment_Year #= Begin_Year +((V - 1) // 12)), clpq(Installment_Month #= (((V - 1) rem 12) + 1)).
 
+% assumes opening date is the first day of the installment month, for monthly
 rule, fact(Installment, a, hp_installment), fact(Installment, installment_period, Installment_Period), fact(Installment_Period, year, Installment_Year), fact(Installment_Period, month, Installment_Month), fact(Installment, opening_date, Opening_Date), fact(Opening_Date, year, Opening_Year), fact(Opening_Date, month, Opening_Month), fact(Opening_Date, day, Opening_Day) ==> Opening_Year = Installment_Year, Opening_Month = Installment_Month, Opening_Day = 1.
+
 
 rule, fact(Installment, a, hp_installment), fact(Installment, installment_period, Installment_Period), fact(Installment_Period, year, Installment_Year), fact(Installment_Period, month, Installment_Month), fact(Installment, closing_date, Closing_Date), fact(Closing_Date, year, Closing_Year), fact(Closing_Date, month, Closing_Month) ==> Closing_Year = Installment_Year, Closing_Month = Installment_Month.
 
+% assumes closing date is the last day of the installment month, for monthly
 rule, fact(Installment, a, hp_installment), fact(Installment, installment_period, Installment_Period), fact(Installment_Period, year, Installment_Year), fact(Installment_Period, month, Installment_Month), fact(Installment, closing_date, Closing_Date), fact(Closing_Date, day, Closing_Day) ==> nonvar(Installment_Year), nonvar(Installment_Month) | month_length(Installment_Year, Installment_Month, Closing_Day).
 
 % end date of hp arrangement is the closing date of the last installment
-%rule, fact(HP, a, hp_arrangement), fact(HP, end_date, End_Date), fact(HP, installments, Installments), fact(Installments, last, Last_Cell), fact(Last_Cell, value, Last_Installment), fact(Last_Installment, closing_date, Closing_Date) ==> End_Date = Closing_Date.
+rule, fact(HP, a, hp_arrangement), fact(HP, end_date, End_Date), fact(HP, installments, Installments), fact(Installments, last, Last_Cell), fact(Last_Cell, value, Last_Installment), fact(Last_Installment, closing_date, Closing_Date) ==> End_Date = Closing_Date.
+
+% number of installments of the hp arrangement is the index of the last installment
+rule, fact(HP, a, hp_arrangement), fact(HP, number_of_installments, Number_Of_Installments), fact(HP, installments, Installments), fact(Installments, last, Last_Installment), fact(Last_Installment, list_index, Last_Index) ==> Number_Of_Installments = Last_Index.
+
+% if the index of an installment is the same as the number of installments, then it's the last installment
+rule, fact(HP, a, hp_arrangement), fact(HP, number_of_installments, Number_Of_Installments), fact(HP, installments, Installments), fact(Installment, list_in, Installments), fact(Installment, list_index, Number_Of_Installments) ==> fact(Installments, last, Installment).
+
+/*
+Formula for calculating installment closing balance directly from:
+* Cash price				P		
+* Repayment amount     		R		(per installment)
+* Interest rate	       		r   	(per installment period)
+* Installment index    		i
+
+P_i = P_0 * (1 + r)^i - R*((1 + r)^i - 1)/r
+
+reference: https://financeformulas.net/Remaining_Balance_Formula.html
+*/
+/*
+rule, fact(HP, a, hp_arrangement), fact(HP, installments, Installments), fact(Installment_Cell, list_in, Installments), fact(Installment_Cell, list_index, I), fact(Installment_Cell, value, Installment), fact(HP, cash_price, P0), fact(HP, interest_rate, IR), fact(HP, repayment_amount, R), fact(Installment, closing_balance, PI) ==> clpq({PI = P0*(1 + (IR/12))^I - R*((1 + (IR/12))^I - 1)/(IR/12)}).
+*/
+
+/*
+Formula for calculating repayment amount directly from:
+* Cash price				P
+* Interest rate				r		(per installment period)
+* Number of installments	N
+* Final balance				P_N
+
+R = (P_0 * (1 + r)^N - P_N) * (r / ((1 + r)^N - 1))
+*/
+rule, fact(HP, a, hp_arrangement), fact(HP, cash_price, P0), fact(HP, interest_rate, IR), fact(HP, final_balance, PN), fact(HP, number_of_installments, N), fact(HP, repayment_amount, R) ==> clpq({R = (P0 * (1 + (IR/12))^N - PN)*((IR/12)/((1 + (IR/12))^N - 1))}).
 
 
 rule, fact(S, P, O) \ fact(S, P, O) <=> (P == closing_balance -> format("deduplicate: ~w ~w ~w~n", [S, P, O]) ; true).
 
 rule <=> clpq.
-clpq \ clpq(Constraint) <=> call(Constraint).
-clpq, countdown(N) <=> N > 0 | M is N - 1, format("~ncountdown ~w~n~n", [M]), countdown(M), rule.
-clpq, countdown(0) <=>
-	format("Done: facts = [~n", []),
-	findall(
-		_,
-		(
-			'$enumerate_constraints'(fact(S,P,O)),
-			\+((
-				P \== closing_date,
-				P \== opening_date,
-				P \== list_index,
-				P \== value,
-				P \== installment_period,
-				P \== year,
-				P \== month,
-				P \== day,
-				( P \== a ; O \== date)
-			)),
-			((ground(O), O = (_ rdiv _))
-			-> O2 is float(O)
-			; O2 = O
-			),
-			format("fact(~w,~w,~w)~n", [S,P,O2])
-		),
-		_
-	),
-	format("]~n~n",[]), fail,
+
+clpq \ clpq(Constraint) <=> (
+		call(Constraint)
+	->	(true, old_clpq(Constraint))
+	;	(
+			format(user_error, "Error: failed to apply constraint `~w`~n", [Constraint]),
+			constraint_to_float(Constraint, Float_Constraint),
+			format(user_error, "as float: `~w`~n", [Float_Constraint]),
+			print_constraints,
+			fail
+		)
+	).
+
+clpq, countdown(N, Done) <=> N > 0 | M is N - 1, format(user_error, "~ncountdown ~w~n~n", [M]), countdown(M, Done), rule.
+clpq, countdown(0, Done) <=>
+	format(user_error, "Done chase:~n", []),
+	dump_chr,
+	Done = done,
 	true.
 %next(0) <=> true.
 %next(M) <=> nl, countdown(M), rule.
 
-start(N) <=> N > 0 | countdown(N), rule.
-start(0) <=> true.
+start(N, Done) <=> N > 0 | countdown(N, Done), rule.
+start(0, Done) <=> Done = done.
 
+% General pattern here:
+% we have flexible objects that need to be translated back into standard data formats.
+
+constraint_to_float(Constraint, Float_Constraint) :-
+	(
+		nonvar(Constraint)
+	->
+		Constraint =.. [F | Args],
+		(
+			F = rdiv
+		->	rat_to_float(Constraint, Float_Constraint)
+		;	maplist(constraint_to_float, Args, Float_Args),
+			Float_Constraint =.. [F | Float_Args]
+		)
+	;	Float_Constraint = Constraint
+	).
+
+print_constraints :-
+	findall(
+		_,
+		(
+			'$enumerate_constraints'(CHR),
+			(
+				CHR = clpq(Constraint)
+			;	CHR = old_clpq(Constraint)
+			),
+			format(user_error, "~w~n", [Constraint])
+		),
+		_
+	).
+
+
+% exclude all list definition triples except for occurrences of L a list and Obj Attr L
+% on finding a list (i.e. L a list), perform chr_list_to_rdf_list
+% exclude any other triples if they include variables
+% 
+% translate all vars to bnodes, maintaining subs
+%
+
+
+% currently loses variable identities; actually only loses variable identities when printing for some reason and the
+% identities are still maintained in the New_Facts output... ?
+get_chr_facts(Found_Facts, Current_Facts, Current_Lists, Current_Facts, Current_Lists) :-
+	% every chr fact is in the list; done.
+	\+((
+		'$enumerate_constraints'(fact(S,P,O)),
+		\+((
+			member(fact(S1,P1,O1), Found_Facts),
+			S == S1,
+			P == P1,
+			O == O1
+		))
+	)).
+get_chr_facts(Found_Facts, Current_Facts, Lists, New_Facts, New_Lists) :-
+	% if there is a CHR fact
+	'$enumerate_constraints'(fact(S,P,O)),
+	%format("Fact: ~w ~w ~w~n", [S, P, O]),
+	% and no identical fact in the already-found facts
+	\+((
+		member(fact(S1,P1,O1), Found_Facts),
+		S == S1,
+		P == P1,
+		O == O1
+	)),
+	% then cut, add it to the already-found facts, and continue
+	!,
+
+	% exclude these triples
+	(
+		\+member(P, [first, last, length, element_type, list_in, list_index, value, next, prev])
+	->	Next_Facts = [fact(S,P,O) | Current_Facts]
+	;	Next_Facts = Current_Facts
+	),
+	(
+		fact(S,P,O) = fact(S, a, list)
+	-> 	Next_Lists = [S | Lists]
+	;	Next_Lists = Lists
+	),
+	%format("Found fact: ~w ~w ~w~n", [S,P,O]),
+	get_chr_facts([fact(S,P,O) | Found_Facts], Next_Facts, Next_Lists, New_Facts, New_Lists).
 /*
-  ?- fact(List, a, list), fact(X, list_in, List), fact(List, length, 1), start(2).
-  fact(X, value, _),
-  fact(List, last, X),
-  fact(List, first, X),
-  fact(X, list_index, 1),
-  fact(List, length, 1),
-  fact(X, list_in, List),
-  fact(List, a, list).
+print_facts :-
+	get_chr_facts([], Facts),
+	print_facts_helper(Facts).
 
+print_facts_helper([]) :- nl.
+print_facts_helper([fact(S,P,O)| Facts]) :-
+	format("~w ~w ~w~n", [S, P, O]),
+	print_facts_helper(Facts).
 */
 
-/*
- 27,406
- 14,629
- 13,953
-*/
+
+% convert a chr list to a regular prolog list
+chr_list_to_prolog_list(L, List) :-
+	find_fact4(L1, a, list, [L1:L]), !,
+	find_fact4(L1, first, First_Item, [L1:L]), !,
+	chr_list_to_prolog_list_helper(L, First_Item, List).
+
+chr_list_to_prolog_list_helper(L, Item, [fact(Item, value, Value) | Rest]) :-
+	find_fact4(Item1, value, Value, [Item1:Item]),
+	(
+		find_fact4(L1, last, Item1, [L1:L, Item1:Item])
+	->	Rest = []
+	;	(
+			find_fact4(Item1, next, Next_Item, [Item1:Item])
+		->	% could infloop if the list is cyclic, but current rules should rule out that possibility
+			chr_list_to_prolog_list_helper(L, Next_Item, Rest)
+		;	true
+		)
+	).
+
+chr_list_to_rdf_list(CHR_List, RDF_List, RDF_List_Triples, Subs) :-
+	chr_list_to_prolog_list(CHR_List, Prolog_List),
+	(
+		Prolog_List = []
+	->	RDF_List = rdf:nil,
+		RDF_List_Triples = [],
+		Subs = []
+	;	gensym(bn, RDF_List),
+		prolog_list_to_rdf_list(Prolog_List, RDF_List, RDF_List_Triples, Subs)
+	).
+
+prolog_list_to_rdf_list([], rdf:nil, [], []).
+prolog_list_to_rdf_list([fact(Cell, value, X)], URI, [fact(URI, rdf:first, X), fact(URI, rdf:rest, rdf:nil)], [Cell:URI]).
+prolog_list_to_rdf_list([fact(Cell, value, X), fact(Next_Cell, value, Y) | Xs], URI, [fact(URI, rdf:first, X), fact(URI, rdf:rest, Next_URI) | Rest_Triples], [Cell:URI | Rest_Subs]) :-
+	gensym(bn, Next_URI),
+	(
+		nonvar(Xs)
+	->	prolog_list_to_rdf_list([fact(Next_Cell, value, Y) | Xs], Next_URI, Rest_Triples, Rest_Subs)
+	;	Rest_Triples = [fact(Next_URI, rdf:first, Y)], Rest_Subs = [Next_Cell:Next_URI]
+	).
+
+
+get_chr_list_triples([], [], []).
+get_chr_list_triples([L | Ls], [L_Triples | Ls_Triples], [[L:L_Bnode | Subs] | Rest_Subs]) :-
+	chr_list_to_rdf_list(L, L_Bnode, L_Triples, Subs),
+	get_chr_list_triples(Ls, Ls_Triples, Rest_Subs).
+
+chr_filter_vars([], _, []).
+chr_filter_vars([Fact | Facts], Subs, New_Facts) :-
+	apply_subs_to_fact(Subs, Fact, New_Fact),
+	(
+		ground(New_Fact)
+	-> 	New_Facts = [New_Fact | Rest_Facts]
+	;	New_Facts = Rest_Facts
+	),
+	chr_filter_vars(Facts, Subs, Rest_Facts).
+
+map_args(P, Term, New_Term) :-
+	Term =.. [F | Args],
+	maplist(P, Args, New_Args),
+	New_Term =.. [F | New_Args].
+
+mapflat(P, List, New_List) :-
+	maplist(P, List, New_List_Nested),
+	flatten(New_List_Nested, New_List).
+
+apply_subs_to_facts(_, [], []).
+apply_subs_to_facts(Subs, [Fact | Facts], [New_Fact | New_Facts]) :-
+	apply_subs_to_fact(Subs, Fact, New_Fact),
+	apply_subs_to_facts(Subs, Facts, New_Facts).
+
+apply_subs_to_fact(Subs, Fact, New_Fact) :-
+	Fact =.. [fact | Args],
+	apply_subs_to_args(Subs, Args, New_Args),
+	New_Fact =.. [fact | New_Args].
+
+apply_subs_to_args(_, [], []).
+apply_subs_to_args(Subs, [Arg | Args], [New_Arg | New_Args]) :-
+	apply_subs_to_arg(Subs, Arg, New_Arg),
+	apply_subs_to_args(Subs, Args, New_Args).
+
+apply_subs_to_arg([], Arg, Arg).
+apply_subs_to_arg([K:V | Rest_Subs], Arg, New_Arg) :-
+	(	Arg == K
+	->	New_Arg = V
+	;	apply_subs_to_arg(Rest_Subs, Arg, New_Arg)
+	). 
+
+extract_chr_facts(Output_With_RDF_Values) :-
+	get_chr_facts([], [], [], Facts, Lists),
+	get_chr_list_triples(Lists, List_Triples, Subs),
+	flatten(List_Triples, List_Triples_Flat),
+	flatten(Subs, Subs_Flat),
+	apply_subs_to_facts(Subs_Flat, List_Triples_Flat, List_Triples_Sub),
+	chr_filter_vars(Facts, Subs_Flat, New_Facts),
+	append(New_Facts, List_Triples_Sub, Output),
+	make_rdf_values(Output, Output_With_RDF_Values).
+
+% replace attributes with rdf:values
+make_rdf_values(Facts, New_Facts) :-
+	get_objects(Facts, Objects),
+	make_object_attributes(Facts, Objects, New_Facts).
+	
+	% replace attributes with rdf:values
+get_objects([], []).
+get_objects([fact(S, P, O) | Facts], Objects) :-
+	(
+		P = a,
+		O \= list
+	->	Objects = [S | Rest_Objects]
+	;	Objects = Rest_Objects
+	),
+	get_objects(Facts, Rest_Objects).
+
+make_object_attributes([], _, []).
+make_object_attributes([fact(S,P,O) | Facts], Objects, New_Facts) :-
+	(
+		member(S,Objects),
+		P \= a
+	-> 	gensym(bn,URI),
+		New_Facts = [fact(S,P,URI),fact(URI,rdf:value,O) | Rest_Facts]
+	;	New_Facts = [fact(S,P,O) | Rest_Facts]
+	),
+	make_object_attributes(Facts, Objects, Rest_Facts).
+
+print_facts2([]) :- nl.
+print_facts2([fact(S,P,O) | Rest]) :-
+	format("~w ~w ~w~n", [S,P,O]),
+	print_facts2(Rest).

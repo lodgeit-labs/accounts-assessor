@@ -9,8 +9,12 @@
 */
 generate_unique_tmp_directory_prefix :-
    get_time(Current_Time),
+   %format("generate_unique_tmp_directory_prefix:get_time(~w)~n", [Current_Time]),
    atomic_list_concat([Current_Time, '.'], Base),
-   asserta(session_tmp_directory_base(tmp_directory_name_prefix(Base))).
+   %format("generate_unique_tmp_directory_prefix:atomic_list_concat(~w, ~w)~n", [[Current_Time, '.'], Base]),
+   asserta(session_tmp_directory_base(tmp_directory_name_prefix(Base))),
+   %format("generate_unique_tmp_directory_prefix:asserta(session_tmp_directory_base(tmp_directory_name_prefix(~w)))~n",[Base]).
+   true.
 
 /*
   create a new unique directory under my_tmp
@@ -38,10 +42,8 @@ create_tmp_directory(Dir_Name) :-
 
 symlink_last_to_current(loc(absolute_path, Path)) :-
 	resolve_specifier(loc(specifier, my_tmp('last')), loc(_, Last)),
-	atomic_list_concat(['rm -f ', Last], Rm_Cmd),
-	shell(Rm_Cmd, _),
-	atomic_list_concat(['ln -s ', Path, ' ', Last], Ln_Cmd),
-	shell(Ln_Cmd, _).
+	shell4(['rm', '-f', Last], _),
+	shell4(['ln', '-s', Path, Last], _).
 
 /*
   to be used instead of absolute_file_name for request-specific tmp files
@@ -71,8 +73,7 @@ make_zip :-
 	atomic_list_concat([Tmp_Dir_Path, '.zip'], Zip_Fn),
 	atomic_list_concat([Tmp_Dir_Path, '/'], Tmp_Dir_With_Slash),
 	archive_create(Zip_Fn, [Tmp_Dir_With_Slash], [format(zip), directory(Tmp)]),
-	atomic_list_concat(['mv ', Zip_Fn, ' ', Tmp_Dir_With_Slash], Cmd),
-	shell(Cmd, _).
+	shell4(['mv', Zip_Fn, Tmp_Dir_With_Slash], _).
 
 copy_request_files_to_tmp(Paths, Names) :-
 	maplist(copy_request_file_to_tmp, Paths, Names).
@@ -105,7 +106,9 @@ write_tmp_json_file(Name, Json) :-
 /* my_tmp_file_url? */
 report_file_path(loc(file_name, FN), loc(absolute_url,Url), Path) :-
 	my_request_tmp_dir(loc(tmp_directory_name, Tmp_Dir_Value)),
+	debug(tmp_files, "report_file_path:my_request_tmp_dir(loc(tmp_directory_name, ~w))~n", [Tmp_Dir_Value]),
 	server_public_url(Server_Public_Url),
+	debug(tmp_files, "report_file_path:server_public_url(~w)~n",[Server_Public_Url]),
 	atomic_list_concat([Server_Public_Url, '/tmp/', Tmp_Dir_Value, '/', FN], Url),
 	absolute_tmp_path(loc(file_name, FN), Path).
 
@@ -141,7 +144,9 @@ tmp_file_path_from_something(FileName, Path) :-
 
 tmp_file_path_to_url(Path, Url) :-
 	exclude_file_location_from_filename(Path, Fn),
-	report_file_path(Fn, Url, _).
+	debug(tmp_files, "tmp_file_path_to_url:exclude_file_location_from_filename(~w, ~w)~n", [Path,Fn]),
+	report_file_path(Fn, Url, _),
+	debug(tmp_files, "tmp_file_path_to_url:report_file_path(~w, ~w, ~w)~n", [Fn, Url, _]).
 
 loc_icase_endswith(loc(_, Fn), Suffix) :-
 	icase_endswith(Fn, Suffix).
@@ -160,17 +165,17 @@ add_xml_report(Key, Title, XML) :-
 	),
 	add_report_file(Key, Title, Url). % (_{name:Name,format:'xml'}
 
-add_report_file(Key, Title, Url) :-
-	request(R),
-	doc_new_uri(Uri),
-	doc_add(R, l:report, Uri, files),
-	doc_add(Uri, l:key, Key, files),
-	doc_add(Uri, l:title, Title, files),
+add_report_file(Key, Title, loc(absolute_url, Url)) :-
+	result(R),
+	doc_new_uri(Uri, report_file),
+	doc_add(R, l:has_report, Uri, files),
+	doc_add(Uri, l:key, $>atom_string(Key), files),
+	doc_add(Uri, l:title, $>atom_string(Title), files),
 	doc_add(Uri, l:url, Url, files).
 
 get_report_file(Key, Title, Url) :-
-	request(R),
-	docm(R, l:report, Uri, files),
+	result(R),
+	docm(R, l:has_report, Uri, files),
 	doc(Uri, l:key, Key, files),
 	doc(Uri, l:title, Title, files),
 	doc(Uri, l:url, Url, files).
