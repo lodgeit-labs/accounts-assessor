@@ -1,327 +1,919 @@
 :- use_module(library(chr)).
 :- use_module(library(clpq)).
 :- use_module(library(clpfd)).
+:- use_module(library(interpolate)).
 
-:- chr_constraint fact/3, rule/0, start/2, clpq/1, clpq/0, countdown/2, next/1, old_clpq/1.
+:- ['./clpfd_datetime.pl'].
 
+:- op(100, yfx, ':').	% for left-associativity of x:y:z
 
-% same as =/2 in terms of what arguments it succeeds with but doesn't actually unify
-% should be equivalent to unifiable/2
-unify_check(X,_) :- var(X), !.
-unify_check(_,Y) :- var(Y), !.
-unify_check(X,Y) :- X == Y.
+:- chr_constraint fact/3, rule/0, start/2, clpq/1, clpq/0, countdown/2, next/1, old_clpq/1, block/0.
 
-% should basically be subsumes_term, with subs
-% unify with subs, but treating variables on RHS as constants
-unify2(X,Y,Subs,New_Subs) :- var(X), \+((member(K:_, Subs), X == K)), New_Subs = [X:Y | Subs].
-unify2(X,Y,Subs,Subs) :- var(X), member(K:V, Subs), X == K, !, Y == V.
-unify2(X,Y,Subs,Subs) :- nonvar(X), X == Y.
-
-unify2_args([], [], Subs, Subs).
-unify2_args([Query_Arg | Query_Args], [Store_Arg  | Store_Args], Subs, New_Subs) :-
-	unify2(Query_Arg, Store_Arg, Subs, Next_Subs),
-	unify2_args(Query_Args, Store_Args, Next_Subs, New_Subs).
-
-unify2_facts(Query_Fact, Store_Fact, Subs, New_Subs) :-
-	Query_Fact =.. [fact | Query_Args],
-	Store_Fact =.. [fact | Store_Args],
-	unify2_args(Query_Args, Store_Args, Subs, New_Subs).
-
-% same as unify2 but actually binds the LHS instead of using subs
-% should be equivalent to subsumes_term, maybe w/ some variation on scope of the binding
-unify3(X,Y) :- var(X), X = Y.
-unify3(X,Y) :- nonvar(X), X == Y.
-
-unify3_args([], []).
-unify3_args([X | XArgs], [Y | YArgs]) :-
-	unify3(X,Y),
-	unify3_args(XArgs, YArgs).
-unify3_fact(XFact, YFact) :-
-	XFact =.. [fact | XArgs],
-	YFact =.. [fact | YArgs],
-	unify3_args(XArgs, YArgs).
-
-
-find_fact(S, P, O) :-
-	'$enumerate_constraints'(fact(S1, P1, O1)),
-	unify2_facts(fact(S2,P2,O2), fact(S1,P1,O1), [S2:S,P2:P,O2:O], _).
-
-% need this version because sometimes you want to use it as a variable, sometimes you want to use it as a constant, ex..
-% \+find_fact(L, length, _)
-% L should be treated like a constant, because it's already bound to something in the kb
-% _ should be treated like a variable, because it hasn't been
-find_fact2(S, P, O, Subs) :-
-	%format("find_fact2(~w, ~w, ~w)~n", [S, P, O]),
-	'$enumerate_constraints'(fact(S1, P1, O1)),
-	unify2_facts(fact(S, P, O), fact(S1, P1, O1), Subs, _).
-
-find_fact3(S, P, O, Subs, New_Subs) :-
+find_fact(S,P,O) :-
+	debug(find_fact, "find_fact(~w,~w,~w):~n", [S,P,O]),
 	'$enumerate_constraints'(fact(S1,P1,O1)),
-	unify2_facts(fact(S,P,O), fact(S1,P1,O1), Subs, New_Subs).
+	debug(find_fact_all, "find_fact(~w,~w,~w): trying `fact(~w,~w,~w)`~n", [S,P,O, S1,P1,O1]),
+	maplist(find_fact_unify, [S,P,O], [S1,P1,O1]),
+	debug(find_fact, "find_fact(~w,~w,~w): Success.~n", [S,P,O]).
 
-find_fact4(S,P,O, Subs) :-
-	'$enumerate_constraints'(fact(S1,P1,O1)),
-	unify2_facts(fact(S,P,O), fact(S1,P1,O1), Subs, _),
-	S = S1,
-	P = P1,
-	O = O1.
+find_fact_unify(X,Y) :-
+	var(X),
+	X = Y.
 
-clpfd_leap_year(Year) :-
-	(
-		0 #= Year mod 400
-	->	true
-	;	(
-			0 #= Year mod 4,
-			0 #\= Year mod 100
-		)
-	).
+find_fact_unify(kb_var(X),kb_var(Y)) :-
+	!,
+	X == Y.
+find_fact_unify(X, Y) :-
+	X == Y.
 
-month_lengths([31,28,31,30,31,30,31,31,30,31,30,31]).
-month_length(Year, 2, 29) :- clpfd_leap_year(Year), !.
-month_length(_, Month, Length) :- month_lengths(Lengths), nth1(Month, Lengths, Length).
+chr_fields(hp_arrangement, [
+	_{
+		key:begin_date,
+		type:date,
+		unique:true,
+		required:true
+	},
+	_{
+		key:end_date,
+		type:date,
+		unique:true,
+		required:true
+	},
+	_{
+		key:cash_price,
+		type:rational,
+		unique:true,
+		required:true
+	},
+	_{
+		key:interest_rate,
+		type:rational,
+		unique:true,
+		required:true
+	},
+	_{
+		key:repayment_amount,
+		type:rational,
+		unique:true,
+		required:true
+	},
+	_{
+		key:number_of_installments,
+		type:integer,
+		unique:true,
+		required:true
+	},
+	_{
+		key:final_balance,
+		type:rational,
+		unique:true,
+		required:true
+	},
+	_{
+		key:installments,
+		type:list(hp_installment),
+		unique:true,
+		required:true
+	}
+]).
 
+
+chr_fields(hp_installment, [
+	/*
+	_{
+		key:hp_arrangement,
+		type:hp_arrangement,
+		unique:true,
+		required:true
+	},
+	*/
+	_{
+		key:number,
+		type:integer,
+		unique:true,
+		required:true
+	},
+	_{
+		key:opening_date,
+		type:date,
+		unique:true,
+		required:true
+	},
+	_{
+		key:opening_balance,
+		type:rational,
+		unique:true,
+		required:true
+	},
+	_{
+		key:payment_amount,
+		type:rational,
+		unique:true,
+		required:true
+	},
+	_{
+		key:interest_rate,
+		type:rational,
+		unique:true,
+		required:true
+	},
+	_{
+		key:interest_amount,
+		type:rational,
+		unique:true,
+		required:true
+	},
+	_{
+		key:closing_date,
+		type:date,
+		unique:true,
+		required:true
+	},
+	_{
+		key:closing_balance,
+		type:rational,
+		unique:true,
+		required:true
+	}
+]).
+
+chr_fields(list, [
+	_{
+		key:length,
+		type:integer,
+		required:true
+	},
+	_{
+		key:element_type,
+		/* type should be type but let's not go there right now */
+		unique:true /* just because for now we don't have any interpretation of a list with multiple element types */
+	},
+	_{
+		key:first,
+		/*can we make this theory work over regular rdf list representation? (i.e. no distinction between lists and list-cells) */
+		type:list_cell,
+		unique:true
+		/*required:false % existence is dependent on length, exists exactly when length is non-zero / list is non-empty */
+	},
+	_{
+		key:last,
+		type:list_cell,
+		unique:true
+		/*required:false % existence is dependent on length, exists exactly when length is non-zero / list is non-empty */
+	}
+]).
+
+chr_fields(list_cell, [
+	_{
+		key:value,
+		/* type: self.list.element_type */
+		unique:true,
+		required:true
+	},
+	_{
+		key:list,
+		type:list,
+		unique:true,
+		required:true
+	},
+	_{
+		key:index,
+		type:integer,
+		unique:true,
+		required:true	
+	},
+	_{
+		key:next,
+		type:list_cell,
+		unique:true
+		/* required: false % exists exactly when this is not the last element */
+	},
+	_{
+		key:previous,
+		type:list_cell,
+		unique:true
+		/* required: false % exists exactly when this is not the first element */
+	}
+]).
+
+chr_fields(date, [
+	_{
+		key:year,
+		type:integer,
+		unique:true,
+		required:true
+	},
+	_{
+		key:month,
+		type:integer, /* type should actually be something that actually represents a specific month object, so that we can do like self.month.length */
+		unique:true,
+		required:true
+	},
+	_{
+		key:day,
+		type:integer, 
+		unique:true,
+		required:true
+	},
+	_{
+		key:day_of_week,
+		type:integer,
+		unique:true,
+		required:true
+	}
+]).
+
+
+chr_fields(dummy, [
+	_{
+		key:foo,
+		type:date,
+		unique:true,
+		required:true
+	},
+	_{
+		key:bar,
+		type:dummy
+	}
+]).
+
+initialize_relations :-
+	findall(
+		Relation:Fields,
+		chr_fields(Relation,Fields),
+		Relations
+	),
+	maplist(initialize_relation, Relations).
+
+initialize_relation(Relation:Fields) :-
+	fact(Relation, a, relation),
+	maplist(initialize_field(Relation), Fields).
+
+initialize_field(Relation, Field) :-
+	gensym(field, Field_Bnode),
+	fact(Relation, field, Field_Bnode),
+	dict_pairs(Field, _, Field_Attributes),
+	initialize_field_attributes(Field_Bnode, Field_Attributes).
+	/* for some reason Field_Bnode becomes a variable when we use maplist like this... */
+	%maplist([Key-Value]>>fact(Field_Bnode, Key, Value), Field_Attributes).
+
+initialize_field_attributes(_, []).
+initialize_field_attributes(Field_Bnode, [Key-Value | Rest]) :-
+	fact(Field_Bnode, Key, Value),
+	initialize_field_attributes(Field_Bnode, Rest).
 
 % LIST THEORY
-% length exists and is unique
-rule, fact(L, a, list) ==> \+find_fact2(L1, length, _, [L1:L]) | fact(L, length, _).
-%rule, fact(L, a, list), fact(L, length, X) \ fact(L, length, Y) <=> X = Y.
-
-% a cell can only be in one list
-rule, fact(X, list_in, L1) \ fact(X, list_in, L2) <=> L1 = L2.
-
-% list index exists and is unique
-rule, fact(X, list_in, _) ==> \+find_fact(X, list_index, _) | fact(X, list_index, _).
-rule, fact(X, list_index, I1) \ fact(X, list_index, I2) <=> I1 = I2.
-
 % there is only one cell at any given index
-rule, fact(L, a, list), fact(X, list_in, L), fact(X, list_index, I) \ fact(Y, list_in, L), fact(Y, list_index, I) <=> X = Y.
+rule,
+	fact(L, a, list),
+	fact(X, list_in, L),
+	fact(X, list_index, I) \
+	fact(Y, list_in, L),
+	fact(Y, list_index, I)
+	<=> 
+	add_constraints([
+		X = Y
+	]).
 
 
 % if non-empty then first exists, is unique, is in the list, and has list index 1
-rule, fact(L, a, list), fact(_, list_in, L) ==> \+find_fact(L, first, _) | fact(L, first, _).
-rule, fact(L, a, list), fact(L, first, X) \ fact(L, first, Y) <=> X = Y.
-rule, fact(L, a, list), fact(L, first, First) ==> \+find_fact(First, list_in, L) | fact(First, list_in, L).
-rule, fact(L, a, list), fact(L, first, First) ==> \+find_fact(First, list_index, 1) | fact(First, list_index, 1).
+rule,
+	fact(L, a, list),
+	fact(_, list_in, L)
+	==> 
+	add_constraints([
+		fact(L, first, _),
+		fact(L, last, _)
+	]).
+
+% this isn't fully bidirectional: derive first from list-index?
+rule,
+	fact(L, a, list),
+	fact(L, first, First)
+	==>
+	add_constraints([
+		fact(First, list_in, L),
+		fact(First, list_index, 1)
+	]).
+
 
 % if non-empty, and N is the length of the list, then last exists, is unique, is in the list, and has list index N
-rule, fact(L, a, list), fact(_, list_in, L) ==> \+find_fact(L, last, _) | fact(L, last, _).
-rule, fact(L, a, list), fact(L, last, X) \ fact(L, last, Y) <=> X = Y.
-rule, fact(L, a, list), fact(L, last, Last) ==> \+find_fact(Last, list_in, L) | fact(Last, list_in, L). 
-rule, fact(L, a, list), fact(L, last, Last), fact(L, length, N) ==> \+find_fact(Last, list_index, N) | fact(Last, list_index, N).
+% this isn't fully bidirectional: derive length from list-index of last? derive last from length and list-index?
+rule,
+	fact(L, a, list),
+	fact(L, last, Last),
+	fact(L, length, N)
+	==> 
+	add_constraints([
+		fact(Last, list_in, L),
+		fact(Last, list_index, N)
+	]).
 
 % the list index of any item is between 1 and the length of the list
-rule, fact(L, a, list), fact(X, list_in, L), fact(X, list_index, I), fact(L, length, N) ==> clpq({I >= 1}), clpq({I =< N}).
-
-% every cell has a unique value
-rule, fact(L, a, list), fact(Cell, list_in, L) ==> \+find_fact(Cell, value, _) | fact(Cell, value, _).
-rule, fact(L, a, list), fact(Cell, list_in, L), fact(Cell, value, X) \ fact(Cell, value, Y) <=> X = Y.
-
-% if element type is unique
-rule, fact(L, a, list), fact(L, element_type, X) \ fact(L, element_type, Y) <=> X = Y.
+rule,
+	fact(L, a, list),
+	fact(X, list_in, L),
+	fact(X, list_index, I),
+	fact(L, length, N)
+	==> 
+	add_constraints([
+		I #>= 1,
+		I #=< N
+	]).
 
 % if list has an element type, then every element of that list has that type
-rule, fact(L, a, list), fact(L, element_type, T), fact(Cell, list_in, L), fact(Cell, value, V) ==> \+find_fact2(V1, a, T1, [V1:V, T1:T]) | fact(V, a, T).
-
-% if previous item exists, then it's unique
-rule, fact(L, a, list), fact(Cell, list_in, L), fact(Cell, prev, X) \ fact(Cell, prev, Y) <=> X = Y.
-
-% if next item exists, then it's unique
-rule, fact(L, a, list), fact(Cell, list_in, L), fact(Cell, next, X) \ fact(Cell, next, Y) <=> X = Y.
+rule,
+	fact(L, a, list),
+	fact(L, element_type, T),
+	fact(Cell, list_in, L),
+	fact(Cell, value, V)
+	==>
+	add_constraints([
+		fact(V, a, T)
+	]).
 
 % if X is the previous item before Y, then Y is the next item after X, and vice versa.
-% the next and previous items of an element 
-rule, fact(L, a, list), fact(Cell, list_in, L), fact(Cell, prev, Prev) ==> \+find_fact(Prev, next, Cell) | fact(Prev, next, Cell).
-rule, fact(L, a, list), fact(Cell, list_in, L), fact(Cell, prev, Prev) ==> \+find_fact(Prev, list_in, L) | fact(Prev, list_in, L).
-rule, fact(L, a, list), fact(Cell, list_in, L), fact(Cell, next, Next) ==> \+find_fact(Next, prev, Cell) | fact(Next, prev, Cell).
-rule, fact(L, a, list), fact(Cell, list_in, L), fact(Cell, next, Next) ==> \+find_fact(Next, list_in, L) | fact(Next, list_in, L).
+% the next and previous items of an element are in the same list as that element 
+rule, 
+	fact(L, a, list),
+	fact(Cell, list_in, L),
+	fact(Cell, prev, Prev)
+	==>
+	add_constraints([
+		fact(Prev, next, Cell),
+		fact(Prev, list_in, L)
+	]).
+rule,
+	fact(L, a, list),
+	fact(Cell, list_in, L),
+	fact(Cell, next, Next)
+	==>
+	add_constraints([
+		fact(Next, prev, Cell),
+		fact(Next, list_in, L)
+	]).
 
 % the next item after the item at list index I has list index I + 1
-rule, fact(L, a, list), fact(Cell, list_in, L), fact(Cell, list_index, I), fact(Cell, next, Next), fact(Next, list_index, J) ==> clpq({J = I + 1}).
+rule,
+	fact(L, a, list),
+	fact(Cell, list_in, L),
+	fact(Cell, list_index, I),
+	fact(Cell, next, Next), fact(Next, list_index, J)
+	==>
+	add_constraints([
+		J #= I + 1
+	]).
 
 
+% OBJECTS/RELATIONS THEORY
+/*
+Required field:
+ "required" here doesn't mean the user must explicitly supply the field, it just means that the field will always be created if it hasn't been supplied,
+ i.e. it's an existence assertion, the field should probably be "exists" rather than "required"
+*/
+/*
+rule,
+fact(Object, a, Type) 
+==> assert_relation_constraints(Type, Object).
+*/
 
-% DATE & TIME THEORY
-% month intervals have a unique year
-rule, fact(Interval, a, month_interval) ==> \+find_fact2(Interval1, year, _, [Interval1:Interval]) | fact(Interval, year, _).
-rule, fact(Interval, a, month_interval), fact(Interval, year, X) \ fact(Interval, year, Y) <=> X = Y.
+/* Unique field: */
+rule,
+	fact(Object, a, Type),
+	fact(Type, a, relation),
+	fact(Type, field, Field),
+	fact(Field, key, Key),
+	fact(Field, unique, true),
+	fact(Object, Key, X) 
+	\ 
+	fact(Object, Key, Y)
+	<=>
+	debug(chr_object, "CHR: unique field rule: object=~w, type=~w, field=~w~n", [Object, Type, Key]),
+	(	X = Y 
+	-> 	true 
+	; 	format(
+			user_error,
+			"Error: field ~w.~w must be unique but two distinct instances were found: `~w ~w ~w` and `~w ~w ~w`~n",
+			[Type, Key, Object, Key, X, Object, Key, Y]
+		),
+		fail
+	).
 
-rule, fact(Interval, a, month_interval) ==> \+find_fact2(Interval1, month, _, [Interval1:Interval]) | fact(Interval, month, _).
-rule, fact(Interval, a, month_interval), fact(Interval, month, X) \ fact(Interval, month, Y) <=> X = Y.
-rule, fact(Interval, a, month_interval), fact(Interval, month, Month) ==> Month in 1..12.
+/* Typed field:	*/
 
-rule, fact(Date, a, date) ==> \+find_fact2(Date1, year, _, [Date1:Date]) | fact(Date, year, _).
-rule, fact(Date, a, date), fact(Date, year, X) \ fact(Date, year, Y) <=> X = Y.
-
-rule, fact(Date, a, date) ==> \+find_fact2(Date1, month, _, [Date1:Date]) | fact(Date, month, _).
-rule, fact(Date, a, date), fact(Date, month, X) \ fact(Date, month, Y) <=> X = Y.
-rule, fact(Date, a, date), fact(Date, month, Month) ==> Month in 1..12.
-
-rule, fact(Date, a, date) ==> \+find_fact2(Date1, day, _, [Date1:Date]) | fact(Date, day, _).
-rule, fact(Date, a, date), fact(Date, day, X) \ fact(Date, day, Y) <=> X = Y.
+rule,
+	fact(Object, a, Type),
+	fact(Type, a, relation),
+	fact(Type, field, Field),
+	fact(Field, key, Key),
+	fact(Field, type, Field_Type),
+	fact(Object, Key, Value)
+	==>
+	debug(chr_object, "CHR: typed field rule: object=~w, type=~w, field=~w, field_type=~w, value=~w~n", [Object, Type, Key, Field_Type, Value]),
+		(
+			Field_Type = list(Element_Type)
+		->	fact(Value, a, list),
+			fact(Value, element_type, Element_Type)
+		;	fact(Value, a, Field_Type)
+		).
 
 
 % HP ARRANGEMENTS & HP INSTALLMENTS THEORY
 
+% HP ARRANGEMENT GLOBAL CONSTRAINTS
+	fact(HP, a, hp_arrangement)
+	\
+	rule
+	<=>
+	\+find_fact(rule1, fired_on, [fact(HP, a, hp_arrangement)])
+	|
+	debug(chr_hp_arrangement, "CHR: chr_hp_arrangement(~w):~n", [HP]),
+	fact(rule1, fired_on, [fact(HP, a, hp_arrangement)]),
+	add_constraints([
+	/* Note that all of these HP parameters are redundant and just referencing values at the endpoints of the HP installments "curve" */
+	% this assumes that an installment necessarily exists.
 
-% hp arrangements have a unique begin date
-rule, fact(HP, a, hp_arrangement) ==> \+find_fact2(HP1, begin_date, _, [HP1:HP]) | fact(HP, begin_date, _).
-rule, fact(HP, a, hp_arrangement), fact(HP, begin_date, X) \ fact(HP, begin_date, Y) <=> X = Y.
-rule, fact(HP, a, hp_arrangement), fact(HP, begin_date, Begin_Date) ==> \+find_fact2(Begin_Date1, a, date, [Begin_Date1:Begin_Date]) | fact(Begin_Date, a, date).
+	First_Installment 			= HP:installments:first:value,
+	Last_Installment 			= HP:installments:last:value,
+	HP:cash_price 				= First_Installment:opening_balance,
+	HP:begin_date				= First_Installment:opening_date, /* needs payment type parameter */
+	HP:final_balance 			= Last_Installment:closing_balance,
+	HP:end_date 				= Last_Installment:closing_date,
+	HP:number_of_installments 	= Last_Installment:number,
 
-% hp arrangements have a unique end date
-rule, fact(HP, a, hp_arrangement) ==> \+find_fact2(HP1, end_date, _, [HP1:HP]) | fact(HP, end_date, _).
-rule, fact(HP, a, hp_arrangement), fact(HP, end_date, X) \ fact(HP, end_date, Y) <=> X = Y.
-rule, fact(HP, a, hp_arrangement), fact(HP, end_date, End_Date) ==> \+find_fact2(End_Date1, a, date, [End_Date1:End_Date]) | fact(End_Date, a, date).
-
-% hp arrangements have a unique cash price
-rule, fact(HP, a, hp_arrangement) ==> \+find_fact2(HP1, cash_price, _, [HP1:HP]) | fact(HP, cash_price, _).
-rule, fact(HP, a, hp_arrangement), fact(HP, cash_price, X) \ fact(HP, cash_price, Y) <=> X = Y.
-
-% hp arrangements have a unique interest rate
-rule, fact(HP, a, hp_arrangement) ==> \+find_fact2(HP1, interest_rate, _, [HP1:HP]) | fact(HP, interest_rate, _).
-rule, fact(HP, a, hp_arrangement), fact(HP, interest_rate, X) \ fact(HP, interest_rate, Y) <=> X = Y.
-
-% hp arrangements have a unique repayment period
-rule, fact(HP, a, hp_arrangement) ==> \+find_fact2(HP1, repayment_period, _, [HP1:HP]) | fact(HP, repayment_period, _).
-rule, fact(HP, a, hp_arrangement), fact(HP, repayment_period, X) \ fact(HP, repayment_period, Y) <=> X = Y.
-
-% hp arrangements have a unique repayment amount
-rule, fact(HP, a, hp_arrangement) ==> \+find_fact2(HP1, repayment_amount, _, [HP1:HP]) | fact(HP, repayment_amount, _).
-rule, fact(HP, a, hp_arrangement), fact(HP, repayment_amount, X) \ fact(HP, repayment_amount, Y) <=> X = Y.
-
-% hp arrangements have a unique number of installments
-rule, fact(HP, a, hp_arrangement) ==> \+find_fact2(HP1, number_of_installments, _, [HP1:HP]) | fact(HP, number_of_installments, _).
-rule, fact(HP, a, hp_arrangement), fact(HP, number_of_installments, X) \ fact(HP, number_of_installments, Y) <=> X = Y.
-
-% hp arrangements have a unique list of hp_installments
-rule, fact(HP, a, hp_arrangement) ==> \+find_fact2(HP1, installments, _, [HP1:HP]) | fact(HP, installments, _).
-rule, fact(HP, a, hp_arrangement), fact(HP, installments, X) \ fact(HP, installments, Y) <=> X = Y.
-rule, fact(HP, a, hp_arrangement), fact(HP, installments, Installments) ==> \+find_fact(Installments, a, list) | fact(Installments, a, list).
-rule, fact(HP, a, hp_arrangement), fact(HP, installments, Installments) ==> \+find_fact(Installments, element_type, hp_installment) | fact(Installments, element_type, hp_installment).
-
-% hp arrangements have a unique final balance
-rule, fact(HP, a, hp_arrangement) ==> \+find_fact2(HP1, final_balance, _, [HP1:HP]) | fact(HP, final_balance, _).
-rule, fact(HP, a, hp_arrangement), fact(HP, final_balance, X) \ fact(HP, final_balance, Y) <=> X = Y.
+	% special formula: repayment amount
+	% the formula doesn't account for balloons/submarines and other variations
+	P0 = HP:cash_price,    		% P0 = principal / balance at t = 0
+	PN = HP:final_balance, 		% PN = principal / balance at t = N
+	IR = HP:interest_rate,
+	R = HP:repayment_amount,
+	N = HP:number_of_installments,
+	{R = (P0 * (1 + (IR/12))^N - PN)*((IR/12)/((1 + (IR/12))^N - 1))}
+	]),
+	debug(chr_hp_arrangement, "CHR: hp_arrangement(~w): Success.~n", [HP]),
+	rule.
 
 
 
+% CONSTRAINTS ABOUT ANY GIVEN INSTALLMENT:
+	fact(HP, a, hp_arrangement),
+	fact(HP, has_installment, Installment),
+	fact(Installment, list_cell, Installment_Cell) \
+	rule
+	<=>
+	add_constraints([
 
-% installments have a unique installment period
-rule, fact(Installment, a, hp_installment) ==> \+find_fact2(Installment1, installment_period, _, [Installment1:Installment]) | fact(Installment, installment_period, _).
-rule, fact(Installment, a, hp_installment), fact(Installment, installment_period, X) \ fact(Installment, installment_period, Y) <=> X = Y.
-rule, fact(Installment, a, hp_installment), fact(Installment, installment_period, Installment_Period) ==> \+find_fact2(Installment_Period1, a, month_interval, [Installment_Period1:Installment_Period]) | fact(Installment_Period, a, month_interval).
+	% relate installment parameters to HP parameters
+	Installment:hp_arrangement		= HP,
+	Installment:interest_rate 		= HP:normal_interest_rate,
+	Installment:payment_amount 		= HP:normal_payment_amount,		% needs to account for balloon payments
 
-% installments have a unique opening date
-rule, fact(Installment, a, hp_installment) ==> \+find_fact2(Installment1, opening_date, _, [Installment1:Installment]) | fact(Installment, opening_date, _).
-rule, fact(Installment, a, hp_installment), fact(Installment, opening_date, X) \ fact(Installment, opening_date, Y) <=> X = Y.
-rule, fact(Installment, a, hp_installment), fact(Installment, opening_date, Opening_Date) ==> \+find_fact2(Opening_Date1, a, date, [Opening_Date1:Opening_Date]) | fact(Opening_Date, a, date).
 
-% installments have a unique opening balance
-rule, fact(Installment, a, hp_installment) ==> \+find_fact2(Installment1, opening_balance, _, [Installment1:Installment]) | fact(Installment, opening_balance, _).
-rule, fact(Installment, a, hp_installment), fact(Installment, opening_balance, X) \ fact(Installment, opening_balance, Y) <=> X = Y.
+	% relate opening balance, interest rate, interest amount, payment amount, and closing balance
+	{Installment:interest_amount 	= Installment:opening_balance * Installment:interest_rate},
+	{Installment:closing_balance 	= Installment:opening_balance + Installment:interest_amount - Installment:payment_amount},
 
-% installments have a unique payment amount
-rule, fact(Installment, a, hp_installment) ==> \+find_fact2(Installment1, payment_amount, _, [Installment1:Installment]) | fact(Installment, payment_amount, _).
-rule, fact(Installment, a, hp_installment), fact(Installment, payment_amount, X) \ fact(Installment, payment_amount, Y) <=> X = Y.
+	% let the installment object be treated as a list-cell
+	Installment_Cell:index 			= Installment:number,
+	Installment_Cell:next			= Installment:next,
+	Installment_Cell:previous		= Installment:previous,
 
-% installments have a unique interest rate
-rule, fact(Installment, a, hp_installment) ==> \+find_fact2(Installment1, interest_rate, _, [Installment1:Installment]) | fact(Installment, interest_rate, _).
-rule, fact(Installment, a, hp_installment), fact(Installment, interest_rate, X) \ fact(Installment, interest_rate, Y) <=> X = Y.
 
-% installments have a unique interest amount
-rule, fact(Installment, a, hp_installment) ==> \+find_fact2(Installment1, interest_amount, _, [Installment1:Installment]) | fact(Installment, interest_amount, _).
-rule, fact(Installment, a, hp_installment), fact(Installment, interest_amount, X) \ fact(Installment, interest_amount, Y) <=> X = Y.
 
-% installments have a unique closing date
-rule, fact(Installment, a, hp_installment) ==> \+find_fact2(Installment1, closing_date, _, [Installment1:Installment]) | fact(Installment, closing_date, _).
-rule, fact(Installment, a, hp_installment), fact(Installment, closing_date, X) \ fact(Installment, closing_date, Y) <=> X = Y.
-rule, fact(Installment, a, hp_installment), fact(Installment, closing_date, Closing_Date) ==> \+find_fact2(Closing_Date1, a, date, [Closing_Date1:Closing_Date]) | fact(Closing_Date, a, date).
+	/* calculating installment period from index
+	note adding: must be same units; //12 is converting units of months to units of years,
+	% with approximation given by rounding down, which is done because the remainder is given
+	% as a separate quantity
 
-% installments have a unique closing balance
-rule, fact(Installment, a, hp_installment) ==> \+find_fact2(Installment1, closing_balance, _, [Installment1:Installment]) | fact(Installment, closing_balance, _).
-rule, fact(Installment, a, hp_installment), fact(Installment, closing_balance, X) \ fact(Installment, closing_balance, Y) <=> X = Y.
+	 % taking rem in this context requires correction for 0-offset of month-index, ex.. january = 1,
+	(year,month) is effectively a kind of compound unit
 
-% installments have a unique hp arrangement
-rule, fact(HP, a, hp_arrangement), fact(HP, installments, Installments), fact(Cell, list_in, Installments), fact(Cell, value, Installment), fact(Installment, a, hp_installment) ==> \+find_fact(Installment, hp_arrangement, HP) | fact(Installment, hp_arrangement, HP).
-rule, fact(Installment, a, hp_installment), fact(Installment, hp_arrangement, X) \ fact(Installment, hp_arrangement, Y) <=> X = Y.
+	% offset is inverse of error
+	% 
+	*/
+	Offset 	#= (HP:begin_month - 1) + (Installment:number - 1), % month's unit and installment index have +1 0-offset, -1 is 0-error (deviation from 0)
+	Year 	#= HP:begin_date:year + (Offset // 12),
+	Month	#= ((Offset mod 12) + 1), 							% +1 is return to 0-offset of the month's unit
 
+	% just assuming that the opening date is the 1st of the month and closing date is last of the month
+	Installment:opening_date:year = Year,
+	Installment:opening_date:month = Month,
+	Installment:opening_date:day = 1,
+	Installment:closing_date:year = Year,
+	Installment:closing_date:month = Month,
+	Installment:closing_date:day = Installment:closing_date:month_length %,
+	%Installment:closing_date:day = Month_Length
+	]).
+
+	% special formula: closing balance to calculate the closing balance directly from the hp parameters.
+	% NOTE: approximation errors in input can cause it to calculate a non-integer installment index
+	/*
+	P0 = HP.cash_price,
+	I = HP.installment_number
+	R = HP.repayment_amount
+	IR = HP.interest_rate
+	PI = P0*(1 + (IR/12))^I - R*((1 + (IR/12))^I - 1)/(IR/12)
+	*/
+
+
+
+% Constraint relating adjacent installments: continuity principle
+% Other constraints are handled by the list theory.
+	fact(HP, a, hp_arrangement),
+	fact(HP, has_installment, Installment),
+	fact(Installment, next, Next_Installment)
+	\
+	rule
+	<=>
+	add_constraints([
+	Installment:closing_balance = Next_Installment:opening_balance
+	]).
+
+
+% i was holding off on these rules in particular cause i'm trying to patch them into the other rules, where possible
+% you can delete it or whatever, i'm just doing it so i can read it now ah sure
+
+/*
+% 
 % if the cash price is different from the final balance, there must be an installment
-rule, fact(HP, a, hp_arrangement), fact(HP, cash_price, Cash_Price), fact(HP, final_balance, Final_Balance), fact(HP, installments, Installments) ==> \+find_fact2(_, list_in, Installments1, [Installments1:Installments]), nonvar(Cash_Price), nonvar(Final_Balance), Cash_Price \== Final_Balance | fact(_, list_in, Installments).
+% this is really an instance of a more general principle:
+% if installment X precedes installment Y, and X.closing_balance \= Y.opening_balance, there must be an installment in between X and Y
+% conversely, if there is no installment between X and Y, then X.closing_balance = Y.opening_balance
 
-% opening balance of first installment is the cash price of the arrangement
-rule, fact(HP, a, hp_arrangement), fact(HP, installments, Installments), fact(HP, cash_price, Cash_Price), fact(Installments, first, First), fact(First, value, First_Installment), fact(First_Installment, opening_balance, Opening_Balance) ==> Cash_Price = Opening_Balance.
+rule, fact(HP, a, hp_arrangement), fact(HP, cash_price, Cash_Price), fact(HP, final_balance, Final_Balance), fact(HP, installments, Installments) ==> \+find_fact2(_, list_in, Installments1, [Installments1:Installments]), nonvar(Cash_Price), nonvar(Final_Balance), Cash_Price \== Final_Balance | debug(chr_hp, "if the cash price is different from the final balance, there must be an installment.~n", []), fact(_, list_in, Installments).
 
-% payment amount of each installment is repayment amount of the arrangement (doesn't account for balloon payments or submarines)
-rule, fact(HP, a, hp_arrangement), fact(Installment, hp_arrangement, HP), fact(HP, repayment_amount, Repayment_Amount), fact(Installment, payment_amount, Payment_Amount) ==> Repayment_Amount = Payment_Amount.
-
-% interest rate for each installment is the interest rate of the arrangement
-rule, fact(HP, a, hp_arrangement), fact(Installment, hp_arrangement, HP), fact(HP, interest_rate, Interest_Rate), fact(Installment, interest_rate, Installment_Interest_Rate) ==> Interest_Rate = Installment_Interest_Rate.
-
-% interest amount for each installment is the interest rate of the installment times the opening balance of the installment
-rule, fact(Installment, a, hp_installment), fact(Installment, opening_balance, Opening_Balance), fact(Installment, interest_rate, Interest_Rate), fact(Installment, interest_amount, Interest_Amount) ==> clpq({Interest_Amount = Opening_Balance*(Interest_Rate/12)}).
-
-% closing balance of each installment is opening balance + interest amount - payment amount
-rule, fact(Installment, a, hp_installment), fact(Installment, opening_balance, Opening_Balance), fact(Installment, payment_amount, Payment_Amount), fact(Installment, interest_amount, Interest_Amount), fact(Installment, closing_balance, Closing_Balance) ==> clpq({Closing_Balance = Opening_Balance + Interest_Amount - Payment_Amount}).
-
-% opening balance of the next installment is the closing balance of the current installment (by extension, closing balance of the previous installment is opening balance of current installment)
-rule, fact(HP, a, hp_arrangement), fact(HP, installments, Installments), fact(Cell, list_in, Installments), fact(Cell, value, Installment), fact(Installment, closing_balance, Closing_Balance), fact(Cell, next, Next_Cell), fact(Next_Cell, value, Next_Installment), fact(Next_Installment, opening_balance, Opening_Balance) ==> Closing_Balance = Opening_Balance.
-
+% this isn't a logical validity it's just a heuristic meant to generate the list when the parameters are underspecified
 % if closing balance is greater than or equal to repayment amount, there should be another installment after it
-rule, fact(HP, a, hp_arrangement), fact(HP, repayment_amount, Repayment_Amount), fact(HP, installments, Installments), fact(Installment_Cell, list_in, Installments), fact(Installment_Cell, value, Installment), fact(Installment, closing_balance, Closing_Balance) ==> nonvar(Closing_Balance), nonvar(Repayment_Amount), Closing_Balance >= Repayment_Amount, \+find_fact2(Installment_Cell1, next, _, [Installment_Cell1:Installment_Cell]) | fact(Installment_Cell, next, _).
+rule, fact(HP, a, hp_arrangement), fact(HP, repayment_amount, Repayment_Amount), fact(HP, installments, Installments), fact(Installment_Cell, list_in, Installments), fact(Installment_Cell, value, Installment), fact(Installment, closing_balance, Closing_Balance) ==> nonvar(Closing_Balance), nonvar(Repayment_Amount), Closing_Balance >= Repayment_Amount, \+find_fact2(Installment_Cell1, next, _, [Installment_Cell1:Installment_Cell]) | debug(chr_hp, "if closing balance is greater than or equal to repayment amount, there should be another installment after it.~n", []), fact(Installment_Cell, next, _).
 
-% if opening_balance is less than the opening_balance, there should be another installment before it
-rule, fact(HP, a, hp_arrangement), fact(HP, cash_price, Cash_Price), fact(HP, installments, Installments), fact(Installment_Cell, list_in, Installments), fact(Installment_Cell, value, Installment), fact(Installment, opening_balance, Opening_Balance) ==> nonvar(Cash_Price), nonvar(Opening_Balance), Opening_Balance < Cash_Price, \+find_fact2(Installment_Cell1, prev, _, [Installment_Cell1:Installment_Cell]) | fact(Installment_Cell, prev, _). 
-
-% get the month and year for a given monthly installment by its index in the installments list
-rule, fact(HP, a, hp_arrangement), fact(HP, begin_date, Begin_Date), fact(Begin_Date, year, Begin_Year), fact(Begin_Date, month, Begin_Month), fact(HP, installments, Installments), fact(Installment_Cell, list_in, Installments), fact(Installment_Cell, list_index, Installment_Number), fact(Installment_Cell, value, Installment), fact(Installment, installment_period, Installment_Period), fact(Installment_Period, year, Installment_Year), fact(Installment_Period, month, Installment_Month) ==> clpq(N #= (Installment_Number - 1)), clpq(V #= (Begin_Month + N)), clpq(Installment_Year #= Begin_Year +((V - 1) // 12)), clpq(Installment_Month #= (((V - 1) rem 12) + 1)).
-
-% assumes opening date is the first day of the installment month, for monthly
-rule, fact(Installment, a, hp_installment), fact(Installment, installment_period, Installment_Period), fact(Installment_Period, year, Installment_Year), fact(Installment_Period, month, Installment_Month), fact(Installment, opening_date, Opening_Date), fact(Opening_Date, year, Opening_Year), fact(Opening_Date, month, Opening_Month), fact(Opening_Date, day, Opening_Day) ==> Opening_Year = Installment_Year, Opening_Month = Installment_Month, Opening_Day = 1.
+% this on the other hand is a logical validity:
+% if closing balance is not equal to the final balance then there should be another installment after it
 
 
-rule, fact(Installment, a, hp_installment), fact(Installment, installment_period, Installment_Period), fact(Installment_Period, year, Installment_Year), fact(Installment_Period, month, Installment_Month), fact(Installment, closing_date, Closing_Date), fact(Closing_Date, year, Closing_Year), fact(Closing_Date, month, Closing_Month) ==> Closing_Year = Installment_Year, Closing_Month = Installment_Month.
+% if opening_balance of the installment is less than the cash price of the arrangement, there should be another installment before it
+rule, 
+	fact(HP, a, hp_arrangement), 
+	fact(HP, cash_price, Cash_Price), 
+	fact(HP, installments, Installments), 
+	fact(Installment_Cell, list_in, Installments), 
+	fact(Installment_Cell, value, Installment), 
+	fact(Installment, opening_balance, Opening_Balance) 
+	==> 
+	nonvar(Cash_Price), 
+	nonvar(Opening_Balance), 
+	Opening_Balance < Cash_Price, 
+	\+find_fact2(Installment_Cell1, prev, _, [Installment_Cell1:Installment_Cell]) 
+	| 
+	debug(chr_hp, "if opening balance is less than the cash price of the arrangement, there should be another installment before it.~n", []), 
+	fact(Installment_Cell, prev, _). 
 
-% assumes closing date is the last day of the installment month, for monthly
-rule, fact(Installment, a, hp_installment), fact(Installment, installment_period, Installment_Period), fact(Installment_Period, year, Installment_Year), fact(Installment_Period, month, Installment_Month), fact(Installment, closing_date, Closing_Date), fact(Closing_Date, day, Closing_Day) ==> nonvar(Installment_Year), nonvar(Installment_Month) | month_length(Installment_Year, Installment_Month, Closing_Day).
-
-% end date of hp arrangement is the closing date of the last installment
-rule, fact(HP, a, hp_arrangement), fact(HP, end_date, End_Date), fact(HP, installments, Installments), fact(Installments, last, Last_Cell), fact(Last_Cell, value, Last_Installment), fact(Last_Installment, closing_date, Closing_Date) ==> End_Date = Closing_Date.
-
-% number of installments of the hp arrangement is the index of the last installment
-rule, fact(HP, a, hp_arrangement), fact(HP, number_of_installments, Number_Of_Installments), fact(HP, installments, Installments), fact(Installments, last, Last_Installment), fact(Last_Installment, list_index, Last_Index) ==> Number_Of_Installments = Last_Index.
-
+% this is handled by the list theory
 % if the index of an installment is the same as the number of installments, then it's the last installment
 rule, fact(HP, a, hp_arrangement), fact(HP, number_of_installments, Number_Of_Installments), fact(HP, installments, Installments), fact(Installment, list_in, Installments), fact(Installment, list_index, Number_Of_Installments) ==> fact(Installments, last, Installment).
 
-/*
-Formula for calculating installment closing balance directly from:
-* Cash price				P		
-* Repayment amount     		R		(per installment)
-* Interest rate	       		r   	(per installment period)
-* Installment index    		i
 
-P_i = P_0 * (1 + r)^i - R*((1 + r)^i - 1)/r
-
-reference: https://financeformulas.net/Remaining_Balance_Formula.html
-*/
-/*
-rule, fact(HP, a, hp_arrangement), fact(HP, installments, Installments), fact(Installment_Cell, list_in, Installments), fact(Installment_Cell, list_index, I), fact(Installment_Cell, value, Installment), fact(HP, cash_price, P0), fact(HP, interest_rate, IR), fact(HP, repayment_amount, R), fact(Installment, closing_balance, PI) ==> clpq({PI = P0*(1 + (IR/12))^I - R*((1 + (IR/12))^I - 1)/(IR/12)}).
+% if number of installments is nonvar then you can generate all the installments
+rule, 
+	fact(HP, a, hp_arrangement), 
+	fact(HP, number_of_installments, Number_Of_Installments), 
+	fact(HP, installments, Installments) 
+	==> 
+	\+'$enumerate_constraints'(block), 
+	nonvar(Number_Of_Installments) 
+	| 
+	generate_installments(Installments, Number_Of_Installments).
 */
 
+
 /*
-Formula for calculating repayment amount directly from:
-* Cash price				P
-* Interest rate				r		(per installment period)
-* Number of installments	N
-* Final balance				P_N
-
-R = (P_0 * (1 + r)^N - P_N) * (r / ((1 + r)^N - 1))
+This is a catch-all for fact deduplication.
 */
-rule, fact(HP, a, hp_arrangement), fact(HP, cash_price, P0), fact(HP, interest_rate, IR), fact(HP, final_balance, PN), fact(HP, number_of_installments, N), fact(HP, repayment_amount, R) ==> clpq({R = (P0 * (1 + (IR/12))^N - PN)*((IR/12)/((1 + (IR/12))^N - 1))}).
+rule, fact(S, P, O) \ fact(S, P, O) <=> true.
 
 
-rule, fact(S, P, O) \ fact(S, P, O) <=> (P == closing_balance -> format("deduplicate: ~w ~w ~w~n", [S, P, O]) ; true).
+add_constraints(Constraints) :-
+	debug(add_constraints, "add_constraints($Constraints):~n", []),
+	maplist(add_constraint, Constraints),
+	debug(add_constraints, "add_constraints($Constraints): Success.~n", []).
 
+add_constraint(Constraint) :-
+	debug(add_constraint, "add_constraint(~w):~n", [Constraint]),
+	transform_constraint(Constraint, New_Constraint),
+	debug(add_constraint, "add_constraint(~w): Transformed constraint: in=`~w`, out=`~w`~n", [Constraint, Constraint, New_Constraint]),
+	(
+		New_Constraint = fact(S, P, O)
+	->	debug(add_constraint, "add_constraint(~w): Fact constraint...~n", [Constraint]),
+		add_fact(S,P,O),
+		debug(add_constraint, "add_constraint(~w): Added fact...~n", [Constraint]),
+		(
+			P = 'a'
+		->	(
+				atom(O)
+			->	chr_fields(O, Attributes),
+				debug(add_constraint, "add_constraint(~w): Adding attributes...~n", [Constraint]),
+				maplist(add_attribute(S), Attributes),
+				(
+					O = date
+				->	debug(add_constraint, "add_constraint(~w): Adding date constraints...~n", [Constraint]),
+					date_constraints(Date),
+					add_fact(S, dict, Date),
+					debug(add_constraint, "add_constraint(~w): Created attribute dict...~n", [Constraint]),
+					add_fact(S, year, Date.year),
+					add_fact(S, month, Date.month),
+					add_fact(S, day, Date.day),
+					add_fact(S, day_of_week, Date.day_of_week),
+					debug(add_constraint, "add_constraint(~w): Related dict attributes and triples attributes~n", [Constraint])
+				;	true
+				)
+			;	format(user_error, "ERROR: add_constraint(~w): type must be an atom in `~w`~n", [Constraint, Constraint]),
+				fail
+			)
+		;	true
+		)
+	;	call(New_Constraint)
+	),
+	debug(add_constraint, "add_constraint(~w): Success.~n", [Constraint]).
+
+add_fact(S1,P1,O1) :-
+	debug(add_fact, "add_fact(~w,~w,~w): Mapping vars:", [S1,P1,O1]),
+	% don't add triples that already exist
+	maplist([X,X]>>(var(X) -> X = kb_var(_) ; true), [S1,P1,O1], [S,P,O]),
+	debug(add_fact, " ~w~n", [[S,P,O]]),
+	(	\+find_fact(S,P,O)
+	->	
+		% don't add extra attributes when the attribute is unique
+		debug(add_fact, "add_fact(~w,~w,~w): Fact doesn't exist...~n", [S1,P1,O1]),
+		(
+			P = 'a'
+		->	(
+				find_fact(S,a,O1)
+			->	(
+					O == O1
+				->	true
+				;	format(user_error, "ERROR: asserting `~w a ~w` when fact `~w a ~w` already exists~n", [S,O,S,O1]),
+					fail
+				)
+			;	debug(add_fact, "add_fact(~w,~w,~w): Adding fact...~n",[S1,P1,O1]),
+				fact(S,P,O)
+			)
+		;
+			(
+				find_fact(S,a,T)
+			->	debug(add_fact, "add_fact(~w,~w,~w): Found type: `~w a ~w`~n", [S1,P1,O1,S,T]),
+				(
+					find_fact(T, field, Field),
+					find_fact(Field, key, P)
+				->	debug(add_fact, "add_fact(~w,~w,~w): Found matching key: `~w key ~w`~n", [S1,P1,O1,Field,P]),
+					(	\+find_fact(Field, unique, true)
+					->	fact(S,P,O)
+					;	(	
+							find_fact(S, P, O2)
+						->	debug(add_fact, "add_fact(~w,~w,~w): Found existing attribute: `~w ~w ~w`, unifying.~n", [S1,P1,O1, S,P,O2]),
+							(
+								O = O2
+							->	true
+							;	format(user_error, "ERROR: add_fact(~w,~w,~w): Inconsistency: `~w` \\= `~w`, when setting attribute `~w:~w`~n", [S1,P1,O1,O,O2,S,P]),
+								fail
+							)
+						;	debug(add_fact, "add_fact(~w,~w,~w): No existing attribute, Adding fact...~n", [S1,P1,O1]),
+							fact(S,P,O)
+						)
+					)
+				;	debug(add_fact, "add_fact(~w,~w,~w): No matching key. Adding fact.~n", [S1,P1,O1]),
+					fact(S,P,O)
+				)
+			;	debug(add_fact, "add_fact(~w,~w,~w): Adding fact...~n", [S1,P1,O1]),
+				fact(S,P,O)
+			)
+		)
+	;	debug(add_fact, "add_fact(~w,~w,~w): Not adding fact...~n", [S1,P1,O1])
+	),
+	debug(add_fact, "add_fact(~w,~w,~w): Success.~n", [S1,P1,O1]).
+
+
+transform_constraint('{}'(Constraint), '{}'(New_Constraint)) :-
+	debug(transform_constraint, "transform_constraint#'{}'({~w}, {~w}):~n", [Constraint, New_Constraint]),
+	!,
+	transform_constraint(Constraint, New_Constraint),
+	debug(transform_constraint, "transform_constraint#'{}'({~w}, {~w}): Success.~n", [Constraint, New_Constraint]).
+
+transform_constraint(fact(S,P,O), fact(S1,P1,O1)) :-
+	debug(transform_constraint, "transform_constraint#fact(~w, ~w):~n", [fact(S,P,O), fact(S1,P1,O1)]),
+	!,
+	maplist([X,Y]>>transform_term(X,Y,_{with_kb_vars:true}), [S,P,O], [S1,P1,O1]),
+	debug(transform_constraint, "transform_constraint#fact(~w, ~w): Success.~n", [fact(S,P,O), fact(S1,P1,O1)]).
+
+transform_constraint(Constraint, New_Constraint) :-
+	debug(transform_constraint, "transform_constraint#default(~w, ~w):~n", [Constraint, New_Constraint]),
+	(
+		nonvar(Constraint)
+	-> 	true
+	;	format(user_error, "ERROR: transform_constraint#default(~w, ~w): variable constraints not currently supported~n", []),
+		fail
+	),
+	Constraint =.. [R | Args],
+	length(Args, N),
+	(
+		nonvar(R) /* can we ever have a var here? hypothetically we could ask something like 5 ? 2*/
+	->	true
+	;	format(user_error, "ERROR: transform_constraint#default(~w, ~w): variable relations not currently supported, in `~w`~n", [Constraint]),
+		fail
+	),
+	(
+		relation(R, N)
+	-> 	true
+	; 	format(user_error, "ERROR: transform_constraint#default(~w, ~w): no known relation `~w/~w` in `~w`~n", [R, N, Constraint]),
+		fail
+	),
+	debug(transform_constraint, "transform_constraint#default(~w, ~w): Found relation: R = `~w/~w`, Args = `~w`~n", [Constraint, New_Constraint, R, N, Args]),
+	maplist(
+		[X,Y]>>(transform_term(X,Y,_{with_kb_vars:false})),
+		Args,
+		New_Args
+	),
+	New_Constraint =.. [R | New_Args], % should only fail in the event of programmer / environment error
+	debug(transform_constraint, "transform_constraint#default(~w, ~w): Success.~n", [Constraint, New_Constraint]).
+
+transform_term(kb_var(Term), New_Term, Opts) :- 
+	!,
+	debug(transform_term,"transform_term#kb_var(~w,~w,~w):~n", [kb_var(Term), New_Term, Opts]),
+	(
+		get_dict(with_kb_vars,Opts,true)
+	->	New_Term = kb_var(Term)
+	;	New_Term = Term
+	),
+	debug(transform_term, "transform_term#kb_var(~w,~w,~w): Success.~n", [kb_var(Term), New_Term, Opts]).
+
+
+transform_term(Term, Term, Opts) :- 
+	debug(transform_term, "transform_term#atomic(~w, ~w, ~w):~n", [Term, Term, Opts]),
+	Term =.. [Term],
+	(
+		atomic(Term)
+	->	true
+	;	format(user_error, "ERROR: transform_term#atomic(~w, ~w, ~w): non-atomic atom? `~w`~n", [Term, Term, Opts, Term]),
+		fail
+	),
+	!,
+	debug(transform_term, "transform_term#atomic(~w, ~w, ~w): Success.~n", [Term, Term, Opts]).
+
+transform_term(Object:Attribute, New_Term, Opts) :-
+	!,
+	debug(transform_term, "transform_term#':'(~w, ~w, ~w):~n", [Object:Attribute, New_Term, Opts]),
+	transform_attribute([Object,Attribute], New_Term1),
+	(
+		New_Term1 = kb_var(Term)
+	->	(
+			get_dict(with_kb_vars,Opts,true)
+		->	debug(transform_term, "transform_term#':'(~w, ~w, ~w): with_kb_vars=true~n", [Object:Attribute, New_Term, Opts]),
+			New_Term = kb_var(Term)
+		;	debug(transform_term, "transform_term#':'(~w, ~w, ~w): with_kb_vars=false~n", [Object:Attribute, New_Term, Opts]),
+			New_Term = Term
+		)
+	;	debug(transform_term, "transform_term#':'(~w, ~w, ~w): ~n", [Object:Attribute, New_Term, Opts]),
+		New_Term = New_Term1
+	),
+	debug(transform_term, "transform_term#':'(~w, ~w, ~w):Success.~n", [Object:Attribute, New_Term, Opts]).
+
+transform_term(Term, New_Term, Opts) :- 
+	debug(transform_term, "transform_term#function(~w, ~w, ~w):~n", [Term, New_Term, Opts]),
+	Term =.. [F | Args],
+	length(Args, N),
+	(
+		function(F, N)
+	-> 	true
+	; 	format(user_error, "ERROR: transform_term#function(~w, ~w, ~w): no known function `~w/~w` in `~w`~n", [Term, New_Term, Opts, F, N, Term]),
+		fail
+	),
+	debug(transform_term, "transform_term#function(~w, ~w, ~w): Valid function application; transforming args:~n", [Term, New_Term, Opts]),
+	maplist(
+		% weird behavior here; if the Opts dict is just used inside the body of the function being mapped, it ends up
+		% getting replaced by a variable.
+		call([Opts, X,Y]>>(
+			debug(transform_term, "Transforming term: ~w, opts=~w~n", [X,Opts]),
+			transform_term(X,Y,Opts)
+		), Opts),
+		Args,
+		New_Args
+	),
+	New_Term =.. [F | New_Args],
+	debug(transform_term, "transform_term#function(~w, ~w, ~w): Success.~n", [Term, New_Term, Opts]).
+
+
+transform_attribute([Object, Attribute], New_Object) :-
+	debug(transform_attribute, "transform_attribute#1(~w,~w):~n", [[Object, Attribute], New_Object]),
+	\+((\+var(Object), \+atom(Object), \+(Object = kb_var(_)))),
+	(
+		atom(Attribute)
+	->	true
+	;	format(user_error, "ERROR: transform_attribute#1(~w, ~w): attribute must be an atom in `~w:~w`~n", [[Object, Attribute], New_Object, Object, Attribute]),
+		fail
+	),
+	!,
+	transform_attribute_helper(Object, Attribute, New_Object),
+	debug(transform_attribute, "transform_attribute#1(~w,~w): Success.~n", [[Object, Attribute], New_Object]).
+
+transform_attribute([Object, Attribute], New_Object) :-
+	debug(transform_attribute, "transform_attribute#2(~w,~w):~n", [[Object, Attribute], New_Object]),
+	(
+		Object =.. [':' | [Object_B, Attribute_B]],
+		atom(Attribute)
+	->	transform_attribute([Object_B, Attribute_B], Next_Object),
+		transform_attribute_helper(Next_Object, Attribute, New_Object)
+	;	format(user_error, "ERROR: transform_attribute#2(~w,~w): invalid attribute access: `~w:~w`~n", [[Object, Attribute], New_Object, Object, Attribute]),
+		fail
+	),
+	debug(transform_attribute, "transform_attribute#2(~w,~w): Success ~n", [[Object, Attribute], New_Object]).
+
+
+transform_attribute_helper(Next_Object, Attribute, New_Object) :-
+	debug(transform_attribute_helper, "transform_attribute_helper(~w,~w,~w):~n", [Next_Object, Attribute, New_Object]),
+	(
+		find_fact(Next_Object, a, date)
+	->	debug(transform_attribute_helper, "transform_attribute_helper(~w,~w,~w): date object...~n", [Next_Object, Attribute, New_Object]),
+		(
+			find_fact(Next_Object, dict, Dict)
+		->	debug(transform_attribute_helper, "transform_attribute_helper(~w,~w,~w): found dict: ~w~n", [Next_Object, Attribute, New_Object, Dict]),
+			(
+				get_dict(Attribute, Dict, X)
+			->	New_Object = kb_var(X)
+			;	format(user_error, "ERROR: transform_attribute_helper(~w,~w,~w): date object `~w` has no attribute `~w`~n", [Next_Object, Attribute, New_Object, Next_Object, Attribute]),
+				fail
+			)
+		;	format(user_error, "PROGRAMMER ERROR: transform_attribute_helper(~w,~w,~w): date object `~w` has no dict~n", [Next_Object, Attribute, New_Object, Next_Object]),
+			fail
+		)
+	;	debug(transform_attribute_helper, "transform_attribute_helper(~w,~w,~w): other type...~n", [Next_Object, Attribute, New_Object]),
+		(
+			find_fact(Next_Object, Attribute, New_Object)
+		->	true
+		;	format(user_error, "ERROR: transform_attribute_helper(~w,~w,~w): object `~w` has no attribute `~w`~nCurrent KB:~n", [Next_Object, Attribute, New_Object, Next_Object, Attribute]),
+			findall(
+				_,
+				(
+					'$enumerate_constraints'(fact(S,P,O)),
+					format(user_error, "~w ~w ~w~n", [S,P,O])
+				),
+				_
+			),
+			fail
+		)
+	),
+	debug(transform_attribute_helper, "transform_attribute_helper(~w,~w,~w): Success.~n", [Next_Object, Attribute, New_Object]).
+
+
+add_attribute(Object, Attribute) :-
+	debug(add_attribute, "add_attribute(~w,~w): Adding attribute: ~w.~w~n", [Object, Attribute, Object, Attribute]),
+	(
+		get_dict(key, Attribute, Key)
+	->	true
+	;	format(user_error, "ERROR: add_attribute(~w,~w): attribute must have key~n", [Object, Attribute])
+	),
+	(
+		atom(Key)
+	->	true
+	;	format(user_error, "ERROR: add_attribute(~w,~w): attribute key must be an atom, found: `~w`~n", [Object, Attribute, Key])
+	),
+	(
+		get_dict(required, Attribute, true)
+	->	debug(add_attribute, "add_attribute(~w,~w): Required...~n", [Object, Attribute]),
+		add_fact(Object, Key, _)
+	;	true
+	),
+	debug(add_attribute, "add_attribute(~w,~w): Success.~n", [Object, Attribute]).
+
+
+relation('fact',3).
+relation('=',2).
+relation('>',2).
+relation('>=',2).
+relation('<',2).
+relation('=<',2).
+relation('#=',2).	% equality constrained to integers, should be driven by the types
+%relation('@=',2).
+relation('in',2).
+
+/*
+Nat * Nat -> Nat
+Integer * Integer -> Integer
+Rational * Rational -> Rational
+Real * Real -> Real
+*/
+function('+',2).
+
+/*
+Nat * Nat -> Nat
+Integer * Integer -> Integer
+Rational * Rational -> Rational
+Real * Real -> Real
+*/
+function('*',2).
+
+
+
+/*
+Hopefully all the other rules fully finish executing before this one fires?
+*/
 rule <=> clpq.
 
 clpq \ clpq(Constraint) <=> (
@@ -338,14 +930,12 @@ clpq \ clpq(Constraint) <=> (
 
 clpq, countdown(N, Done) <=> N > 0 | M is N - 1, format(user_error, "~ncountdown ~w~n~n", [M]), countdown(M, Done), rule.
 clpq, countdown(0, Done) <=>
-	format(user_error, "Done chase:~n", []),
-	dump_chr,
 	Done = done,
 	true.
 %next(0) <=> true.
 %next(M) <=> nl, countdown(M), rule.
 
-start(N, Done) <=> N > 0 | countdown(N, Done), rule.
+start(N, Done) <=> N > 0 | debug(chr_hp), debug(chr_object), debug(chr_list), debug(chr_date), initialize_relations, countdown(N, Done), rule.
 start(0, Done) <=> Done = done.
 
 % General pattern here:
@@ -379,192 +969,19 @@ print_constraints :-
 		_
 	).
 
+generate_installments(List, 0) :- format(user_error, "generate_installments(~w, 0)~n", [List]).
+generate_installments(List, N) :-
+	format(user_error, "generate_installments(~w, ~w)~n", [List, N]),
+	N > 0,
+	fact(Cell, list_in, List),
+	fact(Cell, list_index, N),
+	M is N - 1,
+	generate_installments(List, M).
 
-% exclude all list definition triples except for occurrences of L a list and Obj Attr L
-% on finding a list (i.e. L a list), perform chr_list_to_rdf_list
-% exclude any other triples if they include variables
-% 
-% translate all vars to bnodes, maintaining subs
-%
-
-
-% currently loses variable identities; actually only loses variable identities when printing for some reason and the
-% identities are still maintained in the New_Facts output... ?
-get_chr_facts(Found_Facts, Current_Facts, Current_Lists, Current_Facts, Current_Lists) :-
-	% every chr fact is in the list; done.
-	\+((
-		'$enumerate_constraints'(fact(S,P,O)),
-		\+((
-			member(fact(S1,P1,O1), Found_Facts),
-			S == S1,
-			P == P1,
-			O == O1
-		))
-	)).
-get_chr_facts(Found_Facts, Current_Facts, Lists, New_Facts, New_Lists) :-
-	% if there is a CHR fact
-	'$enumerate_constraints'(fact(S,P,O)),
-	%format("Fact: ~w ~w ~w~n", [S, P, O]),
-	% and no identical fact in the already-found facts
-	\+((
-		member(fact(S1,P1,O1), Found_Facts),
-		S == S1,
-		P == P1,
-		O == O1
-	)),
-	% then cut, add it to the already-found facts, and continue
-	!,
-
-	% exclude these triples
+get_sub(Var, [K:V | Rest], Sub) :-
 	(
-		\+member(P, [first, last, length, element_type, list_in, list_index, value, next, prev])
-	->	Next_Facts = [fact(S,P,O) | Current_Facts]
-	;	Next_Facts = Current_Facts
-	),
-	(
-		fact(S,P,O) = fact(S, a, list)
-	-> 	Next_Lists = [S | Lists]
-	;	Next_Lists = Lists
-	),
-	%format("Found fact: ~w ~w ~w~n", [S,P,O]),
-	get_chr_facts([fact(S,P,O) | Found_Facts], Next_Facts, Next_Lists, New_Facts, New_Lists).
-/*
-print_facts :-
-	get_chr_facts([], Facts),
-	print_facts_helper(Facts).
-
-print_facts_helper([]) :- nl.
-print_facts_helper([fact(S,P,O)| Facts]) :-
-	format("~w ~w ~w~n", [S, P, O]),
-	print_facts_helper(Facts).
-*/
-
-
-% convert a chr list to a regular prolog list
-chr_list_to_prolog_list(L, List) :-
-	find_fact4(L1, a, list, [L1:L]), !,
-	find_fact4(L1, first, First_Item, [L1:L]), !,
-	chr_list_to_prolog_list_helper(L, First_Item, List).
-
-chr_list_to_prolog_list_helper(L, Item, [fact(Item, value, Value) | Rest]) :-
-	find_fact4(Item1, value, Value, [Item1:Item]),
-	(
-		find_fact4(L1, last, Item1, [L1:L, Item1:Item])
-	->	Rest = []
-	;	(
-			find_fact4(Item1, next, Next_Item, [Item1:Item])
-		->	% could infloop if the list is cyclic, but current rules should rule out that possibility
-			chr_list_to_prolog_list_helper(L, Next_Item, Rest)
-		;	true
-		)
+		Var == K
+	->	Sub = V
+	;	get_sub(Var, Rest, Sub)
 	).
 
-chr_list_to_rdf_list(CHR_List, RDF_List, RDF_List_Triples, Subs) :-
-	chr_list_to_prolog_list(CHR_List, Prolog_List),
-	(
-		Prolog_List = []
-	->	RDF_List = rdf:nil,
-		RDF_List_Triples = [],
-		Subs = []
-	;	gensym(bn, RDF_List),
-		prolog_list_to_rdf_list(Prolog_List, RDF_List, RDF_List_Triples, Subs)
-	).
-
-prolog_list_to_rdf_list([], rdf:nil, [], []).
-prolog_list_to_rdf_list([fact(Cell, value, X)], URI, [fact(URI, rdf:first, X), fact(URI, rdf:rest, rdf:nil)], [Cell:URI]).
-prolog_list_to_rdf_list([fact(Cell, value, X), fact(Next_Cell, value, Y) | Xs], URI, [fact(URI, rdf:first, X), fact(URI, rdf:rest, Next_URI) | Rest_Triples], [Cell:URI | Rest_Subs]) :-
-	gensym(bn, Next_URI),
-	(
-		nonvar(Xs)
-	->	prolog_list_to_rdf_list([fact(Next_Cell, value, Y) | Xs], Next_URI, Rest_Triples, Rest_Subs)
-	;	Rest_Triples = [fact(Next_URI, rdf:first, Y)], Rest_Subs = [Next_Cell:Next_URI]
-	).
-
-
-get_chr_list_triples([], [], []).
-get_chr_list_triples([L | Ls], [L_Triples | Ls_Triples], [[L:L_Bnode | Subs] | Rest_Subs]) :-
-	chr_list_to_rdf_list(L, L_Bnode, L_Triples, Subs),
-	get_chr_list_triples(Ls, Ls_Triples, Rest_Subs).
-
-chr_filter_vars([], _, []).
-chr_filter_vars([Fact | Facts], Subs, New_Facts) :-
-	apply_subs_to_fact(Subs, Fact, New_Fact),
-	(
-		ground(New_Fact)
-	-> 	New_Facts = [New_Fact | Rest_Facts]
-	;	New_Facts = Rest_Facts
-	),
-	chr_filter_vars(Facts, Subs, Rest_Facts).
-
-map_args(P, Term, New_Term) :-
-	Term =.. [F | Args],
-	maplist(P, Args, New_Args),
-	New_Term =.. [F | New_Args].
-
-mapflat(P, List, New_List) :-
-	maplist(P, List, New_List_Nested),
-	flatten(New_List_Nested, New_List).
-
-apply_subs_to_facts(_, [], []).
-apply_subs_to_facts(Subs, [Fact | Facts], [New_Fact | New_Facts]) :-
-	apply_subs_to_fact(Subs, Fact, New_Fact),
-	apply_subs_to_facts(Subs, Facts, New_Facts).
-
-apply_subs_to_fact(Subs, Fact, New_Fact) :-
-	Fact =.. [fact | Args],
-	apply_subs_to_args(Subs, Args, New_Args),
-	New_Fact =.. [fact | New_Args].
-
-apply_subs_to_args(_, [], []).
-apply_subs_to_args(Subs, [Arg | Args], [New_Arg | New_Args]) :-
-	apply_subs_to_arg(Subs, Arg, New_Arg),
-	apply_subs_to_args(Subs, Args, New_Args).
-
-apply_subs_to_arg([], Arg, Arg).
-apply_subs_to_arg([K:V | Rest_Subs], Arg, New_Arg) :-
-	(	Arg == K
-	->	New_Arg = V
-	;	apply_subs_to_arg(Rest_Subs, Arg, New_Arg)
-	). 
-
-extract_chr_facts(Output_With_RDF_Values) :-
-	get_chr_facts([], [], [], Facts, Lists),
-	get_chr_list_triples(Lists, List_Triples, Subs),
-	flatten(List_Triples, List_Triples_Flat),
-	flatten(Subs, Subs_Flat),
-	apply_subs_to_facts(Subs_Flat, List_Triples_Flat, List_Triples_Sub),
-	chr_filter_vars(Facts, Subs_Flat, New_Facts),
-	append(New_Facts, List_Triples_Sub, Output),
-	make_rdf_values(Output, Output_With_RDF_Values).
-
-% replace attributes with rdf:values
-make_rdf_values(Facts, New_Facts) :-
-	get_objects(Facts, Objects),
-	make_object_attributes(Facts, Objects, New_Facts).
-	
-	% replace attributes with rdf:values
-get_objects([], []).
-get_objects([fact(S, P, O) | Facts], Objects) :-
-	(
-		P = a,
-		O \= list
-	->	Objects = [S | Rest_Objects]
-	;	Objects = Rest_Objects
-	),
-	get_objects(Facts, Rest_Objects).
-
-make_object_attributes([], _, []).
-make_object_attributes([fact(S,P,O) | Facts], Objects, New_Facts) :-
-	(
-		member(S,Objects),
-		P \= a
-	-> 	gensym(bn,URI),
-		New_Facts = [fact(S,P,URI),fact(URI,rdf:value,O) | Rest_Facts]
-	;	New_Facts = [fact(S,P,O) | Rest_Facts]
-	),
-	make_object_attributes(Facts, Objects, Rest_Facts).
-
-print_facts2([]) :- nl.
-print_facts2([fact(S,P,O) | Rest]) :-
-	format("~w ~w ~w~n", [S,P,O]),
-	print_facts2(Rest).

@@ -1,0 +1,35 @@
+HP arrangement:
+	installments
+		guard
+		typed: list(hp_installment)
+		length exists
+		
+	number_of_installments
+		guard
+		typed: integer
+			36
+	repayment_amount
+		guard
+		typed: rational
+	interest_rate
+		guard
+		typed: rational
+			13 rdiv 100
+	cash_price
+		guard
+		typed: rational
+			29766 rdiv 5
+	end_date
+		required
+		typed: date
+			year
+			month
+				in 1..12
+			day
+	begin_date
+		guard
+		typed: date
+			year (guard)
+			month (guard)
+				in 1..12
+			day (guard)
