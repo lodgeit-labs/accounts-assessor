@@ -21,6 +21,7 @@ demo7788:
         exec: bash
         args: -c "env PYTHONUNBUFFERED=true CELERY_QUEUE_NAME=q7788 MY_SERVICES_SERVER_URL=\"http://localhost:17788\" DEBUG=true ./run.sh 0.0.0.0:7788"
         
+
 demo7768:
    defaults:
       type: exec
@@ -39,4 +40,3 @@ demo7768:
         #frontend_server is through mod_wsgi, internal services port is set in endpoints_gateway/views.py 
         # mod_wsgi is compiled with ./configure --with-python=/home/demo/7768/venv/bin/python3 and wired up from /etc/apache2/sites-enabled/..
 
-        

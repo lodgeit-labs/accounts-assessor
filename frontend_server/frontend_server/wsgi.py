@@ -16,5 +16,4 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'frontend_server.settings_prod')
 os.environ['USE_CELERY'] = 'True'
 os.environ['CELERY_QUEUE_NAME'] = 'q7768'
 
-
 application = get_wsgi_application()

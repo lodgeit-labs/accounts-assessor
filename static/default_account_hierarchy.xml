@@ -1,7 +1,8 @@
 <?xml version="1.0" ?>
 <accountHierarchy>
-	<Accounts>
-		<NetAssets>
+	<!-- top-level account has to explicitly specify where it attaches -->
+	<Accounts parent_role_parent="" parent_role_child="">
+		<NetAssets normal_side="debit">
 			<Assets>
 				<CurrentAssets>
 					<CashAndCashEquivalents>
@@ -16,7 +17,7 @@
 					<FinancialInvestments/>
 				</NoncurrentAssets>
 			</Assets>
-			<Liabilities>
+			<Liabilities normal_side="credit">
 				<NoncurrentLiabilities>
 					<NoncurrentLoans/>
 				</NoncurrentLiabilities>
@@ -29,7 +30,8 @@
 				</CurrentLiabilities>
 			</Liabilities>
 		</NetAssets>
-		<Equity>
+
+		<Equity normal_side="credit">
 			<ShareCapital/>
 			<RetainedEarnings>
 				<HistoricalEarnings>
@@ -40,7 +42,8 @@
 			<CapitalIntroduced/>
 			<Drawings/>
 		</Equity>
-		<ComprehensiveIncome>
+		<ComprehensiveIncome normal_side="credit">
+			
 			<Revenue>
 				<Income/>
 				<OtherIncome>
@@ -53,7 +56,8 @@
 				<RationsRevenue/>
 				<CurrencyMovement/>
 			</Revenue>
-			<Expenses>
+
+			<Expenses normal_side="debit">
 				<BankCharges/>
 				<AccountingFees/>
 				<ForexLoss/>
@@ -69,10 +73,13 @@
 				<OtherGain/>
 				<ClearingAccount/>
 			</Gains>
-			<Losses>
-			
+			<Losses normal_side="debit">
+
 			</Losses>
 
 		</ComprehensiveIncome>
 	</Accounts>
+	<Inventory parent_role_parent="" parent_role_child="" role_parent="" role_child="Inventory" normal_side="debit">
+		<LivestockCount role_parent="Inventory" role_child="LivestockCount"/>
+	</Inventory>
 </accountHierarchy>

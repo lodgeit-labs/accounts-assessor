@@ -111,18 +111,10 @@ filter_out_market_values(S_Transactions, Exchange_Rates0, Exchange_Rates) :-
 	i think it's safe-ish to just ignore all input exchange rates for now
 
 	traded_units(S_Transactions, Units),
-	findall(
-		R,
-		(
-			member(R, Exchange_Rates0),
-			R = exchange_rate(_, Src, Dst, _),
-			\+member(Src, Units),
-			\+member(Dst, Units)
-		),
-		Exchange_Rates
-	).*/
-			
-	
+=======
+/* see misc/system_account_generation */
+exchange_rates_without_market_values([]).
+
 	
 
 find_s_transactions_in_period(S_Transactions, Opening_Date, Closing_Date, Out) :-

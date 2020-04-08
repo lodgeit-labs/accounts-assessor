@@ -1,0 +1,76 @@
+@keywords a .
+@prefix rdf:      <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix : <file://>.
+kb
+?builtins_aware_list rdf:first ?ITEM; rdf:rest ?REST.
+
+{?all :filtered ?filtered} <= {
+	?x :included true.
+	?all rdf:first ?x.
+	?filtered rdf:first ?x.
+	?all rdf:rest ?ar.
+	?filtered rdf:rest ?fr.
+		s_transactions_up_to(End, Ar, Cr)
+}.
+
+
+	s_transactions_up_to(End, All, Capped) <=
+	[
+		clpfd(D #> End),
+		s_transaction_day(T, D),
+		All-first-T,
+		All-rest-Ar,
+		s_transactions_up_to(End, Ar, Capped)
+	],
+
+	s_transactions_up_to(e, nil, nil),
+
+	s_transaction_day(t, d),
+
+	[first(l, f), rest(l, r)],
+
+	query0 <=
+	[
+		clpfd(End = 9),
+
+		s_transaction_day(T1, 1),
+		s_transaction_day(T2, 2),
+		s_transaction_day(T5, 5),
+		s_transaction_day(T10, 10),
+
+		rest(As, As1),
+		rest(As1, As2),
+		rest(As2, As3),
+		rest(As3, nil),
+
+		first(As, T1),
+		first(As1, T2),
+		first(As2, T5),
+		first(As3, T10),
+
+		s_transactions_up_to(End, As, Cs)
+	],
+
+	true
+	]).
+
+
+
+
+proof0(Rules0, Query, Proof) :-
+	rules0_to_rules1(Rules0, Rules1),
+	proof(Rules1, Query, Proof).
+
+
+
+proof(All_Rules, Q, Proof) :-
+	member(Rule, All_Rules),
+	Rule = Head <= Body,
+	member(Hi, Head),
+	subs(Hi, Q, Subs0, Subs1)
+
+
+
+
+
+:- pyco0_rules0(Rules), proof0(Rules, query0, Proof).

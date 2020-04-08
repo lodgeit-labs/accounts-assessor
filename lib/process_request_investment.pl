@@ -528,7 +528,7 @@ crosscheck_totals(Results, Report_Date) :-
 		SDRC_Value_Total,
 		_Unrealized_PDRC_Cost_Total
 	),
-	extract_account_hierarchy_from_request_dom([], Accounts0),
+	extract_account_hierarchy_from_request_dom([]),
 	add_action_verbs_from_default_action_taxonomy,
 	process_ledger(
 		S_Transactions,
@@ -536,13 +536,11 @@ crosscheck_totals(Results, Report_Date) :-
 		Report_Date, 
 		Exchange_Rates,
 		[report_currency], 
-		Accounts0, 
-		Accounts, 
 		Transactions
 	),
 
 
-	dict_from_vars(Static_Data0, [Exchange_Rates, Accounts, Transactions]),
+	dict_from_vars(Static_Data0, [Exchange_Rates, Transactions]),
 
 	Static_Data1 = Static_Data0.put(
 		report_currency, 

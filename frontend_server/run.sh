@@ -10,5 +10,3 @@ if [ ! "$DEBUG" == "true" ]
 then
 	./manage.py check --deploy
 fi
-./manage.py runserver $@
-echo "django ended."

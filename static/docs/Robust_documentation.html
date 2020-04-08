@@ -5,8 +5,10 @@
 	<title>General Ledger Viewer documentation</title>
 	<meta name="generator" content="LibreOffice 6.0.7.3 (Linux)"/>
 	<meta name="created" content="00:00:00"/>
-	<meta name="changed" content="2020-03-02T15:26:28.497849028"/>
+	<meta name="changed" content="2020-03-17T14:55:26.084170492"/>
 	<meta name="" content=""/>
+	<meta name="created" content="00:00:00">
+	<meta name="created" content="00:00:00">
 	<style type="text/css">
 		h1 { text-align: center }
 		h1.western { font-family: "Liberation Sans", sans-serif; font-size: 28pt; font-weight: normal }
@@ -69,7 +71,7 @@ reports that display a hard-coded set of facts.
 <p><img src="files/2020-03-02.png" name="Image2" align="left" width="823" height="463">
   <br clear="left"/>
 </img>
-		(here
+(here
 should be a link to the rdf template `&lt;v1.n3#ic_ui:GL_input&gt;`)</p>
 <h2 class="western">higher level methods</h2>
 <p><br/>
@@ -95,6 +97,7 @@ should be a link to the rdf template `&lt;v1.n3#ic_ui:GL_input&gt;`)</p>
 	<p></p>
 </ul>
 <h1 class="western" style="font-weight: normal"><font size="6" style="font-size: 28pt">C</font><font size="6" style="font-size: 28pt">urrency
+
 movement transactions</font></h1>
 <h4 class="western">introduction</h4>
 <p>By default, currency movement is accounted for in a declarative
@@ -123,8 +126,10 @@ is understood as &quot;USD, disregarding movement of USD against AUD
 since date(2019,9,9)&quot;. The program does the appropriate
 conversion to AUD when generating reports. 
 </p>
-<p>Todo: review if the use of this abstract unit is necessary here, i
-think we can simplify. 
+<pre class="western"><font color="#000000">Another declarative unit is “</font><font color="#000000">without_movement_after(Unit, Date)”. </font></pre><p>
+Todo: the semantics are similar, review if we need both. review if
+the use of this abstract unit is necessary here, i think we can
+simplify. 
 </p>
 <p>todo: explain split into historical and current entry, for
 historical transactions. 

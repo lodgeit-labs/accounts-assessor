@@ -148,6 +148,7 @@ tmp_file_path_to_url(Path, Url) :-
 	report_file_path(Fn, Url, _),
 	debug(tmp_files, "tmp_file_path_to_url:report_file_path(~w, ~w, ~w)~n", [Fn, Url, _]).
 
+% if loc was a dict X (or represented as triples with `.` access notation) then you could just do `icase_endswith(X.fn, Suffix)`
 loc_icase_endswith(loc(_, Fn), Suffix) :-
 	icase_endswith(Fn, Suffix).
 

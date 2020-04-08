@@ -1,6 +1,7 @@
 from celery_module import app
 
 import os, sys
+
 import rdflib
 import rdflib.plugins.serializers.nquads
 import urllib
@@ -32,7 +33,7 @@ def put_doc_dump_into_triplestore(tmp_path):
 	c = agc()
 	if c:
 		print("c.addFile(nq_fn)...", file=sys.stderr)
-		c.addFile(nq_fn)
+		#c.addFile(nq_fn)
 
 
 import pyyed
@@ -83,3 +84,6 @@ def add_node(go, added, x):
 		# best bet: lxml has a compatible api(?)
 
 		go.add_node(x, shape_fill="#DDDDDD", **kwargs)
+
+	# at any case, at about 1000 nodes, since we're building up the xml dom in memory, this script slows to a crawl. So we need a custom solution.
+	# however, yed itself is not suitable for thousands of nodes: https://yed.yworks.com/support/qa/11879/maximum-number-of-nodes-that-yed-can-handle
