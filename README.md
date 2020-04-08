@@ -15,6 +15,18 @@ https://github.com/LodgeiT/labs-accounts-assessor/wiki/
 doc/:
 https://github.com/LodgeiT/labs-accounts-assessor/tree/master/doc
 
+## architecture
+there are 4 components:
+### internal_services
+various helper functions that prolog invokes over http/rpc
+### internal_workers
+a celery worker that:
+* wraps prolog and spawns prolog on request
+* talks to the triplestore
+### frontend_server
+lets users upload request files and triggers internal_workers. Django provides a development http server which serves static/tmp files, but for production, this has to be augmented with
+### http server
+on demo server, this is a system-wide apache set up with mod_wsgi. I have not found a standalone wsgi/asgi server that also serves files like apache does, so it's not clear how to handle this more flexibly.
 
 ## Getting Started
 Fetch submodules:
