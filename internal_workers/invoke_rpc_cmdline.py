@@ -266,3 +266,4 @@ def ag_query():
 			o = binding_set.getValue("o")
 			print("%s %s %s" % (s, p, o))
 
+

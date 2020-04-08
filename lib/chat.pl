@@ -16,6 +16,7 @@ curl -vv --request POST --header "Content-Type: application/json" --data '{"curr
 /*TODO: 
 add more tests
 sbe question ids start at 0, residency at 1, change sbe
+alternative framework: https://www.d3web.de/Wiki.jsp?page=Bike%20Diagnosis
 */
 
 

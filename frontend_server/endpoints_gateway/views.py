@@ -15,7 +15,7 @@ sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../../
 
 
 if 'USE_CELERY' in os.environ:
-	import call_prolog as services
+	import services
 else:
 	import invoke_rpc_cmdline as services
 
