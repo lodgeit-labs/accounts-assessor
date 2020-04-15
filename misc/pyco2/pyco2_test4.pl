@@ -8,7 +8,11 @@ p([
 
 p([
 	maplist(Pred,A,B)
-,bc]).
+		,Pred(A_head, B_head)
+		,fr(A,A_head, A_tail)
+		,fr(B,B_head, B_tail)
+		,maplist(Pred,A_tail,B_tail)
+]).
 
 p([
 	vec_inverse,
