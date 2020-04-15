@@ -1,7 +1,16 @@
 :- [pyco2].
 
 
-pyco0_rule(
+
+p([
+	maplist(_Pred,nil,nil)
+,bc]).
+
+p([
+	maplist(Pred,A,B)
+,bc]).
+
+p([
 	vec_inverse,
 	[
 		vec_inverse(_V, Vi)
@@ -92,116 +101,82 @@ pyco0_rule(
 		slice_out_a_list(Remaining, Items_sliced_out_tail, Rest)
 	]).
 
-pyco0_rule(
-	'slice out item by index 0',
-	[
-		'slice out item by index'(List, Idx, Item, Rest)
-	]
-	<=
-	[
-		Idx = 0,
-		fr(List, Item, Rest)
-	]).
-
-pyco0_rule(
-	'slice out item by index 1',
-	[
-		'slice out item by index'(List, Idx, Item_at_idx, List_without_item)
-	]
-	<=
-	[
-		Idx #> 0,
-		New_idx #= Idx - 1,
-		fr(List_without_item, Other_Item, List_without_item_rest),
-		'slice out item by index'(List_rest, New_idx, Item_at_idx, List_without_item_rest),
-		fr(List, Other_Item, List_rest)
-	]).
 
 
-pyco0_rule(
-	'last 0',
-	[
-		'last'(List, Last_item, List_without_last_item)
-	]
-	<=
-	[
-		fr(List, Last_item, nil),
-		List_without_last_item = nil
-	]).
 
-pyco0_rule(
-	'last 1',
-	[
-		'last'(List, Last_item, List_without_last_item)
-	]
-	<=
-	[
-		fr(List, Other_item, List_rest),
-		dif(List_rest, nil),
-		fr(List_without_last_item, Other_item, List_without_last_item_rest),
-		last(List_rest, Last_item, List_without_last_item_rest)
-	]).
+p([
+	'slice out item by index'(List, Idx, Item, Rest)
+		,Idx = 0
+		,fr(List, Item, Rest)
+	,bc
+]).
 
-pyco0_rule(
-	'last test 1',
-	[
-		'last test 1'(List0, Last_item, Rest)
-	]
-	<=
-	[
-		fr(List0, 0, List1),
-		fr(List1, 1, List2),
-		fr(List2, 2, List3),
-		fr(List3, 3, List4),
-		fr(List4, 4, nil),
-		last(List0, Last_item, Rest)
+p([
+	'slice out item by index'(List, Idx, Item_at_idx, List_without_item)
+		,Idx #> 0
+		,New_idx #= Idx - 1
+		,fr(List_without_item, Other_Item, List_without_item_rest)
+		,'slice out item by index'(List_rest, New_idx, Item_at_idx, List_without_item_rest)
+		,fr(List, Other_Item, List_rest)
+	,en-[removing,Item_at_idx,at,Idx,from,List,produces,List_without_item]
+]).
 
-	]).
 
-pyco0_rule(
-	'last test 2',
-	[
-		'last test 2'(List0, Last_item, Rest)
-	]
-	<=
-	[
-		List0 = nil,
-		last(List0, Last_item, Rest)
-	]).
 
-pyco0_rule(
-	'last test 3',
-	[
-		'last test 3'(List0, Last_item, Rest)
-	]
-	<=
-	[
-		fr(List0, 0, List1),
-		fr(List1, 1, List2),
-		fr(List2, 2, List3),
-		fr(List3, 3, List4),
-		fr(List4, 4, _),
-		last(List0, Last_item, Rest)
 
-	]).
+p([
+	last(List, Last_item, List_without_last_item)
+		,fr(List, Last_item, nil)
+		,List_without_last_item = nil
+	,n-bc
+]).
 
-pyco0_rule(
-	'append 0',
-	[
-		'append'(nil, X, X)
-	]<=[]).
+p([
+	last(List, Last_item, List_without_last_item)
+		,fr(List, Other_item, List_rest)
+		,dif(List_rest, nil)
+		,fr(List_without_last_item, Other_item, List_without_last_item_rest)
+		,last(List_rest, Last_item, List_without_last_item_rest)
+]).
 
-pyco0_rule(
-	'append 1',
-	[
-		'append'(A,B,C)
-	]
-	<=
-	[
-		fr(A, X, At),
-		fr(B, X, Bt),
-		append(At, B, Bt)
-	]).
+p([
+	'"last" test 1'(List0, Last_item, Rest)
+		,fr(List0, 0, List1)
+		,fr(List1, 1, List2)
+		,fr(List2, 2, List3)
+		,fr(List3, 3, List4)
+		,fr(List4, 4, nil)
+		,last(List0, Last_item, Rest)
+]).
+
+p([
+	'"last" test 2'(List0, Last_item, Rest)
+		,List0 = nil,
+		,last(List0, Last_item, Rest)
+]).
+
+p([
+	'"last" test 3'(List0, Last_item, Rest)
+		,fr(List0, 0, List1)
+		,fr(List1, 1, List2)
+		,fr(List2, 2, List3)
+		,fr(List3, 3, List4)
+		,fr(List4, 4, _)
+		,last(List0, Last_item, Rest)
+]).
+
+p(
+	append(nil, X, X)
+	,n-base_case).
+
+p([
+	append(A,B,C)
+		,fr(A, X, At)
+		,fr(B, X, Bt)
+		,append(At, B, Bt)
+	,en-[A,appended,to,B,is,C]
+]).
+
 
 % preprocess s_transaction2s into transactions'
 % an empty list preprocesses into an empty list.
@@ -261,6 +236,25 @@ pyco0_rule(
 	]).
 
 
+/* pyco2 rules notation:
+	ideally we'd simply write them as prolog rules or very similarly.
+	Dont want to write them exactly as prolog rules because:
+		don't want them to "interfere" with real prolog preds, ie, they'd be "found" twice, once as a pyco2 rule, once as a "builtin"
+		want to 'compile_with_variable_names_preserved' them, for proof purposes
+
+	so what's the simplest notation? i rather like Desc's, but we should only need to "describe" how this predicate *case* is different. ie:
+
+	p(
+		desc-'base case',
+		note-'(nil, nil) has the relation "preprocess"',
+		head-preprocess(_,nil,nil,O,O)
+	).
+
+
+
+ic_account
+
+
 /* investment calculator global theory / all data */
 pyco0_rule(
 	Desc,
@@ -269,10 +263,10 @@ pyco0_rule(
 			dict existentials vs doc, grabbing accounts:
 				some options to consider:
 					should we store accounts in a list? Since we may want to infer missing acconuts, this would complicate things, because not only would the existence of an account have to be inferred, it would have to be inferred at the right spot in the list. On the other hand, it would make it easy to express that we are certain for example about how many accounts there are total, (or that there are none). It seems that we want to first have just a basic predicate, either just the existence of an account in the db at all, or probably the fact that an account is a "part of" the IC request, so "ic_account".
-					
+
 
 		*/
-		ic_accounts(Ic, Accounts)
+		ic_account(Account)
 
 	]
 	<= [],
