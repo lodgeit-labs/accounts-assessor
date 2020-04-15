@@ -260,15 +260,51 @@ pyco0_rule(
 		fr(Ts2,T1,nil)
 	]).
 
+
+/* investment calculator global theory / all data */
+pyco0_rule(
+	Desc,
+	[
+		/*
+			dict existentials vs doc, grabbing accounts:
+				some options to consider:
+					should we store accounts in a list? Since we may want to infer missing acconuts, this would complicate things, because not only would the existence of an account have to be inferred, it would have to be inferred at the right spot in the list. On the other hand, it would make it easy to express that we are certain for example about how many accounts there are total, (or that there are none). It seems that we want to first have just a basic predicate, either just the existence of an account in the db at all, or probably the fact that an account is a "part of" the IC request, so "ic_account".
+					
+
+		*/
+		ic_accounts(Ic, Accounts)
+
+	]
+	<= [],
+	mkbn(Bn, Desc{
+		accounts: Accounts
+
+	})
+	) :-
+		Desc = 'ic'.
+
+
+
+
 pyco0_rule(
 	'produces 3',
-	[produces(Verb, St, Ts, Outstanding_before, Outstanding_after)]
+	[produces(Ic, Verb, St, Ts, Outstanding_before, Outstanding_after)]
 	<=
 	[
 		verb_type(Verb, invest_in),
-		verb_counteraccount(Verb, Counteraccount),
+
+		with_comment(
+			'Counteraccount is "FinancialInvestments", and we\'ll put transactions onto a sub-account',(
+			verb_counteraccount(Verb, Counteraccount),
+			account_by_role(Accounts, Exchanged_Account/Goods_Unit, Exchanged_Account2),
+
+
+
 		s_transaction(St,Verb,D,Primary_account,V,E),
 		transaction(T0,D,St,Primary_account,V),
+
+
+
 		transaction(T1,D,St,Counteraccount,E),
 		fr(Ts,T0,Ts2),
 		fr(Ts2,T1,nil),

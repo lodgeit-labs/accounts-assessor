@@ -408,26 +408,14 @@ collect_items2(R, ['|_']) :-
 	var(R).
 
 /*
-or...
-	if a body item fails:
-		if there were no eps in its call tree:
-			fail
-		else:
-			put it at the end of the queue
-number of new binds
-number of new constraints
-bnode semantics:
-	there exists
-uri semantics:
-	there exists AND is distinct from everything else
-*/
+probably it would be more correct/support more forms of rules, if bnodes could bind to uris. Prolog isnt making it easy to support this, but we could try: bnode would be just a variable with a unification hook.
+Possibly there'd be a global table keeping track of what bnode is unified to what and carrying the dict (and bnode type is the dict tag). So, exactly our current bn() term, but kindof "in the cloud".
 
+The only alternative to attrvars i see is to do all unifications explicitly. We could probably do that seamlessly within the interpreter somehow.
 
-/*
-probably it would be more correct/support more forms of rules, if bnodes could bind to uris. Prolog isnt making it easy to support this, but we could try: bnode would be just a variable with a unification hook
-there'd be a global table keeping track of what bnode is unified to what and carrying the dict (and bnode type is the dict tag). So, exactly our current bn() term, but kindof "in the cloud". 
+I'd rather stay away from attrvars because then we'd have to worry about interactions with clpz/fd.
 
-the goal would be semantics like this:
+The goal would be semantics like this:
 before reasoning, assert some facts: livestock_report has_opening_value 5; etc.
 then query:
 livestock_request 
@@ -443,16 +431,27 @@ currently, they are implemented by a rule that produces an existential for a lis
 */
 
 /*
-todo? https://www.swi-prolog.org/pldoc/man?section=WFS
-
+notes on iterative deepening:
+or:
+	if a body item fails:
+		if there were no eps in its call tree:
+			fail
+		else:
+			put it at the end of the queue
+number of new binds
+number of new constraints
+bnode semantics:
+	there exists
+uri semantics:
+	there exists AND is distinct from everything else
 */
-
 
 /*
 todo graphical debugging
 https://kahina-sld.github.io/trac/wiki/TreeView.html
 https://sicstus.sics.se/sicstus/docs/latest4/html/sicstus.html/Procedure-Box.html#Procedure-Box
+*/
 
-
-
+/*
+todo research https://www.swi-prolog.org/pldoc/man?section=WFS
 */
