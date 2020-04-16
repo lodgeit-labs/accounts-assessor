@@ -1,3 +1,8 @@
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#>.
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
+
+
 @prefix : <https://rdf.lodgeit.net.au/v1/excel_request#> .
 
 @prefix l: <https://rdf.lodgeit.net.au/v1/request#> .
@@ -6,40 +11,25 @@
 
 @prefix depr: <https://rdf.lodgeit.net.au/v1/calcs/depr#> .
 @prefix ic: <https://rdf.lodgeit.net.au/v1/calcs/ic#> .
+@prefix ic2: <https://rdf.lodgeit.net.au/v1/calcs/ic#> .
 @prefix hp: <https://rdf.lodgeit.net.au/v1/calcs/hp#> .
 
 @prefix depr_ui: <https://rdf.lodgeit.net.au/v1/calcs/depr/ui#> .
 @prefix ic_ui: <https://rdf.lodgeit.net.au/v1/calcs/ic/ui#> .
+@prefix ic2_ui: <https://rdf.lodgeit.net.au/v1/calcs/ic/ui#> .
 @prefix hp_ui: <https://rdf.lodgeit.net.au/v1/calcs/hp/ui#> .
-
-@prefix xsd: <http://www.w3.org/2001/XMLSchema#>.
-@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
-@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
 
 excel:this rdfs:comment """excel: generic excel schema-directed ui stuff""".
 hp:this rdfs:comment """hirepurchase""".
 depr:this rdfs:comment """depreciation""".
 ic:this rdfs:comment """investment calculator""".
+ic2:this rdfs:comment """investment calculator 2, with pyco""".
 
 @prefix kb: <https://rdf.lodgeit.net.au/v1/kb#> .
 
 
 kb:Asset a rdfs:Class.
 
-
-ic_ui:action_verb
-	a rdfs:Class;
-	rdfs:comment "action verb entry in Action_verbs excel sheet".
-	
-ic:action_verb
-	a rdfs:Class;
-	rdfs:comment "action verb".
-
-ic:exchanged_account rdfs:domain ic:action_verb.
-
-
-
-l:statement_transaction_types/
 
 
 
@@ -346,30 +336,14 @@ depr_ui:depreciation_assets
 ic_ui:investment_calculator_sheets
 	excel:is_multi false;
 	excel:sheets (
+
 		[
 			excel:name_prefix "GL_input";
 			excel:root ic_ui:gl;
 			excel:optional true;
 			excel:example_doc
 				[	ic:default_currency [rdf:value "AUD"];
-					ic:items [rdf:value (
-						#[
-						#	ic:date [rdf:value "2019-10-10T00:00:00.000000"^^xsd:dateTime];
-						#	ic:account [rdf:value "Assets"];
-						#	ic:debit [rdf:value "USD 500"]
-						#]
-						#[
-						#	ic:date [rdf:value "2019-10-10T00:00:00.000000"^^xsd:dateTime];
-						#	ic:account [rdf:value "Revenue"];
-						#	ic:credit [rdf:value "600"]
-						#]
-						#[
-						#	ic:date [rdf:value "2019-10-10T00:00:00.000000"^^xsd:dateTime];
-						#	ic:account [rdf:value "CurrencyMovement"];
-						#	ic:debit [rdf:value "600 AUD"];
-						#	ic:credit [rdf:value "500 USD"]
-						#]
-					)]
+					ic:items [rdf:value ()]
 				]
 		]
 		[
@@ -482,8 +456,6 @@ ic:cost a ic:cost_or_market_type.
 ic:market a ic:cost_or_market_type.
 
 
-
-
 ic_ui:transaction_input
 	excel:cardinality excel:multi;
 	excel:class ic:transaction;
@@ -504,15 +476,45 @@ ic_ui:transaction_input
 
 
 
+ic_ui:gl_input_example
+	ic:default_currency [rdf:value "AUD"];
+	ic:items [rdf:value (
+						[
+							ic:date [rdf:value "2019-10-10T00:00:00.000000"^^xsd:dateTime];
+							ic:account [rdf:value "Assets"];
+							ic:debit [rdf:value "USD 500"]
+						]
+						[
+							ic:date [rdf:value "2019-10-10T00:00:00.000000"^^xsd:dateTime];
+							ic:account [rdf:value "Revenue"];
+							ic:credit [rdf:value "600"]
+						]
+						[
+							ic:date [rdf:value "2019-10-10T00:00:00.000000"^^xsd:dateTime];
+							ic:account [rdf:value "CurrencyMovement"];
+							ic:debit [rdf:value "600 AUD"];
+							ic:credit [rdf:value "500 USD"]
+						]
+	)].
 
 
-% the stuff below will probably be used in a new ic endpoint and should have different prefixes, say, "v2..."
 
 
-ic_ui:action_verbs
+
+ic2_ui:action_verb
+	a rdfs:Class;
+	rdfs:comment "action verb entry in Action_verbs excel sheet".
+
+ic2:action_verb
+	a rdfs:Class;
+	rdfs:comment "action verb".
+
+ic2:exchanged_account rdfs:domain ic2:action_verb.
+
+ic2_ui:action_verbs
 	a excel:Template;
 	excel:cardinality excel:multi;
-	excel:class ic:Action_verb;
+	excel:class av:Action_verb;
 	excel:fields (
 		[excel:property av:id]
 		[	
@@ -530,10 +532,7 @@ ic_ui:action_verbs
 		[excel:property av:is_livestock_sale; excel:type xsd:boolean]
     ).
 
-
-
-
-ic:Action_verb
+ic2:Action_verb
     a rdfs:Class;
     rdfs:comment "action verb, defined in Action_verbs excel sheet".
     rdfs:comment "and Action_verb is unique for each request.".
@@ -559,7 +558,7 @@ av:incoming a av:MoneyDirection.
 av:outgoing a av:MoneyDirection.
 
 
-ic_ui:example_action_verbs rdf:value (
+ic2_ui:example_action_verbs rdf:value (
 	[
 		av:id "Invest_In";
 		av:money_direction av:outgoing;
@@ -630,5 +629,3 @@ ic_ui:example_action_verbs rdf:value (
 	]
 ).
 				
-
-
