@@ -1,16 +1,7 @@
 :- [pyco2].
 
 
-*p([
-	vec_inverse,
-	[
-		vec_inverse(_V, Vi)
-	]
-	<=
-	[
-		Vi = vi
-	]).
-*//*
+/*
 pyco0_rule(
 	'list cell helper',
 	[fr(L,F,R)] <=

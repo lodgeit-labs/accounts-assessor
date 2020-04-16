@@ -7,10 +7,14 @@
 user:term_expansion(
 	p(X)
 ,
-	p(X, Names)
+	pyco2_2_rule(Id, Head, Body, Notes, Cnls, Names)
 ) :-
+	gensym(r, Id),
 	term_variables(X, Vars),
-	maplist(try_get_variable_naming, Vars, Names).
+	maplist(try_get_variable_naming, Vars, Names),
+	p_decl_to_rule2(X, Head, Body, Notes, Cnls),
+	assertion(nonvar(Head)).
+
 
 try_get_variable_naming(Var, (Name = Var)) :-
 	var_property(Var, name(Name)),
@@ -30,12 +34,40 @@ collect_rules :-
 		true
 	),
 
-
-	p(Decl, Names),
-	print_term(Decl, [variable_names(Names)]),
+	pyco2_2_rule(Id, Head, Body, Notes, Cnls, Names),
+	print_term(pyco2_2_rule(Id, Head, Body, Notes, Cnls), [variable_names(Names)]),
 	nl,nl,
 	fail.
-collect_rules2 :-
+/*collect_rules2 :-
 	p(Decl),
 	print_term(Decl,[]),
-	fail.
+	fail.*/
+
+
+
+/*
+we'll use use Id in place of Desc (for ep identification etc).
+*/
+p_decl_to_rule2([H|T], Head, Body, Notes, Cnls) :-
+	H = bc,!,
+	p_decl_to_rule2([n - bc|T], Head, Body, Notes, Cnls).
+
+p_decl_to_rule2([H|T], Head, Body, [Note|Notes], Cnls) :-
+	H = n - Note,!,
+	p_decl_to_rule2(T, Head, Body, Notes, Cnls).
+
+p_decl_to_rule2([H|T], Head, Body, Notes, [(Lang - Cnl)|Cnls]) :-
+	H = Lang - Cnl,!,
+	p_decl_to_rule2(T, Head, Body, Notes, Cnls).
+
+p_decl_to_rule2([H|T], Head, Body, Notes, Cnls) :-
+	var(Head),!,
+	Head = H,
+	p_decl_to_rule2(T, Head, Body, Notes, Cnls).
+
+p_decl_to_rule2([H|T], Head, [Body_head|Body_tail], Notes, Cnls) :-
+	Body_head = H,
+	p_decl_to_rule2(T, Head, Body_tail, Notes, Cnls).
+
+p_decl_to_rule2([], _Head, [], [], []).
+
