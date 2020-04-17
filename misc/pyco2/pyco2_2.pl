@@ -1,16 +1,14 @@
+:- use_module(library(semweb/rdf11),except(['{}'/1])).
 :- use_module(library(fnotation)).
 :- fnotation_ops($>,<$).
 :- op(900,fx,<$).
 
 :- ['../../public_lib/xbrl/prolog/xbrl/compile_with_variable_names_preserved.pl'].
 
-user:term_expansion(
-	p(X)
-,
-	pyco2_2_rule(Id, Head, Body, Notes, Cnls, Names)
-) :-
+user:term_expansion(P, pyco2_2_rule(Id, Head, Body, Notes, Cnls, Names)) :-
+	P =.. [r|X],
 	gensym(r, Id),
-	term_variables(X, Vars),
+	term_variables(P, Vars),
 	maplist(try_get_variable_naming, Vars, Names),
 	p_decl_to_rule2(X, Head, Body, Notes, Cnls),
 	assertion(nonvar(Head)).
@@ -25,7 +23,7 @@ try_get_variable_naming(Var, ('_' = Var)).
 
 collect_rules :-
 
-	/* make sure no  */
+	/* make sure no 'p' declarations reamined unexpanded */
 	(
 		(
 				catch(p(Bad),_,false),
@@ -38,6 +36,7 @@ collect_rules :-
 	print_term(pyco2_2_rule(Id, Head, Body, Notes, Cnls), [variable_names(Names)]),
 	nl,nl,
 	fail.
+
 /*collect_rules2 :-
 	p(Decl),
 	print_term(Decl,[]),
@@ -62,7 +61,7 @@ p_decl_to_rule2([H|T], Head, Body, Notes, [(Lang - Cnl)|Cnls]) :-
 
 p_decl_to_rule2([H|T], Head, Body, Notes, Cnls) :-
 	var(Head),!,
-	Head = H,
+	flatten([H], Head),
 	p_decl_to_rule2(T, Head, Body, Notes, Cnls).
 
 p_decl_to_rule2([H|T], Head, [Body_head|Body_tail], Notes, Cnls) :-
@@ -70,4 +69,11 @@ p_decl_to_rule2([H|T], Head, [Body_head|Body_tail], Notes, Cnls) :-
 	p_decl_to_rule2(T, Head, Body_tail, Notes, Cnls).
 
 p_decl_to_rule2([], _Head, [], [], []).
+
+
+
+
+
+
+
 

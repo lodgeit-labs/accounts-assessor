@@ -2,21 +2,6 @@
 
 
 /*
-pyco0_rule(
-	'list cell helper',
-	[fr(L,F,R)] <=
-	[
-		first(L, F),
-		rest(L, R)
-	]).
-
-pyco0_rule(
-	Desc,
-	[first(Bn,F),rest(Bn,R)] <=
-	[],
-	mkbn(Bn, Desc{first:F,rest:R})
-	) :-
-		Desc = 'list cell exists'.
 
 pyco0_rule(
 	member0,
