@@ -1,29 +1,6 @@
 :- [pyco2].
 
 
-/*
-
-pyco0_rule(
-	member0,
-	[
-		member(Item, List)
-	]
-	<=
-	[
-		fr(List, Item, _Rest)
-	]).
-
-
-pyco0_rule(
-	member1,
-	[
-		member(Item, List)
-	]
-	<=
-	[
-		fr(List, _, Rest),
-		member(Item, Rest)
-	]).
 
 pyco0_rule(
 	slice0,
