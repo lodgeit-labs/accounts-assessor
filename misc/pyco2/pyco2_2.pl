@@ -1,4 +1,8 @@
-:- use_module(library(semweb/rdf11),except(['{}'/1])).
+/*
+just working out a new syntax for rules here so far
+*/
+
+%:- use_module(library(semweb/rdf11),except(['{}'/1])).
 :- use_module(library(fnotation)).
 :- fnotation_ops($>,<$).
 :- op(900,fx,<$).
@@ -37,15 +41,9 @@ collect_rules :-
 	nl,nl,
 	fail.
 
-/*collect_rules2 :-
-	p(Decl),
-	print_term(Decl,[]),
-	fail.*/
-
-
 
 /*
-we'll use use Id in place of Desc (for ep identification etc).
+we'll use use Id in place of Desc (for ep tables etc).
 */
 p_decl_to_rule2([H|T], Head, Body, Notes, Cnls) :-
 	H = bc,!,
@@ -69,11 +67,5 @@ p_decl_to_rule2([H|T], Head, [Body_head|Body_tail], Notes, Cnls) :-
 	p_decl_to_rule2(T, Head, Body_tail, Notes, Cnls).
 
 p_decl_to_rule2([], _Head, [], [], []).
-
-
-
-
-
-
 
 

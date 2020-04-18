@@ -5,19 +5,21 @@
 %:- discontiguous p/2.
 
 
-
-
-
 /*
-r(
-	exists-('list cell', [first,rest])
+about namespaces:
+	i think it'll be ideal if a contracted form is the default and used everywhere
 
-).
 */
 
 
-r(
 
+r(
+	exists-('list cell', [first,rest])
+
+
+
+
+).r(
 
 
 
@@ -43,10 +45,10 @@ member(Item, List)
 		,fr(List, _, Rest),
 		,member(Item, Rest)
 
+
+
+
 ).r(
-
-
-
 
 
 
@@ -127,7 +129,21 @@ append(A,B,C)
 		,fr(A, X, At)
 		,fr(B, X, Bt)
 		,append(At, B, Bt)
-	,en-[A,appended,to,B,is,C]
+	,en-[B,appended,to,A,is,C]
+
+).r(
+
+append_item(nil, Item, List_out)
+		,fr(List_out, Item, nil)
+	,bc
+
+).r(
+
+append_item(List_inp, Item, List_out)
+		,fr(List_inp, X, List_inp_tail)
+		,fr(List_out, X, List_out_tail)
+		,append_item(List_inp_tail, Item, List_out_tail)
+	,en-[item,Item,appended,to,list,List_inp,is,list,List_out]
 ).
 
 
@@ -236,11 +252,9 @@ r(	coord_or_value_inverse(A, B)
 
 n-"Adds the two given vectors together and reduces coords or values in a vector to a minimal (normal) form."
 
-vec_add(As, Bs, Cs_Reduced)
-
-
-	,assertion((flatten(As, As), flatten(Bs, Bs)))
+vec_add(A, B, C)
 	/*
+	,assertion((flatten(A, A), flatten(B, B), flatten(C,C)))
 	todo
 	"assertion" roughly means that the goal must not fail
 	if it fails, exception is thrown
@@ -249,25 +263,77 @@ vec_add(As, Bs, Cs_Reduced)
 	dunno..
 	*/
 
-
-
-
 	,n-"paste the two vectors togetner"
-	,append(As, Bs, As_And_Bs)
+	,append(A, B, Ab)
 
 	,n-"sort into a map by unit, each item is unit:list of coords"
-	,sort_into_assoc(coord_or_value_unit, As_And_Bs, Sorted)
+	,sort_into_assoc(coord_or_value_unit, Ab, By_unit)
 
 	,n-"each coord carries Unit already, so we dont need keys"
-	,assoc_to_values(Sorted, Valueses)
+	,assoc_to_values(By_unit, Lists)
+
+	,n-"sum each list of same-unit coords into one coord"
+	,maplist(semigroup_foldl(coord_or_value_merge, Lists, Totals)
+
+	,n-"filter out zeroes. possibly we won't want to do that.."
+	,exclude(coord_or_value_is_zero, Totals, Result_Nonzeroes)
 
 
-	findall(
-		Total,
-		(
-			member(Values, Valueses),
-			semigroup_foldl(coord_merge, Values, [Total])
-		),
-		Cs_Flat
+
+
+
+
+).r(
+
+exists-(kv,[k,v])
+
+).r(
+
+empty_assoc(nil)
+
+).r(
+
+get_assoc(K, A, V)
+		,kv(Kv, K, V)
+		,member(Kv, A)
+
+).r(
+
+put_assoc(K, A_inp, V, A_out)
+		,remove_one_item_if_present(A_inp, Old_kv, A_mid)
+		,kv(New_kv, K, V)
+		,append_item(A_mid,New_kv,A_out)
+
+).r(
+
+sort_into_assoc(Selector_Predicate, Ts, D) :-
+	empty_assoc(A),
+	sort_into_assoc(Selector_Predicate, Ts, A, D).
+
+:- meta_predicate sort_into_assoc(2, ?, ?, ?).
+
+sort_into_assoc(Selector_Predicate, [T|Ts], D, D_Out) :-
+	call(Selector_Predicate, T, A),
+	(
+		get_assoc(A, D, L)
+	->
+		true
+	;
+		L = []
 	),
-	vec_reduce_coords(Cs_Flat, Cs_Reduced).
+	append(L, [T], L2),
+	put_assoc(A, D, L2, D2),
+	sort_into_assoc(Selector_Predicate, Ts, D2, D_Out).
+
+sort_into_assoc(_, [], D, D).
+
+).
+
+
+
+
+
+
+
+
+

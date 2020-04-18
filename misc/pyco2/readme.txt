@@ -54,6 +54,53 @@ two approaches to optimization:
         as soon as we're called with only vars?
 
 
+### pre-evaluation, inlining:
+
+
+take a call to fr(L,F,R), the definition of fr/3 is:
+`
+	fr(L,F,R)
+		,first(L, F)
+		,rest(L, R)
+`
+we can pre-compile the definition into something like:
+`
+	fr(_{first:F,rest:R},F,R)
+`
+, and further inline that into the calling place.
+This would need to be revised if we change bnode representation/semantics into something like:
+`
+(
+	Bn = _{first:F,rest:R}
+;
+	(
+		first(Bn, F)
+		,rest(Bn, R)
+	)
+)
+`
+there is a kindof generalized way that pre-evaluation can be done, which i think we touched on in univar,
+let's say you have the declaration fr(L,F,R), and also have two pre-asserted rdf lists in your kb:
+`
+first(list1, x).
+rest(list1, nil).
+
+first(list2, x).
+rest(list2, list2_2).
+first(list2_2, y).
+rest(list2_2, nil).
+`
+you don't know if your program will ever call fr(Unbound_var1, Unbound_var2, Unbound_var3), but if you have the cpu time up-front, you can still pre-evaluate the predicate as if it was called with all vars unbound. You replace the origial declaration with:
+`
+fr(_{first:F,rest:R},F,R).
+fr(list1, x, nil).
+fr(list2, x, list2_2).
+fr(list2_2, y, nil).
+`
+not sure if simply running the query and collecting the results would work for more complex cases, ie recursion, ep-yields, or if some interpretation is needed.
+
+
+
 
 
 ## syntax, notation

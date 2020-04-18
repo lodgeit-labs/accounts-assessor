@@ -98,7 +98,18 @@ vec_add(As, Bs, Cs_Reduced) :-
 	append(As, Bs, As_And_Bs),
 
 	sort_into_assoc(coord_or_value_unit, As_And_Bs, Sorted),
-	assoc_to_values(Sorted, Valueses),
+
+
+
+
+/*finishme fixme
+	assoc_to_values(+Assoc, -Values)
+    True if Values is the list of values in Assoc. Values are ordered in ascending order of the key to which they were associated. Values may contain duplicates.*/
+	assoc_to_values(Sorted, Valueses0),
+	sort(Valueses0, Valueses),
+
+
+
 
 	findall(
 		Total,
