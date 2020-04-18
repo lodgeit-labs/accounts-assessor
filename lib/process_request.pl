@@ -160,7 +160,7 @@ process_multifile_request(File_Paths) :-
 check_request_version :-
 	/* only done for requests that include a rdf file */
 	request_data(D),
-	(	doc(D, l:version, "1")
+	(	doc(D, l:client_version, "1")
 	->	true
 	;	throw_string('incompatible client version')).
 

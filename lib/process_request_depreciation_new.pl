@@ -5,14 +5,21 @@ process_request_depreciation_new :-
 	request_data(D),
 	doc_value(D, depr_ui:depreciation_queries, _),
 
-	(
-		(
-			maplist(process_depreciation_asset, $> doc_list_items($> doc_value(D, depr_ui:depreciation_assets))),
-			maplist(process_depreciation_event, $> doc_list_items($> doc_value(D, depr_ui:depreciation_events))),
-			maplist(process_depreciation_query, $> doc_list_items($> doc_value(D, depr_ui:depreciation_queries)))
-		)
+	(	maplist(process_depreciation_asset, $> doc_list_items($> doc_value(D, depr_ui:depreciation_assets)))
+		->	true
+	;	throw_string('depreciation: assets processing failed')),
+
+	% events sheet is optional
+	(	doc_value(D, depr_ui:depreciation_events, Events)
+	->	(	maplist(process_depreciation_event, $> doc_list_items(Events))
+		->	true
+		;	throw_string('depreciation: events processingfailed'))
+	;	true
+	)
+
+	(	maplist(process_depreciation_query, $> doc_list_items($> doc_value(D, depr_ui:depreciation_queries)))
 	->	true
-	;	throw_string('depreciation request processing failed')).
+	;	throw_string('depreciation: queries processing failed')).
 
 process_depreciation_asset(I) :-
 	event_calculus:assert_asset(

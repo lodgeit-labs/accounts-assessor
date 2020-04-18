@@ -2,12 +2,12 @@
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
 
-
 @prefix : <https://rdf.lodgeit.net.au/v1/excel_request#> .
 
 @prefix l: <https://rdf.lodgeit.net.au/v1/request#> .
 @prefix av: <https://rdf.lodgeit.net.au/v1/action_verbs#> .
 @prefix excel: <https://rdf.lodgeit.net.au/v1/excel#> .
+@prefix kb: <https://rdf.lodgeit.net.au/v1/kb#> .
 
 @prefix depr: <https://rdf.lodgeit.net.au/v1/calcs/depr#> .
 @prefix ic: <https://rdf.lodgeit.net.au/v1/calcs/ic#> .
@@ -19,13 +19,13 @@
 @prefix ic2_ui: <https://rdf.lodgeit.net.au/v1/calcs/ic/ui#> .
 @prefix hp_ui: <https://rdf.lodgeit.net.au/v1/calcs/hp/ui#> .
 
-excel:this rdfs:comment """excel: generic excel schema-directed ui stuff""".
+excel:this rdfs:comment
+"""schema-directed GUI form ontology. We should align it with http://datashapes.org/forms.html somehow, but that's quite verbose, so possibly we should generate DASH from this and interpret dash. This way, our excel code could be used for any other rdf data that has SHACL/DASH, and our data could be rendered with another engine (topbraid,solidproject?)""".
 hp:this rdfs:comment """hirepurchase""".
 depr:this rdfs:comment """depreciation""".
 ic:this rdfs:comment """investment calculator""".
 ic2:this rdfs:comment """investment calculator 2, with pyco""".
 
-@prefix kb: <https://rdf.lodgeit.net.au/v1/kb#> .
 
 
 kb:Asset a rdfs:Class.
@@ -33,138 +33,113 @@ kb:Asset a rdfs:Class.
 
 
 
-excel:is_multi rdfs:comment "are multiple instances allowed in one workbook?".
-
-hp_ui:hirepurchase_calculator_sheets
-	excel:is_multi true;
-	excel:sheets (
-		[
-			excel:name_prefix "HP";
-			excel:root hp_ui:hp_calculator_query;
-			excel:example_doc
-			[
-				hp:begin_date [rdf:value "2019-10-10T00:00:00.0"^^xsd:dateTime];
-				hp:hp_contract [
-					a hp:hp_contract;
-					hp:contract_number [rdf:value "xxxx"];
-					hp:currency [ rdf:value "AUD"];
-					hp:cash_price [ rdf:value "321321.27"];
-					hp:interest_rate [ rdf:value "5"];
-					hp:number_of_installments [ rdf:value 30];
-					hp:hp_contract_has_payment_type [ rdf:value hp:hp_contract_payment_type_advance];
-					hp:hp_installments [rdf:value rdf:nil]
-				]
-			]
-		]
-	).
-	
-hp_ui:hp_calculator_query
-	excel:position [excel:col "A"; excel:row "1"];
-	excel:title "Standalone Calculator Query Parameters";
-	excel:cardinality excel:single;
-	excel:class hp:hp_calculator_query;
-	excel:fields (
-		[	excel:property hp:begin_date; 
-			excel:type xsd:dateTime; 
-			excel:comment "ignored for Investment Calculator"]
-		[	excel:property hp:end_date; 
-			excel:type xsd:dateTime; 
-			excel:comment "ignored for Investment Calculator"]
-		[
-			excel:property hp:hp_contract; 
-			excel:template hp_ui:hp_contract]
-	).
-
-
-hp_ui:hp_contract
-	excel:position [excel:col "A"; excel:row "5"];
-	excel:title "Hirepurchase Contract";
-	excel:cardinality excel:single;	
-	excel:class hp:hp_contract;
-	excel:fields (
-		[excel:property hp:contract_number]
-		[excel:property hp:currency]
-		[excel:property hp:cash_price;
-			excel:type xsd:decimal]
-		[excel:property hp:interest_rate;
-			excel:type xsd:decimal]
-		[excel:property hp:interest_period;
-			excel:note "dunno what type here"]
-		[excel:property hp:repayment_period;
-			excel:note "dunno what type here"]
-		[excel:property hp:number_of_installments;
-			excel:type xsd:integer]
-		[excel:property hp:repayment_amount;
-			excel:type xsd:decimal]
-		[excel:property hp:total_payments;
-			excel:type xsd:integer]
-		[excel:property hp:total_interest;
-			excel:type xsd:decimal]
-		[excel:property hp:repayment_balance;
-			excel:type xsd:decimal]
-		[excel:property hp:hp_contract_has_payment_type;
-			excel:type excel:uri]
-		[excel:property hp:hp_installments;
-			excel:template hp_ui:hp_installments]
-	).
-
-hp:hp_contract_has_payment_type rdfs:range hp:hp_contract_payment_type.
-
-hp:hp_contract_payment_type_advance
-	a hp:hp_contract_payment_type;
-	rdfs:label "advance".
-
-hp_ui:hp_installments
-	excel:position [excel:col "E"; excel:row "20"];
-	excel:title "Installments";
-	excel:cardinality excel:multi;
-	excel:class hp:hp_installment;
-	excel:fields (
-		[excel:property hp:installment_number;
-			excel:type xsd:integer]
-		[excel:property hp:opening_date;
-			excel:type xsd:dateTime;]
-		[excel:property hp:opening_balance;
-			excel:type xsd:decimal]
-		[excel:property hp:interest_amount;
-			excel:type xsd:decimal]
-		[excel:property hp:installment_amount;
-			excel:type xsd:decimal]
-		[excel:property hp:closing_date;
-			excel:type xsd:dateTime;]
-		[excel:property hp:closing_balance;
-			excel:type xsd:decimal]
-		[excel:property hp:total_repayments_through_period;
-			excel:type xsd:decimal]
-		[excel:property hp:total_interest_payments_through_period;
-			excel:type xsd:decimal]
-	).
+excel:is_multi rdfs:comment "are multiple sheets of this type allowed in one workbook?".
 
 
 
 
+:this rdfs:comment """currently unused:
+/*
 depr_ui:depreciation_calculator_sheets
 	excel:is_multi false;
 	excel:sheets
 	(
-		[
-			excel:name_prefix "depreciation_queries";
-			excel:root depr_ui:depreciation_queries;
-			excel:example_doc depr_ui:depreciation_example_queries
-		]
-		[
-			excel:name_prefix "depreciation_events";
-			excel:root depr_ui:depreciation_events;
-			excel:example_doc depr_ui:depreciation_example_events
-		]
-		[
-			excel:name_prefix "depreciation_assets";
-			excel:root depr_ui:depreciation_assets;
-			excel:example_doc depr_ui:depreciation_example_assets
-		]
+		depr_ui:depreciation_calculator_sheet_queries
+		depr_ui:depreciation_calculator_sheet_events
+		depr_ui:depreciation_calculator_sheet_assets
 	).
+*/
+""".
 
-depr_ui:depreciation_example_queries rdf:value (
+
+depr_ui:depreciation_calculator_sheet_queries
+	excel:is_multi false;
+	excel:name_prefix "depreciation_queries";
+	excel:root depr_ui:depreciation_queries.
+
+depr_ui:depreciation_calculator_sheet_events
+	excel:is_multi false;
+	excel:name_prefix "depreciation_events";
+	excel:root depr_ui:depreciation_events.
+
+depr_ui:depreciation_calculator_sheet_assets
+	excel:is_multi false;
+	excel:name_prefix "depreciation_assets";
+	excel:root depr_ui:depreciation_assets.
+
+depr_ui:depreciation_example_simple excel:example_has_sheets (
+	[	excel:has_sheet depr_ui:depreciation_calculator_sheet_queries
+		excel:example_doc depr_ui:depreciation_example_queries_simple]
+	[	excel:has_sheet depr_ui:depreciation_calculator_sheet_assets
+		excel:example_doc depr_ui:depreciation_example_assets]
+).
+
+depr_ui:depreciation_example_full excel:sheets (
+	[	excel:sheet depr_ui:depreciation_calculator_sheet_queries
+		excel:example_doc depr_ui:depreciation_example_queries_full]
+	[	excel:sheet depr_ui:depreciation_calculator_sheet_events
+		excel:example_doc depr_ui:depreciation_example_events]
+	[	excel:sheet depr_ui:depreciation_calculator_sheet_assets
+		excel:example_doc depr_ui:depreciation_example_assets]
+).
+
+ depr_ui:depreciation_example_queries_simple rdf:value (
+	[ a depr:depreciation_query ;
+		depr:depreciation_query_has_type [ a rdf:value ;
+				rdf:value depr:depreciation_between_two_dates ] ;
+		depr:depreciation_query_method [ a rdf:value ;
+				rdf:value depr:diminishing_value ] ;
+		depr:depreciation_query_asset_id [ a rdf:value ;
+				rdf:value "car456"^^xsd:string ] ;
+		depr:depreciation_query_from_date [ a rdf:value ;
+				rdf:value "2017-06-01T00:00:00"^^xsd:dateTime ] ;
+		depr:depreciation_query_to_date [ a rdf:value ;
+				rdf:value "2019-02-02T00:00:00"^^xsd:dateTime ] ]
+	[ a depr:depreciation_query ;
+		depr:depreciation_query_has_type [ a rdf:value ;
+				rdf:value depr:depreciation_between_two_dates ] ;
+		depr:depreciation_query_method [ a rdf:value ;
+				rdf:value depr:prime_cost ] ;
+		depr:depreciation_query_asset_id [ a rdf:value ;
+				rdf:value "car456"^^xsd:string ] ;
+		depr:depreciation_query_from_date [ a rdf:value ;
+				rdf:value "2017-06-01T00:00:00"^^xsd:dateTime ] ;
+		depr:depreciation_query_to_date [ a rdf:value ;
+				rdf:value "2019-02-02T00:00:00"^^xsd:dateTime ] ]
+	[ a depr:depreciation_query ;
+		depr:depreciation_query_has_type [ a rdf:value ;
+				rdf:value depr:written_down_value ] ;
+		depr:depreciation_query_method [ a rdf:value ;
+				rdf:value depr:diminishing_value ] ;
+		depr:depreciation_query_asset_id [ a rdf:value ;
+				rdf:value "car123"^^xsd:string ] ;
+		depr:depreciation_query_written_down_date [ a rdf:value ;
+				rdf:value "2017-06-01T00:00:00"^^xsd:dateTime ] ]
+	[ a depr:depreciation_query ;
+		depr:depreciation_query_has_type [ a rdf:value ;
+				rdf:value depr:profit_and_loss ] ;
+		depr:depreciation_query_method [ a rdf:value ;
+				rdf:value depr:diminishing_value ] ;
+		depr:depreciation_query_asset_id [ a rdf:value ;
+				rdf:value "car123"^^xsd:string ] ;
+		depr:depreciation_query_termination_date [ a rdf:value ;
+				rdf:value "2019-07-07T00:00:00"^^xsd:dateTime ] ;
+		depr:depreciation_query_termination_value [ a rdf:value ;
+				rdf:value 200 ] ]
+	[ a depr:depreciation_query ;
+		depr:depreciation_query_has_type [ a rdf:value ;
+				rdf:value depr:profit_and_loss ] ;
+		depr:depreciation_query_method [ a rdf:value ;
+				rdf:value depr:diminishing_value ] ;
+		depr:depreciation_query_asset_id [ a rdf:value ;
+				rdf:value "car123"^^xsd:string ] ;
+		depr:depreciation_query_termination_date [ a rdf:value ;
+				rdf:value "2019-07-07T00:00:00"^^xsd:dateTime ] ;
+		depr:depreciation_query_termination_value [ a rdf:value ;
+				rdf:value 700 ] ]
+).
+
+depr_ui:depreciation_example_queries_full rdf:value (
 	[ a depr:depreciation_query ;
 		depr:depreciation_query_has_type [ a rdf:value ;
 				rdf:value depr:depreciation_pool_from_start ] ;
@@ -173,12 +148,23 @@ depr_ui:depreciation_example_queries rdf:value (
 		depr:depreciation_query_pool [ a rdf:value ;
 				rdf:value "general_pool"^^xsd:string ] ;
 		depr:depreciation_query_to_date [ a rdf:value ;
-				rdf:value "2019-02-02T00:00:00"^^xsd:dateTime ] ] 
+				rdf:value "2019-02-02T00:00:00"^^xsd:dateTime ] ]
+	[ a depr:depreciation_query ;
+		depr:depreciation_query_asset_id [ a rdf:value ;
+				rdf:value "car123"^^xsd:string ] ;
+		depr:depreciation_query_from_date [ a rdf:value ;
+				rdf:value "2017-07-01T00:00:00"^^xsd:dateTime ] ;
+		depr:depreciation_query_has_type [ a rdf:value ;
+				rdf:value depr:depreciation_between_two_dates ] ;
+		depr:depreciation_query_method [ a rdf:value ;
+				rdf:value depr:diminishing_value ] ;
+		depr:depreciation_query_to_date [ a rdf:value ;
+				rdf:value "2019-02-02T00:00:00"^^xsd:dateTime ] ]
 	[ a depr:depreciation_query ;
 		depr:depreciation_query_asset_id [ a rdf:value ;
 				rdf:value "car456"^^xsd:string ] ;
 		depr:depreciation_query_from_date [ a rdf:value ;
-				rdf:value "2017-06-01T00:00:00"^^xsd:dateTime ] ;
+				rdf:value "2017-07-01T00:00:00"^^xsd:dateTime ] ;
 		depr:depreciation_query_has_type [ a rdf:value ;
 				rdf:value depr:depreciation_between_two_dates ] ;
 		depr:depreciation_query_method [ a rdf:value ;
@@ -206,14 +192,14 @@ depr_ui:depreciation_example_queries rdf:value (
 		depr:depreciation_query_termination_value [ a rdf:value ;
 				rdf:value 500 ] ]
 ).
-									
+
 
 depr_ui:depreciation_example_events rdf:value (
 	[ a depr:depreciation_event ;
 	depr:depreciation_event_asset [ a rdf:value ;
 			rdf:value "car123"^^xsd:string ] ;
 	depr:depreciation_event_date [ a rdf:value ;
-			rdf:value "2017-06-01T00:00:00"^^xsd:dateTime ] ;
+			rdf:value "2017-07-01T00:00:00"^^xsd:dateTime ] ;
 	depr:depreciation_event_has_type [ a rdf:value ;
 			rdf:value depr:transfer_asset_to_pool ] ;
 	depr:depreciation_event_pool [ a rdf:value ;
@@ -222,7 +208,7 @@ depr_ui:depreciation_example_events rdf:value (
 	depr:depreciation_event_asset [ a rdf:value ;
 			rdf:value "car456"^^xsd:string ] ;
 	depr:depreciation_event_date [ a rdf:value ;
-			rdf:value "2017-08-01T00:00:00"^^xsd:dateTime ] ;
+			rdf:value "2017-07-01T00:00:00"^^xsd:dateTime ] ;
 	depr:depreciation_event_has_type [ a rdf:value ;
 			rdf:value depr:transfer_asset_to_pool ] ;
 	depr:depreciation_event_pool [ a rdf:value ;
@@ -263,7 +249,7 @@ depr_ui:depreciation_example_assets rdf:value (
 	depr:start_date [ a rdf:value ;
 			rdf:value "2015-03-16T00:00:00"^^xsd:dateTime ] ]
 ).
-									
+
 
 depr:depreciation_query_has_type rdfs:range depr:depreciation_query_type.
 depr:depreciation_pool_from_start				a depr:depreciation_query_type.
@@ -304,9 +290,9 @@ depr_ui:depreciation_queries
 		[excel:property depr:depreciation_query_written_down_value; excel:type xsd:decimal]
 		[excel:property depr:depreciation_query_profit_and_loss; excel:type xsd:decimal]
 	).
-	
-	
-	
+
+
+
 depr_ui:depreciation_events
 	excel:title "depreciation_events";
 	excel:position [excel:col "A"; excel:row "1"];
@@ -332,8 +318,14 @@ depr_ui:depreciation_assets
 		[excel:property depr:effective_life_years; excel:type xsd:integer]
 	).
 
+/*
+ic_ui:investment_calculator_example
+	excel:example_has_sheets (
+		[	excel:has_sheet ic_ui:depreciation_calculator_sheet_queries
+			excel:example_doc ic_ui:depreciation_example_queries_simple]
 
-ic_ui:investment_calculator_sheets
+).
+
 	excel:is_multi false;
 	excel:sheets (
 
@@ -387,7 +379,7 @@ ic_ui:investment_calculator_sheets
 				]
 		]
 	).
-	
+
 ?=======
 			excel:root ic_ui:action_verbs;
 			excel:optional false;
@@ -405,7 +397,7 @@ ic_ui:gl
 		[excel:property ic:default_currency; excel:type xsd:string]
 		[excel:property ic:items; excel:template ic_ui:gl_entries_template]
 	).
-
+*/
 ic_ui:gl_entries_template
 	excel:position [excel:col "A"; excel:row "4"];
 	excel:title "entries";
@@ -517,7 +509,7 @@ ic2_ui:action_verbs
 	excel:class av:Action_verb;
 	excel:fields (
 		[excel:property av:id]
-		[	
+		[
 			excel:property av:role;
 			excel:type excel:uri
 		]
@@ -544,10 +536,10 @@ av:counteraccount_id
 
 av:counteraccount
     rdfs:comment "the GL account where the corresponding and opposite entry goes".
-    
+
 av:trading_account_id
     rdfs:comment "used to look up av:trading_account".
-    
+
 av:trading_account
     rdfs:comment "the GL account where gains and losses from investments are tracked".
 
@@ -628,4 +620,113 @@ ic2_ui:example_action_verbs rdf:value (
 		av:GST_Rate_Percent "10";
 	]
 ).
-				
+
+
+
+
+hp_ui:hirepurchase_calculator_sheets
+	excel:is_multi true;
+	excel:sheets (
+		[
+			excel:name_prefix "HP";
+			excel:root hp_ui:hp_calculator_query;
+			excel:example_doc
+			[
+				hp:begin_date [rdf:value "2019-10-10T00:00:00.0"^^xsd:dateTime];
+				hp:hp_contract [
+					a hp:hp_contract;
+					hp:contract_number [rdf:value "xxxx"];
+					hp:currency [ rdf:value "AUD"];
+					hp:cash_price [ rdf:value "321321.27"];
+					hp:interest_rate [ rdf:value "5"];
+					hp:number_of_installments [ rdf:value 30];
+					hp:hp_contract_has_payment_type [ rdf:value hp:hp_contract_payment_type_advance];
+					hp:hp_installments [rdf:value rdf:nil]
+				]
+			]
+		]
+	).
+
+hp_ui:hp_calculator_query
+	excel:position [excel:col "A"; excel:row "1"];
+	excel:title "Standalone Calculator Query Parameters";
+	excel:cardinality excel:single;
+	excel:class hp:hp_calculator_query;
+	excel:fields (
+		[	excel:property hp:begin_date;
+			excel:type xsd:dateTime;
+			excel:comment "ignored for Investment Calculator"]
+		[	excel:property hp:end_date;
+			excel:type xsd:dateTime;
+			excel:comment "ignored for Investment Calculator"]
+		[
+			excel:property hp:hp_contract;
+			excel:template hp_ui:hp_contract]
+	).
+
+
+hp_ui:hp_contract
+	excel:position [excel:col "A"; excel:row "5"];
+	excel:title "Hirepurchase Contract";
+	excel:cardinality excel:single;
+	excel:class hp:hp_contract;
+	excel:fields (
+		[excel:property hp:contract_number]
+		[excel:property hp:currency]
+		[excel:property hp:cash_price;
+			excel:type xsd:decimal]
+		[excel:property hp:interest_rate;
+			excel:type xsd:decimal]
+		[excel:property hp:interest_period;
+			excel:note "dunno what type here"]
+		[excel:property hp:repayment_period;
+			excel:note "dunno what type here"]
+		[excel:property hp:number_of_installments;
+			excel:type xsd:integer]
+		[excel:property hp:repayment_amount;
+			excel:type xsd:decimal]
+		[excel:property hp:total_payments;
+			excel:type xsd:integer]
+		[excel:property hp:total_interest;
+			excel:type xsd:decimal]
+		[excel:property hp:repayment_balance;
+			excel:type xsd:decimal]
+		[excel:property hp:hp_contract_has_payment_type;
+			excel:type excel:uri]
+		[excel:property hp:hp_installments;
+			excel:template hp_ui:hp_installments]
+	).
+
+hp:hp_contract_has_payment_type rdfs:range hp:hp_contract_payment_type.
+
+hp:hp_contract_payment_type_advance
+	a hp:hp_contract_payment_type;
+	rdfs:label "advance".
+
+hp_ui:hp_installments
+	excel:position [excel:col "E"; excel:row "20"];
+	excel:title "Installments";
+	excel:cardinality excel:multi;
+	excel:class hp:hp_installment;
+	excel:fields (
+		[excel:property hp:installment_number;
+			excel:type xsd:integer]
+		[excel:property hp:opening_date;
+			excel:type xsd:dateTime;]
+		[excel:property hp:opening_balance;
+			excel:type xsd:decimal]
+		[excel:property hp:interest_amount;
+			excel:type xsd:decimal]
+		[excel:property hp:installment_amount;
+			excel:type xsd:decimal]
+		[excel:property hp:closing_date;
+			excel:type xsd:dateTime;]
+		[excel:property hp:closing_balance;
+			excel:type xsd:decimal]
+		[excel:property hp:total_repayments_through_period;
+			excel:type xsd:decimal]
+		[excel:property hp:total_interest_payments_through_period;
+			excel:type xsd:decimal]
+	).
+
+
