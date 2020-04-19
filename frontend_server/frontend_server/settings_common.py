@@ -30,7 +30,7 @@ del secrets
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['192.168.122.187', 'dev-node.uksouth.cloudapp.azure.com', 'localhost']
+ALLOWED_HOSTS = ['192.168.122.187', '192.168.122.188', 'dev-node.uksouth.cloudapp.azure.com', 'localhost']
 
 
 # Application definition
@@ -127,9 +127,6 @@ STATIC_ROOT = os.path.abspath('../static/') + '/'
 STATIC_URL = '/static/'
 MEDIA_ROOT = os.path.abspath('../server_root/tmp')
 MEDIA_URL = '/tmp/'
-
-BBB = "ccc"
-AAA = "CCCCC"
 
 MY_SERVICES_SERVER_URL=os.environ.get('MY_SERVICES_SERVER_URL')
 

@@ -61,19 +61,6 @@ extract_account_hierarchy_from_accountHierarchy_element(E, Accounts) :-
 	),
 	extract_account_terms_from_accountHierarchy_elements(AccountHierarchy_Elements, Accounts).
 
-call_with_string_read_stream(String, Callable) :-
-	setup_call_cleanup(
-		new_memory_file(X),
-		(
-			open_memory_file(X, write, W),
-			write(W, String),
-			close(W),
-			open_memory_file(X, read, R),
-			call(Callable, R),
-			close(R)),
-		free_memory_file(X)).
-
-
 arelle(taxonomy, Taxonomy_URL, AccountHierarchy_Elements) :-
 	internal_services_rpc(
 		cmd{'method':'arelle_extract','params':p{'taxonomy_locator':Taxonomy_URL}},
@@ -116,3 +103,4 @@ format(user_error, 'loading default taxonomy from ~w\n', [Taxonomy_URL]),
 extract_account_hierarchy_from_taxonomy(Taxonomy_URL,Dom)*/
 
 % NOTE: we have to load an entire taxonomy file just to determine that it's not a simple XML hierarchy
+

@@ -15,7 +15,7 @@ process_request_depreciation_new :-
 		->	true
 		;	throw_string('depreciation: events processingfailed'))
 	;	true
-	)
+	),
 
 	(	maplist(process_depreciation_query, $> doc_list_items($> doc_value(D, depr_ui:depreciation_queries)))
 	->	true

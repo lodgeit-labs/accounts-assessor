@@ -109,10 +109,10 @@ def call_prolog(msg, dev_runner_options=[], prolog_flags='true', make_new_tmp_di
 
 		
 	# SWI_HOME_DIR is the (system) directory where swipl has put it's stuff during installation
-	# not sure why this needs to be set, since swipl should find it based on argv, but that's not happening, see notes
+	# not sure why this needs to be set, since swipl should find it based on argv, but that's not happening, see notes <- what notes?
 	
 	#if os.path.expanduser('~') == '/var/www':
-	os.environ.putenv('SWI_HOME_DIR', '/usr/lib/swi-prolog')
+	#os.environ.putenv('SWI_HOME_DIR', '/usr/lib/swi-prolog')
 	
 
 
@@ -165,24 +165,30 @@ def call_prolog(msg, dev_runner_options=[], prolog_flags='true', make_new_tmp_di
 	cmd2 = ['-g', debug_goal + prolog_flags + goal+halt_goal]
 	cmd = cmd0 + cmd1 + cmd2
 	print(' '.join(cmd))
-	print(cmd)
+	#print(cmd)
 
 	
 	if print_cmd_to_swipl_stdin:
-		print(input)
-	
+		print('<<', input)
 
-	
 	# if you want to see current env:
+	#import sys
+	#print(sys.path)
 	#p = subprocess.Popen(['bash', '-c', 'export'], universal_newlines=True)
 	#p.communicate()
 
-	if print_cmd_to_swipl_stdin:
-		p = subprocess.Popen(cmd, universal_newlines=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
-		(stdout_data, stderr_data) = p.communicate(input = input)
-	else:
-		p = subprocess.Popen(cmd, universal_newlines=True, stdout=subprocess.PIPE)
-		(stdout_data, stderr_data) = p.communicate()
+	try:
+		if print_cmd_to_swipl_stdin:
+			p = subprocess.Popen(cmd, universal_newlines=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+			(stdout_data, stderr_data) = p.communicate(input = input)
+		else:
+			p = subprocess.Popen(cmd, universal_newlines=True, stdout=subprocess.PIPE)
+			(stdout_data, stderr_data) = p.communicate()
+	except FileNotFoundError as e:
+		print(
+			"if system PATH is messed up, maybe you're running the server from venv, and activating the venv second time, from run_common0.sh, messes it up")
+		raise
+
 	print("result from prolog:")
 	print(stdout_data)
 	print("end of result from prolog.")

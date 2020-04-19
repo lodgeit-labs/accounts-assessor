@@ -53,7 +53,7 @@ ggg(Data, S_Transactions0, Count) :-
 
 
 process_request_ledger2(Dom, S_Transactions, Structured_Reports, Transactions) :-
-	request(Request),
+	%request(Request),
 	%doc_add(Request, l:kind, l:ledger_request),
 	extract_request_details(Dom),
 	extract_start_and_end_date(Dom, Start_Date, End_Date),

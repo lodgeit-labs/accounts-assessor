@@ -57,4 +57,4 @@
 :- [xbrl_contexts].
 :- [xbrl_output].
 
-:- ['../misc/chr_hp'].
+% :- ['../misc/chr_hp'].
