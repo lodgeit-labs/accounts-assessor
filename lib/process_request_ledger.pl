@@ -57,6 +57,7 @@ process_request_ledger2(Dom, S_Transactions, Structured_Reports, Transactions) :
 	%doc_add(Request, l:kind, l:ledger_request),
 	extract_request_details(Dom),
 	extract_start_and_end_date(Dom, Start_Date, End_Date),
+	0001-01-01
 	extract_output_dimensional_facts(Dom, Output_Dimensional_Facts),
 	extract_cost_or_market(Dom, Cost_Or_Market),
 	extract_report_currency(Dom, Report_Currency),
@@ -207,7 +208,7 @@ make_gl_viewer_report :-
 	shell4(Cmd, _),
 	%format(user_error, 'shell.~n',[]),
 	atomic_list_concat([Dir_Url, '/link.html'], Full_Url),
-	add_report_file('gl_html', 'GL viewer', loc(absolute_url, Full_Url)),
+	add_report_file(0,'gl_html', 'GL viewer', loc(absolute_url, Full_Url)),
 	%format(user_error, 'make_gl_viewer_report done.~n',[]),
 	true.
 
@@ -336,7 +337,15 @@ extract_start_and_end_date(Dom, Start_Date, End_Date) :-
 	)),
 	result(R),
 	doc_add(R, l:start_date, Start_Date),
-	doc_add(R, l:end_date, End_Date).
+	doc_add(R, l:end_date, End_Date),
+
+	(	Start_Date = date(1,1,1)
+	->	throw_string(['start date missing?'])
+	;	true),
+	(	End_Date = date(1,1,1)
+	->	throw_string(['end date missing?'])
+	;	true)
+	.
 
 	
 %:- tspy(process_xml_ledger_request2/2).

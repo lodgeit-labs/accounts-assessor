@@ -4,7 +4,7 @@
 crosschecks_report0(Sd, Json) :-
 	crosschecks_report(Sd, Json),
 	maplist(crosscheck_output, Json.results, Html),
-	add_report_page_with_body('crosschecks', Html, loc(file_name,'crosschecks.html'), 'crosschecks_html').
+	add_report_page_with_body(9, 'crosschecks', Html, loc(file_name,'crosschecks.html'), 'crosschecks_html').
 
 crosscheck_output(Result, Html) :-
 	Html = p([span([Status]), ':', br([]), span([Check_Str]), ':', br([]), span([Evaluation_Str])]),

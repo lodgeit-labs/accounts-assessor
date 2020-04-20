@@ -164,28 +164,32 @@ add_xml_report(Key, Title, XML) :-
 		sane_xml_write(Stream, XML),
 		close(Stream)
 	),
-	add_report_file(Key, Title, Url). % (_{name:Name,format:'xml'}
+	add_report_file(-10,Key, Title, Url). % (_{name:Name,format:'xml'}
 
-add_report_file(Key, Title, loc(absolute_url, Url)) :-
+add_report_file(Priority, Key, Title, loc(absolute_url, Url)) :-
 	result(R),
 	doc_new_uri(Uri, report_file),
 	doc_add(R, l:has_report, Uri, files),
+	doc_add(Uri, l:priority, Priority, files),
 	doc_add(Uri, l:key, $>atom_string(Key), files),
 	doc_add(Uri, l:title, $>atom_string(Title), files),
 	doc_add(Uri, l:url, Url, files).
 
-get_report_file(Key, Title, Url) :-
+get_report_file(Priority, Title, Key, Url) :-
 	result(R),
 	docm(R, l:has_report, Uri, files),
+	(	doc(Uri, l:priority, Priority, files)
+	->	true
+	;	Priority = 0),
 	doc(Uri, l:key, Key, files),
 	doc(Uri, l:title, Title, files),
 	doc(Uri, l:url, Url, files).
 
 add_result_file_by_filename(Name) :-
 	report_file_path(Name, Url, _),
-	add_report_file('result', 'result', Url).
+	add_report_file(-1,'result', 'result', Url).
 
 add_result_file_by_path(Path) :-
 	tmp_file_path_to_url(Path, Url),
-	add_report_file('result', 'result', Url).
+	add_report_file(-1,'result', 'result', Url).
 

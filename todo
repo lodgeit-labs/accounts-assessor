@@ -1,5 +1,9 @@
-# finishme
+https://www.swi-prolog.org/pldoc/doc_for?object=sort/4
+sort has duplicate handling option
 
+
+
+# finishme
 3 options how to handle data, in the context of current or pyco-ized prolog code:
     prolog terms, normally as it's now
         dataflow proof is generated in a metainterpreter, 

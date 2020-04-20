@@ -58,7 +58,7 @@ investment_report_2_0(Static_Data, Filename_Suffix, Semantic_Json) :-
 			Semantic_Json = _{}
 		)
 	),
-	add_report_page(Title_Text, Html, loc(file_name,Filename), Key).
+	add_report_page(0, Title_Text, Html, loc(file_name,Filename), Key).
 
 
 investment_report_2(Static_Data, Semantic_Json, Table_Json, Html, Title_Text) :-

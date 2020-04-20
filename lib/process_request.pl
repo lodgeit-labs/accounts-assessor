@@ -75,21 +75,28 @@ process_request2 :-
 
 'make "all files" report entry' :-
 	report_file_path(loc(file_name, ''), Tmp_Dir_Url, _),
-	add_report_file('all', 'all files', Tmp_Dir_Url).
+	add_report_file(-100,'all', 'all files', Tmp_Dir_Url).
 
 
 make_doc_dump_report :-
 	save_doc.
 
-json_report_entries(Files3) :-
+json_report_entries(Out) :-
+	findall(
+		report_file(Priority, Title, Key, Url),
+		get_report_file(Priority, Title, Key, Url),
+		Files0
+	),
+	sort(0, @>=, Files0, Files1),
 	findall(
 		Json,
 		(
-			get_report_file(Key, Title, Url),
+			member(report_file(_, Title, Key, Url), Files1),
 			(format_json_report_entry(Key, Title, Url, Json) -> true ; throw(error))
 		),
-		Files3
+		Out
 	).
+
 
 format_json_report_entry(Key, Title, Url, Json) :-
 	Json0 = _{key:Key, title:Title, val:_{url:Url}},
@@ -127,7 +134,7 @@ make_alerts_report(Alerts) :-
 	(	Alerts_Html = []
 	->	Alerts_Html2 = ['no alerts']
 	;	Alerts_Html2 = Alerts_Html),
-	add_report_page_with_body(alerts, [h3([alerts, ':']), div(Alerts_Html2)], loc(file_name,'alerts.html'), alerts_html).
+	add_report_page_with_body(10,alerts, [h3([alerts, ':']), div(Alerts_Html2)], loc(file_name,'alerts.html'), alerts_html).
 
 alert_html(Alert, div([Alert, br([]), br([])])).
 
@@ -160,9 +167,11 @@ process_multifile_request(File_Paths) :-
 check_request_version :-
 	/* only done for requests that include a rdf file */
 	request_data(D),
-	(	doc(D, l:client_version, "1")
-	->	true
-	;	throw_string('incompatible client version')).
+	(	doc(D, l:client_version, V)
+	->	(	V = "1"
+		->	true
+		;	throw_string('incompatible client version'))
+	;	true).
 
 accept_request_file(File_Paths, Path, Type) :-
 	debug(tmp_files, "accept_request_file(~w, ~w, ~w)~n", [File_Paths, Path, Type]),
@@ -173,12 +182,12 @@ accept_request_file(File_Paths, Path, Type) :-
 	(
 		loc_icase_endswith(Path, ".xml")
 	->	(
-			add_report_file('request_xml', 'request_xml', Url),
+			add_report_file(-20,'request_xml', 'request_xml', Url),
 			Type = xml
 		)
 	;	loc_icase_endswith(Path, "n3")
 	->	(
-			add_report_file('request_n3', 'request_n3', Url),
+			add_report_file(-20,'request_n3', 'request_n3', Url),
 			Type = n3
 		)).
 

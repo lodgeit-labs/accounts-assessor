@@ -19,12 +19,15 @@
 @prefix ic2_ui: <https://rdf.lodgeit.net.au/v1/calcs/ic/ui#> .
 @prefix hp_ui: <https://rdf.lodgeit.net.au/v1/calcs/hp/ui#> .
 
+
+
 excel:this rdfs:comment
 """schema-directed GUI form ontology. We should align it with http://datashapes.org/forms.html somehow, but that's quite verbose, so possibly we should generate DASH from this and interpret dash. This way, our excel code could be used for any other rdf data that has SHACL/DASH, and our data could be rendered with another engine (topbraid,solidproject?)""".
 hp:this rdfs:comment """hirepurchase""".
 depr:this rdfs:comment """depreciation""".
 ic:this rdfs:comment """investment calculator""".
 ic2:this rdfs:comment """investment calculator 2, with pyco""".
+
 
 
 
@@ -46,8 +49,6 @@ depr_ui:depreciation_calculator_sheets
 		depr_ui:depreciation_calculator_sheet_events
 		depr_ui:depreciation_calculator_sheet_assets
 	).
-
-
 
 depr_ui:depreciation_calculator_sheet_queries
 	excel:is_multi false;
@@ -193,7 +194,6 @@ depr_ui:depreciation_example_queries_full rdf:value (
 				rdf:value 500 ] ]
 ).
 
-
 depr_ui:depreciation_example_events rdf:value (
 	[ a depr:depreciation_event ;
 	depr:depreciation_event_asset [ a rdf:value ;
@@ -250,25 +250,19 @@ depr_ui:depreciation_example_assets rdf:value (
 			rdf:value "2015-03-16T00:00:00"^^xsd:dateTime ] ]
 ).
 
-
 depr:depreciation_query_has_type rdfs:range depr:depreciation_query_type.
 depr:depreciation_pool_from_start				a depr:depreciation_query_type.
 depr:depreciation_between_two_dates				a depr:depreciation_query_type.
 depr:written_down_value							a depr:depreciation_query_type.
 depr:profit_and_loss							a depr:depreciation_query_type.
 
-
 depr:depreciation_event_has_type rdfs:range depr:depreciation_event_type.
 depr:transfer_asset_to_pool	a depr:depreciation_event_type.
 depr:asset_disposal	a depr:depreciation_event_type.
 
-
 depr:depreciation_query_method rdfs:range depr:depreciation_query_method_type.
 depr:diminishing_value a depr:depreciation_query_method_type.
 depr:prime_cost a depr:depreciation_query_method_type.
-
-
-
 
 depr_ui:depreciation_queries
 	excel:title "depreciation_queries";
@@ -291,8 +285,6 @@ depr_ui:depreciation_queries
 		[excel:property depr:depreciation_query_profit_and_loss; excel:type xsd:decimal]
 	).
 
-
-
 depr_ui:depreciation_events
 	excel:title "depreciation_events";
 	excel:position [excel:col "A"; excel:row "1"];
@@ -304,7 +296,6 @@ depr_ui:depreciation_events
 		[excel:property depr:depreciation_event_pool]
 		[excel:property depr:depreciation_event_date; excel:type xsd:dateTime]
 	).
-
 
 depr_ui:depreciation_assets
 	excel:title "depreciation_assets";
@@ -318,76 +309,54 @@ depr_ui:depreciation_assets
 		[excel:property depr:effective_life_years; excel:type xsd:integer]
 	).
 
-:x :x """
-ic_ui:investment_calculator_example
-	excel:example_has_sheets (
-		[	excel:has_sheet ic_ui:depreciation_calculator_sheet_queries
-			excel:example_doc ic_ui:depreciation_example_queries_simple]
 
-).
 
-	excel:is_multi false;
-	excel:sheets (
 
-		[
-			excel:name_prefix "GL_input";
-			excel:root ic_ui:gl;
-			excel:optional true;
-			excel:example_doc
-				[	ic:default_currency [rdf:value "AUD"];
-					ic:items [rdf:value ()]
-				]
-		]
-		[
-			excel:root ic_ui:account_taxonomies;
-			excel:optional true;
-			excel:example_doc
-				[
-					rdf:value ()
-				]
-		]
-		[
-			excel:root ic_ui:account_roles;
-			excel:optional true;
-			excel:example_doc
-				[
-					rdf:value ()
-				]
-		]
-		[
-<<<<<<< HEAD
-			excel:root ic_ui:additional_files;
-?=======
-			excel:root ic_ui:transaction_input;
-?>>>>>>> work11
-			excel:optional true;
-			excel:example_doc
-				[
-					rdf:value ()
-				]
-		]
-		[
-?<<<<<<< HEAD
-			excel:root ic_ui:report_details;
-			excel:optional false;
-			excel:example_doc
-				[
-					ic:currency [rdf:value "AUD"];
-					ic:from [rdf:value "2019-07-01T00:00:00.0"^^xsd:dateTime];
-					ic:to [rdf:value "2020-01-01T00:00:00.0"^^xsd:dateTime];
-					ic:cost_or_market [rdf:value ic:cost]
-				]
-		]
+
+
+ic_ui:investment_calculator_sheets
+	excel:sheets
+	(
+		ic_ui:report_details_sheet
+		ic_ui:gl_input_sheet
+		ic_ui:additional_files_sheet
 	).
 
-?=======
-			excel:root ic_ui:action_verbs;
-			excel:optional false;
-			excel:example_doc ic_ui:example_action_verbs.
-		]
+ic_ui:investment_calculator_example
+	excel:example_has_sheets (
+		[	excel:has_sheet ic_ui:report_details_sheet;
+			excel:example_doc ic_ui:report_details_example]
+		[	excel:has_sheet ic_ui:gl_input_sheet;
+			excel:example_doc ic_ui:gl_input_example]
+		[	excel:has_sheet ic_ui:additional_files_sheet;
+			excel:example_doc ic_ui:additional_files_example]
 ).
 
-?>>>>>>> work11
+ic_ui:report_details_sheet
+	excel:root ic_ui:report_details.
+
+ic_ui:report_details_example
+	ic:currency [rdf:value "AUD"];
+	ic:from [rdf:value "2019-07-01T00:00:00.0"^^xsd:dateTime];
+	ic:to [rdf:value "2020-01-01T00:00:00.0"^^xsd:dateTime];
+	ic:cost_or_market [rdf:value ic:cost].
+
+ic_ui:gl_input_sheet
+	excel:optional true;
+	excel:name_prefix "GL_input";
+	excel:root ic_ui:gl.
+
+ic_ui:gl_input_example
+	ic:default_currency [rdf:value "AUD"];
+	ic:items [rdf:value ()].
+
+ic_ui:additional_files_sheet
+	excel:optional true;
+	excel:root ic_ui:additional_files.
+
+ic_ui:additional_files_example
+	rdf:value ().
+
 ic_ui:gl
 	excel:position [excel:col "A"; excel:row "1"];
 	excel:title "GL input";
@@ -397,7 +366,7 @@ ic_ui:gl
 		[excel:property ic:default_currency; excel:type xsd:string]
 		[excel:property ic:items; excel:template ic_ui:gl_entries_template]
 	).
-""".
+
 ic_ui:gl_entries_template
 	excel:position [excel:col "A"; excel:row "4"];
 	excel:title "entries";
@@ -409,21 +378,6 @@ ic_ui:gl_entries_template
 		[excel:property ic:description; excel:type xsd:string]
 		[excel:property ic:debit; excel:type xsd:string]
 		[excel:property ic:credit; excel:type xsd:string]
-	).
-
-ic_ui:account_taxonomies
-	excel:cardinality excel:multi;
-	excel:class ic:account_taxonomy;
-	excel:fields (
-		[excel:property ic:url; excel:type xsd:string]
-	).
-
-ic_ui:account_roles
-	excel:cardinality excel:multi;
-	excel:class ic:account_role;
-	excel:fields (
-		[excel:property ic:id]
-		[excel:property ic:role]
 	).
 
 ic_ui:additional_files
@@ -493,160 +447,35 @@ ic_ui:gl_input_example
 
 
 
-ic2_ui:action_verb
-	a rdfs:Class;
-	rdfs:comment "action verb entry in Action_verbs excel sheet".
 
-ic2:action_verb
-	a rdfs:Class;
-	rdfs:comment "action verb".
-
-ic2:exchanged_account rdfs:domain ic2:action_verb.
-
-ic2_ui:action_verbs
-	a excel:Template;
-	excel:cardinality excel:multi;
-	excel:class av:Action_verb;
-	excel:fields (
-		[excel:property av:id]
-		[
-			excel:property av:role;
-			excel:type excel:uri
-		]
-		[excel:property av:money_direction]
-		[excel:property av:counteraccount_id]
-		[excel:property av:trading_account_id]
-		[excel:property av:description]
-		[excel:property av:GST_Receivable_account_id]
-		[excel:property av:GST_Payable_account_id]
-		[excel:property av:GST_Rate_Percent]
-		[excel:property av:is_livestock_purchase; excel:type xsd:boolean]
-		[excel:property av:is_livestock_sale; excel:type xsd:boolean]
-    ).
-
-ic2:Action_verb
-    a rdfs:Class;
-    rdfs:comment "action verb, defined in Action_verbs excel sheet";
-    rdfs:comment "and Action_verb is unique for each request.";
-    rdfs:comment "each bank statement transaction either has an explicitly stated, or has an inferred Action_verb.";
-    rdfs:comment "each bank statement transaction has an implied primary GL account, given by its source, and produces a change on it and directly or indirectly on a counteraccount, in accordance with the principle of double-entry bookkeeping.".
-
-av:counteraccount_id
-    rdfs:comment "used to look up av:counteraccount".
-
-av:counteraccount
-    rdfs:comment "the GL account where the corresponding and opposite entry goes".
-
-av:trading_account_id
-    rdfs:comment "used to look up av:trading_account".
-
-av:trading_account
-    rdfs:comment "the GL account where gains and losses from investments are tracked".
-
-av:money_direction
-	rdfs:range av:MoneyDirection;
-	rdfs:comment "constrains the transaction to either debiting(incoming) or crediting(outgoing) the primary GL account".
-av:incoming a av:MoneyDirection.
-av:outgoing a av:MoneyDirection.
-
-
-ic2_ui:example_action_verbs
-	rdf:value (
-		[
-			av:id "Invest_In";
-			av:money_direction av:outgoing;
-			av:counteraccount_id "FinancialInvestments";
-			av:trading_account_id "InvestmentIncome";
-		]
-		[
-			av:id "Dispose_Of";
-			av:money_direction av:incoming;
-			av:counteraccount_id "FinancialInvestments";
-			av:trading_account_id "InvestmentIncome"
-		]
-		[
-			av:id "Borrow";
-			av:money_direction av:incoming;
-			av:counteraccount_id "NonCurrentLoans"
-		]
-		[
-			av:id "Introduce_Capital";
-			av:money_direction av:incoming;
-			av:counteraccount_id "ShareCapital"
-		]
-		[
-			av:id "Transfers";
-			av:counteraccount_id "ClearingAccount"
-		]
-		[
-			av:id "Bank_Charges";
-			av:money_direction av:outgoing;
-			av:counteraccount_id "BankCharges"
-		]
-		[
-			av:id "Interest_Expenses";
-			av:money_direction av:outgoing;
-			av:counteraccount_id "InterestExpenses"
-		]
-		[
-			av:id "Accountancy_Fees";
-			av:money_direction av:outgoing;
-			av:counteraccount_id "AccountingFees"
-		]
-		[
-			av:id "Interest_Income";
-			av:money_direction av:incoming;
-			av:counteraccount_id "InterestEarned"
-		]
-		[
-			av:id "Drawings";
-			av:money_direction av:outgoing;
-			av:counteraccount_id "Drawings"
-		]
-		[
-			av:id "Fixed_Asset_Purchase";
-			av:money_direction av:outgoing;
-			av:counteraccount_id "FixedAssets"
-		]
-		[
-			av:id "Purchase_Method_C";
-			av:counteraccount_id "Purchases";
-			av:GST_Payable_account_id "GSTPayable";
-			av:GST_Rate_Percent "10"
-		]
-		[
-			av:id "Sale_Method_C";
-			av:counteraccount_id "Revenue";
-			av:GST_Receivable_account_id "GSTReceivable";
-			av:GST_Rate_Percent "10";
-		]
-	).
-
-
-
+hp_ui:hirepurchase_calculator_example
+	excel:example_has_sheets (
+		[	excel:has_sheet hp_ui:hirepurchase_calculator_query_sheet;
+			excel:example_doc hp_ui:hirepurchase_calculator_query_example]
+).
 
 hp_ui:hirepurchase_calculator_sheets
-	excel:is_multi true;
 	excel:sheets (
-		[
-			excel:name_prefix "HP";
-			excel:root hp_ui:hp_calculator_query;
-			excel:example_doc
-			[
-				hp:begin_date [rdf:value "2019-10-10T00:00:00.0"^^xsd:dateTime];
-				hp:hp_contract [
-					a hp:hp_contract;
-					hp:contract_number [rdf:value "xxxx"];
-					hp:currency [ rdf:value "AUD"];
-					hp:cash_price [ rdf:value "321321.27"];
-					hp:interest_rate [ rdf:value "5"];
-					hp:number_of_installments [ rdf:value 30];
-					hp:hp_contract_has_payment_type [ rdf:value hp:hp_contract_payment_type_advance];
-					hp:hp_installments [rdf:value rdf:nil]
-				]
-			]
-		]
+		hp_ui:hirepurchase_calculator_query_sheet
 	).
+
+hp_ui:hirepurchase_calculator_query_sheet
+	excel:is_multi true;
+	excel:name_prefix "HP";
+	excel:root hp_ui:hp_calculator_query.
+
+hp_ui:hirepurchase_calculator_query_example
+	hp:begin_date [rdf:value "2019-10-10T00:00:00.0"^^xsd:dateTime];
+	hp:hp_contract [
+		a hp:hp_contract;
+		hp:contract_number [rdf:value "xxxx"];
+		hp:currency [ rdf:value "AUD"];
+		hp:cash_price [ rdf:value "321321.27"];
+		hp:interest_rate [ rdf:value "5"];
+		hp:number_of_installments [ rdf:value 30];
+		hp:hp_contract_has_payment_type [ rdf:value hp:hp_contract_payment_type_advance];
+		hp:hp_installments [rdf:value rdf:nil]
+	].
 
 hp_ui:hp_calculator_query
 	excel:position [excel:col "A"; excel:row "1"];
@@ -729,4 +558,5 @@ hp_ui:hp_installments
 		[excel:property hp:total_interest_payments_through_period;
 			excel:type xsd:decimal]
 	).
+
 

@@ -22,7 +22,7 @@ pl_page(
 	flatten([Header, Report_Table_Data], Tbl),
 	atomic_list_concat(['profit_and_loss', Filename_Suffix, '.html'], Filename),
 	atomic_list_concat(['profit_and_loss', Filename_Suffix, '_html'], Id),
-	add_report_page_with_table(Title_Text, Tbl, loc(file_name,Filename), Id).
+	add_report_page_with_table(0, Title_Text, Tbl, loc(file_name,Filename), Id).
 		
 % EFFECTS: write balance_sheet.html
 bs_page(
@@ -37,7 +37,7 @@ bs_page(
 	pesseract_style_table_rows(Accounts, Report_Currency, Balance_Sheet, Report_Table_Data),
 	Header = tr([th('Account'), th(['Balance', Report_Currency_Atom])]),
 	flatten([Header, Report_Table_Data], Tbl),
-	add_report_page_with_table(Title_Text, Tbl, loc(file_name,'balance_sheet.html'), 'balance_sheet_html').
+	add_report_page_with_table(0,Title_Text, Tbl, loc(file_name,'balance_sheet.html'), 'balance_sheet_html').
 
 
 % EFFECTS: write cashflow.html
@@ -53,7 +53,7 @@ cf_page(
 	pesseract_style_table_rows(Accounts, Report_Currency, Entries, Report_Table_Data),
 	Header = tr([th('Account'), th([End_Date_Atom, ' ', Report_Currency_Atom])]),
 	flatten([Header, Report_Table_Data], Tbl),
-	add_report_page_with_table(Title_Text, Tbl, loc(file_name,'cashflow.html'), 'cashflow_html').
+	add_report_page_with_table(0,Title_Text, Tbl, loc(file_name,'cashflow.html'), 'cashflow_html').
 /*
 write_entries_html(
 	Static_Data,

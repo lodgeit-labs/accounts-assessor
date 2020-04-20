@@ -18,7 +18,7 @@ make_json_report2(Dict, Fn) :-
 	Fn2 = loc(file_name, Fn2_Value),
 	dict_json_text(Dict, Json_Text),
 	write_report_file(Fn2, Json_Text, Report_File_URL),
-	add_report_file(Key, Title, Report_File_URL).
+	add_report_file(-10, Key, Title, Report_File_URL).
 
 html_tokenlist_string(Tokenlist, String) :-
 	setup_call_cleanup(
@@ -48,16 +48,16 @@ error_page_html(Msg, Html) :-
 page_with_table_html(Title, Tbl, Html) :-
 	page_with_body(Title, [Title, ':', br([]), table([border="1"], Tbl)], Html).
 
-add_report_page_with_body(Title, Body_Html, File_Name, Key) :-
+add_report_page_with_body(Priority, Title, Body_Html, File_Name, Key) :-
 	page_with_body(Title, Body_Html, Page_Html),
-	add_report_page(Title, Page_Html, File_Name, Key).
+	add_report_page(Priority, Title, Page_Html, File_Name, Key).
 
-add_report_page(Title, Page_Html, File_Name, Key) :-
+add_report_page(Priority, Title, Page_Html, File_Name, Key) :-
 	phrase(Page_Html, Tokenlist),
 	html_tokenlist_string(Tokenlist, String),
 	write_report_file(File_Name, String, Url),
-	add_report_file(Key, Title, Url).
+	add_report_file(Priority, Key, Title, Url).
 
-add_report_page_with_table(Title, Tbl, File_Name, Key) :-
+add_report_page_with_table(Priority, Title, Tbl, File_Name, Key) :-
 	page_with_table_html(Title, Tbl, Html),
-	add_report_page(Title, Html, File_Name, Key).
+	add_report_page(Priority, Title, Html, File_Name, Key).

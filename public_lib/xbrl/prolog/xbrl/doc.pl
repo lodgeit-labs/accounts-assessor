@@ -458,14 +458,14 @@ doc_to_rdf_all_graphs :-
 
 save_doc_turtle :-
 	Fn = 'doc.n3',
-	add_report_file(Fn, Fn, Url),
+	add_report_file(-15,Fn, Fn, Url),
 	report_file_path(loc(file_name, Fn), Url, loc(absolute_path,Path)),
 	Url = loc(absolute_url, Url_Value),
 	rdf_save_turtle(Path, [sorted(true), base(Url_Value), canonize_numbers(true), abbreviate_literals(false), prefixes([rdf,rdfs,xsd,l,livestock])]).
 
 save_doc_trig :-
 	Fn = 'doc.trig',
-	add_report_file(Fn, Fn, Url),
+	add_report_file(-15,Fn, Fn, Url),
 	report_file_path(loc(file_name, Fn), Url, loc(absolute_path,Path)),
 	Url = loc(absolute_url, Url_Value),
 	rdf_save_trig(Path, [sorted(true), base(Url_Value), canonize_numbers(true), abbreviate_literals(false), prefixes([rdf,rdfs,xsd,l,livestock])]).
@@ -480,7 +480,7 @@ make_rdf_report :-
 	Title = 'response.n3',
 	doc_to_rdf(Rdf_Graph),
 	report_file_path(loc(file_name, Title), Url, loc(absolute_path,Path)),
-	add_report_file(Title, Title, Url),
+	add_report_file(-11,Title, Title, Url),
 	Url = loc(absolute_url, Url_Value),
 	rdf_save_turtle(Path, [graph(Rdf_Graph), sorted(true), base(Url_Value), canonize_numbers(true), abbreviate_literals(false), prefixes([rdf,rdfs,xsd,l,livestock])]).
 
