@@ -2,7 +2,10 @@
 ATO: Days held can be 366 for a leap year. (for both prime_cost and diminishing_value)
 	https://www.ato.gov.au/business/depreciation-and-capital-expenses-and-allowances/general-depreciation-rules---capital-allowances/prime-cost-(straight-line)-and-diminishing-value-methods
 
+diminishing_value:
+The base value reduces each year by the decline in the value of the asset. This means the base value for the second year will be $48,000; that is, $80,000 minus the $32,000 decline in value in the first year.
 
+note that when we calculato depreciation_between_two_dates, we calculate the depreciation up to the beginning date, calculate base value from that, then calculate the rest. This is different from calculating the total depreciation over the income year of beginning date, and perhaps calculating the depreciation from beginning date until the end of the income year proportionally
 */
 
 :- module(depreciation_computation,[

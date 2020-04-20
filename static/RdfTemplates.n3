@@ -38,18 +38,15 @@ excel:is_multi rdfs:comment "are multiple sheets of this type allowed in one wor
 
 
 
-:this rdfs:comment """currently unused:
-/*
+
 depr_ui:depreciation_calculator_sheets
-	excel:is_multi false;
 	excel:sheets
 	(
 		depr_ui:depreciation_calculator_sheet_queries
 		depr_ui:depreciation_calculator_sheet_events
 		depr_ui:depreciation_calculator_sheet_assets
 	).
-*/
-""".
+
 
 
 depr_ui:depreciation_calculator_sheet_queries
@@ -59,6 +56,7 @@ depr_ui:depreciation_calculator_sheet_queries
 
 depr_ui:depreciation_calculator_sheet_events
 	excel:is_multi false;
+	excel:optional true;
 	excel:name_prefix "depreciation_events";
 	excel:root depr_ui:depreciation_events.
 
@@ -67,20 +65,22 @@ depr_ui:depreciation_calculator_sheet_assets
 	excel:name_prefix "depreciation_assets";
 	excel:root depr_ui:depreciation_assets.
 
-depr_ui:depreciation_example_simple excel:example_has_sheets (
-	[	excel:has_sheet depr_ui:depreciation_calculator_sheet_queries
-		excel:example_doc depr_ui:depreciation_example_queries_simple]
-	[	excel:has_sheet depr_ui:depreciation_calculator_sheet_assets
-		excel:example_doc depr_ui:depreciation_example_assets]
+depr_ui:depreciation_example_simple
+	excel:example_has_sheets (
+		[	excel:has_sheet depr_ui:depreciation_calculator_sheet_queries;
+			excel:example_doc depr_ui:depreciation_example_queries_simple]
+		[	excel:has_sheet depr_ui:depreciation_calculator_sheet_assets;
+			excel:example_doc depr_ui:depreciation_example_assets]
 ).
 
-depr_ui:depreciation_example_full excel:sheets (
-	[	excel:sheet depr_ui:depreciation_calculator_sheet_queries
-		excel:example_doc depr_ui:depreciation_example_queries_full]
-	[	excel:sheet depr_ui:depreciation_calculator_sheet_events
-		excel:example_doc depr_ui:depreciation_example_events]
-	[	excel:sheet depr_ui:depreciation_calculator_sheet_assets
-		excel:example_doc depr_ui:depreciation_example_assets]
+depr_ui:depreciation_example_full
+	excel:example_has_sheets (
+		[	excel:has_sheet depr_ui:depreciation_calculator_sheet_queries;
+			excel:example_doc depr_ui:depreciation_example_queries_full]
+		[	excel:has_sheet depr_ui:depreciation_calculator_sheet_events;
+			excel:example_doc depr_ui:depreciation_example_events]
+		[	excel:has_sheet depr_ui:depreciation_calculator_sheet_assets;
+			excel:example_doc depr_ui:depreciation_example_assets]
 ).
 
  depr_ui:depreciation_example_queries_simple rdf:value (
@@ -90,7 +90,7 @@ depr_ui:depreciation_example_full excel:sheets (
 		depr:depreciation_query_method [ a rdf:value ;
 				rdf:value depr:diminishing_value ] ;
 		depr:depreciation_query_asset_id [ a rdf:value ;
-				rdf:value "car456"^^xsd:string ] ;
+				rdf:value "car123"^^xsd:string ] ;
 		depr:depreciation_query_from_date [ a rdf:value ;
 				rdf:value "2017-06-01T00:00:00"^^xsd:dateTime ] ;
 		depr:depreciation_query_to_date [ a rdf:value ;
@@ -101,7 +101,7 @@ depr_ui:depreciation_example_full excel:sheets (
 		depr:depreciation_query_method [ a rdf:value ;
 				rdf:value depr:prime_cost ] ;
 		depr:depreciation_query_asset_id [ a rdf:value ;
-				rdf:value "car456"^^xsd:string ] ;
+				rdf:value "car123"^^xsd:string ] ;
 		depr:depreciation_query_from_date [ a rdf:value ;
 				rdf:value "2017-06-01T00:00:00"^^xsd:dateTime ] ;
 		depr:depreciation_query_to_date [ a rdf:value ;
@@ -114,7 +114,7 @@ depr_ui:depreciation_example_full excel:sheets (
 		depr:depreciation_query_asset_id [ a rdf:value ;
 				rdf:value "car123"^^xsd:string ] ;
 		depr:depreciation_query_written_down_date [ a rdf:value ;
-				rdf:value "2017-06-01T00:00:00"^^xsd:dateTime ] ]
+				rdf:value "2019-07-07T00:00:00"^^xsd:dateTime ] ]
 	[ a depr:depreciation_query ;
 		depr:depreciation_query_has_type [ a rdf:value ;
 				rdf:value depr:profit_and_loss ] ;
@@ -318,7 +318,7 @@ depr_ui:depreciation_assets
 		[excel:property depr:effective_life_years; excel:type xsd:integer]
 	).
 
-/*
+:x :x """
 ic_ui:investment_calculator_example
 	excel:example_has_sheets (
 		[	excel:has_sheet ic_ui:depreciation_calculator_sheet_queries
@@ -397,7 +397,7 @@ ic_ui:gl
 		[excel:property ic:default_currency; excel:type xsd:string]
 		[excel:property ic:items; excel:template ic_ui:gl_entries_template]
 	).
-*/
+""".
 ic_ui:gl_entries_template
 	excel:position [excel:col "A"; excel:row "4"];
 	excel:title "entries";
@@ -526,9 +526,9 @@ ic2_ui:action_verbs
 
 ic2:Action_verb
     a rdfs:Class;
-    rdfs:comment "action verb, defined in Action_verbs excel sheet".
-    rdfs:comment "and Action_verb is unique for each request.".
-    rdfs:comment "each bank statement transaction either has an explicitly stated, or has an inferred Action_verb.".
+    rdfs:comment "action verb, defined in Action_verbs excel sheet";
+    rdfs:comment "and Action_verb is unique for each request.";
+    rdfs:comment "each bank statement transaction either has an explicitly stated, or has an inferred Action_verb.";
     rdfs:comment "each bank statement transaction has an implied primary GL account, given by its source, and produces a change on it and directly or indirectly on a counteraccount, in accordance with the principle of double-entry bookkeeping.".
 
 av:counteraccount_id
@@ -550,76 +550,77 @@ av:incoming a av:MoneyDirection.
 av:outgoing a av:MoneyDirection.
 
 
-ic2_ui:example_action_verbs rdf:value (
-	[
-		av:id "Invest_In";
-		av:money_direction av:outgoing;
-		av:counteraccount_id "FinancialInvestments";
-		av:trading_account_id "InvestmentIncome";
-	]
-	[
-		av:id "Dispose_Of";
-		av:money_direction av:incoming;
-		av:counteraccount_id "FinancialInvestments";
-		av:trading_account_id "InvestmentIncome"
-	]
-	[
-		av:id "Borrow";
-		av:money_direction av:incoming;
-		av:counteraccount_id "NonCurrentLoans"
-	]
-	[
-		av:id "Introduce_Capital";
-		av:money_direction av:incoming;
-		av:counteraccount_id "ShareCapital"
-	]
-	[
-		av:id "Transfers";
-		av:counteraccount_id "ClearingAccount"
-	]
-	[
-		av:id "Bank_Charges";
-		av:money_direction av:outgoing;
-		av:counteraccount_id "BankCharges"
-	]
-	[
-		av:id "Interest_Expenses";
-		av:money_direction av:outgoing;
-		av:counteraccount_id "InterestExpenses"
-	]
-	[
-		av:id "Accountancy_Fees";
-		av:money_direction av:outgoing;
-		av:counteraccount_id "AccountingFees"
-	]
-	[
-		av:id "Interest_Income";
-		av:money_direction av:incoming;
-		av:counteraccount_id "InterestEarned"
-	]
-	[
-		av:id "Drawings";
-		av:money_direction av:outgoing;
-		av:counteraccount_id "Drawings"
-	]
-	[
-		av:id "Fixed_Asset_Purchase";
-		av:money_direction av:outgoing;
-		av:counteraccount_id "FixedAssets"
-	]
-	[
-		av:id "Purchase_Method_C";
-		av:counteraccount_id "Purchases";
-		av:GST_Payable_account_id "GSTPayable";
-		av:GST_Rate_Percent "10"
-	]
-	[
-		av:id "Sale_Method_C";
-		av:counteraccount_id "Revenue";
-		av:GST_Receivable_account_id "GSTReceivable";
-		av:GST_Rate_Percent "10";
-	]
-).
+ic2_ui:example_action_verbs
+	rdf:value (
+		[
+			av:id "Invest_In";
+			av:money_direction av:outgoing;
+			av:counteraccount_id "FinancialInvestments";
+			av:trading_account_id "InvestmentIncome";
+		]
+		[
+			av:id "Dispose_Of";
+			av:money_direction av:incoming;
+			av:counteraccount_id "FinancialInvestments";
+			av:trading_account_id "InvestmentIncome"
+		]
+		[
+			av:id "Borrow";
+			av:money_direction av:incoming;
+			av:counteraccount_id "NonCurrentLoans"
+		]
+		[
+			av:id "Introduce_Capital";
+			av:money_direction av:incoming;
+			av:counteraccount_id "ShareCapital"
+		]
+		[
+			av:id "Transfers";
+			av:counteraccount_id "ClearingAccount"
+		]
+		[
+			av:id "Bank_Charges";
+			av:money_direction av:outgoing;
+			av:counteraccount_id "BankCharges"
+		]
+		[
+			av:id "Interest_Expenses";
+			av:money_direction av:outgoing;
+			av:counteraccount_id "InterestExpenses"
+		]
+		[
+			av:id "Accountancy_Fees";
+			av:money_direction av:outgoing;
+			av:counteraccount_id "AccountingFees"
+		]
+		[
+			av:id "Interest_Income";
+			av:money_direction av:incoming;
+			av:counteraccount_id "InterestEarned"
+		]
+		[
+			av:id "Drawings";
+			av:money_direction av:outgoing;
+			av:counteraccount_id "Drawings"
+		]
+		[
+			av:id "Fixed_Asset_Purchase";
+			av:money_direction av:outgoing;
+			av:counteraccount_id "FixedAssets"
+		]
+		[
+			av:id "Purchase_Method_C";
+			av:counteraccount_id "Purchases";
+			av:GST_Payable_account_id "GSTPayable";
+			av:GST_Rate_Percent "10"
+		]
+		[
+			av:id "Sale_Method_C";
+			av:counteraccount_id "Revenue";
+			av:GST_Receivable_account_id "GSTReceivable";
+			av:GST_Rate_Percent "10";
+		]
+	).
 
 
 
@@ -728,5 +729,4 @@ hp_ui:hp_installments
 		[excel:property hp:total_interest_payments_through_period;
 			excel:type xsd:decimal]
 	).
-
 

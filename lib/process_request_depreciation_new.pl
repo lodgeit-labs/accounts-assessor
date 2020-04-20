@@ -95,7 +95,7 @@ process_depreciation_query2(
 		$>doc_value(Q, depr:depreciation_query_asset_id),
 		$>doc_value(Q, depr:depreciation_query_termination_value),
 		$>doc_value(Q, depr:depreciation_query_termination_date),
-	   _,
+		$>depreciation_query_method(Q),
 		$>doc_add_value(Q, depr:depreciation_query_profit_and_loss)
 	).
 
