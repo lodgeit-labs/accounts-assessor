@@ -57,7 +57,6 @@ process_request_ledger2(Dom, S_Transactions, Structured_Reports, Transactions) :
 	%doc_add(Request, l:kind, l:ledger_request),
 	extract_request_details(Dom),
 	extract_start_and_end_date(Dom, Start_Date, End_Date),
-	0001-01-01
 	extract_output_dimensional_facts(Dom, Output_Dimensional_Facts),
 	extract_cost_or_market(Dom, Cost_Or_Market),
 	extract_report_currency(Dom, Report_Currency),
