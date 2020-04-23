@@ -1,35 +1,38 @@
-
 /*
-create livestock-specific accounts that could be missing in user account hierarchy. This ignores roles for now, fixme
+create livestock-specific accounts that are missing in user account hierarchy.
 */
-make_livestock_accounts(Accounts) :-
+
+:- comment(code:make_livestock_accounts, code_topics:account_creation, "livestock accounts are created up-front.").
+
+make_livestock_accounts :-
 	livestock_units(Units),
-	maplist(make_livestock_accounts, Units, Accounts).
+	maplist(make_livestock_accounts, Units).
 
 make_livestock_accounts(Livestock_Type, Accounts) :-
-	Accounts = [Cogs, CogsRations, Sales, Count],
 
-	cogs_account(Livestock_Type, Cogs_Name),
-	sales_account(Livestock_Type, Sales_Name),
-	count_account(Livestock_Type, Count_Name),
-	cogs_rations_account(Livestock_Type, CogsRations_Name),
+	cogs_account_id(Livestock_Type, Cogs_Name),
+	sales_account_id(Livestock_Type, Sales_Name),
+	count_account_id(Livestock_Type, Count_Name),
+	cogs_rations_account_id(Livestock_Type, CogsRations_Name),
 
-	Cogs  = account(Cogs_Name, /*Expenses/ */'CostOfGoodsLivestock', '', 0),
-	Sales = account(Sales_Name, /*Revenue/ */'SalesOfLivestock', '', 0),
-	Count = account(Count_Name, 'LivestockCount', '', 0),
-	CogsRations = account(CogsRations_Name, Cogs_Name, '', 0).
+	account_by_role_throw('Accounts'/'CostOfGoodsLivestock', CostOfGoodsLivestock),
+	account_by_role_throw('Accounts'/'SalesOfLivestock', SalesOfLivestock),
 
-/* fixme look these up by roles */
-cogs_account(Livestock_Type, Cogs_Account) :-
+	maybe_make_account(Cogs_Name, CostOfGoodsLivestock, 0, 'CostOfGoodsLivestock'/Livestock_Type, Cogs_uri),
+	maybe_make_account(Sales_Name, SalesOfLivestock, 0, 'SalesOfLivestock'/Livestock_Type, _),
+	maybe_make_account(Count_Name, LivestockCount, 0, 'LivestockCount'/Livestock_Type, _),
+	maybe_make_account(CogsRations_Name, Cogs_uri, 0, ('CostOfGoodsLivestock'/Livestock_Type)/'Rations', _).
+
+cogs_account_id(Livestock_Type, Cogs_Account) :-
 	atom_concat(Livestock_Type, 'Cogs', Cogs_Account).
 
-cogs_rations_account(Livestock_Type, Cogs_Rations_Account) :-
+cogs_rations_account_id(Livestock_Type, Cogs_Rations_Account) :-
 	atom_concat(Livestock_Type, 'CogsRations', Cogs_Rations_Account).
 
-sales_account(Livestock_Type, Sales_Account) :-
+sales_account_id(Livestock_Type, Sales_Account) :-
 	atom_concat(Livestock_Type, 'Sales', Sales_Account).
 
-count_account(Livestock_Type, Count_Account) :-
+count_account_id(Livestock_Type, Count_Account) :-
 	atom_concat(Livestock_Type, 'Count', Count_Account).
 
 

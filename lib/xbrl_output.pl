@@ -2,7 +2,7 @@
 
 :- record section(context, header, entries, footer).
 
-create_instance(Xbrl, Static_Data, Start_Date, End_Date, Accounts, Report_Currency, Balance_Sheet, ProfitAndLoss, _ProfitAndLoss2_Historical, Trial_Balance) :-
+create_instance(Xbrl, Static_Data, Start_Date, End_Date, Report_Currency, Balance_Sheet, ProfitAndLoss, _ProfitAndLoss2_Historical, Trial_Balance) :-
 	Fact_Sections = [
 		section(Instant_Context_Id_Base, '\n<!-- balance sheet: -->\n', Balance_Sheet, ''),
 		section(Duration_Context_Id_Base, '\n<!-- profit and loss: -->\n', ProfitAndLoss, ''),
@@ -12,7 +12,7 @@ create_instance(Xbrl, Static_Data, Start_Date, End_Date, Accounts, Report_Curren
 	add(Children, [Units_Xml, Contexts_Xml, Dimensional_Facts,Facts]),
 	Entity_Identifier = element(identifier, [scheme="http://www.example.com"],['TestData']),
 	build_base_contexts(Start_Date, End_Date, Entity_Identifier, Instant_Context_Id_Base, Duration_Context_Id_Base, Contexts0),
-	fact_lines(Accounts, Report_Currency, Fact_Sections, Facts),
+	fact_lines(Report_Currency, Fact_Sections, Facts),
 	maybe_print_dimensional_facts(
 		Static_Data.put([
 			entity_identifier=Entity_Identifier,
@@ -25,15 +25,15 @@ create_instance(Xbrl, Static_Data, Start_Date, End_Date, Accounts, Report_Curren
 
 fact_lines(_, _, [], []).
 
-fact_lines(Accounts, Report_Currency, [Section|Sections], [Lines_H|Lines_T]) :-
+fact_lines(Report_Currency, [Section|Sections], [Lines_H|Lines_T]) :-
 	Lines_H = [Fact_Lines],
 	/*section_header(Section, Header),
 	section_footer(Section, Footer),*/
 	section_context(Section, Context),
 	section_entries(Section, Entries),
-	format_report_entries(xbrl, 0, Accounts, 0, Report_Currency,
+	format_report_entries(xbrl, 0, 0, Report_Currency,
 		Context, Entries, Fact_Lines),
-	fact_lines(Accounts, Report_Currency, Sections, Lines_T).
+	fact_lines(Report_Currency, Sections, Lines_T).
 
 maybe_print_dimensional_facts(Static_Data,Contexts_In, Contexts_Out, Xml) :-
 	(	Static_Data.output_dimensional_facts = on

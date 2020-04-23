@@ -6,8 +6,6 @@ process_ledger(
 	End_Date, 
 	Exchange_Rates,
 	Report_Currency,
-	Accounts_In,
-	Accounts, 
 	Transactions_With_Livestock,
 	Transactions_By_Account,
 	Outstanding_Out,
@@ -17,18 +15,15 @@ process_ledger(
 
 	s_transactions_up_to(End_Date, S_Transactions0, S_Transactions),
 	add_comment_stringize('Exchange rates extracted', Exchange_Rates),
-	add_comment_stringize('Accounts extracted',Accounts_In),
 
-
-	generate_system_accounts(S_Transactions, Accounts_In, Generated_Accounts),
-	flatten([Accounts_In, Generated_Accounts], Accounts),
-	maplist(check_account_parent(Accounts), Accounts),
-	write_accounts_json_report(Accounts),
+	generate_system_accounts(S_Transactions),
+	check_accounts_parent,
+	write_accounts_json_report,
 	result(T),
-	doc_add(T, l:accounts, Accounts),
+	%doc_add(T, l:accounts, Accounts),
 
 
-	dict_from_vars(Static_Data0, [Accounts, Report_Currency, Start_Date, End_Date, Exchange_Rates, Cost_Or_Market]),
+	dict_from_vars(Static_Data0, [Report_Currency, Start_Date, End_Date, Exchange_Rates, Cost_Or_Market]),
 	prepreprocess(Static_Data0, S_Transactions, Prepreprocessed_S_Transactions),
 
 	preprocess_until_error(Static_Data0, Prepreprocessed_S_Transactions, Processed_S_Transactions, Transactions_From_Bst, Outstanding_Out, End_Date, Processed_Until),
@@ -57,7 +52,7 @@ process_ledger(
 		how to generate json+html reports
 	*/
 
-	maplist(check_transaction_account(Accounts), Transactions_With_Livestock),
+	maplist(check_transaction_account(, Transactions_With_Livestock),
 
 	Static_Data2 = Static_Data0.put(end_date, Processed_Until).put(transactions, Transactions_With_Livestock),
 	gl_export(
@@ -69,7 +64,7 @@ process_ledger(
 		/* output */
 		Gl),
 	transactions_by_account(Static_Data2, Transactions_By_Account),
-	trial_balance_between(Exchange_Rates, Accounts, Transactions_By_Account, Report_Currency, End_Date, Start_Date, End_Date, [Trial_Balance_Section]),
+	trial_balance_between(Exchange_Rates, Transactions_By_Account, Report_Currency, End_Date, Start_Date, End_Date, [Trial_Balance_Section]),
 	(
 		(
 			trial_balance_ok(Trial_Balance_Section)

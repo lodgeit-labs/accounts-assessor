@@ -61,7 +61,7 @@ process_request_ledger2(Dom, S_Transactions, Structured_Reports, Transactions) :
 	extract_cost_or_market(Dom, Cost_Or_Market),
 	extract_report_currency(Dom, Report_Currency),
 	extract_action_verbs_from_bs_request(Dom),
-	extract_account_hierarchy_from_request_dom(Dom, Accounts0),
+	extract_accounts(Dom),
 	extract_livestock_data_from_ledger_request(Dom),
 	extract_exchange_rates(Cost_Or_Market, Dom, S_Transactions, Start_Date, End_Date, Report_Currency, Exchange_Rates),
 	extract_invoices_payable(Dom),
@@ -75,8 +75,6 @@ process_request_ledger2(Dom, S_Transactions, Structured_Reports, Transactions) :
 		End_Date,
 		Exchange_Rates,
 		Report_Currency,
-		Accounts0,
-		Accounts,
 		Transactions,
 		Transactions_By_Account,
 		Outstanding,
@@ -89,7 +87,6 @@ process_request_ledger2(Dom, S_Transactions, Structured_Reports, Transactions) :
 		Output_Dimensional_Facts,
 		Start_Date,
 		Exchange_Rates,
-		Accounts,
 		Transactions,
 		Report_Currency,
 		Gl,
@@ -350,8 +347,8 @@ extract_start_and_end_date(Dom, Start_Date, End_Date) :-
 %:- tspy(process_xml_ledger_request2/2).
 
 extract_bank_accounts(Dom) :-
-	findall(Account, xpath(Dom, //reports/balanceSheetRequest/bankStatement/accountDetails, Account), Accounts),
-	maplist(extract_bank_account, Accounts).
+	findall(Account, xpath(Dom, //reports/balanceSheetRequest/bankStatement/accountDetails, Account), Bank_accounts),
+	maplist(extract_bank_account, Bank_accounts).
 
 extract_bank_account(Account) :-
 	fields(Account, [

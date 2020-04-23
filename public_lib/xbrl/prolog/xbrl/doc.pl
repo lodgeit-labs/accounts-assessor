@@ -852,3 +852,14 @@ prolog could need access to the request data
 
 
 */
+
+/*
+
+what makes sense to rdf-ize?
+take, as an example account role. (RoleParent/RoleChild), posibly nested. For all purposes, this is atomic. We don't want to reference any sub-part of it, ever. It's assembled once, and then treated as an atom. If we "export" it into rdf as an uri, then it's also a referenceable identifier.
+
+*/
+
+
+
+*/

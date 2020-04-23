@@ -1,14 +1,14 @@
 format_report_entries(_, _, _, _, _, _, [], []).
 
-format_report_entries(Format, Max_Detail_Level, Accounts, Indent_Level, Report_Currency, Context, Entries, [Xml0, Xml1, Xml2]) :-
+format_report_entries(Format, Max_Detail_Level, Indent_Level, Report_Currency, Context, Entries, [Xml0, Xml1, Xml2]) :-
 	[entry(Name, Balances, Children, Transactions_Count, _)|Entries_Tail] = Entries,
 	(	/* does the account have a detail level and is it greater than Max_Detail_Level? */
-		(account_detail_level(Accounts, Name, Detail_Level), Detail_Level > Max_Detail_Level)
+		(account_detail_level(Name, Detail_Level), Detail_Level > Max_Detail_Level)
 	->
 		true /* nothing to do */
 	;
 		(
-			account_normal_side(Accounts, Name, Normal_Side),
+			account_normal_side(Name, Normal_Side),
 			
 			(
 				/* should we display an account with zero transactions? */
@@ -23,9 +23,9 @@ format_report_entries(Format, Max_Detail_Level, Accounts, Indent_Level, Report_C
 
 			Level_New is Indent_Level + 1,
 			/*display child entries*/
-			format_report_entries(Format, Max_Detail_Level, Accounts, Level_New, Report_Currency, Context, Children, Xml1),
+			format_report_entries(Format, Max_Detail_Level, Level_New, Report_Currency, Context, Children, Xml1),
 			/*recurse on Entries_Tail*/
-			format_report_entries(Format, Max_Detail_Level, Accounts, Indent_Level, Report_Currency, Context, Entries_Tail, Xml2)
+			format_report_entries(Format, Max_Detail_Level, Indent_Level, Report_Currency, Context, Entries_Tail, Xml2)
 		)
 	),
 	!.
@@ -61,7 +61,6 @@ pesseract_style_table_rows(
 
 pesseract_style_table_rows(_, _, [], []).
 pesseract_style_table_rows(
-	Accounts,
 	Report_Currency,
 	Entries,
 	[Lines|Lines_Tail]
@@ -72,14 +71,14 @@ pesseract_style_table_rows(
 	report_entry_children(Entry, Children),
 
 	/*render child entries*/
-	pesseract_style_table_rows(Accounts, Report_Currency, Children, Children_Rows),
+	pesseract_style_table_rows(Report_Currency, Children, Children_Rows),
 	/*render balance*/
-	maybe_balance_lines(Accounts, Name, Report_Currency, Balances, Balance_Lines),
+	maybe_balance_lines(Name, Report_Currency, Balances, Balance_Lines),
 	(	Children_Rows = []
 	->	entry_row_childless(Name, Balance_Lines, Entry, Lines)
 	;	entry_row_childful(Name, Entry, Children_Rows, Balance_Lines, Lines)),
 	/*recurse on Entries_Tail*/
-	pesseract_style_table_rows(Accounts, Report_Currency, Entries_Tail, Lines_Tail).
+	pesseract_style_table_rows(Report_Currency, Entries_Tail, Lines_Tail).
 
 entry_row_childless(Name, Balance_Lines, Entry, Lines) :-
 	entry_row(cols{0:Name,1:Balance_Lines}, Entry, report_entries:single, Lines).
@@ -167,13 +166,12 @@ maybe_balance_lines(
 */
 			/*not much of a maybe anymore?*/
 maybe_balance_lines(
-	Accounts,
 	Name,
 	Report_Currency,
 	Balances,
 	Balance_Lines
 ) :-
-	account_normal_side(Accounts, Name, Normal_Side),
+	account_normal_side(Name, Normal_Side),
 	/* force-display empty balance */
 	(	Balances = []
 	->	format_balance(html, Report_Currency, '', Name, Normal_Side, [], Balance_Lines)
@@ -234,9 +232,12 @@ format_balance(Format, Report_Currency_List, Context, Name, Normal_Side, [], Xml
 format_balance(Format, Report_Currency_List, Context, Name, Normal_Side, Coord, Line) :-
 	[coord(Unit, Debit)] = Coord,
 
-	(	Normal_Side = credit
+	(	Normal_Side = kb:credit
 	->	Balance0 is -Debit
-	;	Balance0 is Debit),
+	;	(
+			assertion(Normal_Side = kb:debit),
+			Balance0 is Debit
+	)),
 
 	round(Balance0, 2, Balance1),
 

@@ -69,3 +69,20 @@ p_decl_to_rule2([H|T], Head, [Body_head|Body_tail], Notes, Cnls) :-
 p_decl_to_rule2([], _Head, [], [], []).
 
 
+/*
+
+note on global data, for stuff like accounts:
+
+One method is to simply assert them as facts before reasoning starts. In this case, they can be disparate facts, they don't need to be contained in a list.
+
+if they are contained in a list:
+
+one way is to pass them around (or the global_data object) everywhere (possible with "second_chance"-style list arguments).
+
+third is to have a builtin pred, let's say global_data(D), that yields it anywhere.
+
+i believe that neither option will affect ep-checking in any way. Either they will be completely invisible to it, or they will be a bnode. treated only as a bnode type + creation time.
+
+First option doesnt allow any dynamic additions at runtime. Second option adds verbosity, so i'd try third option.
+
+*/

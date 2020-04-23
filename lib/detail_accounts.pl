@@ -19,7 +19,7 @@ print_detail_accounts(
 print_detail_account(Static_Data, Context_Info, Fact_Name, Account_In,
 	Contexts_In, Contexts_Out, Xml
 ) :-
-	dict_vars(Static_Data, [End_Date, Exchange_Rates, Accounts, Transactions_By_Account, Report_Currency]),
+	dict_vars(Static_Data, [End_Date, Exchange_Rates, Transactions_By_Account, Report_Currency]),
 	(	(Account, Dimension_Value) = Account_In
 	->	true
 	;	(
@@ -27,22 +27,22 @@ print_detail_account(Static_Data, Context_Info, Fact_Name, Account_In,
 			Dimension_Value = Short_Id
 		)
 	),
-	account_role_by_id(Accounts, Account, (_/Short_Id0)),
+	account_role(Account, (_/Short_Id0)),
 	sane_id(Short_Id0, Short_Id), % todo this sanitization is probably unnecessary
 	% <basic:Investment_Duration>Short_Id</basic:Investment_Duration>
 	ensure_context_exists(Short_Id, Dimension_Value, Context_Info, Contexts_In, Contexts_Out, Context_Id),
 	(	context_arg0_period(Context_Info, (_,_))
 	->	net_activity_by_account(Static_Data, Account, Balance, Transactions_Count)
-	;	balance_by_account(Exchange_Rates, Accounts, Transactions_By_Account, Report_Currency, End_Date, Account, End_Date, Balance, Transactions_Count)
+	;	balance_by_account(Exchange_Rates, Transactions_By_Account, Report_Currency, End_Date, Account, End_Date, Balance, Transactions_Count)
 	),
 	format_report_entries(
-		xbrl, 0, Accounts, 1, Report_Currency, Context_Id,
+		xbrl, 0, 1, Report_Currency, Context_Id,
 		[entry(Fact_Name, Balance, [], Transactions_Count, _)],
 		Xml).
 
 print_banks(Static_Data, Context_Id_Base, In, Out, Xml) :-
-	dict_vars(Static_Data, [End_Date, Accounts, Entity_Identifier]),
-	bank_accounts(Accounts, Bank_Accounts),
+	dict_vars(Static_Data, [End_Date, Entity_Identifier]),
+	bank_accounts(Bank_Accounts),
 	Context_Info = context_arg0(
 		Context_Id_Base, 
 		End_Date, 
@@ -59,8 +59,8 @@ print_banks(Static_Data, Context_Id_Base, In, Out, Xml) :-
 	print_detail_accounts(Static_Data, Context_Info, 'Banks', Accounts_And_Points, In, Out, Xml).
 
 print_forex(Static_Data, Context_Id_Base, In, Out, Xml) :-
-	dict_vars(Static_Data, [Start_Date, End_Date, Entity_Identifier, Accounts]),
-    findall(Account, account_by_role_nothrow(Accounts, ('CurrencyMovement'/_), Account), Movement_Accounts),
+	dict_vars(Static_Data, [Start_Date, End_Date, Entity_Identifier]),
+    findall(Account, account_by_role_nothrow(('CurrencyMovement'/_), Account), Movement_Accounts),
 	Context_Info = context_arg0(
 		Context_Id_Base, 
 		(Start_Date, End_Date), 

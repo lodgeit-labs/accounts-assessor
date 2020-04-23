@@ -23,6 +23,7 @@ the accountHierarchy tag can appear multiple times, all the results will be adde
 */
 
 extract_accounts(Request_DOM) :-
+	gtrace,
 	make_account2(root, 0, root/root, _),
 	extract_account_hierarchy_from_request_dom(Request_DOM),
 	propagate_accounts_side.

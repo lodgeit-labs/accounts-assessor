@@ -131,8 +131,7 @@ process_livestock2((S_Transactions, Transactions_In), Livestock, Transactions_Ou
 	dict_from_vars(Static_Data0, [Start_Date, End_Date]),
 	append(Transactions_In, Transactions3, Transactions_Total),
 
-	request_has_property(l:accounts, Accounts),
-	Static_Data1 = Static_Data0.put(transactions,Transactions_Total).put(accounts,Accounts),
+	Static_Data1 = Static_Data0.put(transactions,Transactions_Total),
 	transactions_by_account(Static_Data1, Transactions_By_Account),
 
 	closing_inventory_transactions(Livestock, Transactions_By_Account, Closing_Transactions),

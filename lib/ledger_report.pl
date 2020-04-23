@@ -55,18 +55,18 @@ Balance: a list of coord's
 % Relates Date to the balance at that time of the given account.
 %:- table balance_until_day/9.
 % leave these in place until we've got everything updated w/ balance/5
-balance_until_day(Exchange_Rates, Accounts, Transactions_By_Account, Report_Currency, Exchange_Date, Account_Id, Date, Balance_Transformed, Transactions_Count) :-
-	assertion(account_exists(Accounts, Account_Id)),
-	transactions_before_day_on_account_and_subaccounts(Accounts, Transactions_By_Account, Account_Id, Date, Filtered_Transactions),
+balance_until_day(Exchange_Rates, Transactions_By_Account, Report_Currency, Exchange_Date, Account_Id, Date, Balance_Transformed, Transactions_Count) :-
+	assertion(account_exists(Account_Id)),
+	transactions_before_day_on_account_and_subaccounts(Transactions_By_Account, Account_Id, Date, Filtered_Transactions),
 	length(Filtered_Transactions, Transactions_Count),
 	transaction_vectors_total(Filtered_Transactions, Balance),
 	vec_change_bases(Exchange_Rates, Exchange_Date, Report_Currency, Balance, Balance_Transformed).
 
 /* balance on account up to and including Date*/
-balance_by_account(Exchange_Rates, Accounts, Transactions_By_Account, Report_Currency, Exchange_Date, Account_Id, Date, Balance_Transformed, Transactions_Count) :-
-	assertion(account_exists(Accounts, Account_Id)),
+balance_by_account(Exchange_Rates, Transactions_By_Account, Report_Currency, Exchange_Date, Account_Id, Date, Balance_Transformed, Transactions_Count) :-
+	assertion(account_exists(Account_Id)),
 	add_days(Date, 1, Date2),
-	balance_until_day(Exchange_Rates, Accounts, Transactions_By_Account, Report_Currency, Exchange_Date, Account_Id, Date2, Balance_Transformed, Transactions_Count).
+	balance_until_day(Exchange_Rates, Transactions_By_Account, Report_Currency, Exchange_Date, Account_Id, Date2, Balance_Transformed, Transactions_Count).
 
 
 account_own_transactions_sum(Exchange_Rates, Exchange_Date, Report_Currency, Account, Date, Transactions_By_Account, Sum, Transactions_Count) :-
@@ -109,13 +109,12 @@ balance(
 /*fixme/finishme: uses exchange_date from static_data!*/
 balance(Static_Data, Account_Id, Date, Balance, Transactions_Count) :-
 	dict_vars(Static_Data, 
-		[Exchange_Date, Exchange_Rates, Accounts, Transactions_By_Account, Report_Currency]
+		[Exchange_Date, Exchange_Rates, Transactions_By_Account, Report_Currency]
 	),
 	
 	/* TODO use transactions_in_account_set here */
 	
-	nonvar(Accounts),
-	assertion(account_exists(Accounts, Account_Id)),
+	assertion(account_exists(Account_Id)),
 	add_days(Date,1,Date2),
 	(
 		Account_Transactions = Transactions_By_Account.get(Account_Id)
@@ -160,11 +159,10 @@ net_activity_by_account(Static_Data, Account_Id, Net_Activity_Transformed, Trans
 	Static_Data.end_date = End_Date,
 	Static_Data.exchange_date = Exchange_Date,
 	Static_Data.exchange_rates = Exchange_Rates,
-	Static_Data.accounts = Accounts,
 	Static_Data.transactions_by_account = Transactions_By_Account,
 	Static_Data.report_currency = Report_Currency,
 
-	transactions_in_account_set(Accounts, Transactions_By_Account, Account_Id, Transactions_In_Account_Set),
+	transactions_in_account_set(Transactions_By_Account, Account_Id, Transactions_In_Account_Set),
 	
 	findall(
 		Transaction,
@@ -186,8 +184,8 @@ net_activity_by_account(Static_Data, Account_Id, Net_Activity_Transformed, Trans
 balance_sheet_entry(Static_Data, Account_Id, Entry) :-
 	
 	/*this doesnt seem to help with tabling performance at all*/
-	dict_vars(Static_Data, [End_Date, Exchange_Date, Exchange_Rates, Accounts, Transactions_By_Account, Report_Currency]),
-	dict_from_vars(Static_Data_Simplified, [End_Date, Exchange_Date, Exchange_Rates, Accounts, Transactions_By_Account, Report_Currency]),
+	dict_vars(Static_Data, [End_Date, Exchange_Date, Exchange_Rates, Transactions_By_Account, Report_Currency]),
+	dict_from_vars(Static_Data_Simplified, [End_Date, Exchange_Date, Exchange_Rates, Transactions_By_Account, Report_Currency]),
 	
 	balance_sheet_entry2(Static_Data_Simplified, Account_Id, Entry).
 
@@ -230,9 +228,9 @@ balance_sheet_at(Static_Data, [Net_Assets_Entry, Equity_Entry]) :-
 	balance_sheet_entry(Static_Data, 'NetAssets', Net_Assets_Entry),
 	balance_sheet_entry(Static_Data, 'Equity', Equity_Entry).
 
-trial_balance_between(Exchange_Rates, Accounts, Transactions_By_Account, Report_Currency, Exchange_Date, _Start_Date, End_Date, [Trial_Balance_Section]) :-
-	balance_by_account(Exchange_Rates, Accounts, Transactions_By_Account, Report_Currency, Exchange_Date, 'NetAssets', End_Date, Net_Assets_Balance, Net_Assets_Count),
-	balance_by_account(Exchange_Rates, Accounts, Transactions_By_Account, Report_Currency, Exchange_Date, 'Equity', End_Date, Equity_Balance, Equity_Count),
+trial_balance_between(Exchange_Rates, Transactions_By_Account, Report_Currency, Exchange_Date, _Start_Date, End_Date, [Trial_Balance_Section]) :-
+	balance_by_account(Exchange_Rates, Transactions_By_Account, Report_Currency, Exchange_Date, 'NetAssets', End_Date, Net_Assets_Balance, Net_Assets_Count),
+	balance_by_account(Exchange_Rates, Transactions_By_Account, Report_Currency, Exchange_Date, 'Equity', End_Date, Equity_Balance, Equity_Count),
 
 	vec_sum([Net_Assets_Balance, Equity_Balance], Trial_Balance),
 	Transactions_Count is Net_Assets_Count + Equity_Count,

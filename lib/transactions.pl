@@ -53,7 +53,7 @@ transaction_to_dict(T, D) :-
 	}.
 
 
-transaction_account_in_set(Accounts, Transaction, Root_Account_Id) :-
+transaction_account_in_set(Transaction, Root_Account_Id) :-
 	transaction_account(Transaction, Transaction_Account_Id),
 	account_in_set(Accounts, Transaction_Account_Id, Root_Account_Id).
 

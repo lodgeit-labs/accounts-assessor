@@ -1,6 +1,6 @@
 % not used, seems like there's little point keeping this up to date while we develop the new framework
 
-do_livestock_crosscheck(Events, Natural_Increase_Costs, S_Transactions, Transactions, Opening_Costs_And_Counts, _From_Day, To_Day, Exchange_Rates, Accounts, Report_Currency, Average_Costs, Type) :-
+do_livestock_crosscheck(Events, Natural_Increase_Costs, S_Transactions, Transactions, Opening_Costs_And_Counts, _From_Day, To_Day, Exchange_Rates, Report_Currency, Average_Costs, Type) :-
 	% gather up the inputs
 	natural_increase_count(Type, Events, Natural_Increase_Count),
 	member(natural_increase_cost(Type, [coord(Currency, Natural_Increase_Cost_Per_Head, 0)]), Natural_Increase_Costs),
@@ -44,7 +44,7 @@ do_livestock_crosscheck(Events, Natural_Increase_Costs, S_Transactions, Transact
 	exchange_rate(_, Type, Currency, Average_Cost) = Average_Cost_Exchange_Rate,
 
 	cogs_rations_account(Type, Cogs_Rations_Account),
-	balance_by_account([], Accounts, Transactions, [], _, Cogs_Rations_Account, To_Day, Cogs_Balance, _),
+	balance_by_account([], Transactions, [], _, Cogs_Rations_Account, To_Day, Cogs_Balance, _),
 
 	(
 		Cogs_Balance = [coord(Currency, 0, Rations_Value)]
@@ -61,14 +61,14 @@ do_livestock_crosscheck(Events, Natural_Increase_Costs, S_Transactions, Transact
 
 	Natural_Increase_value is Natural_Increase_Count * Natural_Increase_Cost_Per_Head,
 
-	balance_by_account(Exchange_Rates, Accounts, Transactions, Report_Currency, To_Day, 'Revenue', To_Day, Revenue_Credit,_),
+	balance_by_account(Exchange_Rates, Transactions, Report_Currency, To_Day, 'Revenue', To_Day, Revenue_Credit,_),
 	vec_inverse(Revenue_Credit, [Revenue_Coord_Ledger]),
 	number_coord(Currency, Revenue, Revenue_Coord),
 
-	balance_by_account(Exchange_Rates, Accounts, Transactions, Report_Currency, To_Day, 'CostOfGoodsLivestock', To_Day, [Cogs_Coord_Ledger],_),
+	balance_by_account(Exchange_Rates, Transactions, Report_Currency, To_Day, 'CostOfGoodsLivestock', To_Day, [Cogs_Coord_Ledger],_),
 	number_coord(Currency, Livestock_COGS, Cogs_Coord),
 
-	balance_by_account(Exchange_Rates, Accounts, Transactions, Report_Currency, To_Day, 'Earnings', To_Day, Earnings_Credit,_),
+	balance_by_account(Exchange_Rates, Transactions, Report_Currency, To_Day, 'Earnings', To_Day, Earnings_Credit,_),
 	vec_inverse(Earnings_Credit, [Earnings_Coord_Ledger]),
 	number_coord(Currency, Gross_Profit_on_Livestock_Trading, Earnings_Coord),
 
