@@ -55,7 +55,7 @@ transaction_to_dict(T, D) :-
 
 transaction_account_in_set(Transaction, Root_Account_Id) :-
 	transaction_account(Transaction, Transaction_Account_Id),
-	account_in_set(Accounts, Transaction_Account_Id, Root_Account_Id).
+	account_in_set(Transaction_Account_Id, Root_Account_Id).
 
 % equivalent concept to the "activity" in "net activity"
 transaction_in_period(Transaction, From_Day, To_Day) :-
@@ -83,19 +83,19 @@ transaction_vectors_total([Hd_Transaction | Tl_Transaction], Net_Activity) :-
 	transaction_vectors_total(Tl_Transaction, Acc),
 	vec_add(Curr, Acc, Net_Activity).
 
-transactions_in_account_set(Accounts, Transactions_By_Account, Account_Id, Result) :-
+transactions_in_account_set(Transactions_By_Account, Account_Id, Result) :-
 	findall(
 		Transactions,
 		(
-			account_in_set(Accounts, Account_Id2, Account_Id),
+			account_in_set(Account_Id2, Account_Id),
 			get_dict(Account_Id2, Transactions_By_Account, Transactions)
 		),
 		Transactions2
 	),
 	flatten(Transactions2, Result).
 	
-transactions_in_period_on_account_and_subaccounts(Accounts, Transactions_By_Account, Account_Id, Start_Date, End_Date, Filtered_Transactions) :-
-	transactions_in_account_set(Accounts, Transactions_By_Account, Account_Id, Transactions),
+transactions_in_period_on_account_and_subaccounts(Transactions_By_Account, Account_Id, Start_Date, End_Date, Filtered_Transactions) :-
+	transactions_in_account_set(Transactions_By_Account, Account_Id, Transactions),
 	findall(
 		Transaction,
 		(
@@ -105,8 +105,8 @@ transactions_in_period_on_account_and_subaccounts(Accounts, Transactions_By_Acco
 		Filtered_Transactions
 	).
 
-transactions_before_day_on_account_and_subaccounts(Accounts, Transactions_By_Account, Account_Id, Day, Filtered_Transactions) :-
-	transactions_in_account_set(Accounts, Transactions_By_Account, Account_Id, Transactions),
+transactions_before_day_on_account_and_subaccounts(Transactions_By_Account, Account_Id, Day, Filtered_Transactions) :-
+	transactions_in_account_set(Transactions_By_Account, Account_Id, Transactions),
 	findall(
 		Transaction,
 		(
@@ -118,32 +118,34 @@ transactions_before_day_on_account_and_subaccounts(Accounts, Transactions_By_Acc
 
 transactions_by_account(Static_Data, Transactions_By_Account) :-
 	dict_vars(Static_Data,
-		[Accounts,Transactions,Start_Date,End_Date]
+		[Transactions,Start_Date,End_Date]
 	),
 
 	assertion(nonvar(Transactions)),
 	sort_into_dict(transaction_account, Transactions, Dict),
 
 	/*this should be somewhere in ledger code*/
-	transactions_before_day_on_account_and_subaccounts(Accounts, Dict, $>account_by_role('Accounts'/'ComprehensiveIncome'), Start_Date, Historical_Earnings_Transactions),
+	transactions_before_day_on_account_and_subaccounts(Dict, $>account_by_role('Accounts'/'ComprehensiveIncome'), Start_Date, Historical_Earnings_Transactions),
 
-	transactions_before_day_on_account_and_subaccounts(Accounts, Dict, 'HistoricalEarnings', Start_Date, Historical_Earnings_Transactions2),
+	transactions_before_day_on_account_and_subaccounts(Dict, 'HistoricalEarnings', Start_Date, Historical_Earnings_Transactions2),
 
 	append(Historical_Earnings_Transactions, Historical_Earnings_Transactions2, Historical_Earnings_Transactions_All),
 
 	/* ugh, we shouldnt overwrite it */
 	Dict2 = Dict.put('HistoricalEarnings', Historical_Earnings_Transactions_All),
 
-	transactions_in_period_on_account_and_subaccounts(Accounts, Dict, $>account_by_role('Accounts'/'ComprehensiveIncome'), Start_Date, End_Date, Current_Earnings_Transactions),
+	transactions_in_period_on_account_and_subaccounts(Dict, $>account_by_role('Accounts'/'ComprehensiveIncome'), Start_Date, End_Date, Current_Earnings_Transactions),
 	Transactions_By_Account = Dict2.put('CurrentEarnings', Current_Earnings_Transactions).
 
 
-check_transaction_account(Accounts, Transaction) :-
-	(transaction_account(Transaction, Id)->true;(gtrace,false)/*probably s_transaction processing had an exception and this transaction got rolled back out of doc*/),
+check_transaction_account(Transaction) :-
+%finishme
+	(transaction_account(Transaction, Id)->true;
+	(gtrace,false)/*probably s_transaction processing had an exception and this transaction got rolled back out of doc*/),
 	(
 		(
 			nonvar(Id),
-			account_exists(Accounts, Id)
+			account_exists(Id)
 		)
 		->	true
 		;

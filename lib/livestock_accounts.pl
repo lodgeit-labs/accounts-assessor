@@ -2,13 +2,13 @@
 create livestock-specific accounts that are missing in user account hierarchy.
 */
 
-:- comment(code:make_livestock_accounts, code_topics:account_creation, "livestock accounts are created up-front.").
+:- comment(code:ensure_livestock_accounts_exist, code_topics:account_creation, "livestock accounts are created up-front.").
 
-make_livestock_accounts :-
+ensure_livestock_accounts_exist :-
 	livestock_units(Units),
-	maplist(make_livestock_accounts, Units).
+	maplist(ensure_livestock_accounts_exist2, Units).
 
-make_livestock_accounts(Livestock_Type, Accounts) :-
+ensure_livestock_accounts_exist2(Livestock_Type) :-
 
 	cogs_account_id(Livestock_Type, Cogs_Name),
 	sales_account_id(Livestock_Type, Sales_Name),
@@ -18,10 +18,10 @@ make_livestock_accounts(Livestock_Type, Accounts) :-
 	account_by_role_throw('Accounts'/'CostOfGoodsLivestock', CostOfGoodsLivestock),
 	account_by_role_throw('Accounts'/'SalesOfLivestock', SalesOfLivestock),
 
-	maybe_make_account(Cogs_Name, CostOfGoodsLivestock, 0, 'CostOfGoodsLivestock'/Livestock_Type, Cogs_uri),
-	maybe_make_account(Sales_Name, SalesOfLivestock, 0, 'SalesOfLivestock'/Livestock_Type, _),
-	maybe_make_account(Count_Name, LivestockCount, 0, 'LivestockCount'/Livestock_Type, _),
-	maybe_make_account(CogsRations_Name, Cogs_uri, 0, ('CostOfGoodsLivestock'/Livestock_Type)/'Rations', _).
+	ensure_account_exists(CostOfGoodsLivestock, Cogs_Name, 0, 'CostOfGoodsLivestock'/Livestock_Type, Cogs_uri),
+	ensure_account_exists(SalesOfLivestock, Sales_Name, 0, 'SalesOfLivestock'/Livestock_Type, _),
+	ensure_account_exists(LivestockCount, Count_Name, 0, 'LivestockCount'/Livestock_Type, _),
+	ensure_account_exists(Cogs_uri, CogsRations_Name, 0, ('CostOfGoodsLivestock'/Livestock_Type)/'Rations', _).
 
 cogs_account_id(Livestock_Type, Cogs_Account) :-
 	atom_concat(Livestock_Type, 'Cogs', Cogs_Account).

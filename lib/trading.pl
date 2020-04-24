@@ -36,11 +36,11 @@ unrealized_gains_increase_txs(
 	Historical_Txs,
 	Current_Txs
 ) :-
-	dict_vars(Static_Data, [Accounts, Report_Currency, Start_Date]),
+	dict_vars(Static_Data, [Report_Currency, Start_Date]),
 	Goods = [coord(Goods_Unit, Goods_Debit)],
 
 	gains_accounts(
-		Accounts, Trading_Account_Id, unrealized, $>unit_bare(Goods_Unit),
+		Trading_Account_Id, unrealized, $>unit_bare(Goods_Unit),
 		Unrealized_Gains_Currency_Movement, Unrealized_Gains_Excluding_Forex),
 
 	Goods_Without_Currency_Movement = [coord(
@@ -103,14 +103,13 @@ add_unit_cost_information(Static_Data, Goods_Unit_Name, Unit_Cost, Goods_Unit) :
 
 /* the transactions produced should be an inverse of the increase ones, we should abstract it out */
 unrealized_gains_reduction_txs(Static_Data, Description, Transaction_Day, Trading_Account_Id, Purchase_Info, Txs, Historical_Txs, Current_Txs) :-
-	Static_Data.accounts = Accounts,
 	Static_Data.report_currency = Report_Currency,
 	Static_Data.start_date = Start_Date,
 	goods(Unit_Cost_Foreign, Goods_Unit_Name, Goods_Count, Cost, Purchase_Date) = Purchase_Info,
 	value(Purchase_Currency,_) = Unit_Cost_Foreign,
 
 	gains_accounts(
-		Accounts, Trading_Account_Id, unrealized, Goods_Unit_Name, 
+		Trading_Account_Id, unrealized, Goods_Unit_Name,
 		Unrealized_Gains_Currency_Movement, Unrealized_Gains_Excluding_Forex),
 
 	add_unit_cost_information(Static_Data, Goods_Unit_Name, Unit_Cost_Foreign, Goods_Unit),
@@ -217,7 +216,6 @@ increase_realized_gains(Static_Data, St, Description, Trading_Account_Id, Sale_V
 	txs_to_transactions(St, Transaction_Day, Txs2, Ts2).
 
 realized_gains_txs(Static_Data, Description, Transaction_Day, Sale_Currency, Sale_Currency_Unit_Price, Trading_Account_Id, Sale_Unit_Price_Converted, Purchase_Info, Txs) :-
-	Static_Data.accounts = Accounts,
 	Static_Data.report_currency = Report_Currency,
 	Static_Data.start_date = Start_Date,
 	goods(Unit_Cost_Foreign, Goods_Unit_Name, Goods_Count, Converted_Cost, Purchase_Date) = Purchase_Info,
@@ -229,7 +227,7 @@ realized_gains_txs(Static_Data, Description, Transaction_Day, Sale_Currency, Sal
 	{Sale_Currency_Amount = Sale_Currency_Unit_Price * Goods_Count},
 	value_multiply(Sale_Unit_Price_Converted, Goods_Count, Sale),
 	gains_accounts(
-		Accounts, Trading_Account_Id, realized, Goods_Unit_Name,
+		Trading_Account_Id, realized, Goods_Unit_Name,
 		Realized_Gains_Currency_Movement, Realized_Gains_Excluding_Forex),
 	
 	/*what would be the Report_Currency value we'd get for this sale currency amount if purchase/sale currency didn't move against Report_Currency since the day of the purchase? This only makes sense for shares or similar where the price you sell it for is gonna be a result of healthy public trading or somesuch.*/
@@ -332,16 +330,16 @@ tx_to_transaction(St, Day, Tx, Transaction) :-
 */
 gains_accounts(
 	/*input*/
-	Accounts, Trading_Account_Id, Realized_Or_Unrealized, Goods_Unit, 
+	Trading_Account_Id, Realized_Or_Unrealized, Goods_Unit,
 	/*output*/
 	Currency_Movement_Account,
 	Excluding_Forex_Account
 ) :-
-	account_by_role(Accounts, (Trading_Account_Id/Realized_Or_Unrealized), Unrealized_Gains_Account),
-	account_by_role(Accounts, (Unrealized_Gains_Account/onlyCurrencyMovement), Unrealized_Gains_Currency_Movement),
-	account_by_role(Accounts, (Unrealized_Gains_Account/withoutCurrencyMovement), Unrealized_Gains_Excluding_Forex),
-	account_by_role(Accounts, (Unrealized_Gains_Currency_Movement/Goods_Unit), Currency_Movement_Account),
-	account_by_role(Accounts, (Unrealized_Gains_Excluding_Forex/Goods_Unit), Excluding_Forex_Account).
+	account_by_role((Trading_Account_Id/Realized_Or_Unrealized), Unrealized_Gains_Account),
+	account_by_role((Unrealized_Gains_Account/onlyCurrencyMovement), Unrealized_Gains_Currency_Movement),
+	account_by_role((Unrealized_Gains_Account/withoutCurrencyMovement), Unrealized_Gains_Excluding_Forex),
+	account_by_role((Unrealized_Gains_Currency_Movement/Goods_Unit), Currency_Movement_Account),
+	account_by_role((Unrealized_Gains_Excluding_Forex/Goods_Unit), Excluding_Forex_Account).
 
 
 	
