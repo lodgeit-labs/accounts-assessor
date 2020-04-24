@@ -27,7 +27,6 @@ each account hierarchy can come with a default set of associations
 :- use_module(library(http/http_dispatch)).
 :- use_module(library(http/http_open)).
 
-% finishme use maybe_make_account where appropriate
 make_account(Id, Parent, Detail_Level, Role, Uri) :-
 	make_account2(Id, Detail_Level, Role, Uri),
 	doc_add(Uri, accounts:parent, Parent, accounts).
@@ -39,12 +38,6 @@ make_account2(Id, Detail_Level, Role, Uri) :-
 	doc_add(Uri, accounts:role, Role, accounts),
 	doc_add(Uri, accounts:detail_level, Detail_Level, accounts),
 	true.
-
-optionally_extract_normal_side(Url, Attrs) :-
-	(	memberchk((normal_side = S), Attrs)
-	->	doc_add(Url, accounts:normal_side, S)
-	;	true).
-
 
 
 

@@ -177,4 +177,3 @@ ensure_account_has_normal_side(Parent_side, Account) :-
 
 ensure_account_has_normal_side(_, Account) :-
 	throw_string(["couldn't determine account normal side"]).
-
