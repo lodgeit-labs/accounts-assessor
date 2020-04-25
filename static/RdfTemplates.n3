@@ -395,6 +395,17 @@ ic_ui:report_details
 		[excel:property ic:to; excel:type xsd:dateTime]
 		[excel:property ic:currency; excel:type xsd:string]
 		[excel:property ic:cost_or_market; excel:type excel:uri]
+		[excel:property ic_ui:account_taxonomies; excel:template ic_ui:account_taxonomies]
+	).
+
+
+ic_ui:account_taxonomies
+	excel:position [excel:col "C"; excel:row "2"];
+	excel:title "account taxonomies";
+	excel:cardinality excel:multi;
+	excel:class ic_ui:account_taxonomy;
+	excel:fields (
+		[excel:property ic_ui:account_taxonomy_url; excel:type excel:uri]
 	).
 
 ic:cost_or_market rdfs:range ic:cost_or_market_type.
@@ -558,5 +569,4 @@ hp_ui:hp_installments
 		[excel:property hp:total_interest_payments_through_period;
 			excel:type xsd:decimal]
 	).
-
 

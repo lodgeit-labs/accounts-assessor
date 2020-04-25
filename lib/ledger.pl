@@ -16,8 +16,10 @@ process_ledger(
 	s_transactions_up_to(End_Date, S_Transactions0, S_Transactions),
 	add_comment_stringize('Exchange rates extracted', Exchange_Rates),
 
-	generate_system_accounts(S_Transactions),
+	ensure_system_accounts_exists(S_Transactions),
 	check_accounts_parent,
+	check_accounts_roles,
+
 	write_accounts_json_report,
 	result(T),
 	%doc_add(T, l:accounts, Accounts),
