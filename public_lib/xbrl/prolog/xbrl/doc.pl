@@ -1,7 +1,13 @@
 :- rdf_register_prefix(code,
 'https://rdf.lodgeit.net.au/v1/code#').
+:- rdf_register_prefix(kb,
+'https://rdf.lodgeit.net.au/v1/kb#').
 :- rdf_register_prefix(l,
 'https://rdf.lodgeit.net.au/v1/request#').
+:- rdf_register_prefix(account_taxonomies,
+'https://rdf.lodgeit.net.au/v1/account_taxonomies#').
+:- rdf_register_prefix(accounts,
+'https://rdf.lodgeit.net.au/v1/accounts#').
 :- rdf_register_prefix(livestock,
 'https://rdf.lodgeit.net.au/v1/livestock#').
 :- rdf_register_prefix(excel,
@@ -862,4 +868,3 @@ take, as an example account role. (RoleParent/RoleChild), posibly nested. For al
 
 
 
-*/

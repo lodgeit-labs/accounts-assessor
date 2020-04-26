@@ -22,45 +22,53 @@ extract account tree specified in request xml
 the accountHierarchy tag can appear multiple times, all the results will be added together.
 */
 
-extract_accounts(Request_DOM) :-
-	gtrace,
+extract_accounts :-
 	make_account2(root, 0, root/root, _),
-	extract_account_hierarchy_from_request_dom(Request_DOM),
+	extract_accounts2,
 	propagate_accounts_side.
 
+extract_accounts2 :-
+	request_data(Request_Data),
+	doc(Request_Data, ic_ui:report_details, Details),
+	doc_value(Details, ic_ui:account_taxonomies, T),
+	doc_list_items(T, Taxonomies),
+	maplist(load_account_hierarchy(Taxonomies)).
 
-extract_account_hierarchy_from_request_dom(Request_DOM) :-
-	findall(E, xpath(Request_DOM, //reports/balanceSheetRequest/accountHierarchy, E), Es),
-	(	Es = []
-	->	extract_account_hierarchy_from_accountHierarchy_element(element(accountHierarchy, [], ['default_account_hierarchy.xml']))
-	;	maplist(extract_account_hierarchy_from_accountHierarchy_element, Es).
+load_account_hierarchy(Taxonomy) :-
+	(	default_account_hierarchy(Taxonomy, Url)
+	->	true
+	;	Url = Taxonomy),
+	load_accountHierarchy_element(Url, AccountHierarchy),
+	extract_accounts_from_accountHierarchy_element(AccountHierarchy).
 
-extract_account_hierarchy_from_accountHierarchy_element(E) :-
-	E = element(_,_,Children),
-	(
-		(
-			Children = [Atom],
-			atom(Atom)
+default_account_hierarchy(Taxonomy, Url) :-
+		Taxonomy = account_taxonomies:base
+	->	Url = '../static/default_account_hierarchies/base.xml'
+	;	Taxonomy = account_taxonomies:investments
+	->	Url = '../static/default_account_hierarchies/investments.xml'
+	;	Taxonomy = account_taxonomies:livestock
+	->	Url = '../static/default_account_hierarchies/livestock.xml'
+	.
+
+absolutize_path(Url_Or_Path, Url_Or_Path2) :-
+	(	is_url(Url_Or_Path)
+	->	Url_Or_Path2 = Url_Or_Path
+	;	(	http_safe_file(Url_Or_Path, []),
+			absolute_file_name(my_static(Url_Or_Path), Url_Or_Path2, [ access(read) ])
 		)
-	->	extract_accountHierarchy_elements_from_referenced_file($>trim_atom(Atom), AccountHierarchy_Elements),
-	;	AccountHierarchy_Elements = Children),
-	extract_account_terms_from_accountHierarchy_elements(AccountHierarchy_Elements).
+	).
 
-extract_accountHierarchy_elements_from_referenced_file(Trimmed, AccountHierarchy_Elements),
-	(	is_url(Trimmed)
-	->	Url_Or_Path = Trimmed
-	;	(	http_safe_file(Trimmed, []),
-			absolute_file_name(my_static(Trimmed), Url_Or_Path, [ access(read) ])
-		)
-	),
-	(
-		(
-			xml_from_path_or_url(Url_Or_Path, AccountHierarchy_Elements),
+load_accountHierarchy_element(Url_Or_Path, AccountHierarchy_Elements) :-
+	absolutize_path(Url_Or_Path, Url_Or_Path2),
+	load_accountHierarchy_element2(Url_Or_Path2, AccountHierarchy_Elements).
+
+load_accountHierarchy_element2(Url_Or_Path, AccountHierarchy_Elements) :-
+	(	(	xml_from_path_or_url(Url_Or_Path, AccountHierarchy_Elements),
 			xpath(AccountHierarchy_Elements, //accountHierarchy, _)
 		)
 		->	true
-		;	arelle(taxonomy, Url_Or_Path, AccountHierarchy_Elements)
-	).
+		;	arelle(taxonomy, Url_Or_Path, AccountHierarchy_Elements))
+	.
 
 arelle(taxonomy, Taxonomy_URL, AccountHierarchy_Elements) :-
 	internal_services_rpc(
@@ -70,20 +78,20 @@ arelle(taxonomy, Taxonomy_URL, AccountHierarchy_Elements) :-
 	write_file(Fn, Result),
 	call_with_string_read_stream(Result, load_extracted_account_hierarchy_xml(AccountHierarchy_Elements)).
 
+/* todo maybe unify with xml_from_path_or_url */
 load_extracted_account_hierarchy_xml(/*-*/AccountHierarchy_Elements, /*+*/Stream) :-
 	load_structure(Stream, AccountHierarchy_Elements, [dialect(xml),space(remove)]).
 
 
 
 /*
-at this point, we have a Dom
+┏━┓┏━╸┏━╸┏━┓╻ ╻┏┓╻╺┳╸╻ ╻╻┏━╸┏━┓┏━┓┏━┓┏━╸╻ ╻╻ ╻
+┣━┫┃  ┃  ┃ ┃┃ ┃┃┗┫ ┃ ┣━┫┃┣╸ ┣┳┛┣━┫┣┳┛┃  ┣━┫┗┳┛
+╹ ╹┗━╸┗━╸┗━┛┗━┛╹ ╹ ╹ ╹ ╹╹┗━╸╹┗╸╹ ╹╹┗╸┗━╸╹ ╹ ╹
+extract accounts from accountHierarchy xml element
 */
 
-extract_account_terms_from_accountHierarchy_elements(Accounts_Elements) :-
-	maplist(extract_account_terms_from_accountHierarchy_element, Accounts_Elements).
-
-
-extract_account_terms_from_accountHierarchy_element(element(_,_,Children)) :-
+extract_accounts_from_accountHierarchy_element(element(_,_,Children)) :-
 	maplist(extract_account2, no_parent_element, Children).
 
 
@@ -100,16 +108,16 @@ exract_account_subtree(Parent, E) :-
 	E = element(_,_,Children),
 	maplist(exract_account_subtree(Uri), Children).
 
-add_account(E, Parent, Result) :-
-	E = element(Id,Attrs,Children),
+add_account(E, Parent) :-
+	E = element(Id,Attrs,_),
 
 	(	(	request_data(D),
-			doc_value(D, ic_ui:account_details, Details)
+			doc_value(D, ic_ui:account_details, Details),
 			doc_list_member(Detail, Details),
 			doc(Detail, l:id, Id)
 		)
 	->	true
-	;	/*Detail = _*/),
+	;	Detail = _),
 
 	/* try to get role from xml */
 	(	(	memberchk((role_parent = Role_parent), Attrs),
@@ -137,11 +145,11 @@ add_account(E, Parent, Result) :-
 	make_account(Id, Parent, /*Detail_Level*/0, Role_parent/Role_child, Uri),
 
 	(	nonvar(Side)
-	->	doc_add(Uri, accounts:side, Side, accounts)
+	->	doc_add(Uri, accounts:normal_side, Side, accounts)
 	;	true).
 
 
-extract_normal_side_uri_from_attrs(Attrs, Side)
+extract_normal_side_uri_from_attrs(Attrs, Side) :-
 	(	memberchk((normal_side = Side_atom), Attrs)
 	->	(	Side_atom = debit
 		->	Side = kb:debit
@@ -154,6 +162,12 @@ extract_normal_side_uri_from_account_detail_rdf(Detail, Side) :-
 	doc(Detail, l:normal_side, Side).
 
 
+/*
+┏━┓┏━┓┏━┓┏━┓┏━┓┏━╸┏━┓╺┳╸┏━╸   ┏━┓┏━╸┏━╸┏━┓╻ ╻┏┓╻╺┳╸┏━┓   ┏━┓╻╺┳┓┏━╸
+┣━┛┣┳┛┃ ┃┣━┛┣━┫┃╺┓┣━┫ ┃ ┣╸    ┣━┫┃  ┃  ┃ ┃┃ ┃┃┗┫ ┃ ┗━┓   ┗━┓┃ ┃┃┣╸
+╹  ╹┗╸┗━┛╹  ╹ ╹┗━┛╹ ╹ ╹ ┗━╸╺━╸╹ ╹┗━╸┗━╸┗━┛┗━┛╹ ╹ ╹ ┗━┛╺━╸┗━┛╹╺┻┛┗━╸
+*/
+
 propagate_accounts_side :-
 	account_by_role_throw(root/root, Root),
 	account_direct_children(Root, Sub_roots),
@@ -165,7 +179,7 @@ propagate_accounts_side0(Sub_root) :-
 
 propagate_accounts_side2(Parent_side, Account) :-
 	ensure_account_has_normal_side(Parent_side, Account),
-	account_side(Account, Side)
+	account_side(Account, Side),
 	account_direct_children(Account, Children),
 	maplist(propagate_accounts_side2(Side, Children)).
 
@@ -173,7 +187,8 @@ ensure_account_has_normal_side(_, Account) :-
 	account_side(Account, _),!.
 
 ensure_account_has_normal_side(Parent_side, Account) :-
-	doc_add(Account, accounts:normal_side, Parent_side, accounts),!.
+	doc_add(Account, kb:normal_side, Parent_side, accounts),!.
 
 ensure_account_has_normal_side(_, Account) :-
-	throw_string(["couldn't determine account normal side"]).
+	account_id(Account, Id),
+	throw_string(["couldn't determine account normal side for ", Id]).

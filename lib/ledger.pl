@@ -54,7 +54,7 @@ process_ledger(
 		how to generate json+html reports
 	*/
 
-	maplist(check_transaction_account(, Transactions_With_Livestock),
+	maplist(check_transaction_account, Transactions_With_Livestock),
 
 	Static_Data2 = Static_Data0.put(end_date, Processed_Until).put(transactions, Transactions_With_Livestock),
 	gl_export(

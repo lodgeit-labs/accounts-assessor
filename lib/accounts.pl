@@ -87,8 +87,8 @@ account_by_role_throw(Role, Account) :-
 	->	member(Account, Accounts)
 	;	(
 			term_string(Role, Role_Str),
-			(var(Account) -> Account_Parameter = '';format(string(Account_Parameter), '\nAccount parameter bound:~q', [Account])),
-			format(atom(Err), 'unknown account by role: ~w Account_Parameter', [Role_Str]),
+			format(user_error, '~q~n', [Account]),
+			format(atom(Err), 'unknown account by role: ~w', [Role_Str]),
 			throw_string(Err)
 		)
 	).

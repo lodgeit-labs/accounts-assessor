@@ -61,7 +61,7 @@ process_request_ledger2(Dom, S_Transactions, Structured_Reports, Transactions) :
 	extract_cost_or_market(Dom, Cost_Or_Market),
 	extract_report_currency(Dom, Report_Currency),
 	extract_action_verbs_from_bs_request(Dom),
-	extract_accounts(Dom),
+	extract_accounts,
 	extract_livestock_data_from_ledger_request(Dom),
 	extract_exchange_rates(Cost_Or_Market, Dom, S_Transactions, Start_Date, End_Date, Report_Currency, Exchange_Rates),
 	extract_invoices_payable(Dom),
