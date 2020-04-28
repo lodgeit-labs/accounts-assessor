@@ -126,16 +126,17 @@ check_account_parent(Account) :-
 	(	Id == 'root'
 	->	true
 	;	(
-			account_parent(Account, Parent),
-			(	account_exists(Parent)
+			(	account_parent(Account, Parent)
 			->	true
-			;	throw_string(['account "', Id, '" parent "', Parent, '" missing.']))
+			;	throw_string(['account "', Id, '" has no parent.'])),
+			(	account_id(Parent,_)
+			->	true
+			;	throw_string(['account "', Id, '" parent "', Parent, '" is not an account?.']))
 		)
 	).
 
 check_accounts_parent :-
 	all_accounts(Accounts),
-	gtrace,
 	maplist(check_account_parent,Accounts).
 
 

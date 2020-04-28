@@ -145,7 +145,7 @@ check_transaction_account(Transaction) :-
 	(
 		(
 			nonvar(Id),
-			account_exists(Id)
+			account_id(Id, _)
 		)
 		->	true
 		;
