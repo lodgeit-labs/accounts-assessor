@@ -143,7 +143,7 @@ balance(Static_Data, Account_Id, Date, Balance, Transactions_Count) :-
 	findall(
 		Child_Balance,
 		(
-			account_child_parent(Static_Data.accounts, Child_Account, Account_Id),
+			account_parent(Child_Account, Account_Id),
 			balance(Static_Data, Child_Account, Date, Child_Balance, _)
 		),
 		Child_Balances
@@ -196,7 +196,7 @@ balance_sheet_entry2(Static_Data, Account_Id, Entry) :-
 	findall(
 		Child_Sheet_Entry, 
 		(
-			account_child_parent(Static_Data.accounts, Child_Account, Account_Id),
+			account_parent(Child_Account, Account_Id),
 			balance_sheet_entry2(Static_Data, Child_Account, Child_Sheet_Entry)
 		),
 		Child_Sheet_Entries
@@ -239,20 +239,16 @@ trial_balance_between(Exchange_Rates, Transactions_By_Account, Report_Currency, 
 	Trial_Balance_Section = entry('Trial_Balance', Trial_Balance, [], Transactions_Count,[]).
 
 profitandloss_between(Static_Data, [ProftAndLoss]) :-
-	activity_entry(Static_Data, $>account_by_role('Accounts'/'ComprehensiveIncome'), ProftAndLoss).
+	activity_entry(Static_Data, $>account_by_role(rl('ComprehensiveIncome')), ProftAndLoss).
 
 % Now for trial balance predicates.
 
 activity_entry(Static_Data, Account_Id, Entry) :-
-	/*fixme, use maplist, or https://github.com/rla/rdet/ ? */
-	findall(
-		Child_Sheet_Entry, 
-		(
-			account_child_parent(Static_Data.accounts, Child_Account_Id, Account_Id),
-			activity_entry(Static_Data, Child_Account_Id, Child_Sheet_Entry)
-		),
-		Child_Sheet_Entries
-	),
-	net_activity_by_account(Static_Data, Account_Id, Net_Activity, Transactions_Count),
-	Entry = entry(Account_Id, Net_Activity, Child_Sheet_Entries, Transactions_Count,[]).
+	(
+		findall(Child_Account_Id, account_parent(Child_Account_Id, Account_Id), Child_accounts),
+		maplist(activity_entry(Static_Data), Child_accounts,Child_Sheet_Entries),
+		net_activity_by_account(Static_Data, Account_Id, Net_Activity, Transactions_Count),
+		Entry = entry(Account_Id, Net_Activity, Child_Sheet_Entries, Transactions_Count,[])
+	)
+	->true;throw_string("err").
 

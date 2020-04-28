@@ -27,7 +27,7 @@ print_detail_account(Static_Data, Context_Info, Fact_Name, Account_In,
 			Dimension_Value = Short_Id
 		)
 	),
-	account_role(Account, (_/Short_Id0)),
+	account_role(Account, rl(_/Short_Id0)),
 	sane_id(Short_Id0, Short_Id), % todo this sanitization is probably unnecessary
 	% <basic:Investment_Duration>Short_Id</basic:Investment_Duration>
 	ensure_context_exists(Short_Id, Dimension_Value, Context_Info, Contexts_In, Contexts_Out, Context_Id),
@@ -60,7 +60,7 @@ print_banks(Static_Data, Context_Id_Base, In, Out, Xml) :-
 
 print_forex(Static_Data, Context_Id_Base, In, Out, Xml) :-
 	dict_vars(Static_Data, [Start_Date, End_Date, Entity_Identifier]),
-    findall(Account, account_by_role_nothrow(('CurrencyMovement'/_), Account), Movement_Accounts),
+    findall(Account, account_by_role(rl('CurrencyMovement'/_), Account), Movement_Accounts),
 	Context_Info = context_arg0(
 		Context_Id_Base, 
 		(Start_Date, End_Date), 
@@ -92,11 +92,4 @@ print_trading2(Static_Data, [(Sub_Account,Unit_Accounts)|Tail], In, Out, [XmlH|X
 	print_trading2(Static_Data, Tail, Mid, Out, XmlT).
 	
 print_trading2(_,[],Results,Results,[]).
-	
-trading_sub_account(Sd, (Movement_Account, Unit_Accounts)) :-
-	trading_account_ids(Trading_Accounts),
-	member(Trading_Account, Trading_Accounts),
-	account_by_role_nothrow(Sd.accounts, (Trading_Account/_), Gains_Account),
-	account_by_role_nothrow(Sd.accounts, (Gains_Account/_), Movement_Account),
-	child_accounts(Sd.accounts, Movement_Account, Unit_Accounts).
 	

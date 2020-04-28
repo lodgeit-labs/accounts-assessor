@@ -290,7 +290,7 @@ coord_is_almost_zero(value(_, V)) :-
 
 vector_of_coords_to_vector_of_values(_, _, [], []).
 vector_of_coords_to_vector_of_values(Sd, Account_Id, [Coord|Coords], [Value|Values]) :-
-	account_normal_side(Sd.accounts, Account_Id, Side),
+	account_normal_side(Account_Id, Side),
 	coord_normal_side_value(Coord, Side, Value),
 	vector_of_coords_to_vector_of_values(Sd, Account_Id, Coords, Values).
 

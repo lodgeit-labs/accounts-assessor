@@ -139,3 +139,15 @@ process_livestock2((S_Transactions, Transactions_In), Livestock, Transactions_Ou
 
 	%maplist(do_livestock_cross_check(Livestock_Events, Natural_Increase_Costs, S_Transactions, Transactions_Out, Opening_Costs_And_Counts, Start_Date, End_Date, Exchange_Rates, Accounts, Report_Currency, Average_Costs), Livestocks)
 	true.
+
+
+livestock_units(Units) :-
+	findall(
+		Unit,
+		(
+			doc(L, rdf:type, l:livestock_data),
+			doc(L, livestock:name, Unit)
+		),
+		Units
+	).
+

@@ -117,7 +117,7 @@ create_reports(
 	%gtrace,
 	format(user_error, '.......', []),
 
-	once(create_instance(Xbrl, Static_Data, Static_Data.start_date, Static_Data.end_date, Static_Data.accounts, Static_Data.report_currency, Balance_Sheet, ProfitAndLoss, ProfitAndLoss2_Historical, Trial_Balance)),
+	once(create_instance(Xbrl, Static_Data, Static_Data.start_date, Static_Data.end_date, Static_Data.report_currency, Balance_Sheet, ProfitAndLoss, ProfitAndLoss2_Historical, Trial_Balance)),
 
 	once(other_reports(Static_Data, Static_Data_Historical, Static_Data.outstanding, Balance_Sheet, ProfitAndLoss, Balance_Sheet2_Historical, ProfitAndLoss2_Historical, Trial_Balance, Cf, Structured_Reports)),
 	once(add_xml_report(xbrl_instance, xbrl_instance, [Xbrl])).
@@ -130,7 +130,7 @@ balance_entries(
 	Entries						% Dict Entry
 ) :-
 	/* sum up the coords of all transactions for each account and apply unit conversions */
-	trial_balance_between(Static_Data.exchange_rates, Static_Data.accounts, Static_Data.transactions_by_account, Static_Data.report_currency, Static_Data.end_date, Static_Data.start_date, Static_Data.end_date, Trial_Balance),
+	trial_balance_between(Static_Data.exchange_rates, Static_Data.transactions_by_account, Static_Data.report_currency, Static_Data.end_date, Static_Data.start_date, Static_Data.end_date, Trial_Balance),
 	balance_sheet_at(Static_Data, Balance_Sheet),
 	profitandloss_between(Static_Data, ProfitAndLoss),
 	balance_sheet_at(Static_Data_Historical, Balance_Sheet2_Historical),

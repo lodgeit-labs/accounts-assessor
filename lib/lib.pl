@@ -17,6 +17,7 @@
 :- [accounts_extract].
 :- [accounts].
 :- [action_verbs].
+:- [bank_accounts].
 :- [bank_statement].
 :- [cashflow].
 :- [crosschecks_report].
@@ -34,7 +35,6 @@
 :- [ledger_html_reports].
 :- [ledger].
 :- [ledger_report].
-:- [livestock_accounts].
 :- [livestock_adjustment_transactions].
 :- [livestock_average_cost].
 :- [livestock_calculator].

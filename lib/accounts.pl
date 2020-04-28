@@ -11,7 +11,7 @@ because Financial_Investments_realized might already be an id of another user ac
 */
 
 /*
-accountHierarchy is not an account. The root account has id 'root' and role 'root'/'root'.
+accountHierarchy is not an account. The root account has id 'root' and role 'root'.
 logic does not seem to ever need to care about the structure of the tree, only about identifying appropriate accounts
 so what i see we need is a user interface and a simple xml schema to express associations between accounts and their roles in the system.
 the roles can have unique names, and later URIs, in the whole set of programs.
@@ -27,15 +27,27 @@ each account hierarchy can come with a default set of associations
 :- use_module(library(http/http_dispatch)).
 :- use_module(library(http/http_open)).
 
+make_account_with_optional_role(Id, Parent, Detail_Level, Role, Uri) :-
+	assertion(Role = rl(_)),
+	make_account3(Id, Detail_Level, Uri),
+	(	nonvar(Role)
+	->	doc_add(Uri, accounts:role, Role, accounts)
+	;	true),
+	doc_add(Uri, accounts:parent, Parent, accounts).
+
 make_account(Id, Parent, Detail_Level, Role, Uri) :-
 	make_account2(Id, Detail_Level, Role, Uri),
 	doc_add(Uri, accounts:parent, Parent, accounts).
 
 make_account2(Id, Detail_Level, Role, Uri) :-
+	assertion(Role = rl(_)),
+	make_account3(Id, Detail_Level, Uri),
+	doc_add(Uri, accounts:role, Role, accounts).
+
+make_account3(Id, Detail_Level, Uri) :-
 	doc_new_uri(Uri, $>atomic_list_concat(['accounts_', Id])),
 	doc_add(Uri, rdf:type, l:account, accounts),
 	doc_add(Uri, accounts:id, Id, accounts),
-	doc_add(Uri, accounts:role, Role, accounts),
 	doc_add(Uri, accounts:detail_level, Detail_Level, accounts),
 	true.
 
@@ -46,7 +58,9 @@ account_id(Uri, X) :-
 account_parent(Uri, X) :-
 	doc(Uri, accounts:parent, X, accounts).
 account_role(Uri, X) :-
-	doc(Uri, accounts:role, X, accounts).
+	assertion(X = rl(_)),
+	doc(Uri, accounts:role, X, accounts),
+	assertion(X = rl(_)).
 account_detail_level(Uri, X) :-
 	/* 0 for normal xbrl facts, 1 for points in xbrl dimensions */
 	doc(Uri, accounts:detail_level, X, accounts).
@@ -67,7 +81,7 @@ all_accounts(Accounts) :-
 	findall(A, account_id(A, _), Accounts).
 
 account_exists(Id) :-
-	once(account_by_id(Id)).
+	once(account_id(_, Id)).
 
 % Relates an account to an ancestral account or itself
 %:- table account_in_set/3.
@@ -82,6 +96,7 @@ account_direct_children(Parent, Children) :-
 
 /* throws an exception if no account is found */
 account_by_role_throw(Role, Account) :-
+	assertion(Role = rl(_)),
 	findall(Account, account_role(Account, Role), Accounts),
 	(	Accounts \= []
 	->	member(Account, Accounts)
@@ -95,7 +110,10 @@ account_by_role_throw(Role, Account) :-
 
 account_by_role(Role, Account) :-
 	account_role(Account, Role).
-
+/*
+account_by_role_nothrow(Role, Account) :-
+	account_by_role(Role, Account).
+*/
 /*
 check that each account has a parent. Together with checking that each generated transaction has a valid account,
 this should ensure that all transactions get reflected in the account tree somewhere
@@ -112,6 +130,11 @@ check_account_parent(Account) :-
 		)
 	).
 
+check_accounts_parent :-
+	all_accounts(Accounts),
+	maplist(check_account_parent(Accounts)).
+
+
 write_accounts_json_report :-
 	maplist(account_to_dict, $>all_accounts, Dicts),
 	write_tmp_json_file(loc(file_name,'accounts.json'), Dicts).
@@ -126,8 +149,18 @@ account_to_dict(Uri, Dict) :-
 	},
 	account_id(Uri, Id),
 	account_parent(Uri, Parent),
-	account_role(Uri, Role),
+	account_role(Uri, rl(Role)),
 	account_detail_level(Uri, Detail_level),
 	account_normal_side(Uri, Normal_side).
+
+check_accounts_roles :-
+	findall(Role, account_role(_, Role), Roles),
+	(	ground(Roles)
+	->	true
+	;	throw_string(error)),
+	(	sort(Roles, Roles)
+	->	true
+		/*todo better message */
+	;	throw_string(['multiple accounts with same role found'])).
 
 

@@ -23,7 +23,7 @@ the accountHierarchy tag can appear multiple times, all the results will be adde
 */
 
 extract_accounts :-
-	make_account2(root, 0, root/root, _),
+	make_root_account,
 	extract_accounts2,
 	propagate_accounts_side.
 
@@ -92,25 +92,30 @@ extract accounts from accountHierarchy xml element
 */
 
 extract_accounts_from_accountHierarchy_element(element(_,_,Children)) :-
-	maplist(extract_account2, no_parent_element, Children).
+	maplist(exract_accounts_subtree, no_parent_element, Children).
 
-
-extract_account_from_toplevel_element(E) :-
-	E = element(Id,Attrs,Children),
-	memberchk((parent_role_parent = Parent_role_parent), Attrs),
-	memberchk((parent_role_child = Parent_role_child), Attrs),
-	account_by_role(Parent_role_parent/Parent_role_child, Parent),
-	add_account(Id, Parent, Parent2),
-	maplist(exract_account_subtree(Parent2), Children).
-
-exract_account_subtree(Parent, E) :-
+exract_accounts_subtree(Parent, E) :-
 	add_account(E, Parent, Uri),
 	E = element(_,_,Children),
-	maplist(exract_account_subtree(Uri), Children).
+	maplist(exract_accounts_subtree(Uri), Children).
 
-add_account(E, Parent) :-
+add_account(E, Parent, Uri) :-
 	E = element(Id,Attrs,_),
 
+	(	memberchk((parent_role = Parent_role_atom), Attrs)
+	->	(	nonvar(Parent)
+		->	throw_string('parent role specified in nested account element')
+		;	(
+				role_string_to_term(Parent_role_atom, Parent_role),
+				account_by_role(Parent_role, Parent)
+			)
+		)
+	;	(	var(Parent)
+		->	throw_string('parent role not specified')
+		;	true)
+	),
+
+	% look up details uri from rdf
 	(	(	request_data(D),
 			doc_value(D, ic_ui:account_details, Details),
 			doc_list_member(Detail, Details),
@@ -119,22 +124,19 @@ add_account(E, Parent) :-
 	->	true
 	;	Detail = _),
 
-	/* try to get role from xml */
-	(	(	memberchk((role_parent = Role_parent), Attrs),
-			memberchk((role_child = Role_child), Attrs))
+	/* try to get role from xml or rdf */
+	(	memberchk((role = Role_atom), Attrs)
 	->	true
-			/* try to get role from rdf */
-	;	(	nonvar(Detail),
-			doc(Detail, l:role_parent, Role_parent_str),
-			atom_string(Role_parent, Role_parent_str),
-			doc(Detail, l:role_child, Role_child_str),
-			atom_string(Role_child, Role_child_str))
+	;	/* try to get role from rdf */
+		(	nonvar(Detail),
+			doc(Detail, l:role, Role_atom))
 		->	true
-		;	(
-				Role_parent = 'Accounts',
-				Role_child = Id
-			)
+		;	true
 	),
+
+	(	nonvar(Role_atom)
+	->	role_string_to_term(Role_atom, Role)
+	;	true),
 
 	(	extract_normal_side_uri_from_attrs(Attrs, Side)
 	->	true
@@ -142,11 +144,27 @@ add_account(E, Parent) :-
 		->	true
 		;	true)),
 
-	make_account(Id, Parent, /*Detail_Level*/0, Role_parent/Role_child, Uri),
+	make_account_with_optional_role(Id, Parent, /*Detail_Level*/0, Role, Uri),
 
 	(	nonvar(Side)
 	->	doc_add(Uri, accounts:normal_side, Side, accounts)
 	;	true).
+
+role_string_to_term(Role_string, rl(Role)) :-
+	split_string(Role_string, '/', '', Role_string_list),
+	maplist(atom_string, Role_atom_list, Role_string_list),
+	role_list_to_term(Role_atom_list, Role).
+
+role_list_to_term([H,T], Role) :-
+	Role =.. ['/',H,T],
+	!.
+
+role_list_to_term([H|T], Role) :-
+	role_list_to_term(T, Role2),
+	Role =.. ['/',H,Role2],
+	!.
+
+role_list_to_term(Role, Role).
 
 
 extract_normal_side_uri_from_attrs(Attrs, Side) :-
@@ -169,7 +187,7 @@ extract_normal_side_uri_from_account_detail_rdf(Detail, Side) :-
 */
 
 propagate_accounts_side :-
-	account_by_role_throw(root/root, Root),
+	get_root_account(Root),
 	account_direct_children(Root, Sub_roots),
 	maplist(propagate_accounts_side0(Sub_roots)).
 
@@ -179,12 +197,12 @@ propagate_accounts_side0(Sub_root) :-
 
 propagate_accounts_side2(Parent_side, Account) :-
 	ensure_account_has_normal_side(Parent_side, Account),
-	account_side(Account, Side),
+	account_normal_side(Account, Side),
 	account_direct_children(Account, Children),
 	maplist(propagate_accounts_side2(Side, Children)).
 
 ensure_account_has_normal_side(_, Account) :-
-	account_side(Account, _),!.
+	account_normal_side(Account, _),!.
 
 ensure_account_has_normal_side(Parent_side, Account) :-
 	doc_add(Account, kb:normal_side, Parent_side, accounts),!.

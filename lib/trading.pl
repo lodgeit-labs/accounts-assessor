@@ -325,21 +325,6 @@ tx_to_transaction(St, Day, Tx, Transaction) :-
 	flatten(Vector, Vector_Flattened),
 	make_transaction2(St, Day, Description, Account, Vector_Flattened, '?', Transaction).
 	
-/*
-	find accounts to affect
-*/
-gains_accounts(
-	/*input*/
-	Trading_Account_Id, Realized_Or_Unrealized, Goods_Unit,
-	/*output*/
-	Currency_Movement_Account,
-	Excluding_Forex_Account
-) :-
-	account_by_role((Trading_Account_Id/Realized_Or_Unrealized), Unrealized_Gains_Account),
-	account_by_role((Unrealized_Gains_Account/onlyCurrencyMovement), Unrealized_Gains_Currency_Movement),
-	account_by_role((Unrealized_Gains_Account/withoutCurrencyMovement), Unrealized_Gains_Excluding_Forex),
-	account_by_role((Unrealized_Gains_Currency_Movement/Goods_Unit), Currency_Movement_Account),
-	account_by_role((Unrealized_Gains_Excluding_Forex/Goods_Unit), Excluding_Forex_Account).
 
 
 	

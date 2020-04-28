@@ -1,31 +1,11 @@
-<!--
-
-if role is not specified, it defaults to "Accounts/<Id>"
-
--->
-
 <?xml version="1.0" ?>
 <accountHierarchy>
-	<AssetsLivestock parent_role_parent="Accounts" parent_role_child="CurrentAssets">
-		<AssetsLivestockAtCost/>
-		<AssetsLivestockAtAverageCost/>
+	<AssetsLivestock parent_role="CurrentAssets">
+		<AssetsLivestockAtCost role="AssetsLivestockAtCost"/>
+		<AssetsLivestockAtAverageCost role="AssetsLivestockAtAverageCost"/>
 	</AssetsLivestock>
-	<SalesOfLivestock parent_role_parent="Accounts" parent_role_child="Revenue"/>
-	<CostOfGoodsLivestock parent_role_parent="Accounts" parent_role_child="Expenses"/>
-	<LivestockCount parent_role_parent="accountHierarchy" parent_role_child="Inventory" role_parent="Inventory", role_child="LivestockCount"/>
+	<CapitalIntroduced parent_role="Equity" role="CapitalIntroduced">
+	<SalesOfLivestock parent_role="Revenue" role="SalesOfLivestock"/>
+	<CostOfGoodsLivestock parent_role="Expenses" role="CostOfGoodsLivestock"/>
+	<LivestockCount parent_role="root/Inventory" role="root/Inventory/LivestockCount"/>
 </accountHierarchy>
-
-generated accounts for each unit type:
-	Cogs  = account(Cogs_Name, /*Expenses/ */'CostOfGoodsLivestock', '', 0),
-	Sales = account(Sales_Name, /*Revenue/ */'SalesOfLivestock', '', 0),
-	Count = account(Count_Name, 'LivestockCount', '', 0),
-	CogsRations = account(CogsRations_Name, Cogs_Name, '', 0).
-i think we don't have to take any special care wrt generated accounts
-
-
-and default taxonomy file would have:
-<?xml version="1.0" ?>
-<accountHierarchy>
-	<Accounts  parent_role_parent="" parent_role_child="">
-		<NetAssets>
-i.e.: being specified as a child of accountHierarchy does not a

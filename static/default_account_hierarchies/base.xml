@@ -1,12 +1,12 @@
 <?xml version="1.0" ?>
 <accountHierarchy>
 	<!-- top-level account has to explicitly specify where it attaches -->
-	<Accounts parent_role="root/root">
+	<Accounts parent_role="root">
 		<NetAssets normal_side="debit">
 			<Assets>
 				<CurrentAssets>
 					<CashAndCashEquivalents>
-						<Banks role="Accounts/Banks"/>
+						<Banks role="Banks"/>
 					</CashAndCashEquivalents>				
 				</CurrentAssets>
 				<NoncurrentAssets>
@@ -70,6 +70,6 @@
 
 		</ComprehensiveIncome>
 	</Accounts>
-	<Inventory parent_role="root/root" role="root/Inventory" normal_side="debit">
+	<Inventory parent_role="root" role="root/Inventory" normal_side="debit">
 	</Inventory>
 </accountHierarchy>

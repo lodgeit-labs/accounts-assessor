@@ -163,7 +163,7 @@ make_buy(Static_Data, St, Trading_Account, Pricing_Method, Bank_Account_Currency
 	unit_cost_value(Coord_Ours_Converted, Goods_Coord, Unit_Cost_Converted),
 	number_coord(Goods_Unit, Goods_Count, Goods_Coord),
 	dict_vars(Static_Data, [Cost_Or_Market]),
-	account_by_role(Exchanged_Account/Goods_Unit, Exchanged_Account2),
+	financial_investments_account(Exchanged_Account,Goods_Unit,Exchanged_Account2)
 
 	(	Cost_Or_Market = cost
 	->	(
@@ -246,7 +246,7 @@ make_sell(Static_Data, St, Trading_Account, Pricing_Method, _Bank_Account_Curren
 	Outstanding_In, Outstanding_Out, [Ts1, Ts2, Ts3]
 ) :-
 	credit_vec(Goods_Unit,Goods_Positive,Goods_Vector),
-	account_by_role(Exchanged_Account/Goods_Unit, Exchanged_Account2),
+	financial_investments_account(Exchanged_Account,Goods_Unit,Exchanged_Account2)
 	bank_debit_to_unit_price(Vector_Ours, Goods_Positive, Sale_Unit_Price),
 
 	((find_items_to_sell(Pricing_Method, Goods_Unit, Goods_Positive, Transaction_Date, Sale_Unit_Price, Outstanding_In, Outstanding_Out, Goods_Cost_Values),!)
@@ -368,9 +368,8 @@ make_currency_movement_transactions(Static_Data, St, Bank_Account, Date, Vector,
 
 	dict_vars(Static_Data, [Start_Date, Report_Currency]),
 	/* find the account to affect */
-	account_role_by_id(Bank_Account, (_/Bank_Child_Role)),
-	account_by_role(('CurrencyMovement'/Bank_Child_Role), Currency_Movement_Account),
-	/* 
+	bank_gl_account_currency_movement_account(Bank_Account,Currency_Movement_Account),
+	/*
 		we will be tracking the movement of Vector (in foreign currency) against the revenue/expense in report currency. 
 		the value of this transaction will grow as the exchange rate of foreign currency moves against report currency.
 	*/
@@ -478,8 +477,7 @@ check_trial_balance(Exchange_Rates, Report_Currency, Date, Transactions) :-
 % throw an error if the account is not found in the hierarchy
 check_that_s_transaction_account_exists(S_Transaction) :-
 	s_transaction_account(S_Transaction, Account_Name),
-	account_by_role(('Banks'/Account_Name), _).
-
+	bank_gl_account_by_bank_name(Account_Name, _).
 
 
 
