@@ -112,7 +112,7 @@ evaluate2(Sd, account_balance(Report_Id, Role), Values_List) :-
 	).
 
 accounts_report_entry_by_account_role(_Sd, Report, Role, Entry) :-
-	account_by_role(Role, Id),
+	account_by_role_throw(Role, Id),
 	accounts_report_entry_by_account_id(Report, Id, Entry).
 
 accounts_report_entry_by_account_id(Report, Id, Entry) :-

@@ -1,15 +1,15 @@
 <?xml version="1.0" ?>
 <accountHierarchy>
 	<!-- top-level account has to explicitly specify where it attaches -->
-	<Accounts parent_role="root">
+	<Accounts parent_role="root" normal_side="debit">
 		<NetAssets normal_side="debit">
 			<Assets>
-				<CurrentAssets>
+				<CurrentAssets role="CurrentAssets">
 					<CashAndCashEquivalents>
 						<Banks role="Banks"/>
 					</CashAndCashEquivalents>				
 				</CurrentAssets>
-				<NoncurrentAssets>
+				<NoncurrentAssets role="NoncurrentAssets">
 				</NoncurrentAssets>
 			</Assets>
 			<Liabilities normal_side="credit">
@@ -26,7 +26,7 @@
 			</Liabilities>
 		</NetAssets>
 
-		<Equity normal_side="credit">
+		<Equity role="Equity" normal_side="credit">
 			<ShareCapital/>
 			<RetainedEarnings>
 				<HistoricalEarnings>
@@ -40,7 +40,7 @@
 
 		<ComprehensiveIncome normal_side="credit">
 			
-			<Revenue>
+			<Revenue role="Revenue">
 				<Income/>
 				<OtherIncome>
 					<InterestIncome/>
@@ -48,10 +48,10 @@
 					<EarningsFinancialInvestments/>
 					<ExchangeGain/>
 				</OtherIncome>
-				<CurrencyMovement/>
+				<CurrencyMovement role="CurrencyMovement"/>
 			</Revenue>
 
-			<Expenses normal_side="debit">
+			<Expenses role="Expenses" normal_side="debit">
 				<BankCharges/>
 				<AccountingFees/>
 				<ForexLoss/>
@@ -60,7 +60,7 @@
 				<OtherExpenses/>
 			</Expenses>
 
-			<Gains>
+			<Gains role="Gains">
 				<OtherGain/>
 				<ClearingAccount/>
 			</Gains>

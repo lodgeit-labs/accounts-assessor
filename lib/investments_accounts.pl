@@ -26,9 +26,9 @@ financialInvestments_accounts(Accounts) :-
 		Ids0
 	),
 	sort(Ids0, Ids),
-	maplist(account_by_id(Ids, Accounts).
+	maplist(account_by_id,Ids, Accounts).
 
-investmentIncome_accounts(Accounts) :-
+investmentIncome_account_ids(Accounts) :-
 	findall(
 		A,
 		(

@@ -162,7 +162,7 @@ cf_scheme_0_entry_for_account(
 ).
 */
 cf_scheme_0_root_entry(Sd, Entry) :-
-	cf_scheme_0_entry_for_account0(Sd, $>account_by_role(rl('CashAndCashEquivalents')), Entry).
+	cf_scheme_0_entry_for_account0(Sd, $>account_by_role_throw(rl('CashAndCashEquivalents')), Entry).
 
 
 balance_until_day2(Sd, Report_Currency, Date, Account, balance(Balance, Tx_Count)) :-
@@ -334,7 +334,7 @@ cashflow(
 	Sd,				% + Static Data
 	[Entry]			% - list<entry>
 ) :-
-	account_by_role(rl('CashAndCashEquivalents'), Root),
+	account_by_role_throw(rl('CashAndCashEquivalents'), Root),
 	transactions_in_period_on_account_and_subaccounts(Sd.transactions_by_account, Root, Sd.start_date, Sd.end_date, Filtered_Transactions),
 	maplist(tag_gl_transaction_with_cf_data, Filtered_Transactions),
 	cf_scheme_0_root_entry(Sd, Entry),

@@ -4,7 +4,7 @@
 		<AssetsLivestockAtCost role="AssetsLivestockAtCost"/>
 		<AssetsLivestockAtAverageCost role="AssetsLivestockAtAverageCost"/>
 	</AssetsLivestock>
-	<CapitalIntroduced parent_role="Equity" role="CapitalIntroduced">
+	<CapitalIntroduced parent_role="Equity" role="CapitalIntroduced"/>
 	<SalesOfLivestock parent_role="Revenue" role="SalesOfLivestock"/>
 	<CostOfGoodsLivestock parent_role="Expenses" role="CostOfGoodsLivestock"/>
 	<LivestockCount parent_role="root/Inventory" role="LivestockCount"/>

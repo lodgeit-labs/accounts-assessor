@@ -1,5 +1,6 @@
 make_root_account :-
-	make_account2(root, 0, rl(root), _).
+	make_account2(root, 0, rl(root), Root),
+	format(user_error, 'root account:~q\n', [Root]).
 
 get_root_account(Root) :-
 	account_by_role_throw(rl(root), Root).
@@ -9,7 +10,7 @@ ensure_system_accounts_exist(S_Transactions) :-
 	ensure_livestock_accounts_exist,
 	traded_units(S_Transactions, Traded_Units),
 	ensure_financial_investments_accounts_exist(Traded_Units),
-	'ensure InvestmentIncome accounts exist'.
+	'ensure InvestmentIncome accounts exist'(Traded_Units).
 
 /*
 ┏┓ ┏━┓┏┓╻╻┏    ┏━╸╻     ┏━┓┏━╸┏━╸┏━┓╻ ╻┏┓╻╺┳╸┏━┓
@@ -24,21 +25,22 @@ ensure_bank_gl_accounts_exist :-
 	maplist(ensure_currency_movement_account_exists, Bank_Gl_Account).
 
 ensure_bank_gl_account_exists(Name, Account) :-
-	ensure_account_exists('Banks', _, 1, rl('Banks'/Name), Account).
+	ensure_account_exists($>account_by_role_throw(rl('Banks')), _, 1, rl('Banks'/Name), Account).
 
 ensure_currency_movement_account_exists(Bank_Gl_Account) :-
+	/* get Bank_name from role. It would probably be cleaner to get it from the same source where we get it when creating the bank gl accounts */
 	account_role(Bank_Gl_Account, rl(_/Bank_name)),
-	ensure_account_exists('CurrencyMovement', _, 0, rl('CurrencyMovement'/Bank_name), _).
+	ensure_account_exists($>account_by_role_throw(rl('CurrencyMovement')), _, 0, rl('CurrencyMovement'/Bank_name), _).
 
 bank_gl_accounts(Bank_Accounts) :-
 	findall(A, account_by_role(A, rl('Banks'/_Bank_Account_Name)), Bank_Accounts).
 
 bank_gl_account_currency_movement_account(Bank_Gl_Account, Currency_Movement_Account) :-
 	account_role(Bank_Gl_Account, (_/Bank_name)),
-	account_by_role(rl('CurrencyMovement'/Bank_name), Currency_Movement_Account).
+	account_by_role_throw(rl('CurrencyMovement'/Bank_name), Currency_Movement_Account).
 
 bank_gl_account_by_bank_name(Account_Name, Uri) :-
-	account_by_role(rl('Banks'/Account_Name), Uri).
+	account_by_role_throw(rl('Banks'/Account_Name), Uri).
 
 /*
 ╻  ╻╻ ╻┏━╸┏━┓╺┳╸┏━┓┏━╸╻┏    ┏━┓┏━╸┏━╸┏━┓╻ ╻┏┓╻╺┳╸┏━┓
@@ -54,7 +56,6 @@ ensure_livestock_accounts_exist :-
 	maplist(ensure_livestock_accounts_exist2, Units).
 
 ensure_livestock_accounts_exist2(Livestock_Type) :-
-
 	cogs_account_id(Livestock_Type, Cogs_Name),
 	sales_account_id(Livestock_Type, Sales_Name),
 	count_account_id(Livestock_Type, Count_Name),
@@ -82,16 +83,16 @@ count_account_id(Livestock_Type, Count_Account) :-
 	atom_concat(Livestock_Type, 'Count', Count_Account).
 
 livestock_count_account(Livestock_Type, Count_Account) :-
-	account_by_role(rl('LivestockCount'/Livestock_Type), Count_Account).
+	account_by_role_throw(rl('LivestockCount'/Livestock_Type), Count_Account).
 
 livestock_sales_account(Livestock_Type, Sales_Account) :-
-	account_by_role(rl('SalesOfLivestock'/Livestock_Type), Sales_Account).
+	account_by_role_throw(rl('SalesOfLivestock'/Livestock_Type), Sales_Account).
 
 livestock_cogs_rations_account(Livestock_Type, Cogs_Rations_Account) :-
-	account_by_role(rl('CostOfGoodsLivestock'/Livestock_Type/'Rations'), Cogs_Rations_Account).
+	account_by_role_throw(rl('CostOfGoodsLivestock'/Livestock_Type/'Rations'), Cogs_Rations_Account).
 
 livestock_cogs_account(Livestock_Type, Cogs_Account) :-
-	account_by_role(rl('CostOfGoodsLivestock'/Livestock_Type), Cogs_Account).
+	account_by_role_throw(rl('CostOfGoodsLivestock'/Livestock_Type), Cogs_Account).
 
 /*
 ┏━╸╻┏┓╻┏━┓┏┓╻┏━╸╻┏━┓╻  ╻┏┓╻╻ ╻┏━╸┏━┓╺┳╸┏┳┓┏━╸┏┓╻╺┳╸┏━┓
@@ -107,7 +108,7 @@ ensure_financial_investments_accounts_exist(Traded_Units) :-
 ensure_financial_investments_accounts_exist2(Traded_Units, FinancialInvestments_account) :-
 	account_id(FinancialInvestments_account, Id),
 	Role0 = rl('FinancialInvestments'/Id),
-	account_by_role(Role0, FinancialInvestments),
+	account_by_role_throw(Role0, FinancialInvestments),
 	maplist(ensure_FinancialInvestments_Unit(Role0, FinancialInvestments), Traded_Units).
 
 ensure_FinancialInvestments_Unit(rl(Role0), FinancialInvestments, Traded_Unit) :-
@@ -116,7 +117,7 @@ ensure_FinancialInvestments_Unit(rl(Role0), FinancialInvestments, Traded_Unit) :
 financial_investments_account(Exchanged_Account_Uri,Goods_Unit,Exchanged_Account2) :-
 	account_id(Exchanged_Account_Uri, Exchanged_Account_Id),
 	/*note:we form role from id, so the id should be unique in this context. eg, if there are two different accounts with id "Investments", this will break. The alternative is to use full uri, or to introduce account codes, or similar. This problem goes all the way to the excel UI, where action verbs have fields for accounts. Id's are used, and we expect them to be unique, but account names in big hierarchies aren't unique. So how would a user specify an account unambiguously? Either specify the unique code directly, or the ui has to have a sheet with the mapping, or there has to be a menu item that makes a request to the endpoint to load taxonomies and return back some rdf with the mapping. */
-	account_by_role(rl('FinancialInvestments'/Exchanged_Account_Id/Goods_Unit), Exchanged_Account2).
+	account_by_role_throw(rl('FinancialInvestments'/Exchanged_Account_Id/Goods_Unit), Exchanged_Account2).
 
 
 /*
@@ -126,34 +127,34 @@ financial_investments_account(Exchanged_Account_Uri,Goods_Unit,Exchanged_Account
 */
 /*experimentally naming predicates just "pxx" here for readability*/
 
-'ensure InvestmentIncome accounts exist' :-
-	trading_account_ids(Trading_Accounts),
-	maplist(p10, Trading_Accounts).
-p10(Trading_Account) :-
-	maplist(p20(Trading_Account), [realized,unrealized]).
-p20(Trading_Account, R) :-
+'ensure InvestmentIncome accounts exist'(Traded_Units) :-
+	investmentIncome_account_ids(Trading_Accounts),
+	maplist(p10(Traded_Units), Trading_Accounts).
+p10(Traded_Units, Trading_Account) :-
+	maplist(p20(Traded_Units,Trading_Account), [realized,unrealized]).
+p20(Traded_Units,Trading_Account, R) :-
 	account_id(Trading_Account, Trading_Account_Id),
 	ensure_account_exists(Trading_Account, _, 0, rl('TradingAccounts'/Trading_Account_Id/R), Realization_account),
-	maplist(p30(Trading_Account_Id, R, Realization_account), [withoutCurrencyMovement, onlyCurrencyMovement]).
-p30(Trading_Account_Id, R, Realization_account, Cm) :-
+	maplist(p30(Traded_Units, Trading_Account_Id, R, Realization_account), [withoutCurrencyMovement, onlyCurrencyMovement]).
+p30(Traded_Units,Trading_Account_Id, R, Realization_account, Cm) :-
 	ensure_account_exists(Realization_account, _, 0, rl('TradingAccounts'/Trading_Account_Id/R/Cm), Cm_account),
-	traded_units(Traded_Units),
 	maplist(p40(Trading_Account_Id,R,Cm,Cm_account), Traded_Units).
 p40(Trading_Account_Id,R,Cm,Cm_account, Traded_Unit) :-
 	ensure_account_exists(Cm_account, _, 1, rl('TradingAccounts'/Trading_Account_Id/R/Cm/Traded_Unit), _).
 
 trading_sub_account(_Sd, (Movement_Account, Unit_Accounts)) :-
-	trading_account_ids(Trading_Accounts),
+	investmentIncome_account_ids(Trading_Accounts),
 	member(Trading_Account, Trading_Accounts),
-	account_by_role(rl('TradingAccounts'/Trading_Account/_/_), Movement_Account),
+	account_id(Trading_Account, Trading_Account_Id),
+	account_by_role_throw(rl('TradingAccounts'/Trading_Account_Id/_/_), Movement_Account),
 	account_direct_children(Movement_Account, Unit_Accounts).
 
 gains_accounts(
 	/*input*/ Trading_Account_Id, Realized_Or_Unrealized, Traded_Unit,
 	/*output*/ Currency_Movement_Account, Excluding_Forex_Account
 ) :-
-	account_by_role(rl('TradingAccounts'/Trading_Account_Id/Realized_Or_Unrealized/onlyCurrencyMovement/Traded_Unit), Currency_Movement_Account),
-	account_by_role(rl('TradingAccounts'/Trading_Account_Id/Realized_Or_Unrealized/withoutCurrencyMovement/Traded_Unit), Excluding_Forex_Account).
+	account_by_role_throw(rl('TradingAccounts'/Trading_Account_Id/Realized_Or_Unrealized/onlyCurrencyMovement/Traded_Unit), Currency_Movement_Account),
+	account_by_role_throw(rl('TradingAccounts'/Trading_Account_Id/Realized_Or_Unrealized/withoutCurrencyMovement/Traded_Unit), Excluding_Forex_Account).
 
 
 
