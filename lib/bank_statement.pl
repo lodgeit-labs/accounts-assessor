@@ -163,7 +163,7 @@ make_buy(Static_Data, St, Trading_Account, Pricing_Method, Bank_Account_Currency
 	unit_cost_value(Coord_Ours_Converted, Goods_Coord, Unit_Cost_Converted),
 	number_coord(Goods_Unit, Goods_Count, Goods_Coord),
 	dict_vars(Static_Data, [Cost_Or_Market]),
-	financial_investments_account(Exchanged_Account,Goods_Unit,Exchanged_Account2)
+	financial_investments_account(Exchanged_Account,Goods_Unit,Exchanged_Account2),
 
 	(	Cost_Or_Market = cost
 	->	(
@@ -246,7 +246,7 @@ make_sell(Static_Data, St, Trading_Account, Pricing_Method, _Bank_Account_Curren
 	Outstanding_In, Outstanding_Out, [Ts1, Ts2, Ts3]
 ) :-
 	credit_vec(Goods_Unit,Goods_Positive,Goods_Vector),
-	financial_investments_account(Exchanged_Account,Goods_Unit,Exchanged_Account2)
+	financial_investments_account(Exchanged_Account,Goods_Unit,Exchanged_Account2),
 	bank_debit_to_unit_price(Vector_Ours, Goods_Positive, Sale_Unit_Price),
 
 	((find_items_to_sell(Pricing_Method, Goods_Unit, Goods_Positive, Transaction_Date, Sale_Unit_Price, Outstanding_In, Outstanding_Out, Goods_Cost_Values),!)

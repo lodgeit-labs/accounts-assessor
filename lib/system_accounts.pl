@@ -2,14 +2,14 @@ make_root_account :-
 	make_account2(root, 0, rl(root), _).
 
 get_root_account(Root) :-
-	account_by_role_throw(rl(root), Root),
+	account_by_role_throw(rl(root), Root).
 
 ensure_system_accounts_exist(S_Transactions) :-
 	ensure_bank_gl_accounts_exist,
 	ensure_livestock_accounts_exist,
 	traded_units(S_Transactions, Traded_Units),
 	ensure_financial_investments_accounts_exist(Traded_Units),
-	'ensure InvestmentIncome accounts exist'(Traded_Units).
+	'ensure InvestmentIncome accounts exist'.
 
 /*
 ┏┓ ┏━┓┏┓╻╻┏    ┏━╸╻     ┏━┓┏━╸┏━╸┏━┓╻ ╻┏┓╻╺┳╸┏━┓
@@ -36,6 +36,9 @@ bank_gl_accounts(Bank_Accounts) :-
 bank_gl_account_currency_movement_account(Bank_Gl_Account, Currency_Movement_Account) :-
 	account_role(Bank_Gl_Account, (_/Bank_name)),
 	account_by_role(rl('CurrencyMovement'/Bank_name), Currency_Movement_Account).
+
+bank_gl_account_by_bank_name(Account_Name, Uri) :-
+	account_by_role(rl('Banks'/Account_Name), Uri).
 
 /*
 ╻  ╻╻ ╻┏━╸┏━┓╺┳╸┏━┓┏━╸╻┏    ┏━┓┏━╸┏━╸┏━┓╻ ╻┏┓╻╺┳╸┏━┓
@@ -78,6 +81,18 @@ sales_account_id(Livestock_Type, Sales_Account) :-
 count_account_id(Livestock_Type, Count_Account) :-
 	atom_concat(Livestock_Type, 'Count', Count_Account).
 
+livestock_count_account(Livestock_Type, Count_Account) :-
+	account_by_role(rl('LivestockCount'/Livestock_Type), Count_Account).
+
+livestock_sales_account(Livestock_Type, Sales_Account) :-
+	account_by_role(rl('SalesOfLivestock'/Livestock_Type), Sales_Account).
+
+livestock_cogs_rations_account(Livestock_Type, Cogs_Rations_Account) :-
+	account_by_role(rl('CostOfGoodsLivestock'/Livestock_Type/'Rations'), Cogs_Rations_Account).
+
+livestock_cogs_account(Livestock_Type, Cogs_Account) :-
+	account_by_role(rl('CostOfGoodsLivestock'/Livestock_Type), Cogs_Account).
+
 /*
 ┏━╸╻┏┓╻┏━┓┏┓╻┏━╸╻┏━┓╻  ╻┏┓╻╻ ╻┏━╸┏━┓╺┳╸┏┳┓┏━╸┏┓╻╺┳╸┏━┓
 ┣╸ ┃┃┗┫┣━┫┃┗┫┃  ┃┣━┫┃  ┃┃┗┫┃┏┛┣╸ ┗━┓ ┃ ┃┃┃┣╸ ┃┗┫ ┃ ┗━┓
@@ -87,7 +102,7 @@ in Assets
 
 ensure_financial_investments_accounts_exist(Traded_Units) :-
 	financialInvestments_accounts(FinancialInvestments_accounts),
-	maplist(ensure_financial_investments_accounts_exist2(Traded_Units), FinancialInvestments_accounts),
+	maplist(ensure_financial_investments_accounts_exist2(Traded_Units), FinancialInvestments_accounts).
 
 ensure_financial_investments_accounts_exist2(Traded_Units, FinancialInvestments_account) :-
 	account_id(FinancialInvestments_account, Id),
@@ -140,19 +155,5 @@ gains_accounts(
 	account_by_role(rl('TradingAccounts'/Trading_Account_Id/Realized_Or_Unrealized/onlyCurrencyMovement/Traded_Unit), Currency_Movement_Account),
 	account_by_role(rl('TradingAccounts'/Trading_Account_Id/Realized_Or_Unrealized/withoutCurrencyMovement/Traded_Unit), Excluding_Forex_Account).
 
-
-
-/*
-┏┓ ┏━┓┏┓╻╻┏ ┏━┓
-┣┻┓┣━┫┃┗┫┣┻┓┗━┓
-┗━┛╹ ╹╹ ╹╹ ╹┗━┛
-*/
-
-bank_gl_account_by_bank_name(Account_Name, Uri) :-
-	account_by_role(rl('Banks'/Account_Name), Uri).
-
-bank_gl_account_currency_movement_account(Bank_Account,Currency_Movement_Account) :-
-	account_role(Bank_Account, rl(_/Bank_Child_Role)),
-	account_by_role(rl('CurrencyMovement'/Bank_Child_Role), Currency_Movement_Account).
 
 

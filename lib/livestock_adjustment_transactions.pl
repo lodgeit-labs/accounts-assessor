@@ -15,7 +15,7 @@ opening_inventory_transactions(Livestock, [T1, T2]) :-
 preprocess_headcount_changes(Livestock, [Tx0, Tx1, Tx2]) :-
 	request_has_property(l:end_date, Date),
 	doc(Livestock, livestock:name, Type),
-	count_account(Type, Count_Account),
+	livestock_count_account(Type, Count_Account),
 	doc(Livestock, livestock:born_count, B),
 	value_debit_vec(B, B_V),
 	request_has_property(l:end_date, Date),
@@ -37,7 +37,7 @@ preprocess_rations(Livestock, [T1, T2]) :-
 	vec_inverse(Dr, Cr),
 	account_by_role(rl('Drawings'), Drawings),
 	doc(Livestock, livestock:name, Type),
-	cogs_rations_account(Type, Cogs_Rations_Account),
+	livestock_cogs_rations_account(Type, Cogs_Rations_Account),
 	% DR OWNERS_EQUITY -->DRAWINGS. I.E. THE OWNER TAKES SOMETHING OF VALUE.
 	make_transaction(livestock, Date, 'rations', Drawings, Dr, T1),
 	%	CR COST_OF_GOODS. I.E. DECREASES COST.
@@ -52,7 +52,7 @@ closing_inventory_transactions(Livestock, Transactions_By_Account, [T1, T2]) :-
 	coord_normal_side_value(Adjustment_Debit, debit, Adjustment_Value),
 	coord_normal_side_value(Adjustment_Credit,credit,Adjustment_Value),
 	doc(Livestock, livestock:name, Type),
-	cogs_account(Type, Cogs_Account),
+	livestock_cogs_account(Type, Cogs_Account),
 	account_by_role(rl('AssetsLivestockAtAverageCost'), AssetsLivestockAtAverageCost),
 
 	format(string(Description), 'livestock closing inventory adjustment', []),

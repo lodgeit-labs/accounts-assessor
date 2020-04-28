@@ -7,5 +7,5 @@
 	<CapitalIntroduced parent_role="Equity" role="CapitalIntroduced">
 	<SalesOfLivestock parent_role="Revenue" role="SalesOfLivestock"/>
 	<CostOfGoodsLivestock parent_role="Expenses" role="CostOfGoodsLivestock"/>
-	<LivestockCount parent_role="root/Inventory" role="root/Inventory/LivestockCount"/>
+	<LivestockCount parent_role="root/Inventory" role="LivestockCount"/>
 </accountHierarchy>

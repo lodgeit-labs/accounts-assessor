@@ -31,6 +31,7 @@
 :- [german_bank_csv].
 :- [gl_export].
 :- [investment_report_2].
+:- [investments_accounts].
 :- [invoices].
 :- [ledger_html_reports].
 :- [ledger].

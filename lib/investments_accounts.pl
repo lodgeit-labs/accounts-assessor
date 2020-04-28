@@ -1,6 +1,4 @@
 
-
-
 /*
 return all units that appear in s_transactions with an action type that specifies a trading account
 */
@@ -23,7 +21,7 @@ financialInvestments_accounts(Accounts) :-
 		(
 			action_verb(Action_Verb),
 			doc(Action_Verb, l:has_trading_account, _),
-			doc(Action_Verb, l:has_exchanged_account, A),
+			doc(Action_Verb, l:has_exchanged_account, A)
 		),
 		Ids0
 	),
@@ -40,5 +38,5 @@ investmentIncome_accounts(Accounts) :-
 		Ids0
 	),
 	sort(Ids0, Ids),
-	maplist(account_by_id(Ids, Accounts).
+	maplist(account_by_id,Ids, Accounts).
 

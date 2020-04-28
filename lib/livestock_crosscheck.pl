@@ -43,7 +43,7 @@ do_livestock_crosscheck(Events, Natural_Increase_Costs, S_Transactions, Transact
 	member(Average_Cost_Exchange_Rate, Average_Costs),
 	exchange_rate(_, Type, Currency, Average_Cost) = Average_Cost_Exchange_Rate,
 
-	cogs_rations_account(Type, Cogs_Rations_Account),
+	livestock_cogs_rations_account(Type, Cogs_Rations_Account),
 	balance_by_account([], Transactions, [], _, Cogs_Rations_Account, To_Day, Cogs_Balance, _),
 
 	(

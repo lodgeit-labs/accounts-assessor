@@ -65,7 +65,7 @@ livestock_count(Livestock, Transactions_By_Account, End_Date, Count) :-
 	doc(Livestock, livestock:opening_count, Opening_Count_Value),
 	value_debit_vec(Opening_Count_Value, Opening_Count_Vec),
 	doc(Livestock, livestock:name, Type),
-	count_account(Type, Count_Account),
+	livestock_count_account(Type, Count_Account),
 	balance_by_account([], Transactions_By_Account, [], _, Count_Account, End_Date, Count_Vector, _),
 	vec_add(Count_Vector, Opening_Count_Vec, Closing_Vec),
 	value_debit_vec(Count, Closing_Vec).
