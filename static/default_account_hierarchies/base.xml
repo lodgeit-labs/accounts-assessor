@@ -2,10 +2,10 @@
 <accountHierarchy>
 	<!-- top-level account has to explicitly specify where it attaches -->
 	<Accounts parent_role="root" normal_side="debit">
-		<NetAssets normal_side="debit">
+		<NetAssets role="NetAssets" normal_side="debit">
 			<Assets>
 				<CurrentAssets role="CurrentAssets">
-					<CashAndCashEquivalents>
+					<CashAndCashEquivalents role="CashAndCashEquivalents">
 						<Banks role="Banks"/>
 					</CashAndCashEquivalents>				
 				</CurrentAssets>
@@ -38,7 +38,7 @@
 			<Drawings/>
 		</Equity>
 
-		<ComprehensiveIncome normal_side="credit">
+		<ComprehensiveIncome role="ComprehensiveIncome" normal_side="credit">
 			
 			<Revenue role="Revenue">
 				<Income/>

@@ -19,7 +19,6 @@ process_ledger(
 	ensure_system_accounts_exist(S_Transactions),
 	check_accounts_parent,
 	check_accounts_roles,
-
 	write_accounts_json_report,
 	%result(T),
 	%doc_add(T, l:accounts, Accounts),

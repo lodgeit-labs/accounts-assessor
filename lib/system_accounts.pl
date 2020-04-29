@@ -36,7 +36,7 @@ bank_gl_accounts(Bank_Accounts) :-
 	findall(A, account_by_role(A, rl('Banks'/_Bank_Account_Name)), Bank_Accounts).
 
 bank_gl_account_currency_movement_account(Bank_Gl_Account, Currency_Movement_Account) :-
-	account_role(Bank_Gl_Account, (_/Bank_name)),
+	account_role(Bank_Gl_Account, rl(_/Bank_name)),
 	account_by_role_throw(rl('CurrencyMovement'/Bank_name), Currency_Movement_Account).
 
 bank_gl_account_by_bank_name(Account_Name, Uri) :-

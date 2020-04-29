@@ -220,17 +220,17 @@ balance_sheet_entry2(Static_Data, Account_Id, Entry) :-
 	Transactions_Count is Children_Transaction_Count + Own_Transactions_Count,
 	Entry = entry(Account_Id, Balance, Child_Sheet_Entries, Transactions_Count, []).
 
-accounts_report(Static_Data, Accounts_Report) :-
-	balance_sheet_entry(Static_Data, 'Accounts', Entry),
-	Entry = entry(_,_,Accounts_Report,_,[]).
+/*accounts_report(Static_Data, Accounts_Report) :-
+	balance_sheet_entry(Static_Data, $>account_by_role_throw(rl('Accounts')), Entry),
+	Entry = entry(_,_,Accounts_Report,_,[]).*/
 
 balance_sheet_at(Static_Data, [Net_Assets_Entry, Equity_Entry]) :-
-	balance_sheet_entry(Static_Data, 'NetAssets', Net_Assets_Entry),
-	balance_sheet_entry(Static_Data, 'Equity', Equity_Entry).
+	balance_sheet_entry(Static_Data, $>account_by_role_throw(rl('NetAssets')), Net_Assets_Entry),
+	balance_sheet_entry(Static_Data, $>account_by_role_throw(rl('Equity')), Equity_Entry).
 
 trial_balance_between(Exchange_Rates, Transactions_By_Account, Report_Currency, Exchange_Date, _Start_Date, End_Date, [Trial_Balance_Section]) :-
-	balance_by_account(Exchange_Rates, Transactions_By_Account, Report_Currency, Exchange_Date, 'NetAssets', End_Date, Net_Assets_Balance, Net_Assets_Count),
-	balance_by_account(Exchange_Rates, Transactions_By_Account, Report_Currency, Exchange_Date, 'Equity', End_Date, Equity_Balance, Equity_Count),
+	balance_by_account(Exchange_Rates, Transactions_By_Account, Report_Currency, Exchange_Date, $>account_by_role_throw(rl('NetAssets')), End_Date, Net_Assets_Balance, Net_Assets_Count),
+	balance_by_account(Exchange_Rates, Transactions_By_Account, Report_Currency, Exchange_Date, $>account_by_role_throw(rl('Equity')), End_Date, Equity_Balance, Equity_Count),
 
 	vec_sum([Net_Assets_Balance, Equity_Balance], Trial_Balance),
 	Transactions_Count is Net_Assets_Count + Equity_Count,

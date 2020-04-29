@@ -39,7 +39,11 @@ user:goal_expansion(
 dict_vars_assignment([Var|Vars], Dict, Code) :-
 	Code = (Code0, Codes),
 	%Code0 = (debug(dict_vars, '~w', [Key]), get_dict(Key_Lcase, Dict, Var)),
-	Code0 = ((debug(dict_vars, '~w', [Key]), (get_dict(Key_Lcase, Dict, Var)->true;throw(existence_error(key, Key_Lcase, Dict))))),
+	Code0 = ((
+		debug(dict_vars, '~w', [Key]),
+		/* the -> also cuts after first solution, so even if Key_Lcase remains unbound, there won't be multiple solutions. */
+		(get_dict(Key_Lcase, Dict, Var)->true;throw(existence_error(key, Key_Lcase, Dict)))
+	)),
 	%Code0 = get_dict_ex(Key_Lcase, Dict, Var), % not supported in some versions?
     (
         (
@@ -49,6 +53,7 @@ dict_vars_assignment([Var|Vars], Dict, Code) :-
     ->
         true
     ;
+    	/*todo we should just throw an error here? */
         true%(writeq(Code), nl, nl/*, Key_Lcase = yy*/)
     ),
     dict_vars_assignment(Vars, Dict, Codes).

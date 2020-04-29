@@ -107,20 +107,16 @@ create_reports(
 	Static_Data,				% Static Data
 	Structured_Reports			% ...
 ) :-
-	once(static_data_historical(Static_Data, Static_Data_Historical)),
-
-	once(balance_entries(Static_Data, Static_Data_Historical, Entries)),
-
+	!once(static_data_historical(Static_Data, Static_Data_Historical)),
+	gtrace,
+	!once(balance_entries(Static_Data, Static_Data_Historical, Entries)),
 	dict_vars(Entries, [Balance_Sheet, ProfitAndLoss, Balance_Sheet2_Historical, ProfitAndLoss2_Historical, Trial_Balance, Cf]),
-
-	once(taxonomy_url_base),
+	!once(taxonomy_url_base),
 	%gtrace,
-	format(user_error, '.......', []),
-
-	once(create_instance(Xbrl, Static_Data, Static_Data.start_date, Static_Data.end_date, Static_Data.report_currency, Balance_Sheet, ProfitAndLoss, ProfitAndLoss2_Historical, Trial_Balance)),
-
-	once(other_reports(Static_Data, Static_Data_Historical, Static_Data.outstanding, Balance_Sheet, ProfitAndLoss, Balance_Sheet2_Historical, ProfitAndLoss2_Historical, Trial_Balance, Cf, Structured_Reports)),
-	once(add_xml_report(xbrl_instance, xbrl_instance, [Xbrl])).
+	!format(user_error, '.......', []),
+	!once(create_instance(Xbrl, Static_Data, Static_Data.start_date, Static_Data.end_date, Static_Data.report_currency, Balance_Sheet, ProfitAndLoss, ProfitAndLoss2_Historical, Trial_Balance)),
+	!once(other_reports(Static_Data, Static_Data_Historical, Static_Data.outstanding, Balance_Sheet, ProfitAndLoss, Balance_Sheet2_Historical, ProfitAndLoss2_Historical, Trial_Balance, Cf, Structured_Reports)),
+	!once(add_xml_report(xbrl_instance, xbrl_instance, [Xbrl])).
 
 
 

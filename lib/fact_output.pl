@@ -156,15 +156,12 @@ there_is_item_after(C, Pairs) :-
 	Items \= [].
 
 /*
-maybe_balance_lines(
-	Accounts,			% List record:account 
 	Name,				% atom:Entry Name
-	Report_Currency,	% List atom:Report Currency
+	Report_Currency,	% List<atom>:Report Currency
 	Balances,			% List ...
 	Balance_Lines		% List ...
-) 
 */
-			/*not much of a maybe anymore?*/
+/*not much of a maybe anymore?*/
 maybe_balance_lines(
 	Name,
 	Report_Currency,

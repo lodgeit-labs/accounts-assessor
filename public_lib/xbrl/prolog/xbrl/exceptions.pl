@@ -4,10 +4,15 @@
 */
 throw_string(List_Or_Atom) :-
 	flatten([List_Or_Atom], List),
-	maplist(term_string, List, List2),
+	maplist(stringize, List, List2),
 	atomic_list_concat(List2, String),
 	throw(string(String)).
 
+stringize(X, X) :-
+	atomic(X).
+stringize(X, Y) :-
+	\+atomic(X),
+	term_string(X, Y).
 
 /*
 	catch_with_backtrace doesnt exist on older swipl's

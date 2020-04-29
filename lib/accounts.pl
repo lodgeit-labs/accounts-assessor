@@ -104,7 +104,8 @@ account_by_role_throw(Role, Account) :-
 	(	Accounts \= []
 	->	member(Account, Accounts)
 	;	(
-			term_string(Role, Role_Str),
+			Role = rl(Role2),
+			term_string(Role2, Role_Str),
 			format(user_error, '~q~n', [Account]),
 			format(atom(Err), 'unknown account by role: ~w', [Role_Str]),
 			throw_string(Err)
@@ -152,21 +153,41 @@ account_to_dict(Uri, Dict) :-
 		detail_level: Detail_level,
 		normal_side: Normal_side
 	},
+
 	account_id(Uri, Id),
-	account_parent(Uri, Parent),
-	account_role(Uri, rl(Role)),
+
+	(	account_parent(Uri, Parent)
+	->	true
+	;	Parent = null),
+
+	(	account_role(Uri, rl(Role))
+	->	true
+	;	Role = null),
+
 	account_detail_level(Uri, Detail_level),
-	account_normal_side(Uri, Normal_side).
+
+	(	account_normal_side(Uri, Normal_side)
+	->	true
+	;	Normal_side = null)
+	.
 
 check_accounts_roles :-
 	findall(Role, account_role(_, Role), Roles),
 	(	ground(Roles)
 	->	true
 	;	throw_string(error)),
-	(	sort(Roles, Roles)
-	->	true
-		/*todo better message */
-	;	throw_string(['multiple accounts with same role found'])).
+	dif(I, J),
+	findall(_, (
+		account_role(I, Ri),
+		account_role(J, Rj),
+		(	Ri = Rj
+		->	(
+				(account_id(Ri, I_id)->true;throw_string(error)),
+				(account_id(Rj, J_id)->true;throw_string(error)),
+				throw_string(['Multiple accounts with same role found. role: "', Ri, '", first account: "', I_id, '", second account: "', J_id, '".'])
+			)
+		;	true)
+	),_).
 
 
 ensure_account_exists(Suggested_parent, Suggested_id, Detail_level, Role, Account) :-
@@ -181,7 +202,8 @@ ensure_account_exists(Suggested_parent, Suggested_id, Detail_level, Role, Accoun
 					last(Role_list, Child_Role_Raw),
 					replace_nonalphanum_chars_with_underscore(Child_Role_Raw, Child_Role_Safe),
 					capitalize_atom(Child_Role_Safe, Child_Role_Capitalized),
-					atomic_list_concat([Suggested_parent, '', Child_Role_Capitalized], Suggested_id)
+					!account_id(Suggested_parent, Suggested_parent_id),
+					atomic_list_concat([Suggested_parent_id, '', Child_Role_Capitalized], Suggested_id)
 				)
 			),
 			account_free_id(Suggested_id, Free_Id),

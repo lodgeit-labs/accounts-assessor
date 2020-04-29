@@ -18,6 +18,7 @@
 
 :- [compare_xml].
 :- [compile_with_variable_names_preserved].
+:- [determinancy_checker].
 :- [dict_vars].
 :- [doc].
 :- [exceptions].
