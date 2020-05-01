@@ -1,26 +1,3 @@
-/*
-alternatives: 
-	rdet: uses goal expansion, which is imo pretty broken. main difference between rdet and this is that with rdet, you declare determinancy of a predicate, while with this, you declare determinancy of a call.
-*/
-/*
-
-adapted from: https://stackoverflow.com/questions/39804667/has-the-notion-of-semidet-in-prolog-settled :
-
-have exactly one solution,
-	then that mode is deterministic (det);
-	!
-either have no solutions or have one solution,
-	then that mode is semideterministic (semidet);
-	?
-have at least one solution but may have more,
-	then that mode is multisolution (multi);
-	+
-	seems to be a rare case.
-have zero or more solutions,
-	then that mode is nondeterministic (nondet);
-	this is the default.
-
-*/
 
 
 :- op(812,fx,!).
@@ -32,11 +9,8 @@ have zero or more solutions,
  ┃┃┣╸  ┃
 ╺┻┛┗━╸ ╹
 have exactly one solution,
-deterministic (det);
-*/
-
-/*
-a fully checking impl
+deterministic (det)
+a fully checking implementation
 */
 
 '!'(X) :-
@@ -62,7 +36,8 @@ determinancy_checker_det_nbinc(Call_id, X) :-
 ┗━┓┣╸ ┃┃┃┃ ┃┃┣╸  ┃
 ┗━┛┗━╸╹ ╹╹╺┻┛┗━╸ ╹
 either have no solutions or have one solution,
-semideterministic (semidet);
+semideterministic (semidet)
+a fully checking implementation
 */
 
 '?'(X) :-
@@ -93,6 +68,7 @@ determinancy_checker_semidet_nbinc(Call_id, X) :-
 
 
 /*
+%todo.
 x :-
 	!writeq(rrr),
 	!member(X, [1,2,3]),
