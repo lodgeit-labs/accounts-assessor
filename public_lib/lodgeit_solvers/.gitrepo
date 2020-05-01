@@ -6,7 +6,7 @@
 [subrepo]
 	remote = git@github.com:LodgeiT/FOL_solvers.git
 	branch = dev
-	commit = d41e5d3813d34099f1d09a886ccecc33928ca2fb
+	commit = 29c852aa3a21124b70f522d273ce928ee27cd50e
 	method = merge
 	cmdver = 0.4.1
-	parent = dc42c8294806d1d808f77dbb280f623d45110bab
+	parent = a384a7ee675ba4f0510c31484dbe7ef65ea6a5a6
