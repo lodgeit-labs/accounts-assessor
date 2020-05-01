@@ -153,8 +153,41 @@ gains_accounts(
 	/*input*/ Trading_Account_Id, Realized_Or_Unrealized, Traded_Unit,
 	/*output*/ Currency_Movement_Account, Excluding_Forex_Account
 ) :-
-	account_by_role_throw(rl('TradingAccounts'/Trading_Account_Id/Realized_Or_Unrealized/onlyCurrencyMovement/Traded_Unit), Currency_Movement_Account),
-	account_by_role_throw(rl('TradingAccounts'/Trading_Account_Id/Realized_Or_Unrealized/withoutCurrencyMovement/Traded_Unit), Excluding_Forex_Account).
+	abrt('TradingAccounts'/Trading_Account_Id/Realized_Or_Unrealized/onlyCurrencyMovement/Traded_Unit), Currency_Movement_Account),
+	abrt('TradingAccounts'/Trading_Account_Id/Realized_Or_Unrealized/withoutCurrencyMovement/Traded_Unit), Excluding_Forex_Account).
 
 
+abrt(Role, Account) :-
+	account_by_role_throw($>get_role(Role), Account).
 
+get_role(R, R) :-
+	role(R).
+
+
+role('TradingAccounts'/Trading_Account_Id/Realized_Or_Unrealized/Currency_Movement_Aspect/Traded_Unit) :-
+	atom(Trading_Account_Id),
+	member(Realized_Or_Unrealized, [realized, unrealized]),
+	member(Currency_Movement_Aspect, [onlyCurrencyMovement, withoutCurrencyMovement]),
+	atom(Traded_Unit).
+
+
+/*
+
+rl__TradingAccounts__Trading_Account_Id__Realized_Or_Unrealized__onlyCurrencyMovement__Traded_Unit(Trading_Account_Id/Realized_Or_Unrealized/withoutCurrencyMovement/Traded_Unit)
+
+---or:
+
+$>rc('TradingAccounts'/Trading_Account_Id/Realized_Or_Unrealized/withoutCurrencyMovement/Traded_Unit)
+because:
+rc(X,X) :- role(X).
+and:
+role('TradingAccounts'/Trading_Account_Id/Realized_Or_Unrealized/withoutCurrencyMovement/Traded_Unit).
+or:
+ :-
+ 	member(Realized_Or_Unrealized, [...]),
+	if we segregate account lookup from creation, then during lookup only, we can have stricter checks:
+	trading_account_id(Trading_Account_Id),
+
+in pyco2, we would not separate lookup and creation.
+
+*/

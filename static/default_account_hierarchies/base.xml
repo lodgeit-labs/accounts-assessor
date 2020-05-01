@@ -29,7 +29,7 @@
 		<Equity role="Equity" normal_side="credit">
 			<ShareCapital/>
 			<RetainedEarnings>
-				<HistoricalEarnings>
+				<HistoricalEarnings role="HistoricalEarnings">
 					<BankOpeningBalances/>
 				</HistoricalEarnings>
 				<CurrentEarnings/>

@@ -1,5 +1,28 @@
+COA -
+	chart of accounts
+
+CMA - 
+	cash management account, a type of bank account
+
+Non-concessional contributions:
+	"Non-concessional contributions are made into your super fund from after-tax income. These contributions are not taxed in your super fund."
+	- https://www.ato.gov.au/Individuals/Super/In-detail/Growing-your-super/Super-contributions---too-much-can-mean-extra-tax/?page=3
+	
+sundry:
+	/ˈsʌndri/
+    1.
+    various items not important enough to be mentioned individually.
+	- google
+
+
+
+
+There are caps on the non-concessional contributions you can make each financial year.
+
 account_id
 account_by_id
+	account_normal_side(Name, Normal_Side),
+maybe_balance_lines
 
 
 

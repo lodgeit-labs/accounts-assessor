@@ -67,13 +67,14 @@ pesseract_style_table_rows(
 ) :-
 	[Entry|Entries_Tail] = Entries,
 	report_entry_name(Entry, Name),
+	report_entry_normal_side(Entry, Normal_Side),
 	report_entry_total_vec(Entry, Balances),
 	report_entry_children(Entry, Children),
 
 	/*render child entries*/
 	pesseract_style_table_rows(Report_Currency, Children, Children_Rows),
 	/*render balance*/
-	maybe_balance_lines(Name, Report_Currency, Balances, Balance_Lines),
+	maybe_balance_lines(Name,Normal_Side,Report_Currency, Balances, Balance_Lines),
 	(	Children_Rows = []
 	->	entry_row_childless(Name, Balance_Lines, Entry, Lines)
 	;	entry_row_childful(Name, Entry, Children_Rows, Balance_Lines, Lines)),
@@ -164,11 +165,11 @@ there_is_item_after(C, Pairs) :-
 /*not much of a maybe anymore?*/
 maybe_balance_lines(
 	Name,
+	Normal_Side,
 	Report_Currency,
 	Balances,
 	Balance_Lines
 ) :-
-	account_normal_side(Name, Normal_Side),
 	/* force-display empty balance */
 	(	Balances = []
 	->	format_balance(html, Report_Currency, '', Name, Normal_Side, [], Balance_Lines)
