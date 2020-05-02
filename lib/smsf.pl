@@ -35,6 +35,7 @@ action verbs in general:
 
 
 */
+/*
 
 phase 1 - setting up opening balances
 	use quasi bank sheet to populate investments.
@@ -44,3 +45,4 @@ phase 1 - setting up opening balances
 	use GL_input to clear our HistoricalEarnings into member opening balances.
 
 
+*/

@@ -173,7 +173,7 @@ balance_by_account2(Sd, Report_Currency, Date, Account, balance(Balance, Tx_Coun
 
 
 add_entry_balance_desc(_Sd, Entry, B, Column, Text, Type) :-
-	maybe_balance_lines(xxx, [], B, Balance_Text),
+	maybe_balance_lines(xxx, kb:debit, [], B, Balance_Text),
 	flatten($>append([Text], [':', Balance_Text]), Desc0),
 	atomic_list_concat(Desc0, Desc),
 	add_report_entry_misc(Entry, Column, Desc, Type). /*todo add Tag, Value*/
