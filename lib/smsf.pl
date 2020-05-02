@@ -36,19 +36,11 @@ action verbs in general:
 
 */
 
+phase 1 - setting up opening balances
+	use quasi bank sheet to populate investments.
+		action verb: Invest_In
+		price: 0
+		their value given by opening market values ends up in HistoricalEarnings
+	use GL_input to clear our HistoricalEarnings into member opening balances.
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-*/
