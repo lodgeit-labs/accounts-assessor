@@ -27,7 +27,7 @@ a fully checking implementation.
 
 
 
-det_with(Call_id, X) :-
+det_with(Call_id, Call) :-
 	gensym(determinancy_checker__deterministic_call__progress, Call_id),
 	(	nb_setval(Call_id, 0)
 	;	(
@@ -36,14 +36,14 @@ det_with(Call_id, X) :-
 				nb_delete(Call_id),
 				fail
 			)
-		;	throw(error(deterministic_call_failed(X),_))
+		;	throw(error(deterministic_call_failed(Call),_))
 	)).
 
-det_nbinc(Call_id, X) :-
+det_nbinc(Call_id, Call) :-
 	nb_getval(Call_id, Sols),
 	(	Sols = 0
 	->	nb_setval(Call_id, 1)
-	;	throw((deterministic_call_found_a_second_solution(X)))).
+	;	throw((deterministic_call_found_a_second_solution(Call)))).
 
 
 

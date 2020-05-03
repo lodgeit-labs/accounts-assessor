@@ -47,7 +47,7 @@ make_account2(Id, Detail_Level, Role, Uri) :-
 make_account3(Id, Detail_Level, Uri) :-
 	doc_new_uri(Uri, $>atomic_list_concat(['accounts_', Id])),
 	doc_add(Uri, rdf:type, l:account, accounts),
-	doc_add(Uri, accounts:id, Id, accounts),
+	doc_add(Uri, accounts:name, Id, accounts),
 	doc_add(Uri, accounts:detail_level, Detail_Level, accounts),
 	request_accounts(As),
 	!doc_add(As, l:has_account, Uri),
@@ -76,7 +76,7 @@ find account by user's string (by name)
 account_by_ui(X, Uri) :-
 	findall(Uri, account_name(X, Uri), Uris),
 	(	Uris = []
-	->	throw_string(['account not found:', X])
+	->	throw_string(['account not found: "', X, '"'])
 	;	(	Uris = [Uri]
 		->	true
 		;	throw_string(['multiple accounts found by same name:', X]))).

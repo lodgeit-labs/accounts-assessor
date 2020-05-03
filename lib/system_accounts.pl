@@ -6,6 +6,10 @@
 
 % could be also called from make_account or account_set_role. the goal is that all code paths that construct roles will go through this.
 % probably the semantics should be such that it can be skipped for optimization.
+
+
+is_valid_role('Banks').
+
 is_valid_role('TradingAccounts'/Trading_Account_Id/Realized_Or_Unrealized/Currency_Movement_Aspect/Traded_Unit) :-
 	atom(Trading_Account_Id),
 	member(Realized_Or_Unrealized, [realized, unrealized]),
@@ -22,7 +26,7 @@ is_valid_role('TradingAccounts'/Trading_Account_Id/Realized_Or_Unrealized/Curren
 
 abrlt(Role, Account) :-
 	is_valid_role(Role),
-	account_by_role_throw(Role, Account).
+	account_by_role_throw(rl(Role), Account).
 
 ensure_system_accounts_exist(S_Transactions) :-
 	ensure_bank_gl_accounts_exist,
@@ -32,8 +36,9 @@ ensure_system_accounts_exist(S_Transactions) :-
 	'ensure InvestmentIncome accounts exist'(Traded_Units).
 
 make_root_account :-
-	make_account2(root, 0, rl(root), Root),
-	format(user_error, 'root account:~q\n', [Root]).
+	make_account2(root, 0, rl(root), _Root),
+	%format(user_error, 'root account:~q\n', [Root])
+	true.
 
 get_root_account(Root) :-
 	account_by_role_throw(rl(root), Root).
@@ -51,7 +56,7 @@ ensure_bank_gl_accounts_exist :-
 	maplist(ensure_currency_movement_account_exists, Bank_Gl_Account).
 
 ensure_bank_gl_account_exists(Name, Account) :-
-	ensure_account_exists($>account_by_role_throw(rl('Banks')), _, 1, rl('Banks'/Name), Account).
+	ensure_account_exists($>abrlt('Banks'), _, 1, rl('Banks'/Name), Account).
 
 ensure_currency_movement_account_exists(Bank_Gl_Account) :-
 	/* get Bank_name from role. It would probably be cleaner to get it from the same source where we get it when creating the bank gl accounts */
