@@ -19,6 +19,13 @@ is_valid_role('TradingAccounts'/Trading_Account_Id/Realized_Or_Unrealized/Curren
 	member(Currency_Movement_Aspect, [onlyCurrencyMovement, withoutCurrencyMovement]),
 	atom(Traded_Unit).
 
+is_valid_role('ComprehensiveIncome').
+is_valid_role('HistoricalEarnings').
+is_valid_role('CurrentEarnings').
+is_valid_role('NetAssets').
+is_valid_role('Equity').
+
+
 
 /*
 ┏┳┓╻┏━┓┏━╸
@@ -28,7 +35,13 @@ is_valid_role('TradingAccounts'/Trading_Account_Id/Realized_Or_Unrealized/Curren
 
 
 abrlt(Role, Account) :-
-	!is_valid_role(Role),
+
+	%!is_valid_role(Role),
+
+	!(	is_valid_role(Role)
+	->	true
+	;	(writeq(is_valid_role(Role)), write('.'), nl)),
+
 	account_by_role_throw(rl(Role), Account).
 
 ensure_system_accounts_exist(S_Transactions) :-
@@ -64,7 +77,7 @@ ensure_bank_gl_account_exists(Name, Account) :-
 ensure_currency_movement_account_exists(Bank_Gl_Account) :-
 	/* get Bank_name from role. It would probably be cleaner to get it from the same source where we get it when creating the bank gl accounts */
 	account_role(Bank_Gl_Account, rl(_/Bank_name)),
-	ensure_account_exists($>account_by_role_throw(rl('CurrencyMovement')), _, 0, rl('CurrencyMovement'/Bank_name), _).
+	ensure_account_exists($>abrlt('CurrencyMovement'), _, 0, rl('CurrencyMovement'/Bank_name), _).
 
 bank_gl_accounts(Bank_Accounts) :-
 	findall(A, account_by_role(A, rl('Banks'/_Bank_Account_Name)), Bank_Accounts).

@@ -32,7 +32,7 @@
 				<HistoricalEarnings role="HistoricalEarnings">
 					<BankOpeningBalances/>
 				</HistoricalEarnings>
-				<CurrentEarnings/>
+				<CurrentEarnings role="CurrentEarnings"/>
 			</RetainedEarnings>
 			<CapitalIntroduced/>
 			<Drawings/>
@@ -43,9 +43,9 @@
 			<Revenue role="Revenue">
 				<Income/>
 				<OtherIncome>
+					<InvestmentIncome role="TradingAccounts/InvestmentIncome"/>
 					<InterestIncome/>
 					<InterestEarned/>
-					<InvestmentIncome/>
 					<ExchangeGain/>
 				</OtherIncome>
 				<CurrencyMovement role="CurrencyMovement"/>

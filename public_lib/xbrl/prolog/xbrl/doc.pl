@@ -294,6 +294,7 @@ doc_new_uri(Uri) :-
 doc_new_uri(Uri, Postfix) :-
 	result(R),
 	doc(R, l:has_result_data_uri_base, Result_data_uri_base),
+	/* fixme, use something deterministic */
 	gensym('#bnx', Uri0),
 	atomic_list_concat([Result_data_uri_base, Uri0, '_', Postfix], Uri).
 

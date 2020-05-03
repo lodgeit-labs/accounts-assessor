@@ -12,17 +12,14 @@ process_ledger(
 	Processed_Until,
 	Gl
 ) :-
-
-	s_transactions_up_to(End_Date, S_Transactions0, S_Transactions),
 	add_comment_stringize('Exchange rates extracted', Exchange_Rates),
+	s_transactions_up_to(End_Date, S_Transactions0, S_Transactions),
 
 	ensure_system_accounts_exist(S_Transactions),
 	check_accounts_parent,
 	check_accounts_roles,
+	propagate_accounts_side,
 	write_accounts_json_report,
-	%result(T),
-	%doc_add(T, l:accounts, Accounts),
-
 
 	dict_from_vars(Static_Data0, [Report_Currency, Start_Date, End_Date, Exchange_Rates, Cost_Or_Market]),
 	prepreprocess(Static_Data0, S_Transactions, Prepreprocessed_S_Transactions),

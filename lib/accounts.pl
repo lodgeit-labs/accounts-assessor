@@ -131,15 +131,16 @@ check that each account has a parent. Together with checking that each generated
 this should ensure that all transactions get reflected in the account tree somewhere
 */
 check_account_parent(Account) :-
-	(	get_root_account(Account)
-	->	true
+	(	account_parent(Account, Parent)
+	->	(	account_name(Parent,_)
+		->	true
+		;	throw_string(['account "', $>account_name(Account), '"\'s parent "', Parent, '" is not an account?.'])
+		)
 	;	(
-			(	account_parent(Account, Parent)
+			get_root_account(Root),
+			(	Root = Account
 			->	true
-			;	throw_string(['account "', $>account_name(Account), '" has no parent.'])),
-			(	account_name(Parent,_)
-			->	true
-			;	throw_string(['account "', $>account_name(Account), '"\'s parent "', Parent, '" is not an account?.']))
+			;	throw_string(['account "', $>account_name(Account), '" has no parent.']))
 		)
 	).
 
@@ -230,3 +231,32 @@ account_free_name(Id, Free_Id) :-
 	;	Free_Id = Id.
 
 
+
+
+/*
+┏━┓┏━┓┏━┓┏━┓┏━┓┏━╸┏━┓╺┳╸┏━╸   ┏━┓┏━╸┏━╸┏━┓╻ ╻┏┓╻╺┳╸┏━┓   ┏━┓╻╺┳┓┏━╸
+┣━┛┣┳┛┃ ┃┣━┛┣━┫┃╺┓┣━┫ ┃ ┣╸    ┣━┫┃  ┃  ┃ ┃┃ ┃┃┗┫ ┃ ┗━┓   ┗━┓┃ ┃┃┣╸
+╹  ╹┗╸┗━┛╹  ╹ ╹┗━┛╹ ╹ ╹ ┗━╸╺━╸╹ ╹┗━╸┗━╸┗━┛┗━┛╹ ╹ ╹ ┗━┛╺━╸┗━┛╹╺┻┛┗━╸
+*/
+
+propagate_accounts_side :-
+	get_root_account(Root),
+	account_direct_children(Root, Sub_roots),
+	maplist(propagate_accounts_side2(_),Sub_roots).
+
+propagate_accounts_side2(Parent_side, Account) :-
+	ensure_account_has_normal_side(Parent_side, Account),
+	account_normal_side(Account, Side),
+	account_direct_children(Account, Children),
+	maplist(propagate_accounts_side2(Side), Children).
+
+ensure_account_has_normal_side(_, Account) :-
+	account_normal_side(Account, _),!.
+
+ensure_account_has_normal_side(Parent_side, Account) :-
+	nonvar(Parent_side),
+	doc_add(Account, accounts:normal_side, Parent_side, accounts),!.
+
+ensure_account_has_normal_side(_, Account) :-
+	account_name(Account, Id),
+	throw_string(["couldn't determine account normal side for ", Id]).

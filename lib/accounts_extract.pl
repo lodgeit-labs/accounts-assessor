@@ -23,13 +23,9 @@ the accountHierarchy tag can appear multiple times, all the results will be adde
 */
 
 extract_accounts :-
-	request_data(D),
-	doc_new_uri(As, account_hierarchy),
-	!doc_add(D, l:has_accounts, As),
-
+	!doc_add($>(!request_data), l:has_accounts, $>(!doc_new_uri(As, account_hierarchy))),
 	make_root_account,
-	extract_accounts2,
-	propagate_accounts_side.
+	extract_accounts2.
 
 extract_accounts2 :-
 	request_data(Request_Data),
@@ -191,31 +187,3 @@ extract_normal_side_uri_from_account_detail_rdf(Detail, Side) :-
 	nonvar(Detail),
 	doc(Detail, accounts:normal_side, Side).
 
-
-/*
-┏━┓┏━┓┏━┓┏━┓┏━┓┏━╸┏━┓╺┳╸┏━╸   ┏━┓┏━╸┏━╸┏━┓╻ ╻┏┓╻╺┳╸┏━┓   ┏━┓╻╺┳┓┏━╸
-┣━┛┣┳┛┃ ┃┣━┛┣━┫┃╺┓┣━┫ ┃ ┣╸    ┣━┫┃  ┃  ┃ ┃┃ ┃┃┗┫ ┃ ┗━┓   ┗━┓┃ ┃┃┣╸
-╹  ╹┗╸┗━┛╹  ╹ ╹┗━┛╹ ╹ ╹ ┗━╸╺━╸╹ ╹┗━╸┗━╸┗━┛┗━┛╹ ╹ ╹ ┗━┛╺━╸┗━┛╹╺┻┛┗━╸
-*/
-
-propagate_accounts_side :-
-	get_root_account(Root),
-	account_direct_children(Root, Sub_roots),
-	maplist(propagate_accounts_side2(_),Sub_roots).
-
-propagate_accounts_side2(Parent_side, Account) :-
-	ensure_account_has_normal_side(Parent_side, Account),
-	account_normal_side(Account, Side),
-	account_direct_children(Account, Children),
-	maplist(propagate_accounts_side2(Side), Children).
-
-ensure_account_has_normal_side(_, Account) :-
-	account_normal_side(Account, _),!.
-
-ensure_account_has_normal_side(Parent_side, Account) :-
-	nonvar(Parent_side),
-	doc_add(Account, accounts:normal_side, Parent_side, accounts),!.
-
-ensure_account_has_normal_side(_, Account) :-
-	account_name(Account, Id),
-	throw_string(["couldn't determine account normal side for ", Id]).
