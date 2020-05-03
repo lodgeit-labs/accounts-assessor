@@ -1,6 +1,7 @@
 :- use_module(library(http/json)).
 :- use_module('residency', []).
 :- use_module('sbe', []).
+:- use_module(library(prolog_stack)).
 :- ['lib'].
 
 
@@ -13,7 +14,9 @@ process_request_rpc_cmdline :-
 
 process_request_rpc_cmdline_json_text(String) :-
 	string_to_json_dict(String, Dict),
-	process_request_rpc_cmdline1(Dict).
+	process_request_rpc_cmdline2(Dict).
+
+:- (getenv('DISPLAY', _) -> guitracer ; true).
 
 process_request_rpc_cmdline1(Dict) :-
 	catch_with_backtrace(

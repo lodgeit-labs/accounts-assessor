@@ -44,6 +44,8 @@
 %:- debug(doc).
 
 % https://www.swi-prolog.org/pldoc/man?predicate=rdf_meta/1
+/* uses goal_expansion, so as soon as you wrap the call in a !, it doesn't work, so we have to do this at runtime too anyway.
+maybe this program will even run faster without this?*/
 :- rdf_meta doc_add(r,r,r).
 :- rdf_meta doc_add(r,r,r,r).
 :- rdf_meta doc_assert(r,r,r,r).
@@ -126,9 +128,13 @@ get_or_default(T, X, XXX) :-
 	;	XXX = _{}).
 
 doc_add(S,P,O,G) :-
-	doc_trace0(doc_add(S,P,O,G)),
-	debug(doc, 'add:~q~n', [(S,P,O,G)]),
-	addd(S,P,O,G).
+	rdf_global_id(S, S2),
+	rdf_global_id(P, P2),
+	rdf_global_id(O, O2),
+	rdf_global_id(G, G2),
+	doc_trace0(doc_add(S2,P2,O2,G2)),
+	debug(doc, 'add:~q~n', [(S2,P2,O2,G2)]),
+	addd(S2,P2,O2,G2).
 
 doc_add(S,P,O,G) :-
 	doc_trace0(clean_pop(doc_add(S,P,O,G))),

@@ -1,6 +1,7 @@
 :- use_module(library(archive)).
 :- use_module(library(sgml)).
 :- use_module(library(semweb/turtle)).
+:- use_module(library(prolog_stack)).
 
 
 :- [process_request_loan].
@@ -52,10 +53,18 @@ process_request_rpc_calculator(Dict) :-
 
 process_request(Options, File_Paths) :-
 	maybe_supress_generating_unique_taxonomy_urls(Options),
-	catch_with_backtrace(
-		(process_multifile_request(File_Paths) -> true ; throw(failure)),
-		E,
-		add_alert('unknown_error', E)),
+	%gtrace,
+	%_ is 1 / 0,
+	(	current_prolog_flag(die_on_error, true)
+	->	process_multifile_request(File_Paths)
+	;	(
+			catch_with_backtrace(
+				(process_multifile_request(File_Paths) -> true ; throw(failure)),
+				E,
+				add_alert('unknown_error', E)
+			)
+		)
+	),
 	process_request2.
 
 process_request2 :-

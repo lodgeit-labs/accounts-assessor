@@ -36,7 +36,7 @@ det_with(Call_id, X) :-
 				nb_delete(Call_id),
 				fail
 			)
-		;	throw(deterministic_call_failed(X))
+		;	throw(error(deterministic_call_failed(X),_))
 	)).
 
 det_nbinc(Call_id, X) :-
