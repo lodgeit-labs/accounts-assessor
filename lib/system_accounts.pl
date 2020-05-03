@@ -154,7 +154,7 @@ financial_investments_account(Exchanged_Account_Uri,Goods_Unit,Exchanged_Account
 /*experimentally naming predicates just "pxx" here for readability*/
 
 'ensure InvestmentIncome accounts exist'(Traded_Units) :-
-	investmentIncome_account_ids(Trading_Accounts),
+	investmentIncome_accounts(Trading_Accounts),
 	maplist(p10(Traded_Units), Trading_Accounts).
 p10(Traded_Units, Trading_Account) :-
 	maplist(p20(Traded_Units,Trading_Account), [realized,unrealized]).
@@ -169,7 +169,7 @@ p40(Trading_Account_Id,R,Cm,Cm_account, Traded_Unit) :-
 	ensure_account_exists(Cm_account, _, 1, rl('TradingAccounts'/Trading_Account_Id/R/Cm/Traded_Unit), _).
 
 trading_sub_account(_Sd, (Movement_Account, Unit_Accounts)) :-
-	investmentIncome_account_ids(Trading_Accounts),
+	investmentIncome_accounts(Trading_Accounts),
 	member(Trading_Account, Trading_Accounts),
 	account_id(Trading_Account, Trading_Account_Id),
 	account_by_role_throw(rl('TradingAccounts'/Trading_Account_Id/_/_), Movement_Account),

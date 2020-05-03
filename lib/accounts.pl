@@ -70,6 +70,19 @@ account_normal_side(Uri, X) :-
 account_by_id(X, Uri) :-
 	account_id(Uri, X).
 
+
+/*
+find account by user's string (by name)
+*/
+account_by_ui(X, Uri) :-
+	findall(Uri, account_by_id(X, Uri), Uris),
+	(	Uris = []
+	->	throw_string(['account not found:', X)
+	;	(	Uris = [Uri]
+		->	true
+		;	throw_string(['multiple accounts found by same name:', X))).
+
+
 /*
 account_normal_side(Uri, X) :-
 	(	doc(Uri, accounts:normal_side, X, accounts)

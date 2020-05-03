@@ -5,29 +5,41 @@
  ┃┃┣╸  ┃
 ╺┻┛┗━╸ ╹
 have exactly one solution,
-deterministic (det)
-a fully checking implementation
+deterministic (det).
+a fully checking implementation.
 */
 
 '!'(X) :-
-	gensym(determinancy_checker__deterministic_call__progress, Call_id),
-	determinancy_checker_det_with(Call_id, X),
+	det_with(Call_id, X),
 	call(X),
-	determinancy_checker_det_nbinc(Call_id, X).
+	det_nbinc(Call_id, X).
 
-determinancy_checker_det_with(Call_id, X) :-
-		nb_setval(Call_id, 0)
-	;
-	(
+'!'(X, Y) :-
+	det_with(Call_id, (X, Y)),
+	call(X, Y),
+	det_nbinc(Call_id, (X, Y)).
+
+'!'(X, Y, Z) :-
+	det_with(Call_id, (X, Y, Z)),
+	call(X, Y, Z),
+	det_nbinc(Call_id, (X, Y, Z)).
+
+
+
+
+det_with(Call_id, X) :-
+	gensym(determinancy_checker__deterministic_call__progress, Call_id),
+	(	nb_setval(Call_id, 0)
+	;	(
 			nb_getval(Call_id, 1)
 		->	(
 				nb_delete(Call_id),
 				fail
 			)
 		;	throw(deterministic_call_failed(X))
-	).
+	)).
 
-determinancy_checker_det_nbinc(Call_id, X) :-
+det_nbinc(Call_id, X) :-
 	nb_getval(Call_id, Sols),
 	(	Sols = 0
 	->	nb_setval(Call_id, 1)
