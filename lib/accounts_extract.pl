@@ -23,6 +23,10 @@ the accountHierarchy tag can appear multiple times, all the results will be adde
 */
 
 extract_accounts :-
+	request_data(D),
+	doc_new_uri(As, account_hierarchy),
+	!doc_add(D, l:has_accounts, As),
+
 	make_root_account,
 	extract_accounts2,
 	propagate_accounts_side.
@@ -213,5 +217,5 @@ ensure_account_has_normal_side(Parent_side, Account) :-
 	doc_add(Account, accounts:normal_side, Parent_side, accounts),!.
 
 ensure_account_has_normal_side(_, Account) :-
-	account_id(Account, Id),
+	account_name(Account, Id),
 	throw_string(["couldn't determine account normal side for ", Id]).

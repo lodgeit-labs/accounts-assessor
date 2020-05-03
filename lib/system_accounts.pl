@@ -132,7 +132,7 @@ ensure_financial_investments_accounts_exist(Traded_Units) :-
 	maplist(ensure_financial_investments_accounts_exist2(Traded_Units), FinancialInvestments_accounts).
 
 ensure_financial_investments_accounts_exist2(Traded_Units, FinancialInvestments_account) :-
-	account_id(FinancialInvestments_account, Id),
+	account_name(FinancialInvestments_account, Id),
 	Role0 = rl('FinancialInvestments'/Id),
 	account_by_role_throw(Role0, FinancialInvestments),
 	maplist(ensure_FinancialInvestments_Unit(Role0, FinancialInvestments), Traded_Units).
@@ -141,7 +141,7 @@ ensure_FinancialInvestments_Unit(rl(Role0), FinancialInvestments, Traded_Unit) :
 	ensure_account_exists(FinancialInvestments, _, 1, rl(Role0/Traded_Unit), _).
 
 financial_investments_account(Exchanged_Account_Uri,Goods_Unit,Exchanged_Account2) :-
-	account_id(Exchanged_Account_Uri, Exchanged_Account_Id),
+	account_name(Exchanged_Account_Uri, Exchanged_Account_Id),
 	/*note:we form role from id, so the id should be unique in this context. eg, if there are two different accounts with id "Investments", this will break. The alternative is to use full uri, or to introduce account codes, or similar. This problem goes all the way to the excel UI, where action verbs have fields for accounts. Id's are used, and we expect them to be unique, but account names in big hierarchies aren't unique. So how would a user specify an account unambiguously? Either specify the unique code directly, or the ui has to have a sheet with the mapping, or there has to be a menu item that makes a request to the endpoint to load taxonomies and return back some rdf with the mapping. */
 	account_by_role_throw(rl('FinancialInvestments'/Exchanged_Account_Id/Goods_Unit), Exchanged_Account2).
 
@@ -159,7 +159,7 @@ financial_investments_account(Exchanged_Account_Uri,Goods_Unit,Exchanged_Account
 p10(Traded_Units, Trading_Account) :-
 	maplist(p20(Traded_Units,Trading_Account), [realized,unrealized]).
 p20(Traded_Units,Trading_Account, R) :-
-	account_id(Trading_Account, Trading_Account_Id),
+	account_name(Trading_Account, Trading_Account_Id),
 	ensure_account_exists(Trading_Account, _, 0, rl('TradingAccounts'/Trading_Account_Id/R), Realization_account),
 	maplist(p30(Traded_Units, Trading_Account_Id, R, Realization_account), [withoutCurrencyMovement, onlyCurrencyMovement]).
 p30(Traded_Units,Trading_Account_Id, R, Realization_account, Cm) :-
@@ -171,7 +171,7 @@ p40(Trading_Account_Id,R,Cm,Cm_account, Traded_Unit) :-
 trading_sub_account(_Sd, (Movement_Account, Unit_Accounts)) :-
 	investmentIncome_accounts(Trading_Accounts),
 	member(Trading_Account, Trading_Accounts),
-	account_id(Trading_Account, Trading_Account_Id),
+	account_name(Trading_Account, Trading_Account_Id),
 	account_by_role_throw(rl('TradingAccounts'/Trading_Account_Id/_/_), Movement_Account),
 	account_direct_children(Movement_Account, Unit_Accounts).
 

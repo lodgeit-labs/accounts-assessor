@@ -28,7 +28,7 @@ financialInvestments_accounts(Accounts) :-
 	sort(Ids0, Ids),
 	maplist(account_by_ui,Ids, Accounts).
 
-investmentIncome_account_ids(Accounts) :-
+investmentIncome_accounts(Accounts) :-
 	findall(
 		A,
 		(

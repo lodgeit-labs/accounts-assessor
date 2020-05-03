@@ -19,6 +19,9 @@ set_report_entry_normal_side(Uri, X) :-
 report_entry_name(Entry, Name) :-
 	doc(Entry, report_entries:name, Name).
 
+report_entry_account(Entry, X) :-
+	doc(Entry, report_entries:account, X).
+
 report_entry_total_vec(Entry, X) :-
 	doc(Entry, report_entries:total_vec, X).
 
@@ -64,7 +67,7 @@ Balance: a list of coord's
 %:- table balance_until_day/9.
 % leave these in place until we've got everything updated w/ balance/5
 balance_until_day(Exchange_Rates, Transactions_By_Account, Report_Currency, Exchange_Date, Account_Id, Date, Balance_Transformed, Transactions_Count) :-
-	assertion(account_id(Account_Id, _)),
+	assertion(account_name(Account_Id, _)),
 	transactions_before_day_on_account_and_subaccounts(Transactions_By_Account, Account_Id, Date, Filtered_Transactions),
 	length(Filtered_Transactions, Transactions_Count),
 	transaction_vectors_total(Filtered_Transactions, Balance),
@@ -72,7 +75,7 @@ balance_until_day(Exchange_Rates, Transactions_By_Account, Report_Currency, Exch
 
 /* balance on account up to and including Date*/
 balance_by_account(Exchange_Rates, Transactions_By_Account, Report_Currency, Exchange_Date, Account_Id, Date, Balance_Transformed, Transactions_Count) :-
-	assertion(account_id(Account_Id, _)),
+	assertion(account_name(Account_Id, _)),
 	add_days(Date, 1, Date2),
 	balance_until_day(Exchange_Rates, Transactions_By_Account, Report_Currency, Exchange_Date, Account_Id, Date2, Balance_Transformed, Transactions_Count).
 
@@ -122,7 +125,7 @@ balance(Static_Data, Account_Id, Date, Balance, Transactions_Count) :-
 	
 	/* TODO use transactions_in_account_set here */
 	
-	assertion(account_id(Account_Id,_)),
+	assertion(account_name(Account_Id,_)),
 	add_days(Date,1,Date2),
 	(
 		Account_Transactions = Transactions_By_Account.get(Account_Id)

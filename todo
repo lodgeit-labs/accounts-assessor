@@ -1,3 +1,11 @@
+account_id
+account_by_id
+	account_normal_side(Name, Normal_Side),
+maybe_balance_lines
+
+
+
+
 COA -
 	chart of accounts
 
@@ -19,10 +27,6 @@ sundry:
 
 There are caps on the non-concessional contributions you can make each financial year.
 
-account_id
-account_by_id
-	account_normal_side(Name, Normal_Side),
-maybe_balance_lines
 
 
 

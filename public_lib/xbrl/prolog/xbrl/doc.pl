@@ -553,6 +553,10 @@ request_data(D) :-
 	request(Request),
 	doc(Request, l:has_request_data, D).
 
+request_accounts(As) :-
+	request_data(D),
+	!doc(D, l:has_accounts, As).
+
 result(R) :-
 	doc(R, rdf:type, l:'Result').
 
