@@ -9,7 +9,7 @@ s_transaction_fields([day, type_id, vector, account, exchanged, misc]).
 % - Either the units or the amount to which the transaction amount will be converted to, depending on whether the term is of the form bases(...) or vector(...).
 
 doc_add_s_transaction(Day, Type_Id, Vector, Account_Id, Exchanged, Misc, Uri) :-
-	doc_new_uri(Uri, st),
+	doc_new_uri(st, Uri),
 	doc_add(Uri, rdf:type, l:s_transaction, transactions),
 	doc_add(Uri, s_transactions:day, Day, transactions),
 	doc_add(Uri, s_transactions:type_id, Type_Id, transactions),

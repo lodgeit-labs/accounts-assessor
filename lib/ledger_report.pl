@@ -2,7 +2,7 @@
 %:- record entry(account_id, balance, child_sheet_entries, transactions_count, misc).
 
 make_report_entry(Name, Children, Uri) :-
-	doc_new_uri(Uri, report_entry),
+	doc_new_uri(report_entry, Uri),
 	doc_add(Uri, rdf:type, l:report_entry),
 	doc_add(Uri, report_entries:name, Name),
 	doc_add(Uri, report_entries:children, Children).
@@ -29,7 +29,9 @@ report_entry_children(Entry, X) :-
 	doc(Entry, report_entries:children, X).
 
 report_entry_normal_side(Entry, X) :-
-	doc(Entry, report_entries:normal_side, X).
+	(	doc(Entry, report_entries:normal_side, X)
+	->	true
+	;	X = kb:debit).
 
 report_entry_transaction_count(Entry, X) :-
 	doc(Entry, report_entries:transaction_count, X).
@@ -200,35 +202,17 @@ balance_sheet_entry(Static_Data, Account_Id, Entry) :-
 	
 	balance_sheet_entry2(Static_Data_Simplified, Account_Id, Entry).
 
-:- table balance_sheet_entry2/3.
+%:- table balance_sheet_entry2/3.
 
 balance_sheet_entry2(Static_Data, Account_Id, Entry) :-
 	% find all direct children sheet entries
-	findall(
-		Child_Sheet_Entry, 
-		(
-			account_parent(Child_Account, Account_Id),
-			balance_sheet_entry2(Static_Data, Child_Account, Child_Sheet_Entry)
-		),
-		Child_Sheet_Entries
-	),
-	% find balance for this account including subaccounts (sum all transactions from beginning of time)
-	findall(
-		Child_Balance,
-		(
-			member(Child_Entry,Child_Sheet_Entries),
-			report_entry_total_vec(Child_Entry,Child_Balance)
-		),
-		Child_Balances
-	),
-	findall(
-		Child_transaction_count,
-		(
-			member(Child_Entry,Child_Sheet_Entries),
-			report_entry_transaction_count(Child_Entry,Child_transaction_count)
-		),
-		Child_Counts
-	),
+	account_direct_children(Account_Id, Child_Accounts),
+	maplist(!balance_sheet_entry2(Static_Data), Child_Accounts, Child_Entries),
+	% find child balances
+	maplist(!report_entry_total_vec,Child_Entries,Child_Balances),
+	maplist(!report_entry_transaction_count,Child_Entries,Child_Counts),
+	% balance for this account including subaccounts (sum all transactions from beginning of time)
+
 	account_own_transactions_sum(Static_Data.exchange_rates, Static_Data.exchange_date, Static_Data.report_currency, Account_Id, Static_Data.end_date, Static_Data.transactions_by_account, Own_Sum, Own_Transactions_Count),
 	
 	vec_sum([Own_Sum | Child_Balances], Balance),
@@ -238,7 +222,7 @@ balance_sheet_entry2(Static_Data, Account_Id, Entry) :-
 
 	!account_name(Account_Id, Account_Name),
 	!account_normal_side(Account_Id, Normal_side),
-	make_report_entry(Account_Name, Child_Sheet_Entries, Entry),
+	make_report_entry(Account_Name, Child_Entries, Entry),
 	set_report_entry_total_vec(Entry, Balance),
 	set_report_entry_normal_side(Entry, Normal_side),
 	set_report_entry_transaction_count(Entry, Transactions_Count).
@@ -265,10 +249,10 @@ trial_balance_between(Exchange_Rates, Transactions_By_Account, Report_Currency, 
 
 
 profitandloss_between(Static_Data, [ProftAndLoss]) :-
-	!activity_entry(Static_Data, $>account_by_role_throw(rl('ComprehensiveIncome')), ProftAndLoss).
+	!activity_entry(Static_Data, $>abrlt('ComprehensiveIncome'), ProftAndLoss).
 
 activity_entry(Static_Data, Account_Id, Entry) :-
-	findall(Child_Account_Id, account_parent(Child_Account_Id, Account_Id), Child_accounts),
+	account_direct_children(Account_Id, Child_accounts),
 	maplist(!activity_entry(Static_Data), Child_accounts,Child_Sheet_Entries),
 	net_activity_by_account(Static_Data, Account_Id, Net_Activity, Transactions_Count),
 	account_name(Account_Id, Account_Name),

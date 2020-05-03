@@ -1,54 +1,55 @@
-
+t :- true.
 
 :- record section(context, header, entries, footer).
 
-create_instance(Xbrl, Static_Data, Start_Date, End_Date, Report_Currency, Balance_Sheet, ProfitAndLoss, _ProfitAndLoss2_Historical, Trial_Balance) :-
+ create_instance(Xbrl, Static_Data, Start_Date, End_Date, Report_Currency, Balance_Sheet, ProfitAndLoss, _ProfitAndLoss2_Historical, Trial_Balance) :-
 	Fact_Sections = [
 		section(Instant_Context_Id_Base, '\n<!-- balance sheet: -->\n', Balance_Sheet, ''),
 		section(Duration_Context_Id_Base, '\n<!-- profit and loss: -->\n', ProfitAndLoss, ''),
 		section(Instant_Context_Id_Base, '\n<!-- trial balance: -->\n', Trial_Balance, '')
 	],
-	xbrl(Xbrl, Children),
-	add(Children, [Units_Xml, Contexts_Xml, Dimensional_Facts,Facts]),
+	!xbrl(Xbrl, Children),
+	!add(Children, [Units_Xml, Contexts_Xml, Dimensional_Facts,Facts]),
 	Entity_Identifier = element(identifier, [scheme="http://www.example.com"],['TestData']),
-	build_base_contexts(Start_Date, End_Date, Entity_Identifier, Instant_Context_Id_Base, Duration_Context_Id_Base, Contexts0),
-	fact_lines(Report_Currency, Fact_Sections, Facts),
-	maybe_print_dimensional_facts(
+	!build_base_contexts(Start_Date, End_Date, Entity_Identifier, Instant_Context_Id_Base, Duration_Context_Id_Base, Contexts0),
+	!fact_lines(Report_Currency, Fact_Sections, Facts),
+	!maybe_print_dimensional_facts(
 		Static_Data.put([
 			entity_identifier=Entity_Identifier,
 			instant_context_id_base=Instant_Context_Id_Base,
 			duration_context_id_base=Duration_Context_Id_Base
 		]), Contexts0, Contexts1, Dimensional_Facts
 	),
-	print_used_units(Units_Xml),
-	print_contexts(Contexts1, Contexts_Xml).
+	!print_used_units(Units_Xml),
+	!print_contexts(Contexts1, Contexts_Xml).
 
-fact_lines(_, _, [], []).
 
-fact_lines(Report_Currency, [Section|Sections], [Lines_H|Lines_T]) :-
+ fact_lines(_, [], []).
+
+ fact_lines(Report_Currency, [Section|Sections], [Lines_H|Lines_T]) :-
 	Lines_H = [Fact_Lines],
 	/*section_header(Section, Header),
 	section_footer(Section, Footer),*/
-	section_context(Section, Context),
-	section_entries(Section, Entries),
-	format_report_entries(xbrl, 0, 0, Report_Currency,
+	!section_context(Section, Context),
+	!section_entries(Section, Entries),
+	!format_report_entries(xbrl, 0, 0, Report_Currency,
 		Context, Entries, Fact_Lines),
-	fact_lines(Report_Currency, Sections, Lines_T).
+	!fact_lines(Report_Currency, Sections, Lines_T).
 
-maybe_print_dimensional_facts(Static_Data,Contexts_In, Contexts_Out, Xml) :-
+ maybe_print_dimensional_facts(Static_Data,Contexts_In, Contexts_Out, Xml) :-
 	(	Static_Data.output_dimensional_facts = on
 	->	print_dimensional_facts(Static_Data, Contexts_In, Contexts_Out, Xml)
 	;
 		Contexts_In = Contexts_Out
 	).
 
-print_dimensional_facts(Static_Data, Results0, Results3, [Xml1, Xml2, Xml3]) :-
+ print_dimensional_facts(Static_Data, Results0, Results3, [Xml1, Xml2, Xml3]) :-
  	dict_vars(Static_Data, [Instant_Context_Id_Base, Duration_Context_Id_Base]),
-	print_banks(Static_Data, Instant_Context_Id_Base, Results0, Results1, Xml1),
-	print_forex(Static_Data, Duration_Context_Id_Base, Results1, Results2, Xml2),
-	print_trading(Static_Data, Results2, Results3, Xml3).
+	!print_banks(Static_Data, Instant_Context_Id_Base, Results0, Results1, Xml1),
+	!print_forex(Static_Data, Duration_Context_Id_Base, Results1, Results2, Xml2),
+	!print_trading(Static_Data, Results2, Results3, Xml3).
 
-build_base_contexts(Start_Date, End_Date, Entity_Identifier, Instant_Context_Id_Base, Duration_Context_Id_Base, Base_Contexts) :-
+ build_base_contexts(Start_Date, End_Date, Entity_Identifier, Instant_Context_Id_Base, Duration_Context_Id_Base, Base_Contexts) :-
 	Entity = entity(Entity_Identifier, ''),
 	/* build up two basic non-dimensional contexts used for simple xbrl facts */
 	date(Context_Id_Year,_,_) = End_Date,
@@ -59,7 +60,7 @@ build_base_contexts(Start_Date, End_Date, Entity_Identifier, Instant_Context_Id_
 		context(Duration_Context_Id_Base, (Start_Date, End_Date), Entity, '')
 	].
 
-print_used_units(Elements) :-
+ print_used_units(Elements) :-
 	result(R),
 	findall(
 		Element,
@@ -69,7 +70,7 @@ print_used_units(Elements) :-
 		),
 		Elements).
 
-print_used_unit(Unit, Element) :-
+ print_used_unit(Unit, Element) :-
 	sane_unit_id(Unit, Id_Attr),
 	sane_id(Unit, Sane),
 	format(string(Measure), "iso4217:~w", [Sane]),
@@ -79,7 +80,7 @@ print_used_unit(Unit, Element) :-
 		[element('xbrli:measure', [], [Measure])]
 	).
 
-xbrl(
+ xbrl(
 	element('xbrli:xbrl', [
 		'xmlns:xbrli'="http://www.xbrl.org/2003/instance",
 		'xmlns:link'="http://www.xbrl.org/2003/linkbase",

@@ -23,7 +23,7 @@ the accountHierarchy tag can appear multiple times, all the results will be adde
 */
 
 extract_accounts :-
-	!doc_add($>(!request_data), l:has_accounts, $>(!doc_new_uri(As, account_hierarchy))),
+	!doc_add($>(!request_data), l:has_accounts, $>(!doc_new_uri(account_hierarchy))),
 	make_root_account,
 	extract_accounts2.
 
@@ -43,11 +43,11 @@ load_account_hierarchy(Taxonomy0) :-
 	extract_accounts_from_accountHierarchy_element(AccountHierarchy).
 
 default_account_hierarchy(Taxonomy, Url) :-
-		rdf_equal(Taxonomy, account_taxonomies:base)
+		rdf_equal2(Taxonomy, account_taxonomies:base)
 	->	Url = 'base.xml'
-	;	rdf_equal(Taxonomy, account_taxonomies:investments)
+	;	rdf_equal2(Taxonomy, account_taxonomies:investments)
 	->	Url = 'investments.xml'
-	;	rdf_equal(Taxonomy, account_taxonomies:livestock)
+	;	rdf_equal2(Taxonomy, account_taxonomies:livestock)
 	->	Url = 'livestock.xml'
 	.
 

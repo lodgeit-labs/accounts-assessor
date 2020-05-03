@@ -52,9 +52,11 @@ print_banks(Static_Data, Context_Id_Base, In, Out, Xml) :-
 		[dimension_value(dimension_reference('basic:Dimension_BankAccounts', 'basic:BankAccount'), _)]
 	),
 	findall(
-		(Account, [Account]),
+		(Gl_account, [Id]),
 		(
-			member(Account, Bank_Accounts)
+			member(Account, Bank_Accounts),
+			!doc(Account, l:name, Id),
+			abrlt('Banks'/Id, Gl_account)
 		),
 		Accounts_And_Points
 	),

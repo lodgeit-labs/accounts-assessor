@@ -1,6 +1,5 @@
 :- rdet(taxonomy_url_base/0).
 :- rdet(create_instance/10).
-:- rdet(other_reports/10).
 :- rdet(add_xml_report/3).
 :- rdet(create_reports/2).
 
@@ -62,7 +61,6 @@ process_request_ledger2(Dom, S_Transactions, Structured_Reports, Transactions) :
 	extract_report_currency(Dom, Report_Currency),
 	extract_action_verbs_from_bs_request(Dom),
 
-	gtrace,
 	extract_accounts,
 	extract_livestock_data_from_ledger_request(Dom),
 	extract_exchange_rates(Cost_Or_Market, Dom, S_Transactions, Start_Date, End_Date, Report_Currency, Exchange_Rates),
@@ -109,16 +107,14 @@ create_reports(
 	Static_Data,				% Static Data
 	Structured_Reports			% ...
 ) :-
-	!once(static_data_historical(Static_Data, Static_Data_Historical)),
-	gtrace,
-	!once(balance_entries(Static_Data, Static_Data_Historical, Entries)),
+	!static_data_historical(Static_Data, Static_Data_Historical),
+	!balance_entries(Static_Data, Static_Data_Historical, Entries),
 	dict_vars(Entries, [Balance_Sheet, ProfitAndLoss, Balance_Sheet2_Historical, ProfitAndLoss2_Historical, Trial_Balance, Cf]),
-	!once(taxonomy_url_base),
-	%gtrace,
+	!taxonomy_url_base,
 	!format(user_error, '.......', []),
-	!once(create_instance(Xbrl, Static_Data, Static_Data.start_date, Static_Data.end_date, Static_Data.report_currency, Balance_Sheet, ProfitAndLoss, ProfitAndLoss2_Historical, Trial_Balance)),
-	!once(other_reports(Static_Data, Static_Data_Historical, Static_Data.outstanding, Balance_Sheet, ProfitAndLoss, Balance_Sheet2_Historical, ProfitAndLoss2_Historical, Trial_Balance, Cf, Structured_Reports)),
-	!once(add_xml_report(xbrl_instance, xbrl_instance, [Xbrl])).
+	!create_instance(Xbrl, Static_Data, Static_Data.start_date, Static_Data.end_date, Static_Data.report_currency, Balance_Sheet, ProfitAndLoss, ProfitAndLoss2_Historical, Trial_Balance),
+	!other_reports(Static_Data, Static_Data_Historical, Static_Data.outstanding, Balance_Sheet, ProfitAndLoss, Balance_Sheet2_Historical, ProfitAndLoss2_Historical, Trial_Balance, Cf, Structured_Reports),
+	!add_xml_report(xbrl_instance, xbrl_instance, [Xbrl]).
 
 
 
@@ -128,12 +124,12 @@ balance_entries(
 	Entries						% Dict Entry
 ) :-
 	/* sum up the coords of all transactions for each account and apply unit conversions */
-	trial_balance_between(Static_Data.exchange_rates, Static_Data.transactions_by_account, Static_Data.report_currency, Static_Data.end_date, Static_Data.start_date, Static_Data.end_date, Trial_Balance),
-	balance_sheet_at(Static_Data, Balance_Sheet),
-	profitandloss_between(Static_Data, ProfitAndLoss),
-	balance_sheet_at(Static_Data_Historical, Balance_Sheet2_Historical),
-	cashflow(Static_Data, Cf),
-	profitandloss_between(Static_Data_Historical, ProfitAndLoss2_Historical),
+	!trial_balance_between(Static_Data.exchange_rates, Static_Data.transactions_by_account, Static_Data.report_currency, Static_Data.end_date, Static_Data.start_date, Static_Data.end_date, Trial_Balance),
+	!balance_sheet_at(Static_Data, Balance_Sheet),
+	!profitandloss_between(Static_Data, ProfitAndLoss),
+	!balance_sheet_at(Static_Data_Historical, Balance_Sheet2_Historical),
+	!cashflow(Static_Data, Cf),
+	!profitandloss_between(Static_Data_Historical, ProfitAndLoss2_Historical),
 	assertion(ground((Balance_Sheet, ProfitAndLoss, ProfitAndLoss2_Historical, Trial_Balance))),
 	dict_from_vars(Entries, [Balance_Sheet, ProfitAndLoss, Balance_Sheet2_Historical, ProfitAndLoss2_Historical, Trial_Balance, Cf]).
 
@@ -146,7 +142,7 @@ static_data_historical(Static_Data, Static_Data_Historical) :-
 		exchange_date, Static_Data.start_date).
 
 
-other_reports(
+ other_reports(
 	Static_Data,
 	Static_Data_Historical,
 	Outstanding,
@@ -159,14 +155,14 @@ other_reports(
 	Structured_Reports				% Dict <Report Abbr : _>
 ) :-
 
-	investment_reports(Static_Data.put(outstanding, Outstanding), Investment_Report_Info),
-	bs_page(Static_Data, Balance_Sheet),
-	pl_page(Static_Data, ProfitAndLoss, ''),
-	pl_page(Static_Data_Historical, ProfitAndLoss2_Historical, '_historical'),
-	cf_page(Static_Data, Cf),
-	make_json_report(Static_Data.gl, general_ledger_json),
+	!investment_reports(Static_Data.put(outstanding, Outstanding), Investment_Report_Info),
+	!bs_page(Static_Data, Balance_Sheet),
+	!pl_page(Static_Data, ProfitAndLoss, ''),
+	!pl_page(Static_Data_Historical, ProfitAndLoss2_Historical, '_historical'),
+	!cf_page(Static_Data, Cf),
+	!make_json_report(Static_Data.gl, general_ledger_json),
 
-	make_gl_viewer_report,
+	!make_gl_viewer_report,
 
 	Structured_Reports0 = _{
 		pl: _{
@@ -182,11 +178,9 @@ other_reports(
 		cf: Cf
 	},
 
-	crosschecks_report0(Static_Data.put(reports, Structured_Reports0), Crosschecks_Report_Json),
-
-	Structured_Reports = Structured_Reports0.put(crosschecks, Crosschecks_Report_Json),
-
-	make_json_report(Structured_Reports, reports_json).
+	/*!crosschecks_report0(Static_Data.put(reports, Structured_Reports0), Crosschecks_Report_Json),*/
+	Structured_Reports = Structured_Reports0/*.put(crosschecks, Crosschecks_Report_Json)*/,
+	!make_json_report(Structured_Reports, reports_json).
 
 make_gl_viewer_report :-
 	%format(user_error, 'make_gl_viewer_report..~n',[]),
@@ -280,7 +274,7 @@ extract_cost_or_market(Dom, Cost_Or_Market) :-
 	(	doc(Request_Data, ic_ui:report_details, D)
 	->	(
 			doc_value(D, ic:cost_or_market, C),
-			(	rdf_equal(C, ic:cost)
+			(	rdf_equal2(C, ic:cost)
 			->	Cost_Or_Market = cost
 			;	Cost_Or_Market = market)
 		)
@@ -355,7 +349,7 @@ extract_bank_account(Account) :-
 	numeric_fields(Account, [
 		openingBalance, (Opening_Balance_Number, 0)]),
 	Opening_Balance = coord(Account_Currency, Opening_Balance_Number),
-	doc_new_uri(Uri, bank_account),
+	doc_new_uri(bank_account, Uri),
 	request_add_property(l:bank_account, Uri),
 	doc_add(Uri, l:name, Account_Name),
 	(	Opening_Balance_Number \= 0

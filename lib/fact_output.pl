@@ -1,8 +1,9 @@
-format_report_entries(_, _, _, _, _, _, [], []).
+format_report_entries(_, _, _, _, _, [], []).
 
 format_report_entries(Format, Max_Detail_Level, Indent_Level, Report_Currency, Context, Entries, [Xml0, Xml1, Xml2]) :-
 	[Entry|Entries_Tail] = Entries,
-	!report_entry_children(Entry, Children),
+	%gtrace,
+	(?report_entry_children(Entry, Children) -> true ; Children = []),
 	!report_entry_name(Entry, Name),
 	!report_entry_total_vec(Entry, Balances),
 	!report_entry_transaction_count(Entry, Transactions_Count),
@@ -12,24 +13,24 @@ format_report_entries(Format, Max_Detail_Level, Indent_Level, Report_Currency, C
 		true /* nothing to do */
 	;
 		(
-			account_normal_side(Name, Normal_Side),
+			!report_entry_normal_side(Entry, Normal_Side),
 			
 			(
 				/* should we display an account with zero transactions? */
 				(Balances = [],(Indent_Level = 0; Transactions_Count \= 0))
 			->
 				/* force-display it */
-				format_balance(Format, Report_Currency, Context, Name, Normal_Side, [], Xml0)
+				!format_balance(Format, Report_Currency, Context, Name, Normal_Side, [], Xml0)
 			;
 				/* if not, let the logic omit it entirely */
-				format_balances(Format, Report_Currency, Context, Name, Normal_Side, Balances, Xml0)
+				!format_balances(Format, Report_Currency, Context, Name, Normal_Side, Balances, Xml0)
 			),
 
 			Level_New is Indent_Level + 1,
 			/*display child entries*/
-			format_report_entries(Format, Max_Detail_Level, Level_New, Report_Currency, Context, Children, Xml1),
+			!format_report_entries(Format, Max_Detail_Level, Level_New, Report_Currency, Context, Children, Xml1),
 			/*recurse on Entries_Tail*/
-			format_report_entries(Format, Max_Detail_Level, Indent_Level, Report_Currency, Context, Entries_Tail, Xml2)
+			!format_report_entries(Format, Max_Detail_Level, Indent_Level, Report_Currency, Context, Entries_Tail, Xml2)
 		)
 	),
 	!.
@@ -63,7 +64,7 @@ pesseract_style_table_rows(
 ) 
 */	
 
-pesseract_style_table_rows(_, _, [], []).
+pesseract_style_table_rows(_, [], []).
 pesseract_style_table_rows(
 	Report_Currency,
 	Entries,
@@ -76,24 +77,24 @@ pesseract_style_table_rows(
 	!report_entry_children(Entry, Children),
 
 	/*render child entries*/
-	pesseract_style_table_rows(Report_Currency, Children, Children_Rows),
+	!pesseract_style_table_rows(Report_Currency, Children, Children_Rows),
 	/*render balance*/
-	maybe_balance_lines(Name,Normal_Side,Report_Currency, Balances, Balance_Lines),
+	!maybe_balance_lines(Name,Normal_Side,Report_Currency, Balances, Balance_Lines),
 	(	Children_Rows = []
-	->	entry_row_childless(Name, Balance_Lines, Entry, Lines)
-	;	entry_row_childful(Name, Entry, Children_Rows, Balance_Lines, Lines)),
+	->	!entry_row_childless(Name, Balance_Lines, Entry, Lines)
+	;	!entry_row_childful(Name, Entry, Children_Rows, Balance_Lines, Lines)),
 	/*recurse on Entries_Tail*/
-	pesseract_style_table_rows(Report_Currency, Entries_Tail, Lines_Tail).
+	!pesseract_style_table_rows(Report_Currency, Entries_Tail, Lines_Tail).
 
 entry_row_childless(Name, Balance_Lines, Entry, Lines) :-
-	entry_row(cols{0:Name,1:Balance_Lines}, Entry, report_entries:single, Lines).
+	!entry_row(cols{0:Name,1:Balance_Lines}, Entry, report_entries:single, Lines).
 
 entry_row_childful(Name, Entry, Children_Rows, Balance_Lines, Lines) :-
 	Lines =
 	[
-		$>entry_row(cols{0:b([Name])}, Entry, report_entries:header),
+		$>!entry_row(cols{0:b([Name])}, Entry, report_entries:header),
 		Children_Rows,
-		$>entry_row(cols{0:td([align="right"],[Name]),1:Balance_Lines}, Entry, report_entries:footer)
+		$>!entry_row(cols{0:td([align="right"],[Name]),1:Balance_Lines}, Entry, report_entries:footer)
 	].
 
 merge_dicts(D1, D2, D3) :-
@@ -176,8 +177,8 @@ maybe_balance_lines(
 ) :-
 	/* force-display empty balance */
 	(	Balances = []
-	->	format_balance(html, Report_Currency, '', Name, Normal_Side, [], Balance_Lines)
-	;	format_balances(html, Report_Currency, '', Name, Normal_Side, Balances, Balance_Lines)).
+	->	!format_balance(html, Report_Currency, '', Name, Normal_Side, [], Balance_Lines)
+	;	!format_balances(html, Report_Currency, '', Name, Normal_Side, Balances, Balance_Lines)).
 
 
 
@@ -196,13 +197,13 @@ format_balances(
 format_balances(_, _, _, _, _, [], []).
 
 format_balances(Format, Report_Currency, Context, Name, Normal_Side, [Balance|Balances], [XmlH|XmlT]) :-
-	format_balance(Format,  Report_Currency, Context, Name, Normal_Side, [Balance], XmlH),
-	format_balances(Format, Report_Currency, Context, Name, Normal_Side, Balances, XmlT).
+	!format_balance(Format,  Report_Currency, Context, Name, Normal_Side, [Balance], XmlH),
+	!format_balances(Format, Report_Currency, Context, Name, Normal_Side, Balances, XmlT).
 
 format_balances(Format, Report_Currency, Context, Name, Normal_Side, Balances_Uri, Xml) :-
 	atom(Balances_Uri),
-	doc(Balances_Uri, rdf:value, Balances),
-	format_balances(Format, Report_Currency, Context, Name, Normal_Side, Balances, Text),
+	!doc(Balances_Uri, rdf:value, Balances),
+	!format_balances(Format, Report_Currency, Context, Name, Normal_Side, Balances, Text),
 	Xml = span(
 		$>append(
 			Text,
@@ -227,17 +228,17 @@ format_balance(Format, Report_Currency_List, Context, Name, Normal_Side, [], Xml
 	% just for displaying zero balance when the balance vector is []), % fixme, change to ''
 	(	[Report_Currency] = Report_Currency_List
 	->	true
-	;	Report_Currency = 'AUD'),
-	format_balance(Format, _, Context, Name, Normal_Side, [coord(Report_Currency, 0)], Xml).
+	;	Report_Currency = ''),
+	!format_balance(Format, _, Context, Name, Normal_Side, [coord(Report_Currency, 0)], Xml).
 
   
 format_balance(Format, Report_Currency_List, Context, Name, Normal_Side, Coord, Line) :-
 	[coord(Unit, Debit)] = Coord,
 
-	(	Normal_Side = kb:credit
+	(	rdf_equal2(Normal_Side, kb:credit)
 	->	Balance0 is -Debit
 	;	(
-			assertion(Normal_Side = kb:debit),
+			rdf_equal2(Normal_Side, kb:debit),
 			Balance0 is Debit
 	)),
 
