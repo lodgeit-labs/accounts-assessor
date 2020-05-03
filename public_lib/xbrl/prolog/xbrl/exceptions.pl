@@ -6,7 +6,7 @@ throw_string(List_Or_Atom) :-
 	flatten([List_Or_Atom], List),
 	maplist(stringize, List, List2),
 	atomic_list_concat(List2, String),
-	throw(string(String)).
+	throw(error(msg(String),_)).
 
 stringize(X, X) :-
 	atomic(X).

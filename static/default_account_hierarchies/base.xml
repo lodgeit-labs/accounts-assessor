@@ -45,7 +45,7 @@
 				<OtherIncome>
 					<InterestIncome/>
 					<InterestEarned/>
-					<EarningsFinancialInvestments/>
+					<InvestmentIncome/>
 					<ExchangeGain/>
 				</OtherIncome>
 				<CurrencyMovement role="CurrencyMovement"/>
