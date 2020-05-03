@@ -1,7 +1,11 @@
 format_report_entries(_, _, _, _, _, _, [], []).
 
 format_report_entries(Format, Max_Detail_Level, Indent_Level, Report_Currency, Context, Entries, [Xml0, Xml1, Xml2]) :-
-	[entry(Name, Balances, Children, Transactions_Count, _)|Entries_Tail] = Entries,
+	[Entry|Entries_Tail] = Entries,
+	!report_entry_children(Entry, Children),
+	!report_entry_name(Entry, Name),
+	!report_entry_total_vec(Entry, Balances),
+	!report_entry_transaction_count(Entry, Transactions_Count),
 	(	/* does the account have a detail level and is it greater than Max_Detail_Level? */
 		(account_detail_level(Name, Detail_Level), Detail_Level > Max_Detail_Level)
 	->
@@ -66,10 +70,10 @@ pesseract_style_table_rows(
 	[Lines|Lines_Tail]
 ) :-
 	[Entry|Entries_Tail] = Entries,
-	report_entry_name(Entry, Name),
-	report_entry_normal_side(Entry, Normal_Side),
-	report_entry_total_vec(Entry, Balances),
-	report_entry_children(Entry, Children),
+	!report_entry_name(Entry, Name),
+	!report_entry_normal_side(Entry, Normal_Side),
+	!report_entry_total_vec(Entry, Balances),
+	!report_entry_children(Entry, Children),
 
 	/*render child entries*/
 	pesseract_style_table_rows(Report_Currency, Children, Children_Rows),

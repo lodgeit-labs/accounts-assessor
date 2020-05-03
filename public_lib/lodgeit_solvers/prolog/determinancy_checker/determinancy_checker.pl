@@ -1,9 +1,5 @@
 
 
-:- op(812,fx,!).
-:- op(812,fx,?).
-
-
 /*
 ╺┳┓┏━╸╺┳╸
  ┃┃┣╸  ┃
@@ -15,19 +11,27 @@ a fully checking implementation
 
 '!'(X) :-
 	gensym(determinancy_checker__deterministic_call__progress, Call_id),
-	determinancy_checker_semidet_with(Call_id),
+	determinancy_checker_det_with(Call_id, X),
 	call(X),
-	determinancy_checker_det_nbinc(Call_id, X),
-	(	Call_id = 1
-	->	true
-	;	throw(deterministic_call_has_multiple_solutions(X))).
+	determinancy_checker_det_nbinc(Call_id, X).
+
+determinancy_checker_det_with(Call_id, X) :-
+		nb_setval(Call_id, 0)
+	;
+	(
+			nb_getval(Call_id, 1)
+		->	(
+				nb_delete(Call_id),
+				fail
+			)
+		;	throw(deterministic_call_failed(X))
+	).
 
 determinancy_checker_det_nbinc(Call_id, X) :-
 	nb_getval(Call_id, Sols),
-	Sols2 is Sols + 1,
-	nb_setval(Call_id, Sols2).
-
-
+	(	Sols = 0
+	->	nb_setval(Call_id, 1)
+	;	throw((deterministic_call_found_a_second_solution(X)))).
 
 
 
@@ -44,35 +48,17 @@ a fully checking implementation
 	gensym(determinancy_checker__semideterministic_call__progress, Call_id),
 	determinancy_checker_semidet_with(Call_id),
 	call(X),
-	determinancy_checker_semidet_nbinc(Call_id, X),
-	(	Call_id = 1
-	->	nb_delete(Call_id)
-		/* this wont happen */
-	;	true).
+	determinancy_checker_semidet_nbinc(Call_id, X).
 
 determinancy_checker_semidet_with(Call_id) :-
 	nb_setval(Call_id, 0)
-	;
-	(
-		nb_delete(Call_id),
-		fail
-	).
+	;(nb_delete(Call_id),fail).
 
 determinancy_checker_semidet_nbinc(Call_id, X) :-
 	catch(
-		nb_getval(Call_id, Sols),
+		nb_getval(Call_id, _),
 		_,
-		throw(semideterministic_call_has_multiple_solutions(X))),
-	Sols2 is Sols + 1,
-	nb_setval(Call_id, Sols2).
+		throw(semideterministic_call_has_multiple_solutions(X))
+	),
+	nb_delete(Call_id).
 
-
-/*
-%todo.
-x :-
-	!writeq(rrr),
-	!member(X, [1,2,3]),
-	!writeq(X).
-
-test :- findall(_,x,_).
-*/

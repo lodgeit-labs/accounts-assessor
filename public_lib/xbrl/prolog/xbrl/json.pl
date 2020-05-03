@@ -41,6 +41,8 @@ term_dict(
 	round_term(D0,D2),
 	round_term(C0,C2).
 
+
+/* finishme, if needed
 term_dict(
 	entry(Account, Balance, Child_sheet_entries, Transactions_count,_),
 	entry{account:Account2, balance:Balance2, child_sheet_entries:Child_sheet_entries2, transactions_count:Transactions_count2}
@@ -49,6 +51,7 @@ term_dict(
 	round_term(Balance,Balance2),
 	round_term(Child_sheet_entries,Child_sheet_entries2),
 	round_term(Transactions_count,Transactions_count2).
+*/
 
 term_dict(
 	exchange_rate(Day, Src, Dst, Rate),

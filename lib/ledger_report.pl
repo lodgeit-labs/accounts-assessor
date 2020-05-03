@@ -1,28 +1,36 @@
 
-:- record entry(account_id, balance, child_sheet_entries, transactions_count, misc).
-/*
-we're in the process of switching this over to doc
-*/
+%:- record entry(account_id, balance, child_sheet_entries, transactions_count, misc).
+
 make_report_entry(Name, Children, Uri) :-
 	doc_new_uri(Uri, report_entry),
 	doc_add(Uri, rdf:type, l:report_entry),
 	doc_add(Uri, report_entries:name, Name),
 	doc_add(Uri, report_entries:children, Children).
 
-report_entry_name(Entry, Name) :-
-	entry_account_id(Entry, Name).
+set_report_entry_total_vec(Uri, Balance) :-
+	!doc_add(Uri, report_entries:total_vec, Balance).
+
+set_report_entry_transaction_count(Uri, Transaction_Count) :-
+	!doc_add(Uri, report_entries:transaction_count, Transaction_Count).
+
+set_report_entry_normal_side(Uri, X) :-
+	!doc_add(Uri, report_entries:normal_side, X).
+
 report_entry_name(Entry, Name) :-
 	doc(Entry, report_entries:name, Name).
 
-report_entry_total_vec(Entry, Vec) :-
-	entry_balance(Entry, Vec).
 report_entry_total_vec(Entry, X) :-
 	doc(Entry, report_entries:total_vec, X).
 
-report_entry_children(Entry, Children) :-
-	entry_child_sheet_entries(Entry, Children).
 report_entry_children(Entry, X) :-
 	doc(Entry, report_entries:children, X).
+
+report_entry_normal_side(Entry, X) :-
+	doc(Entry, report_entries:normal_side, X).
+
+report_entry_transaction_count(Entry, X) :-
+	doc(Entry, report_entries:transaction_count, X).
+
 
 % -------------------------------------------------------------------
 % The purpose of the following program is to derive the summary information of a ledger.
@@ -204,21 +212,33 @@ balance_sheet_entry2(Static_Data, Account_Id, Entry) :-
 	% find balance for this account including subaccounts (sum all transactions from beginning of time)
 	findall(
 		Child_Balance,
-		member(entry(_,Child_Balance,_,_,_),Child_Sheet_Entries),
+		(
+			member(Child_Entry,Child_Sheet_Entries),
+			report_entry_total_vec(Child_Entry,Child_Balance)
+		),
 		Child_Balances
 	),
 	findall(
-		Child_Count,
-		member(entry(_,_,_,Child_Count,_),Child_Sheet_Entries),
+		Child_transaction_count,
+		(
+			member(Child_Entry,Child_Sheet_Entries),
+			report_entry_transaction_count(Child_Entry,Child_transaction_count)
+		),
 		Child_Counts
-	       ),
+	),
 	account_own_transactions_sum(Static_Data.exchange_rates, Static_Data.exchange_date, Static_Data.report_currency, Account_Id, Static_Data.end_date, Static_Data.transactions_by_account, Own_Sum, Own_Transactions_Count),
 	
 	vec_sum([Own_Sum | Child_Balances], Balance),
 	%format(user_error, 'balance_sheet_entry2: ~q :~n~q~n', [Account_Id, Balance]),
 	sum_list(Child_Counts, Children_Transaction_Count),
 	Transactions_Count is Children_Transaction_Count + Own_Transactions_Count,
-	Entry = entry(Account_Id, Balance, Child_Sheet_Entries, Transactions_Count, []).
+
+	!account_name(Account_Id, Account_Name),
+	!account_normal_side(Account_Id, Normal_side),
+	make_report_entry(Account_Name, Child_Sheet_Entries, Entry),
+	set_report_entry_total_vec(Entry, Balance),
+	set_report_entry_normal_side(Entry, Normal_side),
+	set_report_entry_transaction_count(Entry, Transactions_Count).
 
 /*accounts_report(Static_Data, Accounts_Report) :-
 	balance_sheet_entry(Static_Data, $>account_by_role_throw(rl('Accounts')), Entry),
@@ -229,26 +249,28 @@ balance_sheet_at(Static_Data, [Net_Assets_Entry, Equity_Entry]) :-
 	balance_sheet_entry(Static_Data, $>account_by_role_throw(rl('Equity')), Equity_Entry).
 
 trial_balance_between(Exchange_Rates, Transactions_By_Account, Report_Currency, Exchange_Date, _Start_Date, End_Date, [Trial_Balance_Section]) :-
-	balance_by_account(Exchange_Rates, Transactions_By_Account, Report_Currency, Exchange_Date, $>account_by_role_throw(rl('NetAssets')), End_Date, Net_Assets_Balance, Net_Assets_Count),
-	balance_by_account(Exchange_Rates, Transactions_By_Account, Report_Currency, Exchange_Date, $>account_by_role_throw(rl('Equity')), End_Date, Equity_Balance, Equity_Count),
+	balance_by_account(Exchange_Rates, Transactions_By_Account, Report_Currency, Exchange_Date, $>abrlt('NetAssets'), End_Date, Net_Assets_Balance, Net_Assets_Count),
+	balance_by_account(Exchange_Rates, Transactions_By_Account, Report_Currency, Exchange_Date, $>abrlt('Equity'), End_Date, Equity_Balance, Equity_Count),
 
 	vec_sum([Net_Assets_Balance, Equity_Balance], Trial_Balance),
 	Transactions_Count is Net_Assets_Count + Equity_Count,
 
 	% too bad there isnt a trial balance concept in the taxonomy yet, but not a problem
-	Trial_Balance_Section = entry('Trial_Balance', Trial_Balance, [], Transactions_Count,[]).
+	make_report_entry('Trial_Balance', [], Trial_Balance_Section),
+	set_report_entry_total_vec(Trial_Balance_Section, Trial_Balance),
+	set_report_entry_transaction_count(Trial_Balance_Section, Transactions_Count).
+
 
 profitandloss_between(Static_Data, [ProftAndLoss]) :-
-	activity_entry(Static_Data, $>account_by_role_throw(rl('ComprehensiveIncome')), ProftAndLoss).
-
-% Now for trial balance predicates.
+	!activity_entry(Static_Data, $>account_by_role_throw(rl('ComprehensiveIncome')), ProftAndLoss).
 
 activity_entry(Static_Data, Account_Id, Entry) :-
-	(
-		findall(Child_Account_Id, account_parent(Child_Account_Id, Account_Id), Child_accounts),
-		maplist(activity_entry(Static_Data), Child_accounts,Child_Sheet_Entries),
-		net_activity_by_account(Static_Data, Account_Id, Net_Activity, Transactions_Count),
-		Entry = entry(Account_Id, Net_Activity, Child_Sheet_Entries, Transactions_Count,[])
-	)
-	->true;throw_string("err").
-
+	findall(Child_Account_Id, account_parent(Child_Account_Id, Account_Id), Child_accounts),
+	maplist(!activity_entry(Static_Data), Child_accounts,Child_Sheet_Entries),
+	net_activity_by_account(Static_Data, Account_Id, Net_Activity, Transactions_Count),
+	account_name(Account_Id, Account_Name),
+	account_normal_side(Account_Id, Normal_side),
+	make_report_entry(Account_Name, Child_Sheet_Entries, Entry),
+	set_report_entry_total_vec(Entry, Net_Activity),
+	set_report_entry_normal_side(Entry, Normal_side),
+	set_report_entry_transaction_count(Entry, Transactions_Count).

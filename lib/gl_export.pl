@@ -62,7 +62,8 @@ running_balance_tx_enrichment(Tx, Tx_New) :-
 
 
 trial_balance_ok(Trial_Balance_Section) :-
-	Trial_Balance_Section = entry(_, Balance, [], _, _),
+	!report_entry_children(Trial_Balance_Section, []),
+	!report_entry_total_vec(Trial_Balance_Section, Balance),
 	maplist(coord_is_almost_zero, Balance).
 
 

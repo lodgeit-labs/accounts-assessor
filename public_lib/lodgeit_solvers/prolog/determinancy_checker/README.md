@@ -10,10 +10,10 @@ either have no solutions or have one solution,
 have at least one solution but may have more,
 	then that mode is multisolution (multi);
 	+
-	seems to be a rare case.
+	seems to be a rare case, not implemented.
 have zero or more solutions,
 	then that mode is nondeterministic (nondet);
-	this is the default.
+	this is the default, nothing to check.
 ```
 
 ### alternatives: 

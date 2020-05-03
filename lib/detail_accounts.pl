@@ -28,6 +28,7 @@ print_detail_account(Static_Data, Context_Info, Fact_Name, Account_In,
 		)
 	),
 	account_role(Account, rl(_/Short_Id0)),
+	account_normal_side(Account, Normal_side),
 	sane_id(Short_Id0, Short_Id), % todo this sanitization is probably unnecessary
 	% <basic:Investment_Duration>Short_Id</basic:Investment_Duration>
 	ensure_context_exists(Short_Id, Dimension_Value, Context_Info, Contexts_In, Contexts_Out, Context_Id),
@@ -35,10 +36,11 @@ print_detail_account(Static_Data, Context_Info, Fact_Name, Account_In,
 	->	net_activity_by_account(Static_Data, Account, Balance, Transactions_Count)
 	;	balance_by_account(Exchange_Rates, Transactions_By_Account, Report_Currency, End_Date, Account, End_Date, Balance, Transactions_Count)
 	),
-	format_report_entries(
-		xbrl, 0, 1, Report_Currency, Context_Id,
-		[entry(Fact_Name, Balance, [], Transactions_Count, _)],
-		Xml).
+	!make_report_entry(Fact_Name, [], Entry),
+	!doc_add(Entry, report_entries:total_vec, Balance),
+	!doc_add(Entry, report_entries:normal_side, Normal_side),
+	!doc_add(Entry, report_entries:transaction_count, Transactions_Count),
+	!format_report_entries(xbrl, 0, 1, Report_Currency, Context_Id, [Entry], Xml).
 
 print_banks(Static_Data, Context_Id_Base, In, Out, Xml) :-
 	dict_vars(Static_Data, [End_Date, Entity_Identifier]),

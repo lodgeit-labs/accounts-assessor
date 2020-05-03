@@ -9,6 +9,15 @@
 :- use_module(library(semweb/rdf11),except(['{}'/1])).
 :- use_module(library(debug)).
 
+%:- ['../public_lib/lodgeit_solvers/prolog/determinancy_checker/determinancy_checker_main.pl'].
+%:- ['../../../lodgeit_solvers/prolog/determinancy_checker/determinancy_checker_main.pl'].
+
+:- use_module('../../../lodgeit_solvers/prolog/determinancy_checker/determinancy_checker_main.pl').
+
+
+%:- findall(_, (!member(W, [1,2]), writeq(W)), _).
+
+
 :- use_module(library(fnotation)).
 :- fnotation_ops($>,<$).
 :- op(900,fx,<$).
@@ -18,7 +27,6 @@
 
 :- [compare_xml].
 :- [compile_with_variable_names_preserved].
-:- [determinancy_checker].
 :- [dict_vars].
 :- [doc].
 :- [exceptions].

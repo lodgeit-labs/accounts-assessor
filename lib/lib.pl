@@ -13,6 +13,8 @@
 :- [search_paths].
 
 :- ['../public_lib/xbrl/prolog/xbrl/utils.pl'].
+%:- findall(_, (!member(W, [1,2]), writeq(W)), _).
+
 
 :- [accounts_extract].
 :- [accounts].

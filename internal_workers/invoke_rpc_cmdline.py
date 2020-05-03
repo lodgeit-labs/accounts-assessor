@@ -129,9 +129,8 @@ def call_prolog(msg, dev_runner_options=[], prolog_flags='true', make_new_tmp_di
 	#if debug_loading == None:
 	#if debug == None:
 
-	
-
 	# construct the command line
+
 	if debug_loading:
 		entry_file = 'lib/debug_loading_rpc_server.pl'
 	else:
