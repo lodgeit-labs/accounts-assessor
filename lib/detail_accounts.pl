@@ -75,7 +75,7 @@ print_forex(Static_Data, Context_Id_Base, In, Out, Xml) :-
 	print_detail_accounts(Static_Data, Context_Info, 'CurrencyMovement', Movement_Accounts, In, Out, Xml).
 
 print_trading(Sd, In, Out, Xml) :-
-	findall(Pair, trading_sub_account(Sd, Pair), Pairs),
+	findall(Pair, trading_sub_account(Pair), Pairs),
 	print_trading2(Sd, Pairs, In, Out, Xml).
 
 /* for a list of (Sub_Account, Unit_Accounts) pairs..*/

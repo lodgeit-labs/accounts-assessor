@@ -165,6 +165,11 @@ make_buy(Static_Data, St, Trading_Account, Pricing_Method, Bank_Account_Currency
 	unit_cost_value(Coord_Ours_Converted, Goods_Coord, Unit_Cost_Converted),
 	number_coord(Goods_Unit, Goods_Count, Goods_Coord),
 	dict_vars(Static_Data, [Cost_Or_Market]),
+
+	/*technically, the action verb could be smarter and know that the exchanged account name that user specified must correspond to an account with role 'FinancialInvestments'/name.
+	some sort of generalized system is shaping up.
+	*/
+
 	financial_investments_account(Exchanged_Account,Goods_Unit,Exchanged_Account2),
 
 	(	Cost_Or_Market = cost

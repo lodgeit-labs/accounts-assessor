@@ -81,17 +81,6 @@ account_by_ui(X, Uri) :-
 		->	true
 		;	throw_string(['multiple accounts found by same name:', X]))).
 
-
-/*
-account_normal_side(Uri, X) :-
-	(	doc(Uri, accounts:normal_side, X, accounts)
-	->	true
-	;	once(
-			(
-				account_ancestor(Uri, A),
-				account_normal_side(A, X)
-			))).
-*/
 all_accounts(Accounts) :-
 	request_accounts(As),
 	findall(A, docm(As, l:has_account, A), Accounts).

@@ -10,6 +10,9 @@
 
 is_valid_role('Banks').
 
+is_valid_role('TradingAccounts'/Trading_Account_Id) :-
+	atom(Trading_Account_Id).
+
 is_valid_role('TradingAccounts'/Trading_Account_Id/Realized_Or_Unrealized/Currency_Movement_Aspect/Traded_Unit) :-
 	atom(Trading_Account_Id),
 	member(Realized_Or_Unrealized, [realized, unrealized]),
@@ -25,15 +28,15 @@ is_valid_role('TradingAccounts'/Trading_Account_Id/Realized_Or_Unrealized/Curren
 
 
 abrlt(Role, Account) :-
-	is_valid_role(Role),
+	!is_valid_role(Role),
 	account_by_role_throw(rl(Role), Account).
 
 ensure_system_accounts_exist(S_Transactions) :-
-	ensure_bank_gl_accounts_exist,
-	ensure_livestock_accounts_exist,
-	traded_units(S_Transactions, Traded_Units),
-	ensure_financial_investments_accounts_exist(Traded_Units),
-	'ensure InvestmentIncome accounts exist'(Traded_Units).
+	!ensure_bank_gl_accounts_exist,
+	!ensure_livestock_accounts_exist,
+	!traded_units(S_Transactions, Traded_Units),
+	!ensure_financial_investments_accounts_exist(Traded_Units),
+	!'ensure InvestmentIncome accounts exist'(Traded_Units).
 
 make_root_account :-
 	make_account2(root, 0, rl(root), _Root),
@@ -133,11 +136,10 @@ in Assets
 */
 
 ensure_financial_investments_accounts_exist(Traded_Units) :-
-	financialInvestments_accounts(FinancialInvestments_accounts),
-	maplist(ensure_financial_investments_accounts_exist2(Traded_Units), FinancialInvestments_accounts).
+	financialInvestments_accounts_ui_names(Names),
+	maplist(ensure_financial_investments_accounts_exist2(Traded_Units), Names).
 
-ensure_financial_investments_accounts_exist2(Traded_Units, FinancialInvestments_account) :-
-	account_name(FinancialInvestments_account, Id),
+ensure_financial_investments_accounts_exist2(Traded_Units, Id) :-
 	Role0 = rl('FinancialInvestments'/Id),
 	account_by_role_throw(Role0, FinancialInvestments),
 	maplist(ensure_FinancialInvestments_Unit(Role0, FinancialInvestments), Traded_Units).
@@ -159,12 +161,12 @@ financial_investments_account(Exchanged_Account_Uri,Goods_Unit,Exchanged_Account
 /*experimentally naming predicates just "pxx" here for readability*/
 
 'ensure InvestmentIncome accounts exist'(Traded_Units) :-
-	investmentIncome_accounts(Trading_Accounts),
-	maplist(p10(Traded_Units), Trading_Accounts).
-p10(Traded_Units, Trading_Account) :-
-	maplist(p20(Traded_Units,Trading_Account), [realized,unrealized]).
-p20(Traded_Units,Trading_Account, R) :-
-	account_name(Trading_Account, Trading_Account_Id),
+	!investmentIncome_accounts(Uis),
+	maplist(p10(Traded_Units), Uis).
+p10(Traded_Units, Uis) :-
+	maplist(p20(Traded_Units,Uis), [realized,unrealized]).
+p20(Traded_Units,Trading_Account_Id, R) :-
+	abrlt('TradingAccounts'/Trading_Account_Id, Trading_Account),
 	ensure_account_exists(Trading_Account, _, 0, rl('TradingAccounts'/Trading_Account_Id/R), Realization_account),
 	maplist(p30(Traded_Units, Trading_Account_Id, R, Realization_account), [withoutCurrencyMovement, onlyCurrencyMovement]).
 p30(Traded_Units,Trading_Account_Id, R, Realization_account, Cm) :-
@@ -173,11 +175,9 @@ p30(Traded_Units,Trading_Account_Id, R, Realization_account, Cm) :-
 p40(Trading_Account_Id,R,Cm,Cm_account, Traded_Unit) :-
 	ensure_account_exists(Cm_account, _, 1, rl('TradingAccounts'/Trading_Account_Id/R/Cm/Traded_Unit), _).
 
-trading_sub_account(_Sd, (Movement_Account, Unit_Accounts)) :-
-	investmentIncome_accounts(Trading_Accounts),
-	member(Trading_Account, Trading_Accounts),
-	account_name(Trading_Account, Trading_Account_Id),
-	account_by_role_throw(rl('TradingAccounts'/Trading_Account_Id/_/_), Movement_Account),
+trading_sub_account((Movement_Account, Unit_Accounts)) :-
+gtrace,
+	account_by_role_throw(rl('TradingAccounts'/_/_/_), Movement_Account),
 	account_direct_children(Movement_Account, Unit_Accounts).
 
 gains_accounts(

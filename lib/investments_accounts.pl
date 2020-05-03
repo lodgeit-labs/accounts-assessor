@@ -15,7 +15,12 @@ traded_units2(S_Transactions, Unit) :-
 		E = bases(Unit)
 	).
 
-financialInvestments_accounts(Accounts) :-
+/*
+	this gets names of "exchanged accounts", as specified in action verbs. Accounts are created based on that name, but the name may need to be adjusted. So don't use this to look accounts up, instead:
+	findall(Account, abrlt('FinancialInvestments'/Name, Account), Accounts).
+*/
+
+financialInvestments_accounts_ui_names(Names) :-
 	findall(
 		A,
 		(
@@ -25,10 +30,9 @@ financialInvestments_accounts(Accounts) :-
 		),
 		Ids0
 	),
-	sort(Ids0, Ids),
-	maplist(account_by_ui,Ids, Accounts).
+	sort(Ids0, Names).
 
-investmentIncome_accounts(Accounts) :-
+investmentIncome_accounts(Names) :-
 	findall(
 		A,
 		(
@@ -37,6 +41,5 @@ investmentIncome_accounts(Accounts) :-
 		),
 		Ids0
 	),
-	sort(Ids0, Ids),
-	maplist(account_by_ui,Ids, Accounts).
+	sort(Ids0, Names).
 
