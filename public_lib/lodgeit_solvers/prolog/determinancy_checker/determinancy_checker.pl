@@ -14,6 +14,8 @@ a fully checking implementation.
 	call(X),
 	det_nbinc(Call_id, X).
 
+/* versions with more arguments, used for example in a maplist, ie, the "meta-predicate" ("A meta-predicate is a predicate that calls other predicates dynamically[..]") gets a !something, and it calls the '!' with a bunch of additional arguments */
+
 '!'(X, Y) :-
 	det_with(Call_id, (X, Y)),
 	call(X, Y),
@@ -23,8 +25,6 @@ a fully checking implementation.
 	det_with(Call_id, (X, Y, Z)),
 	call(X, Y, Z),
 	det_nbinc(Call_id, (X, Y, Z)).
-
-
 
 
 det_with(Call_id, Call) :-
