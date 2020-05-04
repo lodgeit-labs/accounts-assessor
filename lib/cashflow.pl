@@ -204,7 +204,7 @@ cf_scheme_0_entry_for_account(Sd, Account, Entry) :-
 	dif(Children, []),
 	account_direct_children(Account, Children),
 	/* collect entries of child accounts */
-	make_report_entry(Account, $>maplist(cf_scheme_0_entry_for_account0(Sd),Children), Entry).
+	make_report_entry($>!account_name(Account), $>maplist(cf_scheme_0_entry_for_account0(Sd),Children), Entry).
 
 
 cf_scheme_0_entry_for_account(Sd, Account, Entry) :-
@@ -224,7 +224,7 @@ cf_scheme_0_entry_for_account(Sd, Account, Entry) :-
 	;	List_With_Currency_Movement_Entry = []
 	),
 
-	!make_report_entry(Account, $>append(Category_Entries0, List_With_Currency_Movement_Entry), Entry).
+	!make_report_entry($>!account_name(Account), $>append(Category_Entries0, List_With_Currency_Movement_Entry), Entry).
 
 cf_scheme_0_bank_account_currency_movement_entry(Sd, Account, Currency_Movement_Entry) :-
 	!bank_gl_account_currency_movement_account(Account, Currency_Movement_Account),
