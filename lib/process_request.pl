@@ -124,18 +124,21 @@ collect_alerts(Alerts3) :-
 		Alert,
 		(
 			get_alert(Key,Msg0),
-			(
-				(
-					(Msg0 = string(Msg) -> true ; Msg0 = Msg),
-					(atomic(Msg) -> Msg2 = Msg ; term_string(Msg, Msg2)),
-					atomic_list_concat([Key,': ',Msg2], Alert)
-				)
-				->	true
-				;	throw(xxx)
-			)
+			alert_to_string(Key, Msg0, Alert)
 		),
 		Alerts3
 	).
+
+ alert_to_string(Key, Msg0, Alert) :-
+	(
+	(
+		(Msg0 = error(msg(Msg),_) -> true ; Msg0 = Msg),
+		(atomic(Msg) -> Msg2 = Msg ; term_string(Msg, Msg2)),
+		atomic_list_concat([Key,': ',Msg2], Alert)
+	)
+	->	true
+	;	throw(xxx)).
+
 
 make_alerts_report(Alerts) :-
 	make_json_report(Alerts, alerts_json),

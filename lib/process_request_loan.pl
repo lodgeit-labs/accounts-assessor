@@ -85,11 +85,11 @@ display_xml_loan_response(IncomeYear,
    resolve_specifier(loc(specifier, my_schemas('responses/LoanResponse.xsd')), LoanResponseXSD),
    % if the xml response is valid then reply the response, otherwise reply an error message
    (
-     validate_xml(TempFileLoanResponseXML, LoanResponseXSD, [])
+		validate_xml(TempFileLoanResponseXML, LoanResponseXSD, [])
    ->
-     add_result_file_by_path(TempFileLoanResponseXML)
+		add_result_file_by_path(TempFileLoanResponseXML)
    ;
-     add_alert(error, "Validation failed for xml loan response.")
+		add_alert(error, "Validation failed for xml loan response.")
    ).
    
 

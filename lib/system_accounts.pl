@@ -9,17 +9,21 @@
 
 
 is_valid_role('Banks').
-
-is_valid_role('FinancialInvestments'/Id) :- atom(Id).
+is_valid_role('Banks'/Id) :- freeze(Id, atom(Id)).
 
 is_valid_role('TradingAccounts'/Trading_Account_Id) :-
-	atom(Trading_Account_Id).
-
+	freeze(Trading_Account_Id, atom(Trading_Account_Id)).
+is_valid_role('TradingAccounts'/_1387496/unrealized).
+is_valid_role('TradingAccounts'/_1387572/realized).
+is_valid_role('TradingAccounts'/_1387080/realized/withoutCurrencyMovement).
+is_valid_role('TradingAccounts'/_1387168/realized/onlyCurrencyMovement).
+is_valid_role('TradingAccounts'/_1387256/unrealized/withoutCurrencyMovement).
+is_valid_role('TradingAccounts'/_1387344/unrealized/onlyCurrencyMovement).
 is_valid_role('TradingAccounts'/Trading_Account_Id/Realized_Or_Unrealized/Currency_Movement_Aspect/Traded_Unit) :-
-	atom(Trading_Account_Id),
+	freeze(Id, atom(Trading_Account_Id)),
 	member(Realized_Or_Unrealized, [realized, unrealized]),
 	member(Currency_Movement_Aspect, [onlyCurrencyMovement, withoutCurrencyMovement]),
-	atom(Traded_Unit).
+	freeze(Id, atom(Traded_Unit)).
 
 is_valid_role('ComprehensiveIncome').
 is_valid_role('HistoricalEarnings').
@@ -27,10 +31,9 @@ is_valid_role('CurrentEarnings').
 is_valid_role('NetAssets').
 is_valid_role('Equity').
 is_valid_role('CurrencyMovement').
+is_valid_role('CurrencyMovement'/Id) :- freeze(Id, atom(Id)).
 is_valid_role('CashAndCashEquivalents').
-is_valid_role('Banks'/Id) :- atom(Id).
-
-
+is_valid_role('FinancialInvestments'/Id) :- freeze(Id, atom(Id)).
 
 /*
 ┏┳┓╻┏━┓┏━╸
@@ -89,7 +92,7 @@ asset GL accounts corresponding to bank accounts
 
  bank_gl_account_currency_movement_account(Bank_Gl_Account, Currency_Movement_Account) :-
 	account_role(Bank_Gl_Account, rl(_/Bank_name)),
-	account_by_role_throw(rl('CurrencyMovement'/Bank_name), Currency_Movement_Account).
+	abrlt('CurrencyMovement'/Bank_name, Currency_Movement_Account).
 
  bank_gl_account_by_bank_name(Account_Name, Uri) :-
 	account_by_role_throw(rl('Banks'/Account_Name), Uri).
@@ -163,7 +166,9 @@ in Assets
 	maplist(ensure_FinancialInvestments_Unit(Role0, FinancialInvestments), Traded_Units).
 
  ensure_FinancialInvestments_Unit(Role0, FinancialInvestments, Traded_Unit) :-
-	ensure_account_exists(FinancialInvestments, _, 1, rl(Role0/Traded_Unit), _).
+ 	Rl = rl(Role0/Traded_Unit),
+ 	%format(user_error, 'ensure_FinancialInvestments_Unit: ~q\n', [Rl]),
+	ensure_account_exists(FinancialInvestments, _, 1, Rl, _).
 
  financial_investments_account(Exchanged_Account_Uri,Goods_Unit,Exchanged_Account2) :-
 	account_name(Exchanged_Account_Uri, Exchanged_Account_Id),
@@ -198,11 +203,12 @@ p40(Trading_Account_Id,R,Cm,Cm_account, Traded_Unit) :-
 	account_direct_children(Movement_Account, Unit_Accounts).
 
  gains_accounts(
-	/*input*/ Trading_Account_Id, Realized_Or_Unrealized, Traded_Unit,
+	/*input*/ Trading_Account, Realized_Or_Unrealized, Traded_Unit,
 	/*output*/ Currency_Movement_Account, Excluding_Forex_Account
 ) :-
-	abrlt('TradingAccounts'/Trading_Account_Id/Realized_Or_Unrealized/onlyCurrencyMovement/Traded_Unit, Currency_Movement_Account),
-	abrlt('TradingAccounts'/Trading_Account_Id/Realized_Or_Unrealized/withoutCurrencyMovement/Traded_Unit, Excluding_Forex_Account).
+	account_role(Trading_Account, rl('TradingAccounts'/Id)),
+	abrlt('TradingAccounts'/Id/Realized_Or_Unrealized/onlyCurrencyMovement/Traded_Unit, Currency_Movement_Account),
+	abrlt('TradingAccounts'/Id/Realized_Or_Unrealized/withoutCurrencyMovement/Traded_Unit, Excluding_Forex_Account).
 
 
 

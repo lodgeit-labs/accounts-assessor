@@ -25,9 +25,6 @@ report_entry_gl_account(Uri, X) :-
 report_entry_name(Entry, Name) :-
 	doc(Entry, report_entries:name, Name).
 
-report_entry_account(Entry, X) :-
-	doc(Entry, report_entries:account, X).
-
 report_entry_total_vec(Entry, X) :-
 	doc(Entry, report_entries:total_vec, X).
 

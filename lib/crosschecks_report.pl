@@ -105,8 +105,8 @@ evaluate2(Sd, account_balance(Report_Id, Role), Values_List) :-
 		(
 			accounts_report_entry_by_account_role(Sd, Report, Role, Entry),
 			!report_entry_total_vec(Entry, Balance),
-			!report_entry_account(Entry, Account),
-			!vector_of_coords_to_vector_of_values(Sd, Account, Balance, Values_List),
+			!report_entry_gl_account(Entry, Account),
+			!vector_of_coords_to_vector_of_values(Sd, Account, Balance, Values_List)
 		),
 		Values_List0
 	),

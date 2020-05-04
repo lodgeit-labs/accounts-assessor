@@ -151,7 +151,7 @@ prolog:message(bad_file_upload) -->
    [ 'A file upload must be submitted as multipart/form-data POST request using', nl,
       'name=file and providing a file-name' ].
 
-prolog:message(string(S)) --> [ S ].
+prolog:message(error(msg(S),_)) --> [ S ].
 
 
 process_request(Request, Options0, Parts) :-

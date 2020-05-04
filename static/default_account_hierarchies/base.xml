@@ -10,7 +10,6 @@
 					</CashAndCashEquivalents>				
 				</CurrentAssets>
 				<NoncurrentAssets role="NoncurrentAssets">
-					<FinancialInvestments role="FinancialInvestments/FinancialInvestments"/>
 				</NoncurrentAssets>
 			</Assets>
 			<Liabilities normal_side="credit">
@@ -44,7 +43,6 @@
 			<Revenue role="Revenue">
 				<Income/>
 				<OtherIncome>
-					<InvestmentIncome role="TradingAccounts/InvestmentIncome"/>
 					<InterestIncome/>
 					<InterestEarned/>
 					<ExchangeGain/>

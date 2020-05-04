@@ -403,10 +403,10 @@ extract_initial_gl_tx(Default_Currency, Item, Tx) :-
 	;	Description = 'initial_GL'),
 	atom_string(Account, Account_String),
 	(	doc_value(Item, ic:debit, Debit_String)
-	->	vector_string(Default_Currency, debit, Debit_String, Debit_Vector)
+	->	vector_string(Default_Currency, kb:debit, Debit_String, Debit_Vector)
 	;	Debit_Vector = []),
 	(	doc_value(Item, ic:credit, Credit_String)
-	->	vector_string(Default_Currency, credit, Credit_String, Credit_Vector)
+	->	vector_string(Default_Currency, kb:credit, Credit_String, Credit_Vector)
 	;	Credit_Vector = []),
 	append(Debit_Vector, Credit_Vector, Vector),
 	make_transaction(initial_GL, Date, Description, Account, Vector, Tx).

@@ -573,7 +573,7 @@ request_accounts(As) :-
 result(R) :-
 	doc(R, rdf:type, l:'Result').
 
-add_alert(Type, Msg) :-
+ add_alert(Type, Msg) :-
 	result(R),
 	doc_new_uri(alert, Uri),
 	doc_add(R, l:alert, Uri),

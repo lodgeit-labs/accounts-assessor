@@ -13,26 +13,33 @@ preprocess_s_transactions2(_, [], [], [], Outstanding, Outstanding, _).
 preprocess_s_transactions2(Static_Data, [S_Transaction|S_Transactions], Processed_S_Transactions, Transactions_Out, Outstanding_In, Outstanding_Out, Debug_So_Far) :-
 	dict_vars(Static_Data, [Report_Currency, Start_Date, End_Date, Exchange_Rates]),
 	pretty_term_string(S_Transaction, S_Transaction_String),
-	catch(
-		(
-			check_that_s_transaction_account_exists(S_Transaction),
-			preprocess(Static_Data, S_Transaction, S_Transaction_String, Outstanding_In, Outstanding_Mid, Debug_Head, Transactions_Out_Tail, Debug_So_Far, Debug_So_Far2, Processed_S_Transactions, Processed_S_Transactions_Tail, Report_Currency, Exchange_Rates, Start_Date, End_Date, Transactions_Out)
-		),
-		E,
-		(
-			pretty_string(S_Transaction, Pretty_S_Transaction_String),
-			format(string(Debug_Head), '~q~nwhen processing ~w', [E, Pretty_S_Transaction_String]),
-			format(user_error, '~w~n',[Debug_Head]),
-			Outstanding_In = Outstanding_Out,
-			Transactions_Out = [],
-			Debug_Tail = [],
-			Processed_S_Transactions = [],
-			add_alert('error', Debug_Head)
+	(	current_prolog_flag(die_on_error, true)
+	->	preprocess_s_transactions3(Static_Data, S_Transaction, S_Transaction_String, Outstanding_In, Outstanding_Mid, _Debug_Head, Transactions_Out_Tail, Debug_So_Far, Debug_So_Far2, Processed_S_Transactions, Processed_S_Transactions_Tail, Report_Currency, Exchange_Rates, Start_Date, End_Date, Transactions_Out)
+	;	catch(
+			preprocess_s_transactions3(Static_Data, S_Transaction, S_Transaction_String, Outstanding_In, Outstanding_Mid, Debug_Head, Transactions_Out_Tail, Debug_So_Far, Debug_So_Far2, Processed_S_Transactions, Processed_S_Transactions_Tail, Report_Currency, Exchange_Rates, Start_Date, End_Date, Transactions_Out),
+			E,
+			(
+				pretty_string(S_Transaction, Pretty_S_Transaction_String),
+				(E = error(msg(Msg0),_) ->true ;E = Msg0),
+				(atomic(Msg0) ->Msg = Msg0 ;term_string(Msg0,Msg)),
+				format(string(Debug_Head), '~w~nwhen processing ~w', [Msg, Pretty_S_Transaction_String]),
+				format(user_error, '~w~n',[Debug_Head]),
+				Outstanding_In = Outstanding_Out,
+				Transactions_Out = [],
+				Debug_Tail = [],
+				Processed_S_Transactions = [],
+				add_alert('error', Debug_Head)
+			)
 		)
 	),
 	(	var(Debug_Tail) /* debug tail is left free if processing this transaction succeeded ... */
 	->	preprocess_s_transactions2(Static_Data, S_Transactions, Processed_S_Transactions_Tail, Transactions_Out_Tail,  Outstanding_Mid, Outstanding_Out, Debug_So_Far2)
 	;	true).
+
+preprocess_s_transactions3(Static_Data, S_Transaction, S_Transaction_String, Outstanding_In, Outstanding_Mid, Debug_Head, Transactions_Out_Tail, Debug_So_Far, Debug_So_Far2, Processed_S_Transactions, Processed_S_Transactions_Tail, Report_Currency, Exchange_Rates, Start_Date, End_Date, Transactions_Out) :-
+	check_that_s_transaction_account_exists(S_Transaction),
+	preprocess(Static_Data, S_Transaction, S_Transaction_String, Outstanding_In, Outstanding_Mid, Debug_Head, Transactions_Out_Tail, Debug_So_Far, Debug_So_Far2, Processed_S_Transactions, Processed_S_Transactions_Tail, Report_Currency, Exchange_Rates, Start_Date, End_Date, Transactions_Out).
+
 
 preprocess(Static_Data, S_Transaction, S_Transaction_String, Outstanding_In, Outstanding_Mid, Debug_Head, Transactions_Out_Tail, Debug_So_Far, Debug_So_Far2, Processed_S_Transactions, Processed_S_Transactions_Tail, Report_Currency, Exchange_Rates, Start_Date, End_Date, Transactions_Out) :-
 	(	preprocess_s_transaction(Static_Data, S_Transaction, Transactions0, Outstanding_In, Outstanding_Mid)
@@ -82,10 +89,12 @@ preprocess_s_transaction(Static_Data, S_Transaction, Transactions, Outstanding_B
 	s_transaction_day(S_Transaction, Transaction_Date),
 	Pricing_Method = lifo,
 	doc(Action_Verb, l:has_id, Action_Verb_Id),
-	(doc(Action_Verb, l:has_counteraccount, Exchanged_Account_Ui)->true;throw_string('action verb does not specify exchange account')),
-	account_by_ui(Exchanged_Account_Ui, Exchanged_Account),
-	(doc(Action_Verb, l:has_trading_account, Trading_Account_Ui)->true;true),
-	account_by_ui(Trading_Account_Ui, Trading_Account),
+	(	doc(Action_Verb, l:has_counteraccount, Exchanged_Account_Ui)
+	->	account_by_ui(Exchanged_Account_Ui, Exchanged_Account)
+	;	throw_string('action verb does not specify exchange account')),
+	(	doc(Action_Verb, l:has_trading_account, Trading_Account_Ui)
+	->	account_by_ui(Trading_Account_Ui, Trading_Account)
+	;	true),
 	Description = Action_Verb_Id,
 	affect_bank_account(Static_Data, S_Transaction, Description, Ts1),
 	vector_unit(Vector_Ours, Bank_Account_Currency),
@@ -297,13 +306,12 @@ affect_bank_account(Static_Data, S_Transaction, Description0, [Ts0, Ts3]) :-
 	),
 	[Description0, ' - ', Description1] = Description,
 	dict_vars(Static_Data, [Report_Currency]),
-	Bank_Account_Role = ('Banks'/Bank_Account_Name),
-	account_by_role_throw(Bank_Account_Role, Bank_Account_Id),
-	make_transaction(S_Transaction, Transaction_Date, Description, Bank_Account_Id, Vector, Ts0),
+	abrlt('Banks'/Bank_Account_Name, Bank_Account),
+	make_transaction(S_Transaction, Transaction_Date, Description, Bank_Account, Vector, Ts0),
 	/* Make a difference transaction to the currency trading account. See https://www.mathstat.dal.ca/~selinger/accounting/tutorial.html . This will track the gain/loss generated by the movement of exchange rate between our asset in foreign currency and our equity/revenue in reporting currency. */
 	(	[Bank_Account_Currency] = Report_Currency
 	->	true
-	;	make_currency_movement_transactions(Static_Data, S_Transaction, Bank_Account_Id, Transaction_Date, Vector, [Description, ' - currency movement adjustment'], Ts3)
+	;	make_currency_movement_transactions(Static_Data, S_Transaction, Bank_Account, Transaction_Date, Vector, [Description, ' - currency movement adjustment'], Ts3)
 	).
 
 /* Make an inverse exchanged transaction to the exchanged account.*/

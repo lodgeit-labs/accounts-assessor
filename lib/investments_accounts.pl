@@ -26,7 +26,7 @@ financialInvestments_accounts_ui_names(Names) :-
 		(
 			action_verb(Action_Verb),
 			doc(Action_Verb, l:has_trading_account, _),
-			doc(Action_Verb, l:has_exchanged_account, A)
+			(doc(Action_Verb, l:has_counteraccount, A)->true;throw('action verb has trading_account but no counteraccount'))
 		),
 		Ids0
 	),

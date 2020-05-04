@@ -51,8 +51,8 @@ purchase_cost_and_count(Type, ST, Cost, Count) :-
 	s_transaction_is_livestock_buy_or_sell(ST, Date, Type, Livestock_Coord, Money_Coord),
 	date_in_request_period(Date),
 	is_credit(Money_Coord),
-	coord_normal_side_value(Money_Coord, credit, Cost),
-	coord_normal_side_value(Livestock_Coord, debit, Count).
+	coord_normal_side_value(Money_Coord, kb:credit, Cost),
+	coord_normal_side_value(Livestock_Coord, kb:debit, Count).
 
 
 

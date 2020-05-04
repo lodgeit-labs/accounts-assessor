@@ -2,7 +2,7 @@
 /*
 	throw a string(Message) term, these errors are caught by our http server code and turned into nice error messages
 */
-throw_string(List_Or_Atom) :-
+ throw_string(List_Or_Atom) :-
 	flatten([List_Or_Atom], List),
 	maplist(stringize, List, List2),
 	atomic_list_concat(List2, String),

@@ -23,7 +23,7 @@ add_action_verb_from_xml(In) :-
 	fields(In, [
 		id, Id,
 		description, (Description, _),
-		exchangeAccount, (Exchange_Account, _),
+		exchangeAccount, (Counteraccount, _),
 		tradingAccount, (Trading_Account, _),
 		gstRatePercent, (Gst_Rate_Atom, '0'),
 		gstReceivableAccount, (Gst_Receivable, _),
@@ -34,7 +34,7 @@ add_action_verb_from_xml(In) :-
 	doc_add(Uri, rdf:type, l:action_verb),
 	doc_add(Uri, l:has_id, Id),
 	(nonvar(Description) -> doc_add(Uri, l:has_description, Description) ; true),
-	(nonvar(Exchange_Account) -> doc_add(Uri, l:has_counteraccount, Exchange_Account) ; true),
+	(nonvar(Counteraccount) -> doc_add(Uri, l:has_counteraccount, Counteraccount) ; true),
 	(nonvar(Trading_Account) -> doc_add(Uri, l:has_trading_account, Trading_Account) ; true),
 	doc_add(Uri, l:has_gst_rate, Gst_Rate),
 	(nonvar(Gst_Receivable) -> doc_add(Uri, l:has_gst_receivable_account, Gst_Receivable) ; true),

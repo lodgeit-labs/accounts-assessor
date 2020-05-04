@@ -19,14 +19,12 @@
 /*value_debit(value(Unit, Amount), coord(Unit, Amount, Zero)) :- unify_numbers(Zero, 0).
 value_credit(value(Unit, Amount), coord(Unit, Zero, Amount)) :- unify_numbers(Zero, 0).*/
 
-coord_normal_side_value(coord(Unit, D), debit, value(Unit, D)).
-coord_normal_side_value(coord(Unit, D), credit, value(Unit, V)) :-
-	{V = -D}.
-% refactor me
-coord_normal_side_value2(debit, coord(Unit, D), value(Unit, D)).
-coord_normal_side_value2(credit, coord(Unit, D), value(Unit, V)) :-
-	{V = -D}.
+ coord_normal_side_value(coord(Unit, D), Side, value(Unit, D)) :-
+ 	rdf_equal2(Side, kb:debit).
 
+ coord_normal_side_value(coord(Unit, D), Side, value(Unit, V)) :-
+ 	rdf_equal2(Side, kb:credit),
+	{V = -D}.
 
 /*
 	manipulating value and coord
@@ -290,9 +288,9 @@ coord_is_almost_zero(value(_, V)) :-
 
 vector_of_coords_to_vector_of_values(_, _, [], []).
 vector_of_coords_to_vector_of_values(Sd, Account_Id, [Coord|Coords], [Value|Values]) :-
-	account_normal_side(Account_Id, Side),
-	coord_normal_side_value(Coord, Side, Value),
-	vector_of_coords_to_vector_of_values(Sd, Account_Id, Coords, Values).
+	!account_normal_side(Account_Id, Side),
+	!coord_normal_side_value(Coord, Side, Value),
+	!vector_of_coords_to_vector_of_values(Sd, Account_Id, Coords, Values).
 
 split_vector_by_percent(V0, Rate, V1, V2) :-
 	maplist(split_coord_by_percent(Rate), V0, V1, V2).
@@ -308,11 +306,11 @@ vector_unit([coord(U, _)], U).
 
 
 value_debit_vec(Value, [Coord]) :-
-	coord_normal_side_value(Coord, debit, Value).
+	coord_normal_side_value(Coord, kb:debit, Value).
 
 value_debit_vec(value(_,Z), []) :-
 	is_zero_number(Z).
 
 value_credit_vec(Value, [Coord]) :-
-	coord_normal_side_value(Coord, credit, Value).
+	coord_normal_side_value(Coord, kb:credit, Value).
 
