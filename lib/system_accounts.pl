@@ -10,6 +10,8 @@
 
 is_valid_role('Banks').
 
+is_valid_role('FinancialInvestments'/Id) :- atom(Id).
+
 is_valid_role('TradingAccounts'/Trading_Account_Id) :-
 	atom(Trading_Account_Id).
 
@@ -156,11 +158,11 @@ in Assets
 	maplist(ensure_financial_investments_accounts_exist2(Traded_Units), Names).
 
  ensure_financial_investments_accounts_exist2(Traded_Units, Id) :-
-	Role0 = rl('FinancialInvestments'/Id),
-	account_by_role_throw(Role0, FinancialInvestments),
+	Role0 = 'FinancialInvestments'/Id,
+	abrlt(Role0, FinancialInvestments),
 	maplist(ensure_FinancialInvestments_Unit(Role0, FinancialInvestments), Traded_Units).
 
- ensure_FinancialInvestments_Unit(rl(Role0), FinancialInvestments, Traded_Unit) :-
+ ensure_FinancialInvestments_Unit(Role0, FinancialInvestments, Traded_Unit) :-
 	ensure_account_exists(FinancialInvestments, _, 1, rl(Role0/Traded_Unit), _).
 
  financial_investments_account(Exchanged_Account_Uri,Goods_Unit,Exchanged_Account2) :-

@@ -178,8 +178,8 @@ static_data_historical(Static_Data, Static_Data_Historical) :-
 		cf: Cf
 	},
 
-	/*!crosschecks_report0(Static_Data.put(reports, Structured_Reports0), Crosschecks_Report_Json),*/
-	Structured_Reports = Structured_Reports0/*.put(crosschecks, Crosschecks_Report_Json)*/,
+	!crosschecks_report0(Static_Data.put(reports, Structured_Reports0), Crosschecks_Report_Json),
+	Structured_Reports = Structured_Reports0.put(crosschecks, Crosschecks_Report_Json),
 	!make_json_report(Structured_Reports, reports_json).
 
 make_gl_viewer_report :-

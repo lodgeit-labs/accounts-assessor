@@ -10,6 +10,7 @@
 					</CashAndCashEquivalents>				
 				</CurrentAssets>
 				<NoncurrentAssets role="NoncurrentAssets">
+					<FinancialInvestments role="FinancialInvestments/FinancialInvestments"/>
 				</NoncurrentAssets>
 			</Assets>
 			<Liabilities normal_side="credit">

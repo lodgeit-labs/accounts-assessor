@@ -25,7 +25,7 @@ pl_page(
 	add_report_page_with_table(0, Title_Text, Tbl, loc(file_name,Filename), Id).
 		
 % EFFECTS: write balance_sheet.html
-bs_page(
+ bs_page(
 	Static_Data,
 	Balance_Sheet
 ) :-

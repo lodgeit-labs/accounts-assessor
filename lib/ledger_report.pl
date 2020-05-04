@@ -16,6 +16,12 @@ set_report_entry_transaction_count(Uri, Transaction_Count) :-
 set_report_entry_normal_side(Uri, X) :-
 	!doc_add(Uri, report_entries:normal_side, X).
 
+set_report_entry_gl_account(Uri, X) :-
+	!doc_add(Uri, report_entries:gl_account, X).
+
+report_entry_gl_account(Uri, X) :-
+	doc(Uri, report_entries:gl_account, X).
+
 report_entry_name(Entry, Name) :-
 	doc(Entry, report_entries:name, Name).
 
@@ -225,7 +231,9 @@ balance_sheet_entry2(Static_Data, Account_Id, Entry) :-
 	make_report_entry(Account_Name, Child_Entries, Entry),
 	set_report_entry_total_vec(Entry, Balance),
 	set_report_entry_normal_side(Entry, Normal_side),
-	set_report_entry_transaction_count(Entry, Transactions_Count).
+	set_report_entry_transaction_count(Entry, Transactions_Count),
+	set_report_entry_gl_account(Entry, Account_Id).
+
 
 /*accounts_report(Static_Data, Accounts_Report) :-
 	balance_sheet_entry(Static_Data, $>account_by_role_throw(rl('Accounts')), Entry),
@@ -260,4 +268,5 @@ activity_entry(Static_Data, Account_Id, Entry) :-
 	make_report_entry(Account_Name, Child_Sheet_Entries, Entry),
 	set_report_entry_total_vec(Entry, Net_Activity),
 	set_report_entry_normal_side(Entry, Normal_side),
-	set_report_entry_transaction_count(Entry, Transactions_Count).
+	set_report_entry_transaction_count(Entry, Transactions_Count),
+	set_report_entry_gl_account(Entry, Account_Id).
