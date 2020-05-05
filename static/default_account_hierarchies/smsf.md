@@ -1,5 +1,25 @@
-Here's how i'm making sense of it. First, the whole hierarchy:
+## glossary
+```
+COA -
+    chart of accounts
 
+CMA -
+    cash management account, a type of bank account
+
+Non-concessional contributions:
+    "Non-concessional contributions are made into your super fund from after-tax income. These contributions are not taxed in your super fund."
+    - https://www.ato.gov.au/Individuals/Super/In-detail/Growing-your-super/Super-contributions---too-much-can-mean-extra-tax/?page=3
+	There are caps on the non-concessional contributions you can make each financial year.
+
+sundry:
+    /ˈsʌndri/
+    1. various items not important enough to be mentioned individually.
+    - google
+```
+
+
+
+## COA:
 ```
 NetAssets
 	Assets
@@ -62,6 +82,8 @@ Equity
 		Opening Balance - Restricted Non Preserved/Taxable
 		Opening Balance - Restricted Non Preserved/Tax Free
 		
+        # these have corresponding accounts in P&l
+
 		Employer Contributions - Concessional 
 		Member/Personal Contributions - Concessional 
 		Member/Personal Contributions - Non Concessional 
@@ -72,28 +94,6 @@ Equity
 		Transfers In - Unrestricted Non Preserved/Tax Free
 		Transfers In - Restricted Non Preserved/Taxable
 		Transfers In - Restricted Non Preserved/Tax Free
-		
-		Share of Profit/(Loss) - Preserved/Tax Free
-		Share of Profit/(Loss) - Preserved/Taxable
-		Share of Profit/(Loss) - Unrestricted Non Preserved/Tax Free
-		Share of Profit/(Loss) - Unrestricted Non Preserved/Taxable
-		Share of Profit/(Loss) - Restricted Non Preserved/Tax Free
-		Share of Profit/(Loss) - Restricted Non Preserved/Taxable
-
-		Income Tax - Preserved/Taxable 
-		Income Tax - Preserved/Tax Free
-		Income Tax - Unrestricted Non Preserved/Taxable
-		Income Tax - Unrestricted Non Preserved/Tax Free
-		Income Tax - Restricted Non Preserved/Taxable
-		Income Tax - Restricted Non Preserved/Tax Free
-
-		Contribution Tax - Preserved/Taxable 
-		Contribution Tax - Preserved/Tax Free
-		Contribution Tax - Unrestricted Non Preserved/Taxable
-		Contribution Tax - Unrestricted Non Preserved/Tax Free
-		Contribution Tax - Restricted Non Preserved/Taxable
-		Contribution Tax - Restricted Non Preserved/Tax Free
-
 		Pensions Paid - Preserved/Taxable
 		Pensions Paid - Preserved/Taxfree
 		Pensions Paid - Unrestricted Non Preserved/Taxable
@@ -119,6 +119,31 @@ Equity
 		Life Insurance Premiums - Restricted Non Preserved/Taxable
 		Life Insurance Premiums - Restricted Non Preserved/Tax Free
 
+        #
+
+		Share of Profit/(Loss) - Preserved/Tax Free
+		Share of Profit/(Loss) - Preserved/Taxable
+		Share of Profit/(Loss) - Unrestricted Non Preserved/Tax Free
+		Share of Profit/(Loss) - Unrestricted Non Preserved/Taxable
+		Share of Profit/(Loss) - Restricted Non Preserved/Tax Free
+		Share of Profit/(Loss) - Restricted Non Preserved/Taxable
+
+		Income Tax - Preserved/Taxable 
+		Income Tax - Preserved/Tax Free
+		Income Tax - Unrestricted Non Preserved/Taxable
+		Income Tax - Unrestricted Non Preserved/Tax Free
+		Income Tax - Restricted Non Preserved/Taxable
+		Income Tax - Restricted Non Preserved/Tax Free
+
+		Contribution Tax - Preserved/Taxable 
+		Contribution Tax - Preserved/Tax Free
+		Contribution Tax - Unrestricted Non Preserved/Taxable
+		Contribution Tax - Unrestricted Non Preserved/Tax Free
+		Contribution Tax - Restricted Non Preserved/Taxable
+		Contribution Tax - Restricted Non Preserved/Tax Free
+
+
+
 		Internal Transfers In - Preserved/Taxable
 		Internal Transfers In - Preserved/Tax Free
 		Internal Transfers In - Unrestricted Non Preserved/Taxable
@@ -132,44 +157,61 @@ Equity
 		Internal Transfers Out - Restricted Non Preserved/Taxable
 		Internal Transfers Out - Restricted Non Preserved/Tax Free
 
+
 P&L
-	Income
-		Capital Gains/Losses _ taxable 
-		Capital Gains/Losses _ Non taxable 
-		Distribution received 
-		Dividends Received
-		Interest Received 
-		Rent Received 
-		Employer Contribution 
-			< member 1/member 2/.. >
-		Member Contribution Concessional 
-			< member 1/member 2/.. >
-		Member Contribution Non Concessional 
-			< member 1/member 2/.. >
-		Transfer In 
-			< member 1/member 2/.. >
+    Income
+	Capital Gains/Losses
+    Capital Gains/Losses(historical)
+	Capital Gains/Losses _ taxable
+	Capital Gains/Losses _ Non taxable
+	Distribution received
+	Dividends Received
+	Interest Received
+	Rent Received
+	Employer Contribution
+		< member 1/member 2/.. >
+			< Preserved/Unrestricted/Restricted >
+				< Taxable / Tax Free >
+	Member Contribution Concessional
+		 < member 1/member 2/.. >
+			< Preserved/Unrestricted/Restricted >
+				< Taxable / Tax Free >
+	 Member Contribution Non Concessional
+		 < member 1/member 2/.. >
+			< Preserved/Unrestricted/Restricted >
+				< Taxable / Tax Free >
+	 Transfer In
+		 < member 1/member 2/.. >
+			< Preserved/Unrestricted/Restricted >
+				< Taxable / Tax Free >
 
 	Expenses
-		Accountancy Fees
-		Adminstration Costs
-		ATO Supervisory Levy 
-		Audit Fees
-		Bank Charges
-		Rental Expenses
-		Investment Expenses 
-		Fines
-		Legal Fees
-		Life Insurance Premium 
-			< member 1/member 2/.. >
-		Pension paid 
-			< member 1/member 2/.. >
-		Benefits Paid 
-			< member 1/member 2/.. >
-		Tranfer Out 
-			< member 1/member 2/.. >
-		Income Tax Expenses 
-
-```
+	Accountancy Fees
+	Adminstration Costs
+	ATO Supervisory Levy
+	Audit Fees
+	Bank Charges
+	Rental Expenses
+	Investment Expenses
+	Fines
+	Legal Fees
+	Life Insurance Premium
+		 < member 1/member 2/.. >
+			< Preserved/Unrestricted/Restricted >
+				< Taxable / Tax Free >
+	 Pension paid
+		 < member 1/member 2/.. >
+			< Preserved/Unrestricted/Restricted >
+				< Taxable / Tax Free >
+	 Benefits Paid
+		 < member 1/member 2/.. >
+			< Preserved/Unrestricted/Restricted >
+				< Taxable / Tax Free >
+	 Tranfer Out
+		 < member 1/member 2/.. >
+			< Preserved/Unrestricted/Restricted >
+				< Taxable / Tax Free >
+	 Income Tax Expenses```
 
 What i suppose the program should do, in phases:
 
@@ -186,3 +228,15 @@ What if a clean-slate computerized accounting would, instead of using dr-cr pair
 	1) Asset changes as usual
 	2) Equity tracking ownership
 	3) P&L tracking reasons of asset change
+
+
+
+
+
+
+
+
+
+
+
+
