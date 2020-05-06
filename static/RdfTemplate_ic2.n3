@@ -1,3 +1,10 @@
+@prefix ic2: <https://rdf.lodgeit.net.au/v1/calcs/ic#> .
+
+@prefix ic2_ui: <https://rdf.lodgeit.net.au/v1/calcs/ic/ui#> .
+
+
+ic2:this rdfs:comment """investment calculator 2, with pyco""".
+
 
 ic2_ui:action_verb
 	a rdfs:Class;

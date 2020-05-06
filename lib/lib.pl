@@ -28,10 +28,12 @@
 :- [event_calculus].
 :- [exchange].
 :- [exchange_rates].
+:- [extract_bank_accounts].
 :- [fact_output].
 :- [fetch_file].
 :- [german_bank_csv].
 :- [gl_export].
+:- [gl_input].
 :- [investment_report_2].
 :- [investments_accounts].
 :- [invoices].

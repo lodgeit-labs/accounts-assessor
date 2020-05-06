@@ -1,4 +1,3 @@
-:- use_module(library(dcg/basics)).
 
 % bank statement transaction record, these are in the input xml
 s_transaction_fields([day, type_id, vector, account, exchanged, misc]).

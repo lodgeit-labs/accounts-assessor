@@ -9,6 +9,7 @@ gl_export(Sd, Processed_S_Transactions, Transactions0, Livestock_Transactions, R
 	/* Outputs list is lists of generated transactions, one list for each s_transaction */
 	append(Transactions0, [Livestock_Transactions], Results),
 	/* Sources list is all the s_transactions + livestock */
+	/* finishme. GL_input will create multiple source transactions. */
 	append(['initial_GL'], Processed_S_Transactions, Sources0),
 	append(Sources0, ['livestock'], Sources),
 	running_balance_initialization,

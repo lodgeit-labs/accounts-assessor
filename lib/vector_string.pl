@@ -12,8 +12,7 @@ money_string(value(Unit, Amount)) --> blanks, string(Unit0), blanks, number(Amou
 string_value(S, V) :-
 	string_codes(S, C), phrase(money_string(V), C).
 
-/*wtf*/
-vector_string(Default_Unit, Side, S, V) :-
+vector_from_string(Default_Unit, Side, S, [V]) :-
 	(	number_string(N, S)
 	->	V0 = value(Default_Unit, N)
 	;	string_value(S, V0)),

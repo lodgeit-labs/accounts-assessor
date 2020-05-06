@@ -59,6 +59,8 @@ def run(debug_loading, debug, request_files, dev_runner_options, prolog_flags, s
 		dev_runner_options = ''
 	request_files2 = [os.path.abspath(os.path.expanduser(f)) for f in request_files]
 	tmp_directory_name, tmp_directory_absolute_path = create_tmp()
+	#subprocess.call(['/bin/rm', get_tmp_directory_absolute_path('last_request')])
+	#subprocess.call(['/bin/ln', '-s', tmp_directory_absolute_path, get_tmp_directory_absolute_path('last_request')])
 	if len(request_files2) == 1 and os.path.isdir(request_files2[0]):
 		files = files_in_dir(request_files2[0])
 	else:
@@ -79,10 +81,6 @@ def run(debug_loading, debug, request_files, dev_runner_options, prolog_flags, s
 
 
 def call_prolog(msg, dev_runner_options=[], prolog_flags='true', make_new_tmp_dir=False, debug_loading=None, debug=None, halt=True):
-
-
-
-
 	# comment(RDF_EXPLORER_1_BASE, comment, 'base of uris to show to user in generated html')
 	rdf_explorer_base = 'http://dev-node.uksouth.cloudapp.azure.com:10036/#/repositories/a/node/'
 	rdf_namespace_base = 'http://dev-node.uksouth.cloudapp.azure.com/rdf/'
@@ -92,8 +90,13 @@ def call_prolog(msg, dev_runner_options=[], prolog_flags='true', make_new_tmp_di
 	msg['params']["rdf_namespace_base"] = rdf_namespace_base
 	msg['params']["rdf_explorer_bases"] = [rdf_explorer_base]
 
+	subprocess.call(['/bin/rm', get_tmp_directory_absolute_path('last_request')])
+	subprocess.call(['/bin/ln', '-s', get_tmp_directory_absolute_path(msg['params']['tmp_directory_name']), get_tmp_directory_absolute_path('last_request')])
+
 	if True:#make_new_tmp_dir:
-		msg['params']['tmp_directory_name'],tmp_path = create_tmp()
+		msg['params']['tmp_directory_name'], tmp_path = create_tmp()
+		subprocess.call(['/bin/rm', get_tmp_directory_absolute_path('last_response')])
+		subprocess.call(['/bin/ln', '-s', tmp_path, get_tmp_directory_absolute_path('last_response')])
 		with open(os.path.join(tmp_path, 'info.txt'), 'w') as info:
 			info.write(str(msg))
 			info.write('\n')
@@ -226,8 +229,8 @@ def create_tmp():
 	name = create_tmp_directory_name()
 	path = os.path.normpath(get_tmp_directory_absolute_path(name))
 	os.mkdir(path)
-	subprocess.call(['/bin/rm', get_tmp_directory_absolute_path('last')])
-	subprocess.call(['/bin/ln', '-s', get_tmp_directory_absolute_path(name), get_tmp_directory_absolute_path('last')])
+	#subprocess.call(['/bin/rm', get_tmp_directory_absolute_path('last_response')])
+	#subprocess.call(['/bin/ln', '-s', get_tmp_directory_absolute_path(name), get_tmp_directory_absolute_path('last_response')])
 	return name,path
 
 
