@@ -49,6 +49,8 @@ default_account_hierarchy(Taxonomy, Url) :-
 	->	Url = 'investments.xml'
 	;	rdf_equal2(Taxonomy, account_taxonomies:livestock)
 	->	Url = 'livestock.xml'
+	;	rdf_equal2(Taxonomy, account_taxonomies:smsf)
+	->	Url = 'smsf.xml'
 	.
 
 absolutize_account_hierarchy_path(Url_Or_Path, Url_Or_Path2) :-
@@ -106,8 +108,10 @@ extract_accounts_subtree(Parent, E) :-
 	maplist(extract_accounts_subtree(Uri), Children).
 
 add_account(E, Parent0, Uri) :-
-	E = element(Id,Attrs,_),
-
+	E = element(Elem_name, Attrs, _),
+	(	memberchk((name = Id), Attrs)
+	->	true
+	;	Id = Elem_name),
 	(	memberchk((parent_role = Parent_role_atom), Attrs)
 	->	(	Parent0 \= no_parent_element
 		->	throw_string(['problem with account "', Id, '": In a nested account element, parent must not be specified. Found:', Parent_role_atom])

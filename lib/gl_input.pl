@@ -16,7 +16,7 @@
 	(	doc_value(Item, ic:date, Date1)
 	->	doc_new_uri(gl_input_st, St1)
 	;	(
-			(Date0 = none -> throw_string('GL_input: date missing');true),
+			(Date0 = none ->throw_string('GL_input: date missing');true),
 			Date1 = Date0,
 			St1 = St0
 		)

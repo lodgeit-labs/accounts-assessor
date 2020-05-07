@@ -51,7 +51,7 @@ livestock_data_by_vector_unit(Livestock, Exchanged) :-
 	),
 	length(Known_Livestock_Datas, Known_Livestock_Datas_Length),
 	(   Known_Livestock_Datas_Length > 1
-	->  throw_string(multiple_livestock_types_match)
+	->	throw_string(multiple_livestock_types_match)
 	;   true),
 	(	Known_Livestock_Datas_Length = 0
 	->	(

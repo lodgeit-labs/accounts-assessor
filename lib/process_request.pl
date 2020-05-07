@@ -61,7 +61,7 @@ process_request(Options, File_Paths) :-
 			catch_with_backtrace(
 				(process_multifile_request(File_Paths) -> true ; throw(failure)),
 				E,
-				add_alert('unknown_error', E)
+				add_alert('error', E)
 			)
 		)
 	),

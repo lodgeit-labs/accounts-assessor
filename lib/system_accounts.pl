@@ -184,8 +184,12 @@ in Assets
 /*experimentally naming predicates just "pxx" here for readability*/
 
  'ensure InvestmentIncome accounts exist'(Traded_Units) :-
-	!investmentIncome_accounts(Uis),
-	maplist(p10(Traded_Units), Uis).
+ 	(	Traded_Units = []
+ 	->	true
+ 	;	(
+			!investmentIncome_accounts(Uis),
+			maplist(p10(Traded_Units), Uis)
+		)).
 p10(Traded_Units, Uis) :-
 	maplist(p20(Traded_Units,Uis), [realized,unrealized]).
 p20(Traded_Units,Trading_Account_Id, R) :-
@@ -232,3 +236,17 @@ or:
 in pyco2, we would not separate lookup and creation.
 
 */
+
+
+
+/*
+┏━┓┏┳┓┏━┓┏━╸
+┗━┓┃┃┃┗━┓┣╸
+┗━┛╹ ╹┗━┛╹
+*/
+
+ create_smsf_subaccounts(Attrs) :-
+ 	(	memberchk(subcategorize_by_smsf_member = true, Attrs)
+	->
+
+ensure_smsf_accounts_exist2(Account) :-

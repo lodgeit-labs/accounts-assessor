@@ -74,7 +74,7 @@ process_realized(Dom, Global_Report_Date_Atom, Result) :-
 	(
 		Global_Report_Date_Atom = Sale_Date_In
 	->true
-	; throw_string('global report date does not match investment sale date') 
+	;throw_string('global report date does not match investment sale date')
 	),
 	(
 		var(Sale_Date_In)
@@ -214,7 +214,7 @@ process_unrealized(Dom, Global_Report_Date, Result) :-
 	(
 		Global_Report_Date = Report_Date_In
 	->true
-	; throw_string('global report date does not match investment report date') 
+	;throw_string('global report date does not match investment report date')
 	),
 	(
 		var(Report_Date_In)
