@@ -57,7 +57,8 @@ is_valid_role('FinancialInvestments'/Id) :- freeze(Id, atom(Id)).
 	!ensure_livestock_accounts_exist,
 	!traded_units(S_Transactions, Traded_Units),
 	!ensure_financial_investments_accounts_exist(Traded_Units),
-	!'ensure InvestmentIncome accounts exist'(Traded_Units).
+	!'ensure InvestmentIncome accounts exist'(Traded_Units),
+	ensure_smsf_equity_tree.
 
  make_root_account :-
 	make_account2(root, 0, rl(root), _Root),
@@ -245,8 +246,38 @@ in pyco2, we would not separate lookup and creation.
 ┗━┛╹ ╹┗━┛╹
 */
 
+subcategorize_by_investment
+subcategorize_by_bank
+
+ensure_smsf_equity_tree :-
+	(	account_by_role(smsf_equity, Equity)
+	->	ensure_smsf_equity_tree3(Equity)
+	;	true).
+
+/*for each leaf account in equity, create sub-account for each member*/
+ensure_smsf_equity_tree3(Root) :-
+	findall(A,
+		(
+			account_in_set(A, Root),
+			\+account_parent(_. A)
+		),
+		As
+	),
+	maplist(ensure_smsf_equity_tree6, As).
+
+ensure_smsf_equity_tree6(A) :-
+	account_name(A, Name),
+	smsf_members_throw(Members),
+	maplist(ensure_smsf_equity_tree6(A), Members).
+
+ensure_smsf_equity_tree6(A, Member) :-
+	ensure_account_exists(A, _, 1, (Name/Member), _).
+
+
  create_smsf_subaccounts(Attrs) :-
  	(	memberchk(subcategorize_by_smsf_member = true, Attrs)
 	->
+
+smsf_equity
 
 ensure_smsf_accounts_exist2(Account) :-
