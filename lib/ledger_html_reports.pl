@@ -1,10 +1,3 @@
-%:- rdet(optional_converted_value/3).
-%:- rdet(format_conversion/3).
-%:- rdet(optional_currency_conversion/5).
-%:- rdet(format_money_precise/3).
-%:- rdet(format_money/3).
-%:- rdet(format_money2/4).
-
 
 % EFFECTS: write profit & loss report html
 pl_page(

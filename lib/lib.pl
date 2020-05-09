@@ -13,8 +13,6 @@
 :- [search_paths].
 
 :- ['../public_lib/xbrl/prolog/xbrl/utils.pl'].
-%:- findall(_, (!member(W, [1,2]), writeq(W)), _).
-
 
 :- [accounts_extract].
 :- [accounts].
@@ -25,6 +23,7 @@
 :- [crosschecks_report].
 :- [days].
 :- [detail_accounts].
+:- [doc].
 :- [event_calculus].
 :- [exchange].
 :- [exchange_rates].
@@ -52,6 +51,7 @@
 :- [pricing].
 :- [process_request].
 :- [report_page].
+:- [request_files].
 :- [residency].
 :- [s_transaction].
 :- [system_accounts].

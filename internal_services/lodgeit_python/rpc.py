@@ -7,7 +7,7 @@ import fractions
 import os
 from franz.openrdf.connect import ag_connect
 
-from lib import account_hierarchy
+from arelle import account_hierarchy
 
 @rpc_method
 def arelle_extract(taxonomy_locator):
