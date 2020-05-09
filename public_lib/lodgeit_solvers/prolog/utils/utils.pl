@@ -6,7 +6,6 @@
 :- use_module(library(rdet)).
 :- use_module(library(yall)).
 :- use_module(library(xsd/flatten)).
-:- use_module(library(semweb/rdf11),except(['{}'/1])).
 :- use_module(library(debug)).
 
 :- use_module(library(fnotation)).

@@ -97,3 +97,14 @@ print_trading2(Static_Data, [(Sub_Account,Unit_Accounts)|Tail], In, Out, [XmlH|X
 	
 print_trading2(_,[],Results,Results,[]).
 	
+
+ maybe_print_dimensional_facts(Static_Data,Contexts_In, Contexts_Out, Xml) :-
+	(	Static_Data.output_dimensional_facts = on
+	->	print_dimensional_facts(Static_Data, Contexts_In, Contexts_Out, Xml)
+	;	Contexts_In = Contexts_Out).
+
+ print_dimensional_facts(Static_Data, Results0, Results3, [Xml1, Xml2, Xml3]) :-
+ 	dict_vars(Static_Data, [Instant_Context_Id_Base, Duration_Context_Id_Base]),
+	!print_banks(Static_Data, Instant_Context_Id_Base, Results0, Results1, Xml1),
+	!print_forex(Static_Data, Duration_Context_Id_Base, Results1, Results2, Xml2),
+	!print_trading(Static_Data, Results2, Results3, Xml3).

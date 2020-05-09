@@ -1,0 +1,380 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Sample Fixed Assets List file for XBRL GL 2005 with annotations  Version 1.0.50816.1 -->
+<!-- This file contains data fields considered very important to representing its subject. Annotations have been provided for the "most important" of those fields. XBRL GL has many other fields that could be helpful in expressing the information, but have been omitted because their presence is more circumstantial. This file was created for educational purposes only, does not represent real company data and we welcome suggestions on improvement. Contact xbrlgl@xbrl.org with comments. -->
+<!-- This file shows how we might represent a fixed assets listingwith XBRL GL. The rules related to depreciation of fixed assets differ regionally, especially related to tax depreciation. -->
+<!-- The "root" of every XBRL file ("instance document") is xbrl. -->
+<xbrli:xbrl xmlns:xbrli="http://www.xbrl.org/2003/instance" xmlns:xbrll="http://www.xbrl.org/2003/linkbase" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:gl-cor="http://www.xbrl.org/int/gl/cor/2005-11-07" xmlns:gl-muc="http://www.xbrl.org/int/gl/muc/2005-11-07" xmlns:gl-bus="http://www.xbrl.org/int/gl/bus/2005-11-07" xmlns:gl-plt="http://www.xbrl.org/int/gl/plt/2005-11-07" xmlns:iso4217="http://www.xbrl.org/2003/iso4217" xmlns:iso639="http://www.xbrl.org/2005/iso639" xsi:schemaLocation="http://www.xbrl.org/int/gl/plt/2005-11-07 ../plt/case-c-b-m-u-t/gl-plt-2005-11-07.xsd">
+	<xbrll:schemaRef xlink:type="simple" xlink:arcrole="http://www.w3.org/1999/xlink/properties/linkbase" xlink:href="../plt/case-c-b-m-u-t/gl-plt-2005-11-07.xsd"/>
+	<!-- The container for XBRL GL, accountingEntries, is not the root of an XBRL GL file - the root, as with all XBRL files, is xbrl. This means that a single XBRL GL file can store one or more virtual XBRL GL files, through one or more accountingEntries structures with data inside. The primary key to understanding an XBRL GL file is the entriesType. A single physical XBRL GL file can have multiple accountingEntries structures to represent both transactions and master files; the differences are signified by the appropriate entriesType enumerated values. 
+The value of the virtual accountingEntries in a single physical file is that detailed information about accounts (the number, the description and other attributes) can appear once in one accountingEntries structure while the entries themselves can refer only to the accountMainID as the index. -->
+	<gl-cor:accountingEntries>
+		<!-- Because entriesType is strongly suggested, documentInfo will be required. -->
+		<gl-cor:documentInfo>
+			<!-- This field, entriesType, provides the automated guidance on the purpose of the XBRL GL information. The use of XBRL to list groupings of "assets" (which actually encompasses liabilities like accounts payable) is a standard, enumerated, type of file. -->
+			<gl-cor:entriesType contextRef="now">assets</gl-cor:entriesType>
+			<!-- Like a serial number, this field, uniqueID, provides a place to uniquely identify/track a series of entries. It is like less relevant for ad-hoc reports, such as a fixed asset list, which is not normally used for later posting or reentry. XBRL GL provides for later correction through replacement or augmentation of transferred information. -->
+			<gl-cor:uniqueID contextRef="now">001</gl-cor:uniqueID>
+			<gl-cor:language contextRef="now">iso639:en</gl-cor:language>
+			<!-- The date associated with the creation of the data reflected within the associated accountingEntries section. Somewhat like a "printed date" on a paper report -->
+			<gl-cor:creationDate contextRef="now">2005-08-30</gl-cor:creationDate>
+			<gl-bus:creator contextRef="now">XBRL GL Working Group</gl-bus:creator>
+			<!-- A description related to the batch of information express in the accountingEntries structure. Why was this batch of information put together and published? It would be helpful to put that information in the entriesComment. -->
+			<gl-cor:entriesComment contextRef="now">A best practice fixed asset listing document</gl-cor:entriesComment>
+			<!-- The period of time covered by a report is a helpful tool. With fixed assets, it may help in understanding asset movements (additions, retirements, and disposals) and cut-offs.-->
+			<gl-cor:periodCoveredStart contextRef="now">2005-06-01</gl-cor:periodCoveredStart>
+			<gl-cor:periodCoveredEnd contextRef="now">2005-06-30</gl-cor:periodCoveredEnd>
+			<gl-bus:sourceApplication contextRef="now">Sage FAS</gl-bus:sourceApplication>
+			<gl-muc:defaultCurrency contextRef="now">iso4217:usd</gl-muc:defaultCurrency>
+		</gl-cor:documentInfo>
+		<!-- Typically, an export from an accounting system does not carry with it information specifically about the company. However, the name of the company would be a very good thing to include with the file, making the entityInformation tuple necessary. -->
+		<gl-cor:entityInformation>
+			<!-- The name of the company would be a very good thing to include with the file; this structure and its content are where that would be stored. -->
+			<gl-bus:organizationIdentifiers>
+				<gl-bus:organizationIdentifier contextRef="now">ABC Company</gl-bus:organizationIdentifier>
+				<gl-bus:organizationDescription contextRef="now">Company Name</gl-bus:organizationDescription>
+			</gl-bus:organizationIdentifiers>
+		</gl-cor:entityInformation>
+		<!-- Sample data for this instance is provided here:
+		Fixed Assets listing
+- - -
+Asset class:LAND
+Asset number: L012
+Asset description: Main Sculley Street Land
+
+Depreciation information	Book	US-Tax
+Life				NA	NA
+Method				NA	NA
+
+Basis				5,000 5,000
+
+Date placed in service:	Feb-2-1917
+- - -
+Asset class:BLDGS
+Asset number: B001
+Asset description: Main Sculley Street Complex
+
+Depreciation information	Book	US-Tax
+Life				100	50
+Method				SL	SL
+
+Basis				200,000	190,000
+
+Date placed in service:	Mar-15-1949
+- - -
+Asset class:EQUIP
+Asset number: E987G
+Asset description: Latini Model C-3 Lollipop Machine
+
+Depreciation information	Book	US-Tax
+Life				7	5
+Method				DDB	MACRS
+
+Basis				100,000	9,500
+
+Date placed in service:	Jul-1-1973
+- - -
+Asset class:EQUIP
+Asset number: E987G
+Asset description: Solich Caramel Enrober
+
+Depreciation information	Book	US-Tax
+Life				7	5
+Method				DDB	MACRS
+
+Basis				60,000	59,000
+
+Date placed in service:	Sep-5-1990
+- - -
+Asset class:EQUIP
+Asset number: E477
+Asset description: Latini Airpop Extruder
+
+Depreciation information	Book	US-Tax
+Life				7	5
+Method				DDB	MACRS
+
+Basis				120,000	120,000
+
+Date placed in service:	Apr-15-2004
+- - -
+
+gl-cor:amount is used for Basis
+gl-cor:postingDate is used for date placed into service
+
+gl-bus:measurableCode is not enumerated, but suggestions are made in the Conceptual Guide; 
+gl-bus:measurableID is used for Asset number
+gl-bus:measurableDescription is used for Asset description
+gl-bus:measurableQuantity is 1
+
+Where to store the Asset class is the grayest area in this representation. It could be a subaccount; in this case, we have illustrated the use of the gl-bus:measurableQualifier for this purpose.
+
+gl-bus:dmLifeLength is used for Life
+gl-bus:dmMethodType is used for Depreciation method
+
+gl-bus:dmJurisdiction (enumerated) Book (other) US-Tax (federal) - see comment about use of gl-bus:entryAccountingMethodPurpose and gl-cor:accountPurposeCode
+ -->
+		<!-- A fixed asset listing requires entries in both the entryHeader and entryDetail (home of the amount element, the measurable structure and other relevant fields). Few files can be represented using only documentInfo and entityInformation sections, but it is certainly possible. .-->
+		<gl-cor:entryHeader>
+			<!-- Each amount requires its own entryDetail line; you can have multiple measurables on an entryDetail. However, an entryHeader can have as many entryDetail lines (representing a fixed asset) as necessary. Should there be a logical reason to group fixed assets, the entryHeader can facilitate the disclosure, and then each grouping would require a separate entryHeader line. For example, in this document, each asset will have two entryDetail lines as the "amount" will be different for book and for tax, but the need for a separate entryHeader for each item is not determined. -->
+			<!-- If this were a more depreciation-related report, the depreciation could be represented very generically, using journal entries and entryQualifier or xbrlInclude to indicate BBF for accumulated and period for present period, or specific additions to the taxonomy could be/will be added for fixed asset processing, including regional, tax-specific (e.g., allowed or allowable, US Section 179). -->
+			<!-- The sourceJournalID and sourceJournalDescription should also help in machine consumption. The sourceJournalID is enumerated; it would probably be helpful to have a code specifically for fixed assets (fa), but it isn't there now. -->
+			<gl-cor:sourceJournalID contextRef="now">ot</gl-cor:sourceJournalID>
+			<gl-bus:sourceJournalDescription contextRef="now">Fixed Assets</gl-bus:sourceJournalDescription>
+			<gl-cor:entryDetail>
+				<!-- A unique identifier for each entry detail line within an entry header, this should at the least be a counter. -->
+				<gl-cor:lineNumber contextRef="now">1</gl-cor:lineNumber>
+				<!-- The account could be used for any number of purposes - or it could be ignored completely. The primary use of account would be to tie from the fixed asset to the asset account it contributes to/reconciles as part of, and especially the subaccount representing the physicial location of the asset. The account could be used to represent the asset class, or the class might be otherwise determined. -->
+				<gl-cor:account>
+					<gl-cor:accountMainID contextRef="now">1400</gl-cor:accountMainID>
+					<!-- In most cases, the description is given to help a human reader; the accountMainID would be sufficient for data exchange purposes. As noted previously, some implementations use the description as the primary identifier of the account.  -->
+					<gl-cor:accountMainDescription contextRef="now">Land</gl-cor:accountMainDescription>
+					<gl-cor:accountPurposeCode contextRef="now">usgaap</gl-cor:accountPurposeCode>
+					<gl-cor:accountType contextRef="now">account</gl-cor:accountType>
+				</gl-cor:account>
+				<!-- XBRL GL has been designed to reflect how popular accounting systems store amounts - some combination of a signed amount (e.g., 5, -10), a separate sign (entered into signOfAmount) and a separate place to indicate the number is associated with a debit or credit (debitCreditCode). -->
+				<gl-cor:amount contextRef="now" decimals="2" unitRef="usd">5000</gl-cor:amount>
+				<!-- The posting date is the accounting significance date. For our balances, they will reflect the date the item was placed into service. The documentDate can be used for the purchase date, shipReceivedDate for the date the asset was recieved on site, both not shown here. -->
+				<gl-cor:postingDate contextRef="now">1917-02-02</gl-cor:postingDate>
+				<!-- The identifier structure can optionally be used to identify the vendor of the item. -->
+				<!-- The xbrlInfo structure could also be used to help categorize the assets for reporting purposes. It will not be illustrated in this file. -->
+				<!-- The measurable structure is the primary storage vehicle for the fixed asset. -->
+				<gl-bus:measurable>
+				<!--  The measurable code is not enumerated, but the recommendation is to use I for inventory, F for fixed assets, N for intangibles, KPI for performance metrics, S for services, etc. -->
+					<gl-bus:measurableCode contextRef="now">F</gl-bus:measurableCode>
+					<gl-bus:measurableID contextRef="now">L012</gl-bus:measurableID>
+					<gl-bus:measurableDescription contextRef="now">Main Sculley Street Land</gl-bus:measurableDescription>
+					<gl-bus:measurableQuantity contextRef="now" unitRef="na" decimals="0">1</gl-bus:measurableQuantity>
+					<!-- As noted in the commentary of the example, Asset/Inventory/Service class does not currently have its own element; however, the gl-bus:measurableQualifier, defrined as Field that can represent grading, inspection codes, ratings and other qualifiers to properly capture PKI/Balanced Scorecard information, is used here. -->
+					<gl-bus:measurableQualifier contextRef="now">LAND</gl-bus:measurableQualifier>
+				</gl-bus:measurable>
+				<!-- The depreciationMortgage structure stores the depreciation information. -->
+				<!-- Land is not depreciated for most book/tax purposes. Should the jurisdiction be included? Should a separate entryDetail line appear even though book and tax are the same? You be the judge! -->
+ 				<gl-bus:depreciationMortgage>
+				<gl-bus:dmJurisdiction contextRef="now">other</gl-bus:dmJurisdiction>
+ 				</gl-bus:depreciationMortgage>
+			</gl-cor:entryDetail>
+			<gl-cor:entryDetail>
+				<gl-cor:lineNumber contextRef="now">2</gl-cor:lineNumber>
+				<gl-cor:account>
+					<gl-cor:accountMainID contextRef="now">1400</gl-cor:accountMainID>
+					<gl-cor:accountMainDescription contextRef="now">Land</gl-cor:accountMainDescription>
+					<gl-cor:accountPurposeCode contextRef="now">tax</gl-cor:accountPurposeCode>
+					<gl-cor:accountType contextRef="now">account</gl-cor:accountType>
+				</gl-cor:account>
+				<gl-cor:amount contextRef="now" decimals="2" unitRef="usd">5000</gl-cor:amount>
+				<gl-cor:postingDate contextRef="now">1917-02-02</gl-cor:postingDate>
+				<gl-bus:measurable>
+					<gl-bus:measurableCode contextRef="now">F</gl-bus:measurableCode>
+					<gl-bus:measurableID contextRef="now">L012</gl-bus:measurableID>
+					<gl-bus:measurableDescription contextRef="now">Main Sculley Street Land</gl-bus:measurableDescription>
+					<gl-bus:measurableQuantity contextRef="now" unitRef="na" decimals="0">1</gl-bus:measurableQuantity>
+					<gl-bus:measurableQualifier contextRef="now">LAND</gl-bus:measurableQualifier>
+				</gl-bus:measurable>
+				<gl-bus:depreciationMortgage> 
+					<gl-bus:dmJurisdiction contextRef="now">F</gl-bus:dmJurisdiction>
+				</gl-bus:depreciationMortgage> 
+			</gl-cor:entryDetail>
+			<gl-cor:entryDetail>
+				<gl-cor:lineNumber contextRef="now">3</gl-cor:lineNumber>
+				<gl-cor:account>
+					<gl-cor:accountMainID contextRef="now">1420</gl-cor:accountMainID>
+					<gl-cor:accountMainDescription contextRef="now">Buildings</gl-cor:accountMainDescription>
+					<gl-cor:accountPurposeCode contextRef="now">usgaap</gl-cor:accountPurposeCode>
+					<gl-cor:accountType contextRef="now">account</gl-cor:accountType>
+				</gl-cor:account>
+				<gl-cor:amount contextRef="now" decimals="2" unitRef="usd">200000</gl-cor:amount>
+				<gl-cor:postingDate contextRef="now">1949-03-15</gl-cor:postingDate>
+				<gl-bus:measurable>
+					<gl-bus:measurableCode contextRef="now">F</gl-bus:measurableCode>
+					<gl-bus:measurableID contextRef="now">B001</gl-bus:measurableID>
+					<gl-bus:measurableDescription contextRef="now">Main Sculley Street Complex</gl-bus:measurableDescription>
+					<gl-bus:measurableQuantity contextRef="now" unitRef="na" decimals="0">1</gl-bus:measurableQuantity>
+					<gl-bus:measurableQualifier contextRef="now">BLDGS</gl-bus:measurableQualifier>
+				</gl-bus:measurable>
+				<gl-bus:depreciationMortgage> 
+					<!-- The dmJurisdiction is enumerated with values for federal, state, local and other. For sophisticated depreciation environments, the gl-bus:entryAccountingMethodPurpose may also be useful in defining the appropriate jurisdiction; likewise gl-cor:accountPurposeCode can be used to differentiate between book/financial and tax reporting purposes. -->
+					<gl-bus:dmJurisdiction contextRef="now">other</gl-bus:dmJurisdiction>
+					<!-- dmMethodType is not enumerated. For now, it is the place to put the system (e.g., MACRS, ACRS) method (SL, DB, DDB) and convention (e.g., half year).-->
+					<gl-bus:dmMethodType contextRef="now">SL</gl-bus:dmMethodType>
+					<gl-bus:dmLifeLength contextRef="now" unitRef="usd" decimals="0">100</gl-bus:dmLifeLength>
+				</gl-bus:depreciationMortgage> 
+			</gl-cor:entryDetail>
+			<gl-cor:entryDetail>
+				<gl-cor:lineNumber contextRef="now">4</gl-cor:lineNumber>
+				<gl-cor:account>
+					<gl-cor:accountMainID contextRef="now">1420</gl-cor:accountMainID>
+					<gl-cor:accountMainDescription contextRef="now">Buildings</gl-cor:accountMainDescription>
+					<gl-cor:accountPurposeCode contextRef="now">tax</gl-cor:accountPurposeCode>
+					<gl-cor:accountType contextRef="now">account</gl-cor:accountType>
+				</gl-cor:account>
+				<gl-cor:amount contextRef="now" decimals="2" unitRef="usd">190000</gl-cor:amount>
+				<gl-cor:postingDate contextRef="now">1949-03-15</gl-cor:postingDate>
+				<gl-bus:measurable>
+					<gl-bus:measurableCode contextRef="now">F</gl-bus:measurableCode>
+					<gl-bus:measurableID contextRef="now">B001</gl-bus:measurableID>
+					<gl-bus:measurableDescription contextRef="now">Main Sculley Street Complex</gl-bus:measurableDescription>
+					<gl-bus:measurableQuantity contextRef="now" unitRef="na" decimals="0">1</gl-bus:measurableQuantity>
+					<gl-bus:measurableQualifier contextRef="now">BLDGS</gl-bus:measurableQualifier>
+				</gl-bus:measurable>
+				<gl-bus:depreciationMortgage> 
+					<gl-bus:dmJurisdiction contextRef="now">F</gl-bus:dmJurisdiction>
+					<gl-bus:dmMethodType contextRef="now">SL</gl-bus:dmMethodType>
+					<gl-bus:dmLifeLength contextRef="now" unitRef="usd" decimals="0">50</gl-bus:dmLifeLength>
+				</gl-bus:depreciationMortgage> 
+			</gl-cor:entryDetail>
+			<gl-cor:entryDetail>
+				<gl-cor:lineNumber contextRef="now">5</gl-cor:lineNumber>
+				<gl-cor:account>
+					<gl-cor:accountMainID contextRef="now">1430</gl-cor:accountMainID>
+					<gl-cor:accountMainDescription contextRef="now">Equipment</gl-cor:accountMainDescription>
+					<gl-cor:accountPurposeCode contextRef="now">usgaap</gl-cor:accountPurposeCode>
+					<gl-cor:accountType contextRef="now">account</gl-cor:accountType>
+				</gl-cor:account>
+				<gl-cor:amount contextRef="now" decimals="2" unitRef="usd">100000</gl-cor:amount>
+				<gl-cor:postingDate contextRef="now">1973-07-01</gl-cor:postingDate>
+				<gl-bus:measurable>
+					<gl-bus:measurableCode contextRef="now">F</gl-bus:measurableCode>
+					<gl-bus:measurableID contextRef="now">E987G</gl-bus:measurableID>
+					<gl-bus:measurableDescription contextRef="now">Latini Model C-3 Lollipop Machine</gl-bus:measurableDescription>
+					<gl-bus:measurableQuantity contextRef="now" unitRef="na" decimals="0">1</gl-bus:measurableQuantity>
+					<gl-bus:measurableQualifier contextRef="now">EQUIP</gl-bus:measurableQualifier>
+				</gl-bus:measurable>
+				<gl-bus:depreciationMortgage> 
+					<gl-bus:dmJurisdiction contextRef="now">other</gl-bus:dmJurisdiction>
+					<gl-bus:dmMethodType contextRef="now">DDB</gl-bus:dmMethodType>
+					<gl-bus:dmLifeLength contextRef="now" unitRef="usd" decimals="0">7</gl-bus:dmLifeLength>
+				</gl-bus:depreciationMortgage> 
+			</gl-cor:entryDetail>
+			<gl-cor:entryDetail>
+				<gl-cor:lineNumber contextRef="now">6</gl-cor:lineNumber>
+				<gl-cor:account>
+					<gl-cor:accountMainID contextRef="now">1430</gl-cor:accountMainID>
+					<gl-cor:accountMainDescription contextRef="now">Equipment</gl-cor:accountMainDescription>
+					<gl-cor:accountPurposeCode contextRef="now">tax</gl-cor:accountPurposeCode>
+					<gl-cor:accountType contextRef="now">account</gl-cor:accountType>
+				</gl-cor:account>
+				<gl-cor:amount contextRef="now" decimals="2" unitRef="usd">9500</gl-cor:amount>
+				<gl-cor:postingDate contextRef="now">1973-07-01</gl-cor:postingDate>
+				<gl-bus:measurable>
+					<gl-bus:measurableCode contextRef="now">F</gl-bus:measurableCode>
+					<gl-bus:measurableID contextRef="now">E987G</gl-bus:measurableID>
+					<gl-bus:measurableDescription contextRef="now">Latini Model C-3 Lollipop Machine</gl-bus:measurableDescription>
+					<gl-bus:measurableQuantity contextRef="now" unitRef="na" decimals="0">1</gl-bus:measurableQuantity>
+					<gl-bus:measurableQualifier contextRef="now">EQUIP</gl-bus:measurableQualifier>
+				</gl-bus:measurable>
+				<gl-bus:depreciationMortgage> 
+					<gl-bus:dmJurisdiction contextRef="now">F</gl-bus:dmJurisdiction>
+					<gl-bus:dmMethodType contextRef="now">MACRS</gl-bus:dmMethodType>
+					<gl-bus:dmLifeLength contextRef="now" unitRef="usd" decimals="0">5</gl-bus:dmLifeLength>
+				</gl-bus:depreciationMortgage> 
+			</gl-cor:entryDetail>
+			<gl-cor:entryDetail>
+				<gl-cor:lineNumber contextRef="now">7</gl-cor:lineNumber>
+				<gl-cor:account>
+					<gl-cor:accountMainID contextRef="now">1430</gl-cor:accountMainID>
+					<gl-cor:accountMainDescription contextRef="now">Equipment</gl-cor:accountMainDescription>
+					<gl-cor:accountPurposeCode contextRef="now">usgaap</gl-cor:accountPurposeCode>
+					<gl-cor:accountType contextRef="now">account</gl-cor:accountType>
+				</gl-cor:account>
+				<gl-cor:amount contextRef="now" decimals="2" unitRef="usd">60000</gl-cor:amount>
+				<gl-cor:postingDate contextRef="now">1990-09-05</gl-cor:postingDate>
+				<gl-bus:measurable>
+					<gl-bus:measurableCode contextRef="now">F</gl-bus:measurableCode>
+					<gl-bus:measurableID contextRef="now">E987G</gl-bus:measurableID>
+					<gl-bus:measurableDescription contextRef="now">Solich Caramel Enrober</gl-bus:measurableDescription>
+					<gl-bus:measurableQuantity contextRef="now" unitRef="na" decimals="0">1</gl-bus:measurableQuantity>
+					<gl-bus:measurableQualifier contextRef="now">EQUIP</gl-bus:measurableQualifier>
+				</gl-bus:measurable>
+				<gl-bus:depreciationMortgage> 
+					<gl-bus:dmJurisdiction contextRef="now">other</gl-bus:dmJurisdiction>
+					<gl-bus:dmMethodType contextRef="now">DDB</gl-bus:dmMethodType>
+					<gl-bus:dmLifeLength contextRef="now" unitRef="usd" decimals="0">7</gl-bus:dmLifeLength>
+				</gl-bus:depreciationMortgage> 
+			</gl-cor:entryDetail>
+			<gl-cor:entryDetail>
+				<gl-cor:lineNumber contextRef="now">8</gl-cor:lineNumber>
+				<gl-cor:account>
+					<gl-cor:accountMainID contextRef="now">1430</gl-cor:accountMainID>
+					<gl-cor:accountMainDescription contextRef="now">Equipment</gl-cor:accountMainDescription>
+					<gl-cor:accountPurposeCode contextRef="now">tax</gl-cor:accountPurposeCode>
+					<gl-cor:accountType contextRef="now">account</gl-cor:accountType>
+				</gl-cor:account>
+				<gl-cor:amount contextRef="now" decimals="2" unitRef="usd">59000</gl-cor:amount>
+				<gl-cor:postingDate contextRef="now">1990-09-05</gl-cor:postingDate>
+				<gl-bus:measurable>
+					<gl-bus:measurableCode contextRef="now">F</gl-bus:measurableCode>
+					<gl-bus:measurableID contextRef="now">E987G</gl-bus:measurableID>
+					<gl-bus:measurableDescription contextRef="now">Solich Caramel Enrober</gl-bus:measurableDescription>
+					<gl-bus:measurableQuantity contextRef="now" unitRef="na" decimals="0">1</gl-bus:measurableQuantity>
+					<gl-bus:measurableQualifier contextRef="now">EQUIP</gl-bus:measurableQualifier>
+				</gl-bus:measurable>
+				<gl-bus:depreciationMortgage> 
+					<gl-bus:dmJurisdiction contextRef="now">F</gl-bus:dmJurisdiction>
+					<gl-bus:dmMethodType contextRef="now">MACRS</gl-bus:dmMethodType>
+					<gl-bus:dmLifeLength contextRef="now" unitRef="usd" decimals="0">5</gl-bus:dmLifeLength>
+				</gl-bus:depreciationMortgage> 
+			</gl-cor:entryDetail>
+			<gl-cor:entryDetail>
+				<gl-cor:lineNumber contextRef="now">9</gl-cor:lineNumber>
+				<gl-cor:account>
+					<gl-cor:accountMainID contextRef="now">1430</gl-cor:accountMainID>
+					<gl-cor:accountMainDescription contextRef="now">Equipment</gl-cor:accountMainDescription>
+					<gl-cor:accountPurposeCode contextRef="now">usgaap</gl-cor:accountPurposeCode>
+					<gl-cor:accountType contextRef="now">account</gl-cor:accountType>
+				</gl-cor:account>
+				<gl-cor:amount contextRef="now" decimals="2" unitRef="usd">120000</gl-cor:amount>
+				<gl-cor:postingDate contextRef="now">2004-04-15</gl-cor:postingDate>
+				<gl-bus:measurable>
+					<gl-bus:measurableCode contextRef="now">F</gl-bus:measurableCode>
+					<gl-bus:measurableID contextRef="now">E477</gl-bus:measurableID>
+					<gl-bus:measurableDescription contextRef="now">Latini Airpop Extruder</gl-bus:measurableDescription>
+					<gl-bus:measurableQuantity contextRef="now" unitRef="na" decimals="0">1</gl-bus:measurableQuantity>
+					<gl-bus:measurableQualifier contextRef="now">EQUIP</gl-bus:measurableQualifier>
+				</gl-bus:measurable>
+				<gl-bus:depreciationMortgage> 
+					<gl-bus:dmJurisdiction contextRef="now">other</gl-bus:dmJurisdiction>
+					<gl-bus:dmMethodType contextRef="now">DDB</gl-bus:dmMethodType>
+					<gl-bus:dmLifeLength contextRef="now" unitRef="usd" decimals="0">7</gl-bus:dmLifeLength>
+				</gl-bus:depreciationMortgage> 
+			</gl-cor:entryDetail>
+			<gl-cor:entryDetail>
+				<gl-cor:lineNumber contextRef="now">10</gl-cor:lineNumber>
+				<gl-cor:account>
+					<gl-cor:accountMainID contextRef="now">1430</gl-cor:accountMainID>
+					<gl-cor:accountMainDescription contextRef="now">Equipment</gl-cor:accountMainDescription>
+					<gl-cor:accountPurposeCode contextRef="now">tax</gl-cor:accountPurposeCode>
+					<gl-cor:accountType contextRef="now">account</gl-cor:accountType>
+				</gl-cor:account>
+				<gl-cor:amount contextRef="now" decimals="2" unitRef="usd">120000</gl-cor:amount>
+				<gl-cor:postingDate contextRef="now">2004-04-15</gl-cor:postingDate>
+				<gl-bus:measurable>
+					<gl-bus:measurableCode contextRef="now">F</gl-bus:measurableCode>
+					<gl-bus:measurableID contextRef="now">E477</gl-bus:measurableID>
+					<gl-bus:measurableDescription contextRef="now">Latini Airpop Extruder</gl-bus:measurableDescription>
+					<gl-bus:measurableQuantity contextRef="now" unitRef="na" decimals="0">1</gl-bus:measurableQuantity>
+					<gl-bus:measurableQualifier contextRef="now">EQUIP</gl-bus:measurableQualifier>
+				</gl-bus:measurable>
+				<gl-bus:depreciationMortgage> 
+					<gl-bus:dmJurisdiction contextRef="now">F</gl-bus:dmJurisdiction>
+					<gl-bus:dmMethodType contextRef="now">MACRS</gl-bus:dmMethodType>
+					<gl-bus:dmLifeLength contextRef="now" unitRef="usd" decimals="0">5</gl-bus:dmLifeLength>
+				</gl-bus:depreciationMortgage> 
+			</gl-cor:entryDetail>
+		</gl-cor:entryHeader>
+	</gl-cor:accountingEntries>
+	<xbrli:context id="now">
+		<xbrli:entity>
+			<xbrli:identifier scheme="http://www.fujitsu.com/xbrl/sample">SAMPLE</xbrli:identifier>
+		</xbrli:entity>
+		<!-- The XBRL GL WG recommends using the file creation data as the period. -->
+		<xbrli:period>
+			<xbrli:instant>2005-08-30</xbrli:instant>
+		</xbrli:period>
+	</xbrli:context>
+	<xbrli:unit id="usd">
+		<xbrli:measure>iso4217:USD</xbrli:measure>
+	</xbrli:unit>
+	<xbrli:unit id="na">
+		<xbrli:measure>xbrli:pure</xbrli:measure>
+	</xbrli:unit>
+</xbrli:xbrl>

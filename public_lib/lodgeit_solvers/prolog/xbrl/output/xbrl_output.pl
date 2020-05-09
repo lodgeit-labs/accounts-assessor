@@ -1,4 +1,3 @@
-t :- true.
 
 :- record section(context, header, entries, footer).
 
@@ -35,19 +34,6 @@ t :- true.
 	!format_report_entries(xbrl, 0, 0, Report_Currency,
 		Context, Entries, Fact_Lines),
 	!fact_lines(Report_Currency, Sections, Lines_T).
-
- maybe_print_dimensional_facts(Static_Data,Contexts_In, Contexts_Out, Xml) :-
-	(	Static_Data.output_dimensional_facts = on
-	->	print_dimensional_facts(Static_Data, Contexts_In, Contexts_Out, Xml)
-	;
-		Contexts_In = Contexts_Out
-	).
-
- print_dimensional_facts(Static_Data, Results0, Results3, [Xml1, Xml2, Xml3]) :-
- 	dict_vars(Static_Data, [Instant_Context_Id_Base, Duration_Context_Id_Base]),
-	!print_banks(Static_Data, Instant_Context_Id_Base, Results0, Results1, Xml1),
-	!print_forex(Static_Data, Duration_Context_Id_Base, Results1, Results2, Xml2),
-	!print_trading(Static_Data, Results2, Results3, Xml3).
 
  build_base_contexts(Start_Date, End_Date, Entity_Identifier, Instant_Context_Id_Base, Duration_Context_Id_Base, Base_Contexts) :-
 	Entity = entity(Entity_Identifier, ''),

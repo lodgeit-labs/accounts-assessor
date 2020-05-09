@@ -9,10 +9,17 @@
 :- use_module(library(http/http_open)).
 :- use_module(library(http/http_client)).
 :- use_module(library(http/http_dispatch)).
+:- use_module(library(semweb/rdf11),except(['{}'/1])).
 
 :- [search_paths].
 
-:- ['../public_lib/xbrl/prolog/xbrl/utils.pl'].
+:- ['../public_lib/xbrl/prolog/xbrl/utils'].
+
+:- ['../public_lib/xbrl/prolog/xbrl_output/fact_output'].
+:- ['../public_lib/xbrl/prolog/xbrl_output/xbrl_contexts'].
+:- ['../public_lib/xbrl/prolog/xbrl_output/xbrl_output'].
+
+
 
 :- [accounts_extract].
 :- [accounts].
@@ -28,7 +35,6 @@
 :- [exchange].
 :- [exchange_rates].
 :- [extract_bank_accounts].
-:- [fact_output].
 :- [fetch_file].
 :- [german_bank_csv].
 :- [gl_export].
@@ -59,7 +65,5 @@
 :- [trading].
 :- [transactions].
 :- [vector_string].
-:- [xbrl_contexts].
-:- [xbrl_output].
 
 % :- ['../misc/chr_hp'].

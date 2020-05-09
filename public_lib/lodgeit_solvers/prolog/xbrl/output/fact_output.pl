@@ -97,12 +97,6 @@ entry_row_childful(Name, Entry, Children_Rows, Balance_Lines, Lines) :-
 		$>!entry_row(cols{0:td([align="right"],[Name]),1:Balance_Lines}, Entry, report_entries:footer)
 	].
 
-merge_dicts(D1, D2, D3) :-
-	dict_pairs(D1, Tag, P1),
-	dict_pairs(D2, Tag, P2),
-	append(P1, P2, P3),
-	dict_pairs(D3, Tag, P3).
-
 miscs_dict(Entry, Type, Dict) :-
 	findall(
 		Col_Pos-Item,

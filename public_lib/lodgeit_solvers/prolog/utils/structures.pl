@@ -1,3 +1,10 @@
+
+merge_dicts(D1, D2, D3) :-
+	dict_pairs(D1, Tag, P1),
+	dict_pairs(D2, Tag, P2),
+	append(P1, P2, P3),
+	dict_pairs(D3, Tag, P3).
+
 /*
 	given a list of terms, for example, of transactions, and a Selector_Predicate, for example transaction_account,
 	produce a dict with keys returned by the selector, and values lists of terms
