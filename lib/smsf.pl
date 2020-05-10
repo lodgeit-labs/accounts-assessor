@@ -7,10 +7,13 @@ https://sf360.zendesk.com/hc/en-au/articles/360017821211-The-Create-Entries-Proc
 
 */
 
-
 smsf_members_throw(Members) :-
-	
-	(	Members = []
+	request_data(D),
+	doc_value(D, smsf:members, List),
+	doc_list_items(List, Members)
+	smsf:member_name
+
+		(	Members = []
 	->	throw_string('no SMSF members found')
 	;	true).
 

@@ -246,16 +246,13 @@ in pyco2, we would not separate lookup and creation.
 ┗━┛╹ ╹┗━┛╹
 */
 
-subcategorize_by_investment
-subcategorize_by_bank
-
 ensure_smsf_equity_tree :-
 	(	account_by_role(smsf_equity, Equity)
 	->	ensure_smsf_equity_tree3(Equity)
 	;	true).
 
-/*for each leaf account in equity, create sub-account for each member*/
 ensure_smsf_equity_tree3(Root) :-
+	% find leaf accounts
 	findall(A,
 		(
 			account_in_set(A, Root),
@@ -266,18 +263,33 @@ ensure_smsf_equity_tree3(Root) :-
 	maplist(ensure_smsf_equity_tree6, As).
 
 ensure_smsf_equity_tree6(A) :-
-	account_name(A, Name),
 	smsf_members_throw(Members),
 	maplist(ensure_smsf_equity_tree6(A), Members).
 
 ensure_smsf_equity_tree6(A, Member) :-
-	ensure_account_exists(A, _, 1, (Name/Member), _).
+	account_name(A, Account),
+	doc(Member, smsf:member_name, Member),
+	ensure_account_exists(A, _, 1, (smsf_equity/Account/Member), _).
 
 
- create_smsf_subaccounts(Attrs) :-
- 	(	memberchk(subcategorize_by_smsf_member = true, Attrs)
-	->
+%-----
 
-smsf_equity
+ subcategorize_by_smsf_members :-
+ 	findall(
+ 		A,
+ 		doc(A, accounts:subcategorize_by_smsf_member, true, accounts),
+ 		As),
+ 	maplist(subcategorize_by_smsf_members3, As).
 
-ensure_smsf_accounts_exist2(Account) :-
+ subcategorize_by_smsf_members3(A) :-
+	smsf_members_throw(Members),
+	maplist(subcategorize_by_smsf_member(A), Members).
+
+ subcategorize_by_smsf_member(A, Member) :-
+	account_name(A, Account),
+	doc(Member, smsf:member_name, Member),
+	ensure_account_exists(A, _, 1, (Account/Member), _).
+
+%------
+
+

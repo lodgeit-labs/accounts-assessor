@@ -202,7 +202,10 @@ check_accounts_roles :-
 
 ensure_account_exists(Suggested_parent, Suggested_id, Detail_level, Role, Account) :-
 	(	account_by_role(Role, Account)
-	->	true
+	->	(	doc(Account, accounts:is_system_role_override, true, accounts)
+		->	true
+		;	throw_string(['attempted to create account with role ', Role, ', another account with this role already exists. Add is_system_role_override="true" if this is intentional'])
+		)
 	;	(
 			(	nonvar(Suggested_id)
 			->	true

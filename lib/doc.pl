@@ -30,6 +30,10 @@
 'https://rdf.lodgeit.net.au/v1/s_transactions#').
 :- rdf_register_prefix(report_entries,
 'https://rdf.lodgeit.net.au/v1/report_entries#').
+:- rdf_register_prefix(smsf,
+'https://rdf.lodgeit.net.au/v1/smsf#').
+:- rdf_register_prefix(smsf_ui,
+'https://rdf.lodgeit.net.au/v1/smsf_ui#').
 /*
 @prefix depr_ui: <https://rdf.lodgeit.net.au/v1/calcs/depr/ui#> .
 @prefix ic_ui: <https://rdf.lodgeit.net.au/v1/calcs/ic/ui#> .

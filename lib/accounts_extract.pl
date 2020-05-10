@@ -160,7 +160,19 @@ add_account(E, Parent0, Uri) :-
 
 	(	nonvar(Side)
 	->	doc_add(Uri, accounts:normal_side, Side, accounts)
+	;	true),
+
+ 	(	memberchk(subcategorize_by_smsf_member = true, Attrs)
+	->	doc_add(Uri, accounts:subcategorize_by_smsf_member, true, accounts)
+	;	true)
+
+ 	(	memberchk(subcategorize_by_bank = true, Attrs)
+	->	doc_add(Uri, accounts:subcategorize_by_bank, true, accounts)
 	;	true).
+
+
+
+
 
 role_string_to_term(Role_string, rl(Role)) :-
 	split_string(Role_string, '/', '', Role_string_list),
