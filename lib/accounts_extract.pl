@@ -164,7 +164,11 @@ add_account(E, Parent0, Uri) :-
 
  	(	memberchk(subcategorize_by_smsf_member = true, Attrs)
 	->	doc_add(Uri, accounts:subcategorize_by_smsf_member, true, accounts)
-	;	true)
+	;	true),
+
+ 	(	memberchk(subcategorize_by_investment = true, Attrs)
+	->	doc_add(Uri, accounts:subcategorize_by_investment, true, accounts)
+	;	true),
 
  	(	memberchk(subcategorize_by_bank = true, Attrs)
 	->	doc_add(Uri, accounts:subcategorize_by_bank, true, accounts)

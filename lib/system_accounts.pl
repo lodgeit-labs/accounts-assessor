@@ -54,11 +54,14 @@ is_valid_role('FinancialInvestments'/Id) :- freeze(Id, atom(Id)).
 
  ensure_system_accounts_exist(S_Transactions) :-
 	!ensure_bank_gl_accounts_exist,
+	!subcategorize_by_bank,
 	!ensure_livestock_accounts_exist,
-	!traded_units(S_Transactions, Traded_Units),
-	!ensure_financial_investments_accounts_exist(Traded_Units),
-	!'ensure InvestmentIncome accounts exist'(Traded_Units),
-	ensure_smsf_equity_tree.
+	!traded_units(S_Transactions, Traded_units),
+	!ensure_financial_investments_accounts_exist(Traded_units),
+	!subcategorize_by_investment(Traded_units),
+	!'ensure InvestmentIncome accounts exist'(Traded_units),
+	!ensure_smsf_equity_tree,
+	!subcategorize_by_smsf_members.
 
  make_root_account :-
 	make_account2(root, 0, rl(root), _Root),
@@ -97,6 +100,21 @@ asset GL accounts corresponding to bank accounts
 
  bank_gl_account_by_bank_name(Account_Name, Uri) :-
 	account_by_role_throw(rl('Banks'/Account_Name), Uri).
+
+%----
+
+subcategorize_by_bank :-
+ 	findall(A, doc(A, accounts:subcategorize_by_bank, true, accounts), As),
+ 	maplist(subcategorize_by_bank3, As).
+
+subcategorize_by_bank3(A) :-
+	bank_account_names(Bank_Account_Names),
+	maplist(subcategorize_by_bank6(A), Bank_Account_Names).
+
+subcategorize_by_bank6(A, Bank_Account_Name) :-
+	account_name(A, Name),
+	ensure_account_exists(A, _, 1, rl(Name/Bank_Account_Name), _).
+
 
 /*
 ╻  ╻╻ ╻┏━╸┏━┓╺┳╸┏━┓┏━╸╻┏    ┏━┓┏━╸┏━╸┏━┓╻ ╻┏┓╻╺┳╸┏━┓
@@ -173,8 +191,53 @@ in Assets
 
  financial_investments_account(Exchanged_Account_Uri,Goods_Unit,Exchanged_Account2) :-
 	account_name(Exchanged_Account_Uri, Exchanged_Account_Id),
-	/*note:we form role from id, so the id should be unique in this context. eg, if there are two different accounts with id "Investments", this will break. The alternative is to use full uri, or to introduce account codes, or similar. This problem goes all the way to the excel UI, where action verbs have fields for accounts. Id's are used, and we expect them to be unique, but account names in big hierarchies aren't unique. So how would a user specify an account unambiguously? Either specify the unique code directly, or the ui has to have a sheet with the mapping, or there has to be a menu item that makes a request to the endpoint to load taxonomies and return back some rdf with the mapping. */
 	account_by_role_throw(rl('FinancialInvestments'/Exchanged_Account_Id/Goods_Unit), Exchanged_Account2).
+
+	/*note:we form role from id, so the id should be unique in this context. eg, if there are two different accounts with id "Investments", this will break. The alternative is to use full uri, or to introduce account codes, or similar. This problem goes all the way to the excel UI, where action verbs have fields for accounts. Id's are used, and we expect them to be unique, but account names in big hierarchies aren't unique. So how would a user specify an account unambiguously? Either specify the unique code directly, or the ui has to have a sheet with the mapping, or there has to be a menu item that makes a request to the endpoint to load taxonomies and return back some rdf with the mapping. */
+
+%-----
+
+ subcategorize_by_investment(Traded_units) :-
+ 	findall(A, doc(A, accounts:subcategorize_by_investment, true, accounts), As),
+ 	maplist(subcategorize_by_investment3(Traded_units), As).
+ subcategorize_by_investment3(Traded_units, A) :-
+ 	account_name(A, Role_prefix),
+	maplist(subcategorize_by_investment6(A, Role_prefix, Traded_units).
+ subcategorize_by_investment6(A, Role_prefix, Unit) :-
+ 	account_name(A, A_name),
+ 	Role = rl(Role_prefix/A_name/Unit),
+ 	(
+		(
+			request_data(D),
+			doc_value(D, ic:unit_types, Categorizations_table),
+			doc_list_items(Categorizations_table, Categorizations),
+			member(Categorization, Categorizations),
+			doc(Categorization, ic:unit_type_name, Unit),
+			doc(Categorization, ic:unit_type_category, Category)
+		)
+		->	(
+				ensure_account_by_parent_and_name_exists(A, Category, L1),
+				(	doc(Categorization, ic:unit_type_subcategory, Subategory)
+				->	ensure_account_by_parent_and_name_exists(L1, Sub, Parent)
+				;	Parent = L1)
+			)
+		;	Parent = A
+	),
+	ensure_account_by_parent_and_name_exists(Parent, Unit, rl(A/Unit), Unit_account).
+
+ ensure_account_by_parent_and_name_exists(Parent, Name, Role, Uri) :-
+	ensure_account_by_parent_and_name_exists(Parent, Name, Uri),
+	doc_add(Uri, accounts:role, Role, accounts).
+
+ensure_account_by_parent_and_name_exists(Parent, Name, Uri) :-
+	(
+		account_name(Uri, Name),
+		account_parent(Uri, Parent)
+	)
+	->	true
+	;	make_account_with_optional_role(Name, Parent, 1, _Role, Uri).
+
+%------
 
 
 /*
@@ -275,10 +338,7 @@ ensure_smsf_equity_tree6(A, Member) :-
 %-----
 
  subcategorize_by_smsf_members :-
- 	findall(
- 		A,
- 		doc(A, accounts:subcategorize_by_smsf_member, true, accounts),
- 		As),
+ 	findall(A, doc(A, accounts:subcategorize_by_smsf_member, true, accounts), As),
  	maplist(subcategorize_by_smsf_members3, As).
 
  subcategorize_by_smsf_members3(A) :-
