@@ -125,13 +125,10 @@ transactions_by_account(Static_Data, Transactions_By_Account) :-
 	sort_into_dict(transaction_account, Transactions, Dict),
 
 	/*this should be somewhere in ledger code*/
-	transactions_before_day_on_account_and_subaccounts(Dict, $>abrlt('ComprehensiveIncome'), Start_Date, Historical_Earnings_Transactions),
-
-	transactions_before_day_on_account_and_subaccounts(Dict, $>abrlt('HistoricalEarnings'), Start_Date, Historical_Earnings_Transactions2),
-
-	append(Historical_Earnings_Transactions, Historical_Earnings_Transactions2, Historical_Earnings_Transactions_All),
-
 	/* ugh, we shouldnt overwrite it */
+	transactions_before_day_on_account_and_subaccounts(Dict, $>abrlt('ComprehensiveIncome'), Start_Date, Historical_Earnings_Transactions),
+	transactions_before_day_on_account_and_subaccounts(Dict, $>abrlt('HistoricalEarnings'), Start_Date, Historical_Earnings_Transactions2),
+	append(Historical_Earnings_Transactions, Historical_Earnings_Transactions2, Historical_Earnings_Transactions_All),
 	Dict2 = Dict.put($>abrlt('HistoricalEarnings'), Historical_Earnings_Transactions_All),
 
 	transactions_in_period_on_account_and_subaccounts(Dict, $>abrlt('ComprehensiveIncome'), Start_Date, End_Date, Current_Earnings_Transactions),

@@ -148,7 +148,7 @@
 				<account name="Transfers In - Preserved/Taxable" subcategorize_by_smsf_member="true"/>
 				<account name="Other Income"/>
 				<account name="Writeback Of Deferred Tax"/>
-
+				<account name="ChangeInMarketValue"/>
 			</account>
 			<account name="Expenses">
 				<account name="Accountancy Fees"/>

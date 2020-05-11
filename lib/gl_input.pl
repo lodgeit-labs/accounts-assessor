@@ -13,16 +13,24 @@
  extract_gl_tx(_, _,_,[],[]).
 
  extract_gl_tx(Default_Currency, St0, Date0, [Item|Items], [Tx|Txs]) :-
-	(	doc_value(Item, ic:date, Date1)
-	->	doc_new_uri(gl_input_st, St1)
-	;	(
-			(Date0 = none ->throw_string('GL_input: date missing');true),
-			Date1 = Date0,
-			St1 = St0
-		)
-	),
-	read_gl_line(Default_Currency, Date1, St1, Item, Tx),
-	extract_gl_tx(Default_Currency, St1, Date1, Items, Txs).
+	\+doc_value(Item, ic:date, _),
+	(Date0 = none ->throw_string('GL_input: date missing');true),
+	(St0 = none ->throw_string('GL_input: format error');true),
+	!read_gl_line(Default_Currency, Date0, St0, Item, Tx),
+	!extract_gl_tx(Default_Currency, St0, Date0, Items, Txs).
+
+extract_gl_tx(Default_Currency, St0, Date0, [Item|Items], Txs) :-
+	doc_value(Item, ic:date, Date1),
+	Date1 = "ignore",
+	!extract_gl_tx(Default_Currency, St0, Date0, Items, Txs).
+
+extract_gl_tx(Default_Currency, _, _, [Item|Items], [Tx|Txs]) :-
+	doc_value(Item, ic:date, Date1),
+	Date1 \= "ignore",
+	doc_new_uri(gl_input_st, St1),
+	!read_gl_line(Default_Currency, Date1, St1, Item, Tx),
+	!extract_gl_tx(Default_Currency, St1, Date1, Items, Txs).
+
 
  read_gl_line(Default_Currency, Date, St, Item, Tx) :-
 	doc_value(Item, ic:account, Account_String),
