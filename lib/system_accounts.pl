@@ -341,7 +341,8 @@ ensure_smsf_equity_tree6(A) :-
 	maplist(!subcategorize_by_smsf_member(Account, A), Members).
 
  subcategorize_by_smsf_member(Role_prefix, A, Member) :-
-	!doc_value(Member, smsf:member_name, Member_Name),
+	!doc_value(Member, smsf:member_name, Member_Name_str),
+	atom_string(Member_Name, Member_Name_str),
 	ensure_account_exists(A, _, 1, rl(Role_prefix/Member_Name), _).
 
 %------

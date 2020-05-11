@@ -1,11 +1,11 @@
 <?xml version="1.0" ?>
 <accountHierarchy>
 	<account parent_role="root" normal_side="debit">
-		<account name="NetAssets">
+		<account name="Net Assets">
 			<account name="Assets">
 				<account name="Cash at Bank" role="Banks"/>
 				<account name="Contribution Receivable"/>
-				<account name="Distribution Receivable"/>
+				<account name="Distribution Receivable" subcategorize_by_investment="true"/>
 				<account name="Dividends Receivable"/>
 				<account name="Dividend Reinvestment - Residual Account"/>
 				<account name="Formation Expenses"/>
@@ -42,7 +42,6 @@
 				<account name="Amounts owing to other Persons"/>
 				<account name="GST Payable"/>
 				<account name="Income Tax Payable"/>
-				<account name="Income Tax Payable"/>
 				<account name="Imputed Credits"/>
 				<account name="Foreign and Other Tax Credits"/>
 				<account name="Tax Instalment paid"/>
@@ -55,6 +54,8 @@
 			</account>
 		</account>
 		<account name="Equity" role="smsf_equity">
+			<account name="Bank Opening Balances"></account>
+			<account name="Profit Attribution"></account>
 			<account name="Opening Balance - Preserved/Taxable"/>
 			<account name="Opening Balance - Preserved/Tax Free"/>
 			<account name="Opening Balance - Unrestricted Non Preserved/Taxable"/>
@@ -128,23 +129,26 @@
 		</account>
 		<account name="P&amp;L" role="ComprehensiveIncome">
 			<account name="Income">
-				<CurrencyMovement role="CurrencyMovement"/>
-				<account name="CapitalGainLoss" role="TradingAccounts/CapitalGainLoss">
+				<account name="Currency Movement" role="CurrencyMovement"/>
+				<account name="Capital GainLoss" role="TradingAccounts/Capital GainLoss">
 					<account name="uncategorized" subcategorize_by_investment="true"/>
 				</account>
 				<account name="Capital Gains/Losses _ taxable"/>
 				<account name="Capital Gains/Losses _ Non taxable"/>
-				<account name="DistributionReceived" subcategorize_by_investment="true"/>
+				<account name="Distribution Received" subcategorize_by_investment="true"/>
 				<account name="Dividends Received"/>
-				<account name="InterestReceived" subcategorize_by_bank="true">
-					<account name="ATO interest"/>
+				<account name="Interest Received" subcategorize_by_bank="true">
+					<account name="ATO Interest"/>
 				</account>
 				<account name="Rent Received"/>
 				<account name="Employer Contribution"/>
-				<account name="ContributionReceived" subcategorize_by_smsf_member="true"/>
+				<account name="Contribution Received" subcategorize_by_smsf_member="true"/>
 				<account name="Member Contribution Concessional"/>
 				<account name="Member Contribution Non Concessional"/>
-				<account name="TransfersInPreservedTaxable" subcategorize_by_smsf_member="true"/>
+				<account name="Transfers In - Preserved/Taxable" subcategorize_by_smsf_member="true"/>
+				<account name="Other Income"/>
+				<account name="Writeback Of Deferred Tax"/>
+
 			</account>
 			<account name="Expenses">
 				<account name="Accountancy Fees"/>
@@ -161,6 +165,7 @@
 				<account name="Pension paid"/>
 				<account name="Benefits Paid"/>
 				<account name="Tranfer Out"/>
+				<account name="Filling Fees"/>
 			</account>
 		</account>
 	</account>

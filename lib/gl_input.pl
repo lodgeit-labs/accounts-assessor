@@ -71,12 +71,20 @@ account_syntax2_part(fixed(P)) --> string_without("<>!", Ps),{atom_string(P, Ps)
 account_syntax2_part(slot(P)) --> `<`, string_without("<>!", Ps), `>`,{atom_string(P, Ps)}.
 
 
-fill_slots([], [], []).
+fill_slots([], [], []) :- !.
 
 fill_slots([slot(_)|Slots], [Param|Params], [Param|RoleT]) :-
-	!fill_slots(Slots, Params, RoleT).
+	!fill_slots(Slots, Params, RoleT),
+	!.
 
 fill_slots([fixed(Part)|Slots], Params, [Part|RoleT]) :-
 	atom(Part),
-	!fill_slots(Slots, Params, RoleT).
+	!fill_slots(Slots, Params, RoleT),
+	!.
+
+fill_slots([], [H|_], []) :-
+	throw_string(['no slot for parameter: "', H, '"']).
+
+fill_slots([H|_], [], []) :-
+	throw_string(['no parameter for slot: "', H, '"']).
 
