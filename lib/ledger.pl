@@ -129,3 +129,8 @@ find_s_transactions_in_period(S_Transactions, Opening_Date, Closing_Date, Out) :
 		),
 		Out
 	).
+
+trial_balance_ok(Trial_Balance_Section) :-
+	!report_entry_children(Trial_Balance_Section, []),
+	!report_entry_total_vec(Trial_Balance_Section, Balance),
+	maplist(coord_is_almost_zero, Balance).

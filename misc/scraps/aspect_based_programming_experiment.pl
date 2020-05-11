@@ -75,3 +75,16 @@ add_atoms(S2,P2,O2,G2) :-
 
 
 """).
+
+
+
+
+
+
+/*+
++this could be useful if we parse the prolog code and collect o's in one place so that they're all visible when gtracing, and we visualize the process:
++       o(gl_export_rounding(final), round_term(2, Report_Dict0, Report_Dict)).
++could be just:
++       o(gl_export_rounding(final))). if its a unique operation on the global store
++*/
+

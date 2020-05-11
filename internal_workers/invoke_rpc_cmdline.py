@@ -196,7 +196,7 @@ def call_prolog(msg, dev_runner_options=[], prolog_flags='true', make_new_tmp_di
 	print("end of result from prolog.")
 	try:
 		rrr = json.loads(stdout_data)
-		internal_workers.put_doc_dump_into_triplestore.apply_async((tmp_path,))
+		internal_workers.postprocess_doc.apply_async((tmp_path,))
 		return msg['params']['tmp_directory_name'], rrr
 	except json.decoder.JSONDecodeError as e:
 		print(e)

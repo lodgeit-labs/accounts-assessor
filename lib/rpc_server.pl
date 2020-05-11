@@ -43,3 +43,8 @@ process_request_rpc_cmdline2(Dict) :-
 		;json_write(current_output, _{error:_{code:0,message:unknown_method}})))
 		)
 	).
+
+	/*
+	"vec_add(Old, Vector, New)" could be invoked through python<->prolog rpc like this: "['!','vec_add', 'uri', 'uri', 'uri']",
+	prolog would then =.. and call it in a findall. Python side would only have to check if number of results isn't 0, then take the first result. It would then do more calls, ie doc_list_member, coord_unit etc. Everything would live in prolog doc db.
+	*/
