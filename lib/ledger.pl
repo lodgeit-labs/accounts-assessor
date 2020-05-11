@@ -11,21 +11,21 @@ process_ledger(
 	Processed_Until,
 	Gl
 ) :-
-	add_comment_stringize('Exchange rates extracted', Exchange_Rates),
-	s_transactions_up_to(End_Date, S_Transactions0, S_Transactions),
+	!add_comment_stringize('Exchange rates extracted', Exchange_Rates),
+	!s_transactions_up_to(End_Date, S_Transactions0, S_Transactions),
 
-	ensure_system_accounts_exist(S_Transactions),
-	check_accounts_parent,
-	check_accounts_roles,
-	propagate_accounts_side,
-	write_accounts_json_report,
+	!ensure_system_accounts_exist(S_Transactions),
+	!check_accounts_parent,
+	!check_accounts_roles,
+	!propagate_accounts_side,
+	!write_accounts_json_report,
 
-	extract_gl_inputs(Initial_Txs),
+	!extract_gl_inputs(Initial_Txs),
 
 	dict_from_vars(Static_Data0, [Report_Currency, Start_Date, End_Date, Exchange_Rates, Cost_Or_Market]),
-	prepreprocess(Static_Data0, S_Transactions, Prepreprocessed_S_Transactions),
+	!prepreprocess(Static_Data0, S_Transactions, Prepreprocessed_S_Transactions),
 
-	preprocess_until_error(Static_Data0, Prepreprocessed_S_Transactions, Processed_S_Transactions, Transactions_From_Bst, Outstanding_Out, End_Date, Processed_Until),
+	!preprocess_until_error(Static_Data0, Prepreprocessed_S_Transactions, Processed_S_Transactions, Transactions_From_Bst, Outstanding_Out, End_Date, Processed_Until),
 
 	/* since it's not possibly to determine order of transactions that transpiled on one day, when we fail to process a transaction, we go back all the way to the end of the previous day, and try to run a report up to that day
 	*/
@@ -36,7 +36,7 @@ process_ledger(
 	append([Initial_Txs], Transactions_From_Bst, Transactions0),
 	flatten(Transactions0, Transactions1),
 
-	process_livestock((Processed_S_Transactions, Transactions1), Livestock_Transactions),
+	!process_livestock((Processed_S_Transactions, Transactions1), Livestock_Transactions),
 	flatten([Transactions1,	Livestock_Transactions], Transactions_With_Livestock),
 
 	/*
@@ -54,7 +54,7 @@ process_ledger(
 	maplist(check_transaction_account, Transactions_With_Livestock),
 
 	Static_Data2 = Static_Data0.put(end_date, Processed_Until).put(transactions, Transactions_With_Livestock),
-	gl_export(
+	!gl_export(
 		Static_Data2, 
 		Processed_S_Transactions, 
 		/* list of lists */
@@ -62,8 +62,8 @@ process_ledger(
 		Livestock_Transactions,
 		/* output */
 		Gl),
-	transactions_by_account(Static_Data2, Transactions_By_Account),
-	trial_balance_between(Exchange_Rates, Transactions_By_Account, Report_Currency, End_Date, Start_Date, End_Date, [Trial_Balance_Section]),
+	!transactions_by_account(Static_Data2, Transactions_By_Account),
+	!trial_balance_between(Exchange_Rates, Transactions_By_Account, Report_Currency, End_Date, Start_Date, End_Date, [Trial_Balance_Section]),
 	(
 		(
 			trial_balance_ok(Trial_Balance_Section)
@@ -124,8 +124,8 @@ find_s_transactions_in_period(S_Transactions, Opening_Date, Closing_Date, Out) :
 		S_Transaction,
 		(
 			member(S_Transaction, S_Transactions),
-			s_transaction_day(S_Transaction, Date),
-			date_between(Opening_Date, Closing_Date, Date)
+			!s_transaction_day(S_Transaction, Date),
+			?date_between(Opening_Date, Closing_Date, Date)
 		),
 		Out
 	).

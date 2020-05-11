@@ -73,7 +73,7 @@ account_normal_side(Uri, X) :-
 /*
 find account by user's string (by name)
 */
-account_by_ui(X, Uri) :-
+ account_by_ui(X, Uri) :-
 	findall(Uri, account_name(Uri, X), Uris),
 	(	Uris = []
 	->	throw_string(['account not found: "', X, '"'])

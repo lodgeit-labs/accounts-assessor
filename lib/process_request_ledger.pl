@@ -8,32 +8,21 @@
 
 process_request_ledger(File_Path, Dom) :-
 	inner_xml(Dom, //reports/balanceSheetRequest, _),
-	validate_xml2(File_Path, 'bases/Reports.xsd'),
-	extract_s_transactions0(Dom, S_Transactions),
-	/*profile*/(process_request_ledger2(Dom, S_Transactions, _, _Transactions)).
+	!validate_xml2(File_Path, 'bases/Reports.xsd'),
+
+	Data = (Dom, Start_Date, End_Date, Output_Dimensional_Facts, Cost_Or_Market, Report_Currency),
+	!extract_request_details(Dom),
+	!extract_start_and_end_date(Dom, Start_Date, End_Date),
+	!extract_output_dimensional_facts(Dom, Output_Dimensional_Facts),
+	!extract_cost_or_market(Dom, Cost_Or_Market),
+	!extract_report_currency(Dom, Report_Currency),
+	!extract_action_verbs_from_bs_request(Dom),
+	!extract_s_transactions0(Dom, S_Transactions),
+
+	/*profile*/(!process_request_ledger2(Data, S_Transactions, _, _Transactions)).
 	%process_request_ledger_debug(Dom, S_Transactions).
 
-
-	/*
-	how we could test inference of s_transactions from gl transactions:
-	gl_doc_eq_json(Transactions, Transactions_Json),
-	doc_init,
-	gl_doc_eq_json(Transactions2, Transactions_Json),
-	process_request_ledger2(Dom, S_Transactions2, _, Transactions2),
-	assertion(eq(S_Transactions, S_Transactions2)).
-	*/
-
-/*
-gl_json :-
-	maplist(transaction_to_dict, Transactions, T0),
-*/
-
-/*
-
-	a little debugging facitliy that tries processing s_transactions one by one until it runs into an error
-
-*/
-
+/* a little debugging facitliy that tries processing s_transactions one by one until it runs into an error */
 process_request_ledger_debug(Data, S_Transactions0) :-
 	findall(Count, ggg(Data, S_Transactions0, Count), Counts), writeq(Counts).
 
@@ -51,23 +40,15 @@ ggg(Data, S_Transactions0, Count) :-
 
 
 
-process_request_ledger2(Dom, S_Transactions, Structured_Reports, Transactions) :-
+process_request_ledger2((Dom, Start_Date, End_Date, Output_Dimensional_Facts, Cost_Or_Market, Report_Currency),   S_Transactions, Structured_Reports, Transactions) :-
 	%request(Request),
 	%doc_add(Request, l:kind, l:ledger_request),
-	extract_request_details(Dom),
-	extract_start_and_end_date(Dom, Start_Date, End_Date),
-	extract_output_dimensional_facts(Dom, Output_Dimensional_Facts),
-	extract_cost_or_market(Dom, Cost_Or_Market),
-	extract_report_currency(Dom, Report_Currency),
-	extract_action_verbs_from_bs_request(Dom),
+	!extract_accounts,
+	!extract_livestock_data_from_ledger_request(Dom),
+	!extract_exchange_rates(Cost_Or_Market, Dom, S_Transactions, Start_Date, End_Date, Report_Currency, Exchange_Rates),
+	!extract_invoices_payable(Dom),
 
-	extract_accounts,
-	extract_livestock_data_from_ledger_request(Dom),
-	extract_exchange_rates(Cost_Or_Market, Dom, S_Transactions, Start_Date, End_Date, Report_Currency, Exchange_Rates),
-	extract_invoices_payable(Dom),
-
-
-	process_ledger(
+	!process_ledger(
 		Cost_Or_Market,
 		S_Transactions,
 		Start_Date,
@@ -97,7 +78,7 @@ process_request_ledger2(Dom, S_Transactions, Structured_Reports, Transactions) :
 		exchange_date=Processed_Until_Date
 	]),
 
-	once(create_reports(Static_Data1, Structured_Reports)).
+	once(!create_reports(Static_Data1, Structured_Reports)).
 
 
 
@@ -184,18 +165,18 @@ static_data_historical(Static_Data, Static_Data_Historical) :-
 make_gl_viewer_report :-
 	%format(user_error, 'make_gl_viewer_report..~n',[]),
 	Viewer_Dir = 'general_ledger_viewer',
-	absolute_file_name(my_static(Viewer_Dir), Src, [file_type(directory)]),
-	report_file_path(loc(file_name, Viewer_Dir), loc(absolute_url, Dir_Url), loc(absolute_path, Dst)),
+	!absolute_file_name(my_static(Viewer_Dir), Src, [file_type(directory)]),
+	!report_file_path(loc(file_name, Viewer_Dir), loc(absolute_url, Dir_Url), loc(absolute_path, Dst)),
 
 	/* symlink or copy, which one is more convenient depends on what we're working on */
 	Cmd = ['ln', '-s', '-n', '-f', Src, Dst],
 	%Cmd = ['cp', '-r', Src, Dst],
 
 	%format(user_error, 'shell..~q ~n',[Cmd]),
-	shell4(Cmd, _),
+	!shell4(Cmd, _),
 	%format(user_error, 'shell.~n',[]),
-	atomic_list_concat([Dir_Url, '/link.html'], Full_Url),
-	add_report_file(0,'gl_html', 'GL viewer', loc(absolute_url, Full_Url)),
+	!atomic_list_concat([Dir_Url, '/link.html'], Full_Url),
+	!add_report_file(0,'gl_html', 'GL viewer', loc(absolute_url, Full_Url)),
 	%format(user_error, 'make_gl_viewer_report done.~n',[]),
 	true.
 
@@ -212,7 +193,7 @@ investment_reports(Static_Data, Ir) :-
 				(Structured_Report_Key-Semantic_Json)
 			]
 			>>
-				investment_report_2_0(Sd, Suffix, Semantic_Json)
+				(!investment_report_2_0(Sd, Suffix, Semantic_Json))
 		),
 		Data,
 		Structured_Json_Pairs
@@ -226,21 +207,21 @@ a flag can be used when running the server, for example like this:
 This is done with a symlink. This allows to bypass cache, for example in pesseract.
 */
 taxonomy_url_base :-
-	symlink_tmp_taxonomy_to_static_taxonomy(Unique_Taxonomy_Dir_Url),
+	!symlink_tmp_taxonomy_to_static_taxonomy(Unique_Taxonomy_Dir_Url),
 	(	get_flag(prepare_unique_taxonomy_url, true)
 	->	Taxonomy_Dir_Url = Unique_Taxonomy_Dir_Url
 	;	Taxonomy_Dir_Url = 'taxonomy/'),
-	request_add_property(l:taxonomy_url_base, Taxonomy_Dir_Url).
+	!request_add_property(l:taxonomy_url_base, Taxonomy_Dir_Url).
 
 symlink_tmp_taxonomy_to_static_taxonomy(Unique_Taxonomy_Dir_Url) :-
-	my_request_tmp_dir(loc(tmp_directory_name,Tmp_Dir)),
-	server_public_url(Server_Public_Url),
-	atomic_list_concat([Server_Public_Url, '/tmp/', Tmp_Dir, '/taxonomy/'], Unique_Taxonomy_Dir_Url),
-	absolute_tmp_path(loc(file_name, 'taxonomy'), loc(absolute_path, Tmp_Taxonomy)),
-	resolve_specifier(loc(specifier, my_static('taxonomy')), loc(absolute_path,Static_Taxonomy)),
+	!my_request_tmp_dir(loc(tmp_directory_name,Tmp_Dir)),
+	!server_public_url(Server_Public_Url),
+	!atomic_list_concat([Server_Public_Url, '/tmp/', Tmp_Dir, '/taxonomy/'], Unique_Taxonomy_Dir_Url),
+	!absolute_tmp_path(loc(file_name, 'taxonomy'), loc(absolute_path, Tmp_Taxonomy)),
+	!resolve_specifier(loc(specifier, my_static('taxonomy')), loc(absolute_path,Static_Taxonomy)),
 	Cmd = ['ln', '-s', '-n', '-f', Static_Taxonomy, Tmp_Taxonomy],
 	%format(user_error, 'shell..~q ~n',[Cmd]),
-	shell4(Cmd, _).
+	!shell4(Cmd, _).
 	%format(user_error, 'shell.~n',[]).
 
 	
@@ -251,7 +232,7 @@ symlink_tmp_taxonomy_to_static_taxonomy(Unique_Taxonomy_Dir_Url) :-
 */	
    
 extract_report_currency(Dom, Report_Currency) :-
-	request_data(Request_Data),
+	!request_data(Request_Data),
 	(	doc(Request_Data, ic_ui:report_details, D)
 	->	(
 			doc_value(D, ic:currency, C),
@@ -269,7 +250,7 @@ e and cost in one set of reports. One or the other.
 t values then assume cost basis.*/
 
 extract_cost_or_market(Dom, Cost_Or_Market) :-
-	request_data(Request_Data),
+	!request_data(Request_Data),
 	(	doc(Request_Data, ic_ui:report_details, D)
 	->	(
 			doc_value(D, ic:cost_or_market, C),
@@ -335,20 +316,36 @@ extract_start_and_end_date(Dom, Start_Date, End_Date) :-
 	.
 
 extract_request_details(Dom) :-
-	request(Request),
-	result(Result),
+	assertion(Dom = [element(_,_,_)]),
+	!request(Request),
+	!result(Result),
 	(	xpath(Dom, //reports/balanceSheetRequest/company/clientcode, element(_, [], [Client_code_atom]))
 	->	(
-			atom_string(Client_code_atom, Client_code_string),
-			doc_add(Request, l:client_code, Client_code_string)
+			!atom_string(Client_code_atom, Client_code_string),
+			!doc_add(Request, l:client_code, Client_code_string)
 		)
 	;	true),
-	get_time(TimeStamp),
-	stamp_date_time(TimeStamp, DateTime, 'UTC'),
-	doc_add(Result, l:timestamp, DateTime).
+	!get_time(TimeStamp),
+	!stamp_date_time(TimeStamp, DateTime, 'UTC'),
+	!doc_add(Result, l:timestamp, DateTime).
 
 /*
 :- comment(Structured_Reports:
 	the idea is that the dicts containing the high-level, semantic information of all reports would be passed all the way up, and we'd have some test runner making use of that / generating a lot of permutations of requests and checking the results computationally, in addition to endpoint_tests checking report files against saved versions.
 Not sure if/when we want to work on that.
 */
+
+
+	/*
+	how we could test inference of s_transactions from gl transactions:
+	gl_doc_eq_json(Transactions, Transactions_Json),
+	doc_init,
+	gl_doc_eq_json(Transactions2, Transactions_Json),
+	process_request_ledger2(Dom, S_Transactions2, _, Transactions2),
+	assertion(eq(S_Transactions, S_Transactions2)).
+	...
+	gl_json :-
+		maplist(transaction_to_dict, Transactions, T0),
+	...
+	*/
+

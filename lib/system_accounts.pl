@@ -107,7 +107,6 @@ asset GL accounts corresponding to bank accounts
 %----
 
 subcategorize_by_bank :-
-gtrace,
  	findall(A, doc(A, accounts:subcategorize_by_bank, true, accounts), As),
  	maplist(subcategorize_by_bank3, As).
 

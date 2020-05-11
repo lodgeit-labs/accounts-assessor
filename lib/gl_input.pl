@@ -46,15 +46,17 @@
 		Parameter,
 		(
 			between(1, 5, I),
-			doc_value(Item, $>atomic_list_concat([$>rdf_global_id(ic:param),I]), Parameter)
+			doc_value(Item, $>atomic_list_concat([$>rdf_global_id(ic:param),I]), Str),
+			atom_string(Parameter, Str)
 		),
 		Parameters).
 
  resolve_account_syntax(String, Parameters, Account) :-
  	!string_codes(String, Codes),
  	!phrase(account_syntax(Specifier), Codes),
-	(	Specifier = name(Name)
-	->	!account_by_ui(Name, Account)
+	(	Specifier = name(Name_str)
+	->	(	atom_string(Name, Name_str),
+			!account_by_ui(Name, Account))
 	;	(
 			!fill_slots(Specifier, Parameters, Role_list),
 			!role_list_to_term(Role_list, Role),
