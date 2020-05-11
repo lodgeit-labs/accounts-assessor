@@ -31,9 +31,9 @@
 :- rdf_register_prefix(report_entries,
 'https://rdf.lodgeit.net.au/v1/report_entries#').
 :- rdf_register_prefix(smsf,
-'https://rdf.lodgeit.net.au/v1/smsf#').
+'https://rdf.lodgeit.net.au/v1/calcs/smsf#').
 :- rdf_register_prefix(smsf_ui,
-'https://rdf.lodgeit.net.au/v1/smsf_ui#').
+'https://rdf.lodgeit.net.au/v1/calcs/smsf/ui#').
 /*
 @prefix depr_ui: <https://rdf.lodgeit.net.au/v1/calcs/depr/ui#> .
 @prefix ic_ui: <https://rdf.lodgeit.net.au/v1/calcs/ic/ui#> .
@@ -440,8 +440,8 @@ triple_rdf_vs_doc((S,P,O), (S,P,O2)) :-
 		;	throw('conversion from rdf to doc failed')),
 		E,
 		(
-			format(user_error, '~q', [E]),
-			gtrace
+			format(user_error, '~q', [E])
+			,gtrace
 		)
 	).
 
@@ -456,7 +456,7 @@ doc_to_rdf(Rdf_Graph) :-
 			docm(X,Y,Z),
 			debug(doc, 'to_rdf:~q~n', [(X,Y,Z)]),
 			triple_rdf_vs_doc((X2,Y2,Z2),(X,Y,Z)),
-			(rdf_assert(X2,Y2,Z2,Rdf_Graph) -> true ; gtrace)
+			!rdf_assert(X2,Y2,Z2,Rdf_Graph)
 		),_).
 
 add_to_rdf((X,Y,Z,G)) :-

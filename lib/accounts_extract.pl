@@ -122,8 +122,8 @@ add_account(E, Parent0, Uri) :-
 				;	throw_string(['parent account not found by role:', Parent_role_atom]))
 			)
 		)
-	;	(	Parent == no_parent_element
-		->	throw_string('parent role not specified')
+	;	(	Parent0 == no_parent_element
+		->	throw_string([Id, ': parent role not specified'])
 		;	Parent = Parent0)
 	),
 
@@ -178,21 +178,30 @@ add_account(E, Parent0, Uri) :-
 
 
 
-role_string_to_term(Role_string, rl(Role)) :-
+ role_string_to_term(Role_string, rl(Role)) :-
 	split_string(Role_string, '/', '', Role_string_list),
 	maplist(atom_string, Role_atom_list, Role_string_list),
 	role_list_to_term(Role_atom_list, Role).
 
-role_list_to_term([H,T], Role) :-
-	Role =.. ['/',H,T],
+
+/*
+ role_list_to_term([H,T], H/T) :-
 	!.
 
-role_list_to_term([H|TH/TT], Role) :-
+ role_list_to_term([H|TH/TT], Role) :-
 	role_list_to_term(TH/TT, Role2),
 	Role =.. ['/',H,Role2],
 	!.
+*/
 
-role_list_to_term([Role], Role).
+
+
+
+ role_list_to_term(X, Hr/Tr) :-
+	append(Lh, [Tr], X),
+	role_list_to_term(Lh, Hr).
+
+ role_list_to_term([Role], Role) :- atomic(Role).
 
 
 extract_normal_side_uri_from_attrs(Attrs, Side) :-

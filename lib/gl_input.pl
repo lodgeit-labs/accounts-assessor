@@ -52,8 +52,7 @@
 
  resolve_account_syntax(String, Parameters, Account) :-
  	!string_codes(String, Codes),
- 	gtrace,
-	!phrase(account_syntax(Specifier), Codes),
+ 	!phrase(account_syntax(Specifier), Codes),
 	(	Specifier = name(Name)
 	->	!account_by_ui(Name, Account)
 	;	(
@@ -67,7 +66,7 @@ account_syntax(Role) --> `!`, account_syntax2(Role), `!`.
 account_syntax2([H]) --> account_syntax2_part(H).
 account_syntax2([H|T]) --> account_syntax2_part(H), `!`, account_syntax2(T).
 account_syntax2_part(fixed(P)) --> string_without("<>!", Ps),{atom_string(P, Ps)}.
-account_syntax2_part(slot(P)) --> ['<'], string_without("<>!", Ps), `>`,{atom_string(P, Ps)}.
+account_syntax2_part(slot(P)) --> `<`, string_without("<>!", Ps), `>`,{atom_string(P, Ps)}.
 
 
 fill_slots([], [], []).

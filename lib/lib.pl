@@ -13,11 +13,11 @@
 
 :- [search_paths].
 
-:- ['../public_lib/xbrl/prolog/xbrl/utils'].
+:- ['../public_lib/lodgeit_solvers/prolog/utils/utils'].
 
-:- ['../public_lib/xbrl/prolog/xbrl_output/fact_output'].
-:- ['../public_lib/xbrl/prolog/xbrl_output/xbrl_contexts'].
-:- ['../public_lib/xbrl/prolog/xbrl_output/xbrl_output'].
+:- ['../public_lib/prolog_xbrl/instance_output/fact_output'].
+:- ['../public_lib/prolog_xbrl/instance_output/xbrl_contexts'].
+:- ['../public_lib/prolog_xbrl/instance_output/xbrl_output'].
 
 
 
@@ -60,6 +60,7 @@
 :- [request_files].
 :- [residency].
 :- [s_transaction].
+:- [smsf].
 :- [system_accounts].
 :- [tables].
 :- [trading].

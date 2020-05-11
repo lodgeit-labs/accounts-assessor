@@ -142,9 +142,12 @@ xml_from_url(Url, Dom) :-
 
 xml_from_path(File_Path, Dom) :-
 	%http_safe_file(File_Path, []),
-	load_xml(File_Path, Dom, [space(remove)]).
+	load_xml(File_Path, Dom, [space(remove), call(error, xml_loader_error_callback)]).
 
-xml_from_path_or_url(Url, Dom) :-
+xml_loader_error_callback(X,Y,Z) :-
+	throw_string(['XML parsing error: ',X,': ', Y,' (',Z,')']).
+
+ xml_from_path_or_url(Url, Dom) :-
 		is_url(Url)
 	->	xml_from_url(Url, Dom)
 	;	xml_from_path(Url, Dom).

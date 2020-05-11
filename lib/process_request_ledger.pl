@@ -65,11 +65,10 @@ process_request_ledger2(Dom, S_Transactions, Structured_Reports, Transactions) :
 	extract_livestock_data_from_ledger_request(Dom),
 	extract_exchange_rates(Cost_Or_Market, Dom, S_Transactions, Start_Date, End_Date, Report_Currency, Exchange_Rates),
 	extract_invoices_payable(Dom),
-	extract_gl_inputs(Initial_Txs),
+
 
 	process_ledger(
 		Cost_Or_Market,
-		Initial_Txs,
 		S_Transactions,
 		Start_Date,
 		End_Date,

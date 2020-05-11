@@ -1,3 +1,6 @@
+/*note:we form roles from ids, so the id should be unique in this context. eg, if there are two different accounts with id "Investments", this will break. The alternative is to use full uri, or to introduce account codes, or similar. This problem goes all the way to the excel UI, where action verbs have fields for accounts. Id's are used, and we expect them to be unique, but account names in big hierarchies aren't unique. So how would a user specify an account unambiguously? Either specify the unique code directly, or the ui has to have a sheet with the mapping, or there has to be a menu item that makes a request to the endpoint to load taxonomies and return back some rdf with the mapping. */
+
+
 /*
 ╻┏━┓   ╻ ╻┏━┓╻  ╻╺┳┓   ┏━┓┏━┓╻  ┏━╸
 ┃┗━┓   ┃┏┛┣━┫┃  ┃ ┃┃   ┣┳┛┃ ┃┃  ┣╸
@@ -104,6 +107,7 @@ asset GL accounts corresponding to bank accounts
 %----
 
 subcategorize_by_bank :-
+gtrace,
  	findall(A, doc(A, accounts:subcategorize_by_bank, true, accounts), As),
  	maplist(subcategorize_by_bank3, As).
 
@@ -182,18 +186,11 @@ in Assets
  ensure_financial_investments_accounts_exist2(Traded_Units, Id) :-
 	Role0 = 'FinancialInvestments'/Id,
 	abrlt(Role0, FinancialInvestments),
-	maplist(ensure_FinancialInvestments_Unit(Role0, FinancialInvestments), Traded_Units).
+	maplist(ensure_FinancialInvestments_Unit(FinancialInvestments), Traded_Units).
 
- ensure_FinancialInvestments_Unit(Role0, FinancialInvestments, Traded_Unit) :-
- 	Rl = rl(Role0/Traded_Unit),
- 	%format(user_error, 'ensure_FinancialInvestments_Unit: ~q\n', [Rl]),
-	ensure_account_exists(FinancialInvestments, _, 1, Rl, _).
-
- financial_investments_account(Exchanged_Account_Uri,Goods_Unit,Exchanged_Account2) :-
-	account_name(Exchanged_Account_Uri, Exchanged_Account_Id),
-	account_by_role_throw(rl('FinancialInvestments'/Exchanged_Account_Id/Goods_Unit), Exchanged_Account2).
-
-	/*note:we form role from id, so the id should be unique in this context. eg, if there are two different accounts with id "Investments", this will break. The alternative is to use full uri, or to introduce account codes, or similar. This problem goes all the way to the excel UI, where action verbs have fields for accounts. Id's are used, and we expect them to be unique, but account names in big hierarchies aren't unique. So how would a user specify an account unambiguously? Either specify the unique code directly, or the ui has to have a sheet with the mapping, or there has to be a menu item that makes a request to the endpoint to load taxonomies and return back some rdf with the mapping. */
+ ensure_FinancialInvestments_Unit(FinancialInvestments, Unit) :-
+ 	account_name(FinancialInvestments, Name),
+ 	subcategorize_by_investment6(FinancialInvestments, 'FinancialInvestments'/Name, Unit).
 
 %-----
 
@@ -202,34 +199,33 @@ in Assets
  	maplist(subcategorize_by_investment3(Traded_units), As).
  subcategorize_by_investment3(Traded_units, A) :-
  	account_name(A, Role_prefix),
-	maplist(subcategorize_by_investment6(A, Role_prefix, Traded_units).
+	maplist(subcategorize_by_investment6(A, Role_prefix), Traded_units).
  subcategorize_by_investment6(A, Role_prefix, Unit) :-
- 	account_name(A, A_name),
- 	Role = rl(Role_prefix/A_name/Unit),
+ 	Role = rl(Role_prefix/Unit),
  	(
 		(
 			request_data(D),
 			doc_value(D, ic:unit_types, Categorizations_table),
 			doc_list_items(Categorizations_table, Categorizations),
 			member(Categorization, Categorizations),
-			doc(Categorization, ic:unit_type_name, Unit),
-			doc(Categorization, ic:unit_type_category, Category)
+			doc_value(Categorization, ic:unit_type_name, Unit),
+			doc_value(Categorization, ic:unit_type_category, Category)
 		)
 		->	(
 				ensure_account_by_parent_and_name_exists(A, Category, L1),
-				(	doc(Categorization, ic:unit_type_subcategory, Subategory)
-				->	ensure_account_by_parent_and_name_exists(L1, Sub, Parent)
+				(	doc_value(Categorization, ic:unit_type_subcategory, Subategory)
+				->	ensure_account_by_parent_and_name_exists(L1, Subategory, Parent)
 				;	Parent = L1)
 			)
 		;	Parent = A
 	),
-	ensure_account_by_parent_and_name_exists(Parent, Unit, rl(A/Unit), Unit_account).
+	ensure_account_by_parent_and_name_exists(Parent, Unit, Role, _).
 
  ensure_account_by_parent_and_name_exists(Parent, Name, Role, Uri) :-
 	ensure_account_by_parent_and_name_exists(Parent, Name, Uri),
 	doc_add(Uri, accounts:role, Role, accounts).
 
-ensure_account_by_parent_and_name_exists(Parent, Name, Uri) :-
+ ensure_account_by_parent_and_name_exists(Parent, Name, Uri) :-
 	(
 		account_name(Uri, Name),
 		account_parent(Uri, Parent)
@@ -239,6 +235,9 @@ ensure_account_by_parent_and_name_exists(Parent, Name, Uri) :-
 
 %------
 
+ financial_investments_account(Exchanged_Account_Uri,Goods_Unit,Exchanged_Account2) :-
+	account_name(Exchanged_Account_Uri, Exchanged_Account_Id),
+	account_by_role_throw(rl('FinancialInvestments'/Exchanged_Account_Id/Goods_Unit), Exchanged_Account2).
 
 /*
 ╻┏┓╻╻ ╻┏━╸┏━┓╺┳╸┏┳┓┏━╸┏┓╻╺┳╸╻┏┓╻┏━╸┏━┓┏┳┓┏━╸
@@ -310,7 +309,7 @@ in pyco2, we would not separate lookup and creation.
 */
 
 ensure_smsf_equity_tree :-
-	(	account_by_role(smsf_equity, Equity)
+	(	account_by_role(rl(smsf_equity), Equity)
 	->	ensure_smsf_equity_tree3(Equity)
 	;	true).
 
@@ -319,36 +318,32 @@ ensure_smsf_equity_tree3(Root) :-
 	findall(A,
 		(
 			account_in_set(A, Root),
-			\+account_parent(_. A)
+			\+account_parent(_, A)
 		),
 		As
 	),
 	maplist(ensure_smsf_equity_tree6, As).
 
 ensure_smsf_equity_tree6(A) :-
-	smsf_members_throw(Members),
-	maplist(ensure_smsf_equity_tree6(A), Members).
-
-ensure_smsf_equity_tree6(A, Member) :-
-	account_name(A, Account),
-	doc(Member, smsf:member_name, Member),
-	ensure_account_exists(A, _, 1, (smsf_equity/Account/Member), _).
+	!smsf_members_throw(Members),
+	!account_name(A, Account),
+	maplist(subcategorize_by_smsf_member((smsf_equity/Account), A), Members).
 
 
 %-----
 
  subcategorize_by_smsf_members :-
  	findall(A, doc(A, accounts:subcategorize_by_smsf_member, true, accounts), As),
- 	maplist(subcategorize_by_smsf_members3, As).
+ 	maplist(!subcategorize_by_smsf_members3, As).
 
  subcategorize_by_smsf_members3(A) :-
-	smsf_members_throw(Members),
-	maplist(subcategorize_by_smsf_member(A), Members).
+	!smsf_members_throw(Members),
+	!account_name(A, Account),
+	maplist(!subcategorize_by_smsf_member(Account, A), Members).
 
- subcategorize_by_smsf_member(A, Member) :-
-	account_name(A, Account),
-	doc(Member, smsf:member_name, Member),
-	ensure_account_exists(A, _, 1, (Account/Member), _).
+ subcategorize_by_smsf_member(Role_prefix, A, Member) :-
+	!doc_value(Member, smsf:member_name, Member_Name),
+	ensure_account_exists(A, _, 1, rl(Role_prefix/Member_Name), _).
 
 %------
 

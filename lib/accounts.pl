@@ -116,7 +116,6 @@ account_by_role_throw(Role, Account) :-
 			term_string(Role2, Role_Str),
 			format(user_error, '~q~n', [Account]),
 			format(string(Err), 'unknown account by role: ~w', [Role_Str]),
-			gtrace,
 			throw_string(Err)
 		)
 	).

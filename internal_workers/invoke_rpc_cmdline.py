@@ -156,7 +156,7 @@ def call_prolog(msg, dev_runner_options=[], prolog_flags='true', make_new_tmp_di
 	input = json.dumps(msg)
 
 	swipl = ['swipl'] + path_flags
-	cmd0 = swipl + ['-s', git("lib/dev_runner.pl"),'--problem_lines_whitelist',git("misc/problem_lines_whitelist")] + debug_args + ["-s", git(entry_file)]
+	cmd0 = swipl + ['-s', git("public_lib/lodgeit_solvers/tools/dev_runner/dev_runner.pl"),'--problem_lines_whitelist',git("public_lib/lodgeit_solvers/tools/dev_runner/problem_lines_whitelist")] + debug_args + ["-s", git(entry_file)]
 	cmd1 = dev_runner_options
 
 	if print_cmd_to_swipl_stdin:
