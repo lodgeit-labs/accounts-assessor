@@ -1,9 +1,12 @@
 <?xml version="1.0" ?>
 <accountHierarchy>
 	<account parent_role="root" normal_side="debit">
-		<account name="Net Assets">
+		<account name="Net Assets" role="NetAssets">
 			<account name="Assets">
-				<account name="Cash at Bank" role="Banks"/>
+				<account name="CashAndCashEquivalents" role="CashAndCashEquivalents">
+					<!-- todo: we should allow multiple roles on one account -->
+					<account name="Cash at Bank" role="Banks"/>
+				</account>
 				<account name="Contribution Receivable"/>
 				<account name="Distribution Receivable" subcategorize_by_investment="true"/>
 				<account name="Dividends Receivable"/>
@@ -53,79 +56,83 @@
 				<account name="SUSPENSE"/>
 			</account>
 		</account>
-		<account name="Equity" role="smsf_equity">
+		<account name="Equity" role="Equity">
 			<account name="Bank Opening Balances"></account>
+			<account name="HistoricalEarnings" role="HistoricalEarnings"></account>
+			<account name="CurrentEarnings" role="CurrentEarnings"/>
 			<account name="Profit Attribution"></account>
-			<account name="Opening Balance - Preserved/Taxable"/>
-			<account name="Opening Balance - Preserved/Tax Free"/>
-			<account name="Opening Balance - Unrestricted Non Preserved/Taxable"/>
-			<account name="Opening Balance - Unrestricted Non Preserved/Tax Free"/>
-			<account name="Opening Balance - Restricted Non Preserved/Taxable"/>
-			<account name="Opening Balance - Restricted Non Preserved/Tax Free"/>
-			<account name="Employer Contributions - Concessional"/>
-			<account name="Member/Personal Contributions - Concessional"/>
-			<account name="Member/Personal Contributions - Non Concessional"/>
-			<account name="Other Contributions"/>
-			<account name="Transfers In - Preserved/Taxable"/>
-			<account name="Transfers In - Preserved/Tax Free"/>
-			<account name="Transfers In - Unrestricted Non Preserved/Taxable"/>
-			<account name="Transfers In - Unrestricted Non Preserved/Tax Free"/>
-			<account name="Transfers In - Restricted Non Preserved/Taxable"/>
-			<account name="Transfers In - Restricted Non Preserved/Tax Free"/>
-			<account name="Pensions Paid - Preserved/Taxable"/>
-			<account name="Pensions Paid - Preserved/Taxfree"/>
-			<account name="Pensions Paid - Unrestricted Non Preserved/Taxable"/>
-			<account name="Pensions Paid - Unrestricted Non Preserved/Tax Free"/>
-			<account name="Pensions Paid - Restricted Non Preserved/Taxable"/>
-			<account name="Pensions Paid - Restricted Non Preserved/Tax Free"/>
-			<account name="Benefits Paid - Preserved/Taxable"/>
-			<account name="Benefits Paid - Preserved/Taxfree"/>
-			<account name="Benefits Paid - Unrestricted Non Preserved/Taxable"/>
-			<account name="Benefits Paid - Unrestricted Non Preserved/Tax Free"/>
-			<account name="Benefits Paid - Restricted Non Preserved/Taxable"/>
-			<account name="Benefits Paid - Restricted Non Preserved/Tax Free"/>
-			<account name="Transfers Out - Preserved/Taxable"/>
-			<account name="Transfers Out - Preserved/Tax Free"/>
-			<account name="Transfers Out - Unrestricted Non Preserved/Taxable"/>
-			<account name="Transfers Out - Unrestricted Non Preserved/Tax Free"/>
-			<account name="Transfers Out - Restricted Non Preserved/Taxable"/>
-			<account name="Transfers Out - Restricted Non Preserved/Tax Free"/>
-			<account name="Life Insurance Premiums - Preserved/Taxable"/>
-			<account name="Life Insurance Premiums - Preserved/Tax Free"/>
-			<account name="Life Insurance Premiums - Unrestricted Non Preserved/Taxable"/>
-			<account name="Life Insurance Premiums - Unrestricted Non Preserved/Tax Free"/>
-			<account name="Life Insurance Premiums - Restricted Non Preserved/Taxable"/>
-			<account name="Life Insurance Premiums - Restricted Non Preserved/Tax Free"/>
-			<account name="Share of Profit/(Loss) - Preserved/Tax Free"/>
-			<account name="Share of Profit/(Loss) - Preserved/Taxable"/>
-			<account name="Share of Profit/(Loss) - Unrestricted Non Preserved/Tax Free"/>
-			<account name="Share of Profit/(Loss) - Unrestricted Non Preserved/Taxable"/>
-			<account name="Share of Profit/(Loss) - Restricted Non Preserved/Tax Free"/>
-			<account name="Share of Profit/(Loss) - Restricted Non Preserved/Taxable"/>
-			<account name="Income Tax - Preserved/Taxable"/>
-			<account name="Income Tax - Preserved/Tax Free"/>
-			<account name="Income Tax - Unrestricted Non Preserved/Taxable"/>
-			<account name="Income Tax - Unrestricted Non Preserved/Tax Free"/>
-			<account name="Income Tax - Restricted Non Preserved/Taxable"/>
-			<account name="Income Tax - Restricted Non Preserved/Tax Free"/>
-			<account name="Contribution Tax - Preserved/Taxable"/>
-			<account name="Contribution Tax - Preserved/Tax Free"/>
-			<account name="Contribution Tax - Unrestricted Non Preserved/Taxable"/>
-			<account name="Contribution Tax - Unrestricted Non Preserved/Tax Free"/>
-			<account name="Contribution Tax - Restricted Non Preserved/Taxable"/>
-			<account name="Contribution Tax - Restricted Non Preserved/Tax Free"/>
-			<account name="Internal Transfers In - Preserved/Taxable"/>
-			<account name="Internal Transfers In - Preserved/Tax Free"/>
-			<account name="Internal Transfers In - Unrestricted Non Preserved/Taxable"/>
-			<account name="Internal Transfers In - Unrestricted Non Preserved/Tax Free"/>
-			<account name="Internal Transfers In - Restricted Non Preserved/Taxable"/>
-			<account name="Internal Transfers In - Restricted Non Preserved/Tax Free"/>
-			<account name="Internal Transfers Out - Preserved/Taxable"/>
-			<account name="Internal Transfers Out - Preserved/Tax Free"/>
-			<account name="Internal Transfers Out - Unrestricted Non Preserved/Taxable"/>
-			<account name="Internal Transfers Out - Unrestricted Non Preserved/Tax Free"/>
-			<account name="Internal Transfers Out - Restricted Non Preserved/Taxable"/>
-			<account name="Internal Transfers Out - Restricted Non Preserved/Tax Free"/>
+			<account name="Members" role="smsf_equity">
+				<account name="Opening Balance - Preserved/Taxable"/>
+				<account name="Opening Balance - Preserved/Tax Free"/>
+				<account name="Opening Balance - Unrestricted Non Preserved/Taxable"/>
+				<account name="Opening Balance - Unrestricted Non Preserved/Tax Free"/>
+				<account name="Opening Balance - Restricted Non Preserved/Taxable"/>
+				<account name="Opening Balance - Restricted Non Preserved/Tax Free"/>
+				<account name="Employer Contributions - Concessional"/>
+				<account name="Member/Personal Contributions - Concessional"/>
+				<account name="Member/Personal Contributions - Non Concessional"/>
+				<account name="Other Contributions"/>
+				<account name="Transfers In - Preserved/Taxable"/>
+				<account name="Transfers In - Preserved/Tax Free"/>
+				<account name="Transfers In - Unrestricted Non Preserved/Taxable"/>
+				<account name="Transfers In - Unrestricted Non Preserved/Tax Free"/>
+				<account name="Transfers In - Restricted Non Preserved/Taxable"/>
+				<account name="Transfers In - Restricted Non Preserved/Tax Free"/>
+				<account name="Pensions Paid - Preserved/Taxable"/>
+				<account name="Pensions Paid - Preserved/Taxfree"/>
+				<account name="Pensions Paid - Unrestricted Non Preserved/Taxable"/>
+				<account name="Pensions Paid - Unrestricted Non Preserved/Tax Free"/>
+				<account name="Pensions Paid - Restricted Non Preserved/Taxable"/>
+				<account name="Pensions Paid - Restricted Non Preserved/Tax Free"/>
+				<account name="Benefits Paid - Preserved/Taxable"/>
+				<account name="Benefits Paid - Preserved/Taxfree"/>
+				<account name="Benefits Paid - Unrestricted Non Preserved/Taxable"/>
+				<account name="Benefits Paid - Unrestricted Non Preserved/Tax Free"/>
+				<account name="Benefits Paid - Restricted Non Preserved/Taxable"/>
+				<account name="Benefits Paid - Restricted Non Preserved/Tax Free"/>
+				<account name="Transfers Out - Preserved/Taxable"/>
+				<account name="Transfers Out - Preserved/Tax Free"/>
+				<account name="Transfers Out - Unrestricted Non Preserved/Taxable"/>
+				<account name="Transfers Out - Unrestricted Non Preserved/Tax Free"/>
+				<account name="Transfers Out - Restricted Non Preserved/Taxable"/>
+				<account name="Transfers Out - Restricted Non Preserved/Tax Free"/>
+				<account name="Life Insurance Premiums - Preserved/Taxable"/>
+				<account name="Life Insurance Premiums - Preserved/Tax Free"/>
+				<account name="Life Insurance Premiums - Unrestricted Non Preserved/Taxable"/>
+				<account name="Life Insurance Premiums - Unrestricted Non Preserved/Tax Free"/>
+				<account name="Life Insurance Premiums - Restricted Non Preserved/Taxable"/>
+				<account name="Life Insurance Premiums - Restricted Non Preserved/Tax Free"/>
+				<account name="Share of Profit/(Loss) - Preserved/Tax Free"/>
+				<account name="Share of Profit/(Loss) - Preserved/Taxable"/>
+				<account name="Share of Profit/(Loss) - Unrestricted Non Preserved/Tax Free"/>
+				<account name="Share of Profit/(Loss) - Unrestricted Non Preserved/Taxable"/>
+				<account name="Share of Profit/(Loss) - Restricted Non Preserved/Tax Free"/>
+				<account name="Share of Profit/(Loss) - Restricted Non Preserved/Taxable"/>
+				<account name="Income Tax - Preserved/Taxable"/>
+				<account name="Income Tax - Preserved/Tax Free"/>
+				<account name="Income Tax - Unrestricted Non Preserved/Taxable"/>
+				<account name="Income Tax - Unrestricted Non Preserved/Tax Free"/>
+				<account name="Income Tax - Restricted Non Preserved/Taxable"/>
+				<account name="Income Tax - Restricted Non Preserved/Tax Free"/>
+				<account name="Contribution Tax - Preserved/Taxable"/>
+				<account name="Contribution Tax - Preserved/Tax Free"/>
+				<account name="Contribution Tax - Unrestricted Non Preserved/Taxable"/>
+				<account name="Contribution Tax - Unrestricted Non Preserved/Tax Free"/>
+				<account name="Contribution Tax - Restricted Non Preserved/Taxable"/>
+				<account name="Contribution Tax - Restricted Non Preserved/Tax Free"/>
+				<account name="Internal Transfers In - Preserved/Taxable"/>
+				<account name="Internal Transfers In - Preserved/Tax Free"/>
+				<account name="Internal Transfers In - Unrestricted Non Preserved/Taxable"/>
+				<account name="Internal Transfers In - Unrestricted Non Preserved/Tax Free"/>
+				<account name="Internal Transfers In - Restricted Non Preserved/Taxable"/>
+				<account name="Internal Transfers In - Restricted Non Preserved/Tax Free"/>
+				<account name="Internal Transfers Out - Preserved/Taxable"/>
+				<account name="Internal Transfers Out - Preserved/Tax Free"/>
+				<account name="Internal Transfers Out - Unrestricted Non Preserved/Taxable"/>
+				<account name="Internal Transfers Out - Unrestricted Non Preserved/Tax Free"/>
+				<account name="Internal Transfers Out - Restricted Non Preserved/Taxable"/>
+				<account name="Internal Transfers Out - Restricted Non Preserved/Tax Free"/>
+			</account>
 		</account>
 		<account name="P&amp;L" role="ComprehensiveIncome">
 			<account name="Income">
