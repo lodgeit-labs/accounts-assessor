@@ -134,14 +134,12 @@ static_data_historical(Static_Data, Static_Data_Historical) :-
 	Cf,
 	Structured_Reports				% Dict <Report Abbr : _>
 ) :-
-
 	!investment_reports(Static_Data.put(outstanding, Outstanding), Investment_Report_Info),
 	!bs_page(Static_Data, Balance_Sheet),
 	!pl_page(Static_Data, ProfitAndLoss, ''),
 	!pl_page(Static_Data_Historical, ProfitAndLoss2_Historical, '_historical'),
 	!cf_page(Static_Data, Cf),
 	!make_json_report(Static_Data.gl, general_ledger_json),
-
 	!make_gl_viewer_report,
 
 	Structured_Reports0 = _{

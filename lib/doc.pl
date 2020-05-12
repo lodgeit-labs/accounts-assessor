@@ -69,6 +69,7 @@ maybe this program will even run faster without this?*/
 :- rdf_meta request_assert_property(r,r,r).
 :- rdf_meta doc_value(r,r,r).
 :- rdf_meta doc_add_value(r,r,r).
+:- rdf_meta doc_add_value(r,r,r,r).
 
 
 doc_init :-
@@ -627,13 +628,21 @@ doc_add_list([], rdf:nil).
 
 
 doc_value(S, P, V) :-
-	doc(S, P, O),
+	b_getval(default_graph, G),
+	doc_value(S, P, V, G).
+
+doc_value(S, P, V, G) :-
+	doc(S, P, O, G),
 	doc(O, rdf:value, V).
 
 
 doc_add_value(S, P, V) :-
+	b_getval(default_graph, G),
+	doc_add_value(S, P, V, G).
+
+doc_add_value(S, P, V, G) :-
 	doc_new_uri(value, Uri),
-	doc_add(S, P, Uri),
+	doc_add(S, P, Uri, G),
 	doc_add(Uri, rdf:value, V).
 
 /*

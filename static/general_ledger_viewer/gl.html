@@ -114,7 +114,7 @@
 		template: `
 			<tr class="transaction">
 				<td>GL</td>
-				<td><truncate clamp="..." :length="60" less="⇦" :text="vm.accounts_index[data.account].name"></truncate></td>
+				<td><truncate clamp="..." :length="60" less="⇦" :text="$root.accounts_index[data.account].name"></truncate></td>
 				<td>{{ data.date }}</td>
 				<td>{{ data.description }}</td>
 				<td></td>

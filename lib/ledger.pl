@@ -38,7 +38,6 @@ process_ledger(
 
 	!process_livestock((Processed_S_Transactions, Transactions1), Livestock_Transactions),
 	flatten([Transactions1,	Livestock_Transactions], Transactions_With_Livestock),
-
 	/*
 	this is probably the right place to plug in hirepurchase and depreciation,
 	take Transactions_With_Livestock and produce an updated list.
@@ -50,9 +49,7 @@ process_ledger(
 		how to get balance on account
 		how to generate json+html reports
 	*/
-
 	maplist(!check_transaction_account, Transactions_With_Livestock),
-
 	Static_Data2 = Static_Data0.put(end_date, Processed_Until).put(transactions, Transactions_With_Livestock),
 	!gl_export(Static_Data2, Transactions_With_Livestock, Gl),
 	!transactions_by_account(Static_Data2, Transactions_By_Account),

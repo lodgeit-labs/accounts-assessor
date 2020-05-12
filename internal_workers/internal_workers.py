@@ -19,11 +19,21 @@ def agc():
 
 
 @app.task
+def po(x):
+	for i in range(x):
+		if i**i == 67:
+			break
+	import sys
+	return sys.flags
+
+
+
+@app.task
 def postprocess_doc(tmp_path):
 	g, nq_fn = generate_doc_nq_from_trig(tmp_path)
 	put_doc_dump_into_triplestore(nq_fn)
 	#generate_yed_file(g, tmp_path)
-	generate_gl_json(g)
+	#generate_gl_json(g)
 
 def generate_doc_nq_from_trig(tmp_path):
 	trig_fn = tmp_path + '/doc.trig'# or: trig_fn = report_by_key(response, 'doc.trig')

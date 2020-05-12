@@ -31,10 +31,13 @@ gl_export2(Sd, All_txs, Source, Json) :-
 	gl_export_st(Sd, Source, Source_dict),
 	Json = _{source: Source_dict, transactions: Txs}.
 
-gl_export_st(Sd, Source, Source_dict) :-
+gl_export_st(Sd, Source, Source_json) :-
 	(	s_transaction_to_dict(Source, S0)
-	->	s_transaction_with_transacted_amount(Sd, S0, Source_dict)
-	; 	Source_dict = Source).
+	->	s_transaction_with_transacted_amount(Sd, S0, Source_json)
+	; 	(
+			doc_value(Source, transactions:description, Source_json, transactions)
+			->	true
+			;	Source_json = Source)).
 
 gl_export_tx(Sd, Tx0, Tx9) :-
 	transaction_to_dict(Tx0, Tx3),

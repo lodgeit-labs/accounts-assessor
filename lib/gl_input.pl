@@ -1,39 +1,40 @@
-/* finishme: this affects gl export */
  extract_gl_inputs(Txs) :-
-	maplist(extract_gl_input, $>doc_list_items($>doc($>request_data, ic_ui:gl)), Txs0),
+	maplist(!extract_gl_input, $>doc_list_items($>doc($>request_data, ic_ui:gl)), Txs0),
 	flatten(Txs0, Txs).
 
  extract_gl_input(Gl, Txs) :-
-	doc_value(Gl, ic:default_currency, Default_Currency0),
-	atom_string(Default_Currency, Default_Currency0),
-	doc_value(Gl, ic:items, List),
-	doc_list_items(List, Items),
-	extract_gl_tx(Default_Currency, none, none, Items, Txs).
+	!doc_value(Gl, ic:default_currency, Default_Currency0),
+	!atom_string(Default_Currency, Default_Currency0),
+	!doc_value(Gl, ic:items, List),
+	!doc_list_items(List, Items),
+	!doc_value(Gl, excel:has_sheet_name, Sheet_name),
+	!extract_gl_tx(Sheet_name, Default_Currency, none, none, Items, Txs).
 
- extract_gl_tx(_, _,_,[],[]).
+ extract_gl_tx(_, _, _,_,[],[]).
 
- extract_gl_tx(Default_Currency, St0, Date0, [Item|Items], [Tx|Txs]) :-
+ extract_gl_tx(Sheet_name, Default_Currency, St0, Date0, [Item|Items], [Tx|Txs]) :-
 	\+doc_value(Item, ic:date, _),
 	(Date0 = none ->throw_string('GL_input: date missing');true),
 	(St0 = none ->throw_string('GL_input: format error');true),
 	!read_gl_line(Default_Currency, Date0, St0, Item, Tx),
-	!extract_gl_tx(Default_Currency, St0, Date0, Items, Txs).
+	!extract_gl_tx(Sheet_name, Default_Currency, St0, Date0, Items, Txs).
 
-extract_gl_tx(Default_Currency, St0, Date0, [Item|Items], Txs) :-
-	doc_value(Item, ic:date, Date1),
+extract_gl_tx(Sheet_name, Default_Currency, St0, Date0, [Item|Items], Txs) :-
+	!doc_value(Item, ic:date, Date1),
 	Date1 = "ignore",
-	!extract_gl_tx(Default_Currency, St0, Date0, Items, Txs).
+	!extract_gl_tx(Sheet_name, Default_Currency, St0, Date0, Items, Txs).
 
-extract_gl_tx(Default_Currency, _, _, [Item|Items], [Tx|Txs]) :-
-	doc_value(Item, ic:date, Date1),
+extract_gl_tx(Sheet_name, Default_Currency, _, _, [Item|Items], [Tx|Txs]) :-
+	!doc_value(Item, ic:date, Date1),
 	Date1 \= "ignore",
-	doc_new_uri(gl_input_st, St1),
+	!doc_new_uri(gl_input_st, St1),
+	!doc_add_value(St1, transactions:description, Sheet_name, transactions),
 	!read_gl_line(Default_Currency, Date1, St1, Item, Tx),
-	!extract_gl_tx(Default_Currency, St1, Date1, Items, Txs).
+	!extract_gl_tx(Sheet_name, Default_Currency, St1, Date1, Items, Txs).
 
 
  read_gl_line(Default_Currency, Date, St, Item, Tx) :-
-	doc_value(Item, ic:account, Account_String),
+	!doc_value(Item, ic:account, Account_String),
 	/* todo, support multiple description fields in transaction */
 	(	doc_value(Item, ic:description, Description)
 	->	true
