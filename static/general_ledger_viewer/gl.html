@@ -111,7 +111,7 @@
 		template: `
 			<tr class="transaction">
 				<td>GL</td>
-				<td><truncate clamp="..." :length="60" less="⇦" :text="data.account"></truncate></td>
+				<td><truncate clamp="..." :length="60" less="⇦" :text="vm.accounts_index[data.account].name"></truncate></td>
 				<td>{{ data.date }}</td>
 				<td>{{ data.description }}</td>
 				<td></td>
@@ -205,7 +205,9 @@
 	function process_loaded_accounts_data(data)
 	{
 				vm.accounts_index = accounts_list_to_tree(data);
-				vm.accounts = vm.accounts_index['accountHierarchy'];
+				Object.keys(vm.accounts_index).forEach(function(key) {
+					if (vm.accounts_index[key].name = "root")
+						vm.accounts = vm.accounts_index[key];
 				vm.accounts_filter_index = [];
 				vm.accounts_filter = create_filter_item_from_account(vm.accounts_filter_index, vm.accounts);
 	};
@@ -224,7 +226,8 @@
 					item.transactions.forEach(tr => {
 						tr.id = transaction_id++
 /*						if (!tr.x.hasOwnProperty(account))
-							balances[account] =*/
+							balances[account] =
+*/
 
 					});
 		});
@@ -257,7 +260,7 @@
 	function create_filter_item_from_account(index, account)
 	{
 		let r = {
-			'id': account.id,
+			'name': account.name,
 			'checked': true,
 			'children': []
 		};
@@ -279,7 +282,7 @@
 		});
 		data.forEach(account => {
 			let p = account.parent;
-			if (p != '')
+			if (p != null)
 				index[account.parent].children.push(account);
 		});
 		return index;
@@ -294,7 +297,7 @@
 		data: {
 			transformations: [],
 			accounts: {},
-			accounts_filter: {'id': 'Accounts', children:[{'id':'loading...', 'children':[]}]}
+			accounts_filter: {'name': 'Accounts', children:[{'name':'loading...', 'children':[]}]}
 		},
 		mounted: function ()
 		{
