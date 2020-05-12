@@ -54,7 +54,7 @@ process_ledger(
 	maplist(!check_transaction_account, Transactions_With_Livestock),
 
 	Static_Data2 = Static_Data0.put(end_date, Processed_Until).put(transactions, Transactions_With_Livestock),
-	!gl_export(Static_Data2, Transactions, Gl),
+	!gl_export(Static_Data2, Transactions_With_Livestock, Gl),
 	!transactions_by_account(Static_Data2, Transactions_By_Account),
 	!trial_balance_between(Exchange_Rates, Transactions_By_Account, Report_Currency, End_Date, Start_Date, End_Date, [Trial_Balance_Section]),
 	(

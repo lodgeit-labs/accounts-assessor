@@ -167,17 +167,17 @@ account_to_dict(Uri, Dict) :-
 
 	(	account_parent(Uri, Parent)
 	->	true
-	;	Parent = null),
+	;	Parent = @null),
 
 	(	account_role(Uri, rl(Role))
 	->	true
-	;	Role = null),
+	;	Role = @null),
 
 	account_detail_level(Uri, Detail_level),
 
 	(	account_normal_side(Uri, Normal_side)
 	->	true
-	;	Normal_side = null)
+	;	Normal_side = @null)
 	.
 
 check_accounts_roles :-

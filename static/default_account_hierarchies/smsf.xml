@@ -1,6 +1,6 @@
 <?xml version="1.0" ?>
 <accountHierarchy>
-	<account parent_role="root" normal_side="debit">
+	<account name="Accounts" parent_role="root" normal_side="debit">
 		<account name="Net Assets" role="NetAssets">
 			<account name="Assets">
 				<account name="CashAndCashEquivalents" role="CashAndCashEquivalents">
@@ -17,6 +17,7 @@
 				<account name="Prepaid Expenses"/>
 				<account name="Sundry Debtors"/>
 				<account name="Investments" role="FinancialInvestments/Investments">
+				<!--
 					<account name="Derivatives"/>
 					<account name="Fixed Interest Securities (Australian)"/>
 					<account name="Fixed Interest Securities (Overseas)"/>
@@ -38,7 +39,7 @@
 					<account name="Units in Listed Unit Trusts (Australian)"/>
 					<account name="Units in Listed Unit Trusts (Overseas)"/>
 					<account name="Units in Unlisted Unit Trusts (Australian)"/>
-					<account name="Units in Unlisted Unit Trusts (Overseas)"/>
+					<account name="Units in Unlisted Unit Trusts (Overseas)"/> -->
 				</account>
 			</account>
 			<account name="Liabilities">

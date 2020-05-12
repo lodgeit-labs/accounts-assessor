@@ -207,7 +207,8 @@ in Assets
 			doc_value(D, ic:unit_types, Categorizations_table),
 			doc_list_items(Categorizations_table, Categorizations),
 			member(Categorization, Categorizations),
-			doc_value(Categorization, ic:unit_type_name, Unit),
+			doc_value(Categorization, ic:unit_type_name, Unit_str),
+			atom_string(Unit, Unit_str),
 			doc_value(Categorization, ic:unit_type_category, Category)
 		)
 		->	(

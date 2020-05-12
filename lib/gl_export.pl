@@ -29,14 +29,14 @@ gl_export2(Sd, All_txs, Source, Json) :-
 		Txs0),
 	maplist(gl_export_tx(Sd), Txs0, Txs),
 	gl_export_st(Sd, Source, Source_dict),
-	Entry = _{source: Source_dict, transactions: Txs}.
+	Json = _{source: Source_dict, transactions: Txs}.
 
 gl_export_st(Sd, Source, Source_dict) :-
 	(	s_transaction_to_dict(Source, S0)
 	->	s_transaction_with_transacted_amount(Sd, S0, Source_dict)
 	; 	Source_dict = Source).
 
-gl_export_tx(Sd, Tx0, Tx) :-
+gl_export_tx(Sd, Tx0, Tx9) :-
 	transaction_to_dict(Tx0, Tx3),
 	transaction_with_converted_vector(Sd, Tx3, Tx6),
 	running_balance_tx_enrichment(Tx6, Tx9).
@@ -74,3 +74,4 @@ running_balance_tx_enrichment(Tx, Tx_New) :-
 	b_setval(gl_export_running_balances, Balances.put(Account, New)),
 	Tx_New = Tx.put(running_balance, New).
 
+% running_balance_for_relevant_period?

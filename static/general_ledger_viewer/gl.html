@@ -26,7 +26,7 @@
 		props: ['item'],
 		template: `
 			<div class="account_selector">
-				<input type="checkbox" id="checkbox" v-model="item.checked" @change="change_checked_on_children_recursively($event)">{{ item.id }}
+				<input type="checkbox" id="checkbox" v-model="item.checked" @change="change_checked_on_children_recursively($event)">{{ item.name }}
 				<ul>
 					<div v-for="child in item.children" :key="child.id">
 						<li>
@@ -99,7 +99,10 @@
 			{
 				return this.transactions.filter(item => {
 					if (!(item.account in vm.accounts_filter_index))
+					{
+						console.log("unknown account: "+item.account);
 						window.alert("unknown account: "+item.account);
+					}
 					return vm.accounts_filter_index[item.account].checked;
 				});
 			}
@@ -206,15 +209,15 @@
 	{
 				vm.accounts_index = accounts_list_to_tree(data);
 				Object.keys(vm.accounts_index).forEach(function(key) {
-					if (vm.accounts_index[key].name = "root")
-						vm.accounts = vm.accounts_index[key];
+					if (vm.accounts_index[key].name == "root")
+						vm.accounts_root = vm.accounts_index[key];});
 				vm.accounts_filter_index = [];
-				vm.accounts_filter = create_filter_item_from_account(vm.accounts_filter_index, vm.accounts);
+				vm.accounts_filter = create_filter_item_from_account(vm.accounts_filter_index, vm.accounts_root);
 	};
 
 	function process_loaded_general_ledger_data(data)
 	{
-
+		console.log("process_loaded_general_ledger_data");
         /* the id's should probably be coming from the prolog side, but in prolog there's little use for them, so...*/
 	    let transformation_id = 0;
 		let transaction_id = 0;
@@ -260,6 +263,7 @@
 	function create_filter_item_from_account(index, account)
 	{
 		let r = {
+			'id': account.id,
 			'name': account.name,
 			'checked': true,
 			'children': []
@@ -277,14 +281,22 @@
 		data.forEach(account => {
 			account.children = []
 		});
+		//console.log("hi");
 		data.forEach(account => {
+			//console.log(account.id);
+			//window.alert("hi "+account.id);
 			index[account.id] = account
 		});
+		//console.log("bye");
 		data.forEach(account => {
 			let p = account.parent;
 			if (p != null)
-				index[account.parent].children.push(account);
+			{
+				index[p].children.push(account);
+			}
 		});
+		//console.log(index);
+		//window.alert("hi "+index["http://dev-node.uksouth.cloudapp.azure.com/rdf/results/1589254735.7189376.2/#bnx547_accounts_Filling Fees"].name);
 		return index;
 	};
 
@@ -296,8 +308,8 @@
 		el: '#top',
 		data: {
 			transformations: [],
-			accounts: {},
-			accounts_filter: {'name': 'Accounts', children:[{'name':'loading...', 'children':[]}]}
+			accounts_root: {},
+			accounts_filter: {'id':'x', 'name': 'Accounts', children:[{'id':'x', 'name':'loading...', 'children':[]}]}
 		},
 		mounted: function ()
 		{
