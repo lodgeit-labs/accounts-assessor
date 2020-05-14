@@ -1,3 +1,17 @@
+
+/*
+action verbs in general:
+	Invest_In
+	Dispose_Off
+		magic: affect counteraccount's Unit subaccount
+
+"trading account" parameter of action verb:
+	magic: affect "trading account"'s Unit subaccount
+
+...
+
+*/
+
 preprocess_until_error(Static_Data0, Prepreprocessed_S_Transactions, Preprocessed_S_Transactions, Transactions0, Outstanding_Out, Report_End_Date, Processed_Until) :-
 	preprocess_s_transactions(Static_Data0, Prepreprocessed_S_Transactions, Preprocessed_S_Transactions, Transactions0, Outstanding_Out),
 	Processed_Until = Report_End_Date.

@@ -4,7 +4,6 @@
 		<account name="Net Assets" role="NetAssets">
 			<account name="Assets">
 				<account name="CashAndCashEquivalents" role="CashAndCashEquivalents">
-					<!-- todo: we should allow multiple roles on one account -->
 					<account name="Cash at Bank" role="Banks"/>
 				</account>
 				<account name="Contribution Receivable"/>
@@ -42,7 +41,7 @@
 					<account name="Units in Unlisted Unit Trusts (Overseas)"/> -->
 				</account>
 			</account>
-			<account name="Liabilities">
+			<account name="Liabilities" normal_side="credit">
 				<account name="Amounts owing to other Persons"/>
 				<account name="GST Payable"/>
 				<account name="Income Tax Payable"/>
@@ -57,7 +56,7 @@
 				<account name="SUSPENSE"/>
 			</account>
 		</account>
-		<account name="Equity" role="Equity">
+		<account name="Equity" role="Equity" normal_side="credit">
 			<account name="Bank Opening Balances"></account>
 			<account name="HistoricalEarnings" role="HistoricalEarnings"></account>
 			<account name="CurrentEarnings" role="CurrentEarnings"/>
@@ -135,7 +134,7 @@
 				<account name="Internal Transfers Out - Restricted Non Preserved/Tax Free"/>
 			</account>
 		</account>
-		<account name="P&amp;L" role="ComprehensiveIncome">
+		<account name="P&amp;L" role="ComprehensiveIncome" normal_side="credit">
 			<account name="Income">
 				<account name="Currency Movement" role="CurrencyMovement"/>
 				<account name="Capital GainLoss" role="TradingAccounts/Capital GainLoss">
