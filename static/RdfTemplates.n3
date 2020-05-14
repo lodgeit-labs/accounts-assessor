@@ -2,23 +2,28 @@
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
 
-@prefix : <https://rdf.lodgeit.net.au/v1/excel_request#> .
+@base <https://rdf.lodgeit.net.au/v1/> .
+
+@prefix : <excel_request#> .
 
 @prefix l: <https://rdf.lodgeit.net.au/v1/request#> .
 @prefix av: <https://rdf.lodgeit.net.au/v1/action_verbs#> .
 @prefix excel: <https://rdf.lodgeit.net.au/v1/excel#> .
 @prefix kb: <https://rdf.lodgeit.net.au/v1/kb#> .
+@prefix account_taxonomies: <https://rdf.lodgeit.net.au/v1/account_taxonomies#> .
 
 @prefix depr: <https://rdf.lodgeit.net.au/v1/calcs/depr#> .
 @prefix ic: <https://rdf.lodgeit.net.au/v1/calcs/ic#> .
-@prefix ic2: <https://rdf.lodgeit.net.au/v1/calcs/ic#> .
 @prefix hp: <https://rdf.lodgeit.net.au/v1/calcs/hp#> .
 
 @prefix depr_ui: <https://rdf.lodgeit.net.au/v1/calcs/depr/ui#> .
 @prefix ic_ui: <https://rdf.lodgeit.net.au/v1/calcs/ic/ui#> .
-@prefix ic2_ui: <https://rdf.lodgeit.net.au/v1/calcs/ic/ui#> .
 @prefix hp_ui: <https://rdf.lodgeit.net.au/v1/calcs/hp/ui#> .
 
+@prefix smsf: <https://rdf.lodgeit.net.au/v1/calcs/smsf#> .
+@prefix smsf_ui: <https://rdf.lodgeit.net.au/v1/calcs/smsf/ui#> .
+@prefix smsf_distribution: <https://rdf.lodgeit.net.au/v1/calcs/smsf/distribution#> .
+@prefix smsf_distribution_ui: <https://rdf.lodgeit.net.au/v1/calcs/smsf/distribution_ui#> .
 
 
 excel:this rdfs:comment
@@ -26,7 +31,7 @@ excel:this rdfs:comment
 hp:this rdfs:comment """hirepurchase""".
 depr:this rdfs:comment """depreciation""".
 ic:this rdfs:comment """investment calculator""".
-ic2:this rdfs:comment """investment calculator 2, with pyco""".
+
 
 
 
@@ -36,8 +41,83 @@ kb:Asset a rdfs:Class.
 
 
 
-excel:is_multi rdfs:comment "are multiple sheets of this type allowed in one workbook?".
 
+excel:multiple_sheets_allowed rdfs:comment "are multiple sheets of this type allowed in one workbook?".
+
+
+
+
+
+smsf_ui:sheets
+	excel:sheets
+	(
+		smsf_ui:members_sheet
+		smsf_ui:distribution_sheet
+	).
+
+smsf_ui:members_sheet
+	excel:optional true;
+	excel:name_prefix "members";
+	excel:root smsf:members.
+
+smsf_ui:distribution_sheet
+	excel:optional true;
+	excel:name_prefix "distribution";
+	excel:root smsf:distribution.
+
+smsf_ui:example
+	excel:example_has_sheets (
+		[	excel:has_sheet smsf_ui:members_sheet;
+			excel:example_doc smsf_ui:members_sheet_example]
+		[	excel:has_sheet smsf_ui:distribution_sheet;
+			excel:example_doc smsf_ui:distribution_sheet_example]
+	).
+
+smsf_ui:members_sheet_example rdf:value (
+	[ a smsf_ui:members_sheet_entry;
+		smsf:member_name [ a rdf:value ; rdf:value "Member 1" ]]
+	[ a smsf_ui:members_sheet_entry;
+		smsf:member_name [ a rdf:value ; rdf:value "Member 2" ]]
+).
+
+smsf_ui:distribution_sheet_example rdf:value ().
+
+smsf:members
+	excel:title "members";
+	excel:position [excel:col "A"; excel:row "3"];
+	excel:cardinality excel:multi;
+	excel:class smsf:member;
+	excel:fields (
+		[excel:property smsf:member_name; excel:type xsd:string]
+	).
+
+smsf:distribution
+	excel:title "distribution";
+	excel:position [excel:col "A"; excel:row "3"];
+	excel:cardinality excel:multi;
+	excel:class smsf_distribution:entry;
+	excel:is_horizontal true;
+	excel:fields (
+		[excel:property smsf_distribution_ui:name; excel:type xsd:string]
+		[excel:property smsf_distribution_ui:net; excel:type xsd:decimal]
+		[excel:property smsf_distribution_ui:bank; excel:type xsd:decimal]
+		[excel:property smsf_distribution_ui:accrual; excel:type xsd:decimal]
+		[excel:property smsf_distribution_ui:franking_credit; excel:type xsd:decimal]
+		[excel:property smsf_distribution_ui:foreign_credit; excel:type xsd:decimal]
+		[excel:property smsf_distribution_ui:amit_decrease; excel:type xsd:decimal]
+		[excel:property smsf_distribution_ui:amit_increase; excel:type xsd:decimal]
+		[excel:property smsf_distribution_ui:amit_net; excel:type xsd:decimal]
+	).
+
+smsf_distribution_ui:name rdfs:label "Unit Type".
+smsf_distribution_ui:net rdfs:label "Net Cash Distribution".
+smsf_distribution_ui:bank rdfs:label "Cash Distribution as per bank".
+smsf_distribution_ui:accrual rdfs:label "Resolved Accrual".
+smsf_distribution_ui:franking_credit rdfs:label "Add: Franking Credit".
+smsf_distribution_ui:foreign_credit rdfs:label "Add: Foreign Credit".
+smsf_distribution_ui:amit_decrease rdfs:label "AMIT cost base net amount - excess (decrease)".
+smsf_distribution_ui:amit_increase rdfs:label "AMIT cost base net amount - shortfall (increase)".
+smsf_distribution_ui:amit_net rdfs:label "Add: AMIT cost base net amount - net increase".
 
 
 
@@ -51,18 +131,15 @@ depr_ui:depreciation_calculator_sheets
 	).
 
 depr_ui:depreciation_calculator_sheet_queries
-	excel:is_multi false;
 	excel:name_prefix "depreciation_queries";
 	excel:root depr_ui:depreciation_queries.
 
 depr_ui:depreciation_calculator_sheet_events
-	excel:is_multi false;
 	excel:optional true;
 	excel:name_prefix "depreciation_events";
 	excel:root depr_ui:depreciation_events.
 
 depr_ui:depreciation_calculator_sheet_assets
-	excel:is_multi false;
 	excel:name_prefix "depreciation_assets";
 	excel:root depr_ui:depreciation_assets.
 
@@ -84,7 +161,7 @@ depr_ui:depreciation_example_full
 			excel:example_doc depr_ui:depreciation_example_assets]
 ).
 
- depr_ui:depreciation_example_queries_simple rdf:value (
+depr_ui:depreciation_example_queries_simple rdf:value (
 	[ a depr:depreciation_query ;
 		depr:depreciation_query_has_type [ a rdf:value ;
 				rdf:value depr:depreciation_between_two_dates ] ;
@@ -266,7 +343,7 @@ depr:prime_cost a depr:depreciation_query_method_type.
 
 depr_ui:depreciation_queries
 	excel:title "depreciation_queries";
-	excel:position [excel:col "A"; excel:row "1"];
+	excel:position [excel:col "A"; excel:row "3"];
 	excel:cardinality excel:multi;
 	excel:class depr:depreciation_query;
 	excel:fields (
@@ -287,7 +364,7 @@ depr_ui:depreciation_queries
 
 depr_ui:depreciation_events
 	excel:title "depreciation_events";
-	excel:position [excel:col "A"; excel:row "1"];
+	excel:position [excel:col "A"; excel:row "3"];
 	excel:cardinality excel:multi;
 	excel:class depr:depreciation_event;
 	excel:fields (
@@ -299,7 +376,7 @@ depr_ui:depreciation_events
 
 depr_ui:depreciation_assets
 	excel:title "depreciation_assets";
-	excel:position [excel:col "A"; excel:row "1"];
+	excel:position [excel:col "A"; excel:row "3"];
 	excel:cardinality excel:multi;
 	excel:class depr:depreciation_asset;
 	excel:fields (
@@ -318,8 +395,11 @@ ic_ui:investment_calculator_sheets
 	excel:sheets
 	(
 		ic_ui:report_details_sheet
+		smsf_ui:members_sheet
+		smsf_ui:distribution_sheet
 		ic_ui:gl_input_sheet
 		ic_ui:additional_files_sheet
+		ic_ui:unit_types_sheet
 	).
 
 ic_ui:investment_calculator_example
@@ -330,7 +410,26 @@ ic_ui:investment_calculator_example
 			excel:example_doc ic_ui:gl_input_example]
 		[	excel:has_sheet ic_ui:additional_files_sheet;
 			excel:example_doc ic_ui:additional_files_example]
+		[	excel:has_sheet ic_ui:unit_types_sheet;
+			excel:example_doc ic_ui:unit_types_example]
 ).
+
+ic_ui:unit_types_sheet
+	excel:root ic:unit_types.
+
+ic_ui:unit_types_example
+	rdf:value ().
+
+ic:unit_types
+	excel:position [excel:col "A"; excel:row "3"];
+	excel:title "unit types";
+	excel:cardinality excel:multi;
+	excel:class ic:unit_type;
+	excel:fields (
+		[excel:property ic:unit_type_name; excel:type xsd:string]
+		[excel:property ic:unit_type_category; excel:type xsd:string]
+		[excel:property ic:unit_type_subcategory; excel:type xsd:string]
+	).
 
 ic_ui:report_details_sheet
 	excel:root ic_ui:report_details.
@@ -339,9 +438,15 @@ ic_ui:report_details_example
 	ic:currency [rdf:value "AUD"];
 	ic:from [rdf:value "2019-07-01T00:00:00.0"^^xsd:dateTime];
 	ic:to [rdf:value "2020-01-01T00:00:00.0"^^xsd:dateTime];
-	ic:cost_or_market [rdf:value ic:cost].
+	ic:cost_or_market [rdf:value ic:cost];
+	ic_ui:account_taxonomies [rdf:value (
+		[account_taxonomies:url [rdf:value account_taxonomies:base]]
+		[account_taxonomies:url [rdf:value account_taxonomies:investments]]
+		[account_taxonomies:url [rdf:value account_taxonomies:livestock]]
+	)].
 
 ic_ui:gl_input_sheet
+	excel:multiple_sheets_allowed true;
 	excel:optional true;
 	excel:name_prefix "GL_input";
 	excel:root ic_ui:gl.
@@ -358,7 +463,7 @@ ic_ui:additional_files_example
 	rdf:value ().
 
 ic_ui:gl
-	excel:position [excel:col "A"; excel:row "1"];
+	excel:position [excel:col "A"; excel:row "3"];
 	excel:title "GL input";
 	excel:cardinality excel:single;
 	excel:class ic:gl;
@@ -368,7 +473,7 @@ ic_ui:gl
 	).
 
 ic_ui:gl_entries_template
-	excel:position [excel:col "A"; excel:row "4"];
+	excel:position [excel:col "A"; excel:row "6"];
 	excel:title "entries";
 	excel:cardinality excel:multi;
 	excel:class ic:gl_entry;
@@ -378,6 +483,10 @@ ic_ui:gl_entries_template
 		[excel:property ic:description; excel:type xsd:string]
 		[excel:property ic:debit; excel:type xsd:string]
 		[excel:property ic:credit; excel:type xsd:string]
+		[excel:property ic:param1; excel:type xsd:string]
+		[excel:property ic:param2; excel:type xsd:string]
+		[excel:property ic:param3; excel:type xsd:string]
+		[excel:property ic:param4; excel:type xsd:string]
 	).
 
 ic_ui:additional_files
@@ -400,13 +509,25 @@ ic_ui:report_details
 
 
 ic_ui:account_taxonomies
-	excel:position [excel:col "C"; excel:row "2"];
+	excel:position [excel:col "D"; excel:row "5"];
 	excel:title "account taxonomies";
 	excel:cardinality excel:multi;
 	excel:class ic_ui:account_taxonomy;
 	excel:fields (
-		[excel:property ic_ui:account_taxonomy_url; excel:type excel:uri]
+		[	excel:property account_taxonomies:url;
+			excel:type excel:uri;
+			excel:comment "use one of the pre-defined shorthands or specify a full URL of a XBRL taxonomy or XML file"]
+		[	excel:property account_taxonomies:note;
+			excel:type xsd:string]
 	).
+
+account_taxonomies:url rdfs:range account_taxonomies:Account_taxonomy.
+account_taxonomies:base a account_taxonomies:Account_taxonomy.
+account_taxonomies:investments a account_taxonomies:Account_taxonomy.
+account_taxonomies:livestock a account_taxonomies:Account_taxonomy.
+account_taxonomies:smsf a account_taxonomies:Account_taxonomy.
+
+
 
 ic:cost_or_market rdfs:range ic:cost_or_market_type.
 ic:cost a ic:cost_or_market_type.
@@ -454,11 +575,6 @@ ic_ui:gl_input_example
 						]
 	)].
 
-
-
-
-
-
 hp_ui:hirepurchase_calculator_example
 	excel:example_has_sheets (
 		[	excel:has_sheet hp_ui:hirepurchase_calculator_query_sheet;
@@ -471,7 +587,7 @@ hp_ui:hirepurchase_calculator_sheets
 	).
 
 hp_ui:hirepurchase_calculator_query_sheet
-	excel:is_multi true;
+	excel:multiple_sheets_allowed true;
 	excel:name_prefix "HP";
 	excel:root hp_ui:hp_calculator_query.
 
@@ -489,7 +605,7 @@ hp_ui:hirepurchase_calculator_query_example
 	].
 
 hp_ui:hp_calculator_query
-	excel:position [excel:col "A"; excel:row "1"];
+	excel:position [excel:col "A"; excel:row "3"];
 	excel:title "Standalone Calculator Query Parameters";
 	excel:cardinality excel:single;
 	excel:class hp:hp_calculator_query;
@@ -507,7 +623,7 @@ hp_ui:hp_calculator_query
 
 
 hp_ui:hp_contract
-	excel:position [excel:col "A"; excel:row "5"];
+	excel:position [excel:col "A"; excel:row "7"];
 	excel:title "Hirepurchase Contract";
 	excel:cardinality excel:single;
 	excel:class hp:hp_contract;
@@ -545,7 +661,7 @@ hp:hp_contract_payment_type_advance
 	rdfs:label "advance".
 
 hp_ui:hp_installments
-	excel:position [excel:col "E"; excel:row "20"];
+	excel:position [excel:col "E"; excel:row "22"];
 	excel:title "Installments";
 	excel:cardinality excel:multi;
 	excel:class hp:hp_installment;

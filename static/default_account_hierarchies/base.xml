@@ -2,7 +2,7 @@
 <accountHierarchy>
 	<!-- top-level account has to explicitly specify where it attaches -->
 	<Accounts parent_role="root" normal_side="debit">
-		<NetAssets role="NetAssets" normal_side="debit">
+		<NetAssets role="NetAssets">
 			<Assets>
 				<CurrentAssets role="CurrentAssets">
 					<CashAndCashEquivalents role="CashAndCashEquivalents">

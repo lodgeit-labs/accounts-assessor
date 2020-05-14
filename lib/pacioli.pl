@@ -90,34 +90,15 @@ vec_reduce(X, Y) :-
 
 % Adds the two given vectors together and reduces coords or values in a vector to a minimal (normal) form.
 
-vec_add(As, Bs, Cs_Reduced) :-
+ vec_add(As, Bs, Cs_Reduced) :-
 	assertion((flatten(As, As), flatten(Bs, Bs))),
 	/*paste the two vectors togetner*/
-	append(As, Bs, As_And_Bs),
-
-	sort_into_assoc(coord_or_value_unit, As_And_Bs, Sorted),
-
-
-
-
-/*finishme fixme
-	assoc_to_values(+Assoc, -Values)
-    True if Values is the list of values in Assoc. Values are ordered in ascending order of the key to which they were associated. Values may contain duplicates.*/
-	assoc_to_values(Sorted, Valueses0),
-	sort(Valueses0, Valueses),
-
-
-
-
-	findall(
-		Total,
-		(
-			member(Values, Valueses),
-			semigroup_foldl(coord_merge, Values, [Total]) 
-		),
-		Cs_Flat
-	),
-	vec_reduce_coords(Cs_Flat, Cs_Reduced).
+	!append(As, Bs, As_And_Bs),
+	!sort_into_assoc(coord_or_value_unit, As_And_Bs, Sorted),
+	!assoc_to_values(Sorted, Valueses),
+	!maplist(semigroup_foldl(coord_merge), Valueses, Total),
+	flatten(Total, Total_Flat),
+	!vec_reduce_coords(Total_Flat, Cs_Reduced).
 
 vec_sum(Vectors, Sum) :-
 	foldl(vec_add, Vectors, [], Sum).

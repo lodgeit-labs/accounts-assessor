@@ -45,10 +45,12 @@ set up virtualenv for servicemanager:
 * ```cd servicemanager; ./init_local_venv.sh```
 
 Run all services:
-```./servicemanager/run_in_local_venv.sh -a -g demo7788```
+```./servicemanager/run_in_local_venv.sh  --log_file ../sm.log  -a -g demo7788```
 
 optional, run the triplestore (this is a command line from demo server):
 `/home/sfi/ag/bin/agraph-control --config /home/sfi/ag/lib/agraph.cfg start`
+
+configure secrets/credentials: add two json files above repo directory. see demo server for details.
 
 Open a web browser at: http://localhost:7788/
 * upload a request file from tests/endpoint_tests/

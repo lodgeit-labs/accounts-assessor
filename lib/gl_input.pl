@@ -1,6 +1,8 @@
  extract_gl_inputs(Txs) :-
-	maplist(!extract_gl_input, $>doc_list_items($>doc($>request_data, ic_ui:gl)), Txs0),
-	flatten(Txs0, Txs).
+ 	(	doc($>request_data, ic_ui:gl, Gls)
+ 	->	(	maplist(!extract_gl_input, $>doc_list_items(Gls), Txs0),
+			flatten(Txs0, Txs))
+	;	Txs = []).
 
  extract_gl_input(Gl, Txs) :-
 	!doc_value(Gl, ic:default_currency, Default_Currency0),

@@ -24,7 +24,11 @@ crosscheck_output(Result, Html) :-
 
 
 crosschecks_report(Sd, Json) :-
+	/* account balances at normal sides here */
 	Crosschecks = [
+		equality(
+			account_balance(reports/bs/current, 'NetAssets'),
+			account_balance(reports/bs/current, 'Equity')),
 		equality(
 			account_balance(reports/pl/current, 'TradingAccounts'/_/realized/withoutCurrencyMovement),
 			report_value(reports/ir/current/totals/gains/rea/market_converted)),
@@ -51,10 +55,7 @@ crosschecks_report(Sd, Json) :-
 			report_value(reports/ir/current/totals/closing/total_cost_converted)),
 		equality(
 			account_balance(reports/bs/current, 'HistoricalEarnings'),
-			account_balance(reports/pl/historical, 'ComprehensiveIncome')),
-		equality(
-			account_balance(reports/bs/current, 'NetAssets'),
-			account_balance(reports/bs/current, 'Equity'))
+			account_balance(reports/pl/historical, 'ComprehensiveIncome'))
 	],
 	maplist(evaluate_equality(Sd), Crosschecks, Results),
 	Json = _{
@@ -101,16 +102,19 @@ evaluate2(Sd, report_value(Key), Values_List) :-
 evaluate2(Sd, account_balance(Report_Id, Role), Values_List) :-
 	path_get_dict(Report_Id, Sd, Report),
 	findall(
-		Balance,
+		Values_List,
 		(
 			accounts_report_entry_by_account_role(Sd, Report, Role, Entry),
-			!report_entry_total_vec(Entry, Balance),
-			!report_entry_gl_account(Entry, Account),
-			!vector_of_coords_to_vector_of_values(Sd, Account, Balance, Values_List)
+			entry_normal_side_values(Sd, Entry, Values_List)
 		),
 		Values_List0
 	),
 	vec_sum(Values_List0, Values_List).
+
+entry_normal_side_values(Sd, Entry, Values_List) :-
+	!report_entry_total_vec(Entry, Balance),
+	!report_entry_gl_account(Entry, Account),
+	!vector_of_coords_to_vector_of_values(Sd, Account, Balance, Values_List).
 
 accounts_report_entry_by_account_role(_Sd, Report, Role, Entry) :-
 	abrlt(Role, Id),

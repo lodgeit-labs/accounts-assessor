@@ -23,7 +23,6 @@
 
 process_request_rpc_calculator(Dict) :-
 	doc_init,
-
 	'='(Request_uri, $>atom_string(<$, Dict.request_uri)),
 	'='(Result_uri, $>atomic_list_concat([Dict.rdf_namespace_base, 'results/', Dict.tmp_directory_name])),
 	'='(Result_data_uri_base, $>atomic_list_concat([Result_uri, '/'])),
