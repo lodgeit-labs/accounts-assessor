@@ -51,7 +51,14 @@ extract_smsf_distribution3(Item, Txs) :-
 	(	member(Unit_name, Traded_Units)
 	->	true
 	;	throw_string('smsf distribution sheet: unknown unit: ', Unit_name])),
-	
+
+	doc_value(Item, distribution_ui:amit_decrease, 
+	doc_value(Item, distribution_ui:amit_increase, 
+	doc_value(Item, distribution_ui:foreign_credit, 
+	doc_value(Item, distribution_ui:franking_credit, 
+	doc_value(Item, distribution_ui:name, 
+	doc_value(Item, distribution_ui:net, 
+
 
 
 
