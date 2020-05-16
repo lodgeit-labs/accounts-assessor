@@ -30,6 +30,7 @@ def po(x):
 
 @app.task
 def postprocess_doc(tmp_path):
+	print('postprocess_doc...')
 	g, nq_fn = generate_doc_nq_from_trig(tmp_path)
 	put_doc_dump_into_triplestore(nq_fn)
 	#generate_yed_file(g, tmp_path)

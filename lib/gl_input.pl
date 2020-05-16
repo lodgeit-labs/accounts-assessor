@@ -31,6 +31,7 @@ extract_gl_tx(Sheet_name, Default_Currency, _, _, [Item|Items], [Tx|Txs]) :-
 	Date1 \= "ignore",
 	!doc_new_uri(gl_input_st, St1),
 	!doc_add_value(St1, transactions:description, Sheet_name, transactions),
+	!doc_add_value(St1, transactions:gl_input_sheet_item, Item, transactions),
 	!read_gl_line(Default_Currency, Date1, St1, Item, Tx),
 	!extract_gl_tx(Sheet_name, Default_Currency, St1, Date1, Items, Txs).
 

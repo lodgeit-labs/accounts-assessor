@@ -51,7 +51,8 @@ is_valid_role('FinancialInvestments'/Id) :- freeze(Id, atom(Id)).
 
 	!(	is_valid_role(Role)
 	->	true
-	;	(writeq(is_valid_role(Role)), write('.'), nl)),
+	;	format(user_error, '~q.~n', [is_valid_role(Role)])
+	),
 
 	account_by_role_throw(rl(Role), Account).
 
