@@ -128,7 +128,7 @@ STATIC_URL = '/static/'
 MEDIA_ROOT = os.path.abspath('../server_root/tmp')
 MEDIA_URL = '/tmp/'
 
-MY_SERVICES_SERVER_URL=os.environ.get('MY_SERVICES_SERVER_URL')
+INTERNAL_SERVICES_SERVER_URL=os.environ.get('INTERNAL_SERVICES_SERVER_URL')
 
 """
 # https://stackoverflow.com/questions/8563394/django-how-to-pass-individual-setting-to-manage-py

@@ -1,4 +1,12 @@
-import json, ntpath, os, sys
+# for the case when running standalone
+# is this needed?
+#sys.path.append('../internal_workers')
+# for running under mod_wsgi
+sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../../internal_workers')))
+
+
+import urllib.parse
+import json, ntpath, os
 from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import render
@@ -6,90 +14,72 @@ from django.http import HttpResponseRedirect, JsonResponse, HttpResponse
 from django.shortcuts import redirect
 from django.http.request import QueryDict
 from endpoints_gateway.forms import ClientRequestForm
+from fs_utils import directory_files, save_django_uploaded_file
+import invoke_rpc
 
 
-# for the case when running standalone
-sys.path.append('../internal_workers')
-# for running under mod_wsgi
-sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../../internal_workers')))
+def tmp_file_url(server_url, tmp_dir_name, fn):
+	return server_url + '/tmp/' + request_tmp_directory_name + '/' + urllib.parse.quote(fn)
 
 
-if 'USE_CELERY' in os.environ:
-	import services
-else:
-	import invoke_rpc_cmdline as services
-
-
-from os import listdir
-from os.path import isfile, join
-import urllib.parse
-
-def directory_files(directory):
-	return [f for f in listdir(directory) if isfile(join(directory, f))]
-
-
-def handle_uploaded_file(tmp_directory_path, f):
-	tmp_fn = os.path.abspath('/'.join([tmp_directory_path, ntpath.basename(f.name)]))
-	with open(tmp_fn, 'wb+') as destination:
-		for chunk in f.chunks():
-			destination.write(chunk)
-	return tmp_fn
-
-#    path('/upload', views.upload, name='upload'),
-
-#@sensitive_variables('user', 'pw', 'cc') # https://simpleisbetterthancomplex.com/tips/2016/11/01/django-tip-19-protecting-sensitive-information.html
-#@sensitive_post_parameters('pass_word', 'credit_card_number')
 @csrf_exempt
 def upload(request):
+	server_url = request._current_scheme_host
+
 	params = QueryDict(mutable=True)
 	params.update(request.POST)
 	params.update(request.GET)
 	requested_output_format = params.get('requested_output_format', 'json_reports_list')
-	server_url = request._current_scheme_host
-	MY_SERVICES_SERVER_URL = settings.MY_SERVICES_SERVER_URL
-	if MY_SERVICES_SERVER_URL == None:
-		# fixme, idk how to pass settings or env vars from mod_wsgi
-		MY_SERVICES_SERVER_URL ="http://localhost:17768"
-	prolog_flags = """set_prolog_flag(services_server,'""" + MY_SERVICES_SERVER_URL + """')"""
+
+	prolog_flags = """set_prolog_flag(services_server,'""" + settings.INTERNAL_SERVICES_SERVER_URL + """')"""
 
 	if request.method == 'POST':
 		#print(request.FILES)
 		form = ClientRequestForm(request.POST, request.FILES)
 		if form.is_valid():
-			tmp_directory_name, tmp_directory_path = services.create_tmp()
+
+			request_tmp_directory_name, request_tmp_directory_path = invoke_rpc.create_tmp()
+
 			request_files_in_tmp = []
 			for field in request.FILES.keys():
 				for f in request.FILES.getlist(field):
-					print (f)
-					request_files_in_tmp.append(handle_uploaded_file(tmp_directory_path, f))
+					#print (f)
+					request_files_in_tmp.append(save_django_uploaded_file(request_tmp_directory_path, f))
 
 			if 'only_store' in request.POST:
 				return render(request, 'uploaded_files.html', {
-					'files': [server_url + '/tmp/' + tmp_directory_name + '/' + urllib.parse.quote(f) for f in directory_files(tmp_directory_path)]})
+					'files': [tmp_file_url(server_url, request_tmp_directory_name, f) for f in directory_files(request_tmp_directory_path)]})
 
-
-			"""
-			ideally we would insert with sparql:
-			request_uri a l:request.
-			+maybe some metadata
-			this way, the stored requests could act as a task queue.
-			but the bare minimum we have to do is pass request_uri to prolog 
-			"""
-
+			final_result_tmp_directory_name = invoke_rpc.make_final_result_tmp_directory()
 			msg = {	"method": "calculator",
 					"params": {
 						"server_url": server_url,
-						"tmp_directory_name": tmp_directory_name,
-						"request_tmp_directory_name": tmp_directory_name,
-						"request_files": request_files_in_tmp
-						}
+						"request_files": request_files_in_tmp,
+						"request_tmp_directory_name": request_tmp_directory_name
 					}
-			try:
-				new_tmp_directory_name,_result_json = services.call_prolog(msg, prolog_flags=prolog_flags,make_new_tmp_dir=True)
-			except json.decoder.JSONDecodeError as e:
-				return HttpResponse(status=500)
-			print(f'{_result_json=}')
+		   }
 
+			subprocess.call(['/bin/rm', get_tmp_directory_absolute_path('last_request')])
+			subprocess.call(['/bin/ln', '-s', get_tmp_directory_absolute_path(msg['params']['tmp_directory_name']), get_tmp_directory_absolute_path('last_request')])
+
+			task = services.call_prolog.apply_async(
+			[
+					msg,
+			],
+			{
+					prolog_flags: prolog_flags,
+					final_result_tmp_directory_name: final_result_tmp_directory_name
+			}
+			)
+			try:
+				new_tmp_directory_name, _result_json = task.get(timeout = 20)
+			except celery.exceptions.TimeoutError:
+				#todo: for browser clients: return render(request, 'task_taking_too_long.html',
+				#			  {'final_result_tmp_directory_name': final_result_tmp_directory_name})
+				return JsonResponse({
+					'alerts':['the task is taking too long. Please wait for results here:\n' + final_result_tmp_directory_name], reports:[]})
+
+			#print(f'{_result_json=}')
 			if requested_output_format == 'xml':
 				return HttpResponseRedirect('/tmp/' + new_tmp_directory_name + '/response.xml')
 			else:
@@ -99,24 +89,6 @@ def upload(request):
 	return render(request, 'upload.html', {'form': form})
 
 
-@csrf_exempt
-def results(request):
-	pass
-	"""
-	
-	PREFIX         l: <https://rdf.lodgeit.net.au/v1/request#>
-
-SELECT ?rep WHERE {
-	?req rdf:type l:Request.
-  	?req l:client_code "xx".
-  	?req l:has_result ?res.
-  	?res l:has_report ?rep.
-  	?rep l:key "reports_json".  
-}
-
-	
-	
-	"""
 
 #  ┏━╸╻ ╻┏━┓╺┳╸
 #  ┃  ┣━┫┣━┫ ┃
@@ -143,6 +115,31 @@ def json_prolog_rpc_call(msg):
 
 #import IPython; IPython.embed()
 
-
-
 # todo https://www.honeycomb.io/microservices/
+
+#todo:
+#@sensitive_variables('user', 'pw', 'cc') # https://simpleisbetterthancomplex.com/tips/2016/11/01/django-tip-19-protecting-sensitive-information.html
+# @sensitive_post_parameters('pass_word', 'credit_card_number')
+
+
+
+"""
+todo: eventually i'd like to switch to a tasks manager based on the triplestore
+
+@csrf_exempt
+def results(request):
+	...
+
+SELECT ?rep WHERE {
+	?req rdf:type l:Request.
+  	?req l:client_code "xx".
+  	?req l:has_result ?res.
+  	?res l:has_report ?rep.
+  	?rep l:key "reports_json".  
+}
+
+"""
+
+			#except json.decoder.JSONDecodeError as e:
+				# call_prolog lets this exception propagate. The assumption is that if prolog finished successfully, it returned a json, but if it failed in some horrible way (syntax errors), the output won't parse as json.
+				#return HttpResponse(status=500)

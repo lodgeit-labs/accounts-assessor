@@ -18,5 +18,3 @@ with open(os.path.normpath(os.path.join(os.path.dirname(__file__), '../../secret
 	app.conf.AGRAPH_SECRET_PASSWORD = secrets.get('AGRAPH_SECRET_PASSWORD')
 	del secrets
 
-if __name__ == '__main__':
-    app.start()

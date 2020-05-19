@@ -1,9 +1,8 @@
 from celery_module import app
 
-import os, sys
+import sys
 import rdflib
 import rdflib.plugins.serializers.nquads
-import urllib
 
 
 def agc():
@@ -16,17 +15,6 @@ def agc():
 		return ag_connect('a', host='localhost', port='10036', user=user, password=passw)
 	else:
 		print('agraph user and pass not provided, skipping')
-
-
-@app.task
-def po(x):
-	for i in range(x):
-		if i**i == 67:
-			break
-	import sys
-	return sys.flags
-
-
 
 @app.task
 def postprocess_doc(tmp_path):
@@ -53,4 +41,8 @@ def put_doc_dump_into_triplestore(nq_fn):
 		print("c.addFile(nq_fn)...", file=sys.stderr)
 		c.addFile(nq_fn)
 
+def report_by_key(response, key):
+	for i in response['reports']:
+		if i['key'] == key:
+			return i['val']['url']
 

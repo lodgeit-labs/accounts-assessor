@@ -1,0 +1,36 @@
+
+
+	#for i in g.quads(None):
+	#		print(i)
+"""sparql_store = SPARQLUpdateStore()
+	sparql_store.open((None,
+	sparql_graph = rdflib.graph.ConjunctiveGraph()
+	for spog in g.quads(None):
+		sparql_graph.
+
+		from rdflib.plugins.stores.sparqlstore import SPARQLUpdateStore
+	s=SPARQLUpdateStore()
+	from SPARQLWrapper import BASIC
+	s.setHTTPAuth(BASIC)
+	s.setCredentials()
+	queryString = "SELECT * WHERE { ?s ?p ?o. }"
+	s.open(('http://localhost:10036/#/repositories/a',)*2)
+	s.query(queryString)
+"""
+
+"""
+def ag_query():
+	c = agc()
+	from franz.openrdf.query.query import QueryLanguage
+	query_string = "SELECT ?s ?p ?o  WHERE {?s ?p ?o .}"
+	tuple_query = c.prepareTupleQuery(QueryLanguage.SPARQL, query_string)
+	result = tuple_query.evaluate()
+	print(result)
+	with result:
+		for binding_set in result:
+			s = binding_set.getValue("s")
+			p = binding_set.getValue("p")
+			o = binding_set.getValue("o")
+			print("%s %s %s" % (s, p, o))
+
+"""
