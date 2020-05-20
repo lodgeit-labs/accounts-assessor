@@ -1,15 +1,9 @@
 #!/usr/bin/env python3
 
-import time, click, shlex,
+import click, shlex
 from tmp_dir_path import *
 from invoke_rpc import *
-from atomic_integer import AtomicInteger
-
-
-server_started_time = time.time() # in theory, this could collide, fixme
-client_request_id = AtomicInteger()
-
-
+from fs_utils import get_absolute_paths, flatten_file_list_with_dirs_into_file_list
 
 @click.command()
 @click.argument('request_files', nargs=-1)
@@ -21,26 +15,13 @@ client_request_id = AtomicInteger()
 @click.option('-hlt', '--halt', type=bool, default=True)
 
 def run(debug_loading, debug, request_files, dev_runner_options, prolog_flags, server_url, halt):
-
 	if dev_runner_options == None:
 		dev_runner_options = ''
-
-	tmp_directory_name, tmp_directory_absolute_path = create_tmp()
-	request_files2 = get_absolute_paths(request_files)
-	files = flatten_file_list_with_dirs_into_file_list(request_files)
-	copy_request_files_to_tmp(tmp_directory_absolute_path, files)
-
-	msg = {
-		"method": "calculator",
-		"params": {
-			"server_url": server_url,
-			"tmp_directory_name": tmp_directory_name,
-			"request_files": files2}
-	}
-	call_prolog(msg=msg, dev_runner_options=shlex.split(dev_runner_options), prolog_flags=prolog_flags, debug_loading=debug_loading, debug=debug, halt=halt)
-
-
-
+	files2 = get_absolute_paths(request_files)
+	files3 = flatten_file_list_with_dirs_into_file_list(files2)
+	request_tmp_directory_name, request_tmp_directory_absolute_path = create_tmp()
+	copy_request_files_to_tmp(request_tmp_directory_absolute_path, files3)
+	call_prolog_calculator(server_url, request_tmp_directory_name, files3,  dev_runner_options=shlex.split(dev_runner_options), prolog_flags=prolog_flags, debug_loading=debug_loading, debug=debug, halt=halt, use_celery=False)
 
 if __name__ == '__main__':
 	run()

@@ -1,7 +1,7 @@
 """
 general-purpose filesystem utilities
 """
-
+import os.path
 from os import listdir
 from os.path import isfile, join
 
@@ -21,9 +21,11 @@ def flatten_file_list_with_dirs_into_file_list(paths):
 	files = []
 	for path in paths:
 		if os.path.isdir(path):
-			files.extend(files_in_dir(request_files2[0]))
-		else:
+			files.extend(files_in_dir(path))
+		elif os.path.isfile(path):
 			files.append(path)
+		else:
+			raise Exception('file not found: {0}'.format(path))
 	return files
 
 def directory_files(directory):

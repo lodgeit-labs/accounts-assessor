@@ -1,3 +1,11 @@
+import time, json,  subprocess, shutil, ntpath, os, sys
+from atomic_integer import AtomicInteger
+
+
+server_started_time = time.time()
+client_request_id = AtomicInteger()
+
+
 
 def git(Suffix = ""):
 	""" get git repo root path """
@@ -7,7 +15,10 @@ def git(Suffix = ""):
 
 def create_tmp_directory_name():
 	""" create a unique name """
-	return str(server_started_time) + '.' + str(client_request_id.inc())
+	return '.'.join([
+		str(server_started_time),
+		str(os.getpid()),
+		str(client_request_id.inc())])
 
 def get_tmp_directory_absolute_path(name):
 	""" append the unique name to tmp/ path """
@@ -16,10 +27,10 @@ def get_tmp_directory_absolute_path(name):
 def create_tmp():
 	name = create_tmp_directory_name()
 	full_path = os.path.normpath(get_tmp_directory_absolute_path(name))
-	os.mkdir(path)
+	os.mkdir(full_path)
 	return name,full_path
 
-def copy_request_files_to_tmp(tmp_directory_absolute_path, files)
+def copy_request_files_to_tmp(tmp_directory_absolute_path, files):
 	# request file paths, as passed to prolog
 	files2 = []
 	for f in files:

@@ -33,32 +33,58 @@ phase 1 - setting up opening balances
 
  extract_smsf_distribution(Txs) :-
  	!request_data(Rd),
- 	(	doc_value(Rd, smsf:distribution, D),
+ 	(	doc_value(Rd, smsf:distribution, D)
  	->	extract_smsf_distribution2(D, Txs)
  	;	true).
 
 extract_smsf_distribution2(D, Txs) :-
-	doc_list_members(D, Items),
+	doc_list_items(D, Items),
 	maplist(extract_smsf_distribution3, Items, Txs).
 
 extract_smsf_distribution3(Item, []) :-
 	doc_value(Item, distribution_ui:name, "Dr/Cr").
 
-extract_smsf_distribution3(Item, Txs) :-
+extract_smsf_distribution3(_Item, _Txs) :- !. /*
 	doc_value(Item, distribution_ui:name, Unit_name_str),
-	atom_string(Unit_name, Unit_name_str),
+	atom_string(Unit, Unit_name_str),
 	traded_units(S_Transactions, Traded_Units),
-	(	member(Unit_name, Traded_Units)
+	(	member(Unit, Traded_Units)
 	->	true
-	;	throw_string('smsf distribution sheet: unknown unit: ', Unit_name])),
+	;	throw_string(['smsf distribution sheet: unknown unit: ', Unit])),
 
-	doc_value(Item, distribution_ui:amit_decrease, 
-	doc_value(Item, distribution_ui:amit_increase, 
-	doc_value(Item, distribution_ui:foreign_credit, 
-	doc_value(Item, distribution_ui:franking_credit, 
-	doc_value(Item, distribution_ui:name, 
-	doc_value(Item, distribution_ui:net, 
+	doc(Rd, l:end_date, End_Date),
 
 
+	maplist(smsf_distribution_tx(End_Date),
+		dist{
+			prop: distribution_ui:accrual,
+			a:'Distribution Receivable'/Unit,
+			dir:crdr,
+			b:'Distribution Received'/Unit,
+			desc:"Distributions Accrual entry as per Annual tax statements"},
+		dist{
+			prop: distribution_ui:franking_credit,
+			a:name('Foreign And Other Tax Credits'),
+			dir:crdr,
+			b:'Distribution Received'/Unit,
+			desc:"Tax offset entry against distribution"},
+		dist{
+			prop: distribution_ui:foreign_credit,
+			a:name('Imputed Credits'),
+			dir:crdr,
+			b:'Distribution Received'/Unit,
+			desc:"Tax offset entry against distribution"},
+		dist{
+			prop: distribution_ui:amit_decrease,
+			a:'Investments'/Unit,??
+			dir:drcr,
+			b:'Distribution Received'/Unit,
+			desc:"Recognise the amount of the distribution received & AMIT"},
 
 
+
+
+smsf_distribution_tx(End_Date, Prop) :-
+	doc_value(Item, Prop, Value),
+	parse_cash,
+*/

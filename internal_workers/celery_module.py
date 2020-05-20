@@ -5,7 +5,7 @@ import json
 from celery import Celery
 
 app = Celery(include=['internal_workers', 'call_prolog'])
-	
+
 import celeryconfig
 app.config_from_object(celeryconfig)
 

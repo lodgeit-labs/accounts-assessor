@@ -34,6 +34,10 @@
 'https://rdf.lodgeit.net.au/v1/calcs/smsf#').
 :- rdf_register_prefix(smsf_ui,
 'https://rdf.lodgeit.net.au/v1/calcs/smsf/ui#').
+:- rdf_register_prefix(distribution,
+'https://rdf.lodgeit.net.au/v1/calcs/smsf/distribution#').
+:- rdf_register_prefix(distribution_ui,
+'https://rdf.lodgeit.net.au/v1/calcs/smsf/distribution_ui#').
 /*
 @prefix depr_ui: <https://rdf.lodgeit.net.au/v1/calcs/depr/ui#> .
 @prefix ic_ui: <https://rdf.lodgeit.net.au/v1/calcs/ic/ui#> .

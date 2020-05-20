@@ -1,11 +1,44 @@
-import threading, json,  subprocess, shutil, ntpath, os, sys
+import json, subprocess, os
 import internal_workers
 from tmp_dir_path import *
+from celery_module import app
 
 
-def call_prolog(msg, final_result_tmp_directory_name, dev_runner_options=[], prolog_flags='true', debug_loading=None, debug=None, halt=True):
+def call_prolog_calculator(server_url, request_tmp_directory_name, request_files, timeout_seconds=0, use_celery=True, **kwargs):
+	_, final_result_tmp_directory_name = create_tmp()
+	msg = {	"method": "calculator",
+			"params": {
+				"server_url": server_url,
+				"request_files": request_files,
+				"request_tmp_directory_name": request_tmp_directory_name
+			}
+   }
+
+	subprocess.call(['/bin/rm', get_tmp_directory_absolute_path('last_request')])
+	subprocess.call(['/bin/ln', '-s', get_tmp_directory_absolute_path(msg['params']['request_tmp_directory_name']), get_tmp_directory_absolute_path('last_request')])
+
+	kwargs.update({
+		"final_result_tmp_directory_name": final_result_tmp_directory_name,
+		'msg': msg
+		})
+
+	if use_celery:
+		task = call_prolog.apply_async(kwargs=kwargs)
+		response_tmp_directory_name, _result_json = task.get(timeout=timeout_seconds)
+	else:
+		response_tmp_directory_name, _result_json = call_prolog(**kwargs)
+	# print(f'{_result_json=}')
+	return response_tmp_directory_name
+
+
+@app.task
+def call_prolog(msg, final_result_tmp_directory_name=None, dev_runner_options=[], prolog_flags='true', debug_loading=None, debug=None, halt=True):
 
 	msg['params']['result_tmp_directory_name'], result_tmp_path = create_tmp()
+
+	if final_result_tmp_directory_name != None:
+		subprocess.call(['/bin/ln', '-s', result_tmp_path, final_result_tmp_directory_name + '/'])
+
 	subprocess.call(['/bin/rm', get_tmp_directory_absolute_path('last_response')])
 	subprocess.call(['/bin/ln', '-s', result_tmp_path, get_tmp_directory_absolute_path('last_result')])
 	#with open(os.path.join(result_tmp_path, 'info.txt'), 'w') as info:
@@ -96,11 +129,6 @@ def uri_params(tmp_directory_name):
 		"rdf_explorer_bases": [rdf_explorer_base]
 	}
 
-
-def make_final_result_tmp_directory():
-	return create_tmp()
-
-
 # if you want to see current env:
 #import sys
 #print(sys.path)
@@ -113,3 +141,6 @@ def make_final_result_tmp_directory():
 some design/requirements/assumptions about the tasks/rpc framework (the python side):
 
 """
+
+
+			#todo: for browser clients: something like return render(request, 'task_taking_too_long.html', {'final_result_tmp_directory_name': final_result_tmp_directory_name})

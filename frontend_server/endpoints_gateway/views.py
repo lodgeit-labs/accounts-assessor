@@ -50,40 +50,20 @@ def upload(request):
 				return render(request, 'uploaded_files.html', {
 					'files': [tmp_file_url(server_url, request_tmp_directory_name, f) for f in directory_files(request_tmp_directory_path)]})
 
-			final_result_tmp_directory_name = invoke_rpc.make_final_result_tmp_directory()
-			msg = {	"method": "calculator",
-					"params": {
-						"server_url": server_url,
-						"request_files": request_files_in_tmp,
-						"request_tmp_directory_name": request_tmp_directory_name
-					}
-		   }
-
-			subprocess.call(['/bin/rm', get_tmp_directory_absolute_path('last_request')])
-			subprocess.call(['/bin/ln', '-s', get_tmp_directory_absolute_path(msg['params']['tmp_directory_name']), get_tmp_directory_absolute_path('last_request')])
-
-			task = services.call_prolog.apply_async(
-			[
-					msg,
-			],
-			{
-					prolog_flags: prolog_flags,
-					final_result_tmp_directory_name: final_result_tmp_directory_name
-			}
-			)
 			try:
-				new_tmp_directory_name, _result_json = task.get(timeout = 20)
+				response_tmp_directory_name = call_prolog_calculator(requested_output_format, 20, server_url, request_files_in_tmp, request_tmp_directory_name, through_celery=True)
 			except celery.exceptions.TimeoutError:
-				#todo: for browser clients: return render(request, 'task_taking_too_long.html',
-				#			  {'final_result_tmp_directory_name': final_result_tmp_directory_name})
-				return JsonResponse({
-					'alerts':['the task is taking too long. Please wait for results here:\n' + final_result_tmp_directory_name], reports:[]})
-
-			#print(f'{_result_json=}')
+				if requested_output_format == 'json':
+					return JsonResponse({
+						'alerts': ['the task is taking too long. Please wait for results here:\n' + final_result_tmp_directory_name], reports: []})
+				else:
+					raise
 			if requested_output_format == 'xml':
-				return HttpResponseRedirect('/tmp/' + new_tmp_directory_name + '/response.xml')
+				return HttpResponseRedirect('/tmp/' + response_tmp_directory_name + '/response.xml')
 			else:
-				return HttpResponseRedirect('/tmp/'+ new_tmp_directory_name+'/response.json')
+				return HttpResponseRedirect('/tmp/'+ response_tmp_directory_name + '/response.json')
+
+
 	else:
 		form = ClientRequestForm()
 	return render(request, 'upload.html', {'form': form})
@@ -107,10 +87,10 @@ def residency(request):
 	})
 
 def json_prolog_rpc_call(msg):
-	try:
-		return JsonResponse(services.call_prolog(msg))[1]
-	except json.decoder.JSONDecodeError as e:
-		return HttpResponse(status=500)
+	#try:
+	return JsonResponse(invoke_rpc.call_prolog.apply_async(msg).get()[1])
+	#except json.decoder.JSONDecodeError as e:
+	#	return HttpResponse(status=500)
 
 
 #import IPython; IPython.embed()
@@ -141,5 +121,5 @@ SELECT ?rep WHERE {
 """
 
 			#except json.decoder.JSONDecodeError as e:
-				# call_prolog lets this exception propagate. The assumption is that if prolog finished successfully, it returned a json, but if it failed in some horrible way (syntax errors), the output won't parse as json.
+				# call _ prolog lets this exception propagate. The assumption is that if prolog finished successfully, it returned a json, but if it failed in some horrible way (syntax errors), the output won't parse as json.
 				#return HttpResponse(status=500)

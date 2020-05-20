@@ -1,5 +1,7 @@
 # a thread-safe counter to ensure unique tmp dir name. But it turns out that threads are not our only problem, another is celery spawning multiple processess(workers). That is disabled by "-c 1".
 
+import threading
+
 class AtomicInteger():
 	""" https://stackoverflow.com/questions/23547604/python-counter-atomic-increment """
 	def __init__(self, value=0):
