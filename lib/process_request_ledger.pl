@@ -287,24 +287,15 @@ extract_output_dimensional_facts(Dom, Output_Dimensional_Facts) :-
 		Output_Dimensional_Facts = on
 	).
 	
-extract_start_and_end_date(Dom, Start_Date, End_Date) :-
-	request_data(Request_Data),
-	(	doc(Request_Data, ic_ui:report_details, D)
-	->	(
-			doc_value(D, ic:from, Start_Date),
-			doc_value(D, ic:to, End_Date)
-		)
-	;
-	(
-		inner_xml(Dom, //reports/balanceSheetRequest/startDate, [Start_Date_Atom]),
-		parse_date(Start_Date_Atom, Start_Date),
-		inner_xml(Dom, //reports/balanceSheetRequest/endDate, [End_Date_Atom]),
-		parse_date(End_Date_Atom, End_Date)
-	)),
-	result(R),
-	doc_add(R, l:start_date, Start_Date),
-	doc_add(R, l:end_date, End_Date),
-
+extract_start_and_end_date(_Dom, Start_Date, End_Date) :-
+	gtrace,
+	!request_data(Request_Data),
+	!doc(Request_Data, ic_ui:report_details, D),
+	!doc_value(D, ic:from, Start_Date),
+	!doc_value(D, ic:to, End_Date),
+	!result(R),
+	!doc_add(R, l:start_date, Start_Date),
+	!doc_add(R, l:end_date, End_Date),
 	(	Start_Date = date(1,1,1)
 	->	throw_string(['start date missing?'])
 	;	true),

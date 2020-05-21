@@ -39,32 +39,32 @@ phase 1 - setting up opening balances
 
 
  extract_smsf_distribution(Txs) :-
- gtrace,
  	!request_data(Rd),
  	(	doc(Rd, smsf:distribution, D)
  	->	!extract_smsf_distribution2(D, Txs)
  	;	true).
 
  extract_smsf_distribution2(Distribution, Txs) :-
-	doc_value(Distribution, smsf_distribution_ui:default_currency, Default_currency),
-	doc_value(Distribution, smsf_distribution_ui:items, D),
-	doc_list_items(D, Items),
-	maplist(extract_smsf_distribution3(Default_currency), Items, Txs0),
- 	flatten(Txs0, Txs).
+	!doc_value(Distribution, smsf_distribution_ui:default_currency, Default_currency0),
+	!atom_string(Default_currency, Default_currency0),
+	!doc_value(Distribution, smsf_distribution_ui:items, D),
+	!doc_list_items(D, Items),
+	!maplist(extract_smsf_distribution3(Default_currency), Items, Txs0),
+ 	!flatten(Txs0, Txs).
 
 extract_smsf_distribution3(_, Item, []) :-
 	doc_value(Item, smsf_distribution_ui:name, "Dr/Cr"),
 	!.
 
 extract_smsf_distribution3(Default_currency, Item, Txs) :-
-	doc_value(Item, smsf_distribution_ui:name, Unit_name_str),
-	atom_string(Unit, Unit_name_str),
-	traded_units($>request_has_property(l:bank_s_transactions), Traded_Units),
+	!doc_value(Item, smsf_distribution_ui:name, Unit_name_str),
+	!atom_string(Unit, Unit_name_str),
+	!traded_units($>request_has_property(l:bank_s_transactions), Traded_Units),
 	(	member(Unit, Traded_Units)
 	->	true
 	;	throw_string(['smsf distribution sheet: unknown unit: ', Unit])),
-	request_has_property(l:end_date, End_Date),
-	maplist(smsf_distribution_tx(Default_currency, End_Date, Item),
+	!request_has_property(l:end_date, End_Date),
+	!maplist(!smsf_distribution_tx(Default_currency, End_Date, Item),
 		[dist{
 			prop: smsf_distribution_ui:accrual,
 			a:'Distribution Received'/Unit,
@@ -94,14 +94,14 @@ smsf_distribution_tx(Default_currency, Date, Item, Dist, Txs) :-
 	->	(
 			(	vector_from_string(Default_currency, kb:debit, Amount_string, VectorA)
 			->	true
-			;	throw_string(['error reading "amount" in ', $>sheet_and_cell_string(Item)])),
-			vec_inverse(VectorA, VectorB),
+			;	throw_string(['error reading "amount" in ', $>!sheet_and_cell_string($>doc(Item, Prop))])),
+			!vec_inverse(VectorA, VectorB),
 			!doc_new_uri(distributions_input_st, St1),
 			!doc_add_value(St1, transactions:description, Desc, transactions),
 			!doc_add_value(St1, transactions:input_sheet_item, Item, transactions),
 			Txs = [
-				!($>make_transaction(St, Date, Desc, !abrlt(A), VectorA)),
-				!($>make_transaction(St, Date, Desc, !abrlt(B), VectorB))
+				($>make_transaction(St, Date, Desc, $>!abrlt(A), VectorA)),
+				($>make_transaction(St, Date, Desc, $>!abrlt(B), VectorB))
 			]
 		)
 	;	Txs = []).
@@ -109,7 +109,7 @@ smsf_distribution_tx(Default_currency, Date, Item, Dist, Txs) :-
 
 
 sheet_and_cell_string(Value, Str) :-
-	doc_value(Value, excel:sheet_name, Sheet_name),
-	doc_value(Value, excel:col, Col),
-	doc_value(Value, excel:row, Row),
-	atomics_to_string([Sheet_name, ' ', Col, ':', Row], Str).
+	!doc_value(Value, excel:sheet_name, Sheet_name),
+	!doc_value(Value, excel:col, Col),
+	!doc_value(Value, excel:row, Row),
+	!atomics_to_string([Sheet_name, ' ', Col, ':', Row], Str).
