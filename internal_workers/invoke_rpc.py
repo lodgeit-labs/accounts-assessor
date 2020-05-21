@@ -117,7 +117,7 @@ def call_prolog(msg, final_result_tmp_directory_name=None, dev_runner_options=[]
 	print("invoke_rpc: end of result from prolog.")
 	try:
 		rrr = json.loads(stdout_data)
-		internal_workers.postprocess_doc.apply_async((tmp_path,))
+		internal_workers.postprocess_doc.apply_async((result_tmp_path,))
 		return msg['params']['result_tmp_directory_name'], rrr
 	except json.decoder.JSONDecodeError as e:
 		print('invoke_rpc:', e)

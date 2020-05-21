@@ -38,11 +38,9 @@
 'https://rdf.lodgeit.net.au/v1/calcs/smsf/distribution#').
 :- rdf_register_prefix(distribution_ui,
 'https://rdf.lodgeit.net.au/v1/calcs/smsf/distribution_ui#').
-/*
-@prefix depr_ui: <https://rdf.lodgeit.net.au/v1/calcs/depr/ui#> .
-@prefix ic_ui: <https://rdf.lodgeit.net.au/v1/calcs/ic/ui#> .
-@prefix hp_ui: <https://rdf.lodgeit.net.au/v1/calcs/hp/ui#> .
-*/
+:- rdf_register_prefix(reallocation,
+'https://rdf.lodgeit.net.au/v1/calcs/ic/reallocation#').
+
 
 
 rdf_equal2(X,Y) :-
