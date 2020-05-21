@@ -4,8 +4,7 @@ from tmp_dir_path import *
 from celery_module import app
 
 
-def call_prolog_calculator(server_url, request_tmp_directory_name, request_files, timeout_seconds=0, use_celery=True, **kwargs):
-	_, final_result_tmp_directory_name = create_tmp()
+def call_prolog_calculator(final_result_tmp_directory_name, server_url, request_tmp_directory_name, request_files, timeout_seconds=0, use_celery=True, **kwargs):
 	msg = {	"method": "calculator",
 			"params": {
 				"server_url": server_url,
@@ -96,7 +95,8 @@ def call_prolog(msg, final_result_tmp_directory_name=None, dev_runner_options=[]
 	cmd = cmd0 + cmd0b + cmd1 + cmd2
 
 	print('invoke_rpc: running:')
-	print(shlex.join(cmd))
+	# print(shlex.join(cmd)) # python 3.8
+	print(' '.join(cmd))
 
 	try:
 		if print_cmd_to_swipl_stdin:

@@ -15,7 +15,14 @@ https://sf360.zendesk.com/hc/en-au/articles/360017821211-The-Create-Entries-Proc
 	(	Members = []
 	->	throw_string('no SMSF members defined')
 	;	true).
+/*
+ smsf_member_name_atoms_throw(Members) :-
+ 	smsf_members_throw(Members),
+ 	maplist(smsf_member_name_atoms, Members, Names),
+ 	maplist($>atom_string(<$
 
+smsf_member_name_atoms(Member, Name) :-
+*/
 
 /*
 
@@ -34,22 +41,23 @@ phase 1 - setting up opening balances
  extract_smsf_distribution(Txs) :-
  gtrace,
  	!request_data(Rd),
- 	(	doc_value(Rd, smsf:distribution, D)
+ 	(	doc(Rd, smsf:distribution, D)
  	->	!extract_smsf_distribution2(D, Txs)
  	;	true).
 
  extract_smsf_distribution2(Distribution, Txs) :-
-	doc_value(Distribution, distribution_ui:default_currency, Default_currency),
-	doc_value(Distribution, distribution:items, D),
+	doc_value(Distribution, smsf_distribution_ui:default_currency, Default_currency),
+	doc_value(Distribution, smsf_distribution_ui:items, D),
 	doc_list_items(D, Items),
 	maplist(extract_smsf_distribution3(Default_currency), Items, Txs0),
  	flatten(Txs0, Txs).
 
-extract_smsf_distribution3(_, _, Item, []) :-
-	doc_value(Item, distribution_ui:name, "Dr/Cr").
+extract_smsf_distribution3(_, Item, []) :-
+	doc_value(Item, smsf_distribution_ui:name, "Dr/Cr"),
+	!.
 
 extract_smsf_distribution3(Default_currency, Item, Txs) :-
-	doc_value(Item, distribution_ui:name, Unit_name_str),
+	doc_value(Item, smsf_distribution_ui:name, Unit_name_str),
 	atom_string(Unit, Unit_name_str),
 	traded_units($>request_has_property(l:bank_s_transactions), Traded_Units),
 	(	member(Unit, Traded_Units)
@@ -58,19 +66,19 @@ extract_smsf_distribution3(Default_currency, Item, Txs) :-
 	request_has_property(l:end_date, End_Date),
 	maplist(smsf_distribution_tx(Default_currency, End_Date, Item),
 		[dist{
-			prop: distribution_ui:accrual,
+			prop: smsf_distribution_ui:accrual,
 			a:'Distribution Received'/Unit,
 			dir:crdr,
 			b:'Distribution Receivable'/Unit,
 			desc:"Distributions Accrual entry as per Annual tax statements"},
 		dist{
-			prop: distribution_ui:franking_credit,
+			prop: smsf_distribution_ui:franking_credit,
 			a:'Distribution Received'/Unit,
 			dir:crdr,
 			b:name('Foreign And Other Tax Credits'),
 			desc:"Tax offset entry against distribution"},
 		dist{
-			prop: distribution_ui:foreign_credit,
+			prop: smsf_distribution_ui:foreign_credit,
 			a:'Distribution Received'/Unit,
 			dir:crdr,
 			b:name('Imputed Credits'),

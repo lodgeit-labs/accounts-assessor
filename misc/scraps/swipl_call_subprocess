@@ -1,0 +1,12 @@
+	/*
+	Args = ['../python/src/xmlschema_runner.py',Instance_File,Schema_File],
+	catch(
+		setup_call_cleanup(
+			process_create('../python/venv/bin/python3',Args,[]),
+			true,
+			true
+		),
+		_,
+		throw('Input file failed XSD schema validation.')
+	).
+	*/

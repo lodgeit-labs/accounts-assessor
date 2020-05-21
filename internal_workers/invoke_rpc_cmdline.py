@@ -22,7 +22,20 @@ def run(debug_loading, debug, request_files, dev_runner_options, prolog_flags, s
 	files3 = flatten_file_list_with_dirs_into_file_list(files2)
 	request_tmp_directory_name, request_tmp_directory_absolute_path = create_tmp()
 	copy_request_files_to_tmp(request_tmp_directory_absolute_path, files3)
-	call_prolog_calculator(server_url, request_tmp_directory_name, files3,  dev_runner_options=shlex.split(dev_runner_options), prolog_flags=prolog_flags, debug_loading=debug_loading, debug=debug, halt=halt, use_celery=False, print_cmd_to_swipl_stdin=print_cmd_to_swipl_stdin)
+	_, final_result_tmp_directory_name = create_tmp()
+	call_prolog_calculator(
+		server_url=server_url,
+		request_tmp_directory_name=request_tmp_directory_name,
+		request_files=files3,
+		dev_runner_options=shlex.split(dev_runner_options),
+		prolog_flags=prolog_flags,
+		print_cmd_to_swipl_stdin=print_cmd_to_swipl_stdin,
+		debug_loading=debug_loading,
+		debug=debug,
+		halt=halt,
+		use_celery=False,
+		final_result_tmp_directory_name=final_result_tmp_directory_name
+	)
 
 if __name__ == '__main__':
 	run()

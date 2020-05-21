@@ -165,24 +165,25 @@ flatten_xml(XML, ID) :-
 	flatten:xml_flatten_nodes(ID,Root_ID,0,XML),
 	!.
 
-xsd_validator_url($>atomic_list_concat([$>current_prolog_flag(services_server, <$), '/xml_xsd_validator'])).
+xsd_validator_url(X) :-
+	atomic_list_concat([$>(!current_prolog_flag(services_server)), '/xml_xsd_validator'], X).
 
 /*
 Validates an XML instance against an XSD schema by calling an external Python script
 */
 validate_xml(loc(absolute_path,Instance_File), loc(absolute_path,Schema_File), Schema_Errors) :-
-	uri_encoded(query_value,Instance_File,Instance_File_Encoded),
-	uri_encoded(query_value,Schema_File,Schema_File_Encoded),
-	xsd_validator_url(XSD_Validator_URL),
-	atomic_list_concat([xml,Instance_File_Encoded], "=", Instance_File_Query_Component),
-	atomic_list_concat([xsd,Schema_File_Encoded], "=", Schema_File_Query_Component),
-	atomic_list_concat([Instance_File_Query_Component, Schema_File_Query_Component], "&", Query),
-	atomic_list_concat([XSD_Validator_URL,Query],"/?",Request_URI),
+	!uri_encoded(query_value,Instance_File,Instance_File_Encoded),
+	!uri_encoded(query_value,Schema_File,Schema_File_Encoded),
+	!xsd_validator_url(XSD_Validator_URL),
+	!atomic_list_concat([xml,Instance_File_Encoded], "=", Instance_File_Query_Component),
+	!atomic_list_concat([xsd,Schema_File_Encoded], "=", Schema_File_Query_Component),
+	!atomic_list_concat([Instance_File_Query_Component, Schema_File_Query_Component], "&", Query),
+	!atomic_list_concat([XSD_Validator_URL,Query],"/?",Request_URI),
 	%format("Request URI: ~w~n", [Request_URI]),
 	setup_call_cleanup(
-        http_open(Request_URI, In, [request_header('Accept'='application/json')]),
-        json_read_dict(In, Response_JSON),
-        close(In)
+		!http_open(Request_URI, In, [request_header('Accept'='application/json')]),
+		!json_read_dict(In, Response_JSON),
+		!close(In)
     ),
 	%format("Result: ~w~n", [Response_JSON.result]),
 	(
@@ -193,22 +194,10 @@ validate_xml(loc(absolute_path,Instance_File), loc(absolute_path,Schema_File), S
 		atomic_list_concat([Response_JSON.error_type, Response_JSON.error_message], ": ", Schema_Error),
 		Schema_Errors = [error:Schema_Error]
 	).
-	/*
-	Args = ['../python/src/xmlschema_runner.py',Instance_File,Schema_File],
-	catch(
-		setup_call_cleanup(
-			process_create('../python/venv/bin/python3',Args,[]),
-			true,
-			true
-		),
-		_,
-		throw('Input file failed XSD schema validation.')
-	).
-	*/
 
-validate_xml2(Xml, Xsd) :-
-	resolve_specifier(loc(specifier, my_schemas(Xsd)), Schema_File),
-	validate_xml(Xml, Schema_File, Schema_Errors),
+ validate_xml2(Xml, Xsd) :-
+	!resolve_specifier(loc(specifier, my_schemas(Xsd)), Schema_File),
+	!validate_xml(Xml, Schema_File, Schema_Errors),
 	(	Schema_Errors = []
 	->	true
-	;	maplist(add_alert(error), Schema_Errors)).
+	;	!maplist(add_alert(error), Schema_Errors)).

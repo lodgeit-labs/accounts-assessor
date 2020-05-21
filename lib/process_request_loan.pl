@@ -1,21 +1,16 @@
 
 process_request_loan(Request_File, DOM) :-
-   xpath(DOM, //reports/loanDetails/loanAgreement/field(@name='Income year of loan creation', @value=CreationIncomeYear), _E1),
-   xpath(DOM, //reports/loanDetails/loanAgreement/field(@name='Full term of loan in years', @value=Term), _E2),
-   (xpath(DOM, //reports/loanDetails/loanAgreement/field(@name='Principal amount of loan', @value=PrincipalAmount), _E3)->true;true),
-   xpath(DOM, //reports/loanDetails/loanAgreement/field(@name='Lodgment day of private company', @value=LodgementDate), _E4),
-   xpath(DOM, //reports/loanDetails/loanAgreement/field(@name='Income year of computation', @value=ComputationYear), _E5),   
-   (
-     xpath(DOM, //reports/loanDetails/loanAgreement/field(@name='Opening balance of computation', @value=OB), _E6)
-     ->
-     OpeningBalance = OB
-   ;
-     OpeningBalance = -1
-   ),   
-
-   resolve_specifier(loc(specifier, my_schemas('bases/Reports.xsd')), Schema_File),
-   validate_xml(Request_File, Schema_File, Schema_Errors),
-   (
+	xpath(DOM, //reports/loanDetails/loanAgreement/field(@name='Income year of loan creation', @value=CreationIncomeYear), _E1),
+	xpath(DOM, //reports/loanDetails/loanAgreement/field(@name='Full term of loan in years', @value=Term), _E2),
+	(xpath(DOM, //reports/loanDetails/loanAgreement/field(@name='Principal amount of loan', @value=PrincipalAmount), _E3)->true;true),
+	xpath(DOM, //reports/loanDetails/loanAgreement/field(@name='Lodgment day of private company', @value=LodgementDate), _E4),
+	xpath(DOM, //reports/loanDetails/loanAgreement/field(@name='Income year of computation', @value=ComputationYear), _E5),
+	(	xpath(DOM, //reports/loanDetails/loanAgreement/field(@name='Opening balance of computation', @value=OB), _E6)
+	->	OpeningBalance = OB
+	;	OpeningBalance = -1),
+	resolve_specifier(loc(specifier, my_schemas('bases/Reports.xsd')), Schema_File),
+	validate_xml(Request_File, Schema_File, Schema_Errors),
+	(
 		Schema_Errors = []
 	->
 		(
@@ -82,15 +77,11 @@ display_xml_loan_response(IncomeYear,
    close(XMLStream),
 
    % read the schema file
-   resolve_specifier(loc(specifier, my_schemas('responses/LoanResponse.xsd')), LoanResponseXSD),
+	resolve_specifier(loc(specifier, my_schemas('responses/LoanResponse.xsd')), LoanResponseXSD),
    % if the xml response is valid then reply the response, otherwise reply an error message
-   (
-		validate_xml(TempFileLoanResponseXML, LoanResponseXSD, [])
-   ->
-		add_result_file_by_path(TempFileLoanResponseXML)
-   ;
-		add_alert(error, "Validation failed for xml loan response.")
-   ).
+	(	validate_xml(TempFileLoanResponseXML, LoanResponseXSD, [])
+	->	add_result_file_by_path(TempFileLoanResponseXML)
+	;	add_alert(error, "Validation failed for xml loan response.")).
    
 
 % ===================================================================

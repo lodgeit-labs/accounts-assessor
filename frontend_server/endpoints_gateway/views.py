@@ -8,6 +8,7 @@ sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../../
 
 import urllib.parse
 import json
+import celery
 from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import render
@@ -17,6 +18,8 @@ from django.http.request import QueryDict
 from endpoints_gateway.forms import ClientRequestForm
 from fs_utils import directory_files, save_django_uploaded_file
 import invoke_rpc
+from invoke_rpc import call_prolog_calculator
+from tmp_dir_path import create_tmp
 
 
 def tmp_file_url(server_url, tmp_dir_name, fn):
@@ -26,12 +29,10 @@ def tmp_file_url(server_url, tmp_dir_name, fn):
 @csrf_exempt
 def upload(request):
 	server_url = request._current_scheme_host
-
 	params = QueryDict(mutable=True)
 	params.update(request.POST)
 	params.update(request.GET)
 	requested_output_format = params.get('requested_output_format', 'json_reports_list')
-
 	prolog_flags = """set_prolog_flag(services_server,'""" + settings.INTERNAL_SERVICES_SERVER_URL + """')"""
 
 	if request.method == 'POST':
@@ -51,12 +52,29 @@ def upload(request):
 				return render(request, 'uploaded_files.html', {
 					'files': [tmp_file_url(server_url, request_tmp_directory_name, f) for f in directory_files(request_tmp_directory_path)]})
 
+			final_result_tmp_directory_name, final_result_tmp_directory_path = create_tmp()
 			try:
-				response_tmp_directory_name = call_prolog_calculator(requested_output_format, 20, server_url, request_files_in_tmp, request_tmp_directory_name, through_celery=True)
+				response_tmp_directory_name = call_prolog_calculator(
+					prolog_flags=prolog_flags,
+					request_tmp_directory_name=request_tmp_directory_name,
+					server_url=server_url,
+					request_files=request_files_in_tmp,
+					use_celery=True,
+					timeout_seconds=20,
+					final_result_tmp_directory_name=final_result_tmp_directory_path
+				)
 			except celery.exceptions.TimeoutError:
-				if requested_output_format == 'json':
-					return JsonResponse({
-						'alerts': ['the task is taking too long. Please wait for results here:\n' + final_result_tmp_directory_name], reports: []})
+				if requested_output_format == 'json_reports_list':
+					return JsonResponse(
+					{
+						'alerts': ['task is still processing..'],
+						"reports":
+						[{
+							"title": "frontend_server_timeout",
+							"key": "please refresh",
+							"val":{"url": tmp_file_url(server_url, final_result_tmp_directory_name, '')}}
+						]
+					})
 				else:
 					raise
 			if requested_output_format == 'xml':

@@ -328,7 +328,7 @@ ensure_smsf_equity_tree3(Root) :-
 ensure_smsf_equity_tree6(A) :-
 	!smsf_members_throw(Members),
 	!account_name(A, Account),
-	maplist(subcategorize_by_smsf_member((smsf_equity/Account), A), Members).
+	maplist(subcategorize_by_smsf_member((Account), A), Members).
 
 
 %-----

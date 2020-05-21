@@ -9,7 +9,7 @@ dev7788:
       - name: celery_worker
         dir: ./internal_workers
         exec: bash
-        args: -c "env PYTHONUNBUFFERED=true CELERY_QUEUE_NAME=q7788 ./run.sh  -n w7788 --loglevel=info"
+        args: -c "env PYTHONUNBUFFERED=true CELERY_QUEUE_NAME=q7788 INTERNAL_SERVICES_SERVER_URL=\"http://localhost:17788\" ./run.sh  -n w7788 --loglevel=info"
 
       - name: internal_services
         dir: ./internal_services
