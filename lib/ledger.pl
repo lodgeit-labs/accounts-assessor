@@ -19,7 +19,6 @@ process_ledger(
 	!check_accounts_roles,
 	!propagate_accounts_side,
 	!write_accounts_json_report,
-
 	!extract_gl_inputs(Initial_Txs),
 	!extract_smsf_distribution(Smsf_distribution_txs),
 

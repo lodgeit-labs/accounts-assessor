@@ -9,7 +9,7 @@
 	!atom_string(Default_Currency, Default_Currency0),
 	!doc_value(Gl, ic:items, List),
 	!doc_list_items(List, Items),
-	!doc_value(Gl, excel:has_sheet_name, Sheet_name),
+	!doc(Gl, excel:has_sheet_name, Sheet_name),
 	!extract_gl_tx(Sheet_name, Default_Currency, none, none, Items, Txs).
 
  extract_gl_tx(_, _, _,_,[],[]).
@@ -65,7 +65,7 @@ extract_gl_tx(Sheet_name, Default_Currency, _, _, [Item|Items], [Tx|Txs]) :-
 
  resolve_account_syntax(String, Parameters, Account) :-
  	!string_codes(String, Codes),
- 	!phrase(account_syntax(Specifier), Codes),
+ 	once(phrase(account_syntax(Specifier), Codes)),
 	(	Specifier = name(Name_str)
 	->	(	atom_string(Name, Name_str),
 			!account_by_ui(Name, Account))
@@ -76,6 +76,7 @@ extract_gl_tx(Sheet_name, Default_Currency, _, _, [Item|Items], [Tx|Txs]) :-
 		)).
 
 account_syntax(name(Name)) --> string_without("<!", Codes), {atom_codes(Name, Codes)}.
+account_syntax(Role) --> `!`, account_syntax2(Role), `!`.
 account_syntax(Role) --> `!`, account_syntax2(Role).
 account_syntax2([H]) --> account_syntax2_part(H).
 account_syntax2([H|T]) --> account_syntax2_part(H), `!`, account_syntax2(T).

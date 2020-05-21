@@ -1,3 +1,4 @@
+import sys, os
 # for the case when running standalone
 # is this needed?
 #sys.path.append('../internal_workers')
@@ -6,7 +7,7 @@ sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../../
 
 
 import urllib.parse
-import json, ntpath, os
+import json
 from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import render
@@ -19,7 +20,7 @@ import invoke_rpc
 
 
 def tmp_file_url(server_url, tmp_dir_name, fn):
-	return server_url + '/tmp/' + request_tmp_directory_name + '/' + urllib.parse.quote(fn)
+	return server_url + '/tmp/' + tmp_dir_name + '/' + urllib.parse.quote(fn)
 
 
 @csrf_exempt

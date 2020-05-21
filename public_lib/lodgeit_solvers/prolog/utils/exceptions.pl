@@ -6,6 +6,7 @@
 	flatten([List_Or_Atom], List),
 	maplist(stringize, List, List2),
 	atomic_list_concat(List2, String),
+	(getenv('DISPLAY', _) -> gtrace ; true),
 	throw(error(msg(String),_)).
 
 stringize(X, X) :-

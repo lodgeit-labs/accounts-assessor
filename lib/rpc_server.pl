@@ -6,7 +6,7 @@
 
 
 :-set_prolog_flag(stack_limit, 10 000 000 000).
-
+:- (getenv('DISPLAY', _) -> guitracer ; true).
 
 process_request_rpc_cmdline :-
 	json_read_dict(user_input, Dict),
@@ -15,8 +15,6 @@ process_request_rpc_cmdline :-
 process_request_rpc_cmdline_json_text(String) :-
 	string_to_json_dict(String, Dict),
 	process_request_rpc_cmdline2(Dict).
-
-:- (getenv('DISPLAY', _) -> guitracer ; true).
 
 process_request_rpc_cmdline1(Dict) :-
 	catch_with_backtrace(

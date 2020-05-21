@@ -68,10 +68,10 @@ x :-
 		,[opt(script), type(atom), shortflags([s]), longflags([script])]
 		,[opt(goal), type(atom), shortflags([g]), longflags([goal])]
 	],
+	format(user_error, 'dev_runner: starting...\n', []),
 	opt_arguments(Spec, Opts, Args),
 	(Args = [] -> true ; throw(string('no positional arguments accepted'))),
 	assert(opts(Opts)),
-	format(user_error, '============...\n', []),
 	opts(Opts),
 	memberchk(debug(Debug), Opts),
 	memberchk(viewer(Viewer), Opts),
@@ -80,15 +80,18 @@ x :-
 	(	Debug = true
 	->	Optimization = ''
 	;	Optimization = '-O'),
+	% todo for python rewrite:  --tty=true -q? pipe goal (not rpc message) to swipl. get gtrace working.
 	atomic_list_concat(['swipl ', Optimization, ' -s ', Script], Load_Cmd),
 	maybe_clean_terminal,
 	/* make forces compilation of dcg's or something */
+	format(user_error, 'dev_runner: checking syntax...\n', []),
 	shell2([Load_Cmd, ' -g "make,halt."  2>&1  |  tee ', Err_File, ' | head -n 150 1>&2']),
 	maybe_halt_on_err,
+	format(user_error, 'dev_runner: syntax seems ok...\n', []),
 	memberchk(goal(Goal), Opts),
 	(	nonvar(Goal)
 	->	(
-			format(user_error, 'ok...\n', []),
+			format(user_error, 'dev_runner: running siwpl with goal...\n', []),
 			(	nonvar(Viewer)
 			->	Redirection = [' 2>&1  1> arrr.xml | tee ', Err_File]
 			;	Redirection = ''),

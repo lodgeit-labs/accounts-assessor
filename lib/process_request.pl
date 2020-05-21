@@ -24,7 +24,7 @@
 process_request_rpc_calculator(Dict) :-
 	doc_init,
 	'='(Request_uri, $>atom_string(<$, Dict.request_uri)),
-	'='(Result_uri, $>atomic_list_concat([Dict.rdf_namespace_base, 'results/', Dict.tmp_directory_name])),
+	'='(Result_uri, $>atomic_list_concat([Dict.rdf_namespace_base, 'results/', Dict.result_tmp_directory_name])),
 	'='(Result_data_uri_base, $>atomic_list_concat([Result_uri, '/'])),
 	'='(Request_data_uri_base, $>atomic_list_concat([Request_uri, '/request_data/'])),
 	'='(Request_data_uri, $>atomic_list_concat([Request_data_uri_base, 'request'])),
@@ -45,9 +45,9 @@ process_request_rpc_calculator(Dict) :-
 	->	resolve_directory(Dir, Request_Files2)
 	;	Request_Files2 = Request_Files),
 
-	set_unique_tmp_directory_name(loc(tmp_directory_name, Dict.tmp_directory_name)),
+	set_unique_tmp_directory_name(loc(tmp_directory_name, Dict.result_tmp_directory_name)),
 	set_server_public_url(Dict.server_url),
-	(Request_Files2 = [] -> throw('no files.') ; true),
+	(Request_Files2 = [] -> throw_string('no request files.') ; true),
 	process_request([], Request_Files2).
 
 process_request(Options, File_Paths) :-
