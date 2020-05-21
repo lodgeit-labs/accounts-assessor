@@ -32,59 +32,76 @@ phase 1 - setting up opening balances
 
 
  extract_smsf_distribution(Txs) :-
+ gtrace,
  	!request_data(Rd),
  	(	doc_value(Rd, smsf:distribution, D)
- 	->	extract_smsf_distribution2(D, Txs)
+ 	->	!extract_smsf_distribution2(D, Txs)
  	;	true).
 
-extract_smsf_distribution2(D, Txs) :-
+ extract_smsf_distribution2(Distribution, Txs) :-
+	doc_value(Distribution, distribution_ui:default_currency, Default_currency),
+	doc_value(Distribution, distribution:items, D),
 	doc_list_items(D, Items),
-	maplist(extract_smsf_distribution3, Items, Txs).
+	maplist(extract_smsf_distribution3(Default_currency), Items, Txs0),
+ 	flatten(Txs0, Txs).
 
-extract_smsf_distribution3(Item, []) :-
+extract_smsf_distribution3(_, _, Item, []) :-
 	doc_value(Item, distribution_ui:name, "Dr/Cr").
 
-extract_smsf_distribution3(_Item, _Txs) :- !. /*
+extract_smsf_distribution3(Default_currency, Item, Txs) :-
 	doc_value(Item, distribution_ui:name, Unit_name_str),
 	atom_string(Unit, Unit_name_str),
-	traded_units(S_Transactions, Traded_Units),
+	traded_units($>request_has_property(l:bank_s_transactions), Traded_Units),
 	(	member(Unit, Traded_Units)
 	->	true
 	;	throw_string(['smsf distribution sheet: unknown unit: ', Unit])),
-
-	doc(Rd, l:end_date, End_Date),
-
-
-	maplist(smsf_distribution_tx(End_Date),
-		dist{
+	request_has_property(l:end_date, End_Date),
+	maplist(smsf_distribution_tx(Default_currency, End_Date, Item),
+		[dist{
 			prop: distribution_ui:accrual,
-			a:'Distribution Receivable'/Unit,
+			a:'Distribution Received'/Unit,
 			dir:crdr,
-			b:'Distribution Received'/Unit,
+			b:'Distribution Receivable'/Unit,
 			desc:"Distributions Accrual entry as per Annual tax statements"},
 		dist{
 			prop: distribution_ui:franking_credit,
-			a:name('Foreign And Other Tax Credits'),
+			a:'Distribution Received'/Unit,
 			dir:crdr,
-			b:'Distribution Received'/Unit,
+			b:name('Foreign And Other Tax Credits'),
 			desc:"Tax offset entry against distribution"},
 		dist{
 			prop: distribution_ui:foreign_credit,
-			a:name('Imputed Credits'),
+			a:'Distribution Received'/Unit,
 			dir:crdr,
-			b:'Distribution Received'/Unit,
-			desc:"Tax offset entry against distribution"},
-		dist{
-			prop: distribution_ui:amit_decrease,
-			a:'Investments'/Unit,??
-			dir:drcr,
-			b:'Distribution Received'/Unit,
-			desc:"Recognise the amount of the distribution received & AMIT"},
+			b:name('Imputed Credits'),
+			desc:"Tax offset entry against distribution"}
+		],
+		Txs).
 
 
 
+smsf_distribution_tx(Default_currency, Date, Item, Dist, Txs) :-
+	Dist = dist{prop:Prop, a:A, b:B, dir: crdr, desc:Desc},
+	(	doc_value(Item, Prop, Amount_string)
+	->	(
+			(	vector_from_string(Default_currency, kb:debit, Amount_string, VectorA)
+			->	true
+			;	throw_string(['error reading "amount" in ', $>sheet_and_cell_string(Item)])),
+			vec_inverse(VectorA, VectorB),
+			!doc_new_uri(distributions_input_st, St1),
+			!doc_add_value(St1, transactions:description, Desc, transactions),
+			!doc_add_value(St1, transactions:input_sheet_item, Item, transactions),
+			Txs = [
+				!($>make_transaction(St, Date, Desc, !abrlt(A), VectorA)),
+				!($>make_transaction(St, Date, Desc, !abrlt(B), VectorB))
+			]
+		)
+	;	Txs = []).
 
-smsf_distribution_tx(End_Date, Prop) :-
-	doc_value(Item, Prop, Value),
-	parse_cash,
-*/
+
+
+sheet_and_cell_string(Value, Str) :-
+	doc_value(Value, excel:sheet_name, Sheet_name),
+	doc_value(Value, excel:col, Col),
+	doc_value(Value, excel:row, Row),
+	atomics_to_string([Sheet_name, ' ', Col, ':', Row], Str).

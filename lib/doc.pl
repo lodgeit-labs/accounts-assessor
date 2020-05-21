@@ -68,7 +68,9 @@ maybe this program will even run faster without this?*/
 :- rdf_meta doc_new_(r,-).
 :- rdf_meta request_has_property(r,r).
 :- rdf_meta request_add_property(r,r).
+:- rdf_meta request_add_property(r,r,r).
 :- rdf_meta request_assert_property(r,r,r).
+:- rdf_meta request_assert_property(r,r,r,r).
 :- rdf_meta doc_value(r,r,r).
 :- rdf_meta doc_add_value(r,r,r).
 :- rdf_meta doc_add_value(r,r,r,r).
@@ -558,9 +560,16 @@ request_has_property(P, O) :-
 	doc(R, P, O).
 
 request_add_property(P, O) :-
-	result(R),
-	doc_add(R, P, O).
+	b_getval(default_graph, G),
+	request_add_property(P, O, G).
 
+request_add_property(P, O, G) :-
+	result(R),
+	doc_add(R, P, O, G).
+
+request_assert_property(P, O) :-
+	b_getval(default_graph, G),
+	request_assert_property(P, O, G).
 
 request_assert_property(P, O, G) :-
 	result(R),

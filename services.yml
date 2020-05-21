@@ -19,7 +19,7 @@ dev7788:
       - name: frontend_server
         dir: ./frontend_server
         exec: bash
-        args: -c "env PYTHONUNBUFFERED=true CELERY_QUEUE_NAME=q7788 MY_SERVICES_SERVER_URL=\"http://localhost:17788\" ./run_dev.sh 0.0.0.0:7788"
+        args: -c "env PYTHONUNBUFFERED=true CELERY_QUEUE_NAME=q7788 INTERNAL_SERVICES_SERVER_URL=\"http://localhost:17788\" ./run_dev.sh 0.0.0.0:7788"
         
 prod7768:
    defaults:

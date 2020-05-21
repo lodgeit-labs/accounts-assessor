@@ -4,7 +4,7 @@ general-purpose filesystem utilities
 import os.path
 from os import listdir
 from os.path import isfile, join
-
+import ntpath
 
 def files_in_dir(dir):
 	result = []
