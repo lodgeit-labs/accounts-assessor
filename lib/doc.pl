@@ -514,17 +514,23 @@ make_rdf_report :-
 
 
 doc_from_rdf(Rdf_Graph, Replaced_prefix, Replacement_prefix) :-
-	findall((X2,Y,Z),
+	findall((X2,Y,Z2),
 		(
 			rdf(X,Y,Z,Rdf_Graph),
-			(	atom_prefix(X, Replaced_prefix)
-			->	replace_atom_prefix(X, Replaced_prefix, Replacement_prefix, X2)
-			;	X = X2)
+			replace_uri_node_prefix(X, Replaced_prefix, Replacement_prefix, X2),
+			replace_uri_node_prefix(Z, Replaced_prefix, Replacement_prefix, Z2)
 		),
 		Triples),
 	maplist(triple_rdf_vs_doc, Triples, Triples2),
 	maplist(doc_add, Triples2).
 
+replace_uri_node_prefix(Z, Replaced_prefix, Replacement_prefix, Z2) :-
+	(	(
+			atom(Z),
+			atom_prefix(Z, Replaced_prefix)
+		)
+	->	!replace_atom_prefix(Z, Replaced_prefix, Replacement_prefix, Z2)
+	;	Z = Z2).
 
 replace_atom_prefix(X, Replaced_prefix, Replacement_prefix, X2) :-
 	atom_length(Replaced_prefix, L0),
@@ -578,7 +584,7 @@ request_assert_property(P, O, G) :-
 request(R) :-
 	doc(R, rdf:type, l:'Request').
 
-request_data(D) :-
+ request_data(D) :-
 	request(Request),
 	doc(Request, l:has_request_data, D).
 

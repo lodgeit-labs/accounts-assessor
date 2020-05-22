@@ -104,7 +104,7 @@ evaluate2(Sd, account_balance(Report_Id, Role), Values_List) :-
 	findall(
 		Values_List,
 		(
-			accounts_report_entry_by_account_role(Sd, Report, Role, Entry),
+			accounts_report_entry_by_account_role_nothrow(Sd, Report, rl(Role), Entry),
 			entry_normal_side_values(Sd, Entry, Values_List)
 		),
 		Values_List0
@@ -116,8 +116,8 @@ entry_normal_side_values(Sd, Entry, Values_List) :-
 	!report_entry_gl_account(Entry, Account),
 	!vector_of_coords_to_vector_of_values(Sd, Account, Balance, Values_List).
 
-accounts_report_entry_by_account_role(_Sd, Report, Role, Entry) :-
-	abrlt(Role, Id),
+accounts_report_entry_by_account_role_nothrow(_Sd, Report, Role, Entry) :-
+	account_by_role(Role, Id),
 	accounts_report_entry_by_account_id(Report, Id, Entry).
 
 accounts_report_entry_by_account_id(Report, Id, Entry) :-

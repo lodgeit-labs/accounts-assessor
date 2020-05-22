@@ -44,7 +44,12 @@ is_valid_role('FinancialInvestments'/Id) :- freeze(Id, atom(Id)).
 ╹ ╹╹┗━┛┗━╸
 */
 
-
+/*
+ acc(Role, Account) :-
+	(	Role = name(Name)
+	->	account_by_ui(Name, Account)
+	;	abrlt(Role, Account).
+*/
  abrlt(Role, Account) :-
 
 	%!is_valid_role(Role),
@@ -267,7 +272,7 @@ p40(Trading_Account_Id,R,Cm,Cm_account, Traded_Unit) :-
 	ensure_account_exists(Cm_account, _, 1, rl('TradingAccounts'/Trading_Account_Id/R/Cm/Traded_Unit), _).
 
  trading_sub_account((Movement_Account, Unit_Accounts)) :-
-	account_by_role_throw(rl('TradingAccounts'/_/_/_), Movement_Account),
+	account_by_role(rl('TradingAccounts'/_/_/_), Movement_Account),
 	account_direct_children(Movement_Account, Unit_Accounts).
 
  gains_accounts(

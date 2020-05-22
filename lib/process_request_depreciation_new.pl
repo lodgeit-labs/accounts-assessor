@@ -6,7 +6,7 @@ process_request_depreciation_new :-
 	doc_value(D, depr_ui:depreciation_queries, _),
 
 	(	maplist(process_depreciation_asset, $> doc_list_items($> doc_value(D, depr_ui:depreciation_assets)))
-		->	true
+	->	true
 	;	throw_string('depreciation: assets processing failed')),
 
 	% events sheet is optional

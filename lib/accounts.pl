@@ -121,6 +121,7 @@ account_by_role_throw(Role, Account) :-
 	).
 
 account_by_role(Role, Account) :-
+	assertion(Role = rl(_)),
 	account_role(Account, Role).
 /*
 account_by_role_nothrow(Role, Account) :-

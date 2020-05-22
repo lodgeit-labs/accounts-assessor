@@ -45,8 +45,8 @@
 				<account name="Amounts owing to other Persons"/>
 				<account name="GST Payable"/>
 				<account name="Income Tax Payable"/>
-				<account name="Imputed Credits"/>
-				<account name="Foreign and Other Tax Credits"/>
+				<account name="Imputed Credits" role="Imputed Credits"/>
+				<account name="Foreign and Other Tax Credits" role="Foreign And Other Tax Credits"/>
 				<account name="Tax Instalment paid"/>
 				<account name="Tax File Number Credits"/>
 				<account name="Australian Business Number Credits"/>

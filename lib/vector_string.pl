@@ -13,8 +13,11 @@ string_value(S, V) :-
 	string_codes(S, C), phrase(money_string(V), C).
 
 vector_from_string(Default_Unit, Side, S, [V]) :-
-	(	number_string(N, S)
-	->	V0 = value(Default_Unit, N)
-	;	string_value(S, V0)),
+	(	(number(S);rational(S))
+	->	V0 = value(Default_Unit, S)
+	;	(	number_string(N, S)
+		->	V0 = value(Default_Unit, N)
+		;	string_value(S, V0))
+	),
 	coord_normal_side_value(V,Side,V0).
 

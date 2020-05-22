@@ -152,37 +152,39 @@ alert_html(Alert, div([Alert, br([]), br([])])).
 process_multifile_request(File_Paths) :-
 	debug(tmp_files, "process_multifile_request(~w)~n", [File_Paths]),
 	(	accept_request_file(File_Paths, Xml_Tmp_File_Path, xml)
-	->	load_request_xml(Xml_Tmp_File_Path, Dom)
+	->	!load_request_xml(Xml_Tmp_File_Path, Dom)
 	;	true),
 
 	(	accept_request_file(File_Paths, Rdf_Tmp_File_Path, n3)
 	->	(
-			debug(tmp_files, "done accept_request_file(~w, ~w, n3)~n", [File_Paths, Rdf_Tmp_File_Path]),
-			load_request_rdf(Rdf_Tmp_File_Path, G),
-			debug(tmp_files, "RDF graph: ~w~n", [G]),
-			request(Request),
-			doc(Request, l:has_request_data_uri_base, Request_data_uri_base),
-			doc_from_rdf(G, 'https://rdf.lodgeit.net.au/v1/excel_request#', Request_data_uri_base),
-			check_request_version
+			!debug(tmp_files, "done accept_request_file(~w, ~w, n3)~n", [File_Paths, Rdf_Tmp_File_Path]),
+			!load_request_rdf(Rdf_Tmp_File_Path, G),
+			!debug(tmp_files, "RDF graph: ~w~n", [G]),
+			!request(Request),
+			!doc(Request, l:has_request_data_uri_base, Request_data_uri_base),
+			!doc_from_rdf(G, 'https://rdf.lodgeit.net.au/v1/excel_request#', Request_data_uri_base),
+			!check_request_version
+			%,gtrace
 			%doc_input_to_chr_constraints
 		)
 	;	true),
 	(	process_rdf_request
 	;	(
 			((ground(Dom), xpath(Dom, //reports, _))
-			->	process_xml_request(Xml_Tmp_File_Path, Dom)
+			->	!process_xml_request(Xml_Tmp_File_Path, Dom)
 			;	throw_string('<reports> tag not found'))
 		)
 	).
 
+/* only done for requests that include a rdf file */
 check_request_version :-
-	/* only done for requests that include a rdf file */
-	request_data(D),
+	Expected = "1",
+	!request_data(D),
 	(	doc(D, l:client_version, V)
-	->	(	V = "1"
+	->	(	V = Expected
 		->	true
-		;	throw_string('incompatible client version'))
-	;	true).
+		;	throw_string(['incompatible client version, expected: ', Expected]))
+	;	throw_string(['l:client_version not specified, must be: ', Expected])).
 
 accept_request_file(File_Paths, Path, Type) :-
 	debug(tmp_files, "accept_request_file(~w, ~w, ~w)~n", [File_Paths, Path, Type]),
@@ -190,17 +192,18 @@ accept_request_file(File_Paths, Path, Type) :-
 	debug(tmp_files, "member(~w, ~w)~n", [Path, File_Paths]),
 	tmp_file_path_to_url(Path, Url),
 	debug(tmp_files, "tmp_file_path_to_url(~w, ~w)~n", [Path, Url]),
-	(
-		loc_icase_endswith(Path, ".xml")
+	(	loc_icase_endswith(Path, ".xml")
 	->	(
 			add_report_file(-20,'request_xml', 'request_xml', Url),
 			Type = xml
 		)
-	;	loc_icase_endswith(Path, "n3")
-	->	(
-			add_report_file(-20,'request_n3', 'request_n3', Url),
-			Type = n3
-		)).
+	;	(	loc_icase_endswith(Path, "n3")
+		->	(
+				add_report_file(-20,'request_n3', 'request_n3', Url),
+				Type = n3
+			)
+		)
+	).
 
 load_request_xml(loc(absolute_path,Xml_Tmp_File_Path), Dom) :-
 	load_structure(Xml_Tmp_File_Path, Dom, [dialect(xmlns), space(remove), keep_prefix(true)]).

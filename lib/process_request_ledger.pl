@@ -288,7 +288,6 @@ extract_output_dimensional_facts(Dom, Output_Dimensional_Facts) :-
 	).
 	
 extract_start_and_end_date(_Dom, Start_Date, End_Date) :-
-	gtrace,
 	!request_data(Request_Data),
 	!doc(Request_Data, ic_ui:report_details, D),
 	!doc_value(D, ic:from, Start_Date),
