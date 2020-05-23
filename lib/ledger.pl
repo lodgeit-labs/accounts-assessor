@@ -14,6 +14,8 @@ process_ledger(
 	!add_comment_stringize('Exchange rates extracted', Exchange_Rates),
 	!s_transactions_up_to(End_Date, S_Transactions0, S_Transactions),
 	!request_add_property(l:bank_s_transactions, S_Transactions),
+	!request_add_property(l:exchange_rates, Exchange_Rates),
+	!request_add_property(l:report_currency, Report_Currency),
 
 	!ensure_system_accounts_exist(S_Transactions),
 	!check_accounts_parent,

@@ -473,6 +473,9 @@ is_livestock_transaction(X) :-
 	).
 
 check_trial_balance(Exchange_Rates, Report_Currency, Date, Transactions) :-
+	!check_trial_balance(Exchange_Rates, Report_Currency, Date, '', Transactions).
+
+check_trial_balance(Exchange_Rates, Report_Currency, Date, Desc, Transactions) :-
 	/*
 	writeln("Check Trial Balance: xxxxxxxxxx"),
 	writeln(Exchange_Rates),
@@ -497,7 +500,7 @@ check_trial_balance(Exchange_Rates, Report_Currency, Date, Transactions) :-
 			true
 		;
 			(
-				add_alert('SYSTEM_WARNING', $>format(string(<$), 'trial balance at ~w is ~w\n', [Date, Total]))
+				add_alert('SYSTEM_WARNING', $>format(string(<$), '~w: trial balance at ~w is ~w\n', [Desc, Date, Total]))
 			)
 		)
 	).

@@ -9,8 +9,14 @@
 	!atom_string(Default_Currency, Default_Currency0),
 	!doc_value(Gl, ic:items, List),
 	!doc_list_items(List, Items),
-	!doc(Gl, excel:has_sheet_name, Sheet_name),
-	!extract_gl_tx(Sheet_name, Default_Currency, none, none, Items, Txs).
+	!doc_value(Gl, excel:has_sheet_name, Sheet_name),
+	!extract_gl_tx(Sheet_name, Default_Currency, none, none, Items, Txs),
+	!check_trial_balance(
+		$>request_has_property(l:exchange_rates),
+		$>request_has_property(l:report_currency),
+		$>request_has_property(l:end_date),
+		Sheet_name,
+	Txs).
 
  extract_gl_tx(_, _, _,_,[],[]).
 
@@ -64,7 +70,7 @@ extract_gl_tx(Sheet_name, Default_Currency, _, _, [Item|Items], [Tx1|Txs]) :-
 	!atom_string(Default_Currency, Default_Currency0),
 	!doc_value(Gl, reallocation:items, List),
 	!doc_list_items(List, Items),
-	!doc(Gl, excel:has_sheet_name, Sheet_name),
+	!doc_value(Gl, excel:has_sheet_name, Sheet_name),
 	!doc_value(Gl, ic:entries, List),
 	!doc_value(Gl, reallocation:account_A, Account_A_str),
 	!atom_string(Account_A_atom, Account_A_str),
