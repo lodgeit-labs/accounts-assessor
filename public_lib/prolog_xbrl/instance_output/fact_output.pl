@@ -256,10 +256,17 @@ format_balance(Format, Report_Currency_List, Context, Name, Normal_Side, Coord, 
 			[Amount]),
 		request_assert_property(l:has_used_unit, Unit, xml)
 	;
-		(	Report_Currency_List = [Unit]
-		->	Printed_Unit = ''
-		;	round_term(Unit, Printed_Unit)),
-		format(string(Line), '~2:f~w\n', [Balance, Printed_Unit])
+		(	Format = html
+		->	(
+				(	Report_Currency_List = [Unit]
+				->	Printed_Unit = ''
+				;	round_term(Unit, Printed_Unit)),
+				format(string(Line), '~2:f~w\n', [Balance, Printed_Unit])
+			)
+		;	(
+				round_term(Unit, Printed_Unit)),
+				format(string(Line), '~5:f~w', [Balance, Printed_Unit])
+			)
 	).
 
 sane_unit_id(Unit, Id) :-

@@ -75,7 +75,7 @@ cleanup(Transactions0, Transactions_Result, S_Transaction_String, Debug_Head) :-
 	atomic_list_concat([S_Transaction_String, '==>\n', Transactions_String, '\n====\n'], Debug_Head).
 
 
-check_trial_balance0_at_date_of_last_transaction_in_list(Transactions_Result, Report_Currency, Exchange_Rates, Start_Date, End_Date, Debug_So_Far, Debug_Head) :-
+ check_trial_balance0_at_date_of_last_transaction_in_list(Transactions_Result, Report_Currency, Exchange_Rates, Start_Date, End_Date, Debug_So_Far, Debug_Head) :-
 	Transactions_Result = [T|_],
 	transaction_day(T, Transaction_Date),
 	(	Report_Currency = []
@@ -472,10 +472,10 @@ is_livestock_transaction(X) :-
 		Desc = 'livestock buy'
 	).
 
-check_trial_balance(Exchange_Rates, Report_Currency, Date, Transactions) :-
+ check_trial_balance(Exchange_Rates, Report_Currency, Date, Transactions) :-
 	!check_trial_balance(Exchange_Rates, Report_Currency, Date, '', Transactions).
 
-check_trial_balance(Exchange_Rates, Report_Currency, Date, Desc, Transactions) :-
+ check_trial_balance(Exchange_Rates, Report_Currency, Date, Desc, Transactions) :-
 	/*
 	writeln("Check Trial Balance: xxxxxxxxxx"),
 	writeln(Exchange_Rates),
@@ -500,7 +500,9 @@ check_trial_balance(Exchange_Rates, Report_Currency, Date, Desc, Transactions) :
 			true
 		;
 			(
-				add_alert('SYSTEM_WARNING', $>format(string(<$), '~w: trial balance at ~w is ~w\n', [Desc, Date, Total]))
+				format_balances(error_msg, Report_Currency, unused, unused, kb:debit, Total, Vecs_text_list),
+				atomics_to_string(Vecs_text_list, ' ', Vecs_text),
+				add_alert('SYSTEM_WARNING', $>format(string(<$), '~w: trial balance at ~w is ~w\n', [Desc, Date, Vecs_text]))
 			)
 		)
 	).
@@ -588,7 +590,7 @@ pretty_vector_string(Seen_Units0, Seen_Units_Out, [Coord|Rest], Vector_Str) :-
 
 
 
-check_trial_balance0(Exchange_Rates, Report_Currency, Transaction_Date, Transactions_Out, _Start_Date, End_Date, Debug_So_Far, Debug_Head) :-
+ check_trial_balance0(Exchange_Rates, Report_Currency, Transaction_Date, Transactions_Out, _Start_Date, End_Date, Debug_So_Far, Debug_Head) :-
 	catch(
 		(
 			check_trial_balance(Exchange_Rates, Report_Currency, Transaction_Date, Transactions_Out),
