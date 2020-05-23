@@ -1,9 +1,3 @@
-:- rdet(taxonomy_url_base/0).
-:- rdet(create_instance/10).
-:- rdet(add_xml_report/3).
-:- rdet(create_reports/2).
-
-
 
 
 process_request_ledger(File_Path, Dom) :-
