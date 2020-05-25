@@ -6,12 +6,15 @@
 	/* finishme. GL_input will create multiple source transactions. Also, gl viewer is broken now wrt account ids vs uris */
 
 
-gl_export(Sd, Txs, Json_list) :-
+ gl_export(Sd, Txs, Json_list) :-
+ 	/*todo: this should be simply handled by a json-ld projection*/
 	findall(
 		Source,
 		(
 			member(Tx, Txs),
-			doc(Tx, transactions:origin, Source, transactions)
+			assertion(nonvar(Tx)),
+			doc(Tx, transactions:origin, Source, transactions),
+			assertion(nonvar(Source))
 		),
 		Sources),
 	list_to_set(Sources, Sources2),

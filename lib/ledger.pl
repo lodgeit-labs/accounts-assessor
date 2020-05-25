@@ -39,7 +39,6 @@ process_ledger(
 
 	append([Gl_input_txs, Reallocation_Txs, Smsf_distribution_txs], Transactions_From_Bst, Transactions0),
 	flatten(Transactions0, Transactions1),
-
 	!process_livestock((Processed_S_Transactions, Transactions1), Livestock_Transactions),
 	flatten([Transactions1,	Livestock_Transactions], Transactions_With_Livestock),
 	/*

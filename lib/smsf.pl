@@ -39,7 +39,7 @@ phase 1 - setting up opening balances
 
 
  extract_smsf_distribution(Txs) :-
- 	!request_data(Rd),
+  	!request_data(Rd),
  	(	doc(Rd, smsf:distribution, D)
  	->	!extract_smsf_distribution2(D, Txs)
  	;	Txs=[]).
@@ -75,13 +75,13 @@ extract_smsf_distribution4(Default_currency, Item, Unit_name_str, Txs) :-
 			b:'Distribution Receivable'/Unit,
 			desc:"Distributions Accrual entry as per Annual tax statements"},
 		dist{
-			prop: smsf_distribution_ui:franking_credit,
+			prop: smsf_distribution_ui:foreign_credit,
 			a:'Distribution Received'/Unit,
 			dir:crdr,
 			b:'Foreign And Other Tax Credits',
 			desc:"Tax offset entry against distribution"},
 		dist{
-			prop: smsf_distribution_ui:foreign_credit,
+			prop: smsf_distribution_ui:franking_credit,
 			a:'Distribution Received'/Unit,
 			dir:crdr,
 			b:'Imputed Credits',
@@ -99,9 +99,9 @@ smsf_distribution_tx(Default_currency, Date, Item, Dist, Txs) :-
 			->	true
 			;	throw_string(['error reading "amount" in ', $>!sheet_and_cell_string($>doc(Item, Prop))])),
 			!vec_inverse(VectorA, VectorB),
-			!doc_new_uri(distributions_input_st, St1),
-			!doc_add_value(St1, transactions:description, Desc, transactions),
-			!doc_add_value(St1, transactions:input_sheet_item, Item, transactions),
+			!doc_new_uri(distributions_input_st, St),
+			!doc_add_value(St, transactions:description, Desc, transactions),
+			!doc_add_value(St, transactions:input_sheet_item, Item, transactions),
 			Txs = [
 				($>make_transaction(St, Date, Desc, $>!abrlt(A), VectorA)),
 				($>make_transaction(St, Date, Desc, $>!abrlt(B), VectorB))
