@@ -22,7 +22,8 @@ process_ledger(
 	!check_accounts_roles,
 	!propagate_accounts_side,
 	!write_accounts_json_report,
-	!extract_gl_inputs(Initial_Txs),
+	!extract_gl_inputs(Gl_input_txs),
+	!extract_reallocations(Reallocation_Txs),
 	!extract_smsf_distribution(Smsf_distribution_txs),
 
 	dict_from_vars(Static_Data0, [Report_Currency, Start_Date, End_Date, Exchange_Rates, Cost_Or_Market]),
@@ -36,7 +37,7 @@ process_ledger(
 	->	add_alert('warning', ['trying with earlier report end date: ', Processed_Until])
 	;	true),
 
-	append([Initial_Txs, Smsf_distribution_txs], Transactions_From_Bst, Transactions0),
+	append([Gl_input_txs, Reallocation_Txs, Smsf_distribution_txs], Transactions_From_Bst, Transactions0),
 	flatten(Transactions0, Transactions1),
 
 	!process_livestock((Processed_S_Transactions, Transactions1), Livestock_Transactions),

@@ -129,9 +129,10 @@ static_data_historical(Static_Data, Static_Data_Historical) :-
 	Structured_Reports				% Dict <Report Abbr : _>
 ) :-
 	!investment_reports(Static_Data.put(outstanding, Outstanding), Investment_Report_Info),
-	!bs_page(Static_Data, Balance_Sheet),
-	!pl_page(Static_Data, ProfitAndLoss, ''),
-	!pl_page(Static_Data_Historical, ProfitAndLoss2_Historical, '_historical'),
+	!report_entry_tree_html_page(Static_Data, Balance_Sheet, 'balance sheet', 'balance_sheet.html'),
+	!report_entry_tree_html_page(Static_Data_Historical, Balance_Sheet2_Historical, 'balance sheet - historical', 'balance_sheet_historical.html'),
+	!report_entry_tree_html_page(Static_Data, ProfitAndLoss, 'profit and loss', 'profit_and_loss.html'),
+	!report_entry_tree_html_page(Static_Data_Historical, ProfitAndLoss2_Historical, 'profit and loss - historical', 'profit_and_loss_historical.html'),
 	!cf_page(Static_Data, Cf),
 	!make_json_report(Static_Data.gl, general_ledger_json),
 	!make_gl_viewer_report,

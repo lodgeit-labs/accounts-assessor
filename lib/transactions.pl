@@ -5,15 +5,15 @@
 % - The amounts by which the account is being debited and credited
 % - instant or tracking
 
-transaction_day(T, X) :-
+ transaction_day(T, X) :-
 	doc(T, transactions:day, X, transactions).
-transaction_description(T, X) :-
+ transaction_description(T, X) :-
 	doc(T, transactions:description, X, transactions).
-transaction_account(T, X) :-
+ transaction_account(T, X) :-
 	doc(T, transactions:account, X, transactions).
-transaction_vector(T, X) :-
+ transaction_vector(T, X) :-
 	doc(T, transactions:vector, X, transactions).
-transaction_type(T, X) :-
+ transaction_type(T, X) :-
 	doc(T, transactions:type, X, transactions).
 
 /*
@@ -22,7 +22,8 @@ transaction_field(T, F, X) :-
 	doc(V, rdf:value, X).
 */
 
-make_transaction2(Origin, Date, Description, Account, Vector, Type, Uri) :-
+ make_transaction2(Origin, Date, Description, Account, Vector, Type, Uri) :-
+ 	Date = date(_,_,_),
 	flatten([Description], Description_Flat),
 	atomic_list_concat(Description_Flat, Description_Str),
 	doc_new_uri(gl_tx, Uri),
@@ -34,11 +35,11 @@ make_transaction2(Origin, Date, Description, Account, Vector, Type, Uri) :-
 	doc_add(Uri, transactions:type, Type, transactions),
 	doc_add(Uri, transactions:origin, Origin, transactions).
 
-make_transaction(Origin, Date, Description, Account, Vector, Uri) :-
+ make_transaction(Origin, Date, Description, Account, Vector, Uri) :-
 	make_transaction2(Origin, Date, Description, Account, Vector, instant, Uri).
 
 	
-transaction_to_dict(T, D) :-
+ transaction_to_dict(T, D) :-
 	transaction_day(T, Day),
 	transaction_description(T, Description),
 	transaction_account(T, Account),

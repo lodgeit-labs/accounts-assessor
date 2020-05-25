@@ -15,6 +15,8 @@ if 'CELERY_QUEUE_NAME' in os.environ:
 
 with open(os.path.normpath(os.path.join(os.path.dirname(__file__), '../../secrets2.json')), 'r') as s2:
 	secrets = json.load(s2)
+	app.conf.AGRAPH_SECRET_HOST = secrets.get('AGRAPH_SECRET_HOST')
+	app.conf.AGRAPH_SECRET_PORT = secrets.get('AGRAPH_SECRET_PORT')
 	app.conf.AGRAPH_SECRET_USER = secrets.get('AGRAPH_SECRET_USER')
 	app.conf.AGRAPH_SECRET_PASSWORD = secrets.get('AGRAPH_SECRET_PASSWORD')
 	del secrets

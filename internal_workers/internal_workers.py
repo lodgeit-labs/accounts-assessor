@@ -12,7 +12,7 @@ def agc():
 	user = app.conf.AGRAPH_SECRET_USER
 	passw = app.conf.AGRAPH_SECRET_PASSWORD
 	if user != None and passw != None:
-		return ag_connect('a', host='localhost', port='10036', user=user, password=passw)
+		return ag_connect('a', host=app.conf.AGRAPH_SECRET_HOST, port=app.conf.AGRAPH_SECRET_PORT, user=user, password=passw)
 	else:
 		print('agraph user and pass not provided, skipping')
 
@@ -40,6 +40,7 @@ def put_doc_dump_into_triplestore(nq_fn):
 	if c:
 		print("c.addFile(nq_fn)...", file=sys.stderr)
 		c.addFile(nq_fn)
+		print("c.addFile(nq_fn) done.", file=sys.stderr)
 
 def report_by_key(response, key):
 	for i in response['reports']:
