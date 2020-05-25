@@ -131,7 +131,11 @@ reallocation_make_account_a_tx(Sheet_name, Default_Currency, Account_A, Account_
  parametrized_account_from_prop(Item, Pred, Account) :-
  	(	doc_value(Item, Pred, Account_String)
  	->	true
-	;	throw_string([$>sheet_and_cell_string(Item), ': missing "account"'])),
+	;	(
+			sheet_and_cell_string(Item, Err_pos),
+			throw_string(['entry at ', Err_pos, ': missing "account"'])
+		)
+	),
 
 	!gl_entry_account_syntax_parameters(Item, Parameters),
 	/*
