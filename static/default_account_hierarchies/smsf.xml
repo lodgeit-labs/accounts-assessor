@@ -126,8 +126,10 @@
 				<account name="Capital Gains/Losses _ taxable"/>
 				<account name="Capital Gains/Losses _ Non taxable"/>
 				<account name="Distribution Received" subcategorize_by_investment="true"/>
-				<account name="Dividends Received"/>
-				<account name="Interest Received" subcategorize_by_bank="true">
+                <account name="Dividends Received"/>
+                <account name="Interest Received - control">
+				    <account name="Interest Received"/>
+    				<account name="Interest Received - by bank" subcategorize_by_bank="true"/>
 					<account name="ATO Interest"/>
 				</account>
 				<account name="Rent Received"/>
