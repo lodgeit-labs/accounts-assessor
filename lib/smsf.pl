@@ -95,7 +95,7 @@ smsf_distribution_tx(Default_currency, Date, Item, Dist, Txs) :-
 	Dist = dist{prop:Prop, a:A, b:B, dir: crdr, desc:Desc},
 	(	doc_value(Item, Prop, Amount_string)
 	->	(
-			(	vector_from_string(Default_currency, kb:debit, Amount_string, VectorA)
+			(	vector_from_string(Default_currency, kb:credit, Amount_string, VectorA)
 			->	true
 			;	throw_string(['error reading "amount" in ', $>!sheet_and_cell_string($>doc(Item, Prop))])),
 			!vec_inverse(VectorA, VectorB),

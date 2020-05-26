@@ -7,7 +7,6 @@
 					<account name="Cash at Bank" role="Banks"/>
 				</account>
 				<account name="Contribution Receivable"/>
-				<account name="Distribution Receivable" subcategorize_by_investment="true"/>
 				<account name="Dividends Receivable"/>
 				<account name="Dividend Reinvestment - Residual Account"/>
 				<account name="Formation Expenses"/>
@@ -15,38 +14,17 @@
 				<account name="Other Assets"/>
 				<account name="Prepaid Expenses"/>
 				<account name="Sundry Debtors"/>
-				<account name="Investments" role="FinancialInvestments/Investments">
-				<!--
-					<account name="Derivatives"/>
-					<account name="Fixed Interest Securities (Australian)"/>
-					<account name="Fixed Interest Securities (Overseas)"/>
-					<account name="Fixtures and Fittings (at written down value)"/>
-					<account name="Government Securities (Australian)"/>
-					<account name="Government Securities (Overseas)"/>
-					<account name="Interests in Partnerships (Australian)"/>
-					<account name="Managed Investments (Australian)"/>
-					<account name="Managed Investments (Overseas)"/>
-					<account name="Motor Vehicles (at written down value)"/>
-					<account name="Other Assets"/>
-					<account name="Plant and Equipment (at written down value)"/>
-					<account name="Real Estate Properties (Australian)"/>
-					<account name="Real Estate Properties (Overseas)"/>
-					<account name="Shares in Listed Companies (Australian)"/>
-					<account name="Shares in Listed Companies (Overseas)"/>
-					<account name="Shares in Unlisted Companies (Australian)"/>
-					<account name="Shares in Unlisted Companies (Overseas)"/>
-					<account name="Units in Listed Unit Trusts (Australian)"/>
-					<account name="Units in Listed Unit Trusts (Overseas)"/>
-					<account name="Units in Unlisted Unit Trusts (Australian)"/>
-					<account name="Units in Unlisted Unit Trusts (Overseas)"/> -->
-				</account>
+				<account name="Investments" role="FinancialInvestments/Investments"/>
+				<account name="Distribution Receivable" subcategorize_by_investment="true"/>
 			</account>
 			<account name="Liabilities" normal_side="credit">
 				<account name="Amounts owing to other Persons"/>
 				<account name="GST Payable"/>
-				<account name="Income Tax Payable"/>
-				<account name="Imputed Credits" role="Imputed Credits"/>
-				<account name="Foreign and Other Tax Credits" role="Foreign And Other Tax Credits"/>
+                <account name="Income Tax Payable Control">
+				    <account name="Income Tax Payable"/>
+				    <account name="Imputed Credits" role="Imputed Credits"/>
+                    <account name="Foreign and Other Tax Credits" role="Foreign And Other Tax Credits"/>
+				</account>
 				<account name="Tax Instalment paid"/>
 				<account name="Tax File Number Credits"/>
 				<account name="Australian Business Number Credits"/>
@@ -57,10 +35,15 @@
 			</account>
 		</account>
 		<account name="Equity" role="Equity" normal_side="credit">
-			<account name="Bank Opening Balances"></account>
-			<account name="HistoricalEarnings" role="HistoricalEarnings"></account>
-			<account name="CurrentEarnings" role="CurrentEarnings"/>
-			<account name="Profit Attribution"></account>
+			<account name="aggregate historical">
+			    <account name="Bank Opening Balances"></account>
+                <account name="HistoricalEarnings" role="HistoricalEarnings"></account>
+                <account name="Profit Attribution - historical"></account>
+            </account>
+            <account name="aggregate current">
+    			<account name="CurrentEarnings" role="CurrentEarnings"/>
+                <account name="Profit Attribution"></account>
+    		</account>
 			<account name="Members" role="smsf_equity">
 				<account name="Opening Balance - Preserved/Taxable"/>
 				<account name="Opening Balance - Preserved/Tax Free"/>

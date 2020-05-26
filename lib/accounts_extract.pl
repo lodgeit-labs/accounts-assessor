@@ -114,7 +114,7 @@ add_account(E, Parent0, Uri) :-
 	;	Id = Elem_name),
 	(	memberchk((parent_role = Parent_role_atom), Attrs)
 	->	(	Parent0 \= no_parent_element
-		->	throw_string(['problem with account "', Id, '": In a nested account element, parent must not be specified. Found:', Parent_role_atom])
+		->	throw_string(['problem with account "', Id, '" XML: In a nested account element, parent must not be specified. Found:', Parent_role_atom])
 		;	(
 				role_string_to_term(Parent_role_atom, Parent_role),
 				(	account_by_role(Parent_role, Parent)

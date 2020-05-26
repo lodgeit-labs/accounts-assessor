@@ -1,7 +1,7 @@
 
 %:- record entry(account_id, balance, child_sheet_entries, transactions_count, misc).
 
-make_report_entry(Name, Children, Uri) :-
+ make_report_entry(Name, Children, Uri) :-
 	doc_new_uri(report_entry, Uri),
 	doc_add(Uri, rdf:type, l:report_entry),
 	doc_add(Uri, report_entries:name, Name),
@@ -209,6 +209,7 @@ balance_sheet_entry(Static_Data, Account_Id, Entry) :-
 
 balance_sheet_entry2(Static_Data, Account_Id, Entry) :-
 	% find all direct children sheet entries
+	%(account_name(Account_Id, 'Equity') -> gtrace ; true),
 	account_direct_children(Account_Id, Child_Accounts),
 	maplist(!balance_sheet_entry2(Static_Data), Child_Accounts, Child_Entries),
 	% find child balances

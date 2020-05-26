@@ -236,7 +236,6 @@ dddd(Spog, X) :-
 	(atom(G2);var(G2)),
 	rol_member(O2, X.get(S2).get(P2).get(G2)).
 
-
 dddd(Spog, _X) :-
 	member(Spog, $>b_getval(the_theory_nonground)).
 
@@ -297,12 +296,12 @@ docm(S,P,O,G) :-
 member
 */
 
-
+/*
 has(S,P,O) :-
 	(	doc(S,P,O2)
 	->	O = O2
 	;	doc_add(S,P,O)).
-
+*/
 doc_new_uri(Uri) :-
 	doc_new_uri('', Uri).
 

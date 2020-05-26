@@ -72,6 +72,7 @@ pesseract_style_table_rows(
 ) :-
 	[Entry|Entries_Tail] = Entries,
 	!report_entry_name(Entry, Name),
+	%(Name = 'Equity' -> gtrace ; true),
 	!report_entry_normal_side(Entry, Normal_Side),
 	!report_entry_total_vec(Entry, Balances),
 	!report_entry_children(Entry, Children),
