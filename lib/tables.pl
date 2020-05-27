@@ -1,20 +1,6 @@
-
 /*
-do cuts caused by the rdet ifs still cut into the findalling?
-%:- rdet(formatted_row_kvs/3).
-%:- rdet(group_columns/2).
-%:- rdet(format_column/3).
+  <abstract representation of a table> to <html something>
 */
-%:- rdet(table_totals/3).
-%:- rdet(table_html/2).
-%:- rdet(format_row/3).
-%:- rdet(row_to_html/3).
-
-/*
-  <internal representation of ... whatever> to <html something>
-  Table - internal representation of whatever
-  second argument - something html
-*/ 
 table_html(
 	Table, 
 	/*[div([span([Table.title, ':']), HTML_Table])]*/
