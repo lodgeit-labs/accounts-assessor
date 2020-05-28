@@ -109,8 +109,7 @@ vec_sum(Vectors, Sum) :-
 	Sum: [a rdf:value]
 */
 vec_sum_with_proof(Vec, Sum) :-
-	gu(rdf:value, RdfV),
-	maplist({RdfV}/[Uri, Lit]>>(doc(Uri, RdfV, Lit)), Vec, Vec_Lits),
+	maplist([Uri, Lit]>>(doc(Uri, rdf:value, Lit)), Vec, Vec_Lits),
 	vec_sum(Vec_Lits, Sum_Lit),
 	doc_new_(rdf:value, Sum),
 	doc_add(Sum, rdf:value, Sum_Lit),

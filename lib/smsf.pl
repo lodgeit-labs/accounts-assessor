@@ -122,54 +122,8 @@ sheet_and_cell_string(Value, Str) :-
 
 
 
+
 /*
-
-
-member_reports :-
-	!smsf_members_throw(Members),
-	maplist(!member_report, Members).
-
- member_report(Member_uri) :-
-	!doc_value(Member_uri, smsf:member_name, Member_Name_str),
-	atom_string(Member, Member_Name_str)
-
-
-make_report_entry(Name, Children, Uri),
-
-'Total Benefits'
-
-
-
-x
-	concept: 'Opening Balance'
-	label: 'Opening Balance at 1 July 2017'
-
-
-
-
-
-	xx('Opening Balance - Preserved/Taxable' / Member,
-	[
-		label - 'Opening Balance at 1 July 2017',
-		concept - smsf/member/'Opening Balance',
-		phase - 'Preserved',
-		taxability - 'Taxable',
-		member - Member,
-	]),
-	...
-
-
-
-	xx('Employer Contributions - Concessional' / Member,
-	[
-
-
-
-
-xx(Path) :-
-	report_entry_child_by_account_role(bs, Path),
-
-
 
 
 xxx(Role) :-
@@ -179,93 +133,80 @@ xxx(Role) :-
 
 rows_by_aspect(concept
 
-
-
-
-
 columns(['Your Detailed Account', 'Preserved', 'Restricted Non Preserved', 'Unrestricted Non Preserved', 'Total']),
-rows([
-row([
-	text('Opening Balance at ~w'.format($>request_has_property(l:end_date))),
-	fact([
-		concept - smsf/member/'Opening Balance',
-		phase - 'Preserved',
-	]),
-	fact([
-		concept - smsf/member/'Opening Balance',
-		phase - 'Restricted Non Preserved',
-	]),
-
-dimension(phase, ['Preserved','Restricted Non Preserved', 'Unrestricted Non Preserved', 'Total'], Phase_dimension),
-
-columnize_by_dimension(
-
-prepend_concept_prefix(smsf/member,
-	[
-		'Opening Balance at 1 July 2017'                        		concept('Opening Balance'),
-		'Add: Increases to Member's Account During the Period'          text(''),
-		'Concessional Contributions'                            		concept('Member/Personal Contributions - Concessional'),
-		'Non-Concessional Contributions'                        		concept('Member/Personal Contributions - Non Concessional'),
-		'Other Contributions'                                   		concept('Member/'Other Contributions'),
-		'Govt Co-Contributions'                                 		concept('Govt Co-Contributions'),
-		'Employer Contributions - No TFN'                       		concept('Employer Contributions - Concessional'),
-		'Proceeds of Insurance Policies'                        		concept('Proceeds of Insurance Policies'),
-		'Share of Net Income/(Loss) for period'                 		concept('Share of Profit/(Loss)'),
-		'Transfers in and transfers from reserves'              		concept('Internal Transfers In'),
-		'',                                                     		hr(),
-		'',                                                     		concept('total additions'),
-		'',                                                     		hr(),
-		'',                                                     		concept('opening balance + additions'),
-		'',                                                     		text(''),
-		'Less: Decreases to Member's Account During the Period' 		text(''),
-		'Benefits Paid'                                         		concept('Benefits Paid')
-		'Pensions Paid'                                         		concept('Pensions Paid')
-		'Contributions Tax'                                     		concept('Contribution Tax')
-		'Income Tax'                                            		concept('Income Tax')
-		'No TFN Excess Contributions Tax'                       		concept('No TFN Excess Contributions Tax')
-		'Division 293 Tax'                                      		concept('Division 293 Tax')
-		'Excess Contributions Tax'                              		concept('Excess Contributions Tax')
-		'Refund Excess Contributions'                           		concept('Refund Excess Contributions')
-		'Insurance Policy Premiums Paid'                        		concept('Life Insurance Premiums')
-		'Management Fees'                                       		concept('Management Fees')
-		'Share of fund expenses'                                		concept('Share of fund expenses')
-		'Transfers out and transfers to reserves'               		concept('Internal Transfers Out')
-	]
-
-
-	[
-		'Opening Balance at 1 July 2017'
-		'Add: Increases to Member's Account'
-		'During the Period'
-		'Concessional Contributions'
-		'Non-Concessional Contributions'
-		'Other Contributions'
-		'Govt Co-Contributions'
-		'Employer Contributions - No TFN'
-		'Proceeds of Insurance Policies'
-		'Share of Net Income/(Loss) for period'
-		'Transfers in and transfers from reserves'
-		'',
-		'',
-		'',
-		'',
-		'',
-		'Less: Decreases to Member's Account During the Period'
-		'Benefits Paid'
-		'Pensions Paid'
-		'Contributions Tax'
-		'Income Tax'
-		'No TFN Excess Contributions Tax'
-		'Division 293 Tax'
-		'Excess Contributions Tax'
-		'Refund Excess Contributions'
-		'Insurance Policy Premiums Paid'
-		'Management Fees'
-		'Share of fund expenses'
-		'Transfers out and transfers to reserves'
-	]
-
-evaluate_with_aspect(member - Member)
-
 
 */
+
+
+smsf_member_reports :-
+	!smsf_members_throw(Members),
+	maplist(!smsf_member_report, Members).
+
+ smsf_member_report(Member_uri) :-
+	!doc_value(Member_uri, smsf:member_name, Member_Name_str),
+	atom_string(Member, Member_Name_str),
+	smsf_member_report_presentation(Pres),
+	add_aspect(member - Member, Pres, Pres3),
+	add_smsf_member_report_facts(Member,
+	evaluate_fact_table(Pres3, Tbl),
+	Header = ['Your Detailed Account','Preserved','Restricted Non Preserved', 'Unrestricted Non Preserved', 'Total'],
+
+
+add_smsf_member_report_facts(Member) :-
+
+	Account_roles_and_facts =
+	[
+		x(
+			'Opening Balance - Preserved/Taxable' / Member,
+			[
+				concept - smsf/member/'Opening Balance',
+				phase - 'Preserved',
+				taxability - 'Taxable',
+				member - Member
+			]
+		),
+	...
+	],
+	maplist(add_fact_by_account_role(Bs), Account_roles_and_facts),
+	smsf_member_add_total_additions(Member, Bs)
+
+
+smsf_member_add_total_additions(Member) :-
+	Roles =
+		['Member/Personal Contributions - Concessional'/Member,
+		'Member/Personal Contributions - Non Concessional'/Member,
+		'Member/Other Contributions'/Member,
+		'Govt Co-Contributions'/Member,
+		'Employer Contributions - Concessional'/Member,
+		'Proceeds of Insurance Policies'/Member,
+		'Share of Profit/(Loss)'/Member,
+		'Internal Transfers In/Member'/Member],
+	add_sum_report_entry(Bs, Roles,
+	[
+		concept - smsf/member/'total additions',
+
+	]).
+
+add_sum_report_entry(Bs, Roles, New_fact_aspects) :-
+	maplist(report_entry_value_by_role(Bs), Roles, Vecs),
+	vec_sum(Vecs, Sum),
+	make_fact(Vec, New_fact_aspects, _).
+
+report_entry_vec_by_role(Bs, Role, Vec) :-
+	!abrlt(Role, Account),
+	!accounts_report_entry_by_account_id(Bs, Account, Entry),
+	!report_entry_total_vec(Entry, Vec).
+
+
+
+concept('total additions'),
+concept('opening balance + additions'),
+concept('total subtractions'),
+concept('total'),
+
+
+
+
+add_smsf_member_report_entry(Bs, x(Role, Aspects)) :-
+	report_entry_by_account_role(Bs, Role, Bs_entry)
+

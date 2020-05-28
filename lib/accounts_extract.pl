@@ -203,6 +203,10 @@ add_account(E, Parent0, Uri) :-
 
  role_list_to_term([Role], Role) :- atomic(Role).
 
+ role_term_to_list(R, [R]) :- atomic(R).
+ role_term_to_list(A/B, [A|X]) :-
+ 	role_term_to_list(B, X).
+
 
 extract_normal_side_uri_from_attrs(Attrs, Side) :-
 	(	memberchk((normal_side = Side_atom), Attrs)
