@@ -154,21 +154,64 @@ smsf_member_reports :-
 
 add_smsf_member_report_facts(Member) :-
 
-	Account_roles_and_facts =
+	maplist(smsf_member_report_fact_to_role_mapping1(Member),
 	[
-		x(
-			'Opening Balance - Preserved/Taxable' / Member,
-			[
-				concept - smsf/member/'Opening Balance',
-				phase - 'Preserved',
-				taxability - 'Taxable',
-				member - Member
-			]
-		),
-	...
-	],
+
+	]
+	Account_roles_and_facts),
 	maplist(add_fact_by_account_role(Bs), Account_roles_and_facts),
 	smsf_member_add_total_additions(Member, Bs)
+
+
+smsf_member_report_fact_to_role_mapping1(Member, [], []).
+
+smsf_member_report_fact_to_role_mapping1(Member, [Concept|Concepts], Facts) :-
+	Facts = [
+	[
+		account_role - $>atomic_list_concat(Concept, ' - Preserved/Taxable' / Member,
+		concept - smsf/member/Concept,
+		phase - 'Preserved',
+		taxability - 'Taxable',
+		member - Member
+	],
+	[
+		account_role - $>atomic_list_concat(Concept, ' - Preserved/Tax Free' / Member,
+		concept - smsf/member/Concept,
+		phase - 'Preserved',
+		taxability - 'Tax Free',
+		member - Member
+	],
+	[
+		account_role - $>atomic_list_concat(Concept, ' - Unrestricted Non Preserved/Taxable' / Member,
+		concept - smsf/member/Concept,
+		phase - 'Unrestricted Non Preserved',
+		taxability - 'Taxable',
+		member - Member
+	],
+	[
+		account_role - $>atomic_list_concat(Concept, ' - Unrestricted Non Preserved/Tax Free' / Member,
+		concept - smsf/member/Concept,
+		phase - 'Unrestricted Non Preserved',
+		taxability - 'Tax Free',
+		member - Member
+	],
+	[
+		account_role - $>atomic_list_concat(Concept, ' - Restricted Non Preserved/Taxable' / Member,
+		concept - smsf/member/Concept,
+		phase - 'Restricted Non Preserved',
+		taxability - 'Taxable',
+		member - Member
+	],
+	[
+		account_role - $>atomic_list_concat(Concept, ' - Restricted Non Preserved/Tax Free' / Member,
+		concept - smsf/member/Concept,
+		phase - 'Restricted Non Preserved',
+		taxability - 'Tax Free',
+		member - Member
+	]
+	| Facts_tail],
+	smsf_member_report_fact_to_role_mapping1(Member, Concepts, Facts_tail).
+
 
 
 smsf_member_add_total_additions(Member, Phase) :-
@@ -200,17 +243,6 @@ smsf_member_add_total_additions2(Member, Phase, Concept) :-
 		member - Member
 	]).
 
-add_sum_report_entry(Bs, Roles, New_fact_aspects) :-
-	maplist(report_entry_value_by_role(Bs), Roles, Vecs),
-	vec_sum(Vecs, Sum),
-	make_fact(Vec, New_fact_aspects, _).
-
-report_entry_vec_by_role(Bs, Role, Vec) :-
-	!abrlt(Role, Account),
-	!accounts_report_entry_by_account_id(Bs, Account, Entry),
-	!report_entry_total_vec(Entry, Vec).
-
-
 
 concept('total additions'),
 concept('opening balance + additions'),
@@ -219,7 +251,4 @@ concept('total'),
 
 
 
-
-add_smsf_member_report_entry(Bs, x(Role, Aspects)) :-
-	report_entry_by_account_role(Bs, Role, Bs_entry)
 

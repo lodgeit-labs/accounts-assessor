@@ -62,7 +62,7 @@
 				<account name="Transfers In - Restricted Non Preserved/Taxable"/>
 				<account name="Transfers In - Restricted Non Preserved/Tax Free"/>
 				<account name="Pensions Paid - Preserved/Taxable"/>
-				<account name="Pensions Paid - Preserved/Taxfree"/>
+				<account name="Pensions Paid - Preserved/Tax Free"/>
 				<account name="Pensions Paid - Unrestricted Non Preserved/Taxable"/>
 				<account name="Pensions Paid - Unrestricted Non Preserved/Tax Free"/>
 				<account name="Pensions Paid - Restricted Non Preserved/Taxable"/>
