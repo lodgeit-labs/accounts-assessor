@@ -171,20 +171,33 @@ add_smsf_member_report_facts(Member) :-
 	smsf_member_add_total_additions(Member, Bs)
 
 
-smsf_member_add_total_additions(Member) :-
-	Roles =
-		['Member/Personal Contributions - Concessional'/Member,
-		'Member/Personal Contributions - Non Concessional'/Member,
-		'Member/Other Contributions'/Member,
-		'Govt Co-Contributions'/Member,
-		'Employer Contributions - Concessional'/Member,
-		'Proceeds of Insurance Policies'/Member,
-		'Share of Profit/(Loss)'/Member,
-		'Internal Transfers In/Member'/Member],
-	add_sum_report_entry(Bs, Roles,
+smsf_member_add_total_additions(Member, Phase) :-
+	Concepts =
+	[
+		smsf/member/'Member/Personal Contributions - Concessional',
+		smsf/member/'Member/Personal Contributions - Non Concessional'
+		smsf/member/'Member/Other Contributions'
+		smsf/member/'Govt Co-Contributions'
+		smsf/member/'Employer Contributions - Concessional'
+		smsf/member/'Proceeds of Insurance Policies'
+		smsf/member/'Share of Profit/(Loss)'
+		smsf/member/'Internal Transfers In/Member'
+	],
+	maplist(smsf_member_add_total_additions2(Member, Phase), Concepts).
+
+smsf_member_add_total_additions2(Member, Phase, Concept) :-
+	facts_by_aspects(
+	[
+		concept - Concept,
+		phase - Phase,
+		member - Member
+	], Facts),
+	facts_vec_sum(Facts, Vec),
+	make_fact(Vec,
 	[
 		concept - smsf/member/'total additions',
-
+		phase - Phase
+		member - Member
 	]).
 
 add_sum_report_entry(Bs, Roles, New_fact_aspects) :-
