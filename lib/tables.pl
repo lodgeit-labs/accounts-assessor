@@ -212,6 +212,12 @@ format_cell(exchange_rate(Date, Src, Dst, Rate), _, Output) :-
 format_cell(Other, _, Other) :-
 	atom(Other),!.
 
+format_cell(Other, _, Other) :-
+	Other = hr([]),!.
+
+format_cell(text(X), _, X) :-
+	!.
+
 format_cell(Other, _, Str) :-
 	term_string(Other, Str).
 

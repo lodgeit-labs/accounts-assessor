@@ -25,7 +25,7 @@ facts_by_aspects(aspects(Aspects), Facts) :-
 		(
 			doc(Uri, rdf:type, l:fact),
 			doc(Uri, l:aspects, aspects(Aspects2)),
-			maplist(find_aspect, Aspects2, Aspects)
+			maplist(find_aspect(Aspects2), Aspects)
 		),
 		Facts).
 
@@ -81,11 +81,15 @@ evaluate_fact_table3(Row_in, Row_out) :-
 evaluate_fact(X, X) :-
 	X = hr([]) ; X = text(_).
 
-evaluate_fact(In, text(Out)) :-
+evaluate_fact(In, Values) :-
 	In = aspects(_),
 	facts_by_aspects(In, Facts),
 	facts_vec_sum(Facts, Sum),
-	format_balances(html, $>request_has_property(l:report_currency), none, none, kb:debit, Sum, Out).
+	%format_balances(html, $>request_has_property(l:report_currency), none, none, kb:debit, Sum, Out).
+	maplist(coord_normal_side_value2(kb:debit), Sum, Values).
+
+coord_normal_side_value2(Side, In, Out) :-
+	coord_normal_side_value(In, Side, Out).
 
 facts_vec_sum(Facts, Sum) :-
 	maplist(fact_vec, Facts, Vecs),
