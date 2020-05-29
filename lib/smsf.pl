@@ -124,131 +124,163 @@ sheet_and_cell_string(Value, Str) :-
 
 
 /*
-
-
 xxx(Role) :-
 	abrlt(Role)
 	make_report_entry(Name, Children, Uri),
-
-
 rows_by_aspect(concept
-
 columns(['Your Detailed Account', 'Preserved', 'Restricted Non Preserved', 'Unrestricted Non Preserved', 'Total']),
-
 */
 
 
-smsf_member_reports :-
+smsf_member_reports(Bs) :-
 	!smsf_members_throw(Members),
-	maplist(!smsf_member_report, Members).
+	!maplist(!smsf_member_report(Bs), Members).
 
- smsf_member_report(Member_uri) :-
+ smsf_member_report(Bs, Member_uri) :-
 	!doc_value(Member_uri, smsf:member_name, Member_Name_str),
-	atom_string(Member, Member_Name_str),
-	smsf_member_report_presentation(Pres),
-	add_aspect(member - Member, Pres, Pres3),
-	add_smsf_member_report_facts(Member,
-	evaluate_fact_table(Pres3, Tbl),
+	!atom_string(Member, Member_Name_str),
+	!smsf_member_report_presentation(Pres),
+	!add_aspect(member - Member, Pres, Pres3),
+	!add_smsf_member_report_facts(Bs, Member),
+	!evaluate_fact_table(Pres3, Tbl),
 	Header = ['Your Detailed Account','Preserved','Restricted Non Preserved', 'Unrestricted Non Preserved', 'Total'],
+	writeq(Header, Tbl),
+	gtrace.
 
 
-add_smsf_member_report_facts(Member) :-
 
-	maplist(smsf_member_report_fact_to_role_mapping1(Member),
+add_smsf_member_report_facts(Bs, Member) :-
+
+	!maplist(smsf_member_report_fact_to_role_mapping1(Member),
 	[
-
-	]
+		'Opening Balance',
+		'Transfers In',
+		'Pensions Paid',
+		'Benefits Paid',
+		'Transfers Out',
+		'Life Insurance Premiums',
+		'Share of Profit/(Loss)',
+		'Income Tax',
+		'Contribution Tax',
+		'Internal Transfers In',
+		'Internal Transfers Out'
+	],
+	Account_roles_and_facts0),
+	!append(Account_roles_and_facts0,
+	[
+		aspects([
+			account_role - 'Employer Contributions - Concessional' / Member,
+			concept - smsf/member/'Employer Contributions - Concessional',
+			phase - 'Restricted Non Preserved',
+			taxability - 'Tax Free',
+			member - Member
+		]),
+		aspects([
+			account_role - 'Member/Personal Contributions - Concessional' / Member,
+			concept - smsf/member/'Member/Personal Contributions - Concessional',
+			phase - 'Restricted Non Preserved',
+			taxability - 'Tax Free',
+			member - Member
+		]),
+		aspects([
+			account_role - 'Member/Personal Contributions - Non Concessional' / Member,
+			concept - smsf/member/'Member/Personal Contributions - Non Concessional',
+			phase - 'Restricted Non Preserved',
+			taxability - 'Tax Free',
+			member - Member
+		]),
+		aspects([
+			account_role - 'Other Contributions' / Member,
+			concept - smsf/member/'Other Contributions',
+			phase - 'Restricted Non Preserved',
+			taxability - 'Tax Free',
+			member - Member
+		])
+	],
 	Account_roles_and_facts),
-	maplist(add_fact_by_account_role(Bs), Account_roles_and_facts),
-	smsf_member_add_total_additions(Member, Bs)
-
-
-smsf_member_report_fact_to_role_mapping1(Member, [], []).
-
-smsf_member_report_fact_to_role_mapping1(Member, [Concept|Concepts], Facts) :-
-	Facts = [
-	[
-		account_role - $>atomic_list_concat(Concept, ' - Preserved/Taxable' / Member,
-		concept - smsf/member/Concept,
-		phase - 'Preserved',
-		taxability - 'Taxable',
-		member - Member
-	],
-	[
-		account_role - $>atomic_list_concat(Concept, ' - Preserved/Tax Free' / Member,
-		concept - smsf/member/Concept,
-		phase - 'Preserved',
-		taxability - 'Tax Free',
-		member - Member
-	],
-	[
-		account_role - $>atomic_list_concat(Concept, ' - Unrestricted Non Preserved/Taxable' / Member,
-		concept - smsf/member/Concept,
-		phase - 'Unrestricted Non Preserved',
-		taxability - 'Taxable',
-		member - Member
-	],
-	[
-		account_role - $>atomic_list_concat(Concept, ' - Unrestricted Non Preserved/Tax Free' / Member,
-		concept - smsf/member/Concept,
-		phase - 'Unrestricted Non Preserved',
-		taxability - 'Tax Free',
-		member - Member
-	],
-	[
-		account_role - $>atomic_list_concat(Concept, ' - Restricted Non Preserved/Taxable' / Member,
-		concept - smsf/member/Concept,
-		phase - 'Restricted Non Preserved',
-		taxability - 'Taxable',
-		member - Member
-	],
-	[
-		account_role - $>atomic_list_concat(Concept, ' - Restricted Non Preserved/Tax Free' / Member,
-		concept - smsf/member/Concept,
-		phase - 'Restricted Non Preserved',
-		taxability - 'Tax Free',
-		member - Member
-	]
-	| Facts_tail],
-	smsf_member_report_fact_to_role_mapping1(Member, Concepts, Facts_tail).
-
-
+	!maplist(add_fact_by_account_role(Bs), Account_roles_and_facts),
+	!maplist(smsf_member_add_total_additions(Member), ['Preserved', 'Unrestricted Non Preserved', 'Restricted Non Preserved']).
 
 smsf_member_add_total_additions(Member, Phase) :-
 	Concepts =
 	[
 		smsf/member/'Member/Personal Contributions - Concessional',
-		smsf/member/'Member/Personal Contributions - Non Concessional'
-		smsf/member/'Member/Other Contributions'
-		smsf/member/'Govt Co-Contributions'
-		smsf/member/'Employer Contributions - Concessional'
-		smsf/member/'Proceeds of Insurance Policies'
-		smsf/member/'Share of Profit/(Loss)'
+		smsf/member/'Member/Personal Contributions - Non Concessional',
+		smsf/member/'Member/Other Contributions',
+		smsf/member/'Govt Co-Contributions',
+		smsf/member/'Employer Contributions - Concessional',
+		smsf/member/'Proceeds of Insurance Policies',
+		smsf/member/'Share of Profit/(Loss)',
 		smsf/member/'Internal Transfers In/Member'
 	],
-	maplist(smsf_member_add_total_additions2(Member, Phase), Concepts).
+	!maplist(smsf_member_add_total_additions2(Member, Phase), Concepts, Facts),
+	!facts_vec_sum(Facts, Vec),
+	!make_fact(Vec,
+		aspects([
+			concept - smsf/member/'total additions',
+			phase - Phase,
+			member - Member
+		]),_).
 
-smsf_member_add_total_additions2(Member, Phase, Concept) :-
-	facts_by_aspects(
-	[
-		concept - Concept,
-		phase - Phase,
+smsf_member_add_total_additions2(Member, Phase, Concept, Facts) :-
+	!facts_by_aspects(
+		aspects([
+			concept - Concept,
+			phase - Phase,
+			member - Member
+		]), Facts).
+
+/*'opening balance + additions'
+'total subtractions'
+'total'*/
+
+
+smsf_member_report_fact_to_role_mapping1(_, [], []).
+
+smsf_member_report_fact_to_role_mapping1(Member, [Concept|Concepts], Facts) :-
+	Facts = [
+	aspects([
+		account_role - ($>atomic_list_concat([Concept, ' - Preserved/Taxable'])) / Member,
+		concept - smsf/member/Concept,
+		phase - 'Preserved',
+		taxability - 'Taxable',
 		member - Member
-	], Facts),
-	facts_vec_sum(Facts, Vec),
-	make_fact(Vec,
+	])/*,
 	[
-		concept - smsf/member/'total additions',
-		phase - Phase
+		account_role - $>atomic_list_concat(Concept, ' - Preserved/Tax Free') / Member,
+		concept - smsf/member/Concept,
+		phase - 'Preserved',
+		taxability - 'Tax Free',
 		member - Member
-	]).
-
-
-concept('total additions'),
-concept('opening balance + additions'),
-concept('total subtractions'),
-concept('total'),
-
-
-
+	],
+	[
+		account_role - $>atomic_list_concat(Concept, ' - Unrestricted Non Preserved/Taxable') / Member,
+		concept - smsf/member/Concept,
+		phase - 'Unrestricted Non Preserved',
+		taxability - 'Taxable',
+		member - Member
+	],
+	[
+		account_role - $>atomic_list_concat(Concept, ' - Unrestricted Non Preserved/Tax Free') / Member,
+		concept - smsf/member/Concept,
+		phase - 'Unrestricted Non Preserved',
+		taxability - 'Tax Free',
+		member - Member
+	],
+	[
+		account_role - $>atomic_list_concat(Concept, ' - Restricted Non Preserved/Taxable') / Member,
+		concept - smsf/member/Concept,
+		phase - 'Restricted Non Preserved',
+		taxability - 'Taxable',
+		member - Member
+	],
+	[
+		account_role - $>atomic_list_concat(Concept, ' - Restricted Non Preserved/Tax Free') / Member,
+		concept - smsf/member/Concept,
+		phase - 'Restricted Non Preserved',
+		taxability - 'Tax Free',
+		member - Member
+	]*/
+	| Facts_tail],
+	!smsf_member_report_fact_to_role_mapping1(Member, Concepts, Facts_tail).
 

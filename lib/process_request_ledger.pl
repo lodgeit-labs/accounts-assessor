@@ -134,6 +134,9 @@ static_data_historical(Static_Data, Static_Data_Historical) :-
 	!report_entry_tree_html_page(Static_Data, ProfitAndLoss, 'profit and loss', 'profit_and_loss.html'),
 	!report_entry_tree_html_page(Static_Data_Historical, ProfitAndLoss2_Historical, 'profit and loss - historical', 'profit_and_loss_historical.html'),
 	!cf_page(Static_Data, Cf),
+	(	account_by_role(rl(smsf_equity), _)
+	->	smsf_member_reports(Balance_Sheet)
+	;	true),
 	!make_json_report(Static_Data.gl, general_ledger_json),
 	!make_gl_viewer_report,
 

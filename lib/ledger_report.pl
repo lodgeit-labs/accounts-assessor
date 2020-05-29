@@ -39,6 +39,13 @@ report_entry_normal_side(Entry, X) :-
 report_entry_transaction_count(Entry, X) :-
 	doc(Entry, report_entries:transaction_count, X).
 
+report_entry_vec_by_role(Bs, Role, Vec) :-
+	!abrlt(Role, Account),
+	!accounts_report_entry_by_account_id(Bs, Account, Entry),
+	!report_entry_total_vec(Entry, Vec).
+
+
+
 
 % -------------------------------------------------------------------
 % The purpose of the following program is to derive the summary information of a ledger.

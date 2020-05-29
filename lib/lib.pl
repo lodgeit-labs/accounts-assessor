@@ -35,6 +35,7 @@
 :- [exchange].
 :- [exchange_rates].
 :- [extract_bank_accounts].
+:- [facts].
 :- [fetch_file].
 :- [german_bank_csv].
 :- [gl_export].
@@ -61,6 +62,7 @@
 :- [residency].
 :- [s_transaction].
 :- [smsf].
+:- [smsf_member_report_presentation].
 :- [system_accounts].
 :- [tables].
 :- [trading].

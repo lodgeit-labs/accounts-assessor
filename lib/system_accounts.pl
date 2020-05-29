@@ -9,34 +9,36 @@
 
 % could be also called from make_account or account_set_role. the goal is that all code paths that construct roles will go through this.
 % probably the semantics should be such that it can be skipped for optimization.
+% in the end, we have roles that are constructed from account names, so any atom is a valid role. This hinders checking.
 
 
-is_valid_role('Banks').
-is_valid_role('Banks'/Id) :- freeze(Id, atom(Id)).
+is_valid_role('Banks') :- !.
+is_valid_role('Banks'/Id) :- !,freeze(Id, atom(Id)).
 
-is_valid_role('TradingAccounts'/Trading_Account_Id) :-
+is_valid_role('TradingAccounts'/Trading_Account_Id) :- !,
 	freeze(Trading_Account_Id, atom(Trading_Account_Id)).
-is_valid_role('TradingAccounts'/_1387496/unrealized).
-is_valid_role('TradingAccounts'/_1387572/realized).
-is_valid_role('TradingAccounts'/_1387080/realized/withoutCurrencyMovement).
-is_valid_role('TradingAccounts'/_1387168/realized/onlyCurrencyMovement).
-is_valid_role('TradingAccounts'/_1387256/unrealized/withoutCurrencyMovement).
-is_valid_role('TradingAccounts'/_1387344/unrealized/onlyCurrencyMovement).
+is_valid_role('TradingAccounts'/_1387496/unrealized) :- !.
+is_valid_role('TradingAccounts'/_1387572/realized) :- !.
+is_valid_role('TradingAccounts'/_1387080/realized/withoutCurrencyMovement) :- !.
+is_valid_role('TradingAccounts'/_1387168/realized/onlyCurrencyMovement) :- !.
+is_valid_role('TradingAccounts'/_1387256/unrealized/withoutCurrencyMovement) :- !.
+is_valid_role('TradingAccounts'/_1387344/unrealized/onlyCurrencyMovement) :- !.
 is_valid_role('TradingAccounts'/Trading_Account_Id/Realized_Or_Unrealized/Currency_Movement_Aspect/Traded_Unit) :-
+	!,
 	freeze(Id, atom(Trading_Account_Id)),
 	member(Realized_Or_Unrealized, [realized, unrealized]),
 	member(Currency_Movement_Aspect, [onlyCurrencyMovement, withoutCurrencyMovement]),
 	freeze(Id, atom(Traded_Unit)).
 
-is_valid_role('ComprehensiveIncome').
-is_valid_role('HistoricalEarnings').
-is_valid_role('CurrentEarnings').
-is_valid_role('NetAssets').
-is_valid_role('Equity').
-is_valid_role('CurrencyMovement').
-is_valid_role('CurrencyMovement'/Id) :- freeze(Id, atom(Id)).
-is_valid_role('CashAndCashEquivalents').
-is_valid_role('FinancialInvestments'/Id) :- freeze(Id, atom(Id)).
+is_valid_role('ComprehensiveIncome') :- !.
+is_valid_role('HistoricalEarnings') :- !.
+is_valid_role('CurrentEarnings') :- !.
+is_valid_role('NetAssets') :- !.
+is_valid_role('Equity') :- !.
+is_valid_role('CurrencyMovement') :- !.
+is_valid_role('CurrencyMovement'/Id) :- !, freeze(Id, atom(Id)).
+is_valid_role('CashAndCashEquivalents') :- !.
+is_valid_role('FinancialInvestments'/Id) :- !, freeze(Id, atom(Id)).
 
 /*
 ┏┳┓╻┏━┓┏━╸
@@ -56,8 +58,7 @@ is_valid_role('FinancialInvestments'/Id) :- freeze(Id, atom(Id)).
 
 	!(	is_valid_role(Role)
 	->	true
-	;	format(user_error, '~q.~n', [is_valid_role(Role)])
-	),
+	;	true/*format(user_error, '~q.~n', [is_valid_role(Role)])*/),
 
 	account_by_role_throw(rl(Role), Account).
 
