@@ -137,10 +137,10 @@ smsf_member_reports(Bs) :-
 	maplist(smsf_member_report_row_to_dict, Tbl, Rows),
 	Columns = [
 		column{id:label, title:"Your Detailed Account", options:_{}},
-		column{id:'Preserved', title:"Preserved", options:_{}},
-		column{id:'Restricted Non Preserved', title:"Restricted Non Preserved", options:_{}},
-		column{id:'Unrestricted Non Preserved', title:"Unrestricted Non Preserved", options:_{}},
-		column{id:'Total', title:"Total", options:_{}}],
+		column{id:'Preserved', title:"Preserved", options:_{implicit_report_currency:true}},
+		column{id:'Restricted Non Preserved', title:"Restricted Non Preserved", options:_{implicit_report_currency:true}},
+		column{id:'Unrestricted Non Preserved', title:"Unrestricted Non Preserved", options:_{implicit_report_currency:true}},
+		column{id:'Total', title:"Total", options:_{implicit_report_currency:true}}],
 	Tbl_dict = table{title:Member_Name_str, columns:Columns, rows:Rows},
 	table_html(Tbl_dict, Tbl_html),
 	add_report_page_with_table(0, Member_Name_str, Tbl_html, loc(file_name, $>atomic_list_concat([$>replace_nonalphanum_chars_with_underscore(Member_Name_str), '.html'])), 'smsf_member_report').
@@ -213,8 +213,21 @@ add_smsf_member_report_facts(Bs, Member) :-
 		])
 	],
 	Aspects2),
+	Phases = ['Preserved', 'Unrestricted Non Preserved', 'Restricted Non Preserved'],
 	!maplist(add_fact_by_account_role(Bs), Aspects2),
-	!maplist(smsf_member_add_total_additions(Member), ['Preserved', 'Unrestricted Non Preserved', 'Restricted Non Preserved']).
+	!maplist(smsf_member_add_total_additions(Member), Phases),
+	!maplist(smsf_member_add_ob_plus_additions(Member), Phases).
+
+smsf_member_add_ob_plus_additions(Member, Phase) :-
+	!facts_vec_sum($>smsf_member_facts_by_aspects(Member, Phase, smsf/member/'Opening Balance'), Vec1),
+	!facts_vec_sum($>smsf_member_facts_by_aspects(Member, Phase, smsf/member/'total additions'), Vec2),
+	vec_sum([Vec1, Vec2], Vec),
+	!make_fact(Vec,
+		aspects([
+			concept - smsf/member/'opening balance + additions',
+			phase - Phase,
+			member - Member
+		]),_).
 
 smsf_member_add_total_additions(Member, Phase) :-
 	Concepts =
@@ -229,7 +242,7 @@ smsf_member_add_total_additions(Member, Phase) :-
 		smsf/member/'Internal Transfers In',
 		smsf/member/'Transfers In'
 	],
-	!maplist(smsf_member_add_total_additions2(Member, Phase), Concepts, Facts0),
+	!maplist(smsf_member_facts_by_aspects(Member, Phase), Concepts, Facts0),
 	flatten(Facts0, Facts),
 	!facts_vec_sum(Facts, Vec),
 	!make_fact(Vec,
@@ -239,7 +252,7 @@ smsf_member_add_total_additions(Member, Phase) :-
 			member - Member
 		]),_).
 
-smsf_member_add_total_additions2(Member, Phase, Concept, Facts) :-
+smsf_member_facts_by_aspects(Member, Phase, Concept, Facts) :-
 	!facts_by_aspects(
 		aspects([
 			concept - Concept,

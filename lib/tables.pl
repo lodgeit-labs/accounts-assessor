@@ -195,14 +195,13 @@ format_cell([X|Xs], Options, [Output1, Output2]) :-
 	!.
 	
 format_cell(value(Unit, Value), Options, Output) :-
-	(
-		Precision = Options.get(precision)
-	->
-		true
-	;
-		Precision = 2
-	),
-	format_money2(_, Precision, value(Unit, Value), Output),
+	(	Precision = Options.get(precision)
+	->	true
+	;	Precision = 2),
+	(	true = Options.get(implicit_report_currency)
+	->	!request_has_property(l:report_currency, Optional_Implicit_Unit)
+	;	Optional_Implicit_Unit = []),
+	format_money2(Optional_Implicit_Unit, Precision, value(Unit, Value), Output),
 	!.
 
 format_cell(exchange_rate(Date, Src, Dst, Rate), _, Output) :-
@@ -221,14 +220,7 @@ format_cell(text(X), _, X) :-
 format_cell(Other, _, Str) :-
 	term_string(Other, Str).
 
-
-format_money_precise(Optional_Implicit_Unit, In, Out) :-
-	format_money2(Optional_Implicit_Unit, 6, In, Out).
-	
-format_money(Optional_Implicit_Unit, In, Out) :-
-	format_money2(Optional_Implicit_Unit, 2, In, Out).
-
-format_money2(_Optional_Implicit_Unit, Precision, In, Out) :-
+format_money2(Optional_Implicit_Unit, Precision, In, Out) :-
 	(
 		In = ''
 	->
@@ -245,7 +237,7 @@ format_money2(_Optional_Implicit_Unit, Precision, In, Out) :-
 			)
 		),
 		(
-			false%member(Unit1, Optional_Implicit_Unit)
+			member(Unit1, Optional_Implicit_Unit)
 		->
 			Unit2 = ''
 		;

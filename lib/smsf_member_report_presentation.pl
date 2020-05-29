@@ -26,21 +26,19 @@ smsf_member_report_presentation(Presentation) :-
 		[text('Less: Decreases to Member\'s Account During the Period'), text('')],
 		[text('Benefits Paid'),                                          concept('Benefits Paid')],
 		[text('Pensions Paid'),                                          concept('Pensions Paid')],
-		[text('Contributions Tax'),                                      concept('Contribution Tax')],
+		[text('Contribution Tax'),                                       concept('Contribution Tax')],
 		[text('Income Tax'),                                             concept('Income Tax')],
-		/* missing */
+		/*
 		[text('No TFN Excess Contributions Tax'),                        concept('No TFN Excess Contributions Tax')],
-		/* missing */
 		[text('Division 293 Tax'),                                       concept('Division 293 Tax')],
-		/* missing */
 		[text('Excess Contributions Tax'),                               concept('Excess Contributions Tax')],
-		/* missing */
 		[text('Refund Excess Contributions'),                            concept('Refund Excess Contributions')],
+		*/
 		[text('Insurance Policy Premiums Paid'),                         concept('Life Insurance Premiums')],
-		/* missing */
+		/*
 		[text('Management Fees'),                                        concept('Management Fees')],
-		/* missing */
 		[text('Share of fund expenses'),                                 concept('Share of fund expenses')],
+		*/
 		[text('Internal Transfers Out'),                                 concept('Internal Transfers Out')],
 		[text('Transfers Out'),                                          concept('Transfers Out')],
 		[text(''),                                                       text('')],

@@ -86,7 +86,7 @@ evaluate_fact(In, Values) :-
 	facts_by_aspects(In, Facts),
 	facts_vec_sum(Facts, Sum),
 	%format_balances(html, $>request_has_property(l:report_currency), none, none, kb:debit, Sum, Out).
-	maplist(coord_normal_side_value2(kb:debit), Sum, Values).
+	maplist(coord_normal_side_value2(kb:credit), Sum, Values).
 
 coord_normal_side_value2(Side, In, Out) :-
 	coord_normal_side_value(In, Side, Out).
