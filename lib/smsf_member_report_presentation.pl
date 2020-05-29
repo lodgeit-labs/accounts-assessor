@@ -8,7 +8,7 @@ smsf_member_report_presentation(Presentation) :-
 	Tbl1 = [
 		[text(Opening_balance_label),
 			aspects([
-				concept - smsf/member/gl/'Opening Balance',])],
+				concept - smsf/member/gl/'Opening Balance'])],
 
 		[text('Add: Increases to Member\'s Account During the Period'),
 			text('')],

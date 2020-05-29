@@ -1,7 +1,7 @@
 
 
 add_smsf_member_details_report_facts(Bs, Member) :-
-	!smsf_member_details_report_aspectses(Bs, Member, Aspectses),
+	!smsf_member_details_report_aspectses(Member, Aspectses),
 	/* Aspectses now contains one aspects term for each gl account of Member in smsf equity members section. */
 	/* for each Aspectses member, get gl balance of account_role and assert a fact with vector. */
 	!maplist(add_fact_by_account_role(Bs), Aspectses),
@@ -19,7 +19,7 @@ produce all aspectses to look up in GL and assert
 
 */
 
-smsf_member_details_report_aspectses(Bs, Member, Aspectses), :-
+smsf_member_details_report_aspectses(Member, Aspectses) :-
 	!maplist(!smsf_member_details_report_aspectses3(Member),
 	[
 		x('Opening Balance', []),
@@ -32,7 +32,7 @@ smsf_member_details_report_aspectses(Bs, Member, Aspectses), :-
 		x('Income Tax', [effect - subtraction]),
 		x('Contribution Tax', [effect - subtraction]),
 		x('Internal Transfers In', [effect - addition]),
-		x('Internal Transfers Out' [effect - subtraction]),
+		x('Internal Transfers Out', [effect - subtraction])
 	],
 	Aspectses0),
 	smsf_member_details_report_aspectses6(Member, Aspectses1),
@@ -84,8 +84,8 @@ smsf_member_details_report_aspectses3(Member, x(Concept, Additional_aspects), Fa
 			phase - 'Restricted Non Preserved',
 			taxability - 'Tax Free',
 			member - Member
-		], Additional_aspects)),
-	].
+		], Additional_aspects))
+	]).
 
 
 smsf_member_details_report_aspectses6(Member, Aspectses) :-
@@ -144,7 +144,7 @@ smsf_member_report_add_total_additions(Member, Phase) :-
 			phase - Phase,
 			member - Member,
 			effect - addition
-		]), Facts).
+		]), Facts),
 	!facts_vec_sum(Facts, Vec),
 	!make_fact(Vec,
 		aspects([
@@ -160,7 +160,7 @@ smsf_member_report_add_total_subtractions(Member, Phase) :-
 			phase - Phase,
 			member - Member,
 			effect - subtraction
-		]), Facts).
+		]), Facts),
 	!facts_vec_sum(Facts, Vec),
 	!make_fact(Vec,
 		aspects([

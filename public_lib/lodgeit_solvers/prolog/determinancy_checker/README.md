@@ -18,3 +18,7 @@ have zero or more solutions,
 
 ### alternatives: 
 	rdet: uses goal expansion, which is imo pretty broken. see docs/rdet.txt . Main difference between rdet and this is that with rdet, you declare determinancy of a predicate, while with this, you declare determinancy of a call.
+	downsides of determinancy_checker:
+		swipl doesn't warn you at compile time that a predicate you are calling somewhere doesn't exist, because !xxx is a call to '!', with xxx just as a parameter.
+		Having to step through the checker code.
+		
