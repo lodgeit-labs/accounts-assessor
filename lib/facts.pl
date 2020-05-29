@@ -56,12 +56,12 @@ input: 2d matrix of aspect terms and other stuff.
 extend aspect terms with additional aspect
 */
 
-add_aspect(Aspect, In, Out) :-
-	!maplist(add_aspect2(Aspect), In, Out).
-add_aspect2(Aspect, In, Out) :-
-	!maplist(add_aspect3(Aspect), In, Out).
-add_aspect3(_, X, X) :-
-	X = text(_) ; X = hr([]).
+add_aspect_to_table(Aspect, In, Out) :-
+	!maplist(add_aspect_to_row(Aspect), In, Out).
+add_aspect_to_row(Aspect, In, Out) :-
+	!maplist(add_aspect(Aspect), In, Out).
+add_aspect(_, X, X) :-
+	X \= aspects(_).
 add_aspect3(Aspect, aspects(Aspects), aspects(Aspects2)) :-
 	append(Aspects, [Aspect], Aspects2).
 
@@ -84,6 +84,7 @@ evaluate_fact(X, X) :-
 evaluate_fact(In, Values) :-
 	In = aspects(_),
 	facts_by_aspects(In, Facts),
+	assertion(Facts \= []),
 	facts_vec_sum(Facts, Sum),
 	%format_balances(html, $>request_has_property(l:report_currency), none, none, kb:debit, Sum, Out).
 	maplist(coord_normal_side_value2(kb:credit), Sum, Values).
