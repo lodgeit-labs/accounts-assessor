@@ -122,16 +122,6 @@ sheet_and_cell_string(Value, Str) :-
 
 
 
-
-/*
-xxx(Role) :-
-	abrlt(Role)
-	make_report_entry(Name, Children, Uri),
-rows_by_aspect(concept
-columns(['Your Detailed Account', 'Preserved', 'Restricted Non Preserved', 'Unrestricted Non Preserved', 'Total']),
-*/
-
-
 smsf_member_reports(Bs) :-
 	!smsf_members_throw(Members),
 	!maplist(!smsf_member_report(Bs), Members).
@@ -144,7 +134,7 @@ smsf_member_reports(Bs) :-
 	%gtrace,
 	!add_smsf_member_report_facts(Bs, Member),
 	!evaluate_fact_table(Pres3, Tbl),
-	Rows
+	maplist(smsf_member_report_row_to_dict, Tbl, Rows),
 	Columns = [
 		column{id:label, title:"Your Detailed Account", options:_{}},
 		column{id:'Preserved', title:"Preserved", options:_{}},
@@ -152,9 +142,17 @@ smsf_member_reports(Bs) :-
 		column{id:'Unrestricted Non Preserved', title:"Unrestricted Non Preserved", options:_{}},
 		column{id:'Total', title:"Total", options:_{}}],
 	Tbl_dict = table{title:Member_Name_str, columns:Columns, rows:Rows},
-	add_report_page_with_table(0,Member_Name_str, Tbl_dict, loc(file_name,$>atomic_list_concat([Member_Name_str, '.html']), 'smsf_member_report').
+	table_html(Tbl_dict, Tbl_html),
+	add_report_page_with_table(0, Member_Name_str, Tbl_html, loc(file_name, $>atomic_list_concat([$>replace_nonalphanum_chars_with_underscore(Member_Name_str), '.html'])), 'smsf_member_report').
 
-
+smsf_member_report_row_to_dict(Row, Dict) :-
+	Row = [A,B,C,D,E],
+	Dict = row{
+		label:A,
+		'Preserved':B,
+		'Restricted Non Preserved':C,
+		'Unrestricted Non Preserved':D,
+		'Total':E}.
 
 add_smsf_member_report_facts(Bs, Member) :-
 

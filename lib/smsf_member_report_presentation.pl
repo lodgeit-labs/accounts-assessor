@@ -1,6 +1,6 @@
 smsf_member_report_presentation(Presentation) :-
 
-	format(string(Opening_balance_label), 'Opening Balance at ~q', [$>request_has_property(l:end_date)]),
+	format(string(Opening_balance_label), 'Opening Balance at ~w', [$>format_date($>request_has_property(l:end_date))]),
 
 	Phase_dimension = dimension(phase, ['Preserved','Restricted Non Preserved', 'Unrestricted Non Preserved']),
 
@@ -18,9 +18,9 @@ smsf_member_report_presentation(Presentation) :-
 		[text('Share of Net Income/(Loss) for period'),                  concept('Share of Profit/(Loss)')],
 		[text('Internal Transfers In'),                                  concept('Internal Transfers In')],
 		[text('Transfers In'),                                           concept('Transfers In')],
-		[text(''),                                                       hr],
+		[text(''),                                                       hr([])],
 		[text('total additions'),                                        concept('total additions')],
-		[text(''),                                                       hr],
+		[text(''),                                                       hr([])],
 		[text('opening balance + additions'),                            concept('opening balance + additions')],
 		[text(''),                                                       text('')],
 		[text('Less: Decreases to Member\'s Account During the Period'), text('')],
@@ -43,9 +43,9 @@ smsf_member_report_presentation(Presentation) :-
 		[text('Share of fund expenses'),                                 concept('Share of fund expenses')],
 		[text('Internal Transfers Out'),                                 concept('Internal Transfers Out')],
 		[text('Transfers Out'),                                          concept('Transfers Out')],
-		[text(''),                                                       hr],
+		[text(''),                                                       hr([])],
 		[text('total subtractions'),                                     concept('total subtractions')],
-		[text(''),                                                       hr],
+		[text(''),                                                       hr([])],
 		[text('total'),                                                  concept('total')]
 	],
 	!maplist(nth0(0), Tbl1, Labels),
@@ -73,5 +73,5 @@ columnize_by_dimension(dimension(Dim_name, [Point|Points_rest]), Cell, [Fact|Fac
 	!columnize_by_dimension(dimension(Dim_name, Points_rest), Cell, Facts_rest).
 
 columnize_by_dimension(dimension(Dim_name, [_|Points_rest]), Cell, [Cell|Facts_rest]) :-
-	(Cell = text(_);Cell = hr),
+	(Cell = text(_);Cell = hr([])),
 	!columnize_by_dimension(dimension(Dim_name, Points_rest), Cell, Facts_rest).

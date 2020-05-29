@@ -61,7 +61,7 @@ add_aspect(Aspect, In, Out) :-
 add_aspect2(Aspect, In, Out) :-
 	!maplist(add_aspect3(Aspect), In, Out).
 add_aspect3(_, X, X) :-
-	X = text(_) ; X = hr.
+	X = text(_) ; X = hr([]).
 add_aspect3(Aspect, aspects(Aspects), aspects(Aspects2)) :-
 	append(Aspects, [Aspect], Aspects2).
 
@@ -79,7 +79,7 @@ evaluate_fact_table3(Row_in, Row_out) :-
 	maplist(evaluate_fact, Row_in, Row_out).
 
 evaluate_fact(X, X) :-
-	X = hr ; X = text(_).
+	X = hr([]) ; X = text(_).
 
 evaluate_fact(In, text(Out)) :-
 	In = aspects(_),
