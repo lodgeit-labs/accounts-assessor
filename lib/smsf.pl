@@ -215,10 +215,12 @@ add_smsf_member_report_facts(Bs, Member) :-
 	Aspects2),
 	Phases = ['Preserved', 'Unrestricted Non Preserved', 'Restricted Non Preserved'],
 	!maplist(add_fact_by_account_role(Bs), Aspects2),
-	!maplist(smsf_member_add_total_additions(Member), Phases),
-	!maplist(smsf_member_add_ob_plus_additions(Member), Phases).
+	!maplist(smsf_member_report_add_total_additions(Member), Phases),
+	!maplist(smsf_member_report_add_ob_plus_additions(Member), Phases),
+	!maplist(smsf_member_report_add_total_subtractions(Member), Phases),
+	!maplist(smsf_member_report_add_total(Member), Phases).
 
-smsf_member_add_ob_plus_additions(Member, Phase) :-
+smsf_member_report_add_ob_plus_additions(Member, Phase) :-
 	!facts_vec_sum($>smsf_member_facts_by_aspects(Member, Phase, smsf/member/'Opening Balance'), Vec1),
 	!facts_vec_sum($>smsf_member_facts_by_aspects(Member, Phase, smsf/member/'total additions'), Vec2),
 	vec_sum([Vec1, Vec2], Vec),
@@ -229,7 +231,7 @@ smsf_member_add_ob_plus_additions(Member, Phase) :-
 			member - Member
 		]),_).
 
-smsf_member_add_total_additions(Member, Phase) :-
+smsf_member_report_add_total_additions(Member, Phase) :-
 	Concepts =
 	[
 		smsf/member/'Member/Personal Contributions - Concessional',
@@ -248,6 +250,42 @@ smsf_member_add_total_additions(Member, Phase) :-
 	!make_fact(Vec,
 		aspects([
 			concept - smsf/member/'total additions',
+			phase - Phase,
+			member - Member
+		]),_).
+
+smsf_member_report_add_total_subtractions(Member, Phase) :-
+	Concepts =
+	[
+		smsf/member/'Benefits Paid',
+		smsf/member/'Pensions Paid',
+		smsf/member/'Contribution Tax',
+		smsf/member/'Income Tax',
+		smsf/member/'Life Insurance Premiums',
+		smsf/member/'Internal Transfers Out',
+		smsf/member/'Transfers Out'
+	],
+	!maplist(smsf_member_facts_by_aspects(Member, Phase), Concepts, Facts0),
+	flatten(Facts0, Facts),
+	!facts_vec_sum(Facts, Vec),
+	!make_fact(Vec,
+		aspects([
+			concept - smsf/member/'total subtractions',
+			phase - Phase,
+			member - Member
+		]),_).
+
+smsf_member_report_add_total(Member, Phase) :-
+	!facts_by_aspects(
+		aspects([
+			account_role - _,
+			phase - Phase,
+			member - Member
+		]), Facts),
+	!facts_vec_sum(Facts, Vec),
+	!make_fact(Vec,
+		aspects([
+			concept - smsf/member/'total',
 			phase - Phase,
 			member - Member
 		]),_).

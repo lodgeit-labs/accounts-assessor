@@ -216,8 +216,9 @@ balance_sheet_entry(Static_Data, Account_Id, Entry) :-
 
 balance_sheet_entry2(Static_Data, Account_Id, Entry) :-
 	% find all direct children sheet entries
-	%(account_name(Account_Id, 'Equity') -> gtrace ; true),
+	% fixme:  If Key is unbound, all associations in Dict are returned on backtracking. The order in which the associations are returned is undefined. (in doc.pl)
 	account_direct_children(Account_Id, Child_Accounts),
+	%(account_name(Account_Id, 'Members') -> gtrace ; true),
 	maplist(!balance_sheet_entry2(Static_Data), Child_Accounts, Child_Entries),
 	% find child balances
 	maplist(!report_entry_total_vec,Child_Entries,Child_Balances),
