@@ -15,6 +15,9 @@ fact_vec(Uri, X) :-
 
 /*
 find all facts with matching aspects
+for a fact to match, it has to have all the aspects present in Aspects, and they have to unify.
+rest of aspects of the fact are ignored. All matching facts are returned. findall, unifications
+are not preserved.
 */
 facts_by_aspects(aspects(Aspects), Facts) :-
 	findall(
@@ -32,12 +35,13 @@ find_aspect(Hay, Needle) :-
 
 
 /*
-given account role and some aspects, assert a fact
+given account role, get balance from corresponding report_entry, and assert a fact (with given aspects)
 */
 
 add_fact_by_account_role(Bs, aspects(Aspects)) :-
 	!member(account_role - Role, Aspects),
 	!report_entry_vec_by_role(Bs, Role, Vec),
+	writeq(Vec),nl,
 	!make_fact(Vec, aspects(Aspects), _).
 
 add_sum_fact_from_report_entries_by_roles(Bs, Roles, New_fact_aspects) :-

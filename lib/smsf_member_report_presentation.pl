@@ -9,14 +9,17 @@ smsf_member_report_presentation(Presentation) :-
 		[text('Add: Increases to Member\'s Account During the Period'),  text('')],
 		[text('Concessional Contributions'),                             concept('Member/Personal Contributions - Concessional')],
 		[text('Non-Concessional Contributions'),                         concept('Member/Personal Contributions - Non Concessional')],
-		[text('Other Contributions'),                                    concept('Member/Other Contributions')],
+		[text('Other Contributions'),                                    concept('Other Contributions')],
+		/* missing */
 		[text('Govt Co-Contributions'),                                  concept('Govt Co-Contributions')],
 		[text('Employer Contributions - No TFN'),                        concept('Employer Contributions - Concessional')],
+		/* missing */
 		[text('Proceeds of Insurance Policies'),                         concept('Proceeds of Insurance Policies')],
 		[text('Share of Net Income/(Loss) for period'),                  concept('Share of Profit/(Loss)')],
-		[text('Transfers in and transfers from reserves'),               concept('Internal Transfers In')],
+		[text('Internal Transfers In'),                                  concept('Internal Transfers In')],
+		[text('Transfers In'),                                           concept('Transfers In')],
 		[text(''),                                                       hr],
-		[text(''total additions'),                                       concept('total additions')],
+		[text('total additions'),                                        concept('total additions')],
 		[text(''),                                                       hr],
 		[text('opening balance + additions'),                            concept('opening balance + additions')],
 		[text(''),                                                       text('')],
@@ -25,14 +28,21 @@ smsf_member_report_presentation(Presentation) :-
 		[text('Pensions Paid'),                                          concept('Pensions Paid')],
 		[text('Contributions Tax'),                                      concept('Contribution Tax')],
 		[text('Income Tax'),                                             concept('Income Tax')],
+		/* missing */
 		[text('No TFN Excess Contributions Tax'),                        concept('No TFN Excess Contributions Tax')],
+		/* missing */
 		[text('Division 293 Tax'),                                       concept('Division 293 Tax')],
+		/* missing */
 		[text('Excess Contributions Tax'),                               concept('Excess Contributions Tax')],
+		/* missing */
 		[text('Refund Excess Contributions'),                            concept('Refund Excess Contributions')],
 		[text('Insurance Policy Premiums Paid'),                         concept('Life Insurance Premiums')],
+		/* missing */
 		[text('Management Fees'),                                        concept('Management Fees')],
+		/* missing */
 		[text('Share of fund expenses'),                                 concept('Share of fund expenses')],
-		[text('Transfers out and transfers to reserves'),                concept('Internal Transfers Out')],
+		[text('Internal Transfers Out'),                                 concept('Internal Transfers Out')],
+		[text('Transfers Out'),                                          concept('Transfers Out')],
 		[text(''),                                                       hr],
 		[text('total subtractions'),                                     concept('total subtractions')],
 		[text(''),                                                       hr],
@@ -42,7 +52,6 @@ smsf_member_report_presentation(Presentation) :-
 	!maplist(nth0(1), Tbl1, Col1),
 	!maplist(!aspects_from_concept(smsf/member), Col1, Aspects1),
 	!maplist(!columnize_by_dimension(Phase_dimension), Aspects1, Phase_cols),
-	gtrace,
 	!maplist(smsf_member_report_presentation2, Labels, Phase_cols, Aspects1, Presentation).
 
 smsf_member_report_presentation2(Label, Phase_cols, Total, Row) :-

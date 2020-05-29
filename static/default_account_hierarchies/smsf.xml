@@ -68,7 +68,7 @@
 				<account name="Pensions Paid - Restricted Non Preserved/Taxable"/>
 				<account name="Pensions Paid - Restricted Non Preserved/Tax Free"/>
 				<account name="Benefits Paid - Preserved/Taxable"/>
-				<account name="Benefits Paid - Preserved/Taxfree"/>
+				<account name="Benefits Paid - Preserved/Tax Free"/>
 				<account name="Benefits Paid - Unrestricted Non Preserved/Taxable"/>
 				<account name="Benefits Paid - Unrestricted Non Preserved/Tax Free"/>
 				<account name="Benefits Paid - Restricted Non Preserved/Taxable"/>
