@@ -70,7 +70,7 @@ investment_report_2(Static_Data, Semantic_Json, Table_Json, Html, Title_Text) :-
 	flatten([Rows, Totals], Rows2),
 
 	Table_Json = _{title: Title_Text, rows: Rows2, columns: Columns},
-	table_html(Table_Json, Table_Html),
+	table_html([highlight_totals - true], Table_Json, Table_Html),
 	page_with_table_html(Title_Text, Table_Html, Html),
 
 	Semantic_Json = _{

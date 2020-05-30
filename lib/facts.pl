@@ -41,7 +41,7 @@ given account role, get balance from corresponding report_entry, and assert a fa
 add_fact_by_account_role(Bs, aspects(Aspects)) :-
 	!member(account_role - Role, Aspects),
 	!report_entry_vec_by_role(Bs, Role, Vec),
-	writeq(Vec),nl,
+	%writeq(Vec),nl,
 	!make_fact(Vec, aspects(Aspects), _).
 
 add_sum_fact_from_report_entries_by_roles(Bs, Roles, New_fact_aspects) :-

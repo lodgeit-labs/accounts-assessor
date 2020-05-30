@@ -12,9 +12,9 @@ smsf_member_reports(Bs) :-
 	!smsf_member_overview_report(Member_atom, Tbl1),
 	page_with_body(Member_Name_str, [
 		Member_Name_str, ':', p([]),
-		table([border="1"], $>table_html(Tbl1)),
+		table([border="1"], $>table_html([], Tbl1)),
 		p([]),
-		table([border="1"], $>table_html(Tbl2))
+		table([border="1"], $>table_html([highlight_totals - true], Tbl2))
 	], Html),
 	add_report_page(
 		0,

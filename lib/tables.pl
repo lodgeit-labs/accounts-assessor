@@ -2,12 +2,13 @@
   <abstract representation of a table> to <html something>
 */
 table_html(
+	Options,
 	Table, 
 	/*[div([span([Table.title, ':']), HTML_Table])]*/
 	HTML_Table
 ) :-
 	format_table(Table, Formatted_Table),
-	table_contents_to_html(Formatted_Table, HTML_Table).
+	table_contents_to_html(Options, Formatted_Table, HTML_Table).
 
 /*
   this one converts the actual tabular data in the report to an
@@ -17,13 +18,15 @@ table_html(
   
 */
 table_contents_to_html(
+	Options,
 	table{title:_, columns: Columns, rows: Rows},
-	[HTML_Header | HTML_Rows_Highlighted]
-	/*table([border="1"],[HTML_Header | HTML_Rows])*/
+	[HTML_Header | HTML_Rows]
 ) :-
 	header_html(Columns, HTML_Header),
-	rows_to_html(Columns, Rows, HTML_Rows),
-	highlight_totals(HTML_Rows,HTML_Rows_Highlighted).
+	rows_to_html(Columns, Rows, HTML_Rows0),
+	(	member(highlight_totals - true, Options)
+	->	highlight_totals(HTML_Rows0,HTML_Rows)
+	;	HTML_Rows0 = HTML_Rows).
 
 rows_to_html(Columns, Rows, Html3) :-
 	maplist(row_to_html(Columns), Rows, Html1),
