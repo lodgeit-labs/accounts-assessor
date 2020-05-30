@@ -64,6 +64,7 @@
 :- [smsf].
 :- [smsf_facts].
 :- [smsf_member_reports].
+:- [smsf_member_report_checks].
 :- [smsf_member_report_presentation].
 :- [system_accounts].
 :- [tables].

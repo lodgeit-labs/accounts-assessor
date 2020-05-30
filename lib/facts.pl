@@ -79,9 +79,9 @@ evaluate_fact_table3(Row_in, Row_out) :-
 	maplist(evaluate_fact, Row_in, Row_out).
 
 evaluate_fact(X, X) :-
-	X = hr([]) ; X = text(_).
+	X \= aspects(_).
 
-evaluate_fact(In, Values) :-
+evaluate_fact(In, with_metadata(Values,In)) :-
 	In = aspects(_),
 	facts_by_aspects(In, Facts),
 	/*(	Facts \= []

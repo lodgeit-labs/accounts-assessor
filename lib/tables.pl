@@ -131,7 +131,7 @@ format_table(
 
 format_row(Columns, Row, Formatted_Row) :-
 	findall(KV, formatted_row_kvs(Columns, Row, KV), Formatted_Row_KVs),
-	dict_create(Formatted_Row,row,Formatted_Row_KVs).
+	!dict_create(Formatted_Row,row,Formatted_Row_KVs).
 
 formatted_row_kvs(Columns, Row, KV) :-
 	member(Column, Columns),
@@ -193,7 +193,11 @@ format_cell([X|Xs], Options, [Output1, Output2]) :-
 	format_cell(Xs, Options, Output2),
 	%atomic_list_concat([Output1, ', ', Output2], Output),
 	!.
-	
+
+format_cell(with_metadata(Value, _), Options, Output) :-
+	format_cell(Value, Options, Output),
+	!.
+
 format_cell(value(Unit, Value), Options, Output) :-
 	(	Precision = Options.get(precision)
 	->	true

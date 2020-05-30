@@ -1,16 +1,19 @@
 
 smsf_member_reports(Bs) :-
 	!smsf_members_throw(Members),
-	!maplist(!smsf_member_report(Bs), Members).
+	!maplist(!smsf_member_report(Bs), Members, _Json)/*,
+	!smsf_member_report_check1(Json)*/.
 
- smsf_member_report(Bs, Member_uri) :-
+
+ smsf_member_report(Bs, Member_uri, _{overview:Tbl1, details:Tbl2}) :-
 	!doc_value(Member_uri, smsf:member_name, Member_Name_str),
 	!atom_string(Member_atom, Member_Name_str),
 	!smsf_member_details_report(Bs, Member_atom, Tbl2),
 	!smsf_member_overview_report(Member_atom, Tbl1),
 	page_with_body(Member_Name_str, [
-		Member_Name_str, ':', br([]),
+		Member_Name_str, ':', p([]),
 		table([border="1"], $>table_html(Tbl1)),
+		p([]),
 		table([border="1"], $>table_html(Tbl2))
 	], Html),
 	add_report_page(
@@ -48,6 +51,12 @@ smsf_member_overview_report(Member, Tbl_dict) :-
 			aspects([
 				concept - smsf/member/gl/_,
 				phase - 'Preserved',
+				member - Member])],
+
+		[text(' - Unrestricted Non Preserved'),
+			aspects([
+				concept - smsf/member/gl/_,
+				phase - 'Unrestricted Non Preserved',
 				member - Member])],
 
 		[text(' - Restricted Non Preserved'),

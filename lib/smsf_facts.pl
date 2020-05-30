@@ -96,23 +96,23 @@ smsf_member_details_report_aspectses6(Member, Aspectses) :-
 		aspects([
 			account_role - 'Employer Contributions - Concessional' / Member,
 			concept - smsf/member/gl/'Employer Contributions - Concessional',
-			phase - 'Restricted Non Preserved',
-			taxability - 'Tax Free',
+			phase - 'Preserved',
+			taxability - 'Taxable',
 			member - Member,
 			effect - addition
 		]),
 		aspects([
 			account_role - 'Member/Personal Contributions - Concessional' / Member,
 			concept - smsf/member/gl/'Member/Personal Contributions - Concessional',
-			phase - 'Restricted Non Preserved',
-			taxability - 'Tax Free',
+			phase - 'Preserved',
+			taxability - 'Taxable',
 			member - Member,
 			effect - addition
 		]),
 		aspects([
 			account_role - 'Member/Personal Contributions - Non Concessional' / Member,
 			concept - smsf/member/gl/'Member/Personal Contributions - Non Concessional',
-			phase - 'Restricted Non Preserved',
+			phase - 'Preserved',
 			taxability - 'Tax Free',
 			member - Member,
 			effect - addition
@@ -120,8 +120,8 @@ smsf_member_details_report_aspectses6(Member, Aspectses) :-
 		aspects([
 			account_role - 'Other Contributions' / Member,
 			concept - smsf/member/gl/'Other Contributions',
-			phase - 'Restricted Non Preserved',
-			taxability - 'Tax Free',
+			phase - 'Preserved',
+			taxability - 'Taxable',
 			member - Member,
 			effect - addition
 		])

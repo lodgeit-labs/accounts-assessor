@@ -105,6 +105,16 @@ account_in_set(Account, Root_Account) :-
 account_direct_children(Parent, Children) :-
 	findall(Child, account_parent(Child, Parent), Children).
 
+account_descendants(Account, Descendants) :-
+	findall(X, account_descendant(Account, X), Descendants).
+
+account_descendant(Account, Descendant) :-
+	account_parent(Descendant, Account).
+
+account_descendant(Account, Descendant) :-
+	account_parent(Descendant0, Account),
+	account_descendant(Descendant0, Descendant).
+
 /* throws an exception if no account is found */
 account_by_role_throw(Role, Account) :-
 	assertion(Role = rl(_)),
@@ -120,13 +130,16 @@ account_by_role_throw(Role, Account) :-
 		)
 	).
 
- account_by_role(Role, Account) :-
+account_by_role(Role, Account) :-
 	assertion(Role = rl(_)),
 	account_role(Account, Role).
-/*
-account_by_role_nothrow(Role, Account) :-
-	account_by_role(Role, Account).
-*/
+
+
+account_by_role_has_descendants(Role, Descendants) :-
+	abrlt(Role, Account),
+	account_descendants(Account,Descendants).
+
+
 /*
 check that each account has a parent. Together with checking that each generated transaction has a valid account,
 this should ensure that all transactions get reflected in the account tree somewhere

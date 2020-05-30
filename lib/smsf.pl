@@ -108,16 +108,3 @@ smsf_distribution_tx(Default_currency, Date, Item, Dist, Txs) :-
 			]
 		)
 	;	Txs = []).
-
-
-sheet_and_cell_string_for_property(Item, Prop, Str) :-
-	!doc(Item, Prop, Value),
-	!sheet_and_cell_string(Value, Str).
-
-sheet_and_cell_string(Value, Str) :-
-	!doc(Value, excel:sheet_name, Sheet_name),
-	!doc(Value, excel:col, Col),
-	!doc(Value, excel:row, Row),
-	!atomics_to_string([Sheet_name, ' ', Col, ':', Row], Str).
-
-
