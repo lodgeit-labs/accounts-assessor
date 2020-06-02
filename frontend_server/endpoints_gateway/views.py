@@ -16,7 +16,7 @@ from django.http import HttpResponseRedirect, JsonResponse, HttpResponse
 from django.shortcuts import redirect
 from django.http.request import QueryDict
 from endpoints_gateway.forms import ClientRequestForm
-from fs_utils import directory_files, save_django_uploaded_file
+from fs_utils import directory_files, save_django_uploaded_file, save_django_form_uploaded_file
 import invoke_rpc
 from invoke_rpc import call_prolog_calculator
 from tmp_dir_path import create_tmp
@@ -47,6 +47,10 @@ def upload(request):
 				for f in request.FILES.getlist(field):
 					#print (f)
 					request_files_in_tmp.append(save_django_uploaded_file(request_tmp_directory_path, f))
+
+			#for idx, f in enumerate(form.data.getlist('file1')):
+			#	request_files_in_tmp.append(save_django_form_uploaded_file(request_tmp_directory_path, idx, f))
+			#import IPython; IPython.embed()
 
 			if 'only_store' in request.POST:
 				return render(request, 'uploaded_files.html', {

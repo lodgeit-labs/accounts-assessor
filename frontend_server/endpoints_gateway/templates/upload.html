@@ -4,6 +4,33 @@
         <meta charset="utf-8">
         <title>LodgeIT</title>
     </head>
+    <script>
+
+        function test()
+        {
+            console.log('1');
+            serverURL = "http://localhost:7788/upload"
+            contentType = 'application/octet-stream';
+            contentType = 'text/xml';
+            var ajaxObj = new XMLHttpRequest();
+            var formData = new FormData();
+
+            for (var x = 0; x < 1; ++x) {
+                var xmlStr = "xxxx" + x + "xxxxx";
+                var bytes = [];
+                for (var i = 0; i < xmlStr.length; ++i) {
+                    var charCode = xmlStr.charCodeAt(i);
+                    bytes.push(charCode);
+                }
+                formData.append("file1", new Blob([xmlStr]), 'request.xml');
+            }
+
+            ajaxObj.open('POST', serverURL, false);
+            console.log(ajaxObj.send(formData));
+            console.log('2');
+        }
+
+    </script>
     <body>
         <form action="{% url 'upload' %}" method="post" enctype="multipart/form-data">
             {% csrf_token %}

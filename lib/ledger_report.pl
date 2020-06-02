@@ -216,7 +216,7 @@ balance_sheet_entry(Static_Data, Account_Id, Entry) :-
 
 balance_sheet_entry2(Static_Data, Account_Id, Entry) :-
 	% find all direct children sheet entries
-	% fixme:  If Key is unbound, all associations in Dict are returned on backtracking. The order in which the associations are returned is undefined. (in doc.pl)
+	% fixme:  If Key is unbound, all associations in Dict are returned on backtracking. The order in which the associations are returned is undefined. (in doc.pl). This leads to random order of entries in the report.
 	account_direct_children(Account_Id, Child_Accounts),
 	%(account_name(Account_Id, 'Members') -> gtrace ; true),
 	maplist(!balance_sheet_entry2(Static_Data), Child_Accounts, Child_Entries),
@@ -246,8 +246,12 @@ balance_sheet_entry2(Static_Data, Account_Id, Entry) :-
 	Entry = entry(_,_,Accounts_Report,_,[]).*/
 
 balance_sheet_at(Static_Data, [Net_Assets_Entry, Equity_Entry]) :-
-	balance_sheet_entry(Static_Data, $>account_by_role_throw(rl('NetAssets')), Net_Assets_Entry),
-	balance_sheet_entry(Static_Data, $>account_by_role_throw(rl('Equity')), Equity_Entry).
+	balance_sheet_entry(Static_Data, $>abrlt('NetAssets'), Net_Assets_Entry),
+	balance_sheet_entry(Static_Data, $>abrlt('Equity'), Equity_Entry).
+
+balance_sheet_delta(Static_Data, [Net_Assets_Entry, Equity_Entry]) :-
+	!activity_entry(Static_Data, $>abrlt('NetAssets'), Net_Assets_Entry),
+	!activity_entry(Static_Data, $>abrlt('Equity'), Equity_Entry).
 
 trial_balance_between(Exchange_Rates, Transactions_By_Account, Report_Currency, Exchange_Date, _Start_Date, End_Date, [Trial_Balance_Section]) :-
 	balance_by_account(Exchange_Rates, Transactions_By_Account, Report_Currency, Exchange_Date, $>abrlt('NetAssets'), End_Date, Net_Assets_Balance, Net_Assets_Count),

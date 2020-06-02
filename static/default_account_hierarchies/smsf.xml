@@ -135,8 +135,8 @@
 				<account name="Rent Received"/>
 				<account name="Employer Contribution"/>
 				<account name="Contribution Received" subcategorize_by_smsf_member="true"/>
-				<account name="MemberPersonalContributionsConcessional" subcategorize_by_smsf_member="true"/>
-				<account name="MemberPersonalContributionsNonConcessional" subcategorize_by_smsf_member="true"/>
+				<!--<account name="MemberPersonalContributionsConcessional" subcategorize_by_smsf_member="true"/>
+				<account name="MemberPersonalContributionsNonConcessional" subcategorize_by_smsf_member="true"/>-->
 				<account name="Transfer In"/>
 				<account name="Other Income"/>
 				<account name="Writeback Of Deferred Tax"/>

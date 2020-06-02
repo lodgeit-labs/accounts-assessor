@@ -1,10 +1,10 @@
 
 
-add_smsf_member_details_report_facts(Bs, Member) :-
+add_smsf_member_details_report_facts(Json_reports, Member) :-
 	!smsf_member_details_report_aspectses(Member, Aspectses),
 	/* Aspectses now contains one aspects term for each gl account of Member in smsf equity members section. */
 	/* for each Aspectses member, get gl balance of account_role and assert a fact with vector. */
-	!maplist(add_fact_by_account_role(Bs), Aspectses),
+	!maplist(add_fact_by_account_role(Json_reports), Aspectses),
 	/* assert some derived facts for easier referencing */
 	Phases = ['Preserved', 'Unrestricted Non Preserved', 'Restricted Non Preserved'],
 	!maplist(smsf_member_report_add_total_additions(Member), Phases),
@@ -22,28 +22,29 @@ produce all aspectses to look up in GL and assert
 smsf_member_details_report_aspectses(Member, Aspectses) :-
 	!maplist(!smsf_member_details_report_aspectses3(Member),
 	[
-		x('Opening Balance', []),
-		x('Transfers In', [effect - addition]),
-		x('Pensions Paid', [effect - subtraction]),
-		x('Benefits Paid', [effect - subtraction]),
-		x('Transfers Out', [effect - subtraction]),
-		x('Life Insurance Premiums', [effect - subtraction]),
-		x('Share of Profit/(Loss)', [effect - addition]),
-		x('Income Tax', [effect - subtraction]),
-		x('Contribution Tax', [effect - subtraction]),
-		x('Internal Transfers In', [effect - addition]),
-		x('Internal Transfers Out', [effect - subtraction])
+		x(bs/current, 'Opening Balance', []),
+		x(bs/delta, 'Transfers In', [effect - addition]),
+		x(bs/delta, 'Pensions Paid', [effect - subtraction]),
+		x(bs/delta, 'Benefits Paid', [effect - subtraction]),
+		x(bs/delta, 'Transfers Out', [effect - subtraction]),
+		x(bs/delta, 'Life Insurance Premiums', [effect - subtraction]),
+		x(bs/delta, 'Share of Profit/(Loss)', [effect - addition]),
+		x(bs/delta, 'Income Tax', [effect - subtraction]),
+		x(bs/delta, 'Contribution Tax', [effect - subtraction]),
+		x(bs/delta, 'Internal Transfers In', [effect - addition]),
+		x(bs/delta, 'Internal Transfers Out', [effect - subtraction])
 	],
 	Aspectses0),
 	smsf_member_details_report_aspectses6(Member, Aspectses1),
 	!append($>flatten(Aspectses0), $>flatten(Aspectses1), Aspectses).
 
-smsf_member_details_report_aspectses3(Member, x(Concept, Additional_aspects), Facts) :-
+smsf_member_details_report_aspectses3(Member, x(Report, Concept, Additional_aspects), Facts) :-
 	/*
 	these accounts are all subcategorized into phase and taxability in the same way, so we generate the aspect sets automatically
 	*/
 	'='(Facts, [
 		aspects($>append([
+			report - Report,
 			account_role - ($>atomic_list_concat([Concept, ' - Preserved/Taxable'])) / Member,
 			concept - smsf/member/gl/Concept,
 			phase - 'Preserved',
@@ -51,6 +52,7 @@ smsf_member_details_report_aspectses3(Member, x(Concept, Additional_aspects), Fa
 			member - Member
 		], Additional_aspects)),
 		aspects($>append([
+			report - Report,
 			account_role - ($>atomic_list_concat([Concept, ' - Preserved/Tax Free'])) / Member,
 			concept - smsf/member/gl/Concept,
 			phase - 'Preserved',
@@ -58,6 +60,7 @@ smsf_member_details_report_aspectses3(Member, x(Concept, Additional_aspects), Fa
 			member - Member
 		], Additional_aspects)),
 		aspects($>append([
+			report - Report,
 			account_role - ($>atomic_list_concat([Concept, ' - Unrestricted Non Preserved/Taxable'])) / Member,
 			concept - smsf/member/gl/Concept,
 			phase - 'Unrestricted Non Preserved',
@@ -65,6 +68,7 @@ smsf_member_details_report_aspectses3(Member, x(Concept, Additional_aspects), Fa
 			member - Member
 		], Additional_aspects)),
 		aspects($>append([
+			report - Report,
 			account_role - ($>atomic_list_concat([Concept, ' - Unrestricted Non Preserved/Tax Free'])) / Member,
 			concept - smsf/member/gl/Concept,
 			phase - 'Unrestricted Non Preserved',
@@ -72,6 +76,7 @@ smsf_member_details_report_aspectses3(Member, x(Concept, Additional_aspects), Fa
 			member - Member
 		], Additional_aspects)),
 		aspects($>append([
+			report - Report,
 			account_role - ($>atomic_list_concat([Concept, ' - Restricted Non Preserved/Taxable'])) / Member,
 			concept - smsf/member/gl/Concept,
 			phase - 'Restricted Non Preserved',
@@ -79,6 +84,7 @@ smsf_member_details_report_aspectses3(Member, x(Concept, Additional_aspects), Fa
 			member - Member
 		], Additional_aspects)),
 		aspects($>append([
+			report - Report,
 			account_role - ($>atomic_list_concat([Concept, ' - Restricted Non Preserved/Tax Free'])) / Member,
 			concept - smsf/member/gl/Concept,
 			phase - 'Restricted Non Preserved',
@@ -94,6 +100,7 @@ smsf_member_details_report_aspectses6(Member, Aspectses) :-
 	*/
 	Aspectses = [
 		aspects([
+			report - bs/delta,
 			account_role - 'Employer Contributions - Concessional' / Member,
 			concept - smsf/member/gl/'Employer Contributions - Concessional',
 			phase - 'Preserved',
@@ -102,6 +109,7 @@ smsf_member_details_report_aspectses6(Member, Aspectses) :-
 			effect - addition
 		]),
 		aspects([
+			report - bs/delta,
 			account_role - 'Member/Personal Contributions - Concessional' / Member,
 			concept - smsf/member/gl/'Member/Personal Contributions - Concessional',
 			phase - 'Preserved',
@@ -110,6 +118,7 @@ smsf_member_details_report_aspectses6(Member, Aspectses) :-
 			effect - addition
 		]),
 		aspects([
+			report - bs/delta,
 			account_role - 'Member/Personal Contributions - Non Concessional' / Member,
 			concept - smsf/member/gl/'Member/Personal Contributions - Non Concessional',
 			phase - 'Preserved',
@@ -118,6 +127,7 @@ smsf_member_details_report_aspectses6(Member, Aspectses) :-
 			effect - addition
 		]),
 		aspects([
+			report - bs/delta,
 			account_role - 'Other Contributions' / Member,
 			concept - smsf/member/gl/'Other Contributions',
 			phase - 'Preserved',

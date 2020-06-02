@@ -1,14 +1,14 @@
 
-smsf_member_reports(Bs) :-
+smsf_member_reports(Json_reports) :-
 	!smsf_members_throw(Members),
-	!maplist(!smsf_member_report(Bs), Members, _Json)/*,
+	!maplist(!smsf_member_report(Json_reports), Members, _Json)/*,
 	!smsf_member_report_check1(Json)*/.
 
 
- smsf_member_report(Bs, Member_uri, _{overview:Tbl1, details:Tbl2}) :-
+ smsf_member_report(Json_reports, Member_uri, _{overview:Tbl1, details:Tbl2}) :-
 	!doc_value(Member_uri, smsf:member_name, Member_Name_str),
 	!atom_string(Member_atom, Member_Name_str),
-	!smsf_member_details_report(Bs, Member_atom, Tbl2),
+	!smsf_member_details_report(Json_reports, Member_atom, Tbl2),
 	!smsf_member_overview_report(Member_atom, Tbl1),
 	page_with_body(Member_Name_str, [
 		Member_Name_str, ':', p([]),
@@ -24,10 +24,10 @@ smsf_member_reports(Bs) :-
 		'smsf_member_report'
 	).
 
-smsf_member_details_report(Bs, Member_atom, Tbl_dict) :-
+smsf_member_details_report(Json_reports, Member_atom, Tbl_dict) :-
 	!smsf_member_report_presentation(Pres),
 	!add_aspect_to_table(member - Member_atom, Pres, Pres3),
-	!add_smsf_member_details_report_facts(Bs, Member_atom),
+	!add_smsf_member_details_report_facts(Json_reports, Member_atom),
 	!evaluate_fact_table(Pres3, Tbl),
 	!maplist(smsf_member_report_row_to_dict, Tbl, Rows),
 	Columns = [

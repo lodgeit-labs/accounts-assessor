@@ -38,16 +38,18 @@ find_aspect(Hay, Needle) :-
 given account role, get balance from corresponding report_entry, and assert a fact (with given aspects)
 */
 
-add_fact_by_account_role(Bs, aspects(Aspects)) :-
+add_fact_by_account_role(Json_reports, aspects(Aspects)) :-
+	!member(report - Report_path, Aspects),
+	path_get_dict(Report_path, Json_reports, Report),
 	!member(account_role - Role, Aspects),
-	!report_entry_vec_by_role(Bs, Role, Vec),
+	!report_entry_vec_by_role(Report, Role, Vec),
 	%writeq(Vec),nl,
 	!make_fact(Vec, aspects(Aspects), _).
 
-add_sum_fact_from_report_entries_by_roles(Bs, Roles, New_fact_aspects) :-
-	!maplist(report_entry_vec_by_role(Bs), Roles, Vecs),
-	!vec_sum(Vecs, Sum),
-	!make_fact(Sum, New_fact_aspects, _).
+%add_sum_fact_from_report_entries_by_roles(Bs, Roles, New_fact_aspects) :-
+%	!maplist(report_entry_vec_by_role(Bs), Roles, Vecs),
+%	!vec_sum(Vecs, Sum),
+%	!make_fact(Sum, New_fact_aspects, _).
 
 
 

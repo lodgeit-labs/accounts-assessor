@@ -38,3 +38,8 @@ def save_django_uploaded_file(tmp_directory_path, f):
 			destination.write(chunk)
 	return tmp_fn
 
+def save_django_form_uploaded_file(tmp_directory_path, idx, f):
+	tmp_fn = os.path.abspath('/'.join([tmp_directory_path, ntpath.basename(str(idx))]))
+	with open(tmp_fn, 'w') as destination:
+		destination.write(f)
+	return tmp_fn
