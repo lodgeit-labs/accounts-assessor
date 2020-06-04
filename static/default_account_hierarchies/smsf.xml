@@ -137,7 +137,9 @@
 				<account name="Contribution Received" subcategorize_by_smsf_member="true"/>
 				<!--<account name="MemberPersonalContributionsConcessional" subcategorize_by_smsf_member="true"/>
 				<account name="MemberPersonalContributionsNonConcessional" subcategorize_by_smsf_member="true"/>-->
-				<account name="Transfer In"/>
+                <account name="Transfer In"/>
+                <account name="PL Transfers In - Preserved/Tax Free" subcategorize_by_smsf_member="true"/>
+                <account name="PL Transfers In - Preserved/Taxable" subcategorize_by_smsf_member="true"/>
 				<account name="Other Income"/>
 				<account name="Writeback Of Deferred Tax"/>
 				<account name="ChangeInMarketValue"/>
