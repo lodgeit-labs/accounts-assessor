@@ -141,10 +141,9 @@
                 <account name="PL Transfers In - Preserved/Tax Free" subcategorize_by_smsf_member="true"/>
                 <account name="PL Transfers In - Preserved/Taxable" subcategorize_by_smsf_member="true"/>
 				<account name="Other Income"/>
-				<account name="Writeback Of Deferred Tax"/>
 				<account name="ChangeInMarketValue"/>
 			</account>
-			<account name="Expenses">
+			<account name="Expenses" normal_side="debit">
 				<account name="Accountancy Fees"/>
 				<account name="Adminstration Costs"/>
 				<account name="ATO Supervisory Levy"/>
@@ -155,6 +154,7 @@
 				<account name="Fines"/>
 				<account name="Legal Fees"/>
 				<account name="Income Tax Expenses"/>
+				<account name="Writeback Of Deferred Tax"/>
 				<account name="Life Insurance Premium"/>
 				<account name="Pension paid"/>
 				<account name="Benefits Paid"/>

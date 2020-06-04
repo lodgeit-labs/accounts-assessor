@@ -108,3 +108,31 @@ smsf_distribution_tx(Default_currency, Date, Item, Dist, Txs) :-
 			]
 		)
 	;	Txs = []).
+
+
+/*
+
+income tax tax:
+Benefits Accrued as a Result of Operations before Income Tax = P&L excluding:
+	Writeback Of Deferred Tax
+	Income Tax Expenses
+
+In [5]: 19903 + 1478 + 1344
+Out[5]: 22725
+
+excluding:
+	Contribution Received
+		53
+	PL Transfers In - Preserved/Tax*
+		0
+	"Accounting Capital Gains" - Capital GainLoss?
+		13,435.54
+	"Distributed Capital Gains" - Distribution Received?
+		16,255.05
+	Non Taxable Distributions Received?
+	Other Non Taxable Items?
+
+
+
+
+*/
