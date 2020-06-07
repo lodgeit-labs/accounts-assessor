@@ -1,4 +1,23 @@
+/*
 
+the smsf workflow:
+	for report for 2018-2019:
+
+	GL opening balances are posted. this includes:
+		!Opening Balance - Preserved/Taxable!<Member>!
+			the 2017 opening balance
+		!Transfers In - Preserved/Tax Free!<Member>!
+		!Share of Profit/(Loss) - Preserved/Taxable!<Member>!
+		!Income Tax - Preserved/Taxable!<Member>!
+			the allocations of 17-18 profits etc
+
+	at the beginning of 18-19(or at end, doesn't matter), we rollover the 17-18 allocations into Opening Balance.
+		now Opening Balance is truly the opening balance at 2018.
+		now the allocation accounts are zeroed out.
+
+	at the end of 18-19, we allocate profit etc
+
+*/
 
 add_smsf_member_details_report_facts(Json_reports, Member) :-
 	!smsf_member_details_report_aspectses(Member, Aspectses),
@@ -12,10 +31,9 @@ add_smsf_member_details_report_facts(Json_reports, Member) :-
 	!maplist(smsf_member_report_add_total_subtractions(Member), Phases),
 	!maplist(smsf_member_report_add_total(Member), Phases).
 
-
 /*
 
-produce all aspectses to look up in GL and assert
+produce all aspectses to later look up in GL and assert
 
 */
 
@@ -23,16 +41,16 @@ smsf_member_details_report_aspectses(Member, Aspectses) :-
 	!maplist(!smsf_member_details_report_aspectses3(Member),
 	[
 		x(bs/current, 'Opening Balance', []),
-		x(bs/delta, 'Transfers In', [effect - addition]),
-		x(bs/delta, 'Pensions Paid', [effect - subtraction]),
-		x(bs/delta, 'Benefits Paid', [effect - subtraction]),
-		x(bs/delta, 'Transfers Out', [effect - subtraction]),
-		x(bs/delta, 'Life Insurance Premiums', [effect - subtraction]),
-		x(bs/delta, 'Share of Profit/(Loss)', [effect - addition]),
-		x(bs/delta, 'Income Tax', [effect - subtraction]),
-		x(bs/delta, 'Contribution Tax', [effect - subtraction]),
-		x(bs/delta, 'Internal Transfers In', [effect - addition]),
-		x(bs/delta, 'Internal Transfers Out', [effect - subtraction])
+		x(bs/current, 'Transfers In', [effect - addition]),
+		x(bs/current, 'Pensions Paid', [effect - subtraction]),
+		x(bs/current, 'Benefits Paid', [effect - subtraction]),
+		x(bs/current, 'Transfers Out', [effect - subtraction]),
+		x(bs/current, 'Life Insurance Premiums', [effect - subtraction]),
+		x(bs/current, 'Share of Profit/(Loss)', [effect - addition]),
+		x(bs/current, 'Income Tax', [effect - subtraction]),
+		x(bs/current, 'Contribution Tax', [effect - subtraction]),
+		x(bs/current, 'Internal Transfers In', [effect - addition]),
+		x(bs/current, 'Internal Transfers Out', [effect - subtraction])
 	],
 	Aspectses0),
 	smsf_member_details_report_aspectses6(Member, Aspectses1),
@@ -100,7 +118,7 @@ smsf_member_details_report_aspectses6(Member, Aspectses) :-
 	*/
 	Aspectses = [
 		aspects([
-			report - bs/delta,
+			report - bs/current,
 			account_role - 'Employer Contributions - Concessional' / Member,
 			concept - smsf/member/gl/'Employer Contributions - Concessional',
 			phase - 'Preserved',
@@ -109,7 +127,7 @@ smsf_member_details_report_aspectses6(Member, Aspectses) :-
 			effect - addition
 		]),
 		aspects([
-			report - bs/delta,
+			report - bs/current,
 			account_role - 'Member/Personal Contributions - Concessional' / Member,
 			concept - smsf/member/gl/'Member/Personal Contributions - Concessional',
 			phase - 'Preserved',
@@ -118,7 +136,7 @@ smsf_member_details_report_aspectses6(Member, Aspectses) :-
 			effect - addition
 		]),
 		aspects([
-			report - bs/delta,
+			report - bs/current,
 			account_role - 'Member/Personal Contributions - Non Concessional' / Member,
 			concept - smsf/member/gl/'Member/Personal Contributions - Non Concessional',
 			phase - 'Preserved',
@@ -127,7 +145,7 @@ smsf_member_details_report_aspectses6(Member, Aspectses) :-
 			effect - addition
 		]),
 		aspects([
-			report - bs/delta,
+			report - bs/current,
 			account_role - 'Other Contributions' / Member,
 			concept - smsf/member/gl/'Other Contributions',
 			phase - 'Preserved',
@@ -220,6 +238,7 @@ smsf_member_facts_by_aspects(Member, Phase, Concept, Facts) :-
 			phase - Phase,
 			member - Member
 		]), Facts).
+
 
 
 

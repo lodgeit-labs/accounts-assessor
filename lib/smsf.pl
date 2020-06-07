@@ -112,10 +112,16 @@ smsf_distribution_tx(Default_currency, Date, Item, Dist, Txs) :-
 
 /*
 
-income tax tax:
+income tax:
 Benefits Accrued as a Result of Operations before Income Tax = P&L excluding:
-	Writeback Of Deferred Tax
-	Income Tax Expenses
+	ATO?
+
+	Writeback Of Deferred Tax (expense)
+
+	Income Tax Expenses (expense)
+		income tax
+		ATO supervisory levy
+
 
 In [5]: 19903 + 1478 + 1344
 Out[5]: 22725
@@ -133,6 +139,34 @@ excluding:
 	Other Non Taxable Items?
 
 
+
+
+
+
+
+first class formulas:
+
+	"Accounting Equation"
+		assets - liabilities = equity
+
+	smsf:
+		'Benefits Accrued as a Result of Operations before Income Tax' = 'P&L' + 'Writeback Of Deferred Tax' + 'Income Tax Expenses'
+
+	there is a choice between dealing with (normal-side) values vs dr/cr coords. A lot of what we need to express are not naturally coords, and dealing with them as coords would be confusing. Otoh, translating gl account coords to normal side values can make things confusing too, as seen above.
+
+	'Benefits Accrued as a Result of Operations before Income Tax' = 'P&L', excluding: 'Writeback Of Deferred Tax', 'Income Tax Expenses'
+
+
+
+
+!report_entry_vec_by_role(Report, Role, Vec),
+
+
+
+
+
+
+216631 216301
 
 
 */
