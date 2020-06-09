@@ -14,7 +14,7 @@
 				<account name="Other Assets"/>
 				<account name="Prepaid Expenses"/>
 				<account name="Sundry Debtors"/>
-				<account name="Investments" role="FinancialInvestments/Investments"/>
+                <account name="Investments" role="FinancialInvestments/Investments"/>
 				<account name="Distribution Receivable" subcategorize_by_investment="true"/>
 			</account>
 			<account name="Liabilities" normal_side="credit">
@@ -133,10 +133,13 @@
 					<account name="ATO Interest"/>
 				</account>
 				<account name="Rent Received"/>
-				<account name="Employer Contribution"/>
+                <account name="Employer Contribution"/>
+
+				<!-- fixme,.update excel sheets to do the subcategorization -->
 				<account name="Contribution Received" subcategorize_by_smsf_member="true"/>
 				<!--<account name="MemberPersonalContributionsConcessional" subcategorize_by_smsf_member="true"/>
 				<account name="MemberPersonalContributionsNonConcessional" subcategorize_by_smsf_member="true"/>-->
+
                 <account name="Transfer In"/>
                 <account name="PL Transfers In - Preserved/Tax Free" subcategorize_by_smsf_member="true"/>
                 <account name="PL Transfers In - Preserved/Taxable" subcategorize_by_smsf_member="true"/>

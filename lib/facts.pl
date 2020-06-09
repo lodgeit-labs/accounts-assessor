@@ -84,6 +84,9 @@ evaluate_fact(X, X) :-
 	X \= aspects(_).
 
 evaluate_fact(In, with_metadata(Values,In)) :-
+	evaluate_fact2(In, Values).
+
+evaluate_fact2(In,Values) :-
 	In = aspects(_),
 	facts_by_aspects(In, Facts),
 	/*(	Facts \= []

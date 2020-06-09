@@ -8,8 +8,7 @@ process_ledger(
 	Transactions_With_Livestock,
 	Transactions_By_Account,
 	Outstanding_Out,
-	Processed_Until,
-	Gl
+	Processed_Until
 ) :-
 	!add_comment_stringize('Exchange rates extracted', Exchange_Rates),
 	!s_transactions_up_to(End_Date, S_Transactions0, S_Transactions),
@@ -52,9 +51,17 @@ process_ledger(
 		how to get balance on account
 		how to generate json+html reports
 	*/
-	maplist(!check_transaction_account, Transactions_With_Livestock),
+
 	Static_Data2 = Static_Data0.put(end_date, Processed_Until).put(transactions, Transactions_With_Livestock),
-	!gl_export(Static_Data2, Transactions_With_Livestock, Gl),
+	/*
+	fixme: doc still contains original end date, not Processed_Until.
+	*/
+
+	/*(	account_by_role(rl(smsf_equity), _)
+	->	smsf_income_tax_stuff(Transactions_With_Livestock, Structured_Reports0)...
+	;	true),*/
+
+
 	!transactions_by_account(Static_Data2, Transactions_By_Account),
 	!trial_balance_between(Exchange_Rates, Transactions_By_Account, Report_Currency, End_Date, Start_Date, End_Date, [Trial_Balance_Section]),
 	(

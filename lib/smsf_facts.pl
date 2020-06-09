@@ -116,6 +116,9 @@ smsf_member_details_report_aspectses6(Member, Aspectses) :-
 	/*
 	these arent, so we specify phase and taxability by hand
 	*/
+	/*
+	todo store these hack facts in rdf, generate documentation automatically
+	*/
 	Aspectses = [
 		aspects([
 			report - bs/current,

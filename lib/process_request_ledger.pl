@@ -52,8 +52,7 @@ process_request_ledger2((Dom, Start_Date, End_Date, Output_Dimensional_Facts, Co
 		Transactions,
 		Transactions_By_Account,
 		Outstanding,
-		Processed_Until_Date,
-		Gl),
+		Processed_Until_Date),
 
 	/* if some s_transaction failed to process, there should be an alert created by now. Now we just compile a report up until that transaction. It would maybe be cleaner to do this by calling process_ledger a second time */
 	dict_from_vars(Static_Data0,
@@ -63,7 +62,6 @@ process_request_ledger2((Dom, Start_Date, End_Date, Output_Dimensional_Facts, Co
 		Exchange_Rates,
 		Transactions,
 		Report_Currency,
-		Gl,
 		Transactions_By_Account,
 		Outstanding
 	]),
@@ -75,38 +73,48 @@ process_request_ledger2((Dom, Start_Date, End_Date, Output_Dimensional_Facts, Co
 	once(!create_reports(Static_Data1, Structured_Reports)).
 
 
-
-
 create_reports(
 	Static_Data,				% Static Data
-	Structured_Reports			% ...
+	Sr2
 ) :-
-	!static_data_historical(Static_Data, Static_Data_Historical),
-	!balance_entries(Static_Data, Static_Data_Historical, Entries),
-	dict_vars(Entries, [Balance_Sheet, ProfitAndLoss, Balance_Sheet2_Historical, Balance_Sheet_delta, ProfitAndLoss2_Historical, Trial_Balance, Cf]),
+	!balance_entries(Static_Data, Sr),
 	!taxonomy_url_base,
-	!format(user_error, '.......', []),
-	!create_instance(Xbrl, Static_Data, Static_Data.start_date, Static_Data.end_date, Static_Data.report_currency, Balance_Sheet, ProfitAndLoss, ProfitAndLoss2_Historical, Trial_Balance),
-	!other_reports(Static_Data, Static_Data_Historical, Static_Data.outstanding, Balance_Sheet, Balance_Sheet_delta, ProfitAndLoss, Balance_Sheet2_Historical, ProfitAndLoss2_Historical, Trial_Balance, Cf, Structured_Reports),
-	!add_xml_report(xbrl_instance, xbrl_instance, [Xbrl]).
-
+	!format(user_error, 'create_instance..', []),
+	!create_instance(Xbrl, Static_Data, Static_Data.start_date, Static_Data.end_date, Static_Data.report_currency, Sr.bs.current, Sr.pl.current, Sr.pl.historical, Sr.tb),
+	!add_xml_report(xbrl_instance, xbrl_instance, [Xbrl]),
+	!other_reports(Static_Data, Static_Data_Historical, Static_Data.outstanding, Sr, Sr2).
 
 
 balance_entries(
 	Static_Data,				% Static Data
-	Static_Data_Historical,		% Static Data
-	Entries						% Dict Entry
+	Structured_Reports
 ) :-
+	static_data_historical(Static_Data, Static_Data_Historical),
+	maplist(!check_transaction_account, Static_Data.transactions),
 	/* sum up the coords of all transactions for each account and apply unit conversions */
 	!trial_balance_between(Static_Data.exchange_rates, Static_Data.transactions_by_account, Static_Data.report_currency, Static_Data.end_date, Static_Data.start_date, Static_Data.end_date, Trial_Balance),
 	!balance_sheet_at(Static_Data, Balance_Sheet),
 	!balance_sheet_delta(Static_Data, Balance_Sheet_delta),
-	!profitandloss_between(Static_Data, ProfitAndLoss),
 	!balance_sheet_at(Static_Data_Historical, Balance_Sheet2_Historical),
-	!cashflow(Static_Data, Cf),
+	!profitandloss_between(Static_Data, ProfitAndLoss),
 	!profitandloss_between(Static_Data_Historical, ProfitAndLoss2_Historical),
-	assertion(ground((Balance_Sheet, ProfitAndLoss, ProfitAndLoss2_Historical, Trial_Balance))),
-	dict_from_vars(Entries, [Balance_Sheet, Balance_Sheet_delta, ProfitAndLoss, Balance_Sheet2_Historical, ProfitAndLoss2_Historical, Trial_Balance, Cf]).
+	!cashflow(Static_Data, Cf),
+
+	Structured_Reports = _{
+		pl: _{
+			current: ProfitAndLoss,
+			historical: ProfitAndLoss2_Historical
+		},
+		bs: _{
+			current: Balance_Sheet,
+			historical: Balance_Sheet2_Historical,
+			delta: Balance_Sheet_delta /*todo crosscheck*/
+		},
+		tb: Trial_Balance,
+		cf: Cf
+	},
+
+	assertion(ground(Structured_Reports)).
 
 
 static_data_historical(Static_Data, Static_Data_Historical) :-
@@ -119,49 +127,32 @@ static_data_historical(Static_Data, Static_Data_Historical) :-
 
  other_reports(
 	Static_Data,
-	Static_Data_Historical,
 	Outstanding,
-	Balance_Sheet,
-	Balance_Sheet_delta,
-	ProfitAndLoss,
-	Balance_Sheet2_Historical,
-	ProfitAndLoss2_Historical,
-	Trial_Balance,
-	Cf,
-	Structured_Reports				% Dict <Report Abbr : _>
+	Sr0,
+	Sr5				% Structured Reports - Dict <Report Abbr : _>
 ) :-
-	!investment_reports(Static_Data.put(outstanding, Outstanding), Investment_Report_Info),
-	!report_entry_tree_html_page(Static_Data, Balance_Sheet, 'balance sheet', 'balance_sheet.html'),
-	!report_entry_tree_html_page(Static_Data, Balance_Sheet_delta, 'balance sheet delta', 'balance_sheet_delta.html'),
-	!report_entry_tree_html_page(Static_Data_Historical, Balance_Sheet2_Historical, 'balance sheet - historical', 'balance_sheet_historical.html'),
-	!report_entry_tree_html_page(Static_Data, ProfitAndLoss, 'profit and loss', 'profit_and_loss.html'),
-	!report_entry_tree_html_page(Static_Data_Historical, ProfitAndLoss2_Historical, 'profit and loss - historical', 'profit_and_loss_historical.html'),
-	!cf_page(Static_Data, Cf),
-	!make_json_report(Static_Data.gl, general_ledger_json),
+	!static_data_historical(Static_Data, Static_Data_Historical),
+	(	account_by_role(rl(smsf_equity), _)
+	->	smsf_member_reports(Sr0)
+	;	true),
+	!report_entry_tree_html_page(Static_Data, Sr0.bs.current, 'balance sheet', 'balance_sheet.html'),
+	!report_entry_tree_html_page(Static_Data, Sr0.bs.delta, 'balance sheet delta', 'balance_sheet_delta.html'),
+	!report_entry_tree_html_page(Static_Data_Historical, Sr0.bs.historical, 'balance sheet - historical', 'balance_sheet_historical.html'),
+	!report_entry_tree_html_page(Static_Data, Sr0.pl.current, 'profit and loss', 'profit_and_loss.html'),
+	!report_entry_tree_html_page(Static_Data_Historical, Sr0.pl.historical, 'profit and loss - historical', 'profit_and_loss_historical.html'),
+	!cf_page(Static_Data, Sr0.cf),
+
+	!gl_export(Static_Data, Static_Data.transactions, Gl),
+	!make_json_report(, Gl, general_ledger_json),
 	!make_gl_viewer_report,
 
-	Structured_Reports0 = _{
-		pl: _{
-			current: ProfitAndLoss,
-			historical: ProfitAndLoss2_Historical
-		},
-		ir: Investment_Report_Info,
-		bs: _{
-			current: Balance_Sheet,
-			historical: Balance_Sheet2_Historical,
-			delta: Balance_Sheet_delta /*todo crosscheck*/
-		},
-		tb: Trial_Balance,
-		cf: Cf
-	},
+	!investment_reports(Static_Data.put(outstanding, Outstanding), Investment_Report_Info),
+	Sr1 = Sr0.put(ir, Investment_Report_Info),
 
-	(	account_by_role(rl(smsf_equity), _)
-	->	smsf_member_reports(Structured_Reports0)
-	;	true),
-
-	!crosschecks_report0(Static_Data.put(reports, Structured_Reports0), Crosschecks_Report_Json),
-	Structured_Reports = Structured_Reports0.put(crosschecks, Crosschecks_Report_Json),
+	!crosschecks_report0(Static_Data.put(reports, Sr1), Crosschecks_Report_Json),
+	Sr5 = Sr1.put(crosschecks, Crosschecks_Report_Json),
 	!make_json_report(Structured_Reports, reports_json).
+
 
 make_gl_viewer_report :-
 	%format(user_error, 'make_gl_viewer_report..~n',[]),
