@@ -6,7 +6,6 @@ process_ledger(
 	Exchange_Rates,
 	Report_Currency,
 	Transactions_With_Livestock,
-	Transactions_By_Account,
 	Outstanding_Out,
 	Processed_Until
 ) :-
@@ -48,34 +47,15 @@ process_ledger(
 	transactions are produced with transactions:make_transaction.
 	account id is obtained like this: account_by_role(Accounts, ('Accounts'/'Assets'), Assets_AID).
 	to be explained:
-		how to get balance on account
+		how to get balance of account
 		how to generate json+html reports
 	*/
 
-	Static_Data2 = Static_Data0.put(end_date, Processed_Until).put(transactions, Transactions_With_Livestock),
+	Static_Data2 = Static_Data0.put(end_date, Processed_Until).put(transactions, Transactions_With_Livestock).
 	/*
 	fixme: doc still contains original end date, not Processed_Until.
 	*/
 
-	/*(	account_by_role(rl(smsf_equity), _)
-	->	smsf_income_tax_stuff(Transactions_With_Livestock, Structured_Reports0)...
-	;	true),*/
-
-
-	!transactions_by_account(Static_Data2, Transactions_By_Account),
-	!trial_balance_between(Exchange_Rates, Transactions_By_Account, Report_Currency, End_Date, Start_Date, End_Date, [Trial_Balance_Section]),
-	(
-		(
-			trial_balance_ok(Trial_Balance_Section)
-		;
-			Report_Currency = []
-		)
-	->
-		true
-	;
-		(	term_string(trial_balance(Trial_Balance_Section), Tb_Str),
-			add_alert('SYSTEM_WARNING', Tb_Str))
-	).
 
 
 gather_ledger_warnings(S_Transactions, Start_Date, End_Date, Warnings) :-

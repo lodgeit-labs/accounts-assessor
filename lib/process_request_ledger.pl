@@ -41,7 +41,6 @@ process_request_ledger2((Dom, Start_Date, End_Date, Output_Dimensional_Facts, Co
 	!extract_livestock_data_from_ledger_request(Dom),
 	!extract_exchange_rates(Cost_Or_Market, Dom, S_Transactions, Start_Date, End_Date, Report_Currency, Exchange_Rates),
 	!extract_invoices_payable(Dom),
-
 	!process_ledger(
 		Cost_Or_Market,
 		S_Transactions,
@@ -50,10 +49,8 @@ process_request_ledger2((Dom, Start_Date, End_Date, Output_Dimensional_Facts, Co
 		Exchange_Rates,
 		Report_Currency,
 		Transactions,
-		Transactions_By_Account,
 		Outstanding,
 		Processed_Until_Date),
-
 	/* if some s_transaction failed to process, there should be an alert created by now. Now we just compile a report up until that transaction. It would maybe be cleaner to do this by calling process_ledger a second time */
 	dict_from_vars(Static_Data0,
 		[Cost_Or_Market,
@@ -62,7 +59,6 @@ process_request_ledger2((Dom, Start_Date, End_Date, Output_Dimensional_Facts, Co
 		Exchange_Rates,
 		Transactions,
 		Report_Currency,
-		Transactions_By_Account,
 		Outstanding
 	]),
 	Static_Data1 = Static_Data0.put([
@@ -70,12 +66,39 @@ process_request_ledger2((Dom, Start_Date, End_Date, Output_Dimensional_Facts, Co
 		exchange_date=Processed_Until_Date
 	]),
 
-	once(!create_reports(Static_Data1, Structured_Reports)).
+	(	account_by_role(rl(smsf_equity), _)
+	->	(
+			smsf_income_tax_stuff(Static_Data2, Smsf_income_tax_txs),
+			Static_Data2 = Static_Data1.put([transactions=$>append(Transactions,Smsf_income_tax_txs)])
+		)
+	;	Static_Data2 = Static_Data1),
+
+	!transactions_by_account(Static_Data2, Transactions_By_Account),
+	Static_Data3 = Static_Data2.put([transactions_by_account=Transactions_By_Account]),
+	check_trial_balance2(Exchange_Rates, Transactions_By_Account, Report_Currency, End_Date, Start_Date, End_Date),
+	once(!create_reports(Static_Data3, Structured_Reports)).
+
+
+check_trial_balance2(Exchange_Rates, Transactions_By_Account, Report_Currency, End_Date, Start_Date, End_Date) :-
+	!trial_balance_between(Exchange_Rates, Transactions_By_Account, Report_Currency, End_Date, Start_Date, End_Date, [Trial_Balance_Section]),
+	(
+		(
+			trial_balance_ok(Trial_Balance_Section)
+		;
+			Report_Currency = []
+		)
+	->
+		true
+	;
+		(	term_string(trial_balance(Trial_Balance_Section), Tb_Str),
+			add_alert('SYSTEM_WARNING', Tb_Str))
+	).
+
 
 
 create_reports(
 	Static_Data,				% Static Data
-	Sr2
+	Sr2							% Structured Reports (dict)
 ) :-
 	!balance_entries(Static_Data, Sr),
 	!taxonomy_url_base,
