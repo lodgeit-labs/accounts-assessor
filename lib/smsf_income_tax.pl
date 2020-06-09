@@ -115,3 +115,71 @@ rows_total(Rows, Rows_vec) :-
 
 
 
+/*
+
+a subset of these declarations could be translated into a proper xbrl taxonomy.
+
+value_formula(equals(
+	aspects([concept - smsf/income_tax/'Benefits Accrued as a Result of Operations before Income Tax']),
+	aspects([
+		report - pl/current,
+		account_role - 'ComprehensiveIncome']))),
+
+value_formula(x_is_sum_of_y(
+	aspects([concept - smsf/income_tax/'total subtractions from PL']),
+	[
+		aspects([
+			report - pl/current,
+			account_role - 'Distribution Received'])
+		aspects([
+			report - pl/current,
+			account_role - 'TradingAccounts/Capital GainLoss']),
+		aspects([
+			report - pl/current,
+			account_role - 'Distribution Received']),
+		aspects([
+			report - pl/current,
+			account_role - 'Contribution Received'])
+	])).
+
+/*
+	evaluate expressions:
+		aspecses with report and account_role aspects are taken from reports. They are forced into a single value. This allows us to do clp on it without pyco. Previously unseen facts are asserted.
+
+*/
+
+
+% Sr - structured reports
+evaluate_value_formulas(Sr) :-
+	findall(F, value_formula(F), Fs),
+	evaluate_value_formulas(Sr, Fs).
+
+evaluate_value_formulas(Sr, [F|Rest]) :-
+	evaluate_value_formula(Sr, F),
+	evaluate_value_formulas(Sr, Rest).
+
+evaluate_value_formula(Sr, equals(X, Y)) :-
+	evaluate_value(X, Xv)
+
+
+
+evaluate_value(X, Xv) :-
+
+
+
+
+asserted:
+	aspects([concept - smsf/income_tax/'total subtractions from PL']),
+equals(X,aspects([
+	concept - smsf/income_tax/'total subtractions from PL'
+	memeber - xxx
+]),
+
+
+
+xbrl:
+	fact:
+		concept
+		context:
+			period
+			dimension1
