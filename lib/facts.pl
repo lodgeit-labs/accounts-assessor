@@ -1,7 +1,7 @@
-
+/*
 mock_request :-
 	doc_init.
-
+*/
 make_fact(Vec, Aspects, Uri) :-
 	doc_new_uri(report_entry, Uri),
 	doc_add(Uri, rdf:type, l:fact),
@@ -19,7 +19,7 @@ for a fact to match, it has to have all the aspects present in Aspects, and they
 rest of aspects of the fact are ignored. All matching facts are returned. findall, unifications
 are not preserved.
 */
-facts_by_aspects(aspects(Aspects), Facts) :-
+ facts_by_aspects(aspects(Aspects), Facts) :-
 	findall(
 		Uri,
 		(

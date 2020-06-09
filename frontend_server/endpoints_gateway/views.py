@@ -146,3 +146,14 @@ SELECT ?rep WHERE {
 			#except json.decoder.JSONDecodeError as e:
 				# call _ prolog lets this exception propagate. The assumption is that if prolog finished successfully, it returned a json, but if it failed in some horrible way (syntax errors), the output won't parse as json.
 				#return HttpResponse(status=500)
+
+
+
+# /*
+# note on request processing:
+# (for future)
+# (in addition to handling and presenting the facts of existence of a request, the status of processing, retries after worker failures)
+# with pyco, we would optimize clause order to arrive at a complete solution / result in the shortes time in usual cases, but we should be able to present alternative solutions, and also present the situation that some solutions have been found but the search is still in progress.
+# */
+#
+
