@@ -191,8 +191,8 @@ smsf_income_tax_report(Tbl_dict) :-
 		$>abrlt('Income Tax Expenses'),
 		$>abrlt('Income Tax Payable'),
 		[coord(
-			$>request_has_property(l:report_currency),
-			$>!evaluate_fact2(aspects([concept - smsf/income_tax/'Taxable Net Capital Gain'])))],
+			xxx$>request_has_property(l:report_currency),
+			xxx$>!evaluate_fact2(aspects([concept - smsf/income_tax/'Taxable Net Capital Gain'])))],
 		Txs0),
 	!make_dr_cr_transactions(
 		St,
