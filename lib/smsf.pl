@@ -66,6 +66,22 @@ extract_smsf_distribution4(Default_currency, Item, Unit_name_str, Txs) :-
 	(	member(Unit, Traded_Units)
 	->	true
 	;	throw_string(['smsf distribution sheet: unknown unit: ', Unit])),
+	distribution_txs(Default_currency, Item, Unit, Txs),
+	assert_smsf_distribution_facts(Default_currency, Unit, Item).
+
+assert_smsf_distribution_facts(Default_currency, Unit, Item) :-
+	(	read_value_from_doc_string(Item, smsf_distribution_ui:franking_credit, Default_currency, Value)
+	->	make_fact(
+			Value,
+			aspects([
+				concept - smsf/distribution/franking_credit,
+				unit - Unit
+			]),
+		_)
+	;	true).
+
+
+distribution_txs(Default_currency, Item, Unit, Txs) :-
 	!request_has_property(l:end_date, End_Date),
 	!maplist(!smsf_distribution_tx(Default_currency, End_Date, Item),
 		[dist{
@@ -93,11 +109,8 @@ extract_smsf_distribution4(Default_currency, Item, Unit_name_str, Txs) :-
 
 smsf_distribution_tx(Default_currency, Date, Item, Dist, Txs) :-
 	Dist = dist{prop:Prop, a:A, b:B, dir: crdr, desc:Desc},
-	(	doc_value(Item, Prop, Amount_string)
+	(	read_coord_vector_from_doc_string(Item, Prop, Default_currency, kb:credit, VectorA)
 	->	(
-			(	vector_from_string(Default_currency, kb:credit, Amount_string, VectorA)
-			->	true
-			;	throw_string(['error reading "amount" in ', $>!sheet_and_cell_string($>doc(Item, Prop))])),
 			!vec_inverse(VectorA, VectorB),
 			!doc_new_uri(distributions_input_st, St),
 			!doc_add_value(St, transactions:description, Desc, transactions),
@@ -108,6 +121,19 @@ smsf_distribution_tx(Default_currency, Date, Item, Dist, Txs) :-
 			]
 		)
 	;	Txs = []).
+
+read_coord_vector_from_doc_string(Item, Prop, Default_currency, Side, VectorA) :-
+	doc_value(Item, Prop, Amount_string),
+	(	vector_from_string(Default_currency, Side, Amount_string, VectorA)
+	->	true
+	;	throw_string(['error reading "amount" in ', $>!sheet_and_cell_string($>doc(Item, Prop))])).
+
+read_value_from_doc_string(Item, Prop, Default_currency, Value) :-
+	doc_value(Item, Prop, Amount_string),
+	(	value_from_string(Default_currency, Amount_string, Value)
+	->	true
+	;	throw_string(['error reading "amount" in ', $>!sheet_and_cell_string($>doc(Item, Prop))])).
+
 
 
 /*

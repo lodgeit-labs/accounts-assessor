@@ -61,22 +61,23 @@ process_request_ledger2((Dom, Start_Date, End_Date, Output_Dimensional_Facts, Co
 		Report_Currency,
 		Outstanding
 	]),
-	Static_Data1 = Static_Data0.put([
+	Static_Data0b = Static_Data0.put([
 		end_date=Processed_Until_Date,
 		exchange_date=Processed_Until_Date
 	]),
-
+	!transactions_by_account(Static_Data0b, Transactions_By_Account1),
+	Static_Data1 = Static_Data0b.put([transactions_by_account=Transactions_By_Account1]),
 	(	account_by_role(rl(smsf_equity), _)
 	->	(
-			smsf_income_tax_stuff(Static_Data2, Smsf_income_tax_txs),
-			Static_Data2 = Static_Data1.put([transactions=$>append(Transactions,Smsf_income_tax_txs)])
+			smsf_income_tax_stuff(Static_Data1, Smsf_income_tax_txs),
+			append(Transactions,Smsf_income_tax_txs,Transactions2),
+			Static_Data1b = Static_Data1.put([transactions=Transactions2]),
+			!transactions_by_account(Static_Data1b, Transactions_By_Account2),
+			Static_Data2 = Static_Data1b.put([transactions_by_account=Transactions_By_Account2])
 		)
 	;	Static_Data2 = Static_Data1),
-
-	!transactions_by_account(Static_Data2, Transactions_By_Account),
-	Static_Data3 = Static_Data2.put([transactions_by_account=Transactions_By_Account]),
-	check_trial_balance2(Exchange_Rates, Transactions_By_Account, Report_Currency, End_Date, Start_Date, End_Date),
-	once(!create_reports(Static_Data3, Structured_Reports)).
+	check_trial_balance2(Exchange_Rates, Static_Data2.transactions_by_account, Report_Currency, Static_Data2.end_date, Start_Date, Static_Data2.end_date),
+	once(!create_reports(Static_Data2, Structured_Reports)).
 
 
 check_trial_balance2(Exchange_Rates, Transactions_By_Account, Report_Currency, End_Date, Start_Date, End_Date) :-
@@ -105,7 +106,7 @@ create_reports(
 	!format(user_error, 'create_instance..', []),
 	!create_instance(Xbrl, Static_Data, Static_Data.start_date, Static_Data.end_date, Static_Data.report_currency, Sr.bs.current, Sr.pl.current, Sr.pl.historical, Sr.tb),
 	!add_xml_report(xbrl_instance, xbrl_instance, [Xbrl]),
-	!other_reports(Static_Data, Static_Data_Historical, Static_Data.outstanding, Sr, Sr2).
+	!other_reports(Static_Data, Static_Data.outstanding, Sr, Sr2).
 
 
 balance_entries(
@@ -135,9 +136,7 @@ balance_entries(
 		},
 		tb: Trial_Balance,
 		cf: Cf
-	},
-
-	assertion(ground(Structured_Reports)).
+	}.
 
 
 static_data_historical(Static_Data, Static_Data_Historical) :-
@@ -166,7 +165,7 @@ static_data_historical(Static_Data, Static_Data_Historical) :-
 	!cf_page(Static_Data, Sr0.cf),
 
 	!gl_export(Static_Data, Static_Data.transactions, Gl),
-	!make_json_report(, Gl, general_ledger_json),
+	!make_json_report(Gl, general_ledger_json),
 	!make_gl_viewer_report,
 
 	!investment_reports(Static_Data.put(outstanding, Outstanding), Investment_Report_Info),
@@ -174,7 +173,7 @@ static_data_historical(Static_Data, Static_Data_Historical) :-
 
 	!crosschecks_report0(Static_Data.put(reports, Sr1), Crosschecks_Report_Json),
 	Sr5 = Sr1.put(crosschecks, Crosschecks_Report_Json),
-	!make_json_report(Structured_Reports, reports_json).
+	!make_json_report(Sr1, reports_json).
 
 
 make_gl_viewer_report :-

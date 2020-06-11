@@ -38,7 +38,7 @@ process_ledger(
 	append([Gl_input_txs, Reallocation_Txs, Smsf_distribution_txs], Transactions_From_Bst, Transactions0),
 	flatten(Transactions0, Transactions1),
 	!process_livestock((Processed_S_Transactions, Transactions1), Livestock_Transactions),
-	flatten([Transactions1,	Livestock_Transactions], Transactions_With_Livestock),
+	flatten([Transactions1,	Livestock_Transactions], Transactions_With_Livestock).
 	/*
 	this is probably the right place to plug in hirepurchase and depreciation,
 	take Transactions_With_Livestock and produce an updated list.
@@ -50,8 +50,7 @@ process_ledger(
 		how to get balance of account
 		how to generate json+html reports
 	*/
-
-	Static_Data2 = Static_Data0.put(end_date, Processed_Until).put(transactions, Transactions_With_Livestock).
+	%Static_Data2 = Static_Data0.put(end_date, Processed_Until).put(transactions, Transactions_With_Livestock).
 	/*
 	fixme: doc still contains original end date, not Processed_Until.
 	*/

@@ -38,7 +38,21 @@ transaction_field(T, F, X) :-
  make_transaction(Origin, Date, Description, Account, Vector, Uri) :-
 	make_transaction2(Origin, Date, Description, Account, Vector, instant, Uri).
 
-	
+
+make_dr_cr_transactions(
+	Origin,
+	Date,
+	Description,
+	Account1,
+	Account2,
+	Vector,
+	[Tx0,Tx1]
+) :-
+	vec_inverse(Vector, Vector2),
+	make_transaction(Origin, Date, Description, Account1, Vector, Tx0),
+	make_transaction(Origin, Date, Description, Account2, Vector2, Tx1).
+
+
  transaction_to_dict(T, D) :-
 	transaction_day(T, Day),
 	transaction_description(T, Description),

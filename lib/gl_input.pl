@@ -28,12 +28,12 @@
 	!extract_gl_tx(Sheet_name, Default_Currency, St0, Date0, Items, Txs).
 
 extract_gl_tx(Sheet_name, Default_Currency, St0, Date0, [Item|Items], Txs) :-
-	!doc_value(Item, ic:date, Date1),
+	doc_value(Item, ic:date, Date1),
 	Date1 = "ignore",
 	!extract_gl_tx(Sheet_name, Default_Currency, St0, Date0, Items, Txs).
 
 extract_gl_tx(Sheet_name, Default_Currency, _, _, [Item|Items], [Tx1|Txs]) :-
-	!doc_value(Item, ic:date, Date1),
+	doc_value(Item, ic:date, Date1),
 	Date1 \= "ignore",
 	!doc_new_uri(gl_input_st, St1),
 	!doc_add_value(St1, transactions:description, Sheet_name, transactions),

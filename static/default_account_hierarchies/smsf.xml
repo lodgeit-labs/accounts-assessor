@@ -125,7 +125,7 @@
 				</account>
 				<account name="Capital Gains/Losses _ taxable"/>
 				<account name="Capital Gains/Losses _ Non taxable"/>
-				<account name="Distribution Received" subcategorize_by_investment="true"/>
+				<account name="Distribution Received" role="Distribution Received" subcategorize_by_investment="true"/>
                 <account name="Dividends Received"/>
                 <account name="Interest Received - control">
 				    <account name="Interest Received"/>
@@ -136,9 +136,7 @@
                 <account name="Employer Contribution"/>
 
 				<!-- fixme,.update excel sheets to do the subcategorization -->
-				<account name="Contribution Received" subcategorize_by_smsf_member="true"/>
-				<!--<account name="MemberPersonalContributionsConcessional" subcategorize_by_smsf_member="true"/>
-				<account name="MemberPersonalContributionsNonConcessional" subcategorize_by_smsf_member="true"/>-->
+				<account name="Contribution Received" role="Contribution Received" subcategorize_by_smsf_member="true"/>
 
                 <account name="Transfer In"/>
                 <account name="PL Transfers In - Preserved/Tax Free" subcategorize_by_smsf_member="true"/>
@@ -156,8 +154,8 @@
 				<account name="Investment Expenses"/>
 				<account name="Fines"/>
 				<account name="Legal Fees"/>
-				<account name="Income Tax Expenses"/>
-				<account name="Writeback Of Deferred Tax"/>
+				<account name="Income Tax Expenses" role="Income Tax Expenses"/>
+				<account name="Writeback Of Deferred Tax" role="Writeback Of Deferred Tax"/>
 				<account name="Life Insurance Premium"/>
 				<account name="Pension paid"/>
 				<account name="Benefits Paid"/>

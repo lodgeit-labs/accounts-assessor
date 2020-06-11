@@ -3,10 +3,13 @@ mock_request :-
 	doc_init.
 */
 make_fact(Vec, Aspects, Uri) :-
-	doc_new_uri(report_entry, Uri),
+	doc_new_uri(fact, Uri),
 	doc_add(Uri, rdf:type, l:fact),
-	doc_add(Uri, l:vec, Vec),
+	doc_add(Uri, l:vec, $>flatten([Vec])),
 	doc_add(Uri, l:aspects, Aspects).
+
+make_fact(Vec, Aspects) :-
+	make_fact(Vec, Aspects, _).
 
 fact_vec(Uri, X) :-
 	doc(Uri, l:vec, X).
@@ -38,13 +41,14 @@ find_aspect(Hay, Needle) :-
 given account role, get balance from corresponding report_entry, and assert a fact (with given aspects)
 */
 
-add_fact_by_account_role(Json_reports, aspects(Aspects)) :-
+ add_fact_by_account_role(Json_reports, aspects(Aspects)) :-
 	!member(report - Report_path, Aspects),
 	path_get_dict(Report_path, Json_reports, Report),
 	!member(account_role - Role, Aspects),
 	!report_entry_vec_by_role(Report, Role, Vec),
-	%writeq(Vec),nl,
-	!make_fact(Vec, aspects(Aspects), _).
+	!account_normal_side($>abrlt(Role), Side),
+	maplist(!coord_normal_side_value2(Side), Vec, Values),
+	!make_fact(Values, aspects(Aspects), _).
 
 %add_sum_fact_from_report_entries_by_roles(Bs, Roles, New_fact_aspects) :-
 %	!maplist(report_entry_vec_by_role(Bs), Roles, Vecs),
@@ -89,15 +93,13 @@ evaluate_fact(In, with_metadata(Values,In)) :-
 /*
 this relies on there being no intermediate facts asserted.
 */
-evaluate_fact2(In,Values) :-
+evaluate_fact2(In,Sum) :-
 	In = aspects(_),
 	facts_by_aspects(In, Facts),
 	/*(	Facts \= []
 	->	true
 	;	throw_string(['fact missing:', In])),*/
-	facts_vec_sum(Facts, Sum),
-	%format_balances(html, $>request_has_property(l:report_currency), none, none, kb:debit, Sum, Out).
-	maplist(coord_normal_side_value2(kb:credit), Sum, Values).
+	facts_vec_sum(Facts, Sum).
 
 coord_normal_side_value2(Side, In, Out) :-
 	coord_normal_side_value(In, Side, Out).

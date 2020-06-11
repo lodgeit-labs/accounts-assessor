@@ -63,6 +63,7 @@
 :- [s_transaction].
 :- [smsf].
 :- [smsf_facts].
+:- [smsf_income_tax].
 :- [smsf_member_reports].
 :- [smsf_member_report_checks].
 :- [smsf_member_report_presentation].

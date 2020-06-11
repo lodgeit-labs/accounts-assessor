@@ -80,14 +80,14 @@ smsf_member_overview_report(Member, Tbl_dict) :-
 				member - Member])]
 	],
 	!evaluate_fact_table(Pres, Tbl),
-	maplist(!smsf_member_overview_report_row_to_dict, Tbl, Rows),
+	maplist(!label_value_row_to_dict, Tbl, Rows),
 	Columns = [
 		column{id:label, title:"Your Balance", options:_{}},
 		column{id:value, title:"", options:_{implicit_report_currency:true}}],
 	Tbl_dict = table{title:Member, columns:Columns, rows:Rows}.
 
 
-smsf_member_overview_report_row_to_dict([A,B], Dict) :-
+label_value_row_to_dict([A,B], Dict) :-
 	Dict = row{
 		label:A,
 		value:B}.

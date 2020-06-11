@@ -40,17 +40,18 @@ produce all aspectses to later look up in GL and assert
 smsf_member_details_report_aspectses(Member, Aspectses) :-
 	!maplist(!smsf_member_details_report_aspectses3(Member),
 	[
-		x(bs/current, 'Opening Balance', []),
-		x(bs/current, 'Transfers In', [effect - addition]),
-		x(bs/current, 'Pensions Paid', [effect - subtraction]),
-		x(bs/current, 'Benefits Paid', [effect - subtraction]),
-		x(bs/current, 'Transfers Out', [effect - subtraction]),
-		x(bs/current, 'Life Insurance Premiums', [effect - subtraction]),
-		x(bs/current, 'Share of Profit/(Loss)', [effect - addition]),
-		x(bs/current, 'Income Tax', [effect - subtraction]),
-		x(bs/current, 'Contribution Tax', [effect - subtraction]),
-		x(bs/current, 'Internal Transfers In', [effect - addition]),
-		x(bs/current, 'Internal Transfers Out', [effect - subtraction])
+		x(final/bs/current, 'Opening Balance', []),
+		/* effect etc should be something else than an aspect. A tag perhaps. */
+		x(final/bs/current, 'Transfers In', [effect - addition]),
+		x(final/bs/current, 'Pensions Paid', [effect - subtraction]),
+		x(final/bs/current, 'Benefits Paid', [effect - subtraction]),
+		x(final/bs/current, 'Transfers Out', [effect - subtraction]),
+		x(final/bs/current, 'Life Insurance Premiums', [effect - subtraction]),
+		x(final/bs/current, 'Share of Profit/(Loss)', [effect - addition]),
+		x(final/bs/current, 'Income Tax', [effect - subtraction]),
+		x(final/bs/current, 'Contribution Tax', [effect - subtraction]),
+		x(final/bs/current, 'Internal Transfers In', [effect - addition]),
+		x(final/bs/current, 'Internal Transfers Out', [effect - subtraction])
 	],
 	Aspectses0),
 	smsf_member_details_report_aspectses6(Member, Aspectses1),
@@ -121,7 +122,7 @@ smsf_member_details_report_aspectses6(Member, Aspectses) :-
 	*/
 	Aspectses = [
 		aspects([
-			report - bs/current,
+			report - final/bs/current,
 			account_role - 'Employer Contributions - Concessional' / Member,
 			concept - smsf/member/gl/'Employer Contributions - Concessional',
 			phase - 'Preserved',
@@ -130,7 +131,7 @@ smsf_member_details_report_aspectses6(Member, Aspectses) :-
 			effect - addition
 		]),
 		aspects([
-			report - bs/current,
+			report - final/bs/current,
 			account_role - 'Member/Personal Contributions - Concessional' / Member,
 			concept - smsf/member/gl/'Member/Personal Contributions - Concessional',
 			phase - 'Preserved',
@@ -139,7 +140,7 @@ smsf_member_details_report_aspectses6(Member, Aspectses) :-
 			effect - addition
 		]),
 		aspects([
-			report - bs/current,
+			report - final/bs/current,
 			account_role - 'Member/Personal Contributions - Non Concessional' / Member,
 			concept - smsf/member/gl/'Member/Personal Contributions - Non Concessional',
 			phase - 'Preserved',
@@ -148,7 +149,7 @@ smsf_member_details_report_aspectses6(Member, Aspectses) :-
 			effect - addition
 		]),
 		aspects([
-			report - bs/current,
+			report - final/bs/current,
 			account_role - 'Other Contributions' / Member,
 			concept - smsf/member/gl/'Other Contributions',
 			phase - 'Preserved',

@@ -140,7 +140,7 @@ vec_sum_by_pred(P, Input, Sum) :-
 
 % Subtracts the vector Bs from As by inverting Bs and adding it to As.
 
-vec_sub(As, Bs, Cs) :-
+ vec_sub(As, Bs, Cs) :-
 	vec_inverse(Bs, Ds),
 	vec_add(As, Ds, Cs).
 
