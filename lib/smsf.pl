@@ -70,14 +70,20 @@ extract_smsf_distribution4(Default_currency, Item, Unit_name_str, Txs) :-
 	assert_smsf_distribution_facts(Default_currency, Unit, Item).
 
 assert_smsf_distribution_facts(Default_currency, Unit, Item) :-
-	(	read_value_from_doc_string(Item, smsf_distribution_ui:franking_credit, Default_currency, Value)
-	->	make_fact(
-			Value,
-			aspects([
-				concept - smsf/distribution/franking_credit,
-				unit - Unit
-			]),
-		_)
+	optionally_assert_doc_value_as_fact(Item, smsf_distribution_ui:franking_credit, Default_currency,
+		aspects([
+			concept - smsf/distribution/franking_credit,
+			unit - Unit
+	])),
+	optionally_assert_doc_value_as_fact(Item, smsf_distribution_ui:foreign_credit, Default_currency,
+		aspects([
+			concept - smsf/distribution/foreign_credit,
+			unit - Unit
+	])).
+
+ optionally_assert_doc_value_as_fact(Item, Prop, Default_currency, Aspects) :-
+	(	read_value_from_doc_string(Item, Prop, Default_currency, Value)
+	->	make_fact(Value, Aspects)
 	;	true).
 
 
@@ -128,11 +134,15 @@ read_coord_vector_from_doc_string(Item, Prop, Default_currency, Side, VectorA) :
 	->	true
 	;	throw_string(['error reading "amount" in ', $>!sheet_and_cell_string($>doc(Item, Prop))])).
 
-read_value_from_doc_string(Item, Prop, Default_currency, Value) :-
+ read_value_from_doc_string(Item, Prop, Default_currency, Value) :-
 	doc_value(Item, Prop, Amount_string),
 	(	value_from_string(Default_currency, Amount_string, Value)
 	->	true
-	;	throw_string(['error reading "amount" in ', $>!sheet_and_cell_string($>doc(Item, Prop))])).
+	;	(
+			assert(var(Value)),
+			throw_string(['error reading "amount" in ', $>!sheet_and_cell_string($>doc(Item, Prop))])
+		)
+	).
 
 
 

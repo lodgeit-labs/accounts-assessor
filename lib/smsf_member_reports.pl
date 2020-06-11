@@ -1,7 +1,8 @@
 
 smsf_member_reports(Json_reports) :-
 	!smsf_members_throw(Members),
-	!maplist(!smsf_member_report(Json_reports), Members, _Json)/*,
+	Json_reports2 = _{final:Json_reports},
+	!maplist(!smsf_member_report(Json_reports2), Members, _Json)/*,
 	!smsf_member_report_check1(Json)*/.
 
 

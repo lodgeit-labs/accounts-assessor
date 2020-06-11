@@ -24,6 +24,9 @@ add_smsf_income_tax_report_facts(Sd) :-
 	Aspectses = [
 		aspects([
 			report - before_smsf_income_tax/pl/current,
+			account_role - 'ComprehensiveIncome']),
+		aspects([
+			report - before_smsf_income_tax/pl/current,
 			account_role - 'Income Tax Expenses']),
 		aspects([
 			report - before_smsf_income_tax/pl/current,
@@ -97,7 +100,7 @@ smsf_income_tax_report(Tbl_dict) :-
 				account_role - 'Writeback Of Deferred Tax'])],
 		[text('Taxable Net Capital Gain'),
 			aspects([
-				concept - smsf/income_tax/'Taxable Net Capital Gain'])]],
+				concept - smsf/income_tax/franking_credit])]],
 
 	!rows_total(Addition_rows, Additions_vec),
 	!vec_sub(Rows0_vec, Subtractions_vec, After_subtractions),
@@ -183,16 +186,15 @@ smsf_income_tax_report(Tbl_dict) :-
 	!doc_value(Input, excel:has_sheet_name, Sheet_name),
 	!doc_new_uri(income_tax_st, St1),
 	!doc_add_value(St1, transactions:description, Sheet_name, transactions),
-
+	vector_of_coords_vs_vector_of_values(kb:debit, Tax_vec, $>!evaluate_fact2(aspects([concept - smsf/income_tax/'Tax on Taxable Income @ 15%']))),
+	vector_of_coords_vs_vector_of_values(kb:debit, Levy_vec, $>!evaluate_fact2(aspects([concept - smsf/income_tax/'ATO Supervisory Levy']))),
 	!make_dr_cr_transactions(
 		St,
 		$>request_has_property(l:end_date),
 		Sheet_name,
 		$>abrlt('Income Tax Expenses'),
 		$>abrlt('Income Tax Payable'),
-		[coord(
-			xxx$>request_has_property(l:report_currency),
-			xxx$>!evaluate_fact2(aspects([concept - smsf/income_tax/'Taxable Net Capital Gain'])))],
+		Tax_vec,
 		Txs0),
 	!make_dr_cr_transactions(
 		St,
@@ -200,9 +202,7 @@ smsf_income_tax_report(Tbl_dict) :-
 		Sheet_name,
 		$>abrlt('ATO Supervisory Levy'),
 		$>abrlt('Income Tax Payable'),
-		[coord(
-			$>request_has_property(l:report_currency),
-			$>!evaluate_fact2(aspects([concept - smsf/income_tax/'ATO Supervisory Levy'])))],
+		Levy_vec,
 		Txs1).
 
 

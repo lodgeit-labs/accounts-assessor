@@ -1,4 +1,4 @@
-smsf_member_report_presentation(Presentation) :-
+ smsf_member_report_presentation(Presentation) :-
 
 	format(string(Opening_balance_label), 'Opening Balance at ~w', [$>format_date($>request_has_property(l:start_date))]),
 	format(string(Closing_balance_label), 'Closing Balance at ~w', [$>format_date($>request_has_property(l:end_date))]),
@@ -8,7 +8,7 @@ smsf_member_report_presentation(Presentation) :-
 	Tbl1 = [
 		[text(Opening_balance_label),
 			aspects([
-				report - bs/current,
+				report - final/bs/current,
 				concept - smsf/member/gl/'Opening Balance'])],
 
 		[text('Add: Increases to Member\'s Account During the Period'),
@@ -16,17 +16,17 @@ smsf_member_report_presentation(Presentation) :-
 
 		[text('Concessional Contributions'),
 			aspects([
-				report - bs/current,
+				report - final/bs/current,
 				concept - smsf/member/gl/'Member/Personal Contributions - Concessional'])],
 
 		[text('Non-Concessional Contributions'),
 			aspects([
-				report - bs/current,
+				report - final/bs/current,
 				concept - smsf/member/gl/'Member/Personal Contributions - Non Concessional'])],
 
 		[text('Other Contributions'),
 			aspects([
-				report - bs/current,
+				report - final/bs/current,
 				concept - smsf/member/gl/'Other Contributions'])],
 
 		/* missing */
@@ -36,17 +36,17 @@ smsf_member_report_presentation(Presentation) :-
 		/*[text('Proceeds of Insurance Policies'),                         concept('Proceeds of Insurance Policies')],*/
 		[text('Share of Net Income/(Loss) for period'),
 			aspects([
-				report - bs/current,
+				report - final/bs/current,
 				concept - smsf/member/gl/'Share of Profit/(Loss)'])],
 
 		[text('Internal Transfers In'),
 			aspects([
-				report - bs/current,
+				report - final/bs/current,
 				concept - smsf/member/gl/'Internal Transfers In'])],
 
 		[text('Transfers In'),
 			aspects([
-				report - bs/current,
+				report - final/bs/current,
 				concept - smsf/member/gl/'Transfers In'])],
 
 		[text(''),                                                       text('')],
@@ -66,22 +66,22 @@ smsf_member_report_presentation(Presentation) :-
 
 		[text('Benefits Paid'),
 			aspects([
-				report - bs/current,
+				report - final/bs/current,
 				concept - smsf/member/gl/'Benefits Paid'])],
 
 		[text('Pensions Paid'),
 			aspects([
-				report - bs/current,
+				report - final/bs/current,
 				concept - smsf/member/gl/'Pensions Paid'])],
 
 		[text('Contribution Tax'),
 			aspects([
-				report - bs/current,
+				report - final/bs/current,
 				concept - smsf/member/gl/'Contribution Tax'])],
 
 		[text('Income Tax'),
 			aspects([
-				report - bs/current,
+				report - final/bs/current,
 				concept - smsf/member/gl/'Income Tax'])],
 		/*
 		[text('No TFN Excess Contributions Tax'),                        concept('No TFN Excess Contributions Tax')],
@@ -91,7 +91,7 @@ smsf_member_report_presentation(Presentation) :-
 		*/
 		[text('Insurance Policy Premiums Paid'),
 			aspects([
-				report - bs/current,
+				report - final/bs/current,
 				concept - smsf/member/gl/'Life Insurance Premiums'])],
 		/*
 		[text('Management Fees'),                                        concept('Management Fees')],
@@ -99,12 +99,12 @@ smsf_member_report_presentation(Presentation) :-
 		*/
 		[text('Internal Transfers Out'),
 			aspects([
-				report - bs/current,
+				report - final/bs/current,
 				concept - smsf/member/gl/'Internal Transfers Out'])],
 
 		[text('Transfers Out'),
 			aspects([
-				report - bs/current,
+				report - final/bs/current,
 				concept - smsf/member/gl/'Transfers Out'])],
 
 		[text(''),                                                       text('')],

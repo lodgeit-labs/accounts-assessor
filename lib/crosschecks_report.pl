@@ -111,10 +111,10 @@ evaluate2(Sd, account_balance(Report_Id, Role), Values_List) :-
 	),
 	vec_sum(Values_List0, Values_List).
 
-entry_normal_side_values(Sd, Entry, Values_List) :-
+entry_normal_side_values(_Sd, Entry, Values_List) :-
 	!report_entry_total_vec(Entry, Balance),
 	!report_entry_gl_account(Entry, Account),
-	!vector_of_coords_to_vector_of_values(Sd, Account, Balance, Values_List).
+	!vector_of_coords_to_vector_of_values_by_account_normal_side(Account, Balance, Values_List).
 
 accounts_report_entry_by_account_role_nothrow(_Sd, Report, Role, Entry) :-
 	account_by_role(Role, Id),

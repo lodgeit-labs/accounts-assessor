@@ -101,9 +101,6 @@ evaluate_fact2(In,Sum) :-
 	;	throw_string(['fact missing:', In])),*/
 	facts_vec_sum(Facts, Sum).
 
-coord_normal_side_value2(Side, In, Out) :-
-	coord_normal_side_value(In, Side, Out).
-
 facts_vec_sum(Facts, Sum) :-
 	maplist(fact_vec, Facts, Vecs),
 	vec_sum(Vecs, Sum).

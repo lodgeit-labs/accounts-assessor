@@ -147,7 +147,7 @@
 			<account name="Expenses" normal_side="debit">
 				<account name="Accountancy Fees"/>
 				<account name="Adminstration Costs"/>
-				<account name="ATO Supervisory Levy"/>
+				<account name="ATO Supervisory Levy" role="ATO Supervisory Levy"/>
 				<account name="Audit Fees"/>
 				<account name="Bank Charges"/>
 				<account name="Rental Expenses"/>
