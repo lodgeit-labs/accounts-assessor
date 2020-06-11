@@ -5,9 +5,11 @@ smsf_income_tax_stuff(Static_Data, Txs) :-
 	!request_data(Rd),
 	(	doc(Rd, smsf:income_tax_info, Input)
 	->	(
-			!doc(Input, smsf:ato_supervisory_levy, Levy),
+			!request_has_property(l:report_currency, [Report_currency]),
+			!doc_value(Input, smsf:ato_supervisory_levy, Levy_str),
+			!value_from_string(Report_currency, Levy_str, Levy),
 			!make_fact(
-				[value($>!request_has_property(l:report_currency), Levy)],
+				Levy,
 				aspects([concept - smsf/income_tax/'ATO Supervisory Levy']),
 				_),
 			!smsf_income_tax_report(_),
@@ -143,7 +145,6 @@ smsf_income_tax_report(Tbl_dict) :-
 	Rows4 = [
 		[text('after deduction:'),
 			aspects([concept - smsf/income_tax/'after deductions'])],
-% todo input
 		[text('Add: ATO Supervisory Levy'),
 			aspects([concept - smsf/income_tax/'ATO Supervisory Levy'])],
 		[text('to pay:'),

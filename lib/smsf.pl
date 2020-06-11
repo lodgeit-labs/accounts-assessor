@@ -138,38 +138,6 @@ read_value_from_doc_string(Item, Prop, Default_currency, Value) :-
 
 /*
 
-income tax:
-Benefits Accrued as a Result of Operations before Income Tax = P&L excluding:
-	ATO?
-
-	Writeback Of Deferred Tax (expense)
-
-	Income Tax Expenses (expense)
-		income tax
-		ATO supervisory levy
-
-
-In [5]: 19903 + 1478 + 1344
-Out[5]: 22725
-
-excluding:
-	Contribution Received
-		53
-	PL Transfers In - Preserved/Tax*
-		0
-	"Accounting Capital Gains" - Capital GainLoss?
-		13,435.54
-	"Distributed Capital Gains" - Distribution Received?
-		16,255.05
-	Non Taxable Distributions Received?
-	Other Non Taxable Items?
-
-
-
-
-
-
-
 first class formulas:
 
 	"Accounting Equation"
@@ -182,17 +150,6 @@ first class formulas:
 
 	'Benefits Accrued as a Result of Operations before Income Tax' = 'P&L', excluding: 'Writeback Of Deferred Tax', 'Income Tax Expenses'
 
-
-
-
-!report_entry_vec_by_role(Report, Role, Vec),
-
-
-
-
-
-
-216631 216301
 
 
 */
