@@ -801,6 +801,21 @@ sheet_and_cell_string(Value, Str) :-
 	!doc(Value, excel:row, Row),
 	!atomics_to_string([Sheet_name, ' ', Col, ':', Row], Str).
 
+read_coord_vector_from_doc_string(Item, Prop, Default_currency, Side, VectorA) :-
+	doc_value(Item, Prop, Amount_string),
+	(	vector_from_string(Default_currency, Side, Amount_string, VectorA)
+	->	true
+	;	throw_string(['error reading "amount" in ', $>!sheet_and_cell_string($>doc(Item, Prop))])).
+
+ read_value_from_doc_string(Item, Prop, Default_currency, Value) :-
+	doc_value(Item, Prop, Amount_string),
+	(	value_from_string(Default_currency, Amount_string, Value)
+	->	true
+	;	(
+			assert(var(Value)),
+			throw_string(['error reading "amount" in ', $>!sheet_and_cell_string($>doc(Item, Prop))])
+		)
+	).
 
 
 

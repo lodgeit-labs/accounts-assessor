@@ -105,3 +105,155 @@ facts_vec_sum(Facts, Sum) :-
 	maplist(fact_vec, Facts, Vecs),
 	vec_sum(Vecs, Sum).
 
+
+
+
+
+add_summation_fact(Summed_aspectses, Sum_aspectses) :-
+	maplist(!facts_by_aspects, Summed_aspectses, Factses),
+	flatten(Factses, Facts),
+	!facts_vec_sum(Facts, Vec),
+	!make_fact(Vec, Sum_aspectses).
+
+
+
+
+
+
+optionally_assert_doc_value_as_unit_fact(Default_currency, Unit, Item, Prop) :-
+	optionally_assert_doc_value_as_unit_fact2(Item, Prop, Default_currency, Unit, Prop).
+
+optionally_assert_doc_value_as_unit_fact2(Item, Prop, Default_currency, Unit, Concept) :-
+	optionally_assert_doc_value_as_fact(Item, Prop, Default_currency,
+		aspects([
+			concept - Concept,
+			unit - Unit
+	])).
+
+ optionally_assert_doc_value_as_fact(Item, Prop, Default_currency, Aspects) :-
+	(	read_value_from_doc_string(Item, Prop, Default_currency, Value)
+	->	make_fact(Value, Aspects)
+	;	true).
+
+
+
+
+/*
+
+first class formulas:
+
+	"Accounting Equation"
+		assets - liabilities = equity
+
+	smsf:
+		'Benefits Accrued as a Result of Operations before Income Tax' = 'P&L' + 'Writeback Of Deferred Tax' + 'Income Tax Expenses'
+
+	there is a choice between dealing with (normal-side) values vs dr/cr coords. A lot of what we need to express are not naturally coords, and dealing with them as coords would be confusing. Otoh, translating gl account coords to normal side values can make things confusing too, as seen above.
+
+	'Benefits Accrued as a Result of Operations before Income Tax' = 'P&L', excluding: 'Writeback Of Deferred Tax', 'Income Tax Expenses'
+
+
+
+*/
+
+/*
+
+a subset of these declarations could be translated into a proper xbrl taxonomy.
+
+value_formula(equals(
+	aspects([concept - smsf/income_tax/'Benefits Accrued as a Result of Operations before Income Tax']),
+	aspects([
+		report - pl/current,
+		account_role - 'ComprehensiveIncome']))),
+
+value_formula(x_is_sum_of_y(
+	aspects([concept - smsf/income_tax/'total subtractions from PL']),
+	[
+		aspects([
+			report - pl/current,
+			account_role - 'Distribution Received'])
+		aspects([
+			report - pl/current,
+			account_role - 'TradingAccounts/Capital GainLoss']),
+		aspects([
+			report - pl/current,
+			account_role - 'Distribution Received']),
+		aspects([
+			report - pl/current,
+			account_role - 'Contribution Received'])
+	])).
+*/
+/*
+	evaluate expressions:
+		aspecses with report and account_role aspects are taken from reports. They are forced into a single value. This allows us to do clp on it without pyco. Previously unseen facts are asserted.
+
+*/
+
+/*
+% Sr - structured reports
+evaluate_value_formulas(Sr) :-
+	findall(F, value_formula(F), Fs),
+	evaluate_value_formulas(Sr, Fs).
+
+evaluate_value_formulas(Sr, [F|Rest]) :-
+	evaluate_value_formula(Sr, F),
+	evaluate_value_formulas(Sr, Rest).
+
+evaluate_value_formula(Sr, equals(X, Y)) :-
+	evaluate_value(X, Xv)
+
+
+
+evaluate_value(X, Xv) :-
+
+
+
+
+asserted:
+	aspects([concept - smsf/income_tax/'total subtractions from PL']),
+equals(X,aspects([
+	concept - smsf/income_tax/'total subtractions from PL'
+	memeber - xxx
+]),
+
+
+
+xbrl:
+	fact:
+		concept
+		context:
+			period
+			dimension1
+*/
+/*
+
+fact1:
+concept - contribution
+taxation - taxable
+phase - preserved
+fact2:
+concept - contribution
+taxation - tax-free
+phase - preserved
+effect - addition
+
+get(concept - contribution):
+		get exact match
+	or
+		get the set of subdividing aspects:
+			taxation, phase, effect
+		pick first aspect present in all asserted facts
+		get([concept - contribution, taxation - _]):
+			get the set of subdividing aspects:
+				phase, effect
+			pick first aspect present in all asserted facts
+			get([concept - contribution, taxation - _]):
+*/
+
+/*
+
+open problems:
+	unreliability of clp - run a sicstus clp service?
+	vectors for fact values - would require pyco to solve
+*/
+

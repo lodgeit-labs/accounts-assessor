@@ -62,6 +62,7 @@
 :- [residency].
 :- [s_transaction].
 :- [smsf].
+:- [smsf_distribution].
 :- [smsf_facts].
 :- [smsf_income_tax].
 :- [smsf_member_reports].

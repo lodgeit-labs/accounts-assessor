@@ -170,36 +170,32 @@ assert derived summation facts
 */
 
 smsf_member_report_add_total_additions(Member, Phase) :-
-	!facts_by_aspects(
+	!add_summation_fact([
 		aspects([
 			account_role - _,
 			phase - Phase,
 			member - Member,
 			effect - addition
-		]), Facts),
-	!facts_vec_sum(Facts, Vec),
-	!make_fact(Vec,
+		])],
 		aspects([
 			concept - smsf/member/derived/'total additions',
 			phase - Phase,
 			member - Member
-		]),_).
+		])).
 
 smsf_member_report_add_total_subtractions(Member, Phase) :-
-	!facts_by_aspects(
+	!add_summation_fact([
 		aspects([
 			account_role - _,
 			phase - Phase,
 			member - Member,
 			effect - subtraction
-		]), Facts),
-	!facts_vec_sum(Facts, Vec),
-	!make_fact(Vec,
+		])],
 		aspects([
 			concept - smsf/member/derived/'total subtractions',
 			phase - Phase,
 			member - Member
-		]),_).
+		])).
 
 smsf_member_report_add_ob_plus_additions(Member, Phase) :-
 	!facts_vec_sum($>smsf_member_facts_by_aspects(Member, Phase, smsf/member/gl/'Opening Balance'), Vec1),

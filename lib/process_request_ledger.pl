@@ -69,15 +69,21 @@ process_request_ledger2((Dom, Start_Date, End_Date, Output_Dimensional_Facts, Co
 	Static_Data1 = Static_Data0b.put([transactions_by_account=Transactions_By_Account1]),
 	(	account_by_role(rl(smsf_equity), _)
 	->	(
-			smsf_income_tax_stuff(Static_Data1, Smsf_income_tax_txs),
-			append(Transactions,Smsf_income_tax_txs,Transactions2),
-			Static_Data1b = Static_Data1.put([transactions=Transactions2]),
-			!transactions_by_account(Static_Data1b, Transactions_By_Account2),
-			Static_Data2 = Static_Data1b.put([transactions_by_account=Transactions_By_Account2])
+			update_static_data_with_transactions(
+				Static_Data1,
+				$>smsf_income_tax_stuff(Static_Data1),
+				Static_Data2)
 		)
 	;	Static_Data2 = Static_Data1),
 	check_trial_balance2(Exchange_Rates, Static_Data2.transactions_by_account, Report_Currency, Static_Data2.end_date, Start_Date, Static_Data2.end_date),
 	once(!create_reports(Static_Data2, Structured_Reports)).
+
+update_static_data_with_transactions(In, Txs, Out) :-
+	append(In.transactions,$>flatten(Txs),Transactions2),
+	Static_Data1b = In.put([transactions=Transactions2]),
+	!transactions_by_account(Static_Data1b, Transactions_By_Account),
+	Out = Static_Data1b.put([transactions_by_account=Transactions_By_Account]).
+
 
 
 check_trial_balance2(Exchange_Rates, Transactions_By_Account, Report_Currency, End_Date, Start_Date, End_Date) :-
