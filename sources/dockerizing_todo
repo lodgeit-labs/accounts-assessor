@@ -1,0 +1,4 @@
+split out internal_workers modules used by frontend_server
+secrets
+ports - internally, bind to some new ports, like 6666, to make it less confusing
+docker confiigurations - django dev vs prod

@@ -1,8 +1,10 @@
+# this file contains requirements of all sub-projects, as well as some developer conveniences.
+
 wheel
 ipython
 click
 untangle
-sympy
+#sympy
 xmlschema==1.0.14
 deepdiff
 defusedxml

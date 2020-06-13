@@ -122,5 +122,6 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 MODERNRPC_METHODS_MODULES = ['lodgeit_python.rpc']
+#MODERNRPC_METHODS_MODULES = []
 MODERNRPC_JSON_DECODER = 'lodgeit_python.rpc.MyJSONDecoder'
 MODERNRPC_JSON_ENCODER = 'lodgeit_python.rpc.MyDjangoJSONEncoder'

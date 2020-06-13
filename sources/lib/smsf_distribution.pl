@@ -7,14 +7,12 @@
  extract_smsf_distribution2(Distribution, Txs) :-
 	!doc_value(Distribution, smsf_distribution_ui:default_currency, Default_currency0),
 	!atom_string(Default_currency, Default_currency0),
-	!doc_value(Distribution, smsf_distribution_ui:items, D),
-	!doc_list_items(D, Items),
+	!doc_list_items($>!doc_value(Distribution, smsf_distribution_ui:items), Items),
 	!maplist(extract_smsf_distribution3(Default_currency), Items, Txs0),
  	!flatten(Txs0, Txs).
 
 extract_smsf_distribution3(Default_currency, Item, Txs) :-
-	doc_value(Item, smsf_distribution_ui:name, Unit_name_str),
-	trim_string(Unit_name_str, Unit_name_str2),
+	trim_string($>!doc_value(Item, smsf_distribution_ui:name), Unit_name_str2),
 	extract_smsf_distribution4(Default_currency, Item, Unit_name_str2, Txs).
 
 extract_smsf_distribution4(_, _, "Dr/Cr", []) :- !.
@@ -29,15 +27,64 @@ extract_smsf_distribution4(Default_currency, Item, Unit_name_str, Txs) :-
 	distribution_txs(Default_currency, Item, Unit, Txs),
 	assert_smsf_distribution_facts(Default_currency, Unit, Item).
 
+/*
+┏━╸┏━┓┏━╸╺┳╸┏━┓
+┣╸ ┣━┫┃   ┃ ┗━┓
+╹  ╹ ╹┗━╸ ╹ ┗━┛
+*/
 assert_smsf_distribution_facts(Default_currency, Unit, Item) :-
 	maplist(
 		optionally_assert_doc_value_as_unit_fact(Default_currency, Unit, Item),
-		[	smsf_distribution_ui:franking_credit,
+		[	smsf_distribution_ui:net,
+			smsf_distribution_ui:bank,
+			smsf_distribution_ui:franking_credit,
 			smsf_distribution_ui:foreign_credit,
+			smsf_distribution_ui:amit_decrease,
+			smsf_distribution_ui:amit_increase,
+
+
 			smsf_distribution_ui:non_primary_production_income,
 			smsf_distribution_ui:franked_divis_distri_including_credits,
-			smsf_distribution_ui:assessable_foreign_source_income]).
+			smsf_distribution_ui:assessable_foreign_source_income]),
 
+	computed_fact(
+		aspects([
+			unit - Unit,
+			concept - smsf_distribution_ui:accrual])
+		 =
+		aspects([
+			unit - Unit,
+			concept - smsf_distribution_ui:net])
+		-
+		aspects([
+			unit - Unit,
+			concept - smsf_distribution_ui:bank])),
+
+	check_entered_accrual(Default_currency, Unit, Item),
+
+
+check_entered_accrual(Default_currency, Unit, Item) :-
+	(	read_value_from_doc_string(Item, smsf_distribution_ui:entered_accrual, Default_currency, Value)
+	->	soft_crosscheck(
+			aspects([
+				unit - Unit,
+				concept - smsf_distribution_ui:entered_accrual])
+			=
+			aspects([
+				unit - Unit,
+				smsf_distribution_ui:net - smsf_distribution_ui:accrual]))
+	;	true).
+
+
+# calculated, checked
+smsf_distribution_ui:amit_net rdfs:label "Add: AMIT cost base net amount - net increase".
+
+
+/*
+╺┳╸╻ ╻┏━┓
+ ┃ ┏╋┛┗━┓
+ ╹ ╹ ╹┗━┛
+*/
 distribution_txs(Default_currency, Item, Unit, Txs) :-
 	!request_has_property(l:end_date, End_Date),
 	!maplist(!smsf_distribution_tx(Default_currency, End_Date, Item),
@@ -62,8 +109,6 @@ distribution_txs(Default_currency, Item, Unit, Txs) :-
 		],
 		Txs).
 
-
-
 smsf_distribution_tx(Default_currency, Date, Item, Dist, Txs) :-
 	Dist = dist{prop:Prop, a:A, b:B, dir: crdr, desc:Desc},
 	(	read_coord_vector_from_doc_string(Item, Prop, Default_currency, kb:credit, VectorA)
@@ -79,3 +124,6 @@ smsf_distribution_tx(Default_currency, Date, Item, Dist, Txs) :-
 		)
 	;	Txs = []).
 
+/*
+-----------
+*/
