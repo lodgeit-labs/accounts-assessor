@@ -1,11 +1,24 @@
 FROM ubuntu:18.04
 
+
+env LOC en_AU.UTF-8
+RUN apt-get update \
+    && DEBIAN_FRONTEND=noninteractive apt-get install -y locales language-pack-en \
+    && sed -i -e 's/# $LOC UTF-8/$LOC UTF-8/' /etc/locale.gen \
+    && dpkg-reconfigure --frontend=noninteractive locales \
+    && update-locale LANG=$LOC
+ENV LANG $LOC
+ENV LC_ALL $LOC
+
+
 #todo: this is multi-stage build, are the base image tags guaranteed to resolve to the same images for both stages?
 #FROM koo5/swipl as swipl
 #^that didnt work
 RUN mkdir /app
 WORKDIR /app
-RUN apt-get update && apt-get install -y \
+        # apt-get update \
+        # && 
+RUN     apt-get install -y \
         git \
         build-essential cmake ninja-build pkg-config \
         ncurses-dev libreadline-dev libedit-dev \
