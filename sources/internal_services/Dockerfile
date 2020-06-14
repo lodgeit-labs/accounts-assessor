@@ -13,6 +13,7 @@ VOLUME /app/server_root
 COPY public_lib ./public_lib
 COPY internal_services ./internal_services
 COPY git_info.txt .
-USER user
+#USER user
 WORKDIR /app/internal_services
-CMD ["./start.sh"]
+ENV PYTHONUNBUFFERED true
+ENTRYPOINT ["./start.sh"]

@@ -8,7 +8,8 @@ COPY requirements.txt .
 RUN pip3 install --no-cache-dir -r requirements.txt
 EXPOSE 17788
 RUN mkdir -p /app/server_root
-RUN chown user:user /app/server_root
+#RUN chown -R user:user /app/server_root
+#RUN chown -R user:user /app/server_root
 VOLUME /app/server_root
 COPY frontend_server ./frontend_server
 COPY internal_workers ./internal_workers
@@ -16,7 +17,9 @@ COPY static ./static
 COPY git_info.txt .
 COPY secrets1.json /
 COPY secrets2.json /
-USER user
+#USER user
 WORKDIR /app/frontend_server
-ENV INTERNAL_SERVICES_SERVER_URL fixme
-CMD ["./start.sh", "0.0.0.0:7788"]
+ENV PYTHONUNBUFFERED true
+ENV CELERY_QUEUE_NAME=q7788
+ENTRYPOINT ["./start.sh"]
+CMD ["0.0.0.0:7788"]

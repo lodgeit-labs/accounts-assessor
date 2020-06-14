@@ -33,7 +33,7 @@ def upload(request):
 	params.update(request.POST)
 	params.update(request.GET)
 	requested_output_format = params.get('requested_output_format', 'json_reports_list')
-	prolog_flags = """set_prolog_flag(services_server,'""" + settings.INTERNAL_SERVICES_SERVER_URL + """')"""
+	prolog_flags = """set_prolog_flag(services_server,'""" + settings.SECRET__INTERNAL_SERVICES_SERVER_URL + """')"""
 
 	if request.method == 'POST':
 		#print(request.FILES)

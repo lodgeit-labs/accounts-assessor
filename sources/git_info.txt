@@ -1,365 +1,40 @@
-On branch development2
-Your branch is up to date with 'origin/development2'.
-
-Changes to be committed:
-  (use "git reset HEAD <file>..." to unstage)
-
-	renamed:    ../internal_services/run.sh -> ../internal_services/run_in_venv.sh
+On branch docker1
+Your branch is up to date with 'origin/docker1'.
 
 Changes not staged for commit:
   (use "git add/rm <file>..." to update what will be committed)
   (use "git checkout -- <file>..." to discard changes in working directory)
 
-	deleted:    ../Dockerfile
-	deleted:    ../cache/.gitkeep
-	deleted:    ../frontend_server/db.sqlite3
-	deleted:    ../frontend_server/endpoints_gateway/__init__.py
-	deleted:    ../frontend_server/endpoints_gateway/admin.py
-	deleted:    ../frontend_server/endpoints_gateway/apps.py
-	deleted:    ../frontend_server/endpoints_gateway/forms.py
-	deleted:    ../frontend_server/endpoints_gateway/migrations/__init__.py
-	deleted:    ../frontend_server/endpoints_gateway/models.py
-	deleted:    ../frontend_server/endpoints_gateway/templates/task_taking_too_long.html
-	deleted:    ../frontend_server/endpoints_gateway/templates/upload.html
-	deleted:    ../frontend_server/endpoints_gateway/templates/uploaded_files.html
-	deleted:    ../frontend_server/endpoints_gateway/tests.py
-	deleted:    ../frontend_server/endpoints_gateway/urls.py
-	deleted:    ../frontend_server/endpoints_gateway/views.py
-	deleted:    ../frontend_server/frontend_server/__init__.py
-	deleted:    ../frontend_server/frontend_server/asgi.py
-	deleted:    ../frontend_server/frontend_server/settings_common.py
-	deleted:    ../frontend_server/frontend_server/settings_dev.py
-	deleted:    ../frontend_server/frontend_server/settings_prod.py
-	deleted:    ../frontend_server/frontend_server/urls.py
-	deleted:    ../frontend_server/frontend_server/wsgi.py
-	deleted:    ../frontend_server/manage.py
-	deleted:    ../frontend_server/run_common0.sh
-	deleted:    ../frontend_server/run_dev.sh
-	deleted:    ../frontend_server/run_prod.sh
-	deleted:    ../internal_services/.gitignore
-	deleted:    ../internal_services/README.md
-	deleted:    ../internal_services/arelle
-	deleted:    ../internal_services/json_diff/__init__.py
-	deleted:    ../internal_services/json_diff/admin.py
-	deleted:    ../internal_services/json_diff/apps.py
-	deleted:    ../internal_services/json_diff/migrations/__init__.py
-	deleted:    ../internal_services/json_diff/models.py
-	deleted:    ../internal_services/json_diff/tests.py
-	deleted:    ../internal_services/json_diff/urls.py
-	deleted:    ../internal_services/json_diff/views.py
-	deleted:    ../internal_services/lodgeit_python/__init__.py
-	deleted:    ../internal_services/lodgeit_python/rpc.py
-	deleted:    ../internal_services/lodgeit_python/settings.py
-	deleted:    ../internal_services/lodgeit_python/urls.py
-	deleted:    ../internal_services/lodgeit_python/wsgi.py
-	deleted:    ../internal_services/manage.py
-	deleted:    ../internal_services/message/__init__.py
-	deleted:    ../internal_services/message/admin.py
-	deleted:    ../internal_services/message/apps.py
-	deleted:    ../internal_services/message/migrations/0001_initial.py
-	deleted:    ../internal_services/message/migrations/0002_message_status.py
-	deleted:    ../internal_services/message/migrations/0003_message_created.py
-	deleted:    ../internal_services/message/migrations/__init__.py
-	deleted:    ../internal_services/message/models.py
-	deleted:    ../internal_services/message/templates/message/message_detail.html
-	deleted:    ../internal_services/message/templates/message/message_list.html
-	deleted:    ../internal_services/message/tests.py
-	deleted:    ../internal_services/message/urls.py
-	deleted:    ../internal_services/message/views.py
-	deleted:    ../internal_services/run_in_venv.sh
-	deleted:    ../internal_services/shell/__init__.py
-	deleted:    ../internal_services/shell/admin.py
-	deleted:    ../internal_services/shell/apps.py
-	deleted:    ../internal_services/shell/migrations/__init__.py
-	deleted:    ../internal_services/shell/models.py
-	deleted:    ../internal_services/shell/tests.py
-	deleted:    ../internal_services/shell/urls.py
-	deleted:    ../internal_services/shell/views.py
-	deleted:    ../internal_services/xml_xsd_validator/__init__.py
-	deleted:    ../internal_services/xml_xsd_validator/admin.py
-	deleted:    ../internal_services/xml_xsd_validator/apps.py
-	deleted:    ../internal_services/xml_xsd_validator/migrations/__init__.py
-	deleted:    ../internal_services/xml_xsd_validator/models.py
-	deleted:    ../internal_services/xml_xsd_validator/tests.py
-	deleted:    ../internal_services/xml_xsd_validator/urls.py
-	deleted:    ../internal_services/xml_xsd_validator/views.py
-	deleted:    ../internal_workers/atomic_integer.py
-	deleted:    ../internal_workers/celery_module.py
-	deleted:    ../internal_workers/celeryconfig.py
-	deleted:    ../internal_workers/fs_utils.py
-	deleted:    ../internal_workers/generate_yed_file.py
-	deleted:    ../internal_workers/gl_json.export.py
-	deleted:    ../internal_workers/internal_workers.py
-	deleted:    ../internal_workers/invoke_rpc.py
-	deleted:    ../internal_workers/invoke_rpc_cmdline.py
-	deleted:    ../internal_workers/notes
-	deleted:    ../internal_workers/run.sh
-	deleted:    ../internal_workers/test.py
-	deleted:    ../internal_workers/tmp_dir_path.py
-	deleted:    ../lib/README.md
-	deleted:    ../lib/accounts.pl
-	deleted:    ../lib/accounts_extract.pl
-	deleted:    ../lib/action_verbs.pl
-	deleted:    ../lib/bank_accounts.pl
-	deleted:    ../lib/bank_opening_balances.pl
-	deleted:    ../lib/bank_statement.pl
-	deleted:    ../lib/cashflow.pl
-	deleted:    ../lib/chat.pl
-	deleted:    ../lib/crosschecks_report.pl
-	deleted:    ../lib/days.pl
-	deleted:    ../lib/debug1.pl
-	deleted:    ../lib/debug2.pl
-	deleted:    ../lib/debug_loading_rpc_server.pl
-	deleted:    ../lib/depreciation_computation.pl
-	deleted:    ../lib/depreciation_computation_old.pl
-	deleted:    ../lib/depreciation_ledger.pl
-	deleted:    ../lib/depreciation_tests.pl
-	deleted:    ../lib/detail_accounts.pl
-	deleted:    ../lib/doc.pl
-	deleted:    ../lib/event_calculus.pl
-	deleted:    ../lib/exchange.pl
-	deleted:    ../lib/exchange_rates.pl
-	deleted:    ../lib/extract_bank_accounts.pl
-	deleted:    ../lib/facts.pl
-	deleted:    ../lib/fetch_file.pl
-	deleted:    ../lib/german_bank_csv.pl
-	deleted:    ../lib/gl_export.pl
-	deleted:    ../lib/gl_export_enrichment.pl
-	deleted:    ../lib/gl_input.pl
-	deleted:    ../lib/hirepurchase.pl
-	deleted:    ../lib/investment_report_2.pl
-	deleted:    ../lib/investment_report_sorting.pl
-	deleted:    ../lib/investments.pl
-	deleted:    ../lib/investments_accounts.pl
-	deleted:    ../lib/invoices.pl
-	deleted:    ../lib/ledger.pl
-	deleted:    ../lib/ledger2/README.md
-	deleted:    ../lib/ledger2/action_verbs.pl
-	deleted:    ../lib/ledger2/bank_accounts.pl
-	deleted:    ../lib/ledger2/ensure_account_exists.pl
-	deleted:    ../lib/ledger2/ledger.pl
-	deleted:    ../lib/ledger2/ledger_report.pl
-	deleted:    ../lib/ledger2/process_request_ledger.pl
-	deleted:    ../lib/ledger_html_reports.pl
-	deleted:    ../lib/ledger_report.pl
-	deleted:    ../lib/lib.pl
-	deleted:    ../lib/livestock.pl
-	deleted:    ../lib/livestock_adjustment_transactions.pl
-	deleted:    ../lib/livestock_average_cost.pl
-	deleted:    ../lib/livestock_calculator.pl
-	deleted:    ../lib/livestock_calculator2.pl
-	deleted:    ../lib/livestock_crosscheck.pl
-	deleted:    ../lib/livestock_extract.pl
-	deleted:    ../lib/livestock_extract2.pl
-	deleted:    ../lib/livestock_misc.pl
-	deleted:    ../lib/load2.pl
-	deleted:    ../lib/loans.pl
-	deleted:    ../lib/pacioli.pl
-	deleted:    ../lib/pricing.pl
-	deleted:    ../lib/process_request.pl
-	deleted:    ../lib/process_request_car.pl
-	deleted:    ../lib/process_request_depreciation_new.pl
-	deleted:    ../lib/process_request_depreciation_old.pl
-	deleted:    ../lib/process_request_hirepurchase_new.pl
-	deleted:    ../lib/process_request_hirepurchase_old.pl
-	deleted:    ../lib/process_request_investment.pl
-	deleted:    ../lib/process_request_ledger.pl
-	deleted:    ../lib/process_request_livestock.pl
-	deleted:    ../lib/process_request_loan.pl
-	deleted:    ../lib/process_testcase.py
-	deleted:    ../lib/prompt.pl
-	deleted:    ../lib/relevant_exchange_rates.pl
-	deleted:    ../lib/report_page.pl
-	deleted:    ../lib/request_files.pl
-	deleted:    ../lib/residency.pl
-	deleted:    ../lib/rpc_debug.pl
-	deleted:    ../lib/rpc_server.pl
-	deleted:    ../lib/s_transaction.pl
-	deleted:    ../lib/sbe.pl
-	deleted:    ../lib/search_paths.pl
-	deleted:    ../lib/smsf.pl
-	deleted:    ../lib/smsf_distribution.pl
-	deleted:    ../lib/smsf_facts.pl
-	deleted:    ../lib/smsf_income_tax.pl
-	deleted:    ../lib/smsf_income_tax_helpers.pl
-	deleted:    ../lib/smsf_member_report_checks.pl
-	deleted:    ../lib/smsf_member_report_presentation.pl
-	deleted:    ../lib/smsf_member_reports.pl
-	deleted:    ../lib/system_accounts.pl
-	deleted:    ../lib/tables.pl
-	deleted:    ../lib/trading.pl
-	deleted:    ../lib/transaction_sources.pl
-	deleted:    ../lib/transactions.pl
-	deleted:    ../lib/vector_string.pl
-	deleted:    ../public_lib/lodgeit_solvers/.gitrepo
-	deleted:    ../public_lib/lodgeit_solvers/README.md
-	deleted:    ../public_lib/lodgeit_solvers/pack.pl
-	deleted:    ../public_lib/lodgeit_solvers/prolog/clpq_bugs/bug1.pl
-	deleted:    ../public_lib/lodgeit_solvers/prolog/clpq_bugs/bug2.txt
-	deleted:    ../public_lib/lodgeit_solvers/prolog/clpq_bugs/sicstus
-	deleted:    ../public_lib/lodgeit_solvers/prolog/determinancy_checker/README.md
-	deleted:    ../public_lib/lodgeit_solvers/prolog/determinancy_checker/determinancy_checker.pl
-	deleted:    ../public_lib/lodgeit_solvers/prolog/determinancy_checker/determinancy_checker_main.pl
-	deleted:    ../public_lib/lodgeit_solvers/prolog/determinancy_checker/determinancy_enforcer.pl
-	deleted:    ../public_lib/lodgeit_solvers/prolog/determinancy_checker/docs/rdet.txt
-	deleted:    ../public_lib/lodgeit_solvers/prolog/determinancy_checker/t/determinancy_checker.plt
-	deleted:    ../public_lib/lodgeit_solvers/prolog/utils/compare_xml.pl
-	deleted:    ../public_lib/lodgeit_solvers/prolog/utils/compile_with_variable_names_preserved.pl
-	deleted:    ../public_lib/lodgeit_solvers/prolog/utils/dict_vars.pl
-	deleted:    ../public_lib/lodgeit_solvers/prolog/utils/exceptions.pl
-	deleted:    ../public_lib/lodgeit_solvers/prolog/utils/files.pl
-	deleted:    ../public_lib/lodgeit_solvers/prolog/utils/higher_order.pl
-	deleted:    ../public_lib/lodgeit_solvers/prolog/utils/json.pl
-	deleted:    ../public_lib/lodgeit_solvers/prolog/utils/magic_formula.pl
-	deleted:    ../public_lib/lodgeit_solvers/prolog/utils/numbers.pl
-	deleted:    ../public_lib/lodgeit_solvers/prolog/utils/shell.pl
-	deleted:    ../public_lib/lodgeit_solvers/prolog/utils/string_manipulation.pl
-	deleted:    ../public_lib/lodgeit_solvers/prolog/utils/structured_xml.pl
-	deleted:    ../public_lib/lodgeit_solvers/prolog/utils/structures.pl
-	deleted:    ../public_lib/lodgeit_solvers/prolog/utils/term_output.pl
-	deleted:    ../public_lib/lodgeit_solvers/prolog/utils/utils.pl
-	deleted:    ../public_lib/lodgeit_solvers/prolog/utils/xml.pl
-	deleted:    ../public_lib/lodgeit_solvers/tools/dev_runner/dev_runner.pl
-	deleted:    ../public_lib/lodgeit_solvers/tools/dev_runner/problem_lines_whitelist
-	deleted:    ../public_lib/prolog_xbrl/arelle/account_hierarchy.py
-	deleted:    ../public_lib/prolog_xbrl/financial_report/README.md
-	deleted:    ../public_lib/prolog_xbrl/financial_report/financial_report_model.pl
-	deleted:    ../public_lib/prolog_xbrl/financial_report/financial_report_queries.pl
-	deleted:    ../public_lib/prolog_xbrl/gl/source/BP_FixedAssetList.xml
-	deleted:    ../public_lib/prolog_xbrl/gl/source/Customer_Invoices.xml
-	deleted:    ../public_lib/prolog_xbrl/gl/source/JournalEntries-Instance.xml
-	deleted:    ../public_lib/prolog_xbrl/gl/source/JournalEntry_Annotated_Book-Tax.xml
-	deleted:    ../public_lib/prolog_xbrl/gl/source/JournalEntry_Annotated_Instance.xml
-	deleted:    ../public_lib/prolog_xbrl/gl/source/Vendor_Invoices.xml
-	deleted:    ../public_lib/prolog_xbrl/gl/source/XBRL GL Instance viewer Book Tax.html
-	deleted:    ../public_lib/prolog_xbrl/gl/source/XBRL GL Instance viewer Book Tax_files/jquery-1.js
-	deleted:    ../public_lib/prolog_xbrl/gl/source/XBRL GL Instance viewer Book Tax_files/xbrlgl.css
-	deleted:    ../public_lib/prolog_xbrl/gl/source/XBRL GL Instance viewer Book Tax_files/xbrlgl.js
-	deleted:    ../public_lib/prolog_xbrl/gl/source/XBRL GL Instance viewer Customer Invoices.html
-	deleted:    ../public_lib/prolog_xbrl/gl/source/XBRL GL Instance viewer Customer Invoices_files/jquery-1.js
-	deleted:    ../public_lib/prolog_xbrl/gl/source/XBRL GL Instance viewer Customer Invoices_files/xbrlgl.css
-	deleted:    ../public_lib/prolog_xbrl/gl/source/XBRL GL Instance viewer Customer Invoices_files/xbrlgl.js
-	deleted:    ../public_lib/prolog_xbrl/gl/source/XBRL GL Instance viewer Fixed Asset List.html
-	deleted:    ../public_lib/prolog_xbrl/gl/source/XBRL GL Instance viewer Fixed Asset List_files/jquery-1.js
-	deleted:    ../public_lib/prolog_xbrl/gl/source/XBRL GL Instance viewer Fixed Asset List_files/xbrlgl.css
-	deleted:    ../public_lib/prolog_xbrl/gl/source/XBRL GL Instance viewer Fixed Asset List_files/xbrlgl.js
-	deleted:    ../public_lib/prolog_xbrl/gl/source/XBRL GL Instance viewer Journal Entry Generated by PHP.html
-	deleted:    ../public_lib/prolog_xbrl/gl/source/XBRL GL Instance viewer Journal Entry Generated by PHP_files/jquery-1.js
-	deleted:    ../public_lib/prolog_xbrl/gl/source/XBRL GL Instance viewer Journal Entry Generated by PHP_files/xbrlgl.css
-	deleted:    ../public_lib/prolog_xbrl/gl/source/XBRL GL Instance viewer Journal Entry Generated by PHP_files/xbrlgl.js
-	deleted:    ../public_lib/prolog_xbrl/gl/source/XBRL GL Instance viewer Journal Entry.html
-	deleted:    ../public_lib/prolog_xbrl/gl/source/XBRL GL Instance viewer Journal Entry_files/jquery-1.js
-	deleted:    ../public_lib/prolog_xbrl/gl/source/XBRL GL Instance viewer Journal Entry_files/xbrlgl.css
-	deleted:    ../public_lib/prolog_xbrl/gl/source/XBRL GL Instance viewer Journal Entry_files/xbrlgl.js
-	deleted:    ../public_lib/prolog_xbrl/gl/source/XBRL GL Instance viewer Vendor Manageement Invoices.html
-	deleted:    ../public_lib/prolog_xbrl/gl/source/XBRL GL Instance viewer Vendor Manageement Invoices_files/jquery-1.js
-	deleted:    ../public_lib/prolog_xbrl/gl/source/XBRL GL Instance viewer Vendor Manageement Invoices_files/xbrlgl.css
-	deleted:    ../public_lib/prolog_xbrl/gl/source/XBRL GL Instance viewer Vendor Manageement Invoices_files/xbrlgl.js
-	deleted:    ../public_lib/prolog_xbrl/gl/transpiler_test.pl
-	deleted:    ../public_lib/prolog_xbrl/gl/xbrl_gl_to_prolog.py
-	deleted:    ../public_lib/prolog_xbrl/instance_output/fact_output.pl
-	deleted:    ../public_lib/prolog_xbrl/instance_output/xbrl_contexts.pl
-	deleted:    ../public_lib/prolog_xbrl/instance_output/xbrl_output.pl
-	deleted:    ../public_lib/prolog_xbrl/xbrl_implementation/xbrl_implementation.pl
-	deleted:    ../public_lib/prolog_xbrl/xbrl_implementation/xbrl_implementation_queries.pl
-	deleted:    ../requirements.txt
-	modified:   ../servicemanager/common/tzmq.py
-	deleted:    ../static/README.txt
-	deleted:    ../static/RdfTemplate_ic2.n3
-	deleted:    ../static/RdfTemplates.n3
-	deleted:    ../static/default_account_hierarchies/base.xml
-	deleted:    ../static/default_account_hierarchies/investments.xml
-	deleted:    ../static/default_account_hierarchies/livestock.xml
-	deleted:    ../static/default_account_hierarchies/smsf.md
-	deleted:    ../static/default_account_hierarchies/smsf.xml
-	deleted:    ../static/default_action_taxonomy.xml
-	deleted:    ../static/docs/Robust_documentation.html
-	deleted:    ../static/docs/files/2020-03-02.png
-	deleted:    ../static/docs/files/picturemessage_pa5mqqi0.pwd.png
-	deleted:    ../static/favicon.ico
-	deleted:    ../static/general_ledger_viewer/docs.html
-	deleted:    ../static/general_ledger_viewer/gl.html
-	deleted:    ../static/general_ledger_viewer/jquery-3.3.1.js
-	deleted:    ../static/general_ledger_viewer/link.html
-	deleted:    ../static/general_ledger_viewer/lodash.js
-	deleted:    ../static/general_ledger_viewer/styles.css
-	deleted:    ../static/general_ledger_viewer/vue.js
-	deleted:    ../static/quasar_project/README.md
-	deleted:    ../static/quasar_project/babel.config.js
-	deleted:    ../static/quasar_project/package.json
-	deleted:    ../static/quasar_project/quasar.conf.js
-	deleted:    ../static/quasar_project/src/App.vue
-	deleted:    ../static/quasar_project/src/assets/quasar-logo-full.svg
-	deleted:    ../static/quasar_project/src/assets/sad.svg
-	deleted:    ../static/quasar_project/src/components/AccountFilterSidebar.vue
-	deleted:    ../static/quasar_project/src/css/app.styl
-	deleted:    ../static/quasar_project/src/css/quasar.variables.styl
-	deleted:    ../static/quasar_project/src/index.template.html
-	deleted:    ../static/quasar_project/src/layouts/MyLayout.vue
-	deleted:    ../static/quasar_project/src/pages/Error404.vue
-	deleted:    ../static/quasar_project/src/pages/Gl.vue
-	deleted:    ../static/quasar_project/src/pages/Index.vue
-	deleted:    ../static/quasar_project/src/router/index.js
-	deleted:    ../static/quasar_project/src/router/routes.js
-	deleted:    ../static/quasar_project/src/statics/app-logo-128x128.png
-	deleted:    ../static/quasar_project/src/statics/icons/apple-icon-120x120.png
-	deleted:    ../static/quasar_project/src/statics/icons/apple-icon-152x152.png
-	deleted:    ../static/quasar_project/src/statics/icons/apple-icon-167x167.png
-	deleted:    ../static/quasar_project/src/statics/icons/apple-icon-180x180.png
-	deleted:    ../static/quasar_project/src/statics/icons/favicon-16x16.png
-	deleted:    ../static/quasar_project/src/statics/icons/favicon-32x32.png
-	deleted:    ../static/quasar_project/src/statics/icons/favicon-96x96.png
-	deleted:    ../static/quasar_project/src/statics/icons/favicon.ico
-	deleted:    ../static/quasar_project/src/statics/icons/icon-128x128.png
-	deleted:    ../static/quasar_project/src/statics/icons/icon-192x192.png
-	deleted:    ../static/quasar_project/src/statics/icons/icon-256x256.png
-	deleted:    ../static/quasar_project/src/statics/icons/icon-384x384.png
-	deleted:    ../static/quasar_project/src/statics/icons/icon-512x512.png
-	deleted:    ../static/quasar_project/src/statics/icons/ms-icon-144x144.png
-	deleted:    ../static/quasar_project/src/statics/icons/safari-pinned-tab.svg
-	deleted:    ../static/report_stylesheet.css
-	deleted:    ../static/schemas/README.md
-	deleted:    ../static/schemas/bases/ActionTaxonomy.xsd
-	deleted:    ../static/schemas/bases/InvestmentBase.xsd
-	deleted:    ../static/schemas/bases/LivestockAccountAnimalData.xsd
-	deleted:    ../static/schemas/bases/Reports.xsd
-	deleted:    ../static/schemas/bases/Schema.xsd
-	deleted:    ../static/schemas/frontend/StandaloneInvestmentRealizedSchema.xsd
-	deleted:    ../static/schemas/frontend/StandaloneInvestmentUnrealizedSchema.xsd
-	deleted:    ../static/schemas/requests/BalanceSheetRequest.xsd
-	deleted:    ../static/schemas/requests/CarAPIRequest.xsd
-	deleted:    ../static/schemas/requests/DepreciationRequest.xsd
-	deleted:    ../static/schemas/requests/InvestmentRequest.xsd
-	deleted:    ../static/schemas/requests/LivestockRequest.xsd
-	deleted:    ../static/schemas/requests/LoanRequest.xsd
-	deleted:    ../static/schemas/responses/CarAPIResponse.xsd
-	deleted:    ../static/schemas/responses/DepreciationResponse.xsd
-	deleted:    ../static/schemas/responses/InvestmentResponse.xsd
-	deleted:    ../static/schemas/responses/LivestockResponse.xsd
-	deleted:    ../static/schemas/responses/LoanResponse.xsd
-	deleted:    ../static/schemas/responses/loan-response.xsd
-	deleted:    ../static/schemas_misc/example_fragments/investment-realized-request1-isolated.xml
-	deleted:    ../static/schemas_misc/example_fragments/investment-unrealized-request1-isolated.xml
-	deleted:    ../static/schemas_misc/isolated/StandaloneInvestmentRealizedSchema_Isolated.xsd
-	deleted:    ../static/schemas_misc/isolated/StandaloneInvestmentSchema_Isolated.xsd
-	deleted:    ../static/schemas_misc/isolated/StandaloneInvestmentUnrealizedSchema_Isolated.xsd
-	deleted:    ../static/schemas_misc/old.xsd
-	deleted:    ../static/schemas_misc/original/Calculators.xsd
-	deleted:    ../static/schemas_misc/original/Schema.xsd
-	deleted:    ../static/taxonomy/basic-calculation.xml
-	deleted:    ../static/taxonomy/basic-formulas-cross-checks.xml
-	deleted:    ../static/taxonomy/basic-formulas.xml
-	deleted:    ../static/taxonomy/basic-label.xml
-	deleted:    ../static/taxonomy/basic-presentation.xml
-	deleted:    ../static/taxonomy/basic.xsd
+	modified:   ../README.md
+	modified:   ../init.sh
+	deleted:    ../init_prolog.sh
+	modified:   dockerizing_todo
+	modified:   frontend_server/Dockerfile
+	modified:   frontend_server/endpoints_gateway/views.py
+	modified:   frontend_server/frontend_server/settings_common.py
+	modified:   frontend_server/frontend_server/wsgi.py
+	modified:   git_info.txt
+	modified:   internal_services/Dockerfile
+	modified:   internal_workers/celeryconfig.py
 
 Untracked files:
   (use "git add <file>..." to include in what will be committed)
 
-	../.dockerignore
-	../doc/ledger-distributions-report/
-	../servicemanager/LICENSE.md
-	./
+	build.sh
+	docker-stack.yml
+	docker_run.sh
+	init_prolog.sh
+	internal_workers/Dockerfile
+	internal_workers/start.sh
+	swipl/
+	update_stack.sh
+
+no changes added to commit (use "git add" and/or "git commit -a")
+commit ab1d24677d87694a27e7cef11f7600c079859b87
+Author: koo5 <kolman.jindrich@gmail.com>
+Date:   Sat Jun 13 23:34:12 2020 +0200
+
+    wip...
 
 commit 3763368655da7ebddb2e3bfbbce6a92e74ff9f73
 Author: koo5 <kolman.jindrich@gmail.com>

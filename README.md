@@ -29,9 +29,6 @@ lets users upload request files and triggers internal_workers. Django provides a
 on demo server, this is a system-wide apache set up with mod_wsgi. I have not found a standalone wsgi/asgi server that also serves files like apache does, so it's not clear how to handle this more flexibly.
 
 ## Getting Started
-Fetch submodules:
-* `git submodule update --init`
-(currently there are no submodules)
 
 Install SWIPL 8.1.14
 * see https://github.com/LodgeiT/labs-accounts-assessor/wiki/SWIPL-and-prolog-notes
