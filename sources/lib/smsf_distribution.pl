@@ -38,13 +38,16 @@ assert_smsf_distribution_facts(Default_currency, Unit, Item) :-
 		optionally_assert_doc_value_as_unit_fact(Default_currency, Unit, Item),
 		[	smsf_distribution_ui:net,
 			smsf_distribution_ui:bank,
+			% smsf_distribution_ui:accrual
 			smsf_distribution_ui:franking_credit,
 			smsf_distribution_ui:foreign_credit,
 			smsf_distribution_ui:amit_decrease,
 			smsf_distribution_ui:amit_increase,
+			% smsf_distribution_ui:amit_net
 			smsf_distribution_ui:non_primary_production_income,
 			smsf_distribution_ui:franked_divis_distri_including_credits,
 			smsf_distribution_ui:assessable_foreign_source_income
+			% smsf_distribution_ui:net_trust_distribution_income
 		]
 	),
 
@@ -125,8 +128,128 @@ soft_crosscheck(A = B) :-
 ┣┳┛┣╸ ┣━┛┃ ┃┣┳┛ ┃
 ╹┗╸┗━╸╹  ┗━┛╹┗╸ ╹
 */
-smsf_distribution_report :-
-	
+smsf_distributions_report(Tbl_dict) :-
+	Title_Text = "Distributions",
+
+	Columns = [
+		column{
+			id:unit_type,
+			title:"Unit Type",
+			options:options{}},
+		column{
+			id:label1,
+			title:"Accounting Distribution as per P/L:",
+			options:options{}},
+		column{
+			id:(smsf_distribution_ui:net),
+			title:"Net Cash Distribution",
+			options:options{implicit_report_currency:true}},
+		column{
+			id:(smsf_distribution_ui:bank),
+			title:"Cash Distribution as per bank",
+			options:options{implicit_report_currency:true}},
+		column{
+			id:(smsf_distribution_ui:accrual),
+			title:"Resolved Accrual",
+			options:options{implicit_report_currency:true}},
+		column{
+			id:label1,
+			title:"",
+			options:options{}},
+		column{
+			id:(smsf_distribution_ui:franking_credit,
+),
+			title:"Add: Franking Credit",
+			options:options{implicit_report_currency:true}},
+		column{
+			id:(smsf_distribution_ui:foreign_credit),
+			title:"Add: Foreign Credit",
+			options:options{implicit_report_currency:true}},
+		column{
+			id:(smsf_distribution_ui:amit_decrease),
+			title:"AMIT cost base net amount - excess (decrease)",
+			options:options{implicit_report_currency:true}},
+		column{
+			id:(smsf_distribution_ui:amit_increase),
+			title:"AMIT cost base net amount - shortfall (increase)",
+			options:options{implicit_report_currency:true}},
+		column{
+			id:(smsf_distribution_ui:amit_net),
+			title:"Add: AMIT cost base net amount - net increase",
+			options:options{implicit_report_currency:true}},
+		column{
+			id:label1,
+			title:"",
+			options:options{}},
+		column{
+			id:label1,
+			title:"Distribution Income",
+			options:options{implicit_report_currency:true}},
+		column{
+			id:label1,
+			title:"",
+			options:options{}},
+		column{
+			id:(smsf_distribution_ui:non_primary_production_income),
+			title:"Non-primary Production Income",
+			options:options{implicit_report_currency:true}},
+		column{
+			id:(smsf_distribution_ui:franked_divis_distri_including_credits),
+			title:"Franked Divis/Distri (Including Credits)",
+			options:options{implicit_report_currency:true}},
+		column{
+			id:(smsf_distribution_ui:assessable_foreign_source_income),
+			title:"Assessable Foreign Source Income (Inc Credits)",
+			options:options{implicit_report_currency:true}},
+		column{
+			id:label1,
+			title:"",
+			options:options{}},
+		column{
+			id:(smsf_distribution_ui:net_trust_distribution_income),
+			title:"Net Trust distribution Income",
+			options:options{implicit_report_currency:true}},
+		column{
+			id:label1,
+			title:"",
+			options:options{}},
+		column{
+			id:label1,
+			title:"Capital Gains/Losses Calculations from Annual Tax Statements:",
+			options:options{}},
+		column{
+			id:label1,
+			title:"Capital Losses",
+			options:options{implicit_report_currency:true}},
+		column{
+			id:label1,
+			title:"Discount Capital Gains (Net)",
+			options:options{implicit_report_currency:true}},
+		column{
+			id:label1,
+			title:"Other Capital Gains",
+			options:options{implicit_report_currency:true}},
+		column{
+			id:label1,
+			title:"1/3rd Capital Gain Discount Amount",
+			options:options{implicit_report_currency:true}},
+
+
+
+
+		],
+
+	Tbl_dict = table{title:Title_Text, columns:Columns, rows:Rows_dict},
+
+
+
+
+
+	!table_html([highlight_totals - true], Tbl_dict, Table_Html),
+	!page_with_table_html(Title_Text, Table_Html, Html),
+	!add_report_page(0, Title_Text, Html, loc(file_name,'distributions.html'), distributions).
+
+
 
 
 /*
