@@ -2,34 +2,20 @@ On branch docker1
 Your branch is up to date with 'origin/docker1'.
 
 Changes not staged for commit:
-  (use "git add/rm <file>..." to update what will be committed)
+  (use "git add <file>..." to update what will be committed)
   (use "git checkout -- <file>..." to discard changes in working directory)
 
-	modified:   ../README.md
-	modified:   ../init.sh
-	deleted:    ../init_prolog.sh
-	modified:   dockerizing_todo
-	modified:   frontend_server/Dockerfile
-	modified:   frontend_server/endpoints_gateway/views.py
-	modified:   frontend_server/frontend_server/settings_common.py
-	modified:   frontend_server/frontend_server/wsgi.py
 	modified:   git_info.txt
-	modified:   internal_services/Dockerfile
-	modified:   internal_workers/celeryconfig.py
-
-Untracked files:
-  (use "git add <file>..." to include in what will be committed)
-
-	build.sh
-	docker-stack.yml
-	docker_run.sh
-	init_prolog.sh
-	internal_workers/Dockerfile
-	internal_workers/start.sh
-	swipl/
-	update_stack.sh
+	modified:   init_prolog.sh
+	modified:   internal_workers/Dockerfile
 
 no changes added to commit (use "git add" and/or "git commit -a")
+commit 8ae2ef6ab4ead8495a72c1ee87c7c443e86bf773
+Author: koo5 <kolman.jindrich@gmail.com>
+Date:   Sun Jun 14 16:08:09 2020 +0200
+
+    wip...
+
 commit ab1d24677d87694a27e7cef11f7600c079859b87
 Author: koo5 <kolman.jindrich@gmail.com>
 Date:   Sat Jun 13 23:34:12 2020 +0200

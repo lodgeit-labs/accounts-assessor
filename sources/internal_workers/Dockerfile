@@ -47,11 +47,19 @@ WORKDIR /app
 WORKDIR /app
 COPY requirements.txt .
 RUN pip3 install --no-cache-dir -r requirements.txt
+
+
+COPY init_prolog.sh .
+RUN ./init_prolog.sh
+
+
 EXPOSE 17788
 RUN mkdir -p /app/server_root
 #RUN chown user:user /app/server_root
 VOLUME /app/server_root
 COPY internal_workers ./internal_workers
+COPY public_lib ./public_lib
+COPY lib ./lib
 COPY git_info.txt .
 COPY secrets2.json /
 #USER user

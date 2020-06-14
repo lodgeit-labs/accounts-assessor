@@ -1,2 +1,2 @@
 #! /bin/sh
-swipl -g "findall(_,(pack_install(tap); pack_install(regex); pack_install('https://github.com/jonakalkus/xsd/archive/v0.2.0.zip'); pack_install('https://github.com/rla/rdet.git'); pack_install(fnotation)),_)."
+swipl -g "O=[interactive(false)],findall(x,(pack_install(tap,O); pack_install(regex,O); pack_install('https://github.com/jonakalkus/xsd/archive/v0.2.0.zip',O); pack_install('https://github.com/rla/rdet.git',O); pack_install(fnotation,O)),Xs)."
