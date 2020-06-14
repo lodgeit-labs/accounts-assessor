@@ -812,14 +812,14 @@ read_coord_vector_from_doc_string(Item, Prop, Default_currency, Side, VectorA) :
 	(	value_from_string(Default_currency, Amount_string, Value)
 	->	true
 	;	(
-			assert(var(Value)),
+			assertion(var(Value)),
 			throw_string(['error reading "amount" in ', $>!sheet_and_cell_string($>doc(Item, Prop))])
 		)
 	).
 
 
 
-
+`
 /*
 we could control this with a thread select'ing some unix socket
 */

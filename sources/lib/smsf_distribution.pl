@@ -33,6 +33,7 @@ extract_smsf_distribution4(Default_currency, Item, Unit_name_str, Txs) :-
 ╹  ╹ ╹┗━╸ ╹ ┗━┛
 */
 assert_smsf_distribution_facts(Default_currency, Unit, Item) :-
+	/* assert the facts we want to use */
 	maplist(
 		optionally_assert_doc_value_as_unit_fact(Default_currency, Unit, Item),
 		[	smsf_distribution_ui:net,
@@ -41,43 +42,91 @@ assert_smsf_distribution_facts(Default_currency, Unit, Item) :-
 			smsf_distribution_ui:foreign_credit,
 			smsf_distribution_ui:amit_decrease,
 			smsf_distribution_ui:amit_increase,
-
-
 			smsf_distribution_ui:non_primary_production_income,
 			smsf_distribution_ui:franked_divis_distri_including_credits,
-			smsf_distribution_ui:assessable_foreign_source_income]),
+			smsf_distribution_ui:assessable_foreign_source_income
+		]
+	),
 
-	computed_fact(
-		aspects([
-			unit - Unit,
-			concept - smsf_distribution_ui:accrual])
-		 =
-		aspects([
-			unit - Unit,
-			concept - smsf_distribution_ui:net])
+	computed_unit_fact(
+		smsf_distribution_ui:accrual
+		=
+		smsf_distribution_ui:net
 		-
-		aspects([
-			unit - Unit,
-			concept - smsf_distribution_ui:bank])),
+		smsf_distribution_ui:bank),
 
-	check_entered_accrual(Default_currency, Unit, Item),
+	check_entered_unit_fact_matches_computed(Default_currency, Unit, Item, smsf_distribution_ui:accrual, smsf_distribution_ui:entered_accrual),
+
+	computed_unit_fact(
+		smsf_distribution_ui:amit_net
+		=
+		smsf_distribution_ui:amit_decrease
+		+
+		smsf_distribution_ui:amit_increase),
+
+	check_entered_unit_fact_matches_computed(Default_currency, Unit, Item, smsf_distribution_ui:amit_net, smsf_distribution_ui:entered_amit_net),
+
+	computed_unit_fact(
+		smsf_distribution_ui:distribution_income
+		=
+		smsf_distribution_ui:net
+		+
+		smsf_distribution_ui:franking_credit
+		+
+		smsf_distribution_ui:foreign_credit
+		+
+		smsf_distribution_ui:amit_net),
+
+	check_entered_unit_fact_matches_computed(Default_currency, Unit, Item, smsf_distribution_ui:distribution_income, smsf_distribution_ui:entered_distribution_income),
+
+	computed_unit_fact(
+		smsf_distribution_ui:net_trust_distribution_income
+		=
+		smsf_distribution_ui:non_primary_production_income
+		+
+		smsf_distribution_ui:franked_divis_distri_including_credits
+		+
+		smsf_distribution_ui:assessable_foreign_source_income),
+
+	check_entered_unit_fact_matches_computed(Default_currency, Unit, Item, smsf_distribution_ui:net_trust_distribution_income, smsf_distribution_ui:entered_net_trust_distribution_income).
+	/*
+	todo:
+Capital Gains/Losses Calculations from Annual Tax Statements
+Capital Losses
+Discount Capital Gains (Net)
+Other Capital Gains
+1/3rd Capital Gain Discount Amount
+	*/
 
 
-check_entered_accrual(Default_currency, Unit, Item) :-
-	(	read_value_from_doc_string(Item, smsf_distribution_ui:entered_accrual, Default_currency, Value)
+check_entered_unit_fact_matches_computed(Default_currency, Unit, Item, Prop, Entered) :-
+	(	assert_doc_value_as_fact_with_concept(Default_currency, Unit, Item, Prop, Entered)
 	->	soft_crosscheck(
 			aspects([
 				unit - Unit,
-				concept - smsf_distribution_ui:entered_accrual])
+				concept - Entered])
 			=
 			aspects([
 				unit - Unit,
-				smsf_distribution_ui:net - smsf_distribution_ui:accrual]))
+				concept - Prop]))
 	;	true).
 
+soft_crosscheck(A = B) :-
+	exp_eval(A, A2),
+	exp_eval(B, B2),
+	(	vecs_are_almost_equal(A, B)
+	->	true
+	;	(	format(string(Err), '~q ≠ ~q', [A2, B2]),
+			add_alert(warning, Err))).
 
-# calculated, checked
-smsf_distribution_ui:amit_net rdfs:label "Add: AMIT cost base net amount - net increase".
+
+/*
+┏━┓┏━╸┏━┓┏━┓┏━┓╺┳╸
+┣┳┛┣╸ ┣━┛┃ ┃┣┳┛ ┃
+╹┗╸┗━╸╹  ┗━┛╹┗╸ ╹
+*/
+smsf_distribution_report :-
+	
 
 
 /*

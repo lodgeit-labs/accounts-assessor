@@ -28,12 +28,9 @@ are not preserved.
 		(
 			doc(Uri, rdf:type, l:fact),
 			doc(Uri, l:aspects, aspects(Aspects2)),
-			maplist(find_aspect(Aspects2), Aspects)
+			maplist(rebmem(Aspects2), Aspects)
 		),
 		Facts).
-
-find_aspect(Hay, Needle) :-
-	member(Needle, Hay).
 
 
 
@@ -65,10 +62,10 @@ extend aspect terms with additional aspect
 add_aspect_to_table(Aspect, In, Out) :-
 	!maplist(add_aspect_to_row(Aspect), In, Out).
 add_aspect_to_row(Aspect, In, Out) :-
-	!maplist(add_aspect(Aspect), In, Out).
-add_aspect(_, X, X) :-
+	!maplist(tbl_add_aspect(Aspect), In, Out).
+tbl_add_aspect(_, X, X) :-
 	X \= aspects(_).
-add_aspect(Aspect, aspects(Aspects), aspects(Aspects2)) :-
+tbl_add_aspect(Aspect, aspects(Aspects), aspects(Aspects2)) :-
 	append(Aspects, [Aspect], Aspects2).
 
 
@@ -120,20 +117,24 @@ add_summation_fact(Summed_aspectses, Sum_aspectses) :-
 
 
 
-optionally_assert_doc_value_as_unit_fact(Default_currency, Unit, Item, Prop) :-
-	optionally_assert_doc_value_as_unit_fact2(Item, Prop, Default_currency, Unit, Prop).
+ optionally_assert_doc_value_as_unit_fact(Default_currency, Unit, Item, Prop) :-
+	(	assert_doc_value_as_unit_fact(Item, Prop, Default_currency, Unit, Prop)
+	->	true
+	;	true).
 
-optionally_assert_doc_value_as_unit_fact2(Item, Prop, Default_currency, Unit, Concept) :-
-	optionally_assert_doc_value_as_fact(Item, Prop, Default_currency,
+ assert_doc_value_as_unit_fact(Default_currency, Unit, Item, Prop) :-
+	assert_doc_value_as_unit_fact_with_concept(Default_currency, Unit, Item, Prop, Prop).
+
+ assert_doc_value_as_unit_fact_with_concept(Default_currency, Unit, Item, Prop, Concept) :-
+	assert_doc_value_as_fact(Item, Prop, Default_currency,
 		aspects([
 			concept - Concept,
 			unit - Unit
 	])).
 
- optionally_assert_doc_value_as_fact(Item, Prop, Default_currency, Aspects) :-
-	(	read_value_from_doc_string(Item, Prop, Default_currency, Value)
-	->	make_fact(Value, Aspects)
-	;	true).
+ assert_doc_value_as_fact(Item, Prop, Default_currency, Aspects) :-
+	read_value_from_doc_string(Item, Prop, Default_currency, Value),
+	!make_fact(Value, Aspects).
 
 
 
@@ -257,3 +258,49 @@ open problems:
 	vectors for fact values - would require pyco to solve
 */
 
+
+
+
+computed_unit_fact(Unit, Exp) :-
+	exp_concept_to_aspects(Exp, Aspects_exp),
+	exp_add_aspect(Aspects_exp, unit - Unit, Aspects_exp_with_aspect_added),
+	exp_compute(Aspects_exp_with_aspect_added).
+
+concept_to_aspects(Concept, Aspects) :-
+	Aspects = aspects([concept - Concept]).
+
+walk_exp(Func, Exp, Exp2) :-
+	Func(Exp, Exp2),
+	!.
+
+walk_exp(Func, Exp, Exp2) :-
+	Exp =.. [Functor | Args],
+	maplist(walk_exp(Func), Args, Args2),
+	Exp2 =.. [Functor | Args2],
+	!.
+
+exp_concept_to_aspects(Exp, Aspects) :-
+	walk_exp(concept_to_aspects, Exp, Aspects).
+
+exp_add_aspect(Aspects_exp, Added, Aspects_exp_with_aspect_added) :-
+	walk_exp(add_aspect(Added), Aspects_exp, Aspects_exp_with_aspect_added).
+
+exp_compute(A = B) :-
+	assertion(A = aspects(_)),
+	exp_eval(B, B2),
+	assertion(facts_by_aspects(A, [])),
+	!make_fact(B2, A).
+
+exp_eval(X, X2) :-
+	X = aspects(_),
+	evaluate_fact2(X,X2).
+
+exp_eval(A + B, C) :-
+	exp_eval(A, A2),
+	exp_eval(B, B2),
+	vec_add(A, B, C).
+
+exp_eval(A - B, C) :-
+	exp_eval(A, A2),
+	exp_eval(B, B2),
+	vec_sub(A, B, C).

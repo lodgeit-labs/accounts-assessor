@@ -145,3 +145,8 @@ add(Open_List, Item) :-
 take(Src, N, L) :-
    when(ground(N+Src), findall(E, (nth1(I,Src,E), I =< N), L)).
 
+
+/* member/2 with reversed arguments */
+rebmem(Hay, Needle) :-
+	member(Needle, Hay).
+
