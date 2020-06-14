@@ -67,7 +67,10 @@ column_header_html(group{id:_, title:Group_Title, members:Group_Members}, Prefix
 		Cells
 	).
 
-column_header_html(column{id:_, title:Column_Title, options:Options}, Prefix, th(Header_Value)) :-
+column_header_html(Dict, Prefix, th(Header_Value)) :-
+	is_dict(Dict, column),
+	get_dict(title, Dict, Column_Title),
+	get_dict(options, Dict, Options),
 	(
 		(Prefix = "" ; get_dict(hide_group_prefix, Options, true))
 	->
@@ -78,19 +81,15 @@ column_header_html(column{id:_, title:Column_Title, options:Options}, Prefix, th
 
 row_to_html(Columns, Row, HTML_Row) :-
 	findall(
-		Cells,
+		Cell,
 		(
 			member(Column, Columns),
-			column_to_html(Column, Row.(Column.id), Cells)
+			(	dict_get(id, Column, Column_id)
+			->	!column_to_html(Column, Row.Column_id, Cell)
+			;	Cell = [td([""])])
 		),
 		HTML_Row
 	).
-
-/*
-column_to_html(group{id:_, title:_, members:Group_Members}, '', Cells) :-
-	!,
-	blank_row(Group_Members, Cells).
-*/
 
 column_to_html(group{id:Group_ID, title:Group_Title, members:Group_Members}, Row, Cells) :-
 	(
@@ -101,7 +100,8 @@ column_to_html(group{id:Group_ID, title:Group_Title, members:Group_Members}, Row
 		row_to_html(Group_Members, Row, Cells)
 	).
 
-column_to_html(column{id:_, title:_, options:_}, Cell, [td(Cell_Flat)]) :-
+column_to_html(Dict, Cell, [td(Cell_Flat)]) :-
+	is_dict(Dict, column),
 	flatten(Cell, Cell_Flat).
 /*	(
 		Cell = []
@@ -121,9 +121,10 @@ blank_row(group{id:_, title:_, members:Group_Members}, Cells) :-
 		Cells
 	).
 
-blank_row(column{id:_, title:_, options:_}, [td("")]). % :-
+blank_row(Dict, [td("")]) :-
+	is_dict(Dict, column).
 	/*atomics_to_string([Column_ID, "Blank"], ": ", Cell_Value).*/
-	
+
 
 format_table(
 	table{title:Title, columns:Columns, rows:Rows}, 
@@ -138,13 +139,10 @@ format_row(Columns, Row, Formatted_Row) :-
 
 formatted_row_kvs(Columns, Row, KV) :-
 	member(Column, Columns),
-	(
-		get_dict(Column.id, Row, _)
-	->
-		format_column(Column, Row, KV)
-	;
-		KV = (Column.id):''
-	).
+	dict_get(id, Column, Column_id),
+	(	get_dict(Column_id, Row, _)
+	->	format_column(Column, Row, KV)
+	;	KV = (Column_id:'')).
 
 format_column(group{id:Column_ID, title:_, members:Group_Members}, Row, Column_ID:Formatted_Group) :-
 	format_row(Group_Members, Row.Column_ID, Formatted_Group).
@@ -168,14 +166,21 @@ group_columns(
 	Group_Columns
 ) :-
 	findall(
-		column{
-			id:Group_ID/Member_ID,
-			title:Column_Title,
-			options:Options
-		},
+		Result1,
 		(
-			member(column{id:Member_ID, title:Member_Title, options:Options}, Group_Members),
-			atomics_to_string([Group_Title, Member_Title], " ", Column_Title)
+			member(Column, Group_Members),
+			is_dict(Column, column),
+			(get_dict(id, Column, Member_ID) -> true ; true),
+			get_dict(title, Column, Member_Title),
+			get_dict(options, Column, Options),
+			atomics_to_string([Group_Title, Member_Title], " ", Column_Title),
+			Result0 = column{
+				title:Column_Title,
+				options:Options
+			},
+ 			(	var(Member_ID)
+ 			->	Result1 = Result0
+ 			;	Result1 = Result0.put(id, Group_ID/Member_ID))
 		),
 		Group_Columns
 	).

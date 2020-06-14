@@ -151,9 +151,7 @@ transactions_by_account(Static_Data, Transactions_By_Account) :-
 
 
 check_transaction_account(Transaction) :-
-%finishme
-	(transaction_account(Transaction, Id)->true;
-	(gtrace,false)/*probably s_transaction processing had an exception and this transaction got rolled back out of doc*/),
+	!transaction_account(Transaction, Id),
 	(
 		(
 			nonvar(Id),

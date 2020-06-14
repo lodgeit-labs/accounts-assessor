@@ -3,8 +3,6 @@
 	generate json used by general_ledger_viewer
 
 */
-	/* finishme. GL_input will create multiple source transactions. Also, gl viewer is broken now wrt account ids vs uris */
-
 
  gl_export(Sd, Txs, Json_list) :-
  	/*todo: this should be simply handled by a json-ld projection*/
