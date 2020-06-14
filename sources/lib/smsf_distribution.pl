@@ -137,7 +137,6 @@ smsf_distributions_report(Tbl_dict) :-
 			title:"Unit Type",
 			options:options{}},
 		column{
-			id:label1,
 			title:"Accounting Distribution as per P/L:",
 			options:options{}},
 		column{
@@ -153,7 +152,6 @@ smsf_distributions_report(Tbl_dict) :-
 			title:"Resolved Accrual",
 			options:options{implicit_report_currency:true}},
 		column{
-			id:label1,
 			title:"",
 			options:options{}},
 		column{
@@ -178,15 +176,12 @@ smsf_distributions_report(Tbl_dict) :-
 			title:"Add: AMIT cost base net amount - net increase",
 			options:options{implicit_report_currency:true}},
 		column{
-			id:label1,
 			title:"",
 			options:options{}},
 		column{
-			id:label1,
 			title:"Distribution Income",
 			options:options{implicit_report_currency:true}},
 		column{
-			id:label1,
 			title:"",
 			options:options{}},
 		column{
@@ -202,7 +197,6 @@ smsf_distributions_report(Tbl_dict) :-
 			title:"Assessable Foreign Source Income (Inc Credits)",
 			options:options{implicit_report_currency:true}},
 		column{
-			id:label1,
 			title:"",
 			options:options{}},
 		column{
@@ -210,19 +204,17 @@ smsf_distributions_report(Tbl_dict) :-
 			title:"Net Trust distribution Income",
 			options:options{implicit_report_currency:true}},
 		column{
-			id:label1,
 			title:"",
 			options:options{}},
 		column{
-			id:label1,
 			title:"Capital Gains/Losses Calculations from Annual Tax Statements:",
-			options:options{}},
+			options:options{}}/*,
 		column{
 			id:label1,
 			title:"Capital Losses",
 			options:options{implicit_report_currency:true}},
 		column{
-			id:label1,
+			id:label2,
 			title:"Discount Capital Gains (Net)",
 			options:options{implicit_report_currency:true}},
 		column{
@@ -232,11 +224,7 @@ smsf_distributions_report(Tbl_dict) :-
 		column{
 			id:label1,
 			title:"1/3rd Capital Gain Discount Amount",
-			options:options{implicit_report_currency:true}},
-
-
-
-
+			options:options{implicit_report_currency:true}},*/
 		],
 
 	Tbl_dict = table{title:Title_Text, columns:Columns, rows:Rows_dict},
