@@ -13,7 +13,7 @@ float_comparison_max_difference(0.0001).
 /*todo float_comparison_max_difference(X) :-
 	float_comparison_significant_digits(D),
 	X is 0.1**D, % is this represented correctly?*/
-floats_close_enough(Value1, Value2) :-
+ floats_close_enough(Value1, Value2) :-
 	float_comparison_max_difference(Max),
 	ValueDifference is abs(Value1 - Value2),
 	ValueDifference =< Max.

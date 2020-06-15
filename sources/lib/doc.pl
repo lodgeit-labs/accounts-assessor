@@ -234,6 +234,7 @@ dddd(Spog, X) :-
 	(atom(S2);var(S2)),
 	(atom(P2);var(P2)),
 	(atom(G2);var(G2)),
+	/* looks like a bug here not finding a triple is S2 is unbound? At any case, is any of S2, P2 or O2 is unbound, the yields are in random order, so we have to find another way than dicts. (and than lists, which were slow, or was that just the rol- stuff?. */
 	rol_member(O2, X.get(S2).get(P2).get(G2)).
 
 dddd(Spog, _X) :-

@@ -69,6 +69,7 @@ RUN ./init_prolog.sh
 RUN mkdir -p /app/server_root
 #RUN chown user:user /app/server_root
 VOLUME /app/server_root
+COPY static ./static
 COPY internal_workers ./internal_workers
 COPY public_lib ./public_lib
 COPY lib ./lib
@@ -79,7 +80,9 @@ WORKDIR /app/internal_workers
 ENV PYTHONUNBUFFERED true
 ENV CELERY_QUEUE_NAME=q7788
 
-VOLUME /tmp/.X11-unix
+#VOLUME /tmp/.X11-unix
+
+COPY swipl/Defaults /root/.config/swi-prolog/xpce/Defaults
 
 ENTRYPOINT ["./start.sh"]
 CMD ["-n", "worker7788", "--loglevel=info"]

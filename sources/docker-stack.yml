@@ -2,6 +2,22 @@ version: '3.7'
 
 services:
 
+#  agraph:
+#    image: franzinc/agraph
+#    networks:
+#    - robust_backend
+#    deploy:
+#      replicas: 1
+#      update_config:
+#        parallelism: 2
+#        delay: 10s
+#      restart_policy:
+#        condition: on-failure
+#    volumes:
+#      - "/etc/localtime:/etc/localtime:ro"
+#    ports:
+#    - 10036:10035
+
   rabbitmq:
     image: rabbitmq
     networks:
@@ -50,8 +66,8 @@ services:
     networks:
       - robust_backend
       #- host
-    ports:
-      - 17788:17788
+    #ports:
+      #- 17788:17788
       #- target: 17788
       #  published: 17788
       #  protocol: tcp

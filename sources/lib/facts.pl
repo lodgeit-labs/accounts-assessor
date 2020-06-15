@@ -30,7 +30,8 @@ are not preserved.
 			doc(Uri, l:aspects, aspects(Aspects2)),
 			maplist(rebmem(Aspects2), Aspects)
 		),
-		Facts).
+		Facts
+	).
 
 
 
@@ -76,7 +77,7 @@ input: 2d matrix of aspect terms and other stuff.
 replace aspect terms with strings
 */
 
-evaluate_fact_table(Pres, Tbl) :-
+ evaluate_fact_table(Pres, Tbl) :-
 	maplist(evaluate_fact_table3, Pres, Tbl).
 
 evaluate_fact_table3(Row_in, Row_out) :-
@@ -119,7 +120,7 @@ add_summation_fact(Summed_aspectses, Sum_aspectses) :-
 
 
  optionally_assert_doc_value_as_unit_fact(Default_currency, Unit, Item, Prop) :-
-	(	assert_doc_value_as_unit_fact(Item, Prop, Default_currency, Unit)
+	(	assert_doc_value_as_unit_fact(Default_currency, Unit, Item, Prop)
 	->	true
 	;	true).
 
@@ -129,7 +130,7 @@ add_summation_fact(Summed_aspectses, Sum_aspectses) :-
  assert_doc_value_as_unit_fact_with_concept(Default_currency, Unit, Item, Prop, Concept) :-
 	assert_doc_value_as_fact(Item, Prop, Default_currency,
 		aspects([
-			concept - Concept,
+			concept - ($>rdf_global_id(Concept)),
 			unit - Unit
 	])).
 
@@ -268,7 +269,9 @@ computed_unit_fact(Unit, Exp) :-
 	exp_compute(Aspects_exp_with_aspect_added).
 
 concept_to_aspects(Concept, Aspects) :-
-	Aspects = aspects([concept - Concept]).
+	(	atom(Concept)
+	;	Concept = _:_),
+	Aspects = aspects([concept - ($>rdf_global_id(Concept))]).
 
 walk_exp(Func, Exp, Exp2) :-
 	call(Func, Exp, Exp2),
@@ -289,7 +292,10 @@ exp_add_aspect(Aspects_exp, Added, Aspects_exp_with_aspect_added) :-
 exp_compute(A = B) :-
 	assertion(A = aspects(_)),
 	exp_eval(B, B2),
-	assertion(facts_by_aspects(A, [])),
+	facts_by_aspects(A, Already_asserted),
+	(	Already_asserted = []
+	->	true
+	;	throw_string('internal error')),
 	!make_fact(B2, A).
 
 exp_eval(X, X2) :-

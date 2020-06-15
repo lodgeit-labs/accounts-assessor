@@ -13,21 +13,32 @@
 
 extract_smsf_distribution3(Default_currency, Item, Txs) :-
 	trim_string($>!doc_value(Item, smsf_distribution_ui:name), Unit_name_str),
-	extract_smsf_distribution4(Default_currency, Item, Unit_name_str, Txs).
+	!extract_smsf_distribution4(Default_currency, Item, Unit_name_str, Txs).
 
 extract_smsf_distribution4(_, _, "Dr/Cr", []) :- !.
 extract_smsf_distribution4(_, _, "Total", []) :- !.
 
 extract_smsf_distribution4(Default_currency, Item, Unit_name_str, Txs) :-
 	!atom_string(Unit, Unit_name_str),
-	% todo: we should be doing smsf_distribution_ui and smsf_distribution, using smsf_distribution_ui to get data, clean them up, then assert a new smsf_distribution object.
+	% todo: we should be doing smsf_distribution_ui and smsf_distribution, using smsf_distribution_ui to get data, clean them up, then assert a new smsf_distribution object, rather than having both "name" and "unit_type" and having "entered_..." props.
+	!check_duplicate_distribution_unit(Item, Unit),
 	!doc_add_value(Item, smsf_distribution_ui:unit_type, Unit),
 	!traded_units($>request_has_property(l:bank_s_transactions), Traded_Units),
 	(	member(Unit, Traded_Units)
 	->	true
 	;	throw_string(['smsf distribution sheet: unknown unit: ', Unit])),
-	distribution_txs(Default_currency, Item, Unit, Txs),
-	assert_smsf_distribution_facts(Default_currency, Unit, Item).
+	!distribution_txs(Default_currency, Item, Unit, Txs),
+	!assert_smsf_distribution_facts(Default_currency, Unit, Item).
+
+check_duplicate_distribution_unit(Item, Unit) :-
+	/*this check doesn't actually work, due to a bug in doc or dicts i guess*/
+	(	doc(_, smsf_distribution_ui:unit_type, Unit)
+	->	(
+			doc(Item, excel:sheet_name, Sheet_name),
+			throw_string(['duplicate unit types in ', Sheet_name])
+		)
+	;	true).
+
 
 /*
 ┏━╸┏━┓┏━╸╺┳╸┏━┓
@@ -36,8 +47,9 @@ extract_smsf_distribution4(Default_currency, Item, Unit_name_str, Txs) :-
 */
 assert_smsf_distribution_facts(Default_currency, Unit, Item) :-
 	/* assert the facts we want to use */
+	%gtrace,
 	maplist(
-		optionally_assert_doc_value_as_unit_fact(Default_currency, Unit, Item),
+		!optionally_assert_doc_value_as_unit_fact(Default_currency, Unit, Item),
 		[	smsf_distribution_ui:net,
 			smsf_distribution_ui:bank,
 			% smsf_distribution_ui:accrual
@@ -53,47 +65,47 @@ assert_smsf_distribution_facts(Default_currency, Unit, Item) :-
 		]
 	),
 
-	computed_unit_fact(Unit,
-		smsf_distribution_ui:accrual
+	!computed_unit_fact(Unit,
+		(smsf_distribution_ui:accrual)
 		=
-		smsf_distribution_ui:net
+		(smsf_distribution_ui:net)
 		-
-		smsf_distribution_ui:bank),
+		(smsf_distribution_ui:bank)),
 
-	check_entered_unit_fact_matches_computed(Default_currency, Unit, Item, smsf_distribution_ui:accrual, smsf_distribution_ui:entered_accrual),
+	!check_entered_unit_fact_matches_computed(Default_currency, Unit, Item, smsf_distribution_ui:accrual, smsf_distribution_ui:entered_accrual),
 
-	computed_unit_fact(Unit,
-		smsf_distribution_ui:amit_net
+	!computed_unit_fact(Unit,
+		(smsf_distribution_ui:amit_net)
 		=
-		smsf_distribution_ui:amit_decrease
+		(smsf_distribution_ui:amit_decrease)
 		+
-		smsf_distribution_ui:amit_increase),
+		(smsf_distribution_ui:amit_increase)),
 
-	check_entered_unit_fact_matches_computed(Default_currency, Unit, Item, smsf_distribution_ui:amit_net, smsf_distribution_ui:entered_amit_net),
+	!check_entered_unit_fact_matches_computed(Default_currency, Unit, Item, smsf_distribution_ui:amit_net, smsf_distribution_ui:entered_amit_net),
 
-	computed_unit_fact(Unit,
-		smsf_distribution_ui:distribution_income
+	!computed_unit_fact(Unit,
+		(smsf_distribution_ui:distribution_income)
 		=
-		smsf_distribution_ui:net
+		(smsf_distribution_ui:net)
 		+
-		smsf_distribution_ui:franking_credit
+		(smsf_distribution_ui:franking_credit)
 		+
-		smsf_distribution_ui:foreign_credit
+		(smsf_distribution_ui:foreign_credit)
 		+
-		smsf_distribution_ui:amit_net),
+		(smsf_distribution_ui:amit_net)),
 
-	check_entered_unit_fact_matches_computed(Default_currency, Unit, Item, smsf_distribution_ui:distribution_income, smsf_distribution_ui:entered_distribution_income),
+	!check_entered_unit_fact_matches_computed(Default_currency, Unit, Item, smsf_distribution_ui:distribution_income, smsf_distribution_ui:entered_distribution_income),
 
-	computed_unit_fact(Unit,
-		smsf_distribution_ui:net_trust_distribution_income
+	!computed_unit_fact(Unit,
+		(smsf_distribution_ui:net_trust_distribution_income)
 		=
-		smsf_distribution_ui:non_primary_production_income
+		(smsf_distribution_ui:non_primary_production_income)
 		+
-		smsf_distribution_ui:franked_divis_distri_including_credits
+		(smsf_distribution_ui:franked_divis_distri_including_credits)
 		+
-		smsf_distribution_ui:assessable_foreign_source_income),
+		(smsf_distribution_ui:assessable_foreign_source_income)),
 
-	check_entered_unit_fact_matches_computed(Default_currency, Unit, Item, smsf_distribution_ui:net_trust_distribution_income, smsf_distribution_ui:entered_net_trust_distribution_income).
+	!check_entered_unit_fact_matches_computed(Default_currency, Unit, Item, smsf_distribution_ui:net_trust_distribution_income, smsf_distribution_ui:entered_net_trust_distribution_income).
 	/*
 	todo:
 Capital Gains/Losses Calculations from Annual Tax Statements
@@ -105,24 +117,31 @@ Other Capital Gains
 
 
 check_entered_unit_fact_matches_computed(Default_currency, Unit, Item, Prop, Entered) :-
-	(	assert_doc_value_as_unit_fact_with_concept(Default_currency, Unit, Item, Prop, Entered)
-	->	soft_crosscheck(
-			aspects([
-				unit - Unit,
-				concept - Entered])
-			=
-			aspects([
-				unit - Unit,
-				concept - Prop]))
+	(	read_value_from_doc_string(Item, Prop, Default_currency, Entered_value)
+	->	(
+			!make_fact(Entered_value, aspects([
+				concept - ($>rdf_global_id(Entered)),
+				unit - Unit
+			])),
+			!soft_crosscheck(
+				aspects([
+					unit - Unit,
+					concept - ($>rdf_global_id(Entered))])
+				=
+				aspects([
+					unit - Unit,
+					concept - ($>rdf_global_id(Prop))]))
+		)
 	;	true).
 
 soft_crosscheck(A = B) :-
-	exp_eval(A, A2),
-	exp_eval(B, B2),
-	(	vecs_are_almost_equal(A, B)
+	!exp_eval(A, A2),
+	!exp_eval(B, B2),
+	(	vecs_are_almost_equal(A2, B2)
 	->	true
-	;	(	format(string(Err), '~q ≠ ~q', [A2, B2]),
-			add_alert(warning, Err))).
+	;	(
+			!format(string(Err), '~q ≠ ~q', [A2, B2]),
+			!add_alert(warning, Err))).
 
 
 /*
@@ -135,45 +154,45 @@ smsf_distributions_report(Tbl_dict) :-
 
 	Columns = [
 		column{
-			id:unit_type,
+			id:($>rdf_global_id(smsf_distribution_ui:unit_type)),
 			title:"Unit Type",
 			options:options{}},
 		column{
 			title:"Accounting Distribution as per P/L:",
 			options:options{}},
 		column{
-			id:(smsf_distribution_ui:net),
+			id:($>rdf_global_id(smsf_distribution_ui:net)),
 			title:"Net Cash Distribution",
 			options:options{implicit_report_currency:true}},
 		column{
-			id:(smsf_distribution_ui:bank),
+			id:($>rdf_global_id(smsf_distribution_ui:bank)),
 			title:"Cash Distribution as per bank",
 			options:options{implicit_report_currency:true}},
 		column{
-			id:(smsf_distribution_ui:accrual),
+			id:($>rdf_global_id(smsf_distribution_ui:accrual)),
 			title:"Resolved Accrual",
 			options:options{implicit_report_currency:true}},
 		column{
 			title:"",
 			options:options{}},
 		column{
-			id:(smsf_distribution_ui:franking_credit),
+			id:($>rdf_global_id(smsf_distribution_ui:franking_credit)),
 			title:"Add: Franking Credit",
 			options:options{implicit_report_currency:true}},
 		column{
-			id:(smsf_distribution_ui:foreign_credit),
+			id:($>rdf_global_id(smsf_distribution_ui:foreign_credit)),
 			title:"Add: Foreign Credit",
 			options:options{implicit_report_currency:true}},
 		column{
-			id:(smsf_distribution_ui:amit_decrease),
+			id:($>rdf_global_id(smsf_distribution_ui:amit_decrease)),
 			title:"AMIT cost base net amount - excess (decrease)",
 			options:options{implicit_report_currency:true}},
 		column{
-			id:(smsf_distribution_ui:amit_increase),
+			id:($>rdf_global_id(smsf_distribution_ui:amit_increase)),
 			title:"AMIT cost base net amount - shortfall (increase)",
 			options:options{implicit_report_currency:true}},
 		column{
-			id:(smsf_distribution_ui:amit_net),
+			id:($>rdf_global_id(smsf_distribution_ui:amit_net)),
 			title:"Add: AMIT cost base net amount - net increase",
 			options:options{implicit_report_currency:true}},
 		column{
@@ -186,22 +205,22 @@ smsf_distributions_report(Tbl_dict) :-
 			title:"",
 			options:options{}},
 		column{
-			id:(smsf_distribution_ui:non_primary_production_income),
+			id:($>rdf_global_id(smsf_distribution_ui:non_primary_production_income)),
 			title:"Non-primary Production Income",
 			options:options{implicit_report_currency:true}},
 		column{
-			id:(smsf_distribution_ui:franked_divis_distri_including_credits),
+			id:($>rdf_global_id(smsf_distribution_ui:franked_divis_distri_including_credits)),
 			title:"Franked Divis/Distri (Including Credits)",
 			options:options{implicit_report_currency:true}},
 		column{
-			id:(smsf_distribution_ui:assessable_foreign_source_income),
+			id:($>rdf_global_id(smsf_distribution_ui:assessable_foreign_source_income)),
 			title:"Assessable Foreign Source Income (Inc Credits)",
 			options:options{implicit_report_currency:true}},
 		column{
 			title:"",
 			options:options{}},
 		column{
-			id:(smsf_distribution_ui:net_trust_distribution_income),
+			id:($>rdf_global_id(smsf_distribution_ui:net_trust_distribution_income)),
 			title:"Net Trust distribution Income",
 			options:options{implicit_report_currency:true}},
 		column{
@@ -229,25 +248,33 @@ smsf_distributions_report(Tbl_dict) :-
 		],
 
 	Tbl_dict = table{title:Title_Text, columns:Columns, rows:Row_dicts},
-	maplist(doc_item_to_tbl_row_dict(Columns), $>smsf_distribution_items, Row_dicts),
-	!table_html([highlight_totals - true], Tbl_dict, Table_Html),
+	maplist(!doc_item_to_tbl_row_dict(Columns), $>smsf_distribution_items, Row_dicts),
+	!table_html([/*highlight_totals - true*/], Tbl_dict, Table_Html),
 	!page_with_table_html(Title_Text, Table_Html, Html),
 	!add_report_page(0, Title_Text, Html, loc(file_name,'distributions.html'), distributions).
 
 doc_item_to_tbl_row_dict(Cols, Item, Row) :-
-	dict_pairs(Cols, _, Cols2),
 	findall(
 		Row_kv,
 		(
-			member(Col, Cols2),
+			member(Col, Cols),
 			col_to_tbl_row_dict(Item, Col, Row_kv)
 		),
 		Row_kvs),
-	dict_pairs(Row, row, Row_kvs).
+	!dict_pairs(Row, row, Row_kvs).
 
 col_to_tbl_row_dict(Item, Col, Id - Val) :-
 	get_dict(id, Col, Id),
-	!doc_value(Item, Id, Val).
+	doc_value(Item, smsf_distribution_ui:unit_type, Unit),
+	evaluate_fact2(
+		aspects(
+			[
+				unit - Unit,
+				concept - Id
+			]
+		),
+		Val
+	).
 
 smsf_distribution_items(Items) :-
 	findall(Item, doc(Item, smsf_distribution_ui:unit_type, _), Items).

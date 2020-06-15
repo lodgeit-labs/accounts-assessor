@@ -48,7 +48,7 @@
 	term_string(Msg, Msg2),
 	page_with_body('error', [Msg2], Html).
 
- page_with_table_html(Title, Tbl, Html) :-
+  page_with_table_html(Title, Tbl, Html) :-
 	page_with_body(Title, [Title, ':', br([]), table([border="1"], Tbl)], Html).
 
  add_report_page_with_body(Priority, Title, Body_Html, File_Name, Key) :-

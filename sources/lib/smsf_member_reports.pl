@@ -87,13 +87,13 @@ smsf_member_overview_report(Member, Tbl_dict) :-
 	Tbl_dict = table{title:Member, columns:Columns, rows:Rows}.
 
 
-label_value_row_to_dict([A,B], Dict) :-
+ label_value_row_to_dict([A,B], Dict) :-
 	Dict = row{
 		label:A,
 		value:B}.
 
 
-smsf_member_report_row_to_dict(Row, Dict) :-
+ smsf_member_report_row_to_dict(Row, Dict) :-
 	Row = [A,B,C,D,E],
 	Dict = row{
 		label:A,

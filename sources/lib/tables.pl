@@ -1,7 +1,7 @@
 /*
   <abstract representation of a table> to <html something>
 */
-table_html(
+ table_html(
 	Options,
 	Table, 
 	/*[div([span([Table.title, ':']), HTML_Table])]*/
@@ -68,9 +68,7 @@ column_header_html(group{id:_, title:Group_Title, members:Group_Members}, Prefix
 	).
 
 column_header_html(Dict, Prefix, th(Header_Value)) :-
-	is_dict(Dict, column),
-	get_dict(title, Dict, Column_Title),
-	get_dict(options, Dict, Options),
+	column{title: Column_Title, options: Options} :< Dict,
 	(
 		(Prefix = "" ; get_dict(hide_group_prefix, Options, true))
 	->

@@ -91,7 +91,7 @@ x :-
 	memberchk(goal(Goal), Opts),
 	(	nonvar(Goal)
 	->	(
-			format(user_error, 'dev_runner: running siwpl with goal...\n', []),
+			format(user_error, 'dev_runner: running swipl...\n', []),
 			(	nonvar(Viewer)
 			->	Redirection = [' 2>&1  1> arrr.xml | tee ', Err_File]
 			;	Redirection = ''),
