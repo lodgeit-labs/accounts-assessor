@@ -819,16 +819,12 @@ read_coord_vector_from_doc_string(Item, Prop, Default_currency, Side, VectorA) :
 
 
 
-`
 /*
 we could control this with a thread select'ing some unix socket
 */
 /*doc_dumping_enabled :-
 	current_prolog_flag(doc_dumping_enabled, true).
 */
-
-
-
 
 
 /*

@@ -63,6 +63,7 @@ add_aspect_to_table(Aspect, In, Out) :-
 	!maplist(add_aspect_to_row(Aspect), In, Out).
 add_aspect_to_row(Aspect, In, Out) :-
 	!maplist(tbl_add_aspect(Aspect), In, Out).
+/* add aspect if this is an aspects([..]) term, otherwise return it as it is */
 tbl_add_aspect(_, X, X) :-
 	X \= aspects(_).
 tbl_add_aspect(Aspect, aspects(Aspects), aspects(Aspects2)) :-
@@ -118,7 +119,7 @@ add_summation_fact(Summed_aspectses, Sum_aspectses) :-
 
 
  optionally_assert_doc_value_as_unit_fact(Default_currency, Unit, Item, Prop) :-
-	(	assert_doc_value_as_unit_fact(Item, Prop, Default_currency, Unit, Prop)
+	(	assert_doc_value_as_unit_fact(Item, Prop, Default_currency, Unit)
 	->	true
 	;	true).
 
@@ -270,7 +271,7 @@ concept_to_aspects(Concept, Aspects) :-
 	Aspects = aspects([concept - Concept]).
 
 walk_exp(Func, Exp, Exp2) :-
-	Func(Exp, Exp2),
+	call(Func, Exp, Exp2),
 	!.
 
 walk_exp(Func, Exp, Exp2) :-
@@ -298,9 +299,12 @@ exp_eval(X, X2) :-
 exp_eval(A + B, C) :-
 	exp_eval(A, A2),
 	exp_eval(B, B2),
-	vec_add(A, B, C).
+	vec_add(A2, B2, C).
 
 exp_eval(A - B, C) :-
 	exp_eval(A, A2),
 	exp_eval(B, B2),
-	vec_sub(A, B, C).
+	vec_sub(A2, B2, C).
+
+add_aspect(Added, aspects(X), aspects(Y)) :-
+	append(X, [Added], Y).

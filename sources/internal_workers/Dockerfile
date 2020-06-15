@@ -66,7 +66,6 @@ COPY init_prolog.sh .
 RUN ./init_prolog.sh
 
 
-EXPOSE 17788
 RUN mkdir -p /app/server_root
 #RUN chown user:user /app/server_root
 VOLUME /app/server_root

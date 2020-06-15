@@ -53,7 +53,7 @@ assert_smsf_distribution_facts(Default_currency, Unit, Item) :-
 		]
 	),
 
-	computed_unit_fact(
+	computed_unit_fact(Unit,
 		smsf_distribution_ui:accrual
 		=
 		smsf_distribution_ui:net
@@ -62,7 +62,7 @@ assert_smsf_distribution_facts(Default_currency, Unit, Item) :-
 
 	check_entered_unit_fact_matches_computed(Default_currency, Unit, Item, smsf_distribution_ui:accrual, smsf_distribution_ui:entered_accrual),
 
-	computed_unit_fact(
+	computed_unit_fact(Unit,
 		smsf_distribution_ui:amit_net
 		=
 		smsf_distribution_ui:amit_decrease
@@ -71,7 +71,7 @@ assert_smsf_distribution_facts(Default_currency, Unit, Item) :-
 
 	check_entered_unit_fact_matches_computed(Default_currency, Unit, Item, smsf_distribution_ui:amit_net, smsf_distribution_ui:entered_amit_net),
 
-	computed_unit_fact(
+	computed_unit_fact(Unit,
 		smsf_distribution_ui:distribution_income
 		=
 		smsf_distribution_ui:net
@@ -84,7 +84,7 @@ assert_smsf_distribution_facts(Default_currency, Unit, Item) :-
 
 	check_entered_unit_fact_matches_computed(Default_currency, Unit, Item, smsf_distribution_ui:distribution_income, smsf_distribution_ui:entered_distribution_income),
 
-	computed_unit_fact(
+	computed_unit_fact(Unit,
 		smsf_distribution_ui:net_trust_distribution_income
 		=
 		smsf_distribution_ui:non_primary_production_income
@@ -105,7 +105,7 @@ Other Capital Gains
 
 
 check_entered_unit_fact_matches_computed(Default_currency, Unit, Item, Prop, Entered) :-
-	(	assert_doc_value_as_fact_with_concept(Default_currency, Unit, Item, Prop, Entered)
+	(	assert_doc_value_as_unit_fact_with_concept(Default_currency, Unit, Item, Prop, Entered)
 	->	soft_crosscheck(
 			aspects([
 				unit - Unit,
@@ -229,7 +229,7 @@ smsf_distributions_report(Tbl_dict) :-
 		],
 
 	Tbl_dict = table{title:Title_Text, columns:Columns, rows:Row_dicts},
-	maplist(doc_item_to_tbl_row_dict, $>smsf_distribution_items(Items), Row_dicts),
+	maplist(doc_item_to_tbl_row_dict(Columns), $>smsf_distribution_items, Row_dicts),
 	!table_html([highlight_totals - true], Tbl_dict, Table_Html),
 	!page_with_table_html(Title_Text, Table_Html, Html),
 	!add_report_page(0, Title_Text, Html, loc(file_name,'distributions.html'), distributions).

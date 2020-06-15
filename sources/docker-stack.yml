@@ -1,10 +1,11 @@
-version: "3"
+version: '3.7'
+
 services:
 
   rabbitmq:
     image: rabbitmq
     networks:
-      - backend
+      - robust_backend
     deploy:
       replicas: 1
       update_config:
@@ -12,21 +13,24 @@ services:
         delay: 10s
       restart_policy:
         condition: on-failure
+    volumes:
+      - "/etc/localtime:/etc/localtime:ro"
 
-  frontend_server:
+  frontend-server:
     image: koo5/frontend_server
     environment:
-      SECRET__INTERNAL_SERVICES_SERVER_URL: "http://internal_services:17788"
+      SECRET__INTERNAL_SERVICES_SERVER_URL: "http://internal-services:17788"
       SECRET__CELERY_BROKER_URL: "amqp://guest:guest@rabbitmq:5672//"
     volumes:
       - my-vol:/app/server_root/tmp
+      - "/etc/localtime:/etc/localtime:ro"
     networks:
-      - backend
-      - frontend
+      - robust_backend
+      - robust_frontend
     depends_on:
       - rabbitmq
-      - internal_services
-      - internal_workers
+      - internal-services
+      - internal-workers
     deploy:
       placement:
         constraints: [node.role == manager]
@@ -36,12 +40,18 @@ services:
       - 7788:7788
 
 
-  internal_services:
+  internal-services:
     image: koo5/internal_services
     volumes:
       - my-vol:/app/server_root/tmp
+      - "/etc/localtime:/etc/localtime:ro"
     networks:
-      - backend
+      - robust_backend
+    ports:
+      - target: 17788
+        published: 17788
+        protocol: tcp
+        mode: ingress
     depends_on:
       - rabbitmq
     deploy:
@@ -54,18 +64,19 @@ services:
       restart_policy:
         condition: on-failure
 
-  internal_workers:
+  internal-workers:
     image: koo5/internal_workers
     environment:
-      SECRET__INTERNAL_SERVICES_SERVER_URL: "http://internal_services:17788"
+      SECRET__INTERNAL_SERVICES_SERVER_URL: "http://internal-services:17788"
       SECRET__CELERY_BROKER_URL: "amqp://guest:guest@rabbitmq:5672//"
     volumes:
       - my-vol:/app/server_root/tmp
+      - "/etc/localtime:/etc/localtime:ro"
     networks:
-      - backend
+      - robust_backend
     depends_on:
       - rabbitmq
-      - internal_services
+      - internal-services
     deploy:
       replicas: 1
       update_config:
@@ -77,8 +88,9 @@ services:
         condition: on-failure
 
 networks:
-  frontend:
-  backend:
+  robust_frontend:
+  robust_backend:
+    external: true
 
 volumes:
   my-vol:

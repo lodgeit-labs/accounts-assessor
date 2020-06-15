@@ -84,7 +84,7 @@ row_to_html(Columns, Row, HTML_Row) :-
 		Cell,
 		(
 			member(Column, Columns),
-			(	dict_get(id, Column, Column_id)
+			(	get_dict(id, Column, Column_id)
 			->	!column_to_html(Column, Row.Column_id, Cell)
 			;	Cell = [td([""])])
 		),
@@ -139,7 +139,7 @@ format_row(Columns, Row, Formatted_Row) :-
 
 formatted_row_kvs(Columns, Row, KV) :-
 	member(Column, Columns),
-	dict_get(id, Column, Column_id),
+	get_dict(id, Column, Column_id),
 	(	get_dict(Column_id, Row, _)
 	->	format_column(Column, Row, KV)
 	;	KV = (Column_id:'')).

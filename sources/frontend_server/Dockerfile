@@ -6,7 +6,7 @@ RUN mkdir /app
 WORKDIR /app
 COPY requirements.txt .
 RUN pip3 install --no-cache-dir -r requirements.txt
-EXPOSE 17788
+EXPOSE 7788
 RUN mkdir -p /app/server_root
 #RUN chown -R user:user /app/server_root
 #RUN chown -R user:user /app/server_root
