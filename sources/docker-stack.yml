@@ -6,6 +6,7 @@ services:
     image: rabbitmq
     networks:
       - robust_backend
+      #- host
     deploy:
       replicas: 1
       update_config:
@@ -27,6 +28,7 @@ services:
     networks:
       - robust_backend
       - robust_frontend
+      #- host
     depends_on:
       - rabbitmq
       - internal-services
@@ -47,11 +49,13 @@ services:
       - "/etc/localtime:/etc/localtime:ro"
     networks:
       - robust_backend
+      #- host
     ports:
-      - target: 17788
-        published: 17788
-        protocol: tcp
-        mode: ingress
+      - 17788:17788
+      #- target: 17788
+      #  published: 17788
+      #  protocol: tcp
+      #  mode: ingress
     depends_on:
       - rabbitmq
     deploy:
@@ -72,8 +76,10 @@ services:
     volumes:
       - my-vol:/app/server_root/tmp
       - "/etc/localtime:/etc/localtime:ro"
+      - "/tmp/.X11-unix:/tmp/.X11-unix:rw"
     networks:
       - robust_backend
+      #- host
     depends_on:
       - rabbitmq
       - internal-services
@@ -89,8 +95,12 @@ services:
 
 networks:
   robust_frontend:
+
   robust_backend:
-    external: true
+
+#  host:
+#    external:
+#      name: host
 
 volumes:
   my-vol:

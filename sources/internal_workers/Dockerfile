@@ -78,5 +78,8 @@ COPY secrets2.json /
 WORKDIR /app/internal_workers
 ENV PYTHONUNBUFFERED true
 ENV CELERY_QUEUE_NAME=q7788
+
+VOLUME /tmp/.X11-unix
+
 ENTRYPOINT ["./start.sh"]
 CMD ["-n", "worker7788", "--loglevel=info"]
