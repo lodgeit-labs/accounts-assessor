@@ -185,12 +185,12 @@ smsf_income_tax_report(Tbl_dict) :-
 	assertion(ground(Rows)),
 	!evaluate_fact_table(Rows, Rows_evaluated),
 	assertion(ground(Rows_evaluated)),
-	maplist(!label_value_row_to_dict, Rows_evaluated, Rows_dict),
+	maplist(!label_value_row_to_dict, Rows_evaluated, Row_dicts),
 	Columns = [
 		column{id:label, title:"Description", options:options{}},
 		column{id:value, title:"Amount in $", options:options{implicit_report_currency:true}}],
 	Title_Text = "Statement of Taxable Income",
-	Tbl_dict = table{title:Title_Text, columns:Columns, rows:Rows_dict},
+	Tbl_dict = table{title:Title_Text, columns:Columns, rows:Row_dicts},
 	!table_html([highlight_totals - true], Tbl_dict, Table_Html),
 	!page_with_table_html(Title_Text, Table_Html, Html),
 	!add_report_page(0, Title_Text, Html, loc(file_name,'statement_of_taxable_income.html'), statement_of_taxable_income).

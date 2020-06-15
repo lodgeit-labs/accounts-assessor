@@ -12,14 +12,16 @@
  	!flatten(Txs0, Txs).
 
 extract_smsf_distribution3(Default_currency, Item, Txs) :-
-	trim_string($>!doc_value(Item, smsf_distribution_ui:name), Unit_name_str2),
-	extract_smsf_distribution4(Default_currency, Item, Unit_name_str2, Txs).
+	trim_string($>!doc_value(Item, smsf_distribution_ui:name), Unit_name_str),
+	extract_smsf_distribution4(Default_currency, Item, Unit_name_str, Txs).
 
 extract_smsf_distribution4(_, _, "Dr/Cr", []) :- !.
 extract_smsf_distribution4(_, _, "Total", []) :- !.
 
 extract_smsf_distribution4(Default_currency, Item, Unit_name_str, Txs) :-
 	!atom_string(Unit, Unit_name_str),
+	% todo: we should be doing smsf_distribution_ui and smsf_distribution, using smsf_distribution_ui to get data, clean them up, then assert a new smsf_distribution object.
+	!doc_add_value(Item, smsf_distribution_ui:unit_type, Unit),
 	!traded_units($>request_has_property(l:bank_s_transactions), Traded_Units),
 	(	member(Unit, Traded_Units)
 	->	true
@@ -155,8 +157,7 @@ smsf_distributions_report(Tbl_dict) :-
 			title:"",
 			options:options{}},
 		column{
-			id:(smsf_distribution_ui:franking_credit,
-),
+			id:(smsf_distribution_ui:franking_credit),
 			title:"Add: Franking Credit",
 			options:options{implicit_report_currency:true}},
 		column{
@@ -227,17 +228,29 @@ smsf_distributions_report(Tbl_dict) :-
 			options:options{implicit_report_currency:true}},*/
 		],
 
-	Tbl_dict = table{title:Title_Text, columns:Columns, rows:Rows_dict},
-
-
-
-
-
+	Tbl_dict = table{title:Title_Text, columns:Columns, rows:Row_dicts},
+	maplist(doc_item_to_tbl_row_dict, $>smsf_distribution_items(Items), Row_dicts),
 	!table_html([highlight_totals - true], Tbl_dict, Table_Html),
 	!page_with_table_html(Title_Text, Table_Html, Html),
 	!add_report_page(0, Title_Text, Html, loc(file_name,'distributions.html'), distributions).
 
+doc_item_to_tbl_row_dict(Cols, Item, Row) :-
+	dict_pairs(Cols, _, Cols2),
+	findall(
+		Row_kv,
+		(
+			member(Col, Cols2),
+			col_to_tbl_row_dict(Item, Col, Row_kv)
+		),
+		Row_kvs),
+	dict_pairs(Row, row, Row_kvs).
 
+col_to_tbl_row_dict(Item, Col, Id - Val) :-
+	get_dict(id, Col, Id),
+	!doc_value(Item, Id, Val).
+
+smsf_distribution_items(Items) :-
+	findall(Item, doc(Item, smsf_distribution_ui:unit_type, _), Items).
 
 
 /*

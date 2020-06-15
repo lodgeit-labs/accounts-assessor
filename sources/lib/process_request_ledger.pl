@@ -163,7 +163,7 @@ static_data_historical(Static_Data, Static_Data_Historical) :-
 	(	account_by_role(rl(smsf_equity), _)
 	->	(
 			smsf_member_reports(Sr0),
-			smsf_distribution_report
+			smsf_distributions_report(_)
 		)
 	;	true),
 	!report_entry_tree_html_page(Static_Data, Sr0.bs.current, 'balance sheet', 'balance_sheet.html'),
