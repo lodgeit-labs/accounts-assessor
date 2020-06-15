@@ -145,7 +145,8 @@ formatted_row_kvs(Columns, Row, KV) :-
 format_column(group{id:Column_ID, title:_, members:Group_Members}, Row, Column_ID:Formatted_Group) :-
 	format_row(Group_Members, Row.Column_ID, Formatted_Group).
 
-format_column(column{id:Column_ID, title:_, options:Column_Options}, Row, Column_ID:Formatted_Cell) :-
+format_column(Dict, Row, Column_ID:Formatted_Cell) :-
+	column{id:Column_ID, options:Column_Options} :< Dict,
 	format_cell(Row.Column_ID, Column_Options, Formatted_Cell).
 
 flatten_groups(Groups, Columns) :-
@@ -269,16 +270,15 @@ format_conversion(_Report_Currency, Conversion, String) :-
 
 
 /* Rows - dict, possibly with subdicts */
-/* Keys - list of id's that should be totalled */
+/* Keys - list of id's/paths that should be totalled */
 /* Totals - possibly nested dict */
-table_totals(Rows, Keys, Totals) :-
+ table_totals(Rows, Keys, Totals) :-
 	table_totals2(Rows, Keys, _{}, Totals).
 
 table_totals2(Rows, [Key|Keys], In, Out) :-
 	Mid = In.put(Key, Total),
 	column_by_key(Rows, Key, Vals),
 	sum_cells(Vals, Total),
-	%print_term(table_totals2('rrrr', Rows, 'vvvvv', Total, Key, In, Mid), []),
 	table_totals2(Rows, Keys, Mid, Out).
 
 table_totals2(_Rows, [], Dict, Dict).
@@ -292,7 +292,7 @@ column_by_key(Rows, Key, Vals) :-
 		 path_get_dict(Key, Row, Val)
 		),
 		Vals
-	       ).
+	).
 
 sum_cells(Values, Sum) :-
 	flatten(Values, Vec),

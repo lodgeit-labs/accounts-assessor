@@ -47,7 +47,6 @@ check_duplicate_distribution_unit(Item, Unit) :-
 */
 assert_smsf_distribution_facts(Default_currency, Unit, Item) :-
 	/* assert the facts we want to use */
-	%gtrace,
 	maplist(
 		!optionally_assert_doc_value_as_unit_fact(Default_currency, Unit, Item),
 		[	smsf_distribution_ui:net,
@@ -105,7 +104,22 @@ assert_smsf_distribution_facts(Default_currency, Unit, Item) :-
 		+
 		(smsf_distribution_ui:assessable_foreign_source_income)),
 
-	!check_entered_unit_fact_matches_computed(Default_currency, Unit, Item, smsf_distribution_ui:net_trust_distribution_income, smsf_distribution_ui:entered_net_trust_distribution_income).
+	!check_entered_unit_fact_matches_computed(Default_currency, Unit, Item, smsf_distribution_ui:net_trust_distribution_income, smsf_distribution_ui:entered_net_trust_distribution_income),
+
+	!computed_unit_fact(Unit,
+		(smsf_distribution_ui:total_capital_gains_losses)
+		=
+		(smsf_distribution_ui:capital_losses)
+		+
+		(smsf_distribution_ui:discount_capital_gains_net)
+		+
+		(smsf_distribution_ui:other_capital_gains)
+		+
+		(smsf_distribution_ui:one_third_capital_gain_discount_amount)),
+
+	!check_entered_unit_fact_matches_computed(Default_currency, Unit, Item, smsf_distribution_ui:total_capital_gains_losses, smsf_distribution_ui:entered_total_capital_gains_losses)
+
+	.
 	/*
 	todo:
 Capital Gains/Losses Calculations from Annual Tax Statements
@@ -161,66 +175,67 @@ smsf_distributions_report(Tbl_dict) :-
 			title:"Accounting Distribution as per P/L:",
 			options:options{}},
 		column{
-			id:($>rdf_global_id(smsf_distribution_ui:net)),
+			concept:($>rdf_global_id(smsf_distribution_ui:net)),
 			title:"Net Cash Distribution",
 			options:options{implicit_report_currency:true}},
 		column{
-			id:($>rdf_global_id(smsf_distribution_ui:bank)),
+			concept:($>rdf_global_id(smsf_distribution_ui:bank)),
 			title:"Cash Distribution as per bank",
 			options:options{implicit_report_currency:true}},
 		column{
-			id:($>rdf_global_id(smsf_distribution_ui:accrual)),
+			concept:($>rdf_global_id(smsf_distribution_ui:accrual)),
 			title:"Resolved Accrual",
 			options:options{implicit_report_currency:true}},
 		column{
 			title:"",
 			options:options{}},
 		column{
-			id:($>rdf_global_id(smsf_distribution_ui:franking_credit)),
+			concept:($>rdf_global_id(smsf_distribution_ui:franking_credit)),
 			title:"Add: Franking Credit",
 			options:options{implicit_report_currency:true}},
 		column{
-			id:($>rdf_global_id(smsf_distribution_ui:foreign_credit)),
+			concept:($>rdf_global_id(smsf_distribution_ui:foreign_credit)),
 			title:"Add: Foreign Credit",
 			options:options{implicit_report_currency:true}},
 		column{
-			id:($>rdf_global_id(smsf_distribution_ui:amit_decrease)),
+			concept:($>rdf_global_id(smsf_distribution_ui:amit_decrease)),
 			title:"AMIT cost base net amount - excess (decrease)",
 			options:options{implicit_report_currency:true}},
 		column{
-			id:($>rdf_global_id(smsf_distribution_ui:amit_increase)),
+			concept:($>rdf_global_id(smsf_distribution_ui:amit_increase)),
 			title:"AMIT cost base net amount - shortfall (increase)",
 			options:options{implicit_report_currency:true}},
 		column{
-			id:($>rdf_global_id(smsf_distribution_ui:amit_net)),
+			concept:($>rdf_global_id(smsf_distribution_ui:amit_net)),
 			title:"Add: AMIT cost base net amount - net increase",
 			options:options{implicit_report_currency:true}},
 		column{
 			title:"",
 			options:options{}},
 		column{
+			concept:($>rdf_global_id(smsf_distribution_ui:distribution_income)),
 			title:"Distribution Income",
 			options:options{implicit_report_currency:true}},
 		column{
 			title:"",
 			options:options{}},
 		column{
-			id:($>rdf_global_id(smsf_distribution_ui:non_primary_production_income)),
+			concept:($>rdf_global_id(smsf_distribution_ui:non_primary_production_income)),
 			title:"Non-primary Production Income",
 			options:options{implicit_report_currency:true}},
 		column{
-			id:($>rdf_global_id(smsf_distribution_ui:franked_divis_distri_including_credits)),
+			concept:($>rdf_global_id(smsf_distribution_ui:franked_divis_distri_including_credits)),
 			title:"Franked Divis/Distri (Including Credits)",
 			options:options{implicit_report_currency:true}},
 		column{
-			id:($>rdf_global_id(smsf_distribution_ui:assessable_foreign_source_income)),
+			concept:($>rdf_global_id(smsf_distribution_ui:assessable_foreign_source_income)),
 			title:"Assessable Foreign Source Income (Inc Credits)",
 			options:options{implicit_report_currency:true}},
 		column{
 			title:"",
 			options:options{}},
 		column{
-			id:($>rdf_global_id(smsf_distribution_ui:net_trust_distribution_income)),
+			concept:($>rdf_global_id(smsf_distribution_ui:net_trust_distribution_income)),
 			title:"Net Trust distribution Income",
 			options:options{implicit_report_currency:true}},
 		column{
@@ -228,40 +243,63 @@ smsf_distributions_report(Tbl_dict) :-
 			options:options{}},
 		column{
 			title:"Capital Gains/Losses Calculations from Annual Tax Statements:",
-			options:options{}}/*,
+			options:options{}},
 		column{
-			id:label1,
+			concept:($>rdf_global_id(smsf_distribution_ui:capital_losses)),
 			title:"Capital Losses",
 			options:options{implicit_report_currency:true}},
 		column{
-			id:label2,
+			concept:($>rdf_global_id(smsf_distribution_ui:discount_capital_gains_net)),
 			title:"Discount Capital Gains (Net)",
 			options:options{implicit_report_currency:true}},
 		column{
-			id:label1,
+			concept:($>rdf_global_id(smsf_distribution_ui:other_capital_gains)),
 			title:"Other Capital Gains",
 			options:options{implicit_report_currency:true}},
 		column{
-			id:label1,
+			concept:($>rdf_global_id(smsf_distribution_ui:one_third_capital_gain_discount_amount)),
 			title:"1/3rd Capital Gain Discount Amount",
-			options:options{implicit_report_currency:true}},*/
+			options:options{implicit_report_currency:true}},
+		column{
+			concept:($>rdf_global_id(smsf_distribution_ui:total_capital_gains_losses)),
+			title:"Total Capital Gains/Losses",
+			options:options{implicit_report_currency:true}}
 		],
+	maplist(col_concept_to_id, Columns, Columns2),
+	maplist(!doc_item_to_tbl_row_dict(Columns2), $>smsf_distribution_items, Rows),
+	findall(
+		Concept,
+		(
+			member(Col, Columns2),
+			_{concept:Concept} :< Col
+		),
+		Total_Keys),
+	!table_totals(Rows, Total_Keys, Totals),
+	flatten([Rows, Totals], Rows2),
 
-	Tbl_dict = table{title:Title_Text, columns:Columns, rows:Row_dicts},
-	maplist(!doc_item_to_tbl_row_dict(Columns), $>smsf_distribution_items, Row_dicts),
-	!table_html([/*highlight_totals - true*/], Tbl_dict, Table_Html),
+	Tbl_dict = table{title:Title_Text, columns:Columns2, rows:Rows2},
+	!table_html([highlight_totals - true], Tbl_dict, Table_Html),
 	!page_with_table_html(Title_Text, Table_Html, Html),
 	!add_report_page(0, Title_Text, Html, loc(file_name,'distributions.html'), distributions).
+
+col_concept_to_id(X, Y) :-
+	(	get_dict(concept, X, Concept)
+	->	Y = X.put(id, Concept)
+	;	Y = X).
 
 doc_item_to_tbl_row_dict(Cols, Item, Row) :-
 	findall(
 		Row_kv,
 		(
 			member(Col, Cols),
-			col_to_tbl_row_dict(Item, Col, Row_kv)
+			get_dict(concept, Col, _),
+			!col_to_tbl_row_dict(Item, Col, Row_kv)
 		),
 		Row_kvs),
-	!dict_pairs(Row, row, Row_kvs).
+	doc_value(Item, smsf_distribution_ui:unit_type, Unit),
+	rdf_global_id(smsf_distribution_ui:unit_type, Uri),
+	append(Row_kvs, [Uri - Unit], Row_kvs2),
+	!dict_pairs(Row, row, Row_kvs2).
 
 col_to_tbl_row_dict(Item, Col, Id - Val) :-
 	get_dict(id, Col, Id),

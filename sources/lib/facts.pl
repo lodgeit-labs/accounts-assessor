@@ -314,3 +314,33 @@ exp_eval(A - B, C) :-
 
 add_aspect(Added, aspects(X), aspects(Y)) :-
 	append(X, [Added], Y).
+
+
+
+
+
+
+
+/*
+xbrl notes
+https://www.xbrl.org/guidance/xbrl-formula-rules-tutorial/#fn:assertions
+
+
+ the test expression will be evaluated for each occurrence of a fact using the concept "Revenue". This may include facts reported with different periods, units or taxonomy-defined dimensions. The characteristics (concept, period, unit, taxonomy-defined dimension and entity) used to uniquely identify a fact are known as "Aspects".
+
+
+
+
+Which of "segment" or "scenario" should be used as the dimension container?
+
+For historical reasons, XBRL provides two alternative containers in which XBRL dimensions can be included, known as "segment" and "scenario". These container elements pre-dates the introduction of XBRL Dimensions, and the split is now redundant.
+
+The choice of which to use is arbitrary, as it does not affect the semantic meaning of the dimensions.
+
+In the absence of other factors, it is suggested that the scenario element is used.
+
+
+
+
+
+*/
