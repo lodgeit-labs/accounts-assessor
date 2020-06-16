@@ -9,3 +9,17 @@
         values:
             prolog terms
             triples
+
+
+
+
+
+abbreviated identifiers:
+	a - aspects
+	c - concept
+	
+
+one formula might be:
+	a([c - investments]) + a([c - investments])
+
+

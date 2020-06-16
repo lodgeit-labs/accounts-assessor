@@ -3,10 +3,10 @@ mock_request :-
 	doc_init.
 */
 make_fact(Vec, Aspects, Uri) :-
-	doc_new_uri(fact, Uri),
-	doc_add(Uri, rdf:type, l:fact),
-	doc_add(Uri, l:vec, $>flatten([Vec])),
-	doc_add(Uri, l:aspects, Aspects).
+	!doc_new_uri(fact, Uri),
+	!doc_add(Uri, rdf:type, l:fact),
+	!doc_add(Uri, l:vec, $>flatten([Vec])),
+	!doc_add(Uri, l:aspects, Aspects).
 
 make_fact(Vec, Aspects) :-
 	make_fact(Vec, Aspects, _).
@@ -136,7 +136,8 @@ add_summation_fact(Summed_aspectses, Sum_aspectses) :-
 
  assert_doc_value_as_fact(Item, Prop, Default_currency, Aspects) :-
 	read_value_from_doc_string(Item, Prop, Default_currency, Value),
-	!make_fact(Value, Aspects).
+	!make_fact(Value, Aspects, Uri)/*,
+	!doc_add(Uri, l:source, $>doc(Item, Prop))*/.
 
 
 

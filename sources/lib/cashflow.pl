@@ -1,18 +1,7 @@
-%:- record cf_item0(account, category, pm, own_transactions).
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Start main code
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
-/* the high-level idea is that different methods of presentation will be required, ie first by account secondary by category, and also the other way around, so, i'd first create a table where each item is a set of categories + corresponding transactions, and then possibly sum+present that in different ways
-
-data flow:
-	tag_gl_transaction_with_cf_data
-		enrich relevant gl transactions with categorization
-	make_cf_instant_tx
-
-
+/* the high-level idea here is that different methods of presentation will be required.
+scheme_0 is that we categorize by :account, category, direction("plusminus"), in that order.
+so we first tag transactions with all that info (tag_gl_transaction_with_cf_data), then aggregate, then build a report entry tree.
 */
 
 
@@ -82,7 +71,6 @@ gl_tx_vs_cashflow_category(
 */
 
 gl_tx_vs_cashflow_category(T, Cat) :-
-%gtrace,
 	doc(T, transactions:origin, Origin, transactions),
 	(
 		doc(Origin, rdf:type, l:s_transaction, transactions)
@@ -93,16 +81,9 @@ gl_tx_vs_cashflow_category(T, Cat) :-
 	).
 
 
-
 /*
-cf_items0(
-	Sd,			% Dict:Static Data
-	Root,		% atom:Account ID
-	Cf_Items	% List record:cf_item0
-).
+enrich relevant gl transactions with categorization
 */
-
-
 tag_gl_transaction_with_cf_data(T) :-
 	transaction_vector(T, V),
 	(	is_debit(V)
@@ -132,7 +113,9 @@ cf_categorization_uri_tx_pairs(Account, Cat, PlusMinus, Categorization_Tx_Pairs)
 
 /* put each categorization tuple into doc, so we can use the uris as keys in dicts */
 categorization_to_uri(cat(Account, Cat, PlusMinus), U) :-
-	(	(
+	(
+		/* skip existing */
+		(
 			docm(U, rdf:type, l:cf_categorization, cf_stuff),
 			docm(U, l:account, Account, cf_stuff),
 			docm(U, l:category, Cat, cf_stuff),
@@ -164,26 +147,11 @@ cf_scheme_0_entry_for_account(
 cf_scheme_0_root_entry(Sd, Entry) :-
 	!cf_scheme_0_entry_for_account0(Sd, $>account_by_role_throw(rl('CashAndCashEquivalents')), Entry).
 
-
-balance_until_day2(Sd, Report_Currency, Date, Account, balance(Balance, Tx_Count)) :-
-	!balance_until_day(Sd.exchange_rates, Sd.transactions_by_account, Report_Currency, Date, Account, Date, Balance, Tx_Count).
-
-balance_by_account2(Sd, Report_Currency, Date, Account, balance(Balance, Tx_Count)) :-
-	!balance_by_account(Sd.exchange_rates, Sd.transactions_by_account, Report_Currency, Date, Account, Date, Balance, Tx_Count).
-
-
 add_entry_balance_desc(_Sd, Entry, B, Column, Text, Type) :-
 	!maybe_balance_lines(xxx, kb:debit, [], B, Balance_Text),
 	flatten($>append([Text], [':', Balance_Text]), Desc0),
 	atomic_list_concat(Desc0, Desc),
 	!add_report_entry_misc(Entry, Column, Desc, Type). /*todo add Tag, Value*/
-
-add_report_entry_misc(Entry, Column, Desc, Type) :-
-	doc_new_uri(report_entry_misc_data, D1),
-	doc_add(Entry, report_entries:misc, D1),
-	doc_add(D1, report_entries:column, Column),
-	doc_add(D1, report_entries:value, Desc),
-	doc_add(D1, report_entries:misc_type, $>rdf_global_id(report_entries:Type)).
 
 cf_scheme_0_entry_for_account0(Sd, Account, Entry) :-
 	!cf_scheme_0_entry_for_account(Sd, Account, Entry),
@@ -230,9 +198,7 @@ cf_scheme_0_bank_account_currency_movement_entry(Sd, Account, Currency_Movement_
 	!bank_gl_account_currency_movement_account(Account, Currency_Movement_Account),
 	!net_activity_by_account(Sd, Currency_Movement_Account, Vec0, _),
 	!vec_inverse(Vec0, Vec),
-	!doc_new_(rdf:value, Vec_Uri),
-	!doc_add(Vec_Uri, rdf:value, Vec),
-	!doc_add(Vec_Uri, l:source, l:net_activity_by_account),
+	!doc_new_vec_with_source(Vec, l:net_activity_by_account, Vec_Uri),
 	!make_report_entry('Currency movement', [], Currency_Movement_Entry),
 	!doc_add(Currency_Movement_Entry, report_entries:own_vec, Vec_Uri).
 
@@ -292,22 +258,6 @@ cf_instant_tx_entry0(Sd, ct(_,Tx), Entry) :-
 	!add_report_entry_misc(Entry, 2, Misc1, single),
 	!add_report_entry_misc(Entry, 3, Misc2, single).
 
-link(Uri, Link) :-
-	/*
-		the link, as well as Rdf_explorer_base, will keep changing. This is a problem for endpoint_tests.
-		Not just for the html, for the report json as well. The json is a kind of data, or a basis of, that we'll want to return to provide to party apps, for example, and we may want to return the whole thing, even with these "volatile" parts. If we limited ourselves to tree-based data, we'd want to:
-			break out the volatile part as a separate entity. Ie, report entry title is a list of items, the third item has "volatile":true. The json comparison service could ignore it based on that. Same situation in rdf:
-		The volatility isnt a property of any triple, it's a property of the value. In n3: entry title ("date(xxx)", "invest_in", [a volatile_item; value "<a href..."]). Idk, not very elegant.
-		So, probably, whichever way we use to store the data and to mark the volatility, we should then generate two sets of files from it: one without the markings (for external services),
-		and one either:
-			1) without the data volatile bits altogether,
-			2) or with the markings, to be processed by endpoint_tests in a special way, ie, objects with "volatile":true replaced with "(volatile value removed)".
-			option 1 seems less headache wrt plaintext diffs.
-	*/
-	result(Result),
-	doc(Result, l:rdf_explorer_base, Rdf_explorer_base),
-	atomic_list_concat([Rdf_explorer_base, '<', Uri, '>'], Uri2),
-	Link = a(href=Uri2, [small('⍰')]).
 
 cf_instant_tx_vector_conversion(Sd, Tx, Uri) :-
 	/*very crude metadata for now*/

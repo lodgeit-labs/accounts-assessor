@@ -55,6 +55,7 @@
 :- [livestock].
 :- [loans].
 :- [pacioli].
+:- [pacioli_rdf].
 :- [pricing].
 :- [process_request].
 :- [report_page].

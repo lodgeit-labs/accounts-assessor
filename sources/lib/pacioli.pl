@@ -110,17 +110,6 @@ value_credit(value(Unit, Amount), coord(Unit, Zero, Amount)) :- unify_numbers(Ze
 
 
 /*
-	Vec: [a rdf:value]
-	Sum: [a rdf:value]
-*/
- vec_sum_with_proof(Vec, Sum) :-
-	maplist([Uri, Lit]>>(doc(Uri, rdf:value, Lit)), Vec, Vec_Lits),
-	vec_sum(Vec_Lits, Sum_Lit),
-	doc_new_(rdf:value, Sum),
-	doc_add(Sum, rdf:value, Sum_Lit),
-	maplist(doc_add(Sum, l:has_part), Vec).
-
-/*
 sum_by_pred(
 	P,			% pred(Item, Numeric)
 	Input,		% List<Item>

@@ -19,6 +19,13 @@ set_report_entry_normal_side(Uri, X) :-
 set_report_entry_gl_account(Uri, X) :-
 	!doc_add(Uri, report_entries:gl_account, X).
 
+add_report_entry_misc(Entry, Column, Desc, Type) :-
+	doc_new_uri(report_entry_misc_data, D1),
+	doc_add(Entry, report_entries:misc, D1),
+	doc_add(D1, report_entries:column, Column),
+	doc_add(D1, report_entries:value, Desc),
+	doc_add(D1, report_entries:misc_type, $>rdf_global_id(report_entries:Type)).
+
 report_entry_gl_account(Uri, X) :-
 	doc(Uri, report_entries:gl_account, X).
 
@@ -280,3 +287,10 @@ activity_entry(Static_Data, Account_Id, Entry) :-
 	set_report_entry_normal_side(Entry, Normal_side),
 	set_report_entry_transaction_count(Entry, Transactions_Count),
 	set_report_entry_gl_account(Entry, Account_Id).
+
+
+balance_until_day2(Sd, Report_Currency, Date, Account, balance(Balance, Tx_Count)) :-
+	!balance_until_day(Sd.exchange_rates, Sd.transactions_by_account, Report_Currency, Date, Account, Date, Balance, Tx_Count).
+
+balance_by_account2(Sd, Report_Currency, Date, Account, balance(Balance, Tx_Count)) :-
+	!balance_by_account(Sd.exchange_rates, Sd.transactions_by_account, Report_Currency, Date, Account, Date, Balance, Tx_Count).

@@ -127,11 +127,7 @@ assert_smsf_distribution_facts(Default_currency, Unit, Item) :-
 	.
 	/*
 	todo:
-Capital Gains/Losses Calculations from Annual Tax Statements
-Capital Losses
-Discount Capital Gains (Net)
-Other Capital Gains
-1/3rd Capital Gain Discount Amount
+also soft-check totals
 	*/
 
 
@@ -142,7 +138,7 @@ check_entered_unit_fact_matches_computed(Default_currency, Unit, Item, Prop, Ent
 				concept - ($>rdf_global_id(Entered)),
 				unit - Unit
 			])),
-			!soft_crosscheck(
+			!entered_computed_soft_crosscheck(
 				aspects([
 					unit - Unit,
 					concept - ($>rdf_global_id(Entered))])
@@ -153,13 +149,13 @@ check_entered_unit_fact_matches_computed(Default_currency, Unit, Item, Prop, Ent
 		)
 	;	true).
 
-soft_crosscheck(A = B) :-
+entered_computed_soft_crosscheck(A = B) :-
 	!exp_eval(A, A2),
 	!exp_eval(B, B2),
 	(	vecs_are_almost_equal(A2, B2)
 	->	true
 	;	(
-			!format(string(Err), '~q ≠ ~q', [A2, B2]),
+			!format(string(Err), 'entered: ~q ≠ computed: ~q', [A2, B2]),
 			!add_alert(warning, Err))).
 
 
