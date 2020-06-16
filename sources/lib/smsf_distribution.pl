@@ -59,8 +59,13 @@ assert_smsf_distribution_facts(Default_currency, Unit, Item) :-
 			% smsf_distribution_ui:amit_net
 			smsf_distribution_ui:non_primary_production_income,
 			smsf_distribution_ui:franked_divis_distri_including_credits,
-			smsf_distribution_ui:assessable_foreign_source_income
+			smsf_distribution_ui:assessable_foreign_source_income,
 			% smsf_distribution_ui:net_trust_distribution_income
+			smsf_distribution_ui:capital_losses,
+			smsf_distribution_ui:discount_capital_gains_net,
+			smsf_distribution_ui:other_capital_gains,
+			smsf_distribution_ui:one_third_capital_gain_discount_amount
+			% smsf_distribution_ui:total_capital_gains_losses
 		]
 	),
 
