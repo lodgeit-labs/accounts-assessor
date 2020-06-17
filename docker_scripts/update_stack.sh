@@ -1,8 +1,4 @@
 #!/usr/bin/env fish
 
-
-docker service update --force robust_frontend_server
-docker service update --force robust_internal_services
-docker service update --force robust_internal_workers
-
-
+docker stack deploy --prune --compose-file docker-stack.yml robust
+docker stack ps robust
