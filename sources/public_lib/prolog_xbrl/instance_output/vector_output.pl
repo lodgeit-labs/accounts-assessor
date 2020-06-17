@@ -121,3 +121,28 @@ at this point we have a formula for each childful account:
 
 'binding of binder to fact'
 	we will simplify this for now: if a binder has same concept as fact, its a bind
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+----
+
+
+reconcilliation of xbrl and our system wrt:
+	our adjustment units:
+		possibly this could be represented in a xbrl taxonomy, ie, "Assets" is not a single fact-point, or rather, it is a calculated fact, made up of 'assets in report currency' + ..
+
+
+
+

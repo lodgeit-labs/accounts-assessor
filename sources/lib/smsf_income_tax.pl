@@ -59,9 +59,9 @@ add_smsf_income_tax_report_facts(Sd) :-
 	],
 	!maplist(add_fact_by_account_role(Json_reports), Aspectses),
 	!add_summation_fact([
-		aspects([concept - (smsf_distribution_ui:non_primary_production_income)]),
-		aspects([concept - (smsf_distribution_ui:franked_divis_distri_including_credits)]),
-		aspects([concept - (smsf_distribution_ui:assessable_foreign_source_income)])],
+		aspects([concept - ($>rdf_global_id(smsf_distribution_ui:non_primary_production_income))]),
+		aspects([concept - ($>rdf_global_id(smsf_distribution_ui:franked_divis_distri_including_credits))]),
+		aspects([concept - ($>rdf_global_id(smsf_distribution_ui:assessable_foreign_source_income))])],
 		aspects([concept - (smsf/income_tax/'Taxable Trust Distributions (Inc Foreign Income & Credits)')])).
 
 
@@ -127,7 +127,7 @@ smsf_income_tax_report(Tbl_dict) :-
 				account_role - 'Writeback Of Deferred Tax'])],
 		[text('Taxable Net Capital Gain'),
 			aspects([
-				concept - (smsf_distribution_ui:franking_credit)])]],
+				concept - ($>rdf_global_id(smsf_distribution_ui:franking_credit))])]],
 
 	!rows_total(Addition_rows, Additions_vec),
 	!vec_sub(Rows0_vec, Subtractions_vec, After_subtractions),
@@ -160,9 +160,9 @@ smsf_income_tax_report(Tbl_dict) :-
 				concept - smsf/income_tax/'Franking Credits on dividends'])],
 		*/
 		[text('Franking Credits on distributions'),
-			aspects([concept - (smsf_distribution_ui:franking_credit)])],
+			aspects([concept - ($>rdf_global_id(smsf_distribution_ui:franking_credit))])],
 		[text('Foreign Credit'),
-			aspects([concept - (smsf_distribution_ui:foreign_credit)])]
+			aspects([concept - ($>rdf_global_id(smsf_distribution_ui:foreign_credit))])]
 	],
 
 	!rows_total(Subtractions2_rows, Subtractions2_vec),
@@ -177,7 +177,7 @@ smsf_income_tax_report(Tbl_dict) :-
 			aspects([concept - smsf/income_tax/'after deductions'])],
 		[text('Add: ATO Supervisory Levy'),
 			aspects([concept - smsf/income_tax/'ATO Supervisory Levy'])],
-		[text('to pay:'),
+		[text('to pay/refund:'),
 			aspects([concept - smsf/income_tax/'to pay'])]
 	],
 
@@ -233,7 +233,7 @@ smsf_income_tax_report(Tbl_dict) :-
 		Value),
 	(	Value = []
 	->	true
-	;	throw_string('Income Tax Expenses should be zero, income tax will be computed')).
+	;	throw_string('Income Tax Expenses PL account for current year should be zero, income tax will be computed')).
 
 
 

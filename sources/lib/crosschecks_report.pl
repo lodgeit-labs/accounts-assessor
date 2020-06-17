@@ -57,6 +57,65 @@ crosschecks_report(Sd, Json) :-
 			account_balance(reports/bs/current, 'HistoricalEarnings'),
 			account_balance(reports/pl/historical, 'ComprehensiveIncome'))
 	],
+
+	/*
+	smsf:
+
+	pl/current/Distribution Received = smsf_distribution_ui:distribution_income
+
+	possibly:
+
+	for crosschecking accrual, foreign and franking credits, i think it'll be best if i subcategorize each PL 'Distribution Received'/Unit into 'Distribution Received'/Unit/accrual etc, to make sure the txs posted there add up to the distribution sheet facts
+
+
+	tax statement:
+		Benefits Accrued as a Result of Operations before Income Tax:
+			this one is taken directly from PL, it's the total PL before adding tax txs
+		from PL:
+			Change in Market Value
+			Accounting Trust Distribution Income Received
+			Non Concessional Contribution
+		total from distributions facts:
+			Taxable Trust Distributions (Inc Foreign Income & Credits)
+		from PL:
+			WriteBack of Deferred Tax
+		Taxable Net Capital Gain
+			aspects([concept - (smsf_distribution_ui:franking_credit
+		Franking Credits on distributions
+			aspects([concept - (smsf_distribution_ui:franking_credit
+		Foreign Credit
+			aspects([concept - (smsf_distribution_ui:foreign_credit
+		Add: ATO Supervisory Levy
+			input in tax sheet
+
+	these are all references to various points in PL report or points displayed in distributions report, so it would have to be a low level coding error to introduce any mismatch there, but i'll put those crosschecks in anyway.
+
+	Tax Workings Reconciliation:
+
+		this mostly checks that our PL has incomes in exactly these categories and no other
+
+		Other Income:
+			PL
+		Taxable Net Capital Gain
+			aspects([concept - (smsf_distribution_ui:franking_credit
+		Taxable Trust Distributions (Inc Foreign Income & Credits)
+			computed in smsF_income_tax as smsf/income_tax/'Taxable Trust Distributions (Inc Foreign Income & Credits)'
+		Interest Received
+			PL Interest Received - control
+
+
+
+
+
+
+		Net Tax refundable/payable
+			=
+
+
+
+	*/
+
+
 	maplist(evaluate_equality(Sd), Crosschecks, Results),
 	Json = _{
 		 results: Results

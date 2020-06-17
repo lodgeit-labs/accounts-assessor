@@ -22,4 +22,4 @@ WORKDIR /app/frontend_server
 ENV PYTHONUNBUFFERED true
 ENV CELERY_QUEUE_NAME=q7788
 ENTRYPOINT ["./start.sh"]
-CMD ["0.0.0.0:7788"]
+CMD ["--noreload", "0.0.0.0:7788"]

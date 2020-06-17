@@ -18,4 +18,4 @@ COPY git_info.txt .
 WORKDIR /app/internal_services
 ENV PYTHONUNBUFFERED true
 ENTRYPOINT ["./start.sh"]
-CMD ["0.0.0.0:17788"]
+CMD ["--noreload", "0.0.0.0:17788"]
