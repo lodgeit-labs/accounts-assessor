@@ -73,6 +73,8 @@ COPY static ./static
 COPY internal_workers ./internal_workers
 COPY public_lib ./public_lib
 COPY lib ./lib
+RUN mkdir ./cache
+COPY cache ./cache
 COPY git_info.txt .
 COPY secrets2.json /
 #USER user
