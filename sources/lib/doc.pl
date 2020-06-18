@@ -944,3 +944,8 @@ take, as an example account role. (RoleParent/RoleChild), posibly nested. For al
 
 
 
+/*
+about namespaces:
+	i think it'll be ideal if a contracted form is the default and used everywhere, ie, nodes are normalized into the contracted form when put into the store or queried.
+*/
+

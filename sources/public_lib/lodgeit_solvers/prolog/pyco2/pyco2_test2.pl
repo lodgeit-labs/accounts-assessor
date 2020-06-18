@@ -1,4 +1,5 @@
 :- [pyco2].
+:- use_module(library(clpq)).
 
 
 pyco0_rule(
@@ -31,13 +32,38 @@ pyco0_rule(
 pyco0_rule(
 	vec_inverse,
 	[
+		vec_inverse(v, vi)
+	]
+	<=
+	[
+
+	]).
+
+/*
+nmbr(X) :-
+	(rational(X),!)
+	;
+	(number(X),!)
+	;
+	(var(X),!).
+
+pyco0_rule(
+	vec_inverse,
+	[
 		vec_inverse(V, Vi)
 	]
 	<=
 	[
-		Vi = vi
-	]).
+		%writeq((V, Vi)),
 
+		% this doesnt help, because once you put clp attrs on a variable, if you later try to unify it with let's say an atom, clp throws. Best to just take it to python i guess. Otherwise we'd have to handle every unification manually.
+		nmbr(V),
+		nmbr(Vi),
+		{Vi = -V}
+
+		%writeq(yea(V, Vi))
+	]).
+*/
 pyco0_rule(
 	member1,
 	[
@@ -198,36 +224,6 @@ pyco0_rule(
 		Desc = 's_transaction exists'.
 
 
-/* basic expansion of an s_transacton into two transactions */
-pyco0_rule(
-	'q0',
-	[
-		q0(Sts, Ts)
-	] <=
-	[
-		verb_type(Verb0, basic),
-		verb_counteraccount(Verb0, expenses),
-		fr(Verbs, Verb0, nil),
-		s_transaction(St0,Verb0,0,bank1,v,e),
-		fr(Sts, St0, nil),
-		preprocess(Verbs, Sts, Ts)
-	]).
-
-/* ...two s_transactions */
-pyco0_rule(
-	'q1',
-	[
-		q1(Sts, Ts)
-	] <=
-	[
-		default_verbs(Verbs, Verb0, _),
-		s_transaction(St0,Verb0,0,bank1,v,e),
-		s_transaction(St1,Verb0,1,bank2,vv,ee),
-		fr(Sts, St0, Sts1),
-		fr(Sts1, St1, nil),
-		preprocess(Verbs, Sts, Ts)
-	]).
-
 pyco0_rule(
 	'default verbs',
 	[
@@ -240,7 +236,38 @@ pyco0_rule(
 		fr(Verbs2, Verb1, nil)
 	]).
 
+/* basic expansion of an s_transaction into two transactions */
+pyco0_rule(
+	'q0',
+	[
+		q0(Sts, Ts)
+	] <=
+	[
+		verb_type(Verb0, basic),
+		verb_name(Verb0, expense),
+		verb_counteraccount(Verb0, expenses),
+		fr(Verbs, Verb0, nil),
+		s_transaction(St0,Verb0,day0,bank1,v,nil),
+		fr(Sts, St0, nil),
+		preprocess(Verbs, Sts, Ts)
+	]).
 
+/* ...two Invest_in s_transactions */
+pyco0_rule(
+	'q1',
+	[
+		q1(Sts, Ts)
+	] <=
+	[
+		default_verbs(Verbs, Invest_in, _),
+		s_transaction(St0,Invest_in,0,bank1,v,e),
+		s_transaction(St1,Invest_in,1,bank2,v,ee),
+		fr(Sts, St0, Sts1),
+		fr(Sts1, St1, nil),
+		preprocess(Verbs, Sts, Ts)
+	]).
+
+/* inference of one s_transaction from gl transactions */
 pyco0_rule(
 	'q2',
 	[
@@ -255,6 +282,7 @@ pyco0_rule(
 		default_verbs(Verbs, _, _)
 	]).
 
+/* inference of two s_transactions from four gl transactions */
 pyco0_rule(
 	'q3',
 	[
@@ -273,28 +301,63 @@ pyco0_rule(
 		default_verbs(Verbs, _, _)
 	]).
 
+/* inference of one s_transaction and one gl transaction */
+pyco0_rule(
+	'q4',
+	[
+		q4(Sts, Ts)
+	] <=
+	[
+		fr(Sts, St0, Sts1),
+		fr(Sts1, _St1, nil),
+		s_transaction(St0,Invest_in,0,bank0,v,goog),
 
-test_q0 :-
-	findnsols(
-		5000000000,
-		_,
-		(
-			%debug(pyco_prep),
-			debug(pyco_proof),
-			%debug(pyco_ep),
-			debug(pyco_run),
+		fr(Ts, T0, Ts1),
+		fr(Ts1, T1, Ts2),
+		fr(Ts2, T2, Ts3),
+		fr(Ts3, _T3, nil),
+		transaction(T0,0,_,bank0,v),
+		transaction(T1,0,_,expenses,vi),
+		transaction(T2,0,_,bank0,v),
 
-			Q = q0(_Sts, _Ts),
-			run(Q),
-			nicer_term(Q, NQ),
-			format(user_error,'~nresult: ~q~n', [NQ]),
-			nl,
-			nl,
-			true
-		),
-		_
-	),
-	halt.
+		preprocess(Verbs,Sts,Ts),
+		default_verbs(Verbs, Invest_in, _)
+	]).
+
+/* inference of many s_transactions */
+pyco0_rule(
+	'q5',
+	[
+		q5(Sts, Ts0)
+	] <=
+	[
+		fr(Ts0, T0, Ts1),
+		fr(Ts1, T1, Ts2),
+		fr(Ts2, T2, Ts3),
+		fr(Ts3, T3, Ts4),
+		fr(Ts4, T4, Ts5),
+		fr(Ts5, T5, Ts6),
+		fr(Ts6, T6, Ts7),
+		fr(Ts7, T7, Ts8),
+		fr(Ts8, T8, Ts9),
+		fr(Ts9, T9, Ts10),
+		fr(Ts10, T10, Ts11),
+		fr(Ts11, T11, nil),
+		transaction(T0,0,_,bank0,-5),
+		transaction(T1,0,_,expenses,5),
+		transaction(T2,1,_,bank0,-5),
+		transaction(T3,1,_,expenses,5),
+		transaction(T4,2,_,bank0,-5),
+		transaction(T5,3,_,expenses,5),
+		transaction(T6,3,_,bank0,-5),
+		transaction(T7,2,_,expenses,5),
+		transaction(T8,4,_,bank0,-5),
+		transaction(T9,4,_,expenses,50),
+		transaction(T10,4,_,bank0,-50),
+		transaction(T11,4,_,expenses,5),
+		preprocess(Verbs,Sts,Ts0),
+		default_verbs(Verbs, _, _)
+	]).
 
 
 test(Q) :-
@@ -303,11 +366,11 @@ test(Q) :-
 		_,
 		(
 			%debug(pyco_prep),
-			debug(pyco_proof),
+			%debug(pyco_proof),
 			%debug(pyco_ep),
-			debug(pyco_run),
+			%debug(pyco_run),
 
-			run(Q),
+			run(noisy, Q),
 			print_1(Q),
 			nicer_term(Q, NQ),
 			format(user_error,'~nresult: ~q~n', [NQ]),
@@ -325,7 +388,7 @@ test(Q) :-
 print_1(Q) :-
 	Q =.. [_,Sts,Ts],
 	(
-	format(user_error,'~nresult:~n', []),
+	format(user_error,'~nRESULT:~n', []),
 	nicer_bn2(Sts, Sts_n),
 	nicer_bn2(Ts, Ts_n),
 	format(user_error,'~nSts:~n', []),
@@ -333,7 +396,7 @@ print_1(Q) :-
 	format(user_error,'~nTs:~n', []),
 	maplist(writeln, Ts_n),
 	nl,nl,
-	nl,nl,nl,nl,nl,nl,nl,nl,nl,nl,nl,nl,nl,nl,nl,nl,nl,nl,nl,nl,nl,nl,nl,nl,
+	%nl,nl,nl,nl,nl,nl,nl,nl,nl,nl,nl,nl,nl,nl,nl,nl,nl,nl,nl,nl,nl,nl,nl,nl,
 	true
 	)
 	->	true

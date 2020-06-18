@@ -1,4 +1,3 @@
-:- use_module(library(clpfd)).
 :- op(900,xfx,<=).
 :- use_module(library(fnotation)).
 :- fnotation_ops($>,<$).
@@ -13,29 +12,29 @@
 
 
 
-run(Query) :-
+run(Quiet, Query) :-
 	b_setval(bn_log, []),
 	nb_setval(step, 0),
-	run2(Query).
+	run2(Quiet, Query).
 
-run2(Query) :-
+run2(Quiet, Query) :-
 	% repeat top-level query until depth_map of Proof stops changing.
-	run2_repeat(Query, Proof),
+	run2_repeat(Quiet, Query, Proof),
 	debug(pyco_run, '~w final...', [$>trace_prefix(r, -1)]),
 	/* filter out proofs that didn't ground. In these cases, we only got here due to ep_yield'ing.	*/
 	run2_final(Query, Proof).
 
-run2_repeat(Query, Proof) :-
+run2_repeat(Quiet, Query, Proof) :-
 	debug(pyco_map, 'map0 for: ~q', [Proof]),
 	depth_map(Proof, Map0),
 	debug(pyco_map, 'map0 : ~q', [Map0]),
-	proof([],0,eps{},ep_yield,noisy,Query,Proof),
+	proof([],0,eps{},ep_yield,Quiet,Query,Proof),
 	debug(pyco_map, 'map1 for: ~q', [Proof]),
 	depth_map(Proof, Map1),
 	debug(pyco_map, 'map1 : ~q', [Map1]),
 	((	Map0 \= Map1,
 		debug(pyco_run, '~w repeating.', [$>trace_prefix(r, -1)]),
-		run2_repeat(Query, Proof),
+		run2_repeat(Quiet, Query, Proof),
 		debug(pyco_run, '~w ok...', [$>trace_prefix(r, -1)])
 	)
 	;
@@ -48,6 +47,7 @@ run2_final(Query, Proof) :-
 	debug(pyco_run, '~w result.', [$>trace_prefix(r, -1)]),
 	true.
 
+/* debugging, try again and print that it failed */
 run2_final(Query, Proof) :-
 	\+proof([],0,eps{},ep_fail,quiet,Query,Proof),
 	debug(pyco_run, '~w failed.', [$>trace_prefix(r, -1)]),
@@ -115,13 +115,14 @@ prove_body(Path, Proof_id_str, Ep_yield, Eps0, Ep_List, Query_ep_terms, Desc, Pr
 body_proof(Path, Proof_id_str, Ep_yield, Level, Eps1, Body_items, Quiet, Proof) :-
 	body_proof2(Path, Proof_id_str, Ep_yield, Level, Eps1, Body_items, Quiet, Proof).
 
-/* this case only serves for debugging */
+/* debugging, try again and print that it failed */
+/*
 body_proof(Path, Proof_id_str, Ep_yield, Level, Eps1, Body_items, Quiet, Proof) :-
 	%(Quiet = noisy -> debug(pyco_proof, '~w disproving..', [$>trace_prefix(Proof_id_str, Level)]); true),
 	\+body_proof2(Path, Proof_id_str, Ep_yield, Level, Eps1, Body_items, quiet, Proof),
 	(Quiet = noisy -> debug(pyco_proof, '~w disproved.', [$>trace_prefix(Proof_id_str, Level)]); true),
 	false.
-
+*/
 body_proof2(Path, Proof_id, Ep_yield, Level, Eps1, Body_items, Quiet, Proof) :-
 	/* this repetition might be one way to solve the ep problem, but it leads to many duplicate results */
 	%body_proof3(Path, Proof_id, 0, Ep_yield, Level, Eps1, Body_items, Quiet, Proof),

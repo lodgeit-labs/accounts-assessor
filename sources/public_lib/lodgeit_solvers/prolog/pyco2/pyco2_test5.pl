@@ -2,37 +2,18 @@
 
 :- ['pyco2_2'].
 
-%:- discontiguous p/2.
-
-
-/*
-about namespaces:
-	i think it'll be ideal if a contracted form is the default and used everywhere
-
-*/
-
-
 
 r(
+
 	exists-('list cell', [first,rest])
-
-
-
+	%note-note1
 
 ).r(
-
-
-
 
 	fr(L,F,R)
 		,first(L, F)
 		,rest(L, R)
 	,n-'list cell helper'
-
-
-
-
-
 
 ).r(
 
@@ -45,17 +26,10 @@ member(Item, List)
 		,fr(List, _, Rest),
 		,member(Item, Rest)
 
-
-
-
 ).r(
 
-
-
-
-
 maplist(_,nil,nil)
-,bc
+	,bc
 
 ).r(
 
@@ -64,10 +38,6 @@ maplist(Pred,A,B)
 		,fr(A,A_head, A_tail)
 		,fr(B,B_head, B_tail)
 		,maplist(Pred,A_tail,B_tail)
-
-
-
-
 
 ).r(
 
@@ -335,5 +305,12 @@ sort_into_assoc(_, [], D, D).
 
 
 
+/*
+
+note1:
+"All lists exist" - https://www.w3.org/TeamSubmission/n3/
 
 
+
+
+*/

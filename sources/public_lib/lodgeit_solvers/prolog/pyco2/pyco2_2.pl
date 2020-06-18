@@ -7,7 +7,7 @@ just working out a new syntax for rules here so far
 :- fnotation_ops($>,<$).
 :- op(900,fx,<$).
 
-:- ['../../public_lib/xbrl/prolog/xbrl/compile_with_variable_names_preserved.pl'].
+:- ['../utils/compile_with_variable_names_preserved.pl'].
 
 user:term_expansion(P, pyco2_2_rule(Id, Head, Body, Notes, Cnls, Names)) :-
 	P =.. [r|X],
