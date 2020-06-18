@@ -168,7 +168,7 @@ group_columns(
 		Result1,
 		(
 			member(Column, Group_Members),
-			is_dict(Column, column),
+			%is_dict(Column, column),
 			(get_dict(id, Column, Member_ID) -> true ; true),
 			get_dict(title, Column, Member_Title),
 			get_dict(options, Column, Options),
