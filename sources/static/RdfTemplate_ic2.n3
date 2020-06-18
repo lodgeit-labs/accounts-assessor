@@ -1,0 +1,179 @@
+@prefix ic2: <https://rdf.lodgeit.net.au/v1/calcs/ic#> .
+
+@prefix ic2_ui: <https://rdf.lodgeit.net.au/v1/calcs/ic/ui#> .
+
+
+ic2:this rdfs:comment """investment calculator 2, with pyco""".
+
+
+ic2_ui:action_verb
+	a rdfs:Class;
+	rdfs:comment "action verb entry in Action_verbs excel sheet".
+
+ic2:action_verb
+	a rdfs:Class;
+	rdfs:comment "action verb".
+
+ic2:exchanged_account rdfs:domain ic2:action_verb.
+
+ic2_ui:action_verbs
+	a excel:Template;
+	excel:cardinality excel:multi;
+	excel:class av:Action_verb;
+	excel:fields (
+		[excel:property av:id]
+		[
+			excel:property av:role;
+			excel:type excel:uri
+		]
+		[excel:property av:money_direction]
+		[excel:property av:counteraccount_id]
+		[excel:property av:trading_account_id]
+		[excel:property av:description]
+		[excel:property av:GST_Receivable_account_id]
+		[excel:property av:GST_Payable_account_id]
+		[excel:property av:GST_Rate_Percent]
+		[excel:property av:is_livestock_purchase; excel:type xsd:boolean]
+		[excel:property av:is_livestock_sale; excel:type xsd:boolean]
+    ).
+
+ic2:Action_verb
+    a rdfs:Class;
+    rdfs:comment "action verb, defined in Action_verbs excel sheet";
+    rdfs:comment "and Action_verb is unique for each request.";
+    rdfs:comment "each bank statement transaction either has an explicitly stated, or has an inferred Action_verb.";
+    rdfs:comment "each bank statement transaction has an implied primary GL account, given by its source, and produces a change on it and directly or indirectly on a counteraccount, in accordance with the principle of double-entry bookkeeping.".
+
+av:counteraccount_id
+    rdfs:comment "used to look up av:counteraccount".
+
+av:counteraccount
+    rdfs:comment "the GL account where the corresponding and opposite entry goes".
+
+av:trading_account_id
+    rdfs:comment "used to look up av:trading_account".
+
+av:trading_account
+    rdfs:comment "the GL account where gains and losses from investments are tracked".
+
+av:money_direction
+	rdfs:range av:MoneyDirection;
+	rdfs:comment "constrains the transaction to either debiting(incoming) or crediting(outgoing) the primary GL account".
+av:incoming a av:MoneyDirection.
+av:outgoing a av:MoneyDirection.
+
+
+ic2_ui:example_action_verbs
+	rdf:value (
+		[
+			av:id "Invest_In";
+			av:money_direction av:outgoing;
+			av:counteraccount_id "FinancialInvestments";
+			av:trading_account_id "InvestmentIncome";
+		]
+		[
+			av:id "Dispose_Of";
+			av:money_direction av:incoming;
+			av:counteraccount_id "FinancialInvestments";
+			av:trading_account_id "InvestmentIncome"
+		]
+		[
+			av:id "Borrow";
+			av:money_direction av:incoming;
+			av:counteraccount_id "NonCurrentLoans"
+		]
+		[
+			av:id "Introduce_Capital";
+			av:money_direction av:incoming;
+			av:counteraccount_id "ShareCapital"
+		]
+		[
+			av:id "Transfers";
+			av:counteraccount_id "ClearingAccount"
+		]
+		[
+			av:id "Bank_Charges";
+			av:money_direction av:outgoing;
+			av:counteraccount_id "BankCharges"
+		]
+		[
+			av:id "Interest_Expenses";
+			av:money_direction av:outgoing;
+			av:counteraccount_id "InterestExpenses"
+		]
+		[
+			av:id "Accountancy_Fees";
+			av:money_direction av:outgoing;
+			av:counteraccount_id "AccountingFees"
+		]
+		[
+			av:id "Interest_Income";
+			av:money_direction av:incoming;
+			av:counteraccount_id "InterestEarned"
+		]
+		[
+			av:id "Drawings";
+			av:money_direction av:outgoing;
+			av:counteraccount_id "Drawings"
+		]
+		[
+			av:id "Fixed_Asset_Purchase";
+			av:money_direction av:outgoing;
+			av:counteraccount_id "FixedAssets"
+		]
+		[
+			av:id "Purchase_Method_C";
+			av:counteraccount_id "Purchases";
+			av:GST_Payable_account_id "GSTPayable";
+			av:GST_Rate_Percent "10"
+		]
+		[
+			av:id "Sale_Method_C";
+			av:counteraccount_id "Revenue";
+			av:GST_Receivable_account_id "GSTReceivable";
+			av:GST_Rate_Percent "10";
+		]
+	).
+
+
+ic2_ui:account_roles_sheet
+	excel:optional true;
+	excel:root ic_ui:account_roles;
+
+ic2_ui:account_roles_example
+	rdf:value ().
+
+ic2_ui:account_roles
+	excel:cardinality excel:multi;
+	excel:class ic2:account_role;
+	excel:fields (
+		[excel:property ic2:id]
+		[excel:property ic2:role]
+	).
+
+
+:todo :todo """
++ic_ui:transaction_input
++       excel:cardinality excel:multi;
++       excel:class ic:transaction;
++       excel:fields (
++               [excel:property ic:date]
++               [excel:property ic:primary_account]
++               [excel:property ic:action_verb]
++               [excel:property ic:debit]
++               [excel:property ic:credit]
++               [excel:property ic:currency]
++               [excel:property ic:description1]
++               [excel:property ic:description2]
++               [excel:property ic:description3]
++       ).
+
+               [
++                       excel:root ic_ui:transaction_input;
++                       excel:optional true;
++                       excel:example_doc
++                               [
++                                       rdf:value ()
++                               ]
++               ]
+        ).

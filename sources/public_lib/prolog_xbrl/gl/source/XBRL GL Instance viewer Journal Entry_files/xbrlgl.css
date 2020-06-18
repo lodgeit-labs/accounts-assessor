@@ -1,0 +1,174 @@
+body {
+	color: #000;
+	font-family: Monospace;
+	font-size: 13px;
+	text-align: left;
+	font-weight: bold;
+	background-color: #fff;
+	margin: 20px;
+	overflow: auto;
+}
+a {
+	color: skyblue;
+}
+table {
+	border: 0;
+	border-collapse: collapse;
+	margin: 10px;
+	box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.5);
+	-webkit-box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.5);
+	-moz-box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.5);
+}
+table th,
+table td {
+	border: 1px #aba solid;
+	font-size: medium;
+}
+#file .fileSelect {
+	width: 200px;
+}
+
+.wrap {
+	width: 99%;
+	margin: 4px auto;
+}
+nav {
+	background: -webkit-gradient(linear, center top, center bottom, from(#fff), to(#ccc));
+	background-image: linear-gradient(#fff, #ccc);
+	border-radius: 10px;
+	box-shadow: 0px 0px 4px 2px rgba(0,0,0,0.4);
+	padding: 0 10px;
+	position: relative;
+}
+
+.menu li {
+	float: left;
+	position: relative;
+}
+
+.menu li a {
+	color: #444;
+	display: block;
+	font-size: 14px;
+	line-height: 16px;
+	padding: 4px 8px;
+	margin: 4px 8px;
+	vertical-align: middle;
+	text-decoration: none;
+}
+
+.menu li a:hover {
+	background: -webkit-gradient(linear, center top, center bottom, from(#ededed), to(#fff));
+	background-image: linear-gradient(#ededed, #fff);
+	border-radius: 6px;
+	box-shadow: inset 0px 0px 1px 1px rgba(0,0,0,0.1);
+	color: #222;
+}
+
+/* Dropdown styles */
+.menu ul {
+	position: absolute;
+	left: -9999px;
+	list-style: none;
+	opacity: 0.7;
+	transition: opacity 1s ease;
+}
+.menu ul ul {
+	left: -9999px;
+	display: none;
+}
+
+.menu ul a {
+	white-space: nowrap;
+}
+
+/* Displays the dropdown on hover and moves back into position */
+.menu li:hover > ul {
+	background: rgba(255,255,255,0.7);
+	border-radius: 0 0 6px 6px;
+	box-shadow: inset 0px 2px 4px rgba(0,0,0,0.4);
+	left: 5px;
+	display: block;
+	opacity: 1;
+}
+.menu ul > li:hover > ul {
+	position: absolute;
+	left: 100%;
+	top: 0;
+}
+
+/* Persistant Hover State */
+.menu li:hover a {
+	background: -webkit-gradient(linear, center top, center bottom, from(#ccc), to(#ededed));
+	background-image: linear-gradient(#ccc, #ededed);
+	border-radius: 12px;
+	box-shadow: inset 0px 0px 1px 1px rgba(0,0,0,0.1);
+	color: #222;
+}
+.menu li:hover ul a {
+	background: none;
+	border-radius: 0;
+	box-shadow: none;
+}
+.menu li:hover ul li a:hover {
+	background: -webkit-gradient(linear, center top, center bottom, from(#eee), to(#fff));
+	background-image: linear-gradient(#ededed, #fff);
+	border-radius: 12px;
+	box-shadow: inset 0px 0px 4px 2px rgba(0,0,0,0.3);
+}
+.menu {
+	font: 10pt georgia, sans-serif;
+	margin: 0;
+	cursor: pointer;
+	list-style: none;
+}
+.menu li {
+	padding-left: 8px;
+	padding-right: 8px;
+	line-height: 32px;
+	z-index: 9;
+}
+.menu > li {
+	display: inline-block;
+}
+#header {
+	font: 10pt georgia, sans-serif;
+	position: relative;
+	margin: 0;
+	padding: 0;
+	top: 0;
+	left: 0;
+	height: 32px;
+	display: block;
+	background-color: rgba(212, 212, 212, 0.9);
+	color: black;
+	border-bottom: 2px solid #fff;
+	box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
+	-webkit-box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
+	-moz-box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
+	z-index: 7;
+}
+
+#file {
+	position: absolute;
+	display: block;
+	top: 0px;
+	z-index: 12;
+}
+#file {
+	left: 0px;
+	text-align: left;
+	z-index: 13;
+}
+
+/* copyright */
+#copyright {
+	font: 10pt sans-serif;
+	position: absolute;
+	color: #909090;
+	text-align: left;
+	bottom: -10px;
+	right: 8px;
+	display: block;
+	z-index: 5;
+}

@@ -1,0 +1,538 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Sample Journal entries file for XBRL GL 2005 with annotations. Version 1.0.50729.1 -->
+<!-- This file contains data fields considered very important to representing its subject. Annotations have been provided for the "most important" of those fields. XBRL GL has many other fields that could be helpful in expressing the information, but have been omitted because their presence is more circumstantial. This file was created for educational purposes only, does not represent real company data and we welcome suggestions on improvement. Contact xbrlgl@xbrl.org with comments. -->
+<!-- The "root" of every XBRL file ("instance document") is xbrl. -->
+<xbrli:xbrl xmlns:xbrli="http://www.xbrl.org/2003/instance" xmlns:xbrll="http://www.xbrl.org/2003/linkbase" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:gl-cor="http://www.xbrl.org/int/gl/cor/2005-11-07" xmlns:gl-muc="http://www.xbrl.org/int/gl/muc/2005-11-07" xmlns:gl-bus="http://www.xbrl.org/int/gl/bus/2005-11-07" xmlns:gl-plt="http://www.xbrl.org/int/gl/plt/2005-11-07" xmlns:iso4217="http://www.xbrl.org/2003/iso4217" xmlns:iso639="http://www.xbrl.org/2005/iso639" xsi:schemaLocation="http://www.xbrl.org/int/gl/plt/2005-11-07 ../plt/case-c-b-m-u-t/gl-plt-2005-11-07.xsd">
+	<xbrll:schemaRef xlink:type="simple" xlink:arcrole="http://www.w3.org/1999/xlink/properties/linkbase" xlink:href="../plt/case-c-b-m-u-t/gl-plt-2005-11-07.xsd"/>
+	<!-- The container for XBRL GL, accountingEntries, is not the root of an XBRL GL file - the root, as with all XBRL files, is xbrl. This means that a single XBRL GL file can store one or more virtual XBRL GL files, through one or more accountingEntries structures with data inside. The primary key to understanding an XBRL GL file is the entriesType. A single physical XBRL GL file can have multiple accountingEntries structures to represent both transactions and master files; the differences are signified by the appropriate entriesType enumerated values. -->
+	<gl-cor:accountingEntries>
+		<!-- Because entriesType is strongly suggested, documentInfo will be required. -->
+		<gl-cor:documentInfo>
+			<!-- This field, entriesType, provides the automated guidance on the purpose of the XBRL GL information. -->
+			<gl-cor:entriesType contextRef="now">journal</gl-cor:entriesType>
+			<!-- Like a serial number, this field, uniqueID, provides a place to uniquely identify/track a series of entries. It is like less relevant for ad-hoc reports. XBRL GL provides for later correction through replacement or augmentation of transferred information. -->
+			<gl-cor:uniqueID contextRef="now">001</gl-cor:uniqueID>
+			<gl-cor:language contextRef="now">iso639:en</gl-cor:language>
+			<!-- The date associated with the creation of the data reflected within the associated accountingEntries section. Somewhat like a "printed date" on a paper report -->
+			<gl-cor:creationDate contextRef="now">2005-07-05</gl-cor:creationDate>
+			<gl-bus:creator contextRef="now">XBRL GL Working Group</gl-bus:creator>
+			<!-- A description related to the batch of information express in the accountingEntries structure. Why was this batch of information put together and published? It would be helpful to put that information in the entriesComment. -->
+			<gl-cor:entriesComment contextRef="now">A best practice journal entries instance document</gl-cor:entriesComment>
+			<!-- The period of time reflected by the journal entries. Ideally, all entries have their accounting significance within that period, and all of the entries with an accounting signification within that period are included. -->
+			<gl-cor:periodCoveredStart contextRef="now">2005-06-01</gl-cor:periodCoveredStart>
+			<gl-cor:periodCoveredEnd contextRef="now">2005-06-30</gl-cor:periodCoveredEnd>
+			<gl-bus:sourceApplication contextRef="now">XABRA</gl-bus:sourceApplication>
+			<gl-muc:defaultCurrency contextRef="now">iso4217:usd</gl-muc:defaultCurrency>
+		</gl-cor:documentInfo>
+		<!-- Typically, an export from an accounting system does not carry with it information specifically about the company. However, the name of the company would be a very good thing to include with the file, making the entityInformation tuple necessary. -->
+		<gl-cor:entityInformation>
+			<!-- The name of the company would be a very good thing to include with the file; this structure and its content are where that would be stored. -->
+			<gl-bus:organizationIdentifiers>
+				<gl-bus:organizationIdentifier contextRef="now">ABC Company</gl-bus:organizationIdentifier>
+				<gl-bus:organizationDescription contextRef="now">Company Name</gl-bus:organizationDescription>
+			</gl-bus:organizationIdentifiers>
+		</gl-cor:entityInformation>
+		<!-- Journal entries require entry in entryHeader and entryDetail. Few files can be represented using only documentInfo and entityInformation sections, but it is certainly possible. -->
+		<gl-cor:entryHeader>
+			<gl-cor:enteredBy contextRef="now">Otto Wellwood</gl-cor:enteredBy>
+			<gl-cor:enteredDate contextRef="now">2005-07-01</gl-cor:enteredDate>
+			<!-- This is an enumerated entry that ties the source journal from the reporting organization to a fixed list that helps in data interchange. -->
+			<gl-cor:sourceJournalID contextRef="now">gj</gl-cor:sourceJournalID>
+			<!-- Since sourceJournalID is enumerated (you must pick one of the entries already identified within XBRL GL), sourceJournalDescription lets you capture the actual code or term used to descibe the source journal by the organization. -->
+			<gl-bus:sourceJournalDescription contextRef="now">JE</gl-bus:sourceJournalDescription>
+			<!-- An enumerated field to differentiate between details that represent actual accounting entries - as opposed to entries for budget purposes, planning purposes, or other entries that may not contribute to the financial statements. -->
+			<gl-cor:entryType contextRef="now">standard</gl-cor:entryType>
+			<!-- When capturing journal entries, you have a series of debits and credits that (normally) add up to zero. The hierarchical nature of XBRL GL keeps the entry detail lines associated with the entry header by a parent-child relationship. The unique identifier of each entry is entered here. -->
+	            <gl-cor:entryNumber contextRef="now">50</gl-cor:entryNumber>
+			<!-- The reason for making an entry goes here. -->
+			<gl-cor:entryComment contextRef="now">The comment for this entry</gl-cor:entryComment>
+			<!-- Individual lines of journal entries will normally require their own entryDetail section - one primary amount per entryDetail line. However, you can list different accounts within the same entryDetail line that are associated with that amount. For example, if you capitalize for US GAAP and expense for IFRS -->
+                	<gl-cor:entryDetail>
+				<!-- A unique identifier for each entry detail line within an entry header, this should at the least be a counter. -->
+				<gl-cor:lineNumber contextRef="now">1</gl-cor:lineNumber>
+				<!-- If account information is represented elsewhere or as a master file, some of the fields below would not need to be here (signified by *) -->
+	        	        <gl-cor:account>
+					<!-- The account number is the basis for posting journal entries. In some cases, accounting systems used by small organizations do not use account numbers/codes, but only use a descriptive name for the account.  -->
+					<gl-cor:accountMainID contextRef="now">10100</gl-cor:accountMainID>
+					<!-- In most cases, the description is given to help a human reader; the accountMainID would be sufficient for data exchange purposes. As noted previously, some implementations use the description as the primary identifier of the account.  -->
+					<gl-cor:accountMainDescription contextRef="now">Rent</gl-cor:accountMainDescription>
+					<!-- Accounts serve many purposes, and in a large company using more sophisticated software, the company may wish to record the account used for the original entry and a separate consolidating account. The Japanese system may require a counterbalancing account for each line item. And an entry may be recorded differently for US GAAP, IFRS and other purposes. This code is an enumerated code to help identify accounts for those purposes.-->
+					<gl-cor:accountPurposeCode contextRef="now">usgaap</gl-cor:accountPurposeCode>
+					<!-- In an international environment, the "chart of accounts" will include not only traditional accounts, like Cash, Accounts Payable/Due to Creditors or Retained Earnings, but also extensions to some of the accounts. Accounts Payable may be extended to include the creditors/vendors themselves. Therefore, in XBRL GL, accounts can be specifically identified as the "traditional" accountm or to identify a customer, vendor, employee, bank, job or fixed asset. While this may overlap with the customers, vendors and employees of the identifier structure, fixed-assets in the measurable
+					structure, jobs in the jobInfo structure and other representations, they can also be represented here as appropriate to the jurisidiction. -->
+					<gl-cor:accountType contextRef="now">account</gl-cor:accountType>
+				</gl-cor:account>
+				<!-- What is a journal entry without a (monetary) amount? While XBRL GL may usher in journal entries that also incorporate quantities, to reflect the detail of business metrics, the (monetary) amount is another key and obvious fields. XBRL GL has been designed to reflect how popular accounting systems store amounts - some combination of a signed amount (e.g., 5, -10), a separate sign (entered into signOfAmount) and a separate place to indicate the number is associated with a debit or credit (debitCreditCode). -->
+				<gl-cor:amount contextRef="now" decimals="2" unitRef="usd">500</gl-cor:amount>
+				<!-- Depending on the originating system, this field may contain whether the amount is associated with a debit or credit. Interpreting the number correctly for import requires an understanding of the three related amount fields - amount, debitCreditCode and sign of amount. -->
+				<gl-cor:debitCreditCode contextRef="now">D</gl-cor:debitCreditCode>
+				<!-- Depending on the originating system, this field may contain whether the amount is signed (+ or -) separately from the amount field itself. Interpreting the number correctly for import requires an understanding of the three related amount fields - amount, debitCreditCode and sign of amount. -->
+				<!-- <gl-cor:signOfAmount contextRef="now"/> -->
+				<!-- This date is the accounting significance date, not the date that entries were actually entered or posted to the system. -->
+				<gl-cor:postingDate contextRef="now">2005-06-30</gl-cor:postingDate>
+				<gl-cor:identifierReference>
+					<gl-cor:identifierCode contextRef="now">1130</gl-cor:identifierCode>
+					<gl-cor:identifierDescription contextRef="now">Rettaler Property Ltd</gl-cor:identifierDescription>
+					<gl-cor:identifierType contextRef="now">V</gl-cor:identifierType>
+				</gl-cor:identifierReference>
+				<gl-cor:documentType contextRef="now">check</gl-cor:documentType>
+				<!-- This enumerated field is used to specifically state whether the entries have been posted to the originating system or not. -->
+				<gl-cor:postingStatus contextRef="now">posted</gl-cor:postingStatus>
+				<!-- A comment at the individual entry detail level. -->
+				<!-- <gl-cor:detailComment contextRef="now"/> -->
+        	       </gl-cor:entryDetail>
+	               <gl-cor:entryDetail>
+				<gl-cor:lineNumber contextRef="now">2</gl-cor:lineNumber>
+				<gl-cor:account>
+					<gl-cor:accountMainID contextRef="now">10200</gl-cor:accountMainID>
+					<gl-cor:accountMainDescription contextRef="now">Chequing</gl-cor:accountMainDescription>
+					<gl-cor:accountPurposeCode contextRef="now">usgaap</gl-cor:accountPurposeCode>
+					<gl-cor:accountType contextRef="now">account</gl-cor:accountType>
+				</gl-cor:account>
+				<gl-cor:amount contextRef="now" decimals="2" unitRef="usd">500</gl-cor:amount>
+				<gl-cor:debitCreditCode contextRef="now">C</gl-cor:debitCreditCode>
+				<gl-cor:postingDate contextRef="now">2005-06-30</gl-cor:postingDate>
+				<gl-cor:identifierReference>
+					<gl-cor:identifierCode contextRef="now">1130</gl-cor:identifierCode>
+					<gl-cor:identifierDescription contextRef="now">Rettaler Property Ltd</gl-cor:identifierDescription>
+					<gl-cor:identifierType contextRef="now">V</gl-cor:identifierType>
+				</gl-cor:identifierReference>
+				<gl-cor:documentType contextRef="now">check</gl-cor:documentType>
+				<gl-cor:postingStatus contextRef="now">posted</gl-cor:postingStatus>
+        	       </gl-cor:entryDetail>
+		</gl-cor:entryHeader>
+		<gl-cor:entryHeader>
+			<gl-cor:enteredBy contextRef="now">Vanessa Witherspoon</gl-cor:enteredBy>
+			<gl-cor:enteredDate contextRef="now">2005-07-03</gl-cor:enteredDate>
+			<gl-cor:sourceJournalID contextRef="now">gj</gl-cor:sourceJournalID>
+			<gl-bus:sourceJournalDescription contextRef="now">JE</gl-bus:sourceJournalDescription>
+			<gl-cor:entryType contextRef="now">standard</gl-cor:entryType>
+	            <gl-cor:entryNumber contextRef="now">431</gl-cor:entryNumber>
+			<gl-cor:entryComment contextRef="now">The comment for this entry</gl-cor:entryComment>
+                	<gl-cor:entryDetail>
+				<gl-cor:lineNumber contextRef="now">1</gl-cor:lineNumber>
+	        	        <gl-cor:account>
+					<gl-cor:accountMainID contextRef="now">10300</gl-cor:accountMainID>
+					<gl-cor:accountMainDescription contextRef="now">Undeposited Funds</gl-cor:accountMainDescription>
+					<gl-cor:accountPurposeCode contextRef="now">usgaap</gl-cor:accountPurposeCode>
+					<gl-cor:accountType contextRef="now">account</gl-cor:accountType>
+				</gl-cor:account>
+				<gl-cor:amount contextRef="now" decimals="2" unitRef="usd">435.84</gl-cor:amount>
+				<gl-cor:debitCreditCode contextRef="now">D</gl-cor:debitCreditCode>
+				<gl-cor:postingDate contextRef="now">2005-06-30</gl-cor:postingDate>
+				<gl-cor:identifierReference>
+					<gl-cor:identifierCode contextRef="now">9098</gl-cor:identifierCode>
+					<gl-cor:identifierDescription contextRef="now">Ludwick, Dave</gl-cor:identifierDescription>
+					<gl-cor:identifierType contextRef="now">C</gl-cor:identifierType>
+				</gl-cor:identifierReference>
+				<gl-cor:documentType contextRef="now">invoice</gl-cor:documentType>
+				<gl-cor:postingStatus contextRef="now">posted</gl-cor:postingStatus>
+        	       </gl-cor:entryDetail>
+	               <gl-cor:entryDetail>
+				<gl-cor:lineNumber contextRef="now">2</gl-cor:lineNumber>
+	        	        <gl-cor:account>
+					<gl-cor:accountMainID contextRef="now">10400</gl-cor:accountMainID>
+					<gl-cor:accountMainDescription contextRef="now">Retail Sales</gl-cor:accountMainDescription>
+					<gl-cor:accountPurposeCode contextRef="now">usgaap</gl-cor:accountPurposeCode>
+					<gl-cor:accountType contextRef="now">account</gl-cor:accountType>
+				</gl-cor:account>
+				<gl-cor:amount contextRef="now" decimals="2" unitRef="usd">229</gl-cor:amount>
+				<gl-cor:debitCreditCode contextRef="now">C</gl-cor:debitCreditCode>
+				<gl-cor:postingDate contextRef="now">2005-06-30</gl-cor:postingDate>
+				<gl-cor:identifierReference>
+					<gl-cor:identifierCode contextRef="now">9098</gl-cor:identifierCode>
+					<gl-cor:identifierDescription contextRef="now">Ludwick, Dave</gl-cor:identifierDescription>
+					<gl-cor:identifierType contextRef="now">C</gl-cor:identifierType>
+				</gl-cor:identifierReference>
+				<gl-cor:documentType contextRef="now">invoice</gl-cor:documentType>
+				<gl-cor:postingStatus contextRef="now">posted</gl-cor:postingStatus>
+        	       </gl-cor:entryDetail>
+	               <gl-cor:entryDetail>
+				<gl-cor:lineNumber contextRef="now">3</gl-cor:lineNumber>
+	        	        <gl-cor:account>
+					<gl-cor:accountMainID contextRef="now">10500</gl-cor:accountMainID>
+					<gl-cor:accountMainDescription contextRef="now">Inventory Asset</gl-cor:accountMainDescription>
+					<gl-cor:accountPurposeCode contextRef="now">usgaap</gl-cor:accountPurposeCode>
+					<gl-cor:accountType contextRef="now">account</gl-cor:accountType>
+				</gl-cor:account>
+				<gl-cor:amount contextRef="now" decimals="2" unitRef="usd">100</gl-cor:amount>
+				<gl-cor:debitCreditCode contextRef="now">C</gl-cor:debitCreditCode>
+				<gl-cor:postingDate contextRef="now">2005-06-30</gl-cor:postingDate>
+				<gl-cor:identifierReference>
+					<gl-cor:identifierCode contextRef="now">9098</gl-cor:identifierCode>
+					<gl-cor:identifierDescription contextRef="now">Ludwick, Dave</gl-cor:identifierDescription>
+					<gl-cor:identifierType contextRef="now">C</gl-cor:identifierType>
+				</gl-cor:identifierReference>
+				<gl-cor:documentType contextRef="now">invoice</gl-cor:documentType>
+				<gl-cor:postingStatus contextRef="now">posted</gl-cor:postingStatus>
+        	       </gl-cor:entryDetail>
+	               <gl-cor:entryDetail>
+				<gl-cor:lineNumber contextRef="now">4</gl-cor:lineNumber>
+	        	        <gl-cor:account>
+					<gl-cor:accountMainID contextRef="now">10600</gl-cor:accountMainID>
+					<gl-cor:accountMainDescription contextRef="now">Cost of Goods Sold</gl-cor:accountMainDescription>
+					<gl-cor:accountPurposeCode contextRef="now">usgaap</gl-cor:accountPurposeCode>
+					<gl-cor:accountType contextRef="now">account</gl-cor:accountType>
+				</gl-cor:account>
+				<gl-cor:amount contextRef="now" decimals="2" unitRef="usd">100</gl-cor:amount>
+				<gl-cor:debitCreditCode contextRef="now">D</gl-cor:debitCreditCode>
+				<gl-cor:postingDate contextRef="now">2005-06-30</gl-cor:postingDate>
+				<gl-cor:identifierReference>
+					<gl-cor:identifierCode contextRef="now">9098</gl-cor:identifierCode>
+					<gl-cor:identifierDescription contextRef="now">Ludwick, Dave</gl-cor:identifierDescription>
+					<gl-cor:identifierType contextRef="now">C</gl-cor:identifierType>
+				</gl-cor:identifierReference>
+				<gl-cor:documentType contextRef="now">invoice</gl-cor:documentType>
+				<gl-cor:postingStatus contextRef="now">posted</gl-cor:postingStatus>
+        	       </gl-cor:entryDetail>
+	               <gl-cor:entryDetail>
+				<gl-cor:lineNumber contextRef="now">5</gl-cor:lineNumber>
+	        	        <gl-cor:account>
+					<gl-cor:accountMainID contextRef="now">10400</gl-cor:accountMainID>
+					<gl-cor:accountMainDescription contextRef="now">Retail Sales</gl-cor:accountMainDescription>
+					<gl-cor:accountPurposeCode contextRef="now">usgaap</gl-cor:accountPurposeCode>
+					<gl-cor:accountType contextRef="now">account</gl-cor:accountType>
+				</gl-cor:account>
+				<gl-cor:amount contextRef="now" decimals="2" unitRef="usd">149.99</gl-cor:amount>
+				<gl-cor:debitCreditCode contextRef="now">C</gl-cor:debitCreditCode>
+				<gl-cor:postingDate contextRef="now">2005-06-30</gl-cor:postingDate>
+				<gl-cor:identifierReference>
+					<gl-cor:identifierCode contextRef="now">9098</gl-cor:identifierCode>
+					<gl-cor:identifierDescription contextRef="now">Ludwick, Dave</gl-cor:identifierDescription>
+					<gl-cor:identifierType contextRef="now">C</gl-cor:identifierType>
+				</gl-cor:identifierReference>
+				<gl-cor:documentType contextRef="now">invoice</gl-cor:documentType>
+				<gl-cor:postingStatus contextRef="now">posted</gl-cor:postingStatus>
+        	       </gl-cor:entryDetail>
+	               <gl-cor:entryDetail>
+				<gl-cor:lineNumber contextRef="now">6</gl-cor:lineNumber>
+	        	        <gl-cor:account>
+					<gl-cor:accountMainID contextRef="now">10500</gl-cor:accountMainID>
+					<gl-cor:accountMainDescription contextRef="now">Inventory Asset</gl-cor:accountMainDescription>
+					<gl-cor:accountPurposeCode contextRef="now">usgaap</gl-cor:accountPurposeCode>
+					<gl-cor:accountType contextRef="now">account</gl-cor:accountType>
+				</gl-cor:account>
+				<gl-cor:amount contextRef="now" decimals="2" unitRef="usd">80</gl-cor:amount>
+				<gl-cor:debitCreditCode contextRef="now">C</gl-cor:debitCreditCode>
+				<gl-cor:postingDate contextRef="now">2005-06-30</gl-cor:postingDate>
+				<gl-cor:identifierReference>
+					<gl-cor:identifierCode contextRef="now">9098</gl-cor:identifierCode>
+					<gl-cor:identifierDescription contextRef="now">Ludwick, Dave</gl-cor:identifierDescription>
+					<gl-cor:identifierType contextRef="now">C</gl-cor:identifierType>
+				</gl-cor:identifierReference>
+				<gl-cor:documentType contextRef="now">invoice</gl-cor:documentType>
+				<gl-cor:postingStatus contextRef="now">posted</gl-cor:postingStatus>
+        	       </gl-cor:entryDetail>
+	               <gl-cor:entryDetail>
+				<gl-cor:lineNumber contextRef="now">7</gl-cor:lineNumber>
+	        	        <gl-cor:account>
+					<gl-cor:accountMainID contextRef="now">10600</gl-cor:accountMainID>
+					<gl-cor:accountMainDescription contextRef="now">Cost of Goods Sold</gl-cor:accountMainDescription>
+					<gl-cor:accountPurposeCode contextRef="now">usgaap</gl-cor:accountPurposeCode>
+					<gl-cor:accountType contextRef="now">account</gl-cor:accountType>
+				</gl-cor:account>
+				<gl-cor:amount contextRef="now" decimals="2" unitRef="usd">80</gl-cor:amount>
+				<gl-cor:debitCreditCode contextRef="now">D</gl-cor:debitCreditCode>
+				<gl-cor:postingDate contextRef="now">2005-06-30</gl-cor:postingDate>
+				<gl-cor:identifierReference>
+					<gl-cor:identifierCode contextRef="now">9098</gl-cor:identifierCode>
+					<gl-cor:identifierDescription contextRef="now">Ludwick, Dave</gl-cor:identifierDescription>
+					<gl-cor:identifierType contextRef="now">C</gl-cor:identifierType>
+				</gl-cor:identifierReference>
+				<gl-cor:documentType contextRef="now">invoice</gl-cor:documentType>
+				<gl-cor:postingStatus contextRef="now">posted</gl-cor:postingStatus>
+        	       </gl-cor:entryDetail>
+	               <gl-cor:entryDetail>
+				<gl-cor:lineNumber contextRef="now">8</gl-cor:lineNumber>
+	        	        <gl-cor:account>
+					<gl-cor:accountMainID contextRef="now">10700</gl-cor:accountMainID>
+					<gl-cor:accountMainDescription contextRef="now">GST Payable</gl-cor:accountMainDescription>
+					<gl-cor:accountPurposeCode contextRef="now">usgaap</gl-cor:accountPurposeCode>
+					<gl-cor:accountType contextRef="now">account</gl-cor:accountType>
+				</gl-cor:account>
+				<gl-cor:amount contextRef="now" decimals="2" unitRef="usd">26.53</gl-cor:amount>
+				<gl-cor:debitCreditCode contextRef="now">C</gl-cor:debitCreditCode>
+				<gl-cor:postingDate contextRef="now">2005-06-30</gl-cor:postingDate>
+				<gl-cor:identifierReference>
+					<gl-cor:identifierCode contextRef="now">9098</gl-cor:identifierCode>
+					<gl-cor:identifierDescription contextRef="now">Ludwick, Dave</gl-cor:identifierDescription>
+					<gl-cor:identifierType contextRef="now">C</gl-cor:identifierType>
+				</gl-cor:identifierReference>
+				<gl-cor:documentType contextRef="now">invoice</gl-cor:documentType>
+				<gl-cor:postingStatus contextRef="now">posted</gl-cor:postingStatus>
+        	       </gl-cor:entryDetail>
+	               <gl-cor:entryDetail>
+				<gl-cor:lineNumber contextRef="now">9</gl-cor:lineNumber>
+	        	        <gl-cor:account>
+					<gl-cor:accountMainID contextRef="now">10800</gl-cor:accountMainID>
+					<gl-cor:accountMainDescription contextRef="now">PST Payable</gl-cor:accountMainDescription>
+					<gl-cor:accountPurposeCode contextRef="now">usgaap</gl-cor:accountPurposeCode>
+					<gl-cor:accountType contextRef="now">account</gl-cor:accountType>
+				</gl-cor:account>
+				<gl-cor:amount contextRef="now" decimals="2" unitRef="usd">30.32</gl-cor:amount>
+				<gl-cor:debitCreditCode contextRef="now">C</gl-cor:debitCreditCode>
+				<gl-cor:postingDate contextRef="now">2005-06-30</gl-cor:postingDate>
+				<gl-cor:identifierReference>
+					<gl-cor:identifierCode contextRef="now">9098</gl-cor:identifierCode>
+					<gl-cor:identifierDescription contextRef="now">Ludwick, Dave</gl-cor:identifierDescription>
+					<gl-cor:identifierType contextRef="now">C</gl-cor:identifierType>
+				</gl-cor:identifierReference>
+				<gl-cor:documentType contextRef="now">invoice</gl-cor:documentType>
+				<gl-cor:postingStatus contextRef="now">posted</gl-cor:postingStatus>
+        	       </gl-cor:entryDetail>
+		</gl-cor:entryHeader>
+		<gl-cor:entryHeader>
+			<gl-cor:enteredBy contextRef="now">Otto Wellwood</gl-cor:enteredBy>
+			<gl-cor:enteredDate contextRef="now">2005-07-05</gl-cor:enteredDate>
+			<gl-cor:sourceJournalID contextRef="now">gj</gl-cor:sourceJournalID>
+			<gl-bus:sourceJournalDescription contextRef="now">JE</gl-bus:sourceJournalDescription>
+			<gl-cor:entryType contextRef="now">standard</gl-cor:entryType>
+	            <gl-cor:entryNumber contextRef="now">584</gl-cor:entryNumber>
+			<gl-cor:entryComment contextRef="now">The comment for this entry</gl-cor:entryComment>
+                	<gl-cor:entryDetail>
+				<gl-cor:lineNumber contextRef="now">1</gl-cor:lineNumber>
+	        	        <gl-cor:account>
+					<gl-cor:accountMainID contextRef="now">10100</gl-cor:accountMainID>
+					<gl-cor:accountMainDescription contextRef="now">Chequing</gl-cor:accountMainDescription>
+					<gl-cor:accountPurposeCode contextRef="now">usgaap</gl-cor:accountPurposeCode>
+					<gl-cor:accountType contextRef="now">account</gl-cor:accountType>
+				</gl-cor:account>
+				<gl-cor:amount contextRef="now" decimals="2" unitRef="usd">684.88</gl-cor:amount>
+				<gl-cor:debitCreditCode contextRef="now">C</gl-cor:debitCreditCode>
+				<gl-cor:postingDate contextRef="now">2005-06-30</gl-cor:postingDate>
+				<gl-cor:identifierReference>
+					<gl-cor:identifierCode contextRef="now">331</gl-cor:identifierCode>
+					<gl-cor:identifierDescription contextRef="now">Alison Logan-Smith</gl-cor:identifierDescription>
+					<gl-cor:identifierType contextRef="now">E</gl-cor:identifierType>
+				</gl-cor:identifierReference>
+				<gl-cor:documentType contextRef="now">check</gl-cor:documentType>
+				<gl-cor:postingStatus contextRef="now">posted</gl-cor:postingStatus>
+        	    	</gl-cor:entryDetail>
+                	<gl-cor:entryDetail>
+				<gl-cor:lineNumber contextRef="now">2</gl-cor:lineNumber>
+	        	        <gl-cor:account>
+					<gl-cor:accountMainID contextRef="now">20100</gl-cor:accountMainID>
+					<gl-cor:accountMainDescription contextRef="now">Payroll Expenses</gl-cor:accountMainDescription>
+					<gl-cor:accountPurposeCode contextRef="now">usgaap</gl-cor:accountPurposeCode>
+					<gl-cor:accountType contextRef="now">account</gl-cor:accountType>
+				</gl-cor:account>
+				<gl-cor:amount contextRef="now" decimals="2" unitRef="usd">750</gl-cor:amount>
+				<gl-cor:debitCreditCode contextRef="now">D</gl-cor:debitCreditCode>
+				<gl-cor:postingDate contextRef="now">2005-06-30</gl-cor:postingDate>
+				<gl-cor:identifierReference>
+					<gl-cor:identifierCode contextRef="now">331</gl-cor:identifierCode>
+					<gl-cor:identifierDescription contextRef="now">Alison Logan-Smith</gl-cor:identifierDescription>
+					<gl-cor:identifierType contextRef="now">E</gl-cor:identifierType>
+				</gl-cor:identifierReference>
+				<gl-cor:documentType contextRef="now">check</gl-cor:documentType>
+				<gl-cor:postingStatus contextRef="now">posted</gl-cor:postingStatus>
+        	       	</gl-cor:entryDetail>
+                	<gl-cor:entryDetail>
+				<gl-cor:lineNumber contextRef="now">3</gl-cor:lineNumber>
+	        	        <gl-cor:account>
+					<gl-cor:accountMainID contextRef="now">20100</gl-cor:accountMainID>
+					<gl-cor:accountMainDescription contextRef="now">Payroll Expenses</gl-cor:accountMainDescription>
+					<gl-cor:accountPurposeCode contextRef="now">usgaap</gl-cor:accountPurposeCode>
+					<gl-cor:accountType contextRef="now">account</gl-cor:accountType>
+				</gl-cor:account>
+				<gl-cor:amount contextRef="now" decimals="2" unitRef="usd">85</gl-cor:amount>
+				<gl-cor:debitCreditCode contextRef="now">D</gl-cor:debitCreditCode>
+				<gl-cor:postingDate contextRef="now">2005-06-30</gl-cor:postingDate>
+				<gl-cor:identifierReference>
+					<gl-cor:identifierCode contextRef="now">331</gl-cor:identifierCode>
+					<gl-cor:identifierDescription contextRef="now">Alison Logan-Smith</gl-cor:identifierDescription>
+					<gl-cor:identifierType contextRef="now">E</gl-cor:identifierType>
+				</gl-cor:identifierReference>
+				<gl-cor:documentType contextRef="now">check</gl-cor:documentType>
+				<gl-cor:postingStatus contextRef="now">posted</gl-cor:postingStatus>
+        	       	</gl-cor:entryDetail>
+                	<gl-cor:entryDetail>
+				<gl-cor:lineNumber contextRef="now">4</gl-cor:lineNumber>
+	        	        <gl-cor:account>
+					<gl-cor:accountMainID contextRef="now">20100</gl-cor:accountMainID>
+					<gl-cor:accountMainDescription contextRef="now">Payroll Expenses</gl-cor:accountMainDescription>
+					<gl-cor:accountPurposeCode contextRef="now">usgaap</gl-cor:accountPurposeCode>
+					<gl-cor:accountType contextRef="now">account</gl-cor:accountType>
+				</gl-cor:account>
+				<gl-cor:amount contextRef="now" decimals="2" unitRef="usd">28.4</gl-cor:amount>
+				<gl-cor:debitCreditCode contextRef="now">D</gl-cor:debitCreditCode>
+				<gl-cor:postingDate contextRef="now">2005-06-30</gl-cor:postingDate>
+				<gl-cor:identifierReference>
+					<gl-cor:identifierCode contextRef="now">331</gl-cor:identifierCode>
+					<gl-cor:identifierDescription contextRef="now">Alison Logan-Smith</gl-cor:identifierDescription>
+					<gl-cor:identifierType contextRef="now">E</gl-cor:identifierType>
+				</gl-cor:identifierReference>
+				<gl-cor:documentType contextRef="now">check</gl-cor:documentType>
+				<gl-cor:postingStatus contextRef="now">posted</gl-cor:postingStatus>
+        	       	</gl-cor:entryDetail>
+                	<gl-cor:entryDetail>
+				<gl-cor:lineNumber contextRef="now">5</gl-cor:lineNumber>
+	        	        <gl-cor:account>
+					<gl-cor:accountMainID contextRef="now">20200</gl-cor:accountMainID>
+					<gl-cor:accountMainDescription contextRef="now">Payroll Liabilities</gl-cor:accountMainDescription>
+					<gl-cor:accountPurposeCode contextRef="now">usgaap</gl-cor:accountPurposeCode>
+					<gl-cor:accountType contextRef="now">account</gl-cor:accountType>
+				</gl-cor:account>
+				<gl-cor:amount contextRef="now" decimals="2" unitRef="usd">28.4</gl-cor:amount>
+				<gl-cor:debitCreditCode contextRef="now">C</gl-cor:debitCreditCode>
+				<gl-cor:postingDate contextRef="now">2005-06-30</gl-cor:postingDate>
+				<gl-cor:identifierReference>
+					<gl-cor:identifierCode contextRef="now">331</gl-cor:identifierCode>
+					<gl-cor:identifierDescription contextRef="now">Alison Logan-Smith</gl-cor:identifierDescription>
+					<gl-cor:identifierType contextRef="now">E</gl-cor:identifierType>
+				</gl-cor:identifierReference>
+				<gl-cor:documentType contextRef="now">check</gl-cor:documentType>
+				<gl-cor:postingStatus contextRef="now">posted</gl-cor:postingStatus>
+        	       	</gl-cor:entryDetail>
+                	<gl-cor:entryDetail>
+				<gl-cor:lineNumber contextRef="now">6</gl-cor:lineNumber>
+	        	        <gl-cor:account>
+					<gl-cor:accountMainID contextRef="now">20200</gl-cor:accountMainID>
+					<gl-cor:accountMainDescription contextRef="now">Payroll Liabilities</gl-cor:accountMainDescription>
+					<gl-cor:accountPurposeCode contextRef="now">usgaap</gl-cor:accountPurposeCode>
+					<gl-cor:accountType contextRef="now">account</gl-cor:accountType>
+				</gl-cor:account>
+				<gl-cor:amount contextRef="now" decimals="2" unitRef="usd">28.4</gl-cor:amount>
+				<gl-cor:debitCreditCode contextRef="now">C</gl-cor:debitCreditCode>
+				<gl-cor:postingDate contextRef="now">2005-06-30</gl-cor:postingDate>
+				<gl-cor:identifierReference>
+					<gl-cor:identifierCode contextRef="now">331</gl-cor:identifierCode>
+					<gl-cor:identifierDescription contextRef="now">Alison Logan-Smith</gl-cor:identifierDescription>
+					<gl-cor:identifierType contextRef="now">E</gl-cor:identifierType>
+				</gl-cor:identifierReference>
+				<gl-cor:documentType contextRef="now">check</gl-cor:documentType>
+				<gl-cor:postingStatus contextRef="now">posted</gl-cor:postingStatus>
+        	       	</gl-cor:entryDetail>
+                	<gl-cor:entryDetail>
+				<gl-cor:lineNumber contextRef="now">7</gl-cor:lineNumber>
+	        	        <gl-cor:account>
+					<gl-cor:accountMainID contextRef="now">20100</gl-cor:accountMainID>
+					<gl-cor:accountMainDescription contextRef="now">Payroll Expenses</gl-cor:accountMainDescription>
+					<gl-cor:accountPurposeCode contextRef="now">usgaap</gl-cor:accountPurposeCode>
+					<gl-cor:accountType contextRef="now">account</gl-cor:accountType>
+				</gl-cor:account>
+				<gl-cor:amount contextRef="now" decimals="2" unitRef="usd">23.1</gl-cor:amount>
+				<gl-cor:debitCreditCode contextRef="now">D</gl-cor:debitCreditCode>
+				<gl-cor:postingDate contextRef="now">2005-06-30</gl-cor:postingDate>
+				<gl-cor:identifierReference>
+					<gl-cor:identifierCode contextRef="now">331</gl-cor:identifierCode>
+					<gl-cor:identifierDescription contextRef="now">Alison Logan-Smith</gl-cor:identifierDescription>
+					<gl-cor:identifierType contextRef="now">E</gl-cor:identifierType>
+				</gl-cor:identifierReference>
+				<gl-cor:documentType contextRef="now">check</gl-cor:documentType>
+				<gl-cor:postingStatus contextRef="now">posted</gl-cor:postingStatus>
+        	       	</gl-cor:entryDetail>
+                	<gl-cor:entryDetail>
+				<gl-cor:lineNumber contextRef="now">8</gl-cor:lineNumber>
+	        	        <gl-cor:account>
+					<gl-cor:accountMainID contextRef="now">20200</gl-cor:accountMainID>
+					<gl-cor:accountMainDescription contextRef="now">Payroll Liabilities</gl-cor:accountMainDescription>
+					<gl-cor:accountPurposeCode contextRef="now">usgaap</gl-cor:accountPurposeCode>
+					<gl-cor:accountType contextRef="now">account</gl-cor:accountType>
+				</gl-cor:account>
+				<gl-cor:amount contextRef="now" decimals="2" unitRef="usd">23.1</gl-cor:amount>
+				<gl-cor:debitCreditCode contextRef="now">C</gl-cor:debitCreditCode>
+				<gl-cor:postingDate contextRef="now">2005-06-30</gl-cor:postingDate>
+				<gl-cor:identifierReference>
+					<gl-cor:identifierCode contextRef="now">331</gl-cor:identifierCode>
+					<gl-cor:identifierDescription contextRef="now">Alison Logan-Smith</gl-cor:identifierDescription>
+					<gl-cor:identifierType contextRef="now">E</gl-cor:identifierType>
+				</gl-cor:identifierReference>
+				<gl-cor:documentType contextRef="now">check</gl-cor:documentType>
+				<gl-cor:postingStatus contextRef="now">posted</gl-cor:postingStatus>
+        	       	</gl-cor:entryDetail>
+                	<gl-cor:entryDetail>
+				<gl-cor:lineNumber contextRef="now">9</gl-cor:lineNumber>
+	        	        <gl-cor:account>
+					<gl-cor:accountMainID contextRef="now">20200</gl-cor:accountMainID>
+					<gl-cor:accountMainDescription contextRef="now">Payroll Liabilities</gl-cor:accountMainDescription>
+					<gl-cor:accountPurposeCode contextRef="now">usgaap</gl-cor:accountPurposeCode>
+					<gl-cor:accountType contextRef="now">account</gl-cor:accountType>
+				</gl-cor:account>
+				<gl-cor:amount contextRef="now" decimals="2" unitRef="usd">16.5</gl-cor:amount>
+				<gl-cor:debitCreditCode contextRef="now">C</gl-cor:debitCreditCode>
+				<gl-cor:postingDate contextRef="now">2005-06-30</gl-cor:postingDate>
+				<gl-cor:identifierReference>
+					<gl-cor:identifierCode contextRef="now">331</gl-cor:identifierCode>
+					<gl-cor:identifierDescription contextRef="now">Alison Logan-Smith</gl-cor:identifierDescription>
+					<gl-cor:identifierType contextRef="now">E</gl-cor:identifierType>
+				</gl-cor:identifierReference>
+				<gl-cor:documentType contextRef="now">check</gl-cor:documentType>
+				<gl-cor:postingStatus contextRef="now">posted</gl-cor:postingStatus>
+        	       	</gl-cor:entryDetail>
+                	<gl-cor:entryDetail>
+				<gl-cor:lineNumber contextRef="now">10</gl-cor:lineNumber>
+	        	        <gl-cor:account>
+					<gl-cor:accountMainID contextRef="now">20200</gl-cor:accountMainID>
+					<gl-cor:accountMainDescription contextRef="now">Payroll Liabilities</gl-cor:accountMainDescription>
+					<gl-cor:accountPurposeCode contextRef="now">usgaap</gl-cor:accountPurposeCode>
+					<gl-cor:accountType contextRef="now">account</gl-cor:accountType>
+				</gl-cor:account>
+				<gl-cor:amount contextRef="now" decimals="2" unitRef="usd">105.22</gl-cor:amount>
+				<gl-cor:debitCreditCode contextRef="now">C</gl-cor:debitCreditCode>
+				<gl-cor:postingDate contextRef="now">2005-06-30</gl-cor:postingDate>
+				<gl-cor:identifierReference>
+					<gl-cor:identifierCode contextRef="now">331</gl-cor:identifierCode>
+					<gl-cor:identifierDescription contextRef="now">Alison Logan-Smith</gl-cor:identifierDescription>
+					<gl-cor:identifierType contextRef="now">E</gl-cor:identifierType>
+				</gl-cor:identifierReference>
+				<gl-cor:documentType contextRef="now">check</gl-cor:documentType>
+				<gl-cor:postingStatus contextRef="now">posted</gl-cor:postingStatus>
+        	       	</gl-cor:entryDetail>
+                	<gl-cor:entryDetail>
+				<gl-cor:lineNumber contextRef="now">11</gl-cor:lineNumber>
+	        	        <gl-cor:account>
+					<gl-cor:accountMainID contextRef="now">20100</gl-cor:accountMainID>
+					<gl-cor:accountMainDescription contextRef="now">Payroll Expenses</gl-cor:accountMainDescription>
+					<gl-cor:accountPurposeCode contextRef="now">usgaap</gl-cor:accountPurposeCode>
+					<gl-cor:accountType contextRef="now">account</gl-cor:accountType>
+				</gl-cor:account>
+				<gl-cor:amount contextRef="now" decimals="2" unitRef="usd">30</gl-cor:amount>
+				<gl-cor:debitCreditCode contextRef="now">D</gl-cor:debitCreditCode>
+				<gl-cor:postingDate contextRef="now">2005-06-30</gl-cor:postingDate>
+				<gl-cor:identifierReference>
+					<gl-cor:identifierCode contextRef="now">331</gl-cor:identifierCode>
+					<gl-cor:identifierDescription contextRef="now">Alison Logan-Smith</gl-cor:identifierDescription>
+					<gl-cor:identifierType contextRef="now">E</gl-cor:identifierType>
+				</gl-cor:identifierReference>
+				<gl-cor:documentType contextRef="now">check</gl-cor:documentType>
+				<gl-cor:postingStatus contextRef="now">posted</gl-cor:postingStatus>
+        	       	</gl-cor:entryDetail>
+                	<gl-cor:entryDetail>
+				<gl-cor:lineNumber contextRef="now">12</gl-cor:lineNumber>
+	        	        <gl-cor:account>
+					<gl-cor:accountMainID contextRef="now">20200</gl-cor:accountMainID>
+					<gl-cor:accountMainDescription contextRef="now">Payroll Liabilities</gl-cor:accountMainDescription>
+					<gl-cor:accountPurposeCode contextRef="now">usgaap</gl-cor:accountPurposeCode>
+					<gl-cor:accountType contextRef="now">account</gl-cor:accountType>
+				</gl-cor:account>
+				<gl-cor:amount contextRef="now" decimals="2" unitRef="usd">30</gl-cor:amount>
+				<gl-cor:debitCreditCode contextRef="now">C</gl-cor:debitCreditCode>
+				<gl-cor:postingDate contextRef="now">2005-06-30</gl-cor:postingDate>
+				<gl-cor:identifierReference>
+					<gl-cor:identifierCode contextRef="now">331</gl-cor:identifierCode>
+					<gl-cor:identifierDescription contextRef="now">Alison Logan-Smith</gl-cor:identifierDescription>
+					<gl-cor:identifierType contextRef="now">E</gl-cor:identifierType>
+				</gl-cor:identifierReference>
+				<gl-cor:documentType contextRef="now">check</gl-cor:documentType>
+				<gl-cor:postingStatus contextRef="now">posted</gl-cor:postingStatus>
+        	       	</gl-cor:entryDetail>
+		</gl-cor:entryHeader>
+	</gl-cor:accountingEntries>
+	<!-- Contexts, mandatory according to the XBRL 2.1, Specification, are not meant to describe the information in XBRL GL and appear only by convention. All facts are instant and developers are encouraged to duplicate/provide the date the XBRL GL information is created as the period's date. -->
+	<xbrli:context id="now">
+		<xbrli:entity>
+			<xbrli:identifier scheme="http://www.xbrl.org/xbrlgl/sample">SAMPLE</xbrli:identifier>
+		</xbrli:entity>
+		<xbrli:period>
+			<xbrli:instant>2004-10-03</xbrli:instant>
+		</xbrli:period>
+	</xbrli:context>
+	<!-- Units of measure in XBRL GL are handled within the measurable or multicurrency elements. Units are provided by convention and should not be relied upon in interpreting XBRL GL data. -->
+	<xbrli:unit id="usd">
+		<xbrli:measure>iso4217:USD</xbrli:measure>
+	</xbrli:unit>
+	<xbrli:unit id="NotUsed">
+		<xbrli:measure>pure</xbrli:measure>
+	</xbrli:unit>
+</xbrli:xbrl>

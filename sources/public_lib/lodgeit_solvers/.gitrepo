@@ -1,0 +1,12 @@
+; DO NOT EDIT (unless you know what you are doing)
+;
+; This subdirectory is a git "subrepo", and this file is maintained by the
+; git-subrepo command. See https://github.com/git-commands/git-subrepo#readme
+;
+[subrepo]
+	remote = git@github.com:LodgeiT/FOL_solvers.git
+	branch = dev
+	commit = c95f617932bc0ce1574d721795acc46153c77ffd
+	method = merge
+	cmdver = 0.4.1
+	parent = 96119b9bb86022d569bb3bb8c7df2f59c2e37f1e

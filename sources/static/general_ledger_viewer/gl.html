@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8"/>
+
+	<script type="text/javascript" src="vue.js"></script>
+	<script type="text/javascript" src="jquery-3.3.1.js"></script>
+	<script src="lodash.js"></script>
+
+	<script src="https://unpkg.com/vue-truncate-collapsed"></script>
+
+	<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<a href="../docs/docs.html">docs</a>
+<div id="top">
+	<!--  style="float:left; height:100%" -->
+	<account_selector_item :item="accounts_filter"></account_selector_item>
+	<transformations :items="transformations"></transformations>
+</div>
+
+<script type="text/javascript">
+	'use strict';
+
+	Vue.component('account_selector_item', {
+		props: ['item'],
+		template: `
+			<div class="account_selector">
+				<input type="checkbox" id="checkbox" v-model="item.checked" @change="change_checked_on_children_recursively($event)">{{ item.name }}
+				<ul>
+					<div v-for="child in item.children" :key="child.id">
+						<li>
+							<account_selector_item ref="child" :item="child"></account_selector_item>
+						</li>
+					</div>
+				</ul>
+			</div>
+		`,
+		methods: {
+			change_checked_on_children_recursively: function(e){
+				this.item.children.forEach(child => {
+					change_checked(child, this.item.checked);
+				});
+			}}
+	});
+
+	Vue.component('transformations', {
+		props: ['items'],
+		template: `
+			<div class="transformations"> transformations:
+				<table>
+					<thead>
+						<tr>
+							<th>journal</th>
+							<th>account</th>
+							<th>date</th>
+							<th>description1</th>
+							<th>description2</th>
+							<th>description3</th>
+							<th>vector</th>
+							<th>leaf_account_running_balance_since_beginning_of_time</th>
+							<th>vector_converted_at_transaction_date</th>
+							<th>vector_converted_at_balance_date</th>
+							<th>exchanged</th>
+						</tr>
+					</thead>
+					<transformation :id="item.id" :source="item.source" :transactions="item.transactions"  v-for="item in items" :key="item.id"></transformation>
+				</table>
+			</div>
+		`
+	});
+	
+	Vue.component('transformation', {
+		props: ['id', 'source', 'transactions'],
+		template: `
+			<tbody class="transformation"  v-if='visible_transactions.length > 0'>
+				<tr>
+					<td v-if='typeof source == "string"'> {{ source }} </td>
+					<template v-else>
+						<td>bank</td>
+						<td class="source"> {{ source.account }}</td>
+						<td class="source"> {{ source.date }}</td>
+						<td class="source"> {{ source.verb }}</td>
+						<td class="source"> {{ source.misc.desc2 || ""}}</td>
+						<td class="source"> {{ source.misc.desc3 || ""}}</td>
+						<td class="source"> <vector :data="source.vector"></vector> </td>
+						<td></td>
+						<td class="source"> <vector :data="source.report_currency_transacted_amount_converted_at_transaction_date"></vector> </td>
+						<td class="source"> <vector :data="source.report_currency_transacted_amount_converted_at_balance_date"></vector> </td>
+						<td class="source"> {{ source.exchanged }}</td>
+					</template>
+				</tr>
+				<transaction :data="item" v-for="item in transactions" :key="item.id"  v-if="$root.accounts_filter_index[item.account].checked"></transaction>
+			</tbody>
+		`,
+		methods: {xxx : function() { console.log(this); }},
+		computed: {
+			visible_transactions: function()
+			{
+				return this.transactions.filter(item => {
+					if (!(item.account in vm.accounts_filter_index))
+					{
+						console.log("unknown account: "+item.account);
+						window.alert("unknown account: "+item.account);
+					}
+					return vm.accounts_filter_index[item.account].checked;
+				});
+			}
+		}
+	});
+	
+	Vue.component('transaction', {
+		props: ['data'],
+		template: `
+			<tr class="transaction">
+				<td>GL</td>
+				<td><truncate clamp="..." :length="60" less="⇦" :text="$root.accounts_index[data.account].name"></truncate></td>
+				<td>{{ data.date }}</td>
+				<td>{{ data.description }}</td>
+				<td></td>
+				<td></td>
+				<td> <vector :data="data.vector"></vector> </td>
+				<td> <vector :data="data.running_balance"></vector> </td>
+				<td> <vector :data="data.vector_converted_at_transaction_date"></vector> </td>
+				<td> <vector :data="data.vector_converted_at_balance_date"></vector> </td>
+			</tr>
+		`
+	});
+
+	function coord_string(data)
+	{
+		var r = "";
+		if (data.debit != 0) r += "DR " + data.debit;
+		if (data.credit != 0) r += "CR " + data.credit;
+		if (data.debit == 0 && data.credit == 0) r += "0";
+		r += " " + data.unit;
+		return r
+	}
+
+	Vue.component('vector', {
+		props: ['data'],
+		methods: {xxx : function(data) {
+			if (data.length == 0)
+				return "0"
+			else
+				return data.map((x) => {return coord_string(x)}).join(", ");
+		}},
+		template: `
+			<truncate clamp="..." :length="60" less="🠐" :text="xxx(data)"></truncate>
+		`
+	});
+
+/*
+	Vue.component('vector', {
+		props: ['data'],
+		template: `
+			<span>
+				<span v-for="(item,index) in data" :key="index">
+					<coord :data="item"></coord>
+					<span v-if="index+1 < data.length">, </span>
+				</span>
+			</span>
+		`
+	});
+
+	Vue.component('coord', {
+		props: ['data'],
+		template: `
+			<span>
+				<span v-if='data.debit != 0' class="debit">
+					DR {{ data.debit }}
+				</span>
+				<span v-if='data.credit != 0' class="credit">
+					CR {{ data.credit }}
+				</span>
+				<span v-if='data.credit == 0 && data.debit == 0'>
+					0
+				</span>
+				{{ data.unit }}
+			</span>
+		`
+	});
+*/
+
+	function change_checked(item, checked)
+	{
+		item.checked = checked;
+		item.children.forEach(child => 
+		{
+			child.checked = checked;
+			change_checked(child, checked)
+		});
+	};
+	
+
+	function load_stuff()
+	{
+	/*
+		load our data. if this becomes messy, look for a library / an abstraction that will also handle stuff like batching / streaming / more declarative way of specifying pipeline dependencies / making the loading/processing process a first-class thing in the user interface with friendly error and progress reporting, ...
+	*/
+	    Promise.all([
+		load_data("accounts").then(process_loaded_accounts_data),
+		load_data("general_ledger_json")
+	    ]).then(results => process_loaded_general_ledger_data(results[1]));
+	};
+
+	
+	function process_loaded_accounts_data(data)
+	{
+				vm.accounts_index = accounts_list_to_tree(data);
+				Object.keys(vm.accounts_index).forEach(function(key) {
+					if (vm.accounts_index[key].name == "root")
+						vm.accounts_root = vm.accounts_index[key];});
+				vm.accounts_filter_index = [];
+				vm.accounts_filter = create_filter_item_from_account(vm.accounts_filter_index, vm.accounts_root);
+	};
+
+	function process_loaded_general_ledger_data(data)
+	{
+		console.log("process_loaded_general_ledger_data");
+        /* the id's should probably be coming from the prolog side, but in prolog there's little use for them, so...*/
+	    let transformation_id = 0;
+		let transaction_id = 0;
+
+		/*balances = {};*/
+
+		data.forEach(item => {
+					item.id = transformation_id++;
+					item.transactions.forEach(tr => {
+						tr.id = transaction_id++
+/*						if (!tr.x.hasOwnProperty(account))
+							balances[account] =
+*/
+
+					});
+		});
+		vm.transformations = data;
+	}
+	
+	function load_data(name) {
+		return load_data2("../"+name+".json");
+	}
+
+	function load_data2(url)
+	{
+		return new Promise(
+			function(resolve,reject)
+			{
+				$.ajax({
+					dataType: "json",
+					mimeType: "application/json",
+					url: url,
+					success: function(data){
+					    resolve(data);
+					},
+					error: function() {
+						window.alert("loading "+url+" failed");
+					}
+				});
+			});
+	}
+
+	function create_filter_item_from_account(index, account)
+	{
+		let r = {
+			'id': account.id,
+			'name': account.name,
+			'checked': true,
+			'children': []
+		};
+		index[r.id] = r;
+		account.children.forEach(child => {
+			r.children.push(create_filter_item_from_account(index, child));
+		});
+		return r;
+	};
+	
+	function accounts_list_to_tree(data)
+	{
+		let index = {};
+		data.forEach(account => {
+			account.children = []
+		});
+		//console.log("hi");
+		data.forEach(account => {
+			//console.log(account.id);
+			//window.alert("hi "+account.id);
+			index[account.id] = account
+		});
+		//console.log("bye");
+		data.forEach(account => {
+			let p = account.parent;
+			if (p != null)
+			{
+				index[p].children.push(account);
+			}
+		});
+		//console.log(index);
+		//window.alert("hi "+index["http://dev-node.uksouth.cloudapp.azure.com/rdf/results/1589254735.7189376.2/#bnx547_accounts_Filling Fees"].name);
+		return index;
+	};
+
+	$( document ).ready(function() {
+		console.log( "ready!" );
+	});
+
+	var vm = new Vue({
+		el: '#top',
+		data: {
+			transformations: [],
+			accounts_root: {},
+			accounts_filter: {'id':'x', 'name': 'Accounts', children:[{'id':'x', 'name':'loading...', 'children':[]}]}
+		},
+		mounted: function ()
+		{
+			console.log( "mounted!" );
+			load_stuff();
+		}
+	});
+		
+
+</script>
+</body>
+</html>
+

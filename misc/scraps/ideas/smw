@@ -1,0 +1,7 @@
+Xbrlish
+===
+'is a namespace'(xbrl)
+'has description'(xbrl, "our internal ontology leveraging the xbrl formalism, + extensions, but without an actual formal mapping to any xbrl standard yet")
+
+
+

@@ -1,15 +1,1 @@
-            /*foreach (Excel.Worksheet sheet in AddIn.Application.Worksheets)
-                if (sheet.Name.ToLower().StartsWith(HPTemplate.sheetPrefix.ToLower()))
-                */
-http://xbrl.squarespace.com/journal/2019/12/19/modern-approach-to-creating-a-financial-reporting-scheme.html
-
-IGraph g = new Graph {BaseUri = UriFactory.Create("https://lodgeit.net.au") };
-
-                if (bStandalone)
-                    MessageBox.Show("depreciation_query worksheet not found.", "Lodge iT");
-                return false;
-                
-            DateTime date = GetCellValueAsDate(sheet, ((char)col).ToString() + row.ToString());
-            ILiteralNode date_node = g.CreateLiteralNode(date.ToString("yyyy-MM-dd"), UriFactory.Create(XmlSpecsHelper.XmlSchemaDataTypeDate));
-                
-
+reset;echo -e "\e[3J";  time env CELERY_QUEUE_NAME=q7788 ../internal_workers/invoke_rpc_cmdline.py --debug true --halt true -s "http://localhost:7788"  --prolog_flags "set_prolog_flag(services_server,'http://localhost:17788'),set_prolog_flag(die_on_error,true)" tmp/last_request/  2>&1 | less

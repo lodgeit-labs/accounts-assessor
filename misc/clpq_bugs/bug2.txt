@@ -1,7 +1,0 @@
-from https://github.com/triska/clpz/issues/7 :
-
-stability. Take i3a#365: A*max(A,-2)#>1,A in-1..2,A=1.
-
-7.1.32-11-gd0a4fc0 false (correct)
-
-7.3.14-42-ga83e0df success

@@ -1,0 +1,74 @@
+<?xml version="1.0" ?>
+<accountHierarchy>
+	<!-- top-level account has to explicitly specify where it attaches -->
+	<Accounts parent_role="root" normal_side="debit">
+		<NetAssets role="NetAssets">
+			<Assets>
+				<CurrentAssets role="CurrentAssets">
+					<CashAndCashEquivalents role="CashAndCashEquivalents">
+						<Banks role="Banks"/>
+					</CashAndCashEquivalents>				
+				</CurrentAssets>
+				<NoncurrentAssets role="NoncurrentAssets">
+				</NoncurrentAssets>
+			</Assets>
+			<Liabilities normal_side="credit">
+				<NoncurrentLiabilities>
+					<NoncurrentLoans/>
+				</NoncurrentLiabilities>
+				<CurrentLiabilities>
+					<CurrentLoans/>
+					<Gst>
+						<GstReceivable/>
+						<GstPayable/>
+					</Gst>
+				</CurrentLiabilities>
+			</Liabilities>
+		</NetAssets>
+
+		<Equity role="Equity" normal_side="credit">
+			<ShareCapital/>
+			<RetainedEarnings>
+				<HistoricalEarnings role="HistoricalEarnings">
+					<BankOpeningBalances/>
+				</HistoricalEarnings>
+				<CurrentEarnings role="CurrentEarnings"/>
+			</RetainedEarnings>
+			<CapitalIntroduced/>
+			<Drawings/>
+		</Equity>
+
+		<ComprehensiveIncome role="ComprehensiveIncome" normal_side="credit">
+			
+			<Revenue role="Revenue">
+				<Income/>
+				<OtherIncome>
+					<InterestIncome/>
+					<InterestEarned/>
+					<ExchangeGain/>
+				</OtherIncome>
+				<CurrencyMovement role="CurrencyMovement"/>
+			</Revenue>
+
+			<Expenses role="Expenses" normal_side="debit">
+				<BankCharges/>
+				<AccountingFees/>
+				<ForexLoss/>
+				<InterestExpenses/>
+				<Purchases/>
+				<OtherExpenses/>
+			</Expenses>
+
+			<Gains role="Gains">
+				<OtherGain/>
+				<ClearingAccount/>
+			</Gains>
+
+			<Losses normal_side="debit">	
+			</Losses>
+
+		</ComprehensiveIncome>
+	</Accounts>
+	<Inventory parent_role="root" role="root/Inventory" normal_side="debit">
+	</Inventory>
+</accountHierarchy>

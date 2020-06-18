@@ -1,0 +1,324 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Sample detailed listing of GST invoices to customers file for XBRL Global Ledger Framework with annotations  Version 1.0.91021.1 -->
+<!-- This file contains data fields considered very important to representing its subject. Annotations have been provided for the "most important" of those fields. XBRL GL has many other fields that could be helpful in expressing the information, but have been omitted because their presence is more circumstantial. This file was created for educational purposes only, represent sample company data provided by the ATO and does not necessarily represent the views of the XBRL GL WG. Send a note to xbrl-gl-tax@yahoogroups.com with comments. -->
+<!-- The "root" of every XBRL file ("instance document") is xbrl. -->
+<xbrli:xbrl xmlns:xbrli="http://www.xbrl.org/2003/instance" xmlns:xbrll="http://www.xbrl.org/2003/linkbase" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:gl-cor="http://www.xbrl.org/int/gl/cor/2009-10-21" xmlns:gl-muc="http://www.xbrl.org/int/gl/muc/2009-10-21" xmlns:gl-bus="http://www.xbrl.org/int/gl/bus/2009-10-21" xmlns:gl-plt="http://www.xbrl.org/int/gl/plt/2009-10-21" xmlns:iso4217="http://www.xbrl.org/2003/iso4217" xmlns:iso639="http://www.xbrl.org/2005/iso639" xsi:schemaLocation="http://www.xbrl.org/int/gl/plt/2009-10-21 ../plt/case-c-b-m-u-t/gl-plt-all-2009-10-21.xsd">
+	<xbrll:schemaRef xlink:type="simple" xlink:arcrole="http://www.w3.org/1999/xlink/properties/linkbase" xlink:href="../plt/case-c-b-m-u-t/gl-plt-all-2009-10-21.xsd"/>
+	<!-- Contexts, mandatory according to the XBRL 2.1, Specification, are not meant to describe the information in XBRL GL and appear only by convention. All facts are instant and developers are encouraged to duplicate/provide the date the XBRL GL information is created as the period's date. -->
+	<xbrli:context id="now">
+		<xbrli:entity>
+			<xbrli:identifier scheme="http://www.xbrl.org/xbrlgl/sample">SAMPLE</xbrli:identifier>
+		</xbrli:entity>
+		<!-- The XBRL GL WG recommends using the file creation data as the period. -->
+		<xbrli:period>
+			<xbrli:instant>2004-10-03</xbrli:instant>
+		</xbrli:period>
+	</xbrli:context>
+	<!-- Units of measure in XBRL GL are handled within the measurable or multicurrency elements. Units are provided by convention and should not be relied upon in interpreting XBRL GL data. -->
+	<xbrli:unit id="AUD">
+		<xbrli:measure>iso4217:AUD</xbrli:measure>
+	</xbrli:unit>
+	<xbrli:unit id="NotUsed">
+		<xbrli:measure>pure</xbrli:measure>
+	</xbrli:unit>
+	<!-- The container for XBRL GL, accountingEntries, is not the root of an XBRL GL file - the root, as with all XBRL files, is xbrl. This means that a single XBRL GL file can store one or more virtual XBRL GL files, through one or more accountingEntries structures with data inside. The primary key to understanding an XBRL GL file is the entriesType. A single physical XBRL GL file can have multiple accountingEntries structures to represent both transactions and master files; the differences are signified by the appropriate entriesType enumerated values. This is especially important in a representation of this kind. A file creator can create a single physical file but have information about the customers in one accountingEntries section and in information about the invoices in another referencing only the customer number, thereby reducing the duplicated information (customer name, address, etc.) in the file resulting in smaller file sizes. -->
+	<gl-cor:accountingEntries>
+		<!-- Because entriesType is strongly suggested, documentInfo will be required. -->
+		<gl-cor:documentInfo>
+			<!-- This field, entriesType, provides the automated guidance on the purpose of the XBRL GL information. This use of XBRL GL, to represent a grouping of customer invoices, uses the enumerated value "other". Automated consumption would be based on other factors, such as "customer" for indentifierType and "invoice" for documentType. -->
+			<gl-cor:entriesType contextRef="now">other</gl-cor:entriesType>
+			<!-- Like a serial number, this field, uniqueID, provides a place to uniquely identify/track a series of entries. It is likely less relevant for ad-hoc reports, like a list of invoices. XBRL GL provides for later correction through replacement or augmentation of transferred information. -->
+			<gl-cor:uniqueID contextRef="now">001</gl-cor:uniqueID>
+			<gl-cor:language contextRef="now">iso639:en</gl-cor:language>
+			<!-- The date associated with the creation of the data reflected within the associated accountingEntries section. Somewhat like a "printed date" on a paper report -->
+			<gl-cor:creationDate contextRef="now">2005-10-28</gl-cor:creationDate>
+			<gl-bus:creator contextRef="now">XBRL GL Tax subgroup</gl-bus:creator>
+			<!-- A description related to the batch of information express in the accountingEntries structure. Why was this batch of information put together and published? It would be helpful to put that information in the entriesComment. -->
+			<gl-cor:entriesComment contextRef="now">A listing of invoices for GST instance document</gl-cor:entriesComment>
+			<!-- The period of time reflected by the listing of invoies. Future discussion of what date is used - the document date or the accounting relevance data - may be necessary. For a start, all invoices have their document date within that period, and all of the invoices with a document date within that period are included. -->
+			<gl-cor:periodCoveredStart contextRef="now">2005-10-14</gl-cor:periodCoveredStart>
+			<gl-cor:periodCoveredEnd contextRef="now">2005-10-14</gl-cor:periodCoveredEnd>
+			<gl-bus:sourceApplication contextRef="now">MYOB</gl-bus:sourceApplication>
+			<gl-muc:defaultCurrency contextRef="now">iso4217:AUD</gl-muc:defaultCurrency>
+		</gl-cor:documentInfo>
+		<!-- Typically, an export from an accounting system does not carry with it information specifically about the company. However, the name of the company would be a very good thing to include with the file, making the entityInformation tuple necessary. -->
+		<gl-cor:entityInformation>
+			<gl-bus:entityPhoneNumber>
+				<gl-bus:phoneNumber contextRef="now">(07) 3322 2222</gl-bus:phoneNumber>
+			</gl-bus:entityPhoneNumber>
+			<gl-bus:entityFaxNumberStructure>
+				<gl-bus:entityFaxNumber contextRef="now">(07) 3322 2222</gl-bus:entityFaxNumber>
+			</gl-bus:entityFaxNumberStructure>
+			<gl-bus:entityEmailAddressStructure>
+				<gl-bus:entityEmailAddress contextRef="now">sales@newcompany.com.au</gl-bus:entityEmailAddress>
+			</gl-bus:entityEmailAddressStructure>
+			<!-- The name of the company would be a very good thing to include with the file; this structure and its content are where that would be stored. OrganizationDescription is not currently enumerated.  -->
+			<gl-bus:organizationIdentifiers>
+				<gl-bus:organizationIdentifier contextRef="now">New Company Trading</gl-bus:organizationIdentifier>
+				<gl-bus:organizationDescription contextRef="now">Company Name</gl-bus:organizationDescription>
+			</gl-bus:organizationIdentifiers>
+			<gl-bus:organizationIdentifiers>
+				<gl-bus:organizationIdentifier contextRef="now">99 666 666 999</gl-bus:organizationIdentifier>
+				<gl-bus:organizationDescription contextRef="now">ABN</gl-bus:organizationDescription>
+			</gl-bus:organizationIdentifiers>
+			<gl-bus:organizationAddress>
+				<gl-bus:organizationAddressStreet contextRef="now">P O Box 1000</gl-bus:organizationAddressStreet>
+				<gl-bus:organizationAddressCity contextRef="now">BRISBANE</gl-bus:organizationAddressCity>
+				<gl-bus:organizationAddressStateOrProvince contextRef="now">QLD</gl-bus:organizationAddressStateOrProvince>
+				<gl-bus:organizationAddressZipOrPostalCode contextRef="now">2001</gl-bus:organizationAddressZipOrPostalCode>
+				<gl-bus:organizationAddressCountry contextRef="now">AUSTRALIA</gl-bus:organizationAddressCountry>
+			</gl-bus:organizationAddress>
+			<gl-bus:entityWebSite>
+				<gl-bus:webSiteURL contextRef="now">www.newcompany.com.au</gl-bus:webSiteURL>
+			</gl-bus:entityWebSite>
+		</gl-cor:entityInformation>
+		<gl-cor:entryHeader>
+			<!-- invoice 2 -->
+			<!-- For audit purposes, the date the invoices were posted to the original system may be helpful.  It is important to differentiate between the many dates of XBRL GL. In particular, postedDate (the date information was posted to the computer) should be differentiated from postingDate (accounting significance) or documentDate (the date printed on the form). -->
+			<gl-cor:postedDate contextRef="now">2005-10-14</gl-cor:postedDate>
+			<!-- For audit purposes, the person who entered the invoices into the original system may be helpful. -->
+			<gl-cor:enteredBy contextRef="now">Otto Wellwood</gl-cor:enteredBy>
+			<!-- For audit purposes, the date the invoices were actually entered into the original system may be helpful. -->
+			<gl-cor:enteredDate contextRef="now">2005-10-14</gl-cor:enteredDate>
+			<!-- This is an enumerated entry that ties the source journal from the reporting organization to a fixed list that helps in data interchange. Invoices are likely sourced from the sales journal, which is enumerated by sj -->
+			<gl-cor:sourceJournalID contextRef="now">sj</gl-cor:sourceJournalID>
+			<!-- Since sourceJournalID is enumerated (you must pick one of the entries already identified within XBRL GL), sourceJournalDescription lets you capture the actual code or term used to describe the source journal by the organization. -->
+			<gl-bus:sourceJournalDescription contextRef="now">Sales Journal - Tax Invoices</gl-bus:sourceJournalDescription>
+			<!-- The entry origin would indicate whether the invoices came in from another automated system or were manually entered-->
+			<gl-bus:entryOrigin contextRef="now">imported entry</gl-bus:entryOrigin>
+			<!-- Documents are defined at the line level. When representing the lines on invoices, an individual document is represented at the header level, so the entryDetail lines can represent the detailed lines of the invoices. The entryNumber can also be used to represent the documentNumber (which would be repeated in the entryDetail).  -->
+			<gl-cor:entryNumber contextRef="now">50</gl-cor:entryNumber>
+			<!-- The reason for making an entry goes here. If a comment is associated with an invoice, it can go here. -->
+			<gl-cor:entryComment contextRef="now">Invoice: #2 Customer: Joe's Materials</gl-cor:entryComment>
+			<!-- As noted, when illustrating details on a form/document, individual line are represented using entryDetail which must be held together by entryHeaders - one primary amount per entryDetail line. However, you can list different accounts within the same entryDetail line that are associated with that amount. For example, if you capitalize for US GAAP and expense for IFRS, you can have multiple account structures within one entryDetail section. The generic nature of XBRL GL means that much of the  information that is common to each line, such as the customer, or the document attributes, must be repeated on each detail line, or be entered into one of the lines with an understanding that it is common to all. -->
+			<gl-cor:entryDetail>
+				<!-- A unique identifier for each entry detail line within an entry header, this should at the least be a counter, representing the line relative to others on the invoice form. -->
+				<gl-cor:lineNumber contextRef="now">1</gl-cor:lineNumber>
+				<!-- Accounts may or may not be associated with entry lines; they are omitted here for the sake of this instance. -->
+				<!-- Amounts in systems may be a signed number, a separate sign, and/or a separate debit/credit indicator. While the use of the sign indicator or the separate debit/credit indicator is more likely with journal entries, it is unlikely with invoices. -->
+				<!-- Amounts in XBRL GL when representing invoices and details can be tricky. In the simplest sense, the amount at the line level can  simply represent the extended amount of the line (the cost per is within the measurable structure). Sales tax, freight and other non-line items can be represented with a measurable item representing those items, or with a GL account representing those items. Should the user choose to represent the "total" amount, the individual lines or the total can be notated with the amountMemo to minimize the risk of amounts being double-counted if the invoices will later be turned into accounting entries.-->
+				<gl-cor:amount contextRef="now" decimals="2" unitRef="AUD">220</gl-cor:amount>
+				<!-- This date is the accounting significance date, not the date that entries were actually entered or posted to the system, nor the date on the document proper. -->
+				<gl-cor:postingDate contextRef="now">2005-10-14</gl-cor:postingDate>
+				<gl-bus:amountMemo contextRef="now">false</gl-bus:amountMemo>
+				<!-- Invoices to customers require customer information. This is held in the identifier structure. As systems may or may not store individual components of the structure all of the time - they may have the customer's number but not the name or vice versa, the only "mandatory" field here is the identifierType to state without question that this is a customer. It may be confusing that the customer must be identified for each line of an invoice. Why isn't the customer customer at the Header level? The answer - the generic nature of XBRL GL means it must accommodate both detail and summary style of entry. Rather than duplicate the identifier structure at both header and detail level, it is at the detail level.-->
+				<gl-cor:identifierReference>
+					<!-- Usually, internal and external tax identifiers are included
+				-->
+					<gl-cor:identifierCode contextRef="now">1130</gl-cor:identifierCode> 
+					<gl-cor:identifierExternalReference>
+						<gl-cor:identifierAuthorityCode contextRef="now">99 666 666 998</gl-cor:identifierAuthorityCode>
+						<gl-cor:identifierAuthority contextRef="now">ABN</gl-cor:identifierAuthority>
+					</gl-cor:identifierExternalReference> 
+					<!-- -->
+					<gl-cor:identifierDescription contextRef="now">Joe's Materials</gl-cor:identifierDescription>
+					<gl-cor:identifierType contextRef="now">C</gl-cor:identifierType>
+					<gl-bus:identifierAddress>
+						<gl-bus:identifierStreet contextRef="now">P O Box 9666</gl-bus:identifierStreet>
+						<gl-bus:identifierCity contextRef="now">SYDNEY</gl-bus:identifierCity>
+						<gl-bus:identifierStateOrProvince contextRef="now">QLD</gl-bus:identifierStateOrProvince>
+						<gl-bus:identifierCountry contextRef="now">AUSTRALIA</gl-bus:identifierCountry>
+						<gl-bus:identifierZipOrPostalCode contextRef="now">2001</gl-bus:identifierZipOrPostalCode>
+					</gl-bus:identifierAddress>
+				</gl-cor:identifierReference>
+				<!-- As noted previously, the identifierType of customer and the documentType of invoice provide automated guidance that this batch of information has to do with invoices to customers. -->
+				<gl-cor:documentType contextRef="now">invoice</gl-cor:documentType>
+				<!-- Document number in this representation is the number of the invoice. -->
+				<gl-cor:documentNumber contextRef="now">2</gl-cor:documentNumber>
+				<!-- Document reference is a textual description of the document. Some systems allow for manual entry of this information; some have a default format; some apply an internal counter/unique serial number. -->
+				<gl-cor:documentReference contextRef="now">Invoice#: 2 </gl-cor:documentReference>
+				<!-- The document date is the date printed on the document proper. There are a number of other fields for other dates associated with the handling of the document. -->
+				<gl-cor:documentDate contextRef="now">2005-10-14</gl-cor:documentDate>
+				<!-- Few systems track the place where the "physical" invoice is filed - whether paper or electronic - but as part of the audit trail, the documentLocation allows representation so one can find their way to the physical location (Bin 3, bottom drawer) or virtual location (c:\docMgmt\4$5%68.doc)  -->
+				<gl-bus:documentLocation contextRef="now">Fred's desk drawer.</gl-bus:documentLocation>
+				<!-- In the case of detail invoice listings, the detailComment is not significantly different than the documentReference. -->
+				<gl-cor:detailComment contextRef="now">Customer#: Joe's Materials Document#: 2 Date: 14/10/2005</gl-cor:detailComment>
+				<!-- Maturity date is the due date of the invoice. -->
+				<gl-cor:maturityDate contextRef="now">2005-10-21</gl-cor:maturityDate>
+				<!-- Terms is currently a free form expression of the terms of a document. The XBRL GL WG has had discussions of a structure or adoption of existing standards that enumerate this information-->
+				<gl-cor:terms contextRef="now">7 Days Date</gl-cor:terms>
+				<!-- The measurable structure is the primary tool for collecting data at the line level. It represents inventory, services, supplies, processes, KPIs, fixed assets and other things that are matched to a code (as opposed to an account) and collects numeric (measurableQuantity) and non-numeric information (measurableQualifier). A typical invoice would have one measurable per entryDetail line. The amount fields in the entryDetail would be the extension of measurableQuantity times MeasurableCostPerUnit. There are a number of elements within the measurable structure - at least ONE of measurableCode or measurableDescription is necessary; anything else is optional, used as needed. -->
+				<gl-bus:measurable>
+					<gl-bus:measurableDescription contextRef="now">MK II Widgets with improved spatulas</gl-bus:measurableDescription>
+					<gl-bus:measurableQuantity contextRef="now" decimals="2" unitRef="NotUsed">10</gl-bus:measurableQuantity>
+					<gl-bus:measurableUnitOfMeasure contextRef="now">EACH</gl-bus:measurableUnitOfMeasure>
+					<gl-bus:measurableCostPerUnit contextRef="now" decimals="2" unitRef="AUD">22</gl-bus:measurableCostPerUnit>
+				</gl-bus:measurable>
+				<gl-cor:taxes>
+					<gl-cor:taxAuthority contextRef="now">ABN</gl-cor:taxAuthority>
+					<gl-cor:taxAmount contextRef="now" decimals="2" unitRef="AUD">20</gl-cor:taxAmount>
+					<gl-cor:taxCode contextRef="now">G</gl-cor:taxCode>
+				</gl-cor:taxes>
+			</gl-cor:entryDetail>
+			<!-- As noted above, the additional entryDetail lines will likely need to duplicate the typical header information necessary to support that which is truly at the line level - the amount, the line number, the measurable. With agreement, that information could be provided in one entryDetail line (e.g., the first line) and then other lines could inherit that information if applications were designed to do so. -->
+			<gl-cor:entryDetail>
+				<gl-cor:lineNumber contextRef="now">2</gl-cor:lineNumber>
+				<gl-cor:amount contextRef="now" decimals="2" unitRef="AUD">25</gl-cor:amount>
+				<gl-cor:postingDate contextRef="now">2005-10-14</gl-cor:postingDate>
+				<gl-bus:amountMemo contextRef="now">false</gl-bus:amountMemo>
+				<gl-cor:identifierReference>
+					<!--  -->
+						<gl-cor:identifierCode contextRef="now">1130</gl-cor:identifierCode> 
+					<!-- -->
+					<gl-cor:identifierExternalReference>
+						<gl-cor:identifierAuthorityCode contextRef="now">99 666 666 998</gl-cor:identifierAuthorityCode>
+						<gl-cor:identifierAuthority contextRef="now">ABN</gl-cor:identifierAuthority>
+					</gl-cor:identifierExternalReference> 
+					<!-- -->
+					<gl-cor:identifierDescription contextRef="now">Joe's Materials</gl-cor:identifierDescription>
+					<gl-cor:identifierType contextRef="now">C</gl-cor:identifierType>
+					<gl-bus:identifierAddress>
+						<gl-bus:identifierStreet contextRef="now">10000 Second Avenue</gl-bus:identifierStreet>
+						<gl-bus:identifierCity contextRef="now">SYDNEY</gl-bus:identifierCity>
+						<gl-bus:identifierStateOrProvince contextRef="now">NSW</gl-bus:identifierStateOrProvince>
+						<gl-bus:identifierCountry contextRef="now">Australia</gl-bus:identifierCountry>
+						<gl-bus:identifierZipOrPostalCode contextRef="now">4999</gl-bus:identifierZipOrPostalCode>
+					</gl-bus:identifierAddress>
+				</gl-cor:identifierReference>
+				<gl-cor:documentType contextRef="now">invoice</gl-cor:documentType>
+				<gl-cor:documentNumber contextRef="now">2</gl-cor:documentNumber>
+				<gl-cor:documentReference contextRef="now">Invoice#: 2 </gl-cor:documentReference>
+				<gl-cor:documentDate contextRef="now">2005-10-14</gl-cor:documentDate>
+				<gl-bus:documentLocation contextRef="now">Fred's desk drawer.</gl-bus:documentLocation>
+				<gl-cor:detailComment contextRef="now">Customer#: Joe's Materials Document#: 2 Date: 14/10/2005</gl-cor:detailComment>
+				<gl-cor:maturityDate contextRef="now">2005-10-21</gl-cor:maturityDate>
+				<gl-cor:terms contextRef="now">7 Days Date</gl-cor:terms>
+				<gl-bus:measurable>
+					<gl-bus:measurableDescription contextRef="now">Service Kits for MK II widgets</gl-bus:measurableDescription>
+					<gl-bus:measurableQuantity contextRef="now" decimals="2" unitRef="NotUsed">5</gl-bus:measurableQuantity>
+					<gl-bus:measurableUnitOfMeasure contextRef="now">EACH</gl-bus:measurableUnitOfMeasure>
+					<gl-bus:measurableCostPerUnit contextRef="now" decimals="2" unitRef="AUD">5</gl-bus:measurableCostPerUnit>
+				</gl-bus:measurable>
+				<gl-cor:taxes>
+					<gl-cor:taxAuthority contextRef="now">ABN</gl-cor:taxAuthority>
+					<gl-cor:taxAmount contextRef="now" decimals="2" unitRef="AUD">2.27</gl-cor:taxAmount>
+					<gl-cor:taxCode contextRef="now">G</gl-cor:taxCode>
+				</gl-cor:taxes>
+			</gl-cor:entryDetail>
+		</gl-cor:entryHeader>
+		<gl-cor:entryHeader>
+			<!-- invoice 3 -->
+			<gl-cor:postedDate contextRef="now">2005-10-14</gl-cor:postedDate>
+			<gl-cor:enteredBy contextRef="now">Otto Wellwood</gl-cor:enteredBy>
+			<gl-cor:enteredDate contextRef="now">2005-10-14</gl-cor:enteredDate>
+			<gl-cor:sourceJournalID contextRef="now">sj</gl-cor:sourceJournalID>
+			<gl-bus:sourceJournalDescription contextRef="now">Sales Journal - Tax Invoices</gl-bus:sourceJournalDescription>
+			<gl-bus:entryOrigin contextRef="now">imported entry</gl-bus:entryOrigin>
+			<gl-cor:entryNumber contextRef="now">51</gl-cor:entryNumber>
+			<gl-cor:entryComment contextRef="now">Invoice: #3 Customer: Joe's Materials</gl-cor:entryComment>
+			<gl-cor:entryDetail>
+				<gl-cor:lineNumber contextRef="now">1</gl-cor:lineNumber>
+				<gl-cor:amount contextRef="now" decimals="2" unitRef="AUD">60</gl-cor:amount>
+				<gl-cor:postingDate contextRef="now">2005-10-14</gl-cor:postingDate>
+				<gl-bus:amountMemo contextRef="now">false</gl-bus:amountMemo>
+				<gl-cor:identifierReference>
+					<gl-cor:identifierDescription contextRef="now">Joe's Materials</gl-cor:identifierDescription>
+					<gl-cor:identifierType contextRef="now">C</gl-cor:identifierType>
+				</gl-cor:identifierReference>
+				<gl-cor:documentType contextRef="now">invoice</gl-cor:documentType>
+				<gl-cor:documentNumber contextRef="now">3</gl-cor:documentNumber>
+				<gl-cor:documentReference contextRef="now">Invoice#: 3 </gl-cor:documentReference>
+				<gl-cor:documentDate contextRef="now">2005-10-14</gl-cor:documentDate>
+				<gl-bus:documentLocation contextRef="now">Fred's desk drawer.</gl-bus:documentLocation>
+				<gl-cor:detailComment contextRef="now">Customer#: Joe's Materials Document#: 3 Date: 14/10/2005</gl-cor:detailComment>
+				<gl-cor:maturityDate contextRef="now">2005-10-14</gl-cor:maturityDate>
+				<gl-cor:terms contextRef="now">COD</gl-cor:terms>
+				<gl-bus:measurable>
+					<gl-bus:measurableDescription contextRef="now">Service Kits for MK I Widgets</gl-bus:measurableDescription>
+					<gl-bus:measurableQuantity contextRef="now" decimals="2" unitRef="NotUsed">20</gl-bus:measurableQuantity>
+					<gl-bus:measurableUnitOfMeasure contextRef="now">EACH</gl-bus:measurableUnitOfMeasure>
+					<gl-bus:measurableCostPerUnit contextRef="now" decimals="2" unitRef="AUD">3</gl-bus:measurableCostPerUnit>
+				</gl-bus:measurable>
+				<gl-cor:taxes>
+					<gl-cor:taxAuthority contextRef="now">ABN</gl-cor:taxAuthority>
+					<gl-cor:taxAmount contextRef="now" decimals="2" unitRef="AUD">5.45</gl-cor:taxAmount>
+					<gl-cor:taxCode contextRef="now">G</gl-cor:taxCode>
+				</gl-cor:taxes>
+			</gl-cor:entryDetail>
+			<gl-cor:entryDetail>
+				<gl-cor:lineNumber contextRef="now">2</gl-cor:lineNumber>
+				<gl-cor:amount contextRef="now" decimals="2" unitRef="AUD">80</gl-cor:amount>
+				<gl-cor:postingDate contextRef="now">2005-10-14</gl-cor:postingDate>
+				<gl-bus:amountMemo contextRef="now">false</gl-bus:amountMemo>
+				<gl-cor:identifierReference>
+					<!-- -->
+						<gl-cor:identifierCode contextRef="now">1130</gl-cor:identifierCode> 
+					<!-- -->
+					<gl-cor:identifierExternalReference>
+						<gl-cor:identifierAuthorityCode contextRef="now">99 666 666 998</gl-cor:identifierAuthorityCode>
+						<gl-cor:identifierAuthority contextRef="now">ABN</gl-cor:identifierAuthority>
+					</gl-cor:identifierExternalReference> 
+					<!-- -->
+					<gl-cor:identifierDescription contextRef="now">Joe's Materials</gl-cor:identifierDescription>
+					<gl-cor:identifierType contextRef="now">C</gl-cor:identifierType>
+					<gl-bus:identifierAddress>
+						<gl-bus:identifierStreet contextRef="now">1 Dust Road</gl-bus:identifierStreet>
+						<gl-bus:identifierCity contextRef="now">OUTHERE</gl-bus:identifierCity>
+						<gl-bus:identifierStateOrProvince contextRef="now">QLD</gl-bus:identifierStateOrProvince>
+						<gl-bus:identifierCountry contextRef="now">Australia</gl-bus:identifierCountry>
+						<gl-bus:identifierZipOrPostalCode contextRef="now">4899</gl-bus:identifierZipOrPostalCode>
+					</gl-bus:identifierAddress>
+				</gl-cor:identifierReference>
+				<gl-cor:documentType contextRef="now">invoice</gl-cor:documentType>
+				<gl-cor:documentNumber contextRef="now">3</gl-cor:documentNumber>
+				<gl-cor:documentReference contextRef="now">Invoice#: 3 </gl-cor:documentReference>
+				<gl-cor:documentDate contextRef="now">2005-10-14</gl-cor:documentDate>
+				<gl-bus:documentLocation contextRef="now">Fred's desk drawer.</gl-bus:documentLocation>
+				<gl-cor:detailComment contextRef="now">Customer#: Joe's Materials Document#: 3 Date: 14/10/2005</gl-cor:detailComment>
+				<gl-cor:maturityDate contextRef="now">2005-10-14</gl-cor:maturityDate>
+				<gl-cor:terms contextRef="now">COD</gl-cor:terms>
+				<gl-bus:measurable>
+					<gl-bus:measurableDescription contextRef="now">Bottled Water</gl-bus:measurableDescription>
+					<gl-bus:measurableQuantity contextRef="now" decimals="2" unitRef="NotUsed">100</gl-bus:measurableQuantity>
+					<gl-bus:measurableUnitOfMeasure contextRef="now">EACH</gl-bus:measurableUnitOfMeasure>
+					<gl-bus:measurableCostPerUnit contextRef="now" decimals="2" unitRef="AUD">.80</gl-bus:measurableCostPerUnit>
+				</gl-bus:measurable>
+				<gl-cor:taxes>
+					<gl-cor:taxAuthority contextRef="now">ABN</gl-cor:taxAuthority>
+					<gl-cor:taxAmount contextRef="now" decimals="2" unitRef="AUD">0</gl-cor:taxAmount>
+					<gl-cor:taxCode contextRef="now">F</gl-cor:taxCode>
+				</gl-cor:taxes>
+			</gl-cor:entryDetail>
+		</gl-cor:entryHeader>
+		<gl-cor:entryHeader>
+			<!-- invoice 5 -->
+			<gl-cor:postedDate contextRef="now">2005-10-14</gl-cor:postedDate>
+			<gl-cor:enteredBy contextRef="now">Otto Wellwood</gl-cor:enteredBy>
+			<gl-cor:enteredDate contextRef="now">2005-10-14</gl-cor:enteredDate>
+			<gl-cor:sourceJournalID contextRef="now">sj</gl-cor:sourceJournalID>
+			<gl-bus:sourceJournalDescription contextRef="now">Sales Journal - Tax Invoices</gl-bus:sourceJournalDescription>
+			<gl-bus:entryOrigin contextRef="now">imported entry</gl-bus:entryOrigin>
+			<gl-cor:entryNumber contextRef="now">52</gl-cor:entryNumber>
+			<gl-cor:entryComment contextRef="now">Invoice: #5 Customer: Jacquiline Hau Shearer's Snacks</gl-cor:entryComment>
+			<gl-cor:entryDetail>
+				<gl-cor:lineNumber contextRef="now">1</gl-cor:lineNumber>
+				<gl-cor:amount contextRef="now" decimals="2" unitRef="AUD">325</gl-cor:amount>
+				<gl-cor:postingDate contextRef="now">2005-10-14</gl-cor:postingDate>
+				<gl-bus:amountMemo contextRef="now">false</gl-bus:amountMemo>
+				<gl-cor:identifierReference>
+					<gl-cor:identifierDescription contextRef="now">Jacquiline Hau Shearer's Snacks</gl-cor:identifierDescription>
+					<gl-cor:identifierType contextRef="now">C</gl-cor:identifierType>
+				</gl-cor:identifierReference>
+				<gl-cor:documentType contextRef="now">invoice</gl-cor:documentType>
+				<gl-cor:documentNumber contextRef="now">5</gl-cor:documentNumber>
+				<gl-cor:documentReference contextRef="now">Invoice#: 5 </gl-cor:documentReference>
+				<gl-cor:documentDate contextRef="now">2005-10-14</gl-cor:documentDate>
+				<gl-bus:documentLocation contextRef="now">Fred's desk drawer.</gl-bus:documentLocation>
+				<gl-cor:detailComment contextRef="now">Customer#: Jacqueline Hau Shearer's Snacks Document#: 5 Date: 14/10/2005</gl-cor:detailComment>
+				<gl-cor:maturityDate contextRef="now">2005-10-21</gl-cor:maturityDate>
+				<gl-cor:terms contextRef="now">7 Days Date</gl-cor:terms>
+				<gl-bus:measurable>
+					<gl-bus:measurableDescription contextRef="now">Bottled Water Shrink Wrap Dozens</gl-bus:measurableDescription>
+					<gl-bus:measurableQuantity contextRef="now" decimals="2" unitRef="NotUsed">50</gl-bus:measurableQuantity>
+					<gl-bus:measurableUnitOfMeasure contextRef="now">EACH</gl-bus:measurableUnitOfMeasure>
+					<gl-bus:measurableCostPerUnit contextRef="now" decimals="2" unitRef="AUD">6.50</gl-bus:measurableCostPerUnit>
+				</gl-bus:measurable>
+				<gl-cor:taxes>
+					<gl-cor:taxAuthority contextRef="now">ABN</gl-cor:taxAuthority>
+					<gl-cor:taxAmount contextRef="now" decimals="2" unitRef="AUD">0</gl-cor:taxAmount>
+					<gl-cor:taxCode contextRef="now">F</gl-cor:taxCode>
+				</gl-cor:taxes>
+			</gl-cor:entryDetail>
+		</gl-cor:entryHeader>
+	</gl-cor:accountingEntries>
+</xbrli:xbrl>

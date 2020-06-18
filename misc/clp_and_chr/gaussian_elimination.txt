@@ -1,0 +1,74 @@
+Say you have some m equations in n variables, x1, x2, ... xn
+
+lhs1 = rhs1
+lhs2 = rhs2
+...
+lhs_m = rhs_m
+
+You can pick some variable, let's just say x1, and solve each equation for that variable and get an equivalent system:
+x1 = rearranged1
+x1 = rearranged2
+...
+x1 = rearranged_m
+
+rearranged1...m only contain variables x2, ..., xn
+
+You can "hold on" to the first equation, x1 = rearranged1, and then reduce this system to:
+
+rearranged1 = rearranged2
+...
+rearranged1 = rearranged_m
+
+This is now just a linear system w/ (m-1) equations and (n-1) variables. So you can just repeat the process until you run out of either equations or variables
+
+If m = n, then you eventually get down to 1 equation in 1 variable, and you can solve for that variable like normal.
+
+You can then substitute this back into each of the previous equations that you "held onto". This should reduce the previous equation you held onto to an equation in 1 variable, and you can then solve for that one, and repeat, all the way back up to x1 = rearranged1, at which point the system is solved.
+
+Some different considerations need to be made if m > n, or m < n, that's what I'm working on now.
+
+Example:
+x + y + z = 5
+x + 2y + 3z = 7
+x + 3y + 4z = 9
+
+Solve for x in each equation:
+x = 5 - y - z
+x = 7 - 2y - 3z
+x = 9 - 3y - 4z
+
+Hold onto x = 5 - y - z
+
+Equate the RHSs, reduce to a system with 2 equations in just y and z:
+
+5 - y - z = 7 - 2y - 3z
+5 - y - z = 9 - 3y - 4z
+
+Repeat:
+y = 2 - 2z
+y = 2 - (3/2)z
+
+Hold onto y = 2 - 2z
+
+Equate the RHSs, reduce to a system w/ 1 equation in just z:
+2 - 2z = 2 - (3/2)z
+
+Solve for z:
+z = 0
+
+Substitute z back into y = 2 - 2z:
+y = 2
+
+Substitute y and z back into x = 5 - y - z:
+x = 3
+
+Solution:
+x = 3
+y = 2
+z = 0
+
+Verify against Wolfram Alpha: 
+
+https://www.wolframalpha.com/input/?i=row+reduce+%7B%7B1%2C+1%2C+1%2C+5%7D%2C+%7B1%2C+2%2C+3%2C+7%7D%2C+%7B1%2C+3%2C+4%2C+9%7D%7D
+
+* The right-most column in the "Result" matrix

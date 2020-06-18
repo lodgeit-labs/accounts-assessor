@@ -1,0 +1,174 @@
+<?xml version="1.0" ?>
+<accountHierarchy>
+	<account name="Accounts" parent_role="root" normal_side="debit">
+		<account name="Net Assets" role="NetAssets">
+			<account name="Assets">
+				<account name="CashAndCashEquivalents" role="CashAndCashEquivalents">
+					<account name="Cash at Bank" role="Banks"/>
+				</account>
+				<account name="Contribution Receivable"/>
+				<account name="Dividends Receivable"/>
+				<account name="Dividend Reinvestment - Residual Account"/>
+				<account name="Formation Expenses"/>
+				<account name="Interest Receivable"/>
+				<account name="Other Assets"/>
+				<account name="Prepaid Expenses"/>
+				<account name="Sundry Debtors"/>
+                <account name="Investments" role="FinancialInvestments/Investments"/>
+				<account name="Distribution Receivable" subcategorize_by_investment="true"/>
+			</account>
+			<account name="Liabilities" normal_side="credit">
+				<account name="Amounts owing to other Persons"/>
+				<account name="GST Payable"/>
+                <account name="Income Tax Payable Control">
+				    <account name="Income Tax Payable" role="Income Tax Payable"/>
+				    <account name="Imputed Credits" role="Imputed Credits"/>
+                    <account name="Foreign and Other Tax Credits" role="Foreign And Other Tax Credits"/>
+				</account>
+				<account name="Tax Instalment paid"/>
+				<account name="Tax File Number Credits"/>
+				<account name="Australian Business Number Credits"/>
+				<account name="PAYG Payable"/>
+				<account name="Deferred Tax Liability"/>
+				<account name="Data Clearing Account"/>
+				<account name="SUSPENSE"/>
+			</account>
+		</account>
+		<account name="Equity" role="Equity" normal_side="credit">
+			<account name="aggregate historical">
+			    <account name="Bank Opening Balances"></account>
+                <account name="HistoricalEarnings" role="HistoricalEarnings"></account>
+                <account name="Profit Attribution - historical"></account>
+            </account>
+            <account name="aggregate current">
+    			<account name="CurrentEarnings" role="CurrentEarnings"/>
+                <account name="Profit Attribution"></account>
+    		</account>
+			<account name="Members" role="smsf_equity">
+				<account name="Opening Balance - Preserved/Taxable"/>
+				<account name="Opening Balance - Preserved/Tax Free"/>
+				<account name="Opening Balance - Unrestricted Non Preserved/Taxable"/>
+				<account name="Opening Balance - Unrestricted Non Preserved/Tax Free"/>
+				<account name="Opening Balance - Restricted Non Preserved/Taxable"/>
+				<account name="Opening Balance - Restricted Non Preserved/Tax Free"/>
+				<account name="Employer Contributions - Concessional"/>
+				<account name="Member/Personal Contributions - Concessional"/>
+				<account name="Member/Personal Contributions - Non Concessional"/>
+				<account name="Other Contributions"/>
+				<account name="Transfers In - Preserved/Taxable"/>
+				<account name="Transfers In - Preserved/Tax Free"/>
+				<account name="Transfers In - Unrestricted Non Preserved/Taxable"/>
+				<account name="Transfers In - Unrestricted Non Preserved/Tax Free"/>
+				<account name="Transfers In - Restricted Non Preserved/Taxable"/>
+				<account name="Transfers In - Restricted Non Preserved/Tax Free"/>
+				<account name="Pensions Paid - Preserved/Taxable"/>
+				<account name="Pensions Paid - Preserved/Tax Free"/>
+				<account name="Pensions Paid - Unrestricted Non Preserved/Taxable"/>
+				<account name="Pensions Paid - Unrestricted Non Preserved/Tax Free"/>
+				<account name="Pensions Paid - Restricted Non Preserved/Taxable"/>
+				<account name="Pensions Paid - Restricted Non Preserved/Tax Free"/>
+				<account name="Benefits Paid - Preserved/Taxable"/>
+				<account name="Benefits Paid - Preserved/Tax Free"/>
+				<account name="Benefits Paid - Unrestricted Non Preserved/Taxable"/>
+				<account name="Benefits Paid - Unrestricted Non Preserved/Tax Free"/>
+				<account name="Benefits Paid - Restricted Non Preserved/Taxable"/>
+				<account name="Benefits Paid - Restricted Non Preserved/Tax Free"/>
+				<account name="Transfers Out - Preserved/Taxable"/>
+				<account name="Transfers Out - Preserved/Tax Free"/>
+				<account name="Transfers Out - Unrestricted Non Preserved/Taxable"/>
+				<account name="Transfers Out - Unrestricted Non Preserved/Tax Free"/>
+				<account name="Transfers Out - Restricted Non Preserved/Taxable"/>
+				<account name="Transfers Out - Restricted Non Preserved/Tax Free"/>
+				<account name="Life Insurance Premiums - Preserved/Taxable"/>
+				<account name="Life Insurance Premiums - Preserved/Tax Free"/>
+				<account name="Life Insurance Premiums - Unrestricted Non Preserved/Taxable"/>
+				<account name="Life Insurance Premiums - Unrestricted Non Preserved/Tax Free"/>
+				<account name="Life Insurance Premiums - Restricted Non Preserved/Taxable"/>
+				<account name="Life Insurance Premiums - Restricted Non Preserved/Tax Free"/>
+				<account name="Share of Profit/(Loss) - Preserved/Tax Free"/>
+				<account name="Share of Profit/(Loss) - Preserved/Taxable"/>
+				<account name="Share of Profit/(Loss) - Unrestricted Non Preserved/Tax Free"/>
+				<account name="Share of Profit/(Loss) - Unrestricted Non Preserved/Taxable"/>
+				<account name="Share of Profit/(Loss) - Restricted Non Preserved/Tax Free"/>
+				<account name="Share of Profit/(Loss) - Restricted Non Preserved/Taxable"/>
+				<account name="Income Tax - Preserved/Taxable"/>
+				<account name="Income Tax - Preserved/Tax Free"/>
+				<account name="Income Tax - Unrestricted Non Preserved/Taxable"/>
+				<account name="Income Tax - Unrestricted Non Preserved/Tax Free"/>
+				<account name="Income Tax - Restricted Non Preserved/Taxable"/>
+				<account name="Income Tax - Restricted Non Preserved/Tax Free"/>
+				<account name="Contribution Tax - Preserved/Taxable"/>
+				<account name="Contribution Tax - Preserved/Tax Free"/>
+				<account name="Contribution Tax - Unrestricted Non Preserved/Taxable"/>
+				<account name="Contribution Tax - Unrestricted Non Preserved/Tax Free"/>
+				<account name="Contribution Tax - Restricted Non Preserved/Taxable"/>
+				<account name="Contribution Tax - Restricted Non Preserved/Tax Free"/>
+				<account name="Internal Transfers In - Preserved/Taxable"/>
+				<account name="Internal Transfers In - Preserved/Tax Free"/>
+				<account name="Internal Transfers In - Unrestricted Non Preserved/Taxable"/>
+				<account name="Internal Transfers In - Unrestricted Non Preserved/Tax Free"/>
+				<account name="Internal Transfers In - Restricted Non Preserved/Taxable"/>
+				<account name="Internal Transfers In - Restricted Non Preserved/Tax Free"/>
+				<account name="Internal Transfers Out - Preserved/Taxable"/>
+				<account name="Internal Transfers Out - Preserved/Tax Free"/>
+				<account name="Internal Transfers Out - Unrestricted Non Preserved/Taxable"/>
+				<account name="Internal Transfers Out - Unrestricted Non Preserved/Tax Free"/>
+				<account name="Internal Transfers Out - Restricted Non Preserved/Taxable"/>
+				<account name="Internal Transfers Out - Restricted Non Preserved/Tax Free"/>
+			</account>
+		</account>
+		<account name="P&amp;L" role="ComprehensiveIncome" normal_side="credit">
+			<account name="Income">
+				<account name="Currency Movement" role="CurrencyMovement"/>
+				<account name="Capital GainLoss" role="TradingAccounts/Capital GainLoss">
+					<account name="uncategorized" subcategorize_by_investment="true"/>
+				</account>
+				<account name="Capital Gains/Losses _ taxable"/>
+				<account name="Capital Gains/Losses _ Non taxable"/>
+				<account name="Distribution Received" role="Distribution Received" subcategorize_by_investment="true"/>
+                <account name="Dividends Received"/>
+                <account name="Interest Received - control">
+				    <account name="Interest Received"/>
+    				<account name="Interest Received - by bank" subcategorize_by_bank="true"/>
+					<account name="ATO Interest"/>
+				</account>
+				<account name="Rent Received"/>
+                <account name="Employer Contribution"/>
+
+				<!-- fixme,.update excel sheets to do the subcategorization -->
+				<account name="Contribution Received" role="Contribution Received" subcategorize_by_smsf_member="true"/>
+
+                <account name="Transfer In"/>
+                <account name="PL Transfers In - Preserved/Tax Free" subcategorize_by_smsf_member="true"/>
+                <account name="PL Transfers In - Preserved/Taxable" subcategorize_by_smsf_member="true"/>
+				<account name="Other Income"/>
+				<account name="ChangeInMarketValue"/>
+			</account>
+			<account name="Expenses" normal_side="debit">
+				<account name="Accountancy Fees"/>
+				<account name="Adminstration Costs"/>
+				<account name="ATO Supervisory Levy" role="ATO Supervisory Levy"/>
+				<account name="Audit Fees"/>
+				<account name="Bank Charges"/>
+				<account name="Rental Expenses"/>
+				<account name="Investment Expenses"/>
+				<account name="Fines"/>
+				<account name="Legal Fees"/>
+				<account name="Income Tax Expenses" role="Income Tax Expenses"/>
+				<account name="Writeback Of Deferred Tax" role="Writeback Of Deferred Tax"/>
+				<account name="Life Insurance Premium"/>
+				<account name="Pension paid"/>
+				<account name="Benefits Paid"/>
+				<account name="Tranfer Out"/>
+                <account name="Filling Fees"/>
+                <account name="Drawings"/>
+			</account>
+		</account>
+	</account>
+</accountHierarchy>
+
+
+<!-- <account name="			 < member 1/member 2/.. >
+<account name="				< Preserved/Unrestricted/Restricted >
+<account name="					< Taxable / Tax Free > -->
+

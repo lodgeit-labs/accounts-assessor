@@ -1,0 +1,27 @@
+/*
+solution diffing:
+(or anything diffing)
+(after some experience with various xml and json differs, while working on endpoint_tests)
+the result of a differ should be some human-readable descriptions of the differences. Declarations of these should direct the differ search like so:
+
+result('are the same', X, X).
+
+result('there are additional Items in X'(Items), X, Y) :-
+	'X is Y with Items added'(X, Y, Items)
+
+result('item in X is different'(N), X, Y) :-
+	'X is Y with item N changed'(X, Y, N).
+
+result('is a combination of'(R1, R2), X, Y) :-
+	result(R1, X, X2),
+	result(R2, X2, Y).
+
+depth of 'result' recursion would be tracked, looking for minimal solution.
+
+
+'X is Y with Items added'(X, Y, Items) :-
+...
+
+by extension, an explanation of differences between multiple solutions/items may be searched for, trying each solution against each other, trying to minimize the size of the explanation.
+
+*/

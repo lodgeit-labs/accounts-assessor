@@ -1,0 +1,122 @@
+version: '3.7'
+
+services:
+
+#  agraph:
+#    image: franzinc/agraph
+#    networks:
+#    - robust_backend
+#    deploy:
+#      replicas: 1
+#      update_config:
+#        parallelism: 2
+#        delay: 10s
+#      restart_policy:
+#        condition: on-failure
+#    volumes:
+#      - "/etc/localtime:/etc/localtime:ro"
+#    ports:
+#    - 10036:10035
+
+  rabbitmq:
+    image: rabbitmq
+    networks:
+      - robust_backend
+      #- host
+    deploy:
+      replicas: 1
+      update_config:
+        parallelism: 2
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+    volumes:
+      - "/etc/localtime:/etc/localtime:ro"
+
+  frontend-server:
+    image: koo5/frontend_server:latest
+    environment:
+      SECRET__INTERNAL_SERVICES_SERVER_URL: "http://internal-services:17788"
+      SECRET__CELERY_BROKER_URL: "amqp://guest:guest@rabbitmq:5672//"
+    volumes:
+      - my-vol:/app/server_root/tmp
+      - "/etc/localtime:/etc/localtime:ro"
+    networks:
+      - robust_backend
+      - robust_frontend
+      #- host
+    depends_on:
+      - rabbitmq
+      - internal-services
+      - internal-workers
+    deploy:
+      placement:
+        constraints: [node.role == manager]
+      restart_policy:
+        condition: on-failure
+    ports:
+      - 7788:7788
+
+
+  internal-services:
+    image: koo5/internal_services:latest
+    volumes:
+      - my-vol:/app/server_root/tmp
+      - "/etc/localtime:/etc/localtime:ro"
+    networks:
+      - robust_backend
+      #- host
+    #ports:
+      #- 17788:17788
+      #- target: 17788
+      #  published: 17788
+      #  protocol: tcp
+      #  mode: ingress
+    depends_on:
+      - rabbitmq
+    deploy:
+      replicas: 1
+      update_config:
+        parallelism: 2
+        delay: 10s
+      placement:
+        constraints: [node.role == manager]
+      restart_policy:
+        condition: on-failure
+
+  internal-workers:
+    image: koo5/internal_workers:latest
+    environment:
+      SECRET__INTERNAL_SERVICES_SERVER_URL: "http://internal-services:17788"
+      SECRET__CELERY_BROKER_URL: "amqp://guest:guest@rabbitmq:5672//"
+    volumes:
+      - my-vol:/app/server_root/tmp
+      - "/etc/localtime:/etc/localtime:ro"
+      - "/tmp/.X11-unix:/tmp/.X11-unix:rw"
+    networks:
+      - robust_backend
+      #- host
+    depends_on:
+      - rabbitmq
+      - internal-services
+    deploy:
+      replicas: 1
+      update_config:
+        parallelism: 2
+        delay: 10s
+      placement:
+        constraints: [node.role == manager]
+      restart_policy:
+        condition: on-failure
+
+networks:
+  robust_frontend:
+
+  robust_backend:
+
+#  host:
+#    external:
+#      name: host
+
+volumes:
+  my-vol:

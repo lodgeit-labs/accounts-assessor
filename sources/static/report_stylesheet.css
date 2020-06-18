@@ -1,0 +1,10 @@
+.money_amount {
+      white-space: nowrap;
+}
+th, td {
+  padding: 10px;
+}
+body
+{
+    font-family: Helvetica, Arial, sans-serif;
+}

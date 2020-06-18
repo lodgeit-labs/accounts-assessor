@@ -1,0 +1,1 @@
+a higher-level model of facts and aspects, independent of xbrl_implementation

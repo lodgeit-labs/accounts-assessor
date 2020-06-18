@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Sample Journal entries with timing differences file for XBRL GL 2005 with annotations. Version 1.0.50729.1 -->
+<!-- This file contains data fields considered very important to representing its subject. Annotations have been provided for the "most important" of those fields. XBRL GL has many other fields that could be helpful in expressing the information, but have been omitted because their presence is more circumstantial. This file was created for educational purposes only, does not represent real company data and we welcome suggestions on improvement. Contact xbrlgl@xbrl.org with comments. -->
+<!-- The "root" of every XBRL file ("instance document") is xbrl. -->
+<xbrli:xbrl xmlns:xbrli="http://www.xbrl.org/2003/instance" xmlns:xbrll="http://www.xbrl.org/2003/linkbase" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:gl-cor="http://www.xbrl.org/int/gl/cor/2005-11-07" xmlns:gl-muc="http://www.xbrl.org/int/gl/muc/2005-11-07" xmlns:gl-bus="http://www.xbrl.org/int/gl/bus/2005-11-07" xmlns:gl-plt="http://www.xbrl.org/int/gl/plt/2005-11-07" xmlns:iso4217="http://www.xbrl.org/2003/iso4217" xmlns:iso639="http://www.xbrl.org/2005/iso639" xsi:schemaLocation="http://www.xbrl.org/int/gl/plt/2005-11-07 ../plt/case-c-b-m-u-t/gl-plt-2005-11-07.xsd">
+	<xbrll:schemaRef xlink:type="simple" xlink:arcrole="http://www.w3.org/1999/xlink/properties/linkbase" xlink:href="../plt/case-c-b-m-u-t/gl-plt-2005-11-07.xsd"/>
+	<!-- The container for XBRL GL, accountingEntries, is not the root of an XBRL GL file - the root, as with all XBRL files, is xbrl. This means that a single XBRL GL file can store one or more virtual XBRL GL files, through one or more accountingEntries structures with data inside. The primary key to understanding an XBRL GL file is the entriesType. A single physical XBRL GL file can have multiple accountingEntries structures to represent both transactions and master files; the differences are signified by the appropriate entriesType enumerated values. -->
+	<gl-cor:accountingEntries>
+		<!-- Because entriesType is strongly suggested, documentInfo will be required. -->
+		<gl-cor:documentInfo>
+			<!-- This field, entriesType, provides the automated guidance on the purpose of the XBRL GL information. The value "entries" is less specific than "journal" or "ledger". -->
+			<gl-cor:entriesType contextRef="now">entries</gl-cor:entriesType>
+			<!-- Like a serial number, this field, uniqueID, provides a place to uniquely identify/track a series of entries. It is like less relevant for ad-hoc reports. XBRL GL provides for later correction through replacement or augmentation of transferred information. -->
+			<gl-cor:uniqueID contextRef="now">001</gl-cor:uniqueID>
+			<gl-cor:language contextRef="now">iso639:en</gl-cor:language>
+			<!-- The date associated with the creation of the data reflected within the associated accountingEntries section. Somewhat like a "printed date" on a paper report -->
+			<gl-cor:creationDate contextRef="now">2005-07-05</gl-cor:creationDate>
+			<gl-bus:creator contextRef="now">XBRL GL Working Group</gl-bus:creator>
+			<!-- A description related to the batch of information express in the accountingEntries structure. Why was this batch of information put together and published? It would be helpful to put that information in the entriesComment. -->
+			<gl-cor:entriesComment contextRef="now">A best practice example of entries with book to tax differences instance document</gl-cor:entriesComment>
+			<!-- The period of time reflected by the journal entries. Ideally, all entries have their accounting significance within that period, and all of the entries with an accounting signification within that period are included. -->
+			<gl-cor:periodCoveredStart contextRef="now">2005-06-01</gl-cor:periodCoveredStart>
+			<gl-cor:periodCoveredEnd contextRef="now">2005-06-30</gl-cor:periodCoveredEnd>
+			<gl-bus:sourceApplication contextRef="now">Hitachi mapping tool</gl-bus:sourceApplication>
+			<gl-muc:defaultCurrency contextRef="now">iso4217:usd</gl-muc:defaultCurrency>
+		</gl-cor:documentInfo>
+		<!-- Typically, an export from an accounting system does not carry with it information specifically about the company. However, the name of the company would be a very good thing to include with the file, making the entityInformation tuple necessary. -->
+		<gl-cor:entityInformation>
+			<!-- The name of the company would be a very good thing to include with the file; this structure and its content are where that would be stored. -->
+			<gl-bus:organizationIdentifiers>
+				<gl-bus:organizationIdentifier contextRef="now">ABC Company</gl-bus:organizationIdentifier>
+				<gl-bus:organizationDescription contextRef="now">Company Name</gl-bus:organizationDescription>
+			</gl-bus:organizationIdentifiers>
+		</gl-cor:entityInformation>
+		<!-- Journal entries require entry in entryHeader and entryDetail. Few files can be represented using only documentInfo and entityInformation sections, but it is certainly possible. -->
+		<!-- Accounting for taxes and reconciliation between multiple GAAPs can be faciliated with XBRL GL. The advent of the US M-3 form is one example of needing better tools to handle book to tax differences.
+
+This instance will represent two journal entries, one representing a permanent book to tax difference and the next representing a timing difference. The entries may not be best practices entries, but we hope they help express the power of XBRL GL.
+
+Many companies do not record book and tax entries simultaneously, but do a later series of adjustments for tax purposes. This example does not illustrate that situation, but XBRL GL does allow a wide variety of other tax related representations and circumstances. -->
+		<!-- Entry 1: A timing difference example: depreciation lives and methods differ between book and tax, resulting in different entries for the period.
+
+A/C 6200 Depreciation expense				5000
+A/C 1451 Accumulated Depreciation				5000
+Current period depreciation expense - books
+
+A/C 6200 Depreciation expense				6000
+A/C 1451 Accumulated Depreciation				6000
+Current period depreciation expense - tax
+-->
+		<gl-cor:entryHeader>
+			<gl-cor:enteredBy contextRef="now">Otto Wellwood</gl-cor:enteredBy>
+			<gl-cor:enteredDate contextRef="now">2005-07-01</gl-cor:enteredDate>
+			<!-- This is an enumerated entry that ties the source journal from the reporting organization to a fixed list that helps in data interchange. -->
+			<gl-cor:sourceJournalID contextRef="now">gj</gl-cor:sourceJournalID>
+			<!-- Since sourceJournalID is enumerated (you must pick one of the entries already identified within XBRL GL), sourceJournalDescription lets you capture the actual code or term used to descibe the source journal by the organization. -->
+			<gl-bus:sourceJournalDescription contextRef="now">JE</gl-bus:sourceJournalDescription>
+			<!-- An enumerated field to differentiate between details that represent actual accounting entries - as opposed to entries for budget purposes, planning purposes, or other entries that may not contribute to the financial statements. -->
+			<gl-cor:entryType contextRef="now">standard</gl-cor:entryType>
+			<!-- When capturing journal entries, you have a series of debits and credits that (normally) add up to zero. The hierarchical nature of XBRL GL keeps the entry detail lines associated with the entry header by a parent-child relationship. The unique identifier of each entry is entered here. -->
+			<gl-cor:entryNumber contextRef="now">1</gl-cor:entryNumber>
+			<!-- The reason for making an entry goes here. As both book and tax entries in out example go into one entryHeader, there is a common comment. -->
+			<gl-cor:entryComment contextRef="now">Current period depreciation expense</gl-cor:entryComment>
+			<!-- The more sophisticated tool for tracking book to tax differences may be the various organizationAccountingMethod related elements, but bookTaxDifference is pretty clear; the entries as captured within this entryHeader are creating a permanent or timing difference! Our first entry, depreciation, represented the timing difference, so we use the enumerated value "temporary". -->
+			<gl-cor:bookTaxDifference contextRef="now">temporary</gl-cor:bookTaxDifference>
+			<!-- Individual lines of journal entries will normally require their own entryDetail section - one primary amount per entryDetail line. However, you can list different accounts within the same entryDetail line that are associated with that amount. In this case, we will not try to merge the one example of book and tax line being the same into one entryDetail line. -->
+			<gl-cor:entryDetail>
+				<!-- A unique identifier for each entry detail line within an entry header, this should at the least be a counter. -->
+				<gl-cor:lineNumber contextRef="now">1</gl-cor:lineNumber>
+				<!-- If account information is represented elsewhere or as a master file, some of the fields below would not need to be here (signified by *) -->
+				<gl-cor:account>
+					<!-- The account number is the basis for posting journal entries. In some cases, accounting systems used by small organizations do not use account numbers/codes, but only use a descriptive name for the account.  -->
+					<gl-cor:accountMainID contextRef="now">6200</gl-cor:accountMainID>
+					<!-- In most cases, the description is given to help a human reader; the accountMainID would be sufficient for data exchange purposes. As noted previously, some implementations use the description as the primary identifier of the account.  -->
+					<gl-cor:accountMainDescription contextRef="now">Depreciation expense</gl-cor:accountMainDescription>
+					<!-- mainAccountType, not depicted here, could also help by specifically identifying that the accounting is an income, expense, gain or loss; these are the primary M-3 oriented items. -->
+					<!-- XBRL GL has more than one tool to differentiate between book and tax entries. One is through the accountPurposeCode. The other is through the organizationAccountingMethod elements. For simplicity in this example, we will use the accountPurposeCode. -->
+					<gl-cor:accountPurposeCode contextRef="now">usgaap</gl-cor:accountPurposeCode>
+					<gl-cor:accountType contextRef="now">account</gl-cor:accountType>
+				</gl-cor:account>
+				<!-- What is a journal entry without a (monetary) amount? While XBRL GL may usher in journal entries that also incorporate quantities, to reflect the detail of business metrics, the (monetary) amount is another key and obvious fields. XBRL GL has been designed to reflect how popular accounting systems store amounts - some combination of a signed amount (e.g., 5, -10), a separate sign (entered into signOfAmount) and a separate place to indicate the number is associated with a debit or credit (debitCreditCode). -->
+				<gl-cor:amount contextRef="now" decimals="2" unitRef="usd">5000</gl-cor:amount>
+				<!-- Depending on the originating system, this field may contain whether the amount is associated with a debit or credit. Interpreting the number correctly for import requires an understanding of the three related amount fields - amount, debitCreditCode and sign of amount. -->
+				<gl-cor:debitCreditCode contextRef="now">D</gl-cor:debitCreditCode>
+				<!-- Depending on the originating system, this field may contain whether the amount is signed (+ or -) separately from the amount field itself. Interpreting the number correctly for import requires an understanding of the three related amount fields - amount, debitCreditCode and sign of amount. -->
+				<!-- <gl-cor:signOfAmount contextRef="now"/> -->
+				<!-- This date is the accounting significance date, not the date that entries were actually entered or posted to the system. -->
+				<gl-cor:postingDate contextRef="now">2005-06-30</gl-cor:postingDate>
+				<!-- This enumerated field is used to specifically state whether the entries have been posted to the originating system or not. -->
+				<gl-cor:postingStatus contextRef="now">posted</gl-cor:postingStatus>
+				<gl-cor:detailComment contextRef="now">Current period depreciation expense - books</gl-cor:detailComment>
+			</gl-cor:entryDetail>
+			<gl-cor:entryDetail>
+				<gl-cor:lineNumber contextRef="now">2</gl-cor:lineNumber>
+				<gl-cor:account>
+					<gl-cor:accountMainID contextRef="now">1451</gl-cor:accountMainID>
+					<gl-cor:accountMainDescription contextRef="now">Accumulated Depreciation</gl-cor:accountMainDescription>
+					<gl-cor:accountPurposeCode contextRef="now">usgaap</gl-cor:accountPurposeCode>
+					<gl-cor:accountType contextRef="now">account</gl-cor:accountType>
+				</gl-cor:account>
+				<gl-cor:amount contextRef="now" decimals="2" unitRef="usd">5000</gl-cor:amount>
+				<gl-cor:debitCreditCode contextRef="now">C</gl-cor:debitCreditCode>
+				<gl-cor:postingDate contextRef="now">2005-06-30</gl-cor:postingDate>
+				<gl-cor:postingStatus contextRef="now">posted</gl-cor:postingStatus>
+				<gl-cor:detailComment contextRef="now">Current period depreciation expense - books</gl-cor:detailComment>
+			</gl-cor:entryDetail>
+			<!-- Our tax side of this entry is very similar to the book entry - it has a different amount and a different accountType -->
+			<gl-cor:entryDetail>
+				<gl-cor:lineNumber contextRef="now">3</gl-cor:lineNumber>
+				<gl-cor:account>
+					<gl-cor:accountMainID contextRef="now">6200</gl-cor:accountMainID>
+					<gl-cor:accountMainDescription contextRef="now">Depreciation Expense</gl-cor:accountMainDescription>
+					<gl-cor:accountPurposeCode contextRef="now">tax</gl-cor:accountPurposeCode>
+					<gl-cor:accountType contextRef="now">account</gl-cor:accountType>
+				</gl-cor:account>
+				<gl-cor:amount contextRef="now" decimals="2" unitRef="usd">6000</gl-cor:amount>
+				<gl-cor:debitCreditCode contextRef="now">D</gl-cor:debitCreditCode>
+				<gl-cor:postingDate contextRef="now">2005-06-30</gl-cor:postingDate>
+				<gl-cor:postingStatus contextRef="now">posted</gl-cor:postingStatus>
+				<gl-cor:detailComment contextRef="now">Current period depreciation expense - tax</gl-cor:detailComment>
+			</gl-cor:entryDetail>
+			<gl-cor:entryDetail>
+				<gl-cor:lineNumber contextRef="now">4</gl-cor:lineNumber>
+				<gl-cor:account>
+					<gl-cor:accountMainID contextRef="now">1421</gl-cor:accountMainID>
+					<gl-cor:accountMainDescription contextRef="now">Accumulated Depreciation</gl-cor:accountMainDescription>
+					<gl-cor:accountPurposeCode contextRef="now">tax</gl-cor:accountPurposeCode>
+					<gl-cor:accountType contextRef="now">account</gl-cor:accountType>
+				</gl-cor:account>
+				<gl-cor:amount contextRef="now" decimals="2" unitRef="usd">6000</gl-cor:amount>
+				<gl-cor:debitCreditCode contextRef="now">C</gl-cor:debitCreditCode>
+				<gl-cor:postingDate contextRef="now">2005-06-30</gl-cor:postingDate>
+				<gl-cor:postingStatus contextRef="now">posted</gl-cor:postingStatus>
+			</gl-cor:entryDetail>
+		</gl-cor:entryHeader>
+		<!-- 
+Entry 2: A permanent difference example: Tax-exempt interest
+
+A/C 1300 Accrued Interest 			500
+A/C 5200 Interest income					500
+Record current period interest earned
+
+A/C 1300 Accrued Interest 			500
+A/C 9999 Clearing							500
+Record current period tax exempt interest earned -->
+		<gl-cor:entryHeader>
+			<gl-cor:enteredBy contextRef="now">Otto Wellwood</gl-cor:enteredBy>
+			<gl-cor:enteredDate contextRef="now">2005-07-01</gl-cor:enteredDate>
+			<gl-cor:sourceJournalID contextRef="now">gj</gl-cor:sourceJournalID>
+			<gl-bus:sourceJournalDescription contextRef="now">JE</gl-bus:sourceJournalDescription>
+			<gl-cor:entryType contextRef="now">standard</gl-cor:entryType>
+			<gl-cor:entryNumber contextRef="now">2</gl-cor:entryNumber>
+			<gl-cor:entryComment contextRef="now">Current period tax exempt interest</gl-cor:entryComment>
+			<!-- Our second entry, tax exempt income, represented the permanent difference, so we use the enumerated value "permanent". -->
+			<gl-cor:bookTaxDifference contextRef="now">permanent</gl-cor:bookTaxDifference>
+			<!-- Book side to entry -->
+			<gl-cor:entryDetail>
+				<gl-cor:lineNumber contextRef="now">1</gl-cor:lineNumber>
+				<gl-cor:account>
+					<gl-cor:accountMainID contextRef="now">1300</gl-cor:accountMainID>
+					<gl-cor:accountMainDescription contextRef="now">Accrued interest</gl-cor:accountMainDescription>
+					<gl-cor:accountPurposeCode contextRef="now">usgaap</gl-cor:accountPurposeCode>
+					<gl-cor:accountType contextRef="now">account</gl-cor:accountType>
+				</gl-cor:account>
+				<gl-cor:amount contextRef="now" decimals="2" unitRef="usd">500</gl-cor:amount>
+				<gl-cor:debitCreditCode contextRef="now">D</gl-cor:debitCreditCode>
+				<gl-cor:postingDate contextRef="now">2005-06-30</gl-cor:postingDate>
+				<gl-cor:postingStatus contextRef="now">posted</gl-cor:postingStatus>
+				<gl-cor:detailComment contextRef="now">Record current period interest earned</gl-cor:detailComment>
+			</gl-cor:entryDetail>
+			<gl-cor:entryDetail>
+				<gl-cor:lineNumber contextRef="now">2</gl-cor:lineNumber>
+				<gl-cor:account>
+					<gl-cor:accountMainID contextRef="now">5200</gl-cor:accountMainID>
+					<gl-cor:accountMainDescription contextRef="now">Interest income</gl-cor:accountMainDescription>
+					<gl-cor:accountPurposeCode contextRef="now">usgaap</gl-cor:accountPurposeCode>
+					<gl-cor:accountType contextRef="now">account</gl-cor:accountType>
+				</gl-cor:account>
+				<gl-cor:amount contextRef="now" decimals="2" unitRef="usd">500</gl-cor:amount>
+				<gl-cor:debitCreditCode contextRef="now">C</gl-cor:debitCreditCode>
+				<gl-cor:postingDate contextRef="now">2005-06-30</gl-cor:postingDate>
+				<gl-cor:postingStatus contextRef="now">posted</gl-cor:postingStatus>
+				<gl-cor:detailComment contextRef="now">Record current period interest earned</gl-cor:detailComment>
+			</gl-cor:entryDetail>
+			<!-- Our tax side of this entry. -->
+			<gl-cor:entryDetail>
+				<gl-cor:lineNumber contextRef="now">3</gl-cor:lineNumber>
+				<gl-cor:account>
+					<gl-cor:accountMainID contextRef="now">1300</gl-cor:accountMainID>
+					<gl-cor:accountMainDescription contextRef="now">Accrued Interest</gl-cor:accountMainDescription>
+					<gl-cor:accountPurposeCode contextRef="now">tax</gl-cor:accountPurposeCode>
+					<gl-cor:accountType contextRef="now">account</gl-cor:accountType>
+				</gl-cor:account>
+				<gl-cor:amount contextRef="now" decimals="2" unitRef="usd">500</gl-cor:amount>
+				<gl-cor:debitCreditCode contextRef="now">D</gl-cor:debitCreditCode>
+				<gl-cor:postingDate contextRef="now">2005-06-30</gl-cor:postingDate>
+				<gl-cor:postingStatus contextRef="now">posted</gl-cor:postingStatus>
+				<gl-cor:detailComment contextRef="now">Record current period tax exempt interest earned</gl-cor:detailComment>
+			</gl-cor:entryDetail>
+			<gl-cor:entryDetail>
+				<gl-cor:lineNumber contextRef="now">4</gl-cor:lineNumber>
+				<gl-cor:account>
+					<!-- Sorry about this for the accounting purists -->
+					<gl-cor:accountMainID contextRef="now">9999</gl-cor:accountMainID>
+					<gl-cor:accountMainDescription contextRef="now">Clearing</gl-cor:accountMainDescription>
+					<gl-cor:accountPurposeCode contextRef="now">tax</gl-cor:accountPurposeCode>
+					<gl-cor:accountType contextRef="now">account</gl-cor:accountType>
+				</gl-cor:account>
+				<gl-cor:amount contextRef="now" decimals="2" unitRef="usd">500</gl-cor:amount>
+				<gl-cor:debitCreditCode contextRef="now">C</gl-cor:debitCreditCode>
+				<gl-cor:postingDate contextRef="now">2005-06-30</gl-cor:postingDate>
+				<gl-cor:postingStatus contextRef="now">posted</gl-cor:postingStatus>
+				<gl-cor:detailComment contextRef="now">Record current period tax exempt interest earned</gl-cor:detailComment>
+			</gl-cor:entryDetail>
+		</gl-cor:entryHeader>
+	</gl-cor:accountingEntries>
+	<!-- Contexts, mandatory according to the XBRL 2.1, Specification, are not meant to describe the information in XBRL GL and appear only by convention. All facts are instant and developers are encouraged to duplicate/provide the date the XBRL GL information is created as the period's date. -->
+	<xbrli:context id="now">
+		<xbrli:entity>
+			<xbrli:identifier scheme="http://www.xbrl.org/xbrlgl/sample">SAMPLE</xbrli:identifier>
+		</xbrli:entity>
+		<xbrli:period>
+			<xbrli:instant>2004-10-03</xbrli:instant>
+		</xbrli:period>
+	</xbrli:context>
+	<!-- Units of measure in XBRL GL are handled within the measurable or multicurrency elements. Units are provided by convention and should not be relied upon in interpreting XBRL GL data. -->
+	<xbrli:unit id="usd">
+		<xbrli:measure>iso4217:USD</xbrli:measure>
+	</xbrli:unit>
+	<xbrli:unit id="NotUsed">
+		<xbrli:measure>pure</xbrli:measure>
+	</xbrli:unit>
+</xbrli:xbrl>

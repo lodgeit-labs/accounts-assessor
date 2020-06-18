@@ -2,14 +2,14 @@
 # this config file is for "servicemanager"
 
 ---
-demo7788:
+dev7788:
    defaults:
       type: exec
    services:   
       - name: celery_worker
         dir: ./internal_workers
         exec: bash
-        args: -c "env PYTHONUNBUFFERED=true CELERY_QUEUE_NAME=q7788 ./run.sh  -n w7788 --loglevel=info"
+        args: -c "env PYTHONUNBUFFERED=true CELERY_QUEUE_NAME=q7788 INTERNAL_SERVICES_SERVER_URL=\"http://localhost:17788\" ./run.sh  -n w7788 --loglevel=info"
 
       - name: internal_services
         dir: ./internal_services
@@ -19,9 +19,9 @@ demo7788:
       - name: frontend_server
         dir: ./frontend_server
         exec: bash
-        args: -c "env PYTHONUNBUFFERED=true CELERY_QUEUE_NAME=q7788 MY_SERVICES_SERVER_URL=\"http://localhost:17788\" DEBUG=true ./run.sh 0.0.0.0:7788"
+        args: -c "env PYTHONUNBUFFERED=true CELERY_QUEUE_NAME=q7788 INTERNAL_SERVICES_SERVER_URL=\"http://localhost:17788\" ./run_dev.sh 0.0.0.0:7788"
         
-demo7768:
+prod7768:
    defaults:
       type: exec
 
@@ -34,7 +34,7 @@ demo7768:
       - name: internal_services
         dir: ./internal_services
         exec: bash
-        args: -c "env PYTHONUNBUFFERED=true ./run.sh 17768"
+        args: -c "env PYTHONUNBUFFERED=true ./run_prod.sh 17768"
         
         #frontend_server is through mod_wsgi, internal services port is set in endpoints_gateway/views.py 
         # mod_wsgi is compiled with ./configure --with-python=/home/demo/7768/venv/bin/python3 and wired up from /etc/apache2/sites-enabled/..
