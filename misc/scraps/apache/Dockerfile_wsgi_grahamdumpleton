@@ -1,0 +1,15 @@
+FROM grahamdumpleton/mod-wsgi-docker:python-2.7-onbuild
+
+WORKDIR /app
+#RUN mkdir -p /app/server_root
+VOLUME /app/server_root
+COPY frontend_server ./frontend_server
+COPY internal_workers ./internal_workers
+COPY static ./static
+COPY git_info.txt .
+COPY secrets1.json /
+COPY secrets2.json /
+ENV PYTHONUNBUFFERED true
+ENV CELERY_QUEUE_NAME=q7788
+
+CMD [ "/app/frontend_server/frontend_server/wsgi.py" ]
