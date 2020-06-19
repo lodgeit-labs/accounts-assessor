@@ -58,11 +58,12 @@ crosschecks_report(Sd, Json) :-
 			account_balance(reports/pl/historical, 'ComprehensiveIncome'))
 	],
 
-	/*
-	smsf:
+	Smsf_crosschecks = [
+		equality(
+			account_balance(reports/pl/current, 'Distribution Received'),
+			fact_value(aspects([concept - (smsf_distribution_ui:distribution_income)])))]
 
-	pl/current/Distribution Received = smsf_distribution_ui:distribution_income
-
+/*
 	possibly:
 
 	for crosschecking accrual, foreign and franking credits, i think it'll be best if i subcategorize each PL 'Distribution Received'/Unit into 'Distribution Received'/Unit/accrual etc, to make sure the txs posted there add up to the distribution sheet facts
@@ -115,6 +116,9 @@ crosschecks_report(Sd, Json) :-
 
 	*/
 
+	(	account_by_role(rl(smsf_equity), _)
+	->	append(Crosschecks0, Smsf_crosschecks, Crosschecks)
+	;	Crosschecks = Crosschecks0),
 
 	maplist(evaluate_equality(Sd), Crosschecks, Results),
 	Json = _{

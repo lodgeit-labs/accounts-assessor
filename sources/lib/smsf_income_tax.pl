@@ -119,7 +119,6 @@ smsf_income_tax_report(Tbl_dict) :-
 	Addition_rows = [
 		[text('Taxable Trust Distributions (Inc Foreign Income & Credits)'),
 			aspects([
-%todo:
 				concept - smsf/income_tax/'Taxable Trust Distributions (Inc Foreign Income & Credits)'])],
 		[text('WriteBack of Deferred Tax'),
 			aspects([
@@ -189,12 +188,75 @@ smsf_income_tax_report(Tbl_dict) :-
 	Columns = [
 		column{id:label, title:"Description", options:options{}},
 		column{id:value, title:"Amount in $", options:options{implicit_report_currency:true}}],
-	Title_Text = "Statement of Taxable Income",
-	Tbl_dict = table{title:Title_Text, columns:Columns, rows:Row_dicts},
-	!table_html([highlight_totals - true], Tbl_dict, Table_Html),
-	!page_with_table_html(Title_Text, Table_Html, Html),
-	!add_report_page(0, Title_Text, Html, loc(file_name,'statement_of_taxable_income.html'), statement_of_taxable_income).
+	Tbl_dict = table{title:Title_Text, columns:Columns, rows:Row_dicts}.
 
+smsf_income_tax_reconcilliation(Tbl2) :-
+	Rows0 = [
+		[text('Other Income'),
+			aspects([
+				report - before_smsf_income_tax/pl/current,
+				account_role - 'Other Income'])],
+		[text('Taxable Net Capital Gain'),
+			aspects([
+				concept - ($>rdf_global_id(smsf_distribution_ui:franking_credit))])],
+		[text('Taxable Trust Distributions (Inc Foreign Income & Credits)'),
+			aspects([
+				concept - smsf/income_tax/'Taxable Trust Distributions (Inc Foreign Income & Credits)'])],
+		[text('Interest Income'),
+			aspects([
+				report - before_smsf_income_tax/pl/current,
+				account_role - 'Interest Received - control'])]],
+		!rows_total(Rows0, Rows0_vec),
+		!make_fact(Rows0_vec,
+			aspects([
+				concept - smsf/income_tax/reconcilliation/'Total Income'])),
+	Rows2 = [text('Total Income'),
+			aspects([
+				concept - smsf/income_tax/reconcilliation/'Total Income'])],
+
+
+
+
+
+		Less: Total Expenses
+		Less: Rounding
+		Net Taxable Income
+		Foreign Credit
+		Total Taxable Income
+		Tax @15
+		Less: Distribution FC
+		Less: Foreign Credit
+		Less: PAYG Instalment
+		Net Tax refundable/payable
+
+
+	append([Rows0, Rows2], Rows),
+	assertion(ground(Rows)),
+	!evaluate_fact_table(Rows, Rows_evaluated),
+	assertion(ground(Rows_evaluated)),
+	maplist(!label_value_row_to_dict, Rows_evaluated, Row_dicts),
+	Columns = [
+		column{id:label, title:"Description", options:options{}},
+		column{id:value, title:"Amount in $", options:options{implicit_report_currency:true}}],
+	Tbl_dict = table{title:Title_Text, columns:Columns, rows:Row_dicts}.
+
+smsf_income_tax_reports(Reports) :-
+	smsf_income_tax_report(Tbl1),
+	smsf_income_tax_reconcilliation(Tbl2),
+	Title_Text = "Statement of Taxable Income",
+	page_with_body(Title_Text, [
+		p([Title_Text]),
+		table([border="1"], $>table_html([highlight_totals - true], Tbl1)),
+		p(["Tax Workings Reconciliation"]),
+		table([border="1"], $>table_html([], Tbl2))
+	], Html),
+	add_report_page(
+		0,
+		Title_Text,
+		Html,
+		loc(file_name, $>atomic_list_concat([$>replace_nonalphanum_chars_with_underscore(Title_Text), '.html'])),
+		statement_of_taxable_income
+	).
 
 
  row_aspectses(Rows, Aspectses) :-
