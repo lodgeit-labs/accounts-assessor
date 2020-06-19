@@ -69,6 +69,7 @@ is_valid_role('FinancialInvestments'/Id) :- !, freeze(Id, atom(Id)).
 	!traded_units(S_Transactions, Traded_units),
 	!ensure_financial_investments_accounts_exist(Traded_units),
 	!subcategorize_by_investment(Traded_units),
+	!subcategorize_distribution_received,
 	!'ensure InvestmentIncome accounts exist'(Traded_units),
 	!ensure_smsf_equity_tree,
 	!subcategorize_by_smsf_members.
@@ -239,6 +240,23 @@ in Assets
 	)
 	->	true
 	;	make_account_with_optional_role(Name, Parent, 1, _Role, Uri).
+
+%------
+
+subcategorize_distribution_received :-
+	findall(A, account_role(A, rl('Distribution Received'/_)), As),
+	maplist(subcategorize_distribution_received2, As).
+
+subcategorize_distribution_received2(A) :-
+	maplist(subcategorize_distribution_received4(A), [
+		'Resolved Accrual',
+		'Foreign Credit',
+		'Franking Credit'
+	]).
+
+subcategorize_distribution_received4(A, Subcategorization) :-
+	account_role(A, rl('Distribution Received'/Unit)),
+	ensure_account_exists(A, Subcategorization, 1, rl('Distribution Received'/Unit/Subcategorization), _).
 
 %------
 

@@ -188,9 +188,9 @@ smsf_income_tax_report(Tbl_dict) :-
 	Columns = [
 		column{id:label, title:"Description", options:options{}},
 		column{id:value, title:"Amount in $", options:options{implicit_report_currency:true}}],
-	Tbl_dict = table{title:Title_Text, columns:Columns, rows:Row_dicts}.
+	Tbl_dict = table{title:"Statement of Taxable Income", columns:Columns, rows:Row_dicts}.
 
-smsf_income_tax_reconcilliation(Tbl2) :-
+smsf_income_tax_reconcilliation(Tbl_dict) :-
 	Rows0 = [
 		[text('Other Income'),
 			aspects([
@@ -216,6 +216,7 @@ smsf_income_tax_reconcilliation(Tbl2) :-
 
 
 
+/*
 
 
 		Less: Total Expenses
@@ -229,7 +230,7 @@ smsf_income_tax_reconcilliation(Tbl2) :-
 		Less: PAYG Instalment
 		Net Tax refundable/payable
 
-
+*/
 	append([Rows0, Rows2], Rows),
 	assertion(ground(Rows)),
 	!evaluate_fact_table(Rows, Rows_evaluated),
@@ -238,9 +239,9 @@ smsf_income_tax_reconcilliation(Tbl2) :-
 	Columns = [
 		column{id:label, title:"Description", options:options{}},
 		column{id:value, title:"Amount in $", options:options{implicit_report_currency:true}}],
-	Tbl_dict = table{title:Title_Text, columns:Columns, rows:Row_dicts}.
+	Tbl_dict = table{title:"Tax Workings Reconciliation", columns:Columns, rows:Row_dicts}.
 
-smsf_income_tax_reports(Reports) :-
+smsf_income_tax_reports(reports{report:Tbl1,reconcilliation:Tbl2}) :-
 	smsf_income_tax_report(Tbl1),
 	smsf_income_tax_reconcilliation(Tbl2),
 	Title_Text = "Statement of Taxable Income",

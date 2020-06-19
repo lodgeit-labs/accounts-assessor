@@ -25,7 +25,7 @@ crosscheck_output(Result, Html) :-
 
 crosschecks_report(Sd, Json) :-
 	/* account balances at normal sides here */
-	Crosschecks = [
+	Crosschecks0 = [
 		equality(
 			account_balance(reports/bs/current, 'NetAssets'),
 			account_balance(reports/bs/current, 'Equity')),
@@ -61,7 +61,7 @@ crosschecks_report(Sd, Json) :-
 	Smsf_crosschecks = [
 		equality(
 			account_balance(reports/pl/current, 'Distribution Received'),
-			fact_value(aspects([concept - (smsf_distribution_ui:distribution_income)])))]
+			fact_value(aspects([concept - (smsf_distribution_ui:distribution_income)])))],
 
 /*
 	possibly:
@@ -173,6 +173,9 @@ evaluate2(Sd, account_balance(Report_Id, Role), Values_List) :-
 		Values_List0
 	),
 	vec_sum(Values_List0, Values_List).
+
+evaluate2(_, fact_value(Aspects), Values_List) :-
+	evaluate_fact2(Aspects, Values_List).
 
 entry_normal_side_values(_Sd, Entry, Values_List) :-
 	!report_entry_total_vec(Entry, Balance),

@@ -329,19 +329,19 @@ distribution_txs(Default_currency, Item, Unit, Txs) :-
 	!maplist(!smsf_distribution_tx(Default_currency, End_Date, Item),
 		[dist{
 			prop: smsf_distribution_ui:accrual,
-			a:'Distribution Received'/Unit,
+			a:'Distribution Received'/Unit/'Resolved Accrual',
 			dir:crdr,
 			b:'Distribution Receivable'/Unit,
 			desc:"Distributions Accrual entry as per Annual tax statements"},
 		dist{
 			prop: smsf_distribution_ui:foreign_credit,
-			a:'Distribution Received'/Unit,
+			a:'Distribution Received'/Unit/'Foreign Credit',
 			dir:crdr,
 			b:'Foreign And Other Tax Credits',
 			desc:"Tax offset entry against distribution"},
 		dist{
 			prop: smsf_distribution_ui:franking_credit,
-			a:'Distribution Received'/Unit,
+			a:'Distribution Received'/Unit/'Franking Credit',
 			dir:crdr,
 			b:'Imputed Credits',
 			desc:"Tax offset entry against distribution"}
