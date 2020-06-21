@@ -91,6 +91,7 @@ services:
       SECRET__CELERY_BROKER_URL: "amqp://guest:guest@rabbitmq:5672//"
     volumes:
       - my-vol:/app/server_root/tmp
+      - cache:/app/cache
       - "/etc/localtime:/etc/localtime:ro"
       - "/tmp/.X11-unix:/tmp/.X11-unix:rw"
     networks:
@@ -120,3 +121,4 @@ networks:
 
 volumes:
   my-vol:
+  cache:

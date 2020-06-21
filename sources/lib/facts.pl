@@ -292,12 +292,15 @@ exp_add_aspect(Aspects_exp, Added, Aspects_exp_with_aspect_added) :-
 
 exp_compute(A = B) :-
 	assertion(A = aspects(_)),
-	exp_eval(B, B2),
-	facts_by_aspects(A, Already_asserted),
+	!exp_eval(B, B2),
+	!facts_by_aspects(A, Already_asserted),
 	(	Already_asserted = []
 	->	true
 	;	throw_string('internal error')),
 	!make_fact(B2, A).
+
+exp_eval(X, X) :-
+	is_list(X). % a vector
 
 exp_eval(X, X2) :-
 	X = aspects(_),
@@ -312,6 +315,12 @@ exp_eval(A - B, C) :-
 	exp_eval(A, A2),
 	exp_eval(B, B2),
 	vec_sub(A2, B2, C).
+
+exp_eval(A * B, C) :-
+	exp_eval(A, A2),
+	((rational(B),!);(number(B),!)),
+	{B2 = B * 100},
+	split_vector_by_percent(A2, B2, C, _).
 
 add_aspect(Added, aspects(X), aspects(Y)) :-
 	append(X, [Added], Y).

@@ -61,7 +61,16 @@ crosschecks_report(Sd, Json) :-
 	Smsf_crosschecks = [
 		equality(
 			account_balance(reports/pl/current, 'Distribution Received'),
-			fact_value(aspects([concept - (smsf_distribution_ui:distribution_income)])))],
+			fact_value(aspects([concept - (smsf_distribution_ui:distribution_income)]))),
+		equality(
+			fact_value(aspects([concept - smsf/income_tax/'Net Tax refundable/payable'])),
+			fact_value(aspects([concept - smsf/income_tax/reconcilliation/'Net Tax refundable/payable'])))
+
+
+	],
+
+
+
 
 /*
 	possibly:

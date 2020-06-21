@@ -8,6 +8,7 @@ xhost +local:docker
 docker run -it \
 		--network="container:$argv" \
 		--mount source=robust_my-vol,target=/app/server_root/tmp \
+		--mount source=robust_cache,target=/app/cache \
 		--volume="$HOME/.Xauthority:/root/.Xauthority:rw" \
 		--volume="/tmp/.X11-unix:/tmp/.X11-unix:rw" \
 		--env="DISPLAY" \
