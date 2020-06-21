@@ -40,6 +40,12 @@ process_ato_supervisory_levy(Input, Txs) :-
 	Aspectses = [
 		aspects([
 			report - before_smsf_income_tax/pl/current,
+			account_role - 'Audit Fees']),
+		aspects([
+			report - before_smsf_income_tax/pl/current,
+			account_role - 'Accountancy Fees']),
+		aspects([
+			report - before_smsf_income_tax/pl/current,
 			account_role - 'Interest Received - control']),
 		aspects([
 			report - before_smsf_income_tax/pl/current,
@@ -212,8 +218,7 @@ smsf_income_tax_reconcilliation(Tbl_dict) :-
 				report - before_smsf_income_tax/pl/current,
 				account_role - 'Other Income'])],
 		[text('Taxable Net Capital Gain'),
-			aspects([
-				concept - ($>rdf_global_id(smsf_distribution_ui:franking_credit))])],
+			aspects([concept - ($>rdf_global_id(smsf_computation:taxable_net_capital_gains_discounted))])],
 		[text('Taxable Trust Distributions (Inc Foreign Income & Credits)'),
 			aspects([
 				concept - smsf/income_tax/'Taxable Trust Distributions (Inc Foreign Income & Credits)'])],
@@ -226,25 +231,39 @@ smsf_income_tax_reconcilliation(Tbl_dict) :-
 		aspects([
 			concept - smsf/income_tax/reconcilliation/'Total Income'])),
 
-	!exp_compute(
-		aspects([concept - smsf/income_tax/reconcilliation/'Total Expenses'])
-		=
-		aspects([
-			report - before_smsf_income_tax/pl/current,
-			account_role - 'Filling Fees'])
-		+
-		aspects([
-			report - before_smsf_income_tax/pl/current,
-			account_role - 'ATO Supervisory Levy'])
-		+
-		aspects([
-			report - before_smsf_income_tax/pl/current,
-			account_role - 'Investment Expenses'])),
-
-	Rows2 = [
+	Rows0b = [
 		[text('Total Income'),
 			aspects([
-				concept - smsf/income_tax/reconcilliation/'Total Income'])],
+				concept - smsf/income_tax/reconcilliation/'Total Income'])]],
+
+	Rows1 = [
+		[text('Expenses:'),text('')],
+		[text('Filling Fees'),
+			aspects([
+				report - before_smsf_income_tax/pl/current,
+				account_role - 'Filling Fees'])],
+		[text('ATO Supervisory Levy'),
+			aspects([
+				report - before_smsf_income_tax/pl/current,
+				account_role - 'ATO Supervisory Levy'])],
+		[text('Investment Expenses'),
+			aspects([
+				report - before_smsf_income_tax/pl/current,
+				account_role - 'Investment Expenses'])],
+		[text('Audit Fees'),
+			aspects([
+				report - before_smsf_income_tax/pl/current,
+				account_role - 'Audit Fees'])],
+		[text('Accountancy Fees'),
+			aspects([
+				report - before_smsf_income_tax/pl/current,
+				account_role - 'Accountancy Fees'])]
+	],
+	!rows_total(Rows1, Rows1_vec),
+	!make_fact(Rows1_vec,
+		aspects([concept - smsf/income_tax/reconcilliation/'Total Expenses'])),
+
+	Rows2 = [
 		[text('Less: Total Expenses'),
 			aspects([
 				concept - smsf/income_tax/reconcilliation/'Total Expenses'])]],
@@ -253,16 +272,13 @@ smsf_income_tax_reconcilliation(Tbl_dict) :-
 		aspects([concept - smsf/income_tax/reconcilliation/'Net Taxable Income'])
 		=
 		aspects([concept - smsf/income_tax/reconcilliation/'Total Income'])
-		+
+		-
 		aspects([concept - smsf/income_tax/reconcilliation/'Total Expenses'])),
 
 	Rows4 = [
 		[text('Net Taxable Income'),
 			aspects([
-				concept - smsf/income_tax/reconcilliation/'Net Taxable Income'])],
-		[text('Less: Total Expenses'),
-			aspects([
-				concept - smsf/income_tax/reconcilliation/'Total Expenses'])]],
+				concept - smsf/income_tax/reconcilliation/'Net Taxable Income'])]],
 
 	!exp_compute(
 		aspects([concept - smsf/income_tax/reconcilliation/'Tax 15%'])
@@ -310,7 +326,7 @@ smsf_income_tax_reconcilliation(Tbl_dict) :-
 		[text('Total'),
 			aspects([concept - smsf/income_tax/reconcilliation/'Total'])]],
 
-	append([Rows0, Rows2, Rows4, Rows6, Rows8, Rows10], Rows),
+	append([Rows0, Rows0b, Rows1, Rows2, Rows4, Rows6, Rows8, Rows10], Rows),
 	assertion(ground(Rows)),
 	!evaluate_fact_table(Rows, Rows_evaluated),
 	assertion(ground(Rows_evaluated)),
