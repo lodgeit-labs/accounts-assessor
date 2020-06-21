@@ -285,7 +285,7 @@ smsf_income_tax_reconcilliation(Tbl_dict) :-
 		=
 		aspects([concept - smsf/income_tax/reconcilliation/'Net Taxable Income'])
 		*
-		(1 rdiv 15)),
+		(15 rdiv 100)),
 
 	Rows6 = [
 		[text('Tax 15%'),
@@ -311,7 +311,7 @@ smsf_income_tax_reconcilliation(Tbl_dict) :-
 		aspects([concept - smsf/income_tax/reconcilliation/'Total'])
 		=
 		aspects([concept - smsf/income_tax/reconcilliation/'Net Tax refundable/payable'])
-		-
+		+
 		aspects([
 			report - before_smsf_income_tax/pl/current,
 			account_role - 'ATO Supervisory Levy'])),

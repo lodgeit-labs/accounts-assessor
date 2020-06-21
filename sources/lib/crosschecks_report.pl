@@ -61,23 +61,24 @@ crosschecks_report(Sd, Json) :-
 	Smsf_crosschecks = [
 		equality(
 			account_balance(reports/pl/current, 'Distribution Received'),
-			fact_value(aspects([concept - (smsf_distribution_ui:distribution_income)]))),
+			fact_value(aspects([concept - ($>rdf_global_id(smsf_distribution_ui:distribution_income))]))),
 		equality(
 			fact_value(aspects([concept - smsf/income_tax/'Net Tax refundable/payable'])),
-			fact_value(aspects([concept - smsf/income_tax/reconcilliation/'Net Tax refundable/payable'])))
-
-
+			fact_value(aspects([concept - smsf/income_tax/reconcilliation/'Net Tax refundable/payable']))),
+		equality(
+			fact_value(aspects([concept - smsf/income_tax/reconcilliation/'Total'])),
+			fact_value(aspects([concept - smsf/income_tax/'to pay']))),
+		equality(
+			account_balance(reports/pl/current, 'Distribution Received'/Unit/'Resolved Accrual'),
+			fact_value(aspects([concept - ($>rdf_global_id(smsf_distribution_ui:accrual))]))),
+		equality(
+			account_balance(reports/pl/current, 'Distribution Received'/Unit/'Foreign Credit'),
+			fact_value(aspects([concept - ($>rdf_global_id(smsf_distribution_ui:foreign_credit))]))),
+		equality(
+			account_balance(reports/pl/current, 'Distribution Received'/Unit/'Franking Credit'),
+			fact_value(aspects([concept - ($>rdf_global_id(smsf_distribution_ui:franking_credit))])))
 	],
-
-
-
-
 /*
-	possibly:
-
-	for crosschecking accrual, foreign and franking credits, i think it'll be best if i subcategorize each PL 'Distribution Received'/Unit into 'Distribution Received'/Unit/accrual etc, to make sure the txs posted there add up to the distribution sheet facts
-
-
 	tax statement:
 		Benefits Accrued as a Result of Operations before Income Tax:
 			this one is taken directly from PL, it's the total PL before adding tax txs
@@ -112,17 +113,6 @@ crosschecks_report(Sd, Json) :-
 			computed in smsF_income_tax as smsf/income_tax/'Taxable Trust Distributions (Inc Foreign Income & Credits)'
 		Interest Received
 			PL Interest Received - control
-
-
-
-
-
-
-		Net Tax refundable/payable
-			=
-
-
-
 	*/
 
 	(	account_by_role(rl(smsf_equity), _)
