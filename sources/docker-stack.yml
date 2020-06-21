@@ -29,7 +29,7 @@ services:
         parallelism: 2
         delay: 10s
       restart_policy:
-        condition: on-failure
+        condition: any
     volumes:
       - "/etc/localtime:/etc/localtime:ro"
 
@@ -53,7 +53,7 @@ services:
       placement:
         constraints: [node.role == manager]
       restart_policy:
-        condition: on-failure
+        condition: any
     ports:
       - 7788:7788
 
@@ -82,7 +82,7 @@ services:
       placement:
         constraints: [node.role == manager]
       restart_policy:
-        condition: on-failure
+        condition: any
 
   internal-workers:
     image: koo5/internal_workers:latest
@@ -108,7 +108,7 @@ services:
       placement:
         constraints: [node.role == manager]
       restart_policy:
-        condition: on-failure
+        condition: any
 
 networks:
   robust_frontend:
