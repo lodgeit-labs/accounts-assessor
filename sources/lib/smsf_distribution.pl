@@ -61,10 +61,11 @@ assert_smsf_distribution_facts(Default_currency, Unit, Item) :-
 			smsf_distribution_ui:franked_divis_distri_including_credits,
 			smsf_distribution_ui:assessable_foreign_source_income,
 			% smsf_distribution_ui:net_trust_distribution_income
+			smsf_distribution_ui:capital_gains,
 			smsf_distribution_ui:capital_losses,
-			smsf_distribution_ui:discount_capital_gains_net,
+			%smsf_distribution_ui:discount_capital_gains_net,
 			smsf_distribution_ui:other_capital_gains,
-			smsf_distribution_ui:one_third_capital_gain_discount_amount
+			%smsf_distribution_ui:one_third_capital_gain_discount_amount
 			% smsf_distribution_ui:total_capital_gains_losses
 		]
 	),
@@ -110,6 +111,24 @@ assert_smsf_distribution_facts(Default_currency, Unit, Item) :-
 		(smsf_distribution_ui:assessable_foreign_source_income)),
 
 	!check_entered_unit_fact_matches_computed(Default_currency, Unit, Item, smsf_distribution_ui:net_trust_distribution_income, smsf_distribution_ui:entered_net_trust_distribution_income),
+
+	!computed_unit_fact(Unit,
+		(smsf_distribution_ui:discount_capital_gains_net)
+		=
+		(smsf_distribution_ui:capital_gains)
+		*
+		2 rdiv 3),
+
+	!check_entered_unit_fact_matches_computed(Default_currency, Unit, Item, smsf_distribution_ui:discount_capital_gains_net, smsf_distribution_ui:entered_discount_capital_gains_net),
+
+	!computed_unit_fact(Unit,
+		(smsf_distribution_ui:one_third_capital_gain_discount_amount)
+		=
+		(smsf_distribution_ui:capital_gains)
+		*
+		1 rdiv 3),
+
+	!check_entered_unit_fact_matches_computed(Default_currency, Unit, Item, smsf_distribution_ui:one_third_capital_gain_discount_amount, smsf_distribution_ui:entered_one_third_capital_gain_discount_amount),
 
 	!computed_unit_fact(Unit,
 		(smsf_distribution_ui:total_capital_gains_losses)
@@ -306,7 +325,7 @@ smsf_distributions_totals_report(Tbl_dict, Html) :-
 	Rows4 = [
 		[text('Discount 1/3'),
 			aspects([concept - ($>rdf_global_id(smsf_computation:taxable_net_capital_gains_discount))])],
-		[text('Taxable Net Capital Gains Discounted'),
+		[text('Taxable Net Capital Gains After Discount'),
 			aspects([concept - ($>rdf_global_id(smsf_computation:taxable_net_capital_gains_discounted))])]
 	],
 	Title_Text = "Totals:",
@@ -412,7 +431,3 @@ smsf_distribution_tx(Default_currency, Date, Item, Dist, Txs) :-
 			]
 		)
 	;	Txs = []).
-
-/*
------------
-*/

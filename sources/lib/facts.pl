@@ -274,6 +274,9 @@ concept_to_aspects(Concept, Aspects) :-
 	;	Concept = _:_),
 	Aspects = aspects([concept - ($>rdf_global_id(Concept))]).
 
+concept_to_aspects(X, X) :-
+	(number(X),!);(rational(X),!).
+
 walk_exp(Func, Exp, Exp2) :-
 	call(Func, Exp, Exp2),
 	!.
