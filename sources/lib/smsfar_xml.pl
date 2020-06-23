@@ -15,7 +15,26 @@ E = 'SMSFARComplete2020'(
 					rl('Rent Received')),
 				'C-GrossInterest'(
 					rl('Interest Received - control')),
+				%'J-UnfrankedDividendAmount'(?
+				%'K-FrankedDividendAmount'(?
+				'L-DividendFrankingCredit'(
+					aspects([concept - smsf/income_tax/'Franking Credits on dividends'])),
+				'AssessableContributions'(
+					'R-AssessableContributionsTotal'(
+					'R1-AssessableEmployerContributions'(
+						rl('Employer Contribution')),
+					'R2-AssessablePersonalContributions'(
+						rl('Contribution Received')),
+					'OtherIncome'(
+						rl('Other Income')),
+					
 
+
+
+
+
+
+					account_balance(reports/pl/current, 'Distribution Received'/_Unit/'Franking Credit')),
 
 
 
