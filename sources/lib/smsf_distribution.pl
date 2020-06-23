@@ -64,7 +64,7 @@ assert_smsf_distribution_facts(Default_currency, Unit, Item) :-
 			smsf_distribution_ui:capital_gains,
 			smsf_distribution_ui:capital_losses,
 			%smsf_distribution_ui:discount_capital_gains_net,
-			smsf_distribution_ui:other_capital_gains,
+			smsf_distribution_ui:other_capital_gains
 			%smsf_distribution_ui:one_third_capital_gain_discount_amount
 			% smsf_distribution_ui:total_capital_gains_losses
 		]
@@ -117,7 +117,7 @@ assert_smsf_distribution_facts(Default_currency, Unit, Item) :-
 		=
 		(smsf_distribution_ui:capital_gains)
 		*
-		2 rdiv 3),
+		(2 rdiv 3)),
 
 	!check_entered_unit_fact_matches_computed(Default_currency, Unit, Item, smsf_distribution_ui:discount_capital_gains_net, smsf_distribution_ui:entered_discount_capital_gains_net),
 
@@ -126,7 +126,7 @@ assert_smsf_distribution_facts(Default_currency, Unit, Item) :-
 		=
 		(smsf_distribution_ui:capital_gains)
 		*
-		1 rdiv 3),
+		(1 rdiv 3)),
 
 	!check_entered_unit_fact_matches_computed(Default_currency, Unit, Item, smsf_distribution_ui:one_third_capital_gain_discount_amount, smsf_distribution_ui:entered_one_third_capital_gain_discount_amount),
 
@@ -184,6 +184,7 @@ entered_computed_soft_crosscheck(A = B) :-
 ╹┗╸┗━╸╹  ┗━┛╹┗╸ ╹
 */
 smsf_distributions_report(Tbl_dict, Html) :-
+	% todo: group{id:.., title:"..", members:Columns0..},
 	Columns = [
 		column{
 			id:($>rdf_global_id(smsf_distribution_ui:unit_type)),

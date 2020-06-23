@@ -344,7 +344,7 @@ smsf_income_tax_reports(reports{report:Tbl1,reconcilliation:Tbl2}) :-
 		p(["Statement of Taxable Income:"]),
 		table([border="1"], $>table_html([highlight_totals - true], Tbl1)),
 		p(["Tax Workings Reconciliation:"]),
-		table([border="1"], $>table_html([], Tbl2))
+		table([border="1"], $>table_html([highlight_totals - true], Tbl2))
 	], Html),
 	!add_report_page(
 		0,

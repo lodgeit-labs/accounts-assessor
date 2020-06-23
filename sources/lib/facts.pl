@@ -420,5 +420,77 @@ Table structure
     A view of a taxonomy or report that is designed to replicate tables for presentation or data entry purposes. Table structures are typically used to cope with the complex, dimensional reports often seen in prudential reporting. [At a technical level, the table structure is defined using the Table Linkbase specification]
 
 
+(United States Dollars) for monetary values or “meters” for length. The units are expressed as a list of
+numerator units with an optional list of denominator units. This allows for compound units, such as
+dollars/share or miles/hour. It also allows for units such as meters 2 by specifying multiple “meter” units in
+the numerator.
+
+
+Other types of concepts may be used as organizational containers for concept core dimensions that are
+semantically related. These are called grouping concepts, and they define structures within a taxonomy,
+such as an XBRL table structure or a domain of possible values.
+
+
+This new XBRL dimension is defined by a concept that represents the nature of an axis in the
+data set. In the example, a concept named Person would be added to the taxonomy. Good practice would
+also dictate that a suffix is appended to the name of this concept to indicate that this is a taxonomy-
+defined dimension and should not itself be used as a concept core dimension. In other words, this new
+concept should not be used directly with any one fact. For more information on suffixes, see the XBRL
+Style Guide. This would make the final concept name PersonAxis.
+
+
+Now that there is a concept to describe the taxonomy-defined dimension, the components, or members,
+of this dimension must be described. In the example, this would be Jared and Allyson, the two people
+who belong to the reporting entity, “Bob’s Household.” They therefore belong to the new PersonAxis.
+XBRL offers numerous ways to express these components, but for this example, concepts named Jared
+and Allyson will be used. Again, good style practice and clarity suggest adding a suffix to these concept
+names to indicate they should not be used as concept core dimensions. Thus, they will be named
+JaredMember and AllysonMember. For a more in-depth discussion on the other options to express the
+components of a taxonomy-defined dimension, see Section 3.4.2.
+
+
+Facts with a numeric data type must have a decimals or precision property that states how
+mathematically precise the value of the fact is. Because all numeric facts must have precision, XBRL
+software can maintain precision when performing mathematical calculations. Given this, when comparing
+a computed value versus a fact value, XBRL software can automatically accommodate for rounding
+errors.
+
+
+For example, an XBRL date must be in ISO 8601 format but many
+textual dates are written in descriptive language. An XBRL transformation describes how the descriptive
+language can be converted to the appropriate format. For a list of rules and more information, see the
+XBRL Transformation Registry.
+
+
+Inline XBRL also offers a scaling property on individual facts, to indicate to XBRL software that the value
+of the fact must be scaled before it is interpreted. For example, a table of facts may be expressed in
+millions without the trailing zeros to aid in human readability but Inline XBRL has appropriate scaling so
+the value of 123 is interpreted as 123000000.
+
+Naming conventions should be employed
+following certain style rules (check the XBRL US Style Guide for language and reference styles). Of note
+in this case is the use of specific suffixes to indicate a concept’s role.
+
+Concepts that do not actually intersect facts often have their
+abstract property set to “true.” This specifically indicates that a concept is not a concept core dimension
+but rather an organizational item.
+
+
+
+*/
+
+/*
+
+
+
+
+----
+
+
+reconcilliation of xbrl and our system wrt:
+	our adjustment units:
+		possibly this could be represented in a xbrl taxonomy, ie, "Assets" is not a single fact-point, or rather, it is a calculated fact, made up of 'assets in report currency' + ..
+
+
 
 */
