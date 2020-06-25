@@ -1,5 +1,7 @@
 :- record element(id, name).
 
+
+
 % Each taxonomy defines a single set of elements representing a set of business
 % reporting Concepts. The human-readable XBRL documentation for those concepts, including
 % labels (strings used as human-readable names for each concept) and other explanatory
@@ -9,7 +11,6 @@
 % role attribute).
 
 :- record label_arc(role, from, to).
-
 :- record label(label, role, content).
 
 
@@ -28,9 +29,10 @@
 % statement. Another presentation linkbase could contain links to organise a subset of
 % these same concepts into a data collection form.
 
-presentation_arc_role(presentation_arc(Role, _, _), Role).
-presentation_arc_from(presentation_arc(_, From, _), From).
-presentation_arc_to(presentation_arc(_, _, To), To).
+:- record presentation_arc(role, from, to).
+
+
+
 
 % This specification is an extension to the XBRL Specification [XBRL 2.1]. It defines
 % syntax for declaration of two kinds of variables: fact variables that only evaluate to
@@ -38,11 +40,9 @@ presentation_arc_to(presentation_arc(_, _, To), To).
 % broader range of values. This specification also defines syntax for parameters that can
 % be given default values or values that are supplied by processing software. 
 
-fact_variable_label(fact_variable(Label), Label).
+:- record fact_variable(label).
 
-variable_filter_arc_role(variable_filter_arc(Role, _, _), Role).
-variable_filter_arc_from(variable_filter_arc(_, From, _), From).
-variable_filter_arc_to(variable_filter_arc(_, _, To), To).
+:- record variable_filter_arc(role, from, to).
 
 %  When evaluating the variables in a variable-set, XPath variable references with this
 % QName are references to the variable or parameter. Note that, for parameters, this QName
@@ -56,6 +56,9 @@ variable_arc_name(variable_arc(_, _, _, Name), Name).
 concept_name_label(concept_name(Label, _), Label).
 concept_name_content(concept_name(_, Content), Content).
 
+
+
+
 % This specification is an extension to the XBRL Validation specification [VALIDATION]. It
 % defines XML syntax [XML] for assertions that test the values of the variables of each
 % evaluation of a given variable set. It is a construct similar to that of a formula
@@ -67,17 +70,13 @@ value_assertion_label(value_assertion(Label, _, _), Label).
 value_assertion_id(value_assertion(_, Id, _), Id).
 value_assertion_test(value_assertion(_, _, Test), Test).
 
-instance_element(instance(Element, _, _), Element).
-instance_context_ref(instance(_, Context_Ref, _), Context_Ref).
-instance_content(instance(_, _, Content), Content).
+:- record instance(element, context_ref, content).
 
 % The <context> element contains information about the Entity being described, the
 % reporting Period and the reporting scenario, all of which are necessary for
 % understanding a business fact captured as an XBRL item.
 
-context_id(context(Id, _, _), Id).
-context_explicit_members(context(_, Explicit_Members, _), Explicit_Members).
-context_period(context(_, _, Period), Period).
+:- record context(id, explicit_members, period).
 
 explicit_member_dimension(explicit_member(Dimension, _), Dimension).
 explicit_member_content(explicit_member(_, Content), Content).
@@ -89,12 +88,14 @@ point(Instances, Context, Point) :-
   context_id(Context, Context_Id),
   context_explicit_members(Context, Explicit_Members),
   % Each explicit member is going to be a coordinate of this point
+  % gather (Dimension, Content) tuples as Coords_A
   findall(Coord,
     (member(Explicit_Member, Explicit_Members),
     explicit_member_dimension(Explicit_Member, Dimension),
     explicit_member_content(Explicit_Member, Content),
     Coord = (Dimension, Content)), Coords_A),
   % Each instance element with this context is going to be a coordinate of this point
+  % gather (concept, value) tuples as Coords_B
   findall(Coord,
     (member(Instance, Instances),
       instance_context_ref(Instance, Context_Id),

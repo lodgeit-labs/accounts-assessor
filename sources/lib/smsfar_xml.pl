@@ -1,35 +1,65 @@
-x :-
-E = 'SMSFARComplete2020'(
+/*
+the xsd corresponds to:
+ https://www.ato.gov.au/forms/self-managed-superannuation-fund-annual-return-2020/
+ https://www.ato.gov.au/Forms/Self-managed-superannuation-fund-annual-return-instructions-2020/?page=6#Answering_questions_in_section_B
+ etc.
+
+
+*/
+
+xml_outline_to_xml(
+	nil(X),
+	element([nil=true],[])
+) :-
+	!.
+
+xml_outline_to_xml([], []) :-
+	!.
+
+xml_outline_to_xml(X, X) :-
+	atom(X),
+	!.
+
+xml_outline_to_xml(In, element([], Args2)) :-
+	dif(Args, []),
+	In =.. [Element_name|Args],
+	maplist(!xml_outline_to_xml, Args, Args2).
+
+smsfar_xml(Xml) :-
+	Outline =
+	'SMSFARComplete2020'(
 		'SMSFAR2020'(
 			'FinancialYearEnding'($>'report end date FinancialYearEnding'),
 			'SectionA-Fund'(
-				'PostalAddressType'(),
+				'FundAddress'([]),
 				nil('AmendmentIndicator'),
 				nil('FirstReturn'),
-				'AuditorType'(),
+				'AuditorType'([]),
 				nil('StatusAustralianFund')),
 			'SectionB-Income'(
 				'A-NetCapitalGain'(
-					rl('TradingAccounts'/'Capital GainLoss')),
+					$>!fs([report - pl/current, account_role - ('TradingAccounts'/'Capital GainLoss')]),
 				'B-GrossRentAndOtherIncome'(
-					rl('Rent Received')),
+					$>!fs([report - pl/current, account_role - ('Rent Received')]),
 				'C-GrossInterest'(
-					rl('Interest Received - control')),
+					$>!fs([report - pl/current, account_role - ('Interest Received - control')]),
 				%'J-UnfrankedDividendAmount'(?
 				%'K-FrankedDividendAmount'(?
 				'L-DividendFrankingCredit'(
-					aspects([concept - smsf/income_tax/'Franking Credits on dividends'])),
+					$>!fs([concept - smsf/income_tax/'Franking Credits on dividends']),
 				'AssessableContributions'(
-					'R-AssessableContributionsTotal'(),
+					'R-AssessableContributionsTotal'([]),
 					'R1-AssessableEmployerContributions'(
-						rl('Employer Contribution')),
+						$>!fs([report - pl/current, account_role - ('Employer Contribution')]),
 					'R2-AssessablePersonalContributions'(
-						rl('Contribution Received'))
+						$>!fs([report - pl/current, account_role - ('Contribution Received']))
 				),
 				%'OtherIncome'(
 				%	rl('Other Income')),
 				'GrossIncome'(
-					'W-GrossIncome'(?)),
+					'W-GrossIncome'(
+						$>!fs([report - pl/current, account_role - ('Income')])
+					),
 				'TotalAssessableIncome'(
 					'V-TotalAssessableIncome'()),
 				),
@@ -118,9 +148,15 @@ E = 'SMSFARComplete2020'(
 			)
 		)
 	),
-	...
+	xml_outline_to_xml(Outline, Xml).
 
-	.
+
+'report end date FinancialYearEnding'(Y) :-
+	request_has_property(l:end_date, date(Y,_,_))/*,
+	atom_string(Y, Ys),
+	sub_string(Ys, _, 2, 0, Ending)*/.
+
+nil(
 
 
 'smsfar_xml NetCapitalGain'(X) :-

@@ -475,6 +475,8 @@ Concepts that do not actually intersect facts often have their
 abstract property set to “true.” This specifically indicates that a concept is not a concept core dimension
 but rather an organizational item.
 
+negated label.
+
 
 
 */
