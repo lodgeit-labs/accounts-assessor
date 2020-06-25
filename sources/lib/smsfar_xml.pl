@@ -59,9 +59,12 @@ smsfar_xml(Xml) :-
 				'GrossIncome'(
 					'W-GrossIncome'(
 						$>!fs([report - pl/current, account_role - ('Income')])
+						@surendar
 					),
 				'TotalAssessableIncome'(
-					'V-TotalAssessableIncome'()),
+					'V-TotalAssessableIncome'(
+						@surendar
+					)),
 				),
 			'SectionC-Deductions'(
 				'SMSFAuditorFee'(
