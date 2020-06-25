@@ -80,8 +80,10 @@ COPY git_info.txt .
 COPY secrets2.json /
 #USER user
 WORKDIR /app/internal_workers
+
 ENV PYTHONUNBUFFERED true
 ENV CELERY_QUEUE_NAME=q7788
+ENV DETERMINANCY_CHECKER__USE__ENFORCER=true
 
 #VOLUME /tmp/.X11-unix
 

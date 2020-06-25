@@ -13,10 +13,12 @@
 :- meta_predicate '!'(2, ?, ?).
 
 
-:- if(\+current_prolog_flag(determinancy_checker__use__enforcer, true)).
-:- [determinancy_checker].
-:- else.
+:- if(getenv('DETERMINANCY_CHECKER__USE__ENFORCER', true)).
 :- [determinancy_enforcer].
+:- else.
+:- [determinancy_checker_det_v2].
+:- [determinancy_checker_semidet_v1].
+:- [full].
 :- endif.
 
 

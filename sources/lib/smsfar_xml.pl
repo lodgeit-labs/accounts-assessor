@@ -109,7 +109,10 @@ smsfar_xml(Xml) :-
 			'Section1-CurrentYearCapitalGainsAndCapitalLosses'(
 				nil('A-GainSharesInCompaniesListedOnAnAusEx'),
 				nil('B-GainOtherShares'),
-				nil('C-GainUnitsInUnitTrustsListedOnAnAusEx'),
+				'C-GainUnitsInUnitTrustsListedOnAnAusEx'(
+					re-categorize our investments?
+					just the gain part?
+					realized or unrealized?),
 				nil('D-GainOtherUnits'),
 				nil('E-GainRealEstateSituatedInAustralia'),
 				nil('F-GainOtherRealEstate'),
@@ -128,7 +131,9 @@ smsfar_xml(Xml) :-
 					nil('S-CapitalGainPreviouslyDeferred')
 				),
 			'Section2-CapitalLosses'(
-				'A-TotalCurrentYearCapitalLosses',
+				'A-TotalCurrentYearCapitalLosses'(
+					just the loss part?
+				)
 				nil('B-TotalCurrentYearCapitalLossesApplied'),
 				nil('C-TotalPriorYearNetCapitalLossesApplied'),
 				nil('D-TotalCapitalLossesTransferredInApplied'),
@@ -147,7 +152,9 @@ smsfar_xml(Xml) :-
 				nil('C-SmallBusinessRollover'),
 				nil('D-TotalSmallBusinessConcessionsApplied')),
 			'Section6-NetCapitalGain'(
-				'A-NetCapitalGain'
+				'A-NetCapitalGain'(
+					?
+				)
 			)
 		)
 	),
@@ -169,23 +176,27 @@ nil(
 	M =
 	'ActiveMember'(
 		'Title'($>Name),
-		'OpeningAccountBalance'(),
-		'A-EmployerContributions',
+		'OpeningAccountBalance'(
+			aspects([
+				report - final/bs/current,
+				concept - smsf/member/gl/'Opening Balance'])
+		),
+		'A-EmployerContributions'(
+			PL or bs?
+		),
 		'B-PersonalContributions',
 		'N-TotalContributions',
 		'AllocatedEarningsOrLosses'(
 			'O-AllocatedEarningsOrLosses',
 			'O-LossIndicator'
 		),
-		'P-RolloversIn',
+		'P-RolloversIn',?
 		'Q-RolloversOut',
 
-		'S1-AccumulationPhaseBalance',
+		'S1-AccumulationPhaseBalance',?
 		'S2-RetirementPhaseNonCapped',
 		'S3-RetirementPhaseCapped',
-		'S-ClosingAccountBalance'
+		'S-ClosingAccountBalance'(
+			aspects([
+				concept - smsf/member/derived/'total'])
 	)
-
-
-
-%					account_balance(reports/pl/current, 'Distribution Received'/_Unit/'Franking Credit')),

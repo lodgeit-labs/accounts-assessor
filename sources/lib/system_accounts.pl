@@ -192,8 +192,8 @@ in Assets
 
  ensure_financial_investments_accounts_exist2(Traded_Units, Id) :-
 	Role0 = 'FinancialInvestments'/Id,
-	abrlt(Role0, FinancialInvestments),
-	maplist(ensure_FinancialInvestments_Unit(FinancialInvestments), Traded_Units).
+	!abrlt(Role0, FinancialInvestments),
+	!maplist(ensure_FinancialInvestments_Unit(FinancialInvestments), Traded_Units).
 
  ensure_FinancialInvestments_Unit(FinancialInvestments, Unit) :-
  	account_name(FinancialInvestments, Name),
@@ -221,8 +221,8 @@ in Assets
 		)
 		->	(
 				ensure_account_by_parent_and_name_exists(A, Category, L1),
-				(	doc_value(Categorization, ic:unit_type_subcategory, Subategory)
-				->	ensure_account_by_parent_and_name_exists(L1, Subategory, Parent)
+				(	doc_value(Categorization, ic:unit_type_subcategory, Subcategory)
+				->	ensure_account_by_parent_and_name_exists(L1, Subcategory, Parent)
 				;	Parent = L1)
 			)
 		;	Parent = A
