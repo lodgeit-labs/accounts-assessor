@@ -1,12 +1,5 @@
 /* todo: https://github.com/LodgeiT/labs-accounts-assessor/wiki/SWIPL-and-prolog-notes#atoms-vs-strings */
 
-get_indentation(Level, Indentation) :-
-	Level > 0,
-	Level2 is Level - 1,
-	get_indentation(Level2, Indentation2),
-	atomic_list_concat([Indentation2, ' '], Indentation).
-
-get_indentation(0, ' ').
 
 replace_nonalphanum_chars_with_underscore(Atom1, Atom2) :-
 	atom_chars(Atom1, Atom1_Chars),
@@ -58,14 +51,6 @@ is_url(URI) :-
 	atom_prefix(URI,"http").
 
 
-report_currency_atom(Report_Currency_List, Report_Currency_Atom) :-
-	(
-		Report_Currency_List = [Report_Currency]
-	->
-		atomic_list_concat(['(', Report_Currency, ')'], Report_Currency_Atom)
-	;
-		Report_Currency_Atom = ''
-	).
 
 icase_endswith(String, End) :-
 	string_lower(String, String2),

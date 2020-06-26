@@ -69,6 +69,7 @@
 :- [smsf_member_report_presentation].
 :- [system_accounts].
 :- [tables].
+:- [term_dict].
 :- [trading].
 :- [transactions].
 :- [vector_string].
