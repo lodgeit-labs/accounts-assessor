@@ -1,5 +1,3 @@
-
-
 string_to_json_dict(String, Json_Dict) :-
 	setup_call_cleanup(
 		new_memory_file(X),
