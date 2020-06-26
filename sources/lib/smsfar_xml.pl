@@ -98,10 +98,16 @@ smsfar_xml(Xml) :-
 			),
 			'SectionH-AssetsAndLiabilities'(
 				'E-CashAndTermDeposits'(),
-				'H-ListedShares',
-				'I-UnlistedShares',
+				'H-ListedShares'(
+					$>!fs([report - bs/current, account_role - ('Assets'/'Units_in_Listed_Unit_Trusts_Australian')])
+				),
+				'I-UnlistedShares'(
+					$>!fs([report - bs/current, account_role - ('Assets'/'Shares_in_Unlisted_Companies_Australian')])
+				),
 				'Liabilities'(
-					'W-TotalMemberClosingBalances'
+					'W-TotalMemberClosingBalances'(
+						$>!fs([report - bs/current, account_role - smsf_equity])
+					)
 				)
 			)
 		),
@@ -162,11 +168,7 @@ smsfar_xml(Xml) :-
 
 
 'report end date FinancialYearEnding'(Y) :-
-	request_has_property(l:end_date, date(Y,_,_))/*,
-	atom_string(Y, Ys),
-	sub_string(Ys, _, 2, 0, Ending)*/.
-
-nil(
+	request_has_property(l:end_date, date(Y,_,_)).
 
 
 'smsfar_xml NetCapitalGain'(X) :-

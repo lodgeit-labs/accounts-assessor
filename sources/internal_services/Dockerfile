@@ -13,7 +13,6 @@ VOLUME /app/server_root
 COPY public_lib ./public_lib
 COPY internal_services ./internal_services
 COPY static ./static
-COPY git_info.txt .
 #USER user
 WORKDIR /app/internal_services
 ENV PYTHONUNBUFFERED true

@@ -3,9 +3,7 @@
 :- use_module(library(http/http_dispatch)).
 :- use_module(library(http/http_open)).
 :- use_module(library(xpath)).
-:- use_module(library(rdet)).
 :- use_module(library(yall)).
-:- use_module(library(xsd/flatten)).
 :- use_module(library(debug)).
 
 :- use_module(library(fnotation)).

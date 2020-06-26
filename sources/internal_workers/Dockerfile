@@ -13,7 +13,9 @@ ENV LC_ALL $LOC
 
 #todo: this is multi-stage build, are the base image tags guaranteed to resolve to the same images for both stages?
 #FROM koo5/swipl as swipl
-#^that didnt work
+#^that didnt work out
+
+
 RUN mkdir /app
 WORKDIR /app
         # apt-get update \
@@ -37,6 +39,16 @@ RUN     apt-get install -y \
 RUN git clone --branch V8.1.15 https://github.com/SWI-Prolog/swipl-devel.git
 WORKDIR swipl-devel
 RUN git submodule update --init
+
+
+WORKDIR packages/xpce
+RUN true
+RUN git remote add koo5 https://github.com/koo5/packages-xpce.git
+RUN git fetch koo5
+RUN git cherry-pick -n koo5/more_eye_friendly_gtrace_color_theme_squashed
+
+
+WORKDIR /app/swipl-devel
 RUN mkdir build
 WORKDIR build
 RUN cmake -G Ninja ..
@@ -71,12 +83,13 @@ RUN mkdir -p /app/server_root
 VOLUME /app/server_root
 COPY static ./static
 COPY internal_workers ./internal_workers
+COPY triplestore_access ./triplestore_access
+COPY common ./common
 COPY public_lib ./public_lib
 COPY lib ./lib
 #RUN mkdir ./cache
 #COPY cache ./cache
 VOLUME /app/cache
-COPY git_info.txt .
 COPY secrets2.json /
 #USER user
 WORKDIR /app/internal_workers

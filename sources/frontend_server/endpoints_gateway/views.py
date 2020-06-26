@@ -4,26 +4,39 @@ import sys, os
 #sys.path.append('../internal_workers')
 # for running under mod_wsgi
 sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../../internal_workers')))
+sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../../triplestore_access')))
+sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../../common')))
 
-
+import agraph
 import urllib.parse
 import json
+
+
 import celery
+celery_app = celery.Celery()
+import celeryconfig
+celery_app.config_from_object(celeryconfig)
+
+
 from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import render
-from django.http import HttpResponseRedirect, JsonResponse, HttpResponse
-from django.shortcuts import redirect
+from django.http import HttpResponseRedirect, JsonResponse
 from django.http.request import QueryDict
 from endpoints_gateway.forms import ClientRequestForm
 from fs_utils import directory_files, save_django_uploaded_file, save_django_form_uploaded_file
-import invoke_rpc
-from invoke_rpc import call_prolog_calculator
 from tmp_dir_path import create_tmp
+import call_prolog_calculator
 
 
 def tmp_file_url(server_url, tmp_dir_name, fn):
 	return server_url + '/tmp/' + tmp_dir_name + '/' + urllib.parse.quote(fn)
+
+
+@csrf_exempt
+def sparql_proxy(request):
+	if request.method == 'POST':
+		return JsonResponse({"x":agraph.agc().executeGraphQuery(request.body)})
 
 
 @csrf_exempt
@@ -33,14 +46,14 @@ def upload(request):
 	params.update(request.POST)
 	params.update(request.GET)
 	requested_output_format = params.get('requested_output_format', 'json_reports_list')
-	prolog_flags = """set_prolog_flag(determinancy_checker__use__enforcer, true),set_prolog_flag(services_server,'""" + settings.SECRET__INTERNAL_SERVICES_SERVER_URL + """')"""
+	prolog_flags = """set_prolog_flag(services_server,'""" + settings.SECRET__INTERNAL_SERVICES_SERVER_URL + """')"""
 
 	if request.method == 'POST':
 		#print(request.FILES)
 		form = ClientRequestForm(request.POST, request.FILES)
 		if form.is_valid():
 
-			request_tmp_directory_name, request_tmp_directory_path = invoke_rpc.create_tmp()
+			request_tmp_directory_name, request_tmp_directory_path = create_tmp()
 
 			request_files_in_tmp = []
 			for field in request.FILES.keys():
@@ -58,12 +71,12 @@ def upload(request):
 
 			final_result_tmp_directory_name, final_result_tmp_directory_path = create_tmp()
 			try:
-				response_tmp_directory_name = call_prolog_calculator(
+				response_tmp_directory_name = call_prolog_calculator.call_prolog_calculator(
+					celery_app = celery_app,
 					prolog_flags=prolog_flags,
 					request_tmp_directory_name=request_tmp_directory_name,
 					server_url=server_url,
 					request_files=request_files_in_tmp,
-					use_celery=True,
 					timeout_seconds=20,
 					final_result_tmp_directory_name=final_result_tmp_directory_path
 				)
@@ -93,6 +106,9 @@ def upload(request):
 
 
 
+
+
+
 #  ┏━╸╻ ╻┏━┓╺┳╸
 #  ┃  ┣━┫┣━┫ ┃
 #  ┗━╸╹ ╹╹ ╹ ╹
@@ -111,7 +127,7 @@ def residency(request):
 
 def json_prolog_rpc_call(msg):
 	#try:
-	return JsonResponse(invoke_rpc.call_prolog.apply_async(msg).get()[1])
+	return JsonResponse(celery_app.signature('tasks.invoke_rpc.call_prolog').apply_async(msg).get()[1])
 	#except json.decoder.JSONDecodeError as e:
 	#	return HttpResponse(status=500)
 

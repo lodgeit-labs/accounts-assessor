@@ -58,8 +58,6 @@ is_url(URI) :-
 	atom_prefix(URI,"http").
 
 
-%:- rdet(report_currency_atom/2).
-
 report_currency_atom(Report_Currency_List, Report_Currency_Atom) :-
 	(
 		Report_Currency_List = [Report_Currency]

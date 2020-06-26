@@ -217,12 +217,16 @@ in Assets
 			member(Categorization, Categorizations),
 			doc_value(Categorization, ic:unit_type_name, Unit_str),
 			atom_string(Unit, Unit_str),
-			doc_value(Categorization, ic:unit_type_category, Category)
+			doc_value(Categorization, ic:unit_type_category, Category_str),
+			atom_string(Category, Category_str)
 		)
 		->	(
 				ensure_account_by_parent_and_name_exists(A, Category, L1),
-				(	doc_value(Categorization, ic:unit_type_subcategory, Subcategory)
-				->	ensure_account_by_parent_and_name_exists(L1, Subcategory, Parent)
+				(	doc_value(Categorization, ic:unit_type_subcategory, Subcategory_str)
+				->	(
+						atom_string(Subcategory, Subcategory_str),
+						ensure_account_by_parent_and_name_exists(L1, Subcategory, Parent)
+					)
 				;	Parent = L1)
 			)
 		;	Parent = A

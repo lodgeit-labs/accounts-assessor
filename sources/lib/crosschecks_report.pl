@@ -1,5 +1,3 @@
-%:- rdet(report/4).
-%:- rdet(crosschecks_report/4).
 
 crosschecks_report0(Sd, Json) :-
 	% getting a list of _{check:Check, evaluation:Evaluation, status:Status} dicts:

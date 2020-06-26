@@ -83,7 +83,7 @@ x :-
 	% todo for python rewrite:  --tty=true -q? pipe goal (not rpc message) to swipl. get gtrace working.
 	atomic_list_concat(['swipl ', Optimization, ' -s ', Script], Load_Cmd),
 	maybe_clean_terminal,
-	/* make forces compilation of dcg's or something */
+	/* make forces compilation of dcg's or something. Ideally, we would have two steps: 1)compile 2) run the compiled file. But for this i'd like to review what kind of dcg declaration errors 'make' reported that just loading the prolog file didnt, because we would lose that reporting.  */
 	format(user_error, 'dev_runner: checking syntax...\n', []),
 	shell2([Load_Cmd, ' -g "make,halt."  2>&1  |  tee ', Err_File, ' | head -n 150 1>&2']),
 	maybe_halt_on_err,

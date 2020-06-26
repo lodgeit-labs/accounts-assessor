@@ -156,14 +156,6 @@ xml_loader_error_callback(X,Y,Z) :-
 	;	xml_from_path(Url, Dom).
 
 
-/*
-Like `xml_flatten/2` from library(xsd/flatten) but works on already loaded XML objects instead of filepaths.
-*/
-flatten_xml(XML, ID) :-
-	flatten:root_id(Root_ID),
-	flatten:register_file_id(ID),
-	flatten:xml_flatten_nodes(ID,Root_ID,0,XML),
-	!.
 
 xsd_validator_url(X) :-
 	atomic_list_concat([$>(!current_prolog_flag(services_server)), '/xml_xsd_validator'], X).

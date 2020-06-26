@@ -15,7 +15,7 @@
 				<account name="Prepaid Expenses"/>
 				<account name="Sundry Debtors"/>
 				<account name="Investments" role="FinancialInvestments/Investments">
-					<account name="Investments">
+					<account name="FinancialInvestments">
 						<account name="Units_in_Listed_Unit_Trusts_Australian"
 								 role="Assets/Units_in_Listed_Unit_Trusts_Australian"/>
 						<account name="Shares_in_Unlisted_Companies_Australian"

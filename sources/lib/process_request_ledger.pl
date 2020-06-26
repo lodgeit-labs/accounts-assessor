@@ -1,7 +1,6 @@
 
 
 process_request_ledger(File_Path, Dom) :-
-gtrace,
 	inner_xml(Dom, //reports/balanceSheetRequest, _),
 	!validate_xml2(File_Path, 'bases/Reports.xsd'),
 
