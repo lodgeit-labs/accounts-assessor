@@ -4,8 +4,8 @@
 ; git-subrepo command. See https://github.com/git-commands/git-subrepo#readme
 ;
 [subrepo]
-	remote = none
-	branch = master
+	remote = git@github.com:LodgeiT/FOL_solvers.git
+	branch = dev1
 	commit = 
 	method = merge
 	cmdver = 0.4.1
