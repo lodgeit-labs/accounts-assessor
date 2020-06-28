@@ -274,6 +274,9 @@ concept_to_aspects(Concept, Aspects) :-
 	;	Concept = _:_),
 	Aspects = aspects([concept - ($>rdf_global_id(Concept))]).
 
+concept_to_aspects(X, X) :-
+	(number(X),!);(rational(X),!).
+
 walk_exp(Func, Exp, Exp2) :-
 	call(Func, Exp, Exp2),
 	!.
@@ -292,12 +295,15 @@ exp_add_aspect(Aspects_exp, Added, Aspects_exp_with_aspect_added) :-
 
 exp_compute(A = B) :-
 	assertion(A = aspects(_)),
-	exp_eval(B, B2),
-	facts_by_aspects(A, Already_asserted),
+	!exp_eval(B, B2),
+	!facts_by_aspects(A, Already_asserted),
 	(	Already_asserted = []
 	->	true
 	;	throw_string('internal error')),
 	!make_fact(B2, A).
+
+exp_eval(X, X) :-
+	is_list(X). % a vector
 
 exp_eval(X, X2) :-
 	X = aspects(_),
@@ -312,6 +318,12 @@ exp_eval(A - B, C) :-
 	exp_eval(A, A2),
 	exp_eval(B, B2),
 	vec_sub(A2, B2, C).
+
+exp_eval(A * B, C) :-
+	exp_eval(A, A2),
+	((rational(B),!);(number(B),!)),
+	{B2 = B * 100},
+	split_vector_by_percent(A2, B2, C, _).
 
 add_aspect(Added, aspects(X), aspects(Y)) :-
 	append(X, [Added], Y).
@@ -406,6 +418,153 @@ Closed reporting
 
 Table structure
     A view of a taxonomy or report that is designed to replicate tables for presentation or data entry purposes. Table structures are typically used to cope with the complex, dimensional reports often seen in prudential reporting. [At a technical level, the table structure is defined using the Table Linkbase specification]
+
+
+(United States Dollars) for monetary values or “meters” for length. The units are expressed as a list of
+numerator units with an optional list of denominator units. This allows for compound units, such as
+dollars/share or miles/hour. It also allows for units such as meters 2 by specifying multiple “meter” units in
+the numerator.
+
+
+Other types of concepts may be used as organizational containers for concept core dimensions that are
+semantically related. These are called grouping concepts, and they define structures within a taxonomy,
+such as an XBRL table structure or a domain of possible values.
+
+
+This new XBRL dimension is defined by a concept that represents the nature of an axis in the
+data set. In the example, a concept named Person would be added to the taxonomy. Good practice would
+also dictate that a suffix is appended to the name of this concept to indicate that this is a taxonomy-
+defined dimension and should not itself be used as a concept core dimension. In other words, this new
+concept should not be used directly with any one fact. For more information on suffixes, see the XBRL
+Style Guide. This would make the final concept name PersonAxis.
+
+
+Now that there is a concept to describe the taxonomy-defined dimension, the components, or members,
+of this dimension must be described. In the example, this would be Jared and Allyson, the two people
+who belong to the reporting entity, “Bob’s Household.” They therefore belong to the new PersonAxis.
+XBRL offers numerous ways to express these components, but for this example, concepts named Jared
+and Allyson will be used. Again, good style practice and clarity suggest adding a suffix to these concept
+names to indicate they should not be used as concept core dimensions. Thus, they will be named
+JaredMember and AllysonMember. For a more in-depth discussion on the other options to express the
+components of a taxonomy-defined dimension, see Section 3.4.2.
+
+
+Facts with a numeric data type must have a decimals or precision property that states how
+mathematically precise the value of the fact is. Because all numeric facts must have precision, XBRL
+software can maintain precision when performing mathematical calculations. Given this, when comparing
+a computed value versus a fact value, XBRL software can automatically accommodate for rounding
+errors.
+
+
+For example, an XBRL date must be in ISO 8601 format but many
+textual dates are written in descriptive language. An XBRL transformation describes how the descriptive
+language can be converted to the appropriate format. For a list of rules and more information, see the
+XBRL Transformation Registry.
+
+
+Inline XBRL also offers a scaling property on individual facts, to indicate to XBRL software that the value
+of the fact must be scaled before it is interpreted. For example, a table of facts may be expressed in
+millions without the trailing zeros to aid in human readability but Inline XBRL has appropriate scaling so
+the value of 123 is interpreted as 123000000.
+
+Naming conventions should be employed
+following certain style rules (check the XBRL US Style Guide for language and reference styles). Of note
+in this case is the use of specific suffixes to indicate a concept’s role.
+
+Concepts that do not actually intersect facts often have their
+abstract property set to “true.” This specifically indicates that a concept is not a concept core dimension
+but rather an organizational item.
+
+Reporting data for “Income (Loss)” may be a
+situation where a negative fact represents that loss, but that fact may be presented as positive for a
+specific human-readable presentation. This would be accomplished with a negated label.
+
+Within the XBRL definition, the closed property of the hypercube specifies that all taxonomy-defined
+dimensions in this hypercube must intersect on a fact in order for that fact to be part of this hypercube. If
+a taxonomy-defined dimension is omitted, the default value for that dimension is assumed to intersect on
+the fact. If there is no default value, that taxonomy-defined dimension cannot intersect, which will prevent
+the hypercube from including the fact. An open hypercube removes this constraint. In the widget example,
+each fact must have the taxonomy-defined dimensions CustomerNameAxis, WidgetTypeAxis, and
+OrderDateAxis intersecting upon it. For an explicit taxonomy-defined dimension, a dimension-default
+arcrole allows for a concept to be the default value of the dimension, meaning facts that do not explicitly
+intersect with that taxonomy-defined dimension are implied to intersect with the default value when
+rendering the hypercube. If facts do not intersect with a concept member of the taxonomy-defined
+dimension and that dimension has a dimension-default set, those facts will be considered to intersect with
+the dimension-default. The dimension-default is usually set to the domain concept, which implies that
+facts that do not intersect the dimension are a total of that dimension.
+
+
+
+
+VARIABLES
+
+
+
+Every XBRL variable implies an XPath expression. A variable is evaluated by evaluating the implied XPath in the context of an XBRL instance.
+
+The XPath expressions implied by variables are evaluated using the <xbrli:xbrl> element of the input XBRL instance as the context item.
+
+ For various reasons, the XBRL Specification [XBRL 2.1] makes minimal use of the normal hierarchical structure of XML, instead requiring relatively flat syntax for XBRL instances and for their supporting XML schemas and linkbases.
+
+This design makes it cumbersome to use XPath or XQuery to select data from XBRL instances based on their content and their supporting discoverable taxonomy sets, at least without a library of custom functions.
+
+This specification provides a framework for an alternative syntax for specifying the filters that are to be applied to an XBRL instance to select the required data from them, if it is available. The alternative syntax is extensible in the sense that additional filters can be defined as they are deemed useful.
+
+For two facts, an aspect test can be used to test whether an aspect is not reported for both facts or is reported with an equivalent value for both facts.
+
+Two facts are aspect-matched facts if they have exactly the same aspects and, for each of aspect that they both have, the value for that aspect matches for the two facts.
+
+All formulae have a default accuracy rule. A formula MAY also have an accuracy rule specified by either a <formula:precision> child element or a <formula:decimals> child element on the formula.
+
+An aspect rule is a rule for determining the value of an output aspect. Rules for determining the output concept, the output context and the output units of measurement (for numeric facts), are all different types of aspect rules.
+
+
+http://www.xbrl.org/WGN/xf-grammar/WGN-2018-10-10/xf-grammar-WGN-2018-10-10.html
+
+1.1 Example XF rule
+namespace eg = "http://www.example.com/ns" ;
+assertion RevenueNonNegative {
+    unsatisfied-message (en) "Revenue must not be negative";
+    variable $revenue {
+        concept-name eg:Revenue ;
+    };
+    test { $revenue ge 0 };
+};
+
+http://www.xbrl.org/specification/dimensions/rec-2012-01-25/dimensions-rec-2006-09-18+corrected-errata-2012-01-25-clean.html
+
+http://www.xbrl.org/WGN/dimensions-use/WGN-2015-03-25/dimensions-use-WGN-2015-03-25.html
+
+https://www.xbrl.org/Specification/extensible-enumerations-2.0/REC-2020-02-12/extensible-enumerations-2.0-REC-2020-02-12.html
+
+https://www.xbrl.org/REQ/calculation-requirements-2.0/REQ-2019-02-06/calculation-requirements-2.0-2019-02-06.html
+
+XBRL 2.1 summation-item relationships have defined validation behaviour, with conformant processors being required to signal an "inconsistency" if the facts in an XBRL report do not conform to the prescribed relationships. The validation behaviour does not include any provision for inferring values which are not explicitly reported.
+
+XBRL 2.1 summation-item relationships are restricted to describing summation relationships between numeric facts which are c-equal, that is, which share the same period, dimensions and other contextual information, among other restrictive conditions.
+
+
+
+
+
+
+.......
+
+https://www.xbrl.org/guidance/esd-main/
+
+*/
+
+/*
+
+
+
+
+----
+
+
+reconcilliation of xbrl and our system wrt:
+	our adjustment units:
+		possibly this could be represented in a xbrl taxonomy, ie, "Assets" is not a single fact-point, or rather, it is a calculated fact, made up of 'assets in report currency' + ..
 
 
 

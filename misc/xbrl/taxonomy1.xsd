@@ -1,0 +1,11 @@
+<element
+name="Fuel"
+xbrli:periodType="duration"
+xbrli:balance="credit"
+nillable="false"
+abstract="false"
+type="xbrli:monetaryItemType"
+substitutionGroup="xbrli:item"
+id="example_Fuel" />
+
+

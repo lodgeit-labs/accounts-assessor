@@ -1,0 +1,3 @@
+[submodule "sources/public_lib/lodgeit_solvers"]
+	path = sources/public_lib/lodgeit_solvers
+	url = git@github.com:LodgeiT/FOL_solvers.git

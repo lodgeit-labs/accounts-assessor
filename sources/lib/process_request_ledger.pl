@@ -69,9 +69,10 @@ process_request_ledger2((Dom, Start_Date, End_Date, Output_Dimensional_Facts, Co
 	Static_Data1 = Static_Data0b.put([transactions_by_account=Transactions_By_Account1]),
 	(	account_by_role(rl(smsf_equity), _)
 	->	(
+			smsf_distributions_reports(_),
 			update_static_data_with_transactions(
 				Static_Data1,
-				$>smsf_income_tax_stuff(Static_Data1),
+				$>!smsf_income_tax_stuff(Static_Data1),
 				Static_Data2)
 		)
 	;	Static_Data2 = Static_Data1),
@@ -161,10 +162,7 @@ static_data_historical(Static_Data, Static_Data_Historical) :-
 ) :-
 	!static_data_historical(Static_Data, Static_Data_Historical),
 	(	account_by_role(rl(smsf_equity), _)
-	->	(
-			smsf_member_reports(Sr0),
-			smsf_distributions_report(_)
-		)
+	->	smsf_member_reports(Sr0)
 	;	true),
 	!report_entry_tree_html_page(Static_Data, Sr0.bs.current, 'balance sheet', 'balance_sheet.html'),
 	!report_entry_tree_html_page(Static_Data, Sr0.bs.delta, 'balance sheet delta', 'balance_sheet_delta.html'),

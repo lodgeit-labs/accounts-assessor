@@ -14,7 +14,14 @@
 				<account name="Other Assets"/>
 				<account name="Prepaid Expenses"/>
 				<account name="Sundry Debtors"/>
-                <account name="Investments" role="FinancialInvestments/Investments"/>
+				<account name="Investments" role="FinancialInvestments/Investments">
+					<account name="FinancialInvestments">
+						<account name="Units_in_Listed_Unit_Trusts_Australian"
+								 role="Assets/Units_in_Listed_Unit_Trusts_Australian"/>
+						<account name="Shares_in_Unlisted_Companies_Australian"
+								 role="Assets/Shares_in_Unlisted_Companies_Australian"/>
+					</account>
+				</account>
 				<account name="Distribution Receivable" subcategorize_by_investment="true"/>
 			</account>
 			<account name="Liabilities" normal_side="credit">
@@ -127,7 +134,7 @@
 				<account name="Capital Gains/Losses _ Non taxable"/>
 				<account name="Distribution Received" role="Distribution Received" subcategorize_by_investment="true"/>
                 <account name="Dividends Received"/>
-                <account name="Interest Received - control">
+                <account name="Interest Received - control" role="Interest Received - control">
 				    <account name="Interest Received"/>
     				<account name="Interest Received - by bank" subcategorize_by_bank="true"/>
 					<account name="ATO Interest"/>
@@ -141,17 +148,17 @@
                 <account name="Transfer In"/>
                 <account name="PL Transfers In - Preserved/Tax Free" subcategorize_by_smsf_member="true"/>
                 <account name="PL Transfers In - Preserved/Taxable" subcategorize_by_smsf_member="true"/>
-				<account name="Other Income"/>
+				<account name="Other Income" role="Other Income"/>
 				<account name="ChangeInMarketValue"/>
 			</account>
 			<account name="Expenses" normal_side="debit">
-				<account name="Accountancy Fees"/>
+				<account name="Accountancy Fees" role="Accountancy Fees"/>
 				<account name="Adminstration Costs"/>
 				<account name="ATO Supervisory Levy" role="ATO Supervisory Levy"/>
-				<account name="Audit Fees"/>
+				<account name="Audit Fees" role="Audit Fees" />
 				<account name="Bank Charges"/>
 				<account name="Rental Expenses"/>
-				<account name="Investment Expenses"/>
+				<account name="Investment Expenses" role="Investment Expenses"/>
 				<account name="Fines"/>
 				<account name="Legal Fees"/>
 				<account name="Income Tax Expenses" role="Income Tax Expenses"/>
@@ -160,7 +167,7 @@
 				<account name="Pension paid"/>
 				<account name="Benefits Paid"/>
 				<account name="Tranfer Out"/>
-                <account name="Filling Fees"/>
+                <account name="Filling Fees" role="Filling Fees"/>
                 <account name="Drawings"/>
 			</account>
 		</account>

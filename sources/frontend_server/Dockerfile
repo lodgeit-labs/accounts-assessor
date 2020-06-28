@@ -4,8 +4,9 @@ RUN apt-get update && apt-get install -y git python3 python3-pip \
 RUN groupadd -r user && useradd -r -g user user
 RUN mkdir /app
 WORKDIR /app
-COPY requirements.txt .
-RUN pip3 install --no-cache-dir -r requirements.txt
+#COPY requirements.txt .
+COPY frontend_server/requirements_minimal.txt .
+RUN pip3 install --no-cache-dir -r requirements_minimal.txt
 EXPOSE 7788
 RUN mkdir -p /app/server_root
 #RUN chown -R user:user /app/server_root
@@ -13,8 +14,9 @@ RUN mkdir -p /app/server_root
 VOLUME /app/server_root
 COPY frontend_server ./frontend_server
 COPY internal_workers ./internal_workers
+COPY triplestore_access ./triplestore_access
+COPY common ./common
 COPY static ./static
-COPY git_info.txt .
 COPY secrets1.json /
 COPY secrets2.json /
 #USER user

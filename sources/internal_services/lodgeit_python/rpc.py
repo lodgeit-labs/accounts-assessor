@@ -35,11 +35,6 @@ Access AGWebView at http://127.0.0.1:10035
 """
 
 
-#def agc():
-#	return ag_connect('a', host='localhost', port='10035', user=os.environ['AGRAPH_USER'],
-#				   password=os.environ['AGRAPH_PASS'])
-
-
 @rpc_method
 def agraph_sparql(sparql):
 	#agc().

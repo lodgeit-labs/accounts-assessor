@@ -1,9 +1,7 @@
 
-:- use_module(library(xsd)).
 :- use_module(library(xpath)).
 :- use_module(library(record)).
 :- use_module(library(yall)).
-:- use_module(library(rdet)).
 :- use_module(library(clpq)).
 :- use_module(library(clpfd)).
 :- use_module(library(http/http_open)).
@@ -71,6 +69,7 @@
 :- [smsf_member_report_presentation].
 :- [system_accounts].
 :- [tables].
+:- [term_dict].
 :- [trading].
 :- [transactions].
 :- [vector_string].

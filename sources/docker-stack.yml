@@ -29,7 +29,7 @@ services:
         parallelism: 2
         delay: 10s
       restart_policy:
-        condition: on-failure
+        condition: any
     volumes:
       - "/etc/localtime:/etc/localtime:ro"
 
@@ -53,7 +53,7 @@ services:
       placement:
         constraints: [node.role == manager]
       restart_policy:
-        condition: on-failure
+        condition: any
     ports:
       - 7788:7788
 
@@ -82,15 +82,17 @@ services:
       placement:
         constraints: [node.role == manager]
       restart_policy:
-        condition: on-failure
+        condition: any
 
   internal-workers:
     image: koo5/internal_workers:latest
     environment:
       SECRET__INTERNAL_SERVICES_SERVER_URL: "http://internal-services:17788"
       SECRET__CELERY_BROKER_URL: "amqp://guest:guest@rabbitmq:5672//"
+      DETERMINANCY_CHECKER__USE__ENFORCER: "true"
     volumes:
       - my-vol:/app/server_root/tmp
+      - cache:/app/cache
       - "/etc/localtime:/etc/localtime:ro"
       - "/tmp/.X11-unix:/tmp/.X11-unix:rw"
     networks:
@@ -107,7 +109,7 @@ services:
       placement:
         constraints: [node.role == manager]
       restart_policy:
-        condition: on-failure
+        condition: any
 
 networks:
   robust_frontend:
@@ -120,3 +122,4 @@ networks:
 
 volumes:
   my-vol:
+  cache:

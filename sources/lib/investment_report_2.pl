@@ -1,14 +1,4 @@
 
-%:- rdet(investment_report_2_unrealized/3).
-%:- rdet(investment_report_2_sale_lines/4).
-%:- rdet(investment_report_2_sales/3).
-%:- rdet(investment_report_2/4).
-%:- rdet(ir2_forex_gain/8).
-%:- rdet(ir2_market_gain/10).
-%:- rdet(clip_investments/4).
-%:- rdet(filter_investment_sales/3).
-%:- rdet(clip_investment/3).
-	
 
 :- record ir_item(type, info, outstanding_count, sales, clipped).
 

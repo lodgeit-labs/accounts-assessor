@@ -1,20 +1,13 @@
 from celery_module import app
 
-import sys
+import sys, os
 import rdflib
 import rdflib.plugins.serializers.nquads
+sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../triplestore_access')))
+import agraph
 
 
-def agc():
-	#from franz.openrdf.repository.repository import Repository
-	# from franz.openrdf.sail.allegrographserver import AllegroGraphServer
-	from franz.openrdf.connect import ag_connect
-	user = app.conf.AGRAPH_SECRET_USER
-	passw = app.conf.AGRAPH_SECRET_PASSWORD
-	if user != None and passw != None:
-		return ag_connect('a', host=app.conf.AGRAPH_SECRET_HOST, port=app.conf.AGRAPH_SECRET_PORT, user=user, password=passw)
-	else:
-		print('agraph user and pass not provided, skipping')
+
 
 @app.task
 def postprocess_doc(tmp_path):
@@ -36,7 +29,7 @@ def generate_doc_nq_from_trig(tmp_path):
 
 def put_doc_dump_into_triplestore(nq_fn):
 	print("agc()...", file=sys.stderr)
-	c = agc()
+	c = agraph.agc()
 	if c:
 		print("c.addFile(nq_fn)...", file=sys.stderr)
 		c.addFile(nq_fn)

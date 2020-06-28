@@ -69,6 +69,7 @@ is_valid_role('FinancialInvestments'/Id) :- !, freeze(Id, atom(Id)).
 	!traded_units(S_Transactions, Traded_units),
 	!ensure_financial_investments_accounts_exist(Traded_units),
 	!subcategorize_by_investment(Traded_units),
+	!subcategorize_distribution_received,
 	!'ensure InvestmentIncome accounts exist'(Traded_units),
 	!ensure_smsf_equity_tree,
 	!subcategorize_by_smsf_members.
@@ -191,8 +192,8 @@ in Assets
 
  ensure_financial_investments_accounts_exist2(Traded_Units, Id) :-
 	Role0 = 'FinancialInvestments'/Id,
-	abrlt(Role0, FinancialInvestments),
-	maplist(ensure_FinancialInvestments_Unit(FinancialInvestments), Traded_Units).
+	!abrlt(Role0, FinancialInvestments),
+	!maplist(ensure_FinancialInvestments_Unit(FinancialInvestments), Traded_Units).
 
  ensure_FinancialInvestments_Unit(FinancialInvestments, Unit) :-
  	account_name(FinancialInvestments, Name),
@@ -216,12 +217,16 @@ in Assets
 			member(Categorization, Categorizations),
 			doc_value(Categorization, ic:unit_type_name, Unit_str),
 			atom_string(Unit, Unit_str),
-			doc_value(Categorization, ic:unit_type_category, Category)
+			doc_value(Categorization, ic:unit_type_category, Category_str),
+			atom_string(Category, Category_str)
 		)
 		->	(
 				ensure_account_by_parent_and_name_exists(A, Category, L1),
-				(	doc_value(Categorization, ic:unit_type_subcategory, Subategory)
-				->	ensure_account_by_parent_and_name_exists(L1, Subategory, Parent)
+				(	doc_value(Categorization, ic:unit_type_subcategory, Subcategory_str)
+				->	(
+						atom_string(Subcategory, Subcategory_str),
+						ensure_account_by_parent_and_name_exists(L1, Subcategory, Parent)
+					)
 				;	Parent = L1)
 			)
 		;	Parent = A
@@ -239,6 +244,23 @@ in Assets
 	)
 	->	true
 	;	make_account_with_optional_role(Name, Parent, 1, _Role, Uri).
+
+%------
+
+subcategorize_distribution_received :-
+	findall(A, account_role(A, rl('Distribution Received'/_)), As),
+	maplist(subcategorize_distribution_received2, As).
+
+subcategorize_distribution_received2(A) :-
+	maplist(subcategorize_distribution_received4(A), [
+		'Resolved Accrual',
+		'Foreign Credit',
+		'Franking Credit'
+	]).
+
+subcategorize_distribution_received4(A, Subcategorization) :-
+	account_role(A, rl('Distribution Received'/Unit)),
+	ensure_account_exists(A, Subcategorization, 1, rl('Distribution Received'/Unit/Subcategorization), _).
 
 %------
 

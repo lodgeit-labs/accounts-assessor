@@ -1,0 +1,22 @@
+model
+    xbrl_instancess
+        type: list of xbrl_instance
+        
+xbrl_instance
+    taxonomies
+        type: list of xbrl_taxonomy
+    facts:
+        type: list of xbrl_fact
+
+
+xbrl_fact
+    aspects:
+        type: list of xbrl_aspect_instance
+        
+xbrl_aspect_instance
+    decl
+    value
+    
+    
+xule_factset
+    type: list of xbrl_fact

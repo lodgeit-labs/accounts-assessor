@@ -28,7 +28,7 @@ return all units that appear in s_transactions with an action type that specifie
 	findall(Account, abrlt('FinancialInvestments'/Name, Account), Accounts).
 */
 
-financialInvestments_accounts_ui_names(Names) :-
+ financialInvestments_accounts_ui_names(Names) :-
 	findall(
 		A,
 		(

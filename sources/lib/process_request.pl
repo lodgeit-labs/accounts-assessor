@@ -178,7 +178,7 @@ process_multifile_request(File_Paths) :-
 
 /* only done for requests that include a rdf file */
 check_request_version :-
-	Expected = "1",
+	Expected = "2",
 	!request_data(D),
 	(	doc(D, l:client_version, V)
 	->	(	V = Expected

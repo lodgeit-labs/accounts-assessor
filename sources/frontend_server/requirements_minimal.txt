@@ -1,0 +1,8 @@
+# this file contains requirements of all sub-projects, as well as some developer conveniences.
+
+wheel
+django
+django-modern-rpc
+celery
+django-cors-headers
+agraph-python

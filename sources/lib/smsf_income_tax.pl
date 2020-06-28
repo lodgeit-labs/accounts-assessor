@@ -5,9 +5,11 @@ smsf_income_tax_stuff(Static_Data0, Txs) :-
 	->	(
 			!process_ato_supervisory_levy(Input, Ato_levy_txs),
 			!update_static_data_with_transactions(Static_Data0,	Ato_levy_txs, Static_Data1),
-			!add_smsf_income_tax_report_facts(Static_Data1),
+			!balance_entries(Static_Data1, Sr0),
+			Json_reports = _{before_smsf_income_tax:Sr0},
+			!add_smsf_income_tax_report_facts(Json_reports),
 			!'check Income Tax Expenses are zero',
-			!smsf_income_tax_report(_),
+			!smsf_income_tax_reports(_),
 			!smsf_income_tax_txs(Input, Tax_expense_txs),
 			!flatten([Ato_levy_txs,Tax_expense_txs], Txs)
 		)
@@ -34,10 +36,29 @@ process_ato_supervisory_levy(Input, Txs) :-
 		Levy_vec,
 		Txs).
 
-add_smsf_income_tax_report_facts(Sd) :-
-	!balance_entries(Sd, Sr0),
-	Json_reports = _{before_smsf_income_tax:Sr0},
+ add_smsf_income_tax_report_facts(Json_reports) :-
 	Aspectses = [
+		aspects([
+			report - before_smsf_income_tax/pl/current,
+			account_role - 'Audit Fees']),
+		aspects([
+			report - before_smsf_income_tax/pl/current,
+			account_role - 'Accountancy Fees']),
+		aspects([
+			report - before_smsf_income_tax/pl/current,
+			account_role - 'Interest Received - control']),
+		aspects([
+			report - before_smsf_income_tax/pl/current,
+			account_role - 'Filling Fees']),
+		aspects([
+			report - before_smsf_income_tax/pl/current,
+			account_role - 'Investment Expenses']),
+		aspects([
+			report - before_smsf_income_tax/pl/current,
+			account_role - 'ATO Supervisory Levy']),
+		aspects([
+			report - before_smsf_income_tax/pl/current,
+			account_role - 'Other Income']),
 		aspects([
 			report - before_smsf_income_tax/pl/current,
 			account_role - 'ComprehensiveIncome']),
@@ -85,7 +106,7 @@ smsf_income_tax_report(Tbl_dict) :-
 			aspects([
 				report - before_smsf_income_tax/pl/current,
 				account_role - 'TradingAccounts'/'Capital GainLoss'])],
-		[text('Accounting Trust Distribution Income Received'),
+		[text('Accounting Trust Distribution'),
 			aspects([
 				report - before_smsf_income_tax/pl/current,
 				account_role - 'Distribution Received'])],
@@ -117,17 +138,16 @@ smsf_income_tax_report(Tbl_dict) :-
 	],
 
 	Addition_rows = [
-		[text('Taxable Trust Distributions (Inc Foreign Income & Credits)'),
+		[text('Taxable Trust Distributions'),
 			aspects([
-%todo:
 				concept - smsf/income_tax/'Taxable Trust Distributions (Inc Foreign Income & Credits)'])],
 		[text('WriteBack of Deferred Tax'),
 			aspects([
 				report - before_smsf_income_tax/pl/current,
 				account_role - 'Writeback Of Deferred Tax'])],
-		[text('Taxable Net Capital Gain'),
+		[text('Taxable Capital Gain'),
 			aspects([
-				concept - ($>rdf_global_id(smsf_distribution_ui:franking_credit))])]],
+				concept - ($>rdf_global_id(smsf_computation:taxable_net_capital_gains_discounted))])]],
 
 	!rows_total(Addition_rows, Additions_vec),
 	!vec_sub(Rows0_vec, Subtractions_vec, After_subtractions),
@@ -159,7 +179,7 @@ smsf_income_tax_report(Tbl_dict) :-
 			aspects([
 				concept - smsf/income_tax/'Franking Credits on dividends'])],
 		*/
-		[text('Franking Credits on distributions'),
+		[text('Franking Credits'),
 			aspects([concept - ($>rdf_global_id(smsf_distribution_ui:franking_credit))])],
 		[text('Foreign Credit'),
 			aspects([concept - ($>rdf_global_id(smsf_distribution_ui:foreign_credit))])]
@@ -167,17 +187,17 @@ smsf_income_tax_report(Tbl_dict) :-
 
 	!rows_total(Subtractions2_rows, Subtractions2_vec),
 	!vec_sub(Tax, Subtractions2_vec, After_subtractions2),
-	!make_fact(After_subtractions2, aspects([concept - smsf/income_tax/'after deductions'])),
+	!make_fact(After_subtractions2, aspects([concept - smsf/income_tax/'Income Tax Payable/(Refund)'])),
 	!evaluate_fact2(aspects([concept - smsf/income_tax/'ATO Supervisory Levy']), Ato),
 	!vec_add(After_subtractions2,Ato,To_pay),
 	!make_fact(To_pay, aspects([concept - smsf/income_tax/'to pay'])),
 
 	Rows4 = [
-		[text('Net Tax refundable/payable'),
-			aspects([concept - smsf/income_tax/'after deductions'])],
-		[text('Add: ATO Supervisory Levy'),
+		[text('Income Tax Payable/(Refund)'),
+			aspects([concept - smsf/income_tax/'Income Tax Payable/(Refund)'])],
+		[text('Add: Supervisory Levy'),
 			aspects([concept - smsf/income_tax/'ATO Supervisory Levy'])],
-		[text('to pay/refund:'),
+		[text('Total Mount Due or Refundable:'),
 			aspects([concept - smsf/income_tax/'to pay'])]
 	],
 
@@ -189,12 +209,150 @@ smsf_income_tax_report(Tbl_dict) :-
 	Columns = [
 		column{id:label, title:"Description", options:options{}},
 		column{id:value, title:"Amount in $", options:options{implicit_report_currency:true}}],
-	Title_Text = "Statement of Taxable Income",
-	Tbl_dict = table{title:Title_Text, columns:Columns, rows:Row_dicts},
-	!table_html([highlight_totals - true], Tbl_dict, Table_Html),
-	!page_with_table_html(Title_Text, Table_Html, Html),
-	!add_report_page(0, Title_Text, Html, loc(file_name,'statement_of_taxable_income.html'), statement_of_taxable_income).
+	Tbl_dict = table{title:"Statement of Taxable Income", columns:Columns, rows:Row_dicts}.
 
+smsf_income_tax_reconcilliation(Tbl_dict) :-
+	Rows0 = [
+		[text('Other Income'),
+			aspects([
+				report - before_smsf_income_tax/pl/current,
+				account_role - 'Other Income'])],
+		[text('Taxable Capital Gain'),
+			aspects([concept - ($>rdf_global_id(smsf_computation:taxable_net_capital_gains_discounted))])],
+		[text('Taxable Trust Distributions'),
+			aspects([
+				concept - smsf/income_tax/'Taxable Trust Distributions (Inc Foreign Income & Credits)'])],
+		[text('Interest Income'),
+			aspects([
+				report - before_smsf_income_tax/pl/current,
+				account_role - 'Interest Received - control'])]],
+	!rows_total(Rows0, Rows0_vec),
+	!make_fact(Rows0_vec,
+		aspects([
+			concept - smsf/income_tax/reconcilliation/'Total Income'])),
+
+	Rows0b = [
+		[text('Total Income'),
+			aspects([
+				concept - smsf/income_tax/reconcilliation/'Total Income'])]],
+
+	Rows1 = [
+		[text('Expenses:'),text('')],
+		[text('Filling Fees'),
+			aspects([
+				report - before_smsf_income_tax/pl/current,
+				account_role - 'Filling Fees'])],
+		[text('Supervisory Levy'),
+			aspects([
+				report - before_smsf_income_tax/pl/current,
+				account_role - 'ATO Supervisory Levy'])],
+		[text('Investment Expenses'),
+			aspects([
+				report - before_smsf_income_tax/pl/current,
+				account_role - 'Investment Expenses'])],
+		[text('Audit Fees'),
+			aspects([
+				report - before_smsf_income_tax/pl/current,
+				account_role - 'Audit Fees'])],
+		[text('Accountancy Fees'),
+			aspects([
+				report - before_smsf_income_tax/pl/current,
+				account_role - 'Accountancy Fees'])]
+	],
+	!rows_total(Rows1, Rows1_vec),
+	!make_fact(Rows1_vec,
+		aspects([concept - smsf/income_tax/reconcilliation/'Total Expenses'])),
+
+	Rows2 = [
+		[text('Less: Total Expenses'),
+			aspects([
+				concept - smsf/income_tax/reconcilliation/'Total Expenses'])]],
+
+	!exp_compute(
+		aspects([concept - smsf/income_tax/reconcilliation/'Net Taxable Income'])
+		=
+		aspects([concept - smsf/income_tax/reconcilliation/'Total Income'])
+		-
+		aspects([concept - smsf/income_tax/reconcilliation/'Total Expenses'])),
+
+	Rows4 = [
+		[text('Net Taxable Income'),
+			aspects([
+				concept - smsf/income_tax/reconcilliation/'Net Taxable Income'])]],
+
+	!exp_compute(
+		aspects([concept - smsf/income_tax/reconcilliation/'Tax 15%'])
+		=
+		aspects([concept - smsf/income_tax/reconcilliation/'Net Taxable Income'])
+		*
+		(15 rdiv 100)),
+
+	Rows6 = [
+		[text('Tax 15%'),
+			aspects([
+				concept - smsf/income_tax/reconcilliation/'Tax 15%'])]],
+
+	Rows8 = [
+		[text('Less: Franking Credits'),
+			aspects([concept - ($>rdf_global_id(smsf_distribution_ui:franking_credit))])],
+		[text('Less: Foreign Credit'),
+			aspects([concept - ($>rdf_global_id(smsf_distribution_ui:foreign_credit))])]],
+
+	!rows_total(Rows8, Rows8_vec),
+
+	!exp_compute(
+		aspects([concept - smsf/income_tax/reconcilliation/'Income Tax Payable/(Refund)'])
+		=
+		aspects([concept - smsf/income_tax/reconcilliation/'Tax 15%'])
+		-
+		Rows8_vec),
+
+	!exp_compute(
+		aspects([concept - smsf/income_tax/reconcilliation/'Total'])
+		=
+		aspects([concept - smsf/income_tax/reconcilliation/'Income Tax Payable/(Refund)'])
+		+
+		aspects([
+			report - before_smsf_income_tax/pl/current,
+			account_role - 'ATO Supervisory Levy'])),
+
+	Rows10 = [
+		[text('Income Tax Payable/(Refund)'),
+			aspects([concept - smsf/income_tax/reconcilliation/'Income Tax Payable/(Refund)'])],
+		[text('Add: Supervisory Levy'),
+			aspects([
+				report - before_smsf_income_tax/pl/current,
+				account_role - 'ATO Supervisory Levy'])],
+		[text('Total'),
+			aspects([concept - smsf/income_tax/reconcilliation/'Total'])]],
+
+	append([Rows0, Rows0b, Rows1, Rows2, Rows4, Rows6, Rows8, Rows10], Rows),
+	assertion(ground(Rows)),
+	!evaluate_fact_table(Rows, Rows_evaluated),
+	assertion(ground(Rows_evaluated)),
+	maplist(!label_value_row_to_dict, Rows_evaluated, Row_dicts),
+	Columns = [
+		column{id:label, title:"Description", options:options{}},
+		column{id:value, title:"Amount in $", options:options{implicit_report_currency:true}}],
+	Tbl_dict = table{title:"Tax Workings Reconciliation", columns:Columns, rows:Row_dicts}.
+
+smsf_income_tax_reports(reports{report:Tbl1,reconcilliation:Tbl2}) :-
+	!smsf_income_tax_report(Tbl1),
+	!smsf_income_tax_reconcilliation(Tbl2),
+	Title_Text = "Statement of Taxable Income",
+	!page_with_body(Title_Text, [
+		p(["Statement of Taxable Income:"]),
+		table([border="1"], $>table_html([highlight_totals - true], Tbl1)),
+		p(["Tax Workings Reconciliation:"]),
+		table([border="1"], $>table_html([highlight_totals - true], Tbl2))
+	], Html),
+	!add_report_page(
+		0,
+		Title_Text,
+		Html,
+		loc(file_name, 'statement_of_taxable_income.html'),
+		statement_of_taxable_income
+	).
 
 
  row_aspectses(Rows, Aspectses) :-
@@ -234,9 +392,4 @@ smsf_income_tax_report(Tbl_dict) :-
 	(	Value = []
 	->	true
 	;	throw_string('Income Tax Expenses PL account for current year should be zero, income tax will be computed')).
-
-
-
-
-
 

@@ -61,10 +61,11 @@ assert_smsf_distribution_facts(Default_currency, Unit, Item) :-
 			smsf_distribution_ui:franked_divis_distri_including_credits,
 			smsf_distribution_ui:assessable_foreign_source_income,
 			% smsf_distribution_ui:net_trust_distribution_income
+			smsf_distribution_ui:capital_gains,
 			smsf_distribution_ui:capital_losses,
-			smsf_distribution_ui:discount_capital_gains_net,
-			smsf_distribution_ui:other_capital_gains,
-			smsf_distribution_ui:one_third_capital_gain_discount_amount
+			%smsf_distribution_ui:discount_capital_gains_net,
+			smsf_distribution_ui:other_capital_gains
+			%smsf_distribution_ui:one_third_capital_gain_discount_amount
 			% smsf_distribution_ui:total_capital_gains_losses
 		]
 	),
@@ -110,6 +111,24 @@ assert_smsf_distribution_facts(Default_currency, Unit, Item) :-
 		(smsf_distribution_ui:assessable_foreign_source_income)),
 
 	!check_entered_unit_fact_matches_computed(Default_currency, Unit, Item, smsf_distribution_ui:net_trust_distribution_income, smsf_distribution_ui:entered_net_trust_distribution_income),
+
+	!computed_unit_fact(Unit,
+		(smsf_distribution_ui:discount_capital_gains_net)
+		=
+		(smsf_distribution_ui:capital_gains)
+		*
+		(2 rdiv 3)),
+
+	!check_entered_unit_fact_matches_computed(Default_currency, Unit, Item, smsf_distribution_ui:discount_capital_gains_net, smsf_distribution_ui:entered_discount_capital_gains_net),
+
+	!computed_unit_fact(Unit,
+		(smsf_distribution_ui:one_third_capital_gain_discount_amount)
+		=
+		(smsf_distribution_ui:capital_gains)
+		*
+		(1 rdiv 3)),
+
+	!check_entered_unit_fact_matches_computed(Default_currency, Unit, Item, smsf_distribution_ui:one_third_capital_gain_discount_amount, smsf_distribution_ui:entered_one_third_capital_gain_discount_amount),
 
 	!computed_unit_fact(Unit,
 		(smsf_distribution_ui:total_capital_gains_losses)
@@ -164,9 +183,8 @@ entered_computed_soft_crosscheck(A = B) :-
 ┣┳┛┣╸ ┣━┛┃ ┃┣┳┛ ┃
 ╹┗╸┗━╸╹  ┗━┛╹┗╸ ╹
 */
-smsf_distributions_report(Tbl_dict) :-
-	Title_Text = "Distributions",
-
+smsf_distributions_report(Tbl_dict, Html) :-
+	% todo: group{id:.., title:"..", members:Columns0..},
 	Columns = [
 		column{
 			id:($>rdf_global_id(smsf_distribution_ui:unit_type)),
@@ -277,10 +295,62 @@ smsf_distributions_report(Tbl_dict) :-
 		Total_Keys),
 	!table_totals(Rows, Total_Keys, Totals),
 	flatten([Rows, Totals], Rows2),
-
+	Title_Text = "Distributions:",
 	Tbl_dict = table{title:Title_Text, columns:Columns2, rows:Rows2},
-	!table_html([highlight_totals - true], Tbl_dict, Table_Html),
-	!page_with_table_html(Title_Text, Table_Html, Html),
+	Table_Html = table([border="1"], $>table_html([highlight_totals - true], Tbl_dict)),
+	Html = [p([Title_Text]),Table_Html].
+
+
+smsf_distributions_totals_report(Tbl_dict, Html) :-
+	Rows0 = [
+		[text('Total Current Year Capital Gains'),
+			aspects([concept - ($>rdf_global_id(smsf_distribution_ui:total_capital_gains_losses))])]],
+	Rows1 = [
+		[text('Less: Current Year Capital Losses'),
+			aspects([concept - ($>rdf_global_id(smsf_distribution_ui:capital_losses))])]],
+	!rows_total(Rows0, Rows0_vec),
+	!rows_total(Rows1, Rows1_vec),
+	vec_sub(Rows0_vec,Rows1_vec,Vec0),
+	!make_fact(Vec0,
+		aspects([concept - ($>rdf_global_id(smsf_computation:taxable_net_capital_gains))])),
+	Rows2 = [
+		[text('Taxable Net Capital Gains'),
+			aspects([concept - ($>rdf_global_id(smsf_computation:taxable_net_capital_gains))])
+	]],
+	split_vector_by_percent(Rows0_vec, (100 rdiv 3), Vec2, _),
+	!make_fact(Vec2,
+		aspects([concept - ($>rdf_global_id(smsf_computation:taxable_net_capital_gains_discount))])),
+	vec_sub(Rows0_vec, Vec2, Vec3),
+	!make_fact(Vec3,
+		aspects([concept - ($>rdf_global_id(smsf_computation:taxable_net_capital_gains_discounted))])),
+	Rows4 = [
+		[text('Discount 1/3'),
+			aspects([concept - ($>rdf_global_id(smsf_computation:taxable_net_capital_gains_discount))])],
+		[text('Taxable Net Capital Gains After Discount'),
+			aspects([concept - ($>rdf_global_id(smsf_computation:taxable_net_capital_gains_discounted))])]
+	],
+	Title_Text = "Totals:",
+	Columns = [
+		column{id:label, title:"Description", options:options{}},
+		column{id:value, title:"Amount in $", options:options{implicit_report_currency:true}}],
+	Tbl_dict = table{title:Title_Text, columns:Columns, rows:Row_dicts},
+	append([Rows0, Rows1, Rows2, Rows4], Rows),
+	assertion(ground(Rows)),
+	!evaluate_fact_table(Rows, Rows_evaluated),
+	assertion(ground(Rows_evaluated)),
+	maplist(!label_value_row_to_dict, Rows_evaluated, Row_dicts),
+	Table_Html = table([border="1"], $>table_html([highlight_totals - true], Tbl_dict)),
+	Html = [p([Title_Text]),Table_Html].
+
+
+
+
+smsf_distributions_reports(repoorts{distributions:Tbl1,totals:Tbl2}) :-
+	!smsf_distributions_report(Tbl1, Html1),
+	!smsf_distributions_totals_report(Tbl2, Html2),
+	flatten([Html1, Html2], Body),
+	Title_Text = "Distributions",
+	!page_with_body(Title_Text, Body, Html),
 	!add_report_page(0, Title_Text, Html, loc(file_name,'distributions.html'), distributions).
 
 col_concept_to_id(X, Y) :-
@@ -329,19 +399,19 @@ distribution_txs(Default_currency, Item, Unit, Txs) :-
 	!maplist(!smsf_distribution_tx(Default_currency, End_Date, Item),
 		[dist{
 			prop: smsf_distribution_ui:accrual,
-			a:'Distribution Received'/Unit,
+			a:'Distribution Received'/Unit/'Resolved Accrual',
 			dir:crdr,
 			b:'Distribution Receivable'/Unit,
 			desc:"Distributions Accrual entry as per Annual tax statements"},
 		dist{
 			prop: smsf_distribution_ui:foreign_credit,
-			a:'Distribution Received'/Unit,
+			a:'Distribution Received'/Unit/'Foreign Credit',
 			dir:crdr,
 			b:'Foreign And Other Tax Credits',
 			desc:"Tax offset entry against distribution"},
 		dist{
 			prop: smsf_distribution_ui:franking_credit,
-			a:'Distribution Received'/Unit,
+			a:'Distribution Received'/Unit/'Franking Credit',
 			dir:crdr,
 			b:'Imputed Credits',
 			desc:"Tax offset entry against distribution"}
@@ -362,7 +432,3 @@ smsf_distribution_tx(Default_currency, Date, Item, Dist, Txs) :-
 			]
 		)
 	;	Txs = []).
-
-/*
------------
-*/

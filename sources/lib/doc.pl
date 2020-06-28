@@ -38,6 +38,8 @@
 'https://rdf.lodgeit.net.au/v1/calcs/smsf/distribution#').
 :- rdf_register_prefix(smsf_distribution_ui,
 'https://rdf.lodgeit.net.au/v1/calcs/smsf/distribution_ui#').
+:- rdf_register_prefix(smsf_computation,
+'https://rdf.lodgeit.net.au/v1/calcs/smsf/computation#').
 :- rdf_register_prefix(reallocation,
 'https://rdf.lodgeit.net.au/v1/calcs/ic/reallocation#').
 

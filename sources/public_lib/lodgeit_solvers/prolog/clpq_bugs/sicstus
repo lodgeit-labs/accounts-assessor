@@ -1,3 +1,0 @@
-SICSTUS
-
-bundled clpfd is constrained to "[-2^60,2^60-1] on 64-bit platforms". This means we wouldn't be able to emulate rationals. how far along is https://github.com/triska/clpz ? https://sicstus.sics.se/sicstus/docs/latest4/html/sicstus.html/FDBG-Introduction.html
