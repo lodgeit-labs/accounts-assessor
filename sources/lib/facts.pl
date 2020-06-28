@@ -475,9 +475,82 @@ Concepts that do not actually intersect facts often have their
 abstract property set to “true.” This specifically indicates that a concept is not a concept core dimension
 but rather an organizational item.
 
-negated label.
+Reporting data for “Income (Loss)” may be a
+situation where a negative fact represents that loss, but that fact may be presented as positive for a
+specific human-readable presentation. This would be accomplished with a negated label.
+
+Within the XBRL definition, the closed property of the hypercube specifies that all taxonomy-defined
+dimensions in this hypercube must intersect on a fact in order for that fact to be part of this hypercube. If
+a taxonomy-defined dimension is omitted, the default value for that dimension is assumed to intersect on
+the fact. If there is no default value, that taxonomy-defined dimension cannot intersect, which will prevent
+the hypercube from including the fact. An open hypercube removes this constraint. In the widget example,
+each fact must have the taxonomy-defined dimensions CustomerNameAxis, WidgetTypeAxis, and
+OrderDateAxis intersecting upon it. For an explicit taxonomy-defined dimension, a dimension-default
+arcrole allows for a concept to be the default value of the dimension, meaning facts that do not explicitly
+intersect with that taxonomy-defined dimension are implied to intersect with the default value when
+rendering the hypercube. If facts do not intersect with a concept member of the taxonomy-defined
+dimension and that dimension has a dimension-default set, those facts will be considered to intersect with
+the dimension-default. The dimension-default is usually set to the domain concept, which implies that
+facts that do not intersect the dimension are a total of that dimension.
 
 
+
+
+VARIABLES
+
+
+
+Every XBRL variable implies an XPath expression. A variable is evaluated by evaluating the implied XPath in the context of an XBRL instance.
+
+The XPath expressions implied by variables are evaluated using the <xbrli:xbrl> element of the input XBRL instance as the context item.
+
+ For various reasons, the XBRL Specification [XBRL 2.1] makes minimal use of the normal hierarchical structure of XML, instead requiring relatively flat syntax for XBRL instances and for their supporting XML schemas and linkbases.
+
+This design makes it cumbersome to use XPath or XQuery to select data from XBRL instances based on their content and their supporting discoverable taxonomy sets, at least without a library of custom functions.
+
+This specification provides a framework for an alternative syntax for specifying the filters that are to be applied to an XBRL instance to select the required data from them, if it is available. The alternative syntax is extensible in the sense that additional filters can be defined as they are deemed useful.
+
+For two facts, an aspect test can be used to test whether an aspect is not reported for both facts or is reported with an equivalent value for both facts.
+
+Two facts are aspect-matched facts if they have exactly the same aspects and, for each of aspect that they both have, the value for that aspect matches for the two facts.
+
+All formulae have a default accuracy rule. A formula MAY also have an accuracy rule specified by either a <formula:precision> child element or a <formula:decimals> child element on the formula.
+
+An aspect rule is a rule for determining the value of an output aspect. Rules for determining the output concept, the output context and the output units of measurement (for numeric facts), are all different types of aspect rules.
+
+
+http://www.xbrl.org/WGN/xf-grammar/WGN-2018-10-10/xf-grammar-WGN-2018-10-10.html
+
+1.1 Example XF rule
+namespace eg = "http://www.example.com/ns" ;
+assertion RevenueNonNegative {
+    unsatisfied-message (en) "Revenue must not be negative";
+    variable $revenue {
+        concept-name eg:Revenue ;
+    };
+    test { $revenue ge 0 };
+};
+
+http://www.xbrl.org/specification/dimensions/rec-2012-01-25/dimensions-rec-2006-09-18+corrected-errata-2012-01-25-clean.html
+
+http://www.xbrl.org/WGN/dimensions-use/WGN-2015-03-25/dimensions-use-WGN-2015-03-25.html
+
+https://www.xbrl.org/Specification/extensible-enumerations-2.0/REC-2020-02-12/extensible-enumerations-2.0-REC-2020-02-12.html
+
+https://www.xbrl.org/REQ/calculation-requirements-2.0/REQ-2019-02-06/calculation-requirements-2.0-2019-02-06.html
+
+XBRL 2.1 summation-item relationships have defined validation behaviour, with conformant processors being required to signal an "inconsistency" if the facts in an XBRL report do not conform to the prescribed relationships. The validation behaviour does not include any provision for inferring values which are not explicitly reported.
+
+XBRL 2.1 summation-item relationships are restricted to describing summation relationships between numeric facts which are c-equal, that is, which share the same period, dimensions and other contextual information, among other restrictive conditions.
+
+
+
+
+
+
+.......
+
+https://www.xbrl.org/guidance/esd-main/
 
 */
 
