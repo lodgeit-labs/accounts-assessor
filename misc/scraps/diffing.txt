@@ -25,3 +25,8 @@ depth of 'result' recursion would be tracked, looking for minimal solution.
 by extension, an explanation of differences between multiple solutions/items may be searched for, trying each solution against each other, trying to minimize the size of the explanation.
 
 */
+
+/*
+https://www.cs.hut.fi/~ctl/3dm/
+https://www.altova.com/blog/three-way-file-comparison-and-difference-merging/
+*/
