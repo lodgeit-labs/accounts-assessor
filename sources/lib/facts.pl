@@ -544,6 +544,99 @@ XBRL 2.1 summation-item relationships have defined validation behaviour, with co
 XBRL 2.1 summation-item relationships are restricted to describing summation relationships between numeric facts which are c-equal, that is, which share the same period, dimensions and other contextual information, among other restrictive conditions.
 
 
+XBRL formula linkbase <-> XF language
+https://github.com/Arelle/Arelle/blob/master/arelle/plugin/formulaSaver.py
+https://github.com/Arelle/Arelle/blob/master/arelle/plugin/formulaLoader.py
+now, what's the semantic model of XF and what's the semantic model of XULE?
+
+namespace cdp-og = "http://www.cdp.net/xbrl/cdp/og/2016-08-30/";
+assertion-set assertionSet {
+assertion valueAssertion {
+unsatisfied-message (en) "Emissions intensities (Scope1 + Scope 2) associated with current production
+and operations, Year ending must be between 2010 and 2016. ";
+variable $OperationsYearEnding {
+nils
+fallback {0}
+concept-name cdp-og:EmissionsIntensitiesScope1Scope2ProductionOperationsYearEnding;
+typed-dimension cdp-og:EmissionsIntensitiesScope1Scope2ProductionOperationsAxis;
+};
+test {fn:number(fn:string($OperationsYearEnding)) >= 2010 and
+fn:number(fn:string($OperationsYearEnding)) <= 2016};
+};
+};
+
+
+XULE, from “XBRL rule,” was created by XBRL.US to provide a way to query and check XBRL reports by validating business rules prior to filing.
+
+The goal behind XULE was to create a modern alternative to XBRL Formula
+
+The primary purpose of XULE is to provide a user friendly syntax to query and manipulate XBRL data. Unlike XBRL Formula, XULE does not have the ability to create facts or define new XBRL reports. XULE has been primarily used to validate SEC filings as part of the DQC rules. The DQC rules are published in a XULE format.
+
+XULE is also used to query XBRL taxonomies and render them as open API schemas, or as iXBRL forms.
+
+XULE is syntax independent and will operate on XBRL reports published in JSON, iXBRL, CSV and XML formats. The language operates on an XBRL data model and ignores the XBRL syntax. For example, XULE does not allow a user to query all the XML contexts in an XBRL report in an XML format.
+
+In addition to its XULE processor and validator, XMLSpy includes the industry’s first XULE editor.
+
+https://xbrl.us/xule/?doing_wp_cron=1593455136.4135539531707763671875
+
+@concept = RevenueFromContractWithCustomerExcludingAssessedTax @ProductOrServiceAxis = IPhoneMember
+
+The detailed options available within factset filtering are defined in detail in the XULE guide and the XULE examples page.
+
+also supported in arelle: https://github.com/DataQualityCommittee/dqc_us_rules/releases
+
+
+
+
+2 Segment and scenario
+
+The XBRL v2.1 specification provided two containers for providing additional information about the nature of a reported fact: the <segment> and <scenario> elements contained within the context. Both of these containers can contain arbitrary XML content, with the XBRL v2.1 specification providing no mechanism for defining or constraining the information that appears within these elements.
+
+The XBRL Dimensions specification provides a more structured way to define additional information about the nature of a reported fact. This is preferrable to using arbitrary XML elements within segment and scenario, as the meaning of XBRL Dimensions can be precisely defined and constrained using an XBRL taxonomy.
+
+The syntactic constructs which appear in an XBRL instance document to represent such dimensional qualifications may appear within either the <segment> or <scenario> elements, depending on the definition of the relevant hypercube.
+
+As the meaning of an XBRL Dimension can be defined precisely and completely within an XBRL taxonomy, separately grouping them into the broad categories of "segment" and "scenario" offers little additional value. As the decision as to whether an individual dimension appears within <segment> or <scenario> is attached to the hypercube as a whole rather than to individual dimensions, attempting to classify dimensions between the two introduces additional complexity as additional hypercubes must be introduced.
+
+Common practice in taxonomy design is to select one or other out of the two options, and to use it for all hypercubes within a taxonomy. The choice between segment and scenario is arbitrary: in effect, the greater precision of dimension definition offered by the XBRL Dimensions specification renders the broad, binary classification offered by the XBRL v2.1 specification redundant from a technical perspective.
+
+
+2.1 Recommendations
+    The <segment> and <scenario> elements should only be used to contain XBRL Dimensions, and should not be used to contain other XML elements (this will be enforced where a <segment> or <scenario> element is constrained by a closed hypercube)
+    A taxonomy should use one or other of <segment> and <scenario> for its hypercubes exclusively.
+    In the absence of reasons to do otherwise (for example, compatibility with other taxonomies or consistency with prior versions), it is suggested that new taxonomies define hypercubes for use on <scenario> only.
+    The container that is not used for dimensions should be empty. It is recommended that this is enforced by external validation rather than taxonomy constructs.
+
+
+
+Dimensional Taxonomies Requirements
+Aggregator
+	A dimension member that represents the result of summing facts about other members of the same dimension.
+Example: In the products dimension, the member “TotalProducts” is the aggregator of all possible products.
+Measure
+	A measure is an XBRL fact whose context contains dimensions.
+
+
+Instance authors must be able to create contexts with Dimensions. Taxonomy authors must be able to define the valid combinations of Dimensions that may or must occur in the contexts of the facts of any concept.  Instances with facts or contexts violating the validity constraints are invalid.
+
+Example: A taxonomy requires that the context of every Sales fact must have a product and region dimension and may have others.
+Example: A taxonomy requires that the context of every Asset fact must have a region dimension but no other dimensions.
+
+
+https://docs.oracle.com/en/cloud/saas/enterprise-performance-reporting-cloud/udepr/about_dimensions_172x8e51bd9a.html
+
+
+The semantic attributes describe the meaning of the arc's ending resource relative to its starting resource. The arcrole attribute corresponds to the [RDF] notion of a property, where the role can be interpreted as stating that "starting-resource HAS arc-role ending-resource." This contextual role can differ from the meaning of an ending resource when taken outside the context of this particular arc. For example, a resource might generically represent a "person," but in the context of a particular arc it might have the role of "mother" and in the context of a different arc it might have the role of "daughter."
+
+
+"Although xlink: role describes the resource, xlink: arcrole defines how they relate"
+"The attribute role describes the meaning of the resource. "
+ http://zvon.org/xxl/xlink/xlink_extend/OutputExamples/xml6_out.xml.html
+
+"XML is almost always misused"
+ https://www.devever.net/~hl/xml
+
 
 
 
@@ -565,6 +658,45 @@ https://www.xbrl.org/guidance/esd-main/
 reconcilliation of xbrl and our system wrt:
 	our adjustment units:
 		possibly this could be represented in a xbrl taxonomy, ie, "Assets" is not a single fact-point, or rather, it is a calculated fact, made up of 'assets in report currency' + ..
+
+
+
+*/
+/*
+
+https://www.swi-prolog.org/pldoc/doc/_SWI_/library/xpath.pl?show=src
+"inspired"
+xpath3 is a strict superset of xpath2.
+
+
+
+
+Match an element in a DOM structure. The syntax is inspired by XPath, using () rather than [] to select inside an element. First we can construct paths using / and //:
+
+//Term
+    Select any node in the DOM matching term.
+/Term
+    Match the root against Term.
+Term
+    Select the immediate children of the root matching Term.
+
+
+
+
+
+
+A schema document may include other schema documents for the same namespace, and may import schema documents for a different namespace.
+
+
+
+
+element(
+
+
+
+
+
+
 
 
 
