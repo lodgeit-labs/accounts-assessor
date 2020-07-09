@@ -30,7 +30,7 @@ del secrets
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['192.168.122.187', '192.168.122.188', '192.168.122.108', '192.168.123.108', 'dev-node.uksouth.cloudapp.azure.com', 'localhost', '0.0.0.0']
+ALLOWED_HOSTS = ['192.168.123.10', '192.168.122.187', '192.168.122.188', '192.168.122.108', '192.168.123.108', 'dev-node.uksouth.cloudapp.azure.com', 'localhost', '0.0.0.0']
 
 
 # Application definition
