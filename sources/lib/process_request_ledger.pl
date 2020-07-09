@@ -51,7 +51,7 @@ process_request_ledger2((Dom, Start_Date, End_Date, Output_Dimensional_Facts, Co
 		Transactions,
 		Outstanding,
 		Processed_Until_Date),
-	/* if some s_transaction failed to process, there should be an alert created by now. Now we just compile a report up until that transaction. It would maybe be cleaner to do this by calling process_ledger a second time */
+	/* if some s_transaction failed to process, there should be an alert created by now. Now we just compile a report up until that transaction. It would maybe be cleaner to do this by calling 'process_ledger' a second time */
 	dict_from_vars(Static_Data0,
 		[Cost_Or_Market,
 		Output_Dimensional_Facts,
