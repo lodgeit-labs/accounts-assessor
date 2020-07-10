@@ -1,3 +1,3 @@
 #!/bin/sh
-. ../venv/bin/activate
+. ../../venv/bin/activate
 ./manage.py migrate

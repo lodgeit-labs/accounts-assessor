@@ -12,11 +12,11 @@ RUN mkdir -p /app/server_root
 #RUN chown -R user:user /app/server_root
 #RUN chown -R user:user /app/server_root
 VOLUME /app/server_root
-COPY frontend_server ./frontend_server
-COPY internal_workers ./internal_workers
-COPY triplestore_access ./triplestore_access
-COPY common ./common
-COPY static ./static
+COPY frontend_server /app/sources/frontend_server
+COPY internal_workers /app/sources/internal_workers
+COPY triplestore_access /app/sources/triplestore_access
+COPY common /app/sources/common
+COPY static /app/sources/static
 COPY secrets1.json /
 COPY secrets2.json /
 #USER user

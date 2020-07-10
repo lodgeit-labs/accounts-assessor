@@ -10,8 +10,14 @@ client_request_id = AtomicInteger()
 def git(Suffix = ""):
 	""" get git repo root path """
 	here = os.path.dirname(__file__)
-	r = os.path.normpath(os.path.join(here, '../', Suffix))
+	r = os.path.normpath(os.path.join(here, '../../', Suffix))
 	return r
+
+
+def sources(Suffix=""):
+	return os.path.normpath(os.path.join(git(), 'sources', Suffix))
+
+
 
 def create_tmp_directory_name():
 	""" create a unique name """

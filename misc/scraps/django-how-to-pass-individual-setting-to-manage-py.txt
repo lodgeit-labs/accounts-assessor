@@ -1,0 +1,16 @@
+# https://stackoverflow.com/questions/8563394/django-how-to-pass-individual-setting-to-manage-py
+# Process --set command line option
+import sys
+# This module can be imported several times,
+args = list(filter(lambda arg: arg[:6] == '--set=', sys.argv[1:]))
+if len(args) > 0:
+    expr = args[0][6:]
+    # Remove the option from argument list, because the actual command
+    # knows nothing about it.
+    sys.argv.remove(args[0])
+    import json
+    #import IPython; IPython.embed()
+    from django.conf import settings
+    kv = json.loads(expr)
+    for k,v in kv.items():
+        settings.__dict__[k]=v

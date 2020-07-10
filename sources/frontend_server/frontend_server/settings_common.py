@@ -22,7 +22,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # SECURITY WARNING: keep the secret key used in production secret!
 import json
 # same as in the celery worker
-with open(os.path.normpath(os.path.join(os.path.dirname(__file__), '../../../secrets1.json')), 'r') as s:
+with open(os.path.normpath(os.path.join(os.path.dirname(__file__), '../../../../secrets1.json')), 'r') as s:
 	secrets = json.load(s)
 SECRET_KEY = secrets['DJANGO_SECRET_KEY']
 del secrets
@@ -120,44 +120,21 @@ AUTH_PASSWORD_VALIDATORS = [
 # https://docs.djangoproject.com/en/3.0/topics/i18n/
 
 LANGUAGE_CODE = 'en-us'
-
 TIME_ZONE = 'UTC'
-
 USE_I18N = True
-
 USE_L10N = True
-
 USE_TZ = True
 
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
-
+# note that we don't use the collectstatic thing
 STATIC_ROOT = os.path.abspath('../static/') + '/'
+print(STATIC_ROOT)
+print(STATIC_ROOT)
+print(STATIC_ROOT)
 STATIC_URL = '/static/'
 MEDIA_ROOT = os.path.abspath('../server_root/tmp')
 MEDIA_URL = '/tmp/'
 
 SECRET__INTERNAL_SERVICES_SERVER_URL=os.environ.get('SECRET__INTERNAL_SERVICES_SERVER_URL')
-
-"""
-# https://stackoverflow.com/questions/8563394/django-how-to-pass-individual-setting-to-manage-py
-# Process --set command line option
-import sys
-# This module can be imported several times,
-args = list(filter(lambda arg: arg[:6] == '--set=', sys.argv[1:]))
-if len(args) > 0:
-    expr = args[0][6:]
-    # Remove the option from argument list, because the actual command
-    # knows nothing about it.
-    sys.argv.remove(args[0])
-    import json
-    #import IPython; IPython.embed()
-    from django.conf import settings
-    kv = json.loads(expr)
-    for k,v in kv.items():
-        settings.__dict__[k]=v
-     
-
-
-"""
