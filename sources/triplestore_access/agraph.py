@@ -1,7 +1,7 @@
 import json, os
 
 def secrets():
-	with open(os.path.normpath(os.path.join(os.path.dirname(__file__), '../../secrets2.json')), 'r') as s2:
+	with open(os.path.normpath(os.path.join(os.path.dirname(__file__), '../../../secrets2.json')), 'r') as s2:
 		return json.load(s2)
 
 def agc():

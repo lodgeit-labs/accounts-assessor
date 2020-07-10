@@ -57,8 +57,8 @@ def call_prolog(msg, final_result_tmp_directory_name=None, dev_runner_options=[]
 		git("sources/public_lib/lodgeit_solvers/tools/dev_runner/dev_runner.pl"),
 		['--problem_lines_whitelist',
 		 git("sources/public_lib/lodgeit_solvers/tools/dev_runner/problem_lines_whitelist")],
-		['--toplevel', 'false'],
-		['--compile', 'true'],
+		#['--toplevel', 'false'],
+		#['--compile', 'true'],
 	]
 	cmd0b = dev_runner_debug_args + [["--script", sources(entry_file)]]
 	cmd1 = dev_runner_options

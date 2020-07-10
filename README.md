@@ -105,8 +105,9 @@ bash <args>
 #### Run a single request from command line:
 1) `cd server_root`
 2) `. ../venv/bin/activate`
-3) `env CELERY_QUEUE_NAME=q7788 ../internal_workers/invoke_rpc_cmdline.py --debug true --halt true --prolog_flags "set_prolog_flag(services_server,'http://localhost:17788')" endpoint_tests/ledger/Copy_Of_BankDemo2`
-
+3) `
+time env PYTHONUNBUFFERED=1 CELERY_QUEUE_NAME=q7788 ../sources/internal_workers/invoke_rpc_cmdline.py --debug true --halt true -s "http://localhost:7788"  --prolog_flags "set_prolog_flag(services_server,'http://localhost:17788'),set_prolog_flag(die_on_error,true)" tmp/last_request
+`
 
 ## Directory Structure
 
