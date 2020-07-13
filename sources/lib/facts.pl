@@ -664,6 +664,10 @@ reconcilliation of xbrl and our system wrt:
 */
 /*
 
+XPATH:
+
+
+
 https://www.swi-prolog.org/pldoc/doc/_SWI_/library/xpath.pl?show=src
 "inspired"
 xpath3 is a strict superset of xpath2.
@@ -679,6 +683,10 @@ Match an element in a DOM structure. The syntax is inspired by XPath, using () r
     Match the root against Term.
 Term
     Select the immediate children of the root matching Term.
+
+XPath formalization:
+http://typex.lri.fr/deliverables.html
+
 
 
 

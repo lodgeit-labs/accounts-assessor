@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 """Extract account hierarchy from XBRL taxonomy"""
 
 from arelle import (Cntlr, FileSource, ModelManager, ModelXbrl, ModelDocument, XmlUtil, Version, ViewFileFactTable,
@@ -8,13 +10,16 @@ import sys
 import argparse
 
 
-def remove_prefix(text, prefix):
+def remove_prefix_from_string(text, prefix):
 	if text.startswith(prefix):
 		return text[len(prefix):]
 	return text
 
 
 class ArelleController(Cntlr.Cntlr):
+	def __init__(self, *args, **kwargs):
+		super().__init__(logFileName="logToStdErr", *args, **kwargs)
+
 	def run(self, filepath):
 		modelManager = ModelManager.initialize(self)
 		modelXbrl = ModelXbrl.load(modelManager, filepath)
@@ -28,22 +33,50 @@ class ArelleController(Cntlr.Cntlr):
 		rel_set = modelXbrl.relationshipSet(arcrole)
 
 		for linkFrom, value in rel_set.fromModelObjects().items():
-			key = remove_prefix(str(linkFrom.qname), "basic:")
+			key = remove_prefix_from_string(str(linkFrom.qname), "basic:")
 			links[key] = []
 			for item in value:
-				links[key].append(remove_prefix(str(item.toModelObject.qname), "basic:"))
+				links[key].append(remove_prefix_from_string(str(item.toModelObject.qname), "basic:"))
 		return links
 
 	def printArcRoleLinks(self, modelXbrl, arcrole):
 		links = self.getArcRoleLinks(modelXbrl, arcrole)
-		print(arcrole)
+		print(str(arcrole) + " :")
 		for linkFrom, linkToList in links.items():
 			for linkTo in linkToList:
 				print("{0} -> {1}".format(linkFrom, linkTo))
 			print()
 		print()
 
+	def test(self, modelXbrl):
+		arcroles = [
+			XbrlConst.summationItem,
+			XbrlConst.hypercubeDimension,
+			XbrlConst.dimensionDomain,
+			XbrlConst.domainMember,
+			XbrlConst.dimensionDefault,
+		]
+		for arcrole in arcroles:
+			self.printArcRoleLinks(modelXbrl, arcrole)
+
+
+	def printArcRoleLinks2(self, modelXbrl, arcrole):
+		rel_set = modelXbrl.relationshipSet(arcrole)
+		xx = rel_set.fromModelObjects().items()
+		for f,t in xx:
+			print()
+			print(f)
+			print('-->')
+			for i in t:
+				print(t)
+			print()
+		import IPython; IPython.embed()
+		#
+
 	def getAccountHierarchyXML(self, modelXbrl):
+
+		self.test(modelXbrl)
+
 		summationItems = self.getArcRoleLinks(modelXbrl, XbrlConst.summationItem)
 
 		from_elements = set()
@@ -76,11 +109,11 @@ class ArelleController(Cntlr.Cntlr):
 
 		return accountElement
 
-	def addToLog(self, message):
-		if self.messages is not None:
-			self.messages.append(message)
-		else:
-			print(message)
+	#def addToLog(self, message):
+	#	if self.messages is not None:
+	#		self.messages.append(message)
+	#	else:
+	#		print(message)
 
 
 def main():
