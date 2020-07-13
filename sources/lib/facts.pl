@@ -610,33 +610,6 @@ Common practice in taxonomy design is to select one or other out of the two opti
 
 
 
-Dimensional Taxonomies Requirements
-Aggregator
-	A dimension member that represents the result of summing facts about other members of the same dimension.
-Example: In the products dimension, the member “TotalProducts” is the aggregator of all possible products.
-Measure
-	A measure is an XBRL fact whose context contains dimensions.
-
-
-Instance authors must be able to create contexts with Dimensions. Taxonomy authors must be able to define the valid combinations of Dimensions that may or must occur in the contexts of the facts of any concept.  Instances with facts or contexts violating the validity constraints are invalid.
-
-Example: A taxonomy requires that the context of every Sales fact must have a product and region dimension and may have others.
-Example: A taxonomy requires that the context of every Asset fact must have a region dimension but no other dimensions.
-
-
-https://docs.oracle.com/en/cloud/saas/enterprise-performance-reporting-cloud/udepr/about_dimensions_172x8e51bd9a.html
-
-
-The semantic attributes describe the meaning of the arc's ending resource relative to its starting resource. The arcrole attribute corresponds to the [RDF] notion of a property, where the role can be interpreted as stating that "starting-resource HAS arc-role ending-resource." This contextual role can differ from the meaning of an ending resource when taken outside the context of this particular arc. For example, a resource might generically represent a "person," but in the context of a particular arc it might have the role of "mother" and in the context of a different arc it might have the role of "daughter."
-
-
-"Although xlink: role describes the resource, xlink: arcrole defines how they relate"
-"The attribute role describes the meaning of the resource. "
- http://zvon.org/xxl/xlink/xlink_extend/OutputExamples/xml6_out.xml.html
-
-"XML is almost always misused"
- https://www.devever.net/~hl/xml
-
 
 
 
