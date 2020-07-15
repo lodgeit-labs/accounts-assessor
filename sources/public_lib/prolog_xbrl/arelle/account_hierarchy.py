@@ -7,7 +7,7 @@ from arelle import (Cntlr, FileSource, ModelManager, ModelXbrl, ModelDocument, X
 import xml.etree.ElementTree as ET
 from xml.dom import minidom
 import sys
-import argparse
+import argparse, logging
 
 
 def remove_prefix_from_string(text, prefix):
@@ -18,7 +18,13 @@ def remove_prefix_from_string(text, prefix):
 
 class ArelleController(Cntlr.Cntlr):
 	def __init__(self, *args, **kwargs):
+		self.status_logger = logging.getLogger('arelle status')
+		self.status_logger.addHandler(logging.StreamHandler())
+		self.status_logger.setLevel(logging.DEBUG)
 		super().__init__(logFileName="logToStdErr", *args, **kwargs)
+
+	def showStatus(self, message, clearAfter=None):
+		self.status_logger.info(message)
 
 	def run(self, filepath):
 		modelManager = ModelManager.initialize(self)
@@ -48,17 +54,34 @@ class ArelleController(Cntlr.Cntlr):
 			print()
 		print()
 
-	def test(self, modelXbrl):
+	def test(self, model):
 		arcroles = [
 			XbrlConst.summationItem,
 			XbrlConst.hypercubeDimension,
 			XbrlConst.dimensionDomain,
 			XbrlConst.domainMember,
 			XbrlConst.dimensionDefault,
+			XbrlConst.all,
+			XbrlConst.notAll
 		]
 		for arcrole in arcroles:
-			self.printArcRoleLinks(modelXbrl, arcrole)
+			self.printArcRoleLinks(model, arcrole)
 
+		print('arcroleTypes:')
+		print()
+		for i, j in model.arcroleTypes.items():
+			print(i)
+			for k in j:
+				print(k)
+			print()
+
+		#for c in model.nameConcepts.items():
+		import IPython; IPython.embed()
+
+	def test_domains(self, model):
+		#BankAccount_Duration
+		#xbrldt:dimensionItem
+		import IPython; IPython.embed()
 
 	def printArcRoleLinks2(self, modelXbrl, arcrole):
 		rel_set = modelXbrl.relationshipSet(arcrole)

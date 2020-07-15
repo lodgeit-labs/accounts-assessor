@@ -609,6 +609,7 @@ Common practice in taxonomy design is to select one or other out of the two opti
     The container that is not used for dimensions should be empty. It is recommended that this is enforced by external validation rather than taxonomy constructs.
 
 
+"units" which may sometimes be viewed as dimensional and at other times as properties of individual facts depending on the application.
 
 
 

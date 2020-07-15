@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="us-ascii"?>
+<?xml version="1.0" encoding="utf-8"?>
 <!--
 Taxonomy based on XBRL standard Version 2.1.
 Created by UBmatrix Taxonomy Designer 3.0.2.2347 (2007-12-17 12:39).  
@@ -6,7 +6,19 @@ Contact www.ubmatrix.com
 Copyright (c) 2002-2019 UBmatrix inc., All Rights Reserved
 Produced on 2019-08-09 09:56:41
 -->
-<schema xmlns="http://www.w3.org/2001/XMLSchema" xmlns:xbrli="http://www.xbrl.org/2003/instance" xmlns:link="http://www.xbrl.org/2003/linkbase" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:basic="http://www.xbrlsite.com/basic" xmlns:generic="http://xbrl.org/2008/generic" xmlns:xbrldt="http://xbrl.org/2005/xbrldt" xmlns:nonnum="http://www.xbrl.org/dtr/type/non-numeric" targetNamespace="http://www.xbrlsite.com/basic" elementFormDefault="qualified" attributeFormDefault="unqualified">
+<schema
+        xmlns="http://www.w3.org/2001/XMLSchema"
+        xmlns:xbrli="http://www.xbrl.org/2003/instance"
+        xmlns:link="http://www.xbrl.org/2003/linkbase"
+        xmlns:xlink="http://www.w3.org/1999/xlink"
+        xmlns:basic="http://www.xbrlsite.com/basic"
+        xmlns:generic="http://xbrl.org/2008/generic"
+        xmlns:xbrldt="http://xbrl.org/2005/xbrldt"
+        xmlns:nonnum="http://www.xbrl.org/dtr/type/non-numeric"
+        targetNamespace="http://www.xbrlsite.com/basic"
+        elementFormDefault="qualified"
+        attributeFormDefault="unqualified"
+>
   <annotation>
     <appinfo>
       <link:roleType roleURI="http://www.xbrlsite.com/basic/role/BalanceSheet" id="BalanceSheet">
@@ -122,32 +134,18 @@ Produced on 2019-08-09 09:56:41
   <import namespace="http://www.xbrl.org/dtr/type/numeric" schemaLocation="http://www.xbrl.org/dtr/type/numeric-2009-12-16.xsd" />
   <import namespace="http://www.xbrl.org/2003/linkbase" schemaLocation="http://www.xbrl.org/2003/xbrl-linkbase-2003-12-31.xsd" />
 
+  <import
+          namespace="http://www.xbrlsite.com/basic"
+          schemaLocation="banks.xsd"
+  />
 
-
-
-  <element id="basic_Dimension_BankAccounts_Duration_DomainDeclaration" name="BankAccount_Duration">
-    <simpleType>
-        <restriction base="string" /></simpleType></element>
-
-  <element id="basic_Dimension_BankAccounts_Instant_DomainDeclaration" name="BankAccount_Instant">
-    <simpleType>
-        <restriction base="string" /></simpleType></element>
 
   <element id="basic_Dimension_Investments_Duration_DomainDeclaration" name="Investment_Duration">
     <simpleType>
-        <restriction base="string" /></simpleType></element>
-
-  <element id="basic_Dimension_BankAccounts_Duration" name="Dimension_BankAccounts_Duration" type="xbrli:stringItemType" substitutionGroup="xbrldt:dimensionItem" xbrli:periodType="duration" abstract="true" xbrldt:typedDomainRef="basic.xsd#basic_Dimension_BankAccounts_Duration_DomainDeclaration" />
-  
-  
-  
-  
-  <element id="basic_Dimension_BankAccounts_Instant" name="Dimension_BankAccounts_Instant" type="xbrli:stringItemType" substitutionGroup="xbrldt:dimensionItem" xbrli:periodType="instant" abstract="true" xbrldt:typedDomainRef="basic.xsd#basic_Dimension_BankAccounts_Instant_DomainDeclaration" />
-  
-  
-  
+      <restriction base="string"/>
+    </simpleType>
+  </element>
   <element id="basic_Dimension_Investments_Duration" name="Dimension_Investments_Duration" type="xbrli:stringItemType" substitutionGroup="xbrldt:dimensionItem" xbrli:periodType="duration" abstract="true" xbrldt:typedDomainRef="basic.xsd#basic_Dimension_Investments_Duration_DomainDeclaration" />
-
 
 
 
