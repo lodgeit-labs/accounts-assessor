@@ -680,6 +680,46 @@ element(
 
 
 
+# Explicit filtering
+
+## a formula linkbase filter resource
+## kinds
+### boolean filters, which serve to build groups of filter terms
+
+### For example, a group filter may restrict data to a specific period or dimension value,
+### a fact variable filter may bind a fact variable to a certain concept element name, or relate it to a period
+## evaluation contexts
+### related to a variable set
+#### group filtering behavior
+### related to a fact variable
+#### fact variable filtering behavior
+
+
+# Implicit filtering
+## can match the aspects not otherwise covered (e.g. excluding concept name, but matching dates, dimensions, entity and units as applicable).
+
+
+# Each aspect has a specific matching test implied by the aspect.
+## Concept aspects match by QName of the element,
+## periods by their dates,
+## entity identifiers by their scheme and value,
+## units by their measures,
+## dimensions (if dimensional) by their explicit members and typed contents,
+### For the case of typed dimension aspects, a custom matching test can be supplied by user XPath expressions
+## and segment and scenario by XML contents
+
+
+
+
+
+# what to model
+## taxonomy
+### concept declarations
+#### concept declaration
+##### name
+by XBRL standard, a QName. are non-namespaced taxonomies allowed? Ideally, the name will be just the uri, although this could sacrifice some flexibility, let's say some functionality for comparing taxonomies.
+
+
 
 
 */

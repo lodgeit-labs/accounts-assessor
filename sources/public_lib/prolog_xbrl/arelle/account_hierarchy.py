@@ -1,13 +1,22 @@
 #!/usr/bin/env python3
 
-"""Extract account hierarchy from XBRL taxonomy"""
+"""
+
+
+Extract account hierarchy from XBRL taxonomy
+
+https://arelle.org/arelle/documentation/model/
+
+
+"""
 
 from arelle import (Cntlr, FileSource, ModelManager, ModelXbrl, ModelDocument, XmlUtil, Version, ViewFileFactTable,
-					ViewFileRelationshipSet, XbrlConst)
+					ViewFileRelationshipSet, XbrlConst, ModelFormulaObject)
 import xml.etree.ElementTree as ET
 from xml.dom import minidom
 import sys
 import argparse, logging
+
 
 
 def remove_prefix_from_string(text, prefix):
@@ -22,9 +31,11 @@ class ArelleController(Cntlr.Cntlr):
 		self.status_logger.addHandler(logging.StreamHandler())
 		self.status_logger.setLevel(logging.DEBUG)
 		super().__init__(logFileName="logToStdErr", *args, **kwargs)
+		self.webCache.timeout = 10
 
 	def showStatus(self, message, clearAfter=None):
-		self.status_logger.info(message)
+		if not message.startswith('message'):
+			self.status_logger.info(message)
 
 	def run(self, filepath):
 		modelManager = ModelManager.initialize(self)
@@ -53,6 +64,7 @@ class ArelleController(Cntlr.Cntlr):
 				print("{0} -> {1}".format(linkFrom, linkTo))
 			print()
 		print()
+	print('----')
 
 	def test(self, model):
 		arcroles = [
@@ -66,7 +78,23 @@ class ArelleController(Cntlr.Cntlr):
 		]
 		for arcrole in arcroles:
 			self.printArcRoleLinks(model, arcrole)
+		print('----')
+		#for arcrole, linkrole, linkqname, arcqname in dts.baseSets.keys():
 
+		for i in model.modelObjects:
+			print(type(i))
+			print(i)
+			print()
+
+			if isinstance(i, ModelFormulaObject.ModelConceptName):
+				for qn in i.conceptQnames:
+					print(qn.expandedName)
+				#__import__('IPython').embed()
+
+		#for c in model.nameConcepts.items():
+		#import bpython; bpython.embed(model)
+
+	def print_arcrole_types(model):
 		print('arcroleTypes:')
 		print()
 		for i, j in model.arcroleTypes.items():
@@ -75,8 +103,7 @@ class ArelleController(Cntlr.Cntlr):
 				print(k)
 			print()
 
-		#for c in model.nameConcepts.items():
-		import IPython; IPython.embed()
+
 
 	def test_domains(self, model):
 		#BankAccount_Duration
@@ -93,7 +120,9 @@ class ArelleController(Cntlr.Cntlr):
 			for i in t:
 				print(t)
 			print()
-		import IPython; IPython.embed()
+
+		# import IPython; IPython.embed()
+		#bpython()
 		#
 
 	def getAccountHierarchyXML(self, modelXbrl):
@@ -144,7 +173,6 @@ def main():
 	ap.add_argument("taxonomy", help="XBRL Taxonomy file-path/URL")
 	args = ap.parse_args()
 	print(ArelleController().run(args.taxonomy))
-
 
 if __name__ == "__main__":
 	main()
