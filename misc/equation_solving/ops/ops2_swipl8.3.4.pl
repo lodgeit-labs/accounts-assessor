@@ -1,14 +1,9 @@
 :- use_module(library(clpq)).
 
-
 /*
-interval arithmetic with clpq, with explicit upper and lower bound variables.
-two attepts at multiplication. 
-'interval multiplication' does not ground.
-'interval multiplication2' gives wrong answer afaict.
-
-
+ops2 with new syntax, same results 
 */
+
 
 op('interval multiplication', (Al, Au) * (Bl, Bu) = (Rl, Ru)) :-
     {R1 = Au * Bu},
@@ -64,7 +59,7 @@ x :-
         (-10,-9),
         (-10,9),
         (-1,10),
-        ((-1 rdiv 10),10),
+        ((-1r10),10),
         (5,10)     
     ],
     maplist('test As1'(As), As).
@@ -91,5 +86,5 @@ x :-
     
 %:- x.
 
-:- gtrace,'test As2'((5,10), ((-1 rdiv 10), 10)).
-/* i dont know how clpq comes up with Xu = 1 (wrong afaict) */,
+t1 :- 'test As2'((5,10), ((-1r10), 10)).
+/* i dont know how clpq comes up with Xu = 1 (wrong afaict) */

@@ -1,21 +1,25 @@
+/*
+just working out syntax annd stuff here, unfinished
+*/
+
 :- use_module(library(clpfd)).
 
-:- ['pyco2_2'].
+:- ['../../sources/public_lib/lodgeit_solvers/prolog/pyco2/pyco3.pl'].
 
 
-r(
+%:- p3_declare(first = 'rdf:first').
 
-	exists-('list cell', [first,rest])
-	%note-note1
+r(	exists-('list cell', ['rdf:first','rdf:rest'])
+	,n-'"All lists exist" - https://www.w3.org/TeamSubmission/n3/'
+).
 
-).r(
-
-	fr(L,F,R)
+r(	fr(L,F,R)
 		,first(L, F)
 		,rest(L, R)
 	,n-'list cell helper'
+).
 
-).r(
+r(
 
 member(Item, List)
 		,fr(List, Item, _)
@@ -113,7 +117,7 @@ append_item(List_inp, Item, List_out)
 		,fr(List_inp, X, List_inp_tail)
 		,fr(List_out, X, List_out_tail)
 		,append_item(List_inp_tail, Item, List_out_tail)
-	,en-[item,Item,appended,to,list,List_inp,is,list,List_out]
+	,lang(en)-[item,Item,appended,to,list,List_inp,is,list,List_out]
 ).
 
 
@@ -308,7 +312,7 @@ sort_into_assoc(_, [], D, D).
 /*
 
 note1:
-"All lists exist" - https://www.w3.org/TeamSubmission/n3/
+
 
 
 
