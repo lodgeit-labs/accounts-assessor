@@ -70,7 +70,7 @@ r(	slice_out_a_list(Whole, Items_sliced_out, Rest)
 % s_transaction2s are processed or produced in order.
 % transactions are picked out from anywhere in the list.
 
-pushback(preprocess(Verbs, _, _),3600) :-
+delay(preprocess(Verbs, _, _),3600) :-
 	var(Verbs).
 
 r(
@@ -173,38 +173,42 @@ r(
 		,transaction(T9,4,_,expenses,Vec4)
 		,transaction(T10,4,_,bank0,Vec3)
 		,transaction(T11,4,_,expenses,Vec2)
-		,default_verbs(Verbs, _, _)
 		,preprocess(Verbs,Sts,Ts0)
+		,default_verbs(Verbs, _, _)
 ).
 
 
 test(Q) :-
+	debug(pyco_prep),
+	debug(pyco_proof),
+	%debug(pyco_ep),
+	debug(pyco_run),
+
 	findnsols(
 		5000000000,
 		_,
-		(
-			debug(pyco_prep),
-			debug(pyco_proof),
-			%debug(pyco_ep),
-			debug(pyco_run),
-			run(noisy, Q),
-			print_1(Q),
-			nicer_term(Q, NQ),
-			format(user_error,'~nresult: ~q~n', [NQ]),
-			nl,
-			nl,
-			true
-		),
+		one_result(Q),
 		_
 	),
 	halt.
 
 
+one_result(Q) :-
+	run(noisy, Q),
+	print_1(Q),
+	nicer_term(Q, NQ),
+	format(user_error,'~nresult: ~q~n', [NQ]),
+	nl,
+	nl.
 
 
 print_1(Q) :-
+	(	print_q(Q)
+	->	true
+	;	throw_string('failed printing result')).
+
+print_q(Q) :-
 	Q =.. [_,Sts,Ts],
-	(
 	format(user_error,'~nRESULT:~n', []),
 	nicer_bn2(Sts, Sts_n),
 	nicer_bn2(Ts, Ts_n),
@@ -212,9 +216,4 @@ print_1(Q) :-
 	maplist(writeln, Sts_n),
 	format(user_error,'~nTs:~n', []),
 	maplist(writeln, Ts_n),
-	nl,nl,
-	true
-	)
-	->	true
-	;	throw(xxx).
-
+	nl,nl.
