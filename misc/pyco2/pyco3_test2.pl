@@ -10,3 +10,18 @@ r(	fr(L,F,R)
 r(	exists-('list cell', ['rdf:first','rdf:rest'])
 	,n-'"All lists exist" - https://www.w3.org/TeamSubmission/n3/'
 ).
+
+
+
+r(	member(Item, List)
+		,fr(List, Item, _)
+).
+
+r(	member(Item, List)
+		,fr(List, _, Rest),
+		,member(Item, Rest)
+).
+
+r(	maplist(_,nil,nil)
+	,bc
+).

@@ -1,6 +1,6 @@
 :- ['../../sources/public_lib/lodgeit_solvers/prolog/pyco2/pyco2.pl'].
 :- use_module(library(clpq)).
-
+:- set_prolog_flag(stack_limit, 4_147_483_648).
 
 pyco0_rule(
 	'list cell helper',
