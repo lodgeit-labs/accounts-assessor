@@ -174,7 +174,7 @@ entered_computed_soft_crosscheck(A = B) :-
 	(	vecs_are_almost_equal(A2, B2)
 	->	true
 	;	(
-			!format(string(Err), 'entered: ~q ≠ computed: ~q', [A2, B2]),
+			!format(string(Err), 'entered: ~q of ~q ≠ computed: ~q of ~q', [A2, A, B2, B]),
 			!add_alert(warning, Err))).
 
 
