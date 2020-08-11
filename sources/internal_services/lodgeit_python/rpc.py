@@ -4,8 +4,6 @@ from json import JSONDecoder
 from django.core.serializers.json import DjangoJSONEncoder
 
 import fractions
-import os
-from franz.openrdf.connect import ag_connect
 
 from arelle import account_hierarchy
 

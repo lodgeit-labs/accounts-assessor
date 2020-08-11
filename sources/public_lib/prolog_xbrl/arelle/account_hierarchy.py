@@ -10,7 +10,7 @@ https://arelle.org/arelle/documentation/model/
 
 """
 
-from arelle import (Cntlr, FileSource, ModelManager, ModelXbrl, ModelDocument, XmlUtil, Version, ViewFileFactTable,
+from arelle import (XPathParser, Cntlr, FileSource, ModelManager, ModelXbrl, ModelDocument, XmlUtil, Version, ViewFileFactTable,
 					ViewFileRelationshipSet, XbrlConst, ModelFormulaObject)
 import xml.etree.ElementTree as ET
 from xml.dom import minidom
@@ -39,6 +39,7 @@ class ArelleController(Cntlr.Cntlr):
 
 	def run(self, filepath):
 		modelManager = ModelManager.initialize(self)
+		modelManager. formulaOptions = ModelFormulaObject.FormulaOptions()
 		modelXbrl = ModelXbrl.load(modelManager, filepath)
 		output = self.getAccountHierarchyXML(modelXbrl)
 		# outfile = open("account_hierarchy.xml","w")
@@ -89,7 +90,19 @@ class ArelleController(Cntlr.Cntlr):
 			if isinstance(i, ModelFormulaObject.ModelConceptName):
 				for qn in i.conceptQnames:
 					print(qn.expandedName)
-				#__import__('IPython').embed()
+
+				# if "xxxx".lower() in i.qname.expandedName.lower():
+			if isinstance(i, ModelFormulaObject.ModelValueAssertion):
+				if i.aspectModel != 'dimensional':
+					raise Exception('unsupported aspect model: %s'.format(i.aspectModel))
+
+				#o['assertions'].append(
+				#	{'xbrl-id':i.id
+
+				i.compile()
+				print(i)
+
+				__import__('IPython').embed()
 
 		#for c in model.nameConcepts.items():
 		#import bpython; bpython.embed(model)
@@ -127,7 +140,7 @@ class ArelleController(Cntlr.Cntlr):
 
 	def getAccountHierarchyXML(self, modelXbrl):
 
-		self.test(modelXbrl)
+		#self.test(modelXbrl)
 
 		summationItems = self.getArcRoleLinks(modelXbrl, XbrlConst.summationItem)
 

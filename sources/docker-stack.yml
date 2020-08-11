@@ -2,27 +2,38 @@ version: '3.7'
 
 services:
 
-#  agraph:
-#    image: franzinc/agraph
-#    networks:
-#    - robust_backend
-#    deploy:
-#      replicas: 1
-#      update_config:
-#        parallelism: 2
-#        delay: 10s
-#      restart_policy:
-#        condition: on-failure
-#    volumes:
-#      - "/etc/localtime:/etc/localtime:ro"
-#    ports:
-#    - 10036:10035
+  agraph:
+    #finishme: use low-memory configuration 
+    image: franzinc/agraph:v7.0.0
+    shm_size: 1bg
+    environment:
+      AGRAPH_SUPER_USER: "arstneineistrstn"
+      AGRAPH_SUPER_PASSWORD: "878786rsttaaaaaaaaufuwufu867786786786786786786786AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAATAA7867878araaa001"
+    networks:
+    - backend
+    - frontend
+    deploy:
+      replicas: 1
+      update_config:
+        parallelism: 1
+        delay: 10s
+      restart_policy:
+        condition: any
+    volumes:
+      - "/etc/localtime:/etc/localtime:ro"
+      - "agdata:/agraph/data"
+      - "agconfig:/agraph/etc"
+      - type: tmpfs
+        target: /dev/shm
+        tmpfs:
+           size: 4096000000 # (this means 4GB)    
+    ports:
+      - 10036:10035
 
   rabbitmq:
     image: rabbitmq
     networks:
-      - robust_backend
-      #- host
+      - backend
     deploy:
       replicas: 1
       update_config:
@@ -42,9 +53,8 @@ services:
       - my-vol:/app/server_root/tmp
       - "/etc/localtime:/etc/localtime:ro"
     networks:
-      - robust_backend
-      - robust_frontend
-      #- host
+      - backend
+      - frontend
     depends_on:
       - rabbitmq
       - internal-services
@@ -64,14 +74,7 @@ services:
       - my-vol:/app/server_root/tmp
       - "/etc/localtime:/etc/localtime:ro"
     networks:
-      - robust_backend
-      #- host
-    #ports:
-      #- 17788:17788
-      #- target: 17788
-      #  published: 17788
-      #  protocol: tcp
-      #  mode: ingress
+      - backend
     depends_on:
       - rabbitmq
     deploy:
@@ -96,8 +99,7 @@ services:
       - "/etc/localtime:/etc/localtime:ro"
       - "/tmp/.X11-unix:/tmp/.X11-unix:rw"
     networks:
-      - robust_backend
-      #- host
+      - backend
     depends_on:
       - rabbitmq
       - internal-services
@@ -112,14 +114,11 @@ services:
         condition: any
 
 networks:
-  robust_frontend:
-
-  robust_backend:
-
-#  host:
-#    external:
-#      name: host
+  frontend:
+  backend:
 
 volumes:
   my-vol:
   cache:
+  agdata:
+  agconfig:

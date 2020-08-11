@@ -9,19 +9,6 @@ r(	exists-('fr', ['first','rest'])
 
 
 
-r(	member(Item, List)
-		,fr(List, Item, _)
-).
-
-r(	member(Item, List)
-		,fr(List, _, Rest)
-		,member(Item, Rest)
-).
-
-
-
-
-
 r(	exists-('coord', ['unit','amount'])
 	,n-'coord exists'
 ).

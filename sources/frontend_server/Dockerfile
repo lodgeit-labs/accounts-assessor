@@ -22,6 +22,7 @@ COPY secrets2.json /
 #USER user
 WORKDIR /app/frontend_server
 ENV PYTHONUNBUFFERED true
+ENV PYTHONDONTWRITEBYTECODE 1
 ENV CELERY_QUEUE_NAME=q7788
 ENTRYPOINT ["./start.sh"]
 CMD ["--noreload", "0.0.0.0:7788"]
