@@ -134,7 +134,7 @@ print(STATIC_ROOT)
 print(STATIC_ROOT)
 print(STATIC_ROOT)
 STATIC_URL = '/static/'
-MEDIA_ROOT = os.path.abspath('../server_root/tmp')
+MEDIA_ROOT = os.path.abspath('../../server_root/tmp')
 MEDIA_URL = '/tmp/'
 
 SECRET__INTERNAL_SERVICES_SERVER_URL=os.environ.get('SECRET__INTERNAL_SERVICES_SERVER_URL')

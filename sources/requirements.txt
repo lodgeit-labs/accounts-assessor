@@ -16,6 +16,7 @@ git+https://github.com/Arelle/Arelle
 xmldiff
 agraph-python
 requests
+iso8601
 rdflib
 pyyed
 django-cors-headers

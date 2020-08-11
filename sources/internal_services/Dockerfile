@@ -10,11 +10,11 @@ EXPOSE 17788
 RUN mkdir -p /app/server_root
 RUN chown user:user /app/server_root
 VOLUME /app/server_root
-COPY public_lib ./public_lib
-COPY internal_services ./internal_services
-COPY static ./static
+COPY public_lib /app/sources/public_lib
+COPY internal_services /app/sources/internal_services
+COPY static /app/sources/static
 #USER user
-WORKDIR /app/internal_services
+WORKDIR /app/sources/internal_services
 ENV PYTHONUNBUFFERED true
 ENTRYPOINT ["./start.sh"]
 CMD ["--noreload", "0.0.0.0:17788"]

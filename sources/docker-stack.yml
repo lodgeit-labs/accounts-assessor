@@ -5,7 +5,6 @@ services:
   agraph:
     #finishme: use low-memory configuration 
     image: franzinc/agraph:v7.0.0
-    shm_size: "1G"
     environment:
       AGRAPH_SUPER_USER: "arstneineistrstn"
       AGRAPH_SUPER_PASSWORD: "878786rsttaaaaaaaaufuwufu867786786786786786786786AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAATAA7867878araaa001"
@@ -23,10 +22,15 @@ services:
       - "/etc/localtime:/etc/localtime:ro"
       - "agdata:/agraph/data"
       - "agconfig:/agraph/etc"
+
+
       - type: tmpfs
         target: /dev/shm
         tmpfs:
            size: 2096000000
+    #shm_size: "1G"
+
+
     ports:
       - 10036:10035
 

@@ -67,9 +67,9 @@ WORKDIR /app
 #COPY --from=0 /app/swipl-devel/build /app/swipl-devel/build
 #WORKDIR /app/swipl-devel/build
 #RUN ninja install
+#WORKDIR /app
 
 
-WORKDIR /app
 COPY requirements.txt .
 RUN pip3 install --no-cache-dir -r requirements.txt
 
@@ -81,18 +81,18 @@ RUN ./init_prolog.sh
 RUN mkdir -p /app/server_root
 #RUN chown user:user /app/server_root
 VOLUME /app/server_root
-COPY static ./static
-COPY internal_workers ./internal_workers
-COPY triplestore_access ./triplestore_access
-COPY common ./common
-COPY public_lib ./public_lib
-COPY lib ./lib
+COPY static /app/sources/static
+COPY internal_workers /app/sources/internal_workers
+COPY triplestore_access /app/sources/triplestore_access
+COPY common /app/sources/common
+COPY public_lib /app/sources/public_lib
+COPY lib /app/sources/lib
 #RUN mkdir ./cache
 #COPY cache ./cache
 VOLUME /app/cache
 COPY secrets2.json /
 #USER user
-WORKDIR /app/internal_workers
+WORKDIR /app/sources/internal_workers
 
 ENV PYTHONUNBUFFERED true
 ENV CELERY_QUEUE_NAME=q7788
