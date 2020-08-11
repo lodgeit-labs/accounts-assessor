@@ -20,7 +20,7 @@ COPY static /app/sources/static
 COPY secrets1.json /
 COPY secrets2.json /
 #USER user
-WORKDIR /app/frontend_server
+WORKDIR /app/sources/frontend_server
 ENV PYTHONUNBUFFERED true
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV CELERY_QUEUE_NAME=q7788

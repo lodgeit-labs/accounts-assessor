@@ -6,3 +6,4 @@ django-modern-rpc
 celery
 django-cors-headers
 agraph-python
+requests

@@ -18,7 +18,8 @@ def sources(Suffix=""):
 
 
 def get_unique_id():
-	return str(agraph.agc().createBNode()[2:])
+	return str(agraph.agc().createBNode().getId()[2:])
+
 
 def create_tmp_directory_name():
 	""" create a unique name """

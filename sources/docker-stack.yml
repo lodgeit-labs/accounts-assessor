@@ -5,7 +5,7 @@ services:
   agraph:
     #finishme: use low-memory configuration 
     image: franzinc/agraph:v7.0.0
-    shm_size: 1bg
+    shm_size: "1G"
     environment:
       AGRAPH_SUPER_USER: "arstneineistrstn"
       AGRAPH_SUPER_PASSWORD: "878786rsttaaaaaaaaufuwufu867786786786786786786786AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAATAA7867878araaa001"
@@ -26,7 +26,7 @@ services:
       - type: tmpfs
         target: /dev/shm
         tmpfs:
-           size: 4096000000 # (this means 4GB)    
+           size: 2096000000
     ports:
       - 10036:10035
 
@@ -45,7 +45,7 @@ services:
       - "/etc/localtime:/etc/localtime:ro"
 
   frontend-server:
-    image: koo5/frontend_server:latest
+    image: koo5/frontend-server:latest
     environment:
       SECRET__INTERNAL_SERVICES_SERVER_URL: "http://internal-services:17788"
       SECRET__CELERY_BROKER_URL: "amqp://guest:guest@rabbitmq:5672//"
@@ -69,7 +69,7 @@ services:
 
 
   internal-services:
-    image: koo5/internal_services:latest
+    image: koo5/internal-services:latest
     volumes:
       - my-vol:/app/server_root/tmp
       - "/etc/localtime:/etc/localtime:ro"
@@ -88,7 +88,7 @@ services:
         condition: any
 
   internal-workers:
-    image: koo5/internal_workers:latest
+    image: koo5/internal-workers:latest
     environment:
       SECRET__INTERNAL_SERVICES_SERVER_URL: "http://internal-services:17788"
       SECRET__CELERY_BROKER_URL: "amqp://guest:guest@rabbitmq:5672//"
