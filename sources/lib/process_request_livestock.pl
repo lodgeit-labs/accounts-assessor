@@ -1,10 +1,18 @@
 process_request_livestock(File_Name, DOM) :-
 	findall(Livestock, xpath(DOM, //reports/livestockaccount/livestocks/livestock, Livestock), Livestocks),
 	Livestocks \= [],
-	validate_xml2(File_Name, 'bases/Reports.xsd'),
-	maplist(process_request_livestock2, Livestocks, Results),
-	add_xml_result(element(response, [], [element(livestocks, [], Results)])).
-
+	catch(
+		(
+			validate_xml2(File_Name, 'bases/Reports.xsd'),
+			maplist(process_request_livestock2, Livestocks, Results),
+			add_xml_result(element(response, [], [element(livestocks, [], Results)]))
+		),
+		E,
+		(
+			stringize(E,E_str),
+			add_xml_result(element(response, [], [element(livestocks, [], element(livestock, [], element('Error', [], E_str)))]))
+		)
+	).
 
 process_request_livestock2(DOM, element(livestock, [], Xml)) :-
 	extract_livestock_data(DOM, T),
