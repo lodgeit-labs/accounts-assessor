@@ -428,7 +428,7 @@ node_rdf_vs_doc(
 		/*freeze(Float, float(Float)),
 		freeze(Rat, rational(Rat)),*/
 		(
-			(var(Float),rational(Rat)) /* gtrace is totally buffled by this place, but the gist is that for anything else than a rational Rat, this correctly fails and goes on to the next case */
+			(var(Float),rational(Rat)) /* gtrace is totally baffled by this place, but the gist is that for anything else than a rational Rat, this correctly fails and goes on to the next case */
 		;
 			(var(Rat), float(Float))
 		),

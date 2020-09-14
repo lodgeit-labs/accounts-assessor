@@ -10,7 +10,7 @@ deepdiff
 defusedxml
 django
 django-modern-rpc
-celery
+celery==4.4.6
 git+https://github.com/Arelle/Arelle
 #-e https://github.com/Arelle/Arelle
 xmldiff

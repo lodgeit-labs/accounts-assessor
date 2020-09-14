@@ -13,7 +13,7 @@ smsf_check1_3(Json, Ch) :-
 	!account_role(Ch, Role),
 	(	find_account_role_in_smsf_report_tables(Json, Role)
 	->	true
-	;	(gtrace,throw_string([Role, ' not found in smsf member reports']))).
+	;	(/*gtrace,*/throw_string([Role, ' not found in smsf member reports']))).
 
 
 find_account_role_in_smsf_report_tables(Json, Role) :-
