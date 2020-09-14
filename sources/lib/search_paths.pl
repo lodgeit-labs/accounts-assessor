@@ -11,5 +11,5 @@ set_search_path(Alias, Path_From_Repo_Root) :-
 :- set_search_path(my_schemas, 'sources/static/schemas').
 :- set_search_path(my_tmp, 'server_root/tmp').
 :- set_search_path(my_tests, 'tests').
-:- set_search_path(my_cache, 'sources/cache').
+:- set_search_path(my_cache, 'cache').
 
