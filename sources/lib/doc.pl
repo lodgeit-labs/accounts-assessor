@@ -449,7 +449,7 @@ triple_rdf_vs_doc((S,P,O), (S,P,O2)) :-
 		;	throw('conversion from rdf to doc failed')),
 		E,
 		(
-			format(user_error, '~q', [E])
+			format(user_error, '~q', [E]),
 			throw_string(E)
 		)
 	).
