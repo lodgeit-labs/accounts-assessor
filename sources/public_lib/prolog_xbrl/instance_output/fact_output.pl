@@ -2,7 +2,6 @@ format_report_entries(_, _, _, _, _, [], []).
 
 format_report_entries(Format, Max_Detail_Level, Indent_Level, Report_Currency, Context, Entries, [Xml0, Xml1, Xml2]) :-
 	[Entry|Entries_Tail] = Entries,
-	%gtrace,
 	(?report_entry_children(Entry, Children) -> true ; Children = []),
 	!report_entry_name(Entry, Name),
 	!report_entry_total_vec(Entry, Balances),
@@ -72,7 +71,6 @@ pesseract_style_table_rows(
 ) :-
 	[Entry|Entries_Tail] = Entries,
 	!report_entry_name(Entry, Name),
-	%(Name = 'Equity' -> gtrace ; true),
 	!report_entry_normal_side(Entry, Normal_Side),
 	!report_entry_total_vec(Entry, Balances),
 	!report_entry_children(Entry, Children),
@@ -116,7 +114,6 @@ entry_misc_item_for_column(Entry, Type, Column, Item) :-
 	doc(D1, report_entries:value, Item).
 
 entry_row(Cols0, Entry, Type, Row) :-
-	%(atom(Entry) -> gtrace ; true),
 	miscs_dict(Entry, Type, Miscs_Dict),
 	merge_dicts(Cols0, Miscs_Dict, Cols),
 	cols_dict_to_row(Cols, Row).

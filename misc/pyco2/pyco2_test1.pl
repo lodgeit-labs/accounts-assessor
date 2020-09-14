@@ -92,7 +92,6 @@ test0 :-
 			%debug(pyco_ep),
 
 			Q = q1(_L,_F,_R),
-			%gtrace,
 			run(Q),
 			format(user_error,'~nresult: ~q~n', [Q]),
 
@@ -111,7 +110,6 @@ test1 :-
 			debug(pyco_proof),
 			debug(pyco_run),
 			%debug(pyco_ep),
-			%gtrace,
 			Q = 'lists of same chars, of same length'(_A,_B),
 			run(Q),
 			nicer_term(Q, NQ),
@@ -132,7 +130,6 @@ test2 :-
 			debug(pyco_proof),
 			%debug(pyco_ep),
 			Q = q2(_,_),
-%			gtrace,
 			run(Q),
 			format(user_error,'~nresult: ~q~n', [Q]),
 
@@ -150,7 +147,6 @@ test3 :-
 			debug(pyco_proof),
 			%debug(pyco_ep),
 			Q = q3(_,_),
-%			gtrace,
 			run(Q),
 			nicer_term(Q, NQ),
 			format(user_error,'~nresult: ~q~n', [NQ]),

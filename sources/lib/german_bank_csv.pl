@@ -29,7 +29,6 @@ extract_german_bank_csv1(File_Path, S_Transactions) :-
 
 german_bank_csv_row(Account, Currency, Row, S_Transaction) :-
 	Row = row(Date0, _, Description, Money_Atom, Side, Description_Column2),
-	%gtrace,
 	string_codes(Date0, Date1),
 	phrase(gb_date(Date), Date1),
 	german_bank_money(Money_Atom, Money_Number),
@@ -42,7 +41,6 @@ german_bank_csv_row(Account, Currency, Row, S_Transaction) :-
 	->	true
 	;	(
 			add_alert('error', ['failed to parse description: ', Description]),
-			%gtrace,
 			Exchanged = vector([]),
 			Verb = '?'
 		)

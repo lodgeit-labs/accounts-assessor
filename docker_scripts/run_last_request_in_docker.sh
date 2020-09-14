@@ -1,6 +1,6 @@
 #!/usr/bin/env fish
 
-# use this to run a request in docker, with gtrace. internal services and rabbitmq have to be running.
+# use this to run a request in docker, with g trace. internal services and rabbitmq have to be running.
 
 xhost +local:docker
 

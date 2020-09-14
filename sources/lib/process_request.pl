@@ -52,7 +52,6 @@ process_request_rpc_calculator(Dict) :-
 
 process_request(Options, File_Paths) :-
 	maybe_supress_generating_unique_taxonomy_urls(Options),
-	%gtrace,
 	%_ is 1 / 0,
 	(	current_prolog_flag(die_on_error, true)
 	->	process_multifile_request(File_Paths)
@@ -184,7 +183,6 @@ process_multifile_request(File_Paths) :-
 			!doc(Request, l:has_request_data_uri_base, Request_data_uri_base),
 			!doc_from_rdf(G, 'https://rdf.lodgeit.net.au/v1/excel_request#', Request_data_uri_base),
 			!check_request_version
-			%,gtrace
 			%doc_input_to_chr_constraints
 		)
 	;	true),

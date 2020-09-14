@@ -361,7 +361,7 @@ optional_currency_conversion(Exchange_Rates, Date, Src, Optional_Dst, Conversion
 
 ir2_forex_gain(Exchange_Rates, Opening_Date, End_Price, End_Date, Investment_Currency, Report_Currency, Count, Gain) :-
 	End_Price = value(End_Unit_Price_Unit, End_Unit_Price_Amount),
-	%(End_Unit_Price_Unit == Investment_Currency ->true;(gtrace,true)),
+	%(End_Unit_Price_Unit == Investment_Currency ->true;(g trace,true)),
 	(
 		End_Unit_Price_Unit = Investment_Currency
 	->

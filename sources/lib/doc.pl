@@ -167,7 +167,7 @@ assumption: only O's are allowed to be non-atoms
 */
 
 addd(S2,P2,O2,G2) :-
-%	(\+ground(addd(S2,P2,O2,G2)) -> gtrace ; true),
+%	(\+ground(addd(S2,P2,O2,G2)) -> g trace ; true),
 	atom(S2),atom(P2),atom(G2),
 
 	% get the_theory global
@@ -378,7 +378,6 @@ rol_single_match(T,SpogA) :-
 			(	Length > 1
 			->	(
 					format(string(Msg), 'multiple_matches, use docm: ~q', [SpogA_Copy]),
-					%gtrace,
 					throw_string(Msg)
 				)
 			;	true)
@@ -428,7 +427,7 @@ node_rdf_vs_doc(
 		/*freeze(Float, float(Float)),
 		freeze(Rat, rational(Rat)),*/
 		(
-			(var(Float),rational(Rat)) /* gtrace is totally baffled by this place, but the gist is that for anything else than a rational Rat, this correctly fails and goes on to the next case */
+			(var(Float),rational(Rat)) /* g trace is totally baffled by this place, but the gist is that for anything else than a rational Rat, this correctly fails and goes on to the next case */
 		;
 			(var(Rat), float(Float))
 		),
@@ -451,7 +450,7 @@ triple_rdf_vs_doc((S,P,O), (S,P,O2)) :-
 		E,
 		(
 			format(user_error, '~q', [E])
-			,gtrace
+			throw_string(E)
 		)
 	).
 

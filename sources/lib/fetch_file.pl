@@ -11,7 +11,6 @@ services_server(S) :-
 fetch_file_from_url(loc(absolute_url,Url), loc(absolute_path, Path)) :-
 	/* fixme ensure the host isnt localhost / local network */
 	/*uri_components(Url, Components),
-	gtrace,
 	writeq(Components),nl,*/
 	/* fixme https://stackoverflow.com/questions/34301697/curl-from-shell-path-with-spaces */
 	services_server_shell_cmd(['curl', Url, '-o', Path]).
