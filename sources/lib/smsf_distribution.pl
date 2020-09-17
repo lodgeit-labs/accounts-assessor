@@ -46,6 +46,11 @@ check_duplicate_distribution_unit(Item, Unit) :-
 ╹  ╹ ╹┗━╸ ╹ ┗━┛
 */
 assert_smsf_distribution_facts(Default_currency, Unit, Item) :-
+	doc_add(smsf_distribution_ui:entered_discount_capital_gains_net, rdfs:label, "Discount Capital Gains (Net) (As entered in excel)"),
+	doc_add(smsf_distribution_ui:entered_one_third_capital_gain_discount_amount, rdfs:label, "1/3rd Capital Gain Discount Amount (As entered in excel)"),
+	doc_add(smsf_distribution_ui:entered_total_capital_gains_losses, rdfs:label, "Total Capital Gains/Losses (As entered in excel)"),
+
+
 	/* assert the facts we want to use */
 	maplist(
 		!optionally_assert_doc_value_as_unit_fact(Default_currency, Unit, Item),
@@ -174,8 +179,41 @@ entered_computed_soft_crosscheck(A = B) :-
 	(	vecs_are_almost_equal(A2, B2)
 	->	true
 	;	(
-			!format(string(Err), 'entered: ~q ≠ computed: ~q', [A2, B2]),
+			Err = html(div(
+			[
+				div("entered value does not match computed:"),
+				div([
+					"entered: ",
+					$>!format_string('~q of:', [$>round_term(A2)]),
+					$>!aspects_to_html(A)]),
+				div([
+					"computed: ",
+					$>!format_string('~q of:', [$>round_term(B2)]),
+					$>!aspects_to_html(B)])
+			])),
 			!add_alert(warning, Err))).
+
+format_string(Format, Values, Str) :-
+	format(string(Str), Format, Values).
+
+aspects_to_html(aspects(Aspectses), ul(Items)) :-
+	aspects_to_html2(Aspectses, Items).
+
+aspects_to_html2([Ah|At], [Hh|Ht]) :-
+	aspect_value_html(Ah, Value_html),
+	Ah = Name - _,
+	atomics_to_string([Name, ': ' , Value_html], Item),
+	Hh = li([Item]),
+	aspects_to_html2(At, Ht).
+
+aspects_to_html2([], []).
+
+aspect_value_html(concept - Value, Value_html) :-
+	doc(Value, rdfs:label, Label),
+	!,
+	atomics_to_string([Label, " (",Value,")"], Value_html).
+
+aspect_value_html(_ - Value, Value).
 
 
 /*

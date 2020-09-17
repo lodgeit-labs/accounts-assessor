@@ -30,7 +30,7 @@ ggg(Data, S_Transactions0, Count) :-
 	/*length(Structured_Reports.crosschecks.errors, L),
 	(	L \= 2
 	->	true
-	;	(gtrace,format(user_error, '~q: ~q ~n', [Count, Structured_Reports.crosschecks.errors]))).*/
+	;	(g trace,format(user_error, '~q: ~q ~n', [Count, Structured_Reports.crosschecks.errors]))).*/
 
 
 

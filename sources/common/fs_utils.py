@@ -1,10 +1,11 @@
 """
 general-purpose filesystem utilities
 """
-import os.path
+import os.path, sys
 from os import listdir
 from os.path import isfile, join
 import ntpath
+import shlex
 
 def files_in_dir(dir):
 	result = []
@@ -43,3 +44,32 @@ def save_django_form_uploaded_file(tmp_directory_path, idx, f):
 	with open(tmp_fn, 'w') as destination:
 		destination.write(f)
 	return tmp_fn
+
+
+def print_command_nice(lst):
+	out = ''
+	for idx, i in enumerate(lst):
+		if idx != 0:
+			out += "  "
+		if isinstance(i, list):
+			out += (' '.join([shlex.quote(str(j)) for j in i]))
+		else:
+			out += shlex.quote((str(i)))
+		if idx != len(lst) - 1:
+			out += (' \\')
+		out += ('\n')
+	print(out)
+
+
+def flatten_lists(x):
+	if isinstance(x, list):
+		r = []
+		for y in x:
+			z = flatten_lists(y)
+			if isinstance(z, list):
+				r += z
+			else:
+				r.append(z)
+		return r
+	else:
+		return x

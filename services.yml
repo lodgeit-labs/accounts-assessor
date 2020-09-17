@@ -2,24 +2,43 @@
 # this config file is for "servicemanager"
 
 ---
+dev7778:
+   defaults:
+      type: exec
+   services:   
+      - name: internal_workers
+        dir: ./sources/internal_workers
+        exec: bash
+        args: -c "env PYTHONUNBUFFERED=true CELERY_QUEUE_NAME=q7778 SECRET__INTERNAL_SERVICES_SERVER_URL=\"http://localhost:17778\" ./run_in_venv.sh  -n w7778 --loglevel=info"
+
+      - name: internal_services
+        dir: ./sources/internal_services
+        exec: bash
+        args: -c "env PYTHONUNBUFFERED=true ./run_in_venv.sh 17778"
+
+      - name: frontend_server
+        dir: ./sources/frontend_server
+        exec: bash
+        args: -c "env PYTHONUNBUFFERED=true CELERY_QUEUE_NAME=q7778 SECRET__INTERNAL_SERVICES_SERVER_URL=\"http://localhost:17778\" ./run_dev.sh 0.0.0.0:7778"
+        
 dev7788:
    defaults:
       type: exec
    services:   
-      - name: celery_worker
-        dir: ./internal_workers
+      - name: internal_workers
+        dir: ./sources/internal_workers
         exec: bash
-        args: -c "env PYTHONUNBUFFERED=true CELERY_QUEUE_NAME=q7788 INTERNAL_SERVICES_SERVER_URL=\"http://localhost:17788\" ./run.sh  -n w7788 --loglevel=info"
+        args: -c "env PYTHONUNBUFFERED=true CELERY_QUEUE_NAME=q7788 SECRET__INTERNAL_SERVICES_SERVER_URL=\"http://localhost:17788\" ./run_in_venv.sh  -n w7788 --loglevel=info"
 
       - name: internal_services
-        dir: ./internal_services
+        dir: ./sources/internal_services
         exec: bash
-        args: -c "env PYTHONUNBUFFERED=true ./run.sh 17788"
+        args: -c "env PYTHONUNBUFFERED=true ./run_in_venv.sh 17788"
 
       - name: frontend_server
-        dir: ./frontend_server
+        dir: ./sources/frontend_server
         exec: bash
-        args: -c "env PYTHONUNBUFFERED=true CELERY_QUEUE_NAME=q7788 INTERNAL_SERVICES_SERVER_URL=\"http://localhost:17788\" ./run_dev.sh 0.0.0.0:7788"
+        args: -c "env PYTHONUNBUFFERED=true CELERY_QUEUE_NAME=q7788 SECRET__INTERNAL_SERVICES_SERVER_URL=\"http://localhost:17788\" ./run_dev.sh 0.0.0.0:7788"
         
 prod7768:
    defaults:

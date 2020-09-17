@@ -77,7 +77,6 @@ pyco0_rule(
 		s_transactions_up_to(End, All, Capped),
 		writeq('Capped:'),
 		writeq(Capped),nl,
-		%gtrace,
 		list_to_u(X, Capped),
 		writeq(X),nl
 	]).

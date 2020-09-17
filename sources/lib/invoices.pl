@@ -5,7 +5,6 @@
 this is just a first shot at parsing the UBL invoice schema
 */
 extract_invoices_payable(Request_Dom) :-
-	%gtrace,
 	%Cac='urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2',
 	Inv2 = 'urn:oasis:names:specification:ubl:schema:xsd:Invoice-2'
 	,findall(Dom, xpath(Request_Dom, //reports/balanceSheetRequest/invoicesPayable/(ns(_,Inv2):'Invoice'), Dom), Doms)

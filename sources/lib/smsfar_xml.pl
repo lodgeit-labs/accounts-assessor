@@ -1,10 +1,10 @@
 /*
-the xsd corresponds to:
+see doc/smsf/ato.smsfar.2020.xsd
+
+the xsd also seems to correspond to:
  https://www.ato.gov.au/forms/self-managed-superannuation-fund-annual-return-2020/
  https://www.ato.gov.au/Forms/Self-managed-superannuation-fund-annual-return-instructions-2020/?page=6#Answering_questions_in_section_B
- etc.
-
-
+ etc, so ultimately, we could make use of the formulas in ato sbr. (doc/xbrl/SBR_AU)
 */
 
 xml_outline_to_xml(

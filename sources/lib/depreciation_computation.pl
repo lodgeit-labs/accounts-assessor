@@ -140,7 +140,6 @@ depreciation_pool_from_start2(To_date,Method,Pool,Depreciation_value) :-
 	day_diff(Asset_Start_date,To_date,Days_diff),
 	Days_diff>0,
 	/* for every asset purchased before To_date */
-	%gtrace,
 	depreciation_between_start_date_and_other_date(
 		/*Initial_value*/Cost,
 		Method,

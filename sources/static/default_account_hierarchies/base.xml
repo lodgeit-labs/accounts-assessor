@@ -35,7 +35,7 @@
 				<CurrentEarnings role="CurrentEarnings"/>
 			</RetainedEarnings>
 			<CapitalIntroduced/>
-			<Drawings/>
+			<Drawings role="Drawings"/>
 		</Equity>
 
 		<ComprehensiveIncome role="ComprehensiveIncome" normal_side="credit">

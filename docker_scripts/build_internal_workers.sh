@@ -1,5 +1,5 @@
 #!/usr/bin/env fish
 
-git status > static/docs/git_info.txt; and git log >> static/docs/git_info.txt
+git status > static/docs/git_info.txt; and git log >> static/docs/git_info.txt ;
 
-set -x WHAT internal_workers;   and cp ../../secrets*.json .; and docker build --label  "koo5/$WHAT:latest"  -t "koo5/$WHAT" -f "$WHAT/Dockerfile" .
+and cp ../../secrets*.json .; and docker build --label  "koo5/internal-workers:latest"  -t "koo5/internal-workers" -f "internal_workers/Dockerfile" .

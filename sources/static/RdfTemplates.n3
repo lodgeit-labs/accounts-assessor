@@ -24,6 +24,10 @@
 @prefix smsf_ui: <https://rdf.lodgeit.net.au/v1/calcs/smsf/ui#> .
 @prefix smsf_distribution: <https://rdf.lodgeit.net.au/v1/calcs/smsf/distribution#> .
 @prefix smsf_distribution_ui: <https://rdf.lodgeit.net.au/v1/calcs/smsf/distribution_ui#> .
+@prefix reallocation: <https://rdf.lodgeit.net.au/v1/calcs/ic/reallocation#> .
+
+
+:request l:templates_version "2".
 
 
 excel:this rdfs:comment
@@ -53,6 +57,7 @@ smsf_ui:sheets
 	(
 		smsf_ui:members_sheet
 		smsf_ui:distribution_sheet
+		smsf_ui:income_tax_sheet
 	).
 
 smsf_ui:members_sheet
@@ -65,12 +70,19 @@ smsf_ui:distribution_sheet
 	excel:name_prefix "distribution";
 	excel:root smsf:distribution.
 
+smsf_ui:income_tax_sheet
+	excel:optional true;
+	excel:name_prefix "income_tax";
+	excel:root smsf:income_tax_info.
+
 smsf_ui:example
 	excel:example_has_sheets (
 		[	excel:has_sheet smsf_ui:members_sheet;
 			excel:example_doc smsf_ui:members_sheet_example]
 		[	excel:has_sheet smsf_ui:distribution_sheet;
 			excel:example_doc smsf_ui:distribution_sheet_example]
+		[	excel:has_sheet smsf_ui:income_tax_sheet;
+			excel:example_doc smsf_ui:income_tax_sheet_example]
 	).
 
 smsf_ui:members_sheet_example rdf:value (
@@ -80,7 +92,7 @@ smsf_ui:members_sheet_example rdf:value (
 		smsf:member_name [ a rdf:value ; rdf:value "Member 2" ]]
 ).
 
-smsf_ui:distribution_sheet_example rdf:value ().
+# smsf_ui:distribution_sheet_example rdf:value ().
 
 smsf:members
 	excel:title "members";
@@ -93,7 +105,17 @@ smsf:members
 
 smsf:distribution
 	excel:title "distribution";
-	excel:position [excel:col "A"; excel:row "3"];
+	excel:cardinality excel:single;
+	excel:position [excel:col "A"; excel:row "4"];
+	excel:class smsf_distribution:distribution;
+	excel:fields (
+		[excel:property smsf_distribution_ui:default_currency; excel:type xsd:string]
+		[excel:property smsf_distribution_ui:items; excel:template smsf_distribution:items_template]
+	).
+
+smsf_distribution:items_template
+	excel:title "distributions";
+	excel:position [excel:col "A"; excel:row "7"];
 	excel:cardinality excel:multi;
 	excel:class smsf_distribution:entry;
 	excel:is_horizontal true;
@@ -107,18 +129,76 @@ smsf:distribution
 		[excel:property smsf_distribution_ui:amit_decrease; excel:type xsd:decimal]
 		[excel:property smsf_distribution_ui:amit_increase; excel:type xsd:decimal]
 		[excel:property smsf_distribution_ui:amit_net; excel:type xsd:decimal]
+		[excel:property smsf_distribution_ui:non_primary_production_income ; excel:type xsd:decimal]
+		[excel:property smsf_distribution_ui:franked_divis_distri_including_credits ; excel:type xsd:decimal]
+		[excel:property smsf_distribution_ui:assessable_foreign_source_income ; excel:type xsd:decimal]
+		[excel:property smsf_distribution_ui:net_trust_distribution_income ; excel:type xsd:decimal]
+		[excel:property smsf_distribution_ui:capital_gains  ; excel:type xsd:decimal]
+		[excel:property smsf_distribution_ui:capital_losses  ; excel:type xsd:decimal]
+		[excel:property smsf_distribution_ui:discount_capital_gains_net  ; excel:type xsd:decimal]
+		[excel:property smsf_distribution_ui:other_capital_gains ; excel:type xsd:decimal]
+		[excel:property smsf_distribution_ui:one_third_capital_gain_discount_amount ; excel:type xsd:decimal]
+		[excel:property smsf_distribution_ui:total_capital_gains_losses ; excel:type xsd:decimal]
 	).
 
 smsf_distribution_ui:name rdfs:label "Unit Type".
 smsf_distribution_ui:net rdfs:label "Net Cash Distribution".
 smsf_distribution_ui:bank rdfs:label "Cash Distribution as per bank".
+
+# calculated on server, just checked
 smsf_distribution_ui:accrual rdfs:label "Resolved Accrual".
+
 smsf_distribution_ui:franking_credit rdfs:label "Add: Franking Credit".
 smsf_distribution_ui:foreign_credit rdfs:label "Add: Foreign Credit".
 smsf_distribution_ui:amit_decrease rdfs:label "AMIT cost base net amount - excess (decrease)".
 smsf_distribution_ui:amit_increase rdfs:label "AMIT cost base net amount - shortfall (increase)".
+
+# calculated on server, just checked
 smsf_distribution_ui:amit_net rdfs:label "Add: AMIT cost base net amount - net increase".
 
+smsf_distribution_ui:non_primary_production_income rdfs:label "Non-primary Production Income".
+smsf_distribution_ui:franked_divis_distri_including_credits rdfs:label "Franked Divis/Distri (Including Credits)".
+smsf_distribution_ui:assessable_foreign_source_income rdfs:label "Assessable Foreign Source Income (Inc Credits)".
+
+smsf_distribution_ui:net_trust_distribution_income rdfs:label "Net Trust distribution Income".
+
+
+
+smsf_distribution_ui:capital_gains 
+	rdfs:label 
+		"Capital Gains".
+smsf_distribution_ui:capital_losses 
+	rdfs:label 
+		"Capital Losses".
+smsf_distribution_ui:discount_capital_gains_net 
+	rdfs:label 
+		"Discount Capital Gains (Net)".
+smsf_distribution_ui:other_capital_gains
+	 rdfs:label 
+		"Other Capital Gains".
+smsf_distribution_ui:one_third_capital_gain_discount_amount
+	 rdfs:label 
+		"1/3rd Capital Gain Discount Amount".
+smsf_distribution_ui:total_capital_gains_losses
+	 rdfs:label 
+		"Total Capital Gains/Losses".
+
+
+
+smsf:income_tax_info
+	excel:title "income_tax_info";
+	excel:cardinality excel:single;
+	excel:position [excel:col "A"; excel:row "4"];
+	excel:class smsf:income_tax_info;
+	excel:fields (
+		[excel:property smsf:ato_supervisory_levy; excel:type xsd:decimal]
+	).
+	
+smsf:ato_supervisory_levy rdfs:label "ATO Supervisory Levy".
+
+
+smsf_ui:income_tax_sheet_example 
+	smsf:ato_supervisory_levy [ rdf:value "259"].
 
 
 
@@ -397,6 +477,8 @@ ic_ui:investment_calculator_sheets
 		ic_ui:report_details_sheet
 		smsf_ui:members_sheet
 		smsf_ui:distribution_sheet
+		smsf_ui:income_tax_sheet
+		ic_ui:reallocation_sheet
 		ic_ui:gl_input_sheet
 		ic_ui:additional_files_sheet
 		ic_ui:unit_types_sheet
@@ -428,7 +510,7 @@ ic:unit_types
 	excel:fields (
 		[excel:property ic:unit_type_name; excel:type xsd:string]
 		[excel:property ic:unit_type_category; excel:type xsd:string]
-		[excel:property ic:unit_type_subcategory; excel:type xsd:string]
+		[excel:property ic:unit_type_subcategory; excel:type xsd:string]	
 	).
 
 ic_ui:report_details_sheet
@@ -450,6 +532,12 @@ ic_ui:gl_input_sheet
 	excel:optional true;
 	excel:name_prefix "GL_input";
 	excel:root ic_ui:gl.
+
+ic_ui:reallocation_sheet
+	excel:multiple_sheets_allowed true;
+	excel:optional true;
+	excel:name_prefix "reallocation";
+	excel:root ic_ui:reallocation.
 
 ic_ui:gl_input_example
 	ic:default_currency [rdf:value "AUD"];
@@ -487,6 +575,54 @@ ic_ui:gl_entries_template
 		[excel:property ic:param2; excel:type xsd:string]
 		[excel:property ic:param3; excel:type xsd:string]
 		[excel:property ic:param4; excel:type xsd:string]
+	).
+
+reallocation:account_A rdfs:label "account A".
+reallocation:account_A_is rdfs:label "account A is".
+reallocation:items rdfs:label "entries".
+
+reallocation:account_A_is rdfs:range reallocation:Drcr.
+reallocation:debited a reallocation:Drcr.
+reallocation:credited a reallocation:Drcr.
+reallocation:debited reallocation:account_A_side kb:debit.
+reallocation:credited reallocation:account_A_side kb:credit.
+
+reallocation:account rdfs:label "Account B".
+reallocation:account rdfs:label "Account_Type".
+reallocation:date rdfs:label "Date".
+reallocation:date rdfs:label "Transaction_Date".
+reallocation:date rdfs:label "Bank_Transaction_Date".
+reallocation:amount rdfs:label "Amount".
+reallocation:description rdfs:label "Transaction_Description".
+
+
+ic_ui:reallocation
+	excel:position [excel:col "A"; excel:row "4"];
+	excel:title "reallocation";
+	excel:cardinality excel:single;
+	excel:class ic:reallocation;
+	excel:fields (
+		[excel:property ic:default_currency; excel:type xsd:string]
+		[excel:property reallocation:account_A; excel:type xsd:string]
+		[excel:property reallocation:account_A_is; excel:type excel:uri]
+		[excel:property reallocation:items; excel:template ic_ui:reallocation_entries_template]
+	).
+
+ic_ui:reallocation_entries_template
+	excel:position [excel:col "A"; excel:row "9"];
+	excel:title "transactions";
+	excel:cardinality excel:multi;
+	excel:class ic:reallocation_entry;
+	excel:fields (
+		[excel:property reallocation:account; excel:type xsd:string]
+		[excel:property reallocation:date; excel:type xsd:dateTime]	
+		[excel:property reallocation:amount; excel:type xsd:string]
+		[excel:property reallocation:description; excel:type xsd:string]
+		[excel:property ic:param1; excel:type xsd:string]
+		[excel:property ic:param2; excel:type xsd:string]
+		[excel:property ic:param3; excel:type xsd:string]
+		[excel:property ic:param4; excel:type xsd:string]
+		[excel:property ic:param5; excel:type xsd:string]
 	).
 
 ic_ui:additional_files

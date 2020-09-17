@@ -1,9 +1,11 @@
 from django.conf import settings
 from django.conf.urls.static import static
-from django.urls import path
+from django.urls import path, re_path
 from . import views
+from django.views.generic.base import RedirectView
 
 urlpatterns = ([
+    re_path(r'^favicon\.ico$', RedirectView.as_view(url='/static/favicon.ico', permanent=True)),
     path('', views.upload, name='upload'),
     path('upload', views.upload, name='upload'),
     path('sbe', views.sbe, name='sbe'),

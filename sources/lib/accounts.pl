@@ -79,7 +79,7 @@ find account by user's string (by name)
 	->	throw_string(['account not found: "', X, '"'])
 	;	(	Uris = [Uri]
 		->	true
-		;	(/*gtrace,*/throw_string(['multiple accounts with same name found: "', X, '"'])))).
+		;	(throw_string(['multiple accounts with same name found: "', X, '"'])))).
 
 all_accounts(Accounts) :-
 	request_accounts(As),

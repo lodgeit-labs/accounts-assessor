@@ -52,7 +52,6 @@ process_request_rpc_calculator(Dict) :-
 
 process_request(Options, File_Paths) :-
 	maybe_supress_generating_unique_taxonomy_urls(Options),
-	%gtrace,
 	%_ is 1 / 0,
 	(	current_prolog_flag(die_on_error, true)
 	->	process_multifile_request(File_Paths)
@@ -68,8 +67,9 @@ process_request(Options, File_Paths) :-
 
 process_request2 :-
 	'make "all files" report entry',
-	collect_alerts(Alerts3),
-	make_alerts_report(Alerts3),
+	collect_alerts(Alerts3, Alerts_html),
+	make_json_report(Alerts3, alerts_json),
+	make_alerts_report(Alerts_html),
 	make_doc_dump_report,
 	json_report_entries(Files3),
 
@@ -118,14 +118,22 @@ format_json_report_entry(Key, Title, Url, Json) :-
 	% just url's for all the rest
 	;	Json = Json0).
 
-collect_alerts(Alerts3) :-
+collect_alerts(Alerts_text, Alerts_html) :-
 	findall(
 		Alert,
 		(
 			get_alert(Key,Msg0),
 			alert_to_string(Key, Msg0, Alert)
 		),
-		Alerts3
+		Alerts_text
+	),
+	findall(
+		Alert,
+		(
+			get_alert(Key,Msg0),
+			alert_to_html(Key, Msg0, Alert)
+		),
+		Alerts_html
 	).
 
  alert_to_string(Key, Msg0, Alert) :-
@@ -138,12 +146,23 @@ collect_alerts(Alerts3) :-
 	->	true
 	;	throw(xxx)).
 
+ alert_to_html(Key, Msg0, Alert) :-
+	(
+	(
+		(Msg0 = error(msg(Msg),_) -> true ; Msg0 = Msg),
+		(	Msg = html(Msg2)
+		->	true
+		;	atomic(Msg) -> Msg2 = Msg ; term_string(Msg, Msg2)),
+		Alert = div([$>term_string(Key),": ",Msg2])
+	)
+	->	true
+	;	throw(xxx)).
+
 
 make_alerts_report(Alerts) :-
-	make_json_report(Alerts, alerts_json),
 	maplist(alert_html, Alerts, Alerts_Html),
 	(	Alerts_Html = []
-	->	Alerts_Html2 = ['no alerts']
+	->	Alerts_Html2 = ["no alerts."]
 	;	Alerts_Html2 = Alerts_Html),
 	add_report_page_with_body(10,alerts, [h3([alerts, ':']), div(Alerts_Html2)], loc(file_name,'alerts.html'), alerts_html).
 
@@ -164,7 +183,6 @@ process_multifile_request(File_Paths) :-
 			!doc(Request, l:has_request_data_uri_base, Request_data_uri_base),
 			!doc_from_rdf(G, 'https://rdf.lodgeit.net.au/v1/excel_request#', Request_data_uri_base),
 			!check_request_version
-			%,gtrace
 			%doc_input_to_chr_constraints
 		)
 	;	true),

@@ -1,24 +1,33 @@
-import time, json,  subprocess, shutil, ntpath, os, sys
+import time, shutil, ntpath, os
+import agraph
 from atomic_integer import AtomicInteger
-
-
 server_started_time = time.time()
 client_request_id = AtomicInteger()
-
 
 
 def git(Suffix = ""):
 	""" get git repo root path """
 	here = os.path.dirname(__file__)
-	r = os.path.normpath(os.path.join(here, '../', Suffix))
+	r = os.path.normpath(os.path.join(here, '../../', Suffix))
 	return r
+
+
+def sources(Suffix=""):
+	return os.path.normpath(os.path.join(git(), 'sources', Suffix))
+
+
+
+def get_unique_id():
+	return str(agraph.agc().createBNode().getId()[2:])
+
 
 def create_tmp_directory_name():
 	""" create a unique name """
 	return '.'.join([
 		str(server_started_time),
 		str(os.getpid()),
-		str(client_request_id.inc())])
+		str(client_request_id.inc()),
+		get_unique_id()])
 
 def get_tmp_directory_absolute_path(name):
 	""" append the unique name to tmp/ path """

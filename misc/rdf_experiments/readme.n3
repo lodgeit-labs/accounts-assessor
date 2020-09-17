@@ -14,8 +14,8 @@ cashflow:
 
 
 
-:aa
-code:laa
+>> products#robust has_codebase codebases#labs_accounts_assessor.
+>> products#robust has_codebase codebases#LodgeITSmart.
 
 
 	rdf:label "Accounts Assessor";
