@@ -53,7 +53,7 @@ excel:multiple_sheets_allowed rdfs:comment "are multiple sheets of this type all
 
 
 smsf_ui:sheets
-	a excel:xx;
+	a excel:sheet_set;
 	excel:sheets
 	(
 		smsf_ui:members_sheet
@@ -62,21 +62,25 @@ smsf_ui:sheets
 	).
 
 smsf_ui:members_sheet
+	a excel:sheet_type;
 	excel:optional true;
 	excel:name_prefix "members";
 	excel:root smsf:members.
 
 smsf_ui:distribution_sheet
+	a excel:sheet_type;
 	excel:optional true;
 	excel:name_prefix "distribution";
 	excel:root smsf:distribution.
 
 smsf_ui:income_tax_sheet
+	a excel:sheet_type;
 	excel:optional true;
 	excel:name_prefix "income_tax";
 	excel:root smsf:income_tax_info.
 
 smsf_ui:example
+	a excel:example_sheet_set;
 	excel:example_has_sheets (
 		[	excel:has_sheet smsf_ui:members_sheet;
 			excel:example_doc smsf_ui:members_sheet_example]
@@ -206,7 +210,6 @@ smsf_ui:income_tax_sheet_example
 
 
 depr_ui:depreciation_calculator_sheets
-	a excel:xx;
 	excel:sheets
 	(
 		depr_ui:depreciation_calculator_sheet_queries
@@ -722,6 +725,7 @@ hp_ui:hirepurchase_calculator_example
 ).
 
 hp_ui:hirepurchase_calculator_sheets
+	a excel:sheet_set;
 	excel:sheets (
 		hp_ui:hirepurchase_calculator_query_sheet
 	).
