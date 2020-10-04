@@ -87,6 +87,7 @@ smsf_ui:income_tax_sheet
 
 smsf_ui:example
 	a excel:example_sheet_set;
+	excel:label "Smsf template";
 	excel:example_has_sheets (
 		[	excel:has_sheet smsf_ui:members_sheet;
 			excel:example_doc smsf_ui:members_sheet_example]
@@ -726,6 +727,7 @@ ic_ui:gl_input_example
 
 hp_ui:hirepurchase_calculator_example
 	a excel:example_sheet_set;
+	excel:label "Hirepurchase Calculator Template";
 	excel:example_has_sheets (
 		[	excel:has_sheet hp_ui:hirepurchase_calculator_query_sheet;
 			excel:example_doc hp_ui:hirepurchase_calculator_query_example]

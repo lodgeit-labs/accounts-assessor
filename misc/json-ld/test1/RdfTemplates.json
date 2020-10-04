@@ -1,5 +1,5 @@
 {
-  "help": "\nThe top-level keys are \"sheet_sets\", \"example_sheet_sets\" and \"sheet_type\". Each contains an object, whose keys are the \"@id\" of the nested objects.\na json-ld context was chosen such that the @id string is always the full iri of the resource.\nsmall issue: objects have an \"@id\" even if it's not useful.\nin excel, sheet type is in cell A2. The string is the full iri, as used to identify the sheet type in RDF.\n\"sheet_sets\" is what the plugin should look for and send, for a given request type.\n\"sheet_sets\" and \"example_sheet_sets\" reference sheet types by @id, which must be looked up in \"sheet_types\".\n",
+  "help": "note: you may want to console.log this text for comfortable reading.\nThis is an anonymous object generated programmatically by https://github.com/LodgeiT/labs-accounts-assessor/blob/jld/misc/json-ld/test1/main.js. Therefore, it does not have an @id.\t\t\nThe top-level keys are \"sheet_sets\", \"example_sheet_sets\" and \"sheet_type\". Each contains an object, whose keys are the \"@id\" of the nested objects.\na json-ld context was chosen such that the @id string is always the full iri of the resource.\nIn excel, sheet type is in cell A2. The string is the full iri, as used to identify the sheet type in RDF.\n\n\"sheet_sets\" is what the plugin should look for and send, for a given request type.\n\"sheet_sets\" and \"example_sheet_sets\" reference sheet types by @id, which must be looked up in \"sheet_types\".\n\nThe format of this file is slightly overcomplicated:\nObjects have an \"@id\" even if it's not useful.\nArrays are always wrapped in an object, whose only key is \"@list\". This is can be thought of either as a shortcoming of current json-ld standard, or as intentional, to allow round-tripping.\n \nnotes on semantics of the template descriptions in general:\nwhere \"excel:type\" is an \"excel:uri\", such as here:\n\n                    {\n                      \"excel:property\": {\n                        \"@id\": \"https://rdf.lodgeit.net.au/v1/calcs/hp#hp_contract_has_payment_type\",\n                        \"rdfs:range\": {\n                          \"@id\": \"https://rdf.lodgeit.net.au/v1/calcs/hp#hp_contract_payment_type\"\n                        }\n                      },\n                      \"excel:type\": \"excel:uri\"\n                    },\n\n\n\n\n",
   "sheet_sets": {
     "https://rdf.lodgeit.net.au/v1/calcs/hp/ui#hirepurchase_calculator_sheets": {
       "@id": "https://rdf.lodgeit.net.au/v1/calcs/hp/ui#hirepurchase_calculator_sheets",
@@ -84,7 +84,8 @@
             }
           }
         ]
-      }
+      },
+      "excel:label": "Hirepurchase Calculator Template"
     },
     "https://rdf.lodgeit.net.au/v1/calcs/smsf/ui#example": {
       "@id": "https://rdf.lodgeit.net.au/v1/calcs/smsf/ui#example",
@@ -142,7 +143,8 @@
             }
           }
         ]
-      }
+      },
+      "excel:label": "Smsf template"
     }
   },
   "sheet_types": {
@@ -517,10 +519,7 @@
                     }
                   ]
                 },
-                "excel:is_horizontal": {
-                  "@type": "xsd:boolean",
-                  "@value": "true"
-                },
+                "excel:is_horizontal": "true",
                 "excel:position": {
                   "excel:col": "A",
                   "excel:row": "7"
@@ -592,6 +591,51 @@
           "excel:row": "3"
         },
         "excel:title": "members"
+      }
+    }
+  },
+  "ranges": {
+    "https://rdf.lodgeit.net.au/v1/account_taxonomies#url": {
+      "@id": "https://rdf.lodgeit.net.au/v1/account_taxonomies#url",
+      "rdfs:range": {
+        "@id": "https://rdf.lodgeit.net.au/v1/account_taxonomies#Account_taxonomy"
+      }
+    },
+    "https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_event_has_type": {
+      "@id": "https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_event_has_type",
+      "rdfs:range": {
+        "@id": "https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_event_type"
+      }
+    },
+    "https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_query_has_type": {
+      "@id": "https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_query_has_type",
+      "rdfs:range": {
+        "@id": "https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_query_type"
+      }
+    },
+    "https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_query_method": {
+      "@id": "https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_query_method",
+      "rdfs:range": {
+        "@id": "https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_query_method_type"
+      }
+    },
+    "https://rdf.lodgeit.net.au/v1/calcs/hp#hp_contract_has_payment_type": {
+      "@id": "https://rdf.lodgeit.net.au/v1/calcs/hp#hp_contract_has_payment_type",
+      "rdfs:range": {
+        "@id": "https://rdf.lodgeit.net.au/v1/calcs/hp#hp_contract_payment_type"
+      }
+    },
+    "https://rdf.lodgeit.net.au/v1/calcs/ic#cost_or_market": {
+      "@id": "https://rdf.lodgeit.net.au/v1/calcs/ic#cost_or_market",
+      "rdfs:range": {
+        "@id": "https://rdf.lodgeit.net.au/v1/calcs/ic#cost_or_market_type"
+      }
+    },
+    "https://rdf.lodgeit.net.au/v1/calcs/ic/reallocation#account_A_is": {
+      "@id": "https://rdf.lodgeit.net.au/v1/calcs/ic/reallocation#account_A_is",
+      "rdfs:label": "account A is",
+      "rdfs:range": {
+        "@id": "https://rdf.lodgeit.net.au/v1/calcs/ic/reallocation#Drcr"
       }
     }
   }
