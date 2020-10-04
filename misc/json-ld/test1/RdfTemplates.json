@@ -8,9 +8,7 @@
         "@id": "excel:sheet_set"
       },
       "sheets": [
-        {
-          "@id": "https://rdf.lodgeit.net.au/v1/calcs/hp/ui#hirepurchase_calculator_query_sheet"
-        }
+        "https://rdf.lodgeit.net.au/v1/calcs/hp/ui#hirepurchase_calculator_query_sheet"
       ]
     },
     "https://rdf.lodgeit.net.au/v1/calcs/smsf/ui#sheets": {
@@ -20,15 +18,9 @@
         "@id": "excel:sheet_set"
       },
       "sheets": [
-        {
-          "@id": "https://rdf.lodgeit.net.au/v1/calcs/smsf/ui#members_sheet"
-        },
-        {
-          "@id": "https://rdf.lodgeit.net.au/v1/calcs/smsf/ui#distribution_sheet"
-        },
-        {
-          "@id": "https://rdf.lodgeit.net.au/v1/calcs/smsf/ui#income_tax_sheet"
-        }
+        "https://rdf.lodgeit.net.au/v1/calcs/smsf/ui#members_sheet",
+        "https://rdf.lodgeit.net.au/v1/calcs/smsf/ui#distribution_sheet",
+        "https://rdf.lodgeit.net.au/v1/calcs/smsf/ui#income_tax_sheet"
       ]
     }
   },
