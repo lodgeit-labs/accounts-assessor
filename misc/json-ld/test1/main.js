@@ -15,10 +15,16 @@ var jl = require('jsonld');
 
 const ctx = {
 //	"@base": "https://rdf.lodgeit.net.au/v1/",
+
 	"xsd": "http://www.w3.org/2001/XMLSchema#",
 	"rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
 	"rdfs": "http://www.w3.org/2000/01/rdf-schema#",
 	"excel": "https://rdf.lodgeit.net.au/v1/excel#",
+
+
+
+
+
 /*	"depr": "https://rdf.lodgeit.net.au/v1/calcs/depr#",
 	"depr_ui": "https://rdf.lodgeit.net.au/v1/calcs/depr/ui#",
 	"smsf": "https://rdf.lodgeit.net.au/v1/calcs/smsf#",
@@ -31,6 +37,14 @@ const ctx = {
 	"excel:type":{"@type":"@id"},
 	"excel:multiple_sheets_allowed":{"@type":"xsd:boolean"},
 	"excel:is_horizontal":{"@type":"xsd:boolean"},
+
+
+
+	/*example_doc:"excel:example_doc",
+	has_sheet:"excel:has_sheet",*/
+
+
+
 	/*"excel:class":{"@type":"@id"},
 	"excel:property":{"@type":"@id"}
 	^it's tempting to add these two declarations, so that the json keys don't hold objects, just the shortened strings. But if the URIs, which these objects represent, have any properties, (such as rdfs:label), then the json-ld processor produces a whole object anyway.
@@ -46,7 +60,7 @@ const ctx = {
 	//"is_range_of": {"@reverse": "excel:property"},
 
 
-
+	//"rdfs:range":{"@type":"@id"},
 	//"rdf:type2":{"@type":"@id"},
 	/*causes:
 	(node:23515) UnhandledPromiseRejectionWarning: TypeError: Cannot read property 'push' of undefined
@@ -58,10 +72,43 @@ const ctx = {
 		at async /home/koom/lodgeit2/master2/misc/json-ld/test1/main.js:56:8
 	(node:23515) UnhandledPromiseRejectionWarning: Unhandled promise rejection. This error originated either by throwing inside of an async function without a catch block, or by rejecting a promise which was not handled with .catch(). To terminate the node process on unhandled promise rejection, use the CLI flag `--unhandled-rejections=strict` (see https://nodejs.org/api/cli.html#cli_unhandled_rejections_mode). (rejection id: 2)
 	(node:23515) [DEP0018] DeprecationWarning: Unhandled promise rejections are deprecated. In the future, promise rejections that are not handled will terminate the Node.js process with a non-zero exit code.
+
+	//"excel:has_sheet"
+
+
+
 */
 
 };
 
+
+function simplify_array(x)
+{
+	const r = []
+	x.forEach((y) =>
+		r.push(simplify(y)))
+	return r;
+}
+
+function simplify(x)
+{
+	if ((x instanceof Object) && ('@list' in x))
+		return simplify_array(x['@list'])
+	else if (Array.isArray(x))
+		return {'@set':simplify_array(x)}
+	else if (x instanceof Object)
+	{
+		const r = {}
+		for (var [k, v] of Object.entries(x)) {
+			if (k.startsWith("excel:"))
+				k = k.substring("excel:".length)
+			r[k] = simplify(v)
+		}
+		return r
+	}
+	else
+		return x;
+}
 
 (async () => {
 	var doc = await processor.load_n3('RdfTemplates.n3');
@@ -69,14 +116,12 @@ const ctx = {
 	doc['@context'] = ctx
 	//console.log(doc);
 
-
-
 	const idd = async (frame) =>
 	{
 		frame["@context"] = ctx;
 		const fr = await processor.frame(doc, frame);
 		//console.log(fr)
-		return ids_to_keys(fr);
+		return simplify(ids_to_keys(fr));
 	}
 
 	const result = {
@@ -108,7 +153,7 @@ where "excel:type" is an "excel:uri", such as here:
                       "excel:type": "excel:uri"
                     },
 
-
+you have to look "https://rdf.lodgeit.net.au/v1/calcs/hp#hp_contract_payment_type" up in "ranges". You will see it "is_type_of" a list of items. These are the items that show up in a dropdown.  Each item can either have "rdfs:label", in which case this is what you display to user, or you generate a label by taking the last part of the uri.
 
 
 `,
