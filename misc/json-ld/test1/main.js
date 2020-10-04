@@ -36,6 +36,7 @@ const ctx = {
 	"excel:cardinality":{"@type":"@id"},
 	"excel:type":{"@type":"@id"},
 	"excel:sheets":{"@type":"@id"},
+	"excel:has_sheet":{"@type":"@id"},
 	"excel:multiple_sheets_allowed":{"@type":"xsd:boolean"},
 	"excel:is_horizontal":{"@type":"xsd:boolean"},
 

@@ -79,9 +79,7 @@
               }
             }
           },
-          "has_sheet": {
-            "@id": "https://rdf.lodgeit.net.au/v1/calcs/hp/ui#hirepurchase_calculator_query_sheet"
-          }
+          "has_sheet": "https://rdf.lodgeit.net.au/v1/calcs/hp/ui#hirepurchase_calculator_query_sheet"
         }
       ],
       "label": "Hirepurchase Calculator Template"
@@ -125,9 +123,7 @@
               }
             ]
           },
-          "has_sheet": {
-            "@id": "https://rdf.lodgeit.net.au/v1/calcs/smsf/ui#members_sheet"
-          }
+          "has_sheet": "https://rdf.lodgeit.net.au/v1/calcs/smsf/ui#members_sheet"
         },
         {
           "example_doc": {
@@ -144,9 +140,7 @@
               "rdf:value": "AUD"
             }
           },
-          "has_sheet": {
-            "@id": "https://rdf.lodgeit.net.au/v1/calcs/smsf/ui#distribution_sheet"
-          }
+          "has_sheet": "https://rdf.lodgeit.net.au/v1/calcs/smsf/ui#distribution_sheet"
         },
         {
           "example_doc": {
@@ -155,9 +149,7 @@
               "rdf:value": "259"
             }
           },
-          "has_sheet": {
-            "@id": "https://rdf.lodgeit.net.au/v1/calcs/smsf/ui#income_tax_sheet"
-          }
+          "has_sheet": "https://rdf.lodgeit.net.au/v1/calcs/smsf/ui#income_tax_sheet"
         }
       ],
       "label": "Smsf template"
