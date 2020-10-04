@@ -5,7 +5,11 @@
 produce RdfTemplates.json, by projecting through json-ld frames.
 
 
-in excel, sheet type is in cell A2. this is obtained by concatenating:
+in excel, sheet type is in cell A2. The string is the full URI, as used to identify the sheet type in RDF.
+
+in our json-ld document, the sheet type URI may be specified for example like this: ` "@id": "calcs/hp/ui#hirepurchase_calculator_query_sheet" `.
+It is the string for key "@id". The json-ld processor shortened
+ this is obtained by concatenating:
 	["sheet_types"]["@context"]["@base"]
 with the "@id" of the sheet_type.
 
@@ -25,18 +29,18 @@ var jl = require('jsonld');
 
 
 const ctx = {
-	"@base": "https://rdf.lodgeit.net.au/v1/",
+//	"@base": "https://rdf.lodgeit.net.au/v1/",
 	"xsd": "http://www.w3.org/2001/XMLSchema#",
 	"rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
 	"rdfs": "http://www.w3.org/2000/01/rdf-schema#",
 	"excel": "https://rdf.lodgeit.net.au/v1/excel#",
-	"depr": "https://rdf.lodgeit.net.au/v1/calcs/depr#",
+/*	"depr": "https://rdf.lodgeit.net.au/v1/calcs/depr#",
 	"depr_ui": "https://rdf.lodgeit.net.au/v1/calcs/depr/ui#",
 	"smsf": "https://rdf.lodgeit.net.au/v1/calcs/smsf#",
 	"smsf_ui": "https://rdf.lodgeit.net.au/v1/calcs/smsf/ui#",
 	"smsf_distribution": "https://rdf.lodgeit.net.au/v1/calcs/smsf/distribution#",
 	"smsf_distribution_ui": "https://rdf.lodgeit.net.au/v1/calcs/smsf/distribution_ui#",
-
+*/
 	"excel:optional":{"@type":"xsd:boolean"},
 	"excel:cardinality":{"@type":"@id"},
 	"excel:type":{"@type":"@id"},
@@ -68,7 +72,7 @@ const ctx = {
 	}
 
 	const result = {
-		"@context":ctx,
+		//"@context":ctx,
 		sheet_sets: await idd(
 			{
 				"@type": "excel:sheet_set",

@@ -1,68 +1,43 @@
 {
-  "@context": {
-    "@base": "https://rdf.lodgeit.net.au/v1/",
-    "xsd": "http://www.w3.org/2001/XMLSchema#",
-    "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
-    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
-    "excel": "https://rdf.lodgeit.net.au/v1/excel#",
-    "depr": "https://rdf.lodgeit.net.au/v1/calcs/depr#",
-    "depr_ui": "https://rdf.lodgeit.net.au/v1/calcs/depr/ui#",
-    "smsf": "https://rdf.lodgeit.net.au/v1/calcs/smsf#",
-    "smsf_ui": "https://rdf.lodgeit.net.au/v1/calcs/smsf/ui#",
-    "smsf_distribution": "https://rdf.lodgeit.net.au/v1/calcs/smsf/distribution#",
-    "smsf_distribution_ui": "https://rdf.lodgeit.net.au/v1/calcs/smsf/distribution_ui#",
-    "excel:optional": {
-      "@type": "xsd:boolean"
-    },
-    "excel:cardinality": {
-      "@type": "@id"
-    },
-    "excel:type": {
-      "@type": "@id"
-    },
-    "excel:multiple_sheets_allowed": {
-      "@type": "xsd:boolean"
-    }
-  },
   "sheet_sets": {
-    "calcs/hp/ui#hirepurchase_calculator_sheets": {
-      "@id": "calcs/hp/ui#hirepurchase_calculator_sheets",
+    "https://rdf.lodgeit.net.au/v1/calcs/hp/ui#hirepurchase_calculator_sheets": {
+      "@id": "https://rdf.lodgeit.net.au/v1/calcs/hp/ui#hirepurchase_calculator_sheets",
       "@type": "excel:sheet_set",
       "excel:sheets": {
         "@list": [
           {
-            "@id": "calcs/hp/ui#hirepurchase_calculator_query_sheet"
+            "@id": "https://rdf.lodgeit.net.au/v1/calcs/hp/ui#hirepurchase_calculator_query_sheet"
           }
         ]
       }
     },
-    "smsf_ui:sheets": {
-      "@id": "smsf_ui:sheets",
+    "https://rdf.lodgeit.net.au/v1/calcs/smsf/ui#sheets": {
+      "@id": "https://rdf.lodgeit.net.au/v1/calcs/smsf/ui#sheets",
       "@type": "excel:sheet_set",
       "excel:sheets": {
         "@list": [
           {
-            "@id": "smsf_ui:members_sheet"
+            "@id": "https://rdf.lodgeit.net.au/v1/calcs/smsf/ui#members_sheet"
           },
           {
-            "@id": "smsf_ui:distribution_sheet"
+            "@id": "https://rdf.lodgeit.net.au/v1/calcs/smsf/ui#distribution_sheet"
           },
           {
-            "@id": "smsf_ui:income_tax_sheet"
+            "@id": "https://rdf.lodgeit.net.au/v1/calcs/smsf/ui#income_tax_sheet"
           }
         ]
       }
     }
   },
   "example_sheet_sets": {
-    "calcs/hp/ui#hirepurchase_calculator_example": {
-      "@id": "calcs/hp/ui#hirepurchase_calculator_example",
+    "https://rdf.lodgeit.net.au/v1/calcs/hp/ui#hirepurchase_calculator_example": {
+      "@id": "https://rdf.lodgeit.net.au/v1/calcs/hp/ui#hirepurchase_calculator_example",
       "@type": "excel:example_sheet_set",
       "excel:example_has_sheets": {
         "@list": [
           {
             "excel:example_doc": {
-              "@id": "calcs/hp/ui#hirepurchase_calculator_query_example",
+              "@id": "https://rdf.lodgeit.net.au/v1/calcs/hp/ui#hirepurchase_calculator_query_example",
               "https://rdf.lodgeit.net.au/v1/calcs/hp#begin_date": {
                 "rdf:value": {
                   "@type": "xsd:dateTime",
@@ -82,7 +57,7 @@
                 },
                 "https://rdf.lodgeit.net.au/v1/calcs/hp#hp_contract_has_payment_type": {
                   "rdf:value": {
-                    "@id": "calcs/hp#hp_contract_payment_type_advance",
+                    "@id": "https://rdf.lodgeit.net.au/v1/calcs/hp#hp_contract_payment_type_advance",
                     "@type": "https://rdf.lodgeit.net.au/v1/calcs/hp#hp_contract_payment_type",
                     "rdfs:label": "advance"
                   }
@@ -104,32 +79,32 @@
               }
             },
             "excel:has_sheet": {
-              "@id": "calcs/hp/ui#hirepurchase_calculator_query_sheet"
+              "@id": "https://rdf.lodgeit.net.au/v1/calcs/hp/ui#hirepurchase_calculator_query_sheet"
             }
           }
         ]
       }
     },
-    "smsf_ui:example": {
-      "@id": "smsf_ui:example",
+    "https://rdf.lodgeit.net.au/v1/calcs/smsf/ui#example": {
+      "@id": "https://rdf.lodgeit.net.au/v1/calcs/smsf/ui#example",
       "@type": "excel:example_sheet_set",
       "excel:example_has_sheets": {
         "@list": [
           {
             "excel:example_doc": {
-              "@id": "smsf_ui:members_sheet_example",
+              "@id": "https://rdf.lodgeit.net.au/v1/calcs/smsf/ui#members_sheet_example",
               "rdf:value": {
                 "@list": [
                   {
-                    "@type": "smsf_ui:members_sheet_entry",
-                    "smsf:member_name": {
+                    "@type": "https://rdf.lodgeit.net.au/v1/calcs/smsf/ui#members_sheet_entry",
+                    "https://rdf.lodgeit.net.au/v1/calcs/smsf#member_name": {
                       "@type": "rdf:value",
                       "rdf:value": "Member 1"
                     }
                   },
                   {
-                    "@type": "smsf_ui:members_sheet_entry",
-                    "smsf:member_name": {
+                    "@type": "https://rdf.lodgeit.net.au/v1/calcs/smsf/ui#members_sheet_entry",
+                    "https://rdf.lodgeit.net.au/v1/calcs/smsf#member_name": {
                       "@type": "rdf:value",
                       "rdf:value": "Member 2"
                     }
@@ -138,31 +113,31 @@
               }
             },
             "excel:has_sheet": {
-              "@id": "smsf_ui:members_sheet"
+              "@id": "https://rdf.lodgeit.net.au/v1/calcs/smsf/ui#members_sheet"
             }
           },
           {
             "excel:example_doc": {
-              "@id": "smsf_ui:distribution_sheet_example",
-              "@type": "smsf_distribution:distribution",
-              "smsf_distribution_ui:default_currency": {
+              "@id": "https://rdf.lodgeit.net.au/v1/calcs/smsf/ui#distribution_sheet_example",
+              "@type": "https://rdf.lodgeit.net.au/v1/calcs/smsf/distribution#distribution",
+              "https://rdf.lodgeit.net.au/v1/calcs/smsf/distribution_ui#default_currency": {
                 "@type": "rdf:value",
                 "rdf:value": "AUD"
               }
             },
             "excel:has_sheet": {
-              "@id": "smsf_ui:distribution_sheet"
+              "@id": "https://rdf.lodgeit.net.au/v1/calcs/smsf/ui#distribution_sheet"
             }
           },
           {
             "excel:example_doc": {
-              "@id": "smsf_ui:income_tax_sheet_example",
-              "smsf:ato_supervisory_levy": {
+              "@id": "https://rdf.lodgeit.net.au/v1/calcs/smsf/ui#income_tax_sheet_example",
+              "https://rdf.lodgeit.net.au/v1/calcs/smsf#ato_supervisory_levy": {
                 "rdf:value": "259"
               }
             },
             "excel:has_sheet": {
-              "@id": "smsf_ui:income_tax_sheet"
+              "@id": "https://rdf.lodgeit.net.au/v1/calcs/smsf/ui#income_tax_sheet"
             }
           }
         ]
@@ -170,181 +145,181 @@
     }
   },
   "sheet_types": {
-    "calcs/hp/ui#hirepurchase_calculator_query_sheet": {
-      "@id": "calcs/hp/ui#hirepurchase_calculator_query_sheet",
+    "https://rdf.lodgeit.net.au/v1/calcs/hp/ui#hirepurchase_calculator_query_sheet": {
+      "@id": "https://rdf.lodgeit.net.au/v1/calcs/hp/ui#hirepurchase_calculator_query_sheet",
       "@type": "excel:sheet_type",
       "excel:multiple_sheets_allowed": "true",
       "excel:name_prefix": "HP",
       "excel:root": {
-        "@id": "calcs/hp/ui#hp_calculator_query",
+        "@id": "https://rdf.lodgeit.net.au/v1/calcs/hp/ui#hp_calculator_query",
         "excel:cardinality": "excel:single",
         "excel:class": {
-          "@id": "calcs/hp#hp_calculator_query"
+          "@id": "https://rdf.lodgeit.net.au/v1/calcs/hp#hp_calculator_query"
         },
         "excel:fields": {
           "@list": [
             {
               "excel:comment": "ignored for Investment Calculator",
               "excel:property": {
-                "@id": "calcs/hp#begin_date"
+                "@id": "https://rdf.lodgeit.net.au/v1/calcs/hp#begin_date"
               },
               "excel:type": "xsd:dateTime"
             },
             {
               "excel:comment": "ignored for Investment Calculator",
               "excel:property": {
-                "@id": "calcs/hp#end_date"
+                "@id": "https://rdf.lodgeit.net.au/v1/calcs/hp#end_date"
               },
               "excel:type": "xsd:dateTime"
             },
             {
               "excel:property": {
-                "@id": "calcs/hp#hp_contract"
+                "@id": "https://rdf.lodgeit.net.au/v1/calcs/hp#hp_contract"
               },
               "excel:template": {
-                "@id": "calcs/hp/ui#hp_contract",
+                "@id": "https://rdf.lodgeit.net.au/v1/calcs/hp/ui#hp_contract",
                 "excel:cardinality": "excel:single",
                 "excel:class": {
-                  "@id": "calcs/hp#hp_contract"
+                  "@id": "https://rdf.lodgeit.net.au/v1/calcs/hp#hp_contract"
                 },
                 "excel:fields": {
                   "@list": [
                     {
                       "excel:property": {
-                        "@id": "calcs/hp#contract_number"
+                        "@id": "https://rdf.lodgeit.net.au/v1/calcs/hp#contract_number"
                       }
                     },
                     {
                       "excel:property": {
-                        "@id": "calcs/hp#currency"
+                        "@id": "https://rdf.lodgeit.net.au/v1/calcs/hp#currency"
                       }
                     },
                     {
                       "excel:property": {
-                        "@id": "calcs/hp#cash_price"
+                        "@id": "https://rdf.lodgeit.net.au/v1/calcs/hp#cash_price"
                       },
                       "excel:type": "xsd:decimal"
                     },
                     {
                       "excel:property": {
-                        "@id": "calcs/hp#interest_rate"
+                        "@id": "https://rdf.lodgeit.net.au/v1/calcs/hp#interest_rate"
                       },
                       "excel:type": "xsd:decimal"
                     },
                     {
                       "excel:note": "dunno what type here",
                       "excel:property": {
-                        "@id": "calcs/hp#interest_period"
+                        "@id": "https://rdf.lodgeit.net.au/v1/calcs/hp#interest_period"
                       }
                     },
                     {
                       "excel:note": "dunno what type here",
                       "excel:property": {
-                        "@id": "calcs/hp#repayment_period"
+                        "@id": "https://rdf.lodgeit.net.au/v1/calcs/hp#repayment_period"
                       }
                     },
                     {
                       "excel:property": {
-                        "@id": "calcs/hp#number_of_installments"
+                        "@id": "https://rdf.lodgeit.net.au/v1/calcs/hp#number_of_installments"
                       },
                       "excel:type": "xsd:integer"
                     },
                     {
                       "excel:property": {
-                        "@id": "calcs/hp#repayment_amount"
+                        "@id": "https://rdf.lodgeit.net.au/v1/calcs/hp#repayment_amount"
                       },
                       "excel:type": "xsd:decimal"
                     },
                     {
                       "excel:property": {
-                        "@id": "calcs/hp#total_payments"
+                        "@id": "https://rdf.lodgeit.net.au/v1/calcs/hp#total_payments"
                       },
                       "excel:type": "xsd:integer"
                     },
                     {
                       "excel:property": {
-                        "@id": "calcs/hp#total_interest"
+                        "@id": "https://rdf.lodgeit.net.au/v1/calcs/hp#total_interest"
                       },
                       "excel:type": "xsd:decimal"
                     },
                     {
                       "excel:property": {
-                        "@id": "calcs/hp#repayment_balance"
+                        "@id": "https://rdf.lodgeit.net.au/v1/calcs/hp#repayment_balance"
                       },
                       "excel:type": "xsd:decimal"
                     },
                     {
                       "excel:property": {
-                        "@id": "calcs/hp#hp_contract_has_payment_type",
+                        "@id": "https://rdf.lodgeit.net.au/v1/calcs/hp#hp_contract_has_payment_type",
                         "rdfs:range": {
-                          "@id": "calcs/hp#hp_contract_payment_type"
+                          "@id": "https://rdf.lodgeit.net.au/v1/calcs/hp#hp_contract_payment_type"
                         }
                       },
                       "excel:type": "excel:uri"
                     },
                     {
                       "excel:property": {
-                        "@id": "calcs/hp#hp_installments"
+                        "@id": "https://rdf.lodgeit.net.au/v1/calcs/hp#hp_installments"
                       },
                       "excel:template": {
-                        "@id": "calcs/hp/ui#hp_installments",
+                        "@id": "https://rdf.lodgeit.net.au/v1/calcs/hp/ui#hp_installments",
                         "excel:cardinality": "excel:multi",
                         "excel:class": {
-                          "@id": "calcs/hp#hp_installment"
+                          "@id": "https://rdf.lodgeit.net.au/v1/calcs/hp#hp_installment"
                         },
                         "excel:fields": {
                           "@list": [
                             {
                               "excel:property": {
-                                "@id": "calcs/hp#installment_number"
+                                "@id": "https://rdf.lodgeit.net.au/v1/calcs/hp#installment_number"
                               },
                               "excel:type": "xsd:integer"
                             },
                             {
                               "excel:property": {
-                                "@id": "calcs/hp#opening_date"
+                                "@id": "https://rdf.lodgeit.net.au/v1/calcs/hp#opening_date"
                               },
                               "excel:type": "xsd:dateTime"
                             },
                             {
                               "excel:property": {
-                                "@id": "calcs/hp#opening_balance"
+                                "@id": "https://rdf.lodgeit.net.au/v1/calcs/hp#opening_balance"
                               },
                               "excel:type": "xsd:decimal"
                             },
                             {
                               "excel:property": {
-                                "@id": "calcs/hp#interest_amount"
+                                "@id": "https://rdf.lodgeit.net.au/v1/calcs/hp#interest_amount"
                               },
                               "excel:type": "xsd:decimal"
                             },
                             {
                               "excel:property": {
-                                "@id": "calcs/hp#installment_amount"
+                                "@id": "https://rdf.lodgeit.net.au/v1/calcs/hp#installment_amount"
                               },
                               "excel:type": "xsd:decimal"
                             },
                             {
                               "excel:property": {
-                                "@id": "calcs/hp#closing_date"
+                                "@id": "https://rdf.lodgeit.net.au/v1/calcs/hp#closing_date"
                               },
                               "excel:type": "xsd:dateTime"
                             },
                             {
                               "excel:property": {
-                                "@id": "calcs/hp#closing_balance"
+                                "@id": "https://rdf.lodgeit.net.au/v1/calcs/hp#closing_balance"
                               },
                               "excel:type": "xsd:decimal"
                             },
                             {
                               "excel:property": {
-                                "@id": "calcs/hp#total_repayments_through_period"
+                                "@id": "https://rdf.lodgeit.net.au/v1/calcs/hp#total_repayments_through_period"
                               },
                               "excel:type": "xsd:decimal"
                             },
                             {
                               "excel:property": {
-                                "@id": "calcs/hp#total_interest_payments_through_period"
+                                "@id": "https://rdf.lodgeit.net.au/v1/calcs/hp#total_interest_payments_through_period"
                               },
                               "excel:type": "xsd:decimal"
                             }
@@ -375,166 +350,166 @@
         "excel:title": "Standalone Calculator Query Parameters"
       }
     },
-    "smsf_ui:distribution_sheet": {
-      "@id": "smsf_ui:distribution_sheet",
+    "https://rdf.lodgeit.net.au/v1/calcs/smsf/ui#distribution_sheet": {
+      "@id": "https://rdf.lodgeit.net.au/v1/calcs/smsf/ui#distribution_sheet",
       "@type": "excel:sheet_type",
       "excel:name_prefix": "distribution",
       "excel:optional": "true",
       "excel:root": {
-        "@id": "smsf:distribution",
+        "@id": "https://rdf.lodgeit.net.au/v1/calcs/smsf#distribution",
         "excel:cardinality": "excel:single",
         "excel:class": {
-          "@id": "smsf_distribution:distribution"
+          "@id": "https://rdf.lodgeit.net.au/v1/calcs/smsf/distribution#distribution"
         },
         "excel:fields": {
           "@list": [
             {
               "excel:property": {
-                "@id": "smsf_distribution_ui:default_currency"
+                "@id": "https://rdf.lodgeit.net.au/v1/calcs/smsf/distribution_ui#default_currency"
               },
               "excel:type": "xsd:string"
             },
             {
               "excel:property": {
-                "@id": "smsf_distribution_ui:items"
+                "@id": "https://rdf.lodgeit.net.au/v1/calcs/smsf/distribution_ui#items"
               },
               "excel:template": {
-                "@id": "smsf_distribution:items_template",
+                "@id": "https://rdf.lodgeit.net.au/v1/calcs/smsf/distribution#items_template",
                 "excel:cardinality": "excel:multi",
                 "excel:class": {
-                  "@id": "smsf_distribution:entry"
+                  "@id": "https://rdf.lodgeit.net.au/v1/calcs/smsf/distribution#entry"
                 },
                 "excel:fields": {
                   "@list": [
                     {
                       "excel:property": {
-                        "@id": "smsf_distribution_ui:name",
+                        "@id": "https://rdf.lodgeit.net.au/v1/calcs/smsf/distribution_ui#name",
                         "rdfs:label": "Unit Type"
                       },
                       "excel:type": "xsd:string"
                     },
                     {
                       "excel:property": {
-                        "@id": "smsf_distribution_ui:net",
+                        "@id": "https://rdf.lodgeit.net.au/v1/calcs/smsf/distribution_ui#net",
                         "rdfs:label": "Net Cash Distribution"
                       },
                       "excel:type": "xsd:decimal"
                     },
                     {
                       "excel:property": {
-                        "@id": "smsf_distribution_ui:bank",
+                        "@id": "https://rdf.lodgeit.net.au/v1/calcs/smsf/distribution_ui#bank",
                         "rdfs:label": "Cash Distribution as per bank"
                       },
                       "excel:type": "xsd:decimal"
                     },
                     {
                       "excel:property": {
-                        "@id": "smsf_distribution_ui:accrual",
+                        "@id": "https://rdf.lodgeit.net.au/v1/calcs/smsf/distribution_ui#accrual",
                         "rdfs:label": "Resolved Accrual"
                       },
                       "excel:type": "xsd:decimal"
                     },
                     {
                       "excel:property": {
-                        "@id": "smsf_distribution_ui:franking_credit",
+                        "@id": "https://rdf.lodgeit.net.au/v1/calcs/smsf/distribution_ui#franking_credit",
                         "rdfs:label": "Add: Franking Credit"
                       },
                       "excel:type": "xsd:decimal"
                     },
                     {
                       "excel:property": {
-                        "@id": "smsf_distribution_ui:foreign_credit",
+                        "@id": "https://rdf.lodgeit.net.au/v1/calcs/smsf/distribution_ui#foreign_credit",
                         "rdfs:label": "Add: Foreign Credit"
                       },
                       "excel:type": "xsd:decimal"
                     },
                     {
                       "excel:property": {
-                        "@id": "smsf_distribution_ui:amit_decrease",
+                        "@id": "https://rdf.lodgeit.net.au/v1/calcs/smsf/distribution_ui#amit_decrease",
                         "rdfs:label": "AMIT cost base net amount - excess (decrease)"
                       },
                       "excel:type": "xsd:decimal"
                     },
                     {
                       "excel:property": {
-                        "@id": "smsf_distribution_ui:amit_increase",
+                        "@id": "https://rdf.lodgeit.net.au/v1/calcs/smsf/distribution_ui#amit_increase",
                         "rdfs:label": "AMIT cost base net amount - shortfall (increase)"
                       },
                       "excel:type": "xsd:decimal"
                     },
                     {
                       "excel:property": {
-                        "@id": "smsf_distribution_ui:amit_net",
+                        "@id": "https://rdf.lodgeit.net.au/v1/calcs/smsf/distribution_ui#amit_net",
                         "rdfs:label": "Add: AMIT cost base net amount - net increase"
                       },
                       "excel:type": "xsd:decimal"
                     },
                     {
                       "excel:property": {
-                        "@id": "smsf_distribution_ui:non_primary_production_income",
+                        "@id": "https://rdf.lodgeit.net.au/v1/calcs/smsf/distribution_ui#non_primary_production_income",
                         "rdfs:label": "Non-primary Production Income"
                       },
                       "excel:type": "xsd:decimal"
                     },
                     {
                       "excel:property": {
-                        "@id": "smsf_distribution_ui:franked_divis_distri_including_credits",
+                        "@id": "https://rdf.lodgeit.net.au/v1/calcs/smsf/distribution_ui#franked_divis_distri_including_credits",
                         "rdfs:label": "Franked Divis/Distri (Including Credits)"
                       },
                       "excel:type": "xsd:decimal"
                     },
                     {
                       "excel:property": {
-                        "@id": "smsf_distribution_ui:assessable_foreign_source_income",
+                        "@id": "https://rdf.lodgeit.net.au/v1/calcs/smsf/distribution_ui#assessable_foreign_source_income",
                         "rdfs:label": "Assessable Foreign Source Income (Inc Credits)"
                       },
                       "excel:type": "xsd:decimal"
                     },
                     {
                       "excel:property": {
-                        "@id": "smsf_distribution_ui:net_trust_distribution_income",
+                        "@id": "https://rdf.lodgeit.net.au/v1/calcs/smsf/distribution_ui#net_trust_distribution_income",
                         "rdfs:label": "Net Trust distribution Income"
                       },
                       "excel:type": "xsd:decimal"
                     },
                     {
                       "excel:property": {
-                        "@id": "smsf_distribution_ui:capital_gains",
+                        "@id": "https://rdf.lodgeit.net.au/v1/calcs/smsf/distribution_ui#capital_gains",
                         "rdfs:label": "Capital Gains"
                       },
                       "excel:type": "xsd:decimal"
                     },
                     {
                       "excel:property": {
-                        "@id": "smsf_distribution_ui:capital_losses",
+                        "@id": "https://rdf.lodgeit.net.au/v1/calcs/smsf/distribution_ui#capital_losses",
                         "rdfs:label": "Capital Losses"
                       },
                       "excel:type": "xsd:decimal"
                     },
                     {
                       "excel:property": {
-                        "@id": "smsf_distribution_ui:discount_capital_gains_net",
+                        "@id": "https://rdf.lodgeit.net.au/v1/calcs/smsf/distribution_ui#discount_capital_gains_net",
                         "rdfs:label": "Discount Capital Gains (Net)"
                       },
                       "excel:type": "xsd:decimal"
                     },
                     {
                       "excel:property": {
-                        "@id": "smsf_distribution_ui:other_capital_gains",
+                        "@id": "https://rdf.lodgeit.net.au/v1/calcs/smsf/distribution_ui#other_capital_gains",
                         "rdfs:label": "Other Capital Gains"
                       },
                       "excel:type": "xsd:decimal"
                     },
                     {
                       "excel:property": {
-                        "@id": "smsf_distribution_ui:one_third_capital_gain_discount_amount",
+                        "@id": "https://rdf.lodgeit.net.au/v1/calcs/smsf/distribution_ui#one_third_capital_gain_discount_amount",
                         "rdfs:label": "1/3rd Capital Gain Discount Amount"
                       },
                       "excel:type": "xsd:decimal"
                     },
                     {
                       "excel:property": {
-                        "@id": "smsf_distribution_ui:total_capital_gains_losses",
+                        "@id": "https://rdf.lodgeit.net.au/v1/calcs/smsf/distribution_ui#total_capital_gains_losses",
                         "rdfs:label": "Total Capital Gains/Losses"
                       },
                       "excel:type": "xsd:decimal"
@@ -561,22 +536,22 @@
         "excel:title": "distribution"
       }
     },
-    "smsf_ui:income_tax_sheet": {
-      "@id": "smsf_ui:income_tax_sheet",
+    "https://rdf.lodgeit.net.au/v1/calcs/smsf/ui#income_tax_sheet": {
+      "@id": "https://rdf.lodgeit.net.au/v1/calcs/smsf/ui#income_tax_sheet",
       "@type": "excel:sheet_type",
       "excel:name_prefix": "income_tax",
       "excel:optional": "true",
       "excel:root": {
-        "@id": "smsf:income_tax_info",
+        "@id": "https://rdf.lodgeit.net.au/v1/calcs/smsf#income_tax_info",
         "excel:cardinality": "excel:single",
         "excel:class": {
-          "@id": "smsf:income_tax_info"
+          "@id": "https://rdf.lodgeit.net.au/v1/calcs/smsf#income_tax_info"
         },
         "excel:fields": {
           "@list": [
             {
               "excel:property": {
-                "@id": "smsf:ato_supervisory_levy",
+                "@id": "https://rdf.lodgeit.net.au/v1/calcs/smsf#ato_supervisory_levy",
                 "rdfs:label": "ATO Supervisory Levy"
               },
               "excel:type": "xsd:decimal"
@@ -590,22 +565,22 @@
         "excel:title": "income_tax_info"
       }
     },
-    "smsf_ui:members_sheet": {
-      "@id": "smsf_ui:members_sheet",
+    "https://rdf.lodgeit.net.au/v1/calcs/smsf/ui#members_sheet": {
+      "@id": "https://rdf.lodgeit.net.au/v1/calcs/smsf/ui#members_sheet",
       "@type": "excel:sheet_type",
       "excel:name_prefix": "members",
       "excel:optional": "true",
       "excel:root": {
-        "@id": "smsf:members",
+        "@id": "https://rdf.lodgeit.net.au/v1/calcs/smsf#members",
         "excel:cardinality": "excel:multi",
         "excel:class": {
-          "@id": "smsf:member"
+          "@id": "https://rdf.lodgeit.net.au/v1/calcs/smsf#member"
         },
         "excel:fields": {
           "@list": [
             {
               "excel:property": {
-                "@id": "smsf:member_name"
+                "@id": "https://rdf.lodgeit.net.au/v1/calcs/smsf#member_name"
               },
               "excel:type": "xsd:string"
             }
