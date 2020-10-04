@@ -97,7 +97,7 @@ smsf_ui:members_sheet_example rdf:value (
 		smsf:member_name [ a rdf:value ; rdf:value "Member 2" ]]
 ).
 
-smsf_ui:distribution_sheet_example 
+smsf_ui:distribution_sheet_example
 	a smsf_distribution:distribution;
 	smsf_distribution_ui:default_currency [ a rdf:value ; rdf:value "AUD"].
 
@@ -171,23 +171,23 @@ smsf_distribution_ui:net_trust_distribution_income rdfs:label "Net Trust distrib
 
 
 
-smsf_distribution_ui:capital_gains 
-	rdfs:label 
+smsf_distribution_ui:capital_gains
+	rdfs:label
 		"Capital Gains".
-smsf_distribution_ui:capital_losses 
-	rdfs:label 
+smsf_distribution_ui:capital_losses
+	rdfs:label
 		"Capital Losses".
-smsf_distribution_ui:discount_capital_gains_net 
-	rdfs:label 
+smsf_distribution_ui:discount_capital_gains_net
+	rdfs:label
 		"Discount Capital Gains (Net)".
 smsf_distribution_ui:other_capital_gains
-	 rdfs:label 
+	 rdfs:label
 		"Other Capital Gains".
 smsf_distribution_ui:one_third_capital_gain_discount_amount
-	 rdfs:label 
+	 rdfs:label
 		"1/3rd Capital Gain Discount Amount".
 smsf_distribution_ui:total_capital_gains_losses
-	 rdfs:label 
+	 rdfs:label
 		"Total Capital Gains/Losses".
 
 
@@ -200,11 +200,11 @@ smsf:income_tax_info
 	excel:fields (
 		[excel:property smsf:ato_supervisory_levy; excel:type xsd:decimal]
 	).
-	
+
 smsf:ato_supervisory_levy rdfs:label "ATO Supervisory Levy".
 
 
-smsf_ui:income_tax_sheet_example 
+smsf_ui:income_tax_sheet_example
 	smsf:ato_supervisory_levy [ rdf:value "259"].
 
 
@@ -517,7 +517,7 @@ ic:unit_types
 	excel:fields (
 		[excel:property ic:unit_type_name; excel:type xsd:string]
 		[excel:property ic:unit_type_category; excel:type xsd:string]
-		[excel:property ic:unit_type_subcategory; excel:type xsd:string]	
+		[excel:property ic:unit_type_subcategory; excel:type xsd:string]
 	).
 
 ic_ui:report_details_sheet
@@ -622,7 +622,7 @@ ic_ui:reallocation_entries_template
 	excel:class ic:reallocation_entry;
 	excel:fields (
 		[excel:property reallocation:account; excel:type xsd:string]
-		[excel:property reallocation:date; excel:type xsd:dateTime]	
+		[excel:property reallocation:date; excel:type xsd:dateTime]
 		[excel:property reallocation:amount; excel:type xsd:string]
 		[excel:property reallocation:description; excel:type xsd:string]
 		[excel:property ic:param1; excel:type xsd:string]
@@ -719,6 +719,7 @@ ic_ui:gl_input_example
 	)].
 
 hp_ui:hirepurchase_calculator_example
+	a excel:example_sheet_set;
 	excel:example_has_sheets (
 		[	excel:has_sheet hp_ui:hirepurchase_calculator_query_sheet;
 			excel:example_doc hp_ui:hirepurchase_calculator_query_example]
@@ -731,6 +732,7 @@ hp_ui:hirepurchase_calculator_sheets
 	).
 
 hp_ui:hirepurchase_calculator_query_sheet
+	a excel:sheet_type;
 	excel:multiple_sheets_allowed true;
 	excel:name_prefix "HP";
 	excel:root hp_ui:hp_calculator_query.

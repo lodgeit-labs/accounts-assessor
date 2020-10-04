@@ -7,7 +7,12 @@ var jl = require('jsonld');
 /*import * as interop from 'ld-lib-interop';!*/
 function n3lib_quad_to_jld(x)
 {
-	return {subject:n3lib_term_to_jld(x.subject), predicate:n3lib_term_to_jld(x.predicate), object:n3lib_term_to_jld(x.object), graph:n3lib_term_to_jld(x.graph)}
+	return {
+		subject: n3lib_term_to_jld(x.subject),
+		predicate: n3lib_term_to_jld(x.predicate),
+		object: n3lib_term_to_jld(x.object),
+		graph: n3lib_term_to_jld(x.graph)
+	}
 }
 
 function n3lib_term_to_jld(x)
@@ -19,12 +24,12 @@ function n3lib_term_to_jld(x)
 		case 'NamedNode':
 			return {termType, value}
 		case 'BlankNode':
-			return {termType, value:'_:' + value}
+			return {termType, value: '_:' + value}
 		case 'Literal':
 			r = {termType, value}
-			if(x.language)
+			if (x.language)
 				r.language = x.language
-			if(x.datatype)
+			if (x.datatype)
 				r.datatype = x.datatype
 			return r
 		case 'DefaultGraph':
@@ -33,9 +38,6 @@ function n3lib_term_to_jld(x)
 			throw Error('unknown termType: ' + termType)
 	}
 }
-
-
-
 
 
 async function load_n3(fn)
@@ -52,7 +54,13 @@ async function load_n3(fn)
 async function frame(data, frame)
 {
 //	const data2 = await jl.expand(data)
-	const framed = await jl.frame(data, frame, {"base":"http://ex.com/","processingMode":"json-ld-1.1","omitGraph":false})
+	const framed = await jl.frame(data, frame, {
+		base: "http://ex.com/",
+		processingMode: "json-ld-1.1",
+		omitGraph: false,
+		embed: '@always',
+		ordered: true
+	})
 	return framed
 }
 

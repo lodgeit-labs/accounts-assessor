@@ -1,28 +1,62 @@
 #!/usr/bin/env node
 
+/*
+
+produce RdfTemplates.json, by projecting through json-ld frames.
+
+
+in excel, sheet type is in cell A2. this is obtained by concatenating:
+	["sheet_types"]["@context"]["@base"]
+with the "@id" of the sheet_type.
+
+
+
+
+
+
+ */
+
+
+
+
 const processor = require('./processor.js')
 var jl = require('jsonld');
 
+
+
 const ctx = {
-		"@base": "https://rdf.lodgeit.net.au/v1/",
-		"xsd": "http://www.w3.org/2001/XMLSchema#",
-		"rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
-		"rdfs": "http://www.w3.org/2000/01/rdf-schema#",
-		"excel": "https://rdf.lodgeit.net.au/v1/excel#",
-		"depr": "https://rdf.lodgeit.net.au/v1/calcs/depr#",
-		"depr_ui": "https://rdf.lodgeit.net.au/v1/calcs/depr/ui#",
-		"smsf": "https://rdf.lodgeit.net.au/v1/calcs/smsf#",
-		"smsf_ui": "https://rdf.lodgeit.net.au/v1/calcs/smsf/ui#",
-		"smsf_distribution": "https://rdf.lodgeit.net.au/v1/calcs/smsf/distribution#",
-		"smsf_distribution_ui": "https://rdf.lodgeit.net.au/v1/calcs/smsf/distribution_ui#",
-		//"excel:multiple_sheets_allowed":{"@id"}
+	"@base": "https://rdf.lodgeit.net.au/v1/",
+	"xsd": "http://www.w3.org/2001/XMLSchema#",
+	"rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+	"rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+	"excel": "https://rdf.lodgeit.net.au/v1/excel#",
+	"depr": "https://rdf.lodgeit.net.au/v1/calcs/depr#",
+	"depr_ui": "https://rdf.lodgeit.net.au/v1/calcs/depr/ui#",
+	"smsf": "https://rdf.lodgeit.net.au/v1/calcs/smsf#",
+	"smsf_ui": "https://rdf.lodgeit.net.au/v1/calcs/smsf/ui#",
+	"smsf_distribution": "https://rdf.lodgeit.net.au/v1/calcs/smsf/distribution#",
+	"smsf_distribution_ui": "https://rdf.lodgeit.net.au/v1/calcs/smsf/distribution_ui#",
+
+	"excel:optional":{"@type":"xsd:boolean"},
+	"excel:cardinality":{"@type":"@id"},
+	"excel:type":{"@type":"@id"},
+	"excel:multiple_sheets_allowed":{"@type":"xsd:boolean"},
+
+	/*"excel:class":{"@type":"@id"},
+	"excel:property":{"@type":"@id"}
+	^it's tempting to add these two declarations, so that the json keys don't hold objects, just the shortened strings. But if the URIs, which these objects represent, have any properties, (such as rdfs:label), then the json-ld processor produces a whole object anyway.
+	I suppose it would be avoided by specifying `"@explicit": true`, but that can only be done in a frame, and, in case of our fairly complex data, i guess we'd have to specify all the intermediate objects, and what happens in case of recursion?
+	it could also be specified as a global option, but then we'd have to provide the whole structure, plus, the same issue could apply..*/
+
 };
 
 
 (async () => {
-	var doc = await processor.load_n3('RdfTemplates2.n3');
-	//doc = await jl.compact(doc,{});
+	var doc = await processor.load_n3('RdfTemplates.n3');
+	doc = await jl.compact(doc,ctx);
+	doc['@context'] = ctx
 	//console.log(doc);
+
 
 
 	const idd = async (frame) =>
@@ -34,6 +68,7 @@ const ctx = {
 	}
 
 	const result = {
+		"@context":ctx,
 		sheet_sets: await idd(
 			{
 				"@type": "excel:sheet_set",
@@ -42,6 +77,19 @@ const ctx = {
 						"@list": [
 							{
 								"@embed": "@never"
+							}
+						]
+					}
+			}
+			),
+		example_sheet_sets: await idd(
+			{
+				"@type": "excel:example_sheet_set",
+				"excel:example_has_sheets":
+					{
+						"@list": [
+							{
+								"excel:has_sheet":{"@embed": "@never"}
 							}
 						]
 					}
@@ -64,21 +112,6 @@ function ids_to_keys(doc)
 			result[x['@id']] = x;
 		}
 	);
+	//result['@context'] = doc['@context'];
 	return result;
 }
-
-/*
-goals:
-
-{
-	sheet_sets:
-	{
-		set_name1:[sheet_id1,..]
-		set_name2:...
-	}
-	sheets:
-	{
-		sheet_name1:...
-	}
-
- */
