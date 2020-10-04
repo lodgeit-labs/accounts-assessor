@@ -4,23 +4,7 @@
 
 produce RdfTemplates.json, by projecting through json-ld frames.
 
-
-in excel, sheet type is in cell A2. The string is the full URI, as used to identify the sheet type in RDF.
-
-in our json-ld document, the sheet type URI may be specified for example like this: ` "@id": "calcs/hp/ui#hirepurchase_calculator_query_sheet" `.
-It is the string for key "@id". The json-ld processor shortened
- this is obtained by concatenating:
-	["sheet_types"]["@context"]["@base"]
-with the "@id" of the sheet_type.
-
-
-
-
-
-
- */
-
-
+*/
 
 
 const processor = require('./processor.js')
@@ -72,6 +56,14 @@ const ctx = {
 	}
 
 	const result = {
+		"help": `
+The top-level keys are "sheet_sets", "example_sheet_sets" and "sheet_type". Each contains an object, whose keys are the "@id" of the nested objects.
+a json-ld context was chosen such that the @id string is always the full iri of the resource.
+small issue: objects have an "@id" even if it's not useful.
+in excel, sheet type is in cell A2. The string is the full iri, as used to identify the sheet type in RDF.
+"sheet_sets" is what the plugin should look for and send, for a given request type.
+"sheet_sets" and "example_sheet_sets" reference sheet types by @id, which must be looked up in "sheet_types".
+`,
 		//"@context":ctx,
 		sheet_sets: await idd(
 			{

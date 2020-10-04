@@ -50,7 +50,13 @@ excel:multiple_sheets_allowed rdfs:comment "are multiple sheets of this type all
 
 
 
-
+:this rdfs:comment """
+excel:plugin
+	excel:has_sheet_sets (
+		smsf_ui:sheets
+		hp_ui:hirepurchase_calculator_sheets
+	).
+""".
 
 smsf_ui:sheets
 	a excel:sheet_set;

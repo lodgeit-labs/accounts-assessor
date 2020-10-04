@@ -1,4 +1,5 @@
 {
+  "help": "\nThe top-level keys are \"sheet_sets\", \"example_sheet_sets\" and \"sheet_type\". Each contains an object, whose keys are the \"@id\" of the nested objects.\na json-ld context was chosen such that the @id string is always the full iri of the resource.\nsmall issue: objects have an \"@id\" even if it's not useful.\nin excel, sheet type is in cell A2. The string is the full iri, as used to identify the sheet type in RDF.\n\"sheet_sets\" is what the plugin should look for and send, for a given request type.\n\"sheet_sets\" and \"example_sheet_sets\" reference sheet types by @id, which must be looked up in \"sheet_types\".\n",
   "sheet_sets": {
     "https://rdf.lodgeit.net.au/v1/calcs/hp/ui#hirepurchase_calculator_sheets": {
       "@id": "https://rdf.lodgeit.net.au/v1/calcs/hp/ui#hirepurchase_calculator_sheets",
