@@ -2020,13 +2020,15 @@
     },
     "rdfs:Class": {
       "@id": "rdfs:Class",
-      "is_type_of": {
-        "@id": "https://rdf.lodgeit.net.au/v1/kb#Asset",
-        "@type": "rdfs:Class",
-        "rdf:type2": {
-          "@id": "rdfs:Class"
+      "is_type_of": [
+        {
+          "@id": "https://rdf.lodgeit.net.au/v1/kb#Asset",
+          "@type": "rdfs:Class",
+          "rdf:type2": {
+            "@id": "rdfs:Class"
+          }
         }
-      }
+      ]
     },
     "xsd:dateTime": {
       "@id": "xsd:dateTime"
@@ -3257,67 +3259,71 @@
     },
     "https://rdf.lodgeit.net.au/v1/calcs/hp#hp_contract": {
       "@id": "https://rdf.lodgeit.net.au/v1/calcs/hp#hp_contract",
-      "is_type_of": {
-        "@id": "_:b193",
-        "@type": "https://rdf.lodgeit.net.au/v1/calcs/hp#hp_contract",
-        "rdf:type2": {
-          "@id": "https://rdf.lodgeit.net.au/v1/calcs/hp#hp_contract"
-        },
-        "https://rdf.lodgeit.net.au/v1/calcs/hp#cash_price": {
-          "@id": "_:b194",
-          "rdf:value": "321321.27"
-        },
-        "https://rdf.lodgeit.net.au/v1/calcs/hp#contract_number": {
-          "@id": "_:b195",
-          "rdf:value": "xxxx"
-        },
-        "https://rdf.lodgeit.net.au/v1/calcs/hp#currency": {
-          "@id": "_:b196",
-          "rdf:value": "AUD"
-        },
-        "https://rdf.lodgeit.net.au/v1/calcs/hp#hp_contract_has_payment_type": {
-          "@id": "_:b197",
-          "rdf:value": {
-            "@id": "https://rdf.lodgeit.net.au/v1/calcs/hp#hp_contract_payment_type_advance",
-            "@type": "https://rdf.lodgeit.net.au/v1/calcs/hp#hp_contract_payment_type",
-            "rdf:type2": {
-              "@id": "https://rdf.lodgeit.net.au/v1/calcs/hp#hp_contract_payment_type"
-            },
-            "rdfs:label": "advance"
-          }
-        },
-        "https://rdf.lodgeit.net.au/v1/calcs/hp#hp_installments": {
-          "@id": "_:b198",
-          "rdf:value": {
-            "@list": []
-          }
-        },
-        "https://rdf.lodgeit.net.au/v1/calcs/hp#interest_rate": {
-          "@id": "_:b199",
-          "rdf:value": "5"
-        },
-        "https://rdf.lodgeit.net.au/v1/calcs/hp#number_of_installments": {
-          "@id": "_:b200",
-          "rdf:value": {
-            "@type": "xsd:integer",
-            "@value": "30"
+      "is_type_of": [
+        {
+          "@id": "_:b193",
+          "@type": "https://rdf.lodgeit.net.au/v1/calcs/hp#hp_contract",
+          "rdf:type2": {
+            "@id": "https://rdf.lodgeit.net.au/v1/calcs/hp#hp_contract"
+          },
+          "https://rdf.lodgeit.net.au/v1/calcs/hp#cash_price": {
+            "@id": "_:b194",
+            "rdf:value": "321321.27"
+          },
+          "https://rdf.lodgeit.net.au/v1/calcs/hp#contract_number": {
+            "@id": "_:b195",
+            "rdf:value": "xxxx"
+          },
+          "https://rdf.lodgeit.net.au/v1/calcs/hp#currency": {
+            "@id": "_:b196",
+            "rdf:value": "AUD"
+          },
+          "https://rdf.lodgeit.net.au/v1/calcs/hp#hp_contract_has_payment_type": {
+            "@id": "_:b197",
+            "rdf:value": {
+              "@id": "https://rdf.lodgeit.net.au/v1/calcs/hp#hp_contract_payment_type_advance",
+              "@type": "https://rdf.lodgeit.net.au/v1/calcs/hp#hp_contract_payment_type",
+              "rdf:type2": {
+                "@id": "https://rdf.lodgeit.net.au/v1/calcs/hp#hp_contract_payment_type"
+              },
+              "rdfs:label": "advance"
+            }
+          },
+          "https://rdf.lodgeit.net.au/v1/calcs/hp#hp_installments": {
+            "@id": "_:b198",
+            "rdf:value": {
+              "@list": []
+            }
+          },
+          "https://rdf.lodgeit.net.au/v1/calcs/hp#interest_rate": {
+            "@id": "_:b199",
+            "rdf:value": "5"
+          },
+          "https://rdf.lodgeit.net.au/v1/calcs/hp#number_of_installments": {
+            "@id": "_:b200",
+            "rdf:value": {
+              "@type": "xsd:integer",
+              "@value": "30"
+            }
           }
         }
-      }
+      ]
     },
     "https://rdf.lodgeit.net.au/v1/calcs/hp#hp_contract_has_payment_type": {
       "@id": "https://rdf.lodgeit.net.au/v1/calcs/hp#hp_contract_has_payment_type"
     },
     "https://rdf.lodgeit.net.au/v1/calcs/hp#hp_contract_payment_type": {
       "@id": "https://rdf.lodgeit.net.au/v1/calcs/hp#hp_contract_payment_type",
-      "is_type_of": {
-        "@id": "https://rdf.lodgeit.net.au/v1/calcs/hp#hp_contract_payment_type_advance",
-        "@type": "https://rdf.lodgeit.net.au/v1/calcs/hp#hp_contract_payment_type",
-        "rdf:type2": {
-          "@id": "https://rdf.lodgeit.net.au/v1/calcs/hp#hp_contract_payment_type"
-        },
-        "rdfs:label": "advance"
-      },
+      "is_type_of": [
+        {
+          "@id": "https://rdf.lodgeit.net.au/v1/calcs/hp#hp_contract_payment_type_advance",
+          "@type": "https://rdf.lodgeit.net.au/v1/calcs/hp#hp_contract_payment_type",
+          "rdf:type2": {
+            "@id": "https://rdf.lodgeit.net.au/v1/calcs/hp#hp_contract_payment_type"
+          },
+          "rdfs:label": "advance"
+        }
+      ],
       "is_range_of": {
         "@id": "https://rdf.lodgeit.net.au/v1/calcs/hp#hp_contract_has_payment_type",
         "rdfs:range": {
@@ -3686,21 +3692,23 @@
     },
     "https://rdf.lodgeit.net.au/v1/calcs/smsf/distribution#distribution": {
       "@id": "https://rdf.lodgeit.net.au/v1/calcs/smsf/distribution#distribution",
-      "is_type_of": {
-        "@id": "https://rdf.lodgeit.net.au/v1/calcs/smsf/ui#distribution_sheet_example",
-        "@type": "https://rdf.lodgeit.net.au/v1/calcs/smsf/distribution#distribution",
-        "rdf:type2": {
-          "@id": "https://rdf.lodgeit.net.au/v1/calcs/smsf/distribution#distribution"
-        },
-        "https://rdf.lodgeit.net.au/v1/calcs/smsf/distribution_ui#default_currency": {
-          "@id": "_:b49",
-          "@type": "rdf:value",
+      "is_type_of": [
+        {
+          "@id": "https://rdf.lodgeit.net.au/v1/calcs/smsf/ui#distribution_sheet_example",
+          "@type": "https://rdf.lodgeit.net.au/v1/calcs/smsf/distribution#distribution",
           "rdf:type2": {
-            "@id": "rdf:value"
+            "@id": "https://rdf.lodgeit.net.au/v1/calcs/smsf/distribution#distribution"
           },
-          "rdf:value": "AUD"
+          "https://rdf.lodgeit.net.au/v1/calcs/smsf/distribution_ui#default_currency": {
+            "@id": "_:b49",
+            "@type": "rdf:value",
+            "rdf:type2": {
+              "@id": "rdf:value"
+            },
+            "rdf:value": "AUD"
+          }
         }
-      }
+      ]
     },
     "https://rdf.lodgeit.net.au/v1/calcs/smsf/distribution#entry": {
       "@id": "https://rdf.lodgeit.net.au/v1/calcs/smsf/distribution#entry"

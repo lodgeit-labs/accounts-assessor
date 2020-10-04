@@ -41,7 +41,7 @@ const ctx = {
 	// "a @context @reverse value must be an absolute IRI or a blank node identifier." <- nah, it works with a shortened iri too.
 	// but it turns out that @reverse'ing rdf:type doesn't work .. apparently rdf:type is too special.
 
-	"is_type_of": {"@reverse": "rdf:type2"},
+	"is_type_of": {"@reverse": "rdf:type2", "@container": "@set"},
 	"is_range_of": {"@reverse": "rdfs:range"},
 
 };
@@ -75,10 +75,9 @@ In excel, sheet type is in cell A2. The string is the full iri, as used to ident
 
 The format of this file is slightly overcomplicated:
 Objects have an "@id" even if it's not useful.
-Arrays are always wrapped in an object, whose only key is "@list". This is can be thought of either as a shortcoming of current json-ld standard, or as intentional, to allow round-tripping.
+Arrays that come from rdf lists are always wrapped in an object, whose only key is "@list". This is can be thought of either as a shortcoming of current json-ld standard, or as intentional, to allow round-tripping.
 
-"is_type_of" can contain one object or an array or objects. Unfortunately, there's no way, with json-ld, do normalize this. You have to check if the value is a list or an object.
-This is because "is_type_of" value is gnerated by enumerating all iris in a certain relation to something (rdf:type relation to the parent object). These iris are not, in rdf, stored in a list. 
+note that "is_type_of" does not exhibit this "@list" wrapping. This is because "is_type_of" value is gnerated by enumerating all iris in a certain relation to something (rdf:type relation to the parent object). These iris are not, in rdf, stored in a list. 
  
 notes on semantics of the template descriptions in general:
 where "excel:type" is an "excel:uri", such as here:
