@@ -43,6 +43,22 @@ const ctx = {
 
 	"is_type_of": {"@reverse": "rdf:type2", "@container": "@set"},
 	"is_range_of": {"@reverse": "rdfs:range"},
+	//"is_range_of": {"@reverse": "excel:property"},
+
+
+
+	//"rdf:type2":{"@type":"@id"},
+	/*causes:
+	(node:23515) UnhandledPromiseRejectionWarning: TypeError: Cannot read property 'push' of undefined
+		at Object._createInverseContext [as getInverse] (/home/koom/lodgeit2/master2/misc/json-ld/test1/node_modules/jsonld/lib/context.js:1158:28)
+		at Object.api.compactIri (/home/koom/lodgeit2/master2/misc/json-ld/test1/node_modules/jsonld/lib/compact.js:707:32)
+		at Object.api.compact (/home/koom/lodgeit2/master2/misc/json-ld/test1/node_modules/jsonld/lib/compact.js:204:33)
+		at api.compact (/home/koom/lodgeit2/master2/misc/json-ld/test1/node_modules/jsonld/lib/compact.js:70:33)
+		at Function.jsonld.compact (/home/koom/lodgeit2/master2/misc/json-ld/test1/node_modules/jsonld/lib/jsonld.js:182:25)
+		at async /home/koom/lodgeit2/master2/misc/json-ld/test1/main.js:56:8
+	(node:23515) UnhandledPromiseRejectionWarning: Unhandled promise rejection. This error originated either by throwing inside of an async function without a catch block, or by rejecting a promise which was not handled with .catch(). To terminate the node process on unhandled promise rejection, use the CLI flag `--unhandled-rejections=strict` (see https://nodejs.org/api/cli.html#cli_unhandled_rejections_mode). (rejection id: 2)
+	(node:23515) [DEP0018] DeprecationWarning: Unhandled promise rejections are deprecated. In the future, promise rejections that are not handled will terminate the Node.js process with a non-zero exit code.
+*/
 
 };
 
@@ -65,7 +81,7 @@ const ctx = {
 
 	const result = {
 		"help": `note: you may want to console.log this text for comfortable reading.
-This is an anonymous object generated programmatically by https://github.com/LodgeiT/labs-accounts-assessor/blob/jld/misc/json-ld/test1/main.js. Therefore, it does not have an @id.		
+This is an anonymous object generated programmatically by https://github.com/LodgeiT/labs-accounts-assessor/blob/jld/misc/json-ld/test1/main.js. Therefore, it does not have an @id.
 The top-level keys are "sheet_sets", "example_sheet_sets" and "sheet_type". Each contains an object, whose keys are the "@id" of the nested objects.
 a json-ld context was chosen such that the @id string is always the full iri of the resource.
 In excel, sheet type is in cell A2. The string is the full iri, as used to identify the sheet type in RDF.
@@ -77,8 +93,8 @@ The format of this file is slightly overcomplicated:
 Objects have an "@id" even if it's not useful.
 Arrays that come from rdf lists are always wrapped in an object, whose only key is "@list". This is can be thought of either as a shortcoming of current json-ld standard, or as intentional, to allow round-tripping.
 
-note that "is_type_of" does not exhibit this "@list" wrapping. This is because "is_type_of" value is gnerated by enumerating all iris in a certain relation to something (rdf:type relation to the parent object). These iris are not, in rdf, stored in a list. 
- 
+note that "is_type_of" does not exhibit this "@list" wrapping. This is because "is_type_of" value is gnerated by enumerating all iris in a certain relation to something (rdf:type relation to the parent object). These iris are not, in rdf, stored in a list.
+
 notes on semantics of the template descriptions in general:
 where "excel:type" is an "excel:uri", such as here:
 
@@ -132,8 +148,12 @@ where "excel:type" is an "excel:uri", such as here:
 					{
 						"@requireAll": true,
 						"@explicit": true,
-						"is_range_of":{},
-						"is_type_of":{}
+						/* the requireAll somehow doesn't require that the reverse properties are present,
+						and this frame actually matches all the objects in input.
+						 */
+						"is_range_of":{/*"@requireAll": true, is_property_of:{}*/},
+						"is_type_of":{},
+						//"@type":{}
 					}
 			),
 
