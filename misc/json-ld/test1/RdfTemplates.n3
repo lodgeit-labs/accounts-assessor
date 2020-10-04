@@ -598,6 +598,7 @@ reallocation:items rdfs:label "entries".
 reallocation:account_A_is rdfs:range reallocation:Drcr.
 reallocation:debited a reallocation:Drcr.
 reallocation:credited a reallocation:Drcr.
+reallocation:credited rdf:type2 reallocation:Drcr.
 reallocation:debited reallocation:account_A_side kb:debit.
 reallocation:credited reallocation:account_A_side kb:credit.
 
