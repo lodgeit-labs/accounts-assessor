@@ -178,18 +178,6 @@ vec_sum_by_pred(
  unify_coords_or_values(value(U, V1), value(U, V2)) :-
 	unify_numbers(V1, V2).
 
- unify_numbers(A,B) :-
-	(	A = B
-	->	true
-	;	/* allow for integer vs float */
-		A =:= B).
-
-/* todo unify_numbers(Z, 0)?*/
- is_zero_number(Z) :-
-	var(Z), Z = 0.
- is_zero_number(Z) :-
-	atomic(Z),
-	Z =:= 0.
 
  number_coord(Unit, Number, coord(Unit, Number)).
  credit_coord(Unit, Credit, coord(Unit, Number)) :- {Credit = -Number}.
