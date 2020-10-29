@@ -138,10 +138,3 @@ accepts a tests/endpoint_tests/loan/loan-request.xml and generates a tests/endpo
 ### ledger ("robust", or "investment calculator") endpoint:
 accepts a tests/endpoint_tests/ledger/ledger-request.xml and generates a tests/endpoint_tests/ledger/ledger-response.xml 
 Ledger endpoint is currently the most complex one, spanning most of the files in lib/.
-
-
-
-
-## current issues
-ignore: `Warning: Unable to load module "lodgeit_python.rpc" declared in settings.MODERNRPC_METHODS_MODULES`
-
