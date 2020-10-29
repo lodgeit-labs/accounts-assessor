@@ -1,6 +1,5 @@
 :- use_module(library(archive)).
 :- use_module(library(sgml)).
-:- use_module(library(semweb/turtle)).
 :- use_module(library(prolog_stack)).
 
 

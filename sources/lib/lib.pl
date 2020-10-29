@@ -7,7 +7,6 @@
 :- use_module(library(http/http_open)).
 :- use_module(library(http/http_client)).
 :- use_module(library(http/http_dispatch)).
-:- use_module(library(semweb/rdf11),except(['{}'/1])).
 
 :- [search_paths].
 
@@ -28,7 +27,6 @@
 :- [crosschecks_report].
 :- [days].
 :- [detail_accounts].
-:- [doc].
 :- [event_calculus].
 :- [exchange].
 :- [exchange_rates].
@@ -57,7 +55,6 @@
 :- [pricing].
 :- [process_request].
 :- [report_page].
-:- [request_files].
 :- [residency].
 :- [s_transaction].
 :- [smsf].
@@ -73,5 +70,4 @@
 :- [trading].
 :- [transactions].
 :- [vector_string].
-
 % :- ['../misc/chr_hp'].
