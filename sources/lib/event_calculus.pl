@@ -130,9 +130,9 @@ depreciation_value(Method, Asset_cost, Asset_base_value, Days_held, Depreciation
     Days_held < 367,
 	(
 	Method == diminishing_value
-    -> Depreciation_value is Asset_base_value * (Days_held / 365) * Depreciation_rate
+    -> Depreciation_value is Asset_base_value * (Days_held / 365) * Depreciation_rate / 100
 	;
-	Depreciation_value is Asset_cost * (Days_held / 365) * Depreciation_rate
+	Depreciation_value is Asset_cost * (Days_held / 365) * Depreciation_rate / 100
 	).
 
 % depreciation_rate(Asset/Pool, Method, Year_from_Start, Start_date, Effective_life_years, Rate).
@@ -141,7 +141,7 @@ depreciation_value(Method, Asset_cost, Asset_base_value, Days_held, Depreciation
 
 depreciation_rate(Asset, prime_cost,_,_,Effective_life_years, Rate) :-
 	not(pool(Asset)),
-	Rate is 1 / Effective_life_years.
+	Rate is 100 * 1 / Effective_life_years.
 
 
 depreciation_rate(Asset, diminishing_value,_,Start_date,Effective_life_years, Rate) :-
@@ -149,9 +149,9 @@ depreciation_rate(Asset, diminishing_value,_,Start_date,Effective_life_years, Ra
     (	Start_date @< date(2006,5,10)
     	% If you started to hold the asset before 10 May 2006, the formula for the diminishing value method is:
 		% Base value × (days held ÷ 365) × (150% ÷ asset’s effective life)
-     -> Rate is 1.5 / Effective_life_years
+     -> Rate is 100 * 1.5 / Effective_life_years
      	% otherwise:
-     ;	Rate is 2 / Effective_life_years).
+     ;	Rate is 100 * 2 / Effective_life_years).
 % Depreciation for Assets in Pools
 % Depreciation rate for General Pool
 /*
@@ -159,15 +159,15 @@ Small businesses can allocate depreciating assets that cost more than the instan
 (or cost) or more to their general small business pool to be depreciated at a rate of 15% in the year of allocation and
  30% in other income years on a diminishing value basis, irrespective of the effective life of the asset.
  */
-depreciation_rate(general_pool,diminishing_value,1,_,_,0.15).
-depreciation_rate(general_pool,diminishing_value,Year,_,_,0.3):- Year #> 1.
+depreciation_rate(general_pool,diminishing_value,1,_,_,15).
+depreciation_rate(general_pool,diminishing_value,Year,_,_,30):- Year #> 1.
 
 % Depreciation rate for Software Pool
 depreciation_rate(software_pool,_, 1, _, _,0).
-depreciation_rate(software_pool,_, 2, Start_date,_,Rate):- (Start_date @>= date(2015,7,1) -> Rate is 0.3; Rate is 0.4).
-depreciation_rate(software_pool,_, 3, Start_date,_,Rate):- (Start_date @>= date(2015,7,1) -> Rate is 0.3; Rate is 0.4).
-depreciation_rate(software_pool,_, 4, Start_date,_,Rate):- (Start_date @>= date(2015,7,1) -> Rate is 0.3; Rate is 0.2).
-depreciation_rate(software_pool,_, 5, Start_date,_,Rate):- (Start_date @>= date(2015,7,1) -> Rate is 0.1; Rate is 0).
+depreciation_rate(software_pool,_, 2, Start_date,_,Rate):- (Start_date @>= date(2015,7,1) -> Rate is 30; Rate is 40).
+depreciation_rate(software_pool,_, 3, Start_date,_,Rate):- (Start_date @>= date(2015,7,1) -> Rate is 30; Rate is 40).
+depreciation_rate(software_pool,_, 4, Start_date,_,Rate):- (Start_date @>= date(2015,7,1) -> Rate is 30; Rate is 20).
+depreciation_rate(software_pool,_, 5, Start_date,_,Rate):- (Start_date @>= date(2015,7,1) -> Rate is 10; Rate is 0).
 % Depreciation rate for Low Value Pool
 /*
 You calculate the depreciation of all the assets in the low-value pool at the annual rate of 37.5%.
@@ -177,8 +177,8 @@ This rate applies regardless of at what point during the year you allocate the a
 TODO:If asset is transfered to low value pool, then it can't leave the pool afterwards.
 Only low value or low cost assets can be allocated to a Low Value Pool
 */
-depreciation_rate(low_value_pool,_,1,_,_,0.1875).
-depreciation_rate(low_value_pool,_,Year,_,_,0.375):- Year > 1.
+depreciation_rate(low_value_pool,_,1,_,_,18.75).
+depreciation_rate(low_value_pool,_,Year,_,_,37.5):- Year > 1.
 % For debugging
 %start:-depreciationInInterval(car123,1000,date(2017,8,1),0,20,800,_,diminishing_value,1,5,Result,0,Total_depreciation).
 

@@ -20,8 +20,8 @@ test(depreciation_value_prime_cost) :-
     Asset_cost = 1000,
     Asset_base_value = 800,
     Days_held = 200,
-    Depreciation_rate = 0.2,
-    Correct_depreciation_value is Asset_cost * (Days_held / 365) * Depreciation_rate,
+    Depreciation_rate = 20,
+    Correct_depreciation_value is Asset_cost * (Days_held / 365) * Depreciation_rate / 100,
     depreciation_value(Method, Asset_cost, Asset_base_value, Days_held, 
         Depreciation_rate, Depreciation_value),
     assertion(Depreciation_value == Correct_depreciation_value).
@@ -31,8 +31,8 @@ test(depreciation_value_dimishing_value):-
     Asset_cost = 1000,
     Asset_base_value = 800,
     Days_held = 200,
-    Depreciation_rate = 0.2,
-    Correct_depreciation_value is Asset_base_value * (Days_held / 365) * Depreciation_rate,
+    Depreciation_rate = 20,
+    Correct_depreciation_value is Asset_base_value * (Days_held / 365) * Depreciation_rate / 100,
     depreciation_value(Method, Asset_cost, Asset_base_value, Days_held, Depreciation_rate, 
         Depreciation_value),
     assertion(Depreciation_value == Correct_depreciation_value).
@@ -42,8 +42,8 @@ test(depreciation_value_prime_cost_fail,fail) :-
     Asset_cost = 1000,
     Asset_base_value = 800,
     Days_held = 367,
-    Depreciation_rate = 0.2,
-    Correct_depreciation_value is Asset_cost * (Days_held / 365) * Depreciation_rate,
+    Depreciation_rate = 20,
+    Correct_depreciation_value is Asset_cost * (Days_held / 365) * Depreciation_rate / 100,
     depreciation_value(Method, Asset_cost, Asset_base_value, Days_held, Depreciation_rate, 
         Depreciation_value),
     assertion(Depreciation_value == Correct_depreciation_value).
@@ -53,8 +53,8 @@ test(depreciation_value_dimishing_value_fail,fail):-
     Asset_cost = 1000,
     Asset_base_value = 800,
     Days_held = 400,
-    Depreciation_rate = 0.2,
-    Correct_depreciation_value is Asset_base_value * (Days_held / 365) * Depreciation_rate,
+    Depreciation_rate = 20,
+    Correct_depreciation_value is Asset_base_value * (Days_held / 365) * Depreciation_rate / 100,
     depreciation_value(Method, Asset_cost, Asset_base_value, Days_held, Depreciation_rate, 
         Depreciation_value),
     assertion(Depreciation_value == Correct_depreciation_value).
@@ -64,7 +64,7 @@ test(depreciation_rate_prime_cost) :-
     Asset_id = car123,
     Effective_life_years = 5,
     depreciation_rate(Asset_id, Method,_,_,Effective_life_years, Rate),
-    assertion(Rate == 0.2).
+    assertion(Rate == 20).
 
 test(depreciation_rate_diminishing_value) :-
     Method = diminishing_value,
@@ -72,7 +72,7 @@ test(depreciation_rate_diminishing_value) :-
     Effective_life_years = 5,
     Start_date = date(2017,1,1),
     depreciation_rate(Asset_id, Method,_,Start_date,Effective_life_years, Rate),
-    assertion(Rate == 0.4).
+    assertion(Rate == 40).
 
 test(depreciation_rate_general_pool) :-
     Asset_id = general_pool,
@@ -80,7 +80,7 @@ test(depreciation_rate_general_pool) :-
     Start_date = date(2017,1,1),
     Year_from_start = 1,
     depreciation_rate(Asset_id, _,Year_from_start,Start_date,Effective_life_years, Rate),
-    assertion(Rate == 0.15).
+    assertion(Rate == 15).
 
 test(depreciation_rate_general_pool_fail, fail) :-
     % It should fail because general_pool can only use diminishing value method
@@ -90,7 +90,7 @@ test(depreciation_rate_general_pool_fail, fail) :-
     Start_date = date(2017,1,1),
     Year_from_start = 1,
     depreciation_rate(Asset_id, Method,Year_from_start,Start_date,Effective_life_years, Rate),
-    assertion(Rate == 0.15).
+    assertion(Rate == 15).
 
 /*
 % Transfer car123 to general pool in date(2017,7,1)
@@ -120,8 +120,8 @@ test(depreciationAsset_all_life_1):-
     Year_of_depreciation = 1,
     depreciationAsset(Asset_id,T1,T2,Begin_value,End_value,Method,Year_of_depreciation,
         Life,false,_,0,Final_depreciation_value),
-    assertion(Life == [[1000,not_in_pool(car123),10000,10044,885.6776881215987,48.21917808219178,0.4],
-        [951.7808219178082,in_pool(car123,general_pool),10044,10213,885.6776881215987,66.10313379620942,0.15]]),
+    assertion(Life == [[1000,not_in_pool(car123),10000,10044,885.6776881215987,48.21917808219178,40],
+        [951.7808219178082,in_pool(car123,general_pool),10044,10213,885.6776881215987,66.10313379620942,15]]),
     assertion(Final_depreciation_value=:=114.3223118784012),
     Correct_end_value is Begin_value - Final_depreciation_value,
     assertion(round(Correct_end_value) =:= round(End_value)).
@@ -135,8 +135,8 @@ test(depreciationAsset_all_life_2):-
     Year_of_depreciation = 1,
     depreciationAsset(Asset_id,T1,T2,Begin_value,End_value,Method,Year_of_depreciation,Life,
         false,_,0,Final_depreciation_value),
-    assertion(Life==[[1000,not_in_pool(car456),9300,9313,916.9858087821355,6.678082191780821,0.1875],
-        [993.3219178082192,in_pool(car456,general_pool),9313,9500,916.9858087821355,76.33610902608369,0.15]]),
+    assertion(Life==[[1000,not_in_pool(car456),9300,9313,916.9858087821355,6.678082191780821,18.75],
+        [993.3219178082192,in_pool(car456,general_pool),9313,9500,916.9858087821355,76.33610902608369,15]]),
     assertion(Final_depreciation_value=:=83.01419121786451),
     Correct_end_value is Begin_value - Final_depreciation_value,
     assertion(round(Correct_end_value) =:= round(End_value)).
@@ -150,8 +150,8 @@ test(depreciationAsset_all_life_3):-
     Year_of_depreciation = 1,
     depreciationAsset(Asset_id,T1,T2,Begin_value,End_value,Method,Year_of_depreciation,
         Life,false,_,0,Final_depreciation_value),
-    assertion(Life == [[1000,not_in_pool(car123),9982,10044,929.7565772189904,67.94520547945206,0.4],
-        [932.054794520548,in_pool(car123,general_pool),10044,10050,929.7565772189904,2.298217301557515,0.15]]),
+    assertion(Life == [[1000,not_in_pool(car123),9982,10044,929.7565772189904,67.94520547945206,40],
+        [932.054794520548,in_pool(car123,general_pool),10044,10050,929.7565772189904,2.298217301557515,15]]),
     assertion(Final_depreciation_value=:=70.24342278100957),
     Correct_end_value is Begin_value - Final_depreciation_value,
     assertion(round(Correct_end_value) =:= round(End_value)).
@@ -165,8 +165,8 @@ test(depreciationAsset_only_in_pool_1):-
     Year_of_depreciation = 1,
     depreciationAsset(Asset_id,T1,T2,Begin_value,_,Method,Year_of_depreciation,Life,true,
         general_pool,0,Final_depreciation_value),
-    assertion(Life ==  [[1000,not_in_pool(car123),10000,10044,885.6776881215987,48.21917808219178,0.4],
-        [951.7808219178082,in_pool(car123,general_pool),10044,10213,885.6776881215987,66.10313379620942,0.15]]),
+    assertion(Life ==  [[1000,not_in_pool(car123),10000,10044,885.6776881215987,48.21917808219178,40],
+        [951.7808219178082,in_pool(car123,general_pool),10044,10213,885.6776881215987,66.10313379620942,15]]),
     assertion(Final_depreciation_value=:=66.10313379620942).
 
 test(depreciationAsset_only_in_pool_2):-
@@ -178,8 +178,8 @@ test(depreciationAsset_only_in_pool_2):-
     Year_of_depreciation = 1,
     depreciationAsset(Asset_id,T1,T2,Begin_value,_,Method,Year_of_depreciation,Life,true,
         general_pool,0,Final_depreciation_value),
-    assertion(Life==[[1000,not_in_pool(car456),9300,9313,916.9858087821355,6.678082191780821,0.1875],
-        [993.3219178082192,in_pool(car456,general_pool),9313,9500,916.9858087821355,76.33610902608369,0.15]]),
+    assertion(Life==[[1000,not_in_pool(car456),9300,9313,916.9858087821355,6.678082191780821,18.75],
+        [993.3219178082192,in_pool(car456,general_pool),9313,9500,916.9858087821355,76.33610902608369,15]]),
     assertion(Final_depreciation_value=:=76.33610902608369).
 
 test(depreciation_between_start_date_and_other_date_all_life):-
