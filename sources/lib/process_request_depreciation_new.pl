@@ -10,8 +10,12 @@ process_request_depreciation_new :-
 	;	throw_string('depreciation: assets processing failed')),
 
 	% events sheet is optional
-	(	doc_value(D, depr_ui:depreciation_events, Events)
-	->	(	maplist(process_depreciation_event, $> doc_list_items(Events))
+	(
+		(
+			doc_value(D, depr_ui:depreciation_events, Events),
+			doc_list_items(Events,Events_items)
+		)
+	->	(	maplist(process_depreciation_event, Events_items)
 		->	true
 		;	throw_string('depreciation: events processing failed'))
 	;	true
