@@ -1,4 +1,6 @@
 import time, shutil, ntpath, os
+import sys
+sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../triplestore_access')))
 import agraph
 from atomic_integer import AtomicInteger
 server_started_time = time.time()

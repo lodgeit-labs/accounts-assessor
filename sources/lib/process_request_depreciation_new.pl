@@ -10,10 +10,14 @@ process_request_depreciation_new :-
 	;	throw_string('depreciation: assets processing failed')),
 
 	% events sheet is optional
-	(	doc_value(D, depr_ui:depreciation_events, Events)
-	->	(	maplist(process_depreciation_event, $> doc_list_items(Events))
+	(
+		(
+			doc_value(D, depr_ui:depreciation_events, Events),
+			doc_list_items(Events,Events_items)
+		)
+	->	(	maplist(process_depreciation_event, Events_items)
 		->	true
-		;	throw_string('depreciation: events processingfailed'))
+		;	throw_string('depreciation: events processing failed'))
 	;	true
 	),
 
@@ -38,9 +42,9 @@ process_depreciation_event(I) :-
 		(	begin_income_year(Date)
 		->	true
 		;	throw_string('can only transfer asset to pool on beginning of income year')),
-		event_calculus:assert_event(transfer_asset_to_pool(Asset,Pool),Days)
+		!event_calculus:assert_event(transfer_asset_to_pool(Asset,Pool),Days)
 	;	assertion(rdf_equal2(Type, depr:asset_disposal)),
-		event_calculus:assert_event(asset_disposal(Asset),Days)).
+		!event_calculus:assert_event(asset_disposal(Asset),Days)).
 
 
 
