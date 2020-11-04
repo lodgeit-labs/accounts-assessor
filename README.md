@@ -51,6 +51,8 @@ on demo server, this is a system-wide apache set up with mod_wsgi. I have not fo
 
 ## Getting Started
 
+clone the repo, run `git submodule update --init`
+
 ### with docker
 
 ```
