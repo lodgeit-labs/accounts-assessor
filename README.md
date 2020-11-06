@@ -13,6 +13,11 @@ json-based endpoints:
 * It can determine small business entity status by carrying out a dialog with the user
 
 
+## projects this is comparable to:
+https://github.com/johannesgerer/buchhaltung
+gnu cash
+...
+
 
 ## documentation
 most endpoints should have some documentation in doc/. Introductions to individual concepts can be found in videos on dropbox.

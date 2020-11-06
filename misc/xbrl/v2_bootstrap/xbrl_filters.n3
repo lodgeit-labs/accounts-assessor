@@ -1,0 +1,33 @@
+@prefix excel: <https://rdf.lodgeit.net.au/v1/excel#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#>.
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
+
+@base <https://rdf.lodgeit.net.au/v2/code/bootstrap/> .
+
+@prefix : <excel_request#> .
+
+:request l:templates_version "2".
+
+:bootstrap excel:sheets
+(
+	:xbrl_filters_sheet
+).
+
+:xbrl_filters_sheet
+	excel:name_prefix "xbrl_filters";
+	excel:root :xbrl_filters.
+
+:xbrl_filters
+	excel:title "xbrl_filters";
+	excel:position [excel:col "A"; excel:row "3"];
+	excel:cardinality excel:multi;
+	excel:class :filters;
+	excel:fields (
+		[excel:property :basis; excel:type xsd:string]
+	).
+
+:basis rdfs:label "Basis".
+
+
+
