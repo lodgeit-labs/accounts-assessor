@@ -48,6 +48,17 @@
         "test",
         "code"
       ]
+    },
+    {
+      "login": "koo5",
+      "name": "koo5",
+      "avatar_url": "https://avatars1.githubusercontent.com/u/114276?v=4",
+      "profile": "https://github.com/koo5",
+      "contributions": [
+        "infra",
+        "test",
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,
