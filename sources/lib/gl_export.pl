@@ -112,7 +112,7 @@ qb_csv_gl_export(Sd, Tx, Rows) :-
 
 qb_csv_gl_export2(Sd, Tx, Coord0, Row) :-
 	transaction_day(Tx, Date),
-	vec_converted_at_time(Sd, Date, Coord0, Coord),
+	coord_converted_at_time(Sd, Date, Coord0, Coord),
 	doc(Tx, transactions:origin, Origin, transactions),
 	(s_transaction_description2(Origin, D2) -> true ; D2 = ''),
 	(s_transaction_description3(Origin, D3) -> true ; D3 = ''),
@@ -132,5 +132,5 @@ qb_csv_gl_export2(Sd, Tx, Coord0, Row) :-
 	doc(Tx, transactions:origin, Origin, transactions),
 	doc(Origin, s_transactions:id, Id, transactions).
 
-vec_converted_at_time(Sd, Date, Coord0, Coord1) :-
+coord_converted_at_time(Sd, Date, Coord0, Coord1) :-
 	vec_change_bases(Sd.exchange_rates, Date, Sd.report_currency, [Coord0], [Coord1]).
