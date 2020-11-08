@@ -103,22 +103,23 @@ qb_csv_gl_export(Sd, Txs) :-
 	maplist(!qb_csv_gl_export(Sd), Txs, Rows0),
 	flatten([Header, Rows0], Rows3),
 	Header = row('*JournalNo', '*JournalDate', '*Currency', 'Memo', '*AccountName', 'Debits', 'Credits',  'Description', 'Name', 'Location', 'Class'),
-	phrase(csv(Rows3), Rows6),
-	!csv_write_file(File_path, Rows6),
+	!csv_write_file(File_path, Rows3),
 	!add_report_file(-10, File_name, File_name, Url).
 
 qb_csv_gl_export(Sd, Tx, Rows) :-
 	transaction_vector(Tx, Vector),
 	maplist(qb_csv_gl_export2(Sd, Tx), Vector, Rows).
 
-qb_csv_gl_export2(_Sd, Tx, Coord, Row) :-
+qb_csv_gl_export2(Sd, Tx, Coord0, Row) :-
+	transaction_day(Tx, Date),
+	vec_converted_at_time(Sd, Date, Coord0, Coord),
 	doc(Tx, transactions:origin, Origin, transactions),
 	(s_transaction_description2(Origin, D2) -> true ; D2 = ''),
 	(s_transaction_description3(Origin, D3) -> true ; D3 = ''),
 	dr_cr_coord(Unit, Debit, Credit, Coord),
 	Row = row(
 		Id,
-		$>format_time(string(<$), '%d/%m/%Y', $>transaction_day(Tx)),
+		$>format_time(string(<$), '%d/%m/%Y', Date),
 		Unit,
 		$>transaction_description(Tx),
 		$>account_name($>transaction_account(Tx)),
@@ -130,3 +131,6 @@ qb_csv_gl_export2(_Sd, Tx, Coord, Row) :-
 		''),
 	doc(Tx, transactions:origin, Origin, transactions),
 	doc(Origin, s_transactions:id, Id, transactions).
+
+vec_converted_at_time(Sd, Date, Coord0, Coord1) :-
+	vec_change_bases(Sd.exchange_rates, Date, Sd.report_currency, [Coord0], [Coord1]).
