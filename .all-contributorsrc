@@ -15,6 +15,17 @@
         "test",
         "code"
       ]
+    },
+    {
+      "login": "Schwitter",
+      "name": "Schwitter",
+      "avatar_url": "https://avatars3.githubusercontent.com/u/8089563?v=4",
+      "profile": "https://github.com/Schwitter",
+      "contributions": [
+        "infra",
+        "test",
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,
