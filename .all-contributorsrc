@@ -37,6 +37,17 @@
         "test",
         "code"
       ]
+    },
+    {
+      "login": "murisi",
+      "name": "Murisi Tarusenga",
+      "avatar_url": "https://avatars0.githubusercontent.com/u/6886764?v=4",
+      "profile": "http://github.com/murisi",
+      "contributions": [
+        "infra",
+        "test",
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,
