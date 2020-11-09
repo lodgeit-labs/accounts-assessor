@@ -100,7 +100,8 @@ process_depreciation_query2(
 		$>doc_value(Q, depr:depreciation_query_termination_value),
 		$>doc_value(Q, depr:depreciation_query_termination_date),
 		$>depreciation_query_method(Q),
-		$>doc_add_value(Q, depr:depreciation_query_profit_and_loss)
+		$>doc_add_value(Q, depr:depreciation_query_recup),
+		$>doc_add_value(Q, depr:depreciation_query_capital_gain)
 	).
 
 

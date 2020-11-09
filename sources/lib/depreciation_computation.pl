@@ -14,7 +14,7 @@ note that when we calculato depreciation_between_two_dates, we calculate the dep
 	depreciation_pool_between_two_dates/5,
 	written_down_value/5,
 	depreciation_between_two_dates/5,
-	profit_and_loss/5]).
+	profit_and_loss/6]).
 
 :- use_module(event_calculus, [depreciationAsset/12,asset/4]).
 :- use_module(library(lists)).
@@ -197,11 +197,15 @@ written_down_value(Asset_id, Written_down_date, Method, Life, Written_down_value
 	),
 	Written_down_value is Asset_cost - Total_depreciation_value.
 
-profit_and_loss(Asset_id, Asset_price, Written_down_date, Method, ProfitAndLoss):-
-	format(user_error, '~n~q~n', [profit_and_loss(Asset_id, Asset_price, Written_down_date, Method, ProfitAndLoss)]),
+profit_and_loss(Asset_id, Asset_sell_price, Written_down_date, Method, Recup, Capital_gain):-
 
+	format(user_error, '~n~q~n', [profit_and_loss(Asset_id, Asset_sell_price, Written_down_date, Method, Recup, Capital_gain)]),
+
+	asset(Asset_id,Asset_cost,_,_),
 	written_down_value(Asset_id, Written_down_date,Method,_,Written_down_value),
-	ProfitAndLoss is Asset_price - Written_down_value.
+	Capital_gain is Asset_sell_price - Asset_cost,
+	Recup is Written_down_value - Asset_cost.
+
 
 % if days difference is less than zero, it means that the requested date 
 % in the input value is earlier than the invest in date.
