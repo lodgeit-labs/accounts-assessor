@@ -470,3 +470,21 @@ smsf_distribution_tx(Default_currency, Date, Item, Dist, Txs) :-
 			]
 		)
 	;	Txs = []).
+
+/*
+=============
+
+ Goal is to automate the construct of the journal that allocates the components of net profit amongst the members based on the attributes of members i.e. age, tax rates, if they are using a pension account, etc.
+
+Max 4 members.
+
+Fund Profit is allocated among Members Equity
+
+ possibility for members to have multiple accounts i.e. accumulation account, pension account/s.
+
+ Segregated assets for members i.e. member a has a rental property & member b has 100 Google shares.
+
+ While for a company, tax calculations are all about the company, for a superannuation fund, tax calcs are all about tax on the members.
+
+
+*/

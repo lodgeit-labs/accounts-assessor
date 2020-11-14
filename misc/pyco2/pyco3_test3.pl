@@ -204,3 +204,7 @@ print_q(Q) :-
 	format(user_error,'~nTs:~n', []),
 	maplist(writeln, Ts_n),
 	nl,nl.
+
+
+
+
