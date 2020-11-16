@@ -27,6 +27,7 @@
 		template: `
 			<div class="account_selector">
 				<input type="checkbox" id="checkbox" v-model="item.checked" @change="change_checked_on_children_recursively($event)">{{ item.name }}
+				<br><i v-if="item.role">role: {{ item.role }}</i>
 				<ul>
 					<div v-for="child in item.children" :key="child.id">
 						<li>
@@ -69,7 +70,7 @@
 			</div>
 		`
 	});
-	
+
 	Vue.component('transformation', {
 		props: ['id', 'source', 'transactions'],
 		template: `
@@ -108,7 +109,7 @@
 			}
 		}
 	});
-	
+
 	Vue.component('transaction', {
 		props: ['data'],
 		template: `
@@ -185,13 +186,13 @@
 	function change_checked(item, checked)
 	{
 		item.checked = checked;
-		item.children.forEach(child => 
+		item.children.forEach(child =>
 		{
 			child.checked = checked;
 			change_checked(child, checked)
 		});
 	};
-	
+
 
 	function load_stuff()
 	{
@@ -204,7 +205,7 @@
 	    ]).then(results => process_loaded_general_ledger_data(results[1]));
 	};
 
-	
+
 	function process_loaded_accounts_data(data)
 	{
 				vm.accounts_index = accounts_list_to_tree(data);
@@ -236,7 +237,7 @@
 		});
 		vm.transformations = data;
 	}
-	
+
 	function load_data(name) {
 		return load_data2("../"+name+".json");
 	}
@@ -265,6 +266,7 @@
 		let r = {
 			'id': account.id,
 			'name': account.name,
+			'role': account.role,
 			'checked': true,
 			'children': []
 		};
@@ -274,7 +276,7 @@
 		});
 		return r;
 	};
-	
+
 	function accounts_list_to_tree(data)
 	{
 		let index = {};
@@ -317,7 +319,7 @@
 			load_stuff();
 		}
 	});
-		
+
 
 </script>
 </body>
