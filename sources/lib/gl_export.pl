@@ -5,7 +5,22 @@
 */
 
  gl_export(Sd, Txs, Json_list) :-
- 	/*todo: this should be simply handled by a json-ld projection*/
+ 	!gl_export_sources(Txs, Sources),
+ 	!gl_export_add_ids_to_sources(Sources),
+ 	!gl_viewer_json_gl_export(Sd, Sources, Txs, Json_list),
+ 	!qb_csv_gl_export(Sd, Txs).
+
+gl_export_add_ids_to_sources(Sources) :-
+	b_setval(gl_export_add_ids_to_sources, 1),
+	maplist(gl_export_add_id_to_source, Sources).
+
+gl_export_add_id_to_source(Source) :-
+	b_getval(gl_export_add_ids_to_sources, Id),
+	doc_add(Source, s_transactions:id, Id, transactions),
+	Next_id is Id + 1,
+	b_setval(gl_export_add_ids_to_sources, Next_id).
+
+gl_export_sources(Txs, Sources) :-
 	findall(
 		Source,
 		(
@@ -14,10 +29,12 @@
 			doc(Tx, transactions:origin, Source, transactions),
 			assertion(nonvar(Source))
 		),
-		Sources),
-	list_to_set(Sources, Sources2),
+		Sources0),
+	list_to_set(Sources0, Sources).
+
+gl_viewer_json_gl_export(Sd, Sources, Txs, Json_list) :-
 	running_balance_initialization,
-	maplist(gl_export2(Sd, Txs), Sources2, Json_list0),
+	maplist(gl_export2(Sd, Txs), Sources, Json_list0),
 	round_term(2, Json_list0, Json_list).
 
 gl_export2(Sd, All_txs, Source, Json) :-
@@ -77,5 +94,43 @@ running_balance_tx_enrichment(Tx, Tx_New) :-
 	vec_add(Old, Vector, New),
 	b_setval(gl_export_running_balances, Balances.put(Account, New)),
 	Tx_New = Tx.put(running_balance, New).
+	% todo running_balance_for_relevant_period?
 
-% running_balance_for_relevant_period?
+qb_csv_gl_export(Sd, Txs) :-
+	File_name = 'qb_ql.csv',
+	File_loc = loc(file_name, File_name),
+	!report_file_path(File_loc, Url, loc(absolute_path, File_path)),
+	maplist(!qb_csv_gl_export(Sd), Txs, Rows0),
+	flatten([Header, Rows0], Rows3),
+	Header = row('*JournalNo', '*JournalDate', '*Currency', 'Memo', '*AccountName', 'Debits', 'Credits',  'Description', 'Name', 'Location', 'Class'),
+	!csv_write_file(File_path, Rows3),
+	!add_report_file(-10, File_name, File_name, Url).
+
+qb_csv_gl_export(Sd, Tx, Rows) :-
+	transaction_vector(Tx, Vector),
+	maplist(qb_csv_gl_export2(Sd, Tx), Vector, Rows).
+
+qb_csv_gl_export2(Sd, Tx, Coord0, Row) :-
+	transaction_day(Tx, Date),
+	coord_converted_at_time(Sd, Date, Coord0, Coord),
+	doc(Tx, transactions:origin, Origin, transactions),
+	(s_transaction_description2(Origin, D2) -> true ; D2 = ''),
+	(s_transaction_description3(Origin, D3) -> true ; D3 = ''),
+	dr_cr_coord(Unit, Debit, Credit, Coord),
+	Row = row(
+		Id,
+		$>format_time(string(<$), '%d/%m/%Y', Date),
+		Unit,
+		$>transaction_description(Tx),
+		$>account_name($>transaction_account(Tx)),
+		$>round_to_significant_digit(Debit),
+		$>round_to_significant_digit(Credit),
+		D2,
+		D3,
+		'',
+		''),
+	doc(Tx, transactions:origin, Origin, transactions),
+	doc(Origin, s_transactions:id, Id, transactions).
+
+coord_converted_at_time(Sd, Date, Coord0, Coord1) :-
+	vec_change_bases(Sd.exchange_rates, Date, Sd.report_currency, [Coord0], [Coord1]).

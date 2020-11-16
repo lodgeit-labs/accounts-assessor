@@ -29,6 +29,12 @@ s_transaction_exchanged(T, X) :-
 	doc(T, s_transactions:exchanged, X, transactions).
 s_transaction_misc(T, X) :-
 	doc(T, s_transactions:misc, X, transactions).
+s_transaction_description2(T, X) :-
+	doc(T, s_transactions:misc, M, transactions),
+	X = M.get(desc2).
+s_transaction_description3(T, X) :-
+	doc(T, s_transactions:misc, M, transactions),
+	X = M.get(desc3).
 
 doc_set_s_transaction_vector(T0, X, T1) :-
 	doc_set_property(s_transactions, T0, $>s_transaction_fields, vector, X, transactions, T1).
