@@ -42,7 +42,7 @@ extract_gl_tx(Sheet_name, Default_Currency, _, _, [Item|Items], [Tx1|Txs]) :-
 	!extract_gl_tx(Sheet_name, Default_Currency, St1, Date1, Items, Txs).
 
  read_gl_line(Sheet_name, Default_Currency, Date, St, Item, Tx) :-
-	!doc_value(Item, ic:account, Account_String),
+	!doc(Item, ic:account, Account_String),
 	/* todo, support multiple description fields in transaction */
 	(	doc_value(Item, ic:description, Description)
 	->	true
@@ -57,6 +57,11 @@ extract_gl_tx(Sheet_name, Default_Currency, _, _, [Item|Items], [Tx1|Txs]) :-
 	!gl_entry_account_syntax_parameters(Item, Parameters),
 	!resolve_account_syntax(Account_String, Parameters, Account),
 	!make_transaction(St, Date, Description, Account, Vector, Tx).
+
+
+
+
+
 
 
  extract_reallocations(Txs) :-
@@ -129,7 +134,7 @@ reallocation_make_account_a_tx(Sheet_name, Default_Currency, Account_A, Account_
 	!make_transaction(St, Date, Description, Account_A, Vector, Tx).
 
  parametrized_account_from_prop(Item, Pred, Account) :-
- 	(	doc_value(Item, Pred, Account_String)
+ 	(	doc(Item, Pred, Account_String)
  	->	true
 	;	(
 			sheet_and_cell_string(Item, Err_pos),
@@ -180,19 +185,22 @@ todo, refactor: reallocation_tx_set_spec(Rows, [A_tx|Txs]) :-
 		Parameter,
 		(
 			between(1, 5, I),
-			doc_value(Item, $>atomic_list_concat([$>rdf_global_id(ic:param),I]), Str),
-			atom_string(Parameter, Str)
+			doc(Item, $>atomic_list_concat([$>rdf_global_id(ic:param),I]), Parameter)
 		),
 		Parameters).
 
- resolve_account_syntax(String, Parameters, Account) :-
+ resolve_account_syntax(Account_string_uri, Parameters, Account) :-
+ 	value(Account_string_uri, String),
  	!string_codes(String, Codes),
  	once(phrase(account_syntax(Specifier), Codes)),
 	(	Specifier = name(Name_str)
 	->	(	atom_string(Name, Name_str),
 			!account_by_ui(Name, Account))
 	;	(
-			!fill_slots(Specifier, Parameters, Role_list),
+			c(
+				$>format(string(<$), 'fill account role slots.~nrole path: ~w~nspecified in: ~w~n  parameters: ~w', [Specifier, $>sheet_and_cell_string(Account_string_uri), $>values(Parameters)]),
+				!fill_slots(Specifier, Parameters, Role_list)
+			),
 			!role_list_to_term(Role_list, Role),
 			abrlt(Role, Account)
 		)).
@@ -210,18 +218,24 @@ account_syntax2_part(slot(P)) --> `<`, string_without("<>!", Ps), `>`,{atom_stri
 
 fill_slots([], [], []) :- !.
 
-fill_slots([slot(_)|Slots], [Param|Params], [Param|RoleT]) :-
+fill_slots([slot(_)|Slots], [Param|Params], [P2|RoleT]) :-
 	!fill_slots(Slots, Params, RoleT),
-	!.
+	!,
+	atom_string(P2, $>!value(Param)).
 
 fill_slots([fixed(Part)|Slots], Params, [Part|RoleT]) :-
 	atom(Part),
 	!fill_slots(Slots, Params, RoleT),
 	!.
 
-fill_slots([], [H|_], []) :-
-	throw_string(['no slot for parameter: "', H, '"']).
+fill_slots([], [Param|_], []) :-
+	throw_string([
+		'no slot for parameter "', $>!value(Param), '", specified in ', $>sheet_and_cell_string(Param)
+	]).
 
 fill_slots([H|_], [], []) :-
-	throw_string(['no parameter for slot: "', H, '"']).
-
+	throw_string([
+		'no parameter for slot: "', H, '"'/*,' in account role path:\n'
+		Path_str,
+		'\nspecified in ', $>value_sheet_and_cell_string(Path)*/
+		]).

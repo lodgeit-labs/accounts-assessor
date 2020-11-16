@@ -1,5 +1,5 @@
 
- extract_s_transactions0(Dom, S_Transactions) :-
+ 'extract source transactions, phase 0'(Dom, S_Transactions) :-
  	assertion(Dom = [element(_,_,_)]),
 	!extract_bank_accounts(Dom),
 	!generate_bank_opening_balances_sts(Bank_Lump_STs),

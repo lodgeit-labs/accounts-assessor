@@ -1,3 +1,4 @@
+unused.
 
 extract_livestock_data_from_ledger_request(Request_Dom) :-
 	findall(Livestock_Dom, xpath(Request_Dom, //reports/balanceSheetRequest/livestockData, Livestock_Dom), Livestock_Doms),

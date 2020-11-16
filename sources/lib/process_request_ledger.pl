@@ -1,20 +1,75 @@
+/*
+execution contexts: something like stack traces, but done manually:
+you call:
+push_context('investment calculator request')
+push_context('extract accounts')
+...
+
+and then, when there's an exception, we can print a nice "processing stack":
+when processing:
+1) investment calculator request
+2) extract accounts
+3) xxx
+4) yyy
+exception: blablabla
+
+
+plus, there's a higher level api:
+c(callable): calls push_context(callable), then calls callable
+c(blabla, callable): calls push_context(blabla), then calls callable
+*/
+
+get_context(Ctx_list) :-
+	catch(
+		b_getval(context, Ctx_list),
+		_,
+		Ctx_list = []
+	).
+
+push_context(C) :-
+	get_context(Ctx_list),
+	append(Ctx_list, [C], New_ctx_list),
+	b_setval(context, New_ctx_list).
+
+pop_context :-
+	b_getval(context, Ctx_list),
+	!append(New_ctx_list,[_],Ctx_list),
+	b_setval(context, New_ctx_list).
+
+c(Context, Callable) :-
+	push_context(Context),
+	call(Callable),
+	pop_context.
+
+c(Callable) :-
+	c(Callable,Callable).
+
+cf(Callable) :-
+	Callable =.. [Functor|_],
+	c(Functor,Callable).
+
+
 
 
 process_request_ledger(File_Path, Dom) :-
 	inner_xml(Dom, //reports/balanceSheetRequest, _),
-	!validate_xml2(File_Path, 'bases/Reports.xsd'),
-
+	!cf(validate_xml2(File_Path, 'bases/Reports.xsd')),
 	Data = (Dom, Start_Date, End_Date, Output_Dimensional_Facts, Cost_Or_Market, Report_Currency),
-	!extract_request_details(Dom),
-	!extract_start_and_end_date(Dom, Start_Date, End_Date),
-	!extract_output_dimensional_facts(Dom, Output_Dimensional_Facts),
-	!extract_cost_or_market(Dom, Cost_Or_Market),
-	!extract_report_currency(Dom, Report_Currency),
-	!extract_action_verbs_from_bs_request(Dom),
-	!extract_s_transactions0(Dom, S_Transactions),
+	!cf(extract_request_details(Dom)),
+	!cf(extract_start_and_end_date(Dom, Start_Date, End_Date)),
+	!cf('extract "output_dimensional_facts"'(Dom, Output_Dimensional_Facts)),
+	!cf('extract "cost_or_market"'(Dom, Cost_Or_Market)),
+	!cf(extract_report_currency(Dom, Report_Currency)),
+	!cf(extract_action_verbs(Dom)),
+	!cf('extract source transactions, phase 0'(Dom, S_Transactions)),
 
-	/*profile*/(!process_request_ledger2(Data, S_Transactions, _, _Transactions)).
-	%process_request_ledger_debug(Dom, S_Transactions).
+	% you may find useful:
+	%profile(
+	!process_request_ledger2(Data, S_Transactions, _, _Transactions),
+	%)
+	% or you may find useful:
+	%process_request_ledger_debug(Dom, S_Transactions),
+	true.
 
 /* a little debugging facitliy that tries processing s_transactions one by one until it runs into an error */
 process_request_ledger_debug(Data, S_Transactions0) :-
@@ -37,7 +92,7 @@ ggg(Data, S_Transactions0, Count) :-
 process_request_ledger2((Dom, Start_Date, End_Date, Output_Dimensional_Facts, Cost_Or_Market, Report_Currency),   S_Transactions, Structured_Reports, Transactions) :-
 	%request(Request),
 	%doc_add(Request, l:kind, l:ledger_request),
-	!extract_accounts,
+	!cf(extract_accounts),
 	!extract_livestock_data_from_ledger_request(Dom),
 	!extract_exchange_rates(Cost_Or_Market, Dom, S_Transactions, Start_Date, End_Date, Report_Currency, Exchange_Rates),
 	!extract_invoices_payable(Dom),
@@ -246,14 +301,14 @@ a flag can be used when running the server, for example like this:
 ```swipl -s prolog_server.pl  -g "set_flag(prepare_unique_taxonomy_url, true),run_simple_server"```
 This is done with a symlink. This allows to bypass cache, for example in pesseract.
 */
-taxonomy_url_base :-
+ taxonomy_url_base :-
 	!symlink_tmp_taxonomy_to_static_taxonomy(Unique_Taxonomy_Dir_Url),
 	(	get_flag(prepare_unique_taxonomy_url, true)
 	->	Taxonomy_Dir_Url = Unique_Taxonomy_Dir_Url
 	;	Taxonomy_Dir_Url = 'taxonomy/'),
 	!request_add_property(l:taxonomy_url_base, Taxonomy_Dir_Url).
 
-symlink_tmp_taxonomy_to_static_taxonomy(Unique_Taxonomy_Dir_Url) :-
+ symlink_tmp_taxonomy_to_static_taxonomy(Unique_Taxonomy_Dir_Url) :-
 	!my_request_tmp_dir(loc(tmp_directory_name,Tmp_Dir)),
 	!server_public_url(Server_Public_Url),
 	!atomic_list_concat([Server_Public_Url, '/tmp/', Tmp_Dir, '/taxonomy/'], Unique_Taxonomy_Dir_Url),
@@ -271,7 +326,7 @@ symlink_tmp_taxonomy_to_static_taxonomy(Unique_Taxonomy_Dir_Url) :-
 	
 */	
    
-extract_report_currency(Dom, Report_Currency) :-
+ extract_report_currency(Dom, Report_Currency) :-
 	!request_data(Request_Data),
 	(	doc(Request_Data, ic_ui:report_details, D)
 	->	(
@@ -289,7 +344,7 @@ e and cost in one set of reports. One or the other.
 +       Cost value per unit will always be there if there are units of anything i.e. sheep for livestock trading or shares for Investments. But I suppose if you do not find any marke
 t values then assume cost basis.*/
 
-extract_cost_or_market(Dom, Cost_Or_Market) :-
+ 'extract "cost_or_market"'(Dom, Cost_Or_Market) :-
 	!request_data(Request_Data),
 	(	doc(Request_Data, ic_ui:report_details, D)
 	->	(
@@ -314,7 +369,7 @@ extract_cost_or_market(Dom, Cost_Or_Market) :-
 	)
 	).
 	
-extract_output_dimensional_facts(Dom, Output_Dimensional_Facts) :-
+ 'extract "output_dimensional_facts"'(Dom, Output_Dimensional_Facts) :-
 	(
 		inner_xml(Dom, //reports/balanceSheetRequest/outputDimensionalFacts, [Output_Dimensional_Facts])
 	->
@@ -329,7 +384,7 @@ extract_output_dimensional_facts(Dom, Output_Dimensional_Facts) :-
 		Output_Dimensional_Facts = on
 	).
 	
-extract_start_and_end_date(_Dom, Start_Date, End_Date) :-
+ extract_start_and_end_date(_Dom, Start_Date, End_Date) :-
 	!request_data(Request_Data),
 	!doc(Request_Data, ic_ui:report_details, D),
 	!doc_value(D, ic:from, Start_Date),
@@ -345,7 +400,7 @@ extract_start_and_end_date(_Dom, Start_Date, End_Date) :-
 	;	true)
 	.
 
-extract_request_details(Dom) :-
+ extract_request_details(Dom) :-
 	assertion(Dom = [element(_,_,_)]),
 	!request(Request),
 	!result(Result),
@@ -362,20 +417,7 @@ extract_request_details(Dom) :-
 /*
 :- comment(Structured_Reports:
 	the idea is that the dicts containing the high-level, semantic information of all reports would be passed all the way up, and we'd have some test runner making use of that / generating a lot of permutations of requests and checking the results computationally, in addition to endpoint_tests checking report files against saved versions.
-Not sure if/when we want to work on that.
+update: instead of passing json around, we should focus on doc-izing everything.
 */
 
-
-	/*
-	how we could test inference of s_transactions from gl transactions:
-	gl_doc_eq_json(Transactions, Transactions_Json),
-	doc_init,
-	gl_doc_eq_json(Transactions2, Transactions_Json),
-	process_request_ledger2(Dom, S_Transactions2, _, Transactions2),
-	assertion(eq(S_Transactions, S_Transactions2)).
-	...
-	gl_json :-
-		maplist(transaction_to_dict, Transactions, T0),
-	...
-	*/
 

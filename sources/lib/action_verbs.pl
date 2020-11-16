@@ -1,6 +1,6 @@
 % transaction types aka action verbs
 
-extract_action_verbs_from_bs_request(Dom) :-
+extract_action_verbs(Dom) :-
 	(
 		xpath(Dom, //reports/balanceSheetRequest/actionTaxonomy, Taxonomy_Dom)
 	->

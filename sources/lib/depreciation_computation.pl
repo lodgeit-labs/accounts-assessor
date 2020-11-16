@@ -203,11 +203,21 @@ profit_and_loss(Asset_id, Asset_sell_price, Written_down_date, Method, Recup, Ca
 
 	asset(Asset_id,Asset_cost,_,_),
 	written_down_value(Asset_id, Written_down_date,Method,_,Written_down_value),
+
+/*fixme:
+ Concept of capital gain is as follows
+Buy an asset for 10
+Deprecate to a written down value of 8. I.e accumulated depreciation is 2.
+Sell for 12.
+I've a capital gain of 2 and a depreciation recoupment of 2.
+Any proceeds over the cost base is a capital gain.
+*/
+
 	Capital_gain is Asset_sell_price - Asset_cost,
 	Recup is Written_down_value - Asset_cost.
 
 
-% if days difference is less than zero, it means that the requested date 
+% if days difference is less than zero, it means that the requested date
 % in the input value is earlier than the invest in date.
 check_day_difference_validity(Days_difference) :-
 	(

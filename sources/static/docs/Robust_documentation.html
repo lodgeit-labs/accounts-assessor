@@ -5,8 +5,10 @@
 	<title>General Ledger Viewer documentation</title>
 	<meta name="generator" content="LibreOffice 6.0.7.3 (Linux)"/>
 	<meta name="created" content="00:00:00"/>
-	<meta name="changed" content="2020-06-28T14:03:18.520856617"/>
+	<meta name="changed" content="2020-11-16T04:12:34.761032661"/>
 	<meta name="" content=""/>
+	<meta name="created" content="00:00:00">
+	<meta name="created" content="00:00:00">
 	<style type="text/css">
 		h1 { text-align: center }
 		h1.western { font-family: "Liberation Sans", sans-serif; font-size: 28pt; font-weight: normal }
@@ -34,17 +36,57 @@ output files (“reports”).</p>
 
 </p>
 <p>Robust needs to know what <a href="http://dbpedia.org/page/General_ledger">General_ledger</a>
-(GL) accounts it should consider when processing a request. For each
-account, it needs to know: 
+(GL) accounts there are. For each account, it needs to know: 
 </p>
 <ul>
 	<li/>
-<p>ID</p>
+<p>name - an arbitrary string, ideally unique</p>
 	<li/>
-<p>parent-child relationship with other GL accounts</p>
+<p>parent-child relationships with other GL accounts</p>
 </ul>
-<p>ID is an arbitrary string that’s, ideally, unique within the GL
-hierarchy.</p>
+<p>The initial set of accounts is specified by the field “account
+taxonomies”. You can select one or more prepared sets, or enter
+your own URL with a XML description of account hierarchy.</p>
+<p><img src="Robust_documentation_html_3f1b662c3de2beb4.gif" name="Image3" align="left" width="857" height="386" border="0"/>
+<br/>
+<br/>
+
+</p>
+<p>Robust also generates some accounts automatically, to
+subcategorize some accounts by bank name, by investment, by livestock
+name, etc.</p>
+<p>Users can address accounts by names, or by roles:</p>
+<h2 class="western">Roles</h2>
+<p>A role is a path, much like a file path in a computer:</p>
+<p><img src="Robust_documentation_html_220dae5d44ef6a0e.gif" name="Image4" align="left" width="513" height="32" border="0"/>
+<br/>
+<br/>
+
+</p>
+<p>The exclamation marks (<i>!</i>) are path separators, like “/”
+in a file path. There isn’t a good way to manage these roles yet,
+but we need to understand the “<i>&lt;Member&gt;</i>” part above.
+The angle brackets (<i>&lt;&gt;</i>) enclose a “slot”, that is, a
+variable, in other words, an empty place, where something else will
+be put. That something is taken from the “<i>param</i>” columns:</p>
+<p><img src="Robust_documentation_html_25d2279a69dc400e.gif" name="Image5" align="left" width="288" height="65" border="0"/>
+<br/>
+<br/>
+
+</p>
+<p><br/>
+<br/>
+
+</p>
+<p>In effect, the role path becomes: “<i>!Share of Profit/(Loss) –
+Preserved/Taxable!</i><i>John Smith</i><i>!”.</i> Each
+angle-bracketed slot has to match up with one nonempty “param”
+column.</p>
+<h1 class="western">Formulas</h1>
+<p><br/>
+<br/>
+
+</p>
 <p>In comparison to full XBRL support, we do not enable computing of
 arbitrary facts by arbitrary formulas, and we have a hard-coded set
 of reports that display a hard-coded set of facts. 

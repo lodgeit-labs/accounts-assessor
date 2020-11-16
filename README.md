@@ -17,8 +17,8 @@ json-based endpoints:
 
 
 ## projects this is comparable to:
-https://github.com/johannesgerer/buchhaltung
-gnu cash
+* https://github.com/johannesgerer/buchhaltung
+* gnu cash
 ...
 
 
