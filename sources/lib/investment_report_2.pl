@@ -32,7 +32,7 @@ investment_report_2_0(Static_Data, Filename_Suffix, Semantic_Json) :-
 	atomic_list_concat(['investment_report', Filename_Suffix, '_html'], Key),
 	atomic_list_concat(['investment_report', Filename_Suffix], Json_Filename),
 
-	catch_maybe_with_backtrace(
+	catch_with_backtrace(
 		(
 			(Static_Data.report_currency = [_] -> true ;throw_string('investment report: report currency expected')),
 			(	investment_report_2(Static_Data, Semantic_Json, Table_Json, Html, Title_Text)

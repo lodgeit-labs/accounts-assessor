@@ -6,7 +6,7 @@
 	write_file(File_Path, Text).
 
  make_json_report(Dict, Fn) :-
-	catch_maybe_with_backtrace(
+	catch_with_backtrace(
 		make_json_report2(Dict, Fn),
 		E,
 		add_alert('error', E)

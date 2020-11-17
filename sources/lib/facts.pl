@@ -345,7 +345,7 @@ sheet_and_cell_string(Value, Str) :-
 	!doc(Value, excel:sheet_name, Sheet_name),
 	!doc(Value, excel:col, Col),
 	!doc(Value, excel:row, Row),
-	!atomics_to_string([Sheet_name, ' ', Col, ':', Row], Str).
+	!atomics_to_string(['sheet "', Sheet_name, '", cell ', Col, ':', Row], Str).
 
 read_coord_vector_from_doc_string(Item, Prop, Default_currency, Side, VectorA) :-
 	doc_value(Item, Prop, Amount_string),

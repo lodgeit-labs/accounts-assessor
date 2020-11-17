@@ -192,7 +192,11 @@ todo, refactor: reallocation_tx_set_spec(Rows, [A_tx|Txs]) :-
  resolve_account_syntax(Account_string_uri, Parameters, Account) :-
  	value(Account_string_uri, String),
  	!string_codes(String, Codes),
- 	once(phrase(account_syntax(Specifier), Codes)),
+
+%'store ctx data for reporting after exception',
+	assert(fuckitall :- true),
+
+ 	once(!phrase(account_syntax(Specifier), Codes)),
 	(	Specifier = name(Name_str)
 	->	(	atom_string(Name, Name_str),
 			!account_by_ui(Name, Account))
@@ -229,6 +233,7 @@ fill_slots([fixed(Part)|Slots], Params, [Part|RoleT]) :-
 	!.
 
 fill_slots([], [Param|_], []) :-
+%gtrace,
 	throw_string([
 		'no slot for parameter "', $>!value(Param), '", specified in ', $>sheet_and_cell_string(Param)
 	]).

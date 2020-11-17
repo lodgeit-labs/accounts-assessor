@@ -58,11 +58,34 @@ process_request(Options, File_Paths) :-
 			catch_with_backtrace(
 				(process_multifile_request(File_Paths) -> true ; throw(failure)),
 				E,
-				add_alert('error', E)
+				(handle_processing_exception(E))
 			)
 		)
 	),
 	process_request2.
+
+handle_processing_exception(E) :-
+	format(user_error, '~n~n'),
+	print_message(information, "im in a handle_processing_exceptionhandle_processing_exceptionhandle_processing_exceptionhandle_processing_exceptionhandle_processing_exceptionhandle_processing_exceptionhandle_processing_exceptionhandle_processing_exceptionhandle_processing_exceptionhandle_processing_exceptionhandle_processing_exceptionhandle_processing_exceptionhandle_processing_exceptionhandle_processing_exception"),
+	format(user_error, '~n~n'),
+	print_message(error, E),
+	format(user_error, '~n~n'),
+
+	(	exception_ctx_dump(Ctx_list)
+	->	(
+			context_string(Ctx_list,Ctx_str),
+			E2 = with_processing_context(Ctx_str, E)
+		)
+	;	E2 = E),
+
+	(	exception_doc_dump(G,Ng)
+	->	(
+			b_setval(the_theory, G),
+			b_setval(the_theory_nonground, Ng)
+		)
+	;	true),
+
+	add_alert('error', E2).
 
 process_request2 :-
 	'make "all files" report entry',
