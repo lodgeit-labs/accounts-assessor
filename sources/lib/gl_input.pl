@@ -190,12 +190,10 @@ todo, refactor: reallocation_tx_set_spec(Rows, [A_tx|Txs]) :-
 		Parameters).
 
  resolve_account_syntax(Account_string_uri, Parameters, Account) :-
+ 	push_context($>format(string(<$), 'extract account specifier in ~w', [$>sheet_and_cell_string(Account_string_uri)])),
  	value(Account_string_uri, String),
+ 	push_context($>format(string(<$), 'parse account string: ~q', [String])),
  	!string_codes(String, Codes),
-
-%'store ctx data for reporting after exception',
-	assert(fuckitall :- true),
-
  	once(!phrase(account_syntax(Specifier), Codes)),
 	(	Specifier = name(Name_str)
 	->	(	atom_string(Name, Name_str),
@@ -207,7 +205,10 @@ todo, refactor: reallocation_tx_set_spec(Rows, [A_tx|Txs]) :-
 			),
 			!role_list_to_term(Role_list, Role),
 			abrlt(Role, Account)
-		)).
+		)
+	),
+	pop_context,
+	pop_context.
 
 account_syntax(name(Name)) --> string_without("<!", Codes), {atom_codes(Name, Codes)}.
 account_syntax(Role) --> `!`, account_syntax2(Role), `!`.
