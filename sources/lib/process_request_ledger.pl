@@ -66,8 +66,7 @@ process_request_ledger2((Dom, Start_Date, End_Date, Output_Dimensional_Facts, Co
 					Report_Currency
 				]),
 				!gl_export(Static_Data, [], Gl),
-				!make_json_report(Gl, general_ledger_json),
-				!make_gl_viewer_report
+				!make_json_report(Gl, general_ledger_json)
 			)
 	;		(
 

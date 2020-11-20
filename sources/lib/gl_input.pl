@@ -5,6 +5,7 @@
 	;	Txs = []).
 
  extract_gl_input(Gl, Txs) :-
+ 	push_context($>format(string(<$), 'extract GL input from: ~w', [$>sheet_and_cell_string(Gl)])),
 	!doc_value(Gl, ic:default_currency, Default_Currency0),
 	!atom_string(Default_Currency, Default_Currency0),
 	!doc_value(Gl, ic:items, List),
@@ -16,7 +17,8 @@
 		$>request_has_property(l:report_currency),
 		$>request_has_property(l:end_date),
 		Sheet_name,
-	Txs).
+	Txs),
+	pop_context.
 
  extract_gl_tx(_, _, _,_,[],[]).
 
@@ -42,6 +44,7 @@ extract_gl_tx(Sheet_name, Default_Currency, _, _, [Item|Items], [Tx1|Txs]) :-
 	!extract_gl_tx(Sheet_name, Default_Currency, St1, Date1, Items, Txs).
 
  read_gl_line(Sheet_name, Default_Currency, Date, St, Item, Tx) :-
+	push_context($>format(string(<$), 'extract GL input row from ~w', [$>sheet_and_cell_string(Item)])),
 	!doc(Item, ic:account, Account_String),
 	/* todo, support multiple description fields in transaction */
 	(	doc_value(Item, ic:description, Description)
@@ -54,9 +57,10 @@ extract_gl_tx(Sheet_name, Default_Currency, _, _, [Item|Items], [Tx1|Txs]) :-
 	->	vector_from_string(Default_Currency, kb:credit, Credit_String, Credit_Vector)
 	;	Credit_Vector = []),
 	append(Debit_Vector, Credit_Vector, Vector),
-	!gl_entry_account_syntax_parameters(Item, Parameters),
-	!resolve_account_syntax(Account_String, Parameters, Account),
-	!make_transaction(St, Date, Description, Account, Vector, Tx).
+	!gl_entry_account_specifier_parameters(Item, Parameters),
+	!cf(find_account_by_specification(Account_String, Parameters, Account)),
+	!make_transaction(St, Date, Description, Account, Vector, Tx),
+	pop_context.
 
 
 
@@ -142,7 +146,7 @@ reallocation_make_account_a_tx(Sheet_name, Default_Currency, Account_A, Account_
 		)
 	),
 
-	!gl_entry_account_syntax_parameters(Item, Parameters),
+	!gl_entry_account_specifier_parameters(Item, Parameters),
 	/*
 	we should probably declare the operation we are performing beforehand,
 	and then look it up and stringize it when throwing the error..
@@ -152,7 +156,7 @@ reallocation_make_account_a_tx(Sheet_name, Default_Currency, Account_A, Account_
 	...
 	*/
 	catch(
-		!resolve_account_syntax(Account_String, Parameters, Account),
+		!cf(find_account_by_specification(Account_String, Parameters, Account)),
 		error(msg(E),_),
 		throw_string([$>sheet_and_cell_string_for_property(Item, Pred), ': ', E])
 		).
@@ -180,7 +184,7 @@ todo, refactor: reallocation_tx_set_spec(Rows, [A_tx|Txs]) :-
 */
 
 
- gl_entry_account_syntax_parameters(Item, Parameters) :-
+ gl_entry_account_specifier_parameters(Item, Parameters) :-
 	findall(
 		Parameter,
 		(
@@ -189,34 +193,35 @@ todo, refactor: reallocation_tx_set_spec(Rows, [A_tx|Txs]) :-
 		),
 		Parameters).
 
- resolve_account_syntax(Account_string_uri, Parameters, Account) :-
- 	push_context($>format(string(<$), 'extract account specifier in ~w', [$>sheet_and_cell_string(Account_string_uri)])),
- 	value(Account_string_uri, String),
- 	push_context($>format(string(<$), 'parse account string: ~q', [String])),
- 	!string_codes(String, Codes),
- 	once(!phrase(account_syntax(Specifier), Codes)),
+ find_account_by_specification(Account_string_uri, Parameters, Account) :-
+ 	value(Account_string_uri, Text),
+ 	push_context($>format(string(<$), 'interpret account specification string: ~q', [Text])),
+
+ 	/* note:removed 'once'*/
+ 	c(!'use grammar to interpret text'(account_specifier(Specifier), Text)),
+
 	(	Specifier = name(Name_str)
 	->	(	atom_string(Name, Name_str),
 			!account_by_ui(Name, Account))
 	;	(
 			c(
-				$>format(string(<$), 'fill account role slots.~nrole path: ~w~nspecified in: ~w~n  parameters: ~w', [Specifier, $>sheet_and_cell_string(Account_string_uri), $>values(Parameters)]),
+				$>format(string(<$), 'fill account role slots. role path: ~q specified in: ~w,  parameters: ~w', [Specifier, $>sheet_and_cell_string(Account_string_uri), $>values(Parameters)]),
 				!fill_slots(Specifier, Parameters, Role_list)
 			),
 			!role_list_to_term(Role_list, Role),
 			abrlt(Role, Account)
 		)
 	),
-	pop_context,
+	%pop_context,
 	pop_context.
 
-account_syntax(name(Name)) --> string_without("<!", Codes), {atom_codes(Name, Codes)}.
-account_syntax(Role) --> `!`, account_syntax2(Role), `!`.
-account_syntax(Role) --> `!`, account_syntax2(Role).
-account_syntax2([H]) --> account_syntax2_part(H).
-account_syntax2([H|T]) --> account_syntax2_part(H), `!`, account_syntax2(T).
-account_syntax2_part(fixed(P)) --> string_without("<>!", Ps),{atom_string(P, Ps)}.
-account_syntax2_part(slot(P)) --> `<`, string_without("<>!", Ps), `>`,{atom_string(P, Ps)}.
+account_specifier(name(Name)) --> string_without("<!", Codes), {atom_codes(Name, Codes)}.
+account_specifier(Role) --> `!`, account_specifier2(Role), `!`.
+account_specifier(Role) --> `!`, account_specifier2(Role).
+account_specifier2([H]) --> account_specifier2_part(H).
+account_specifier2([H|T]) --> account_specifier2_part(H), `!`, account_specifier2(T).
+account_specifier2_part(fixed(P)) --> string_without("<>!", Ps),{atom_string(P, Ps)}.
+account_specifier2_part(slot(P)) --> `<`, string_without("<>!", Ps), `>`,{atom_string(P, Ps)}.
 
 
 

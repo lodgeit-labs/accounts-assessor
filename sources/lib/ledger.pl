@@ -20,7 +20,9 @@
 	!check_accounts_roles,
 	!propagate_accounts_side,
 	!write_accounts_json_report,
+	!make_gl_viewer_report,
 
+	/* i don't think this "brake" is needed */
 	doc($>request_data, ic_ui:report_details, Details),
 	(	(	doc_value(Details, ic_ui:processing_phases, T),
 			rdf_equal2(T, ic_ui:stop_before_reading_GL_inputs)

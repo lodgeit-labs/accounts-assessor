@@ -92,9 +92,11 @@ def call_prolog(msg, final_result_tmp_directory_name=None, dev_runner_options=[]
 			"invoke_rpc: if system PATH is messed up, maybe you're running the server from venv, and activating the venv a second time, from run_common0.sh, messes it up")
 		raise
 
-	print("invoke_rpc: result from prolog:")
+	print()
+	print("invoke_rpc: prolog stdout:")
 	print(stdout_data)
-	print("invoke_rpc: end of result from prolog.")
+	print("invoke_rpc: end of prolog stdout.")
+	print()
 	try:
 		rrr = json.loads(stdout_data)
 		internal_workers.postprocess_doc.apply_async((result_tmp_path,))

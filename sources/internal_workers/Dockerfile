@@ -11,11 +11,6 @@ ENV LANG $LOC
 ENV LC_ALL $LOC
 
 
-#todo: this is multi-stage build, are the base image tags guaranteed to resolve to the same images for both stages?
-#FROM koo5/swipl as swipl
-#^that didnt work out
-
-
 RUN mkdir /app
 WORKDIR /app
         # apt-get update \
@@ -36,9 +31,12 @@ RUN     apt-get install -y \
         libpcre3-dev \
         libyaml-dev \
         && rm -rf /var/lib/apt/lists/*
-RUN git clone --branch V8.1.15 https://github.com/SWI-Prolog/swipl-devel.git
+
+
+#RUN git clone --branch V8.3.10 https://github.com/SWI-Prolog/swipl.git swipl-devel
+RUN git clone --branch V8.1.15 https://github.com/SWI-Prolog/swipl.git swipl-devel
 WORKDIR swipl-devel
-RUN git submodule update --init
+RUN git submodule update --init --recursive
 
 
 WORKDIR packages/xpce
@@ -53,21 +51,15 @@ RUN mkdir build
 WORKDIR build
 RUN cmake -G Ninja ..
 RUN ninja
-RUN ctest -j 8
+RUN ctest -j 8 --output-on-failure
 RUN ninja install
 
 
 RUN apt-get update && apt-get install -y cmake ninja-build git python3 python3-pip \
  && rm -rf /var/lib/apt/lists/*
 RUN groupadd -r user && useradd -r -g user user
-#RUN mkdir /app
 WORKDIR /app
 
-
-#COPY --from=0 /app/swipl-devel/build /app/swipl-devel/build
-#WORKDIR /app/swipl-devel/build
-#RUN ninja install
-#WORKDIR /app
 
 
 COPY requirements.txt .
@@ -94,13 +86,15 @@ COPY secrets2.json /
 #USER user
 WORKDIR /app/sources/internal_workers
 
+
 ENV PYTHONUNBUFFERED true
 ENV CELERY_QUEUE_NAME=q7788
 ENV DETERMINANCY_CHECKER__USE__ENFORCER=true
 
-#VOLUME /tmp/.X11-unix
 
+#VOLUME /tmp/.X11-unix
 COPY swipl/Defaults /root/.config/swi-prolog/xpce/Defaults
+
 
 ENTRYPOINT ["./start.sh"]
 CMD ["-n", "worker7788", "--loglevel=info"]

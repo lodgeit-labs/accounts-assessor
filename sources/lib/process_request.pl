@@ -1,6 +1,6 @@
 :- use_module(library(archive)).
 :- use_module(library(sgml)).
-:- use_module(library(prolog_stack)).
+%:- use_module(library(prolog_stack)).
 
 
 :- [process_request_loan].
@@ -53,23 +53,25 @@ process_request(Options, File_Paths) :-
 	maybe_supress_generating_unique_taxonomy_urls(Options),
 	%_ is 1 / 0,
 	(	current_prolog_flag(die_on_error, true)
-	->	process_multifile_request(File_Paths)
+	->	(
+			process_multifile_request(File_Paths),
+			Exception = none
+		)
 	;	(
 			catch_with_backtrace(
 				(process_multifile_request(File_Paths) -> true ; throw(failure)),
 				E,
-				(handle_processing_exception(E))
+				Exception = E
 			)
 		)
 	),
+	(	Exception \= none
+	->	handle_processing_exception(Exception)
+	;	true),
 	process_request2.
 
 handle_processing_exception(E) :-
-	format(user_error, '~n~n'),
-	print_message(information, "im in a handle_processing_exceptionhandle_processing_exceptionhandle_processing_exceptionhandle_processing_exceptionhandle_processing_exceptionhandle_processing_exceptionhandle_processing_exceptionhandle_processing_exceptionhandle_processing_exceptionhandle_processing_exceptionhandle_processing_exceptionhandle_processing_exceptionhandle_processing_exceptionhandle_processing_exception"),
-	format(user_error, '~n~n'),
-	print_message(error, E),
-	format(user_error, '~n~n'),
+	%format(user_error, '~n~n', []),
 
 	(	exception_ctx_dump(Ctx_list)
 	->	(
@@ -85,7 +87,26 @@ handle_processing_exception(E) :-
 		)
 	;	true),
 
-	add_alert('error', E2).
+	format_exception_into_alert_string(E2, Str),
+	add_alert('error', Str).
+
+format_exception_into_alert_string(E, Str) :-
+	(	E = with_processing_context(C,E2)
+	->	Context_str = C
+	;	(
+			Context_str = '',
+			E2 = E
+		)
+	),
+	(	E2 = error(msg(Msg),Prolog_context)
+	->	format(string(Prolog_context_str),'~p',[Prolog_context])
+	;	(
+			Prolog_context_str = '',
+			format(string(Msg),'~p',[E2])
+		)
+	),
+	format(string(Str ),'~w~n~n~w~n~n~w~n',[Msg, Context_str, Prolog_context_str]).
+
 
 process_request2 :-
 	'make "all files" report entry',
