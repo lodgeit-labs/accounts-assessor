@@ -105,7 +105,7 @@ format_exception_into_alert_string(E, Str) :-
 			format(string(Msg),'~p',[E2])
 		)
 	),
-	format(string(Str ),'~w~n~n~w~n~n~w~n',[Msg, Context_str, Prolog_context_str]).
+	format(string(Str ),'~w~n~n~w~n~n~w~n',[Context_str, Msg, Prolog_context_str]).
 
 
 process_request2 :-
