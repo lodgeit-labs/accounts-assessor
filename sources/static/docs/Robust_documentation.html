@@ -5,7 +5,7 @@
 	<title>General Ledger Viewer documentation</title>
 	<meta name="generator" content="LibreOffice 6.0.7.3 (Linux)"/>
 	<meta name="created" content="00:00:00"/>
-	<meta name="changed" content="2020-11-20T13:50:15.146424567"/>
+	<meta name="changed" content="2020-11-20T23:30:42.458382068"/>
 	<meta name="" content=""/>
 	<style type="text/css">
 		h1 { text-align: center }
@@ -20,76 +20,149 @@
 	</style>
 </head>
 <body lang="en-US" dir="ltr">
-<h1 class="western" style="font-weight: normal"><font face="Lato Semibold"><font size="7" style="font-size: 36pt">Robust</font></font></h1>
-<h1 class="western">Investment calculator</h1>
-<h2 class="western">open issues</h2>
+<h1 class="western" style="margin-top: 0.02in; margin-bottom: 0.02in; font-weight: normal">
+<font face="Lato Semibold"><font size="7" style="font-size: 36pt">Robust</font></font></h1>
+<h1 class="western" style="margin-top: 0.02in; margin-bottom: 0.02in">
+Investment calculator</h1>
+<h2 class="western" style="margin-top: 0.02in; margin-bottom: 0.02in">
+things to keep in mind</h2>
+<h3 class="western" style="margin-top: 0.02in; margin-bottom: 0.02in">
+general</h3>
 <ul>
 	<li/>
-<p>Items in balance sheet and other reports get randomly
-	reordered. (a general robust bug)</p>
+<p style="margin-top: 0.02in; margin-bottom: 0.02in">Account
+	names, unit names, member names, etc, must be specified exactly. “x
+	123 456” is not the same as “x-123-456”.</p>
 </ul>
-<h2 class="western">accounts</h2>
-<p>Robust needs to know what <a href="http://dbpedia.org/page/General_ledger">General_ledger</a>
+<h3 class="western" style="margin-top: 0.02in; margin-bottom: 0.02in">
+bank accounts</h3>
+<ul>
+	<li/>
+<p style="margin-top: 0.02in; margin-bottom: 0.02in">Sheet
+	name has to start with “bankstatement “</p>
+	<li/>
+<p style="margin-top: 0.02in; margin-bottom: 0.02in">Account_Number
+	is ignored, only Account_Name matters</p>
+	<li/>
+<p style="margin-top: 0.02in; margin-bottom: 0.02in"></p>
+</ul>
+<p style="margin-top: 0.02in; margin-bottom: 0.02in"><br/>
+<br/>
+
+</p>
+<p style="margin-top: 0.02in; margin-bottom: 0.02in"><br/>
+<br/>
+
+</p>
+<h2 class="western" style="margin-top: 0.02in; margin-bottom: 0.02in">
+open issues</h2>
+<ul>
+	<li/>
+<p style="margin-top: 0.02in; margin-bottom: 0.02in">Items in
+	balance sheet and other reports get randomly reordered. (a general
+	robust bug)</p>
+</ul>
+<p style="margin-top: 0.02in; margin-bottom: 0.02in"><br/>
+<br/>
+
+</p>
+<p style="margin-top: 0.02in; margin-bottom: 0.02in"><br/>
+<br/>
+
+</p>
+<h2 class="western" style="margin-top: 0.02in; margin-bottom: 0.02in">
+accounts</h2>
+<p style="margin-top: 0.02in; margin-bottom: 0.02in">Robust needs to
+know what <a href="http://dbpedia.org/page/General_ledger">General_ledger</a>
 (GL) accounts there are. For each account, it needs to know: 
 </p>
 <ul>
 	<li/>
-<p style="margin-bottom: 0.2in">name - an arbitrary string,
-	ideally unique</p>
+<p style="margin-top: 0.02in; margin-bottom: 0.02in">name - an
+	arbitrary string, ideally unique</p>
 	<li/>
-<p>parent-child relationships with other GL accounts</p>
+<p style="margin-top: 0.02in; margin-bottom: 0.02in">parent-child
+	relationships with other GL accounts</p>
 </ul>
-<p>The initial set of accounts is specified in the field “account
-taxonomies”. You can select one or more prepared sets, or enter
-your own URL with a XML description of account hierarchy.</p>
-<p><img src="Robust_documentation_html_3f1b662c3de2beb4.gif" name="Image3" align="left" width="857" height="386">
+<p style="margin-top: 0.02in; margin-bottom: 0.02in">The initial set
+of accounts is specified in the field “account taxonomies”. You
+can select one or more prepared sets, or enter your own URL with a
+XML description of account hierarchy.</p>
+<p style="margin-top: 0.02in; margin-bottom: 0.02in"><img src="Robust_documentation_html_3f1b662c3de2beb4.gif" name="Image3" align="left" width="857" height="386">
   <br clear="left"/>
 </img>
 <br/>
 <br/>
 
 </p>
-<p>Robust also generates some accounts automatically, to
-subcategorize some accounts by bank name, by investment, by livestock
-name, etc.</p>
-<p>Users can address accounts by names, or by roles:</p>
-<h2 class="western">Roles</h2>
-<p>A role is a path, much like a file path in a computer:</p>
-<p><img src="Robust_documentation_html_220dae5d44ef6a0e.gif" name="Image4" align="left" width="513" height="32">
+<p style="margin-top: 0.02in; margin-bottom: 0.02in">Robust also
+generates some accounts automatically, to subcategorize some accounts
+by bank name, by investment, by livestock name, etc.</p>
+<p style="margin-top: 0.02in; margin-bottom: 0.02in">Users can
+address accounts by names, or by roles:</p>
+<h2 class="western" style="margin-top: 0.02in; margin-bottom: 0.02in">
+<br/>
+<br/>
+
+</h2>
+<h2 class="western" style="margin-top: 0.02in; margin-bottom: 0.02in">
+<br/>
+<br/>
+
+</h2>
+<h2 class="western" style="margin-top: 0.02in; margin-bottom: 0.02in">
+Roles</h2>
+<p style="margin-top: 0.02in; margin-bottom: 0.02in">A role is a
+path, much like a file path in a computer:</p>
+<p style="margin-top: 0.02in; margin-bottom: 0.02in"><img src="Robust_documentation_html_220dae5d44ef6a0e.gif" name="Image4" align="left" width="513" height="32">
   <br clear="left"/>
 </img>
 <br/>
 <br/>
 
 </p>
-<p>The exclamation marks (<i>!</i>) are path separators, like “/”
-in a file path. There isn’t a good way to manage these roles yet,
-but we need to understand the “<i>&lt;Member&gt;</i>” part above.
-The angle brackets (<i>&lt;&gt;</i>) enclose a “slot”, that is, a
-variable, in other words, an empty place, where something else will
-be put. That something is taken from the “<i>param</i>” columns:</p>
-<p><img src="Robust_documentation_html_25d2279a69dc400e.gif" name="Image5" align="left" width="288" height="65">
+<p style="margin-top: 0.02in; margin-bottom: 0.02in">The exclamation
+marks (<i>!</i>) are path separators, like “/” in a file path.
+There isn’t a good way to manage these roles yet, but we need to
+understand the “<i>&lt;Member&gt;</i>” part above. The angle
+brackets (<i>&lt;&gt;</i>) enclose a “slot”, that is, a variable,
+in other words, an empty place, where something else will be put.
+That something is taken from the “<i>param</i>” columns:</p>
+<p style="margin-top: 0.02in; margin-bottom: 0.02in"><img src="Robust_documentation_html_25d2279a69dc400e.gif" name="Image5" align="left" width="288" height="65">
   <br clear="left"/>
 </img>
 <br/>
 <br/>
 
 </p>
-<p><br/>
+<p style="margin-top: 0.02in; margin-bottom: 0.02in"><br/>
 <br/>
 
 </p>
-<p>In effect, the role path becomes: “<i>!Share of Profit/(Loss) –
+<p style="margin-top: 0.02in; margin-bottom: 0.02in">In effect, the
+role path becomes: “<i>!Share of Profit/(Loss) –
 Preserved/Taxable!John Smith!”.</i> Each angle-bracketed slot has
 to match up with one nonempty “param” column.</p>
-<h2 class="western">Opening balances</h2>
-<h3 class="western">general ledger method</h3>
+<h2 class="western" style="margin-top: 0.02in; margin-bottom: 0.02in">
+<br/>
+<br/>
+
+</h2>
+<h2 class="western" style="margin-top: 0.02in; margin-bottom: 0.02in">
+<br/>
+<br/>
+
+</h2>
+<h2 class="western" style="margin-top: 0.02in; margin-bottom: 0.02in">
+Opening balances</h2>
+<h3 class="western" style="margin-top: 0.02in; margin-bottom: 0.02in">
+general ledger method</h3>
 <ul>
 	<li/>
-<p>implemented: 
-	</p>
+<p style="margin-top: 0.02in; margin-bottom: 0.02in">implemented:
+		</p>
 </ul>
-<p><img src="files/2020-03-02.png" name="Image2" align="left" width="823" height="463">
+<p style="margin-top: 0.02in; margin-bottom: 0.02in"><img src="files/2020-03-02.png" name="Image2" align="left" width="823" height="463">
   <br clear="left"/>
 </img>
 <br/>
@@ -98,103 +171,128 @@ to match up with one nonempty “param” column.</p>
 </p>
 <ul>
 	<li/>
-<p>not implemented:</p>
+<p style="margin-top: 0.02in; margin-bottom: 0.02in">not
+	implemented:</p>
 </ul>
-<p><img src="files/picturemessage_pa5mqqi0.pwd.png" name="Image1" align="left" width="750" height="257">
+<p style="margin-top: 0.02in; margin-bottom: 0.02in"><img src="files/picturemessage_pa5mqqi0.pwd.png" name="Image1" align="left" width="750" height="257">
   <br clear="left"/>
 </img>
 <br/>
 <br/>
 
 </p>
-<h3 class="western">higher level methods</h3>
-<p><br/>
+<h3 class="western" style="margin-top: 0.02in; margin-bottom: 0.02in">
+higher level methods</h3>
+<p style="margin-top: 0.02in; margin-bottom: 0.02in"><br/>
 <br/>
 
 </p>
 <ul>
 	<li/>
-<p>bank opening balance row in excel</p>
+<p style="margin-top: 0.02in; margin-bottom: 0.02in">bank
+	opening balance row in excel</p>
 	<li/>
-<p>translation to GL can be in one of two ways:</p>
+<p style="margin-top: 0.02in; margin-bottom: 0.02in">translation
+	to GL can be in one of two ways:</p>
 	<li/>
-<p>posted into HistoricalEarnings account at opening date</p>
+<p style="margin-top: 0.02in; margin-bottom: 0.02in">posted
+	into HistoricalEarnings account at opening date</p>
 	<ul>
 		<li/>
-<p>creates correct balance sheet, but creates inconsistency
-		when analyzing individual bank accounts (cashflow), because bank
-		account is debited at opening date</p>
+<p style="margin-top: 0.02in; margin-bottom: 0.02in">creates
+		correct balance sheet, but creates inconsistency when analyzing
+		individual bank accounts (cashflow), because bank account is
+		debited at opening date</p>
 	</ul>
 	<li/>
-<p>currently implemented by 'Historical_Earnings_Lump' action
-	verb</p>
+<p style="margin-top: 0.02in; margin-bottom: 0.02in">currently
+	implemented by 'Historical_Earnings_Lump' action verb</p>
 	<ul>
 		<li/>
-<p>posted into CurrentEarnings account before opening date</p>
+<p style="margin-top: 0.02in; margin-bottom: 0.02in">posted
+		into CurrentEarnings account before opening date</p>
 	</ul>
 </ul>
-<h2 class="western">Currency movement transactions</h2>
-<h4 class="western">introduction</h4>
-<p>By default, currency movement is accounted for in a declarative
-way. This is in contrast to the use of adjustment transactions. Our
-GL balances at any point in time. In-depth explanation of the
-principle is in <a href="https://www.mathstat.dal.ca/~selinger/accounting/tutorial.html#4">Tutorial
+<h2 class="western" style="margin-top: 0.02in; margin-bottom: 0.02in">
+<br/>
+<br/>
+
+</h2>
+<h2 class="western" style="margin-top: 0.02in; margin-bottom: 0.02in">
+<br/>
+<br/>
+
+</h2>
+<h2 class="western" style="margin-top: 0.02in; margin-bottom: 0.02in">
+Currency movement transactions</h2>
+<h4 class="western" style="margin-top: 0.02in; margin-bottom: 0.02in">
+introduction</h4>
+<p style="margin-top: 0.02in; margin-bottom: 0.02in">By default,
+currency movement is accounted for in a declarative way. This is in
+contrast to the use of adjustment transactions. Our GL balances at
+any point in time. In-depth explanation of the principle is in
+<a href="https://www.mathstat.dal.ca/~selinger/accounting/tutorial.html#4">Tutorial
 on multiple currency accounting</a>. 
 </p>
-<h4 class="western">principle</h4>
-<p>In short: bank account is in some currency, for example USD.
-Report currency is for example AUD. If bank account is debited 100
-USD on &quot;date(2019,9,9)&quot;, a corresponding equity/p&amp;l
-account is credited, for example, 120 AUD, according to the
-conversion rate valid at the transaction date. The GL always balances
-because the drift in USD/AUD rate is accounted for on the
-CurrencyMovement account, for example
+<h4 class="western" style="margin-top: 0.02in; margin-bottom: 0.02in">
+principle</h4>
+<p style="margin-top: 0.02in; margin-bottom: 0.02in">In short: bank
+account is in some currency, for example USD. Report currency is for
+example AUD. If bank account is debited 100 USD on &quot;date(2019,9,9)&quot;,
+a corresponding equity/p&amp;l account is credited, for example, 120
+AUD, according to the conversion rate valid at the transaction date.
+The GL always balances because the drift in USD/AUD rate is accounted
+for on the CurrencyMovement account, for example
 CurrencyMovementHelvetische_BankUSD. The entry created on this
 account would be literally CR 120 USD, DR 100 AUD, but things are a
 little more complicated, and the actual entry looks like this: 
 </p>
-<pre class="western" style="margin-bottom: 0.2in">CR 100 USD, DR 100 without_currency_movement_against_since('USD','USD',['AUD'],date(2019,9,9))</pre><p>
+<pre class="western" style="margin-top: 0.02in; margin-bottom: 0.02in">CR 100 USD, DR 100 without_currency_movement_against_since('USD','USD',['AUD'],date(2019,9,9))</pre><p style="margin-top: 0.02in; margin-bottom: 0.02in">
 . This whole 
 </p>
-<pre class="western" style="margin-bottom: 0.2in">without_currency_movement_against_since('USD','USD',['AUD'],date(2019,9,9))</pre><p>
+<pre class="western" style="margin-top: 0.02in; margin-bottom: 0.02in">without_currency_movement_against_since('USD','USD',['AUD'],date(2019,9,9))</pre><p style="margin-top: 0.02in; margin-bottom: 0.02in">
 is understood as &quot;USD, disregarding movement of USD against AUD
 since date(2019,9,9)&quot;. The program does the appropriate
 conversion to AUD when generating reports. 
 </p>
-<pre class="western" style="margin-bottom: 0.2in"><font color="#000000">Another declarative unit is “without_movement_after(Unit, Date)”. </font></pre><p>
+<pre class="western" style="margin-top: 0.02in; margin-bottom: 0.02in"><font color="#000000">Another declarative unit is “without_movement_after(Unit, Date)”. </font></pre><p style="margin-top: 0.02in; margin-bottom: 0.02in">
 Todo: the semantics are similar, review if we need both. review if
 the use of this abstract unit is necessary here, i think we can
 simplify. 
 </p>
-<p>todo: explain split into historical and current entry, for
-historical transactions. 
+<p style="margin-top: 0.02in; margin-bottom: 0.02in">todo: explain
+split into historical and current entry, for historical transactions.
 </p>
-<p><br/>
+<p style="margin-top: 0.02in; margin-bottom: 0.02in"><br/>
 <br/>
 
 </p>
-<p><br/>
+<p style="margin-top: 0.02in; margin-bottom: 0.02in"><br/>
 <br/>
 
 </p>
-<h1 class="western"><meta name="created" content="00:00:00"><meta name="created" content="00:00:00"><meta name="created" content="00:00:00">Architecture</h1>
-<p>Robust is currently a single-pass architecture. Processing is
-triggered by submitting a request file in RDF format (+ currently
-also a legacy XML file), that should be processed, to the web API.
-This file is generated by the excel plugin, contains data extracted
-from multiple worksheets, and can reference additional files to be
-processed (XBRL taxonomy, bank statements in CSV format..). Robust
-tries to fit the information in those files into a single model, fill
-in missing information, and, if successful, it produces multiple
-output files (“reports”).</p>
-<h1 class="western">Formulas</h1>
-<p>In comparison to full XBRL support, we do not enable computing of
-arbitrary facts by arbitrary formulas, and we have a hard-coded set
-of reports that display a hard-coded set of facts. 
+<h1 class="western" style="margin-top: 0.02in; margin-bottom: 0.02in">
+<meta name="created" content="00:00:00"><meta name="created" content="00:00:00"><meta name="created" content="00:00:00">Architecture</h1>
+<p style="margin-top: 0.02in; margin-bottom: 0.02in">Robust is
+currently a single-pass architecture. Processing is triggered by
+submitting a request file in RDF format (+ currently also a legacy
+XML file), that should be processed, to the web API. This file is
+generated by the excel plugin, contains data extracted from multiple
+worksheets, and can reference additional files to be processed (XBRL
+taxonomy, bank statements in CSV format..). Robust tries to fit the
+information in those files into a single model, fill in missing
+information, and, if successful, it produces multiple output files
+(“reports”).</p>
+<h1 class="western" style="margin-top: 0.02in; margin-bottom: 0.02in">
+Formulas</h1>
+<p style="margin-top: 0.02in; margin-bottom: 0.02in">In comparison to
+full XBRL support, we do not enable computing of arbitrary facts by
+arbitrary formulas, and we have a hard-coded set of reports that
+display a hard-coded set of facts. 
 </p>
-<p>(wip, <a href="https://github.com/LodgeiT/labs-accounts-assessor/issues/174">#174</a>),
+<p style="margin-top: 0.02in; margin-bottom: 0.02in">(wip, <a href="https://github.com/LodgeiT/labs-accounts-assessor/issues/174">#174</a>),
 </p>
-<p><br/>
+<p style="margin-top: 0.02in; margin-bottom: 0.02in"><br/>
 <br/>
 
 </p>

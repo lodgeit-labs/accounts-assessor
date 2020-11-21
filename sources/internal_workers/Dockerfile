@@ -32,6 +32,8 @@ RUN     apt-get install -y \
         libyaml-dev \
         && rm -rf /var/lib/apt/lists/*
 
+RUN uname -a
+RUN gcc -v
 
 #RUN git clone --branch V8.3.10 https://github.com/SWI-Prolog/swipl.git swipl-devel
 RUN git clone --branch V8.1.15 https://github.com/SWI-Prolog/swipl.git swipl-devel

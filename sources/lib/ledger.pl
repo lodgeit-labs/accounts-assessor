@@ -32,8 +32,8 @@
 
  process_ledger_phase2(Report_Currency,Start_Date, End_Date, Exchange_Rates, Cost_Or_Market, S_Transactions,Outstanding_Out,Processed_Until,Transactions_With_Livestock) :-
 	!cf(extract_gl_inputs(Gl_input_txs)),
-	!extract_reallocations(Reallocation_Txs),
-	!extract_smsf_distribution(Smsf_distribution_txs),
+	!cf(extract_reallocations(Reallocation_Txs)),
+	!cf(extract_smsf_distribution(Smsf_distribution_txs)),
 
 	dict_from_vars(Static_Data0, [Report_Currency, Start_Date, End_Date, Exchange_Rates, Cost_Or_Market]),
 	!prepreprocess(Static_Data0, S_Transactions, Prepreprocessed_S_Transactions),

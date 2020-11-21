@@ -75,12 +75,12 @@ extract_gl_tx(Sheet_name, Default_Currency, _, _, [Item|Items], [Tx1|Txs]) :-
 	;	Txs = []).
 
  extract_reallocation(Gl, Txs) :-
+ 	push_context($>format(string(<$), 'extract reallocation from: ~w', [$>sheet_and_cell_string(Gl)])),
  	!doc_value(Gl, ic:default_currency, Default_Currency0),
 	!atom_string(Default_Currency, Default_Currency0),
 	!doc_value(Gl, reallocation:items, List),
 	!doc_list_items(List, Items),
 	!doc_value(Gl, excel:has_sheet_name, Sheet_name),
-	!doc_value(Gl, reallocation:items, List),
 	!doc_value(Gl, reallocation:account_A, Account_A_str),
 	!atom_string(Account_A_atom, Account_A_str),
 	!account_by_ui(Account_A_atom, Account_A),
@@ -92,7 +92,8 @@ extract_gl_tx(Sheet_name, Default_Currency, _, _, [Item|Items], [Tx1|Txs]) :-
 		$>request_has_property(l:report_currency),
 		$>request_has_property(l:end_date),
 		Sheet_name,
-	Txs).
+	Txs),
+	pop_context.
 
 
  extract_reallocation_tx(_,_,_,_,_,_,[],[]).
@@ -145,35 +146,25 @@ reallocation_make_account_a_tx(Sheet_name, Default_Currency, Account_A, Account_
 			throw_string(['entry at ', Err_pos, ': missing "account"'])
 		)
 	),
-
-	!gl_entry_account_specifier_parameters(Item, Parameters),
-	/*
-	we should probably declare the operation we are performing beforehand,
-	and then look it up and stringize it when throwing the error..
-	doc_new_uri(op, Op1),
-	doc_add(Op1, ops:account_ui_string, $>doc(Item, Pred)),
-	doc_add(Op1, ops:account_ui_params, Parameters),
-	...
-	*/
+	!c(gl_entry_account_specifier_parameters(Item, Parameters)),
 	catch(
-		!cf(find_account_by_specification(Account_String, Parameters, Account)),
+		!c(find_account_by_specification(Account_String, Parameters, Account)),
 		error(msg(E),_),
 		throw_string([$>sheet_and_cell_string_for_property(Item, Pred), ': ', E])
-		).
+	).
 
 
  read_reallocation_line(Account_A_is, Sheet_name, Default_Currency, Date, St, Item, Tx) :-
+  	push_context($>format(string(<$), 'read_reallocation_line from: ~w', [$>sheet_and_cell_string(Item)])),
 	parametrized_account_from_prop(Item, reallocation:account, Account),
-
 	/* todo, support multiple description fields in transaction */
 	(	doc_value(Item, reallocation:description, Description)
 	->	true
 	;	Description = Sheet_name),
-
 	!reallocation_amount_vector(Default_Currency, Account_A_is, Item, Vector0),
 	!vec_inverse(Vector0, Vector),
-
-	!make_transaction(St, Date, Description, Account, Vector, Tx).
+	!make_transaction(St, Date, Description, Account, Vector, Tx),
+	pop_context.
 
 
 /*
@@ -212,7 +203,6 @@ todo, refactor: reallocation_tx_set_spec(Rows, [A_tx|Txs]) :-
 			abrlt(Role, Account)
 		)
 	),
-	%pop_context,
 	pop_context.
 
 account_specifier(name(Name)) --> string_without("<!", Codes), {atom_codes(Name, Codes)}.

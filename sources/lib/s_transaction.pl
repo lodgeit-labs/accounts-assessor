@@ -104,7 +104,7 @@ s_transactions_up_to(End_Date, S_Transactions_All, S_Transactions_Capped) :-
 	).
 
 
-s_transaction_to_dict(T, D) :-
+ s_transaction_to_dict(T, D) :-
 	doc(T, rdf:type, l:s_transaction, transactions),
 	s_transaction_day(T, Day),
 	s_transaction_type_id(T, uri(Action_Verb)),
@@ -124,7 +124,7 @@ s_transaction_to_dict(T, D) :-
 		exchanged: Exchanged,
 		misc: Misc}.
 
-prepreprocess(Static_Data, In, Out) :-
+ prepreprocess(Static_Data, In, Out) :-
 	/*
 	at this point:
 	s_transactions are sorted by date from oldest to newest
@@ -132,13 +132,13 @@ prepreprocess(Static_Data, In, Out) :-
 	*/
 	maplist(prepreprocess_s_transaction(Static_Data), In, Out).
 
-prepreprocess_s_transaction(Static_Data, In, Out) :-
-	infer_exchanged_units_count(Static_Data, In, Mid),
+ prepreprocess_s_transaction(Static_Data, In, Out) :-
+	cf(infer_exchanged_units_count(Static_Data, In, Mid)),
 	!,
-	prepreprocess_s_transaction(Static_Data, Mid, Out).
+	cf(prepreprocess_s_transaction(Static_Data, Mid, Out)-.
 
 /* add livestock verb uri */
-prepreprocess_s_transaction(Static_Data, In, Out) :-
+ prepreprocess_s_transaction(Static_Data, In, Out) :-
 	infer_livestock_action_verb(In, Mid),
 	!,
 	prepreprocess_s_transaction(Static_Data, Mid, Out).

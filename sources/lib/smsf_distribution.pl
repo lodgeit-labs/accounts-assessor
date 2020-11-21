@@ -5,15 +5,19 @@
  	;	Txs=[]).
 
  extract_smsf_distribution2(Distribution, Txs) :-
+ 	push_context($>format(string(<$), 'extract SMSF distribution from: ~w', [$>sheet_and_cell_string(Distribution)])),
 	!doc_value(Distribution, smsf_distribution_ui:default_currency, Default_currency0),
 	!atom_string(Default_currency, Default_currency0),
 	!doc_list_items($>!doc_value(Distribution, smsf_distribution_ui:items), Items),
 	!maplist(extract_smsf_distribution3(Default_currency), Items, Txs0),
- 	!flatten(Txs0, Txs).
+ 	!flatten(Txs0, Txs),
+ 	pop_context.
 
 extract_smsf_distribution3(Default_currency, Item, Txs) :-
+	push_context($>format(string(<$), 'extract SMSF distribution from: ~w', [$>sheet_and_cell_string(Item)])),
 	trim_string($>!doc_value(Item, smsf_distribution_ui:name), Unit_name_str),
-	!extract_smsf_distribution4(Default_currency, Item, Unit_name_str, Txs).
+	!extract_smsf_distribution4(Default_currency, Item, Unit_name_str, Txs),
+	pop_context.
 
 extract_smsf_distribution4(_, _, "Dr/Cr", []) :- !.
 extract_smsf_distribution4(_, _, "Total", []) :- !.
