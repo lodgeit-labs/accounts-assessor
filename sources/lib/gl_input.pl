@@ -192,7 +192,8 @@ todo, refactor: reallocation_tx_set_spec(Rows, [A_tx|Txs]) :-
  	c(!'use grammar to interpret text'(account_specifier(Specifier), Text)),
 
 	(	Specifier = name(Name_str)
-	->	(	atom_string(Name, Name_str),
+	->	(	trim_string(Name_str, Name_str2),
+			atom_string(Name, Name_str2),
 			!account_by_ui(Name, Account))
 	;	(
 			c(

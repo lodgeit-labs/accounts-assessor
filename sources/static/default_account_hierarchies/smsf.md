@@ -35,15 +35,3 @@ What if a clean-slate computerized accounting would, instead of using dr-cr pair
 	1) Asset changes as usual
 	2) Equity tracking ownership
 	3) P&L tracking reasons of asset change
-
-
-
-
-
-
-
-
-
-
-
-
