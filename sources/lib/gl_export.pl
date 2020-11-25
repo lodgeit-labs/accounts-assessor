@@ -97,7 +97,7 @@ running_balance_tx_enrichment(Tx, Tx_New) :-
 	% todo running_balance_for_relevant_period?
 
 qb_csv_gl_export(Sd, Txs) :-
-	File_name = 'QB_GL_converted_at_tx_time.csv',
+	File_name = 'QBO_GL_coord_converted_at_tx_time.csv',
 	File_loc = loc(file_name, File_name),
 	!report_file_path(File_loc, Url, loc(absolute_path, File_path)),
 	maplist(!qb_csv_gl_export(Sd), Txs, Rows0),

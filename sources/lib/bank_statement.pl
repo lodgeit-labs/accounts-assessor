@@ -28,15 +28,14 @@ preprocess_s_transactions2(Static_Data, [S_Transaction|S_Transactions], Processe
 	dict_vars(Static_Data, [Report_Currency, Start_Date, End_Date, Exchange_Rates]),
 	pretty_term_string(S_Transaction, S_Transaction_String),
 	(	current_prolog_flag(die_on_error, true)
-	->	preprocess_s_transactions3(Static_Data, S_Transaction, S_Transaction_String, Outstanding_In, Outstanding_Mid, _Debug_Head, Transactions_Out_Tail, Debug_So_Far, Debug_So_Far2, Processed_S_Transactions, Processed_S_Transactions_Tail, Report_Currency, Exchange_Rates, Start_Date, End_Date, Transactions_Out)
+	->	preprocess_s_transaction3(Static_Data, S_Transaction, S_Transaction_String, Outstanding_In, Outstanding_Mid, _Debug_Head, Transactions_Out_Tail, Debug_So_Far, Debug_So_Far2, Processed_S_Transactions, Processed_S_Transactions_Tail, Report_Currency, Exchange_Rates, Start_Date, End_Date, Transactions_Out)
 	;	catch(
-			preprocess_s_transactions3(Static_Data, S_Transaction, S_Transaction_String, Outstanding_In, Outstanding_Mid, Debug_Head, Transactions_Out_Tail, Debug_So_Far, Debug_So_Far2, Processed_S_Transactions, Processed_S_Transactions_Tail, Report_Currency, Exchange_Rates, Start_Date, End_Date, Transactions_Out),
+			preprocess_s_transaction3(Static_Data, S_Transaction, S_Transaction_String, Outstanding_In, Outstanding_Mid, Debug_Head, Transactions_Out_Tail, Debug_So_Far, Debug_So_Far2, Processed_S_Transactions, Processed_S_Transactions_Tail, Report_Currency, Exchange_Rates, Start_Date, End_Date, Transactions_Out),
 			E,
 			(
-				pretty_string(S_Transaction, Pretty_S_Transaction_String),
-				(E = error(msg(Msg0),_) ->true ;E = Msg0),
-				(atomic(Msg0) ->Msg = Msg0 ;term_string(Msg0,Msg)),
-				format(string(Debug_Head), '~w~nwhen processing ~w', [Msg, Pretty_S_Transaction_String]),
+				pretty_st_string(S_Transaction, Pretty_S_Transaction_String),
+				format_exception_into_alert_string(E, Msg),
+				format(string(Debug_Head), 'when processing ~w~n~n~w~n', [Pretty_S_Transaction_String, Msg]),
 				format(user_error, '~w~n',[Debug_Head]),
 				Outstanding_In = Outstanding_Out,
 				Transactions_Out = [],
@@ -50,9 +49,11 @@ preprocess_s_transactions2(Static_Data, [S_Transaction|S_Transactions], Processe
 	->	preprocess_s_transactions2(Static_Data, S_Transactions, Processed_S_Transactions_Tail, Transactions_Out_Tail,  Outstanding_Mid, Outstanding_Out, Debug_So_Far2)
 	;	true).
 
-preprocess_s_transactions3(Static_Data, S_Transaction, S_Transaction_String, Outstanding_In, Outstanding_Mid, Debug_Head, Transactions_Out_Tail, Debug_So_Far, Debug_So_Far2, Processed_S_Transactions, Processed_S_Transactions_Tail, Report_Currency, Exchange_Rates, Start_Date, End_Date, Transactions_Out) :-
+preprocess_s_transaction3(Static_Data, S_Transaction, S_Transaction_String, Outstanding_In, Outstanding_Mid, Debug_Head, Transactions_Out_Tail, Debug_So_Far, Debug_So_Far2, Processed_S_Transactions, Processed_S_Transactions_Tail, Report_Currency, Exchange_Rates, Start_Date, End_Date, Transactions_Out) :-
+	push_context($>format(string(<$), 'processing bank statement transaction at ~w', [$>s_transaction_day(S_Transaction)])),
 	check_that_s_transaction_account_exists(S_Transaction),
-	preprocess(Static_Data, S_Transaction, S_Transaction_String, Outstanding_In, Outstanding_Mid, Debug_Head, Transactions_Out_Tail, Debug_So_Far, Debug_So_Far2, Processed_S_Transactions, Processed_S_Transactions_Tail, Report_Currency, Exchange_Rates, Start_Date, End_Date, Transactions_Out).
+	preprocess(Static_Data, S_Transaction, S_Transaction_String, Outstanding_In, Outstanding_Mid, Debug_Head, Transactions_Out_Tail, Debug_So_Far, Debug_So_Far2, Processed_S_Transactions, Processed_S_Transactions_Tail, Report_Currency, Exchange_Rates, Start_Date, End_Date, Transactions_Out),
+	pop_context.
 
 
 preprocess(Static_Data, S_Transaction, S_Transaction_String, Outstanding_In, Outstanding_Mid, Debug_Head, Transactions_Out_Tail, Debug_So_Far, Debug_So_Far2, Processed_S_Transactions, Processed_S_Transactions_Tail, Report_Currency, Exchange_Rates, Start_Date, End_Date, Transactions_Out) :-
@@ -84,14 +85,14 @@ cleanup(Transactions0, Transactions_Result, S_Transaction_String, Debug_Head) :-
 
 
 % ----------
-% This predicate takes a list of statement transaction terms and decomposes it into a list of plain transaction terms.
+% This predicate takes a statement transaction term and decomposes it into a list of plain transaction terms.
 % ----------	
 
 preprocess_s_transaction(Static_Data, S_Transaction, Transactions, Outstanding, Outstanding) :-
 	s_transaction_type_id(S_Transaction, uri(Action_Verb)),
 	member(V, $>livestock_verbs),
 	rdf_global_id(V, Action_Verb),
-	preprocess_livestock_buy_or_sell(Static_Data, S_Transaction, Transactions).
+	cf(preprocess_livestock_buy_or_sell(Static_Data, S_Transaction, Transactions)).
 
 preprocess_s_transaction(Static_Data, S_Transaction, Transactions, Outstanding_Before, Outstanding_After) :-
 	s_transaction_type_id(S_Transaction, uri(Action_Verb)),
@@ -101,18 +102,13 @@ preprocess_s_transaction(Static_Data, S_Transaction, Transactions, Outstanding_B
 	s_transaction_exchanged(S_Transaction, vector(Counteraccount_Vector)),
 	s_transaction_vector(S_Transaction, Vector_Ours),
 	s_transaction_day(S_Transaction, Transaction_Date),
-	Pricing_Method = lifo,
 	doc(Action_Verb, l:has_id, Action_Verb_Id),
-	(	doc(Action_Verb, l:has_counteraccount, Exchanged_Account_Ui)
-	->	account_by_ui(Exchanged_Account_Ui, Exchanged_Account)
-	;	throw_string('action verb does not specify exchange account')),
-	(	doc(Action_Verb, l:has_trading_account, Trading_Account_Ui)
-	->	account_by_ui(Trading_Account_Ui, Trading_Account)
-	;	true),
 	Description = Action_Verb_Id,
-	affect_bank_account(Static_Data, S_Transaction, Description, Ts1),
+	Pricing_Method = lifo,
+	cf(affect_bank_account(Static_Data, S_Transaction, Description, Ts1)),
 	vector_unit(Vector_Ours, Bank_Account_Currency),
 	vec_change_bases(Exchange_Rates, Transaction_Date, Report_Currency, Vector_Ours, Converted_Vector_Ours),
+	action_verb_accounts(Action_Verb,Exchanged_Account,Trading_Account),
 	(
 		Counteraccount_Vector = []
 	->
@@ -120,7 +116,7 @@ preprocess_s_transaction(Static_Data, S_Transaction, Transactions, Outstanding_B
 			(	nonvar(Trading_Account)
 			->	(throw_string(['trading account but no exchanged unit', S_Transaction]))
 			;	true),
-			record_expense_or_earning_or_equity_or_loan(Static_Data, S_Transaction, Action_Verb, Vector_Ours, Exchanged_Account, Transaction_Date, Description, Ts4),
+			cf(record_expense_or_earning_or_equity_or_loan(Static_Data, S_Transaction, Action_Verb, Vector_Ours, Exchanged_Account, Transaction_Date, Description, Ts4)),
 			Outstanding_After = Outstanding_Before
 		)
 	;
@@ -132,22 +128,7 @@ preprocess_s_transaction(Static_Data, S_Transaction, Transactions, Outstanding_B
 				->	true
 				;	throw_string('debit Counteraccount_Vector but debit money Vector')),
 
-/*				Buy is
-		a p:purchase_event,
-		p:origin St,
-		p:trading_account Trading_Account,
-		p:pricing_method Pricing_Method,
-		p:bank_account_currency Bank_Account_Currency,
-		p:goods_vector Goods_Vector,
-		p:converted_vector_ours Converted_Vector_Ours,
-		p:vector_ours Vector_Ours,
-		p:exchanged_account Exchanged_Account,
-		p:transaction_date Transaction_Date,
-		p:description Description,
-		p:outstanding_in Outstanding_In,
-		p:outstanding_out Outstanding_Out,
-*/
-        		make_buy(Static_Data, S_Transaction, Trading_Account, Pricing_Method, Bank_Account_Currency, Counteraccount_Vector, Converted_Vector_Ours, Vector_Ours, Exchanged_Account, Transaction_Date, Description, Outstanding_Before, Outstanding_After, Ts2)
+        		cf(make_buy(Static_Data, S_Transaction, Trading_Account, Pricing_Method, Bank_Account_Currency, Counteraccount_Vector, Converted_Vector_Ours, Vector_Ours, Exchanged_Account, Transaction_Date, Description, Outstanding_Before, Outstanding_After, Ts2))
 			)
 		;
 			(
@@ -155,13 +136,25 @@ preprocess_s_transaction(Static_Data, S_Transaction, Transactions, Outstanding_B
 				->	true
 				;	throw_string('credit Counteraccount_Vector but credit money Vector')),
 
-				make_sell(
+				cf(make_sell(
 				Static_Data, S_Transaction, Trading_Account, Pricing_Method, Bank_Account_Currency, Counteraccount_Vector, Vector_Ours,
-				Converted_Vector_Ours,	Exchanged_Account, Transaction_Date, Description,	Outstanding_Before, Outstanding_After, Ts3)
+				Converted_Vector_Ours,	Exchanged_Account, Transaction_Date, Description,	Outstanding_Before, Outstanding_After, Ts3))
 
 			)
 		)
 	).
+
+action_verb_accounts(Action_Verb, Exchanged_Account,Trading_Account) :-
+	push_context($>format(string(<$), 'looking up accounts of action verb ~q', [$>doc(Action_Verb, l:has_id)])),
+
+	(	doc(Action_Verb, l:has_counteraccount, Exchanged_Account_Ui)
+	->	account_by_ui(Exchanged_Account_Ui, Exchanged_Account)
+	;	true),
+	(	doc(Action_Verb, l:has_trading_account, Trading_Account_Ui)
+	->	account_by_ui(Trading_Account_Ui, Trading_Account)
+	;	true),
+	pop_context.
+
 
 /*
 	purchased shares are recorded in an assets account without conversion. The unit is optionally wrapped in a with_cost_per_unit term.
@@ -627,4 +620,22 @@ pretty_vector_string(Seen_Units0, Seen_Units_Out, [Coord|Rest], Vector_Str) :-
 +       e(Bst.day, Tx0.day),
 +       e(Bst.day, Tx1.day),
 +
+*/
+
+
+
+/*				Buy is
+		a p:purchase_event,
+		p:origin St,
+		p:trading_account Trading_Account,
+		p:pricing_method Pricing_Method,
+		p:bank_account_currency Bank_Account_Currency,
+		p:goods_vector Goods_Vector,
+		p:converted_vector_ours Converted_Vector_Ours,
+		p:vector_ours Vector_Ours,
+		p:exchanged_account Exchanged_Account,
+		p:transaction_date Transaction_Date,
+		p:description Description,
+		p:outstanding_in Outstanding_In,
+		p:outstanding_out Outstanding_Out,
 */

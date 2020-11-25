@@ -13,8 +13,6 @@ ENV LC_ALL $LOC
 
 RUN mkdir /app
 WORKDIR /app
-        # apt-get update \
-        # && 
 RUN     apt-get install -y \
         git \
         build-essential cmake ninja-build pkg-config \
@@ -30,6 +28,7 @@ RUN     apt-get install -y \
         libdb-dev \
         libpcre3-dev \
         libyaml-dev \
+        python3 python3-pip \
         && rm -rf /var/lib/apt/lists/*
 
 RUN uname -a
@@ -57,9 +56,8 @@ RUN ctest -j 8 --output-on-failure
 RUN ninja install
 
 
-RUN apt-get update && apt-get install -y cmake ninja-build git python3 python3-pip \
- && rm -rf /var/lib/apt/lists/*
-RUN groupadd -r user && useradd -r -g user user
+
+#RUN groupadd -r user && useradd -r -g user user
 WORKDIR /app
 
 
@@ -75,12 +73,6 @@ RUN ./init_prolog.sh
 RUN mkdir -p /app/server_root
 #RUN chown user:user /app/server_root
 VOLUME /app/server_root
-COPY static /app/sources/static
-COPY internal_workers /app/sources/internal_workers
-COPY triplestore_access /app/sources/triplestore_access
-COPY common /app/sources/common
-COPY public_lib /app/sources/public_lib
-COPY lib /app/sources/lib
 #RUN mkdir ./cache
 #COPY cache ./cache
 VOLUME /app/cache

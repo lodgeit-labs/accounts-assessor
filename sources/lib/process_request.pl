@@ -105,6 +105,7 @@ format_exception_into_alert_string(E, Str) :-
 			format(string(Msg),'~p',[E2])
 		)
 	),
+	gtrace,
 	format(string(Str ),'~w~n~n~w~n~n~w~n',[Context_str, Msg, Prolog_context_str]).
 
 

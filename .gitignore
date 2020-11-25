@@ -369,3 +369,5 @@ SM-test.log
 a.out
 
 .idea/StickySelectionHighlights.xml
+
+*secret*.json

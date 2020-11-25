@@ -5,9 +5,6 @@ services:
   agraph:
     #finishme: use low-memory configuration 
     image: franzinc/agraph:v7.0.0
-    environment:
-      AGRAPH_SUPER_USER: "arstneineistrstn"
-      AGRAPH_SUPER_PASSWORD: "878786rsttaaaaaaaaufuwufu867786786786786786786786AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAATAA7867878araaa001"
     networks:
     - backend
     - frontend
@@ -102,7 +99,13 @@ services:
       - tmp:/app/server_root/tmp
       - cache:/app/cache
       - "/etc/localtime:/etc/localtime:ro"
+
+      # for gtrace:
       - "/tmp/.X11-unix:/tmp/.X11-unix:rw"
+      
+      # for development:
+      - ".:/app/sources"
+      
     networks:
       - backend
     depends_on:

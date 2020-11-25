@@ -58,7 +58,7 @@ doc_set_property_helper(Prefix,S1,S2,P,V,G,Field) :-
 	doc_add(S2, Field_Uri, V2, G).
 
 
-pretty_string(T, String) :-
+pretty_st_string(T, String) :-
 	doc(T, rdf:type, l:s_transaction, transactions),
 	s_transaction_day(T, Date),
 	s_transaction_type_id(T, uri(Action_Verb)),
@@ -67,7 +67,7 @@ pretty_string(T, String) :-
 	s_transaction_exchanged(T, Exchanged),
 	s_transaction_misc(T, Misc),
 	doc(Action_Verb, l:has_id, Action_Verb_Name),
-	format(string(String), 's_transaction:~n  date:~q~n  verb:~w~n  vector: ~q~n  account: ~q~n  exchanged: ~q~n  misc: ~q', [Date, Action_Verb_Name, Money, Account, Exchanged, Misc]).
+	format(string(String), 's_transaction:~n  date:~q~n  verb:~w~n  vector: ~q~n  account: ~q~n  exchanged: ~q~n  misc: ~q', [Date, Action_Verb_Name, $>round_term(Money), Account, $>round_term(Exchanged), Misc]).
 
 
 compare_s_transactions(Order, T1, T2) :-
