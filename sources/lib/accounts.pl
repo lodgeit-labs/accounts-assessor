@@ -108,15 +108,15 @@ account_direct_children(Parent, Children) :-
 account_descendants(Account, Descendants) :-
 	findall(X, account_descendant(Account, X), Descendants).
 
-account_descendant(Account, Descendant) :-
+ account_descendant(Account, Descendant) :-
 	account_parent(Descendant, Account).
 
-account_descendant(Account, Descendant) :-
+ account_descendant(Account, Descendant) :-
 	account_parent(Descendant0, Account),
 	account_descendant(Descendant0, Descendant).
 
 /* throws an exception if no account is found */
-account_by_role_throw(Role, Account) :-
+ account_by_role_throw(Role, Account) :-
 	assertion(Role = rl(_)),
 	findall(Account, account_role(Account, Role), Accounts),
 	(	Accounts \= []
@@ -124,8 +124,9 @@ account_by_role_throw(Role, Account) :-
 	;	(
 			Role = rl(Role2),
 			term_string(Role2, Role_Str),
-			format(user_error, '~q~n', [Account]),
-			format(string(Err), 'unknown account by role: ~w', [Role_Str]),
+			(	nonvar(Account)
+			->	format(string(Err), 'unknown account by role ~w that would match expected account ~q', [Role_Str, Account])
+			;	format(string(Err), 'unknown account by role: ~w', [Role_Str])),
 			throw_string(Err)
 		)
 	).

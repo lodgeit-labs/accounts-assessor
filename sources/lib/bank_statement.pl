@@ -35,13 +35,14 @@ preprocess_s_transactions2(Static_Data, [S_Transaction|S_Transactions], Processe
 			(
 				pretty_st_string(S_Transaction, Pretty_S_Transaction_String),
 				format_exception_into_alert_string(E, Msg),
-				format(string(Debug_Head), 'when processing ~w~n~n~w~n', [Pretty_S_Transaction_String, Msg]),
+				format(string(Debug_Head), 'when processing bank statement transaction on bank account ~w:~n ~w~n~n~w~n', [$>s_transaction_account(S_Transaction), Pretty_S_Transaction_String, Msg]),
 				format(user_error, '~w~n',[Debug_Head]),
 				Outstanding_In = Outstanding_Out,
 				Transactions_Out = [],
 				Debug_Tail = [],
 				Processed_S_Transactions = [],
-				add_alert('error', Debug_Head)
+				add_alert('error', Debug_Head),
+				gtrace
 			)
 		)
 	),
@@ -263,12 +264,20 @@ make_buy(Purchase, Gl_Txs) :-
 	).
 */
 
+money_vector_string(Vec, Str) :-
+	maplist(money_value_string, Vec, Strs),
+	atomics_to_string(Strs, ', ', Str).
+
+money_value_string(value(U, Amount), Str) :-
+	format(string(Str), '~w ~w', [U, Amount]).
+
 make_sell(Static_Data, St, Trading_Account, Pricing_Method, _Bank_Account_Currency, Goods_Vector,
 	Vector_Ours, Converted_Vector_Ours,
 	Exchanged_Account, Transaction_Date, Description,
 	Outstanding_In, Outstanding_Out, [Ts1, Ts2, Ts3]
 ) :-
 	credit_vec(Goods_Unit,Goods_Positive,Goods_Vector),
+	push_context($>format(string(<$), 'sell ~w of ~q for ~w', [Goods_Positive,Goods_Unit,$>money_vector_string($>vector_of_coords_vs_vector_of_values(kb:debit,Vector_Ours))])),
 	financial_investments_account(Exchanged_Account,Goods_Unit,Exchanged_Account2),
 	bank_debit_to_unit_price(Vector_Ours, Goods_Positive, Sale_Unit_Price),
 
@@ -286,7 +295,8 @@ make_sell(Static_Data, St, Trading_Account, Pricing_Method, _Bank_Account_Curren
 			increase_realized_gains(Static_Data, St, Description, Trading_Account, Vector_Ours, Converted_Vector_Ours, Goods_Vector, Transaction_Date, Goods_Cost_Values, Ts3)
 		)
 	; true
-	).
+	),
+	pop_context.
 
 bank_debit_to_unit_price(Vector_Ours, Goods_Positive, value(Unit, Number2)) :-
 	Vector_Ours = [Coord],

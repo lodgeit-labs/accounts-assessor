@@ -40,8 +40,9 @@
 
 	!preprocess_until_error(Static_Data0, Prepreprocessed_S_Transactions, Processed_S_Transactions, Transactions_From_Bst, Outstanding_Out, End_Date, Processed_Until),
 
-	/* since it's not possibly to determine order of transactions that transpired on one day, when we fail to process a transaction, we go back all the way to the end of the previous day, and try to run the reports again, excluding all the transactions of the erroring day and after
+	/* since it's not possible to determine order of transactions that transpired on one day, so when we fail to process a transaction, we go back all the way to the end of the previous day, and try to run the reports again, excluding all the transactions of the erroring day and after
 	*/
+	gtrace,
 	(	End_Date \= Processed_Until
 	->	add_alert('warning', ['trying with earlier report end date: ', Processed_Until])
 	;	true),

@@ -98,15 +98,17 @@ format_exception_into_alert_string(E, Str) :-
 			E2 = E
 		)
 	),
-	(	E2 = error(msg(Msg),Prolog_context)
-	->	format(string(Prolog_context_str),'~p',[Prolog_context])
+	(	(
+			E2 = error(msg(Msg),Stacktrace),
+			nonvar(Stacktrace)
+		)
+	->	format(string(Stacktrace_str),'~p',[Stacktrace])
 	;	(
-			Prolog_context_str = '',
+			Stacktrace_str = '',
 			format(string(Msg),'~p',[E2])
 		)
 	),
-	gtrace,
-	format(string(Str ),'~w~n~n~w~n~n~w~n',[Context_str, Msg, Prolog_context_str]).
+	format(string(Str ),'~w~n~n~w~n~n~w~n',[Context_str, Msg, Stacktrace_str]).
 
 
 process_request2 :-
@@ -175,7 +177,7 @@ collect_alerts(Alerts_text, Alerts_html) :-
 		Alert,
 		(
 			get_alert(Key,Msg0),
-			alert_to_html(Key, Msg0, Alert)
+			!alert_to_html(Key, Msg0, Alert)
 		),
 		Alerts_html
 	).
@@ -191,26 +193,20 @@ collect_alerts(Alerts_text, Alerts_html) :-
 	;	throw(xxx)).
 
  alert_to_html(Key, Msg0, Alert) :-
-	(
-	(
-		(Msg0 = error(msg(Msg),_) -> true ; Msg0 = Msg),
-		(	Msg = html(Msg2)
-		->	true
-		;	atomic(Msg) -> Msg2 = Msg ; term_string(Msg, Msg2)),
-		Alert = div([$>term_string(Key),": ",Msg2])
-	)
+	(Msg0 = error(msg(Msg),_) -> true ; Msg0 = Msg),
+	(	Msg = html(Msg2)
 	->	true
-	;	throw(xxx)).
-
+	;	atomic(Msg) -> Msg2 = Msg ; term_string(Msg, Msg2)),
+	Alert = div([h4([$>term_string(Key),": "]),pre(Msg2)]).
 
 make_alerts_report(Alerts) :-
 	maplist(alert_html, Alerts, Alerts_Html),
 	(	Alerts_Html = []
 	->	Alerts_Html2 = ["no alerts."]
 	;	Alerts_Html2 = Alerts_Html),
-	add_report_page_with_body(10,alerts, [h3([alerts, ':']), div(Alerts_Html2)], loc(file_name,'alerts.html'), alerts_html).
+	add_report_page_with_body(10,alerts, [h3([alerts, ':']), Alerts_Html2], loc(file_name,'alerts.html'), alerts_html).
 
-alert_html(Alert, div([Alert, br([]), br([])])).
+alert_html(Alert, pre([Alert, br([])])).
 
 process_multifile_request(File_Paths) :-
 	debug(tmp_files, "process_multifile_request(~w)~n", [File_Paths]),

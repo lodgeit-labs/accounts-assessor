@@ -93,19 +93,22 @@ def call_prolog(msg, final_result_tmp_directory_name=None, dev_runner_options=[]
 			"invoke_rpc: if system PATH is messed up, maybe you're running the server from venv, and activating the venv a second time, from run_common0.sh, messes it up")
 		raise
 
-	print()
-	print("invoke_rpc: prolog stdout:")
-	print(stdout_data)
-	print("invoke_rpc: end of prolog stdout.")
-	print()
-	try:
-		rrr = json.loads(stdout_data)
-		internal_workers.postprocess_doc.apply_async((result_tmp_path,))
-		return msg['params']['result_tmp_directory_name'], rrr
-	except json.decoder.JSONDecodeError as e:
-		print('invoke_rpc:', e)
+	if stdout_data != b'':
 		print()
-		return msg['params']['result_tmp_directory_name'], {'status':'error'}
+		print("invoke_rpc: prolog stdout:")
+		print(stdout_data)
+		print("invoke_rpc: end of prolog stdout.")
+		print()
+		try:
+			rrr = json.loads(stdout_data)
+			internal_workers.postprocess_doc.apply_async((result_tmp_path,))
+			return msg['params']['result_tmp_directory_name'], rrr
+		except json.decoder.JSONDecodeError as e:
+			print('invoke_rpc:', e)
+			print()
+	else:
+		print('invoke_rpc: got no stdout from swipl.')
+	return msg['params']['result_tmp_directory_name'], {'status':'error'}
 
 
 

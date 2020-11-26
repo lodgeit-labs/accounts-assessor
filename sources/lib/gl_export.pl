@@ -133,4 +133,6 @@ qb_csv_gl_export2(Sd, Tx, Coord0, Row) :-
 	doc(Origin, s_transactions:id, Id, transactions).
 
 coord_converted_at_time(Sd, Date, Coord0, Coord1) :-
-	vec_change_bases(Sd.exchange_rates, Date, Sd.report_currency, [Coord0], [Coord1]).
+	vec_change_bases(Sd.exchange_rates, Date, Sd.report_currency, [Coord0], Vec2),
+	Coord1 = coord(Sd.report_currency, _),
+	coord_vec(Coord1, Vec2).
