@@ -135,7 +135,7 @@ s_transactions_up_to(End_Date, S_Transactions_All, S_Transactions_Capped) :-
  prepreprocess_s_transaction(Static_Data, In, Out) :-
 	cf(infer_exchanged_units_count(Static_Data, In, Mid)),
 	!,
-	cf(prepreprocess_s_transaction(Static_Data, Mid, Out)-.
+	cf(prepreprocess_s_transaction(Static_Data, Mid, Out)).
 
 /* add livestock verb uri */
  prepreprocess_s_transaction(Static_Data, In, Out) :-

@@ -18,8 +18,18 @@ import call_prolog_calculator
 @click.option('-dbg', '--debug', type=bool, default=True)
 @click.option('-hlt', '--halt', type=bool, default=True)
 @click.option('-pc', '--print_cmd_to_swipl_stdin', type=bool, default=False)
+@click.option('-debug_call_prolog', '--debug_call_prolog', type=bool, default=True)
+def run(debug_loading, debug, request_files, dev_runner_options, prolog_flags, server_url, halt,
+		print_cmd_to_swipl_stdin, debug_call_prolog):
 
-def run(debug_loading, debug, request_files, dev_runner_options, prolog_flags, server_url, halt, print_cmd_to_swipl_stdin):
+	if debug_call_prolog:
+		# is the name right?
+		invoke_rpc_logger = logging.getLogger('invoke_rpc')
+		# logger.addHandler(logging.StreamHandler())
+		# i suppose this will be overriden by root logger level?
+		invoke_rpc_logger.setLevel(logging.DEBUG)
+
+
 	if dev_runner_options == None:
 		dev_runner_options = ''
 	files2 = get_absolute_paths(request_files)

@@ -1,6 +1,8 @@
 FROM ubuntu:18.04
 
 
+#RUN sed -i -e 's/http:\/\/archive/mirror:\/\/mirrors/' -e 's/\/ubuntu\//\/mirrors.txt/' /etc/apt/sources.list
+RUN cat /etc/apt/sources.list
 env LOC en_AU.UTF-8
 RUN apt-get update \
     && DEBIAN_FRONTEND=noninteractive apt-get install -y locales language-pack-en \

@@ -6,8 +6,7 @@ services:
     #finishme: use low-memory configuration 
     image: franzinc/agraph:v7.0.0
     networks:
-    - backend
-    - frontend
+    - host
     deploy:
       replicas: 1
       update_config:
@@ -34,7 +33,7 @@ services:
   rabbitmq:
     image: rabbitmq
     networks:
-      - backend
+    - host
     deploy:
       replicas: 1
       update_config:
@@ -54,8 +53,7 @@ services:
       - tmp:/app/server_root/tmp
       - "/etc/localtime:/etc/localtime:ro"
     networks:
-      - backend
-      - frontend
+    - host
     depends_on:
       - rabbitmq
       - internal-services
@@ -75,7 +73,8 @@ services:
       - tmp:/app/server_root/tmp
       - "/etc/localtime:/etc/localtime:ro"
     networks:
-      - backend
+    - host
+
     depends_on:
       - rabbitmq
     deploy:
@@ -109,7 +108,8 @@ services:
       - ".:/app/sources"
       
     networks:
-      - backend
+    - host
+
     depends_on:
       - rabbitmq
       - internal-services
@@ -124,9 +124,8 @@ services:
         condition: any
 
 networks:
-  frontend:
-  backend:
-
+  host:
+  
 volumes:
   tmp:
   cache:

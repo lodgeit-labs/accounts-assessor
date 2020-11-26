@@ -4,8 +4,8 @@ import sys, os
 sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../common')))
 from tmp_dir_path import git, sources, create_tmp_directory_name, create_tmp, get_tmp_directory_absolute_path
 from celery_module import app
-from fs_utils import print_command_nice, flatten_lists
-
+from fs_utils import command_nice, flatten_lists
+import logging
 
 
 @app.task
@@ -20,10 +20,11 @@ def call_prolog(msg, final_result_tmp_directory_name=None, dev_runner_options=[]
 	if os.path.exists(last_result_symlink_path):
 		subprocess.call(['/bin/rm', last_result_symlink_path])
 	subprocess.call(['/bin/ln', '-s', result_tmp_path, last_result_symlink_path])
-	#with open(os.path.join(result_tmp_path, 'info.txt'), 'w') as info:
-	#	info.write('request:\n')
-	#	info.write(str(msg))
-	#	info.write('\n')
+
+	with open(os.path.join(result_tmp_path, 'rpc_call_info.txt'), 'w') as info:
+		info.write('request:\n')
+		info.write(str(msg))
+		info.write('\n')
 
 	msg['params'].update(
 		uri_params(msg['params']["result_tmp_directory_name"])
@@ -72,17 +73,17 @@ def call_prolog(msg, final_result_tmp_directory_name=None, dev_runner_options=[]
 	cmd2 = [['-g', debug_goal + prolog_flags + goal + halt_goal]]
 	cmd = cmd0 + cmd0b + cmd1 + cmd2
 
-	print('invoke_rpc: running:')
+	logging.getLogger().debug('invoke_rpc: running:')
 	# print(shlex.join(cmd)) # python 3.8
-	print_command_nice(cmd)
+	logging.getLogger().debug(command_nice(cmd))
 	cmd = flatten_lists(cmd)
 	#print(cmd)
 
 	try:
 		if print_cmd_to_swipl_stdin:
 			p = subprocess.Popen(cmd, universal_newlines=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE)#, shell=True)
-			print('invoke_rpc: piping to swipl:')
-			print(input)
+			logging.getLogger().debug(print('invoke_rpc: piping to swipl:'))
+			logging.getLogger().debug(print(input))
 			(stdout_data, stderr_data) = p.communicate(input = input)# + '\n\n')
 		else:
 			p = subprocess.Popen(cmd, universal_newlines=True, stdout=subprocess.PIPE)
@@ -103,6 +104,7 @@ def call_prolog(msg, final_result_tmp_directory_name=None, dev_runner_options=[]
 		return msg['params']['result_tmp_directory_name'], rrr
 	except json.decoder.JSONDecodeError as e:
 		print('invoke_rpc:', e)
+		print()
 		return msg['params']['result_tmp_directory_name'], {'status':'error'}
 
 
