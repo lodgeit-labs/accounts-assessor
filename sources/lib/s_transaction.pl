@@ -58,7 +58,7 @@ doc_set_property_helper(Prefix,S1,S2,P,V,G,Field) :-
 	doc_add(S2, Field_Uri, V2, G).
 
 
-pretty_st_string(T, String) :-
+ pretty_st_string(T, String) :-
 	doc(T, rdf:type, l:s_transaction, transactions),
 	s_transaction_day(T, Date),
 	s_transaction_type_id(T, uri(Action_Verb)),
@@ -187,16 +187,10 @@ s_transaction_action_verb(S_Transaction, Action_Verb) :-
 % these are s_transactions, the raw transactions from bank statements. Later each s_transaction will be preprocessed
 % into multiple transaction terms.
 extract_s_transactions_from_accountDetails_dom(Account, S_Transactions) :-
-	catch(
-		fields(Account, [
-			accountName, Account_Name,
-			currency, Account_Currency
-			]),
-			E,
-			(
-				pretty_term_string(E, E_Str),
-				throw(http_reply(bad_request(string(E_Str)))))
-			)
+	fields(Account, [
+		accountName, Account_Name,
+		currency, Account_Currency
+	]),
 	,extract_s_transactions_from_accountDetails_dom2(Account_Currency, Account_Name, Account, S_Transactions).
 
 extract_s_transactions_from_accountDetails_dom2(Account_Currency, Account_Name, Account, S_Transactions) :-

@@ -70,23 +70,25 @@ process_request(Options, File_Paths) :-
 	;	true),
 	process_request2.
 
-handle_processing_exception(E) :-
-	%format(user_error, '~n~n', []),
-
+enrich_exception_with_ctx_dump(E, E2) :-
 	(	exception_ctx_dump(Ctx_list)
 	->	(
 			context_string(Ctx_list,Ctx_str),
 			E2 = with_processing_context(Ctx_str, E)
 		)
-	;	E2 = E),
+	;	E2 = E).
 
+reestablish_doc :-
 	(	exception_doc_dump(G,Ng)
 	->	(
 			b_setval(the_theory, G),
 			b_setval(the_theory_nonground, Ng)
 		)
-	;	true),
+	;	true).
 
+handle_processing_exception(E) :-
+	enrich_exception_with_ctx_dump(E, E2),
+	reestablish_doc,
 	format_exception_into_alert_string(E2, Str),
 	add_alert('error', Str).
 

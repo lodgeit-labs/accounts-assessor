@@ -20,11 +20,11 @@ sbe_request(Request) :-
 
 %:- tspy(sbe_request/1).
 sbe_step(In, Out) :-
-	preprocess(In, History, CurrentQuestionId, HistoryTuples),
+	chat_preprocess(In, History, CurrentQuestionId, HistoryTuples),
 	sbe_next_state(HistoryTuples, CurrentQuestionId, NextQuestionId, NextPrompt),
 	(
 		sbe_result(NextQuestionId, Out); 
-		response(NextQuestionId, NextPrompt, History, Out)
+		chat_response(NextQuestionId, NextPrompt, History, Out)
 	).
 
 % -------------------------------------------------------------------

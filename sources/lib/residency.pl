@@ -11,11 +11,11 @@ residency_request(Request) :-
 	true.
 
 residency_step(In, Out) :-
-	preprocess(In, History, CurrentQuestionId, HistoryTuples),
+	chat_preprocess(In, History, CurrentQuestionId, HistoryTuples),
 	next_state(HistoryTuples, CurrentQuestionId, NextQuestionId, NextPrompt),
 	(
 		residency_result(NextQuestionId, Out); 
-		response(NextQuestionId, NextPrompt, History, Out)
+		chat_response(NextQuestionId, NextPrompt, History, Out)
 	).
 	
 % The predicate "returns" 1 if the given element is in the given list and "returns" 0 if

@@ -20,13 +20,13 @@ alternative framework: https://www.d3web.de/Wiki.jsp?page=Bike%20Diagnosis
 */
 
 
-response(NextQuestionId, NextPrompt, History, Out) :-
+chat_response(NextQuestionId, NextPrompt, History, Out) :-
 	Out = dict{question: NextPrompt, state: NewHistory},
 	append(History, [dict{
 		question_id: NextQuestionId, 
 		response: -1}], NewHistory). 
 
-preprocess(In, History, CurrentQuestionId, HistoryTuples) :-
+chat_preprocess(In, History, CurrentQuestionId, HistoryTuples) :-
 	match_response_with_last_question(In, History, CurrentQuestionId),
 	history_json_to_tuples(History, HistoryTuples).
 

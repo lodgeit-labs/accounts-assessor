@@ -14,6 +14,8 @@ action verbs in general:
 
 preprocess_until_error(Static_Data0, Prepreprocessed_S_Transactions, Preprocessed_S_Transactions, Transactions0, Outstanding_Out, Report_End_Date, Processed_Until) :-
 	preprocess_s_transactions(Static_Data0, Prepreprocessed_S_Transactions, Preprocessed_S_Transactions, Transactions0, Outstanding_Out),
+	/* i dont remember if there were other issues with running reports for the "last good day" rather than for the requested end date, besides the fact that investment calculator would fail because there normally weren't exchange rates available for the "last good day". At any case, the original idea changed into running the reports for the requested day. The original reasoning was: it's not possible to determine order of transactions that transpired on one day, so to avoid confusion, when we fail to process a transaction, we go back all the way to the end of the previous day, and try to run the reports again, excluding all the transactions of the erroring day and after
+	*/
 	Processed_Until = Report_End_Date.
 
 preprocess_s_transactions(Static_Data, S_Transactions, Processed_S_Transactions, Transactions_Out, Outstanding_Out) :-
@@ -25,63 +27,74 @@ preprocess_s_transactions(Static_Data, S_Transactions, Processed_S_Transactions,
 preprocess_s_transactions2(_, [], [], [], Outstanding, Outstanding, _).
 
 preprocess_s_transactions2(Static_Data, [S_Transaction|S_Transactions], Processed_S_Transactions, Transactions_Out, Outstanding_In, Outstanding_Out, Debug_So_Far) :-
+	push_context($>format(string($<), 'processing bank statement transaction:~n ~w~n', [$>pretty_st_string(Pretty_S_Transaction_String)]),
 	dict_vars(Static_Data, [Report_Currency, Start_Date, End_Date, Exchange_Rates]),
 	pretty_term_string(S_Transaction, S_Transaction_String),
+	/* die_on_error is useful for getting into debugger when working on transaction processing code */
 	(	current_prolog_flag(die_on_error, true)
 	->	preprocess_s_transaction3(Static_Data, S_Transaction, S_Transaction_String, Outstanding_In, Outstanding_Mid, _Debug_Head, Transactions_Out_Tail, Debug_So_Far, Debug_So_Far2, Processed_S_Transactions, Processed_S_Transactions_Tail, Report_Currency, Exchange_Rates, Start_Date, End_Date, Transactions_Out)
-	;	catch(
+	;	catch_with_backtrace(
 			preprocess_s_transaction3(Static_Data, S_Transaction, S_Transaction_String, Outstanding_In, Outstanding_Mid, Debug_Head, Transactions_Out_Tail, Debug_So_Far, Debug_So_Far2, Processed_S_Transactions, Processed_S_Transactions_Tail, Report_Currency, Exchange_Rates, Start_Date, End_Date, Transactions_Out),
 			E,
 			(
-				pretty_st_string(S_Transaction, Pretty_S_Transaction_String),
-				format_exception_into_alert_string(E, Msg),
-				format(string(Debug_Head), 'when processing bank statement transaction on bank account ~w:~n ~w~n~n~w~n', [$>s_transaction_account(S_Transaction), Pretty_S_Transaction_String, Msg]),
-				format(user_error, '~w~n',[Debug_Head]),
-				Outstanding_In = Outstanding_Out,
-				Transactions_Out = [],
-				Debug_Tail = [],
-				Processed_S_Transactions = [],
-				add_alert('error', Debug_Head),
-				gtrace
+				/* watch out: this re-establishes doc to the state it was before the exception */
+				handle_processing_exception(E)
+
 			)
 		)
 	),
-	(	var(Debug_Tail) /* debug tail is left free if processing this transaction succeeded ... */
+	pop_context,
+	(	var(E)
 	->	preprocess_s_transactions2(Static_Data, S_Transactions, Processed_S_Transactions_Tail, Transactions_Out_Tail,  Outstanding_Mid, Outstanding_Out, Debug_So_Far2)
-	;	true).
+	;	(
+			Outstanding_In = Outstanding_Out,
+			Transactions_Out = [],
+			Processed_S_Transactions = []
+		)
+	).
 
 preprocess_s_transaction3(Static_Data, S_Transaction, S_Transaction_String, Outstanding_In, Outstanding_Mid, Debug_Head, Transactions_Out_Tail, Debug_So_Far, Debug_So_Far2, Processed_S_Transactions, Processed_S_Transactions_Tail, Report_Currency, Exchange_Rates, Start_Date, End_Date, Transactions_Out) :-
-	push_context($>format(string(<$), 'processing bank statement transaction at ~w', [$>s_transaction_day(S_Transaction)])),
 	check_that_s_transaction_account_exists(S_Transaction),
-	preprocess(Static_Data, S_Transaction, S_Transaction_String, Outstanding_In, Outstanding_Mid, Debug_Head, Transactions_Out_Tail, Debug_So_Far, Debug_So_Far2, Processed_S_Transactions, Processed_S_Transactions_Tail, Report_Currency, Exchange_Rates, Start_Date, End_Date, Transactions_Out),
-	pop_context.
+	preprocess_s_transaction0(Static_Data, S_Transaction, S_Transaction_String, Outstanding_In, Outstanding_Mid, Debug_Head, Transactions_Out_Tail, Debug_So_Far, Debug_So_Far2, Processed_S_Transactions, Processed_S_Transactions_Tail, Report_Currency, Exchange_Rates, Start_Date, End_Date, Transactions_Out).
 
 
-preprocess(Static_Data, S_Transaction, S_Transaction_String, Outstanding_In, Outstanding_Mid, Debug_Head, Transactions_Out_Tail, Debug_So_Far, Debug_So_Far2, Processed_S_Transactions, Processed_S_Transactions_Tail, Report_Currency, Exchange_Rates, Start_Date, End_Date, Transactions_Out) :-
-	(	preprocess_s_transaction(Static_Data, S_Transaction, Transactions0, Outstanding_In, Outstanding_Mid)
+preprocess_s_transaction0(Static_Data, S_Transaction, S_Transaction_String, Outstanding_In, Outstanding_Mid, Debug_Head, Transactions_Out_Tail, Debug_So_Far, Debug_So_Far2, Processed_S_Transactions, Processed_S_Transactions_Tail, Report_Currency, Exchange_Rates, Start_Date, End_Date, Transactions_Out) :-
+
+	s_transaction_type_id(S_Transaction, uri(Action_Verb)),
+	(	doc(Action_Verb, l:has_counteraccount, Exchanged_Account_Ui)
 	->	true
-	;	(throw_string(unknown_error))),
-	cleanup(Transactions0, Transactions_Result, S_Transaction_String, Debug_Head),
+	;	Exchanged_Account_Ui = ''),
+	(	doc(Action_Verb, l:has_trading_account, Trading_Account_Ui)
+	->	true
+	;	Trading_Account_Ui = ''),
+	push_format('using action verb ~q:~n  exchanged account: ~q~n  trading account: ~q~n', [$>doc(Action_Verb, l:has_id), Exchanged_Account_Ui, Trading_Account_U]),
+
+	!preprocess_s_transaction(Static_Data, S_Transaction, Transactions0, Outstanding_In, Outstanding_Mid),
+	clean_up_resulting_transactions(Transactions0, Transactions_Result, S_Transaction_String, Debug_Head),
 	Transactions_Out = [Transactions_Result|Transactions_Out_Tail],
 	append(Debug_So_Far, [Debug_Head], Debug_So_Far2),
 	Processed_S_Transactions = [S_Transaction|Processed_S_Transactions_Tail],
-	check_trial_balance0_at_date_of_last_transaction_in_list(Transactions_Result, Report_Currency, Exchange_Rates, Start_Date, End_Date, Debug_So_Far, Debug_Head).
+	cf(check_trial_balance_at_date_of_last_transaction_in_list(Transactions_Result, Report_Currency, Exchange_Rates, Start_Date, End_Date, Debug_So_Far, Debug_Head)),
 
-cleanup(Transactions0, Transactions_Result, S_Transaction_String, Debug_Head) :-
+	pop_context.
+
+
+
+clean_up_resulting_transactions(Transactions0, Transactions_Result, S_Transaction_String, Debug_Head) :-
 	% filter out unbound vars from the resulting Transactions list, as some rules do not always produce all possible transactions
 	flatten(Transactions0, Transactions1),
 	exclude(var, Transactions1, Transactions2),
 	exclude(has_empty_vector, Transactions2, Transactions_Result),
-	%pretty_transactions_string(Transactions_Result, Transactions_String),
-	Transactions_String = 'todo',
+	!pretty_transactions_string(Transactions_Result, Transactions_String),
+	%round_term(Transactions_Result, Transactions_String),
 	atomic_list_concat([S_Transaction_String, '==>\n', Transactions_String, '\n====\n'], Debug_Head).
 
 
- check_trial_balance0_at_date_of_last_transaction_in_list(Transactions_Result, Report_Currency, Exchange_Rates, Start_Date, End_Date, Debug_So_Far, Debug_Head) :-
+ check_trial_balance_at_date_of_last_transaction_in_list(Transactions_Result, Report_Currency, Exchange_Rates, Start_Date, End_Date, Debug_So_Far, Debug_Head) :-
 	Transactions_Result = [T|_],
 	transaction_day(T, Transaction_Date),
 	(	Report_Currency = []
-	->	true
+	->	true /* we cannot compare values if we don't convert them to the same currency first */
 	;	check_trial_balance0(Exchange_Rates, Report_Currency, Transaction_Date, Transactions_Result, Start_Date, End_Date, Debug_So_Far, Debug_Head)).
 
 
@@ -101,6 +114,7 @@ preprocess_s_transaction(Static_Data, S_Transaction, Transactions, Outstanding_B
 	Transactions = [Ts1, Ts2, Ts3, Ts4],
 	dict_vars(Static_Data, [Report_Currency, Exchange_Rates]),
 	s_transaction_exchanged(S_Transaction, vector(Counteraccount_Vector)),
+	( is_zero(Counteraccount_Vector) -> throw_string('exchanged 0 units?') ; true ),
 	s_transaction_vector(S_Transaction, Vector_Ours),
 	s_transaction_day(S_Transaction, Transaction_Date),
 	doc(Action_Verb, l:has_id, Action_Verb_Id),
@@ -541,10 +555,13 @@ fill_in_missing_units(S_Transactions0, Report_End_Date, [Report_Currency], Used_
 		Inferred_Rates
 	).
 	
- 
+
+
+ /*
+ more like a smart compact string useful for debugging, not sure if it still works
+ */
 pretty_transactions_string(Transactions, String) :-
 	Seen_Units = [],
-	
 	pretty_transactions_string2(Seen_Units, Transactions, String).
 
 pretty_transactions_string2(_, [], '').
@@ -594,23 +611,8 @@ pretty_vector_string(Seen_Units0, Seen_Units_Out, [Coord|Rest], Vector_Str) :-
 
 
  check_trial_balance0(Exchange_Rates, Report_Currency, Transaction_Date, Transactions_Out, _Start_Date, End_Date, Debug_So_Far, Debug_Head) :-
-	catch(
-		(
-			check_trial_balance(Exchange_Rates, Report_Currency, Transaction_Date, Transactions_Out),
-			check_trial_balance(Exchange_Rates, Report_Currency, End_Date, Transactions_Out)
-			%(
-			%	Transaction_Date @< Start_Date...
-		),
-		E,
-		(
-			format(user_error, '\n\\n~w\n\n', [Debug_So_Far]),
-			format(user_error, '\n\nwhen processing:\n~w', [Debug_Head]),
-			pretty_term_string(E, E_Str),
-			throw_string([E_Str])
-		)
-	).
-
-
+	check_trial_balance(Exchange_Rates, Report_Currency, Transaction_Date, Transactions_Out),
+	check_trial_balance(Exchange_Rates, Report_Currency, End_Date, Transactions_Out).
 
 
 /*

@@ -56,49 +56,33 @@ process_request_ledger2((Dom, Start_Date, End_Date, Output_Dimensional_Facts, Co
 		Outstanding,
 		Processed_Until_Date),
 
-	doc($>request_data, ic_ui:report_details, Details),
-	(	(	doc_value(Details, ic_ui:processing_phases, T),
-			rdf_equal2(T, ic_ui:stop_before_reading_GL_inputs)
+	/* if some s_transaction failed to process, there should be an alert created by now. Now we just compile a report up until that transaction. It would maybe be cleaner to do this by calling 'process_ledger' a second time */
+	dict_from_vars(Static_Data0,
+		[Cost_Or_Market,
+		Output_Dimensional_Facts,
+		Start_Date,
+		Exchange_Rates,
+		Transactions,
+		Report_Currency,
+		Outstanding
+	]),
+	Static_Data0b = Static_Data0.put([
+		end_date=Processed_Until_Date,
+		exchange_date=Processed_Until_Date
+	]),
+	!transactions_by_account(Static_Data0b, Transactions_By_Account1),
+	Static_Data1 = Static_Data0b.put([transactions_by_account=Transactions_By_Account1]),
+	(	account_by_role(rl(smsf_equity), _)
+	->	(
+			smsf_distributions_reports(_),
+			update_static_data_with_transactions(
+				Static_Data1,
+				$>!smsf_income_tax_stuff(Static_Data1),
+				Static_Data2)
 		)
-	->		(
-				dict_from_vars(Static_Data,
-					[Exchange_Rates,
-					Report_Currency
-				]),
-				!gl_export(Static_Data, [], Gl),
-				!make_json_report(Gl, general_ledger_json)
-			)
-	;		(
-
-				/* if some s_transaction failed to process, there should be an alert created by now. Now we just compile a report up until that transaction. It would maybe be cleaner to do this by calling 'process_ledger' a second time */
-				dict_from_vars(Static_Data0,
-					[Cost_Or_Market,
-					Output_Dimensional_Facts,
-					Start_Date,
-					Exchange_Rates,
-					Transactions,
-					Report_Currency,
-					Outstanding
-				]),
-				Static_Data0b = Static_Data0.put([
-					end_date=Processed_Until_Date,
-					exchange_date=Processed_Until_Date
-				]),
-				!transactions_by_account(Static_Data0b, Transactions_By_Account1),
-				Static_Data1 = Static_Data0b.put([transactions_by_account=Transactions_By_Account1]),
-				(	account_by_role(rl(smsf_equity), _)
-				->	(
-						smsf_distributions_reports(_),
-						update_static_data_with_transactions(
-							Static_Data1,
-							$>!smsf_income_tax_stuff(Static_Data1),
-							Static_Data2)
-					)
-				;	Static_Data2 = Static_Data1),
-				check_trial_balance2(Exchange_Rates, Static_Data2.transactions_by_account, Report_Currency, Static_Data2.end_date, Start_Date, Static_Data2.end_date),
-				once(!create_reports(Static_Data2, Structured_Reports))
-			)
-	).
+	;	Static_Data2 = Static_Data1),
+	check_trial_balance2(Exchange_Rates, Static_Data2.transactions_by_account, Report_Currency, Static_Data2.end_date, Start_Date, Static_Data2.end_date),
+	once(!create_reports(Static_Data2, Structured_Reports)).
 
 
 update_static_data_with_transactions(In, Txs, Out) :-
