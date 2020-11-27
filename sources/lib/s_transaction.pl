@@ -191,7 +191,7 @@ extract_s_transactions_from_accountDetails_dom(Account, S_Transactions) :-
 		accountName, Account_Name,
 		currency, Account_Currency
 	]),
-	,extract_s_transactions_from_accountDetails_dom2(Account_Currency, Account_Name, Account, S_Transactions).
+	extract_s_transactions_from_accountDetails_dom2(Account_Currency, Account_Name, Account, S_Transactions).
 
 extract_s_transactions_from_accountDetails_dom2(Account_Currency, Account_Name, Account, S_Transactions) :-
 	findall(Tx_Dom, xpath(Account, transactions/transaction, Tx_Dom), Tx_Doms),

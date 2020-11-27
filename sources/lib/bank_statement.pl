@@ -27,19 +27,18 @@ preprocess_s_transactions(Static_Data, S_Transactions, Processed_S_Transactions,
 preprocess_s_transactions2(_, [], [], [], Outstanding, Outstanding, _).
 
 preprocess_s_transactions2(Static_Data, [S_Transaction|S_Transactions], Processed_S_Transactions, Transactions_Out, Outstanding_In, Outstanding_Out, Debug_So_Far) :-
-	push_context($>format(string($<), 'processing bank statement transaction:~n ~w~n', [$>pretty_st_string(Pretty_S_Transaction_String)]),
+	push_format('processing bank statement transaction:~n ~w~n', [$>pretty_st_string(S_Transaction)]),
 	dict_vars(Static_Data, [Report_Currency, Start_Date, End_Date, Exchange_Rates]),
 	pretty_term_string(S_Transaction, S_Transaction_String),
 	/* die_on_error is useful for getting into debugger when working on transaction processing code */
 	(	current_prolog_flag(die_on_error, true)
 	->	preprocess_s_transaction3(Static_Data, S_Transaction, S_Transaction_String, Outstanding_In, Outstanding_Mid, _Debug_Head, Transactions_Out_Tail, Debug_So_Far, Debug_So_Far2, Processed_S_Transactions, Processed_S_Transactions_Tail, Report_Currency, Exchange_Rates, Start_Date, End_Date, Transactions_Out)
 	;	catch_with_backtrace(
-			preprocess_s_transaction3(Static_Data, S_Transaction, S_Transaction_String, Outstanding_In, Outstanding_Mid, Debug_Head, Transactions_Out_Tail, Debug_So_Far, Debug_So_Far2, Processed_S_Transactions, Processed_S_Transactions_Tail, Report_Currency, Exchange_Rates, Start_Date, End_Date, Transactions_Out),
+			preprocess_s_transaction3(Static_Data, S_Transaction, S_Transaction_String, Outstanding_In, Outstanding_Mid, _Debug_Head, Transactions_Out_Tail, Debug_So_Far, Debug_So_Far2, Processed_S_Transactions, Processed_S_Transactions_Tail, Report_Currency, Exchange_Rates, Start_Date, End_Date, Transactions_Out),
 			E,
 			(
 				/* watch out: this re-establishes doc to the state it was before the exception */
 				handle_processing_exception(E)
-
 			)
 		)
 	),
@@ -67,7 +66,7 @@ preprocess_s_transaction0(Static_Data, S_Transaction, S_Transaction_String, Outs
 	(	doc(Action_Verb, l:has_trading_account, Trading_Account_Ui)
 	->	true
 	;	Trading_Account_Ui = ''),
-	push_format('using action verb ~q:~n  exchanged account: ~q~n  trading account: ~q~n', [$>doc(Action_Verb, l:has_id), Exchanged_Account_Ui, Trading_Account_U]),
+	push_format('using action verb ~q:~n  exchanged account: ~q~n  trading account: ~q~n', [$>doc(Action_Verb, l:has_id), Exchanged_Account_Ui, Trading_Account_Ui]),
 
 	!preprocess_s_transaction(Static_Data, S_Transaction, Transactions0, Outstanding_In, Outstanding_Mid),
 	clean_up_resulting_transactions(Transactions0, Transactions_Result, S_Transaction_String, Debug_Head),
@@ -114,6 +113,7 @@ preprocess_s_transaction(Static_Data, S_Transaction, Transactions, Outstanding_B
 	Transactions = [Ts1, Ts2, Ts3, Ts4],
 	dict_vars(Static_Data, [Report_Currency, Exchange_Rates]),
 	s_transaction_exchanged(S_Transaction, vector(Counteraccount_Vector)),
+	/* is it time to introduce something like gtrace_on_user_error, and keep it off by default? */
 	( is_zero(Counteraccount_Vector) -> throw_string('exchanged 0 units?') ; true ),
 	s_transaction_vector(S_Transaction, Vector_Ours),
 	s_transaction_day(S_Transaction, Transaction_Date),
@@ -610,7 +610,7 @@ pretty_vector_string(Seen_Units0, Seen_Units_Out, [Coord|Rest], Vector_Str) :-
 
 
 
- check_trial_balance0(Exchange_Rates, Report_Currency, Transaction_Date, Transactions_Out, _Start_Date, End_Date, Debug_So_Far, Debug_Head) :-
+ check_trial_balance0(Exchange_Rates, Report_Currency, Transaction_Date, Transactions_Out, _Start_Date, End_Date, _Debug_So_Far, _Debug_Head) :-
 	check_trial_balance(Exchange_Rates, Report_Currency, Transaction_Date, Transactions_Out),
 	check_trial_balance(Exchange_Rates, Report_Currency, End_Date, Transactions_Out).
 

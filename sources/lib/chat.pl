@@ -1,4 +1,4 @@
-:- module(chat, [response/4, preprocess/4, history_json_to_tuples/2, match_response_with_last_question/3]).
+:- module(chat, [chat_response/4, chat_preprocess/4, history_json_to_tuples/2, match_response_with_last_question/3]).
 
 /*
 swipl version 8 required.

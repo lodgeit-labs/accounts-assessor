@@ -21,7 +21,7 @@
 	!propagate_accounts_side,
 	!write_accounts_json_report,
 	!make_gl_viewer_report,
-	process_ledger_phase2(Report_Currency,Start_Date, End_Date, Exchange_Rates, Cost_Or_Market, S_Transactions,Outstanding_Out,Processed_Until,Transactions_With_Livestock)).
+	process_ledger_phase2(Report_Currency,Start_Date, End_Date, Exchange_Rates, Cost_Or_Market, S_Transactions,Outstanding_Out,Processed_Until,Transactions_With_Livestock).
 
  process_ledger_phase2(Report_Currency,Start_Date, End_Date, Exchange_Rates, Cost_Or_Market, S_Transactions,Outstanding_Out,Processed_Until,Transactions_With_Livestock) :-
 	!cf(extract_gl_inputs(Gl_input_txs)),
@@ -33,10 +33,9 @@
 
 	!preprocess_until_error(Static_Data0, Prepreprocessed_S_Transactions, Processed_S_Transactions, Transactions_From_Bst, Outstanding_Out, End_Date, Processed_Until),
 
-
-	(	$>length(Processed_S_Transactions) == $>length(Prepreprocessed_S_Transactions)
+	(	(($>length(Processed_S_Transactions)) == ($>length(Prepreprocessed_S_Transactions)))
 	->	true
-	;	add_alert('warning', ['not all bank statement transactions processed, proceeding with report generation anyway..'])),
+	;	add_alert('warning', 'not all bank statement transactions processed, proceeding with report generation anyway..')),
 
 	append([Gl_input_txs, Reallocation_Txs, Smsf_distribution_txs], Transactions_From_Bst, Transactions0),
 	flatten(Transactions0, Transactions1),

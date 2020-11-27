@@ -49,6 +49,8 @@ services:
     environment:
       SECRET__INTERNAL_SERVICES_SERVER_URL: "http://internal-services:17788"
       SECRET__CELERY_BROKER_URL: "amqp://guest:guest@rabbitmq:5672//"
+      AGRAPH_SECRET_PORT: "10036"
+      AGRAPH_SECRET_HOST: "localhost"
     volumes:
       - tmp:/app/server_root/tmp
       - "/etc/localtime:/etc/localtime:ro"

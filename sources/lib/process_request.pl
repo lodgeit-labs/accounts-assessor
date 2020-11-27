@@ -100,11 +100,10 @@ format_exception_into_alert_string(E, Str) :-
 			E2 = E
 		)
 	),
-	(	(
-			E2 = error(msg(Msg),Stacktrace),
-			nonvar(Stacktrace)
-		)
-	->	format(string(Stacktrace_str),'~p',[Stacktrace])
+	(	E2 = error(msg(Msg),Stacktrace)
+	->	(	nonvar(Stacktrace)
+		->	format(string(Stacktrace_str),'~p',[Stacktrace])
+		;	Stacktrace_str = '')
 	;	(
 			Stacktrace_str = '',
 			format(string(Msg),'~p',[E2])
@@ -199,16 +198,15 @@ collect_alerts(Alerts_text, Alerts_html) :-
 	(	Msg = html(Msg2)
 	->	true
 	;	atomic(Msg) -> Msg2 = Msg ; term_string(Msg, Msg2)),
-	Alert = div([h4([$>term_string(Key),": "]),pre(Msg2)]).
+	Alert = p([h4([$>atom_string(<$, $>term_string(Key)),': ']),pre([Msg2])]).
 
-make_alerts_report(Alerts) :-
-	maplist(alert_html, Alerts, Alerts_Html),
+make_alerts_report(Alerts_Html) :-
+	gtrace,
 	(	Alerts_Html = []
 	->	Alerts_Html2 = ["no alerts."]
 	;	Alerts_Html2 = Alerts_Html),
-	add_report_page_with_body(10,alerts, [h3([alerts, ':']), Alerts_Html2], loc(file_name,'alerts.html'), alerts_html).
+	add_report_page_with_body(10,alerts, $>flatten([h3([alerts, ':']), Alerts_Html2]), loc(file_name,'alerts.html'), alerts_html).
 
-alert_html(Alert, pre([Alert, br([])])).
 
 process_multifile_request(File_Paths) :-
 	debug(tmp_files, "process_multifile_request(~w)~n", [File_Paths]),

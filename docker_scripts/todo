@@ -1,0 +1,5 @@
+$PORT_SUFFIX
+$TAG
+what else is needed to allow simultaneous running of multiple versions on one machine?
+
+inquire with Jan, how to achieve the functionality equivalent to inserting goal on swipl repl, to get gtrace in case of error. if this is solved, we could use his warning halter script. (https://github.com/SWI-Prolog/swipl-devel/issues/692)
