@@ -1,5 +1,9 @@
 networks:
-  host: null
+  backend: null
+  frontend: null
+  hostnet:
+    external: true
+    name: host
 secrets:
   AGRAPH_SECRET_HOST:
     file: ../secrets/AGRAPH_SECRET_HOST
@@ -25,7 +29,7 @@ services:
       AGRAPH_SUPER_USER_FILE: /run/secrets/AGRAPH_SUPER_USER
     image: franzinc/agraph:v7.0.0
     networks:
-    - host
+    - hostnet
     ports:
     - 100${PP}:10035
     secrets:
@@ -55,7 +59,7 @@ services:
       SECRET__INTERNAL_SERVICES_SERVER_URL: http://internal-services:17788
     image: koo5/frontend-server${PP}:latest
     networks:
-    - host
+    - hostnet
     ports:
     - 77${PP}:7788
     secrets:
@@ -83,7 +87,7 @@ services:
         parallelism: 2
     image: koo5/internal-services${PP}:latest
     networks:
-    - host
+    - hostnet
     volumes:
     - tmp:/app/server_root/tmp
     - /etc/localtime:/etc/localtime:ro
@@ -109,7 +113,7 @@ services:
       SECRET__INTERNAL_SERVICES_SERVER_URL: http://internal-services:17788
     image: koo5/internal-workers${PP}:latest
     networks:
-    - host
+    - hostnet
     volumes:
     - tmp:/app/server_root/tmp
     - cache:/app/cache
@@ -126,7 +130,7 @@ services:
         parallelism: 2
     image: rabbitmq
     networks:
-    - host
+    - hostnet
     volumes:
     - /etc/localtime:/etc/localtime:ro
 version: '3.7'

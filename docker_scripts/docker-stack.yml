@@ -133,6 +133,9 @@ services:
 networks:
   frontend:
   backend:
+  hostnet:
+    external: true
+    name: host
 
 volumes:
   tmp:

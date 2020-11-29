@@ -1,13 +1,12 @@
 #!/usr/bin/env python3
 
+# pip3 install click
+import click
+
 import yaml, os
 from copy import deepcopy
-import click, shlex
-# 
 
-def shell(cmd):
-	print('>'+cmd)
-	os.system(cmd)
+
 	
 
 @click.command()
@@ -17,11 +16,17 @@ def shell(cmd):
 def run(port_postfix, **choices):
 
 	pp = port_postfix
+
+	if choices['mount_host_sources_dir']:
+		hollow = '_hollow'
+	else:
+		hollow = ''
 	
 	stack_fn = generate_stack_file(choices)
 	shell('docker stack rm robust' + pp)
-	shell('./build.sh '+pp)
+	shell('./build.sh "'+pp+'" ' + hollow)
 	shell('./deploy_stack.sh "'+pp+'" ' + stack_fn)
+	shell('docker stack ps robust'+pp + ' --no-trunc')
 	
 
 
@@ -41,8 +46,8 @@ def tweaked_services(src, use_host_network, mount_host_sources_dir):
 	res = deepcopy(src)
 	if use_host_network:
 		for k,v in res['services'].items():
-			v['networks'] = ['host']
-		res['networks'] = {'host':None}
+			v['networks'] = ['hostnet']
+		#res['networks'] = {'host':None}
 	if mount_host_sources_dir:
 		for x in ['internal-workers','internal-services','frontend-server' ]:
 			services = res['services']
@@ -67,8 +72,10 @@ def files_in_dir(dir):
 	return result
 
 
-if __name__ == '__main__':
-    run()
+
+def shell(cmd):
+	print('>'+cmd)
+	os.system(cmd)
 
 
 
@@ -76,4 +83,9 @@ if __name__ == '__main__':
 #		choices['use_host_network'] = b0
 #		for b1 in [True, False]:
 #			choices['mount_host_sources_dir'] = b1
+
+
+
+if __name__ == '__main__':
+    run()
 
