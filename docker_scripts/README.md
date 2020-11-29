@@ -1,4 +1,10 @@
-# build.sh takes two arguments:
+# set up secrets.
+this is to be improved, but currently, the scripts expect there to be some files with names starting in "secret". They should be one directory up from the repo itself. They are automatically copied into the sources/. They are in .gitignore.
+
+
+
+
+## build.sh takes two arguments:
 
 `PP` stands for "Port Postfix". These are the last two (or more, as you like), digits in the service's public ports. That is, ports of frontend_server and agraph. This way, you can deploy multiple stacks on one machine. (A stable and dev..)
 
@@ -13,7 +19,7 @@ it also takes optional second argument, `INTERNAL_WORKERS_DOCKERFILE_CHOICE`. Th
 ../docker_scripts/build.sh 73 _hollow
 `
 
-# deploy_stack.sh
+## deploy_stack.sh
 
 `
  ../docker_scripts/deploy_stack.sh 73 COMPOSE_FILE
