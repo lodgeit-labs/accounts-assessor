@@ -29,7 +29,7 @@ services:
 
 
     ports:
-      - 10036:10035
+      - 100${PP}:10035
 
   rabbitmq:
     image: rabbitmq
@@ -46,7 +46,7 @@ services:
       - "/etc/localtime:/etc/localtime:ro"
 
   frontend-server:
-    image: koo5/frontend-server:latest
+    image: koo5/frontend-server${PP}:latest
     environment:
       SECRET__INTERNAL_SERVICES_SERVER_URL: "http://internal-services:17788"
       SECRET__CELERY_BROKER_URL: "amqp://guest:guest@rabbitmq:5672//"
@@ -66,11 +66,11 @@ services:
       restart_policy:
         condition: any
     ports:
-      - 7788:7788
+      - 77${PP}:7788
 
 
   internal-services:
-    image: koo5/internal-services:latest
+    image: koo5/internal-services${PP}:latest
     volumes:
       - tmp:/app/server_root/tmp
       - "/etc/localtime:/etc/localtime:ro"
@@ -87,11 +87,9 @@ services:
         constraints: [node.role == manager]
       restart_policy:
         condition: any
-    ports:
-      - 17788:17788
 
   internal-workers:
-    image: koo5/internal-workers:latest
+    image: koo5/internal-workers${PP}:latest
     environment:
       SECRET__INTERNAL_SERVICES_SERVER_URL: "http://internal-services:17788"
       SECRET__CELERY_BROKER_URL: "amqp://guest:guest@rabbitmq:5672//"
