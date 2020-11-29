@@ -125,7 +125,7 @@
 			</account>
 		</account>
 		<account name="P&amp;L" role="ComprehensiveIncome" normal_side="credit">
-			<account name="Clearing Account"/>
+			<account name="ClearingAccount"/>
 			<account name="Income">
 				<account name="Currency Movement" role="CurrencyMovement"/>
 				<account name="Capital GainLoss" role="TradingAccounts/Capital GainLoss">
@@ -142,7 +142,7 @@
 				</account>
 				<account name="Rent Received"/>
                 <account name="Employer Contribution"/>
-
+				<account name="EmployerContributionsConcessional"/>
 				<!-- fixme,.update excel sheets to do the subcategorization -->
 				<account name="Contribution Received" role="Contribution Received" subcategorize_by_smsf_member="true"/>
 

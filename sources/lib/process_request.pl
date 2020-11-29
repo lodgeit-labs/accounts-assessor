@@ -106,10 +106,10 @@ format_exception_into_alert_string(E, Str) :-
 		;	Stacktrace_str = '')
 	;	(
 			Stacktrace_str = '',
-			format(string(Msg),'~p',[E2])
+			Msg = E2
 		)
 	),
-	format(string(Str ),'~w~n~n~w~n~n~w~n',[Context_str, Msg, Stacktrace_str]).
+	format(string(Str ),'~w~n~n~w~n~n~w~n',[Context_str, $>stringize(Msg), Stacktrace_str]).
 
 
 process_request2 :-

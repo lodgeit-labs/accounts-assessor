@@ -30,9 +30,14 @@ preprocess_s_transactions2(Static_Data, [S_Transaction|S_Transactions], Processe
 	push_format('processing bank statement transaction:~n ~w~n', [$>pretty_st_string(S_Transaction)]),
 	dict_vars(Static_Data, [Report_Currency, Start_Date, End_Date, Exchange_Rates]),
 	pretty_term_string(S_Transaction, S_Transaction_String),
+
 	/* die_on_error is useful for getting into debugger when working on transaction processing code */
 	(	current_prolog_flag(die_on_error, true)
 	->	preprocess_s_transaction3(Static_Data, S_Transaction, S_Transaction_String, Outstanding_In, Outstanding_Mid, _Debug_Head, Transactions_Out_Tail, Debug_So_Far, Debug_So_Far2, Processed_S_Transactions, Processed_S_Transactions_Tail, Report_Currency, Exchange_Rates, Start_Date, End_Date, Transactions_Out)
+
+	/* so.. i think that this should go away. handle expected user input errors gracefully, by creating an alert and failing....wait, that woouldnt workkk...
+	*/
+
 	;	catch_with_backtrace(
 			preprocess_s_transaction3(Static_Data, S_Transaction, S_Transaction_String, Outstanding_In, Outstanding_Mid, _Debug_Head, Transactions_Out_Tail, Debug_So_Far, Debug_So_Far2, Processed_S_Transactions, Processed_S_Transactions_Tail, Report_Currency, Exchange_Rates, Start_Date, End_Date, Transactions_Out),
 			E,
@@ -283,7 +288,21 @@ money_vector_string(Vec, Str) :-
 	atomics_to_string(Strs, ', ', Str).
 
 money_value_string(value(U, Amount), Str) :-
-	format(string(Str), '~w ~w', [U, Amount]).
+	format(string(Str), '~w ~w', [$>round_term(U), $>round_term(Amount)]).
+
+
+outstandings_str((Outstanding_In, Investments_In), Str) :-
+	format(string(Str0), 'outstanding: outstanding(purchase_currency, goods_unit, goods_count, unit_cost, unit_cost_foreign, purchase_date):~n~w', [$>line_per_item_write_quoted($>round_term(Outstanding_In))]),
+	format(string(Str1), 'investment(outstanding(purchase_currency, goods_unit, goods_count, unit_cost, unit_cost_foreign, purchase_date), Sales):~n~w', [$>line_per_item_write_quoted($>round_term(Investments_In))]),
+	atomics_to_string([Str0, Str1],'\n',Str).
+
+
+line_per_item_write_quoted(Items, Str) :-
+	maplist(line_per_item_write_quoted2,Items,Strs),
+	atomics_to_string(Strs,'\n',Str).
+
+line_per_item_write_quoted2(Item,Str) :-
+	format(string(Str),'~q', [Item]).
 
 make_sell(Static_Data, St, Trading_Account, Pricing_Method, _Bank_Account_Currency, Goods_Vector,
 	Vector_Ours, Converted_Vector_Ours,
@@ -295,8 +314,14 @@ make_sell(Static_Data, St, Trading_Account, Pricing_Method, _Bank_Account_Curren
 	financial_investments_account(Exchanged_Account,Goods_Unit,Exchanged_Account2),
 	bank_debit_to_unit_price(Vector_Ours, Goods_Positive, Sale_Unit_Price),
 
-	((find_items_to_sell(Pricing_Method, Goods_Unit, Goods_Positive, Transaction_Date, Sale_Unit_Price, Outstanding_In, Outstanding_Out, Goods_Cost_Values),!)
-		;(throw(not_enough_goods_to_sell))),
+	(
+		(find_items_to_sell(Pricing_Method, Goods_Unit, Goods_Positive, Transaction_Date, Sale_Unit_Price, Outstanding_In, Outstanding_Out, Goods_Cost_Values),!)
+	;
+		(
+			true,
+			throw($>format(string(<$), 'not enough outstanding stock to sell.~n~w', [$>outstandings_str(Outstanding_In)]))
+		)
+	),
 	maplist(sold_goods_vector_with_cost(Static_Data), Goods_Cost_Values, Goods_With_Cost_Vectors),
 	maplist(
 		make_transaction(St, Transaction_Date, Description, Exchanged_Account2),

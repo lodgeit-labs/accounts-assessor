@@ -105,9 +105,6 @@ services:
       # for gtrace:
       - "/tmp/.X11-unix:/tmp/.X11-unix:rw"
       
-      # for development:
-      - ".:/app/sources"
-      
     networks:
       - backend
     depends_on:
