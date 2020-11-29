@@ -56,8 +56,6 @@ services:
     environment:
       SECRET__INTERNAL_SERVICES_SERVER_URL: "http://internal-services:17788"
       SECRET__CELERY_BROKER_URL: "amqp://guest:guest@rabbitmq:5672//"
-      AGRAPH_SECRET_PORT: "10035"
-      AGRAPH_SECRET_HOST: "localhost"
     volumes:
       - tmp:/app/server_root/tmp
       - "/etc/localtime:/etc/localtime:ro"
@@ -75,7 +73,13 @@ services:
         condition: any
     ports:
       - 77${PP}:7788
-
+    secrets:
+      - DJANGO_SECRET_KEY
+      - AGRAPH_SECRET_HOST
+      - AGRAPH_SECRET_PORT
+      - AGRAPH_SUPER_USER
+      - AGRAPH_SUPER_PASSWORD
+      
 
   internal-services:
     image: koo5/internal-services${PP}:latest

@@ -25,9 +25,11 @@ def tweaked_services(src, use_host_network, mount_host_sources_dir):
 	if use_host_network:
 		for k,v in res['services'].items():
 			v['networks'] = ['host']
-		res['networks'] = ['host']
+		res['networks'] = {'host':None}
 	if mount_host_sources_dir:
-		res['services']['internal-workers']['volumes'].append('.:/app/sources')
+		res['services']['internal-workers' ]['volumes'].append('.:/app/sources')
+		res['services']['internal-services']['volumes'].append('.:/app/sources')
+		res['services']['frontend-server'  ]['volumes'].append('.:/app/sources')
 		
 	if not 'secrets' in res:
 		res['secrets'] = {}

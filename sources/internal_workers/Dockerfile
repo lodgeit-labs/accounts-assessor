@@ -8,3 +8,6 @@ COPY public_lib /app/sources/public_lib
 COPY lib /app/sources/lib
 
 WORKDIR /app/sources/internal_workers
+
+LABEL mode=full
+

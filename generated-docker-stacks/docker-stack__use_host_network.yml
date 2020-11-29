@@ -1,5 +1,5 @@
 networks:
-- host
+  host: null
 secrets:
   AGRAPH_SECRET_HOST:
     file: ../secrets/AGRAPH_SECRET_HOST
@@ -51,8 +51,6 @@ services:
       restart_policy:
         condition: any
     environment:
-      AGRAPH_SECRET_HOST: localhost
-      AGRAPH_SECRET_PORT: '10035'
       SECRET__CELERY_BROKER_URL: amqp://guest:guest@rabbitmq:5672//
       SECRET__INTERNAL_SERVICES_SERVER_URL: http://internal-services:17788
     image: koo5/frontend-server${PP}:latest
@@ -60,6 +58,12 @@ services:
     - host
     ports:
     - 77${PP}:7788
+    secrets:
+    - DJANGO_SECRET_KEY
+    - AGRAPH_SECRET_HOST
+    - AGRAPH_SECRET_PORT
+    - AGRAPH_SUPER_USER
+    - AGRAPH_SUPER_PASSWORD
     volumes:
     - tmp:/app/server_root/tmp
     - /etc/localtime:/etc/localtime:ro
