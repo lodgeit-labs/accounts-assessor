@@ -15,6 +15,12 @@ services:
         delay: 10s
       restart_policy:
         condition: any
+    secrets:
+      - AGRAPH_SUPER_USER
+      - AGRAPH_SUPER_PASSWORD
+    environment:
+      AGRAPH_SUPER_PASSWORD_FILE: /run/secrets/AGRAPH_SUPER_PASSWORD
+      AGRAPH_SUPER_USER_FILE: /run/secrets/AGRAPH_SUPER_USER
     volumes:
       - "/etc/localtime:/etc/localtime:ro"
       - "agdata:/agraph/data"
@@ -129,3 +135,9 @@ volumes:
   cache:
   agdata:
   agconfig:
+
+secrets:
+  AGRAPH_SUPER_USER:
+    file: "../secrets/secret_AGRAPH_SUPER_USER"
+  AGRAPH_SUPER_PASSWORD:
+    file: "../secrets/secret_AGRAPH_SUPER_PASSWORD"

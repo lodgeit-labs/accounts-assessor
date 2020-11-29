@@ -1,4 +1,0 @@
-1) https://testdriven.io/blog/dockerizing-django-with-postgres-gunicorn-and-nginx/
-- screw apache
-2) SQS support alongside celery
-
