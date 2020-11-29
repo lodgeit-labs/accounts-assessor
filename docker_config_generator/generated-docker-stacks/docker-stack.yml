@@ -1,0 +1,116 @@
+networks:
+  backend: null
+  frontend: null
+services:
+  agraph:
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: any
+      update_config:
+        delay: 10s
+        parallelism: 1
+    image: franzinc/agraph:v7.0.0
+    networks:
+    - backend
+    - frontend
+    ports:
+    - 100${PP}:10035
+    volumes:
+    - /etc/localtime:/etc/localtime:ro
+    - agdata:/agraph/data
+    - agconfig:/agraph/etc
+    - target: /dev/shm
+      tmpfs:
+        size: 2096000000
+      type: tmpfs
+  frontend-server:
+    depends_on:
+    - rabbitmq
+    - internal-services
+    - internal-workers
+    deploy:
+      placement:
+        constraints:
+        - node.role == manager
+      restart_policy:
+        condition: any
+    environment:
+      AGRAPH_SECRET_HOST: localhost
+      AGRAPH_SECRET_PORT: '10035'
+      SECRET__CELERY_BROKER_URL: amqp://guest:guest@rabbitmq:5672//
+      SECRET__INTERNAL_SERVICES_SERVER_URL: http://internal-services:17788
+    image: koo5/frontend-server${PP}:latest
+    networks:
+    - backend
+    - frontend
+    ports:
+    - 77${PP}:7788
+    volumes:
+    - tmp:/app/server_root/tmp
+    - /etc/localtime:/etc/localtime:ro
+  internal-services:
+    depends_on:
+    - rabbitmq
+    deploy:
+      placement:
+        constraints:
+        - node.role == manager
+      replicas: 1
+      restart_policy:
+        condition: any
+      update_config:
+        delay: 10s
+        parallelism: 2
+    image: koo5/internal-services${PP}:latest
+    networks:
+    - backend
+    volumes:
+    - tmp:/app/server_root/tmp
+    - /etc/localtime:/etc/localtime:ro
+  internal-workers:
+    depends_on:
+    - rabbitmq
+    - internal-services
+    deploy:
+      placement:
+        constraints:
+        - node.role == manager
+      replicas: 1
+      restart_policy:
+        condition: any
+      update_config:
+        delay: 10s
+        parallelism: 2
+    environment:
+      DETERMINANCY_CHECKER__USE__ENFORCER: 'true'
+      DISPLAY: ${DISPLAY}
+      SECRET__CELERY_BROKER_URL: amqp://guest:guest@rabbitmq:5672//
+      SECRET__INTERNAL_SERVICES_SERVER_URL: http://internal-services:17788
+    image: koo5/internal-workers${PP}:latest
+    networks:
+    - backend
+    volumes:
+    - tmp:/app/server_root/tmp
+    - cache:/app/cache
+    - /etc/localtime:/etc/localtime:ro
+    - /tmp/.X11-unix:/tmp/.X11-unix:rw
+  rabbitmq:
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: any
+      update_config:
+        delay: 10s
+        parallelism: 2
+    image: rabbitmq
+    networks:
+    - backend
+    volumes:
+    - /etc/localtime:/etc/localtime:ro
+version: '3.7'
+volumes:
+  agconfig: null
+  agdata: null
+  cache: null
+  tmp: null
