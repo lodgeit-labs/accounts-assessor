@@ -76,7 +76,6 @@ RUN mkdir -p /app/server_root
 #RUN chown user:user /app/server_root
 VOLUME /app/server_root
 VOLUME /app/cache
-COPY secrets2.json /
 #USER user
 WORKDIR /app/sources/internal_workers
 

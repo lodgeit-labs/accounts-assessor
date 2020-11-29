@@ -17,8 +17,6 @@ COPY internal_workers /app/sources/internal_workers
 COPY triplestore_access /app/sources/triplestore_access
 COPY common /app/sources/common
 COPY static /app/sources/static
-COPY secrets1.json /
-COPY secrets2.json /
 #USER user
 WORKDIR /app/sources/frontend_server
 ENV PYTHONUNBUFFERED true
