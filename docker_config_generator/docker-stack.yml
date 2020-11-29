@@ -136,8 +136,3 @@ volumes:
   agdata:
   agconfig:
 
-secrets:
-  AGRAPH_SUPER_USER:
-    file: "../secrets/secret_AGRAPH_SUPER_USER"
-  AGRAPH_SUPER_PASSWORD:
-    file: "../secrets/secret_AGRAPH_SUPER_PASSWORD"

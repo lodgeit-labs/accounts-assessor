@@ -21,11 +21,9 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # SECURITY WARNING: keep the secret key used in production secret!
 import json
-# same as in the celery worker
-with open(os.path.normpath(os.path.join(os.path.dirname(__file__), '../../../../secrets1.json')), 'r') as s:
-	secrets = json.load(s)
-SECRET_KEY = secrets['DJANGO_SECRET_KEY']
-del secrets
+
+with open(os.path.normpath(os.path.join(os.path.dirname(__file__), '/run/secrets/DJANGO_SECRET_KEY')), 'r') as s:
+    SECRET_KEY = s.read()
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
