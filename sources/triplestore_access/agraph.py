@@ -16,7 +16,6 @@ def agc():
 	AGRAPH_SECRET_PORT = secret('AGRAPH_SECRET_PORT')
 	AGRAPH_SECRET_USER = secret('AGRAPH_SUPER_USER')
 	AGRAPH_SECRET_PASSWORD = secret('AGRAPH_SUPER_PASSWORD')
-	del agraph_secrets
 
 	if AGRAPH_SECRET_USER != None and AGRAPH_SECRET_PASSWORD != None:
 		from franz.openrdf.connect import ag_connect

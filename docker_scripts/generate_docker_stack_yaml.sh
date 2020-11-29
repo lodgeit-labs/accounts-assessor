@@ -4,4 +4,5 @@
 set DIR (dirname (readlink -m (status --current-filename)))
 cd "$DIR"
 
-./_run.py $argv
+./_generate_docker_stack_yaml.py $argv
+

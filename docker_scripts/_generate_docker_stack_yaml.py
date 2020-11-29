@@ -15,7 +15,7 @@ def run():
 		for b1 in [True, False]:
 			choices['mount_host_sources_dir'] = b1
 			
-			fn = '../generated-docker-stacks/docker-stack' + ('__'.join(['']+[k for k,v in choices.items() if v])) + '.yml'
+			fn = '../sources/docker-stack' + ('__'.join(['']+[k for k,v in choices.items() if v])) + '.yml'
 			with open(fn, 'w') as file_out:
 				yaml.dump(tweaked_services(src, **choices), file_out)
 		
@@ -27,9 +27,10 @@ def tweaked_services(src, use_host_network, mount_host_sources_dir):
 			v['networks'] = ['host']
 		res['networks'] = {'host':None}
 	if mount_host_sources_dir:
-		res['services']['internal-workers' ]['volumes'].append('.:/app/sources')
-		res['services']['internal-services']['volumes'].append('.:/app/sources')
-		res['services']['frontend-server'  ]['volumes'].append('.:/app/sources')
+		for x in ['internal-workers','internal-services','frontend-server' ]:
+			services = res['services']
+			if x in services:
+				services[x]['volumes'].append('.:/app/sources')
 		
 	if not 'secrets' in res:
 		res['secrets'] = {}
