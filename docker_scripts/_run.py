@@ -1,11 +1,16 @@
 #!/usr/bin/env python3
 
-# pip3 install click
-import click
+# python3 -m pip install --user -U click pyyaml
 
-import yaml, os
+try:
+	import click
+	import yaml
+except:
+	print('please install: python3 -m pip install --user -U click pyyaml')
+	exit(1)
+
+import os
 from copy import deepcopy
-
 
 	
 
@@ -27,6 +32,7 @@ def run(port_postfix, **choices):
 	shell('./build.sh "'+pp+'" ' + hollow)
 	shell('./deploy_stack.sh "'+pp+'" ' + stack_fn)
 	shell('docker stack ps robust'+pp + ' --no-trunc')
+	shell('./follow_logs.sh '+pp)
 	
 
 
