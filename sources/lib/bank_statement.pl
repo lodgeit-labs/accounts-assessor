@@ -292,10 +292,18 @@ money_value_string(value(U, Amount), Str) :-
 
 
 outstandings_str((Outstanding_In, Investments_In), Str) :-
-	format(string(Str0), 'outstanding: outstanding(purchase_currency, goods_unit, goods_count, unit_cost, unit_cost_foreign, purchase_date):~n~w', [$>line_per_item_write_quoted($>round_term(Outstanding_In))]),
-	format(string(Str1), 'investment(outstanding(purchase_currency, goods_unit, goods_count, unit_cost, unit_cost_foreign, purchase_date), Sales):~n~w', [$>line_per_item_write_quoted($>round_term(Investments_In))]),
+	format(string(Str0), 'current outstanding investments:~noutstanding(purchase_currency, goods_unit, goods_count, unit_cost, unit_cost_foreign, purchase_date):~n~w', [$>line_per_item_write_quoted($>round_term(Outstanding_In))]),
+	format(string(Str1), 'investments history:~n~w', [$>investment_str_lines($>round_term(Investments_In))]),
 	atomics_to_string([Str0, Str1],'\n',Str).
 
+
+investment_str_lines(Investments,Str) :-
+	maplist(investment_str_lines2,Investments,Strs),
+	atomics_to_string(Strs,'\n',Str).
+
+investment_str_lines2(Item,Str) :-
+	Item = investment(Purchase, Sales),
+	format(string(Str),'~q:~n~w~n', [Purchase, $>line_per_item_write_quoted(Sales)]).
 
 line_per_item_write_quoted(Items, Str) :-
 	maplist(line_per_item_write_quoted2,Items,Strs),
