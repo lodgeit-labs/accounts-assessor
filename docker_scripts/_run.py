@@ -50,22 +50,26 @@ def generate_stack_file(choices):
 
 def tweaked_services(src, use_host_network, mount_host_sources_dir):
 	res = deepcopy(src)
-	if use_host_network:
-		for k,v in res['services'].items():
-			v['networks'] = ['hostnet']
-		#res['networks'] = {'host':None}
-	if mount_host_sources_dir:
-		for x in ['internal-workers','internal-services','frontend-server' ]:
-			services = res['services']
-			if x in services:
-				services[x]['volumes'].append('.:/app/sources')
-		
+	services = res['services']
+
 	if not 'secrets' in res:
 		res['secrets'] = {}
 		
 	for fn,path in files_in_dir('../secrets/'):
 		if fn not in res['secrets']:
 			res['secrets'][fn] = {'file':path}
+	
+	if use_host_network:
+		for k,v in services.items():
+			v['networks'] = ['hostnet']
+	if mount_host_sources_dir:
+		for x in ['internal-workers','internal-services','frontend-server' ]:
+			if x in services:
+				services[x]['volumes'].append('.:/app/sources')
+	
+	if 'DISPLAY' in os.environ:
+		if 'internal-workers' in services:
+			services['internal-workers']['environment']['DISPLAY'] = "${DISPLAY}"
 		
 	return res
 
