@@ -106,7 +106,6 @@ services:
       SECRET__INTERNAL_SERVICES_SERVER_URL: "http://internal-services:17788"
       SECRET__CELERY_BROKER_URL: "amqp://guest:guest@rabbitmq:5672//"
       DETERMINANCY_CHECKER__USE__ENFORCER: "true"
-      DISPLAY: "${DISPLAY}"
     volumes:
       - tmp:/app/server_root/tmp
       - cache:/app/cache
@@ -129,6 +128,11 @@ services:
         constraints: [node.role == manager]
       restart_policy:
         condition: any
+    secrets:
+      - AGRAPH_SECRET_HOST
+      - AGRAPH_SECRET_PORT
+      - AGRAPH_SUPER_USER
+      - AGRAPH_SUPER_PASSWORD
 
 networks:
   frontend:
@@ -142,4 +146,4 @@ volumes:
   cache:
   agdata:
   agconfig:
-
+ 

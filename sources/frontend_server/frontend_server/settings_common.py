@@ -21,7 +21,6 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # SECURITY WARNING: keep the secret key used in production secret!
 
-mport json
 
 with open(os.path.normpath(os.path.join(os.path.dirname(__file__), '/run/secrets/DJANGO_SECRET_KEY')), 'r') as s:
     SECRET_KEY = s.read()

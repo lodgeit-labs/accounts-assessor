@@ -201,7 +201,6 @@ collect_alerts(Alerts_text, Alerts_html) :-
 	Alert = p([h4([$>atom_string(<$, $>term_string(Key)),': ']),pre([Msg2])]).
 
 make_alerts_report(Alerts_Html) :-
-	gtrace,
 	(	Alerts_Html = []
 	->	Alerts_Html2 = ["no alerts."]
 	;	Alerts_Html2 = Alerts_Html),

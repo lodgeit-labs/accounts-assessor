@@ -38,6 +38,9 @@ def tweaked_services(src, use_host_network, mount_host_sources_dir):
 	for fn,path in files_in_dir('../secrets/'):
 		if fn not in res['secrets']:
 			res['secrets'][fn] = {'file':path}
+
+	if 'DISPLAY' in os.environ:
+		res['internal-workers']['environment']['DISPLAY'] = "${DISPLAY}"
 		
 	return res
 

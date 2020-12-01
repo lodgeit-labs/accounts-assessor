@@ -75,7 +75,10 @@ def files_in_dir(dir):
 
 def shell(cmd):
 	print('>'+cmd)
-	os.system(cmd)
+	r = os.system(cmd)
+	if r != 0:
+		exit(r)
+		
 
 
 
