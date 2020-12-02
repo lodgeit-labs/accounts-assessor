@@ -1,5 +1,6 @@
 networks:
-  backend: null
+  backend:
+    attachable: true
   frontend: null
   hostnet:
     external: true

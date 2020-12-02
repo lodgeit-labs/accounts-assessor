@@ -137,6 +137,8 @@ services:
 networks:
   frontend:
   backend:
+    #driver: overlay
+    attachable: true
   hostnet:
     external: true
     name: host

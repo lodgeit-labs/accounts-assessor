@@ -6,8 +6,11 @@ crosschecks_report0(Sd, Json) :-
 	add_report_page_with_body(9, 'crosschecks', Html, loc(file_name,'crosschecks.html'), 'crosschecks_html').
 
 crosscheck_output(Result, Html) :-
-	Html = p([span([Status]), ':', br([]), span([Check_Str]), ':', br([]), span([Evaluation_Str])]),
 	round_term(Result, _{check:Check, evaluation:Evaluation, status:Status}),
+	Html0 = [span([Status]), ':', br([]), span([Check_Str]), ':', br([]), span([Evaluation_Str])],
+	(	Status == ok
+	->	Html = p(Html0)
+	;	Html = p([b(Html0)])),
 	format(
 		   string(Check_Str),
 		   '~q ~w ~q',
@@ -18,7 +21,7 @@ crosscheck_output(Result, Html) :-
 		   [Evaluation.a, Evaluation.op, Evaluation.b]),
 	(	Status == 'ok'
 	->	true
-	;	add_alert('crosscheck failed', Evaluation_Str)).
+	;	add_alert('crosscheck failed', [Evaluation_Str])).
 
 
 crosschecks_report(Sd, Json) :-

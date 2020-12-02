@@ -107,16 +107,16 @@ qb_csv_gl_export(Sd, Txs) :-
 	!add_report_file(-10, File_name, File_name, Url).
 
 qb_csv_gl_export(Sd, Tx, Rows) :-
-	transaction_vector(Tx, Vector),
-	maplist(qb_csv_gl_export2(Sd, Tx), Vector, Rows).
+	!transaction_vector(Tx, Vector),
+	maplist(!qb_csv_gl_export2(Sd, Tx), Vector, Rows).
 
 qb_csv_gl_export2(Sd, Tx, Coord0, Row) :-
-	transaction_day(Tx, Date),
-	coord_converted_at_time(Sd, Date, Coord0, Coord),
-	doc(Tx, transactions:origin, Origin, transactions),
+	!transaction_day(Tx, Date),
+	!coord_converted_at_time(Sd, Date, Coord0, Coord),
+	!doc(Tx, transactions:origin, Origin, transactions),
 	(s_transaction_description2(Origin, D2) -> true ; D2 = ''),
 	(s_transaction_description3(Origin, D3) -> true ; D3 = ''),
-	dr_cr_coord(Unit, Debit, Credit, Coord),
+	!dr_cr_coord(Unit, Debit, Credit, Coord),
 	Row = row(
 		Id,
 		$>format_time(string(<$), '%d/%m/%Y', Date),
@@ -129,10 +129,11 @@ qb_csv_gl_export2(Sd, Tx, Coord0, Row) :-
 		D3,
 		'',
 		''),
-	doc(Tx, transactions:origin, Origin, transactions),
-	doc(Origin, s_transactions:id, Id, transactions).
+	!doc(Tx, transactions:origin, Origin, transactions),
+	!doc(Origin, s_transactions:id, Id, transactions).
 
 coord_converted_at_time(Sd, Date, Coord0, Coord1) :-
-	vec_change_bases(Sd.exchange_rates, Date, Sd.report_currency, [Coord0], Vec2),
-	Coord1 = coord(Sd.report_currency, _),
-	coord_vec(Coord1, Vec2).
+	!vec_change_bases(Sd.exchange_rates, Date, Sd.report_currency, [Coord0], Vec2),
+	Sd.report_currency = [Report_currency],
+	Coord1 = coord(Report_currency, _),
+	!coord_vec(Coord1, Vec2).
