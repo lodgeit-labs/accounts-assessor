@@ -21,7 +21,11 @@ crosscheck_output(Result, Html) :-
 		   [Evaluation.a, Evaluation.op, Evaluation.b]),
 	(	Status == 'ok'
 	->	true
-	;	add_alert('crosscheck failed', [Evaluation_Str])).
+	;	(
+			add_alert('crosscheck failed', Evaluation_Str, Alert_uri),
+			doc_add(Alert_uri, l:has_html, a([href='crosschecks.html'], [Evaluation_Str]))
+		)
+	).
 
 
 crosschecks_report(Sd, Json) :-

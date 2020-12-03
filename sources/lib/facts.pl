@@ -2,16 +2,16 @@
 mock_request :-
 	doc_init.
 */
-make_fact(Vec, Aspects, Uri) :-
+ make_fact(Vec, Aspects, Uri) :-
 	!doc_new_uri(fact, Uri),
 	!doc_add(Uri, rdf:type, l:fact),
 	!doc_add(Uri, l:vec, $>flatten([Vec])),
 	!doc_add(Uri, l:aspects, Aspects).
 
-make_fact(Vec, Aspects) :-
+ make_fact(Vec, Aspects) :-
 	make_fact(Vec, Aspects, _).
 
-fact_vec(Uri, X) :-
+ fact_vec(Uri, X) :-
 	doc(Uri, l:vec, X).
 
 
@@ -19,7 +19,7 @@ fact_vec(Uri, X) :-
 /*
 find all facts with matching aspects
 for a fact to match, it has to have all the aspects present in Aspects, and they have to unify.
-rest of aspects of the fact are ignored. All matching facts are returned. findall, unifications
+rest of aspects of the fact are ignored. All matching facts are returned. Unifications
 are not preserved.
 */
  facts_by_aspects(aspects(Aspects), Facts) :-

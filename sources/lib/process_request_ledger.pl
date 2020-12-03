@@ -42,9 +42,9 @@ process_request_ledger2((Dom, Start_Date, End_Date, Output_Dimensional_Facts, Co
 	%request(Request),
 	%doc_add(Request, l:kind, l:ledger_request),
 	!cf(extract_accounts),
-	!extract_livestock_data_from_ledger_request(Dom),
-	!extract_exchange_rates(Cost_Or_Market, Dom, S_Transactions, Start_Date, End_Date, Report_Currency, Exchange_Rates),
-	!extract_invoices_payable(Dom),
+	!cf(extract_livestock_data_from_ledger_request(Dom)),
+	!cf(extract_exchange_rates(Cost_Or_Market, Dom, S_Transactions, Start_Date, End_Date, Report_Currency, Exchange_Rates)),
+	!cf(extract_invoices_payable(Dom)),
 	!process_ledger(
 		Cost_Or_Market,
 		S_Transactions,
@@ -74,10 +74,10 @@ process_request_ledger2((Dom, Start_Date, End_Date, Output_Dimensional_Facts, Co
 	Static_Data1 = Static_Data0b.put([transactions_by_account=Transactions_By_Account1]),
 	(	account_by_role(rl(smsf_equity), _)
 	->	(
-			smsf_distributions_reports(_),
+			cf(smsf_distributions_reports(_)),
 			update_static_data_with_transactions(
 				Static_Data1,
-				$>!smsf_income_tax_stuff(Static_Data1),
+				$>!cf(smsf_income_tax_stuff(Static_Data1)),
 				Static_Data2)
 		)
 	;	Static_Data2 = Static_Data1),
@@ -116,8 +116,7 @@ create_reports(
 ) :-
 	!balance_entries(Static_Data, Sr),
 	!taxonomy_url_base,
-	!format(user_error, 'create_instance..', []),
-	!create_instance(Xbrl, Static_Data, Static_Data.start_date, Static_Data.end_date, Static_Data.report_currency, Sr.bs.current, Sr.pl.current, Sr.pl.historical, Sr.tb),
+	!cf('create XBRL instance'(Xbrl, Static_Data, Static_Data.start_date, Static_Data.end_date, Static_Data.report_currency, Sr.bs.current, Sr.pl.current, Sr.pl.historical, Sr.tb)),
 	!add_xml_report(xbrl_instance, xbrl_instance, [Xbrl]),
 	!other_reports(Static_Data, Static_Data.outstanding, Sr, Sr2).
 
@@ -127,15 +126,15 @@ balance_entries(
 	Structured_Reports
 ) :-
 	static_data_historical(Static_Data, Static_Data_Historical),
-	maplist(!check_transaction_account, Static_Data.transactions),
+	maplist(!cf(check_transaction_account), Static_Data.transactions),
 	/* sum up the coords of all transactions for each account and apply unit conversions */
-	!trial_balance_between(Static_Data.exchange_rates, Static_Data.transactions_by_account, Static_Data.report_currency, Static_Data.end_date, Static_Data.start_date, Static_Data.end_date, Trial_Balance),
-	!balance_sheet_at(Static_Data, Balance_Sheet),
-	!balance_sheet_delta(Static_Data, Balance_Sheet_delta),
-	!balance_sheet_at(Static_Data_Historical, Balance_Sheet2_Historical),
-	!profitandloss_between(Static_Data, ProfitAndLoss),
-	!profitandloss_between(Static_Data_Historical, ProfitAndLoss2_Historical),
-	!cashflow(Static_Data, Cf),
+	!cf(trial_balance_between(Static_Data.exchange_rates, Static_Data.transactions_by_account, Static_Data.report_currency, Static_Data.end_date, Static_Data.start_date, Static_Data.end_date, Trial_Balance)),
+	!cf(balance_sheet_at(Static_Data, Balance_Sheet)),
+	!cf(balance_sheet_delta(Static_Data, Balance_Sheet_delta)),
+	!cf(balance_sheet_at(Static_Data_Historical, Balance_Sheet2_Historical)),
+	!cf(profitandloss_between(Static_Data, ProfitAndLoss)),
+	!cf(profitandloss_between(Static_Data_Historical, ProfitAndLoss2_Historical)),
+	!cf(cashflow(Static_Data, Cf)),
 
 	Structured_Reports = _{
 		pl: _{
@@ -168,23 +167,23 @@ static_data_historical(Static_Data, Static_Data_Historical) :-
 ) :-
 	!static_data_historical(Static_Data, Static_Data_Historical),
 	(	account_by_role(rl(smsf_equity), _)
-	->	smsf_member_reports(Sr0)
+	->	cf(smsf_member_reports(Sr0))
 	;	true),
 	!report_entry_tree_html_page(Static_Data, Sr0.bs.current, 'balance sheet', 'balance_sheet.html'),
 	!report_entry_tree_html_page(Static_Data, Sr0.bs.delta, 'balance sheet delta', 'balance_sheet_delta.html'),
 	!report_entry_tree_html_page(Static_Data_Historical, Sr0.bs.historical, 'balance sheet - historical', 'balance_sheet_historical.html'),
 	!report_entry_tree_html_page(Static_Data, Sr0.pl.current, 'profit and loss', 'profit_and_loss.html'),
 	!report_entry_tree_html_page(Static_Data_Historical, Sr0.pl.historical, 'profit and loss - historical', 'profit_and_loss_historical.html'),
-	!cf_page(Static_Data, Sr0.cf),
+	!cf(cf_page(Static_Data, Sr0.cf)),
 
-	!gl_export(Static_Data, Static_Data.transactions, Gl),
-	!make_json_report(Gl, general_ledger_json),
-	!make_gl_viewer_report,
+	!cf(gl_export(Static_Data, Static_Data.transactions, Gl)-,
+	!cf(make_json_report(Gl, general_ledger_json)-,
+	!cf(make_gl_viewer_report),
 
-	!investment_reports(Static_Data.put(outstanding, Outstanding), Investment_Report_Info),
+	!cf(investment_reports(Static_Data.put(outstanding, Outstanding), Investment_Report_Info)),
 	Sr1 = Sr0.put(ir, Investment_Report_Info),
 
-	!crosschecks_report0(Static_Data.put(reports, Sr1), Crosschecks_Report_Json),
+	!cf(crosschecks_report0(Static_Data.put(reports, Sr1), Crosschecks_Report_Json)),
 	Sr5 = Sr1.put(crosschecks, Crosschecks_Report_Json),
 	!make_json_report(Sr1, reports_json).
 

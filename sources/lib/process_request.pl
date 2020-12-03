@@ -167,34 +167,32 @@ format_json_report_entry(Key, Title, Url, Json) :-
 
 collect_alerts(Alerts_text, Alerts_html) :-
 	findall(
-		Alert,
+		Alert_text,
 		(
-			get_alert(Key,Msg0),
-			alert_to_string(Key, Msg0, Alert)
+			get_alert(Key,Msg0,_),
+			!alert_to_string(Key, Msg0, Alert_text)
 		),
 		Alerts_text
 	),
 	findall(
-		Alert,
+		Alert_html,
 		(
-			get_alert(Key,Msg0),
-			!alert_to_html(Key, Msg0, Alert)
+			get_alert(Key,Msg0,Uri),
+			(	doc(Uri,l:has_html,Alert_html)
+			->	true
+			;	!alert_to_html(Key, Msg0, Alert_html))
 		),
 		Alerts_html
 	).
 
  alert_to_string(Key, Msg0, Alert) :-
-	(
-	(
-		(Msg0 = error(msg(Msg),_) -> true ; Msg0 = Msg),
-		(atomic(Msg) -> Msg2 = Msg ; term_string(Msg, Msg2)),
-		atomic_list_concat([Key,': ',Msg2], Alert)
-	)
-	->	true
-	;	throw(xxx)).
+	(Msg0 = error(msg(Msg),_) -> true ; Msg0 = Msg),
+	(atomic(Msg) -> Msg2 = Msg ; term_string(Msg, Msg2)),
+	atomic_list_concat([Key,': ',Msg2], Alert).
 
  alert_to_html(Key, Msg0, Alert) :-
 	(Msg0 = error(msg(Msg),_) -> true ; Msg0 = Msg),
+	% html?
 	(	Msg = html(Msg2)
 	->	true
 	;	atomic(Msg) -> Msg2 = Msg ; term_string(Msg, Msg2)),

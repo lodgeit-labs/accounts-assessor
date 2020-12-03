@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
 
-# python3 -m pip install --user -U click pyyaml
-
 try:
 	import click
 	import yaml
@@ -15,9 +13,9 @@ from copy import deepcopy
 	
 
 @click.command()
-@click.option('-pp', '--port_postfix', type=str, default='')
-@click.option('-hn', '--use_host_network', type=bool, default=False)
-@click.option('-ms', '--mount_host_sources_dir', type=bool, default=False)
+@click.option('-pp', '--port_postfix', type=str, default='88', help="last two or more digits of the services' public ports. Also identifies the particular docker stack.")
+@click.option('-hn', '--use_host_network', type=bool, default=False, help="use host network?")
+@click.option('-ms', '--mount_host_sources_dir', type=bool, default=False, help="bind-mount sources, instead of copying them into the image? Useful for development.")
 def run(port_postfix, **choices):
 
 	pp = port_postfix
@@ -35,17 +33,13 @@ def run(port_postfix, **choices):
 	shell('./follow_logs.sh '+pp)
 	
 
-
 def generate_stack_file(choices):
 	with open('docker-stack.yml') as file_in:
 		src = yaml.load(file_in, Loader=yaml.FullLoader)
-	
-	fn = '../sources/docker-stack' + ('__'.join(['']+[k for k,v in choices.items() if v])) + '.yml'
+		fn = '../sources/docker-stack' + ('__'.join(['']+[k for k,v in choices.items() if v])) + '.yml'
 	with open(fn, 'w') as file_out:
 		yaml.dump(tweaked_services(src, **choices), file_out)
 	return fn
-
-
 
 
 def tweaked_services(src, use_host_network, mount_host_sources_dir):
@@ -54,7 +48,6 @@ def tweaked_services(src, use_host_network, mount_host_sources_dir):
 
 	if not 'secrets' in res:
 		res['secrets'] = {}
-		
 	for fn,path in files_in_dir('../secrets/'):
 		if fn not in res['secrets']:
 			res['secrets'][fn] = {'file':path}
@@ -62,6 +55,7 @@ def tweaked_services(src, use_host_network, mount_host_sources_dir):
 	if use_host_network:
 		for k,v in services.items():
 			v['networks'] = ['hostnet']
+
 	if mount_host_sources_dir:
 		for x in ['internal-workers','internal-services','frontend-server' ]:
 			if x in services:
@@ -73,6 +67,7 @@ def tweaked_services(src, use_host_network, mount_host_sources_dir):
 		
 	return res
 
+
 def files_in_dir(dir):
 	result = []
 	for filename in os.listdir(dir):
@@ -82,21 +77,11 @@ def files_in_dir(dir):
 	return result
 
 
-
 def shell(cmd):
 	print('>'+cmd)
 	r = os.system(cmd)
 	if r != 0:
 		exit(r)
-		
-
-
-
-#	for b0 in [True, False]:
-#		choices['use_host_network'] = b0
-#		for b1 in [True, False]:
-#			choices['mount_host_sources_dir'] = b1
-
 
 
 if __name__ == '__main__':

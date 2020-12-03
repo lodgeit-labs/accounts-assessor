@@ -12,6 +12,40 @@
 				<account name="Formation Expenses"/>
 				<account name="Interest Receivable"/>
 				<account name="Other Assets"/>
+				<account name="Fixed Assets">
+					<account name="Land, Buildings &amp; Leasehold Improvements">
+						<account name="Improvements">
+							<account name="Other Property Improvements">
+								<account name="Impairment of Other Property Improvements">
+								</account>					
+								<account name="Revaluation Other Property Improvements">
+								</account>					
+								<account name="Other Property Improvements at Cost">
+								</account>					
+								<account name="Other Property Improvements Accumulated Deprectiation">
+								</account>					
+							</account>					
+						</account>					
+						<account name="Land &amp; Buildings">
+							<account name="Impairment of Land &amp; Buildings">
+							</account>					
+							<account name="Revaluation Land &amp; Buildings">
+							</account>					
+							<account name="Land &amp; Buildings at Cost">						
+							</account>
+							<account name="Land &amp; Buildings Accumulated Depreciation">
+							</account>
+						</account>					
+					</account>
+					<account name="Plant &amp; Equipment">
+						<account name="Plant &amp; Equipment at Cost">
+						</account>
+						<account name="Plant &amp; Equipment Accumulated Depreciation">
+						</account>					
+					</account>
+					<account name="Low Value Pool">
+					</account>
+				</account>
 				<account name="Prepaid Expenses"/>
 				<account name="Sundry Debtors"/>
 				<account name="Investments" role="FinancialInvestments/Investments">

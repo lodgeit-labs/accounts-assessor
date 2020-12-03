@@ -57,20 +57,20 @@ on demo server, this is a system-wide apache set up with mod_wsgi. I have not fo
 
 
 
-## Getting Started
+## getting started
 
 clone the repo, run `git submodule update --init`
+configure secrets/credentials: 
+	`cp secrets_example/ secrets/` 
 
 ### with docker
 
-```
-cd sources
-../docker_scripts/build.sh; and ../docker_scripts/deploy_stack.sh
-```
+```docker_scripts/run.sh```
 
 ### manually
 
-#### Install SWI-Prolog 8.1.14
+#### Install SWI-Prolog
+* 8.1.14 is known to be good
 * see https://github.com/LodgeiT/labs-accounts-assessor/wiki/SWIPL-and-prolog-notes
 
 #### Install dependencies:
@@ -78,12 +78,9 @@ cd sources
 * install python3 and python3-pip
 * ```./init.sh```
 
-#### optional, run the triplestore:
+#### run the triplestore:
 (this is a command line from demo server):
 `/home/sfi/ag/bin/agraph-control --config /home/sfi/ag/lib/agraph.cfg start`
-
-#### configure secrets/credentials: 
-	add two json files above repo directory. see demo server for details.
 
 #### with servicemanager:
 ##### set up virtualenv for servicemanager:
@@ -107,6 +104,8 @@ bash <args>
 * you should get back a json with links to individual report files
 
 #### Run the tests against a running server:
+(tests need updating..)
+
 `cd server_root; reset;echo -e "\e[3J";   swipl -s ../lib/dev_runner.pl   --problem_lines_whitelist=../misc/problem_lines_whitelist  --script ../lib/endpoint_tests.pl  -g "set_flag(overwrite_response_files, false), set_flag(add_missing_response_files, false), set_prolog_flag(grouped_assertions,true), run_tests"`
 
 #### Run one testcase:

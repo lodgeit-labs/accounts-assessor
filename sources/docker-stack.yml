@@ -1,6 +1,10 @@
 networks:
-  backend: null
+  backend:
+    attachable: true
   frontend: null
+  hostnet:
+    external: true
+    name: host
 secrets:
   AGRAPH_SECRET_HOST:
     file: ../secrets/AGRAPH_SECRET_HOST
@@ -111,6 +115,11 @@ services:
     image: koo5/internal-workers${PP}:latest
     networks:
     - backend
+    secrets:
+    - AGRAPH_SECRET_HOST
+    - AGRAPH_SECRET_PORT
+    - AGRAPH_SUPER_USER
+    - AGRAPH_SUPER_PASSWORD
     volumes:
     - tmp:/app/server_root/tmp
     - cache:/app/cache
