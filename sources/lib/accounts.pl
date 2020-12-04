@@ -125,8 +125,8 @@ account_descendants(Account, Descendants) :-
 			Role = rl(Role2),
 			term_string(Role2, Role_Str),
 			(	nonvar(Account)
-			->	format(string(Err), 'unknown account by role ~w that would match expected account ~q', [Role_Str, Account])
-			;	format(string(Err), 'unknown account by role: ~w', [Role_Str])),
+			->	format(string(Err), 'unknown account by role ~w that would match expected account ~q.~nPlease review the chart of accounts.', [Role_Str, Account])
+			;	format(string(Err), 'unknown account by role: ~w.~nPlease review the chart of accounts.', [Role_Str])),
 			throw_string(Err)
 		)
 	).

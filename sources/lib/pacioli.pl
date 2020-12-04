@@ -135,8 +135,7 @@ vec_sum_by_pred(
 % Subtracts the vector Bs from As by inverting Bs and adding it to As.
 
  vec_sub(As, Bs, Cs) :-
-	vec_inverse(Bs, Ds),
-	vec_add(As, Ds, Cs).
+	vec_add(As, $>vec_inverse(Bs), Cs).
 
 % Checks two vectors for equality by subtracting the latter from the former and verifying
 % that all the resulting coordinates are zero.
