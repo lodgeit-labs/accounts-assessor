@@ -1,6 +1,6 @@
  smsf_income_tax_reports_v2(Reports) :-
-	smsf_income_tax_reports_v2_2(Reports, plain),
-	smsf_income_tax_reports_v2_2(Reports, rich).
+	smsf_income_tax_reports_v2_2(Reports, stable_html),
+	smsf_income_tax_reports_v2_2(Reports, rich_html).
 
  smsf_income_tax_reports_v2_2(reports{report:Tbl1,reconcilliation:Tbl2}, Mode) :-
 	!smsf_income_tax_report_v2(Tbl1, Mode),
@@ -21,20 +21,19 @@
 		statement_of_taxable_income
 	).
 
- smsf_income_tax_report_v2(Tbl_dict) :-
+ smsf_income_tax_report_v2(Tbl_dict, Mode) :-
 	% todo unify concept names with uris/namespaces
 
 	Rules0 = [
-
+		aspects([concept - (smsf/income_tax/'Taxable Trust Distributions (Inc Foreign Income & Credits)')])
+		=
 		sum(
-			% summants
 			[
 				aspects([concept - ($>rdf_global_id(smsf_distribution_ui:non_primary_production_income))]),
 				aspects([concept - ($>rdf_global_id(smsf_distribution_ui:franked_divis_distri_including_credits))]),
 				aspects([concept - ($>rdf_global_id(smsf_distribution_ui:assessable_foreign_source_income))])
-			],
-			% sum:
-			aspects([concept - (smsf/income_tax/'Taxable Trust Distributions (Inc Foreign Income & Credits)')]))
+			]
+		)
 	],
 
 	Rows0 = [
@@ -68,10 +67,10 @@
 %the semantics is that all relevant facts exist beforehand. So, each formula comes down to: filtering the db by a given 'aspects' list, and creating a static equation system off that.
 
 	Rules2 = [
-		sum(
-			$>rows_aspectses(Subtraction_rows),
-			aspects([concept - smsf/income_tax/'Total subtractions'])
-		),
+		aspects([concept - smsf/income_tax/'Total subtractions'])
+		=
+		sum($>rows_aspectses(Subtraction_rows)),
+
 		% assert two facts with unbound vars for values. Hoist this.
 		make_fact(aspects([concept - smsf/income_tax/'Total subtractions'])),
 		make_fact(aspects([concept - smsf/income_tax/'subtotal0'])),
@@ -108,10 +107,10 @@
 				concept - ($>rdf_global_id(smsf_computation:taxable_net_capital_gains_discounted))])]],
 
 	Rules3 = [
-		sum(
-			$>rows_aspectses(Addition_rows,
-			aspects([concept - smsf/income_tax/'Additions_vec'])
-		),
+		aspects([concept - smsf/income_tax/'Additions_vec'])
+		=
+		sum($>rows_aspectses(Addition_rows),
+
 		make_fact(aspects([concept - smsf/income_tax/'Additions_vec'])),
 
 		aspects([concept - smsf/income_tax/'Rows0'])
@@ -168,10 +167,9 @@
 	],
 
 	Rules4 = [
-		sum(
-			$>rows_aspectses(Subtractions2_rows),
-			aspects([concept - smsf/income_tax/'Subtractions2_vec'])
-		),
+		aspects([concept - smsf/income_tax/'Subtractions2_vec'])
+		=
+		sum($>rows_aspectses(Subtractions2_rows)),
 
 		make_fact(aspects([concept - smsf/income_tax/'Income Tax Payable/(Refund)'])),
 
@@ -223,5 +221,15 @@ solve_rules2(Rules) :-
 
 solve_rule(make_fact(Aspects)) :-
 	!make_fact(_, Aspects).
+
+solve_rule('='(X, Y)) :-
+/*
+1) all the rules have to be represented in RDF
+2) we already got the inputs in doc
+
+
+
+*/
+
 
 
