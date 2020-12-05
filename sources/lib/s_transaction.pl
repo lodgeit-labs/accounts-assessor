@@ -221,11 +221,45 @@ extract_s_transaction2(Tx_Dom, Account_Currency, Account, ST) :-
 	parse_date(Date_Atom, Date),
 	Dr is rationalize(Bank_Debit - Bank_Credit),
 	Coord = coord(Account_Currency, Dr),
-	extract_exchanged_value(Tx_Dom, Account_Currency, Dr, Exchanged),
+	extract_exchanged_value(Tx_Dom, Dr, Exchanged),
 	doc_add_s_transaction(Date, Desc1, [Coord], Account, Exchanged, misc{desc2:Desc2}, ST),
 	doc_add(ST, l:source, l:bank_statement_xml).
 
-extract_exchanged_value(Tx_Dom, _Account_Currency, Bank_Dr, Exchanged) :-
+extract_exchanged_value(Tx_Dom, Bank_Dr, Exchanged) :-
+	(	field_nothrow(Tx_Dom, [unitType, Unit_Type])
+	->	true
+	;	Unit_Type = nil()),
+
+	(	field_nothrow(Tx_Dom, [unit, Unit_Count_Atom])
+	->	atom_number(Unit_Count_Atom, Unit_Count)
+	;	Unit_Count = nil()),
+
+	(	Bank_Dr >= 0
+	->	Money_side = kb:debit
+	;	Money_side = kb:credit),
+
+extract_exchanged_value2(Money_side, Unit_type, Unit_count, Exchanged) :-
+	(	Unit_type = nil()
+	->	(	Unit_count = nil()
+		->	Exchanged = vector([])
+		;	throw_string('unit count specified, but unit type missing'))
+	;	(	Unit_count = nil()
+		->	% If the user has specified only a unit type, then infer count by exchange rate
+			Exchanged = bases([Unit_type])
+		;	(
+				Count_absolute is rationalize(abs(Unit_count)),
+				(	Money_side = kb:debit
+				->	Exchanged = vector([coord(Unit_type, Count_absolute)])
+				;	(
+						Count_credit is -Count_absolute,
+						Exchanged = vector([coord(Unit_type, Count_credit)])
+					)
+				)
+			)
+		)
+	).
+
+extract_exchanged_value(Tx_Dom, Bank_Dr, Exchanged) :-
    % if unit type and count is specified, unifies Exchanged with a one-item vector with a coord with those values
    % If the user has specified only a unit type, unifies Exchanged with bases(..) to trigger unit count inference
    (

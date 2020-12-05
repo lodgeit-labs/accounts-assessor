@@ -32,16 +32,61 @@
 	!doc_value(Input, ic:items, List),
 	!doc_list_items(List, Items),
 	!doc_value(Input, excel:has_sheet_name, Sheet_name),
-	maplist(!cf('process action_input item'(Sheet_name, First_account)), Items, Txs0),
+	maplist(!cf('extract action_input item'(Sheet_name, First_account)), Items, Txs0),
 	flatten(Txs0, Txs),
 	pop_context.
 
-'process action_input item'(Sheet_name, First_account, Item, St) :-
-	writeq((Sheet_name, First_account, Item, Txs)),
-	doc_add_s_transaction(Date, Verb, [Coord], Account, Exchanged, misc{desc2:Desc2}, ST),
+'extract action_input item'(Sheet_name, First_account, Item, St) :-
+	push_context($>format(string(<$), 'extract item at ~w', [$>sheet_and_cell_string(Item)])),
 
+	!request_has_property(l:report_currency, [Default_Currency]),
 
-%'process action_input'(Sts) :-
+	(	doc_value(Item, ic:debit, Debit_String)
+	->	vector_from_string(Default_Currency, kb:debit, Debit_String, Debit_Vector)
+	;	Debit_Vector = []),
+
+	(	doc_value(Item, ic:credit, Credit_String)
+	->	vector_from_string(Default_Currency, kb:credit, Credit_String, Credit_Vector)
+	;	Credit_Vector = []),
+
+	append(Debit_Vector, Credit_Vector, Vector),
+
+	Vector = [coord(_,Dr)],
+
+	(	Dr >= 0
+	->	Money_side = kb:debit
+	;	Money_side = kb:credit),
+
+	(	doc_value(Item, ic:units_count, Units_count)
+	->	true
+	;	Units_count = nil()),
+
+	(	doc_value(Item, ic:units_type, Units_type)
+	->	true
+	;	Units_type = nil()),
+
+	extract_exchanged_value2(Money_side, Units_type, Units_count, Exchanged),
+
+	(	doc_value(Item, ic:description2, Description2)
+	->	true
+	;	Description2 = Sheet_name),
+
+	(	doc_value(Item, ic:description3, Description3)
+	->	true
+	;	Description3 = ''),
+
+	misc{desc2:Description2,desc3:Description3}
+
+	doc_add_s_transaction(
+		$>rpv(Item, ic:date),
+		$>rpv(Item, ic:action_verb),
+		Vector,
+		$>c(account_by_ui(First_account)), Exchanged, misc{desc2:Desc2},
+		Exchanged,
+		St
+	),
+
+	pop_context.
 
 
  extract_gl_tx(_, _, _,_,[],[]).
