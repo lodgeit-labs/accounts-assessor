@@ -227,7 +227,7 @@ extract_s_transaction2(Tx_Dom, Account_Currency, Account, ST) :-
 
 extract_exchanged_value(Tx_Dom, _Account_Currency, Bank_Dr, Exchanged) :-
    % if unit type and count is specified, unifies Exchanged with a one-item vector with a coord with those values
-   % otherwise unifies Exchanged with bases(..) to trigger unit conversion later
+   % If the user has specified only a unit type, unifies Exchanged with bases(..) to trigger unit count inference
    (
 	  field_nothrow(Tx_Dom, [unitType, Unit_Type]),
 	  (

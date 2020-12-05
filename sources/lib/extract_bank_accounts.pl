@@ -1,16 +1,7 @@
 
- 'extract source transactions, phase 0'(Dom, S_Transactions) :-
- 	assertion(Dom = [element(_,_,_)]),
-	!extract_bank_accounts(Dom),
-	!generate_bank_opening_balances_sts(Bank_Lump_STs),
-	!handle_additional_files(S_Transactions0),
-	!extract_s_transactions(Dom, S_Transactions1),
-	!flatten([Bank_Lump_STs, S_Transactions0, S_Transactions1], S_Transactions2),
-	!sort_s_transactions(S_Transactions2, S_Transactions).
-
 extract_bank_accounts(Dom) :-
 	findall(Account, xpath(Dom, //reports/balanceSheetRequest/bankStatement/accountDetails, Account), Bank_accounts),
-	maplist(!extract_bank_account, Bank_accounts).
+	maplist(!cf(extract_bank_account), Bank_accounts).
 
 extract_bank_account(Account) :-
 	!fields(Account, [

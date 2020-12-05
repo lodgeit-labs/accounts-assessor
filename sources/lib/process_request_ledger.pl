@@ -1,22 +1,32 @@
 
 
 process_request_ledger(File_Path, Dom) :-
+ 	assertion(Dom = [element(_,_,_)]),
 	inner_xml(Dom, //reports/balanceSheetRequest, _),
 	!cf(validate_xml2(File_Path, 'bases/Reports.xsd')),
 	Data = (Dom, Start_Date, End_Date, Output_Dimensional_Facts, Cost_Or_Market, Report_Currency),
+
 	!cf(extract_request_details(Dom)),
 	!cf(extract_start_and_end_date(Dom, Start_Date, End_Date)),
 	!cf('extract "output_dimensional_facts"'(Dom, Output_Dimensional_Facts)),
 	!cf('extract "cost_or_market"'(Dom, Cost_Or_Market)),
 	!cf(extract_report_currency(Dom, Report_Currency)),
 	!cf(extract_action_verbs(Dom)),
-	!cf('extract source transactions, phase 0'(Dom, S_Transactions)),
+	!cf(extract_bank_accounts(Dom)),
+	!cf('extract GL accounts'),
 
-	% you may find useful:
+	!cf(generate_bank_opening_balances_sts(Bank_Lump_STs)),
+	!cf(handle_additional_files(S_Transactions0)),
+	!cs(extract_s_transactions(Dom, S_Transactions1)),
+	!cf(extract_action_inputs(Action_input_sts)),
+	!flatten([Bank_Lump_STs, S_Transactions0, S_Transactions1, Action_input_sts], S_Transactions2),
+	!sort_s_transactions(S_Transactions2, S_Transactions),
+
+	/* you may find useful:*/
 	%profile(
 	!process_request_ledger2(Data, S_Transactions, _, _Transactions),
 	%)
-	% or you may find useful:
+	/* or you may find useful:*/
 	%process_request_ledger_debug(Dom, S_Transactions),
 	true.
 
@@ -36,12 +46,9 @@ ggg(Data, S_Transactions0, Count) :-
 	->	true
 	;	(g trace,format(user_error, '~q: ~q ~n', [Count, Structured_Reports.crosschecks.errors]))).*/
 
-
-
 process_request_ledger2((Dom, Start_Date, End_Date, Output_Dimensional_Facts, Cost_Or_Market, Report_Currency),   S_Transactions, Structured_Reports, Transactions) :-
 	%request(Request),
 	%doc_add(Request, l:kind, l:ledger_request),
-	!cf(extract_accounts),
 	!cf(extract_livestock_data_from_ledger_request(Dom)),
 	!cf(extract_exchange_rates(Cost_Or_Market, Dom, S_Transactions, Start_Date, End_Date, Report_Currency, Exchange_Rates)),
 	!cf(extract_invoices_payable(Dom)),

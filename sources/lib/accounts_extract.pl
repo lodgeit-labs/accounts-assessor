@@ -22,7 +22,7 @@ extract account tree specified in request xml
 the accountHierarchy tag can appear multiple times, all the results will be added together.
 */
 
-extract_accounts :-
+'extract GL accounts' :-
 	!doc_add($>(!request_data), l:has_accounts, $>(!doc_new_uri(account_hierarchy))),
 	make_root_account,
 	extract_accounts2.

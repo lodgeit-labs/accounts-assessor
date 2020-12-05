@@ -4,6 +4,12 @@
 			flatten(Txs0, Txs))
 	;	Txs = []).
 
+ extract_action_inputs(Txs) :-
+ 	(	doc($>request_data, ic_ui:action_input, Input)
+ 	->	(	maplist(!extract_action_input, $>doc_list_items(Input), Txs0),
+			flatten(Txs0, Txs))
+	;	Txs = []).
+
  extract_gl_input(Gl, Txs) :-
  	push_context($>format(string(<$), 'extract GL input from: ~w', [$>sheet_and_cell_string(Gl)])),
 	!doc_value(Gl, ic:default_currency, Default_Currency0),
@@ -19,6 +25,24 @@
 		Sheet_name,
 	Txs),
 	pop_context.
+
+ extract_action_input(Input, Txs) :-
+ 	push_context($>format(string(<$), 'extract action input from: ~w', [$>sheet_and_cell_string(Input)])),
+	!doc_value(Input, ic:account, First_account),
+	!doc_value(Input, ic:items, List),
+	!doc_list_items(List, Items),
+	!doc_value(Input, excel:has_sheet_name, Sheet_name),
+	maplist(!cf('process action_input item'(Sheet_name, First_account)), Items, Txs0),
+	flatten(Txs0, Txs),
+	pop_context.
+
+'process action_input item'(Sheet_name, First_account, Item, St) :-
+	writeq((Sheet_name, First_account, Item, Txs)),
+	doc_add_s_transaction(Date, Verb, [Coord], Account, Exchanged, misc{desc2:Desc2}, ST),
+
+
+%'process action_input'(Sts) :-
+
 
  extract_gl_tx(_, _, _,_,[],[]).
 
