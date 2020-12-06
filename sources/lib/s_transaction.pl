@@ -48,15 +48,23 @@ s_transaction_description3(T, X) :-
 	doc(T, s_transactions:misc, M, transactions),
 	X = M.get(desc3).
 
-doc_set_s_transaction_vector(T0, X, T1) :-
-	doc_set_property(s_transactions, T0, $>s_transaction_fields, vector, X, transactions, T1).
+doc_set_s_transaction_vector(T0, X, T1, Op) :-
+	doc_set_property(s_transactions, T0, $>s_transaction_fields, vector, X, transactions, T1, Op).
 
-doc_set_s_transaction_type_id(T0, X, T1) :-
-	doc_set_property(s_transactions, T0, $>s_transaction_fields, type_id, X, transactions, T1).
+doc_set_s_transaction_type_id(T0, X, T1, Op) :-
+	doc_set_property(s_transactions, T0, $>s_transaction_fields, type_id, X, transactions, T1, Op).
+
+doc_set_s_transaction_primary_account(T0, X, T1, Op) :-
+	doc_set_property(s_transactions, T0, $>s_transaction_fields, account, X, transactions, T1, Op).
+
 
 /* add a new object with P newly set to V, referencing the rest of Fields */
-doc_set_property(Prefix, S1, Fields, P, V, G, S2) :-
+doc_set_property(Prefix, S1, Fields, P, V, G, S2, Op) :-
 	doc_new_uri(S2),
+	doc_new_uri(Relation),
+	doc_add(Relation, l:has_subject, S1),
+	doc_add(Relation, l:has_object, S2),
+	doc_add(Relation, l:has_op, Op),
 	(	doc(S1, rdf:type, Type, G)
 	->	doc_add(S2, rdf:type, Type, G)),
 	maplist(doc_set_property_helper(Prefix,S1,S2,P,V,G), Fields).
@@ -121,7 +129,7 @@ s_transactions_up_to(End_Date, S_Transactions_All, S_Transactions_Capped) :-
 	s_transaction_day(T, Day),
 	s_transaction_type_id(T, uri(Action_Verb)),
 	s_transaction_vector(T, Vector),
-	s_transaction_account(T, Account),
+	!s_transaction_account(T, uri(Account)),
 	s_transaction_exchanged(T, Exchanged),
 	s_transaction_misc(T, Misc),
 	(	/* here's an example of the shortcoming of ignoring the rdf prefix issue, fixme */
@@ -140,7 +148,8 @@ s_transactions_up_to(End_Date, S_Transactions_All, S_Transactions_Capped) :-
 	/*
 	at this point:
 	s_transactions are sorted by date from oldest to newest
-	s_transactions have flipped vectors, so they are from our perspective
+	bank s_transactions have flipped vectors, so they are from our perspective
+	primary accounts are specified with bank_account_name() or account_name_ui_string() or maybe uri()
 	*/
 	maplist(prepreprocess_s_transaction(Static_Data), In, Out).
 
@@ -157,15 +166,33 @@ s_transactions_up_to(End_Date, S_Transactions_All, S_Transactions_Capped) :-
 
 /* from verb label to verb uri */
 prepreprocess_s_transaction(Static_Data, S_Transaction, Out) :-
-	s_transaction_action_verb(S_Transaction, Action_Verb),
+	s_transaction_action_verb_uri_from_string(S_Transaction, Action_Verb),
 	!,
-	doc_set_s_transaction_type_id(S_Transaction, uri(Action_Verb), NS_Transaction),
+	doc_set_s_transaction_type_id(S_Transaction, uri(Action_Verb), NS_Transaction, action_verb_uri_from_string),
+	prepreprocess_s_transaction(Static_Data, NS_Transaction, Out).
+
+/* from first account term to uri() */
+prepreprocess_s_transaction(Static_Data, In, Out) :-
+	's_transaction first account term to uri'(S_Transaction, First_account_uri)
+	!,
+	doc_set_s_transaction_primary_account(S_Transaction, uri(First_account_uri), NS_Transaction, 's_transaction first account term to uri'),
 	prepreprocess_s_transaction(Static_Data, NS_Transaction, Out).
 
 prepreprocess_s_transaction(_, T, T) :-
-	(	s_transaction_type_id(T, uri(_))
-	->	true
-	;	throw_string(unrecognized_bank_statement_transaction_format)).
+	assertion(s_transaction_type_id(T, uri(_))),
+	assertion(s_transaction_account(T, uri(_))).
+
+'s_transaction first account term to uri'(St, Gl_account) :-
+	s_transaction_account(St, A),
+	A = bank_account_name(N),
+	abrlt('Banks'/N, Gl_account),
+	!.
+
+'s_transaction first account term to uri'(St, Gl_account) :-
+	s_transaction_account(St, A),
+	A = account_name_ui_string(N),
+	!account_by_ui(N, Gl_account),
+	!.
 
 
 % This Prolog rule handles the case when only the exchanged units are known (for example GOOG)  and
@@ -174,17 +201,13 @@ infer_exchanged_units_count(Static_Data, S_Transaction, NS_Transaction) :-
 	dict_vars(Static_Data, [Exchange_Rates]),
 	s_transaction_exchanged(S_Transaction, bases(Goods_Bases)),
 	s_transaction_day(S_Transaction, Transaction_Date),
-	s_transaction_type_id(S_Transaction, Type_Id),
-	s_transaction_vector(S_Transaction, Vector),
-	s_transaction_account(S_Transaction, Unexchanged_Account_Id),
-	s_transaction_misc(S_Transaction, Misc),
 	% infer the count by money debit/credit and exchange rate
 	vec_change_bases(Exchange_Rates, Transaction_Date, Goods_Bases, Vector, Vector_Exchanged),
 	vec_inverse(Vector_Exchanged, Vector_Exchanged_Inverted),
-	doc_add_s_transaction(Transaction_Date, Type_Id, Vector, Unexchanged_Account_Id, vector(Vector_Exchanged_Inverted), Misc, NS_Transaction).
+	doc_set_s_transaction_exchanged(S_Transaction, vector(Vector_Exchanged_Inverted), NS_Transaction, infer_exchanged_units_count).
 
 /* used on raw s_transaction during prepreprocessing */
-s_transaction_action_verb(S_Transaction, Action_Verb) :-
+s_transaction_action_verb_uri_from_string(S_Transaction, Action_Verb) :-
 	s_transaction_type_id(S_Transaction, Type_Id),
 	Type_Id \= uri(_),
 	(	(
@@ -234,7 +257,7 @@ extract_s_transaction2(Tx_Dom, Account_Currency, Account, ST) :-
 	Dr is rationalize(Bank_Debit - Bank_Credit),
 	Coord = coord(Account_Currency, Dr),
 	extract_exchanged_value(Tx_Dom, Dr, Exchanged),
-	doc_add_s_transaction(Date, Verb, [Coord], Account, Exchanged, misc{desc2:Desc2}, ST),
+	doc_add_s_transaction(Date, Verb, [Coord], bank_account_name(Account), Exchanged, misc{desc2:Desc2}, ST),
 	doc_add(ST, l:source, l:bank_statement_xml).
 
 extract_exchanged_value(Tx_dom, Bank_dr, Exchanged) :-
@@ -287,7 +310,7 @@ extract_s_transactions(Dom, S_Transactions) :-
 invert_s_transaction_vector(T0, T1) :-
 	s_transaction_vector(T0, Vector),
 	vec_inverse(Vector, Vector_Inverted),
-	doc_set_s_transaction_vector(T0, Vector_Inverted, T1).
+	doc_set_s_transaction_vector(T0, Vector_Inverted, T1, invert_s_transaction_vector).
 
 
 

@@ -70,7 +70,7 @@ infer_livestock_action_verb(S_Transaction, NS_Transaction) :-
 	(	is_debit(Vector)
 	->	rdf_global_id(l:livestock_sale,Action_Verb)
 	;	rdf_global_id(l:livestock_purchase,Action_Verb)),
-	doc_set_s_transaction_type_id(S_Transaction, uri(Action_Verb), NS_Transaction).
+	doc_set_s_transaction_type_id(S_Transaction, uri(Action_Verb), NS_Transaction, infer_livestock_action_verb).
 
 
 

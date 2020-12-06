@@ -28,8 +28,7 @@
 
  extract_action_input(Input, Txs) :-
  	push_context($>format(string(<$), 'extract action input from: ~w', [$>sheet_and_cell_string(Input)])),
-	!doc_value(Input, ic:account, First_account_ui),
-	atom_string(First_account, First_account_ui),
+	!doc_value(Input, ic:account, First_account),
 	!doc_value(Input, ic:items, List),
 	!doc_list_items(List, Items),
 	!doc_value(Input, excel:has_sheet_name, Sheet_name),
@@ -80,7 +79,7 @@
 		$>rpv(Item, ic:date),
 		$>atom_string(<$, $>rpv(Item, ic:action_verb)),
 		Vector,
-		First_account,
+		account_name_ui_string(First_account),
 		Exchanged,
 		misc{desc2:Description2,desc3:Description3},
 		St
