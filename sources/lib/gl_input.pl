@@ -29,8 +29,7 @@
  extract_action_input(Input, Txs) :-
  	push_context($>format(string(<$), 'extract action input from: ~w', [$>sheet_and_cell_string(Input)])),
 	!doc_value(Input, ic:account, First_account_ui),
-	c(account_by_ui($>atom_string(<$, First_account_ui), First_account)),
-
+	atom_string(First_account, First_account_ui),
 	!doc_value(Input, ic:items, List),
 	!doc_list_items(List, Items),
 	!doc_value(Input, excel:has_sheet_name, Sheet_name),
@@ -79,7 +78,7 @@
 
 	doc_add_s_transaction(
 		$>rpv(Item, ic:date),
-		uri($>rpv(Item, ic:action_verb)),
+		$>atom_string(<$, $>rpv(Item, ic:action_verb)),
 		Vector,
 		First_account,
 		Exchanged,

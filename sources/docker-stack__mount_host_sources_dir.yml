@@ -117,6 +117,8 @@ services:
     image: koo5/internal-workers${PP}:latest
     networks:
     - backend
+    ports:
+    - 123${PP}:1234
     secrets:
     - AGRAPH_SECRET_HOST
     - AGRAPH_SECRET_PORT

@@ -133,6 +133,8 @@ services:
       - AGRAPH_SECRET_PORT
       - AGRAPH_SUPER_USER
       - AGRAPH_SUPER_PASSWORD
+    ports:
+      - 123${PP}:1234
 
 networks:
   frontend:

@@ -226,7 +226,7 @@ extract_s_transaction2(Tx_Dom, Account_Currency, Account, ST) :-
 		debit, (Bank_Debit, 0),
 		credit, (Bank_Credit, 0)]),
 	fields(Tx_Dom, [
-		transdesc, (Desc1, ''),
+		transdesc, (Verb, ''),
 		transdesc2, (Desc2, '')
 	]),
 	xpath(Tx_Dom, transdate, element(_,_,[Date_Atom])),
@@ -234,7 +234,7 @@ extract_s_transaction2(Tx_Dom, Account_Currency, Account, ST) :-
 	Dr is rationalize(Bank_Debit - Bank_Credit),
 	Coord = coord(Account_Currency, Dr),
 	extract_exchanged_value(Tx_Dom, Dr, Exchanged),
-	doc_add_s_transaction(Date, Desc1, [Coord], Account, Exchanged, misc{desc2:Desc2}, ST),
+	doc_add_s_transaction(Date, Verb, [Coord], Account, Exchanged, misc{desc2:Desc2}, ST),
 	doc_add(ST, l:source, l:bank_statement_xml).
 
 extract_exchanged_value(Tx_dom, Bank_dr, Exchanged) :-
