@@ -14,8 +14,20 @@ doc_add_s_transaction(Day, Type_Id, Vector, Account_Id, Exchanged, Misc, Uri) :-
 	doc_add(Uri, s_transactions:type_id, Type_Id, transactions),
 	doc_add(Uri, s_transactions:vector, Vector, transactions),
 	doc_add(Uri, s_transactions:account, Account_Id, transactions),
+	(	Exchanged = bases(B)
+	->	assertion(is_list(B))
+	;	(	Exchanged = vector(V)
+		->	(
+				assertion(is_list(V)),
+				maplist(check_coord, V)
+			)
+		;	fail)),
 	doc_add(Uri, s_transactions:exchanged, Exchanged, transactions),
 	doc_add(Uri, s_transactions:misc, Misc, transactions).
+
+check_coord(coord(U,A)) :-
+	assertion((number(A);rational(A))),
+	assertion((\+is_list(U),\+var(U))).
 
 s_transaction_day(T, D) :-
 	doc(T, s_transactions:day, D, transactions).
@@ -139,7 +151,7 @@ s_transactions_up_to(End_Date, S_Transactions_All, S_Transactions_Capped) :-
 
 /* add livestock verb uri */
  prepreprocess_s_transaction(Static_Data, In, Out) :-
-	infer_livestock_action_verb(In, Mid),
+	cf(infer_livestock_action_verb(In, Mid)),
 	!,
 	prepreprocess_s_transaction(Static_Data, Mid, Out).
 
@@ -225,25 +237,30 @@ extract_s_transaction2(Tx_Dom, Account_Currency, Account, ST) :-
 	doc_add_s_transaction(Date, Desc1, [Coord], Account, Exchanged, misc{desc2:Desc2}, ST),
 	doc_add(ST, l:source, l:bank_statement_xml).
 
-extract_exchanged_value(Tx_Dom, Bank_Dr, Exchanged) :-
-	(	field_nothrow(Tx_Dom, [unitType, Unit_Type])
+extract_exchanged_value(Tx_dom, Bank_dr, Exchanged) :-
+	(	field_nothrow(Tx_dom, [unitType, Unit_type])
 	->	true
-	;	Unit_Type = nil()),
+	;	Unit_type = nil(nil)),
 
-	(	field_nothrow(Tx_Dom, [unit, Unit_Count_Atom])
-	->	atom_number(Unit_Count_Atom, Unit_Count)
-	;	Unit_Count = nil()),
+	(	field_nothrow(Tx_dom, [unit, Unit_count_atom])
+	->	(	atom_number(Unit_count_atom, Unit_count0),
+			(	Unit_count0 = 0
+			->	Unit_count = nil(nil)
+			;	Unit_count = Unit_count0))
+	;	Unit_count = nil(nil)),
 
-	(	Bank_Dr >= 0
+	(	Bank_dr >= 0
 	->	Money_side = kb:debit
 	;	Money_side = kb:credit),
 
+	extract_exchanged_value2(Money_side, Unit_type, Unit_count, Exchanged).
+
 extract_exchanged_value2(Money_side, Unit_type, Unit_count, Exchanged) :-
-	(	Unit_type = nil()
-	->	(	Unit_count = nil()
+	(	Unit_type = nil(nil)
+	->	(	Unit_count = nil(nil)
 		->	Exchanged = vector([])
 		;	throw_string('unit count specified, but unit type missing'))
-	;	(	Unit_count = nil()
+	;	(	Unit_count = nil(nil)
 		->	% If the user has specified only a unit type, then infer count by exchange rate
 			Exchanged = bases([Unit_type])
 		;	(
@@ -259,39 +276,6 @@ extract_exchanged_value2(Money_side, Unit_type, Unit_count, Exchanged) :-
 		)
 	).
 
-extract_exchanged_value(Tx_Dom, Bank_Dr, Exchanged) :-
-   % if unit type and count is specified, unifies Exchanged with a one-item vector with a coord with those values
-   % If the user has specified only a unit type, unifies Exchanged with bases(..) to trigger unit count inference
-   (
-	  field_nothrow(Tx_Dom, [unitType, Unit_Type]),
-	  (
-		 (
-			field_nothrow(Tx_Dom, [unit, Unit_Count_Atom]),
-			atom_number(Unit_Count_Atom, Unit_Count),
-			Count_Absolute is rationalize(abs(Unit_Count)),
-			(
-				Bank_Dr >= 0
-			->
-					Exchanged = vector([coord(Unit_Type, Count_Absolute)])
-			;
-				(
-					Count_Credit is -Count_Absolute,
-					Exchanged = vector([coord(Unit_Type, Count_Credit)])
-				)
-			),
-			!
-		 )
-		 ;
-		 (
-			% If the user has specified only a unit type, then infer count by exchange rate
-			Exchanged = bases([Unit_Type])
-		 )
-	  ),!
-   )
-   ;
-   (
-	  Exchanged = vector([])
-   ).
 
 extract_s_transactions(Dom, S_Transactions) :-
 	findall(A, xpath(Dom, //reports/balanceSheetRequest/bankStatement/accountDetails, A), As),

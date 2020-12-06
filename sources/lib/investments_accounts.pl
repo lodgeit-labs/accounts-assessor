@@ -12,7 +12,7 @@ return all units that appear in s_transactions with an action type that specifie
 	(
 		E = vector([coord(Unit,_)])
 	;
-		E = bases(Unit)
+		E = bases([Unit])
 	).
 
  traded_units2(_, Unit) :-

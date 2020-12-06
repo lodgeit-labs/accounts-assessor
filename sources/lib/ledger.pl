@@ -13,7 +13,6 @@
 	!s_transactions_up_to(End_Date, S_Transactions0, S_Transactions),
 	!request_add_property(l:bank_s_transactions, S_Transactions),
 	!request_add_property(l:exchange_rates, Exchange_Rates),
-	!request_add_property(l:report_currency, Report_Currency),
 
 	!ensure_system_accounts_exist(S_Transactions),
 	!check_accounts_parent,
@@ -29,9 +28,9 @@
 	!cf(extract_smsf_distribution(Smsf_distribution_txs)),
 
 	dict_from_vars(Static_Data0, [Report_Currency, Start_Date, End_Date, Exchange_Rates, Cost_Or_Market]),
-	!prepreprocess(Static_Data0, S_Transactions, Prepreprocessed_S_Transactions),
+	!cf(prepreprocess(Static_Data0, S_Transactions, Prepreprocessed_S_Transactions)),
 
-	!preprocess_until_error(Static_Data0, Prepreprocessed_S_Transactions, Processed_S_Transactions, Transactions_From_Bst, Outstanding_Out, End_Date, Processed_Until),
+	!cf(preprocess_until_error(Static_Data0, Prepreprocessed_S_Transactions, Processed_S_Transactions, Transactions_From_Bst, Outstanding_Out, End_Date, Processed_Until)),
 
 	(	(($>length(Processed_S_Transactions)) == ($>length(Prepreprocessed_S_Transactions)))
 	->	true
@@ -39,7 +38,7 @@
 
 	append([Gl_input_txs, Reallocation_Txs, Smsf_distribution_txs], Transactions_From_Bst, Transactions0),
 	flatten(Transactions0, Transactions1),
-	!process_livestock((Processed_S_Transactions, Transactions1), Livestock_Transactions),
+	!cf(process_livestock((Processed_S_Transactions, Transactions1), Livestock_Transactions)),
 	flatten([Transactions1,	Livestock_Transactions], Transactions_With_Livestock).
 	/*
 	this is probably the right place to plug in hirepurchase and depreciation,

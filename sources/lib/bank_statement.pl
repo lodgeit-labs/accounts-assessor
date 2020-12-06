@@ -128,7 +128,7 @@ preprocess_s_transaction(Static_Data, S_Transaction, Transactions, Outstanding_B
 	cf(affect_bank_account(Static_Data, S_Transaction, Description, Ts1)),
 	vector_unit(Vector_Ours, Bank_Account_Currency),
 	vec_change_bases(Exchange_Rates, Transaction_Date, Report_Currency, Vector_Ours, Converted_Vector_Ours),
-	action_verb_accounts(Action_Verb,Exchanged_Account,Trading_Account),
+	cf(action_verb_accounts(Action_Verb,Exchanged_Account,Trading_Account)),
 	(
 		Counteraccount_Vector = []
 	->
@@ -206,26 +206,26 @@ make_buy(Static_Data, St, Trading_Account, Pricing_Method, Bank_Account_Currency
 	some sort of generalized system is shaping up.
 	*/
 
-	financial_investments_account(Exchanged_Account,Goods_Unit,Exchanged_Account2),
+	cf(financial_investments_account(Exchanged_Account,Goods_Unit,Exchanged_Account2)),
 
 	(	Cost_Or_Market = cost
 	->	(
-			purchased_goods_coord_with_cost(Goods_Coord, Coord_Ours, Goods_Coord_With_Cost),
+			cf(purchased_goods_coord_with_cost(Goods_Coord, Coord_Ours, Goods_Coord_With_Cost)),
 			Goods_Vector2 = [Goods_Coord_With_Cost]
 		)
 	;	Goods_Vector2 = Goods_Vector),
 
-	make_transaction(St, Transaction_Date, Description, Exchanged_Account2, Goods_Vector2, Ts1),
+	cf(make_transaction(St, Transaction_Date, Description, Exchanged_Account2, Goods_Vector2, Ts1)),
 
 	%[coord(Goods_Unit_Maybe_With_Cost,_)] = Goods_Vector2,
 
-	add_bought_items(
+	cf(add_bought_items(
 		Pricing_Method,
 		outstanding(Bank_Account_Currency, Goods_Unit, Goods_Count, Unit_Cost_Converted, Unit_Cost_Foreign, Transaction_Date),
 		Outstanding_In, Outstanding_Out
-	),
+	)),
 	(nonvar(Trading_Account) ->
-		increase_unrealized_gains(Static_Data, St, Description, Trading_Account, Bank_Account_Currency, Converted_Vector_Ours, Goods_Vector2, Transaction_Date, Ts2) ; true
+		cf(increase_unrealized_gains(Static_Data, St, Description, Trading_Account, Bank_Account_Currency, Converted_Vector_Ours, Goods_Vector2, Transaction_Date, Ts2)) ; true
 	).
 
 

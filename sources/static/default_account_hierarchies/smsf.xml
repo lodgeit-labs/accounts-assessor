@@ -160,6 +160,7 @@
 		</account>
 		<account name="P&amp;L" role="ComprehensiveIncome" normal_side="credit">
 			<account name="ClearingAccount"/>
+			<account name="InvestmentClearing"/>
 			<account name="Income">
 				<account name="Currency Movement" role="CurrencyMovement"/>
 				<account name="Capital GainLoss" role="TradingAccounts/Capital GainLoss">

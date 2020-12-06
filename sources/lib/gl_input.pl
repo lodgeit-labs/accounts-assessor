@@ -28,7 +28,9 @@
 
  extract_action_input(Input, Txs) :-
  	push_context($>format(string(<$), 'extract action input from: ~w', [$>sheet_and_cell_string(Input)])),
-	!doc_value(Input, ic:account, First_account),
+	!doc_value(Input, ic:account, First_account_ui),
+	c(account_by_ui($>atom_string(<$, First_account_ui), First_account)),
+
 	!doc_value(Input, ic:items, List),
 	!doc_list_items(List, Items),
 	!doc_value(Input, excel:has_sheet_name, Sheet_name),
@@ -59,11 +61,11 @@
 
 	(	doc_value(Item, ic:units_count, Units_count)
 	->	true
-	;	Units_count = nil()),
+	;	Units_count = nil(nil)),
 
-	(	doc_value(Item, ic:units_type, Units_type)
-	->	true
-	;	Units_type = nil()),
+	(	doc_value(Item, ic:units_type, Units_type_str)
+	->	atom_string(Units_type, Units_type_str)
+	;	Units_type = nil(nil)),
 
 	extract_exchanged_value2(Money_side, Units_type, Units_count, Exchanged),
 
@@ -75,14 +77,13 @@
 	->	true
 	;	Description3 = ''),
 
-	misc{desc2:Description2,desc3:Description3}
-
 	doc_add_s_transaction(
 		$>rpv(Item, ic:date),
-		$>rpv(Item, ic:action_verb),
+		uri($>rpv(Item, ic:action_verb)),
 		Vector,
-		$>c(account_by_ui(First_account)), Exchanged, misc{desc2:Desc2},
+		First_account,
 		Exchanged,
+		misc{desc2:Description2,desc3:Description3},
 		St
 	),
 
