@@ -73,7 +73,7 @@ preprocess_s_transaction0(Static_Data, S_Transaction, S_Transaction_String, Outs
 	;	Trading_Account_Ui = ''),
 	push_format('using action verb ~q:~n  exchanged account: ~q~n  trading account: ~q~n', [$>doc(Action_Verb, l:has_id), Exchanged_Account_Ui, Trading_Account_Ui]),
 
-	!preprocess_s_transaction(Static_Data, S_Transaction, Transactions0, Outstanding_In, Outstanding_Mid),
+	!preprocess_s_transaction(Static_Data, Report_Currency, Exchange_Rates, S_Transaction, Transactions0, Outstanding_In, Outstanding_Mid),
 	clean_up_resulting_transactions(Transactions0, Transactions_Result, S_Transaction_String, Debug_Head),
 	Transactions_Out = [Transactions_Result|Transactions_Out_Tail],
 	append(Debug_So_Far, [Debug_Head], Debug_So_Far2),
@@ -106,17 +106,16 @@ clean_up_resulting_transactions(Transactions0, Transactions_Result, S_Transactio
 % This predicate takes a statement transaction term and decomposes it into a list of plain transaction terms.
 % ----------	
 
-preprocess_s_transaction(Static_Data, S_Transaction, Transactions, Outstanding, Outstanding) :-
+preprocess_s_transaction(Static_Data, _Report_Currency, _Exchange_Rates, S_Transaction, Transactions, Outstanding, Outstanding) :-
 	s_transaction_type_id(S_Transaction, uri(Action_Verb)),
 	member(V, $>livestock_verbs),
 	rdf_global_id(V, Action_Verb),
 	cf(preprocess_livestock_buy_or_sell(Static_Data, S_Transaction, Transactions)).
 
-preprocess_s_transaction(Static_Data, S_Transaction, Transactions, Outstanding_Before, Outstanding_After) :-
+preprocess_s_transaction(Static_Data, Report_Currency, Exchange_Rates, S_Transaction, Transactions, Outstanding_Before, Outstanding_After) :-
 	s_transaction_type_id(S_Transaction, uri(Action_Verb)),
 	maplist(dif(Action_Verb), $>rdf_global_id($>livestock_verbs,<$)),
 	Transactions = [Ts1, Ts2, Ts3, Ts4],
-	dict_vars(Static_Data, [Report_Currency, Exchange_Rates]),
 	s_transaction_exchanged(S_Transaction, vector(Counteraccount_Vector)),
 	/* is it time to introduce something like gtrace_on_user_error, and keep it off by default? */
 	( is_zero(Counteraccount_Vector) -> throw_string('exchanged 0 units?') ; true ),
@@ -364,7 +363,7 @@ bank_debit_to_unit_price(Vector_Ours, Goods_Positive, value(Unit, Number2)) :-
 affect_first_account(Static_Data, S_Transaction, Description, Ts1) :-
 	!s_transaction_account(S_Transaction, uri(First_Account)),
 	(	account_by_role(rl('Banks'/_), First_Account)
-	->	cf(affect_bank_account(Static_Data, First_Account, S_Transaction, Description, Ts1)
+	->	cf(affect_bank_account(Static_Data, First_Account, S_Transaction, Description, Ts1))
 	;	(
 			s_transaction_day(S_Transaction, Transaction_Date),
 			s_transaction_vector(S_Transaction, Vector),
@@ -372,7 +371,7 @@ affect_first_account(Static_Data, S_Transaction, Description, Ts1) :-
 		)
 	).
 
-affect_bank_account(Static_Data, Bank_Account, S_Transaction, Description0, [Ts0, Ts3]) :-
+ affect_bank_account(Static_Data, Bank_Account, S_Transaction, Description0, [Ts0, Ts3]) :-
 	s_transaction_vector(S_Transaction, Vector),
 	vector_unit(Vector, Bank_Account_Currency),
 	s_transaction_day(S_Transaction, Transaction_Date),

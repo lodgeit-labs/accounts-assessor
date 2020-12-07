@@ -70,7 +70,7 @@ infer_livestock_action_verb(S_Transaction, NS_Transaction) :-
 	(	is_debit(Vector)
 	->	rdf_global_id(l:livestock_sale,Action_Verb)
 	;	rdf_global_id(l:livestock_purchase,Action_Verb)),
-	doc_set_s_transaction_type_id(S_Transaction, uri(Action_Verb), NS_Transaction, infer_livestock_action_verb).
+	doc_set_s_transaction_field(type_id,S_Transaction, uri(Action_Verb), NS_Transaction, infer_livestock_action_verb).
 
 
 
@@ -81,7 +81,7 @@ preprocess_livestock_buy_or_sell(Static_Data, S_Transaction, [Bank_Txs, Livestoc
 	;   Description = 'livestock purchase'),
 	livestock_count_account(Livestock_Type, Count_Account),
 	make_transaction(S_Transaction, Day, Description, Count_Account, [Livestock_Coord], Livestock_Count_Transaction),
-	affect_bank_account(Static_Data, S_Transaction, Description, Bank_Txs),
+	affect_first_account(Static_Data, S_Transaction, Description, Bank_Txs),
 	vec_inverse([Money_Coord], Pl_Vector),
 	(   is_credit(Money_Coord)
 	->	(

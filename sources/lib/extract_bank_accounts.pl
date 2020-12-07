@@ -33,7 +33,7 @@ generate_bank_opening_balances_sts2(Bank_Account, Tx) :-
 				Opening_Date,
 				'Bank_Opening_Balance',
 				[Opening_Balance],
-				Bank_Account_Name,
+				bank_account_name(Bank_Account_Name),
 				vector([]),
 				misc{desc2:'Bank_Opening_Balance'},
 				Tx)

@@ -48,14 +48,10 @@ s_transaction_description3(T, X) :-
 	doc(T, s_transactions:misc, M, transactions),
 	X = M.get(desc3).
 
-doc_set_s_transaction_vector(T0, X, T1, Op) :-
-	doc_set_property(s_transactions, T0, $>s_transaction_fields, vector, X, transactions, T1, Op).
-
-doc_set_s_transaction_type_id(T0, X, T1, Op) :-
-	doc_set_property(s_transactions, T0, $>s_transaction_fields, type_id, X, transactions, T1, Op).
-
-doc_set_s_transaction_primary_account(T0, X, T1, Op) :-
-	doc_set_property(s_transactions, T0, $>s_transaction_fields, account, X, transactions, T1, Op).
+doc_set_s_transaction_field(Field, T0, X, T1, Op) :-
+	s_transaction_fields(Fields),
+	!member(Field, Fields),
+	doc_set_property(s_transactions, T0, Fields, Field, X, transactions, T1, Op).
 
 
 /* add a new object with P newly set to V, referencing the rest of Fields */
@@ -168,19 +164,21 @@ s_transactions_up_to(End_Date, S_Transactions_All, S_Transactions_Capped) :-
 prepreprocess_s_transaction(Static_Data, S_Transaction, Out) :-
 	s_transaction_action_verb_uri_from_string(S_Transaction, Action_Verb),
 	!,
-	doc_set_s_transaction_type_id(S_Transaction, uri(Action_Verb), NS_Transaction, action_verb_uri_from_string),
+	doc_set_s_transaction_field(type_id,S_Transaction, uri(Action_Verb), NS_Transaction, action_verb_uri_from_string),
 	prepreprocess_s_transaction(Static_Data, NS_Transaction, Out).
 
 /* from first account term to uri() */
 prepreprocess_s_transaction(Static_Data, In, Out) :-
-	's_transaction first account term to uri'(S_Transaction, First_account_uri)
+	's_transaction first account term to uri'(In, First_account_uri),
 	!,
-	doc_set_s_transaction_primary_account(S_Transaction, uri(First_account_uri), NS_Transaction, 's_transaction first account term to uri'),
+	doc_set_s_transaction_field(account,In, uri(First_account_uri), NS_Transaction, 's_transaction first account term to uri'),
 	prepreprocess_s_transaction(Static_Data, NS_Transaction, Out).
 
 prepreprocess_s_transaction(_, T, T) :-
-	assertion(s_transaction_type_id(T, uri(_))),
-	assertion(s_transaction_account(T, uri(_))).
+	s_transaction_account(T, A),
+	assertion(A = uri(_)),
+	s_transaction_type_id(T, B),
+	assertion(B = uri(_)).
 
 's_transaction first account term to uri'(St, Gl_account) :-
 	s_transaction_account(St, A),
@@ -190,7 +188,8 @@ prepreprocess_s_transaction(_, T, T) :-
 
 's_transaction first account term to uri'(St, Gl_account) :-
 	s_transaction_account(St, A),
-	A = account_name_ui_string(N),
+	A = account_name_ui_string(N0),
+	!atom_string(N, N0),
 	!account_by_ui(N, Gl_account),
 	!.
 
@@ -201,10 +200,11 @@ infer_exchanged_units_count(Static_Data, S_Transaction, NS_Transaction) :-
 	dict_vars(Static_Data, [Exchange_Rates]),
 	s_transaction_exchanged(S_Transaction, bases(Goods_Bases)),
 	s_transaction_day(S_Transaction, Transaction_Date),
+	s_transaction_vector(S_Transaction, Vector),
 	% infer the count by money debit/credit and exchange rate
 	vec_change_bases(Exchange_Rates, Transaction_Date, Goods_Bases, Vector, Vector_Exchanged),
 	vec_inverse(Vector_Exchanged, Vector_Exchanged_Inverted),
-	doc_set_s_transaction_exchanged(S_Transaction, vector(Vector_Exchanged_Inverted), NS_Transaction, infer_exchanged_units_count).
+	doc_set_s_transaction_field(exchanged, S_Transaction, vector(Vector_Exchanged_Inverted), NS_Transaction, infer_exchanged_units_count).
 
 /* used on raw s_transaction during prepreprocessing */
 s_transaction_action_verb_uri_from_string(S_Transaction, Action_Verb) :-
@@ -272,13 +272,13 @@ extract_exchanged_value(Tx_dom, Bank_dr, Exchanged) :-
 			;	Unit_count = Unit_count0))
 	;	Unit_count = nil(nil)),
 
-	(	Bank_dr >= 0
+	(	Bank_dr < 0
 	->	Money_side = kb:debit
 	;	Money_side = kb:credit),
 
 	extract_exchanged_value2(Money_side, Unit_type, Unit_count, Exchanged).
 
-extract_exchanged_value2(Money_side, Unit_type, Unit_count, Exchanged) :-
+ extract_exchanged_value2(Money_side, Unit_type, Unit_count, Exchanged) :-
 	(	Unit_type = nil(nil)
 	->	(	Unit_count = nil(nil)
 		->	Exchanged = vector([])
@@ -288,7 +288,7 @@ extract_exchanged_value2(Money_side, Unit_type, Unit_count, Exchanged) :-
 			Exchanged = bases([Unit_type])
 		;	(
 				Count_absolute is rationalize(abs(Unit_count)),
-				(	Money_side = kb:debit
+				(	Money_side = kb:credit
 				->	Exchanged = vector([coord(Unit_type, Count_absolute)])
 				;	(
 						Count_credit is -Count_absolute,
@@ -310,7 +310,7 @@ extract_s_transactions(Dom, S_Transactions) :-
 invert_s_transaction_vector(T0, T1) :-
 	s_transaction_vector(T0, Vector),
 	vec_inverse(Vector, Vector_Inverted),
-	doc_set_s_transaction_vector(T0, Vector_Inverted, T1, invert_s_transaction_vector).
+	doc_set_s_transaction_field(vector,T0, Vector_Inverted, T1, invert_s_transaction_vector).
 
 
 
