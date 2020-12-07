@@ -25,11 +25,27 @@ exchange_amount(Exchange_Rates, Day, [_ | Bases_Tl], Coord, Amount_Exchanged) :-
 
 /*vec_change_bases(_, _, _, [], []) :- !.*/
 
+
+/* vec_change_bases(Exchange_Rates, Day, Bases, As, Bs) :-
+	vec_change_bases(nothrow, Exchange_Rates, Day, Bases, As, Bs).
+*/
  vec_change_bases(Exchange_Rates, Day, Bases, As, Bs) :-
- 	push_context(vec_change_bases(Day, Bases, As, Bs)),
+ 	push_format('convert ~q to ~q at ~q', [As, Bases, Day]),
 	assertion(flatten(Bases, Bases)),
 	maplist(exchange_amount(Exchange_Rates, Day, Bases), As, As_Exchanged),
 	/*and reduce*/
+	vec_add([], As_Exchanged, Bs),
+	pop_context.
+
+ exchange_amount_throw(Exchange_Rates, Day, [Base], coord(Unit, Debit), Amount_Exchanged) :-
+	exchange_rate_throw(Exchange_Rates, Day, Unit, Base, Exchange_Rate),
+	Debit_Exchanged is Debit * Exchange_Rate,
+	Amount_Exchanged = coord(Base, Debit_Exchanged).
+
+ vec_change_bases_throw(Exchange_Rates, Day, Bases, As, Bs) :-
+ 	push_format('convert ~q to ~q at ~q', [As, Bases, Day]),
+	assertion(flatten(Bases, Bases)),
+	maplist(exchange_amount_throw(Exchange_Rates, Day, Bases), As, As_Exchanged),
 	vec_add([], As_Exchanged, Bs),
 	pop_context.
 

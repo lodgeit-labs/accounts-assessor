@@ -267,25 +267,20 @@ exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate_Out) :-
 	.
 
 %:- table(exchange_rate_throw/5).
-exchange_rate_throw(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate_Out) :-
-	(
-		exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate_Out)
-	->
-		true
-	;
-		(
-			format(string(Msg1), 'no exchange rate found: Day:~w, Src_Currency:~w, Dest_Currency:~w\n', [Day, Src_Currency, Dest_Currency]),
-			date(Today),
-			(
-				Day @> Today
-			->
-				Msg2 = ', date in future?'
-			;
-				Msg2 = ''
-			),
-			throw_string([Msg1, Msg2])
-		)
-	).
+exchange_rate_throw(Table, Day, Src, Dest, Exchange_Rate_Out) :-
+	(	exchange_rate(Table, Day, Src, Dest, Exchange_Rate_Out)
+	->	true
+	;	exchange_rate_do_throw(Day, Src, Dest)).
+
+exchange_rate_do_throw(Day, Src, Dest) :-
+	(	'is required exchange rate physically in future'(Day)
+	->	Msg2 = ', date in future?'
+	;	Msg2 = ''),
+	throw_format('no exchange rate found: Day:~w, Src:~w, Dest:~w~w\n', [Day, Src, Dest, Msg2]).
+
+'is required exchange rate physically in future'(Day) :-
+	!date(Today),
+	Day @> Today.
 
 	
 is_exchangeable_into_request_bases(Table, Day, Src_Currency, Bases) :-

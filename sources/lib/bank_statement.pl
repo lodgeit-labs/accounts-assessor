@@ -149,7 +149,7 @@ preprocess_s_transaction(Static_Data, Report_Currency, Exchange_Rates, S_Transac
 				->	true
 				;	throw_string('debit Counteraccount_Vector but debit money Vector')),
 
-        		cf(make_buy(Static_Data, S_Transaction, Trading_Account, Pricing_Method, Bank_Account_Currency, Counteraccount_Vector, Converted_Vector_Ours, Vector_Ours, Exchanged_Account, Transaction_Date, Description, Outstanding_Before, Outstanding_After, Ts2))
+        		make_buy(Static_Data, S_Transaction, Trading_Account, Pricing_Method, Bank_Account_Currency, Counteraccount_Vector, Converted_Vector_Ours, Vector_Ours, Exchanged_Account, Transaction_Date, Description, Outstanding_Before, Outstanding_After, Ts2)
 			)
 		;
 			(
@@ -187,6 +187,7 @@ make_buy(Static_Data, St, Trading_Account, Pricing_Method, Bank_Account_Currency
 	Exchanged_Account, Transaction_Date, Description,
 	Outstanding_In, Outstanding_Out, [Ts1, Ts2]
 ) :-
+	push_format('record purchase of ~q onto ~q', [Goods_Vector, $>account_name(Exchanged_Account)]),
 	[Coord_Ours] = Vector_Ours,
 	[Goods_Coord] = Goods_Vector,
 
@@ -207,7 +208,7 @@ make_buy(Static_Data, St, Trading_Account, Pricing_Method, Bank_Account_Currency
 	some sort of generalized system is shaping up.
 	*/
 
-	cf(financial_investments_account(Exchanged_Account,Goods_Unit,Exchanged_Account2)),
+	financial_investments_account(Exchanged_Account,Goods_Unit,Exchanged_Account2),
 
 	(	Cost_Or_Market = cost
 	->	(
@@ -227,7 +228,9 @@ make_buy(Static_Data, St, Trading_Account, Pricing_Method, Bank_Account_Currency
 	)),
 	(nonvar(Trading_Account) ->
 		cf(increase_unrealized_gains(Static_Data, St, Description, Trading_Account, Bank_Account_Currency, Converted_Vector_Ours, Goods_Vector2, Transaction_Date, Ts2)) ; true
-	).
+	),
+
+	pop_context.
 
 
 /*

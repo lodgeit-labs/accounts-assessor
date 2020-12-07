@@ -4,11 +4,11 @@
 
 */
 
- gl_export(Sd, Txs, Json_list) :-
+ 'export GL'(Sd, Txs, Json_list) :-
  	!gl_export_sources(Txs, Sources),
  	!gl_export_add_ids_to_sources(Sources),
- 	!gl_viewer_json_gl_export(Sd, Sources, Txs, Json_list),
- 	!qb_csv_gl_export(Sd, Txs).
+ 	!cf(gl_viewer_json_gl_export(Sd, Sources, Txs, Json_list)),
+ 	!cf('QuickBooks CSV GL export'(Sd, Txs)).
 
 gl_export_add_ids_to_sources(Sources) :-
 	b_setval(gl_export_add_ids_to_sources, 1),
@@ -96,7 +96,7 @@ running_balance_tx_enrichment(Tx, Tx_New) :-
 	Tx_New = Tx.put(running_balance, New).
 	% todo running_balance_for_relevant_period?
 
-qb_csv_gl_export(Sd, Txs) :-
+'QuickBooks CSV GL export'(Sd, Txs) :-
 	File_name = 'QBO_GL_coord_converted_at_tx_time.csv',
 	File_loc = loc(file_name, File_name),
 	!report_file_path(File_loc, Url, loc(absolute_path, File_path)),
@@ -133,7 +133,7 @@ qb_csv_gl_export2(Sd, Tx, Coord0, Row) :-
 	!doc(Origin, s_transactions:id, Id, transactions).
 
 coord_converted_at_time(Sd, Date, Coord0, Coord1) :-
-	!vec_change_bases(Sd.exchange_rates, Date, Sd.report_currency, [Coord0], Vec2),
+	!vec_change_bases_throw(Sd.exchange_rates, Date, Sd.report_currency, [Coord0], Vec2),
 	Sd.report_currency = [Report_currency],
 	Coord1 = coord(Report_currency, _),
-	!coord_vec(Coord1, Vec2).
+	coord_vec(Coord1, Vec2).

@@ -265,9 +265,10 @@ subcategorize_distribution_received4(A, Subcategorization) :-
 %------
 
  financial_investments_account(Exchanged_Account_Uri,Goods_Unit,Exchanged_Account2) :-
-	account_name(Exchanged_Account_Uri, Exchanged_Account_Id),
+	!account_name(Exchanged_Account_Uri, Exchanged_Account_Id),
+	Rl = rl('FinancialInvestments'/Exchanged_Account_Id/Goods_Unit),
  	push_context($>format(string(<$), 'find child account of ~q for unit ~q', [Exchanged_Account_Id, Goods_Unit])),
-	account_by_role_throw(rl('FinancialInvestments'/Exchanged_Account_Id/Goods_Unit), Exchanged_Account2),
+	account_by_role_throw(Rl, Exchanged_Account2),
 	pop_context.
 
 /*

@@ -184,7 +184,7 @@ static_data_historical(Static_Data, Static_Data_Historical) :-
 	!report_entry_tree_html_page(Static_Data_Historical, Sr0.pl.historical, 'profit and loss - historical', 'profit_and_loss_historical.html'),
 	!cf(cf_page(Static_Data, Sr0.cf)),
 
-	!cf(gl_export(Static_Data, Static_Data.transactions, Gl)),
+	!cf('export GL'(Static_Data, Static_Data.transactions, Gl)),
 	!cf(make_json_report(Gl, general_ledger_json)),
 	!cf(make_gl_viewer_report),
 
