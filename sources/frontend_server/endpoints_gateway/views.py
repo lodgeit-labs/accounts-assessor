@@ -40,6 +40,8 @@ def sparql_proxy(request):
 
 @csrf_exempt
 def rdf_templates(request):
+	import time
+	time.sleep(2)
 	return HttpResponse(open(os.path.abspath('../static/RdfTemplates.n3'), 'r').read(), content_type="text/rdf+n3")
 
 @csrf_exempt
