@@ -15,7 +15,7 @@ doc_add_s_transaction(Day, Type_Id, Vector, Account_Id, Exchanged, Misc, Uri) :-
 	doc_add(Uri, s_transactions:vector, Vector, transactions),
 	doc_add(Uri, s_transactions:account, Account_Id, transactions),
 	(	Exchanged = bases(B)
-	->	assertion(is_list(B))
+	->	(is_list(B) -> true ; throw(oops))
 	;	(	Exchanged = vector(V)
 		->	(
 				assertion(is_list(V)),

@@ -21,7 +21,7 @@ celery_app.config_from_object(celeryconfig)
 from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import render
-from django.http import HttpResponseRedirect, JsonResponse
+from django.http import HttpResponseRedirect, JsonResponse, HttpResponse
 from django.http.request import QueryDict
 from endpoints_gateway.forms import ClientRequestForm
 from fs_utils import directory_files, save_django_uploaded_file, save_django_form_uploaded_file
@@ -38,6 +38,9 @@ def sparql_proxy(request):
 	if request.method == 'POST':
 		return JsonResponse({"x":agraph.agc().executeGraphQuery(request.body)})
 
+@csrf_exempt
+def rdf_templates(request):
+	return HttpResponse(open(os.path.abspath('../static/RdfTemplates.n3'), 'r').read(), content_type="text/rdf+n3")
 
 @csrf_exempt
 def upload(request):

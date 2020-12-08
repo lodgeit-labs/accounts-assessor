@@ -22,7 +22,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # SECURITY WARNING: keep the secret key used in production secret!
 
 
-with open(os.path.normpath(os.path.join(os.path.dirname(__file__), '/run/secrets/DJANGO_SECRET_KEY')), 'r') as s:
+with open('/run/secrets/DJANGO_SECRET_KEY', 'r') as s:
     SECRET_KEY = s.read()
 
 # SECURITY WARNING: don't run with debug turned on in production!
@@ -128,9 +128,6 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 # note that we don't use the collectstatic thing
 STATIC_ROOT = os.path.abspath('../static/') + '/'
-print(STATIC_ROOT)
-print(STATIC_ROOT)
-print(STATIC_ROOT)
 STATIC_URL = '/static/'
 MEDIA_ROOT = os.path.abspath('../../server_root/tmp')
 MEDIA_URL = '/tmp/'

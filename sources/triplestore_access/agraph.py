@@ -7,7 +7,7 @@ import json, os
 #	return os.environ.get(key) or json.get(key)
 
 def secret(name):
-	with open(os.path.normpath(os.path.join(os.path.dirname(__file__), '/run/secrets/' + name)), 'r') as x:
+	with open('/run/secrets/' + name, 'r') as x:
 		return x.read()
 
 

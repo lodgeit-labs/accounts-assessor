@@ -45,7 +45,6 @@ def save_django_form_uploaded_file(tmp_directory_path, idx, f):
 		destination.write(f)
 	return tmp_fn
 
-
 def command_nice(lst):
 	out = ''
 	for idx, i in enumerate(lst):
@@ -58,7 +57,6 @@ def command_nice(lst):
 		if idx != len(lst) - 1:
 			out += (' \\')
 		out += ('\n')
-
 
 def flatten_lists(x):
 	if isinstance(x, list):
