@@ -28,16 +28,16 @@ add_bought_items(fifo, Added, (Outstanding_In, Investments_In), (Outstanding_Out
 	%,print_term(add_bought_items(fifo, Added, (Outstanding_In, Investments_In), (Outstanding_Out, Investments_Out)),[])
 	.
 		
-add_bought_items(lifo, Added, (Outstanding_In, Investments_In), (Outstanding_Out, Investments_Out)) :- 
+add_bought_items(ic:lifo, Added, (Outstanding_In, Investments_In), (Outstanding_Out, Investments_Out)) :-
 	add_investment(Investments_In, Added, Investments_Out, Investment_Id),
 	append(Outstanding_In, [(Added, Investment_Id)], Outstanding_Out)
-	%,print_term(add_bought_items(lifo, Added, (Outstanding_In, Investments_In), (Outstanding_Out, Investments_Out)),[])
+	%,print_term(add_bought_items(ic:lifo, Added, (Outstanding_In, Investments_In), (Outstanding_Out, Investments_Out)),[])
 	.
 
 
 find_items_to_sell(Pricing_Method, Type, Sale_Count, Sale_Date, Sale_Unit_Price, (Outstanding_In, Investments_In), (Outstanding_Out, Investments_Out), Cost) :-
 	/* this logic is same for both pricing methods */
-	((Pricing_Method = lifo,!);(Pricing_Method = fifo)),
+	((Pricing_Method = ic:lifo,!);(Pricing_Method = ic:fifo)),
 	find_items_to_sell2(Type, Sale_Count, Sale_Date, Sale_Unit_Price, Outstanding_In, Investments_In, Outstanding_Out, Investments_Out, Cost)
 	%,print_term(find_items_to_sell(Pricing_Method, Type, Sale_Count, Sale_Date, Sale_Unit_Price, (Outstanding_In, Investments_In), (Outstanding_Out, Investments_Out), Cost),[])
 	.

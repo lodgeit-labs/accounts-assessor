@@ -123,7 +123,8 @@ preprocess_s_transaction(Static_Data, Report_Currency, Exchange_Rates, S_Transac
 	s_transaction_day(S_Transaction, Transaction_Date),
 	doc(Action_Verb, l:has_id, Action_Verb_Id),
 	Description = Action_Verb_Id,
-	Pricing_Method = lifo,
+
+	extract_pricing_method(Pricing_method)
 
 	affect_first_account(Static_Data, S_Transaction, Description, Ts1),
 
@@ -164,6 +165,12 @@ preprocess_s_transaction(Static_Data, Report_Currency, Exchange_Rates, S_Transac
 			)
 		)
 	).
+
+extract_pricing_method(Pricing_method) :-
+	(	report_details_property_value(ic:pricing_method, Pricing_method0)
+	->	rdf_global_id(Pricing_method,Pricing_method0)
+	;	Pricing_method = ic:lifo).
+
 
 action_verb_accounts(Action_Verb, Exchanged_Account,Trading_Account) :-
 	push_context($>format(string(<$), 'looking up accounts of action verb ~q', [$>doc(Action_Verb, l:has_id)])),
