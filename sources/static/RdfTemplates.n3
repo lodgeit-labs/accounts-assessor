@@ -602,6 +602,7 @@ ic_ui:report_details_example
 	ic:from [rdf:value "2019-07-01T00:00:00.0"^^xsd:dateTime];
 	ic:to [rdf:value "2020-01-01T00:00:00.0"^^xsd:dateTime];
 	ic:cost_or_market [rdf:value ic:cost];
+	ic:pricing_method [rdf:value ic:lifo];
 	ic_ui:account_taxonomies [rdf:value (
 		[account_taxonomies:url [rdf:value account_taxonomies:base]]
 		[account_taxonomies:url [rdf:value account_taxonomies:investments]]
@@ -765,14 +766,15 @@ ic_ui:report_details
 		[excel:property ic:to; excel:type xsd:dateTime]
 		[excel:property ic:currency; excel:type xsd:string]
 		[excel:property ic:cost_or_market; excel:type excel:uri]
-		[excel:property ic_ui:processing_phases; excel:type excel:uri]
+		[excel:property ic:pricing_method; excel:type excel:uri]
 		[excel:property ic_ui:account_taxonomies; excel:template ic_ui:account_taxonomies]
 	).
 
-ic_ui:processing_phases rdfs:range ic_ui:Processing_phase.
-ic_ui:all a ic_ui:Processing_phase.
-ic_ui:stop_before_reading_GL_inputs a ic_ui:Processing_phase.
-
+ic:pricing_method rdfs:range ic:Pricing_method.
+ic:lifo a ic:Pricing_method.
+ic:fifo a ic:Pricing_method.
+ic:lifo rdfs:label "LIFO".
+ic:fifo rdfs:label "FIFO".
 
 
 ic_ui:account_taxonomies
