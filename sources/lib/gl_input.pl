@@ -42,14 +42,14 @@
 	!request_has_property(l:report_currency, [Default_Currency]),
 
 	(	doc_value(Item, ic:debit, Debit_String)
-	->	vector_from_string(Default_Currency, kb:debit, Debit_String, Debit_Vector)
+	->	!vector_from_string(Default_Currency, kb:debit, Debit_String, Debit_Vector)
 	;	Debit_Vector = []),
 
 	(	doc_value(Item, ic:credit, Credit_String)
-	->	vector_from_string(Default_Currency, kb:credit, Credit_String, Credit_Vector)
+	->	!vector_from_string(Default_Currency, kb:credit, Credit_String, Credit_Vector)
 	;	Credit_Vector = []),
 
-	append(Debit_Vector, Credit_Vector, Vector),
+	!vec_add(Debit_Vector, Credit_Vector, Vector),
 
 	Vector = [coord(_,Dr)],
 
@@ -65,7 +65,7 @@
 	->	atom_string(Units_type, Units_type_str)
 	;	Units_type = nil(nil)),
 
-	extract_exchanged_value2(Money_side, Units_type, Units_count, Exchanged),
+	!extract_exchanged_value2(Money_side, Units_type, Units_count, Exchanged),
 
 	(	doc_value(Item, ic:description2, Description2)
 	->	true
