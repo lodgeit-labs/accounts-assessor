@@ -7,8 +7,8 @@
  'export GL'(Sd, Txs, Json_list) :-
  	!gl_export_sources(Txs, Sources),
  	!gl_export_add_ids_to_sources(Sources),
- 	!cf(gl_viewer_json_gl_export(Sd, Sources, Txs, Json_list)),
- 	!cf('QuickBooks CSV GL export'(Sd, Txs)).
+ 	!cf(gl_viewer_json_gl_export(Sd, Sources, Txs, Json_list))/*,
+ 	!cf('QuickBooks CSV GL export'(Sd, Txs))*/.
 
 gl_export_add_ids_to_sources(Sources) :-
 	b_setval(gl_export_add_ids_to_sources, 1),
