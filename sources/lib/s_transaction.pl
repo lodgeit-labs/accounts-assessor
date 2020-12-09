@@ -77,13 +77,36 @@ doc_set_property_helper(Prefix,S1,S2,P,V,G,Field) :-
  pretty_st_string(T, String) :-
 	doc(T, rdf:type, l:s_transaction, transactions),
 	s_transaction_day(T, Date),
-	s_transaction_type_id(T, uri(Action_Verb)),
+	s_transaction_type_id(T, Action_verb),
 	s_transaction_vector(T, Money),
 	s_transaction_account(T, Account),
 	s_transaction_exchanged(T, Exchanged),
 	s_transaction_misc(T, Misc),
-	doc(Action_Verb, l:has_id, Action_Verb_Name),
-	format(string(String), 's_transaction:~n  date:~q~n  verb:~w~n  vector: ~q~n  account: ~q~n  exchanged: ~q~n  misc: ~q', [Date, Action_Verb_Name, $>round_term(Money), Account, $>round_term(Exchanged), Misc]).
+	format(
+		string(String),
+		's_transaction:~n  date:~q~n  verb:~w~n  vector: ~q~n  account: ~q~n  exchanged: ~q~n  misc: ~q',
+		[
+			Date,
+			$>pretty_action_verb_term_string(Action_verb),
+			$>round_term(Money),
+			$>pretty_account_term_string(Account),
+			$>round_term(Exchanged),
+			Misc
+		]
+	).
+
+pretty_account_term_string(uri(Account), Str) :-
+	account_name(Account, Str).
+
+pretty_account_term_string(bank_account_name(Account), Account).
+
+pretty_account_term_string(account_name_ui_string(Account), Account).
+
+pretty_action_verb_term_string(uri(Uri), Str) :-
+	doc(Uri, l:has_id, Str),
+	!.
+pretty_action_verb_term_string(Str, Str).
+
 
 
 compare_s_transactions(Order, T1, T2) :-
@@ -140,14 +163,20 @@ s_transactions_up_to(End_Date, S_Transactions_All, S_Transactions_Capped) :-
 		exchanged: Exchanged,
 		misc: Misc}.
 
- prepreprocess(Static_Data, In, Out) :-
+ 'pre-preprocess source trannsactions'(Static_Data, In, Out) :-
 	/*
 	at this point:
 	s_transactions are sorted by date from oldest to newest
 	bank s_transactions have flipped vectors, so they are from our perspective
 	primary accounts are specified with bank_account_name() or account_name_ui_string() or maybe uri()
 	*/
-	maplist(prepreprocess_s_transaction(Static_Data), In, Out).
+	maplist(prepreprocess_s_transaction0(Static_Data), In, Out).
+
+ prepreprocess_s_transaction0(Static_Data, In, Out) :-
+ 	pretty_st_string(In, Sts),
+	push_format('pre-processing source transaction:~n ~w~n', [Sts]),
+	prepreprocess_s_transaction(Static_Data, In, Out),
+	pop_context.
 
  prepreprocess_s_transaction(Static_Data, In, Out) :-
 	cf(infer_exchanged_units_count(Static_Data, In, Mid)),
@@ -202,7 +231,7 @@ infer_exchanged_units_count(Static_Data, S_Transaction, NS_Transaction) :-
 	s_transaction_day(S_Transaction, Transaction_Date),
 	s_transaction_vector(S_Transaction, Vector),
 	% infer the count by money debit/credit and exchange rate
-	vec_change_bases(Exchange_Rates, Transaction_Date, Goods_Bases, Vector, Vector_Exchanged),
+	vec_change_bases_throw(Exchange_Rates, Transaction_Date, Goods_Bases, Vector, Vector_Exchanged),
 	vec_inverse(Vector_Exchanged, Vector_Exchanged_Inverted),
 	doc_set_s_transaction_field(exchanged, S_Transaction, vector(Vector_Exchanged_Inverted), NS_Transaction, infer_exchanged_units_count).
 
@@ -285,7 +314,9 @@ extract_exchanged_value(Tx_dom, Bank_dr, Exchanged) :-
 		;	throw_string('unit count specified, but unit type missing'))
 	;	(	Unit_count = nil(nil)
 		->	% If the user has specified only a unit type, then infer count by exchange rate
-			Exchanged = bases([Unit_type])
+			(
+				Exchanged = bases([Unit_type])
+			)
 		;	(
 				Count_absolute is rationalize(abs(Unit_count)),
 				(	Money_side = kb:credit

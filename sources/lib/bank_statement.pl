@@ -124,8 +124,7 @@ preprocess_s_transaction(Static_Data, Report_Currency, Exchange_Rates, S_Transac
 	doc(Action_Verb, l:has_id, Action_Verb_Id),
 	Description = Action_Verb_Id,
 
-	extract_pricing_method(Pricing_method)
-
+	extract_pricing_method(Pricing_method),
 	affect_first_account(Static_Data, S_Transaction, Description, Ts1),
 
 	vector_unit(Vector_Ours, Bank_Account_Currency),
@@ -150,7 +149,7 @@ preprocess_s_transaction(Static_Data, Report_Currency, Exchange_Rates, S_Transac
 				->	true
 				;	throw_string('debit Counteraccount_Vector but debit money Vector')),
 
-        		make_buy(Static_Data, S_Transaction, Trading_Account, Pricing_Method, Bank_Account_Currency, Counteraccount_Vector, Converted_Vector_Ours, Vector_Ours, Exchanged_Account, Transaction_Date, Description, Outstanding_Before, Outstanding_After, Ts2)
+        		make_buy(Static_Data, S_Transaction, Trading_Account, Pricing_method, Bank_Account_Currency, Counteraccount_Vector, Converted_Vector_Ours, Vector_Ours, Exchanged_Account, Transaction_Date, Description, Outstanding_Before, Outstanding_After, Ts2)
 			)
 		;
 			(
@@ -159,7 +158,7 @@ preprocess_s_transaction(Static_Data, Report_Currency, Exchange_Rates, S_Transac
 				;	throw_string('credit Counteraccount_Vector but credit money Vector')),
 
 				cf(make_sell(
-				Static_Data, S_Transaction, Trading_Account, Pricing_Method, Bank_Account_Currency, Counteraccount_Vector, Vector_Ours,
+				Static_Data, S_Transaction, Trading_Account, Pricing_method, Bank_Account_Currency, Counteraccount_Vector, Vector_Ours,
 				Converted_Vector_Ours,	Exchanged_Account, Transaction_Date, Description,	Outstanding_Before, Outstanding_After, Ts3))
 
 			)
