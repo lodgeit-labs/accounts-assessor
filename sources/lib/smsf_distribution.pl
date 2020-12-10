@@ -245,7 +245,7 @@ smsf_distributions_report(Tbl_dict, Html) :-
 			options:options{implicit_report_currency:true}},
 		column{
 			concept:($>rdf_global_id(smsf_distribution_ui:accrual)),
-			title:"Resolved Accrual",
+			title:"Resolved_Accrual",
 			options:options{implicit_report_currency:true}},
 		column{
 			title:"",
@@ -441,21 +441,21 @@ distribution_txs(Default_currency, Item, Unit, Txs) :-
 	!maplist(!smsf_distribution_tx(Default_currency, End_Date, Item),
 		[dist{
 			prop: smsf_distribution_ui:accrual,
-			a:'Distribution Received'/Unit/'Resolved Accrual',
+			a:'Distribution_Received'/Unit/'Resolved_Accrual',
 			dir:crdr,
-			b:'Distribution Receivable'/Unit,
+			b:'Distribution_Receivable'/Unit,
 			desc:"Distributions Accrual entry as per Annual tax statements"},
 		dist{
 			prop: smsf_distribution_ui:foreign_credit,
-			a:'Distribution Received'/Unit/'Foreign Credit',
+			a:'Distribution_Received'/Unit/'Foreign_Credit',
 			dir:crdr,
-			b:'Foreign And Other Tax Credits',
+			b:'Foreign_and_Other_Tax_Credits',
 			desc:"Tax offset entry against distribution"},
 		dist{
 			prop: smsf_distribution_ui:franking_credit,
-			a:'Distribution Received'/Unit/'Franking Credit',
+			a:'Distribution_Received'/Unit/'Franking_Credit',
 			dir:crdr,
-			b:'Imputed Credits',
+			b:'Imputed_Credits',
 			desc:"Tax offset entry against distribution"}
 		],
 		Txs).

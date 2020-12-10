@@ -4,11 +4,11 @@ the smsf workflow:
 	for report for 2018-2019:
 
 	GL opening balances are posted. this includes:
-		!Opening Balance - Preserved/Taxable!<Member>!
+		!Opening_Balance_-_Preserved/Taxable!<Member>!
 			the 2017 opening balance
-		!Transfers In - Preserved/Tax Free!<Member>!
-		!Share of Profit/(Loss) - Preserved/Taxable!<Member>!
-		!Income Tax - Preserved/Taxable!<Member>!
+		!Transfers_In_-_Preserved/Tax-Free!<Member>!
+		!Share_of_Profit/(Loss)_-_Preserved/Taxable!<Member>!
+		!Income_Tax_-_Preserved/Taxable!<Member>!
 			the allocations of 17-18 profits etc
 
 	at the beginning of 18-19(or at end, doesn't matter), we rollover the 17-18 allocations into Opening Balance.
@@ -25,7 +25,7 @@ add_smsf_member_details_report_facts(Json_reports, Member) :-
 	/* for each Aspectses member, get gl balance of account_role and assert a fact with vector. */
 	!maplist(add_fact_by_account_role(Json_reports), Aspectses),
 	/* assert some derived facts for easier referencing */
-	Phases = ['Preserved', 'Unrestricted Non Preserved', 'Restricted Non Preserved'],
+	Phases = ['Preserved', 'Unrestricted_Non_Preserved', 'Restricted_Non_Preserved'],
 	!maplist(smsf_member_report_add_total_additions(Member), Phases),
 	!maplist(smsf_member_report_add_ob_plus_additions(Member), Phases),
 	!maplist(smsf_member_report_add_total_subtractions(Member), Phases),
@@ -40,18 +40,18 @@ produce all aspectses to later look up in GL and assert
 smsf_member_details_report_aspectses(Member, Aspectses) :-
 	!maplist(!smsf_member_details_report_aspectses3(Member),
 	[
-		x(final/bs/current, 'Opening Balance', []),
+		x(final/bs/current, 'Opening_Balance', []),
 		/* effect etc should be something else than an aspect. A tag perhaps. */
-		x(final/bs/current, 'Transfers In', [effect - addition]),
-		x(final/bs/current, 'Pensions Paid', [effect - subtraction]),
-		x(final/bs/current, 'Benefits Paid', [effect - subtraction]),
-		x(final/bs/current, 'Transfers Out', [effect - subtraction]),
-		x(final/bs/current, 'Life Insurance Premiums', [effect - subtraction]),
-		x(final/bs/current, 'Share of Profit/(Loss)', [effect - addition]),
-		x(final/bs/current, 'Income Tax', [effect - subtraction]),
-		x(final/bs/current, 'Contribution Tax', [effect - subtraction]),
-		x(final/bs/current, 'Internal Transfers In', [effect - addition]),
-		x(final/bs/current, 'Internal Transfers Out', [effect - subtraction])
+		x(final/bs/current, 'Transfers_In', [effect - addition]),
+		x(final/bs/current, 'Pensions_Paid', [effect - subtraction]),
+		x(final/bs/current, 'Benefits_Paid', [effect - subtraction]),
+		x(final/bs/current, 'Transfers_Out', [effect - subtraction]),
+		x(final/bs/current, 'Life_Insurance_Premiums', [effect - subtraction]),
+		x(final/bs/current, 'Share_of_Profit/(Loss)', [effect - addition]),
+		x(final/bs/current, 'Income_Tax', [effect - subtraction]),
+		x(final/bs/current, 'Contribution_Tax', [effect - subtraction]),
+		x(final/bs/current, 'Internal_Transfers_In', [effect - addition]),
+		x(final/bs/current, 'Internal_Transfers_Out', [effect - subtraction])
 	],
 	Aspectses0),
 	smsf_member_details_report_aspectses6(Member, Aspectses1),
@@ -64,7 +64,7 @@ smsf_member_details_report_aspectses3(Member, x(Report, Concept, Additional_aspe
 	'='(Facts, [
 		aspects($>append([
 			report - Report,
-			account_role - ($>atomic_list_concat([Concept, ' - Preserved/Taxable'])) / Member,
+			account_role - ($>atomic_list_concat([Concept, '_-_Preserved/Taxable'])) / Member,
 			concept - smsf/member/gl/Concept,
 			phase - 'Preserved',
 			taxability - 'Taxable',
@@ -72,42 +72,42 @@ smsf_member_details_report_aspectses3(Member, x(Report, Concept, Additional_aspe
 		], Additional_aspects)),
 		aspects($>append([
 			report - Report,
-			account_role - ($>atomic_list_concat([Concept, ' - Preserved/Tax Free'])) / Member,
+			account_role - ($>atomic_list_concat([Concept, '_-_Preserved/Tax-Free'])) / Member,
 			concept - smsf/member/gl/Concept,
 			phase - 'Preserved',
-			taxability - 'Tax Free',
+			taxability - 'Tax-Free',
 			member - Member
 		], Additional_aspects)),
 		aspects($>append([
 			report - Report,
-			account_role - ($>atomic_list_concat([Concept, ' - Unrestricted Non Preserved/Taxable'])) / Member,
+			account_role - ($>atomic_list_concat([Concept, '_-_Unrestricted_Non_Preserved/Taxable'])) / Member,
 			concept - smsf/member/gl/Concept,
-			phase - 'Unrestricted Non Preserved',
+			phase - 'Unrestricted_Non_Preserved',
 			taxability - 'Taxable',
 			member - Member
 		], Additional_aspects)),
 		aspects($>append([
 			report - Report,
-			account_role - ($>atomic_list_concat([Concept, ' - Unrestricted Non Preserved/Tax Free'])) / Member,
+			account_role - ($>atomic_list_concat([Concept, '_-_Unrestricted_Non_Preserved/Tax-Free'])) / Member,
 			concept - smsf/member/gl/Concept,
-			phase - 'Unrestricted Non Preserved',
-			taxability - 'Tax Free',
+			phase - 'Unrestricted_Non_Preserved',
+			taxability - 'Tax-Free',
 			member - Member
 		], Additional_aspects)),
 		aspects($>append([
 			report - Report,
-			account_role - ($>atomic_list_concat([Concept, ' - Restricted Non Preserved/Taxable'])) / Member,
+			account_role - ($>atomic_list_concat([Concept, '_-_Restricted_Non_Preserved/Taxable'])) / Member,
 			concept - smsf/member/gl/Concept,
-			phase - 'Restricted Non Preserved',
+			phase - 'Restricted_Non_Preserved',
 			taxability - 'Taxable',
 			member - Member
 		], Additional_aspects)),
 		aspects($>append([
 			report - Report,
-			account_role - ($>atomic_list_concat([Concept, ' - Restricted Non Preserved/Tax Free'])) / Member,
+			account_role - ($>atomic_list_concat([Concept, '_-_Restricted_Non_Preserved/Tax-Free'])) / Member,
 			concept - smsf/member/gl/Concept,
-			phase - 'Restricted Non Preserved',
-			taxability - 'Tax Free',
+			phase - 'Restricted_Non_Preserved',
+			taxability - 'Tax-Free',
 			member - Member
 		], Additional_aspects))
 	]).
@@ -123,8 +123,8 @@ smsf_member_details_report_aspectses6(Member, Aspectses) :-
 	Aspectses = [
 		aspects([
 			report - final/bs/current,
-			account_role - 'Employer Contributions - Concessional' / Member,
-			concept - smsf/member/gl/'Employer Contributions - Concessional',
+			account_role - 'Employer_Contributions_-_Concessional' / Member,
+			concept - smsf/member/gl/'Employer_Contributions_-_Concessional',
 			phase - 'Preserved',
 			taxability - 'Taxable',
 			member - Member,
@@ -132,8 +132,8 @@ smsf_member_details_report_aspectses6(Member, Aspectses) :-
 		]),
 		aspects([
 			report - final/bs/current,
-			account_role - 'Member/Personal Contributions - Concessional' / Member,
-			concept - smsf/member/gl/'Member/Personal Contributions - Concessional',
+			account_role - 'Member/Personal_Contributions_-_Concessional' / Member,
+			concept - smsf/member/gl/'Member/Personal_Contributions_-_Concessional',
 			phase - 'Preserved',
 			taxability - 'Taxable',
 			member - Member,
@@ -141,17 +141,17 @@ smsf_member_details_report_aspectses6(Member, Aspectses) :-
 		]),
 		aspects([
 			report - final/bs/current,
-			account_role - 'Member/Personal Contributions - Non Concessional' / Member,
-			concept - smsf/member/gl/'Member/Personal Contributions - Non Concessional',
+			account_role - 'Member/Personal_Contributions_-_Non_Concessional' / Member,
+			concept - smsf/member/gl/'Member/Personal_Contributions_-_Non_Concessional',
 			phase - 'Preserved',
-			taxability - 'Tax Free',
+			taxability - 'Tax-Free',
 			member - Member,
 			effect - addition
 		]),
 		aspects([
 			report - final/bs/current,
-			account_role - 'Other Contributions' / Member,
-			concept - smsf/member/gl/'Other Contributions',
+			account_role - 'Other_Contributions' / Member,
+			concept - smsf/member/gl/'Other_Contributions',
 			phase - 'Preserved',
 			taxability - 'Taxable',
 			member - Member,
@@ -198,7 +198,7 @@ smsf_member_report_add_total_subtractions(Member, Phase) :-
 		])).
 
 smsf_member_report_add_ob_plus_additions(Member, Phase) :-
-	!facts_vec_sum($>smsf_member_facts_by_aspects(Member, Phase, smsf/member/gl/'Opening Balance'), Vec1),
+	!facts_vec_sum($>smsf_member_facts_by_aspects(Member, Phase, smsf/member/gl/'Opening_Balance'), Vec1),
 	!facts_vec_sum($>smsf_member_facts_by_aspects(Member, Phase, smsf/member/derived/'total additions'), Vec2),
 	vec_sum([Vec1, Vec2], Vec),
 	!make_fact(Vec,

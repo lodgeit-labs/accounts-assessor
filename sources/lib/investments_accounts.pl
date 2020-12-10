@@ -25,7 +25,7 @@ return all units that appear in s_transactions with an action type that specifie
 
 /*
 	this gets names of "exchanged accounts", as specified in action verbs. Accounts are created based on that name, but the name may need to be adjusted. So don't use this to look accounts up, instead:
-	findall(Account, abrlt('FinancialInvestments'/Name, Account), Accounts).
+	findall(Account, abrlt('Financial_Investments'/Name, Account), Accounts).
 */
 
  financialInvestments_accounts_ui_names(Names) :-

@@ -210,7 +210,7 @@ make_buy(Static_Data, St, Trading_Account, Pricing_Method, Bank_Account_Currency
 	number_coord(Goods_Unit, Goods_Count, Goods_Coord),
 	dict_vars(Static_Data, [Cost_Or_Market]),
 
-	/*technically, the action verb could be smarter and know that the exchanged account name that user specified must correspond to an account with role 'FinancialInvestments'/name.
+	/*technically, the action verb could be smarter and know that the exchanged account name that user specified must correspond to an account with role 'Financial_Investments'/name.
 	some sort of generalized system is shaping up.
 	*/
 

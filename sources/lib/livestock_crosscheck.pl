@@ -65,7 +65,7 @@ do_livestock_crosscheck(Events, Natural_Increase_Costs, S_Transactions, Transact
 	vec_inverse(Revenue_Credit, [Revenue_Coord_Ledger]),
 	number_coord(Currency, Revenue, Revenue_Coord),
 
-	balance_by_account(Exchange_Rates, Transactions, Report_Currency, To_Day, 'CostOfGoodsLivestock', To_Day, [Cogs_Coord_Ledger],_),
+	balance_by_account(Exchange_Rates, Transactions, Report_Currency, To_Day, 'Cost_of_Goods_Livestock', To_Day, [Cogs_Coord_Ledger],_),
 	number_coord(Currency, Livestock_COGS, Cogs_Coord),
 
 	balance_by_account(Exchange_Rates, Transactions, Report_Currency, To_Day, 'Earnings', To_Day, Earnings_Credit,_),

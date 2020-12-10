@@ -174,7 +174,7 @@ process_realized(Dom, Global_Report_Date_Atom, Result) :-
 
    	Info = (Exchange_Rates, Accounts, Transactions_By_Account, Sale_Date, report_currency),
    	/*TODO get Investment_Income account by role */
-	account_by_role(Accounts, 'InvestmentIncome'/realized, Gain_Account),
+	account_by_role(Accounts, 'Investment_Income'/realized, Gain_Account),
 	account_by_role(Accounts, Gain_Account/withoutCurrencyMovement, Gains_Excluding_Forex_Account),
 	account_by_role(Accounts, Gain_Account/onlyCurrencyMovement, Gains_Currency_Movement_Account), 
     account_assertion(Info, Gains_Excluding_Forex_Account, -RC_Realized_Market_Gain),
@@ -322,7 +322,7 @@ process_unrealized(Dom, Global_Report_Date, Result) :-
 	writeln('-->'),
 
    	Info = (Exchange_Rates, Accounts, Transactions_By_Account, Report_Date, report_currency),
-	account_by_role(Accounts, 'InvestmentIncome'/unrealized, Unrealized_Gain_Account),
+	account_by_role(Accounts, 'Investment_Income'/unrealized, Unrealized_Gain_Account),
 	account_by_role(Accounts, Unrealized_Gain_Account/withoutCurrencyMovement, Unrealized_Gains_Excluding_Forex_Account),
 	account_by_role(Accounts, Unrealized_Gain_Account/onlyCurrencyMovement, Unrealized_Gains_Currency_Movement_Account),
    	account_assertion(Info, Unrealized_Gains_Excluding_Forex_Account, -RDRC_Unrealized_Market_Gain),
@@ -575,8 +575,8 @@ crosscheck_totals(Results, Report_Date) :-
 		PL cross-check
 	*/
 	/*TODO get Investment_Income by role*/
-	account_by_role(Accounts, 'InvestmentIncome'/unrealized, Unrealized_Gain_Account),
-	account_by_role(Accounts, 'InvestmentIncome'/realized, Realized_Gain_Account),
+	account_by_role(Accounts, 'Investment_Income'/unrealized, Unrealized_Gain_Account),
+	account_by_role(Accounts, 'Investment_Income'/realized, Realized_Gain_Account),
 	account_by_role(Accounts, Unrealized_Gain_Account/withoutCurrencyMovement, Unrealized_Gains_Excluding_Forex_Account),
 	account_by_role(Accounts, Unrealized_Gain_Account/onlyCurrencyMovement, Unrealized_Gains_Currency_Movement_Account),
 	account_by_role(Accounts, Realized_Gain_Account/withoutCurrencyMovement, Realized_Gains_Excluding_Forex_Account),
@@ -590,7 +590,7 @@ crosscheck_totals(Results, Report_Date) :-
 		BS cross-check
 	*/
 	Financial_Investments_Value is PDRC_Cost_Total + Gain_Total - SDRC_Value_Total,
-	account_assertion(Info, 'FinancialInvestments', Financial_Investments_Value),
+	account_assertion(Info, 'Financial_Investments', Financial_Investments_Value),
 
 	%writeln(Unrealized_PDRC_Cost_Total + Unrealized_Gain_Total),
 	%writeln(Bank_Value is Realized_Gain_Total - PDPC_Cost_Total),
@@ -605,7 +605,7 @@ crosscheck_totals(Results, Report_Date) :-
 	
 	/*TODO get accounts by role*/
 	account_by_role(Accounts, 'Banks'/'Bank',Bank_Account),
-	account_by_role(Accounts, 'CurrencyMovement'/'Bank', Bank_Currency_Account),
+	account_by_role(Accounts, 'Currency_Movement'/'Bank', Bank_Currency_Account),
 	account_vector(Info, Bank_Currency_Account, [Bank_Currency_Movement_Coord]),
 	
 	number_coord(report_currency, Bank_Currency_Movement_Number, Bank_Currency_Movement_Coord),

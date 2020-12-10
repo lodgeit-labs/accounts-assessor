@@ -181,32 +181,39 @@ add_account(E, Parent0, Uri) :-
  role_string_to_term(Role_string, rl(Role)) :-
 	split_string(Role_string, '/', '', Role_string_list),
 	maplist(atom_string, Role_atom_list, Role_string_list),
-	role_list_to_term(Role_atom_list, Role).
+	path_list_to_term(Role_atom_list, Role).
 
 
 /*
- role_list_to_term([H,T], H/T) :-
+ path_list_to_term([H,T], H/T) :-
 	!.
 
- role_list_to_term([H|TH/TT], Role) :-
-	role_list_to_term(TH/TT, Role2),
+ path_list_to_term([H|TH/TT], Role) :-
+	path_list_to_term(TH/TT, Role2),
 	Role =.. ['/',H,Role2],
 	!.
 */
 
 
 
+ path_term_to_list(Term, List) :-
+    path_term_to_list2(Term, List0),
+    reverse(List0, List).
 
- role_list_to_term(X, Hr/Tr) :-
-	append(Lh, [Tr], X),
-	role_list_to_term(Lh, Hr).
+path_term_to_list2(Bulk/Atom, [Atom|Tail]) :-
+    dif(Tail, []),
+	!,
+    (atomic(Atom)->true;throw(zzz)),
+    path_term_to_list2(Bulk, Tail).
 
- role_list_to_term([Role], Role) :- atomic(Role).
+path_term_to_list2(Bulk, [Bulk]) :-
+	atomic(Bulk),
+    !.
 
- role_term_to_list(R, [R]) :- atomic(R),!.
- role_term_to_list(A/B, [A|X]) :-
-	atomic(A),!,
- 	role_term_to_list(B, X).
+ path_list_to_term(List, Term) :-
+    reverse(List, List2),
+    path_term_to_list2(Term, List2).
+
 
 
 extract_normal_side_uri_from_attrs(Attrs, Side) :-

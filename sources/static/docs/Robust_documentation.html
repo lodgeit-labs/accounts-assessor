@@ -140,7 +140,7 @@ That something is taken from the “<i>param</i>” columns:</p>
 
 </p>
 <p style="margin-top: 0.02in; margin-bottom: 0.02in">In effect, the
-role path becomes: “<i>!Share of Profit/(Loss) –
+role path becomes: “<i>!Share_of_Profit/(Loss) –
 Preserved/Taxable!John Smith!”.</i> Each angle-bracketed slot has
 to match up with one nonempty “param” column.</p>
 <h2 class="western" style="margin-top: 0.02in; margin-bottom: 0.02in">
@@ -196,7 +196,7 @@ higher level methods</h3>
 	to GL can be in one of two ways:</p>
 	<li/>
 <p style="margin-top: 0.02in; margin-bottom: 0.02in">posted
-	into HistoricalEarnings account at opening date</p>
+	into Historical_Earnings account at opening date</p>
 	<ul>
 		<li/>
 <p style="margin-top: 0.02in; margin-bottom: 0.02in">creates
@@ -210,7 +210,7 @@ higher level methods</h3>
 	<ul>
 		<li/>
 <p style="margin-top: 0.02in; margin-bottom: 0.02in">posted
-		into CurrentEarnings account before opening date</p>
+		into Current_Earnings account before opening date</p>
 	</ul>
 </ul>
 <h2 class="western" style="margin-top: 0.02in; margin-bottom: 0.02in">
@@ -242,7 +242,7 @@ example AUD. If bank account is debited 100 USD on &quot;date(2019,9,9)&quot;,
 a corresponding equity/p&amp;l account is credited, for example, 120
 AUD, according to the conversion rate valid at the transaction date.
 The GL always balances because the drift in USD/AUD rate is accounted
-for on the CurrencyMovement account, for example
+for on the Currency_Movement account, for example
 CurrencyMovementHelvetische_BankUSD. The entry created on this
 account would be literally CR 120 USD, DR 100 AUD, but things are a
 little more complicated, and the actual entry looks like this: 

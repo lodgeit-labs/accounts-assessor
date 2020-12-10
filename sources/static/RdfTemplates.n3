@@ -204,6 +204,7 @@ smsf:income_tax_info
 	).
 	
 smsf:ato_supervisory_levy rdfs:label "ATO Supervisory Levy".
+smsf:ato_supervisory_levy rdfs:label "ATO_Supervisory_Levy".
 
 
 smsf_ui:income_tax_sheet_example 
@@ -639,7 +640,7 @@ ic_ui:gl_input_example
 
 ic_ui:action_input_example
 	ic:default_currency [rdf:value "AUD"];
-	ic:account [rdf:value "InvestmentClearing"];
+	ic:account [rdf:value "Investment_Clearing"];
 	ic:items [rdf:value ()].
 
 ic_ui:additional_files_sheet
@@ -838,7 +839,7 @@ ic_ui:gl_input_example
 						]
 						[
 							ic:date [rdf:value "2019-10-10T00:00:00.000000"^^xsd:dateTime];
-							ic:account [rdf:value "CurrencyMovement"];
+							ic:account [rdf:value "Currency_Movement"];
 							ic:debit [rdf:value "600 AUD"];
 							ic:credit [rdf:value "500 USD"]
 						]

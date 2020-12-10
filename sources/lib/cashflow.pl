@@ -145,7 +145,7 @@ cf_scheme_0_entry_for_account(
 ).
 */
 cf_scheme_0_root_entry(Sd, Entry) :-
-	!cf_scheme_0_entry_for_account0(Sd, $>account_by_role_throw(rl('CashAndCashEquivalents')), Entry).
+	!cf_scheme_0_entry_for_account0(Sd, $>account_by_role_throw(rl('Cash_and_Cash_Equivalents')), Entry).
 
 add_entry_balance_desc(_Sd, Entry, B, Column, Text, Type) :-
 	!maybe_balance_lines(xxx, kb:debit, [], B, Balance_Text),
@@ -284,7 +284,7 @@ cashflow(
 	Sd,				% + Static Data
 	[Entry]			% - list<entry>
 ) :-
-	abrlt('CashAndCashEquivalents', Root),
+	abrlt('Cash_and_Cash_Equivalents', Root),
 	!transactions_in_period_on_account_and_subaccounts(Sd.transactions_by_account, Root, Sd.start_date, Sd.end_date, Filtered_Transactions),
 	maplist(!tag_gl_transaction_with_cf_data, Filtered_Transactions),
 	!cf_scheme_0_root_entry(Sd, Entry),

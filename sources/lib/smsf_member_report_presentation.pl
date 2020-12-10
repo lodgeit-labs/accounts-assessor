@@ -9,7 +9,7 @@
 		[text(Opening_balance_label),
 			aspects([
 				report - final/bs/current,
-				concept - smsf/member/gl/'Opening Balance'])],
+				concept - smsf/member/gl/'Opening_Balance'])],
 
 		[text('Add: Increases to Member\'s Account During the Period'),
 			text('')],
@@ -17,37 +17,37 @@
 		[text('Concessional Contributions'),
 			aspects([
 				report - final/bs/current,
-				concept - smsf/member/gl/'Member/Personal Contributions - Concessional'])],
+				concept - smsf/member/gl/'Member/Personal_Contributions_-_Concessional'])],
 
 		[text('Non-Concessional Contributions'),
 			aspects([
 				report - final/bs/current,
-				concept - smsf/member/gl/'Member/Personal Contributions - Non Concessional'])],
+				concept - smsf/member/gl/'Member/Personal_Contributions_-_Non_Concessional'])],
 
-		[text('Other Contributions'),
+		[text('Other_Contributions'),
 			aspects([
 				report - final/bs/current,
-				concept - smsf/member/gl/'Other Contributions'])],
+				concept - smsf/member/gl/'Other_Contributions'])],
 
 		/* missing */
 		/*[text('Govt Co-Contributions'),                                  concept('Govt Co-Contributions')],
-		[text('Employer Contributions - No TFN'),                        concept('Employer Contributions - Concessional')],*/
+		[text('Employer_Contributions - No TFN'),                        concept('Employer_Contributions_-_Concessional')],*/
 		/* missing */
 		/*[text('Proceeds of Insurance Policies'),                         concept('Proceeds of Insurance Policies')],*/
 		[text('Share of Net Income/(Loss) for period'),
 			aspects([
 				report - final/bs/current,
-				concept - smsf/member/gl/'Share of Profit/(Loss)'])],
+				concept - smsf/member/gl/'Share_of_Profit/(Loss)'])],
 
-		[text('Internal Transfers In'),
+		[text('Internal_Transfers_In'),
 			aspects([
 				report - final/bs/current,
-				concept - smsf/member/gl/'Internal Transfers In'])],
+				concept - smsf/member/gl/'Internal_Transfers_In'])],
 
-		[text('Transfers In'),
+		[text('Transfers_In'),
 			aspects([
 				report - final/bs/current,
-				concept - smsf/member/gl/'Transfers In'])],
+				concept - smsf/member/gl/'Transfers_In'])],
 
 		[text(''),                                                       text('')],
 
@@ -64,25 +64,25 @@
 		[text(''),                                                       text('')],
 		[text('Less: Decreases to Member\'s Account During the Period'), text('')],
 
-		[text('Benefits Paid'),
+		[text('Benefits_Paid'),
 			aspects([
 				report - final/bs/current,
-				concept - smsf/member/gl/'Benefits Paid'])],
+				concept - smsf/member/gl/'Benefits_Paid'])],
 
-		[text('Pensions Paid'),
+		[text('Pensions_Paid'),
 			aspects([
 				report - final/bs/current,
-				concept - smsf/member/gl/'Pensions Paid'])],
+				concept - smsf/member/gl/'Pensions_Paid'])],
 
-		[text('Contribution Tax'),
+		[text('Contribution_Tax'),
 			aspects([
 				report - final/bs/current,
-				concept - smsf/member/gl/'Contribution Tax'])],
+				concept - smsf/member/gl/'Contribution_Tax'])],
 
-		[text('Income Tax'),
+		[text('Income_Tax'),
 			aspects([
 				report - final/bs/current,
-				concept - smsf/member/gl/'Income Tax'])],
+				concept - smsf/member/gl/'Income_Tax'])],
 		/*
 		[text('No TFN Excess Contributions Tax'),                        concept('No TFN Excess Contributions Tax')],
 		[text('Division 293 Tax'),                                       concept('Division 293 Tax')],
@@ -92,20 +92,20 @@
 		[text('Insurance Policy Premiums Paid'),
 			aspects([
 				report - final/bs/current,
-				concept - smsf/member/gl/'Life Insurance Premiums'])],
+				concept - smsf/member/gl/'Life_Insurance_Premiums'])],
 		/*
 		[text('Management Fees'),                                        concept('Management Fees')],
 		[text('Share of fund expenses'),                                 concept('Share of fund expenses')],
 		*/
-		[text('Internal Transfers Out'),
+		[text('Internal_Transfers_Out'),
 			aspects([
 				report - final/bs/current,
-				concept - smsf/member/gl/'Internal Transfers Out'])],
+				concept - smsf/member/gl/'Internal_Transfers_Out'])],
 
-		[text('Transfers Out'),
+		[text('Transfers_Out'),
 			aspects([
 				report - final/bs/current,
-				concept - smsf/member/gl/'Transfers Out'])],
+				concept - smsf/member/gl/'Transfers_Out'])],
 
 		[text(''),                                                       text('')],
 

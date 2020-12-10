@@ -40,7 +40,7 @@
 		[text('Benefits Accrued as a Result of Operations before Income Tax'),
 			aspects([
 				report - before_smsf_income_tax/pl/current,
-				account_role - 'ComprehensiveIncome'])],
+				account_role - 'Comprehensive_Income'])],
 		[text('Less:'), text('')]
 	],
 
@@ -53,15 +53,15 @@
 		[text('Change in Market Value'),
 			aspects([
 				report - before_smsf_income_tax/pl/current,
-				account_role - 'TradingAccounts'/'Capital GainLoss'])],
+				account_role - 'Trading_Accounts'/'Capital_Gain/(Loss)'])],
 		[text('Accounting Trust Distribution'),
 			aspects([
 				report - before_smsf_income_tax/pl/current,
-				account_role - 'Distribution Received'])],
+				account_role - 'Distribution_Received'])],
 		[text('Non Concessional Contribution'),
 			aspects([
 				report - before_smsf_income_tax/pl/current,
-				account_role - 'Contribution Received'])]
+				account_role - 'Contribution_Received'])]
 	],
 
 %the semantics is that all relevant facts exist beforehand. So, each formula comes down to: filtering the db by a given 'aspects' list, and creating a static equation system off that.
@@ -101,7 +101,7 @@
 		[text('WriteBack of Deferred Tax'),
 			aspects([
 				report - before_smsf_income_tax/pl/current,
-				account_role - 'Writeback Of Deferred Tax'])],
+				account_role - 'Writeback_of_Deferred_Tax'])],
 		[text('Taxable Capital Gain'),
 			aspects([
 				concept - ($>rdf_global_id(smsf_computation:taxable_net_capital_gains_discounted))])]],
@@ -171,17 +171,17 @@
 		=
 		sum($>rows_aspectses(Subtractions2_rows)),
 
-		make_fact(aspects([concept - smsf/income_tax/'Income Tax Payable/(Refund)'])),
+		make_fact(aspects([concept - smsf/income_tax/'Income_Tax_Payable/(Refund)'])),
 
-		aspects([concept - smsf/income_tax/'Income Tax Payable/(Refund)'])
+		aspects([concept - smsf/income_tax/'Income_Tax_Payable/(Refund)'])
 		=
 		aspects([concept - smsf/income_tax/'Tax on Taxable Income @ 15%'])
 		-
 		aspects([concept - smsf/income_tax/'Subtractions2_vec']),
 
-		aspects([concept - smsf/income_tax/'Income Tax Payable/(Refund)'])
+		aspects([concept - smsf/income_tax/'Income_Tax_Payable/(Refund)'])
 		+
-		aspects([concept - smsf/income_tax/'ATO Supervisory Levy'])
+		aspects([concept - smsf/income_tax/'ATO_Supervisory_Levy'])
 		=
 		aspects([concept - smsf/income_tax/'to pay']),
 
@@ -189,10 +189,10 @@
 	],
 
 	Rows4 = [
-		[text('Income Tax Payable/(Refund)'),
-			aspects([concept - smsf/income_tax/'Income Tax Payable/(Refund)'])],
+		[text('Income_Tax_Payable/(Refund)'),
+			aspects([concept - smsf/income_tax/'Income_Tax_Payable/(Refund)'])],
 		[text('Add: Supervisory Levy'),
-			aspects([concept - smsf/income_tax/'ATO Supervisory Levy'])],
+			aspects([concept - smsf/income_tax/'ATO_Supervisory_Levy'])],
 		[text('Total Mount Due or Refundable:'),
 			aspects([concept - smsf/income_tax/'to pay'])]
 	],

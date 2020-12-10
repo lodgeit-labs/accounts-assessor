@@ -30,8 +30,8 @@ phase 1 - setting up opening balances
 	use quasi bank sheet to populate investments.
 		action verb: Invest_In
 		price: 0
-		their value given by opening market values ends up in HistoricalEarnings
-	use GL_input to clear out HistoricalEarnings into member opening balances.
+		their value given by opening market values ends up in Historical_Earnings
+	use GL_input to clear out Historical_Earnings into member opening balances.
 
 	PL is always computed just for current period. Old transactions stay there but are not taken into account. At end of period, total of PL is copied over to retaine
 

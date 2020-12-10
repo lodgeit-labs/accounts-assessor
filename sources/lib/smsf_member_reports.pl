@@ -33,8 +33,8 @@ smsf_member_details_report(Json_reports, Member_atom, Tbl_dict) :-
 	Columns = [
 		column{id:label, title:"Your Detailed Account", options:_{}},
 		column{id:'Preserved', title:"Preserved", options:_{implicit_report_currency:true}},
-		column{id:'Restricted Non Preserved', title:"Restricted Non Preserved", options:_{implicit_report_currency:true}},
-		column{id:'Unrestricted Non Preserved', title:"Unrestricted Non Preserved", options:_{implicit_report_currency:true}},
+		column{id:'Restricted_Non_Preserved', title:"Restricted_Non_Preserved", options:_{implicit_report_currency:true}},
+		column{id:'Unrestricted_Non_Preserved', title:"Unrestricted_Non_Preserved", options:_{implicit_report_currency:true}},
 		column{id:'Total', title:"Total", options:_{implicit_report_currency:true}}],
 	Tbl_dict = table{title:Member_atom, columns:Columns, rows:Rows}.
 
@@ -53,24 +53,24 @@ smsf_member_overview_report(Member, Tbl_dict) :-
 				phase - 'Preserved',
 				member - Member])],
 
-		[text(' - Unrestricted Non Preserved'),
+		[text('_-_Unrestricted_Non_Preserved'),
 			aspects([
 				concept - smsf/member/gl/_,
-				phase - 'Unrestricted Non Preserved',
+				phase - 'Unrestricted_Non_Preserved',
 				member - Member])],
 
-		[text(' - Restricted Non Preserved'),
+		[text('_-_Restricted_Non_Preserved'),
 			aspects([
 				concept - smsf/member/gl/_,
-				phase - 'Restricted Non Preserved',
+				phase - 'Restricted_Non_Preserved',
 				member - Member])],
 
 		[text('Including:'),text('')],
 
-		[text(' - Tax Free Component'),
+		[text(' - Tax-Free Component'),
 			aspects([
 				concept - smsf/member/gl/_,
-				taxability - 'Tax Free',
+				taxability - 'Tax-Free',
 				member - Member])],
 
 		[text(' - Taxable Component'),
@@ -98,8 +98,8 @@ smsf_member_overview_report(Member, Tbl_dict) :-
 	Dict = row{
 		label:A,
 		'Preserved':B,
-		'Restricted Non Preserved':C,
-		'Unrestricted Non Preserved':D,
+		'Restricted_Non_Preserved':C,
+		'Unrestricted_Non_Preserved':D,
 		'Total':E}.
 
 

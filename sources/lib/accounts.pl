@@ -179,7 +179,7 @@ account_to_dict(Uri, Dict) :-
 		normal_side: Normal_side
 	},
 
-	account_name(Uri, Name),
+	!account_name(Uri, Name),
 
 	(	account_parent(Uri, Parent)
 	->	true
@@ -189,7 +189,7 @@ account_to_dict(Uri, Dict) :-
 	->	role_bang_string(Role0, Role)
 	;	Role = @null),
 
-	account_detail_level(Uri, Detail_level),
+	!account_detail_level(Uri, Detail_level),
 
 	(	account_normal_side(Uri, Normal_side)
 	->	true
@@ -197,15 +197,15 @@ account_to_dict(Uri, Dict) :-
 	.
 
 role_bang_string(Role0, Text) :-
-	role_bang_string_helper(Role0, Role),
+	!role_bang_string_helper(Role0, Role),
 	once(c(!'use grammar to generate text'(out_account_specifier(role(Role)), Text))).
 
 role_bang_string_helper(_, Role) :-
-gtrace,
-Role0 = 'FinancialInvestments'/'Investments'/'BetaShares Australian Equities Strong Bear Hedge Fund',
-	maplist(([R0, fixed(R0)]>>true), $>role_term_to_list(Role0), Role),
+%gtrace,
+%Role0 = 'Financial_Investments'/'Investments'/'BetaShares Australian Equities Strong Bear Hedge Fund',
+	maplist(([R0, fixed(R0)]>>true), $>path_term_to_list(Role0), Role)/*,
 	writeq(Role0),nl,
-	writeq(Role),nl.
+	writeq(Role),nl*/.
 
 %wrap_in_fixed(X
 
@@ -243,7 +243,7 @@ check_accounts_roles :-
 			->	assertion(atom(Suggested_id))
 			;	(
 					Role = rl(Role2),
-					role_list_to_term(Role_list, Role2),
+					path_list_to_term(Role_list, Role2),
 					last(Role_list, Child_Role_Raw),
 					replace_nonalphanum_chars_with_underscore(Child_Role_Raw, Child_Role_Safe),
 					capitalize_atom(Child_Role_Safe, Child_Role_Capitalized),

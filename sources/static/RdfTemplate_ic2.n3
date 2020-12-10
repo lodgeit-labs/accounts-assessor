@@ -68,48 +68,48 @@ ic2_ui:example_action_verbs
 		[
 			av:id "Invest_In";
 			av:money_direction av:outgoing;
-			av:counteraccount_id "FinancialInvestments";
-			av:trading_account_id "InvestmentIncome";
+			av:counteraccount_id "Financial_Investments";
+			av:trading_account_id "Investment_Income";
 		]
 		[
 			av:id "Dispose_Of";
 			av:money_direction av:incoming;
-			av:counteraccount_id "FinancialInvestments";
-			av:trading_account_id "InvestmentIncome"
+			av:counteraccount_id "Financial_Investments";
+			av:trading_account_id "Investment_Income"
 		]
 		[
 			av:id "Borrow";
 			av:money_direction av:incoming;
-			av:counteraccount_id "NonCurrentLoans"
+			av:counteraccount_id "Non_Current_Loans"
 		]
 		[
 			av:id "Introduce_Capital";
 			av:money_direction av:incoming;
-			av:counteraccount_id "ShareCapital"
+			av:counteraccount_id "Share_Capital"
 		]
 		[
 			av:id "Transfers";
-			av:counteraccount_id "ClearingAccount"
+			av:counteraccount_id "Clearing_Account"
 		]
 		[
 			av:id "Bank_Charges";
 			av:money_direction av:outgoing;
-			av:counteraccount_id "BankCharges"
+			av:counteraccount_id "Bank_Charges"
 		]
 		[
 			av:id "Interest_Expenses";
 			av:money_direction av:outgoing;
-			av:counteraccount_id "InterestExpenses"
+			av:counteraccount_id "Interest_Expenses"
 		]
 		[
 			av:id "Accountancy_Fees";
 			av:money_direction av:outgoing;
-			av:counteraccount_id "AccountingFees"
+			av:counteraccount_id "Accounting_Fees"
 		]
 		[
 			av:id "Interest_Income";
 			av:money_direction av:incoming;
-			av:counteraccount_id "InterestEarned"
+			av:counteraccount_id "Interest_Earned"
 		]
 		[
 			av:id "Drawings";
@@ -124,13 +124,13 @@ ic2_ui:example_action_verbs
 		[
 			av:id "Purchase_Method_C";
 			av:counteraccount_id "Purchases";
-			av:GST_Payable_account_id "GSTPayable";
+			av:GST_Payable_account_id "Gst_Payable";
 			av:GST_Rate_Percent "10"
 		]
 		[
 			av:id "Sale_Method_C";
 			av:counteraccount_id "Revenue";
-			av:GST_Receivable_account_id "GSTReceivable";
+			av:GST_Receivable_account_id "Gst_Receivable";
 			av:GST_Rate_Percent "10";
 		]
 	).

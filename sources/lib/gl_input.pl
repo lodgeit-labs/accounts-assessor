@@ -267,7 +267,7 @@ todo, refactor: reallocation_tx_set_spec(Rows, [A_tx|Txs]) :-
 				$>format(string(<$), 'fill account role slots. role path: ~q specified in: ~w,  parameters: ~w', [Specifier, $>sheet_and_cell_string(Account_string_uri), $>values(Parameters)]),
 				!fill_slots(Specifier, Parameters, Role_list)
 			),
-			!role_list_to_term(Role_list, Role),
+			!path_list_to_term(Role_list, Role),
 			abrlt(Role, Account)
 		)
 	),

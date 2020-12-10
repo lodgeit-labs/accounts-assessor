@@ -52,7 +52,7 @@ First, we record the change on the bank account. This transaction is always in t
 An "exchange account, or "counteraccount", must be specified in the action verb. This is the basis of making the GL balance. If the bank statement record is not annotated with an exchanged unit type, then this amounts to recording a change in liabilities, revenue, expenses, or equity. The inverse of the change on the bank account is recorded on the counteraccount, but converted to report currency as of the day.
 
 ### currency_movement
-If the bank account is in a different currency than the report currency, we add a "difference transaction" to the bank account's 'Currency_Movement' account, which is an earnings account. Earnings and equity accounts track, or counterbalance, the NetAssets accounts, and the total always has to be 0. see https://www.mathstat.dal.ca/~selinger/accounting/tutorial.html .
+If the bank account is in a different currency than the report currency, we add a "difference transaction" to the bank account's 'Currency_Movement' account, which is an earnings account. Earnings and equity accounts track, or counterbalance, the Net_Assets accounts, and the total always has to be 0. see https://www.mathstat.dal.ca/~selinger/accounting/tutorial.html .
 The currency movement account is counterbalancing the change in value of the bank account. If, for example, we record 100USD credit on the bank account and 120AUD debit on the expenses account, the currency movement transaction will literally record the inverse of (100USD - 120AUD), so as USD moves against AUD, it will always equal the difference between the bank account's value and the expense account's value. 
 
 ### assets counteraccount

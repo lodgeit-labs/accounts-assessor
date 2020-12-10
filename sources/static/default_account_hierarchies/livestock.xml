@@ -1,11 +1,11 @@
 <?xml version="1.0" ?>
 <accountHierarchy>
-	<AssetsLivestock parent_role="CurrentAssets">
-		<AssetsLivestockAtCost role="AssetsLivestockAtCost"/>
-		<AssetsLivestockAtAverageCost role="AssetsLivestockAtAverageCost"/>
-	</AssetsLivestock>
-	<CapitalIntroduced parent_role="Equity" role="CapitalIntroduced"/>
-	<SalesOfLivestock parent_role="Revenue" role="SalesOfLivestock"/>
-	<CostOfGoodsLivestock parent_role="Expenses" role="CostOfGoodsLivestock"/>
-	<LivestockCount parent_role="root/Inventory" role="LivestockCount"/>
+	<Assets_Livestock parent_role="Current_Assets">
+		<Assets_Livestock_at_Cost role="Assets_Livestock_at_Cost"/>
+		<Assets_Livestock_at_Average_Cost role="Assets_Livestock_at_Average_Cost"/>
+	</Assets_Livestock>
+	<Capital_Introduced parent_role="Equity" role="Capital_Introduced"/>
+	<Sales_of_Livestock parent_role="Revenue" role="Sales_of_Livestock"/>
+	<Cost_of_Goods_Livestock parent_role="Expenses" role="Cost_of_Goods_Livestock"/>
+	<Livestock_Count parent_role="root/Inventory" role="Livestock_Count"/>
 </accountHierarchy>

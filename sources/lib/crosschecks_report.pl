@@ -32,35 +32,35 @@ crosschecks_report(Sd, Json) :-
 	/* account balances at normal sides here */
 	Crosschecks0 = [
 		equality(
-			account_balance(reports/bs/current, 'NetAssets'),
+			account_balance(reports/bs/current, 'Net_Assets'),
 			account_balance(reports/bs/current, 'Equity')),
 		equality(
-			account_balance(reports/pl/current, 'TradingAccounts'/_/realized/withoutCurrencyMovement),
+			account_balance(reports/pl/current, 'Trading_Accounts'/_/realized/withoutCurrencyMovement),
 			report_value(reports/ir/current/totals/gains/rea/market_converted)),
 		equality(
-			account_balance(reports/pl/current, 'TradingAccounts'/_/realized/onlyCurrencyMovement),
+			account_balance(reports/pl/current, 'Trading_Accounts'/_/realized/onlyCurrencyMovement),
 			report_value(reports/ir/current/totals/gains/rea/forex)),
 		equality(
-			account_balance(reports/pl/current, 'TradingAccounts'/_/unrealized/withoutCurrencyMovement),
+			account_balance(reports/pl/current, 'Trading_Accounts'/_/unrealized/withoutCurrencyMovement),
 			report_value(reports/ir/current/totals/gains/unr/market_converted)),
 		equality(
-			account_balance(reports/pl/current, 'TradingAccounts'/_/unrealized/onlyCurrencyMovement),
+			account_balance(reports/pl/current, 'Trading_Accounts'/_/unrealized/onlyCurrencyMovement),
 			report_value(reports/ir/current/totals/gains/unr/forex)),
 		equality(
-			account_balance(reports/pl/current, 'TradingAccounts'/_),
+			account_balance(reports/pl/current, 'Trading_Accounts'/_),
 			report_value(reports/ir/current/totals/gains/total)),
 		equality(
-			account_balance(reports/pl/current, 'TradingAccounts'/_/unrealized),
+			account_balance(reports/pl/current, 'Trading_Accounts'/_/unrealized),
 			report_value(reports/ir/current/totals/gains/unrealized_total)),
 		equality(
-			account_balance(reports/pl/current, 'TradingAccounts'/_/realized),
+			account_balance(reports/pl/current, 'Trading_Accounts'/_/realized),
 			report_value(reports/ir/current/totals/gains/realized_total)),
 		equality(
-			account_balance(reports/bs/current, 'FinancialInvestments'/_),
+			account_balance(reports/bs/current, 'Financial_Investments'/_),
 			report_value(reports/ir/current/totals/closing/total_cost_converted)),
 		equality(
-			account_balance(reports/bs/current, 'HistoricalEarnings'),
-			account_balance(reports/pl/historical, 'ComprehensiveIncome'))
+			account_balance(reports/bs/current, 'Historical_Earnings'),
+			account_balance(reports/pl/historical, 'Comprehensive_Income'))
 	],
 
 	Smsf_crosschecks = [
@@ -71,16 +71,16 @@ crosschecks_report(Sd, Json) :-
 			fact_value(aspects([concept - smsf/income_tax/reconcilliation/'Total'])),
 			fact_value(aspects([concept - smsf/income_tax/'to pay']))),
 		equality(
-			account_balance(reports/pl/current, 'Distribution Received'),
+			account_balance(reports/pl/current, 'Distribution_Received'),
 			fact_value(aspects([concept - ($>rdf_global_id(smsf_distribution_ui:distribution_income))]))),
 		equality(
-			account_balance(reports/pl/current, 'Distribution Received'/Unit/'Resolved Accrual'),
+			account_balance(reports/pl/current, 'Distribution_Received'/Unit/'Resolved_Accrual'),
 			fact_value(aspects([concept - ($>rdf_global_id(smsf_distribution_ui:accrual))]))),
 		equality(
-			account_balance(reports/pl/current, 'Distribution Received'/Unit/'Foreign Credit'),
+			account_balance(reports/pl/current, 'Distribution_Received'/Unit/'Foreign_Credit'),
 			fact_value(aspects([concept - ($>rdf_global_id(smsf_distribution_ui:foreign_credit))]))),
 		equality(
-			account_balance(reports/pl/current, 'Distribution Received'/Unit/'Franking Credit'),
+			account_balance(reports/pl/current, 'Distribution_Received'/Unit/'Franking_Credit'),
 			fact_value(aspects([concept - ($>rdf_global_id(smsf_distribution_ui:franking_credit))])))
 	],
 /*
@@ -99,9 +99,9 @@ crosschecks_report(Sd, Json) :-
 			aspects([concept - (smsf_distribution_ui:franking_credit
 		Franking Credits on distributions
 			aspects([concept - (smsf_distribution_ui:franking_credit
-		Foreign Credit
+		Foreign_Credit
 			aspects([concept - (smsf_distribution_ui:foreign_credit
-		Add: ATO Supervisory Levy
+		Add: ATO_Supervisory_Levy
 			input in tax sheet
 
 	these are all references to various points in PL report or points displayed in distributions report, so it would have to be a low level coding error to introduce any mismatch there, but i'll put those crosschecks in anyway.
@@ -110,14 +110,14 @@ crosschecks_report(Sd, Json) :-
 
 		this mostly checks that our PL has incomes in exactly these categories and no other
 
-		Other Income:
+		Other_Income:
 			PL
 		Taxable Net Capital Gain
 			aspects([concept - (smsf_distribution_ui:franking_credit
 		Taxable Trust Distributions (Inc Foreign Income & Credits)
 			computed in smsF_income_tax as smsf/income_tax/'Taxable Trust Distributions (Inc Foreign Income & Credits)'
 		Interest Received
-			PL Interest Received - control
+			PL Interest_Received_-_Control
 	*/
 
 	(	account_by_role(rl(smsf_equity), _)
