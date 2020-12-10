@@ -256,8 +256,7 @@ todo, refactor: reallocation_tx_set_spec(Rows, [A_tx|Txs]) :-
  	value(Account_string_uri, Text),
  	push_context($>format(string(<$), 'interpret account specification string: ~q', [Text])),
 
- 	/* note:removed 'once'*/
- 	c(!'use grammar to interpret text'(account_specifier(Specifier), Text)),
+ 	once(c(!'use grammar to interpret text'(inp_account_specifier(Specifier), Text))),
 
 	(	Specifier = name(Name_str)
 	->	(	trim_string(Name_str, Name_str2),
@@ -274,13 +273,21 @@ todo, refactor: reallocation_tx_set_spec(Rows, [A_tx|Txs]) :-
 	),
 	pop_context.
 
-account_specifier(name(Name)) --> string_without("<!", Codes), {atom_codes(Name, Codes)}.
-account_specifier(Role) --> `!`, account_specifier2(Role), `!`.
-account_specifier(Role) --> `!`, account_specifier2(Role).
-account_specifier2([H]) --> account_specifier2_part(H).
-account_specifier2([H|T]) --> account_specifier2_part(H), `!`, account_specifier2(T).
-account_specifier2_part(fixed(P)) --> string_without("<>!", Ps),{atom_string(P, Ps)}.
-account_specifier2_part(slot(P)) --> `<`, string_without("<>!", Ps), `>`,{atom_string(P, Ps)}.
+inp_account_specifier(name(Name)) --> string_without("<!", Codes), {atom_codes(Name, Codes)}.
+inp_account_specifier(role(Role)) --> `!`, inp_account_specifier2(Role).
+inp_account_specifier(role(Role)) --> `!`, inp_account_specifier2(Role), `!`.
+inp_account_specifier2([H]) --> inp_account_specifier2_part(H).
+inp_account_specifier2([H|T]) --> inp_account_specifier2_part(H), `!`, inp_account_specifier2(T).
+inp_account_specifier2_part(fixed(P)) --> string_without("<>!", Ps),{atom_codes(P, Ps)}.
+inp_account_specifier2_part(slot(P)) --> `<`, string_without("<>!", Ps), `>`,{atom_codes(P, Ps)}.
+
+out_account_specifier(name(Name)) --> string_without("<!", Codes), {atom_codes(Name, Codes)}.
+out_account_specifier(role(Role)) --> `!`, out_account_specifier2(Role).
+out_account_specifier(role(Role)) --> `!`, out_account_specifier2(Role), `!`.
+out_account_specifier2([H]) --> out_account_specifier2_part(H).
+out_account_specifier2([H|T]) --> out_account_specifier2_part(H), `!`, out_account_specifier2(T).
+out_account_specifier2_part(fixed(P)) --> {atom_codes(P, Ps)}, Ps.
+out_account_specifier2_part(slot(P)) --> `<`, {atom_codes(P, Ps)}, Ps.
 
 
 

@@ -203,8 +203,9 @@ add_account(E, Parent0, Uri) :-
 
  role_list_to_term([Role], Role) :- atomic(Role).
 
- role_term_to_list(R, [R]) :- atomic(R).
+ role_term_to_list(R, [R]) :- atomic(R),!.
  role_term_to_list(A/B, [A|X]) :-
+	atomic(A),!,
  	role_term_to_list(B, X).
 
 

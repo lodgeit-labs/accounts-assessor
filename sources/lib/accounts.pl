@@ -185,8 +185,8 @@ account_to_dict(Uri, Dict) :-
 	->	true
 	;	Parent = @null),
 
-	(	account_role(Uri, rl(Role))
-	->	true
+	(	account_role(Uri, rl(Role0))
+	->	role_bang_string(Role0, Role)
 	;	Role = @null),
 
 	account_detail_level(Uri, Detail_level),
@@ -195,6 +195,19 @@ account_to_dict(Uri, Dict) :-
 	->	true
 	;	Normal_side = @null)
 	.
+
+role_bang_string(Role0, Text) :-
+	role_bang_string_helper(Role0, Role),
+	once(c(!'use grammar to generate text'(out_account_specifier(role(Role)), Text))).
+
+role_bang_string_helper(_, Role) :-
+gtrace,
+Role0 = 'FinancialInvestments'/'Investments'/'BetaShares Australian Equities Strong Bear Hedge Fund',
+	maplist(([R0, fixed(R0)]>>true), $>role_term_to_list(Role0), Role),
+	writeq(Role0),nl,
+	writeq(Role),nl.
+
+%wrap_in_fixed(X
 
 check_accounts_roles :-
 	findall(Role, account_role(_, Role), Roles),
