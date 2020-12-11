@@ -69,6 +69,6 @@
 
 		</Comprehensive_Income>
 	</Accounts>
-	<Inventory parent_role="root" role="root/Inventory" normal_side="debit">
+	<Inventory parent_role="root" role="root!Inventory" normal_side="debit">
 	</Inventory>
 </accountHierarchy>

@@ -62,17 +62,17 @@ is_valid_role('Financial_Investments'/Id) :- !, freeze(Id, atom(Id)).
 
 	account_by_role_throw(rl(Role), Account).
 
- ensure_system_accounts_exist(S_Transactions) :-
-	!ensure_bank_gl_accounts_exist,
-	!subcategorize_by_bank,
-	!ensure_livestock_accounts_exist,
-	!traded_units(S_Transactions, Traded_units),
-	!ensure_financial_investments_accounts_exist(Traded_units),
-	!subcategorize_by_investment(Traded_units),
-	!subcategorize_distribution_received,
-	!'ensure Investment_Income accounts exist'(Traded_units),
-	!ensure_smsf_equity_tree,
-	!subcategorize_by_smsf_members.
+ 'ensure system accounts exist'(S_Transactions) :-
+	!cf(ensure_bank_gl_accounts_exist),
+	!cf(subcategorize_by_bank),
+	!cf(ensure_livestock_accounts_exist),
+	!cf(traded_units(S_Transactions, Traded_units)),
+	!cf(ensure_financial_investments_accounts_exist(Traded_units)),
+	!cf(subcategorize_by_investment(Traded_units)),
+	!cf(subcategorize_distribution_received),
+	!cf('ensure Investment_Income accounts exist'(Traded_units)),
+	!cf(ensure_smsf_equity_tree),
+	!cf(subcategorize_by_smsf_members).
 
  make_root_account :-
 	make_account2(root, 0, rl(root), _Root),

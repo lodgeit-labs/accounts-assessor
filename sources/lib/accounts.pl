@@ -129,6 +129,7 @@ account_descendants(Account, Descendants) :-
 			->	format(string(Err), 'unknown account by role ~w that would match expected account ~q.~n', [Role_Str, Account])
 			;	format(string(Err), 'unknown account by role: ~w.~n', [Role_Str])),
 			Hint = "Please review the chart of accounts.",
+			throw_string([Err,Hint]),
 			throw_string_with_html([Err,Hint],div([Err,a([href='general_ledger_viewer/gl.html'],[Hint])]))
 		)
 	).
@@ -308,7 +309,7 @@ unit_by_ui(Str, Atom) :-
 	i suppose gather up all mentions of units in input
 	so let's say:
 
-	we call ensure_system_accounts_exist. Some accounts existence is based on mentions of units in Unit_categorization sheet. These accounts' names or roles dont directly contain a string, but a reference object:
+	we call 'ensure system accounts exist'. Some accounts existence is based on mentions of units in Unit_categorization sheet. These accounts' names or roles dont directly contain a string, but a reference object:
 		[a ic_ui:account_input_string; value "account1"]
 
 	then we call extract_smsf_distribution, and it has a bunch of parameters (or binds a bunch of variables in request properties, ie, kind of an implicit Static_data). Llet's say it produces gl transactions with transaction_account with those references too. In the process is looks up accounts by role.

@@ -17,7 +17,7 @@
 	!cf(make_gl_viewer_report),
 	!cf(write_accounts_json_report),
 
-	!cf(ensure_system_accounts_exist(S_Transactions)),
+	!cf('ensure system accounts exist'(S_Transactions)),
 	!cf(check_accounts_parent),
 	!cf(check_accounts_roles),
 	!cf(propagate_accounts_side),

@@ -179,7 +179,7 @@ add_account(E, Parent0, Uri) :-
 
 
  role_string_to_term(Role_string, rl(Role)) :-
-	split_string(Role_string, '/', '', Role_string_list),
+	split_string(Role_string, '!', '', Role_string_list),
 	maplist(atom_string, Role_atom_list, Role_string_list),
 	path_list_to_term(Role_atom_list, Role).
 

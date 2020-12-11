@@ -71,7 +71,7 @@ process_request(Options, File_Paths) :-
 	process_request2.
 
 enrich_exception_with_ctx_dump(E, E2) :-
-	(	exception_ctx_dump(Ctx_list)
+	(	user:exception_ctx_dump(Ctx_list)
 	->	(
 			context_string(Ctx_list,Ctx_str),
 			E2 = with_processing_context(Ctx_str, E)
@@ -79,7 +79,7 @@ enrich_exception_with_ctx_dump(E, E2) :-
 	;	E2 = E).
 
 reestablish_doc :-
-	(	exception_doc_dump(G,Ng)
+	(	user:exception_doc_dump(G,Ng)
 	->	(
 			b_setval(the_theory, G),
 			b_setval(the_theory_nonground, Ng)
@@ -109,14 +109,17 @@ format_exception_into_alert_string(E, Str, Html) :-
 		;	Stacktrace_str = '')
 	;	(
 			Stacktrace_str = '',
-			Msg0 = E2
+			E2 = Msg0
 		)
 	),
-	(	Msg0 = with_html(msg(Msg),Html)
+	(	Msg0 = msg(Msg1)
+	->	true
+	;	Msg1 = Msg0),
+	(	Msg1 = with_html(Msg,Html)
 	->	true
 	;	(
 			Html = '',
-			Msg = Msg0
+			Msg = Msg1
 		)
 	),
 	format(string(Str ),'~w~n~n~w~n~n~w~n',[Context_str, $>stringize(Msg), Stacktrace_str]).
