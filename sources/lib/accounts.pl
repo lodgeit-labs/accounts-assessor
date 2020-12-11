@@ -126,9 +126,10 @@ account_descendants(Account, Descendants) :-
 			Role = rl(Role2),
 			term_string(Role2, Role_Str),
 			(	nonvar(Account)
-			->	format(string(Err), 'unknown account by role ~w that would match expected account ~q.~nPlease review the chart of accounts.', [Role_Str, Account])
-			;	format(string(Err), 'unknown account by role: ~w.~nPlease review the chart of accounts.', [Role_Str])),
-			throw_string(Err)
+			->	format(string(Err), 'unknown account by role ~w that would match expected account ~q.~n', [Role_Str, Account])
+			;	format(string(Err), 'unknown account by role: ~w.~n', [Role_Str])),
+			Hint = "Please review the chart of accounts.",
+			throw_string_with_html([Err,Hint],div([Err,a([href='general_ledger_viewer/gl.html'],[Hint])]))
 		)
 	).
 
@@ -200,7 +201,7 @@ role_bang_string(Role0, Text) :-
 	!role_bang_string_helper(Role0, Role),
 	once(c(!'use grammar to generate text'(out_account_specifier(role(Role)), Text))).
 
-role_bang_string_helper(_, Role) :-
+role_bang_string_helper(Role0, Role) :-
 %gtrace,
 %Role0 = 'Financial_Investments'/'Investments'/'BetaShares Australian Equities Strong Bear Hedge Fund',
 	maplist(([R0, fixed(R0)]>>true), $>path_term_to_list(Role0), Role)/*,

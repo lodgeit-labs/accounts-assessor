@@ -89,10 +89,13 @@ reestablish_doc :-
 handle_processing_exception(E) :-
 	enrich_exception_with_ctx_dump(E, E2),
 	reestablish_doc,
-	format_exception_into_alert_string(E2, Str),
-	add_alert('error', Str).
+	format_exception_into_alert_string(E2, Str, Html),
+	add_alert('error', Str, Alert_uri),
+	(	Html \= ''
+	->	doc_add(Alert_uri, l:has_html, Html)
+	;	true).
 
-format_exception_into_alert_string(E, Str) :-
+format_exception_into_alert_string(E, Str, Html) :-
 	(	E = with_processing_context(C,E2)
 	->	Context_str = C
 	;	(
@@ -100,13 +103,20 @@ format_exception_into_alert_string(E, Str) :-
 			E2 = E
 		)
 	),
-	(	E2 = error(msg(Msg),Stacktrace)
+	(	E2 = error(Msg0,Stacktrace)
 	->	(	nonvar(Stacktrace)
 		->	format(string(Stacktrace_str),'~p',[Stacktrace])
 		;	Stacktrace_str = '')
 	;	(
 			Stacktrace_str = '',
-			Msg = E2
+			Msg0 = E2
+		)
+	),
+	(	Msg0 = with_html(msg(Msg),Html)
+	->	true
+	;	(
+			Html = '',
+			Msg = Msg0
 		)
 	),
 	format(string(Str ),'~w~n~n~w~n~n~w~n',[Context_str, $>stringize(Msg), Stacktrace_str]).

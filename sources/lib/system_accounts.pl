@@ -282,7 +282,7 @@ subcategorize_distribution_received4(A, Subcategorization) :-
  	(	Traded_Units = []
  	->	true
  	;	(
-			!investmentIncome_accounts(Uis),
+			!cf(investmentIncome_accounts(Uis)),
 			maplist(p10(Traded_Units), Uis)
 		)).
 p10(Traded_Units, Uis) :-

@@ -17,6 +17,7 @@
 	<!--  style="float:left; height:100%" -->
 	<account_selector_item :item="accounts_filter"></account_selector_item>
 	<transformations :items="transformations"></transformations>
+	<div> {{ msg }} </msg>
 </div>
 
 <script type="text/javascript">
@@ -26,8 +27,9 @@
 		props: ['item'],
 		template: `
 			<div class="account_selector">
-				<input type="checkbox" id="checkbox" v-model="item.checked" @change="change_checked_on_children_recursively($event)">{{ item.name }}
-				<br><i v-if="item.role">role: {{ item.role }}</i>
+				<input type="checkbox" v-bind:id="('checkbox_'+item.id)" v-model="item.checked" @change="change_checked_on_children_recursively($event)">
+				<label for="('checkbox_'+item.id)">{{ item.name }}
+				<br><i v-if="item.role">role: {{ item.role }}</i></label>
 				<ul>
 					<div v-for="child in item.children" :key="child.id">
 						<li>
@@ -200,9 +202,11 @@
 		load our data. if this becomes messy, look for a library / an abstraction that will also handle stuff like batching / streaming / more declarative way of specifying pipeline dependencies / making the loading/processing process a first-class thing in the user interface with friendly error and progress reporting, ...
 	*/
 	    Promise.all([
-		load_data("accounts").then(process_loaded_accounts_data),
-		load_data("general_ledger_json")
-	    ]).then(results => process_loaded_general_ledger_data(results[1]));
+			load_data("accounts").then(process_loaded_accounts_data).catch(window.alert),
+			load_data("general_ledger_json").catch(
+				(error) => {vm.msg = "ERROR: "+error;})
+		]).then(
+			results => process_loaded_general_ledger_data(results[1]))
 	};
 
 
@@ -255,7 +259,7 @@
 					    resolve(data);
 					},
 					error: function() {
-						window.alert("loading "+url+" failed");
+						reject("loading "+url+" failed");
 					}
 				});
 			});
@@ -309,7 +313,8 @@
 		data: {
 			transformations: [],
 			accounts_root: {},
-			accounts_filter: {'id':'x', 'name': 'Accounts', children:[{'id':'x', 'name':'loading...', 'children':[]}]}
+			accounts_filter: {'id':'x', 'name': 'Accounts', children:[{'id':'x', 'name':'loading...', 'children':[]}]},
+			msg: ''
 		},
 		mounted: function ()
 		{

@@ -28,4 +28,15 @@ td.source {
 table {
   border-collapse:separate;
   border-spacing:10px 10px;
-}​​​​​​​​​​​​​
+}
+
+label{
+    display: inline-block;
+}
+
+input {
+  vertical-align:top;
+  position: relative;
+}
+
+

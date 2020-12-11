@@ -390,7 +390,7 @@ smsf_income_tax_reports(reports{report:Tbl1,reconcilliation:Tbl2}) :-
 
 
 
-'check Income_Tax_Expenses are zero' :-
+'check that Income_Tax_Expenses are zero' :-
 	!evaluate_fact2(
 		aspects([
 			report - before_smsf_income_tax/pl/current,

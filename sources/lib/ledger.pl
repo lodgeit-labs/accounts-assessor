@@ -14,12 +14,15 @@
 	!request_add_property(l:bank_s_transactions, S_Transactions),
 	!request_add_property(l:exchange_rates, Exchange_Rates),
 
-	!ensure_system_accounts_exist(S_Transactions),
-	!check_accounts_parent,
-	!check_accounts_roles,
-	!propagate_accounts_side,
-	!write_accounts_json_report,
-	!make_gl_viewer_report,
+	!cf(make_gl_viewer_report),
+	!cf(write_accounts_json_report),
+
+	!cf(ensure_system_accounts_exist(S_Transactions)),
+	!cf(check_accounts_parent),
+	!cf(check_accounts_roles),
+	!cf(propagate_accounts_side),
+	!cf(write_accounts_json_report),
+
 	process_ledger_phase2(Report_Currency,Start_Date, End_Date, Exchange_Rates, Cost_Or_Market, S_Transactions,Outstanding_Out,Processed_Until,Transactions_With_Livestock).
 
  process_ledger_phase2(Report_Currency,Start_Date, End_Date, Exchange_Rates, Cost_Or_Market, S_Transactions,Outstanding_Out,Processed_Until,Transactions_With_Livestock) :-
