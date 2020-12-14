@@ -1,3 +1,4 @@
+
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#>.
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
@@ -10,6 +11,7 @@
 @prefix av: <https://rdf.lodgeit.net.au/v1/action_verbs#> .
 @prefix excel: <https://rdf.lodgeit.net.au/v1/excel#> .
 @prefix kb: <https://rdf.lodgeit.net.au/v1/kb#> .
+@prefix rb: <https://rdf.lodgeit.net.au/v1/robust#> .
 @prefix account_taxonomies: <https://rdf.lodgeit.net.au/v1/account_taxonomies#> .
 
 @prefix depr: <https://rdf.lodgeit.net.au/v1/calcs/depr#> .
@@ -44,6 +46,21 @@ ic:this rdfs:comment """investment calculator""".
 
 kb:Asset a rdfs:Class.
 
+l:account a rdfs:Class.
+l:Request a rdfs:Class.
+l:Result a rdfs:Class.
+l:alert a rdfs:Class.
+rdf:value a rdfs:Class.
+
+hp:hp_calculator_query  a rdfs:Class.
+hp:hp_contract a rdfs:Class.
+l:action_verb  a rdfs:Class.
+l:s_transaction   a rdfs:Class.
+l:transaction    a rdfs:Class.
+ l:fact     a rdfs:Class.
+l:report_entry  a rdfs:Class.
+ l:livestock_data a rdfs:Class.
+  l:theory a rdfs:Class.
 
 
 
@@ -104,6 +121,7 @@ smsf_ui:distribution_sheet_example
 	smsf_distribution_ui:default_currency [ a rdf:value ; rdf:value "AUD"].
 
 smsf:members
+	a excel:template;
 	excel:title "members";
 	excel:position [excel:col "A"; excel:row "3"];
 	excel:cardinality excel:multi;
@@ -113,6 +131,7 @@ smsf:members
 	).
 
 smsf:distribution
+	a excel:template;
 	excel:title "distribution";
 	excel:cardinality excel:single;
 	excel:position [excel:col "A"; excel:row "4"];
@@ -123,6 +142,7 @@ smsf:distribution
 	).
 
 smsf_distribution:items_template
+	a excel:template;
 	excel:title "distributions";
 	excel:position [excel:col "A"; excel:row "7"];
 	excel:cardinality excel:multi;
@@ -474,6 +494,7 @@ depr:diminishing_value a depr:depreciation_query_method_type.
 depr:prime_cost a depr:depreciation_query_method_type.
 
 depr_ui:depreciation_queries
+	a excel:template;
 	excel:title "depreciation_queries";
 	excel:position [excel:col "A"; excel:row "3"];
 	excel:cardinality excel:multi;
@@ -496,6 +517,7 @@ depr_ui:depreciation_queries
 	).
 
 depr_ui:depreciation_events
+	a excel:template;
 	excel:title "depreciation_events";
 	excel:position [excel:col "A"; excel:row "3"];
 	excel:cardinality excel:multi;
@@ -508,6 +530,7 @@ depr_ui:depreciation_events
 	).
 
 depr_ui:depreciation_assets
+	a excel:template;
 	excel:title "depreciation_assets";
 	excel:position [excel:col "A"; excel:row "3"];
 	excel:cardinality excel:multi;
@@ -611,18 +634,21 @@ ic_ui:report_details_example
 	)].
 
 ic_ui:gl_input_sheet
+	a excel:sheet_type;
 	excel:multiple_sheets_allowed true;
 	excel:optional true;
 	excel:name_prefix "GL_input";
 	excel:root ic_ui:gl.
 
 ic_ui:action_input_sheet
+	a excel:sheet_type;
 	excel:multiple_sheets_allowed true;
 	excel:optional true;
 	excel:name_prefix "action_input";
 	excel:root ic_ui:action_input.
 
 ic_ui:reallocation_sheet
+	a excel:sheet_type;
 	excel:multiple_sheets_allowed true;
 	excel:optional true;
 	excel:name_prefix "reallocation";
@@ -644,6 +670,7 @@ ic_ui:action_input_example
 	ic:items [rdf:value ()].
 
 ic_ui:additional_files_sheet
+	a excel:sheet_type;
 	excel:optional true;
 	excel:root ic_ui:additional_files.
 
@@ -651,6 +678,7 @@ ic_ui:additional_files_example
 	rdf:value ().
 
 ic_ui:gl
+	a excel:template;
 	excel:position [excel:col "A"; excel:row "3"];
 	excel:title "GL input";
 	excel:cardinality excel:single;
@@ -661,6 +689,7 @@ ic_ui:gl
 	).
 
 ic_ui:action_input
+	a excel:template;
 	excel:position [excel:col "A"; excel:row "3"];
 	excel:title "action_input";
 	excel:cardinality excel:single;
@@ -671,6 +700,7 @@ ic_ui:action_input
 	).
 
 ic_ui:action_input_entries_template
+	a excel:template;
 	excel:position [excel:col "A"; excel:row "6"];
 	excel:title "entries";
 	excel:cardinality excel:multi;
@@ -688,6 +718,7 @@ ic_ui:action_input_entries_template
 
 
 ic_ui:gl_entries_template
+	a excel:template;
 	excel:position [excel:col "A"; excel:row "6"];
 	excel:title "entries";
 	excel:cardinality excel:multi;
@@ -724,6 +755,7 @@ reallocation:description rdfs:label "Transaction_Description".
 
 
 ic_ui:reallocation
+	a excel:template;
 	excel:position [excel:col "A"; excel:row "4"];
 	excel:title "reallocation";
 	excel:cardinality excel:single;
@@ -736,6 +768,7 @@ ic_ui:reallocation
 	).
 
 ic_ui:reallocation_entries_template
+	a excel:template;
 	excel:position [excel:col "A"; excel:row "9"];
 	excel:title "transactions";
 	excel:cardinality excel:multi;
@@ -760,6 +793,7 @@ ic_ui:additional_files
 	).
 
 ic_ui:report_details
+	a excel:template;
 	excel:cardinality excel:single;
 	excel:class ic:report_details;
 	excel:fields (
