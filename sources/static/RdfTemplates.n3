@@ -61,8 +61,10 @@ l:transaction    a rdfs:Class.
 l:report_entry  a rdfs:Class.
  l:livestock_data a rdfs:Class.
   l:theory a rdfs:Class.
-
-
+excel:template_instance  a rdfs:Class.
+excel:template_instance_example a rdfs:Class.
+excel:example_sheet_set a rdfs:Class.
+excel:sheet_set a rdfs:Class.
 
 
 excel:multiple_sheets_allowed rdfs:comment "are multiple sheets of this type allowed in one workbook?".
@@ -233,6 +235,7 @@ smsf_ui:income_tax_sheet_example
 
 
 depr_ui:depreciation_calculator_sheets
+	a excel:sheet_set;
 	excel:sheets
 	(
 		depr_ui:depreciation_calculator_sheet_queries
@@ -254,6 +257,7 @@ depr_ui:depreciation_calculator_sheet_assets
 	excel:root depr_ui:depreciation_assets.
 
 depr_ui:depreciation_example_simple
+	a excel:example_sheet_set;
 	excel:example_has_sheets (
 		[	excel:has_sheet depr_ui:depreciation_calculator_sheet_queries;
 			excel:example_doc depr_ui:depreciation_example_queries_simple]
@@ -548,6 +552,7 @@ depr_ui:depreciation_assets
 
 
 ic_ui:investment_calculator_sheets
+	a excel:sheet_set;
 	excel:sheets
 	(
 		ic_ui:report_details_sheet
@@ -562,6 +567,7 @@ ic_ui:investment_calculator_sheets
 	).
 
 ic_ui:investment_calculator_sheets_v2_example
+	a excel:example_sheet_set;
 	kb:succeeds ic_ui:investment_calculator_sheets;
 	kb:is_backwards_compatible [
 		kb:with ic_ui:investment_calculator_sheets;
@@ -585,6 +591,7 @@ ic_ui:investment_calculator_sheets_v2_example
 
 
 ic_ui:investment_calculator_example
+	a excel:example_sheet_set;
 	excel:example_has_sheets (
 		[	excel:has_sheet ic_ui:report_details_sheet;
 			excel:example_doc ic_ui:report_details_example]
@@ -600,6 +607,9 @@ ic_ui:investment_calculator_example
 			excel:example_doc ic_ui:unit_types_example]
 		
 ).
+
+excel:example_sheet_set rdfs:subClassOf excel:sheet_set.
+excel:template_instance_example rdfs:subClassOf excel:template_instance.
 
 ic_ui:unit_types_sheet
 	excel:root ic:unit_types.
@@ -622,6 +632,7 @@ ic_ui:report_details_sheet
 	excel:root ic_ui:report_details.
 
 ic_ui:report_details_example
+	a excel:template_instance_example;
 	ic:currency [rdf:value "AUD"];
 	ic:from [rdf:value "2019-07-01T00:00:00.0"^^xsd:dateTime];
 	ic:to [rdf:value "2020-01-01T00:00:00.0"^^xsd:dateTime];
@@ -886,6 +897,7 @@ hp_ui:hirepurchase_calculator_example
 ).
 
 hp_ui:hirepurchase_calculator_sheets
+	a excel:sheet_set;
 	excel:sheets (
 		hp_ui:hirepurchase_calculator_query_sheet
 	).
