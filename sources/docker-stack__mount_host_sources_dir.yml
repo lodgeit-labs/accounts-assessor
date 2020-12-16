@@ -28,7 +28,7 @@ services:
     environment:
       AGRAPH_SUPER_PASSWORD_FILE: /run/secrets/AGRAPH_SUPER_PASSWORD
       AGRAPH_SUPER_USER_FILE: /run/secrets/AGRAPH_SUPER_USER
-    image: franzinc/agraph:v7.0.0
+    image: koo/agraph${PP}:latest
     networks:
     - backend
     - frontend

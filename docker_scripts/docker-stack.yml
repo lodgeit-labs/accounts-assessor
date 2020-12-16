@@ -4,7 +4,7 @@ services:
 
   agraph:
     #finishme: use low-memory configuration 
-    image: franzinc/agraph:v7.0.0
+    image: koo/agraph${PP}:latest
     networks:
     - backend
     - frontend

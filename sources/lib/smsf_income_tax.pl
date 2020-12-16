@@ -49,7 +49,7 @@ process_ato_supervisory_levy(Input, Txs) :-
 			account_role - 'Interest_Received_-_Control']),
 		aspects([
 			report - before_smsf_income_tax/pl/current,
-			account_role - 'Filling_Fees']),
+			account_role - 'Filing_Fees']),
 		aspects([
 			report - before_smsf_income_tax/pl/current,
 			account_role - 'Investment_Expenses']),
@@ -246,10 +246,10 @@ smsf_income_tax_reconcilliation(Tbl_dict) :-
 
 	Rows1 = [
 		[text('Expenses:'),text('')],
-		[text('Filling_Fees'),
+		[text('Filing_Fees'),
 			aspects([
 				report - before_smsf_income_tax/pl/current,
-				account_role - 'Filling_Fees'])],
+				account_role - 'Filing_Fees'])],
 		[text('Supervisory Levy'),
 			aspects([
 				report - before_smsf_income_tax/pl/current,

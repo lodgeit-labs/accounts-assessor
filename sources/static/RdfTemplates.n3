@@ -9,6 +9,8 @@
 
 @prefix l: <https://rdf.lodgeit.net.au/v1/request#> .
 @prefix av: <https://rdf.lodgeit.net.au/v1/action_verbs#> .
+@prefix bs: <https://rdf.lodgeit.net.au/v1/bank_statement#> .
+@prefix uv: <https://rdf.lodgeit.net.au/v1/unit_values#> .
 @prefix excel: <https://rdf.lodgeit.net.au/v1/excel#> .
 @prefix kb: <https://rdf.lodgeit.net.au/v1/kb#> .
 @prefix rb: <https://rdf.lodgeit.net.au/v1/robust#> .
@@ -65,6 +67,9 @@ excel:template_instance  a rdfs:Class.
 excel:template_instance_example a rdfs:Class.
 excel:example_sheet_set a rdfs:Class.
 excel:sheet_set a rdfs:Class.
+excel:example_sheet_set rdfs:subClassOf excel:sheet_set.
+excel:template_instance_example rdfs:subClassOf excel:template_instance.
+
 
 
 excel:multiple_sheets_allowed rdfs:comment "are multiple sheets of this type allowed in one workbook?".
@@ -555,6 +560,9 @@ ic_ui:investment_calculator_sheets
 	a excel:sheet_set;
 	excel:sheets
 	(
+		ic_ui:action_verbs_sheet
+		ic_ui:unit_valueses_sheet
+		ic_ui:bank_statement_sheet
 		ic_ui:report_details_sheet
 		smsf_ui:members_sheet
 		smsf_ui:distribution_sheet
@@ -584,7 +592,7 @@ ic_ui:investment_calculator_sheets_v2_example
 		ic_ui:action_input_sheet
 		ic_ui:additional_files_sheet
 		ic_ui:unit_types_sheet_v2
-		ic_ui:some_new_sheet_reliant_on_unit_types_sheet_v2
+		ic_ui:some_new_sheet_reliant_on_unit_types_sheet_being_v2
 	).
 
 
@@ -593,6 +601,12 @@ ic_ui:investment_calculator_sheets_v2_example
 ic_ui:investment_calculator_example
 	a excel:example_sheet_set;
 	excel:example_has_sheets (
+#		[	excel:has_sheet ic_ui:action_verbs_sheet;
+#			excel:example_doc ic_ui:action_verbs_example]
+#		[	excel:has_sheet ic_ui:unit_valueses_sheet;
+#			excel:example_doc ic_ui:unit_valueses_example]
+#		[	excel:has_sheet ic_ui:bank_statement_sheet;
+#			excel:example_doc ic_ui:bank_statement_example]
 		[	excel:has_sheet ic_ui:report_details_sheet;
 			excel:example_doc ic_ui:report_details_example]
 		[	excel:has_sheet ic_ui:reallocation_sheet;
@@ -608,8 +622,114 @@ ic_ui:investment_calculator_example
 		
 ).
 
-excel:example_sheet_set rdfs:subClassOf excel:sheet_set.
-excel:template_instance_example rdfs:subClassOf excel:template_instance.
+
+ic_ui:action_verbs_sheet
+	excel:root ic:action_verbs.
+
+ic_ui:action_verbs_example
+	rdf:value ().
+
+ic:action_verbs
+	excel:position [excel:col "A"; excel:row "3"];
+	excel:title "action verbs";
+	excel:cardinality excel:multi;
+	excel:class ic:action_verb;
+	excel:fields (
+		[excel:property av:name; excel:type xsd:string]
+		[excel:property av:exchanged_account; excel:type xsd:string]
+		[excel:property av:trading_account; excel:type xsd:string]
+		[excel:property av:description; excel:type xsd:string]
+		[excel:property av:gst_receivable_account; excel:type xsd:string]
+		[excel:property av:gst_payable_account; excel:type xsd:string]
+		[excel:property av:gst_rate_percent; excel:type xsd:string]
+	).
+
+av:name rdfs:label "Transaction_Verb".
+av:exchanged_account rdfs:label "Exchanged account".
+av:trading_account rdfs:label "Trading account".
+av:description rdfs:label "Description".
+av:gst_receivable_account rdfs:label "GST Receivable account".
+av:gst_payable_account rdfs:label "GST Payable account".
+av:gst_rate_percent rdfs:label "GST Rate Percent".
+
+
+
+
+
+
+
+
+ic_ui:unit_valueses_sheet
+	excel:root ic:unit_valueses.
+
+ic_ui:unit_valueses_example
+	rdf:value ().
+
+ic:unit_valueses
+	excel:position [excel:col "A"; excel:row "3"];
+	excel:title "unit values";
+	excel:cardinality excel:multi;
+	excel:class ic:unit_values;
+	excel:fields (
+		[excel:property uv:name; excel:type xsd:string]
+		[excel:property uv:currency; excel:type xsd:string]
+	);
+	excel:grab_unknown_fields true.
+
+
+
+
+
+bs:bank_id rdfs:label "Bank_ID".
+bs:account_name rdfs:label "Account_Name".
+bs:account_number rdfs:label "Account_Number".
+
+
+ic_ui:bank_statement_sheet
+	excel:root ic:bank_statement.
+
+ic_ui:bank_statement_example
+	a excel:template_instance_example;
+	bs:bank_id [rdf:value ""];
+	bs:account_name [rdf:value "Maxi saver 66857687"];
+	bs:account_number [rdf:value "66857687"];
+	bs:currency [rdf:value "AUD"];
+	bs:items [rdf:value ()].
+
+ic_ui:bank_statement
+	excel:position [excel:col "A"; excel:row "3"];
+	excel:title "Bank Statement";
+	excel:cardinality excel:single;
+	excel:class bs:bank_statement;
+	excel:fields (
+		[excel:property bs:bank_id; excel:type xsd:string]
+		[excel:property bs:account_name; excel:type xsd:string]
+		[excel:property bs:account_number; excel:type xsd:string]
+		[excel:property bs:currency; excel:type xsd:string]
+		[excel:property bs:items; excel:type ic_ui:bank_statement_items]
+	).
+
+ic_ui:bank_statement_items
+	excel:position [excel:col "A"; excel:row "8"];
+	excel:title "Items";
+	excel:cardinality excel:multi;
+	excel:class bs:item;
+	excel:fields (
+		[excel:property bs:transaction_description; excel:type xsd:string]
+		[excel:property bs:bank_transaction_date; excel:type xsd:dateTime]
+		[excel:property bs:debit; excel:type xsd:decimal]
+		[excel:property bs:credit; excel:type xsd:decimal]
+		[excel:property bs:units; excel:type xsd:decimal]
+		[excel:property bs:units_type; excel:type xsd:string]
+		[excel:property bs:transaction_description2; excel:type xsd:string]
+	).
+
+
+
+
+
+
+
 
 ic_ui:unit_types_sheet
 	excel:root ic:unit_types.

@@ -161,50 +161,52 @@
 		<account name="P&amp;L" role="Comprehensive_Income" normal_side="credit">
 			<account name="Clearing_Account"/>
 			<account name="Investment_Clearing"/>
-			<account name="Income">
-				<account name="Currency_Movement" role="Currency_Movement"/>
+			<account name="Income_(Loss)_from_Continuing_Operations_Before_Tax"> <!-- todo -->
 				<account name="Capital_Gain/(Loss)" role="Trading_Accounts!Capital_Gain/(Loss)">
 					<account name="uncategorized" subcategorize_by_investment="true"/>
 				</account>
-				<account name="Capital_Gains/(Losses)_-_Taxable"/>
-				<account name="Capital_Gains/(Losses)_-_Non_Taxable"/>
-				<account name="Distribution_Received" role="Distribution_Received" subcategorize_by_investment="true"/>
-                <account name="Dividends_Received"/>
-                <account name="Interest_Received_-_Control" role="Interest_Received_-_Control">
-				    <account name="Interest_Received"/>
-    				<account name="Interest_Received_-_by_Bank" subcategorize_by_bank="true"/>
-					<account name="ATO_Interest"/>
-				</account>
-				<account name="Rent_Received"/>
-                <account name="Employer_Contribution"/>
-				<account name="Employer_Contributions_Concessional"/>
-				<account name="Contribution_Received" role="Contribution_Received" subcategorize_by_smsf_member="true"/>
+				<account name="Income">
+					<account name="Currency_Movement" role="Currency_Movement"/>
+	<!--				<account name="Capital_Gains/(Losses)_-_Taxable"/>
+					<account name="Capital_Gains/(Losses)_-_Non_Taxable"/> -->
+					<account name="Distribution_Received" role="Distribution_Received" subcategorize_by_investment="true"/>
+					<account name="Dividends_Received"/>
+					<account name="Interest_Received_-_Control" role="Interest_Received_-_Control">
+						<account name="Interest_Received"/>
+						<account name="Interest_Received_-_by_Bank" subcategorize_by_bank="true"/>
+						<account name="ATO_Interest"/>
+					</account>
+					<account name="Rent_Received"/>
+					<account name="Employer_Contribution"/>
+					<account name="Employer_Contributions_Concessional"/>
+					<account name="Contribution_Received" role="Contribution_Received" subcategorize_by_smsf_member="true"/>
 
-                <account name="Transfer_In"/>
-                <account name="PL_Transfers_In_-_Preserved/Tax-Free" subcategorize_by_smsf_member="true"/>
-                <account name="PL_Transfers_In_-_Preserved/Taxable" subcategorize_by_smsf_member="true"/>
-				<account name="Other_Income" role="Other_Income"/>
-				<account name="Change_In_Market_Value"/>
+					<account name="Transfer_In"/>
+					<account name="PL_Transfers_In_-_Preserved/Tax-Free" subcategorize_by_smsf_member="true"/>
+					<account name="PL_Transfers_In_-_Preserved/Taxable" subcategorize_by_smsf_member="true"/>
+					<account name="Other_Income" role="Other_Income"/>
+					<account name="Change_In_Market_Value"/>
+				</account>
+				<account name="Expenses" normal_side="debit">
+					<account name="Accountancy_Fees" role="Accountancy_Fees"/>
+					<account name="Adminstration_Costs"/>
+					<account name="ATO_Supervisory_Levy" role="ATO_Supervisory_Levy"/>
+					<account name="Audit_Fees" role="Audit_Fees" />
+					<account name="Bank_Charges"/>
+					<account name="Rental_Expenses"/>
+					<account name="Investment_Expenses" role="Investment_Expenses"/>
+					<account name="Fines"/>
+					<account name="Legal_Fees"/>
+					<account name="Writeback_of_Deferred_Tax" role="Writeback_of_Deferred_Tax"/>
+					<account name="Life_Insurance_Premium"/>
+					<account name="Pension_Paid"/>
+					<account name="Benefits_Paid"/>
+					<account name="Tranfer_Out"/>
+					<account name="Filing_Fees" role="Filing_Fees"/>
+					<account name="Drawings"/>
+				</account>
 			</account>
-			<account name="Expenses" normal_side="debit">
-				<account name="Accountancy_Fees" role="Accountancy_Fees"/>
-				<account name="Adminstration_Costs"/>
-				<account name="ATO_Supervisory_Levy" role="ATO_Supervisory_Levy"/>
-				<account name="Audit_Fees" role="Audit_Fees" />
-				<account name="Bank_Charges"/>
-				<account name="Rental_Expenses"/>
-				<account name="Investment_Expenses" role="Investment_Expenses"/>
-				<account name="Fines"/>
-				<account name="Legal_Fees"/>
-				<account name="Income_Tax_Expenses" role="Income_Tax_Expenses"/>
-				<account name="Writeback_of_Deferred_Tax" role="Writeback_of_Deferred_Tax"/>
-				<account name="Life_Insurance_Premium"/>
-				<account name="Pension_Paid"/>
-				<account name="Benefits_Paid"/>
-				<account name="Tranfer_Out"/>
-                <account name="Filling_Fees" role="Filling_Fees"/>
-                <account name="Drawings"/>
-			</account>
+			<account name="Income_Tax_Expenses" role="Income_Tax_Expenses"/>
 		</account>
 	</account>
 </accountHierarchy>
