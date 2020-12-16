@@ -27,9 +27,10 @@
 		props: ['item'],
 		template: `
 			<div class="account_selector">
-				<input type="checkbox" v-bind:id="('checkbox_'+item.id)" v-model="item.checked" @change="change_checked_on_children_recursively($event)">
-				<label for="('checkbox_'+item.id)">{{ item.name }}
-				<br><i v-if="item.role">role: {{ item.role }}</i></label>
+				<input type="checkbox" v-bind:id="('checkbox_'+item.id)" v-model="item.checked" @change="change_checked_on_children_recursively($event)"><!--
+				--><label for="('checkbox_'+item.id)">{{item.name}}<!--
+				--><br>
+				<i v-if="item.role">role: {{ item.role }}</i></label>
 				<ul>
 					<div v-for="child in item.children" :key="child.id">
 						<li>
