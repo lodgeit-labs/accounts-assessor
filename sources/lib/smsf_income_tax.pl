@@ -61,7 +61,7 @@ process_ato_supervisory_levy(Input, Txs) :-
 			account_role - 'Other_Income']),
 		aspects([
 			report - before_smsf_income_tax/pl/current,
-			account_role - 'Comprehensive_Income']),
+			account_role - 'Income_(Loss)_from_Continuing_Operations_Before_Tax']),
 		aspects([
 			report - before_smsf_income_tax/pl/current,
 			account_role - 'Income_Tax_Expenses']),
@@ -97,7 +97,7 @@ smsf_income_tax_report(Tbl_dict) :-
 		[text('Benefits Accrued as a Result of Operations before Income Tax'),
 			aspects([
 				report - before_smsf_income_tax/pl/current,
-				account_role - 'Comprehensive_Income'])],
+				account_role - 'Income_(Loss)_from_Continuing_Operations_Before_Tax'])],
 		[text('Less:'), text('')]
 	],
 
@@ -398,7 +398,23 @@ smsf_income_tax_reports(reports{report:Tbl1,reconcilliation:Tbl2}) :-
 		Value),
 	(	Value = []
 	->	true
-	;	throw_string('Income_Tax_Expenses PL account for current year should be zero, income tax will be computed automatically')).
+	;	throw_string('Income_Tax_Expenses PL account for current year should be zero, income tax will be computed automatically')),
+	!cf('check P&L').
+
+'check P&L' :-
+	!evaluate_fact2(
+		aspects([
+			report - before_smsf_income_tax/pl/current,
+			account_role - 'Comprehensive_Income']),
+		Value1),
+	!evaluate_fact2(
+		aspects([
+			report - before_smsf_income_tax/pl/current,
+			account_role - 'Income_(Loss)_from_Continuing_Operations_Before_Tax']),
+		Value2),
+	(	Value1 = Value2
+	->	true
+	;	throw_string('before tax calculation, P&L must be zero except for Income_(Loss)_from_Continuing_Operations_Before_Tax')).
 
 
 

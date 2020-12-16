@@ -7,7 +7,7 @@ except:
 	print('please install: python3 -m pip install --user -U click pyyaml')
 	exit(1)
 
-import os
+import os,subprocess,time,shlex
 from copy import deepcopy
 
 	
@@ -28,6 +28,14 @@ def run(port_postfix, **choices):
 	stack_fn = generate_stack_file(choices)
 	shell('docker stack rm robust' + pp)
 	shell('./build.sh "'+pp+'" ' + hollow)
+	while True:
+		p = subprocess.run("docker network ls | grep robust", shell=True, stdout=subprocess.PIPE)
+		print(p.returncode)
+		if p.returncode:
+			break
+		print(p.stdout)
+		time.sleep(1)
+		print('.')
 	shell('./deploy_stack.sh "'+pp+'" ' + stack_fn)
 	shell('docker stack ps robust'+pp + ' --no-trunc')
 	shell('./follow_logs.sh '+pp)

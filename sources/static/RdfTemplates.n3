@@ -560,9 +560,9 @@ ic_ui:investment_calculator_sheets
 	a excel:sheet_set;
 	excel:sheets
 	(
-		ic_ui:action_verbs_sheet
-		ic_ui:unit_valueses_sheet
-		ic_ui:bank_statement_sheet
+#		ic_ui:action_verbs_sheet
+#		ic_ui:unit_valueses_sheet
+#		ic_ui:bank_statement_sheet
 		ic_ui:report_details_sheet
 		smsf_ui:members_sheet
 		smsf_ui:distribution_sheet

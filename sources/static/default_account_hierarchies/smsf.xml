@@ -161,7 +161,7 @@
 		<account name="P&amp;L" role="Comprehensive_Income" normal_side="credit">
 			<account name="Clearing_Account"/>
 			<account name="Investment_Clearing"/>
-			<account name="Income_(Loss)_from_Continuing_Operations_Before_Tax"> <!-- todo -->
+			<account name="Income_(Loss)_from_Continuing_Operations_Before_Tax" role="Income_(Loss)_from_Continuing_Operations_Before_Tax">
 				<account name="Capital_Gain/(Loss)" role="Trading_Accounts!Capital_Gain/(Loss)">
 					<account name="uncategorized" subcategorize_by_investment="true"/>
 				</account>
