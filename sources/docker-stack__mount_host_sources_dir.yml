@@ -16,6 +16,8 @@ secrets:
     file: ../secrets/AGRAPH_SUPER_USER
   DJANGO_SECRET_KEY:
     file: ../secrets/DJANGO_SECRET_KEY
+  README.md:
+    file: ../secrets/README.md
 services:
   agraph:
     deploy:

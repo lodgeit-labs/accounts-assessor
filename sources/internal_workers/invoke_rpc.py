@@ -5,11 +5,24 @@ sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../com
 from tmp_dir_path import git, sources, create_tmp_directory_name, create_tmp, get_tmp_directory_absolute_path
 from celery_module import app
 from fs_utils import command_nice, flatten_lists
-import logging
+import logging, json
 
 
 @app.task
-def call_prolog(msg, final_result_tmp_directory_name=None, dev_runner_options=[], prolog_flags='true', debug_loading=None, debug=None, halt=True, print_cmd_to_swipl_stdin=False):
+def call_prolog(
+		msg,
+		final_result_tmp_directory_name=None,
+		dev_runner_options=[],
+		prolog_flags='true',
+		debug_loading=None,
+		debug=None,
+		halt=True,
+		print_cmd_to_swipl_stdin=False
+):
+	with open(sources('config/worker_config.json'), 'r') as c:
+		config = json.load(c)
+	# if defined, overrides dev_runner --debug value
+	debug = config.get('DEBUG_OVERRIDE', debug)
 
 	msg['params']['result_tmp_directory_name'], result_tmp_path = create_tmp()
 

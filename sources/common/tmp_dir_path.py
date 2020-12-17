@@ -15,7 +15,7 @@ def git(Suffix = ""):
 
 
 def sources(Suffix=""):
-	return os.path.normpath(os.path.join(git(), 'sources', Suffix))
+	return os.path.normpath(os.path.join(git(), 'sources/', Suffix))
 
 
 
