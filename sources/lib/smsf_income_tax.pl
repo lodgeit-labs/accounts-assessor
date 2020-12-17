@@ -1,5 +1,5 @@
 
-smsf_income_tax_stuff(Static_Data0, Txs) :-
+ smsf_income_tax_stuff(Static_Data0, Txs) :-
 	!request_data(Rd),
 	(	doc(Rd, smsf:income_tax_info, Input)
 	->	(
@@ -38,6 +38,9 @@ process_ato_supervisory_levy(Input, Txs) :-
 
  add_smsf_income_tax_report_facts(Json_reports) :-
 	Aspectses = [
+		aspects([
+			report - before_smsf_income_tax/pl/current,
+			account_role - 'Comprehensive_Income']),
 		aspects([
 			report - before_smsf_income_tax/pl/current,
 			account_role - 'Audit_Fees']),
@@ -398,7 +401,7 @@ smsf_income_tax_reports(reports{report:Tbl1,reconcilliation:Tbl2}) :-
 		Value),
 	(	Value = []
 	->	true
-	;	throw_string('Income_Tax_Expenses PL account for current year should be zero, income tax will be computed automatically')),
+	;	add_alert(error, 'Income_Tax_Expenses PL account for current year should be zero, income tax will be computed automatically')),
 	!cf('check P&L').
 
 'check P&L' :-
@@ -412,9 +415,9 @@ smsf_income_tax_reports(reports{report:Tbl1,reconcilliation:Tbl2}) :-
 			report - before_smsf_income_tax/pl/current,
 			account_role - 'Income_(Loss)_from_Continuing_Operations_Before_Tax']),
 		Value2),
-	(	Value1 = Value2
+	(	vecs_are_almost_equal(Value1,Value2)
 	->	true
-	;	throw_string('before tax calculation, P&L must be zero except for Income_(Loss)_from_Continuing_Operations_Before_Tax')).
+	;	add_alert(error, $>format(string(<$), 'before tax calculation, P&L must only have balance on the subaccount Income_(Loss)_from_Continuing_Operations_Before_Tax. ~n(~q != ~q)', [$>round_term(Value1),$>round_term(Value2)]))).
 
 
 

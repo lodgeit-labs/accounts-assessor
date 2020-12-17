@@ -36,13 +36,17 @@ RUN     apt-get install -y \
 RUN uname -a
 RUN gcc -v
 
-#RUN git clone --branch V8.3.10 https://github.com/SWI-Prolog/swipl.git swipl
-#RUN git clone --branch V8.1.15 https://github.com/SWI-Prolog/swipl.git swipl
 
-RUN git clone https://github.com/SWI-Prolog/swipl-devel.git swipl
+
+
+#RUN git clone --branch V8.3.10 https://github.com/SWI-Prolog/swipl.git swipl
+RUN git clone --branch V8.1.15 https://github.com/SWI-Prolog/swipl.git swipl
+#RUN git clone https://github.com/SWI-Prolog/swipl-devel.git swipl
 WORKDIR swipl
-RUN git checkout 9defc51a1e328f095c6e51bb41693d2115ab0cff
+#RUN git checkout 9defc51a1e328f095c6e51bb41693d2115ab0cff
 RUN git submodule update --init --recursive
+
+
 
 
 WORKDIR packages/xpce
@@ -87,10 +91,6 @@ WORKDIR /app/sources/internal_workers
 ENV PYTHONUNBUFFERED true
 ENV CELERY_QUEUE_NAME=q7788
 ENV DETERMINANCY_CHECKER__USE__ENFORCER=true
-
-
-COPY swipl/Defaults /root/.config/swi-prolog/xpce/Defaults
-COPY swipl/Tracer.cnf /root/.config/swi-prolog/xpce/Tracer.cnf
 
 
 ENTRYPOINT ["./start.sh"]

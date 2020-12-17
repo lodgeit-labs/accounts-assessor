@@ -87,7 +87,7 @@
     		</account>
 			<account name="Members" role="smsf_equity">
 				<account name="Opening_Balance_-_Preserved/Taxable"/>
-				<account name="Opening_Balance_-_Preserved/Tax_Free"/>
+				<account name="Opening_Balance_-_Preserved/Tax-Free"/>
 				<account name="Opening_Balance_-_Unrestricted_Non_Preserved/Taxable"/>
 				<account name="Opening_Balance_-_Unrestricted_Non_Preserved/Tax-Free"/>
 				<account name="Opening_Balance_-_Restricted_Non_Preserved/Taxable"/>

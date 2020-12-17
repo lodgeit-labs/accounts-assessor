@@ -6,6 +6,7 @@ COPY triplestore_access /app/sources/triplestore_access
 COPY common /app/sources/common
 COPY public_lib /app/sources/public_lib
 COPY lib /app/sources/lib
+COPY swipl/xpce/* /root/.config/swi-prolog/xpce/
 
 WORKDIR /app/sources/internal_workers
 

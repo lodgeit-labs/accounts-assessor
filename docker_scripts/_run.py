@@ -29,7 +29,7 @@ def run(port_postfix, **choices):
 	shell('docker stack rm robust' + pp)
 	shell('./build.sh "'+pp+'" ' + hollow)
 	while True:
-		p = subprocess.run("docker network ls | grep robust", shell=True, stdout=subprocess.PIPE)
+		p = subprocess.run("docker network ls | grep robust" + pp, shell=True, stdout=subprocess.PIPE)
 		print(p.returncode)
 		if p.returncode:
 			break
@@ -68,7 +68,8 @@ def tweaked_services(src, use_host_network, mount_host_sources_dir):
 		for x in ['internal-workers','internal-services','frontend-server' ]:
 			if x in services:
 				services[x]['volumes'].append('.:/app/sources')
-	
+		services['internal-workers']['volumes'].append('./swipl/xpce:/root/.config/swi-prolog/xpce')
+
 	if 'DISPLAY' in os.environ:
 		if 'internal-workers' in services:
 			services['internal-workers']['environment']['DISPLAY'] = "${DISPLAY}"

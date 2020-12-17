@@ -263,9 +263,10 @@ todo, refactor: reallocation_tx_set_spec(Rows, [A_tx|Txs]) :-
 			atom_string(Name, Name_str2),
 			!account_by_ui(Name, Account))
 	;	(
+			Specifier = role(Role_spec),
 			c(
-				$>format(string(<$), 'fill account role slots. role path: ~q specified in: ~w,  parameters: ~w', [Specifier, $>sheet_and_cell_string(Account_string_uri), $>values(Parameters)]),
-				!fill_slots(Specifier, Parameters, Role_list)
+				$>format(string(<$), 'fill account role slots. role path: ~q specified in: ~w,  parameters: ~w', [Role_spec, $>sheet_and_cell_string(Account_string_uri), $>values(Parameters)]),
+				!fill_slots(Role_spec, Parameters, Role_list)
 			),
 			!path_list_to_term(Role_list, Role),
 			abrlt(Role, Account)
@@ -274,8 +275,8 @@ todo, refactor: reallocation_tx_set_spec(Rows, [A_tx|Txs]) :-
 	pop_context.
 
 inp_account_specifier(name(Name)) --> string_without("<!", Codes), {atom_codes(Name, Codes)}.
-inp_account_specifier(role(Role)) --> `!`, inp_account_specifier2(Role).
 inp_account_specifier(role(Role)) --> `!`, inp_account_specifier2(Role), `!`.
+inp_account_specifier(role(Role)) --> `!`, inp_account_specifier2(Role).
 inp_account_specifier2([H]) --> inp_account_specifier2_part(H).
 inp_account_specifier2([H|T]) --> inp_account_specifier2_part(H), `!`, inp_account_specifier2(T).
 inp_account_specifier2_part(fixed(P)) --> string_without("<>!", Ps),{atom_codes(P, Ps)}.

@@ -130,6 +130,7 @@ services:
     - /etc/localtime:/etc/localtime:ro
     - /tmp/.X11-unix:/tmp/.X11-unix:rw
     - .:/app/sources
+    - ./swipl/xpce:/root/.config/swi-prolog/xpce
   rabbitmq:
     deploy:
       replicas: 1

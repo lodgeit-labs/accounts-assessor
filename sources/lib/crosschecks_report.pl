@@ -23,7 +23,25 @@ crosscheck_output(Result, Html) :-
 	->	true
 	;	(
 			add_alert('crosscheck failed', Evaluation_Str, Alert_uri),
-			doc_add(Alert_uri, l:has_html, a([href='crosschecks.html'], [Evaluation_Str]))
+			doc_add(
+				Alert_uri,
+				l:has_html,
+				p(
+					[
+						h4(
+							["crosscheck failed:"]
+						),
+						pre(
+							[
+								a(
+									[href='crosschecks.html'],
+									[Evaluation_Str]
+								)
+							]
+						)
+					]
+				)
+			)
 		)
 	).
 
