@@ -157,7 +157,7 @@ smsf_distribution:items_template
 	excel:is_horizontal true;
 	excel:fields (
 		[excel:property smsf_distribution_ui:name; excel:type xsd:string]
-		[excel:property smsf_distribution_ui:net; excel:type xsd:decimal]
+		[excel:property smsf_distribution_ui:net_cash_distribution; excel:type xsd:decimal]
 		[excel:property smsf_distribution_ui:bank; excel:type xsd:decimal]
 		[excel:property smsf_distribution_ui:accrual; excel:type xsd:decimal]
 		[excel:property smsf_distribution_ui:franking_credit; excel:type xsd:decimal]
@@ -165,6 +165,7 @@ smsf_distribution:items_template
 		[excel:property smsf_distribution_ui:amit_decrease; excel:type xsd:decimal]
 		[excel:property smsf_distribution_ui:amit_increase; excel:type xsd:decimal]
 		[excel:property smsf_distribution_ui:amit_net; excel:type xsd:decimal]
+		[excel:property smsf_distribution_ui:afn_abn_withholding_tax; excel:type xsd:decimal]
 		[excel:property smsf_distribution_ui:non_primary_production_income ; excel:type xsd:decimal]
 		[excel:property smsf_distribution_ui:franked_divis_distri_including_credits ; excel:type xsd:decimal]
 		[excel:property smsf_distribution_ui:assessable_foreign_source_income ; excel:type xsd:decimal]
@@ -178,7 +179,7 @@ smsf_distribution:items_template
 	).
 
 smsf_distribution_ui:name rdfs:label "Unit Type".
-smsf_distribution_ui:net rdfs:label "Net Cash Distribution".
+smsf_distribution_ui:net_cash_distribution rdfs:label "Net Cash Distribution".
 smsf_distribution_ui:bank rdfs:label "Cash Distribution as per bank".
 
 # calculated on server, just checked
@@ -188,6 +189,8 @@ smsf_distribution_ui:franking_credit rdfs:label "Add: Franking Credit".
 smsf_distribution_ui:foreign_credit rdfs:label "Add: Foreign Credit".
 smsf_distribution_ui:amit_decrease rdfs:label "AMIT cost base net amount - excess (decrease)".
 smsf_distribution_ui:amit_increase rdfs:label "AMIT cost base net amount - shortfall (increase)".
+
+smsf_distribution_ui:afn_abn_withholding_tax rdfs:label "Add: TFN/ABN Withholding Tax".
 
 # calculated on server, just checked
 smsf_distribution_ui:amit_net rdfs:label "Add: AMIT cost base net amount - net increase".

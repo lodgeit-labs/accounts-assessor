@@ -58,7 +58,7 @@ assert_smsf_distribution_facts(Default_currency, Unit, Item) :-
 	/* assert the facts we want to use */
 	maplist(
 		!optionally_assert_doc_value_as_unit_fact(Default_currency, Unit, Item),
-		[	smsf_distribution_ui:net,
+		[	smsf_distribution_ui:net_cash_distribution,
 			smsf_distribution_ui:bank,
 			% smsf_distribution_ui:accrual
 			smsf_distribution_ui:franking_credit,
@@ -66,6 +66,7 @@ assert_smsf_distribution_facts(Default_currency, Unit, Item) :-
 			smsf_distribution_ui:amit_decrease,
 			smsf_distribution_ui:amit_increase,
 			% smsf_distribution_ui:amit_net
+			smsf_distribution_ui:afn_abn_withholding_tax,
 			smsf_distribution_ui:non_primary_production_income,
 			smsf_distribution_ui:franked_divis_distri_including_credits,
 			smsf_distribution_ui:assessable_foreign_source_income,
@@ -82,7 +83,7 @@ assert_smsf_distribution_facts(Default_currency, Unit, Item) :-
 	!computed_unit_fact(Unit,
 		(smsf_distribution_ui:accrual)
 		=
-		(smsf_distribution_ui:net)
+		(smsf_distribution_ui:net_cash_distribution)
 		-
 		(smsf_distribution_ui:bank)),
 
@@ -100,13 +101,16 @@ assert_smsf_distribution_facts(Default_currency, Unit, Item) :-
 	!computed_unit_fact(Unit,
 		(smsf_distribution_ui:distribution_income)
 		=
-		(smsf_distribution_ui:net)
+		(smsf_distribution_ui:net_cash_distribution)
 		+
 		(smsf_distribution_ui:franking_credit)
 		+
 		(smsf_distribution_ui:foreign_credit)
 		+
-		(smsf_distribution_ui:amit_net)),
+		(smsf_distribution_ui:amit_net)
+		+
+		(smsf_distribution_ui:afn_abn_withholding_tax)
+	),
 
 	!check_entered_unit_fact_matches_computed(Default_currency, Unit, Item, smsf_distribution_ui:distribution_income, smsf_distribution_ui:entered_distribution_income),
 
@@ -236,7 +240,7 @@ smsf_distributions_report(Tbl_dict, Html) :-
 			title:"Accounting Distribution as per P/L:",
 			options:options{}},
 		column{
-			concept:($>rdf_global_id(smsf_distribution_ui:net)),
+			concept:($>rdf_global_id(smsf_distribution_ui:net_cash_distribution)),
 			title:"Net Cash Distribution",
 			options:options{implicit_report_currency:true}},
 		column{
