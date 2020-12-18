@@ -64,11 +64,10 @@
                 <account name="Income_Tax_Payable_Control">
 				    <account name="Income_Tax_Payable" role="Income_Tax_Payable"/>
 				    <account name="Imputed_Credits" role="Imputed_Credits"/>
-                    <account name="Foreign_and_Other_Tax_Credits" role="Foreign_and_Other_Tax_Credits"/>
+					<account name="Foreign_and_Other_Tax_Credits" role="Foreign_and_Other_Tax_Credits"/>
+                    <account name="TFN/ABN_Withholding_Tax" role="TFN/ABN_Withholding_Tax"/>
 				</account>
 				<account name="Tax_Instalment_Paid"/>
-				<account name="Tax_File_Number_Credits"/>
-				<account name="Australian_Business_Number_Credits"/>
 				<account name="PAYG_Payable"/>
 				<account name="Deferred_Tax_Liability"/>
 				<account name="Data_Clearing_Account"/>

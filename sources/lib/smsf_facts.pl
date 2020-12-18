@@ -61,56 +61,59 @@ smsf_member_details_report_aspectses3(Member, x(Report, Concept, Additional_aspe
 	/*
 	these accounts are all subcategorized into phase and taxability in the same way, so we generate the aspect sets automatically
 	*/
-	'='(Facts, [
-		aspects($>append([
-			report - Report,
-			account_role - ($>atomic_list_concat([Concept, '_-_Preserved/Taxable'])) / Member,
-			concept - smsf/member/gl/Concept,
-			phase - 'Preserved',
-			taxability - 'Taxable',
-			member - Member
-		], Additional_aspects)),
-		aspects($>append([
-			report - Report,
-			account_role - ($>atomic_list_concat([Concept, '_-_Preserved/Tax-Free'])) / Member,
-			concept - smsf/member/gl/Concept,
-			phase - 'Preserved',
-			taxability - 'Tax-Free',
-			member - Member
-		], Additional_aspects)),
-		aspects($>append([
-			report - Report,
-			account_role - ($>atomic_list_concat([Concept, '_-_Unrestricted_Non_Preserved/Taxable'])) / Member,
-			concept - smsf/member/gl/Concept,
-			phase - 'Unrestricted_Non_Preserved',
-			taxability - 'Taxable',
-			member - Member
-		], Additional_aspects)),
-		aspects($>append([
-			report - Report,
-			account_role - ($>atomic_list_concat([Concept, '_-_Unrestricted_Non_Preserved/Tax-Free'])) / Member,
-			concept - smsf/member/gl/Concept,
-			phase - 'Unrestricted_Non_Preserved',
-			taxability - 'Tax-Free',
-			member - Member
-		], Additional_aspects)),
-		aspects($>append([
-			report - Report,
-			account_role - ($>atomic_list_concat([Concept, '_-_Restricted_Non_Preserved/Taxable'])) / Member,
-			concept - smsf/member/gl/Concept,
-			phase - 'Restricted_Non_Preserved',
-			taxability - 'Taxable',
-			member - Member
-		], Additional_aspects)),
-		aspects($>append([
-			report - Report,
-			account_role - ($>atomic_list_concat([Concept, '_-_Restricted_Non_Preserved/Tax-Free'])) / Member,
-			concept - smsf/member/gl/Concept,
-			phase - 'Restricted_Non_Preserved',
-			taxability - 'Tax-Free',
-			member - Member
-		], Additional_aspects))
-	]).
+	'='(
+		Facts,
+		[
+			aspects($>append([
+				report - Report,
+				account_role - ($>atomic_list_concat([Concept, '_-_Preserved/Taxable'])) / Member,
+				concept - smsf/member/gl/Concept,
+				phase - 'Preserved',
+				taxability - 'Taxable',
+				member - Member
+			], Additional_aspects)),
+			aspects($>append([
+				report - Report,
+				account_role - ($>atomic_list_concat([Concept, '_-_Preserved/Tax-Free'])) / Member,
+				concept - smsf/member/gl/Concept,
+				phase - 'Preserved',
+				taxability - 'Tax-Free',
+				member - Member
+			], Additional_aspects)),
+			aspects($>append([
+				report - Report,
+				account_role - ($>atomic_list_concat([Concept, '_-_Unrestricted_Non_Preserved/Taxable'])) / Member,
+				concept - smsf/member/gl/Concept,
+				phase - 'Unrestricted_Non_Preserved',
+				taxability - 'Taxable',
+				member - Member
+			], Additional_aspects)),
+			aspects($>append([
+				report - Report,
+				account_role - ($>atomic_list_concat([Concept, '_-_Unrestricted_Non_Preserved/Tax-Free'])) / Member,
+				concept - smsf/member/gl/Concept,
+				phase - 'Unrestricted_Non_Preserved',
+				taxability - 'Tax-Free',
+				member - Member
+			], Additional_aspects)),
+			aspects($>append([
+				report - Report,
+				account_role - ($>atomic_list_concat([Concept, '_-_Restricted_Non_Preserved/Taxable'])) / Member,
+				concept - smsf/member/gl/Concept,
+				phase - 'Restricted_Non_Preserved',
+				taxability - 'Taxable',
+				member - Member
+			], Additional_aspects)),
+			aspects($>append([
+				report - Report,
+				account_role - ($>atomic_list_concat([Concept, '_-_Restricted_Non_Preserved/Tax-Free'])) / Member,
+				concept - smsf/member/gl/Concept,
+				phase - 'Restricted_Non_Preserved',
+				taxability - 'Tax-Free',
+				member - Member
+			], Additional_aspects))
+		]
+	).
 
 
 smsf_member_details_report_aspectses6(Member, Aspectses) :-

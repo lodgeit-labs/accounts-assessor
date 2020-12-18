@@ -255,7 +255,8 @@ subcategorize_distribution_received2(A) :-
 	maplist(subcategorize_distribution_received4(A), [
 		'Resolved_Accrual',
 		'Foreign_Credit',
-		'Franking_Credit'
+		'Franking_Credit',
+		'TFN/ABN_Withholding_Tax'
 	]).
 
 subcategorize_distribution_received4(A, Subcategorization) :-

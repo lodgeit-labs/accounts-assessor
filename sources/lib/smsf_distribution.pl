@@ -460,7 +460,13 @@ distribution_txs(Default_currency, Item, Unit, Txs) :-
 			a:'Distribution_Received'/Unit/'Franking_Credit',
 			dir:crdr,
 			b:'Imputed_Credits',
-			desc:"Tax offset entry against distribution"}
+			desc:"Tax offset entry against distribution"},
+		dist{
+			prop: smsf_distribution_ui:afn_abn_withholding_tax,
+			a:'Distribution_Received'/Unit/'TFN/ABN_Withholding_Tax',
+			dir:crdr,
+			b:'TFN/ABN_Withholding_Tax',
+			desc:"TFN/ABN_Withholding_Tax"}
 		],
 		Txs).
 
