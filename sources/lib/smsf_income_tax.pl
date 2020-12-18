@@ -76,7 +76,7 @@ process_ato_supervisory_levy(Input, Txs) :-
 			account_role - 'Contribution_Received']),
 		aspects([
 			report - before_smsf_income_tax/pl/current,
-			account_role - 'Distribution_Received']),
+			account_role - 'Distribution_Revenue']),
 		aspects([
 			report - before_smsf_income_tax/pl/current,
 			account_role - 'Writeback_of_Deferred_Tax'])
@@ -120,7 +120,7 @@ smsf_income_tax_report(Tbl_dict) :-
 		[text('Accounting Trust Distribution'),
 			aspects([
 				report - before_smsf_income_tax/pl/current,
-				account_role - 'Distribution_Received'])],
+				account_role - 'Distribution_Revenue'])],
 		[text('Non Concessional Contribution'),
 			aspects([
 				report - before_smsf_income_tax/pl/current,

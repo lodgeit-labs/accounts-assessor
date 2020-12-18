@@ -248,7 +248,7 @@ in Assets
 %------
 
 subcategorize_distribution_received :-
-	findall(A, account_role(A, rl('Distribution_Received'/_)), As),
+	findall(A, account_role(A, rl('Distribution_Revenue'/_)), As),
 	maplist(subcategorize_distribution_received2, As).
 
 subcategorize_distribution_received2(A) :-
@@ -260,8 +260,8 @@ subcategorize_distribution_received2(A) :-
 	]).
 
 subcategorize_distribution_received4(A, Subcategorization) :-
-	account_role(A, rl('Distribution_Received'/Unit)),
-	ensure_account_exists(A, Subcategorization, 1, rl('Distribution_Received'/Unit/Subcategorization), _).
+	account_role(A, rl('Distribution_Revenue'/Unit)),
+	ensure_account_exists(A, Subcategorization, 1, rl('Distribution_Revenue'/Unit/Subcategorization), _).
 
 %------
 

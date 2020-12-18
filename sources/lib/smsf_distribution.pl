@@ -445,25 +445,25 @@ distribution_txs(Default_currency, Item, Unit, Txs) :-
 	!maplist(!smsf_distribution_tx(Default_currency, End_Date, Item),
 		[dist{
 			prop: smsf_distribution_ui:accrual,
-			a:'Distribution_Received'/Unit/'Resolved_Accrual',
+			a:'Distribution_Revenue'/Unit/'Resolved_Accrual',
 			dir:crdr,
 			b:'Distribution_Receivable'/Unit,
 			desc:"Distributions Accrual entry as per Annual tax statements"},
 		dist{
 			prop: smsf_distribution_ui:foreign_credit,
-			a:'Distribution_Received'/Unit/'Foreign_Credit',
+			a:'Distribution_Revenue'/Unit/'Foreign_Credit',
 			dir:crdr,
 			b:'Foreign_and_Other_Tax_Credits',
 			desc:"Tax offset entry against distribution"},
 		dist{
 			prop: smsf_distribution_ui:franking_credit,
-			a:'Distribution_Received'/Unit/'Franking_Credit',
+			a:'Distribution_Revenue'/Unit/'Franking_Credit',
 			dir:crdr,
 			b:'Imputed_Credits',
 			desc:"Tax offset entry against distribution"},
 		dist{
 			prop: smsf_distribution_ui:afn_abn_withholding_tax,
-			a:'Distribution_Received'/Unit/'TFN/ABN_Withholding_Tax',
+			a:'Distribution_Revenue'/Unit/'TFN/ABN_Withholding_Tax',
 			dir:crdr,
 			b:'TFN/ABN_Withholding_Tax',
 			desc:"TFN/ABN_Withholding_Tax"}

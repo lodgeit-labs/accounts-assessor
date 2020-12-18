@@ -57,7 +57,7 @@
 		[text('Accounting Trust Distribution'),
 			aspects([
 				report - before_smsf_income_tax/pl/current,
-				account_role - 'Distribution_Received'])],
+				account_role - 'Distribution_Revenue'])],
 		[text('Non Concessional Contribution'),
 			aspects([
 				report - before_smsf_income_tax/pl/current,

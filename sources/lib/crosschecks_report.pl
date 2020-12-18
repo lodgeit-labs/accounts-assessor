@@ -89,16 +89,16 @@ crosschecks_report(Sd, Json) :-
 			fact_value(aspects([concept - smsf/income_tax/reconcilliation/'Total'])),
 			fact_value(aspects([concept - smsf/income_tax/'to pay']))),
 		equality(
-			account_balance(reports/pl/current, 'Distribution_Received'),
+			account_balance(reports/pl/current, 'Distribution_Revenue'),
 			fact_value(aspects([concept - ($>rdf_global_id(smsf_distribution_ui:distribution_income))]))),
 		equality(
-			account_balance(reports/pl/current, 'Distribution_Received'/Unit/'Resolved_Accrual'),
+			account_balance(reports/pl/current, 'Distribution_Revenue'/Unit/'Resolved_Accrual'),
 			fact_value(aspects([concept - ($>rdf_global_id(smsf_distribution_ui:accrual))]))),
 		equality(
-			account_balance(reports/pl/current, 'Distribution_Received'/Unit/'Foreign_Credit'),
+			account_balance(reports/pl/current, 'Distribution_Revenue'/Unit/'Foreign_Credit'),
 			fact_value(aspects([concept - ($>rdf_global_id(smsf_distribution_ui:foreign_credit))]))),
 		equality(
-			account_balance(reports/pl/current, 'Distribution_Received'/Unit/'Franking_Credit'),
+			account_balance(reports/pl/current, 'Distribution_Revenue'/Unit/'Franking_Credit'),
 			fact_value(aspects([concept - ($>rdf_global_id(smsf_distribution_ui:franking_credit))])))
 	],
 /*

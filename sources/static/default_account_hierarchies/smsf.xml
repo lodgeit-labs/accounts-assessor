@@ -66,6 +66,8 @@
 				    <account name="Imputed_Credits" role="Imputed_Credits"/>
 					<account name="Foreign_and_Other_Tax_Credits" role="Foreign_and_Other_Tax_Credits"/>
                     <account name="TFN/ABN_Withholding_Tax" role="TFN/ABN_Withholding_Tax"/>
+					<account name="Tax_File_Number_Credits"/>
+					<account name="Australian_Business_Number_Credits"/>
 				</account>
 				<account name="Tax_Instalment_Paid"/>
 				<account name="PAYG_Payable"/>
@@ -158,6 +160,7 @@
 			</account>
 		</account>
 		<account name="P&amp;L" role="Comprehensive_Income" normal_side="credit">
+			<account name="Distribution_Monies_Received_-_Clearing"/>
 			<account name="Clearing_Account"/>
 			<account name="Investment_Clearing"/>
 			<account name="Income_(Loss)_from_Continuing_Operations_Before_Tax" role="Income_(Loss)_from_Continuing_Operations_Before_Tax">
@@ -166,9 +169,7 @@
 				</account>
 				<account name="Income">
 					<account name="Currency_Movement" role="Currency_Movement"/>
-	<!--				<account name="Capital_Gains/(Losses)_-_Taxable"/>
-					<account name="Capital_Gains/(Losses)_-_Non_Taxable"/> -->
-					<account name="Distribution_Received" role="Distribution_Received" subcategorize_by_investment="true"/>
+					<account name="Distribution_Revenue" role="Distribution_Revenue" subcategorize_by_investment="true"/>
 					<account name="Dividends_Received"/>
 					<account name="Interest_Received_-_Control" role="Interest_Received_-_Control">
 						<account name="Interest_Received"/>
