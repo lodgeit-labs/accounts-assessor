@@ -177,8 +177,7 @@
 						<account name="ATO_Interest"/>
 					</account>
 					<account name="Rent_Received"/>
-					<account name="Employer_Contribution"/>
-					<account name="Employer_Contributions_Concessional"/>
+					<account name="Employer_Contributions_Received_-_Concessional"/>
 					<account name="Contribution_Received" role="Contribution_Received" subcategorize_by_smsf_member="true"/>
 
 					<account name="Transfer_In"/>

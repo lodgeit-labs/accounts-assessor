@@ -73,6 +73,7 @@ process_ato_supervisory_levy(Input, Txs) :-
 			account_role - 'Trading_Accounts'/'Capital_Gain/(Loss)']),
 		aspects([
 			report - before_smsf_income_tax/pl/current,
+			% ???
 			account_role - 'Contribution_Received']),
 		aspects([
 			report - before_smsf_income_tax/pl/current,
