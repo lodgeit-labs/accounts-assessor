@@ -1,46 +1,43 @@
 % transaction types aka action verbs
 
-extract_action_verbs(Dom) :-
-	(
-		xpath(Dom, //reports/balanceSheetRequest/actionTaxonomy, Taxonomy_Dom)
-	->
-		extract_action_taxonomy2(Taxonomy_Dom)
-	;
-		add_action_verbs_from_default_action_taxonomy
-	).
-	
-add_action_verbs_from_default_action_taxonomy :-
-	absolute_file_name(my_static('default_action_taxonomy.xml'), Default_Action_Taxonomy_File, [ access(read) ]),
-	load_xml(Default_Action_Taxonomy_File, Taxonomy_Dom, []),
-	extract_action_taxonomy2(Taxonomy_Dom).
 
-extract_action_taxonomy2(Dom) :-
-   findall(Action, xpath(Dom, //action, Action), Actions),
-   maplist(add_action_verb_from_xml, Actions),
-   add_builtin_action_verbs.
-   
-add_action_verb_from_xml(In) :-
-	fields(In, [
-		id, Id,
-		description, (Description, _),
-		exchangeAccount, (Counteraccount, _),
-		tradingAccount, (Trading_Account, _),
-		gstRatePercent, (Gst_Rate_Atom, '0'),
-		gstReceivableAccount, (Gst_Receivable, _),
-		gstPayableAccount, (Gst_Payable, _)
+'extract_action_verbs (RDF)' :-
+	rpv($>request_data, ic_ui:action_verbs, X),
+ 	maplist(!'extract action verb', $>doc_list_items(X)),
+	add_builtin_action_verbs.
+
+'extract action verb'(Item) :-
+	push_format('extract action verb from: ~w', [$>sheet_and_cell_string(Item)]),
+	doc_new_(l:action_verb, Uri),
+
+	atom_string(Name, $>rpv(Item,av:name)),
+	doc_add(Uri, l:has_id, Name),
+
+	maplist(optional_atom(Item, Uri), [
+		(av:description, l:has_description),
+		(av:exchanged_account, l:has_counteraccount),
+		(av:trading_account, l:has_trading_account)
+		(av:gst_receivable_account, l:has_gst_receivable_account),
+		(av:gst_payable_account, l:has_gst_payable_account)
 	]),
-	atom_number(Gst_Rate_Atom, Gst_Rate),
-	doc_new_uri(Id, Uri),
-	doc_add(Uri, rdf:type, l:action_verb),
-	doc_add(Uri, l:has_id, Id),
-	(nonvar(Description) -> doc_add(Uri, l:has_description, Description) ; true),
-	(nonvar(Counteraccount) -> doc_add(Uri, l:has_counteraccount, Counteraccount) ; true),
-	(nonvar(Trading_Account) -> doc_add(Uri, l:has_trading_account, Trading_Account) ; true),
-	doc_add(Uri, l:has_gst_rate, Gst_Rate),
-	(nonvar(Gst_Receivable) -> doc_add(Uri, l:has_gst_receivable_account, Gst_Receivable) ; true),
-	(nonvar(Gst_Payable) -> doc_add(Uri, l:has_gst_payable_account, Gst_Payable) ; true).
+
+	optional_decimal(Item, Uri, av:gst_rate_percent, l:has_gst_rate).
+
+
+optional_atom(Old_item,New_item,(Src,Dst)) :-
+	(	doc_value(Old_item, Src, Str)
+	->	(	atom_string(Atom, Str),
+			doc_add(New_item, Dst, Atom))
+	;	true).
+
+optional_decimal(Old_item,New_item,(Src,Dst)) :-
+	(	doc_value(Old_item, Src, D)
+	->	doc_add(New_item, Dst, D)
+	;	true).
+
 
 add_builtin_action_verbs :-
+	/*fixme*/
 	doc_add(l:livestock_sale, rdf:type, l:action_verb),
 	doc_add(l:livestock_sale, l:has_id, 'Livestock_Sale'),
 	doc_add(l:livestock_purchase, rdf:type, l:action_verb),

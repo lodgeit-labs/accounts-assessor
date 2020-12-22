@@ -13,6 +13,10 @@ process_request_ledger(File_Path, Dom) :-
 	!cf(extract_report_currency(Dom, Report_Currency)),
 	!request_add_property(l:report_currency, Report_Currency),
 	!cf(extract_action_verbs(Dom)),
+	!cf('extract_action_verbs (RDF)'(Dom)),
+		ic_ui:action_verbs_sheet
+		ic_ui:unit_valueses_sheet
+
 	!cf('extract bank accounts (XML)'(Dom)),
 	!cf('extract bank accounts (RDF)'),
 	!cf('extract GL accounts'),

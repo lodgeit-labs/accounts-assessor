@@ -11,7 +11,7 @@
 	;	Txs = []).
 
  extract_gl_input(Gl, Txs) :-
- 	push_context($>format(string(<$), 'extract GL input from: ~w', [$>sheet_and_cell_string(Gl)])),
+ 	push_format('extract GL input from: ~w', [$>sheet_and_cell_string(Gl)]),
 	!doc_value(Gl, ic:default_currency, Default_Currency0),
 	!atom_string(Default_Currency, Default_Currency0),
 	!doc_value(Gl, ic:items, List),

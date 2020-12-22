@@ -563,9 +563,9 @@ ic_ui:investment_calculator_sheets
 	a excel:sheet_set;
 	excel:sheets
 	(
-#		ic_ui:action_verbs_sheet
-#		ic_ui:unit_valueses_sheet
-#		ic_ui:bank_statement_sheet
+		ic_ui:action_verbs_sheet
+		ic_ui:unit_valueses_sheet
+		ic_ui:bank_statement_sheet
 		ic_ui:report_details_sheet
 		smsf_ui:members_sheet
 		smsf_ui:distribution_sheet
@@ -604,12 +604,12 @@ ic_ui:investment_calculator_sheets_v2_example
 ic_ui:investment_calculator_example
 	a excel:example_sheet_set;
 	excel:example_has_sheets (
-#		[	excel:has_sheet ic_ui:action_verbs_sheet;
-#			excel:example_doc ic_ui:action_verbs_example]
-#		[	excel:has_sheet ic_ui:unit_valueses_sheet;
-#			excel:example_doc ic_ui:unit_valueses_example]
-#		[	excel:has_sheet ic_ui:bank_statement_sheet;
-#			excel:example_doc ic_ui:bank_statement_example]
+		[	excel:has_sheet ic_ui:action_verbs_sheet;
+			excel:example_doc ic_ui:action_verbs_example]
+		[	excel:has_sheet ic_ui:unit_valueses_sheet;
+			excel:example_doc ic_ui:unit_valueses_example]
+		[	excel:has_sheet ic_ui:bank_statement_sheet;
+			excel:example_doc ic_ui:bank_statement_example]
 		[	excel:has_sheet ic_ui:report_details_sheet;
 			excel:example_doc ic_ui:report_details_example]
 		[	excel:has_sheet ic_ui:reallocation_sheet;
