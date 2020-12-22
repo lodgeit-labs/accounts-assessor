@@ -687,6 +687,15 @@ bs:bank_id rdfs:label "Bank_ID".
 bs:account_name rdfs:label "Account_Name".
 bs:account_number rdfs:label "Account_Number".
 
+bs:units_count rdfs:label "Transferred_Units_Count".
+bs:units_count rdfs:label "Units_Count".
+bs:units_count rdfs:label "Units".
+
+bs:units_type rdfs:label "Transferred_Units_Type".
+bs:units_type rdfs:label "Units_Type".
+
+
+bs:units_count rdfs:label "Units".
 
 ic_ui:bank_statement_sheet
 	excel:root ic:bank_statement.
@@ -709,11 +718,12 @@ ic_ui:bank_statement
 		[excel:property bs:account_name; excel:type xsd:string]
 		[excel:property bs:account_number; excel:type xsd:string]
 		[excel:property bs:currency; excel:type xsd:string]
+		[excel:property bs:opening_balance; excel:type xsd:decimal]
 		[excel:property bs:items; excel:type ic_ui:bank_statement_items]
 	).
 
 ic_ui:bank_statement_items
-	excel:position [excel:col "A"; excel:row "8"];
+	excel:position [excel:col "A"; excel:row "9"];
 	excel:title "Items";
 	excel:cardinality excel:multi;
 	excel:class bs:item;
@@ -722,7 +732,7 @@ ic_ui:bank_statement_items
 		[excel:property bs:bank_transaction_date; excel:type xsd:dateTime]
 		[excel:property bs:debit; excel:type xsd:decimal]
 		[excel:property bs:credit; excel:type xsd:decimal]
-		[excel:property bs:units; excel:type xsd:decimal]
+		[excel:property bs:units_count; excel:type xsd:decimal]
 		[excel:property bs:units_type; excel:type xsd:string]
 		[excel:property bs:transaction_description2; excel:type xsd:string]
 	).

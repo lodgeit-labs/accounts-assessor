@@ -1,5 +1,35 @@
+/*
+┏┓ ┏━┓┏┓╻╻┏    ┏━┓┏━╸┏━╸┏━┓╻ ╻┏┓╻╺┳╸   ┏━╸╻ ╻╻┏━┓╺┳╸┏━╸┏┓╻┏━╸┏━╸
+┣┻┓┣━┫┃┗┫┣┻┓   ┣━┫┃  ┃  ┃ ┃┃ ┃┃┗┫ ┃    ┣╸ ┏╋┛┃┗━┓ ┃ ┣╸ ┃┗┫┃  ┣╸
+┗━┛╹ ╹╹ ╹╹ ╹   ╹ ╹┗━╸┗━╸┗━┛┗━┛╹ ╹ ╹    ┗━╸╹ ╹╹┗━┛ ╹ ┗━╸╹ ╹┗━╸┗━╸
+*/
 
-extract_bank_accounts(Dom) :-
+'extract bank accounts (RDF)' :-
+ 	(	doc($>request_data, ic_ui:bank_statement, Accounts)
+ 	->	(	maplist(!cf('extract bank account (RDF)'), $>doc_list_items(Accounts)))
+	;	true).
+
+'extract bank account (RDF)'(Acc) :-
+	!doc_new_uri(bank_account, Uri),
+	!request_add_property(l:bank_account, Uri),
+
+	rpv(Acc, bs:items, Raw_items),
+	!doc_add(Uri, l:raw_items, Raw_items),
+
+	atom_string(Account_Name, $>rpv(Acc, bs:account_name)),
+	assertion(atom(Account_Name)),
+	!doc_add(Uri, l:name, Account_Name),
+
+	atom_string(Account_Currency, $>rpv(Acc, bs:account_currency)),
+	assertion(atom(Account_Currency)),
+	!doc_add(Uri, l:currency, Account_Currency),
+
+	rpv(Acc, bs:opening_balance, Opening_Balance_Number),
+	assertion(numeric(Opening_Balance_Number)),
+	Opening_Balance = coord(Account_Currency, Opening_Balance_Number),
+	!doc_add_value(Uri, l:opening_balance, Opening_Balance).
+
+'extract bank accounts (XML)'(Dom) :-
 	findall(Account, xpath(Dom, //reports/balanceSheetRequest/bankStatement/accountDetails, Account), Bank_accounts),
 	maplist(!cf(extract_bank_account), Bank_accounts).
 
@@ -17,6 +47,15 @@ extract_bank_account(Account) :-
 	->	!doc_add_value(Uri, l:opening_balance, Opening_Balance)
 	;	true).
 
+
+
+
+/*
+┏━┓┏━┓┏━╸┏┓╻╻┏┓╻┏━╸   ┏┓ ┏━┓╻  ┏━┓┏┓╻┏━╸┏━╸┏━┓
+┃ ┃┣━┛┣╸ ┃┗┫┃┃┗┫┃╺┓   ┣┻┓┣━┫┃  ┣━┫┃┗┫┃  ┣╸ ┗━┓
+┗━┛╹  ┗━╸╹ ╹╹╹ ╹┗━┛   ┗━┛╹ ╹┗━╸╹ ╹╹ ╹┗━╸┗━╸┗━┛
+(extracted separately)
+*/
 generate_bank_opening_balances_sts(Txs) :-
 	result(R),
 	findall(Bank_Account, docm(R, l:bank_account, Bank_Account), Bank_Accounts),

@@ -13,14 +13,16 @@ process_request_ledger(File_Path, Dom) :-
 	!cf(extract_report_currency(Dom, Report_Currency)),
 	!request_add_property(l:report_currency, Report_Currency),
 	!cf(extract_action_verbs(Dom)),
-	!cf(extract_bank_accounts(Dom)),
+	!cf('extract bank accounts (XML)'(Dom)),
+	!cf('extract bank accounts (RDF)'),
 	!cf('extract GL accounts'),
 
 	!cf(generate_bank_opening_balances_sts(Bank_Lump_STs)),
 	!cf(handle_additional_files(S_Transactions0)),
 	!cf(extract_s_transactions(Dom, S_Transactions1)),
+	!cf('extract_s_transactions (RDF)'(S_Transactions1b)),
 	!cf(extract_action_inputs(Action_input_sts)),
-	!flatten([Bank_Lump_STs, S_Transactions0, S_Transactions1, Action_input_sts], S_Transactions2),
+	!flatten([Bank_Lump_STs, S_Transactions0, S_Transactions1,S_Transactions1b, Action_input_sts], S_Transactions2),
 	!sort_s_transactions(S_Transactions2, S_Transactions),
 
 	/* you may find useful:*/
