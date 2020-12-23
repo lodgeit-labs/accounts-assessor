@@ -9,27 +9,48 @@
  	->	(	maplist(!cf('extract bank account (RDF)'), $>doc_list_items(Accounts)))
 	;	true).
 
+
+check_first_row(First_row) :-
+	(	(
+			doc(First_row, bs:transaction_description, Row_0_verb)
+		)
+	->	(
+			!doc(Row_0_verb, rdf:value, Row_0_verb_value),
+			(	Row_0_verb_value = "This is Opening Balance"
+				->	true
+				;	(	!sheet_and_cell_string(Row_0_verb, Cell_str),
+						throw_format('expected "This is Opening Balance" in ~w', [Cell_str])
+					)
+			)
+		)
+	;	true).
+
 'extract bank account (RDF)'(Acc) :-
 	!doc_new_uri(bank_account, Uri),
 	!request_add_property(l:bank_account, Uri),
-
-	rpv(Acc, bs:items, Raw_items),
-	!doc_add(Uri, l:raw_items, Raw_items),
-
-	atom_string(Account_Name, $>rpv(Acc, bs:account_name)),
-	assertion(atom(Account_Name)),
-	!doc_add(Uri, l:name, Account_Name),
 
 	atom_string(Account_Currency, $>rpv(Acc, bs:account_currency)),
 	assertion(atom(Account_Currency)),
 	!doc_add(Uri, l:currency, Account_Currency),
 
-	/*rpv(Acc, bs:opening_balance, Opening_Balance_Number),
-	assertion(numeric(Opening_Balance_Number)),
-	*/
-	 zzzzz  grab first row
-	Opening_Balance = coord(Account_Currency, Opening_Balance_Number),
-	!doc_add_value(Uri, l:opening_balance, Opening_Balance).
+	rpv(Acc, bs:items, Raw_items_list0),
+	doc_list_items(Raw_items_list0, Raw_items0),
+	length(Raw_items0, L),
+	(	L < 1
+	->	throw_string('bank statement must specify opening balance')
+	;	true),
+	[First_row|Raw_items1] = Raw_items0,
+	check_first_row(First_row),
+	!doc_add(Uri, l:raw_items, Raw_items1),
+
+	rpv(First_row, bs:bank_balance, Opening_balance_number),
+	(numeric(Opening_balance_number)->true;throw_string('bank_balance: number expected')),
+	Opening_balance = coord(Account_Currency, Opening_balance_number),
+	!doc_add_value(Uri, l:opening_balance, Opening_balance),
+
+	atom_string(Account_Name, $>rpv(Acc, bs:account_name)),
+	(atom(Account_Name)->true;throw_string('account_name: atom expected')),
+	!doc_add(Uri, l:name, Account_Name).
 
 'extract bank accounts (XML)'(Dom) :-
 	findall(Account, xpath(Dom, //reports/balanceSheetRequest/bankStatement/accountDetails, Account), Bank_accounts),
