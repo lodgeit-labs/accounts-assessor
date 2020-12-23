@@ -564,7 +564,7 @@ ic_ui:investment_calculator_sheets
 	excel:sheets
 	(
 		ic_ui:action_verbs_sheet
-		ic_ui:unit_valueses_sheet
+		ic_ui:unit_values_sheet
 		ic_ui:bank_statement_sheet
 		ic_ui:report_details_sheet
 		smsf_ui:members_sheet
@@ -606,8 +606,8 @@ ic_ui:investment_calculator_example
 	excel:example_has_sheets (
 		[	excel:has_sheet ic_ui:action_verbs_sheet;
 			excel:example_doc ic_ui:action_verbs_example]
-		[	excel:has_sheet ic_ui:unit_valueses_sheet;
-			excel:example_doc ic_ui:unit_valueses_example]
+		[	excel:has_sheet ic_ui:unit_values_sheet;
+			excel:example_doc ic_ui:unit_values_example]
 		[	excel:has_sheet ic_ui:bank_statement_sheet;
 			excel:example_doc ic_ui:bank_statement_example]
 		[	excel:has_sheet ic_ui:report_details_sheet;
@@ -662,10 +662,10 @@ av:gst_rate_percent rdfs:label "GST Rate Percent".
 
 
 
-ic_ui:unit_valueses_sheet
+ic_ui:unit_values_sheet
 	excel:root ic:unit_valueses.
 
-ic_ui:unit_valueses_example
+ic_ui:unit_values_example
 	rdf:value ().
 
 ic:unit_valueses
@@ -677,11 +677,10 @@ ic:unit_valueses
 		[excel:property uv:name; excel:type xsd:string]
 		[excel:property uv:currency; excel:type xsd:string]
 	);
-	excel:grab_unknown_fields true.
+	excel:grab_unknown_fields true;
+	excel:unknown_fields_type xsd:dateTime.
 
-
-
-
+uv:name rdfs:label "Market v".
 
 bs:bank_id rdfs:label "Bank_ID".
 bs:account_name rdfs:label "Account_Name".
@@ -703,12 +702,12 @@ ic_ui:bank_statement_sheet
 ic_ui:bank_statement_example
 	a excel:template_instance_example;
 	bs:bank_id [rdf:value ""];
-	bs:account_name [rdf:value "Maxi saver 66857687"];
-	bs:account_number [rdf:value "66857687"];
+	bs:account_name [rdf:value "Maxi saver 123"];
+	bs:account_number [rdf:value "123"];
 	bs:currency [rdf:value "AUD"];
 	bs:items [rdf:value ()].
 
-ic_ui:bank_statement
+ic:bank_statement
 	excel:position [excel:col "A"; excel:row "3"];
 	excel:title "Bank Statement";
 	excel:cardinality excel:single;
@@ -719,11 +718,11 @@ ic_ui:bank_statement
 		[excel:property bs:account_number; excel:type xsd:string]
 		[excel:property bs:currency; excel:type xsd:string]
 		[excel:property bs:opening_balance; excel:type xsd:decimal]
-		[excel:property bs:items; excel:type ic_ui:bank_statement_items]
+		[excel:property bs:items; excel:template ic_ui:bank_statement_items]
 	).
 
 ic_ui:bank_statement_items
-	excel:position [excel:col "A"; excel:row "9"];
+	excel:position [excel:col "A"; excel:row "10"];
 	excel:title "Items";
 	excel:cardinality excel:multi;
 	excel:class bs:item;
@@ -801,7 +800,7 @@ ic_ui:reallocation_sheet
 ic_ui:reallocation_example
 	ic:default_currency [rdf:value "AUD"];
 	reallocation:account_A [rdf:value "Assets"];
-	reallocation:account_A_is [rdf:value kb:credit];
+	reallocation:account_A_is [rdf:value reallocation:credited];
 	reallocation:items [rdf:value ()].
 
 ic_ui:gl_input_example

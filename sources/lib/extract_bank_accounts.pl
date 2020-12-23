@@ -24,8 +24,10 @@
 	assertion(atom(Account_Currency)),
 	!doc_add(Uri, l:currency, Account_Currency),
 
-	rpv(Acc, bs:opening_balance, Opening_Balance_Number),
+	/*rpv(Acc, bs:opening_balance, Opening_Balance_Number),
 	assertion(numeric(Opening_Balance_Number)),
+	*/
+	 zzzzz  grab first row
 	Opening_Balance = coord(Account_Currency, Opening_Balance_Number),
 	!doc_add_value(Uri, l:opening_balance, Opening_Balance).
 

@@ -288,16 +288,11 @@ is_exchangeable_into_request_bases(Table, Day, Src_Currency, Bases) :-
 	exchange_rate(Table, Day, Src_Currency, Dest_Currency, _Exchange_Rate).
 
 
-% ____________
-%< extraction >
-% ------------
-%        \   ^__^
-%         \  (==)\_______
-%            (__)\       )\/\
-%                ||----w |
-%                ||     ||
-
-
+/*
+┏━╸╻ ╻╺┳╸┏━┓┏━┓┏━╸╺┳╸
+┣╸ ┏╋┛ ┃ ┣┳┛┣━┫┃   ┃
+┗━╸╹ ╹ ╹ ╹┗╸╹ ╹┗━╸ ╹
+*/
 extract_exchange_rates(
 	Cost_Or_Market,
 	Dom,
@@ -307,8 +302,23 @@ extract_exchange_rates(
 	Default_Currency,
 	/*out*/ Exchange_Rates2)
 :-
-	/*If an investment was held prior to the from date then it MUST have an opening market value if the reports are expressed in.market rather than cost.You can't mix market value and cost in one set of reports. One or the other.2:27 AMi see. Have you thought about how to let the user specify the method?Andrew, 2:31 AMMarket or Cost. M or C. Sorry. Never mentioned it to you.2:44 AMyou mentioned the different approaches, but i ended up assuming that this would be best selected by specifying or not specifying the unitValues. I see there is a field for it already in the excel templateAndrew, 2:47 AMCost value per unit will always be there if there are units of anything i.e. sheep for livestock trading or shares for InvestmentsAndrew, 3:04 AMBut I suppose if you do not find any market values then assume cost basis.*/
-	findall(Unit_Value_Dom, xpath(Dom, //reports/balanceSheetRequest/unitValues/unitValue, Unit_Value_Dom), Unit_Value_Doms),
+	gtrace,
+	doc_value($>request_data, ic:unit_valueses, Items),
+
+/*
+ 	findall(
+ 		Vs,
+ 		(
+ 			doc_value($>request_data, ic:unit_valueses, Items),
+ 			findall(
+ 				Field,
+ 				doc_value(Items, excel:has_field, Field),
+ 				Fields
+ 			),
+			maplist(!extract_unit_values, $>doc_list_items(Items), Vs),
+			flatten(Txs0, Txs))
+	;	Txs = []).
+*/
 	maplist(extract_exchange_rate(Start_Date, End_Date), Unit_Value_Doms, Exchange_Rates),
 	maplist(missing_dst_currency_is_default_currency(Default_Currency), Exchange_Rates),
 	%maplist(missing_dst_currency_is_investment_currency(S_Transactions, Default_Currency), Exchange_Rates),
@@ -452,3 +462,9 @@ eeded.").
 +
 +
 */
+
+
+
+
+
+	/*If an investment was held prior to the from date then it MUST have an opening market value if the reports are expressed in.market rather than cost.You can't mix market value and cost in one set of reports. One or the other.2:27 AMi see. Have you thought about how to let the user specify the method?Andrew, 2:31 AMMarket or Cost. M or C. Sorry. Never mentioned it to you.2:44 AMyou mentioned the different approaches, but i ended up assuming that this would be best selected by specifying or not specifying the unitValues. I see there is a field for it already in the excel templateAndrew, 2:47 AMCost value per unit will always be there if there are units of anything i.e. sheep for livestock trading or shares for InvestmentsAndrew, 3:04 AMBut I suppose if you do not find any market values then assume cost basis.*/
