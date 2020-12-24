@@ -1,27 +1,22 @@
 
 
-process_request_ledger(File_Path, Dom) :-
- 	assertion(Dom = [element(_,_,_)]),
-	inner_xml(Dom, //reports/balanceSheetRequest, _),
-	!cf(validate_xml2(File_Path, 'bases/Reports.xsd')),
-	Data = (Dom, Start_Date, End_Date, Output_Dimensional_Facts, Cost_Or_Market, Report_Currency),
-
-	!cf(extract_request_details(Dom)),
-	!cf(extract_start_and_end_date(Dom, Start_Date, End_Date)),
-	!cf('extract "output_dimensional_facts"'(Dom, Output_Dimensional_Facts)),
-	!cf('extract "cost_or_market"'(Dom, Cost_Or_Market)),
-	!cf(extract_report_currency(Dom, Report_Currency)),
+process_request_ledger :-
+	Data = (Start_Date, End_Date, Output_Dimensional_Facts, Cost_Or_Market, Report_Currency),
+	!cf(extract_request_details),
+	!cf(extract_start_and_end_date(Start_Date, End_Date)),
+	!cf('extract "output_dimensional_facts"'(Output_Dimensional_Facts)),
+	!cf('extract "cost_or_market"'(Cost_Or_Market)),
+	!cf(extract_report_currency(Report_Currency)),
 	!request_add_property(l:report_currency, Report_Currency),
 	!cf('extract_action_verbs (RDF)'),
-	!cf('extract bank accounts (XML)'(Dom)),
 	!cf('extract bank accounts (RDF)'),
 	!cf('extract GL accounts'),
 	!cf(generate_bank_opening_balances_sts(Bank_Lump_STs)),
 	!cf(handle_additional_files(S_Transactions0)),
-	!cf(extract_s_transactions(Dom, S_Transactions1)),
+	%!cf(extract_s_transactions(Dom, S_Transactions1)),
 	!cf('extract_s_transactions (RDF)'(S_Transactions1b)),
 	!cf(extract_action_inputs(Action_input_sts)),
-	!flatten([Bank_Lump_STs, S_Transactions0, S_Transactions1,S_Transactions1b, Action_input_sts], S_Transactions2),
+	!flatten([Bank_Lump_STs, S_Transactions0,S_Transactions1b, Action_input_sts], S_Transactions2),
 	!sort_s_transactions(S_Transactions2, S_Transactions),
 
 	/* you may find useful:*/
@@ -48,12 +43,12 @@ ggg(Data, S_Transactions0, Count) :-
 	->	true
 	;	(g trace,format(user_error, '~q: ~q ~n', [Count, Structured_Reports.crosschecks.errors]))).*/
 
-process_request_ledger2((Dom, Start_Date, End_Date, Output_Dimensional_Facts, Cost_Or_Market, Report_Currency),   S_Transactions, Structured_Reports, Transactions) :-
+process_request_ledger2((Start_Date, End_Date, Output_Dimensional_Facts, Cost_Or_Market, Report_Currency),   S_Transactions, Structured_Reports, Transactions) :-
 	%request(Request),
 	%doc_add(Request, l:kind, l:ledger_request),
-	!cf(extract_livestock_data_from_ledger_request(Dom)),
-	!cf(extract_exchange_rates(Cost_Or_Market, Dom, S_Transactions, Start_Date, End_Date, Report_Currency, Exchange_Rates)),
-	!cf(extract_invoices_payable(Dom)),
+	%!cf(extract_livestock_data_from_ledger_request(Dom)),
+	!cf(extract_exchange_rates(Cost_Or_Market, S_Transactions, Start_Date, End_Date, Report_Currency, Exchange_Rates)),
+	%!cf(extract_invoices_payable(Dom)),
 	!process_ledger(
 		Cost_Or_Market,
 		S_Transactions,
@@ -266,16 +261,12 @@ This is done with a symlink. This allows to bypass cache, for example in pessera
 	
 */	
    
- extract_report_currency(Dom, Report_Currency) :-
+ extract_report_currency(Report_Currency) :-
 	!request_data(Request_Data),
-	(	doc(Request_Data, ic_ui:report_details, D)
-	->	(
-			doc_value(D, ic:currency, C),
-			atom_string(Ca, C),
-			Report_Currency = [Ca]
-		)
-	;	inner_xml_throw(Dom, //reports/balanceSheetRequest/reportCurrency/unitType, Report_Currency)).
-
+	doc(Request_Data, ic_ui:report_details, D),
+	doc_value(D, ic:currency, C),
+	atom_string(Ca, C),
+	Report_Currency = [Ca].
 
 /*
 *If an investment was held prior to the from date then it MUST have an opening market value if the reports are expressed in market rather than cost.You can't mix market valu
@@ -284,34 +275,17 @@ e and cost in one set of reports. One or the other.
 +       Cost value per unit will always be there if there are units of anything i.e. sheep for livestock trading or shares for Investments. But I suppose if you do not find any marke
 t values then assume cost basis.*/
 
- 'extract "cost_or_market"'(Dom, Cost_Or_Market) :-
+ 'extract "cost_or_market"'(Cost_Or_Market) :-
 	!request_data(Request_Data),
-	(	doc(Request_Data, ic_ui:report_details, D)
-	->	(
-			doc_value(D, ic:cost_or_market, C),
-			(	rdf_equal2(C, ic:cost)
-			->	Cost_Or_Market = cost
-			;	Cost_Or_Market = market)
-		)
-	;
-	(
-		inner_xml(Dom, //reports/balanceSheetRequest/costOrMarket, [Cost_Or_Market])
-	->
-		(
-			member(Cost_Or_Market, [cost, market])
-		->
-			true
-		;
-			throw_string('//reports/balanceSheetRequest/costOrMarket tag\'s content must be "cost" or "market"')
-		)
-	;
-		Cost_Or_Market = market
-	)
-	).
+	doc(Request_Data, ic_ui:report_details, D),
+	doc_value(D, ic:cost_or_market, C),
+	(	rdf_equal2(C, ic:cost)
+	->	Cost_Or_Market = cost
+	;	Cost_Or_Market = market).
 	
- 'extract "output_dimensional_facts"'(Dom, Output_Dimensional_Facts) :-
+ 'extract "output_dimensional_facts"'(Output_Dimensional_Facts) :-
 	(
-		inner_xml(Dom, //reports/balanceSheetRequest/outputDimensionalFacts, [Output_Dimensional_Facts])
+	/*	inner_xml(Dom, //reports/balanceSheetRequest/outputDimensionalFacts, [Output_Dimensional_Facts])
 	->
 		(
 			member(Output_Dimensional_Facts, [on, off])
@@ -320,11 +294,11 @@ t values then assume cost basis.*/
 		;
 			throw_string('//reports/balanceSheetRequest/outputDimensionalFacts tag\'s content must be "on" or "off"')
 		)
-	;
+	;*/
 		Output_Dimensional_Facts = on
 	).
 	
- extract_start_and_end_date(_Dom, Start_Date, End_Date) :-
+ extract_start_and_end_date(Start_Date, End_Date) :-
 	!request_data(Request_Data),
 	!doc(Request_Data, ic_ui:report_details, D),
 	!doc_value(D, ic:from, Start_Date),
@@ -340,16 +314,16 @@ t values then assume cost basis.*/
 	;	true)
 	.
 
- extract_request_details(Dom) :-
-	assertion(Dom = [element(_,_,_)]),
-	!request(Request),
+ extract_request_details :-
 	!result(Result),
+	/*
+	%!request(Request),
 	(	xpath(Dom, //reports/balanceSheetRequest/company/clientcode, element(_, [], [Client_code_atom]))
 	->	(
 			!atom_string(Client_code_atom, Client_code_string),
 			!doc_add(Request, l:client_code, Client_code_string)
 		)
-	;	true),
+	;	true),*/
 	!get_time(TimeStamp),
 	!stamp_date_time(TimeStamp, DateTime, 'UTC'),
 	!doc_add(Result, l:timestamp, DateTime).

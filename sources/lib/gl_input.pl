@@ -32,7 +32,7 @@
 	!doc_value(Input, ic:items, List),
 	!doc_list_items(List, Items),
 	!doc_value(Input, excel:has_sheet_name, Sheet_name),
-	maplist(!cf('extract action_input item'(Sheet_name, First_account)), Items, Txs0),
+	maplist(!'extract action_input item'(Sheet_name, First_account), Items, Txs0),
 	flatten(Txs0, Txs),
 	pop_context.
 

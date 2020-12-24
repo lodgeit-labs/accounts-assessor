@@ -2,9 +2,9 @@
 
 
 'extract_action_verbs (RDF)' :-
-	rpv($>request_data, ic_ui:action_verbs, X),
+	!doc($>request_data, ic:action_verbs, X),
  	maplist(!'extract action verb', $>doc_list_items(X)),
-	add_builtin_action_verbs.
+	!add_builtin_action_verbs.
 
 'extract action verb'(Item) :-
 	push_format('extract action verb from: ~w', [$>sheet_and_cell_string(Item)]),

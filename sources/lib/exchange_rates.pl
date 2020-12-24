@@ -295,14 +295,13 @@ is_exchangeable_into_request_bases(Table, Day, Src_Currency, Bases) :-
 */
 extract_exchange_rates(
 	Cost_Or_Market,
-	Dom,
 	S_Transactions,
 	/* Start_Date, End_Date to substitute "opening", "closing" */
 	Start_Date, End_Date,
 	Default_Currency,
 	/*out*/ Exchange_Rates2)
 :-
-_XX = [Dom,Items,Unit_Value_Doms] ,
+_XX = [Items,Unit_Value_Doms] ,
 	gtrace,
 	doc_value($>request_data, ic:unit_valueses, Items),
 
