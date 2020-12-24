@@ -19,7 +19,14 @@ money_string(value(Unit, Amount)) --> blanks, string(Unit0), blanks, number(Amou
  value_from_string(Default_Unit, S, V) :-
 	(	(number(S);rational(S))
 	->	V = value(Default_Unit, S)
-	;	(	number_string(N, S)
+	;	(	my_number_string(N, S)
 		->	V = value(Default_Unit, N)
 		;	string_value(S, V))
+	).
+
+my_number_string(N, S) :-
+	catch(
+		number_string(N, S),
+		error(type_error(list,Got),Ctx),
+		throw(error(type_error(string,Got),Ctx))
 	).
