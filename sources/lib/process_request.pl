@@ -103,13 +103,18 @@ format_exception_into_alert_string(E, Str, Html) :-
 			E2 = E
 		)
 	),
-	(	E2 = error(Msg0,Stacktrace)
-	->	(	nonvar(Stacktrace)
-		->	format(string(Stacktrace_str),'~p',[Stacktrace])
-		;	Stacktrace_str = '')
-	;	(
-			Stacktrace_str = '',
-			E2 = Msg0
+
+	(	message_to_string(E2, Msg0)
+	->	true
+	;
+		(	E2 = error(Msg0,Stacktrace)
+		->	(	nonvar(Stacktrace)
+			->	format(string(Stacktrace_str),'~p',[Stacktrace])
+			;	Stacktrace_str = '')
+		;	(
+				Stacktrace_str = '',
+				Msg0 = E2
+			)
 		)
 	),
 	(	Msg0 = msg(Msg1)
@@ -204,11 +209,18 @@ collect_alerts(Alerts_text, Alerts_html) :-
 	atomic_list_concat([Key,': ',Msg2], Alert).
 
  alert_to_html(Key, Msg0, Alert) :-
-	(Msg0 = error(msg(Msg),_) -> true ; Msg0 = Msg),
-	% html?
-	(	Msg = html(Msg2)
-	->	true
-	;	atomic(Msg) -> Msg2 = Msg ; term_string(Msg, Msg2)),
+ 	(	false
+ 	->	true
+ 	;	(
+			(Msg0 = error(msg(Msg),_) -> true ; Msg0 = Msg),
+			(	Msg = html(Msg2)
+			->	true
+			;	(	atomic(Msg)
+				->	Msg2 = Msg
+				;	term_string(Msg, Msg2))
+			)
+		)
+	),
 	Alert = p([h4([$>atom_string(<$, $>term_string(Key)),': ']),pre([Msg2])]).
 
 make_alerts_report(Alerts_Html) :-
