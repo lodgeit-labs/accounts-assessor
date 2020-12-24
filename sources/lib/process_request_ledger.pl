@@ -12,15 +12,10 @@ process_request_ledger(File_Path, Dom) :-
 	!cf('extract "cost_or_market"'(Dom, Cost_Or_Market)),
 	!cf(extract_report_currency(Dom, Report_Currency)),
 	!request_add_property(l:report_currency, Report_Currency),
-	!cf(extract_action_verbs(Dom)),
-	!cf('extract_action_verbs (RDF)'(Dom)),
-		ic_ui:action_verbs_sheet
-		ic_ui:unit_valueses_sheet
-
+	!cf('extract_action_verbs (RDF)'),
 	!cf('extract bank accounts (XML)'(Dom)),
 	!cf('extract bank accounts (RDF)'),
 	!cf('extract GL accounts'),
-
 	!cf(generate_bank_opening_balances_sts(Bank_Lump_STs)),
 	!cf(handle_additional_files(S_Transactions0)),
 	!cf(extract_s_transactions(Dom, S_Transactions1)),

@@ -86,7 +86,7 @@ VOLUME /app/cache
 #USER user
 VOLUME /app/sources/
 WORKDIR /app/sources/internal_workers
-
+VOLUME /root/.config/swi-prolog/xpce/
 
 ENV PYTHONUNBUFFERED true
 ENV CELERY_QUEUE_NAME=q7788

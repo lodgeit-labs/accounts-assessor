@@ -302,6 +302,7 @@ extract_exchange_rates(
 	Default_Currency,
 	/*out*/ Exchange_Rates2)
 :-
+_XX = [Dom,Items,Unit_Value_Doms] ,
 	gtrace,
 	doc_value($>request_data, ic:unit_valueses, Items),
 

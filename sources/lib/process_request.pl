@@ -238,7 +238,8 @@ process_multifile_request(File_Paths) :-
 	;	true),
 	(	process_rdf_request
 	;	(
-			((ground(Dom), xpath(Dom, //reports, _))
+			!ground(Dom),
+			(xpath(Dom, //reports, _)
 			->	!process_xml_request(Xml_Tmp_File_Path, Dom)
 			;	throw_string('<reports> tag not found'))
 		)
@@ -290,9 +291,9 @@ load_request_rdf(loc(absolute_path, Rdf_Tmp_File_Path), G) :-
 process_rdf_request :-
 	debug(requests, "process_rdf_request~n", []),
 	(	%process_request_hirepurchase_new;
+		process_request_ledger;
 		process_request_depreciation_new),
 	make_rdf_report.
-
 
 
 
@@ -300,7 +301,6 @@ process_xml_request(File_Path, Dom) :-
 /*+   request_xml_to_doc(Dom),*/
 	(process_request_car(File_Path, Dom);
 	(process_request_loan(File_Path, Dom);
-	(process_request_ledger(File_Path, Dom);
 	(process_request_livestock(File_Path, Dom);
 	%(process_request_investment:process(File_Path, Dom);
 	false

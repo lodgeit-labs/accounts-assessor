@@ -372,7 +372,7 @@ handle_additional_file(Bn, S_Transactions) :-
 	findall(
 		S_Transactions0,
 		(
-			request_has_property(l:bank_account, A),
+			request_has_property(l:bank_account, Acc),
 			once(doc(Acc, l:raw_items, Items)),
 			!doc(Acc, l:currency, Account_Currency),
 			!doc(Acc, l:name, Account_Name),
@@ -384,13 +384,13 @@ handle_additional_file(Bn, S_Transactions) :-
 	maplist(invert_s_transaction_vector, S_Transactions2, S_Transactions).
 
 'extract_s_transaction (RDF)'(Account_Currency, Account_Name, Item, S_Transaction) :-
-	push_format('extract bank statement transaction from: ~w', [$>sheet_and_cell_string(Item)])),
-	atom_string(Action_verb_name, $>rvp(Item, bs:transaction_description)),
-	rvp(Item, bs:bank_transaction_date, Date),
+	push_format('extract bank statement transaction from: ~w', [$>sheet_and_cell_string(Item)]),
+	atom_string(Action_verb_name, $>rpv(Item, bs:transaction_description)),
+	rpv(Item, bs:bank_transaction_date, Date),
 
-	doc_value(Item,bs:units_count,Units_count) -> true ; Units_count = nil(nil) ),
-	doc_value(Item,bs:units_type,Units_type) -> true ; Units_type = nil(nil) ),
-	doc_value(Item,bs:transaction_description2,Description2) -> true ; Description2='' ),
+	(doc_value(Item,bs:units_count,Units_count) -> true ; Units_count = nil(nil) ),
+	(doc_value(Item,bs:units_type,Units_type) -> true ; Units_type = nil(nil) ),
+	(doc_value(Item,bs:transaction_description2,Description2) -> true ; Description2='' ),
 
 	( doc_value(Item,bs:debit,Bank_Debit) -> true ; Bank_Debit = 0 ),
 	( doc_value(Item,bs:credit,Bank_Credit) -> true ; Bank_Credit = 0 ),
@@ -404,12 +404,12 @@ handle_additional_file(Bn, S_Transactions) :-
 
 	doc_add_s_transaction(
 		Date,
-		Action_verb_name_str,
+		Action_verb_name,
 		[Coord],
 		bank_account_name(Account_Name),
 		Exchanged,
 		misc{desc2:Description2},
-		ST
+		S_Transaction
 	),
-	doc_add(ST, l:source, Item),
+	doc_add(S_Transaction, l:source, Item),
 	pop_context.

@@ -44,7 +44,7 @@ check_first_row(First_row) :-
 	!doc_add(Uri, l:raw_items, Raw_items1),
 
 	rpv(First_row, bs:bank_balance, Opening_balance_number),
-	(numeric(Opening_balance_number)->true;throw_string('bank_balance: number expected')),
+	(is_numeric(Opening_balance_number)->true;throw_string('bank_balance: number expected')),
 	Opening_balance = coord(Account_Currency, Opening_balance_number),
 	!doc_add_value(Uri, l:opening_balance, Opening_balance),
 

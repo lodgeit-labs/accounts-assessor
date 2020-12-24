@@ -16,12 +16,12 @@
 	maplist(optional_atom(Item, Uri), [
 		(av:description, l:has_description),
 		(av:exchanged_account, l:has_counteraccount),
-		(av:trading_account, l:has_trading_account)
+		(av:trading_account, l:has_trading_account),
 		(av:gst_receivable_account, l:has_gst_receivable_account),
 		(av:gst_payable_account, l:has_gst_payable_account)
 	]),
 
-	optional_decimal(Item, Uri, av:gst_rate_percent, l:has_gst_rate).
+	optional_decimal(Item, Uri, (av:gst_rate_percent, l:has_gst_rate)).
 
 
 optional_atom(Old_item,New_item,(Src,Dst)) :-

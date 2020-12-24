@@ -1,5 +1,5 @@
 /*  XPCE configuration file for "persistent_frame"
-    Saved Wed Dec 16 23:37:45 2020 by root
+    Saved Thu Dec 24 03:46:23 2020 by root
 */
 
 configversion(1).
@@ -14,4 +14,4 @@ configversion(1).
 history/geometry/prolog_debugger = '1280x702-0-0'.
 
 /* Sub-window layout for persistent frames */
-history/subwindow_layout/prolog_debugger = layout(*,[*,*,layout(198,[734,*]),*,*]).
+history/subwindow_layout/prolog_debugger = layout(*,[*,*,layout(124,[734,*]),*,*]).

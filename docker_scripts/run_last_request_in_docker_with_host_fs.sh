@@ -17,6 +17,7 @@ docker run -it \
 		--mount source=robust$argv[1]_tmp,target=/app/server_root/tmp \
 		--mount source=robust$argv[1]_cache,target=/app/cache \
 		--mount type=bind,source=(realpath ../sources),target=/app/sources \
+		--mount type=bind,source=(realpath ../sources/swipl/xpce),target=/root/.config/swi-prolog/xpce \
 		--volume="$HOME/.Xauthority:/root/.Xauthority:rw" \
 		--volume="/tmp/.X11-unix:/tmp/.X11-unix:rw" \
 		--volume="$SECRETS_DIR:/run/secrets" \
