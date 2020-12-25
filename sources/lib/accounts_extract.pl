@@ -23,7 +23,7 @@ the accountHierarchy tag can appear multiple times, all the results will be adde
 */
 
 'extract GL accounts' :-
-	!doc_add($>(!request_data), l:has_accounts, $>(!doc_new_uri(account_hierarchy))),
+	!doc_add($>(!result), l:has_accounts, $>(!doc_new_uri(account_hierarchy))),
 	make_root_account,
 	extract_accounts2.
 

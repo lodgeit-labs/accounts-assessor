@@ -189,6 +189,6 @@ add_days(Date, Absolute_Days, Date2) :-
 	gregorian_date(Day2, Date2).
 
 date_in_request_period(Date) :-
-	request_has_property(l:start_date, Start_Date),
-	request_has_property(l:end_date, End_Date),
+	result_has_property(l:start_date, Start_Date),
+	result_has_property(l:end_date, End_Date),
 	date_within(Start_Date, End_Date, Date).

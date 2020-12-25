@@ -302,7 +302,7 @@ extract_exchange_rates(
 	/*out*/ Exchange_Rates2)
 :-
 _XX = [Items,Unit_Value_Doms] ,
-	gtrace,
+	%%%%gtrace,
 	doc_value($>request_data, ic:unit_valueses, Items),
 
 /*

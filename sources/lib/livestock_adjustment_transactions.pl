@@ -8,17 +8,17 @@ opening_inventory_transactions(Livestock, [T1, T2]) :-
 	value_credit_vec(Cost, Opening_Vector_Credit),
 	account_by_role_throw(rl('Assets_Livestock_at_Cost'), A0),
 	account_by_role_throw(rl('Capital_Introduced'), A1),
-	request_has_property(l:end_date, End_Date),
+	result_has_property(l:end_date, End_Date),
 	make_transaction(livestock, End_Date, 'livestock opening inventory', A0, Opening_Vector, T1),
 	make_transaction(livestock, End_Date, 'livestock opening inventory', A1, Opening_Vector_Credit, T2).
 
 preprocess_headcount_changes(Livestock, [Tx0, Tx1, Tx2]) :-
-	request_has_property(l:end_date, Date),
+	result_has_property(l:end_date, Date),
 	doc(Livestock, livestock:name, Type),
 	livestock_count_account(Type, Count_Account),
 	doc(Livestock, livestock:born_count, B),
 	value_debit_vec(B, B_V),
-	request_has_property(l:end_date, Date),
+	result_has_property(l:end_date, Date),
 	make_transaction(livestock, Date, 'livestock born', Count_Account, B_V, Tx0),
 	doc(Livestock, livestock:losses_count, L),
 	value_credit_vec(L, L_V),
@@ -29,7 +29,7 @@ preprocess_headcount_changes(Livestock, [Tx0, Tx1, Tx2]) :-
 
 % the average cost value has to be computed first
 preprocess_rations(Livestock, [T1, T2]) :-
-	request_has_property(l:end_date, Date),
+	result_has_property(l:end_date, Date),
 	doc(Livestock, livestock:rations_count, Rations_Count),
 	doc(Livestock, livestock:average_cost,  Average_Cost),
 	value_convert(Rations_Count, Average_Cost, Rations_Value),
@@ -45,7 +45,7 @@ preprocess_rations(Livestock, [T1, T2]) :-
 
 
 closing_inventory_transactions(Livestock, Transactions_By_Account, [T1, T2]) :-
-	request_has_property(l:end_date, Date),
+	result_has_property(l:end_date, Date),
 	livestock_at_average_cost_at_day(Livestock, Transactions_By_Account, Date, Closing_Value),
 	doc(Livestock, livestock:opening_cost, Opening_Cost_Value),
 	value_subtract(Closing_Value, Opening_Cost_Value, Adjustment_Value),

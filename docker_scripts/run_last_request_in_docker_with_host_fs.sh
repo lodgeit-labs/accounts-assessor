@@ -23,6 +23,7 @@ docker run -it \
 		--volume="$SECRETS_DIR:/run/secrets" \
 		--env="DISPLAY"	\
 		--env="DETERMINANCY_CHECKER__USE__ENFORCER" \
+		--env SECRET__CELERY_BROKER_URL="amqp://guest:guest@rabbitmq:5672//" \
 		--entrypoint bash \
 #		--publish 1234:1234 \
 		"koo5/internal-workers$argv[1]:latest" \

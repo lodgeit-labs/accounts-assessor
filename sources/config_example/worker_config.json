@@ -1,3 +1,5 @@
 {
-	"DEBUG_OVERRIDE" : false
+	"DEBUG_OVERRIDE" : false,
+	"DONT_GTRACE" : true,
+	"json_sucks":true
 }

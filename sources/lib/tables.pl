@@ -210,7 +210,7 @@ format_cell(value(Unit, Value), Options, Output) :-
 	->	true
 	;	Precision = 2),
 	(	true = Options.get(implicit_report_currency)
-	->	!request_has_property(l:report_currency, Optional_Implicit_Unit)
+	->	!result_has_property(l:report_currency, Optional_Implicit_Unit)
 	;	Optional_Implicit_Unit = []),
 	format_money2(Optional_Implicit_Unit, Precision, value(Unit, Value), Output),
 	!.

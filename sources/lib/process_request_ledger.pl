@@ -7,7 +7,7 @@ process_request_ledger :-
 	!cf('extract "output_dimensional_facts"'(Output_Dimensional_Facts)),
 	!cf('extract "cost_or_market"'(Cost_Or_Market)),
 	!cf(extract_report_currency(Report_Currency)),
-	!request_add_property(l:report_currency, Report_Currency),
+	!result_add_property(l:report_currency, Report_Currency),
 	!cf('extract_action_verbs (RDF)'),
 	!cf('extract bank accounts (RDF)'),
 	!cf('extract GL accounts'),
@@ -241,7 +241,7 @@ This is done with a symlink. This allows to bypass cache, for example in pessera
 	(	get_flag(prepare_unique_taxonomy_url, true)
 	->	Taxonomy_Dir_Url = Unique_Taxonomy_Dir_Url
 	;	Taxonomy_Dir_Url = 'taxonomy/'),
-	!request_add_property(l:taxonomy_url_base, Taxonomy_Dir_Url).
+	!result_add_property(l:taxonomy_url_base, Taxonomy_Dir_Url).
 
  symlink_tmp_taxonomy_to_static_taxonomy(Unique_Taxonomy_Dir_Url) :-
 	!my_request_tmp_dir(loc(tmp_directory_name,Tmp_Dir)),

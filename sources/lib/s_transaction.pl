@@ -372,7 +372,7 @@ handle_additional_file(Bn, S_Transactions) :-
 	findall(
 		S_Transactions0,
 		(
-			request_has_property(l:bank_account, Acc),
+			result_has_property(l:bank_account, Acc),
 			once(doc(Acc, l:raw_items, Items)),
 			!doc(Acc, l:currency, Account_Currency),
 			!doc(Acc, l:name, Account_Name),

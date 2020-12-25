@@ -9,6 +9,9 @@ from fs_utils import get_absolute_paths, flatten_file_list_with_dirs_into_file_l
 import call_prolog_calculator
 
 
+celery_app=None
+
+
 @click.command()
 @click.argument('request_files', nargs=-1)
 @click.option('-d', '--dev_runner_options', type=str)
@@ -17,10 +20,10 @@ import call_prolog_calculator
 @click.option('-dbgl', '--debug_loading', type=bool, default=False)
 @click.option('-dbg', '--debug', type=bool, default=True)
 @click.option('-hlt', '--halt', type=bool, default=True)
-@click.option('-pc', '--print_cmd_to_swipl_stdin', type=bool, default=False)
+@click.option('-pc', '--pipe_rpc_json_to_swipl_stdin', type=bool, default=False)
 @click.option('-debug_call_prolog', '--debug_call_prolog', type=bool, default=True)
 def run(debug_loading, debug, request_files, dev_runner_options, prolog_flags, server_url, halt,
-		print_cmd_to_swipl_stdin, debug_call_prolog):
+		pipe_rpc_json_to_swipl_stdin, debug_call_prolog):
 
 	if debug_call_prolog:
 		# is the name right?
@@ -28,8 +31,6 @@ def run(debug_loading, debug, request_files, dev_runner_options, prolog_flags, s
 		# logger.addHandler(logging.StreamHandler())
 		# i suppose this will be overriden by root logger level?
 		invoke_rpc_logger.setLevel(logging.DEBUG)
-
-
 	if dev_runner_options == None:
 		dev_runner_options = ''
 	files2 = get_absolute_paths(request_files)
@@ -38,13 +39,13 @@ def run(debug_loading, debug, request_files, dev_runner_options, prolog_flags, s
 	copy_request_files_to_tmp(request_tmp_directory_absolute_path, files3)
 	_, final_result_tmp_directory_name = create_tmp()
 	call_prolog_calculator.call_prolog_calculator(
-		celery_app=None,
+		celery_app=celery_app,
 		server_url=server_url,
 		request_tmp_directory_name=request_tmp_directory_name,
 		request_files=files3,
 		dev_runner_options=shlex.split(dev_runner_options),
 		prolog_flags=prolog_flags,
-		print_cmd_to_swipl_stdin=print_cmd_to_swipl_stdin,
+		pipe_rpc_json_to_swipl_stdin=pipe_rpc_json_to_swipl_stdin,
 		debug_loading=debug_loading,
 		debug=debug,
 		halt=halt,

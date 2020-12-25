@@ -27,7 +27,7 @@ check_first_row(First_row) :-
 
 'extract bank account (RDF)'(Acc) :-
 	!doc_new_uri(bank_account, Uri),
-	!request_add_property(l:bank_account, Uri),
+	!result_add_property(l:bank_account, Uri),
 
 	atom_string(Account_Currency, $>rpv(Acc, bs:account_currency)),
 	assertion(atom(Account_Currency)),
@@ -52,9 +52,6 @@ check_first_row(First_row) :-
 	(atom(Account_Name)->true;throw_string('account_name: atom expected')),
 	!doc_add(Uri, l:name, Account_Name).
 
-'extract bank accounts (XML)'(Dom) :-
-	findall(Account, xpath(Dom, //reports/balanceSheetRequest/bankStatement/accountDetails, Account), Bank_accounts),
-	maplist(!cf(extract_bank_account), Bank_accounts).
 
 extract_bank_account(Account) :-
 	!fields(Account, [
@@ -64,7 +61,7 @@ extract_bank_account(Account) :-
 		openingBalance, (Opening_Balance_Number, 0)]),
 	Opening_Balance = coord(Account_Currency, Opening_Balance_Number),
 	!doc_new_uri(bank_account, Uri),
-	!request_add_property(l:bank_account, Uri),
+	!result_add_property(l:bank_account, Uri),
 	!doc_add(Uri, l:name, Account_Name),
 	(	Opening_Balance_Number \= 0
 	->	!doc_add_value(Uri, l:opening_balance, Opening_Balance)
@@ -88,7 +85,7 @@ generate_bank_opening_balances_sts(Txs) :-
 generate_bank_opening_balances_sts2(Bank_Account, Tx) :-
 	(	doc_value(Bank_Account, l:opening_balance, Opening_Balance)
 	->	(
-			!request_has_property(l:start_date, Start_Date),
+			!result_has_property(l:start_date, Start_Date),
 			!add_days(Start_Date, -1, Opening_Date),
 			!doc(Bank_Account, l:name, Bank_Account_Name),
 			!doc_add_s_transaction(

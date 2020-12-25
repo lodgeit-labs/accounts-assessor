@@ -23,16 +23,16 @@
 process_request_rpc_calculator(Dict) :-
 	doc_init,
 	'='(Request_uri, $>atom_string(<$, Dict.request_uri)),
-	'='(Result_uri, $>atomic_list_concat([Dict.rdf_namespace_base, 'results/', Dict.result_tmp_directory_name])),
-	'='(Result_data_uri_base, $>atomic_list_concat([Result_uri, '/'])),
 	'='(Request_data_uri_base, $>atomic_list_concat([Request_uri, '/request_data/'])),
 	'='(Request_data_uri, $>atomic_list_concat([Request_data_uri_base, 'request'])),
+	'='(Result_uri, $>atomic_list_concat([Dict.rdf_namespace_base, 'results/', Dict.result_tmp_directory_name])),
+	'='(Result_data_uri_base, $>atomic_list_concat([Result_uri, '/'])),
 
 	maplist(doc_add(Result_uri, l:rdf_explorer_base), Dict.rdf_explorer_bases),
 	doc_add(Request_uri, rdf:type, l:'Request'),
 	doc_add(Request_uri, l:has_result, Result_uri),
-	doc_add(Request_uri, l:has_request_data, Request_data_uri),
 	doc_add(Request_uri, l:has_request_data_uri_base, Request_data_uri_base),
+	doc_add(Request_uri, l:has_request_data, Request_data_uri),
 	doc_add(Result_uri, rdf:type, l:'Result'),
 	doc_add(Result_uri, l:has_result_data_uri_base, Result_data_uri_base),
 
@@ -104,10 +104,12 @@ format_exception_into_alert_string(E, Str, Html) :-
 		)
 	),
 
-	(	message_to_string(E2, Msg0)
-	->	true
-	;
-		(	E2 = error(Msg0,Stacktrace)
+	(	(
+			E2 = error(X, _),
+			X \= msg(_)
+		)
+	->	message_to_string(E2, Msg0)
+	;	(	E2 = error(Msg0,Stacktrace)
 		->	(	nonvar(Stacktrace)
 			->	format(string(Stacktrace_str),'~p',[Stacktrace])
 			;	Stacktrace_str = '')

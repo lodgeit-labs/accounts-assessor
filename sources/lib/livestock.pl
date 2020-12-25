@@ -104,8 +104,8 @@ process_livestock2((S_Transactions, Transactions_In), Livestock, Transactions_Ou
 	/*
 	todo send livestock dates from excel and check them here
 	*/
-	request_has_property(l:start_date, Start_Date),
-	request_has_property(l:end_date, End_Date),
+	result_has_property(l:start_date, Start_Date),
+	result_has_property(l:end_date, End_Date),
 
 	/*
 	preprocess_livestock_buy_or_sell happens first, as part of preprocess_s_transaction.

@@ -8,6 +8,14 @@ from fs_utils import command_nice, flatten_lists
 import logging, json
 
 
+
+import celery
+celery_app = celery.Celery()
+import celeryconfig
+celery_app.config_from_object(celeryconfig)
+
+
+
 @app.task
 def call_prolog(
 		msg,
@@ -17,12 +25,13 @@ def call_prolog(
 		debug_loading=None,
 		debug=None,
 		halt=True,
-		print_cmd_to_swipl_stdin=False
+		pipe_rpc_json_to_swipl_stdin=False
 ):
 	with open(sources('config/worker_config.json'), 'r') as c:
 		config = json.load(c)
 	# if defined, overrides dev_runner --debug value
 	debug = config.get('DEBUG_OVERRIDE', debug)
+	dont_gtrace = config.get('DONT_GTRACE', False)
 
 	msg['params']['result_tmp_directory_name'], result_tmp_path = create_tmp()
 
@@ -55,10 +64,12 @@ def call_prolog(
 		entry_file = "lib/rpc_server.pl"
 	if debug:
 		dev_runner_debug_args = [['--debug', 'true']]
-		debug_goal = 'debug,'
+		debug_goal = 'debug,set_prolog_flag(debug,true),'
 	else:
 		dev_runner_debug_args = [['--debug', 'false']]
-		debug_goal = ''
+		debug_goal = 'set_prolog_flag(debug,false),'
+	if dont_gtrace:
+		debug_goal += 'set_prolog_flag(gtrace,false),'
 	if halt:
 		halt_goal = ',halt'
 	else:
@@ -78,7 +89,7 @@ def call_prolog(
 	cmd1 = dev_runner_options
 
 	# the idea is that eventually, we'll only connect to a standalone swipl server from here
-	if print_cmd_to_swipl_stdin:
+	if pipe_rpc_json_to_swipl_stdin:
 		goal = ',lib:process_request_rpc_cmdline'
 	else:
 		goal = ",lib:process_request_rpc_cmdline_json_text('" + (input).replace('"','\\"') + "')"
@@ -91,12 +102,15 @@ def call_prolog(
 	logging.getLogger().debug(command_nice(cmd))
 	cmd = flatten_lists(cmd)
 	#print(cmd)
-
+	print('pipe_rpc_json_to_swipl_stdin=',pipe_rpc_json_to_swipl_stdin)
 	try:
-		if print_cmd_to_swipl_stdin:
+		if pipe_rpc_json_to_swipl_stdin:
 			p = subprocess.Popen(cmd, universal_newlines=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE)#, shell=True)
-			logging.getLogger().debug(print('invoke_rpc: piping to swipl:'))
-			logging.getLogger().debug(print(input))
+			#logging.getLogger().debug(('invoke_rpc: piping to swipl:'))
+			#logging.getLogger().debug((input))
+			print('invoke_rpc: piping to swipl:')
+			print(input)
+			sys.stdout.flush()
 			(stdout_data, stderr_data) = p.communicate(input = input)# + '\n\n')
 		else:
 			p = subprocess.Popen(cmd, universal_newlines=True, stdout=subprocess.PIPE)
@@ -114,7 +128,10 @@ def call_prolog(
 		print()
 		try:
 			rrr = json.loads(stdout_data)
-			internal_workers.postprocess_doc.apply_async((result_tmp_path,))
+			print('postprocess_doc...')
+			celery_app.signature('internal_workers.postprocess_doc').apply_async(args=(result_tmp_path,))
+			#internal_workers.postprocess_doc.apply_async((result_tmp_path,))
+			print('postprocess_doc..')
 			return msg['params']['result_tmp_directory_name'], rrr
 		except json.decoder.JSONDecodeError as e:
 			print('invoke_rpc:', e)

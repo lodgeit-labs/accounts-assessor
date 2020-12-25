@@ -19,9 +19,9 @@
 	!doc_value(Gl, excel:has_sheet_name, Sheet_name),
 	!extract_gl_tx(Sheet_name, Default_Currency, none, none, Items, Txs),
 	!check_trial_balance(
-		$>request_has_property(l:exchange_rates),
-		$>request_has_property(l:report_currency),
-		$>request_has_property(l:end_date),
+		$>result_has_property(l:exchange_rates),
+		$>result_has_property(l:report_currency),
+		$>result_has_property(l:end_date),
 		Sheet_name,
 	Txs),
 	pop_context.
@@ -39,7 +39,7 @@
 'extract action_input item'(Sheet_name, First_account, Item, St) :-
 	push_context($>format(string(<$), 'extract item at ~w', [$>sheet_and_cell_string(Item)])),
 
-	!request_has_property(l:report_currency, [Default_Currency]),
+	!result_has_property(l:report_currency, [Default_Currency]),
 
 	(	doc_value(Item, ic:debit, Debit_String)
 	->	!vector_from_string(Default_Currency, kb:debit, Debit_String, Debit_Vector)
@@ -156,9 +156,9 @@ extract_gl_tx(Sheet_name, Default_Currency, _, _, [Item|Items], [Tx1|Txs]) :-
 	!doc(Account_A_is, reallocation:account_A_side, Side),
 	!extract_reallocation_tx(Account_A, Side, Sheet_name, Default_Currency, none, none, Items, Txs),
 	!check_trial_balance(
-		$>request_has_property(l:exchange_rates),
-		$>request_has_property(l:report_currency),
-		$>request_has_property(l:end_date),
+		$>result_has_property(l:exchange_rates),
+		$>result_has_property(l:report_currency),
+		$>result_has_property(l:end_date),
 		Sheet_name,
 	Txs),
 	pop_context.

@@ -11,8 +11,8 @@
 ) :-
 	!add_comment_stringize('Exchange rates extracted', Exchange_Rates),
 	!s_transactions_up_to(End_Date, S_Transactions0, S_Transactions),
-	!request_add_property(l:bank_s_transactions, S_Transactions),
-	!request_add_property(l:exchange_rates, Exchange_Rates),
+	!result_add_property(l:bank_s_transactions, S_Transactions),
+	!result_add_property(l:exchange_rates, Exchange_Rates),
 
 	!cf(make_gl_viewer_report),
 	!cf(write_accounts_json_report),

@@ -49,7 +49,7 @@ make_account3(Id, Detail_Level, Uri) :-
 	doc_add(Uri, rdf:type, l:account, accounts),
 	doc_add(Uri, accounts:name, Id, accounts),
 	doc_add(Uri, accounts:detail_level, Detail_Level, accounts),
-	request_accounts(As),
+	result_accounts(As),
 	!doc_add(As, l:has_account, Uri),
 	true.
 
@@ -84,11 +84,11 @@ find account by user's string (by name)
 		;	(throw_string(['multiple accounts with same name found: "', X, '"'])))).
 
 all_accounts(Accounts) :-
-	request_accounts(As),
+	result_accounts(As),
 	findall(A, docm(As, l:has_account, A), Accounts).
 
 account_by_name_exists(Name) :-
-	request_accounts(As),
+	result_accounts(As),
 	once(
 		(
 			doc(As, l:has_account, A),

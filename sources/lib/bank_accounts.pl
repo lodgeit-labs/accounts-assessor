@@ -7,7 +7,7 @@ l:bank_account doc properties were asserted when reading request xml
 */
 
 bank_account(Account) :-
-	request_has_property(l:bank_account, Account).
+	result_has_property(l:bank_account, Account).
 
 bank_account_name(Name) :-
 	bank_account(Account),
