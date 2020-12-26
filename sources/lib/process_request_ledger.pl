@@ -7,14 +7,12 @@ process_request_ledger :-
 	!cf('extract "output_dimensional_facts"'(Output_Dimensional_Facts)),
 	!cf('extract "cost_or_market"'(Cost_Or_Market)),
 	!cf(extract_report_currency(Report_Currency)),
-	!result_add_property(l:report_currency, Report_Currency),
-	!cf('extract_action_verbs (RDF)'),
-	!cf('extract bank accounts (RDF)'),
+	!cf('extract action verbs'),
+	!cf('extract bank accounts'),
 	!cf('extract GL accounts'),
 	!cf(generate_bank_opening_balances_sts(Bank_Lump_STs)),
 	!cf(handle_additional_files(S_Transactions0)),
-	%!cf(extract_s_transactions(Dom, S_Transactions1)),
-	!cf('extract_s_transactions (RDF)'(S_Transactions1b)),
+	!cf('extract bank statement transactions'(S_Transactions1b)),
 	!cf(extract_action_inputs(Action_input_sts)),
 	!flatten([Bank_Lump_STs, S_Transactions0,S_Transactions1b, Action_input_sts], S_Transactions2),
 	!sort_s_transactions(S_Transactions2, S_Transactions),
@@ -266,7 +264,8 @@ This is done with a symlink. This allows to bypass cache, for example in pessera
 	doc(Request_Data, ic_ui:report_details, D),
 	doc_value(D, ic:currency, C),
 	atom_string(Ca, C),
-	Report_Currency = [Ca].
+	Report_Currency = [Ca],
+	!result_add_property(l:report_currency, Report_Currency).
 
 /*
 *If an investment was held prior to the from date then it MUST have an opening market value if the reports are expressed in market rather than cost.You can't mix market valu
@@ -316,14 +315,6 @@ t values then assume cost basis.*/
 
  extract_request_details :-
 	!result(Result),
-	/*
-	%!request(Request),
-	(	xpath(Dom, //reports/balanceSheetRequest/company/clientcode, element(_, [], [Client_code_atom]))
-	->	(
-			!atom_string(Client_code_atom, Client_code_string),
-			!doc_add(Request, l:client_code, Client_code_string)
-		)
-	;	true),*/
 	!get_time(TimeStamp),
 	!stamp_date_time(TimeStamp, DateTime, 'UTC'),
 	!doc_add(Result, l:timestamp, DateTime).

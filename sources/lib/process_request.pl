@@ -31,7 +31,6 @@ process_request_rpc_calculator(Dict) :-
 	maplist(doc_add(Result_uri, l:rdf_explorer_base), Dict.rdf_explorer_bases),
 	doc_add(Request_uri, rdf:type, l:'Request'),
 	doc_add(Request_uri, l:has_result, Result_uri),
-	doc_add(Request_uri, l:has_request_data_uri_base, Request_data_uri_base),
 	doc_add(Request_uri, l:has_request_data, Request_data_uri),
 	doc_add(Result_uri, rdf:type, l:'Result'),
 	doc_add(Result_uri, l:has_result_data_uri_base, Result_data_uri_base),
@@ -39,7 +38,8 @@ process_request_rpc_calculator(Dict) :-
 	findall(
 		loc(absolute_path, P),
 		member(P, Dict.request_files),
-		Request_Files),
+		Request_Files
+	),
 	(	Request_Files = [Dir]
 	->	resolve_directory(Dir, Request_Files2)
 	;	Request_Files2 = Request_Files),
@@ -47,19 +47,19 @@ process_request_rpc_calculator(Dict) :-
 	set_unique_tmp_directory_name(loc(tmp_directory_name, Dict.result_tmp_directory_name)),
 	set_server_public_url(Dict.server_url),
 	(Request_Files2 = [] -> throw_string('no request files.') ; true),
-	process_request([], Request_Files2).
+	process_request([], Request_data_uri_base, Request_Files2).
 
-process_request(Options, File_Paths) :-
+process_request(Options, Request_data_uri_base, File_Paths) :-
 	maybe_supress_generating_unique_taxonomy_urls(Options),
 	%_ is 1 / 0,
 	(	current_prolog_flag(die_on_error, true)
 	->	(
-			process_multifile_request(File_Paths),
+			process_multifile_request(Request_data_uri_base,File_Paths),
 			Exception = none
 		)
 	;	(
 			catch_with_backtrace(
-				(process_multifile_request(File_Paths) -> true ; throw(failure)),
+				(process_multifile_request(Request_data_uri_base,File_Paths) -> true ; throw(failure)),
 				E,
 				Exception = E
 			)
@@ -96,11 +96,19 @@ handle_processing_exception(E) :-
 	;	true).
 
 format_exception_into_alert_string(E, Str, Html) :-
-	(	E = with_processing_context(C,E2)
+	(	E = with_processing_context(C,E1)
 	->	Context_str = C
 	;	(
 			Context_str = '',
-			E2 = E
+			E1 = E
+		)
+	),
+
+	(	E1 = with_backtrace_str(E2, Bstr)
+	->	true
+	;	(
+			E2 = E1,
+			Bstr = ''
 		)
 	),
 
@@ -111,7 +119,8 @@ format_exception_into_alert_string(E, Str, Html) :-
 	->	message_to_string(E2, Msg0)
 	;	(	E2 = error(Msg0,Stacktrace)
 		->	(	nonvar(Stacktrace)
-			->	format(string(Stacktrace_str),'~p',[Stacktrace])
+			->	%stt(Stacktrace, Stacktrace_str)
+				format(string(Stacktrace_str),'~q',[Stacktrace])
 			;	Stacktrace_str = '')
 		;	(
 				Stacktrace_str = '',
@@ -129,7 +138,19 @@ format_exception_into_alert_string(E, Str, Html) :-
 			Msg = Msg1
 		)
 	),
-	format(string(Str ),'~w~n~n~w~n~n~w~n',[Context_str, $>stringize(Msg), Stacktrace_str]).
+	format(string(Str ),'~w~n~n~w~n~n~w~q~n',[Context_str, $>stringize(Msg), Bstr, Stacktrace_str]).
+
+
+stt(St, Str) :-
+	new_memory_file(F),
+	open_memory_file(F, write, W),
+	print_prolog_backtrace(W, St),
+	close(W),
+	open_memory_file(F, read, R),
+	read_stream_to_codes(R,C),
+	string_codes(Str,C),
+	close(R),
+	free_memory_file(F).
 
 
 process_request2 :-
@@ -214,7 +235,13 @@ collect_alerts(Alerts_text, Alerts_html) :-
  	(	false
  	->	true
  	;	(
-			(Msg0 = error(msg(Msg),_) -> true ; Msg0 = Msg),
+			(	Msg0 = error(msg(Msg),Bt)
+			->	true
+			;	(
+					Msg0 = Msg,
+					Bt = ''
+				)
+			),
 			(	Msg = html(Msg2)
 			->	true
 			;	(	atomic(Msg)
@@ -223,7 +250,7 @@ collect_alerts(Alerts_text, Alerts_html) :-
 			)
 		)
 	),
-	Alert = p([h4([$>atom_string(<$, $>term_string(Key)),': ']),pre([Msg2])]).
+	Alert = p([h4([$>atom_string(<$, $>term_string(Key)),': ']),pre([Msg2]),pre([Bt])]).
 
 make_alerts_report(Alerts_Html) :-
 	(	Alerts_Html = []
@@ -232,7 +259,7 @@ make_alerts_report(Alerts_Html) :-
 	add_report_page_with_body(10,alerts, $>flatten([h3([alerts, ':']), Alerts_Html2]), loc(file_name,'alerts.html'), alerts_html).
 
 
-process_multifile_request(File_Paths) :-
+process_multifile_request(Request_data_uri_base,File_Paths) :-
 	debug(tmp_files, "process_multifile_request(~w)~n", [File_Paths]),
 	(	accept_request_file(File_Paths, Xml_Tmp_File_Path, xml)
 	->	!load_request_xml(Xml_Tmp_File_Path, Dom)
@@ -243,8 +270,6 @@ process_multifile_request(File_Paths) :-
 			!debug(tmp_files, "done accept_request_file(~w, ~w, n3)~n", [File_Paths, Rdf_Tmp_File_Path]),
 			!load_request_rdf(Rdf_Tmp_File_Path, G),
 			!debug(tmp_files, "RDF graph: ~w~n", [G]),
-			!request(Request),
-			!doc(Request, l:has_request_data_uri_base, Request_data_uri_base),
 			!doc_from_rdf(G, 'https://rdf.lodgeit.net.au/v1/excel_request#', Request_data_uri_base),
 			!check_request_version
 			%doc_input_to_chr_constraints

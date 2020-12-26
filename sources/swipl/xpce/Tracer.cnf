@@ -4,8 +4,8 @@ setting(auto_raise,true).
 setting(auto_close,true).
 setting(console_actions,false).
 setting(use_pce_emacs,true).
-setting(term_depth,30).
+setting(term_depth,3).
 setting(show_unbound,true).
 setting(cluster_variables,false).
-setting(stack_depth,150).
-setting(choice_depth,50).
+setting(stack_depth,15).
+setting(choice_depth,5).

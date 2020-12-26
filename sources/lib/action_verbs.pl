@@ -1,8 +1,8 @@
 % transaction types aka action verbs
 
 
-'extract_action_verbs (RDF)' :-
-	!doc($>request_data, ic:action_verbs, X),
+'extract action verbs' :-
+	!doc_value($>request_data, ic:action_verbs, X),
  	maplist(!'extract action verb', $>doc_list_items(X)),
 	!add_builtin_action_verbs.
 

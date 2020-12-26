@@ -244,7 +244,7 @@ s_transaction_action_verb_uri_from_string(S_Transaction, Action_Verb) :-
 			doc(Action_Verb, l:has_id, Type_Id)
 		)
 	->	true
-	;	(throw_string(['action verb not found by id:',Type_Id]))).
+	;	(throw_string(['action verb not found by id: "',Type_Id,'"']))).
 
 
 % yield all transactions from all accounts one by one.
@@ -368,22 +368,24 @@ handle_additional_file(Bn, S_Transactions) :-
 ╹┗╸╺┻┛╹
 */
 
-'extract_s_transactions (RDF)'(S_Transactions) :-
+'extract bank statement transactions'(S_Transactions) :-
 	findall(
 		S_Transactions0,
-		(
-			result_has_property(l:bank_account, Acc),
-			once(doc(Acc, l:raw_items, Items)),
-			!doc(Acc, l:currency, Account_Currency),
-			!doc(Acc, l:name, Account_Name),
-			!maplist('extract_s_transaction (RDF)'(Account_Currency, Account_Name), Items, S_Transactions0)
-		),
+		'extract bank statement transactions2'(S_Transactions0),
 		S_Transactions1
 	),
 	flatten(S_Transactions1, S_Transactions2),
 	maplist(invert_s_transaction_vector, S_Transactions2, S_Transactions).
 
-'extract_s_transaction (RDF)'(Account_Currency, Account_Name, Item, S_Transaction) :-
+'extract bank statement transactions2'(S_Transactions0) :-
+	result_has_property(l:bank_account, Acc),
+	once(doc(Acc, l:raw_items, Items)),
+	!doc(Acc, l:currency, Account_Currency),
+	!doc(Acc, l:name, Account_Name),
+	!maplist('extract bank statement transaction'(Account_Currency, Account_Name), $>doc_list_items(Items), S_Transactions0).
+
+
+'extract bank statement transaction'(Account_Currency, Account_Name, Item, S_Transaction) :-
 	push_format('extract bank statement transaction from: ~w', [$>sheet_and_cell_string(Item)]),
 	atom_string(Action_verb_name, $>rpv(Item, bs:transaction_description)),
 	rpv(Item, bs:bank_transaction_date, Date),

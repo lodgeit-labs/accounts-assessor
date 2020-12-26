@@ -697,6 +697,9 @@ bs:units_type rdfs:label "Units_Type".
 bs:units_count rdfs:label "Units".
 
 ic_ui:bank_statement_sheet
+	excel:optional true;
+	excel:multiple_sheets_allowed true;
+	excel:name_prefix "bank_acc";
 	excel:root ic:bank_statement.
 
 ic_ui:bank_statement_example
@@ -704,7 +707,7 @@ ic_ui:bank_statement_example
 	bs:bank_id [rdf:value ""];
 	bs:account_name [rdf:value "Maxi saver 123"];
 	bs:account_number [rdf:value "123"];
-	bs:currency [rdf:value "AUD"];
+	bs:account_currency [rdf:value "AUD"];
 	bs:items [rdf:value ()].
 
 ic:bank_statement
@@ -716,8 +719,7 @@ ic:bank_statement
 		[excel:property bs:bank_id; excel:type xsd:string]
 		[excel:property bs:account_name; excel:type xsd:string]
 		[excel:property bs:account_number; excel:type xsd:string]
-		[excel:property bs:currency; excel:type xsd:string]
-		[excel:property bs:opening_balance; excel:type xsd:decimal]
+		[excel:property bs:account_currency; excel:type xsd:string]
 		[excel:property bs:items; excel:template ic_ui:bank_statement_items]
 	).
 
@@ -731,6 +733,7 @@ ic_ui:bank_statement_items
 		[excel:property bs:bank_transaction_date; excel:type xsd:dateTime]
 		[excel:property bs:debit; excel:type xsd:decimal]
 		[excel:property bs:credit; excel:type xsd:decimal]
+		[excel:property bs:bank_balance; excel:type xsd:decimal]
 		[excel:property bs:units_count; excel:type xsd:decimal]
 		[excel:property bs:units_type; excel:type xsd:string]
 		[excel:property bs:transaction_description2; excel:type xsd:string]

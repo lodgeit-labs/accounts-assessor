@@ -4,28 +4,18 @@
 ┗━┛╹ ╹╹ ╹╹ ╹   ╹ ╹┗━╸┗━╸┗━┛┗━┛╹ ╹ ╹    ┗━╸╹ ╹╹┗━┛ ╹ ┗━╸╹ ╹┗━╸┗━╸
 */
 
-'extract bank accounts (RDF)' :-
- 	(	doc($>request_data, ic_ui:bank_statement, Accounts)
- 	->	(	maplist(!cf('extract bank account (RDF)'), $>doc_list_items(Accounts)))
-	;	true).
+'extract bank accounts' :-
+	request_data(D),
+	format(user_error, '~q~n', [D]),
+ 	(	doc(D, ic:bank_statement, Accounts)
+ 	->	(
+ 			doc_list_items(Accounts, I),
+ 			maplist(!cf('extract bank account'), I)
+ 		)
+	;	true
+	).
 
-
-check_first_row(First_row) :-
-	(	(
-			doc(First_row, bs:transaction_description, Row_0_verb)
-		)
-	->	(
-			!doc(Row_0_verb, rdf:value, Row_0_verb_value),
-			(	Row_0_verb_value = "This is Opening Balance"
-				->	true
-				;	(	!sheet_and_cell_string(Row_0_verb, Cell_str),
-						throw_format('expected "This is Opening Balance" in ~w', [Cell_str])
-					)
-			)
-		)
-	;	true).
-
-'extract bank account (RDF)'(Acc) :-
+'extract bank account'(Acc) :-
 	!doc_new_uri(bank_account, Uri),
 	!result_add_property(l:bank_account, Uri),
 
@@ -52,21 +42,20 @@ check_first_row(First_row) :-
 	(atom(Account_Name)->true;throw_string('account_name: atom expected')),
 	!doc_add(Uri, l:name, Account_Name).
 
-
-extract_bank_account(Account) :-
-	!fields(Account, [
-		accountName, Account_Name,
-		currency, Account_Currency]),
-	!numeric_fields(Account, [
-		openingBalance, (Opening_Balance_Number, 0)]),
-	Opening_Balance = coord(Account_Currency, Opening_Balance_Number),
-	!doc_new_uri(bank_account, Uri),
-	!result_add_property(l:bank_account, Uri),
-	!doc_add(Uri, l:name, Account_Name),
-	(	Opening_Balance_Number \= 0
-	->	!doc_add_value(Uri, l:opening_balance, Opening_Balance)
+check_first_row(First_row) :-
+	(	(
+			doc(First_row, bs:transaction_description, Row_0_verb)
+		)
+	->	(
+			!doc(Row_0_verb, rdf:value, Row_0_verb_value),
+			(	Row_0_verb_value = "This is Opening Balance"
+				->	true
+				;	(	!sheet_and_cell_string(Row_0_verb, Cell_str),
+						throw_format('expected "This is Opening Balance" in ~w', [Cell_str])
+					)
+			)
+		)
 	;	true).
-
 
 
 
