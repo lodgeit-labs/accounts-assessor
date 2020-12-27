@@ -16,6 +16,7 @@
 	).
 
 'extract bank account'(Acc) :-
+	push_format('extract bank account from: ~w', [$>sheet_and_cell_string(Acc)]),
 	!doc_new_uri(bank_account, Uri),
 	!result_add_property(l:bank_account, Uri),
 
@@ -31,16 +32,18 @@
 	;	true),
 	[First_row|Raw_items1] = Raw_items0,
 	check_first_row(First_row),
+	%gtrace,
 	!doc_add(Uri, l:raw_items, Raw_items1),
 
 	rpv(First_row, bs:bank_balance, Opening_balance_number),
-	(is_numeric(Opening_balance_number)->true;throw_string('bank_balance: number expected')),
+	(is_numeric(Opening_balance_number)->true;throw_string('opening balance: number expected')),
 	Opening_balance = coord(Account_Currency, Opening_balance_number),
 	!doc_add_value(Uri, l:opening_balance, Opening_balance),
 
 	atom_string(Account_Name, $>rpv(Acc, bs:account_name)),
 	(atom(Account_Name)->true;throw_string('account_name: atom expected')),
-	!doc_add(Uri, l:name, Account_Name).
+	!doc_add(Uri, l:name, Account_Name),
+	pop_context.
 
 check_first_row(First_row) :-
 	(	(

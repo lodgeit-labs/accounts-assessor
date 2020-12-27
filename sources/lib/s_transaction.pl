@@ -371,7 +371,9 @@ handle_additional_file(Bn, S_Transactions) :-
 'extract bank statement transactions'(S_Transactions) :-
 	findall(
 		S_Transactions0,
-		'extract bank statement transactions2'(S_Transactions0),
+		(
+				'extract bank statement transactions2'(S_Transactions0)
+		),
 		S_Transactions1
 	),
 	flatten(S_Transactions1, S_Transactions2),
@@ -379,16 +381,22 @@ handle_additional_file(Bn, S_Transactions) :-
 
 'extract bank statement transactions2'(S_Transactions0) :-
 	result_has_property(l:bank_account, Acc),
+	%gtrace,
 	once(doc(Acc, l:raw_items, Items)),
 	!doc(Acc, l:currency, Account_Currency),
 	!doc(Acc, l:name, Account_Name),
-	!maplist('extract bank statement transaction'(Account_Currency, Account_Name), $>doc_list_items(Items), S_Transactions0).
+	!maplist('extract bank statement transaction'(Account_Currency, Account_Name), Items, S_Transactions0).
 
 
 'extract bank statement transaction'(Account_Currency, Account_Name, Item, S_Transaction) :-
+	%gtrace,
 	push_format('extract bank statement transaction from: ~w', [$>sheet_and_cell_string(Item)]),
 	atom_string(Action_verb_name, $>rpv(Item, bs:transaction_description)),
+	%gtrace,
 	rpv(Item, bs:bank_transaction_date, Date),
+	(	Date = date(_,_,_)
+	->	true
+	;	throw_string('malformed date')),
 
 	(doc_value(Item,bs:units_count,Units_count) -> true ; Units_count = nil(nil) ),
 	(doc_value(Item,bs:units_type,Units_type) -> true ; Units_type = nil(nil) ),

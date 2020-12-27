@@ -45,7 +45,8 @@ investment_report_2_0(Static_Data, Filename_Suffix, Semantic_Json) :-
 		(
 			term_string(E, Msg),
 			error_page_html(Msg, Html),
-			assert_alert('error', E),
+			handle_processing_exception2(E),
+			%assert_alert('error', E),
 			Semantic_Json = _{}
 		)
 	),

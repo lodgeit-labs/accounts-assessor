@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 'use strict';
 
+
 /*
 
 produce RdfTemplates.json, by projecting through json-ld frames.
@@ -112,6 +113,18 @@ function simplify(x)
 		return x;
 }
 
+function ids_to_keys(doc)
+{
+	const result = {};
+	doc['@graph'].forEach((x) =>
+		{
+			result[x['@id']] = x;
+		}
+	);
+	//result['@context'] = doc['@context'];
+	return result;
+}
+
 (async () => {
 	var doc = await processor.load_n3('RdfTemplates.n3');
 	doc = await jl.compact(doc,ctx);
@@ -209,15 +222,3 @@ you have to look "https://rdf.lodgeit.net.au/v1/calcs/hp#hp_contract_payment_typ
 		};
 	console.log(JSON.stringify(result, null, 2))
 })();
-
-function ids_to_keys(doc)
-{
-	const result = {};
-	doc['@graph'].forEach((x) =>
-		{
-			result[x['@id']] = x;
-		}
-	);
-	//result['@context'] = doc['@context'];
-	return result;
-}

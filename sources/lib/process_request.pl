@@ -87,8 +87,11 @@ reestablish_doc :-
 	;	true).
 
 handle_processing_exception(E) :-
-	enrich_exception_with_ctx_dump(E, E2),
 	reestablish_doc,
+	handle_processing_exception2(E).
+
+handle_processing_exception2(E) :-
+	enrich_exception_with_ctx_dump(E, E2),
 	format_exception_into_alert_string(E2, Str, Html),
 	add_alert('error', Str, Alert_uri),
 	(	Html \= ''
@@ -104,8 +107,8 @@ format_exception_into_alert_string(E, Str, Html) :-
 		)
 	),
 
-	(	E1 = with_backtrace_str(E2, Bstr)
-	->	true
+	(	E1 = with_backtrace_str(E2, Bstr0)
+	->	atomic_list_concat(['prolog stack:\n', Bstr0], Bstr)
 	;	(
 			E2 = E1,
 			Bstr = ''
@@ -231,26 +234,29 @@ collect_alerts(Alerts_text, Alerts_html) :-
 	(atomic(Msg) -> Msg2 = Msg ; term_string(Msg, Msg2)),
 	atomic_list_concat([Key,': ',Msg2], Alert).
 
- alert_to_html(Key, Msg0, Alert) :-
- 	(	false
- 	->	true
- 	;	(
-			(	Msg0 = error(msg(Msg),Bt)
-			->	true
-			;	(
-					Msg0 = Msg,
-					Bt = ''
-				)
-			),
-			(	Msg = html(Msg2)
-			->	true
-			;	(	atomic(Msg)
-				->	Msg2 = Msg
-				;	term_string(Msg, Msg2))
-			)
+ alert_to_html(Key, E1, Alert) :-
+	(	E1 = with_backtrace_str(Msg0, Bstr0)
+	->	atomic_list_concat(['prolog stack:\n', Bstr0], Bstr)
+	;	(
+			Msg0 = E1,
+			Bstr = ''
 		)
 	),
-	Alert = p([h4([$>atom_string(<$, $>term_string(Key)),': ']),pre([Msg2]),pre([Bt])]).
+
+	(	Msg0 = error(msg(Msg),Bt)
+	->	(	nonvar(Bt) -> true ; Bt = '')
+	;	(
+			Msg0 = Msg,
+			Bt = ''
+		)
+	),
+	(	Msg = html(Msg2)
+	->	true
+	;	(	atomic(Msg)
+		->	Msg2 = Msg
+		;	term_string(Msg, Msg2))
+	),
+	Alert = p([h4([$>atom_string(<$, $>term_string(Key)),': ']),pre([Msg2]),pre([Bt]),pre([small([Bstr])])]).
 
 make_alerts_report(Alerts_Html) :-
 	(	Alerts_Html = []

@@ -2,7 +2,6 @@
 
 var fs = require('fs');
 var path = require('path');
-
 var n3 = require('n3');
 var jl = require('jsonld');
 
@@ -41,7 +40,7 @@ function n3lib_term_to_jld(x)
 	}
 }
 
-async function n3_file_quads(fn)
+async function n3_file_jld_quads(fn)
 {
 	const store = new n3.Store();
 	const parser = new n3.Parser({format: 'N3'});
@@ -53,7 +52,7 @@ async function n3_file_quads(fn)
 
 async function add_type2_quads(quads)
 {
-	//hack around json-ld @reverse rdf:type problem
+	//hack around json-ld @reverse rdf:type problem by adding "rdf:type2" for each "rdf:type" quad.
 	const to_be_added = [];
 	quads.forEach((q) =>
 	{
@@ -75,7 +74,7 @@ async function add_type2_quads(quads)
 
 async function load_n3(fn)
 {
-	const quads = await n3_file_quads(fn);
+	const quads = await n3_file_jld_quads(fn);
 	add_type2_quads(quads);
 	const data = await jl.fromRDF(quads);
 	return data;

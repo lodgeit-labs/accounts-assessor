@@ -21,7 +21,8 @@
 		(av:gst_payable_account, l:has_gst_payable_account)
 	]),
 
-	optional_decimal(Item, Uri, (av:gst_rate_percent, l:has_gst_rate)).
+	optional_decimal(Item, Uri, (av:gst_rate_percent, l:has_gst_rate)),
+	pop_context.
 
 
 optional_atom(Old_item,New_item,(Src,Dst)) :-

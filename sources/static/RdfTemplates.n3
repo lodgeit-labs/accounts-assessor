@@ -151,7 +151,7 @@ smsf:distribution
 smsf_distribution:items_template
 	a excel:template;
 	excel:title "distributions";
-	excel:position [excel:col "A"; excel:row "7"];
+	excel:position [excel:col "B"; excel:row "7"];
 	excel:cardinality excel:multi;
 	excel:class smsf_distribution:entry;
 	excel:is_horizontal true;

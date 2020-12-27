@@ -418,7 +418,7 @@ smsf_income_tax_reports(reports{report:Tbl1,reconcilliation:Tbl2}) :-
 		Value2),
 	(	vecs_are_almost_equal(Value1,Value2)
 	->	true
-	;	add_alert(error, $>format(string(<$), 'before tax calculation, P&L must only have balance on the subaccount Income_(Loss)_from_Continuing_Operations_Before_Tax. ~n(~q != ~q)', [$>round_term(Value1),$>round_term(Value2)]))).
+	;	add_alert(error, $>format(string(<$), 'before tax calculation, P&L must only have balance on the subaccount Income_(Loss)_from_Continuing_Operations_Before_Tax. ~nComprehensive_Income:~n~q~nIncome_(Loss)_from_Continuing_Operations_Before_Tax:~n~q', [$>round_term(Value1),$>round_term(Value2)]))).
 
 
 
