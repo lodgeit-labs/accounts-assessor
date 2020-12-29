@@ -130,7 +130,7 @@ assert_smsf_distribution_facts(Default_currency, Unit, Item) :-
 		=
 		(smsf_distribution_ui:capital_gains)
 		*
-		(2 rdiv 3)),
+		($>rat(2 rdiv 3))),
 
 	!check_entered_unit_fact_matches_computed(Default_currency, Unit, Item, smsf_distribution_ui:discount_capital_gains_net, smsf_distribution_ui:entered_discount_capital_gains_net),
 
@@ -139,7 +139,7 @@ assert_smsf_distribution_facts(Default_currency, Unit, Item) :-
 		=
 		(smsf_distribution_ui:capital_gains)
 		*
-		(1 rdiv 3)),
+		($>rat(1 rdiv 3))),
 
 	!check_entered_unit_fact_matches_computed(Default_currency, Unit, Item, smsf_distribution_ui:one_third_capital_gain_discount_amount, smsf_distribution_ui:entered_one_third_capital_gain_discount_amount),
 
@@ -363,7 +363,7 @@ smsf_distributions_totals_report(Tbl_dict, Html) :-
 		[text('Taxable Net Capital Gains'),
 			aspects([concept - ($>rdf_global_id(smsf_computation:taxable_net_capital_gains))])
 	]],
-	split_vector_by_percent(Rows0_vec, (100 rdiv 3), Vec2, _),
+	split_vector_by_percent(Rows0_vec, ($>rat(100 rdiv 3)), Vec2, _),
 	!make_fact(Vec2,
 		aspects([concept - ($>rdf_global_id(smsf_computation:taxable_net_capital_gains_discount))])),
 	vec_sub(Rows0_vec, Vec2, Vec3),

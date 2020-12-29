@@ -41,9 +41,26 @@ excel:this rdfs:comment
 hp:this rdfs:comment """hirepurchase""".
 depr:this rdfs:comment """depreciation""".
 ic:this rdfs:comment """investment calculator""".
+bs:this rdfs:comment """bank statement""".
 
 
 
+excel:this rdfs:comment
+"""
+excel plugin cell reading semantics:
+see ReadCellAsType.
+all fields are optional unless stated otherwise.
+in case of an empty cell, field will be omitted unless it's not optional.
+then:
+	xsd:integer, xsd:decimal:
+		parseable contents -> ok
+		unparseable contents -> error
+	xsd:dateTime:
+		parseable contents -> ok
+		unparseable contents -> field will be saved as string
+		- effectively, this type should be called dateOrString.
+
+""".
 
 
 kb:Asset a rdfs:Class.

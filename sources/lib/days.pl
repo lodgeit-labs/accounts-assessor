@@ -188,7 +188,30 @@ add_days(Date, Absolute_Days, Date2) :-
 	Day2 is Day + Absolute_Days,
 	gregorian_date(Day2, Date2).
 
-date_in_request_period(Date) :-
+ date_in_request_period(Date) :-
 	result_has_property(l:start_date, Start_Date),
 	result_has_property(l:end_date, End_Date),
 	date_within(Start_Date, End_Date, Date).
+
+ read_date(S,P,V) :-
+	doc(S,P,O),
+	doc(O,rdf:value,V),
+	(	V = date(_,_,_)
+	->	(
+			(	V = date(1,1,1)
+			->	throw_format('error reading date at ~w, found: ~q', [$>sheet_and_cell_string(O), V])
+			;	true)
+		)
+	;	(
+			throw_format('error reading date at ~w, found: ~q', [$>sheet_and_cell_string(O), V])
+		)
+	).
+
+ check_date(Date) :-
+		Date = date(_,_,_)
+	->	(
+			Date = date(1,1,1)
+			->	throw_format('error reading date: ~q', [Date])
+			;	true
+		)
+	;	throw_format('error reading date: ~q', [Date]).

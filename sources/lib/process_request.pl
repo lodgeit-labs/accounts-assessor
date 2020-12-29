@@ -21,6 +21,7 @@
 %:- initialization(set_server_public_url('http://localhost:7778')).
 
 process_request_rpc_calculator(Dict) :-
+	set_unique_tmp_directory_name(loc(tmp_directory_name, Dict.result_tmp_directory_name)),
 	doc_init,
 	'='(Request_uri, $>atom_string(<$, Dict.request_uri)),
 	'='(Request_data_uri_base, $>atomic_list_concat([Request_uri, '/request_data/'])),
@@ -44,7 +45,6 @@ process_request_rpc_calculator(Dict) :-
 	->	resolve_directory(Dir, Request_Files2)
 	;	Request_Files2 = Request_Files),
 
-	set_unique_tmp_directory_name(loc(tmp_directory_name, Dict.result_tmp_directory_name)),
 	set_server_public_url(Dict.server_url),
 	(Request_Files2 = [] -> throw_string('no request files.') ; true),
 	process_request([], Request_data_uri_base, Request_Files2).
@@ -196,18 +196,22 @@ json_report_entries(Out) :-
 		Out
 	).
 
-
 format_json_report_entry(Key, Title, Url, Json) :-
 	Json0 = _{key:Key, title:Title, val:_{url:Url}},
-	(	Key == "response.n3"     %_{name:'response', format:'n3'}
+
+	(
+		(
+			Key == "response.n3",
+			\+doc($>result, l:type, l:ledger)
+		)
 	->	(
 			% inline response.n3 into the result json
 			tmp_file_path_from_something(loc(_,Url), loc(absolute_path,P)),
 			read_file_to_string(P, Contents, []),
 			Json = Json0.put(contents,Contents)
 		)
-	% just url's for all the rest
-	;	Json = Json0).
+	;	Json = Json0 % just url's for all the rest
+	).
 
 collect_alerts(Alerts_text, Alerts_html) :-
 	findall(
@@ -336,8 +340,9 @@ load_request_rdf(loc(absolute_path, Rdf_Tmp_File_Path), G) :-
 process_rdf_request :-
 	debug(requests, "process_rdf_request~n", []),
 	(	%process_request_hirepurchase_new;
-		process_request_ledger;
-		process_request_depreciation_new),
+		process_request_depreciation_new;
+		process_request_ledger
+	),
 	make_rdf_report.
 
 

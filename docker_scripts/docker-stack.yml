@@ -51,6 +51,22 @@ services:
     volumes:
       - "/etc/localtime:/etc/localtime:ro"
 
+  flower:
+    image: koo5/flower${PP}:latest
+    networks:
+      - backend
+    deploy:
+      replicas: 1
+      update_config:
+        parallelism: 2
+        delay: 10s
+      restart_policy:
+        condition: any
+    volumes:
+      - "/etc/localtime:/etc/localtime:ro"
+    ports:
+      - 55${PP}:5555
+
   frontend-server:
     image: koo5/frontend-server${PP}:latest
     environment:

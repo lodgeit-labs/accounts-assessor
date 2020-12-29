@@ -82,7 +82,7 @@ def upload(request):
 					request_tmp_directory_name=request_tmp_directory_name,
 					server_url=server_url,
 					request_files=request_files_in_tmp,
-					timeout_seconds=2,
+					timeout_seconds=15,
 					final_result_tmp_directory_name=final_result_tmp_directory_path
 				)
 			except celery.exceptions.TimeoutError:

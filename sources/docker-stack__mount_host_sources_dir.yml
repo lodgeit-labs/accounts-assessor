@@ -47,6 +47,21 @@ services:
       tmpfs:
         size: 2096000000
       type: tmpfs
+  flower:
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: any
+      update_config:
+        delay: 10s
+        parallelism: 2
+    image: koo5/flower${PP}:latest
+    networks:
+    - backend
+    ports:
+    - 55${PP}:5555
+    volumes:
+    - /etc/localtime:/etc/localtime:ro
   frontend-server:
     depends_on:
     - rabbitmq

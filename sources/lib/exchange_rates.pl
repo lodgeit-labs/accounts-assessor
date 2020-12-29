@@ -296,104 +296,60 @@ is_exchangeable_into_request_bases(Table, Day, Src_Currency, Bases) :-
 extract_exchange_rates(
 	Cost_Or_Market,
 	S_Transactions,
-	/* Start_Date, End_Date to substitute "opening", "closing" */
-	Start_Date, End_Date,
-	Default_Currency,
 	/*out*/ Exchange_Rates2)
 :-
-_XX = [Items,Unit_Value_Doms] ,
-	%%%%gtrace,
-	doc_value($>request_data, ic:unit_valueses, Items),
-
-/*
- 	findall(
- 		Vs,
- 		(
- 			doc_value($>request_data, ic:unit_valueses, Items),
- 			findall(
- 				Field,
- 				doc_value(Items, excel:has_field, Field),
- 				Fields
- 			),
-			maplist(!extract_unit_values, $>doc_list_items(Items), Vs),
-			flatten(Txs0, Txs))
-	;	Txs = []).
-*/
-	maplist(extract_exchange_rate(Start_Date, End_Date), Unit_Value_Doms, Exchange_Rates),
-	maplist(missing_dst_currency_is_default_currency(Default_Currency), Exchange_Rates),
-	%maplist(missing_dst_currency_is_investment_currency(S_Transactions, Default_Currency), Exchange_Rates),
-	maplist(dst_currency_must_be_specified, Exchange_Rates),
+ 	!doc($>request_data, ic:unit_valueses, X),
+ 	!doc(X, excel:has_unknown_fields, Fields0),
+ 	!doc_list_items(Fields0, Fields),
+ 	maplist(!parse_date_field, Fields),
+ 	!doc(X, rdf:value, Items0),
+ 	!doc_list_items(Items0, Items),
+ 	maplist(extract_exchange_rates2(Fields), Items, Exchange_Rates0),
+ 	flatten(Exchange_Rates0, Exchange_Rates),
 	maplist(assert_ground, Exchange_Rates),
 	(	Cost_Or_Market = cost
 	->	filter_out_market_values(S_Transactions, Exchange_Rates, Exchange_Rates2)
-	;	Exchange_Rates2 = Exchange_Rates).
+	;	Exchange_Rates2 = Exchange_Rates),
+	%format(user_error, '~q', [Exchange_Rates2]),
+	true.
 
-
-missing_dst_currency_is_default_currency(_, Exchange_Rate) :-
-	exchange_rate_dest_currency(Exchange_Rate, Dst),
-	nonvar(Dst).
-
-missing_dst_currency_is_default_currency(Default_Currency, Exchange_Rate) :-
-	exchange_rate_dest_currency(Exchange_Rate, Dst),
-	var(Dst),
-	([Dst] = Default_Currency -> true ; true).
-
-dst_currency_must_be_specified(Exchange_Rate) :-
-	exchange_rate_dest_currency(Exchange_Rate, Dst),
-	(	var(Dst)
-	->	throw_string(['unitValueCurrency missing'])
-	;	true).
-
-assert_ground(X) :-
-	assertion(ground(X)).
-
-extract_exchange_rate(Start_Date, End_Date, Unit_Value, Exchange_Rate) :-
-	Exchange_Rate = exchange_rate(Date, Src_Currency, Dest_Currency, Rate),
-	fields(Unit_Value, [
-		unitType, Src_Currency0,
-		unitValueCurrency, (Dest_Currency, _),
-		unitValue, (Rate_Atom, _),
-		unitValueDate, (Date_Atom, _)]
-	),
-	(
-		var(Rate_Atom)
-	->
-		format(user_error, 'unitValue missing, ignoring\n', [])
-		/*Rate will stay unbound and the whole term will be filtered out in the caller*/
-	;
-		atom_number(Rate_Atom, Rate)
-	),
-
-	(
-		var(Date_Atom)
-	->
-		(
-			once(string_concat('closing | ', Src_Currency, Src_Currency0))
-		->
-			Date_Atom = 'closing'
-		;
-			(
-				once(string_concat('opening | ', Src_Currency, Src_Currency0))
-			->
-				Date_Atom = 'opening'
-			;
-				Src_Currency = Src_Currency0
-			)
+parse_date_field(Field) :-
+	!doc(Field, excel:has_header_cell_value, V),
+	(	V = date(_,_,_)
+	->	(
+			Date = V,
+			check_date(Date)
 		)
-	;
-		Src_Currency = Src_Currency0
-	),
+	;	(	V = "opening"
+		->	!result_has_property(l:start_date, Date))
+		;	(	V = "closing"
+			->	!result_has_property(l:end_date, Date))
+			;	throw_format('unexpected unit value header: ~q', [V])),
+	doc_add(Field, l:true_date, Date).
 
-	(var(Date_Atom) -> Date_Atom = closing ; true),
+extract_exchange_rates2(Fields, Item, Rates) :-
+	!doc_value(Item, uv:name, Src0),
+	atom_string(Src,Src0),
 
-	(	Date_Atom = opening
-	->	Date = Start_Date
-	;	(	(	Date_Atom = closing
-			->	Date = End_Date
-			;	parse_date(Date_Atom, Date)))).
+	(	doc_value(Item, uv:currency, Dst0)
+	->	atom_string(Dst, Dst0)
+	;	!result_has_property(l:report_currency, [Dst])),
+
+	findall(
+		exchange_rate(Date, Src, Dst, V),
+		(
+			member(Field, Fields),
+			doc_value(Item, Field, V0),
+			my_number_string(V,V0),
+			!doc(Field, l:true_date, Date)
+		),
+		Rates
+	).
 
 
 /*
+for pyco3: (??)
+
 	x a exchange_rate, x src S, x dom y, x rate R <= y a exchange_rate_dom, y src S
 
 	x dom y, y dst D => x dst_candidate C, C value D, C priority 100

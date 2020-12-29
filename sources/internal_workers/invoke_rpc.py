@@ -92,7 +92,7 @@ def call_prolog(
 	if pipe_rpc_json_to_swipl_stdin:
 		goal = ',lib:process_request_rpc_cmdline'
 	else:
-		goal = ",lib:process_request_rpc_cmdline_json_text('" + (input).replace('"','\\"') + "')"
+		goal = ",make,lib:process_request_rpc_cmdline_json_text('" + (input).replace('"','\\"') + "')"
 
 	cmd2 = [['-g', debug_goal + prolog_flags + goal + halt_goal]]
 	cmd = cmd0 + cmd0b + cmd1 + cmd2

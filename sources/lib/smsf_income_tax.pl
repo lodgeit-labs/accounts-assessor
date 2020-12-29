@@ -297,7 +297,7 @@ smsf_income_tax_reconcilliation(Tbl_dict) :-
 		=
 		aspects([concept - smsf/income_tax/reconcilliation/'Net Taxable Income'])
 		*
-		(15 rdiv 100)),
+		($>rat(15 rdiv 100))),
 
 	Rows6 = [
 		[text('Tax 15%'),

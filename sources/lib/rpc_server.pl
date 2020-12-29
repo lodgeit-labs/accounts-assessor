@@ -8,8 +8,6 @@
 :-set_prolog_flag(stack_limit, 10 000 000 000).
 
 
-
-
 :- (have_display -> guitracer ; true).
 
 /* read command from stdin */

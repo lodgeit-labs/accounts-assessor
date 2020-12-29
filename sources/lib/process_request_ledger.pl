@@ -2,8 +2,9 @@
 
 process_request_ledger :-
 	Data = (Start_Date, End_Date, Output_Dimensional_Facts, Cost_Or_Market, Report_Currency),
+	cf(extract_start_and_end_date(Start_Date, End_Date)),
+	doc_add($>result, l:type, l:ledger),
 	!cf(extract_request_details),
-	!cf(extract_start_and_end_date(Start_Date, End_Date)),
 	!cf('extract "output_dimensional_facts"'(Output_Dimensional_Facts)),
 	!cf('extract "cost_or_market"'(Cost_Or_Market)),
 	!cf(extract_report_currency(Report_Currency)),
@@ -19,8 +20,9 @@ process_request_ledger :-
 
 	/* you may find useful:*/
 	%profile(
-	!process_request_ledger2(Data, S_Transactions, _, _Transactions),
-	%)
+	!process_request_ledger2(Data, S_Transactions, _, _Transactions)
+	%),gtrace
+	,
 	/* or you may find useful:*/
 	%process_request_ledger_debug(Dom, S_Transactions),
 	true.
@@ -45,7 +47,7 @@ process_request_ledger2((Start_Date, End_Date, Output_Dimensional_Facts, Cost_Or
 	%request(Request),
 	%doc_add(Request, l:kind, l:ledger_request),
 	%!cf(extract_livestock_data_from_ledger_request(Dom)),
-	!cf(extract_exchange_rates(Cost_Or_Market, S_Transactions, Start_Date, End_Date, Report_Currency, Exchange_Rates)),
+	!cf(extract_exchange_rates(Cost_Or_Market, S_Transactions, Exchange_Rates)),
 	%!cf(extract_invoices_payable(Dom)),
 	!process_ledger(
 		Cost_Or_Market,
@@ -300,18 +302,11 @@ t values then assume cost basis.*/
  extract_start_and_end_date(Start_Date, End_Date) :-
 	!request_data(Request_Data),
 	!doc(Request_Data, ic_ui:report_details, D),
-	!doc_value(D, ic:from, Start_Date),
-	!doc_value(D, ic:to, End_Date),
+	!read_date(D, ic:from, Start_Date),
+	!read_date(D, ic:to, End_Date),
 	!result(R),
 	!doc_add(R, l:start_date, Start_Date),
-	!doc_add(R, l:end_date, End_Date),
-	(	Start_Date = date(1,1,1)
-	->	throw_string(['start date missing?'])
-	;	true),
-	(	End_Date = date(1,1,1)
-	->	throw_string(['end date missing?'])
-	;	true)
-	.
+	!doc_add(R, l:end_date, End_Date).
 
  extract_request_details :-
 	!result(Result),

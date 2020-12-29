@@ -94,15 +94,15 @@ this relies on there being no intermediate facts asserted.
 */
 evaluate_fact2(In,Sum) :-
 	In = aspects(_),
-	facts_by_aspects(In, Facts),
+	!facts_by_aspects(In, Facts),
 	/*(	Facts \= []
 	->	true
 	;	throw_string(['fact missing:', In])),*/
-	facts_vec_sum(Facts, Sum).
+	!facts_vec_sum(Facts, Sum).
 
 facts_vec_sum(Facts, Sum) :-
-	maplist(fact_vec, Facts, Vecs),
-	vec_sum(Vecs, Sum).
+	!maplist(fact_vec, Facts, Vecs),
+	!vec_sum(Vecs, Sum).
 
 
 
@@ -183,7 +183,7 @@ exp_eval(X, X) :-
 
 exp_eval(X, X2) :-
 	X = aspects(_),
-	evaluate_fact2(X,X2).
+	!evaluate_fact2(X,X2).
 
 exp_eval(A + B, C) :-
 	exp_eval(A, A2),
@@ -195,7 +195,8 @@ exp_eval(A - B, C) :-
 	exp_eval(B, B2),
 	vec_sub(A2, B2, C).
 
-exp_eval(A * B, C) :-
+exp_eval(Mul, C) :-
+	Mul = (A * B),
 	exp_eval(A, A2),
 	((rational(B),!);(number(B),!)),
 	{B2 = B * 100},

@@ -331,17 +331,11 @@ extract_exchanged_value(Tx_dom, Bank_dr, Exchanged) :-
 	).
 
 
-extract_s_transactions(Dom, S_Transactions) :-
-	findall(A, xpath(Dom, //reports/balanceSheetRequest/bankStatement/accountDetails, A), As),
-	maplist(extract_s_transactions_from_accountDetails_dom, As, S_Transactions0),
-	flatten(S_Transactions0, S_Transactions1),
-	maplist(invert_s_transaction_vector, S_Transactions1, S_Transactions).
-
 
 invert_s_transaction_vector(T0, T1) :-
-	s_transaction_vector(T0, Vector),
-	vec_inverse(Vector, Vector_Inverted),
-	doc_set_s_transaction_field(vector,T0, Vector_Inverted, T1, invert_s_transaction_vector).
+	!s_transaction_vector(T0, Vector),
+	!vec_inverse(Vector, Vector_Inverted),
+	!doc_set_s_transaction_field(vector,T0, Vector_Inverted, T1, invert_s_transaction_vector).
 
 
 
@@ -370,21 +364,21 @@ handle_additional_file(Bn, S_Transactions) :-
 
 'extract bank statement transactions'(S_Transactions) :-
 	findall(
-		S_Transactions0,
+		Acc,
 		(
-				'extract bank statement transactions2'(S_Transactions0)
+			result_has_property(l:bank_account, Acc),
+			once(doc(Acc, l:raw_items, _))
 		),
-		S_Transactions1
+		Accts
 	),
-	flatten(S_Transactions1, S_Transactions2),
-	maplist(invert_s_transaction_vector, S_Transactions2, S_Transactions).
+	maplist('extract bank statement transactions2', Accts, S_Transactions0),
+	!flatten(S_Transactions0, S_Transactions2),
+	maplist(!invert_s_transaction_vector, S_Transactions2, S_Transactions).
 
-'extract bank statement transactions2'(S_Transactions0) :-
-	result_has_property(l:bank_account, Acc),
-	%gtrace,
-	once(doc(Acc, l:raw_items, Items)),
+'extract bank statement transactions2'(Acc, S_Transactions0) :-
 	!doc(Acc, l:currency, Account_Currency),
 	!doc(Acc, l:name, Account_Name),
+	!doc(Acc, l:raw_items, Items),
 	!maplist('extract bank statement transaction'(Account_Currency, Account_Name), Items, S_Transactions0).
 
 
@@ -393,10 +387,7 @@ handle_additional_file(Bn, S_Transactions) :-
 	push_format('extract bank statement transaction from: ~w', [$>sheet_and_cell_string(Item)]),
 	atom_string(Action_verb_name, $>rpv(Item, bs:transaction_description)),
 	%gtrace,
-	rpv(Item, bs:bank_transaction_date, Date),
-	(	Date = date(_,_,_)
-	->	true
-	;	throw_string('malformed date')),
+	!read_date(Item, bs:bank_transaction_date, Date),
 
 	(doc_value(Item,bs:units_count,Units_count) -> true ; Units_count = nil(nil) ),
 	(doc_value(Item,bs:units_type,Units_type) -> true ; Units_type = nil(nil) ),

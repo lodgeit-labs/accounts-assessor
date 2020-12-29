@@ -76,7 +76,7 @@
 	;	Description3 = ''),
 
 	doc_add_s_transaction(
-		$>rpv(Item, ic:date),
+		$>!read_date(Item, ic:date),
 		$>atom_string(<$, $>rpv(Item, ic:action_verb)),
 		Vector,
 		account_name_ui_string(First_account),
@@ -105,6 +105,7 @@ extract_gl_tx(Sheet_name, Default_Currency, St0, Date0, [Item|Items], Txs) :-
 extract_gl_tx(Sheet_name, Default_Currency, _, _, [Item|Items], [Tx1|Txs]) :-
 	doc_value(Item, ic:date, Date1),
 	Date1 \= "ignore",
+	check_date(Date1),
 	!doc_new_uri(gl_input_st, St1),
 	!doc_add_value(St1, transactions:description, Sheet_name, transactions),
 	!doc_add_value(St1, transactions:gl_input_sheet_item, Item, transactions),
@@ -182,7 +183,7 @@ extract_reallocation_tx(Account_A, Account_A_is, Sheet_name, Default_Currency, _
 	!doc_value(Item, reallocation:date, Date1),
 	Date1 \= "ignore",
 	(	Date1 = date(_,_,_)
-	->	true
+	->	check_date(Date1)
 	;	throw_string([$>sheet_and_cell_string_for_property(Item, reallocation:date), ': error reading date. Got: ', Date1])),
 	!doc_new_uri(gl_input_st, St1),
 	!doc_add_value(St1, transactions:description, Sheet_name, transactions),
