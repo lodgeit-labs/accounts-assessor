@@ -1,0 +1,15 @@
+['../sources/lib/rpc_server.pl'].
+get_time(TS),
+atom_string(TS,TimeStampStr),
+atomic_list_concat(['mkdir -p tmp/', TimeStampStr], OutDirMkdir),
+shell(OutDirMkdir),
+set_prolog_flag(services_server,'http://internal-services:17788'),
+process_request_rpc_cmdline1(
+_{
+method: "calculator",
+params: _{
+server_url:"http://localhost:7755",
+request_files: ["/app/server_root/tmp/last_request/lodgeitrequest.n3"],  result_tmp_directory_name: TimeStampStr,
+request_uri: "http://dev1/", 
+rdf_namespace_base: "http://dev2/",
+rdf_explorer_bases: ["http://dev3/"]}}).

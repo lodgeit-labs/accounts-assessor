@@ -24,7 +24,8 @@ docker run -it \
 		--env SECRET__CELERY_BROKER_URL="amqp://guest:guest@rabbitmq:5672//" \
 		--entrypoint bash \
 		"koo5/internal-workers$argv[1]:latest" \
-		-c "cd /app/server_root/; swipl --debug=true "
+		-c "cd /app/server_root/; swipl $argv[2] "
+		
 
 
 

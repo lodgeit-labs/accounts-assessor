@@ -77,8 +77,8 @@
 			</account>
 		</account>
 		<account name="Equity" role="Equity" normal_side="credit">
-			<account name="Equity_Aggregate_Historical">
-			    <account name="Bank_Opening_Balances"></account>
+			<account name="Equity_Aggregate_Historical" role="Equity_Aggregate_Historical">
+			    <account name="Bank_Opening_Balances" role="Bank_Opening_Balances"></account>
                 <account name="Historical_Earnings" role="Historical_Earnings"></account>
                 <account name="Profit_Attribution_-_Historical"></account>
             </account>

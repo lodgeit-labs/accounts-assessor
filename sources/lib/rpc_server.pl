@@ -2,13 +2,12 @@
 :- use_module('residency', []).
 :- use_module('sbe', []).
 %:- use_module(library(prolog_stack)).
+
 :- ['lib'].
 
-
 :-set_prolog_flag(stack_limit, 10 000 000 000).
-
-
 :- (have_display -> guitracer ; true).
+
 
 /* read command from stdin */
 process_request_rpc_cmdline :-
@@ -43,6 +42,7 @@ process_request_rpc_cmdline2(Dict) :-
 		;(Dict.method == "residency"
 		->	(
 				residency:residency_step(Dict.params, Result),
+
 				json_write(current_output, _{result:Result})
 			)
 		;json_write(current_output, _{error:_{code:0,message:unknown_method}})))

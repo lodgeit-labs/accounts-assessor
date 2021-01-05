@@ -83,6 +83,14 @@ crosschecks_report(Sd, Json) :-
 
 	Smsf_crosschecks = [
 		equality(
+			account_balance(reports/bs/current, 'Equity_Aggregate_Historical'),
+			[]
+		),
+		equality(
+			account_balance(reports/bs/current, 'Bank_Opening_Balances'),
+			[]
+		),
+		equality(
 			fact_value(aspects([concept - smsf/income_tax/'Net Tax refundable/payable'])),
 			fact_value(aspects([concept - smsf/income_tax/reconcilliation/'Net Tax refundable/payable']))),
 		equality(
@@ -198,6 +206,8 @@ evaluate2(Sd, account_balance(Report_Id, Role), Values_List) :-
 
 evaluate2(_, fact_value(Aspects), Values_List) :-
 	evaluate_fact2(Aspects, Values_List).
+
+evaluate2(_, [], []).
 
 entry_normal_side_values(_Sd, Entry, Values_List) :-
 	!report_entry_total_vec(Entry, Balance),

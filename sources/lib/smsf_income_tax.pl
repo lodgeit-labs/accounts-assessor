@@ -379,6 +379,15 @@ smsf_income_tax_reports(reports{report:Tbl1,reconcilliation:Tbl2}) :-
 
 
  smsf_income_tax_txs(Input, Txs0) :-
+
+
+	(	current_prolog_flag(debug, true)
+	->	format(user_error, 'debug is true..\n', [])
+	;	format(user_error, 'debug is false..\n', [])),
+	 trace,
+
+
+
 	!doc_value(Input, excel:has_sheet_name, Sheet_name),
 	!doc_new_uri(income_tax_st, St),
 	!doc_add_value(St, transactions:description, Sheet_name, transactions),
