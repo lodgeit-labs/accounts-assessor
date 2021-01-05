@@ -74,33 +74,27 @@ tbl_add_aspect(Aspect, aspects(Aspects), aspects(Aspects2)) :-
 
 /*
 input: 2d matrix of aspect terms and other stuff.
-replace aspect terms with strings
+replace aspect(..) terms with values
 */
 
  evaluate_fact_table(Pres, Tbl) :-
 	maplist(evaluate_fact_table3, Pres, Tbl).
 
-evaluate_fact_table3(Row_in, Row_out) :-
+ evaluate_fact_table3(Row_in, Row_out) :-
 	maplist(evaluate_fact, Row_in, Row_out).
 
-evaluate_fact(X, X) :-
+ evaluate_fact(X, X) :-
 	X \= aspects(_).
 
-evaluate_fact(In, with_metadata(Values,In)) :-
+ evaluate_fact(In, with_metadata(Values,In)) :-
 	evaluate_fact2(In, Values).
 
-/*
-this relies on there being no intermediate facts asserted.
-*/
-evaluate_fact2(In,Sum) :-
+ evaluate_fact2(In,Sum) :-
 	In = aspects(_),
 	!facts_by_aspects(In, Facts),
-	/*(	Facts \= []
-	->	true
-	;	throw_string(['fact missing:', In])),*/
 	!facts_vec_sum(Facts, Sum).
 
-facts_vec_sum(Facts, Sum) :-
+ facts_vec_sum(Facts, Sum) :-
 	!maplist(fact_vec, Facts, Vecs),
 	!vec_sum(Vecs, Sum).
 
@@ -195,8 +189,7 @@ exp_eval(A - B, C) :-
 	exp_eval(B, B2),
 	vec_sub(A2, B2, C).
 
-exp_eval(Mul, C) :-
-	Mul = (A * B),
+exp_eval(A * B, C) :-
 	exp_eval(A, A2),
 	((rational(B),!);(number(B),!)),
 	{B2 = B * 100},

@@ -282,9 +282,12 @@ report_currency_atom(Report_Currency_List, Report_Currency_Atom) :-
 	).
 
 get_indentation(Level, Indentation) :-
+	get_indentation(Level, ' ', Indentation).
+
+get_indentation(Level, In, Out) :-
 	Level > 0,
 	Level2 is Level - 1,
-	get_indentation(Level2, Indentation2),
-	atomic_list_concat([Indentation2, ' '], Indentation).
+	get_indentation(Level2, In, Out2),
+	atomic_list_concat([Out2, In], Out).
 
-get_indentation(0, ' ').
+get_indentation(0, X, X).

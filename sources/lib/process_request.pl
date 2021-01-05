@@ -162,8 +162,10 @@ process_request2 :-
 	make_json_report(Alerts3, alerts_json),
 	make_alerts_report(Alerts_html),
 	make_doc_dump_report,
-	json_report_entries(Files3),
 
+	make_context_trace_report,
+
+	json_report_entries(Files3),
 	Json_Out = _{alerts:Alerts3, reports:Files3},
 	absolute_tmp_path(loc(file_name,'response.json'), Json_Response_File_Path),
 	dict_json_text(Json_Out, Response_Json_String),
@@ -171,6 +173,19 @@ process_request2 :-
 	writeln(Response_Json_String),
 
 	(make_zip->true;true).
+
+
+make_context_trace_report :-
+	get_context_trace(Trace0),
+	reverse(Trace0,Trace),
+	maplist(make_context_trace_report2,Trace, Html),
+	add_report_page_with_body(10,context_trace, $>flatten([h3([context_trace, ':']), Html]), loc(file_name,'context_trace.html'), context_trace_html).
+
+make_context_trace_report2((Depth, C),div([Stars,Text])) :-
+	% or is that supposed to be atom? i forgot again.
+	get_indentation(Depth, '* ', Stars),
+	context_string2('', C, Text).
+
 
 'make "all files" report entry' :-
 	report_file_path(loc(file_name, ''), Tmp_Dir_Url, _),

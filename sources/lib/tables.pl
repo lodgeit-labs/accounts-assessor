@@ -205,6 +205,11 @@ format_cell(with_metadata(Value, _), Options, Output) :-
 	format_cell(Value, Options, Output),
 	!.
 
+format_cell(with_metadata(Value, _, Uri), Options, span([Output, A) :-
+	format_cell(Value, Options, Output),
+	!,
+	link(Uri, A).
+
 format_cell(value(Unit, Value), Options, Output) :-
 	(	Precision = Options.get(precision)
 	->	true

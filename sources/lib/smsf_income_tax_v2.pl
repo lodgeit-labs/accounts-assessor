@@ -45,7 +45,7 @@
 	],
 
 	Rules1 = [
-		sum($>rows_aspectses(Rows0), aspects([concept - smsf/income_tax/'Rows0'])),
+		aspects([concept - smsf/income_tax/'Rows0']) = sum($>rows_aspectses(Rows0)),
 		make_fact(aspects([concept - smsf/income_tax/'Rows0']))
 	],
 
@@ -77,7 +77,7 @@
 
 		aspects([concept - smsf/income_tax/'subtotal0'])
 		=
-		smsf_income_tax_intermediate__vec_0
+		smsf_income_tax_intermediate__vec_0  ccc
 		-
 		aspects([concept - smsf/income_tax/'Total subtractions'])
 	],
@@ -109,23 +109,24 @@
 	Rules3 = [
 		aspects([concept - smsf/income_tax/'Additions_vec'])
 		=
-		sum($>rows_aspectses(Addition_rows),
+		sum($>rows_aspectses(Addition_rows)),
 
 		make_fact(aspects([concept - smsf/income_tax/'Additions_vec'])),
 
+		aspects([concept - smsf/income_tax/'After_subtractions'])
+		=
 		aspects([concept - smsf/income_tax/'Rows0'])
 		-
-		aspects([concept - smsf/income_tax/'Total subtractions'])
-		=
-		aspects([concept - smsf/income_tax/'After_subtractions']),
+		aspects([concept - smsf/income_tax/'Total subtractions']),
 
 		make_fact(aspects([concept - smsf/income_tax/'After_subtractions'])),
 
+		aspects([concept - smsf/income_tax/'Taxable_income'])
+		=
 		aspects([concept - smsf/income_tax/'After_subtractions'])
 		+
-		aspects([concept - smsf/income_tax/'Additions_vec'])
-		=
-		aspects([concept - smsf/income_tax/'Taxable_income'])
+		aspects([concept - smsf/income_tax/'Additions_vec']),
+
 
 		make_fact(aspects([concept - smsf/income_tax/'Taxable_income'])),
 		make_fact(aspects([concept - smsf/income_tax/'Tax on Taxable Income @ 15%'])),
@@ -179,11 +180,11 @@
 		-
 		aspects([concept - smsf/income_tax/'Subtractions2_vec']),
 
+		aspects([concept - smsf/income_tax/'to pay'])
+		=
 		aspects([concept - smsf/income_tax/'Income_Tax_Payable/(Refund)'])
 		+
-		aspects([concept - smsf/income_tax/'ATO_Supervisory_Levy'])
-		=
-		aspects([concept - smsf/income_tax/'to pay']),
+		aspects([concept - smsf/income_tax/'ATO_Supervisory_Levy']),
 
 		make_fact(aspects([concept - smsf/income_tax/'to pay']))
 	],
@@ -202,7 +203,8 @@
 
 	solve_rules($>append([Rules0, Rules1, Rules2, Rules3, Rules4]),
 
-	!evaluate_fact_table(Rows, Rows_evaluated),
+	/* retrieve values from doc, and display */
+	!v2_evaluate_fact_table(Rows, Rows_evaluated),
 	assertion(ground(Rows_evaluated)),
 	maplist(!label_value_row_to_dict, Rows_evaluated, Row_dicts),
 	Columns = [
@@ -211,25 +213,99 @@
 	Tbl_dict = table{title:"Statement of Taxable Income", columns:Columns, rows:Row_dicts}.
 
 
-solve_rules(Rules) :-
-	!hoist_rules(Rules, Hoisted, Rest),
-	!solve_rules2(Hoisted),
-	!solve_rules2(Rest).
 
-solve_rules2(Rules) :-
+
+
+
+ solve_rules(Rules) :-
+	gtrace,
 	!maplist(solve_rule, Rules).
 
-solve_rule(make_fact(Aspects)) :-
-	!make_fact(_, Aspects).
+ solve_rule(make_fact(_Aspects)) :-
+	true.
 
-solve_rule('='(X, Y)) :-
+ solve_rule('='(X, Y)) :-
+	X = aspects(X_aspects),
+	v2_evaluate(Y, Y_val, Evaluation),
+	make_fact(Y_val, X_aspects, Uri),
+	doc_add(Uri, l:formula, Y),
+	doc_add(Uri, l:evaluation, Evaluation).
+
+ v2_exp_eval(X, X, X) :-
+	is_list(X). % a vector
+
+ v2_exp_eval(X, X2, Uri) :-
+	X = aspects(_),
+	v2_evaluate_fact2(X, X2, Uri).
+
+ v2_exp_eval(sum(Summants), Result, Uri) :-
+	maplist(v2_exp_eval,Summants,Results,Uris),
+	!vec_sum(Results, Result).
+
+
+ v2_exp_eval(Op, C, Uri) :-
+ 	Op =.. [Binop, Arg1, Arg2],
+	v2_exp_eval(A, A2),
+	v2_exp_eval(B, B2),
+	v2_binop(Binop, A2, B2, C),
+	vec_sub(A2, B2, C),
+	doc_new_(l:eval, Uri),
+	doc_add(Uri, l:op1, A2),
+	doc_add(Uri, l:op2, B2),
+	doc_add(Uri, l:result, C).
+
+ v2_binop('+', A2, B2, C),
+	vec_add(A2, B2, C).
+
+ v2_binop('-', A2, B2, C),
+	vec_sub(A2, B2, C).
+
+ v2_exp_eval(A * B, C, Uri) :-
+	v2_exp_eval(A, A2),
+	((rational(B),!);(number(B),!)),
+	{B2 = B * 100},
+	split_vector_by_percent(A2, B2, C, _).
+
+
+
+
 /*
 1) all the rules have to be represented in RDF
 2) we already got the inputs in doc
-
-
-
 */
 
 
+/*
+input: 2d matrix of aspect terms and other stuff.
+replace aspect(..) terms with values
+*/
 
+ v2_evaluate_fact_table(Pres, Tbl) :-
+	maplist(v2_evaluate_fact_table3, Pres, Tbl).
+
+ v2_evaluate_fact_table3(Row_in, Row_out) :-
+	maplist(v2_evaluate_fact, Row_in, Row_out).
+
+ v2_evaluate_fact(X, X) :-
+	X \= aspects(_).
+
+ v2_evaluate_fact(In, with_metadata(Values,In,Uri)) :-
+	v2_evaluate_fact2(In, Values, Uri).
+
+ v2_evaluate_fact2(In,Sum, Uri) :-
+	In = aspects(_),
+	!facts_by_aspects(In, Facts),
+	!v2_facts_vec_sum(Facts, Sum),
+ 	doc_new_(l:fact_evaluation, Uri),
+ 	doc_add(Uri, l:filter, In),
+ 	doc_add(Uri, l:facts, Facts),
+ 	doc_add(Uri, l:sum, Sum).
+
+ v2_facts_vec_sum(Facts, Sum) :-
+	!maplist(fact_vec, Facts, Vecs),
+	!vec_sum(Vecs, Sum).
+
+
+
+
+	/* keep in mind the semantics of facts. A fact with given aspects represents a real-world value. From this follows that: Every fact has a unique aspect set.*/

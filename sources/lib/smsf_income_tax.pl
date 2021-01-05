@@ -27,14 +27,14 @@ process_ato_supervisory_levy(Input, Txs) :-
 		aspects([concept - smsf/income_tax/'ATO_Supervisory_Levy']),
 		_),
 	vector_of_coords_vs_vector_of_values(kb:debit, Levy_vec, $>!evaluate_fact2(aspects([concept - smsf/income_tax/'ATO_Supervisory_Levy']))),
-	!make_dr_cr_transactions(
+	!c(make_dr_cr_transactions(
 		St,
 		$>result_has_property(l:end_date),
 		Sheet_name,
 		$>abrlt('ATO_Supervisory_Levy'),
 		$>abrlt('Income_Tax_Payable'),
 		Levy_vec,
-		Txs).
+		Txs)).
 
  add_smsf_income_tax_report_facts(Json_reports) :-
 	Aspectses = [
@@ -381,11 +381,10 @@ smsf_income_tax_reports(reports{report:Tbl1,reconcilliation:Tbl2}) :-
  smsf_income_tax_txs(Input, Txs0) :-
 
 
-	(	current_prolog_flag(debug, true)
+/****	(	current_prolog_flag(debug, true)
 	->	format(user_error, 'debug is true..\n', [])
 	;	format(user_error, 'debug is false..\n', [])),
-	 trace,
-
+*/
 
 
 	!doc_value(Input, excel:has_sheet_name, Sheet_name),

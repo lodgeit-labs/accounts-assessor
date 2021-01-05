@@ -208,3 +208,8 @@ print_q(Q) :-
 
 
 
+
+
+/*
+yup it *is*, in the usual case, gonna work even with vector arithmetic. Thanks to correctly postponing the calling of queries with too many parameters unbound, it's always gonna follow from known values to unknown values, so at every point, the structure of the vectors is gonna be known.
+*/
