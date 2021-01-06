@@ -128,7 +128,7 @@ extract_gl_tx(Sheet_name, Default_Currency, _, _, [Item|Items], [Tx1|Txs]) :-
 	append(Debit_Vector, Credit_Vector, Vector),
 	!gl_entry_account_specifier_parameters(Item, Parameters),
 	!cf(find_account_by_specification(Account_String, Parameters, Account)),
-	!c(make_transaction(St, Date, Description, Account, Vector, Tx)),
+	(make_transaction(St, Date, Description, Account, Vector, Tx)),
 	pop_context.
 
 
@@ -205,7 +205,7 @@ reallocation_make_account_a_tx(Sheet_name, Default_Currency, Account_A, Account_
 	->	true
 	;	Description = Sheet_name),
 	!reallocation_amount_vector(Default_Currency, Account_A_is, Item, Vector),
-	!c(make_transaction(St, Date, Description, Account_A, Vector, Tx)).
+	(make_transaction(St, Date, Description, Account_A, Vector, Tx)).
 
  parametrized_account_from_prop(Item, Pred, Account) :-
  	(	doc(Item, Pred, Account_String)
@@ -232,7 +232,7 @@ reallocation_make_account_a_tx(Sheet_name, Default_Currency, Account_A, Account_
 	;	Description = Sheet_name),
 	!reallocation_amount_vector(Default_Currency, Account_A_is, Item, Vector0),
 	!vec_inverse(Vector0, Vector),
-	!c(make_transaction(St, Date, Description, Account, Vector, Tx)),
+	(make_transaction(St, Date, Description, Account, Vector, Tx)),
 	pop_context.
 
 

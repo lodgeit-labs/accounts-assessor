@@ -103,6 +103,9 @@ crosschecks_report(Sd, Json) :-
 			account_balance(reports/pl/current, 'Distribution_Revenue'/Unit/'Resolved_Accrual'),
 			fact_value(aspects([concept - ($>rdf_global_id(smsf_distribution_ui:accrual))]))),
 		equality(
+			account_balance(reports/pl/current, 'Distribution_Revenue'/Unit/'Distribution_Cash'),
+			fact_value(aspects([concept - ($>rdf_global_id(smsf_distribution_ui:bank))]))),
+		equality(
 			account_balance(reports/pl/current, 'Distribution_Revenue'/Unit/'Foreign_Credit'),
 			fact_value(aspects([concept - ($>rdf_global_id(smsf_distribution_ui:foreign_credit))]))),
 		equality(

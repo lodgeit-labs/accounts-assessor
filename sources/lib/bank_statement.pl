@@ -223,7 +223,7 @@ make_buy(Static_Data, St, Trading_Account, Pricing_Method, Bank_Account_Currency
 		)
 	;	Goods_Vector2 = Goods_Vector),
 
-	cf(make_transaction(St, Transaction_Date, Description, Exchanged_Account2, Goods_Vector2, Ts1)),
+	(make_transaction(St, Transaction_Date, Description, Exchanged_Account2, Goods_Vector2, Ts1)),
 
 	%[coord(Goods_Unit_Maybe_With_Cost,_)] = Goods_Vector2,
 

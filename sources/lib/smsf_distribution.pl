@@ -479,8 +479,8 @@ smsf_distribution_tx(Default_currency, Date, Item, Dist, Txs) :-
 			!doc_add_value(St, transactions:description, Desc, transactions),
 			!doc_add_value(St, transactions:input_sheet_item, Item, transactions),
 			Txs = [
-				($>c(make_transaction(St, Date, Desc, $>!abrlt(A), VectorA))),
-				($>c(make_transaction(St, Date, Desc, $>!abrlt(B), VectorB)))
+				($>(make_transaction(St, Date, Desc, $>!abrlt(A), VectorA))),
+				($>(make_transaction(St, Date, Desc, $>!abrlt(B), VectorB)))
 			]
 		)
 	;	Txs = []).

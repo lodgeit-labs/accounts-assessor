@@ -312,7 +312,7 @@ dr_cr_table_line_to_tx(Description, Order_Hint, Line, Tx) :-
 txs_to_transactions(St, Transaction_Day, Txs, Ts) :-
 	flatten([Txs], Txs2),
 	exclude(var, Txs2, Txs3),
-	maplist(tx_to_transaction(St, Transaction_Day), Txs3, Ts).
+	maplist(!tx_to_transaction(St, Transaction_Day), Txs3, Ts).
 
 tx_to_transaction(St, Day, Tx, Transaction) :-
 	Tx = tx{comment: Comment, comment2: Comment2, account: Account, vector: Vector},
@@ -323,7 +323,7 @@ tx_to_transaction(St, Day, Tx, Transaction) :-
 	flatten(['comment:', Comment, ', comment2:', Comment2], Description0),
 	atomic_list_concat(Description0, Description),
 	flatten(Vector, Vector_Flattened),
-	c(make_transaction2(St, Day, Description, Account, Vector_Flattened, '?', Transaction)).
+	(!make_transaction2(St, Day, Description, Account, Vector_Flattened, '?', Transaction)).
 	
 
 

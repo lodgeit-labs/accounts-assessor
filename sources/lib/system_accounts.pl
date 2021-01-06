@@ -253,6 +253,7 @@ subcategorize_distribution_received :-
 
 subcategorize_distribution_received2(A) :-
 	maplist(subcategorize_distribution_received4(A), [
+		'Distribution_Cash',
 		'Resolved_Accrual',
 		'Foreign_Credit',
 		'Franking_Credit',

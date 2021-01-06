@@ -23,6 +23,7 @@ transaction_field(T, F, X) :-
 */
 
  make_transaction2(Origin, Date, Description, Account, Vector, Type, Uri) :-
+ 	push_format('make_transaction2: ~q ~q ~q ~q', [Date, Description, $>account_name(Account), Vector]),
  	Date = date(_,_,_),
 	flatten([Description], Description_Flat),
 	atomic_list_concat(Description_Flat, Description_Str),
@@ -33,10 +34,11 @@ transaction_field(T, F, X) :-
 	doc_add(Uri, transactions:account, Account, transactions),
 	doc_add(Uri, transactions:vector, Vector, transactions),
 	doc_add(Uri, transactions:type, Type, transactions),
-	doc_add(Uri, transactions:origin, Origin, transactions).
+	doc_add(Uri, transactions:origin, Origin, transactions),
+	pop_context.
 
  make_transaction(Origin, Date, Description, Account, Vector, Uri) :-
-	make_transaction2(Origin, Date, Description, Account, Vector, instant, Uri).
+	!make_transaction2(Origin, Date, Description, Account, Vector, instant, Uri).
 
 
 make_dr_cr_transactions(
