@@ -243,7 +243,7 @@ in Assets
 		account_parent(Uri, Parent)
 	)
 	->	true
-	;	make_account_with_optional_role(Name, Parent, 1, _Role, Uri).
+	;	c(make_account_with_optional_role(Name, Parent, 1, _Role, Uri)).
 
 %------
 

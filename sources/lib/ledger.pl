@@ -31,7 +31,7 @@
 	!cf(extract_smsf_distribution(Smsf_distribution_txs)),
 
 	dict_from_vars(Static_Data0, [Report_Currency, Start_Date, End_Date, Exchange_Rates, Cost_Or_Market]),
-	!cf('pre-preprocess source trannsactions'(Static_Data0, S_Transactions, Prepreprocessed_S_Transactions)),
+	!cf('pre-preprocess source transactions'(Static_Data0, S_Transactions, Prepreprocessed_S_Transactions)),
 
 	!cf(preprocess_until_error(Static_Data0, Prepreprocessed_S_Transactions, Processed_S_Transactions, Transactions_From_Bst, Outstanding_Out, End_Date, Processed_Until)),
 

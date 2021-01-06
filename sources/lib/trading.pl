@@ -323,7 +323,7 @@ tx_to_transaction(St, Day, Tx, Transaction) :-
 	flatten(['comment:', Comment, ', comment2:', Comment2], Description0),
 	atomic_list_concat(Description0, Description),
 	flatten(Vector, Vector_Flattened),
-	make_transaction2(St, Day, Description, Account, Vector_Flattened, '?', Transaction).
+	c(make_transaction2(St, Day, Description, Account, Vector_Flattened, '?', Transaction)).
 	
 
 

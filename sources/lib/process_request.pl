@@ -181,7 +181,7 @@ make_context_trace_report :-
 	maplist(make_context_trace_report2,Trace, Html),
 	add_report_page_with_body(10,context_trace, $>flatten([h3([context_trace, ':']), Html]), loc(file_name,'context_trace.html'), context_trace_html).
 
-make_context_trace_report2((Depth, C),div([Stars,Text])) :-
+make_context_trace_report2((Depth, C),div(["-",Stars,Text])) :-
 	% or is that supposed to be atom? i forgot again.
 	get_indentation(Depth, '* ', Stars),
 	context_string2('', C, Text).

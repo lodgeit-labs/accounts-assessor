@@ -204,8 +204,12 @@ format_cell([X|Xs], Options, [Output1, Output2]) :-
 format_cell(with_metadata(Value, _), Options, Output) :-
 	format_cell(Value, Options, Output),
 	!.
-
-format_cell(with_metadata(Value, _, Uri), Options, span([Output, A) :-
+/*
+format_cell(with_metadata(Value, _, _Uri), Options, Output) :-
+	format_cell(Value, Options, Output),
+	!.
+*/
+format_cell(with_metadata(Value, _, Uri), Options, [Output, A]) :-
 	format_cell(Value, Options, Output),
 	!,
 	link(Uri, A).

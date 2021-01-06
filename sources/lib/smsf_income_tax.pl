@@ -9,7 +9,7 @@
 			Json_reports = _{before_smsf_income_tax:Sr0},
 			!cf(add_smsf_income_tax_report_facts(Json_reports)),
 			!cf('check that Income_Tax_Expenses are zero'),
-			!cf(smsf_income_tax_reports(_)),
+			!cf(smsf_income_tax_reports_v2(_)),
 			!cf(smsf_income_tax_txs(Input, Tax_expense_txs)),
 			!flatten([Ato_levy_txs,Tax_expense_txs], Txs)
 		)

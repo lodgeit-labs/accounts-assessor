@@ -163,7 +163,7 @@ s_transactions_up_to(End_Date, S_Transactions_All, S_Transactions_Capped) :-
 		exchanged: Exchanged,
 		misc: Misc}.
 
- 'pre-preprocess source trannsactions'(Static_Data, In, Out) :-
+ 'pre-preprocess source transactions'(Static_Data, In, Out) :-
 	/*
 	at this point:
 	s_transactions are sorted by date from oldest to newest
