@@ -1,0 +1,20 @@
+stuff:Execution_context_trace has_default_view :execution_context_tree_view1.
+
+:execution_context_tree_view1 has_component base:TreeView.
+
+base:TreeView rdfs:comment "maybe hackery2/data/svelte/tree1/test1, but maybe there's some widget framework out there that's also keyboard friendly?".
+
+'execution context data to tree view data'(E, T) :-
+	'execution context data to tree view data'(Children, Ch2),
+	E = item(Text, Children),
+	T = {'value': Text, 'children': Ch2).
+
+'execution context data to tree view data'(E, T) :-
+	/*'execution context data to tree view data'(Children, Ch2),
+	E = [X|,
+	T  {'value': Text, 'children': Ch2).*/
+	writeq(E,T).
+	 
+
+
+
