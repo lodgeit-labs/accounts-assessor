@@ -1,6 +1,7 @@
 
 % EFFECTS: write profit & loss report html
 report_entry_tree_html_page(
+	Report_prefix,
 	Static_Data,
 	Root_entry,
 	Title,
@@ -15,7 +16,7 @@ report_entry_tree_html_page(
 	Header = tr([th('Account'), th(['Balance', Report_Currency_Atom])]),
 	flatten([Header, Report_Table_Data], Tbl),
 	Id = Filename,
-	add_report_page_with_table(0, Title_Text, Tbl, loc(file_name,Filename), Id).
+	add_report_page_with_table(0, Title_Text, Tbl, loc(file_name,$>atomic_list_concat([Report_prefix, Filename])), Id).
 		
 % EFFECTS: write cashflow.html
 cf_page(

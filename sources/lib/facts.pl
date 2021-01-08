@@ -3,10 +3,12 @@ mock_request :-
 	doc_init.
 */
  make_fact(Vec, Aspects, Uri) :-
+ 	push_format('~q = ~q', [Aspects, $>round_term(Vec)]),
 	!doc_new_uri(fact, Uri),
 	!doc_add(Uri, rdf:type, l:fact),
 	!doc_add(Uri, l:vec, $>flatten([Vec])),
-	!doc_add(Uri, l:aspects, Aspects).
+	!doc_add(Uri, l:aspects, Aspects),
+	pop_context.
 
  make_fact(Vec, Aspects) :-
 	make_fact(Vec, Aspects, _).

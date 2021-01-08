@@ -6,6 +6,8 @@
 			!cf(process_ato_supervisory_levy(Input, Ato_levy_txs)),
 			!update_static_data_with_transactions(Static_Data0,	Ato_levy_txs, Static_Data1),
 			!balance_entries(Static_Data1, Sr0),
+			!cf(other_reports2(before_smsf_income_tax_, Static_Data1, Sr0)),
+
 			Json_reports = _{before_smsf_income_tax:Sr0},
 			!cf(add_smsf_income_tax_report_facts(Json_reports)),
 			!cf('check that Income_Tax_Expenses are zero'),

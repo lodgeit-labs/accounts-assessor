@@ -85,8 +85,8 @@ process_request_ledger2((Start_Date, End_Date, Output_Dimensional_Facts, Cost_Or
 				Static_Data2)
 		)
 	;	Static_Data2 = Static_Data1),
-	check_trial_balance2(Exchange_Rates, Static_Data2.transactions_by_account, Report_Currency, Static_Data2.end_date, Start_Date, Static_Data2.end_date),
-	once(!create_reports(Static_Data2, Structured_Reports)).
+	cf(check_trial_balance2(Exchange_Rates, Static_Data2.transactions_by_account, Report_Currency, Static_Data2.end_date, Start_Date, Static_Data2.end_date)),
+	once(!cf(create_reports(Static_Data2, Structured_Reports))).
 
 
 update_static_data_with_transactions(In, Txs, Out) :-
@@ -130,7 +130,7 @@ balance_entries(
 	Structured_Reports
 ) :-
 	static_data_historical(Static_Data, Static_Data_Historical),
-	maplist(!cf(check_transaction_account), Static_Data.transactions),
+	maplist(!(check_transaction_account), Static_Data.transactions),
 	/* sum up the coords of all transactions for each account and apply unit conversions */
 	!cf(trial_balance_between(Static_Data.exchange_rates, Static_Data.transactions_by_account, Static_Data.report_currency, Static_Data.end_date, Static_Data.start_date, Static_Data.end_date, Trial_Balance)),
 	!cf(balance_sheet_at(Static_Data, Balance_Sheet)),
@@ -169,15 +169,7 @@ static_data_historical(Static_Data, Static_Data_Historical) :-
 	Sr0,
 	Sr5				% Structured Reports - Dict <Report Abbr : _>
 ) :-
-	!static_data_historical(Static_Data, Static_Data_Historical),
-	(	account_by_role(rl(smsf_equity), _)
-	->	cf(smsf_member_reports(Sr0))
-	;	true),
-	!report_entry_tree_html_page(Static_Data, Sr0.bs.current, 'balance sheet', 'balance_sheet.html'),
-	!report_entry_tree_html_page(Static_Data, Sr0.bs.delta, 'balance sheet delta', 'balance_sheet_delta.html'),
-	!report_entry_tree_html_page(Static_Data_Historical, Sr0.bs.historical, 'balance sheet - historical', 'balance_sheet_historical.html'),
-	!report_entry_tree_html_page(Static_Data, Sr0.pl.current, 'profit and loss', 'profit_and_loss.html'),
-	!report_entry_tree_html_page(Static_Data_Historical, Sr0.pl.historical, 'profit and loss - historical', 'profit_and_loss_historical.html'),
+	other_reports2('', Static_Data, Sr0),
 	!cf(cf_page(Static_Data, Sr0.cf)),
 
 	!cf('export GL'(Static_Data, Static_Data.transactions, Gl)),
@@ -190,6 +182,19 @@ static_data_historical(Static_Data, Static_Data_Historical) :-
 	!cf(crosschecks_report0(Static_Data.put(reports, Sr1), Crosschecks_Report_Json)),
 	Sr5 = Sr1.put(crosschecks, Crosschecks_Report_Json),
 	!make_json_report(Sr1, reports_json).
+
+
+other_reports2(Report_prefix, Static_Data, Sr0) :-
+	!static_data_historical(Static_Data, Static_Data_Historical),
+	(	account_by_role(rl(smsf_equity), _)
+	->	cf(smsf_member_reports(Report_prefix, Sr0))
+	;	true),
+	!report_entry_tree_html_page(Report_prefix, Static_Data, Sr0.bs.current, 'balance sheet', 'balance_sheet.html'),
+	!report_entry_tree_html_page(Report_prefix, Static_Data, Sr0.bs.delta, 'balance sheet delta', 'balance_sheet_delta.html'),
+	!report_entry_tree_html_page(Report_prefix, Static_Data_Historical, Sr0.bs.historical, 'balance sheet - historical', 'balance_sheet_historical.html'),
+	!report_entry_tree_html_page(Report_prefix, Static_Data, Sr0.pl.current, 'profit and loss', 'profit_and_loss.html'),
+	!report_entry_tree_html_page(Report_prefix, Static_Data_Historical, Sr0.pl.historical, 'profit and loss - historical', 'profit_and_loss_historical.html').
+
 
 
 make_gl_viewer_report :-

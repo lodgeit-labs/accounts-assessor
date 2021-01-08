@@ -1,11 +1,11 @@
 
-smsf_member_reports(Json_reports) :-
+ smsf_member_reports(Report_prefix,Json_reports) :-
 	!smsf_members_throw(Members),
 	Json_reports2 = _{final:Json_reports},
-	!maplist(!smsf_member_report(Json_reports2), Members, _Json).
+	!maplist(!smsf_member_report(Report_prefix,Json_reports2), Members, _Json).
 
 
- smsf_member_report(Json_reports, Member_uri, _{overview:Tbl1, details:Tbl2}) :-
+ smsf_member_report(Report_prefix,Json_reports, Member_uri, _{overview:Tbl1, details:Tbl2}) :-
 	!doc_value(Member_uri, smsf:member_name, Member_Name_str),
 	!atom_string(Member_atom, Member_Name_str),
 	!smsf_member_details_report(Json_reports, Member_atom, Tbl2),
@@ -20,7 +20,7 @@ smsf_member_reports(Json_reports) :-
 		0,
 		Member_Name_str,
 		Html,
-		loc(file_name, $>atomic_list_concat([$>replace_nonalphanum_chars_with_underscore(Member_Name_str), '.html'])),
+		loc(file_name, $>atomic_list_concat([Report_prefix, smsf_member_, $>replace_nonalphanum_chars_with_underscore(Member_Name_str), '.html'])),
 		'smsf_member_report'
 	).
 

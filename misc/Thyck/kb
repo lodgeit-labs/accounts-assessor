@@ -18,3 +18,10 @@ base:TreeView rdfs:comment "maybe hackery2/data/svelte/tree1/test1, but maybe th
 
 
 
+
+
+....
+
+stuff:Execution_context_trace has_default_hideset_value [].
+
+has_default_hideset_value rdfs:comment "exact list of items that will be collapsed by default".

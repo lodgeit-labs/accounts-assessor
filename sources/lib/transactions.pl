@@ -23,7 +23,7 @@ transaction_field(T, F, X) :-
 */
 
  make_transaction2(Origin, Date, Description, Account, Vector, Type, Uri) :-
- 	push_format('make_transaction2: ~q ~q ~q ~q', [Date, Description, $>account_name(Account), Vector]),
+ 	push_format('make_transaction2: ~q ~q ~q ~q', [Date, Description, $>account_name(Account), $>round_term(Vector)]),
  	Date = date(_,_,_),
 	flatten([Description], Description_Flat),
 	atomic_list_concat(Description_Flat, Description_Str),
