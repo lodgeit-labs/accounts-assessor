@@ -3,6 +3,7 @@
 	!request_data(Rd),
 	(	doc(Rd, smsf:income_tax_info, Input)
 	->	(
+
 			!cf(process_ato_supervisory_levy(Input, Ato_levy_txs)),
 			!update_static_data_with_transactions(Static_Data0,	Ato_levy_txs, Static_Data1),
 			!balance_entries(Static_Data1, Sr0),
@@ -381,14 +382,6 @@ smsf_income_tax_reports(reports{report:Tbl1,reconcilliation:Tbl2}) :-
 
 
  smsf_income_tax_txs(Input, Txs0) :-
-
-
-/****	(	current_prolog_flag(debug, true)
-	->	format(user_error, 'debug is true..\n', [])
-	;	format(user_error, 'debug is false..\n', [])),
-*/
-
-
 	!doc_value(Input, excel:has_sheet_name, Sheet_name),
 	!doc_new_uri(income_tax_st, St),
 	!doc_add_value(St, transactions:description, Sheet_name, transactions),

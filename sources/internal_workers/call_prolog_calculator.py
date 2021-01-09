@@ -4,6 +4,7 @@ sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../com
 from tmp_dir_path import get_tmp_directory_absolute_path
 
 def call_prolog_calculator(celery_app, final_result_tmp_directory_name, server_url, request_tmp_directory_name, request_files, timeout_seconds=0, **kwargs):
+
 	msg = {	"method": "calculator",
 			"params": {
 				"server_url": server_url,

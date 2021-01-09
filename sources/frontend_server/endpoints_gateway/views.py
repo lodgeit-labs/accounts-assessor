@@ -72,7 +72,9 @@ def upload(request):
 
 			if 'only_store' in request.POST:
 				return render(request, 'uploaded_files.html', {
-					'files': [tmp_file_url(server_url, request_tmp_directory_name, f) for f in directory_files(request_tmp_directory_path)]})
+					'files': [tmp_file_url(server_url, request_tmp_directory_name, f) for f in
+							  directory_files(request_tmp_directory_path)]})
+
 
 			final_result_tmp_directory_name, final_result_tmp_directory_path = create_tmp()
 			try:

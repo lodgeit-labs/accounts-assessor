@@ -87,16 +87,29 @@
                 <account name="Profit_Attribution"></account>
     		</account>
 			<account name="Members" role="smsf_equity">
-				<account name="Opening_Balance_-_Preserved/Taxable"/>
-				<account name="Opening_Balance_-_Preserved/Tax-Free"/>
-				<account name="Opening_Balance_-_Unrestricted_Non_Preserved/Taxable"/>
-				<account name="Opening_Balance_-_Unrestricted_Non_Preserved/Tax-Free"/>
-				<account name="Opening_Balance_-_Restricted_Non_Preserved/Taxable"/>
-				<account name="Opening_Balance_-_Restricted_Non_Preserved/Tax-Free"/>
+				<account name="Opening_Balance" role="smsf_equity_Opening_Balance"/>
+					<account name="Opening_Balance_-_Preserved/Taxable"
+					 role="smsf_equity!Opening_Balance!Preserved!Taxable"/>
+					<account name="Opening_Balance_-_Preserved/Tax-Free"
+					 role="smsf_equity!Opening_Balance!Preserved!Tax-Free"/>
+					<account name="Opening_Balance_-_Unrestricted_Non_Preserved/Taxable"
+					 role="smsf_equity!Opening_Balance!Unrestricted!Taxable"/>
+					<account name="Opening_Balance_-_Unrestricted_Non_Preserved/Tax-Free"
+					 role="smsf_equity!Opening_Balance!Unrestricted!Tax-Free"/>
+					<account name="Opening_Balance_-_Restricted_Non_Preserved/Taxable"
+					 role="smsf_equity!Opening_Balance!Restricted!Taxable"/>
+					<account name="Opening_Balance_-_Restricted_Non_Preserved/Tax-Free"
+					 role="smsf_equity!Opening_Balance!Restricted!Tax-Free"/>
+				</role>
+
+					role="smsf_equity!Opening_Balance!Restricted!Tax-Free"
+
 				<account name="Employer_Contributions_-_Concessional"/>
 				<account name="Member/Personal_Contributions_-_Concessional"/>
 				<account name="Member/Personal_Contributions_-_Non_Concessional"/>
+
 				<account name="Other_Contributions"/>
+
 				<account name="Transfers_In_-_Preserved/Taxable"/>
 				<account name="Transfers_In_-_Preserved/Tax-Free"/>
 				<account name="Transfers_In_-_Unrestricted_Non_Preserved/Taxable"/>
