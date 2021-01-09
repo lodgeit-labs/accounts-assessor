@@ -67,6 +67,25 @@ services:
     ports:
       - 55${PP}:5555
 
+  apache:
+    image: koo5/apache${PP}:latest
+    networks:
+      - frontend
+    deploy:
+      replicas: 1
+      update_config:
+        parallelism: 2
+        delay: 10s
+      restart_policy:
+        condition: any
+    volumes:
+      - "/etc/localtime:/etc/localtime:ro"
+      - tmp:/usr/local/apache2/htdocs/tmp/
+      - ./../sources/static/:/usr/local/apache2/htdocs/static/
+    ports:
+      - 80${PP}:80
+      - 443${PP}:443
+
   frontend-server:
     image: koo5/frontend-server${PP}:latest
     environment:

@@ -47,6 +47,24 @@ services:
       tmpfs:
         size: 2096000000
       type: tmpfs
+  apache:
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: any
+      update_config:
+        delay: 10s
+        parallelism: 2
+    image: koo5/apache${PP}:latest
+    networks:
+    - frontend
+    ports:
+    - 80${PP}:80
+    - 443${PP}:443
+    volumes:
+    - /etc/localtime:/etc/localtime:ro
+    - tmp:/usr/local/apache2/htdocs/tmp/
+    - ./../sources/static/:/usr/local/apache2/htdocs/static/
   flower:
     deploy:
       replicas: 1
