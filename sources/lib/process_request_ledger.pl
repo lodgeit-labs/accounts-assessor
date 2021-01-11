@@ -17,37 +17,16 @@ process_request_ledger :-
 	!cf(extract_action_inputs(Action_input_sts)),
 	!flatten([Bank_Lump_STs, S_Transactions0,S_Transactions1b, Action_input_sts], S_Transactions2),
 	!sort_s_transactions(S_Transactions2, S_Transactions),
-
-	/* you may find useful:*/
+	!cf(extract_exchange_rates(Cost_Or_Market, S_Transactions, Exchange_Rates)),
 	%profile(
-	!process_request_ledger2(Data, S_Transactions, _, _Transactions)
-	%),gtrace
-	,
-	/* or you may find useful:*/
-	%process_request_ledger_debug(Dom, S_Transactions),
+	!process_request_ledger2(Data, S_Transactions, _, _),
+	%),
 	true.
-
-/* a little debugging facitliy that tries processing s_transactions one by one until it runs into an error */
-process_request_ledger_debug(Data, S_Transactions0) :-
-	findall(Count, ggg(Data, S_Transactions0, Count), Counts), writeq(Counts).
-
-ggg(Data, S_Transactions0, Count) :-
-	Count = 20000,
-	%between(100, $>length(S_Transactions0), Count),
-	take(S_Transactions0, Count, STs),
-	format(user_error, 'total s_transactions: ~q~n', [$>length(S_Transactions0)]),
-	format(user_error, '~q: ~q ~n ~n', [$>length(STs), $>last(STs)]),
-	profile(once(process_request_ledger2(Data, STs, _Structured_Reports, _))).
-	/*length(Structured_Reports.crosschecks.errors, L),
-	(	L \= 2
-	->	true
-	;	(g trace,format(user_error, '~q: ~q ~n', [Count, Structured_Reports.crosschecks.errors]))).*/
 
 process_request_ledger2((Start_Date, End_Date, Output_Dimensional_Facts, Cost_Or_Market, Report_Currency),   S_Transactions, Structured_Reports, Transactions) :-
 	%request(Request),
 	%doc_add(Request, l:kind, l:ledger_request),
 	%!cf(extract_livestock_data_from_ledger_request(Dom)),
-	!cf(extract_exchange_rates(Cost_Or_Market, S_Transactions, Exchange_Rates)),
 	%!cf(extract_invoices_payable(Dom)),
 	!process_ledger(
 		Cost_Or_Market,
@@ -324,3 +303,19 @@ update: instead of passing json around, we should focus on doc-izing everything.
 */
 
 
+
+/* a little debugging facitliy that tries processing s_transactions one by one until it runs into an error */
+ process_request_ledger_debug(Data, S_Transactions0) :-
+	findall(Count, ggg(Data, S_Transactions0, Count), Counts), writeq(Counts).
+
+ ggg(Data, S_Transactions0, Count) :-
+	Count = 20000,
+	%between(100, $>length(S_Transactions0), Count),
+	take(S_Transactions0, Count, STs),
+	format(user_error, 'total s_transactions: ~q~n', [$>length(S_Transactions0)]),
+	format(user_error, '~q: ~q ~n ~n', [$>length(STs), $>last(STs)]),
+	profile(once(process_request_ledger2(Data, STs, _Structured_Reports, _))).
+	/*length(Structured_Reports.crosschecks.errors, L),
+	(	L \= 2
+	->	true
+	;	(g trace,format(user_error, '~q: ~q ~n', [Count, Structured_Reports.crosschecks.errors]))).*/
