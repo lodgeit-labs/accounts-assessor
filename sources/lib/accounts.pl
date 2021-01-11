@@ -27,7 +27,7 @@ each account hierarchy can come with a default set of associations
 :- use_module(library(http/http_dispatch)).
 :- use_module(library(http/http_open)).
 
-make_account_with_optional_role(Id, Parent, Detail_Level, Role, Uri) :-
+ make_account_with_optional_role(Id, Parent, Detail_Level, Role, Uri) :-
 	assertion(Role = rl(_)),
 	make_account3(Id, Detail_Level, Uri),
 	(	nonvar(Role)
@@ -35,16 +35,16 @@ make_account_with_optional_role(Id, Parent, Detail_Level, Role, Uri) :-
 	;	true),
 	doc_add(Uri, accounts:parent, Parent, accounts).
 
-make_account(Id, Parent, Detail_Level, Role, Uri) :-
+ make_account(Id, Parent, Detail_Level, Role, Uri) :-
 	make_account2(Id, Detail_Level, Role, Uri),
 	doc_add(Uri, accounts:parent, Parent, accounts).
 
-make_account2(Id, Detail_Level, Role, Uri) :-
+ make_account2(Id, Detail_Level, Role, Uri) :-
 	assertion(Role = rl(_)),
 	make_account3(Id, Detail_Level, Uri),
 	doc_add(Uri, accounts:role, Role, accounts).
 
-make_account3(Id, Detail_Level, Uri) :-
+ make_account3(Id, Detail_Level, Uri) :-
 	doc_new_uri($>atomic_list_concat(['accounts_', Id]), Uri),
 	doc_add(Uri, rdf:type, l:account, accounts),
 	doc_add(Uri, accounts:name, Id, accounts),
@@ -55,18 +55,18 @@ make_account3(Id, Detail_Level, Uri) :-
 
 
 
-account_name(Uri, X) :-
+ account_name(Uri, X) :-
 	doc(Uri, accounts:name, X, accounts).
-account_parent(Uri, X) :-
+ account_parent(Uri, X) :-
 	doc(Uri, accounts:parent, X, accounts).
-account_role(Uri, X) :-
+ account_role(Uri, X) :-
 	assertion(X = rl(_)),
 	doc(Uri, accounts:role, X, accounts),
 	assertion(X = rl(_)).
-account_detail_level(Uri, X) :-
+ account_detail_level(Uri, X) :-
 	/* 0 for normal xbrl facts, 1 for points in xbrl dimensions */
 	doc(Uri, accounts:detail_level, X, accounts).
-account_normal_side(Uri, X) :-
+ account_normal_side(Uri, X) :-
 	doc(Uri, accounts:normal_side, X, accounts).
 
 
@@ -83,11 +83,11 @@ find account by user's string (by name)
 		->	true
 		;	(throw_string(['multiple accounts with same name found: "', X, '"'])))).
 
-all_accounts(Accounts) :-
+ all_accounts(Accounts) :-
 	result_accounts(As),
 	findall(A, docm(As, l:has_account, A), Accounts).
 
-account_by_name_exists(Name) :-
+ account_by_name_exists(Name) :-
 	result_accounts(As),
 	once(
 		(
@@ -98,17 +98,17 @@ account_by_name_exists(Name) :-
 
 % Relates an account to an ancestral account or itself
 %:- table account_in_set/3.
-account_in_set(Account, Account).
+ account_in_set(Account, Account).
 
-account_in_set(Account, Root_Account) :-
+ account_in_set(Account, Root_Account) :-
 	account_parent(Child_Account, Root_Account),
 	account_in_set(Account, Child_Account).
 
-account_direct_children(Parent, Children) :-
-	findall(Child, account_parent(Child, Parent), Children).
+ account_direct_children(Parent, Children) :-
+	findall(Child, (account_parent(Child, Parent)), Children).
 
-account_descendants(Account, Descendants) :-
-	findall(X, account_descendant(Account, X), Descendants).
+ account_descendants(Account, Descendants) :-
+	findall(X, (account_descendant(Account, X)), Descendants).
 
  account_descendant(Account, Descendant) :-
 	account_parent(Descendant, Account).
@@ -135,12 +135,12 @@ account_descendants(Account, Descendants) :-
 		)
 	).
 
-account_by_role(Role, Account) :-
+ account_by_role(Role, Account) :-
 	assertion(Role = rl(_)),
 	account_role(Account, Role).
 
 
-account_by_role_has_descendants(Role, Descendants) :-
+ account_by_role_has_descendants(Role, Descendants) :-
 	abrlt(Role, Account),
 	account_descendants(Account,Descendants).
 
@@ -149,7 +149,7 @@ account_by_role_has_descendants(Role, Descendants) :-
 check that each account has a parent. Together with checking that each generated transaction has a valid account,
 this should ensure that all transactions get reflected in the account tree somewhere
 */
-check_account_parent(Account) :-
+ check_account_parent(Account) :-
 	(	account_parent(Account, Parent)
 	->	(	account_name(Parent,_)
 		->	true
@@ -163,16 +163,16 @@ check_account_parent(Account) :-
 		)
 	).
 
-check_accounts_parent :-
+ check_accounts_parent :-
 	all_accounts(Accounts),
 	maplist(check_account_parent,Accounts).
 
 
-write_accounts_json_report :-
+ write_accounts_json_report :-
 	maplist(account_to_dict, $>all_accounts, Dicts),
 	write_tmp_json_file(loc(file_name,'accounts.json'), Dicts).
 
-account_to_dict(Uri, Dict) :-
+ account_to_dict(Uri, Dict) :-
 	Dict = account{
 		id: Uri,
 		name: Name,
@@ -199,11 +199,11 @@ account_to_dict(Uri, Dict) :-
 	;	Normal_side = @null)
 	.
 
-role_bang_string(Role0, Text) :-
+ role_bang_string(Role0, Text) :-
 	!role_bang_string_helper(Role0, Role),
 	once(c(!'use grammar to generate text'(out_account_specifier(role(Role)), Text))).
 
-role_bang_string_helper(Role0, Role) :-
+ role_bang_string_helper(Role0, Role) :-
 %gtrace,
 %Role0 = 'Financial_Investments'/'Investments'/'BetaShares Australian Equities Strong Bear Hedge Fund',
 	maplist(([R0, fixed(R0)]>>true), $>path_term_to_list(Role0), Role)/*,
@@ -212,7 +212,7 @@ role_bang_string_helper(Role0, Role) :-
 
 %wrap_in_fixed(X
 
-check_accounts_roles :-
+ check_accounts_roles :-
 	findall(Role, account_role(_, Role), Roles),
 	(	ground(Roles)
 	->	true
@@ -264,7 +264,7 @@ check_accounts_roles :-
 	find an unused account name.
 	if an account with this name found, append _2 and try again.
 */
-account_free_name(Id, Free_Id) :-
+ account_free_name(Id, Free_Id) :-
 		account_by_name_exists(Id)
 	->	account_free_name($>atomic_list_concat([Id, '_2']), Free_Id)
 	;	Free_Id = Id.
@@ -278,25 +278,25 @@ account_free_name(Id, Free_Id) :-
 ╹  ╹┗╸┗━┛╹  ╹ ╹┗━┛╹ ╹ ╹ ┗━╸╺━╸╹ ╹┗━╸┗━╸┗━┛┗━┛╹ ╹ ╹ ┗━┛╺━╸┗━┛╹╺┻┛┗━╸
 */
 
-propagate_accounts_side :-
+ propagate_accounts_side :-
 	get_root_account(Root),
 	account_direct_children(Root, Sub_roots),
 	maplist(propagate_accounts_side2(_),Sub_roots).
 
-propagate_accounts_side2(Parent_side, Account) :-
+ propagate_accounts_side2(Parent_side, Account) :-
 	ensure_account_has_normal_side(Parent_side, Account),
 	account_normal_side(Account, Side),
 	account_direct_children(Account, Children),
 	maplist(propagate_accounts_side2(Side), Children).
 
-ensure_account_has_normal_side(_, Account) :-
+ ensure_account_has_normal_side(_, Account) :-
 	account_normal_side(Account, _),!.
 
-ensure_account_has_normal_side(Parent_side, Account) :-
+ ensure_account_has_normal_side(Parent_side, Account) :-
 	nonvar(Parent_side),
 	doc_add(Account, accounts:normal_side, Parent_side, accounts),!.
 
-ensure_account_has_normal_side(_, Account) :-
+ ensure_account_has_normal_side(_, Account) :-
 	account_name(Account, Id),
 	throw_string(["couldn't determine account normal side for ", Id]).
 

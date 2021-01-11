@@ -1,8 +1,0 @@
-{
-  "@context": [
-    {
-      "ex": "http://example.com/rdf/",
-      "t1": "ex:t1"
-    }
-  ]
-}

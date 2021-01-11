@@ -119,10 +119,11 @@ create_reports(
 	Sr2							% Structured Reports (dict)
 ) :-
 	!balance_entries(Static_Data, Sr),
+	!other_reports2('final_', Static_Data, Sr),
+	!other_reports(Static_Data, Static_Data.outstanding, Sr, Sr2),
 	!taxonomy_url_base,
 	!cf('create XBRL instance'(Xbrl, Static_Data, Static_Data.start_date, Static_Data.end_date, Static_Data.report_currency, Sr.bs.current, Sr.pl.current, Sr.pl.historical, Sr.tb)),
-	!add_xml_report(xbrl_instance, xbrl_instance, [Xbrl]),
-	!other_reports(Static_Data, Static_Data.outstanding, Sr, Sr2).
+	!add_xml_report(xbrl_instance, xbrl_instance, [Xbrl]).
 
 
 balance_entries(
@@ -131,7 +132,6 @@ balance_entries(
 ) :-
 	static_data_historical(Static_Data, Static_Data_Historical),
 	maplist(!(check_transaction_account), Static_Data.transactions),
-	/* sum up the coords of all transactions for each account and apply unit conversions */
 	!cf(trial_balance_between(Static_Data.exchange_rates, Static_Data.transactions_by_account, Static_Data.report_currency, Static_Data.end_date, Static_Data.start_date, Static_Data.end_date, Trial_Balance)),
 	!cf(balance_sheet_at(Static_Data, Balance_Sheet)),
 	!cf(balance_sheet_delta(Static_Data, Balance_Sheet_delta)),
@@ -169,9 +169,7 @@ static_data_historical(Static_Data, Static_Data_Historical) :-
 	Sr0,
 	Sr5				% Structured Reports - Dict <Report Abbr : _>
 ) :-
-	other_reports2('', Static_Data, Sr0),
 	!cf(cf_page(Static_Data, Sr0.cf)),
-
 	!cf('export GL'(Static_Data, Static_Data.transactions, Gl)),
 	!cf(make_json_report(Gl, general_ledger_json)),
 	!cf(make_gl_viewer_report),
@@ -184,7 +182,7 @@ static_data_historical(Static_Data, Static_Data_Historical) :-
 	!make_json_report(Sr1, reports_json).
 
 
-other_reports2(Report_prefix, Static_Data, Sr0) :-
+ other_reports2(Report_prefix, Static_Data, Sr0) :-
 	!static_data_historical(Static_Data, Static_Data_Historical),
 	(	account_by_role(rl(smsf_equity), _)
 	->	cf(smsf_member_reports(Report_prefix, Sr0))

@@ -196,6 +196,7 @@ evaluate2(Sd, report_value(Key), Values_List) :-
 		
 /* get vector of values in normal side, of an account, as provided by tree of entry(..) terms. Return [] if not found. */
 evaluate2(Sd, account_balance(Report_Id, Role), Values_List) :-
+	/* get report out of static data */
 	path_get_dict(Report_Id, Sd, Report),
 	findall(
 		Values_List,
@@ -217,11 +218,11 @@ entry_normal_side_values(_Sd, Entry, Values_List) :-
 	!report_entry_gl_account(Entry, Account),
 	!vector_of_coords_to_vector_of_values_by_account_normal_side(Account, Balance, Values_List).
 
-accounts_report_entry_by_account_role_nothrow(_Sd, Report, Role, Entry) :-
+ accounts_report_entry_by_account_role_nothrow(_Sd, Report, Role, Entry) :-
 	account_by_role(Role, Id),
-	accounts_report_entry_by_account_id(Report, Id, Entry).
+	accounts_report_entry_by_account_uri(Report, Id, Entry).
 
-accounts_report_entry_by_account_id(Report, Id, Entry) :-
+ accounts_report_entry_by_account_uri(Report, Id, Entry) :-
 	find_thing_in_tree(
 			   Report,
 			   ([Entry1]>>(report_entry_gl_account(Entry1, Id))),

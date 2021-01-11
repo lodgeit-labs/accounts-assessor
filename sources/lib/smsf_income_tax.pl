@@ -381,21 +381,6 @@ smsf_income_tax_reports(reports{report:Tbl1,reconcilliation:Tbl2}) :-
 	vec_reduce(Values, Rows_vec).
 
 
- smsf_income_tax_txs(Input, Txs0) :-
-	!doc_value(Input, excel:has_sheet_name, Sheet_name),
-	!doc_new_uri(income_tax_st, St),
-	!doc_add_value(St, transactions:description, Sheet_name, transactions),
-	!vector_of_coords_vs_vector_of_values(kb:debit, Tax_vec, $>!evaluate_fact2(aspects([concept - smsf/income_tax/'Tax on Taxable Income @ 15%']))),
-	!make_dr_cr_transactions(
-		St,
-		$>result_has_property(l:end_date),
-		Sheet_name,
-		$>abrlt('Income_Tax_Expenses'),
-		$>abrlt('Income_Tax_Payable'),
-		Tax_vec,
-		Txs0).
-
-
 
 'check that Income_Tax_Expenses are zero' :-
 	!evaluate_fact2(
@@ -425,4 +410,18 @@ smsf_income_tax_reports(reports{report:Tbl1,reconcilliation:Tbl2}) :-
 
 
 
+
+ smsf_income_tax_txs(Input, Txs0) :-
+	!doc_value(Input, excel:has_sheet_name, Sheet_name),
+	!doc_new_uri(income_tax_st, St),
+	!doc_add_value(St, transactions:description, Sheet_name, transactions),
+	!vector_of_coords_vs_vector_of_values(kb:debit, Tax_vec, $>!evaluate_fact2(aspects([concept - smsf/income_tax/'Tax on Taxable Income @ 15%']))),
+	!make_dr_cr_transactions(
+		St,
+		$>result_has_property(l:end_date),
+		Sheet_name,
+		$>abrlt('Income_Tax_Expenses'),
+		$>abrlt('Income_Tax_Payable'),
+		Tax_vec,
+		Txs0).
 
