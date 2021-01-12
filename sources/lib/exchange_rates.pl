@@ -299,7 +299,11 @@ extract_exchange_rates(
 :-
 	(	Cost_Or_Market = cost
 	->	Exchange_Rates2 = []
-	;	extract_exchange_rates1(Exchange_Rates2)).
+	;	extract_exchange_rates1(Exchange_Rates2)),
+	!add_comment_stringize('Exchange rates extracted', Exchange_Rates),
+	!result_add_property(l:exchange_rates, Exchange_Rates).
+
+
 
 extract_exchange_rates1(Exchange_Rates2) :-
  	!doc($>request_data, ic:unit_valueses, X),

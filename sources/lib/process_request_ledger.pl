@@ -7,9 +7,17 @@ phases:
 each phase depends on posted results of previous phase.
 */
 
+ process_request_ledger :-
+	extract_data(Sd0),
+	!cf(generate_bank_opening_balances_sts(Bank_Lump_STs)),
+	handle_sts(Sd0, Bank_Lump_STs, Bank_Lump_Ts),
+
+
+
  extract_data(Data) :-
-	Data = (Start_Date, End_Date, Output_Dimensional_Facts, Cost_Or_Market, Report_Currency),
-	cf(extract_start_and_end_date(Start_Date, End_Date)),
+	cf(extract_start_and_end_date),
+
+
 	doc_add($>result, l:type, l:ledger),
 	!cf(extract_request_details),
 	!cf('extract "output_dimensional_facts"'(Output_Dimensional_Facts)),
@@ -17,42 +25,58 @@ each phase depends on posted results of previous phase.
 	!cf(extract_report_currency(Report_Currency)),
 	!cf('extract action verbs'),
 	!cf('extract bank accounts'),
-	!cf('extract GL accounts').
+	!cf('extract GL accounts'),
+	!cf(make_gl_viewer_report),
+	!cf(write_accounts_json_report),
+	!cf(extract_exchange_rates(Cost_Or_Market, Exchange_Rates)).
+
+	Exchange_Date = End_Date,
+	dict_from_vars(Static_Data0,
+		[Cost_Or_Market,
+		Output_Dimensional_Facts,
+		Start_Date,
+		Exchange_Rates,
+		Transactions,
+		Report_Currency,
+		Outstanding,
+		End_Date
+		Exchange_Date
+	]),
 
 
-handle_sts(Sd0, S_Transactions0) :-
-	!s_transactions_up_to(End_Date, S_Transactions0, S_Transactions2),
+
+
+
+ handle_sts(State0, S_Transactions, Transactions, Outstanding_In, Outstanding_Out, Processed_Until) :-
+	!s_transactions_up_to(End_Date, S_Transactions, S_Transactions2),
 	!sort_s_transactions(S_Transactions2, S_Transactions4),
 
+	dict_from_vars(Static_Data0, [Report_Currency, Start_Date, End_Date, Exchange_Rates, Cost_Or_Market]),
+	!cf('pre-preprocess source transactions'(Static_Data0, S_Transactions, Prepreprocessed_S_Transactions)),
+	!cf(preprocess_until_error(Static_Data0, Prepreprocessed_S_Transactions, Processed_S_Transactions, Transactions, Outstanding_Out, End_Date, Processed_Until)),
+	(	(($>length(Processed_S_Transactions)) == ($>length(Prepreprocessed_S_Transactions)))
+	->	true
+	;	add_alert('warning', 'not all source transactions processed, proceeding with reports anyway..')),
+
+	!transactions_by_account(Static_Data0b, Transactions_By_Account1),
+	Static_Data1 = Static_Data0b.put([transactions_by_account=Transactions_By_Account1]).
 
 
- process_request_ledger :-
-	extract_data(Data),
-	!cf(generate_bank_opening_balances_sts(Bank_Lump_STs)),
+
+
 
 
 	!cf(handle_additional_files(S_Transactions0)),
 	!cf('extract bank statement transactions'(S_Transactions1b)),
 	!cf(extract_action_inputs(Action_input_sts)),
 	!flatten([Bank_Lump_STs, S_Transactions0,S_Transactions1b, Action_input_sts], S_Transactions2),
-	!sort_s_transactions(S_Transactions2, S_Transactions),
 
 
-	!cf(extract_exchange_rates(Cost_Or_Market, S_Transactions, Exchange_Rates)),
-	!add_comment_stringize('Exchange rates extracted', Exchange_Rates),
-	!result_add_property(l:exchange_rates, Exchange_Rates),
+	Data = (Start_Date, End_Date, Output_Dimensional_Facts, Cost_Or_Market, Report_Currency),   S_Transactions, Structured_Reports, Transactions)
 
-
-	%profile(
-	!process_request_ledger2(Data, S_Transactions, _, _),
-	%),
-	true.
-
-process_request_ledger2((Start_Date, End_Date, Output_Dimensional_Facts, Cost_Or_Market, Report_Currency),   S_Transactions, Structured_Reports, Transactions) :-
-	%request(Request),
-	%doc_add(Request, l:kind, l:ledger_request),
 	%!cf(extract_livestock_data_from_ledger_request(Dom)),
 	%!cf(extract_invoices_payable(Dom)),
+
 	!process_ledger(
 		Cost_Or_Market,
 		S_Transactions,
@@ -306,7 +330,7 @@ t values then assume cost basis.*/
 		Output_Dimensional_Facts = on
 	).
 	
- extract_start_and_end_date(Start_Date, End_Date) :-
+ extract_start_and_end_date :-
 	!request_data(Request_Data),
 	!doc(Request_Data, ic_ui:report_details, D),
 	!read_date(D, ic:from, Start_Date),

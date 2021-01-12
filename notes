@@ -1,1 +1,0 @@
-reset;echo -e "\e[3J";  time env CELERY_QUEUE_NAME=q7788 ../internal_workers/invoke_rpc_cmdline.py --debug true --halt true -s "http://localhost:7788"  --prolog_flags "set_prolog_flag(services_server,'http://localhost:17788'),set_prolog_flag(die_on_error,true)" tmp/last_request/  2>&1 | less

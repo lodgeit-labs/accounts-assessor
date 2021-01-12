@@ -1,20 +1,7 @@
- process_ledger(
-	Cost_Or_Market,
-	S_Transactions0,
-	Start_Date,
-	End_Date, 
-	Exchange_Rates,
-	Report_Currency,
-	Transactions_With_Livestock,
-	Outstanding_Out,
-	Processed_Until
-) :-
 
 	!s_transactions_up_to(End_Date, S_Transactions0, S_Transactions),
 	!result_add_property(l:bank_s_transactions, S_Transactions),
 
-	!cf(make_gl_viewer_report),
-	!cf(write_accounts_json_report),
 
 	!cf('ensure system accounts exist'(S_Transactions)),
 	!cf(check_accounts_parent),
@@ -22,25 +9,18 @@
 	!cf(propagate_accounts_side),
 	!cf(write_accounts_json_report),
 
-	process_ledger_phase2(Report_Currency,Start_Date, End_Date, Exchange_Rates, Cost_Or_Market, S_Transactions,Outstanding_Out,Processed_Until,Transactions_With_Livestock).
 
-
- process_ledger_phase2(Report_Currency,Start_Date, End_Date, Exchange_Rates, Cost_Or_Market, S_Transactions,Outstanding_Out,Processed_Until,Transactions_With_Livestock) :-
 	!cf(extract_gl_inputs(Gl_input_txs)),
 	!cf(extract_reallocations(Reallocation_Txs)),
 	!cf(extract_smsf_distribution(Smsf_distribution_txs)),
 
-	dict_from_vars(Static_Data0, [Report_Currency, Start_Date, End_Date, Exchange_Rates, Cost_Or_Market]),
-	!cf('pre-preprocess source transactions'(Static_Data0, S_Transactions, Prepreprocessed_S_Transactions)),
 
-	!cf(preprocess_until_error(Static_Data0, Prepreprocessed_S_Transactions, Processed_S_Transactions, Transactions_From_Bst, Outstanding_Out, End_Date, Processed_Until)),
 
-	(	(($>length(Processed_S_Transactions)) == ($>length(Prepreprocessed_S_Transactions)))
-	->	true
-	;	add_alert('warning', 'not all source transactions processed, proceeding with reports anyway..')),
+	handle_sts(Sd0, S_Transactions0, Transactions, Outstanding_Out, End_Date, Processed_Until)
 
-	append([Gl_input_txs, Reallocation_Txs, Smsf_distribution_txs], Transactions_From_Bst, Transactions0),
-	flatten(Transactions0, Transactions1),
+
+	flatten([Gl_input_txs, Reallocation_Txs, Smsf_distribution_txs, Transactions_From_Bst], Transactions1),
+
 	!cf(process_livestock((Processed_S_Transactions, Transactions1), Livestock_Transactions)),
 	flatten([Transactions1,	Livestock_Transactions], Transactions_With_Livestock).
 	/*
