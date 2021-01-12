@@ -5,8 +5,9 @@
 	<title>General Ledger Viewer documentation</title>
 	<meta name="generator" content="LibreOffice 6.0.7.3 (Linux)"/>
 	<meta name="created" content="00:00:00"/>
-	<meta name="changed" content="2020-11-20T23:30:42.458382068"/>
+	<meta name="changed" content="2021-01-12T22:58:07.833343700"/>
 	<meta name="" content=""/>
+	<meta name="created" content="00:00:00">
 	<style type="text/css">
 		h1 { text-align: center }
 		h1.western { font-family: "Liberation Sans", sans-serif; font-size: 28pt; font-weight: normal }
@@ -44,7 +45,7 @@ bank accounts</h3>
 <p style="margin-top: 0.02in; margin-bottom: 0.02in">Account_Number
 	is ignored, only Account_Name matters</p>
 	<li/>
-<p style="margin-top: 0.02in; margin-bottom: 0.02in"></p>
+<p></p>
 </ul>
 <p style="margin-top: 0.02in; margin-bottom: 0.02in"><br/>
 <br/>
@@ -262,6 +263,41 @@ simplify.
 </p>
 <p style="margin-top: 0.02in; margin-bottom: 0.02in">todo: explain
 split into historical and current entry, for historical transactions.
+</p>
+<p style="margin-top: 0.02in; margin-bottom: 0.02in"><br/>
+<br/>
+
+</p>
+<p style="margin-top: 0.02in; margin-bottom: 0.02in"><br/>
+<br/>
+
+</p>
+<h2 class="western" style="margin-top: 0.02in; margin-bottom: 0.02in">
+Error recovery</h2>
+<p style="margin-top: 0.02in; margin-bottom: 0.02in">S_Transaction
+processing error recovery:</p>
+<p style="margin-top: 0.02in; margin-bottom: 0.02in"><br/>
+<br/>
+
+</p>
+<p style="margin-top: 0.02in; margin-bottom: 0.02in">	It's not
+possible to determine order of transactions that transpired on one
+day, so to avoid confusion, when we fail to process a transaction, we
+go back all the way to the end of the previous day, and try to run
+the reports again, excluding all the transactions of the erroring day
+and after.</p>
+<p style="margin-top: 0.02in; margin-bottom: 0.02in"><br/>
+<br/>
+
+</p>
+<p style="margin-top: 0.02in; margin-bottom: 0.02in">	We originally
+tried generating all reports for the &quot;last good&quot; day, but
+that had issues, at least with investment report failing because of
+missing exchange rates. So, rather, we run the reports for the
+request end date.</p>
+<p style="margin-top: 0.02in; margin-bottom: 0.02in"><br/>
+<br/>
+
 </p>
 <p style="margin-top: 0.02in; margin-bottom: 0.02in"><br/>
 <br/>

@@ -1,27 +1,5 @@
 
 /*
-action verbs in general:
-	Invest_In
-	Dispose_Off
-		magic: affect counteraccount's Unit subaccount
-
-"trading account" parameter of action verb:
-	magic: affect "trading account"'s Unit subaccount
-
-...
-
-*/
-
-preprocess_until_error(Static_Data0, Prepreprocessed_S_Transactions, Preprocessed_S_Transactions, Transactions0, Outstanding_Out, Report_End_Date, Processed_Until) :-
-	preprocess_s_transactions(Static_Data0, Prepreprocessed_S_Transactions, Preprocessed_S_Transactions, Transactions0, Outstanding_Out),
-	/* i dont remember if there were other issues with running reports for the "last good day" rather than for the requested end date, besides the fact that investment calculator would fail because there normally weren't exchange rates available for the "last good day". At any case, the original idea changed into running the reports for the requested day. The original reasoning was: it's not possible to determine order of transactions that transpired on one day, so to avoid confusion, when we fail to process a transaction, we go back all the way to the end of the previous day, and try to run the reports again, excluding all the transactions of the erroring day and after
-	*/
-	Processed_Until = Report_End_Date.
-
-preprocess_s_transactions(Static_Data, S_Transactions, Processed_S_Transactions, Transactions_Out, Outstanding_Out) :-
-	!preprocess_s_transactions2(Static_Data, S_Transactions, Processed_S_Transactions, Transactions_Out, ([],[]), Outstanding_Out, []).
-
-/*
 	call preprocess_s_transaction on each item of the S_Transactions list and do some error checking and cleaning up
 */
 preprocess_s_transactions2(_, [], [], [], Outstanding, Outstanding, _).
@@ -57,12 +35,9 @@ preprocess_s_transactions2(Static_Data, [S_Transaction|S_Transactions], Processe
 		)
 	).
 
-preprocess_s_transaction3(Static_Data, S_Transaction, S_Transaction_String, Outstanding_In, Outstanding_Mid, Debug_Head, Transactions_Out_Tail, Debug_So_Far, Debug_So_Far2, Processed_S_Transactions, Processed_S_Transactions_Tail, Report_Currency, Exchange_Rates, Start_Date, End_Date, Transactions_Out) :-
+
+preprocess_s_transaction3(Static_Data, S_Transaction, Outstanding_In, Outstanding_Mid, Transactions_Out_Tail, Processed_S_Transactions, Processed_S_Transactions_Tail, Exchange_Rates, Start_Date, End_Date, Transactions_Out) :-
 	check_that_s_transaction_account_exists(S_Transaction),
-	preprocess_s_transaction0(Static_Data, S_Transaction, S_Transaction_String, Outstanding_In, Outstanding_Mid, Debug_Head, Transactions_Out_Tail, Debug_So_Far, Debug_So_Far2, Processed_S_Transactions, Processed_S_Transactions_Tail, Report_Currency, Exchange_Rates, Start_Date, End_Date, Transactions_Out).
-
-
-preprocess_s_transaction0(Static_Data, S_Transaction, S_Transaction_String, Outstanding_In, Outstanding_Mid, Debug_Head, Transactions_Out_Tail, Debug_So_Far, Debug_So_Far2, Processed_S_Transactions, Processed_S_Transactions_Tail, Report_Currency, Exchange_Rates, Start_Date, End_Date, Transactions_Out) :-
 
 	s_transaction_type_id(S_Transaction, uri(Action_Verb)),
 	(	doc(Action_Verb, l:has_counteraccount, Exchanged_Account_Ui)
@@ -73,33 +48,29 @@ preprocess_s_transaction0(Static_Data, S_Transaction, S_Transaction_String, Outs
 	;	Trading_Account_Ui = ''),
 	push_format('using action verb ~q:~n  exchanged account: ~q~n  trading account: ~q~n', [$>doc(Action_Verb, l:has_id), Exchanged_Account_Ui, Trading_Account_Ui]),
 
-	!preprocess_s_transaction(Static_Data, Report_Currency, Exchange_Rates, S_Transaction, Transactions0, Outstanding_In, Outstanding_Mid),
-	clean_up_resulting_transactions(Transactions0, Transactions_Result, S_Transaction_String, Debug_Head),
+	!preprocess_s_transaction(Static_Data, $>result_property(l:report_currency), Exchange_Rates, S_Transaction, Transactions0, Outstanding_In, Outstanding_Mid),
+	clean_up_resulting_transactions(Transactions0, Transactions_Result),
 	Transactions_Out = [Transactions_Result|Transactions_Out_Tail],
-	append(Debug_So_Far, [Debug_Head], Debug_So_Far2),
+	%append(Debug_So_Far, [Debug_Head], Debug_So_Far2),
 	Processed_S_Transactions = [S_Transaction|Processed_S_Transactions_Tail],
-	cf(check_trial_balance_at_date_of_last_transaction_in_list(Transactions_Result, Report_Currency, Exchange_Rates, Start_Date, End_Date, Debug_So_Far, Debug_Head)),
+	cf(check_trial_balance_at_date_of_last_transaction_in_list(Transactions_Result, $>result_property(l:report_currency), Exchange_Rates, End_Date)),
 
 	pop_context.
 
 
-
-clean_up_resulting_transactions(Transactions0, Transactions_Result, S_Transaction_String, Debug_Head) :-
+clean_up_resulting_transactions(Transactions0, Transactions_Result) :-
 	% filter out unbound vars from the resulting Transactions list, as some rules do not always produce all possible transactions
 	flatten(Transactions0, Transactions1),
 	exclude(var, Transactions1, Transactions2),
-	exclude(has_empty_vector, Transactions2, Transactions_Result),
-	!pretty_transactions_string(Transactions_Result, Transactions_String),
-	%round_term(Transactions_Result, Transactions_String),
-	atomic_list_concat([S_Transaction_String, '==>\n', Transactions_String, '\n====\n'], Debug_Head).
+	exclude(has_empty_vector, Transactions2, Transactions_Result).
 
 
- check_trial_balance_at_date_of_last_transaction_in_list(Transactions_Result, Report_Currency, Exchange_Rates, Start_Date, End_Date, Debug_So_Far, Debug_Head) :-
+ check_trial_balance_at_date_of_last_transaction_in_list(Transactions_Result, Report_Currency, Exchange_Rates, End_Date) :-
 	Transactions_Result = [T|_],
 	transaction_day(T, Transaction_Date),
 	(	Report_Currency = []
 	->	true /* we cannot compare values if we don't convert them to the same currency first */
-	;	check_trial_balance0(Exchange_Rates, Report_Currency, Transaction_Date, Transactions_Result, Start_Date, End_Date, Debug_So_Far, Debug_Head)).
+	;	check_trial_balance0(Exchange_Rates, Report_Currency, Transaction_Date, Transactions_Result,  End_Date)).
 
 
 % ----------
@@ -662,7 +633,7 @@ pretty_vector_string(Seen_Units0, Seen_Units_Out, [Coord|Rest], Vector_Str) :-
 
 
 
- check_trial_balance0(Exchange_Rates, Report_Currency, Transaction_Date, Transactions_Out, _Start_Date, End_Date, _Debug_So_Far, _Debug_Head) :-
+ check_trial_balance0(Exchange_Rates, Report_Currency, Transaction_Date, Transactions_Out, End_Date) :-
 	check_trial_balance(Exchange_Rates, Report_Currency, Transaction_Date, Transactions_Out),
 	check_trial_balance(Exchange_Rates, Report_Currency, End_Date, Transactions_Out).
 
@@ -703,3 +674,9 @@ pretty_vector_string(Seen_Units0, Seen_Units_Out, [Coord|Rest], Vector_Str) :-
 		p:outstanding_in Outstanding_In,
 		p:outstanding_out Outstanding_Out,
 */
+
+
+	%!pretty_transactions_string(Transactions_Result, Transactions_String),
+	%round_term(Transactions_Result, Transactions_String),
+	%atomic_list_concat([S_Transaction_String, '==>\n', Transactions_String, '\n====\n'], _Debug_Head).
+

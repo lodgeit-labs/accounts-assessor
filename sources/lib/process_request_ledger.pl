@@ -1,3 +1,19 @@
+
+ extract_data(Data) :-
+	cf(extract_start_and_end_date),
+	doc_add($>result, l:type, l:ledger),
+	!cf(extract_request_details),
+	!cf('extract "output_dimensional_facts"'),
+	!cf('extract "cost_or_market"'),
+	!cf(extract_report_currency),
+	!cf('extract action verbs'),
+	!cf('extract bank accounts'),
+	!cf('extract GL accounts'),
+	!cf(make_gl_viewer_report),
+	!cf(write_accounts_json_report),
+	!cf(extract_exchange_rates(Exchange_Rates)).
+
+
 /*
 phases:
 	automated: post bank opening balances
@@ -14,46 +30,42 @@ each phase depends on posted results of previous phase.
 
 
 
- extract_data(Data) :-
-	cf(extract_start_and_end_date),
-
-
-	doc_add($>result, l:type, l:ledger),
-	!cf(extract_request_details),
-	!cf('extract "output_dimensional_facts"'(Output_Dimensional_Facts)),
-	!cf('extract "cost_or_market"'(Cost_Or_Market)),
-	!cf(extract_report_currency(Report_Currency)),
-	!cf('extract action verbs'),
-	!cf('extract bank accounts'),
-	!cf('extract GL accounts'),
-	!cf(make_gl_viewer_report),
-	!cf(write_accounts_json_report),
-	!cf(extract_exchange_rates(Cost_Or_Market, Exchange_Rates)).
-
 	Exchange_Date = End_Date,
-	dict_from_vars(Static_Data0,
-		[Cost_Or_Market,
-		Output_Dimensional_Facts,
-		Start_Date,
-		Exchange_Rates,
-		Transactions,
-		Report_Currency,
-		Outstanding,
-		End_Date
-		Exchange_Date
-	]),
+
+	dict_from_vars(
+		Static_Data0,
+		[
+			Cost_Or_Market,
+			Output_Dimensional_Facts,
+			Start_Date,
+			Exchange_Rates,
+			Transactions,
+			Report_Currency,
+			Outstanding,
+			End_Date
+			Exchange_Date
+		]
+	),
 
 
 
 
 
- handle_sts(State0, S_Transactions, Transactions, Outstanding_In, Outstanding_Out, Processed_Until) :-
+ handle_sts(State0, S_Transactions, Outstanding_In, Outstanding_Out, Processed_Until) :-
+ 	doc(State0, l:has_transactions, Transactions_in),
+ 	doc(State0, l:end_date, End_Date),
+
 	!s_transactions_up_to(End_Date, S_Transactions, S_Transactions2),
 	!sort_s_transactions(S_Transactions2, S_Transactions4),
 
 	dict_from_vars(Static_Data0, [Report_Currency, Start_Date, End_Date, Exchange_Rates, Cost_Or_Market]),
-	!cf('pre-preprocess source transactions'(Static_Data0, S_Transactions, Prepreprocessed_S_Transactions)),
-	!cf(preprocess_until_error(Static_Data0, Prepreprocessed_S_Transactions, Processed_S_Transactions, Transactions, Outstanding_Out, End_Date, Processed_Until)),
+
+	!cf('pre-preprocess source transactions'(S_Transactions4, Prepreprocessed_S_Transactions)),
+
+	!cf(preprocess_until_error(Static_Data0, Prepreprocessed_S_Transactions, Preprocessed_S_Transactions, Transactions, Outstanding_Out, End_Date, Processed_Until)),
+
+	Processed_Until always == End_Date!
+
 	(	(($>length(Processed_S_Transactions)) == ($>length(Prepreprocessed_S_Transactions)))
 	->	true
 	;	add_alert('warning', 'not all source transactions processed, proceeding with reports anyway..')),
@@ -301,34 +313,22 @@ This is done with a symlink. This allows to bypass cache, for example in pessera
 	!result_add_property(l:report_currency, Report_Currency).
 
 /*
-*If an investment was held prior to the from date then it MUST have an opening market value if the reports are expressed in market rather than cost.You can't mix market valu
-e and cost in one set of reports. One or the other.
-+       Market or Cost. M or C.
-+       Cost value per unit will always be there if there are units of anything i.e. sheep for livestock trading or shares for Investments. But I suppose if you do not find any marke
-t values then assume cost basis.*/
+ If an investment was held prior to the from date then it MUST have an opening market value if the reports are expressed in market rather than cost. You can't mix market value and cost in one set of reports. One or the other.
+ Market or Cost. M or C.
+ Cost value per unit will always be there if there are units of anything i.e. sheep for livestock trading or shares for Investments. But I suppose if you do not find any market values then assume cost basis.
+*/
 
- 'extract "cost_or_market"'(Cost_Or_Market) :-
+ 'extract "cost_or_market"' :-
 	!request_data(Request_Data),
 	doc(Request_Data, ic_ui:report_details, D),
 	doc_value(D, ic:cost_or_market, C),
 	(	rdf_equal2(C, ic:cost)
 	->	Cost_Or_Market = cost
-	;	Cost_Or_Market = market).
+	;	Cost_Or_Market = market),
+	!doc_add($>result, l:cost_or_market, Cost_Or_Market).
 	
  'extract "output_dimensional_facts"'(Output_Dimensional_Facts) :-
-	(
-	/*	inner_xml(Dom, //reports/balanceSheetRequest/outputDimensionalFacts, [Output_Dimensional_Facts])
-	->
-		(
-			member(Output_Dimensional_Facts, [on, off])
-		->
-			true
-		;
-			throw_string('//reports/balanceSheetRequest/outputDimensionalFacts tag\'s content must be "on" or "off"')
-		)
-	;*/
-		Output_Dimensional_Facts = on
-	).
+	!doc_add($>result, l:output_dimensional_facts, on).
 	
  extract_start_and_end_date :-
 	!request_data(Request_Data),

@@ -163,47 +163,47 @@ s_transactions_up_to(End_Date, S_Transactions_All, S_Transactions_Capped) :-
 		exchanged: Exchanged,
 		misc: Misc}.
 
- 'pre-preprocess source transactions'(Static_Data, In, Out) :-
+ 'pre-preprocess source transactions'(In, Out) :-
 	/*
 	at this point:
 	s_transactions are sorted by date from oldest to newest
 	bank s_transactions have flipped vectors, so they are from our perspective
 	primary accounts are specified with bank_account_name() or account_name_ui_string() or maybe uri()
 	*/
-	maplist(prepreprocess_s_transaction0(Static_Data), In, Out).
+	maplist(prepreprocess_s_transaction0, In, Out).
 
- prepreprocess_s_transaction0(Static_Data, In, Out) :-
+ prepreprocess_s_transaction0(In, Out) :-
  	pretty_st_string(In, Sts),
 	push_format('pre-processing source transaction:~n ~w~n', [Sts]),
-	prepreprocess_s_transaction(Static_Data, In, Out),
+	prepreprocess_s_transaction(In, Out),
 	pop_context.
 
- prepreprocess_s_transaction(Static_Data, In, Out) :-
-	cf(infer_exchanged_units_count(Static_Data, In, Mid)),
+ prepreprocess_s_transaction(In, Out) :-
+	cf(infer_exchanged_units_count(In, Mid)),
 	!,
-	cf(prepreprocess_s_transaction(Static_Data, Mid, Out)).
+	cf(prepreprocess_s_transaction(Mid, Out)).
 
 /* add livestock verb uri */
- prepreprocess_s_transaction(Static_Data, In, Out) :-
+ prepreprocess_s_transaction(In, Out) :-
 	cf(infer_livestock_action_verb(In, Mid)),
 	!,
-	prepreprocess_s_transaction(Static_Data, Mid, Out).
+	prepreprocess_s_transaction(Mid, Out).
 
 /* from verb label to verb uri */
-prepreprocess_s_transaction(Static_Data, S_Transaction, Out) :-
+prepreprocess_s_transaction(S_Transaction, Out) :-
 	s_transaction_action_verb_uri_from_string(S_Transaction, Action_Verb),
 	!,
 	doc_set_s_transaction_field(type_id,S_Transaction, uri(Action_Verb), NS_Transaction, action_verb_uri_from_string),
-	prepreprocess_s_transaction(Static_Data, NS_Transaction, Out).
+	prepreprocess_s_transaction(NS_Transaction, Out).
 
 /* from first account term to uri() */
-prepreprocess_s_transaction(Static_Data, In, Out) :-
+prepreprocess_s_transaction(In, Out) :-
 	's_transaction first account term to uri'(In, First_account_uri),
 	!,
 	doc_set_s_transaction_field(account,In, uri(First_account_uri), NS_Transaction, 's_transaction first account term to uri'),
-	prepreprocess_s_transaction(Static_Data, NS_Transaction, Out).
+	prepreprocess_s_transaction(NS_Transaction, Out).
 
-prepreprocess_s_transaction(_, T, T) :-
+prepreprocess_s_transaction(T, T) :-
 	s_transaction_account(T, A),
 	assertion(A = uri(_)),
 	s_transaction_type_id(T, B),
@@ -246,49 +246,6 @@ s_transaction_action_verb_uri_from_string(S_Transaction, Action_Verb) :-
 	->	true
 	;	(throw_string(['action verb not found by id: "',Type_Id,'"']))).
 
-
-% yield all transactions from all accounts one by one.
-% these are s_transactions, the raw transactions from bank statements. Later each s_transaction will be preprocessed
-% into multiple transaction terms.
-extract_s_transactions_from_accountDetails_dom(Account, S_Transactions) :-
-	fields(Account, [
-		accountName, Account_Name,
-		currency, Account_Currency
-	]),
-	extract_s_transactions_from_accountDetails_dom2(Account_Currency, Account_Name, Account, S_Transactions).
-
-extract_s_transactions_from_accountDetails_dom2(Account_Currency, Account_Name, Account, S_Transactions) :-
-	findall(Tx_Dom, xpath(Account, transactions/transaction, Tx_Dom), Tx_Doms),
-	maplist(extract_s_transaction(Account_Currency, Account_Name), Tx_Doms, S_Transactions).
-
-extract_s_transaction(Account_Currency, Account_Name, Tx_Dom, S_Transaction) :-
-	catch(
-		extract_s_transaction2(Tx_Dom, Account_Currency, Account_Name, S_Transaction),
-		Error,
-		(
-			term_string(Error, Str1),
-			term_string(Tx_Dom, Str2),
-			atomic_list_concat([Str1, Str2], Message),
-			throw(Message)
-		)),
-	true.
-
-extract_s_transaction2(Tx_Dom, Account_Currency, Account, ST) :-
-	numeric_fields(Tx_Dom, [
-		debit, (Bank_Debit, 0),
-		credit, (Bank_Credit, 0)]),
-	fields(Tx_Dom, [
-		transdesc, (Verb, ''),
-		transdesc2, (Desc2, '')
-	]),
-	xpath(Tx_Dom, transdate, element(_,_,[Date_Atom])),
-	parse_date(Date_Atom, Date),
-	Dr is rationalize(Bank_Debit - Bank_Credit),
-	Coord = coord(Account_Currency, Dr),
-	extract_exchanged_value(Tx_Dom, Dr, Exchanged),
-	doc_add_s_transaction(Date, Verb, [Coord], bank_account_name(Account), Exchanged, misc{desc2:Desc2}, ST),
-	doc_add(ST, l:source, l:bank_statement_xml).
-
 extract_exchanged_value(Tx_dom, Bank_dr, Exchanged) :-
 	(	field_nothrow(Tx_dom, [unitType, Unit_type])
 	->	true
@@ -329,7 +286,6 @@ extract_exchanged_value(Tx_dom, Bank_dr, Exchanged) :-
 			)
 		)
 	).
-
 
 
 invert_s_transaction_vector(T0, T1) :-

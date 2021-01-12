@@ -294,10 +294,9 @@ is_exchangeable_into_request_bases(Table, Day, Src_Currency, Bases) :-
 ┗━╸╹ ╹ ╹ ╹┗╸╹ ╹┗━╸ ╹
 */
 extract_exchange_rates(
-	Cost_Or_Market,
 	/*out*/ Exchange_Rates2)
 :-
-	(	Cost_Or_Market = cost
+	(	result_has_property(l:cost_or_market, cost)
 	->	Exchange_Rates2 = []
 	;	extract_exchange_rates1(Exchange_Rates2)),
 	!add_comment_stringize('Exchange rates extracted', Exchange_Rates),
