@@ -27,10 +27,12 @@ extract_smsf_distribution4(Default_currency, Item, Unit_name_str, Txs) :-
 	% todo: we should be doing smsf_distribution_ui and smsf_distribution, using smsf_distribution_ui to get data, clean them up, then assert a new smsf_distribution object, rather than having both "name" and "unit_type" and having "entered_..." props.
 	!check_duplicate_distribution_unit(Item, Unit),
 	!doc_add_value(Item, smsf_distribution_ui:unit_type, Unit),
+
 	!traded_units($>result_has_property(l:bank_s_transactions), Traded_Units),
 	(	member(Unit, Traded_Units)
 	->	true
 	;	throw_string(['smsf distribution sheet: unknown unit: ', Unit])),
+
 	!distribution_txs(Default_currency, Item, Unit, Txs),
 	!assert_smsf_distribution_facts(Default_currency, Unit, Item).
 

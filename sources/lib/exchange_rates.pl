@@ -295,9 +295,13 @@ is_exchangeable_into_request_bases(Table, Day, Src_Currency, Bases) :-
 */
 extract_exchange_rates(
 	Cost_Or_Market,
-	S_Transactions,
 	/*out*/ Exchange_Rates2)
 :-
+	(	Cost_Or_Market = cost
+	->	Exchange_Rates2 = []
+	;	extract_exchange_rates1(Exchange_Rates2)).
+
+extract_exchange_rates1(Exchange_Rates2) :-
  	!doc($>request_data, ic:unit_valueses, X),
  	!doc(X, excel:has_unknown_fields, Fields0),
  	!doc_list_items(Fields0, Fields),
@@ -307,10 +311,6 @@ extract_exchange_rates(
  	maplist(extract_exchange_rates2(Fields), Items, Exchange_Rates0),
  	flatten(Exchange_Rates0, Exchange_Rates),
 	maplist(assert_ground, Exchange_Rates),
-	(	Cost_Or_Market = cost
-	->	filter_out_market_values(S_Transactions, Exchange_Rates, Exchange_Rates2)
-	;	Exchange_Rates2 = Exchange_Rates),
-	%format(user_error, '~q', [Exchange_Rates2]),
 	true.
 
 parse_date_field(Field) :-

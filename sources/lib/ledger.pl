@@ -9,10 +9,9 @@
 	Outstanding_Out,
 	Processed_Until
 ) :-
-	!add_comment_stringize('Exchange rates extracted', Exchange_Rates),
+
 	!s_transactions_up_to(End_Date, S_Transactions0, S_Transactions),
 	!result_add_property(l:bank_s_transactions, S_Transactions),
-	!result_add_property(l:exchange_rates, Exchange_Rates),
 
 	!cf(make_gl_viewer_report),
 	!cf(write_accounts_json_report),
@@ -38,7 +37,7 @@
 
 	(	(($>length(Processed_S_Transactions)) == ($>length(Prepreprocessed_S_Transactions)))
 	->	true
-	;	add_alert('warning', 'not all bank statement transactions processed, proceeding with reports anyway..')),
+	;	add_alert('warning', 'not all source transactions processed, proceeding with reports anyway..')),
 
 	append([Gl_input_txs, Reallocation_Txs, Smsf_distribution_txs], Transactions_From_Bst, Transactions0),
 	flatten(Transactions0, Transactions1),

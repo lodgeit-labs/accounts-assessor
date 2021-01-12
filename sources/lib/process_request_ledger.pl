@@ -1,6 +1,13 @@
+/*
+phases:
+	automated: post bank opening balances
+	phase: opening balance
+	automated: rollover
 
+each phase depends on posted results of previous phase.
+*/
 
-process_request_ledger :-
+ extract_data(Data) :-
 	Data = (Start_Date, End_Date, Output_Dimensional_Facts, Cost_Or_Market, Report_Currency),
 	cf(extract_start_and_end_date(Start_Date, End_Date)),
 	doc_add($>result, l:type, l:ledger),
@@ -10,14 +17,32 @@ process_request_ledger :-
 	!cf(extract_report_currency(Report_Currency)),
 	!cf('extract action verbs'),
 	!cf('extract bank accounts'),
-	!cf('extract GL accounts'),
+	!cf('extract GL accounts').
+
+
+handle_sts(Sd0, S_Transactions0) :-
+	!s_transactions_up_to(End_Date, S_Transactions0, S_Transactions2),
+	!sort_s_transactions(S_Transactions2, S_Transactions4),
+
+
+
+ process_request_ledger :-
+	extract_data(Data),
 	!cf(generate_bank_opening_balances_sts(Bank_Lump_STs)),
+
+
 	!cf(handle_additional_files(S_Transactions0)),
 	!cf('extract bank statement transactions'(S_Transactions1b)),
 	!cf(extract_action_inputs(Action_input_sts)),
 	!flatten([Bank_Lump_STs, S_Transactions0,S_Transactions1b, Action_input_sts], S_Transactions2),
 	!sort_s_transactions(S_Transactions2, S_Transactions),
+
+
 	!cf(extract_exchange_rates(Cost_Or_Market, S_Transactions, Exchange_Rates)),
+	!add_comment_stringize('Exchange rates extracted', Exchange_Rates),
+	!result_add_property(l:exchange_rates, Exchange_Rates),
+
+
 	%profile(
 	!process_request_ledger2(Data, S_Transactions, _, _),
 	%),
