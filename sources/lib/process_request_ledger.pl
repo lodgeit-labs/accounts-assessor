@@ -5,52 +5,19 @@
 		generate_bank_opening_balances_sts(Bank_Lump_STs),
 		handle_sts(S0, Bank_Lump_STs, S2)),
 	c('phase: opening balance',
-		process_sheets(S2, phases:opening_balance, S4)
-		),
+		process_sheets(S2, phases:opening_balance, S4)),
 	c('automated: rollover',
-		(
+		smsf_rollover0(S4, S6)),
+	cf('phase: main')
 
-			smsf_rollover0(S4)
-		)
-
-	)
-.
-
-/*
-	Exchange_Date = End_Date,
-
-	dict_from_vars(
-		Static_Data0,
-		[
-			Cost_Or_Market,
-			Output_Dimensional_Facts,
-			Start_Date,
-			Exchange_Rates,
-			Transactions,
-			Report_Currency,
-			Outstanding,
-			End_Date
-			Exchange_Date
-		]
-	),
-*/
-
-
-
-
-
-
-
-	!cf(handle_additional_files(S_Transactions0)),
-	!cf('extract bank statement transactions'(S_Transactions1b)),
-	!cf(extract_action_inputs(Action_input_sts)),
-	!flatten([Bank_Lump_STs, S_Transactions0,S_Transactions1b, Action_input_sts], S_Transactions2),
-
-
-	Data = (Start_Date, End_Date, Output_Dimensional_Facts, Cost_Or_Market, Report_Currency),   S_Transactions, Structured_Reports, Transactions)
+'phase: main'(S6) :-
+	!cf(handle_additional_files(S_Transactions_a)),
+	!cf('extract bank statement transactions'(S_Transactions_b)),
+	!cf(extract_action_inputs(_Phase, S_Transactions_c)),
+	!flatten([S_Transactions_a, S_Transactions_b,S_Transactions_c],
+		S_Transactions),
 
 	%!cf(extract_livestock_data_from_ledger_request(Dom)),
-	%!cf(extract_invoices_payable(Dom)),
 
 	!process_ledger(
 		Cost_Or_Market,

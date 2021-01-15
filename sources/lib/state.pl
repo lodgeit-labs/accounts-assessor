@@ -53,7 +53,13 @@
 	doc_add(S2, l:has_outstanding, Outstanding_new).
 
 
+ process_sheets(S0, Phase, S4) :-
+	!cf(extract_gl_inputs(Phase, Gl_input_txs)),
+	new_state_with_appended_(S0, Txs, Sts, S2)
 
-
+ check_phase(Expected_Phase, Input_Cell) :-
+ 	?(	var(Expected_Phase)
+ 	->	\+doc(Input_Cell, rdf:value, _)
+ 	;  	\+(\+doc_value(Gl, ic:phase, Phase))).
 
 

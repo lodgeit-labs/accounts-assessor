@@ -28,7 +28,7 @@ extract_smsf_distribution4(Default_currency, Item, Unit_name_str, Txs) :-
 	!check_duplicate_distribution_unit(Item, Unit),
 	!doc_add_value(Item, smsf_distribution_ui:unit_type, Unit),
 
-	!traded_units($>result_has_property(l:bank_s_transactions), Traded_Units),
+	!traded_units($>!rrrrrrresult_has_property(l:bank_s_transactions), Traded_Units),
 	(	member(Unit, Traded_Units)
 	->	true
 	;	throw_string(['smsf distribution sheet: unknown unit: ', Unit])),

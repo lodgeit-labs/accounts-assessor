@@ -1,16 +1,17 @@
- extract_gl_inputs(Txs) :-
+ extract_gl_inputs(Phase, Txs) :-
  	(	doc($>request_data, ic_ui:gl, Gls)
- 	->	(	maplist(!extract_gl_input, $>doc_list_items(Gls), Txs0),
+ 	->	(	maplist(!extract_gl_input(Phase), $>doc_list_items(Gls), Txs0),
 			flatten(Txs0, Txs))
 	;	Txs = []).
 
- extract_action_inputs(Txs) :-
+ extract_action_inputs(Phase, Txs) :-
  	(	doc($>request_data, ic_ui:action_input, Input)
- 	->	(	maplist(!extract_action_input, $>doc_list_items(Input), Txs0),
+ 	->	(	maplist(!extract_action_input(Phase), $>doc_list_items(Input), Txs0),
 			flatten(Txs0, Txs))
 	;	Txs = []).
 
- extract_gl_input(Gl, Txs) :-
+ extract_gl_input(Phase, Gl, Txs) :-
+ 	check_phase(Expected_Phase, $>doc(Gl, ic:phase)),
  	push_format('extract GL input from: ~w', [$>sheet_and_cell_string(Gl)]),
 	!doc_value(Gl, ic:default_currency, Default_Currency0),
 	!atom_string(Default_Currency, Default_Currency0),
@@ -26,7 +27,8 @@
 	Txs),
 	pop_context.
 
- extract_action_input(Input, Txs) :-
+ extract_action_input(Phase, Input, Txs) :-
+	check_phase(Expected_Phase, $>doc(Gl, ic:phase)),
  	push_context($>format(string(<$), 'extract action input from: ~w', [$>sheet_and_cell_string(Input)])),
 	!doc_value(Input, ic:account, First_account),
 	!doc_value(Input, ic:items, List),

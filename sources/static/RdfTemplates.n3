@@ -29,7 +29,10 @@
 @prefix smsf_distribution: <https://rdf.lodgeit.net.au/v1/calcs/smsf/distribution#> .
 @prefix smsf_distribution_ui: <https://rdf.lodgeit.net.au/v1/calcs/smsf/distribution_ui#> .
 @prefix reallocation: <https://rdf.lodgeit.net.au/v1/calcs/ic/reallocation#> .
+@prefix phases: <https://rdf.lodgeit.net.au/v1/phases#> .
 
+
+phases:opening_balance a :Phase.
 
 
 :request l:templates_version "2".
@@ -848,8 +851,11 @@ ic_ui:gl
 	excel:class ic:gl;
 	excel:fields (
 		[excel:property ic:default_currency; excel:type xsd:string]
+		[excel:property ic:phase; excel:type excel:url]
 		[excel:property ic:items; excel:template ic_ui:gl_entries_template]
 	).
+
+ic:phase rdfs:range :Phase.
 
 ic_ui:action_input
 	a excel:template;
