@@ -2,22 +2,16 @@
 /*
 	call preprocess_s_transaction on each item of the S_Transactions list and do some error checking and cleaning up
 */
-preprocess_s_transactions2(_, [], [], [], Outstanding, Outstanding, _).
+preprocess_s_transactions(_, [], [], [], Outstanding, Outstanding).
 
-preprocess_s_transactions2(Static_Data, [S_Transaction|S_Transactions], Processed_S_Transactions, Transactions_Out, Outstanding_In, Outstanding_Out, Debug_So_Far) :-
-	push_format('processing bank statement transaction:~n ~w~n', [$>!pretty_st_string(S_Transaction)]),
-	dict_vars(Static_Data, [Report_Currency, Start_Date, End_Date, Exchange_Rates]),
-	pretty_term_string(S_Transaction, S_Transaction_String),
+preprocess_s_transactions(Static_Data, [S_Transaction|S_Transactions], Processed_S_Transactions, Transactions_Out, Outstanding_In, Outstanding_Out) :-
+	push_format('processing source transaction:~n ~w~n', [$>!pretty_st_string(S_Transaction)]),
+	dict_vars(Static_Data, [Start_Date, End_Date, Exchange_Rates]),
 
-	/* die_on_error is useful for getting into debugger when working on transaction processing code */
 	(	current_prolog_flag(die_on_error, true)
-	->	!preprocess_s_transaction3(Static_Data, S_Transaction, S_Transaction_String, Outstanding_In, Outstanding_Mid, _Debug_Head, Transactions_Out_Tail, Debug_So_Far, Debug_So_Far2, Processed_S_Transactions, Processed_S_Transactions_Tail, Report_Currency, Exchange_Rates, Start_Date, End_Date, Transactions_Out)
-
-	/* so.. i think that this should go away. handle expected user input errors gracefully, by creating an alert and failing....wait, that woouldnt workkk...
-	*/
-
+	->	!preprocess_s_transaction3(Static_Data, S_Transaction, Outstanding_In, Outstanding_Mid, Transactions_Out_Tail, Processed_S_Transactions, Processed_S_Transactions_Tail, Exchange_Rates, Start_Date, End_Date, Transactions_Out)
 	;	catch_with_backtrace(
-			!preprocess_s_transaction3(Static_Data, S_Transaction, S_Transaction_String, Outstanding_In, Outstanding_Mid, _Debug_Head, Transactions_Out_Tail, Debug_So_Far, Debug_So_Far2, Processed_S_Transactions, Processed_S_Transactions_Tail, Report_Currency, Exchange_Rates, Start_Date, End_Date, Transactions_Out),
+			!preprocess_s_transaction3(Static_Data, S_Transaction, Outstanding_In, Outstanding_Mid,  Transactions_Out_Tail, Processed_S_Transactions, Processed_S_Transactions_Tail, Exchange_Rates, Start_Date, End_Date, Transactions_Out),
 			E,
 			(
 				/* watch out: this re-establishes doc to the state it was before the exception */
@@ -27,7 +21,7 @@ preprocess_s_transactions2(Static_Data, [S_Transaction|S_Transactions], Processe
 	),
 	pop_context,
 	(	var(E)
-	->	!preprocess_s_transactions2(Static_Data, S_Transactions, Processed_S_Transactions_Tail, Transactions_Out_Tail,  Outstanding_Mid, Outstanding_Out, Debug_So_Far2)
+	->	!preprocess_s_transactions2(Static_Data, S_Transactions, Processed_S_Transactions_Tail, Transactions_Out_Tail,  Outstanding_Mid, Outstanding_Out)
 	;	(
 			Outstanding_In = Outstanding_Out,
 			Transactions_Out = [],

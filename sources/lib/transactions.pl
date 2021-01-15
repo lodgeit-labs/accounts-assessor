@@ -137,17 +137,19 @@ transactions_by_account(Static_Data, Transactions_By_Account) :-
 	dict_vars(Static_Data,
 		[Transactions,Start_Date,End_Date]
 	),
-
 	assertion(nonvar(Transactions)),
-	sort_into_dict(transaction_account, Transactions, Dict),
+	sort_into_dict(transaction_account, Transactions, Transactions_By_Account).
 
-	/*this should be somewhere in ledger code*/
-	/* ugh, we shouldnt overwrite it */
+transactions_by_account_v2(Transactions,Transactions_By_Account) :-
+	assertion(nonvar(Transactions)),
+	assertion(var(Transactions_By_Account)),
+	sort_into_dict(transaction_account, Transactions, Transactions_By_Account).
+
+'with current and historical earnings equity balances'(Dict,Start_Date,End_Date,Transactions_By_Account) :-
 	transactions_before_day_on_account_and_subaccounts(Dict, $>abrlt('Comprehensive_Income'), Start_Date, Historical_Earnings_Transactions),
 	transactions_before_day_on_account_and_subaccounts(Dict, $>abrlt('Historical_Earnings'), Start_Date, Historical_Earnings_Transactions2),
 	append(Historical_Earnings_Transactions, Historical_Earnings_Transactions2, Historical_Earnings_Transactions_All),
 	Dict2 = Dict.put($>abrlt('Historical_Earnings'), Historical_Earnings_Transactions_All),
-
 	transactions_in_period_on_account_and_subaccounts(Dict, $>abrlt('Comprehensive_Income'), Start_Date, End_Date, Current_Earnings_Transactions),
 	Transactions_By_Account = Dict2.put($>abrlt('Current_Earnings'), Current_Earnings_Transactions).
 

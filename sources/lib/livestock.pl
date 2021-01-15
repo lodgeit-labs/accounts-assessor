@@ -132,6 +132,7 @@ process_livestock2((S_Transactions, Transactions_In), Livestock, Transactions_Ou
 	append(Transactions_In, Transactions3, Transactions_Total),
 
 	Static_Data1 = Static_Data0.put(transactions,Transactions_Total),
+	with current and historical earnings equity balances
 	transactions_by_account(Static_Data1, Transactions_By_Account),
 
 	closing_inventory_transactions(Livestock, Transactions_By_Account, Closing_Transactions),

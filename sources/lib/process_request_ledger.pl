@@ -1,35 +1,22 @@
+ process_request_ledger :-
+	cf(extract_report_parameters),
+ 	push_context('phases (each phase depends on posted results of previous phase):'),
+	c('automated: post bank opening balances',
+		generate_bank_opening_balances_sts(Bank_Lump_STs),
+		handle_sts(S0, Bank_Lump_STs, S2)),
+	c('phase: opening balance',
+		process_sheets(S2, phases:opening_balance, S4)
+		),
+	c('automated: rollover',
+		(
 
- extract_data(Data) :-
-	cf(extract_start_and_end_date),
-	doc_add($>result, l:type, l:ledger),
-	!cf(extract_request_details),
-	!cf('extract "output_dimensional_facts"'),
-	!cf('extract "cost_or_market"'),
-	!cf(extract_report_currency),
-	!cf('extract action verbs'),
-	!cf('extract bank accounts'),
-	!cf('extract GL accounts'),
-	!cf(make_gl_viewer_report),
-	!cf(write_accounts_json_report),
-	!cf(extract_exchange_rates(Exchange_Rates)).
+			smsf_rollover0(S4)
+		)
 
+	)
+.
 
 /*
-phases:
-	automated: post bank opening balances
-	phase: opening balance
-	automated: rollover
-
-each phase depends on posted results of previous phase.
-*/
-
- process_request_ledger :-
-	extract_data(Sd0),
-	!cf(generate_bank_opening_balances_sts(Bank_Lump_STs)),
-	handle_sts(Sd0, Bank_Lump_STs, Bank_Lump_Ts),
-
-
-
 	Exchange_Date = End_Date,
 
 	dict_from_vars(
@@ -46,32 +33,8 @@ each phase depends on posted results of previous phase.
 			Exchange_Date
 		]
 	),
+*/
 
-
-
-
-
- handle_sts(State0, S_Transactions, Outstanding_In, Outstanding_Out, Processed_Until) :-
- 	doc(State0, l:has_transactions, Transactions_in),
- 	doc(State0, l:end_date, End_Date),
-
-	!s_transactions_up_to(End_Date, S_Transactions, S_Transactions2),
-	!sort_s_transactions(S_Transactions2, S_Transactions4),
-
-	dict_from_vars(Static_Data0, [Report_Currency, Start_Date, End_Date, Exchange_Rates, Cost_Or_Market]),
-
-	!cf('pre-preprocess source transactions'(S_Transactions4, Prepreprocessed_S_Transactions)),
-
-	!cf(preprocess_until_error(Static_Data0, Prepreprocessed_S_Transactions, Preprocessed_S_Transactions, Transactions, Outstanding_Out, End_Date, Processed_Until)),
-
-	Processed_Until always == End_Date!
-
-	(	(($>length(Processed_S_Transactions)) == ($>length(Prepreprocessed_S_Transactions)))
-	->	true
-	;	add_alert('warning', 'not all source transactions processed, proceeding with reports anyway..')),
-
-	!transactions_by_account(Static_Data0b, Transactions_By_Account1),
-	Static_Data1 = Static_Data0b.put([transactions_by_account=Transactions_By_Account1]).
 
 
 
@@ -114,6 +77,7 @@ each phase depends on posted results of previous phase.
 		end_date=Processed_Until_Date,
 		exchange_date=Processed_Until_Date
 	]),
+	with current and historical earnings equity balances
 	!transactions_by_account(Static_Data0b, Transactions_By_Account1),
 	Static_Data1 = Static_Data0b.put([transactions_by_account=Transactions_By_Account1]),
 	(	account_by_role(rl(smsf_equity), _)
@@ -132,6 +96,7 @@ each phase depends on posted results of previous phase.
 update_static_data_with_transactions(In, Txs, Out) :-
 	append(In.transactions,$>flatten(Txs),Transactions2),
 	Static_Data1b = In.put([transactions=Transactions2]),
+	with current and historical earnings equity balances
 	!transactions_by_account(Static_Data1b, Transactions_By_Account),
 	Out = Static_Data1b.put([transactions_by_account=Transactions_By_Account]).
 
@@ -368,3 +333,19 @@ update: instead of passing json around, we should focus on doc-izing everything.
 	(	L \= 2
 	->	true
 	;	(g trace,format(user_error, '~q: ~q ~n', [Count, Structured_Reports.crosschecks.errors]))).*/
+
+
+
+ extract_report_parameters :-
+	cf(extract_start_and_end_date),
+	doc_add($>result, l:type, l:ledger),
+	!cf(extract_request_details),
+	!cf('extract "output_dimensional_facts"'),
+	!cf('extract "cost_or_market"'),
+	!cf(extract_report_currency),
+	!cf('extract action verbs'),
+	!cf('extract bank accounts'),
+	!cf('extract GL accounts'),
+	!cf(make_gl_viewer_report),
+	!cf(write_accounts_json_report),
+	!cf(extract_exchange_rates).

@@ -44,6 +44,7 @@ RUN gcc -v
 RUN git clone https://github.com/SWI-Prolog/swipl-devel.git swipl
 WORKDIR swipl
 #RUN git checkout 9defc51a1e328f095c6e51bb41693d2115ab0cff
+RUN git checkout b5933a38b856402c3e862ea32031c041deb82bda
 RUN git submodule update --init --recursive
 
 

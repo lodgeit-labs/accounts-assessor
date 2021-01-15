@@ -3,11 +3,10 @@ wip: go through all GL sheets in excel
 	automatize or
 	set non-default phase (smsf_...)
 
-
-
-
-
 */
+
+
+%state_fields([day, type_id, vector, account, exchanged, misc]).
 
 
 basic_reports(Prefix, Static_Data, Sr) :-
@@ -16,16 +15,31 @@ basic_reports(Prefix, Static_Data, Sr) :-
 	Static_Data.exchange_rates
 	Static_Data.transactions_by_account
 	Static_Data.report_currency
-	Static_Data.end_date
 	Static_Data.start_date
+	Static_Data.end_date
 	*/
 	!balance_entries(Static_Data, Sr),
 	!other_reports2(Prefix, Static_Data, Sr),
 
+smsf_rollover0(State_in, State_out) :-
+	state_static_data(State_in, Static_Data),
+	smsf_rollover(Static_Data, Txs),
 
+ 	doc_new_(l:state, State_out),
+ 	doc_add(State_out, l:has_transactions, $>append(Static_Data.transactions, Txs)).
+
+
+
+state_static_data(State_in, Static_Data) :-
+	!doc(State_in, l:has_transactions, Transactions),
+ 	!result_has_property(l:report_currency, Report_Currency),
+ 	!result_has_property(l:exchange_rates, Exchange_Rates),
+	!result_has_property(l:start_date, Start_Date),
+ 	!result_has_property(l:end_date, End_Date),
+	!transactions_by_account_v2(Transactions,Transactions_By_Account),
+	dict_from_vars(Static_Data, [Transactions, Exchange_Rates, Transactions_By_Account, Report_Currency, Start_Date, End_Date]).
 
 smsf_rollover(Static_Data, Txs) :-
-
 	basic_reports('before_smsf_rollover_', Static_Data, Sr),
 	Bs = Sr.bs.current,
 	'check that smsf_equity_Opening_Balance is zero',
