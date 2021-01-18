@@ -5,8 +5,9 @@
 	<title>General Ledger Viewer documentation</title>
 	<meta name="generator" content="LibreOffice 6.0.7.3 (Linux)"/>
 	<meta name="created" content="00:00:00"/>
-	<meta name="changed" content="2021-01-12T22:58:07.833343700"/>
+	<meta name="changed" content="2021-01-18T08:37:01.451064538"/>
 	<meta name="" content=""/>
+	<meta name="created" content="00:00:00">
 	<meta name="created" content="00:00:00">
 	<style type="text/css">
 		h1 { text-align: center }
@@ -113,6 +114,41 @@ address accounts by names, or by roles:</p>
 </h2>
 <h2 class="western" style="margin-top: 0.02in; margin-bottom: 0.02in">
 Roles</h2>
+<h3 class="western">Purpose</h3>
+<p style="margin-bottom: 0in"><br/>
+
+</p>
+<p style="margin-bottom: 0in"> If a trading account
+Financial_Investments already contains</p>
+<p style="margin-bottom: 0in">an account with id
+Financial_Investments_realized, either it has to have a role
+Financial_Investments/realized,</p>
+<p style="margin-bottom: 0in">or is not recognized as such, and a new
+one with proper role is proposed. This allows us to abstract away
+from ids,</p>
+<p style="margin-bottom: 0in">because Financial_Investments_realized
+might already be an id of another user account, intended for a
+different purpose.</p>
+<p style="margin-bottom: 0in">Or:</p>
+<p style="margin-bottom: 0in">mixing and matching roles: consider a
+case where we have multiple bank accounts, each needs a corresponding
+CurrencyMovement sub-account, but we want a part of the bank accounts
+to use one CurrencyMovement account and a part to use another:</p>
+<p style="margin-bottom: 0in">&lt;ComprehensiveIncome&gt;</p>
+<p style="margin-bottom: 0in">	&lt;VolatileCurrencyMovement&gt;</p>
+<p style="margin-bottom: 0in">		&lt;BitcoinCurrencyMovement&gt;</p>
+<p style="margin-bottom: 0in">	&lt;/VolatileCurrencyMovement&gt;</p>
+<p style="margin-bottom: 0in">	&lt;NormalCurrencyMovement&gt;</p>
+<p style="margin-bottom: 0in">		&lt;Bank1CurrencyMovement&gt;</p>
+<p style="margin-bottom: 0in">	&lt;/NormalCurrencyMovement&gt;</p>
+<p style="margin-bottom: 0in">&lt;/ComprehensiveIncome&gt;</p>
+<p style="margin-bottom: 0in">Thus, we have to specify these accounts
+manually (in a xml file). And we have to assign the right roles to
+them, so the system can recognize them.</p>
+<p style="margin-bottom: 0in"><br/>
+
+</p>
+<h3 class="western">Syntax</h3>
 <p style="margin-top: 0.02in; margin-bottom: 0.02in">A role is a
 path, much like a file path in a computer:</p>
 <p style="margin-top: 0.02in; margin-bottom: 0.02in"><img src="Robust_documentation_html_220dae5d44ef6a0e.gif" name="Image4" align="left" width="513" height="32">
@@ -149,12 +185,13 @@ to match up with one nonempty “param” column.</p>
 <br/>
 
 </h2>
-<h2 class="western" style="margin-top: 0.02in; margin-bottom: 0.02in">
-<br/>
-<br/>
-
-</h2>
-<h2 class="western" style="margin-top: 0.02in; margin-bottom: 0.02in">
+<h2 class="western">action verbs</h2>
+<pre class="western" style="background: #ffffff"><font color="#3c3b31"><font face="Fira Code Medium, monospace"><font size="2" style="font-size: 10pt">action verbs in general:</font></font></font>
+<font color="#3c3b31">   <font face="Fira Code Medium, monospace"><font size="2" style="font-size: 10pt">Invest_In</font></font></font>
+<font color="#3c3b31">   <font face="Fira Code Medium, monospace"><font size="2" style="font-size: 10pt">Dispose_Off</font></font></font>
+<font color="#3c3b31">      <font face="Fira Code Medium, monospace"><font size="2" style="font-size: 10pt">magic: affect counteraccount's Unit subaccount</font></font></font>
+<font color="#3c3b31"><font face="Fira Code Medium, monospace"><font size="2" style="font-size: 10pt">&quot;trading account&quot; parameter of action verb:</font></font></font>
+<font color="#3c3b31">   <font face="Fira Code Medium, monospace"><font size="2" style="font-size: 10pt">magic: affect &quot;trading account&quot;'s Unit subaccount</font></font></font></pre><h2 class="western" style="margin-top: 0.02in; margin-bottom: 0.02in">
 Opening balances</h2>
 <h3 class="western" style="margin-top: 0.02in; margin-bottom: 0.02in">
 general ledger method</h3>
@@ -280,7 +317,7 @@ processing error recovery:</p>
 <br/>
 
 </p>
-<p style="margin-top: 0.02in; margin-bottom: 0.02in">	It's not
+<p style="margin-top: 0.02in; margin-bottom: 0.02in">It's not
 possible to determine order of transactions that transpired on one
 day, so to avoid confusion, when we fail to process a transaction, we
 go back all the way to the end of the previous day, and try to run
@@ -290,7 +327,7 @@ and after.</p>
 <br/>
 
 </p>
-<p style="margin-top: 0.02in; margin-bottom: 0.02in">	We originally
+<p style="margin-top: 0.02in; margin-bottom: 0.02in">We originally
 tried generating all reports for the &quot;last good&quot; day, but
 that had issues, at least with investment report failing because of
 missing exchange rates. So, rather, we run the reports for the

@@ -3,6 +3,7 @@
  	doc_new_(l:state, State),
  	doc_add(State, l:has_transactions, []),
  	doc_add(State, l:has_s_transactions, []),
+ 	todo outstanding
  	true.
 
 

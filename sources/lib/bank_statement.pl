@@ -4,25 +4,56 @@
 */
 preprocess_s_transactions(_, [], [], [], Outstanding, Outstanding).
 
-preprocess_s_transactions(Static_Data, [S_Transaction|S_Transactions], Processed_S_Transactions, Transactions_Out, Outstanding_In, Outstanding_Out) :-
-	push_format('processing source transaction:~n ~w~n', [$>!pretty_st_string(S_Transaction)]),
-	dict_vars(Static_Data, [Start_Date, End_Date, Exchange_Rates]),
+preprocess_s_transactions(
+	Static_Data,
+	[S_Transaction|S_Transactions],
+	Processed_S_Transactions,
+	Transactions_Out,
+	Outstanding_In,
+	Outstanding_Out
+) :-
+	push_format(
+		'processing source transaction:~n ~w~n', [
+			$>!pretty_st_string(S_Transaction)]),
 
 	(	current_prolog_flag(die_on_error, true)
-	->	!preprocess_s_transaction3(Static_Data, S_Transaction, Outstanding_In, Outstanding_Mid, Transactions_Out_Tail, Processed_S_Transactions, Processed_S_Transactions_Tail, Exchange_Rates, Start_Date, End_Date, Transactions_Out)
+	->	E = something_that_doesnt_unify_with_any_error
+	;	true),
+
 	;	catch_with_backtrace(
-			!preprocess_s_transaction3(Static_Data, S_Transaction, Outstanding_In, Outstanding_Mid,  Transactions_Out_Tail, Processed_S_Transactions, Processed_S_Transactions_Tail, Exchange_Rates, Start_Date, End_Date, Transactions_Out),
+			!preprocess_s_transaction3(
+				Static_Data,
+				S_Transaction,
+				Outstanding_In,
+				Outstanding_Mid,
+				Transactions_Out_Tail,
+				Processed_S_Transactions,
+				Processed_S_Transactions_Tail,
+				Transactions_Out
+			),
 			E,
 			(
+				Err = E
 				/* watch out: this re-establishes doc to the state it was before the exception */
 				!handle_processing_exception(E)
 			)
 		)
 	),
+
 	pop_context,
-	(	var(E)
-	->	!preprocess_s_transactions2(Static_Data, S_Transactions, Processed_S_Transactions_Tail, Transactions_Out_Tail,  Outstanding_Mid, Outstanding_Out)
-	;	(
+
+	(	var(Err)
+	->	(	% recurse
+			!preprocess_s_transactions2(
+				Static_Data,
+				S_Transactions,
+				Processed_S_Transactions_Tail,
+				Transactions_Out_Tail,
+				Outstanding_Mid,
+				Outstanding_Out
+			)
+		)
+	;	(	% give up
 			Outstanding_In = Outstanding_Out,
 			Transactions_Out = [],
 			Processed_S_Transactions = []
@@ -30,54 +61,101 @@ preprocess_s_transactions(Static_Data, [S_Transaction|S_Transactions], Processed
 	).
 
 
-preprocess_s_transaction3(Static_Data, S_Transaction, Outstanding_In, Outstanding_Mid, Transactions_Out_Tail, Processed_S_Transactions, Processed_S_Transactions_Tail, Exchange_Rates, Start_Date, End_Date, Transactions_Out) :-
+preprocess_s_transaction3(
+	Static_Data,
+	S_Transaction,
+	Outstanding_In,
+	Outstanding_Mid,
+	Transactions_Out_Tail,
+	Processed_S_Transactions,
+	Processed_S_Transactions_Tail,
+	Transactions_Out
+) :-
 	check_that_s_transaction_account_exists(S_Transaction),
 
 	s_transaction_type_id(S_Transaction, uri(Action_Verb)),
+
 	(	doc(Action_Verb, l:has_counteraccount, Exchanged_Account_Ui)
 	->	true
 	;	Exchanged_Account_Ui = ''),
 	(	doc(Action_Verb, l:has_trading_account, Trading_Account_Ui)
 	->	true
 	;	Trading_Account_Ui = ''),
-	push_format('using action verb ~q:~n  exchanged account: ~q~n  trading account: ~q~n', [$>doc(Action_Verb, l:has_id), Exchanged_Account_Ui, Trading_Account_Ui]),
 
-	!preprocess_s_transaction(Static_Data, $>result_property(l:report_currency), Exchange_Rates, S_Transaction, Transactions0, Outstanding_In, Outstanding_Mid),
-	clean_up_resulting_transactions(Transactions0, Transactions_Result),
+	push_format(
+		'using action verb ~q:~n  exchanged account: ~q~n  trading account: ~q~n', [
+			$>doc(Action_Verb, l:has_id),
+			Exchanged_Account_Ui,
+			Trading_Account_Ui]),
+
+	!preprocess_s_transaction(
+		Static_Data,
+		$>result_property(l:report_currency),
+		$>result_property(l:exchange_rates),
+		S_Transaction,
+		Transactions0,
+		Outstanding_In,
+		Outstanding_Mid),
+
+	clean_up_resulting_transactions(
+		Transactions0,
+		Transactions_Result),
+
 	Transactions_Out = [Transactions_Result|Transactions_Out_Tail],
-	%append(Debug_So_Far, [Debug_Head], Debug_So_Far2),
 	Processed_S_Transactions = [S_Transaction|Processed_S_Transactions_Tail],
-	cf(check_trial_balance_at_date_of_last_transaction_in_list(Transactions_Result, $>result_property(l:report_currency), Exchange_Rates, End_Date)),
+
+	cf(check_trial_balance_at_date_of_last_transaction_in_list(
+		Transactions_Result,
+		$>result_property(l:report_currency),
+		$>result_property(l:exchange_rates),
+		$>result_property(l:end_date))),
 
 	pop_context.
 
 
-clean_up_resulting_transactions(Transactions0, Transactions_Result) :-
-	% filter out unbound vars from the resulting Transactions list, as some rules do not always produce all possible transactions
+ clean_up_resulting_transactions(Transactions0, Transactions_Result) :-
 	flatten(Transactions0, Transactions1),
 	exclude(var, Transactions1, Transactions2),
 	exclude(has_empty_vector, Transactions2, Transactions_Result).
 
 
- check_trial_balance_at_date_of_last_transaction_in_list(Transactions_Result, Report_Currency, Exchange_Rates, End_Date) :-
+ check_trial_balance_at_date_of_last_transaction_in_list(
+ 	Transactions_Result,
+ 	Report_Currency,
+ 	Exchange_Rates,
+ 	End_Date
+) :-
 	Transactions_Result = [T|_],
 	transaction_day(T, Transaction_Date),
+	/* we cannot compare values if we can't convert them to same currency first */
 	(	Report_Currency = []
-	->	true /* we cannot compare values if we don't convert them to the same currency first */
+	->	true
 	;	check_trial_balance0(Exchange_Rates, Report_Currency, Transaction_Date, Transactions_Result,  End_Date)).
 
 
-% ----------
-% This predicate takes a statement transaction term and decomposes it into a list of plain transaction terms.
-% ----------	
+/*
+take a statement/source transaction term and decompose it into a list of plain transaction terms.
+*/
 
-preprocess_s_transaction(Static_Data, _Report_Currency, _Exchange_Rates, S_Transaction, Transactions, Outstanding, Outstanding) :-
+preprocess_s_transaction(
+	Static_Data,
+	S_Transaction,
+	Transactions,
+	Outstanding,
+	Outstanding
+) :-
 	s_transaction_type_id(S_Transaction, uri(Action_Verb)),
 	member(V, $>livestock_verbs),
 	rdf_global_id(V, Action_Verb),
 	cf(preprocess_livestock_buy_or_sell(Static_Data, S_Transaction, Transactions)).
 
-preprocess_s_transaction(Static_Data, Report_Currency, Exchange_Rates, S_Transaction, Transactions, Outstanding_Before, Outstanding_After) :-
+preprocess_s_transaction(
+	Static_Data,
+	S_Transaction,
+	Transactions,
+	Outstanding_Before,
+	Outstanding_After
+) :-
 	s_transaction_type_id(S_Transaction, uri(Action_Verb)),
 	maplist(dif(Action_Verb), $>rdf_global_id($>livestock_verbs,<$)),
 	Transactions = [Ts1, Ts2, Ts3, Ts4],

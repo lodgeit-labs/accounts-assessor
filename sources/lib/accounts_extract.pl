@@ -1,40 +1,22 @@
-/*
-	% NOTE: we have to load an entire taxonomy file just to determine that it's not a simple XML hierarchy
-	would be even more simplified if we differentiated between <accounts> and <taxonomy> tags
-	so that we're not trying to dispatch by inferring the file contents
-
-	<taxonomy> tag:
-		we'll probably end up extracting more info from the taxonomies later anyway
-		should only be one taxonomy tag
-		because: should only be one main taxonomy file that does the linking to other taxonomy files (if any)
-			(until we have some use-case for "supporting multiple taxonomies" ?)
-		arelle doesn't care whether you send it a filepath or URL
-
-	<accounts> tag:
-		now only two cases:
-			1) DOM = element(_,_,_)
-			2) [Atom] = DOM
-				then just generic "load_file(Atom, Contents), extract_simple_account_hierarchy(Contents, Account_Hierarchy)"
-*/
 
 /*
 extract account tree specified in request xml
 the accountHierarchy tag can appear multiple times, all the results will be added together.
 */
 
-'extract GL accounts' :-
+ 'extract GL accounts' :-
 	!doc_add($>(!result), l:has_accounts, $>(!doc_new_uri(account_hierarchy))),
 	make_root_account,
 	extract_accounts2.
 
-extract_accounts2 :-
+ extract_accounts2 :-
 	request_data(Request_Data),
 	doc(Request_Data, ic_ui:report_details, Details),
 	doc_value(Details, ic_ui:account_taxonomies, T),
 	doc_list_items(T, Taxonomies),
 	maplist(load_account_hierarchy,Taxonomies).
 
-load_account_hierarchy(Taxonomy0) :-
+ load_account_hierarchy(Taxonomy0) :-
 	doc_value(Taxonomy0, account_taxonomies:url, Taxonomy),
 	(	default_account_hierarchy(Taxonomy, Url)
 	->	true
@@ -42,7 +24,7 @@ load_account_hierarchy(Taxonomy0) :-
 	load_accountHierarchy_element(Url, AccountHierarchy),
 	extract_accounts_from_accountHierarchy_element(AccountHierarchy).
 
-default_account_hierarchy(Taxonomy, Url) :-
+ default_account_hierarchy(Taxonomy, Url) :-
 		rdf_equal2(Taxonomy, account_taxonomies:base)
 	->	Url = 'base.xml'
 	;	rdf_equal2(Taxonomy, account_taxonomies:investments)
@@ -53,7 +35,7 @@ default_account_hierarchy(Taxonomy, Url) :-
 	->	Url = 'smsf.xml'
 	.
 
-absolutize_account_hierarchy_path(Url_Or_Path, Url_Or_Path2) :-
+ absolutize_account_hierarchy_path(Url_Or_Path, Url_Or_Path2) :-
 	(	is_url(Url_Or_Path)
 	->	Url_Or_Path2 = Url_Or_Path
 	;	(	http_safe_file(Url_Or_Path, []),
@@ -66,11 +48,11 @@ absolutize_account_hierarchy_path(Url_Or_Path, Url_Or_Path2) :-
 		)
 	).
 
-load_accountHierarchy_element(Url_Or_Path, AccountHierarchy_Elements) :-
+ load_accountHierarchy_element(Url_Or_Path, AccountHierarchy_Elements) :-
 	absolutize_account_hierarchy_path(Url_Or_Path, Url_Or_Path2),
 	load_accountHierarchy_element2(Url_Or_Path2, AccountHierarchy_Elements).
 
-load_accountHierarchy_element2(Url_Or_Path, AccountHierarchy_Elements) :-
+ load_accountHierarchy_element2(Url_Or_Path, AccountHierarchy_Elements) :-
 	(	(	xml_from_path_or_url(Url_Or_Path, AccountHierarchy_Elements),
 			xpath(AccountHierarchy_Elements, //accountHierarchy, _)
 		)
@@ -78,7 +60,7 @@ load_accountHierarchy_element2(Url_Or_Path, AccountHierarchy_Elements) :-
 		;	arelle(taxonomy, Url_Or_Path, AccountHierarchy_Elements))
 	.
 
-arelle(taxonomy, Taxonomy_URL, AccountHierarchy_Elements) :-
+ arelle(taxonomy, Taxonomy_URL, AccountHierarchy_Elements) :-
 	internal_services_rpc(
 		cmd{'method':'arelle_extract','params':p{'taxonomy_locator':Taxonomy_URL}},
 		Result),
@@ -87,7 +69,7 @@ arelle(taxonomy, Taxonomy_URL, AccountHierarchy_Elements) :-
 	call_with_string_read_stream(Result, load_extracted_account_hierarchy_xml(AccountHierarchy_Elements)).
 
 /* todo maybe unify with xml_from_path_or_url */
-load_extracted_account_hierarchy_xml(/*-*/AccountHierarchy_Elements, /*+*/Stream) :-
+ load_extracted_account_hierarchy_xml(/*-*/AccountHierarchy_Elements, /*+*/Stream) :-
 	load_structure(Stream, AccountHierarchy_Elements, [dialect(xml),space(remove)]).
 
 
@@ -99,15 +81,15 @@ load_extracted_account_hierarchy_xml(/*-*/AccountHierarchy_Elements, /*+*/Stream
 extract accounts from accountHierarchy xml element
 */
 
-extract_accounts_from_accountHierarchy_element([element(_,_,Children)]) :-
+ extract_accounts_from_accountHierarchy_element([element(_,_,Children)]) :-
 	maplist(extract_accounts_subtree(no_parent_element), Children).
 
-extract_accounts_subtree(Parent, E) :-
+ extract_accounts_subtree(Parent, E) :-
 	add_account(E, Parent, Uri),
 	E = element(_,_,Children),
 	maplist(extract_accounts_subtree(Uri), Children).
 
-add_account(E, Parent0, Uri) :-
+ add_account(E, Parent0, Uri) :-
 	E = element(Elem_name, Attrs, _),
 	(	memberchk((name = Id), Attrs)
 	->	true
@@ -200,13 +182,13 @@ add_account(E, Parent0, Uri) :-
     path_term_to_list2(Term, List0),
     reverse(List0, List).
 
-path_term_to_list2(Bulk/Atom, [Atom|Tail]) :-
+ path_term_to_list2(Bulk/Atom, [Atom|Tail]) :-
     dif(Tail, []),
 	!,
     (atomic(Atom)->true;throw(zzz)),
     path_term_to_list2(Bulk, Tail).
 
-path_term_to_list2(Bulk, [Bulk]) :-
+ path_term_to_list2(Bulk, [Bulk]) :-
 	atomic(Bulk),
     !.
 
@@ -216,7 +198,7 @@ path_term_to_list2(Bulk, [Bulk]) :-
 
 
 
-extract_normal_side_uri_from_attrs(Attrs, Side) :-
+ extract_normal_side_uri_from_attrs(Attrs, Side) :-
 	(	memberchk((normal_side = Side_atom), Attrs)
 	->	(	Side_atom = debit
 		->	Side = kb:debit
@@ -224,7 +206,29 @@ extract_normal_side_uri_from_attrs(Attrs, Side) :-
 			->	Side = kb:credit
 			;	throw_string(['unexpected account normal side in accounts xml:', Side_atom])))).
 
-extract_normal_side_uri_from_account_detail_rdf(Detail, Side) :-
+ extract_normal_side_uri_from_account_detail_rdf(Detail, Side) :-
 	nonvar(Detail),
 	doc(Detail, accounts:normal_side, Side).
+
+
+
+
+/*
+	% NOTE: we have to load an entire xbrl taxonomy file just to determine that it's not a simple XML hierarchy
+	would be even more simplified if we differentiated between <accounts> and <taxonomy> tags
+	so that we're not trying to dispatch by inferring the file contents
+
+	<taxonomy> tag:
+		we'll probably end up extracting more info from the taxonomies later anyway
+		should only be one taxonomy tag
+		because: should only be one main taxonomy file that does the linking to other taxonomy files (if any)
+			(until we have some use-case for "supporting multiple taxonomies" ?)
+		arelle doesn't care whether you send it a filepath or URL
+
+	<accounts> tag:
+		now only two cases:
+			1) DOM = element(_,_,_)
+			2) [Atom] = DOM
+				then just generic "load_file(Atom, Contents), extract_simple_account_hierarchy(Contents, Account_Hierarchy)"
+*/
 

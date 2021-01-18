@@ -183,3 +183,35 @@ profitandloss_between(Exchange_Rates, Accounts, Transactions, Report_Currency, E
 	])].
 */
 %trial_balance_between(Static_Data,[Trial_Balance_Section]) :-
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* all bank account names required by all S_Transactions */
+/*bank_account_names(S_Transactions, Names) :-
+	findall(
+		Bank_Account_Name,
+		(
+			member(T, S_Transactions),
+			s_transaction_account(T, Bank_Account_Name)
+		),
+		Names0
+	),
+	sort(Names0, Names).
+*/
+

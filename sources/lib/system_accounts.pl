@@ -1,69 +1,13 @@
-/*note:we form roles from ids, so the id should be unique in this context. eg, if there are two different accounts with id "Investments", this will break. The alternative is to use full uri, or to introduce account codes, or similar. This problem goes all the way to the excel UI, where action verbs have fields for accounts. Id's are used, and we expect them to be unique, but account names in big hierarchies aren't unique. So how would a user specify an account unambiguously? Either specify the unique code directly, or the ui has to have a sheet with the mapping, or there has to be a menu item that makes a request to the endpoint to load taxonomies and return back some rdf with the mapping. */
 
-
-/*
-╻┏━┓   ╻ ╻┏━┓╻  ╻╺┳┓   ┏━┓┏━┓╻  ┏━╸
-┃┗━┓   ┃┏┛┣━┫┃  ┃ ┃┃   ┣┳┛┃ ┃┃  ┣╸
-╹┗━┛╺━╸┗┛ ╹ ╹┗━╸╹╺┻┛╺━╸╹┗╸┗━┛┗━╸┗━╸
-*/
-
-% could be also called from make_account or account_set_role. the goal is that all code paths that construct roles will go through this.
-% probably the semantics should be such that it can be skipped for optimization.
-% in the end, we have roles that are constructed from account names, so any atom is a valid role. This hinders checking.
-
-
-is_valid_role('Banks') :- !.
-is_valid_role('Banks'/Id) :- !,freeze(Id, atom(Id)).
-
-is_valid_role('Trading_Accounts'/Trading_Account_Id) :- !,
-	freeze(Trading_Account_Id, atom(Trading_Account_Id)).
-is_valid_role('Trading_Accounts'/_1387496/unrealized) :- !.
-is_valid_role('Trading_Accounts'/_1387572/realized) :- !.
-is_valid_role('Trading_Accounts'/_1387080/realized/withoutCurrencyMovement) :- !.
-is_valid_role('Trading_Accounts'/_1387168/realized/onlyCurrencyMovement) :- !.
-is_valid_role('Trading_Accounts'/_1387256/unrealized/withoutCurrencyMovement) :- !.
-is_valid_role('Trading_Accounts'/_1387344/unrealized/onlyCurrencyMovement) :- !.
-is_valid_role('Trading_Accounts'/Trading_Account_Id/Realized_Or_Unrealized/Currency_Movement_Aspect/Traded_Unit) :-
-	!,
-	freeze(Id, atom(Trading_Account_Id)),
-	member(Realized_Or_Unrealized, [realized, unrealized]),
-	member(Currency_Movement_Aspect, [onlyCurrencyMovement, withoutCurrencyMovement]),
-	freeze(Id, atom(Traded_Unit)).
-
-is_valid_role('Comprehensive_Income') :- !.
-is_valid_role('Historical_Earnings') :- !.
-is_valid_role('Current_Earnings') :- !.
-is_valid_role('Net_Assets') :- !.
-is_valid_role('Equity') :- !.
-is_valid_role('Currency_Movement') :- !.
-is_valid_role('Currency_Movement'/Id) :- !, freeze(Id, atom(Id)).
-is_valid_role('Cash_and_Cash_Equivalents') :- !.
-is_valid_role('Financial_Investments'/Id) :- !, freeze(Id, atom(Id)).
-
-/*
-┏┳┓╻┏━┓┏━╸
-┃┃┃┃┗━┓┃
-╹ ╹╹┗━┛┗━╸
-*/
-
-/*
- acc(Role, Account) :-
-	(	Role = name(Name)
-	->	account_by_ui(Name, Account)
-	;	abrlt(Role, Account).
-*/
- abrlt(Role, Account) :-
-
-	%!is_valid_role(Role),
-
-	!(	is_valid_role(Role)
-	->	true
-	;	true/*format(user_error, '~q.~n', [is_valid_role(Role)])*/),
-
-	account_by_role_throw(rl(Role), Account).
+'ensure system accounts exist 0'(S_Transactions) :-
+	!cf('ensure system accounts exist'(S_Transactions)),
+	!cf(check_accounts_parent),
+	!cf(check_accounts_roles),
+	!cf(propagate_accounts_side),
+	!cf(write_accounts_json_report).
 
  'ensure system accounts exist'(S_Transactions) :-
-	!cf(ensure_bank_gl_accounts_exist),
+	!cf(ensure_bank_gl_accounts_exist), % fixme also use S_Transactions to take extract_german_bank_csv0 into account?
 	!cf(subcategorize_by_bank),
 	!cf(ensure_livestock_accounts_exist),
 	!cf(traded_units(S_Transactions, Traded_units)),
@@ -90,6 +34,7 @@ asset GL accounts corresponding to bank accounts
 */
 
  ensure_bank_gl_accounts_exist :-
+ 	/* fixme: extract_german_bank_csv0 is ignored */
 	bank_account_names(Bank_Account_Names),
 	maplist(ensure_bank_gl_account_exists, Bank_Account_Names, Bank_Gl_Account),
 	maplist(ensure_currency_movement_account_exists, Bank_Gl_Account).
@@ -114,15 +59,15 @@ asset GL accounts corresponding to bank accounts
 
 %----
 
-subcategorize_by_bank :-
+ subcategorize_by_bank :-
  	findall(A, doc(A, accounts:subcategorize_by_bank, true, accounts), As),
  	maplist(subcategorize_by_bank3, As).
 
-subcategorize_by_bank3(A) :-
+ subcategorize_by_bank3(A) :-
 	bank_account_names(Bank_Account_Names),
 	maplist(subcategorize_by_bank6(A), Bank_Account_Names).
 
-subcategorize_by_bank6(A, Bank_Account_Name) :-
+ subcategorize_by_bank6(A, Bank_Account_Name) :-
 	account_name(A, Name),
 	ensure_account_exists(A, _, 1, rl(Name/Bank_Account_Name), _).
 
@@ -386,3 +331,36 @@ ensure_smsf_equity_tree6(A) :-
 
 
 /*					<!-- todo: we should allow multiple roles on one account -->*/
+
+
+/*note:we form roles from ids, so the id should be unique in this context. eg, if there are two different accounts with id "Investments", this will break. The alternative is to use full uri, or to introduce account codes, or similar. This problem goes all the way to the excel UI, where action verbs have fields for accounts. Id's are used, and we expect them to be unique, but account names in big hierarchies aren't unique. So how would a user specify an account unambiguously? Either specify the unique code directly, or the ui has to have a sheet with the mapping, or there has to be a menu item that makes a request to the endpoint to load taxonomies and return back some rdf with the mapping... */
+
+
+/*
+╻┏━┓   ╻ ╻┏━┓╻  ╻╺┳┓   ┏━┓┏━┓╻  ┏━╸
+┃┗━┓   ┃┏┛┣━┫┃  ┃ ┃┃   ┣┳┛┃ ┃┃  ┣╸
+╹┗━┛╺━╸┗┛ ╹ ╹┗━╸╹╺┻┛╺━╸╹┗╸┗━┛┗━╸┗━╸
+*/
+
+% could be also called from make_account or account_set_role. the goal is that all code paths that construct roles will go through this.
+% probably the semantics should be such that it can be skipped for optimization.
+% in the end it turns out, we have roles that are constructed from account names, so any atom is a valid role. This hinders checking.
+
+is_valid_role(X) :- atom(X), !.
+is_valid_role('Banks'/Id) :- !,freeze(Id, atom(Id)).
+is_valid_role('Trading_Accounts'/Trading_Account_Id) :- !,
+	freeze(Trading_Account_Id, atom(Trading_Account_Id)).
+is_valid_role('Trading_Accounts'/_1387496/unrealized) :- !.
+is_valid_role('Trading_Accounts'/_1387572/realized) :- !.
+is_valid_role('Trading_Accounts'/_1387080/realized/withoutCurrencyMovement) :- !.
+is_valid_role('Trading_Accounts'/_1387168/realized/onlyCurrencyMovement) :- !.
+is_valid_role('Trading_Accounts'/_1387256/unrealized/withoutCurrencyMovement) :- !.
+is_valid_role('Trading_Accounts'/_1387344/unrealized/onlyCurrencyMovement) :- !.
+is_valid_role('Trading_Accounts'/Trading_Account_Id/Realized_Or_Unrealized/Currency_Movement_Aspect/Traded_Unit) :-
+	!,
+	freeze(Id, atom(Trading_Account_Id)),
+	member(Realized_Or_Unrealized, [realized, unrealized]),
+	member(Currency_Movement_Aspect, [onlyCurrencyMovement, withoutCurrencyMovement]),
+	freeze(Id, atom(Traded_Unit)).
+is_valid_role('Currency_Movement'/Id) :- !, freeze(Id, atom(Id)).
+is_valid_role('Financial_Investments'/Id) :- !, freeze(Id, atom(Id)).

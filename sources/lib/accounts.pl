@@ -1,27 +1,7 @@
-
 /*
-https://github.com/LodgeiT/labs-accounts-assessor/wiki/specifying_account_hierarchies
+wiki/specifying_account_hierarchies
 */
 
-/*
-roles: If a trading account Financial_Investments already contains
-an account with id Financial_Investments_realized, either it has to have a role Financial_Investments/realized,
-or is not recognized as such, and a new one with proper role is proposed. This allows us to abstract away from ids,
-because Financial_Investments_realized might already be an id of another user account.
-*/
-
-/*
-accountHierarchy is not an account. The root account has id 'root' and role 'root'.
-logic does not seem to ever need to care about the structure of the tree, only about identifying appropriate accounts
-so what i see we need is a user interface and a simple xml schema to express associations between accounts and their roles in the system.
-the roles can have unique names, and later URIs, in the whole set of programs.
- <account id="xxxx" role="Financial_Investments/Realized_Gains">...
-
-mostly it is a matter of creating a user interface to specify these associations
-
-the program can also create sub-accounts from the specified account at runtime as needed, for example for livestock types
-each account hierarchy can come with a default set of associations
-*/
 
 :- use_module(library(http/http_client)).
 :- use_module(library(http/http_dispatch)).
@@ -70,8 +50,27 @@ each account hierarchy can come with a default set of associations
 	doc(Uri, accounts:normal_side, X, accounts).
 
 
+
 /*
-find account by user's string (by name)
+ acc(Role, Account) :-
+	(	Role = name(Name)
+	->	account_by_ui(Name, Account)
+	;	abrlt(Role, Account).
+*/
+ abrlt(Role, Account) :-
+
+	!(	is_valid_role(Role)
+	->	true
+	;
+		%true
+		format(user_error, '~q.~n', [is_valid_role(Role)])
+	),
+
+	account_by_role_throw(rl(Role), Account).
+
+
+/*
+find account by a user-entered name
 */
  account_by_ui(X0, Uri) :-
  	trim_atom(X0, X),
@@ -168,6 +167,7 @@ this should ensure that all transactions get reflected in the account tree somew
 	maplist(check_account_parent,Accounts).
 
 
+/* just writes file, doesnt create report entry here */
  write_accounts_json_report :-
 	maplist(account_to_dict, $>all_accounts, Dicts),
 	write_tmp_json_file(loc(file_name,'accounts.json'), Dicts).
@@ -299,6 +299,8 @@ this should ensure that all transactions get reflected in the account tree somew
  ensure_account_has_normal_side(_, Account) :-
 	account_name(Account, Id),
 	throw_string(["couldn't determine account normal side for ", Id]).
+
+
 
 
 /*

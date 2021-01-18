@@ -1,10 +1,9 @@
+
 	!s_transactions_up_to(End_Date, S_Transactions0, S_Transactions),
 	!result_add_property(l:bank_s_transactions, S_Transactions),
-	!cf('ensure system accounts exist'(S_Transactions)),
-	!cf(check_accounts_parent),
-	!cf(check_accounts_roles),
-	!cf(propagate_accounts_side),
-	!cf(write_accounts_json_report),
+
+	!cf('ensure system accounts exist 0'(S_Transactions)),
+
 	!cf(extract_gl_inputs(Gl_input_txs)),
 	!cf(extract_reallocations(Reallocation_Txs)),
 	!cf(extract_smsf_distribution(Smsf_distribution_txs)),

@@ -1,14 +1,38 @@
+
+ extract_report_parameters :-
+	cf(extract_start_and_end_date),
+	doc_add($>result, l:type, l:ledger),
+	!cf(extract_request_details),
+	!cf('extract "output_dimensional_facts"'),
+	!cf('extract "cost_or_market"'),
+	!cf(extract_report_currency),
+	!cf('extract action verbs'),
+	!cf('extract bank accounts'),
+	!cf('extract GL accounts'),
+	!cf(make_gl_viewer_report),
+	!cf(write_accounts_json_report),
+	!cf(extract_exchange_rates).
+
+
  process_request_ledger :-
 	cf(extract_report_parameters),
- 	push_context('phases (each phase depends on posted results of previous phase):'),
+ 	push_context('processing phases (each phase depends on posted results of previous phase):'),
+ 	initial_state(S0),
 	c('automated: post bank opening balances',
 		generate_bank_opening_balances_sts(Bank_Lump_STs),
+		%'ensure system accounts exist 0'(Bank_Lump_STs)
 		handle_sts(S0, Bank_Lump_STs, S2)),
+	/*
 	c('phase: opening balance',
 		process_sheets(S2, phases:opening_balance, S4)),
 	c('automated: rollover',
 		smsf_rollover0(S4, S6)),
-	cf('phase: main')
+	cf('phase: main')*/
+
+	true.
+
+
+
 
 'phase: main'(S6) :-
 	!cf(handle_additional_files(S_Transactions_a)),
@@ -302,17 +326,3 @@ update: instead of passing json around, we should focus on doc-izing everything.
 	;	(g trace,format(user_error, '~q: ~q ~n', [Count, Structured_Reports.crosschecks.errors]))).*/
 
 
-
- extract_report_parameters :-
-	cf(extract_start_and_end_date),
-	doc_add($>result, l:type, l:ledger),
-	!cf(extract_request_details),
-	!cf('extract "output_dimensional_facts"'),
-	!cf('extract "cost_or_market"'),
-	!cf(extract_report_currency),
-	!cf('extract action verbs'),
-	!cf('extract bank accounts'),
-	!cf('extract GL accounts'),
-	!cf(make_gl_viewer_report),
-	!cf(write_accounts_json_report),
-	!cf(extract_exchange_rates).

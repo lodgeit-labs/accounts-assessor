@@ -86,7 +86,7 @@ reestablish_doc :-
 		)
 	;	true).
 
-handle_processing_exception(E) :-
+ handle_processing_exception(E) :-
 	reestablish_doc,
 	handle_processing_exception2(E).
 

@@ -1,5 +1,10 @@
 :- use_module(library(uri)).
 
+/*
+fixme:
+doesnt assert l:bank_account currenty
+*/
+
 extract_german_bank_csv0(Bn, S_Transactions) :-
 	doc_value(Bn, ic:url, Url0),
 	trim_string(Url0, Url),
