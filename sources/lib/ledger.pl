@@ -1,4 +1,4 @@
-
+/*
 	!s_transactions_up_to(End_Date, S_Transactions0, S_Transactions),
 	!result_add_property(l:bank_s_transactions, S_Transactions),
 
@@ -12,7 +12,7 @@
 	!cf(process_livestock((Processed_S_Transactions, Transactions1), Livestock_Transactions)),
 	flatten([Transactions1,	Livestock_Transactions], Transactions_With_Livestock).
 ???????
-
+*/
 
 gather_ledger_warnings(S_Transactions, Start_Date, End_Date, Warnings) :-
 	(

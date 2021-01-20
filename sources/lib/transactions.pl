@@ -135,7 +135,7 @@ transactions_before_day_on_account_and_subaccounts(Transactions_By_Account, Acco
 
 transactions_by_account(Static_Data, Transactions_By_Account) :-
 	dict_vars(Static_Data,
-		[Transactions,Start_Date,End_Date]
+		[Transactions]
 	),
 	assertion(nonvar(Transactions)),
 	sort_into_dict(transaction_account, Transactions, Transactions_By_Account).

@@ -18,7 +18,7 @@
 	cf(extract_report_parameters),
  	push_context('processing phases (each phase depends on posted results of previous phase):'),
  	initial_state(S0),
-	c('automated: post bank opening balances',
+	ct('automated: post bank opening balances',
 		generate_bank_opening_balances_sts(Bank_Lump_STs),
 		%'ensure system accounts exist 0'(Bank_Lump_STs)
 		handle_sts(S0, Bank_Lump_STs, S2)),
@@ -29,11 +29,12 @@
 		smsf_rollover0(S4, S6)),
 	cf('phase: main')*/
 
+	writeq(S2),nl,
 	true.
 
 
 
-
+/*
 'phase: main'(S6) :-
 	!cf(handle_additional_files(S_Transactions_a)),
 	!cf('extract bank statement transactions'(S_Transactions_b)),
@@ -54,7 +55,7 @@
 		Outstanding,
 		Processed_Until_Date),
 
-	/* if some s_transaction failed to process, there should be an alert created by now. Now we just compile a report up until that transaction. It would maybe be cleaner to do this by calling 'process_ledger' a second time */
+	% if some s_transaction failed to process, there should be an alert created by now. Now we just compile a report up until that transaction. It would maybe be cleaner to do this by calling 'process_ledger' a second time
 	dict_from_vars(Static_Data0,
 		[Cost_Or_Market,
 		Output_Dimensional_Facts,
@@ -68,7 +69,7 @@
 		end_date=Processed_Until_Date,
 		exchange_date=Processed_Until_Date
 	]),
-	with current and historical earnings equity balances
+	!'with current and historical earnings equity balances',
 	!transactions_by_account(Static_Data0b, Transactions_By_Account1),
 	Static_Data1 = Static_Data0b.put([transactions_by_account=Transactions_By_Account1]),
 	(	account_by_role(rl(smsf_equity), _)
@@ -82,12 +83,12 @@
 	;	Static_Data2 = Static_Data1),
 	cf(check_trial_balance2(Exchange_Rates, Static_Data2.transactions_by_account, Report_Currency, Static_Data2.end_date, Start_Date, Static_Data2.end_date)),
 	once(!cf(create_reports(Static_Data2, Structured_Reports))).
-
+*/
 
 update_static_data_with_transactions(In, Txs, Out) :-
 	append(In.transactions,$>flatten(Txs),Transactions2),
 	Static_Data1b = In.put([transactions=Transactions2]),
-	with current and historical earnings equity balances
+	'with current and historical earnings equity balances',
 	!transactions_by_account(Static_Data1b, Transactions_By_Account),
 	Out = Static_Data1b.put([transactions_by_account=Transactions_By_Account]).
 
@@ -283,7 +284,7 @@ This is done with a symlink. This allows to bypass cache, for example in pessera
 	;	Cost_Or_Market = market),
 	!doc_add($>result, l:cost_or_market, Cost_Or_Market).
 	
- 'extract "output_dimensional_facts"'(Output_Dimensional_Facts) :-
+ 'extract "output_dimensional_facts"' :-
 	!doc_add($>result, l:output_dimensional_facts, on).
 	
  extract_start_and_end_date :-

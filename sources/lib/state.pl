@@ -3,7 +3,8 @@
  	doc_new_(l:state, State),
  	doc_add(State, l:has_transactions, []),
  	doc_add(State, l:has_s_transactions, []),
- 	todo outstanding
+ 	doc_add(State, l:has_outstanding, []),
+ 	doc_add(State, l:has_investments, []),
  	true.
 
 
@@ -18,6 +19,13 @@
  	doc_add(S2, l:has_transactions, Txs_new),
  	doc_add(S2, l:has_s_transactions, Sts_new),
  	doc_add(S2, l:has_previous_state, S0),
+
+ 	doc(S0, l:has_outstanding, Outstanding_old),
+ 	doc(S0, l:has_investments, Investments_old),
+
+ 	doc_add(S2, l:has_outstanding, Outstanding_old),
+ 	doc_add(S2, l:has_investments, Investments_old),
+
  	true.
 
 
@@ -30,16 +38,11 @@
 	result_has_property(l:start_date, Start_Date),
  	result_has_property(l:end_date, End_Date),
 
-	chain([
-		!s_transactions_up_to(End_Date, S_Transactions)
-		!sort_s_transactions,
-		!cf('pre-preprocess source transactions'(S_Transactions4)),
-	], Prepreprocessed_S_Transactions),
-
-	dict_from_vars(Static_Data0, [Report_Currency, Start_Date, End_Date, Exchange_Rates, Cost_Or_Market]),
+	!s_transactions_up_to(End_Date, S_Transactions, S_Transactions2),
+	!sort_s_transactions(S_Transactions2,S_Transactions4),
+	!cf('pre-preprocess source transactions'(S_Transactions4, Prepreprocessed_S_Transactions)),
 
 	!cf(preprocess_s_transactions(
-		Static_Data0,
 		Prepreprocessed_S_Transactions,
 		Preprocessed_S_Transactions,
 		Transactions,
@@ -56,11 +59,12 @@
 
  process_sheets(S0, Phase, S4) :-
 	!cf(extract_gl_inputs(Phase, Gl_input_txs)),
-	new_state_with_appended_(S0, Txs, Sts, S2)
+	new_state_with_appended_(S0, Txs, Sts, S2).
 
- check_phase(Expected_Phase, Input_Cell) :-
- 	?(	var(Expected_Phase)
- 	->	\+doc(Input_Cell, rdf:value, _)
- 	;  	\+(\+doc_value(Gl, ic:phase, Phase))).
+ check_phase(Expected_phase, Subject, Predicate) :-
+ 	?doc_value(Subject, Predicate, Actual_phase),
+ 	(	var(Expected_phase)
+ 	->	var(Actual_phase)
+ 	;  	\+var(Actual_phase)).
 
 

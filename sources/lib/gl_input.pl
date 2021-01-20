@@ -11,7 +11,7 @@
 	;	Txs = []).
 
  extract_gl_input(Phase, Gl, Txs) :-
- 	check_phase(Expected_Phase, $>doc(Gl, ic:phase)),
+ 	check_phase(Phase, Gl, ic:phase),
  	push_format('extract GL input from: ~w', [$>sheet_and_cell_string(Gl)]),
 	!doc_value(Gl, ic:default_currency, Default_Currency0),
 	!atom_string(Default_Currency, Default_Currency0),
@@ -28,7 +28,7 @@
 	pop_context.
 
  extract_action_input(Phase, Input, Txs) :-
-	check_phase(Expected_Phase, $>doc(Gl, ic:phase)),
+	check_phase(Phase, Input, ic:phase),
  	push_context($>format(string(<$), 'extract action input from: ~w', [$>sheet_and_cell_string(Input)])),
 	!doc_value(Input, ic:account, First_account),
 	!doc_value(Input, ic:items, List),
