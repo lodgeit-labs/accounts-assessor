@@ -154,7 +154,21 @@ extract accounts from accountHierarchy xml element
 
  	(	memberchk(subcategorize_by_bank = true, Attrs)
 	->	doc_add(Uri, accounts:subcategorize_by_bank, true, accounts)
-	;	true).
+	;	true),
+
+ 	(	memberchk(smsf_taxability = Taxability0, Attrs)
+	->	(	atom_string(Taxability, Taxability0),
+			doc_add(Uri, accounts:smsf_taxability, Taxability, accounts)
+		)
+	;	true),
+
+ 	(	memberchk(smsf_phase = Phase0, Attrs)
+	->	(	atom_string(Phase, Phase0),
+			doc_add(Uri, accounts:smsf_phase, Phase, accounts)
+		)
+	;	true),
+
+	true.
 
 
 

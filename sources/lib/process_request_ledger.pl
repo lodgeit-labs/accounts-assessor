@@ -20,7 +20,7 @@
  	initial_state(S0),
 	ct('automated: post bank opening balances',
 		(generate_bank_opening_balances_sts(Bank_Lump_STs),
-		%'ensure system accounts exist 0'(Bank_Lump_STs)
+		'ensure system accounts exist 0'(Bank_Lump_STs),
 		handle_sts(S0, Bank_Lump_STs, S2))),
 	/*
 	c('phase: opening balance',

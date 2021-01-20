@@ -84,10 +84,10 @@
             </account>
             <account name="Equity_Aggregate_Current">
     			<account name="Current_Earnings" role="Current_Earnings"/>
-                <account name="Profit_Attribution"></account>
+                <account name="Profit_Attribution"/>
     		</account>
 			<account name="Members" role="smsf_equity">
-				<account name="Opening_Balance" role="smsf_equity_Opening_Balance"/>
+				<account name="Opening_Balance" role="smsf_equity_Opening_Balance">
 					<account name="Opening_Balance_-_Preserved/Taxable"
 					 role="smsf_equity!Opening_Balance!Preserved!Taxable"/>
 					<account name="Opening_Balance_-_Preserved/Tax-Free"
@@ -102,11 +102,12 @@
 					 role="smsf_equity!Opening_Balance!Restricted!Tax-Free"/>
 				</account>
 
-				<account name="Changes" role="smsf_equity_Changes"/>
+				<account name="Changes" role="smsf_equity_Changes">
 				
 					<account name="Employer_Contributions_-_Concessional" 
-						smsf_taxability="Taxable" 
-						smsf_phase="Preserved"/>
+						smsf_taxability="Taxable"
+							 smsf_phase="Preserved"/>
+
 					<account name="Member/Personal_Contributions_-_Concessional"/>
 					<account name="Member/Personal_Contributions_-_Non_Concessional"/>
 					<account name="Other_Contributions"/>

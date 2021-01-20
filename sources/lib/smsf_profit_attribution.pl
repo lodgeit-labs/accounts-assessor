@@ -29,6 +29,9 @@ smsf_rollover0(State_in, State_out) :-
  	doc_add(State_out, l:has_transactions, $>append(Static_Data.transactions, Txs)).
 
 
+% doc(Uri, accounts:smsf_phase, Phase, accounts)
+% error: account hierarchy must specify taxability of ~q
+
 
 state_static_data(State_in, Static_Data) :-
 	!doc(State_in, l:has_transactions, Transactions),
