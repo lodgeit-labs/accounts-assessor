@@ -100,76 +100,78 @@
 					 role="smsf_equity!Opening_Balance!Restricted!Taxable"/>
 					<account name="Opening_Balance_-_Restricted_Non_Preserved/Tax-Free"
 					 role="smsf_equity!Opening_Balance!Restricted!Tax-Free"/>
-				</role>
+				</account>
 
-					role="smsf_equity!Opening_Balance!Restricted!Tax-Free"
-
-				<account name="Employer_Contributions_-_Concessional"/>
-				<account name="Member/Personal_Contributions_-_Concessional"/>
-				<account name="Member/Personal_Contributions_-_Non_Concessional"/>
-
-				<account name="Other_Contributions"/>
-
-				<account name="Transfers_In_-_Preserved/Taxable"/>
-				<account name="Transfers_In_-_Preserved/Tax-Free"/>
-				<account name="Transfers_In_-_Unrestricted_Non_Preserved/Taxable"/>
-				<account name="Transfers_In_-_Unrestricted_Non_Preserved/Tax-Free"/>
-				<account name="Transfers_In_-_Restricted_Non_Preserved/Taxable"/>
-				<account name="Transfers_In_-_Restricted_Non_Preserved/Tax-Free"/>
-				<account name="Pensions_Paid_-_Preserved/Taxable"/>
-				<account name="Pensions_Paid_-_Preserved/Tax-Free"/>
-				<account name="Pensions_Paid_-_Unrestricted_Non_Preserved/Taxable"/>
-				<account name="Pensions_Paid_-_Unrestricted_Non_Preserved/Tax-Free"/>
-				<account name="Pensions_Paid_-_Restricted_Non_Preserved/Taxable"/>
-				<account name="Pensions_Paid_-_Restricted_Non_Preserved/Tax-Free"/>
-				<account name="Benefits_Paid_-_Preserved/Taxable"/>
-				<account name="Benefits_Paid_-_Preserved/Tax-Free"/>
-				<account name="Benefits_Paid_-_Unrestricted_Non_Preserved/Taxable"/>
-				<account name="Benefits_Paid_-_Unrestricted_Non_Preserved/Tax-Free"/>
-				<account name="Benefits_Paid_-_Restricted_Non_Preserved/Taxable"/>
-				<account name="Benefits_Paid_-_Restricted_Non_Preserved/Tax-Free"/>
-				<account name="Transfers_Out_-_Preserved/Taxable"/>
-				<account name="Transfers_Out_-_Preserved/Tax-Free"/>
-				<account name="Transfers_Out_-_Unrestricted_Non_Preserved/Taxable"/>
-				<account name="Transfers_Out_-_Unrestricted_Non_Preserved/Tax-Free"/>
-				<account name="Transfers_Out_-_Restricted_Non_Preserved/Taxable"/>
-				<account name="Transfers_Out_-_Restricted_Non_Preserved/Tax-Free"/>
-				<account name="Life_Insurance_Premiums_-_Preserved/Taxable"/>
-				<account name="Life_Insurance_Premiums_-_Preserved/Tax-Free"/>
-				<account name="Life_Insurance_Premiums_-_Unrestricted_Non_Preserved/Taxable"/>
-				<account name="Life_Insurance_Premiums_-_Unrestricted_Non_Preserved/Tax-Free"/>
-				<account name="Life_Insurance_Premiums_-_Restricted_Non_Preserved/Taxable"/>
-				<account name="Life_Insurance_Premiums_-_Restricted_Non_Preserved/Tax-Free"/>
-				<account name="Share_of_Profit/(Loss)_-_Preserved/Tax-Free"/>
-				<account name="Share_of_Profit/(Loss)_-_Preserved/Taxable"/>
-				<account name="Share_of_Profit/(Loss)_-_Unrestricted_Non_Preserved/Tax-Free"/>
-				<account name="Share_of_Profit/(Loss)_-_Unrestricted_Non_Preserved/Taxable"/>
-				<account name="Share_of_Profit/(Loss)_-_Restricted_Non_Preserved/Tax-Free"/>
-				<account name="Share_of_Profit/(Loss)_-_Restricted_Non_Preserved/Taxable"/>
-				<account name="Income_Tax_-_Preserved/Taxable"/>
-				<account name="Income_Tax_-_Preserved/Tax-Free"/>
-				<account name="Income_Tax_-_Unrestricted_Non_Preserved/Taxable"/>
-				<account name="Income_Tax_-_Unrestricted_Non_Preserved/Tax-Free"/>
-				<account name="Income_Tax_-_Restricted_Non_Preserved/Taxable"/>
-				<account name="Income_Tax_-_Restricted_Non_Preserved/Tax-Free"/>
-				<account name="Contribution_Tax_-_Preserved/Taxable"/>
-				<account name="Contribution_Tax_-_Preserved/Tax-Free"/>
-				<account name="Contribution_Tax_-_Unrestricted_Non_Preserved/Taxable"/>
-				<account name="Contribution_Tax_-_Unrestricted_Non_Preserved/Tax-Free"/>
-				<account name="Contribution_Tax_-_Restricted_Non_Preserved/Taxable"/>
-				<account name="Contribution_Tax_-_Restricted_Non_Preserved/Tax-Free"/>
-				<account name="Internal_Transfers_In_-_Preserved/Taxable"/>
-				<account name="Internal_Transfers_In_-_Preserved/Tax-Free"/>
-				<account name="Internal_Transfers_In_-_Unrestricted_Non_Preserved/Taxable"/>
-				<account name="Internal_Transfers_In_-_Unrestricted_Non_Preserved/Tax-Free"/>
-				<account name="Internal_Transfers_In_-_Restricted_Non_Preserved/Taxable"/>
-				<account name="Internal_Transfers_In_-_Restricted_Non_Preserved/Tax-Free"/>
-				<account name="Internal_Transfers_Out_-_Preserved/Taxable"/>
-				<account name="Internal_Transfers_Out_-_Preserved/Tax-Free"/>
-				<account name="Internal_Transfers_Out_-_Unrestricted_Non_Preserved/Taxable"/>
-				<account name="Internal_Transfers_Out_-_Unrestricted_Non_Preserved/Tax-Free"/>
-				<account name="Internal_Transfers_Out_-_Restricted_Non_Preserved/Taxable"/>
-				<account name="Internal_Transfers_Out_-_Restricted_Non_Preserved/Tax-Free"/>
+				<account name="Changes" role="smsf_equity_Changes"/>
+				
+					<account name="Employer_Contributions_-_Concessional" 
+						smsf_taxability="Taxable" 
+						smsf_phase="Preserved"/>
+					<account name="Member/Personal_Contributions_-_Concessional"/>
+					<account name="Member/Personal_Contributions_-_Non_Concessional"/>
+					<account name="Other_Contributions"/>
+					<account name="Transfers_In_-_Preserved/Taxable"/>
+					<account name="Transfers_In_-_Preserved/Tax-Free"/>
+					<account name="Transfers_In_-_Unrestricted_Non_Preserved/Taxable"/>
+					<account name="Transfers_In_-_Unrestricted_Non_Preserved/Tax-Free"/>
+					<account name="Transfers_In_-_Restricted_Non_Preserved/Taxable"/>
+					<account name="Transfers_In_-_Restricted_Non_Preserved/Tax-Free"/>
+					<account name="Pensions_Paid_-_Preserved/Taxable"/>
+					<account name="Pensions_Paid_-_Preserved/Tax-Free"/>
+					<account name="Pensions_Paid_-_Unrestricted_Non_Preserved/Taxable"/>
+					<account name="Pensions_Paid_-_Unrestricted_Non_Preserved/Tax-Free"/>
+					<account name="Pensions_Paid_-_Restricted_Non_Preserved/Taxable"/>
+					<account name="Pensions_Paid_-_Restricted_Non_Preserved/Tax-Free"/>
+					<account name="Benefits_Paid_-_Preserved/Taxable"/>
+					<account name="Benefits_Paid_-_Preserved/Tax-Free"/>
+					<account name="Benefits_Paid_-_Unrestricted_Non_Preserved/Taxable"/>
+					<account name="Benefits_Paid_-_Unrestricted_Non_Preserved/Tax-Free"/>
+					<account name="Benefits_Paid_-_Restricted_Non_Preserved/Taxable"/>
+					<account name="Benefits_Paid_-_Restricted_Non_Preserved/Tax-Free"/>
+					<account name="Transfers_Out_-_Preserved/Taxable"/>
+					<account name="Transfers_Out_-_Preserved/Tax-Free"/>
+					<account name="Transfers_Out_-_Unrestricted_Non_Preserved/Taxable"/>
+					<account name="Transfers_Out_-_Unrestricted_Non_Preserved/Tax-Free"/>
+					<account name="Transfers_Out_-_Restricted_Non_Preserved/Taxable"/>
+					<account name="Transfers_Out_-_Restricted_Non_Preserved/Tax-Free"/>
+					<account name="Life_Insurance_Premiums_-_Preserved/Taxable"/>
+					<account name="Life_Insurance_Premiums_-_Preserved/Tax-Free"/>
+					<account name="Life_Insurance_Premiums_-_Unrestricted_Non_Preserved/Taxable"/>
+					<account name="Life_Insurance_Premiums_-_Unrestricted_Non_Preserved/Tax-Free"/>
+					<account name="Life_Insurance_Premiums_-_Restricted_Non_Preserved/Taxable"/>
+					<account name="Life_Insurance_Premiums_-_Restricted_Non_Preserved/Tax-Free"/>
+					<account name="Share_of_Profit/(Loss)_-_Preserved/Tax-Free"/>
+					<account name="Share_of_Profit/(Loss)_-_Preserved/Taxable"/>
+					<account name="Share_of_Profit/(Loss)_-_Unrestricted_Non_Preserved/Tax-Free"/>
+					<account name="Share_of_Profit/(Loss)_-_Unrestricted_Non_Preserved/Taxable"/>
+					<account name="Share_of_Profit/(Loss)_-_Restricted_Non_Preserved/Tax-Free"/>
+					<account name="Share_of_Profit/(Loss)_-_Restricted_Non_Preserved/Taxable"/>
+					<account name="Income_Tax_-_Preserved/Taxable"/>
+					<account name="Income_Tax_-_Preserved/Tax-Free"/>
+					<account name="Income_Tax_-_Unrestricted_Non_Preserved/Taxable"/>
+					<account name="Income_Tax_-_Unrestricted_Non_Preserved/Tax-Free"/>
+					<account name="Income_Tax_-_Restricted_Non_Preserved/Taxable"/>
+					<account name="Income_Tax_-_Restricted_Non_Preserved/Tax-Free"/>
+					<account name="Contribution_Tax_-_Preserved/Taxable"/>
+					<account name="Contribution_Tax_-_Preserved/Tax-Free"/>
+					<account name="Contribution_Tax_-_Unrestricted_Non_Preserved/Taxable"/>
+					<account name="Contribution_Tax_-_Unrestricted_Non_Preserved/Tax-Free"/>
+					<account name="Contribution_Tax_-_Restricted_Non_Preserved/Taxable"/>
+					<account name="Contribution_Tax_-_Restricted_Non_Preserved/Tax-Free"/>
+					<account name="Internal_Transfers_In_-_Preserved/Taxable"/>
+					<account name="Internal_Transfers_In_-_Preserved/Tax-Free"/>
+					<account name="Internal_Transfers_In_-_Unrestricted_Non_Preserved/Taxable"/>
+					<account name="Internal_Transfers_In_-_Unrestricted_Non_Preserved/Tax-Free"/>
+					<account name="Internal_Transfers_In_-_Restricted_Non_Preserved/Taxable"/>
+					<account name="Internal_Transfers_In_-_Restricted_Non_Preserved/Tax-Free"/>
+					<account name="Internal_Transfers_Out_-_Preserved/Taxable"/>
+					<account name="Internal_Transfers_Out_-_Preserved/Tax-Free"/>
+					<account name="Internal_Transfers_Out_-_Unrestricted_Non_Preserved/Taxable"/>
+					<account name="Internal_Transfers_Out_-_Unrestricted_Non_Preserved/Tax-Free"/>
+					<account name="Internal_Transfers_Out_-_Restricted_Non_Preserved/Taxable"/>
+					<account name="Internal_Transfers_Out_-_Restricted_Non_Preserved/Tax-Free"/>
+					
+				</account>
 			</account>
 		</account>
 		<account name="P&amp;L" role="Comprehensive_Income" normal_side="credit">
