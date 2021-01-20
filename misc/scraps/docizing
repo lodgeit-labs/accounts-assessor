@@ -115,6 +115,7 @@ make_buy(Purchase, Gl_Txs) :-
 result_property(l:report_currency, Report_Currency),
 result_property(l:exchange_rates, Exchange_Rates),
 result_property(l:cost_or_market, Cost_Or_Market),
+result_property(l:start_date, Start_Date),
 
 
 

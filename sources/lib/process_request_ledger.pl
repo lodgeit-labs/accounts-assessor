@@ -19,9 +19,9 @@
  	push_context('processing phases (each phase depends on posted results of previous phase):'),
  	initial_state(S0),
 	ct('automated: post bank opening balances',
-		generate_bank_opening_balances_sts(Bank_Lump_STs),
+		(generate_bank_opening_balances_sts(Bank_Lump_STs),
 		%'ensure system accounts exist 0'(Bank_Lump_STs)
-		handle_sts(S0, Bank_Lump_STs, S2)),
+		handle_sts(S0, Bank_Lump_STs, S2))),
 	/*
 	c('phase: opening balance',
 		process_sheets(S2, phases:opening_balance, S4)),
@@ -261,7 +261,7 @@ This is done with a symlink. This allows to bypass cache, for example in pessera
 	
 */	
    
- extract_report_currency(Report_Currency) :-
+ extract_report_currency :-
 	!request_data(Request_Data),
 	doc(Request_Data, ic_ui:report_details, D),
 	doc_value(D, ic:currency, C),

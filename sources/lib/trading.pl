@@ -95,16 +95,17 @@ unrealized_gains_increase_txs(
 		)
 	).
 
-add_unit_cost_information(Static_Data, Goods_Unit_Name, Unit_Cost, Goods_Unit) :-
-	(	Static_Data.cost_or_market = cost
+add_unit_cost_information(Goods_Unit_Name, Unit_Cost, Goods_Unit) :-
+	result_property(l:cost_or_market, Cost_Or_Market),
+	(	Cost_Or_Market = cost
 	->	Goods_Unit = with_cost_per_unit(Goods_Unit_Name, Unit_Cost)
 	;	Goods_Unit = Goods_Unit_Name).
 
 
 /* the transactions produced should be an inverse of the increase ones, we should abstract it out */
-unrealized_gains_reduction_txs(Static_Data, Description, Transaction_Day, Trading_Account_Id, Purchase_Info, Txs, Historical_Txs, Current_Txs) :-
-	Static_Data.report_currency = Report_Currency,
-	Static_Data.start_date = Start_Date,
+unrealized_gains_reduction_txs(Description, Transaction_Day, Trading_Account_Id, Purchase_Info, Txs, Historical_Txs, Current_Txs) :-
+	result_property(l:report_currency, Report_Currency),
+	result_property(l:start_date, Start_Date),
 	goods(Unit_Cost_Foreign, Goods_Unit_Name, Goods_Count, Cost, Purchase_Date) = Purchase_Info,
 	value(Purchase_Currency,_) = Unit_Cost_Foreign,
 
@@ -112,7 +113,7 @@ unrealized_gains_reduction_txs(Static_Data, Description, Transaction_Day, Tradin
 		Trading_Account_Id, unrealized, Goods_Unit_Name,
 		Unrealized_Gains_Currency_Movement, Unrealized_Gains_Excluding_Forex),
 
-	add_unit_cost_information(Static_Data, Goods_Unit_Name, Unit_Cost_Foreign, Goods_Unit),
+	add_unit_cost_information(Goods_Unit_Name, Unit_Cost_Foreign, Goods_Unit),
 
 	Goods = value(Goods_Unit, Goods_Count),
 	Goods_Debit = Goods_Count, 
@@ -219,7 +220,7 @@ realized_gains_txs(Static_Data, Description, Transaction_Day, Sale_Currency, Sal
 	Static_Data.report_currency = Report_Currency,
 	Static_Data.start_date = Start_Date,
 	goods(Unit_Cost_Foreign, Goods_Unit_Name, Goods_Count, Converted_Cost, Purchase_Date) = Purchase_Info,
-	add_unit_cost_information(Static_Data, Goods_Unit_Name, Unit_Cost_Foreign, Goods_Unit),
+	add_unit_cost_information(Goods_Unit_Name, Unit_Cost_Foreign, Goods_Unit),
 
 
 

@@ -7,43 +7,37 @@
  	true.
 
 
- new_state_with_appended_(S0, Sts, Txs, Ops, S2) :-
+ new_state_with_appended_(S0, Ops, S2) :-
 	doc_new_(l:state, S2),
  	doc_add(S2, l:has_previous_state, S0),
- 	check_ops(Ops),
  	maplist(handle_field(S0,S2, Ops), [
  		l:has_s_transactions,
  		l:has_transactions,
- 		l:has_outstanding]).
-
-check_ops(Ops) :-
-	% check that no field is mentioned twice
-	findall(_,
-		(	nth0(I,Ops,Op1),
-			Op1 =.. [Action1,Field|_],
-		_).
+ 		l:has_outstanding
+ 	]).
 
  handle_field(S0,S2,Ops,Field) :-
-	nth0(I,Ops,Op1),
-	Op1 =.. [Action1,Field|_],
-	dif(I,J),
-	nth0(J,Ops,Op2),
-	(	Op2 =.. [Action2,Field|_]
-	->	throw_string('duplicate actions')
-	;	true),
+ 	dif(I,J),
+	(	nth0(I,Ops,do(Field,Action1,Args1))
+	->	(
+			(	nth0(J,Ops,do(Field,_,_))
+			->	throw_string('duplicate actions')
+			;	true),
+			handle_op(S0,Action1,Field,Args1,S2)
+		)
+	;	(
+			doc(S0, Field, X),
+			doc_add(S2, Field, X)
+		)
+	).
 
+handle_op(_,set,Field,New,S2) :-
+	doc_add(S2, Field, New).
 
-
-	maplist(handle_field2(S0,S2,Field),Ops).
-
-
-
-% default is to copy
-
- handle_field2(S0,S2,Field,Field=X) :-
- 	doc_add(S2, Field, X).
-
- handle_field2(S0,S2,Field1,Field2=X) :-
+handle_op(S0,append,Field,Tail,S2) :-
+	doc(S0, Field, Old),
+	append(Old,Tail,New),
+	doc_add(S2, Field, New).
 
 
 
@@ -75,12 +69,21 @@ check_ops(Ops) :-
 	->	true
 	;	add_alert('warning', 'not all source transactions processed, proceeding with reports anyway..')),
 
-	new_state_with_appended_(S0, Preprocessed_S_Transactions, Transactions, [l:has_outstanding=Outstanding_new], S2).
+	new_state_with_appended_(
+		S0,
+		[
+			op(l:has_s_transactions,append,Preprocessed_S_Transactions),
+			op(l:has_transactions,append,Transactions),
+			op(l:has_outstanding,set,Outstanding_new)
+		],
+		S2).
 
 
  process_sheets(S0, Phase, S4) :-
 	!cf(extract_gl_inputs(Phase, Gl_input_txs)),
-	new_state_with_appended_(S0, [], Gl_input_txs, S4).
+	new_state_with_appended_(S0, [
+		op(l:has_transactions,append,Gl_input_txs)
+	], S4).
 
 
  check_phase(Expected_phase, Subject, Predicate) :-
