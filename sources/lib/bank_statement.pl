@@ -40,7 +40,7 @@ call preprocess_s_transaction on each item of the S_Transactions list and do som
 
 	(	var(Err)
 	->	(	% recurse
-			!preprocess_s_transactions2(
+			!preprocess_s_transactions(
 				S_Transactions,
 				Processed_S_Transactions_Tail,
 				Transactions_Out_Tail,
@@ -160,7 +160,7 @@ take a statement/source transaction term and decompose it into a list of plain t
 	affect_first_account(S_Transaction, Description, Ts1),
 
 	vector_unit(Vector_Ours, Bank_Account_Currency),
-	vec_change_bases($>result_has_property(l:exchange_rates), Transaction_Date, $>result_has_property(l:report_currency), Vector_Ours, Converted_Vector_Ours),
+	vec_change_bases($>result_property(l:exchange_rates), Transaction_Date, $>result_property(l:report_currency), Vector_Ours, Converted_Vector_Ours),
 	cf(action_verb_accounts(Action_Verb,Exchanged_Account,Trading_Account)),
 	(
 		Counteraccount_Vector = []
@@ -232,7 +232,7 @@ take a statement/source transaction term and decompose it into a list of plain t
 
 	coord_vec(Coord_Ours_Converted, Converted_Vector_Ours),
 	/* in case of an empty vector, the unit was lost, so fill it back in */
-	result_has_property(l:report_currency, Report_Currency0),
+	result_property(l:report_currency, Report_Currency0),
 	(	Report_Currency0 = [Report_Currency]
 	->	Coord_Ours_Converted = coord(Report_Currency, _)
 	;	Coord_Ours_Converted = coord(Bank_Account_Currency, _)),
@@ -241,7 +241,7 @@ take a statement/source transaction term and decompose it into a list of plain t
 	unit_cost_value(Coord_Ours, Goods_Coord, Unit_Cost_Foreign),
 	unit_cost_value(Coord_Ours_Converted, Goods_Coord, Unit_Cost_Converted),
 	number_coord(Goods_Unit, Goods_Count, Goods_Coord),
-	result_has_property(l:cost_or_market, Cost_Or_Market),
+	result_property(l:cost_or_market, Cost_Or_Market),
 
 	/*technically, the action verb could be smarter and know that the exchanged account name that user specified must correspond to an account with role 'Financial_Investments'/name.
 	some sort of generalized system is shaping up.

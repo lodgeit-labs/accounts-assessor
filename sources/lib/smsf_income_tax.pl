@@ -1,4 +1,4 @@
-
+/*
  smsf_income_tax_stuff(Static_Data0, Txs) :-
 	!request_data(Rd),
 	(	doc(Rd, smsf:income_tax_info, Input)
@@ -17,12 +17,12 @@
 			!flatten([Ato_levy_txs,Tax_expense_txs], Txs)
 		)
 	;	true).
-
+*/
 process_ato_supervisory_levy(Input, Txs) :-
 	!doc_value(Input, excel:has_sheet_name, Sheet_name),
 	!doc_new_uri(income_tax_st, St),
 	!doc_add_value(St, transactions:description, Sheet_name, transactions),
-	!result_has_property(l:report_currency, [Report_currency]),
+	!result_property(l:report_currency, [Report_currency]),
 	!doc_value(Input, smsf:ato_supervisory_levy, Levy_str),
 	!value_from_string(Report_currency, Levy_str, Levy),
 	!make_fact(
@@ -32,7 +32,7 @@ process_ato_supervisory_levy(Input, Txs) :-
 	vector_of_coords_vs_vector_of_values(kb:debit, Levy_vec, $>!evaluate_fact2(aspects([concept - smsf/income_tax/'ATO_Supervisory_Levy']))),
 	!c(make_dr_cr_transactions(
 		St,
-		$>result_has_property(l:end_date),
+		$>result_property(l:end_date),
 		Sheet_name,
 		$>abrlt('ATO_Supervisory_Levy'),
 		$>abrlt('Income_Tax_Payable'),
@@ -418,7 +418,7 @@ smsf_income_tax_reports(reports{report:Tbl1,reconcilliation:Tbl2}) :-
 	!vector_of_coords_vs_vector_of_values(kb:debit, Tax_vec, $>!evaluate_fact2(aspects([concept - smsf/income_tax/'Tax on Taxable Income @ 15%']))),
 	!make_dr_cr_transactions(
 		St,
-		$>result_has_property(l:end_date),
+		$>result_property(l:end_date),
 		Sheet_name,
 		$>abrlt('Income_Tax_Expenses'),
 		$>abrlt('Income_Tax_Payable'),

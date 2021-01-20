@@ -84,14 +84,14 @@
 	cf(check_trial_balance2(Exchange_Rates, Static_Data2.transactions_by_account, Report_Currency, Static_Data2.end_date, Start_Date, Static_Data2.end_date)),
 	once(!cf(create_reports(Static_Data2, Structured_Reports))).
 */
-
+/*
 update_static_data_with_transactions(In, Txs, Out) :-
 	append(In.transactions,$>flatten(Txs),Transactions2),
 	Static_Data1b = In.put([transactions=Transactions2]),
 	'with current and historical earnings equity balances',
 	!transactions_by_account(Static_Data1b, Transactions_By_Account),
 	Out = Static_Data1b.put([transactions_by_account=Transactions_By_Account]).
-
+*/
 
 
 check_trial_balance2(Exchange_Rates, Transactions_By_Account, Report_Currency, End_Date, Start_Date, End_Date) :-
@@ -301,29 +301,4 @@ This is done with a symlink. This allows to bypass cache, for example in pessera
 	!get_time(TimeStamp),
 	!stamp_date_time(TimeStamp, DateTime, 'UTC'),
 	!doc_add(Result, l:timestamp, DateTime).
-
-/*
-:- comment(Structured_Reports:
-	the idea is that the dicts containing the high-level, semantic information of all reports would be passed all the way up, and we'd have some test runner making use of that / generating a lot of permutations of requests and checking the results computationally, in addition to endpoint_tests checking report files against saved versions.
-update: instead of passing json around, we should focus on doc-izing everything.
-*/
-
-
-
-/* a little debugging facitliy that tries processing s_transactions one by one until it runs into an error */
- process_request_ledger_debug(Data, S_Transactions0) :-
-	findall(Count, ggg(Data, S_Transactions0, Count), Counts), writeq(Counts).
-
- ggg(Data, S_Transactions0, Count) :-
-	Count = 20000,
-	%between(100, $>length(S_Transactions0), Count),
-	take(S_Transactions0, Count, STs),
-	format(user_error, 'total s_transactions: ~q~n', [$>length(S_Transactions0)]),
-	format(user_error, '~q: ~q ~n ~n', [$>length(STs), $>last(STs)]),
-	profile(once(process_request_ledger2(Data, STs, _Structured_Reports, _))).
-	/*length(Structured_Reports.crosschecks.errors, L),
-	(	L \= 2
-	->	true
-	;	(g trace,format(user_error, '~q: ~q ~n', [Count, Structured_Reports.crosschecks.errors]))).*/
-
 

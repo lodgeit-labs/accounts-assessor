@@ -294,7 +294,7 @@ is_exchangeable_into_request_bases(Table, Day, Src_Currency, Bases) :-
 ┗━╸╹ ╹ ╹ ╹┗╸╹ ╹┗━╸ ╹
 */
 extract_exchange_rates :-
-	(	result_has_property(l:cost_or_market, cost)
+	(	result_property(l:cost_or_market, cost)
 	->	Exchange_Rates = []
 	;	extract_exchange_rates1(Exchange_Rates)),
 	!add_comment_stringize('Exchange rates extracted', Exchange_Rates),
@@ -322,9 +322,9 @@ parse_date_field(Field) :-
 			check_date(Date)
 		)
 	;	(	V = "opening"
-		->	!result_has_property(l:start_date, Date))
+		->	!result_property(l:start_date, Date))
 		;	(	V = "closing"
-			->	!result_has_property(l:end_date, Date))
+			->	!result_property(l:end_date, Date))
 			;	throw_format('unexpected unit value header: ~q', [V])),
 	doc_add(Field, l:true_date, Date).
 
@@ -334,7 +334,7 @@ extract_exchange_rates2(Fields, Item, Rates) :-
 
 	(	doc_value(Item, uv:currency, Dst0)
 	->	atom_string(Dst, Dst0)
-	;	!result_has_property(l:report_currency, [Dst])),
+	;	!result_property(l:report_currency, [Dst])),
 
 	findall(
 		exchange_rate(Date, Src, Dst, V),

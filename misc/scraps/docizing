@@ -1,3 +1,28 @@
+/*
+:- comment(Structured_Reports:
+	the idea is that the dicts containing the high-level, semantic information of all reports would be passed all the way up, and we'd have some test runner making use of that / generating a lot of permutations of requests and checking the results computationally, in addition to endpoint_tests checking report files against saved versions.
+update: instead of passing json around, we should focus on doc-izing everything.
+*/
+
+
+
+/* a little debugging facitliy that tries processing s_transactions one by one until it runs into an error */
+ process_request_ledger_debug(Data, S_Transactions0) :-
+	findall(Count, ggg(Data, S_Transactions0, Count), Counts), writeq(Counts).
+
+ ggg(Data, S_Transactions0, Count) :-
+	Count = 20000,
+	%between(100, $>length(S_Transactions0), Count),
+	take(S_Transactions0, Count, STs),
+	format(user_error, 'total s_transactions: ~q~n', [$>length(S_Transactions0)]),
+	format(user_error, '~q: ~q ~n ~n', [$>length(STs), $>last(STs)]),
+	profile(once(process_request_ledger2(Data, STs, _Structured_Reports, _))).
+	/*length(Structured_Reports.crosschecks.errors, L),
+	(	L \= 2
+	->	true
+	;	(g trace,format(user_error, '~q: ~q ~n', [Count, Structured_Reports.crosschecks.errors]))).*/
+
+
 
 /*
 wip, docizing..
@@ -116,6 +141,11 @@ result_property(l:report_currency, Report_Currency),
 result_property(l:exchange_rates, Exchange_Rates),
 result_property(l:cost_or_market, Cost_Or_Market),
 result_property(l:start_date, Start_Date),
+
+
+
+
+
 
 
 

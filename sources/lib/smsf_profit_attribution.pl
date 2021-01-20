@@ -32,10 +32,10 @@ smsf_rollover0(State_in, State_out) :-
 
 state_static_data(State_in, Static_Data) :-
 	!doc(State_in, l:has_transactions, Transactions),
- 	!result_has_property(l:report_currency, Report_Currency),
- 	!result_has_property(l:exchange_rates, Exchange_Rates),
-	!result_has_property(l:start_date, Start_Date),
- 	!result_has_property(l:end_date, End_Date),
+ 	!result_property(l:report_currency, Report_Currency),
+ 	!result_property(l:exchange_rates, Exchange_Rates),
+	!result_property(l:start_date, Start_Date),
+ 	!result_property(l:end_date, End_Date),
 	!transactions_by_account_v2(Transactions,Transactions_By_Account),
 	dict_from_vars(Static_Data, [Transactions, Exchange_Rates, Transactions_By_Account, Report_Currency, Start_Date, End_Date]).
 
@@ -76,7 +76,7 @@ roll_over2(Member_src_acc,Txs) :-
 	!vector_of_coords_vs_vector_of_values(kb:debit, Tax_vec, $>!evaluate_fact2(aspects([concept - smsf/income_tax/'Tax on Taxable Income @ 15%']))),
 	!make_dr_cr_transactions(
 		St,
-		$>result_has_property(l:end_date),
+		$>result_property(l:end_date),
 		Sheet_name,
 		$>abrlt('Income_Tax_Expenses'),
 		$>abrlt('Income_Tax_Payable'),

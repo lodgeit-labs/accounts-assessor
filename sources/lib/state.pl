@@ -47,11 +47,11 @@ handle_op(S0,append,Field,Tail,S2) :-
 	doc(S0, l:has_outstanding, Outstanding_old),
 
  	/*
- 	result_has_property(l:report_currency, Report_Currency),
- 	result_has_property(l:exchange_rates, Exchange_Rates),
-	result_has_property(l:start_date, Start_Date),
+ 	result_property(l:report_currency, Report_Currency),
+ 	result_property(l:exchange_rates, Exchange_Rates),
+	result_property(l:start_date, Start_Date),
 	*/
- 	result_has_property(l:end_date, End_Date),
+ 	result_property(l:end_date, End_Date),
 
 
 	!s_transactions_up_to(End_Date, S_Transactions, S_Transactions2),

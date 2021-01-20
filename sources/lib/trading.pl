@@ -8,24 +8,23 @@
 	this may seem error prone, but any issues are yet to be found, and it clarifies the logic.
 */
 			
-increase_unrealized_gains(Static_Data, St, Description, Trading_Account_Id, Purchase_Currency, Converted_Cost_Vector, Goods_With_Unit_Cost_Vector, Transaction_Day, [Ts0, Ts1, Ts2]) :-
-	unrealized_gains_increase_txs(Static_Data, Description, Trading_Account_Id, Purchase_Currency, Converted_Cost_Vector, Goods_With_Unit_Cost_Vector, Transaction_Day, Txs0, Historical_Txs, Current_Txs),
-	Start_Date = Static_Data.start_date,
+increase_unrealized_gains(St, Description, Trading_Account_Id, Purchase_Currency, Converted_Cost_Vector, Goods_With_Unit_Cost_Vector, Transaction_Day, [Ts0, Ts1, Ts2]) :-
+	unrealized_gains_increase_txs(Description, Trading_Account_Id, Purchase_Currency, Converted_Cost_Vector, Goods_With_Unit_Cost_Vector, Transaction_Day, Txs0, Historical_Txs, Current_Txs),
+	result_property(l:start_date, Start_Date),
 	%add_days(Start_Date, -1, Before_Start),
 	(nonvar(Txs0) -> txs_to_transactions(St, Transaction_Day, Txs0, Ts0) ; true),
 	(nonvar(Current_Txs) -> txs_to_transactions(St, Start_Date, Current_Txs, Ts1) ; true),
 	(nonvar(Historical_Txs) -> txs_to_transactions(St, Transaction_Day, Historical_Txs, Ts2) ; true).
 
-reduce_unrealized_gains(Static_Data, St, Description, Trading_Account_Id, Transaction_Day, Goods_Cost_Values, [Ts0, Ts1, Ts2]) :-
-	maplist(unrealized_gains_reduction_txs(Static_Data, Description, Transaction_Day, Trading_Account_Id), Goods_Cost_Values, Txs0, Historical_Txs, Current_Txs),
-	Start_Date = Static_Data.start_date,
+reduce_unrealized_gains(St, Description, Trading_Account_Id, Transaction_Day, Goods_Cost_Values, [Ts0, Ts1, Ts2]) :-
+	maplist(unrealized_gains_reduction_txs(Description, Transaction_Day, Trading_Account_Id), Goods_Cost_Values, Txs0, Historical_Txs, Current_Txs),
+	result_property(l:start_date, Start_Date),
 	add_days(Start_Date, -1, Before_Start),
 	(nonvar(Txs0) -> txs_to_transactions(St, Transaction_Day, Txs0, Ts0) ; true),
 	(nonvar(Current_Txs) -> txs_to_transactions(St, Start_Date, Current_Txs, Ts1) ; true),
 	(nonvar(Historical_Txs) -> txs_to_transactions(St, Before_Start, Historical_Txs, Ts2) ; true).
 
 unrealized_gains_increase_txs(
-	Static_Data,
 	Description,
 	Trading_Account_Id,
 	Purchase_Currency,
@@ -36,7 +35,9 @@ unrealized_gains_increase_txs(
 	Historical_Txs,
 	Current_Txs
 ) :-
-	dict_vars(Static_Data, [Report_Currency, Start_Date]),
+	result_property(l:report_currency, Report_Currency),
+	result_property(l:start_date, Start_Date),
+
 	Goods = [coord(Goods_Unit, Goods_Debit)],
 
 	gains_accounts(
@@ -190,7 +191,7 @@ unrealized_gains_reduction_txs(Description, Transaction_Day, Trading_Account_Id,
 */
 
 
-increase_realized_gains(Static_Data, St, Description, Trading_Account_Id, Sale_Vector, Converted_Vector, Goods_Vector, Transaction_Day, Goods_Cost_Values, Ts2) :-
+increase_realized_gains(St, Description, Trading_Account_Id, Sale_Vector, Converted_Vector, Goods_Vector, Transaction_Day, Goods_Cost_Values, Ts2) :-
 
 	[Goods_Coord] = Goods_Vector,
 	number_coord(_, Goods_Integer, Goods_Coord),
@@ -204,7 +205,6 @@ increase_realized_gains(Static_Data, St, Description, Trading_Account_Id, Sale_V
 	
 	maplist(
 		realized_gains_txs(
-			Static_Data, 
 			Description,
 			Transaction_Day,
 			Sale_Currency,
@@ -216,9 +216,11 @@ increase_realized_gains(Static_Data, St, Description, Trading_Account_Id, Sale_V
 	),
 	txs_to_transactions(St, Transaction_Day, Txs2, Ts2).
 
-realized_gains_txs(Static_Data, Description, Transaction_Day, Sale_Currency, Sale_Currency_Unit_Price, Trading_Account_Id, Sale_Unit_Price_Converted, Purchase_Info, Txs) :-
-	Static_Data.report_currency = Report_Currency,
-	Static_Data.start_date = Start_Date,
+realized_gains_txs(Description, Transaction_Day, Sale_Currency, Sale_Currency_Unit_Price, Trading_Account_Id, Sale_Unit_Price_Converted, Purchase_Info, Txs) :-
+
+	result_property(l:report_currency, Report_Currency),
+	result_property(l:start_date, Start_Date),
+
 	goods(Unit_Cost_Foreign, Goods_Unit_Name, Goods_Count, Converted_Cost, Purchase_Date) = Purchase_Info,
 	add_unit_cost_information(Goods_Unit_Name, Unit_Cost_Foreign, Goods_Unit),
 

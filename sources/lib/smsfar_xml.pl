@@ -168,7 +168,7 @@ smsfar_xml(Xml) :-
 
 
 'report end date FinancialYearEnding'(Y) :-
-	result_has_property(l:end_date, date(Y,_,_)).
+	result_property(l:end_date, date(Y,_,_)).
 
 
 'smsfar_xml NetCapitalGain'(X) :-

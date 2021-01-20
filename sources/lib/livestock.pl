@@ -104,8 +104,8 @@ process_livestock2((S_Transactions, Transactions_In), Livestock, Transactions_Ou
 	/*
 	todo send livestock dates from excel and check them here
 	*/
-	result_has_property(l:start_date, Start_Date),
-	result_has_property(l:end_date, End_Date),
+	result_property(l:start_date, Start_Date),
+	result_property(l:end_date, End_Date),
 
 	/*
 	preprocess_livestock_buy_or_sell happens first, as part of preprocess_s_transaction.
@@ -132,7 +132,7 @@ process_livestock2((S_Transactions, Transactions_In), Livestock, Transactions_Ou
 	append(Transactions_In, Transactions3, Transactions_Total),
 
 	Static_Data1 = Static_Data0.put(transactions,Transactions_Total),
-	!'with current and historical earnings equity balances',
+	!'with current and historical earnings equity balances'(a,b,c,d),
 	transactions_by_account(Static_Data1, Transactions_By_Account),
 
 	closing_inventory_transactions(Livestock, Transactions_By_Account, Closing_Transactions),

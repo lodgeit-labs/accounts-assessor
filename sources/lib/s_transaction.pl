@@ -225,8 +225,8 @@ prepreprocess_s_transaction(T, T) :-
 
 % This Prolog rule handles the case when only the exchanged units are known (for example GOOG)  and
 % hence it is desired for the program to infer the count.
-infer_exchanged_units_count(Static_Data, S_Transaction, NS_Transaction) :-
-	dict_vars(Static_Data, [Exchange_Rates]),
+infer_exchanged_units_count(S_Transaction, NS_Transaction) :-
+	result_property(l:exchange_rates, Exchange_Rates),
 	s_transaction_exchanged(S_Transaction, bases(Goods_Bases)),
 	s_transaction_day(S_Transaction, Transaction_Date),
 	s_transaction_vector(S_Transaction, Vector),
@@ -322,7 +322,7 @@ handle_additional_file(Bn, S_Transactions) :-
 	findall(
 		Acc,
 		(
-			result_has_property(l:bank_account, Acc),
+			result_property(l:bank_account, Acc),
 			once(doc(Acc, l:raw_items, _))
 		),
 		Accts

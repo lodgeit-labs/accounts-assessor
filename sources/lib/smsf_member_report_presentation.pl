@@ -1,7 +1,7 @@
  smsf_member_report_presentation(Presentation) :-
 
-	format(string(Opening_balance_label), 'Opening Balance at ~w', [$>format_date($>result_has_property(l:start_date))]),
-	format(string(Closing_balance_label), 'Closing Balance at ~w', [$>format_date($>result_has_property(l:end_date))]),
+	format(string(Opening_balance_label), 'Opening Balance at ~w', [$>format_date($>result_property(l:start_date))]),
+	format(string(Closing_balance_label), 'Closing Balance at ~w', [$>format_date($>result_property(l:end_date))]),
 
 	Phase_dimension = dimension(phase, ['Preserved','Restricted Non Preserved', 'Unrestricted Non Preserved']),
 

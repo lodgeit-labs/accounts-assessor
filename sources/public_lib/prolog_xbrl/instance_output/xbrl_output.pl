@@ -78,7 +78,7 @@
 		'xsi:schemaLocation'=Schema_Location],
 		Children),Children)
 :-
-	result_has_property(l:taxonomy_url_base, Base),
+	result_property(l:taxonomy_url_base, Base),
 	atomics_to_string([Base,'basic.xsd'], Basic),
 	atomics_to_string([Base,'basic-formulas.xml'], Formulas),
 	atomics_to_string([Base,'basic-formulas-cross-checks.xml'], Formulas_Crosschecks),

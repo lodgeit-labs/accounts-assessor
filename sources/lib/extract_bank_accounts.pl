@@ -77,7 +77,7 @@ generate_bank_opening_balances_sts(Txs) :-
 generate_bank_opening_balances_sts2(Bank_Account, Tx) :-
 	(	doc_value(Bank_Account, l:opening_balance, Opening_Balance)
 	->	(
-			!result_has_property(l:start_date, Start_Date),
+			!result_property(l:start_date, Start_Date),
 			!add_days(Start_Date, -1, Opening_Date),
 			!doc(Bank_Account, l:name, Bank_Account_Name),
 			!c(doc_add_s_transaction(
