@@ -1,0 +1,124 @@
+
+/*
+wip, docizing..
+
+
+
+
+
+
+/*
++member(Bst, Bsts),
++{
++       member(...
++       ...
++}
++
++
++
++
++affect_bank_account_gl_account(Static_Data, Bst, Description0, [Ts0, Ts3]) :-
++       d(Bst, account, Bank_Account_Name),
++       account_by_role(('Banks'/Bank_Account_Name), Gl_Bank_Account_Id),
++
++       e(Bst.day, Tx0.day),
++       e(Bst.day, Tx1.day),
++
+*/
+
+
+
+/*				Buy is
+		a p:purchase_event,
+		p:origin St,
+		p:trading_account Trading_Account,
+		p:pricing_method Pricing_Method,
+		p:bank_account_currency Bank_Account_Currency,
+		p:goods_vector Goods_Vector,
+		p:converted_vector_ours Converted_Vector_Ours,
+		p:vector_ours Vector_Ours,
+		p:exchanged_account Exchanged_Account,
+		p:transaction_date Transaction_Date,
+		p:description Description,
+		p:outstanding_in Outstanding_In,
+		p:outstanding_out Outstanding_Out,
+*/
+
+
+	%!pretty_transactions_string(Transactions_Result, Transactions_String),
+	%round_term(Transactions_Result, Transactions_String),
+	%atomic_list_concat([S_Transaction_String, '==>\n', Transactions_String, '\n====\n'], _Debug_Head).
+
+
+
+make_buy(Purchase, Gl_Txs) :-
+
+	coord_vec(Coord_Ours, Vector_Ours),
+	coord_vec(Goods_Coord, Goods_Vector),
+
+	coord_vec(Coord_Ours_Converted, Converted_Vector_Ours),
+
+	% in case of an empty vector, the unit was lost, so fill it back in
+	(	Static_Data.report_currency = [Report_Currency]
+	->	Coord_Ours_Converted = coord(Report_Currency, _)
+	;	Coord_Ours_Converted = coord(Bank_Account_Currency, _)),
+
+	unit_cost_value(Coord_Ours, Goods_Coord, Unit_Cost_Foreign),
+	unit_cost_value(Coord_Ours_Converted, Goods_Coord, Unit_Cost_Converted),
+	number_coord(Goods_Unit, Goods_Count, Goods_Coord),
+	dict_vars(Static_Data, [Accounts, Cost_Or_Market]),
+	account_by_role(Accounts, Exchanged_Account/Goods_Unit, Exchanged_Account2),
+
+	(
+		(
+			Cost_Or_Market = cost,
+			purchased_goods_coord_with_cost(Goods_Coord, Coord_Ours, Goods_Coord_With_Cost),
+			Goods_Vector2 = [Goods_Coord_With_Cost],
+			doc_assert(Purchase, p:goods_with_cost_vector, Goods_Vector2)
+		)
+	;
+		(
+
+		)
+	;	Goods_Vector2 = Goods_Vector),
+
+	make_transaction(St, Transaction_Date, Description, Exchanged_Account2, Goods_Vector2, T1),
+	member(T1, Gl_Txs),
+
+
+	add_bought_items(
+		Pricing_Method,
+		outstanding(Bank_Account_Currency, Goods_Unit, Goods_Count, Unit_Cost_Converted, Unit_Cost_Foreign, Transaction_Date),
+		Outstanding_In, Outstanding_Out
+	),
+
+
+	maybe_trading_account_txs(Gl_Txs,
+
+
+
+
+		increase_unrealized_gains(Static_Data, Goods_Vector2, Gl_Txs)
+	).
+*/
+
+
+
+
+
+
+
+		$>result_property(l:report_currency),
+		$>result_property(l:exchange_rates),
+		$>result_property(l:end_date))),
+
+result_property(l:report_currency, Report_Currency),
+result_property(l:exchange_rates, Exchange_Rates),
+result_property(l:cost_or_market, Cost_Or_Market),
+
+
+
+
+
+
+

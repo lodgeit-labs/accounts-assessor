@@ -3,8 +3,7 @@
  	doc_new_(l:state, State),
  	doc_add(State, l:has_transactions, []),
  	doc_add(State, l:has_s_transactions, []),
- 	doc_add(State, l:has_outstanding, []),
- 	doc_add(State, l:has_investments, []),
+ 	doc_add(State, l:has_outstanding, ([],[])),
  	true.
 
 
@@ -24,7 +23,6 @@
  	doc(S0, l:has_investments, Investments_old),
 
  	doc_add(S2, l:has_outstanding, Outstanding_old),
- 	doc_add(S2, l:has_investments, Investments_old),
 
  	true.
 
