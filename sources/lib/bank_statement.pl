@@ -160,7 +160,7 @@ take a statement/source transaction term and decompose it into a list of plain t
 	affect_first_account(S_Transaction, Description, Ts1),
 
 	vector_unit(Vector_Ours, Bank_Account_Currency),
-	vec_change_bases($>result_has_property(l:exchange_rates),, Transaction_Date, $>result_has_property(l:report_currency), Vector_Ours, Converted_Vector_Ours),
+	vec_change_bases($>result_has_property(l:exchange_rates), Transaction_Date, $>result_has_property(l:report_currency), Vector_Ours, Converted_Vector_Ours),
 	cf(action_verb_accounts(Action_Verb,Exchanged_Account,Trading_Account)),
 	(
 		Counteraccount_Vector = []
@@ -190,7 +190,7 @@ take a statement/source transaction term and decompose it into a list of plain t
 				;	throw_string('credit Counteraccount_Vector but credit money Vector')),
 
 				cf(make_sell(
-				S_Transaction, Trading_Account, Pricing_method, Bank_Account_Currency, Counteraccount_Vector, Vector_Ours,
+				S_Transaction, Trading_Account, Pricing_method, Counteraccount_Vector, Vector_Ours,
 				Converted_Vector_Ours,	Exchanged_Account, Transaction_Date, Description,	Outstanding_Before, Outstanding_After, Ts3))
 
 			)
@@ -302,37 +302,54 @@ take a statement/source transaction term and decompose it into a list of plain t
  line_per_item_write_quoted2(Item,Str) :-
 	format(string(Str),'~q', [Item]).
 
- make_sell(St, Trading_Account, Pricing_Method, _Bank_Account_Currency, Goods_Vector,
-	Vector_Ours, Converted_Vector_Ours,
-	Exchanged_Account, Transaction_Date, Description,
-	Outstanding_In, Outstanding_Out, [Ts1, Ts2, Ts3]
+ make_sell(
+ 	St,
+ 	Trading_Account,
+ 	Pricing_Method,
+ 	Goods_Vector,
+ 	Vector_Ours,
+ 	Converted_Vector_Ours,
+ 	Exchanged_Account,
+ 	Transaction_Date,
+ 	Description,
+ 	Outstanding_In,
+ 	Outstanding_Out,
+ 	[Ts1, Ts2, Ts3]
 ) :-
 	credit_vec(Goods_Unit,Goods_Positive,Goods_Vector),
-	push_context($>format(string(<$), 'sell ~w of ~q for ~w', [Goods_Positive,Goods_Unit,$>money_vector_string($>vector_of_coords_vs_vector_of_values(kb:debit,Vector_Ours))])),
+	push_context(
+		$>format(string(<$),
+		'sell ~w of ~q for ~w',
+		[
+			Goods_Positive,
+			Goods_Unit,
+			$>money_vector_string($>vector_of_coords_vs_vector_of_values(kb:debit,Vector_Ours))])),
+
 	financial_investments_account(Exchanged_Account,Goods_Unit,Exchanged_Account2),
 	bank_debit_to_unit_price(Vector_Ours, Goods_Positive, Sale_Unit_Price),
 
-	(
-		(find_items_to_sell(Pricing_Method, Goods_Unit, Goods_Positive, Transaction_Date, Sale_Unit_Price, Outstanding_In, Outstanding_Out, Goods_Cost_Values),!)
-	;
-		(
+	(	find_items_to_sell(Pricing_Method, Goods_Unit, Goods_Positive, Transaction_Date, Sale_Unit_Price, Outstanding_In, Outstanding_Out, Goods_Cost_Values)
+	->	true
+	;	(
 			true,
-			throw($>format(string(<$), 'not enough outstanding stock to sell.~n~w', [$>outstandings_str(Outstanding_In)]))
+			throw($>format(
+				string(<$),
+				'not enough outstanding stock to sell.~n~w', [
+					$>outstandings_str(Outstanding_In)]))
 		)
 	),
-	maplist(sold_goods_vector_with_cost(Goods_Cost_Values, Goods_With_Cost_Vectors),
+
+	maplist(sold_goods_vector_with_cost, Goods_Cost_Values, Goods_With_Cost_Vectors),
 	maplist(
 		make_transaction(St, Transaction_Date, Description, Exchanged_Account2),
-		Goods_With_Cost_Vectors, Ts1
-	),
-	(nonvar(Trading_Account) -> 
-		(						
-			reduce_unrealized_gains(St, Description, Trading_Account, Transaction_Date, Goods_Cost_Values, Ts2),
+		Goods_With_Cost_Vectors, Ts1),
 
+	(	nonvar(Trading_Account)
+	->	(
+			reduce_unrealized_gains(St, Description, Trading_Account, Transaction_Date, Goods_Cost_Values, Ts2),
 			increase_realized_gains(St, Description, Trading_Account, Vector_Ours, Converted_Vector_Ours, Goods_Vector, Transaction_Date, Goods_Cost_Values, Ts3)
 		)
-	; true
-	),
+	;	true),
 	pop_context.
 
  bank_debit_to_unit_price(Vector_Ours, Goods_Positive, value(Unit, Number2)) :-
