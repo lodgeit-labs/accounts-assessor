@@ -1,3 +1,4 @@
+%state_fields([day, type_id, vector, account, exchanged, misc]).
 
  initial_state(State) :-
  	doc_new_(l:state, State),
@@ -43,16 +44,8 @@ handle_op(S0,append,Field,Tail,S2) :-
 
 
  handle_sts(S0, S_Transactions, S2) :-
-
 	doc(S0, l:has_outstanding, Outstanding_old),
-
- 	/*
- 	result_property(l:report_currency, Report_Currency),
- 	result_property(l:exchange_rates, Exchange_Rates),
-	result_property(l:start_date, Start_Date),
-	*/
  	result_property(l:end_date, End_Date),
-
 
 	!s_transactions_up_to(End_Date, S_Transactions, S_Transactions2),
 	!sort_s_transactions(S_Transactions2,S_Transactions4),

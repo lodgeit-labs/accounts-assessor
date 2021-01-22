@@ -364,3 +364,17 @@ is_valid_role('Trading_Accounts'/Trading_Account_Id/Realized_Or_Unrealized/Curre
 	freeze(Id, atom(Traded_Unit)).
 is_valid_role('Currency_Movement'/Id) :- !, freeze(Id, atom(Id)).
 is_valid_role('Financial_Investments'/Id) :- !, freeze(Id, atom(Id)).
+
+is_valid_role('Distribution_Receivable'/_).
+is_valid_role('Opening_Balance_-_Preserved/Taxable'/_).
+is_valid_role('Opening_Balance_-_Preserved/Tax-Free'/_).
+is_valid_role('Income_Tax_-_Preserved/Taxable'/_).
+is_valid_role('Share_of_Profit/(Loss)_-_Preserved/Taxable'/_).
+is_valid_role('Transfers_In_-_Preserved/Taxable'/_).
+is_valid_role('Employer_Contributions_-_Concessional'/_).
+is_valid_role('Contribution_Tax_-_Preserved/Taxable'/_).
+is_valid_role('Income_Tax_-_Preserved/Taxable'/_).
+is_valid_role('Distribution_Revenue'/_).
+is_valid_role('Contribution_Received'/_).
+is_valid_role('Interest_Received_-_by_Bank'/_).
+is_valid_role('Contribution_Received'/_).

@@ -22,14 +22,15 @@
 		(generate_bank_opening_balances_sts(Bank_Lump_STs),
 		'ensure system accounts exist 0'(Bank_Lump_STs),
 		handle_sts(S0, Bank_Lump_STs, S2))),
-	/*
-	c('phase: opening balance',
+	ct('phase: opening balance',
 		process_sheets(S2, phases:opening_balance, S4)),
 	c('automated: rollover',
 		smsf_rollover0(S4, S6)),
+
+	/*
 	cf('phase: main')*/
 
-	writeq(S2),nl,
+	writeq(S4),nl,
 	true.
 
 

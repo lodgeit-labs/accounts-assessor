@@ -1,15 +1,17 @@
  extract_gl_inputs(Phase, Txs) :-
  	(	doc($>request_data, ic_ui:gl, Gls)
- 	->	(	maplist(!extract_gl_input(Phase), $>doc_list_items(Gls), Txs0),
+ 	->	(	maplist(extract_gl_input(Phase), $>doc_list_items(Gls), Txs0),
 			flatten(Txs0, Txs))
 	;	Txs = []).
 
  extract_action_inputs(Phase, Txs) :-
  	(	doc($>request_data, ic_ui:action_input, Input)
- 	->	(	maplist(!extract_action_input(Phase), $>doc_list_items(Input), Txs0),
+ 	->	(	maplist(extract_action_input(Phase), $>doc_list_items(Input), Txs0),
 			flatten(Txs0, Txs))
 	;	Txs = []).
 
+ extract_gl_input(Phase, Gl, []) :-
+ 	\+check_phase(Phase, Gl, ic:phase).
  extract_gl_input(Phase, Gl, Txs) :-
  	check_phase(Phase, Gl, ic:phase),
  	push_format('extract GL input from: ~w', [$>sheet_and_cell_string(Gl)]),
@@ -27,6 +29,8 @@
 	Txs),
 	pop_context.
 
+ extract_action_input(Phase, Input, []) :-
+	\+check_phase(Phase, Input, ic:phase).
  extract_action_input(Phase, Input, Txs) :-
 	check_phase(Phase, Input, ic:phase),
  	push_context($>format(string(<$), 'extract action input from: ~w', [$>sheet_and_cell_string(Input)])),
