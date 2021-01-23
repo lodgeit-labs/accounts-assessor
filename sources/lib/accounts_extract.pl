@@ -168,6 +168,12 @@ extract accounts from accountHierarchy xml element
 		)
 	;	true),
 
+ 	(	memberchk(is_smsf_equity_opening_balance = Iob0, Attrs)
+	->	(	atom_string(Iob, Iob0),
+			doc_add(Uri, accounts:is_smsf_equity_opening_balance, Iob, accounts)
+		)
+	;	true),
+
 	true.
 
 

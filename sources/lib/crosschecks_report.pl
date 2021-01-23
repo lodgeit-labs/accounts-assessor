@@ -230,5 +230,13 @@ entry_normal_side_values(_Sd, Entry, Values_List) :-
 			   Entry).
 	
 	
-	
+
+ check_account_is_zero(Sr, Specifier) :-
+	Crosscheck = equality(
+		Specifier,
+		[]
+	),
+	evaluate_equality(_{reports:Sr}), Crosscheck, Result),
+	crosscheck_output(Result, _).
+
 

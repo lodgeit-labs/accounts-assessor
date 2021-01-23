@@ -297,6 +297,7 @@ ensure_smsf_equity_tree3(Root) :-
 	findall(A,
 		(
 			account_in_set(A, Root),
+			/* all leaf accounts */
 			\+account_parent(_, A)
 		),
 		As
@@ -320,12 +321,26 @@ ensure_smsf_equity_tree6(A) :-
 	!account_name(A, Account),
 	maplist(!subcategorize_by_smsf_member(Account, A), Members).
 
- subcategorize_by_smsf_member(Role_prefix, A, Member) :-
+ subcategorize_by_smsf_member(Role_prefix, Parent, Member) :-
  	push_context(subcategorize_by_smsf_member),
 	!doc_value(Member, smsf:member_name, Member_Name_str),
 	atom_string(Member_Name, Member_Name_str),
-	ensure_account_exists(A, _, 1, rl(Role_prefix/Member_Name), _),
+	ensure_account_exists(Parent, _, 1, rl(Role_prefix/Member_Name), Result),
+	copy_attrs(Parent, [
+			accounts:is_smsf_equity_opening_balance,
+			accounts:smsf_phase,
+			accounts:smsf_taxability
+		],
+		A, accounts
+	),
 	pop_context.
+
+copy_attrs(X, Preds, Y, Graph) :-
+	maplist(copy_attrs2(X, Y, Graph), Preds).
+copy_attrs2(X, Y, Graph, Pred) :-
+	(	doc(X, Pred, V, Graph)
+	->	doc_add(Y, Pred, V, Graph)
+	;	true).
 
 %------
 

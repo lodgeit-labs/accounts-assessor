@@ -89,30 +89,56 @@
 			<account name="Members" role="smsf_equity">
 				<account name="Opening_Balance" role="smsf_equity_Opening_Balance">
 					<account name="Opening_Balance_-_Preserved/Taxable"
-					 role="smsf_equity!Opening_Balance!Preserved!Taxable"/>
+						smsf_phase="Preserved"
+						smsf_taxability="Taxable"
+						is_smsf_equity_opening_balance="true"
+					 />
+
 					<account name="Opening_Balance_-_Preserved/Tax-Free"
-					 role="smsf_equity!Opening_Balance!Preserved!Tax-Free"/>
+						smsf_phase="Preserved"
+						smsf_taxability="Tax-Free"
+						is_smsf_equity_opening_balance="true"/>
+
 					<account name="Opening_Balance_-_Unrestricted_Non_Preserved/Taxable"
-					 role="smsf_equity!Opening_Balance!Unrestricted!Taxable"/>
+						smsf_phase="Unrestricted"
+						smsf_taxability="Taxable"
+						is_smsf_equity_opening_balance="true"/>
+
 					<account name="Opening_Balance_-_Unrestricted_Non_Preserved/Tax-Free"
-					 role="smsf_equity!Opening_Balance!Unrestricted!Tax-Free"/>
+						smsf_phase="Unrestricted"
+						smsf_taxability="Tax-Free"
+						is_smsf_equity_opening_balance="true"/>
+
 					<account name="Opening_Balance_-_Restricted_Non_Preserved/Taxable"
-					 role="smsf_equity!Opening_Balance!Restricted!Taxable"/>
+						smsf_phase="Restricted"
+						smsf_taxability="Taxable"
+						is_smsf_equity_opening_balance="true"/>
+
 					<account name="Opening_Balance_-_Restricted_Non_Preserved/Tax-Free"
-					 role="smsf_equity!Opening_Balance!Restricted!Tax-Free"/>
+						smsf_phase="Restricted"
+						smsf_taxability="Tax-Free"
+						is_smsf_equity_opening_balance="true"/>
+
 				</account>
 
 				<account name="Changes" role="smsf_equity_Changes">
 				
 					<account name="Employer_Contributions_-_Concessional" 
-						smsf_taxability="Taxable"
-							 smsf_phase="Preserved"/>
+						smsf_phase="Preserved"
+						smsf_taxability="Taxable"/>
 
 					<account name="Member/Personal_Contributions_-_Concessional"/>
 					<account name="Member/Personal_Contributions_-_Non_Concessional"/>
 					<account name="Other_Contributions"/>
-					<account name="Transfers_In_-_Preserved/Taxable"/>
-					<account name="Transfers_In_-_Preserved/Tax-Free"/>
+
+					<account name="Transfers_In_-_Preserved/Taxable"
+						smsf_phase="Preserved"
+						smsf_taxability="Taxable"/>
+
+					<account name="Transfers_In_-_Preserved/Tax-Free"
+						smsf_phase="Preserved"
+						smsf_taxability="Tax-Free"/>
+
 					<account name="Transfers_In_-_Unrestricted_Non_Preserved/Taxable"/>
 					<account name="Transfers_In_-_Unrestricted_Non_Preserved/Tax-Free"/>
 					<account name="Transfers_In_-_Restricted_Non_Preserved/Taxable"/>

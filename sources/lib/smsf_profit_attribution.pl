@@ -7,32 +7,23 @@ wip: go through all GL sheets in excel
 
 
 
-
-basic_reports(Prefix, State, Sr) :-
-	doc(State, l:has_transactions, Transactions),
-	!transactions_by_account_v2(Transactions,Transactions_By_Account),
- 	!result_property(l:report_currency, Report_Currency),
- 	!result_property(l:exchange_rates, Exchange_Rates),
-	!result_property(l:start_date, Start_Date),
- 	!result_property(l:end_date, End_Date),
-	dict_from_vars(Static_Data, [Transactions, Exchange_Rates, Transactions_By_Account, Report_Currency, Start_Date, End_Date]).
-	!balance_entries(Static_Data, Sr),
-	!other_reports2(Prefix, Static_Data, Sr),
-
 % doc(Uri, accounts:smsf_phase, Phase, accounts)
 % error: account hierarchy must specify taxability of ~q
 
-smsf_rollover0(State_in, State_out) :-
+ smsf_rollover0(State_in, State_out) :-
 
-	basic_reports('before_smsf_rollover_', State_in, Sr),
+	bs_pl_reports_from_state('before_smsf_rollover_', State_in, Sr),
 	smsf_rollover(Sr, Txs),
 
 	new_state_with_appended_(State_in, [
 		op(l:has_transactions,append,Txs)
-	], State_out).
+	], State_out),
+
+	bs_pl_reports_from_state('after_smsf_rollover_', State_out, Sr2),
+	'check that smsf_equity_equals_equity_Opening_Balance'(Sr2).
 
 
-smsf_rollover(Sr, Txs) :-
+ smsf_rollover(Sr, Txs) :-
 	Bs = Sr.bs.current,
 	cf('check that smsf_equity_Opening_Balance is zero'),
 	findall(
@@ -42,27 +33,18 @@ smsf_rollover(Sr, Txs) :-
 			dif(Distinction, 'Opening_Balance')
 		),
 		Non_ob_accounts),
-	maplist(roll_over,Non_ob_accounts, Txs0),
-	flatten(Txs0, Txs),
-	'check that smsf_equity_except_Opening_Balance is zero'.
+	maplist(roll_over,Non_ob_accounts, Txs).
 
-'check that smsf_equity_Opening_Balance is zero'(Sr) :-
+ 'check that smsf_equity_Opening_Balance is zero'(Sr) :-
 	findall(
-		Acc,
-		account_by_role(rl(smsf_equity/'Opening_Balance'/_Phase/_Taxability), Acc),
-		Ob_accounts),
-	maplist(
-
-
-check_account_is_zero(Sr, Path) :-
-	Crosscheck = equality(
-		account_balance(reports/bs/current, 'Equity_Aggregate_Historical'),
-		[]
-	),
-	evaluate_equality(_{reports:Sr}), Crosscheck, Result),
-	crosscheck_output(Result, _).
-
-smsf_equity!Opening_Balance!Preserved!Taxable
+		_,
+		(
+			account_exists(A),
+			doc(A, accounts:is_smsf_equity_opening_balance, "true", accounts),
+			!check_account_is_zero(Sr, account_balance(reports/bs/current,uri(A)))
+		),
+		_).
+ 'check that smsf_equity_equals_equity_Opening_Balance'(Sr) :-
 
 roll_over(Acc, Txs) :-
 	findall(

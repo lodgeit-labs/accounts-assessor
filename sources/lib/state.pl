@@ -37,7 +37,7 @@ handle_op(_,set,Field,New,S2) :-
 
 handle_op(S0,append,Field,Tail,S2) :-
 	doc(S0, Field, Old),
-	append(Old,Tail,New),
+	flatten([Old,Tail],New),
 	doc_add(S2, Field, New).
 
 
@@ -86,3 +86,13 @@ handle_op(S0,append,Field,Tail,S2) :-
  	;  	\+var(Actual_phase)).
 
 
+ bs_pl_reports_from_state(Prefix, State, Sr) :-
+	doc(State, l:has_transactions, Transactions),
+	!transactions_by_account_v2(Transactions,Transactions_By_Account),
+ 	!result_property(l:report_currency, Report_Currency),
+ 	!result_property(l:exchange_rates, Exchange_Rates),
+	!result_property(l:start_date, Start_Date),
+ 	!result_property(l:end_date, End_Date),
+	dict_from_vars(Static_Data, [Transactions, Exchange_Rates, Transactions_By_Account, Report_Currency, Start_Date, End_Date]).
+	!balance_entries(Static_Data, Sr),
+	!other_reports2(Prefix, Static_Data, Sr),
