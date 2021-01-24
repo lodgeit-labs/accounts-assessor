@@ -43,7 +43,8 @@ handle_op(S0,append,Field,Tail,S2) :-
 
 
 
- handle_sts(S0, S_Transactions, S2) :-
+ handle_sts(S0, S_Transactions0, S2) :-
+ 	flatten(S_Transactions,S_Transactions),
 	doc(S0, l:has_outstanding, Outstanding_old),
  	result_property(l:end_date, End_Date),
 
@@ -96,3 +97,7 @@ handle_op(S0,append,Field,Tail,S2) :-
 	dict_from_vars(Static_Data, [Transactions, Exchange_Rates, Transactions_By_Account, Report_Currency, Start_Date, End_Date]).
 	!balance_entries(Static_Data, Sr),
 	!other_reports2(Prefix, Static_Data, Sr),
+
+
+sum_up(S6,S8) :-
+	!transactions_by_account(Static_Data0b, Transactions_By_Account1),

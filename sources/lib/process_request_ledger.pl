@@ -30,42 +30,36 @@
 	true.
 
 
-'phase: main'(S6) :-
-	!cf(handle_additional_files(				S_Transactions_a)),
-	!cf('extract bank statement transactions'(	S_Transactions_b)),
-	!cf(extract_action_inputs(_Phase, 			S_Transactions_c)),
-	!cf(extract_gl_inputs(_Phase, 				S_Transactions_d)),
-	!flatten([S_Transactions_a, S_Transactions_b,S_Transactions_c, S_Transactions_d],
-		S_Transactions0),
-	%!cf(extract_livestock_data_from_ledger_request(Dom)),
+'phase: main'(S0) :-
 
+	% a bunch of ST's.
 
+	flatten(
+		[
+			$>!cf(handle_additional_files),
+			$>!cf('extract bank statement transactions'),
+			$>!cf(extract_action_inputs(_)
+			%,%>!cf(extract_livestock_data_from_ledger_request(Dom)),
+		],
+		Sts0),
 
+	Sts0 = [S_Transactions_a, S_Transactions_b,S_Transactions_c],
+ 	handle_sts(S0, Sts0, S2),
+	!cf('ensure system accounts exist 0'(Sts0)),
 
-/*
-	!s_transactions_up_to(End_Date, S_Transactions0, S_Transactions),
-	!result_add_property(l:bank_s_transactions, S_Transactions),
+	Txs0 = [
+		$>!cf(extract_gl_inputs(_)),
+		$>!cf(extract_reallocations(_)),
+		$>!cf(extract_smsf_distribution))
+	],
+	handle_txs(S2, Txs0, S4),
 
-	!cf('ensure system accounts exist 0'(S_Transactions)),
+	%!cf(process_livestock((Processed_S_Transactions, Transactions1), Livestock_Transactions)),
 
-	!cf(extract_gl_inputs(Gl_input_txs)),
-	!cf(extract_reallocations(Reallocation_Txs)),
-	!cf(extract_smsf_distribution(Smsf_distribution_txs)),
-	handle_sts(Sd0, S_Transactions0, Transactions, Outstanding_Out, End_Date, Processed_Until)
-	flatten([Gl_input_txs, Reallocation_Txs, Smsf_distribution_txs, Transactions_From_Bst], Transactions1),
-	!cf(process_livestock((Processed_S_Transactions, Transactions1), Livestock_Transactions)),
-	flatten([Transactions1,	Livestock_Transactions], Transactions_With_Livestock).
-???????
-*/
+	!'with current and historical earnings equity balances'(S4,S6),
 
+	sum_up(S6,S8),
 
-
-
-	!'with current and historical earnings equity balances'(SX,Sy),
-
-
-	!transactions_by_account(Static_Data0b, Transactions_By_Account1),
-	Static_Data1 = Static_Data0b.put([transactions_by_account=Transactions_By_Account1]),
 	(	account_by_role(rl(smsf_equity), _)
 	->	(
 			cf(smsf_distributions_reports(_)),
@@ -75,17 +69,10 @@
 				Static_Data2)
 		)
 	;	Static_Data2 = Static_Data1),
+
+
 	cf(check_trial_balance2(Exchange_Rates, Static_Data2.transactions_by_account, Report_Currency, Static_Data2.end_date, Start_Date, Static_Data2.end_date)),
 	once(!cf(create_reports(Static_Data2, Structured_Reports))).
-*/
-
-
-
-
-
-
-
-
 
 
 
