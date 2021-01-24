@@ -36,15 +36,21 @@ wip: go through all GL sheets in excel
 	maplist(roll_over,Non_ob_accounts, Txs).
 
  'check that smsf_equity_Opening_Balance is zero'(Sr) :-
-	findall(
-		_,
-		(
+	findall(_,(
 			account_exists(A),
 			doc(A, accounts:is_smsf_equity_opening_balance, "true", accounts),
-			!check_account_is_zero(Sr, account_balance(reports/bs/current,uri(A)))
-		),
-		_).
- 'check that smsf_equity_equals_equity_Opening_Balance'(Sr) :-
+			!check_account_is_zero(Sr, account_balance(reports/bs/current, uri(A)))
+	),_).
+
+ 'check that smsf_equity equals smsf_equity_Opening_Balance'(Sr) :-
+ 	true. /*
+		quiet_crosscheck(
+			Sr,
+			equality(
+				account_balance(reports/bs/current, all_accounts_with_pog(accounts:is_smsf_equity_opening_balance, "true", accounts),
+				account_balance(reports/bs/current, all_accounts_with_pog(accounts:is_smsf_equity_opening_balance, "false", accounts),*/
+				/* it would be a lot easier if they each had an exact role, lets say smsf_equity/Specifier/IsOb/Phase/Taxability/Member? */
+
 
 roll_over(Acc, Txs) :-
 	findall(
@@ -73,24 +79,6 @@ roll_over2(Member_src_acc,Txs) :-
 		$>abrlt('Income_Tax_Payable'),
 		Tax_vec,
 		Txs0).
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

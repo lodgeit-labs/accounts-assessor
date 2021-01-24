@@ -50,44 +50,45 @@ crosschecks_report(Sd, Json) :-
 	/* account balances at normal sides here */
 	Crosschecks0 = [
 		equality(
-			account_balance(reports/bs/current, 'Net_Assets'),
-			account_balance(reports/bs/current, 'Equity')),
+			account_balance(reports/bs/current, rl('Net_Assets')),
+			account_balance(reports/bs/current, rl('Equity'))),
+
 		equality(
-			account_balance(reports/pl/current, 'Trading_Accounts'/_/realized/withoutCurrencyMovement),
+			account_balance(reports/pl/current, rl('Trading_Accounts'/_/realized/withoutCurrencyMovement)),
 			report_value(reports/ir/current/totals/gains/rea/market_converted)),
 		equality(
-			account_balance(reports/pl/current, 'Trading_Accounts'/_/realized/onlyCurrencyMovement),
+			account_balance(reports/pl/current, rl('Trading_Accounts'/_/realized/onlyCurrencyMovement)),
 			report_value(reports/ir/current/totals/gains/rea/forex)),
 		equality(
-			account_balance(reports/pl/current, 'Trading_Accounts'/_/unrealized/withoutCurrencyMovement),
+			account_balance(reports/pl/current, rl('Trading_Accounts'/_/unrealized/withoutCurrencyMovement)),
 			report_value(reports/ir/current/totals/gains/unr/market_converted)),
 		equality(
-			account_balance(reports/pl/current, 'Trading_Accounts'/_/unrealized/onlyCurrencyMovement),
+			account_balance(reports/pl/current, rl('Trading_Accounts'/_/unrealized/onlyCurrencyMovement)),
 			report_value(reports/ir/current/totals/gains/unr/forex)),
 		equality(
-			account_balance(reports/pl/current, 'Trading_Accounts'/_),
+			account_balance(reports/pl/current, rl('Trading_Accounts'/_)),
 			report_value(reports/ir/current/totals/gains/total)),
 		equality(
-			account_balance(reports/pl/current, 'Trading_Accounts'/_/unrealized),
+			account_balance(reports/pl/current, rl('Trading_Accounts'/_/unrealized)),
 			report_value(reports/ir/current/totals/gains/unrealized_total)),
 		equality(
-			account_balance(reports/pl/current, 'Trading_Accounts'/_/realized),
+			account_balance(reports/pl/current, rl('Trading_Accounts'/_/realized)),
 			report_value(reports/ir/current/totals/gains/realized_total)),
 		equality(
-			account_balance(reports/bs/current, 'Financial_Investments'/_),
+			account_balance(reports/bs/current, rl('Financial_Investments'/_)),
 			report_value(reports/ir/current/totals/closing/total_cost_converted)),
 		equality(
-			account_balance(reports/bs/current, 'Historical_Earnings'),
-			account_balance(reports/pl/historical, 'Comprehensive_Income'))
+			account_balance(reports/bs/current, rl('Historical_Earnings')),
+			account_balance(reports/pl/historical, rl('Comprehensive_Income')))
 	],
 
 	Smsf_crosschecks = [
 		equality(
-			account_balance(reports/bs/current, 'Equity_Aggregate_Historical'),
+			account_balance(reports/bs/current, rl('Equity_Aggregate_Historical')),
 			[]
 		),
 		equality(
-			account_balance(reports/bs/current, 'Bank_Opening_Balances'),
+			account_balance(reports/bs/current, rl('Bank_Opening_Balances')),
 			[]
 		),
 		equality(
@@ -97,19 +98,19 @@ crosschecks_report(Sd, Json) :-
 			fact_value(aspects([concept - smsf/income_tax/reconcilliation/'Total'])),
 			fact_value(aspects([concept - smsf/income_tax/'to pay']))),
 		equality(
-			account_balance(reports/pl/current, 'Distribution_Revenue'),
+			account_balance(reports/pl/current, rl('Distribution_Revenue')),
 			fact_value(aspects([concept - ($>rdf_global_id(smsf_distribution_ui:distribution_income))]))),
 		equality(
-			account_balance(reports/pl/current, 'Distribution_Revenue'/Unit/'Resolved_Accrual'),
+			account_balance(reports/pl/current, rl('Distribution_Revenue'/Unit/'Resolved_Accrual')),
 			fact_value(aspects([concept - ($>rdf_global_id(smsf_distribution_ui:accrual))]))),
 		equality(
-			account_balance(reports/pl/current, 'Distribution_Revenue'/Unit/'Distribution_Cash'),
+			account_balance(reports/pl/current, rl('Distribution_Revenue'/Unit/'Distribution_Cash')),
 			fact_value(aspects([concept - ($>rdf_global_id(smsf_distribution_ui:bank))]))),
 		equality(
-			account_balance(reports/pl/current, 'Distribution_Revenue'/Unit/'Foreign_Credit'),
+			account_balance(reports/pl/current, rl('Distribution_Revenue'/Unit/'Foreign_Credit')),
 			fact_value(aspects([concept - ($>rdf_global_id(smsf_distribution_ui:foreign_credit))]))),
 		equality(
-			account_balance(reports/pl/current, 'Distribution_Revenue'/Unit/'Franking_Credit'),
+			account_balance(reports/pl/current, rl('Distribution_Revenue'/Unit/'Franking_Credit')),
 			fact_value(aspects([concept - ($>rdf_global_id(smsf_distribution_ui:franking_credit))])))
 	],
 /*
@@ -195,13 +196,21 @@ evaluate2(Sd, report_value(Key), Values_List) :-
 	path_get_dict(Key, Sd, Values_List).
 		
 /* get vector of values in normal side, of an account, as provided by tree of entry(..) terms. Return [] if not found. */
-evaluate2(Sd, account_balance(Report_Id, Role), Values_List) :-
+
+evaluate2(Sd, account_balance(Report_Id, Acct), Values_List) :-
 	/* get report out of static data */
 	path_get_dict(Report_Id, Sd, Report),
 	findall(
 		Values_List,
 		(
-			accounts_report_entry_by_account_role_nothrow(Sd, Report, rl(Role), Entry),
+			(	Acct = uri(Uri)
+			->	true
+			;	(
+					assertion(Role = rl(_),
+					account_by_role(Role, Uri)
+				)
+			),
+			accounts_report_entry_by_account_uri(Report, Uri, Entry).
 			entry_normal_side_values(Sd, Entry, Values_List)
 		),
 		Values_List0
@@ -236,6 +245,9 @@ entry_normal_side_values(_Sd, Entry, Values_List) :-
 		Specifier,
 		[]
 	),
+	quiet_crosscheck(Sr,Crosscheck).
+
+ quiet_crosscheck(Sr,Crosscheck) :-
 	evaluate_equality(_{reports:Sr}), Crosscheck, Result),
 	crosscheck_output(Result, _).
 

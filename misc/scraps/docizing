@@ -129,7 +129,32 @@ make_buy(Purchase, Gl_Txs) :-
 
 
 
+	% if some s_transaction failed to process, there should be an alert created by now. Now we just compile a report up until that transaction. It would maybe be cleaner to do this by calling 'process_ledger' a second time
+	dict_from_vars(Static_Data0,
+		[Cost_Or_Market,
+		Output_Dimensional_Facts,
+		Start_Date,
+		Exchange_Rates,
+		Transactions,
+		Report_Currency,
+		Outstanding
+	]),
+	Static_Data0b = Static_Data0.put([
+		end_date=Processed_Until_Date,
+		exchange_date=Processed_Until_Date
+	]),
 
+
+
+
+/*
+update_static_data_with_transactions(In, Txs, Out) :-
+	append(In.transactions,$>flatten(Txs),Transactions2),
+	Static_Data1b = In.put([transactions=Transactions2]),
+	'with current and historical earnings equity balances',
+	!transactions_by_account(Static_Data1b, Transactions_By_Account),
+	Out = Static_Data1b.put([transactions_by_account=Transactions_By_Account]).
+*/
 
 
 

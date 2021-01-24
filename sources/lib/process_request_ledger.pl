@@ -26,51 +26,44 @@
 		process_sheets(S2, phases:opening_balance, S4)),
 	c('automated: rollover',
 		smsf_rollover0(S4, S6)),
-
-	/*
-	cf('phase: main')*/
-
-	writeq(S4),nl,
+	cf('phase: main'(S6, S8)),
 	true.
+
+
+'phase: main'(S6) :-
+	!cf(handle_additional_files(				S_Transactions_a)),
+	!cf('extract bank statement transactions'(	S_Transactions_b)),
+	!cf(extract_action_inputs(_Phase, 			S_Transactions_c)),
+	!cf(extract_gl_inputs(_Phase, 				S_Transactions_d)),
+	!flatten([S_Transactions_a, S_Transactions_b,S_Transactions_c, S_Transactions_d],
+		S_Transactions0),
+	%!cf(extract_livestock_data_from_ledger_request(Dom)),
+
 
 
 
 /*
-'phase: main'(S6) :-
-	!cf(handle_additional_files(S_Transactions_a)),
-	!cf('extract bank statement transactions'(S_Transactions_b)),
-	!cf(extract_action_inputs(_Phase, S_Transactions_c)),
-	!flatten([S_Transactions_a, S_Transactions_b,S_Transactions_c],
-		S_Transactions),
+	!s_transactions_up_to(End_Date, S_Transactions0, S_Transactions),
+	!result_add_property(l:bank_s_transactions, S_Transactions),
 
-	%!cf(extract_livestock_data_from_ledger_request(Dom)),
+	!cf('ensure system accounts exist 0'(S_Transactions)),
 
-	!process_ledger(
-		Cost_Or_Market,
-		S_Transactions,
-		Start_Date,
-		End_Date,
-		Exchange_Rates,
-		Report_Currency,
-		Transactions,
-		Outstanding,
-		Processed_Until_Date),
+	!cf(extract_gl_inputs(Gl_input_txs)),
+	!cf(extract_reallocations(Reallocation_Txs)),
+	!cf(extract_smsf_distribution(Smsf_distribution_txs)),
+	handle_sts(Sd0, S_Transactions0, Transactions, Outstanding_Out, End_Date, Processed_Until)
+	flatten([Gl_input_txs, Reallocation_Txs, Smsf_distribution_txs, Transactions_From_Bst], Transactions1),
+	!cf(process_livestock((Processed_S_Transactions, Transactions1), Livestock_Transactions)),
+	flatten([Transactions1,	Livestock_Transactions], Transactions_With_Livestock).
+???????
+*/
 
-	% if some s_transaction failed to process, there should be an alert created by now. Now we just compile a report up until that transaction. It would maybe be cleaner to do this by calling 'process_ledger' a second time
-	dict_from_vars(Static_Data0,
-		[Cost_Or_Market,
-		Output_Dimensional_Facts,
-		Start_Date,
-		Exchange_Rates,
-		Transactions,
-		Report_Currency,
-		Outstanding
-	]),
-	Static_Data0b = Static_Data0.put([
-		end_date=Processed_Until_Date,
-		exchange_date=Processed_Until_Date
-	]),
-	!'with current and historical earnings equity balances',
+
+
+
+	!'with current and historical earnings equity balances'(SX,Sy),
+
+
 	!transactions_by_account(Static_Data0b, Transactions_By_Account1),
 	Static_Data1 = Static_Data0b.put([transactions_by_account=Transactions_By_Account1]),
 	(	account_by_role(rl(smsf_equity), _)
@@ -85,30 +78,14 @@
 	cf(check_trial_balance2(Exchange_Rates, Static_Data2.transactions_by_account, Report_Currency, Static_Data2.end_date, Start_Date, Static_Data2.end_date)),
 	once(!cf(create_reports(Static_Data2, Structured_Reports))).
 */
-/*
-update_static_data_with_transactions(In, Txs, Out) :-
-	append(In.transactions,$>flatten(Txs),Transactions2),
-	Static_Data1b = In.put([transactions=Transactions2]),
-	'with current and historical earnings equity balances',
-	!transactions_by_account(Static_Data1b, Transactions_By_Account),
-	Out = Static_Data1b.put([transactions_by_account=Transactions_By_Account]).
-*/
 
 
-check_trial_balance2(Exchange_Rates, Transactions_By_Account, Report_Currency, End_Date, Start_Date, End_Date) :-
-	!trial_balance_between(Exchange_Rates, Transactions_By_Account, Report_Currency, End_Date, Start_Date, End_Date, [Trial_Balance_Section]),
-	(
-		(
-			trial_balance_ok(Trial_Balance_Section)
-		;
-			Report_Currency = []
-		)
-	->
-		true
-	;
-		(	term_string(trial_balance(Trial_Balance_Section), Tb_Str),
-			add_alert('SYSTEM_WARNING', Tb_Str))
-	).
+
+
+
+
+
+
 
 
 
