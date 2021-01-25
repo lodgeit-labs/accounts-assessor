@@ -184,7 +184,7 @@ balance(Static_Data, Account_Id, Date, Balance, Transactions_Count) :-
 
 % Relates the period from Start_Date to End_Date to the net activity during that period of
 % the given account.
-net_activity_by_account(Static_Data, Account_Id, Net_Activity_Transformed, Transactions_Count) :-
+n et_activity_by_account(Static_Data, Account_Id, Net_Activity_Transformed, Transactions_Count) :-
 	Static_Data.start_date = Start_Date,
 	Static_Data.end_date = End_Date,
 	Static_Data.exchange_date = Exchange_Date,
@@ -211,7 +211,7 @@ net_activity_by_account(Static_Data, Account_Id, Net_Activity_Transformed, Trans
 
 
 
-balance_sheet_entry(Static_Data, Account_Id, Entry) :-
+ balance_sheet_entry(Static_Data, Account_Id, Entry) :-
 	
 	/*this doesnt seem to help with tabling performance at all*/
 	dict_vars(Static_Data, [End_Date, Exchange_Date, Exchange_Rates, Transactions_By_Account, Report_Currency]),
@@ -221,7 +221,7 @@ balance_sheet_entry(Static_Data, Account_Id, Entry) :-
 
 %:- table balance_sheet_entry2/3.
 
-balance_sheet_entry2(Static_Data, Account_Id, Entry) :-
+ balance_sheet_entry2(Static_Data, Account_Id, Entry) :-
 	% find all direct children sheet entries
 	% fixme:  If Key is unbound, all associations in Dict are returned on backtracking. The order in which the associations are returned is undefined. (in doc.pl). This leads to random order of entries in the report.
 	account_direct_children(Account_Id, Child_Accounts),
@@ -251,15 +251,15 @@ balance_sheet_entry2(Static_Data, Account_Id, Entry) :-
 	balance_sheet_entry(Static_Data, $>account_by_role_throw(rl('Accounts')), Entry),
 	Entry = entry(_,_,Accounts_Report,_,[]).*/
 
-balance_sheet_at(Static_Data, [Net_Assets_Entry, Equity_Entry]) :-
+ balance_sheet_at(Static_Data, [Net_Assets_Entry, Equity_Entry]) :-
 	balance_sheet_entry(Static_Data, $>abrlt('Net_Assets'), Net_Assets_Entry),
 	balance_sheet_entry(Static_Data, $>abrlt('Equity'), Equity_Entry).
 
-balance_sheet_delta(Static_Data, [Net_Assets_Entry, Equity_Entry]) :-
+ balance_sheet_delta(Static_Data, [Net_Assets_Entry, Equity_Entry]) :-
 	!activity_entry(Static_Data, $>abrlt('Net_Assets'), Net_Assets_Entry),
 	!activity_entry(Static_Data, $>abrlt('Equity'), Equity_Entry).
 
-trial_balance_between(Exchange_Rates, Transactions_By_Account, Report_Currency, Exchange_Date, _Start_Date, End_Date, [Trial_Balance_Section]) :-
+ trial_balance_between(Exchange_Rates, Transactions_By_Account, Report_Currency, Exchange_Date, _Start_Date, End_Date, [Trial_Balance_Section]) :-
 	balance_by_account(Exchange_Rates, Transactions_By_Account, Report_Currency, Exchange_Date, $>abrlt('Net_Assets'), End_Date, Net_Assets_Balance, Net_Assets_Count),
 	balance_by_account(Exchange_Rates, Transactions_By_Account, Report_Currency, Exchange_Date, $>abrlt('Equity'), End_Date, Equity_Balance, Equity_Count),
 

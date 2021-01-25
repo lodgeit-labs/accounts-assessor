@@ -172,9 +172,20 @@ result_property(l:start_date, Start_Date),
 
 
 
+smsf_equity_non_opening_balance_leaf_accounts(Accts) :-
+	findall(
+		Acc,
+		(
+			account_in_set(Account, $>abrlt(rl(smsf_equity))),
+			is_leaf_account(Account),
+
+
+			dif(Distinction, 'Opening_Balance')
+		),
+		Accts).
 
 
 
-
-
-
+doc(Uri, accounts:is_smsf_equity_opening_balance, Iob, accounts)
+doc(Uri, accounts:smsf_phase, Phase, accounts)
+doc(Uri, accounts:smsf_taxability, Taxability, accounts)

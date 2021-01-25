@@ -120,6 +120,13 @@ find account by a user-entered name
 	account_parent(Descendant0, Account),
 	account_descendant(Descendant0, Descendant).
 
+ is_leaf_account(Account) :-
+	\+does_account_have_children(Account).
+
+ does_account_have_children(Account) :-
+	account_parent(_Child_Account, Account),
+	!.
+
 /* throws an exception if no account is found */
  account_by_role_throw(Role, Account) :-
 	assertion(Role = rl(_)),

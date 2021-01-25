@@ -210,19 +210,23 @@ evaluate2(Sd, account_balance(Report_Id, Acct), Values_List) :-
 					account_by_role(Role, Uri)
 				)
 			),
-			accounts_report_entry_by_account_uri(Report, Uri, Entry).
-			entry_normal_side_values(Sd, Entry, Values_List)
+			report_entry_normal_side_values(Report, Uri, Values_List)
 		),
 		Values_List0
 	),
 	vec_sum(Values_List0, Values_List).
+
+ report_entry_normal_side_values(Report, Account_uri, Values_List) :-
+	accounts_report_entry_by_account_uri(Report, Account_uri, Entry),
+	entry_normal_side_values(Entry, Values_List).
+
 
 evaluate2(_, fact_value(Aspects), Values_List) :-
 	evaluate_fact2(Aspects, Values_List).
 
 evaluate2(_, [], []).
 
-entry_normal_side_values(_Sd, Entry, Values_List) :-
+entry_normal_side_values(Entry, Values_List) :-
 	!report_entry_total_vec(Entry, Balance),
 	!report_entry_gl_account(Entry, Account),
 	!vector_of_coords_to_vector_of_values_by_account_normal_side(Account, Balance, Values_List).

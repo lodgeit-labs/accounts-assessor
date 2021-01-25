@@ -27,7 +27,26 @@
 	c('automated: rollover',
 		smsf_rollover0(S4, S6)),
 	cf('phase: main'(S6, S8)),
+
+
+
+	(	account_by_role(rl(smsf_equity), _)
+	->	(
+			cf(smsf_distributions_reports(_)),
+			update_static_data_with_transactions(
+				Static_Data1,
+				$>!cf(smsf_income_tax_stuff(Static_Data1)),
+				Static_Data2)
+		)
+	;	Static_Data2 = Static_Data1),
+
+
+
+
+	cf(check_trial_balance2(Exchange_Rates, Static_Data2.transactions_by_account, Report_Currency, Static_Data2.end_date, Start_Date, Static_Data2.end_date)),
+	once(!cf(create_reports(Static_Data2, Structured_Reports))),
 	true.
+
 
 
 'phase: main'(S0) :-
@@ -47,6 +66,8 @@
  	handle_sts(S0, Sts0, S2),
 	!cf('ensure system accounts exist 0'(Sts0)),
 
+	%
+
 	Txs0 = [
 		$>!cf(extract_gl_inputs(_)),
 		$>!cf(extract_reallocations(_)),
@@ -59,20 +80,6 @@
 	!'with current and historical earnings equity balances'(S4,S6),
 
 	sum_up(S6,S8),
-
-	(	account_by_role(rl(smsf_equity), _)
-	->	(
-			cf(smsf_distributions_reports(_)),
-			update_static_data_with_transactions(
-				Static_Data1,
-				$>!cf(smsf_income_tax_stuff(Static_Data1)),
-				Static_Data2)
-		)
-	;	Static_Data2 = Static_Data1),
-
-
-	cf(check_trial_balance2(Exchange_Rates, Static_Data2.transactions_by_account, Report_Currency, Static_Data2.end_date, Start_Date, Static_Data2.end_date)),
-	once(!cf(create_reports(Static_Data2, Structured_Reports))).
 
 
 
