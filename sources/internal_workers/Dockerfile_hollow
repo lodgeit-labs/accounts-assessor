@@ -41,7 +41,7 @@ RUN gcc -v
 
 #RUN git clone --branch V8.3.10 https://github.com/SWI-Prolog/swipl.git swipl
 #RUN git clone --branch V8.1.15 https://github.com/SWI-Prolog/swipl.git swipl
-RUN git clone https://github.com/SWI-Prolog/swipl-devel.git swipl
+RUN git clone "https://github.com/SWI-Prolog/swipl-devel.git" swipl
 WORKDIR swipl
 #RUN git checkout 9defc51a1e328f095c6e51bb41693d2115ab0cff
 #RUN git checkout 6d26b69c9f1ce6304683e86afc5bcf1621150524
