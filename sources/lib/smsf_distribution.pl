@@ -22,7 +22,7 @@ extract_smsf_distribution3(Default_currency, Item, Txs) :-
 extract_smsf_distribution4(_, _, "Dr/Cr", []) :- !.
 extract_smsf_distribution4(_, _, "Total", []) :- !.
 
-extract_smsf_distribution4(Default_currency, Item, Unit_name_str, Txs) :-
+ extract_smsf_distribution4(Default_currency, Item, Unit_name_str, Txs) :-
 	!atom_string(Unit, Unit_name_str),
 	% todo: we should be doing smsf_distribution_ui and smsf_distribution, using smsf_distribution_ui to get data, clean them up, then assert a new smsf_distribution object, rather than having both "name" and "unit_type" and having "entered_..." props.
 	!check_duplicate_distribution_unit(Item, Unit),
@@ -36,7 +36,7 @@ extract_smsf_distribution4(Default_currency, Item, Unit_name_str, Txs) :-
 	!distribution_txs(Default_currency, Item, Unit, Txs),
 	!assert_smsf_distribution_facts(Default_currency, Unit, Item).
 
-check_duplicate_distribution_unit(Item, Unit) :-
+ check_duplicate_distribution_unit(Item, Unit) :-
 	/*this check doesn't actually work, due to a bug in doc or dicts i guess*/
 	(	doc(_, smsf_distribution_ui:unit_type, Unit)
 	->	(
@@ -51,7 +51,7 @@ check_duplicate_distribution_unit(Item, Unit) :-
 ┣╸ ┣━┫┃   ┃ ┗━┓
 ╹  ╹ ╹┗━╸ ╹ ┗━┛
 */
-assert_smsf_distribution_facts(Default_currency, Unit, Item) :-
+ assert_smsf_distribution_facts(Default_currency, Unit, Item) :-
 	doc_add(smsf_distribution_ui:entered_discount_capital_gains_net, rdfs:label, "Discount Capital Gains (Net) (As entered in excel)"),
 	doc_add(smsf_distribution_ui:entered_one_third_capital_gain_discount_amount, rdfs:label, "1/3rd Capital Gain Discount Amount (As entered in excel)"),
 	doc_add(smsf_distribution_ui:entered_total_capital_gains_losses, rdfs:label, "Total Capital Gains/Losses (As entered in excel)"),
@@ -165,7 +165,7 @@ also soft-check totals
 	*/
 
 
-check_entered_unit_fact_matches_computed(Default_currency, Unit, Item, Prop, Entered) :-
+ check_entered_unit_fact_matches_computed(Default_currency, Unit, Item, Prop, Entered) :-
 	(	read_value_from_doc_string(Item, Prop, Default_currency, Entered_value)
 	->	(
 			!make_fact(Entered_value, aspects([
@@ -183,7 +183,7 @@ check_entered_unit_fact_matches_computed(Default_currency, Unit, Item, Prop, Ent
 		)
 	;	true).
 
-entered_computed_soft_crosscheck(A = B) :-
+ entered_computed_soft_crosscheck(A = B) :-
 	!exp_eval(A, A2),
 	!exp_eval(B, B2),
 	(	vecs_are_almost_equal(A2, B2)
@@ -203,27 +203,27 @@ entered_computed_soft_crosscheck(A = B) :-
 			])),
 			!add_alert(warning, Err))).
 
-format_string(Format, Values, Str) :-
+ format_string(Format, Values, Str) :-
 	format(string(Str), Format, Values).
 
-aspects_to_html(aspects(Aspectses), ul(Items)) :-
+ aspects_to_html(aspects(Aspectses), ul(Items)) :-
 	aspects_to_html2(Aspectses, Items).
 
-aspects_to_html2([Ah|At], [Hh|Ht]) :-
+ aspects_to_html2([Ah|At], [Hh|Ht]) :-
 	aspect_value_html(Ah, Value_html),
 	Ah = Name - _,
 	atomics_to_string([Name, ': ' , Value_html], Item),
 	Hh = li([Item]),
 	aspects_to_html2(At, Ht).
 
-aspects_to_html2([], []).
+ aspects_to_html2([], []).
 
-aspect_value_html(concept - Value, Value_html) :-
+ aspect_value_html(concept - Value, Value_html) :-
 	doc(Value, rdfs:label, Label),
 	!,
 	atomics_to_string([Label, " (",Value,")"], Value_html).
 
-aspect_value_html(_ - Value, Value).
+ aspect_value_html(_ - Value, Value).
 
 
 /*
@@ -231,7 +231,7 @@ aspect_value_html(_ - Value, Value).
 ┣┳┛┣╸ ┣━┛┃ ┃┣┳┛ ┃
 ╹┗╸┗━╸╹  ┗━┛╹┗╸ ╹
 */
-smsf_distributions_report(Tbl_dict, Html) :-
+ smsf_distributions_report(Tbl_dict, Html) :-
 	% todo: group{id:.., title:"..", members:Columns0..},
 	Columns = [
 		column{
@@ -349,7 +349,7 @@ smsf_distributions_report(Tbl_dict, Html) :-
 	Html = [p([Title_Text]),Table_Html].
 
 
-smsf_distributions_totals_report(Tbl_dict, Html) :-
+ smsf_distributions_totals_report(Tbl_dict, Html) :-
 	Rows0 = [
 		[text('Total Current Year Capital Gains'),
 			aspects([concept - ($>rdf_global_id(smsf_distribution_ui:total_capital_gains_losses))])]],
@@ -392,8 +392,7 @@ smsf_distributions_totals_report(Tbl_dict, Html) :-
 
 
 
-
-smsf_distributions_reports(repoorts{distributions:Tbl1,totals:Tbl2}) :-
+ smsf_distributions_reports(repoorts{distributions:Tbl1,totals:Tbl2}) :-
 	!smsf_distributions_report(Tbl1, Html1),
 	!smsf_distributions_totals_report(Tbl2, Html2),
 	flatten([Html1, Html2], Body),
@@ -401,12 +400,12 @@ smsf_distributions_reports(repoorts{distributions:Tbl1,totals:Tbl2}) :-
 	!page_with_body(Title_Text, Body, Html),
 	!add_report_page(0, Title_Text, Html, loc(file_name,'distributions.html'), distributions).
 
-col_concept_to_id(X, Y) :-
+ col_concept_to_id(X, Y) :-
 	(	get_dict(concept, X, Concept)
 	->	Y = X.put(id, Concept)
 	;	Y = X).
 
-doc_item_to_tbl_row_dict(Cols, Item, Row) :-
+ doc_item_to_tbl_row_dict(Cols, Item, Row) :-
 	findall(
 		Row_kv,
 		(

@@ -4,7 +4,7 @@
 ┗━┛╹ ╹╹ ╹╹ ╹   ╹ ╹┗━╸┗━╸┗━┛┗━┛╹ ╹ ╹    ┗━╸╹ ╹╹┗━┛ ╹ ┗━╸╹ ╹┗━╸┗━╸
 */
 
-'extract bank accounts' :-
+ 'extract bank accounts' :-
 	request_data(D),
 	format(user_error, '~q~n', [D]),
  	(	doc(D, ic:bank_statement, Accounts)
@@ -15,7 +15,7 @@
 	;	true
 	).
 
-'extract bank account'(Acc) :-
+ 'extract bank account'(Acc) :-
 	push_format('extract bank account from: ~w', [$>sheet_and_cell_string(Acc)]),
 	!doc_new_uri(bank_account, Uri),
 	!result_add_property(l:bank_account, Uri),
@@ -45,7 +45,7 @@
 	!doc_add(Uri, l:name, Account_Name),
 	pop_context.
 
-check_first_row(First_row) :-
+ check_first_row(First_row) :-
 	(	(
 			doc(First_row, bs:transaction_description, Row_0_verb)
 		)
@@ -68,13 +68,13 @@ check_first_row(First_row) :-
 ┗━┛╹  ┗━╸╹ ╹╹╹ ╹┗━┛   ┗━┛╹ ╹┗━╸╹ ╹╹ ╹┗━╸┗━╸┗━┛
 (extracted separately)
 */
-generate_bank_opening_balances_sts(Txs) :-
+ generate_bank_opening_balances_sts(Txs) :-
 	result(R),
 	findall(Bank_Account, docm(R, l:bank_account, Bank_Account), Bank_Accounts),
 	maplist(!generate_bank_opening_balances_sts2, Bank_Accounts, Txs0),
 	exclude(var, Txs0, Txs).
 
-generate_bank_opening_balances_sts2(Bank_Account, Tx) :-
+ generate_bank_opening_balances_sts2(Bank_Account, Tx) :-
 	(	doc_value(Bank_Account, l:opening_balance, Opening_Balance)
 	->	(
 			!result_property(l:start_date, Start_Date),
@@ -91,5 +91,5 @@ generate_bank_opening_balances_sts2(Bank_Account, Tx) :-
 		)
 	).
 
-generate_bank_opening_balances_sts2(Bank_Account, _Tx) :-
+ generate_bank_opening_balances_sts2(Bank_Account, _Tx) :-
 	\+doc_value(Bank_Account, l:opening_balance, _Opening_Balance).

@@ -88,6 +88,11 @@ handle_op(S0,append,Field,Tail,S2) :-
 
 
  bs_pl_reports_from_state(Prefix, State, Sr) :-
+	static_data_from_state(State, Static_Data),
+	!balance_entries(Static_Data, Sr),
+	!other_reports2(Prefix, Static_Data, Sr),
+
+static_data_from_state(State, Static_Data) :-
 	doc(State, l:has_transactions, Transactions),
 	!transactions_by_account_v2(Transactions,Transactions_By_Account),
  	!result_property(l:report_currency, Report_Currency),
@@ -95,8 +100,7 @@ handle_op(S0,append,Field,Tail,S2) :-
 	!result_property(l:start_date, Start_Date),
  	!result_property(l:end_date, End_Date),
 	dict_from_vars(Static_Data, [Transactions, Exchange_Rates, Transactions_By_Account, Report_Currency, Start_Date, End_Date]).
-	!balance_entries(Static_Data, Sr),
-	!other_reports2(Prefix, Static_Data, Sr),
+
 
 
 sum_up(S6,S8) :-

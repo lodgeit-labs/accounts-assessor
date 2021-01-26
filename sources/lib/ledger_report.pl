@@ -52,6 +52,10 @@
 	!report_entry_total_vec(Entry, Vec).
 
 
+ report_entry_normal_side_values(Report, Account_uri, Values_List) :-
+	accounts_report_entry_by_account_uri(Report, Account_uri, Entry),
+	entry_normal_side_values(Entry, Values_List).
+
 
 
 % -------------------------------------------------------------------
@@ -184,7 +188,7 @@ balance(Static_Data, Account_Id, Date, Balance, Transactions_Count) :-
 
 % Relates the period from Start_Date to End_Date to the net activity during that period of
 % the given account.
-n et_activity_by_account(Static_Data, Account_Id, Net_Activity_Transformed, Transactions_Count) :-
+ net_activity_by_account(Static_Data, Account_Id, Net_Activity_Transformed, Transactions_Count) :-
 	Static_Data.start_date = Start_Date,
 	Static_Data.end_date = End_Date,
 	Static_Data.exchange_date = Exchange_Date,
@@ -259,7 +263,14 @@ n et_activity_by_account(Static_Data, Account_Id, Net_Activity_Transformed, Tran
 	!activity_entry(Static_Data, $>abrlt('Net_Assets'), Net_Assets_Entry),
 	!activity_entry(Static_Data, $>abrlt('Equity'), Equity_Entry).
 
- trial_balance_between(Exchange_Rates, Transactions_By_Account, Report_Currency, Exchange_Date, _Start_Date, End_Date, [Trial_Balance_Section]) :-
+ trial_balance_between(
+ 	Exchange_Rates,
+ 	Transactions_By_Account,
+ 	Report_Currency,
+ 	Exchange_Date,
+ 	End_Date,
+ 	[Trial_Balance_Section]
+) :-
 	balance_by_account(Exchange_Rates, Transactions_By_Account, Report_Currency, Exchange_Date, $>abrlt('Net_Assets'), End_Date, Net_Assets_Balance, Net_Assets_Count),
 	balance_by_account(Exchange_Rates, Transactions_By_Account, Report_Currency, Exchange_Date, $>abrlt('Equity'), End_Date, Equity_Balance, Equity_Count),
 
@@ -269,7 +280,15 @@ n et_activity_by_account(Static_Data, Account_Id, Net_Activity_Transformed, Tran
 	% too bad there isnt a trial balance concept in the taxonomy yet, but not a problem
 	make_report_entry('Trial_Balance', [], Trial_Balance_Section),
 	set_report_entry_total_vec(Trial_Balance_Section, Trial_Balance),
-	set_report_entry_transaction_count(Trial_Balance_Section, Transactions_Count).
+	set_report_entry_transaction_count(Trial_Balance_Section, Transactions_Count),
+
+	(	(	trial_balance_ok(Trial_Balance_Section)
+		;	Report_Currency = [])
+	->	true
+	;	(	term_string(trial_balance(Trial_Balance_Section), Tb_Str),
+			add_alert('SYSTEM_WARNING', Tb_Str))).
+
+
 
 
 profitandloss_between(Static_Data, [ProftAndLoss]) :-

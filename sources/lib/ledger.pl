@@ -1,18 +1,5 @@
 
-check_trial_balance2(Exchange_Rates, Transactions_By_Account, Report_Currency, End_Date, Start_Date, End_Date) :-
-	!trial_balance_between(Exchange_Rates, Transactions_By_Account, Report_Currency, End_Date, Start_Date, End_Date, [Trial_Balance_Section]),
-	(
-		(
-			trial_balance_ok(Trial_Balance_Section)
-		;
-			Report_Currency = []
-		)
-	->
-		true
-	;
-		(	term_string(trial_balance(Trial_Balance_Section), Tb_Str),
-			add_alert('SYSTEM_WARNING', Tb_Str))
-	).
+
 
 gather_ledger_warnings(S_Transactions, Start_Date, End_Date, Warnings) :-
 	(

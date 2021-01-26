@@ -1,50 +1,30 @@
 
- extract_report_parameters :-
-	cf(extract_start_and_end_date),
-	doc_add($>result, l:type, l:ledger),
-	!cf(extract_request_details),
-	!cf('extract "output_dimensional_facts"'),
-	!cf('extract "cost_or_market"'),
-	!cf(extract_report_currency),
-	!cf('extract action verbs'),
-	!cf('extract bank accounts'),
-	!cf('extract GL accounts'),
-	!cf(make_gl_viewer_report),
-	!cf(write_accounts_json_report),
-	!cf(extract_exchange_rates).
-
-
  process_request_ledger :-
 	cf(extract_report_parameters),
  	push_context('processing phases (each phase depends on posted results of previous phase):'),
  	initial_state(S0),
+
 	ct('automated: post bank opening balances',
 		(generate_bank_opening_balances_sts(Bank_Lump_STs),
 		'ensure system accounts exist 0'(Bank_Lump_STs),
 		handle_sts(S0, Bank_Lump_STs, S2))),
+
 	ct('phase: opening balance',
 		process_sheets(S2, phases:opening_balance, S4)),
-	c('automated: rollover',
-		smsf_rollover0(S4, S6)),
-	cf('phase: main'(S6, S8)),
-
-
 
 	(	account_by_role(rl(smsf_equity), _)
-	->	(
-			cf(smsf_distributions_reports(_)),
-			update_static_data_with_transactions(
-				Static_Data1,
-				$>!cf(smsf_income_tax_stuff(Static_Data1)),
-				Static_Data2)
-		)
-	;	Static_Data2 = Static_Data1),
+	->	c('automated: rollover',
+			smsf_rollover0(S4, S6))
+	;	S4 = S6),
 
+	cf('phase: main'(S6, S8)),
 
+	(	account_by_role(rl(smsf_equity), _)
+	->	(	!cf(smsf_distributions_reports(_)),
+			!cf(smsf_income_tax_stuff(S8, S10)))
+	;	S10 = S8),
 
-
-	cf(check_trial_balance2(Exchange_Rates, Static_Data2.transactions_by_account, Report_Currency, Static_Data2.end_date, Start_Date, Static_Data2.end_date)),
-	once(!cf(create_reports(Static_Data2, Structured_Reports))),
+	once(!cf(create_reports(S10))),
 	true.
 
 
@@ -57,8 +37,8 @@
 		[
 			$>!cf(handle_additional_files),
 			$>!cf('extract bank statement transactions'),
-			$>!cf(extract_action_inputs(_)
-			%,%>!cf(extract_livestock_data_from_ledger_request(Dom)),
+			$>!cf(extract_action_inputs(_))
+			%,%>!cf(extract_livestock_data_from_ledger_request(Dom))
 		],
 		Sts0),
 
@@ -71,7 +51,7 @@
 	Txs0 = [
 		$>!cf(extract_gl_inputs(_)),
 		$>!cf(extract_reallocations(_)),
-		$>!cf(extract_smsf_distribution))
+		$>!cf(extract_smsf_distribution)
 	],
 	handle_txs(S2, Txs0, S4),
 
@@ -83,13 +63,11 @@
 
 
 
-create_reports(
-	Static_Data,				% Static Data
-	Sr2							% Structured Reports (dict)
-) :-
+create_reports(State) :-
+	!static_data_from_state(State, Static_Data),
 	!balance_entries(Static_Data, Sr),
 	!other_reports2('final_', Static_Data, Sr),
-	!other_reports(Static_Data, Static_Data.outstanding, Sr, Sr2),
+	!other_reports(Static_Data, Static_Data.outstanding, Sr, _Sr2),
 	!taxonomy_url_base,
 	!cf('create XBRL instance'(Xbrl, Static_Data, Static_Data.start_date, Static_Data.end_date, Static_Data.report_currency, Sr.bs.current, Sr.pl.current, Sr.pl.historical, Sr.tb)),
 	!add_xml_report(xbrl_instance, xbrl_instance, [Xbrl]).
@@ -101,7 +79,14 @@ balance_entries(
 ) :-
 	static_data_historical(Static_Data, Static_Data_Historical),
 	maplist(!(check_transaction_account), Static_Data.transactions),
-	!cf(trial_balance_between(Static_Data.exchange_rates, Static_Data.transactions_by_account, Static_Data.report_currency, Static_Data.end_date, Static_Data.start_date, Static_Data.end_date, Trial_Balance)),
+	!cf(trial_balance_between(
+		Static_Data.exchange_rates,
+		Static_Data.transactions_by_account,
+		Static_Data.report_currency,
+		Static_Data.end_date,
+		Static_Data.end_date,
+		Trial_Balance
+	)),
 	!cf(balance_sheet_at(Static_Data, Balance_Sheet)),
 	!cf(balance_sheet_delta(Static_Data, Balance_Sheet_delta)),
 	!cf(balance_sheet_at(Static_Data_Historical, Balance_Sheet2_Historical)),
@@ -130,6 +115,7 @@ static_data_historical(Static_Data, Static_Data_Historical) :-
 		start_date, date(1,1,1)).put(
 		end_date, Before_Start).put(
 		exchange_date, Static_Data.start_date).
+
 
 
  other_reports(
@@ -272,5 +258,18 @@ This is done with a symlink. This allows to bypass cache, for example in pessera
 	!result(Result),
 	!get_time(TimeStamp),
 	!stamp_date_time(TimeStamp, DateTime, 'UTC'),
-	!doc_add(Result, l:timestamp, DateTime).
+	!doc_add(Result, l:timestamp, DateTime),
+	doc_add($>result, l:type, l:ledger).
 
+ extract_report_parameters :-
+	cf(extract_start_and_end_date),
+	!cf(extract_request_details),
+	!cf('extract "output_dimensional_facts"'),
+	!cf('extract "cost_or_market"'),
+	!cf(extract_report_currency),
+	!cf('extract action verbs'),
+	!cf('extract bank accounts'),
+	!cf('extract GL accounts'),
+	!cf(make_gl_viewer_report),
+	!cf(write_accounts_json_report),
+	!cf(extract_exchange_rates).

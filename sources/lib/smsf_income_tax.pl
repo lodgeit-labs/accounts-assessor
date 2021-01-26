@@ -1,24 +1,21 @@
-/*
- smsf_income_tax_stuff(Static_Data0, Txs) :-
+
+ smsf_income_tax_stuff(S_in, S_out) :-
 	!request_data(Rd),
 	(	doc(Rd, smsf:income_tax_info, Input)
-	->	(
+	->	smsf_income_tax_stuff2(Input, S_in, S_out).
+	;	true)
 
-			!cf(process_ato_supervisory_levy(Input, Ato_levy_txs)),
-			!update_static_data_with_transactions(Static_Data0,	Ato_levy_txs, Static_Data1),
-			!balance_entries(Static_Data1, Sr0),
-			!cf(other_reports2(before_smsf_income_tax_, Static_Data1, Sr0)),
+smsf_income_tax_stuff2(Input, State_in, State_out) :-
+	!cf(ato_supervisory_levy_txs(Input, Ato_levy_txs)),
+	new_state_with_appended_(State_in, [op(l:has_transactions,append,Ato_levy_txs)], State2),
+	bs_pl_reports_from_state('before_smsf_income_tax_', State2, Sr0),
+	!cf(add_smsf_income_tax_report_facts(_{before_smsf_income_tax:Sr0})),
+	!cf('check that Income_Tax_Expenses are zero'),
+	!cf(smsf_income_tax_reports_v2(_)),
+	!cf(smsf_income_tax_txs(Input, Tax_expense_txs)),
+	new_state_with_appended_(State2, [op(l:has_transactions,append,[Ato_levy_txs,Tax_expense_txs])], State_out).
 
-			Json_reports = _{before_smsf_income_tax:Sr0},
-			!cf(add_smsf_income_tax_report_facts(Json_reports)),
-			!cf('check that Income_Tax_Expenses are zero'),
-			!cf(smsf_income_tax_reports_v2(_)),
-			!cf(smsf_income_tax_txs(Input, Tax_expense_txs)),
-			!flatten([Ato_levy_txs,Tax_expense_txs], Txs)
-		)
-	;	true).
-*/
-process_ato_supervisory_levy(Input, Txs) :-
+ato_supervisory_levy_txs(Input, Txs) :-
 	!doc_value(Input, excel:has_sheet_name, Sheet_name),
 	!doc_new_uri(income_tax_st, St),
 	!doc_add_value(St, transactions:description, Sheet_name, transactions),

@@ -206,7 +206,7 @@ evaluate2(Sd, account_balance(Report_Id, Acct), Values_List) :-
 			(	Acct = uri(Uri)
 			->	true
 			;	(
-					assertion(Role = rl(_),
+					assertion(Role = rl(_)),
 					account_by_role(Role, Uri)
 				)
 			),
@@ -215,11 +215,6 @@ evaluate2(Sd, account_balance(Report_Id, Acct), Values_List) :-
 		Values_List0
 	),
 	vec_sum(Values_List0, Values_List).
-
- report_entry_normal_side_values(Report, Account_uri, Values_List) :-
-	accounts_report_entry_by_account_uri(Report, Account_uri, Entry),
-	entry_normal_side_values(Entry, Values_List).
-
 
 evaluate2(_, fact_value(Aspects), Values_List) :-
 	evaluate_fact2(Aspects, Values_List).
@@ -252,7 +247,7 @@ entry_normal_side_values(Entry, Values_List) :-
 	quiet_crosscheck(Sr,Crosscheck).
 
  quiet_crosscheck(Sr,Crosscheck) :-
-	evaluate_equality(_{reports:Sr}), Crosscheck, Result),
+	evaluate_equality(_{reports:Sr}, Crosscheck, Result),
 	crosscheck_output(Result, _).
 
 
