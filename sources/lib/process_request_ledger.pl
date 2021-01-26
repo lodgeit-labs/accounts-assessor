@@ -35,9 +35,9 @@
 
 	flatten(
 		[
-			$>!cf(handle_additional_files),
-			$>!cf('extract bank statement transactions'),
-			$>!cf(extract_action_inputs(_))
+			$>cf(handle_additional_files),
+			$>cf('extract bank statement transactions'),
+			$>cf(extract_action_inputs(_))
 		],
 		Sts0
 	),
