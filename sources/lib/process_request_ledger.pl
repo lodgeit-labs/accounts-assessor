@@ -1,7 +1,7 @@
 
  process_request_ledger :-
 	cf(extract_report_parameters),
- 	push_context('processing phases (each phase depends on posted results of previous phase):'),
+ 	push_context('phase:'),
  	initial_state(S0),
 
 	ct('automated: post bank opening balances',
@@ -14,7 +14,7 @@
 	 	handle_txs(S2, Gl_input_txs, S4))),
 
 	(	account_by_role(rl(smsf_equity), _)
-	->	ct('automated: rollover',
+	->	ct('automated: SMSF rollover',
 			smsf_rollover0(S4, S6))
 	;	S4 = S6),
 
@@ -30,7 +30,7 @@
 
 
 
-'phase: main'(S0, S_out) :-
+'phase: main'(S0, S4) :-
 
 	% a bunch of ST's.
 

@@ -87,7 +87,8 @@ handle_op(S0,append,Field,Tail,S2) :-
 
 
  bs_pl_reports_from_state(Prefix, State, Sr) :-
-	static_data_from_state(State, Static_Data),
+	static_data_from_state(State, Static_Data0),
+	Static_Data = Static_Data0.put(exchange_date,Static_Data0.end_date),
 	!balance_entries(Static_Data, Sr),
 	!other_reports2(Prefix, Static_Data, Sr).
 

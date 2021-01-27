@@ -152,7 +152,7 @@ transactions_by_account_v2(Transactions,Transactions_By_Account) :-
 	append(Historical_Earnings_Transactions, Historical_Earnings_Transactions2, Historical_Earnings_Transactions_All),
 	Dict2 = Txs_by_acct.put($>abrlt('Historical_Earnings'), Historical_Earnings_Transactions_All),
 	transactions_in_period_on_account_and_subaccounts(Txs_by_acct, $>abrlt('Comprehensive_Income'), Start_Date, End_Date, Current_Earnings_Transactions),
-	Transactions_By_Account = Dict2.put($>abrlt('Current_Earnings'), Current_Earnings_Transactions).
+	Txs_by_acct2 = Dict2.put($>abrlt('Current_Earnings'), Current_Earnings_Transactions).
 
 
 check_transaction_account(Transaction) :-
