@@ -33,15 +33,12 @@
 
 	% a bunch of ST's.
 
-	flatten(
-		[
-			$>cf(handle_additional_files),
-			$>cf('extract bank statement transactions'),
-			$>cf(extract_action_inputs(_))
-		],
-		Sts0
-	),
-			%$>!cf(extract_livestock_data_from_ledger_request(Dom))
+	!cf(handle_additional_files(Txs0)),
+	!cf('extract bank statement transactions'(Txs1)),
+	!cf(extract_action_inputs(_, Txs2))
+	%$>!cf(extract_livestock_data_from_ledger_request(Dom))
+
+	flatten([Txs0, Txs1, Txs2], Sts0),
 
  	handle_sts(S0, Sts0, S2),
 	!cf('ensure system accounts exist 0'(Sts0)),
