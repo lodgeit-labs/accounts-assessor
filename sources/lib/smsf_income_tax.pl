@@ -2,8 +2,8 @@
  smsf_income_tax_stuff(S_in, S_out) :-
 	!request_data(Rd),
 	(	doc(Rd, smsf:income_tax_info, Input)
-	->	smsf_income_tax_stuff2(Input, S_in, S_out).
-	;	true)
+	->	smsf_income_tax_stuff2(Input, S_in, S_out)
+	;	true).
 
 smsf_income_tax_stuff2(Input, State_in, State_out) :-
 	!cf(ato_supervisory_levy_txs(Input, Ato_levy_txs)),

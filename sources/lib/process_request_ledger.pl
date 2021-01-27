@@ -10,10 +10,11 @@
 		handle_sts(S0, Bank_Lump_STs, S2))),
 
 	ct('phase: opening balance',
-		process_sheets(S2, phases:opening_balance, S4)),
+		(extract_gl_inputs(phases:opening_balance, Gl_input_txs),
+	 	handle_txs(S2, Gl_input_txs, S4))),
 
 	(	account_by_role(rl(smsf_equity), _)
-	->	c('automated: rollover',
+	->	ct('automated: rollover',
 			smsf_rollover0(S4, S6))
 	;	S4 = S6),
 
@@ -35,7 +36,7 @@
 
 	!cf(handle_additional_files(Txs0)),
 	!cf('extract bank statement transactions'(Txs1)),
-	!cf(extract_action_inputs(_, Txs2))
+	!cf(extract_action_inputs(_, Txs2)),
 	%$>!cf(extract_livestock_data_from_ledger_request(Dom))
 
 	flatten([Txs0, Txs1, Txs2], Sts0),
@@ -52,11 +53,14 @@
 
 	%!cf(process_livestock((Processed_S_Transactions, Transactions1), Livestock_Transactions)),
 
-	!'with current and historical earnings equity balances'(S4,S_out).
+	true.
 
 
 create_reports(State) :-
 	!static_data_from_state(State, Static_Data),
+
+	%!'with current and historical earnings equity balances'(S4,S_out).
+
 	!balance_entries(Static_Data, Sr),
 	!other_reports2('final_', Static_Data, Sr),
 	!other_reports(Static_Data, Static_Data.outstanding, Sr, _Sr2),

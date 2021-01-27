@@ -67,6 +67,7 @@
 :- [smsf_member_reports].
 :- [smsf_member_report_checks].
 :- [smsf_member_report_presentation].
+:- [smsf_profit_attribution].
 :- [state].
 :- [system_accounts].
 :- [tables].

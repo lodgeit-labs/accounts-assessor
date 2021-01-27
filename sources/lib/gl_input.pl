@@ -143,13 +143,16 @@ extract_gl_tx(Sheet_name, Default_Currency, _, _, [Item|Items], [Tx1|Txs]) :-
 
 
 
- extract_reallocations(Txs) :-
+ extract_reallocations(Phase, Txs) :-
  	(	doc($>request_data, ic_ui:reallocation, Gls)
- 	->	(	maplist(!extract_reallocation, $>doc_list_items(Gls), Txs0),
+ 	->	(	maplist(!extract_reallocation(Phase), $>doc_list_items(Gls), Txs0),
 			flatten(Txs0, Txs))
 	;	Txs = []).
 
- extract_reallocation(Gl, Txs) :-
+ extract_reallocation(Phase, Gl, []) :-
+	\+check_phase(Phase, Gl, ic:phase).
+ extract_reallocation(Phase, Gl, Txs) :-
+	check_phase(Phase, Gl, ic:phase),
  	push_context($>format(string(<$), 'extract reallocation from: ~w', [$>sheet_and_cell_string(Gl)])),
  	!doc_value(Gl, ic:default_currency, Default_Currency0),
 	!atom_string(Default_Currency, Default_Currency0),

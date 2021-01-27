@@ -145,12 +145,13 @@ transactions_by_account_v2(Transactions,Transactions_By_Account) :-
 	assertion(var(Transactions_By_Account)),
 	sort_into_dict(transaction_account, Transactions, Transactions_By_Account).
 
-'with current and historical earnings equity balances'(Dict,Start_Date,End_Date,Transactions_By_Account) :-
-	transactions_before_day_on_account_and_subaccounts(Dict, $>abrlt('Comprehensive_Income'), Start_Date, Historical_Earnings_Transactions),
-	transactions_before_day_on_account_and_subaccounts(Dict, $>abrlt('Historical_Earnings'), Start_Date, Historical_Earnings_Transactions2),
+'with current and historical earnings equity balances'(Txs_by_acct,Start_Date,End_Date,Txs_by_acct2) :-
+
+	transactions_before_day_on_account_and_subaccounts(Txs_by_acct, $>abrlt('Comprehensive_Income'), Start_Date, Historical_Earnings_Transactions),
+	transactions_before_day_on_account_and_subaccounts(Txs_by_acct, $>abrlt('Historical_Earnings'), Start_Date, Historical_Earnings_Transactions2),
 	append(Historical_Earnings_Transactions, Historical_Earnings_Transactions2, Historical_Earnings_Transactions_All),
-	Dict2 = Dict.put($>abrlt('Historical_Earnings'), Historical_Earnings_Transactions_All),
-	transactions_in_period_on_account_and_subaccounts(Dict, $>abrlt('Comprehensive_Income'), Start_Date, End_Date, Current_Earnings_Transactions),
+	Dict2 = Txs_by_acct.put($>abrlt('Historical_Earnings'), Historical_Earnings_Transactions_All),
+	transactions_in_period_on_account_and_subaccounts(Txs_by_acct, $>abrlt('Comprehensive_Income'), Start_Date, End_Date, Current_Earnings_Transactions),
 	Transactions_By_Account = Dict2.put($>abrlt('Current_Earnings'), Current_Earnings_Transactions).
 
 

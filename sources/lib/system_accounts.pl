@@ -326,13 +326,13 @@ ensure_smsf_equity_tree6(A) :-
 	!doc_value(Member, smsf:member_name, Member_Name_str),
 	atom_string(Member_Name, Member_Name_str),
 	ensure_account_exists(Parent, _, 1, rl(Role_prefix/Member_Name), Result),
-	!doc_add(Account, accounts:smsf_member, Member_Name, accounts),
+	!doc_add(Result, accounts:smsf_member, Member_Name, accounts),
 	copy_attrs(Parent, [
 			accounts:is_smsf_equity_opening_balance,
 			accounts:smsf_phase,
 			accounts:smsf_taxability
 		],
-		A, accounts
+		Result, accounts
 	),
 	pop_context.
 

@@ -44,7 +44,7 @@ handle_op(S0,append,Field,Tail,S2) :-
 
 
  handle_sts(S0, S_Transactions0, S2) :-
- 	flatten(S_Transactions,S_Transactions),
+ 	flatten(S_Transactions0, S_Transactions),
 	doc(S0, l:has_outstanding, Outstanding_old),
  	result_property(l:end_date, End_Date),
 
@@ -73,24 +73,23 @@ handle_op(S0,append,Field,Tail,S2) :-
 		S2).
 
 
- process_sheets(S0, Phase, S4) :-
-	!cf(extract_gl_inputs(Phase, Gl_input_txs)),
+ handle_txs(S0, Txs0, S2) :-
 	new_state_with_appended_(S0, [
-		op(l:has_transactions,append,Gl_input_txs)
-	], S4).
+		op(l:has_transactions,append,Txs0)
+	], S2).
 
 
  check_phase(Expected_phase, Subject, Predicate) :-
- 	?doc_value(Subject, Predicate, Actual_phase),
+ 	(?doc_value(Subject, Predicate, Actual_phase)),
  	(	var(Expected_phase)
  	->	var(Actual_phase)
- 	;  	\+var(Actual_phase)).
+ 	;	\+var(Actual_phase)).
 
 
  bs_pl_reports_from_state(Prefix, State, Sr) :-
 	static_data_from_state(State, Static_Data),
 	!balance_entries(Static_Data, Sr),
-	!other_reports2(Prefix, Static_Data, Sr),
+	!other_reports2(Prefix, Static_Data, Sr).
 
 static_data_from_state(State, Static_Data) :-
 	doc(State, l:has_transactions, Transactions),
@@ -102,6 +101,3 @@ static_data_from_state(State, Static_Data) :-
 	dict_from_vars(Static_Data, [Transactions, Exchange_Rates, Transactions_By_Account, Report_Currency, Start_Date, End_Date]).
 
 
-
-sum_up(S6,S8) :-
-	!transactions_by_account(Static_Data0b, Transactions_By_Account1),

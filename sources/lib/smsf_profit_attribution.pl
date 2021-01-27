@@ -7,20 +7,20 @@
 	smsf_rollover(Sr.bs.current, Txs),
 	new_state_with_appended_(State_in, [op(l:has_transactions,append,Txs)], State_out),
 	bs_pl_reports_from_state('after_smsf_rollover_', State_out, Sr2),
-	'check that smsf_equity_equals_equity_Opening_Balance'(Sr2).
+	'check that smsf_equity equals smsf_equity_Opening_Balance'(Sr2).
 
  'check that smsf_equity_Opening_Balance is zero'(Sr) :-
  	smsf_equity_leaf_accounts(All),
-	filter(is_smsf_equity_opening_balance_account, All, Accts),
-	maplist([A]>>!check_account_is_zero(_{reports:Sr}, account_balance(reports/bs/current, uri(A))),Accts).
+	include(is_smsf_equity_opening_balance_account, All, Accts),
+	maplist([A]>>(!check_account_is_zero(_{reports:Sr}, account_balance(reports/bs/current, uri(A)))),Accts).
 
  smsf_rollover(Bs, Txs) :-
  	smsf_equity_leaf_accounts(All),
-	filter(\+is_smsf_equity_opening_balance_account, All, Accts),
+	exclude(is_smsf_equity_opening_balance_account, All, Accts),
 	maplist(roll_over(Bs), Accts, Txs).
 
 roll_over(Bs, Src, Txs) :-
-	accounts_report_entry_by_account_id(Bs,Src,Balance),
+	%accounts_report_entry_by_account_id(Bs,Src,Entry),
 	!doc_new_uri(rollover_st, St),
 	!doc_add_value(St, transactions:description, "rollover", transactions),
 	vector_of_coords_vs_vector_of_values(kb:debit, $>report_entry_normal_side_values(Bs, Src), Vec),
@@ -56,13 +56,14 @@ rollover_dst_acc(Src,Dst) :-
 	account_in_set(Account, $>abrlt(rl(smsf_equity))),
 	is_leaf_account(Account).
 
- findall(Unary_callable, Instantiations) :-
-	findall(X,Unary_callable(X),Instantiations).
+ find_all(Unary_callable, Instantiations) :-
+	findall(X, call(Unary_callable,X), Instantiations).
 
  smsf_equity_leaf_accounts(Accounts) :-
-	findall(smsf_equity_leaf_account(Account), Accounts).
+	find_all(smsf_equity_leaf_account, Accounts).
 
- 'check that smsf_equity equals smsf_equity_Opening_Balance'(Sr) :-
+ 'check that smsf_equity equals smsf_equity_Opening_Balance'(_Sr) :-
+ 	gtrace,
  	true. /*
 		quiet_crosscheck(
 			Sr,
