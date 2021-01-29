@@ -56,7 +56,8 @@
 	accounts_report_entry_by_account_uri(Report, Account_uri, Entry),
 	entry_normal_side_values(Entry, Values_List).
 
-
+ report_entry_normal_side_values__order2(Report, Values_List, Account_uri) :-
+ 	report_entry_normal_side_values(Report, Account_uri, Values_List).
 
 % -------------------------------------------------------------------
 % The purpose of the following program is to derive the summary information of a ledger.

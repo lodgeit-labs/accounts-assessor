@@ -394,3 +394,6 @@ is_valid_role('Distribution_Revenue'/_).
 is_valid_role('Contribution_Received'/_).
 is_valid_role('Interest_Received_-_by_Bank'/_).
 is_valid_role('Contribution_Received'/_).
+is_valid_role(_/Member) :- atom_string(Member, Str), smsf_members_throw(Members), member(Str, Members), !.
+is_valid_role(smsf_equity).
+

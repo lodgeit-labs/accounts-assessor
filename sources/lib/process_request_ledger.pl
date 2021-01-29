@@ -47,7 +47,7 @@
 	Txs0 = [
 		$>!cf(extract_gl_inputs(_)),
 		$>!cf(extract_reallocations(_)),
-		$>!cf(extract_smsf_distribution)
+		$>!cf(extract_smsf_distribution(S2))
 	],
 	handle_txs(S2, Txs0, S4),
 

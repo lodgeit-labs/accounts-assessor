@@ -1,34 +1,35 @@
- extract_smsf_distribution(Txs) :-
+ extract_smsf_distribution(State, Txs) :-
+ 	!doc(State, l:has_s_transactions, Sts_so_far),
   	!request_data(Rd),
  	(	doc(Rd, smsf:distribution, D)
- 	->	!extract_smsf_distribution2(D, Txs)
+ 	->	!extract_smsf_distribution2(Sts_so_far, D, Txs)
  	;	Txs=[]).
 
- extract_smsf_distribution2(Distribution, Txs) :-
+ extract_smsf_distribution2(Sts, Distribution, Txs) :-
  	push_context($>format(string(<$), 'extract SMSF distribution from: ~w', [$>sheet_and_cell_string(Distribution)])),
 	!doc_value(Distribution, smsf_distribution_ui:default_currency, Default_currency0),
 	!atom_string(Default_currency, Default_currency0),
 	!doc_list_items($>!doc_value(Distribution, smsf_distribution_ui:items), Items),
-	!maplist(extract_smsf_distribution3(Default_currency), Items, Txs0),
+	!maplist(extract_smsf_distribution3(Sts, Default_currency), Items, Txs0),
  	!flatten(Txs0, Txs),
  	pop_context.
 
-extract_smsf_distribution3(Default_currency, Item, Txs) :-
+extract_smsf_distribution3(Sts, Default_currency, Item, Txs) :-
 	push_context($>format(string(<$), 'extract SMSF distribution from: ~w', [$>sheet_and_cell_string(Item)])),
 	trim_string($>!doc_value(Item, smsf_distribution_ui:name), Unit_name_str),
-	!extract_smsf_distribution4(Default_currency, Item, Unit_name_str, Txs),
+	!extract_smsf_distribution4(Sts, Default_currency, Item, Unit_name_str, Txs),
 	pop_context.
 
-extract_smsf_distribution4(_, _, "Dr/Cr", []) :- !.
-extract_smsf_distribution4(_, _, "Total", []) :- !.
+extract_smsf_distribution4(_,_, _, "Dr/Cr", []) :- !.
+extract_smsf_distribution4(_,_, _, "Total", []) :- !.
 
- extract_smsf_distribution4(Default_currency, Item, Unit_name_str, Txs) :-
+ extract_smsf_distribution4(Sts, Default_currency, Item, Unit_name_str, Txs) :-
 	!atom_string(Unit, Unit_name_str),
 	% todo: we should be doing smsf_distribution_ui and smsf_distribution, using smsf_distribution_ui to get data, clean them up, then assert a new smsf_distribution object, rather than having both "name" and "unit_type" and having "entered_..." props.
 	!check_duplicate_distribution_unit(Item, Unit),
 	!doc_add_value(Item, smsf_distribution_ui:unit_type, Unit),
 
-	!traded_units($>!result_property(l:bank_s_transactions), Traded_Units),
+	!traded_units(Sts, Traded_Units),
 	(	member(Unit, Traded_Units)
 	->	true
 	;	throw_string(['smsf distribution sheet: unknown unit: ', Unit])),
