@@ -296,17 +296,22 @@ ensure_smsf_equity_tree3(Root) :-
 	% find leaf accounts
 	findall(A,
 		(
+			assertion(ground(Root)),
 			account_in_set(A, Root),
-			/* all leaf accounts */
+			assertion(ground(A)),
+			/* just leaf accounts */
 			\+account_parent(_, A)
 		),
 		As
 	),
+	assertion(ground(As)),
 	maplist(ensure_smsf_equity_tree6, As).
 
 ensure_smsf_equity_tree6(A) :-
 	!smsf_members_throw(Members),
+	assertion(ground(Members)),
 	!account_name(A, Account),
+	assertion(ground(Account)),
 	maplist(subcategorize_by_smsf_member((Account), A), Members).
 
 
@@ -314,20 +319,24 @@ ensure_smsf_equity_tree6(A) :-
 
  subcategorize_by_smsf_members :-
  	findall(A, doc(A, accounts:subcategorize_by_smsf_member, true, accounts), As),
+	assertion(ground(As)),
  	maplist(!subcategorize_by_smsf_members3, As).
 
  subcategorize_by_smsf_members3(A) :-
 	!smsf_members_throw(Members),
+	assertion(ground(Members)),
 	!account_name(A, Account),
 	maplist(!subcategorize_by_smsf_member(Account, A), Members).
 
  subcategorize_by_smsf_member(Role_prefix, Parent, Member) :-
+ 	assertion(ground((Role_prefix, Parent, Member))),
  	push_context(subcategorize_by_smsf_member),
 	!doc_value(Member, smsf:member_name, Member_Name_str),
 	atom_string(Member_Name, Member_Name_str),
 	ensure_account_exists(Parent, _, 1, rl(Role_prefix/Member_Name), Result),
+	assertion(ground(Result)),
 	!doc_add(Result, accounts:smsf_member, Member_Name, accounts),
-	copy_attrs(Parent, [
+	!copy_attrs(Parent, [
 			accounts:is_smsf_equity_opening_balance,
 			accounts:smsf_phase,
 			accounts:smsf_taxability

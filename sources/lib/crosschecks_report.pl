@@ -219,7 +219,8 @@ evaluate2(Sd, account_balance(Report_Id, Acct), Values_List) :-
 evaluate2(_, fact_value(Aspects), Values_List) :-
 	evaluate_fact2(Aspects, Values_List).
 
-evaluate2(_, [], []).
+evaluate2(_, Vec, Vec) :-
+	is_list(Vec).
 
 entry_normal_side_values(Entry, Values_List) :-
 	!report_entry_total_vec(Entry, Balance),

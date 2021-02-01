@@ -42,7 +42,7 @@
 	flatten([Txs0, Txs1, Txs2], Sts0),
 
  	handle_sts(S0, Sts0, S2),
-	!cf('ensure system accounts exist 0'(Sts0)),
+ 	!cf('ensure system accounts exist 0'(Sts0)),
 
 	Txs0 = [
 		$>!cf(extract_gl_inputs(_)),
