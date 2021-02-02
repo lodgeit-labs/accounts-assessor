@@ -300,7 +300,8 @@ ensure_smsf_equity_tree3(Root) :-
 			account_in_set(A, Root),
 			assertion(ground(A)),
 			/* just leaf accounts */
-			\+account_parent(_, A)
+			\+account_parent(_, A),
+			\+doc(A, accounts:smsf_member, _, accounts)
 		),
 		As
 	),
@@ -346,6 +347,7 @@ ensure_smsf_equity_tree6(A) :-
 	pop_context.
 
 copy_attrs(X, Preds, Y, Graph) :-
+	assertion(ground((X,Y,Graph,Preds))),
 	maplist(copy_attrs2(X, Y, Graph), Preds).
 copy_attrs2(X, Y, Graph, Pred) :-
 	(	doc(X, Pred, V, Graph)
