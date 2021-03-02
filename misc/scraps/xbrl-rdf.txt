@@ -1,0 +1,35 @@
+"Languages in the family have declarative semantics. It is possible to understand the meaning of expressions in these languages
+ without appeal to an interpreter for manipulating those expressions." ( - CL spec)
+
+
+
+taxonomy ontology:
+classess:
+	Presentation
+	Taxonomy
+	Concept
+	Context
+	Unit
+	
+	Instance
+	Fact
+	
+
+
+Concept a rdfs:Class
+
+example:
+assets a Concept.
+
+
+Fact
+
+presentation ontology:
+
+
+
+
+
+
+
+

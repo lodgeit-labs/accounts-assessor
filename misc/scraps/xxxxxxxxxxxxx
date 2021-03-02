@@ -1,0 +1,27 @@
+query:
+
+depreciation_pool_from_start(general_pool,date(2019,2,2),diminishing_value,_835044)
+% The graphical front-end will be used for subsequent tracing
+
+T1:10408,date(2018,7,1)
+T2:10624,date(2019,2,2)
+depreciation_between_start_date_and_other_date(701.1497841996622,diminishing_value,date(2018,7,1),date(2019,2,2),"car123",[[[701.1497841996622,in_pool("car123",general_pool),10408,10624,576.6716855253112,124.47809867435099,0.3]]|_844972],3,true,general_pool,298.85021580033776,423.32831447468874)
+
+T1:10043,date(2017,7,1)
+T2:10408,date(2018,7,1)
+depreciation_between_start_date_and_other_date(1000,diminishing_value,date(2017,7,1),date(2019,2,2),"car123",[[[1000,not_in_pool("car123"),10043,10044,700.0538937887034,1.095890410958904,0.4],[998.9041095890411,in_pool("car123",general_pool),10044,10408,700.0538937887034,298.85021580033776,0.3]],[[701.1497841996622,in_pool("car123",general_pool),10408,10624,576.6716855253112,124.47809867435099,0.3]]|_844972],2,true,general_pool,0,423.32831447468874)
+
+T1:9982,date(2017,5,1)
+T2:10043,date(2017,7,1)
+depreciation_between_start_date_and_other_date(1000,diminishing_value,date(2017,5,1),date(2019,2,2),"car123",[
+	
+	[[1000,not_in_pool("car123"),9982,10043,933.1506849315068,66.84931506849315,0.4]],
+	
+	[
+		[1000,not_in_pool("car123"),10043,10044,700.0538937887034,1.095890410958904,0.4],[998.9041095890411,in_pool("car123",general_pool),10044,10408,700.0538937887034,298.85021580033776,0.3]
+	],
+	
+	[[701.1497841996622,in_pool("car123",general_pool),10408,10624,576.6716855253112,124.47809867435099,0.3]]
+	
+|_844972],1,true,general_pool,0,423.32831447468874)
+
