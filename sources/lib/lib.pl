@@ -13,6 +13,7 @@
 :- [search_paths].
 
 :- ['../public_lib/lodgeit_solvers/prolog/utils/utils'].
+:- ['../public_lib/lodgeit_solvers/prolog/utils/doc_dump_server'].
 
 :- ['../public_lib/prolog_xbrl/instance_output/fact_output'].
 :- ['../public_lib/prolog_xbrl/instance_output/xbrl_contexts'].
@@ -27,7 +28,6 @@
 :- [bank_statement].
 :- [cashflow].
 :- [crosschecks_report].
-:- [days].
 :- [detail_accounts].
 :- [event_calculus].
 :- [exchange].

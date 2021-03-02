@@ -12,3 +12,4 @@ cache/*
 *.ods#
 .~lock.*
 #secret*.json
+*/emacs_server.0

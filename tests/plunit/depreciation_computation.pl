@@ -1,13 +1,12 @@
-:- ['../../lib/depreciation_computation'].
-:- ['../../lib/event_calculus'].
-%:- use_module(event_calculus, [depreciationAsset/12,asset/4]).
+:- ['depreciation_computation'].
+:- ['event_calculus'].
 
 :- begin_tests(depreciation).
 
-test(depreciation_value_1, all(Depreciation_value = [109.58904109589042])) :-
-	% Prime cost
+test(prime_cost, all(x=[x])) :-
 	% Depreciation_value is Asset_cost * (Days_held / 365) * Depreciation_rate
-	depreciation_value(prime_cost, 1000, 800, 200, 0.2, Depreciation_value).
+	depreciation_value(prime_cost, 1000, 800, 200, 0.2, Depreciation_value),
+	assertion(floats_close_enough(Depreciation_value, 109.58904109589042).
 
 
 test(written_down_2, all(Final_value = [80.0])) :-
