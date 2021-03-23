@@ -144,18 +144,6 @@ format_exception_into_alert_string(E, Str, Html) :-
 	format(string(Str ),'~w~n~n~w~n~n~w~q~n',[Context_str, $>stringize(Msg), Bstr, Stacktrace_str]).
 
 
-stt(St, Str) :-
-	new_memory_file(F),
-	open_memory_file(F, write, W),
-	print_prolog_backtrace(W, St),
-	close(W),
-	open_memory_file(F, read, R),
-	read_stream_to_codes(R,C),
-	string_codes(Str,C),
-	close(R),
-	free_memory_file(F).
-
-
 process_request2 :-
 	'make "all files" report entry',
 	collect_alerts(Alerts3, Alerts_html),

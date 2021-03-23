@@ -171,7 +171,7 @@ exp_compute(A = B) :-
 	!facts_by_aspects(A, Already_asserted),
 	(	Already_asserted = []
 	->	true
-	;	throw_string('internal error')),
+	;	throw_string('exp_compute internal error')),
 	!make_fact(B2, A).
 
 exp_eval(X, X) :-
@@ -202,38 +202,6 @@ add_aspect(Added, aspects(X), aspects(Y)) :-
 
 
 
-
-
-/*
-┏━╸╻ ╻┏━╸┏━╸╻
-┣╸ ┏╋┛┃  ┣╸ ┃
-┗━╸╹ ╹┗━╸┗━╸┗━╸
-*/
- sheet_and_cell_string_for_property(Item, Prop, Str) :-
-	!doc(Item, Prop, Value),
-	!sheet_and_cell_string(Value, Str).
-
- sheet_and_cell_string(Value, Str) :-
-	!doc(Value, excel:sheet_name, Sheet_name),
-	!doc(Value, excel:col, Col),
-	!doc(Value, excel:row, Row),
-	!atomics_to_string(['sheet "', Sheet_name, '", cell ', Col, ':', Row], Str).
-
- read_coord_vector_from_doc_string(Item, Prop, Default_currency, Side, VectorA) :-
-	doc_value(Item, Prop, Amount_string),
-	(	vector_from_string(Default_currency, Side, Amount_string, VectorA)
-	->	true
-	;	throw_string(['error reading "amount" in ', $>!sheet_and_cell_string($>doc(Item, Prop))])).
-
- read_value_from_doc_string(Item, Prop, Default_currency, Value) :-
-	doc_value(Item, Prop, Amount_string),
-	(	value_from_string(Default_currency, Amount_string, Value)
-	->	true
-	;	(
-			assertion(var(Value)),
-			throw_string(['error reading "amount" in ', $>!sheet_and_cell_string($>doc(Item, Prop))])
-		)
-	).
 
 
 

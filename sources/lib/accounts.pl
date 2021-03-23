@@ -49,6 +49,10 @@ wiki/specifying_account_hierarchies
  account_normal_side(Uri, X) :-
 	doc(Uri, accounts:normal_side, X, accounts).
 
+ vector_of_coords_to_vector_of_values_by_account_normal_side(Account_Id, Coords, Values) :-
+	!account_normal_side(Account_Id, Side),
+	!vector_of_coords_vs_vector_of_values(Side, Coords, Values).
+
 
 
 /*
