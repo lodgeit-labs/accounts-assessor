@@ -29,7 +29,6 @@
 :- [cashflow].
 :- [crosschecks_report].
 :- [detail_accounts].
-:- [event_calculus].
 :- [exchange].
 :- [exchange_rates].
 :- [extract_bank_accounts].

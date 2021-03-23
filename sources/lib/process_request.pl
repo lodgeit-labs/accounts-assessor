@@ -9,7 +9,7 @@
 %:- use_module(process_request_investment, []).
 :- [process_request_car].
 % :- [process_request_hirepurchase_new].
-:- [process_request_depreciation_new].
+:- ['../depr/src/process_request_depreciation_new'].
 
 
 /* for formatting numbers */ /* not sure if still used */
