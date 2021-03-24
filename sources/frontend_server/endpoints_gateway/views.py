@@ -27,6 +27,7 @@ from endpoints_gateway.forms import ClientRequestForm
 from fs_utils import directory_files, save_django_uploaded_file, save_django_form_uploaded_file
 from tmp_dir_path import create_tmp
 import call_prolog_calculator
+import logging
 
 
 def tmp_file_url(server_url, tmp_dir_name, fn):
@@ -134,7 +135,8 @@ def residency(request):
 
 def json_prolog_rpc_call(msg):
 	#try:
-	return JsonResponse(celery_app.signature('tasks.invoke_rpc.call_prolog').apply_async(msg).get()[1])
+	logging.getLogger().warn(msg)
+	return JsonResponse(celery_app.signature('invoke_rpc.call_prolog').apply_async([msg]).get()[1])
 	#except json.decoder.JSONDecodeError as e:
 	#	return HttpResponse(status=500)
 

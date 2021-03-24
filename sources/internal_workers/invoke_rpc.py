@@ -33,6 +33,10 @@ def call_prolog(
 	debug = config.get('DEBUG_OVERRIDE', debug)
 	dont_gtrace = config.get('DONT_GTRACE', False)
 
+	logging.getLogger().info(msg)
+	sys.stdout.flush()
+	sys.stderr.flush()
+
 	msg['params']['result_tmp_directory_name'], result_tmp_path = create_tmp()
 
 	if final_result_tmp_directory_name != None:
@@ -74,7 +78,6 @@ def call_prolog(
 		halt_goal = ',halt'
 	else:
 		halt_goal = ''
-
 
 	input = json.dumps(msg)
 

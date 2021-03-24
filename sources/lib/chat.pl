@@ -64,5 +64,8 @@ koom@koom-KVM ~/l/src> curl -d '{"current_state":[{"response": -1, "question_id"
     {"question_id":1, "response":-1}
   ]
 }
+
+or:
+ {'status': 'error'}
 ...
 */

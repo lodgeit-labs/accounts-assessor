@@ -1,20 +1,20 @@
 # this file contains requirements of all sub-projects, as well as some developer conveniences.
 
+#sympy
 wheel
 ipython
 click
 untangle
-#sympy
-xmlschema==1.0.14
+xmlschema==1.5.3
 deepdiff
 defusedxml
-django
+django>2.2,<2.3
 django-modern-rpc
 celery==4.4.6
 git+https://github.com/Arelle/Arelle
 #-e https://github.com/Arelle/Arelle
 xmldiff
-agraph-python
+agraph-python==101.0.7
 requests
 iso8601
 rdflib

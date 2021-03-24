@@ -51,7 +51,6 @@
 :- [livestock_misc].
 :- [livestock].
 :- [loans].
-:- [pacioli].
 :- [pacioli_rdf].
 :- [pricing].
 :- [process_request].
@@ -70,8 +69,6 @@
 :- [state].
 :- [system_accounts].
 :- [tables].
-:- [term_dict].
 :- [trading].
 :- [transactions].
-:- [vector_string].
 % :- ['../misc/chr_hp'].

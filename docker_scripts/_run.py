@@ -29,13 +29,14 @@ def run(port_postfix, **choices):
 	shell('docker stack rm robust' + pp)
 	shell('./build.sh "'+pp+'" ' + hollow)
 	while True:
-		p = subprocess.run("docker network ls | grep robust" + pp, shell=True, stdout=subprocess.PIPE)
-		print(p.returncode)
+		cmdxxx = "docker network ls | grep robust" + pp
+		p = subprocess.run(cmdxxx, shell=True, stdout=subprocess.PIPE)
+		print(cmdxxx + ': ' + str(p.returncode) + ':')
+		print(p.stdout)
 		if p.returncode:
 			break
-		print(p.stdout)
 		time.sleep(1)
-		print('.')
+		#print('.')
 	shell('./deploy_stack.sh "'+pp+'" ' + stack_fn)
 	shell('docker stack ps robust'+pp + ' --no-trunc')
 	shell('./follow_logs.sh '+pp)
