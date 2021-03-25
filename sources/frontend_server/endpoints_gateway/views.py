@@ -122,15 +122,19 @@ def upload(request):
 #  ┗━╸╹ ╹╹ ╹ ╹
 
 def sbe(request):
+	params = json.loads(request.body)
+	params['type'] = "sbe"
 	return json_prolog_rpc_call({
-		"method": "sbe",
-		"params": json.loads(request.body)
+		"method": 'chat',
+		"params": params
 	})
 
 def residency(request):
+	params = json.loads(request.body)
+	params['type'] = "residency"
 	return json_prolog_rpc_call({
-		"method": "residency",
-		"params": json.loads(request.body)
+		"method": 'chat',
+		"params": params
 	})
 
 def chat(request):
