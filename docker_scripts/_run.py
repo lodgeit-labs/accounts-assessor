@@ -14,9 +14,9 @@ from copy import deepcopy
 
 @click.command()
 @click.option('-pp', '--port_postfix', type=str, default='88', help="last two or more digits of the services' public ports. Also identifies the particular docker stack.")
-@click.option('-hn', '--use_host_network', type=bool, default=False, help="use host network?")
+@click.option('-hn', '--use_host_network', type=bool, default=False, help="tell docker to attach the containers to host network, rather than creating one?")
 @click.option('-ms', '--mount_host_sources_dir', type=bool, default=False, help="bind-mount sources, instead of copying them into the image? Useful for development.")
-@click.option('-nr', '--django_noreload', type=bool, default=False, help="--noreload. Disables source file watcher and reloader (to save CPU).")
+@click.option('-nr', '--django_noreload', type=bool, default=False, help="--noreload. Disables python source file watcher-reloader (to save CPU). Prolog code is still reloaded on every server invocation (even when not bind-mounted...)")
 def run(port_postfix, **choices):
 
 	pp = port_postfix
