@@ -34,22 +34,32 @@ process_request_rpc_cmdline2(Dict) :-
 	(	Dict.method == "calculator"
 	->	process_request_rpc_calculator(Dict.params)
 	;	(
-		(Dict.method == "sbe"
-		->	(
-				sbe:sbe_step(Dict.params, Result),
-				json_write(current_output, _{result:Result})
+			(	Dict.method == "chat"
+			->	(
+					do_chat(Dict, Response),
+					json_write(current_output, Response)
+				)
+			;	json_write(current_output, e{error:m{message:unknown_method}})
 			)
-		;(Dict.method == "residency"
-		->	(
-				residency:residency_step(Dict.params, Result),
-
-				json_write(current_output, _{result:Result})
-			)
-		;json_write(current_output, _{error:_{code:0,message:unknown_method}})))
 		)
-	).
+	),
+	flush_output.
 
-
+do_chat(Dict, Response) :-
+	(	Type = Dict.params.get(type)
+	->
+		(	Type == "sbe"
+		->	sbe:sbe_step(Dict.params, Result)
+		;
+			(	Type == "residency"
+			->	residency:residency_step(Dict.params, Result)
+			;	Response = e{error: m{message:"unknown chat type"}})
+		)
+	;	Response = e{error: m{message:'specify type: "sbe" or "residency"'}}
+	),
+	(	var(Response)
+	->	Response = r{result:Result}
+	;	true).
 
 /*
 

@@ -92,6 +92,7 @@ services:
       restart_policy:
         condition: any
     environment:
+      DJANGO_ARGS: ${DJANGO_ARGS}
       SECRET__CELERY_BROKER_URL: amqp://guest:guest@rabbitmq:5672//
       SECRET__INTERNAL_SERVICES_SERVER_URL: http://internal-services:17788
     image: koo5/frontend-server${PP}:latest
@@ -123,6 +124,8 @@ services:
       update_config:
         delay: 10s
         parallelism: 2
+    environment:
+      DJANGO_ARGS: ${DJANGO_ARGS}
     image: koo5/internal-services${PP}:latest
     networks:
     - backend

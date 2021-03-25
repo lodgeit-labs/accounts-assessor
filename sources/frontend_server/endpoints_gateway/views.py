@@ -133,6 +133,12 @@ def residency(request):
 		"params": json.loads(request.body)
 	})
 
+def chat(request):
+	return json_prolog_rpc_call({
+		"method": "chat",
+		"params": json.loads(request.body)
+	})
+
 def json_prolog_rpc_call(msg):
 	#try:
 	logging.getLogger().warn(msg)

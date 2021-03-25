@@ -16,6 +16,7 @@ from copy import deepcopy
 @click.option('-pp', '--port_postfix', type=str, default='88', help="last two or more digits of the services' public ports. Also identifies the particular docker stack.")
 @click.option('-hn', '--use_host_network', type=bool, default=False, help="use host network?")
 @click.option('-ms', '--mount_host_sources_dir', type=bool, default=False, help="bind-mount sources, instead of copying them into the image? Useful for development.")
+@click.option('-nr', '--django_noreload', type=bool, default=False, help="--noreload. Disables source file watcher and reloader (to save CPU).")
 def run(port_postfix, **choices):
 
 	pp = port_postfix
@@ -25,9 +26,14 @@ def run(port_postfix, **choices):
 	else:
 		hollow = ''
 	
+	if choices['django_noreload']:
+		django_args	= " --noreload"
+	else:
+		django_args	= ''
+	
 	stack_fn = generate_stack_file(choices)
 	shell('docker stack rm robust' + pp)
-	shell('./build.sh "'+pp+'" ' + hollow)
+	shell('./build.sh "'+pp+'" ' + hollow + django_args)
 	while True:
 		cmdxxx = "docker network ls | grep robust" + pp
 		p = subprocess.run(cmdxxx, shell=True, stdout=subprocess.PIPE)
@@ -51,7 +57,7 @@ def generate_stack_file(choices):
 	return fn
 
 
-def tweaked_services(src, use_host_network, mount_host_sources_dir):
+def tweaked_services(src, use_host_network, mount_host_sources_dir, django_noreload):
 	res = deepcopy(src)
 	services = res['services']
 

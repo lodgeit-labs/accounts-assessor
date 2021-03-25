@@ -131,10 +131,11 @@ def call_prolog(
 		print()
 		try:
 			rrr = json.loads(stdout_data)
-			print('postprocess_doc...')
-			celery_app.signature('internal_workers.postprocess_doc').apply_async(args=(result_tmp_path,))
-			#internal_workers.postprocess_doc.apply_async((result_tmp_path,))
-			print('postprocess_doc..')
+			if msg['method'] == "calculator":
+				print('postprocess_doc...')
+				celery_app.signature('internal_workers.postprocess_doc').apply_async(args=(result_tmp_path,))
+				#internal_workers.postprocess_doc.apply_async((result_tmp_path,))
+				print('postprocess_doc..')
 			return msg['params']['result_tmp_directory_name'], rrr
 		except json.decoder.JSONDecodeError as e:
 			print('invoke_rpc:', e)
