@@ -45,7 +45,11 @@ def call_prolog(
 	last_result_symlink_path = get_tmp_directory_absolute_path('last_result')
 	if os.path.exists(last_result_symlink_path):
 		subprocess.call(['/bin/rm', last_result_symlink_path])
-	subprocess.call(['/bin/ln', '-s', result_tmp_path, last_result_symlink_path])
+	subprocess.call([
+		'/bin/ln', '-s',
+		#result_tmp_path, <- absolute
+		msg['params']['result_tmp_directory_name'], # <- relative
+		last_result_symlink_path])
 
 	with open(os.path.join(result_tmp_path, 'rpc_call_info.txt'), 'w') as info:
 		info.write('request:\n')

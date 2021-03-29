@@ -16,7 +16,12 @@ def call_prolog_calculator(celery_app, final_result_tmp_directory_name, server_u
 	print(msg)
 
 	subprocess.call(['/bin/rm', get_tmp_directory_absolute_path('last_request')])
-	subprocess.call(['/bin/ln', '-s', get_tmp_directory_absolute_path(msg['params']['request_tmp_directory_name']), get_tmp_directory_absolute_path('last_request')])
+	subprocess.call([
+		'/bin/ln', '-s',
+		#get_tmp_directory_absolute_path(msg['params']['request_tmp_directory_name']), #<- absolute
+		(msg['params']['request_tmp_directory_name']), #<- relative
+		get_tmp_directory_absolute_path('last_request')
+	])
 
 	kwargs.update({
 		"final_result_tmp_directory_name": final_result_tmp_directory_name,

@@ -290,10 +290,11 @@ process_multifile_request(Request_data_uri_base,File_Paths) :-
 	;	true),
 	(	process_rdf_request
 	;	(
-			!ground(Dom),
-			(xpath(Dom, //reports, _)
-			->	!process_xml_request(Xml_Tmp_File_Path, Dom)
-			;	throw_string('<reports> tag not found'))
+			(	ground(Dom)
+			->	(xpath(Dom, //reports, _)
+				->	!process_xml_request(Xml_Tmp_File_Path, Dom)
+				;	throw_string('<reports> tag not found'))
+			;		throw_string('rdf request processing failed'))
 		)
 	).
 

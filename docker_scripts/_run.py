@@ -33,7 +33,7 @@ def run(port_postfix, **choices):
 	
 	stack_fn = generate_stack_file(choices)
 	shell('docker stack rm robust' + pp)
-	shell('./build.sh "'+pp+'" ' + hollow + django_args)
+	shell('./build.sh "'+pp+'" ' + hollow)
 	while True:
 		cmdxxx = "docker network ls | grep robust" + pp
 		p = subprocess.run(cmdxxx, shell=True, stdout=subprocess.PIPE)
@@ -43,9 +43,9 @@ def run(port_postfix, **choices):
 			break
 		time.sleep(1)
 		#print('.')
-	shell('./deploy_stack.sh "'+pp+'" ' + stack_fn)
+	shell('./deploy_stack.sh "'+pp+'" ' + stack_fn + ' ' + django_args)
 	shell('docker stack ps robust'+pp + ' --no-trunc')
-	shell('./follow_logs.sh '+pp)
+	shell('./follow_logs_noagraph.sh '+pp)
 	
 
 def generate_stack_file(choices):

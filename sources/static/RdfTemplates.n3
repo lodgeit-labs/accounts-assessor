@@ -728,7 +728,9 @@ ic_ui:bank_statement_example
 	bs:account_name [rdf:value "Maxi saver 123"];
 	bs:account_number [rdf:value "123"];
 	bs:account_currency [rdf:value "AUD"];
-	bs:items [rdf:value ()].
+	bs:items [rdf:value (
+		[bs:bank_balance [rdf:value "0"]]
+	)].
 
 ic:bank_statement
 	excel:position [excel:col "A"; excel:row "3"];

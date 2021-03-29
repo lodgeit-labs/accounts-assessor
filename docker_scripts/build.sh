@@ -10,8 +10,6 @@ set PP $argv[1]
 # rdf <docker:INTERNAL_WORKERS_DOCKERFILE_CHOICE>
 set MODE $argv[2]
 
-set DJANGO_ARGS $argv[3]
-
 
 # rdf koo:notes:agraph
 #docker pull franzinc/agraph:v7.0.0
