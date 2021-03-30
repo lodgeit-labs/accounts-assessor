@@ -1,5 +1,6 @@
 
 'ensure system accounts exist 0'(S_Transactions) :-
+	assertion(ground(S_Transactions)),
 	!cf('ensure system accounts exist'(S_Transactions)),
 	!cf(check_accounts_parent),
 	!cf(check_accounts_roles),
@@ -7,6 +8,7 @@
 	!cf(write_accounts_json_report).
 
  'ensure system accounts exist'(S_Transactions) :-
+ 	assertion(ground(S_Transactions)),
 	!cf(ensure_bank_gl_accounts_exist), % fixme also use S_Transactions to take extract_german_bank_csv0 into account?
 	!cf(subcategorize_by_bank),
 	!cf(ensure_livestock_accounts_exist),

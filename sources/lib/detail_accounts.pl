@@ -99,7 +99,7 @@ print_trading2(_,[],Results,Results,[]).
 	
 
  maybe_print_dimensional_facts(Static_Data,Contexts_In, Contexts_Out, Xml) :-
-	(	Static_Data.output_dimensional_facts = on
+	(	result_property(l:output_dimensional_facts, on)
 	->	print_dimensional_facts(Static_Data, Contexts_In, Contexts_Out, Xml)
 	;	Contexts_In = Contexts_Out).
 

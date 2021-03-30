@@ -1,6 +1,7 @@
 
 crosschecks_report0(Sd, Json) :-
 	% getting a list of _{check:Check, evaluation:Evaluation, status:Status} dicts:
+	%assertion(ground(Sd)),
 	crosschecks_report(Sd, Json),
 	maplist(crosscheck_output, Json.results, Html),
 	add_report_page_with_body(9, 'crosschecks', Html, loc(file_name,'crosschecks.html'), 'crosschecks_html').
@@ -159,7 +160,7 @@ crosschecks_report(Sd, Json) :-
 		 results: Results
 	}.
 
-evaluate_equality(Sd, equality(A, B), _{check:Check, evaluation:Evaluation, status:Status}) :-
+evaluate_equality(Sd, equality(A, B), crosscheck{check:Check, evaluation:Evaluation, status:Status}) :-
 	evaluate(Sd, A, A2),
 	evaluate(Sd, B, B2),
 	(

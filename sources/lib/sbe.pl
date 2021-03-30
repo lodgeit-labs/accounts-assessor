@@ -5,20 +5,12 @@
 % ===================================================================
 
 
-:- module(sbe, [sbe_request/1]).
+:- module(sbe, []).
 
 :- use_module(library(http/http_json)).
 :- use_module('prompt', [prompt/3]).
 :- use_module('chat').
 
-
-sbe_request(Request) :-
-	http_read_json_dict(Request, Data),
-	sbe_step(Data, Reply),	
-	reply_json(Reply),
-	true.
-
-%:- tspy(sbe_request/1).
 sbe_step(In, Out) :-
 	chat_preprocess(In, History, CurrentQuestionId, HistoryTuples),
 	sbe_next_state(HistoryTuples, CurrentQuestionId, NextQuestionId, NextPrompt),

@@ -5,9 +5,9 @@
  	initial_state(S0),
 
 	ct('automated: post bank opening balances',
-		(generate_bank_opening_balances_sts(Bank_Lump_STs),
+		once((generate_bank_opening_balances_sts(Bank_Lump_STs),
 		'ensure system accounts exist 0'(Bank_Lump_STs),
-		handle_sts(S0, Bank_Lump_STs, S2))),
+		handle_sts(S0, Bank_Lump_STs, S2)))),
 
 	ct('phase: opening balance',
 		(extract_gl_inputs(phases:opening_balance, Gl_input_txs),
@@ -18,7 +18,7 @@
 			smsf_rollover0(S4, S6))
 	;	S4 = S6),
 
-	cf('phase: main'(S6, S8)),
+ 	cf('phase: main'(S6, S8)),
 
 	(	account_by_role(rl(smsf_equity), _)
 	->	(	!cf(smsf_distributions_reports(_)),
@@ -43,12 +43,17 @@
  	handle_sts(S0, Sts0, S2),
  	!cf('ensure system accounts exist 0'(Sts0)),
 
-	Txs0 = [
-		$>!cf(extract_gl_inputs(_)),
-		$>!cf(extract_reallocations(_)),
-		$>!cf(extract_smsf_distribution(S2))
+	!cf(extract_gl_inputs(_, Txs7)),
+	!cf(extract_reallocations(_, Txs8)),
+	!cf(extract_smsf_distribution(S2, Txs9)),
+
+	Txs10 = [
+		Txs7,
+		Txs8,
+		Txs9
 	],
-	handle_txs(S2, Txs0, S4),
+
+	handle_txs(S2, Txs10, S4),
 
 	%!cf(process_livestock((Processed_S_Transactions, Transactions1), Livestock_Transactions)),
 
@@ -238,7 +243,7 @@ This is done with a symlink. This allows to bypass cache, for example in pessera
 	!doc_add($>result, l:cost_or_market, Cost_Or_Market).
 	
  'extract "output_dimensional_facts"' :-
-	!doc_add($>result, l:output_dimensional_facts, on).
+	!result_add_property(l:output_dimensional_facts, on).
 	
  extract_start_and_end_date :-
 	!request_data(Request_Data),

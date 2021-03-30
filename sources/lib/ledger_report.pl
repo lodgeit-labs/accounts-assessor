@@ -192,7 +192,7 @@ balance(Static_Data, Account_Id, Date, Balance, Transactions_Count) :-
  net_activity_by_account(Static_Data, Account_Id, Net_Activity_Transformed, Transactions_Count) :-
 	Static_Data.start_date = Start_Date,
 	Static_Data.end_date = End_Date,
-	Static_Data.exchange_date = Exchange_Date,
+	End_Date = Exchange_Date,
 	Static_Data.exchange_rates = Exchange_Rates,
 	Static_Data.transactions_by_account = Transactions_By_Account,
 	Static_Data.report_currency = Report_Currency,
@@ -217,12 +217,7 @@ balance(Static_Data, Account_Id, Date, Balance, Transactions_Count) :-
 
 
  balance_sheet_entry(Static_Data, Account_Id, Entry) :-
-	
-	/*this doesnt seem to help with tabling performance at all*/
-	dict_vars(Static_Data, [End_Date, Exchange_Date, Exchange_Rates, Transactions_By_Account, Report_Currency]),
-	dict_from_vars(Static_Data_Simplified, [End_Date, Exchange_Date, Exchange_Rates, Transactions_By_Account, Report_Currency]),
-	
-	balance_sheet_entry2(Static_Data_Simplified, Account_Id, Entry).
+	balance_sheet_entry2(Static_Data, Account_Id, Entry).
 
 %:- table balance_sheet_entry2/3.
 
@@ -236,7 +231,7 @@ balance(Static_Data, Account_Id, Date, Balance, Transactions_Count) :-
 	maplist(!report_entry_transaction_count,Child_Entries,Child_Counts),
 	% balance for this account including subaccounts (sum all transactions from beginning of time)
 
-	account_own_transactions_sum(Static_Data.exchange_rates, Static_Data.exchange_date, Static_Data.report_currency, Account_Id, Static_Data.end_date, Static_Data.transactions_by_account, Own_Sum, Own_Transactions_Count),
+	account_own_transactions_sum(Static_Data.exchange_rates, Static_Data.end_date, Static_Data.report_currency, Account_Id, Static_Data.end_date, Static_Data.transactions_by_account, Own_Sum, Own_Transactions_Count),
 	
 	vec_sum([Own_Sum | Child_Balances], Balance),
 	%format(user_error, 'balance_sheet_entry2: ~q :~n~q~n', [Account_Id, Balance]),

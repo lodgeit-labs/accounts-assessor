@@ -37,7 +37,9 @@ history_json_to_tuples([Json|JsonRest], [Tuple|TuplesRest]) :-
 
 history_json_to_tuples([], []).
 
-match_response_with_last_question(dict{current_state: History, response: Response}, HistoryWithResponse, CurrentQuestionId) :-
+match_response_with_last_question(In, HistoryWithResponse, CurrentQuestionId) :-
+	get_dict(current_state, In, History),
+	get_dict(response, In, Response),
 	LastQuestion = dict{question_id: CurrentQuestionId, response: -1},
 	member(LastQuestion, History),
 	select(LastQuestion, History, History2),
