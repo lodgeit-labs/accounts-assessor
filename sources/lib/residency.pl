@@ -5,7 +5,6 @@
 :- use_module('chat').
 
 residency_step(In, Out) :-
-gtrace,
 	chat_preprocess(In, History, CurrentQuestionId, HistoryTuples),
 	next_state(HistoryTuples, CurrentQuestionId, NextQuestionId, NextPrompt),
 	(
