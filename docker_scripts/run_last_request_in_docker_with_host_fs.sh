@@ -5,6 +5,7 @@
 
 xhost +local:docker
 
+./git_info.fish
 
 set SECRETS_DIR (realpath ../secrets)
 set RUNNING_CONTAINER_ID (./get_id_of_running_container.py -pp $argv[1])

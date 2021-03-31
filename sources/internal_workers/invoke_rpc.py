@@ -1,11 +1,11 @@
-import json, subprocess, os
+import logging,json, subprocess, os, sys, shutil
 import internal_workers
-import sys, os
+
 sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../common')))
 from tmp_dir_path import git, sources, create_tmp_directory_name, create_tmp, get_tmp_directory_absolute_path
 from celery_module import app
 from fs_utils import command_nice, flatten_lists
-import logging, json
+
 
 
 
@@ -55,6 +55,16 @@ def call_prolog(
 		info.write('request:\n')
 		info.write(str(msg))
 		info.write('\n')
+
+
+	logging.getLogger().warn(os.getcwd())
+	logging.getLogger().warn(os.path.abspath(git('sources/static/git_info.txt')))
+	logging.getLogger().warn(git('sources/static/git_info.txt'))
+	logging.getLogger().warn(os.path.join(result_tmp_path))
+
+	shutil.copyfile(
+		os.path.abspath(git('sources/static/git_info.txt')),
+		os.path.join(result_tmp_path, 'git_info.txt'))
 
 	msg['params'].update(
 		uri_params(msg['params']["result_tmp_directory_name"])

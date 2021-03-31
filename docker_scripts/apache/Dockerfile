@@ -8,3 +8,6 @@ COPY apache/crypto/* /usr/local/apache2/conf/
 
 VOLUME /usr/local/apache2/htdocs/tmp/
 VOLUME /usr/local/apache2/htdocs/static/
+
+
+# todo use https://github.com/BirgerK/docker-apache-letsencrypt/blob/master/Dockerfile

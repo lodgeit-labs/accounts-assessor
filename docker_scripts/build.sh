@@ -15,7 +15,8 @@ set MODE $argv[2]
 #docker pull franzinc/agraph:v7.0.0
 
 
-git status > static/docs/git_info.txt; and git log >> static/docs/git_info.txt;
+../docker_scripts/git_info.fish
+
 
 and docker build -t  "koo5/flower$PP"             -f "../docker_scripts/flower/Dockerfile" . ; 
 and docker build -t  "koo5/apache$PP"             -f "../docker_scripts/apache/Dockerfile" . ; 

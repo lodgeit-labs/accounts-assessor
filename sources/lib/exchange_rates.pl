@@ -325,7 +325,7 @@ parse_date_field(Field) :-
 		->	!result_property(l:start_date, Date))
 		;	(	V = "closing"
 			->	!result_property(l:end_date, Date))
-			;	throw_format('unexpected unit value header: ~q', [V])),
+			;	throw_format('unexpected unit value header (must be either "opening" or "closing" or a valid date): ~q', [V])),
 	doc_add(Field, l:true_date, Date).
 
 extract_exchange_rates2(Fields, Item, Rates) :-

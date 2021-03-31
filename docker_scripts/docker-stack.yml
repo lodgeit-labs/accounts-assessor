@@ -83,7 +83,7 @@ services:
       - tmp:/usr/local/apache2/htdocs/tmp/
       - ./../sources/static/:/usr/local/apache2/htdocs/static/
     ports:
-      - 80${PP}:80
+      - 80${PP}:80 # limit to 127.0.0.1 ?
       - 443${PP}:443
 
   frontend-server:

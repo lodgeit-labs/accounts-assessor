@@ -156,9 +156,9 @@ make_gl_viewer_report :-
 	!absolute_file_name(my_static(Viewer_Dir), Src, [file_type(directory)]),
 	!report_file_path(loc(file_name, Viewer_Dir), loc(absolute_url, Dir_Url), loc(absolute_path, Dst)),
 
-	/* symlink or copy, which one is more convenient depends on what we're working on */
-	Cmd = ['ln', '-s', '-n', '-f', Src, Dst],
-	%Cmd = ['cp', '-r', Src, Dst],
+	/* symlink or copy, which one is more convenient depends on what we're working on at the moment. However, copy is better, as it allows full reproducibility */
+	% Cmd = ['ln', '-s', '-n', '-f', Src, Dst],
+	Cmd = ['cp', '-r', Src, Dst],
 
 	%format(user_error, 'shell..~q ~n',[Cmd]),
 	!shell4(Cmd, _),
