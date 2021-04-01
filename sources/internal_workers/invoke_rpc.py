@@ -16,7 +16,7 @@ celery_app.config_from_object(celeryconfig)
 
 
 
-@app.task
+@app.task(acks_late=True)
 def call_prolog(
 		msg,
 		final_result_tmp_directory_name=None,

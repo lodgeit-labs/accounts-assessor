@@ -1,8 +1,8 @@
 wheel
-django
+django>2.2,<2.3
 django-modern-rpc
-celery
+celery==5.0.5
 django-cors-headers
-agraph-python
+agraph-python==101.0.7
 requests
 iso8601

@@ -5,12 +5,12 @@ wheel
 ipython
 click
 untangle
-xmlschema==1.5.3
 deepdiff
 defusedxml
+xmlschema==1.5.3
 django>2.2,<2.3
 django-modern-rpc
-celery==4.4.6
+celery==5.0.5
 git+https://github.com/Arelle/Arelle
 #-e https://github.com/Arelle/Arelle
 xmldiff
