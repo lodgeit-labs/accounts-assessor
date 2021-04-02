@@ -52,7 +52,7 @@
 		Txs8,
 		Txs9
 	],
-
+	%gtrace,
 	handle_txs(S2, Txs10, S4),
 
 	%!cf(process_livestock((Processed_S_Transactions, Transactions1), Livestock_Transactions)),

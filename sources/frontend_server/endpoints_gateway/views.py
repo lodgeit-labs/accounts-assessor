@@ -47,7 +47,8 @@ def rdf_templates(request):
 
 @csrf_exempt
 def upload(request):
-	server_url = request._current_scheme_host
+	rrr = request._current_scheme_host.split(':')
+	server_url = rrr[0] + ':80' + rrr[1][-2:]
 	params = QueryDict(mutable=True)
 	params.update(request.POST)
 	params.update(request.GET)

@@ -331,12 +331,22 @@ handle_additional_file(Bn, S_Transactions) :-
 	!flatten(S_Transactions0, S_Transactions2),
 	maplist(!invert_s_transaction_vector, S_Transactions2, S_Transactions).
 
-'extract bank statement transactions2'(Acc, S_Transactions0) :-
+'extract bank statement transactions2'(Acc, S_Transactions1) :-
 	!doc(Acc, l:currency, Account_Currency),
 	!doc(Acc, l:name, Account_Name),
 	!doc(Acc, l:raw_items, Items),
-	!maplist('extract bank statement transaction'(Account_Currency, Account_Name), Items, S_Transactions0).
+	!maplist('extract bank statement transaction'(Account_Currency, Account_Name), Items, S_Transactions0),
+	exclude(var, S_Transactions0, S_Transactions1).
 
+'extract bank statement transaction'(_, _, Item, _) :-
+	\+doc_value(Item, bs:transaction_description, _),
+	\+read_date(Item, bs:bank_transaction_date, _),
+	\+doc_value(Item,bs:units_count,_),
+	\+doc_value(Item,bs:units_type,_),
+	\+doc_value(Item,bs:transaction_description2,_),
+	\+doc_value(Item,bs:debit,_),
+	\+doc_value(Item,bs:credit,_),
+	!.
 
 'extract bank statement transaction'(Account_Currency, Account_Name, Item, S_Transaction) :-
 	%gtrace,

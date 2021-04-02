@@ -35,10 +35,11 @@
 	%gtrace,
 	!doc_add(Uri, l:raw_items, Raw_items1),
 
-	rpv(First_row, bs:bank_balance, Opening_balance_number),
-	(	is_numeric(Opening_balance_number)
-	->	true
-	;	throw_string('opening balance: number expected')),
+	(	opv(First_row, bs:bank_balance, Opening_balance_number)
+	->	(	is_numeric(Opening_balance_number)
+		->	true
+		;	throw_string('opening balance: number expected'))
+	;	Opening_balance_number = 0),
 	(	{Opening_balance_number = 0}
 	->	true
 	;	(
@@ -61,15 +62,17 @@
 			doc(First_row, bs:transaction_description, Row_0_verb)
 		)
 	->	(
-			!doc(Row_0_verb, rdf:value, Row_0_verb_value),
-			(	Row_0_verb_value = "This is Opening Balance"
-				->	true
-				;	(	!sheet_and_cell_string(Row_0_verb, Cell_str),
-						throw_format('expected "This is Opening Balance" in ~w', [Cell_str])
-					)
+			!doc(Row_0_verb, rdf:value, Row_0_verb_value0),
+			trim_string(Row_0_verb_value0, Row_0_verb_value),
+			(	member(Row_0_verb_value, ["This is Opening Balance", "Opening Balance", "Bank_Opening_Balance"])
+			->	true
+			;	(	!sheet_and_cell_string(Row_0_verb, Cell_str),
+					throw_format('expected "This is Opening Balance" in ~w', [Cell_str])
+				)
 			)
 		)
-	;	true).
+	;	true
+	).
 
 
 
