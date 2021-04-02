@@ -3,7 +3,7 @@
 	cf(extract_report_parameters),
  	push_context('phase:'),
  	initial_state(S0),
-
+	%gtrace,
 	ct('automated: post bank opening balances',
 		once((generate_bank_opening_balances_sts(Bank_Lump_STs),
 		'ensure system accounts exist 0'(Bank_Lump_STs),
@@ -32,8 +32,8 @@
 
 'phase: main'(S0, S4) :-
 	% a bunch of ST's.
-
 	!cf(handle_additional_files(Txs0)),
+
 	!cf('extract bank statement transactions'(Txs1)),
 	!cf(extract_action_inputs(_, Txs2)),
 	%$>!cf(extract_livestock_data_from_ledger_request(Dom))

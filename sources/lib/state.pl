@@ -18,17 +18,18 @@
  	]).
 
  handle_field(S0,S2,Ops,Field) :-
- 	dif(I,J),
-	(	nth0(I,Ops,do(Field,Action1,Args1))
+	(	nth0(I,Ops,op(Field,Action1,Args1))
 	->	(
-			(	nth0(J,Ops,do(Field,_,_))
-			->	throw_string('duplicate actions')
+			dif(I,J),
+			(	nth0(J,Ops,op(Field,_,_))
+			->	throw_string('cannot handle multiple actions on one field at once')
 			;	true),
-			handle_op(S0,Action1,Field,Args1,S2)
+			!handle_op(S0,Action1,Field,Args1,S2)
 		)
 	;	(
-			doc(S0, Field, X),
-			doc_add(S2, Field, X)
+			/* no op specified, so the default action here is pass-through, just copy from the old structure to the new structure */
+			!doc(S0, Field, X),
+			!doc_add(S2, Field, X)
 		)
 	).
 

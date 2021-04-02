@@ -5,8 +5,9 @@
 	<title>General Ledger Viewer documentation</title>
 	<meta name="generator" content="LibreOffice 6.0.7.3 (Linux)"/>
 	<meta name="created" content="00:00:00"/>
-	<meta name="changed" content="2021-01-18T08:37:01.451064538"/>
+	<meta name="changed" content="2021-04-01T18:41:32.460696459"/>
 	<meta name="" content=""/>
+	<meta name="created" content="00:00:00">
 	<meta name="created" content="00:00:00">
 	<meta name="created" content="00:00:00">
 	<style type="text/css">
@@ -46,7 +47,8 @@ bank accounts</h3>
 <p style="margin-top: 0.02in; margin-bottom: 0.02in">Account_Number
 	is ignored, only Account_Name matters</p>
 	<li/>
-<p></p>
+<p>opening balance can only be correctly processed for bank
+	accounts in the same currency as report currency.</p>
 </ul>
 <p style="margin-top: 0.02in; margin-bottom: 0.02in"><br/>
 <br/>
@@ -118,7 +120,7 @@ Roles</h2>
 <p style="margin-bottom: 0in"><br/>
 
 </p>
-<p style="margin-bottom: 0in"> If a trading account
+<p style="margin-bottom: 0in">If a trading account
 Financial_Investments already contains</p>
 <p style="margin-bottom: 0in">an account with id
 Financial_Investments_realized, either it has to have a role
@@ -135,12 +137,12 @@ case where we have multiple bank accounts, each needs a corresponding
 CurrencyMovement sub-account, but we want a part of the bank accounts
 to use one CurrencyMovement account and a part to use another:</p>
 <p style="margin-bottom: 0in">&lt;ComprehensiveIncome&gt;</p>
-<p style="margin-bottom: 0in">	&lt;VolatileCurrencyMovement&gt;</p>
-<p style="margin-bottom: 0in">		&lt;BitcoinCurrencyMovement&gt;</p>
-<p style="margin-bottom: 0in">	&lt;/VolatileCurrencyMovement&gt;</p>
-<p style="margin-bottom: 0in">	&lt;NormalCurrencyMovement&gt;</p>
-<p style="margin-bottom: 0in">		&lt;Bank1CurrencyMovement&gt;</p>
-<p style="margin-bottom: 0in">	&lt;/NormalCurrencyMovement&gt;</p>
+<p style="margin-bottom: 0in">&lt;VolatileCurrencyMovement&gt;</p>
+<p style="margin-bottom: 0in">&lt;BitcoinCurrencyMovement&gt;</p>
+<p style="margin-bottom: 0in">&lt;/VolatileCurrencyMovement&gt;</p>
+<p style="margin-bottom: 0in">&lt;NormalCurrencyMovement&gt;</p>
+<p style="margin-bottom: 0in">&lt;Bank1CurrencyMovement&gt;</p>
+<p style="margin-bottom: 0in">&lt;/NormalCurrencyMovement&gt;</p>
 <p style="margin-bottom: 0in">&lt;/ComprehensiveIncome&gt;</p>
 <p style="margin-bottom: 0in">Thus, we have to specify these accounts
 manually (in a xml file). And we have to assign the right roles to

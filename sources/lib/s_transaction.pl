@@ -369,4 +369,5 @@ handle_additional_file(Bn, S_Transactions) :-
 		S_Transaction
 	),
 	doc_add(S_Transaction, l:source, Item),
+	%push_format('added source transaction:~n ~w~n', [S_Transaction]),
 	pop_context.

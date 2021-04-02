@@ -36,7 +36,18 @@
 	!doc_add(Uri, l:raw_items, Raw_items1),
 
 	rpv(First_row, bs:bank_balance, Opening_balance_number),
-	(is_numeric(Opening_balance_number)->true;throw_string('opening balance: number expected')),
+	(	is_numeric(Opening_balance_number)
+	->	true
+	;	throw_string('opening balance: number expected')),
+	(	{Opening_balance_number = 0}
+	->	true
+	;	(
+			result_property(l:report_currency, Report_currency),
+			(	[Account_Currency] = Report_currency
+			->	true
+			;	throw_string('opening balance cannot be specified for account in foreign currency, the account must start at zero'))
+		)
+	),
 	Opening_balance = coord(Account_Currency, Opening_balance_number),
 	!doc_add_value(Uri, l:opening_balance, Opening_balance),
 
@@ -77,11 +88,12 @@
  generate_bank_opening_balances_sts2(Bank_Account, Tx) :-
 	(	doc_value(Bank_Account, l:opening_balance, Opening_Balance)
 	->	(
-			!result_property(l:start_date, Start_Date),
-			!add_days(Start_Date, -1, Opening_Date),
+			%!result_property(l:start_date, Start_Date),
+			%!add_days(Start_Date, -1, Opening_Date),
 			!doc(Bank_Account, l:name, Bank_Account_Name),
 			!c(doc_add_s_transaction(
-				Opening_Date,
+				date(1,1,1),
+				%Opening_Date,
 				'Bank_Opening_Balance',
 				[Opening_Balance],
 				bank_account_name(Bank_Account_Name),
