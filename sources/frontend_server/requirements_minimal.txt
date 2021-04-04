@@ -1,7 +1,7 @@
 wheel
 django>2.2,<2.3
 django-modern-rpc
-celery==5.0.5
+celery==5.0.0
 django-cors-headers
 agraph-python==101.0.7
 requests
