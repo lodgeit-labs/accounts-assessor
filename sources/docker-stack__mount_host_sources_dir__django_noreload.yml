@@ -177,7 +177,7 @@ services:
       update_config:
         delay: 10s
         parallelism: 2
-    image: rabbitmq
+    image: rabbitmq:3.8.3
     networks:
     - backend
     volumes:
