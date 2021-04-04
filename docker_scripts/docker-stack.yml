@@ -38,7 +38,7 @@ services:
       - 100${PP}:10035
 
   rabbitmq:
-    image: rabbitmq
+    image: rabbitmq:3.8.3
     networks:
       - backend
     deploy:

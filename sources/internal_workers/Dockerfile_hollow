@@ -99,4 +99,4 @@ ENV DETERMINANCY_CHECKER__USE__ENFORCER=true
 
 
 ENTRYPOINT ["./start.sh"]
-CMD ["-n", "worker7788", "--loglevel=info"]
+CMD ["-n", "worker7788", "--loglevel=INFO"]
