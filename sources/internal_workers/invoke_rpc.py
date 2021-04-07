@@ -39,8 +39,13 @@ def call_prolog(
 
 	msg['params']['result_tmp_directory_name'], result_tmp_path = create_tmp()
 
+	logging.getLogger().warn('final_result_tmp_directory_name')
+	logging.getLogger().warn(final_result_tmp_directory_name)
+
 	if final_result_tmp_directory_name != None:
-		subprocess.call(['/bin/ln', '-s', result_tmp_path, final_result_tmp_directory_name + '/'])
+		xxx1 = ['/bin/ln', '-s', '../'+msg['params']['result_tmp_directory_name'], final_result_tmp_directory_name + '/' + msg['params']['result_tmp_directory_name']]
+		logging.getLogger().warn(xxx1)
+		subprocess.call(xxx1)
 
 	last_result_symlink_path = get_tmp_directory_absolute_path('last_result')
 	if os.path.exists(last_result_symlink_path):

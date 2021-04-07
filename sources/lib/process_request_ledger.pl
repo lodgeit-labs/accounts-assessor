@@ -1,7 +1,11 @@
 
  process_request_ledger :-
 	cf(extract_report_parameters),
- 	push_context('phase:'),
+	!cf(make_gl_viewer_report),
+	!cf(write_accounts_json_report),
+	!cf(extract_exchange_rates),
+
+	push_context('phase:'),
  	initial_state(S0),
 	%gtrace,
 	ct('automated: post bank opening balances',
@@ -125,9 +129,9 @@ static_data_historical(Static_Data, Static_Data_Historical) :-
 	Sr5				% Structured Reports - Dict <Report Abbr : _>
 ) :-
 	!cf(cf_page(Static_Data, Sr0.cf)),
+
 	!cf('export GL'(Static_Data, Static_Data.transactions, Gl)),
 	!cf(make_json_report(Gl, general_ledger_json)),
-	!cf(make_gl_viewer_report),
 
 	!cf(investment_reports(Static_Data.put(outstanding, Outstanding), Investment_Report_Info)),
 	Sr1 = Sr0.put(ir, Investment_Report_Info),
@@ -155,11 +159,9 @@ make_gl_viewer_report :-
 	Viewer_Dir = 'general_ledger_viewer',
 	!absolute_file_name(my_static(Viewer_Dir), Src, [file_type(directory)]),
 	!report_file_path(loc(file_name, Viewer_Dir), loc(absolute_url, Dir_Url), loc(absolute_path, Dst)),
-
 	/* symlink or copy, which one is more convenient depends on what we're working on at the moment. However, copy is better, as it allows full reproducibility */
 	% Cmd = ['ln', '-s', '-n', '-f', Src, Dst],
 	Cmd = ['cp', '-r', Src, Dst],
-
 	%format(user_error, 'shell..~q ~n',[Cmd]),
 	!shell4(Cmd, _),
 	%format(user_error, 'shell.~n',[]),
@@ -269,7 +271,4 @@ This is done with a symlink. This allows to bypass cache, for example in pessera
 	!cf(extract_report_currency),
 	!cf('extract action verbs'),
 	!cf('extract bank accounts'),
-	!cf('extract GL accounts'),
-	!cf(make_gl_viewer_report),
-	!cf(write_accounts_json_report),
-	!cf(extract_exchange_rates).
+	!cf('extract GL accounts').

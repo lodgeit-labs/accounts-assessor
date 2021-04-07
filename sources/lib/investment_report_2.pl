@@ -36,9 +36,7 @@ investment_report_2_0(Static_Data, Filename_Suffix, Semantic_Json) :-
 	catch_with_backtrace(
 		(
 			(Static_Data.report_currency = [_] -> true ;throw_string('investment report: report currency expected')),
-			(	investment_report_2(Static_Data, Semantic_Json, Table_Json, Html, Title_Text)
-			->	true
-			;	throw(fail)),
+			!investment_report_2(Static_Data, Semantic_Json, Table_Json, Html, Title_Text),
 			make_json_report(Table_Json, Json_Filename)
 		),
 		E,
