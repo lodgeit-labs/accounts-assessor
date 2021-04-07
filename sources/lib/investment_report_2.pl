@@ -180,6 +180,7 @@ investment_report_2_sales(Static_Data, I, Lines) :-
 
 
 investment_report_2_sale_lines(Static_Data, Info, Clipped, Sale, Row) :-
+	push_format('process sale: investment(~q), sale(~q)', [Info, Sale]),
 	dict_vars(Static_Data, [Exchange_Rates, Report_Currency]),
 	Sale = sale(Sale_Date, Sale_Unit_Price_Foreign, Count),
 	Info = info2(Investment_Currency, Unit, Opening_Unit_Cost_Converted, Opening_Unit_Cost_Foreign, Opening_Date, _),
@@ -240,11 +241,14 @@ investment_report_2_sale_lines(Static_Data, Info, Clipped, Sale, Row) :-
 			}
 		},
 		closing: _{}
-	}.
+	},
+	pop_format.
+
 
 		
 investment_report_2_unrealized(Static_Data, Investment, Row) :-
-	
+	push_format('process unrealized investment: ~q', [Investment]),
+
 	End_Date = Static_Data.end_date,
 	Exchange_Rates = Static_Data.exchange_rates,
 	Report_Currency = Static_Data.report_currency,
@@ -253,7 +257,7 @@ investment_report_2_unrealized(Static_Data, Investment, Row) :-
 	Investment = ir_item(unr, Info, Count, [], Clipped),
 	Info = info2(Investment_Currency, Unit_Name, Opening_Unit_Cost_Converted, Opening_Unit_Cost_Foreign, Opening_Date, Original_Purchase_Info),
 
-	(	Static_Data.cost_or_market == cost
+	(	result_property(l:cost_or_market, cost)
 	->	Unit = with_cost_per_unit(Unit_Name, Opening_Unit_Cost_Foreign)
 	;	Unit = Unit_Name),
 
@@ -345,7 +349,9 @@ investment_report_2_unrealized(Static_Data, Investment, Row) :-
 
 	optional_converted_value(Original_Purchase_Total_Cost_Foreign, Closing_Currency_Conversion, Original_Purchase_Total_Cost_Converted_At_Balance),
 	
-	value_subtract(Original_Purchase_Total_Cost_Converted_At_Balance, Original_Purchase_Total_Cost_Converted, Total_At_Cost_Forex_Gain).
+	value_subtract(Original_Purchase_Total_Cost_Converted_At_Balance, Original_Purchase_Total_Cost_Converted, Total_At_Cost_Forex_Gain),
+
+	pop_format.
 
 	
 optional_currency_conversion(Exchange_Rates, Date, Src, Optional_Dst, Conversion) :-
@@ -369,7 +375,7 @@ ir2_forex_gain(Exchange_Rates, Opening_Date, End_Price, End_Date, Investment_Cur
 	->
 		true
 	;
-		throw_string("exchange rate missing")
+		throw_format("investment is traded against different currency (~w) than specified (~w).",[End_Unit_Price_Unit, Investment_Currency])
 	),
 	% old investment currency rate to report currency
 	Market_Price_Unit = without_currency_movement_against_since(
@@ -499,7 +505,7 @@ clip_investment(Static_Data, I1, I2) :-
 		*/
 			Opening_Date = Start_Date,
 
-			(	Static_Data.cost_or_market == cost
+			(	result_property(l:cost_or_market, cost)
 			->	Unit2 = with_cost_per_unit(Unit, Purchase_Unit_Cost_Foreign)
 			;	Unit2 = Unit),
 

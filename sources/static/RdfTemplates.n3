@@ -34,7 +34,7 @@
 
 [
 	a :www_url; 
-	rdf:value <https://hub.docker.com/layers/rabbitmq/library/rabbitmq/3.8.14/images/sha256-c711f4d41163f79179a68f642ddcf15144aed2f2fa6e2d405d6a1476cf36614c?context=explore>
+	rdf:value <https://hub.docker.com/layers/rabbitmq/library/rabbitmq/3.8.14/images/sha256-c711f4d41163f79179a68f642ddcf15144aed2f2fa6e2d405d6a1476cf36614c?context=explore>;
 	rdfs:comment "possibly this version created a problem where task completions would not make it back to the caller.";
 	:version "3.8.14"
 ].

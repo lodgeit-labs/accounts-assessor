@@ -91,18 +91,21 @@ def upload(request):
 				)
 			except celery.exceptions.TimeoutError:
 				if requested_output_format == 'json_reports_list':
-					return JsonResponse(
-					{
-						'alerts': ['task is still processing..'],
-						"reports":
-						[{
-							"title": "frontend_server_timeout",
-							"key": "please refresh",
-							"val":{"url": tmp_file_url(server_url, final_result_tmp_directory_name, '')}}
-						]
-					})
+					pass
 				else:
 					raise
+
+			if requested_output_format == 'json_reports_list':
+				return JsonResponse(
+				{
+					'alerts': ['task is still processing..'],
+					"reports":
+					[{
+						"title": "frontend_server_timeout",
+						"key": "please refresh",
+						"val":{"url": tmp_file_url(server_url, final_result_tmp_directory_name, '')}}
+					]
+				})
 			if requested_output_format == 'xml':
 				return HttpResponseRedirect('/tmp/' + response_tmp_directory_name + '/response.xml')
 			else:
