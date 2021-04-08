@@ -96,7 +96,7 @@ handle_op(S0,append,Field,Tail,S2) :-
 static_data_from_state(State, Static_Data) :-
 	doc(State, l:has_transactions, Transactions),
 	doc(State, l:has_outstanding, Outstanding),
-	!transactions_by_account_v2(Transactions,Transactions_By_Account),
+	!transactions_dict_by_account_v2(Transactions,Transactions_By_Account),
  	!result_property(l:report_currency, Report_Currency),
  	!result_property(l:exchange_rates, Exchange_Rates),
 	!result_property(l:start_date, Start_Date),

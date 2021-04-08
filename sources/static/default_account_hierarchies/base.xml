@@ -27,6 +27,7 @@
 		</Net_Assets>
 
 		<Equity role="Equity" normal_side="credit">
+			<Clearing_Account/>
 			<Share_Capital/>
 			<Retained_Earnings>
 				<Historical_Earnings role="Historical_Earnings">
@@ -61,7 +62,6 @@
 
 			<Gains role="Gains">
 				<Other_Gain/>
-				<Clearing_Account/>
 			</Gains>
 
 			<Losses normal_side="debit">	

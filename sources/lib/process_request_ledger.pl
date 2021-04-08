@@ -67,7 +67,7 @@
 create_reports(State) :-
 	!static_data_from_state(State, Static_Data),
 
-	%!'with current and historical earnings equity balances'(S4,S_out).
+	>>>>>>>>%!'with current and historical earnings equity balances'(S4,S_out).
 
 	!balance_entries(Static_Data, Sr),
 	!other_reports2('final_', Static_Data, Sr),

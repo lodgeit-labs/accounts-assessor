@@ -70,12 +70,12 @@ make_dr_cr_transactions(
 	}.
 
 
-transaction_account_in_set(Transaction, Root_Account_Id) :-
+ transaction_account_in_set(Transaction, Root_Account_Id) :-
 	transaction_account(Transaction, Transaction_Account_Id),
 	account_in_set(Transaction_Account_Id, Root_Account_Id).
 
 % equivalent concept to the "activity" in "net activity"
-transaction_in_period(Transaction, From_Day, To_Day) :-
+ transaction_in_period(Transaction, From_Day, To_Day) :-
 	transaction_day(Transaction, Day),
 	absolute_day(From_Day, A),
 	absolute_day(To_Day, C),
@@ -84,7 +84,7 @@ transaction_in_period(Transaction, From_Day, To_Day) :-
 	B =< C.
 
 % up_to?
-transaction_before(Transaction, End_Day) :-
+ transaction_before(Transaction, End_Day) :-
 	transaction_day(Transaction, Day),
 	absolute_day(End_Day, B),
 	absolute_day(Day, A),
@@ -93,14 +93,14 @@ transaction_before(Transaction, End_Day) :-
 
 % add up and reduce all the vectors of all the transactions, result is one vector
 
-transaction_vectors_total([], []).
+ transaction_vectors_total([], []).
 
-transaction_vectors_total([Hd_Transaction | Tl_Transaction], Net_Activity) :-
+ transaction_vectors_total([Hd_Transaction | Tl_Transaction], Net_Activity) :-
 	transaction_vector(Hd_Transaction, Curr),
 	transaction_vectors_total(Tl_Transaction, Acc),
 	vec_add(Curr, Acc, Net_Activity).
 
-transactions_in_account_set(Transactions_By_Account, Account_Id, Result) :-
+ transactions_in_account_set(Transactions_By_Account, Account_Id, Result) :-
 	findall(
 		Transactions,
 		(
@@ -111,7 +111,7 @@ transactions_in_account_set(Transactions_By_Account, Account_Id, Result) :-
 	),
 	flatten(Transactions2, Result).
 	
-transactions_in_period_on_account_and_subaccounts(Transactions_By_Account, Account_Id, Start_Date, End_Date, Filtered_Transactions) :-
+ transactions_in_period_on_account_and_subaccounts(Transactions_By_Account, Account_Id, Start_Date, End_Date, Filtered_Transactions) :-
 	transactions_in_account_set(Transactions_By_Account, Account_Id, Transactions),
 	findall(
 		Transaction,
@@ -122,7 +122,7 @@ transactions_in_period_on_account_and_subaccounts(Transactions_By_Account, Accou
 		Filtered_Transactions
 	).
 
-transactions_before_day_on_account_and_subaccounts(Transactions_By_Account, Account_Id, Day, Filtered_Transactions) :-
+ transactions_before_day_on_account_and_subaccounts(Transactions_By_Account, Account_Id, Day, Filtered_Transactions) :-
 	transactions_in_account_set(Transactions_By_Account, Account_Id, Transactions),
 	findall(
 		Transaction,
@@ -133,29 +133,25 @@ transactions_before_day_on_account_and_subaccounts(Transactions_By_Account, Acco
 		Filtered_Transactions
 	).
 
-transactions_by_account(Static_Data, Transactions_By_Account) :-
+ transactions_dict_by_account(Static_Data, Transactions_By_Account) :-
 	dict_vars(Static_Data,
 		[Transactions]
 	),
 	assertion(nonvar(Transactions)),
 	sort_into_dict(transaction_account, Transactions, Transactions_By_Account).
 
-transactions_by_account_v2(Transactions,Transactions_By_Account) :-
+ transactions_dict_by_account_v2(Transactions,Transactions_By_Account) :-
 	assertion(nonvar(Transactions)),
 	assertion(var(Transactions_By_Account)),
 	sort_into_dict(transaction_account, Transactions, Transactions_By_Account).
 
-'with current and historical earnings equity balances'(Txs_by_acct,Start_Date,End_Date,Txs_by_acct2) :-
-
-	transactions_before_day_on_account_and_subaccounts(Txs_by_acct, $>abrlt('Comprehensive_Income'), Start_Date, Historical_Earnings_Transactions),
-	transactions_before_day_on_account_and_subaccounts(Txs_by_acct, $>abrlt('Historical_Earnings'), Start_Date, Historical_Earnings_Transactions2),
-	append(Historical_Earnings_Transactions, Historical_Earnings_Transactions2, Historical_Earnings_Transactions_All),
-	Dict2 = Txs_by_acct.put($>abrlt('Historical_Earnings'), Historical_Earnings_Transactions_All),
-	transactions_in_period_on_account_and_subaccounts(Txs_by_acct, $>abrlt('Comprehensive_Income'), Start_Date, End_Date, Current_Earnings_Transactions),
-	Txs_by_acct2 = Dict2.put($>abrlt('Current_Earnings'), Current_Earnings_Transactions).
+ transactions_by_account(Transactions_By_Account, Account_Id, Account_Transactions) :-
+	(	Account_Transactions = Transactions_By_Account.get(Account_Id)
+	->	true
+	;	Account_Transactions = []).
 
 
-check_transaction_account(Transaction) :-
+ check_transaction_account(Transaction) :-
 	!transaction_account(Transaction, Id),
 	(
 		(

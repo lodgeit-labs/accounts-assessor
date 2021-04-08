@@ -45,6 +45,8 @@
 :- [invoices].
 :- [ledger_html_reports].
 :- [ledger].
+:- [ledger_balance].
+:- [ledger_entry].
 :- [ledger_report].
 :- [livestock_adjustment_transactions].
 :- [livestock_average_cost].

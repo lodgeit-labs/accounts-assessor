@@ -134,7 +134,7 @@ process_livestock2((S_Transactions, Transactions_In), Livestock, Transactions_Ou
 	Static_Data1 = Static_Data0.put(transactions,Transactions_Total),
 	gtrace,
 	%!'with current and historical earnings equity balances'(a,b,c,d),
-	transactions_by_account(Static_Data1, Transactions_By_Account),
+	transactions_dict_by_account(Static_Data1, Transactions_By_Account),
 
 	closing_inventory_transactions(Livestock, Transactions_By_Account, Closing_Transactions),
 	append(Transactions3, Closing_Transactions, Transactions_Out),
