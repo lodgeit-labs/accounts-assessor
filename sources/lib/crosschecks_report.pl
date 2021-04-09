@@ -53,7 +53,6 @@ crosschecks_report(Sd, Json) :-
 		equality(
 			account_balance(reports/bs/current, rl('Net_Assets')),
 			account_balance(reports/bs/current, rl('Equity'))),
-
 		equality(
 			account_balance(reports/pl/current, rl('Trading_Accounts'/_/realized/withoutCurrencyMovement)),
 			report_value(reports/ir/current/totals/gains/rea/market_converted)),
@@ -185,13 +184,9 @@ crosscheck_compare(A, B) :-
 	
 
 evaluate(Sd, Term, Value) :-
-	(
-	 evaluate2(Sd, Term, Value)
-	->
-	 true
-	;
-	 Value = evaluation_failed(Term, $>gensym(evaluation_failure))
-	).
+	(	evaluate2(Sd, Term, Value)
+	->	true
+	;	Value = evaluation_failed(Term, $>gensym(evaluation_failure))).
 
 evaluate2(Sd, report_value(Key), Values_List) :-
 	path_get_dict(Key, Sd, Values_List).
@@ -203,16 +198,7 @@ evaluate2(Sd, account_balance(Report_Id, Acct), Values_List) :-
 	path_get_dict(Report_Id, Sd, Report),
 	findall(
 		Values_List,
-		(
-			(	Acct = uri(Uri)
-			->	true
-			;	(
-					assertion(Role = rl(_)),
-					account_by_role(Role, Uri)
-				)
-			),
-			report_entry_normal_side_values(Report, Uri, Values_List)
-		),
+		report_report_entry_normal_side_values_by_acct(Report, Acct, Values_List),
 		Values_List0
 	),
 	vec_sum(Values_List0, Values_List).
@@ -222,6 +208,17 @@ evaluate2(_, fact_value(Aspects), Values_List) :-
 
 evaluate2(_, Vec, Vec) :-
 	is_list(Vec).
+
+report_report_entry_normal_side_values_by_acct(Report, Acct, Values_List) :-
+	(	Acct = uri(Uri)
+	->	true
+	;	(
+			assertion(Acct = rl(_)),
+			account_by_role(Acct, Uri)
+		)
+	),
+	report_entry_normal_side_values(Report, Uri, Values_List).
+
 
 entry_normal_side_values(Entry, Values_List) :-
 	!report_entry_total_vec(Entry, Balance),

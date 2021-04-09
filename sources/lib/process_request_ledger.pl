@@ -65,9 +65,14 @@
 
 
 create_reports(State) :-
-	!static_data_from_state(State, Static_Data),
+	!static_data_from_state(State, Static_Data0),
 
-	>>>>>>>>%!'with current and historical earnings equity balances'(S4,S_out).
+	!'with current and historical earnings equity balances'(
+		Static_Data0.transactions_by_account,
+		Static_Data0.start_date,
+		Static_Data0.end_date,
+		Txs_by_acct2),
+	Static_Data = Static_Data0.put(transactions_by_account,Txs_by_acct2),
 
 	!balance_entries(Static_Data, Sr),
 	!other_reports2('final_', Static_Data, Sr),
@@ -89,8 +94,7 @@ balance_entries(
 		Static_Data.report_currency,
 		Static_Data.end_date,
 		Static_Data.end_date,
-		Trial_Balance
-	)),
+		Trial_Balance)),
 	!cf(balance_sheet_at(Static_Data, Balance_Sheet)),
 	!cf(balance_sheet_delta(Static_Data, Balance_Sheet_delta)),
 	!cf(balance_sheet_at(Static_Data_Historical, Balance_Sheet2_Historical)),

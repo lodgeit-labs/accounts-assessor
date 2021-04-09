@@ -45,7 +45,7 @@ balance_by_account(Exchange_Rates, Transactions_By_Account, Report_Currency, Exc
 
 account_own_transactions_sum(Exchange_Rates, Exchange_Date, Report_Currency, Account, Date, Transactions_By_Account, Sum, Transactions_Count) :-
 	add_days(Date,1,Date2),
-	transactions_by_account(Transactions_By_Account, Account, Account_Transactions)
+	transactions_by_account(Transactions_By_Account, Account, Account_Transactions),
 	findall(
 		Transaction,
 		(
@@ -107,7 +107,7 @@ balance(Static_Data, Account_Id, Date, Balance, Transactions_Count) :-
 	/* TODO use transactions_in_account_set here */
 
 	/* compute own balance */
-	transactions_by_account(Transactions_By_Account, Account_Id, Account_Transactions)
+	transactions_by_account(Transactions_By_Account, Account_Id, Account_Transactions),
 	%format('~w transactions ~p~n:',[Account_Id, Account_Transactions]),
 	transactions_before(Account_Transactions,Date2,Filtered_Transactions),
 	/* TODO should take total count including sub-accounts, probably */

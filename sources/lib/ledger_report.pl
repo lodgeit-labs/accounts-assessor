@@ -95,12 +95,22 @@ profitandloss_between(Static_Data, [ProftAndLoss]) :-
 
 
 
-'with current and historical earnings equity balances'(Txs_by_acct,Start_Date,End_Date,Txs_by_acct2) :-
+'with current and historical earnings equity balances'(
+	Txs_by_acct,
+	Start_Date,
+	End_Date,
+	Txs_by_acct2
+) :-
+
+	/* add past comprehensive income to Historical_Earnings */
 
 	transactions_before_day_on_account_and_subaccounts(Txs_by_acct, $>abrlt('Comprehensive_Income'), Start_Date, Historical_Earnings_Transactions),
 	transactions_before_day_on_account_and_subaccounts(Txs_by_acct, $>abrlt('Historical_Earnings'), Start_Date, Historical_Earnings_Transactions2),
 	append(Historical_Earnings_Transactions, Historical_Earnings_Transactions2, Historical_Earnings_Transactions_All),
-	Dict2 = Txs_by_acct.put($>abrlt('Historical_Earnings'), Historical_Earnings_Transactions_All),
+	Txs_by_acct1 = Txs_by_acct.put($>abrlt('Historical_Earnings'), Historical_Earnings_Transactions_All),
+
+	/* copy current Comprehensive_Income txs into Current_Earnings */
+
 	transactions_in_period_on_account_and_subaccounts(Txs_by_acct, $>abrlt('Comprehensive_Income'), Start_Date, End_Date, Current_Earnings_Transactions),
-	Txs_by_acct2 = Dict2.put($>abrlt('Current_Earnings'), Current_Earnings_Transactions).
+	Txs_by_acct2 = Txs_by_acct1.put($>abrlt('Current_Earnings'), Current_Earnings_Transactions).
 
