@@ -5,7 +5,6 @@ services:
 
   caddy:
     image: caddy:2.3.0-alpine
-    restart: unless-stopped
     networks:
       - frontend
     ports:
@@ -37,6 +36,8 @@ services:
     ports:
       - 88${PP}:80 # limit to 127.0.0.1 ?
     #  - 443${PP}:443
+
+
 
   frontend-server:
     image: koo5/frontend-server${PP}:latest
