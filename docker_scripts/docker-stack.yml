@@ -2,6 +2,74 @@ version: '3.7'
 
 services:
 
+
+  caddy:
+    image: caddy:2.3.0-alpine
+    restart: unless-stopped
+    networks:
+      - frontend
+    ports:
+      - "80${PP}:80"
+      - "443${PP}:443"
+    volumes:
+      - ./caddy/Caddyfile:/etc/caddy/Caddyfile
+      - ./caddy/site:/srv
+      - caddy_data:/data
+      - caddy_config:/config
+
+
+
+  apache:
+    image: koo5/apache${PP}:latest
+    networks:
+      - frontend
+    deploy:
+      replicas: 1
+      update_config:
+        parallelism: 2
+        delay: 10s
+      restart_policy:
+        condition: any
+    volumes:
+      - "/etc/localtime:/etc/localtime:ro"
+      - tmp:/usr/local/apache2/htdocs/tmp/
+      - ./../sources/static/:/usr/local/apache2/htdocs/static/
+    ports:
+      - 88${PP}:80 # limit to 127.0.0.1 ?
+    #  - 443${PP}:443
+
+  frontend-server:
+    image: koo5/frontend-server${PP}:latest
+    environment:
+      DJANGO_ARGS: "${DJANGO_ARGS}"
+      SECRET__INTERNAL_SERVICES_SERVER_URL: "http://internal-services:17788"
+      SECRET__CELERY_BROKER_URL: "amqp://guest:guest@rabbitmq:5672//"
+    volumes:
+      - tmp:/app/server_root/tmp
+      - "/etc/localtime:/etc/localtime:ro"
+    networks:
+      - backend
+      - frontend
+    depends_on:
+      - rabbitmq
+      - internal-services
+      - internal-workers
+    deploy:
+      placement:
+        constraints: [node.role == manager]
+      restart_policy:
+        condition: any
+    #ports:
+    #  - 77${PP}:7788
+    secrets:
+      - DJANGO_SECRET_KEY
+      - AGRAPH_SECRET_HOST
+      - AGRAPH_SECRET_PORT
+      - AGRAPH_SUPER_USER
+      - AGRAPH_SUPER_PASSWORD
+      
+
+
   agraph:
     #finishme: use low-memory configuration 
     image: koo5/agraph${PP}:latest
@@ -25,17 +93,13 @@ services:
       - "/etc/localtime:/etc/localtime:ro"
       - "agdata:/agraph/data"
       - "agconfig:/agraph/etc"
-
-
       - type: tmpfs
         target: /dev/shm
         tmpfs:
            size: 2096000000
     #shm_size: "1G"
-
-
-    ports:
-      - 100${PP}:10035
+    #ports:
+      #- 100${PP}:10035
 
   rabbitmq:
     image: rabbitmq:3.8.3
@@ -50,93 +114,6 @@ services:
         condition: any
     volumes:
       - "/etc/localtime:/etc/localtime:ro"
-
-  flower:
-    image: koo5/flower${PP}:latest
-    networks:
-      - backend
-    deploy:
-      replicas: 1
-      update_config:
-        parallelism: 2
-        delay: 10s
-      restart_policy:
-        condition: any
-    volumes:
-      - "/etc/localtime:/etc/localtime:ro"
-    ports:
-      - 55${PP}:5555
-
-  apache:
-    image: koo5/apache${PP}:latest
-    networks:
-      - frontend
-    deploy:
-      replicas: 1
-      update_config:
-        parallelism: 2
-        delay: 10s
-      restart_policy:
-        condition: any
-    volumes:
-      - "/etc/localtime:/etc/localtime:ro"
-      - tmp:/usr/local/apache2/htdocs/tmp/
-      - ./../sources/static/:/usr/local/apache2/htdocs/static/
-    ports:
-      - 80${PP}:80 # limit to 127.0.0.1 ?
-      - 443${PP}:443
-
-  frontend-server:
-    image: koo5/frontend-server${PP}:latest
-    environment:
-      DJANGO_ARGS: "${DJANGO_ARGS}"
-      SECRET__INTERNAL_SERVICES_SERVER_URL: "http://internal-services:17788"
-      SECRET__CELERY_BROKER_URL: "amqp://guest:guest@rabbitmq:5672//"
-    volumes:
-      - tmp:/app/server_root/tmp
-      - "/etc/localtime:/etc/localtime:ro"
-    networks:
-      - backend
-      - frontend
-    depends_on:
-      - rabbitmq
-      - internal-services
-      - internal-workers
-    deploy:
-      placement:
-        constraints: [node.role == manager]
-      restart_policy:
-        condition: any
-    ports:
-      - 77${PP}:7788
-    secrets:
-      - DJANGO_SECRET_KEY
-      - AGRAPH_SECRET_HOST
-      - AGRAPH_SECRET_PORT
-      - AGRAPH_SUPER_USER
-      - AGRAPH_SUPER_PASSWORD
-      
-
-  internal-services:
-    image: koo5/internal-services${PP}:latest
-    environment:
-      DJANGO_ARGS: "${DJANGO_ARGS}"
-    volumes:
-      - tmp:/app/server_root/tmp
-      - "/etc/localtime:/etc/localtime:ro"
-    networks:
-      - backend
-    depends_on:
-      - rabbitmq
-    deploy:
-      replicas: 1
-      update_config:
-        parallelism: 2
-        delay: 10s
-      placement:
-        constraints: [node.role == manager]
-      restart_policy:
-        condition: any
 
 
   internal-workers:
@@ -175,6 +152,49 @@ services:
     ports:
       - 123${PP}:1234
 
+
+
+  internal-services:
+    image: koo5/internal-services${PP}:latest
+    environment:
+      DJANGO_ARGS: "${DJANGO_ARGS}"
+    volumes:
+      - tmp:/app/server_root/tmp
+      - "/etc/localtime:/etc/localtime:ro"
+    networks:
+      - backend
+    depends_on:
+      - rabbitmq
+    deploy:
+      replicas: 1
+      update_config:
+        parallelism: 2
+        delay: 10s
+      placement:
+        constraints: [node.role == manager]
+      restart_policy:
+        condition: any
+
+
+
+  flower:
+    image: koo5/flower${PP}:latest
+    networks:
+      - backend
+    deploy:
+      replicas: 1
+      update_config:
+        parallelism: 2
+        delay: 10s
+      restart_policy:
+        condition: any
+    volumes:
+      - "/etc/localtime:/etc/localtime:ro"
+    ports:
+      - 55${PP}:5555
+
+
+
 networks:
   frontend:
   backend:
@@ -189,4 +209,6 @@ volumes:
   cache:
   agdata:
   agconfig:
- 
+  caddy_data:
+  caddy_config:
+

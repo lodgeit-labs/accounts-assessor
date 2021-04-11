@@ -67,6 +67,7 @@
 create_reports(State) :-
 	!static_data_from_state(State, Static_Data0),
 
+	gtrace,
 	!'with current and historical earnings equity balances'(
 		Static_Data0.transactions_by_account,
 		Static_Data0.start_date,

@@ -17,7 +17,12 @@ from copy import deepcopy
 @click.option('-hn', '--use_host_network', type=bool, default=False, help="tell docker to attach the containers to host network, rather than creating one?")
 @click.option('-ms', '--mount_host_sources_dir', type=bool, default=False, help="bind-mount sources, instead of copying them into the image? Useful for development.")
 @click.option('-nr', '--django_noreload', type=bool, default=False, help="--noreload. Disables python source file watcher-reloader (to save CPU). Prolog code is still reloaded on every server invocation (even when not bind-mounted...)")
-def run(port_postfix, **choices):
+@click.option('-ph', '--public_host', type=str, default='localhost', help="The public-facing hostname. Used for Caddy.")
+def run(port_postfix, public_host, **choices):
+
+	# caddy is just gonna listen on 80 and 443 always.
+	generate_caddy_config(public_host)
+
 
 	pp = port_postfix
 
@@ -46,7 +51,22 @@ def run(port_postfix, **choices):
 	shell('./deploy_stack.sh "'+pp+'" ' + stack_fn + ' ' + django_args)
 	shell('docker stack ps robust'+pp + ' --no-trunc')
 	shell('./follow_logs_noagraph.sh '+pp)
+
+
+def generate_caddy_config(public_host):
+	cfg = f'''
+	{{
+		debug
+	}}
+
+	{public_host}
+
+	reverse_proxy apache
+	'''
 	
+	with open('../sources/caddy/Caddyfile', 'w') as f:
+		f.write(cfg)    
+
 
 def generate_stack_file(choices):
 	with open('docker-stack.yml') as file_in:

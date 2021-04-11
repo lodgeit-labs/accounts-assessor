@@ -34,8 +34,6 @@ services:
     networks:
     - backend
     - frontend
-    ports:
-    - 100${PP}:10035
     secrets:
     - AGRAPH_SUPER_USER
     - AGRAPH_SUPER_PASSWORD
@@ -59,12 +57,24 @@ services:
     networks:
     - frontend
     ports:
-    - 80${PP}:80
-    - 443${PP}:443
+    - 88${PP}:80
     volumes:
     - /etc/localtime:/etc/localtime:ro
     - tmp:/usr/local/apache2/htdocs/tmp/
     - ./../sources/static/:/usr/local/apache2/htdocs/static/
+  caddy:
+    image: caddy:2.3.0-alpine
+    networks:
+    - frontend
+    ports:
+    - 80${PP}:80
+    - 443${PP}:443
+    restart: unless-stopped
+    volumes:
+    - ./caddy/Caddyfile:/etc/caddy/Caddyfile
+    - ./caddy/site:/srv
+    - caddy_data:/data
+    - caddy_config:/config
   flower:
     deploy:
       replicas: 1
@@ -99,8 +109,6 @@ services:
     networks:
     - backend
     - frontend
-    ports:
-    - 77${PP}:7788
     secrets:
     - DJANGO_SECRET_KEY
     - AGRAPH_SECRET_HOST
@@ -187,4 +195,6 @@ volumes:
   agconfig: null
   agdata: null
   cache: null
+  caddy_config: null
+  caddy_data: null
   tmp: null
