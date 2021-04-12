@@ -101,6 +101,7 @@ profitandloss_between(Static_Data, [ProftAndLoss]) :-
 	End_Date,
 	Txs_by_acct2
 ) :-
+	gtrace,
 
 	/* add past comprehensive income to Historical_Earnings */
 

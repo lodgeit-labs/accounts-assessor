@@ -83,7 +83,6 @@ RUN pip3 install --no-cache-dir -r requirements.txt
 COPY init_prolog.sh .
 RUN ./init_prolog.sh
 
-
 RUN mkdir -p /app/server_root
 #RUN chown user:user /app/server_root
 VOLUME /app/server_root
@@ -96,7 +95,6 @@ VOLUME /root/.config/swi-prolog/xpce/
 ENV PYTHONUNBUFFERED true
 ENV CELERY_QUEUE_NAME=q7788
 ENV DETERMINANCY_CHECKER__USE__ENFORCER=true
-
 
 ENTRYPOINT ["./start.sh"]
 CMD ["-n", "worker7788", "--loglevel=INFO"]

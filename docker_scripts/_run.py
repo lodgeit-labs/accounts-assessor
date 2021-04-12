@@ -57,6 +57,14 @@ def generate_caddy_config(public_host):
 	cfg = f'''
 	{{
 		debug
+		#auto_https off
+
+		http_port  80
+		https_port 443 
+		
+		#admin 127.0.0.1:2019 {{
+		#	origins 127.0.0.1
+		#}}
 	}}
 
 	{public_host}

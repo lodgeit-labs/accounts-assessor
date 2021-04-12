@@ -10,9 +10,8 @@ from fs_utils import command_nice, flatten_lists
 
 
 import celery
-celery_app = celery.Celery()
 import celeryconfig
-celery_app.config_from_object(celeryconfig)
+celery_app = celery.Celery(config_source = celeryconfig)
 
 
 
@@ -153,7 +152,6 @@ def call_prolog(
 			if msg['method'] == "calculator":
 				print('postprocess_doc...')
 				celery_app.signature('internal_workers.postprocess_doc').apply_async(args=(result_tmp_path,))
-				#internal_workers.postprocess_doc.apply_async((result_tmp_path,))
 				print('postprocess_doc..')
 			return msg['params']['result_tmp_directory_name'], rrr
 		except json.decoder.JSONDecodeError as e:

@@ -7,3 +7,6 @@
 [submodule "sources/depr"]
 	path = sources/depr
 	url = git@github.com:lodgeit-labs/Depreciation.git
+[submodule "sources/wait-for-it"]
+	path = sources/wait-for-it
+	url = https://github.com/vishnubob/wait-for-it.git

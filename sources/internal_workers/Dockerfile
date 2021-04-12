@@ -1,5 +1,6 @@
 FROM koo5/internal-workers${PP}:latest
 
+COPY wait-for-it /app/sources/wait-for-it
 COPY static /app/sources/static
 COPY internal_workers /app/sources/internal_workers
 COPY triplestore_access /app/sources/triplestore_access

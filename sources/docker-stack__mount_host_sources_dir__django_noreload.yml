@@ -50,9 +50,6 @@ services:
       replicas: 1
       restart_policy:
         condition: any
-      update_config:
-        delay: 10s
-        parallelism: 2
     image: koo5/apache${PP}:latest
     networks:
     - frontend
@@ -67,12 +64,10 @@ services:
     networks:
     - frontend
     ports:
-    - 80${PP}:80
-    - 443${PP}:443
-    restart: unless-stopped
+    - 80:80
+    - 443:443
     volumes:
     - ./caddy/Caddyfile:/etc/caddy/Caddyfile
-    - ./caddy/site:/srv
     - caddy_data:/data
     - caddy_config:/config
   flower:
@@ -152,9 +147,6 @@ services:
       replicas: 1
       restart_policy:
         condition: any
-      update_config:
-        delay: 10s
-        parallelism: 2
     environment:
       DETERMINANCY_CHECKER__USE__ENFORCER: 'true'
       DISPLAY: ${DISPLAY}
@@ -190,6 +182,14 @@ services:
     - backend
     volumes:
     - /etc/localtime:/etc/localtime:ro
+  redis:
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+    image: redis:alpine
+    networks:
+    - backend
 version: '3.7'
 volumes:
   agconfig: null

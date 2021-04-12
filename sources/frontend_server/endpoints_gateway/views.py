@@ -13,9 +13,8 @@ import json
 
 
 import celery
-celery_app = celery.Celery()
 import celeryconfig
-celery_app.config_from_object(celeryconfig)
+celery_app = celery.Celery(config_source = celeryconfig)
 
 
 from django.conf import settings
@@ -48,7 +47,8 @@ def rdf_templates(request):
 @csrf_exempt
 def upload(request):
 	rrr = request._current_scheme_host.split(':')
-	server_url = rrr[0] + ':' + rrr[1] + ':80' + rrr[2][-2:]
+	#server_url = rrr[0] + ':' + rrr[1] + ':80' + rrr[2][-2:]
+	server_url = request._current_scheme_host
 	params = QueryDict(mutable=True)
 	params.update(request.POST)
 	params.update(request.GET)
