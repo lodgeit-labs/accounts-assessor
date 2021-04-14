@@ -101,9 +101,7 @@ balance_by_account2(Sd, Report_Currency, Date, Account, balance(Balance, Tx_Coun
 	End_Date,
 	Txs_by_acct2
 ) :-
-
 	add_days(Start_Date, -1, Before_Start),
-
 	/* add past comprehensive income to Historical_Earnings */
 
 	transactions_before_day_on_account_and_subaccounts(Txs_by_acct, $>abrlt('Comprehensive_Income'), Start_Date, Historical_Earnings_Transactions),

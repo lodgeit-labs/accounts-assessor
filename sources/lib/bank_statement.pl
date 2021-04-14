@@ -30,16 +30,16 @@ call preprocess_s_transaction on each item of the S_Transactions list and do som
 		),
 		E,
 		(
-			Err = E,
-			/* watch out: this re-establishes doc to the state it was before the exception */
+		/* watch out: this re-establishes doc to the state it was before the exception */
 			!handle_processing_exception(E)
 		)
 	),
 
 	pop_context,
 
-	(	var(Err)
-	->	(	% recurse
+	(	var(E)
+	->	(
+			% recurse
 			!preprocess_s_transactions(
 				S_Transactions,
 				Processed_S_Transactions_Tail,
@@ -48,7 +48,8 @@ call preprocess_s_transaction on each item of the S_Transactions list and do som
 				Outstanding_Out
 			)
 		)
-	;	(	% give up
+	;	(
+			% give up
 			Outstanding_In = Outstanding_Out,
 			Transactions_Out = [],
 			Processed_S_Transactions = []
@@ -66,68 +67,41 @@ call preprocess_s_transaction on each item of the S_Transactions list and do som
 	Transactions_Out
 ) :-
 	check_that_s_transaction_account_exists(S_Transaction),
-
 	s_transaction_type_id(S_Transaction, uri(Action_Verb)),
-
 	(	doc(Action_Verb, l:has_counteraccount, Exchanged_Account_Ui)
 	->	true
 	;	Exchanged_Account_Ui = ''),
 	(	doc(Action_Verb, l:has_trading_account, Trading_Account_Ui)
 	->	true
 	;	Trading_Account_Ui = ''),
-
 	push_format(
 		'using action verb ~q:~n  exchanged account: ~q~n  trading account: ~q~n', [
 			$>doc(Action_Verb, l:has_id),
 			Exchanged_Account_Ui,
-			Trading_Account_Ui]),
-
+			Trading_Account_Ui]
+	),
 	!preprocess_s_transaction(
 		S_Transaction,
 		Transactions0,
 		Outstanding_In,
 		Outstanding_Mid),
-
-	clean_up_resulting_transactions(
-		Transactions0,
-		Transactions_Result),
-
+	clean_up_txset(Transactions0, Transactions_Result),
 	Transactions_Out = [Transactions_Result|Transactions_Out_Tail],
 	Processed_S_Transactions = [S_Transaction|Processed_S_Transactions_Tail],
-
-	cf(check_trial_balance_at_date_of_last_transaction_in_list(
-		Transactions_Result,
-		$>result_property(l:report_currency),
-		$>result_property(l:exchange_rates),
-		$>result_property(l:end_date))),
-
+	cf(check_txset(Transactions_Result)),
 	pop_context.
 
 
- clean_up_resulting_transactions(Transactions0, Transactions_Result) :-
+ clean_up_txset(Transactions0, Transactions_Result) :-
 	flatten(Transactions0, Transactions1),
 	exclude(var, Transactions1, Transactions2),
 	exclude(has_empty_vector, Transactions2, Transactions_Result).
 
 
- check_trial_balance_at_date_of_last_transaction_in_list(
- 	Transactions_Result,
- 	Report_Currency,
- 	Exchange_Rates,
- 	End_Date
-) :-
-	Transactions_Result = [T|_],
-	transaction_day(T, Transaction_Date),
-	/* we cannot compare values if we can't convert them to same currency first */
-	(	Report_Currency = []
-	->	true
-	;	check_trial_balance0(Exchange_Rates, Report_Currency, Transaction_Date, Transactions_Result,  End_Date)).
-
 
 /*
-take a statement/source transaction term and decompose it into a list of plain transaction terms.
+take statement/source transaction and generate a list of plain transactios.
 */
-
  preprocess_s_transaction(
 	S_Transaction,
 	Transactions,
@@ -529,62 +503,17 @@ take a statement/source transaction term and decompose it into a list of plain t
 		Since
 	).
 
- transactions_trial_balance(Exchange_Rates, Report_Currency, Date, Transactions, Vector_Converted) :-
-	maplist(transaction_vector, Transactions, Vectors_Nested),
-	flatten(Vectors_Nested, Vector),
-	vec_change_bases(Exchange_Rates, Date, Report_Currency, Vector, Vector_Converted).
 
  is_livestock_transaction(X) :-
 	transaction_description(X, Desc),
-	(
-		Desc = 'livestock sell'
-	; 
-		Desc = 'livestock buy'
-	).
+	(	Desc = 'livestock sell'
+	; 	Desc = 'livestock buy').
 
- check_trial_balance(Exchange_Rates, Report_Currency, Date, Transactions) :-
-	!check_trial_balance(Exchange_Rates, Report_Currency, Date, '', Transactions).
 
- check_trial_balance(Exchange_Rates, Report_Currency, Date, Desc, Transactions) :-
-	/*
-	writeln("Check Trial Balance: xxxxxxxxxx"),
-	writeln(Exchange_Rates),
-	writeln(Transactions),
-	maplist(transaction_description,Transactions, Transaction_Descriptions),
-	writeln(Transaction_Descriptions),
-	*/
-	exclude(
-		is_livestock_transaction,
-		Transactions,
-		Transactions_Without_Livestock
-	),
-	transactions_trial_balance(Exchange_Rates, Report_Currency, Date, Transactions_Without_Livestock, Total),
-	(
-		Total = []
-	->
-		true
-	;
-		(
-			maplist(coord_is_almost_zero, Total)
-		->
-			true
-		;
-			(
-				format_balances(error_msg, Report_Currency, unused, unused, kb:debit, Total, Vecs_text_list),
-				atomics_to_string(Vecs_text_list, ' ', Vecs_text),
-				add_alert('SYSTEM_WARNING', $>format(string(<$), '~w: trial balance at ~w is ~w\n', [Desc, Date, Vecs_text]))
-			)
-		)
-	).
-
-	
 % throw an error if the account is not found in the hierarchy
  check_that_s_transaction_account_exists(S_Transaction) :-
 	!s_transaction_account(S_Transaction, uri(Account)),
 	!doc(Account, rdf:type, l:account, accounts).
-
-
-
 
 
  fill_in_missing_units(_,_, [], _, _, []).
@@ -658,13 +587,4 @@ take a statement/source transaction term and decompose it into a list of plain t
 	atomic_list_concat(['  ', Side, ':', Shorthand, ':', Coord_Str0, '\n'], Coord_Str),
 	pretty_vector_string(Seen_Units1, Seen_Units_Out, Rest, Rest_Str),
 	atomic_list_concat([Coord_Str, Rest_Str], Vector_Str).
-
-
-
-
-
- check_trial_balance0(Exchange_Rates, Report_Currency, Transaction_Date, Transactions_Out, End_Date) :-
-	check_trial_balance(Exchange_Rates, Report_Currency, Transaction_Date, Transactions_Out),
-	check_trial_balance(Exchange_Rates, Report_Currency, End_Date, Transactions_Out).
-
 

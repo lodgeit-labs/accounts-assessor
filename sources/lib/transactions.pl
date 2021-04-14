@@ -172,3 +172,9 @@ make_dr_cr_transactions(
 has_empty_vector(T) :-
 	transaction_vector(T, []).
 
+
+ transactions_report_currency_sum_at_(Exchange_Rates, Report_Currency, Date, Transactions, Vector_Converted) :-
+	maplist(transaction_vector, Transactions, Vectors_Nested),
+	flatten(Vectors_Nested, Vector),
+	vec_change_bases(Exchange_Rates, Date, Report_Currency, Vector, Vector_Converted).
+

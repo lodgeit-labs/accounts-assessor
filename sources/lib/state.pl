@@ -71,7 +71,8 @@ handle_op(S0,append,Field,Tail,S2) :-
 			op(l:has_transactions,append,Transactions),
 			op(l:has_outstanding,set,Outstanding_new)
 		],
-		S2).
+		S2
+	).
 
 
  handle_txs(S0, Txs0, S2) :-

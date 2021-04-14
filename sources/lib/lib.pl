@@ -76,4 +76,5 @@
 :- [tables].
 :- [trading].
 :- [transactions].
+:- [trial_balance].
 % :- ['../misc/chr_hp'].

@@ -7,7 +7,7 @@
 
 	push_context('phase:'),
  	initial_state(S0),
-	%gtrace,
+
 	ct('automated: post bank opening balances',
 		once((generate_bank_opening_balances_sts(Bank_Lump_STs),
 		'ensure system accounts exist 0'(Bank_Lump_STs),
@@ -22,7 +22,8 @@
 			smsf_rollover0(S4, S6))
 	;	S4 = S6),
 
- 	cf('phase: main'(S6, S8)),
+ 	cf('phase: main 1'(S6, S7)),
+ 	cf('phase: main 2'(S7, S8)),
 
 	(	account_by_role(rl(smsf_equity), _)
 	->	(	!cf(smsf_distributions_reports(_)),
@@ -32,41 +33,24 @@
 	once(!cf(create_reports(S10))),
 	true.
 
-
-
- 'phase: main'(S0, S4) :-
-	% a bunch of ST's.
-	!cf(handle_additional_files(Txs0)),
-
-	!cf('extract bank statement transactions'(Txs1)),
-	!cf(extract_action_inputs(_, Txs2)),
+ 'phase: main 1'(S0, S2) :-
+	!cf(handle_additional_files(Sts0)),
+	!cf('extract bank statement transactions'(Sts1)),
+	!cf(extract_action_inputs(_, Sts2)),
 	%$>!cf(extract_livestock_data_from_ledger_request(Dom))
+ 	handle_sts(S0, [Sts0, Sts1, Sts2], S2),
+ 	!cf('ensure system accounts exist 0'(Sts3)).
 
-	flatten([Txs0, Txs1, Txs2], Sts0),
-
- 	handle_sts(S0, Sts0, S2),
- 	!cf('ensure system accounts exist 0'(Sts0)),
-
+'phase: main 2'(S2, S4) :-
 	!cf(extract_gl_inputs(_, Txs7)),
 	!cf(extract_reallocations(_, Txs8)),
 	!cf(extract_smsf_distribution(S2, Txs9)),
-
-	Txs10 = [
-		Txs7,
-		Txs8,
-		Txs9
-	],
-	%gtrace,
-	handle_txs(S2, Txs10, S4),
-
+	handle_txs(S2, [Txs7, Txs8, Txs9], S4),
 	%!cf(process_livestock((Processed_S_Transactions, Transactions1), Livestock_Transactions)),
-
 	true.
-
 
  create_reports(State) :-
 	!static_data_from_state(State, Static_Data0),
-
 	!'with current and historical earnings equity balances'(
 		Static_Data0.transactions_by_account,
 		Static_Data0.start_date,
