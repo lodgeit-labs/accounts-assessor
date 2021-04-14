@@ -78,6 +78,9 @@ crosschecks_report(Sd, Json) :-
 			account_balance(reports/bs/current, rl('Financial_Investments'/_)),
 			report_value(reports/ir/current/totals/closing/total_cost_converted)),
 		equality(
+			account_balance(reports/bs/current, rl('Current_Earnings')),
+			account_balance(reports/pl/current, rl('Comprehensive_Income'))),
+		equality(
 			account_balance(reports/bs/current, rl('Historical_Earnings')),
 			account_balance(reports/pl/historical, rl('Comprehensive_Income')))
 	],

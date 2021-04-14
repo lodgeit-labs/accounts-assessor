@@ -101,17 +101,52 @@ profitandloss_between(Static_Data, [ProftAndLoss]) :-
 	End_Date,
 	Txs_by_acct2
 ) :-
-	gtrace,
 
 	/* add past comprehensive income to Historical_Earnings */
 
 	transactions_before_day_on_account_and_subaccounts(Txs_by_acct, $>abrlt('Comprehensive_Income'), Start_Date, Historical_Earnings_Transactions),
 	transactions_before_day_on_account_and_subaccounts(Txs_by_acct, $>abrlt('Historical_Earnings'), Start_Date, Historical_Earnings_Transactions2),
 	append(Historical_Earnings_Transactions, Historical_Earnings_Transactions2, Historical_Earnings_Transactions_All),
-	Txs_by_acct1 = Txs_by_acct.put($>abrlt('Historical_Earnings'), Historical_Earnings_Transactions_All),
+	txs_vec_converted_sum(
+		$>result_property(l:start_date),
+		Historical_Earnings_Transactions_All,
+		Historical_Earnings_Transactions_All_Balance),
+	Txs_by_acct1 = Txs_by_acct.put(
+		$>abrlt('Historical_Earnings'),
+		[$>make_transaction(
+			closing_books,
+			$>result_property(l:end_date),
+			closing_books,
+			$>abrlt('Historical_Earnings'),
+			Historical_Earnings_Transactions_All_Balance)]
+	),
 
 	/* copy current Comprehensive_Income txs into Current_Earnings */
 
 	transactions_in_period_on_account_and_subaccounts(Txs_by_acct, $>abrlt('Comprehensive_Income'), Start_Date, End_Date, Current_Earnings_Transactions),
-	Txs_by_acct2 = Txs_by_acct1.put($>abrlt('Current_Earnings'), Current_Earnings_Transactions).
+	txs_vec_converted_sum(
+		$>result_property(l:end_date),
+		Current_Earnings_Transactions,
+		Current_Earnings_Transactions_Balance),
 
+	Txs_by_acct2 = Txs_by_acct1.put(
+		$>abrlt('Current_Earnings'),
+		[$>make_transaction(
+			closing_books,
+			$>result_property(l:end_date),
+			closing_books,
+			$>abrlt('Current_Earnings'),
+			Current_Earnings_Transactions_Balance)]
+	).
+
+txs_vec_converted_sum(Exchange_Date, Transactions, Balance) :-
+	txs_vec_converted_sum2(
+		$>result_property(l:exchange_rates),
+		Exchange_Date,
+		$>result_property(l:report_currency),
+		Transactions,
+		Balance).
+
+txs_vec_converted_sum2(Exchange_Rates, Exchange_Date, Report_Currency, Transactions, Balance) :-
+	transaction_vectors_total(Transactions, Totals),
+	vec_change_bases(Exchange_Rates, Exchange_Date, Report_Currency, Totals, Balance).

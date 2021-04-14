@@ -34,7 +34,7 @@
 
 
 
-'phase: main'(S0, S4) :-
+ 'phase: main'(S0, S4) :-
 	% a bunch of ST's.
 	!cf(handle_additional_files(Txs0)),
 
@@ -64,7 +64,7 @@
 	true.
 
 
-create_reports(State) :-
+ create_reports(State) :-
 	!static_data_from_state(State, Static_Data0),
 
 	!'with current and historical earnings equity balances'(
@@ -117,7 +117,7 @@ balance_entries(
 	}.
 
 
-static_data_historical(Static_Data, Static_Data_Historical) :-
+ static_data_historical(Static_Data, Static_Data_Historical) :-
 	add_days(Static_Data.start_date, -1, Before_Start),
 	Static_Data_Historical = Static_Data.put(
 		start_date, date(1,1,1)).put(

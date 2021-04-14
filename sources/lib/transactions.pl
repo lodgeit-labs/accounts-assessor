@@ -148,7 +148,8 @@ make_dr_cr_transactions(
  transactions_by_account(Transactions_By_Account, Account_Id, Account_Transactions) :-
 	(	Account_Transactions = Transactions_By_Account.get(Account_Id)
 	->	true
-	;	Account_Transactions = []).
+	;	Account_Transactions = []),
+	assertion(is_list(Account_Transactions)).
 
 
  check_transaction_account(Transaction) :-
