@@ -32,7 +32,7 @@
 	set_report_entry_transaction_count(Entry, Transactions_Count),
 	set_report_entry_gl_account(Entry, Account_Id).
 
-activity_entry(Static_Data, Account_Id, Entry) :-
+ activity_entry(Static_Data, Account_Id, Entry) :-
 	account_direct_children(Account_Id, Child_accounts),
 	maplist(!activity_entry(Static_Data), Child_accounts,Child_Sheet_Entries),
 	net_activity_by_account(Static_Data, Account_Id, Net_Activity, Transactions_Count),
@@ -90,7 +90,7 @@ balance_by_account2(Sd, Report_Currency, Date, Account, balance(Balance, Tx_Coun
 
 
 
-profitandloss_between(Static_Data, [ProftAndLoss]) :-
+ profitandloss_between(Static_Data, [ProftAndLoss]) :-
 	!activity_entry(Static_Data, $>abrlt('Comprehensive_Income'), ProftAndLoss).
 
 
@@ -102,13 +102,15 @@ profitandloss_between(Static_Data, [ProftAndLoss]) :-
 	Txs_by_acct2
 ) :-
 
+	add_days(Start_Date, -1, Before_Start),
+
 	/* add past comprehensive income to Historical_Earnings */
 
 	transactions_before_day_on_account_and_subaccounts(Txs_by_acct, $>abrlt('Comprehensive_Income'), Start_Date, Historical_Earnings_Transactions),
 	transactions_before_day_on_account_and_subaccounts(Txs_by_acct, $>abrlt('Historical_Earnings'), Start_Date, Historical_Earnings_Transactions2),
 	append(Historical_Earnings_Transactions, Historical_Earnings_Transactions2, Historical_Earnings_Transactions_All),
 	txs_vec_converted_sum(
-		$>result_property(l:start_date),
+		Before_Start,
 		Historical_Earnings_Transactions_All,
 		Historical_Earnings_Transactions_All_Balance),
 	Txs_by_acct1 = Txs_by_acct.put(
