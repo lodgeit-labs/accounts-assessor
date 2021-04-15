@@ -21,12 +21,7 @@
 	!doc_list_items(List, Items),
 	!doc_value(Gl, excel:has_sheet_name, Sheet_name),
 	!extract_gl_tx(Sheet_name, Default_Currency, none, none, Items, Txs),
-	!check_trial_balance(
-		$>result_property(l:exchange_rates),
-		$>result_property(l:report_currency),
-		$>result_property(l:end_date),
-		Sheet_name,
-	Txs),
+	!check_txset(Txs),
 	pop_context.
 
  extract_action_input(Phase, Input, []) :-
@@ -165,12 +160,7 @@ extract_gl_tx(Sheet_name, Default_Currency, _, _, [Item|Items], [Tx1|Txs]) :-
 	!doc_value(Gl, reallocation:account_A_is, Account_A_is),
 	!doc(Account_A_is, reallocation:account_A_side, Side),
 	!extract_reallocation_tx(Account_A, Side, Sheet_name, Default_Currency, none, none, Items, Txs),
-	!check_trial_balance(
-		$>result_property(l:exchange_rates),
-		$>result_property(l:report_currency),
-		$>result_property(l:end_date),
-		Sheet_name,
-	Txs),
+	!check_txset(Txs),
 	pop_context.
 
 

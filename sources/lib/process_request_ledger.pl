@@ -38,7 +38,8 @@
 	!cf('extract bank statement transactions'(Sts1)),
 	!cf(extract_action_inputs(_, Sts2)),
 	%$>!cf(extract_livestock_data_from_ledger_request(Dom))
- 	handle_sts(S0, [Sts0, Sts1, Sts2], S2),
+	flatten([Sts0, Sts1, Sts2], Sts3),
+ 	handle_sts(S0, Sts3, S2),
  	!cf('ensure system accounts exist 0'(Sts3)).
 
 'phase: main 2'(S2, S4) :-
