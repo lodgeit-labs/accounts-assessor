@@ -46,7 +46,9 @@ process_request_rpc_calculator(Dict) :-
 	;	Request_Files2 = Request_Files),
 
 	set_server_public_url(Dict.server_url),
-	(Request_Files2 = [] -> throw_string('no request files.') ; true),
+	(	Request_Files2 = []
+	->	throw_string('no request files.')
+	;	true),
 	process_request([], Request_data_uri_base, Request_Files2).
 
 process_request(Options, Request_data_uri_base, File_Paths) :-
@@ -181,7 +183,7 @@ make_context_trace_report2((Depth, C),div(["-",Stars,Text])) :-
 
 
 make_doc_dump_report :-
-	save_doc.
+	save_doc(final).
 
 json_report_entries(Out) :-
 	findall(

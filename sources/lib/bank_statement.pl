@@ -124,7 +124,9 @@ take statement/source transaction and generate a list of plain transactios.
 	Transactions = [Ts1, Ts2, Ts3, Ts4],
 	s_transaction_exchanged(S_Transaction, vector(Counteraccount_Vector)),
 	/* is it time to introduce something like gtrace_on_user_error, and keep it off by default? */
-	( is_zero(Counteraccount_Vector) -> throw_string('exchanged 0 units?') ; true ),
+	(	is_zero(Counteraccount_Vector)
+	->	throw_string('exchanged 0 units?')
+	;	true),
 	s_transaction_vector(S_Transaction, Vector_Ours),
 	s_transaction_day(S_Transaction, Transaction_Date),
 	doc(Action_Verb, l:has_id, Action_Verb_Id),
