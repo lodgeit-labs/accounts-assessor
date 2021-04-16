@@ -263,7 +263,7 @@ cf_instant_tx_vector_conversion(Sd, Tx, Uri) :-
 	/*very crude metadata for now*/
 	doc_new_(rdf:value, Uri),
 	doc_add(Uri, rdf:value, Vec),
-	Source = vec_change_bases(Sd.exchange_rates, $>transaction_day(Tx), Sd.report_currency, $>transaction_vector(Tx), Vec),
+	Source =	vec_change_bases(Sd.exchange_rates, $>transaction_day(Tx), Sd.report_currency, $>transaction_vector(Tx), Vec),
 	call(Source),
 	doc_add(Uri, l:source, vec_change_bases).
 

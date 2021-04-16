@@ -551,9 +551,9 @@ take statement/source transaction and generate a list of plain transactios.
  pretty_transactions_string2(_, [], '').
  pretty_transactions_string2(Seen_Units0, [Transaction|Transactions], String) :-
 	transaction_day(Transaction, Date),
-	term_string(Date, Date_Str),
+	pretty_term_string($>round_term(Date), Date_Str),
 	transaction_description(Transaction, Description),
-	transaction_account(Transaction, Account),
+	account_name($>transaction_account(Transaction), Account),
 	transaction_vector(Transaction, Vector),
 	pretty_vector_string(Seen_Units0, Seen_Units1, Vector, Vector_Str),
 	atomic_list_concat([
@@ -585,7 +585,7 @@ take statement/source transaction and generate a list of plain transactios.
 			append(Seen_Units0, [Seen_Unit], Seen_Units1)
 		)
 	),
-	term_string(Coord, Coord_Str0),
+	term_string($>round_term(Coord), Coord_Str0),
 	atomic_list_concat(['  ', Side, ':', Shorthand, ':', Coord_Str0, '\n'], Coord_Str),
 	pretty_vector_string(Seen_Units1, Seen_Units_Out, Rest, Rest_Str),
 	atomic_list_concat([Coord_Str, Rest_Str], Vector_Str).

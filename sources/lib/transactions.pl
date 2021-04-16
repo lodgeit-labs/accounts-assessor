@@ -169,7 +169,7 @@ make_dr_cr_transactions(
 		)
 	).
 	
-has_empty_vector(T) :-
+ has_empty_vector(T) :-
 	transaction_vector(T, []).
 
 

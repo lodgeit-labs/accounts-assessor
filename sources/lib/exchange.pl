@@ -26,7 +26,7 @@ exchange_amount(Exchange_Rates, Day, [_ | Bases_Tl], Coord, Amount_Exchanged) :-
 /*vec_change_bases(_, _, _, [], []) :- !.*/
 
 
-/* vec_change_bases(Exchange_Rates, Day, Bases, As, Bs) :-
+/*vec_change_bases(Exchange_Rates, Day, Bases, As, Bs) :-
 	vec_change_bases(nothrow, Exchange_Rates, Day, Bases, As, Bs).
 */
  vec_change_bases(Exchange_Rates, Day, Bases, As, Bs) :-
