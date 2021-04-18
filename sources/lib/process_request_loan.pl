@@ -50,10 +50,9 @@ process_request_loan(Request_File, DOM) :-
 % -------------------------------------------------------------------
 
 display_xml_loan_response(IncomeYear,
-                    loan_summary(_Number, OpeningBalance, InterestRate, MinYearlyRepayment, TotalRepayment,
-			         RepaymentShortfall, TotalInterest, TotalPrincipal, ClosingBalance)) :-
-   % populate loan response xml
-   atomic_list_concat([
+	loan_summary(_Number, OpeningBalance, InterestRate, MinYearlyRepayment, TotalRepayment,RepaymentShortfall, TotalInterest, TotalPrincipal, ClosingBalance)) :-
+	% populate loan response xml
+	atomic_list_concat([
    '<LoanSummary xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="loan_response.xsd">\n',
    '<IncomeYear>', IncomeYear, '</IncomeYear>\n', 
    '<OpeningBalance>', OpeningBalance, '</OpeningBalance>\n', 
@@ -68,17 +67,17 @@ display_xml_loan_response(IncomeYear,
    LoanResponseXML
    ),
 
-   Response_Fn = loc(file_name, 'response.xml'),
-   absolute_tmp_path(Response_Fn, TempFileLoanResponseXML),
-   TempFileLoanResponseXML = loc(absolute_path, TempFileLoanResponseXML_Value),
-   % create a temporary loan xml file to validate the response against the schema
-   open(TempFileLoanResponseXML_Value, write, XMLStream),
-   write(XMLStream, LoanResponseXML),
-   close(XMLStream),
+	Response_Fn = loc(file_name, 'response.xml'),
+	absolute_tmp_path(Response_Fn, TempFileLoanResponseXML),
+	TempFileLoanResponseXML = loc(absolute_path, TempFileLoanResponseXML_Value),
+	% create a temporary loan xml file to validate the response against the schema
+	open(TempFileLoanResponseXML_Value, write, XMLStream),
+	write(XMLStream, LoanResponseXML),
+	close(XMLStream),
 
-   % read the schema file
+	% read the schema file
 	resolve_specifier(loc(specifier, my_schemas('responses/LoanResponse.xsd')), LoanResponseXSD),
-   % if the xml response is valid then reply the response, otherwise reply an error message
+	% if the xml response is valid then reply the response, otherwise reply an error message
 	(	validate_xml(TempFileLoanResponseXML, LoanResponseXSD, [])
 	->	add_result_file_by_path(TempFileLoanResponseXML)
 	;	add_alert(error, "Validation failed for xml loan response.")).
@@ -93,30 +92,31 @@ display_xml_loan_response(IncomeYear,
 % -------------------------------------------------------------------
 
 convert_xpath_results(CreationIncomeYear,  Term,  PrincipalAmount,  LodgementDate,  ComputationYear,  OpeningBalance,  LoanRepayments,
-		      NCreationIncomeYear, NTerm, NPrincipalAmount, NLodgementDate, NComputationYear, NOpeningBalance, NLoanRepayments) :-
-   generate_absolute_days(CreationIncomeYear, LodgementDate, LoanRepayments, NCreationIncomeYear, NLodgementDate, NLoanRepayments),
-   compute_opening_balance(OpeningBalance, NOpeningBalance),
-   calculate_computation_year(ComputationYear, CreationIncomeYear, NComputationYear),
-   (	nonvar(PrincipalAmount)
-   ->	atom_number(PrincipalAmount, NPrincipalAmount)
-   ;	NPrincipalAmount = -1),
-   atom_number(Term, NTerm).
+		      NCreationIncomeYear, NTerm, NPrincipalAmount, NLodgementDate, NComputationYear, NOpeningBalance, NLoanRepayments
+) :-
+	generate_absolute_days(CreationIncomeYear, LodgementDate, LoanRepayments, NCreationIncomeYear, NLodgementDate, NLoanRepayments),
+	compute_opening_balance(OpeningBalance, NOpeningBalance),
+	calculate_computation_year(ComputationYear, CreationIncomeYear, NComputationYear),
+	(	nonvar(PrincipalAmount)
+	->	atom_number(PrincipalAmount, NPrincipalAmount)
+	;	NPrincipalAmount = -1),
+	atom_number(Term, NTerm).
 
 generate_absolute_days(CreationIncomeYear, LodgementDate, LoanRepayments, NCreationIncomeYear, NLodgementDay, NLoanRepayments) :-
-   generate_absolute_day(creation_income_year, CreationIncomeYear, NCreationIncomeYear),
-   parse_date_into_absolute_days(LodgementDate, NLodgementDay),
-   generate_absolute_day(loan_repayments, LoanRepayments, NLoanRepayments).
+	generate_absolute_day(creation_income_year, CreationIncomeYear, NCreationIncomeYear),
+	parse_date_into_absolute_days(LodgementDate, NLodgementDay),
+	generate_absolute_day(loan_repayments, LoanRepayments, NLoanRepayments).
      
 generate_absolute_day(creation_income_year, CreationIncomeYear, NCreationIncomeYear) :-
-   atom_number(CreationIncomeYear, CreationIncomeYearNumber),
-   absolute_day(date(CreationIncomeYearNumber, 7, 1), NCreationIncomeYear).
+	atom_number(CreationIncomeYear, CreationIncomeYearNumber),
+	absolute_day(date(CreationIncomeYearNumber, 7, 1), NCreationIncomeYear).
 
 generate_absolute_day(loan_repayments, [], []).
 
 generate_absolute_day(loan_repayments, [loan_repayment(Date, Value)|Rest1], [loan_repayment(NDate, NValue)|Rest2]) :-
-   parse_date_into_absolute_days(Date, NDate),
-   atom_number(Value, NValue),
-   generate_absolute_day(loan_repayments, Rest1, Rest2).
+	parse_date_into_absolute_days(Date, NDate),
+	atom_number(Value, NValue),
+	generate_absolute_day(loan_repayments, Rest1, Rest2).
 	
 	
 % ----------------------------------------------------------------------
@@ -124,13 +124,9 @@ generate_absolute_day(loan_repayments, [loan_repayment(Date, Value)|Rest1], [loa
 % ----------------------------------------------------------------------
 
 compute_opening_balance(OpeningBalance, NOpeningBalance) :-
-   (
-     OpeningBalance = -1
-     ->
-     NOpeningBalance = false
-   ;
-     atom_number(OpeningBalance, NOpeningBalance)
-   ).
+	(	OpeningBalance = -1
+	->	NOpeningBalance = false
+	;	atom_number(OpeningBalance, NOpeningBalance)).
 
 % ----------------------------------------------------------------------
 % calculate_computation_year/3
@@ -140,6 +136,6 @@ compute_opening_balance(OpeningBalance, NOpeningBalance) :-
 % ----------------------------------------------------------------------
 
 calculate_computation_year(ComputationYear, CreationIncomeYear, NComputationYear) :-
-   atom_number(ComputationYear, NCY),
-   atom_number(CreationIncomeYear, NCIY),
-   NComputationYear is NCY - NCIY - 1.
+	atom_number(ComputationYear, NCY),
+	atom_number(CreationIncomeYear, NCIY),
+	NComputationYear is NCY - NCIY - 1.
