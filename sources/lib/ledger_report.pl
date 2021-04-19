@@ -145,8 +145,23 @@ txs_vec_converted_sum(Exchange_Date, Transactions, Balance) :-
 		Exchange_Date,
 		$>result_property(l:report_currency),
 		Transactions,
-		Balance).
+		Balance
+	),
+	(	vec_is_just_report_currency(Balance)
+	->	true
+	;	(
+			add_alert(
+				check,
+				$>format(string(<$),
+					'could not convert ~q to report currency at ~q',
+					[$>round_term(Balance),$>round_term(Exchange_Date)]
+				)
+			)
+		)
+	).
 
 txs_vec_converted_sum2(Exchange_Rates, Exchange_Date, Report_Currency, Transactions, Balance) :-
 	transaction_vectors_total(Transactions, Totals),
 	vec_change_bases(Exchange_Rates, Exchange_Date, Report_Currency, Totals, Balance).
+
+

@@ -1,23 +1,26 @@
 :- use_module(library(http/html_write)).
 
 /* write file and return Url */
- write_report_file(File_Name, Text, Url) :-
-	report_file_path(File_Name, Url, File_Path),
+ write_report_file(File_Name, Text, Url, Final_fn) :-
+	report_file_path(File_Name, Url, File_Path, Final_fn),
 	write_file(File_Path, Text).
 
  make_json_report(Dict, Fn) :-
+	make_json_report(Dict, Fn, _).
+
+ make_json_report(Dict, Fn, Final_fn) :-
 	catch_with_backtrace(
-		make_json_report2(Dict, Fn),
+		make_json_report2(Dict, Fn, Final_fn),
 		E,
 		add_alert('error', E)
 	).
 
- make_json_report2(Dict, Fn) :-
+ make_json_report2(Dict, Fn, Final_fn) :-
+	dict_json_text(Dict, Json_Text),
 	Title = Key, Fn = Key,
 	atomic_list_concat([Fn, '.json'], Fn2_Value),
 	Fn2 = loc(file_name, Fn2_Value),
-	dict_json_text(Dict, Json_Text),
-	write_report_file(Fn2, Json_Text, Report_File_URL),
+	write_report_file(Fn2, Json_Text, Report_File_URL, Final_fn),
 	add_report_file(-10, Key, Title, Report_File_URL).
 
  html_tokenlist_string(Tokenlist, String) :-
@@ -58,7 +61,7 @@
  add_report_page(Priority, Title, Page_Html, File_Name, Key) :-
 	phrase(Page_Html, Tokenlist),
 	html_tokenlist_string(Tokenlist, String),
-	write_report_file(File_Name, String, Url),
+	write_report_file(File_Name, String, Url, _),
 	add_report_file(Priority, Key, Title, Url).
 
  add_report_page_with_table(Priority, Title, Tbl, File_Name, Key) :-

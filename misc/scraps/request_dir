@@ -1,0 +1,44 @@
+%:- initialization(generate_unique_tmp_directory_prefix).
+
+/*
+  assert a base for tmp directory names that should be unique for each run of the server (current time)
+  det.
+*/
+/*generate_unique_tmp_directory_prefix :-
+   get_time(Current_Time),
+   %format("generate_unique_tmp_directory_prefix:get_time(~w)~n", [Current_Time]),
+   atomic_list_concat([Current_Time, '.'], Base),
+   %format("generate_unique_tmp_directory_prefix:atomic_list_concat(~w, ~w)~n", [[Current_Time, '.'], Base]),
+   asserta(session_tmp_directory_base(tmp_directory_name_prefix(Base))),
+   %format("generate_unique_tmp_directory_prefix:asserta(session_tmp_directory_base(tmp_directory_name_prefix(~w)))~n",[Base]).
+   true.
+*/
+/*
+  create a new unique directory under my_tmp
+*/
+/*bump_tmp_directory_id :-
+	generate_unique_tmp_directory_name(Dir_Name),
+	create_tmp_directory(Dir_Name).
+
+generate_unique_tmp_directory_name(Name) :-
+	Name = loc(tmp_directory_name, Dir),
+	session_tmp_directory_base(tmp_directory_name_prefix(Base)),
+	gensym(Base, Dir),
+	set_unique_tmp_directory_name(Name).
+*/
+
+/* this is for the case that an empty file field is coming from the upload form */
+/* not needed anymore */
+/*http_post_save_file(_, ignored_empty_file_entry, Options) :-
+	option(filename(User_File_Path), Options),
+	User_File_Path = '',
+	!.
+
+http_post_save_file(Stream, file(loc(absolute_path, Tmp_File_Path)), Options) :-
+	option(filename(User_File_Path_Value), Options),
+	User_File_Path = loc(unknown, User_File_Path_Value),
+	% (for Internet Explorer/Microsoft Edge)
+	tmp_file_path_from_something(User_File_Path, loc(absolute_path, Tmp_File_Path)),
+	setup_call_cleanup(open(Tmp_File_Path, write, Out), copy_stream_data(Stream, Out), close(Out)).
+*/
+

@@ -9,7 +9,9 @@ xhost +local:docker
 
 set SECRETS_DIR (realpath ../secrets)
 set RUNNING_CONTAINER_ID (./get_id_of_running_container.py -pp $argv[1])
-#set LESSS "2>&1 | less"
+set LESSS "2>&1 | tee /app/server_root/tmp/out"
+
+
 
 docker run -it \
 #		--network="robust$argv[1]_backend"

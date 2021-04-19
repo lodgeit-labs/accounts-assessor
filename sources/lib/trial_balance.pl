@@ -30,8 +30,7 @@
 	Desc = 'check_txset_at',
 	!transactions_report_currency_sum_at_(Exchange_Rates, Report_Currency, Date, Transactions, Total),
 	exclude(coord_is_almost_zero, Total, Rest),
-	Report_Currency = [RC],
-	(	maplist({RC}/[Coord]>>coord_unit(Coord,RC), Rest)
+	(	vec_is_just_report_currency(Rest)
 	->	true
 	;	(
 			!format_balances(error_msg, Report_Currency, unused, unused, kb:debit, Rest, Vecs_text_list),
@@ -41,3 +40,8 @@
 		)
 	).
 
+ vec_is_just_report_currency(Vec) :-
+ 	!exclude(coord_is_almost_zero, Vec, Rest),
+ 	!result_property(l:report_currency, Report_Currency),
+ 	!'='(Report_Currency,[RC]),
+ 	maplist({RC}/[Coord]>>coord_unit(Coord,RC), Rest).

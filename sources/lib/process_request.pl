@@ -152,16 +152,13 @@ process_request2 :-
 	make_json_report(Alerts3, alerts_json),
 	make_alerts_report(Alerts_html),
 	make_doc_dump_report,
-
 	make_context_trace_report,
-
 	json_report_entries(Files3),
 	Json_Out = _{alerts:Alerts3, reports:Files3},
 	absolute_tmp_path(loc(file_name,'response.json'), Json_Response_File_Path),
 	dict_json_text(Json_Out, Response_Json_String),
 	write_file(Json_Response_File_Path, Response_Json_String),
 	writeln(Response_Json_String),
-
 	(make_zip->true;true).
 
 
@@ -178,8 +175,8 @@ make_context_trace_report2((Depth, C),div(["-",Stars,Text])) :-
 
 
 'make "all files" report entry' :-
-	report_file_path(loc(file_name, ''), Tmp_Dir_Url, _),
-	add_report_file(-100,'all', 'all files', Tmp_Dir_Url).
+	report_file_path__singleton(loc(file_name, ''), Tmp_Dir_Url, _),
+	add_report_file(-100,'task_directory', 'task_directory', Tmp_Dir_Url).
 
 
 make_doc_dump_report :-
@@ -282,7 +279,7 @@ process_multifile_request(Request_data_uri_base,File_Paths) :-
 
 	(	accept_request_file(File_Paths, Rdf_Tmp_File_Path, n3)
 	->	(
-			!debug(tmp_files, "done accept_request_file(~w, ~w, n3)~n", [File_Paths, Rdf_Tmp_File_Path]),
+			!debug(tmp_files, "done:accept_request_file(~w, ~w, n3)~n", [File_Paths, Rdf_Tmp_File_Path]),
 			!load_request_rdf(Rdf_Tmp_File_Path, G),
 			!debug(tmp_files, "RDF graph: ~w~n", [G]),
 			!doc_from_rdf(G, 'https://rdf.lodgeit.net.au/v1/excel_request#', Request_data_uri_base),
@@ -310,11 +307,11 @@ check_request_version :-
 		;	throw_string(['incompatible client version, expected: ', Expected]))
 	;	throw_string(['l:client_version not specified, must be: ', Expected])).
 
-accept_request_file(File_Paths, Path, Type) :-
+ accept_request_file(File_Paths, Path, Type) :-
 	debug(tmp_files, "accept_request_file(~w, ~w, ~w)~n", [File_Paths, Path, Type]),
 	member(Path, File_Paths),
 	debug(tmp_files, "member(~w, ~w)~n", [Path, File_Paths]),
-	tmp_file_path_to_url(Path, Url),
+	tmp_file_path_to_url__singleton(Path, Url),
 	debug(tmp_files, "tmp_file_path_to_url(~w, ~w)~n", [Path, Url]),
 	(	loc_icase_endswith(Path, ".xml")
 	->	(

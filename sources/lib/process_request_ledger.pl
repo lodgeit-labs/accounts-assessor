@@ -1,6 +1,17 @@
 
  process_request_ledger :-
-	cf(extract_report_parameters),
+	!request_data(Request_Data),
+
+	ct(
+		'check if we have an IC request',
+		doc(Request_Data, ic_ui:report_details, Ic_ui_report_details)
+	),
+	!cf(extract_start_and_end_date(Ic_ui_report_details)),
+	process_request_ledger2.
+
+process_request_ledger2 :-
+	!cf(stamp_result),
+	!cf(extract_report_parameters),
 	!cf(make_gl_viewer_report),
 	!cf(write_accounts_json_report),
 	!cf(extract_exchange_rates),
@@ -147,7 +158,7 @@ make_gl_viewer_report :-
 	%format(user_error, 'make_gl_viewer_report..~n',[]),
 	Viewer_Dir = 'general_ledger_viewer',
 	!absolute_file_name(my_static(Viewer_Dir), Src, [file_type(directory)]),
-	!report_file_path(loc(file_name, Viewer_Dir), loc(absolute_url, Dir_Url), loc(absolute_path, Dst)),
+	!report_file_path__singleton(loc(file_name, Viewer_Dir), loc(absolute_url, Dir_Url), loc(absolute_path, Dst)),
 	/* symlink or copy, which one is more convenient depends on what we're working on at the moment. However, copy is better, as it allows full reproducibility */
 	% Cmd = ['ln', '-s', '-n', '-f', Src, Dst],
 	Cmd = ['cp', '-r', Src, Dst],
@@ -236,16 +247,14 @@ This is done with a symlink. This allows to bypass cache, for example in pessera
  'extract "output_dimensional_facts"' :-
 	!result_add_property(l:output_dimensional_facts, on).
 	
- extract_start_and_end_date :-
-	!request_data(Request_Data),
-	!doc(Request_Data, ic_ui:report_details, D),
+ extract_start_and_end_date(D) :-
 	!read_date(D, ic:from, Start_Date),
 	!read_date(D, ic:to, End_Date),
 	!result(R),
 	!doc_add(R, l:start_date, Start_Date),
 	!doc_add(R, l:end_date, End_Date).
 
- extract_request_details :-
+ stamp_result :-
 	!result(Result),
 	!get_time(TimeStamp),
 	!stamp_date_time(TimeStamp, DateTime, 'UTC'),
@@ -253,8 +262,6 @@ This is done with a symlink. This allows to bypass cache, for example in pessera
 	doc_add($>result, l:type, l:ledger).
 
  extract_report_parameters :-
-	cf(extract_start_and_end_date),
-	!cf(extract_request_details),
 	!cf('extract "output_dimensional_facts"'),
 	!cf('extract "cost_or_market"'),
 	!cf(extract_report_currency),
