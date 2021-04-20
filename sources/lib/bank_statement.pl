@@ -10,6 +10,38 @@ call preprocess_s_transaction on each item of the S_Transactions list and do som
 	Outstanding_In,
 	Outstanding_Out
 ) :-
+	(
+		(
+			b_setval(cutoff, true),
+			add_cutoff_alert,
+			Outstanding_In = Outstanding_Out,
+			Transactions_Out = [],
+			Processed_S_Transactions = []
+		)
+	;
+		(
+			\+b_current(cutoff, true),
+			bump_ic_n_sts_processed,
+			preprocess_s_transactions2(
+				[S_Transaction|S_Transactions],
+				Processed_S_Transactions,
+				Transactions_Out,
+				Outstanding_In,
+				Outstanding_Out
+			)
+		)
+	).
+
+
+
+
+ preprocess_s_transactions2(
+	[S_Transaction|S_Transactions],
+	Processed_S_Transactions,
+	Transactions_Out,
+	Outstanding_In,
+	Outstanding_Out
+) :-
 	push_format(
 		'processing source transaction:~n ~w~n', [
 			$>!pretty_st_string(S_Transaction)]),
@@ -40,7 +72,7 @@ call preprocess_s_transaction on each item of the S_Transactions list and do som
 	(	var(E)
 	->	(
 			% recurse
-			!preprocess_s_transactions(
+			preprocess_s_transactions(
 				S_Transactions,
 				Processed_S_Transactions_Tail,
 				Transactions_Out_Tail,

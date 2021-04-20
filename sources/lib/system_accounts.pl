@@ -1,11 +1,14 @@
 
 'ensure system accounts exist 0'(S_Transactions) :-
 	assertion(ground(S_Transactions)),
-	!cf('ensure system accounts exist'(S_Transactions)),
-	!cf(check_accounts_parent),
-	!cf(check_accounts_roles),
-	!cf(propagate_accounts_side),
-	!cf(write_accounts_json_report).
+	assertion(is_list(S_Transactions)),
+	once((
+		!cf('ensure system accounts exist'(S_Transactions)),
+		!cf(check_accounts_parent),
+		!cf(check_accounts_roles),
+		!cf(propagate_accounts_side),
+		!cf(write_accounts_json_report(1)))
+	).
 
  'ensure system accounts exist'(S_Transactions) :-
  	assertion(ground(S_Transactions)),

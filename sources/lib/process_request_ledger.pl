@@ -1,7 +1,11 @@
 
+ bump_ic_n_sts_processed :-
+	 b_current_num_with_default(ic_n_sts_processed, 0, N),
+	 Next is N + 1,
+	 b_setval(ic_n_sts_processed, Next).
+
  process_request_ledger :-
 	!request_data(Request_Data),
-
 	ct(
 		'check if we have an IC request',
 		doc(Request_Data, ic_ui:report_details, Ic_ui_report_details)
@@ -13,18 +17,20 @@ process_request_ledger2 :-
 	!cf(stamp_result),
 	!cf(extract_report_parameters),
 	!cf(make_gl_viewer_report),
-	!cf(write_accounts_json_report),
+	!cf(write_accounts_json_report(2)),
 	!cf(extract_exchange_rates),
+	process_request_ledger3.
 
-	push_context('phase:'),
+process_request_ledger3 :-
+
  	initial_state(S0),
 
-	ct('automated: bank opening balances',
-		once((generate_bank_opening_balances_sts(Bank_Lump_STs),
-		'ensure system accounts exist 0'(Bank_Lump_STs),
-		handle_sts(S0, Bank_Lump_STs, S2)))),
+	once(cf(generate_bank_opening_balances_sts(Bank_Lump_STs))),
+	cf('ensure system accounts exist 0'(Bank_Lump_STs)),
 
-	ct('phase: opening balance',
+	handle_sts(S0, Bank_Lump_STs, S2),
+
+	ct('phase: opening balance GL inputs',
 		(extract_gl_inputs(phases:opening_balance, Gl_input_txs),
 	 	handle_txs(S2, Gl_input_txs, S4))),
 
@@ -42,23 +48,33 @@ process_request_ledger2 :-
 	;	S10 = S8),
 
 	once(!cf(create_reports(S10))),
+
 	true.
 
  'phase: main 1'(S0, S2) :-
-	!cf(handle_additional_files(Sts0)),
-	!cf('extract bank statement transactions'(Sts1)),
-	!cf(extract_action_inputs(_, Sts2)),
-	%$>!cf(extract_livestock_data_from_ledger_request(Dom))
-	flatten([Sts0, Sts1, Sts2], Sts3),
- 	handle_sts(S0, Sts3, S2),
- 	!cf('ensure system accounts exist 0'(Sts3)).
+ 	(	\+b_current(cutoff, true)
+ 	->	(
+			!cf(handle_additional_files(Sts0)),
+			!cf('extract bank statement transactions'(Sts1)),
+			!cf(extract_action_inputs(_, Sts2)),
+			%$>!cf(extract_livestock_data_from_ledger_request(Dom)),
+			flatten([Sts0, Sts1, Sts2], Sts3)
+		)
+	;	Sts3 = []
+	),
+	handle_sts(S0, Sts3, S2),
+ 	!once(cf('ensure system accounts exist 0'(Sts3))).
 
 'phase: main 2'(S2, S4) :-
-	!cf(extract_gl_inputs(_, Txs7)),
-	!cf(extract_reallocations(_, Txs8)),
-	!cf(extract_smsf_distribution(S2, Txs9)),
-	handle_txs(S2, [Txs7, Txs8, Txs9], S4),
-	%!cf(process_livestock((Processed_S_Transactions, Transactions1), Livestock_Transactions)),
+ 	(	\+b_current(cutoff, true)
+ 	->	(
+			!cf(extract_gl_inputs(_, Txs7)),
+			!cf(extract_reallocations(_, Txs8)),
+			!cf(extract_smsf_distribution(S2, Txs9)),
+			%!cf(process_livestock((Processed_S_Transactions, Transactions1), Livestock_Transactions)),
+			handle_txs(S2, [Txs7, Txs8, Txs9], S4)
+		)
+	;	S4 = S2),
 	true.
 
  create_reports(State) :-

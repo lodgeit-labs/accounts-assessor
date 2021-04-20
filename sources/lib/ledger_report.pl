@@ -139,7 +139,7 @@ balance_by_account2(Sd, Report_Currency, Date, Account, balance(Balance, Tx_Coun
 			Current_Earnings_Transactions_Balance)]
 	).
 
-txs_vec_converted_sum(Exchange_Date, Transactions, Balance) :-
+ txs_vec_converted_sum(Exchange_Date, Transactions, Balance) :-
 	txs_vec_converted_sum2(
 		$>result_property(l:exchange_rates),
 		Exchange_Date,

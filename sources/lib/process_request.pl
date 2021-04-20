@@ -15,14 +15,11 @@
 /* for formatting numbers */ /* not sure if still used */
 :- locale_create(Locale, "en_AU.utf8", []), set_locale(Locale).
 
-:- dynamic subst/2.
-
-/* fixme, assert the actual port in prolog_server and get that here? maybe also move this there, since we are not loading this file from the commandline anymore i think? */
-%:- initialization(set_server_public_url('http://localhost:7778')).
 
 process_request_rpc_calculator(Dict) :-
 	set_unique_tmp_directory_name(loc(tmp_directory_name, Dict.result_tmp_directory_name)),
 	doc_init,
+	context_trace_init_trail_0,
 	'='(Request_uri, $>atom_string(<$, Dict.request_uri)),
 	'='(Request_data_uri_base, $>atomic_list_concat([Request_uri, '/request_data/'])),
 	'='(Request_data_uri, $>atomic_list_concat([Request_data_uri_base, 'request'])),
@@ -49,11 +46,13 @@ process_request_rpc_calculator(Dict) :-
 	(	Request_Files2 = []
 	->	throw_string('no request files.')
 	;	true),
-	process_request([], Request_data_uri_base, Request_Files2).
 
-process_request(Options, Request_data_uri_base, File_Paths) :-
-	maybe_supress_generating_unique_taxonomy_urls(Options),
-	%_ is 1 / 0,
+	'make task_directory report entry',
+	findall(_,process_request(Request_data_uri_base, Request_Files2),_),
+	(make_zip->true;true).
+
+
+process_request(Request_data_uri_base, File_Paths) :-
 	(	current_prolog_flag(die_on_error, true)
 	->	(
 			process_multifile_request(Request_data_uri_base,File_Paths),
@@ -61,7 +60,7 @@ process_request(Options, Request_data_uri_base, File_Paths) :-
 		)
 	;	(
 			catch_with_backtrace(
-				(process_multifile_request(Request_data_uri_base,File_Paths) -> true ; throw(failure)),
+				process_multifile_request(Request_data_uri_base,File_Paths),
 				E,
 				Exception = E
 			)
@@ -70,7 +69,22 @@ process_request(Options, Request_data_uri_base, File_Paths) :-
 	(	Exception \= none
 	->	handle_processing_exception(Exception)
 	;	true),
-	process_request2.
+	!process_request2.
+
+process_request2 :-
+	!collect_alerts(Alerts3, Alerts_html),
+	!make_json_report(Alerts3, alerts_json),
+	!make_alerts_report(Alerts_html),
+	!make_doc_dump_report,
+	!make_context_trace_report,
+	!json_report_entries(Files3),
+	Json_Out = _{alerts:Alerts3, reports:Files3},
+	!make_json_report(Json_Out,'response.json',_),
+	!dict_json_text(Json_Out, Response_Json_String),
+	writeln(Response_Json_String),
+	flush_output,
+	%gtrace,
+	true.
 
 enrich_exception_with_ctx_dump(E, E2) :-
 	(	user:exception_ctx_dump(Ctx_list)
@@ -146,22 +160,6 @@ format_exception_into_alert_string(E, Str, Html) :-
 	format(string(Str ),'~w~n~n~w~n~n~w~q~n',[Context_str, $>stringize(Msg), Bstr, Stacktrace_str]).
 
 
-process_request2 :-
-	'make "all files" report entry',
-	collect_alerts(Alerts3, Alerts_html),
-	make_json_report(Alerts3, alerts_json),
-	make_alerts_report(Alerts_html),
-	make_doc_dump_report,
-	make_context_trace_report,
-	json_report_entries(Files3),
-	Json_Out = _{alerts:Alerts3, reports:Files3},
-	absolute_tmp_path(loc(file_name,'response.json'), Json_Response_File_Path),
-	dict_json_text(Json_Out, Response_Json_String),
-	write_file(Json_Response_File_Path, Response_Json_String),
-	writeln(Response_Json_String),
-	(make_zip->true;true).
-
-
 make_context_trace_report :-
 	get_context_trace(Trace0),
 	reverse(Trace0,Trace),
@@ -174,7 +172,7 @@ make_context_trace_report2((Depth, C),div(["-",Stars,Text])) :-
 	context_string2('', C, Text).
 
 
-'make "all files" report entry' :-
+'make task_directory report entry' :-
 	report_file_path__singleton(loc(file_name, ''), Tmp_Dir_Url, _),
 	add_report_file(-100,'task_directory', 'task_directory', Tmp_Dir_Url).
 

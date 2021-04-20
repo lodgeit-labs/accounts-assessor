@@ -183,20 +183,29 @@ this should ensure that all transactions get reflected in the account tree somew
 
 
 /* just writes file, doesnt create report entry here */
- write_accounts_json_report :-
+ write_accounts_json_report(Phase) :-
 	!maplist(account_to_dict, $>all_accounts, Dicts),
+	% make report and get actual absolute path
 	!make_json_report(
 		Dicts,
-		'accounts.json',
+		$>atomic_list_concat(['accounts', Phase, '.json']),
 		Final_fn
 	),
-	report_file_path__singleton(loc(file_name, 'accounts.json'), _, loc(absolute_path, Link)),
-	!shell4([
-		'ln', '-s', '-n', '-f',
-		Final_fn,
-		Link
-	],
-	0).
+	% get the symlink path
+	report_file_path__singleton(
+		loc(file_name, 'accounts.json'),
+		_,
+		loc(absolute_path, Link)
+	),
+	% make the symlink
+	!shell4(
+		[
+			'ln', '-s', '-n', '-f',
+			Final_fn,
+			Link
+		],
+		0
+	).
 
 
  account_to_dict(Uri, Dict) :-

@@ -3,10 +3,11 @@ crosschecks_report0(Sd, Json) :-
 	% getting a list of _{check:Check, evaluation:Evaluation, status:Status} dicts:
 	%assertion(ground(Sd)),
 	crosschecks_report(Sd, Json),
-	maplist(crosscheck_output, Json.results, Html),
-	add_report_page_with_body(9, 'crosschecks', Html, loc(file_name,'crosschecks.html'), 'crosschecks_html').
+	next_nondet_report_fn('crosschecks.html', Fn),
+	maplist(crosscheck_output(Fn), Json.results, Html),
+	add_report_page_with_body__singleton(9, 'crosschecks', Html, loc(file_name,Fn), 'crosschecks_html').
 
-crosscheck_output(Result, Html) :-
+crosscheck_output(Fn, Result, Html) :-
 	round_term(Result, _{check:Check, evaluation:Evaluation, status:Status}),
 	Html0 = [span([Status]), ':', br([]), span([Check_Str]), ':', br([]), span([Evaluation_Str])],
 	(	Status == ok
@@ -35,7 +36,7 @@ crosscheck_output(Result, Html) :-
 						pre(
 							[
 								a(
-									[href='crosschecks.html'],
+									[href=Fn],
 									[Evaluation_Str]
 								)
 							]
@@ -250,6 +251,6 @@ entry_normal_side_values(Entry, Values_List) :-
 
  quiet_crosscheck(Sr,Crosscheck) :-
 	evaluate_equality(_{reports:Sr}, Crosscheck, Result),
-	crosscheck_output(Result, _).
+	crosscheck_output('./', Result, _).
 
 

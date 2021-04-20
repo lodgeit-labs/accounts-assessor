@@ -215,3 +215,20 @@ profitandloss_between(Exchange_Rates, Accounts, Transactions, Report_Currency, E
 	sort(Names0, Names).
 */
 
+
+
+
+
+
+
+
+
+
+
+%% :- dynamic subst/2.
+
+/* fixme, assert the actual port in prolog_server and get that here? maybe also move this there, since we are not loading this file from the commandline anymore i think? */
+%:- initialization(set_server_public_url('http://localhost:7778')).
+
+
+

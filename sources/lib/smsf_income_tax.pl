@@ -7,6 +7,7 @@
 
 smsf_income_tax_stuff2(Input, State_in, State_out) :-
 	!cf(ato_supervisory_levy_txs(Input, Ato_levy_txs)),
+	throw('finishme switch out for handle_sts'),
 	new_state_with_appended_(State_in, [op(l:has_transactions,append,Ato_levy_txs)], State2),
 	bs_pl_reports_from_state('before_smsf_income_tax_', State2, Sr0),
 	!cf(add_smsf_income_tax_report_facts(_{before_smsf_income_tax:Sr0})),

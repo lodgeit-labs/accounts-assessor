@@ -53,7 +53,7 @@ handle_op(S0,append,Field,Tail,S2) :-
 	!sort_s_transactions(S_Transactions2,S_Transactions4),
 	!cf('pre-preprocess source transactions'(S_Transactions4, Prepreprocessed_S_Transactions)),
 
-	!cf(preprocess_s_transactions(
+	cf(preprocess_s_transactions(
 		Prepreprocessed_S_Transactions,
 		Preprocessed_S_Transactions,
 		Transactions,
@@ -74,11 +74,26 @@ handle_op(S0,append,Field,Tail,S2) :-
 		S2
 	).
 
+ add_cutoff_alert :-
+	add_alert(cutoff, $>fs('not processing more source transactions due to cutoff of ~q', $>b_getval(ic_n_sts_processed))).
+
 
  handle_txs(S0, Txs0, S2) :-
-	new_state_with_appended_(S0, [
-		op(l:has_transactions,append,Txs0)
-	], S2).
+	(
+		(
+			b_setval(cutoff, true),
+			add_cutoff_alert,
+			new_state_with_appended_(S0, [], S2)
+		)
+	;
+		(
+			\+b_current(cutoff, true),
+			bump_ic_n_sts_processed,
+			new_state_with_appended_(S0, [
+				op(l:has_transactions,append,Txs0)
+			], S2)
+		)
+	).
 
 
  check_phase(Expected_phase, Subject, Predicate) :-
