@@ -242,7 +242,7 @@ this should ensure that all transactions get reflected in the account tree somew
 
  role_bang_string(Role0, Text) :-
 	!role_bang_string_helper(Role0, Role),
-	once(c(!'use grammar to generate text'(out_account_specifier(role(Role)), Text))).
+	once((!'use grammar to generate text'(out_account_specifier(role(Role)), Text))).
 
  role_bang_string_helper(Role0, Role) :-
 %gtrace,

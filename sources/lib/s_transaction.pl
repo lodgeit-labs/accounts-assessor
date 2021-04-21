@@ -174,7 +174,7 @@ s_transactions_up_to(End_Date, S_Transactions_All, S_Transactions_Capped) :-
 
  prepreprocess_s_transaction0(In, Out) :-
  	pretty_st_string(In, Sts),
-	push_format('pre-processing source transaction:~n ~w~n', [Sts]),
+	push_format('pre-pre-processing source transaction:~n ~w~n', [Sts]),
 	prepreprocess_s_transaction(In, Out),
 	pop_context.
 

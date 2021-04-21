@@ -138,7 +138,7 @@ balance_entries(
 	!cf(cf_page(Static_Data, Sr0.cf)),
 
 	!cf('export GL'(Static_Data, Static_Data.transactions, Gl)),
-	!cf(make_same_named_symlinked_json_report(Gl, general_ledger_json)),
+	!cf(make_same_named_symlinked_json_report(Gl, 'general_ledger_json.json')),
 
 	!cf(investment_reports(Static_Data.put(outstanding, Outstanding), Investment_Report_Info)),
 	Sr1 = Sr0.put(ir, Investment_Report_Info),

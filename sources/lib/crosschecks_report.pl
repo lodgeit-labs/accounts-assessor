@@ -158,6 +158,8 @@ crosschecks_report(Sd, Json) :-
 	->	append(Crosschecks0, Smsf_crosschecks, Crosschecks)
 	;	Crosschecks = Crosschecks0),
 
+	gtrace,
+	
 	maplist(evaluate_equality(Sd), Crosschecks, Results),
 	Json = _{
 		 results: Results

@@ -89,10 +89,11 @@
 	exclude(var, Txs0, Txs).
 
  generate_bank_opening_balances_sts2(Bank_Account, Tx) :-
-	(	doc_value(Bank_Account, l:opening_balance, Opening_Balance)
+	(	(
+			doc_value(Bank_Account, l:opening_balance, Opening_Balance),
+			\+coord_is_almost_zero(Opening_Balance)
+		)
 	->	(
-			%!result_property(l:start_date, Start_Date),
-			%!add_days(Start_Date, -1, Opening_Date),
 			!doc(Bank_Account, l:name, Bank_Account_Name),
 			!c(doc_add_s_transaction(
 				date(1,1,1),
@@ -104,7 +105,9 @@
 				misc{desc2:'Bank_Opening_Balance'},
 				Tx))
 		)
+	;	true
 	).
-
+/*
  generate_bank_opening_balances_sts2(Bank_Account, _Tx) :-
 	\+doc_value(Bank_Account, l:opening_balance, _Opening_Balance).
+*/
