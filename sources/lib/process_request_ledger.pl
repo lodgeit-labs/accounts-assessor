@@ -1,28 +1,19 @@
 
- bump_ic_n_sts_processed :-
-	 b_current_num_with_default(ic_n_sts_processed, 0, N),
-	 Next is N + 1,
-	 b_setval(ic_n_sts_processed, Next).
-
  process_request_ledger :-
-	!request_data(Request_Data),
-	ct(
-		'check if we have an IC request',
-		doc(Request_Data, ic_ui:report_details, Ic_ui_report_details)
-	),
-	!cf(extract_start_and_end_date(Ic_ui_report_details)),
-	process_request_ledger2.
+	ct(	'check if we have an IC request',
+		doc($>request_data(Request_Data), ic_ui:report_details, Ic_ui_report_details)),
+ 	!process_request_ledger__deterministic_initialization,
+ 	process_request_ledger3.
 
-process_request_ledger2 :-
+process_request_ledger__deterministic_initialization :-
+	!cf(extract_start_and_end_date(Ic_ui_report_details)),
 	!cf(stamp_result),
 	!cf(extract_report_parameters),
 	!cf(make_gl_viewer_report),
-	!cf(write_accounts_json_report(2)),
-	!cf(extract_exchange_rates),
-	process_request_ledger3.
+	!cf(write_accounts_json_report(1)),
+	!cf(extract_exchange_rates).
 
 process_request_ledger3 :-
-
  	initial_state(S0),
 
 	once(cf(generate_bank_opening_balances_sts(Bank_Lump_STs))),
@@ -147,7 +138,7 @@ balance_entries(
 	!cf(cf_page(Static_Data, Sr0.cf)),
 
 	!cf('export GL'(Static_Data, Static_Data.transactions, Gl)),
-	!cf(make_json_report(Gl, general_ledger_json)),
+	!cf(make_same_named_symlinked_json_report(Gl, general_ledger_json)),
 
 	!cf(investment_reports(Static_Data.put(outstanding, Outstanding), Investment_Report_Info)),
 	Sr1 = Sr0.put(ir, Investment_Report_Info),
@@ -284,3 +275,13 @@ This is done with a symlink. This allows to bypass cache, for example in pessera
 	!cf('extract action verbs'),
 	!cf('extract bank accounts'),
 	!cf('extract GL accounts').
+
+
+ read_ic_n_sts_processed(N) :-
+	b_current_num_with_default(ic_n_sts_processed, 0, N).
+
+ bump_ic_n_sts_processed :-
+	read_ic_n_sts_processed(N),
+	Next is N + 1,
+	b_setval(ic_n_sts_processed, Next).
+

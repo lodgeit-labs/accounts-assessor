@@ -75,7 +75,7 @@ handle_op(S0,append,Field,Tail,S2) :-
 	).
 
  add_cutoff_alert :-
-	add_alert(cutoff, $>fs('not processing more source transactions due to cutoff of ~q', $>b_getval(ic_n_sts_processed))).
+	add_alert(cutoff, $>fs('not processing more source transactions due to cutoff of ~q transactions', $>read_ic_n_sts_processed)).
 
 
  handle_txs(S0, Txs0, S2) :-

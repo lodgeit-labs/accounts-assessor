@@ -1,6 +1,6 @@
 #!/usr/bin/env fish
 
-# use this to run a request in docker, with g trace. internal services and rabbitmq have to be running.
+# use this to run a request in docker, possibly with guitracer. internal services and rabbitmq have to be running.
 # you need this to run a request with an image built to bind sources dir
 
 xhost +local:docker
@@ -10,6 +10,10 @@ xhost +local:docker
 set SECRETS_DIR (realpath ../secrets)
 set RUNNING_CONTAINER_ID (./get_id_of_running_container.py -pp $argv[1])
 set LESSS "2>&1 | tee /app/server_root/tmp/out"
+set DBG1 "--debug true"
+set DBG2 "debug"
+set DBG1 "--debug true"
+set DBG2 "debug"
 
 
 
@@ -31,7 +35,14 @@ docker run -it \
 #		--publish 1234:1234 \
 		"koo5/internal-workers$argv[1]:latest" \
 #		-c bash
-		-c "cd /app/server_root/;  time env  PYTHONUNBUFFERED=1 CELERY_QUEUE_NAME=q7788 ../sources/internal_workers/invoke_rpc_cmdline.py --debug true --halt true -s \"http://localhost:80$argv[1]\"  --prolog_flags \"debug,set_prolog_flag(services_server,'http://internal-services:17788')$argv[2]\" /app/server_root/tmp/last_request $LESSS"
+		-c "
+cd /app/server_root/;  
+time env PYTHONUNBUFFERED=1 CELERY_QUEUE_NAME=q7788 
+../sources/internal_workers/invoke_rpc_cmdline.py 
+	$DBG1 
+	--halt true 
+	-s \"http://localhost:80$argv[1]\"
+	--prolog_flags \"$DBG2,set_prolog_flag(services_server,'http://internal-services:17788')$argv[2]\" /app/server_root/tmp/last_request $LESSS"
 
 
 # AGRAPH_SECRET_PORT=10036 AGRAPH_SECRET_HOST=localhost 

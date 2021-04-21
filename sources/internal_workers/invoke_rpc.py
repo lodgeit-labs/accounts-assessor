@@ -32,13 +32,14 @@ def call_prolog(
 	debug = config.get('DEBUG_OVERRIDE', debug)
 	dont_gtrace = config.get('DONT_GTRACE', False)
 
+	logging.getLogger().info('msg:')
 	logging.getLogger().info(msg)
 	sys.stdout.flush()
 	sys.stderr.flush()
 
 	msg['params']['result_tmp_directory_name'], result_tmp_path = create_tmp()
 
-	logging.getLogger().warn('final_result_tmp_directory_name')
+	logging.getLogger().warn('final_result_tmp_directory_name:')
 	logging.getLogger().warn(final_result_tmp_directory_name)
 
 	if final_result_tmp_directory_name != None:
@@ -61,10 +62,10 @@ def call_prolog(
 		info.write('\n')
 
 
-	logging.getLogger().warn(os.getcwd())
-	logging.getLogger().warn(os.path.abspath(git('sources/static/git_info.txt')))
-	logging.getLogger().warn(git('sources/static/git_info.txt'))
-	logging.getLogger().warn(os.path.join(result_tmp_path))
+	#logging.getLogger().warn(os.getcwd())
+	#logging.getLogger().warn(os.path.abspath(git('sources/static/git_info.txt')))
+	#logging.getLogger().warn(git('sources/static/git_info.txt'))
+	#logging.getLogger().warn(os.path.join(result_tmp_path))
 
 	shutil.copyfile(
 		os.path.abspath(git('sources/static/git_info.txt')),
@@ -123,7 +124,7 @@ def call_prolog(
 	logging.getLogger().debug(command_nice(cmd))
 	cmd = flatten_lists(cmd)
 	#print(cmd)
-	print('pipe_rpc_json_to_swipl_stdin=',pipe_rpc_json_to_swipl_stdin)
+	print('# pipe_rpc_json_to_swipl_stdin=',pipe_rpc_json_to_swipl_stdin)
 	try:
 		if pipe_rpc_json_to_swipl_stdin:
 			p = subprocess.Popen(cmd, universal_newlines=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE)#, shell=True)
