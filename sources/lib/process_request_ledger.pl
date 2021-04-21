@@ -1,12 +1,12 @@
 
  process_request_ledger :-
 	ct(	'check if we have an IC request',
-		doc($>request_data(Request_Data), ic_ui:report_details, Ic_ui_report_details)),
+		doc($>request_data, ic_ui:report_details, _)),
  	!process_request_ledger__deterministic_initialization,
  	process_request_ledger3.
 
 process_request_ledger__deterministic_initialization :-
-	!cf(extract_start_and_end_date(Ic_ui_report_details)),
+	!cf(extract_start_and_end_date),
 	!cf(stamp_result),
 	!cf(extract_report_parameters),
 	!cf(make_gl_viewer_report),
@@ -254,7 +254,8 @@ This is done with a symlink. This allows to bypass cache, for example in pessera
  'extract "output_dimensional_facts"' :-
 	!result_add_property(l:output_dimensional_facts, on).
 	
- extract_start_and_end_date(D) :-
+ extract_start_and_end_date :-
+ 	!doc($>request_data, ic_ui:report_details, D),
 	!read_date(D, ic:from, Start_Date),
 	!read_date(D, ic:to, End_Date),
 	!result(R),
