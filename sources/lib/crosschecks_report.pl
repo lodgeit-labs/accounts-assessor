@@ -3,7 +3,7 @@ crosschecks_report0(Sd, Json) :-
 	% getting a list of _{check:Check, evaluation:Evaluation, status:Status} dicts:
 	%assertion(ground(Sd)),
 	crosschecks_report(Sd, Json),
-	next_nondet_report_fn('crosschecks.html', Fn),
+	grab_nondet_report_fn('crosschecks.html', Fn),
 	maplist(crosscheck_output(Fn), Json.results, Html),
 	add_report_page_with_body__singleton(9, 'crosschecks', Html, loc(file_name,Fn), 'crosschecks_html').
 
@@ -158,8 +158,6 @@ crosschecks_report(Sd, Json) :-
 	->	append(Crosschecks0, Smsf_crosschecks, Crosschecks)
 	;	Crosschecks = Crosschecks0),
 
-	gtrace,
-	
 	maplist(evaluate_equality(Sd), Crosschecks, Results),
 	Json = _{
 		 results: Results
@@ -201,7 +199,7 @@ evaluate2(Sd, report_value(Key), Values_List) :-
 
 evaluate2(Sd, account_balance(Report_Id, Acct), Values_List) :-
 	/* get report out of static data */
-	path_get_dict(Report_Id, Sd, Report),
+	*path_get_dict(Report_Id, Sd, Report),
 	findall(
 		Values_List,
 		report_report_entry_normal_side_values_by_acct(Report, Acct, Values_List),

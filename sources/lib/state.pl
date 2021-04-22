@@ -79,19 +79,23 @@ handle_op(S0,append,Field,Tail,S2) :-
 
 
  handle_txs(S0, Txs0, S2) :-
-	(
+ 	(	b_current(cutoff, true)
+ 	->	S0 = S2
+ 	;
 		(
-			b_setval(cutoff, true),
-			add_cutoff_alert,
-			new_state_with_appended_(S0, [], S2)
-		)
-	;
-		(
-			\+b_current(cutoff, true),
-			bump_ic_n_sts_processed,
-			new_state_with_appended_(S0, [
-				op(l:has_transactions,append,Txs0)
-			], S2)
+			(
+				b_setval(cutoff, true),
+				add_cutoff_alert,
+				new_state_with_appended_(S0, [], S2)
+			)
+		;
+			(
+				\+b_current(cutoff, true),
+				bump_ic_n_sts_processed,
+				new_state_with_appended_(S0, [
+					op(l:has_transactions,append,Txs0)
+				], S2)
+			)
 		)
 	).
 
@@ -109,7 +113,7 @@ handle_op(S0,append,Field,Tail,S2) :-
 	!balance_entries(Static_Data, Sr),
 	!other_reports2(Prefix, Static_Data, Sr).
 
-static_data_from_state(State, Static_Data) :-
+ static_data_from_state(State, Static_Data) :-
 	doc(State, l:has_transactions, Transactions),
 	doc(State, l:has_outstanding, Outstanding),
 	!transactions_dict_by_account_v2(Transactions,Transactions_By_Account),

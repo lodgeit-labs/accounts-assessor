@@ -183,8 +183,9 @@ this should ensure that all transactions get reflected in the account tree somew
 
 
 /* just writes file, doesnt create report entry here */
- write_accounts_json_report(Phase) :-
+ write_accounts_json_report :-
 	!maplist(account_to_dict, $>all_accounts, Dicts),
+	grab_current_num(accounts_json_phase, Phase),
 	make_symlinked_json_report(
 		Dicts,
 		$>atomic_list_concat(['accounts', Phase, '.json']),

@@ -10,7 +10,7 @@ process_request_ledger__deterministic_initialization :-
 	!cf(stamp_result),
 	!cf(extract_report_parameters),
 	!cf(make_gl_viewer_report),
-	!cf(write_accounts_json_report(1)),
+	!cf(write_accounts_json_report),
 	!cf(extract_exchange_rates).
 
 process_request_ledger3 :-
@@ -77,6 +77,7 @@ process_request_ledger3 :-
 		Txs_by_acct2),
 	Static_Data = Static_Data0.put(transactions_by_account,Txs_by_acct2),
 
+	!cf('export GL'(Static_Data)),
 	!balance_entries(Static_Data, Sr),
 	!other_reports2('final_', Static_Data, Sr),
 	!other_reports(Static_Data, Static_Data.outstanding, Sr, _Sr2),
@@ -128,7 +129,6 @@ balance_entries(
 		exchange_date, Static_Data.start_date).
 
 
-
  other_reports(
 	Static_Data,
 	Outstanding,
@@ -136,13 +136,8 @@ balance_entries(
 	Sr5				% Structured Reports - Dict <Report Abbr : _>
 ) :-
 	!cf(cf_page(Static_Data, Sr0.cf)),
-
-	!cf('export GL'(Static_Data, Static_Data.transactions, Gl)),
-	!cf(make_same_named_symlinked_json_report(Gl, 'general_ledger_json.json')),
-
 	!cf(investment_reports(Static_Data.put(outstanding, Outstanding), Investment_Report_Info)),
 	Sr1 = Sr0.put(ir, Investment_Report_Info),
-
 	!cf(crosschecks_report0(Static_Data.put(reports, Sr1), Crosschecks_Report_Json)),
 	Sr5 = Sr1.put(crosschecks, Crosschecks_Report_Json),
 	!make_json_report(Sr1, reports_json).

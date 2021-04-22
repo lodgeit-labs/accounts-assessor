@@ -18,6 +18,7 @@ from copy import deepcopy
 @click.option('-ms', '--mount_host_sources_dir', type=bool, default=False, help="bind-mount sources, instead of copying them into the image? Useful for development.")
 @click.option('-nr', '--django_noreload', type=bool, default=False, help="--noreload. Disables python source file watcher-reloader (to save CPU). Prolog code is still reloaded on every server invocation (even when not bind-mounted...)")
 @click.option('-ph', '--public_host', type=str, default='localhost', help="The public-facing hostname. Used for Caddy.")
+@click.option('-pg', '--enable_public_gateway', type=bool, default=True, help="enable Caddy (on ports 80 and 443)")
 def run(port_postfix, public_host, **choices):
 
 	# caddy is just gonna listen on 80 and 443 always.
@@ -85,9 +86,11 @@ def generate_stack_file(choices):
 	return fn
 
 
-def tweaked_services(src, use_host_network, mount_host_sources_dir, django_noreload):
+def tweaked_services(src, use_host_network, mount_host_sources_dir, django_noreload, enable_public_gateway):
 	res = deepcopy(src)
 	services = res['services']
+	if not enable_public_gateway:
+		del services['caddy']
 
 	if not 'secrets' in res:
 		res['secrets'] = {}

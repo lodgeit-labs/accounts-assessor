@@ -36,7 +36,7 @@ docker run -it \
 	../sources/internal_workers/invoke_rpc_cmdline.py  \
 		$DBG1 \
 		--halt true \
-		-s \"http://localhost:80$argv[1]\" \
+		-s \"http://localhost:88$argv[1]\" \
 		--prolog_flags \"$DBG2,set_prolog_flag(services_server,'http://internal-services:17788')$argv[2]\" /app/server_root/tmp/last_request $LESSS "
 
 

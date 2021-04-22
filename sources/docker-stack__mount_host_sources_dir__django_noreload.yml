@@ -59,17 +59,6 @@ services:
     - /etc/localtime:/etc/localtime:ro
     - tmp:/usr/local/apache2/htdocs/tmp/
     - ./../sources/static/:/usr/local/apache2/htdocs/static/
-  caddy:
-    image: caddy:2.3.0-alpine
-    networks:
-    - frontend
-    ports:
-    - 80:80
-    - 443:443
-    volumes:
-    - ./caddy/Caddyfile:/etc/caddy/Caddyfile
-    - caddy_data:/data
-    - caddy_config:/config
   flower:
     deploy:
       replicas: 1
