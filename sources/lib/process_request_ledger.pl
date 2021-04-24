@@ -69,7 +69,11 @@ process_request_ledger3 :-
 	true.
 
  create_reports(State) :-
+
 	!static_data_from_state(State, Static_Data0),
+
+	!cf('export GL'(Static_Data0)),
+
 	!'with current and historical earnings equity balances'(
 		Static_Data0.transactions_by_account,
 		Static_Data0.start_date,
@@ -77,7 +81,6 @@ process_request_ledger3 :-
 		Txs_by_acct2),
 	Static_Data = Static_Data0.put(transactions_by_account,Txs_by_acct2),
 
-	!cf('export GL'(Static_Data)),
 	!balance_entries(Static_Data, Sr),
 	!other_reports2('final_', Static_Data, Sr),
 	!other_reports(Static_Data, Static_Data.outstanding, Sr, _Sr2),

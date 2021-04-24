@@ -79,22 +79,26 @@ handle_op(S0,append,Field,Tail,S2) :-
 
 
  handle_txs(S0, Txs0, S2) :-
- 	(	b_current(cutoff, true)
+ 	(	Txs0 = []
  	->	S0 = S2
  	;
-		(
-			(
-				b_setval(cutoff, true),
-				add_cutoff_alert,
-				new_state_with_appended_(S0, [], S2)
-			)
+		(	b_current(cutoff, true)
+		->	S0 = S2
 		;
 			(
-				\+b_current(cutoff, true),
-				bump_ic_n_sts_processed,
-				new_state_with_appended_(S0, [
-					op(l:has_transactions,append,Txs0)
-				], S2)
+				(
+					b_setval(cutoff, true),
+					add_cutoff_alert,
+					new_state_with_appended_(S0, [], S2)
+				)
+			;
+				(
+					\+b_current(cutoff, true),
+					bump_ic_n_sts_processed,
+					new_state_with_appended_(S0, [
+						op(l:has_transactions,append,Txs0)
+					], S2)
+				)
 			)
 		)
 	).
@@ -121,6 +125,7 @@ handle_op(S0,append,Field,Tail,S2) :-
  	!result_property(l:exchange_rates, Exchange_Rates),
 	!result_property(l:start_date, Start_Date),
  	!result_property(l:end_date, End_Date),
-	dict_from_vars(Static_Data, [Transactions, Exchange_Rates, Transactions_By_Account, Report_Currency, Start_Date, End_Date, Outstanding]).
+ 	!result_property(l:end_date, Exchange_Date),
+	dict_from_vars(Static_Data, [Transactions, Exchange_Rates, Transactions_By_Account, Report_Currency, Start_Date, End_Date, Exchange_Date, Outstanding]).
 
 

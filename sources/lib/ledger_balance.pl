@@ -135,7 +135,7 @@ transactions_in_period( Transactions_In_Account_Set, Start_Date, End_Date,Transa
  net_activity_by_account(Static_Data, Account_Id, Net_Activity_Transformed, Transactions_Count) :-
 	Static_Data.start_date = Start_Date,
 	Static_Data.end_date = End_Date,
-	Exchange_Date = End_Date,
+	Static_Data.exchange_date = Exchange_Date,
 	Static_Data.exchange_rates = Exchange_Rates,
 	Static_Data.transactions_by_account = Transactions_By_Account,
 	Static_Data.report_currency = Report_Currency,

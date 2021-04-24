@@ -97,68 +97,80 @@ balance_by_account2(Sd, Report_Currency, Date, Account, balance(Balance, Tx_Coun
 
 'with current and historical earnings equity balances'(
 	Txs_by_acct,
-	Start_Date,
-	End_Date,
+	Start_date,
+	End_date,
 	Txs_by_acct2
 ) :-
-	add_days(Start_Date, -1, Before_Start),
+	%add_days(Start_date, -1, Before_start),
+
+	%gtrace,
+
 	/* add past comprehensive income to Historical_Earnings */
-	gtrace,
-	transactions_before_day_on_account_and_subaccounts(Txs_by_acct, $>abrlt('Comprehensive_Income'), Start_Date, Historical_Earnings_Transactions),
-	transactions_before_day_on_account_and_subaccounts(Txs_by_acct, $>abrlt('Historical_Earnings'), Start_Date, Historical_Earnings_Transactions2),
+	abrlt('Comprehensive_Income', Comprehensive_Income_acct),
+	transactions_before_day_on_account_and_subaccounts(Txs_by_acct, Comprehensive_Income_acct, Start_date, Historical_Earnings_Transactions),
+
+	abrlt('Historical_Earnings', Historical_Earnings_acct),
+	transactions_before_day_on_account_and_subaccounts(Txs_by_acct, Historical_Earnings_acct, Start_date, Historical_Earnings_Transactions2),
+
 	append(Historical_Earnings_Transactions, Historical_Earnings_Transactions2, Historical_Earnings_Transactions_All),
+
 	txs_vec_converted_sum(
-		Before_Start,
+		Start_date,
 		Historical_Earnings_Transactions_All,
 		Historical_Earnings_Transactions_All_Balance),
-	Txs_by_acct1 = Txs_by_acct.put(
-		$>abrlt('Historical_Earnings'),
-		[$>make_transaction(
-			closing_books,
-			$>result_property(l:end_date),
-			closing_books,
-			$>abrlt('Historical_Earnings'),
-			Historical_Earnings_Transactions_All_Balance)]
-	),
+
+	make_transaction(
+		closing_books,
+		Start_date,
+		closing_books,
+		Historical_Earnings_acct,
+		Historical_Earnings_Transactions_All_Balance,
+		Tx0),
+
+	Txs_by_acct1 = Txs_by_acct.put(Historical_Earnings_acct, [Tx0]),
 
 	/* copy current Comprehensive_Income txs into Current_Earnings */
 
-	transactions_in_period_on_account_and_subaccounts(Txs_by_acct, $>abrlt('Comprehensive_Income'), Start_Date, End_Date, Current_Earnings_Transactions),
+	transactions_in_period_on_account_and_subaccounts(Txs_by_acct, Comprehensive_Income_acct, Start_date, End_date, Current_Earnings_Transactions),
+
 	txs_vec_converted_sum(
-		$>result_property(l:end_date),
+		End_date,
 		Current_Earnings_Transactions,
 		Current_Earnings_Transactions_Balance),
 
+	abrlt('Current_Earnings', Current_Earnings_acct),
+
+	make_transaction(
+		closing_books,
+		End_date,
+		closing_books,
+		Current_Earnings_acct,
+		Current_Earnings_Transactions_Balance,
+		Tx2),
+
 	Txs_by_acct2 = Txs_by_acct1.put(
-		$>abrlt('Current_Earnings'),
-		[$>make_transaction(
-			closing_books,
-			$>result_property(l:end_date),
-			closing_books,
-			$>abrlt('Current_Earnings'),
-			Current_Earnings_Transactions_Balance)]
+		Current_Earnings_acct,
+		[Tx2]
 	).
 
  txs_vec_converted_sum(Exchange_Date, Transactions, Balance) :-
-	txs_vec_converted_sum2(
-		$>result_property(l:exchange_rates),
-		Exchange_Date,
-		$>result_property(l:report_currency),
-		Transactions,
-		Balance
-	),
+ 	result_property(l:exchange_rates, Exchange_rates),
+ 	result_property(l:report_currency, Report_currency),
+	txs_vec_converted_sum2(Exchange_rates, Exchange_Date, Report_currency, Transactions, Balance),
 	(	vec_is_just_report_currency(Balance)
 	->	true
-	;	(
-			add_alert(
-				check,
-				$>format(string(<$),
-					'could not convert ~q to report currency at ~q',
-					[$>round_term(Balance),$>round_term(Exchange_Date)]
-				)
-			)
+	;	txs_vec_converted_sum_err(Exchange_Date, Transactions, Balance)
+	).
+
+txs_vec_converted_sum_err(Exchange_Date, Transactions, Balance) :-
+	add_alert(
+		check,
+		$>format(string(<$),
+			'could not convert ~q to report currency at ~q, txs: ~q',
+			[$>round_term(Balance),$>round_term(Exchange_Date), Transactions]
 		)
 	).
+
 
 txs_vec_converted_sum2(Exchange_Rates, Exchange_Date, Report_Currency, Transactions, Balance) :-
 	transaction_vectors_total(Transactions, Totals),
