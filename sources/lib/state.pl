@@ -74,34 +74,22 @@ handle_op(S0,append,Field,Tail,S2) :-
 		S2
 	).
 
- add_cutoff_alert :-
-	add_alert(cutoff, $>fs('not processing more source transactions due to cutoff of ~q transactions', $>read_ic_n_sts_processed)).
+ handle_txs(S, [], S) :-
+ 	!.
 
+ handle_txs(S, _, S) :-
+	is_cutoff,
+	!.
+
+ handle_txs(S, _, S) :-
+	cutoff.
 
  handle_txs(S0, Txs0, S2) :-
- 	(	Txs0 = []
- 	->	S0 = S2
- 	;
-		(	b_current(cutoff, true)
-		->	S0 = S2
-		;
-			(
-				(
-					b_setval(cutoff, true),
-					add_cutoff_alert,
-					new_state_with_appended_(S0, [], S2)
-				)
-			;
-				(
-					\+b_current(cutoff, true),
-					bump_ic_n_sts_processed,
-					new_state_with_appended_(S0, [
-						op(l:has_transactions,append,Txs0)
-					], S2)
-				)
-			)
-		)
-	).
+	is_not_cutoff,
+	bump_ic_n_sts_processed,
+	new_state_with_appended_(S0, [
+		op(l:has_transactions,append,Txs0)
+	], S2).
 
 
  check_phase(Expected_phase, Subject, Predicate) :-
@@ -129,3 +117,22 @@ handle_op(S0,append,Field,Tail,S2) :-
 	dict_from_vars(Static_Data, [Transactions, Exchange_Rates, Transactions_By_Account, Report_Currency, Start_Date, End_Date, Exchange_Date, Outstanding]).
 
 
+ add_cutoff_alert :-
+	add_alert(cutoff, $>fs('not processing more source transactions due to cutoff of ~q transactions', $>read_ic_n_sts_processed)).
+
+
+ cutoff :-
+ 	assertion(is_not_cutoff),
+ 	(	/*b_current(step_by_step, true)*/ false
+ 	->	(
+ 			b_setval(cutoff, true),
+ 			add_cutoff_alert
+ 		)
+ 	;	false).
+
+
+
+ is_cutoff :-
+	b_current(cutoff, true).
+ is_not_cutoff :-
+ 	\+is_cutoff.

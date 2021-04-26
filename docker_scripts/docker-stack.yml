@@ -28,6 +28,9 @@ services:
       restart_policy:
         condition: any
     volumes:
+      #- ./../sources/apache/conf/ /usr/local/apache2/conf/
+      #- ./../sources/apache/conf/htpasswd /usr/local/apache2/conf/htpasswd
+      #- ./../sources/apache/conf/httpd.conf /usr/local/apache2/conf/httpd.conf
       - "/etc/localtime:/etc/localtime:ro"
       - tmp:/usr/local/apache2/htdocs/tmp/
       - ./../sources/static/:/usr/local/apache2/htdocs/static/
@@ -175,8 +178,8 @@ services:
         tmpfs:
            size: 2096000000
     #shm_size: "1G"
-    #ports:
-      #- 100${PP}:10035
+    ports:
+      - 100${PP}:10035
 
 
   flower:

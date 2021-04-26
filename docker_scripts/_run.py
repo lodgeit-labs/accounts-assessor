@@ -13,12 +13,12 @@ from copy import deepcopy
 	
 
 @click.command()
-@click.option('-pp', '--port_postfix', type=str, default='88', help="last two or more digits of the services' public ports. Also identifies the particular docker stack.")
+@click.option('-pp', '--port_postfix', type=str, default='', help="last two or more digits of the services' public ports. Also identifies the particular docker stack.")
 @click.option('-hn', '--use_host_network', type=bool, default=False, help="tell docker to attach the containers to host network, rather than creating one?")
 @click.option('-ms', '--mount_host_sources_dir', type=bool, default=False, help="bind-mount sources, instead of copying them into the image? Useful for development.")
 @click.option('-nr', '--django_noreload', type=bool, default=False, help="--noreload. Disables python source file watcher-reloader (to save CPU). Prolog code is still reloaded on every server invocation (even when not bind-mounted...)")
 @click.option('-ph', '--public_host', type=str, default='localhost', help="The public-facing hostname. Used for Caddy.")
-@click.option('-pg', '--enable_public_gateway', type=bool, default=True, help="enable Caddy (on ports 80 and 443)")
+@click.option('-pg', '--enable_public_gateway', type=bool, default=True, help="enable Caddy (on ports 80 and 443). This generally does not make much sense on a development machine, because 1) you're only getting a self-signed cert that excel will refuse, 2)maybe you already have another web server listening on these ports, 3) using -pp (non-standard ports) in combination with https will give you trouble. It's less trouble to skip caddy and access directly the apache server on port 88.")
 def run(port_postfix, public_host, **choices):
 
 	# caddy is just gonna listen on 80 and 443 always.

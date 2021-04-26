@@ -34,6 +34,8 @@ services:
     networks:
     - backend
     - frontend
+    ports:
+    - 100${PP}:10035
     secrets:
     - AGRAPH_SUPER_USER
     - AGRAPH_SUPER_PASSWORD

@@ -48,7 +48,9 @@ process_request_rpc_calculator(Dict) :-
 	;	true),
 
 	'make task_directory report entry',
+
 	findall(_,process_request(Request_data_uri_base, Request_Files2),_),
+
 	(make_zip->true;true).
 
 
@@ -67,7 +69,7 @@ process_request(Request_data_uri_base, File_Paths) :-
 		)
 	),
 	(	Exception \= none
-	->	handle_processing_exception(Exception)
+	->	!handle_processing_exception(Exception)
 	;	true),
 	!process_request2.
 
@@ -287,13 +289,17 @@ process_multifile_request(Request_data_uri_base,File_Paths) :-
 	;	true),
 	(	process_rdf_request
 	;	(
-			(	ground(Dom)
-			->	(xpath(Dom, //reports, _)
-				->	!process_xml_request(Xml_Tmp_File_Path, Dom)
-				;	throw_string('<reports> tag not found'))
-			;		throw_string('rdf request processing failed'))
+			(
+				ground(Dom),
+				xpath(Dom, //reports, _)
+			)
+		->	!process_xml_request(Xml_Tmp_File_Path, Dom)
 		)
 	).
+/*
+				;	throw_string('<reports> tag not found'))
+			;		throw_string('rdf request processing failed'))
+*/
 
 /* only done for requests that include a rdf file */
 check_request_version :-

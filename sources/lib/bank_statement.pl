@@ -12,15 +12,14 @@ call preprocess_s_transaction on each item of the S_Transactions list and do som
 ) :-
 	(
 		(
-			b_setval(cutoff, true),
-			add_cutoff_alert,
+			cutoff,
 			Outstanding_In = Outstanding_Out,
 			Transactions_Out = [],
 			Processed_S_Transactions = []
 		)
 	;
 		(
-			\+b_current(cutoff, true),
+			is_not_cutoff,
 			bump_ic_n_sts_processed,
 			preprocess_s_transactions2(
 				[S_Transaction|S_Transactions],

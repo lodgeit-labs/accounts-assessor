@@ -43,7 +43,7 @@ process_request_ledger3 :-
 	true.
 
  'phase: main 1'(S0, S2) :-
- 	(	\+b_current(cutoff, true)
+ 	(	is_not_cutoff
  	->	(
 			!cf(handle_additional_files(Sts0)),
 			!cf('extract bank statement transactions'(Sts1)),
@@ -57,7 +57,7 @@ process_request_ledger3 :-
  	!once(cf('ensure system accounts exist 0'(Sts3))).
 
 'phase: main 2'(S2, S4) :-
- 	(	\+b_current(cutoff, true)
+ 	(	is_not_cutoff
  	->	(
 			!cf(extract_gl_inputs(_, Txs7)),
 			!cf(extract_reallocations(_, Txs8)),
