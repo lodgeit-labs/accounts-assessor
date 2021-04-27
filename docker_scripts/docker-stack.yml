@@ -162,7 +162,7 @@ services:
         parallelism: 1
         delay: 10s
       restart_policy:
-        condition: any
+        condition: no
     secrets:
       - AGRAPH_SUPER_USER
       - AGRAPH_SUPER_PASSWORD
