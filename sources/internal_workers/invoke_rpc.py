@@ -122,7 +122,8 @@ def call_prolog(
 	logging.getLogger().debug('invoke_rpc: running:')
 	# print(shlex.join(cmd)) # python 3.8
 	logging.getLogger().debug(command_nice(cmd))
-	cmd = flatten_lists(cmd)
+	cmd = flatten_lists(['/usr/bin/time', '-v', cmd])
+
 	#print(cmd)
 	print('# pipe_rpc_json_to_swipl_stdin=',pipe_rpc_json_to_swipl_stdin)
 	try:

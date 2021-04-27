@@ -5,7 +5,7 @@ FROM ubuntu:18.04
 RUN cat /etc/apt/sources.list
 env LOC en_AU.UTF-8
 RUN apt-get update \
-    && DEBIAN_FRONTEND=noninteractive apt-get install -y locales language-pack-en \
+    && DEBIAN_FRONTEND=noninteractive apt-get install -y locales language-pack-en unattended-upgrades \
     && sed -i -e 's/# $LOC UTF-8/$LOC UTF-8/' /etc/locale.gen \
     && dpkg-reconfigure --frontend=noninteractive locales \
     && update-locale LANG=$LOC
@@ -13,9 +13,8 @@ ENV LANG $LOC
 ENV LC_ALL $LOC
 
 
-RUN mkdir /app
-WORKDIR /app
 RUN     apt-get install -y \
+		time \
         git \
         build-essential cmake ninja-build pkg-config \
         ncurses-dev libreadline-dev libedit-dev \
@@ -30,7 +29,9 @@ RUN     apt-get install -y \
         libdb-dev \
         libpcre3-dev \
         libyaml-dev \
-        python3 python3-pip \
+        python3 python3-pip
+
+RUN     unattended-upgrade \
         && rm -rf /var/lib/apt/lists/*
 
 RUN uname -a
@@ -38,6 +39,9 @@ RUN gcc -v
 
 
 
+
+RUN mkdir /app
+WORKDIR /app
 
 #RUN git clone --branch V8.3.10 https://github.com/SWI-Prolog/swipl.git swipl
 #RUN git clone --branch V8.1.15 https://github.com/SWI-Prolog/swipl.git swipl
