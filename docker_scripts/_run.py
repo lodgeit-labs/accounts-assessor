@@ -4,7 +4,7 @@ try:
 	import click
 	import yaml
 except:
-	print('please install: python3 -m pip install --user -U click pyyaml')
+	print('please install: \n python3 -m pip install --user -U click pyyaml')
 	exit(1)
 
 import os,subprocess,time,shlex
@@ -89,6 +89,7 @@ def generate_stack_file(choices):
 def tweaked_services(src, use_host_network, mount_host_sources_dir, django_noreload, enable_public_gateway):
 	res = deepcopy(src)
 	services = res['services']
+	
 	if not enable_public_gateway:
 		del services['caddy']
 

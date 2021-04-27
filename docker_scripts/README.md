@@ -1,9 +1,23 @@
 # quick start
 
 ```
+docker swarm init
+```
+```
+sudo apt install python3
+python3 -m pip install --user -U click pyyaml
+```
+```
 cp -r secrets_example secrets
 cp -r sources/config_example sources/config
-docker_scripts/run.sh -pp 55 -ms true -nr false
+```
+```
+docker_scripts/run.sh -pp '' -ms true -nr true -pg false 
+```
+```
+ufw allow 88 # insecure, http
+# or:
+ufw allow 80 443 # secure - https and redirects from http
 ```
 
 # in detail
