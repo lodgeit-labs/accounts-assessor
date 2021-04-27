@@ -25,6 +25,9 @@ def run(port_postfix, public_host, **choices):
 	# caddy is just gonna listen on 80 and 443 always.
 	generate_caddy_config(public_host)
 
+	open('../sources/apache/conf/dynamic.conf','w').write(f"""
+		ServerName {public_host}
+	""")
 
 	pp = port_postfix
 

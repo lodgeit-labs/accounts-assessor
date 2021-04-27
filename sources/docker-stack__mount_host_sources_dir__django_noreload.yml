@@ -24,6 +24,7 @@ services:
       replicas: 1
       restart_policy:
         condition: any
+        delay: 240s
       update_config:
         delay: 10s
         parallelism: 1
