@@ -3,8 +3,7 @@
 # use this to run a request in docker, possibly with guitracer. internal services and rabbitmq have to be running.
 # you need this to run a request with an image built to bind sources dir
 
-xhost +local:docker
-
+./xhost.py
 ./git_info.fish
 
 set SECRETS_DIR (realpath ../secrets)

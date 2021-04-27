@@ -1,9 +1,9 @@
 #!/usr/bin/env fish
 
-# err, you actually have to set DEBUG_OVERRIDE!
+# for nodebug, you probably actually have to set DEBUG_OVERRIDE...but it should be enough to leave it unset.
 
-xhost +local:docker
 
+./xhost.py
 ./git_info.fish
 
 set SECRETS_DIR (realpath ../secrets)
