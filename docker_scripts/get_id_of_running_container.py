@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 
+import sys
+
 try:
 	import docker
 	import click
 except:
-	print('please install: python3 -m pip install --user -U click docker')
+	print('please install: python3 -m pip install --user -U click docker', file=sys.stderr)
 	exit(1)
 
 
