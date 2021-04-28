@@ -5,7 +5,7 @@ try:
 	import click
 	import yaml
 except:
-	print('please install: \n python3 -m pip install --user -U click pyyaml')
+	print('please install:\npython3 -m pip install --user -U click pyyaml')
 	exit(1)
 
 import os,subprocess,time,shlex
