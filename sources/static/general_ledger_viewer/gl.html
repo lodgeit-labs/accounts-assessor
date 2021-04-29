@@ -62,10 +62,10 @@
 							<th>description2</th>
 							<th>description3</th>
 							<th>vector</th>
-							<th>leaf_account_running_balance_since_beginning_of_time</th>
 							<th>vector_converted_at_transaction_date</th>
 							<th>vector_converted_at_balance_date</th>
 							<th>exchanged</th>
+							<th>leaf_account_running_balance_since_beginning_of_time</th>
 						</tr>
 					</thead>
 					<transformation :id="item.id" :source="item.source" :transactions="item.transactions"  v-for="item in items" :key="item.id"></transformation>
@@ -82,16 +82,16 @@
 					<td v-if='typeof source == "string"'> {{ source }} </td>
 					<template v-else>
 						<td>bank</td>
-						<td class="source"> {{ source.account }}</td>
+						<td class="source"> {{ source.account_name }}</td>
 						<td class="source"> {{ source.date }}</td>
 						<td class="source"> {{ source.verb }}</td>
 						<td class="source"> {{ source.misc.desc2 || ""}}</td>
 						<td class="source"> {{ source.misc.desc3 || ""}}</td>
 						<td class="source"> <vector :data="source.vector"></vector> </td>
-						<td></td>
 						<td class="source"> <vector :data="source.report_currency_transacted_amount_converted_at_transaction_date"></vector> </td>
 						<td class="source"> <vector :data="source.report_currency_transacted_amount_converted_at_balance_date"></vector> </td>
 						<td class="source"> {{ source.exchanged }}</td>
+						<td></td>
 					</template>
 				</tr>
 				<transaction :data="item" v-for="item in transactions" :key="item.id"  v-if="$root.accounts_filter_index[item.account].checked"></transaction>
@@ -124,9 +124,9 @@
 				<td></td>
 				<td></td>
 				<td> <vector :data="data.vector"></vector> </td>
-				<td> <vector :data="data.running_balance"></vector> </td>
 				<td> <vector :data="data.vector_converted_at_transaction_date"></vector> </td>
 				<td> <vector :data="data.vector_converted_at_balance_date"></vector> </td>
+				<td> <vector :data="data.running_balance"></vector> </td>
 			</tr>
 		`
 	});

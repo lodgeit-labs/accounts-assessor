@@ -149,6 +149,7 @@ s_transactions_up_to(End_Date, S_Transactions_All, S_Transactions_Capped) :-
 	s_transaction_type_id(T, uri(Action_Verb)),
 	s_transaction_vector(T, Vector),
 	!s_transaction_account(T, uri(Account)),
+	account_name(Account, Account_name),
 	s_transaction_exchanged(T, Exchanged),
 	s_transaction_misc(T, Misc),
 	(	/* here's an example of the shortcoming of ignoring the rdf prefix issue, fixme */
@@ -160,6 +161,7 @@ s_transactions_up_to(End_Date, S_Transactions_All, S_Transactions_Capped) :-
 		verb: Verb_Label,
 		vector: Vector,
 		account: Account,
+		account_name: Account_name,
 		exchanged: Exchanged,
 		misc: Misc}.
 

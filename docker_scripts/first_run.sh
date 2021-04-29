@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 
-sudo apt install python3 python3-pip docker fish
+sudo apt install python3 python3-pip docker fish apache2-utils
 docker swarm init
 
 # for building and running containers
