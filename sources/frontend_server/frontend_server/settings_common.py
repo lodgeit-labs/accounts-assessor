@@ -29,6 +29,8 @@ with open('/run/secrets/DJANGO_SECRET_KEY', 'r') as s:
 DEBUG = True
 
 ALLOWED_HOSTS = [
+	'75.119.146.173',
+	'vmi579006.contaboserver.net',
 	'fullcracy.xyz',
 	'frontend-server',
 	'192.168.123.10', 
