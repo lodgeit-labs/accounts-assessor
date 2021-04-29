@@ -55,7 +55,9 @@ balance_by_account2(Sd, Report_Currency, Date, Account, balance(Balance, Tx_Coun
 	balance_sheet_entry(Static_Data, $>account_by_role_throw(rl('Accounts')), Entry),
 	Entry = entry(_,_,Accounts_Report,_,[]).*/
 
- balance_sheet_at(Static_Data, [Net_Assets_Entry, Equity_Entry]) :-
+ balance_sheet_at(Static_Data, Dict) :-
+ 	Dict = x{start_date: Start_date, end_date: End_date, exchange_date: Exchange_date, entries:  [Net_Assets_Entry, Equity_Entry]},
+	dict_vars(Static_Data, [Start_date, End_date, Exchange_date]),
 	balance_sheet_entry(Static_Data, $>abrlt('Net_Assets'), Net_Assets_Entry),
 	balance_sheet_entry(Static_Data, $>abrlt('Equity'), Equity_Entry).
 
@@ -90,7 +92,9 @@ balance_by_account2(Sd, Report_Currency, Date, Account, balance(Balance, Tx_Coun
 
 
 
- profitandloss_between(Static_Data, [ProftAndLoss]) :-
+ profitandloss_between(Static_Data, Dict) :-
+  	Dict = x{start_date: Start_date, end_date: End_date, exchange_date: Exchange_date, entries:  [ProftAndLoss]},
+	dict_vars(Static_Data, [Start_date, End_date, Exchange_date]),
 	!activity_entry(Static_Data, $>abrlt('Comprehensive_Income'), ProftAndLoss).
 
 

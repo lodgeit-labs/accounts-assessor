@@ -175,6 +175,7 @@ make_dr_cr_transactions(
 
  transactions_report_currency_sum_at_(Exchange_Rates, Report_Currency, Date, Transactions, Vector_Converted) :-
 	maplist(transaction_vector, Transactions, Vectors_Nested),
-	flatten(Vectors_Nested, Vector),
+	flatten(Vectors_Nested, Vector0),
+	vec_reduce(Vector0, Vector),
 	vec_change_bases(Exchange_Rates, Date, Report_Currency, Vector, Vector_Converted).
 

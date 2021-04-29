@@ -103,7 +103,7 @@ handle_op(S0,append,Field,Tail,S2) :-
 	static_data_from_state(State, Static_Data0),
 	Static_Data = Static_Data0.put(exchange_date,Static_Data0.end_date),
 	!balance_entries(Static_Data, Sr),
-	!other_reports2(Prefix, Static_Data, Sr).
+	!html_reports(Prefix, Sr).
 
  static_data_from_state(State, Static_Data) :-
 	doc(State, l:has_transactions, Transactions),

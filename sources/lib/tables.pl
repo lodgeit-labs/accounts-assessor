@@ -305,7 +305,7 @@ column_by_key(Rows, Key, Vals) :-
 
 sum_cells(Values, Sum) :-
 	flatten(Values, Vec),
-	vec_add(Vec, [], Sum).
+	vec_reduce(Vec, Sum).
 
 		  
 

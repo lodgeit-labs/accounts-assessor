@@ -38,7 +38,9 @@ exchange_rates_thread_guarded(Day, Exchange_Rates) :-
 */
 exchange_rates_thread_guarded(Day, Exchange_Rates) :-
 	date(Today),
-	Day @=< Today,
+	% 2, because timezones and stuff. This should result in us not making queries for exchange rates more than 48h into the future, but definitely not to errorneously refusing to query because we think Day is in future when it isnt.
+	add_days(Today, 2, Tomorrow),
+	Day @=< Tomorrow,
 	fetch_exchange_rates(Day, Exchange_Rates).
 
 % Obtains all available exchange rates on the day Day using an arbitrary base currency
@@ -53,12 +55,12 @@ fetch_exchange_rates(Date, Exchange_Rates) :-
 	string_concat(Query_Url_A, ".json?app_id=677e4a964d1b44c99f2053e21307d31a", Query_Url),
 	format(user_error, '~w ...', [Query_Url]),
 	catch(
-		http_open(Query_Url, Stream, []),
-		% this will happen for dates not found in their db, like too historical.
-		% we don't call this predicate for future dates.
+		http_open(Query_Url, Stream, [request_header('User-Agent'='Robust1')]),
 		error(existence_error(_,_),_),
 		(
-			assert_rates(Date, []),
+			% this will happen for dates not found in their db, like too historical.
+			% ideally, we just wouldn't call this predicate for future dates, but what is a future date?
+			%assert_rates(Date, []),
 			false
 		)
 	),

@@ -39,8 +39,8 @@ process_request_ledger3 :-
 	;	S10 = S8),
 
 	once(!cf(create_reports(S10))),
-
 	true.
+
 
  'phase: main 1'(S0, S2) :-
  	(	is_not_cutoff
@@ -56,6 +56,7 @@ process_request_ledger3 :-
 	handle_sts(S0, Sts3, S2),
  	!once(cf('ensure system accounts exist 0'(Sts3))).
 
+
 'phase: main 2'(S2, S4) :-
  	(	is_not_cutoff
  	->	(
@@ -69,30 +70,82 @@ process_request_ledger3 :-
 	true.
 
  create_reports(State) :-
+	!static_data_from_state(State, Static_Data),
+	!cf('export GL'(Static_Data)),
+	!all_balance_entries(State, Sr),
+	!html_reports('final_', Sr),
+	!misc_reports(Static_Data, Static_Data.outstanding, Sr, _Sr2),
+	!taxonomy_url_base,
+	!cf('create XBRL instance'(Xbrl, Static_Data, Static_Data.start_date, Static_Data.end_date, Static_Data.report_currency, Sr.bs.current, Sr.pl.current, Sr.pl.historical, Sr.tb)),
+	!add_xml_report(xbrl_instance, xbrl_instance, [Xbrl]).
 
-	!static_data_from_state(State, Static_Data0),
 
-	!cf('export GL'(Static_Data0)),
+ trial_balance_between2(Static_Data, Trial_Balance) :-
+	!cf(trial_balance_between(
+		$>result_property(l:exchange_rates),
+		Static_Data.transactions_by_account,
+		$>result_property(l:report_currency),
+		Static_Data.end_date,
+		Static_Data.end_date,
+		Trial_Balance
+	)).
+
+ all_balance_entries(State, Structured_Reports) :-
+
+ 	doc(State, l:has_transactions, Transactions),
+	doc(State, l:has_outstanding, Outstanding),
+	!transactions_dict_by_account_v2(Transactions,Transactions_By_Account),
+ 	!result_property(l:report_currency, Report_Currency),
+ 	!result_property(l:exchange_rates, Exchange_Rates),
+	!result_property(l:start_date, Start_Date),
+ 	!result_property(l:end_date, End_Date),
+ 	!result_property(l:end_date, Exchange_Date),
+
+
+	maplist(!(check_transaction_account), Static_Data0.transactions),
+
+	trial_balance_between2(Static_Data0, Trial_Balance),
 
 	!'with current and historical earnings equity balances'(
 		Static_Data0.transactions_by_account,
 		Static_Data0.start_date,
 		Static_Data0.end_date,
 		Txs_by_acct2),
-	Static_Data = Static_Data0.put(transactions_by_account,Txs_by_acct2),
+	Static_Data_with_eq = Static_Data0.put(transactions_by_account,Txs_by_acct2),
 
-	!balance_entries(Static_Data, Sr),
-	!other_reports2('final_', Static_Data, Sr),
-	!other_reports(Static_Data, Static_Data.outstanding, Sr, _Sr2),
-	!taxonomy_url_base,
-	!cf('create XBRL instance'(Xbrl, Static_Data, Static_Data.start_date, Static_Data.end_date, Static_Data.report_currency, Sr.bs.current, Sr.pl.current, Sr.pl.historical, Sr.tb)),
-	!add_xml_report(xbrl_instance, xbrl_instance, [Xbrl]).
+	!cf(cashflow(Static_Data_with_eq, Cf)),
+
+	!cf(balance_sheet_at(Static_Data_with_eq, Balance_Sheet)),
+	!cf(balance_sheet_delta(Static_Data_with_eq, Balance_Sheet_delta)),
+	!cf(profitandloss_between(Static_Data_with_eq, ProfitAndLoss)),
+
+	static_data_historical(Static_Data0, Static_Data_Historical),
+	!'with current and historical earnings equity balances'(
+		Static_Data_Historical.transactions_by_account,
+		Static_Data_Historical.start_date,
+		Static_Data_Historical.end_date,
+		Txs_by_acct3),
+	Static_Data_Historical_with_eq = Static_Data_Historical.put(transactions_by_account,Txs_by_acct3),
+
+	!cf(balance_sheet_at(Static_Data_Historical_with_eq, Balance_Sheet2_Historical)),
+	!cf(profitandloss_between(Static_Data_Historical_with_eq, ProfitAndLoss2_Historical)),
 
 
-balance_entries(
-	Static_Data,				% Static Data
-	Structured_Reports
-) :-
+	Structured_Reports = _{
+		pl: _{
+			current: ProfitAndLoss,
+			historical: ProfitAndLoss2_Historical
+		},
+		bs: _{
+			current: Balance_Sheet,
+			historical: Balance_Sheet2_Historical,
+			delta: Balance_Sheet_delta /*todo crosscheck*/
+		},
+		tb: Trial_Balance,
+		cf: Cf
+	}.
+
+ balance_entries(Static_Data,Structured_Reports) :-
 	static_data_historical(Static_Data, Static_Data_Historical),
 	maplist(!(check_transaction_account), Static_Data.transactions),
 	!cf(trial_balance_between(
@@ -132,7 +185,31 @@ balance_entries(
 		exchange_date, Static_Data.start_date).
 
 
- other_reports(
+ % only take Sr0, not transactions_by_account
+ html_reports(Report_prefix, Sr0) :-
+
+	(	account_by_role(rl(smsf_equity), _)
+	->	cf(smsf_member_reports(Report_prefix, Sr0))
+	;	true),
+
+	!report_entry_tree_html_page(
+		Report_prefix, Sr0.bs.current,
+		'balance sheet', 'balance_sheet.html'),
+	!report_entry_tree_html_page(
+		Report_prefix, Sr0.bs.delta,
+		'balance sheet delta', 'balance_sheet_delta.html'),
+	!report_entry_tree_html_page(
+		Report_prefix, Sr0.pl.current,
+		'profit and loss', 'profit_and_loss.html'),
+	!report_entry_tree_html_page(
+		Report_prefix, Sr0.bs.historical,
+		'balance sheet - historical', 'balance_sheet_historical.html'),
+	!report_entry_tree_html_page(
+		Report_prefix, Sr0.pl.historical,
+		'profit and loss - historical', 'profit_and_loss_historical.html').
+
+
+ misc_reports(
 	Static_Data,
 	Outstanding,
 	Sr0,
@@ -144,19 +221,6 @@ balance_entries(
 	!cf(crosschecks_report0(Static_Data.put(reports, Sr1), Crosschecks_Report_Json)),
 	Sr5 = Sr1.put(crosschecks, Crosschecks_Report_Json),
 	!make_json_report(Sr1, reports_json).
-
-
- other_reports2(Report_prefix, Static_Data, Sr0) :-
-	!static_data_historical(Static_Data, Static_Data_Historical),
-	(	account_by_role(rl(smsf_equity), _)
-	->	cf(smsf_member_reports(Report_prefix, Sr0))
-	;	true),
-	!report_entry_tree_html_page(Report_prefix, Static_Data, Sr0.bs.current, 'balance sheet', 'balance_sheet.html'),
-	!report_entry_tree_html_page(Report_prefix, Static_Data, Sr0.bs.delta, 'balance sheet delta', 'balance_sheet_delta.html'),
-	!report_entry_tree_html_page(Report_prefix, Static_Data_Historical, Sr0.bs.historical, 'balance sheet - historical', 'balance_sheet_historical.html'),
-	!report_entry_tree_html_page(Report_prefix, Static_Data, Sr0.pl.current, 'profit and loss', 'profit_and_loss.html'),
-	!report_entry_tree_html_page(Report_prefix, Static_Data_Historical, Sr0.pl.historical, 'profit and loss - historical', 'profit_and_loss_historical.html').
-
 
 
 make_gl_viewer_report :-

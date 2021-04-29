@@ -45,7 +45,7 @@
 			link([
 				type('text/css'),
 				rel('stylesheet'),
-				href('../../static/report_stylesheet.css')
+				href('/static/report_stylesheet.css')
 			])
 		],
 		Body_Tags).

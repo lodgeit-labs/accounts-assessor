@@ -16,11 +16,12 @@
 		p([]),
 		table([border="1"], $>table_html([highlight_totals - true], Tbl2))
 	], Html),
+	atomic_list_concat('smsf_member_', Member_Name_str, Fn),
 	add_report_page(
 		0,
-		Member_Name_str,
+		Fn,
 		Html,
-		loc(file_name, $>atomic_list_concat([Report_prefix, smsf_member_, $>replace_nonalphanum_chars_with_underscore(Member_Name_str), '.html'])),
+		loc(file_name, $>atomic_list_concat([Report_prefix, smsf_member_, $>replace_nonalphanum_chars_with_underscore(Fn), '.html'])),
 		'smsf_member_report'
 	).
 

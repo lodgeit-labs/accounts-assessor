@@ -4,15 +4,15 @@
 % in practice, we never pass multiple items in Bases, so this mechanism could be simplified away.
 
 % - no bases to use, leave as it is
-exchange_amount(_, _, [], Amount, Amount) :- !.
+ exchange_amount(_, _, [], Amount, Amount) :- !.
 
-exchange_amount(Exchange_Rates, Day, [Bases_Hd | _], coord(Unit, Debit), Amount_Exchanged) :-
+ exchange_amount(Exchange_Rates, Day, [Bases_Hd | _], coord(Unit, Debit), Amount_Exchanged) :-
 	exchange_rate(Exchange_Rates, Day, Unit, Bases_Hd, Exchange_Rate),
 	Debit_Exchanged is Debit * Exchange_Rate,
 	Amount_Exchanged = coord(Bases_Hd, Debit_Exchanged),
 	!.
 
-exchange_amount(Exchange_Rates, Day, [_ | Bases_Tl], Coord, Amount_Exchanged) :-
+ exchange_amount(Exchange_Rates, Day, [_ | Bases_Tl], Coord, Amount_Exchanged) :-
 	exchange_amount(Exchange_Rates, Day, Bases_Tl, Coord, Amount_Exchanged).
 
 
@@ -33,8 +33,7 @@ exchange_amount(Exchange_Rates, Day, [_ | Bases_Tl], Coord, Amount_Exchanged) :-
  	push_format('convert ~q to ~q at ~q', [$>round_term(As), Bases, Day]),
 	assertion(flatten(Bases, Bases)),
 	maplist(exchange_amount(Exchange_Rates, Day, Bases), As, As_Exchanged),
-	/*and reduce*/
-	vec_add([], As_Exchanged, Bs),
+	vec_reduce(As_Exchanged, Bs),
 	pop_context.
 
  exchange_amount_throw(Exchange_Rates, Day, [Base], coord(Unit, Debit), Amount_Exchanged) :-
@@ -46,6 +45,6 @@ exchange_amount(Exchange_Rates, Day, [_ | Bases_Tl], Coord, Amount_Exchanged) :-
  	push_format('convert ~q to ~q at ~q', [$>round_term(As), Bases, Day]),
 	assertion(flatten(Bases, Bases)),
 	maplist(exchange_amount_throw(Exchange_Rates, Day, Bases), As, As_Exchanged),
-	vec_add([], As_Exchanged, Bs),
+	vec_reduce(As_Exchanged, Bs),
 	pop_context.
 
