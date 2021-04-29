@@ -100,25 +100,26 @@ balance_by_account2(Sd, Report_Currency, Date, Account, balance(Balance, Tx_Coun
 
 
 'with current and historical earnings equity balances'(
-	Txs_by_acct,
+	S0,
 	Start_date,
 	End_date,
-	Txs_by_acct2
+	S22
 ) :-
-	/* add past comprehensive income to Historical_Earnings */
-	abrlt('Comprehensive_Income', Comprehensive_Income_acct),
-	transactions_before_day_on_account_and_subaccounts(Txs_by_acct, Comprehensive_Income_acct, Start_date, Historical_Earnings_Transactions),
 
-	abrlt('Historical_Earnings', Historical_Earnings_acct),
-	transactions_before_day_on_account_and_subaccounts(Txs_by_acct, Historical_Earnings_acct, Start_date, Historical_Earnings_Transactions2),
 
-	append(Historical_Earnings_Transactions, Historical_Earnings_Transactions2, Historical_Earnings_Transactions_All),
-
+'add past comprehensive income to Historical_Earnings'
+:-
+	transactions_before_day_on_account_and_subaccounts(
+		$>txs_by_acct($>doc(State, l:has_transactions)),
+		$>abrlt('Comprehensive_Income'),
+		Start_date,
+		Past_comprehensive_income_txs
+	),
 	txs_vec_converted_sum(
 		Start_date,
-		Historical_Earnings_Transactions_All,
-		Historical_Earnings_Transactions_All_Balance),
-
+		Past_comprehensive_income_txs,
+		Past_comprehensive_income_txs2
+	),
 	make_transaction(
 		closing_books,
 		Start_date,

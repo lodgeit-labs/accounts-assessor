@@ -1,4 +1,4 @@
-%state_fields([day, type_id, vector, account, exchanged, misc]).
+
 
  initial_state(State) :-
  	doc_new_(l:state, State),

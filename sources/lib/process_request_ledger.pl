@@ -1,11 +1,13 @@
 
  process_request_ledger :-
-	ct(	'check if we have an IC request',
-		doc($>request_data, ic_ui:report_details, _)),
- 	!process_request_ledger__deterministic_initialization,
- 	process_request_ledger3.
+	ct(
+		'this is an Investment Calculator query',
+		doc($>request_data, ic_ui:report_details, _)
+	),
+ 	!ledger_initialization,
+ 	*valid_ledger_model.
 
-process_request_ledger__deterministic_initialization :-
+ ledger_initialization :-
 	!cf(extract_start_and_end_date),
 	!cf(stamp_result),
 	!cf(extract_report_parameters),
@@ -13,7 +15,7 @@ process_request_ledger__deterministic_initialization :-
 	!cf(write_accounts_json_report),
 	!cf(extract_exchange_rates).
 
-process_request_ledger3 :-
+ valid_ledger_model :-
  	initial_state(S0),
 
 	once(cf(generate_bank_opening_balances_sts(Bank_Lump_STs))),
@@ -72,7 +74,7 @@ process_request_ledger3 :-
  create_reports(State) :-
 	!static_data_from_state(State, Static_Data),
 	!cf('export GL'(Static_Data)),
-	!all_balance_entries(State, Sr),
+	!all_balance_reports(State, Sr),
 	!html_reports('final_', Sr),
 	!misc_reports(Static_Data, Static_Data.outstanding, Sr, _Sr2),
 	!taxonomy_url_base,
@@ -90,39 +92,40 @@ process_request_ledger3 :-
 		Trial_Balance
 	)).
 
+
  check_state_transactions_accounts(State) :-
  	doc(State, l:has_transactions, Transactions),
  	maplist(!(check_transaction_account), Transactions).
 
- all_balance_entries(State, Structured_Reports) :-
-	check_state_transactions_accounts(State),
 
+ current_balance_entries(State, Cf, Balance_Sheet,Balance_Sheet_delta,ProfitAndLoss),
 	!'with current and historical earnings equity balances'(
-		$>state_txs_by_acct(State),
-		$>!result_property(l:start_date),
-		$>!result_property(l:end_date),
-		Txs_by_acct2),
-	Static_Data_with_eq = Static_Data0.put(transactions_by_account,Txs_by_acct2),
-
+		State,
+		$>!rp(l:start_date),
+		$>!rp(l:end_date),
+		State2),
+	static_data_from_state(State2, Static_Data_with_eq),
 	!cf(cashflow(Static_Data_with_eq, Cf)),
-
 	!cf(balance_sheet_at(Static_Data_with_eq, Balance_Sheet)),
 	!cf(balance_sheet_delta(Static_Data_with_eq, Balance_Sheet_delta)),
-	!cf(profitandloss_between(Static_Data_with_eq, ProfitAndLoss)),
+	!cf(profitandloss_between(Static_Data_with_eq, ProfitAndLoss)).
 
-	static_data_historical(Static_Data0, Static_Data_Historical),
-	!'with current and historical earnings equity balances'(
-		Static_Data_Historical.transactions_by_account,
-		Static_Data_Historical.start_date,
-		Static_Data_Historical.end_date,
-		Txs_by_acct3),
-	Static_Data_Historical_with_eq = Static_Data_Historical.put(transactions_by_account,Txs_by_acct3),
-
-	!cf(balance_sheet_at(Static_Data_Historical_with_eq, Balance_Sheet2_Historical)),
-	!cf(profitandloss_between(Static_Data_Historical_with_eq, ProfitAndLoss2_Historical)),
+ static_data_with_dates(Sd, dates(Start_date,End_date,Exchange_date), Sd2) :-
+ 	Sd2 = Sd.put(start_date,Start_date).put(end_date,End_date).put(exchange_date,Exchange_date).
 
 
-	Structured_Reports = _{
+ historical_balance_entries(State, Balance_Sheet2_Historical,ProfitAndLoss2_Historical) :-
+	historical_dates(Dates),
+	Dates = dates(Start_date,End_date,_Exchange_date),
+	!'with current and historical earnings equity balances'(State,Start_date,End_date,State2),
+	static_data_from_state(State2, Sd),
+ 	static_data_with_dates(Sd, Dates, Sd2),
+	!cf(balance_sheet_at(Sd2, Balance_Sheet2_Historical)),
+	!cf(profitandloss_between(Sd2, ProfitAndLoss2_Historical)).
+
+
+ all_balance_reports(State, Structured_Reports) :-
+ 	Structured_Reports = _{
 		pl: _{
 			current: ProfitAndLoss,
 			historical: ProfitAndLoss2_Historical
@@ -134,7 +137,10 @@ process_request_ledger3 :-
 		},
 		tb:	$>trial_balance_between2(State),
 		cf: Cf
-	}.
+	},
+	check_state_transactions_accounts(State),
+	current_balance_entries(State, Balance_Sheet,Balance_Sheet_delta,ProfitAndLoss),
+	historical_balance_entries(State, Balance_Sheet2_Historical,ProfitAndLoss2_Historical).
 
  balance_entries(Static_Data,Structured_Reports) :-
 	static_data_historical(Static_Data, Static_Data_Historical),
@@ -175,6 +181,12 @@ process_request_ledger3 :-
 		end_date, Before_Start).put(
 		exchange_date, Static_Data.start_date).
 
+ historical_dates(dates(Start_date,End_date,Exchange_date)) :-
+ 	!rp(l:start_date, Current_start_date),
+ 	!rp(l:end_date, Current_end_date),
+ 	Start_date = date(1,1,1),
+	add_days(Current_start_date, -1, End_date),
+	Exchange_date = Current_start_date.
 
  % only take Sr0, not transactions_by_account
  html_reports(Report_prefix, Sr0) :-
