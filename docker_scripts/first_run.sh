@@ -1,12 +1,13 @@
 #!/usr/bin/env bash
 
 
-sudo apt install python3 docker
+sudo apt install python3 python3-pip docker fish
 docker swarm init
 
-
-python3 -m pip install --user -U click pyyaml # for building and running containers
-python3 -m pip install --user -U docker # for run_last_request_in_docker
+# for building and running containers
+python3 -m pip install --user -U click pyyaml 
+# for run_last_request_in_docker
+python3 -m pip install --user -U docker 
 
 
 cd ..
