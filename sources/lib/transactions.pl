@@ -140,9 +140,14 @@ make_dr_cr_transactions(
 	assertion(nonvar(Transactions)),
 	sort_into_dict(transaction_account, Transactions, Transactions_By_Account).
 
+
+:- table(transactions_dict_by_account_v2/2).
+
  transactions_dict_by_account_v2(Transactions,Transactions_By_Account) :-
 	assertion(nonvar(Transactions)),
 	assertion(var(Transactions_By_Account)),
+	length(Transactions, Tl),
+	format(user_error, '~q~ (~q) n', [transactions_dict_by_account_v2(Transactions,Transactions_By_Account), Tl]),
 	sort_into_dict(transaction_account, Transactions, Transactions_By_Account).
 
  transactions_by_account(Transactions_By_Account, Account_Id, Account_Transactions) :-

@@ -80,36 +80,27 @@ process_request_ledger3 :-
 	!add_xml_report(xbrl_instance, xbrl_instance, [Xbrl]).
 
 
- trial_balance_between2(Static_Data, Trial_Balance) :-
+ trial_balance_between2(State, Trial_Balance) :-
 	!cf(trial_balance_between(
 		$>result_property(l:exchange_rates),
-		Static_Data.transactions_by_account,
+		$>transactions_dict_by_account_v2($>doc(State, l:has_transactions)),
 		$>result_property(l:report_currency),
-		Static_Data.end_date,
-		Static_Data.end_date,
+		$>!result_property(l:end_date),
+		$>!result_property(l:end_date),
 		Trial_Balance
 	)).
 
- all_balance_entries(State, Structured_Reports) :-
-
+ check_state_transactions_accounts(State) :-
  	doc(State, l:has_transactions, Transactions),
-	doc(State, l:has_outstanding, Outstanding),
-	!transactions_dict_by_account_v2(Transactions,Transactions_By_Account),
- 	!result_property(l:report_currency, Report_Currency),
- 	!result_property(l:exchange_rates, Exchange_Rates),
-	!result_property(l:start_date, Start_Date),
- 	!result_property(l:end_date, End_Date),
- 	!result_property(l:end_date, Exchange_Date),
+ 	maplist(!(check_transaction_account), Transactions).
 
-
-	maplist(!(check_transaction_account), Static_Data0.transactions),
-
-	trial_balance_between2(Static_Data0, Trial_Balance),
+ all_balance_entries(State, Structured_Reports) :-
+	check_state_transactions_accounts(State),
 
 	!'with current and historical earnings equity balances'(
-		Static_Data0.transactions_by_account,
-		Static_Data0.start_date,
-		Static_Data0.end_date,
+		$>state_txs_by_acct(State),
+		$>!result_property(l:start_date),
+		$>!result_property(l:end_date),
 		Txs_by_acct2),
 	Static_Data_with_eq = Static_Data0.put(transactions_by_account,Txs_by_acct2),
 
@@ -141,7 +132,7 @@ process_request_ledger3 :-
 			historical: Balance_Sheet2_Historical,
 			delta: Balance_Sheet_delta /*todo crosscheck*/
 		},
-		tb: Trial_Balance,
+		tb:	$>trial_balance_between2(State),
 		cf: Cf
 	}.
 
