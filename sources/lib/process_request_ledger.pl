@@ -98,30 +98,8 @@
  	maplist(!(check_transaction_account), Transactions).
 
 
- current_balance_entries(State, Cf, Balance_Sheet,Balance_Sheet_delta,ProfitAndLoss),
-	!'with current and historical earnings equity balances'(
-		State,
-		$>!rp(l:start_date),
-		$>!rp(l:end_date),
-		State2),
-	static_data_from_state(State2, Static_Data_with_eq),
-	!cf(cashflow(Static_Data_with_eq, Cf)),
-	!cf(balance_sheet_at(Static_Data_with_eq, Balance_Sheet)),
-	!cf(balance_sheet_delta(Static_Data_with_eq, Balance_Sheet_delta)),
-	!cf(profitandloss_between(Static_Data_with_eq, ProfitAndLoss)).
-
  static_data_with_dates(Sd, dates(Start_date,End_date,Exchange_date), Sd2) :-
  	Sd2 = Sd.put(start_date,Start_date).put(end_date,End_date).put(exchange_date,Exchange_date).
-
-
- historical_balance_entries(State, Balance_Sheet2_Historical,ProfitAndLoss2_Historical) :-
-	historical_dates(Dates),
-	Dates = dates(Start_date,End_date,_Exchange_date),
-	!'with current and historical earnings equity balances'(State,Start_date,End_date,State2),
-	static_data_from_state(State2, Sd),
- 	static_data_with_dates(Sd, Dates, Sd2),
-	!cf(balance_sheet_at(Sd2, Balance_Sheet2_Historical)),
-	!cf(profitandloss_between(Sd2, ProfitAndLoss2_Historical)).
 
 
  all_balance_reports(State, Structured_Reports) :-
@@ -141,6 +119,31 @@
 	check_state_transactions_accounts(State),
 	current_balance_entries(State, Balance_Sheet,Balance_Sheet_delta,ProfitAndLoss),
 	historical_balance_entries(State, Balance_Sheet2_Historical,ProfitAndLoss2_Historical).
+
+
+ current_balance_entries(State, Cf, Balance_Sheet,Balance_Sheet_delta,ProfitAndLoss),
+	!'with current and historical earnings equity balances'(
+		State,
+		$>!rp(l:start_date),
+		$>!rp(l:end_date),
+		State2),
+	static_data_from_state(State2, Static_Data_with_eq),
+	!cf(cashflow(Static_Data_with_eq, Cf)),
+	!cf(balance_sheet_at(Static_Data_with_eq, Balance_Sheet)),
+	!cf(balance_sheet_delta(Static_Data_with_eq, Balance_Sheet_delta)),
+	!cf(profitandloss_between(Static_Data_with_eq, ProfitAndLoss)).
+
+
+ historical_balance_entries(State, Balance_Sheet2_Historical,ProfitAndLoss2_Historical) :-
+	historical_dates(Dates),
+	Dates = dates(Start_date,End_date,_Exchange_date),
+	!'with current and historical earnings equity balances'(State,Start_date,End_date,State2),
+	static_data_from_state(State2, Sd),
+ 	static_data_with_dates(Sd, Dates, Sd2),
+	!cf(balance_sheet_at(Sd2, Balance_Sheet2_Historical)),
+	!cf(profitandloss_between(Sd2, ProfitAndLoss2_Historical)).
+
+
 
  balance_entries(Static_Data,Structured_Reports) :-
 	static_data_historical(Static_Data, Static_Data_Historical),

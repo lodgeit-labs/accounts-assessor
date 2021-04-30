@@ -134,6 +134,7 @@ make_dr_cr_transactions(
 	sort_into_dict(transaction_account, Transactions, Transactions_By_Account).
 
 
+% todo this probably doesn't table
 :- table(transactions_dict_by_account_v2/2).
 
  transactions_dict_by_account_v2(Transactions,Transactions_By_Account) :-

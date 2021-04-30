@@ -103,8 +103,9 @@ balance_by_account2(Sd, Report_Currency, Date, Account, balance(Balance, Tx_Coun
 	S0,
 	Start_date,
 	End_date,
-	S22
+	S2
 ) :-
+	add_days(Start_date, -1, Before_start),
 	'past comprehensive income tx'(
 		State,
 		date(1,1,1),
@@ -121,8 +122,9 @@ balance_by_account2(Sd, Report_Currency, Date, Account, balance(Balance, Tx_Coun
 		End_date,
 		'Current_Earnings',
 		End_date,
-		Tx0
+		Tx1
 	),
+	handle_txs(S0, [Tx0,Tx1], S2).
 
 
 'past comprehensive income tx'(
@@ -152,7 +154,8 @@ balance_by_account2(Sd, Report_Currency, Date, Account, balance(Balance, Tx_Coun
 		closing_books,
 		$>abrlt(Tx_acct),
 		Sum,
-		Tx0).
+		Tx0
+	).
 
 
 
