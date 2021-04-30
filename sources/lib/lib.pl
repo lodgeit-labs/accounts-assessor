@@ -1,4 +1,4 @@
-:- use_module(library(tabling)).
+
 :- use_module(library(xpath)).
 :- use_module(library(record)).
 :- use_module(library(yall)).

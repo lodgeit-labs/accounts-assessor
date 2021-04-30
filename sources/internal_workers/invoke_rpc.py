@@ -39,12 +39,12 @@ def call_prolog(
 
 	msg['params']['result_tmp_directory_name'], result_tmp_path = create_tmp()
 
-	logging.getLogger().warn('final_result_tmp_directory_name:')
-	logging.getLogger().warn(final_result_tmp_directory_name)
+	#logging.getLogger().warn('final_result_tmp_directory_name:')
+	#logging.getLogger().warn(final_result_tmp_directory_name)
 
 	if final_result_tmp_directory_name != None:
 		xxx1 = ['/bin/ln', '-s', '../'+msg['params']['result_tmp_directory_name'], final_result_tmp_directory_name + '/' + msg['params']['result_tmp_directory_name']]
-		logging.getLogger().warn(xxx1)
+		#logging.getLogger().warn(xxx1)
 		subprocess.call(xxx1)
 
 	last_result_symlink_path = get_tmp_directory_absolute_path('last_result')
@@ -122,10 +122,13 @@ def call_prolog(
 	logging.getLogger().debug('invoke_rpc: running:')
 	# print(shlex.join(cmd)) # python 3.8
 	logging.getLogger().debug(command_nice(cmd))
-	cmd = flatten_lists(['/usr/bin/time', '-v', cmd])
+	cmd = flatten_lists(['/usr/bin/time',
+						 #'-v',
+						 '--f', "max mem: %Mkb",
+						 cmd])
 
 	#print(cmd)
-	print('# pipe_rpc_json_to_swipl_stdin=',pipe_rpc_json_to_swipl_stdin)
+	#print('# pipe_rpc_json_to_swipl_stdin=',pipe_rpc_json_to_swipl_stdin)
 	try:
 		if pipe_rpc_json_to_swipl_stdin:
 			p = subprocess.Popen(cmd, universal_newlines=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE)#, shell=True)

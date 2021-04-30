@@ -123,7 +123,8 @@ make_dr_cr_transactions(
 	).
 
  transactions_before_day_on_account_and_subaccounts(Transactions_By_Account, Account_Id, Day, Filtered_Transactions) :-
-	transactions_in_period_on_account_and_subaccounts(Transactions_By_Account, Account_Id, date(1,1,1), End_Date, Filtered_Transactions).
+	add_days(Day, -1, Before_day),
+	transactions_in_period_on_account_and_subaccounts(Transactions_By_Account, Account_Id, date(1,1,1), Before_day, Filtered_Transactions).
 
 
  transactions_dict_by_account(Static_Data, Transactions_By_Account) :-

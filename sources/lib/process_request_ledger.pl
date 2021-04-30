@@ -117,11 +117,11 @@
 		cf: Cf
 	},
 	check_state_transactions_accounts(State),
-	current_balance_entries(State, Balance_Sheet,Balance_Sheet_delta,ProfitAndLoss),
+	current_balance_entries(State, Cf,Balance_Sheet,Balance_Sheet_delta,ProfitAndLoss),
 	historical_balance_entries(State, Balance_Sheet2_Historical,ProfitAndLoss2_Historical).
 
 
- current_balance_entries(State, Cf, Balance_Sheet,Balance_Sheet_delta,ProfitAndLoss),
+ current_balance_entries(State, Cf, Balance_Sheet,Balance_Sheet_delta,ProfitAndLoss) :-
 	!'with current and historical earnings equity balances'(
 		State,
 		$>!rp(l:start_date),
@@ -186,7 +186,7 @@
 
  historical_dates(dates(Start_date,End_date,Exchange_date)) :-
  	!rp(l:start_date, Current_start_date),
- 	!rp(l:end_date, Current_end_date),
+ 	%!rp(l:end_date, Current_end_date),
  	Start_date = date(1,1,1),
 	add_days(Current_start_date, -1, End_date),
 	Exchange_date = Current_start_date.

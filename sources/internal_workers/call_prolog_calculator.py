@@ -13,8 +13,8 @@ def call_prolog_calculator(celery_app, final_result_tmp_directory_name, server_u
 			}
    }
 
-	print('msg:')
-	print(msg)
+	#print('msg:')
+	#print(msg)
 
 	subprocess.call(['/bin/rm', get_tmp_directory_absolute_path('last_request')])
 	subprocess.call([
