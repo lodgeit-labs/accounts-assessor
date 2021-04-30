@@ -105,54 +105,56 @@ balance_by_account2(Sd, Report_Currency, Date, Account, balance(Balance, Tx_Coun
 	End_date,
 	S22
 ) :-
+	'past comprehensive income tx'(
+		State,
+		date(1,1,1),
+		Before_start,
+		Start_date,
+		'Historical_Earnings',
+		Start_date,
+		Tx0
+	),
+	'past comprehensive income tx'(
+		State,
+		Start_date,
+		End_date,
+		End_date,
+		'Current_Earnings',
+		End_date,
+		Tx0
+	),
 
 
-'add past comprehensive income to Historical_Earnings'
-:-
-	transactions_before_day_on_account_and_subaccounts(
-		$>txs_by_acct($>doc(State, l:has_transactions)),
+'past comprehensive income tx'(
+	State,
+	Start_date,
+	End_date,
+	Exchange_date,
+	Tx_acct,
+	Tx_date,
+	Tx0
+) :-
+	transactions_in_period_on_account_and_subaccounts(
+		$>transactions_dict_by_account_v2(State),
 		$>abrlt('Comprehensive_Income'),
 		Start_date,
-		Past_comprehensive_income_txs
+		End_date,
+		Txs0
 	),
 	txs_vec_converted_sum(
-		Start_date,
-		Past_comprehensive_income_txs,
-		Past_comprehensive_income_txs2
+		Exchange_date,
+		Txs0,
+		Sum
 	),
 	make_transaction(
 		closing_books,
-		Start_date,
+		Tx_date,
 		closing_books,
-		Historical_Earnings_acct,
-		Historical_Earnings_Transactions_All_Balance,
-		Tx0),
+		$>abrlt(Tx_acct),
+		Sum,
+		Tx0).
 
-	Txs_by_acct1 = Txs_by_acct.put(Historical_Earnings_acct, [Tx0]),
 
-	/* copy current Comprehensive_Income txs into Current_Earnings */
-
-	transactions_in_period_on_account_and_subaccounts(Txs_by_acct, Comprehensive_Income_acct, Start_date, End_date, Current_Earnings_Transactions),
-
-	txs_vec_converted_sum(
-		End_date,
-		Current_Earnings_Transactions,
-		Current_Earnings_Transactions_Balance),
-
-	abrlt('Current_Earnings', Current_Earnings_acct),
-
-	make_transaction(
-		closing_books,
-		End_date,
-		closing_books,
-		Current_Earnings_acct,
-		Current_Earnings_Transactions_Balance,
-		Tx2),
-
-	Txs_by_acct2 = Txs_by_acct1.put(
-		Current_Earnings_acct,
-		[Tx2]
-	).
 
  txs_vec_converted_sum(Exchange_Date, Transactions, Balance) :-
  	result_property(l:exchange_rates, Exchange_rates),

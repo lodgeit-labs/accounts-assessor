@@ -123,15 +123,8 @@ make_dr_cr_transactions(
 	).
 
  transactions_before_day_on_account_and_subaccounts(Transactions_By_Account, Account_Id, Day, Filtered_Transactions) :-
-	transactions_in_account_set(Transactions_By_Account, Account_Id, Transactions),
-	findall(
-		Transaction,
-		(
-			member(Transaction, Transactions),
-			transaction_before(Transaction, Day)
-		),
-		Filtered_Transactions
-	).
+	transactions_in_period_on_account_and_subaccounts(Transactions_By_Account, Account_Id, date(1,1,1), End_Date, Filtered_Transactions).
+
 
  transactions_dict_by_account(Static_Data, Transactions_By_Account) :-
 	dict_vars(Static_Data,
