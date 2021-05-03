@@ -63,8 +63,8 @@ pesseract_style_table_rows(
 ) 
 */	
 
-pesseract_style_table_rows(_, [], []).
-pesseract_style_table_rows(
+ pesseract_style_table_rows(_, [], []).
+ pesseract_style_table_rows(
 	Report_Currency,
 	Entries,
 	[Lines|Lines_Tail]

@@ -5,7 +5,7 @@
 	bs_pl_reports_from_state('before_smsf_rollover_', State_in, Sr),
 	cf('check that smsf_equity_Opening_Balance is zero'(Sr)),
 	smsf_rollover(Sr.bs.current, Txs),
-	new_state_with_appended_(State_in, [op(l:has_transactions,append,Txs)], State_out),
+	new_state_with_appended_(State_in, [change(l:has_transactions,append,Txs)], State_out),
 	bs_pl_reports_from_state('after_smsf_rollover_', State_out, Sr2),
 	'check that smsf_equity equals smsf_equity_Opening_Balance'(Sr2.bs.current).
 

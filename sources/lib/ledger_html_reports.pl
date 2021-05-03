@@ -8,16 +8,16 @@ report_entry_tree_html_page(
 ) :-
 	Dict = x{start_date: Start_date, end_date: End_date, exchange_date: _Exchange_date, entries:  Entries},
 
-	result_property(l:report_currency, Report_Currency),
-	format_date(Start_date, Start_Date_Atom),
-	format_date(End_date, End_Date_Atom),
-	report_currency_atom(Report_Currency, Report_Currency_Atom),
-	atomic_list_concat([Title, ' from ', Start_Date_Atom, ' to ', End_Date_Atom, ' ', Report_Currency_Atom], Title_Text),
-	pesseract_style_table_rows(Report_Currency, Entries, Report_Table_Data),
+	!result_property(l:report_currency, Report_Currency),
+	!format_date(Start_date, Start_Date_Atom),
+	!format_date(End_date, End_Date_Atom),
+	!report_currency_atom(Report_Currency, Report_Currency_Atom),
+	!atomic_list_concat([Title, ' from ', Start_Date_Atom, ' to ', End_Date_Atom, ' ', Report_Currency_Atom], Title_Text),
+	!pesseract_style_table_rows(Report_Currency, Entries, Report_Table_Data),
 	Header = tr([th('Account'), th(['Balance', Report_Currency_Atom])]),
 	flatten([Header, Report_Table_Data], Tbl),
 	Id = Filename,
-	add_report_page_with_table(0, Title_Text, Tbl, loc(file_name,$>atomic_list_concat([Report_prefix, Filename])), Id).
+	!add_report_page_with_table(0, Title_Text, Tbl, loc(file_name,$>atomic_list_concat([Report_prefix, Filename])), Id).
 		
 % EFFECTS: write cashflow.html
 cf_page(

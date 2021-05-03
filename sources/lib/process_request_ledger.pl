@@ -5,7 +5,9 @@
 		doc($>request_data, ic_ui:report_details, _)
 	),
  	!ledger_initialization,
- 	*valid_ledger_model.
+ 	*valid_ledger_model,
+ 	ct('process_request_ledger is finished.').
+
 
  ledger_initialization :-
 	!cf(extract_start_and_end_date),
@@ -78,14 +80,14 @@
 	!html_reports('final_', Sr),
 	!misc_reports(Static_Data, Static_Data.outstanding, Sr, _Sr2),
 	!taxonomy_url_base,
-	!cf('create XBRL instance'(Xbrl, Static_Data, Static_Data.start_date, Static_Data.end_date, Static_Data.report_currency, Sr.bs.current, Sr.pl.current, Sr.pl.historical, Sr.tb)),
+	!cf('create XBRL instance'(Xbrl, Static_Data, Static_Data.start_date, Static_Data.end_date, Static_Data.report_currency, Sr.bs.current.entries, Sr.pl.current.entries, Sr.pl.historical, Sr.tb)),
 	!add_xml_report(xbrl_instance, xbrl_instance, [Xbrl]).
 
 
  trial_balance_between2(State, Trial_Balance) :-
 	!cf(trial_balance_between(
 		$>result_property(l:exchange_rates),
-		$>transactions_dict_by_account_v2($>doc(State, l:has_transactions)),
+		$>transactions_dict_from_state(State),
 		$>result_property(l:report_currency),
 		$>!result_property(l:end_date),
 		$>!result_property(l:end_date),
@@ -136,45 +138,12 @@
 
  historical_balance_entries(State, Balance_Sheet2_Historical,ProfitAndLoss2_Historical) :-
 	historical_dates(Dates),
-	Dates = dates(Start_date,End_date,_Exchange_date),
+	Dates = dates(Start_date,End_date,_),
 	!'with current and historical earnings equity balances'(State,Start_date,End_date,State2),
 	static_data_from_state(State2, Sd),
  	static_data_with_dates(Sd, Dates, Sd2),
 	!cf(balance_sheet_at(Sd2, Balance_Sheet2_Historical)),
 	!cf(profitandloss_between(Sd2, ProfitAndLoss2_Historical)).
-
-
-
- balance_entries(Static_Data,Structured_Reports) :-
-	static_data_historical(Static_Data, Static_Data_Historical),
-	maplist(!(check_transaction_account), Static_Data.transactions),
-	!cf(trial_balance_between(
-		Static_Data.exchange_rates,
-		Static_Data.transactions_by_account,
-		Static_Data.report_currency,
-		Static_Data.end_date,
-		Static_Data.end_date,
-		Trial_Balance)),
-	!cf(balance_sheet_at(Static_Data, Balance_Sheet)),
-	!cf(balance_sheet_delta(Static_Data, Balance_Sheet_delta)),
-	!cf(balance_sheet_at(Static_Data_Historical, Balance_Sheet2_Historical)),
-	!cf(profitandloss_between(Static_Data, ProfitAndLoss)),
-	!cf(profitandloss_between(Static_Data_Historical, ProfitAndLoss2_Historical)),
-	!cf(cashflow(Static_Data, Cf)),
-
-	Structured_Reports = _{
-		pl: _{
-			current: ProfitAndLoss,
-			historical: ProfitAndLoss2_Historical
-		},
-		bs: _{
-			current: Balance_Sheet,
-			historical: Balance_Sheet2_Historical,
-			delta: Balance_Sheet_delta /*todo crosscheck*/
-		},
-		tb: Trial_Balance,
-		cf: Cf
-	}.
 
 
  static_data_historical(Static_Data, Static_Data_Historical) :-

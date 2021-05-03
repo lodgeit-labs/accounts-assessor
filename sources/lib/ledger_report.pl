@@ -61,7 +61,9 @@ balance_by_account2(Sd, Report_Currency, Date, Account, balance(Balance, Tx_Coun
 	balance_sheet_entry(Static_Data, $>abrlt('Net_Assets'), Net_Assets_Entry),
 	balance_sheet_entry(Static_Data, $>abrlt('Equity'), Equity_Entry).
 
- balance_sheet_delta(Static_Data, [Net_Assets_Entry, Equity_Entry]) :-
+ balance_sheet_delta(Static_Data, Dict) :-
+ 	Dict = x{start_date: Start_date, end_date: End_date, exchange_date: Exchange_date, entries: [Net_Assets_Entry, Equity_Entry]},
+	dict_vars(Static_Data, [Start_date, End_date, Exchange_date]),
 	!activity_entry(Static_Data, $>abrlt('Net_Assets'), Net_Assets_Entry),
 	!activity_entry(Static_Data, $>abrlt('Equity'), Equity_Entry).
 
@@ -137,7 +139,7 @@ balance_by_account2(Sd, Report_Currency, Date, Account, balance(Balance, Tx_Coun
 	Tx0
 ) :-
 	transactions_in_period_on_account_and_subaccounts(
-		$>transactions_dict_by_account_v2(State),
+		$>transactions_dict_from_state(State),
 		$>abrlt('Comprehensive_Income'),
 		Start_date,
 		End_date,

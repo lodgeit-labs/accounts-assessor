@@ -27,7 +27,7 @@ crosscheck_output(Fn, Result, Html) :-
 			add_alert('crosscheck failed', Evaluation_Str, Alert_uri),
 			doc_add(
 				Alert_uri,
-				l:has_html,
+				l:has_html_message,
 				p(
 					[
 						h4(

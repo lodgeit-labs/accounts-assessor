@@ -18,10 +18,10 @@
  	]).
 
  handle_field(S0,S2,Ops,Field) :-
-	(	nth0(I,Ops,op(Field,Action1,Args1))
+	(	nth0(I,Ops,change(Field,Action1,Args1))
 	->	(
 			dif(I,J),
-			(	nth0(J,Ops,op(Field,_,_))
+			(	nth0(J,Ops,change(Field,_,_))
 			->	throw_string('cannot handle multiple actions on one field at once')
 			;	true),
 			!handle_op(S0,Action1,Field,Args1,S2)
@@ -67,9 +67,9 @@ handle_op(S0,append,Field,Tail,S2) :-
 	new_state_with_appended_(
 		S0,
 		[
-			op(l:has_s_transactions,append,Preprocessed_S_Transactions),
-			op(l:has_transactions,append,Transactions),
-			op(l:has_outstanding,set,Outstanding_new)
+			change(l:has_s_transactions,append,Preprocessed_S_Transactions),
+			change(l:has_transactions,append,Transactions),
+			change(l:has_outstanding,set,Outstanding_new)
 		],
 		S2
 	).
@@ -88,7 +88,7 @@ handle_op(S0,append,Field,Tail,S2) :-
 	is_not_cutoff,
 	bump_ic_n_sts_processed,
 	new_state_with_appended_(S0, [
-		op(l:has_transactions,append,Txs0)
+		change(l:has_transactions,append,Txs0)
 	], S2).
 
 
@@ -100,10 +100,12 @@ handle_op(S0,append,Field,Tail,S2) :-
 
 
  bs_pl_reports_from_state(Prefix, State, Sr) :-
-	static_data_from_state(State, Static_Data0),
-	Static_Data = Static_Data0.put(exchange_date,Static_Data0.end_date),
-	!balance_entries(Static_Data, Sr),
+	!all_balance_reports(State, Sr),
 	!html_reports(Prefix, Sr).
+
+ transactions_dict_from_state(State,Transactions_By_Account) :-
+ 	doc(State, l:has_transactions, Transactions),
+	transactions_dict_by_account_v2(Transactions,Transactions_By_Account).
 
  static_data_from_state(State, Static_Data) :-
 	doc(State, l:has_transactions, Transactions),

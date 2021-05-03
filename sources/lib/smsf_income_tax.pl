@@ -8,13 +8,13 @@
 smsf_income_tax_stuff2(Input, State_in, State_out) :-
 	!cf(ato_supervisory_levy_txs(Input, Ato_levy_txs)),
 	throw('finishme switch out for handle_sts'),
-	new_state_with_appended_(State_in, [op(l:has_transactions,append,Ato_levy_txs)], State2),
+	new_state_with_appended_(State_in, [change(l:has_transactions,append,Ato_levy_txs)], State2),
 	bs_pl_reports_from_state('before_smsf_income_tax_', State2, Sr0),
 	!cf(add_smsf_income_tax_report_facts(_{before_smsf_income_tax:Sr0})),
 	!cf('check that Income_Tax_Expenses are zero'),
 	!cf(smsf_income_tax_reports_v2(_)),
 	!cf(smsf_income_tax_txs(Input, Tax_expense_txs)),
-	new_state_with_appended_(State2, [op(l:has_transactions,append,[Ato_levy_txs,Tax_expense_txs])], State_out).
+	new_state_with_appended_(State2, [change(l:has_transactions,append,[Ato_levy_txs,Tax_expense_txs])], State_out).
 
 ato_supervisory_levy_txs(Input, Txs) :-
 	!doc_value(Input, excel:has_sheet_name, Sheet_name),

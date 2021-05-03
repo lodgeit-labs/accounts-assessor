@@ -79,6 +79,7 @@ process_request2 :-
 	!make_json_report(Alerts3, alerts_json),
 	!make_alerts_report(Alerts_html),
 	!make_doc_dump_report,
+	ct('done.'),
 	!make_context_trace_report,
 	!json_report_entries(Files3),
 	Json_Out = _{alerts:Alerts3, reports:Files3},
@@ -89,12 +90,16 @@ process_request2 :-
 	%gtrace,
 	true.
 
-enrich_exception_with_ctx_dump(E, E2) :-
+
+get_ctx_dump_string(Ctx_str) :-
 	(	user:exception_ctx_dump(Ctx_list)
-	->	(
-			context_string(Ctx_list,Ctx_str),
-			E2 = with_processing_context(Ctx_str, E)
-		)
+	->	context_string(Ctx_list,Ctx_str)
+	;	fail).
+
+
+enrich_exception_with_ctx_dump(E, E2) :-
+	(	get_ctx_dump_string(Ctx_str)
+	->	E2 = with_processing_context(Ctx_str, E)
 	;	E2 = E).
 
 reestablish_doc :-
@@ -220,6 +225,7 @@ collect_alerts(Alerts_text, Alerts_html) :-
 	findall(
 		Alert_text,
 		(
+			/* every alert is converted into a string, which is put into result json. This isnt currently being displayed to users - they see the html versions collected below. We might probably replace this with a link to the html report, just for easy navigation from command line during development. */
 			get_alert(Key,Msg0,_),
 			!alert_to_string(Key, Msg0, Alert_text)
 		),
@@ -229,6 +235,7 @@ collect_alerts(Alerts_text, Alerts_html) :-
 		Alert_html,
 		(
 			get_alert(Key,Msg0,Uri),
+			/* alerts generated from exceptions caught by handle_processing_exception already have html generated from the exception, including stack trace and context trace. todo refactor. Context trace etc extracted from exception should be set on the generated alert, then used here. */
 			(	doc(Uri,l:has_html,Alert_html)
 			->	true
 			;	!alert_to_html(Key, Msg0, Alert_html))
@@ -243,7 +250,8 @@ collect_alerts(Alerts_text, Alerts_html) :-
 
  alert_to_html(Key, E1, Alert) :-
 	(	E1 = with_backtrace_str(Msg0, Bstr0)
-	->	atomic_list_concat(['prolog stack:\n', Bstr0], Bstr)
+	->	%atomic_list_concat(['prolog stack:\n', Bstr0], Bstr)
+		Bstr = details([summary(['prolog stack:']), Bstr0])
 	;	(
 			Msg0 = E1,
 			Bstr = ''
@@ -257,13 +265,24 @@ collect_alerts(Alerts_text, Alerts_html) :-
 			Bt = ''
 		)
 	),
+
 	(	Msg = html(Msg2)
 	->	true
 	;	(	atomic(Msg)
 		->	Msg2 = Msg
 		;	term_string(Msg, Msg2))
 	),
-	Alert = p([h4([$>atom_string(<$, $>term_string(Key)),': ']),pre([Msg2]),pre([Bt]),pre([small([Bstr])])]).
+
+	(	?doc(Alert, l:has_html_message, Html_message)
+	->	true
+	;	Html_message = ''),
+
+	(	?doc(Alert, l:ctx_str, Ctx_str)
+	->	true
+	;	Ctx_str = ''),
+
+	Alert = p([h4([$>atom_string(<$, $>term_string(Key)),': ']),pre([Msg2]),Html_message,br([]),pre([Ctx_str]),br([]),pre([Bt]),pre([small([Bstr])])]).
+
 
 make_alerts_report(Alerts_Html) :-
 	(	Alerts_Html = []
@@ -351,7 +370,8 @@ process_rdf_request :-
 		process_request_depreciation_new;
 		process_request_ledger
 	),
-	make_rdf_report.
+	ct('process_rdf_request is finished.'),
+	make_rdf_response_report.
 
 
 

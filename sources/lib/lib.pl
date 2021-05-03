@@ -5,8 +5,7 @@
 
 % https://github.com/SWI-Prolog/swipl-devel/issues/715#issuecomment-731019516
 :- use_module(library(clpq), [{}/1]).
-:- use_module(library(clpq), []).
-:- use_module(library(clpq)).
+:- use_module(library(clpr), []).
 :- use_module(library(clpfd)).
 
 :- use_module(library(http/http_open)).
