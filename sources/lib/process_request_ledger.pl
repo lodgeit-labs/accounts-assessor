@@ -76,7 +76,7 @@
  create_reports(State) :-
 	!static_data_from_state(State, Static_Data),
 	!cf('export GL'(Static_Data)),
-	!all_balance_reports(State, Sr),
+	!cf(all_balance_reports(State, Sr)),
 	!html_reports('final_', Sr),
 	!misc_reports(Static_Data, Static_Data.outstanding, Sr, _Sr2),
 	!taxonomy_url_base,
@@ -84,18 +84,7 @@
 	!add_xml_report(xbrl_instance, xbrl_instance, [Xbrl]).
 
 
- trial_balance_between2(State, Trial_Balance) :-
-	!cf(trial_balance_between(
-		$>result_property(l:exchange_rates),
-		$>transactions_dict_from_state(State),
-		$>result_property(l:report_currency),
-		$>!result_property(l:end_date),
-		$>!result_property(l:end_date),
-		Trial_Balance
-	)).
-
-
- check_state_transactions_accounts(State) :-
+  check_state_transactions_accounts(State) :-
  	doc(State, l:has_transactions, Transactions),
  	maplist(!(check_transaction_account), Transactions).
 
@@ -115,15 +104,15 @@
 			historical: Balance_Sheet2_Historical,
 			delta: Balance_Sheet_delta /*todo crosscheck*/
 		},
-		tb:	$>trial_balance_between2(State),
+		tb:	Trial_Balance,
 		cf: Cf
 	},
 	check_state_transactions_accounts(State),
-	current_balance_entries(State, Cf,Balance_Sheet,Balance_Sheet_delta,ProfitAndLoss),
+	current_balance_entries(State, Cf,Balance_Sheet,Balance_Sheet_delta,ProfitAndLoss,Trial_Balance),
 	historical_balance_entries(State, Balance_Sheet2_Historical,ProfitAndLoss2_Historical).
 
 
- current_balance_entries(State, Cf, Balance_Sheet,Balance_Sheet_delta,ProfitAndLoss) :-
+ current_balance_entries(State, Cf, Balance_Sheet,Balance_Sheet_delta,ProfitAndLoss,Trial_Balance) :-
 	!'with current and historical earnings equity balances'(
 		State,
 		$>!rp(l:start_date),
@@ -133,7 +122,16 @@
 	!cf(cashflow(Static_Data_with_eq, Cf)),
 	!cf(balance_sheet_at(Static_Data_with_eq, Balance_Sheet)),
 	!cf(balance_sheet_delta(Static_Data_with_eq, Balance_Sheet_delta)),
-	!cf(profitandloss_between(Static_Data_with_eq, ProfitAndLoss)).
+	!cf(profitandloss_between(Static_Data_with_eq, ProfitAndLoss)),
+	trial_balance_report(
+		$>result_property(l:exchange_rates),
+		$>transactions_dict_from_state(State2),
+		$>result_property(l:report_currency),
+		$>!result_property(l:end_date),
+		$>!result_property(l:end_date),
+		Trial_Balance
+	).
+
 
 
  historical_balance_entries(State, Balance_Sheet2_Historical,ProfitAndLoss2_Historical) :-

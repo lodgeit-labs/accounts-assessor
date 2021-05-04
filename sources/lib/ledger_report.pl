@@ -67,7 +67,7 @@ balance_by_account2(Sd, Report_Currency, Date, Account, balance(Balance, Tx_Coun
 	!activity_entry(Static_Data, $>abrlt('Net_Assets'), Net_Assets_Entry),
 	!activity_entry(Static_Data, $>abrlt('Equity'), Equity_Entry).
 
- trial_balance_between(
+ trial_balance_report(
  	Exchange_Rates,
  	Transactions_By_Account,
  	Report_Currency,
@@ -75,6 +75,7 @@ balance_by_account2(Sd, Report_Currency, Date, Account, balance(Balance, Tx_Coun
  	End_Date,
  	[Trial_Balance_Section]
 ) :-
+	push_format('trial_balance_report(end_date:~q, exchange_date:~q)',[End_Date,Exchange_Date]),
 	balance_by_account(Exchange_Rates, Transactions_By_Account, Report_Currency, Exchange_Date, $>abrlt('Net_Assets'), End_Date, Net_Assets_Balance, Net_Assets_Count),
 	balance_by_account(Exchange_Rates, Transactions_By_Account, Report_Currency, Exchange_Date, $>abrlt('Equity'), End_Date, Equity_Balance, Equity_Count),
 
@@ -82,15 +83,14 @@ balance_by_account2(Sd, Report_Currency, Date, Account, balance(Balance, Tx_Coun
 	Transactions_Count is Net_Assets_Count + Equity_Count,
 
 	% too bad there isnt a trial balance concept in the taxonomy yet, but not a problem
-	make_report_entry('Trial_Balance', [], Trial_Balance_Section),
+	c(make_report_entry('Trial_Balance', [], Trial_Balance_Section)),
 	set_report_entry_total_vec(Trial_Balance_Section, Trial_Balance),
 	set_report_entry_transaction_count(Trial_Balance_Section, Transactions_Count),
 
-	(	(	trial_balance_ok(Trial_Balance_Section)
-		;	Report_Currency = [])
-	->	true
-	;	(	term_string(trial_balance(Trial_Balance_Section), Tb_Str),
-			add_alert('SYSTEM_WARNING', Tb_Str))).
+	(	Report_Currency = []
+	->	check_trial_balance_section(Trial_Balance_Section)
+	;	true),
+	pop_format.
 
 
 

@@ -91,14 +91,14 @@ process_request2 :-
 	true.
 
 
-get_ctx_dump_string(Ctx_str) :-
+get_exception_ctx_dump_string(Ctx_str) :-
 	(	user:exception_ctx_dump(Ctx_list)
 	->	context_string(Ctx_list,Ctx_str)
 	;	fail).
 
 
 enrich_exception_with_ctx_dump(E, E2) :-
-	(	get_ctx_dump_string(Ctx_str)
+	(	context_string(Ctx_str)
 	->	E2 = with_processing_context(Ctx_str, E)
 	;	E2 = E).
 
@@ -238,7 +238,7 @@ collect_alerts(Alerts_text, Alerts_html) :-
 			/* alerts generated from exceptions caught by handle_processing_exception already have html generated from the exception, including stack trace and context trace. todo refactor. Context trace etc extracted from exception should be set on the generated alert, then used here. */
 			(	doc(Uri,l:has_html,Alert_html)
 			->	true
-			;	!alert_to_html(Key, Msg0, Alert_html))
+			;	!alert_to_html(Key, Msg0, Uri, Alert_html))
 		),
 		Alerts_html
 	).
@@ -248,7 +248,7 @@ collect_alerts(Alerts_text, Alerts_html) :-
 	(atomic(Msg) -> Msg2 = Msg ; term_string(Msg, Msg2)),
 	atomic_list_concat([Key,': ',Msg2], Alert).
 
- alert_to_html(Key, E1, Alert) :-
+ alert_to_html(Key, E1, Uri, Alert_html) :-
 	(	E1 = with_backtrace_str(Msg0, Bstr0)
 	->	%atomic_list_concat(['prolog stack:\n', Bstr0], Bstr)
 		Bstr = details([summary(['prolog stack:']), Bstr0])
@@ -273,15 +273,15 @@ collect_alerts(Alerts_text, Alerts_html) :-
 		;	term_string(Msg, Msg2))
 	),
 
-	(	?doc(Alert, l:has_html_message, Html_message)
+	(	?doc(Uri, l:has_html_message, Html_message)
 	->	true
 	;	Html_message = ''),
 
-	(	?doc(Alert, l:ctx_str, Ctx_str)
+	(	?doc(Uri, l:ctx_str, Ctx_str)
 	->	true
 	;	Ctx_str = ''),
 
-	Alert = p([h4([$>atom_string(<$, $>term_string(Key)),': ']),pre([Msg2]),Html_message,br([]),pre([Ctx_str]),br([]),pre([Bt]),pre([small([Bstr])])]).
+	Alert_html = p([h4([$>atom_string(<$, $>term_string(Key)),': ']),pre([Msg2]),br([]),Html_message,br([]),pre([Ctx_str]),br([]),pre([Bt]),pre([small([Bstr])])]).
 
 
 make_alerts_report(Alerts_Html) :-

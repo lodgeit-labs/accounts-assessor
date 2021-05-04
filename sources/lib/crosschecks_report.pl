@@ -28,18 +28,11 @@ crosscheck_output(Fn, Result, Html) :-
 			doc_add(
 				Alert_uri,
 				l:has_html_message,
-				p(
+				pre(
 					[
-						h4(
-							["crosscheck failed:"]
-						),
-						pre(
-							[
-								a(
-									[href=Fn],
-									[Evaluation_Str]
-								)
-							]
+						a(
+							[href=Fn],
+							[crosschecks]
 						)
 					]
 				)
@@ -199,7 +192,9 @@ evaluate2(Sd, report_value(Key), Values_List) :-
 
 evaluate2(Sd, account_balance(Report_Id, Acct), Values_List) :-
 	/* get report out of static data */
-	*path_get_dict(Report_Id, Sd, Report),
+	*path_get_dict(Report_Id, Sd, Report_wrapper),
+	!is_dict(Report_wrapper),
+	Report = Report_wrapper.entries,
 	findall(
 		Values_List,
 		report_report_entry_normal_side_values_by_acct(Report, Acct, Values_List),
@@ -223,24 +218,6 @@ report_report_entry_normal_side_values_by_acct(Report, Acct, Values_List) :-
 	),
 	report_entry_normal_side_values(Report, Uri, Values_List).
 
-
-entry_normal_side_values(Entry, Values_List) :-
-	!report_entry_total_vec(Entry, Balance),
-	!report_entry_gl_account(Entry, Account),
-	!vector_of_coords_to_vector_of_values_by_account_normal_side(Account, Balance, Values_List).
-
- accounts_report_entry_by_account_role_nothrow(_Sd, Report, Role, Entry) :-
-	account_by_role(Role, Id),
-	accounts_report_entry_by_account_uri(Report, Id, Entry).
-
- accounts_report_entry_by_account_uri(Report, Id, Entry) :-
-	find_thing_in_tree(
-			   Report,
-			   ([Entry1]>>(report_entry_gl_account(Entry1, Id))),
-			   ([Entry2, Child]>>(report_entry_children(Entry2, Children), member(Child, Children))),
-			   Entry).
-	
-	
 
  check_account_is_zero(Sr, Specifier) :-
 	Crosscheck = equality(

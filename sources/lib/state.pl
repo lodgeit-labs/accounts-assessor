@@ -88,7 +88,7 @@ handle_op(S0,append,Field,Tail,S2) :-
 	is_not_cutoff,
 	bump_ic_n_sts_processed,
 	new_state_with_appended_(S0, [
-		change(l:has_transactions,append,Txs0)
+		change(l:has_transactions, append, Txs0)
 	], S2).
 
 
