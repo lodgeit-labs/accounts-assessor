@@ -1,7 +1,7 @@
 :- use_module(library(http/json)).
 :- use_module('residency', []).
 :- use_module('sbe', []).
-%:- use_module(library(prolog_stack)).
+:- use_module(library(prolog_stack)).
 
 :- ['lib'].
 

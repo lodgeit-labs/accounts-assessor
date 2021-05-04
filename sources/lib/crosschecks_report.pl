@@ -1,4 +1,5 @@
 
+
 crosschecks_report0(Sd, Json) :-
 	% getting a list of _{check:Check, evaluation:Evaluation, status:Status} dicts:
 	%assertion(ground(Sd)),
@@ -192,12 +193,14 @@ evaluate2(Sd, report_value(Key), Values_List) :-
 
 evaluate2(Sd, account_balance(Report_Id, Acct), Values_List) :-
 	/* get report out of static data */
+	gtrace,
 	*path_get_dict(Report_Id, Sd, Report_wrapper),
 	!is_dict(Report_wrapper),
-	Report = Report_wrapper.entries,
+	Entries = Report_wrapper.entries,
+	assertion(is_list(Entries)),
 	findall(
 		Values_List,
-		report_report_entry_normal_side_values_by_acct(Report, Acct, Values_List),
+		report_report_entry_normal_side_values_by_acct(Entries, Acct, Values_List),
 		Values_List0
 	),
 	vec_sum(Values_List0, Values_List).
@@ -208,15 +211,16 @@ evaluate2(_, fact_value(Aspects), Values_List) :-
 evaluate2(_, Vec, Vec) :-
 	is_list(Vec).
 
-report_report_entry_normal_side_values_by_acct(Report, Acct, Values_List) :-
-	(	Acct = uri(Uri)
+report_report_entry_normal_side_values_by_acct(Entries, Acct, Values_List) :-
+	assertion(is_list(Entries)),
+	(	Acct = uri(Account_uri)
 	->	true
 	;	(
 			assertion(Acct = rl(_)),
-			account_by_role(Acct, Uri)
+			account_by_role(Acct, Account_uri)
 		)
 	),
-	report_entry_normal_side_values(Report, Uri, Values_List).
+	report_entry_normal_side_values(Entries, Account_uri, Values_List).
 
 
  check_account_is_zero(Sr, Specifier) :-

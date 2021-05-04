@@ -89,9 +89,10 @@ operations on lists of entries
 	accounts_report_entry_by_account_uri(Report, Id, Entry).
 
 
- accounts_report_entry_by_account_uri(Report, Id, Entry) :-
+ accounts_report_entry_by_account_uri(Entries, Id, Entry) :-
+ 	assertion(is_list(Entries)),
 	find_thing_in_tree(
-			   Report,
+			   Entries,
 			   ([Entry1]>>(report_entry_gl_account(Entry1, Id))),
 			   ([Entry2, Child]>>(report_entry_children(Entry2, Children), member(Child, Children))),
 			   Entry).

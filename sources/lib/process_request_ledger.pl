@@ -42,7 +42,14 @@
 			!cf(smsf_income_tax_stuff(S8, S10)))
 	;	S10 = S8),
 
-	once(!cf(create_reports(S10))),
+	!'with current and historical earnings equity balances'(
+		S10,
+		$>!rp(l:start_date),
+		$>!rp(l:end_date),
+		State_current),
+
+	once(!cf(create_reports(S10,State_current))),
+
 	true.
 
 
@@ -73,11 +80,14 @@
 	;	S4 = S2),
 	true.
 
- create_reports(State) :-
+ create_reports(Vanilla_state, State) :-
 	!static_data_from_state(State, Static_Data),
 	!cf('export GL'(Static_Data)),
-	!cf(all_balance_reports(State, Sr)),
+	!cf(all_balance_reports(Vanilla_state, State, Sr)),
 	!html_reports('final_', Sr),
+	(	account_by_role(rl(smsf_equity), _)
+	->	cf(smsf_member_reports('final_', Sr))
+	;	true),
 	!misc_reports(Static_Data, Static_Data.outstanding, Sr, _Sr2),
 	!taxonomy_url_base,
 	!cf('create XBRL instance'(Xbrl, Static_Data, Static_Data.start_date, Static_Data.end_date, Static_Data.report_currency, Sr.bs.current.entries, Sr.pl.current.entries, Sr.pl.historical, Sr.tb)),
@@ -93,7 +103,7 @@
  	Sd2 = Sd.put(start_date,Start_date).put(end_date,End_date).put(exchange_date,Exchange_date).
 
 
- all_balance_reports(State, Structured_Reports) :-
+ all_balance_reports(Vanilla_State, State, Structured_Reports) :-
  	Structured_Reports = _{
 		pl: _{
 			current: ProfitAndLoss,
@@ -108,24 +118,19 @@
 		cf: Cf
 	},
 	check_state_transactions_accounts(State),
-	current_balance_entries(State, Cf,Balance_Sheet,Balance_Sheet_delta,ProfitAndLoss,Trial_Balance),
-	historical_balance_entries(State, Balance_Sheet2_Historical,ProfitAndLoss2_Historical).
+	historical_reports(Vanilla_State, Balance_Sheet2_Historical,ProfitAndLoss2_Historical),
+	current_balance_entries(State, Cf,Balance_Sheet,Balance_Sheet_delta,ProfitAndLoss,Trial_Balance).
 
 
  current_balance_entries(State, Cf, Balance_Sheet,Balance_Sheet_delta,ProfitAndLoss,Trial_Balance) :-
-	!'with current and historical earnings equity balances'(
-		State,
-		$>!rp(l:start_date),
-		$>!rp(l:end_date),
-		State2),
-	static_data_from_state(State2, Static_Data_with_eq),
+	static_data_from_state(State, Static_Data_with_eq),
 	!cf(cashflow(Static_Data_with_eq, Cf)),
 	!cf(balance_sheet_at(Static_Data_with_eq, Balance_Sheet)),
 	!cf(balance_sheet_delta(Static_Data_with_eq, Balance_Sheet_delta)),
 	!cf(profitandloss_between(Static_Data_with_eq, ProfitAndLoss)),
 	trial_balance_report(
 		$>result_property(l:exchange_rates),
-		$>transactions_dict_from_state(State2),
+		$>transactions_dict_from_state(State),
 		$>result_property(l:report_currency),
 		$>!result_property(l:end_date),
 		$>!result_property(l:end_date),
@@ -134,43 +139,14 @@
 
 
 
- historical_balance_entries(State, Balance_Sheet2_Historical,ProfitAndLoss2_Historical) :-
-	historical_dates(Dates),
-	Dates = dates(Start_date,End_date,_),
-	!'with current and historical earnings equity balances'(State,Start_date,End_date,State2),
-	static_data_from_state(State2, Sd),
- 	static_data_with_dates(Sd, Dates, Sd2),
-	!cf(balance_sheet_at(Sd2, Balance_Sheet2_Historical)),
-	!cf(profitandloss_between(Sd2, ProfitAndLoss2_Historical)).
-
-
- static_data_historical(Static_Data, Static_Data_Historical) :-
-	add_days(Static_Data.start_date, -1, Before_Start),
-	Static_Data_Historical = Static_Data.put(
-		start_date, date(1,1,1)).put(
-		end_date, Before_Start).put(
-		exchange_date, Static_Data.start_date).
-
- historical_dates(dates(Start_date,End_date,Exchange_date)) :-
- 	!rp(l:start_date, Current_start_date),
- 	%!rp(l:end_date, Current_end_date),
- 	Start_date = date(1,1,1),
-	add_days(Current_start_date, -1, End_date),
-	Exchange_date = Current_start_date.
-
  % only take Sr0, not transactions_by_account
  html_reports(Report_prefix, Sr0) :-
-
-	(	account_by_role(rl(smsf_equity), _)
-	->	cf(smsf_member_reports(Report_prefix, Sr0))
-	;	true),
-
-	!report_entry_tree_html_page(
-		Report_prefix, Sr0.bs.current,
-		'balance sheet', 'balance_sheet.html'),
 	!report_entry_tree_html_page(
 		Report_prefix, Sr0.bs.delta,
 		'balance sheet delta', 'balance_sheet_delta.html'),
+	!report_entry_tree_html_page(
+		Report_prefix, Sr0.bs.current,
+		'balance sheet', 'balance_sheet.html'),
 	!report_entry_tree_html_page(
 		Report_prefix, Sr0.pl.current,
 		'profit and loss', 'profit_and_loss.html'),

@@ -46,6 +46,7 @@
 :- [ledger].
 :- [ledger_balance].
 :- [ledger_entry].
+:- [ledger_historical].
 :- [ledger_report].
 :- [livestock_adjustment_transactions].
 :- [livestock_average_cost].

@@ -101,7 +101,7 @@ balance_by_account2(Sd, Report_Currency, Date, Account, balance(Balance, Tx_Coun
 
 
 
-'with current and historical earnings equity balances'(
+ 'with current and historical earnings equity balances'(
 	S0,
 	Start_date,
 	End_date,

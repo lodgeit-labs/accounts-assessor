@@ -100,12 +100,15 @@ handle_op(S0,append,Field,Tail,S2) :-
 
 
  bs_pl_reports_from_state(Prefix, State, Sr) :-
-	!all_balance_reports(State, Sr),
+	throw(!current_reports(State, Sr)), % todo, we make an abstract concept out of creating html report from an entry tree, so that there can be an abstract html_reports taking a reportset uri and doing its thing.
+	% and here, we only need 	!cf(balance_sheet_at(Static_Data_with_eq, Balance_Sheet)),
+	% and !cf(profitandloss_between(Static_Data_with_eq, ProfitAndLoss)),
 	!html_reports(Prefix, Sr).
 
  transactions_dict_from_state(State,Transactions_By_Account) :-
  	doc(State, l:has_transactions, Transactions),
 	transactions_dict_by_account_v2(Transactions,Transactions_By_Account).
+
 
  static_data_from_state(State, Static_Data) :-
 	doc(State, l:has_transactions, Transactions),
