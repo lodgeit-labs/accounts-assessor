@@ -127,6 +127,7 @@
 
 
  current_balance_entries(State, Cf, Balance_Sheet,Balance_Sheet_delta,ProfitAndLoss,Trial_Balance) :-
+ 	!doc(State, l:note, "This State includes historical and current portions of PL posted into balance sheet"),
 	static_data_from_state(State, Static_Data_with_eq),
 	!cf(cashflow(Static_Data_with_eq, Cf)),
 	!cf(balance_sheet_at(Static_Data_with_eq, Balance_Sheet)),

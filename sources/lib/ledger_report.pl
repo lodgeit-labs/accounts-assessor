@@ -138,7 +138,9 @@ balance_by_account2(Sd, Report_Currency, Date, Account, balance(Balance, Tx_Coun
 
 	*/
 
-	handle_txs(S0, [Tx0,Tx1], S2).
+	!handle_txs(S0, [Tx0,Tx1], S2),
+	!doc_add(S2, l:note, "This State includes historical and current portions of PL posted into balance sheet").
+
 
 
 'past comprehensive income tx'(

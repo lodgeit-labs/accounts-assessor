@@ -34,6 +34,7 @@
 :- [crosschecks_report].
 :- [detail_accounts].
 :- [exchange].
+:- [exchange_dates].
 :- [exchange_rates].
 :- [extract_bank_accounts].
 :- [facts].

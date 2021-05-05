@@ -12,26 +12,44 @@
 	doc_new_(l:state, S2),
  	doc_add(S2, l:has_previous_state, S0),
  	maplist(handle_field(S0,S2, Ops), [
+ 		l:note,
  		l:has_s_transactions,
  		l:has_transactions,
  		l:has_outstanding
  	]).
 
- handle_field(S0,S2,Ops,Field) :-
+
+ 'check that there isnt another action for the same field'(I, Ops, Field) :-
+	dif(I,J),
+	(	nth0(J,Ops,change(Field,_,_))
+	->	throw_string('cannot handle multiple actions operating on one field at once')
+	;	true).
+
+
+ 'op list contains action for field'(Ops, Field ,Action1, Args1) :-
 	(	nth0(I,Ops,change(Field,Action1,Args1))
+	->	'check that there isnt another action for the same field'(I, Ops, Field)
+	;	false).
+
+
+ handle_field(S0,S2,Ops,Field) :-
+	(	'op list contains action for field'(Ops, Field ,Action1, Args1)
 	->	(
-			dif(I,J),
-			(	nth0(J,Ops,change(Field,_,_))
-			->	throw_string('cannot handle multiple actions on one field at once')
-			;	true),
 			!handle_op(S0,Action1,Field,Args1,S2)
 		)
 	;	(
 			/* no op specified, so the default action here is pass-through, just copy from the old structure to the new structure */
-			!doc(S0, Field, X),
-			!doc_add(S2, Field, X)
+			'copy prop from old structure to new'(S0, Field, S2)
 		)
 	).
+
+ 'copy prop from old structure to new'(S0, Field, S2) :-
+		doc(Field, fields:is_multiple, true)
+	->
+	;
+	!doc(S0, Field, X),
+	!doc_add(S2, Field, X)
+
 
 handle_op(_,set,Field,New,S2) :-
 	doc_add(S2, Field, New).
