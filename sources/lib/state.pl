@@ -44,11 +44,15 @@
 	).
 
  'copy prop from old structure to new'(S0, Field, S2) :-
-		doc(Field, fields:is_multiple, true)
-	->
-	;
-	!doc(S0, Field, X),
-	!doc_add(S2, Field, X)
+	% eventually, we should do this according to some type declarations
+	%doc(Field, fields:is_multiple, true)
+	findall(_,
+		(
+			doc(S0, Field, X),
+			!doc_add(S2, Field, X)
+		),
+		_
+	).
 
 
 handle_op(_,set,Field,New,S2) :-
