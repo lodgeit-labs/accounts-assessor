@@ -117,6 +117,12 @@ balance_by_account2(Sd, Report_Currency, Date, Account, balance(Balance, Tx_Coun
 		Start_date,
 		Tx0
 	),
+	/*
+
+	Historical_Earnings are posted including the value gains of the start date.
+
+	*/
+
 	'past comprehensive income tx'(
 		S0,
 		Start_date,
@@ -126,6 +132,12 @@ balance_by_account2(Sd, Report_Currency, Date, Account, balance(Balance, Tx_Coun
 		End_date,
 		Tx1
 	),
+	/*
+
+	^ ok, historical report's posted Current_Earnings are computed with the report's End_date values. Does non-historical start with previous day's values? Does doing a single-day report post the day's gains against the previous day?
+
+	*/
+
 	handle_txs(S0, [Tx0,Tx1], S2).
 
 

@@ -5,8 +5,9 @@
 	<title>General Ledger Viewer documentation</title>
 	<meta name="generator" content="LibreOffice 6.0.7.3 (Linux)"/>
 	<meta name="created" content="00:00:00"/>
-	<meta name="changed" content="2021-04-01T18:41:32.460696459"/>
+	<meta name="changed" content="2021-05-05T14:22:32.221414132"/>
 	<meta name="" content=""/>
+	<meta name="created" content="00:00:00">
 	<meta name="created" content="00:00:00">
 	<meta name="created" content="00:00:00">
 	<meta name="created" content="00:00:00">
@@ -370,6 +371,53 @@ display a hard-coded set of facts.
 <p style="margin-top: 0.02in; margin-bottom: 0.02in"><br/>
 <br/>
 
+</p>
+<p style="margin-top: 0.02in; margin-bottom: 0.02in"><br/>
+<br/>
+
+</p>
+<h1 class="western" style="margin-top: 0.02in; margin-bottom: 0.02in">
+exchange dates</h1>
+<p style="margin-top: 0.02in; margin-bottom: 0.02in"><br/>
+<br/>
+
+</p>
+<p style="margin-top: 0.02in; margin-bottom: 0.02in"><br/>
+<br/>
+
+</p>
+<p><b>Let's ignore how openexchangerates actually calculates their
+values.</b> In particular, we ignore the possibility that what the
+service (or another) provides as a date's value is actually the
+previous day's average value, and we will not try to compensate, for
+such hypothetical issues, in ledger's core logic.</p>
+<p><b>We assume a simplified theory:</b> 
+</p>
+<ul>
+	<li/>
+<p>an exchange rate for a particular date is the rate at which
+	a unit is/was traded at that day.</p>
+	<li/>
+<p>A day is an atomic unit (for purposes of exchange dates
+	discussion).</p>
+	<li/>
+<p>Every transaction belongs to a date.</p>
+	<li/>
+<p>Using days as a time unit is arbitrary, the core logic
+	would support, for example, hours, just as well. What really matters
+	is that (report) time is subdivided divided into discrete units.</p>
+	<li/>
+<p></p>
+</ul>
+<p><br/>
+<br/>
+
+</p>
+<p><br/>
+<br/>
+
+</p>
+<p> 
 </p>
 </body>
 </html>
