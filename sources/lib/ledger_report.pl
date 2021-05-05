@@ -109,7 +109,7 @@ balance_by_account2(Sd, Report_Currency, Date, Account, balance(Balance, Tx_Coun
 ) :-
 	add_days(Start_date, -1, Before_start),
 	'past comprehensive income tx'(
-		State,
+		S0,
 		date(1,1,1),
 		Before_start,
 		Start_date,
@@ -118,7 +118,7 @@ balance_by_account2(Sd, Report_Currency, Date, Account, balance(Balance, Tx_Coun
 		Tx0
 	),
 	'past comprehensive income tx'(
-		State,
+		S0,
 		Start_date,
 		End_date,
 		End_date,
@@ -138,19 +138,19 @@ balance_by_account2(Sd, Report_Currency, Date, Account, balance(Balance, Tx_Coun
 	Tx_date,
 	Tx0
 ) :-
-	transactions_in_period_on_account_and_subaccounts(
-		$>transactions_dict_from_state(State),
+	!transactions_in_period_on_account_and_subaccounts(
+		$>!transactions_dict_from_state(State),
 		$>abrlt('Comprehensive_Income'),
 		Start_date,
 		End_date,
 		Txs0
 	),
-	txs_vec_converted_sum(
+	!txs_vec_converted_sum(
 		Exchange_date,
 		Txs0,
 		Sum
 	),
-	make_transaction(
+	!make_transaction(
 		closing_books,
 		Tx_date,
 		closing_books,

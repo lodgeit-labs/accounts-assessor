@@ -193,7 +193,6 @@ evaluate2(Sd, report_value(Key), Values_List) :-
 
 evaluate2(Sd, account_balance(Report_Id, Acct), Values_List) :-
 	/* get report out of static data */
-	gtrace,
 	*path_get_dict(Report_Id, Sd, Report_wrapper),
 	!is_dict(Report_wrapper),
 	Entries = Report_wrapper.entries,

@@ -106,8 +106,8 @@ handle_op(S0,append,Field,Tail,S2) :-
 	!html_reports(Prefix, Sr).
 
  transactions_dict_from_state(State,Transactions_By_Account) :-
- 	doc(State, l:has_transactions, Transactions),
-	transactions_dict_by_account_v2(Transactions,Transactions_By_Account).
+ 	!doc(State, l:has_transactions, Transactions),
+	!transactions_dict_by_account_v2(Transactions,Transactions_By_Account).
 
 
  static_data_from_state(State, Static_Data) :-

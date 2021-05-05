@@ -42,10 +42,14 @@
 			!cf(smsf_income_tax_stuff(S8, S10)))
 	;	S10 = S8),
 
+	gtrace,
+
+	!rp(l:start_date, Start_date),
+	!rp(l:end_date, End_date),
 	!'with current and historical earnings equity balances'(
 		S10,
-		$>!rp(l:start_date),
-		$>!rp(l:end_date),
+		Start_date,
+		End_date,
 		State_current),
 
 	once(!cf(create_reports(S10,State_current))),

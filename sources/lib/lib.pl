@@ -4,8 +4,10 @@
 :- use_module(library(yall)).
 
 % https://github.com/SWI-Prolog/swipl-devel/issues/715#issuecomment-731019516
+% todo does the order of these two have effect on the warnings?
 :- use_module(library(clpq), [{}/1]).
 :- use_module(library(clpr), []).
+
 :- use_module(library(clpfd)).
 
 :- use_module(library(http/http_open)).
