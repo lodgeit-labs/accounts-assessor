@@ -483,7 +483,7 @@ take statement/source transaction and generate a list of plain transactios.
 	/*
 	this is (?) equvalent to simply converting the vector to report currency at this date. We leave it abstract to avoid doing the conversion here, because the conversion may turn out to be unnecessary (if this tx is nullified by opposite tx later). todo other reasons?
 	*/
-	without_movement(Report_Currency, Date, Vector, Vector_Exchanged_To_Report_Currency),
+	make_without_currency_movement_against_since(Report_Currency, Date, Vector, Vector_Exchanged_To_Report_Currency),
 
 	difference_transactions(
 		Date,

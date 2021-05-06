@@ -8,23 +8,45 @@
 	this may seem error prone, but any issues are yet to be found, and it clarifies the logic.
 */
 			
-increase_unrealized_gains(St, Description, Trading_Account_Id, Purchase_Currency, Converted_Cost_Vector, Goods_With_Unit_Cost_Vector, Transaction_Day, [Ts0, Ts1, Ts2]) :-
-	unrealized_gains_increase_txs(Description, Trading_Account_Id, Purchase_Currency, Converted_Cost_Vector, Goods_With_Unit_Cost_Vector, Transaction_Day, Txs0, Historical_Txs, Current_Txs),
+ increase_unrealized_gains(St, Description, Trading_Account_Id, Purchase_Currency, Converted_Cost_Vector, Goods_With_Unit_Cost_Vector, Transaction_Day, [Ts0, Ts1, Ts2]) :-
+	unrealized_gains_increase_txs(
+		Description,
+		Trading_Account_Id,
+		Purchase_Currency,
+		Converted_Cost_Vector,
+		Goods_With_Unit_Cost_Vector,
+		Transaction_Day,
+		Txs0, Historical_Txs, Current_Txs
+	),
 	result_property(l:start_date, Start_Date),
 	%add_days(Start_Date, -1, Before_Start),
-	(nonvar(Txs0) -> txs_to_transactions(St, Transaction_Day, Txs0, Ts0) ; true),
-	(nonvar(Current_Txs) -> txs_to_transactions(St, Start_Date, Current_Txs, Ts1) ; true),
-	(nonvar(Historical_Txs) -> txs_to_transactions(St, Transaction_Day, Historical_Txs, Ts2) ; true).
+	(nonvar(Txs0) ->
+	txs_to_transactions(St, Transaction_Day, Txs0, Ts0) ; true),
+	(nonvar(Historical_Txs) ->
+	txs_to_transactions(St, Transaction_Day, Historical_Txs, Ts2) ; true),
+	(nonvar(Current_Txs) ->
+	txs_to_transactions(St, Start_Date, Current_Txs, Ts1) ; true).
 
-reduce_unrealized_gains(St, Description, Trading_Account_Id, Transaction_Day, Goods_Cost_Values, [Ts0, Ts1, Ts2]) :-
-	maplist(unrealized_gains_reduction_txs(Description, Transaction_Day, Trading_Account_Id), Goods_Cost_Values, Txs0, Historical_Txs, Current_Txs),
+ reduce_unrealized_gains(St, Description, Trading_Account_Id, Transaction_Day, Goods_Cost_Values, [Ts0, Ts1, Ts2]) :-
+	maplist(
+		unrealized_gains_reduction_txs(
+			Description,
+			Transaction_Day,
+			Trading_Account_Id
+		),
+		Goods_Cost_Values,
+		Txs0, Historical_Txs, Current_Txs
+	),
 	result_property(l:start_date, Start_Date),
 	add_days(Start_Date, -1, Before_Start),
-	(nonvar(Txs0) -> txs_to_transactions(St, Transaction_Day, Txs0, Ts0) ; true),
-	(nonvar(Current_Txs) -> txs_to_transactions(St, Start_Date, Current_Txs, Ts1) ; true),
-	(nonvar(Historical_Txs) -> txs_to_transactions(St, Before_Start, Historical_Txs, Ts2) ; true).
+	(nonvar(Txs0) ->
+	txs_to_transactions(St, Transaction_Day, Txs0, Ts0) ; true),
+	(nonvar(Current_Txs) ->
+	txs_to_transactions(St, Start_Date, Current_Txs, Ts1) ; true),
+	(nonvar(Historical_Txs) ->
+	txs_to_transactions(St, Before_Start, Historical_Txs, Ts2) ; true).
 
-unrealized_gains_increase_txs(
+ unrealized_gains_increase_txs(
 	Description,
 	Trading_Account_Id,
 	Purchase_Currency,
@@ -38,11 +60,11 @@ unrealized_gains_increase_txs(
 	result_property(l:report_currency, Report_Currency),
 	result_property(l:start_date, Start_Date),
 
-	Goods = [coord(Goods_Unit, Goods_Debit)],
+	[coord(Goods_Unit, Goods_Debit)] = Goods,
 
 	gains_accounts(
 		Trading_Account_Id, unrealized, $>unit_bare(Goods_Unit),
-		Unrealized_Gains_Currency_Movement, Unrealized_Gains_Excluding_Forex),
+		Currency_Movement_Account, Excluding_Forex_Account),
 
 	Goods_Without_Currency_Movement = [coord(
 		without_currency_movement_against_since(Goods_Unit, Purchase_Currency, Report_Currency, Transaction_Day), 
@@ -53,8 +75,8 @@ unrealized_gains_increase_txs(
 	->
 		dr_cr_table_to_txs([
 			% Account                               DR                                       CR
-			(Unrealized_Gains_Currency_Movement,    Goods_Without_Currency_Movement,        Goods),
-			(Unrealized_Gains_Excluding_Forex,	    Cost_Vector,      	                Goods_Without_Currency_Movement)
+			(Currency_Movement_Account,    Goods_Without_Currency_Movement,        Goods),
+			(Excluding_Forex_Account,	    Cost_Vector,      	                Goods_Without_Currency_Movement)
 		], Txs, [Description, ' - single period'], cr)
 	;
 		(
@@ -74,8 +96,8 @@ unrealized_gains_increase_txs(
 			],
 			dr_cr_table_to_txs([
 				% Account                             DR                                              CR
-				(Unrealized_Gains_Currency_Movement,  Historical_Without_Currency_Movement,        Goods_Historical),
-				(Unrealized_Gains_Excluding_Forex,	  Cost_Vector,             Historical_Without_Currency_Movement)
+				(Currency_Movement_Account,  Historical_Without_Currency_Movement,        Goods_Historical),
+				(Excluding_Forex_Account,	  Cost_Vector,             Historical_Without_Currency_Movement)
 			], Historical_Txs, [Description, ' - historical part'], cr),
 		
 			/*now, for tracking unrealized gains after report start date*/
@@ -90,17 +112,11 @@ unrealized_gains_increase_txs(
 			],
 			dr_cr_table_to_txs([
 				% Account                                DR                                   CR
-				(Unrealized_Gains_Currency_Movement,     Current_Without_Currency_Movement,        Goods),
-				(Unrealized_Gains_Excluding_Forex,	     Opening_Goods_Value,       Current_Without_Currency_Movement)
+				(Currency_Movement_Account,     Current_Without_Currency_Movement,        Goods),
+				(Excluding_Forex_Account,	     Opening_Goods_Value,       Current_Without_Currency_Movement)
 			], Current_Txs, [Description, ' - current part'], cr)
 		)
 	).
-
-add_unit_cost_information(Goods_Unit_Name, Unit_Cost, Goods_Unit) :-
-	result_property(l:cost_or_market, Cost_Or_Market),
-	(	Cost_Or_Market = cost
-	->	Goods_Unit = with_cost_per_unit(Goods_Unit_Name, Unit_Cost)
-	;	Goods_Unit = Goods_Unit_Name).
 
 
 /* the transactions produced should be an inverse of the increase ones, we should abstract it out */
@@ -112,7 +128,7 @@ unrealized_gains_reduction_txs(Description, Transaction_Day, Trading_Account_Id,
 
 	gains_accounts(
 		Trading_Account_Id, unrealized, Goods_Unit_Name,
-		Unrealized_Gains_Currency_Movement, Unrealized_Gains_Excluding_Forex),
+		Currency_Movement_Account, Excluding_Forex_Account),
 
 	add_unit_cost_information(Goods_Unit_Name, Unit_Cost_Foreign, Goods_Unit),
 
@@ -147,8 +163,8 @@ unrealized_gains_reduction_txs(Description, Transaction_Day, Trading_Account_Id,
 			],
 			dr_cr_table_to_txs([
 				% Account                                 DR                                         CR
-				(Unrealized_Gains_Currency_Movement,      Goods,         Goods_Without_Currency_Movement),
-				(Unrealized_Gains_Excluding_Forex,        Goods_Without_Currency_Movement    ,      Cost2)
+				(Currency_Movement_Account,      Goods,         Goods_Without_Currency_Movement),
+				(Excluding_Forex_Account,        Goods_Without_Currency_Movement    ,      Cost2)
 			], Txs, [Description, ' - single period'], dr
 			)
 		)
@@ -166,8 +182,8 @@ unrealized_gains_reduction_txs(Description, Transaction_Day, Trading_Account_Id,
 				
 			dr_cr_table_to_txs([
 				% Account                                     DR                                                  CR
-				(Unrealized_Gains_Currency_Movement,          Goods_Historical    ,                     Historical_Without_Currency_Movement),
-				(Unrealized_Gains_Excluding_Forex,            Historical_Without_Currency_Movement    , Cost)
+				(Currency_Movement_Account,          Goods_Historical    ,                     Historical_Without_Currency_Movement),
+				(Excluding_Forex_Account,            Historical_Without_Currency_Movement    , Cost)
 			], Historical_Txs, [Description, ' - historical part'], dr
 			),
 			Opening_Goods_Value = [coord(
@@ -180,8 +196,8 @@ unrealized_gains_reduction_txs(Description, Transaction_Day, Trading_Account_Id,
 			],
 			dr_cr_table_to_txs([
 				% Account                             DR                                           CR
-				(Unrealized_Gains_Currency_Movement,  Goods,                  Current_Without_Currency_Movement),
-				(Unrealized_Gains_Excluding_Forex,	  Current_Without_Currency_Movement,    Opening_Goods_Value)
+				(Currency_Movement_Account,  Goods,                  Current_Without_Currency_Movement),
+				(Excluding_Forex_Account,	  Current_Without_Currency_Movement,    Opening_Goods_Value)
 			], Current_Txs, [Description, ' - current part'], dr
 			)
 		)
@@ -354,3 +370,9 @@ we bought the shares with some currency. we can think of gains as having two par
 unit_bare(with_cost_per_unit(Unit, _), Unit) :- !.
 unit_bare(Unit, Unit).
 	
+add_unit_cost_information(Goods_Unit_Name, Unit_Cost, Goods_Unit) :-
+	result_property(l:cost_or_market, Cost_Or_Market),
+	(	Cost_Or_Market = cost
+	->	Goods_Unit = with_cost_per_unit(Goods_Unit_Name, Unit_Cost)
+	;	Goods_Unit = Goods_Unit_Name).
+

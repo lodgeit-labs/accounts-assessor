@@ -91,9 +91,16 @@ assert_rates(Date, Exchange_Rates) :-
 /*
 	this predicate deals with two special Src_Currency terms
 */
-/* this one lets us compute unrealized gains without currency movement declaratively */
-special_exchange_rate(Table, Day, Src_Currency, Report_Currency, Rate) :-
-	Src_Currency = without_currency_movement_against_since(Goods_Unit, Purchase_Currency, [Report_Currency], Purchase_Date),
+/*
+This one lets us compute unrealized gains excluding forex declaratively. The computation uses exchange day's unit values, and the difference between exchange day's currency rate and purchase date currency rate. Therefore, purchase date's unit value does not have to be entered.
+*/
+ special_exchange_rate(Table, Day, Src_Currency, Report_Currency, Rate) :-
+	Src_Currency = without_currency_movement_against_since(
+		Goods_Unit,
+		Purchase_Currency,
+		[Report_Currency],
+		Purchase_Date
+	),
 	exchange_rate2(Table, Purchase_Date, 
 		Purchase_Currency, Report_Currency, Old_Rate),
 	exchange_rate2(Table, Day, 
@@ -163,7 +170,12 @@ chained_exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate, Le
 	chained_exchange_rate(Table, Day, Int_Currency, Dest_Currency, Tail_Exchange_Rate, New_Length),
 	{Exchange_Rate = Head_Exchange_Rate * Tail_Exchange_Rate}.
 
-/* cant take historical eachange rate and chain it with a nonhistorical one*/
+/*
+Cant take historical exchange rate and chain it with a nonhistorical one.
+In other words, if we aquire, before report start, an investment in a foreign currency,
+then our historical gains on that investement are expressed with help of without_movement_after.
+It makes sure that not only is the unit value from correct date used, but that also the subsequent conversion into report currency is done at that date's rates.
+*/
 without_movement_after(Table, Exchange_Date, Src, Dst, Rate) :-
 	Src = without_movement_after(Unit, Freeze_Date),
 	(
@@ -187,19 +199,14 @@ all_exchange_rates(Table, Day, Src_Currency, Dest_Currency, Exchange_Rates_Full)
 	-> 
 		Best_Rates = Best_Rates1
 	;
-		/*(
-			is called by chained_exchange_rate:
-			best_nonchained_exchange_rates(Table, Day, Src_Currency, Dest_Currency, Best_Rates)
-		->
-			true
-		;*/
-		(
-			fail
-		->
-			%finding all exchange rates just to make sure they are all the same:
-			findall((Dest_Currency, Rate), chained_exchange_rate(Table, Day, Src_Currency, Dest_Currency, Rate, 2), Best_Rates)
-		;			
-			(
+		(	false
+		->	%for debugging, find all exchange rates just to make sure they are all the same:
+			!findall(
+				(Dest_Currency, Rate),
+				chained_exchange_rate(Table, Day, Src_Currency, Dest_Currency, Rate, 2),
+				Best_Rates
+			)
+		;	(
 				Best_Rates = [(Dest_Currency, Rate)], 
 				once(chained_exchange_rate(Table, Day, Src_Currency, Dest_Currency, Rate, 2))
 			)

@@ -29,9 +29,9 @@
 
 
 
-/* todo, these two are equivalent (?), */
+/* - */
 
- without_movement(Report_Currency, Since, [coord(Unit, D)], [coord(Unit2, D)]) :-
+ make_without_currency_movement_against_since(Report_Currency, Since, [coord(Unit, D)], [coord(Unit2, D)]) :-
 	Unit2 = without_currency_movement_against_since(
 		Unit,
 		Unit,
@@ -102,3 +102,7 @@
 		)
 	)
 	.
+
+/*
+todo: trading difference transactions
+*/
