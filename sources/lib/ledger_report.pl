@@ -107,29 +107,22 @@ balance_by_account2(Sd, Report_Currency, Date, Account, balance(Balance, Tx_Coun
 	End_date,
 	S2
 ) :-
-	add_days(Start_date, -1, Before_start),
-	'past comprehensive income tx'(
+
+	'comprehensive income sum tx'(
 		S0,
-		date(1,1,1),
-		Before_start,
-		Start_date,
+		$>'dates for posting Historical_Earnings'(Start_date),
 		'Historical_Earnings',
-		Start_date,
 		Tx0
 	),
 	/*
 
-	Historical_Earnings are posted including the value gains of the start date.
+	Historical_Earnings are posted including the unit value gains of the start date.
 
 	*/
 
-	'past comprehensive income tx'(
+	'comprehensive income sum tx'(
 		S0,
-		Start_date,
-		End_date,
-		End_date,
 		'Current_Earnings',
-		End_date,
 		Tx1
 	),
 	/*

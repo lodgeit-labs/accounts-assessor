@@ -468,58 +468,32 @@ take statement/source transaction and generate a list of plain transactios.
 	Date - transaction day
 	https://www.mathstat.dal.ca/~selinger/accounting/tutorial.html#4
 */
+
  make_currency_movement_transactions(St, Bank_Account, Date, Vector, Description, [Transaction1, Transaction2, Transaction3]) :-
 
 	result_property(l:report_currency, Report_Currency),
-	result_property(l:start_date, Start_Date),
 
 	/* find the account to affect */
 	bank_gl_account_currency_movement_account(Bank_Account,Currency_Movement_Account),
 	/*
-		we will be tracking the movement of Vector (in foreign currency) against the revenue/expense in report currency. 
-		the value of this transaction will grow as the exchange rate of foreign currency moves against report currency.
+		we will be tracking the movement of Vector (in foreign currency) against the revenue/expense in report currency.
+		the value of this transaction will grow as the exchange rate of foreign currency moves up against report currency.
+	*/
+
+	/*
+	this is (?) equvalent to simply converting the vector to report currency at this date. We leave it abstract to avoid doing the conversion here, because the conversion may turn out to be unnecessary (if this tx is nullified by opposite tx later). todo other reasons?
 	*/
 	without_movement(Report_Currency, Date, Vector, Vector_Exchanged_To_Report_Currency),
-	[Report_Currency_Coord] = Vector_Exchanged_To_Report_Currency,
-	
-	(
-		Date @< Start_Date
-	->
-		(
-			/* the historical earnings difference transaction tracks asset value change against converted/frozen earnings value, up to report start date  */
-			vector_without_movement_after(Vector, Start_Date, Vector_Frozen_After_Start_Date),
-			make_difference_transaction(St,
-				Currency_Movement_Account, Date, [Description, ' - historical part'], 
-				
-				Vector_Frozen_After_Start_Date,
-				[Report_Currency_Coord],
-				
-				Transaction1),
-			/* the current earnings difference transaction tracks asset value change against opening value */
-			vector_without_movement_after(Vector, Start_Date, Vector_Frozen_At_Opening_Date),
-			make_difference_transaction(St,
-				Currency_Movement_Account, Start_Date, [Description, ' - current part'], 
-				
-				Vector,
-				Vector_Frozen_At_Opening_Date,
-				
-				Transaction2)
-		)
-	;
-		make_difference_transaction(St,
-			Currency_Movement_Account, Date, [Description, ' - only current period'], 
-			
-			Vector,
-			Vector_Exchanged_To_Report_Currency, 
-			
-			Transaction3
-		)
-	)
-	.
 
- vector_without_movement_after([coord(Unit1,D)], Start_Date, [coord(Unit2,D)]) :-
-	Unit2 = without_movement_after(Unit1, Start_Date).
-	
+	difference_transactions(
+		Date,
+		Vector_Exchanged_To_Report_Currency,
+		Vector,
+		(St,Currency_Movement_Account,Description,Transaction1,Transaction2,Transaction3)
+	).
+
+
+
  make_difference_transaction(St, Account, Date, Description, What, Against, Transaction) :-
 	vec_sub(What, Against, Diff),
 	/* when an asset account goes up, it rises in debit, and the revenue has to rise in credit to add up to 0 */
@@ -527,15 +501,6 @@ take statement/source transaction and generate a list of plain transactios.
 	make_transaction2(St, Date, Description, Account, Diff_Revenue, tracking, Transaction),
 	transaction_type(Transaction, tracking).
 	
-
- without_movement(Report_Currency, Since, [coord(Unit, D)], [coord(Unit2, D)]) :-
-	Unit2 = without_currency_movement_against_since(
-		Unit, 
-		Unit, 
-		Report_Currency,
-		Since
-	).
-
 
  is_livestock_transaction(X) :-
 	transaction_description(X, Desc),
