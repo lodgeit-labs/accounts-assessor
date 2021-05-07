@@ -76,7 +76,7 @@
 
 				Transaction1),
 			/* the current earnings difference transaction tracks asset value change against opening value */
-			vector_without_movement_after(Vector, Start_Date, Vector_Frozen_At_Opening_Date),
+
 			make_difference_transaction(
 				St,
 				Currency_Movement_Account,

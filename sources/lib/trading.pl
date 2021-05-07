@@ -59,17 +59,15 @@
 ) :-
 	result_property(l:report_currency, Report_Currency),
 	result_property(l:start_date, Start_Date),
-
-	[coord(Goods_Unit, Goods_Debit)] = Goods,
-
+	Goods = [coord(Goods_Unit, Goods_Debit)],
 	gains_accounts(
 		Trading_Account_Id, unrealized, $>unit_bare(Goods_Unit),
 		Currency_Movement_Account, Excluding_Forex_Account),
-
 	Goods_Without_Currency_Movement = [coord(
 		without_currency_movement_against_since(Goods_Unit, Purchase_Currency, Report_Currency, Transaction_Day), 
 		Goods_Debit)
 	],
+	add_days(Start_Date, -1, Before_start),
 	(
 		Transaction_Day @>= Start_Date
 	->
@@ -81,8 +79,8 @@
 	;
 		(
 			/*historical:*/
-			Goods_Historical = [coord(
-				without_movement_after(Goods_Unit, Start_Date), 
+			Opening_Goods_Value = [coord(
+				without_movement_after(Goods_Unit, Before_start),
 				Goods_Debit)
 			],
 			Historical_Without_Currency_Movement = [coord(
@@ -90,24 +88,20 @@
 					without_currency_movement_against_since(
 						Goods_Unit, Purchase_Currency, Report_Currency, Transaction_Day
 					), 
-					Start_Date
+					Before_start
 				),
 				Goods_Debit)
 			],
 			dr_cr_table_to_txs([
 				% Account                             DR                                              CR
-				(Currency_Movement_Account,  Historical_Without_Currency_Movement,        Goods_Historical),
+				(Currency_Movement_Account,  Historical_Without_Currency_Movement,        Opening_Goods_Value),
 				(Excluding_Forex_Account,	  Cost_Vector,             Historical_Without_Currency_Movement)
 			], Historical_Txs, [Description, ' - historical part'], cr),
 		
-			/*now, for tracking unrealized gains after report start date*/
-			/* goods value as it was at the start date */
-			Opening_Goods_Value = [coord(
-				without_movement_after(Goods_Unit, Start_Date), 
-				Goods_Debit)
-			],
+			/*now, for tracking unrealized gains after Before_start date*/
+			/* goods value as it was at Before_start */
 			Current_Without_Currency_Movement = [coord(
-				without_currency_movement_against_since(Goods_Unit, Purchase_Currency, Report_Currency, Start_Date), 
+				without_currency_movement_against_since(Goods_Unit, Purchase_Currency, Report_Currency, Before_start),
 				Goods_Debit)
 			],
 			dr_cr_table_to_txs([
@@ -123,6 +117,7 @@
 unrealized_gains_reduction_txs(Description, Transaction_Day, Trading_Account_Id, Purchase_Info, Txs, Historical_Txs, Current_Txs) :-
 	result_property(l:report_currency, Report_Currency),
 	result_property(l:start_date, Start_Date),
+	add_days(Start_Date, -1, Before_start),
 	goods(Unit_Cost_Foreign, Goods_Unit_Name, Goods_Count, Cost, Purchase_Date) = Purchase_Info,
 	value(Purchase_Currency,_) = Unit_Cost_Foreign,
 
@@ -134,27 +129,23 @@ unrealized_gains_reduction_txs(Description, Transaction_Day, Trading_Account_Id,
 
 	Goods = value(Goods_Unit, Goods_Count),
 	Goods_Debit = Goods_Count, 
-	Goods_Historical = [coord(
+
+	Goods_Opening = [coord(
 		without_movement_after(Goods_Unit, Start_Date), 
 		Goods_Debit)
 	],
-	vec_inverse(Goods_Historical, Goods_Historical_Reduction),
+	vec_inverse(Goods_Opening, Goods_Opening_Reduction),
 	(
 		Transaction_Day @>= Start_Date
 	->
 		(
-			(
-				Purchase_Date @>= Start_Date
-			->
-				(
+			(	Purchase_Date @>= Start_Date
+			->	(
 					Purchase_Date_Clipped = Purchase_Date,
-					Cost2 = Cost
-				)
-					
-			;
-				(
+					Cost2 = Cost)
+			;	(
 					Purchase_Date_Clipped = Start_Date,
-					Cost2 = Goods_Historical_Reduction
+					Cost2 = Goods_Opening_Reduction
 				)
 			),
 			Goods_Without_Currency_Movement = [coord(
@@ -182,22 +173,18 @@ unrealized_gains_reduction_txs(Description, Transaction_Day, Trading_Account_Id,
 				
 			dr_cr_table_to_txs([
 				% Account                                     DR                                                  CR
-				(Currency_Movement_Account,          Goods_Historical    ,                     Historical_Without_Currency_Movement),
+				(Currency_Movement_Account,          Goods_Opening    ,                     Historical_Without_Currency_Movement),
 				(Excluding_Forex_Account,            Historical_Without_Currency_Movement    , Cost)
 			], Historical_Txs, [Description, ' - historical part'], dr
 			),
-			Opening_Goods_Value = [coord(
-				without_movement_after(Goods_Unit, Start_Date), 
-				Goods_Debit)
-			],
 			Current_Without_Currency_Movement = [coord(
-				without_currency_movement_against_since(Goods_Unit, Purchase_Currency, Report_Currency, Start_Date), 
+				without_currency_movement_against_since(Goods_Unit, Purchase_Currency, Report_Currency, Before_start),
 				Goods_Debit)
 			],
 			dr_cr_table_to_txs([
 				% Account                             DR                                           CR
 				(Currency_Movement_Account,  Goods,                  Current_Without_Currency_Movement),
-				(Excluding_Forex_Account,	  Current_Without_Currency_Movement,    Opening_Goods_Value)
+				(Excluding_Forex_Account,	  Current_Without_Currency_Movement,    Goods_Opening)
 			], Current_Txs, [Description, ' - current part'], dr
 			)
 		)
@@ -236,6 +223,7 @@ realized_gains_txs(Description, Transaction_Day, Sale_Currency, Sale_Currency_Un
 
 	result_property(l:report_currency, Report_Currency),
 	result_property(l:start_date, Start_Date),
+	add_days(Start_Date, -1, Before_start),
 
 	goods(Unit_Cost_Foreign, Goods_Unit_Name, Goods_Count, Converted_Cost, Purchase_Date) = Purchase_Info,
 	add_unit_cost_information(Goods_Unit_Name, Unit_Cost_Foreign, Goods_Unit),
@@ -280,9 +268,13 @@ realized_gains_txs(Description, Transaction_Day, Sale_Currency, Sale_Currency_Un
 		;   
 			(
 				/* historical purchase, current sale */
-				Opening_Goods_Value = value(without_movement_after(Goods_Unit, Start_Date), Goods_Count),
+				Opening_Goods_Value = value(
+					without_movement_after(Goods_Unit, Start_Date),
+					Goods_Count
+				),
+
 				Sale_Without_Currency_Movement_Current = value(
-					without_currency_movement_against_since(Sale_Currency, Sale_Currency, Report_Currency, Start_Date),
+					without_currency_movement_against_since(Sale_Currency, Sale_Currency, Report_Currency, Before_start),
 					Sale_Currency_Amount),
 				dr_cr_table_to_txs([
 					% Account                            DR                                        CR
