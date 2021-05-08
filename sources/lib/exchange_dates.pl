@@ -16,10 +16,11 @@
 	doc_add(Dates, [
 		l:start_date, date(1,1,1),
 		l:end_date, Before_start,
-		l:exchange_date, Start_date,
-		l:tx_date, Start_date]).
+		l:exchange_date, Before_start,
+		l:tx_date, Before_start]).
 
 'dates for posting Current_Earnings'(Report_start_date, Report_end_date, Dates) :-
+
 	doc_new_(l:dates, Dates),
 	doc_add(Dates, [
 		l:start_date, Report_start_date,

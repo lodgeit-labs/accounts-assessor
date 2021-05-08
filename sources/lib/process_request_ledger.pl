@@ -24,10 +24,12 @@
 	cf('ensure system accounts exist 0'(Bank_Lump_STs)),
 
 	handle_sts(S0, Bank_Lump_STs, S2),
+	doc_add(S2, rdfs:comment, "with bank opening STSs"),
 
 	ct('phase: opening balance GL inputs',
 		(extract_gl_inputs(phases:opening_balance, Gl_input_txs),
 	 	handle_txs(S2, Gl_input_txs, S4))),
+	doc_add(S4, rdfs:comment, "with Gl_input_txs"),
 
 	(	account_by_role(rl(smsf_equity), _)
 	->	ct('automated: SMSF rollover',
@@ -35,23 +37,25 @@
 	;	S4 = S6),
 
  	cf('phase: main 1'(S6, S7)),
+ 	doc_add(S7, rdfs:comment, "after main 1"),
  	cf('phase: main 2'(S7, S8)),
+ 	doc_add(S8, rdfs:comment, "after main 2"),
 
 	(	account_by_role(rl(smsf_equity), _)
 	->	(	!cf(smsf_distributions_reports(_)),
 			!cf(smsf_income_tax_stuff(S8, S10)))
 	;	S10 = S8),
 
-	gtrace,
-
 	!rp(l:start_date, Start_date),
 	!rp(l:end_date, End_date),
+
 	!'with current and historical earnings equity balances'(
 		S10,
 		Start_date,
 		End_date,
 		State_current),
 
+	doc_add(State_current, rdfs:comment, "with current and historical earnings equity balances"),
 	once(!cf(create_reports(S10,State_current))),
 
 	true.

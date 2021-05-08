@@ -5,6 +5,7 @@
  	doc_add(State, l:has_transactions, []),
  	doc_add(State, l:has_s_transactions, []),
  	doc_add(State, l:has_outstanding, ([],[])),
+ 	doc_add(State, rdfs:comment, "initial state"),
  	true.
 
 
@@ -46,13 +47,9 @@
  'copy prop from old structure to new'(S0, Field, S2) :-
 	% eventually, we should do this according to some type declarations
 	%doc(Field, fields:is_multiple, true)
-	findall(_,
-		(
-			doc(S0, Field, X),
-			!doc_add(S2, Field, X)
-		),
-		_
-	).
+	findall(X, doc(S0, Field, X), Xs),
+	!maplist(doc_add(S2, Field), Xs).
+
 
 
 handle_op(_,set,Field,New,S2) :-

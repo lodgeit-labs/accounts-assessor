@@ -108,9 +108,11 @@ balance_by_account2(Sd, Report_Currency, Date, Account, balance(Balance, Tx_Coun
 	S2
 ) :-
 
+	'dates for posting Historical_Earnings'(Start_date, Historical_Earnings_dates),
+
 	'comprehensive income sum tx'(
 		S0,
-		$>'dates for posting Historical_Earnings'(Start_date),
+		Historical_Earnings_dates,
 		'Historical_Earnings',
 		Tx0
 	),
@@ -120,8 +122,11 @@ balance_by_account2(Sd, Report_Currency, Date, Account, balance(Balance, Tx_Coun
 
 	*/
 
+	'dates for posting Current_Earnings'(Start_date, End_date, Current_Earnings_dates),
+
 	'comprehensive income sum tx'(
 		S0,
+		Current_Earnings_dates,
 		'Current_Earnings',
 		Tx1
 	),
@@ -136,15 +141,17 @@ balance_by_account2(Sd, Report_Currency, Date, Account, balance(Balance, Tx_Coun
 
 
 
-'past comprehensive income tx'(
+'comprehensive income sum tx'(
 	State,
-	Start_date,
-	End_date,
-	Exchange_date,
+	Dates,
 	Tx_acct,
-	Tx_date,
 	Tx0
 ) :-
+	doc(Dates, l:start_date, Start_date),
+	doc(Dates, l:end_date, End_date),
+	doc(Dates, l:exchange_date, Exchange_date),
+	doc(Dates, l:tx_date, Tx_date),
+
 	!transactions_in_period_on_account_and_subaccounts(
 		$>!transactions_dict_from_state(State),
 		$>abrlt('Comprehensive_Income'),
