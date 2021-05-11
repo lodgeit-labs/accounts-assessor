@@ -43,10 +43,24 @@ RUN gcc -v
 RUN mkdir /app
 WORKDIR /app
 
+
+
+
+
 #RUN git clone --branch V8.3.10 https://github.com/SWI-Prolog/swipl.git swipl
 #RUN git clone --branch V8.1.15 https://github.com/SWI-Prolog/swipl.git swipl
-RUN git clone --recurse-submodules  --depth 1 -b V8.3.18  "https://github.com/SWI-Prolog/swipl-devel.git" 	 swipl
+#RUN git clone --recurse-submodules  --depth 1 -b V8.3.18  "https://github.com/SWI-Prolog/swipl-devel.git" 	 swipl
+
+
+
+
+
+RUN git clone "https://github.com/SWI-Prolog/swipl-devel.git" 	 swipl
 WORKDIR swipl
+RUN git reset 32f8079a1c6d9651d0825dcadce9f80231b01648 --hard
+RUN git submodule update --init --recursive
+
+
 
 
 
