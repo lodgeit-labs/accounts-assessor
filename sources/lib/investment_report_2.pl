@@ -13,13 +13,15 @@ event_with_date(Event, Date, Unit_Cost_Foreign, Currency_Conversion, Unit_Cost_C
 		total_cost_converted: Total_Cost_Converted
 	}.
 
-event(Event, Unit_Cost_Foreign, Currency_Conversion, Unit_Cost_Converted, Total_Cost_Foreign, Total_Cost_Converted) :-
+ ir2_event(Event, Unit_Cost_Foreign, Currency_Conversion, Unit_Cost_Converted, Total_Cost_Foreign, Total_Cost_Converted, Date) :-
 	Event = _{
 		unit_cost_foreign: Unit_Cost_Foreign, 
 		conversion: Currency_Conversion, 
 		unit_cost_converted: Unit_Cost_Converted, 
 		total_cost_foreign: Total_Cost_Foreign, 
-		total_cost_converted: Total_Cost_Converted
+		total_cost_converted: Total_Cost_Converted,
+		date: Date
+
 	}.
 
 
@@ -106,6 +108,7 @@ columns(Columns) :-
 	],
 
 	Market_Event_Details = [
+		column{id:date, title:"Date", options:_{}},
 	/*fixme, not cost but value */
 		column{id:unit_cost_foreign, title:"Unit Market Value Foreign", options:_{}},
 		column{id:conversion, title:"Conversion", options:_{}},
@@ -166,18 +169,18 @@ rows(Static_Data, Outstanding_In, Rows) :-
 	/* lets sort by unit, sale date, purchase date */
 	/*how to sort with nested dicts with optional keys?*/
 	sort(unit, @=<, Rows0, Rows).
-	/*,
+	/*,todo?
 	sort([sale,date], @=<, Rows1, Rows2),
 	sort([purchase,date], @=<, Rows2, Rows).*/
 
 
-investment_report_2_sales(Static_Data, I, Lines) :-
+ investment_report_2_sales(Static_Data, I, Lines) :-
 	%print_term(I,[]),
 	I = ir_item(rea, Info, 0, Sales, Clipped),
 	maplist(investment_report_2_sale_lines(Static_Data, Info, Clipped), Sales, Lines).
 
 
-investment_report_2_sale_lines(Static_Data, Info, Clipped, Sale, Row) :-
+ investment_report_2_sale_lines(Static_Data, Info, Clipped, Sale, Row) :-
 	push_format('process sale: investment(~q), sale(~q)', [Info, Sale]),
 	dict_vars(Static_Data, [Exchange_Rates, Report_Currency]),
 	Sale = sale(Sale_Date, Sale_Unit_Price_Foreign, Count),
@@ -196,22 +199,16 @@ investment_report_2_sale_lines(Static_Data, Info, Clipped, Sale, Row) :-
 	value_multiply(Opening_Unit_Cost_Foreign, Count, Opening_Total_Cost_Foreign),
 	value_multiply(Opening_Unit_Cost_Converted, Count, Opening_Total_Cost_Converted),
 
-	event(Opening0, Opening_Unit_Cost_Foreign, Opening_Currency_Conversion, Opening_Unit_Cost_Converted, Opening_Total_Cost_Foreign, Opening_Total_Cost_Converted),
+	!ir2_event(
+		Opening0,
+		Opening_Unit_Cost_Foreign,
+		Opening_Currency_Conversion,
+		Opening_Unit_Cost_Converted,
+		Opening_Total_Cost_Foreign,
+		Opening_Total_Cost_Converted,
+		Opening_Date),
 
-	(
-		Clipped = clipped	
-	->
-		(
-			Opening = Opening0,
-			Purchase = _{}
-		)
-	;	
-		(
-			Opening = _{},
-			Purchase0 = Opening0,
-			Purchase = Purchase0.put(date,Opening_Date)
-		)
-	),		
+	clippage(Clipped,Opening0,Opening,Purchase),
 
 	value_multiply(Sale_Unit_Price_Foreign, Count, Sale_Total_Price_Foreign),
 	value_multiply(Sale_Unit_Price_Converted, Count, Sale_Total_Price_Converted),
@@ -244,7 +241,7 @@ investment_report_2_sale_lines(Static_Data, Info, Clipped, Sale, Row) :-
 
 
 		
-investment_report_2_unrealized(Static_Data, Investment, Row) :-
+ investment_report_2_unrealized(Static_Data, Investment, Row) :-
 	push_format('process unrealized investment: ~q', [Investment]),
 
 	End_Date = Static_Data.end_date,
@@ -290,24 +287,11 @@ investment_report_2_unrealized(Static_Data, Investment, Row) :-
 	value_multiply(Opening_Unit_Cost_Foreign, Count, Opening_Total_Cost_Foreign),
 	value_multiply(Opening_Unit_Cost_Converted, Count, Opening_Total_Cost_Converted),
 
-	event(Opening0, Opening_Unit_Cost_Foreign, Opening_Currency_Conversion, Opening_Unit_Cost_Converted, Opening_Total_Cost_Foreign, Opening_Total_Cost_Converted),
+	!ir2_event(Opening0, Opening_Unit_Cost_Foreign, Opening_Currency_Conversion, Opening_Unit_Cost_Converted, Opening_Total_Cost_Foreign, Opening_Total_Cost_Converted, Opening_Date),
 
-	(
-		Clipped = clipped
-	->
-		(
-			Opening = Opening0,
-			Purchase = _{}
-		)
-	;	
-		(
-			Opening = _{},
-			Purchase0 = Opening0,
-			Purchase = Purchase0.put(date, Opening_Date)
-		)
-	),		
+	clippage(Clipped,Opening0,Opening,Purchase),
 
-	event(Closing, Closing_Unit_Price_Foreign, Closing_Currency_Conversion, Closing_Unit_Price_Converted, Investment_Currency_Current_Market_Value, Current_Market_Value),
+	!ir2_event(Closing, Closing_Unit_Price_Foreign, Closing_Currency_Conversion, Closing_Unit_Price_Converted, Investment_Currency_Current_Market_Value, Current_Market_Value, End_Date),
 
 	value_subtract(Investment_Currency_Current_Market_Value, Opening_Total_Cost_Foreign, Market_Gain_Foreign),
 
@@ -351,8 +335,24 @@ investment_report_2_unrealized(Static_Data, Investment, Row) :-
 
 	pop_format.
 
-	
-optional_currency_conversion(Exchange_Rates, Date, Src, Optional_Dst, Conversion) :-
+
+
+ clippage(Clipped,Opening0,Opening,Purchase) :-
+	(	Clipped = clipped
+	->	(
+			Opening = Opening0,
+			Purchase = _{}
+		)
+	;
+		(
+			Opening = _{},
+			Purchase = Opening0
+		)
+	).
+
+
+
+ optional_currency_conversion(Exchange_Rates, Date, Src, Optional_Dst, Conversion) :-
 	(
 		(
 			[Dst] = Optional_Dst,
@@ -365,7 +365,8 @@ optional_currency_conversion(Exchange_Rates, Date, Src, Optional_Dst, Conversion
 	).
 
 
-ir2_forex_gain(Exchange_Rates, Opening_Date, End_Price, End_Date, Investment_Currency, Report_Currency, Count, Gain) :-
+
+ ir2_forex_gain(Exchange_Rates, Opening_Date, End_Price, End_Date, Investment_Currency, Report_Currency, Count, Gain) :-
 	End_Price = value(End_Unit_Price_Unit, End_Unit_Price_Amount),
 	%(End_Unit_Price_Unit == Investment_Currency ->true;(g trace,true)),
 	(
@@ -408,7 +409,9 @@ ir2_forex_gain(Exchange_Rates, Opening_Date, End_Price, End_Date, Investment_Cur
 		Gain = ''
 	).
 
-ir2_market_gain(Exchange_Rates, Opening_Date, End_Date, Investment_Currency, Report_Currency, Count, Opening_Unit_Cost_Converted, Investment_Currency, End_Unit_Price_Amount, Gain
+
+
+ ir2_market_gain(Exchange_Rates, Opening_Date, End_Date, Investment_Currency, Report_Currency, Count, Opening_Unit_Cost_Converted, Investment_Currency, End_Unit_Price_Amount, Gain
 ) :-
 	Report_Currency = [Report_Currency_Unit],
 	Market_Price_Without_Movement_Unit = without_currency_movement_against_since(
@@ -422,35 +425,17 @@ ir2_market_gain(Exchange_Rates, Opening_Date, End_Date, Investment_Currency, Rep
 	value_subtract(End_Total_Price_Converted, Opening_Total_Cost_Converted, Gain).
 
 	
-clip_investments(Static_Data, (Outstanding_In, Investments_In), Realized_Investments, Unrealized_Investments) :-
+ clip_investments(Static_Data, (Outstanding_In, Investments_In), Realized_Investments, Unrealized_Investments) :-
 	findall(
 		I,
 		(
-			/* all unrealized */
-			(
-				member((O, Investment_Id), Outstanding_In),
-				outstanding_goods_count(O, Count),
-				Count =\= 0,
-				nth0(Investment_Id, Investments_In, investment(Info1, _Sales)),
-				
-				/*just re-pack outstanding() into info(), omitting Goods_Count */
-				Info1 = outstanding(Investment_Currency, Unit, _, Purchase_Unit_Cost_Converted, Purchase_Unit_Cost_Foreign, Purchase_Date),
-				Info2 = info(Investment_Currency, Unit, Purchase_Unit_Cost_Converted, Purchase_Unit_Cost_Foreign, Purchase_Date),
-				
-				I = (unr, Info2, Count, [])
-			)
-			;
-			/* all realized */
-			(
-				member(investment(Info1, Sales), Investments_In),
-				Info1 = outstanding(Investment_Currency, Unit, _, Purchase_Unit_Cost_Converted, Purchase_Unit_Cost_Foreign, Purchase_Date),
-				Info2 = info(Investment_Currency, Unit, Purchase_Unit_Cost_Converted, Purchase_Unit_Cost_Foreign, Purchase_Date),
-				I = (rea, Info2, 0, Sales)
-				
-			)
+			all_unrealized(Outstanding_In, Investments_In, I)
+		;
+			all_realized(Investments_In, I)
 		),
 		Investments1
 	),
+
 	maplist(filter_investment_sales(Static_Data), Investments1, Investments2),
 	exclude(irrelevant_investment(Static_Data), Investments2, Investments3),
 
@@ -458,12 +443,38 @@ clip_investments(Static_Data, (Outstanding_In, Investments_In), Realized_Investm
 	findall(I, (member(I, Investments4), ir_item_type(I,unr)), Unrealized_Investments),
 	findall(I, (member(I, Investments4), ir_item_type(I,rea)), Realized_Investments).
 
-/*filter out investments sold before report period start. */
-filter_investment_sales(Static_Data, I1, I2) :-
+
+
+ all_unrealized(Outstanding_In, Investments_In, I) :-
+	member((O, Investment_Id), Outstanding_In),
+	outstanding_goods_count(O, Count),
+	Count =\= 0,
+	nth0(Investment_Id, Investments_In, investment(Info1, _Sales)),
+
+	/*just re-pack outstanding() into info(), omitting Goods_Count */
+	Info1 = outstanding(Investment_Currency, Unit, _, Purchase_Unit_Cost_Converted, Purchase_Unit_Cost_Foreign, Purchase_Date),
+	Info2 = info(Investment_Currency, Unit, Purchase_Unit_Cost_Converted, Purchase_Unit_Cost_Foreign, Purchase_Date),
+
+	I = (unr, Info2, Count, []).
+
+
+
+ all_realized(Investments_In, I) :-
+	member(investment(Info1, Sales), Investments_In),
+	Info1 = outstanding(Investment_Currency, Unit, _, Purchase_Unit_Cost_Converted, Purchase_Unit_Cost_Foreign, Purchase_Date),
+	Info2 = info(Investment_Currency, Unit, Purchase_Unit_Cost_Converted, Purchase_Unit_Cost_Foreign, Purchase_Date),
+	I = (rea, Info2, 0, Sales).
+
+
+
+/*filter out sales that happened before report period start. */
+ filter_investment_sales(Static_Data, I1, I2) :-
 	dict_vars(Static_Data, [Start_Date]),
 	I1 = (Tag, Info, Outstanding_Count, Sales1),
 	I2 = (Tag, Info, Outstanding_Count, Sales2),
 	exclude(sale_before(Start_Date), Sales1, Sales2).
+
+
 
 irrelevant_investment(_Static_Data, I1) :-
 	I1 = (Tag, _Info1, _Outstanding_Count, Sales),
@@ -475,19 +486,26 @@ irrelevant_investment(_Static_Data, I1) :-
 	;
 		Sales = []
 	).
+
+
 	
 clip_investment(Static_Data, I1, I2) :-
 	Start_Date = Static_Data.start_date,
 	Exchange_Rates = Static_Data.exchange_rates,
 	Report_Currency = Static_Data.report_currency,
+	add_days(Start_Date, -1, Before_Start),
 	[Report_Currency_Unit] = Report_Currency,
+
 	I1 = (Tag, Info1, Outstanding_Count, Sales),
 	I2 = ir_item(Tag, Info2, Outstanding_Count, Sales, Clipped),
+
 	Info1 = info(Investment_Currency, Unit, Purchase_Unit_Cost_Converted, Purchase_Unit_Cost_Foreign, Purchase_Date),
 	Info2 = info2(Investment_Currency, Unit, Opening_Unit_Cost_Converted, Opening_Unit_Cost_Foreign, Opening_Date, Original_Purchase_Info),
+
 	Original_Purchase_Info = original_purchase_info(Purchase_Unit_Cost_Converted, Purchase_Unit_Cost_Foreign, Purchase_Date),
+
 	(
-		Purchase_Date @>= Start_Date
+		Purchase_Date @>= Before_Start
 	->
 		(
 			Opening_Unit_Cost_Foreign = Purchase_Unit_Cost_Foreign,
@@ -499,25 +517,27 @@ clip_investment(Static_Data, I1, I2) :-
 		(
 		/*	
 			clip start date, adjust purchase price.
-			the simplest case is when the price in purchase currency at report start date is specified by user.
+			the simplest case is when the price in purchase currency at opening start date is specified by user, and this is what we rely on.
 		*/
-			Opening_Date = Start_Date,
+			Opening_Date = Before_Start,
 
 			(	result_property(l:cost_or_market, cost)
 			->	Unit2 = with_cost_per_unit(Unit, Purchase_Unit_Cost_Foreign)
 			;	Unit2 = Unit),
 
-			exchange_rate_throw(Exchange_Rates, Opening_Date, Unit2, Investment_Currency, Before_Opening_Exchange_Rate_Foreign),
-			Opening_Unit_Cost_Foreign = value(Investment_Currency, Before_Opening_Exchange_Rate_Foreign),
+			exchange_rate_throw(Exchange_Rates, Opening_Date, Unit2, Investment_Currency, Opening_Exchange_Rate_Foreign),
+			Opening_Unit_Cost_Foreign = value(Investment_Currency, Opening_Exchange_Rate_Foreign),
 
-			exchange_rate_throw(Exchange_Rates, Opening_Date, Unit2, Report_Currency_Unit, Before_Opening_Exchange_Rate_Converted),
-			Opening_Unit_Cost_Converted = value(Report_Currency_Unit, Before_Opening_Exchange_Rate_Converted),
+			exchange_rate_throw(Exchange_Rates, Opening_Date, Unit2, Report_Currency_Unit, Opening_Exchange_Rate_Converted),
+			Opening_Unit_Cost_Converted = value(Report_Currency_Unit, Opening_Exchange_Rate_Converted),
 
 			Clipped = clipped
 		)
 	).
 
-sale_before(Start_Date, sale(Date,_,_)) :- 
+
+
+ sale_before(Start_Date, sale(Date,_,_)) :-
 	Date @< Start_Date.
 
 
@@ -530,6 +550,7 @@ optional_converted_value(V1, C, V2) :-
 	;
 		value_convert(V1, C, V2)
 	).
+
 
 
 /*		* Closing_Unit_Price_Foreign : Foreign/Unit

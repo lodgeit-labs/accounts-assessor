@@ -181,7 +181,7 @@
 	!make_json_report(Sr1, reports_json).
 
 
-make_gl_viewer_report :-
+ make_gl_viewer_report :-
 	%format(user_error, 'make_gl_viewer_report..~n',[]),
 	Viewer_Dir = 'general_ledger_viewer',
 	!absolute_file_name(my_static(Viewer_Dir), Src, [file_type(directory)]),
@@ -197,7 +197,7 @@ make_gl_viewer_report :-
 	%format(user_error, 'make_gl_viewer_report done.~n',[]),
 	true.
 
-investment_reports(Static_Data, Ir) :-
+ investment_reports(Static_Data, Ir) :-
 	Data =
 	[
 		(current,'',Static_Data),

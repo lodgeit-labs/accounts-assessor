@@ -123,9 +123,9 @@ def call_prolog(
 	# print(shlex.join(cmd)) # python 3.8
 	logging.getLogger().debug(command_nice(cmd))
 	cmd = flatten_lists(['/usr/bin/time',
-						 #'-v',
-						 '--f', "max mem: %Mkb",
-						 cmd])
+						'-v',
+						'--f', "user time :%U secs, max mem: %M kb",
+						cmd])
 
 	#print(cmd)
 	#print('# pipe_rpc_json_to_swipl_stdin=',pipe_rpc_json_to_swipl_stdin)
