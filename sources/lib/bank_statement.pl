@@ -119,7 +119,7 @@ call preprocess_s_transaction on each item of the S_Transactions list and do som
 	clean_up_txset(Transactions0, Transactions_Result),
 	Transactions_Out = [Transactions_Result|Transactions_Out_Tail],
 	Processed_S_Transactions = [S_Transaction|Processed_S_Transactions_Tail],
-	!check_txset(Transactions_Result),
+	!check_txsets(Transactions_Result),
 	pop_context.
 
 

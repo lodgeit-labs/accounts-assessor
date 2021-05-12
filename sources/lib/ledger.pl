@@ -24,11 +24,11 @@ find_s_transactions_in_period(S_Transactions, Opening_Date, Closing_Date, Out) :
 check_trial_balance_section(Trial_Balance_Section) :-
 	!report_entry_children(Trial_Balance_Section, []),
 	!report_entry_total_vec(Trial_Balance_Section, Balance),
-	(	maplist(coord_is_almost_zero, Balance)
+	(	vec_is_almost_zero(Balance)
 	->	true
 	;	(	round_term(Balance, Balance2),
 			term_string(trial_balance(Balance2), Tb_Str),
-			add_alert('SYSTEM_WARNING', Tb_Str)
+			add_alert('SYSTEM_WARNING', $>format(string(<$), '~w: trial balance report: ~q', [Tb_Str]))
 		)
 	).
 

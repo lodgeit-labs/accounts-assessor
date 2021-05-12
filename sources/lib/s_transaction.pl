@@ -156,14 +156,24 @@ s_transactions_up_to(End_Date, S_Transactions_All, S_Transactions_Capped) :-
 		doc(Action_Verb, l:has_id, Verb_Label)
 	->	true
 	;	Verb_Label = Action_Verb),
-	D = _{
+	D0 = _{
 		date: Day,
 		verb: Verb_Label,
 		vector: Vector,
 		account: Account,
 		account_name: Account_name,
 		exchanged: Exchanged,
-		misc: Misc}.
+		misc: Misc},
+	st_stuff1(T, D0, D).
+
+ st_stuff1(T, Dict, Dict_out) :-
+	doc(T, l:has_tb, Tb0),
+	term_string($>round_term(Tb0),Tb_str),
+	findall(Alert,doc(T, l:has_alert, Alert),Alerts),
+	term_string($>round_term(Alerts), Alerts_str),
+	Dict_out = Dict.put(note, Alerts_str).put(tb, Tb_str).
+
+
 
  'pre-preprocess source transactions'(In, Out) :-
 	/*
@@ -227,7 +237,7 @@ prepreprocess_s_transaction(T, T) :-
 
 % This Prolog rule handles the case when only the exchanged units are known (for example GOOG)  and
 % hence it is desired for the program to infer the count.
-infer_exchanged_units_count(S_Transaction, NS_Transaction) :-
+ infer_exchanged_units_count(S_Transaction, NS_Transaction) :-
 	result_property(l:exchange_rates, Exchange_Rates),
 	s_transaction_exchanged(S_Transaction, bases(Goods_Bases)),
 	s_transaction_day(S_Transaction, Transaction_Date),
@@ -238,7 +248,7 @@ infer_exchanged_units_count(S_Transaction, NS_Transaction) :-
 	doc_set_s_transaction_field(exchanged, S_Transaction, vector(Vector_Exchanged_Inverted), NS_Transaction, infer_exchanged_units_count).
 
 /* used on raw s_transaction during prepreprocessing */
-s_transaction_action_verb_uri_from_string(S_Transaction, Action_Verb) :-
+ s_transaction_action_verb_uri_from_string(S_Transaction, Action_Verb) :-
 	s_transaction_type_id(S_Transaction, Type_Id),
 	Type_Id \= uri(_),
 	(	(
@@ -248,7 +258,7 @@ s_transaction_action_verb_uri_from_string(S_Transaction, Action_Verb) :-
 	->	true
 	;	(throw_string(['action verb not found by id: "',Type_Id,'"']))).
 
-extract_exchanged_value(Tx_dom, Bank_dr, Exchanged) :-
+ extract_exchanged_value(Tx_dom, Bank_dr, Exchanged) :-
 	(	field_nothrow(Tx_dom, [unitType, Unit_type])
 	->	true
 	;	Unit_type = nil(nil)),
@@ -290,14 +300,14 @@ extract_exchanged_value(Tx_dom, Bank_dr, Exchanged) :-
 	).
 
 
-invert_s_transaction_vector(T0, T1) :-
+ invert_s_transaction_vector(T0, T1) :-
 	!s_transaction_vector(T0, Vector),
 	!vec_inverse(Vector, Vector_Inverted),
 	!doc_set_s_transaction_field(vector,T0, Vector_Inverted, T1, invert_s_transaction_vector).
 
 
 
-handle_additional_files(S_Transactions) :-
+ handle_additional_files(S_Transactions) :-
 	request_data(Request_Data),
 	(	doc_value(Request_Data, ic_ui:additional_files, Files)
 	->	(
@@ -321,6 +331,8 @@ handle_additional_file(Bn, S_Transactions) :-
 */
 
 'extract bank statement transactions'(S_Transactions) :-
+	format(user_error, '~q~n', ['extract bank statement transactions'(S_Transactions)]),
+
 	findall(
 		Acc,
 		(

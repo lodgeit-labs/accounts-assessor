@@ -66,6 +66,7 @@
 							<th>vector_converted_at_balance_date</th>
 							<th>exchanged</th>
 							<th>leaf_account_running_balance_since_beginning_of_time</th>
+							<th>note</th>
 						</tr>
 					</thead>
 					<transformation :id="item.id" :source="item.source" :transactions="item.transactions"  v-for="item in items" :key="item.id"></transformation>
@@ -81,7 +82,7 @@
 				<tr>
 					<td v-if='typeof source == "string"'> {{ source }} </td>
 					<template v-else>
-						<td>bank</td>
+						<td>source tx</td>
 						<td class="source"> {{ source.account_name }}</td>
 						<td class="source"> {{ source.date }}</td>
 						<td class="source"> {{ source.verb }}</td>
@@ -92,6 +93,9 @@
 						<td class="source"> <vector :data="source.report_currency_transacted_amount_converted_at_balance_date"></vector> </td>
 						<td class="source"> {{ source.exchanged }}</td>
 						<td></td>
+						<td class="source">
+							{{ source.note }}
+						</td>
 					</template>
 				</tr>
 				<transaction :data="item" v-for="item in transactions" :key="item.id"  v-if="$root.accounts_filter_index[item.account].checked"></transaction>
@@ -232,8 +236,8 @@
 
 		data.forEach(item => {
 					item.id = transformation_id++;
-					item.transactions.forEach(tr => {
-						tr.id = transaction_id++
+					item.transactions.forEach(tx => {
+						tx.id = transaction_id++
 /*						if (!tr.x.hasOwnProperty(account))
 							balances[account] =
 */

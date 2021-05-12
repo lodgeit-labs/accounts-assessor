@@ -3,7 +3,7 @@
 :- record ir_item(type, info, outstanding_count, sales, clipped).
 
 
-event_with_date(Event, Date, Unit_Cost_Foreign, Currency_Conversion, Unit_Cost_Converted, Total_Cost_Foreign, Total_Cost_Converted) :-
+ event_with_date(Event, Date, Unit_Cost_Foreign, Currency_Conversion, Unit_Cost_Converted, Total_Cost_Foreign, Total_Cost_Converted) :-
 	Event = _{
 		date: Date, 
 		unit_cost_foreign: Unit_Cost_Foreign, 

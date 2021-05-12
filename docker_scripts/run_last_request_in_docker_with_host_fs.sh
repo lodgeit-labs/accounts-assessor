@@ -27,8 +27,14 @@ docker run -it \
 		--volume="$HOME/.Xauthority:/root/.Xauthority:rw" \
 		--volume="/tmp/.X11-unix:/tmp/.X11-unix:rw" \
 		--volume="$SECRETS_DIR:/run/secrets" \
+\
 		--env="DISPLAY"	\
 		--env="DETERMINANCY_CHECKER__USE__ENFORCER" \
+		--env="DETERMINANCY_CHECKER__USE__UNDO" \
+		--env="ROBUST_DOC_ENABLE_TRAIL" \
+		--env="ROBUST_ROL_ENABLE_CHECKS" \
+		--env="ENABLE_CONTEXT_TRACE_TRAIL" \
+\
 		--env SECRET__CELERY_BROKER_URL="amqp://guest:guest@rabbitmq:5672//" \
 		--entrypoint bash \
 #		--publish 1234:1234 \
