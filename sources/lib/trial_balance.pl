@@ -17,6 +17,9 @@
  check_st_tb(_, Source) :-
 	doc(Source, s_transactions:tb, _, transactions),
 	!.
+ check_st_tb(_, Source) :-
+	doc(Source, s_transactions:unbalanced, true, transactions),
+	!.
  check_st_tb(Txs_by_sources, Source) :-
 	check_txset(Source, Txs_by_sources.get(Source)).
 

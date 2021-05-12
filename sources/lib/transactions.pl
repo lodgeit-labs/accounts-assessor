@@ -143,18 +143,20 @@ make_dr_cr_transactions(
  transactions_dict_by_account_v2(Transactions,Transactions_By_Account) :-
 
 
+/*
+
 	% tabling check term
 	Tct = tabling_check__processed(transactions_dict_by_account_v2(Transactions)),
 	(	call(Tct)
 	->	throw_string('memoization failed')
 	;	assert(Tct)),
-
+*/
 
 	assertion(nonvar(Transactions)),
 	assertion(var(Transactions_By_Account)),
-	length(Transactions, Tl),
+	%length(Transactions, Tl),
 	%format(user_error, '~q (~q)~n', [transactions_dict_by_account_v2(Transactions,Transactions_By_Account), Tl]),
-	format(user_error, '(~q)~n', [transactions_dict_by_account_v2(Tl)]),
+	%format(user_error, '(~q)~n', [transactions_dict_by_account_v2(Tl)]),
 
 	sort_into_dict(transaction_account, Transactions, Transactions_By_Account).
 

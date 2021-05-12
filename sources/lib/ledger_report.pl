@@ -166,6 +166,7 @@ balance_by_account2(Sd, Report_Currency, Date, Account, balance(Balance, Tx_Coun
 	),
 	doc_new_(source, Source),
     doc_add_value(Source, transactions:description, closing_books, transactions),
+    doc_add(Source, s_transactions:unbalanced, true, transactions),
 	!make_transaction(
 		Source,
 		Tx_date,

@@ -16,7 +16,7 @@
 	doc_add(Dates, [
 		l:start_date, date(1,1,1),
 		l:end_date, Before_start,
-		l:exchange_date, Before_start,
+		l:exchange_date, Report_start_date,
 		l:tx_date, Before_start]).
 
 'dates for posting Current_Earnings'(Report_start_date, Report_end_date, Dates) :-
@@ -107,3 +107,52 @@
 /*
 todo: trading difference transactions
 */
+
+
+
+ clip_investment(Static_Data, I1, I2) :-
+	Start_Date = Static_Data.start_date,
+	Exchange_Rates = Static_Data.exchange_rates,
+	Report_Currency = Static_Data.report_currency,
+	add_days(Start_Date, -1, Before_Start),
+	[Report_Currency_Unit] = Report_Currency,
+
+	I1 = (Tag, Info1, Outstanding_Count, Sales),
+	I2 = ir_item(Tag, Info2, Outstanding_Count, Sales, Clipped),
+
+	Info1 = info(Investment_Currency, Unit, Purchase_Unit_Cost_Converted, Purchase_Unit_Cost_Foreign, Purchase_Date),
+	Info2 = info2(Investment_Currency, Unit, Opening_Unit_Cost_Converted, Opening_Unit_Cost_Foreign, Opening_Date, Original_Purchase_Info),
+
+	Original_Purchase_Info = original_purchase_info(Purchase_Unit_Cost_Converted, Purchase_Unit_Cost_Foreign, Purchase_Date),
+
+	(
+		Purchase_Date @>= Before_Start
+	->
+		(
+			Opening_Unit_Cost_Foreign = Purchase_Unit_Cost_Foreign,
+			Opening_Unit_Cost_Converted = Purchase_Unit_Cost_Converted,
+			Opening_Date = Purchase_Date,
+			Clipped = unclipped
+		)
+	;
+		(
+		/*
+			clip start date, adjust purchase price.
+			the simplest case is when the price in purchase currency at opening start date is specified by user, and this is what we rely on.
+		*/
+			Opening_Date = Before_Start,
+
+			(	result_property(l:cost_or_market, cost)
+			->	Unit2 = with_cost_per_unit(Unit, Purchase_Unit_Cost_Foreign)
+			;	Unit2 = Unit),
+
+			exchange_rate_throw(Exchange_Rates, Opening_Date, Unit2, Investment_Currency, Opening_Exchange_Rate_Foreign),
+			Opening_Unit_Cost_Foreign = value(Investment_Currency, Opening_Exchange_Rate_Foreign),
+
+			exchange_rate_throw(Exchange_Rates, Opening_Date, Unit2, Report_Currency_Unit, Opening_Exchange_Rate_Converted),
+			Opening_Unit_Cost_Converted = value(Report_Currency_Unit, Opening_Exchange_Rate_Converted),
+
+			Clipped = clipped
+		)
+	).
+

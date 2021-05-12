@@ -122,9 +122,9 @@ def call_prolog(
 	logging.getLogger().debug('invoke_rpc: running:')
 	# print(shlex.join(cmd)) # python 3.8
 	logging.getLogger().debug(command_nice(cmd))
-	cmd = flatten_lists(['/usr/bin/time',
-						'-v',
-						'--f', "user time :%U secs, max mem: %M kb",
+	cmd = flatten_lists([#'/usr/bin/time',
+	#					'-v',
+	#					'--f', "user time :%U secs, max mem: %M kb",
 						cmd])
 
 	#print(cmd)
@@ -146,7 +146,7 @@ def call_prolog(
 			"invoke_rpc: if system PATH is messed up, maybe you're running the server from venv, and activating the venv a second time, from run_common0.sh, messes it up")
 		raise
 
-	if stdout_data != b'':
+	if stdout_data not in [b'', '']:
 		print()
 		print("invoke_rpc: prolog stdout:")
 		print(stdout_data)

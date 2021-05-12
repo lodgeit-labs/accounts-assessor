@@ -42,7 +42,7 @@ docker run -it \
 #		-c bash
 		-c " \
 cd /app/server_root/;  \
-time env PYTHONUNBUFFERED=1 CELERY_QUEUE_NAME=q7788 \
+env PYTHONUNBUFFERED=1 CELERY_QUEUE_NAME=q7788 \
 ../sources/internal_workers/invoke_rpc_cmdline.py \
 	$DBG1 \
 	--halt true \

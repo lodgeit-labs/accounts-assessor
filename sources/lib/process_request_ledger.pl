@@ -1,4 +1,13 @@
 
+/*
+
+
+state ( -> static data) -> structured reports ( -> crosschecks)
+
+
+*/
+
+
  process_request_ledger :-
 	ct(
 		'this is an Investment Calculator query',
@@ -46,18 +55,7 @@
 			!cf(smsf_income_tax_stuff(S8, S10)))
 	;	S10 = S8),
 
-	!rp(l:start_date, Start_date),
-	!rp(l:end_date, End_date),
-
-	!'with current and historical earnings equity balances'(
-		S10,
-		Start_date,
-		End_date,
-		State_current),
-
-	doc_add(State_current, rdfs:comment, "with current and historical earnings equity balances"),
-	once(!cf(create_reports(S10,State_current))),
-
+	once(!cf(create_reports(S10))),
 	true.
 
 
@@ -88,17 +86,64 @@
 	;	S4 = S2),
 	true.
 
- create_reports(Vanilla_state, State) :-
-	!static_data_from_state(State, Static_Data),
-	!cf('export GL'(Static_Data)),
-	!cf(all_balance_reports(Vanilla_state, State, Sr)),
+ create_reports(Vanilla_state) :-
+
+	!rp(l:start_date, Start_date),
+	!rp(l:end_date, End_date),
+	!'with current and historical earnings equity balances'(
+		Vanilla_state,
+		Start_date,
+		End_date,
+		Closed_books_state),
+	doc_add(Closed_books_state, rdfs:comment, "with closed books"),
+	check_state_transactions_accounts(Closed_books_state),
+
+	!static_data_from_state(Closed_books_state, Closed_books_static_data),
+	!static_data_from_state(Vanilla_state, Vanilla_static_data),
+
+	!cf('export GL'(Vanilla_static_data)),
+
+	!cf(all_balance_reports(Vanilla_state, Closed_books_state, Sr)),
 	!html_reports('final_', Sr),
+
 	(	account_by_role(rl(smsf_equity), _)
 	->	cf(smsf_member_reports('final_', Sr))
 	;	true),
-	!misc_reports(Static_Data, Static_Data.outstanding, Sr, _Sr2),
+
+
+	!cf(cf_page(Vanilla_static_data, Sr.cf)),
+	!cf(investment_reports(
+		Vanilla_static_data,
+		Investment_Report_Info)
+	),
+	Sr2 = Sr.put(ir, Investment_Report_Info),
+
+
+	'create XBRL instance'(Closed_books_static_data, Sr),
+
+	!cf(crosschecks_report0(
+		Closed_books_static_data.put(reports, Sr2),
+		Crosschecks_Report_Json)
+	),
+	Final_structured_reports = Sr2.put(crosschecks, Crosschecks_Report_Json),
+
+	!make_json_report(Final_structured_reports, reports_json).
+
+
+
+
+ 'create XBRL instance'(Closed_books_static_data, Sr) :-
 	!taxonomy_url_base,
-	!cf('create XBRL instance'(Xbrl, Static_Data, Static_Data.start_date, Static_Data.end_date, Static_Data.report_currency, Sr.bs.current.entries, Sr.pl.current.entries, Sr.pl.historical, Sr.tb)),
+	!cf('create XBRL instance'(
+		Xbrl,
+		Closed_books_static_data,
+		Closed_books_static_data.start_date,
+		Closed_books_static_data.end_date,
+		Closed_books_static_data.report_currency,
+		Sr.bs.current.entries,
+		Sr.pl.current.entries,
+		Sr.pl.historical,
+	Sr.tb)),
 	!add_xml_report(xbrl_instance, xbrl_instance, [Xbrl]).
 
 
@@ -111,23 +156,25 @@
  	Sd2 = Sd.put(start_date,Start_date).put(end_date,End_date).put(exchange_date,Exchange_date).
 
 
- all_balance_reports(Vanilla_State, State, Structured_Reports) :-
- 	Structured_Reports = _{
-		pl: _{
+ all_balance_reports(Vanilla_State, Closed_books_state, Structured_Reports) :-
+ 	Structured_Reports = x{
+		pl: x{
 			current: ProfitAndLoss,
 			historical: ProfitAndLoss2_Historical
+			% before_closing_books: ... % if needed.
 		},
-		bs: _{
+		bs: x{
 			current: Balance_Sheet,
 			historical: Balance_Sheet2_Historical,
 			delta: Balance_Sheet_delta /*todo crosscheck*/
+			% before_closing_books: ... % if needed.
 		},
 		tb:	Trial_Balance,
 		cf: Cf
 	},
-	check_state_transactions_accounts(State),
+
 	historical_reports(Vanilla_State, Balance_Sheet2_Historical,ProfitAndLoss2_Historical),
-	current_balance_entries(State, Cf,Balance_Sheet,Balance_Sheet_delta,ProfitAndLoss,Trial_Balance).
+	current_balance_entries(Closed_books_state, Cf,Balance_Sheet,Balance_Sheet_delta,ProfitAndLoss,Trial_Balance).
 
 
  current_balance_entries(State, Cf, Balance_Sheet,Balance_Sheet_delta,ProfitAndLoss,Trial_Balance) :-
@@ -165,20 +212,6 @@
 	!report_entry_tree_html_page(
 		Report_prefix, Sr0.pl.historical,
 		'profit and loss - historical', 'profit_and_loss_historical.html').
-
-
- misc_reports(
-	Static_Data,
-	Outstanding,
-	Sr0,
-	Sr5				% Structured Reports - Dict <Report Abbr : _>
-) :-
-	!cf(cf_page(Static_Data, Sr0.cf)),
-	!cf(investment_reports(Static_Data.put(outstanding, Outstanding), Investment_Report_Info)),
-	Sr1 = Sr0.put(ir, Investment_Report_Info),
-	!cf(crosschecks_report0(Static_Data.put(reports, Sr1), Crosschecks_Report_Json)),
-	Sr5 = Sr1.put(crosschecks, Crosschecks_Report_Json),
-	!make_json_report(Sr1, reports_json).
 
 
  make_gl_viewer_report :-

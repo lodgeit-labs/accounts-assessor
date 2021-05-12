@@ -141,7 +141,16 @@ handle_op(S0,append,Field,Tail,S2) :-
 	!result_property(l:start_date, Start_Date),
  	!result_property(l:end_date, End_Date),
  	!result_property(l:end_date, Exchange_Date),
-	dict_from_vars(Static_Data, [Transactions, Exchange_Rates, Transactions_By_Account, Report_Currency, Start_Date, End_Date, Exchange_Date, Outstanding]).
+	dict_from_vars(Static_Data, [
+		Transactions,
+		Exchange_Rates,
+		Transactions_By_Account,
+		Report_Currency,
+		Start_Date,
+		End_Date,
+		Exchange_Date,
+		Outstanding
+	]).
 
 
  add_cutoff_alert :-
