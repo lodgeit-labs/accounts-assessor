@@ -23,25 +23,23 @@ init_exchange_rates :-
 	absolute_file_name(my_cache('persistently_cached_exchange_rates.pl'), File, []),
 	db_attach(File, []).
 
-exchange_rates(Day, Exchange_Rates) :-
-	with_mutex(db, exchange_rates_thread_guarded(Day, Exchange_Rates)).
 
 /*
 	do we have this cached already?
 */
-exchange_rates_thread_guarded(Day, Exchange_Rates) :-
-	persistently_cached_exchange_rates(Day, Exchange_Rates),
+exchange_rates(Day, Exchange_Rates) :-
+	cf(persistently_cached_exchange_rates(Day, Exchange_Rates)),
 	!.
 
 /* 
 	avoid trying to fetch data from future
 */
-exchange_rates_thread_guarded(Day, Exchange_Rates) :-
+exchange_rates(Day, Exchange_Rates) :-
 	date(Today),
 	% 2, because timezones and stuff. This should result in us not making queries for exchange rates more than 48h into the future, but definitely not to errorneously refusing to query because we think Day is in future when it isnt.
 	add_days(Today, 2, Tomorrow),
 	Day @=< Tomorrow,
-	fetch_exchange_rates(Day, Exchange_Rates).
+	cf(fetch_exchange_rates(Day, Exchange_Rates)).
 
 % Obtains all available exchange rates on the day Day using an arbitrary base currency
 % from exchangeratesapi.io. The results are memoized because this operation is slow and
@@ -82,9 +80,8 @@ fetch_exchange_rates(Date, Exchange_Rates) :-
 /* 
 	now put it in the cache file 
 */
-assert_rates(Date, Exchange_Rates) :-
-	/* these are debugging assertions, not fact asserts*/
-	assertion(ground(Date)), 
+ assert_rates(Date, Exchange_Rates) :-
+	assertion(ground(Date)),
 	assertion(ground(Exchange_Rates)),
 	assert_persistently_cached_exchange_rates(Date, Exchange_Rates).
 
@@ -270,12 +267,12 @@ exchange_rate2(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate_Out) :-
 
 :- table(exchange_rate/5).
 exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate_Out) :-
+	push_format('~q', [exchange_rate(Day, Src_Currency, Dest_Currency)]),
 	%write(exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate_Out)),writeln('...'),
-	exchange_rate2(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate_Out)
-	%,writeln('ok')
+	exchange_rate2(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate_Out),
+	pop_format
 	.
 
-%:- table(exchange_rate_throw/5).
 exchange_rate_throw(Table, Day, Src, Dest, Exchange_Rate_Out) :-
 	(	exchange_rate(Table, Day, Src, Dest, Exchange_Rate_Out)
 	->	true

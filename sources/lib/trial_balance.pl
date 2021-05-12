@@ -1,46 +1,42 @@
- txset_sources(Txs, Sources2) :-
- 	findall(Source,
-		(
-			member(Tx, Txs),
-			doc(Tx, transactions:origin, Source, transactions)
-		),
-		Sources
-	),
-	list_to_set(Sources, Sources2).
+ check_txsets(Txs0) :-
+ 	push_context(check_txsets),
+ 	flatten(Txs0, Txs),
+ 	collect_sources_set(Txs, Sources, Txs_by_sources),
+ 	maplist(check_st_tb(Txs_by_sources), Sources),
+ 	pop_context.
 
+/*
  st_txs(St, Txs) :-
  	findall(
  		Tx,
  		doc(Tx, transactions:origin, St, transactions),
- 		Txs).
+ 		Txs
+ 	).
+*/
 
- check_st_tb(Tx) :-
-	doc(Tx, s_transactions:tb, _, transactions),
+ check_st_tb(_, Source) :-
+	doc(Source, s_transactions:tb, _, transactions),
 	!.
- check_st_tb(Source) :-
-	st_txs(Source, Txs),
-	check_txset(Source, Txs).
+ check_st_tb(Txs_by_sources, Source) :-
+	check_txset(Source, Txs_by_sources.get(Source)).
 
- check_txsets(Txs) :-
- 	push_format('check ~q', [Txs]),
- 	txset_sources(Txs, Sources),
- 	maplist(check_st_tb, Sources).
 
  check_txset(St, Txs) :-
+ 	%push_format('~q', [check_txset(St, Txs)]),
 	result_property(l:report_currency, Report_Currency),
 	result_property(l:exchange_rates, Exchange_Rates),
 	result_property(l:end_date, End_Date),
 	(	Report_Currency = []
 	->	true
 	;	(
-			cf(!check_txset_at(St, Exchange_Rates, Report_Currency, End_Date, Txs)),
+			!cf(check_txset_at(St, Exchange_Rates, Report_Currency, End_Date, Txs)),
 			(	get_txset_date(Transaction_Date, Txs)
-			->	cf(!check_txset_at(St, Exchange_Rates, Report_Currency, Transaction_Date, Txs))
+			->	!cf(check_txset_at(St, Exchange_Rates, Report_Currency, Transaction_Date, Txs))
 			;	true),
 			true
 		)
-	),
-	pop_format.
+	)/*,
+	pop_format*/.
 
 
  get_txset_date(Date, Txs) :-

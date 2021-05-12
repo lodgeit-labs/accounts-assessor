@@ -7,9 +7,9 @@
  'export GL'(Sd) :-
  	Txs = Sd.transactions,
  	check_txsets(Txs),
-  	!gl_export__collect_sources(Txs, Sources),
+  	!collect_sources_set(Txs, Sources, Txs_by_sources),
  	!gl_export_add_ids_to_sources(Sources),
- 	!cf(gl_viewer_json_gl_export(Sd, Sources, Txs, Gl)),
+ 	!cf(gl_viewer_json_gl_export(Sd, Sources, Txs_by_sources, Gl)),
  	/*todo !cf('QuickBooks CSV GL export'(Sd, Txs)),*/
  	!cf(make_same_named_symlinked_json_report(Gl, 'general_ledger_json.json')),
  	true.
@@ -27,31 +27,14 @@
 	Next_id is Id + 1,
 	b_setval(gl_export_add_ids_to_sources, Next_id).
 
- gl_export__collect_sources(Txs, Sources) :-
-	findall(
-		Source,
-		(
-			member(Tx, Txs),
-			assertion(nonvar(Tx)),
-			doc(Tx, transactions:origin, Source, transactions),
-			assertion(nonvar(Source))
-		),
-		Sources0),
-	list_to_set(Sources0, Sources).
 
- gl_viewer_json_gl_export(Sd, Sources, Txs, Json_list) :-
+ gl_viewer_json_gl_export(Sd, Sources, Txs_by_sources, Json_list) :-
 	running_balance_initialization,
-	maplist(gl_export2(Sd, Txs), Sources, Json_list0),
+	maplist(gl_export2(Sd, Txs_by_sources), Sources, Json_list0),
 	round_term(2, Json_list0, Json_list).
 
- gl_export2(Sd, All_txs, Source, Json) :-
-	findall(
-		Tx,
-		(
-			member(Tx, All_txs),
-			doc(Tx, transactions:origin, Source, transactions)
-		),
-		Txs0),
+ gl_export2(Sd, Txs_by_sources, Source, Json) :-
+	Txs0 = Txs_by_sources.get(Source),
 	maplist(gl_export_tx(Sd), Txs0, Txs),
 	gl_export_st(Sd, Source, Source_dict),
 	Json = _{source: Source_dict, transactions: Txs}.

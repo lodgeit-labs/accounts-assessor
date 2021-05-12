@@ -16,7 +16,7 @@
 :- locale_create(Locale, "en_AU.utf8", []), set_locale(Locale).
 
 
-process_request_rpc_calculator(Dict) :-
+ process_request_rpc_calculator(Dict) :-
 	set_unique_tmp_directory_name(loc(tmp_directory_name, Dict.result_tmp_directory_name)),
 	doc_init,
 	init_doc_dump_server,
@@ -52,7 +52,7 @@ process_request_rpc_calculator(Dict) :-
 
 	findall(_,process_request(Request_data_uri_base, Request_Files2),_),
 
-	(make_zip->true;true).
+	(cf(make_zip)->true;true).
 
 
 process_request(Request_data_uri_base, File_Paths) :-
@@ -79,16 +79,15 @@ process_request2 :-
 	!make_json_report(Alerts3, alerts_json),
 	!make_alerts_report(Alerts_html),
 	!make_doc_dump_report,
-	ct('done.'),
-	!make_context_trace_report,
-	!json_report_entries(Files3),
+	!cf(make_context_trace_report),
+	!cf(json_report_entries(Files3)),
 	Json_Out = _{alerts:Alerts3, reports:Files3},
-	!make_json_report(Json_Out,'response.json',_),
-	!dict_json_text(Json_Out, Response_Json_String),
+	!cf(make_json_report(Json_Out,'response.json',_)),
+	!cf(dict_json_text(Json_Out, Response_Json_String)),
 	writeln(Response_Json_String),
 	flush_output,
 	%gtrace,
-	true.
+	ct(done).
 
 
 get_exception_ctx_dump_string(Ctx_str) :-
@@ -300,9 +299,9 @@ process_multifile_request(Request_data_uri_base,File_Paths) :-
 	(	accept_request_file(File_Paths, Rdf_Tmp_File_Path, n3)
 	->	(
 			!debug(tmp_files, "done:accept_request_file(~w, ~w, n3)~n", [File_Paths, Rdf_Tmp_File_Path]),
-			!load_request_rdf(Rdf_Tmp_File_Path, G),
+			!cf(load_request_rdf(Rdf_Tmp_File_Path, G)),
 			!debug(tmp_files, "RDF graph: ~w~n", [G]),
-			!doc_from_rdf(G, 'https://rdf.lodgeit.net.au/v1/excel_request#', Request_data_uri_base),
+			!cf(doc_from_rdf(G, 'https://rdf.lodgeit.net.au/v1/excel_request#', Request_data_uri_base)),
 			!check_request_version
 			%doc_input_to_chr_constraints
 		)
@@ -371,7 +370,7 @@ process_rdf_request :-
 		process_request_ledger
 	),
 	ct('process_rdf_request is finished.'),
-	make_rdf_response_report.
+	cf(make_rdf_response_report).
 
 
 

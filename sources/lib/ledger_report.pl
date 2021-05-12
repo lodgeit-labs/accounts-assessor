@@ -164,8 +164,10 @@ balance_by_account2(Sd, Report_Currency, Date, Account, balance(Balance, Tx_Coun
 		Txs0,
 		Sum
 	),
+	doc_new_(source, Source),
+    doc_add_value(Source, transactions:description, closing_books, transactions),
 	!make_transaction(
-		closing_books,
+		Source,
 		Tx_date,
 		closing_books,
 		$>abrlt(Tx_acct),

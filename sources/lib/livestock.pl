@@ -1,5 +1,8 @@
 
-livestock_verbs([l:livestock_purchase, l:livestock_sale]).
+:- table(livestock_verbs/1).
+
+ livestock_verbs(X) :-
+	maplist(rdf_global_id, [l:livestock_purchase, l:livestock_sale], X).
 
 
 /*
@@ -38,6 +41,9 @@ s_transaction_is_livestock_buy_or_sell(S_Transaction, Day, Livestock_Type, Lives
 
 livestock_data(Uri) :-
 	doc(Uri, rdf:type, l:livestock_data).
+
+
+:- table livestock_data_by_vector_unit/2.
 
 livestock_data_by_vector_unit(Livestock, Exchanged) :-
 	vector_unit(Exchanged, Unit),

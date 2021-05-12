@@ -140,8 +140,7 @@ take statement/source transaction and generate a list of plain transactios.
 	Outstanding
 ) :-
 	s_transaction_type_id(S_Transaction, uri(Action_Verb)),
-	member(V, $>livestock_verbs),
-	rdf_global_id(V, Action_Verb),
+	member(Action_Verb, $>livestock_verbs),
 	cf(preprocess_livestock_buy_or_sell(S_Transaction, Transactions)).
 
  preprocess_s_transaction(
@@ -151,7 +150,7 @@ take statement/source transaction and generate a list of plain transactios.
 	Outstanding_After
 ) :-
 	s_transaction_type_id(S_Transaction, uri(Action_Verb)),
-	maplist(dif(Action_Verb), $>rdf_global_id($>livestock_verbs,<$)),
+	maplist(dif(Action_Verb), $>livestock_verbs),
 	Transactions = [Ts1, Ts2, Ts3, Ts4],
 	s_transaction_exchanged(S_Transaction, vector(Counteraccount_Vector)),
 	/* is it time to introduce something like gtrace_on_user_error, and keep it off by default? */
@@ -204,11 +203,15 @@ take statement/source transaction and generate a list of plain transactios.
 		)
 	).
 
+:- table extract_pricing_method/1.
+
  extract_pricing_method(Pricing_method) :-
 	(	report_details_property_value(ic:pricing_method, Pricing_method0)
-	->	rdf_global_id(Pricing_method,Pricing_method0)
-	;	Pricing_method = ic:lifo).
+	->	Pricing_method = Pricing_method0
+	;	rdf_global_id(ic:lifo, Pricing_method)).
 
+
+:- table action_verb_accounts/3.
 
  action_verb_accounts(Action_Verb, Exchanged_Account,Trading_Account) :-
 	push_context($>format(string(<$), 'looking up accounts of action verb ~q', [$>doc(Action_Verb, l:has_id)])),

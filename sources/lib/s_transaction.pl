@@ -363,10 +363,8 @@ handle_additional_file(Bn, S_Transactions) :-
 	!.
 
 'extract bank statement transaction'(Account_Currency, Account_Name, Item, S_Transaction) :-
-	%gtrace,
 	push_format('extract bank statement transaction from: ~w', [$>sheet_and_cell_string(Item)]),
 	atom_string(Action_verb_name, $>rpv(Item, bs:transaction_description)),
-	%gtrace,
 	!read_date(Item, bs:bank_transaction_date, Date),
 
 	(doc_value(Item,bs:units_count,Units_count) -> true ; Units_count = nil(nil) ),
@@ -385,9 +383,10 @@ handle_additional_file(Bn, S_Transactions) :-
 	(	Dr < 0
 	->	Money_side = kb:debit
 	;	Money_side = kb:credit),
-	extract_exchanged_value2(Money_side, Units_type, Units_count, Exchanged),
 
-	doc_add_s_transaction(
+	!extract_exchanged_value2(Money_side, Units_type, Units_count, Exchanged),
+
+	!doc_add_s_transaction(
 		Date,
 		Action_verb_name,
 		[Coord],
@@ -396,6 +395,25 @@ handle_additional_file(Bn, S_Transactions) :-
 		misc{desc2:Description2},
 		S_Transaction
 	),
-	doc_add(S_Transaction, l:source, Item),
-	%push_format('added source transaction:~n ~w~n', [S_Transaction]),
+	!doc_add(S_Transaction, l:source, Item),
 	pop_context.
+
+
+
+
+
+
+ collect_sources_set(Txs, Sources, Txs_by_sources) :-
+	findall(
+		(Source, Tx),
+		(
+			member(Tx, Txs),
+			assertion(nonvar(Tx)),
+			doc(Tx, transactions:origin, Source, transactions),
+			assertion(nonvar(Source))
+		),
+		Pairs0),
+	maplist([(St, Tx), St]>>true, Pairs0, Sources0),
+	list_to_set(Sources0, Sources),
+	!sort_into_dict2([(St, Tx), St, Tx]>>true, Pairs0, Txs_by_sources).
+

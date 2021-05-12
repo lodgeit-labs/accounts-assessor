@@ -254,23 +254,25 @@ this should ensure that all transactions get reflected in the account tree somew
 
 %wrap_in_fixed(X
 
+ account_role_pairs(Pairs) :-
+	findall((A,R),account_role(A, R),Pairs).
+
  check_accounts_roles :-
 	findall(Role, account_role(_, Role), Roles),
 	(	ground(Roles)
 	->	true
 	;	throw_string(error)),
-	dif(I, J),
-	findall(_, (
-		account_role(I, Ri),
-		account_role(J, Rj),
-		(	Ri = Rj
-		->	(
-				(account_name(Ri, I_id)->true;throw_string(error)),
-				(account_name(Rj, J_id)->true;throw_string(error)),
-				throw_string(['Multiple accounts with same role found. role: "', Ri, '", first account: "', I_id, '", second account: "', J_id, '".'])
-			)
-		;	true)
-	),_).
+	account_role_pairs(Pairs),
+	sort_pairs_into_dict(Pairs, Dict),
+	findall(_,
+		(
+			get_dict(Role,Dict,Accounts),
+			length(Accounts, L),
+			L \= 1,
+			!maplist(account_name, Accounts, Names),
+			throw_string(['Multiple accounts with same role found. role: "', Role, '", accounts: "', Names])
+		),
+	_).
 
 
  ensure_account_exists(Suggested_parent, Suggested_id, Detail_level, Role, Account) :-
