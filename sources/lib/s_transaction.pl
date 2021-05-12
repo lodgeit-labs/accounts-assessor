@@ -331,7 +331,7 @@ handle_additional_file(Bn, S_Transactions) :-
 */
 
 'extract bank statement transactions'(S_Transactions) :-
-	format(user_error, '~q~n', ['extract bank statement transactions'(S_Transactions)]),
+	%format(user_error, '~q~n', ['extract bank statement transactions'(S_Transactions)]),
 
 	findall(
 		Acc,

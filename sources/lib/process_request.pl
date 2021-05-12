@@ -75,10 +75,10 @@ process_request(Request_data_uri_base, File_Paths) :-
 	!process_request2.
 
 process_request2 :-
-	!collect_alerts(Alerts3, Alerts_html),
+	!cf(collect_alerts(Alerts3, Alerts_html)),
 	!make_json_report(Alerts3, alerts_json),
-	!make_alerts_report(Alerts_html),
-	!make_doc_dump_report,
+	!cf(make_alerts_report(Alerts_html)),
+	!cf(make_doc_dump_report),
 	!cf(make_context_trace_report),
 	!cf(json_report_entries(Files3)),
 	Json_Out = _{alerts:Alerts3, reports:Files3},
@@ -220,7 +220,7 @@ format_json_report_entry(Key, Title, Url, Json) :-
 	;	Json = Json0 % just url's for all the rest
 	).
 
-collect_alerts(Alerts_text, Alerts_html) :-
+ collect_alerts(Alerts_text, Alerts_html) :-
 	findall(
 		Alert_text,
 		(
