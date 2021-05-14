@@ -97,16 +97,16 @@ handle_op(S0,append,Field,Tail,S2) :-
 
  handle_txs(S, [], S) :-
  	!.
-
+/*
  handle_txs(S, _, S) :-
 	is_cutoff,
 	!.
 
  handle_txs(S, _, S) :-
 	cutoff.
-
+*/
  handle_txs(S0, Txs0, S2) :-
-	is_not_cutoff,
+/*	is_not_cutoff,*/
 	bump_ic_n_sts_processed,
 	check_txsets(Txs0),
 	new_state_with_appended_(S0, [
@@ -159,7 +159,7 @@ handle_op(S0,append,Field,Tail,S2) :-
 
  cutoff :-
  	assertion(is_not_cutoff),
- 	(	false %/*b_current(step_by_step, true)*/ false
+ 	(	true %/*b_current(step_by_step, true)*/ false
  	->	(
  			b_setval(cutoff, true),
  			add_cutoff_alert

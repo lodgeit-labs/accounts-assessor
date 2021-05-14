@@ -280,13 +280,17 @@ report_entry_fill_in_totals(Entry) :-
 	!set_report_entry_total_vec(Entry, Total_Vec).
 
 
+tag_gl_transactions_with_cf_data(Filtered_Transactions) :-
+	maplist(!tag_gl_transaction_with_cf_data, Filtered_Transactions).
+
 cashflow(
 	Sd,				% + Static Data
 	[Entry]			% - list<entry>
 ) :-
 	abrlt('Cash_and_Cash_Equivalents', Root),
-	!transactions_in_period_on_account_and_subaccounts(Sd.transactions_by_account, Root, Sd.start_date, Sd.end_date, Filtered_Transactions),
-	maplist(!tag_gl_transaction_with_cf_data, Filtered_Transactions),
-	!cf_scheme_0_root_entry(Sd, Entry),
+	!cf(transactions_in_period_on_account_and_subaccounts(Sd.transactions_by_account, Root, Sd.start_date, Sd.end_date, Filtered_Transactions)),
+	cf(tag_gl_transactions_with_cf_data, Filtered_Transactions),
+	!cf(cf_scheme_0_root_entry(Sd, Entry)),
 	!doc_add($>result, l:has_cashflow, Entry),
-	!report_entry_fill_in_totals(Entry).
+	!cf(report_entry_fill_in_totals(Entry)).
+

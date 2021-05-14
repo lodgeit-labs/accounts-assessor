@@ -36,6 +36,7 @@ state ( -> static data) -> structured reports ( -> crosschecks)
 	doc_add(S2, rdfs:comment, "with bank opening STSs"),
 
 	ct('phase: opening balance GL inputs',
+		/* todo implement cutoffs inside extract_gl_inputs */
 		(extract_gl_inputs(phases:opening_balance, Gl_input_txs),
 	 	handle_txs(S2, Gl_input_txs, S4))),
 	doc_add(S4, rdfs:comment, "with Gl_input_txs"),
