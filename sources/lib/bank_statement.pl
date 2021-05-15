@@ -12,7 +12,7 @@ call preprocess_s_transaction on each item of the S_Transactions list and do som
 ) :-
 	(
 		(
-			cutoff,
+			cutoff(st(S_Transaction)),
 			Outstanding_In = Outstanding_Out,
 			Transactions_Out = [],
 			Processed_S_Transactions = []

@@ -108,12 +108,15 @@ pretty_action_verb_term_string(uri(Uri), Str) :-
 pretty_action_verb_term_string(Str, Str).
 
 
-
-compare_s_transactions(Order, T1, T2) :-
+ compare_s_transactions_by_dates(Order, T1, T2) :-
 	ground(T1), ground(T2),
 	s_transaction_day(T1, Day1),
 	s_transaction_day(T2, Day2),
-	compare(Order0, Day1, Day2),
+	compare(Order, Day1, Day2).
+
+
+ compare_s_transactions(Order, T1, T2) :-
+	compare_s_transactions_by_dates(Order0, T1, T2),
 	(	Order0 \= '='
 	->	Order = Order0
 	;	(
@@ -165,6 +168,7 @@ s_transactions_up_to(End_Date, S_Transactions_All, S_Transactions_Capped) :-
 		exchanged: Exchanged,
 		misc: Misc},
 	st_stuff1(T, D0, D).
+
 
  st_stuff1(T, Dict, Dict_out) :-
 	doc(T, l:has_tb, Tb0),
@@ -345,14 +349,35 @@ handle_additional_file(Bn, S_Transactions) :-
 	!flatten(S_Transactions0, S_Transactions2),
 	maplist(!invert_s_transaction_vector, S_Transactions2, S_Transactions).
 
-'extract bank statement transactions2'(Acc, S_Transactions1) :-
+ 'extract bank statement transactions2'(Acc, S_Transactions1) :-
+	push_format('extract bank statement transactions from: ~w', [$>sheet_and_cell_string(Acc)]),
 	!doc(Acc, l:currency, Account_Currency),
 	!doc(Acc, l:name, Account_Name),
 	!doc(Acc, l:raw_items, Items),
 	!maplist('extract bank statement transaction'(Account_Currency, Account_Name), Items, S_Transactions0),
-	exclude(var, S_Transactions0, S_Transactions1).
+	exclude(var, S_Transactions0, S_Transactions1),
+	'bank statement transactions are ordered by date'(S_Transactions1),
+	pop_format.
 
-'extract bank statement transaction'(_, _, Item, _) :-
+ 'bank statement transactions are ordered by date'(Sts) :-
+ 	predsort(compare_s_transactions_by_dates, Sts, Sts2),
+ 	(	Sts = Sts2
+ 	->	true
+ 	;	(
+			add_alert(
+				'WARNING',
+				$>format(
+					string(<$),
+					'transactions are not in date order',
+					[]
+				),
+				_Alert
+			),
+			%doc_add(Source, l:has_alert, Alert)
+		)).
+
+
+ 'extract bank statement transaction'(_, _, Item, _) :-
 	\+doc_value(Item, bs:transaction_description, _),
 	\+read_date(Item, bs:bank_transaction_date, _),
 	\+doc_value(Item,bs:units_count,_),

@@ -19,13 +19,14 @@
 		Txs0, Historical_Txs, Current_Txs
 	),
 	result_property(l:start_date, Start_Date),
-	%add_days(Start_Date, -1, Before_Start),
 	(nonvar(Txs0) ->
 	txs_to_transactions(St, Transaction_Day, Txs0, Ts0) ; true),
 	(nonvar(Historical_Txs) ->
 	txs_to_transactions(St, Transaction_Day, Historical_Txs, Ts2) ; true),
 	(nonvar(Current_Txs) ->
 	txs_to_transactions(St, Start_Date, Current_Txs, Ts1) ; true).
+
+
 
  reduce_unrealized_gains(St, Description, Trading_Account_Id, Transaction_Day, Goods_Cost_Values, [Ts0, Ts1, Ts2]) :-
 	maplist(
@@ -45,6 +46,7 @@
 	txs_to_transactions(St, Start_Date, Current_Txs, Ts1) ; true),
 	(nonvar(Historical_Txs) ->
 	txs_to_transactions(St, Before_Start, Historical_Txs, Ts2) ; true).
+
 
  unrealized_gains_increase_txs(
 	Description,
@@ -67,7 +69,7 @@
 		without_currency_movement_against_since(Goods_Unit, Purchase_Currency, Report_Currency, Transaction_Day), 
 		Goods_Debit)
 	],
-	add_days(Start_Date, -1, Before_start),
+	add_days(Start_Date, -1, Before_Start),
 	(
 		Transaction_Day @>= Start_Date
 	->
@@ -75,12 +77,12 @@
 			% Account                               DR                                       CR
 			(Currency_Movement_Account,    Goods_Without_Currency_Movement,        Goods),
 			(Excluding_Forex_Account,	    Cost_Vector,      	                Goods_Without_Currency_Movement)
-		], Txs, [Description, ' - single period'], cr)
+		], Txs, [Description, ' - single period  - unrealized gains increase at purchase'], cr)
 	;
 		(
 			/*historical:*/
 			Opening_Goods_Value = [coord(
-				without_movement_after(Goods_Unit, Before_start),
+				without_movement_after(Goods_Unit, Before_Start),
 				Goods_Debit)
 			],
 			Historical_Without_Currency_Movement = [coord(
@@ -88,7 +90,7 @@
 					without_currency_movement_against_since(
 						Goods_Unit, Purchase_Currency, Report_Currency, Transaction_Day
 					), 
-					Before_start
+					Before_Start
 				),
 				Goods_Debit)
 			],
@@ -98,10 +100,10 @@
 				(Excluding_Forex_Account,	  Cost_Vector,             Historical_Without_Currency_Movement)
 			], Historical_Txs, [Description, ' - historical part'], cr),
 		
-			/*now, for tracking unrealized gains after Before_start date*/
-			/* goods value as it was at Before_start */
+			/*now, for tracking unrealized gains after Before_Start date*/
+			/* goods value as it was at Before_Start */
 			Current_Without_Currency_Movement = [coord(
-				without_currency_movement_against_since(Goods_Unit, Purchase_Currency, Report_Currency, Before_start),
+				without_currency_movement_against_since(Goods_Unit, Purchase_Currency, Report_Currency, Before_Start),
 				Goods_Debit)
 			],
 			dr_cr_table_to_txs([
@@ -113,11 +115,19 @@
 	).
 
 
-/* the transactions produced should be an inverse of the increase ones, we should abstract it out */
+/* the transactions produced should be an inverse of the increase ones, we should abstract it out
+
+an unrealized_gains_reduction_tx:
+	when Transaction_Day @>= Start_Date:
+		Purchase_Date @>= Start_Date:
+
+
+
+*/
 unrealized_gains_reduction_txs(Description, Transaction_Day, Trading_Account_Id, Purchase_Info, Txs, Historical_Txs, Current_Txs) :-
 	result_property(l:report_currency, Report_Currency),
 	result_property(l:start_date, Start_Date),
-	add_days(Start_Date, -1, Before_start),
+	add_days(Start_Date, -1, Before_Start),
 	goods(Unit_Cost_Foreign, Goods_Unit_Name, Goods_Count, Cost, Purchase_Date) = Purchase_Info,
 	value(Purchase_Currency,_) = Unit_Cost_Foreign,
 
@@ -131,32 +141,37 @@ unrealized_gains_reduction_txs(Description, Transaction_Day, Trading_Account_Id,
 	Goods_Debit = Goods_Count, 
 
 	Goods_Opening = [coord(
-		without_movement_after(Goods_Unit, Start_Date), 
+		without_movement_after(Goods_Unit, Before_Start),
 		Goods_Debit)
 	],
-	vec_inverse(Goods_Opening, Goods_Opening_Reduction),
+	vec_inverse(Goods_Opening, Goods_Opening_Cr),
+	unrealized_gains_reduction_txs2(Transaction_Day, Start_Date, Before_Start, Purchase_Date,
 	(
 		Transaction_Day @>= Start_Date
 	->
 		(
+
+			/* if purchase was made in report period, we will be reducing the gains which started at Purchase_Date */
 			(	Purchase_Date @>= Start_Date
-			->	(
-					Purchase_Date_Clipped = Purchase_Date,
+			->	(	Opening_Date = Purchase_Date,
 					Cost2 = Cost)
-			;	(
-					Purchase_Date_Clipped = Start_Date,
-					Cost2 = Goods_Opening_Reduction
-				)
-			),
+			/* if purchase was made before report period, we will only be reducing the gains beginning with Before_Start */
+			;	(	Opening_Date = Before_Start,
+					Cost2 = Goods_Opening_Cr)),
+
+
+			/* This value is what gives us the breakdown of gains into market and forex parts */
 			Goods_Without_Currency_Movement = [coord(
-				without_currency_movement_against_since(Goods_Unit, Purchase_Currency, Report_Currency, Purchase_Date_Clipped), 
+				without_currency_movement_against_since(Goods_Unit, Purchase_Currency, Report_Currency, Opening_Date),
 				Goods_Count)
 			],
+
+
 			dr_cr_table_to_txs([
 				% Account                                 DR                                         CR
 				(Currency_Movement_Account,      Goods,         Goods_Without_Currency_Movement),
 				(Excluding_Forex_Account,        Goods_Without_Currency_Movement    ,      Cost2)
-			], Txs, [Description, ' - single period'], dr
+			], Txs, [Description, ' - single period - unrealized gains reduction at sale'], dr
 			)
 		)
 	;
@@ -178,7 +193,7 @@ unrealized_gains_reduction_txs(Description, Transaction_Day, Trading_Account_Id,
 			], Historical_Txs, [Description, ' - historical part'], dr
 			),
 			Current_Without_Currency_Movement = [coord(
-				without_currency_movement_against_since(Goods_Unit, Purchase_Currency, Report_Currency, Before_start),
+				without_currency_movement_against_since(Goods_Unit, Purchase_Currency, Report_Currency, Before_Start),
 				Goods_Debit)
 			],
 			dr_cr_table_to_txs([
@@ -189,6 +204,7 @@ unrealized_gains_reduction_txs(Description, Transaction_Day, Trading_Account_Id,
 			)
 		)
 	).
+
 /*
 	T0.comment = 'reduce unrealized gain by outgoing asset and its cost'.
 */
@@ -223,7 +239,7 @@ realized_gains_txs(Description, Transaction_Day, Sale_Currency, Sale_Currency_Un
 
 	result_property(l:report_currency, Report_Currency),
 	result_property(l:start_date, Start_Date),
-	add_days(Start_Date, -1, Before_start),
+	add_days(Start_Date, -1, Before_Start),
 
 	goods(Unit_Cost_Foreign, Goods_Unit_Name, Goods_Count, Converted_Cost, Purchase_Date) = Purchase_Info,
 	add_unit_cost_information(Goods_Unit_Name, Unit_Cost_Foreign, Goods_Unit),
@@ -269,12 +285,12 @@ realized_gains_txs(Description, Transaction_Day, Sale_Currency, Sale_Currency_Un
 			(
 				/* historical purchase, current sale */
 				Opening_Goods_Value = value(
-					without_movement_after(Goods_Unit, Start_Date),
+					without_movement_after(Goods_Unit, Before_Start),
 					Goods_Count
 				),
 
 				Sale_Without_Currency_Movement_Current = value(
-					without_currency_movement_against_since(Sale_Currency, Sale_Currency, Report_Currency, Before_start),
+					without_currency_movement_against_since(Sale_Currency, Sale_Currency, Report_Currency, Before_Start),
 					Sale_Currency_Amount),
 				dr_cr_table_to_txs([
 					% Account                            DR                                        CR

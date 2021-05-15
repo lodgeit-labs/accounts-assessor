@@ -157,15 +157,24 @@ handle_op(S0,append,Field,Tail,S2) :-
 	add_alert(cutoff, $>fs('not processing more source transactions due to cutoff of ~q transactions', $>read_ic_n_sts_processed)).
 
 
- cutoff :-
+ cutoff(Condition) :-
  	assertion(is_not_cutoff),
  	(	true %/*b_current(step_by_step, true)*/ false
  	->	(
- 			b_setval(cutoff, true),
- 			add_cutoff_alert
+ 			(	cutoff_condition(Condition)
+ 			->	(
+ 					b_setval(cutoff, true),
+ 					add_cutoff_alert
+ 				)
+ 			;	false)
  		)
  	;	false).
-
+/*
+cutoff_condition(st(S_Transaction)) :-
+	s_transaction_type_id(S_Transaction, uri(Action_Verb)),
+	doc(Action_Verb, l:has_trading_account, _).
+*/
+cutoff_condition(_) :- false.
 
 
  is_cutoff :-
