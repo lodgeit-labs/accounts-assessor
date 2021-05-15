@@ -145,7 +145,7 @@ unrealized_gains_reduction_txs(Description, Transaction_Day, Trading_Account_Id,
 		Goods_Debit)
 	],
 	vec_inverse(Goods_Opening, Goods_Opening_Cr),
-	unrealized_gains_reduction_txs2(Transaction_Day, Start_Date, Before_Start, Purchase_Date,
+	%unrealized_gains_reduction_txs2(Transaction_Day, Start_Date, Before_Start, Purchase_Date, Cost, Goods_Opening_Cr, Goods_Unit, Purchase_Currency, Report_Currency, Goods_Count
 	(
 		Transaction_Day @>= Start_Date
 	->

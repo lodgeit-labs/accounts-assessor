@@ -23,6 +23,7 @@
 	atom_string(Account_Currency, $>rpv(Acc, bs:account_currency)),
 	assertion(atom(Account_Currency)),
 	!doc_add(Uri, l:currency, Account_Currency),
+	!doc_add(Uri, l:source, Acc),
 
 	rpv(Acc, bs:items, Raw_items_list0),
 	doc_list_items(Raw_items_list0, Raw_items0),

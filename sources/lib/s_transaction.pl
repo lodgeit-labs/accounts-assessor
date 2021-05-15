@@ -108,15 +108,12 @@ pretty_action_verb_term_string(uri(Uri), Str) :-
 pretty_action_verb_term_string(Str, Str).
 
 
- compare_s_transactions_by_dates(Order, T1, T2) :-
+ compare_s_transactions(Order, T1, T2) :-
+	/* warning: Order must never be =, this would remove one of the transactions as duplicates */
 	ground(T1), ground(T2),
 	s_transaction_day(T1, Day1),
 	s_transaction_day(T2, Day2),
-	compare(Order, Day1, Day2).
-
-
- compare_s_transactions(Order, T1, T2) :-
-	compare_s_transactions_by_dates(Order0, T1, T2),
+	compare(Order0, Day1, Day2),
 	(	Order0 \= '='
 	->	Order = Order0
 	;	(
@@ -127,6 +124,7 @@ pretty_action_verb_term_string(Str, Str).
 	(	Order1 \= '='
 	->	Order = Order1
 	;
+	/* if all else fails, sort by uri, which is unique, thus, every tx is preserved */
 	compare(Order, T1, T2)))).
 
 
@@ -350,31 +348,39 @@ handle_additional_file(Bn, S_Transactions) :-
 	maplist(!invert_s_transaction_vector, S_Transactions2, S_Transactions).
 
  'extract bank statement transactions2'(Acc, S_Transactions1) :-
-	push_format('extract bank statement transactions from: ~w', [$>sheet_and_cell_string(Acc)]),
+	push_format('extract bank statement transactions from: ~w', [$>sheet_and_cell_string($>doc(Acc, l:source))]),
 	!doc(Acc, l:currency, Account_Currency),
 	!doc(Acc, l:name, Account_Name),
 	!doc(Acc, l:raw_items, Items),
 	!maplist('extract bank statement transaction'(Account_Currency, Account_Name), Items, S_Transactions0),
 	exclude(var, S_Transactions0, S_Transactions1),
-	'bank statement transactions are ordered by date'(S_Transactions1),
+	cf('bank statement transactions are ordered by date'(Acc, S_Transactions1)),
 	pop_format.
 
- 'bank statement transactions are ordered by date'(Sts) :-
- 	predsort(compare_s_transactions_by_dates, Sts, Sts2),
- 	(	Sts = Sts2
- 	->	true
+
+ 'bank statement transactions are ordered by date'(Acc, Sts) :-
+ 	'bank statement transactions are ordered by date2'(Acc, '', Sts).
+
+
+ 'bank statement transactions are ordered by date2'(_, _, []).
+
+ 'bank statement transactions are ordered by date2'(Acc, Last, [T1|Sts]) :-
+ 	s_transaction_day(T1, Day),
+ 	(	Last @=< Day
+ 	->	'bank statement transactions are ordered by date2'(Acc, Last, Sts)
  	;	(
 			add_alert(
 				'WARNING',
 				$>format(
 					string(<$),
-					'transactions are not in date order',
-					[]
+					'transactions are not in date order in ~w',
+					[$>sheet_and_cell_string($>doc(Acc, l:source))]
 				),
-				_Alert
+				Alert
 			),
-			%doc_add(Source, l:has_alert, Alert)
-		)).
+			doc_add(Acc, l:has_alert, Alert)
+		)
+	).
 
 
  'extract bank statement transaction'(_, _, Item, _) :-
