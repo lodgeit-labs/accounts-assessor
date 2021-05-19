@@ -29,7 +29,7 @@
 	format_date(Static_Data.start_date, Start_Date_Atom),
 	format_date(Static_Data.end_date, End_Date_Atom),
 	report_currency_atom(Static_Data.report_currency, Report_Currency_Atom),
-	atomic_list_concat(['investment report from ', Start_Date_Atom, ' to ', End_Date_Atom, ' ',Report_Currency_Atom, $>report_details_text], Title_Text),
+	atomic_list_concat($>flatten(['investment report from ', Start_Date_Atom, ' to ', End_Date_Atom, ' ',Report_Currency_Atom, $>report_details_text]), Title_Text),
 	atomic_list_concat(['investment_report', Filename_Suffix, '.html'], Filename),
 	atomic_list_concat(['investment_report', Filename_Suffix, '_html'], Key),
 	atomic_list_concat(['investment_report', Filename_Suffix], Json_Filename),
