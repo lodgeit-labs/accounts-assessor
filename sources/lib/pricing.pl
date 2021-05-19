@@ -143,3 +143,16 @@ infer_unit_cost_from_last_buy_or_sell(Unit, [_|S_Transactions], Rate) :-
 	infer_unit_cost_from_last_buy_or_sell(Unit, S_Transactions, Rate).
 
 
+
+:- table at_cost/0.
+
+ at_cost :-
+	result_property(l:cost_or_market, Cost_Or_Market),
+	e(Cost_Or_Market, ic:cost).
+
+:- table at_market/0.
+
+ at_market :-
+	result_property(l:cost_or_market, Cost_Or_Market),
+	e(Cost_Or_Market, ic:market).
+

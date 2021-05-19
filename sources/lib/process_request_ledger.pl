@@ -300,11 +300,12 @@ This is done with a symlink. This allows to bypass cache, for example in pessera
 	!request_data(Request_Data),
 	doc(Request_Data, ic_ui:report_details, D),
 	doc_value(D, ic:cost_or_market, C),
-	(	rdf_equal2(C, ic:cost)
-	->	Cost_Or_Market = cost
-	;	Cost_Or_Market = market),
-	!doc_add($>result, l:cost_or_market, Cost_Or_Market).
-	
+	(	(	e(C, ic:cost)
+		;	e(C, ic:market))
+	->	true
+	;	throw_format('invalid ic:cost_or_market: ~q',[C])),
+	!doc_add($>result, l:cost_or_market, C).
+
  'extract "output_dimensional_facts"' :-
 	!result_add_property(l:output_dimensional_facts, on).
 	

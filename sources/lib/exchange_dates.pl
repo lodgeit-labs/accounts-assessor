@@ -142,7 +142,7 @@ todo: trading difference transactions
 		*/
 			Opening_Date = Before_Start,
 
-			(	result_property(l:cost_or_market, cost)
+			(	at_cost
 			->	Unit2 = with_cost_per_unit(Unit, Purchase_Unit_Cost_Foreign)
 			;	Unit2 = Unit),
 

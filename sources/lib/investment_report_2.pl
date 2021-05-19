@@ -29,7 +29,7 @@ investment_report_2_0(Static_Data, Filename_Suffix, Semantic_Json) :-
 	format_date(Static_Data.start_date, Start_Date_Atom),
 	format_date(Static_Data.end_date, End_Date_Atom),
 	report_currency_atom(Static_Data.report_currency, Report_Currency_Atom),
-	atomic_list_concat(['investment report from ', Start_Date_Atom, ' to ', End_Date_Atom, ' ',Report_Currency_Atom], Title_Text),
+	atomic_list_concat(['investment report from ', Start_Date_Atom, ' to ', End_Date_Atom, ' ',Report_Currency_Atom, $>report_details_text], Title_Text),
 	atomic_list_concat(['investment_report', Filename_Suffix, '.html'], Filename),
 	atomic_list_concat(['investment_report', Filename_Suffix, '_html'], Key),
 	atomic_list_concat(['investment_report', Filename_Suffix], Json_Filename),
@@ -118,18 +118,20 @@ columns(Columns) :-
 	],
 
 	On_Hand_At_Cost_Details = [
-		column{id:unit_cost_foreign, title:"Foreign Per Unit", options:_{}},
-		column{id:count, title:"Count", options:_{}},
-		column{id:total_foreign, title:"Foreign Total", options:_{}},
-		column{id:total_converted_at_purchase, title:"Converted at Purchase Date Total", options:_{}},
-		column{id:total_converted_at_balance, title:"Converted at Balance Date Total", options:_{}},
-		column{id:total_forex_gain, title:"Currency Gain/(loss) Total", options:_{}}
+		column{id:unit_cost_foreign, 			title:"Foreign Per Unit", options:_{}},
+		column{id:count, 						title:"Count", options:_{}},
+		column{id:total_foreign, 				title:"Foreign Total", options:_{}},
+		column{id:total_converted_at_purchase, 	title:"Converted at Purchase Date Total", options:_{}},
+		column{id:total_converted_at_balance, 	title:"Converted at Balance Date Total", options:_{}},
+		column{id:total_forex_gain, 			title:"Currency Gain/(loss) Total", options:_{}}
 	],
+
 /*options:_{hide_group_prefix:true}*/
 /*On Hand at Cost ((converted at balance date), Unrealised Currency Gain/Loss between Cost at Purchase Date and Cost at Report Date*/
 /*group{id:on_hand_at_cost, title:"On Hand At Cost Per Unit", members:On_Hand_At_Cost_Per_Unit_Details},
 column{id:count, title:"Count", options:_{}},
 group{id:on_hand_at_cost, title:"On Hand At Cost Total", members:On_Hand_At_Cost_Total_Details},*/
+
 	Events = [
 		/*trade?*/
 		group{id:purchase, title:"Purchase", members:Sale_Event_Details},
@@ -160,11 +162,10 @@ group{id:on_hand_at_cost, title:"On Hand At Cost Total", members:On_Hand_At_Cost
 
 
 rows(Static_Data, Outstanding_In, Rows) :-
-
 	clip_investments(Static_Data, Outstanding_In, Realized_Investments, Unrealized_Investments),
-
 	maplist(investment_report_2_sales(Static_Data), Realized_Investments, Sale_Lines),
 	maplist(investment_report_2_unrealized(Static_Data), Unrealized_Investments, Non_Sale_Lines),
+
 	flatten([Sale_Lines, Non_Sale_Lines], Rows0),
 	/* lets sort by unit, sale date, purchase date */
 	/*how to sort with nested dicts with optional keys?*/
@@ -229,7 +230,7 @@ rows(Static_Data, Outstanding_In, Rows) :-
 		sale: Sale_Event,
 		gains: _{
 			unr: _{},
-			 rea: _{
+			rea: _{
 				market_foreign: Market_Gain_Foreign,
 				market_converted: Market_Gain,
 				forex: Forex_Gain
@@ -237,6 +238,7 @@ rows(Static_Data, Outstanding_In, Rows) :-
 		},
 		closing: _{}
 	},
+
 	pop_format.
 
 
@@ -252,7 +254,7 @@ rows(Static_Data, Outstanding_In, Rows) :-
 	Investment = ir_item(unr, Info, Count, [], Clipped),
 	Info = info2(Investment_Currency, Unit_Name, Opening_Unit_Cost_Converted, Opening_Unit_Cost_Foreign, Opening_Date, Original_Purchase_Info),
 
-	(	result_property(l:cost_or_market, cost)
+	(	at_cost
 	->	Unit = with_cost_per_unit(Unit_Name, Opening_Unit_Cost_Foreign)
 	;	Unit = Unit_Name),
 

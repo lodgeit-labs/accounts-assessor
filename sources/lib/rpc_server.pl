@@ -40,7 +40,7 @@ process_request_rpc_cmdline2(Dict) :-
 					do_chat(Dict, Response),
 					json_write(current_output, Response)
 				)
-			;	json_write(current_output, e{error:m{message:unknown_method}})
+			;	json_write(current_output, err{error:m{message:unknown_method}})
 			)
 		)
 	),
@@ -54,9 +54,9 @@ do_chat(Dict, Response) :-
 		;
 			(	Type == "residency"
 			->	residency:residency_step(Dict.params, Result)
-			;	Response = e{error: m{message:"unknown chat type"}})
+			;	Response = err{error: m{message:"unknown chat type"}})
 		)
-	;	Response = e{error: m{message:'specify type: "sbe" or "residency"'}}
+	;	Response = err{error: m{message:'specify type: "sbe" or "residency"'}}
 	),
 	(	var(Response)
 	->	Response = r{result:Result}

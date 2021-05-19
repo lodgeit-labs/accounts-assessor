@@ -1,6 +1,18 @@
 
+ report_details_text(T) :-
+	result_property(l:cost_or_market, C),
+	(	at_cost
+	->	Str = 'at cost'
+	;	(
+			assertion2(e(ic:market,C)),
+			Str = 'at market'
+		)
+	),
+	T = [' - ', Str].
+
+
 % EFFECTS: write profit & loss report html
-report_entry_tree_html_page(
+ report_entry_tree_html_page(
 	Report_prefix,
 	Dict,
 	Title,
@@ -12,7 +24,7 @@ report_entry_tree_html_page(
 	!format_date(Start_date, Start_Date_Atom),
 	!format_date(End_date, End_Date_Atom),
 	!report_currency_atom(Report_Currency, Report_Currency_Atom),
-	!atomic_list_concat([Title, ' from ', Start_Date_Atom, ' to ', End_Date_Atom, ' ', Report_Currency_Atom], Title_Text),
+	!atomic_list_concat($>flatten([Title, ' from ', Start_Date_Atom, ' to ', End_Date_Atom, ' ', Report_Currency_Atom, $>report_details_text]), Title_Text),
 	!pesseract_style_table_rows(Report_Currency, Entries, Report_Table_Data),
 	Header = tr([th('Account'), th(['Balance', Report_Currency_Atom])]),
 	flatten([Header, Report_Table_Data], Tbl),

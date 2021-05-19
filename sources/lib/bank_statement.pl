@@ -251,7 +251,6 @@ take statement/source transaction and generate a list of plain transactios.
 	unit_cost_value(Coord_Ours, Goods_Coord, Unit_Cost_Foreign),
 	unit_cost_value(Coord_Ours_Converted, Goods_Coord, Unit_Cost_Converted),
 	number_coord(Goods_Unit, Goods_Count, Goods_Coord),
-	result_property(l:cost_or_market, Cost_Or_Market),
 
 	/*technically, the action verb could be smarter and know that the exchanged account name that user specified must correspond to an account with role 'Financial_Investments'/name.
 	some sort of generalized system is shaping up.
@@ -259,7 +258,7 @@ take statement/source transaction and generate a list of plain transactios.
 
 	financial_investments_account(Exchanged_Account,Goods_Unit,Exchanged_Account2),
 
-	(	Cost_Or_Market = cost
+	(	at_cost
 	->	(
 			cf(purchased_goods_coord_with_cost(Goods_Coord, Coord_Ours, Goods_Coord_With_Cost)),
 			Goods_Vector2 = [Goods_Coord_With_Cost]
@@ -445,6 +444,8 @@ take statement/source transaction and generate a list of plain transactios.
 		Goods_Count
 	).
 
+
+
  unit_cost_value(Cost_Coord, Goods_Coord, Unit_Cost) :-
 	Goods_Coord = coord(_, Goods_Count),
 	assertion(Goods_Count > 0),
@@ -456,8 +457,7 @@ take statement/source transaction and generate a list of plain transactios.
 
  sold_goods_vector_with_cost(Goods_Cost_Value, [Goods_Coord_With_Cost]) :-
 	Goods_Cost_Value = goods(Unit_Cost_Foreign, Goods_Unit, Goods_Count, _Total_Cost_Value, _),
-	result_property(l:cost_or_market, Cost_Or_Market),
-	(	Cost_Or_Market = market
+	(	at_market
 	->	Unit = Goods_Unit
 	;	(
 			%value_divide(Foreign_Cost, Goods_Count, Unit_Cost_Value),
@@ -465,6 +465,8 @@ take statement/source transaction and generate a list of plain transactios.
 		)
 	),
 	credit_coord(Unit, Goods_Count, Goods_Coord_With_Cost).
+
+
 
 /*
 	Vector  - the amount by which the assets account is changed

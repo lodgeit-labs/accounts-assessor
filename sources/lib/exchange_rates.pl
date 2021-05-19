@@ -300,7 +300,7 @@ is_exchangeable_into_request_bases(Table, Day, Src_Currency, Bases) :-
 ┗━╸╹ ╹ ╹ ╹┗╸╹ ╹┗━╸ ╹
 */
 extract_exchange_rates :-
-	(	result_property(l:cost_or_market, cost)
+	(	at_cost
 	->	Exchange_Rates = []
 	;	extract_exchange_rates1(Exchange_Rates)),
 	!add_comment_stringize('Exchange rates extracted', Exchange_Rates),

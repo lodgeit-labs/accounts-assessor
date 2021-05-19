@@ -379,8 +379,7 @@ unit_bare(with_cost_per_unit(Unit, _), Unit) :- !.
 unit_bare(Unit, Unit).
 	
 add_unit_cost_information(Goods_Unit_Name, Unit_Cost, Goods_Unit) :-
-	result_property(l:cost_or_market, Cost_Or_Market),
-	(	Cost_Or_Market = cost
+	(	at_cost
 	->	Goods_Unit = with_cost_per_unit(Goods_Unit_Name, Unit_Cost)
 	;	Goods_Unit = Goods_Unit_Name).
 
