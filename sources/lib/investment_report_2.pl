@@ -111,7 +111,6 @@
 		column{id:total_cost_converted, 		title:"Total Cost Converted", options:_{}}
 	],
 
-
 	/*fixme, these column names shouldn't be _cost_ but _value_ */
 	(	at_cost
 	->	(
