@@ -25,7 +25,7 @@
 	}.
 
 
-investment_report_2_0(Static_Data, Filename_Suffix, Semantic_Json) :-
+ investment_report_2_0(Static_Data, Filename_Suffix, Semantic_Json) :-
 	format_date(Static_Data.start_date, Start_Date_Atom),
 	format_date(Static_Data.end_date, End_Date_Atom),
 	report_currency_atom(Static_Data.report_currency, Report_Currency_Atom),
@@ -53,7 +53,7 @@ investment_report_2_0(Static_Data, Filename_Suffix, Semantic_Json) :-
 	add_report_page(0, Title_Text, Html, loc(file_name,Filename), Key).
 
 
-investment_report_2(Static_Data, Semantic_Json, Table_Json, Html, Title_Text) :-
+ investment_report_2(Static_Data, Semantic_Json, Table_Json, Html, Title_Text) :-
 	reset_gensym(iri),
 
 	columns(Columns),
@@ -70,7 +70,9 @@ investment_report_2(Static_Data, Semantic_Json, Table_Json, Html, Title_Text) :-
 		totals: Totals
 	}.
 
-totals(Rows, Totals) :-
+
+
+ totals(Rows, Totals) :-
 	/*these are computed automatically*/
  	table_totals(Rows,
 	[
@@ -91,7 +93,9 @@ totals(Rows, Totals) :-
 	vec_add(Totals0.gains.unr.market_converted, Totals0.gains.unr.forex, Unrealized_Total),
 	vec_add(Realized_Total, Unrealized_Total, Total).
   	
-columns(Columns) :-
+
+
+ columns(Columns) :-
 	Unit_Columns = [
 		column{id:unit, title:"Unit", options:_{}},
 		column{id:count, title:"Count", options:_{}},
@@ -99,23 +103,38 @@ columns(Columns) :-
 	],
 
 	Sale_Event_Details = [
-		column{id:date, title:"Date", options:_{}},
-		column{id:unit_cost_foreign, title:"Unit Cost Foreign", options:_{}},
-		column{id:conversion, title:"Conversion", options:_{}},
-		column{id:unit_cost_converted, title:"Unit Cost Converted", options:_{}},
-		column{id:total_cost_foreign, title:"Total Cost Foreign", options:_{}},
-		column{id:total_cost_converted, title:"Total Cost Converted", options:_{}}
+		column{id:date, 						title:"Date", options:_{}},
+		column{id:unit_cost_foreign, 			title:"Unit Cost Foreign", options:_{}},
+		column{id:conversion, 					title:"Conversion", options:_{}},
+		column{id:unit_cost_converted, 			title:"Unit Cost Converted", options:_{}},
+		column{id:total_cost_foreign, 			title:"Total Cost Foreign", options:_{}},
+		column{id:total_cost_converted, 		title:"Total Cost Converted", options:_{}}
 	],
 
-	Market_Event_Details = [
-		column{id:date, title:"Date", options:_{}},
-	/*fixme, not cost but value */
-		column{id:unit_cost_foreign, title:"Unit Market Value Foreign", options:_{}},
-		column{id:conversion, title:"Conversion", options:_{}},
-		column{id:unit_cost_converted, title:"Unit Market Value Converted", options:_{}},
-		column{id:total_cost_foreign, title:"Total Market Value Foreign", options:_{}},
-		column{id:total_cost_converted, title:"Total Market Value Converted", options:_{}}
-	],
+
+	/*fixme, these column names shouldn't be _cost_ but _value_ */
+	(	at_cost
+	->	(
+			Market_Event_Details = [
+				column{id:date, 					title:"Date", options:_{}},
+				column{id:unit_cost_foreign, 		title:"Unit Value Foreign", options:_{}},
+				column{id:conversion, 				title:"Conversion", options:_{}},
+				column{id:unit_cost_converted, 		title:"Unit Value Converted", options:_{}},
+				column{id:total_cost_foreign, 		title:"Total Value Foreign", options:_{}},
+				column{id:total_cost_converted, 	title:"Total Value Converted", options:_{}}
+			]
+		)
+	;	(
+			Market_Event_Details = [
+				column{id:date, 					title:"Date", options:_{}},
+				column{id:unit_cost_foreign, 		title:"Unit Market Value Foreign", options:_{}},
+				column{id:conversion, 				title:"Conversion", options:_{}},
+				column{id:unit_cost_converted, 		title:"Unit Market Value Converted", options:_{}},
+				column{id:total_cost_foreign, 		title:"Total Market Value Foreign", options:_{}},
+				column{id:total_cost_converted, 	title:"Total Market Value Converted", options:_{}}
+			]
+		)
+	),
 
 	On_Hand_At_Cost_Details = [
 		column{id:unit_cost_foreign, 			title:"Foreign Per Unit", options:_{}},
@@ -153,7 +172,6 @@ group{id:on_hand_at_cost, title:"On Hand At Cost Total", members:On_Hand_At_Cost
 		group{id:unr, title:"Unrealized", members:Gains_Details}
 	],
 
-		
 	Gains = [
 		group{id:gains, title:"", members: Gains_Groups}],
 
@@ -161,7 +179,7 @@ group{id:on_hand_at_cost, title:"On Hand At Cost Total", members:On_Hand_At_Cost
 
 
 
-rows(Static_Data, Outstanding_In, Rows) :-
+ rows(Static_Data, Outstanding_In, Rows) :-
 	clip_investments(Static_Data, Outstanding_In, Realized_Investments, Unrealized_Investments),
 	maplist(investment_report_2_sales(Static_Data), Realized_Investments, Sale_Lines),
 	maplist(investment_report_2_unrealized(Static_Data), Unrealized_Investments, Non_Sale_Lines),
