@@ -1,23 +1,29 @@
 :- use_module(library(http/html_write)).
 
 /* write file and return Url */
- write_report_file(File_Name, Text, Url) :-
-	report_file_path(File_Name, Url, File_Path),
+ write_report_file(File_Name, Text, Url, Final_fn) :-
+	report_file_path(File_Name, Url, File_Path, Final_fn),
+	write_file(File_Path, Text).
+ write_report_file__singleton(File_Name, Text, Url) :-
+	report_file_path__singleton(File_Name, Url, File_Path),
 	write_file(File_Path, Text).
 
  make_json_report(Dict, Fn) :-
-	catch_maybe_with_backtrace(
-		make_json_report2(Dict, Fn),
+	make_json_report(Dict, Fn, _).
+
+ make_json_report(Dict, Fn, Final_fn) :-
+	catch_with_backtrace(
+		make_json_report2(Dict, Fn, Final_fn),
 		E,
 		add_alert('error', E)
 	).
 
- make_json_report2(Dict, Fn) :-
+ make_json_report2(Dict, Fn, Final_fn) :-
+	dict_json_text(Dict, Json_Text),
 	Title = Key, Fn = Key,
 	atomic_list_concat([Fn, '.json'], Fn2_Value),
 	Fn2 = loc(file_name, Fn2_Value),
-	dict_json_text(Dict, Json_Text),
-	write_report_file(Fn2, Json_Text, Report_File_URL),
+	write_report_file(Fn2, Json_Text, Report_File_URL, Final_fn),
 	add_report_file(-10, Key, Title, Report_File_URL).
 
  html_tokenlist_string(Tokenlist, String) :-
@@ -39,7 +45,7 @@
 			link([
 				type('text/css'),
 				rel('stylesheet'),
-				href('../../static/report_stylesheet.css')
+				href('/static/report_stylesheet.css')
 			])
 		],
 		Body_Tags).
@@ -51,15 +57,25 @@
   page_with_table_html(Title, Tbl, Html) :-
 	page_with_body(Title, [Title, ':', br([]), table([border="1"], Tbl)], Html).
 
+ add_report_page_with_body__singleton(Priority, Title, Body_Html, File_Name, Key) :-
+	page_with_body(Title, Body_Html, Page_Html),
+	add_report_page__singleton(Priority, Title, Page_Html, File_Name, Key).
  add_report_page_with_body(Priority, Title, Body_Html, File_Name, Key) :-
 	page_with_body(Title, Body_Html, Page_Html),
 	add_report_page(Priority, Title, Page_Html, File_Name, Key).
 
+% todo refactor, pass loc(file_name, singleton('xxx')) ?
+ add_report_page__singleton(Priority, Title, Page_Html, File_Name, Key) :-
+	phrase(Page_Html, Tokenlist),
+	html_tokenlist_string(Tokenlist, String),
+	write_report_file__singleton(File_Name, String, Url),
+	add_report_file(Priority, Key, Title, Url).
  add_report_page(Priority, Title, Page_Html, File_Name, Key) :-
 	phrase(Page_Html, Tokenlist),
 	html_tokenlist_string(Tokenlist, String),
-	write_report_file(File_Name, String, Url),
+	write_report_file(File_Name, String, Url, _),
 	add_report_file(Priority, Key, Title, Url).
+
 
  add_report_page_with_table(Priority, Title, Tbl, File_Name, Key) :-
 	page_with_table_html(Title, Tbl, Html),

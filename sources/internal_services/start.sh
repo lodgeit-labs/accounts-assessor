@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
 
 ./manage.py migrate
-./manage.py runserver $@
+CMD="runserver ${DJANGO_ARGS} $@"
+echo $CMD ...
+./manage.py $CMD

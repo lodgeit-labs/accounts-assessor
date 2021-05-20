@@ -20,17 +20,28 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-import json
-# same as in the celery worker
-with open(os.path.normpath(os.path.join(os.path.dirname(__file__), '../../../../secrets1.json')), 'r') as s:
-	secrets = json.load(s)
-SECRET_KEY = secrets['DJANGO_SECRET_KEY']
-del secrets
+
+
+with open('/run/secrets/DJANGO_SECRET_KEY', 'r') as s:
+    SECRET_KEY = s.read()
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['192.168.123.10', '192.168.122.187', '192.168.122.188', '192.168.122.108', '192.168.123.108', 'dev-node.uksouth.cloudapp.azure.com', 'localhost', '0.0.0.0']
+ALLOWED_HOSTS = [
+	'75.119.146.173',
+	'vmi579006.contaboserver.net',
+	'fullcracy.xyz',
+	'frontend-server',
+	'192.168.123.10', 
+	'192.168.122.187', 
+	'192.168.122.188', 
+	'192.168.122.108', 
+	'192.168.123.108', 
+	'dev-node.uksouth.cloudapp.azure.com', 
+	'localhost', 
+	'0.0.0.0'
+]
 
 
 # Application definition
@@ -130,9 +141,6 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 # note that we don't use the collectstatic thing
 STATIC_ROOT = os.path.abspath('../static/') + '/'
-print(STATIC_ROOT)
-print(STATIC_ROOT)
-print(STATIC_ROOT)
 STATIC_URL = '/static/'
 MEDIA_ROOT = os.path.abspath('../../server_root/tmp')
 MEDIA_URL = '/tmp/'

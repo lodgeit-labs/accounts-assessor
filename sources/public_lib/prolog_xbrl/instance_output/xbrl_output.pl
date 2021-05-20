@@ -1,7 +1,7 @@
 
 :- record section(context, header, entries, footer).
 
- create_instance(Xbrl, Static_Data, Start_Date, End_Date, Report_Currency, Balance_Sheet, ProfitAndLoss, _ProfitAndLoss2_Historical, Trial_Balance) :-
+ 'create XBRL instance'(Xbrl, Static_Data, Start_Date, End_Date, Report_Currency, Balance_Sheet, ProfitAndLoss, _ProfitAndLoss2_Historical, Trial_Balance) :-
 	Fact_Sections = [
 		section(Instant_Context_Id_Base, '\n<!-- balance sheet: -->\n', Balance_Sheet, ''),
 		section(Duration_Context_Id_Base, '\n<!-- profit and loss: -->\n', ProfitAndLoss, ''),
@@ -78,7 +78,7 @@
 		'xsi:schemaLocation'=Schema_Location],
 		Children),Children)
 :-
-	request_has_property(l:taxonomy_url_base, Base),
+	result_property(l:taxonomy_url_base, Base),
 	atomics_to_string([Base,'basic.xsd'], Basic),
 	atomics_to_string([Base,'basic-formulas.xml'], Formulas),
 	atomics_to_string([Base,'basic-formulas-cross-checks.xml'], Formulas_Crosschecks),

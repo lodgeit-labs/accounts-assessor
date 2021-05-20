@@ -1,11 +1,11 @@
 
-smsf_member_reports(Json_reports) :-
+ smsf_member_reports(Report_prefix,Json_reports) :-
 	!smsf_members_throw(Members),
 	Json_reports2 = _{final:Json_reports},
-	!maplist(!smsf_member_report(Json_reports2), Members, _Json).
+	!maplist(!smsf_member_report(Report_prefix,Json_reports2), Members, _Json).
 
 
- smsf_member_report(Json_reports, Member_uri, _{overview:Tbl1, details:Tbl2}) :-
+ smsf_member_report(Report_prefix,Json_reports, Member_uri, _{overview:Tbl1, details:Tbl2}) :-
 	!doc_value(Member_uri, smsf:member_name, Member_Name_str),
 	!atom_string(Member_atom, Member_Name_str),
 	!smsf_member_details_report(Json_reports, Member_atom, Tbl2),
@@ -16,11 +16,12 @@ smsf_member_reports(Json_reports) :-
 		p([]),
 		table([border="1"], $>table_html([highlight_totals - true], Tbl2))
 	], Html),
+	atomic_list_concat('smsf_member_', Member_Name_str, Fn),
 	add_report_page(
 		0,
-		Member_Name_str,
+		Fn,
 		Html,
-		loc(file_name, $>atomic_list_concat([$>replace_nonalphanum_chars_with_underscore(Member_Name_str), '.html'])),
+		loc(file_name, $>atomic_list_concat([Report_prefix, smsf_member_, $>replace_nonalphanum_chars_with_underscore(Fn), '.html'])),
 		'smsf_member_report'
 	).
 
@@ -33,8 +34,8 @@ smsf_member_details_report(Json_reports, Member_atom, Tbl_dict) :-
 	Columns = [
 		column{id:label, title:"Your Detailed Account", options:_{}},
 		column{id:'Preserved', title:"Preserved", options:_{implicit_report_currency:true}},
-		column{id:'Restricted Non Preserved', title:"Restricted Non Preserved", options:_{implicit_report_currency:true}},
-		column{id:'Unrestricted Non Preserved', title:"Unrestricted Non Preserved", options:_{implicit_report_currency:true}},
+		column{id:'Restricted_Non_Preserved', title:"Restricted_Non_Preserved", options:_{implicit_report_currency:true}},
+		column{id:'Unrestricted_Non_Preserved', title:"Unrestricted_Non_Preserved", options:_{implicit_report_currency:true}},
 		column{id:'Total', title:"Total", options:_{implicit_report_currency:true}}],
 	Tbl_dict = table{title:Member_atom, columns:Columns, rows:Rows}.
 
@@ -53,24 +54,24 @@ smsf_member_overview_report(Member, Tbl_dict) :-
 				phase - 'Preserved',
 				member - Member])],
 
-		[text(' - Unrestricted Non Preserved'),
+		[text('_-_Unrestricted_Non_Preserved'),
 			aspects([
 				concept - smsf/member/gl/_,
-				phase - 'Unrestricted Non Preserved',
+				phase - 'Unrestricted_Non_Preserved',
 				member - Member])],
 
-		[text(' - Restricted Non Preserved'),
+		[text('_-_Restricted_Non_Preserved'),
 			aspects([
 				concept - smsf/member/gl/_,
-				phase - 'Restricted Non Preserved',
+				phase - 'Restricted_Non_Preserved',
 				member - Member])],
 
 		[text('Including:'),text('')],
 
-		[text(' - Tax Free Component'),
+		[text(' - Tax-Free Component'),
 			aspects([
 				concept - smsf/member/gl/_,
-				taxability - 'Tax Free',
+				taxability - 'Tax-Free',
 				member - Member])],
 
 		[text(' - Taxable Component'),
@@ -98,8 +99,8 @@ smsf_member_overview_report(Member, Tbl_dict) :-
 	Dict = row{
 		label:A,
 		'Preserved':B,
-		'Restricted Non Preserved':C,
-		'Unrestricted Non Preserved':D,
+		'Restricted_Non_Preserved':C,
+		'Unrestricted_Non_Preserved':D,
 		'Total':E}.
 
 

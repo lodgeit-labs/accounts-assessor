@@ -64,7 +64,7 @@ print_banks(Static_Data, Context_Id_Base, In, Out, Xml) :-
 
 print_forex(Static_Data, Context_Id_Base, In, Out, Xml) :-
 	dict_vars(Static_Data, [Start_Date, End_Date, Entity_Identifier]),
-    findall(Account, account_by_role(rl('CurrencyMovement'/_), Account), Movement_Accounts),
+    findall(Account, account_by_role(rl('Currency_Movement'/_), Account), Movement_Accounts),
 	Context_Info = context_arg0(
 		Context_Id_Base, 
 		(Start_Date, End_Date), 
@@ -74,7 +74,7 @@ print_forex(Static_Data, Context_Id_Base, In, Out, Xml) :-
 		),
 		''
 	),
-	print_detail_accounts(Static_Data, Context_Info, 'CurrencyMovement', Movement_Accounts, In, Out, Xml).
+	print_detail_accounts(Static_Data, Context_Info, 'Currency_Movement', Movement_Accounts, In, Out, Xml).
 
 print_trading(Sd, In, Out, Xml) :-
 	findall(Pair, trading_sub_account(Pair), Pairs),
@@ -99,7 +99,7 @@ print_trading2(_,[],Results,Results,[]).
 	
 
  maybe_print_dimensional_facts(Static_Data,Contexts_In, Contexts_Out, Xml) :-
-	(	Static_Data.output_dimensional_facts = on
+	(	result_property(l:output_dimensional_facts, on)
 	->	print_dimensional_facts(Static_Data, Contexts_In, Contexts_Out, Xml)
 	;	Contexts_In = Contexts_Out).
 

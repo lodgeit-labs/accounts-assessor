@@ -2,73 +2,72 @@
 <accountHierarchy>
 	<!-- top-level account has to explicitly specify where it attaches -->
 	<Accounts parent_role="root" normal_side="debit">
-		<NetAssets role="NetAssets">
+		<Net_Assets role="Net_Assets">
 			<Assets>
-				<CurrentAssets role="CurrentAssets">
-					<CashAndCashEquivalents role="CashAndCashEquivalents">
+				<Current_Assets role="Current_Assets">
+					<Cash_and_Cash_Equivalents role="Cash_and_Cash_Equivalents">
 						<Banks role="Banks"/>
-					</CashAndCashEquivalents>				
-				</CurrentAssets>
-				<NoncurrentAssets role="NoncurrentAssets">
-				</NoncurrentAssets>
+					</Cash_and_Cash_Equivalents>
+				</Current_Assets>
+				<Non_Current_Assets role="Non_Current_Assets">
+				</Non_Current_Assets>
 			</Assets>
 			<Liabilities normal_side="credit">
-				<NoncurrentLiabilities>
-					<NoncurrentLoans/>
-				</NoncurrentLiabilities>
-				<CurrentLiabilities>
-					<CurrentLoans/>
+				<Non_Current_Liabilities>
+					<Non_Current_Loans/>
+				</Non_Current_Liabilities>
+				<Current_Liabilities>
+					<Current_Loans/>
 					<Gst>
-						<GstReceivable/>
-						<GstPayable/>
+						<Gst_Receivable/>
+						<Gst_GstPayableReceivable/>
 					</Gst>
-				</CurrentLiabilities>
+				</Current_Liabilities>
 			</Liabilities>
-		</NetAssets>
+		</Net_Assets>
 
 		<Equity role="Equity" normal_side="credit">
-			<ShareCapital/>
-			<RetainedEarnings>
-				<HistoricalEarnings role="HistoricalEarnings">
-					<BankOpeningBalances/>
-				</HistoricalEarnings>
-				<CurrentEarnings role="CurrentEarnings"/>
-			</RetainedEarnings>
-			<CapitalIntroduced/>
+			<Share_Capital/>
+			<Retained_Earnings>
+				<Historical_Earnings role="Historical_Earnings">
+					<Bank_Opening_Balances/>
+				</Historical_Earnings>
+				<Current_Earnings role="Current_Earnings"/>
+			</Retained_Earnings>
+			<Capital_Introduced/>
 			<Drawings role="Drawings"/>
 		</Equity>
 
-		<ComprehensiveIncome role="ComprehensiveIncome" normal_side="credit">
-			
+		<Comprehensive_Income role="Comprehensive_Income" normal_side="credit">
 			<Revenue role="Revenue">
 				<Income/>
-				<OtherIncome>
-					<InterestIncome/>
-					<InterestEarned/>
-					<ExchangeGain/>
-				</OtherIncome>
-				<CurrencyMovement role="CurrencyMovement"/>
+				<Other_Income>
+					<Interest_Income/>
+					<Interest_Earned/>
+					<Exchange_Gain/>
+				</Other_Income>
+				<Currency_Movement role="Currency_Movement"/>
 			</Revenue>
 
 			<Expenses role="Expenses" normal_side="debit">
-				<BankCharges/>
-				<AccountingFees/>
-				<ForexLoss/>
-				<InterestExpenses/>
+				<Bank_Charges/>
+				<Accounting_Fees/>
+				<Forex_Loss/>
+				<Interest_Expenses/>
 				<Purchases/>
-				<OtherExpenses/>
+				<Other_Expenses/>
 			</Expenses>
 
 			<Gains role="Gains">
-				<OtherGain/>
-				<ClearingAccount/>
+				<Transfer_Clearing_Account/>			
+				<Other_Gain/>
 			</Gains>
 
 			<Losses normal_side="debit">	
 			</Losses>
 
-		</ComprehensiveIncome>
+		</Comprehensive_Income>
 	</Accounts>
-	<Inventory parent_role="root" role="root/Inventory" normal_side="debit">
+	<Inventory parent_role="root" role="root!Inventory" normal_side="debit">
 	</Inventory>
 </accountHierarchy>

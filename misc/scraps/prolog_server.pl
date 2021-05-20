@@ -1,4 +1,4 @@
-/* this file is outphased in favor of frontend_server */
+/* this file is outphased in favor of python frontend_server */
 :- module(_, [run_simple_server/0, run_daemon/0]).
 :- use_module(library(debug)).
 :- use_module(library(xpath)).

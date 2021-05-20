@@ -1,0 +1,70 @@
+{
+  "files": [
+    "README.md"
+  ],
+  "imageSize": 100,
+  "commit": false,
+  "contributors": [
+    {
+      "login": "sto0pkid",
+      "name": "stoopkid",
+      "avatar_url": "https://avatars2.githubusercontent.com/u/9160425?v=4",
+      "profile": "https://github.com/sto0pkid",
+      "contributions": [
+        "infra",
+        "test",
+        "code"
+      ]
+    },
+    {
+      "login": "Schwitter",
+      "name": "Schwitter",
+      "avatar_url": "https://avatars3.githubusercontent.com/u/8089563?v=4",
+      "profile": "https://github.com/Schwitter",
+      "contributions": [
+        "infra",
+        "test",
+        "code"
+      ]
+    },
+    {
+      "login": "salamt2",
+      "name": "salamt2",
+      "avatar_url": "https://avatars0.githubusercontent.com/u/2647629?v=4",
+      "profile": "https://github.com/salamt2",
+      "contributions": [
+        "infra",
+        "test",
+        "code"
+      ]
+    },
+    {
+      "login": "murisi",
+      "name": "Murisi Tarusenga",
+      "avatar_url": "https://avatars0.githubusercontent.com/u/6886764?v=4",
+      "profile": "http://github.com/murisi",
+      "contributions": [
+        "infra",
+        "test",
+        "code"
+      ]
+    },
+    {
+      "login": "koo5",
+      "name": "koo5",
+      "avatar_url": "https://avatars1.githubusercontent.com/u/114276?v=4",
+      "profile": "https://github.com/koo5",
+      "contributions": [
+        "infra",
+        "test",
+        "code"
+      ]
+    }
+  ],
+  "contributorsPerLine": 7,
+  "projectName": "accounts-assessor",
+  "projectOwner": "lodgeit-labs",
+  "repoType": "github",
+  "repoHost": "https://github.com",
+  "skipCi": true
+}

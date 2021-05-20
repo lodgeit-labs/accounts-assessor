@@ -38,11 +38,11 @@ smsfar_xml(Xml) :-
 				nil('StatusAustralianFund')),
 			'SectionB-Income'(
 				'A-NetCapitalGain'(
-					$>!fs([report - pl/current, account_role - ('TradingAccounts'/'Capital GainLoss')]),
+					$>!fs([report - pl/current, account_role - ('Trading_Accounts'/'Capital_Gain/(Loss)')]),
 				'B-GrossRentAndOtherIncome'(
-					$>!fs([report - pl/current, account_role - ('Rent Received')]),
+					$>!fs([report - pl/current, account_role - ('Rent_Received')]),
 				'C-GrossInterest'(
-					$>!fs([report - pl/current, account_role - ('Interest Received - control')]),
+					$>!fs([report - pl/current, account_role - ('Interest_Received_-_Control')]),
 				%'J-UnfrankedDividendAmount'(?
 				%'K-FrankedDividendAmount'(?
 				'L-DividendFrankingCredit'(
@@ -50,12 +50,12 @@ smsfar_xml(Xml) :-
 				'AssessableContributions'(
 					'R-AssessableContributionsTotal'([]),
 					'R1-AssessableEmployerContributions'(
-						$>!fs([report - pl/current, account_role - ('Employer Contribution')]),
+						$>!fs([report - pl/current, account_role - ('Employer_Contribution')]),
 					'R2-AssessablePersonalContributions'(
-						$>!fs([report - pl/current, account_role - ('Contribution Received']))
+						$>!fs([report - pl/current, account_role - ('Contribution_Received']))
 				),
-				%'OtherIncome'(
-				%	rl('Other Income')),
+				%'Other_Income'(
+				%	rl('Other_Income')),
 				'GrossIncome'(
 					'W-GrossIncome'(
 						$>!fs([report - pl/current, account_role - ('Income')])
@@ -88,10 +88,10 @@ smsfar_xml(Xml) :-
 					'B-GrossTax'()
 				),
 				'T5-TaxPayable'(
-					aspects([concept - smsf/income_tax/'Income Tax Payable/(Refund)'])),
+					aspects([concept - smsf/income_tax/'Income_Tax_Payable/(Refund)'])),
 				%'K-PAYGInstallmentsRaised'(
 				'L-SupervisoryLevy'(
-					aspects([concept - smsf/income_tax/'ATO Supervisory Levy'])),
+					aspects([concept - smsf/income_tax/'ATO_Supervisory_Levy'])),
 				'S-AmountDueOrRefundable'(
 					aspects([concept - smsf/income_tax/'to pay'])),
 				$>('..='(['SectionF-Members'|($>'smsfar ActiveMember')]))
@@ -168,7 +168,7 @@ smsfar_xml(Xml) :-
 
 
 'report end date FinancialYearEnding'(Y) :-
-	request_has_property(l:end_date, date(Y,_,_)).
+	result_property(l:end_date, date(Y,_,_)).
 
 
 'smsfar_xml NetCapitalGain'(X) :-
@@ -181,7 +181,7 @@ smsfar_xml(Xml) :-
 		'OpeningAccountBalance'(
 			aspects([
 				report - final/bs/current,
-				concept - smsf/member/gl/'Opening Balance'])
+				concept - smsf/member/gl/'Opening_Balance'])
 		),
 		'A-EmployerContributions'(
 			PL or bs?

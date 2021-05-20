@@ -23,3 +23,10 @@ one formula might be:
 	a([c - investments]) + a([c - investments])
 
 
+
+
+
+
+checklist that should apply to every Processing:
+	every Request--has_sheet->sheet--rdf:type->? should be visited
+	

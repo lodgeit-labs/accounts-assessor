@@ -20,7 +20,7 @@ services:
       SECRET__INTERNAL_SERVICES_SERVER_URL: "http://internal_services:17788"
       SECRET__CELERY_BROKER_URL: "amqp://guest:guest@rabbitmq:5672//"
     volumes:
-      - my-vol:/app/server_root/tmp
+      - tmp:/app/server_root/tmp
     networks:
       - backend
       - frontend
@@ -40,7 +40,7 @@ services:
   internal_services:
     image: koo5/internal_services
     volumes:
-      - my-vol:/app/server_root/tmp
+      - tmp:/app/server_root/tmp
     networks:
       - backend
     ports:
@@ -66,7 +66,7 @@ services:
       SECRET__INTERNAL_SERVICES_SERVER_URL: "http://internal_services:17788"
       SECRET__CELERY_BROKER_URL: "amqp://guest:guest@rabbitmq:5672//"
     volumes:
-      - my-vol:/app/server_root/tmp
+      - tmp:/app/server_root/tmp
     networks:
       - backend
     depends_on:
@@ -87,4 +87,4 @@ networks:
   backend:
 
 volumes:
-  my-vol:
+  tmp:

@@ -1,0 +1,15 @@
+
+
+http://dev-node.uksouth.cloudapp.azure.com:7788/static/default_account_hierarchies/base.xml
+
+
+## tooling for generating xbrl taxonomies
+
+### generate a base taxonomy with calculation links
+input: list of concept names and summation links
+
+output: 
+	1) xsd file declaring concepts, similar to http://dev-node.uksouth.cloudapp.azure.com:7788/static/taxonomy/basic.xsd
+	2) xml file declaring calculation links, like http://dev-node.uksouth.cloudapp.azure.com:7788/static/taxonomy/basic-calculation.xml
+	
+our sw has various special-purpose modules. One is for parsing bank account statements and inferring appropriate 

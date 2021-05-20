@@ -1,0 +1,29 @@
+/*
+
+version trying to use swipl rdf db, 4x slower than dicts (and with non-backtracking semantics)
+
+can_go_into_rdf_db(spog(S2,P2,O2,G2)) :-
+	atom(S2),atom(P2),atom(G2),atomic(O2).
+
+addd(S2,P2,O2,G2) :-
+	can_go_into_rdf_db(spog(S2,P2,O2,G2)),
+	rdf_assert(S2,P2,O2,G2).
+
+addd(S2,P2,O2,G2) :-
+	X = spog(S2,P2,O2,G2),
+	\+can_go_into_rdf_db(X),
+	rol_add(X, $>b_getval(the_theory_nonground)).
+
+dddd(Spog, _X) :-
+	Spog = spog(S2,P2,O2,G2),
+	(atom(S2);var(S2)),
+	(atom(P2);var(P2)),
+	(atom(G2);var(G2)),
+	(atomic(O2);var(O2)),
+	rdf(S2,P2,O2,G2).
+*/
+
+
+
+
+

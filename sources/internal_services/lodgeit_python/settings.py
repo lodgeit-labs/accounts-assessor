@@ -25,7 +25,7 @@ SECRET_KEY = 'k)h7wqih(*a*1lqmx#hxup8ucau0d9&jf$n6ip_s^jy6+d!vx%'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['internal_services:17788', '*']
+ALLOWED_HOSTS = ['internal_services', '*', 'localhost']
 
 
 # Application definition
@@ -38,7 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'message',
-    'modernrpc'
+#    'modernrpc'
 ]
 
 MIDDLEWARE = [

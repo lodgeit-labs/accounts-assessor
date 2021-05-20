@@ -1,3 +1,21 @@
+/*
+wip: go through all GL sheets in excel
+	automatize or
+	set non-default phase (smsf_...)
+
+*/
+
+
+
+
+
+
+
+
+
+
+
+
 #ifdef DEV for localhost servers
 
 
@@ -38,4 +56,57 @@ xref(bool, changeable)
     If true, source code is being read for analysis purposes such as cross-referencing. Otherwise (default) it is being read to be compiled. This flag is used at several places by term_expansion/2 and goal_expansion/2 hooks, notably if these hooks use side effects. See also the libraries library(prolog_source) and library(prolog_xref).
     */
 
+
+
+
+
+testcases - client_version is "test_runner" - endpoint will allow that.
+
+
+
+
+
+
+
+
+
+
+split out internal_workers modules used by frontend_server
+secrets
+ports - internally, bind to some new ports, like 6666, to make it less confusing
+docker confiigurations - django dev vs prod
+RabbitMQ contains functionality which explicitly tracks and manages memory usage, and thus needs to be made aware of cgroup-imposed limits.
+
+# security issues:
+# internal_services is a HTTP django RPC server that handles some OS interaction and other tasks like XML validation for prolog. This includes executing arbitrary shell commands.  If an attacker can make our code invoke http requests to arbitrary URLs, they get shell access. There is no authentication. And against standards, it invokes actions on GET requests, but that is just a convenience and can be disabled for production, and disabling that is probably all we need to do.
+# invoking http GET requests to arbitrary URLs is possible through:
+#  arelle, by referencing them in xbrl files referenced by users
+#  fetch_file_from_url, used for fetching additional input files specified by user
+
+
+# calls to load_xml from prolog: opening arbitrary files
+
+
+# todo: docker secrets, docker configs, try to keep sensitive info in files..
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Net Income (Loss) [Roll Up]
+	Income (Loss) from Continuing Operations Before Tax [Roll Up]
+	Income Tax Expense (Benefit)
+	
+
+
+- 	push_context('processing phases (each phase depends on posted results of previous phase):'),
 

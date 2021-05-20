@@ -23,6 +23,7 @@ transaction_field(T, F, X) :-
 */
 
  make_transaction2(Origin, Date, Description, Account, Vector, Type, Uri) :-
+ 	push_format('make_transaction2: ~q ~q ~q ~q', [Date, Description, $>account_name(Account), $>round_term(Vector)]),
  	Date = date(_,_,_),
 	flatten([Description], Description_Flat),
 	atomic_list_concat(Description_Flat, Description_Str),
@@ -33,10 +34,11 @@ transaction_field(T, F, X) :-
 	doc_add(Uri, transactions:account, Account, transactions),
 	doc_add(Uri, transactions:vector, Vector, transactions),
 	doc_add(Uri, transactions:type, Type, transactions),
-	doc_add(Uri, transactions:origin, Origin, transactions).
+	doc_add(Uri, transactions:origin, Origin, transactions),
+	pop_context.
 
  make_transaction(Origin, Date, Description, Account, Vector, Uri) :-
-	make_transaction2(Origin, Date, Description, Account, Vector, instant, Uri).
+	!make_transaction2(Origin, Date, Description, Account, Vector, instant, Uri).
 
 
 make_dr_cr_transactions(
@@ -68,12 +70,12 @@ make_dr_cr_transactions(
 	}.
 
 
-transaction_account_in_set(Transaction, Root_Account_Id) :-
+ transaction_account_in_set(Transaction, Root_Account_Id) :-
 	transaction_account(Transaction, Transaction_Account_Id),
 	account_in_set(Transaction_Account_Id, Root_Account_Id).
 
 % equivalent concept to the "activity" in "net activity"
-transaction_in_period(Transaction, From_Day, To_Day) :-
+ transaction_in_period(Transaction, From_Day, To_Day) :-
 	transaction_day(Transaction, Day),
 	absolute_day(From_Day, A),
 	absolute_day(To_Day, C),
@@ -82,7 +84,7 @@ transaction_in_period(Transaction, From_Day, To_Day) :-
 	B =< C.
 
 % up_to?
-transaction_before(Transaction, End_Day) :-
+ transaction_before(Transaction, End_Day) :-
 	transaction_day(Transaction, Day),
 	absolute_day(End_Day, B),
 	absolute_day(Day, A),
@@ -91,14 +93,14 @@ transaction_before(Transaction, End_Day) :-
 
 % add up and reduce all the vectors of all the transactions, result is one vector
 
-transaction_vectors_total([], []).
+ transaction_vectors_total([], []).
 
-transaction_vectors_total([Hd_Transaction | Tl_Transaction], Net_Activity) :-
+ transaction_vectors_total([Hd_Transaction | Tl_Transaction], Net_Activity) :-
 	transaction_vector(Hd_Transaction, Curr),
 	transaction_vectors_total(Tl_Transaction, Acc),
 	vec_add(Curr, Acc, Net_Activity).
 
-transactions_in_account_set(Transactions_By_Account, Account_Id, Result) :-
+ transactions_in_account_set(Transactions_By_Account, Account_Id, Result) :-
 	findall(
 		Transactions,
 		(
@@ -109,7 +111,7 @@ transactions_in_account_set(Transactions_By_Account, Account_Id, Result) :-
 	),
 	flatten(Transactions2, Result).
 	
-transactions_in_period_on_account_and_subaccounts(Transactions_By_Account, Account_Id, Start_Date, End_Date, Filtered_Transactions) :-
+ transactions_in_period_on_account_and_subaccounts(Transactions_By_Account, Account_Id, Start_Date, End_Date, Filtered_Transactions) :-
 	transactions_in_account_set(Transactions_By_Account, Account_Id, Transactions),
 	findall(
 		Transaction,
@@ -120,37 +122,53 @@ transactions_in_period_on_account_and_subaccounts(Transactions_By_Account, Accou
 		Filtered_Transactions
 	).
 
-transactions_before_day_on_account_and_subaccounts(Transactions_By_Account, Account_Id, Day, Filtered_Transactions) :-
-	transactions_in_account_set(Transactions_By_Account, Account_Id, Transactions),
-	findall(
-		Transaction,
-		(
-			member(Transaction, Transactions),
-			transaction_before(Transaction, Day)
-		),
-		Filtered_Transactions
-	).
+ transactions_before_day_on_account_and_subaccounts(Transactions_By_Account, Account_Id, Day, Filtered_Transactions) :-
+	add_days(Day, -1, Before_day),
+	transactions_in_period_on_account_and_subaccounts(Transactions_By_Account, Account_Id, date(1,1,1), Before_day, Filtered_Transactions).
 
-transactions_by_account(Static_Data, Transactions_By_Account) :-
+
+ transactions_dict_by_account(Static_Data, Transactions_By_Account) :-
 	dict_vars(Static_Data,
-		[Transactions,Start_Date,End_Date]
+		[Transactions]
 	),
+	assertion(nonvar(Transactions)),
+	sort_into_dict(transaction_account, Transactions, Transactions_By_Account).
+
+
+% todo this probably doesn't table
+:- table(transactions_dict_by_account_v2/2).
+:- dynamic tabling_check__processed/1.
+
+
+ transactions_dict_by_account_v2(Transactions,Transactions_By_Account) :-
+
+
+/*
+
+	% tabling check term
+	Tct = tabling_check__processed(transactions_dict_by_account_v2(Transactions)),
+	(	call(Tct)
+	->	throw_string('memoization failed')
+	;	assert(Tct)),
+*/
 
 	assertion(nonvar(Transactions)),
-	sort_into_dict(transaction_account, Transactions, Dict),
+	assertion(var(Transactions_By_Account)),
+	%length(Transactions, Tl),
+	%format(user_error, '~q (~q)~n', [transactions_dict_by_account_v2(Transactions,Transactions_By_Account), Tl]),
+	%format(user_error, '(~q)~n', [transactions_dict_by_account_v2(Tl)]),
 
-	/*this should be somewhere in ledger code*/
-	/* ugh, we shouldnt overwrite it */
-	transactions_before_day_on_account_and_subaccounts(Dict, $>abrlt('ComprehensiveIncome'), Start_Date, Historical_Earnings_Transactions),
-	transactions_before_day_on_account_and_subaccounts(Dict, $>abrlt('HistoricalEarnings'), Start_Date, Historical_Earnings_Transactions2),
-	append(Historical_Earnings_Transactions, Historical_Earnings_Transactions2, Historical_Earnings_Transactions_All),
-	Dict2 = Dict.put($>abrlt('HistoricalEarnings'), Historical_Earnings_Transactions_All),
-
-	transactions_in_period_on_account_and_subaccounts(Dict, $>abrlt('ComprehensiveIncome'), Start_Date, End_Date, Current_Earnings_Transactions),
-	Transactions_By_Account = Dict2.put($>abrlt('CurrentEarnings'), Current_Earnings_Transactions).
+	sort_into_dict(transaction_account, Transactions, Transactions_By_Account).
 
 
-check_transaction_account(Transaction) :-
+ transactions_by_account(Transactions_By_Account, Account_Id, Account_Transactions) :-
+	(	Account_Transactions = Transactions_By_Account.get(Account_Id)
+	->	true
+	;	Account_Transactions = []),
+	assertion(is_list(Account_Transactions)).
+
+
+ check_transaction_account(Transaction) :-
 	!transaction_account(Transaction, Id),
 	(
 		(
@@ -167,6 +185,13 @@ check_transaction_account(Transaction) :-
 		)
 	).
 	
-has_empty_vector(T) :-
+ has_empty_vector(T) :-
 	transaction_vector(T, []).
+
+
+ transactions_report_currency_sum_at_(Exchange_Rates, Report_Currency, Date, Transactions, Vector_Converted) :-
+	maplist(transaction_vector, Transactions, Vectors_Nested),
+	flatten(Vectors_Nested, Vector0),
+	vec_reduce(Vector0, Vector),
+	vec_change_bases(Exchange_Rates, Date, Report_Currency, Vector, Vector_Converted).
 

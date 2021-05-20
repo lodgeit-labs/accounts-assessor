@@ -1,0 +1,3 @@
+		$>result_property(l:report_currency),
+		$>result_property(l:exchange_rates),
+		$>result_property(l:end_date))),

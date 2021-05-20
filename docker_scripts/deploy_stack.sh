@@ -1,6 +1,10 @@
 #!/usr/bin/env fish
 
-docker stack deploy --prune --compose-file docker-stack.yml robust
+set PP $argv[1]
+set COMPOSE_FILE $argv[2]
+set -x DJANGO_ARGS $argv[3]
 
-docker stack ps robust
+./git_info.fish
+
+env PP="$PP" docker stack deploy --prune --compose-file "$COMPOSE_FILE" "robust$PP"
 

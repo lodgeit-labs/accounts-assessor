@@ -63,8 +63,8 @@ pesseract_style_table_rows(
 ) 
 */	
 
-pesseract_style_table_rows(_, [], []).
-pesseract_style_table_rows(
+ pesseract_style_table_rows(_, [], []).
+ pesseract_style_table_rows(
 	Report_Currency,
 	Entries,
 	[Lines|Lines_Tail]
@@ -252,7 +252,7 @@ format_balance(Format, Report_Currency_List, Context, Name, Normal_Side, Coord, 
 			unitRef=Sane_Unit_Id,
 			decimals="INF"],
 			[Amount]),
-		request_assert_property(l:has_used_unit, Unit, xml)
+		result_add_property(l:has_used_unit, Unit, xml)
 	;
 		(	Format = html
 		->	(
@@ -282,9 +282,12 @@ report_currency_atom(Report_Currency_List, Report_Currency_Atom) :-
 	).
 
 get_indentation(Level, Indentation) :-
+	get_indentation(Level, ' ', Indentation).
+
+get_indentation(Level, In, Out) :-
 	Level > 0,
 	Level2 is Level - 1,
-	get_indentation(Level2, Indentation2),
-	atomic_list_concat([Indentation2, ' '], Indentation).
+	get_indentation(Level2, In, Out2),
+	atomic_list_concat([Out2, In], Out).
 
-get_indentation(0, ' ').
+get_indentation(0, X, X).

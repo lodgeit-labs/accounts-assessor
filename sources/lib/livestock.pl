@@ -1,5 +1,8 @@
 
-livestock_verbs([l:livestock_purchase, l:livestock_sale]).
+:- table(livestock_verbs/1).
+
+ livestock_verbs(X) :-
+	maplist(rdf_global_id, [l:livestock_purchase, l:livestock_sale], X).
 
 
 /*
@@ -39,6 +42,9 @@ s_transaction_is_livestock_buy_or_sell(S_Transaction, Day, Livestock_Type, Lives
 livestock_data(Uri) :-
 	doc(Uri, rdf:type, l:livestock_data).
 
+
+:- table livestock_data_by_vector_unit/2.
+
 livestock_data_by_vector_unit(Livestock, Exchanged) :-
 	vector_unit(Exchanged, Unit),
 	findall(
@@ -70,18 +76,18 @@ infer_livestock_action_verb(S_Transaction, NS_Transaction) :-
 	(	is_debit(Vector)
 	->	rdf_global_id(l:livestock_sale,Action_Verb)
 	;	rdf_global_id(l:livestock_purchase,Action_Verb)),
-	doc_set_s_transaction_type_id(S_Transaction, uri(Action_Verb), NS_Transaction).
+	doc_set_s_transaction_field(type_id,S_Transaction, uri(Action_Verb), NS_Transaction, infer_livestock_action_verb).
 
 
 
-preprocess_livestock_buy_or_sell(Static_Data, S_Transaction, [Bank_Txs, Livestock_Count_Transaction, Pl_Transaction]) :-
+preprocess_livestock_buy_or_sell(S_Transaction, [Bank_Txs, Livestock_Count_Transaction, Pl_Transaction]) :-
 	s_transaction_is_livestock_buy_or_sell(S_Transaction, Day, Livestock_Type, Livestock_Coord, Money_Coord),
 	(   is_debit(Money_Coord)
 	->  Description = 'livestock sale'
 	;   Description = 'livestock purchase'),
 	livestock_count_account(Livestock_Type, Count_Account),
 	make_transaction(S_Transaction, Day, Description, Count_Account, [Livestock_Coord], Livestock_Count_Transaction),
-	affect_bank_account(Static_Data, S_Transaction, Description, Bank_Txs),
+	affect_first_account(S_Transaction, Description, Bank_Txs),
 	vec_inverse([Money_Coord], Pl_Vector),
 	(   is_credit(Money_Coord)
 	->	(
@@ -104,8 +110,8 @@ process_livestock2((S_Transactions, Transactions_In), Livestock, Transactions_Ou
 	/*
 	todo send livestock dates from excel and check them here
 	*/
-	request_has_property(l:start_date, Start_Date),
-	request_has_property(l:end_date, End_Date),
+	result_property(l:start_date, Start_Date),
+	result_property(l:end_date, End_Date),
 
 	/*
 	preprocess_livestock_buy_or_sell happens first, as part of preprocess_s_transaction.
@@ -132,7 +138,9 @@ process_livestock2((S_Transactions, Transactions_In), Livestock, Transactions_Ou
 	append(Transactions_In, Transactions3, Transactions_Total),
 
 	Static_Data1 = Static_Data0.put(transactions,Transactions_Total),
-	transactions_by_account(Static_Data1, Transactions_By_Account),
+	gtrace,
+	%!'with current and historical earnings equity balances'(a,b,c,d),
+	transactions_dict_by_account(Static_Data1, Transactions_By_Account),
 
 	closing_inventory_transactions(Livestock, Transactions_By_Account, Closing_Transactions),
 	append(Transactions3, Closing_Transactions, Transactions_Out),

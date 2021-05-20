@@ -22,22 +22,24 @@ add_investment(Investments_In, Added, Investments_Out, Investment_Id) :-
 	Investment = investment(Added, []),
 	append(Investments_In, [Investment], Investments_Out).
 
-add_bought_items(fifo, Added, (Outstanding_In, Investments_In), (Outstanding_Out, Investments_Out)) :- 
+add_bought_items(Pricing_Method, Added, (Outstanding_In, Investments_In), (Outstanding_Out, Investments_Out)) :-
+	rdf_global_id(ic:fifo, Pricing_Method),
 	add_investment(Investments_In, Added, Investments_Out, Investment_Id),
 	append([(Added, Investment_Id)], Outstanding_In, Outstanding_Out)
 	%,print_term(add_bought_items(fifo, Added, (Outstanding_In, Investments_In), (Outstanding_Out, Investments_Out)),[])
 	.
 		
-add_bought_items(lifo, Added, (Outstanding_In, Investments_In), (Outstanding_Out, Investments_Out)) :- 
+add_bought_items(Pricing_Method, Added, (Outstanding_In, Investments_In), (Outstanding_Out, Investments_Out)) :-
+	rdf_global_id(ic:lifo, Pricing_Method),
 	add_investment(Investments_In, Added, Investments_Out, Investment_Id),
 	append(Outstanding_In, [(Added, Investment_Id)], Outstanding_Out)
-	%,print_term(add_bought_items(lifo, Added, (Outstanding_In, Investments_In), (Outstanding_Out, Investments_Out)),[])
+	%,print_term(add_bought_items(ic:lifo, Added, (Outstanding_In, Investments_In), (Outstanding_Out, Investments_Out)),[])
 	.
 
 
 find_items_to_sell(Pricing_Method, Type, Sale_Count, Sale_Date, Sale_Unit_Price, (Outstanding_In, Investments_In), (Outstanding_Out, Investments_Out), Cost) :-
 	/* this logic is same for both pricing methods */
-	((Pricing_Method = lifo,!);(Pricing_Method = fifo)),
+	((rdf_global_id(ic:lifo,Pricing_Method),!);(rdf_global_id(ic:fifo,Pricing_Method))),
 	find_items_to_sell2(Type, Sale_Count, Sale_Date, Sale_Unit_Price, Outstanding_In, Investments_In, Outstanding_Out, Investments_Out, Cost)
 	%,print_term(find_items_to_sell(Pricing_Method, Type, Sale_Count, Sale_Date, Sale_Unit_Price, (Outstanding_In, Investments_In), (Outstanding_Out, Investments_Out), Cost),[])
 	.
@@ -140,4 +142,17 @@ infer_unit_cost_from_last_buy_or_sell(Unit, [ST|_], Exchange_Rate) :-
 infer_unit_cost_from_last_buy_or_sell(Unit, [_|S_Transactions], Rate) :-
 	infer_unit_cost_from_last_buy_or_sell(Unit, S_Transactions, Rate).
 
+
+
+:- table at_cost/0.
+
+ at_cost :-
+	result_property(l:cost_or_market, Cost_Or_Market),
+	e(Cost_Or_Market, ic:cost).
+
+:- table at_market/0.
+
+ at_market :-
+	result_property(l:cost_or_market, Cost_Or_Market),
+	e(Cost_Or_Market, ic:market).
 

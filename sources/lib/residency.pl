@@ -1,21 +1,15 @@
-:- module(residency, [residency_request/1]).
+:- module(residency, []).
 
 :- use_module(library(http/http_json)).
 :- use_module('prompt', [prompt/3]).
 :- use_module('chat').
 
-residency_request(Request) :-
-	http_read_json_dict(Request, Data),
-	residency_step(Data, Reply),	
-	reply_json(Reply),
-	true.
-
 residency_step(In, Out) :-
-	preprocess(In, History, CurrentQuestionId, HistoryTuples),
+	chat_preprocess(In, History, CurrentQuestionId, HistoryTuples),
 	next_state(HistoryTuples, CurrentQuestionId, NextQuestionId, NextPrompt),
 	(
 		residency_result(NextQuestionId, Out); 
-		response(NextQuestionId, NextPrompt, History, Out)
+		chat_response(NextQuestionId, NextPrompt, History, Out)
 	).
 	
 % The predicate "returns" 1 if the given element is in the given list and "returns" 0 if

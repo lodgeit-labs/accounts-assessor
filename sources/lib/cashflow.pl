@@ -145,7 +145,7 @@ cf_scheme_0_entry_for_account(
 ).
 */
 cf_scheme_0_root_entry(Sd, Entry) :-
-	!cf_scheme_0_entry_for_account0(Sd, $>account_by_role_throw(rl('CashAndCashEquivalents')), Entry).
+	!cf_scheme_0_entry_for_account0(Sd, $>account_by_role_throw(rl('Cash_and_Cash_Equivalents')), Entry).
 
 add_entry_balance_desc(_Sd, Entry, B, Column, Text, Type) :-
 	!maybe_balance_lines(xxx, kb:debit, [], B, Balance_Text),
@@ -262,10 +262,10 @@ cf_instant_tx_entry0(Sd, ct(_,Tx), Entry) :-
 cf_instant_tx_vector_conversion(Sd, Tx, Uri) :-
 	/*very crude metadata for now*/
 	doc_new_(rdf:value, Uri),
-	doc_add(Uri, rdf:value, Vec),
-	Source = vec_change_bases(Sd.exchange_rates, $>transaction_day(Tx), Sd.report_currency, $>transaction_vector(Tx), Vec),
+	Source =	vec_change_bases(Sd.exchange_rates, $>transaction_day(Tx), Sd.report_currency, $>transaction_vector(Tx), Vec),
 	call(Source),
-	doc_add(Uri, l:source, vec_change_bases).
+	doc_add(Uri, rdf:value, Vec),
+	doc_add(Uri, l:source, (vec_change_bases)).
 
 
 report_entry_fill_in_totals(Entry) :-
@@ -280,13 +280,17 @@ report_entry_fill_in_totals(Entry) :-
 	!set_report_entry_total_vec(Entry, Total_Vec).
 
 
+tag_gl_transactions_with_cf_data(Filtered_Transactions) :-
+	maplist(!tag_gl_transaction_with_cf_data, Filtered_Transactions).
+
 cashflow(
 	Sd,				% + Static Data
 	[Entry]			% - list<entry>
 ) :-
-	abrlt('CashAndCashEquivalents', Root),
-	!transactions_in_period_on_account_and_subaccounts(Sd.transactions_by_account, Root, Sd.start_date, Sd.end_date, Filtered_Transactions),
-	maplist(!tag_gl_transaction_with_cf_data, Filtered_Transactions),
-	!cf_scheme_0_root_entry(Sd, Entry),
+	abrlt('Cash_and_Cash_Equivalents', Root),
+	!cf(transactions_in_period_on_account_and_subaccounts(Sd.transactions_by_account, Root, Sd.start_date, Sd.end_date, Filtered_Transactions)),
+	cf(tag_gl_transactions_with_cf_data, Filtered_Transactions),
+	!cf(cf_scheme_0_root_entry(Sd, Entry)),
 	!doc_add($>result, l:has_cashflow, Entry),
-	!report_entry_fill_in_totals(Entry).
+	!cf(report_entry_fill_in_totals(Entry)).
+

@@ -204,13 +204,22 @@ format_cell([X|Xs], Options, [Output1, Output2]) :-
 format_cell(with_metadata(Value, _), Options, Output) :-
 	format_cell(Value, Options, Output),
 	!.
+/*
+format_cell(with_metadata(Value, _, _Uri), Options, Output) :-
+	format_cell(Value, Options, Output),
+	!.
+*/
+format_cell(with_metadata(Value, _, Uri), Options, [Output, A]) :-
+	format_cell(Value, Options, Output),
+	!,
+	link(Uri, A).
 
 format_cell(value(Unit, Value), Options, Output) :-
 	(	Precision = Options.get(precision)
 	->	true
 	;	Precision = 2),
 	(	true = Options.get(implicit_report_currency)
-	->	!request_has_property(l:report_currency, Optional_Implicit_Unit)
+	->	!result_property(l:report_currency, Optional_Implicit_Unit)
 	;	Optional_Implicit_Unit = []),
 	format_money2(Optional_Implicit_Unit, Precision, value(Unit, Value), Output),
 	!.
@@ -296,7 +305,7 @@ column_by_key(Rows, Key, Vals) :-
 
 sum_cells(Values, Sum) :-
 	flatten(Values, Vec),
-	vec_add(Vec, [], Sum).
+	vec_reduce(Vec, Sum).
 
 		  
 

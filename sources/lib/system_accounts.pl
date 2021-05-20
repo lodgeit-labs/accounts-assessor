@@ -1,78 +1,27 @@
-/*note:we form roles from ids, so the id should be unique in this context. eg, if there are two different accounts with id "Investments", this will break. The alternative is to use full uri, or to introduce account codes, or similar. This problem goes all the way to the excel UI, where action verbs have fields for accounts. Id's are used, and we expect them to be unique, but account names in big hierarchies aren't unique. So how would a user specify an account unambiguously? Either specify the unique code directly, or the ui has to have a sheet with the mapping, or there has to be a menu item that makes a request to the endpoint to load taxonomies and return back some rdf with the mapping. */
 
+'ensure system accounts exist 0'(S_Transactions) :-
+	assertion(ground(S_Transactions)),
+	assertion(is_list(S_Transactions)),
+	once((
+		!cf('ensure system accounts exist'(S_Transactions)),
+		!cf(check_accounts_parent),
+		!cf(check_accounts_roles),
+		!cf(propagate_accounts_side),
+		!cf(write_accounts_json_report))
+	).
 
-/*
-╻┏━┓   ╻ ╻┏━┓╻  ╻╺┳┓   ┏━┓┏━┓╻  ┏━╸
-┃┗━┓   ┃┏┛┣━┫┃  ┃ ┃┃   ┣┳┛┃ ┃┃  ┣╸
-╹┗━┛╺━╸┗┛ ╹ ╹┗━╸╹╺┻┛╺━╸╹┗╸┗━┛┗━╸┗━╸
-*/
-
-% could be also called from make_account or account_set_role. the goal is that all code paths that construct roles will go through this.
-% probably the semantics should be such that it can be skipped for optimization.
-% in the end, we have roles that are constructed from account names, so any atom is a valid role. This hinders checking.
-
-
-is_valid_role('Banks') :- !.
-is_valid_role('Banks'/Id) :- !,freeze(Id, atom(Id)).
-
-is_valid_role('TradingAccounts'/Trading_Account_Id) :- !,
-	freeze(Trading_Account_Id, atom(Trading_Account_Id)).
-is_valid_role('TradingAccounts'/_1387496/unrealized) :- !.
-is_valid_role('TradingAccounts'/_1387572/realized) :- !.
-is_valid_role('TradingAccounts'/_1387080/realized/withoutCurrencyMovement) :- !.
-is_valid_role('TradingAccounts'/_1387168/realized/onlyCurrencyMovement) :- !.
-is_valid_role('TradingAccounts'/_1387256/unrealized/withoutCurrencyMovement) :- !.
-is_valid_role('TradingAccounts'/_1387344/unrealized/onlyCurrencyMovement) :- !.
-is_valid_role('TradingAccounts'/Trading_Account_Id/Realized_Or_Unrealized/Currency_Movement_Aspect/Traded_Unit) :-
-	!,
-	freeze(Id, atom(Trading_Account_Id)),
-	member(Realized_Or_Unrealized, [realized, unrealized]),
-	member(Currency_Movement_Aspect, [onlyCurrencyMovement, withoutCurrencyMovement]),
-	freeze(Id, atom(Traded_Unit)).
-
-is_valid_role('ComprehensiveIncome') :- !.
-is_valid_role('HistoricalEarnings') :- !.
-is_valid_role('CurrentEarnings') :- !.
-is_valid_role('NetAssets') :- !.
-is_valid_role('Equity') :- !.
-is_valid_role('CurrencyMovement') :- !.
-is_valid_role('CurrencyMovement'/Id) :- !, freeze(Id, atom(Id)).
-is_valid_role('CashAndCashEquivalents') :- !.
-is_valid_role('FinancialInvestments'/Id) :- !, freeze(Id, atom(Id)).
-
-/*
-┏┳┓╻┏━┓┏━╸
-┃┃┃┃┗━┓┃
-╹ ╹╹┗━┛┗━╸
-*/
-
-/*
- acc(Role, Account) :-
-	(	Role = name(Name)
-	->	account_by_ui(Name, Account)
-	;	abrlt(Role, Account).
-*/
- abrlt(Role, Account) :-
-
-	%!is_valid_role(Role),
-
-	!(	is_valid_role(Role)
-	->	true
-	;	true/*format(user_error, '~q.~n', [is_valid_role(Role)])*/),
-
-	account_by_role_throw(rl(Role), Account).
-
- ensure_system_accounts_exist(S_Transactions) :-
-	!ensure_bank_gl_accounts_exist,
-	!subcategorize_by_bank,
-	!ensure_livestock_accounts_exist,
-	!traded_units(S_Transactions, Traded_units),
-	!ensure_financial_investments_accounts_exist(Traded_units),
-	!subcategorize_by_investment(Traded_units),
-	!subcategorize_distribution_received,
-	!'ensure InvestmentIncome accounts exist'(Traded_units),
-	!ensure_smsf_equity_tree,
-	!subcategorize_by_smsf_members.
+ 'ensure system accounts exist'(S_Transactions) :-
+ 	assertion(ground(S_Transactions)),
+	!cf(ensure_bank_gl_accounts_exist), % fixme also use S_Transactions to take extract_german_bank_csv0 into account?
+	!cf(subcategorize_by_bank),
+	!cf(ensure_livestock_accounts_exist),
+	!cf(traded_units(S_Transactions, Traded_units)),
+	!cf(ensure_financial_investments_accounts_exist(Traded_units)),
+	!cf(subcategorize_by_investment(Traded_units)),
+	!cf(subcategorize_distribution_received),
+	!cf('ensure Investment_Income accounts exist'(Traded_units)),
+	!cf(ensure_smsf_equity_tree),
+	!cf(subcategorize_by_smsf_members).
 
  make_root_account :-
 	make_account2(root, 0, rl(root), _Root),
@@ -90,6 +39,7 @@ asset GL accounts corresponding to bank accounts
 */
 
  ensure_bank_gl_accounts_exist :-
+ 	/* fixme: extract_german_bank_csv0 is ignored */
 	bank_account_names(Bank_Account_Names),
 	maplist(ensure_bank_gl_account_exists, Bank_Account_Names, Bank_Gl_Account),
 	maplist(ensure_currency_movement_account_exists, Bank_Gl_Account).
@@ -100,29 +50,29 @@ asset GL accounts corresponding to bank accounts
  ensure_currency_movement_account_exists(Bank_Gl_Account) :-
 	/* get Bank_name from role. It would probably be cleaner to get it from the same source where we get it when creating the bank gl accounts */
 	account_role(Bank_Gl_Account, rl(_/Bank_name)),
-	ensure_account_exists($>abrlt('CurrencyMovement'), _, 0, rl('CurrencyMovement'/Bank_name), _).
+	ensure_account_exists($>abrlt('Currency_Movement'), _, 0, rl('Currency_Movement'/Bank_name), _).
 
  bank_gl_accounts(Bank_Accounts) :-
 	findall(A, account_by_role(A, rl('Banks'/_Bank_Account_Name)), Bank_Accounts).
 
  bank_gl_account_currency_movement_account(Bank_Gl_Account, Currency_Movement_Account) :-
 	account_role(Bank_Gl_Account, rl(_/Bank_name)),
-	abrlt('CurrencyMovement'/Bank_name, Currency_Movement_Account).
+	abrlt('Currency_Movement'/Bank_name, Currency_Movement_Account).
 
  bank_gl_account_by_bank_name(Account_Name, Uri) :-
 	account_by_role_throw(rl('Banks'/Account_Name), Uri).
 
 %----
 
-subcategorize_by_bank :-
+ subcategorize_by_bank :-
  	findall(A, doc(A, accounts:subcategorize_by_bank, true, accounts), As),
  	maplist(subcategorize_by_bank3, As).
 
-subcategorize_by_bank3(A) :-
+ subcategorize_by_bank3(A) :-
 	bank_account_names(Bank_Account_Names),
 	maplist(subcategorize_by_bank6(A), Bank_Account_Names).
 
-subcategorize_by_bank6(A, Bank_Account_Name) :-
+ subcategorize_by_bank6(A, Bank_Account_Name) :-
 	account_name(A, Name),
 	ensure_account_exists(A, _, 1, rl(Name/Bank_Account_Name), _).
 
@@ -146,14 +96,14 @@ create livestock-specific accounts that are missing in user account hierarchy.
 	count_account_id(Livestock_Type, Count_Name),
 	cogs_rations_account_id(Livestock_Type, CogsRations_Name),
 
-	account_by_role_throw(rl('CostOfGoodsLivestock'), CostOfGoodsLivestock),
-	account_by_role_throw(rl('SalesOfLivestock'), SalesOfLivestock),
-	account_by_role_throw(rl('LivestockCount'), LivestockCount),
+	account_by_role_throw(rl('Cost_of_Goods_Livestock'), Cost_of_Goods_Livestock),
+	account_by_role_throw(rl('Sales_of_Livestock'), Sales_of_Livestock),
+	account_by_role_throw(rl('Livestock_Count'), Livestock_Count),
 
-	ensure_account_exists(CostOfGoodsLivestock, Cogs_Name, 0, rl('CostOfGoodsLivestock'/Livestock_Type), Cogs_uri),
-	ensure_account_exists(SalesOfLivestock, Sales_Name, 0, rl('SalesOfLivestock'/Livestock_Type), _),
-	ensure_account_exists(LivestockCount, Count_Name, 0, rl('LivestockCount'/Livestock_Type), _),
-	ensure_account_exists(Cogs_uri, CogsRations_Name, 0, rl('CostOfGoodsLivestock'/Livestock_Type/'Rations'), _).
+	ensure_account_exists(Cost_of_Goods_Livestock, Cogs_Name, 0, rl('Cost_of_Goods_Livestock'/Livestock_Type), Cogs_uri),
+	ensure_account_exists(Sales_of_Livestock, Sales_Name, 0, rl('Sales_of_Livestock'/Livestock_Type), _),
+	ensure_account_exists(Livestock_Count, Count_Name, 0, rl('Livestock_Count'/Livestock_Type), _),
+	ensure_account_exists(Cogs_uri, CogsRations_Name, 0, rl('Cost_of_Goods_Livestock'/Livestock_Type/'Rations'), _).
 
  cogs_account_id(Livestock_Type, Cogs_Account) :-
 	atom_concat(Livestock_Type, 'Cogs', Cogs_Account).
@@ -168,16 +118,16 @@ create livestock-specific accounts that are missing in user account hierarchy.
 	atom_concat(Livestock_Type, 'Count', Count_Account).
 
  livestock_count_account(Livestock_Type, Count_Account) :-
-	account_by_role_throw(rl('LivestockCount'/Livestock_Type), Count_Account).
+	account_by_role_throw(rl('Livestock_Count'/Livestock_Type), Count_Account).
 
  livestock_sales_account(Livestock_Type, Sales_Account) :-
-	account_by_role_throw(rl('SalesOfLivestock'/Livestock_Type), Sales_Account).
+	account_by_role_throw(rl('Sales_of_Livestock'/Livestock_Type), Sales_Account).
 
  livestock_cogs_rations_account(Livestock_Type, Cogs_Rations_Account) :-
-	account_by_role_throw(rl('CostOfGoodsLivestock'/Livestock_Type/'Rations'), Cogs_Rations_Account).
+	account_by_role_throw(rl('Cost_of_Goods_Livestock'/Livestock_Type/'Rations'), Cogs_Rations_Account).
 
  livestock_cogs_account(Livestock_Type, Cogs_Account) :-
-	account_by_role_throw(rl('CostOfGoodsLivestock'/Livestock_Type), Cogs_Account).
+	account_by_role_throw(rl('Cost_of_Goods_Livestock'/Livestock_Type), Cogs_Account).
 
 /*
 ┏━╸╻┏┓╻┏━┓┏┓╻┏━╸╻┏━┓╻  ╻┏┓╻╻ ╻┏━╸┏━┓╺┳╸┏┳┓┏━╸┏┓╻╺┳╸┏━┓
@@ -191,13 +141,13 @@ in Assets
 	maplist(ensure_financial_investments_accounts_exist2(Traded_Units), Names).
 
  ensure_financial_investments_accounts_exist2(Traded_Units, Id) :-
-	Role0 = 'FinancialInvestments'/Id,
-	!abrlt(Role0, FinancialInvestments),
-	!maplist(ensure_FinancialInvestments_Unit(FinancialInvestments), Traded_Units).
+	Role0 = 'Financial_Investments'/Id,
+	!abrlt(Role0, Financial_Investments),
+	!maplist(ensure_FinancialInvestments_Unit(Financial_Investments), Traded_Units).
 
- ensure_FinancialInvestments_Unit(FinancialInvestments, Unit) :-
- 	account_name(FinancialInvestments, Name),
- 	subcategorize_by_investment6(FinancialInvestments, 'FinancialInvestments'/Name, Unit).
+ ensure_FinancialInvestments_Unit(Financial_Investments, Unit) :-
+ 	account_name(Financial_Investments, Name),
+ 	subcategorize_by_investment6(Financial_Investments, 'Financial_Investments'/Name, Unit).
 
 %-----
 
@@ -243,30 +193,35 @@ in Assets
 		account_parent(Uri, Parent)
 	)
 	->	true
-	;	make_account_with_optional_role(Name, Parent, 1, _Role, Uri).
+	;	c(make_account_with_optional_role(Name, Parent, 1, _Role, Uri)).
 
 %------
 
 subcategorize_distribution_received :-
-	findall(A, account_role(A, rl('Distribution Received'/_)), As),
+	findall(A, account_role(A, rl('Distribution_Revenue'/_)), As),
 	maplist(subcategorize_distribution_received2, As).
 
 subcategorize_distribution_received2(A) :-
 	maplist(subcategorize_distribution_received4(A), [
-		'Resolved Accrual',
-		'Foreign Credit',
-		'Franking Credit'
+		'Distribution_Cash',
+		'Resolved_Accrual',
+		'Foreign_Credit',
+		'Franking_Credit',
+		'TFN/ABN_Withholding_Tax'
 	]).
 
 subcategorize_distribution_received4(A, Subcategorization) :-
-	account_role(A, rl('Distribution Received'/Unit)),
-	ensure_account_exists(A, Subcategorization, 1, rl('Distribution Received'/Unit/Subcategorization), _).
+	account_role(A, rl('Distribution_Revenue'/Unit)),
+	ensure_account_exists(A, Subcategorization, 1, rl('Distribution_Revenue'/Unit/Subcategorization), _).
 
 %------
 
  financial_investments_account(Exchanged_Account_Uri,Goods_Unit,Exchanged_Account2) :-
-	account_name(Exchanged_Account_Uri, Exchanged_Account_Id),
-	account_by_role_throw(rl('FinancialInvestments'/Exchanged_Account_Id/Goods_Unit), Exchanged_Account2).
+	!account_name(Exchanged_Account_Uri, Exchanged_Account_Id),
+	Rl = rl('Financial_Investments'/Exchanged_Account_Id/Goods_Unit),
+ 	push_context($>format(string(<$), 'find child account of ~q for unit ~q', [Exchanged_Account_Id, Goods_Unit])),
+	account_by_role_throw(Rl, Exchanged_Account2),
+	pop_context.
 
 /*
 ╻┏┓╻╻ ╻┏━╸┏━┓╺┳╸┏┳┓┏━╸┏┓╻╺┳╸╻┏┓╻┏━╸┏━┓┏┳┓┏━╸
@@ -275,36 +230,36 @@ subcategorize_distribution_received4(A, Subcategorization) :-
 */
 /*experimentally naming predicates just "pxx" here for readability*/
 
- 'ensure InvestmentIncome accounts exist'(Traded_Units) :-
+ 'ensure Investment_Income accounts exist'(Traded_Units) :-
  	(	Traded_Units = []
  	->	true
  	;	(
-			!investmentIncome_accounts(Uis),
+			!cf(investmentIncome_accounts(Uis)),
 			maplist(p10(Traded_Units), Uis)
 		)).
 p10(Traded_Units, Uis) :-
 	maplist(p20(Traded_Units,Uis), [realized,unrealized]).
 p20(Traded_Units,Trading_Account_Id, R) :-
-	abrlt('TradingAccounts'/Trading_Account_Id, Trading_Account),
-	ensure_account_exists(Trading_Account, _, 0, rl('TradingAccounts'/Trading_Account_Id/R), Realization_account),
+	abrlt('Trading_Accounts'/Trading_Account_Id, Trading_Account),
+	ensure_account_exists(Trading_Account, _, 0, rl('Trading_Accounts'/Trading_Account_Id/R), Realization_account),
 	maplist(p30(Traded_Units, Trading_Account_Id, R, Realization_account), [withoutCurrencyMovement, onlyCurrencyMovement]).
 p30(Traded_Units,Trading_Account_Id, R, Realization_account, Cm) :-
-	ensure_account_exists(Realization_account, _, 0, rl('TradingAccounts'/Trading_Account_Id/R/Cm), Cm_account),
+	ensure_account_exists(Realization_account, _, 0, rl('Trading_Accounts'/Trading_Account_Id/R/Cm), Cm_account),
 	maplist(p40(Trading_Account_Id,R,Cm,Cm_account), Traded_Units).
 p40(Trading_Account_Id,R,Cm,Cm_account, Traded_Unit) :-
-	ensure_account_exists(Cm_account, _, 1, rl('TradingAccounts'/Trading_Account_Id/R/Cm/Traded_Unit), _).
+	ensure_account_exists(Cm_account, _, 1, rl('Trading_Accounts'/Trading_Account_Id/R/Cm/Traded_Unit), _).
 
  trading_sub_account((Movement_Account, Unit_Accounts)) :-
-	account_by_role(rl('TradingAccounts'/_/_/_), Movement_Account),
+	account_by_role(rl('Trading_Accounts'/_/_/_), Movement_Account),
 	account_direct_children(Movement_Account, Unit_Accounts).
 
  gains_accounts(
 	/*input*/ Trading_Account, Realized_Or_Unrealized, Traded_Unit,
 	/*output*/ Currency_Movement_Account, Excluding_Forex_Account
 ) :-
-	account_role(Trading_Account, rl('TradingAccounts'/Id)),
-	abrlt('TradingAccounts'/Id/Realized_Or_Unrealized/onlyCurrencyMovement/Traded_Unit, Currency_Movement_Account),
-	abrlt('TradingAccounts'/Id/Realized_Or_Unrealized/withoutCurrencyMovement/Traded_Unit, Excluding_Forex_Account).
+	account_role(Trading_Account, rl('Trading_Accounts'/Id)),
+	abrlt('Trading_Accounts'/Id/Realized_Or_Unrealized/onlyCurrencyMovement/Traded_Unit, Currency_Movement_Account),
+	abrlt('Trading_Accounts'/Id/Realized_Or_Unrealized/withoutCurrencyMovement/Traded_Unit, Excluding_Forex_Account).
 
 
 
@@ -314,11 +269,11 @@ rl__TradingAccounts__Trading_Account_Id__Realized_Or_Unrealized__onlyCurrencyMov
 
 ---or:
 
-$>rc('TradingAccounts'/Trading_Account_Id/Realized_Or_Unrealized/withoutCurrencyMovement/Traded_Unit)
+$>rc('Trading_Accounts'/Trading_Account_Id/Realized_Or_Unrealized/withoutCurrencyMovement/Traded_Unit)
 because:
 rc(X,X) :- role(X).
 and:
-role('TradingAccounts'/Trading_Account_Id/Realized_Or_Unrealized/withoutCurrencyMovement/Traded_Unit).
+role('Trading_Accounts'/Trading_Account_Id/Realized_Or_Unrealized/withoutCurrencyMovement/Traded_Unit).
 or:
  :-
  	member(Realized_Or_Unrealized, [...]),
@@ -346,16 +301,23 @@ ensure_smsf_equity_tree3(Root) :-
 	% find leaf accounts
 	findall(A,
 		(
+			assertion(ground(Root)),
 			account_in_set(A, Root),
-			\+account_parent(_, A)
+			assertion(ground(A)),
+			/* just leaf accounts */
+			\+account_parent(_, A),
+			\+doc(A, accounts:smsf_member, _, accounts)
 		),
 		As
 	),
+	assertion(ground(As)),
 	maplist(ensure_smsf_equity_tree6, As).
 
 ensure_smsf_equity_tree6(A) :-
 	!smsf_members_throw(Members),
+	assertion(ground(Members)),
 	!account_name(A, Account),
+	assertion(ground(Account)),
 	maplist(subcategorize_by_smsf_member((Account), A), Members).
 
 
@@ -363,19 +325,91 @@ ensure_smsf_equity_tree6(A) :-
 
  subcategorize_by_smsf_members :-
  	findall(A, doc(A, accounts:subcategorize_by_smsf_member, true, accounts), As),
+	assertion(ground(As)),
  	maplist(!subcategorize_by_smsf_members3, As).
 
  subcategorize_by_smsf_members3(A) :-
 	!smsf_members_throw(Members),
+	assertion(ground(Members)),
 	!account_name(A, Account),
 	maplist(!subcategorize_by_smsf_member(Account, A), Members).
 
- subcategorize_by_smsf_member(Role_prefix, A, Member) :-
+ subcategorize_by_smsf_member(Role_prefix, Parent, Member) :-
+ 	assertion(ground((Role_prefix, Parent, Member))),
+ 	push_context(subcategorize_by_smsf_member),
 	!doc_value(Member, smsf:member_name, Member_Name_str),
 	atom_string(Member_Name, Member_Name_str),
-	ensure_account_exists(A, _, 1, rl(Role_prefix/Member_Name), _).
+	ensure_account_exists(Parent, _, 1, rl(Role_prefix/Member_Name), Result),
+	assertion(ground(Result)),
+	!doc_add(Result, accounts:smsf_member, Member_Name, accounts),
+	!copy_attrs(Parent, [
+			accounts:is_smsf_equity_opening_balance,
+			accounts:smsf_phase,
+			accounts:smsf_taxability
+		],
+		Result, accounts
+	),
+	pop_context.
+
+copy_attrs(X, Preds, Y, Graph) :-
+	assertion(ground((X,Y,Graph,Preds))),
+	maplist(copy_attrs2(X, Y, Graph), Preds).
+copy_attrs2(X, Y, Graph, Pred) :-
+	(	doc(X, Pred, V, Graph)
+	->	doc_add(Y, Pred, V, Graph)
+	;	true).
 
 %------
 
 
 /*					<!-- todo: we should allow multiple roles on one account -->*/
+
+
+/*note:we form roles from ids, so the id should be unique in this context. eg, if there are two different accounts with id "Investments", this will break. The alternative is to use full uri, or to introduce account codes, or similar. This problem goes all the way to the excel UI, where action verbs have fields for accounts. Id's are used, and we expect them to be unique, but account names in big hierarchies aren't unique. So how would a user specify an account unambiguously? Either specify the unique code directly, or the ui has to have a sheet with the mapping, or there has to be a menu item that makes a request to the endpoint to load taxonomies and return back some rdf with the mapping... */
+
+
+/*
+╻┏━┓   ╻ ╻┏━┓╻  ╻╺┳┓   ┏━┓┏━┓╻  ┏━╸
+┃┗━┓   ┃┏┛┣━┫┃  ┃ ┃┃   ┣┳┛┃ ┃┃  ┣╸
+╹┗━┛╺━╸┗┛ ╹ ╹┗━╸╹╺┻┛╺━╸╹┗╸┗━┛┗━╸┗━╸
+*/
+
+% could be also called from make_account or account_set_role. the goal is that all code paths that construct roles will go through this.
+% probably the semantics should be such that it can be skipped for optimization.
+% in the end it turns out, we have roles that are constructed from account names, so any atom is a valid role. This hinders checking.
+
+is_valid_role(X) :- atom(X), !.
+is_valid_role('Banks'/Id) :- !,freeze(Id, atom(Id)).
+is_valid_role('Trading_Accounts'/Trading_Account_Id) :- !,
+	freeze(Trading_Account_Id, atom(Trading_Account_Id)).
+is_valid_role('Trading_Accounts'/_1387496/unrealized) :- !.
+is_valid_role('Trading_Accounts'/_1387572/realized) :- !.
+is_valid_role('Trading_Accounts'/_1387080/realized/withoutCurrencyMovement) :- !.
+is_valid_role('Trading_Accounts'/_1387168/realized/onlyCurrencyMovement) :- !.
+is_valid_role('Trading_Accounts'/_1387256/unrealized/withoutCurrencyMovement) :- !.
+is_valid_role('Trading_Accounts'/_1387344/unrealized/onlyCurrencyMovement) :- !.
+is_valid_role('Trading_Accounts'/Trading_Account_Id/Realized_Or_Unrealized/Currency_Movement_Aspect/Traded_Unit) :-
+	!,
+	freeze(Id, atom(Trading_Account_Id)),
+	member(Realized_Or_Unrealized, [realized, unrealized]),
+	member(Currency_Movement_Aspect, [onlyCurrencyMovement, withoutCurrencyMovement]),
+	freeze(Id, atom(Traded_Unit)).
+is_valid_role('Currency_Movement'/Id) :- !, freeze(Id, atom(Id)).
+is_valid_role('Financial_Investments'/Id) :- !, freeze(Id, atom(Id)).
+
+is_valid_role('Distribution_Receivable'/_).
+is_valid_role('Opening_Balance_-_Preserved/Taxable'/_).
+is_valid_role('Opening_Balance_-_Preserved/Tax-Free'/_).
+is_valid_role('Income_Tax_-_Preserved/Taxable'/_).
+is_valid_role('Share_of_Profit/(Loss)_-_Preserved/Taxable'/_).
+is_valid_role('Transfers_In_-_Preserved/Taxable'/_).
+is_valid_role('Employer_Contributions_-_Concessional'/_).
+is_valid_role('Contribution_Tax_-_Preserved/Taxable'/_).
+is_valid_role('Income_Tax_-_Preserved/Taxable'/_).
+is_valid_role('Distribution_Revenue'/_).
+is_valid_role('Contribution_Received'/_).
+is_valid_role('Interest_Received_-_by_Bank'/_).
+is_valid_role('Contribution_Received'/_).
+is_valid_role(_/Member) :- atom_string(Member, Str), smsf_members_throw(Members), member(Str, Members), !.
+is_valid_role(smsf_equity).
+

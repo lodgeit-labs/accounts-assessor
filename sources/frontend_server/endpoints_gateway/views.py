@@ -13,20 +13,20 @@ import json
 
 
 import celery
-celery_app = celery.Celery()
 import celeryconfig
-celery_app.config_from_object(celeryconfig)
+celery_app = celery.Celery(config_source = celeryconfig)
 
 
 from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import render
-from django.http import HttpResponseRedirect, JsonResponse
+from django.http import HttpResponseRedirect, JsonResponse, HttpResponse
 from django.http.request import QueryDict
 from endpoints_gateway.forms import ClientRequestForm
 from fs_utils import directory_files, save_django_uploaded_file, save_django_form_uploaded_file
 from tmp_dir_path import create_tmp
 import call_prolog_calculator
+import logging
 
 
 def tmp_file_url(server_url, tmp_dir_name, fn):
@@ -38,9 +38,16 @@ def sparql_proxy(request):
 	if request.method == 'POST':
 		return JsonResponse({"x":agraph.agc().executeGraphQuery(request.body)})
 
+@csrf_exempt
+def rdf_templates(request):
+	import time
+	time.sleep(2)
+	return HttpResponse(open(os.path.abspath('../static/RdfTemplates.n3'), 'r').read(), content_type="text/rdf+n3")
 
 @csrf_exempt
 def upload(request):
+	rrr = request._current_scheme_host.split(':')
+	#server_url = rrr[0] + ':' + rrr[1] + ':80' + rrr[2][-2:]
 	server_url = request._current_scheme_host
 	params = QueryDict(mutable=True)
 	params.update(request.POST)
@@ -67,7 +74,9 @@ def upload(request):
 
 			if 'only_store' in request.POST:
 				return render(request, 'uploaded_files.html', {
-					'files': [tmp_file_url(server_url, request_tmp_directory_name, f) for f in directory_files(request_tmp_directory_path)]})
+					'files': [tmp_file_url(server_url, request_tmp_directory_name, f) for f in
+							  directory_files(request_tmp_directory_path)]})
+
 
 			final_result_tmp_directory_name, final_result_tmp_directory_path = create_tmp()
 			try:
@@ -77,23 +86,26 @@ def upload(request):
 					request_tmp_directory_name=request_tmp_directory_name,
 					server_url=server_url,
 					request_files=request_files_in_tmp,
-					timeout_seconds=20,
+					timeout_seconds=15,
 					final_result_tmp_directory_name=final_result_tmp_directory_path
 				)
 			except celery.exceptions.TimeoutError:
 				if requested_output_format == 'json_reports_list':
-					return JsonResponse(
-					{
-						'alerts': ['task is still processing..'],
-						"reports":
-						[{
-							"title": "frontend_server_timeout",
-							"key": "please refresh",
-							"val":{"url": tmp_file_url(server_url, final_result_tmp_directory_name, '')}}
-						]
-					})
+					pass
 				else:
 					raise
+
+			if requested_output_format == 'json_reports_list':
+				return JsonResponse(
+				{
+					'alerts': ['task is still processing..'],
+					"reports":
+					[{
+						"title": "frontend_server_timeout",
+						"key": "please refresh",
+						"val":{"url": tmp_file_url(server_url, final_result_tmp_directory_name, '')}}
+					]
+				})
 			if requested_output_format == 'xml':
 				return HttpResponseRedirect('/tmp/' + response_tmp_directory_name + '/response.xml')
 			else:
@@ -114,20 +126,31 @@ def upload(request):
 #  ┗━╸╹ ╹╹ ╹ ╹
 
 def sbe(request):
+	params = json.loads(request.body)
+	params['type'] = "sbe"
 	return json_prolog_rpc_call({
-		"method": "sbe",
-		"params": json.loads(request.body)
+		"method": 'chat',
+		"params": params
 	})
 
 def residency(request):
+	params = json.loads(request.body)
+	params['type'] = "residency"
 	return json_prolog_rpc_call({
-		"method": "residency",
+		"method": 'chat',
+		"params": params
+	})
+
+def chat(request):
+	return json_prolog_rpc_call({
+		"method": "chat",
 		"params": json.loads(request.body)
 	})
 
 def json_prolog_rpc_call(msg):
 	#try:
-	return JsonResponse(celery_app.signature('tasks.invoke_rpc.call_prolog').apply_async(msg).get()[1])
+	logging.getLogger().warn(msg)
+	return JsonResponse(celery_app.signature('invoke_rpc.call_prolog').apply_async([msg]).get()[1])
 	#except json.decoder.JSONDecodeError as e:
 	#	return HttpResponse(status=500)
 

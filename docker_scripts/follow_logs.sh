@@ -1,8 +1,10 @@
 #!/usr/bin/env fish
 
-docker service logs -f robust_agraph  &
-docker service logs -f robust_frontend-server  &
-docker service logs -f robust_internal-workers &
-docker service logs -f robust_internal-services
+set DIR (dirname (readlink -m (status --current-filename)))
+cd "$DIR"
 
 
+set PP $argv[1]
+
+docker service logs -f robust"$PP"_agraph  &
+./follow_logs.sh

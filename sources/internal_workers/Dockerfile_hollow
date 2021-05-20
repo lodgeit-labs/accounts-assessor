@@ -1,0 +1,120 @@
+FROM ubuntu:18.04
+
+
+#RUN sed -i -e 's/http:\/\/archive/mirror:\/\/mirrors/' -e 's/\/ubuntu\//\/mirrors.txt/' /etc/apt/sources.list
+RUN cat /etc/apt/sources.list
+env LOC en_AU.UTF-8
+RUN apt-get update \
+    && DEBIAN_FRONTEND=noninteractive apt-get install -y locales language-pack-en unattended-upgrades \
+    && sed -i -e 's/# $LOC UTF-8/$LOC UTF-8/' /etc/locale.gen \
+    && dpkg-reconfigure --frontend=noninteractive locales \
+    && update-locale LANG=$LOC
+ENV LANG $LOC
+ENV LC_ALL $LOC
+
+
+RUN     apt-get install -y \
+		time \
+        git \
+        build-essential cmake ninja-build pkg-config \
+        ncurses-dev libreadline-dev libedit-dev \
+        libunwind-dev \
+        libgmp-dev \
+        libssl-dev \
+        unixodbc-dev \
+        zlib1g-dev libarchive-dev \
+        libossp-uuid-dev \
+        libxext-dev libice-dev libjpeg-dev libxinerama-dev libxft-dev \
+        libxpm-dev libxt-dev \
+        libdb-dev \
+        libpcre3-dev \
+        libyaml-dev \
+        python3 python3-pip
+
+RUN     unattended-upgrade \
+        && rm -rf /var/lib/apt/lists/*
+
+RUN uname -a
+RUN gcc -v
+
+
+
+
+RUN mkdir /app
+WORKDIR /app
+
+
+
+
+
+#RUN git clone --branch V8.3.10 https://github.com/SWI-Prolog/swipl.git swipl
+#RUN git clone --branch V8.1.15 https://github.com/SWI-Prolog/swipl.git swipl
+#RUN git clone --recurse-submodules  --depth 1 -b V8.3.18  "https://github.com/SWI-Prolog/swipl-devel.git" 	 swipl
+
+
+
+
+RUN git clone --recurse-submodules  --depth 1 -b V8.3.18  "https://github.com/SWI-Prolog/swipl-devel.git"       swipl
+
+
+#RUN git clone "https://github.com/SWI-Prolog/swipl-devel.git" 	 swipl
+WORKDIR swipl
+#RUN git reset 32f8079a1c6d9651d0825dcadce9f80231b01648 --hard
+RUN git submodule update --init --recursive
+
+
+
+
+
+#RUN git checkout V8.3.20
+#RUN git checkout 9defc51a1e328f095c6e51bb41693d2115ab0cff
+#RUN git checkout 6d26b69c9f1ce6304683e86afc5bcf1621150524
+#RUN git submodule update --init --recursive
+
+
+
+
+WORKDIR packages/xpce
+RUN true
+RUN git remote add koo5 https://github.com/koo5/packages-xpce.git #
+RUN git fetch koo5
+RUN git cherry-pick -n koo5/more_eye_friendly_gtrace_color_theme5
+
+
+WORKDIR /app/swipl
+RUN mkdir build
+WORKDIR build
+RUN cmake -G Ninja ..
+RUN ninja
+RUN ctest -j 8 --output-on-failure
+RUN ninja install
+
+
+
+#RUN groupadd -r user && useradd -r -g user user
+WORKDIR /app
+
+
+
+COPY requirements.txt .
+RUN pip3 install --no-cache-dir -r requirements.txt
+
+
+COPY init_prolog.sh .
+RUN ./init_prolog.sh
+
+RUN mkdir -p /app/server_root
+#RUN chown user:user /app/server_root
+VOLUME /app/server_root
+VOLUME /app/cache
+#USER user
+VOLUME /app/sources/
+WORKDIR /app/sources/internal_workers
+VOLUME /root/.config/swi-prolog/xpce/
+
+ENV PYTHONUNBUFFERED true
+ENV CELERY_QUEUE_NAME=q7788
+ENV DETERMINANCY_CHECKER__USE__ENFORCER=true
+
+ENTRYPOINT ["./start.sh"]
+CMD ["-n", "worker7788", "--loglevel=INFO"]

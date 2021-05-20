@@ -1,5 +1,10 @@
 :- use_module(library(uri)).
 
+/*
+fixme:
+doesnt assert l:bank_account currenty
+*/
+
 extract_german_bank_csv0(Bn, S_Transactions) :-
 	doc_value(Bn, ic:url, Url0),
 	trim_string(Url0, Url),
@@ -53,7 +58,7 @@ german_bank_csv_row(Account, Currency, Row, S_Transaction) :-
 			Exchanged2 = vector(E2)
 		)
 	),
-	doc_add_s_transaction(Date, Verb, Vector, Account, Exchanged2, misc{desc2:Description,desc3:Description_Column2}, S_Transaction).
+	doc_add_s_transaction(Date, Verb, Vector, bank_account_name(Account), Exchanged2, misc{desc2:Description,desc3:Description_Column2}, S_Transaction).
 
 german_bank_money(Money_Atom0, Money_Number) :-
 	filter_out_chars_from_atom(([X]>>(X == '\'')), Money_Atom0, Money_Atom1),

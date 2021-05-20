@@ -3,12 +3,13 @@
 *.sln.iml
 **/__pycache__/
 **/*.pyc
-*.xlsx#
+**/*.xlsx#
 .#*
-*.swp
+**/*.swp
 cache/*
 .vscode
 **/venv/
 *.ods#
 .~lock.*
 #secret*.json
+**/emacs_server.0

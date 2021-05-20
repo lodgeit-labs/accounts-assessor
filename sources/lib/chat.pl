@@ -1,4 +1,4 @@
-:- module(chat, [response/4, preprocess/4, history_json_to_tuples/2, match_response_with_last_question/3]).
+:- module(chat, [chat_response/4, chat_preprocess/4, history_json_to_tuples/2, match_response_with_last_question/3]).
 
 /*
 swipl version 8 required.
@@ -20,13 +20,13 @@ alternative framework: https://www.d3web.de/Wiki.jsp?page=Bike%20Diagnosis
 */
 
 
-response(NextQuestionId, NextPrompt, History, Out) :-
+chat_response(NextQuestionId, NextPrompt, History, Out) :-
 	Out = dict{question: NextPrompt, state: NewHistory},
 	append(History, [dict{
 		question_id: NextQuestionId, 
 		response: -1}], NewHistory). 
 
-preprocess(In, History, CurrentQuestionId, HistoryTuples) :-
+chat_preprocess(In, History, CurrentQuestionId, HistoryTuples) :-
 	match_response_with_last_question(In, History, CurrentQuestionId),
 	history_json_to_tuples(History, HistoryTuples).
 
@@ -37,7 +37,9 @@ history_json_to_tuples([Json|JsonRest], [Tuple|TuplesRest]) :-
 
 history_json_to_tuples([], []).
 
-match_response_with_last_question(dict{current_state: History, response: Response}, HistoryWithResponse, CurrentQuestionId) :-
+match_response_with_last_question(In, HistoryWithResponse, CurrentQuestionId) :-
+	get_dict(current_state, In, History),
+	get_dict(response, In, Response),
 	LastQuestion = dict{question_id: CurrentQuestionId, response: -1},
 	member(LastQuestion, History),
 	select(LastQuestion, History, History2),
@@ -64,5 +66,8 @@ koom@koom-KVM ~/l/src> curl -d '{"current_state":[{"response": -1, "question_id"
     {"question_id":1, "response":-1}
   ]
 }
+
+or:
+ {'status': 'error'}
 ...
 */

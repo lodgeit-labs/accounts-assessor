@@ -5,12 +5,12 @@
  vec_sum_with_proof(Vec, Sum) :-
 	maplist([Uri, Lit]>>(doc(Uri, rdf:value, Lit)), Vec, Vec_Lits),
 	vec_sum(Vec_Lits, Sum_Lit),
-	doc_new_(rdf:vec, Sum),
+	doc_new_(l:vec, Sum),
 	doc_add(Sum, rdf:value, Sum_Lit),
 	maplist(doc_add(Sum, l:has_part), Vec).
 
 doc_new_vec_with_source(Vec, Source, Vec_Uri) :-
-	!doc_new_(rdf:vec, Vec_Uri),
+	!doc_new_(l:vec, Vec_Uri),
 	!doc_add(Vec_Uri, rdf:value, Vec),
 	!doc_add(Vec_Uri, l:source, Source).
 
@@ -29,4 +29,4 @@ link(Uri, Link) :-
 	result(Result),
 	doc(Result, l:rdf_explorer_base, Rdf_explorer_base),
 	atomic_list_concat([Rdf_explorer_base, '<', Uri, '>'], Uri2),
-	Link = a(href=Uri2, [small('⍰')]).
+	Link = a(href=Uri2, [small("⍰")]).

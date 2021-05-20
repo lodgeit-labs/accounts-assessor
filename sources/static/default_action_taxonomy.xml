@@ -1,42 +1,42 @@
 <actionTaxonomy>
       <action>
         <id>Transfers</id>
-        <exchangeAccount>ClearingAccount</exchangeAccount>
+        <exchangeAccount>Transfers</exchangeAccount>
       </action>
 
       <action>
         <id>Invest_In</id>
         <description>Shares</description>
-        <exchangeAccount>FinancialInvestments</exchangeAccount>
-        <tradingAccount>InvestmentIncome</tradingAccount>
+        <exchangeAccount>Financial_Investments</exchangeAccount>
+        <tradingAccount>Investment_Income</tradingAccount>
       </action>
 
       <action>
         <id>Dispose_Of</id>
         <description>Shares</description>
-        <exchangeAccount>FinancialInvestments</exchangeAccount>
-        <tradingAccount>InvestmentIncome</tradingAccount>
+        <exchangeAccount>Financial_Investments</exchangeAccount>
+        <tradingAccount>Investment_Income</tradingAccount>
       </action>
 
       <action>
         <id>Bank_Charges</id>
-        <exchangeAccount>BankCharges</exchangeAccount>
+        <exchangeAccount>Bank_Charges</exchangeAccount>
       </action>
 
       <action>
         <id>Expenses</id>
-        <exchangeAccount>OtherExpenses</exchangeAccount>
+        <exchangeAccount>Other_Expenses</exchangeAccount>
       </action>
 
       <action>
         <id>Gain</id>
-        <exchangeAccount>OtherGain</exchangeAccount>
+        <exchangeAccount>Other_Gain</exchangeAccount>
       </action>
 
       <action>
         <id>Loss</id>
         <description>No Description</description>
-        <exchangeAccount>ShareCapital</exchangeAccount>
+        <exchangeAccount>Share_Capital</exchangeAccount>
       </action>
 
       <action>
@@ -46,30 +46,30 @@
 
       <action>
         <id>Interest_Income</id>
-        <exchangeAccount>InterestIncome</exchangeAccount>
+        <exchangeAccount>Interest_Income</exchangeAccount>
       </action>
 
       <action>
         <id>Interest_Expenses</id>
-        <exchangeAccount>InterestExpenses</exchangeAccount>
+        <exchangeAccount>Interest_Expenses</exchangeAccount>
       </action>
 
       <action>
         <id>Borrow</id>
         <description></description>
-        <exchangeAccount>NoncurrentLoans</exchangeAccount>
+        <exchangeAccount>Non_Current_Loans</exchangeAccount>
       </action>
 
       <action>
         <id>Introduce_Capital</id>
         <description>Unit_Investment</description>
-        <exchangeAccount>ShareCapital</exchangeAccount>
+        <exchangeAccount>Share_Capital</exchangeAccount>
       </action>
 
       <action>
         <id>Pay_Bank</id>
         <description>No Description</description>
-        <exchangeAccount>BankCharges</exchangeAccount>
+        <exchangeAccount>Bank_Charges</exchangeAccount>
       </action>
 
       <action>
@@ -83,7 +83,7 @@
         <description>No Description</description>
         <exchangeAccount>Purchases</exchangeAccount>
         <gstRatePercent>10</gstRatePercent>
-        <gstReceivableAccount>GstReceivable</gstReceivableAccount>
+        <gstReceivableAccount>Gst_Receivable</gstReceivableAccount>
       </action>
 
       <action>
@@ -91,7 +91,7 @@
         <description>No Description</description>
         <exchangeAccount>Income</exchangeAccount>
         <gstRatePercent>10</gstRatePercent>
-        <gstPayableAccount>GstPayable</gstPayableAccount>
+        <gstPayableAccount>Gst_Payable</gstPayableAccount>
       </action>
 
 

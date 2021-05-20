@@ -1,198 +1,228 @@
 
-
-process_request_ledger(File_Path, Dom) :-
-	inner_xml(Dom, //reports/balanceSheetRequest, _),
-	!validate_xml2(File_Path, 'bases/Reports.xsd'),
-
-	Data = (Dom, Start_Date, End_Date, Output_Dimensional_Facts, Cost_Or_Market, Report_Currency),
-	!extract_request_details(Dom),
-	!extract_start_and_end_date(Dom, Start_Date, End_Date),
-	!extract_output_dimensional_facts(Dom, Output_Dimensional_Facts),
-	!extract_cost_or_market(Dom, Cost_Or_Market),
-	!extract_report_currency(Dom, Report_Currency),
-	!extract_action_verbs_from_bs_request(Dom),
-	!extract_s_transactions0(Dom, S_Transactions),
-
-	/*profile*/(!process_request_ledger2(Data, S_Transactions, _, _Transactions)).
-	%process_request_ledger_debug(Dom, S_Transactions).
-
-/* a little debugging facitliy that tries processing s_transactions one by one until it runs into an error */
-process_request_ledger_debug(Data, S_Transactions0) :-
-	findall(Count, ggg(Data, S_Transactions0, Count), Counts), writeq(Counts).
-
-ggg(Data, S_Transactions0, Count) :-
-	Count = 20000,
-	%between(100, $>length(S_Transactions0), Count),
-	take(S_Transactions0, Count, STs),
-	format(user_error, 'total s_transactions: ~q~n', [$>length(S_Transactions0)]),
-	format(user_error, '~q: ~q ~n ~n', [$>length(STs), $>last(STs)]),
-	profile(once(process_request_ledger2(Data, STs, _Structured_Reports, _))).
-	/*length(Structured_Reports.crosschecks.errors, L),
-	(	L \= 2
-	->	true
-	;	(g trace,format(user_error, '~q: ~q ~n', [Count, Structured_Reports.crosschecks.errors]))).*/
+/*
 
 
+state ( -> static data) -> structured reports ( -> crosschecks)
 
-process_request_ledger2((Dom, Start_Date, End_Date, Output_Dimensional_Facts, Cost_Or_Market, Report_Currency),   S_Transactions, Structured_Reports, Transactions) :-
-	%request(Request),
-	%doc_add(Request, l:kind, l:ledger_request),
-	!extract_accounts,
-	!extract_livestock_data_from_ledger_request(Dom),
-	!extract_exchange_rates(Cost_Or_Market, Dom, S_Transactions, Start_Date, End_Date, Report_Currency, Exchange_Rates),
-	!extract_invoices_payable(Dom),
-	!process_ledger(
-		Cost_Or_Market,
-		S_Transactions,
-		Start_Date,
-		End_Date,
-		Exchange_Rates,
-		Report_Currency,
-		Transactions,
-		Outstanding,
-		Processed_Until_Date),
-	/* if some s_transaction failed to process, there should be an alert created by now. Now we just compile a report up until that transaction. It would maybe be cleaner to do this by calling 'process_ledger' a second time */
-	dict_from_vars(Static_Data0,
-		[Cost_Or_Market,
-		Output_Dimensional_Facts,
-		Start_Date,
-		Exchange_Rates,
-		Transactions,
-		Report_Currency,
-		Outstanding
-	]),
-	Static_Data0b = Static_Data0.put([
-		end_date=Processed_Until_Date,
-		exchange_date=Processed_Until_Date
-	]),
-	!transactions_by_account(Static_Data0b, Transactions_By_Account1),
-	Static_Data1 = Static_Data0b.put([transactions_by_account=Transactions_By_Account1]),
+
+*/
+
+
+ process_request_ledger :-
+	ct(
+		'this is an Investment Calculator query',
+		doc($>request_data, ic_ui:report_details, _)
+	),
+ 	!ledger_initialization,
+ 	*valid_ledger_model,
+ 	ct('process_request_ledger is finished.').
+
+
+ ledger_initialization :-
+	!cf(extract_start_and_end_date),
+	!cf(stamp_result),
+	!cf(extract_report_parameters),
+	!cf(make_gl_viewer_report),
+	!cf(write_accounts_json_report),
+	!cf(extract_exchange_rates).
+
+ valid_ledger_model :-
+ 	initial_state(S0),
+
+	once(cf(generate_bank_opening_balances_sts(Bank_Lump_STs))),
+	cf('ensure system accounts exist 0'(Bank_Lump_STs)),
+
+	handle_sts(S0, Bank_Lump_STs, S2),
+	doc_add(S2, rdfs:comment, "with bank opening STSs"),
+
+	ct('phase: opening balance GL inputs',
+		/* todo implement cutoffs inside extract_gl_inputs */
+		(extract_gl_inputs(phases:opening_balance, Gl_input_txs),
+	 	handle_txs(S2, Gl_input_txs, S4))),
+	doc_add(S4, rdfs:comment, "with Gl_input_txs"),
+
 	(	account_by_role(rl(smsf_equity), _)
-	->	(
-			smsf_distributions_reports(_),
-			update_static_data_with_transactions(
-				Static_Data1,
-				$>!smsf_income_tax_stuff(Static_Data1),
-				Static_Data2)
+	->	ct('automated: SMSF rollover',
+			smsf_rollover0(S4, S6))
+	;	S4 = S6),
+
+ 	cf('phase: main 1'(S6, S7)),
+ 	doc_add(S7, rdfs:comment, "after main 1"),
+ 	cf('phase: main 2'(S7, S8)),
+ 	doc_add(S8, rdfs:comment, "after main 2"),
+
+	(	account_by_role(rl(smsf_equity), _)
+	->	(	!cf(smsf_distributions_reports(_)),
+			!cf(smsf_income_tax_stuff(S8, S10)))
+	;	S10 = S8),
+
+	once(!cf(create_reports(S10))),
+	true.
+
+
+ 'phase: main 1'(S0, S2) :-
+ 	(	is_not_cutoff
+ 	->	(
+			!cf(handle_additional_files(Sts0)),
+			!cf('extract bank statement transactions'(Sts1)),
+			!cf(extract_action_inputs(_, Sts2)),
+			%$>!cf(extract_livestock_data_from_ledger_request(Dom)),
+			flatten([Sts0, Sts1, Sts2], Sts3)
 		)
-	;	Static_Data2 = Static_Data1),
-	check_trial_balance2(Exchange_Rates, Static_Data2.transactions_by_account, Report_Currency, Static_Data2.end_date, Start_Date, Static_Data2.end_date),
-	once(!create_reports(Static_Data2, Structured_Reports)).
-
-update_static_data_with_transactions(In, Txs, Out) :-
-	append(In.transactions,$>flatten(Txs),Transactions2),
-	Static_Data1b = In.put([transactions=Transactions2]),
-	!transactions_by_account(Static_Data1b, Transactions_By_Account),
-	Out = Static_Data1b.put([transactions_by_account=Transactions_By_Account]).
+	;	Sts3 = []
+	),
+	handle_sts(S0, Sts3, S2),
+ 	!once(cf('ensure system accounts exist 0'(Sts3))).
 
 
-
-check_trial_balance2(Exchange_Rates, Transactions_By_Account, Report_Currency, End_Date, Start_Date, End_Date) :-
-	!trial_balance_between(Exchange_Rates, Transactions_By_Account, Report_Currency, End_Date, Start_Date, End_Date, [Trial_Balance_Section]),
-	(
-		(
-			trial_balance_ok(Trial_Balance_Section)
-		;
-			Report_Currency = []
+'phase: main 2'(S2, S4) :-
+ 	(	is_not_cutoff
+ 	->	(
+			!cf(extract_gl_inputs(_, Txs7)),
+			!cf(extract_reallocations(_, Txs8)),
+			!cf(extract_smsf_distribution(S2, Txs9)),
+			%!cf(process_livestock((Processed_S_Transactions, Transactions1), Livestock_Transactions)),
+			handle_txs(S2, [Txs7, Txs8, Txs9], S4)
 		)
-	->
-		true
-	;
-		(	term_string(trial_balance(Trial_Balance_Section), Tb_Str),
-			add_alert('SYSTEM_WARNING', Tb_Str))
+	;	S4 = S2),
+	true.
+
+ create_reports(Vanilla_state) :-
+
+	!rp(l:start_date, Start_date),
+	!rp(l:end_date, End_date),
+	!'with current and historical earnings equity balances'(
+		Vanilla_state,
+		Start_date,
+		End_date,
+		Closed_books_state),
+	doc_add(Closed_books_state, rdfs:comment, "with closed books"),
+	check_state_transactions_accounts(Closed_books_state),
+
+	!static_data_from_state(Closed_books_state, Closed_books_static_data),
+	!static_data_from_state(Vanilla_state, Vanilla_static_data),
+
+	!cf('export GL'(Vanilla_static_data)),
+
+	!cf(all_balance_reports(Vanilla_state, Closed_books_state, Sr)),
+	!html_reports('final_', Sr),
+
+	(	account_by_role(rl(smsf_equity), _)
+	->	cf(smsf_member_reports('final_', Sr))
+	;	true),
+
+
+	!cf(cf_page(Vanilla_static_data, Sr.cf)),
+	!cf(investment_reports(
+		Vanilla_static_data,
+		Investment_Report_Info)
+	),
+	Sr2 = Sr.put(ir, Investment_Report_Info),
+
+
+	'create XBRL instance'(Closed_books_static_data, Sr),
+
+	!cf(crosschecks_report0(
+		Closed_books_static_data.put(reports, Sr2),
+		Crosschecks_Report_Json)
+	),
+	Final_structured_reports = Sr2.put(crosschecks, Crosschecks_Report_Json),
+
+	!make_json_report(Final_structured_reports, reports_json).
+
+
+
+
+ 'create XBRL instance'(Closed_books_static_data, Sr) :-
+	!taxonomy_url_base,
+	!cf('create XBRL instance'(
+		Xbrl,
+		Closed_books_static_data,
+		Closed_books_static_data.start_date,
+		Closed_books_static_data.end_date,
+		Closed_books_static_data.report_currency,
+		Sr.bs.current.entries,
+		Sr.pl.current.entries,
+		Sr.pl.historical,
+	Sr.tb)),
+	!add_xml_report(xbrl_instance, xbrl_instance, [Xbrl]).
+
+
+  check_state_transactions_accounts(State) :-
+ 	doc(State, l:has_transactions, Transactions),
+ 	maplist(!(check_transaction_account), Transactions).
+
+
+ static_data_with_dates(Sd, dates(Start_date,End_date,Exchange_date), Sd2) :-
+ 	Sd2 = Sd.put(start_date,Start_date).put(end_date,End_date).put(exchange_date,Exchange_date).
+
+
+ all_balance_reports(Vanilla_State, Closed_books_state, Structured_Reports) :-
+ 	Structured_Reports = x{
+		pl: x{
+			current: ProfitAndLoss,
+			historical: ProfitAndLoss2_Historical
+			% before_closing_books: ... % if needed.
+		},
+		bs: x{
+			current: Balance_Sheet,
+			historical: Balance_Sheet2_Historical,
+			delta: Balance_Sheet_delta /*todo crosscheck*/
+			% before_closing_books: ... % if needed.
+		},
+		tb:	Trial_Balance,
+		cf: Cf
+	},
+
+	historical_reports(Vanilla_State, Balance_Sheet2_Historical,ProfitAndLoss2_Historical),
+	current_balance_entries(Closed_books_state, Cf,Balance_Sheet,Balance_Sheet_delta,ProfitAndLoss,Trial_Balance).
+
+
+ current_balance_entries(State, Cf, Balance_Sheet,Balance_Sheet_delta,ProfitAndLoss,Trial_Balance) :-
+ 	!doc(State, l:note, "This State includes historical and current portions of PL posted into balance sheet"),
+	static_data_from_state(State, Static_Data_with_eq),
+	!cf(cashflow(Static_Data_with_eq, Cf)),
+	!cf(balance_sheet_at(Static_Data_with_eq, Balance_Sheet)),
+	!cf(balance_sheet_delta(Static_Data_with_eq, Balance_Sheet_delta)),
+	!cf(profitandloss_between(Static_Data_with_eq, ProfitAndLoss)),
+	trial_balance_report(
+		$>result_property(l:exchange_rates),
+		$>transactions_dict_from_state(State),
+		$>result_property(l:report_currency),
+		$>!result_property(l:end_date),
+		$>!result_property(l:end_date),
+		Trial_Balance
 	).
 
 
 
-create_reports(
-	Static_Data,				% Static Data
-	Sr2							% Structured Reports (dict)
-) :-
-	!balance_entries(Static_Data, Sr),
-	!taxonomy_url_base,
-	!format(user_error, 'create_instance..', []),
-	!create_instance(Xbrl, Static_Data, Static_Data.start_date, Static_Data.end_date, Static_Data.report_currency, Sr.bs.current, Sr.pl.current, Sr.pl.historical, Sr.tb),
-	!add_xml_report(xbrl_instance, xbrl_instance, [Xbrl]),
-	!other_reports(Static_Data, Static_Data.outstanding, Sr, Sr2).
+ % only take Sr0, not transactions_by_account
+ html_reports(Report_prefix, Sr0) :-
+	!report_entry_tree_html_page(
+		Report_prefix, Sr0.bs.delta,
+		'balance sheet delta', 'balance_sheet_delta.html'),
+	!report_entry_tree_html_page(
+		Report_prefix, Sr0.bs.current,
+		'balance sheet', 'balance_sheet.html'),
+	!report_entry_tree_html_page(
+		Report_prefix, Sr0.pl.current,
+		'profit and loss', 'profit_and_loss.html'),
+	!report_entry_tree_html_page(
+		Report_prefix, Sr0.bs.historical,
+		'balance sheet - historical', 'balance_sheet_historical.html'),
+	!report_entry_tree_html_page(
+		Report_prefix, Sr0.pl.historical,
+		'profit and loss - historical', 'profit_and_loss_historical.html').
 
 
-balance_entries(
-	Static_Data,				% Static Data
-	Structured_Reports
-) :-
-	static_data_historical(Static_Data, Static_Data_Historical),
-	maplist(!check_transaction_account, Static_Data.transactions),
-	/* sum up the coords of all transactions for each account and apply unit conversions */
-	!trial_balance_between(Static_Data.exchange_rates, Static_Data.transactions_by_account, Static_Data.report_currency, Static_Data.end_date, Static_Data.start_date, Static_Data.end_date, Trial_Balance),
-	!balance_sheet_at(Static_Data, Balance_Sheet),
-	!balance_sheet_delta(Static_Data, Balance_Sheet_delta),
-	!balance_sheet_at(Static_Data_Historical, Balance_Sheet2_Historical),
-	!profitandloss_between(Static_Data, ProfitAndLoss),
-	!profitandloss_between(Static_Data_Historical, ProfitAndLoss2_Historical),
-	!cashflow(Static_Data, Cf),
-
-	Structured_Reports = _{
-		pl: _{
-			current: ProfitAndLoss,
-			historical: ProfitAndLoss2_Historical
-		},
-		bs: _{
-			current: Balance_Sheet,
-			historical: Balance_Sheet2_Historical,
-			delta: Balance_Sheet_delta /*todo crosscheck*/
-		},
-		tb: Trial_Balance,
-		cf: Cf
-	}.
-
-
-static_data_historical(Static_Data, Static_Data_Historical) :-
-	add_days(Static_Data.start_date, -1, Before_Start),
-	Static_Data_Historical = Static_Data.put(
-		start_date, date(1,1,1)).put(
-		end_date, Before_Start).put(
-		exchange_date, Static_Data.start_date).
-
-
- other_reports(
-	Static_Data,
-	Outstanding,
-	Sr0,
-	Sr5				% Structured Reports - Dict <Report Abbr : _>
-) :-
-	!static_data_historical(Static_Data, Static_Data_Historical),
-	(	account_by_role(rl(smsf_equity), _)
-	->	smsf_member_reports(Sr0)
-	;	true),
-	!report_entry_tree_html_page(Static_Data, Sr0.bs.current, 'balance sheet', 'balance_sheet.html'),
-	!report_entry_tree_html_page(Static_Data, Sr0.bs.delta, 'balance sheet delta', 'balance_sheet_delta.html'),
-	!report_entry_tree_html_page(Static_Data_Historical, Sr0.bs.historical, 'balance sheet - historical', 'balance_sheet_historical.html'),
-	!report_entry_tree_html_page(Static_Data, Sr0.pl.current, 'profit and loss', 'profit_and_loss.html'),
-	!report_entry_tree_html_page(Static_Data_Historical, Sr0.pl.historical, 'profit and loss - historical', 'profit_and_loss_historical.html'),
-	!cf_page(Static_Data, Sr0.cf),
-
-	!gl_export(Static_Data, Static_Data.transactions, Gl),
-	!make_json_report(Gl, general_ledger_json),
-	!make_gl_viewer_report,
-
-	!investment_reports(Static_Data.put(outstanding, Outstanding), Investment_Report_Info),
-	Sr1 = Sr0.put(ir, Investment_Report_Info),
-
-	!crosschecks_report0(Static_Data.put(reports, Sr1), Crosschecks_Report_Json),
-	Sr5 = Sr1.put(crosschecks, Crosschecks_Report_Json),
-	!make_json_report(Sr1, reports_json).
-
-
-make_gl_viewer_report :-
+ make_gl_viewer_report :-
 	%format(user_error, 'make_gl_viewer_report..~n',[]),
 	Viewer_Dir = 'general_ledger_viewer',
 	!absolute_file_name(my_static(Viewer_Dir), Src, [file_type(directory)]),
-	!report_file_path(loc(file_name, Viewer_Dir), loc(absolute_url, Dir_Url), loc(absolute_path, Dst)),
-
-	/* symlink or copy, which one is more convenient depends on what we're working on */
-	Cmd = ['ln', '-s', '-n', '-f', Src, Dst],
-	%Cmd = ['cp', '-r', Src, Dst],
-
+	!report_file_path__singleton(loc(file_name, Viewer_Dir), loc(absolute_url, Dir_Url), loc(absolute_path, Dst)),
+	/* symlink or copy, which one is more convenient depends on what we're working on at the moment. However, copy is better, as it allows full reproducibility */
+	% Cmd = ['ln', '-s', '-n', '-f', Src, Dst],
+	Cmd = ['cp', '-r', Src, Dst],
 	%format(user_error, 'shell..~q ~n',[Cmd]),
 	!shell4(Cmd, _),
 	%format(user_error, 'shell.~n',[]),
@@ -201,7 +231,7 @@ make_gl_viewer_report :-
 	%format(user_error, 'make_gl_viewer_report done.~n',[]),
 	true.
 
-investment_reports(Static_Data, Ir) :-
+ investment_reports(Static_Data, Ir) :-
 	Data =
 	[
 		(current,'',Static_Data),
@@ -227,14 +257,14 @@ a flag can be used when running the server, for example like this:
 ```swipl -s prolog_server.pl  -g "set_flag(prepare_unique_taxonomy_url, true),run_simple_server"```
 This is done with a symlink. This allows to bypass cache, for example in pesseract.
 */
-taxonomy_url_base :-
+ taxonomy_url_base :-
 	!symlink_tmp_taxonomy_to_static_taxonomy(Unique_Taxonomy_Dir_Url),
 	(	get_flag(prepare_unique_taxonomy_url, true)
 	->	Taxonomy_Dir_Url = Unique_Taxonomy_Dir_Url
 	;	Taxonomy_Dir_Url = 'taxonomy/'),
-	!request_add_property(l:taxonomy_url_base, Taxonomy_Dir_Url).
+	!result_add_property(l:taxonomy_url_base, Taxonomy_Dir_Url).
 
-symlink_tmp_taxonomy_to_static_taxonomy(Unique_Taxonomy_Dir_Url) :-
+ symlink_tmp_taxonomy_to_static_taxonomy(Unique_Taxonomy_Dir_Url) :-
 	!my_request_tmp_dir(loc(tmp_directory_name,Tmp_Dir)),
 	!server_public_url(Server_Public_Url),
 	!atomic_list_concat([Server_Public_Url, '/tmp/', Tmp_Dir, '/taxonomy/'], Unique_Taxonomy_Dir_Url),
@@ -252,111 +282,62 @@ symlink_tmp_taxonomy_to_static_taxonomy(Unique_Taxonomy_Dir_Url) :-
 	
 */	
    
-extract_report_currency(Dom, Report_Currency) :-
+ extract_report_currency :-
 	!request_data(Request_Data),
-	(	doc(Request_Data, ic_ui:report_details, D)
-	->	(
-			doc_value(D, ic:currency, C),
-			atom_string(Ca, C),
-			Report_Currency = [Ca]
-		)
-	;	inner_xml_throw(Dom, //reports/balanceSheetRequest/reportCurrency/unitType, Report_Currency)).
-
+	doc(Request_Data, ic_ui:report_details, D),
+	doc_value(D, ic:currency, C),
+	atom_string(Ca, C),
+	Report_Currency = [Ca],
+	!result_add_property(l:report_currency, Report_Currency).
 
 /*
-*If an investment was held prior to the from date then it MUST have an opening market value if the reports are expressed in market rather than cost.You can't mix market valu
-e and cost in one set of reports. One or the other.
-+       Market or Cost. M or C.
-+       Cost value per unit will always be there if there are units of anything i.e. sheep for livestock trading or shares for Investments. But I suppose if you do not find any marke
-t values then assume cost basis.*/
-
-extract_cost_or_market(Dom, Cost_Or_Market) :-
-	!request_data(Request_Data),
-	(	doc(Request_Data, ic_ui:report_details, D)
-	->	(
-			doc_value(D, ic:cost_or_market, C),
-			(	rdf_equal2(C, ic:cost)
-			->	Cost_Or_Market = cost
-			;	Cost_Or_Market = market)
-		)
-	;
-	(
-		inner_xml(Dom, //reports/balanceSheetRequest/costOrMarket, [Cost_Or_Market])
-	->
-		(
-			member(Cost_Or_Market, [cost, market])
-		->
-			true
-		;
-			throw_string('//reports/balanceSheetRequest/costOrMarket tag\'s content must be "cost" or "market"')
-		)
-	;
-		Cost_Or_Market = market
-	)
-	).
-	
-extract_output_dimensional_facts(Dom, Output_Dimensional_Facts) :-
-	(
-		inner_xml(Dom, //reports/balanceSheetRequest/outputDimensionalFacts, [Output_Dimensional_Facts])
-	->
-		(
-			member(Output_Dimensional_Facts, [on, off])
-		->
-			true
-		;
-			throw_string('//reports/balanceSheetRequest/outputDimensionalFacts tag\'s content must be "on" or "off"')
-		)
-	;
-		Output_Dimensional_Facts = on
-	).
-	
-extract_start_and_end_date(_Dom, Start_Date, End_Date) :-
-	!request_data(Request_Data),
-	!doc(Request_Data, ic_ui:report_details, D),
-	!doc_value(D, ic:from, Start_Date),
-	!doc_value(D, ic:to, End_Date),
-	!result(R),
-	!doc_add(R, l:start_date, Start_Date),
-	!doc_add(R, l:end_date, End_Date),
-	(	Start_Date = date(1,1,1)
-	->	throw_string(['start date missing?'])
-	;	true),
-	(	End_Date = date(1,1,1)
-	->	throw_string(['end date missing?'])
-	;	true)
-	.
-
-extract_request_details(Dom) :-
-	assertion(Dom = [element(_,_,_)]),
-	!request(Request),
-	!result(Result),
-	(	xpath(Dom, //reports/balanceSheetRequest/company/clientcode, element(_, [], [Client_code_atom]))
-	->	(
-			!atom_string(Client_code_atom, Client_code_string),
-			!doc_add(Request, l:client_code, Client_code_string)
-		)
-	;	true),
-	!get_time(TimeStamp),
-	!stamp_date_time(TimeStamp, DateTime, 'UTC'),
-	!doc_add(Result, l:timestamp, DateTime).
-
-/*
-:- comment(Structured_Reports:
-	the idea is that the dicts containing the high-level, semantic information of all reports would be passed all the way up, and we'd have some test runner making use of that / generating a lot of permutations of requests and checking the results computationally, in addition to endpoint_tests checking report files against saved versions.
-Not sure if/when we want to work on that.
+ If an investment was held prior to the from date then it MUST have an opening market value if the reports are expressed in market rather than cost. You can't mix market value and cost in one set of reports. One or the other.
+ Market or Cost. M or C.
+ Cost value per unit will always be there if there are units of anything i.e. sheep for livestock trading or shares for Investments. But I suppose if you do not find any market values then assume cost basis.
 */
 
+ 'extract "cost_or_market"' :-
+	!request_data(Request_Data),
+	doc(Request_Data, ic_ui:report_details, D),
+	doc_value(D, ic:cost_or_market, C),
+	(	(	e(C, ic:cost)
+		;	e(C, ic:market))
+	->	true
+	;	throw_format('invalid ic:cost_or_market: ~q',[C])),
+	!doc_add($>result, l:cost_or_market, C).
 
-	/*
-	how we could test inference of s_transactions from gl transactions:
-	gl_doc_eq_json(Transactions, Transactions_Json),
-	doc_init,
-	gl_doc_eq_json(Transactions2, Transactions_Json),
-	process_request_ledger2(Dom, S_Transactions2, _, Transactions2),
-	assertion(eq(S_Transactions, S_Transactions2)).
-	...
-	gl_json :-
-		maplist(transaction_to_dict, Transactions, T0),
-	...
-	*/
+ 'extract "output_dimensional_facts"' :-
+	!result_add_property(l:output_dimensional_facts, on).
+	
+ extract_start_and_end_date :-
+ 	!doc($>request_data, ic_ui:report_details, D),
+	!read_date(D, ic:from, Start_Date),
+	!read_date(D, ic:to, End_Date),
+	!result(R),
+	!doc_add(R, l:start_date, Start_Date),
+	!doc_add(R, l:end_date, End_Date).
+
+ stamp_result :-
+	!result(Result),
+	!get_time(TimeStamp),
+	!stamp_date_time(TimeStamp, DateTime, 'UTC'),
+	!doc_add(Result, l:timestamp, DateTime),
+	doc_add($>result, l:type, l:ledger).
+
+ extract_report_parameters :-
+	!cf('extract "output_dimensional_facts"'),
+	!cf('extract "cost_or_market"'),
+	!cf(extract_report_currency),
+	!cf('extract action verbs'),
+	!cf('extract bank accounts'),
+	!cf('extract GL accounts').
+
+
+ read_ic_n_sts_processed(N) :-
+	b_current_num_with_default(ic_n_sts_processed, 0, N).
+
+ bump_ic_n_sts_processed :-
+	read_ic_n_sts_processed(N),
+	Next is N + 1,
+	b_setval(ic_n_sts_processed, Next).
 

@@ -2,8 +2,14 @@
 :- use_module(library(xpath)).
 :- use_module(library(record)).
 :- use_module(library(yall)).
-:- use_module(library(clpq)).
+
+% https://github.com/SWI-Prolog/swipl-devel/issues/715#issuecomment-731019516
+% todo does the order of these two have effect on the warnings?
+:- use_module(library(clpq), [{}/1]).
+:- use_module(library(clpr), []).
+
 :- use_module(library(clpfd)).
+
 :- use_module(library(http/http_open)).
 :- use_module(library(http/http_client)).
 :- use_module(library(http/http_dispatch)).
@@ -11,6 +17,7 @@
 :- [search_paths].
 
 :- ['../public_lib/lodgeit_solvers/prolog/utils/utils'].
+:- ['../public_lib/lodgeit_solvers/prolog/utils/doc_dump_server'].
 
 :- ['../public_lib/prolog_xbrl/instance_output/fact_output'].
 :- ['../public_lib/prolog_xbrl/instance_output/xbrl_contexts'].
@@ -25,10 +32,9 @@
 :- [bank_statement].
 :- [cashflow].
 :- [crosschecks_report].
-:- [days].
 :- [detail_accounts].
-:- [event_calculus].
 :- [exchange].
+:- [exchange_dates].
 :- [exchange_rates].
 :- [extract_bank_accounts].
 :- [facts].
@@ -41,6 +47,9 @@
 :- [invoices].
 :- [ledger_html_reports].
 :- [ledger].
+:- [ledger_balance].
+:- [ledger_entry].
+:- [ledger_historical].
 :- [ledger_report].
 :- [livestock_adjustment_transactions].
 :- [livestock_average_cost].
@@ -50,7 +59,6 @@
 :- [livestock_misc].
 :- [livestock].
 :- [loans].
-:- [pacioli].
 :- [pacioli_rdf].
 :- [pricing].
 :- [process_request].
@@ -61,13 +69,15 @@
 :- [smsf_distribution].
 :- [smsf_facts].
 :- [smsf_income_tax].
+:- [smsf_income_tax_v2].
 :- [smsf_member_reports].
 :- [smsf_member_report_checks].
 :- [smsf_member_report_presentation].
+:- [smsf_profit_attribution].
+:- [state].
 :- [system_accounts].
 :- [tables].
-:- [term_dict].
 :- [trading].
 :- [transactions].
-:- [vector_string].
+:- [trial_balance].
 % :- ['../misc/chr_hp'].
