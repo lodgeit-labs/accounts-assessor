@@ -30,43 +30,36 @@ process_request_rpc_cmdline1(Dict) :-
 		(nl,nl,writeq(E),nl,nl,throw(E))
 	).
 
-/* dispatch request on method */
+
+
 process_request_rpc_cmdline2(Dict) :-
-	(	Dict.method == "calculator"
-	->	process_request_rpc_calculator(Dict.params)
-	;	(
-			(	Dict.method == "chat"
-			->	(
-					do_chat(Dict, Response),
-					json_write(current_output, Response)
-				)
-			;	json_write(current_output, err{error:m{message:unknown_method}})
-			)
-		)
-	),
+	process_request_rpc_cmdline3(Dict.method, Dict),
 	flush_output.
 
+
+
+process_request_rpc_cmdline3("calculator", Dict) :-
+	!,
+	!process_request_rpc_calculator(Dict.params).
+
+process_request_rpc_cmdline3("chat", Dict) :-
+	!,
+	!do_chat(Dict, Response),
+	json_write(current_output, Response).
+
+process_request_rpc_cmdline3(_,_) :-
+	json_write(current_output, err{error:m{message:unknown_method}}).
+
+
+
+
 do_chat(Dict, Response) :-
-	(	Type = Dict.params.get(type)
-	->
-		(	Type == "sbe"
-		->	sbe:sbe_step(Dict.params, Result)
-		;
-			(	Type == "residency"
-			->	residency:residency_step(Dict.params, Result)
-			;	Response = err{error: m{message:"unknown chat type"}})
-		)
-	;	Response = err{error: m{message:'specify type: "sbe" or "residency"'}}
-	),
-	(	var(Response)
-	->	Response = r{result:Result}
-	;	true).
+	Type = Dict.params.get(type),
+	do_chat2(Type, Dict, Response).
 
-/*
+do_chat2("sbe", Dict, r{result:Result}) :-
+	sbe:sbe_step(Dict.params, Result).
 
-python-prolog interop:
+do_chat2("residency", Dict, r{result:Result}) :-
+	residency:residency_step(Dict.params, Result).
 
-	"vec_add(Old, Vector, New)" could be invoked through python<->prolog rpc like this: "['!','vec_add', 'uri', 'uri', 'uri']",
-	prolog would then =.. and call it in a findall. Python side would only have to check if number of results isn't 0, then take the first result. It would then do more calls, ie doc_list_member, coord_unit etc. Everything would live in prolog doc db.
-
-*/
