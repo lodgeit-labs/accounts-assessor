@@ -10,6 +10,7 @@ sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../../
 import agraph
 import urllib.parse
 import json
+import datetime
 
 
 import celery
@@ -117,6 +118,10 @@ def upload(request):
 	return render(request, 'upload.html', {'form': form})
 
 
+
+
+def day(request):
+	return render(request, 'day.html', {'day': datetime.date.today().day})
 
 
 
