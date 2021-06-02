@@ -20,6 +20,9 @@ def sources(Suffix=""):
 
 
 def get_unique_id():
+	"""
+	https://github.com/lodgeit-labs/accounts-assessor/issues/25
+	"""
 	return str(agraph.agc().createBNode().getId()[2:])
 
 

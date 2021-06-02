@@ -1,4 +1,5 @@
-% historical_reports
+% discussion: https://github.com/lodgeit-labs/accounts-assessor/issues/47
+
 
 
  'dates for historical reports'(dates(Start_date,End_date,Exchange_date)) :-

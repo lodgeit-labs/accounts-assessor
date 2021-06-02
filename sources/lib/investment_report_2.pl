@@ -187,7 +187,7 @@ group{id:on_hand_at_cost, title:"On Hand At Cost Total", members:On_Hand_At_Cost
 	/* lets sort by unit, sale date, purchase date */
 	/*how to sort with nested dicts with optional keys?*/
 	sort(unit, @=<, Rows0, Rows).
-	/*,todo?
+	/*,todo? see also: https://github.com/lodgeit-labs/accounts-assessor/issues/50
 	sort([sale,date], @=<, Rows1, Rows2),
 	sort([purchase,date], @=<, Rows2, Rows).*/
 
