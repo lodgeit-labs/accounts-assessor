@@ -18,6 +18,7 @@
 	doc(Source, s_transactions:tb, _, transactions),
 	!.
  check_st_tb(_, Source) :-
+ 	% but this should probably be removed - there's no reason that this now can't be a balanced transaction that nullifies P&L
 	doc(Source, s_transactions:unbalanced, true, transactions),
 	!.
  check_st_tb(Txs_by_sources, Source) :-
