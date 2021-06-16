@@ -127,7 +127,7 @@ def call_prolog(
 	#					'--f', "user time :%U secs, max mem: %M kb",
 						cmd])
 
-	#print(cmd)
+	print(cmd)
 	#print('# pipe_rpc_json_to_swipl_stdin=',pipe_rpc_json_to_swipl_stdin)
 	try:
 		if pipe_rpc_json_to_swipl_stdin:

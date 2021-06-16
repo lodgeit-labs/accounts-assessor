@@ -16,3 +16,4 @@ COPY apache/conf/* /usr/local/apache2/conf/
 #VOLUME /usr/local/apache2/conf/httpd.conf
 #VOLUME /usr/local/apache2/conf/htpasswd
 
+ENV proxy-initial-not-pooled true
