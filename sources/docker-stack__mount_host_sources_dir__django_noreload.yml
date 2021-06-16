@@ -16,8 +16,6 @@ secrets:
     file: ../secrets/AGRAPH_SUPER_USER
   DJANGO_SECRET_KEY:
     file: ../secrets/DJANGO_SECRET_KEY
-  README.md:
-    file: ../secrets/README.md
 services:
   agraph:
     deploy:
@@ -141,7 +139,6 @@ services:
         condition: any
     environment:
       DETERMINANCY_CHECKER__USE__ENFORCER: 'true'
-      DISPLAY: ${DISPLAY}
       SECRET__CELERY_BROKER_URL: amqp://guest:guest@rabbitmq:5672//
       SECRET__INTERNAL_SERVICES_SERVER_URL: http://internal-services:17788
     image: koo5/internal-workers${PP}:latest
