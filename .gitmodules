@@ -1,9 +1,6 @@
 [submodule "sources/public_lib/lodgeit_solvers"]
 	path = sources/public_lib/lodgeit_solvers
 	url = ../FOL_solvers.git
-[submodule "wiki"]
-	path = wiki
-	url = ../accounts-assessor-wiki.git
 [submodule "sources/depr"]
 	path = sources/depr
 	url = ../Depreciation.git
