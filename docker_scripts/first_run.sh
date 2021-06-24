@@ -13,3 +13,7 @@ python3 -m pip install --user -U docker
 cd ..
 cp -r secrets_example secrets
 cp -r sources/config_example sources/config
+
+
+cd sources/apache/conf/
+htpasswd -b -c htpasswd jack insecure
