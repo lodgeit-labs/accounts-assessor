@@ -88,14 +88,15 @@ def generate_caddy_config(public_host):
 		#http_port  80
 		#https_port 443 
 		
-		admin 127.0.0.1:2019 {{
-			origins 127.0.0.1
-		}}
+		#admin 127.0.0.1:2019 {{
+		#	origins 127.0.0.1
+		#}}
 	}}
 
-	{public_host}
-
-	reverse_proxy apache:80
+	{public_host} {{
+		import Caddyfile_auth
+		reverse_proxy apache:80
+	}}
 	'''
 	
 	with open('../sources/caddy/Caddyfile', 'w') as f:
