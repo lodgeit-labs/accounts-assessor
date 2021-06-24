@@ -1,12 +1,12 @@
 [submodule "sources/public_lib/lodgeit_solvers"]
 	path = sources/public_lib/lodgeit_solvers
-	url = FOL_solvers.git
+	url = ../FOL_solvers.git
 [submodule "wiki"]
 	path = wiki
-	url = accounts-assessor-wiki.git
+	url = ../accounts-assessor-wiki.git
 [submodule "sources/depr"]
 	path = sources/depr
-	url = Depreciation.git
+	url = ../Depreciation.git
 [submodule "sources/wait-for-it"]
 	path = sources/wait-for-it
 	url = https://github.com/vishnubob/wait-for-it.git
