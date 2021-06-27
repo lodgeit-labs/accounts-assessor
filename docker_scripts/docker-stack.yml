@@ -5,11 +5,9 @@ services:
 
   caddy:
     image: caddy:2.3.0-alpine
-    #image: caddy:latest
     networks:
       - frontend
     ports:
-      #- "2019:2019"
       - "80:80"
       - "443:443"
     volumes:
@@ -17,7 +15,6 @@ services:
       - ./caddy/Caddyfile_auth:/etc/caddy/Caddyfile_auth
       - caddy_data:/data
       - caddy_config:/config
-    # caddy -ca https://acme-staging-v02.api.letsencrypt.org/directory 32.
 
 
   apache:
@@ -30,14 +27,10 @@ services:
         condition: any
     volumes:
       #- ./../sources/apache/conf/ /usr/local/apache2/conf/
-      #- ./../sources/apache/conf/htpasswd /usr/local/apache2/conf/htpasswd
       #- ./../sources/apache/conf/httpd.conf /usr/local/apache2/conf/httpd.conf
       - "/etc/localtime:/etc/localtime:ro"
       - tmp:/usr/local/apache2/htdocs/tmp/
       - ./../sources/static/:/usr/local/apache2/htdocs/static/
-    ports:
-      - 88${PP}:80 # limit to 127.0.0.1 ?
-    #  - 443${PP}:443
 
 
   frontend-server:
@@ -63,8 +56,6 @@ services:
         constraints: [node.role == manager]
       restart_policy:
         condition: any
-    #ports:
-    #  - 77${PP}:7788
     secrets:
       - DJANGO_SECRET_KEY
       - AGRAPH_SECRET_HOST
@@ -98,10 +89,8 @@ services:
       - tmp:/app/server_root/tmp
       - cache:/app/cache
       - "/etc/localtime:/etc/localtime:ro"
-
       # for gtrace:
       - "/tmp/.X11-unix:/tmp/.X11-unix:rw"
-      
     networks:
       - backend
     depends_on:
@@ -118,8 +107,6 @@ services:
       - AGRAPH_SECRET_PORT
       - AGRAPH_SUPER_USER
       - AGRAPH_SUPER_PASSWORD
-    ports:
-      - 123${PP}:1234
 
 
   internal-services:
@@ -155,7 +142,6 @@ services:
 
 
   agraph:
-
     image: koo5/agraph${PP}:latest
     networks:
     - backend
@@ -185,8 +171,9 @@ services:
            size: 2096000000
     #shm_size: "1G" # not supported in swarm
     #finishme: use low-memory configuration
-    ports:
-      - 100${PP}:10035
+    # this should go through caddy or apache:
+    #ports:
+    #  - 100${PP}:10035
 
 
   flower:
@@ -202,8 +189,6 @@ services:
         condition: any
     volumes:
       - "/etc/localtime:/etc/localtime:ro"
-    ports:
-      - 55${PP}:5555
 
 
 
