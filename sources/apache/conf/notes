@@ -1,0 +1,1 @@
+htpasswd -b -c htpasswd user pass

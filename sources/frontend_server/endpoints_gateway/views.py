@@ -17,7 +17,7 @@ import celery
 import celeryconfig
 celery_app = celery.Celery(config_source = celeryconfig)
 
-
+from ipware import get_client_ip
 from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import render
@@ -149,7 +149,8 @@ def residency(request):
 def chat(request):
 	return json_prolog_rpc_call({
 		"method": "chat",
-		"params": json.loads(request.body)
+		"params": json.loads(request.body),
+		"client": get_client_ip(request)
 	})
 
 def json_prolog_rpc_call(msg):

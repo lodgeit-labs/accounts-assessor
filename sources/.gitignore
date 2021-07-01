@@ -2,3 +2,4 @@ git_info.txt
 secret*.json
 cache/*
 config
+docker-stack*.yml
