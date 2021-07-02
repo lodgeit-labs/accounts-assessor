@@ -34,7 +34,10 @@ from copy import deepcopy
 	help="The public-facing hostname. Used for Caddy.")
 
 @click.option('-pg', '--enable_public_gateway', type=bool, default=True, 
-	help="enable Caddy (on ports 80 and 443). This generally does not make much sense on a development machine, because 1) you're only getting a self-signed cert that excel will refuse, 2)maybe you already have another web server listening on these ports, 3) using -pp (non-standard ports) in combination with https will give you trouble. It's less trouble to skip caddy and access directly the apache server on port 88.")
+	help="enable Caddy (on ports 80 and 443). This generally does not make much sense on a development machine, because 1) you're only getting a self-signed cert that excel will refuse, 2)maybe you already have another web server listening on these ports, 3) using -pp (non-standard ports) in combination with https will give you trouble. 4) You must access the server by a hostname, not just IP.")
+
+@click.option('-pi', '--enable_public_insecure', type=bool, default=False, 
+	help="skip caddy and expose directly the apache server on port 88.")
 
 def run(port_postfix, public_host, **choices):
 
@@ -112,7 +115,7 @@ def generate_stack_file(choices):
 	return fn
 
 
-def tweaked_services(src, use_host_network, mount_host_sources_dir, django_noreload, enable_public_gateway, debug_frontend_server):
+def tweaked_services(src, use_host_network, mount_host_sources_dir, django_noreload, enable_public_gateway, debug_frontend_server, enable_public_insecure):
 	res = deepcopy(src)
 	services = res['services']
 	
@@ -121,6 +124,9 @@ def tweaked_services(src, use_host_network, mount_host_sources_dir, django_norel
 	
 	if not enable_public_gateway:
 		del services['caddy']
+
+	if enable_public_insecure:
+		services['apache']['ports'] = ["88:80"]
 
 	if not 'secrets' in res:
 		res['secrets'] = {}

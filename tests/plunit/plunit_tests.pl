@@ -1,17 +1,17 @@
-:- ['sbe'].
-:- ['residency'].
-:- ['hirepurchase'].
-:- ['loans'].
-:- ['exchange_rates'].
+:- ['tests/utils'].
+:- ['tests/sbe'].
+:- ['tests/residency'].
+:- ['tests/hirepurchase'].
+:- ['tests/loans'].
+:- ['tests/exchange_rates'].
+:- ['tests/pricing'].
+:- ['tests/files'].
+:- ['tests/pacioli'].
 
 % these two are unlikely to now test anything that the endpoint tests wouldnt test. Might be useful as documentation/introduction/explanation, but needs updating
-%:- ['bank_statement'].
-%:- ['ledger'].
+%:- ['tests/bank_statement'].
+%:- ['tests/ledger'].
 
 % wip
-%:- ['depreciation'].
+%:- ['tests/depreciation'].
 
-:- ['utils'].
-:- ['pricing'].
-:- ['files'].
-:- ['pacioli'].

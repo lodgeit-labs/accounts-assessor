@@ -35,8 +35,6 @@ services:
     networks:
     - backend
     - frontend
-    ports:
-    - 100${PP}:10035
     secrets:
     - AGRAPH_SUPER_USER
     - AGRAPH_SUPER_PASSWORD
@@ -56,8 +54,6 @@ services:
     image: koo5/apache${PP}:latest
     networks:
     - frontend
-    ports:
-    - 88${PP}:80
     volumes:
     - /etc/localtime:/etc/localtime:ro
     - tmp:/usr/local/apache2/htdocs/tmp/
@@ -73,8 +69,6 @@ services:
     image: koo5/flower${PP}:latest
     networks:
     - backend
-    ports:
-    - 55${PP}:5555
     volumes:
     - /etc/localtime:/etc/localtime:ro
   frontend-server:
@@ -148,8 +142,6 @@ services:
     image: koo5/internal-workers${PP}:latest
     networks:
     - backend
-    ports:
-    - 123${PP}:1234
     secrets:
     - AGRAPH_SECRET_HOST
     - AGRAPH_SECRET_PORT

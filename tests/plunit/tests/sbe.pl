@@ -1,7 +1,9 @@
 :- ['../../lib/sbe'].
 
 :- begin_tests(sbe).
+
 test(0) :-
+
 	% fixme, for example sbe_dialog([], 0, _, -1,  `ynynnnnnnynn`), ideally shouldn't unify, 
 	% the correct result is -2, but sbe_dialog backtracks until it finds a sbe_next_state that matches,
 	% that's why the ResultX variables here
