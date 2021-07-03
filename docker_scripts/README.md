@@ -6,11 +6,9 @@ docker_scripts/first_run.sh
 ```
 docker_scripts/run.sh -pp '' -ms true -nr true -pg false 
 ```
-```
-ufw allow 88 # insecure, http
-# or:
-ufw allow 80 443 # secure - https and redirects from http
-```
+## UFW
+note that docker overrides your firewall rules. solution: https://github.com/chaifeng/ufw-docker
+Ports 80 and 443 have to be both open to make caddy and SSL work. Internally, you can also make use for port 88, which is without authentication or SSL.
 
 # in detail
 
