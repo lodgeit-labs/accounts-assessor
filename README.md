@@ -1,16 +1,33 @@
 # Accounts Assessor
 
-This repository hosts a program that derives, validates, and corrects the financial information that it is given. The program uses redundancy to carry out its validations and corrections. By this it is meant that knowledge of parts of a company's financial data imposes certain constraints on the company's other financial data. If the program is given a company's ledger, then it knows what the balance sheet should look like. If the program is given a company's balance sheet, then it has a rough idea of what the ledger should look like.
+This program tries to validate and process financial data of a single entity, separately or in combination:
+* bank statements
+* SMSF member accounting
+* livestock accounting information
+* hirepurchase agreements
+* depreciation
 
-The functionality of the program (needs updating):
+It automates some of the usual accounting procedures, like tax calculations, and generates a balance sheet and other types of reports. 
+
 * Given a bank statement, it can derive balance sheets, trial balances, investment report
-* Given a hire purchase arrangement, it can track the balance of a hire purchase account through time
-* Given a hire purchase arrangement, it can derive the total payment and the total interest
-* Given a hire purchase arrangement and ledger, it can guess what the erroneous transactions are
-* Given a hire purchase arrangement and ledger, it can generate correction transactions to fix the erroneous transactions
-json-based endpoints:
+* Given a hire purchase arrangement, it can track the balance of a hire purchase account through time, the total payment and the total interest
+
+In this form, we use it at https://lodgeit.net.au/,  along with a proprietary (but free) frontend in the form of a Microsoft Excel plugin, to automate accounting tasks.
+
+## other functionality
 * It can determine tax residency by carrying out a dialog with the user
 * It can determine small business entity status by carrying out a dialog with the user
+
+
+## version 2.0
+
+A new version is planned, using a constrained logic programming language, aiming for these features:
+
+Derives, validates, and corrects the financial information that it is given. The program uses redundancy to carry out its validations and corrections. By this it is meant that knowledge of parts of a company's financial data imposes certain constraints on the company's other financial data. If the program is given a company's ledger, then it knows what the balance sheet should look like. If the program is given a company's balance sheet, then it has a rough idea of what the ledger should look like.
+
+* Given a hire purchase arrangement and ledger, it can guess what the erroneous transactions are
+* Given a hire purchase arrangement and ledger, it can generate correction transactions to fix the erroneous transactions
+
 
 
 ## projects this is comparable to:
@@ -27,10 +44,7 @@ https://www.dropbox.com/sh/prgubjzoo9zpkhp/AACd6YmoWxf9IUi5CriihKlLa?dl=0
 https://www.dropbox.com/sh/o5ck3qm79zwgpc5/AABD9jUcWiNpWMb2fxsmeVfia?dl=0
 
 wiki:
-https://github.com/LodgeiT/labs-accounts-assessor/wiki/
-
-doc/:
-https://github.com/LodgeiT/labs-accounts-assessor/tree/master/doc
+https://github.com/lodgeit-labs/accounts-assessor-wiki/
 
 
 
@@ -96,7 +110,7 @@ bash <args>
 
 ### usage
 
-#### Open a web browser at: http://localhost:7788/
+#### Open a web browser at: http://localhost:88/
 * upload one of the request files found in tests/endpoint_tests/
 * you should get back a json with links to individual report files
 
@@ -117,13 +131,10 @@ time env PYTHONUNBUFFERED=1 CELERY_QUEUE_NAME=q7788 ../sources/internal_workers/
 
 ## Directory Structure
 
-* lib - prolog source code and utility scripts
-** prolog_server.pl that serves several xml endpoints from a common url, and some chat endpoints.
-** run_daemon.pl to run the http server as a daemon process.
+* source/lib - prolog source code
 * tests
 ** plunit - contains queries that test the functionality of the main Prolog program
 ** endpoint_tests - contains test requests for the web endpoint as well as expected reponses
-* docs - contains correspondences and resources on accounting that I have been finding useful in making this program
 * misc - contains the stuff that does not yet clearly fit into a category
 * server_root - this directory is served by the prolog server
 ** tmp - each request gets its own directory here
