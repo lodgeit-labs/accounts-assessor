@@ -1,5 +1,18 @@
 # Accounts Assessor
 
+This program ingests financial data of a single entity, and tries to validate and process them, separately or in combination:
+* bank statements
+* SMSF member accounting
+* livestock accounting information
+* hirepurchase agreements
+* asset depreciation
+
+It automates some of the usual accounting procedures, like tax calculations, and generates a balance sheet as well as many other types of reports. 
+
+In this form, we use it at https://lodgeit.net.au/,  along with a proprietary (but free) frontend in the form of a Microsoft Excel plugin, to automate accounting tasks.
+
+
+
 This repository hosts a program that derives, validates, and corrects the financial information that it is given. The program uses redundancy to carry out its validations and corrections. By this it is meant that knowledge of parts of a company's financial data imposes certain constraints on the company's other financial data. If the program is given a company's ledger, then it knows what the balance sheet should look like. If the program is given a company's balance sheet, then it has a rough idea of what the ledger should look like.
 
 The functionality of the program (needs updating):
