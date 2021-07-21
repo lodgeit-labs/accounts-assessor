@@ -3,23 +3,20 @@
 
 
 
-r(	exists-('fr', ['first','rest'])
-	,n-'"All lists exist" - https://www.w3.org/TeamSubmission/n3/'
+r(exists-('fr', ['first','rest'])
+,n-'"All lists exist" - https://www.w3.org/TeamSubmission/n3/'
 ).
 
 
-
-r(	exists-('coord', ['unit','amount'])
-	,n-'coord exists'
+r(exists-('coord', ['unit','amount'])
 ).
 
 
-r(
-	vec_inverse(V, Vi)
-		,fr(V, C1, nil)
-		,fr(Vi, Ci1, nil)
-		,coord_inverse(C1, Ci1)
-	,n-vec_inverse
+r(vec_inverse(V, Vi)
+	,fr(V, C1, nil)
+	,fr(Vi, Ci1, nil)
+	,coord_inverse(C1, Ci1)
+,n-vec_inverse
 ).
 
 r(

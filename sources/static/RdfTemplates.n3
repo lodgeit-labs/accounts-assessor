@@ -23,6 +23,7 @@
 @prefix depr_ui: <https://rdf.lodgeit.net.au/v1/calcs/depr/ui#> .
 @prefix ic_ui: <https://rdf.lodgeit.net.au/v1/calcs/ic/ui#> .
 @prefix hp_ui: <https://rdf.lodgeit.net.au/v1/calcs/hp/ui#> .
+@prefix cars: <https://rdf.lodgeit.net.au/v1/cars#> .
 
 @prefix smsf: <https://rdf.lodgeit.net.au/v1/calcs/smsf#> .
 @prefix smsf_ui: <https://rdf.lodgeit.net.au/v1/calcs/smsf/ui#> .
@@ -102,6 +103,48 @@ excel:template_instance_example rdfs:subClassOf excel:template_instance.
 
 excel:multiple_sheets_allowed rdfs:comment "are multiple sheets of this type allowed in one workbook?".
 
+
+
+cars:car_sheets
+	a excel:sheet_set;
+	excel:sheets
+	(
+		cars:car_sheet
+	).
+
+cars:car_sheet
+	excel:optional true;
+	excel:multiple_sheets_allowed true;
+	excel:name_prefix "";
+	excel:root cars:car_sheet_rows.
+
+cars:car_sheet_rows
+	excel:position [excel:col "A"; excel:row "3"];
+	excel:title "Cars";
+	excel:cardinality excel:multi;
+	excel:class cars:car_sheet_row;
+	excel:fields (
+		[excel:property cars:id; 
+			excel:type xsd:decimal]
+		[excel:property cars:make; 
+			excel:type xsd:string]
+		[excel:property cars:year;
+			excel:type xsd:decimal]
+		[excel:property cars:model;
+			excel:type xsd:string]
+		[excel:property cars:title;
+			excel:type xsd:string]
+		[excel:property cars:engine;
+			excel:type xsd:string]
+		[excel:property cars:transmission;
+			excel:type xsd:string]
+		[excel:property cars:body;
+			excel:type xsd:string]
+		[excel:property cars:colour;
+			excel:type xsd:string]
+		[excel:property cars:prices;
+			excel:type xsd:string]
+	).
 
 
 
@@ -584,6 +627,8 @@ depr_ui:depreciation_assets
 
 
 
+
+excel:sheet_set rdfs:comment "contains a list of all versions of all sheets ever used (for the given endpoint). Used by UI to decide what sheets to send to server.".
 
 
 
