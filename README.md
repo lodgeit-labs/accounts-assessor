@@ -1,16 +1,32 @@
 # Accounts Assessor
 
-This program tries to validate and process financial data of a single entity, separately or in combination:
+This repository hosts a practical research into leveraging logic programming to solve accounting problems. The core logic runs in SWI-Prolog, and is aided by a python webserver. Several services("endpoints") are available through this webserver, and they work independently.
+
+The most complex endpoint is the investment calculator: tries to validate and process financial data of a single entity for a given period:
 * bank statements
-* SMSF member accounting
-* livestock accounting information
-* hirepurchase agreements
+* raw general ledger input
+* change in investment unit values
+* (SMSF member accounting - WIP)
+* (livestock accounting information - WIP)
+
+It automates some of the usual accounting procedures, like tax calculations, and generates balance sheets, trial balances, investment report and other types of reports. 
+
+Other endpoints include:
+* hirepurchase agreement
 * depreciation
+* livestock (standalone)
+* division 7A loan calculator
 
-It automates some of the usual accounting procedures, like tax calculations, and generates a balance sheet and other types of reports. 
+## the endpoints
 
-* Given a bank statement, it can derive balance sheets, trial balances, investment report
-* Given a hire purchase arrangement, it can track the balance of a hire purchase account through time, the total payment and the total interest
+### hirepurchase agreement
+![screenshot](sources/static/docs/readme/hp-sheet.png?raw=true)
+Given a hire purchase arrangement, it can track the balance of a hire purchase account through time, the total payment and the total interest
+
+
+
+
+
 
 In this form, we use it at https://lodgeit.net.au/,  along with a proprietary (but free) frontend in the form of a Microsoft Excel plugin, to automate accounting tasks.
 
