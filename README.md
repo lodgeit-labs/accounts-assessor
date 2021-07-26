@@ -1,43 +1,85 @@
-# Accounts Assessor
+# Accounts Assessor - introduction
 
-This program tries to validate and process financial data of a single entity, separately or in combination:
-* bank statements
-* SMSF member accounting
-* livestock accounting information
-* hirepurchase agreements
+This repository hosts a practical research into leveraging logic programming to solve accounting problems. The core logic runs in SWI-Prolog, and is aided by a python webserver. Several services are available:
+
+* investment calculator
+* hirepurchase agreement
 * depreciation
+* livestock (standalone)
+* division 7A loan calculator
 
-It automates some of the usual accounting procedures, like tax calculations, and generates a balance sheet and other types of reports. 
-
-* Given a bank statement, it can derive balance sheets, trial balances, investment report
-* Given a hire purchase arrangement, it can track the balance of a hire purchase account through time, the total payment and the total interest
-
-In this form, we use it at https://lodgeit.net.au/,  along with a proprietary (but free) frontend in the form of a Microsoft Excel plugin, to automate accounting tasks.
-
-## other functionality
-* It can determine tax residency by carrying out a dialog with the user
-* It can determine small business entity status by carrying out a dialog with the user
-
-
-## version 2.0
-
-A new version is planned, using a constrained logic programming language, aiming for these features:
-
-Derives, validates, and corrects the financial information that it is given. The program uses redundancy to carry out its validations and corrections. By this it is meant that knowledge of parts of a company's financial data imposes certain constraints on the company's other financial data. If the program is given a company's ledger, then it knows what the balance sheet should look like. If the program is given a company's balance sheet, then it has a rough idea of what the ledger should look like.
-
-* Given a hire purchase arrangement and ledger, it can guess what the erroneous transactions are
-* Given a hire purchase arrangement and ledger, it can generate correction transactions to fix the erroneous transactions
+We use it at http://www.nobleaccounting.com.au, along with a proprietary (but free) frontend in the form of a Microsoft Excel plugin, to automate accounting tasks.
 
 
 
-## projects this is comparable to:
-* https://github.com/johannesgerer/buchhaltung
-* gnu cash
-...
+## investment calculator
+The most complex endpoint is the investment calculator: it validates and processes financial data of a single entity for a given period:
+* bank statements
+* raw general ledger input
+* change in investment unit values
+* (SMSF member accounting - fixme)
+* (livestock accounting information - fixme)
+
+![screenshot](sources/static/docs/readme/ic-sheets.png?raw=true)
+
+It automates some of the usual accounting procedures, like tax calculations, and it generates balance sheets, trial balances, investment report and other types of reports. 
+
+![screenshot](sources/static/docs/readme/ic-result.png?raw=true)
+
+## livestock calculator
+![screenshot](sources/static/docs/readme/livestock-standalone-sheet.png?raw=true)
+![screenshot](sources/static/docs/readme/livestock-standalone-result.png?raw=true)
+
+
+
+## depreciation calculator
+![screenshot](sources/static/docs/readme/depreciation-sheets.png?raw=true)
+![screenshot](sources/static/docs/readme/depreciation-result.png?raw=true)
+
+
+## hirepurchase calculator
+![screenshot](sources/static/docs/readme/hp-sheet.png?raw=true)
+(todo: UI)
+
+Given a hire purchase arrangement, it can track the balance of a hire purchase account through time, the total payment and the total interest
+
+## Division 7A Loan calculator
+![screenshot](sources/static/docs/readme/Div7A-sheet.png?raw=true)
+
+![screenshot](sources/static/docs/readme/Div7A-result.png?raw=true)
+
+
+
+
+## chatbot services
+* determine tax residency by carrying out a dialog with the user
+* determine small business entity status by carrying out a dialog with the user
+
+
+
+# in detail
+
+## getting started (with docker)
+
+1) clone the repo, 
+2) `git submodule update --init --recursive`
+3) `cd docker_scripts`
+3) `./first_run.sh`
+4) `./run.sh  --enable_public_insecure true`  
+
+### usage
+
+#### without Excel
+1) Load http://localhost:88/
+2) upload one of the request files found in tests/endpoint_tests/ (todo: needs updating)
+3) you should get back a json with links to individual report files
+
 
 
 ## documentation
-most endpoints should have some documentation in doc/. Introductions to individual concepts can be found in videos on dropbox.
+todo, this is all private at the moment:
+
+most endpoints should have some resources in lodgeit_private/doc/. Introductions to individual concepts can be found in videos on dropbox.
 
 videos:
 https://www.dropbox.com/sh/prgubjzoo9zpkhp/AACd6YmoWxf9IUi5CriihKlLa?dl=0
@@ -45,7 +87,6 @@ https://www.dropbox.com/sh/o5ck3qm79zwgpc5/AABD9jUcWiNpWMb2fxsmeVfia?dl=0
 
 wiki:
 https://github.com/lodgeit-labs/accounts-assessor-wiki/
-
 
 
 ## architecture
@@ -60,76 +101,15 @@ a celery worker that:
 * talks to the triplestore
 
 ### frontend_server
-lets users upload request files and triggers internal_workers. Django provides a development http server which serves static/tmp files, but for production, this has to be augmented with
+lets users upload request files and triggers internal_workers. Django provides a development http server which serves static/tmp files, but for production, this has to be augmented with:
 
-### http server
-on demo server, this is a system-wide apache set up with mod_wsgi. I have not found a standalone wsgi/asgi server that also serves files like apache does, so it's not clear how to handle this more flexibly.
-
-
+### apache
+serves static files and proxies requests to frontend_server 
 
 
-## getting started
-
-clone the repo, run `git submodule update --init`
-configure secrets/credentials: 
-	`cp secrets_example/ secrets/` 
-
-### with docker
-
-```docker_scripts/run.sh```
-
-### manually
-
-#### Install SWI-Prolog
-* 8.1.14 is known to be good
-* see https://github.com/LodgeiT/labs-accounts-assessor/wiki/SWIPL-and-prolog-notes
-
-#### Install dependencies:
-* install RabbitMQ as specified here: http://docs.celeryproject.org/en/latest/getting-started/first-steps-with-celery.html#celerytut-broker
-* install python3 and python3-pip
-* ```./init.sh```
-
-#### run the triplestore:
-(this is a command line from demo server):
-`/home/sfi/ag/bin/agraph-control --config /home/sfi/ag/lib/agraph.cfg start`
-
-#### with servicemanager:
-##### set up virtualenv for servicemanager:
-* ```cd servicemanager; ./init_local_venv.sh```
-
-##### Run all services:
-```./servicemanager/run_in_local_venv.sh  --log_file ../sm.log  -a -g demo7788```
-
-#### without servicemanager:
-run the commannds as seen in services.yml, i.e.:
-```
-cd <dir>
-bash <args>
-```
-
-
-### usage
-
-#### Open a web browser at: http://localhost:88/
-* upload one of the request files found in tests/endpoint_tests/
-* you should get back a json with links to individual report files
-
-#### Run the tests against a running server:
-(tests need updating..)
-
-`cd server_root; reset;echo -e "\e[3J";   swipl -s ../lib/dev_runner.pl   --problem_lines_whitelist=../misc/problem_lines_whitelist  --script ../lib/endpoint_tests.pl  -g "set_flag(overwrite_response_files, false), set_flag(add_missing_response_files, false), set_prolog_flag(grouped_assertions,true), run_tests"`
-
-#### Run one testcase:
-`cd server_root; reset;echo -e "\e[3J";   swipl -s ../lib/dev_runner.pl   --problem_lines_whitelist=../misc/problem_lines_whitelist  --script ../lib/endpoint_tests.pl  -g "set_flag(overwrite_response_files, false), set_flag(add_missing_response_files, false), set_prolog_flag(grouped_assertions,false), set_prolog_flag(testcase,(ledger,'endpoint_tests/ledger/ledger-2')), run_tests(endpoints:testcase)"`
-
-#### Run a single request from command line:
-1) `cd server_root`
-2) `. ../venv/bin/activate`
-3) `
-time env PYTHONUNBUFFERED=1 CELERY_QUEUE_NAME=q7788 ../sources/internal_workers/invoke_rpc_cmdline.py --debug true --halt true -s "http://localhost:7788"  --prolog_flags "set_prolog_flag(services_server,'http://localhost:17788'),set_prolog_flag(die_on_error,true)" tmp/last_request
 `
 
-## Directory Structure
+## directory structure
 
 * source/lib - prolog source code
 * tests
@@ -143,18 +123,21 @@ time env PYTHONUNBUFFERED=1 CELERY_QUEUE_NAME=q7788 ../sources/internal_workers/
 
 
 
+## version 2.0
 
-## implemented endpoints (needs updating)
+A new version is planned, using a constrained logic programming language, aiming for these features:
 
-## xml endpoints
-a request POST-ed to the /upload url is first handled in prolog_server, where the payload xml request file is saved into tmp/. A filename is handed to process_data, which loads it and let's each endpoint try to handle it. The endpoint that is successful will eventually write it's output directly to stdout, which is redirected by the http server.
+Derives, validates, and corrects the financial information that it is given. The program uses redundancy to carry out its validations and corrections. By this it is meant that knowledge of parts of a company's financial data imposes certain constraints on the company's other financial data. If the program is given a company's ledger, then it knows what the balance sheet should look like. If the program is given a company's balance sheet, then it has a rough idea of what the ledger should look like.
 
-### loan endpoint:
-accepts a tests/endpoint_tests/loan/loan-request.xml and generates a tests/endpoint_tests/loan/loan-response.xml
+* Given a hire purchase arrangement and ledger, it can guess what the erroneous transactions are
+* Given a hire purchase arrangement and ledger, it can generate correction transactions to fix the erroneous transactions
+...
 
-### ledger ("robust", or "investment calculator") endpoint:
-accepts a tests/endpoint_tests/ledger/ledger-request.xml and generates a tests/endpoint_tests/ledger/ledger-response.xml 
-Ledger endpoint is currently the most complex one, spanning most of the files in lib/.
+
+## todo: comparisons to other projects
+* https://github.com/johannesgerer/buchhaltung
+* gnu cash
+...
 
 ## Contributors ✨
 

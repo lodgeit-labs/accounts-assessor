@@ -1,6 +1,6 @@
 # todo make a non-hollow(with static files copy) Dockerfile
 
-FROM httpd:2.4.46-alpine
+FROM httpd:2.4.48-alpine
 
 VOLUME /usr/local/apache2/htdocs/tmp/
 VOLUME /usr/local/apache2/htdocs/static/

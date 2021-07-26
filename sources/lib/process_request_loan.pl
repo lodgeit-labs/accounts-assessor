@@ -49,37 +49,44 @@ process_request_loan(Request_File, DOM) :-
 % display_xml_loan_response/3
 % -------------------------------------------------------------------
 
-display_xml_loan_response(IncomeYear,
-	loan_summary(_Number, OpeningBalance, InterestRate, MinYearlyRepayment, TotalRepayment,RepaymentShortfall, TotalInterest, TotalPrincipal, ClosingBalance)) :-
+xml_loan_response(
+	IncomeYear,
+	loan_summary(_Number, OpeningBalance, InterestRate, MinYearlyRepayment, TotalRepayment,RepaymentShortfall, TotalInterest, TotalPrincipal, ClosingBalance),
+	LoanResponseXML
+) :-
 	% populate loan response xml
 	atomic_list_concat([
-   '<LoanSummary xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="loan_response.xsd">\n',
-   '<IncomeYear>', IncomeYear, '</IncomeYear>\n', 
-   '<OpeningBalance>', OpeningBalance, '</OpeningBalance>\n', 
-   '<InterestRate>', InterestRate, '</InterestRate>\n', 
-   '<MinYearlyRepayment>', MinYearlyRepayment, '</MinYearlyRepayment>\n', 
-   '<TotalRepayment>', TotalRepayment, '</TotalRepayment>\n', 
-   '<RepaymentShortfall>', RepaymentShortfall, '</RepaymentShortfall>\n', 
-   '<TotalInterest>', TotalInterest, '</TotalInterest>\n', 
-   '<TotalPrincipal>', TotalPrincipal, '</TotalPrincipal>\n', 
-   '<ClosingBalance>', ClosingBalance, '</ClosingBalance>\n', 
-   '</LoanSummary>\n'],
-   LoanResponseXML
-   ),
+	   '<LoanSummary xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="loan_response.xsd">\n',
+	   '<IncomeYear>', IncomeYear, '</IncomeYear>\n',
+	   '<OpeningBalance>', OpeningBalance, '</OpeningBalance>\n',
+	   '<InterestRate>', InterestRate, '</InterestRate>\n',
+	   '<MinYearlyRepayment>', MinYearlyRepayment, '</MinYearlyRepayment>\n',
+	   '<TotalRepayment>', TotalRepayment, '</TotalRepayment>\n',
+	   '<RepaymentShortfall>', RepaymentShortfall, '</RepaymentShortfall>\n',
+	   '<TotalInterest>', TotalInterest, '</TotalInterest>\n',
+	   '<TotalPrincipal>', TotalPrincipal, '</TotalPrincipal>\n',
+	   '<ClosingBalance>', ClosingBalance, '</ClosingBalance>\n',
+	   '</LoanSummary>\n'],
+   LoanResponseXML).
 
-	Response_Fn = loc(file_name, 'response.xml'),
-	absolute_tmp_path(Response_Fn, TempFileLoanResponseXML),
-	TempFileLoanResponseXML = loc(absolute_path, TempFileLoanResponseXML_Value),
+display_xml_loan_response(IncomeYear, LoanSummary) :-
+	xml_loan_response(IncomeYear, LoanSummary, LoanResponseXML),
+
+	report_file_path(loc(file_name, 'response.xml'), Url, Path, _),
+	loc(absolute_path, Raw) = Path,
+
 	% create a temporary loan xml file to validate the response against the schema
-	open(TempFileLoanResponseXML_Value, write, XMLStream),
+	open(Raw, write, XMLStream),
 	write(XMLStream, LoanResponseXML),
 	close(XMLStream),
 
 	% read the schema file
 	resolve_specifier(loc(specifier, my_schemas('responses/LoanResponse.xsd')), LoanResponseXSD),
 	% if the xml response is valid then reply the response, otherwise reply an error message
-	(	validate_xml(TempFileLoanResponseXML, LoanResponseXSD, [])
-	->	add_result_file_by_path(TempFileLoanResponseXML)
+	(	validate_xml(Path, LoanResponseXSD, [])
+	->	(
+			add_report_file(0,'result', 'result', Url)
+		)
 	;	add_alert(error, "Validation failed for xml loan response.")).
    
 

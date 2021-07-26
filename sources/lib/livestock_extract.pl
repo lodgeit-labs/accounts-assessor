@@ -1,11 +1,11 @@
 
-extract_livestock_data_from_ledger_request(Request_Dom) :-
+ extract_livestock_data_from_ledger_request(Request_Dom) :-
 	push_context(extract_livestock_data),
 	findall(Livestock_Dom, xpath(Request_Dom, //reports/balanceSheetRequest/livestockData, Livestock_Dom), Livestock_Doms),
 	maplist(extract_livestock_data, Livestock_Doms, _),
 	pop_context.
 
-extract_livestock_data(Livestock_Dom, B) :-
+ extract_livestock_data(Livestock_Dom, B) :-
 	doc_new_theory(B),
 	/* optimally, we'd also create a 'user_input' graph and link it to the theory */
 	/*doc_assert(G, g:is_extracted_from_request_xml, true), goes into request graph */

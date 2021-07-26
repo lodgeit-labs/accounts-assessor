@@ -6,7 +6,7 @@
 :- dynamic concept_data/3.
 :- dynamic doc_concept/2.
 
-process(_FileNameIn, DOM, _Reports) :-
+process_request_hirepurchase_old(_FileNameIn, DOM, _Reports) :-
 	xpath(DOM, //request/solve, element(_,_,Documents)),
 	solve(Documents, Result_Documents),
 	xml_write(element(response,[],Result_Documents), []).
@@ -186,32 +186,32 @@ solve_field(Document_Node, element(Field, Attrs, []), element(Field, Attrs, [Val
 %	* well another factor is if it helps us to build visualizations / explorative uis, although at this point im not sure if there's anything rdf-based
 %		that would be useful, it seems neo4j or something else.
 %	yea i'm definitely not sure on what in particular to use for ui yet or even what kind of feature-set really beyond some basic (doc-)querying
-hrrm we should output static versions of the constraints we use, if that makes any sense.. definitely, not sure to what extent prolog will help with
-some of the details w/ that but it's definitely part of what we should be doing for the explanations for sure.. basically thinking about how to capture
-the constraints as it derives them
-well, that's the easy part that i'll have set up soon, anything derived and posted will end up as a part of the explanation,
-what im not sure about is how to present a more static/generic version not particular to any document, just generic "every ha_installment has xxx which is computed as xxx = yyy + xzzz..."
-well, we'll be applying these constraints one at a time and can figure out which constraints caused a variable's domain to change and at least just present the list of (constraint, new_domain) as a start, possibly along with some approximation-errors information somewhere
-are you thinking extracting the domain info from the clp attributes? if possible yea, haven't looked into actually doing it yet, but that's the basic info
-i'd want for a (really) basic but technically-sufficient proof-trace, it can be presented in correct order, has only steps that are relevant to the variable,
-just might need some thinking on the part of the user depending on how complex an individual constraint is in relation to the variable being derived but..
-i think it especially makes sense in the context of that all the inferencing actually is being done in clp
-and we can maybe dig into the clp a bit more to see how does it actually calculate the effect of a constraint on a domain and maybe get a better idea
-of how to explain that since that is the proof-steps we're explaining anyway
-plus i think for systems of equations, it's kinda hard to do a tree-based explanation fully generically, i think it's doable but the constraint-based
-explanation is fully generic right away
-well yeah we can definitely dig deeper into it, but i think i'll do the tree variant first, since thats pretty much worked out
-alright, i don't have as good of an idea of how to do the tree variant but i'll go w/ that if you think it'll be easier
-i'll dig into clp attributes more at some point
-we can at least generate a dag rooted at the variable... at least in the cases where we can actually symbolically solve for the variable
-yeah
-probably try to root out all trees that dont lead to user inputs or something
-i'll have to think about it some more, probably first i'll need to set up the doc stuff better before the hp will really be useable
-
-wrt dates, are we going with absolute_days? for actual time dimension stuff some kind of absolute time yea
-but for all the inferencing things that need to happen i'll need to set up some stuff to work with human-level representation
-i'd kinda want to do it properly once and for all...one thing that comes to mind, maybe we should go for unix timestamp + info about precision/significant digits / insignificant digits, rather ,,..+ tzinfo heh
-i'd say that would work for timestamping specific instants/time-periods but expressing non-specific durations is perhaps more involved especially if we want it to be coherently integrated w/ our dimensional analysis stuff
+%hrrm we should output static versions of the constraints we use, if that makes any sense.. definitely, not sure to what extent prolog will help with
+%some of the details w/ that but it's definitely part of what we should be doing for the explanations for sure.. basically thinking about how to capture
+%the constraints as it derives them
+%well, that's the easy part that i'll have set up soon, anything derived and posted will end up as a part of the explanation,
+%what im not sure about is how to present a more static/generic version not particular to any document, just generic "every ha_installment has xxx which is computed as xxx = yyy + xzzz..."
+%well, we'll be applying these constraints one at a time and can figure out which constraints caused a variable's domain to change and at least just present the list of (constraint, new_domain) as a start, possibly along with some approximation-errors information somewhere
+%are you thinking extracting the domain info from the clp attributes? if possible yea, haven't looked into actually doing it yet, but that's the basic info
+%i'd want for a (really) basic but technically-sufficient proof-trace, it can be presented in correct order, has only steps that are relevant to the variable,
+%just might need some thinking on the part of the user depending on how complex an individual constraint is in relation to the variable being derived but..
+%i think it especially makes sense in the context of that all the inferencing actually is being done in clp
+%and we can maybe dig into the clp a bit more to see how does it actually calculate the effect of a constraint on a domain and maybe get a better idea
+%of how to explain that since that is the proof-steps we're explaining anyway
+%plus i think for systems of equations, it's kinda hard to do a tree-based explanation fully generically, i think it's doable but the constraint-based
+%explanation is fully generic right away
+%well yeah we can definitely dig deeper into it, but i think i'll do the tree variant first, since thats pretty much worked out
+%alright, i don't have as good of an idea of how to do the tree variant but i'll go w/ that if you think it'll be easier
+%i'll dig into clp attributes more at some point
+%we can at least generate a dag rooted at the variable... at least in the cases where we can actually symbolically solve for the variable
+%yeah
+%probably try to root out all trees that dont lead to user inputs or something
+%i'll have to think about it some more, probably first i'll need to set up the doc stuff better before the hp will really be useable
+%
+%wrt dates, are we going with absolute_days? for actual time dimension stuff some kind of absolute time yea
+%but for all the inferencing things that need to happen i'll need to set up some stuff to work with human-level representation
+%i'd kinda want to do it properly once and for all...one thing that comes to mind, maybe we should go for unix timestamp + info about precision/significant digits / insignificant digits, rather ,,..+ tzinfo heh
+%i'd say that would work for timestamping specific instants/time-periods but expressing non-specific durations is perhaps more involved especially if we want it to be coherently integrated w/ our dimensional analysis stuff
 
 
 % but i'm definitely not using this particular data for core inferencing
