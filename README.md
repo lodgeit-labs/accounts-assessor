@@ -109,7 +109,7 @@ serves static files and proxies requests to frontend_server
 
 `
 
-## Directory Structure
+## directory structure
 
 * source/lib - prolog source code
 * tests
@@ -122,19 +122,6 @@ serves static files and proxies requests to frontend_server
 ** schemas - xsd schemas
 
 
-
-
-## implemented endpoints (needs updating)
-
-## xml endpoints
-a request POST-ed to the /upload url is first handled in prolog_server, where the payload xml request file is saved into tmp/. A filename is handed to process_data, which loads it and let's each endpoint try to handle it. The endpoint that is successful will eventually write it's output directly to stdout, which is redirected by the http server.
-
-### loan endpoint:
-accepts a tests/endpoint_tests/loan/loan-request.xml and generates a tests/endpoint_tests/loan/loan-response.xml
-
-### ledger ("robust", or "investment calculator") endpoint:
-accepts a tests/endpoint_tests/ledger/ledger-request.xml and generates a tests/endpoint_tests/ledger/ledger-response.xml 
-Ledger endpoint is currently the most complex one, spanning most of the files in lib/.
 
 ## version 2.0
 
