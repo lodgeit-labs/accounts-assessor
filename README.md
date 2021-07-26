@@ -19,6 +19,9 @@ Other endpoints include:
 
 ## the endpoints
 
+
+### investment calculator
+
 ### hirepurchase agreement
 ![screenshot](sources/static/docs/readme/hp-sheet.png?raw=true)
 Given a hire purchase arrangement, it can track the balance of a hire purchase account through time, the total payment and the total interest
