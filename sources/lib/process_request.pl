@@ -290,6 +290,8 @@ make_alerts_report(Alerts_Html) :-
 	add_report_page_with_body(10,alerts, $>flatten([h3([alerts, ':']), Alerts_Html2]), loc(file_name,'alerts.html'), alerts_html).
 
 
+:- debug(tmp_files).
+
 process_multifile_request(Request_data_uri_base,File_Paths) :-
 	debug(tmp_files, "process_multifile_request(~w)~n", [File_Paths]),
 	(	accept_request_file(File_Paths, Xml_Tmp_File_Path, xml)
@@ -306,7 +308,7 @@ process_multifile_request(Request_data_uri_base,File_Paths) :-
 			%doc_input_to_chr_constraints
 		)
 	;	true),
-	(	process_rdf_request
+	(	(nonvar(Rdf_Tmp_File_Path), process_rdf_request)
 	;	(
 			(
 				ground(Dom),

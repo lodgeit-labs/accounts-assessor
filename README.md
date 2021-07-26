@@ -1,17 +1,8 @@
 # Accounts Assessor
 
-This repository hosts a practical research into leveraging logic programming to solve accounting problems. The core logic runs in SWI-Prolog, and is aided by a python webserver. Several services("endpoints") are available through this webserver, and they work independently.
+This repository hosts a practical research into leveraging logic programming to solve accounting problems. The core logic runs in SWI-Prolog, and is aided by a python webserver. Several services are available:
 
-The most complex endpoint is the investment calculator: tries to validate and process financial data of a single entity for a given period:
-* bank statements
-* raw general ledger input
-* change in investment unit values
-* (SMSF member accounting - WIP)
-* (livestock accounting information - WIP)
-
-It automates some of the usual accounting procedures, like tax calculations, and generates balance sheets, trial balances, investment report and other types of reports. 
-
-Other endpoints include:
+* investment calculator
 * hirepurchase agreement
 * depreciation
 * livestock (standalone)
@@ -19,8 +10,25 @@ Other endpoints include:
 
 ## the endpoints
 
+### Division 7A Loan calculator
+![screenshot](sources/static/docs/readme/Div7A-sheet.png?raw=true)
+
+![screenshot](sources/static/docs/readme/Div7A-result.png?raw=true)
+
 
 ### investment calculator
+The most complex endpoint is the investment calculator: it validates and processes financial data of a single entity for a given period:
+* bank statements
+* raw general ledger input
+* change in investment unit values
+* (SMSF member accounting - fixme)
+* (livestock accounting information - fixme)
+
+![screenshot](sources/static/docs/readme/ic-sheets.png?raw=true)
+
+It automates some of the usual accounting procedures, like tax calculations, and it generates balance sheets, trial balances, investment report and other types of reports. 
+
+![screenshot](sources/static/docs/readme/ic-result.png?raw=true)
 
 ### hirepurchase agreement
 ![screenshot](sources/static/docs/readme/hp-sheet.png?raw=true)

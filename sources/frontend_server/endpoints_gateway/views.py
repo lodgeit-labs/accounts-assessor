@@ -87,30 +87,34 @@ def upload(request):
 					request_tmp_directory_name=request_tmp_directory_name,
 					server_url=server_url,
 					request_files=request_files_in_tmp,
-					timeout_seconds=15,
+					timeout_seconds = 1 if requested_output_format == 'results_dir' else 45,
 					final_result_tmp_directory_name=final_result_tmp_directory_path
 				)
 			except celery.exceptions.TimeoutError:
-				if requested_output_format == 'json_reports_list':
+				if requested_output_format == 'results_dir':
 					pass
 				else:
 					raise
 
-			if requested_output_format == 'json_reports_list':
+			if requested_output_format == 'results_dir':
 				return JsonResponse(
 				{
-					'alerts': ['task is still processing..'],
 					"reports":
 					[{
-						"title": "frontend_server_timeout",
-						"key": "please refresh",
+						"title": "results_dir",
+						"key": "results_dir",
 						"val":{"url": tmp_file_url(server_url, final_result_tmp_directory_name, '')}}
 					]
 				})
-			if requested_output_format == 'xml':
-				return HttpResponseRedirect('/tmp/' + response_tmp_directory_name + '/response.xml')
+			elif requested_output_format == 'xml':
+				reports = json.load(final_result_tmp_directory_path + '/000000_response.json.json')
+				redirect_url = find_report_by_key(reports, 'response')
+			elif requested_output_format == 'json_reports_list':
+				redirect_url = '/tmp/'+ response_tmp_directory_name + '/000000_response.json.json'
 			else:
-				return HttpResponseRedirect('/tmp/'+ response_tmp_directory_name + '/response.json')
+				raise Exception('unexpected requested_output_format')
+			logging.getLogger().warn('redirect url: %s' % redirect_url)
+			return HttpResponseRedirect(redirect_url)
 
 
 	else:
@@ -118,6 +122,11 @@ def upload(request):
 	return render(request, 'upload.html', {'form': form})
 
 
+
+def find_report_by_key(reports, name):
+	for i in reports:
+		if i['key'] == name:
+			return i['val']['url']
 
 
 def day(request):
