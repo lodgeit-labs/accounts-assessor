@@ -107,8 +107,8 @@ def upload(request):
 					]
 				})
 			elif requested_output_format == 'xml':
-				reports = json.load(final_result_tmp_directory_path + '/000000_response.json.json')
-				redirect_url = find_report_by_key(reports, 'response')
+				reports = json.load(open('/app/server_root/tmp/' + response_tmp_directory_name + '/000000_response.json.json'))
+				redirect_url = find_report_by_key(reports['reports'], 'response')
 			elif requested_output_format == 'json_reports_list':
 				redirect_url = '/tmp/'+ response_tmp_directory_name + '/000000_response.json.json'
 			else:

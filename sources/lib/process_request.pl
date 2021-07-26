@@ -8,7 +8,7 @@
 :- [process_request_livestock].
 %:- use_module(process_request_investment, []).
 :- [process_request_car].
-% :- [process_request_hirepurchase_new].
+:- [process_request_hirepurchase_new].
 :- ['../depr/src/process_request_depreciation_new'].
 
 
@@ -367,7 +367,7 @@ load_request_rdf(loc(absolute_path, Rdf_Tmp_File_Path), G) :-
 
 process_rdf_request :-
 	debug(requests, "process_rdf_request~n", []),
-	(	%process_request_hirepurchase_new;
+	(	process_request_hirepurchase_new;
 		process_request_depreciation_new;
 		process_request_ledger
 	),

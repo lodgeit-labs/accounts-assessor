@@ -8,15 +8,13 @@ This repository hosts a practical research into leveraging logic programming to 
 * livestock (standalone)
 * division 7A loan calculator
 
-## the endpoints
-
-### Division 7A Loan calculator
+## Division 7A Loan calculator
 ![screenshot](sources/static/docs/readme/Div7A-sheet.png?raw=true)
 
 ![screenshot](sources/static/docs/readme/Div7A-result.png?raw=true)
 
 
-### investment calculator
+## investment calculator
 The most complex endpoint is the investment calculator: it validates and processes financial data of a single entity for a given period:
 * bank statements
 * raw general ledger input
@@ -30,7 +28,20 @@ It automates some of the usual accounting procedures, like tax calculations, and
 
 ![screenshot](sources/static/docs/readme/ic-result.png?raw=true)
 
-### hirepurchase agreement
+
+## livestock calculator
+![screenshot](sources/static/docs/readme/livestock-standalone-sheet.png?raw=true)
+![screenshot](sources/static/docs/readme/livestock-standalone-result.png?raw=true)
+
+
+
+## depreciation calculator
+![screenshot](sources/static/docs/readme/depreciation-sheets.png?raw=true)
+![screenshot](sources/static/docs/readme/depreciation-result.png?raw=true)
+
+
+
+## hirepurchase calculator
 ![screenshot](sources/static/docs/readme/hp-sheet.png?raw=true)
 Given a hire purchase arrangement, it can track the balance of a hire purchase account through time, the total payment and the total interest
 
