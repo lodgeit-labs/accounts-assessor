@@ -1,0 +1,37 @@
+running without docker is not currently maintained, but this should be helpful:
+
+### manually
+
+#### Install SWI-Prolog
+* 8.1.14 is known to be good
+* see https://github.com/LodgeiT/labs-accounts-assessor/wiki/SWIPL-and-prolog-notes
+
+#### Install dependencies:
+* install RabbitMQ as specified here: http://docs.celeryproject.org/en/latest/getting-started/first-steps-with-celery.html#celerytut-broker
+* install python3 and python3-pip
+* ```./init.sh```
+
+#### run the triplestore:
+(this is a command line from demo server):
+`/home/sfi/ag/bin/agraph-control --config /home/sfi/ag/lib/agraph.cfg start`
+
+#### with servicemanager:
+##### set up virtualenv for servicemanager:
+* ```cd servicemanager; ./init_local_venv.sh```
+
+##### Run all services:
+```./servicemanager/run_in_local_venv.sh  --log_file ../sm.log  -a -g demo7788```
+
+#### without servicemanager:
+run the commannds as seen in services.yml, i.e.:
+```
+cd <dir>
+bash <args>
+```
+
+
+#### Run a single request from command line:
+1) `cd server_root`
+2) `. ../venv/bin/activate`
+3) `
+time env PYTHONUNBUFFERED=1 CELERY_QUEUE_NAME=q7788 ../sources/internal_workers/invoke_rpc_cmdline.py --debug true --halt true -s "http://localhost:7788"  --prolog_flags "set_prolog_flag(services_server,'http://localhost:17788'),set_prolog_flag(die_on_error,true)" tmp/last_request

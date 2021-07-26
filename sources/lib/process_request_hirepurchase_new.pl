@@ -1,4 +1,4 @@
-:- use_module(library(chr), [enumerate_constraints/1]).
+%:- use_module(library(chr), [enumerate_constraints/1]).
 
 
 chase_kb(N/*, Done*/) :-
