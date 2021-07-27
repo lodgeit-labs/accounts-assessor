@@ -2,9 +2,10 @@
 
 
 'extract action verbs' :-
-	!doc_value($>request_data, ic:action_verbs, X),
- 	maplist(!'extract action verb', $>doc_list_items(X)),
+	get_singleton_sheet_data(ic:action_verbs, Data)
+ 	maplist(!'extract action verb', $>doc_list_items(Data)),
 	!add_builtin_action_verbs.
+
 
 'extract action verb'(Item) :-
 	push_format('extract action verb from: ~w', [$>sheet_and_cell_string(Item)]),

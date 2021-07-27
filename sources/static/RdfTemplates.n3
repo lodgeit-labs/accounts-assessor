@@ -677,8 +677,10 @@ ic_ui:investment_calculator_sheets_v2_example
 ic_ui:investment_calculator_example
 	a excel:template_sheet_set;
 	excel:example_has_sheets (
-		[	excel:has_sheet ic_ui:action_verbs_sheet;
-			excel:example_doc ic_ui:action_verbs_example]
+
+		[	excel:sheet_instance_has_sheet_type ic_ui:action_verbs_sheet;
+			excel:sheet_instance_has_sheet_data ic_ui:action_verbs_example]
+
 		[	excel:has_sheet ic_ui:unit_values_sheet;
 			excel:example_doc ic_ui:unit_values_example]
 		[	excel:has_sheet ic_ui:bank_statement_sheet;
