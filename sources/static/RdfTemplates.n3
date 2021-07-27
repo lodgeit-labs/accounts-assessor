@@ -177,7 +177,7 @@ smsf_ui:income_tax_sheet
 	excel:root smsf:income_tax_info.
 
 smsf_ui:example
-	a excel:example_sheet_set;
+	a excel:template_sheet_set;
 	excel:example_has_sheets (
 		[	excel:has_sheet smsf_ui:members_sheet;
 			excel:example_doc smsf_ui:members_sheet_example]
@@ -336,7 +336,7 @@ depr_ui:depreciation_calculator_sheet_assets
 	excel:root depr_ui:depreciation_assets.
 
 depr_ui:depreciation_example_simple
-	a excel:example_sheet_set;
+	a excel:template_sheet_set;
 	excel:example_has_sheets (
 		[	excel:has_sheet depr_ui:depreciation_calculator_sheet_queries;
 			excel:example_doc depr_ui:depreciation_example_queries_simple]
@@ -651,7 +651,7 @@ ic_ui:investment_calculator_sheets
 	).
 
 ic_ui:investment_calculator_sheets_v2_example
-	a excel:example_sheet_set;
+	a excel:template_sheet_set;
 	kb:succeeds ic_ui:investment_calculator_sheets;
 	kb:is_backwards_compatible [
 		kb:with ic_ui:investment_calculator_sheets;
@@ -675,7 +675,7 @@ ic_ui:investment_calculator_sheets_v2_example
 
 
 ic_ui:investment_calculator_example
-	a excel:example_sheet_set;
+	a excel:template_sheet_set;
 	excel:example_has_sheets (
 		[	excel:has_sheet ic_ui:action_verbs_sheet;
 			excel:example_doc ic_ui:action_verbs_example]
