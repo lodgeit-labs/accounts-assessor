@@ -17,7 +17,7 @@ smsf_income_tax_stuff2(Input, State_in, State_out) :-
 	new_state_with_appended_(State2, [change(l:has_transactions,append,[Ato_levy_txs,Tax_expense_txs])], State_out).
 
 ato_supervisory_levy_txs(Input, Txs) :-
-	!doc_value(Input, excel:has_sheet_name, Sheet_name),
+	!doc(Input, excel:has_sheet_name, Sheet_name),
 	!doc_new_uri(income_tax_st, St),
 	!doc_add_value(St, transactions:description, Sheet_name, transactions),
 	!result_property(l:report_currency, [Report_currency]),
@@ -410,7 +410,7 @@ smsf_income_tax_reports(reports{report:Tbl1,reconcilliation:Tbl2}) :-
 
 
  smsf_income_tax_txs(Input, Txs0) :-
-	!doc_value(Input, excel:has_sheet_name, Sheet_name),
+	!doc(Input, excel:has_sheet_name, Sheet_name),
 	!doc_new_uri(income_tax_st, St),
 	!doc_add_value(St, transactions:description, Sheet_name, transactions),
 	!vector_of_coords_vs_vector_of_values(kb:debit, Tax_vec, $>!evaluate_fact2(aspects([concept - smsf/income_tax/'Tax on Taxable Income @ 15%']))),

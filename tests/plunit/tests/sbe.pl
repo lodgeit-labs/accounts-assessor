@@ -1,4 +1,4 @@
-:- ['../../lib/sbe'].
+:- ['../../../sources/lib/sbe'].
 
 :- begin_tests(sbe).
 

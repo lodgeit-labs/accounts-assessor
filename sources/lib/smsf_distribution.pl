@@ -41,7 +41,7 @@ extract_smsf_distribution4(_,_, _, "Total", []) :- !.
 	/*this check doesn't actually work, due to a bug in doc or dicts i guess*/
 	(	doc(_, smsf_distribution_ui:unit_type, Unit)
 	->	(
-			doc(Item, excel:sheet_name, Sheet_name),
+			doc(Item, excel:has_sheet_name, Sheet_name),
 			throw_string(['duplicate unit types in ', Sheet_name])
 		)
 	;	true).

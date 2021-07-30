@@ -309,3 +309,24 @@ sum_cells(Values, Sum) :-
 
 		  
 
+
+
+/*
+  <abstract representation of a table> to <excel sheet rdf@>
+*/
+
+/*
+
+table_sheet
+
+
+
+
+
+
+
+
+
+
+
+*/

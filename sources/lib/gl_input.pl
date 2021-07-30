@@ -20,7 +20,7 @@
 	!atom_string(Default_Currency, Default_Currency0),
 	!doc_value(Gl, ic:items, List),
 	!doc_list_items(List, Items),
-	!doc_value(Gl, excel:has_sheet_name, Sheet_name),
+	!doc(Gl, excel:has_sheet_name, Sheet_name),
 	!extract_gl_tx(Sheet_name, Default_Currency, none, none, Items, Txs),
 	!check_txsets(Txs),
 	pop_context.
@@ -33,7 +33,7 @@
 	!doc_value(Input, ic:account, First_account),
 	!doc_value(Input, ic:items, List),
 	!doc_list_items(List, Items),
-	!doc_value(Input, excel:has_sheet_name, Sheet_name),
+	!doc(Input, excel:has_sheet_name, Sheet_name),
 	maplist(!'extract action_input item'(Sheet_name, First_account), Items, Txs0),
 	flatten(Txs0, Txs),
 	pop_context.
@@ -154,7 +154,7 @@ extract_gl_tx(Sheet_name, Default_Currency, _, _, [Item|Items], [Tx1|Txs]) :-
 	!atom_string(Default_Currency, Default_Currency0),
 	!doc_value(Gl, reallocation:items, List),
 	!doc_list_items(List, Items),
-	!doc_value(Gl, excel:has_sheet_name, Sheet_name),
+	!doc(Gl, excel:has_sheet_name, Sheet_name),
 	!doc_value(Gl, reallocation:account_A, Account_A_str),
 	!atom_string(Account_A_atom, Account_A_str),
 	!account_by_ui(Account_A_atom, Account_A),
