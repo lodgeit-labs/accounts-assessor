@@ -203,22 +203,18 @@ json_report_entries(Out) :-
 		Out
 	).
 
-format_json_report_entry(Key, Title, Url, Json) :-
+ format_json_report_entry(Key, Title, Url, Json) :-
 	Json0 = _{key:Key, title:Title, val:_{url:Url}},
-
 	(
-		(
-			Key == "response.n3",
-			\+doc($>result, l:type, l:ledger)
-		)
-	->	(
-			% inline response.n3 into the result json
-			tmp_file_path_from_something(loc(_,Url), loc(absolute_path,P)),
-			read_file_to_string(P, Contents, []),
-			Json = Json0.put(contents,Contents)
-		)
-	;	Json = Json0 % just url's for all the rest
+		(inline_file("result_sheets.n3", Key, Url, Json0, Json),!)
+		;
+		Json = Json0
 	).
+
+ inline_file(Key, Key, Url, Json0, Json) :-
+	tmp_file_path_from_something(loc(_,Url), loc(absolute_path,P)),
+	read_file_to_string(P, Contents, []),
+	Json = Json0.put(contents,Contents).
 
  collect_alerts(Alerts_text, Alerts_html) :-
 	findall(
