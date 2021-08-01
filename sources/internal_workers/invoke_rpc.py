@@ -26,27 +26,40 @@ def call_prolog(
 		halt=True,
 		pipe_rpc_json_to_swipl_stdin=False
 ):
+
+	# configuration changeable per-request:
 	with open(sources('config/worker_config.json'), 'r') as c:
 		config = json.load(c)
 	# if defined, overrides dev_runner --debug value
 	debug = config.get('DEBUG_OVERRIDE', debug)
 	dont_gtrace = config.get('DONT_GTRACE', False)
 
+
+
 	logging.getLogger().info('msg:')
 	logging.getLogger().info(msg)
 	sys.stdout.flush()
 	sys.stderr.flush()
-
-	msg['params']['result_tmp_directory_name'], result_tmp_path = create_tmp()
-
 	#logging.getLogger().warn('final_result_tmp_directory_name:')
 	#logging.getLogger().warn(final_result_tmp_directory_name)
 
+
+
+	# this is where prolog will put reports:
+	msg['params']['result_tmp_directory_name'], result_tmp_path = create_tmp()
+
+
+
+	# symlink from "final result" directory to actual result directory:
 	if final_result_tmp_directory_name != None:
 		xxx1 = ['/bin/ln', '-s', '../'+msg['params']['result_tmp_directory_name'], final_result_tmp_directory_name + '/' + msg['params']['result_tmp_directory_name']]
-		#logging.getLogger().warn(xxx1)
 		subprocess.call(xxx1)
+		xxx2 = ['/bin/ln', '-s', '../'+msg['params']['result_tmp_directory_name'], final_result_tmp_directory_name + '/latest']]
+		subprocess.call(xxx2)
 
+
+
+	# symlink tmp/last_result to tmp/xxxxx:
 	last_result_symlink_path = get_tmp_directory_absolute_path('last_result')
 	if os.path.exists(last_result_symlink_path):
 		subprocess.call(['/bin/rm', last_result_symlink_path])
@@ -56,10 +69,14 @@ def call_prolog(
 		msg['params']['result_tmp_directory_name'], # <- relative
 		last_result_symlink_path])
 
+
+
+	# write call info txt:
 	with open(os.path.join(result_tmp_path, 'rpc_call_info.txt'), 'w') as info:
 		info.write('request:\n')
 		info.write(str(msg))
 		info.write('\n')
+
 
 
 	#logging.getLogger().warn(os.getcwd())
@@ -67,20 +84,29 @@ def call_prolog(
 	#logging.getLogger().warn(git('sources/static/git_info.txt'))
 	#logging.getLogger().warn(os.path.join(result_tmp_path))
 
+
+
+	# copy repo status txt to result dir
 	shutil.copyfile(
 		os.path.abspath(git('sources/static/git_info.txt')),
 		os.path.join(result_tmp_path, 'git_info.txt'))
+
+
+
 
 	msg['params'].update(
 		uri_params(msg['params']["result_tmp_directory_name"])
 	)
 
-	# working directory. Should not matter for the prolog app, since everything in the prolog app uses (or should use) lib/search_paths.pl,
+
+
+	# set working directory. Should not matter for the prolog app, since everything in the prolog app uses (or should use) lib/search_paths.pl,
 	# and dev_runner uses tmp_file_stream.
 	os.chdir(git("server_root"))
 
-	# construct the command line
 
+
+	# construct the command line:
 	if debug_loading:
 		entry_file = 'lib/debug_loading_rpc_server.pl'
 	else:
@@ -98,8 +124,10 @@ def call_prolog(
 	else:
 		halt_goal = ''
 
-	input = json.dumps(msg)
 
+
+
+	input = json.dumps(msg)
 	cmd0 = [
 		git("sources/public_lib/lodgeit_solvers/tools/dev_runner/dev_runner.pl"),
 		['--problem_lines_whitelist',
@@ -110,14 +138,23 @@ def call_prolog(
 	cmd0b = dev_runner_debug_args + [["--script", sources(entry_file)]]
 	cmd1 = dev_runner_options
 
-	# the idea is that eventually, we'll only connect to a standalone swipl server from here
+
+
+
+	# pipe the command or pass as an argument?
 	if pipe_rpc_json_to_swipl_stdin:
 		goal = ',lib:process_request_rpc_cmdline'
 	else:
 		goal = ",make,lib:process_request_rpc_cmdline_json_text('" + (input).replace('"','\\"') + "')"
 
+
+
+
 	cmd2 = [['-g', debug_goal + prolog_flags + goal + halt_goal]]
 	cmd = cmd0 + cmd0b + cmd1 + cmd2
+
+
+
 
 	logging.getLogger().debug('invoke_rpc: running:')
 	# print(shlex.join(cmd)) # python 3.8
@@ -126,6 +163,9 @@ def call_prolog(
 	#					'-v',
 	#					'--f', "user time :%U secs, max mem: %M kb",
 						cmd])
+
+
+
 
 	print(cmd)
 	#print('# pipe_rpc_json_to_swipl_stdin=',pipe_rpc_json_to_swipl_stdin)
@@ -146,7 +186,12 @@ def call_prolog(
 			"invoke_rpc: if system PATH is messed up, maybe you're running the server from venv, and activating the venv a second time, from run_common0.sh, messes it up")
 		raise
 
-	if stdout_data not in [b'', '']:
+
+
+
+	if stdout_data in [b'', '']:
+		print('invoke_rpc: got no stdout from swipl.')
+	else:
 		print()
 		print("invoke_rpc: prolog stdout:")
 		print(stdout_data)
@@ -162,8 +207,10 @@ def call_prolog(
 		except json.decoder.JSONDecodeError as e:
 			print('invoke_rpc:', e)
 			print()
-	else:
-		print('invoke_rpc: got no stdout from swipl.')
+
+
+
+	# kbye
 	return msg['params']['result_tmp_directory_name'], {'status':'error'}
 
 
@@ -180,6 +227,8 @@ def uri_params(tmp_directory_name):
 		"rdf_namespace_base": rdf_namespace_base,
 		"rdf_explorer_bases": [rdf_explorer_base]
 	}
+
+
 
 # if you want to see current env:
 #import sys

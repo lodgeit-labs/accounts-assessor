@@ -35,6 +35,10 @@ def run(debug_loading, debug, request_files, dev_runner_options, prolog_flags, s
 		dev_runner_options = ''
 	files2 = get_absolute_paths(request_files)
 	files3 = flatten_file_list_with_dirs_into_file_list(files2)
+	request_format = 'xml'
+	for f in files3:
+		if any([f.lower().endswith(x) for x in ['n3', 'trig']]):
+			request_format = 'rdf'
 	request_tmp_directory_name, request_tmp_directory_absolute_path = create_tmp()
 	copy_request_files_to_tmp(request_tmp_directory_absolute_path, files3)
 	_, final_result_tmp_directory_name = create_tmp()
@@ -49,7 +53,8 @@ def run(debug_loading, debug, request_files, dev_runner_options, prolog_flags, s
 		debug_loading=debug_loading,
 		debug=debug,
 		halt=halt,
-		final_result_tmp_directory_name=final_result_tmp_directory_name
+		final_result_tmp_directory_name=final_result_tmp_directory_name,
+		request_format = request_format
 	)
 
 if __name__ == '__main__':

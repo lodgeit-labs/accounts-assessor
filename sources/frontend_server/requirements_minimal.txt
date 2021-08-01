@@ -2,7 +2,7 @@ wheel
 django~=3.2.5
 django-ipware
 django-modern-rpc
-celery[redis]==5.0.0
+celery[redis]~=5.0.0
 django-cors-headers
 agraph-python==101.0.7
 requests

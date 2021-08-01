@@ -54,6 +54,10 @@ def upload(request):
 	params.update(request.POST)
 	params.update(request.GET)
 	requested_output_format = params.get('requested_output_format', 'json_reports_list')
+	request_format = params.get('request_format')
+	if not request_format:
+		raise Exception('missing request_format')
+
 	prolog_flags = """set_prolog_flag(services_server,'""" + settings.SECRET__INTERNAL_SERVICES_SERVER_URL + """')"""
 
 	if request.method == 'POST':
@@ -80,6 +84,7 @@ def upload(request):
 
 
 			final_result_tmp_directory_name, final_result_tmp_directory_path = create_tmp()
+			response_tmp_directory_name = None
 			try:
 				response_tmp_directory_name = call_prolog_calculator.call_prolog_calculator(
 					celery_app = celery_app,
@@ -87,23 +92,26 @@ def upload(request):
 					request_tmp_directory_name=request_tmp_directory_name,
 					server_url=server_url,
 					request_files=request_files_in_tmp,
-					timeout_seconds = 1 if requested_output_format == 'results_dir' else 45,
+					# the limit here is that the excel plugin doesn't do any async or such. It will block until either response is received or it timeouts.
+					# for json_reports_list, we must choose a timeout that happens faster than client's timeout. If client timeouts, it will have received nothing and can't even open browser or let user load result sheets manually
+					# but if we timeout too soon, we will have no chance to send a full reports list with result sheets, and users will get an unnecessary browser window + will have to load sheets manually.
+					# for xml there is no way to indicate any errors, so just let client do the timeouting.
+					timeout_seconds = 30 if requested_output_format == 'json_reports_list' else 0,
+					request_format = request_format,
 					final_result_tmp_directory_name=final_result_tmp_directory_path
 				)
 			except celery.exceptions.TimeoutError:
-				if requested_output_format == 'results_dir':
-					pass
-				else:
+				if requested_output_format == 'xml':
 					raise
 
-			if requested_output_format == 'results_dir':
+			if response_tmp_directory_name == None:
 				return JsonResponse(
 				{
 					"reports":
 					[{
 						"title": "results_dir",
 						"key": "results_dir",
-						"val":{"url": tmp_file_url(server_url, final_result_tmp_directory_name, '')}}
+						"val":{"url": tmp_file_url(server_url, final_result_tmp_directory_name + '/latest', '')}}
 					]
 				})
 			elif requested_output_format == 'xml':

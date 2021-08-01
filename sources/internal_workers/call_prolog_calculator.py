@@ -3,10 +3,11 @@ import sys, os
 sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../common')))
 from tmp_dir_path import get_tmp_directory_absolute_path
 
-def call_prolog_calculator(celery_app, final_result_tmp_directory_name, server_url, request_tmp_directory_name, request_files, timeout_seconds=0, **kwargs):
+def call_prolog_calculator(celery_app, final_result_tmp_directory_name, server_url, request_tmp_directory_name, request_files, timeout_seconds=0, request_format=None, **kwargs):
 
 	msg = {	"method": "calculator",
 			"params": {
+				'request_format': request_format,
 				"server_url": server_url,
 				"request_files": request_files,
 				"request_tmp_directory_name": request_tmp_directory_name

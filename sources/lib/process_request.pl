@@ -50,20 +50,20 @@
 
 	'make task_directory report entry',
 
-	findall(_,process_request(Request_data_uri_base, Request_Files2),_),
+	findall(_,process_request(Dict.request_format, Request_data_uri_base, Request_Files2),_),
 
 	(cf(make_zip)->true;true).
 
 
-process_request(Request_data_uri_base, File_Paths) :-
+process_request(Request_format, Request_data_uri_base, File_Paths) :-
 	(	current_prolog_flag(die_on_error, true)
 	->	(
-			process_multifile_request(Request_data_uri_base,File_Paths),
+			process_multifile_request(Request_format, Request_data_uri_base, File_Paths),
 			Exception = none
 		)
 	;	(
 			catch_with_backtrace(
-				process_multifile_request(Request_data_uri_base,File_Paths),
+				process_multifile_request(Request_format, Request_data_uri_base, File_Paths),
 				E,
 				Exception = E
 			)
@@ -206,8 +206,8 @@ json_report_entries(Out) :-
  format_json_report_entry(Key, Title, Url, Json) :-
 	Json0 = _{key:Key, title:Title, val:_{url:Url}},
 	(
-		(inline_file("result_sheets.n3", Key, Url, Json0, Json),!)
-		;
+		%(inline_file("result_sheets", Key, Url, Json0, Json),!)
+		%;
 		Json = Json0
 	).
 
@@ -288,35 +288,27 @@ make_alerts_report(Alerts_Html) :-
 
 :- debug(tmp_files).
 
-process_multifile_request(Request_data_uri_base,File_Paths) :-
+ process_multifile_request(Request_format, Request_data_uri_base, File_Paths) :-
 	debug(tmp_files, "process_multifile_request(~w)~n", [File_Paths]),
-	(	accept_request_file(File_Paths, Xml_Tmp_File_Path, xml)
-	->	!load_request_xml(Xml_Tmp_File_Path, Dom)
-	;	true),
-
-	(	accept_request_file(File_Paths, Rdf_Tmp_File_Path, n3)
-	->	(
-			!debug(tmp_files, "done:accept_request_file(~w, ~w, n3)~n", [File_Paths, Rdf_Tmp_File_Path]),
-			!cf(load_request_rdf(Rdf_Tmp_File_Path, G)),
-			!debug(tmp_files, "RDF graph: ~w~n", [G]),
-			!cf(doc_from_rdf(G, 'https://rdf.lodgeit.net.au/v1/excel_request#', Request_data_uri_base)),
-			!check_request_version
-			%doc_input_to_chr_constraints
+	(	Request_format = "xml"
+	->	(	!accept_request_file(File_Paths, Xml_Tmp_File_Path, xml),
+			!load_request_xml(Xml_Tmp_File_Path, Dom),
+			!xpath(Dom, //reports, _),
+			!process_xml_request(Xml_Tmp_File_Path, Dom)
 		)
-	;	true),
-	(	(nonvar(Rdf_Tmp_File_Path), process_rdf_request)
-	;	(
-			(
-				ground(Dom),
-				xpath(Dom, //reports, _)
+	;	(	Request_format = "rdf"
+		->	(	!accept_request_file(File_Paths, Rdf_Tmp_File_Path, n3),
+				!debug(tmp_files, "done:accept_request_file(~w, ~w, n3)~n", [File_Paths, Rdf_Tmp_File_Path]),
+				!cf(load_request_rdf(Rdf_Tmp_File_Path, G)),
+				!debug(tmp_files, "RDF graph: ~w~n", [G]),
+				!cf(doc_from_rdf(G, 'https://rdf.lodgeit.net.au/v1/excel_request#', Request_data_uri_base)),
+				!check_request_version,
+				%doc_input_to_chr_constraints
+				process_rdf_request
 			)
-		->	!process_xml_request(Xml_Tmp_File_Path, Dom)
+		;	throw_string('unrecognized request_format')
 		)
 	).
-/*
-				;	throw_string('<reports> tag not found'))
-			;		throw_string('rdf request processing failed'))
-*/
 
 /* only done for requests that include a rdf file */
 check_request_version :-
