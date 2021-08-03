@@ -1,16 +1,15 @@
 # this file contains requirements of all sub-projects, as well as some developer conveniences.
 
-#sympy
 wheel
-ipython
+#ipython
 click>=7,<8
 untangle
 deepdiff
 defusedxml
-xmlschema==1.5.3
+xmlschema~=1.5.3
 django~=3.2.5
 django-modern-rpc
-celery[redis]~=5.0.0
+celery[redis]~=5.1
 git+https://github.com/Arelle/Arelle
 #-e https://github.com/Arelle/Arelle
 xmldiff

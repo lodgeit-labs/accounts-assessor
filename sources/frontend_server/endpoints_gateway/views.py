@@ -104,23 +104,25 @@ def upload(request):
 				if requested_output_format == 'xml':
 					raise
 
-			if response_tmp_directory_name == None:
-				return JsonResponse(
-				{
-					"reports":
-					[{
-						"title": "results_dir",
-						"key": "results_dir",
-						"val":{"url": tmp_file_url(server_url, final_result_tmp_directory_name + '/latest', '')}}
-					]
-				})
-			elif requested_output_format == 'xml':
+			if requested_output_format == 'xml':
 				reports = json.load(open('/app/server_root/tmp/' + response_tmp_directory_name + '/000000_response.json.json'))
 				redirect_url = find_report_by_key(reports['reports'], 'response')
-			elif requested_output_format == 'json_reports_list':
-				redirect_url = '/tmp/'+ response_tmp_directory_name + '/000000_response.json.json'
 			else:
-				raise Exception('unexpected requested_output_format')
+				if response_tmp_directory_name == None:
+					return JsonResponse(
+					{
+						"reports":
+						[{
+							"title": "results_dir",
+							"key": "results_dir",
+							"val":{"url": tmp_file_url(server_url, final_result_tmp_directory_name + '/latest', '')}}
+						]
+					})
+				else:
+					if requested_output_format == 'json_reports_list':
+						redirect_url = '/tmp/'+ response_tmp_directory_name + '/000000_response.json.json'
+					else:
+						raise Exception('unexpected requested_output_format')
 			logging.getLogger().warn('redirect url: %s' % redirect_url)
 			return HttpResponseRedirect(redirect_url)
 

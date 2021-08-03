@@ -54,7 +54,7 @@ def call_prolog(
 	if final_result_tmp_directory_name != None:
 		xxx1 = ['/bin/ln', '-s', '../'+msg['params']['result_tmp_directory_name'], final_result_tmp_directory_name + '/' + msg['params']['result_tmp_directory_name']]
 		subprocess.call(xxx1)
-		xxx2 = ['/bin/ln', '-s', '../'+msg['params']['result_tmp_directory_name'], final_result_tmp_directory_name + '/latest']]
+		xxx2 = ['/bin/ln', '-s', '../'+msg['params']['result_tmp_directory_name'], final_result_tmp_directory_name + '/latest']
 		subprocess.call(xxx2)
 
 
