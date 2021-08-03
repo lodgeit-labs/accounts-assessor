@@ -30,7 +30,7 @@ the test
 */
 
 test_xxx :-
-	true,
+	write('eval..'),nl,
 	maplist(eval,[
 		eq(41152/259, '+', 54/78, '=', C),
 		eq(C, '*', 52/1, '=', D),
@@ -40,10 +40,10 @@ test_xxx :-
 	flatten([Norm_factors, Nums], Vars),
 	writeq(Vars),nl,
 
+	write('label..'),nl,
 	findall(_, 
 		 (
-
-			 labeling([ff], Norm_factors),
+			 labeling([up], Norm_factors),
 			 writeq(Vars),nl
 		),
 	_).
