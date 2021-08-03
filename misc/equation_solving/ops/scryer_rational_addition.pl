@@ -2,12 +2,15 @@
 :- use_module(library(format)).
 
 
-reduction(An/Ad, An2/Ad2) :-
-	An = An2 * Af,
-	Ad = Ad2 * Af.
+
+/*
+reduction(An/Ad, NormN/NormD) :-
+	An = Af * NormN,
+	Ad = Af * NormD,
+	Af #> 0.
 
 
-add(Aout,Bout,Cout) :-
+add_reduced(Aout,Bout,Cout) :-
 	reduction(An/Ad, Aout),
 	reduction(Bn/Bd, Bout),
 	reduction(Cn/Cd, Cout),
@@ -15,13 +18,29 @@ add(Aout,Bout,Cout) :-
 	Bn2 #= Bn * Ad,
 	Cn #= An2 + Bn2,
 	Cd #= Ad * Bd.
+*/
 
 
-missing_dot :-
-	add(41152/259, 54/78, X),writeq(X),nl.
+add(An/Ad,Bn/Bd,Cn/Cd) :-
+	An2 #= An * Bd,
+	Bn2 #= Bn * Ad,
+	Cn #= An2 + Bn2,
+	Cd #= Ad * Bd.
 
 
-%add(41152r259 - 5592134817830753r35184372088832,
-
-
-%:- initialization((missing_dot,halt)).
+test_add1 :-
+	
+	add(41152/259, 54/78, C),
+	C = Cn/Cd,
+	
+	findall(_, 
+		 (
+			 Cn #< 999999999999,
+			 Cn #> -999999999999,
+			 Cd #< 999999999999,
+			 Cd #> -999999999999,
+			 labeling([bisect, leftmost], [Cn, Cd]),
+			 writeq(C),
+			 nl
+		),
+		 _).
