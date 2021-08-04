@@ -177,6 +177,7 @@ smsf_ui:income_tax_sheet
 	excel:root smsf:income_tax_info.
 
 smsf_ui:example
+	excel:is_listed_by_hardcoding true;
 	a excel:template_sheet_set;
 	excel:has_sheet_instances (
 		[	excel:sheet_instance_has_sheet_type smsf_ui:members_sheet;
@@ -337,6 +338,7 @@ depr_ui:depreciation_calculator_sheet_assets
 
 depr_ui:depreciation_example_simple
 	a excel:template_sheet_set;
+	excel:is_listed_by_hardcoding true;
 	excel:has_sheet_instances (
 		[	excel:sheet_instance_has_sheet_type depr_ui:depreciation_calculator_sheet_queries;
 			excel:sheet_instance_has_sheet_data depr_ui:depreciation_example_queries_simple]
@@ -345,6 +347,7 @@ depr_ui:depreciation_example_simple
 ).
 
 depr_ui:depreciation_example_full
+	excel:is_listed_by_hardcoding true;
 	excel:has_sheet_instances (
 		[	excel:sheet_instance_has_sheet_type depr_ui:depreciation_calculator_sheet_queries;
 			excel:sheet_instance_has_sheet_data depr_ui:depreciation_example_queries_full]
@@ -676,6 +679,7 @@ ic_ui:investment_calculator_sheets_v2_example
 
 ic_ui:investment_calculator_example
 	a excel:template_sheet_set;
+	excel:is_listed_by_hardcoding true;
 	excel:has_sheet_instances (
 
 		[	excel:sheet_instance_has_sheet_type ic_ui:action_verbs_sheet;
@@ -1084,30 +1088,8 @@ ic_ui:transaction_input
 
 
 
-
-
-ic_ui:gl_input_example
-	ic:default_currency [rdf:value "AUD"];
-	ic:items [rdf:value (
-						[
-							ic:date [rdf:value "2019-10-10T00:00:00.000000"^^xsd:dateTime];
-							ic:account [rdf:value "Assets"];
-							ic:debit [rdf:value "USD 500"]
-						]
-						[
-							ic:date [rdf:value "2019-10-10T00:00:00.000000"^^xsd:dateTime];
-							ic:account [rdf:value "Revenue"];
-							ic:credit [rdf:value "600"]
-						]
-						[
-							ic:date [rdf:value "2019-10-10T00:00:00.000000"^^xsd:dateTime];
-							ic:account [rdf:value "Currency_Movement"];
-							ic:debit [rdf:value "600 AUD"];
-							ic:credit [rdf:value "500 USD"]
-						]
-	)].
-
 hp_ui:hirepurchase_calculator_example
+	excel:is_listed_by_hardcoding true;
 	excel:has_sheet_instances (
 		[	excel:sheet_instance_has_sheet_type hp_ui:hirepurchase_calculator_query_sheet;
 			excel:sheet_instance_has_sheet_data hp_ui:hirepurchase_calculator_query_example]

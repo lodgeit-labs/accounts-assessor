@@ -104,6 +104,7 @@ def upload(request):
 				if requested_output_format == 'xml':
 					raise
 
+			logging.getLogger().warn('requested_output_format: %s' % requested_output_format)
 			if requested_output_format == 'xml':
 				reports = json.load(open('/app/server_root/tmp/' + response_tmp_directory_name + '/000000_response.json.json'))
 				redirect_url = find_report_by_key(reports['reports'], 'response')
