@@ -11,7 +11,7 @@ state ( -> static data) -> structured reports ( -> crosschecks)
  process_request_ledger :-
 	ct(
 		'this is an Investment Calculator query',
-		doc($>request_data, ic_ui:report_details, _)
+		get_optional_singleton_sheet(ic_ui:report_details, _)
 	),
  	!ledger_initialization,
  	*valid_ledger_model,
@@ -283,8 +283,7 @@ This is done with a symlink. This allows to bypass cache, for example in pessera
 */	
    
  extract_report_currency :-
-	!request_data(Request_Data),
-	doc(Request_Data, ic_ui:report_details, D),
+	get_singleton_sheet_data(ic_ui:report_details, D),
 	doc_value(D, ic:currency, C),
 	atom_string(Ca, C),
 	Report_Currency = [Ca],
@@ -297,8 +296,7 @@ This is done with a symlink. This allows to bypass cache, for example in pessera
 */
 
  'extract "cost_or_market"' :-
-	!request_data(Request_Data),
-	doc(Request_Data, ic_ui:report_details, D),
+	get_singleton_sheet_data(ic_ui:report_details, D),
 	doc_value(D, ic:cost_or_market, C),
 	(	(	e(C, ic:cost)
 		;	e(C, ic:market))

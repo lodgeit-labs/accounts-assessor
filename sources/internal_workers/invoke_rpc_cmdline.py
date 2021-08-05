@@ -41,7 +41,7 @@ def run(debug_loading, debug, request_files, dev_runner_options, prolog_flags, s
 			request_format = 'rdf'
 	request_tmp_directory_name, request_tmp_directory_absolute_path = create_tmp()
 	copy_request_files_to_tmp(request_tmp_directory_absolute_path, files3)
-	_, final_result_tmp_directory_name = create_tmp()
+	final_result_tmp_directory_name, final_result_tmp_directory_path = create_tmp()
 	call_prolog_calculator.call_prolog_calculator(
 		celery_app=celery_app,
 		server_url=server_url,
@@ -54,6 +54,7 @@ def run(debug_loading, debug, request_files, dev_runner_options, prolog_flags, s
 		debug=debug,
 		halt=halt,
 		final_result_tmp_directory_name=final_result_tmp_directory_name,
+		final_result_tmp_directory_path=final_result_tmp_directory_path,
 		request_format = request_format
 	)
 

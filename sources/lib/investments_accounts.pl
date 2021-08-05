@@ -16,10 +16,8 @@ return all units that appear in s_transactions with an action type that specifie
 	).
 
  traded_units2(_, Unit) :-
- 	request_data(D),
- 	doc_value(D, ic:unit_types, Categorizations_table),
-	doc_list_items(Categorizations_table, Categorizations),
-	member(Categorization, Categorizations),
+	doc_list_items($>value($>get_singleton_sheet_data(ic:unit_types)), Unit_types),
+	member(Categorization, Unit_types),
 	doc_value(Categorization, ic:unit_type_name, Unit_str),
 	atom_string(Unit, Unit_str).
 

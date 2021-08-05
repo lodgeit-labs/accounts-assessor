@@ -2,7 +2,7 @@ import logging,json, subprocess, os, sys, shutil
 import internal_workers
 
 sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../common')))
-from tmp_dir_path import git, sources, create_tmp_directory_name, create_tmp, get_tmp_directory_absolute_path
+from tmp_dir_path import git, sources, create_tmp_directory_name, create_tmp, get_tmp_directory_absolute_path, ln
 from celery_module import app
 from fs_utils import command_nice, flatten_lists
 
@@ -18,7 +18,6 @@ celery_app = celery.Celery(config_source = celeryconfig)
 @app.task(acks_late=True)
 def call_prolog(
 		msg,
-		final_result_tmp_directory_name=None,
 		dev_runner_options=[],
 		prolog_flags='true',
 		debug_loading=None,
@@ -40,22 +39,20 @@ def call_prolog(
 	logging.getLogger().info(msg)
 	sys.stdout.flush()
 	sys.stderr.flush()
-	#logging.getLogger().warn('final_result_tmp_directory_name:')
-	#logging.getLogger().warn(final_result_tmp_directory_name)
 
 
 
 	# this is where prolog will put reports:
-	msg['params']['result_tmp_directory_name'], result_tmp_path = create_tmp()
+	result_tmp_directory_name, result_tmp_path = create_tmp()
+	msg['params']['result_tmp_directory_name'] = result_tmp_directory_name
 
 
-
-	# symlink from "final result" directory to actual result directory:
-	if final_result_tmp_directory_name != None:
-		xxx1 = ['/bin/ln', '-s', '../'+msg['params']['result_tmp_directory_name'], final_result_tmp_directory_name + '/' + msg['params']['result_tmp_directory_name']]
-		subprocess.call(xxx1)
-		xxx2 = ['/bin/ln', '-s', '../'+msg['params']['result_tmp_directory_name'], final_result_tmp_directory_name + '/latest']
-		subprocess.call(xxx2)
+	# symlink from "final result"(alias task_handle) directory to actual result directory:
+	final_result_tmp_directory_path = msg['params']['final_result_tmp_directory_path']
+	print(final_result_tmp_directory_path)
+	if final_result_tmp_directory_path != None:
+		ln('../'+result_tmp_directory_name, final_result_tmp_directory_path + '/' + result_tmp_directory_name)
+		ln('../'+result_tmp_directory_name, final_result_tmp_directory_path + '/latest')
 
 
 
@@ -63,11 +60,9 @@ def call_prolog(
 	last_result_symlink_path = get_tmp_directory_absolute_path('last_result')
 	if os.path.exists(last_result_symlink_path):
 		subprocess.call(['/bin/rm', last_result_symlink_path])
-	subprocess.call([
-		'/bin/ln', '-s',
-		#result_tmp_path, <- absolute
-		msg['params']['result_tmp_directory_name'], # <- relative
-		last_result_symlink_path])
+	ln(
+		result_tmp_directory_name,
+		last_result_symlink_path)
 
 
 
@@ -95,7 +90,7 @@ def call_prolog(
 
 
 	msg['params'].update(
-		uri_params(msg['params']["result_tmp_directory_name"])
+		uri_params(result_tmp_directory_name)
 	)
 
 

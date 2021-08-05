@@ -4,6 +4,7 @@
 
 /* 
 A + B = C, A * B = C, only the C is thought to be denormalized.
+Numbers should only appear in denormalized form internally in eq predicates, so equality comes down to just unification.
 */
 
 eval(eq(An/Ad,'*',Bn/Bd,'=',Cout),Cf) :-
@@ -17,6 +18,15 @@ eval(eq(An/Ad,'+',Bn/Bd,'=',Cout),Cf) :-
 	Bn2 #= Bn * Ad,
 	Cn #= An2 + Bn2,
 	Cd #= Ad * Bd.
+
+eval(eq(An/Ad, '=', Bn/Bd)) :-
+	An/Ad = Bn/Bd.
+
+eval(eq(An/Ad, '<', Bn/Bd)) :-
+	An * Bd #< Bn * Ad.
+
+
+
 
 norm(An/Ad, NormN/NormD, Af) :-
 	An = Af * NormN,

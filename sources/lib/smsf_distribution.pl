@@ -1,7 +1,7 @@
+
  extract_smsf_distribution(State, Txs) :-
  	!doc(State, l:has_s_transactions, Sts_so_far),
-  	!request_data(Rd),
- 	(	doc(Rd, smsf:distribution, D)
+ 	(	get_optional_singleton_sheet_data(l:has_s_transactions, D)
  	->	!extract_smsf_distribution2(Sts_so_far, D, Txs)
  	;	Txs=[]).
 

@@ -5,15 +5,8 @@
 */
 
  'extract bank accounts' :-
-	request_data(D),
-	format(user_error, '~q~n', [D]),
- 	(	doc(D, ic:bank_statement, Accounts)
- 	->	(
- 			doc_list_items(Accounts, I),
- 			maplist(!cf('extract bank account'), I)
- 		)
-	;	true
-	).
+ 	*get_sheets_data(ic:bank_statement, Bss),
+ 	!maplist(!cf('extract bank account'), Bss).
 
  'extract bank account'(Acc) :-
 	push_format('extract bank account from: ~w', [$>sheet_and_cell_string(Acc)]),

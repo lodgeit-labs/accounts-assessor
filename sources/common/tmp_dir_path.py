@@ -1,5 +1,5 @@
 import time, shutil, ntpath, os
-import sys
+import sys, subprocess
 sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../triplestore_access')))
 import agraph
 from atomic_integer import AtomicInteger
@@ -54,4 +54,6 @@ def copy_request_files_to_tmp(tmp_directory_absolute_path, files):
 		files2.append(tmp_fn)
 	return files2
 
-
+def ln(target, source):
+	xxx1 = ['/bin/ln', '-s', target, source]
+	subprocess.call(xxx1)

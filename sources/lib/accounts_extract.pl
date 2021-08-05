@@ -10,8 +10,7 @@ the accountHierarchy tag can appear multiple times, all the results will be adde
 	extract_accounts2.
 
  extract_accounts2 :-
-	request_data(Request_Data),
-	doc(Request_Data, ic_ui:report_details, Details),
+	get_singleton_sheet_data(ic_ui:report_details, Details),
 	doc_value(Details, ic_ui:account_taxonomies, T),
 	doc_list_items(T, Taxonomies),
 	maplist(load_account_hierarchy,Taxonomies).
@@ -110,11 +109,12 @@ extract accounts from accountHierarchy xml element
 	),
 
 	% look up details uri from rdf
-	(	(	request_data(D),
+	(	/*(	request_data(D),
 			doc_value(D, ic_ui:account_details, Details),
 			doc_list_member(Detail, Details),
 			doc(Detail, l:id, Id)
-		)
+		)*/
+		false
 	->	true
 	;	Detail = _),
 

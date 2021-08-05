@@ -12,9 +12,8 @@ hp_doc_to_chr_basic :-
 	debug(hp_doc_to_chr_basic),
 
 	debug(hp_doc_to_chr_basic, "retrieving doc facts:...~n", []),
-	request_data(Request_Data),
-	docm(Request_Data,hp_ui:hp_calculator_query,HP_Calculator_Query),
-	docm(HP_Calculator_Query,rdf:type,hp:hp_calculator_query),
+	?get_optional_singleton_sheet_data(hp_ui:hp_calculator_query, HP_Calculator_Query),
+	%docm(HP_Calculator_Query,rdf:type,hp:hp_calculator_query),
 	doc_get_attribute(HP_Calculator_Query,hp:begin_date, HP_Begin_Date),
 	debug(hp_doc_to_chr_basic, "retrieved doc date: ~w~n", [HP_Begin_Date]),
 

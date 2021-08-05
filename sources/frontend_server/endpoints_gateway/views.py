@@ -98,7 +98,8 @@ def upload(request):
 					# for xml there is no way to indicate any errors, so just let client do the timeouting.
 					timeout_seconds = 30 if requested_output_format == 'json_reports_list' else 0,
 					request_format = request_format,
-					final_result_tmp_directory_name=final_result_tmp_directory_path
+					final_result_tmp_directory_name = final_result_tmp_directory_name,
+					final_result_tmp_directory_path = final_result_tmp_directory_path
 				)
 			except celery.exceptions.TimeoutError:
 				if requested_output_format == 'xml':
@@ -109,14 +110,15 @@ def upload(request):
 				reports = json.load(open('/app/server_root/tmp/' + response_tmp_directory_name + '/000000_response.json.json'))
 				redirect_url = find_report_by_key(reports['reports'], 'response')
 			else:
-				if response_tmp_directory_name == None:
+				if response_tmp_directory_name == None: # timeout happened
 					return JsonResponse(
 					{
+						"alerts": ["timeout."],
 						"reports":
 						[{
-							"title": "results_dir",
-							"key": "results_dir",
-							"val":{"url": tmp_file_url(server_url, final_result_tmp_directory_name + '/latest', '')}}
+							"title": "task_handle",
+							"key": "task_handle",
+							"val":{"url": tmp_file_url(server_url, final_result_tmp_directory_name, '')}}
 						]
 					})
 				else:
