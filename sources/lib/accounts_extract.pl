@@ -10,7 +10,7 @@ the accountHierarchy tag can appear multiple times, all the results will be adde
 	extract_accounts2.
 
  extract_accounts2 :-
-	get_singleton_sheet_data(ic_ui:report_details, Details),
+	report_details(Details),
 	doc_value(Details, ic_ui:account_taxonomies, T),
 	doc_list_items(T, Taxonomies),
 	maplist(load_account_hierarchy,Taxonomies).

@@ -9,7 +9,7 @@ https://sf360.zendesk.com/hc/en-au/articles/360017821211-The-Create-Entries-Proc
 */
 
  smsf_members_throw(Members) :-
-	doc_list_items($>value($>get_optional_singleton_sheet_data(smsf:members)), Members),
+	doc_list_items($>value($>get_optional_singleton_sheet_data(smsf_ui:members_sheet)), Members),
 	(	Members = []
 	->	throw_string('no SMSF members defined')
 	;	true).

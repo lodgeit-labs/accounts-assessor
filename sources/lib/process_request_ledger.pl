@@ -11,7 +11,7 @@ state ( -> static data) -> structured reports ( -> crosschecks)
  process_request_ledger :-
 	ct(
 		'this is an Investment Calculator query',
-		get_optional_singleton_sheet(ic_ui:report_details, _)
+		get_optional_singleton_sheet(ic_ui:report_details_sheet, _)
 	),
  	!ledger_initialization,
  	*valid_ledger_model,
@@ -283,8 +283,8 @@ This is done with a symlink. This allows to bypass cache, for example in pessera
 */	
    
  extract_report_currency :-
-	get_singleton_sheet_data(ic_ui:report_details, D),
-	doc_value(D, ic:currency, C),
+	!report_details(Details),
+	doc_value(Details, ic:currency, C),
 	atom_string(Ca, C),
 	Report_Currency = [Ca],
 	!result_add_property(l:report_currency, Report_Currency).
@@ -296,7 +296,7 @@ This is done with a symlink. This allows to bypass cache, for example in pessera
 */
 
  'extract "cost_or_market"' :-
-	get_singleton_sheet_data(ic_ui:report_details, D),
+	!report_details(D),
 	doc_value(D, ic:cost_or_market, C),
 	(	(	e(C, ic:cost)
 		;	e(C, ic:market))
@@ -308,7 +308,7 @@ This is done with a symlink. This allows to bypass cache, for example in pessera
 	!result_add_property(l:output_dimensional_facts, on).
 	
  extract_start_and_end_date :-
- 	!doc($>request_data, ic_ui:report_details, D),
+ 	!report_details(D),
 	!read_date(D, ic:from, Start_Date),
 	!read_date(D, ic:to, End_Date),
 	!result(R),
@@ -338,4 +338,8 @@ This is done with a symlink. This allows to bypass cache, for example in pessera
 	read_ic_n_sts_processed(N),
 	Next is N + 1,
 	b_setval(ic_n_sts_processed, Next).
+
+
+ report_details(Details) :-
+	get_singleton_sheet_data(ic_ui:report_details_sheet, Details).
 

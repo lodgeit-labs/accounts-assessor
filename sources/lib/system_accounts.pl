@@ -161,7 +161,7 @@ in Assets
  	Role = rl(Role_prefix/Unit),
  	(
 		(
-			doc_list_items($>value($>get_optional_singleton_sheet_data(ic:unit_types)), Categorizations),
+			doc_list_items($>value($>get_optional_singleton_sheet_data(ic_ui:unit_types_sheet)), Categorizations),
 			member(Categorization, Categorizations),
 			doc_value(Categorization, ic:unit_type_name, Unit_str),
 			atom_string(Unit, Unit_str),

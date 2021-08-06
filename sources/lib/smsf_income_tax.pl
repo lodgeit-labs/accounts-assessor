@@ -1,6 +1,6 @@
 
  smsf_income_tax_stuff(S_in, S_out) :-
-	(	get_optional_singleton_sheet_data(smsf:income_tax_info, Input)
+	(	get_optional_singleton_sheet_data(smsf_ui:income_tax_sheet, Input)
 	->	smsf_income_tax_stuff2(Input, S_in, S_out)
 	;	true).
 

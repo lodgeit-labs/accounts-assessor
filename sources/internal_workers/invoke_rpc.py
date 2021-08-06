@@ -1,4 +1,4 @@
-import logging,json, subprocess, os, sys, shutil
+import logging,json, subprocess, os, sys, shutil, shlex
 import internal_workers
 
 sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../common')))
@@ -151,18 +151,18 @@ def call_prolog(
 
 
 
-	logging.getLogger().debug('invoke_rpc: running:')
-	# print(shlex.join(cmd)) # python 3.8
-	logging.getLogger().debug(command_nice(cmd))
+
 	cmd = flatten_lists([#'/usr/bin/time',
 	#					'-v',
 	#					'--f', "user time :%U secs, max mem: %M kb",
 						cmd])
+	logging.getLogger().warn('invoke_rpc: running:')
+	logging.getLogger().warn(shlex.join(cmd))
 
 
 
 
-	print(cmd)
+
 	#print('# pipe_rpc_json_to_swipl_stdin=',pipe_rpc_json_to_swipl_stdin)
 	try:
 		if pipe_rpc_json_to_swipl_stdin:

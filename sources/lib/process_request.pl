@@ -296,7 +296,8 @@ make_alerts_report(Alerts_Html) :-
 :- debug(tmp_files).
 
  process_multifile_request(Request_format, Request_data_uri_base, File_Paths) :-
-	debug(tmp_files, "process_multifile_request(~w)~n", [File_Paths]),
+
+ 	debug(tmp_files, "process_multifile_request(~w)~n", [File_Paths]),
 	(	Request_format = "xml"
 	->	(	!accept_request_file(File_Paths, Xml_Tmp_File_Path, xml),
 			!load_request_xml(Xml_Tmp_File_Path, Dom),
@@ -311,7 +312,7 @@ make_alerts_report(Alerts_Html) :-
 				!cf(doc_from_rdf(G, 'https://rdf.lodgeit.net.au/v1/excel_request#', Request_data_uri_base)),
 				!check_request_version,
 				%doc_input_to_chr_constraints
-				process_rdf_request
+				*process_rdf_request
 			)
 		;	throw_string('unrecognized request_format')
 		)
@@ -375,9 +376,8 @@ process_xml_request(File_Path, Dom) :-
 /*+   request_xml_to_doc(Dom),*/
 	(process_request_car(File_Path, Dom);
 	(process_request_loan(File_Path, Dom);
-	(process_request_livestock(File_Path, Dom);
+	(process_request_livestock(File_Path, Dom)
 	%(process_request_investment:process(File_Path, Dom);
-	false
 	))).
 
 

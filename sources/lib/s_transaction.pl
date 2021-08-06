@@ -310,7 +310,7 @@ prepreprocess_s_transaction(T, T) :-
 
 
  handle_additional_files(S_Transactions) :-
-	(	value($>get_optional_singleton_sheet_data(ic_ui:additional_files), Files)
+	(	value($>get_optional_singleton_sheet_data(ic_ui:additional_files_sheet), Files)
 	->	(
 			maplist(handle_additional_file, $> doc_list_items(Files), S_Transactions0),
 			flatten(S_Transactions0, S_Transactions)
