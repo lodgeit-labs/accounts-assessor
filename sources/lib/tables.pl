@@ -30,13 +30,32 @@ table_contents_to_html(
 
 rows_to_html(Columns, Rows, Html3) :-
 	maplist(row_to_html(Columns), Rows, Html1),
-	findall(tr(Row_Flat), (member(Row, Html1), flatten(Row, Row_Flat)), Html3).
+	findall(
+		tr(Row_Flat),
+		(
+			member(Row, Html1),
+			flatten(Row, Row_Flat)
+		),
+		Html3
+	).
 
 
 highlight_totals([Row1, Row2 | Rows], [Row1 | Highlighted]) :-
 	highlight_totals([Row2 | Rows], Highlighted).
 
 highlight_totals([tr(Row)], [tr([style="background-color:#DDDDEE; font-weight:bold"],Row)]).
+
+
+ column_title(Dict, Prefix, Header_value) :-
+	column{title: Column_title, options: Options} :< Dict,
+	(	(Prefix = "" -> true ; get_dict(hide_group_prefix, Options, true))
+	->	Header_value = Column_title
+	;	atomics_to_string([Prefix, Column_title], " ", Header_value)).
+
+ group_prefix(Prefix, Group_title, Group_prefix) :-
+	(	Prefix = ""
+	->	Group_prefix = Group_title
+	;	atomics_to_string([Prefix, Group_title], " ", Group_prefix)).
 
 
 header_html(Columns, tr(Header_Row)) :-
@@ -50,55 +69,92 @@ header_html(Columns, tr(Header_Row)) :-
 	),
 	flatten(HTML_Header_Nested, Header_Row).
 
-column_header_html(group{id:_, title:Group_Title, members:Group_Members}, Prefix, Cells) :-
-	(
-		Prefix = ""
-	->
-		Group_Prefix = Group_Title
-	;
-		atomics_to_string([Prefix, Group_Title], " ", Group_Prefix)
-	),
+ column_header_html(Dict, Prefix, Cells) :-
+ 	group{title:Group_title, members:Group_members} :< Dict,
+	group_prefix(Prefix, Group_title, Group_prefix),
 	findall(
-		Child_Cells,
+		Child_cells,
 		(
-			member(Column, Group_Members),
-			column_header_html(Column, Group_Prefix, Child_Cells)
+			member(Column, Group_members),
+			column_header_html(Column, Group_prefix, Child_cells)
 		),
 		Cells
 	).
 
-column_header_html(Dict, Prefix, th(Header_Value)) :-
-	column{title: Column_Title, options: Options} :< Dict,
-	(
-		(Prefix = "" ; get_dict(hide_group_prefix, Options, true))
-	->
-		Header_Value = Column_Title
-	;
-		atomics_to_string([Prefix, Column_Title], " ", Header_Value)
-	).
+ column_header_html(Dict, Prefix, th(Header_Value)) :-
+	column_title(Dict, Prefix, Header_value).
 
-row_to_html(Columns, Row, HTML_Row) :-
+ sheet_fields(Columns, Fields, Prop_uri_dict) :-
+	maplist('', column_fields(""), Columns, Fields0, Group_ids, Prop_uri_dicts),
+	column_or_group_id_to_uri_or_uridict(Group_ids, Prop_uri_dicts, Prop_uri_dict) :-
+	flatten(Fields0, Fields).
+
+ column_fields(Parent_group_uri,Prefix, Dict, Fields, Group_id, Prop_uri_dict) :-
+ 	group{id:Group_id, title:Group_title, members:Group_members} :< Dict,
+	bn(column_group, G),
+	doc_add(G, l:id, Id),
+	(	Parent_group_uri == ''
+	->	''
+	;	doc_add(G, l:has_group, Parent_group_uri)),
+	group_prefix(Prefix, Group_title, Group_prefix),
+	maplist(column_fields(G, Group_id, Group_prefix), Group_members, Fields, Ids, Prop_uris),
+	column_or_group_id_to_uri_or_uridict(Ids, Prop_uris, Prop_uri_dict).
+
+ column_or_group_id_to_uri_or_uridict(Ids, Prop_uris, Prop_uri_dict) :-
+	pairs_keys_values(Prop_uri_pairs, Ids, Prop_uris),
+	dict_pairs(Prop_uri_dict, uris, Prop_uri_pairs).
+
+ column_fields(Group_uri, Group_prefix, Dict, Field, Id, Prop) :-
+	column{id:Id} :< Dict,
+	column_title(Dict, Prefix, Title),
+	(	Group_uri == ''
+	->	''
+	;	doc_add(Field, l:has_group, Group_uri)),
+	/*
+	here we generate an uri for prop, but we will have to use it when creating rows. Actually, we'll have to relate the non-unique(within the whole columns treee) id of a column to the prop uri, hence the asserted l:has_group tree of groups.
+	*/
+	bn(table_field, Field),
+	doc_add(F, excel:type, xsd:string),
+	bn(prop, Prop),
+	doc_add(Prop, rdfs:label, Title),
+	doc_add(F, excel:property, Prop),
+	doc_add(Prop, l:id, Id).
+
+ prop_uri_dict(Fields, Prop_uris, Prop_uri_dict) :-
+ 	findall(
+ 		V,
+ 		(
+ 			member(Field, Fields),
+ 			Field.id
+
+
+/*
+given a dict of column declarations, and a dict of data, produce a list of td tags
+*/
+
+ row_to_html(Columns, Row, HTML_Row) :-
 	findall(
 		Cell,
 		(
 			member(Column, Columns),
 			(	get_dict(id, Column, Column_id)
-			->	!column_to_html(Column, Row.Column_id, Cell)
+			->	!dict_to_cells(Column, Row.Column_id, Cell)
 			;	Cell = [td([""])])
 		),
 		HTML_Row
 	).
 
-column_to_html(group{id:Group_ID, title:Group_Title, members:Group_Members}, Row, Cells) :-
+ dict_to_cells(Group, Data, Cells) :-
+ 	group{id:Group_ID, title:Group_Title, members:Group_Members} :< Group,
 	(
-		Row = ''
+		Data = ''
 	->
-		blank_row(group{id:Group_ID, title:Group_Title, members:Group_Members}, Cells)
+		blank_row(Group, Cells)
 	;
-		row_to_html(Group_Members, Row, Cells)
+		dict_to_cells(Group_Members, Data, Cells)
 	).
 
-column_to_html(Dict, Cell, [td(Cell_Flat)]) :-
+ dict_to_cells(Dict, Cell, [td(Cell_Flat)]) :-
 	is_dict(Dict, column),
 	flatten(Cell, Cell_Flat).
 /*	(
@@ -109,6 +165,7 @@ column_to_html(Dict, Cell, [td(Cell_Flat)]) :-
 		atomics_to_string([Column_Title, Cell], ": ", Cell_Value)
 	).
 */
+
 blank_row(group{id:_, title:_, members:Group_Members}, Cells) :-
 	findall(
 		Child_Cells,
@@ -122,6 +179,8 @@ blank_row(group{id:_, title:_, members:Group_Members}, Cells) :-
 blank_row(Dict, [td("")]) :-
 	is_dict(Dict, column).
 	/*atomics_to_string([Column_ID, "Blank"], ": ", Cell_Value).*/
+
+
 
 
 format_table(
@@ -284,16 +343,16 @@ format_conversion(_Report_Currency, Conversion, String) :-
  table_totals(Rows, Keys, Totals) :-
 	table_totals2(Rows, Keys, _{}, Totals).
 
-table_totals2(Rows, [Key|Keys], In, Out) :-
+ table_totals2(Rows, [Key|Keys], In, Out) :-
 	Mid = In.put(Key, Total),
 	column_by_key(Rows, Key, Vals),
 	sum_cells(Vals, Total),
 	table_totals2(Rows, Keys, Mid, Out).
 
-table_totals2(_Rows, [], Dict, Dict).
+ table_totals2(_Rows, [], Dict, Dict).
 
 
-column_by_key(Rows, Key, Vals) :-
+ column_by_key(Rows, Key, Vals) :-
 	findall(
 		Val,
 		(
@@ -303,30 +362,10 @@ column_by_key(Rows, Key, Vals) :-
 		Vals
 	).
 
-sum_cells(Values, Sum) :-
+ sum_cells(Values, Sum) :-
 	flatten(Values, Vec),
 	vec_reduce(Vec, Sum).
 
 		  
 
 
-
-/*
-  <abstract representation of a table> to <excel sheet rdf@>
-*/
-
-/*
-
-table_sheet
-
-
-
-
-
-
-
-
-
-
-
-*/

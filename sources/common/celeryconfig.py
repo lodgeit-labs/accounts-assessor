@@ -7,4 +7,5 @@ task_serializer = 'json'
 result_serializer = 'json'
 enable_utc = True
 task_default_queue = os.environ['CELERY_QUEUE_NAME']
+worker_cancel_long_running_tasks_on_connection_loss=True
 
