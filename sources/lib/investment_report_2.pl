@@ -619,14 +619,18 @@ a sheet of the above table will also be generated. This is a generic conversion 
 	!doc_add(Pos, excel:col "A"),
 	!doc_add(Pos, excel:row "3"),
 	!doc_add(Sheet_type, excel:position, Pos),
-	!doc_add(Sheet_type, excel:title, "investments"),
+	!doc_add(Sheet_type, excel:title, Title_Text),
 	!doc_add(Sheet_type, excel:cardinality, excel:multi),
 	bn(investment_report_item_type, Investment_report_item_type),
 	!doc_add(Sheet_type, excel:class, Investment_report_item_type),
 	sheet_fields(Columns, Fields, Column_id_to_prop_uri_dict),
 	!doc_add(Sheet_type, excel:fields, $>doc_add_list(Fields)),
-	sheet_items(Items
-	!doc_add_value(Sheet_instance, excel:sheet_instance_has_sheet_data, $>doc_add_list(Items)),
+	maplist('table sheet item'(Columns), Rows, Items),
+	!doc_add_value(Sheet_instance, excel:sheet_instance_has_sheet_data, $>doc_add_list(Items)).
+
+ 'table sheet item'(Cols, Row, Item) :-
+
+
 
 
 
@@ -654,8 +658,5 @@ a sheet of the above table will also be generated. This is a generic conversion 
 
 
 */
-
-	true.
-
 
 

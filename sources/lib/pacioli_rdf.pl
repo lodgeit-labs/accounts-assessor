@@ -14,7 +14,7 @@ doc_new_vec_with_source(Vec, Source, Vec_Uri) :-
 	!doc_add(Vec_Uri, rdf:value, Vec),
 	!doc_add(Vec_Uri, l:source, Source).
 
-link(Uri, Link) :-
+ link(Uri, Link) :-
 	/*
 		the link, as well as Rdf_explorer_base, will keep changing. This is a problem for endpoint_tests.
 		Not just for the html, for the report json as well. The json is a kind of data, or a basis of, that we'll want to return to provide to party apps, for example, and we may want to return the whole thing, even with these "volatile" parts. If we limited ourselves to tree-based data, we'd want to:

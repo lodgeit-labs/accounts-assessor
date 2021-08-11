@@ -39,6 +39,7 @@
 :- [extract_bank_accounts].
 :- [facts].
 :- [fetch_file].
+:- [format_table_rows].
 :- [german_bank_csv].
 :- [gl_export].
 :- [gl_input].
