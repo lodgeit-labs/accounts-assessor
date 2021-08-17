@@ -1,5 +1,8 @@
 
-format_table_rows(
+/* stringify table cells. Currently also produces bits of html. This will have to be abstracted. */
+
+
+ stringify_table_cells(
 	table{title:Title, columns:Columns, rows:Rows},
 	table{title:Title, columns:Columns, rows:Formatted_Rows}
 ) :-

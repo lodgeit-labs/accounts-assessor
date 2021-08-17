@@ -65,6 +65,8 @@
 	table_html([highlight_totals - true], Table_Json, Table_Html),
 	page_with_table_html(Title_Text, Table_Html, Html),
 
+	'table sheet'(Table_Json),
+
 	Semantic_Json = _{
 		rows: Rows,
 		totals: Totals
@@ -525,7 +527,7 @@ optional_converted_value(V1, C, V2) :-
 
 
 /*
-dimensional analysis:
+dimensional analysis notes:
 
 		* Closing_Unit_Price_Foreign : Foreign/Unit
 			* Foreign^1 * Unit^-1
@@ -592,71 +594,4 @@ dimensional analysis:
 
 
 */
-
-/*
-
-a sheet of the above table will also be generated. This is a generic conversion from our table format into a sheet. The sheet's type will be a bnode, or a pseudo-bnode. At any case it will not be possible to read it back, because the client does not store the template. The sheet data will be asserted in 'sheets' graph, and a "result_sheets" report entry will be created for a rdf file of that graph.
-
-*/
-
-/*
-  <abstract representation of a table> to <excel sheet rdf>
-*/
-
-
- 'table sheet'(Table_Json) :-
-	Table_Json = _{title: Title_Text, rows: Rows, columns: Columns},
-
-	/* sheet instance */
-	bn(result_sheet, Sheet_instance),
-	bn(result_sheet_type, Sheet_type),
-	bn(result_sheet_template_root, Template_root),
-
-	!doc_add(Sheet_instance, excel:is_result_sheet, true),
-	!doc_add(Sheet_instance, excel:sheet_instance_has_sheet_type, Sheet_type),
-	!doc_add(Sheet_type, excel:root, Template_root),
-	bn(result_template_position, Pos),
-	!doc_add(Pos, excel:col "A"),
-	!doc_add(Pos, excel:row "3"),
-	!doc_add(Sheet_type, excel:position, Pos),
-	!doc_add(Sheet_type, excel:title, Title_Text),
-	!doc_add(Sheet_type, excel:cardinality, excel:multi),
-	bn(investment_report_item_type, Investment_report_item_type),
-	!doc_add(Sheet_type, excel:class, Investment_report_item_type),
-	sheet_fields(Columns, Fields, Column_id_to_prop_uri_dict),
-	!doc_add(Sheet_type, excel:fields, $>doc_add_list(Fields)),
-	maplist('table sheet item'(Columns), Rows, Items),
-	!doc_add_value(Sheet_instance, excel:sheet_instance_has_sheet_data, $>doc_add_list(Items)).
-
- 'table sheet item'(Cols, Row, Item) :-
-
-
-
-
-
-
-/*
-	excel:fields (
-		[excel:property av:name; excel:type xsd:string]
-		[excel:property av:exchanged_account; excel:type xsd:string]
-		[excel:property av:trading_account; excel:type xsd:string]
-		[excel:property av:description; excel:type xsd:string]
-		[excel:property av:gst_receivable_account; excel:type xsd:string]
-		[excel:property av:gst_payable_account; excel:type xsd:string]
-		[excel:property av:gst_rate_percent; excel:type xsd:string]
-	).
-
-	Columns = [
-		column{id:unit_cost_foreign, 			title:"Foreign Per Unit", options:_{}},
-		column{id:count, 						title:"Count", options:_{}},
-		column{id:total_foreign, 				title:"Foreign Total", options:_{}},
-		column{id:total_converted_at_purchase, 	title:"Converted at Purchase Date Total", options:_{}},
-		column{id:total_converted_at_balance, 	title:"Converted at Balance Date Total", options:_{}},
-		column{id:total_forex_gain, 			title:"Currency Gain/(loss) Total", options:_{}}
-	],
-
-
-
-*/
-
 
