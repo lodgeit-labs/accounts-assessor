@@ -39,7 +39,6 @@
 :- [extract_bank_accounts].
 :- [facts].
 :- [fetch_file].
-:- [format_table_rows].
 :- [german_bank_csv].
 :- [gl_export].
 :- [gl_input].
@@ -82,3 +81,9 @@
 :- [transactions].
 :- [trial_balance].
 % :- ['../misc/chr_hp'].
+
+%%%
+:- [table_to_excel_sheet].
+:- [table_to_html].
+:- [stringify_table_cells].
+%%%

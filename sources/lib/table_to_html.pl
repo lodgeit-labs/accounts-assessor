@@ -44,7 +44,7 @@ given a dict of column declarations, and a dict of strings/html tags, produce a 
 	).
 
  dict_to_cells(Group, Data, Cells) :-
- 	group{id:Group_ID, title:Group_Title, members:Group_Members} :< Group,
+ 	group{id:_, title:_, members:Group_Members} :< Group,
 	(
 		Data = ''
 	->
@@ -122,5 +122,5 @@ header_html(Columns, tr(Header_Row)) :-
 		Cells
 	).
 
- column_header_html(Dict, Prefix, th(Header_Value)) :-
+ column_header_html(Dict, Prefix, th(Header_value)) :-
 	column_title(Dict, Prefix, Header_value).
