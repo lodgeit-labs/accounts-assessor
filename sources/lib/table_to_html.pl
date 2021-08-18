@@ -9,10 +9,10 @@
 	table{title:_, columns: Columns, rows: Rows},
 	[HTML_Header | HTML_Rows]
 ) :-
-	header_html(Columns, HTML_Header),
-	rows_to_html(Columns, Rows, HTML_Rows0),
+	!header_html(Columns, HTML_Header),
+	!rows_to_html(Columns, Rows, HTML_Rows0),
 	(	member(highlight_totals - true, Options)
-	->	highlight_totals(HTML_Rows0,HTML_Rows)
+	->	!highlight_totals(HTML_Rows0,HTML_Rows)
 	;	HTML_Rows0 = HTML_Rows).
 
  rows_to_html(Columns, Rows, Html3) :-
@@ -28,32 +28,34 @@
 
 
 /*
-given a dict of column declarations, and a dict of strings/html tags, produce a list of td tags
+given a list of column declarations, and a dict of strings/html tags, produce a list of td tags
 */
 
  row_to_html(Columns, Row, HTML_Row) :-
+ 	is_list(Columns),
+ 	!,
 	findall(
 		Cell,
 		(
 			member(Column, Columns),
 			(	get_dict(id, Column, Column_id)
-			->	!dict_to_cells(Column, Row.Column_id, Cell)
+			->	!row_to_html(Column, Row.Column_id, Cell)
 			;	Cell = [td([""])])
 		),
 		HTML_Row
 	).
 
- dict_to_cells(Group, Data, Cells) :-
+ row_to_html(Group, Data, Cells) :-
  	group{id:_, title:_, members:Group_Members} :< Group,
 	(
 		Data = ''
 	->
 		blank_row(Group, Cells)
 	;
-		dict_to_cells(Group_Members, Data, Cells)
+		row_to_html(Group_Members, Data, Cells)
 	).
 
- dict_to_cells(Dict, Cell, [td(Cell_Flat)]) :-
+ row_to_html(Dict, Cell, [td(Cell_Flat)]) :-
 	is_dict(Dict, column),
 	flatten(Cell, Cell_Flat).
 /*	(

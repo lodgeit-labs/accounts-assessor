@@ -34,23 +34,26 @@
 	atomic_list_concat(['investment_report', Filename_Suffix, '_html'], Key),
 	atomic_list_concat(['investment_report', Filename_Suffix], Json_Filename),
 
-	/* todo use die_on_error here */
-	catch_with_backtrace(
-		(
-			(Static_Data.report_currency = [_] -> true ;throw_string('investment report: report currency expected')),
-			!investment_report_2(Static_Data, Semantic_Json, Table_Json, Html, Title_Text),
-			make_json_report(Table_Json, Json_Filename)
-		),
-		E,
-		(
-			term_string(E, Msg),
-			error_page_html(Msg, Html),
-			handle_processing_exception2(E),
-			%assert_alert('error', E),
-			Semantic_Json = _{}
+	(	current_prolog_flag(die_on_error, true)
+	->	investment_report_2_1(Static_Data, Semantic_Json, Html, Title_Text, Json_Filename)
+	;	catch_with_backtrace(
+			investment_report_2_1(Static_Data, Semantic_Json, Html, Title_Text, Json_Filename),
+			E,
+			(
+				term_string(E, Msg),
+				error_page_html(Msg, Html),
+				handle_processing_exception2(E),
+				%assert_alert('error', E),
+				Semantic_Json = _{}
+			)
 		)
 	),
 	add_report_page(0, Title_Text, Html, loc(file_name,Filename), Key).
+
+ investment_report_2_1(Static_Data, Semantic_Json, Html, Title_Text, Json_Filename) :-
+	(Static_Data.report_currency = [_] -> true ;throw_string('investment report: report currency expected')),
+	!investment_report_2(Static_Data, Semantic_Json, Table_Json, Html, Title_Text),
+	make_json_report(Table_Json, Json_Filename).
 
 
  investment_report_2(Static_Data, Semantic_Json, Table_Json, Html, Title_Text) :-
@@ -62,8 +65,8 @@
 	flatten([Rows, Totals], Rows2),
 
 	Table_Json = _{title: Title_Text, rows: Rows2, columns: Columns},
-	table_html([highlight_totals - true], Table_Json, Table_Html),
-	page_with_table_html(Title_Text, Table_Html, Html),
+	!table_html([highlight_totals - true], Table_Json, Table_Html),
+	!page_with_table_html(Title_Text, Table_Html, Html),
 
 	'table sheet'(Table_Json),
 

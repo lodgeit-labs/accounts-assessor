@@ -11,8 +11,6 @@ set RUNNING_CONTAINER_ID (./get_id_of_running_container.py -pp $argv[1])
 set LESSS "2>&1 | tee /app/server_root/tmp/out"
 set DBG1 "--debug true"
 set DBG2 "debug"
-set DBG1 "--debug true"
-set DBG2 "debug"
 
 
 

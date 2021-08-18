@@ -293,7 +293,7 @@ make_alerts_report(Alerts_Html) :-
 	add_report_page_with_body(10,alerts, $>flatten([h3([alerts, ':']), Alerts_Html2]), loc(file_name,'alerts.html'), alerts_html).
 
 
-:- debug(tmp_files).
+%:- debug(tmp_files).
 
  process_multifile_request(Request_format, Request_data_uri_base, File_Paths) :-
 

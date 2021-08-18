@@ -32,6 +32,7 @@ def call_prolog(
 	# if defined, overrides dev_runner --debug value
 	debug = config.get('DEBUG_OVERRIDE', debug)
 	dont_gtrace = config.get('DONT_GTRACE', False)
+	die_on_error = config.get('DIE_ON_ERROR', False)
 
 
 
@@ -114,6 +115,8 @@ def call_prolog(
 		debug_goal = 'set_prolog_flag(debug,false),'
 	if dont_gtrace:
 		debug_goal += 'set_prolog_flag(gtrace,false),'
+	if die_on_error:
+		debug_goal += 'set_prolog_flag(die_on_error,true),'
 	if halt:
 		halt_goal = ',halt'
 	else:
