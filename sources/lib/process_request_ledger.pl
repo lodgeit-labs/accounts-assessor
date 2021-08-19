@@ -27,7 +27,8 @@ state ( -> static data) -> structured reports ( -> crosschecks)
 	!cf(extract_exchange_rates).
 
  valid_ledger_model :-
- 	initial_state(S0),
+
+ 	!initial_state(S0),
 
 	once(cf(generate_bank_opening_balances_sts(Bank_Lump_STs))),
 	cf('ensure system accounts exist 0'(Bank_Lump_STs)),

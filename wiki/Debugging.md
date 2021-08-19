@@ -33,7 +33,8 @@ not sure if, at this point, it still makes sense to have the option to invoke gt
 configuration: `sources/swipl/xpce/Defaults`: adjust font size as needed.
 
 gtrace is useful, although it gets confused often. In some swipl versions it's better than in others.
-* https://github.com/SWI-Prolog/swipl-devel/issues/757#
+* https://github.com/SWI-Prolog/swipl-devel/issues/757
+* https://github.com/SWI-Prolog/swipl-devel/issues/774
 
 gtrace is enabled by running 'guitracer'. Robust does this if 'have_display' succeeds.
 	
@@ -66,3 +67,6 @@ overwrite differing response files:
 swipl -s ../tests/endpoint_tests/endpoint_tests.pl  -g "set_flag(overwrite_response_files, true), run_tests."
 
 
+
+## determinancy_checker
+`DETERMINANCY_CHECKER__USE__ENFORCER` env var applies.

@@ -41,6 +41,7 @@ call preprocess_s_transaction on each item of the S_Transactions list and do som
 	Outstanding_In,
 	Outstanding_Out
 ) :-
+	nl,
 	push_format(
 		'processing source transaction:~n ~w~n', [
 			$>!pretty_st_string(S_Transaction)]),
@@ -116,7 +117,8 @@ call preprocess_s_transaction on each item of the S_Transactions list and do som
 		Transactions0,
 		Outstanding_In,
 		Outstanding_Mid),
-	clean_up_txset(Transactions0, Transactions_Result),
+	gtrace,
+	!clean_up_txset(Transactions0, Transactions_Result),
 	Transactions_Out = [Transactions_Result|Transactions_Out_Tail],
 	Processed_S_Transactions = [S_Transaction|Processed_S_Transactions_Tail],
 	!check_txsets(Transactions_Result),
@@ -124,9 +126,9 @@ call preprocess_s_transaction on each item of the S_Transactions list and do som
 
 
  clean_up_txset(Transactions0, Transactions_Result) :-
-	flatten(Transactions0, Transactions1),
-	exclude(var, Transactions1, Transactions2),
-	exclude(has_empty_vector, Transactions2, Transactions_Result).
+	!flatten(Transactions0, Transactions1),
+	!exclude(var, Transactions1, Transactions2),
+	!exclude(has_empty_vector, Transactions2, Transactions_Result).
 
 
 

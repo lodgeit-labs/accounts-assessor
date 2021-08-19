@@ -54,7 +54,7 @@ WORKDIR /app
 
 
 
-RUN git clone --recurse-submodules  --depth 1 -b V8.3.18  "https://github.com/SWI-Prolog/swipl-devel.git"       swipl
+RUN git clone --recurse-submodules  --depth 1 -b V8.3.28  "https://github.com/SWI-Prolog/swipl-devel.git"       swipl
 
 
 #RUN git clone "https://github.com/SWI-Prolog/swipl-devel.git" 	 swipl
@@ -77,8 +77,10 @@ RUN git submodule update --init --recursive
 WORKDIR packages/xpce
 RUN true
 RUN git remote add koo5 https://github.com/koo5/packages-xpce.git #
+RUN date
 RUN git fetch koo5
 RUN git cherry-pick -n koo5/more_eye_friendly_gtrace_color_theme5
+RUN git cherry-pick -n koo5/dev1
 
 
 WORKDIR /app/swipl

@@ -5,7 +5,7 @@
 */
 
  'extract bank accounts' :-
- 	*get_sheets_data(ic:bank_statement, Bss),
+ 	*get_sheets_data(ic_ui:bank_statement_sheet, Bss),
  	!maplist(!cf('extract bank account'), Bss).
 
  'extract bank account'(Acc) :-

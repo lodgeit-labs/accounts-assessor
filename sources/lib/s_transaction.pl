@@ -340,7 +340,7 @@ handle_additional_file(Bn, S_Transactions) :-
 	findall(
 		Acc,
 		(
-			result_property(l:bank_account, Acc),
+			bank_account(Acc),
 			once(doc(Acc, l:raw_items, _))
 		),
 		Accts
