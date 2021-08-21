@@ -32,6 +32,8 @@ call preprocess_s_transaction on each item of the S_Transactions list and do som
 	).
 
 
+%unify_goal(Decompiled, Decompiled, Module, Pos, Pos) :- format(user_error, '~q~n', [unify_goal(Decompiled, Decompiled, Module, Pos, Pos)]).
+
 
 
  preprocess_s_transactions2(

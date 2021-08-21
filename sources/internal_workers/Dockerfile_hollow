@@ -49,18 +49,35 @@ WORKDIR /app
 
 #RUN git clone --branch V8.3.10 https://github.com/SWI-Prolog/swipl.git swipl
 #RUN git clone --branch V8.1.15 https://github.com/SWI-Prolog/swipl.git swipl
+
+
+
+#RUN date
 #RUN git clone --recurse-submodules  --depth 1 -b V8.3.18  "https://github.com/SWI-Prolog/swipl-devel.git" 	 swipl
+RUN git clone --recurse-submodules  -b V8.3.18  "https://github.com/SWI-Prolog/swipl-devel.git" 	 swipl
 
 
 
 
-RUN git clone --recurse-submodules  --depth 1 -b V8.3.28  "https://github.com/SWI-Prolog/swipl-devel.git"       swipl
+#RUN git clone --recurse-submodules  --depth 1 -b V8.3.28  "https://github.com/koo5/swipl-devel.git"       swipl
+#RUN git clone --recurse-submodules  --depth 1 -b V8.3.28  "https://github.com/SWI-Prolog/swipl-devel.git"       swipl
+WORKDIR swipl
+
+
+
+
+RUN git remote add koo5 "https://github.com/koo5/swipl-devel.git"
+RUN git fetch koo5
+RUN git cherry-pick -n koo5/dev1
+#RUN git cherry-pick -n origin/dev1
+
+
+
 
 
 #RUN git clone "https://github.com/SWI-Prolog/swipl-devel.git" 	 swipl
-WORKDIR swipl
 #RUN git reset 32f8079a1c6d9651d0825dcadce9f80231b01648 --hard
-RUN git submodule update --init --recursive
+#RUN git submodule update --init --recursive
 
 
 

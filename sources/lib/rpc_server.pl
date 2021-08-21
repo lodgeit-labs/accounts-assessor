@@ -5,7 +5,7 @@
 
 :- ['lib'].
 
-:-set_prolog_flag(stack_limit, 46_000_000_000).
+%:-set_prolog_flag(stack_limit, 46_000_000_000).
 
 :- (have_display -> guitracer ; true).
 
