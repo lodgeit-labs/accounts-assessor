@@ -90,7 +90,7 @@ handle_op(S0,append,Field,Tail,S2) :-
 		[
 			change(l:has_s_transactions,append,Preprocessed_S_Transactions),
 			change(l:has_transactions,append,Transactions),
-			change(l:has_outstanding,append,Outstanding_new)
+			change(l:has_outstanding,set,Outstanding_new)
 		],
 		S2
 	).

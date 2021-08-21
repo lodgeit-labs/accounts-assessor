@@ -54,6 +54,10 @@ WORKDIR /app
 
 #RUN date
 #RUN git clone --recurse-submodules  --depth 1 -b V8.3.18  "https://github.com/SWI-Prolog/swipl-devel.git" 	 swipl
+
+
+
+
 RUN git clone --recurse-submodules  -b V8.3.18  "https://github.com/SWI-Prolog/swipl-devel.git" 	 swipl
 
 

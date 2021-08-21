@@ -449,7 +449,9 @@ group{id:on_hand_at_cost, title:"On Hand At Cost Total", members:On_Hand_At_Cost
 	value_subtract(End_Total_Price_Converted, Opening_Total_Cost_Converted, Gain).
 
 	
- clip_investments(Static_Data, (Outstanding_In, Investments_In), Realized_Investments, Unrealized_Investments) :-
+ clip_investments(Static_Data, Oust, Realized_Investments, Unrealized_Investments) :-
+ 	Oust = (Outstanding_In, Investments_In),
+
 	findall(
 		I,
 		(

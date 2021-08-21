@@ -90,7 +90,8 @@ sheet_data
 
  'table sheet record'(Cols, Props, Row, Item) :-
 	%pairs_keys_values(Prop_uri_pairs, Ids, Prop_uris),
-	gtrace,
+	%gtrace,
+	Item = 0,
 	debug(sheet_data, '~q', ['table sheet record'(Cols, Props, Row, Item)]).
 
 

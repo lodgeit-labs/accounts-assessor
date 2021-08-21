@@ -43,11 +43,9 @@ call preprocess_s_transaction on each item of the S_Transactions list and do som
 	Outstanding_In,
 	Outstanding_Out
 ) :-
-	nl,
+	!pretty_st_string(S_Transaction, S_Transaction_str),
 	push_format(
-		'processing source transaction:~n ~w~n', [
-			$>!pretty_st_string(S_Transaction)]),
-
+		'processing source transaction:~n ~w~n', [S_Transaction_str]),
 	(	current_prolog_flag(die_on_error, true)
 	->	E = something_that_doesnt_unify_with_any_error
 	;	true),
@@ -108,9 +106,10 @@ call preprocess_s_transaction on each item of the S_Transactions list and do som
 	(	doc(Action_Verb, l:has_trading_account, Trading_Account_Ui)
 	->	true
 	;	Trading_Account_Ui = ''),
+	doc(Action_Verb, l:has_id, Action_Verb_id),
 	push_format(
 		'using action verb ~q:~n  exchanged account: ~q~n  trading account: ~q~n', [
-			$>doc(Action_Verb, l:has_id),
+			Action_Verb_id,
 			Exchanged_Account_Ui,
 			Trading_Account_Ui]
 	),
@@ -119,7 +118,6 @@ call preprocess_s_transaction on each item of the S_Transactions list and do som
 		Transactions0,
 		Outstanding_In,
 		Outstanding_Mid),
-	gtrace,
 	!clean_up_txset(Transactions0, Transactions_Result),
 	Transactions_Out = [Transactions_Result|Transactions_Out_Tail],
 	Processed_S_Transactions = [S_Transaction|Processed_S_Transactions_Tail],
