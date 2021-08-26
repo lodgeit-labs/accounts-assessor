@@ -1,3 +1,5 @@
+
+
 /*
 call preprocess_s_transaction on each item of the S_Transactions list and do some error checking and cleaning up
 */
@@ -46,47 +48,52 @@ call preprocess_s_transaction on each item of the S_Transactions list and do som
 	!pretty_st_string(S_Transaction, S_Transaction_str),
 	push_format(
 		'processing source transaction:~n ~w~n', [S_Transaction_str]),
-	(	current_prolog_flag(die_on_error, true)
-	->	E = something_that_doesnt_unify_with_any_error
-	;	true),
 
-	catch_with_backtrace(
-		!preprocess_s_transaction3(
-			S_Transaction,
-			Outstanding_In,
-			Outstanding_Mid,
-			Transactions_Out_Tail,
-			Processed_S_Transactions,
-			Processed_S_Transactions_Tail,
-			Transactions_Out
-		),
-		E,
-		(
-		/* watch out: this re-establishes doc to the state it was before the exception */
-			!handle_processing_exception(E)
-		)
-	),
-
-	pop_context,
-
-	(	var(E)
-	->	(
-			% recurse
-			preprocess_s_transactions(
+	Item_goal = (!preprocess_s_transaction3(
+		S_Transaction,
+		Outstanding_In,
+		Outstanding_Mid,
+		Transactions_Out_Tail,
+		Processed_S_Transactions,
+		Processed_S_Transactions_Tail,
+		Transactions_Out
+	)),
+	Recursion = preprocess_s_transactions(
 				S_Transactions,
 				Processed_S_Transactions_Tail,
 				Transactions_Out_Tail,
 				Outstanding_Mid,
 				Outstanding_Out
-			)
+	),
+
+
+	(	current_prolog_flag(die_on_error, true)
+	->	(
+			call(Item_goal),
+			pop_context,
+			call(Recursion)
 		)
 	;	(
-			% give up
-			Outstanding_In = Outstanding_Out,
-			Transactions_Out = [],
-			Processed_S_Transactions = []
+			catch_with_backtrace(
+				call(Item_goal),
+				E,
+				/* watch out: this re-establishes doc to the state it was before the exception */
+				!handle_processing_exception(E)
+			),
+			pop_context,
+			(	var(E)
+			->	call(Recursion)
+			;	(
+					/* recursion ends here. we pretend that this was the last transaction to process, so that we can go on to generate reports, which can be useful for figuring out what was wrong with the offending transaction. */
+					Outstanding_In = Outstanding_Out,
+					Transactions_Out = [],
+					Processed_S_Transactions = []
+				)
+			)
 		)
 	).
+
+
 
 
  preprocess_s_transaction3(

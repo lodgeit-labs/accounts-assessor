@@ -52,12 +52,20 @@
 	'make task_directory report entry',
 	'make task_directory report entry 2',
 
-	findall(_,process_request(Dict.request_format, Request_data_uri_base, Request_Files2),_),
+	findall(x, process_request(Dict.request_format, Request_data_uri_base, Request_Files2), Solutions),
+	length(Solutions, Solutions_len),
+	(	Solutions_len #= 0
+	->	json_write(current_output, err{error:m{message:'no solutions'}})
+	;	true),
+	(	Solutions_len #> 1
+	->	json_write(current_output, err{warning:m{message:'multiple solutions'}})
+	;	true),
 
 	(cf(make_zip)->true;true).
 
 
 process_request(Request_format, Request_data_uri_base, File_Paths) :-
+%gtrace,
 	(	current_prolog_flag(die_on_error, true)
 	->	(
 			process_multifile_request(Request_format, Request_data_uri_base, File_Paths),

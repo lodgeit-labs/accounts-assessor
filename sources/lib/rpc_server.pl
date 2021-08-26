@@ -33,7 +33,9 @@ process_request_rpc_cmdline1(Dict) :-
 
 
 process_request_rpc_cmdline2(Dict) :-
+	%profile(
 	process_request_rpc_cmdline3(Dict.method, Dict),
+	%[]),gtrace,
 	flush_output.
 
 
