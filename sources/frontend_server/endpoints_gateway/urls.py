@@ -8,6 +8,7 @@ urlpatterns = ([
     re_path(r'^favicon\.ico$', RedirectView.as_view(url='/static/favicon.ico', permanent=True)),
 
     #this has to be a POST because we use an ancient .NET
+    # ^ actually not, so, this route can be removed in favor of GETing /static/RdfTemplates.n3 directly
     path('rdf_templates', views.rdf_templates, name='rdf_templates'),
 
     path('upload', views.upload, name='upload'),
@@ -17,7 +18,7 @@ urlpatterns = ([
     #path('residency', views.residency, name='residency'),
     #path('sbe', views.sbe, name='sbe'),
     path('chat', views.chat, name='chat'),
-    path('chat_v2', views.chat, name='chat_v2'),
+    #path('chat_v2', views.chat, name='chat_v2'),
 
     # path('sparql_proxy', views.sparql_proxy, name='sparql_proxy'),
     path('day', views.day)

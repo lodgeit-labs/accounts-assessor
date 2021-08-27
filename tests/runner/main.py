@@ -18,12 +18,6 @@ for v in find_all_saved_testcases():
 				parameters.die_on_error = v
 
 
-	member(Testcase, $>find_all_saved_testcases),
-	member(Mode, ['remote', 'subprocess']),
-	(	Mode == 'subprocess'
-	->	member(Die_on_error, [true, false]),
-	;	true),
-
 
 
 is_prioritized(prioritize, parameters):

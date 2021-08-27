@@ -34,10 +34,11 @@
 	atomic_list_concat(['investment_report', Filename_Suffix, '_html'], Key),
 	atomic_list_concat(['investment_report', Filename_Suffix], Json_Filename),
 
+	Call = investment_report_2_1(Static_Data, Semantic_Json, Html, Title_Text, Json_Filename),
 	(	current_prolog_flag(die_on_error, true)
-	->	investment_report_2_1(Static_Data, Semantic_Json, Html, Title_Text, Json_Filename)
+	->	call(Call)
 	;	catch_with_backtrace(
-			investment_report_2_1(Static_Data, Semantic_Json, Html, Title_Text, Json_Filename),
+			call(Call),
 			E,
 			(
 				term_string(E, Msg),
@@ -67,8 +68,7 @@
 	Table_Json = _{title: Title_Text, rows: Rows2, columns: Columns},
 	!table_html([highlight_totals - true], Table_Json, Table_Html),
 	!page_with_table_html(Title_Text, Table_Html, Html),
-
-	'table sheet'(Table_Json),
+	!'table sheet'(Table_Json),
 
 	Semantic_Json = _{
 		rows: Rows,

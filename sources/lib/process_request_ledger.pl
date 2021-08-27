@@ -128,6 +128,7 @@ state ( -> static data) -> structured reports ( -> crosschecks)
 		Crosschecks_Report_Json)
 	),
 	Final_structured_reports = Sr2.put(crosschecks, Crosschecks_Report_Json),
+	add_result_sheets_report($>result_sheets_graph),
 
 	!make_json_report(Final_structured_reports, reports_json).
 

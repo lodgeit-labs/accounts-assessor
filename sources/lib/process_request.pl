@@ -65,7 +65,6 @@
 
 
 process_request(Request_format, Request_data_uri_base, File_Paths) :-
-%gtrace,
 	(	current_prolog_flag(die_on_error, true)
 	->	(
 			process_multifile_request(Request_format, Request_data_uri_base, File_Paths),

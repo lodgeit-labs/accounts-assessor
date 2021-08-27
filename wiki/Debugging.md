@@ -49,6 +49,9 @@ if 'guitracer' was previously invoked, 'gtrace' will kick in when the repl catch
 If gtrace shows up on `process_multifile_request`, do a redo followed by a skip and you'll get a readable stack trace in terminal. (?)
 	
 
+## python
+various parts use various levels of logging severity, eg.: `logging.getLogger().info(msg)`. We don't yet have a method to control current severity (when spawning django server, or when running a worker from the command line).
+
 ## network
 
  watch http trafic from and to endpoint:
