@@ -28,5 +28,5 @@ doc_new_vec_with_source(Vec, Source, Vec_Uri) :-
 	*/
 	result(Result),
 	doc(Result, l:rdf_explorer_base, Rdf_explorer_base),
-	atomic_list_concat([Rdf_explorer_base, '<', Uri, '>'], Uri2),
+	atomics_to_string([Rdf_explorer_base, '<', Uri, '>'], Uri2),
 	Link = a(href=Uri2, [small("⍰")]).

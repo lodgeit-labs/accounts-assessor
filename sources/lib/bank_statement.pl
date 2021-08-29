@@ -566,13 +566,12 @@ take statement/source transaction and generate a list of plain transactios.
 	account_name($>transaction_account(Transaction), Account),
 	transaction_vector(Transaction, Vector),
 	pretty_vector_string(Seen_Units0, Seen_Units1, Vector, Vector_Str),
-	atomic_list_concat([
+	pretty_transactions_string2(Seen_Units1, Transactions, String_Rest),
+	atomics_to_string([
 		Date_Str, ': ', Account, '\n',
 		'  ', Description, '\n',
 		Vector_Str,
-	'\n'], Transaction_String),
-	pretty_transactions_string2(Seen_Units1, Transactions, String_Rest),
-	atomic_list_concat([Transaction_String, String_Rest], String).
+	'\n', String_Rest], String).
 
  pretty_vector_string(Seen_Units, Seen_Units, [], '').
  pretty_vector_string(Seen_Units0, Seen_Units_Out, [Coord|Rest], Vector_Str) :-
@@ -596,7 +595,6 @@ take statement/source transaction and generate a list of plain transactios.
 		)
 	),
 	term_string($>round_term(Coord), Coord_Str0),
-	atomic_list_concat(['  ', Side, ':', Shorthand, ':', Coord_Str0, '\n'], Coord_Str),
 	pretty_vector_string(Seen_Units1, Seen_Units_Out, Rest, Rest_Str),
-	atomic_list_concat([Coord_Str, Rest_Str], Vector_Str).
+	atomics_to_string(['  ', Side, ':', Shorthand, ':', Coord_Str0, '\n',Rest_Str], Vector_Str).
 

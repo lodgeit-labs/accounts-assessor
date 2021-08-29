@@ -140,10 +140,10 @@ format_exception_into_alert_string(E, Str, Html) :-
 	),
 
 	(	E1 = with_backtrace_str(E2, Bstr0)
-	->	atomic_list_concat(['prolog stack:\n', Bstr0], Bstr)
+	->	atomics_to_string(['prolog stack:\n', Bstr0], Bstr)
 	;	(
 			E2 = E1,
-			Bstr = ''
+			Bstr = ""
 		)
 	),
 
@@ -400,7 +400,7 @@ get_requested_output_type(Options2, Output) :-
 		;
 			(
 				term_string(Known_Output_Types, Known_Output_Types_Str),
-				atomic_list_concat(['requested_output_format must be one of ', Known_Output_Types_Str], Msg),
+				atomics_to_string(['requested_output_format must be one of ', Known_Output_Types_Str], Msg),
 				throw(http_reply(bad_request(string(Msg))))
 			)
 		)

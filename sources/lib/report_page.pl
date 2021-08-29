@@ -20,7 +20,7 @@
 
  make_json_report2(Dict, Fn, Final_fn) :-
 	dict_json_text(Dict, Json_Text),
-	Title = Key, Fn = Key,
+	Title = Fn, Key = Fn,
 	atomic_list_concat([Fn, '.json'], Fn2_Value),
 	Fn2 = loc(file_name, Fn2_Value),
 	write_report_file(Fn2, Json_Text, Report_File_URL, Final_fn),
@@ -38,7 +38,7 @@
 		free_memory_file(X)).
 
  page_with_body(Title_Text, Body_Tags, Html) :-
- 	atomic_list_concat([Title_Text], Title_atom),
+ 	atomics_to_string([Title_Text], Title_atom),
 	Html = page(
 		[
 			title(Title_atom),

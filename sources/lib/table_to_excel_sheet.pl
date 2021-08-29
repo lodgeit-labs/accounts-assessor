@@ -24,14 +24,14 @@ Generic conversion from our table format into a sheet. The sheet's type will be 
 	bn(result_template_position, Pos),
 	!doc_add(Pos, excel:col, "A", $>result_sheets_graph),
 	!doc_add(Pos, excel:row, "3", $>result_sheets_graph),
-	!doc_add(Sheet_type, excel:position, Pos, $>result_sheets_graph),
-	!doc_add(Sheet_type, excel:title, Title_Text, $>result_sheets_graph),
-	!doc_add(Sheet_type, excel:cardinality, excel:multi, $>result_sheets_graph),
+	!doc_add(Template_root, excel:position, Pos, $>result_sheets_graph),
+	!doc_add(Template_root, excel:title, Title_Text, $>result_sheets_graph),
+	!doc_add(Template_root, excel:cardinality, excel:multi, $>result_sheets_graph),
 	bn(investment_report_item_type, Investment_report_item_type),
-	!doc_add(Sheet_type, excel:class, Investment_report_item_type, $>result_sheets_graph),
+	!doc_add(Template_root, excel:class, Investment_report_item_type, $>result_sheets_graph),
 	excel_template_fields_from_table_declaration(Columns, Fields, Column_id_to_prop_uri_dict),
-	!doc_add(Sheet_type, excel:fields, $>doc_add_list(Fields, $>result_sheets_graph), $>result_sheets_graph),
-	maplist('table sheet record'(Columns, Column_id_to_prop_uri_dict), Rows, Items),
+	!doc_add(Template_root, excel:fields, $>doc_add_list(Fields, $>result_sheets_graph), $>result_sheets_graph),
+	maplist(!'table sheet record'(Columns, Column_id_to_prop_uri_dict), Rows, Items),
 	!doc_add_value(Sheet_instance, excel:sheet_instance_has_sheet_data, $>doc_add_list(Items, $>result_sheets_graph), $>result_sheets_graph).
 
 
@@ -69,10 +69,10 @@ Generic conversion from our table format into a sheet. The sheet's type will be 
 	here we generate an uri for prop, but we will have to use it when creating rows. Actually, we'll have to relate the non-unique(within the whole columns treee) id of a column to the prop uri, hence the asserted l:has_group tree of groups.
 	*/
 	bn(table_field, Field),
-	doc_add(F, excel:type, xsd:string, $>result_sheets_graph),
+	doc_add(Field, excel:type, xsd:string, $>result_sheets_graph),
 	bn(prop, Prop),
 	doc_add(Prop, rdfs:label, Title, $>result_sheets_graph),
-	doc_add(F, excel:property, Prop, $>result_sheets_graph),
+	doc_add(Field, excel:property, Prop, $>result_sheets_graph),
 	doc_add(Prop, l:id, Id, $>result_sheets_graph).
 
  column_or_group_id_to_uri_or_uridict(Ids, Prop_uris, Prop_uri_dict) :-
@@ -91,22 +91,44 @@ sheet_data
  'table sheet record'(Cols, Props, Row, Item) :-
 	debug(sheet_data, '~q', ['table sheet record'(Cols, Props, Row, Item)]),
 	bn(sheet_record, Record),
-	maplist( 'table sheet record 2'(Props, Row, Record), Cols).
+	maplist(!'table sheet record 2'(Props, Row, Record), Cols).
 
+
+ 'table sheet record 2'(_Props, '', _, _) :- !.
 
  'table sheet record 2'(Props, Row, Record, Col) :-
 	group{id: Id, members: Members} :< Col,
-	Row.get(Id, Subrow),
-	Props.get(id, Subprops),
+	get_dict(Id, Row, Subrow),
+	get_dict(Id, Props, Subprops),
 	maplist('table sheet record 2'(Subprops, Subrow, Record), Members).
 
 
  'table sheet record 2'(Props, Row, Record, Col) :-
 	column{id: Id} :< Col,
-	Props.get(Id, Prop_uri),
-	Row.get(Id, Value_atom),
-	atom_string(Value_atom, Value),
+	get_dict(Id, Props, Prop_uri),
+	get_dict(Id, Row, Value_atom),
+	!pseudo_html_to_sheet_cell_value_literal(Value_atom, Value),
 	doc_add_value(Record, Prop_uri, Value, $>result_sheets_graph).
+
+ pseudo_html_to_sheet_cell_value_literal([H|T], Lit) :-
+ 	pseudo_html_to_sheet_cell_value_literal(H, Str),
+ 	pseudo_html_to_sheet_cell_value_literal(T, Str2),
+ 	atomics_to_string([Str, '\n', Str2], Lit).
+
+ pseudo_html_to_sheet_cell_value_literal([], "").
+
+ pseudo_html_to_sheet_cell_value_literal(Atom, Lit) :-
+	Atom = div(_, [Lit])
+	;
+	atomic(Atom),atom_string(Atom,Lit)
+	;
+	Atom = link(_, Lit)
+	;
+	Atom = hr(_),Lit="".
+
+
+
+	%atom_string(Value_atom, Value),
 
 /*
 
