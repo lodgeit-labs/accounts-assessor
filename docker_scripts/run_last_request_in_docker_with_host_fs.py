@@ -12,6 +12,24 @@ except:
 
 
 
+def flatten_lists(x):
+	if isinstance(x, list):
+		r = []
+		for y in x:
+			z = flatten_lists(y)
+			if isinstance(z, list):
+				r += z
+			else:
+				r.append(z)
+		return r
+	else:
+		return x
+
+
+
+sq = shlex.quote
+
+
 
 def co(cmd):
 	return subprocess.check_output(cmd, text=True, universal_newlines=True)
@@ -49,26 +67,44 @@ l.addHandler(logging.StreamHandler())
 @click.option('-r', '--request', 				type=str, 	default='/app/server_root/tmp/last_request', 
 	help="the directory containing the request file(s).")
 
+@click.option('-s', '--script', 				type=str,
+	help="override what to run inside the container")
 
 
-def run(port_postfix, public_host, request):
+
+
+def run(port_postfix, public_host, request, script):
 	HOME = realpath('~')
 	SECRETS_DIR  = realpath('../secrets')
 	RUNNING_CONTAINER_ID = co(['./get_id_of_running_container.py', '-pp', port_postfix])[:-1]
 	STACK = 'robust' + port_postfix
 	
-	l.debug(f'SECRETS_DIR: {SECRETS_DIR}')
-	l.debug(f'RUNNING_CONTAINER_ID : {RUNNING_CONTAINER_ID}')
+	#l.debug(f'SECRETS_DIR: {SECRETS_DIR}')
+	l.debug(f'attaching to network of RUNNING_CONTAINER_ID : {RUNNING_CONTAINER_ID}')
 
 	DBG1 = "--debug true"
 	DBG2 = "debug,debug(gtrace(source)),debug(gtrace(position))"
 
+	if script == None:
+		script = f""" \
+					cd /app/server_root/; \
+					env PYTHONUNBUFFERED=1 CELERY_QUEUE_NAME=q7788 \
+					../sources/internal_workers/invoke_rpc_cmdline.py \
+					{DBG1} \
+					--halt true \
+					-s "http://localhost:88{port_postfix}" \
+					--prolog_flags "{DBG2},set_prolog_flag(services_server,'http://internal-services:17788')" \
+					{sq(request)} \
+					2>&1 | tee /app/server_root/tmp/out"""
+
 	cmd = ss('docker run -it') + [
-		f'--network="container:{RUNNING_CONTAINER_ID}"',
+		f'--network=container:{RUNNING_CONTAINER_ID}',
 		'--mount', f'source={STACK}_tmp,target=/app/server_root/tmp',
 		'--mount', f'source={STACK}_cache,target=/app/cache',
-		'--mount', 'type=bind,source='+realpath('../sources')+',target=/app/sources',
-		'--mount', 'type=bind,source='+realpath('../sources/swipl/xpce')+',target=/root/.config/swi-prolog/xpce'] + (
+		'--mount', 'type=bind,source=' + realpath('../sources')+',target=/app/sources',
+		'--mount', 'type=bind,source=' + realpath('../tests') + ',target=/app/tests',
+		'--mount', 'type=bind,source='+realpath('../sources/swipl/xpce')+',target=/root/.config/swi-prolog/xpce',
+		] + (
 		ss(f"""
 			--volume="{HOME}/.Xauthority:/root/.Xauthority:rw" \
 			--volume="/tmp/.X11-unix:/tmp/.X11-unix:rw" \
@@ -82,24 +118,16 @@ def run(port_postfix, public_host, request):
 			--env="ENABLE_CONTEXT_TRACE_TRAIL" \
 	\
 			--env SECRET__CELERY_BROKER_URL="amqp://guest:guest@rabbitmq:5672//" \
-			--entrypoint bash""")) + [
+			--entrypoint bash
+		""")
+		) + [
 			f"koo5/internal-workers{port_postfix}:latest",
-			'-c',
-			f""" \
-				cd /app/server_root/; \
-				env PYTHONUNBUFFERED=1 CELERY_QUEUE_NAME=q7788 \
-				../sources/internal_workers/invoke_rpc_cmdline.py \
-				{DBG1} \
-				--halt true \
-				-s "http://localhost:88$argv[1]" \
-				--prolog_flags "{DBG2},set_prolog_flag(services_server,'http://internal-services:17788')" \
-				{request} \
-				2>&1 | tee /app/server_root/tmp/out"""]
+			'-c', script
+		]
 
 
-	cmd = ss('docker run -it koo5/internal-workers:latest') + ['-c', 'bash']
-
-
+	cmd = flatten_lists(cmd)
+	#print(cmd)
 	cc(cmd)
 
 if __name__ == '__main__':

@@ -5,7 +5,7 @@
 
 :- ['lib'].
 
-:-set_prolog_flag(stack_limit, 46_000_000_000).
+:-set_prolog_flag(stack_limit, 50_000_000_000).
 
 :- (have_display -> guitracer ; true).
 
@@ -46,7 +46,7 @@ process_request_rpc_cmdline3("calculator", Dict) :-
 
 process_request_rpc_cmdline3("chat", Dict) :-
 	!,
-	!do_chat(Dict, Response),
+	!profile(do_chat(Dict, Response)),
 	json_write(current_output, Response).
 
 process_request_rpc_cmdline3(_,_) :-

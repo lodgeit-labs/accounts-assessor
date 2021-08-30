@@ -132,6 +132,7 @@ VOLUME /app/server_root
 VOLUME /app/cache
 #USER user
 VOLUME /app/sources/
+VOLUME /app/tests/
 WORKDIR /app/sources/internal_workers
 VOLUME /root/.config/swi-prolog/xpce/
 
