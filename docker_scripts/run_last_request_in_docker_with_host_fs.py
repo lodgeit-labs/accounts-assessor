@@ -112,7 +112,6 @@ def run(port_postfix, public_host, request, script):
 	\
 			--env="DISPLAY"	\
 			--env="DETERMINANCY_CHECKER__USE__ENFORCER" \
-			--env="DETERMINANCY_CHECKER__USE__UNDO" \
 			--env="ROBUST_DOC_ENABLE_TRAIL" \
 			--env="ROBUST_ROL_ENABLE_CHECKS" \
 			--env="ENABLE_CONTEXT_TRACE_TRAIL" \

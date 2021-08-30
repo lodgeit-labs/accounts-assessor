@@ -187,9 +187,9 @@ def call_prolog(
 
 	# pipe the command or pass as an argument?
 	if pipe_rpc_json_to_swipl_stdin:
-		goal = ',lib:process_request_rpc_cmdline'
+		goal = ',utils:print_debugging_checklist,lib:process_request_rpc_cmdline'
 	else:
-		goal = ",make,lib:process_request_rpc_cmdline_json_text('" + (input).replace('"','\\"') + "')"
+		goal = ",make,utils:print_debugging_checklist,lib:process_request_rpc_cmdline_json_text('" + (input).replace('"','\\"') + "')"
 
 
 

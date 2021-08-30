@@ -64,6 +64,8 @@
 	(cf(make_zip)->true;true).
 
 
+flag_default(die_on_error, false).
+
 process_request(Request_format, Request_data_uri_base, File_Paths) :-
 	(	current_prolog_flag(die_on_error, true)
 	->	(
@@ -87,7 +89,7 @@ process_request2 :-
 	!cf(collect_alerts(Alerts3, Alerts_html)),
 	!make_json_report(Alerts3, alerts_json),
 	!cf(make_alerts_report(Alerts_html)),
-	!cf(make_doc_dump_report),
+	%!cf(make_doc_dump_report),
 	!cf(make_context_trace_report),
 	!cf(json_report_entries(Files3)),
 	Json_Out = _{alerts:Alerts3, reports:Files3},

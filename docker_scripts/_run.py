@@ -53,9 +53,9 @@ ServerName {public_host}
 	pp = port_postfix
 
 	if choices['mount_host_sources_dir']:
-		hollow = '_hollow'
+		hollow = 'hollow'
 	else:
-		hollow = ''
+		hollow = 'full'
 	
 	if choices['django_noreload']:
 		django_args	= " --noreload"
@@ -64,7 +64,7 @@ ServerName {public_host}
 	
 	stack_fn = generate_stack_file(choices)
 	shell('docker stack rm robust' + pp)
-	shell('./build.sh "'+pp+'" ' + hollow)
+	shell('./build.sh -pp "'+pp+'" --mode ' + hollow)
 	while True:
 		cmdxxx = "docker network ls | grep robust" + pp
 		p = subprocess.run(cmdxxx, shell=True, stdout=subprocess.PIPE)
@@ -142,6 +142,9 @@ def tweaked_services(src, use_host_network, mount_host_sources_dir, django_norel
 		for x in ['internal-workers','internal-services','frontend-server' ]:
 			if x in services:
 				services[x]['volumes'].append('.:/app/sources')
+				assertion(services[x]['image'] == f'koo5/{x}{pp}:latest')
+				services[x]['image'] = f'koo5/{x}-hollow{pp}:latest'
+
 		services['internal-workers']['volumes'].append('./swipl/xpce:/root/.config/swi-prolog/xpce')
 
 	if 'DISPLAY' in os.environ:
@@ -169,4 +172,5 @@ def shell(cmd):
 
 if __name__ == '__main__':
     run()
+
 

@@ -120,11 +120,13 @@ WORKDIR /app
 
 
 COPY requirements.txt .
-RUN pip3 install --no-cache-dir -r requirements.txt
+RUN pip3 install --no-cache-dir -r requirements.txt 
 
 
 COPY init_prolog.sh .
 RUN ./init_prolog.sh
+
+RUN pip3 install --no-cache-dir memory_profiler
 
 RUN mkdir -p /app/server_root
 #RUN chown user:user /app/server_root

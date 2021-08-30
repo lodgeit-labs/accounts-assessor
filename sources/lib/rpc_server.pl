@@ -1,3 +1,8 @@
+:- if(\+getenv('SWIPL_NODEBUG', true)).
+	:- format(user_error, 'SWIPL_NODEBUG off~n', []).
+	:- debug.
+:- endif.
+
 :- use_module(library(http/json)).
 :- use_module('residency', []).
 :- use_module('sbe', []).
@@ -5,9 +10,16 @@
 
 :- ['lib'].
 
-:-set_prolog_flag(stack_limit, 50_000_000_000).
+:-set_prolog_flag(stack_limit, 1_000_000_000_000).
 
 :- (have_display -> guitracer ; true).
+
+%:- print_debugging_checklist.
+
+:- misc_check(env_bool('PYTHONUNBUFFERED', true)).
+
+
+
 
 
 /* read command from stdin */
