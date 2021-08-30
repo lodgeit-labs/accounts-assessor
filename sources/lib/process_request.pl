@@ -61,7 +61,7 @@
 	->	json_write(current_output, err{warning:m{message:'multiple solutions'}})
 	;	true),
 
-	(cf(make_zip)->true;true).
+	nicety((cf(make_zip)->true;true)).
 
 
 flag_default(die_on_error, false).
@@ -89,8 +89,10 @@ process_request2 :-
 	!cf(collect_alerts(Alerts3, Alerts_html)),
 	!make_json_report(Alerts3, alerts_json),
 	!cf(make_alerts_report(Alerts_html)),
-	%!cf(make_doc_dump_report),
-	!cf(make_context_trace_report),
+
+	nicety(!cf(make_doc_dump_report)),
+	nicety(!cf(make_context_trace_report)),
+
 	!cf(json_report_entries(Files3)),
 	Json_Out = _{alerts:Alerts3, reports:Files3},
 	!cf(make_json_report(Json_Out,'response.json',_)),
@@ -180,9 +182,9 @@ format_exception_into_alert_string(E, Str, Html) :-
 
 make_context_trace_report :-
 	get_context_trace(Trace0),
-	reverse(Trace0,Trace),
-	maplist(make_context_trace_report2,Trace, Html),
-	add_report_page_with_body(10, context_trace, [h3([context_trace, ':']), div([class=context_trace], $>flatten(Html))], loc(file_name,'context_trace.html'), context_trace_html).
+	ct("reverse context_trace", reverse(Trace0,Trace)),
+	ct("maplist(make_context_trace_report2...", maplist(make_context_trace_report2,Trace, Html)),
+	ct("add_report_page_with_body(10, context_trace...", add_report_page_with_body(10, context_trace, [h3([context_trace, ':']), div([class=context_trace], $>flatten(Html))], loc(file_name,'context_trace.html'), context_trace_html)).
 
 make_context_trace_report2((Depth, C),div(["-",Stars,Text])) :-
 	% or is that supposed to be atom? i forgot again.

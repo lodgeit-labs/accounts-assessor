@@ -103,7 +103,7 @@ state ( -> static data) -> structured reports ( -> crosschecks)
 	!static_data_from_state(Closed_books_state, Closed_books_static_data),
 	!static_data_from_state(Vanilla_state, Vanilla_static_data),
 
-	!cf('export GL'(Vanilla_static_data)),
+	nicety(!cf('export GL'(Vanilla_static_data))),
 
 	!cf(all_balance_reports(Vanilla_state, Closed_books_state, Sr)),
 	!html_reports('final_', Sr),
