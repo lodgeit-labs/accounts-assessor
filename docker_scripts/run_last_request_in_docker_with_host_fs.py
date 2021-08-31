@@ -64,7 +64,10 @@ l.addHandler(logging.StreamHandler())
 @click.option('-pu', '--server_public_url', 	type=str, 	default=None,
 	help="The public-facing server url.")
 
-@click.option('-r', '--request', 				type=str, 	default='/app/server_root/tmp/last_request', 
+@click.option('-d', '--debug', 	type=bool, 	default=True,
+	help="debug.")
+
+@click.option('-r', '--request', 				type=str, 	default='/app/server_root/tmp/last_request',
 	help="the directory containing the request file(s).")
 
 @click.option('-s', '--script', 				type=str,
@@ -73,18 +76,22 @@ l.addHandler(logging.StreamHandler())
 
 
 
-def run(port_postfix, server_public_url, request, script):
+def run(port_postfix, server_public_url, debug, request, script):
 	HOME = realpath('~')
 	SECRETS_DIR  = realpath('../secrets')
 	RUNNING_CONTAINER_ID = co(['./get_id_of_running_container.py', '-pp', port_postfix])[:-1]
 	STACK = 'robust' + port_postfix
 	
-	#l.debug(f'SECRETS_DIR: {SECRETS_DIR}')
 	l.debug(f'attaching to network of RUNNING_CONTAINER_ID : {RUNNING_CONTAINER_ID}')
 
-	#DBG1 = "--debug true"
-	DBG1 = "--debug false"
-	DBG2 = 'true'#"debug,debug(gtrace(source)),debug(gtrace(position))"
+	if debug:
+		DBG1 = "--debug true"
+		DBG2 = "debug,debug(gtrace(source)),debug(gtrace(position))"
+#		DBG3 = '--env="SWIPL_NODEBUG"'
+	else:
+		DBG1 = "--debug false"
+		DBG2 = 'true'
+#		DBG3 = ''
 
 	if not server_public_url:
 		server_public_url = f"http://localhost:88{port_postfix}"
@@ -115,11 +122,11 @@ def run(port_postfix, server_public_url, request, script):
 			--volume="{SECRETS_DIR}:/run/secrets" \
 	\
 			--env="DISPLAY"	\
-			--env="SWIPL_NODEBUG"	\
 			--env="DETERMINANCY_CHECKER__USE__ENFORCER" \
 			--env="ROBUST_DOC_ENABLE_TRAIL" \
 			--env="ROBUST_ROL_ENABLE_CHECKS" \
 			--env="ENABLE_CONTEXT_TRACE_TRAIL" \
+			--env="ROBUST_ENABLE_NICETY_REPORTS" \
 	\
 			--env SECRET__CELERY_BROKER_URL="amqp://guest:guest@rabbitmq:5672//" \
 			--entrypoint bash

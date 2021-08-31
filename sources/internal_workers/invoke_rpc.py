@@ -72,11 +72,12 @@ def call_prolog(
 		pipe_rpc_json_to_swipl_stdin=False
 ):
 
+
 	# configuration changeable per-request:
 	with open(sources('config/worker_config.json'), 'r') as c:
 		config = json.load(c)
-	# if defined, overrides dev_runner --debug value
-	debug = config.get('DEBUG_OVERRIDE', debug)
+	if not debug:
+		debug = config.get('DEBUG', False)
 	dont_gtrace = config.get('DONT_GTRACE', False)
 	die_on_error = config.get('DIE_ON_ERROR', False)
 
@@ -94,7 +95,7 @@ def call_prolog(
 	msg['params']['result_tmp_directory_name'] = result_tmp_directory_name
 
 
-	# symlink from "final result"(alias task_handle) directory to actual result directory:
+	# symlink from "final result"(aka "task_handle") directory to actual result directory:
 	final_result_tmp_directory_path = msg['params']['final_result_tmp_directory_path']
 	print(final_result_tmp_directory_path)
 	if final_result_tmp_directory_path != None:

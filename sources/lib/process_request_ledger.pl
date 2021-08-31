@@ -119,7 +119,10 @@ state ( -> static data) -> structured reports ( -> crosschecks)
 		Investment_Report_Info)
 	),
 	Sr2 = Sr.put(ir, Investment_Report_Info),
-
+	Ir = Sr2.ir.current,
+	(	get_dict(columns,Ir,_)
+	->	!'table sheet'(Ir)
+	;	true),
 
 	'create XBRL instance'(Closed_books_static_data, Sr),
 

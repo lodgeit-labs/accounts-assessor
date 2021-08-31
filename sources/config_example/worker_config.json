@@ -1,10 +1,9 @@
 {
-	"DEBUG_OVERRIDE" : false,
 	"DONT_GTRACE" : true,
     "DIE_ON_ERROR" : false,
 	"notes":
 		{
-
+			"DEBUG" : true,
 			"...":"..."
 		}	
 }
