@@ -110,3 +110,20 @@ Net Income (Loss) [Roll Up]
 
 - 	push_context('processing phases (each phase depends on posted results of previous phase):'),
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+https://stackoverflow.com/questions/21711519/how-can-i-periodically-call-statistics-2-in-swi-prolog
+
+

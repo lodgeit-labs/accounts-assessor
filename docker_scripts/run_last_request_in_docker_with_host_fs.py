@@ -58,11 +58,11 @@ l.addHandler(logging.StreamHandler())
 
 @click.command(help="""run a request in docker, possibly with guitracer. internal services and rabbitmq containers have to be running.""")
 
-@click.option('-pp', '--port_postfix', 				type=str, 	default='', 
+@click.option('-pp', '--port_postfix', 			type=str, 	default='',
 	help="last two or more digits of the services' public ports. Also identifies the particular docker stack.")
 
-@click.option('-ph', '--public_host', 				type=str, 	default='localhost', 
-	help="The public-facing hostname.")
+@click.option('-pu', '--server_public_url', 	type=str, 	default=None,
+	help="The public-facing server url.")
 
 @click.option('-r', '--request', 				type=str, 	default='/app/server_root/tmp/last_request', 
 	help="the directory containing the request file(s).")
@@ -73,7 +73,7 @@ l.addHandler(logging.StreamHandler())
 
 
 
-def run(port_postfix, public_host, request, script):
+def run(port_postfix, server_public_url, request, script):
 	HOME = realpath('~')
 	SECRETS_DIR  = realpath('../secrets')
 	RUNNING_CONTAINER_ID = co(['./get_id_of_running_container.py', '-pp', port_postfix])[:-1]
@@ -82,8 +82,12 @@ def run(port_postfix, public_host, request, script):
 	#l.debug(f'SECRETS_DIR: {SECRETS_DIR}')
 	l.debug(f'attaching to network of RUNNING_CONTAINER_ID : {RUNNING_CONTAINER_ID}')
 
-	DBG1 = "--debug true"
-	DBG2 = "debug,debug(gtrace(source)),debug(gtrace(position))"
+	#DBG1 = "--debug true"
+	DBG1 = "--debug false"
+	DBG2 = 'true'#"debug,debug(gtrace(source)),debug(gtrace(position))"
+
+	if not server_public_url:
+		server_public_url = f"http://localhost:88{port_postfix}"
 
 	if script == None:
 		script = f""" \
@@ -92,7 +96,7 @@ def run(port_postfix, public_host, request, script):
 					../sources/internal_workers/invoke_rpc_cmdline.py \
 					{DBG1} \
 					--halt true \
-					-s "http://localhost:88{port_postfix}" \
+					-s "{server_public_url}" \
 					--prolog_flags "{DBG2},set_prolog_flag(services_server,'http://internal-services:17788')" \
 					{sq(request)} \
 					2>&1 | tee /app/server_root/tmp/out"""
@@ -111,6 +115,7 @@ def run(port_postfix, public_host, request, script):
 			--volume="{SECRETS_DIR}:/run/secrets" \
 	\
 			--env="DISPLAY"	\
+			--env="SWIPL_NODEBUG"	\
 			--env="DETERMINANCY_CHECKER__USE__ENFORCER" \
 			--env="ROBUST_DOC_ENABLE_TRAIL" \
 			--env="ROBUST_ROL_ENABLE_CHECKS" \
@@ -120,7 +125,7 @@ def run(port_postfix, public_host, request, script):
 			--entrypoint bash
 		""")
 		) + [
-			f"koo5/internal-workers{port_postfix}:latest",
+			f"koo5/internal-workers-hollow{port_postfix}:latest",
 			'-c', script
 		]
 

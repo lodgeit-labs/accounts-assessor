@@ -19,6 +19,7 @@ Generic conversion from our table format into a sheet. The sheet's type will be 
 	bn(result_sheet_template_root, Template_root),
 
 	!doc_add(Sheet_instance, excel:is_result_sheet, true, $>result_sheets_graph),
+	!doc_add(Sheet_instance, excel:sheet_instance_has_sheet_name, Title_Text, $>result_sheets_graph),
 	!doc_add(Sheet_instance, excel:sheet_instance_has_sheet_type, Sheet_type, $>result_sheets_graph),
 	!doc_add(Sheet_type, excel:root, Template_root, $>result_sheets_graph),
 	bn(result_template_position, Pos),
@@ -88,8 +89,8 @@ Generic conversion from our table format into a sheet. The sheet's type will be 
 sheet_data
 */
 
- 'table sheet record'(Cols, Props, Row, Item) :-
-	debug(sheet_data, '~q', ['table sheet record'(Cols, Props, Row, Item)]),
+ 'table sheet record'(Cols, Props, Row, Record) :-
+	debug(sheet_data, '~q', ['table sheet record'(Cols, Props, Row, Record)]),
 	bn(sheet_record, Record),
 	maplist(!'table sheet record 2'(Props, Row, Record), Cols).
 

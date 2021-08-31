@@ -62,7 +62,7 @@ ServerName {public_host}
 	else:
 		django_args	= ''
 	
-	stack_fn = generate_stack_file(choices)
+	stack_fn = generate_stack_file(port_postfix, choices)
 	shell('docker stack rm robust' + pp)
 	shell('./build.sh -pp "'+pp+'" --mode ' + hollow)
 	while True:
@@ -106,16 +106,16 @@ def generate_caddy_config(public_host):
 		f.write(cfg)    
 
 
-def generate_stack_file(choices):
+def generate_stack_file(port_postfix, choices):
 	with open('docker-stack.yml') as file_in:
 		src = yaml.load(file_in, Loader=yaml.FullLoader)
 		fn = '../sources/docker-stack' + ('__'.join(['']+[k for k,v in choices.items() if v])) + '.yml'
 	with open(fn, 'w') as file_out:
-		yaml.dump(tweaked_services(src, **choices), file_out)
+		yaml.dump(tweaked_services(src, port_postfix, **choices), file_out)
 	return fn
 
 
-def tweaked_services(src, use_host_network, mount_host_sources_dir, django_noreload, enable_public_gateway, debug_frontend_server, enable_public_insecure):
+def tweaked_services(src, port_postfix, use_host_network, mount_host_sources_dir, django_noreload, enable_public_gateway, debug_frontend_server, enable_public_insecure):
 	res = deepcopy(src)
 	services = res['services']
 	
@@ -142,8 +142,8 @@ def tweaked_services(src, use_host_network, mount_host_sources_dir, django_norel
 		for x in ['internal-workers','internal-services','frontend-server' ]:
 			if x in services:
 				services[x]['volumes'].append('.:/app/sources')
-				assertion(services[x]['image'] == f'koo5/{x}{pp}:latest')
-				services[x]['image'] = f'koo5/{x}-hollow{pp}:latest'
+				assert services[x]['image'] == f'koo5/{x}${{PP}}:latest', services[x]['image']
+				services[x]['image'] = f'koo5/{x}-hollow{port_postfix}:latest'
 
 		services['internal-workers']['volumes'].append('./swipl/xpce:/root/.config/swi-prolog/xpce')
 

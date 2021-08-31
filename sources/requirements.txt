@@ -18,4 +18,5 @@ requests
 iso8601
 rdflib
 pyyed
+git+https://github.com/koo5/memory_profiler
 django-cors-headers
