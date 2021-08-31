@@ -47,8 +47,6 @@ def rdf_templates(request):
 
 @csrf_exempt
 def upload(request):
-	rrr = request._current_scheme_host.split(':')
-	#server_url = rrr[0] + ':' + rrr[1] + ':80' + rrr[2][-2:]
 	server_url = request._current_scheme_host
 	params = QueryDict(mutable=True)
 	params.update(request.POST)
@@ -70,7 +68,6 @@ def upload(request):
 			request_files_in_tmp = []
 			for field in request.FILES.keys():
 				for f in request.FILES.getlist(field):
-					#print (f)
 					request_files_in_tmp.append(save_django_uploaded_file(request_tmp_directory_path, f))
 
 			#for idx, f in enumerate(form.data.getlist('file1')):
@@ -146,39 +143,26 @@ def day(request):
 	return render(request, 'day.html', {'day': datetime.date.today().day})
 
 
-
-
-#  ┏━╸╻ ╻┏━┓╺┳╸
-#  ┃  ┣━┫┣━┫ ┃
-#  ┗━╸╹ ╹╹ ╹ ╹
-
-def sbe(request):
-	params = json.loads(request.body)
-	params['type'] = "sbe"
-	return json_prolog_rpc_call({
-		"method": 'chat',
-		"params": params
-	})
-
-def residency(request):
-	params = json.loads(request.body)
-	params['type'] = "residency"
-	return json_prolog_rpc_call({
-		"method": 'chat',
-		"params": params
-	})
-
 def chat(request):
-	return json_prolog_rpc_call({
+	return json_prolog_rpc_call(request, {
 		"method": "chat",
 		"params": json.loads(request.body),
-		"client": get_client_ip(request)
 	})
 
-def json_prolog_rpc_call(msg):
+def self_test(request):
+	if request.method != 'POST':
+		return
+	celery_app.signature('invoke_rpc.self_test').apply_async()
+
+
+def json_prolog_rpc_call(request, msg):
 	#try:
-	logging.getLogger().warn(msg)
+
+	msg["client"] = get_client_ip(request)
+	logging.getLogger().info(msg)
 	return JsonResponse(celery_app.signature('invoke_rpc.call_prolog').apply_async([msg]).get()[1])
+
+	# we'd get a 500 anyway, no? also, call_prolog doesn't let it propagate anymore
 	#except json.decoder.JSONDecodeError as e:
 	#	return HttpResponse(status=500)
 
@@ -207,7 +191,7 @@ SELECT ?rep WHERE {
   	?res l:has_report ?rep.
   	?rep l:key "reports_json".  
 }
-
+...
 """
 
 			#except json.decoder.JSONDecodeError as e:

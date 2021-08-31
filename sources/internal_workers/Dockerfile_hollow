@@ -49,18 +49,39 @@ WORKDIR /app
 
 #RUN git clone --branch V8.3.10 https://github.com/SWI-Prolog/swipl.git swipl
 #RUN git clone --branch V8.1.15 https://github.com/SWI-Prolog/swipl.git swipl
+
+
+
+#RUN date
 #RUN git clone --recurse-submodules  --depth 1 -b V8.3.18  "https://github.com/SWI-Prolog/swipl-devel.git" 	 swipl
 
 
 
 
-RUN git clone --recurse-submodules  --depth 1 -b V8.3.18  "https://github.com/SWI-Prolog/swipl-devel.git"       swipl
+#RUN git clone --recurse-submodules  -b V8.3.18  "https://github.com/SWI-Prolog/swipl-devel.git" 	 swipl
+
+
+
+
+#RUN git clone --recurse-submodules  --depth 1 -b V8.3.28  "https://github.com/koo5/swipl-devel.git"       swipl
+RUN git clone --recurse-submodules  --depth 1 -b V8.3.28  "https://github.com/SWI-Prolog/swipl-devel.git"       swipl
+WORKDIR swipl
+
+
+
+
+#RUN git remote add koo5 "https://github.com/koo5/swipl-devel.git"
+#RUN git fetch koo5
+#RUN git cherry-pick -n koo5/dev1
+##RUN git cherry-pick -n origin/dev1
+
+
+
 
 
 #RUN git clone "https://github.com/SWI-Prolog/swipl-devel.git" 	 swipl
-WORKDIR swipl
 #RUN git reset 32f8079a1c6d9651d0825dcadce9f80231b01648 --hard
-RUN git submodule update --init --recursive
+#RUN git submodule update --init --recursive
 
 
 
@@ -77,8 +98,10 @@ RUN git submodule update --init --recursive
 WORKDIR packages/xpce
 RUN true
 RUN git remote add koo5 https://github.com/koo5/packages-xpce.git #
+RUN date
 RUN git fetch koo5
 RUN git cherry-pick -n koo5/more_eye_friendly_gtrace_color_theme5
+RUN git cherry-pick -n koo5/dev1
 
 
 WORKDIR /app/swipl
@@ -97,11 +120,12 @@ WORKDIR /app
 
 
 COPY requirements.txt .
-RUN pip3 install --no-cache-dir -r requirements.txt
+RUN pip3 install --no-cache-dir -r requirements.txt 
 
 
 COPY init_prolog.sh .
 RUN ./init_prolog.sh
+
 
 RUN mkdir -p /app/server_root
 #RUN chown user:user /app/server_root
@@ -109,6 +133,7 @@ VOLUME /app/server_root
 VOLUME /app/cache
 #USER user
 VOLUME /app/sources/
+VOLUME /app/tests/
 WORKDIR /app/sources/internal_workers
 VOLUME /root/.config/swi-prolog/xpce/
 

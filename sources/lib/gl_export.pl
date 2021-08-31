@@ -6,9 +6,9 @@
 
  'export GL'(Sd) :-
  	Txs = Sd.transactions,
- 	check_txsets(Txs),
-  	!collect_sources_set(Txs, Sources, Txs_by_sources),
- 	!gl_export_add_ids_to_sources(Sources),
+ 	cf(check_txsets(Txs)),
+  	!cf(collect_sources_set(Txs, Sources, Txs_by_sources)),
+ 	!cf(gl_export_add_ids_to_sources(Sources)),
  	!cf(gl_viewer_json_gl_export(Sd, Sources, Txs_by_sources, Gl)),
  	/*todo !cf('QuickBooks CSV GL export'(Sd, Txs)),*/
  	!cf(make_same_named_symlinked_json_report(Gl, 'general_ledger_json.json')),

@@ -27,7 +27,8 @@ state ( -> static data) -> structured reports ( -> crosschecks)
 	!cf(extract_exchange_rates).
 
  valid_ledger_model :-
- 	initial_state(S0),
+
+ 	!initial_state(S0),
 
 	once(cf(generate_bank_opening_balances_sts(Bank_Lump_STs))),
 	cf('ensure system accounts exist 0'(Bank_Lump_STs)),
@@ -102,7 +103,7 @@ state ( -> static data) -> structured reports ( -> crosschecks)
 	!static_data_from_state(Closed_books_state, Closed_books_static_data),
 	!static_data_from_state(Vanilla_state, Vanilla_static_data),
 
-	!cf('export GL'(Vanilla_static_data)),
+	nicety(!cf('export GL'(Vanilla_static_data))),
 
 	!cf(all_balance_reports(Vanilla_state, Closed_books_state, Sr)),
 	!html_reports('final_', Sr),
@@ -127,6 +128,7 @@ state ( -> static data) -> structured reports ( -> crosschecks)
 		Crosschecks_Report_Json)
 	),
 	Final_structured_reports = Sr2.put(crosschecks, Crosschecks_Report_Json),
+	add_result_sheets_report($>result_sheets_graph),
 
 	!make_json_report(Final_structured_reports, reports_json).
 

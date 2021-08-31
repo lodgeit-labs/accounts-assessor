@@ -1,4 +1,4 @@
-:- ['../../lib/utils'].
+:- ['../../../sources/public_lib/lodgeit_solvers/prolog/utils//utils'].
 
 :- begin_tests(utils).
 
@@ -41,7 +41,8 @@ test(9, all((End_Date, Accounts) = [(y, z)])) :-
 /*test(b8, throws(error(existence_error(_,_,_),_))) :-
 	dict_vars(_{z:z}, [A]), A=A.*/ % evaluates at compile time?
 
-test(b9, throws(error(existence_error(_,_),_))) :-
+/* uhh, was existence_error wrapped by error by the stacktrace hook? if yes, we should run it through an automatic potential unwrapper before checking here */
+test(b9, throws(/*error(existence_error(_,_),_)*/existence_error(_,_,_))) :-
 	get_a(_{z:z}).
 	
 get_a(Dict) :-
@@ -49,6 +50,32 @@ get_a(Dict) :-
 	
 /*test(10, throws(_Error)) :-
 	End_Date = _, goal_expansion(dict_vars(_{accounts:z}, [End_Date]), _Code).*/
+
+stuff([a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z,1,2,3,4,5,6,7,8,9]).
+
+dummy_pairs(Pairs) :-
+	findall((Key,Value), (
+		stuff(Stuff),
+		member(_, Stuff),
+		member(Key, Stuff),
+		member(Value, Stuff)
+		),
+	Pairs).
+	
+test(11, all(Xs = [[x]])) :-
+	sort_pairs_into_dict_test1(Xs).
+	
+sort_pairs_into_dict_test1(Xs) :-
+	findall(x,
+		 (
+			dummy_pairs(Pairs),
+			sort_pairs_into_dict(Pairs,Dict),
+			stuff(Stuff),
+			Dict.s = Stuff
+		),
+		 Xs).
+	 
+	 
 
 :- end_tests(utils).
 

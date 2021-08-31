@@ -1,4 +1,4 @@
-FROM koo5/internal-workers${PP}:latest
+FROM koo5/internal-workers-hollow${PP}:latest
 
 COPY wait-for-it /app/sources/wait-for-it
 COPY static /app/sources/static

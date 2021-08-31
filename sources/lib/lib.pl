@@ -16,6 +16,8 @@
 
 :- [search_paths].
 
+
+:- setenv('DETERMINANCY_CHECKER__USE__UNDO', true).
 :- ['../public_lib/lodgeit_solvers/prolog/utils/utils'].
 :- ['../public_lib/lodgeit_solvers/prolog/utils/doc_dump_server'].
 
@@ -81,3 +83,9 @@
 :- [transactions].
 :- [trial_balance].
 % :- ['../misc/chr_hp'].
+
+%%%
+:- [table_to_excel_sheet].
+:- [table_to_html].
+:- [stringify_table_cells].
+%%%

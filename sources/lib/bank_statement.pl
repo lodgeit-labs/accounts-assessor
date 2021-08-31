@@ -1,3 +1,5 @@
+
+
 /*
 call preprocess_s_transaction on each item of the S_Transactions list and do some error checking and cleaning up
 */
@@ -32,6 +34,8 @@ call preprocess_s_transaction on each item of the S_Transactions list and do som
 	).
 
 
+%unify_goal(Decompiled, Decompiled, Module, Pos, Pos) :- format(user_error, '~q~n', [unify_goal(Decompiled, Decompiled, Module, Pos, Pos)]).
+
 
 
  preprocess_s_transactions2(
@@ -41,51 +45,55 @@ call preprocess_s_transaction on each item of the S_Transactions list and do som
 	Outstanding_In,
 	Outstanding_Out
 ) :-
+	!pretty_st_string(S_Transaction, S_Transaction_str),
 	push_format(
-		'processing source transaction:~n ~w~n', [
-			$>!pretty_st_string(S_Transaction)]),
+		'processing source transaction:~n ~w~n', [S_Transaction_str]),
 
-	(	current_prolog_flag(die_on_error, true)
-	->	E = something_that_doesnt_unify_with_any_error
-	;	true),
-
-	catch_with_backtrace(
-		!preprocess_s_transaction3(
-			S_Transaction,
-			Outstanding_In,
-			Outstanding_Mid,
-			Transactions_Out_Tail,
-			Processed_S_Transactions,
-			Processed_S_Transactions_Tail,
-			Transactions_Out
-		),
-		E,
-		(
-		/* watch out: this re-establishes doc to the state it was before the exception */
-			!handle_processing_exception(E)
-		)
-	),
-
-	pop_context,
-
-	(	var(E)
-	->	(
-			% recurse
-			preprocess_s_transactions(
+	Item_goal = (!preprocess_s_transaction3(
+		S_Transaction,
+		Outstanding_In,
+		Outstanding_Mid,
+		Transactions_Out_Tail,
+		Processed_S_Transactions,
+		Processed_S_Transactions_Tail,
+		Transactions_Out
+	)),
+	Recursion = preprocess_s_transactions(
 				S_Transactions,
 				Processed_S_Transactions_Tail,
 				Transactions_Out_Tail,
 				Outstanding_Mid,
 				Outstanding_Out
-			)
+	),
+
+
+	(	current_prolog_flag(die_on_error, true)
+	->	(
+			call(Item_goal),
+			pop_context,
+			call(Recursion)
 		)
 	;	(
-			% give up
-			Outstanding_In = Outstanding_Out,
-			Transactions_Out = [],
-			Processed_S_Transactions = []
+			catch_with_backtrace(
+				call(Item_goal),
+				E,
+				/* watch out: this re-establishes doc to the state it was before the exception */
+				!handle_processing_exception(E)
+			),
+			pop_context,
+			(	var(E)
+			->	call(Recursion)
+			;	(
+					/* recursion ends here. we pretend that this was the last transaction to process, so that we can go on to generate reports, which can be useful for figuring out what was wrong with the offending transaction. */
+					Outstanding_In = Outstanding_Out,
+					Transactions_Out = [],
+					Processed_S_Transactions = []
+				)
+			)
 		)
 	).
+
+
 
 
  preprocess_s_transaction3(
@@ -105,9 +113,10 @@ call preprocess_s_transaction on each item of the S_Transactions list and do som
 	(	doc(Action_Verb, l:has_trading_account, Trading_Account_Ui)
 	->	true
 	;	Trading_Account_Ui = ''),
+	doc(Action_Verb, l:has_id, Action_Verb_id),
 	push_format(
 		'using action verb ~q:~n  exchanged account: ~q~n  trading account: ~q~n', [
-			$>doc(Action_Verb, l:has_id),
+			Action_Verb_id,
 			Exchanged_Account_Ui,
 			Trading_Account_Ui]
 	),
@@ -116,7 +125,7 @@ call preprocess_s_transaction on each item of the S_Transactions list and do som
 		Transactions0,
 		Outstanding_In,
 		Outstanding_Mid),
-	clean_up_txset(Transactions0, Transactions_Result),
+	!clean_up_txset(Transactions0, Transactions_Result),
 	Transactions_Out = [Transactions_Result|Transactions_Out_Tail],
 	Processed_S_Transactions = [S_Transaction|Processed_S_Transactions_Tail],
 	!check_txsets(Transactions_Result),
@@ -124,9 +133,9 @@ call preprocess_s_transaction on each item of the S_Transactions list and do som
 
 
  clean_up_txset(Transactions0, Transactions_Result) :-
-	flatten(Transactions0, Transactions1),
-	exclude(var, Transactions1, Transactions2),
-	exclude(has_empty_vector, Transactions2, Transactions_Result).
+	!flatten(Transactions0, Transactions1),
+	!exclude(var, Transactions1, Transactions2),
+	!exclude(has_empty_vector, Transactions2, Transactions_Result).
 
 
 
@@ -557,13 +566,12 @@ take statement/source transaction and generate a list of plain transactios.
 	account_name($>transaction_account(Transaction), Account),
 	transaction_vector(Transaction, Vector),
 	pretty_vector_string(Seen_Units0, Seen_Units1, Vector, Vector_Str),
-	atomic_list_concat([
+	pretty_transactions_string2(Seen_Units1, Transactions, String_Rest),
+	atomics_to_string([
 		Date_Str, ': ', Account, '\n',
 		'  ', Description, '\n',
 		Vector_Str,
-	'\n'], Transaction_String),
-	pretty_transactions_string2(Seen_Units1, Transactions, String_Rest),
-	atomic_list_concat([Transaction_String, String_Rest], String).
+	'\n', String_Rest], String).
 
  pretty_vector_string(Seen_Units, Seen_Units, [], '').
  pretty_vector_string(Seen_Units0, Seen_Units_Out, [Coord|Rest], Vector_Str) :-
@@ -587,7 +595,6 @@ take statement/source transaction and generate a list of plain transactios.
 		)
 	),
 	term_string($>round_term(Coord), Coord_Str0),
-	atomic_list_concat(['  ', Side, ':', Shorthand, ':', Coord_Str0, '\n'], Coord_Str),
 	pretty_vector_string(Seen_Units1, Seen_Units_Out, Rest, Rest_Str),
-	atomic_list_concat([Coord_Str, Rest_Str], Vector_Str).
+	atomics_to_string(['  ', Side, ':', Shorthand, ':', Coord_Str0, '\n',Rest_Str], Vector_Str).
 

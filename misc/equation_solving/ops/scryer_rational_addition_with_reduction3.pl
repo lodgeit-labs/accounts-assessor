@@ -5,7 +5,18 @@
 /* 
 A + B = C, A * B = C, only the C is thought to be denormalized.
 Numbers should only appear in denormalized form internally in eq predicates, so equality comes down to just unification.
+Not sure yet if it's useful to pass the normalization factors ("Cf") up the tree, to be labelled first, or if it doesn't matter.
 */
+
+
+
+
+norm(An/Ad, NormN/NormD, Af) :-
+	An = Af * NormN,
+	Ad = Af * NormD,
+	Af #> 0,
+	sky(Af).
+
 
 eval(eq(An/Ad,'*',Bn/Bd,'=',Cout),Cf) :-
 	norm(Cn/Cd, Cout, Cf),
@@ -25,14 +36,50 @@ eval(eq(An/Ad, '=', Bn/Bd)) :-
 eval(eq(An/Ad, '<', Bn/Bd)) :-
 	An * Bd #< Bn * Ad.
 
+eval(eq(An/Ad, '=<', Bn/Bd)) :-
+	An * Bd #=< Bn * Ad.
+
+/* intervals */
+eval(eq((Al-Au) * (Bl-Bu) = (Rl-Ru))) :-
+/*
+    {R1 = Au * Bu},
+    {R2 = Au * Bl},
+    {R3 = Al * Bu},
+    {R4 = Al * Bl},
+    {Rl = min(R1, min(R2, min(R3, R4)))},
+    {Ru = max(R1, max(R2, max(R3, R4)))}.
+*/
+    eval(eq(Au, '*', Bu, '=', R1), _),
+    eval(eq(Au, '*', Bl, '=', R2), _),
+    eval(eq(Al, '*', Bu, '=', R3), _),
+    eval(eq(Al, '*', Bl, '=', R4), _),
 
 
 
-norm(An/Ad, NormN/NormD, Af) :-
-	An = Af * NormN,
-	Ad = Af * NormD,
-	Af #> 0,
-	sky(Af).
+/*
+	alternatively:
+    (
+        {R1 =< R2, R1 =< R3, R1 =< R4, Rl = R1}
+        ;
+        {R2 =< R1, R2 =< R3, R2 =< R4, Rl = R2}
+        ;
+        {R3 =< R1, R3 =< R2, R3 =< R4, Rl = R3}
+        ;
+        {R4 =< R1, R4 =< R2, R4 =< R3, Rl = R4}
+    ),
+    (
+        {R1 >= R2, R1 >= R3, R1 >= R4, Ru = R1}
+        ;
+        {R2 >= R1, R2 >= R3, R2 >= R4, Ru = R2}
+        ;
+        {R3 >= R1, R3 >= R2, R3 >= R4, Ru = R3}
+        ;
+        {R4 >= R1, R4 >= R2, R4 >= R3, Ru = R4}
+    )
+*/
+
+
+
 
 
 /* 

@@ -52,10 +52,19 @@
 	'make task_directory report entry',
 	'make task_directory report entry 2',
 
-	findall(_,process_request(Dict.request_format, Request_data_uri_base, Request_Files2),_),
+	findall(x, process_request(Dict.request_format, Request_data_uri_base, Request_Files2), Solutions),
+	length(Solutions, Solutions_len),
+	(	Solutions_len #= 0
+	->	json_write(current_output, err{error:m{message:'no solutions'}})
+	;	true),
+	(	Solutions_len #> 1
+	->	json_write(current_output, err{warning:m{message:'multiple solutions'}})
+	;	true),
 
-	(cf(make_zip)->true;true).
+	nicety((cf(make_zip)->true;true)).
 
+
+flag_default(die_on_error, false).
 
 process_request(Request_format, Request_data_uri_base, File_Paths) :-
 	(	current_prolog_flag(die_on_error, true)
@@ -80,8 +89,10 @@ process_request2 :-
 	!cf(collect_alerts(Alerts3, Alerts_html)),
 	!make_json_report(Alerts3, alerts_json),
 	!cf(make_alerts_report(Alerts_html)),
-	!cf(make_doc_dump_report),
-	!cf(make_context_trace_report),
+
+	nicety(!cf(make_doc_dump_report)),
+	nicety(!cf(make_context_trace_report)),
+
 	!cf(json_report_entries(Files3)),
 	Json_Out = _{alerts:Alerts3, reports:Files3},
 	!cf(make_json_report(Json_Out,'response.json',_)),
@@ -133,10 +144,10 @@ format_exception_into_alert_string(E, Str, Html) :-
 	),
 
 	(	E1 = with_backtrace_str(E2, Bstr0)
-	->	atomic_list_concat(['prolog stack:\n', Bstr0], Bstr)
+	->	atomics_to_string(['prolog stack:\n', Bstr0], Bstr)
 	;	(
 			E2 = E1,
-			Bstr = ''
+			Bstr = ""
 		)
 	),
 
@@ -171,9 +182,9 @@ format_exception_into_alert_string(E, Str, Html) :-
 
 make_context_trace_report :-
 	get_context_trace(Trace0),
-	reverse(Trace0,Trace),
-	maplist(make_context_trace_report2,Trace, Html),
-	add_report_page_with_body(10, context_trace, [h3([context_trace, ':']), div([class=context_trace], $>flatten(Html))], loc(file_name,'context_trace.html'), context_trace_html).
+	ct("reverse context_trace", reverse(Trace0,Trace)),
+	ct("maplist(make_context_trace_report2...", maplist(make_context_trace_report2,Trace, Html)),
+	ct("add_report_page_with_body(10, context_trace...", add_report_page_with_body(10, context_trace, [h3([context_trace, ':']), div([class=context_trace], $>flatten(Html))], loc(file_name,'context_trace.html'), context_trace_html)).
 
 make_context_trace_report2((Depth, C),div(["-",Stars,Text])) :-
 	% or is that supposed to be atom? i forgot again.
@@ -293,7 +304,7 @@ make_alerts_report(Alerts_Html) :-
 	add_report_page_with_body(10,alerts, $>flatten([h3([alerts, ':']), Alerts_Html2]), loc(file_name,'alerts.html'), alerts_html).
 
 
-:- debug(tmp_files).
+%:- debug(tmp_files).
 
  process_multifile_request(Request_format, Request_data_uri_base, File_Paths) :-
 
@@ -393,7 +404,7 @@ get_requested_output_type(Options2, Output) :-
 		;
 			(
 				term_string(Known_Output_Types, Known_Output_Types_Str),
-				atomic_list_concat(['requested_output_format must be one of ', Known_Output_Types_Str], Msg),
+				atomics_to_string(['requested_output_format must be one of ', Known_Output_Types_Str], Msg),
 				throw(http_reply(bad_request(string(Msg))))
 			)
 		)

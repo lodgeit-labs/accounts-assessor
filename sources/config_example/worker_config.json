@@ -1,5 +1,10 @@
 {
-	"DEBUG_OVERRIDE" : true,
-	"DONT_GTRACE" : false,
-	"...":"..."
+	"DEBUG_OVERRIDE" : false,
+	"DONT_GTRACE" : true,
+    "DIE_ON_ERROR" : false,
+	"notes":
+		{
+
+			"...":"..."
+		}	
 }

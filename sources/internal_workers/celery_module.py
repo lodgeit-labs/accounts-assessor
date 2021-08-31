@@ -6,7 +6,7 @@ import celeryconfig
 
 app = Celery(
 	include=['internal_workers', 'invoke_rpc'],
-	config_source = celeryconfig
+	config_source = celeryconfig,
 )
 # under mod_wsgi, this is set in wsgi.py
 if 'CELERY_QUEUE_NAME' in os.environ:

@@ -1,4 +1,4 @@
-FROM koo5/frontend_server${PP}:latest
+FROM koo5/frontend-server-hollow${PP}:latest
 
 COPY frontend_server /app/sources/frontend_server
 COPY internal_workers /app/sources/internal_workers

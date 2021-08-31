@@ -149,8 +149,8 @@ cf_scheme_0_root_entry(Sd, Entry) :-
 
 add_entry_balance_desc(_Sd, Entry, B, Column, Text, Type) :-
 	!maybe_balance_lines(xxx, kb:debit, [], B, Balance_Text),
-	flatten($>append([Text], [':', Balance_Text]), Desc0),
-	atomic_list_concat(Desc0, Desc),
+	flatten([Text, ':', Balance_Text], Desc0),
+	atomics_to_string(Desc0, Desc),
 	!add_report_entry_misc(Entry, Column, Desc, Type). /*todo add Tag, Value*/
 
 cf_scheme_0_entry_for_account0(Sd, Account, Entry) :-

@@ -25,7 +25,7 @@ wiki/specifying_account_hierarchies
 	doc_add(Uri, accounts:role, Role, accounts).
 
  make_account3(Id, Detail_Level, Uri) :-
-	doc_new_uri($>atomic_list_concat(['accounts_', Id]), Uri),
+	doc_new_uri($>atomics_to_string(['accounts_', Id]), Uri),
 	doc_add(Uri, rdf:type, l:account, accounts),
 	doc_add(Uri, accounts:name, Id, accounts),
 	doc_add(Uri, accounts:detail_level, Detail_Level, accounts),

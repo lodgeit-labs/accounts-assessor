@@ -29,28 +29,32 @@
 	format_date(Static_Data.start_date, Start_Date_Atom),
 	format_date(Static_Data.end_date, End_Date_Atom),
 	report_currency_atom(Static_Data.report_currency, Report_Currency_Atom),
-	atomic_list_concat($>flatten(['investment report from ', Start_Date_Atom, ' to ', End_Date_Atom, ' ',Report_Currency_Atom, $>report_details_text]), Title_Text),
+	atomics_to_string($>flatten(['investment report from ', Start_Date_Atom, ' to ', End_Date_Atom, ' ',Report_Currency_Atom, $>report_details_text]), Title_Text),
 	atomic_list_concat(['investment_report', Filename_Suffix, '.html'], Filename),
 	atomic_list_concat(['investment_report', Filename_Suffix, '_html'], Key),
 	atomic_list_concat(['investment_report', Filename_Suffix], Json_Filename),
 
-	/* todo use die_on_error here */
-	catch_with_backtrace(
-		(
-			(Static_Data.report_currency = [_] -> true ;throw_string('investment report: report currency expected')),
-			!investment_report_2(Static_Data, Semantic_Json, Table_Json, Html, Title_Text),
-			make_json_report(Table_Json, Json_Filename)
-		),
-		E,
-		(
-			term_string(E, Msg),
-			error_page_html(Msg, Html),
-			handle_processing_exception2(E),
-			%assert_alert('error', E),
-			Semantic_Json = _{}
+	Call = investment_report_2_1(Static_Data, Semantic_Json, Html, Title_Text, Json_Filename),
+	(	current_prolog_flag(die_on_error, true)
+	->	call(Call)
+	;	catch_with_backtrace(
+			call(Call),
+			E,
+			(
+				term_string(E, Msg),
+				error_page_html(Msg, Html),
+				handle_processing_exception2(E),
+				%assert_alert('error', E),
+				Semantic_Json = _{}
+			)
 		)
 	),
 	add_report_page(0, Title_Text, Html, loc(file_name,Filename), Key).
+
+ investment_report_2_1(Static_Data, Semantic_Json, Html, Title_Text, Json_Filename) :-
+	(Static_Data.report_currency = [_] -> true ;throw_string('investment report: report currency expected')),
+	!investment_report_2(Static_Data, Semantic_Json, Table_Json, Html, Title_Text),
+	make_json_report(Table_Json, Json_Filename).
 
 
  investment_report_2(Static_Data, Semantic_Json, Table_Json, Html, Title_Text) :-
@@ -62,8 +66,9 @@
 	flatten([Rows, Totals], Rows2),
 
 	Table_Json = _{title: Title_Text, rows: Rows2, columns: Columns},
-	table_html([highlight_totals - true], Table_Json, Table_Html),
-	page_with_table_html(Title_Text, Table_Html, Html),
+	!table_html([highlight_totals - true], Table_Json, Table_Html),
+	!page_with_table_html(Title_Text, Table_Html, Html),
+	!'table sheet'(Table_Json),
 
 	Semantic_Json = _{
 		rows: Rows,
@@ -444,7 +449,9 @@ group{id:on_hand_at_cost, title:"On Hand At Cost Total", members:On_Hand_At_Cost
 	value_subtract(End_Total_Price_Converted, Opening_Total_Cost_Converted, Gain).
 
 	
- clip_investments(Static_Data, (Outstanding_In, Investments_In), Realized_Investments, Unrealized_Investments) :-
+ clip_investments(Static_Data, Oust, Realized_Investments, Unrealized_Investments) :-
+ 	Oust = (Outstanding_In, Investments_In),
+
 	findall(
 		I,
 		(
@@ -524,7 +531,10 @@ optional_converted_value(V1, C, V2) :-
 
 
 
-/*		* Closing_Unit_Price_Foreign : Foreign/Unit
+/*
+dimensional analysis notes:
+
+		* Closing_Unit_Price_Foreign : Foreign/Unit
 			* Foreign^1 * Unit^-1
 			* {
 				"foreign": 1,
@@ -589,3 +599,4 @@ optional_converted_value(V1, C, V2) :-
 
 
 */
+

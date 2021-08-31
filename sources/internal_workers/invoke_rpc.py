@@ -14,6 +14,52 @@ import celeryconfig
 celery_app = celery.Celery(config_source = celeryconfig)
 
 
+@app.task(acks_late=True)
+def self_test():
+	"""
+	This is called by celery, and may be killed and called repeatedly until it succeeds.
+	Celery keeps track of the task.
+	It will only succeed once it has ran all tests that self_test_permutations currently comes up with.
+	This means that it's possible to amend a running self_test by saving more testcases.
+
+	We will save the results of each test ran.
+
+	first, we call prolog to generate all test permutations
+	"""
+
+	"""
+	query:
+		?this has_celery_uuid uuid
+	if success:
+		"task with UUID <uuid> already exists"
+	else:
+		this = unique_uri()
+		insert(this has_celery_uuid uuid)
+
+	permutations = celery_app.signature('invoke_rpc.call_prolog').apply_async({
+		'msg': {"method": "self_test_permutations"}
+	}).get()
+	for i in permutations:
+		# look the case up in agraph
+		# this self test should have an uri
+		agraph query:
+			this has_test [
+			has_permutation i;
+			done true;]
+		if success:
+			continue
+		else:
+			test = unique_uri()
+			insert(test has_permutation i)
+			if i.mode == 'remote':
+				result = run_remote_test(i)
+			else:
+				result = run_local_test(i)
+
+		'http://xxxself_testxxx is finished.'
+	return "ok"
+	"""
+
 
 @app.task(acks_late=True)
 def call_prolog(
@@ -32,6 +78,7 @@ def call_prolog(
 	# if defined, overrides dev_runner --debug value
 	debug = config.get('DEBUG_OVERRIDE', debug)
 	dont_gtrace = config.get('DONT_GTRACE', False)
+	die_on_error = config.get('DIE_ON_ERROR', False)
 
 
 
@@ -114,6 +161,8 @@ def call_prolog(
 		debug_goal = 'set_prolog_flag(debug,false),'
 	if dont_gtrace:
 		debug_goal += 'set_prolog_flag(gtrace,false),'
+	if die_on_error:
+		debug_goal += 'set_prolog_flag(die_on_error,true),'
 	if halt:
 		halt_goal = ',halt'
 	else:
@@ -138,9 +187,9 @@ def call_prolog(
 
 	# pipe the command or pass as an argument?
 	if pipe_rpc_json_to_swipl_stdin:
-		goal = ',lib:process_request_rpc_cmdline'
+		goal = ',utils:print_debugging_checklist,lib:process_request_rpc_cmdline'
 	else:
-		goal = ",make,lib:process_request_rpc_cmdline_json_text('" + (input).replace('"','\\"') + "')"
+		goal = ",make,utils:print_debugging_checklist,lib:process_request_rpc_cmdline_json_text('" + (input).replace('"','\\"') + "')"
 
 
 

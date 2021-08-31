@@ -26,7 +26,7 @@ transaction_field(T, F, X) :-
  	push_format('make_transaction2: ~q ~q ~q ~q', [Date, Description, $>account_name(Account), $>round_term(Vector)]),
  	Date = date(_,_,_),
 	flatten([Description], Description_Flat),
-	atomic_list_concat(Description_Flat, Description_Str),
+	atomics_to_string(Description_Flat, Description_Str),
 	doc_new_uri(gl_tx, Uri),
 	doc_add(Uri, rdf:type, l:transaction, transactions),
 	doc_add(Uri, transactions:day, Date, transactions),
@@ -180,7 +180,7 @@ make_dr_cr_transactions(
 		(
 			term_string(Id, Str),
 			term_string(Transaction, Tx_Str),
-			atomic_list_concat(["an account referenced by a generated transaction does not exist, please add it to account taxonomy: ", Str, ", transaction:", Tx_Str], Err_Msg),
+			atomics_to_string(["an account referenced by a generated transaction does not exist, please add it to account taxonomy: ", Str, ", transaction:", Tx_Str], Err_Msg),
 			throw(string(Err_Msg))
 		)
 	).
