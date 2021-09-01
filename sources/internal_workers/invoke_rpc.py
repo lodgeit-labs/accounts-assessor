@@ -98,10 +98,9 @@ def call_prolog(
 	# symlink from "final result"(aka "task_handle") directory to actual result directory:
 	if 'final_result_tmp_directory_path' in msg['params']:
 		final_result_tmp_directory_path = msg['params']['final_result_tmp_directory_path']
-		print(final_result_tmp_directory_path)
+		print("final_result_tmp_directory_path: " + final_result_tmp_directory_path)
 		if final_result_tmp_directory_path != None:
 			ln('../'+result_tmp_directory_name, final_result_tmp_directory_path + '/' + result_tmp_directory_name)
-			ln('../'+result_tmp_directory_name, final_result_tmp_directory_path + '/latest')
 
 
 
@@ -251,6 +250,8 @@ def call_prolog(
 				print('postprocess_doc...')
 				celery_app.signature('internal_workers.postprocess_doc').apply_async(args=(result_tmp_path,))
 				print('postprocess_doc..')
+			if final_result_tmp_directory_path != None:
+				ln('../' + result_tmp_directory_name, final_result_tmp_directory_path + '/completed')
 			return msg['params']['result_tmp_directory_name'], rrr
 		except json.decoder.JSONDecodeError as e:
 			print('invoke_rpc:', e)
