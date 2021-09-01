@@ -14,7 +14,7 @@
 
 :-set_prolog_flag(stack_limit, 1_000_000_000_000).
 
-:- (have_display -> guitracer ; true).
+%:- ((have_display,flag(gtrace,true)) -> (writeq(wtf),nl,nl,halt(0),guitracer) ; true). % this would precede evaluation the flag setting goal passed to swipl on command line
 
 %:- print_debugging_checklist.
 

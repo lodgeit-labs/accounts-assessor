@@ -96,21 +96,22 @@ def call_prolog(
 
 
 	# symlink from "final result"(aka "task_handle") directory to actual result directory:
-	final_result_tmp_directory_path = msg['params']['final_result_tmp_directory_path']
-	print(final_result_tmp_directory_path)
-	if final_result_tmp_directory_path != None:
-		ln('../'+result_tmp_directory_name, final_result_tmp_directory_path + '/' + result_tmp_directory_name)
-		ln('../'+result_tmp_directory_name, final_result_tmp_directory_path + '/latest')
+	if 'final_result_tmp_directory_path' in msg['params']:
+		final_result_tmp_directory_path = msg['params']['final_result_tmp_directory_path']
+		print(final_result_tmp_directory_path)
+		if final_result_tmp_directory_path != None:
+			ln('../'+result_tmp_directory_name, final_result_tmp_directory_path + '/' + result_tmp_directory_name)
+			ln('../'+result_tmp_directory_name, final_result_tmp_directory_path + '/latest')
 
 
 
-	# symlink tmp/last_result to tmp/xxxxx:
-	last_result_symlink_path = get_tmp_directory_absolute_path('last_result')
-	if os.path.exists(last_result_symlink_path):
-		subprocess.call(['/bin/rm', last_result_symlink_path])
-	ln(
-		result_tmp_directory_name,
-		last_result_symlink_path)
+		# symlink tmp/last_result to tmp/xxxxx:
+		last_result_symlink_path = get_tmp_directory_absolute_path('last_result')
+		if os.path.exists(last_result_symlink_path):
+			subprocess.call(['/bin/rm', last_result_symlink_path])
+		ln(
+			result_tmp_directory_name,
+			last_result_symlink_path)
 
 
 
@@ -162,6 +163,8 @@ def call_prolog(
 		debug_goal = 'set_prolog_flag(debug,false),'
 	if dont_gtrace:
 		debug_goal += 'set_prolog_flag(gtrace,false),'
+	else:
+		debug_goal += 'guitracer,'
 	if die_on_error:
 		debug_goal += 'set_prolog_flag(die_on_error,true),'
 	if halt:
