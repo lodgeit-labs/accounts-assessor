@@ -19,7 +19,7 @@
  process_request_rpc_calculator(Dict) :-
 	set_unique_tmp_directory_name(loc(tmp_directory_name, Dict.result_tmp_directory_name)),
 	doc_init,
-	init_doc_dump_server,
+	nicety(init_doc_dump_server),
 	context_trace_init_trail_0,
 	'='(Request_uri, $>atom_string(<$, Dict.request_uri)),
 	'='(Request_data_uri_base, $>atomic_list_concat([Request_uri, '/request_data/'])),
@@ -61,7 +61,7 @@
 	->	json_write(current_output, err{warning:m{message:'multiple solutions'}})
 	;	true),
 
-	nicety((cf(make_zip)->true;true)).
+	((cf(make_zip)->true;true)).
 
 
 flag_default(die_on_error, false).
@@ -87,11 +87,11 @@ process_request(Request_format, Request_data_uri_base, File_Paths) :-
 
 process_request2 :-
 	!cf(collect_alerts(Alerts3, Alerts_html)),
-	!make_json_report(Alerts3, alerts_json),
+	!nicety(make_json_report(Alerts3, alerts_json)),
 	!cf(make_alerts_report(Alerts_html)),
 
 	nicety(!cf(make_doc_dump_report)),
-	nicety(!cf(make_context_trace_report)),
+	(!cf(make_context_trace_report)),
 
 	!cf(json_report_entries(Files3)),
 	Json_Out = _{alerts:Alerts3, reports:Files3},
@@ -116,10 +116,7 @@ enrich_exception_with_ctx_dump(E, E2) :-
 
 reestablish_doc :-
 	(	user:exception_doc_dump(G,Ng)
-	->	(
-			b_setval(the_theory, G),
-			b_setval(the_theory_nonground, Ng)
-		)
+	->	reestablish_doc(G,Ng)
 	;	true).
 
  handle_processing_exception(E) :-

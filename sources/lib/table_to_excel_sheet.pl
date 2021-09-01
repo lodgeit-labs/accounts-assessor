@@ -10,9 +10,8 @@ Generic conversion from our table format into a sheet. The sheet's type will be 
 
 
  'table sheet'(Table_Json0) :-
- 	stringify_table_cells(Table_Json0, Table_Json),
-	Table_Json = _{title: Title_Text, rows: Rows, columns: Columns},
-
+ 	!stringify_table_cells(Table_Json0, Table_Json),
+	_{title: Title_Text, rows: Rows, columns: Columns} :< Table_Json,
 	/* sheet instance */
 	bn(result_sheet, Sheet_instance),
 	bn(result_sheet_type, Sheet_type),

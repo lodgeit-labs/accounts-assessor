@@ -1,6 +1,8 @@
 :- if(\+getenv('SWIPL_NODEBUG', true)).
 	:- format(user_error, 'SWIPL_NODEBUG off~n', []).
 	:- debug.
+:- else.
+	:- format(user_error, 'SWIPL_NODEBUG on~n', []).
 :- endif.
 
 :- use_module(library(http/json)).

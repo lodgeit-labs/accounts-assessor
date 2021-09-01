@@ -6,9 +6,10 @@
 */
  table_to_html(
 	Options,
-	table{title:_, columns: Columns, rows: Rows},
+	T,
 	[HTML_Header | HTML_Rows]
 ) :-
+	table{columns: Columns, rows: Rows} :< T,
 	!header_html(Columns, HTML_Header),
 	!rows_to_html(Columns, Rows, HTML_Rows0),
 	(	member(highlight_totals - true, Options)
@@ -67,7 +68,8 @@ given a list of column declarations, and a dict of strings/html tags, produce a 
 	).
 */
 
-blank_row(group{id:_, title:_, members:Group_Members}, Cells) :-
+blank_row(G, Cells) :-
+	group{members:Group_Members} :< G,
 	findall(
 		Child_Cells,
 		(

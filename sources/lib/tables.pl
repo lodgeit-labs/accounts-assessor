@@ -7,8 +7,8 @@
 	/*[div([span([Table.title, ':']), HTML_Table])]*/
 	HTML_Table
 ) :-
-	stringify_table_cells(Table, Formatted_Table),
-	table_to_html(Options, Formatted_Table, HTML_Table).
+	!stringify_table_cells(Table, Formatted_Table),
+	!table_to_html(Options, Formatted_Table, HTML_Table).
 
 
 

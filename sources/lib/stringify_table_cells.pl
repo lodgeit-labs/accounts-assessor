@@ -2,11 +2,10 @@
 /* stringify table cells. Currently also produces bits of html. This will have to be abstracted. */
 
 
- stringify_table_cells(
-	table{title:Title, columns:Columns, rows:Rows},
-	table{title:Title, columns:Columns, rows:Formatted_Rows}
-) :-
-	maplist(format_row(Columns),Rows,Formatted_Rows).
+ stringify_table_cells(T1,T2) :-
+	table{columns:Columns, rows:Rows} :< T1,
+	maplist(format_row(Columns),Rows,Formatted_Rows),
+	T2 = T1.put(rows, Formatted_Rows).
 
  format_row(Columns, Row, Formatted_Row) :-
 	findall(KV, formatted_row_kvs(Columns, Row, KV), Formatted_Row_KVs),

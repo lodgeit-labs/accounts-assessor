@@ -55,15 +55,15 @@
  investment_report_2_1(Static_Data, Semantic_Json, Html, Title_Text, Title_Text_short, Json_Filename) :-
 	(Static_Data.report_currency = [_] -> true ;throw_string('investment report: report currency expected')),
 	!investment_report_2(Static_Data, Semantic_Json, Html, Title_Text, Title_Text_short),
-	nicety(make_json_report(Semantic_Json, Json_Filename)).
+	!nicety(make_json_report(Semantic_Json, Json_Filename)).
 
 
  investment_report_2(Static_Data, Semantic_Json, Html, Title_Text, Title_Text_short) :-
 	reset_gensym(iri),
 
-	columns(Columns),
-	rows(Static_Data, Static_Data.outstanding, Rows),
-	totals(Rows, Totals),
+	!columns(Columns),
+	!rows(Static_Data, Static_Data.outstanding, Rows),
+	!totals(Rows, Totals),
 	flatten([Rows, Totals], Rows2),
 
 	Semantic_Json = table{

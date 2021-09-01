@@ -1,3 +1,6 @@
+# general
+* https://swi-prolog.discourse.group/t/bug-hunting-toolbox/710
+
 # debugging checklist:
 
 ## `./run.sh` flags:
