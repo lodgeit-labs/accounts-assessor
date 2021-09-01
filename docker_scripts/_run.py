@@ -30,8 +30,8 @@ from copy import deepcopy
 @click.option('-nr', '--django_noreload', 			type=bool, 	default=False, 
 	help="--noreload. Disables python source file watcher-reloader (to save CPU). Prolog code is still reloaded on every server invocation (even when not bind-mounted...)")
 
-@click.option('-ph', '--public_host', 				type=str, 	default='localhost', 
-	help="The public-facing hostname. Used for Caddy.")
+@click.option('-ph', '--public_host', 				type=str, 	required=True,
+	help="The public-facing hostname. Used for Caddy, apache and django.")
 
 @click.option('-pg', '--enable_public_gateway', type=bool, default=True, 
 	help="enable Caddy (on ports 80 and 443). This generally does not make much sense on a development machine, because 1) you're only getting a self-signed cert that excel will refuse, 2)maybe you already have another web server listening on these ports, 3) using -pp (non-standard ports) in combination with https will give you trouble. 4) You must access the server by a hostname, not just IP.")
@@ -62,7 +62,7 @@ ServerName {public_host}
 	else:
 		django_args	= ''
 	
-	stack_fn = generate_stack_file(port_postfix, choices)
+	stack_fn = generate_stack_file(port_postfix, public_host, choices)
 	shell('docker stack rm robust' + pp)
 	shell('./build.sh -pp "'+pp+'" --mode ' + hollow)
 	while True:
@@ -106,22 +106,28 @@ def generate_caddy_config(public_host):
 		f.write(cfg)    
 
 
-def generate_stack_file(port_postfix, choices):
+def generate_stack_file(port_postfix, public_host, choices):
 	with open('docker-stack.yml') as file_in:
 		src = yaml.load(file_in, Loader=yaml.FullLoader)
 		fn = '../sources/docker-stack' + ('__'.join(['']+[k for k,v in choices.items() if v])) + '.yml'
 	with open(fn, 'w') as file_out:
-		yaml.dump(tweaked_services(src, port_postfix, **choices), file_out)
+		yaml.dump(tweaked_services(src, port_postfix, public_host, **choices), file_out)
 	return fn
 
 
-def tweaked_services(src, port_postfix, use_host_network, mount_host_sources_dir, django_noreload, enable_public_gateway, debug_frontend_server, enable_public_insecure):
+def tweaked_services(src, port_postfix, public_host, use_host_network, mount_host_sources_dir, django_noreload, enable_public_gateway, debug_frontend_server, enable_public_insecure):
 	res = deepcopy(src)
 	services = res['services']
-	
+
+	if enable_public_gateway:
+		protocol = 'https'
+	else:
+		protocol = 'http'
+	services['frontend-server']['environment']['SERVER_URL'] = protocol + "://" + public_host
+
 	if debug_frontend_server:
 		services['frontend-server']['environment']['DJANGO_SETTINGS_MODULE'] = "frontend_server.settings_dev"
-	
+
 	if not enable_public_gateway:
 		del services['caddy']
 
