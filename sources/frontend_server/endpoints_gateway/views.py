@@ -47,7 +47,7 @@ def rdf_templates(request):
 
 @csrf_exempt
 def upload(request):
-	server_url = os.environ['SERVER_URL'] #request._current_scheme_host
+	server_url = os.getenv('PUBLIC_URL', request._current_scheme_host)
 	params = QueryDict(mutable=True)
 	params.update(request.POST)
 	params.update(request.GET)
