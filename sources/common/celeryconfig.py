@@ -4,8 +4,8 @@ broker_url = os.environ.get('SECRET__CELERY_BROKER_URL', 'pyamqp://')
 
 
 #https://stackoverflow.com/questions/63860955/celery-async-result-get-hangs-waiting-for-result-even-after-celery-worker-has
-#result_backend='redis://redis'
-result_backend = 'rpc://'
+result_backend='redis://redis'
+#result_backend = 'rpc://'
 
 
 

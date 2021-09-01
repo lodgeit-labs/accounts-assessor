@@ -60,7 +60,7 @@ process_request_rpc_cmdline3("calculator", Dict) :-
 
 process_request_rpc_cmdline3("chat", Dict) :-
 	!,
-	!profile(do_chat(Dict, Response)),
+	!(do_chat(Dict, Response)),
 	json_write(current_output, Response).
 
 process_request_rpc_cmdline3(_,_) :-
