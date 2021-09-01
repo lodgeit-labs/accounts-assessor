@@ -11,14 +11,14 @@ Generic conversion from our table format into a sheet. The sheet's type will be 
 
  'table sheet'(Table_Json0) :-
  	!stringify_table_cells(Table_Json0, Table_Json),
-	_{title: Title_Text, rows: Rows, columns: Columns} :< Table_Json,
+	_{title_short: Title_Text_short, title: Title_Text, rows: Rows, columns: Columns} :< Table_Json,
 	/* sheet instance */
 	bn(result_sheet, Sheet_instance),
 	bn(result_sheet_type, Sheet_type),
 	bn(result_sheet_template_root, Template_root),
 
 	!doc_add(Sheet_instance, excel:is_result_sheet, true, $>result_sheets_graph),
-	!doc_add(Sheet_instance, excel:sheet_instance_has_sheet_name, Title_Text, $>result_sheets_graph),
+	!doc_add(Sheet_instance, excel:sheet_instance_has_sheet_name, Title_Text_short, $>result_sheets_graph),
 	!doc_add(Sheet_instance, excel:sheet_instance_has_sheet_type, Sheet_type, $>result_sheets_graph),
 	!doc_add(Sheet_type, excel:root, Template_root, $>result_sheets_graph),
 	bn(result_template_position, Pos),
