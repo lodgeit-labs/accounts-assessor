@@ -114,9 +114,9 @@
 		column{id:date, 						title:"Date", options:_{}},
 		column{id:unit_cost_foreign, 			title:"Unit Cost Foreign", options:_{}},
 		column{id:conversion, 					title:"Conversion", options:_{}},
-		column{id:unit_cost_converted, 			title:"Unit Cost Converted", options:_{}},
+		column{id:unit_cost_converted, 			title:"Unit Cost Converted", options:_{implicit_report_currency_only_for_excel:true}},
 		column{id:total_cost_foreign, 			title:"Total Cost Foreign", options:_{}},
-		column{id:total_cost_converted, 		title:"Total Cost Converted", options:_{}}
+		column{id:total_cost_converted, 		title:"Total Cost Converted", options:_{implicit_report_currency_only_for_excel:true}}
 	],
 
 	/*fixme, these column names shouldn't be _cost_ but _value_ */
@@ -126,9 +126,9 @@
 				column{id:date, 					title:"Date", options:_{}},
 				column{id:unit_cost_foreign, 		title:"Unit Value Foreign", options:_{}},
 				column{id:conversion, 				title:"Conversion", options:_{}},
-				column{id:unit_cost_converted, 		title:"Unit Value Converted", options:_{}},
+				column{id:unit_cost_converted, 		title:"Unit Value Converted", options:_{implicit_report_currency_only_for_excel:true}},
 				column{id:total_cost_foreign, 		title:"Total Value Foreign", options:_{}},
-				column{id:total_cost_converted, 	title:"Total Value Converted", options:_{}}
+				column{id:total_cost_converted, 	title:"Total Value Converted", options:_{implicit_report_currency_only_for_excel:true}}
 			]
 		)
 	;	(
@@ -136,9 +136,9 @@
 				column{id:date, 					title:"Date", options:_{}},
 				column{id:unit_cost_foreign, 		title:"Unit Market Value Foreign", options:_{}},
 				column{id:conversion, 				title:"Conversion", options:_{}},
-				column{id:unit_cost_converted, 		title:"Unit Market Value Converted", options:_{}},
+				column{id:unit_cost_converted, 		title:"Unit Market Value Converted", options:_{implicit_report_currency_only_for_excel:true}},
 				column{id:total_cost_foreign, 		title:"Total Market Value Foreign", options:_{}},
-				column{id:total_cost_converted, 	title:"Total Market Value Converted", options:_{}}
+				column{id:total_cost_converted, 	title:"Total Market Value Converted", options:_{implicit_report_currency_only_for_excel:true}}
 			]
 		)
 	),
@@ -147,9 +147,9 @@
 		column{id:unit_cost_foreign, 			title:"Foreign Per Unit", options:_{}},
 		column{id:count, 						title:"Count", options:_{}},
 		column{id:total_foreign, 				title:"Foreign Total", options:_{}},
-		column{id:total_converted_at_purchase, 	title:"Converted at Purchase Date Total", options:_{}},
-		column{id:total_converted_at_balance, 	title:"Converted at Balance Date Total", options:_{}},
-		column{id:total_forex_gain, 			title:"Currency Gain/(loss) Total", options:_{}}
+		column{id:total_converted_at_purchase, 	title:"Converted at Purchase Date Total", options:_{implicit_report_currency_only_for_excel:true}},
+		column{id:total_converted_at_balance, 	title:"Converted at Balance Date Total", options:_{implicit_report_currency_only_for_excel:true}},
+		column{id:total_forex_gain, 			title:"Currency Gain/(loss) Total", options:_{implicit_report_currency_only_for_excel:true}}
 	],
 
 /*options:_{hide_group_prefix:true}*/
@@ -170,8 +170,8 @@ group{id:on_hand_at_cost, title:"On Hand At Cost Total", members:On_Hand_At_Cost
 
 	Gains_Details = [
 		column{id:market_foreign, title:"Market Gain Foreign", options:_{}},
-		column{id:market_converted, title:"Market Gain Converted", options:_{}},
-		column{id:forex, title:"Forex Gain", options:_{}}
+		column{id:market_converted, title:"Market Gain Converted", options:_{implicit_report_currency_only_for_excel:true}},
+		column{id:forex, title:"Forex Gain", options:_{implicit_report_currency_only_for_excel:true}}
 	],
 
 	Gains_Groups = [

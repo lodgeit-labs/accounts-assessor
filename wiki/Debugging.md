@@ -1,5 +1,7 @@
 # general
 * https://swi-prolog.discourse.group/t/bug-hunting-toolbox/710
+* https://swi-prolog.discourse.group/t/trace-on-error/1333/2
+
 
 # debugging checklist:
 

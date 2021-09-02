@@ -2,127 +2,140 @@
 /* stringify table cells. Currently also produces bits of html. This will have to be abstracted. */
 
 
- stringify_table_cells(T1,T2) :-
+ stringify_table_cells(Target, T1,T2) :-
 	table{columns:Columns, rows:Rows} :< T1,
-	maplist(format_row(Columns),Rows,Formatted_Rows),
+	maplist(format_row(Target, Columns),Rows,Formatted_Rows),
 	T2 = T1.put(rows, Formatted_Rows).
 
- format_row(Columns, Row, Formatted_Row) :-
-	findall(KV, formatted_row_kvs(Columns, Row, KV), Formatted_Row_KVs),
+ format_row(Target, Columns, Row, Formatted_Row) :-
+	findall(KV, formatted_row_kvs(Target, Columns, Row, KV), Formatted_Row_KVs),
 	!dict_create(Formatted_Row,row,Formatted_Row_KVs).
 
- formatted_row_kvs(Columns, Row, KV) :-
+ formatted_row_kvs(Target, Columns, Row, KV) :-
 	member(Column, Columns),
 	get_dict(id, Column, Column_id),
 	(	get_dict(Column_id, Row, _)
-	->	format_column(Column, Row, KV)
+	->	format_column(Target, Column, Row, KV)
 	;	KV = (Column_id:'')).
 
- format_column(Dict, Row, Column_ID:Formatted_Group) :-
-	group{id:Column_ID, title:_, members:Group_Members} :< Dict,
-	format_row(Group_Members, Row.Column_ID, Formatted_Group).
+ format_column(Target, Dict, Row, Column_ID:Formatted_Group) :-
+	group{id:Column_ID, members:Group_Members} :< Dict,
+	format_row(Target, Group_Members, Row.Column_ID, Formatted_Group).
 
- format_column(Dict, Row, Column_ID:Formatted_Cell) :-
+ format_column(Target, Dict, Row, Column_ID:Formatted_Cell) :-
 	column{id:Column_ID, options:Column_Options} :< Dict,
-	format_cell(Row.Column_ID, Column_Options, Formatted_Cell).
+	format_cell(Target, Row.Column_ID, Column_Options, Formatted_Cell).
 
 
-format_cell(Date, _, Output) :-
+format_cell(html, Date, _, Output) :-
 	Date = date(_,_,_),
 	format_date(Date, Output),
 	!.
 
-format_cell([], _Options, []) :- !.
-
-format_cell([X|Xs], Options, [Output1, Output2]) :-
-	format_cell(X, Options, Output1),
-	format_cell(Xs, Options, Output2),
-	%atomic_list_concat([Output1, ', ', Output2], Output),
+format_cell(excel, Date, _, Date) :-
+	Date = date(_,_,_),
 	!.
 
-format_cell(with_metadata(Value, _), Options, Output) :-
-	format_cell(Value, Options, Output),
+%format_cell(excel, Date, _, excel_date(Output)) :-
+%	/*Excel stores dates as sequential serial numbers so that they can be used in calculations. By default, January 1, 1900 is serial number 1, and January 1, 2008 is serial number 39448 because it is 39,447 days after January 1, 1900.*/
+%	Date = date(_,_,_),
+%	absolute_day(Date, Since_year_0),
+%	absolute_day(date(1,1,1900), Since_year_1900),
+%	Output is Since_year_0 - Since_year_1900,
+%	!.
+%
+format_cell(_Target, [], _Options, []) :- !.
+
+format_cell(Target, [X|Xs], Options, [Output1, Output2]) :-
+	format_cell(Target, X, Options, Output1),
+	format_cell(Target, Xs, Options, Output2),
 	!.
-/*
-format_cell(with_metadata(Value, _, _Uri), Options, Output) :-
-	format_cell(Value, Options, Output),
+
+format_cell(Target, with_metadata(Value, _), Options, Output) :-
+	format_cell(Target, Value, Options, Output),
 	!.
-*/
-format_cell(with_metadata(Value, _, Uri), Options, [Output, A]) :-
-	format_cell(Value, Options, Output),
+
+format_cell(html, with_metadata(Value, _, Uri), Options, [Output, A]) :-
+	format_cell(html, Value, Options, Output),
 	!,
-
-/*html*/
 	link(Uri, A).
 
+format_cell(excel, with_metadata(Value, _, Uri), Options, [Output, '->', Uri]) :-
+	format_cell(excel, Value, Options, Output),
+	!.
 
 
-format_cell(value(Unit, Value), Options, Output) :-
+
+format_cell(html, value(Unit, Value), Options, div([class=money_amount], [Output])) :-
 	(	Precision = Options.get(precision)
 	->	true
 	;	Precision = 2),
+
 	(	true = Options.get(implicit_report_currency)
 	->	!result_property(l:report_currency, Optional_Implicit_Unit)
 	;	Optional_Implicit_Unit = []),
 	format_money2(Optional_Implicit_Unit, Precision, value(Unit, Value), Output),
 	!.
 
-format_cell(exchange_rate(Date, Src, Dst, Rate), _, Output) :-
+format_cell(excel, value(Unit, Value), Options, Output) :-
+	(	Precision = Options.get(precision)
+	->	true
+	;	Precision = 2),
+
+	(	(
+			true = Options.get(implicit_report_currency)
+			;
+			true = Options.get(implicit_report_currency_only_for_excel)
+		)
+	->	!result_property(l:report_currency, Optional_Implicit_Unit)
+	;	Optional_Implicit_Unit = []),
+
+	(	[Unit] = Optional_Implicit_Unit
+	->	Output = money(Value)
+	;	format_money2([], Precision, value(Unit, Value), Output)
+	),
+	!.
+
+format_cell(_, exchange_rate(Date, Src, Dst, Rate), _, Output) :-
 	format_conversion(_, exchange_rate(Date, Src, Dst, Rate), Output),
 	!.
 
-format_cell(Other, _, Other) :-
+format_cell(_, Other, _, Other) :-
 	atom(Other),!.
 
-format_cell(Other, _, Other) :-
-
-
-
-/*html*/
+format_cell(html, Other, _, Other) :-
 	Other = hr([]),!.
 
-
-
-
-format_cell(text(X), _, X) :-
+format_cell(excel, Other, _, '———') :-
+	Other = hr([]),
 	!.
 
-format_cell(Other, _, Str) :-
+format_cell(_, text(X), _, X) :-
+	!.
+
+format_cell(_, Other, _, Str) :-
 	term_string(Other, Str).
 
-format_money2(Optional_Implicit_Unit, Precision, In, Out) :-
-	(
-		In = ''
-	->
-		Out = ''
-	;
-		(
-			In = value(Unit1,X)
-		->
-			true
-		;
-			(
+
+
+
+format_money2(Optional_Implicit_Unit, Precision, In, Out_Str) :-
+	(	In = ''
+	->	Out_Str = ''
+	;	(	In = value(Unit1,X)
+		->	true
+		;	(
 				X = In,
-				Unit1 = '?'
+				Unit1 = '???'
 			)
 		),
 		(
 			member(Unit1, Optional_Implicit_Unit)
-		->
-			Unit2 = ''
-		;
-			Unit2 = Unit1
+		->	Unit2 = ''
+		;	Unit2 = Unit1
 		),
 		atomic_list_concat(['~',Precision,':f~w'], Format_String),
-		format(string(Out_Str), Format_String, [X, Unit2]),
-
-
-
-/*html*/
-		Out = div([class=money_amount], [Out_Str])
-
-
-
+		format(string(Out_Str), Format_String, [X, Unit2])
 	).
 
 

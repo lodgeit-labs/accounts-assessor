@@ -74,6 +74,9 @@ Given a hire purchase arrangement, it can track the balance of a hire purchase a
 2) upload one of the request files found in tests/endpoint_tests/ (todo: needs updating)
 3) you should get back a json with links to individual report files
 
+#### with Excel
+[wiki/excel_usage.md]()
+
 
 
 ## documentation

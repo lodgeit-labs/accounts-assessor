@@ -76,10 +76,13 @@ def call_prolog(
 	# configuration changeable per-request:
 	with open(sources('config/worker_config.json'), 'r') as c:
 		config = json.load(c)
-	if not debug:
+
+	# not sure if these should even default to the values in the config json, seems to be more confusing than useful.
+	# this one is a command-line parameter
+	if debug == None:
 		debug = config.get('DEBUG', False)
-	dont_gtrace = config.get('DONT_GTRACE', False)
-	die_on_error = config.get('DIE_ON_ERROR', False)
+	dont_gtrace = os.getenv('DONT_GTRACE', config.get('DONT_GTRACE', False))
+	die_on_error = os.getenv('DIE_ON_ERROR', config.get('DIE_ON_ERROR', False))
 
 
 

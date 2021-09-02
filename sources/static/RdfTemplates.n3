@@ -19848,7 +19848,7 @@ ic_ui:investment_calculator_example_1
                                                 rdf:value "Leonteq Securities AG USD 1"^^xsd:string
                                          ]
                                  ] ) ;
-                            excel:template ic:unit_valueses
+                            excel:template ic:unit_values
                      ] ;
                     excel:sheet_instance_has_sheet_type ic_ui:unit_values_sheet
              ] ) .
