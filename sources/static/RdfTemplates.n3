@@ -742,7 +742,8 @@ av:gst_rate_percent rdfs:label "GST Rate Percent".
 
 
 ic_ui:unit_values_sheet
-	excel:root ic:unit_valueses.
+	excel:root ic:unit_valueses;
+	excel:name_prefix "unit_values".
 
 ic_ui:unit_values_example
 	rdf:value ().
