@@ -59,7 +59,7 @@ Given a hire purchase arrangement, it can track the balance of a hire purchase a
 
 # in detail
 
-## getting started (with docker)
+## running the server with docker
 
 1) clone the repo, 
 2) `git submodule update --init --recursive`
@@ -67,12 +67,16 @@ Given a hire purchase arrangement, it can track the balance of a hire purchase a
 3) `./first_run.sh`
 4) `./run.sh  --enable_public_insecure true`  
 
-### usage
+## usage
+
+#### with Excel and LSU plugin
+[https://github.com/koo5/accounts-assessor-public-wiki/blob/master/excel_usage/README.md]()
 
 #### without Excel
-1) Load http://localhost:88/
+1) Load http://localhost:88/ in your browser
 2) upload one of the request files found in tests/endpoint_tests/ (todo: needs updating)
-3) you should get back a json with links to individual report files
+3) you should get back a json with links to generated report files
+
 
 
 

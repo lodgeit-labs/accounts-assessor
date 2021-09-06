@@ -4,7 +4,7 @@
 try:
 	import click
 except:
-	print('please install:\npython3 -m pip install --user -U click')
+	print('please install:\npython3.9 -m pip install --user -U click')
 	exit(1)
 
 import os,subprocess,time,shlex,logging

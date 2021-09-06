@@ -72,13 +72,17 @@ def call_prolog(
 		pipe_rpc_json_to_swipl_stdin=False
 ):
 
+
 	# configuration changeable per-request:
 	with open(sources('config/worker_config.json'), 'r') as c:
 		config = json.load(c)
-	# if defined, overrides dev_runner --debug value
-	debug = config.get('DEBUG_OVERRIDE', debug)
-	dont_gtrace = config.get('DONT_GTRACE', False)
-	die_on_error = config.get('DIE_ON_ERROR', False)
+
+	# not sure if these should even default to the values in the config json, seems to be more confusing than useful.
+	# this one is a command-line parameter
+	if debug == None:
+		debug = config.get('DEBUG', False)
+	dont_gtrace = os.getenv('DONT_GTRACE', config.get('DONT_GTRACE', False))
+	die_on_error = os.getenv('DIE_ON_ERROR', config.get('DIE_ON_ERROR', False))
 
 
 
@@ -94,22 +98,22 @@ def call_prolog(
 	msg['params']['result_tmp_directory_name'] = result_tmp_directory_name
 
 
-	# symlink from "final result"(alias task_handle) directory to actual result directory:
-	final_result_tmp_directory_path = msg['params']['final_result_tmp_directory_path']
-	print(final_result_tmp_directory_path)
-	if final_result_tmp_directory_path != None:
-		ln('../'+result_tmp_directory_name, final_result_tmp_directory_path + '/' + result_tmp_directory_name)
-		ln('../'+result_tmp_directory_name, final_result_tmp_directory_path + '/latest')
+	# symlink from "final result"(aka "task_handle") directory to actual result directory:
+	if 'final_result_tmp_directory_path' in msg['params']:
+		final_result_tmp_directory_path = msg['params']['final_result_tmp_directory_path']
+		print("final_result_tmp_directory_path: " + final_result_tmp_directory_path)
+		if final_result_tmp_directory_path != None:
+			ln('../'+result_tmp_directory_name, final_result_tmp_directory_path + '/' + result_tmp_directory_name)
 
 
 
-	# symlink tmp/last_result to tmp/xxxxx:
-	last_result_symlink_path = get_tmp_directory_absolute_path('last_result')
-	if os.path.exists(last_result_symlink_path):
-		subprocess.call(['/bin/rm', last_result_symlink_path])
-	ln(
-		result_tmp_directory_name,
-		last_result_symlink_path)
+		# symlink tmp/last_result to tmp/xxxxx:
+		last_result_symlink_path = get_tmp_directory_absolute_path('last_result')
+		if os.path.exists(last_result_symlink_path):
+			subprocess.call(['/bin/rm', last_result_symlink_path])
+		ln(
+			result_tmp_directory_name,
+			last_result_symlink_path)
 
 
 
@@ -161,6 +165,8 @@ def call_prolog(
 		debug_goal = 'set_prolog_flag(debug,false),'
 	if dont_gtrace:
 		debug_goal += 'set_prolog_flag(gtrace,false),'
+	else:
+		debug_goal += 'guitracer,'
 	if die_on_error:
 		debug_goal += 'set_prolog_flag(die_on_error,true),'
 	if halt:
@@ -247,6 +253,8 @@ def call_prolog(
 				print('postprocess_doc...')
 				celery_app.signature('internal_workers.postprocess_doc').apply_async(args=(result_tmp_path,))
 				print('postprocess_doc..')
+			if final_result_tmp_directory_path != None:
+				ln('../' + result_tmp_directory_name, final_result_tmp_directory_path + '/completed')
 			return msg['params']['result_tmp_directory_name'], rrr
 		except json.decoder.JSONDecodeError as e:
 			print('invoke_rpc:', e)
@@ -264,7 +272,8 @@ def uri_params(tmp_directory_name):
 	# comment(RDF_EXPLORER_1_BASE, comment, 'base of uris to show to user in generated html')
 	rdf_explorer_base = 'http://dev-node.uksouth.cloudapp.azure.com:10036/#/repositories/a/node/'
 	rdf_explorer_base = 'http://localhost:10055/#/repositories/a/node/'
-	rdf_namespace_base = 'http://dev-node.uksouth.cloudapp.azure.com/rdf/'
+	#rdf_namespace_base = 'http://dev-node.uksouth.cloudapp.azure.com/rdf/'
+	rdf_namespace_base = 'https://rdf.tmp/'
 	request_uri = rdf_namespace_base + 'requests/' + tmp_directory_name
 	return {
 		"request_uri": request_uri,

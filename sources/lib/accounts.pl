@@ -182,7 +182,7 @@ this should ensure that all transactions get reflected in the account tree somew
 	maplist(check_account_parent,Accounts).
 
 
-/* just writes file, doesnt create report entry here */
+/* just writes file, doesn't create report entry here */
  write_accounts_json_report :-
 	!maplist(account_to_dict, $>all_accounts, Dicts),
 	grab_and_inc_current_num(accounts_json_phase, Phase),

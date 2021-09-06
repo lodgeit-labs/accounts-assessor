@@ -1,6 +1,8 @@
 :- if(\+getenv('SWIPL_NODEBUG', true)).
 	:- format(user_error, 'SWIPL_NODEBUG off~n', []).
 	:- debug.
+:- else.
+	:- format(user_error, 'SWIPL_NODEBUG on~n', []).
 :- endif.
 
 :- use_module(library(http/json)).
@@ -12,7 +14,7 @@
 
 :-set_prolog_flag(stack_limit, 1_000_000_000_000).
 
-:- (have_display -> guitracer ; true).
+%:- ((have_display,flag(gtrace,true)) -> (writeq(wtf),nl,nl,halt(0),guitracer) ; true). % this would precede evaluation the flag setting goal passed to swipl on command line
 
 %:- print_debugging_checklist.
 
@@ -58,7 +60,7 @@ process_request_rpc_cmdline3("calculator", Dict) :-
 
 process_request_rpc_cmdline3("chat", Dict) :-
 	!,
-	!profile(do_chat(Dict, Response)),
+	!(do_chat(Dict, Response)),
 	json_write(current_output, Response).
 
 process_request_rpc_cmdline3(_,_) :-

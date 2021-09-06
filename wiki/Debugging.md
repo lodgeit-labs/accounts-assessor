@@ -1,3 +1,8 @@
+# general
+* https://swi-prolog.discourse.group/t/bug-hunting-toolbox/710
+* https://swi-prolog.discourse.group/t/trace-on-error/1333/2
+
+
 # debugging checklist:
 
 ## `./run.sh` flags:
@@ -17,7 +22,9 @@ not sure if, at this point, it still makes sense to have the option to invoke gt
 ## `sources/config/worker_config.json`:
 	this is loaded by call_prolog on every request.
     
-* "DEBUG_OVERRIDE" : force passing `debug` goal to prolog. If unset:
+* "DEBUG" : pass `--debug true` to dev_runner. Causes SWIPL_NODEBUG to be off, --debug to be passed to swipl, and `debug` called as a goal.  
+
+If unset:
 		* run_last_request_in_docker scripts have debugging on
 		* internal-workers as a service has debugging off
 
