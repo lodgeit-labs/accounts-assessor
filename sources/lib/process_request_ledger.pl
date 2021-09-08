@@ -10,6 +10,7 @@ state ( -> static data) -> structured reports ( -> crosschecks)
 
  process_request_ledger :-
 	ct(
+		/* fixme, use l:Request type
 		'this is an Investment Calculator query',
 		get_optional_singleton_sheet(ic_ui:report_details_sheet, _)
 	),
