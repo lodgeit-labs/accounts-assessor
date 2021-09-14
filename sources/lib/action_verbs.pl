@@ -1,12 +1,19 @@
 
-'extract action verbs' :-
+ 'extract action verbs' :-
 	get_singleton_sheet_data(ic_ui:action_verbs_sheet, Data),
  	maplist(!'extract action verb', $>doc_list_items($>value(Data))).
 
-
-'extract action verb'(Item) :-
+ 'extract action verb'(Item) :-
 	push_format('extract action verb from: ~w', [$>sheet_and_cell_string(Item)]),
-	doc_new_(l:action_verb, Uri),
+
+	/* use supplied uri if provided. this allows l:livestock_purchase and l:livestock_sale. */
+	(	(
+			doc_value(Item, av:uri, Uri_str),
+			Uri_str \= ""
+		)
+	->	atom_string(Uri, Uri_str)
+	;	doc_new_(l:action_verb, Uri)
+	),
 
 	atom_string(Name, $>rpv(Item,av:name)),
 	doc_add(Uri, l:has_id, Name),

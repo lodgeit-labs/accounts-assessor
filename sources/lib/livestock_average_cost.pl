@@ -27,17 +27,21 @@ natural_increase_count(Type, [E | Events], Natural_Increase_Count) :-
 natural_increase_count(_, [], 0).
 
 
+
+livestock_purchase_sts(S_Transactions, S_Transactions2) :-
+	findall(
+	T,
+	(
+		rdf_global_id(l:livestock_purchase,V),
+		member(T, S_Transactions),
+		s_transaction_type_id(T, uri(V))
+	),
+	S_Transactions2).
+
 /* todo this should eventually work off transactions */
 
 purchases_cost_and_count(Livestock, S_Transactions, Cost, Count) :-
-	findall(
-		T,
-		(
-			rdf_global_id(l:livestock_purchase,V),
-			member(T, S_Transactions),
-			s_transaction_type_id(T, uri(V))
-		),
-		Ts),
+	livestock_purchase_sts(S_Transactions, Ts),
 	doc(Livestock, livestock:name, Type),
 	doc(Livestock, livestock:currency, Currency),
 	/* a bit overcomplicated, since we should supply the currency and livestock unit in case there were no transactions. */

@@ -708,8 +708,33 @@ ic_ui:investment_calculator_example
 ic_ui:action_verbs_sheet
 	excel:root ic:action_verbs.
 
+
+
 ic_ui:action_verbs_example
-	rdf:value ().
+	rdf:value (
+		 [
+				av:description [
+						rdf:value "Generic livestock sale."^^xsd:string
+				 ] ;
+				av:name [
+						rdf:value "Livestock_Sale"^^xsd:string
+				 ] ;
+				av:uri [
+						rdf:value "https://rdf.lodgeit.net.au/v1/request#:livestock_sale"^^xsd:string
+				 ]
+		 ]
+		 [
+				av:description [
+						rdf:value "Generic livestock purchase."^^xsd:string
+				 ] ;
+				av:name [
+						rdf:value "Livestock_Purchase"^^xsd:string
+				 ] ;
+				av:uri [
+						rdf:value "https://rdf.lodgeit.net.au/v1/request#:livestock_purchase"^^xsd:string
+				 ]
+		 ]
+	).
 
 ic:action_verbs
 	excel:position [excel:col "A"; excel:row "3"];
@@ -717,6 +742,7 @@ ic:action_verbs
 	excel:cardinality excel:multi;
 	excel:class ic:action_verb;
 	excel:fields (
+		[excel:property av:uri; excel:type xsd:string]
 		[excel:property av:name; excel:type xsd:string]
 		[excel:property av:exchanged_account; excel:type xsd:string]
 		[excel:property av:trading_account; excel:type xsd:string]
