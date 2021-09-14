@@ -1,5 +1,8 @@
 
-process_request_augment_sheets :-
-	c(get_request_type(robust:augment_sheets)),
-	
+/* not sure if rdf compile-time expansion will expand the uri in head */
+
+process_request_other(requests:augment_sheets) :-
+
+
+
 

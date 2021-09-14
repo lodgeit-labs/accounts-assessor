@@ -10,7 +10,7 @@ state ( -> static data) -> structured reports ( -> crosschecks)
 
  process_request_ledger :-
 	ct(
-		/* fixme, use l:Request type
+		/* fixme, use l:Request type */
 		'this is an Investment Calculator query',
 		get_optional_singleton_sheet(ic_ui:report_details_sheet, _)
 	),
@@ -325,7 +325,7 @@ This is done with a symlink. This allows to bypass cache, for example in pessera
 	!result(Result),
 	!get_time(TimeStamp),
 	!stamp_date_time(TimeStamp, DateTime, 'UTC'),
-	!doc_add(Result, l:timestamp, DateTime),
+	doc_add(Result, l:timestamp, DateTime),
 	doc_add($>result, l:type, l:ledger).
 
  extract_report_parameters :-

@@ -446,7 +446,9 @@ handle_additional_file(Bn, S_Transactions) :-
 			assertion(nonvar(Source))
 		),
 		Pairs0),
-	maplist([(St, Tx), St]>>true, Pairs0, Sources0),
-	list_to_set(Sources0, Sources),
-	!sort_into_dict2([(St, Tx), St, Tx]>>true, Pairs0, Txs_by_sources).
+	!sort_into_dict2([(St, Tx), St, Tx]>>true, Pairs0, Txs_by_sources),
+	/*maplist([(St, Tx), St]>>true, Pairs0, Sources0),
+	list_to_set(Sources0, Sources),*/
+	dict_keys(Txs_by_sources, Sources).
+
 

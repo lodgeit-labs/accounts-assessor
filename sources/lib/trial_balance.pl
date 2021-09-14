@@ -15,10 +15,11 @@
 */
 
  check_st_tb(_, Source) :-
+ 	/* nothing to do if this ST already has a TB calculated */
 	doc(Source, s_transactions:tb, _, transactions),
 	!.
  check_st_tb(_, Source) :-
- 	% but this should probably be removed - there's no reason that this now can't be a balanced transaction that nullifies P&L
+ 	% this option should probably be removed - there's no reason that this now can't be a balanced transaction that nullifies P&L
 	doc(Source, s_transactions:unbalanced, true, transactions),
 	!.
  check_st_tb(Txs_by_sources, Source) :-
@@ -33,9 +34,12 @@
 	(	Report_Currency = []
 	->	true
 	;	(
+			/* check TB as of end date */
 			!cf(check_txset_at(St, Exchange_Rates, Report_Currency, End_Date, Txs)),
+			/* check TB as of ST date if it has a singular date */
 			(	get_txset_date(Transaction_Date, Txs)
 			->	!cf(check_txset_at(St, Exchange_Rates, Report_Currency, Transaction_Date, Txs))
+			/* if it doesn't have a singular date, we can't meaningfully calculate TB as of that date. */
 			;	true),
 			true
 		)
@@ -49,7 +53,7 @@
  	all_txs_have_same_date(Date, Txs).
 
 
- all_txs_have_same_date(_, []).
+ all_txs_have_same_date(D, []) :- ground(D).
 
 
  all_txs_have_same_date(D, [Tx|Txs]) :-
@@ -65,34 +69,37 @@
 
 	(	vec_is_almost_zero(Rest)
 	->	true
-	;	(
-			vec_is_just_report_currency(Rest)
-		->
-			(
-				!format_balances(
-					error_msg,
-					Report_Currency,
-					unused,
-					unused,
-					kb:debit,
-					Rest,
-					Vecs_text_list
-				),
-				atomics_to_string(Vecs_text_list, ' ', Vecs_text),
-				!pretty_transactions_string(Transactions, Transactions_string),
-				add_alert(
-					'SYSTEM_WARNING',
-					$>format(
-						string(<$),
-						'~w: trial balance of txset, at ~w, is ~w:\n~q',
-						[Desc, Date, Vecs_text, Transactions_string]
-					),
-					Alert
-				),
-				doc_add(Source, l:has_alert, Alert)
-			)
-		;	true
+	;	(	vec_is_just_report_currency(Rest)
+		->	report_bad_tb(Report_Currency,Rest,Transactions,Desc, Date, Source)
+		;	/* we couldn't convert all values to report_currency at date */
+			true
 		)
+	).
+
+
+report_bad_tb(Report_Currency,Rest,Transactions,Desc, Date, Source) :-
+	(
+		!format_balances(
+			error_msg,
+			Report_Currency,
+			unused,
+			unused,
+			kb:debit,
+			Rest,
+			Vecs_text_list
+		),
+		atomics_to_string(Vecs_text_list, ' ', Vecs_text),
+		!pretty_transactions_string(Transactions, Transactions_string),
+		add_alert(
+			'SYSTEM_WARNING',
+			$>format(
+				string(<$),
+				'~w: trial balance of txset, at ~w, is ~w:\n~q',
+				[Desc, Date, Vecs_text, Transactions_string]
+			),
+			Alert
+		),
+		doc_add(Source, l:has_alert, Alert)
 	).
 
 

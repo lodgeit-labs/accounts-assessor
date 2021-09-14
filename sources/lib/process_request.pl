@@ -373,11 +373,15 @@ process_rdf_request :-
 	debug(requests, "process_rdf_request~n", []),
 	(	%process_request_hirepurchase_new;
 		process_request_depreciation_new;
-		process_request_ledger
+		process_request_ledger;
+		process_request_other
 	),
 	ct('process_rdf_request is finished.'),
 	cf(make_rdf_response_report).
 
+process_request_other :-
+	c(get_request_type(Request_type)),
+	c(process_request_other(Request_type)).
 
 
 process_xml_request(File_Path, Dom) :-
