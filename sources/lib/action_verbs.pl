@@ -1,8 +1,7 @@
 
 'extract action verbs' :-
 	get_singleton_sheet_data(ic_ui:action_verbs_sheet, Data),
- 	maplist(!'extract action verb', $>doc_list_items($>value(Data))),
-	!add_builtin_action_verbs.
+ 	maplist(!'extract action verb', $>doc_list_items($>value(Data))).
 
 
 'extract action verb'(Item) :-
@@ -36,12 +35,6 @@ optional_decimal(Old_item,New_item,(Src,Dst)) :-
 	;	true).
 
 
-add_builtin_action_verbs :-
-	/*fixme*/
-	doc_add(l:livestock_sale, rdf:type, l:action_verb),
-	doc_add(l:livestock_sale, l:has_id, 'Livestock_Sale'),
-	doc_add(l:livestock_purchase, rdf:type, l:action_verb),
-	doc_add(l:livestock_purchase, l:has_id, 'Livestock_Purchase').
 
 action_verb(Action_Verb) :-
 	docm(Action_Verb, rdf:type, l:action_verb).
