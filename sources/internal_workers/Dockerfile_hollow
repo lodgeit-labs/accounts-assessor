@@ -50,23 +50,17 @@ WORKDIR /app
 
 #RUN git clone --branch V8.3.10 https://github.com/SWI-Prolog/swipl.git swipl
 #RUN git clone --branch V8.1.15 https://github.com/SWI-Prolog/swipl.git swipl
-
-
-
-#RUN date
 #RUN git clone --recurse-submodules  --depth 1 -b V8.3.18  "https://github.com/SWI-Prolog/swipl-devel.git" 	 swipl
-
-
-
-
 #RUN git clone --recurse-submodules  -b V8.3.18  "https://github.com/SWI-Prolog/swipl-devel.git" 	 swipl
-
-
-
-
 #RUN git clone --recurse-submodules  --depth 1 -b V8.3.28  "https://github.com/koo5/swipl-devel.git"       swipl
-RUN git clone --recurse-submodules  --depth 1 -b master  "https://github.com/SWI-Prolog/swipl-devel.git"       swipl
+RUN git clone --recurse-submodules  --depth 1 -b V8.3.18  "https://github.com/SWI-Prolog/swipl-devel.git"       swipl
+
+
+
+#RUN git clone --depth 1 -b master  "https://github.com/SWI-Prolog/swipl-devel.git"       swipl
 WORKDIR swipl
+#RUN git reset a624386fa4c4718866a906e597e92b8b1b048382 --hard
+#RUN git submodule update --init --recursive
 
 
 
@@ -102,7 +96,7 @@ RUN git remote add koo5 https://github.com/koo5/packages-xpce.git #
 RUN date
 RUN git fetch koo5
 RUN git cherry-pick -n koo5/more_eye_friendly_gtrace_color_theme5
-RUN git cherry-pick -n koo5/dev1
+#RUN git cherry-pick -n koo5/dev1
 
 
 WORKDIR /app/swipl

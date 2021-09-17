@@ -12,13 +12,13 @@
 
 :- ['lib'].
 
-:-set_prolog_flag(compile_meta_arguments, always).
-:-set_prolog_flag(stack_limit, 9080706050403020100).
+%:-set_prolog_flag(compile_meta_arguments, always).
+%:-set_prolog_flag(stack_limit, 9080706050403020100).
 %hhh :- current_prolog_flag(malloc,X),format(user_error, '~q~n', [X]).
 %:- hhh.
-:- set_prolog_stack(global, spare(20000)).
-:- set_prolog_stack(local, spare(20000)).
-:- set_prolog_stack(trail, spare(20000)).
+%:- set_prolog_stack(global, spare(20000)).
+%:- set_prolog_stack(local, spare(20000)).
+%:- set_prolog_stack(trail, spare(20000)).
 
 
 %:- ((have_display,flag(gtrace,true)) -> (writeq(wtf),nl,nl,halt(0),guitracer) ; true). % this would precede evaluation the flag setting goal passed to swipl on command line

@@ -32,8 +32,18 @@ state ( -> static data) -> structured reports ( -> crosschecks)
 		(
 			prolog_stack_property(K,V),
 			format(user_error, '~q~n', [K-V])
-		),
+		)
+		,
 	_),
+	/*
+	findall(_,
+		(
+			malloc_property(V),
+			format(user_error, '~q~n', [V])
+		),
+	_),*/
+
+
 
 
  	!initial_state(S0),
