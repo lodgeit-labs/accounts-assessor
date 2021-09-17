@@ -28,6 +28,14 @@ state ( -> static data) -> structured reports ( -> crosschecks)
 
  valid_ledger_model :-
 
+	findall(_,
+		(
+			prolog_stack_property(K,V),
+			format(user_error, '~q~n', [K-V])
+		),
+	_),
+
+
  	!initial_state(S0),
 
 	once(cf(generate_bank_opening_balances_sts(Bank_Lump_STs))),
@@ -35,6 +43,14 @@ state ( -> static data) -> structured reports ( -> crosschecks)
 
 	handle_sts(S0, Bank_Lump_STs, S2),
 	doc_add(S2, rdfs:comment, "with bank opening STSs"),
+
+
+	findall(_,
+		(
+			prolog_stack_property(K,V),
+			format(user_error, '~q~n', [K-V])
+		),
+	_),
 
 	ct('phase: opening balance GL inputs',
 		/* todo implement cutoffs inside extract_gl_inputs */

@@ -43,9 +43,6 @@ def realpath(x):
 
 
 
-cc(['./xhost.py'])
-cc(['./git_info.fish'])
-
 
 
 l = logging.getLogger()
@@ -55,20 +52,22 @@ l.setLevel(logging.DEBUG)
 l.addHandler(logging.StreamHandler())
 
 
-
-@click.command(help="""run a request in docker, possibly with guitracer. internal services and rabbitmq containers have to be running.""")
+@click.command(
+	help="""Run a request by attaching an internal-workers-hollow container to a deployed robust docker stack.""",
+	context_settings=dict(help_option_names=['-h', '--help'])
+	)
 
 @click.option('-pp', '--port_postfix', 			type=str, 	default='',
-	help="last two or more digits of the services' public ports. Also identifies the particular docker stack.")
+	help="last two or more digits of the services' public ports, identifies the particular docker stack.")
 
 @click.option('-pu', '--server_public_url', 	type=str, 	default=None,
-	help="The public-facing server url.")
+	help="The public-facing server url, default http://localhost:88{port_postfix}.")
 
 @click.option('-d', '--debug', 	type=bool, 	default=True,
-	help="debug.")
+	help="debug, default True.")
 
 @click.option('-r', '--request', 				type=str, 	default='/app/server_root/tmp/last_request',
-	help="the directory containing the request file(s).")
+	help="the directory containing the request file(s), defaults to /tmp/last_request.")
 
 @click.option('-s', '--script', 				type=str,
 	help="override what to run inside the container")
@@ -77,9 +76,12 @@ l.addHandler(logging.StreamHandler())
 
 
 def run(port_postfix, server_public_url, debug, request, script):
+	cc(['./lib/xhost.py'])
+	cc(['./lib/git_info.fish'])
+
 	HOME = realpath('~')
 	SECRETS_DIR  = realpath('../secrets')
-	RUNNING_CONTAINER_ID = co(['./get_id_of_running_container.py', '-pp', port_postfix])[:-1]
+	RUNNING_CONTAINER_ID = co(['./lib/get_id_of_running_container.py', '-pp', port_postfix])[:-1]
 	STACK = 'robust' + port_postfix
 	
 	l.debug(f'attaching to network of RUNNING_CONTAINER_ID : {RUNNING_CONTAINER_ID}')

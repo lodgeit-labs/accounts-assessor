@@ -47,7 +47,7 @@ def realpath(x):
 	help="hollow or full images? mount host directories containing source code or copy everything into image?")
 
 def run(port_postfix, mode):
-	cc('../docker_scripts/git_info.fish')
+	cc('../docker_scripts/lib/git_info.fish')
 
 	print()
 	print("flower...")

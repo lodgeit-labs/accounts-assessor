@@ -102,7 +102,7 @@ cf_categorization_uri_tx_pairs(Account, Cat, PlusMinus, Categorization_Tx_Pairs)
 	findall(
 		(cat(Account, Cat, PlusMinus), T),
 		(
-			docm(T, rdf:type, l:transaction, transactions),
+			*doc(T, rdf:type, l:transaction, transactions),
 			doc(T, transactions:account, Account, transactions),
 			doc(T, l:cf_category, Cat, cf_stuff),
 			doc(T, l:cf_plusminus, PlusMinus, cf_stuff)
@@ -116,10 +116,10 @@ categorization_to_uri(cat(Account, Cat, PlusMinus), U) :-
 	(
 		/* skip existing */
 		(
-			docm(U, rdf:type, l:cf_categorization, cf_stuff),
-			docm(U, l:account, Account, cf_stuff),
-			docm(U, l:category, Cat, cf_stuff),
-			docm(U, l:plusminus, PlusMinus, cf_stuff)
+			*doc(U, rdf:type, l:cf_categorization, cf_stuff),
+			*doc(U, l:account, Account, cf_stuff),
+			*doc(U, l:category, Cat, cf_stuff),
+			*doc(U, l:plusminus, PlusMinus, cf_stuff)
 		)
 	->	true
 	;	(

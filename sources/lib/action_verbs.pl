@@ -44,7 +44,7 @@ add_builtin_action_verbs :-
 	doc_add(l:livestock_purchase, l:has_id, 'Livestock_Purchase').
 
 action_verb(Action_Verb) :-
-	docm(Action_Verb, rdf:type, l:action_verb).
+	*doc(Action_Verb, rdf:type, l:action_verb).
 
 
 

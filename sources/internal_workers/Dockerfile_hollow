@@ -1,4 +1,4 @@
-	FROM ubuntu:20.04
+	FROM ubuntu:focal
 
 
 #RUN sed -i -e 's/http:\/\/archive/mirror:\/\/mirrors/' -e 's/\/ubuntu\//\/mirrors.txt/' /etc/apt/sources.list
@@ -29,6 +29,7 @@ RUN     apt-get install -y \
         libdb-dev \
         libpcre3-dev \
         libyaml-dev \
+        libtcmalloc-minimal4 \
         python3.8 python3-pip
 
 RUN     unattended-upgrade \
@@ -64,7 +65,7 @@ WORKDIR /app
 
 
 #RUN git clone --recurse-submodules  --depth 1 -b V8.3.28  "https://github.com/koo5/swipl-devel.git"       swipl
-RUN git clone --recurse-submodules  --depth 1 -b V8.3.18  "https://github.com/SWI-Prolog/swipl-devel.git"       swipl
+RUN git clone --recurse-submodules  --depth 1 -b master  "https://github.com/SWI-Prolog/swipl-devel.git"       swipl
 WORKDIR swipl
 
 
@@ -109,7 +110,7 @@ RUN mkdir build
 WORKDIR build
 RUN cmake -G Ninja ..
 RUN ninja
-RUN ctest -j 8 --output-on-failure
+RUN ctest -j 8 --output-on-failure; true
 RUN ninja install
 
 

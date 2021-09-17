@@ -65,7 +65,7 @@ ServerName {public_host}
 	
 	stack_fn = generate_stack_file(port_postfix, public_url, choices)
 	shell('docker stack rm robust' + pp)
-	shell('./build.sh -pp "'+pp+'" --mode ' + hollow)
+	shell('./lib/build.sh -pp "'+pp+'" --mode ' + hollow)
 	while True:
 		cmdxxx = "docker network ls | grep robust" + pp
 		p = subprocess.run(cmdxxx, shell=True, stdout=subprocess.PIPE)
@@ -75,7 +75,7 @@ ServerName {public_host}
 			break
 		time.sleep(1)
 		#print('.')
-	shell('./deploy_stack.sh "'+pp+'" ' + stack_fn + ' ' + django_args)
+	shell('./lib/deploy_stack.sh "'+pp+'" ' + stack_fn + ' ' + django_args)
 	shell('docker stack ps robust'+pp + ' --no-trunc')
 	shell('./follow_logs_noagraph.sh '+pp)
 
@@ -129,7 +129,7 @@ def tweaked_services(src, port_postfix, PUBLIC_URL, use_host_network, mount_host
 		del services['caddy']
 
 	if enable_public_insecure:
-		services['apache']['ports'] = ["88:80"]
+		services['apache']['ports'] = ["88"+port_postfix+":80"]
 
 	if not 'secrets' in res:
 		res['secrets'] = {}

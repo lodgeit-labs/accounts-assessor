@@ -78,7 +78,7 @@
 */
  generate_bank_opening_balances_sts(Txs) :-
 	result(R),
-	findall(Bank_Account, docm(R, l:bank_account, Bank_Account), Bank_Accounts),
+	findall(Bank_Account, *doc(R, l:bank_account, Bank_Account), Bank_Accounts),
 	maplist(!generate_bank_opening_balances_sts2, Bank_Accounts, Txs0),
 	exclude(var, Txs0, Txs).
 

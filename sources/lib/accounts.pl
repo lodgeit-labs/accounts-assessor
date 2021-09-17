@@ -88,7 +88,7 @@ find account by a user-entered name
 
  all_accounts(Accounts) :-
 	result_accounts(As),
-	findall(A, docm(As, l:has_account, A), Accounts).
+	findall(A, *doc(As, l:has_account, A), Accounts).
 
  account_exists(Account) :-
 	all_accounts(Accounts),

@@ -16,5 +16,5 @@ cd ..
 cp -r secrets_example secrets
 cp -r sources/config_example sources/config
 
-cd sources/apache/conf/
-htpasswd -b -c htpasswd jack insecure
+#cd sources/apache/conf/
+#htpasswd -b -c htpasswd jack insecure
