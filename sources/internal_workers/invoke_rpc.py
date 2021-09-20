@@ -99,6 +99,7 @@ def call_prolog(
 
 
 	# symlink from "final result"(aka "task_handle") directory to actual result directory:
+	final_result_tmp_directory_path = None
 	if 'final_result_tmp_directory_path' in msg['params']:
 		final_result_tmp_directory_path = msg['params']['final_result_tmp_directory_path']
 		print("final_result_tmp_directory_path: " + final_result_tmp_directory_path)
