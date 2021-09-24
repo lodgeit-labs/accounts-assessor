@@ -1,4 +1,5 @@
 
+/* todo implement cutoffs inside extract_gl_inputs */
  extract_gl_inputs(Phase, Txs) :-
  	(	doc($>request_data, ic_ui:gl, Gls)
  	->	(	maplist(extract_gl_input(Phase), $>doc_list_items(Gls), Txs0),

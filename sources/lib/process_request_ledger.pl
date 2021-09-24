@@ -21,50 +21,38 @@ state ( -> static data) -> structured reports ( -> crosschecks)
  ledger_initialization :-
 	!cf(extract_start_and_end_date),
 	!cf(stamp_result),
-	!cf(extract_report_parameters),
+	!cf('extract "output_dimensional_facts"'),
+	!cf('extract "cost_or_market"'),
+	!cf(extract_report_currency),
+	!cf('extract action verbs'),
+	!cf('extract bank accounts'),
+	!cf('extract GL accounts'),
 	!cf(make_gl_viewer_report),
 	!cf(write_accounts_json_report),
 	!cf(extract_exchange_rates).
 
+
+/*
+A valid ledger model has input and output documents, and possibly a bunch of phases, where each phase automates some posting of GL transactions that some business logic requires.
+
+we need to update the vocabulary a bit:
+an ST - "Statement Transaction", originally "bank statement transaction", is now effectively any transaction that only has an implicit primary account and is yet to be "preprocessed". It later gets split into multiple GL transactions.
+*/
+
  valid_ledger_model :-
 
-	findall(_,
-		(
-			prolog_stack_property(K,V),
-			format(user_error, '~q~n', [K-V])
-		)
-		,
-	_),
-	/*
-	findall(_,
-		(
-			malloc_property(V),
-			format(user_error, '~q~n', [V])
-		),
-	_),*/
-
-
-
-
+	cf('ensure system accounts exist 0'([])),
+	/* start with a blank state */
  	!initial_state(S0),
 
-	once(cf(generate_bank_opening_balances_sts(Bank_Lump_STs))),
-	cf('ensure system accounts exist 0'(Bank_Lump_STs)),
-
+	!(cf(generate_bank_opening_balances_sts(Bank_Lump_STs))),
 	handle_sts(S0, Bank_Lump_STs, S2),
 	doc_add(S2, rdfs:comment, "with bank opening STSs"),
 
-
-	findall(_,
-		(
-			prolog_stack_property(K,V),
-			format(user_error, '~q~n', [K-V])
-		),
-	_),
-
+	/* each GL input sheet can be set to be applied at a particular phase */
 	ct('phase: opening balance GL inputs',
-		/* todo implement cutoffs inside extract_gl_inputs */
 		(extract_gl_inputs(phases:opening_balance, Gl_input_txs),
+		/* gl inputs are just GL transactions, not STs */
 	 	handle_txs(S2, Gl_input_txs, S4))),
 	doc_add(S4, rdfs:comment, "with Gl_input_txs"),
 
@@ -73,6 +61,7 @@ state ( -> static data) -> structured reports ( -> crosschecks)
 			smsf_rollover0(S4, S6))
 	;	S4 = S6),
 
+	/* this phasing is somewhat arbitrary, just driven by our usecases */
  	cf('phase: main 1'(S6, S7)),
  	doc_add(S7, rdfs:comment, "after main 1"),
  	cf('phase: main 2'(S7, S8)),
@@ -352,15 +341,6 @@ This is done with a symlink. This allows to bypass cache, for example in pessera
 	!stamp_date_time(TimeStamp, DateTime, 'UTC'),
 	!doc_add(Result, l:timestamp, DateTime),
 	doc_add($>result, l:type, l:ledger).
-
- extract_report_parameters :-
-	!cf('extract "output_dimensional_facts"'),
-	!cf('extract "cost_or_market"'),
-	!cf(extract_report_currency),
-	!cf('extract action verbs'),
-	!cf('extract bank accounts'),
-	!cf('extract GL accounts').
-
 
  read_ic_n_sts_processed(N) :-
 	b_current_num_with_default(ic_n_sts_processed, 0, N).
