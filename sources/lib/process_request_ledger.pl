@@ -29,7 +29,14 @@ state ( -> static data) -> structured reports ( -> crosschecks)
 	!cf('extract GL accounts'),
 	!cf(make_gl_viewer_report),
 	!cf(write_accounts_json_report),
-	!cf(extract_exchange_rates).
+	!cf(extract_exchange_rates),
+
+	/* there is currently a non-declarative tracking of GL accounts. this has the purpose of disallowing arbitrary code to generate GL txs with nonexistent GL accounts. All accounts have to be "added" first.
+	but with fixpoint reasoning we can instead enforce (in a maplist...
+	*/
+	/* ensure that all expected accounts are explicitly reported, even if no GL transaction ever touches them */
+	!cf('ensure system accounts exist 0'([])).
+
 
 
 /*
@@ -41,7 +48,6 @@ an ST - "Statement Transaction", originally "bank statement transaction", is now
 
  valid_ledger_model :-
 
-	cf('ensure system accounts exist 0'([])),
 	/* start with a blank state */
  	!initial_state(S0),
 

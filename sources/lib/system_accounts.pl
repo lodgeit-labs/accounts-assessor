@@ -6,7 +6,7 @@
 		!cf('ensure system accounts exist'(S_Transactions)),
 		!cf(check_accounts_parent),
 		!cf(check_accounts_roles),
-		!cf(propagate_accounts_side),
+		!cf(propagate_accounts_normal_side),
 		!cf(write_accounts_json_report))
 	).
 
