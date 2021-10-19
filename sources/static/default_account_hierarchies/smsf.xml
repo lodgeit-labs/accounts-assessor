@@ -90,32 +90,37 @@
                 <account name="Opening_Balance" role="smsf_equity_Opening_Balance">
 
                     <account name="Opening_Balance_-_Preserved/Taxable"
+							 subdivide_by_smsf_member="true"
                              smsf_phase="Preserved"
                              smsf_taxability="Taxable"
-                             is_smsf_equity_opening_balance="true"
-                    />
+                             is_smsf_equity_opening_balance="true"/>
 
                     <account name="Opening_Balance_-_Preserved/Tax-Free"
+							 subdivide_by_smsf_member="true"
                              smsf_phase="Preserved"
                              smsf_taxability="Tax-Free"
                              is_smsf_equity_opening_balance="true"/>
 
                     <account name="Opening_Balance_-_Unrestricted_Non_Preserved/Taxable"
+							 subdivide_by_smsf_member="true"
                              smsf_phase="Unrestricted"
                              smsf_taxability="Taxable"
                              is_smsf_equity_opening_balance="true"/>
 
                     <account name="Opening_Balance_-_Unrestricted_Non_Preserved/Tax-Free"
+							 subdivide_by_smsf_member="true"
                              smsf_phase="Unrestricted"
                              smsf_taxability="Tax-Free"
                              is_smsf_equity_opening_balance="true"/>
 
                     <account name="Opening_Balance_-_Restricted_Non_Preserved/Taxable"
+							 subdivide_by_smsf_member="true"
                              smsf_phase="Restricted"
                              smsf_taxability="Taxable"
                              is_smsf_equity_opening_balance="true"/>
 
                     <account name="Opening_Balance_-_Restricted_Non_Preserved/Tax-Free"
+							 subdivide_by_smsf_member="true"
                              smsf_phase="Restricted"
                              smsf_taxability="Tax-Free"
                              is_smsf_equity_opening_balance="true"/>
@@ -186,12 +191,14 @@
                     <account name="Benefits_Paid_-_Preserved/Taxable"
                              smsf_phase="Preserved"
                              smsf_taxability="Taxable"/>
-                    <account name="Benefits_Paid_-_Preserved/Tax-Free" smsf_phase="Preserved"
+                    <account name="Benefits_Paid_-_Preserved/Tax-Free"
+							 smsf_phase="Preserved"
                              smsf_taxability="Tax-Free"/>
                     <account name="Benefits_Paid_-_Unrestricted_Non_Preserved/Taxable"
                              smsf_phase="Unrestricted"
                              smsf_taxability="Taxable"/>
-                    <account name="Benefits_Paid_-_Unrestricted_Non_Preserved/Tax-Free" smsf_phase="Unrestricted"
+                    <account name="Benefits_Paid_-_Unrestricted_Non_Preserved/Tax-Free"
+							 smsf_phase="Unrestricted"
                              smsf_taxability="Tax-Free"/>
                     <account name="Benefits_Paid_-_Restricted_Non_Preserved/Taxable"
                              smsf_phase="Restricted"
@@ -201,14 +208,16 @@
                              smsf_taxability="Tax-Free"/>
 
 
-                    <account name="Transfers_Out_-_Preserved/Taxable" smsf_phase="Preserved"
+                    <account name="Transfers_Out_-_Preserved/Taxable" 
+							 smsf_phase="Preserved"
                              smsf_taxability="Taxable"/>
 
                     <account name="Transfers_Out_-_Preserved/Tax-Free"
                              smsf_phase="Preserved"
                              smsf_taxability="Tax-Free"/>
 
-                    <account name="Transfers_Out_-_Unrestricted_Non_Preserved/Taxable" smsf_phase="Unrestricted"
+                    <account name="Transfers_Out_-_Unrestricted_Non_Preserved/Taxable" 
+							 smsf_phase="Unrestricted"
                              smsf_taxability="Taxable"/>
 
                     <account name="Transfers_Out_-_Unrestricted_Non_Preserved/Tax-Free"
@@ -218,13 +227,16 @@
                              smsf_phase="Restricted"
                              smsf_taxability="Taxable"/>
 
-                    <account name="Transfers_Out_-_Restricted_Non_Preserved/Tax-Free" smsf_phase="Restricted"
+                    <account name="Transfers_Out_-_Restricted_Non_Preserved/Tax-Free" 
+							 smsf_phase="Restricted"
                              smsf_taxability="Tax-Free"/>
 
 
-                    <account name="Life_Insurance_Premiums_-_Preserved/Taxable" smsf_phase="Preserved"
+                    <account name="Life_Insurance_Premiums_-_Preserved/Taxable" 
+							 smsf_phase="Preserved"
                              smsf_taxability="Taxable"/>
-                    <account name="Life_Insurance_Premiums_-_Preserved/Tax-Free" smsf_phase="Preserved"
+                    <account name="Life_Insurance_Premiums_-_Preserved/Tax-Free" 
+							 smsf_phase="Preserved"
                              smsf_taxability="Tax-Free"/>
 
                     <account name="Life_Insurance_Premiums_-_Unrestricted_Non_Preserved/Taxable"
@@ -238,7 +250,8 @@
                     <account name="Life_Insurance_Premiums_-_Restricted_Non_Preserved/Taxable" smsf_phase="Restricted"
                              smsf_taxability="Taxable"/>
 
-                    <account name="Life_Insurance_Premiums_-_Restricted_Non_Preserved/Tax-Free" smsf_phase="Restricted"
+                    <account name="Life_Insurance_Premiums_-_Restricted_Non_Preserved/Tax-Free"
+							 smsf_phase="Restricted"
                              smsf_taxability="Tax-Free"/>
 
 
@@ -300,29 +313,36 @@
                     <account name="Contribution_Tax_-_Restricted_Non_Preserved/Tax-Free"
                              smsf_phase="Restricted"
                              smsf_taxability="Tax-Free"/>
-                    <account name="Internal_Transfers_In_-_Preserved/Taxable" smsf_phase="Preserved"
+                    <account name="Internal_Transfers_In_-_Preserved/Taxable" 
+							 smsf_phase="Preserved"
                              smsf_taxability="Taxable"/>
 
-                    <account name="Internal_Transfers_In_-_Preserved/Tax-Free" smsf_phase="Preserved"
+                    <account name="Internal_Transfers_In_-_Preserved/Tax-Free" 
+							 smsf_phase="Preserved"
                              smsf_taxability="Tax-Free"/>
 
-                    <account name="Internal_Transfers_In_-_Unrestricted_Non_Preserved/Taxable" smsf_phase="Unrestricted"
+                    <account name="Internal_Transfers_In_-_Unrestricted_Non_Preserved/Taxable"
+							 smsf_phase="Unrestricted"
                              smsf_taxability="Taxable"/>
 
                     <account name="Internal_Transfers_In_-_Unrestricted_Non_Preserved/Tax-Free"
                              smsf_phase="Unrestricted"
                              smsf_taxability="Tax-Free"/>
 
-                    <account name="Internal_Transfers_In_-_Restricted_Non_Preserved/Taxable" smsf_phase="Restricted"
+                    <account name="Internal_Transfers_In_-_Restricted_Non_Preserved/Taxable" 
+							 smsf_phase="Restricted"
                              smsf_taxability="Taxable"/>
 
-                    <account name="Internal_Transfers_In_-_Restricted_Non_Preserved/Tax-Free" smsf_phase="Restricted"
+                    <account name="Internal_Transfers_In_-_Restricted_Non_Preserved/Tax-Free" 
+							 smsf_phase="Restricted"
                              smsf_taxability="Tax-Free"/>
 
-                    <account name="Internal_Transfers_Out_-_Preserved/Taxable" smsf_phase="Preserved"
+                    <account name="Internal_Transfers_Out_-_Preserved/Taxable" 
+							 smsf_phase="Preserved"
                              smsf_taxability="Taxable"/>
 
-                    <account name="Internal_Transfers_Out_-_Preserved/Tax-Free" smsf_phase="Preserved"
+                    <account name="Internal_Transfers_Out_-_Preserved/Tax-Free" 
+							 smsf_phase="Preserved"
                              smsf_taxability="Tax-Free"/>
 
                     <account name="Internal_Transfers_Out_-_Unrestricted_Non_Preserved/Taxable"
@@ -336,9 +356,9 @@
                     <account name="Internal_Transfers_Out_-_Restricted_Non_Preserved/Taxable" smsf_phase="Restricted"
                              smsf_taxability="Taxable"/>
 
-                    <account name="Internal_Transfers_Out_-_Restricted_Non_Preserved/Tax-Free" smsf_phase="Restricted"
+                    <account name="Internal_Transfers_Out_-_Restricted_Non_Preserved/Tax-Free"
+							 smsf_phase="Restricted"
                              smsf_taxability="Tax-Free"/>
-
 
                 </account>
             </account>
