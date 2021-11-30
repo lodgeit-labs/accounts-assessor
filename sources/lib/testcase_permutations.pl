@@ -16,12 +16,13 @@ parameters_permutation(Params_dict) :-
 
 	(	Mode == 'subprocess'
 	->	member(Die_on_error, [true, false])
-	;	true),
+	;	/*Die_on_error = na*/true),
 
 	Vars = [
 		testcase-Testcase,
 		mode-Mode,
-		die_on_error-Die_on_error
+		die_on_error-Die_on_error,
+		priority=0
 	],
 	foldl(add_ground_parameter_to_dict, Vars, params{}, Params_dict).
 

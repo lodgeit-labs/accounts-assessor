@@ -1,4 +1,4 @@
-	FROM ubuntu:focal
+FROM ubuntu:focal
 
 
 #RUN sed -i -e 's/http:\/\/archive/mirror:\/\/mirrors/' -e 's/\/ubuntu\//\/mirrors.txt/' /etc/apt/sources.list

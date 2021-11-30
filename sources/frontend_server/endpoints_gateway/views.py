@@ -149,10 +149,10 @@ def chat(request):
 		"params": json.loads(request.body),
 	})
 
-def self_test(request):
+def start_self_test(request):
 	if request.method != 'POST':
 		return
-	celery_app.signature('invoke_rpc.self_test').apply_async()
+	celery_app.signature('invoke_rpc.start_self_test').apply_async()
 
 
 def json_prolog_rpc_call(request, msg):
