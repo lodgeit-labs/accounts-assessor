@@ -6,7 +6,7 @@ def start_a_testing_session():
 	a = agc()
 	bn = a.createBNode()
 	selftest = agc.namespace('https://rdf.lodgeit.net.au/v1/selftest#')
-	a.add(bn, RDF.TYPE, selftest.Session))
+	a.add(bn, RDF.TYPE, selftest.Session)
 	for p in testcase_permutations():
 		a.add(bn, selftest.has_testcase, Tc)
 
@@ -18,6 +18,7 @@ def testcase_permutations():
 
 
 def continue_testing_session():
+	"""pick a session"""
 	a = agc()
 	with a.prepareTupleQuery(query="""
     SELECT DISTINCT ?session WHERE {
@@ -29,7 +30,9 @@ def continue_testing_session():
 			return continue_testing_session2(bindings.getValue('session'))
 
 
+
 def continue_testing_session2(session):
+	"""continue a particular testing session"""
 	a = agc()
 	with a.prepareTupleQuery(query="""
     SELECT DISTINCT ?testcase WHERE {
@@ -46,6 +49,7 @@ def continue_testing_session2(session):
 
 
 def do_testcase(testcase, data):
+	pass
 
 
 
@@ -54,6 +58,8 @@ def process_response(response):
 		# assert it into the db
 		# grab the file
 		# do the comparisons
+		pass
 
 
 def reopen_last_testing_session():
+	pass

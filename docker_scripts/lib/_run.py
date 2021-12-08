@@ -88,10 +88,6 @@ def generate_caddy_config(public_host):
 	{{
 		#debug
 
-		#auto_https off
-		#http_port  80
-		#https_port 443 
-		
 		#admin 127.0.0.1:2019 {{
 		#	origins 127.0.0.1
 		#}}
@@ -100,6 +96,11 @@ def generate_caddy_config(public_host):
 	{public_host} {{
 		import Caddyfile_auth
 		reverse_proxy apache:80
+	}}
+
+	{public_host}:10035 {{
+		import Caddyfile_auth
+		reverse_proxy agraph:10035
 	}}
 	'''
 	
@@ -130,6 +131,7 @@ def tweaked_services(src, port_postfix, PUBLIC_URL, use_host_network, mount_host
 
 	if enable_public_insecure:
 		services['apache']['ports'] = ["88"+port_postfix+":80"]
+		services['agraph']['ports'] = ["100"+port_postfix+":10035"]
 
 	if not 'secrets' in res:
 		res['secrets'] = {}

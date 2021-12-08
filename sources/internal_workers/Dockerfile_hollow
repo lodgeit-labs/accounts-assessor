@@ -137,10 +137,10 @@ ENV CELERY_QUEUE_NAME=q7788
 ENV DETERMINANCY_CHECKER__USE__ENFORCER=true
 
 
-ARG uid=1000
-ARG gid=1000
-RUN groupadd -g $gid myuser && useradd -lm -u $uid -g $gid myuser
-USER myuser
+#ARG uid=1000
+#ARG gid=1000
+#RUN groupadd -g $gid myuser && useradd -lm -u $uid -g $gid myuser
+#USER myuser
 
 
 ENTRYPOINT ["./start.sh"]

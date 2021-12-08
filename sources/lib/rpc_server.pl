@@ -60,6 +60,9 @@ process_request_rpc_cmdline2(Dict) :-
 	flush_output.
 
 
+process_request_rpc_cmdline3("testcase_permutations", _Params) :-
+	findall(T, testcase(T), Testcases),
+	json_write(current_output, Testcases).
 
 process_request_rpc_cmdline3("calculator", Dict) :-
 	!,

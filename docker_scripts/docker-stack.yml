@@ -152,7 +152,7 @@ services:
         parallelism: 1
         delay: 10s
       restart_policy:
-          # https://docs.docker.com/compose/compose-file/compose-file-v3/
+        # https://docs.docker.com/compose/compose-file/compose-file-v3/
         condition: any
         delay: "240s"
     secrets:
@@ -171,9 +171,6 @@ services:
            size: 2096000000
     #shm_size: "1G" # not supported in swarm
     #finishme: use low-memory configuration
-    # this should go through caddy or apache:
-    #ports:
-    #  - 100${PP}:10035
 
 
   flower:
