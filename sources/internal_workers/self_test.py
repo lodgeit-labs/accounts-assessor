@@ -1,7 +1,10 @@
-# todo configure agraph to ignore duplicate triples
+
+def create_selftest_session(server):
+	assert_longtask()
 
 
-def start_a_testing_session():
+
+def assert_longtask():
 	# first we assert the metatask into the db
 	a = agc()
 	bn = a.createBNode()
@@ -17,7 +20,7 @@ def testcase_permutations():
 
 
 
-def continue_testing_session():
+def continue_selftest_session():
 	"""pick a session"""
 	a = agc()
 	with a.prepareTupleQuery(query="""
@@ -26,6 +29,7 @@ def continue_testing_session():
         FILTER NOT EXISTS {?session selftest:closed true}
     }
     """).evaluate() as result:
+		result.enableDuplicateFilter()
 		for bindings in result:
 			return continue_testing_session2(bindings.getValue('session'))
 
@@ -49,7 +53,7 @@ def continue_testing_session2(session):
 
 
 def do_testcase(testcase, data):
-	pass
+	print(('do_testcase:',testcase, data))
 
 
 

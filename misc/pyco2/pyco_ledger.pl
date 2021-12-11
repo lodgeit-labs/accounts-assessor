@@ -1,21 +1,17 @@
 
-/*
-
-due to legacy parts of codebase, the highlevel dataflow goes through Static_Data and is somewhat like this:
-state (in doc) -> Static_Data (swipl dict) -> structured reports -> crosschecks
-
-
-*/
 
 
  process_request_ledger :-
-	ct(
-		'this is an Investment Calculator query',
-		get_optional_singleton_sheet(ic_ui:report_details_sheet, _)
-	),
+	?'this is an Investment Calculator query',
  	!ledger_initialization,
  	*valid_ledger_model,
  	ct('process_request_ledger is finished.').
+
+
+
+ 'this is an Investment Calculator query' :-
+	get_optional_singleton_sheet(ic_ui:report_details_sheet, _).
+
 
 
  ledger_initialization :-
