@@ -1,11 +1,13 @@
 import sys, os
-# for the case when running standalone
-# is this needed?
+
+
+# if running standalone:
 #sys.path.append('../internal_workers')
-# for running under mod_wsgi
+
+# if running under mod_wsgi
 sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../../internal_workers')))
-sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../../triplestore_access')))
 sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../../common')))
+
 
 import agraph
 import urllib.parse
@@ -149,22 +151,19 @@ def chat(request):
 		"params": json.loads(request.body),
 	})
 
-def start_self_test(request):
-	if request.method != 'POST':
-		return
-	celery_app.signature('invoke_rpc.start_self_test').apply_async()
-
 
 def json_prolog_rpc_call(request, msg):
-	#try:
-
 	msg["client"] = get_client_ip(request)
 	logging.getLogger().info(msg)
 	return JsonResponse(celery_app.signature('invoke_rpc.call_prolog').apply_async([msg]).get()[1])
 
-	# we'd get a 500 anyway, no? also, call_prolog doesn't let it propagate anymore
-	#except json.decoder.JSONDecodeError as e:
-	#	return HttpResponse(status=500)
+
+def rpc(request):
+	if request.method != 'POST':
+		return
+	logging.getLogger().info(('rpc', request,))
+	return JsonResponse(celery_app.signature('selftest.start_selftest_session').apply())
+
 
 
 #import IPython; IPython.embed()

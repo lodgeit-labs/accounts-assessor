@@ -1,7 +1,9 @@
-FROM ubuntu:focal
+FROM ubuntu:20.04
 
+RUN apt-get update ; DEBIAN_FRONTEND=noninteractive apt-get install -y ca-certificates 
 
-#RUN sed -i -e 's/http:\/\/archive/mirror:\/\/mirrors/' -e 's/\/ubuntu\//\/mirrors.txt/' /etc/apt/sources.list
+RUN cat /etc/apt/sources.list
+#RUN sed -i -e '/security/!s/http:\/\/archive/mirror:\/\/mirrors/' -e 's/\/ubuntu\//\/mirrors.txt/' /etc/apt/sources.list
 RUN cat /etc/apt/sources.list
 env LOC en_AU.UTF-8
 RUN apt-get update \
@@ -109,7 +111,6 @@ RUN ninja install
 
 
 
-#RUN groupadd -r user && useradd -r -g user user
 WORKDIR /app
 
 
@@ -118,15 +119,11 @@ COPY requirements.txt .
 RUN pip3 install --no-cache-dir -r requirements.txt 
 
 
-COPY init_prolog.sh .
-RUN ./init_prolog.sh
 
 
 RUN mkdir -p /app/server_root
-#RUN chown user:user /app/server_root
 VOLUME /app/server_root
 VOLUME /app/cache
-#USER user
 VOLUME /app/sources/
 VOLUME /app/tests/
 WORKDIR /app/sources/internal_workers
@@ -137,10 +134,14 @@ ENV CELERY_QUEUE_NAME=q7788
 ENV DETERMINANCY_CHECKER__USE__ENFORCER=true
 
 
-#ARG uid=1000
-#ARG gid=1000
-#RUN groupadd -g $gid myuser && useradd -lm -u $uid -g $gid myuser
-#USER myuser
+ARG uid=1000
+ARG gid=1000
+RUN groupadd -g $gid myuser && useradd -lm -u $uid -g $gid myuser
+USER myuser
+
+
+COPY init_prolog.sh .
+RUN ./init_prolog.sh
 
 
 ENTRYPOINT ["./start.sh"]

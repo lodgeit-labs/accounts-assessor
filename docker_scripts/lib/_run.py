@@ -39,7 +39,13 @@ from urllib.parse import urlparse
 @click.option('-pi', '--enable_public_insecure', type=bool, default=False, 
 	help="skip caddy and expose directly the apache server on port 88.")
 
-def run(port_postfix, public_url, **choices):
+@click.option('-pb', '--parallel_build', type=bool, default=False,
+	help="parallelize building of docker images.")
+
+@click.option('-rm', '--rm_stack', type=bool, default=True,
+	help="rm the stack and deploy it afresh.")
+
+def run(port_postfix, public_url, parallel_build, rm_stack, **choices):
 	public_host = urlparse(public_url).hostname
 
 	# caddy is just gonna listen on 80 and 443 always.
@@ -64,17 +70,24 @@ ServerName {public_host}
 		django_args	= ''
 	
 	stack_fn = generate_stack_file(port_postfix, public_url, choices)
-	shell('docker stack rm robust' + pp)
-	shell('./lib/build.sh -pp "'+pp+'" --mode ' + hollow)
-	while True:
-		cmdxxx = "docker network ls | grep robust" + pp
-		p = subprocess.run(cmdxxx, shell=True, stdout=subprocess.PIPE)
-		print(cmdxxx + ': ' + str(p.returncode) + ':')
-		print(p.stdout)
-		if p.returncode:
-			break
-		time.sleep(1)
-		#print('.')
+	if rm_stack:
+		shell('docker stack rm robust' + pp)
+	if parallel_build:
+		pb = ' --parallel true'
+	else:
+		pb = ''
+	shell('./lib/build.sh -pp "'+pp+'" --mode ' + hollow + pb)
+	if rm_stack:
+		# wait for robust network to disappear
+		while True:
+			cmdxxx = "docker network ls | grep robust" + pp
+			p = subprocess.run(cmdxxx, shell=True, stdout=subprocess.PIPE)
+			print(cmdxxx + ': ' + str(p.returncode) + ':')
+			print(p.stdout)
+			if p.returncode:
+				break
+			time.sleep(1)
+			#print('.')
 	shell('./lib/deploy_stack.sh "'+pp+'" ' + stack_fn + ' ' + django_args)
 	shell('docker stack ps robust'+pp + ' --no-trunc')
 	shell('./follow_logs_noagraph.sh '+pp)
@@ -169,7 +182,9 @@ def files_in_dir(dir):
 
 
 def shell(cmd):
-	print('>'+cmd)
+	print('>')
+	print(cmd)
+	print('>')
 	r = os.system(cmd)
 	if r != 0:
 		exit(r)

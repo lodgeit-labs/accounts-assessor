@@ -13,3 +13,4 @@ cache/*
 .~lock.*
 #secret*.json
 **/emacs_server.0
+public_lib/lodgeit_solvers/research

@@ -14,14 +14,12 @@ urlpatterns = ([
     path('upload', views.upload, name='upload'),
     # path('', views.upload, name='upload'),
 
-    # can be removed yet?
-    #path('residency', views.residency, name='residency'),
-    #path('sbe', views.sbe, name='sbe'),
     path('chat', views.chat, name='chat'),
-    #path('chat_v2', views.chat, name='chat_v2'),
 
     # path('sparql_proxy', views.sparql_proxy, name='sparql_proxy'),
-    path('day', views.day)
+
+    path('day', views.day),
+    path('rpc', views.rpc)
 
     ] +
     # this is now fully replaced by apache

@@ -3,7 +3,7 @@ from celery_module import app
 import sys, os
 import rdflib
 import rdflib.plugins.serializers.nquads
-sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../triplestore_access')))
+sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../common')))
 import agraph
 
 

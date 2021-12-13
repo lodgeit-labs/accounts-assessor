@@ -5,7 +5,7 @@ import celeryconfig
 
 
 app = Celery(
-	include=['internal_workers', 'invoke_rpc', 'self_test'],
+	include=['internal_workers', 'invoke_rpc', 'selftest'],
 	config_source = celeryconfig,
 )
 # under mod_wsgi, this is set in wsgi.py

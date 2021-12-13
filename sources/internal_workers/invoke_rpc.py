@@ -1,9 +1,7 @@
 import logging,json, subprocess, os, sys, shutil, shlex
-import internal_workers
 
 sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../common')))
 from tmp_dir_path import git, sources, create_tmp_directory_name, create_tmp, get_tmp_directory_absolute_path, ln
-from celery_module import app
 from fs_utils import command_nice, flatten_lists
 
 
@@ -12,53 +10,9 @@ from fs_utils import command_nice, flatten_lists
 import celery
 import celeryconfig
 celery_app = celery.Celery(config_source = celeryconfig)
+from celery_module import app
 
 
-@app.task(acks_late=True)
-def self_test():
-	"""
-	This is called by celery, and may be killed and called repeatedly until it succeeds.
-	Celery keeps track of the task.
-	It will only succeed once it has ran all tests that self_test_permutations currently comes up with.
-	This means that it's possible to amend a running self_test by saving more testcases.
-
-	We will save the results of each test ran.
-
-	first, we call prolog to generate all test permutations
-	"""
-
-	"""
-	query:
-		?this has_celery_uuid uuid
-	if success:
-		"task with UUID <uuid> already exists"
-	else:
-		this = unique_uri()
-		insert(this has_celery_uuid uuid)
-
-	permutations = celery_app.signature('invoke_rpc.call_prolog').apply_async({
-		'msg': {"method": "self_test_permutations"}
-	}).get()
-	for i in permutations:
-		# look the case up in agraph
-		# this self test should have an uri
-		agraph query:
-			this has_test [
-			has_permutation i;
-			done true;]
-		if success:
-			continue
-		else:
-			test = unique_uri()
-			insert(test has_permutation i)
-			if i.mode == 'remote':
-				result = run_remote_test(i)
-			else:
-				result = run_local_test(i)
-
-		'http://xxxself_testxxx is finished.'
-	return "ok"
-	"""
 
 
 @app.task(acks_late=True)
