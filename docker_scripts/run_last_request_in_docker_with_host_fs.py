@@ -134,7 +134,7 @@ def run(port_postfix, server_public_url, debug, request, script):
 			--entrypoint bash
 		""")
 		) + [
-			f"koo5/internal-workers-hollow{port_postfix}:latest",
+			f"koo5/workers-hlw{port_postfix}:latest",
 			'-c', script
 		]
 

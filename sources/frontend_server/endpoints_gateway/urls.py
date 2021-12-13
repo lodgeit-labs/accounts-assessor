@@ -9,17 +9,17 @@ urlpatterns = ([
 
     #this has to be a POST because we use an ancient .NET
     # ^ actually not, so, this route can be removed in favor of GETing /static/RdfTemplates.n3 directly
-    path('rdf_templates', views.rdf_templates, name='rdf_templates'),
+    path('clients/rdf_templates', views.rdf_templates),
 
-    path('upload', views.upload, name='upload'),
+    path('clients/upload', views.upload),
     # path('', views.upload, name='upload'),
 
-    path('chat', views.chat, name='chat'),
+    path('clients/chat', views.chat),
 
     # path('sparql_proxy', views.sparql_proxy, name='sparql_proxy'),
 
-    path('day', views.day),
-    path('rpc', views.rpc)
+    path('backend/day', views.day),
+    path('backend/rpc', views.rpc)
 
     ] +
     # this is now fully replaced by apache

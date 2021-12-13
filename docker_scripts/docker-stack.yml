@@ -4,7 +4,7 @@ services:
 
 
   caddy:
-    image: caddy:2.3.0-alpine
+    image: caddy:2.3-alpine
     networks:
       - frontend
     ports:
@@ -21,6 +21,7 @@ services:
     image: koo5/apache${PP}:latest
     networks:
       - frontend
+      - backend
     deploy:
       replicas: 1
       restart_policy:
@@ -33,11 +34,11 @@ services:
       - ./../sources/static/:/usr/local/apache2/htdocs/static/
 
 
-  frontend-server:
-    image: koo5/frontend-server${PP}:latest
+  frontend:
+    image: koo5/frontend${PP}:latest
     environment:
       DJANGO_ARGS: "${DJANGO_ARGS}"
-      SECRET__INTERNAL_SERVICES_SERVER_URL: "http://internal-services:17788"
+      SECRET__INTERNAL_SERVICES_SERVER_URL: "http://services:17788"
       SECRET__CELERY_BROKER_URL: "amqp://guest:guest@rabbitmq:5672//"
       DJANGO_SETTINGS_MODULE: "frontend_server.settings_prod"
 
@@ -46,11 +47,10 @@ services:
       - "/etc/localtime:/etc/localtime:ro"
     networks:
       - backend
-      - frontend
     depends_on:
       - rabbitmq
-      - internal-services
-      - internal-workers
+      - services
+      - workers
     deploy:
       placement:
         constraints: [node.role == manager]
@@ -65,7 +65,7 @@ services:
       
 
   rabbitmq:
-    image: rabbitmq:3.8.3
+    image: rabbitmq:3.9
     networks:
       - backend
     deploy:
@@ -79,10 +79,10 @@ services:
       - "/etc/localtime:/etc/localtime:ro"
 
 
-  internal-workers:
-    image: koo5/internal-workers${PP}:latest
+  workers:
+    image: koo5/workers${PP}:latest
     environment:
-      SECRET__INTERNAL_SERVICES_SERVER_URL: "http://internal-services:17788"
+      SECRET__INTERNAL_SERVICES_SERVER_URL: "http://services:17788"
       SECRET__CELERY_BROKER_URL: "amqp://guest:guest@rabbitmq:5672//"
       DETERMINANCY_CHECKER__USE__ENFORCER: "true"
     volumes:
@@ -95,7 +95,7 @@ services:
       - backend
     depends_on:
       - rabbitmq
-      - internal-services
+      - services
     deploy:
       replicas: 1
       placement:
@@ -109,8 +109,8 @@ services:
       - AGRAPH_SUPER_PASSWORD
 
 
-  internal-services:
-    image: koo5/internal-services${PP}:latest
+  services:
+    image: koo5/services${PP}:latest
     environment:
       DJANGO_ARGS: "${DJANGO_ARGS}"
     volumes:
@@ -191,6 +191,7 @@ services:
 
 networks:
   frontend:
+    attachable: true
   backend:
     #driver: overlay
     attachable: true

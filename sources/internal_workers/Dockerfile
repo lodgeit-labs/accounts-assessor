@@ -1,4 +1,4 @@
-FROM koo5/internal-workers-hollow${PP}:latest
+FROM koo5/workers-hlw${PP}:latest
 
 
 COPY wait-for-it /app/sources/wait-for-it

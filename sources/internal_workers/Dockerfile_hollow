@@ -121,7 +121,19 @@ RUN pip3 install --no-cache-dir -r requirements.txt
 
 
 
-RUN mkdir -p /app/server_root
+ARG uid=1000
+ARG gid=1000
+RUN groupadd -g $gid myuser && useradd -lm -u $uid -g $gid myuser
+
+
+
+
+RUN mkdir -p /app/server_root/tmp
+RUN mkdir -p /app/server_root/control
+RUN chown myuser:myuser /app/server_root/tmp
+RUN chown myuser:myuser /app/server_root/control
+
+
 VOLUME /app/server_root
 VOLUME /app/cache
 VOLUME /app/sources/
@@ -129,15 +141,20 @@ VOLUME /app/tests/
 WORKDIR /app/sources/internal_workers
 VOLUME /root/.config/swi-prolog/xpce/
 
+
+
+RUN chown myuser:myuser /app/server_root/
+
+
+
+USER myuser
+
+
+
 ENV PYTHONUNBUFFERED true
 ENV CELERY_QUEUE_NAME=q7788
 ENV DETERMINANCY_CHECKER__USE__ENFORCER=true
 
-
-ARG uid=1000
-ARG gid=1000
-RUN groupadd -g $gid myuser && useradd -lm -u $uid -g $gid myuser
-USER myuser
 
 
 COPY init_prolog.sh .

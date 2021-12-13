@@ -1,4 +1,4 @@
-FROM koo5/frontend-server-hollow${PP}:latest
+FROM koo5/frontend-hlw${PP}:latest
 
 USER root
 

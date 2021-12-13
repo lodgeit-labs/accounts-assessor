@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import os
 
 try:
 	import click
@@ -124,7 +125,7 @@ def generate_caddy_config(public_host):
 def generate_stack_file(port_postfix, PUBLIC_URL, choices):
 	with open('docker-stack.yml') as file_in:
 		src = yaml.load(file_in, Loader=yaml.FullLoader)
-		fn = '../sources/docker-stack' + ('__'.join(['']+[k for k,v in choices.items() if v])) + '.yml'
+		fn = '../generated_stack_files/docker-stack' + ('__'.join(['']+[k for k,v in choices.items() if v])) + '.yml'
 	with open(fn, 'w') as file_out:
 		yaml.dump(tweaked_services(src, port_postfix, PUBLIC_URL, **choices), file_out)
 	return fn
@@ -134,10 +135,10 @@ def tweaked_services(src, port_postfix, PUBLIC_URL, use_host_network, mount_host
 	res = deepcopy(src)
 	services = res['services']
 
-	services['frontend-server']['environment']['PUBLIC_URL'] = PUBLIC_URL
+	services['frontend']['environment']['PUBLIC_URL'] = PUBLIC_URL
 
 	if debug_frontend_server:
-		services['frontend-server']['environment']['DJANGO_SETTINGS_MODULE'] = "frontend_server.settings_dev"
+		services['frontend']['environment']['DJANGO_SETTINGS_MODULE'] = "frontend_server.settings_dev"
 
 	if not enable_public_gateway:
 		del services['caddy']
@@ -148,26 +149,29 @@ def tweaked_services(src, port_postfix, PUBLIC_URL, use_host_network, mount_host
 
 	if not 'secrets' in res:
 		res['secrets'] = {}
+	print(res['secrets'])
 	for fn,path in files_in_dir('../secrets/'):
 		if fn not in res['secrets']:
-			res['secrets'][fn] = {'file':path}
-	
+			print (path)
+			res['secrets'][fn] = {'file':(path)}
+	print(res['secrets'])
+
 	if use_host_network:
 		for k,v in services.items():
 			v['networks'] = ['hostnet']
 
 	if mount_host_sources_dir:
-		for x in ['internal-workers','internal-services','frontend-server' ]:
+		for x in ['workers','services','frontend' ]:
 			if x in services:
-				services[x]['volumes'].append('.:/app/sources')
+				services[x]['volumes'].append('../sources:/app/sources')
 				assert services[x]['image'] == f'koo5/{x}${{PP}}:latest', services[x]['image']
-				services[x]['image'] = f'koo5/{x}-hollow{port_postfix}:latest'
+				services[x]['image'] = f'koo5/{x}-hlw{port_postfix}:latest'
 
-		services['internal-workers']['volumes'].append('./swipl/xpce:/root/.config/swi-prolog/xpce')
+		services['workers']['volumes'].append('../sources/swipl/xpce:/home/myuser/.config/swi-prolog/xpce')
 
 	if 'DISPLAY' in os.environ:
-		if 'internal-workers' in services:
-			services['internal-workers']['environment']['DISPLAY'] = "${DISPLAY}"
+		if 'workers' in services:
+			services['workers']['environment']['DISPLAY'] = "${DISPLAY}"
 		
 	return res
 

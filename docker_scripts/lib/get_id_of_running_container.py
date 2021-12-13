@@ -18,8 +18,8 @@ def run(port_postfix):
 	cs = [c for c in client.containers.list() if (c.status == 'running')]
 	
 	for c in cs:
-		if (c.attrs['Config']['Image'].startswith('koo5/internal-workers' + port_postfix) or 
-			c.attrs['Config']['Image'].startswith('koo5/internal-workers-hollow' + port_postfix)):
+		if (c.attrs['Config']['Image'].startswith('koo5/workers' + port_postfix) or
+			c.attrs['Config']['Image'].startswith('koo5/workers-hlw' + port_postfix)):
 			print(c.attrs['Id'])
 			exit()
 	exit(1)

@@ -1,6 +1,5 @@
 
 
-
 import logging, json, subprocess, os, sys, shutil, shlex
 sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../common')))
 from agraph import agc
@@ -11,11 +10,17 @@ from celery_module import app
 
 
 
+import celery
+import celeryconfig
+celery_app = celery.Celery(config_source = celeryconfig)
+
+
+
 @app.task(acks_late=True)
 def start_selftest_session(target_server_url):
 	logging.getLogger().info(f'start_selftest_session {target_server_url=}')
 	task = agc().createBNode()
-	celery_app.signature('self_test.start_selftest_session2').apply_async(args=(task, target_server_url))
+	celery_app.signature('selftest.start_selftest_session2').apply_async(args=(str(task), target_server_url))
 
 
 @app.task(acks_late=True)
@@ -26,7 +31,7 @@ def start_selftest_session2(task, target_server_url):
 	for p in testcase_permutations():
 		a.add(task, selftest.has_testcase, Tc)
 	a.add(task, selftest.target_server_url, target_server_url)
-	celery_app.signature('self_test.continue_selftest_session').apply_async()
+	celery_app.signature('selftest.continue_selftest_session').apply_async()
 
 
 
@@ -60,7 +65,7 @@ def continue_testing_session2(session):
     
     """).evaluate() as result:
 		for bindings in result:
-			return do_testcase(bindings.getValue('testcase'), bindings.getValue('data'))
+			return do_testcase(Dotdict(bindings.getValue('testcase')), Dotdict(bindings.getValue('data')))
 
 
 def do_testcase(testcase, data):

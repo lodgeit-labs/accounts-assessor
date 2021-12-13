@@ -81,16 +81,16 @@ def run(port_postfix, mode, parallel):
 	task(f'docker build -t  "koo5/agraph{port_postfix}"             -f "../docker_scripts/agraph/Dockerfile" . ')
 
 	print()
-	print("internal-workers-hollow...")
-	task(f'docker build -t  "koo5/internal-workers-hollow{port_postfix}"   -f "internal_workers/Dockerfile_hollow" . ')
+	print("internal-workers-hlw...")
+	task(f'docker build -t  "koo5/workers-hlw{port_postfix}"   -f "internal_workers/Dockerfile_hollow" . ')
 
 	print()
 	print("internal-services-hollow...")
-	task(f'docker build -t  "koo5/internal-services-hollow{port_postfix}"  -f "internal_services/Dockerfile_hollow" . ')
+	task(f'docker build -t  "koo5/services-hlw{port_postfix}"  -f "internal_services/Dockerfile_hollow" . ')
 
 	print()
 	print("frontend-server-hollow...")
-	task(f'docker build -t  "koo5/frontend-server-hollow{port_postfix}"    -f "frontend_server/Dockerfile_hollow" . ')
+	task(f'docker build -t  "koo5/frontend-hlw{port_postfix}"    -f "frontend_server/Dockerfile_hollow" . ')
 
 
 	for thread in threads:
@@ -101,17 +101,17 @@ def run(port_postfix, mode, parallel):
 	if mode == "full":
 		print()
 		print("internal-workers...")
-		task(f'docker build -t  "koo5/internal-workers{port_postfix}"   -f "internal_workers/Dockerfile" . ')
+		task(f'docker build -t  "koo5/workers{port_postfix}"   -f "internal_workers/Dockerfile" . ')
 
 	if mode == "full":
 		print()
 		print("internal-services...")
-		task(f'docker build -t  "koo5/internal-services{port_postfix}"  -f "internal_services/Dockerfile" . ')
+		task(f'docker build -t  "koo5/services{port_postfix}"  -f "internal_services/Dockerfile" . ')
 
 	if mode == "full":
 		print()
 		print("frontend-server...")
-		task(f'docker build -t  "koo5/frontend-server{port_postfix}"    -f "frontend_server/Dockerfile" . ')
+		task(f'docker build -t  "koo5/frontend{port_postfix}"    -f "frontend_server/Dockerfile" . ')
 
 
 	for thread in threads:

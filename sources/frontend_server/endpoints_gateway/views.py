@@ -142,6 +142,7 @@ def find_report_by_key(reports, name):
 
 
 def day(request):
+	"""this is just for testing of monitoring apps"""
 	return render(request, 'day.html', {'day': datetime.date.today().day})
 
 
@@ -161,8 +162,10 @@ def json_prolog_rpc_call(request, msg):
 def rpc(request):
 	if request.method != 'POST':
 		return
-	logging.getLogger().info(('rpc', request,))
-	return JsonResponse(celery_app.signature('selftest.start_selftest_session').apply())
+	logging.getLogger().warn(('rpc', request,))
+	sys.stderr.flush()
+	return JsonResponse(celery_app.signature('selftest.start_selftest_session').apply_async(['http://localhost:88']).get())
+
 
 
 

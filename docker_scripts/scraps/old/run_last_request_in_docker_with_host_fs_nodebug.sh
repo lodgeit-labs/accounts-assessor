@@ -37,7 +37,7 @@ docker run -it \
 		$DBG1 \
 		--halt true \
 		-s \"http://localhost:88$argv[1]\" \
-		--prolog_flags \"$DBG2,set_prolog_flag(services_server,'http://internal-services:17788')$argv[2]\" /app/server_root/tmp/last_request $LESSS "
+		--prolog_flags \"$DBG2,set_prolog_flag(services_server,'http://services:17788')$argv[2]\" /app/server_root/tmp/last_request $LESSS "
 
 
 # AGRAPH_SECRET_PORT=10036 AGRAPH_SECRET_HOST=localhost 
