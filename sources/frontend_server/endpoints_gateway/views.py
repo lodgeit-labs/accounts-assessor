@@ -164,7 +164,22 @@ def rpc(request):
 		return
 	logging.getLogger().warn(('rpc', request,))
 	sys.stderr.flush()
-	return JsonResponse(celery_app.signature('selftest.start_selftest_session').apply_async(['http://localhost:88']).get())
+
+	task = agc().createBNode()
+
+	chain =
+	celery_app.signature('selftest.start_selftest_session', 'http://localhost:88'])
+	|
+	celery_app.signature('selftest.assert_selftest_session').apply_async(args=(str(task), target_server_url))
+	|
+
+	celery_app.signature('selftest.continue_selftest_session').apply_async()
+
+
+
+
+
+	return JsonResponse({'@id':str(task)})
 
 
 

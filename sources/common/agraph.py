@@ -1,5 +1,7 @@
 import json, os
 
+from franz.openrdf.model.value import BNode
+from franz.openrdf.vocabulary.rdf import RDF
 
 
 #def env_or(json, key):
@@ -9,6 +11,10 @@ import json, os
 def secret(name):
 	with open('/run/secrets/' + name, 'r') as x:
 		return x.read()
+
+
+def bn_from_string(bn_str):
+	return BNode(bn_str[2:])
 
 
 def agc():

@@ -5,7 +5,6 @@ sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../com
 from agraph import agc
 
 
-
 from celery_module import app
 
 
@@ -15,23 +14,26 @@ import celeryconfig
 celery_app = celery.Celery(config_source = celeryconfig)
 
 
+#
+# @app.task(acks_late=True)
+# def start_selftest_session(task, target_server_url):
+# 	logging.getLogger().info(f'start_selftest_session {target_server_url=}')
+
+
+
+
+
+
+
 
 @app.task(acks_late=True)
-def start_selftest_session(target_server_url):
-	logging.getLogger().info(f'start_selftest_session {target_server_url=}')
-	task = agc().createBNode()
-	celery_app.signature('selftest.start_selftest_session2').apply_async(args=(str(task), target_server_url))
-
-
-@app.task(acks_late=True)
-def start_selftest_session2(task, target_server_url):
+def assert_selftest_session(task, target_server_url):
 	# first we assert the longtask into the db
-	selftest = agc.namespace('https://rdf.lodgeit.net.au/v1/selftest#')
+	a = agc()
+	selftest = a.namespace('https://rdf.lodgeit.net.au/v1/selftest#')
+	task = bn_from_string(task)
 	a.add(task, RDF.TYPE, selftest.Session)
-	for p in testcase_permutations():
-		a.add(task, selftest.has_testcase, Tc)
 	a.add(task, selftest.target_server_url, target_server_url)
-	celery_app.signature('selftest.continue_selftest_session').apply_async()
 
 
 
@@ -89,7 +91,10 @@ def do_testcase(testcase, data):
 # 	pass
 
 
-def testcase_permutations():
+def add_testcase_permutations(task):
+	for p in testcase_permutations():
+		a.add(task, selftest.has_testcase, Tc)
+
 	return celery_app.signature('invoke_rpc.call_prolog').apply_async([{"method": "testcase_permutations", "params": {}}]).get()[1]
 
 
