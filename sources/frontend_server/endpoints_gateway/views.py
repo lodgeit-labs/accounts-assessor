@@ -8,8 +8,8 @@ import sys, os
 sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../../internal_workers')))
 sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../../common')))
 
+from agraph import agc
 
-import agraph
 import urllib.parse
 import json
 import datetime
@@ -39,7 +39,7 @@ def tmp_file_url(server_url, tmp_dir_name, fn):
 @csrf_exempt
 def sparql_proxy(request):
 	if request.method == 'POST':
-		return JsonResponse({"x":agraph.agc().executeGraphQuery(request.body)})
+		return JsonResponse({"x":agc().executeGraphQuery(request.body)})
 
 @csrf_exempt
 def rdf_templates(request):
@@ -167,14 +167,11 @@ def rpc(request):
 
 	task = agc().createBNode()
 
-	chain =
-	celery_app.signature('selftest.start_selftest_session', 'http://localhost:88'])
-	|
-	celery_app.signature('selftest.assert_selftest_session').apply_async(args=(str(task), target_server_url))
-	|
+	target_server_url = 'http://localhost:88'
+	logging.getLogger().info(f'start_selftest_session {target_server_url=}')
 
-	celery_app.signature('selftest.continue_selftest_session').apply_async()
-
+	chain = celery_app.signature('selftest.assert_selftest_session', (str(task), target_server_url))	| celery_app.signature('selftest.continue_selftest_session2')
+	chain()
 
 
 
