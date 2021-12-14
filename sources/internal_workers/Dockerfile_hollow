@@ -32,6 +32,7 @@ RUN     apt-get install -y \
         libpcre3-dev \
         libyaml-dev \
         libcurl4-gnutls-dev \
+        libgnutls28-dev \
         libtcmalloc-minimal4 \
         python3.8 python3-pip
 

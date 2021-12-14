@@ -2,7 +2,7 @@
 
 wheel
 #ipython
-click>=7,<8
+click==8.*
 untangle
 deepdiff
 defusedxml
@@ -22,3 +22,7 @@ rdflib
 pyyed
 git+https://github.com/koo5/memory_profiler
 django-cors-headers
+
+argh
+PyYAML
+watchdog

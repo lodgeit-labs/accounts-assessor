@@ -18,12 +18,32 @@ celery_app = celery.Celery(config_source = celeryconfig)
 
 @app.task(acks_late=True)
 def assert_selftest_session(task, target_server_url):
+
 	a = agc()
 	selftest = a.namespace('https://rdf.lodgeit.net.au/v1/selftest#')
+
 	bn = bn_from_string(task)
 	a.add(bn, RDF.TYPE, selftest.Session)
 	a.add(bn, selftest.target_server_url, target_server_url)
+	add_testcase_permutations(task)
 	return task
+
+
+def add_testcase_permutations(task):
+
+	testcase_permutations = celery_app.signature('invoke_rpc.call_prolog').apply_async([{"method": "testcase_permutations", "params": {}}]).get()
+
+	a = agc()
+	selftest = a.namespace('https://rdf.lodgeit.net.au/v1/selftest#')
+
+	for p in testcase_permutations:
+
+		testcase = agc().createBNode()
+
+		a.add(task, selftest.has_testcase, testcase)
+		a.add(testcase, selftest.priority, p.priority)
+		a.add(testcase, selftest.json, p)
+
 
 
 
@@ -46,27 +66,31 @@ def continue_selftest_session():
 def continue_selftest_session2(session):
 	"""continue a particular testing session"""
 	a = agc()
+	#FILTER ( !EXISTS {?testcase selftest:done true})
 	q = a.prepareTupleQuery(query="""
 	SELECT DISTINCT ?testcase WHERE {
-		?session selftest:has_testcase ?testcase 
-		FILTER ( !EXISTS {?testcase selftest:done true}) 
+		?session selftest:has_testcase ?testcase . 
+		FILTER NOT EXISTS {?testcase selftest:done true} 
 		?testcase selftest:priority ?priority .
-		?testcase selftest:data ?data .        
+		?testcase selftest:json ?json .        
 	}
 	ORDER BY DESC (?priority)	""")
 	q.setBinding('?session', session)
 	with q.evaluate() as result:
+		logging.getLogger().info(((result)))
 		for bindings in result:
-			return do_testcase(Dotdict(bindings.getValue('testcase')), Dotdict(bindings.getValue('data')))
+			return do_testcase((bindings.getValue('testcase')), Dotdict(bindings.getValue('json')))
 
 
-def do_testcase(testcase, data):
-	print(('do_testcase:',testcase, data))
+def do_testcase(session, testcase, json):
+	logging.getLogger().info((('do_testcase:',testcase, json)))
 # 			if i.mode == 'remote':
 # 				result = run_remote_test(i)
 # 			else:
 # 				result = run_local_test(i)
 
+
+	continue_selftest_session2.apply_async(args=(session,))
 
 #
 # def process_response(response):
@@ -80,12 +104,6 @@ def do_testcase(testcase, data):
 # def reopen_last_testing_session():
 # 	pass
 
-
-def add_testcase_permutations(task):
-	for p in testcase_permutations():
-		a.add(task, selftest.has_testcase, Tc)
-
-	return celery_app.signature('invoke_rpc.call_prolog').apply_async([{"method": "testcase_permutations", "params": {}}]).get()[1]
 
 
 # @app.task(acks_late=True)
