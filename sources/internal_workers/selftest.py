@@ -30,8 +30,11 @@ def assert_selftest_session(task, target_server_url):
 
 
 def add_testcase_permutations(task):
+	(celery_app.signature('invoke_rpc.call_prolog').apply_async([{"method": "testcase_permutations", "params": {}}]) | add_testcase_permutations2(task))()
 
-	testcase_permutations = celery_app.signature('invoke_rpc.call_prolog').apply_async([{"method": "testcase_permutations", "params": {}}]).get()
+
+@app.task(acks_late=True)
+def add_testcase_permutations2(task, permutations):
 
 	a = agc()
 	selftest = a.namespace('https://rdf.lodgeit.net.au/v1/selftest#')

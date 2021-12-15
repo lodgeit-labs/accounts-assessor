@@ -1,7 +1,7 @@
 
 
 
-testcase(Params_dict) :-
+testcase(Params) :-
 	saved_testcase(Testcase),
 
 	member(Mode, ['remote', 'subprocess']),
@@ -10,7 +10,7 @@ testcase(Params_dict) :-
 	->	member(Die_on_error, [true, false])
 	;	/*Die_on_error = na*/true),
 
-	Vars = [
+	Params = [
 		type-robust_endpoint_test,
 		testcase-Testcase,
 		mode-Mode,
@@ -19,8 +19,7 @@ testcase(Params_dict) :-
 		/*
 		alter dates, try different st count limits? this could be declared in the testcase directory in a json or pl file
 		*/
-	],
-	foldl(add_ground_parameter_to_dict, Vars, params{}, Params_dict).
+	].
 
 
 testcase([
