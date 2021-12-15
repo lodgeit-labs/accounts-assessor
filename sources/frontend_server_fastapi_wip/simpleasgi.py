@@ -1,6 +1,30 @@
 from typing import Optional
-
 from fastapi import FastAPI
+import dotenv
+import os
+from glob import glob
+
+
+
+docker_secrets = {}
+for var in glob('/run/secrets/*'):
+    k=var.split('/')[-1]
+    v=open(var).read().rstrip('\n')
+    docker_secrets[k] = v
+
+
+#load_dotenv
+
+
+
+def secret(key):
+	try:
+		return open('/run/secrets/'+key).read().rstrip('\n')
+	except:
+		return os.environ[key]
+		
+
+
 
 app = FastAPI()
 
@@ -26,3 +50,4 @@ If you are coming from another async framework that does not work in the way des
 - https://fastapi.tiangolo.com/async/
 """
 
+# https://12factor.net/

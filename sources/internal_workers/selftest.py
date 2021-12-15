@@ -74,15 +74,21 @@ def continue_selftest_session2(session):
 		?testcase selftest:priority ?priority .
 		?testcase selftest:json ?json .        
 	}
-	ORDER BY DESC (?priority)	""")
+	ORDER BY DESC (?priority)	
+	LIMIT 1
+	""")
 	q.setBinding('?session', session)
 	with q.evaluate() as result:
 		logging.getLogger().info(((result)))
 		for bindings in result:
-			return do_testcase((bindings.getValue('testcase')), Dotdict(bindings.getValue('json')))
+			tc = bindings.getValue('testcase')
+			js = Dotdict(bindings.getValue('json'))
+			(do_testcase(tc, js) | continue_selftest_session2(session))()
+			return
 
 
-def do_testcase(session, testcase, json):
+@app.task(acks_late=True)
+def do_testcase(testcase, json):
 	logging.getLogger().info((('do_testcase:',testcase, json)))
 # 			if i.mode == 'remote':
 # 				result = run_remote_test(i)
