@@ -1,8 +1,15 @@
+import pydevd_pycharm
+pydevd_pycharm.settrace('127.0.0.1', port=12345, stdoutToServer=True, stderrToServer=True)
+
 
 
 import logging, json, subprocess, os, sys, shutil, shlex
 sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../common')))
 from agraph import agc, bn_from_string, RDF
+
+
+#from types import SimpleNamespace
+from dotdict import Dotdict
 
 
 from celery_module import app
@@ -30,17 +37,19 @@ def assert_selftest_session(task, target_server_url):
 
 
 def add_testcase_permutations(task):
-	(celery_app.signature('invoke_rpc.call_prolog', [{"method": "testcase_permutations", "params": {}}]) | add_testcase_permutations2.signature(task))()
+	(celery_app.signature('invoke_rpc.call_prolog2', [{"method": "testcase_permutations", "params": {}}]) | add_testcase_permutations2.s(task))()
 
 
 @app.task(acks_late=True)
-def add_testcase_permutations2(task, permutations):
+def add_testcase_permutations2(permutations, task):
 
 	a = agc()
 	selftest = a.namespace('https://rdf.lodgeit.net.au/v1/selftest#')
+	logging.getLogger().warn(permutations)
+	for p0 in permutations:
 
-	for p in testcase_permutations:
-
+		p = parse_permutation(p0)
+		logging.getLogger().info((p0))
 		testcase = agc().createBNode()
 
 		a.add(task, selftest.has_testcase, testcase)
@@ -158,3 +167,14 @@ def do_testcase(testcase, json):
 # 		'http://xxxself_testxxx is finished.'
 # 	return "ok"
 # 	"""
+
+
+def parse_permutation(p0):
+	a = {}
+	#logging.getLogger().info(p0)
+	for i in p0:
+		k,v = list(i.items())[0]
+		a[k] = v
+	return Dotdict(a)
+
+

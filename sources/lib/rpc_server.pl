@@ -61,11 +61,12 @@ process_request_rpc_cmdline2(Dict) :-
 
 
 process_request_rpc_cmdline3("testcase_permutations", _Params) :-
-	findall(Params_dict,
+	findall(T3,
 		(
 
 			testcase(T),
-			foldl(add_ground_parameter_to_dict, T, params{}, Params_dict)
+			include(ground, T, T2),
+			maplist(pair_to_json, T2, T3)
 		),
 		Testcases
 	),

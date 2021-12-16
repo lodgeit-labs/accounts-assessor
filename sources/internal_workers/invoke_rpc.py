@@ -14,6 +14,11 @@ from celery_module import app
 
 
 
+@app.task(acks_late=True)
+def call_prolog2(msg):
+	return call_prolog(msg)[1]
+
+
 
 @app.task(acks_late=True)
 def call_prolog(
@@ -219,6 +224,7 @@ def call_prolog(
 
 	# kbye
 	return msg['params']['result_tmp_directory_name'], {'status':'error'}
+
 
 
 
