@@ -1,6 +1,17 @@
 #!/usr/bin/env python3
 
-import os
+import os,subprocess,time,shlex,logging
+
+
+l = logging.getLogger()
+l.setLevel(logging.DEBUG)
+l.addHandler(logging.StreamHandler())
+
+
+sq = shlex.quote
+ss = shlex.split
+
+
 
 try:
 	import click
@@ -9,10 +20,15 @@ except:
 	print('please install:\npython3.9 -m pip install --user -U click pyyaml')
 	exit(1)
 
-import os,subprocess,time,shlex
+
 from copy import deepcopy
 from urllib.parse import urlparse
 	
+
+
+
+
+
 
 @click.command()
 
@@ -46,8 +62,12 @@ from urllib.parse import urlparse
 @click.option('-rm', '--rm_stack', type=bool, default=True,
 	help="rm the stack and deploy it afresh.")
 
+@click.option('-co', '--compose', type=bool, default=False,
+	help="use docker-compose instead of stack/swarm. Implies use_host_network. ")
+
 def run(port_postfix, public_url, parallel_build, rm_stack, **choices):
 	public_host = urlparse(public_url).hostname
+	compose = choices['compose']
 
 	# caddy is just gonna listen on 80 and 443 always.
 	generate_caddy_config(public_host)
@@ -71,7 +91,7 @@ ServerName {public_host}
 		django_args	= ''
 	
 	stack_fn = generate_stack_file(port_postfix, public_url, choices)
-	if rm_stack:
+	if rm_stack and not compose:
 		shell('docker stack rm robust' + pp)
 	if parallel_build:
 		pb = ' --parallel true'
@@ -89,10 +109,18 @@ ServerName {public_host}
 				break
 			time.sleep(1)
 			#print('.')
-	shell('./lib/deploy_stack.sh "'+pp+'" ' + stack_fn + ' ' + django_args)
-	shell('docker stack ps robust'+pp + ' --no-trunc')
-	shell('./follow_logs_noagraph.sh '+pp)
+	shell('./lib/git_info.fish')
+	e = env={"PP": "", 'DJANGO_ARGS':django_args, 'DISPLAY':os.environ['DISPLAY']}
+	if compose:
+		subprocess.check_call(ss('/usr/local/bin/docker-compose -f ' + stack_fn + '  -p robust  --compatibility   up'), env=e)
+	else:
+		subprocess.check_call(ss('docker stack deploy --prune --compose-file') + [stack_fn, 'robust'+pp], env=e)
+		shell('docker stack ps robust'+pp + ' --no-trunc')
+		shell('./follow_logs_noagraph.sh '+pp)
 
+
+def deploy_stack(pp, fn, django_args):
+	subprocess.check_call(ss(), env={"PP": ""})
 
 def generate_caddy_config(public_host):
 	cfg = f'''
@@ -131,8 +159,9 @@ def generate_stack_file(port_postfix, PUBLIC_URL, choices):
 	return fn
 
 
-def tweaked_services(src, port_postfix, PUBLIC_URL, use_host_network, mount_host_sources_dir, django_noreload, enable_public_gateway, debug_frontend_server, enable_public_insecure):
+def tweaked_services(src, port_postfix, PUBLIC_URL, use_host_network, mount_host_sources_dir, django_noreload, enable_public_gateway, debug_frontend_server, enable_public_insecure, compose):
 	res = deepcopy(src)
+
 	services = res['services']
 
 	services['frontend']['environment']['PUBLIC_URL'] = PUBLIC_URL
@@ -157,8 +186,20 @@ def tweaked_services(src, port_postfix, PUBLIC_URL, use_host_network, mount_host
 	print(res['secrets'])
 
 	if use_host_network:
+		del res['networks']['frontend']
+		del res['networks']['backend']
 		for k,v in services.items():
 			v['networks'] = ['hostnet']
+
+	if compose:
+		for k,v in services.items():
+			del v['networks']
+			v = v['deploy']
+			if 'update_config' in v:
+				del v['update_config']
+			if 'restart_policy' in v:
+				if 'delay' in v['restart_policy']:
+					del v['restart_policy']['delay']
 
 	if mount_host_sources_dir:
 		for x in ['workers','services','frontend' ]:
@@ -198,3 +239,16 @@ if __name__ == '__main__':
     run()
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+## https://github.com/docker/compose/issues/3012#issuecomment-219543906
