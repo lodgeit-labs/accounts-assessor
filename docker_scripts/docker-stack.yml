@@ -88,6 +88,7 @@ services:
     volumes:
       - tmp:/app/server_root/tmp
       - cache:/app/cache
+      - ./../tests:/app/tests
       - "/etc/localtime:/etc/localtime:ro"
       # for gtrace:
       - "/tmp/.X11-unix:/tmp/.X11-unix:rw"

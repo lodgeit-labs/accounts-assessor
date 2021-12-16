@@ -11,10 +11,10 @@ testcase(Params) :-
 	;	/*Die_on_error = na*/true),
 
 	Params = [
-		type-robust_endpoint_test,
-		testcase-Testcase,
-		mode-Mode,
-		die_on_error-Die_on_error,
+		type=robust_endpoint_test,
+		testcase=Testcase,
+		mode=Mode,
+		die_on_error=Die_on_error,
 		priority=0
 		/*
 		alter dates, try different st count limits? this could be declared in the testcase directory in a json or pl file
@@ -23,28 +23,28 @@ testcase(Params) :-
 
 
 testcase([
-	type-json_endpoint_test,
-	api_uri-'/sbe',
-	post_data-_{current_state:[]},
-	result_text-'{"result": {"question": "Are you a Sole trader, Partnership, Company or Trust?", "state": [{"question_id": 0, "response": -1}]}}'
+	type=json_endpoint_test,
+	api_uri='/sbe',
+	post_data=_{current_state:[]},
+	result_text='{"result": {"question": "Are you a Sole trader, Partnership, Company or Trust?", "state": [{"question_id": 0, "response": -1}]}}'
 	]).
 
 testcase([
-	type-json_endpoint_test,
-	api_uri-'/residency',
-	post_data-_{current_state:[]},
-	result_text-'{"result": {"question": "Do you live in Australia?", "state": [{"question_id": 1, "response": -1}]}}'
+	type=json_endpoint_test,
+	api_uri='/residency',
+	post_data=_{current_state:[]},
+	result_text='{"result": {"question": "Do you live in Australia?", "state": [{"question_id": 1, "response": -1}]}}'
 	]).
 
 
 
 
 
-add_ground_parameter_to_dict(Name-Var, In, Out) :-
+add_ground_parameter_to_dict(Name=Var, In, Out) :-
 	ground(Var),
 	Out = In.put(Name,Var).
 
-add_ground_parameter_to_dict(_-Var, In, In) :-
+add_ground_parameter_to_dict(_=Var, In, In) :-
 	var(Var).
 
 

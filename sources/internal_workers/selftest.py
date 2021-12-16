@@ -30,7 +30,7 @@ def assert_selftest_session(task, target_server_url):
 
 
 def add_testcase_permutations(task):
-	(celery_app.signature('invoke_rpc.call_prolog').apply_async([{"method": "testcase_permutations", "params": {}}]) | add_testcase_permutations2(task))()
+	(celery_app.signature('invoke_rpc.call_prolog', [{"method": "testcase_permutations", "params": {}}]) | add_testcase_permutations2.signature(task))()
 
 
 @app.task(acks_late=True)

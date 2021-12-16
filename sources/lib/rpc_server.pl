@@ -63,6 +63,7 @@ process_request_rpc_cmdline2(Dict) :-
 process_request_rpc_cmdline3("testcase_permutations", _Params) :-
 	findall(Params_dict,
 		(
+
 			testcase(T),
 			foldl(add_ground_parameter_to_dict, T, params{}, Params_dict)
 		),
