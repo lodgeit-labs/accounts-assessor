@@ -26,3 +26,6 @@ django-cors-headers
 argh
 PyYAML
 watchdog
+
+pydevd-pycharm==213.5744.248
+
