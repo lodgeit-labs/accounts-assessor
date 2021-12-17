@@ -47,6 +47,8 @@ services:
       - "/etc/localtime:/etc/localtime:ro"
     networks:
       - backend
+    hostnet_ports:
+      - 7788
     depends_on:
       - rabbitmq
       - services
@@ -119,6 +121,8 @@ services:
       - "/etc/localtime:/etc/localtime:ro"
     networks:
       - backend
+    hostnet_ports:
+      - 17788
     depends_on:
       - rabbitmq
     deploy:
@@ -178,6 +182,8 @@ services:
     image: koo5/flower${PP}:latest
     networks:
       - backend
+    hostnet_ports:
+      - 5555
     deploy:
       replicas: 1
       update_config:

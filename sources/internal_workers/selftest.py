@@ -1,21 +1,33 @@
-import pydevd_pycharm
-pydevd_pycharm.settrace('127.0.0.1', port=12345, stdoutToServer=True, stderrToServer=True)
 
 
 
-import logging, json, subprocess, os, sys, shutil, shlex
+import logging
+l = logging.getLogger()
+l.setLevel(logging.DEBUG)
+l.addHandler(logging.StreamHandler())
+
+
+
+try:
+	import sys
+	sys.path.append('/app/sources/internal_workers/pydevd-pycharm.egg')
+	import pydevd_pycharm
+	pydevd_pycharm.settrace('172.17.0.1', port=12345, stdoutToServer=True, stderrToServer=True)
+except Exception as e:
+	logging.getLogger().info(e)
+
+
+
+
+import json, subprocess, os, sys, shutil, shlex
 sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../common')))
 from agraph import agc, bn_from_string, RDF
-
-
-#from types import SimpleNamespace
 from dotdict import Dotdict
 
 
+
+
 from celery_module import app
-
-
-
 import celery
 import celeryconfig
 celery_app = celery.Celery(config_source = celeryconfig)
