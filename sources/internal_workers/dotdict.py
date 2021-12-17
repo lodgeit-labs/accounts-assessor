@@ -1,6 +1,4 @@
 
-from __future__ import print_function, unicode_literals
-
 class Dotdict(object):
 	"""
 	wraps a dict and allows access by both attributes and index.

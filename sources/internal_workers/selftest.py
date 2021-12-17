@@ -7,14 +7,14 @@ l.setLevel(logging.DEBUG)
 l.addHandler(logging.StreamHandler())
 
 
-
-try:
-	import sys
-	sys.path.append('/app/sources/internal_workers/pydevd-pycharm.egg')
-	import pydevd_pycharm
-	pydevd_pycharm.settrace('172.17.0.1', port=12345, stdoutToServer=True, stderrToServer=True)
-except Exception as e:
-	logging.getLogger().info(e)
+def tr():
+	try:
+		import sys
+		sys.path.append('/app/sources/internal_workers/pydevd-pycharm.egg')
+		import pydevd_pycharm
+		pydevd_pycharm.settrace('172.17.0.1', port=12345, stdoutToServer=True, stderrToServer=True)
+	except Exception as e:
+		logging.getLogger().info(e)
 
 
 
@@ -22,6 +22,7 @@ except Exception as e:
 import json, subprocess, os, sys, shutil, shlex
 sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../common')))
 from agraph import agc, bn_from_string, RDF
+from franz.openrdf.repository.repositoryconnection import RepositoryConnection
 from dotdict import Dotdict
 
 
@@ -38,12 +39,12 @@ celery_app = celery.Celery(config_source = celeryconfig)
 @app.task(acks_late=True)
 def assert_selftest_session(task, target_server_url):
 
-	a = agc()
+	a: RepositoryConnection = agc()
 	selftest = a.namespace('https://rdf.lodgeit.net.au/v1/selftest#')
 
 	bn = bn_from_string(task)
-	a.add(bn, RDF.TYPE, selftest.Session)
-	a.add(bn, selftest.target_server_url, target_server_url)
+	a.addTriple(bn, RDF.TYPE, selftest.Session)
+	a.addTriple(bn, selftest.target_server_url, target_server_url)
 	add_testcase_permutations(task)
 	return task
 
@@ -64,9 +65,13 @@ def add_testcase_permutations2(permutations, task):
 		logging.getLogger().info((p0))
 		testcase = agc().createBNode()
 
-		a.add(task, selftest.has_testcase, testcase)
-		a.add(testcase, selftest.priority, p.priority)
-		a.add(testcase, selftest.json, p)
+		#tr()
+		if 'priority' not in p:
+			p.priority = 0
+
+		a.addTriple(task, selftest.has_testcase, testcase)
+		a.addTriple(testcase, selftest.priority, p.priority)
+		a.addTriple(testcase, selftest.json, p)
 
 
 
@@ -92,7 +97,7 @@ def continue_selftest_session2(session):
 	a = agc()
 	#FILTER ( !EXISTS {?testcase selftest:done true})
 	q = a.prepareTupleQuery(query="""
-	SELECT DISTINCT ?testcase WHERE {
+	SELECT DISTINCT ?testcase ?json WHERE {
 		?session selftest:has_testcase ?testcase . 
 		FILTER NOT EXISTS {?testcase selftest:done true} 
 		?testcase selftest:priority ?priority .
@@ -106,7 +111,7 @@ def continue_selftest_session2(session):
 		logging.getLogger().info(((result)))
 		for bindings in result:
 			tc = bindings.getValue('testcase')
-			js = Dotdict(bindings.getValue('json'))
+			js = Dotdict(**json.loads(bindings.getValue('json').getValue()))
 			(do_testcase(tc, js) | continue_selftest_session2(session))()
 			return
 
