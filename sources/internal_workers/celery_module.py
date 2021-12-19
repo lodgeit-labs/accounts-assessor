@@ -1,6 +1,9 @@
 import os, sys
 
 
+sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../common')))
+
+
 from tmp_dir_path import git
 os.chdir(git("server_root"))
 
@@ -16,7 +19,6 @@ if os.environ.get('NODOCKER', False):
 
 
 from celery import Celery
-sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../common')))
 import celeryconfig
 
 

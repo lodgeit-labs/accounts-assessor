@@ -123,10 +123,11 @@ def continue_selftest_session2(session):
 	""")
 	q.setBinding('?session', session)
 	with q.evaluate() as result:
-		logging.getLogger().info(((result)))
+
 		for bindings in result:
 			tc = bindings.getValue('testcase')
 			txt = bindings.getValue('json').getValue()
+			logging.getLogger().info(((txt)))
 			jsn = json.loads(txt)
 			js = Dotdict(**jsn)
 			(do_testcase(tc, js) | continue_selftest_session2(session))()

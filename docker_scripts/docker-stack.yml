@@ -187,7 +187,7 @@ services:
 
 
   flower:
-    image: koo5zz/flower${PP}:latest
+    image: koo5/flower${PP}:latest
     networks:
       - backend
     hostnet_ports:
