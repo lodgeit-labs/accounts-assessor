@@ -167,7 +167,7 @@ def generate_stack_file(port_postfix, PUBLIC_URL, choices):
 	return fn
 
 
-def tweaked_services(src, port_postfix, PUBLIC_URL, use_host_network, mount_host_sources_dir, django_noreload, enable_public_gateway, debug_frontend_server, enable_public_insecure, compose,omit_service):
+def tweaked_services(src, port_postfix, PUBLIC_URL, use_host_network, mount_host_sources_dir, django_noreload, enable_public_gateway, debug_frontend_server, enable_public_insecure, compose, omit_service):
 
 	res = deepcopy(src)
 	services = res['services']
@@ -179,7 +179,7 @@ def tweaked_services(src, port_postfix, PUBLIC_URL, use_host_network, mount_host
 	if not enable_public_gateway:
 		del services['caddy']
 
-	if enable_public_insecure:
+	if enable_public_insecure and not compose:
 		services['apache']['ports'] = ["88"+port_postfix+":80"]
 		services['agraph']['ports'] = ["100"+port_postfix+":10035"]
 

@@ -1,4 +1,7 @@
 import os
+
+
+
 broker_url = os.environ.get('SECRET__CELERY_BROKER_URL', 'pyamqp://')
 
 

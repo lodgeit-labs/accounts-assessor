@@ -22,6 +22,8 @@ services:
     networks:
       - frontend
       - backend
+    hostnet_ports:
+      - 80
     deploy:
       replicas: 1
       restart_policy:
@@ -155,6 +157,8 @@ services:
     networks:
     - backend
     - frontend
+    hostnet_ports:
+      - 10035
     deploy:
       replicas: 1
       update_config:
@@ -183,7 +187,7 @@ services:
 
 
   flower:
-    image: koo5/flower${PP}:latest
+    image: koo5zz/flower${PP}:latest
     networks:
       - backend
     hostnet_ports:

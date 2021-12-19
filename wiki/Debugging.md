@@ -86,8 +86,10 @@ swipl -s ../tests/endpoint_tests/endpoint_tests.pl  -g "set_flag(overwrite_respo
 
 ## running internal_workers outside docker for debugging
 run all services except workers, under compose
-`./deploy.sh -ms true -nr false -pg false -d1 true --enable_public_insecure true -pu "http://192.168.123.10:8811/" -pp 11 -hn 1 -pb 1 -rm 1 -co 1`
+`./deploy.sh -ms true -nr false -pg false -d1 true --enable_public_insecure true -pu "http://127.0.0.1:8811/" -pp 11 -hn 1 -pb 1 -rm 1 -co 1 -om workers
+`
 
 run workers:
-`sources/internal_workers/run_in_venv2.sh`
+see sources/internal_workers/nodocker.run
+
 

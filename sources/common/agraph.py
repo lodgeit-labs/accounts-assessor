@@ -9,7 +9,8 @@ from franz.openrdf.vocabulary.rdf import RDF
 #	return os.environ.get(key) or json.get(key)
 
 def secret(name):
-	with open('/run/secrets/' + name, 'r') as x:
+	fn = os.environ.get('SECRETS_DIR','/run/secrets') + '/' + name
+	with open(fn, 'r') as x:
 		return x.read()
 
 

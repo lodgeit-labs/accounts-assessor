@@ -108,7 +108,9 @@ def call_prolog(
 
 	# set working directory. Should not matter for the prolog app, since everything in the prolog app uses (or should use) lib/search_paths.pl,
 	# and dev_runner uses tmp_file_stream.
-	os.chdir(git("server_root"))
+	#
+
+
 
 
 

@@ -36,7 +36,13 @@ celery_app = celery.Celery(config_source = celeryconfig)
 
 
 
-@app.task(acks_late=True)
+
+acks_late = False
+
+
+
+
+@app.task(acks_late=acks_late)
 def assert_selftest_session(task, target_server_url):
 
 	a: RepositoryConnection = agc()
@@ -53,7 +59,7 @@ def add_testcase_permutations(task):
 	(celery_app.signature('invoke_rpc.call_prolog2', [{"method": "testcase_permutations", "params": {}}]) | add_testcase_permutations2.s(task))()
 
 
-@app.task(acks_late=True)
+@app.task(acks_late=acks_late)
 def add_testcase_permutations2(permutations, task):
 
 	a = agc()
@@ -71,12 +77,21 @@ def add_testcase_permutations2(permutations, task):
 
 		a.addTriple(task, selftest.has_testcase, testcase)
 		a.addTriple(testcase, selftest.priority, p.priority)
-		a.addTriple(testcase, selftest.json, p)
+		dd = p._dict
+		jj = json.dumps(dd)
+		logging.getLogger().warn((jj))
+		logging.getLogger().warn((jj))
+		logging.getLogger().warn((jj))
+		logging.getLogger().warn((jj))
+		logging.getLogger().warn((jj))
+		logging.getLogger().warn((jj))
+		logging.getLogger().warn((jj))
+		a.addTriple(testcase, selftest.json, jj)
 
 
 
 
-@app.task(acks_late=True)
+@app.task(acks_late=acks_late)
 def continue_selftest_session():
 	"""pick a session"""
 	a = agc()
@@ -91,7 +106,7 @@ def continue_selftest_session():
 			return continue_selftest_session2(str(bindings.getValue('session')))
 
 
-@app.task(acks_late=True)
+@app.task(acks_late=acks_late)
 def continue_selftest_session2(session):
 	"""continue a particular testing session"""
 	a = agc()
@@ -111,12 +126,14 @@ def continue_selftest_session2(session):
 		logging.getLogger().info(((result)))
 		for bindings in result:
 			tc = bindings.getValue('testcase')
-			js = Dotdict(**json.loads(bindings.getValue('json').getValue()))
+			txt = bindings.getValue('json').getValue()
+			jsn = json.loads(txt)
+			js = Dotdict(**jsn)
 			(do_testcase(tc, js) | continue_selftest_session2(session))()
 			return
 
 
-@app.task(acks_late=True)
+@app.task(acks_late=acks_late)
 def do_testcase(testcase, json):
 	logging.getLogger().info((('do_testcase:',testcase, json)))
 # 			if i.mode == 'remote':
@@ -141,7 +158,7 @@ def do_testcase(testcase, json):
 
 
 
-# @app.task(acks_late=True)
+# @app.task(acks_late=acks_late)
 # def self_test():
 # 	"""
 # 	This is called by celery, and may be killed and called repeatedly until it succeeds.
