@@ -10,14 +10,14 @@ l.addHandler(logging.StreamHandler())
 
 
 
-def tr():
-	try:
-		import sys
-		sys.path.append('/app/sources/internal_workers/pydevd-pycharm.egg')
-		import pydevd_pycharm
-		pydevd_pycharm.settrace('172.17.0.1', port=12345, stdoutToServer=True, stderrToServer=True)
-	except Exception as e:
-		logging.getLogger().info(e)
+# def tr():
+# 	try:
+# 		import sys
+# 		sys.path.append('/app/sources/internal_workers/pydevd-pycharm.egg')
+# 		import pydevd_pycharm
+# 		pydevd_pycharm.settrace('172.17.0.1', port=12345, stdoutToServer=True, stderrToServer=True)
+# 	except Exception as e:
+# 		logging.getLogger().info(e)
 
 
 
@@ -32,15 +32,10 @@ from dotdict import Dotdict
 
 
 
-
-from celery_module import app
-
-
-
-
-acks_late = False
-
-
+from rq import Queue
+from redis import Redis
+redis_conn = Redis(os.environ.get('SECRET__REDIS_HOST', 'localhost'))
+q = Queue('selftest', connection=redis_conn)
 
 
 
@@ -51,20 +46,22 @@ def start_selftest_session(target_server_url):
 	a.addTriple(task, RDF.TYPE, selftest.Session)
 	a.addTriple(task, selftest.target_server_url, target_server_url)
 	task_str = str(task)
-	(
-		app.signature('invoke_rpc.call_prolog2', [{"method": "testcase_permutations", "params": {}}])
-		|
-		add_testcase_permutations2.s(task_str)
-		|
-		run_outstanding_testcases.s(task_str)
-	)()
-	return task_str
+
+	def after_generate_testcase_permutations(job, connection, permutations, *args, **kwargs):
+		q.enqueue(add_testcase_permutations, task_str, permutations, on_success=after_add_testcase_permutations)
+
+	def after_add_testcase_permutations(job, connection, result, *args, **kwargs):
+		q.enqueue(run_outstanding_testcases, task_str)
+
+	job = q.enqueue('invoke_rpc.call_prolog2', msg={"method": "testcase_permutations", "params": {}}, on_success=after_generate_testcase_permutations)
+
+	return task_str, job
 
 
 
 
-@app.task(acks_late=acks_late)
-def add_testcase_permutations2(permutations, task):
+def add_testcase_permutations(task_str, permutations):
+	task = bn_from_string(task_str)
 
 	a = agc()
 	selftest = a.namespace('https://rdf.lodgeit.net.au/v1/selftest#')
@@ -91,16 +88,17 @@ def add_testcase_permutations2(permutations, task):
 		logging.getLogger().warn((jj))
 		logging.getLogger().warn((jj))
 		a.addTriple(testcase, selftest.json, jj)
+	return task_str
 
 
 
 
-@app.task(acks_late=acks_late)
+
 def run_outstanding_testcases(session):
 	"""continue a particular testing session by running the next testcase and recursing"""
 	a = agc()
 	#FILTER ( !EXISTS {?testcase selftest:done true})
-	q = a.prepareTupleQuery(query="""
+	query = a.prepareTupleQuery(query="""
 	SELECT DISTINCT ?testcase ?json WHERE {
 		?session selftest:has_testcase ?testcase . 
 		FILTER NOT EXISTS {?testcase selftest:done true} 
@@ -110,27 +108,27 @@ def run_outstanding_testcases(session):
 	ORDER BY DESC (?priority)	
 	LIMIT 1
 	""")
-	q.setBinding('?session', session)
-	with q.evaluate() as result:
+	query.setBinding('?session', session)
+	with query.evaluate() as result:
 		for bindings in result:
 			tc = bindings.getValue('testcase')
 			txt = bindings.getValue('json').getValue()
 			logging.getLogger().info(((txt)))
 			jsn = json.loads(txt)
 			js = Dotdict(**jsn)
-			do_testcase.delay(tc, js)
+			q.enqueue(do_testcase, tc, js)
 
 
-@app.task(acks_late=acks_late)
 def do_testcase(testcase, json):
-	logging.getLogger().info((('do_testcase:',testcase, json)))
+	logging.getLogger().info(('do_testcase:',testcase, json))
 # 			if i.mode == 'remote':
 # 				result = run_remote_test(i)
 # 			else:
 # 				result = run_local_test(i)
+	q.enqueue(run_outstanding_testcases, session)
 
 
-	run_outstanding_testcases.apply_async(args=(session,))
+
 
 #
 # def process_response(response):
@@ -200,7 +198,7 @@ def parse_permutation(p0):
 	return Dotdict(a)
 
 
-@app.task(acks_late=acks_late)
+
 def continue_outstanding_selftest_session():
 	"""pick a session"""
 	a = agc()

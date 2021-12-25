@@ -15,9 +15,13 @@ import json
 import datetime
 
 
-import celery
-import celeryconfig
-celery_app = celery.Celery(config_source = celeryconfig)
+
+
+from rq import Queue
+from redis import Redis
+redis_conn = Redis(os.environ.get('SECRET__REDIS_HOST', 'localhost'))
+q = Queue('clients', connection=redis_conn)
+
 
 
 import selftest
@@ -77,15 +81,10 @@ def upload(request):
 				for f in request.FILES.getlist(field):
 					request_files_in_tmp.append(save_django_uploaded_file(request_tmp_directory_path, f))
 
-			#for idx, f in enumerate(form.data.getlist('file1')):
-			#	request_files_in_tmp.append(save_django_form_uploaded_file(request_tmp_directory_path, idx, f))
-			#import IPython; IPython.embed()
-
 			if 'only_store' in request.POST:
 				return render(request, 'uploaded_files.html', {
 					'files': [tmp_file_url(server_url, request_tmp_directory_name, f) for f in
 							  directory_files(request_tmp_directory_path)]})
-
 
 			final_result_tmp_directory_name, final_result_tmp_directory_path = create_tmp()
 			response_tmp_directory_name = None
@@ -161,7 +160,10 @@ def chat(request):
 def json_prolog_rpc_call(request, msg):
 	msg["client"] = get_client_ip(request)
 	logging.getLogger().info(msg)
-	return JsonResponse(celery_app.signature('invoke_rpc.call_prolog').apply_async([msg]).get()[1])
+	job = q.queue('invoke_rpc.call_prolog', msg=msg)
+	while not job.result:
+		time.sleep(1)
+	return JsonResponse(job.result[1])
 
 
 def rpc(request):
@@ -171,8 +173,8 @@ def rpc(request):
 	#sys.stderr.flush()
 	target_server_url = 'http://localhost:88'
 	logging.getLogger().info(f'start_selftest_session {target_server_url=}')
-	task = selftest.start_selftest_session(target_server_url)
-	return JsonResponse({'@id':str(task)})
+	task_bn_str, rq_job = selftest.start_selftest_session(target_server_url)
+	return JsonResponse({'@id':task_bn_str, 'job_position': rq_job.get_position()})
 
 
 

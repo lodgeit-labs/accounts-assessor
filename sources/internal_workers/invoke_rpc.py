@@ -7,20 +7,18 @@ from fs_utils import command_nice, flatten_lists
 
 
 
-import celery
-import celeryconfig
-celery_app = celery.Celery(config_source = celeryconfig)
-from celery_module import app
+# from rq import get_current_job
+# job = get_current_job()
 
 
 
-@app.task(acks_late=True)
+
 def call_prolog2(msg):
 	return call_prolog(msg)[1]
 
 
 
-@app.task(acks_late=True)
+
 def call_prolog(
 		msg,
 		dev_runner_options=[],
@@ -213,7 +211,8 @@ def call_prolog(
 			rrr = json.loads(stdout_data)
 			if msg['method'] == "calculator":
 				print('postprocess_doc...')
-				celery_app.signature('internal_workers.postprocess_doc').apply_async(args=(result_tmp_path,))
+				print('todo...')
+				#celery_app.signature('internal_workers.postprocess_doc').apply_async(args=(result_tmp_path,))
 				print('postprocess_doc..')
 			if final_result_tmp_directory_path != None:
 				ln('../' + result_tmp_directory_name, final_result_tmp_directory_path + '/completed')

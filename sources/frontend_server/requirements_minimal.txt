@@ -8,3 +8,4 @@ agraph-python==101.0.7
 requests
 iso8601
 
+rq
