@@ -7,6 +7,9 @@ l.setLevel(logging.DEBUG)
 l.addHandler(logging.StreamHandler())
 
 
+
+
+
 def tr():
 	try:
 		import sys
@@ -15,6 +18,7 @@ def tr():
 		pydevd_pycharm.settrace('172.17.0.1', port=12345, stdoutToServer=True, stderrToServer=True)
 	except Exception as e:
 		logging.getLogger().info(e)
+
 
 
 
@@ -28,11 +32,8 @@ from dotdict import Dotdict
 
 
 
-from celery_module import app
-import celery
-import celeryconfig
-celery_app = celery.Celery(config_source = celeryconfig)
 
+from celery_module import app
 
 
 
@@ -42,21 +43,24 @@ acks_late = False
 
 
 
-@app.task(acks_late=acks_late)
-def assert_selftest_session(task, target_server_url):
 
+def start_selftest_session(target_server_url):
 	a: RepositoryConnection = agc()
 	selftest = a.namespace('https://rdf.lodgeit.net.au/v1/selftest#')
+	task = agc().createBNode()
+	a.addTriple(task, RDF.TYPE, selftest.Session)
+	a.addTriple(task, selftest.target_server_url, target_server_url)
+	task_str = str(task)
+	(
+		app.signature('invoke_rpc.call_prolog2', [{"method": "testcase_permutations", "params": {}}])
+		|
+		add_testcase_permutations2.s(task_str)
+		|
+		run_outstanding_testcases.s(task_str)
+	)()
+	return task_str
 
-	bn = bn_from_string(task)
-	a.addTriple(bn, RDF.TYPE, selftest.Session)
-	a.addTriple(bn, selftest.target_server_url, target_server_url)
-	add_testcase_permutations(task)
-	return task
 
-
-def add_testcase_permutations(task):
-	(celery_app.signature('invoke_rpc.call_prolog2', [{"method": "testcase_permutations", "params": {}}]) | add_testcase_permutations2.s(task))()
 
 
 @app.task(acks_late=acks_late)
@@ -64,7 +68,7 @@ def add_testcase_permutations2(permutations, task):
 
 	a = agc()
 	selftest = a.namespace('https://rdf.lodgeit.net.au/v1/selftest#')
-	logging.getLogger().warn(permutations)
+	#logging.getLogger().warn(permutations)
 	for p0 in permutations:
 
 		p = parse_permutation(p0)
@@ -92,23 +96,8 @@ def add_testcase_permutations2(permutations, task):
 
 
 @app.task(acks_late=acks_late)
-def continue_selftest_session():
-	"""pick a session"""
-	a = agc()
-	with a.prepareTupleQuery(query="""
-	SELECT DISTINCT ?session WHERE {
-		?session rdf:type selftest:Session .
-		FILTER NOT EXISTS {?session selftest:closed true}
-	}
-	""").evaluate() as result:
-		result.enableDuplicateFilter()
-		for bindings in result:
-			return continue_selftest_session2(str(bindings.getValue('session')))
-
-
-@app.task(acks_late=acks_late)
-def continue_selftest_session2(session):
-	"""continue a particular testing session"""
+def run_outstanding_testcases(session):
+	"""continue a particular testing session by running the next testcase and recursing"""
 	a = agc()
 	#FILTER ( !EXISTS {?testcase selftest:done true})
 	q = a.prepareTupleQuery(query="""
@@ -123,15 +112,13 @@ def continue_selftest_session2(session):
 	""")
 	q.setBinding('?session', session)
 	with q.evaluate() as result:
-
 		for bindings in result:
 			tc = bindings.getValue('testcase')
 			txt = bindings.getValue('json').getValue()
 			logging.getLogger().info(((txt)))
 			jsn = json.loads(txt)
 			js = Dotdict(**jsn)
-			(do_testcase(tc, js) | continue_selftest_session2(session))()
-			return
+			do_testcase.delay(tc, js)
 
 
 @app.task(acks_late=acks_late)
@@ -143,7 +130,7 @@ def do_testcase(testcase, json):
 # 				result = run_local_test(i)
 
 
-	continue_selftest_session2.apply_async(args=(session,))
+	run_outstanding_testcases.apply_async(args=(session,))
 
 #
 # def process_response(response):
@@ -211,5 +198,20 @@ def parse_permutation(p0):
 		k,v = list(i.items())[0]
 		a[k] = v
 	return Dotdict(a)
+
+
+@app.task(acks_late=acks_late)
+def continue_outstanding_selftest_session():
+	"""pick a session"""
+	a = agc()
+	with a.prepareTupleQuery(query="""
+	SELECT DISTINCT ?session WHERE {
+		?session rdf:type selftest:Session .
+		FILTER NOT EXISTS {?session selftest:closed true}
+	}
+	""").evaluate() as result:
+		result.enableDuplicateFilter()
+		for bindings in result:
+			return run_outstanding_testcases(str(bindings.getValue('session')))
 
 

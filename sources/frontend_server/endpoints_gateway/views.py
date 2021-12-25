@@ -19,6 +19,11 @@ import celery
 import celeryconfig
 celery_app = celery.Celery(config_source = celeryconfig)
 
+
+import selftest
+
+
+
 from ipware import get_client_ip
 from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
@@ -162,20 +167,11 @@ def json_prolog_rpc_call(request, msg):
 def rpc(request):
 	if request.method != 'POST':
 		return
-	logging.getLogger().warn(('rpc', request,))
-	sys.stderr.flush()
-
-	task = agc().createBNode()
-
+	#logging.getLogger().warn(('rpc', request,))
+	#sys.stderr.flush()
 	target_server_url = 'http://localhost:88'
 	logging.getLogger().info(f'start_selftest_session {target_server_url=}')
-
-	chain = celery_app.signature('selftest.assert_selftest_session', (str(task), target_server_url))	| celery_app.signature('selftest.continue_selftest_session2')
-	chain()
-
-
-
-
+	task = selftest.start_selftest_session(target_server_url)
 	return JsonResponse({'@id':str(task)})
 
 
