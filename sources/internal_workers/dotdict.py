@@ -45,7 +45,8 @@ class Dotdict(object):
 		return str(s._dict)
 	def __len__(s):
 		return len(s._dict)
-
+	def __contains__(s, k):
+		return s._dict.__contains__(k)
 
 
 """

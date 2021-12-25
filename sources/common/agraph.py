@@ -18,6 +18,10 @@ def bn_from_string(bn_str):
 	return BNode(bn_str[2:])
 
 
+def generateUniqueUri(a, prefix):
+	return a.allocateEncodedIds(prefix)
+
+
 def agc():
 	AGRAPH_SECRET_HOST = secret('AGRAPH_SECRET_HOST')
 	AGRAPH_SECRET_PORT = secret('AGRAPH_SECRET_PORT')
@@ -30,6 +34,9 @@ def agc():
 		r = ag_connect('a', host=AGRAPH_SECRET_HOST, port=AGRAPH_SECRET_PORT, user=AGRAPH_SECRET_USER, password=AGRAPH_SECRET_PASSWORD)
 		r.setDuplicateSuppressionPolicy('spog')
 		r.setNamespace('selftest', 'https://rdf.lodgeit.net.au/v1/selftest#')
+
+		r.registerEncodedIdPrefix('task', 'https://rdf.lodgeit.net.au/v1/task@@[0-z]{12}')
+
 		return r
 	else:
 		print('agraph user and pass must be provided')

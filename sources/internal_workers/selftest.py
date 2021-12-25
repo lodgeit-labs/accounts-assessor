@@ -10,19 +10,6 @@ l.addHandler(logging.StreamHandler())
 
 
 
-# def tr():
-# 	try:
-# 		import sys
-# 		sys.path.append('/app/sources/internal_workers/pydevd-pycharm.egg')
-# 		import pydevd_pycharm
-# 		pydevd_pycharm.settrace('172.17.0.1', port=12345, stdoutToServer=True, stderrToServer=True)
-# 	except Exception as e:
-# 		logging.getLogger().info(e)
-
-
-
-
-
 import json, subprocess, os, sys, shutil, shlex
 sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../common')))
 from agraph import agc, bn_from_string, RDF
@@ -42,20 +29,19 @@ q = Queue('selftest', connection=redis_conn)
 def start_selftest_session(target_server_url):
 	a: RepositoryConnection = agc()
 	selftest = a.namespace('https://rdf.lodgeit.net.au/v1/selftest#')
-	task = agc().createBNode()
+	task = generateUniqueUri(a, 'task')
 	a.addTriple(task, RDF.TYPE, selftest.Session)
 	a.addTriple(task, selftest.target_server_url, target_server_url)
 	task_str = str(task)
-
-	def after_generate_testcase_permutations(job, connection, permutations, *args, **kwargs):
-		q.enqueue(add_testcase_permutations, task_str, permutations, on_success=after_add_testcase_permutations)
-
-	def after_add_testcase_permutations(job, connection, result, *args, **kwargs):
-		q.enqueue(run_outstanding_testcases, task_str)
-
-	job = q.enqueue('invoke_rpc.call_prolog2', msg={"method": "testcase_permutations", "params": {}}, on_success=after_generate_testcase_permutations)
-
+	job = q.enqueue('invoke_rpc.call_prolog2', msg={"method": "testcase_permutations", "params": {}}, on_success=after_generate_testcase_permutations, meta={'task_str':task_str})
 	return task_str, job
+
+
+def after_generate_testcase_permutations(job, connection, permutations, *args, **kwargs):
+	q.enqueue(add_testcase_permutations, job.meta['task_str'], permutations, on_success=after_add_testcase_permutations, meta=job.meta)
+
+def after_add_testcase_permutations(job, connection, _, *args, **kwargs):
+	q.enqueue(run_outstanding_testcases, job.meta['task_str'])
 
 
 
@@ -78,24 +64,18 @@ def add_testcase_permutations(task_str, permutations):
 
 		a.addTriple(task, selftest.has_testcase, testcase)
 		a.addTriple(testcase, selftest.priority, p.priority)
+		import time
+		p['ts'] = time.ctime()
 		dd = p._dict
-		jj = json.dumps(dd)
-		logging.getLogger().warn((jj))
-		logging.getLogger().warn((jj))
-		logging.getLogger().warn((jj))
-		logging.getLogger().warn((jj))
-		logging.getLogger().warn((jj))
-		logging.getLogger().warn((jj))
-		logging.getLogger().warn((jj))
+		jj = json.dumps(dd, indent=4)
 		a.addTriple(testcase, selftest.json, jj)
-	return task_str
 
 
 
 
-
-def run_outstanding_testcases(session):
+def run_outstanding_testcases(task_str):
 	"""continue a particular testing session by running the next testcase and recursing"""
+	task = bn_from_string(task_str)
 	a = agc()
 	#FILTER ( !EXISTS {?testcase selftest:done true})
 	query = a.prepareTupleQuery(query="""
@@ -108,7 +88,7 @@ def run_outstanding_testcases(session):
 	ORDER BY DESC (?priority)	
 	LIMIT 1
 	""")
-	query.setBinding('?session', session)
+	query.setBinding('?session', task)
 	with query.evaluate() as result:
 		for bindings in result:
 			tc = bindings.getValue('testcase')
