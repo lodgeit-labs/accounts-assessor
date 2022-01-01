@@ -12,8 +12,9 @@ l.addHandler(logging.StreamHandler())
 
 import json, subprocess, os, sys, shutil, shlex
 sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../common')))
-from agraph import agc, bn_from_string, RDF
+from agraph import agc, RDF, generateUniqueUri
 from franz.openrdf.repository.repositoryconnection import RepositoryConnection
+from franz.openrdf.model.value import URI
 from dotdict import Dotdict
 
 
@@ -29,25 +30,26 @@ q = Queue('selftest', connection=redis_conn)
 def start_selftest_session(target_server_url):
 	a: RepositoryConnection = agc()
 	selftest = a.namespace('https://rdf.lodgeit.net.au/v1/selftest#')
-	task = generateUniqueUri(a, 'task')
+	task = generateUniqueUri(a, 'session')
 	a.addTriple(task, RDF.TYPE, selftest.Session)
 	a.addTriple(task, selftest.target_server_url, target_server_url)
-	task_str = str(task)
-	job = q.enqueue('invoke_rpc.call_prolog2', msg={"method": "testcase_permutations", "params": {}}, on_success=after_generate_testcase_permutations, meta={'task_str':task_str})
-	return task_str, job
+	#task_str = str(task)
+	job = q.enqueue('invoke_rpc.call_prolog2', msg={"method": "testcase_permutations", "params": {}}, on_success=after_generate_testcase_permutations, meta={'task':str(task)})
+	return task, job
 
 
 def after_generate_testcase_permutations(job, connection, permutations, *args, **kwargs):
-	q.enqueue(add_testcase_permutations, job.meta['task_str'], permutations, on_success=after_add_testcase_permutations, meta=job.meta)
+	q.enqueue(add_testcase_permutations, job.meta['task'], permutations, on_success=after_add_testcase_permutations, meta=job.meta)
 
 def after_add_testcase_permutations(job, connection, _, *args, **kwargs):
-	q.enqueue(run_outstanding_testcases, job.meta['task_str'])
+	task = job.meta['task']
+	q.enqueue(run_outstanding_testcases, task)
 
 
 
 
-def add_testcase_permutations(task_str, permutations):
-	task = bn_from_string(task_str)
+def add_testcase_permutations(task, permutations):
+	task = URI(task)
 
 	a = agc()
 	selftest = a.namespace('https://rdf.lodgeit.net.au/v1/selftest#')
@@ -56,7 +58,7 @@ def add_testcase_permutations(task_str, permutations):
 
 		p = parse_permutation(p0)
 		logging.getLogger().info((p0))
-		testcase = agc().createBNode()
+		testcase = generateUniqueUri(a, 'testcase')
 
 		#tr()
 		if 'priority' not in p:
@@ -73,9 +75,9 @@ def add_testcase_permutations(task_str, permutations):
 
 
 
-def run_outstanding_testcases(task_str):
+def run_outstanding_testcases(task):
 	"""continue a particular testing session by running the next testcase and recursing"""
-	task = bn_from_string(task_str)
+	task = URI(task)
 	a = agc()
 	#FILTER ( !EXISTS {?testcase selftest:done true})
 	query = a.prepareTupleQuery(query="""
@@ -90,16 +92,19 @@ def run_outstanding_testcases(task_str):
 	""")
 	query.setBinding('?session', task)
 	with query.evaluate() as result:
+		result = list(result)
+		logging.getLogger().info(result)
 		for bindings in result:
 			tc = bindings.getValue('testcase')
 			txt = bindings.getValue('json').getValue()
 			logging.getLogger().info(((txt)))
 			jsn = json.loads(txt)
 			js = Dotdict(**jsn)
-			q.enqueue(do_testcase, tc, js)
+			q.enqueue(do_testcase, str(tc), js)
 
 
 def do_testcase(testcase, json):
+	testcase = URI(testcase)
 	logging.getLogger().info(('do_testcase:',testcase, json))
 # 			if i.mode == 'remote':
 # 				result = run_remote_test(i)
