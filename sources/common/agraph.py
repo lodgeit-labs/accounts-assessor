@@ -1,8 +1,10 @@
-import json, os
+import json, os, logging
 
 from franz.openrdf.model.value import BNode
 from franz.openrdf.vocabulary.rdf import RDF
 from franz.openrdf.model.value import URI
+
+
 
 #def env_or(json, key):
 	#print(key, '=', os.environ.get(key), ' or ', json.get(key))
@@ -27,11 +29,12 @@ def generateUniqueUri(a, prefix):
 	#	registered_prefixes[prefix] =
 	registerPrefix(a, prefix)
 	r = a.allocateEncodedIds(prefix)[0]
+	logging.getLogger().info(f'allocateEncodedIds: {r}')
 	return URI(r)
 
 
 def registerPrefix(a, prefix):
-	a.registerEncodedIdPrefix(prefix, 'https://rdf.lodgeit.net.au/v1/' + prefix + '@@[0-n]{10}')
+	a.registerEncodedIdPrefix(prefix, 'https://rdf.lodgeit.net.au/v1/' + prefix + '[a-p]{15}')
 
 
 def agc():

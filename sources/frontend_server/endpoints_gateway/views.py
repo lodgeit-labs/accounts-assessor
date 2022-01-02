@@ -173,8 +173,8 @@ def rpc(request):
 	#sys.stderr.flush()
 	target_server_url = 'http://localhost:88'
 	logging.getLogger().info(f'start_selftest_session {target_server_url=}')
-	task_bn_str, rq_job = selftest.start_selftest_session(target_server_url)
-	return JsonResponse({'@id':task_bn_str, 'job_position': rq_job.get_position()})
+	task, rq_job = selftest.start_selftest_session(target_server_url)
+	return JsonResponse({'@id':str(task), 'job_position': rq_job.get_position()})
 
 
 

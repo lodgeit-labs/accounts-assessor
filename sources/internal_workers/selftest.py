@@ -23,7 +23,8 @@ from dotdict import Dotdict
 from rq import Queue
 from redis import Redis
 redis_conn = Redis(os.environ.get('SECRET__REDIS_HOST', 'localhost'))
-q = Queue('selftest', connection=redis_conn)
+from rq_myjob import MyJob
+q = Queue('selftest', job_class=MyJob, connection=redis_conn, default_timeout=-1, is_async=os.environ.get('RQ_ASYNC',True))
 
 
 
@@ -75,9 +76,9 @@ def add_testcase_permutations(task, permutations):
 
 
 
-def run_outstanding_testcases(task):
+def run_outstanding_testcases(session):
 	"""continue a particular testing session by running the next testcase and recursing"""
-	task = URI(task)
+	session = URI(session)
 	a = agc()
 	#FILTER ( !EXISTS {?testcase selftest:done true})
 	query = a.prepareTupleQuery(query="""
@@ -88,29 +89,28 @@ def run_outstanding_testcases(task):
 		?testcase selftest:json ?json .        
 	}
 	ORDER BY DESC (?priority)	
-	LIMIT 1
+	#LIMIT 1
 	""")
-	query.setBinding('?session', task)
+	query.setBinding('session', session)
 	with query.evaluate() as result:
 		result = list(result)
 		logging.getLogger().info(result)
 		for bindings in result:
 			tc = bindings.getValue('testcase')
 			txt = bindings.getValue('json').getValue()
-			logging.getLogger().info(((txt)))
+			logging.getLogger().info(f'enqueue(do_testcase: {txt}')
 			jsn = json.loads(txt)
-			js = Dotdict(**jsn)
-			q.enqueue(do_testcase, str(tc), js)
+			q.enqueue(do_testcase, str(tc), jsn)
 
 
 def do_testcase(testcase, json):
 	testcase = URI(testcase)
-	logging.getLogger().info(('do_testcase:',testcase, json))
+	logging.getLogger().info(f'do_testcase: {testcase}')
 # 			if i.mode == 'remote':
 # 				result = run_remote_test(i)
 # 			else:
 # 				result = run_local_test(i)
-	q.enqueue(run_outstanding_testcases, session)
+	#q.enqueue(run_outstanding_testcases, session)
 
 
 
