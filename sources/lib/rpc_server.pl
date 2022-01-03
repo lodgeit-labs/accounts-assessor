@@ -60,13 +60,15 @@ process_request_rpc_cmdline2(Dict) :-
 	flush_output.
 
 
-process_request_rpc_cmdline3("testcase_permutations", _Params) :-
-	findall(T3,
+process_request_rpc_cmdline3("testcase_permutations", Params) :-
+	findall(Testcase,
 		(
 
 			testcase(T),
 			include(ground, T, T2),
-			maplist(pair_to_json, T2, T3)
+			dict_pairs(Params, _, Params_pairs),
+			append(Params_pairs, T2, T3),
+			maplist(pair_to_json, T3, Testcase),
 		),
 		Testcases
 	),

@@ -27,5 +27,6 @@ argh
 PyYAML
 watchdog
 
-pydevd-pycharm==213.5744.248
+#pydevd-pycharm==213.5744.248
 
+requests

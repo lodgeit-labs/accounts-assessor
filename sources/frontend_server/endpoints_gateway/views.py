@@ -171,7 +171,8 @@ def rpc(request):
 		return
 	#logging.getLogger().warn(('rpc', request,))
 	#sys.stderr.flush()
-	target_server_url = 'http://localhost:88'
+	#target_server_url = 'http://localhost:88'
+	target_server_url = None
 	logging.getLogger().info(f'start_selftest_session {target_server_url=}')
 	task, rq_job = selftest.start_selftest_session(target_server_url)
 	p = rq_job.get_position()

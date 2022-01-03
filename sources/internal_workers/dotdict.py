@@ -7,7 +7,7 @@ class Dotdict(object):
 	python 3.3 introduces SimpleNamespace, equivalent to an empty object with nice __repr__.
 	could use that and just add __getitem__ and __setitem__ (access by index)
 	and locking, locking is useful.
-	see:
+	see also:
 	https://docs.python.org/3/library/types.html#types.SimpleNamespace
 	https://docs.python.org/3/library/collections.html#collections.namedtuple
 

@@ -5,17 +5,21 @@ RUN apt-get update ; DEBIAN_FRONTEND=noninteractive apt-get install -y ca-certif
 RUN cat /etc/apt/sources.list
 #RUN sed -i -e '/security/!s/http:\/\/archive/mirror:\/\/mirrors/' -e 's/\/ubuntu\//\/mirrors.txt/' /etc/apt/sources.list
 RUN cat /etc/apt/sources.list
+
+ENV TZ=Europe/Prague
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
 env LOC en_AU.UTF-8
 RUN apt-get update \
-    && DEBIAN_FRONTEND=noninteractive apt-get install -y locales language-pack-en unattended-upgrades \
+    && DEBIAN_FRONTEND=noninteractive apt-get install -y locales language-pack-en unattended-upgrades tzdata time \
     && sed -i -e 's/# $LOC UTF-8/$LOC UTF-8/' /etc/locale.gen \
-    && dpkg-reconfigure --frontend=noninteractive locales \
+    && dpkg-reconfigure --frontend=noninteractive locales tzdata\
     && update-locale LANG=$LOC
 ENV LANG $LOC
 ENV LC_ALL $LOC
 
 
-RUN     apt-get install -y \
+RUN     DEBIAN_FRONTEND=noninteractive apt-get install -y \
 		time \
         git \
         build-essential cmake ninja-build pkg-config \
@@ -34,7 +38,7 @@ RUN     apt-get install -y \
         libcurl4-gnutls-dev \
         libgnutls28-dev \
         libtcmalloc-minimal4 \
-        python3.8 python3-pip
+        python3.9 python3-pip
 
 RUN     unattended-upgrade \
         && rm -rf /var/lib/apt/lists/*

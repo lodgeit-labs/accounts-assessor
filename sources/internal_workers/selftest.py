@@ -1,3 +1,4 @@
+import typing
 
 
 
@@ -8,15 +9,12 @@ l.addHandler(logging.StreamHandler())
 
 
 
-
-
-import json, subprocess, os, sys, shutil, shlex
+import json, subprocess, os, sys, shutil, shlex, requests
 sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../common')))
 from agraph import agc, RDF, generateUniqueUri
 from franz.openrdf.repository.repositoryconnection import RepositoryConnection
 from franz.openrdf.model.value import URI
 from dotdict import Dotdict
-
 
 
 
@@ -31,33 +29,34 @@ q = Queue('selftest', job_class=MyJob, connection=redis_conn, default_timeout=-1
 def start_selftest_session(target_server_url):
 	a: RepositoryConnection = agc()
 	selftest = a.namespace('https://rdf.lodgeit.net.au/v1/selftest#')
-	task = generateUniqueUri(a, 'session')
-	a.addTriple(task, RDF.TYPE, selftest.Session)
-	a.addTriple(task, selftest.target_server_url, target_server_url)
-	#task_str = str(task)
-	job = q.enqueue('invoke_rpc.call_prolog2', msg={"method": "testcase_permutations", "params": {}}, on_success=after_generate_testcase_permutations, meta={'task':str(task)})
-	return task, job
+	session = generateUniqueUri(a, 'session')
+	a.addTriple(session, RDF.TYPE, selftest.Session)
+	a.addTriple(session, selftest.target_server_url, target_server_url)
+	job = q.enqueue('invoke_rpc.call_prolog2', msg={"method": "testcase_permutations", "params": {'target_server_url':target_server_url}}, on_success=after_generate_testcase_permutations, meta={'session':str(session)})
+	return session, job
 
 
-def after_generate_testcase_permutations(job, connection, permutations, *args, **kwargs):
-	q.enqueue(add_testcase_permutations, job.meta['task'], permutations, on_success=after_add_testcase_permutations, meta=job.meta)
+
+def after_generate_testcase_permutations(job, connection, permutations: list[dict], *args, **kwargs):
+	q.enqueue(add_testcase_permutations, job.meta['session'], permutations, on_success=after_add_testcase_permutations, meta=job.meta)
+
+
 
 def after_add_testcase_permutations(job, connection, _, *args, **kwargs):
-	task = job.meta['task']
-	q.enqueue(run_outstanding_testcases, task)
+	session = job.meta['session']
+	q.enqueue(run_outstanding_testcases, session)
 
 
 
-
-def add_testcase_permutations(task, permutations):
-	task = URI(task)
+def add_testcase_permutations(session, permutations):
+	session = URI(session)
 
 	a = agc()
 	selftest = a.namespace('https://rdf.lodgeit.net.au/v1/selftest#')
 	#logging.getLogger().warn(permutations)
 	for p0 in permutations:
 
-		p = parse_permutation(p0)
+		p = Dotdict(ordered_json_to_dict(p0))
 		logging.getLogger().info((p0))
 		testcase = generateUniqueUri(a, 'testcase')
 
@@ -65,14 +64,13 @@ def add_testcase_permutations(task, permutations):
 		if 'priority' not in p:
 			p.priority = 0
 
-		a.addTriple(task, selftest.has_testcase, testcase)
+		a.addTriple(session, selftest.has_testcase, testcase)
 		a.addTriple(testcase, selftest.priority, p.priority)
 		import time
 		p['ts'] = time.ctime()
 		dd = p._dict
 		jj = json.dumps(dd, indent=4)
 		a.addTriple(testcase, selftest.json, jj)
-
 
 
 
@@ -84,7 +82,7 @@ def run_outstanding_testcases(session):
 	query = a.prepareTupleQuery(query="""
 	SELECT DISTINCT ?testcase ?json WHERE {
 		?session selftest:has_testcase ?testcase . 
-		FILTER NOT EXISTS {?testcase selftest:done true} 
+		FILTER NOT EXISTS {?testcase selftest:done true}
 		?testcase selftest:priority ?priority .
 		?testcase selftest:json ?json .        
 	}
@@ -103,16 +101,33 @@ def run_outstanding_testcases(session):
 			q.enqueue(do_testcase, str(tc), jsn)
 
 
+
 def do_testcase(testcase, json):
 	testcase = URI(testcase)
 	logging.getLogger().info(f'do_testcase: {testcase}')
-# 			if i.mode == 'remote':
-# 				result = run_remote_test(i)
-# 			else:
-# 				result = run_local_test(i)
+	json = Dotdict(json)
+	result = run_test(json)
 	#q.enqueue(run_outstanding_testcases, session)
 
 
+
+def run_test(testcase):
+	logging.getLogger().info(f'{testcase.target_server_url}')
+
+
+
+
+
+
+
+
+def ordered_json_to_dict(p0):
+	a = {}
+	#logging.getLogger().info(p0)
+	for i in p0:
+		k,v = list(i.items())[0]
+		a[k] = v
+	return Dotdict(a)
 
 
 #
@@ -174,27 +189,20 @@ def do_testcase(testcase, json):
 # 	"""
 
 
-def parse_permutation(p0):
-	a = {}
-	#logging.getLogger().info(p0)
-	for i in p0:
-		k,v = list(i.items())[0]
-		a[k] = v
-	return Dotdict(a)
 
 
 
-def continue_outstanding_selftest_session():
-	"""pick a session"""
-	a = agc()
-	with a.prepareTupleQuery(query="""
-	SELECT DISTINCT ?session WHERE {
-		?session rdf:type selftest:Session .
-		FILTER NOT EXISTS {?session selftest:closed true}
-	}
-	""").evaluate() as result:
-		result.enableDuplicateFilter()
-		for bindings in result:
-			return run_outstanding_testcases(str(bindings.getValue('session')))
+# def continue_outstanding_selftest_session():
+# 	"""pick a session"""
+# 	a = agc()
+# 	with a.prepareTupleQuery(query="""
+# 	SELECT DISTINCT ?session WHERE {
+# 		?session rdf:type selftest:Session .
+# 		FILTER NOT EXISTS {?session selftest:closed true}
+# 	}
+# 	""").evaluate() as result:
+# 		result.enableDuplicateFilter()
+# 		for bindings in result:
+# 			return run_outstanding_testcases(str(bindings.getValue('session')))
 
 

@@ -7,8 +7,32 @@ except:
 	print('please install:\npython3.9 -m pip install --user -U click')
 	exit(1)
 
-import os,subprocess,time,shlex,logging
+import os,subprocess,time,shlex,logging,sys
 
+
+
+import threading
+
+
+class ExcThread(threading.Thread):
+	def excRun(self):
+		pass
+
+	def run(self):
+		self.exc = None
+		try:
+			super().run()
+		except:
+			self.exc = sys.exc_info()
+
+	def join(self):
+		threading.Thread.join(self)
+		if self.exc:
+			if self.task:
+				task = ' (' + str(self.task) + ')'
+			msg = f"Thread '{self.getName()}'{task} threw an exception: {self.exc[1]}"
+			new_exc = Exception(msg)
+			raise new_exc.with_traceback(self.exc[2])
 
 
 
@@ -38,8 +62,8 @@ threads = []
 
 def task(cmd):
 	if _parallel:
-		from threading import Thread
-		thread = Thread(target = ccss, args = (cmd,))
+		thread = ExcThread(target = ccss, args = (cmd,))
+		thread.task = cmd
 		threads.append(thread)
 		thread.start()
 	else:
