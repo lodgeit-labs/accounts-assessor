@@ -27,7 +27,7 @@ def generateUniqueUri(a, prefix):
 	"""
 	#if prefix not in registered_prefixes:
 	#	registered_prefixes[prefix] =
-	registerPrefix(a, prefix)
+	#registerPrefix(a, prefix)
 	r = a.allocateEncodedIds(prefix)[0]
 	logging.getLogger().info(f'allocateEncodedIds: {r}')
 	return URI(r)
