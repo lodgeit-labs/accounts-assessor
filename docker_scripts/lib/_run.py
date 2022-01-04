@@ -127,10 +127,14 @@ ProxyPass "/backend" "http://{frontend}:7788/backend"  connectiontimeout=160 tim
 			time.sleep(1)
 			#print('.')
 	shell('./lib/git_info.fish')
-	e = env={"PP": "", 'DJANGO_ARGS':django_args, 'DISPLAY':os.environ['DISPLAY']}
+	e = env={"PP": pp, 'DJANGO_ARGS':django_args, 'DISPLAY':os.environ['DISPLAY']}
 	if compose:
-		ccd(ss('/usr/local/bin/docker-compose -f ' + stack_fn + ' -p robust  --compatibility   up'), env=e)
+		cmd = '/usr/local/bin/docker-compose -f ' + stack_fn + ' -p robust  --compatibility '
+		import atexit
+		atexit.register(lambda: ccd(ss(cmd + ' down  -t 999999 '), env=e))
+		ccd(ss(cmd + ' up'), env=e)
 		# --remove-orphans
+
 	else:
 		ccd(ss('docker stack deploy --prune --compose-file') + [stack_fn, 'robust'+pp], env=e)
 		shell('docker stack ps robust'+pp + ' --no-trunc')
@@ -207,16 +211,20 @@ def tweaked_services(src, port_postfix, PUBLIC_URL, use_host_network, mount_host
 		del res['networks']['frontend']
 		del res['networks']['backend']
 		for k,v in services.items():
-			v['networks'] = ['hostnet']
+			if compose:
+				v['network_mode'] = 'host'
+			else:
+				v['networks'] = ['hostnet']
 
 	if compose:
 		del res['networks']
 		for k,v in services.items():
 			if 'hostnet_ports' in v:
-				v['ports'] = []
-				for port in v['hostnet_ports']:
-					v['ports'].append(str(port)+':'+str(port))
 				del v['hostnet_ports']
+			v['ports'] = []
+				# for port in v['hostnet_ports']:
+				# 	v['ports'].append(str(port)+':'+str(port))
+
 			del v['networks']
 			if 'deploy' in v:
 				del v['deploy']

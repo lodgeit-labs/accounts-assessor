@@ -41,7 +41,8 @@ ALLOWED_HOSTS = [
 	'dev-node.uksouth.cloudapp.azure.com', 
 	'localhost', 
 	'0.0.0.0',
-	'172.29.0.9'
+	'172.29.0.9',
+	'127.0.0.1'
 ]
 
 
