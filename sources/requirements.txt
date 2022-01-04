@@ -30,3 +30,4 @@ watchdog
 #pydevd-pycharm==213.5744.248
 
 requests
+rq
